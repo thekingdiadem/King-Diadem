@@ -276,6 +276,11 @@ class GeminiLLM:
             self._init_client()
             print(f"🔄 Key rotated → index {self._key_index}")
 
+    # ★ v3.4 — Model fallback chain
+    # ถ้าโมเดลหลัก (self.model) ตอบ 404/not found (เช่นปลดระวางหรือยังไม่ rollout
+    # ให้ API key นี้) ระบบจะลองโมเดลถัดไปในลิสต์นี้ทันที โดยไม่ต้อง redeploy
+    MODEL_FALLBACK_CHAIN = ["gemini-3.5-flash", "gemini-2.5-flash"]
+
     def _call(self, system: str, contents: list,
               temperature: float = 0.72, max_tokens: int = 1024) -> str:
         prompt_text = contents[-1].parts[0].text if contents else ""
@@ -291,35 +296,51 @@ class GeminiLLM:
             max_output_tokens=max_tokens,
         )
 
+        # โมเดลหลัก (self.model) ก่อน แล้วค่อย fallback ตามลำดับ
+        models_to_try = [self.model] + [
+            m for m in self.MODEL_FALLBACK_CHAIN if m != self.model
+        ]
+
         last_error = None
-        for attempt in range(len(self._keys) * 2):
-            try:
-                resp = self.client.models.generate_content(
-                    model=self.model,
-                    contents=contents,
-                    config=cfg
-                )
-                result = (resp.text or "").strip()
-                _cache_set(ck, result)
-                return result
+        for model_name in models_to_try:
+            for attempt in range(len(self._keys) * 2):
+                try:
+                    resp = self.client.models.generate_content(
+                        model=model_name,
+                        contents=contents,
+                        config=cfg
+                    )
+                    result = (resp.text or "").strip()
+                    _cache_set(ck, result)
+                    if model_name != self.model:
+                        print(f"✅ Fallback model สำเร็จ: {model_name} (primary={self.model} ใช้ไม่ได้)")
+                    return result
 
-            except Exception as e:
-                err = str(e).lower()
-                last_error = e
+                except Exception as e:
+                    err = str(e).lower()
+                    last_error = e
 
-                if any(k in err for k in ["429", "quota", "rate limit", "resource exhausted"]):
-                    print(f"⚠ Rate limit (attempt {attempt+1}) — rotating key")
-                    self._rotate_key()
-                    time.sleep(1)
+                    if any(k in err for k in ["429", "quota", "rate limit", "resource exhausted"]):
+                        print(f"⚠ Rate limit (model={model_name}, attempt {attempt+1}) — rotating key")
+                        self._rotate_key()
+                        time.sleep(1)
 
-                elif any(k in err for k in ["invalid", "authentication", "api_key"]):
-                    raise ValueError(f"Auth Error: {e}")
+                    elif any(k in err for k in [
+                        "404", "not_found", "not found", "is not supported for"
+                    ]):
+                        print(f"⚠ Model '{model_name}' ใช้ไม่ได้ ({e}) — ลองโมเดลถัดไปในลิสต์")
+                        break  # ออกจาก attempt-loop ไปลองโมเดลถัดไปทันที
 
-                else:
-                    print(f"⚠ API error (attempt {attempt+1}): {e}")
-                    time.sleep(2)
+                    elif any(k in err for k in [
+                        "permission_denied", "unauthenticated", "api_key_invalid"
+                    ]) or ("api key not valid" in err):
+                        raise ValueError(f"Auth Error: {e}")
 
-        print(f"❌ All attempts failed: {last_error}")
+                    else:
+                        print(f"⚠ API error (model={model_name}, attempt {attempt+1}): {e}")
+                        time.sleep(2)
+
+        print(f"❌ ทุกโมเดลและทุก attempt ล้มเหลว: {last_error}")
         return self._fallback_response(system, prompt_text)
 
     def _fallback_response(self, system: str, prompt_text: str = "") -> str:
