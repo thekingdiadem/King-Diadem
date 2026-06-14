@@ -207,8 +207,10 @@ class SystemOrchestrator:
 
         if result.get("ai_response") is None:
             try:
-                from core.llm_gemini import GeminiLLM
-                llm = GeminiLLM(model="gemini-2.0-flash")
+                from core.llm_gemini import get_llm
+                llm = get_llm()  # ★ FIX: ใช้ singleton เดียวกับทั้งระบบ
+                                  #   เดิม: GeminiLLM(model="gemini-2.0-flash") — โมเดลนี้ปลดระวางแล้ว (1 มิ.ย. 2026)
+                                  #   ทำให้ _call() fail ทุกครั้ง แล้วได้ canned fallback "RISK 45" เสมอ
                 result["ai_response"] = llm.generate_with_governance(
                     prompt             = user_input,
                     additional_context = result["context_for_lyla"],
