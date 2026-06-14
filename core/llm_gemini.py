@@ -1,6 +1,6 @@
 """
 core/llm_gemini.py
-KING DIADEM — AI Core v3.2
+KING DIADEM — AI Core v3.3
 
 การแก้ไข v3.2:
 1. _fallback_response — โทน LYLA/VEGA จริง ไม่มีคำว่า "โหลดหนัก"
@@ -9,6 +9,12 @@ KING DIADEM — AI Core v3.2
 4. Key rotation อัตโนมัติ (KEY1 → KEY2 เมื่อ rate limit)
 5. Retry ไม่ blocking — fail fast แล้ว fallback ทันที
 6. Response cache 60s สำหรับ prompt ซ้ำ
+
+การแก้ไข v3.3:
+7. Default model: gemini-2.0-flash → gemini-3.5-flash
+   (gemini-2.0-flash ถูกปลดระวางตั้งแต่ 1 มิ.ย. 2026 — ทุก request
+   ที่ผ่านมาจึง 404 แล้วตกไปที่ _fallback_response เสมอ
+   ทำให้ทุกคำตอบกลายเป็น "RISK 45" canned message)
 
 LYLA = หญิง (ค่ะ/นะคะ) · VEGA = ชาย (ครับ/นะครับ) · CRISIS = วิกฤต
 """
@@ -245,7 +251,7 @@ def _build_contents(history: list, user_input: str, ctx_note: str = "") -> list:
 # GeminiLLM CLASS
 # ══════════════════════════════════════════════════════════════════
 class GeminiLLM:
-    def __init__(self, model: str = "gemini-2.0-flash"):
+    def __init__(self, model: str = "gemini-3.5-flash"):
         key1 = os.getenv("GEMINI_API_KEY")
         key2 = os.getenv("GEMINI_API_KEY2")
         key3 = os.getenv("GEMINI_API_KEY3")
@@ -488,7 +494,7 @@ class GeminiLLM:
 # ══════════════════════════════════════════════════════════════════
 _instance: Optional[GeminiLLM] = None
 
-def get_llm(model: str = "gemini-2.0-flash") -> GeminiLLM:
+def get_llm(model: str = "gemini-3.5-flash") -> GeminiLLM:
     global _instance
     if _instance is None:
         _instance = GeminiLLM(model=model)
