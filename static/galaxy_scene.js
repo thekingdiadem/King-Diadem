@@ -32,7 +32,7 @@
   window.addEventListener('orientationchange', function () {
     clearTimeout(_rT); _rT = setTimeout(doResize, 160);
   }, { passive: true });
-  setTimeout(doResize, 10);
+  doResize();
 
   /* SAFE ZONE - exclude sidebar / topbar / input dock */
   function isDesktop() { return W >= 900; }
@@ -531,16 +531,20 @@
     if (!lastTime) lastTime = ts;
     var dt = Math.min((ts - lastTime) / 1000, 0.05);
     lastTime = ts;
-    drawBg(ts);
-    drawStars(ts);
-    drawFateTexts(dt, ts);
-    drawComet(ts, dt);
-    drawOrbits();
-    drawDiademRing(ts);
-    drawPlanets(dt, ts);
-    drawSun(ts);
-    drawAxiom();
-    drawBadge();
+    try {
+      drawBg(ts);
+      drawStars(ts);
+      drawFateTexts(dt, ts);
+      drawComet(ts, dt);
+      drawOrbits();
+      drawDiademRing(ts);
+      drawPlanets(dt, ts);
+      drawSun(ts);
+      drawAxiom();
+      drawBadge();
+    } catch (e) {
+      console.error('[galaxy_scene] frame error:', e);
+    }
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
