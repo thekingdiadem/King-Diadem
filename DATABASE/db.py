@@ -1,4 +1,8 @@
-# DATABASE/db.py — KING DIADEM v2.0
+# DATABASE/db.py — KING DIADEM v2.1
+# v2.1 — แก้ log_decision() signature ให้ตรงกับที่ app.py เรียก
+#         (app.py เรียกด้วย kwargs: user_id, input, output, route, persona)
+#         เดิม (v2.0) ใช้ user_email/input_text/response → TypeError ทุกครั้ง
+#         (ถูก except: pass กลืนไว้ใน app.py เลย log ไม่เคยทำงาน)
 # credits table ใช้ upsert ไม่ใช่ insert ซ้ำ
 
 import sqlite3, os
@@ -29,6 +33,7 @@ def init_db():
             user_email TEXT,
             input TEXT,
             route TEXT,
+            persona TEXT,
             response TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
@@ -109,16 +114,39 @@ def deduct_credits(user_email: str, amount: int) -> bool:
     finally:
         conn.close()
 
-def log_decision(user_email: str, input_text: str, route: str, response: str):
+
+# ══════════════════════════════════════════════════════════════
+# v2.1 FIX — log_decision()
+# app.py เรียกด้วย: log_decision(user_id=email, input=user_input,
+#                                  output=..., route=..., persona=...)
+# รับทั้ง kwargs ใหม่ (user_id/input/output/persona) และชื่อเดิม
+# (user_email/input_text/response) เพื่อ backward-compat
+# ══════════════════════════════════════════════════════════════
+def log_decision(
+    user_id=None, input=None, output=None, route=None, persona=None,
+    user_email=None, input_text=None, response=None,
+):
+    final_email = user_id or user_email or "anonymous"
+    final_input = input if input is not None else (input_text or "")
+    final_resp  = output if output is not None else (response or "")
+
     conn = get_conn()
     try:
         conn.execute(
-            "INSERT INTO decision_log (user_email,input,route,response) VALUES (?,?,?,?)",
-            (user_email, str(input_text)[:2000], route, str(response)[:4000])
+            "INSERT INTO decision_log (user_email,input,route,persona,response) "
+            "VALUES (?,?,?,?,?)",
+            (
+                final_email,
+                str(final_input)[:2000],
+                route,
+                persona,
+                str(final_resp)[:4000],
+            )
         )
         conn.commit()
     finally:
         conn.close()
+
 
 def save_chat_state(user_email: str, payload_json: str):
     conn = get_conn()
