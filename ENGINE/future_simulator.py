@@ -1,8 +1,44 @@
+# ENGINE/future_simulator.py
+# KING DIADEM Future Simulator
+#
+# v2 — แก้ 2 บั๊ก:
+#  1. load_model()/build_world_state() ถูกเรียกซ้ำ 200+ ครั้งใน
+#     collapse_probability()/forecast() (เพราะ simulate_future
+#     เรียกข้างใน loop) -> โหลดครั้งเดียว แคชไว้ ลด I/O
+#     ป้องกัน 502/timeout เวลาเรียกจาก request path
+#  2. food_patterns/risk_patterns lookup ด้วย str(float) เช่น
+#     "52.347..." ไม่ตรงกับ key แบบ int-string เช่น "52"
+#     -> ปัดเป็น int ก่อน lookup
+
 import random
 import numpy as np
 
 from ENGINE.world_model import build_world_state
 from ENGINE.learning_engine import load_model
+
+
+_MODEL_CACHE = None
+_WORLD_CACHE = None
+
+
+def _get_model():
+    global _MODEL_CACHE
+    if _MODEL_CACHE is None:
+        try:
+            _MODEL_CACHE = load_model() or {}
+        except Exception:
+            _MODEL_CACHE = {}
+    return _MODEL_CACHE
+
+
+def _get_world():
+    global _WORLD_CACHE
+    if _WORLD_CACHE is None:
+        try:
+            _WORLD_CACHE = build_world_state() or {}
+        except Exception:
+            _WORLD_CACHE = {}
+    return _WORLD_CACHE
 
 
 def simulate_step(state, model):
@@ -16,72 +52,84 @@ def simulate_step(state, model):
     food_noise = random.uniform(-3, 3)
     risk_noise = random.uniform(-3, 3)
 
-    if str(food_index) in food_patterns:
-        food_noise += food_patterns[str(food_index)] * 0.01
+    # v2 FIX: ปัดเป็น int ก่อน lookup (เดิม str(float) ไม่ตรง key)
+    food_key = str(int(round(food_index)))
+    risk_key = str(int(round(risk_index)))
 
-    if str(risk_index) in risk_patterns:
-        risk_noise += risk_patterns[str(risk_index)] * 0.01
+    if food_key in food_patterns:
+        food_noise += food_patterns[food_key] * 0.01
+
+    if risk_key in risk_patterns:
+        risk_noise += risk_patterns[risk_key] * 0.01
 
     food_index = max(0, min(100, food_index + food_noise))
     risk_index = max(0, min(100, risk_index + risk_noise))
 
-    next_state = {
+    return {
         "food_index": food_index,
-        "risk_index": risk_index
+        "risk_index": risk_index,
     }
 
-    return next_state
 
+def simulate_future(steps=30, model=None, start_state=None):
+    """
+    v2: รับ model จากภายนอกได้ (ไม่ต้อง load_model() ทุกครั้ง)
+    """
+    if model is None:
+        model = _get_model()
 
-def simulate_future(steps=30):
-
-    world = build_world_state()
-    model = load_model()
-
-    state = {
-        "food_index": 50,
-        "risk_index": 50
-    }
+    state = start_state or {"food_index": 50, "risk_index": 50}
 
     history = []
-
     for _ in range(steps):
-
         state = simulate_step(state, model)
-
         history.append({
             "food_index": state["food_index"],
-            "risk_index": state["risk_index"]
+            "risk_index": state["risk_index"],
         })
 
     return history
 
 
-def collapse_probability(simulations=200):
-
+def _run_batch(simulations, steps, model):
+    """โหลด model ครั้งเดียว รัน simulation หลายรอบในรอบเดียว"""
     collapse_count = 0
+    food_finals = []
+    risk_finals = []
 
     for _ in range(simulations):
-
-        future = simulate_future(30)
-
+        future = simulate_future(steps, model=model)
         last = future[-1]
-
+        food_finals.append(last["food_index"])
+        risk_finals.append(last["risk_index"])
         if last["risk_index"] > 80:
             collapse_count += 1
 
+    return collapse_count, food_finals, risk_finals
+
+
+def collapse_probability(simulations=200, steps=30, model=None):
+    """คง interface เดิม — คืน float (collapse rate)"""
+    if model is None:
+        model = _get_model()
+
+    collapse_count, _, _ = _run_batch(simulations, steps, model)
     return collapse_count / simulations
 
 
-def forecast():
+def forecast(simulations=200, steps=30):
+    """
+    v2: รัน batch เดียว แล้วใช้ผลทั้ง food/risk projection
+    + collapse_probability จากชุดเดียวกัน
+    (เดิมรัน simulate_future แยก 1 ครั้ง + collapse_probability อีก 200 ครั้ง
+     = 201 รอบ, แต่ละรอบโหลด model/world ใหม่ — สิ้นเปลือง I/O มาก)
+    """
+    model = _get_model()
 
-    future = simulate_future(30)
-
-    food_values = [s["food_index"] for s in future]
-    risk_values = [s["risk_index"] for s in future]
+    collapse_count, food_finals, risk_finals = _run_batch(simulations, steps, model)
 
     return {
-        "food_projection": float(np.mean(food_values)),
-        "risk_projection": float(np.mean(risk_values)),
-        "collapse_probability": collapse_probability()
+        "food_projection":      float(np.mean(food_finals)) if food_finals else 50.0,
+        "risk_projection":      float(np.mean(risk_finals)) if risk_finals else 50.0,
+        "collapse_probability": collapse_count / simulations,
     }
