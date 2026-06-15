@@ -1,8 +1,11 @@
 # ============================================================
-# ENGINE/engine_router.py
+# ENGINE/engine_router.py — v2
 # ศูนย์กลางเชื่อม engine ทั้งหมด
-# ตรรกะ: paticcasamuppada → risk → consensus → simulation → response
+# ตรรกะ: paticcasamuppada -> risk -> consensus -> simulation -> escape -> response
 # ห้ามขัดกัน — แต่ละ engine ต่างหน้าที่
+#
+# v2 — wire ENGINE/escape_routes.py เข้า route collapse/survival/risk
+#       normalize risk_score (0-100) -> scale 0-10 ที่ escape_routes คาด
 # ============================================================
 
 from __future__ import annotations
@@ -28,6 +31,7 @@ _council_run       = _try_import("ENGINE.council_engine",          "run")
 _strategy_plan     = _try_import("ENGINE.strategy_planner",        "plan")
 _survival_advise   = _try_import("ENGINE.survival_advisor",        "advise")
 _situation_analyze = _try_import("ENGINE.situation_analyzer",      "analyze")
+_escape_routes     = _try_import("ENGINE.escape_routes",           "generate_escape_routes")
 
 
 # ── Fallbacks ─────────────────────────────────────────────
@@ -73,6 +77,7 @@ def route(pattern: dict) -> dict:
     5. simulation        — จำลองอนาคต
     6. strategy_planner  — วางแผน
     7. survival_advisor  — คำแนะนำเร่งด่วน
+    8. escape_routes     — เส้นทางหนี (collapse/survival/risk)
     """
     result: dict = {"input": pattern}
 
@@ -175,7 +180,19 @@ def route(pattern: dict) -> dict:
         except Exception:
             pass
 
-    # ── STEP 8: Uncertain route → defer ─────────────────
+    # ── STEP 8: Escape Routes (collapse/survival/risk) ──
+    # generate_escape_routes(location, risk) คาด risk เป็น scale 0-10
+    # แต่ risk_score ในระบบนี้เป็น scale 0-100 → normalize หาร 10
+    if route_name in ("collapse", "survival", "risk") and _escape_routes:
+        try:
+            risk_score_100 = float(risk.get("risk_score", 50))
+            risk_score_10  = max(0.0, min(10.0, risk_score_100 / 10.0))
+            location = pattern.get("location") or pattern.get("input", "")
+            result["escape_routes"] = _escape_routes(location, risk_score_10)
+        except Exception:
+            pass
+
+    # ── STEP 9: Uncertain route → defer ─────────────────
     if route_name == "uncertain" and _consensus_resolve:
         try:
             result["defer"] = _consensus_resolve(pattern)
@@ -225,6 +242,13 @@ def _build_message(r: dict) -> str:
 
     if route_msg:
         lines.append(route_msg)
+
+    # Escape routes (ถ้ามี)
+    escapes = r.get("escape_routes")
+    if escapes:
+        names = ", ".join(e.get("route", "") for e in escapes if isinstance(e, dict))
+        if names:
+            lines.append(f"[ทางหนี] {names}")
 
     # Confidence
     conf = consensus.get("confidence", 50)
