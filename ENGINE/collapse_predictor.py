@@ -1,22 +1,43 @@
-# ENGINE/collapse_predictor.py — KING DIADEM
+# ENGINE/collapse_predictor.py
+# KING DIADEM Collapse Predictor
+#
+# v2 — เพิ่ม analyze(pattern) ให้ตรงกับที่
+#       DecisionEngine._run_route() เรียก:
+#         from ENGINE.collapse_predictor import analyze
+#         return analyze(pattern)
+#       เดิมมีแค่ predict_collapse(risk_score) → import error ทุกครั้ง
+#       ที่ route="collapse" (กรณี engine_router โหลดไม่ได้)
 
-def _clamp(x, low=0, high=100):
-    try: return max(low, min(high, float(x)))
-    except: return float(low)
+def predict_collapse(risk_score):
 
-def predict_collapse(risk_score: float) -> dict:
-    risk_score = _clamp(risk_score)
-    if risk_score >= 85:   level, prob = "CRITICAL", 0.9
-    elif risk_score >= 65: level, prob = "HIGH",     0.7
-    elif risk_score >= 40: level, prob = "MEDIUM",   0.4
-    else:                  level, prob = "LOW",      0.1
-    return {"risk_score": risk_score, "collapse_level": level, "probability": prob,
-            "prediction": {"CRITICAL":"Collapse imminent","HIGH":"High collapse probability",
-                           "MEDIUM":"Moderate instability","LOW":"System stable"}.get(level,"Unknown")}
+    if risk_score > 80:
+        return "high collapse probability"
+
+    if risk_score > 60:
+        return "moderate collapse probability"
+
+    return "low collapse probability"
+
 
 def analyze(pattern: dict) -> dict:
-    try:
-        risk = float(pattern.get("risk_score", pattern.get("entropy", 40)))
-        return predict_collapse(risk)
-    except Exception as e:
-        return {"error": f"collapse_predictor fail: {e}"}
+    """
+    Wrapper ให้ DecisionEngine._run_route() เรียกได้ตรง ๆ
+    pattern: dict จาก analyze_pattern() — มี entropy/resource/stability
+    """
+    if not isinstance(pattern, dict):
+        pattern = {}
+
+    entropy  = float(pattern.get("entropy",  40))
+    resource = float(pattern.get("resource", 50))
+
+    # risk_score scale 0-100 (สูตรเดียวกับ emptiness_guard)
+    risk_score = entropy * 0.5 + (100.0 - resource) * 0.5
+
+    probability = predict_collapse(risk_score)
+
+    return {
+        "route":       "collapse",
+        "risk_score":  risk_score,
+        "probability": probability,
+        "status":      "pass_to_llm",
+    }
