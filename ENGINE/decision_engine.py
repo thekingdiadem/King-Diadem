@@ -1,6 +1,8 @@
 # ENGINE/decision_engine.py
 # KING DIADEM — Decision Engine · กลางทุกสรรพสิ่ง
-# v5.2 — threading timeout 1.5s on eternal_snapshot (แก้ 502)
+# v5.3 — wire ENGINE/human_engine.py (entropy-aware) เข้า pattern
+#         แก้ RISK 45 ซ้ำทุกครั้ง (entropy/resource เคยใช้ default 40/50 เสมอ)
+#         threading timeout 1.5s on eternal_snapshot (แก้ 502) — คงไว้จาก v5.2
 
 import json
 import re
@@ -80,8 +82,21 @@ class DecisionEngine:
             pass
 
         # ── STEP 1: Pattern Analysis ─────────────────────────
+        # data ตอนนี้มี entropy/resource/stability จริงแล้ว
+        # (ถ้า ENGINE/human_engine.py คำนวณได้ — ดู run_decision())
         pattern = analyze_pattern(data)
         route   = pattern.get("route", "general")
+
+        # ── STEP 1.5: Human Engine override ──────────────────
+        # ถ้า RealHumanSurvivorEngine บอกว่า "ยังไม่ควรตัดสินใจใหญ่"
+        # บังคับ route ไป survival (ยกเว้นอยู่ใน vega/crisis อยู่แล้ว)
+        human_engine_result = data.get("_human_engine")
+        if (
+            isinstance(human_engine_result, dict)
+            and human_engine_result.get("can_decide") is False
+            and route not in ("vega", "crisis")
+        ):
+            route = "survival"
 
         # ── STEP 2: Emptiness Guard ──────────────────────────
         guarded = emptiness_guard(pattern)
@@ -183,6 +198,13 @@ class DecisionEngine:
                 if guarded.get("emotional_flag"):
                     context_parts.append("EMOTIONAL_FLAG: true — ผู้ใช้อาจอยู่ในสถานการณ์ยาก")
 
+                # ── Human Engine context (entropy-aware) ─────
+                if isinstance(human_engine_result, dict):
+                    if human_engine_result.get("context_for_lyla"):
+                        context_parts.append(human_engine_result["context_for_lyla"])
+                    if human_engine_result.get("priority"):
+                        context_parts.append(f"Priority: {human_engine_result['priority']}")
+
                 if paticca_result:
                     root    = paticca_result.get("root_cause", "")
                     feeling = paticca_result.get("feeling_tone", "")
@@ -234,6 +256,7 @@ class DecisionEngine:
                 "confidence": pattern.get("confidence"),
                 "warnings":   pattern.get("warnings", []),
             },
+            "human_engine":    human_engine_result,
             "collapse_chain":  paticca_result,
             "engine_result":   router_result,
             "ai_response":     ai_response,
@@ -318,7 +341,7 @@ def _build_payload(data: dict) -> dict:
 
 
 # ══════════════════════════════════════════════════════════════
-# eternal_snapshot_for_decision — v5.2 FIX
+# eternal_snapshot_for_decision — v5.2 FIX (คงไว้)
 # threading timeout 1.5s → ป้องกัน eternal_runtime block → 502
 # ══════════════════════════════════════════════════════════════
 def eternal_snapshot_for_decision(state: dict) -> dict:
@@ -368,6 +391,23 @@ def run_decision(data) -> dict:
             "message":  "ไม่พบ input",
         }
 
+    # ── v5.3: Human Engine (entropy-aware) ───────────────────
+    # วิเคราะห์สถานะมนุษย์จริงจาก context ที่ frontend ส่งมา
+    # แล้ว merge entropy/resource/stability เข้า merged
+    # (ถ้า frontend ไม่ได้ส่งค่าเหล่านี้มาเอง)
+    # ← นี่คือจุดที่แก้ RISK 45 ซ้ำทุกครั้ง
+    try:
+        from ENGINE.human_engine import analyze_human
+        human_ctx = data.get("context") if isinstance(data.get("context"), dict) else {}
+        human_result = analyze_human(human_ctx)
+        merged["_human_engine"] = human_result
+        if isinstance(human_result, dict):
+            for k in ("entropy", "resource", "stability"):
+                if k in human_result and k not in data:
+                    merged[k] = human_result[k]
+    except Exception:
+        merged["_human_engine"] = None
+
     # ← ตอนนี้ไม่ block แล้ว (timeout 1.5s)
     merged["_eternal_snapshot"] = eternal_snapshot_for_decision({
         "entropy":   float(merged.get("entropy",   40)),
@@ -380,14 +420,6 @@ def run_decision(data) -> dict:
         merged["_learning_patterns"] = analyze_patterns()
     except Exception:
         merged["_learning_patterns"] = None
-
-    try:
-        from ENGINE.human_engine import analyze_human
-        merged["_human_engine"] = analyze_human(
-            {"state": merged.get("input", ""), "context": merged.get("intent")}
-        )
-    except Exception:
-        merged["_human_engine"] = None
 
     return _engine().run(merged)
 
