@@ -37,7 +37,7 @@ body { width:100%; height:100%; background:var(--bg); color:var(--text); font-fa
 
 /* GALAXY FULLSCREEN */
 #galaxy-bg { position:fixed; inset:0; z-index:0; background:#05070f; opacity:1; transition:opacity 1.4s cubic-bezier(0.4,0,0.2,1); pointer-events:none; }
-#galaxy-bg.chat-mode { opacity:0.13; }
+#galaxy-bg.chat-mode { opacity:0.28; }
 #galaxy { display:block; position:absolute; inset:0; width:100%; height:100%; }
 
 /* FLOATING LABELS */
@@ -475,6 +475,7 @@ body { width:100%; height:100%; background:var(--bg); color:var(--text); font-fa
 </div>
 
 <script src="/static/galaxy_scene.js"></script>
+<script src="/static/galaxy_scene_api.js"></script>
 <script>
 (function(){
   var el=document.getElementById('intro-screen');
