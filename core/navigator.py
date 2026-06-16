@@ -1,82 +1,66 @@
+"""
+core/navigator.py — KING DIADEM
+Truth Engine: ใช้ Gemini + FATE™ logic
+ไม่ใช้ GPT (removed) — ใช้ singleton LLM
+"""
 import os
 import asyncio
 
-# 🔒 Google GenAI ใหม่
-try:
-    from google import genai
-except Exception as e:
-    genai = None
-    print("GENAI IMPORT ERROR:", e)
 
-
-# --- LYLA LOGIC CORE ---
-TRUTH_PROMPT = """
-[SYSTEM COMMAND: ETERNAL TRUTH MODE]
+TRUTH_PROMPT = """[KING DIADEM — TRUTH ENGINE]
+กฎ:
 - บรรยายความจริงตามสภาพที่เกิดขึ้น
-- รักษา Choice(t) > 0 เสมอ
+- รักษา Choice(t) ≥ 1 เสมอ
 - ไม่สั่ง ไม่ชี้นำ ไม่ตัดสิน
-- สรุปท้าย 3 บรรทัด
+- อธิบายได้ภายใน 2 นาที
 
-[FORMAT]
-- การปรากฏของความจริง:
-- [สรุปความจริงเพื่อการใช้งาน]:
+FORMAT:
+- การปรากฏของความจริง: [สรุปสถานการณ์]
+- ทางเลือกที่มีอยู่: [อย่างน้อย 2 ทาง]
+- สรุป: [3 บรรทัด ชัดเจน ใช้งานได้ทันที]
 """
 
 
-# 🔥 MAIN ENGINE
-async def run_truth_engine(user_input, resource):
-
-    # 🔑 ENV
-    gpt_key = os.getenv("CHATGPT_API_KEY")
-    gemini_key = (
-        os.getenv("GEMINI_API_KEY") or
-        os.getenv("GEMINI_API_KEY2")
-    )
-
-    # 🧠 SAFE GPT (OpenAI removed)
-    async def get_gpt_view():
-        return "[GPT REMOVED]"
-
-    # 🧠 SAFE GEMINI
-    async def get_gemini_view():
-        if genai is None:
-            return "[GENAI NOT INSTALLED]"
-
-        if not gemini_key:
-            return "[GEMINI KEY MISSING]"
-
-        try:
-            client = genai.Client(api_key=gemini_key)
-
-            res = client.models.generate_content(
-                model="gemini-1.5-flash",
-                contents=f"{TRUTH_PROMPT}\n\nสถานการณ์:\n{user_input}"
-            )
-
-            return res.text
-
-        except Exception as e:
-            return f"[GEMINI ERROR] {str(e)}"
-
-    # ⚡ RUN PARALLEL (ไม่ให้พังทั้งระบบ)
-    results = await asyncio.gather(
-        get_gpt_view(),
-        get_gemini_view(),
-        return_exceptions=True
-    )
-
-    # 🔒 SAFE RESOURCE → RISK
+async def run_truth_engine(user_input: str, resource=50) -> dict:
+    """
+    Truth engine — Gemini only (GPT removed)
+    คืน view + risk_index
+    """
+    # ── resource → risk ──────────────────────────────────────────
     try:
         resource_value = float(resource)
-    except:
-        resource_value = 50  # fallback กลาง
+    except Exception:
+        resource_value = 50.0
+    risk_index = round(max(0, min(100, (100 - resource_value) * 0.75)), 2)
 
-    risk_index = max(0, min(100, (100 - resource_value) * 0.75))
+    # ── Gemini via singleton ──────────────────────────────────────
+    async def get_gemini_view() -> str:
+        try:
+            from core.llm_gemini import get_llm
+            llm = get_llm()
+            result = llm.generate(
+                prompt=f"{TRUTH_PROMPT}\n\nสถานการณ์:\n{user_input}",
+                temperature=0.65,
+            )
+            return result or "[GEMINI: empty response]"
+        except Exception as e:
+            return f"[GEMINI ERROR] {e}"
 
-    # 📦 OUTPUT (JSON SAFE 100%)
+    gemini_view = await get_gemini_view()
+
+    # ── FATE™ validation ─────────────────────────────────────────
+    fate_check = None
+    try:
+        from core.fate_core import run_fate
+        fate_check = run_fate({"message": user_input})
+    except Exception as e:
+        fate_check = {"error": str(e)}
+
     return {
-        "view_structural": str(results[0]),
-        "view_possibility": str(results[1]),
-        "view_stability": "Fallback stability channel active",
-        "risk_index": risk_index
+        "view_structural":  "[GPT REMOVED — ใช้ VEGA แทน]",
+        "view_possibility": gemini_view,
+        "view_stability":   "FATE™ Deterministic Logic active",
+        "risk_index":       risk_index,
+        "fate_check":       fate_check,
+        "resource":         resource_value,
     }
