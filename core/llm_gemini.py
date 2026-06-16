@@ -476,7 +476,7 @@ class GeminiLLM:
                     if any(k in err for k in ["429", "quota", "rate limit", "resource exhausted"]):
                         print(f"⚠ Rate limit (model={model_name}, attempt {attempt+1}) — rotating key")
                         self._rotate_key()
-                        time.sleep(1)
+                        time.sleep(5 if attempt < 2 else 15)
 
                     elif any(k in err for k in [
                         "404", "not_found", "not found", "is not supported for"
