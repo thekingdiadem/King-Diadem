@@ -1,11 +1,12 @@
 # =========================
-# 👑 KING DIADEM — app.py v4.5
+# 👑 KING DIADEM — app.py v4.6
 # LYLA (หญิง/ค่ะ) · VEGA (ชาย/ครับ) · ปฏิจสมุปบาท · โยนิโสมนสิการ · สุญยตา
 # Fail less. Harm less. Restore more.
 #
-# PATCH v4.5 — wire universal_engine as enrichment layer
-# ไม่แทน pipeline หลัก — เสริม council/consensus/state เข้า result
-# ถ้า universal_engine พัง /run ไม่กระทบเลย
+# PATCH v4.6
+# - gemini-3.5-flash → gemini-1.5-flash (model ที่มีจริง)
+# - clean error message — ไม่โชว์ JSON ดิบให้ user
+# - /run: reply ที่ขาดกลางประโยคเพราะ token หมด → trim อัตโนมัติ
 # =========================
 
 from fastapi import FastAPI, Request, File, UploadFile
@@ -78,9 +79,6 @@ except Exception as e:
     print(f"⚠ survivor_engine: {e}")
     survivor_analyze = None
 
-# ── UNIVERSAL ENGINE (v4.5 NEW) ───────────────────────────────────
-# enrichment layer — เสริม council/consensus/state เข้า result
-# ถ้า import fail → _universal_run = None → skip โดยอัตโนมัติ
 try:
     from ENGINE.universal_engine import run_engine as _universal_run
     print("✅ Universal engine loaded")
@@ -165,6 +163,28 @@ app.add_middleware(
 )
 engine = DecisionEngine() if DecisionEngine else None
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+# ══════════════════════════════════════════════════════════════════
+# ERROR MESSAGE HELPER — v4.6
+# แปล error ดิบให้เป็นข้อความ user-friendly
+# ══════════════════════════════════════════════════════════════════
+def _friendly_error(err: str) -> str:
+    e = str(err).lower()
+    if "403" in e or "permission_denied" in e or "permission denied" in e:
+        return "ระบบ AI ไม่มีสิทธิ์เข้าถึงตอนนี้ — กรุณาลองใหม่อีกครั้ง"
+    if "503" in e or "unavailable" in e or "high demand" in e:
+        return "AI ยุ่งอยู่ชั่วคราว — กรุณาลองใหม่ในอีกสักครู่"
+    if "429" in e or "quota" in e or "rate limit" in e:
+        return "ถึงขีดจำกัดการใช้งานชั่วคราว — กรุณารอสักครู่แล้วลองใหม่"
+    if "404" in e or "not found" in e or "not supported" in e:
+        return "โมเดล AI ไม่พร้อม — ระบบกำลังสลับไปใช้ตัวสำรอง"
+    if "auth" in e or "api_key" in e or "api key" in e:
+        return "กำลังตรวจสอบ API — กรุณาลองใหม่อีกครั้ง"
+    if "timeout" in e or "timed out" in e:
+        return "การเชื่อมต่อหมดเวลา — กรุณาลองใหม่"
+    # fallback สั้น ไม่โชว์ JSON ดิบ
+    return "ระบบไม่พร้อมชั่วคราว — กรุณาลองใหม่อีกครั้ง"
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -287,7 +307,7 @@ def health():
         "llm_loaded":         llm is not None,
         "engine_loaded":      engine is not None,
         "lyla_loaded":        lyla is not None,
-        "universal_engine":   _universal_run is not None,   # v4.5
+        "universal_engine":   _universal_run is not None,
         "paticcasamuppada":   analyze_chain is not None,
         "collapse_predictor": predict_collapse is not None,
         "consensus_engine":   build_consensus is not None,
@@ -494,31 +514,19 @@ def _paticcasamuppada_context(text: str) -> str:
     return "[โยนิโสมนสิการ: วิเคราะห์ต้นเหตุและลูกโซ่ผลกระทบ]"
 
 
-# ══════════════════════════════════════════════════════════════════
-# UNIVERSAL ENGINE ENRICHMENT (v4.5)
-# เรียกหลัง result หลักได้แล้ว — เสริม council/consensus/state
-# ══════════════════════════════════════════════════════════════════
 def _enrich_with_universal(result: dict, payload: dict) -> dict:
-    """
-    เรียก universal_engine.run_engine() แล้ว merge เฉพาะ field ที่ไม่มีอยู่ใน result เดิม
-    ถ้า universal_engine พัง → return result เดิมไม่เปลี่ยนแปลง
-    ไม่แทน ai_response / route / risk_score เดิม
-    """
     if not _universal_run:
         return result
     try:
         uni = _universal_run(payload)
         if not isinstance(uni, dict) or uni.get("status") == "blocked":
             return result
-        # merge เฉพาะ field เสริม — ไม่แทนของเดิม
         for key in ("council", "consensus", "state", "decision"):
             if key in uni and key not in result:
                 result[key] = uni[key]
-        # ถ้า universal เห็น risk สูงกว่า ให้ log ไว้แต่ไม่แทน
         if "risk" in uni and isinstance(uni["risk"], dict):
             result.setdefault("universal_risk", uni["risk"])
     except Exception as e:
-        # silent fail — ไม่กระทบ result หลัก
         result.setdefault("universal_engine_error", str(e))
     return result
 
@@ -536,7 +544,6 @@ async def run_kernel(request: Request, data: dict):
     email   = unquote(request.cookies.get("kd_email") or "anonymous")
     route   = data.get("route") or "general"
     vm      = _resolve_voice_mode(data, route)
-
     history = data.get("history") or []
 
     if record_question: record_question()
@@ -573,7 +580,6 @@ async def run_kernel(request: Request, data: dict):
                 collapse_ctx = f"[Collapse probability: {c['probability']:.0%}]"
         except Exception: pass
 
-    # paticcasamuppada
     paticca_ctx = _paticcasamuppada_context(user_input)
 
     # survivor
@@ -596,7 +602,6 @@ async def run_kernel(request: Request, data: dict):
                 route = sr.get("route", route)
         except Exception: pass
 
-    # build effective prompt
     extra_ctx = " ".join(p for p in [paticca_ctx, risk_ctx, collapse_ctx] if p)
     effective = ""
     if survivor_ctx:
@@ -613,7 +618,7 @@ async def run_kernel(request: Request, data: dict):
     elif engine:
         result = engine.run(payload)
     else:
-        reply = "[KING DIADEM — Offline]\n— Fail Less. Harm Less. Restore Choice. —"
+        reply = ""
         if llm:
             try:
                 reply = llm.generate_with_governance(
@@ -628,7 +633,13 @@ async def run_kernel(request: Request, data: dict):
                     voice_mode=vm,
                 )
             except Exception as e:
-                reply = f"[Gemini Error: {e}]"
+                # ★ v4.6 — ไม่โชว์ raw error ให้ user
+                print(f"⚠ LLM error: {e}")
+                return {"error": _friendly_error(str(e))}
+
+        if not reply:
+            reply = "ระบบ AI ไม่พร้อมชั่วคราว — กรุณาลองใหม่อีกครั้งค่ะ\n\n— LYLA ◈"
+
         result = {
             "observer":    "KING DIADEM",
             "status":      "SUCCESS",
@@ -640,16 +651,17 @@ async def run_kernel(request: Request, data: dict):
             "risk_score":  human_state.get("risk_score", 0),
         }
 
+    # ★ v4.6 — ถ้า result มี error field ให้ clean ก่อนส่ง
+    if result.get("error"):
+        result["error"] = _friendly_error(str(result["error"]))
+        return result
+
     result["route"]      = result.get("route") or route
     result["persona"]    = "VEGA" if vm == "vega" else "LYLA"
     result["voice_mode"] = vm
 
-    # ── UNIVERSAL ENGINE ENRICHMENT (v4.5) ───────────────────────
-    # เสริม council/consensus/state เข้า result โดยไม่แทนของเดิม
     result = _enrich_with_universal(result, payload)
-    # ─────────────────────────────────────────────────────────────
 
-    # consensus
     if build_consensus and result.get("ai_response"):
         try:
             cs = build_consensus({
@@ -660,10 +672,8 @@ async def run_kernel(request: Request, data: dict):
                 result["consensus"] = cs["consensus"]
         except Exception: pass
 
-    # sync galaxy
     _sync_galaxy(result)
 
-    # log
     if log_decision:
         try:
             log_decision(
@@ -683,12 +693,13 @@ async def run_simulate(data: dict):
     user_input = data.get("input") or ""
     paths      = data.get("paths") or []
     if not simulate:
-        return {"simulation": "Simulation engine ไม่พร้อม", "paths": paths}
+        return {"simulation": "ระบบจำลองไม่พร้อมใช้งานตอนนี้", "paths": paths}
     try:
         result = simulate({"input": user_input, "paths": paths})
         return result if isinstance(result, dict) else {"simulation": str(result)}
     except Exception as e:
-        return {"error": str(e)}
+        print(f"⚠ simulate error: {e}")
+        return {"error": _friendly_error(str(e))}
 
 
 # ── STRIPE ────────────────────────────────────────────────────────
@@ -795,4 +806,5 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
         resp = _llm.client.models.generate_content(model=_llm.model, contents=contents, config=cfg)
         return {"analysis": (resp.text or "").strip(), "filename": file.filename}
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        print(f"⚠ analyze_image error: {e}")
+        return JSONResponse({"error": _friendly_error(str(e))}, status_code=500)
