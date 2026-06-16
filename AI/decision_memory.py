@@ -1,67 +1,112 @@
-# AI/decision_memory.py — KING DIADEM
-# FIX: เพิ่ม dedup + timestamp + search — ไม่ใช่แค่ append list เปล่า
+"""
+AI/decision_memory.py — KING DIADEM
+Decision memory: dedup + timestamp + search + persist-ready
+"""
 
 import time
 
 _memory: list = []
-_MAX = 200  # เก็บสูงสุด 200 entries ไม่ใช้ไฟล์ (ถ้าต้องการ persist ใช้ DATABASE/db.py)
+_MAX = 200
 
 
 def store_decision(question: str, options: list, route: str = "general",
-                   result: str = None, tags: list = None) -> dict:
+                   result: str = None, tags: list = None,
+                   context: dict = None) -> dict:
     """
     บันทึกการตัดสินใจพร้อม metadata
-    คืน entry ที่บันทึกไว้
+    - dedup: ถ้า question เดิมเกิดใน 60s ล่าสุด ไม่บันทึกซ้ำ
+    - คืน entry ที่บันทึก
     """
+    question = str(question).strip()[:500]
+    now = time.time()
+
+    # dedup — ป้องกัน question เดิมซ้ำในช่วง 60 วินาที
+    if _memory:
+        last = _memory[-1]
+        if last["question"] == question and (now - last["timestamp"]) < 60:
+            return last  # คืน entry เดิม ไม่บันทึกซ้ำ
+
     entry = {
         "id":        len(_memory) + 1,
-        "timestamp": time.time(),
-        "question":  str(question)[:500],
+        "timestamp": now,
+        "question":  question,
         "options":   options if isinstance(options, list) else [str(options)],
         "route":     route,
         "result":    result,
         "tags":      tags or [],
+        "context":   context or {},
     }
     _memory.append(entry)
-    # trim ถ้าเกิน max
+
+    # trim เกิน max — เก็บ tail (ล่าสุด)
     if len(_memory) > _MAX:
-        _memory.pop(0)
+        del _memory[0]
+
     return entry
 
 
 def get_memory(limit: int = 50) -> list:
     """คืน n entries ล่าสุด"""
+    limit = max(1, min(limit, _MAX))
     return _memory[-limit:]
 
 
+def get_by_id(entry_id: int) -> dict | None:
+    """ค้นหาด้วย id"""
+    for m in _memory:
+        if m.get("id") == entry_id:
+            return m
+    return None
+
+
 def search_memory(keyword: str, limit: int = 20) -> list:
-    """ค้นหาจาก question หรือ tags"""
-    kw = keyword.lower()
+    """ค้นหาจาก question, tags, หรือ result"""
+    kw = keyword.lower().strip()
+    if not kw:
+        return get_memory(limit)
+
     results = [
         m for m in _memory
         if kw in m["question"].lower()
         or any(kw in str(t).lower() for t in m.get("tags", []))
+        or kw in str(m.get("result", "")).lower()
+        or kw in str(m.get("route", "")).lower()
     ]
     return results[-limit:]
 
 
+def update_result(entry_id: int, result: str) -> bool:
+    """อัปเดต result ของ entry ที่ตัดสินใจแล้ว"""
+    for m in _memory:
+        if m.get("id") == entry_id:
+            m["result"] = result
+            m["updated_at"] = time.time()
+            return True
+    return False
+
+
 def clear_memory():
-    """ล้าง memory — ใช้เมื่อ restart session"""
+    """ล้าง memory ทั้งหมด"""
     _memory.clear()
 
 
 def memory_stats() -> dict:
+    if not _memory:
+        return {"total": 0, "max": _MAX, "routes": {}, "oldest": None, "newest": None}
+
     return {
-        "total":   len(_memory),
-        "max":     _MAX,
-        "routes":  _count_routes(),
-        "oldest":  _memory[0]["timestamp"]  if _memory else None,
-        "newest":  _memory[-1]["timestamp"] if _memory else None,
+        "total":    len(_memory),
+        "max":      _MAX,
+        "usage_pct": round(len(_memory) / _MAX * 100, 1),
+        "routes":   _count_routes(),
+        "oldest":   _memory[0]["timestamp"],
+        "newest":   _memory[-1]["timestamp"],
+        "has_result": sum(1 for m in _memory if m.get("result")),
     }
 
 
 def _count_routes() -> dict:
-    counts = {}
+    counts: dict = {}
     for m in _memory:
         r = m.get("route", "general")
         counts[r] = counts.get(r, 0) + 1
