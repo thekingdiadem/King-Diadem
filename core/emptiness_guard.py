@@ -133,9 +133,9 @@ class EmptinessGuard:
 
     def _inject_leak_detection(self, state):
         """
-        ★ FIX: detect_leak แค่ flag ว่าเป็น emotional/crisis content
-               ไม่ block — engine จะ route ไป VEGA แทน
-               ห้าม set blocked=True ที่นี่
+        ★ detect_leak แค่ flag ว่าเป็น emotional/crisis content
+          ไม่ block — engine จะ route ไป VEGA แทน
+          ห้าม set blocked=True ที่นี่
         """
         try:
             from AI_KERNEL.living_water import detect_leak
@@ -150,6 +150,7 @@ class EmptinessGuard:
         resource = state.get("resource", 100)
         risk_score = entropy * 0.5 + (100 - resource) * 0.5
         state["risk_score"] = risk_score
+        state["risk_label"] = get_risk_label(risk_score)
         if risk_score > 70:
             state["forced_action"] = "stabilize"
             state["confidence"] = min(state.get("confidence", 1), 0.5)
@@ -160,12 +161,12 @@ class EmptinessGuard:
 
     def _final_output_guard(self, state):
         """
-        ★ FIX: BLOCK จริงมีแค่ 2 กรณี
-               1. CHOICE_COLLAPSE — ทางเลือกเป็น 0 จริง (ระบบพัง)
-               2. KERNEL_IMPORT_FAIL — import kernel ล้มเหลว critical
+        ★ BLOCK จริงมีแค่ 2 กรณี:
+          1. CHOICE_COLLAPSE — ทางเลือกเป็น 0 จริง
+          2. KERNEL_IMPORT_FAIL — import kernel ล้มเหลว critical
 
-               leak_detected → ไม่ block แค่ flag ให้ engine route VEGA
-               ห้ามเพิ่ม block condition จากคำพูดผู้ใช้ที่นี่
+          leak_detected → ไม่ block แค่ flag ให้ engine route VEGA
+          ห้ามเพิ่ม block condition จากคำพูดผู้ใช้
         """
         if state.get("choices", 1) <= 0:
             return self._fail_safe("CHOICE_COLLAPSE")
@@ -173,25 +174,36 @@ class EmptinessGuard:
         if isinstance(state.get("kernel_rules"), dict) and state["kernel_rules"].get("critical"):
             return self._fail_safe("KERNEL_IMPORT_FAIL")
 
-        # leak_detected → set suggested_route เป็น vega แทน block
+        # leak_detected → route VEGA ไม่ block
         if state.get("leak_detected"):
             state["suggested_route"] = "vega"
             state["emotional_flag"] = True
-            # ★ ไม่ set blocked=True
 
         state["output"] = {
-            "decision": state.get("decision"),
+            "decision":   state.get("decision"),
             "confidence": state.get("confidence"),
-            "action": state.get("forced_action", state.get("final_action", "none")),
-            "risk": state.get("risk_score", 0),
-            "blocked": state.get("blocked", False),
-            "reason": state.get("reason", None),
+            "action":     state.get("forced_action", state.get("final_action", "none")),
+            "risk":       state.get("risk_score", 0),
+            "risk_label": state.get("risk_label", "LOW"),
+            "blocked":    state.get("blocked", False),
+            "reason":     state.get("reason", None),
         }
         return state
+
+
+# ══════════════════════════════════════════════════════════════════
+# HELPERS
+# ══════════════════════════════════════════════════════════════════
+def get_risk_label(risk_score: float) -> str:
+    if risk_score >= 90: return "CRITICAL"
+    if risk_score >= 70: return "HIGH"
+    if risk_score >= 50: return "ELEVATED"
+    if risk_score >= 30: return "MODERATE"
+    return "LOW"
 
 
 _guard = EmptinessGuard()
 
 
-def emptiness_guard(state: dict):
+def emptiness_guard(state: dict) -> dict:
     return _guard.apply(state)
