@@ -1,7 +1,9 @@
 /* ============================================================
-   KING DIADEM — galaxy_scene.js v31
-   OTHERWORLDLY — Living Decision Membrane (Safe-Zone Edition)
-   Bioluminescent planets | Aurora filaments | FATE Doc layer
+   KING DIADEM — galaxy_scene.js v32
+   TRANSCENDENT — Living Decision Membrane · God-Tier Edition
+   Deep nebula layers | Gravitational lensing | Particle storm
+   Planetary rings | Black hole vortex | Aurora curtains
+   Meteor showers | Ion trails | Quantum filaments
    Fixed-pixel sizing - never overlaps sidebar / topbar / input dock
    ============================================================ */
 (function () {
@@ -146,25 +148,98 @@
         tw:true, tS:0.00004+Math.random()*0.00009, tO:Math.random()*Math.PI*2, tA:0.20, bloom:true });
     }
     initFateTexts();
+    buildAurora();
+    buildDustMotes();
+    initIonTrails();
   }
 
   function buildFilaments() {
     FILAMENTS = [];
-    var count = W < 500 ? 4 : 7;
+    var count = W < 500 ? 6 : 12;   /* v32: doubled */
     for (var i = 0; i < count; i++) {
       FILAMENTS.push({
         x: Math.random() * W,
         y: Math.random() * H,
-        w: W * (0.18 + Math.random() * 0.35),
-        h: H * (0.06 + Math.random() * 0.12),
-        angle: -0.3 + Math.random() * 0.6,
-        hue: (Math.random() < 0.45) ? 208 : (Math.random() < 0.78 ? 278 : 36),
-        alpha: 0.03 + Math.random() * 0.055,
-        speed: 0.000008 + Math.random() * 0.000012,
+        w: W * (0.14 + Math.random() * 0.42),
+        h: H * (0.04 + Math.random() * 0.16),
+        angle: -0.5 + Math.random() * 1.0,
+        hue: (Math.random() < 0.38) ? 208 : (Math.random() < 0.65 ? 278 : (Math.random() < .80 ? 36 : 168)),
+        alpha: 0.022 + Math.random() * 0.060,
+        speed: 0.000005 + Math.random() * 0.000014,
         phase: Math.random() * Math.PI * 2,
+        /* v32: breathing layers */
+        layer: i < count/2 ? 'deep' : 'mid',
       });
     }
   }
+
+  /* ── v32: AURORA CURTAINS ──────────────────────────── */
+  function buildAurora() {
+    AURORA = [];
+    var n = W < 600 ? 3 : 5;
+    for (var i = 0; i < n; i++) {
+      var segs = 18 + Math.floor(Math.random()*14);
+      var pts  = [];
+      var baseY = H * (0.05 + Math.random() * 0.30);
+      for (var j = 0; j <= segs; j++) {
+        pts.push({ x: (j/segs)*W, dy: 0, dv: (Math.random()-0.5)*0.08 });
+      }
+      AURORA.push({
+        pts: pts,
+        baseY: baseY,
+        height: H * (0.06 + Math.random() * 0.12),
+        hue: Math.random() < .5 ? 165 + Math.random()*30 : 210 + Math.random()*40,
+        alpha: 0.012 + Math.random() * 0.022,
+        speed: 0.000004 + Math.random() * 0.000008,
+        phase: Math.random() * Math.PI * 2,
+        waveSpeed: 0.00006 + Math.random() * 0.00008,
+      });
+    }
+  }
+
+  /* ── v32: DUST MOTES ───────────────────────────────── */
+  function buildDustMotes() {
+    DUST_MOTES = [];
+    var n = W < 600 ? 60 : 140;
+    for (var i = 0; i < n; i++) {
+      DUST_MOTES.push({
+        x: Math.random()*W, y: Math.random()*H,
+        vx: (Math.random()-0.5)*0.010,
+        vy: (Math.random()-0.5)*0.006,
+        r: 0.3 + Math.random()*1.0,
+        a: 0.04 + Math.random()*0.10,
+        col: Math.random()<.6 ? '130,190,255' : '180,140,255',
+        tw: true, tS: 0.00010+Math.random()*0.00020, tO: Math.random()*Math.PI*2,
+      });
+    }
+  }
+
+  /* ── v32: ION TRAIL per named planet ───────────────── */
+  function initIonTrails() {
+    ION_TRAILS = {};
+    PLANETS.forEach(function(p){ if(p.label) ION_TRAILS[p.id] = []; });
+  }
+
+  /* ── NEW v32 SYSTEMS ─────────────────────────────────── */
+  var METEORS   = [];          // meteor shower particles
+  var ION_TRAILS= [];          // ion particle trails per planet
+  var AURORA    = [];          // aurora curtain bands
+  var VORTEX    = { angle:0 }; // black-hole-style vortex rings
+  var DUST_MOTES= [];          // micro dust particles drifting
+  var SHOCKWAVE = { active:false, x:0, y:0, r:0, maxR:0, alpha:0, col:'' };
+  var nextMeteorShower = 8000;
+  var meteorShowerActive = false;
+  var meteorShowerEnd    = 0;
+
+  /* ── CANON UPGRADE — more lines ─────────────────────── */
+  CANON.push(
+    'Fail less.\nHarm less.\nRestore more.',
+    'Silence is success\nwhen choice still exists.',
+    'Stay simple long enough\nto outlive the impossible.',
+    'The crown belongs to no one.\nChoice itself is the crown.',
+    'ปฏิจสมุปบาท —\nทุกอย่างเกิดจากเหตุปัจจัย',
+    'สุญยตา —\nความว่างคือพื้นที่ของทางเลือก'
+  );
 
   var COMET = { x:0, y:0, vx:0, vy:0, active:false, life:0, maxLife:0 };
   var nextComet = 12000;
@@ -201,47 +276,118 @@
   function drawBg(t) {
     ctx.clearRect(0, 0, W, H);
 
+    /* ── deep space gradient ── */
     var bg = ctx.createLinearGradient(0, 0, W, H);
-    bg.addColorStop(0,    '#05070f');
-    bg.addColorStop(0.30, '#070b1e');
-    bg.addColorStop(0.65, '#0a0a16');
-    bg.addColorStop(1,    '#04050c');
+    bg.addColorStop(0,    '#03040e');
+    bg.addColorStop(0.25, '#060918');
+    bg.addColorStop(0.55, '#080816');
+    bg.addColorStop(0.80, '#060612');
+    bg.addColorStop(1,    '#02030a');
     ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
     ctx.globalCompositeOperation = 'screen';
 
+    /* ── deep filaments (layer=deep first, more opaque) ── */
     for (var i = 0; i < FILAMENTS.length; i++) {
       var f = FILAMENTS[i];
       var breathe = Math.sin(t * f.speed + f.phase);
-      var al = f.alpha * (0.7 + 0.3 * breathe);
-      var cx = f.x + Math.sin(t * f.speed * 0.7 + f.phase) * W * 0.04;
-      var cy = f.y + Math.cos(t * f.speed * 0.5 + f.phase) * H * 0.03;
+      var al = f.alpha * (f.layer==='deep' ? (0.80+0.20*breathe) : (0.55+0.45*breathe));
+      var cx = f.x + Math.sin(t * f.speed * 0.7 + f.phase) * W * 0.035;
+      var cy = f.y + Math.cos(t * f.speed * 0.5 + f.phase) * H * 0.025;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(f.angle);
       var n = ctx.createRadialGradient(0, 0, 0, 0, 0, f.w * 0.5);
       var h = f.hue;
-      n.addColorStop(0,   'hsla('+h+',100%,70%,'+al+')');
-      n.addColorStop(0.5, 'hsla('+h+',80%,50%,'+(al*0.4)+')');
-      n.addColorStop(1,   'hsla('+h+',60%,30%,0)');
+      n.addColorStop(0,   'hsla('+h+',100%,72%,'+al+')');
+      n.addColorStop(0.4, 'hsla('+h+',85%,55%,'+(al*0.45)+')');
+      n.addColorStop(0.75,'hsla('+h+',65%,35%,'+(al*0.15)+')');
+      n.addColorStop(1,   'hsla('+h+',50%,20%,0)');
       ctx.beginPath();
       ctx.ellipse(0, 0, f.w * 0.5, f.h * 0.5, 0, 0, Math.PI*2);
       ctx.fillStyle = n; ctx.fill();
       ctx.restore();
     }
 
+    /* ── AURORA CURTAINS ── */
+    for (var ai = 0; ai < AURORA.length; ai++) {
+      var au = AURORA[ai];
+      /* animate points */
+      for (var pi = 0; pi < au.pts.length; pi++) {
+        var pt = au.pts[pi];
+        pt.dv += (Math.random()-0.5)*0.002;
+        pt.dv *= 0.98;
+        pt.dy += pt.dv;
+        pt.dy *= 0.995;
+      }
+      var aBreath = Math.sin(t * au.speed + au.phase);
+      var aAl = au.alpha * (0.6 + 0.4 * aBreath);
+      ctx.save();
+      ctx.globalAlpha = 1;
+      /* curtain: gradient from top to bottom */
+      var topY = au.baseY + Math.sin(t * au.waveSpeed) * H * 0.02;
+      var grad = ctx.createLinearGradient(0, topY, 0, topY + au.height);
+      grad.addColorStop(0,   'hsla('+au.hue+',100%,70%,0)');
+      grad.addColorStop(0.2, 'hsla('+au.hue+',100%,70%,'+(aAl*0.8)+')');
+      grad.addColorStop(0.5, 'hsla('+au.hue+',90%,60%,'+aAl+')');
+      grad.addColorStop(0.8, 'hsla('+au.hue+',80%,50%,'+(aAl*0.5)+')');
+      grad.addColorStop(1,   'hsla('+au.hue+',70%,40%,0)');
+      ctx.beginPath();
+      ctx.moveTo(au.pts[0].x, topY + au.pts[0].dy);
+      for (var ci = 1; ci < au.pts.length; ci++) {
+        var prev = au.pts[ci-1], cur = au.pts[ci];
+        var mx = (prev.x + cur.x) * 0.5;
+        ctx.quadraticCurveTo(prev.x, topY+prev.dy, mx, topY+(prev.dy+cur.dy)*0.5);
+      }
+      ctx.lineTo(W, topY + au.height);
+      ctx.lineTo(0, topY + au.height);
+      ctx.closePath();
+      ctx.fillStyle = grad; ctx.fill();
+      ctx.restore();
+    }
+
     var sx = SX(), sy = SY();
-    var sunHalo = ctx.createRadialGradient(sx, sy, SR()*0.5, sx, sy, Math.max(W,H)*0.55);
-    sunHalo.addColorStop(0,   'rgba(255,140,20,0.30)');
-    sunHalo.addColorStop(0.4, 'rgba(180,80,0,0.12)');
+
+    /* ── VORTEX RINGS around sun (gravitational lens effect) ── */
+    VORTEX.angle += 0.00015;
+    ctx.save();
+    ctx.translate(sx, sy);
+    for (var vi = 0; vi < 4; vi++) {
+      var vr = SR() * (6 + vi * 4.5);
+      var va = 0.008 - vi * 0.0015;
+      var vtwist = VORTEX.angle * (vi % 2 === 0 ? 1 : -1) * (1 + vi * 0.3);
+      ctx.save();
+      ctx.rotate(vtwist);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, vr, vr * 0.18, 0, 0, Math.PI*2);
+      var vg = ctx.createLinearGradient(-vr, 0, vr, 0);
+      vg.addColorStop(0,   'rgba(80,160,255,'+(va*0.4)+')');
+      vg.addColorStop(0.3, 'rgba(140,100,255,'+(va)+')');
+      vg.addColorStop(0.5, 'rgba(255,180,80,'+(va*1.2)+')');
+      vg.addColorStop(0.7, 'rgba(140,100,255,'+(va)+')');
+      vg.addColorStop(1,   'rgba(80,160,255,'+(va*0.4)+')');
+      ctx.strokeStyle = vg;
+      ctx.lineWidth = 0.50 + vi * 0.10;
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+
+    /* ── sun ambient halo ── */
+    var sunHalo = ctx.createRadialGradient(sx, sy, SR()*0.5, sx, sy, Math.max(W,H)*0.60);
+    sunHalo.addColorStop(0,   'rgba(255,140,20,0.28)');
+    sunHalo.addColorStop(0.3, 'rgba(180,80,0,0.10)');
+    sunHalo.addColorStop(0.6, 'rgba(60,80,200,0.04)');
     sunHalo.addColorStop(1,   'rgba(0,0,0,0)');
-    ctx.beginPath(); ctx.ellipse(sx, sy, Math.max(W,H)*0.55, Math.max(W,H)*0.55, 0, 0, Math.PI*2);
+    ctx.beginPath(); ctx.ellipse(sx, sy, Math.max(W,H)*0.60, Math.max(W,H)*0.60, 0, 0, Math.PI*2);
     ctx.fillStyle = sunHalo; ctx.fill();
 
-    var farVoid = ctx.createRadialGradient(W*0.92, H*0.50, 0, W*0.92, H*0.50, W*0.40);
-    farVoid.addColorStop(0,   'rgba(25,40,90,0.42)');
+    /* ── far void (right side deep space) ── */
+    var farVoid = ctx.createRadialGradient(W*0.90, H*0.50, 0, W*0.90, H*0.50, W*0.45);
+    farVoid.addColorStop(0,   'rgba(20,35,80,0.38)');
+    farVoid.addColorStop(0.5, 'rgba(10,15,40,0.12)');
     farVoid.addColorStop(1,   'rgba(0,0,0,0)');
-    ctx.beginPath(); ctx.ellipse(W*0.92, H*0.50, W*0.40, H*0.80, 0, 0, Math.PI*2);
+    ctx.beginPath(); ctx.ellipse(W*0.90, H*0.50, W*0.45, H*0.85, 0, 0, Math.PI*2);
     ctx.fillStyle = farVoid; ctx.fill();
 
     ctx.globalCompositeOperation = 'source-over';
@@ -300,6 +446,135 @@
     ctx.restore();
   }
 
+  /* ── v32: DUST MOTES ───────────────────────────────── */
+  function drawDustMotes(t) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    for (var i = 0; i < DUST_MOTES.length; i++) {
+      var d = DUST_MOTES[i];
+      d.x = (d.x + d.vx + W) % W;
+      d.y = (d.y + d.vy + H) % H;
+      var al = d.a * (0.5 + 0.5 * Math.sin(t * d.tS + d.tO));
+      ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba('+d.col+','+al.toFixed(3)+')';
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  /* ── v32: METEOR SHOWER ─────────────────────────────── */
+  function spawnMeteorShower(t) {
+    METEORS = [];
+    var n = 18 + Math.floor(Math.random()*22);
+    for (var i = 0; i < n; i++) {
+      var delay = Math.random() * 3000;
+      METEORS.push({
+        x: Math.random()*W*0.8 + W*0.05,
+        y: -10 - Math.random()*60,
+        vx: 0.6 + Math.random()*0.8,
+        vy: 0.5 + Math.random()*0.7,
+        length: 40 + Math.random()*80,
+        alpha: 0.55 + Math.random()*0.35,
+        life: 0, maxLife: 1.2 + Math.random()*1.0,
+        delay: delay,
+        col: Math.random()<.7?'195,220,255':'255,220,180',
+        active: false,
+      });
+    }
+    meteorShowerActive = true;
+    meteorShowerEnd = t + 7000;
+    nextMeteorShower = t + 45000 + Math.random()*60000;
+  }
+
+  function drawMeteors(t, dt) {
+    if (t > nextMeteorShower && !meteorShowerActive) spawnMeteorShower(t);
+    if (!meteorShowerActive) return;
+    if (t > meteorShowerEnd) {
+      var allDone = METEORS.every(function(m){ return m.life >= m.maxLife; });
+      if (allDone) { meteorShowerActive = false; METEORS = []; return; }
+    }
+    var elapsed = t - (meteorShowerEnd - 7000);
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    for (var i = 0; i < METEORS.length; i++) {
+      var m = METEORS[i];
+      if (elapsed < m.delay) continue;
+      if (!m.active) m.active = true;
+      m.life += dt;
+      if (m.life >= m.maxLife || m.y > H+20) continue;
+      m.x += m.vx * dt * 60 * 0.014;
+      m.y += m.vy * dt * 60 * 0.014;
+      var prog = m.life / m.maxLife;
+      var al = prog < 0.10 ? (prog/0.10)*m.alpha : Math.max(0, m.alpha*(1-(prog-0.10)/0.90));
+      var tx = m.x - m.vx * m.length * 0.013;
+      var ty = m.y - m.vy * m.length * 0.013;
+      var mg = ctx.createLinearGradient(tx, ty, m.x, m.y);
+      mg.addColorStop(0, 'rgba('+m.col+',0)');
+      mg.addColorStop(0.5,'rgba('+m.col+','+(al*0.25)+')');
+      mg.addColorStop(1, 'rgba('+m.col+','+al+')');
+      ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(m.x, m.y);
+      ctx.strokeStyle = mg; ctx.lineWidth = 0.9; ctx.stroke();
+      ctx.beginPath(); ctx.arc(m.x, m.y, 1.1, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba('+m.col+','+al+')'; ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  /* ── v32: ION TRAILS ────────────────────────────────── */
+  function updateIonTrail(pid, x, y) {
+    if (!ION_TRAILS[pid]) return;
+    ION_TRAILS[pid].push({ x:x, y:y, a:0.45, t:0 });
+    if (ION_TRAILS[pid].length > 28) ION_TRAILS[pid].shift();
+  }
+
+  function drawIonTrails() {
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    PLANETS.forEach(function(p) {
+      if (!p.label || !ION_TRAILS[p.id]) return;
+      var trail = ION_TRAILS[p.id];
+      if (trail.length < 2) return;
+      for (var i = 1; i < trail.length; i++) {
+        var prev = trail[i-1], cur = trail[i];
+        var prog = i / trail.length;
+        var al = prog * 0.18;
+        ctx.beginPath();
+        ctx.moveTo(prev.x, prev.y);
+        ctx.lineTo(cur.x, cur.y);
+        ctx.strokeStyle = p.glow ? p.glow + al + ')' : 'rgba(150,200,255,'+al+')';
+        ctx.lineWidth = prog * 1.5;
+        ctx.stroke();
+      }
+    });
+    ctx.restore();
+  }
+
+  /* ── v32: SHOCKWAVE (triggered on route change) ──── */
+  function triggerShockwave(x, y, col) {
+    SHOCKWAVE.active = true;
+    SHOCKWAVE.x = x; SHOCKWAVE.y = y;
+    SHOCKWAVE.r = 0; SHOCKWAVE.maxR = Math.min(W,H) * 0.35;
+    SHOCKWAVE.alpha = 0.55; SHOCKWAVE.col = col || '120,200,255';
+  }
+
+  function drawShockwave(dt) {
+    if (!SHOCKWAVE.active) return;
+    SHOCKWAVE.r  += dt * 260;
+    SHOCKWAVE.alpha *= 0.96;
+    if (SHOCKWAVE.r >= SHOCKWAVE.maxR || SHOCKWAVE.alpha < 0.005) {
+      SHOCKWAVE.active = false; return;
+    }
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    var prog = SHOCKWAVE.r / SHOCKWAVE.maxR;
+    ctx.beginPath();
+    ctx.arc(SHOCKWAVE.x, SHOCKWAVE.y, SHOCKWAVE.r, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba('+SHOCKWAVE.col+','+SHOCKWAVE.alpha.toFixed(3)+')';
+    ctx.lineWidth = (1 - prog) * 3 + 0.5;
+    ctx.stroke();
+    ctx.restore();
+  }
+
   function drawOrbits() {
     var sx = SX(), sy = SY();
     var maxOrbR = Math.min(W - SX() - 16, usableH() / (TILT * 2) - 16);
@@ -323,11 +598,39 @@
     var scale = Math.max(0.75, Math.min(usableH() / 560, 1.25));
     var sz = p.sz * scale;
 
+    /* update ion trail */
+    if (p.label) updateIonTrail(p.id, x, y);
+
+    /* ── PLANETARY RING (for vega + civil only) ── */
+    if (p.id === 'vega' || p.id === 'civil') {
+      var rx = sz * (p.id==='vega' ? 3.2 : 2.6);
+      var ry = rx * 0.22;
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      ctx.translate(x, y); ctx.rotate(-0.12);
+      var rg = ctx.createLinearGradient(-rx, 0, rx, 0);
+      rg.addColorStop(0,   'rgba(0,0,0,0)');
+      rg.addColorStop(0.25, p.glow+(isA?'0.25':'0.12')+')');
+      rg.addColorStop(0.5, p.glow+(isA?'0.40':'0.20')+')');
+      rg.addColorStop(0.75,p.glow+(isA?'0.25':'0.12')+')');
+      rg.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI*2);
+      ctx.strokeStyle = rg;
+      ctx.lineWidth = isA ? 1.4 : 0.70;
+      ctx.stroke();
+      /* inner ring */
+      ctx.beginPath(); ctx.ellipse(0, 0, rx*0.80, ry*0.80, 0, 0, Math.PI*2);
+      ctx.strokeStyle = p.glow+(isA?'0.15':'0.06')+')';
+      ctx.lineWidth = 0.40; ctx.stroke();
+      ctx.restore();
+    }
+
     if (p.atm) {
-      var atmA = isA ? 0.22 : 0.10;
-      var atmR = sz * 2.6 + (isA ? 5 : 0);
+      var atmA = isA ? 0.24 : 0.10;
+      var atmR = sz * 2.8 + (isA ? 6 : 0);
       var atm = ctx.createRadialGradient(x, y, sz*0.5, x, y, atmR);
       atm.addColorStop(0, p.atm + atmA + ')');
+      atm.addColorStop(0.6, p.atm+(atmA*0.3)+')');
       atm.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.beginPath(); ctx.arc(x, y, atmR, 0, Math.PI*2);
       ctx.fillStyle = atm; ctx.fill();
@@ -335,11 +638,19 @@
 
     if (p.glow) {
       ctx.globalCompositeOperation = 'screen';
-      var pulse = isA ? (1 + Math.sin(t*0.0012)*0.10) : 1;
-      var glowR = sz * (isA ? 3.2 : 2.2) * pulse;
+      var pulse = isA ? (1 + Math.sin(t*0.0012)*0.12) : 1;
+      /* outer soft glow */
+      var glowR2 = sz * (isA ? 5.0 : 3.2) * pulse;
+      var gr2 = ctx.createRadialGradient(x, y, sz*1.2, x, y, glowR2);
+      gr2.addColorStop(0, p.glow + (isA ? '0.18' : '0.06') + ')');
+      gr2.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.beginPath(); ctx.arc(x, y, glowR2, 0, Math.PI*2);
+      ctx.fillStyle = gr2; ctx.fill();
+      /* inner tight glow */
+      var glowR = sz * (isA ? 3.4 : 2.2) * pulse;
       var gr = ctx.createRadialGradient(x, y, sz*0.8, x, y, glowR);
-      gr.addColorStop(0,   p.glow + (isA ? '0.45' : '0.18') + ')');
-      gr.addColorStop(0.4, p.glow + (isA ? '0.12' : '0.05') + ')');
+      gr.addColorStop(0,   p.glow + (isA ? '0.50' : '0.20') + ')');
+      gr.addColorStop(0.4, p.glow + (isA ? '0.14' : '0.06') + ')');
       gr.addColorStop(1,   'rgba(0,0,0,0)');
       ctx.beginPath(); ctx.arc(x, y, glowR, 0, Math.PI*2);
       ctx.fillStyle = gr; ctx.fill();
@@ -374,10 +685,10 @@
       if (isA) {
         ctx.globalCompositeOperation = 'screen';
         ctx.shadowColor = p.glow ? p.glow + '0.80)' : 'rgba(0,255,160,0.80)';
-        ctx.shadowBlur = 6;
+        ctx.shadowBlur = 8;
         ctx.fillStyle = p.c0;
       } else {
-        ctx.fillStyle = 'rgba(120,200,160,0.40)';
+        ctx.fillStyle = 'rgba(120,190,160,0.35)';
       }
       ctx.font = '500 '+fs+'px "DM Mono",monospace';
       ctx.textAlign = 'center'; ctx.textBaseline = 'top';
@@ -427,40 +738,54 @@
 
   function drawSun(t) {
     var sx = SX(), sy = SY(), R = SR();
-    var gm = _S.thinking ? 1 + Math.sin(t*0.005)*0.20 : 1;
+    var gm = _S.thinking ? 1 + Math.sin(t*0.005)*0.28 : 1;
 
     ctx.globalCompositeOperation = 'lighter';
 
-    for (var ring = 3; ring >= 1; ring--) {
-      var rAl = (0.022 / ring) * gm;
-      var rR = R * (4 + ring * 3.5);
+    /* ── 5 corona rings (v32: more) ── */
+    for (var ring = 5; ring >= 1; ring--) {
+      var rAl = (0.018 / ring) * gm;
+      var rR = R * (3.5 + ring * 3.8);
       ctx.beginPath(); ctx.arc(sx, sy, rR, 0, Math.PI*2);
       ctx.strokeStyle = 'rgba(110,190,255,'+rAl+')';
-      ctx.lineWidth = 0.40;
+      ctx.lineWidth = 0.38;
       ctx.stroke();
     }
 
-    var fc = ctx.createRadialGradient(sx, sy, R*0.10, sx, sy, R*10);
-    fc.addColorStop(0,    'rgba(255,200,60,'+(0.30*gm)+')');
-    fc.addColorStop(0.15, 'rgba(255,140,20,'+(0.12*gm)+')');
+    /* ── thinking burst rings ── */
+    if (_S.thinking) {
+      for (var b = 0; b < 3; b++) {
+        var bPhase = (t * 0.003 + b * 1.0) % (Math.PI * 2);
+        var bR = R * (2 + b * 4 + Math.sin(bPhase) * 2);
+        var bAl = Math.max(0, Math.sin(bPhase) * 0.25);
+        ctx.beginPath(); ctx.arc(sx, sy, bR, 0, Math.PI*2);
+        ctx.strokeStyle = 'rgba(255,220,80,'+bAl+')';
+        ctx.lineWidth = 0.6; ctx.stroke();
+      }
+    }
+
+    var fc = ctx.createRadialGradient(sx, sy, R*0.10, sx, sy, R*11);
+    fc.addColorStop(0,    'rgba(255,200,60,'+(0.32*gm)+')');
+    fc.addColorStop(0.15, 'rgba(255,140,20,'+(0.13*gm)+')');
     fc.addColorStop(0.40, 'rgba(90,170,255,'+(0.06*gm)+')');
     fc.addColorStop(0.70, 'rgba(40,70,150,'+(0.02*gm)+')');
     fc.addColorStop(1,    'rgba(0,0,0,0)');
     ctx.beginPath();
-    ctx.ellipse(sx, sy, R*10, R*3.5, 0, 0, Math.PI*2);
+    ctx.ellipse(sx, sy, R*11, R*3.8, 0, 0, Math.PI*2);
     ctx.fillStyle = fc; ctx.fill();
 
+    /* ── 16 rays (v32: more) ── */
     ctx.save(); ctx.translate(sx, sy); ctx.rotate(t*0.000018);
-    for (var i = 0; i < 12; i++) {
-      var a = (i/12)*Math.PI*2;
-      var rl = R * (1.9 + 0.28*Math.sin(i*1.8 + t*0.00014)) * gm;
+    for (var i = 0; i < 16; i++) {
+      var a = (i/16)*Math.PI*2;
+      var rl = R * (1.9 + 0.30*Math.sin(i*1.8 + t*0.00014)) * gm;
       var gr = ctx.createLinearGradient(
         Math.cos(a)*R*0.20, Math.sin(a)*R*0.20,
         Math.cos(a)*rl, Math.sin(a)*rl);
-      gr.addColorStop(0,    'rgba(255,200,50,'+(0.28*gm)+')');
+      gr.addColorStop(0,    'rgba(255,200,50,'+(0.30*gm)+')');
       gr.addColorStop(0.5,  'rgba(200,120,10,0.06)');
       gr.addColorStop(1,    'rgba(0,0,0,0)');
-      ctx.strokeStyle = gr; ctx.lineWidth = 0.70;
+      ctx.strokeStyle = gr; ctx.lineWidth = 0.65;
       ctx.beginPath();
       ctx.moveTo(Math.cos(a)*R*0.20, Math.sin(a)*R*0.20);
       ctx.lineTo(Math.cos(a)*rl, Math.sin(a)*rl);
@@ -523,7 +848,7 @@
     ctx.font = '400 5px "DM Mono",monospace';
     ctx.fillStyle = 'rgba(150,205,255,0.10)';
     ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-    ctx.fillText('FATE  DETERMINISTIC DECISION INFRASTRUCTURE  v31', W-8, H - UI_BOTTOM() - 6);
+    ctx.fillText('FATE  DETERMINISTIC DECISION INFRASTRUCTURE  v32', W-8, H - UI_BOTTOM() - 6);
     ctx.restore();
   }
 
@@ -534,12 +859,16 @@
     try {
       drawBg(ts);
       drawStars(ts);
+      drawDustMotes(ts);
       drawFateTexts(dt, ts);
+      drawMeteors(ts, dt);
       drawComet(ts, dt);
+      drawIonTrails();
       drawOrbits();
       drawDiademRing(ts);
       drawPlanets(dt, ts);
       drawSun(ts);
+      drawShockwave(dt);
       drawAxiom();
       drawBadge();
     } catch (e) {
@@ -551,10 +880,27 @@
 
   window.LYLA_thinking  = function () { _S.thinking = true; };
   window.LYLA_answered  = function () { _S.thinking = false; };
-  window.KD_pulse       = function (r) { _S.thinking = false; if (r) activeRoute = r; };
+  window.KD_pulse       = function (r) {
+    _S.thinking = false;
+    if (r && r !== activeRoute) {
+      /* shockwave on route change */
+      var p = PLANETS.find(function(pl){ return pl.id === r; });
+      if (p) {
+        var sx=SX(), sy=SY(), mR=Math.min(W-SX()-16, usableH()/(TILT*2)-16);
+        var orb=p.orb*mR;
+        triggerShockwave(
+          sx + Math.cos(p.ang)*orb,
+          sy + Math.sin(p.ang)*orb*TILT,
+          p.glow ? p.glow.replace('rgba(','').replace(',','').split(',').slice(0,3).join(',') : '120,200,255'
+        );
+      }
+      activeRoute = r;
+    }
+  };
   window.KD_setRoute    = function (r) { activeRoute = r; };
   window.KD_council     = function () { _S.thinking = true; };
   window.KD_councilEnd  = function () { _S.thinking = false; };
+  window.KD_shockwave   = function (x, y, col) { triggerShockwave(x, y, col); };
   window.KD.safeVal     = function (v, d) {
     var n = +v, dec = typeof d === 'number' ? d : 2;
     return (isFinite(n) && !isNaN(n)) ? n.toFixed(dec) : '0.00';
