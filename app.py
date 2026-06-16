@@ -1,15 +1,11 @@
 # =========================
-# 👑 KING DIADEM — app.py v4.4
+# 👑 KING DIADEM — app.py v4.5
 # LYLA (หญิง/ค่ะ) · VEGA (ชาย/ครับ) · ปฏิจสมุปบาท · โยนิโสมนสิการ · สุญยตา
 # Fail less. Harm less. Restore more.
 #
-# PATCH v4.4 — Conversation Memory Fix
-# ปัญหา: history ถูก flatten เป็น text ใน `effective` แล้ว
-#         ยังถูกส่งซ้ำเป็น array ให้ Gemini → history ซ้อนกัน 2 ชั้น
-#         และ decision engine path ไม่ได้รับ history เลย
-# แก้:  1. ลบ history_text ออกจาก effective (ไม่ต้อง flatten แล้ว)
-#          ให้ _build_contents() ใน llm_gemini จัดการ Content objects แทน
-#       2. ส่ง history เข้า full_run_decision และ engine.run() ด้วย
+# PATCH v4.5 — wire universal_engine as enrichment layer
+# ไม่แทน pipeline หลัก — เสริม council/consensus/state เข้า result
+# ถ้า universal_engine พัง /run ไม่กระทบเลย
 # =========================
 
 from fastapi import FastAPI, Request, File, UploadFile
@@ -81,6 +77,16 @@ try:
 except Exception as e:
     print(f"⚠ survivor_engine: {e}")
     survivor_analyze = None
+
+# ── UNIVERSAL ENGINE (v4.5 NEW) ───────────────────────────────────
+# enrichment layer — เสริม council/consensus/state เข้า result
+# ถ้า import fail → _universal_run = None → skip โดยอัตโนมัติ
+try:
+    from ENGINE.universal_engine import run_engine as _universal_run
+    print("✅ Universal engine loaded")
+except Exception as e:
+    print(f"⚠ universal_engine: {e}")
+    _universal_run = None
 
 try:
     from AI.intent_engine import analyze_intent
@@ -281,6 +287,7 @@ def health():
         "llm_loaded":         llm is not None,
         "engine_loaded":      engine is not None,
         "lyla_loaded":        lyla is not None,
+        "universal_engine":   _universal_run is not None,   # v4.5
         "paticcasamuppada":   analyze_chain is not None,
         "collapse_predictor": predict_collapse is not None,
         "consensus_engine":   build_consensus is not None,
@@ -488,6 +495,35 @@ def _paticcasamuppada_context(text: str) -> str:
 
 
 # ══════════════════════════════════════════════════════════════════
+# UNIVERSAL ENGINE ENRICHMENT (v4.5)
+# เรียกหลัง result หลักได้แล้ว — เสริม council/consensus/state
+# ══════════════════════════════════════════════════════════════════
+def _enrich_with_universal(result: dict, payload: dict) -> dict:
+    """
+    เรียก universal_engine.run_engine() แล้ว merge เฉพาะ field ที่ไม่มีอยู่ใน result เดิม
+    ถ้า universal_engine พัง → return result เดิมไม่เปลี่ยนแปลง
+    ไม่แทน ai_response / route / risk_score เดิม
+    """
+    if not _universal_run:
+        return result
+    try:
+        uni = _universal_run(payload)
+        if not isinstance(uni, dict) or uni.get("status") == "blocked":
+            return result
+        # merge เฉพาะ field เสริม — ไม่แทนของเดิม
+        for key in ("council", "consensus", "state", "decision"):
+            if key in uni and key not in result:
+                result[key] = uni[key]
+        # ถ้า universal เห็น risk สูงกว่า ให้ log ไว้แต่ไม่แทน
+        if "risk" in uni and isinstance(uni["risk"], dict):
+            result.setdefault("universal_risk", uni["risk"])
+    except Exception as e:
+        # silent fail — ไม่กระทบ result หลัก
+        result.setdefault("universal_engine_error", str(e))
+    return result
+
+
+# ══════════════════════════════════════════════════════════════════
 # /run  +  /decision
 # ══════════════════════════════════════════════════════════════════
 @app.post("/run")
@@ -501,14 +537,7 @@ async def run_kernel(request: Request, data: dict):
     route   = data.get("route") or "general"
     vm      = _resolve_voice_mode(data, route)
 
-    # ── FIX: history array สำหรับส่งให้ Gemini โดยตรง ──────────
-    # เดิม: history ถูก flatten เป็น text ใน effective แล้ว
-    #        ยังส่งซ้ำเป็น array → Gemini เห็น history 2 ชั้น
-    # แก้:  เก็บ history array แยกไว้ ไม่ flatten เป็น text อีกต่อไป
-    #        ส่งให้ llm.generate_with_governance() ผ่าน history= เท่านั้น
-    #        ให้ _build_contents() ใน llm_gemini จัดการ Content objects
     history = data.get("history") or []
-    # ────────────────────────────────────────────────────────────
 
     if record_question: record_question()
 
@@ -567,7 +596,7 @@ async def run_kernel(request: Request, data: dict):
                 route = sr.get("route", route)
         except Exception: pass
 
-    # ── build effective prompt (ไม่มี history text แล้ว) ────────
+    # build effective prompt
     extra_ctx = " ".join(p for p in [paticca_ctx, risk_ctx, collapse_ctx] if p)
     effective = ""
     if survivor_ctx:
@@ -575,13 +604,10 @@ async def run_kernel(request: Request, data: dict):
     effective += _route_bias(route, user_input)
     if extra_ctx:
         effective += f"\n\n{extra_ctx}"
-    # ────────────────────────────────────────────────────────────
 
-    # ── FIX: ส่ง history เข้า decision engine path ด้วย ────────
     payload = {**data, "input": effective, "history": history}
-    # ────────────────────────────────────────────────────────────
 
-    # run
+    # ── MAIN DECISION PIPELINE ────────────────────────────────────
     if full_run_decision:
         result = full_run_decision(payload)
     elif engine:
@@ -597,7 +623,7 @@ async def run_kernel(request: Request, data: dict):
                         f"stability={human_state.get('stability')}, "
                         f"voice_mode={vm}"
                     ),
-                    history=history,   # ← ส่ง array จริง ไม่ซ้ำกับ effective
+                    history=history,
                     route=route,
                     voice_mode=vm,
                 )
@@ -617,6 +643,11 @@ async def run_kernel(request: Request, data: dict):
     result["route"]      = result.get("route") or route
     result["persona"]    = "VEGA" if vm == "vega" else "LYLA"
     result["voice_mode"] = vm
+
+    # ── UNIVERSAL ENGINE ENRICHMENT (v4.5) ───────────────────────
+    # เสริม council/consensus/state เข้า result โดยไม่แทนของเดิม
+    result = _enrich_with_universal(result, payload)
+    # ─────────────────────────────────────────────────────────────
 
     # consensus
     if build_consensus and result.get("ai_response"):
@@ -666,7 +697,6 @@ async def create_checkout(request: Request, data: dict):
     email = unquote(request.cookies.get("kd_email") or "") or data.get("email", "")
     plan  = data.get("plan", "basic")
 
-    # เลือก price_id ตาม plan
     if plan == "civilization":
         price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
     else:
