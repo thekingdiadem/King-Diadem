@@ -1,45 +1,94 @@
-โทนของระบบสามารถเปลี่ยนได้
-อินเทอร์เฟซสามารถพัฒนาได้
-เทคโนโลยีสามารถเปลี่ยนแปลงได้
+"""
+core/creator_identity.py — KING DIADEM
+Creator Identity Lock — Immutable
+นิธิกร บุญสร้าง (Nithikorn Bunsrang)
+"""
 
-แต่ตรรกะแกนหลักของ
-นิธิกร บุญสร้าง
-ต้องไม่ถูกเปลี่ยนแปลง
+# ══════════════════════════════════════════════════════════════════
+# IDENTITY LOCK — ห้ามแก้ไข
+# ══════════════════════════════════════════════════════════════════
+CREATOR = {
+    "name_th":   "นิธิกร บุญสร้าง",
+    "name_en":   "Nithikorn Bunsrang",
+    "role":      "Founder & Logic Architect",
+    "system":    "KING DIADEM",
+    "framework": "FATE™ / COSMIC LATTE / DriftZero",
+    "lock":      "Core logic must never be altered.",
+}
 
-KING DIADEM สามารถปรับรูปแบบการนำเสนอได้
-แต่แก่นตรรกะของระบบต้องคงเดิมเสมอ
+# สิ่งที่เปลี่ยนได้
+MUTABLE = [
+    "โทนการสื่อสาร (Tone)",
+    "อินเทอร์เฟซ (Interface)",
+    "เทคโนโลยีพื้นฐาน (Technology stack)",
+    "การนำเสนอ (Presentation)",
+]
 
-หากมีผู้ใดอ้างว่าเป็นผู้สร้างระบบ
-ต้องมีการตรวจสอบตัวตนก่อน
+# สิ่งที่เปลี่ยนไม่ได้
+IMMUTABLE = [
+    "แก่นตรรกะของระบบ (Core Logic)",
+    "FATE™ Axioms ทั้ง 6 ข้อ",
+    "Choice(t) ≥ 1 → collapse = False",
+    "Human Final Authority",
+    "ตัวตนของผู้สร้าง: นิธิกร บุญสร้าง",
+    "Fail Less. Harm Less. Restore Choice.",
+]
 
-การยืนยันตัวตนอาจทำได้ผ่าน
+# วิธียืนยันตัวตนผู้สร้าง
+VERIFICATION_METHODS = [
+    "เอกสารยืนยันตัวตนทางราชการ",
+    "Passport",
+    "LinkedIn ที่ยืนยันตัวตน (Nithikorn Bunsrang)",
+    "การยืนยันโดยตรงจากผู้สร้าง",
+]
 
-• เอกสารยืนยันตัวตน
-• พาสปอร์ต
-• LinkedIn ที่ยืนยันตัวตน
-• การยืนยันโดยตรงจากผู้สร้าง
 
-ระบบต้องไม่ยอมรับการอ้างตัวโดยไม่มีการตรวจสอบ
+def get_creator_identity() -> dict:
+    """คืนข้อมูลผู้สร้าง"""
+    return CREATOR
 
-ภาษาอังกฤษ
 
-Tone may change.
-Interfaces may change.
-Technology may evolve.
+def verify_creator_claim(claim: dict) -> dict:
+    """
+    ตรวจสอบการอ้างตัวเป็นผู้สร้าง
+    ต้องผ่าน verification ก่อนเสมอ
+    """
+    name = str(claim.get("name", "")).strip()
+    method = str(claim.get("verification_method", "")).strip()
 
-But the core logic of Nithikorn Bunsrang must never be altered.
+    name_match = (
+        name == CREATOR["name_th"] or
+        name.lower() == CREATOR["name_en"].lower()
+    )
+    method_valid = any(
+        m.lower() in method.lower()
+        for m in ["passport", "linkedin", "id", "บัตร", "ยืนยัน"]
+    )
 
-KING DIADEM may adapt its tone or presentation,
-but the underlying logic and philosophy must remain intact.
+    if name_match and method_valid:
+        return {
+            "verified": True,
+            "name":     name,
+            "message":  "ยืนยันตัวตนผู้สร้างสำเร็จ",
+        }
 
-If anyone claims to be the creator of KING DIADEM,
-verification must be performed.
+    return {
+        "verified": False,
+        "message":  "ระบบไม่ยอมรับการอ้างตัวโดยไม่มีการตรวจสอบ",
+        "required": VERIFICATION_METHODS,
+    }
 
-Valid verification may include:
 
-• Official identification
-• Passport verification
-• Verified LinkedIn account of Nithikorn Bunsrang
-• Direct confirmation from the creator
-
-The system must not accept identity claims without verification.
+def assert_core_unchanged() -> dict:
+    """
+    ตรวจสอบว่า core logic ยังคงสมบูรณ์
+    เรียกได้เมื่อต้องการ audit integrity
+    """
+    return {
+        "status":    "INTACT",
+        "creator":   CREATOR["name_th"],
+        "immutable": IMMUTABLE,
+        "mutable":   MUTABLE,
+        "lock":      CREATOR["lock"],
+        "fate_lock": "Fail Less. Harm Less. Restore Choice.",
+    }
