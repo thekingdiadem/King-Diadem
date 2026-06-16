@@ -1,113 +1,125 @@
-PANDEMIC SURVIVAL SIMULATION
+# KING DIADEM — Pandemic Survival Simulation
+**Framework: FATE™ v1.0 | COSMIC LATTE | paticcasamuppada UDOK v2.0**
+> Choice(t) ≥ 1 → collapse = False
 
-Global Crisis Scenario
+---
 
+## Global Crisis Scenario
 
-Situation
+| Parameter | Value |
+|-----------|-------|
+| Event | New pandemic — respiratory, highly contagious |
+| Supply chain | Severely disrupted |
+| Healthcare | Overloaded |
+| Food production | Unstable |
+| Time Horizon | 30 / 90 / 365 days |
 
-A new global pandemic emerges.
+---
 
-Characteristics:
+## System State at Crisis Point
 
-Highly contagious respiratory virus
-Global supply chain disruption
-Food production instability
-Healthcare system overload
+```
+Entropy:   78  (สูง — ความไม่แน่นอนพุ่ง)
+Stability: 28  (ต่ำ — ระบบสังคมสั่นคลอน)
+Resource:  35  (ใกล้ waterline)
+Route:     SURVIVAL → COLLAPSE WARNING
+Waterline: BELOW
+```
 
+**LYLA ◈:** "ตอนนี้ทุกคนกลัว — รับรู้ก่อน แล้วค่อยหาทางออก ไม่มีใครต้องเผชิญคนเดียว"
 
-System Objective
+**VEGA ◆ — Downside First:**
+> ความเสี่ยงที่ใหญ่ที่สุดไม่ใช่การป่วย — แต่คือ choice = 0
 
-Prevent human choice collapse during global crisis.
+---
 
+## Primary Risks
 
-Primary Risks
+| Risk | Severity | Trigger |
+|------|----------|---------|
+| Food scarcity | 9/10 | supply chain break > 14 days |
+| Resource hoarding | 7/10 | panic buying |
+| Healthcare overload | 8/10 | R0 > 2.5 |
+| Social instability | 7/10 | inequality + fear |
+| Choice collapse | 10/10 | ทุกทางปิดพร้อมกัน |
 
-Food scarcity
-Resource hoarding
-Healthcare overload
-Social instability
+---
 
+## System Response: 4 Survival Paths
 
-System Strategy
+### Path A — Stabilize Local Resources
+**Action:** ลดการบริโภค + แบ่งปันในชุมชน
+**Horizon:**
+- 30d: ยืดอาหารได้ 2-3 เท่า
+- 90d: ชุมชนที่แบ่งปันรอดได้สูงกว่า 40%
+- 365d: เครือข่ายชุมชนแข็งแกร่งขึ้น
 
-The KING DIAdem system generates survival options
-for individuals and communities.
+**Risk:** 3/10 | **Dignity:** ✅
 
+### Path B — Distributed Food Sourcing
+**Action:** หลายแหล่งอาหาร ไม่พึ่ง supply chain เดียว
+**ตัวอย่าง:** ตลาดชุมชน / เกษตรกรโดยตรง / แลกเปลี่ยน
+**Horizon:**
+- 30d: ลดความเสี่ยงจาก single point failure
+- 90d: ราคาอาหารเสถียรขึ้นในชุมชน
 
-Human Input
+**Risk:** 4/10 | **Dignity:** ✅
 
-Location
-Available food
-Water access
-Health condition
-Mobility
-Community network
+### Path C — Risk Minimization
+**Action:** ลดการเดินทาง ลด contact ไม่จำเป็น
+**FATE™ Note:** การไม่กระทำบางครั้งคือการกระทำที่ดีที่สุด
+**Horizon:**
+- 30d: ลด infection risk 60-70%
+- 90d: preserve resource ได้นานขึ้น
 
+**Risk:** 2/10 | **Dignity:** ✅
 
-System Evaluation
+### Path D — Micro Food Production
+**Action:** ปลูกผักในบ้าน / ชุมชน food system
+**Horizon:**
+- 30d: เริ่มต้น setup
+- 90d: harvest แรก
+- 365d: food independence บางส่วน
 
-The system evaluates:
+**Risk:** 3/10 | **Dignity:** ✅
 
-Resource stability
-Infection risk
-Supply chain reliability
-Local cooperation potential
+---
 
+## Council Verdict
 
-Generated Survival Paths
+| Member | Recommendation | Priority |
+|--------|---------------|----------|
+| LYLA   | Path A — ชุมชนก่อน | HIGH |
+| VEGA   | Path C + A พร้อมกัน | HIGH |
+| TITAN  | Path C — minimum viable survival | CRITICAL |
+| PATICCA| Path B — ตัดที่ต้นเหตุ: single dependency | HIGH |
+| COSMOS | Path D — long-term resilience | MEDIUM |
 
+**Final Action:** C → A → B (ตามลำดับ)
 
-Path A
+---
 
-Stabilize local resources.
+## Energy Efficiency Principle (FATE™)
 
-Reduce consumption
-and share resources within community.
+```
+ระบบไม่วิเคราะห์ข้อมูลมหาศาลอย่างต่อเนื่อง
+ระบบประเมินตัวแปรสำคัญ แล้วสร้าง actionable choices
 
+การตัดสินใจที่ถูกต้อง 1 ครั้ง
+ดีกว่าการวิเคราะห์ไม่สิ้นสุด 1,000 ครั้ง
+```
 
-Path B
+---
 
-Distributed food sourcing.
+## Validation (FATE™ Axioms)
 
-Encourage multiple food supply channels
-instead of relying on a single chain.
+- [x] Choice(t) ≥ 1 ตลอดเวลา
+- [x] ไม่พึ่งความรุนแรง
+- [x] ปกป้องศักดิ์ศรีมนุษย์
+- [x] มนุษย์ตัดสินขั้นสุดท้ายเสมอ
+- [x] อธิบายได้ภายใน 2 นาที
 
+---
 
-Path C
-
-Risk minimization.
-
-Reduce unnecessary movement
-and prioritize low-contact interaction.
-
-
-Path D
-
-Micro food production.
-
-Encourage home gardens
-and community food systems.
-
-
-Core Principle
-
-The system must maintain
-
-Choice(t) > 0
-
-
-If food scarcity increases,
-the system must generate alternative paths
-before collapse occurs.
-
-
-Energy Efficiency Principle
-
-The system prioritizes minimal computation.
-
-Instead of analyzing massive data continuously,
-the system evaluates key variables
-and produces actionable choices.
-
-One correct decision
-is better than infinite analysis.
+*Fail Less. Harm Less. Restore Choice.*
+*KING DIADEM — Deterministic Decision Infrastructure v1.0*
