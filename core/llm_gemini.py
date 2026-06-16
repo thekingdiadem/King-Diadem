@@ -1,6 +1,6 @@
 """
 core/llm_gemini.py
-KING DIADEM — AI Core v3.3
+KING DIADEM — AI Core v3.4
 
 การแก้ไข v3.2:
 1. _fallback_response — โทน LYLA/VEGA จริง ไม่มีคำว่า "โหลดหนัก"
@@ -10,8 +10,8 @@ KING DIADEM — AI Core v3.3
 5. Retry ไม่ blocking — fail fast แล้ว fallback ทันที
 6. Response cache 60s สำหรับ prompt ซ้ำ
 
-การแก้ไข v3.3:
-7. Default model: gemini-2.0-flash → gemini-3.5-flash
+การแก้ไข v3.4:
+7. Default model: gemini-2.0-flash → gemini-1.5-flash
    (gemini-2.0-flash ถูกปลดระวางตั้งแต่ 1 มิ.ย. 2026 — ทุก request
    ที่ผ่านมาจึง 404 แล้วตกไปที่ _fallback_response เสมอ
    ทำให้ทุกคำตอบกลายเป็น "RISK 45" canned message)
@@ -251,7 +251,7 @@ def _build_contents(history: list, user_input: str, ctx_note: str = "") -> list:
 # GeminiLLM CLASS
 # ══════════════════════════════════════════════════════════════════
 class GeminiLLM:
-    def __init__(self, model: str = "gemini-3.5-flash"):
+    def __init__(self, model: str = "gemini-1.5-flash"):
         key1 = os.getenv("GEMINI_API_KEY")
         key2 = os.getenv("GEMINI_API_KEY2")
         key3 = os.getenv("GEMINI_API_KEY3")
@@ -279,7 +279,7 @@ class GeminiLLM:
     # ★ v3.4 — Model fallback chain
     # ถ้าโมเดลหลัก (self.model) ตอบ 404/not found (เช่นปลดระวางหรือยังไม่ rollout
     # ให้ API key นี้) ระบบจะลองโมเดลถัดไปในลิสต์นี้ทันที โดยไม่ต้อง redeploy
-    MODEL_FALLBACK_CHAIN = ["gemini-3.5-flash", "gemini-2.5-flash"]
+    MODEL_FALLBACK_CHAIN = ["gemini-1.5-flash", "gemini-1.0-pro"]
 
     def _call(self, system: str, contents: list,
               temperature: float = 0.72, max_tokens: int = 1024) -> str:
@@ -515,7 +515,7 @@ class GeminiLLM:
 # ══════════════════════════════════════════════════════════════════
 _instance: Optional[GeminiLLM] = None
 
-def get_llm(model: str = "gemini-3.5-flash") -> GeminiLLM:
+def get_llm(model: str = "gemini-1.5-flash") -> GeminiLLM:
     global _instance
     if _instance is None:
         _instance = GeminiLLM(model=model)
