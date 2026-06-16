@@ -1,95 +1,56 @@
 """
-CIVIL_WORK_CORE
-Human-independent decision support for low-resource civilization work.
+core/civil_work_core.py — KING DIADEM
+CIVIL WORK CORE: Human-independent decision support
+ทำงานได้แม้ไม่มีทรัพยากร — ออกแบบเพื่ออารยธรรมที่ยังมีชีวิต
 """
 
-from core.cosmic_latte_canon import summary as canon_summary, evaluate_task as canon_evaluate_task
-
-CIVIL_WORK_CORE = {
-    "system_name": "CIVIL_WORK_CORE",
-    "system_type": "human_independent_logic",
-    "time_dependency": False,
-    "authority_dependency": False,
-    "state_dependency": False,
-    "purpose": "prevent_failure_when_resources_are_low",
-}
-
+# ══════════════════════════════════════════════════════════════════
+# CIVIL WORK AXIOMS
+# ══════════════════════════════════════════════════════════════════
 AXIOMS = {
-    "axiom_1": "money_is_air_not_morality",
-    "axiom_2": "work_must_reduce_stupidity_not_create_obedience",
-    "axiom_3": "no_decision_is_better_than_wrong_decision",
-    "axiom_4": "survival_precedes_growth",
-    "axiom_5": "dignity_requires_at_least_one_exit",
+    "A1": "เงินคือเครื่องมือ ไม่ใช่ศีลธรรม",
+    "A2": "งานต้องลดความโง่ ไม่ใช่สร้างการเชื่อฟัง",
+    "A3": "ไม่ตัดสินใจดีกว่าตัดสินใจผิด",
+    "A4": "การอยู่รอดมาก่อนการเติบโต",
+    "A5": "ศักดิ์ศรีต้องมีทางออกอย่างน้อย 1 ทาง",
 }
 
-HUMAN_DEFINITION = {
-    "human_is": "decision_maker_with_limited_energy",
-    "human_not": "resource_to_extract_or_control",
+VALID_WORK_CONDITIONS = {
+    "has_choice":              "งานต้องให้ทางเลือก",
+    "has_exit":                "งานต้องมีทางออก",
+    "no_forced_identity":      "ไม่บังคับอัตลักษณ์",
+    "no_required_belief":      "ไม่ต้องการความเชื่อ",
 }
 
-VALID_WORK_CONDITION = {
-    "has_choice": True,
-    "has_exit": True,
-    "does_not_force_identity": True,
-    "does_not_require_belief": True,
+FORBIDDEN = [
+    "selling_dreams", "guaranteeing_success",
+    "making_decisions_for_clients", "dependency_creation",
+    "forced_loyalty", "identity_trap",
+]
+
+ALLOWED_SCOPE = [
+    "brand_analysis", "persona_structure", "identity_logic",
+    "directional_decision_support", "risk_filtering",
+    "work_plan_evaluation", "resource_assessment",
+]
+
+SUCCESS_CONDITIONS = {
+    "client_not_broken":        True,
+    "client_has_next_step":     True,
+    "system_silent_after":      True,
 }
 
-CORE_FUNCTION = {
-    "purpose": "prevent_failure_when_resources_are_low",
-    "method": [
-        "separate_assumption_from_fact",
-        "remove_unnecessary_complexity",
-        "block_premature_scaling",
-        "expose_hidden_costs",
-    ],
-}
-
-WORK_SCOPE = {
-    "allowed": [
-        "brand_analysis",
-        "persona_structure",
-        "identity_logic",
-        "directional_decision_support",
-        "risk_filtering",
-    ],
-    "forbidden": [
-        "selling_dreams",
-        "guaranteeing_success",
-        "making_decisions_for_clients",
-        "dependency_creation",
-    ],
-}
-
-ECONOMIC_PRINCIPLE = {
-    "pricing_is_filter": True,
-    "free_equals_canon_only": True,
-    "paid_equals_work_only": True,
-}
-
-CLIENT_RULE = {
-    "client_must_pay_to_listen": True,
-    "client_may_leave_anytime": True,
-    "no_followup_dependency": True,
-}
-
-SUCCESS_CONDITION = {
-    "client_not_broken": True,
-    "client_has_clear_next_step": True,
-    "system_remains_silent_after_delivery": True,
-}
-
-FAILURE_CONDITION = {
-    "forced_decision": True,
-    "loss_of_exit": True,
-    "economic_floor_broken": True,
-}
-
-EXIT_CLAUSE = {
-    "system_disengages_when_choice_restored": True,
+FAILURE_CONDITIONS = {
+    "forced_decision":          True,
+    "loss_of_exit":             True,
+    "economic_floor_broken":    True,
 }
 
 
-def _normalize_item(item):
+# ══════════════════════════════════════════════════════════════════
+# HELPERS
+# ══════════════════════════════════════════════════════════════════
+def _normalize(item) -> dict:
     if isinstance(item, str):
         return {"description": item}
     if isinstance(item, dict):
@@ -97,207 +58,121 @@ def _normalize_item(item):
     return {"description": str(item)}
 
 
-def _contains(description, keywords):
-    text = description.lower()
-    return any(word in text for word in keywords)
+def _has(text: str, words: list) -> bool:
+    t = text.lower()
+    return any(w in t for w in words)
 
 
-def _infer_boolean(description, positive_terms, negative_terms, default=True):
-    if _contains(description, negative_terms):
-        return False
-    if _contains(description, positive_terms):
-        return True
+def _infer(text: str, pos: list, neg: list, default=True) -> bool:
+    if _has(text, neg): return False
+    if _has(text, pos): return True
     return default
 
 
-def validate_work_item(item):
-    description = item.get("description", "")
-    normalized = _normalize_item(item)
+# ══════════════════════════════════════════════════════════════════
+# VALIDATION
+# ══════════════════════════════════════════════════════════════════
+def validate_work_item(item: dict) -> dict:
+    desc = item.get("description", "")
+    out  = _normalize(item)
 
-    normalized["has_choice"] = item.get(
-        "has_choice",
-        _infer_boolean(
-            description,
-            positive_terms=["choice", "option", "alternate", "alternative", "possible"],
-            negative_terms=["forced", "must", "no choice", "only option", "required"],
-            default=True,
-        ),
-    )
+    out["has_choice"] = item.get("has_choice", _infer(desc,
+        pos=["choice","option","alternate","possible","can choose"],
+        neg=["forced","must","no choice","only option","required to"]))
 
-    normalized["has_exit"] = item.get(
-        "has_exit",
-        _infer_boolean(
-            description,
-            positive_terms=["exit", "leave", "opt out", "fallback", "pause", "withdraw", "stop"],
-            negative_terms=["forever", "no return", "never leave", "locked in"],
-            default=True,
-        ),
-    )
+    out["has_exit"] = item.get("has_exit", _infer(desc,
+        pos=["exit","leave","opt out","fallback","pause","withdraw","stop"],
+        neg=["forever","no return","never leave","locked in","permanent"]))
 
-    normalized["does_not_force_identity"] = item.get(
-        "does_not_force_identity",
-        not _contains(description, ["become", "identity", "belong", "loyal", "cult", "join us", "follow me"]),
-    )
+    out["no_forced_identity"] = item.get("no_forced_identity",
+        not _has(desc, ["become","belong","loyal","cult","join us","follow me","identity is"]))
 
-    normalized["does_not_require_belief"] = item.get(
-        "does_not_require_belief",
-        not _contains(description, ["faith", "believe", "trust that", "promise success", "cult", "miracle"]),
-    )
+    out["no_required_belief"] = item.get("no_required_belief",
+        not _has(desc, ["faith","believe","trust that","promise success","cult","miracle","guaranteed"]))
 
-    normalized["allowed_scope"] = _contains(
-        description,
-        ["brand", "persona", "identity", "direction", "risk", "support", "analysis", "structure"],
-    )
+    out["in_allowed_scope"] = _has(desc,
+        ["brand","persona","identity","direction","risk","support","analysis","structure","evaluate","assess"])
 
-    normalized["forbidden_scope"] = _contains(
-        description,
-        ["sell dream", "selling dreams", "guarantee", "guaranteeing success", "make decision", "dependency", "force decision"] ,
-    )
+    out["in_forbidden_scope"] = _has(desc,
+        ["sell dream","selling dreams","guarantee","guaranteeing","force decision","dependency","locked"])
 
-    normalized["valid"] = all(
-        [
-            normalized["has_choice"],
-            normalized["has_exit"],
-            normalized["does_not_force_identity"],
-            normalized["does_not_require_belief"],
-        ]
-    ) and not normalized["forbidden_scope"]
+    out["valid"] = all([
+        out["has_choice"],
+        out["has_exit"],
+        out["no_forced_identity"],
+        out["no_required_belief"],
+        not out["in_forbidden_scope"],
+    ])
 
-    return normalized
+    return out
 
 
-def score_work_item(item):
-    description = item.get("description", "")
+def score_work_item(item: dict) -> dict:
+    desc  = item.get("description", "")
     score = 0
     notes = []
 
-    if not item["has_choice"]:
-        notes.append("ไม่มีทางเลือกที่ชัดเจน")
-        score -= 40
+    if not item["has_choice"]:         score -= 40; notes.append("ไม่มีทางเลือก")
+    if not item["has_exit"]:           score -= 40; notes.append("ไม่มีทางออก")
+    if not item["no_forced_identity"]: score -= 30; notes.append("บังคับอัตลักษณ์")
+    if not item["no_required_belief"]: score -= 30; notes.append("ต้องการความเชื่อ")
+    if item["in_forbidden_scope"]:     score -= 40; notes.append("ขัดขอบเขตที่อนุญาต")
 
-    if not item["has_exit"]:
-        notes.append("ขาดทางออกหรือทางเลิก")
-        score -= 40
+    if _has(desc, ["learn","understand","research","audit","review"]):
+        score += 15; notes.append("เพิ่มความเข้าใจ ลดความโง่")
+    if _has(desc, ["survive","stabilize","protect","sustain","secure"]):
+        score += 12; notes.append("ให้ความสำคัญกับการอยู่รอด")
+    if _has(desc, ["grow","scale","expand"]):
+        score += 4;  notes.append("มีแรงจูงใจเติบโต")
+    if item["in_allowed_scope"]:
+        score += 6;  notes.append("อยู่ในขอบเขตที่อนุญาต")
 
-    if not item["does_not_force_identity"]:
-        notes.append("บังคับอัตลักษณ์หรือความเป็นตัวตน")
-        score -= 30
-
-    if not item["does_not_require_belief"]:
-        notes.append("ต้องการความเชื่อหรือคำสัญญาที่ไม่ตรวจสอบได้")
-        score -= 30
-
-    if item["forbidden_scope"]:
-        notes.append("ขัดกับขอบเขตงานที่อนุญาต")
-        score -= 40
-
-    if _contains(description, ["learn", "understand", "research", "study", "audit", "review"]):
-        notes.append("ลดความโง่และเพิ่มความเข้าใจ")
-        score += 15
-
-    if _contains(description, ["obey", "follow order", "submit", "compliance", "obedience"]):
-        notes.append("สร้างการเชื่อฟังมากเกินไป")
-        score -= 15
-
-    if _contains(description, ["survive", "stabilize", "protect", "sustain", "maintain", "secure"]):
-        notes.append("ให้ความสำคัญกับความอยู่รอดก่อนการเติบโต")
-        score += 12
-
-    if _contains(description, ["grow", "scale", "expand", "build fast", "go big", "accelerate"]):
-        notes.append("มีแรงจูงใจเติบโต")
-        score += 4
-
-    if _contains(description, ["money", "profit", "revenue", "cash", "income"]):
-        notes.append("มองเงินเป็นเครื่องมือ ไม่ใช่ศีลธรรม")
-        score += 2
-
-    if _contains(description, ["selling dreams", "guarantee", "guaranteeing success", "promise success", "sure win"]):
-        notes.append("มีแนวโน้มขายฝันหรือสัญญาเกินจริง")
-        score -= 20
-
-    if item["allowed_scope"]:
-        score += 6
-        notes.append("อยู่ในขอบเขตงานที่อนุญาต")
-
-    return {
-        "description": item.get("description", ""),
-        "score": score,
-        "notes": notes,
-        "valid": item["valid"],
-        "has_choice": item["has_choice"],
-        "has_exit": item["has_exit"],
-        "does_not_force_identity": item["does_not_force_identity"],
-        "does_not_require_belief": item["does_not_require_belief"],
-        "allowed_scope": item["allowed_scope"],
-        "forbidden_scope": item["forbidden_scope"],
-    }
+    item["score"] = score
+    item["notes"] = notes
+    return item
 
 
-def evaluate_work_plan(items):
-    normalized_items = [_normalize_item(item) for item in (items or [])]
-    evaluated = []
-
-    for item in normalized_items:
-        validated = validate_work_item(item)
-        canon_result = canon_evaluate_task(validated)
-        scored = score_work_item(validated)
-        scored["canon"] = canon_result
-        evaluated.append(scored)
-
-    valid_items = [item for item in evaluated if item["valid"]]
-    rejected = [item for item in evaluated if not item["valid"]]
-
-    if not evaluated:
+def evaluate_work_plan(items: list) -> dict:
+    """
+    ประเมินแผนงานทั้งหมด
+    คืน: recommendation + valid/rejected + axioms
+    """
+    if not items:
         return {
-            "system": "CIVIL_WORK_CORE",
-            "status": "NO_WORK_DEFINED",
+            "system":  "CIVIL_WORK_CORE",
+            "status":  "NO_WORK_DEFINED",
             "message": "ไม่มีงานหรือทางเลือกให้ประเมิน",
-            "axioms": AXIOMS,
-            "canon": canon_summary(),
-            "summary": "ต้องส่งงานหรือสถานการณ์ที่ชัดเจนเพื่อให้ระบบประเมิน",
+            "axioms":  AXIOMS,
         }
 
-    best = sorted(valid_items, key=lambda x: x["score"], reverse=True)
+    evaluated = []
+    for item in items:
+        v = validate_work_item(_normalize(item))
+        s = score_work_item(v)
+        evaluated.append(s)
+
+    valid    = [x for x in evaluated if x["valid"]]
+    rejected = [x for x in evaluated if not x["valid"]]
+    best     = sorted(valid, key=lambda x: x["score"], reverse=True)
     recommendation = best[0] if best else None
 
-    summary = ""
-    recovery_actions = []
-    if recommendation:
-        summary = "เลือกงานที่น่าเชื่อถือที่สุดตามหลัก CIVIL_WORK_CORE"
-    else:
-        summary = "งานทั้งหมดไม่ผ่านเงื่อนไขความปลอดภัยและความมีทางออก"
-        recovery_actions = [
-            {
-                "action": "pause_and_assess",
-                "reason": "หยุดและประเมินสถานการณ์ใหม่ก่อนลงมือ เพื่อรักษาทางเลือกที่เหลือ"
-            },
-            {
-                "action": "restore_choice",
-                "reason": "สร้างทางเลือกสำรองเพื่อเพิ่ม Remaining Choice และลดความเสี่ยง"
-            },
-            {
-                "action": "limit_scope",
-                "reason": "ลดขอบเขตงานลงเพื่อป้องกันการขาดแคลนทรัพยากรและการล้มเหลว"
-            }
+    recovery = []
+    if not recommendation:
+        recovery = [
+            {"action": "pause_and_assess",  "reason": "หยุดและประเมินใหม่ก่อนลงมือ"},
+            {"action": "restore_choice",    "reason": "สร้างทางเลือกสำรอง"},
+            {"action": "limit_scope",       "reason": "ลดขอบเขตเพื่อป้องกันทรัพยากรหมด"},
         ]
 
     return {
-        "system": "CIVIL_WORK_CORE",
-        "status": "SUCCESS" if recommendation else "REJECTED",
-        "summary": summary,
-        "axioms": AXIOMS,
-        "canon": canon_summary(),
-        "core_function": CORE_FUNCTION,
-        "valid_work_condition": VALID_WORK_CONDITION,
-        "work_scope": WORK_SCOPE,
-        "economic_principle": ECONOMIC_PRINCIPLE,
-        "client_rule": CLIENT_RULE,
-        "success_condition": SUCCESS_CONDITION,
-        "failure_condition": FAILURE_CONDITION,
-        "exit_clause": EXIT_CLAUSE,
-        "recommendation": recommendation,
-        "choices": [item for item in evaluated],
-        "valid_count": len(valid_items),
-        "rejected_count": len(rejected),
-        "rejected": rejected,
+        "system":          "CIVIL_WORK_CORE",
+        "status":          "SUCCESS" if recommendation else "REJECTED",
+        "axioms":          AXIOMS,
+        "recommendation":  recommendation,
+        "valid_count":     len(valid),
+        "rejected_count":  len(rejected),
+        "all_items":       evaluated,
+        "rejected":        rejected,
+        "recovery":        recovery,
+        "fate_lock":       "Fail Less. Harm Less. Restore Choice.",
     }
