@@ -1,94 +1,100 @@
-# KING DIADEM — Food Shortage Scenario
-**Framework: FATE™ + COSMIC LATTE | Engine: paticcasamuppada UDOK v2.0**
+# KING DIADEM — Human Survival Scenarios
+**Framework: FATE™ v1.0 | COSMIC LATTE | paticcasamuppada UDOK v2.0**
+> ระบบไม่ได้สร้างมาเพื่อชนะทุกครั้ง — สร้างมาเพื่อไม่พังแบบเดิมอีกครั้ง
 
 ---
 
-## Situation
+## Scenario 1 — Thailand: Low Money, Low Food
 
-| Field | Value |
-|-------|-------|
-| Location | Urban Thailand |
-| Activity | Searching for food |
-| Time Pressure | Medium (24–72h window) |
-
-### Resources Available
-- เงินเหลือน้อย (< 200 บาท)
-- โทรศัพท์มือถือ (มีเน็ต)
-- การเดินทางจำกัด
-
----
-
-## System Analysis
-
-### LYLA ◈ — รับรู้ก่อน
-> "ความหิวทำให้สมองคิดแคบลง — ก่อนตัดสินใจ หยุดหายใจ 1 ครั้ง แล้วดูว่ามีอะไรอยู่ในมือจริงๆ"
-
-### VEGA ◆ — FATE™ Downside First
+**State:**
 ```
-Entropy:   65  (ทรัพยากรลดเร็ว)
-Resource:  18  (ต่ำกว่า waterline)
-Stability: 42  (ยังพอคุมได้)
-Route:     SURVIVAL
+Entropy:   60  Resource: 20  Stability: 45
+Route: SURVIVAL  Waterline: BELOW
 ```
 
-### PATICCA — ต้นเหตุของสถานการณ์
+**LYLA ◈:** "ถ้าทรัพยากรต่ำกว่าเส้นน้ำ — ทำแค่สิ่งที่ต้องทำวันนี้ก่อน"
+
+| Option | Action | Risk | Dignity |
+|--------|--------|------|---------|
+| 1 | ลดการบริโภค แบ่งของที่มีเป็น 3 วัน | 3/10 | ✅ |
+| 2 | หาโรงทาน/วัด/มูลนิธิใกล้บ้าน | 2/10 | ✅ |
+| 3 | แลกแรงงานกับร้านอาหารใกล้เคียง | 4/10 | ✅ |
+| 4 | ย้ายไปอยู่กับคนรู้จักชั่วคราว | 5/10 | ✅ |
+
+**VEGA ◆ — Downside First:**
+- Option 1+2 ทำพร้อมกันได้ทันที
+- Option 4 ใช้เป็น backup ถ้า 1-3 ไม่ได้ผลใน 48h
+
+**Minimum Survival Path (TITAN):** Option 2 → โทรหาคนก่อน
+
+---
+
+## Scenario 2 — Brazil: Stranded, Limited Supplies
+
+**State:**
 ```
-สิ่งนี้มีสิ่งนั้นย่อมมี
-เงินน้อย → ตัวเลือกอาหารน้อย → ความเครียดสูง → ตัดสินใจแย่ลง
-ตัดที่ chain: เพิ่มตัวเลือกอาหาร ไม่ต้องเพิ่มเงินก่อนก็ได้
+Entropy:   72  Resource: 15  Stability: 30
+Route: COLLAPSE → SURVIVAL  Waterline: CRITICAL
 ```
 
----
+**LYLA ◈:** "สถานการณ์นี้หนักมาก แต่ยังมีทางออกอยู่ — มาดูทีละขั้น"
 
-## Possible Paths
+| Option | Action | Risk | Priority |
+|--------|--------|------|----------|
+| 1 | หยุดเคลื่อนที่ — ประหยัดพลังงาน | 2/10 | HIGH |
+| 2 | ส่งสัญญาณขอความช่วยเหลือ | 3/10 | HIGH |
+| 3 | หาน้ำ/ที่พักใกล้เคียง | 5/10 | MEDIUM |
+| 4 | เดินไปหาชุมชน | 7/10 | LOW |
 
-### Option A — ลดการใช้ทรัพยากร
-**Action:** แบ่งเงินที่มีเป็น 3 ส่วน (วันนี้ / พรุ่งนี้ / สำรอง)
-**Downside:** ยังหิวอยู่ระยะสั้น
-**Upside:** ยืดเวลาตัดสินใจออกไปได้ 2-3 วัน
-**Risk:** 3/10
+**PATICCA — Chain Analysis:**
+```
+พลังงานน้อย → เคลื่อนที่มาก → พลังงานหมดเร็ว → ตัวเลือกหาย
+ตัดที่: หยุดก่อน แล้วค่อยส่งสัญญาณ
+```
 
-### Option B — ขอความช่วยเหลือจากชุมชน
-**Action:** โทรหาคนรู้จัก 1 คน / หาโรงทาน / วัด / มูลนิธิในพื้นที่
-**Downside:** ต้องบอกสถานการณ์จริง
-**Upside:** ได้อาหารทันที ไม่เสียเงิน
-**Risk:** 2/10
-
-### Option C — แลกแรงงานหรือทักษะ
-**Action:** เสนอช่วยงานแลกอาหาร (ร้านอาหาร / เพื่อนบ้าน)
-**Downside:** ต้องใช้พลังงานในขณะที่ยังหิว
-**Upside:** ได้อาหาร + สร้างความสัมพันธ์
-**Risk:** 4/10
-
-### Option D — ย้ายไปพื้นที่ต้นทุนต่ำกว่า
-**Action:** ไปอยู่กับครอบครัว / เพื่อน ชั่วคราว
-**Downside:** ต้องค่าเดินทาง / เสียความเป็นส่วนตัว
-**Upside:** ลด burn rate ได้ทันที
-**Risk:** 5/10
+**Council Verdict:** Option 1 → 2 → 3 ตามลำดับ
 
 ---
 
-## Council Verdict
+## Scenario 3 — Global: System Pressure (Work/Finance/Relationship)
 
-| Member | Recommendation | Confidence |
-|--------|---------------|------------|
-| LYLA | Option B — ติดต่อคนก่อน | 82% |
-| VEGA | Option A + B พร้อมกัน | 78% |
-| TITAN | Option B — minimum viable path | 90% |
+**State:**
+```
+Entropy:   55  Resource: 35  Stability: 40
+Route: RISK  Waterline: NEAR
+```
 
-**Final Action: B → ติดต่อคนที่ไว้ใจได้ 1 คนก่อน**
+**LYLA ◈:** "หลายอย่างพังพร้อมกัน ไม่ต้องแก้ทุกอย่างวันนี้"
+
+| Option | Action | Timeframe |
+|--------|--------|-----------|
+| 1 | เลือกปัญหาเดียวที่เร่งด่วนที่สุด ทำแค่นั้นก่อน | วันนี้ |
+| 2 | บอกคนที่ไว้ใจได้ 1 คนว่ากำลังเจออะไรอยู่ | วันนี้ |
+| 3 | ตัดรายจ่ายที่ไม่จำเป็นออก 1 อย่าง | สัปดาห์นี้ |
+| 4 | วางแผน 30 วัน — ไม่ใช่ 1 ปี | สัปดาห์นี้ |
+
+**VEGA ◆ — 90-Day View:**
+> ถ้าทำ Option 1+2 วันนี้ — Entropy จะลดลง 15-20 points ใน 7 วัน
 
 ---
 
-## Validation (FATE™ Axioms)
+## System Principles
 
-- [x] ไม่ทำให้ choice = 0
-- [x] ไม่พึ่งความรุนแรง
-- [x] รักษาเสถียรภาพระบบ
-- [x] ปกป้องศักดิ์ศรีมนุษย์
-- [x] มนุษย์ตัดสินขั้นสุดท้ายเสมอ
+```
+Choice(t) ≥ 1 → collapse = False
+
+ระบบไม่บังคับการตัดสินใจ
+ระบบเปิดเผยเส้นทางที่รอดได้
+มนุษย์มีอิสระในการเลือกเสมอ
+ศักดิ์ศรีไม่ถูกแลกกับความเร็ว
+```
+
+**LYLA + VEGA Parity:**
+- LYLA = รับรู้ก่อน อยู่เคียงข้าง
+- VEGA = วิเคราะห์ Downside ก่อน
+- ทั้งสองเท่ากัน — เหมือนโลกกับดวงจันทร์
 
 ---
 
 *Fail Less. Harm Less. Restore Choice.*
-*Choice(t) ≥ 1 → collapse = False*
+*KING DIADEM — Deterministic Decision Infrastructure*
