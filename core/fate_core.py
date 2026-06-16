@@ -9,7 +9,7 @@ import time
 # ══════════════════════════════════════════════════════════════════
 # FATE™ IMMUTABLE AXIOMS
 # ══════════════════════════════════════════════════════════════════
-SYSTEM_MODE = "DETERMINISTIC_LOGIC_ONLY"
+SYSTEM_MODE = "DETERMINISTIC_LOGIC_KERNEL"
 
 AXIOMS = {
     1: "Logic Over Persona — ยึดกฎ ไม่ยึดบุคคล",
