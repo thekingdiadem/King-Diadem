@@ -1,53 +1,107 @@
-# ENGINE/simulation_engine.py — KING DIADEM
-# Public API: simulate() ← app.py | Core: simulate_future()
+# ENGINE/simulation_engine.py
+# KING DIADEM — Simulation Engine
+# Deterministic future-path simulator — FATE™ compatible
+# Uses same LLM singleton as rest of system
 
-def simulate(text: str, paths: list = None) -> dict:
-    paths   = paths or []
-    signals = _scan(text)
-    scenarios = _build(signals, paths)
-    best = min(scenarios, key=lambda s: s["risk"])
-    return {"scenarios": scenarios, "best_path": best,
-            "risk_summary": _summary(signals), "signals": signals, "horizon_days": [30, 90, 365]}
+from __future__ import annotations
+import json
 
-def simulate_future(state) -> list:
-    signals = _scan(state) if isinstance(state, str) else (state if isinstance(state, dict) else {})
-    return _build(signals, [])
 
-def run_simulation(state) -> list:
-    return simulate_future(state)
+def simulate(data: dict) -> dict:
+    """
+    Input:  {"input": str, "paths": list[str]}
+    Output: {"simulation": str, "paths": list, "lyla_observation": dict}
+    """
+    user_input: str = (data.get("input") or "").strip()
+    paths: list     = data.get("paths") or []
 
-def _scan(text: str) -> dict:
-    t = str(text).lower()
+    if not user_input:
+        return {
+            "simulation": "ไม่มีสถานการณ์ให้จำลอง — กรุณาพิมพ์ก่อนนะคะ",
+            "paths": paths,
+            "lyla_observation": {}
+        }
+
+    # ── LLM ───────────────────────────────────────────────────────
+    try:
+        from core.llm_gemini import get_llm
+        llm = get_llm()
+    except Exception as e:
+        return {
+            "simulation": f"LLM ไม่พร้อม: {e}",
+            "paths": paths,
+            "lyla_observation": {}
+        }
+
+    # ── Build prompt ──────────────────────────────────────────────
+    paths_text = ""
+    if paths:
+        listed = "\n".join(f"  - {p}" for p in paths if p.strip())
+        paths_text = f"\n\nเส้นทางที่ต้องการจำลอง:\n{listed}"
+
+    prompt = (
+        f"จำลองอนาคตสถานการณ์นี้ตามกรอบ KING DIADEM FATE™:\n\n"
+        f"สถานการณ์: {user_input}"
+        f"{paths_text}\n\n"
+        f"วิเคราะห์:\n"
+        f"1. ผลลัพธ์ที่เป็นไปได้มากที่สุด (60%+)\n"
+        f"2. ความเสี่ยงหลักที่ต้องระวัง\n"
+        f"3. ทางเลือกที่ยังเปิดอยู่ (Choice ≥ 1)\n"
+        f"4. สัญญาณ Waterline / Drift ที่ควรติดตาม\n"
+        f"5. คำแนะนำ LYLA: action ที่ Fail Less ที่สุด\n\n"
+        f"ตอบเป็นภาษาไทย กระชับ ตรงประเด็น ไม่เกิน 300 คำ\n— LYLA ◈"
+    )
+
+    # ── Call LLM ──────────────────────────────────────────────────
+    try:
+        reply = llm.generate_with_governance(
+            prompt=prompt,
+            additional_context="mode=simulation,system=FATE_DETERMINISTIC",
+            route="survival",
+        )
+        if not reply:
+            raise ValueError("empty response")
+    except Exception as e:
+        # Fallback: raw generate
+        try:
+            from google.genai import types as gt
+            cfg = gt.GenerateContentConfig(
+                system_instruction=(
+                    "คุณคือ LYLA จาก KING DIADEM จำลองอนาคตด้วย "
+                    "FATE™ Deterministic Logic — Fail Less · Harm Less · Restore Choice"
+                ),
+                temperature=0.4,
+                max_output_tokens=600,
+            )
+            resp = llm.client.models.generate_content(
+                model=llm.model,
+                contents=[gt.Content(role="user", parts=[gt.Part.from_text(text=prompt)])],
+                config=cfg,
+            )
+            reply = (resp.text or "").strip()
+        except Exception as e2:
+            return {
+                "simulation": f"จำลองไม่สำเร็จ: {e2}",
+                "paths": paths,
+                "lyla_observation": {}
+            }
+
+    # ── Lyla observation (lightweight pattern) ────────────────────
+    obs: dict = {}
+    lower = user_input.lower()
+    if any(w in lower for w in ["เงิน", "หนี้", "ขาดทุน", "ล้ม"]):
+        obs = {"domain": "financial", "waterline": "monitor", "drift_risk": "medium"}
+    elif any(w in lower for w in ["ป่วย", "สุขภาพ", "อาการ"]):
+        obs = {"domain": "health", "waterline": "caution", "drift_risk": "low"}
+    elif any(w in lower for w in ["งาน", "ลาออก", "เลิกจ้าง", "บริษัท"]):
+        obs = {"domain": "career", "waterline": "stable", "drift_risk": "medium"}
+    elif any(w in lower for w in ["วิกฤต", "ฉุกเฉิน", "urgent", "ด่วน"]):
+        obs = {"domain": "crisis", "waterline": "critical", "drift_risk": "high"}
+    else:
+        obs = {"domain": "general", "waterline": "stable", "drift_risk": "low"}
+
     return {
-        "has_financial_risk": any(w in t for w in ["เงิน","หนี้","ขาดทุน","money","debt","loss"]),
-        "has_survival_risk":  any(w in t for w in ["หิว","ไม่มีที่","อันตราย","food","shelter","danger"]),
-        "has_collapse_risk":  any(w in t for w in ["พัง","ล้ม","collapse","crisis","วิกฤต"]),
-        "has_opportunity":    any(w in t for w in ["โอกาส","เติบโต","opportunity","grow"]),
-        "has_uncertainty":    any(w in t for w in ["ไม่แน่","uncertain","maybe","บางที"]),
+        "simulation": reply,
+        "paths": paths,
+        "lyla_observation": obs,
     }
-
-def _build(signals: dict, user_paths: list) -> list:
-    scenarios = [
-        {"label": "ดำเนินต่อ (baseline)", "future": "stable",
-         "risk": min(10, 2 + (2 if signals.get("has_financial_risk") else 0) + (1 if signals.get("has_uncertainty") else 0)),
-         "action": "maintain",
-         "horizon": {"30d": "ไม่มีการเปลี่ยนแปลงมาก", "90d": "drift สะสมถ้าไม่แก้ต้นทาง", "365d": "ผลสะสมชัดขึ้น"}},
-        {"label": "ทรัพยากรลด", "future": "resource_drop",
-         "risk": min(10, 5 + (2 if signals.get("has_financial_risk") else 0) + (2 if signals.get("has_survival_risk") else 0)),
-         "action": "secure_resources",
-         "horizon": {"30d": "ต้องการ buffer ทันที", "90d": "ถ้าไม่ secure cascade เริ่ม", "365d": "ผลกระทบทุกมิติ"}},
-        {"label": "ความเสี่ยงสูง", "future": "high_risk",
-         "risk": min(10, 7 + (2 if signals.get("has_collapse_risk") else 0) + (1 if signals.get("has_survival_risk") else 0)),
-         "action": "stabilize",
-         "horizon": {"30d": "ต้องการ intervention ทันที", "90d": "ช่อง escape แคบลง", "365d": "recovery ยาก 3x"}},
-    ]
-    for i, path in enumerate(user_paths[:3]):
-        if str(path).strip():
-            scenarios.append({"label": f"ทางเลือก {i+1}: {str(path)[:60]}", "future": "user_defined",
-                               "risk": 5, "action": "evaluate",
-                               "horizon": {"30d": "ขึ้นกับ execute", "90d": "ผลชัดขึ้น", "365d": "ดูที่ consistency"}})
-    return scenarios
-
-def _summary(signals: dict) -> str:
-    active = [k.replace("has_","").replace("_"," ") for k, v in signals.items() if v]
-    return f"สัญญาณที่ตรวจพบ: {', '.join(active)}" if active else "ไม่พบสัญญาณเสี่ยงชัดเจน"
