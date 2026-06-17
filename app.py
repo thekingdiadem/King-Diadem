@@ -690,13 +690,74 @@ async def run_kernel(request: Request, data: dict):
 # ── SIMULATE ──────────────────────────────────────────────────────
 @app.post("/simulate")
 async def run_simulate(data: dict):
-    user_input = data.get("input") or ""
+    user_input = str(data.get("input") or "").strip()
     paths      = data.get("paths") or []
-    if not simulate:
-        return {"simulation": "ระบบจำลองไม่พร้อมใช้งานตอนนี้", "paths": paths}
+    if not user_input:
+        return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
+
+    # ใช้ LLM เป็น primary — ไม่ depend on simulate engine
     try:
-        result = simulate({"input": user_input, "paths": paths})
-        return result if isinstance(result, dict) else {"simulation": str(result)}
+        _llm = get_llm()
+        paths_text = "
+".join(f"- {p}" for p in paths if str(p).strip()) or "ไม่ระบุ"
+        prompt = (
+            f"[KING DIADEM — จำลองอนาคต FATE™]
+
+"
+            f"สถานการณ์: {user_input}
+
+"
+            f"ทางเลือกที่ผู้ใช้มี:
+{paths_text}
+
+"
+            f"วิเคราะห์แต่ละทางเลือก:
+"
+            f"1. ความเสี่ยง (Downside First)
+"
+            f"2. ผลใน 30 / 90 วัน
+"
+            f"3. ทางที่แนะนำพร้อมเหตุผล 1 ประโยค
+
+"
+            f"ตอบเป็นภาษาไทย กระชับ ใช้งานได้ทันที
+— VEGA ◆"
+        )
+        answer = _llm.generate(prompt, temperature=0.65, max_tokens=800)
+        if answer and len(answer) > 10:
+            return {"simulation": answer}
+    except Exception as e:
+        print(f"⚠ simulate LLM: {e}")
+
+    # fallback ENGINE
+    if not simulate:
+        return {"simulation": "ระบบจำลองไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งครับ"}
+    try:
+        result = simulate(user_input, paths)
+        if not isinstance(result, dict):
+            return {"simulation": str(result)}
+        # แปลง scenarios เป็น text ที่อ่านง่าย
+        scenarios = result.get("scenarios", [])
+        best = result.get("best_path", {})
+        summary = result.get("risk_summary", "")
+        lines = [summary, ""]
+        for s in scenarios:
+            label = s.get("label", "")
+            risk = s.get("risk", 0)
+            action = s.get("action", "")
+            h = s.get("horizon", {})
+            lines.append(f"▸ {label}")
+            lines.append(f"  ความเสี่ยง: {risk}/10  |  แนวทาง: {action}")
+            if h:
+                lines.append(f"  30 วัน: {h.get('30d','—')}")
+                lines.append(f"  90 วัน: {h.get('90d','—')}")
+            lines.append("")
+        if best:
+            lines.append(f"✅ ทางที่แนะนำ: {best.get('label','—')}")
+            lines.append(f"   เหตุผล: ความเสี่ยงต่ำสุด ({best.get('risk',0)}/10)")
+        result["simulation"] = "
+".join(lines)
+        return result
     except Exception as e:
         print(f"⚠ simulate error: {e}")
         return {"error": _friendly_error(str(e))}
@@ -803,7 +864,12 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
             system_instruction="คุณคือ LYLA governance scanner วิเคราะห์ภาพแล้วรายงาน risk/choice/waterline",
             temperature=0.5, max_output_tokens=800,
         )
-        resp = _llm.client.models.generate_content(model=_llm.model, contents=contents, config=cfg)
+        # Vision ต้องใช้โมเดลที่รองรับ multimodal
+        vision_model = 'gemini-2.0-flash'
+        try:
+            resp = _llm.client.models.generate_content(model=vision_model, contents=contents, config=cfg)
+        except Exception:
+            resp = _llm.client.models.generate_content(model='gemini-1.5-flash', contents=contents, config=cfg)
         return {"analysis": (resp.text or "").strip(), "filename": file.filename}
     except Exception as e:
         print(f"⚠ analyze_image error: {e}")
