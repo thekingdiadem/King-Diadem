@@ -36,7 +36,7 @@ html { height:100%; -webkit-text-size-adjust:100%; }
 body { width:100%; height:100%; background:transparent; color:var(--text); font-family:var(--font-sans); font-size:15px; line-height:1.65; overflow:hidden; overscroll-behavior:none; }
 
 /* GALAXY */
-#galaxy-bg { position:fixed; inset:0; z-index:0; background:#05070f; opacity:1; transition:opacity 1.4s cubic-bezier(0.4,0,0.2,1); pointer-events:none; }
+#galaxy-bg { position:fixed; inset:0; z-index:0; background:#05070f; opacity:1; transition:opacity 1.8s ease; pointer-events:none; }
 #galaxy-bg.chat-mode { opacity:0.28; }
 #galaxy { display:block; position:absolute; inset:0; width:100%; height:100%; }
 
@@ -1071,7 +1071,11 @@ function setZeroState(){
 }
 function setChatState(){
   if(_inChatMode)return; _inChatMode=true;
-  document.getElementById('galaxy-bg')?.classList.add('chat-mode');
+  // galaxy dims เฉพาะเมื่อมีข้อความจริงๆ
+  var _chatEl = document.getElementById('chat-scroll');
+  var _hasMsgs = _chatEl && _chatEl.querySelectorAll('.msg').length > 0;
+  if(_hasMsgs) document.getElementById('galaxy-bg')?.classList.add('chat-mode');
+  else setTimeout(function(){ document.getElementById('galaxy-bg')?.classList.add('chat-mode'); }, 2000);
   document.getElementById('topbar')?.classList.add('chat-mode');
   document.getElementById('input-dock')?.classList.add('chat-mode');
   document.getElementById('chat-scroll')?.classList.add('visible');
