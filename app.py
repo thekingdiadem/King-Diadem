@@ -695,71 +695,37 @@ async def run_simulate(data: dict):
     if not user_input:
         return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
 
-    # ใช้ LLM เป็น primary — ไม่ depend on simulate engine
+    # Primary: LLM direct
     try:
         _llm = get_llm()
-        paths_text = "
-".join(f"- {p}" for p in paths if str(p).strip()) or "ไม่ระบุ"
+        paths_text = "\n".join("- " + str(p) for p in paths if str(p).strip()) or "ไม่ระบุ"
         prompt = (
-            f"[KING DIADEM — จำลองอนาคต FATE™]
-
-"
-            f"สถานการณ์: {user_input}
-
-"
-            f"ทางเลือกที่ผู้ใช้มี:
-{paths_text}
-
-"
-            f"วิเคราะห์แต่ละทางเลือก:
-"
-            f"1. ความเสี่ยง (Downside First)
-"
-            f"2. ผลใน 30 / 90 วัน
-"
-            f"3. ทางที่แนะนำพร้อมเหตุผล 1 ประโยค
-
-"
-            f"ตอบเป็นภาษาไทย กระชับ ใช้งานได้ทันที
-— VEGA ◆"
+            "[KING DIADEM — จำลองอนาคต FATE]\n\n"
+            "สถานการณ์: " + user_input + "\n\n"
+            "ทางเลือกที่ผู้ใช้มี:\n" + paths_text + "\n\n"
+            "วิเคราะห์แต่ละทางเลือก:\n"
+            "1. ความเสี่ยง (Downside First)\n"
+            "2. ผลใน 30 / 90 วัน\n"
+            "3. ทางที่แนะนำพร้อมเหตุผล 1 ประโยค\n\n"
+            "ตอบเป็นภาษาไทย กระชับ ใช้งานได้ทันที\n— VEGA"
         )
-        answer = _llm.generate(prompt, temperature=0.65, max_tokens=800)
-        if answer and len(answer) > 10:
+        answer = _llm.generate_with_governance(
+            prompt=prompt, route="survival",
+            additional_context="mode=simulation"
+        )
+        if answer and len(str(answer)) > 10:
             return {"simulation": answer}
     except Exception as e:
-        print(f"⚠ simulate LLM: {e}")
+        print(f"simulate LLM: {e}")
 
-    # fallback ENGINE
+    # Fallback: simulation_engine
     if not simulate:
         return {"simulation": "ระบบจำลองไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งครับ"}
     try:
-        result = simulate(user_input, paths)
-        if not isinstance(result, dict):
-            return {"simulation": str(result)}
-        # แปลง scenarios เป็น text ที่อ่านง่าย
-        scenarios = result.get("scenarios", [])
-        best = result.get("best_path", {})
-        summary = result.get("risk_summary", "")
-        lines = [summary, ""]
-        for s in scenarios:
-            label = s.get("label", "")
-            risk = s.get("risk", 0)
-            action = s.get("action", "")
-            h = s.get("horizon", {})
-            lines.append(f"▸ {label}")
-            lines.append(f"  ความเสี่ยง: {risk}/10  |  แนวทาง: {action}")
-            if h:
-                lines.append(f"  30 วัน: {h.get('30d','—')}")
-                lines.append(f"  90 วัน: {h.get('90d','—')}")
-            lines.append("")
-        if best:
-            lines.append(f"✅ ทางที่แนะนำ: {best.get('label','—')}")
-            lines.append(f"   เหตุผล: ความเสี่ยงต่ำสุด ({best.get('risk',0)}/10)")
-        result["simulation"] = "
-".join(lines)
-        return result
+        result = simulate({"input": user_input, "paths": paths})
+        return result if isinstance(result, dict) else {"simulation": str(result)}
     except Exception as e:
-        print(f"⚠ simulate error: {e}")
+        print(f"simulate error: {e}")
         return {"error": _friendly_error(str(e))}
 
 
@@ -864,13 +830,21 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
             system_instruction="คุณคือ LYLA governance scanner วิเคราะห์ภาพแล้วรายงาน risk/choice/waterline",
             temperature=0.5, max_output_tokens=800,
         )
-        # Vision ต้องใช้โมเดลที่รองรับ multimodal
-        vision_model = 'gemini-2.0-flash'
+        # vision: try flash-2.0 first, fallback 1.5
+        vision_model = getattr(_llm, 'vision_model', None) or 'gemini-2.0-flash'
         try:
             resp = _llm.client.models.generate_content(model=vision_model, contents=contents, config=cfg)
         except Exception:
             resp = _llm.client.models.generate_content(model='gemini-1.5-flash', contents=contents, config=cfg)
-        return {"analysis": (resp.text or "").strip(), "filename": file.filename}
+        try:
+            analysis_text = resp.text or ""
+        except Exception:
+            parts = getattr(getattr(resp, 'candidates', [None])[0], 'content', None)
+            analysis_text = " ".join(p.text for p in (getattr(parts, 'parts', []) or []) if hasattr(p,'text'))
+        analysis_text = analysis_text.strip()
+        if not analysis_text:
+            analysis_text = "LYLA วิเคราะห์ภาพไม่ได้ — อาจถูก Gemini safety block หรือภาพไม่ชัด"
+        return {"analysis": analysis_text, "filename": file.filename}
     except Exception as e:
         print(f"⚠ analyze_image error: {e}")
         return JSONResponse({"error": _friendly_error(str(e))}, status_code=500)
