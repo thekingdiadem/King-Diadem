@@ -36,7 +36,7 @@ html { height:100%; -webkit-text-size-adjust:100%; }
 body { width:100%; height:100%; background:transparent; color:var(--text); font-family:var(--font-sans); font-size:15px; line-height:1.65; overflow:hidden; overscroll-behavior:none; }
 
 /* GALAXY */
-#galaxy-bg { position:fixed; inset:0; z-index:0; background:#05070f; opacity:1; transition:opacity 1.8s ease; pointer-events:none; }
+#galaxy-bg { position:fixed; inset:0; z-index:0; background:#05070f; opacity:1; transition:opacity 1.4s cubic-bezier(0.4,0,0.2,1); pointer-events:none; }
 #galaxy-bg.chat-mode { opacity:0.28; }
 #galaxy { display:block; position:absolute; inset:0; width:100%; height:100%; }
 
@@ -1071,11 +1071,7 @@ function setZeroState(){
 }
 function setChatState(){
   if(_inChatMode)return; _inChatMode=true;
-  // galaxy dims เฉพาะเมื่อมีข้อความจริงๆ
-  var _chatEl = document.getElementById('chat-scroll');
-  var _hasMsgs = _chatEl && _chatEl.querySelectorAll('.msg').length > 0;
-  if(_hasMsgs) document.getElementById('galaxy-bg')?.classList.add('chat-mode');
-  else setTimeout(function(){ document.getElementById('galaxy-bg')?.classList.add('chat-mode'); }, 2000);
+  document.getElementById('galaxy-bg')?.classList.add('chat-mode');
   document.getElementById('topbar')?.classList.add('chat-mode');
   document.getElementById('input-dock')?.classList.add('chat-mode');
   document.getElementById('chat-scroll')?.classList.add('visible');
@@ -1200,7 +1196,7 @@ async function simulate(){
   var input=(document.getElementById('sim-input-text')?.value||'').trim();var btn=document.getElementById('sim-btn'),out=document.getElementById('sim-result');out.style.display='block';
   if(!input){out.textContent='พิมพ์สถานการณ์ก่อนนะคะ';return;} btn.disabled=true;out.textContent='กำลังจำลองอนาคต…';
   var paths=[...document.querySelectorAll('#sim-paths input')].map(function(i){return i.value;}).filter(Boolean);
-  try{ var r=await fetchRetry('/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:input,paths:paths})},2,1000);var d=await readJson(r);var txt=d.simulation||d.message||d.error||'—';if(d.lyla_observation)txt+='\n\nการสังเกตของ LYLA\n'+(typeof d.lyla_observation==='object'?JSON.stringify(d.lyla_observation,null,2):d.lyla_observation);out.textContent=txt; }catch(e){out.textContent='ระบบยุ่งอยู่ กรุณาลองใหม่'; }
+  try{ var r=await fetchRetry('/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:input,paths:paths})},2,1200);var d=await readJson(r);var txt=d.simulation||d.message||d.error||'';if(!txt&&typeof d==='object')txt=JSON.stringify(d,null,2);if(!txt)txt='ผลลัพธ์ว่าง — กรุณาลองใหม่';if(d.lyla_observation&&Object.keys(d.lyla_observation).length){var obs=d.lyla_observation;txt+='\n\n── การสังเกตของ LYLA ──\nโดเมน: '+(obs.domain||'—')+' | Waterline: '+(obs.waterline||'—')+' | Drift: '+(obs.drift_risk||'—');}out.textContent=txt; }catch(e){out.textContent='เครือข่าย: '+e;}
   btn.disabled=false;
 }
 async function stripeCheckout(){
@@ -1209,9 +1205,20 @@ async function stripeCheckout(){
   try{ var r=await fetch('/create-checkout-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan:plan,email:email,api_key:email})});var d=await readJson(r);if(d.url)location.href=d.url;else showErr(d.error||d.message||'Stripe ไม่สำเร็จ',5000); }catch(e){showErr('เครือข่าย: '+e,5000);}
 }
 async function uploadImage(){
-  var fi=document.getElementById('photo-file'),out=document.getElementById('photo-output');if(!fi.files.length){out.textContent='เลือกภาพก่อน';return;}
-  var fd=new FormData();fd.append('file',fi.files[0]);out.textContent='กำลังวิเคราะห์…';
-  try{ var res=await fetchRetry('/analyze-image',{method:'POST',body:fd},2,1000);var data=await readJson(res);if(data.error){out.textContent='⚠ '+data.error;return;}out.textContent=(data.analysis||'')+'\n\n['+(data.filename||'')+']'; }catch(e){out.textContent='ERROR '+e;}
+  var fi=document.getElementById('photo-file'),out=document.getElementById('photo-output');
+  if(!fi.files.length){out.textContent='เลือกภาพก่อน';return;}
+  var photoBtns=document.querySelectorAll('#section-photo .btn');
+  photoBtns.forEach(function(b){b.disabled=true;});
+  var fd=new FormData();fd.append('file',fi.files[0]);out.textContent='กำลังวิเคราะห์ภาพ…';
+  try{
+    var res=await fetchRetry('/analyze-image',{method:'POST',body:fd},2,1200);
+    var data=await readJson(res);
+    if(data.error){out.textContent='⚠ '+data.error;return;}
+    var txt=(data.analysis||'').trim();
+    if(!txt)txt='LYLA วิเคราะห์ภาพไม่ได้ — กรุณาลองภาพอื่น';
+    out.textContent=txt+'\n\n['+(data.filename||'')+']';
+  }catch(e){out.textContent='ERROR: '+e;}
+  finally{photoBtns.forEach(function(b){b.disabled=false;});}
 }
 if('serviceWorker' in navigator){ window.addEventListener('load',function(){navigator.serviceWorker.register('/static/service-worker.js').catch(function(){});}); }
 (function(){
