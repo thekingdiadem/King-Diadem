@@ -1,12 +1,11 @@
 /* ============================================================
-   KING DIADEM — galaxy_scene.js v33
-   TRUE SOLAR SYSTEM — Center-Sun, Top-Down Orbits
-   2035-grade aesthetic: deep space, photorealistic planets
-   Ion trails | Shockwave | Meteor showers | Aurora
-   Safe-zone aware: never overlaps sidebar / topbar / input dock
+   KING DIADEM — galaxy_scene_live.js v34
+   LIVE STATE SYNC — Entropy/Stability/Resources Real-Time
+   TRUE SOLAR SYSTEM + HTML Integration
    ============================================================ */
 (function () {
   'use strict';
+  
   var cv = document.getElementById('galaxy');
   if (!cv) return;
   if (!window.KD) window.KD = {};
@@ -20,16 +19,59 @@
   /* ── SAFE ZONE ─────────────────────────────────── */
   function isDesktop() { return W >= 900; }
   function UI_LEFT()   { return isDesktop() ? 252 : 0; }
-  function UI_TOP()    { return 56; }
+  function UI_TOP()    { return 52; }
   function UI_BOTTOM() { return isDesktop() ? 92 : 132; }
   function usableW()   { return Math.max(160, W - UI_LEFT()); }
   function usableH()   { return Math.max(160, H - UI_TOP() - UI_BOTTOM()); }
 
-  /* Sun center — right portion of usable area */
   function SX() { return UI_LEFT() + usableW() * 0.42; }
   function SY() { return UI_TOP()  + usableH() * 0.50; }
   function sunR() { return Math.max(10, Math.min(usableH() * 0.048, 20)); }
   function maxOrb() { return Math.min(usableW() * 0.46, usableH() * 0.46); }
+
+  /* ── STATE OBJECT (syncs with HTML) ───────────── */
+  var STATE = {
+    entropy: 45,      // 0-100
+    stability: 62,    // 0-100
+    resources: 78,    // 0-100
+    waterline: 89,    // calculated
+    choice_count: 4,  // available paths
+    thinking: false,
+    activeRoute: 'general'
+  };
+
+  function updateWaterline() {
+    // Waterline = proximity to collapse
+    // When entropy↑ + stability↓ + resources↓ = danger
+    var danger = (STATE.entropy * 0.33) + (100 - STATE.stability) * 0.33 + (100 - STATE.resources) * 0.34;
+    STATE.waterline = Math.max(0, Math.min(100, 100 - danger));
+  }
+
+  function syncStateFromHTML() {
+    // Look for visible state displays in DOM
+    var entropyEl = document.querySelector('[data-state="entropy"]');
+    var stabilityEl = document.querySelector('[data-state="stability"]');
+    var resourcesEl = document.querySelector('[data-state="resources"]');
+    var choiceEl = document.querySelector('[data-state="choice_count"]');
+    
+    if (entropyEl) STATE.entropy = parseFloat(entropyEl.textContent) || STATE.entropy;
+    if (stabilityEl) STATE.stability = parseFloat(stabilityEl.textContent) || STATE.stability;
+    if (resourcesEl) STATE.resources = parseFloat(resourcesEl.textContent) || STATE.resources;
+    if (choiceEl) STATE.choice_count = parseInt(choiceEl.textContent) || STATE.choice_count;
+    
+    updateWaterline();
+  }
+
+  function updateHTMDisplay() {
+    // Update floating waterline display
+    var wlFloat = document.getElementById('wl-float');
+    if (wlFloat) {
+      var wlStatus = STATE.waterline > 60 ? 'SAFE' : STATE.waterline > 30 ? 'WARNING' : 'CRITICAL';
+      wlFloat.innerHTML = 
+        '<span class="wl-dot">WATERLINE '+Math.round(STATE.waterline)+'</span>' +
+        '<span class="wl-dot '+wlStatus.toLowerCase()+'">'+wlStatus+'</span>';
+    }
+  }
 
   /* ── RESIZE ────────────────────────────────────── */
   var _rT;
@@ -42,54 +84,40 @@
     buildDustMotes();
   }
   window.addEventListener('resize', function(){ clearTimeout(_rT); _rT = setTimeout(doResize, 60); }, { passive:true });
-  window.addEventListener('orientationchange', function(){ clearTimeout(_rT); _rT = setTimeout(doResize, 160); }, { passive:true });
   doResize();
 
-  /* ── PLANET DEFINITIONS ─────────────────────────
-     Real solar system visual identity mapped to KD routes.
-     orb = fraction of maxOrb (0–1), spd = rad/ms
-  ─────────────────────────────────────────────── */
+  /* ── PLANET DEFINITIONS ─────────────────────────── */
   var PDEFS = [
-    /* Mercury-like: small, dark grey, fast */
     { id:'a1',      label:null,      orb:0.13, spd:0.00028, ang:0.80,
       sz:2.0, c0:'#c8c0b8', c1:'#706860', c2:'#1e1a18',
       glow:'rgba(200,190,175,', atm:null },
-
-    /* Venus-like: pale gold haze */
+    
     { id:'a2',      label:null,      orb:0.20, spd:0.00022, ang:2.10,
       sz:3.2, c0:'#f0d890', c1:'#b89030', c2:'#2a1e04',
       glow:'rgba(230,200,100,', atm:'rgba(220,180,80,' },
-
-    /* Earth/general: blue marble */
+    
     { id:'general', label:'GENERAL', orb:0.28, spd:0.00016, ang:3.60,
       sz:4.8, c0:'#78c8f8', c1:'#1a6eca', c2:'#05152e',
       glow:'rgba(80,160,255,', atm:'rgba(60,140,240,' },
-
-    /* Mars/risk: red rust */
+    
     { id:'risk',    label:'RISK',    orb:0.37, spd:0.00011, ang:5.20,
       sz:3.8, c0:'#e87848', c1:'#a03818', c2:'#220a02',
       glow:'rgba(230,100,60,', atm:'rgba(200,70,30,' },
-
-    /* Asteroid belt placeholder (no draw, just spacing) */
-
-    /* Jupiter/survival: large striped giant */
+    
     { id:'survival',label:'SURVIVAL',orb:0.50, spd:0.00006, ang:1.40,
       sz:7.5, c0:'#e8c880', c1:'#b87820', c2:'#1e0e00',
       glow:'rgba(200,160,60,', atm:'rgba(180,130,40,',
       bands:true },
-
-    /* Saturn/collapse: rings */
+    
     { id:'collapse',label:'COLLAPSE',orb:0.62, spd:0.00004, ang:4.00,
       sz:6.2, c0:'#d8c090', c1:'#987040', c2:'#1a1004',
       glow:'rgba(200,170,90,', atm:'rgba(170,140,60,',
       rings:true },
-
-    /* Uranus/civil: ice blue tilted */
+    
     { id:'civil',   label:'CIVIL',   orb:0.76, spd:0.000025, ang:0.50,
       sz:5.0, c0:'#80e8e0', c1:'#289898', c2:'#021e1e',
       glow:'rgba(80,220,210,', atm:'rgba(60,200,190,' },
-
-    /* Neptune/vega: deep indigo */
+    
     { id:'vega',    label:'VEGA',    orb:0.91, spd:0.000016, ang:2.80,
       sz:4.8, c0:'#6898e8', c1:'#2838b8', c2:'#020416',
       glow:'rgba(100,140,240,', atm:'rgba(80,110,220,',
@@ -111,18 +139,15 @@
   var STARS = [];
   function buildStars() {
     STARS = [];
-    /* tiny background field */
     for (var i = 0; i < 2200; i++)
       STARS.push({ x:Math.random()*W, y:Math.random()*H,
         r:0.05+Math.random()*0.20, a:0.06+Math.random()*0.22,
         col: Math.random()>0.5 ? '170,205,255' : '205,185,255', tw:false });
-    /* medium twinkle */
     for (var j = 0; j < 300; j++)
       STARS.push({ x:Math.random()*W, y:Math.random()*H,
         r:0.14+Math.random()*0.30, a:0.18+Math.random()*0.28,
         col: Math.random()>0.5 ? '145,205,255' : '195,155,255',
         tw:true, tS:0.00008+Math.random()*0.00015, tO:Math.random()*Math.PI*2 });
-    /* bright bloom stars */
     for (var k = 0; k < 55; k++) {
       var rr = Math.random();
       STARS.push({ x:Math.random()*W, y:Math.random()*H,
@@ -168,7 +193,6 @@
         alpha: 0.010+Math.random()*0.018,
         speed: 0.000004+Math.random()*0.000008,
         phase: Math.random()*Math.PI*2,
-        waveSpeed: 0.00005+Math.random()*0.00008,
       });
     }
   }
@@ -198,65 +222,18 @@
     SHOCKWAVE.alpha = 0.55; SHOCKWAVE.col = col||'120,200,255';
   }
 
-  /* ── COMET ────────────────────────────────────── */
-  var COMET = { active:false, x:0, y:0, vx:0, vy:0, life:0, maxLife:0 };
-  var nextComet = 14000;
-
-  /* ── METEORS ──────────────────────────────────── */
-  var METEORS = [];
-  var meteorActive = false, meteorEnd = 0, nextMeteor = 10000;
-
-  /* ── STATE ────────────────────────────────────── */
-  var _S = { thinking: false };
-
-  /* ── FATE TEXTS ───────────────────────────────── */
-  var CANON = [
-    'Logic over Persona.',
-    'Rule over Authority.',
-    'Downside before Upside.',
-    'Human retains\nfinal authority.',
-    'Fail less.\nHarm less.\nRestore more.',
-    'Structure before action.',
-    'Evidence before opinion.',
-    'Choice(t) >= 1\ncollapse = False',
-    'ไม่ได้สร้างมาเพื่อชนะทุกครั้ง\nสร้างมาเพื่อไม่พังแบบเดิมอีกครั้ง',
-    'กฎมีไว้จำกัดอำนาจ\nไม่ใช่ขยายอำนาจ',
-    'Stay simple long enough\nto outlive the impossible.',
-    'The crown belongs to no one.\nChoice itself is the crown.',
-    'Silence is success\nwhen choice still exists.',
-    'ปฏิจสมุปบาท —\nทุกอย่างเกิดจากเหตุปัจจัย',
-  ];
-  var FATE_TEXTS = [];
-
-  function spawnFateText() {
-    var text = CANON[Math.floor(Math.random()*CANON.length)];
-    var lines = text.split('\n');
-    var left = UI_LEFT();
-    return {
-      lines: lines,
-      x: left + (W-left)*(0.18+Math.random()*0.64),
-      y: UI_TOP() + usableH()*(0.12+Math.random()*0.74),
-      alpha: 0, maxAlpha: 0.045+Math.random()*0.040,
-      state: 'in',
-      lifeIn:   2400+Math.random()*1600,
-      lifeHold: 4200+Math.random()*5000,
-      lifeOut:  2200+Math.random()*1400,
-      age: 0,
-      size: W < 500 ? 7+Math.random()*2.5 : 8.5+Math.random()*3.5,
-    };
-  }
-
-  function initFateTexts() {
-    FATE_TEXTS = [];
-    var n = W < 500 ? 3 : 5;
-    for (var i = 0; i < n; i++) {
-      var ft = spawnFateText();
-      ft.age = Math.random()*(ft.lifeIn+ft.lifeHold);
-      if (ft.age > ft.lifeIn) ft.state = 'hold';
-      FATE_TEXTS.push(ft);
+  /* ── ASTEROID BELT ───────────────────────────── */
+  var ASTEROIDS = (function() {
+    var belt = [];
+    for (var i = 0; i < 180; i++) {
+      var bFrac = 0.42+Math.random()*0.06;
+      var ang   = Math.random()*Math.PI*2;
+      var spd   = 0.000008+Math.random()*0.000005;
+      belt.push({ frac:bFrac, ang:ang, spd:spd, r:0.3+Math.random()*0.9,
+        a:0.06+Math.random()*0.18, scatter:(Math.random()-0.5)*0.025 });
     }
-  }
-  initFateTexts();
+    return belt;
+  })();
 
   /* ══════════════════════════════════════════════
      DRAW FUNCTIONS
@@ -271,7 +248,6 @@
     bg.addColorStop(1,    '#020409');
     ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
-    /* Milky Way band across center */
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
     var band = ctx.createLinearGradient(0, H*0.20, W, H*0.80);
@@ -375,35 +351,6 @@
     ctx.restore();
   }
 
-  function drawFateTexts(dt) {
-    ctx.save();
-    ctx.globalCompositeOperation = 'screen';
-    for (var i = 0; i < FATE_TEXTS.length; i++) {
-      var ft = FATE_TEXTS[i];
-      ft.age += dt*1000;
-      if (ft.state==='in') {
-        ft.alpha = ft.maxAlpha*Math.min(1, ft.age/ft.lifeIn);
-        if (ft.age >= ft.lifeIn) { ft.state='hold'; ft.age=0; }
-      } else if (ft.state==='hold') {
-        ft.alpha = ft.maxAlpha;
-        if (ft.age >= ft.lifeHold) { ft.state='out'; ft.age=0; }
-      } else if (ft.state==='out') {
-        ft.alpha = ft.maxAlpha*Math.max(0, 1-ft.age/ft.lifeOut);
-        if (ft.age >= ft.lifeOut) { FATE_TEXTS[i] = spawnFateText(); continue; }
-      }
-      if (ft.alpha < 0.002) continue;
-      ctx.font = '300 '+ft.size+'px "DM Mono",monospace';
-      ctx.fillStyle = 'rgba(175,210,255,'+ft.alpha.toFixed(4)+')';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      for (var li = 0; li < ft.lines.length; li++) {
-        var ly = ft.y+(li-(ft.lines.length-1)*0.5)*(ft.size*1.5);
-        ctx.fillText(ft.lines[li], ft.x, ly);
-      }
-    }
-    ctx.restore();
-  }
-
-  /* ── TRUE SOLAR SYSTEM ORBITS ─────────────────── */
   function drawOrbits() {
     var sx = SX(), sy = SY(), mr = maxOrb();
     ctx.save();
@@ -421,19 +368,6 @@
     ctx.restore();
   }
 
-  /* ── ASTEROID BELT ───────────────────────────── */
-  var ASTEROIDS = (function() {
-    var belt = [];
-    for (var i = 0; i < 180; i++) {
-      var bFrac = 0.42+Math.random()*0.06; /* between Mars and Jupiter */
-      var ang   = Math.random()*Math.PI*2;
-      var spd   = 0.000008+Math.random()*0.000005;
-      belt.push({ frac:bFrac, ang:ang, spd:spd, r:0.3+Math.random()*0.9,
-        a:0.06+Math.random()*0.18, scatter:(Math.random()-0.5)*0.025 });
-    }
-    return belt;
-  })();
-
   function drawAsteroidBelt(dt) {
     var sx = SX(), sy = SY(), mr = maxOrb();
     ctx.save();
@@ -449,7 +383,6 @@
     ctx.restore();
   }
 
-  /* ── ION TRAILS DRAW ──────────────────────────── */
   function drawIonTrails() {
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
@@ -469,7 +402,6 @@
     ctx.restore();
   }
 
-  /* ── PLANET BODY ──────────────────────────────── */
   function drawPlanet(x, y, p, isA, t) {
     var scale = Math.max(0.70, Math.min(usableH()/560, 1.30));
     var sz = p.sz*scale;
@@ -477,7 +409,6 @@
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
 
-    /* atmosphere halo */
     if (p.atm) {
       var atmA = isA ? 0.22 : 0.08;
       var atmR = sz*2.8+(isA?7:0);
@@ -489,7 +420,6 @@
       ctx.fillStyle = atm; ctx.fill();
     }
 
-    /* outer glow */
     if (p.glow) {
       var pulse = isA ? (1+Math.sin(t*0.0011)*0.14) : 1;
       var gR2 = sz*(isA?5.2:3.0)*pulse;
@@ -508,70 +438,17 @@
     }
     ctx.restore();
 
-    /* Saturn rings — behind planet */
-    if (p.rings) {
-      var rx = sz*3.4, ry = sz*0.36;
-      ctx.save(); ctx.translate(x, y); ctx.rotate(-0.22);
-      ctx.globalCompositeOperation = 'screen';
-      /* back half */
-      for (var ri = 0; ri < 3; ri++) {
-        var rf = 0.78+ri*0.12;
-        var rg = ctx.createLinearGradient(-rx*rf, 0, rx*rf, 0);
-        rg.addColorStop(0, 'rgba(0,0,0,0)');
-        rg.addColorStop(0.25, p.glow+(isA?'0.28':'0.14')+')');
-        rg.addColorStop(0.5,  p.glow+(isA?'0.42':'0.20')+')');
-        rg.addColorStop(0.75, p.glow+(isA?'0.28':'0.14')+')');
-        rg.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.beginPath(); ctx.ellipse(0, 0, rx*rf, ry*rf, 0, Math.PI, Math.PI*2);
-        ctx.strokeStyle = rg; ctx.lineWidth = isA?1.6:0.8; ctx.stroke();
-      }
-      ctx.restore();
-    }
-
-    /* planet body */
     ctx.save();
     var body = ctx.createRadialGradient(x-sz*0.28, y-sz*0.26, 0, x+sz*0.08, y+sz*0.08, sz*1.06);
     body.addColorStop(0, p.c0); body.addColorStop(0.45, p.c1); body.addColorStop(1, p.c2);
     ctx.beginPath(); ctx.arc(x, y, sz, 0, Math.PI*2); ctx.fillStyle = body; ctx.fill();
 
-    /* Jupiter bands */
-    if (p.bands) {
-      ctx.globalCompositeOperation = 'overlay';
-      for (var bi = 0; bi < 4; bi++) {
-        var by = y-sz*0.65+bi*(sz*0.36);
-        var bh = sz*0.14;
-        var bg2 = ctx.createLinearGradient(x-sz, by, x+sz, by);
-        bg2.addColorStop(0,'rgba(0,0,0,0)');
-        bg2.addColorStop(0.3,'rgba(100,60,20,0.28)');
-        bg2.addColorStop(0.7,'rgba(100,60,20,0.28)');
-        bg2.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.save();
-        ctx.beginPath(); ctx.ellipse(x, by+bh*0.5, sz*0.92, bh, 0, 0, Math.PI*2);
-        ctx.fillStyle = bg2; ctx.fill();
-        ctx.restore();
-      }
-      ctx.globalCompositeOperation = 'source-over';
-    }
-
-    /* Neptune great storm spot */
-    if (p.storm) {
-      ctx.globalCompositeOperation = 'screen';
-      var stx = x+sz*0.28, sty = y-sz*0.20;
-      var stg = ctx.createRadialGradient(stx, sty, 0, stx, sty, sz*0.32);
-      stg.addColorStop(0, 'rgba(180,200,255,0.35)');
-      stg.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.beginPath(); ctx.arc(stx, sty, sz*0.32, 0, Math.PI*2);
-      ctx.fillStyle = stg; ctx.fill();
-    }
-
-    /* highlight specular */
     ctx.globalCompositeOperation = 'screen';
     var vein = ctx.createRadialGradient(x-sz*0.20, y-sz*0.20, 0, x-sz*0.06, y-sz*0.06, sz*0.62);
     vein.addColorStop(0, p.glow ? p.glow+'0.32)' : 'rgba(255,255,255,0.18)');
     vein.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.beginPath(); ctx.arc(x, y, sz, 0, Math.PI*2); ctx.fillStyle = vein; ctx.fill();
 
-    /* limb darkening */
     ctx.globalCompositeOperation = 'source-over';
     var limb = ctx.createRadialGradient(x, y, sz*0.12, x, y, sz*1.05);
     limb.addColorStop(0, 'rgba(0,0,0,0)');
@@ -580,26 +457,6 @@
     ctx.beginPath(); ctx.arc(x, y, sz, 0, Math.PI*2); ctx.fillStyle = limb; ctx.fill();
     ctx.restore();
 
-    /* Saturn rings — front half */
-    if (p.rings) {
-      var rx2 = sz*3.4, ry2 = sz*0.36;
-      ctx.save(); ctx.translate(x, y); ctx.rotate(-0.22);
-      ctx.globalCompositeOperation = 'screen';
-      for (var ri2 = 0; ri2 < 3; ri2++) {
-        var rf2 = 0.78+ri2*0.12;
-        var rg2 = ctx.createLinearGradient(-rx2*rf2, 0, rx2*rf2, 0);
-        rg2.addColorStop(0,'rgba(0,0,0,0)');
-        rg2.addColorStop(0.25,p.glow+(isA?'0.28':'0.14')+')');
-        rg2.addColorStop(0.5, p.glow+(isA?'0.42':'0.20')+')');
-        rg2.addColorStop(0.75,p.glow+(isA?'0.28':'0.14')+')');
-        rg2.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.beginPath(); ctx.ellipse(0, 0, rx2*rf2, ry2*rf2, 0, 0, Math.PI);
-        ctx.strokeStyle = rg2; ctx.lineWidth = isA?1.6:0.8; ctx.stroke();
-      }
-      ctx.restore();
-    }
-
-    /* label */
     if (p.label) {
       ctx.save();
       var fs = Math.max(7, Math.round(sz*0.82));
@@ -620,7 +477,6 @@
     if (p.label) updateIonTrail(p.id, x, y);
   }
 
-  /* ── ALL PLANETS ──────────────────────────────── */
   function drawPlanets(dt, t) {
     var sx = SX(), sy = SY(), mr = maxOrb();
     var items = PLANETS.map(function(p) {
@@ -628,7 +484,6 @@
       var r = p.orb*mr;
       return { p:p, x:sx+Math.cos(p.ang)*r, y:sy+Math.sin(p.ang)*r };
     });
-    /* sort by y for depth */
     items.sort(function(a,b){ return a.y-b.y; });
     var left=UI_LEFT(), top=UI_TOP(), bot=H-UI_BOTTOM();
     items.forEach(function(item) {
@@ -638,15 +493,15 @@
     });
   }
 
-  /* ── SUN ──────────────────────────────────────── */
   function drawSun(t) {
     var sx=SX(), sy=SY(), R=sunR();
-    var gm = _S.thinking ? 1+Math.sin(t*0.005)*0.32 : 1;
+    // Sun brightness scales with waterline
+    var gm = STATE.waterline < 40 ? 0.6 : STATE.waterline < 70 ? 1.0 : 1.3;
+    if (STATE.thinking) gm *= (1+Math.sin(t*0.005)*0.32);
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
 
-    /* corona rings */
     for (var ring=6; ring>=1; ring--) {
       var rAl = (0.016/ring)*gm;
       var rR = R*(3.2+ring*3.6);
@@ -655,8 +510,7 @@
       ctx.lineWidth = 0.32; ctx.stroke();
     }
 
-    /* thinking pulse rings */
-    if (_S.thinking) {
+    if (STATE.thinking) {
       for (var b=0; b<3; b++) {
         var bPhase = (t*0.003+b*1.0)%(Math.PI*2);
         var bR = R*(2+b*4+Math.sin(bPhase)*2);
@@ -667,7 +521,6 @@
       }
     }
 
-    /* far corona field */
     var fc = ctx.createRadialGradient(sx, sy, R*0.12, sx, sy, R*13);
     fc.addColorStop(0,    'rgba(255,200,60,'+(0.34*gm)+')');
     fc.addColorStop(0.15, 'rgba(255,140,20,'+(0.12*gm)+')');
@@ -677,7 +530,6 @@
     ctx.beginPath(); ctx.arc(sx, sy, R*13, 0, Math.PI*2);
     ctx.fillStyle = fc; ctx.fill();
 
-    /* rays */
     ctx.save(); ctx.translate(sx, sy); ctx.rotate(t*0.000015);
     for (var i=0; i<18; i++) {
       var a = (i/18)*Math.PI*2;
@@ -697,7 +549,6 @@
     ctx.restore();
     ctx.globalCompositeOperation = 'source-over';
 
-    /* inner halo */
     var ih = ctx.createRadialGradient(sx, sy, R*0.22, sx, sy, R*2.6);
     ih.addColorStop(0, 'rgba(255,240,150,0.96)');
     ih.addColorStop(0.25,'rgba(255,190,50,0.65)');
@@ -706,7 +557,6 @@
     ctx.beginPath(); ctx.arc(sx, sy, R*2.6, 0, Math.PI*2);
     ctx.fillStyle = ih; ctx.fill();
 
-    /* sun body */
     var sbody = ctx.createRadialGradient(sx-R*0.22, sy-R*0.22, 0, sx, sy, R);
     sbody.addColorStop(0,'#fffad0');
     sbody.addColorStop(0.25,'#ffdd40');
@@ -715,14 +565,12 @@
     ctx.beginPath(); ctx.arc(sx, sy, R, 0, Math.PI*2);
     ctx.fillStyle = sbody; ctx.fill();
 
-    /* specular */
     var spec = ctx.createRadialGradient(sx-R*0.34, sy-R*0.34, 0, sx-R*0.16, sy-R*0.16, R*0.52);
     spec.addColorStop(0,'rgba(255,252,230,0.52)');
     spec.addColorStop(1,'rgba(255,252,230,0)');
     ctx.beginPath(); ctx.arc(sx, sy, R, 0, Math.PI*2);
     ctx.fillStyle = spec; ctx.fill();
 
-    /* limb darkening */
     var slim = ctx.createRadialGradient(sx, sy, R*0.14, sx, sy, R*1.05);
     slim.addColorStop(0,'rgba(0,0,0,0)');
     slim.addColorStop(0.5,'rgba(0,0,0,0.14)');
@@ -730,7 +578,6 @@
     ctx.beginPath(); ctx.arc(sx, sy, R, 0, Math.PI*2);
     ctx.fillStyle = slim; ctx.fill();
 
-    /* LYLA label */
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
     ctx.shadowColor = 'rgba(255,200,60,0.90)'; ctx.shadowBlur = 10;
@@ -738,80 +585,11 @@
     var lfs = Math.max(8, Math.round(R*0.60));
     ctx.font = '600 '+lfs+'px "DM Mono",monospace';
     ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-    ctx.fillText('LYLA \u25c6', sx, sy-R-4);
+    ctx.fillText('LYLA', sx, sy-R-4);
     ctx.restore();
     ctx.restore();
   }
 
-  /* ── COMET ────────────────────────────────────── */
-  function drawComet(t, dt) {
-    if (t > nextComet && !COMET.active) {
-      COMET.x = W*0.20+Math.random()*W*0.55; COMET.y = -4;
-      COMET.vx = 0.5+Math.random()*0.7; COMET.vy = 0.4+Math.random()*0.5;
-      COMET.life = 0; COMET.maxLife = 1.5+Math.random()*1.4; COMET.active = true;
-      nextComet = t+22000+Math.random()*38000;
-    }
-    if (!COMET.active) return;
-    COMET.life += dt;
-    if (COMET.life > COMET.maxLife || COMET.y > H+20) { COMET.active=false; return; }
-    COMET.x += COMET.vx*dt*60*0.013; COMET.y += COMET.vy*dt*60*0.013;
-    var prog = COMET.life/COMET.maxLife;
-    var al = prog<0.15 ? prog/0.15 : Math.max(0,1-(prog-0.15)/0.85);
-    var tl=80, tx=COMET.x-COMET.vx*tl*0.013, ty=COMET.y-COMET.vy*tl*0.013;
-    var cg = ctx.createLinearGradient(tx, ty, COMET.x, COMET.y);
-    cg.addColorStop(0,'rgba(150,205,255,0)');
-    cg.addColorStop(0.5,'rgba(170,215,255,'+(al*0.20)+')');
-    cg.addColorStop(1,'rgba(210,235,255,'+(al*0.72)+')');
-    ctx.save(); ctx.globalCompositeOperation = 'screen';
-    ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(COMET.x, COMET.y);
-    ctx.strokeStyle=cg; ctx.lineWidth=0.8; ctx.stroke();
-    ctx.beginPath(); ctx.arc(COMET.x, COMET.y, 1.3, 0, Math.PI*2);
-    ctx.fillStyle='rgba(195,225,255,'+(al*0.90)+')'; ctx.fill();
-    ctx.restore();
-  }
-
-  /* ── METEORS ──────────────────────────────────── */
-  function drawMeteors(t, dt) {
-    if (t > nextMeteor && !meteorActive) {
-      METEORS = [];
-      var n = 16+Math.floor(Math.random()*20);
-      for (var i=0; i<n; i++) {
-        METEORS.push({ x:Math.random()*W*0.8+W*0.05, y:-10-Math.random()*60,
-          vx:0.5+Math.random()*0.8, vy:0.4+Math.random()*0.7,
-          length:40+Math.random()*80, alpha:0.55+Math.random()*0.35,
-          life:0, maxLife:1.2+Math.random()*1.0, delay:Math.random()*3000,
-          col:Math.random()<0.7?'195,220,255':'255,220,180', active:false });
-      }
-      meteorActive=true; meteorEnd=t+7000; nextMeteor=t+50000+Math.random()*60000;
-    }
-    if (!meteorActive) return;
-    if (t>meteorEnd && METEORS.every(function(m){ return m.life>=m.maxLife; })) {
-      meteorActive=false; METEORS=[]; return;
-    }
-    var elapsed = t-(meteorEnd-7000);
-    ctx.save(); ctx.globalCompositeOperation='screen';
-    for (var i=0; i<METEORS.length; i++) {
-      var m = METEORS[i];
-      if (elapsed<m.delay) continue;
-      if (!m.active) m.active=true;
-      m.life+=dt; if (m.life>=m.maxLife||m.y>H+20) continue;
-      m.x+=m.vx*dt*60*0.014; m.y+=m.vy*dt*60*0.014;
-      var prog2=m.life/m.maxLife;
-      var al2=prog2<0.10?(prog2/0.10)*m.alpha:Math.max(0,m.alpha*(1-(prog2-0.10)/0.90));
-      var tx2=m.x-m.vx*m.length*0.013, ty2=m.y-m.vy*m.length*0.013;
-      var mg=ctx.createLinearGradient(tx2,ty2,m.x,m.y);
-      mg.addColorStop(0,'rgba('+m.col+',0)');
-      mg.addColorStop(0.5,'rgba('+m.col+','+(al2*0.25)+')');
-      mg.addColorStop(1,'rgba('+m.col+','+al2+')');
-      ctx.beginPath(); ctx.moveTo(tx2,ty2); ctx.lineTo(m.x,m.y);
-      ctx.strokeStyle=mg; ctx.lineWidth=0.9; ctx.stroke();
-      ctx.beginPath(); ctx.arc(m.x,m.y,1.1,0,Math.PI*2);
-      ctx.fillStyle='rgba('+m.col+','+al2+')'; ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  /* ── SHOCKWAVE ────────────────────────────────── */
   function drawShockwave(dt) {
     if (!SHOCKWAVE.active) return;
     SHOCKWAVE.r+=dt*280; SHOCKWAVE.alpha*=0.96;
@@ -824,21 +602,12 @@
     ctx.restore();
   }
 
-  /* ── HUD OVERLAYS ─────────────────────────────── */
-  function drawAxiom() {
+  function drawHUD() {
     ctx.save();
     ctx.font = '300 7px "DM Mono",monospace';
     ctx.fillStyle = 'rgba(150,205,255,0.14)';
     ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-    ctx.fillText('Choice(t) >= 1  \u2192  collapse = False', UI_LEFT()+14, H-UI_BOTTOM()-7);
-    ctx.restore();
-  }
-  function drawBadge() {
-    ctx.save();
-    ctx.font = '400 5px "DM Mono",monospace';
-    ctx.fillStyle = 'rgba(150,205,255,0.09)';
-    ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-    ctx.fillText('FATE  DETERMINISTIC DECISION INFRASTRUCTURE  v33', W-9, H-UI_BOTTOM()-7);
+    ctx.fillText('Choice(t) = '+STATE.choice_count+'  |  Entropy '+Math.round(STATE.entropy)+'  |  Waterline '+Math.round(STATE.waterline), UI_LEFT()+14, H-UI_BOTTOM()-7);
     ctx.restore();
   }
 
@@ -847,35 +616,36 @@
     if (!lastTime) lastTime = ts;
     var dt = Math.min((ts-lastTime)/1000, 0.05);
     lastTime = ts;
+    
+    syncStateFromHTML();
+    updateHTMDisplay();
+    
     try {
       drawBg(ts);
       drawFilaments(ts);
       drawAurora(ts);
       drawStars(ts);
       drawDustMotes(ts);
-      drawFateTexts(dt);
-      drawMeteors(ts, dt);
-      drawComet(ts, dt);
-      drawIonTrails();
       drawOrbits();
       drawAsteroidBelt(dt);
       drawPlanets(dt, ts);
       drawSun(ts);
+      drawIonTrails();
       drawShockwave(dt);
-      drawAxiom();
-      drawBadge();
+      drawHUD();
     } catch(e) {
-      console.error('[galaxy_scene v33]', e);
+      console.error('[galaxy_scene_live v34]', e);
     }
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
 
   /* ── PUBLIC API ───────────────────────────────── */
-  window.LYLA_thinking  = function()  { _S.thinking = true; };
-  window.LYLA_answered  = function()  { _S.thinking = false; };
-  window.KD_pulse       = function(r) {
-    _S.thinking = false;
+  window.LYLA_thinking  = function()  { STATE.thinking = true; };
+  window.LYLA_answered  = function()  { STATE.thinking = false; };
+  
+  window.KD_pulse = function(r) {
+    STATE.thinking = false;
     if (r && r !== activeRoute) {
       var p = PLANETS.find(function(pl){ return pl.id===r; });
       if (p) {
@@ -888,14 +658,21 @@
         );
       }
       activeRoute = r;
+      STATE.activeRoute = r;
     }
   };
-  window.KD_setRoute    = function(r) { activeRoute = r; };
-  window.KD_council     = function()  { _S.thinking = true; };
-  window.KD_councilEnd  = function()  { _S.thinking = false; };
-  window.KD_shockwave   = function(x,y,col) { triggerShockwave(x,y,col); };
-  window.KD.safeVal     = function(v,d) {
-    var n=+v, dec=typeof d==='number'?d:2;
-    return (isFinite(n)&&!isNaN(n)) ? n.toFixed(dec) : '0.00';
+  
+  window.KD_setRoute = function(r) { activeRoute = r; STATE.activeRoute = r; };
+  window.KD_council = function()  { STATE.thinking = true; };
+  window.KD_councilEnd = function()  { STATE.thinking = false; };
+  window.KD_shockwave = function(x,y,col) { triggerShockwave(x,y,col); };
+  
+  window.KD_setState = function(key, val) {
+    if (key in STATE) STATE[key] = val;
+    updateWaterline();
+  };
+  
+  window.KD_getState = function() {
+    return Object.assign({}, STATE);
   };
 })();
