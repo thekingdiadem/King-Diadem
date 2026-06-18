@@ -1332,7 +1332,7 @@ body {
       <button type="button" class="tab-btn" data-tab="gov" onclick="setTab('gov')"><span class="ti">&#9678;</span>กำกับดูแล</button>
     </nav>
 
-    <div id="bottom-note">FAIL LESS &middot; HARM LESS &middot; RESTORE CHOICE &middot; KING DIADEM v33</div>
+    <div id="bottom-note">FAIL LESS &middot; HARM LESS &middot; RESTORE CHOICE &middot; KING DIADEM v35</div>
 
   </div><!-- /main-col -->
 </div><!-- /app -->
@@ -1361,7 +1361,7 @@ body {
 <!-- ═══════════════════════════════════════════════════════════
      SCRIPTS — All logic preserved exactly
      ═══════════════════════════════════════════════════════════ -->
-<script src="/static/galaxy_scene.js"></script>
+<script src="/static/galaxy_scene_v35.js"></script>
 <script src="/static/galaxy_scene_api.js"></script>
 <script>
 (function(){
@@ -1512,7 +1512,7 @@ function addMsg(type,text,meta,persona){
 }
 function addThinking(){ setChatState();var area=document.getElementById('chat-scroll');if(!area)return;var div=document.createElement('div');div.className='msg system';div.id='thinking-msg';div.innerHTML='<div class="msg-avatar"><img class="msg-logo" src="/static/logo.png" alt=""></div><div class="msg-body"><div class="msg-text"><div class="thinking"><span></span><span></span><span></span></div></div></div>';area.appendChild(div);area.scrollTop=area.scrollHeight;if(window.LYLA_thinking)window.LYLA_thinking(); }
 function removeThinking(){ var el=document.getElementById('thinking-msg');if(el)el.remove();if(window.LYLA_answered)window.LYLA_answered(); }
-function updateLyla(data){ var pat=data.pattern||{};var e=+pat.entropy||40,s=+pat.stability||60,r=+pat.resource||50;uM('wl-entropy',e,true);uM('wl-stability',s,false);uM('wl-resource',r,false);var ev=document.getElementById('wl-entropy-val');if(ev)ev.textContent=Math.round(e);var sv=document.getElementById('wl-stability-val');if(sv)sv.textContent=Math.round(s);var rv=document.getElementById('wl-resource-val');if(rv)rv.textContent=Math.round(r);var lc=document.getElementById('lyla-choices');if(lc)lc.textContent=(data.risk_score>75)?'ต่ำ':'≥1';var ld=document.getElementById('lyla-drift');if(ld)ld.textContent=((e/100)*.1).toFixed(2)+'%';var council=document.getElementById('council');if(council&&data.governance&&data.governance.intent){var intent=data.governance.intent;council.textContent='เส้นทาง: '+(data.route||R).toUpperCase()+' | ความเชื่อมั่น: '+(intent.confidence||'—')+'\nความเสี่ยง: '+(data.risk_score||0)+' | โหมด: '+(data.persona||'LYLA');} var summary=document.getElementById('summary');if(summary){var out=data.output||{},cons=data.consensus||{};summary.textContent='การตัดสินใจ: '+(out.action||cons.final_action||data.route||R||'n/a')+' | ความเสี่ยง: '+(out.risk!=null?out.risk:(data.risk_score!=null?data.risk_score:'n/a'))+' | ความเชื่อมั่น: '+(out.confidence!=null?out.confidence:(cons.confidence!=null?cons.confidence:'—'))+' | เหตุผล: '+(out.reason||'ชัดเจน');} }
+function updateLyla(data){ var pat=data.pattern||{};var e=+pat.entropy||40,s=+pat.stability||60,r=+pat.resource||50;uM('wl-entropy',e,true);uM('wl-stability',s,false);uM('wl-resource',r,false);var ev=document.getElementById('wl-entropy-val');if(ev)ev.textContent=Math.round(e);var sv=document.getElementById('wl-stability-val');if(sv)sv.textContent=Math.round(s);var rv=document.getElementById('wl-resource-val');if(rv)rv.textContent=Math.round(r);if(window.KD_setState){window.KD_setState('entropy',e);window.KD_setState('stability',s);window.KD_setState('resources',r);window.KD_setState('choice_count',(data.risk_score>75)?1:4);}var lc=document.getElementById('lyla-choices');if(lc)lc.textContent=(data.risk_score>75)?'ต่ำ':'≥1';var ld=document.getElementById('lyla-drift');if(ld)ld.textContent=((e/100)*.1).toFixed(2)+'%';var council=document.getElementById('council');if(council&&data.governance&&data.governance.intent){var intent=data.governance.intent;council.textContent='เส้นทาง: '+(data.route||R).toUpperCase()+' | ความเชื่อมั่น: '+(intent.confidence||'—')+'\nความเสี่ยง: '+(data.risk_score||0)+' | โหมด: '+(data.persona||'LYLA');} var summary=document.getElementById('summary');if(summary){var out=data.output||{},cons=data.consensus||{};summary.textContent='การตัดสินใจ: '+(out.action||cons.final_action||data.route||R||'n/a')+' | ความเสี่ยง: '+(out.risk!=null?out.risk:(data.risk_score!=null?data.risk_score:'n/a'))+' | ความเชื่อมั่น: '+(out.confidence!=null?out.confidence:(cons.confidence!=null?cons.confidence:'—'))+' | เหตุผล: '+(out.reason||'ชัดเจน');} }
 function uM(id,val,inv){ var f=document.getElementById(id);if(!f)return;var p=Math.max(0,Math.min(100,val));f.style.width=p+'%';f.className='wl-fill '+(inv?(p>72?'crit':p>48?'warn':'safe'):(p<28?'crit':p<48?'warn':'safe')); }
 async function run(){
   var inp=document.getElementById('main-input');var text=(inp.value||'').trim();if(!text)return;
