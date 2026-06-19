@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="th" data-lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANIMA-SAFE CORE | KING DIADEM</title>
+<style>
+:root{
+  --void:#070912;--panel:#0f1322;--line:rgba(173,196,255,0.10);--line-strong:rgba(173,196,255,0.22);
+  --ink:#e8edf9;--ink-dim:#9aa7c7;--ink-faint:#5f6a8a;--blue-soft:#7da3ff;--gold-soft:#e8cd96;
+  --serif:'Source Serif 4','Noto Serif Thai',Georgia,serif;
+  --sans:'Inter','Noto Sans Thai',-apple-system,sans-serif;
+  --mono:'IBM Plex Mono','DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--void);color:var(--ink);font-family:var(--sans);line-height:1.75;font-size:16px;}
+.wrap{max-width:720px;margin:0 auto;padding:0 28px;}
+[data-en]{display:none;}
+html[data-lang="en"] [data-th]{display:none;}
+html[data-lang="en"] [data-en]{display:revert;}
+a{color:var(--blue-soft);}
+header{
+  position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);
+  background:rgba(7,9,18,0.78);border-bottom:1px solid var(--line);padding:18px 0;
+}
+.headrow{display:flex;align-items:center;justify-content:space-between;}
+.back{font-family:var(--mono);font-size:13px;color:var(--ink-dim);}
+.back:hover{color:var(--ink);}
+#langtoggle{
+  font-family:var(--mono);font-size:11px;letter-spacing:0.06em;
+  border:1px solid var(--line-strong);border-radius:999px;padding:6px 13px;
+  background:transparent;color:var(--ink);cursor:pointer;
+}
+main{padding:64px 0 100px;}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:0.14em;color:var(--blue-soft);margin-bottom:16px;text-transform:uppercase;}
+h1{font-family:var(--serif);font-size:clamp(28px,5vw,42px);margin-bottom:30px;line-height:1.2;}
+h2{font-family:var(--serif);font-size:22px;margin:42px 0 16px;color:var(--gold-soft);}
+p{color:var(--ink-dim);margin-bottom:16px;}
+ul{margin:0 0 20px 22px;color:var(--ink-dim);}
+li{margin-bottom:8px;}
+.pea{
+  background:rgba(232,184,74,0.06);border:1px solid rgba(232,184,74,0.25);
+  border-radius:14px;padding:26px;margin:28px 0;
+}
+.pea .tag{font-family:var(--mono);font-size:11px;color:var(--gold-soft);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;}
+.pea blockquote{
+  font-family:var(--serif);font-style:italic;font-size:20px;color:var(--ink);
+  margin:10px 0 14px;line-height:1.5;
+}
+.status-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+.status-chip{
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:999px;
+  border:1px solid rgba(232,184,74,0.3);color:var(--gold-soft);
+}
+.scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0 28px;}
+@media(max-width:600px){.scope-grid{grid-template-columns:1fr;}}
+.scope-card{
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;
+}
+.scope-card .h{font-family:var(--mono);font-size:12px;color:var(--blue-soft);letter-spacing:0.05em;margin-bottom:10px;text-transform:uppercase;}
+.scope-card ul{margin:0;padding-left:18px;font-size:13.5px;}
+.scope-card li{margin-bottom:6px;}
+.lock{
+  font-family:var(--serif);font-style:italic;font-size:19px;color:var(--gold-soft);
+  border-left:2px solid var(--gold-soft);padding-left:18px;margin:30px 0;
+}
+footer{border-top:1px solid var(--line);padding:30px 0;font-family:var(--mono);font-size:12px;color:var(--ink-faint);}
+</style>
+</head>
+<body>
+<header><div class="wrap headrow">
+  <a class="back" href="../index.html#stack">← <span data-th>กลับหน้าหลัก</span><span data-en>Back</span></a>
+  <button id="langtoggle">EN / ไทย</button>
+</div></header>
+
+<main class="wrap">
+  <div class="eyebrow" data-th>เคอร์เนลจริยธรรมเฉพาะทาง</div>
+  <div class="eyebrow" data-en>Dedicated Ethical Kernel</div>
+  <h1 data-th>ANIMA-SAFE CORE</h1>
+  <h1 data-en>ANIMA-SAFE CORE</h1>
+
+  <p data-th>เคอร์เนลจริยธรรมแยกต่างหาก สร้างขึ้นเพื่อชีวิตที่ไม่ใช่มนุษย์โดยเฉพาะ ครอบคลุมการแพทย์ การเลี้ยงดู และการขนส่ง — ไม่ใช่ส่วนเสริมของระบบหลัก แต่เป็นแกนที่มีน้ำหนักเท่ากัน</p>
+  <p data-en>A dedicated ethical kernel built specifically for non-human life, covering medicine, husbandry, and transport — not an add-on to the main system, but an axis with equal weight.</p>
+
+  <div class="pea">
+    <div class="tag" data-th>แกนจริยธรรมถาวร — ไม่ถูกแก้ไข</div>
+    <div class="tag" data-en>Permanent Ethical Axis — Non-Revocable</div>
+    <blockquote data-th>"ชีวิตสัตว์ต้องไม่ตายเพราะความสะดวกสบายของมนุษย์"</blockquote>
+    <blockquote data-en>"An animal's life must not end for human convenience."</blockquote>
+    <div class="status-row">
+      <span class="status-chip" data-th>ไม่ถูก Override</span><span class="status-chip" data-en>Cannot be overridden</span>
+      <span class="status-chip" data-th>ไม่ Trade-off กับประสิทธิภาพ</span><span class="status-chip" data-en>Never traded for efficiency</span>
+      <span class="status-chip" data-th>ใช้กรองทุกระดับการตัดสินใจ</span><span class="status-chip" data-en>Filters every decision level</span>
+    </div>
+  </div>
+
+  <h2 data-th>ขอบเขตการใช้งาน</h2>
+  <h2 data-en>Scope</h2>
+  <div class="scope-grid">
+    <div class="scope-card">
+      <div class="h" data-th>การแพทย์</div><div class="h" data-en>Medical</div>
+      <ul>
+        <li data-th>รักษาเพื่อชีวิต ไม่ใช่เพื่อทดลองเกินความจำเป็น</li>
+        <li data-en>Treat to preserve life — not for experimentation beyond necessity</li>
+        <li data-th>ลดความเจ็บปวดเป็น KPI หลัก</li>
+        <li data-en>Pain reduction as the primary KPI</li>
+        <li data-th>ทางเลือกที่ไม่ทำร้ายต้องมาก่อนเสมอ</li>
+        <li data-en>Non-harmful alternatives always come first</li>
+      </ul>
+    </div>
+    <div class="scope-card">
+      <div class="h" data-th>การเลี้ยงดู</div><div class="h" data-en>Husbandry</div>
+      <ul>
+        <li data-th>สวัสดิภาพเป็นเงื่อนไขตั้งต้น ไม่ใช่ผลพลอยได้</li>
+        <li data-en>Welfare is a starting condition, not a side effect</li>
+        <li data-th>ความหนาแน่นของการเลี้ยงต้องไม่ทำร้ายสุขภาพ</li>
+        <li data-en>Stocking density must not harm health</li>
+        <li data-th>วงจรชีวิตต้องดำเนินไปอย่างมีศักดิ์ศรี</li>
+        <li data-en>The life cycle must proceed with dignity</li>
+      </ul>
+    </div>
+    <div class="scope-card">
+      <div class="h" data-th>การขนส่ง</div><div class="h" data-en>Transport</div>
+      <ul>
+        <li data-th>ลดระยะทาง เวลา และความเครียดให้น้อยที่สุด</li>
+        <li data-en>Minimize distance, time, and stress</li>
+        <li data-th>ห้ามขนส่งเพื่อความสะดวกมนุษย์ หากเพิ่มอัตราตาย</li>
+        <li data-en>Prohibited for human convenience if it raises mortality</li>
+        <li data-th>ตรวจสอบสภาพแวดล้อมระหว่างขนส่งแบบเรียลไทม์</li>
+        <li data-en>Real-time environmental monitoring in transit</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 data-th>การกำกับดูแลและตรวจสอบ</h2>
+  <h2 data-en>Governance & audit</h2>
+  <ul>
+    <li data-th>ทบทวนแบบ Static — ไม่มีอคติเพื่อให้ดำเนินการต่อ</li>
+    <li data-en>Static review — no bias toward proceeding</li>
+    <li data-th>ยึดหลักฐานเป็นฐาน (Evidence-based)</li>
+    <li data-en>Evidence-based by default</li>
+    <li data-th>ประเมินความเสียหายก่อนผลประโยชน์เสมอ (Downside-first)</li>
+    <li data-en>Downside evaluated before benefit, always</li>
+    <li data-th>สอดคล้องกับผลประโยชน์สาธารณะ</li>
+    <li data-en>Aligned with public interest</li>
+  </ul>
+
+  <p data-th>ANIMA-SAFE CORE ยึดโยงกับ Kernel หลักของ 64-Axiom Ethical Lattice — สติ เมตตาไม่เลือกชนิด ไม่เบียดเบียน และความรับผิดชอบต่อผลลัพธ์ — แต่ขยายความให้เจาะจงกับชีวิตที่ไม่ใช่มนุษย์โดยตรง อ่านโครงสร้างเต็มได้ที่ <a href="./ethical-lattice.html" data-th>64-Axiom Ethical Lattice</a></p>
+  <p data-en>ANIMA-SAFE CORE is anchored to the main 64-Axiom Ethical Lattice kernel — awareness, compassion without selection, non-harm, and accountability — extended specifically for non-human life. Read the full structure at <a href="./ethical-lattice.html" data-en>64-Axiom Ethical Lattice</a>.</p>
+
+  <div class="lock" data-th>"เมตตาไม่เลือกชนิด — ศักดิ์ศรีของชีวิตไม่ขึ้นกับว่าชีวิตนั้นพูดได้หรือไม่"</div>
+  <div class="lock" data-en>"Compassion does not discriminate by species — a life's dignity does not depend on whether it can speak."</div>
+</main>
+
+<footer class="wrap" data-th>ส่วนหนึ่งของโครงสร้าง FATE™ — ไม่มีเจ้าของความจริง ศึกษาและส่งต่อได้</footer>
+<footer class="wrap" data-en>Part of the FATE™ structure — no owner of truth. May be studied and shared.</footer>
+
+<script>
+(function(){
+  var html=document.documentElement;
+  var btn=document.getElementById('langtoggle');
+  var saved=localStorage.getItem('kd-lang');
+  if(saved) html.setAttribute('data-lang',saved);
+  btn.addEventListener('click',function(){
+    var cur=html.getAttribute('data-lang')||'th';
+    var next=cur==='th'?'en':'th';
+    html.setAttribute('data-lang',next);
+    localStorage.setItem('kd-lang',next);
+  });
+})();
+</script>
+</body>
+</html>
