@@ -783,6 +783,7 @@ body {
 
 .sim-path { display:flex; gap:7px; align-items:center; margin-bottom:8px; }
 .sim-path input { margin-bottom:0; flex:1; }
+@keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
 .photo-out {
   min-height:70px; padding:13px;
   border-radius:var(--r-s);
@@ -1185,17 +1186,38 @@ body {
         <div class="tools-pad">
 
           <div class="section" id="section-simulate">
-            <div class="sec-head">จำลองอนาคต</div>
+            <div class="sec-head">&#11041; จำลองอนาคต &mdash; FATE Simulation Engine</div>
             <div class="sec-body">
-              <textarea id="sim-input-text" rows="2" style="width:100%;resize:none;" placeholder="พิมพ์สถานการณ์ที่ต้องการจำลอง…"></textarea>
-              <div id="sim-paths">
-                <div class="sim-path"><input type="text" value="เดินหน้าต่อแบบเดิม"></div>
-                <div class="sim-path"><input type="text" value="หยุดและประเมินใหม่"></div>
-                <div class="sim-path"><input type="text" value="หาพันธมิตร/ทรัพยากรเพิ่ม"></div>
+              <div style="font-family:var(--font-mono);font-size:8px;color:var(--text-dim);letter-spacing:.10em;margin-bottom:8px;line-height:1.8;">
+                พิมพ์สถานการณ์ &rarr; ระบุเส้นทาง &rarr; FATE วิเคราะห์ทางเลือกแบบ deterministic
               </div>
-              <button type="button" class="btn" style="margin-top:4px;font-size:8.5px;opacity:.50;border-color:rgba(74,158,255,0.15);color:var(--text-dim);background:transparent;" onclick="addSimPath()">+ เพิ่มเส้นทาง</button>
-              <button type="button" class="btn btn-primary" id="sim-btn" onclick="simulate()">เริ่มจำลอง</button>
-              <pre id="sim-result" class="photo-out" style="display:none;margin-top:10px;max-height:200px;overflow-y:auto;"></pre>
+              <textarea id="sim-input-text" rows="3" style="width:100%;resize:none;" placeholder="เช่น: ธุรกิจกำลังขาดทุน ต้องตัดสินใจว่าจะขยายหรือลด…"></textarea>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin:6px 0 5px;">
+                <div style="font-family:var(--font-mono);font-size:8px;color:var(--gold-dim);letter-spacing:.12em;text-transform:uppercase;">เส้นทางที่เป็นไปได้</div>
+                <button type="button" onclick="addSimPath()" style="background:transparent;border:1px solid rgba(74,158,255,0.18);border-radius:4px;color:rgba(74,158,255,0.55);font-family:var(--font-mono);font-size:8px;padding:3px 9px;cursor:pointer;transition:all .15s;letter-spacing:.06em;" onmouseover="this.style.borderColor='rgba(200,168,75,0.40)';this.style.color='var(--gold-bright)'" onmouseout="this.style.borderColor='rgba(74,158,255,0.18)';this.style.color='rgba(74,158,255,0.55)'">+ เพิ่มเส้นทาง</button>
+              </div>
+              <div id="sim-paths">
+                <div class="sim-path">
+                  <span style="font-family:var(--font-mono);font-size:8px;color:var(--text-faint);min-width:18px;text-align:center;flex-shrink:0;">A</span>
+                  <input type="text" value="เดินหน้าต่อแบบเดิม">
+                </div>
+                <div class="sim-path">
+                  <span style="font-family:var(--font-mono);font-size:8px;color:var(--text-faint);min-width:18px;text-align:center;flex-shrink:0;">B</span>
+                  <input type="text" value="หยุดและประเมินใหม่">
+                </div>
+                <div class="sim-path">
+                  <span style="font-family:var(--font-mono);font-size:8px;color:var(--text-faint);min-width:18px;text-align:center;flex-shrink:0;">C</span>
+                  <input type="text" value="หาพันธมิตร/ทรัพยากรเพิ่ม">
+                </div>
+              </div>
+              <button type="button" id="sim-btn" onclick="simulate()" style="width:100%;margin-top:12px;padding:14px 16px;border-radius:8px;border:1px solid rgba(74,158,255,0.35);background:linear-gradient(135deg,rgba(74,158,255,0.12) 0%,rgba(160,106,255,0.08) 100%);color:#78bcff;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;cursor:pointer;text-transform:uppercase;transition:all .20s ease;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden;" onmouseover="this.style.background='linear-gradient(135deg,rgba(74,158,255,0.22) 0%,rgba(160,106,255,0.14) 100%)';this.style.borderColor='rgba(74,158,255,0.60)';this.style.boxShadow='0 0 24px rgba(74,158,255,0.18)';" onmouseout="this.style.background='linear-gradient(135deg,rgba(74,158,255,0.12) 0%,rgba(160,106,255,0.08) 100%)';this.style.borderColor='rgba(74,158,255,0.35)';this.style.boxShadow='';">
+                <span id="sim-btn-icon" style="font-size:14px;">&#11041;</span>
+                <span id="sim-btn-label">เริ่มจำลองอนาคต</span>
+              </button>
+              <div id="sim-result" style="display:none;margin-top:12px;">
+                <div style="font-family:var(--font-mono);font-size:8px;color:var(--gold-dim);letter-spacing:.12em;margin-bottom:6px;text-transform:uppercase;">&#9670; ผลการจำลอง FATE</div>
+                <pre id="sim-result-text" style="padding:14px;border-radius:8px;border:1px solid rgba(200,168,75,0.15);background:rgba(3,4,13,0.75);font-size:12px;font-family:var(--font-mono);white-space:pre-wrap;word-break:break-word;line-height:1.75;color:var(--text);max-height:260px;overflow-y:auto;box-shadow:inset 0 0 30px rgba(200,168,75,0.03);"></pre>
+              </div>
             </div>
           </div>
 
@@ -1361,7 +1383,6 @@ body {
 <!-- ═══════════════════════════════════════════════════════════
      SCRIPTS — All logic preserved exactly
      ═══════════════════════════════════════════════════════════ -->
-<script src="/static/galaxy_scene_v35.js"></script>
 <script src="/static/galaxy_scene_api.js"></script>
 <script>
 (function(){
@@ -1535,13 +1556,44 @@ async function run(){
   }catch(e){ removeThinking();addMsg('system','เครือข่าย: '+e,'ERROR');showErr('เครือข่าย: '+e,6000); }
   finally{ btn.disabled=false;persistActiveChatHtml(); }
 }
-function addSimPath(){ var g=document.getElementById('sim-paths'),d=document.createElement('div');d.className='sim-path';d.innerHTML='<input type="text" placeholder="เส้นทางใหม่…">';g.appendChild(d); }
+function addSimPath(){
+  var g=document.getElementById('sim-paths');
+  var n=g.querySelectorAll('.sim-path').length;
+  var label=String.fromCharCode(65+n); // A,B,C...
+  var d=document.createElement('div');
+  d.className='sim-path';
+  d.innerHTML='<span style="font-family:var(--font-mono);font-size:8px;color:var(--text-faint);min-width:18px;text-align:center;flex-shrink:0;">'+label+'</span><input type="text" placeholder="เส้นทางใหม่…">';
+  g.appendChild(d);
+}
 async function simulate(){
-  var input=(document.getElementById('sim-input-text')?.value||'').trim();var btn=document.getElementById('sim-btn'),out=document.getElementById('sim-result');out.style.display='block';
-  if(!input){out.textContent='พิมพ์สถานการณ์ก่อนนะคะ';return;} btn.disabled=true;out.textContent='กำลังจำลองอนาคต…';
+  var input=(document.getElementById('sim-input-text')?.value||'').trim();
+  var btn=document.getElementById('sim-btn');
+  var icon=document.getElementById('sim-btn-icon');
+  var label=document.getElementById('sim-btn-label');
+  var resultWrap=document.getElementById('sim-result');
+  var out=document.getElementById('sim-result-text');
+  resultWrap.style.display='block';
+  if(!input){out.textContent='พิมพ์สถานการณ์ก่อนนะคะ';return;}
+  btn.disabled=true;
+  if(icon)icon.style.animation='spin 1s linear infinite';
+  if(label)label.textContent='กำลังจำลองอนาคต…';
+  out.textContent='⬡ FATE กำลังประมวลผลเส้นทาง…';
   var paths=[...document.querySelectorAll('#sim-paths input')].map(function(i){return i.value;}).filter(Boolean);
-  try{ var r=await fetchRetry('/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:input,paths:paths})},2,1200);var d=await readJson(r);var txt=d.simulation||d.message||d.error||'';if(!txt&&typeof d==='object')txt=JSON.stringify(d,null,2);if(!txt)txt='ผลลัพธ์ว่าง — กรุณาลองใหม่';if(d.lyla_observation&&Object.keys(d.lyla_observation).length){var obs=d.lyla_observation;txt+='\n\n── การสังเกตของ LYLA ──\nโดเมน: '+(obs.domain||'—')+' | Waterline: '+(obs.waterline||'—')+' | Drift: '+(obs.drift_risk||'—');}out.textContent=txt; }catch(e){out.textContent='เครือข่าย: '+e;}
+  try{
+    var r=await fetchRetry('/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:input,paths:paths})},2,1200);
+    var d=await readJson(r);
+    var txt=d.simulation||d.message||d.error||'';
+    if(!txt&&typeof d==='object')txt=JSON.stringify(d,null,2);
+    if(!txt)txt='ผลลัพธ์ว่าง — กรุณาลองใหม่';
+    if(d.lyla_observation&&Object.keys(d.lyla_observation).length){
+      var obs=d.lyla_observation;
+      txt+='\n\n── การสังเกตของ LYLA ──\nโดเมน: '+(obs.domain||'—')+' | Waterline: '+(obs.waterline||'—')+' | Drift: '+(obs.drift_risk||'—');
+    }
+    out.textContent=txt;
+  }catch(e){out.textContent='ERROR: '+e;}
   btn.disabled=false;
+  if(icon)icon.style.animation='';
+  if(label)label.textContent='เริ่มจำลองอนาคต';
 }
 async function stripeCheckout(){
   var email=document.getElementById('payment-email').value.trim();var plan=document.querySelector('input[name="plan"]:checked')?.value||'basic';
