@@ -1,12 +1,14 @@
 # =========================
-# 👑 KING DIADEM — app.py v4.6
+# 👑 KING DIADEM — app.py v4.7
 # LYLA (หญิง/ค่ะ) · VEGA (ชาย/ครับ) · ปฏิจสมุปบาท · โยนิโสมนสิการ · สุญยตา
 # Fail less. Harm less. Restore more.
 #
-# PATCH v4.6
-# - gemini-3.5-flash → gemini-1.5-flash (model ที่มีจริง)
-# - clean error message — ไม่โชว์ JSON ดิบให้ user
-# - /run: reply ที่ขาดกลางประโยคเพราะ token หมด → trim อัตโนมัติ
+# PATCH v4.7
+# - Decision Report URL: ทุก decision สร้าง shareable /report/{id} อัตโนมัติ
+# - FATE™ Axiom Audit แนบมากับทุก response
+# - /report/{id}  → serve report.html
+# - /api/report/{id} → return JSON
+# - /api/report/create → manual report creation
 # =========================
 
 from fastapi import FastAPI, Request, File, UploadFile
@@ -125,6 +127,14 @@ except Exception as e:
     print(f"⚠ DB: {e}")
     init_db = log_decision = get_credits = add_credits = None
     ensure_user = save_chat_state = load_chat_state = None
+
+# ── REPORT ENGINE — v4.7 ──────────────────────────────────────────
+try:
+    from report_engine import create_report as _create_report, get_report as _get_report
+    print("✅ Report engine loaded")
+except Exception as e:
+    print(f"⚠ report_engine: {e}")
+    _create_report = _get_report = None
 
 # ── CIVILIZATION ──────────────────────────────────────────────────
 try:
@@ -684,6 +694,20 @@ async def run_kernel(request: Request, data: dict):
             )
         except Exception: pass
 
+    # ── DECISION REPORT URL — v4.7 ───────────────────────────────
+    if _create_report:
+        try:
+            report_id = _create_report(
+                user_email=email,
+                user_input=user_input,
+                result=result,
+            )
+            result["report_url"]   = f"/report/{report_id}"
+            result["report_id"]    = report_id
+            result["share_url"]    = f"https://king-diadem.onrender.com/report/{report_id}"
+        except Exception as _re:
+            print(f"⚠ report creation failed: {_re}")
+
     return result
 
 
@@ -848,3 +872,48 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
     except Exception as e:
         print(f"⚠ analyze_image error: {e}")
         return JSONResponse({"error": _friendly_error(str(e))}, status_code=500)
+
+
+# ════════════════════════════════════════════════════════════════
+# DECISION REPORT ROUTES — v4.7
+# ════════════════════════════════════════════════════════════════
+
+@app.get("/report/{report_id}")
+async def report_page(report_id: str):
+    """Serve shareable FATE™ Decision Report page"""
+    html_path = os.path.join(os.path.dirname(__file__), "static", "report.html")
+    if not os.path.exists(html_path):
+        return JSONResponse({"error": "report.html not found in static/"}, status_code=500)
+    return FileResponse(html_path, media_type="text/html")
+
+
+@app.get("/api/report/{report_id}")
+async def get_report_api(report_id: str):
+    """Return FATE™ Decision Report data as JSON"""
+    if not _get_report:
+        return JSONResponse({"error": "report engine not loaded"}, status_code=503)
+    data = _get_report(report_id)
+    if not data:
+        return JSONResponse({"error": "Report not found"}, status_code=404)
+    return data
+
+
+@app.post("/api/report/create")
+async def create_report_manual(request: Request, data: dict):
+    """Manual report creation endpoint"""
+    if not _create_report:
+        return JSONResponse({"error": "report engine not loaded"}, status_code=503)
+    email = unquote(request.cookies.get("kd_email") or "anonymous")
+    user_input = data.get("input", "")
+    result     = data.get("result", {})
+    if not user_input or not result:
+        return JSONResponse({"error": "input and result required"}, status_code=400)
+    try:
+        report_id = _create_report(user_email=email, user_input=user_input, result=result)
+        return {
+            "report_id":  report_id,
+            "report_url": f"/report/{report_id}",
+            "share_url":  f"https://king-diadem.onrender.com/report/{report_id}",
+        }
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
