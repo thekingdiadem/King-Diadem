@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th" data-lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>64-Axiom Ethical Lattice | KING DIADEM</title>
+<style>
+:root{
+  --void:#070912;--panel:#0f1322;--line:rgba(173,196,255,0.10);--line-strong:rgba(173,196,255,0.22);
+  --ink:#e8edf9;--ink-dim:#9aa7c7;--ink-faint:#5f6a8a;--blue-soft:#7da3ff;--gold-soft:#e8cd96;
+  --serif:'Source Serif 4','Noto Serif Thai',Georgia,serif;
+  --sans:'Inter','Noto Sans Thai',-apple-system,sans-serif;
+  --mono:'IBM Plex Mono','DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--void);color:var(--ink);font-family:var(--sans);line-height:1.75;font-size:16px;}
+.wrap{max-width:720px;margin:0 auto;padding:0 28px;}
+[data-en]{display:none;}
+html[data-lang="en"] [data-th]{display:none;}
+html[data-lang="en"] [data-en]{display:revert;}
+a{color:var(--blue-soft);}
+header{
+  position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);
+  background:rgba(7,9,18,0.78);border-bottom:1px solid var(--line);padding:18px 0;
+}
+.headrow{display:flex;align-items:center;justify-content:space-between;}
+.back{font-family:var(--mono);font-size:13px;color:var(--ink-dim);}
+.back:hover{color:var(--ink);}
+#langtoggle{
+  font-family:var(--mono);font-size:11px;letter-spacing:0.06em;
+  border:1px solid var(--line-strong);border-radius:999px;padding:6px 13px;
+  background:transparent;color:var(--ink);cursor:pointer;
+}
+main{padding:64px 0 100px;}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:0.14em;color:var(--blue-soft);margin-bottom:16px;text-transform:uppercase;}
+h1{font-family:var(--serif);font-size:clamp(28px,5vw,42px);margin-bottom:30px;line-height:1.2;}
+h2{font-family:var(--serif);font-size:22px;margin:42px 0 16px;color:var(--gold-soft);}
+p{color:var(--ink-dim);margin-bottom:16px;}
+.kernel-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 28px;}
+.kernel-item{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:16px;font-family:var(--mono);font-size:13px;color:var(--ink-dim);text-align:center;
+}
+.axiom-num-list{
+  background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:24px 28px;margin:24px 0;font-family:var(--mono);font-size:13px;color:var(--ink-dim);
+  display:grid;grid-template-columns:repeat(8,1fr);gap:6px;text-align:center;
+}
+.axiom-num-list span{padding:6px 0;border-radius:6px;background:rgba(173,196,255,0.05);}
+@media(max-width:600px){.axiom-num-list{grid-template-columns:repeat(4,1fr);}}
+.layer-list{counter-reset:layer;list-style:none;margin:20px 0;}
+.layer-list li{
+  counter-increment:layer;padding:12px 0 12px 40px;position:relative;
+  border-bottom:1px solid var(--line);color:var(--ink-dim);
+}
+.layer-list li::before{
+  content:counter(layer);position:absolute;left:0;top:10px;
+  font-family:var(--mono);font-size:12px;color:var(--gold-soft);
+  width:26px;height:26px;border:1px solid var(--line-strong);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.lock{
+  font-family:var(--serif);font-style:italic;font-size:19px;color:var(--gold-soft);
+  border-left:2px solid var(--gold-soft);padding-left:18px;margin:30px 0;
+}
+.pea{
+  background:rgba(232,184,74,0.06);border:1px solid rgba(232,184,74,0.25);
+  border-radius:14px;padding:24px;margin:28px 0;
+}
+.pea .tag{font-family:var(--mono);font-size:11px;color:var(--gold-soft);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;}
+footer{border-top:1px solid var(--line);padding:30px 0;font-family:var(--mono);font-size:12px;color:var(--ink-faint);}
+</style>
+</head>
+<body>
+<header><div class="wrap headrow">
+  <a class="back" href="../index.html#stack">← <span data-th>กลับหน้าหลัก</span><span data-en>Back</span></a>
+  <button id="langtoggle">EN / ไทย</button>
+</div></header>
+
+<main class="wrap">
+  <div class="eyebrow" data-th>โครงสร้างจริยธรรม</div>
+  <div class="eyebrow" data-en>Ethical Architecture</div>
+  <h1 data-th>64-Axiom Ethical Lattice</h1>
+  <h1 data-en>64-Axiom Ethical Lattice</h1>
+
+  <p data-th>โครงตาข่ายจริยธรรมนี้ไม่ใช่กฎที่สั่งการ — เป็นตัวกรองอ้างอิงที่ช่วยให้ทุกฝ่ายเลือกเองไปสู่ทางที่ปลอดภัยกว่า สร้างบนฐาน Kernel ที่ไม่เปลี่ยนแปลง</p>
+  <p data-en>This lattice doesn't issue commands — it's a reference filter that helps every party choose their own way toward something safer. It's built on an immutable kernel.</p>
+
+  <h2 data-th>Kernel (ไม่เปลี่ยนแปลง)</h2>
+  <h2 data-en>Kernel (Immutable)</h2>
+  <div class="kernel-grid">
+    <div class="kernel-item" data-th>สติ</div><div class="kernel-item" data-en>Awareness</div>
+    <div class="kernel-item" data-th>เมตตาไม่เลือกชนิด</div><div class="kernel-item" data-en>Compassion without selection</div>
+    <div class="kernel-item" data-th>ไม่เบียดเบียน</div><div class="kernel-item" data-en>Non-harm</div>
+    <div class="kernel-item" data-th>ความรับผิดชอบต่อผลลัพธ์</div><div class="kernel-item" data-en>Accountability for outcomes</div>
+  </div>
+  <p data-th>Kernel แข็งกว่า 64 ข้อ เพราะเป็นแก่นที่ไม่เปลี่ยน ส่วน 64 ข้อเป็นโครงที่กระจายตัวออกไปรอบ Kernel</p>
+  <p data-en>The kernel is stronger than the 64 points because it's the unchanging core. The 64 points form the structure that radiates outward from it.</p>
+
+  <h2 data-th>13 เลเยอร์ตรรกะแนวดิ่ง</h2>
+  <h2 data-en>13-Layer Vertical Logic Stack</h2>
+  <ul class="layer-list">
+    <li data-th>สติ (Awareness)</li><li data-en>Awareness</li>
+    <li data-th>เจตนา (Intent)</li><li data-en>Intent</li>
+    <li data-th>ความเพียร (Effort)</li><li data-en>Effort</li>
+    <li data-th>ปัญญา (Wisdom)</li><li data-en>Wisdom</li>
+    <li data-th>เมตตา (Compassion)</li><li data-en>Compassion</li>
+    <li data-th>ไม่เบียดเบียน (Non-harm)</li><li data-en>Non-harm</li>
+    <li data-th>ความยุติธรรม (Justice)</li><li data-en>Justice</li>
+    <li data-th>ความโปร่งใส (Transparency)</li><li data-en>Transparency</li>
+    <li data-th>ความรับผิด (Accountability)</li><li data-en>Accountability</li>
+    <li data-th>ความยั่งยืน (Sustainability)</li><li data-en>Sustainability</li>
+    <li data-th>การกำกับ (Governance)</li><li data-en>Governance</li>
+    <li data-th>การเรียนรู้ (Learning)</li><li data-en>Learning</li>
+    <li data-th>การคุ้มครองชีวิต (Life Safeguard)</li><li data-en>Life Safeguard</li>
+  </ul>
+
+  <h2 data-th>64-Axiom Lattice — หลักการใช้งาน</h2>
+  <h2 data-en>64-Axiom Lattice — How it's used</h2>
+  <p data-th>ใช้เป็นตัวกรองอ้างอิงสำหรับการตัดสินใจ — ไม่สั่ง ไม่ประกาศ แต่ทำให้ผู้เลือกเองมองเห็นทางไปสู่ความปลอดภัยมากขึ้น Axiom ทั้ง 64 ข้อถูกจัดทำดัชนี A01–A64 และดูแลในฐานะภาคผนวกที่มีชีวิต ภายใต้ข้อจำกัดของ Kernel เสมอ</p>
+  <p data-en>Used as a reference filter for decisions — it doesn't command or announce, but helps the chooser see a path toward greater safety. All 64 axioms are indexed A01–A64 and maintained as a living appendix, always bound by the kernel's constraints.</p>
+  <div class="axiom-num-list">
+    <span>A01</span><span>A02</span><span>A03</span><span>A04</span><span>A05</span><span>A06</span><span>A07</span><span>A08</span>
+    <span>A09</span><span>A10</span><span>A11</span><span>A12</span><span>A13</span><span>A14</span><span>A15</span><span>A16</span>
+    <span>…</span><span>…</span><span>…</span><span>…</span><span>…</span><span>…</span><span>…</span><span>…</span>
+    <span>A57</span><span>A58</span><span>A59</span><span>A60</span><span>A61</span><span>A62</span><span>A63</span><span>A64</span>
+  </div>
+
+  <h2 data-th>ตัวอย่างสัจพจน์ฐานราก</h2>
+  <h2 data-en>Foundational axioms (sample)</h2>
+  <p data-th>"ปัญญามาจากความเพียร — ไม่เร่ง ไม่ลัด ไม่บิด" · "ความดีที่ไม่ต้องมีผู้แพ้หรือผู้ชนะ" · "แสงสว่างเสมอด้วยปัญญา — อำนาจต้องตามความเข้าใจ" · "อวิชชาเป็นมลทินทั้งปวง — ลดอวิชชาคือหน้าที่ระบบ"</p>
+  <p data-en>"Wisdom comes from sustained effort — no rushing, no shortcuts, no bending the truth." · "A good outcome needs no winner or loser." · "Light is equal to wisdom — power must follow understanding." · "Ignorance is the root impurity — reducing it is the system's duty."</p>
+
+  <div class="pea">
+    <div class="tag" data-th>Permanent Ethical Axis — สำหรับสัตว์</div>
+    <div class="tag" data-en>Permanent Ethical Axis — Animals</div>
+    <p data-th style="margin-bottom:0;">"ชีวิตสัตว์ต้องไม่ตายเพราะความสะดวกสบายของมนุษย์" — แกนนี้ไม่ถูก override ไม่ถูก trade-off ด้วยประสิทธิภาพ และใช้เป็นตัวกรองการตัดสินใจทุกระดับ รายละเอียดเต็มอยู่ใน <a href="./anima-safe-core.html" data-th>ANIMA-SAFE CORE</a></p>
+    <p data-en style="margin-bottom:0;">"An animal's life must not end for human convenience." This axis cannot be overridden or traded off for efficiency, and it filters decisions at every level. Full detail in <a href="./anima-safe-core.html" data-en>ANIMA-SAFE CORE</a>.</p>
+  </div>
+
+  <div class="lock" data-th>"ระบบนี้ไม่บังคับให้เชื่อ แต่ทำให้ยากขึ้นที่จะทำร้าย และง่ายขึ้นที่จะเลือกสิ่งถูกต้อง"</div>
+  <div class="lock" data-en>"This system doesn't force belief — it makes harm harder, and choosing right easier."</div>
+</main>
+
+<footer class="wrap" data-th>ส่วนหนึ่งของโครงสร้าง FATE™ — ไม่มีเจ้าของความจริง ศึกษาและส่งต่อได้</footer>
+<footer class="wrap" data-en>Part of the FATE™ structure — no owner of truth. May be studied and shared.</footer>
+
+<script>
+(function(){
+  var html=document.documentElement;
+  var btn=document.getElementById('langtoggle');
+  var saved=localStorage.getItem('kd-lang');
+  if(saved) html.setAttribute('data-lang',saved);
+  btn.addEventListener('click',function(){
+    var cur=html.getAttribute('data-lang')||'th';
+    var next=cur==='th'?'en':'th';
+    html.setAttribute('data-lang',next);
+    localStorage.setItem('kd-lang',next);
+  });
+})();
+</script>
+</body>
+</html>
