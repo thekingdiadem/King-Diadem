@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="th" data-lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KING DIADEM — FATE™ Deterministic Decision Infrastructure</title>
+<meta name="description" content="A governance logic system built to make decisions explainable, auditable, and accountable — not to predict the future or replace human judgment.">
+
+<style>
+:root{
+  --void:#070912;
+  --void-2:#0c0f1c;
+  --panel:#0f1322;
+  --panel-2:#141a2e;
+  --line:rgba(173,196,255,0.10);
+  --line-strong:rgba(173,196,255,0.22);
+  --ink:#e8edf9;
+  --ink-dim:#9aa7c7;
+  --ink-faint:#5f6a8a;
+  --blue:#4a7fff;
+  --blue-soft:#7da3ff;
+  --gold:#d4af6a;
+  --gold-soft:#e8cd96;
+  --crit:#ff6b6b;
+  --warn:#e8b84a;
+  --ok:#5fd0a3;
+  --serif:'Source Serif 4','Noto Serif Thai',Georgia,serif;
+  --sans:'Inter','Noto Sans Thai',-apple-system,sans-serif;
+  --mono:'IBM Plex Mono','DM Mono',monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+html{scroll-behavior:smooth;}
+
+body{
+  background:var(--void);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+
+::selection{background:rgba(74,127,255,0.35);}
+
+a{color:inherit;text-decoration:none;}
+
+.wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
+
+[data-en]{display:none;}
+html[data-lang="en"] [data-th]{display:none;}
+html[data-lang="en"] [data-en]{display:revert;}
+html[data-lang="en"] [data-en].inline{display:inline;}
+html[data-lang="en"] [data-en].block{display:block;}
+
+/* ── BACKGROUND FIELD ─────────────────────────────────────── */
+#field{position:fixed;inset:0;z-index:0;pointer-events:none;}
+#field canvas{width:100%;height:100%;display:block;}
+.grain{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── NAV ───────────────────────────────────────────────────── */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  backdrop-filter:blur(14px);
+  background:rgba(7,9,18,0.72);
+  border-bottom:1px solid var(--line);
+}
+nav{
+  max-width:1040px;margin:0 auto;padding:16px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:18px;letter-spacing:0.01em;}
+.brand .mark{
+  width:26px;height:26px;border-radius:50%;
+  background:conic-gradient(from 220deg,var(--blue),var(--gold),var(--blue));
+  flex:none;
+}
+.navlinks{display:flex;align-items:center;gap:28px;font-size:14px;color:var(--ink-dim);}
+.navlinks a:hover{color:var(--ink);}
+.navlinks{display:none;}
+@media(min-width:760px){.navlinks{display:flex;}}
+
+#langtoggle{
+  font-family:var(--mono);font-size:12px;letter-spacing:0.08em;
+  border:1px solid var(--line-strong);border-radius:999px;
+  padding:7px 14px;background:transparent;color:var(--ink);
+  cursor:pointer;transition:border-color .2s,background .2s;
+}
+#langtoggle:hover{border-color:var(--blue-soft);background:rgba(74,127,255,0.08);}
+
+/* ── HERO ──────────────────────────────────────────────────── */
+.hero{
+  position:relative;z-index:2;
+  min-height:92vh;display:flex;flex-direction:column;justify-content:center;
+  padding:140px 0 80px;
+}
+.eyebrow{
+  font-family:var(--mono);font-size:12px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--blue-soft);margin-bottom:22px;display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--blue-soft);}
+
+h1{
+  font-family:var(--serif);font-weight:600;
+  font-size:clamp(34px,6vw,64px);line-height:1.08;letter-spacing:-0.01em;
+  max-width:880px;margin-bottom:26px;
+}
+h1 em{font-style:italic;color:var(--gold-soft);}
+
+.lede{
+  font-size:clamp(16px,2vw,19px);color:var(--ink-dim);max-width:620px;
+  margin-bottom:40px;line-height:1.7;
+}
+
+.cta-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:56px;}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 24px;border-radius:10px;font-size:14.5px;font-weight:500;
+  transition:transform .15s,box-shadow .15s,background .15s;
+}
+.btn-primary{background:linear-gradient(135deg,var(--blue),#3a6ae8);color:#fff;box-shadow:0 8px 28px -8px rgba(74,127,255,0.55);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 32px -8px rgba(74,127,255,0.7);}
+.btn-ghost{border:1px solid var(--line-strong);color:var(--ink);}
+.btn-ghost:hover{border-color:var(--blue-soft);background:rgba(74,127,255,0.06);}
+
+.lock-line{
+  font-family:var(--mono);font-size:13px;color:var(--ink-faint);
+  border-left:2px solid var(--gold);padding-left:14px;max-width:480px;
+}
+
+/* ── SECTION SCAFFOLDING ───────────────────────────────────── */
+section{position:relative;z-index:2;padding:100px 0;}
+.section-head{margin-bottom:52px;max-width:680px;}
+.section-num{
+  font-family:var(--mono);font-size:12px;color:var(--ink-faint);letter-spacing:0.12em;
+  margin-bottom:14px;
+}
+h2{
+  font-family:var(--serif);font-weight:600;font-size:clamp(26px,3.6vw,38px);
+  line-height:1.2;margin-bottom:16px;
+}
+.section-sub{color:var(--ink-dim);font-size:16px;line-height:1.7;}
+
+hr.div{border:none;border-top:1px solid var(--line);}
+
+/* ── ORIGIN ────────────────────────────────────────────────── */
+.origin-grid{display:grid;gap:36px;}
+@media(min-width:760px){.origin-grid{grid-template-columns:1fr 1fr;}}
+.origin-text p{color:var(--ink-dim);margin-bottom:18px;line-height:1.8;}
+.origin-text strong{color:var(--ink);font-weight:600;}
+.pull{
+  font-family:var(--serif);font-style:italic;font-size:21px;color:var(--gold-soft);
+  border-left:2px solid var(--gold);padding:4px 0 4px 20px;margin:28px 0;line-height:1.55;
+}
+.origin-card{
+  background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  padding:30px;font-family:var(--mono);font-size:13px;color:var(--ink-dim);
+  align-self:start;
+}
+.origin-card .k{color:var(--blue-soft);}
+.origin-card .row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);}
+.origin-card .row:last-child{border-bottom:none;}
+
+/* ── AXIOMS ────────────────────────────────────────────────── */
+.axiom-list{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+.axiom{
+  background:var(--panel);padding:26px 28px;display:grid;grid-template-columns:48px 1fr;gap:18px;
+  transition:background .2s;
+}
+.axiom:hover{background:var(--panel-2);}
+.axiom-n{font-family:var(--serif);font-size:26px;color:var(--gold-soft);opacity:0.7;}
+.axiom-name{font-weight:600;font-size:15.5px;margin-bottom:6px;color:var(--ink);}
+.axiom-desc{color:var(--ink-dim);font-size:14.5px;line-height:1.65;}
+
+/* ── LIVE AUDIT DEMO ───────────────────────────────────────── */
+.demo{
+  background:var(--panel);border:1px solid var(--line);border-radius:18px;
+  padding:0;overflow:hidden;
+}
+.demo-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 24px;border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:12.5px;color:var(--ink-faint);
+}
+.demo-dots{display:flex;gap:6px;}
+.demo-dots span{width:8px;height:8px;border-radius:50%;background:var(--line-strong);}
+.demo-body{padding:28px 24px;}
+.demo-row{
+  display:flex;align-items:flex-start;gap:14px;padding:13px 0;
+  border-bottom:1px solid var(--line);font-family:var(--mono);font-size:13.5px;
+  opacity:0;transform:translateY(6px);
+}
+.demo-row.show{animation:rise .45s ease forwards;}
+@keyframes rise{to{opacity:1;transform:translateY(0);}}
+.demo-row:last-child{border-bottom:none;}
+.demo-tag{
+  flex:none;padding:3px 9px;border-radius:6px;font-size:11px;letter-spacing:0.05em;
+  background:rgba(74,127,255,0.12);color:var(--blue-soft);font-weight:600;
+}
+.demo-tag.warn{background:rgba(232,184,74,0.14);color:var(--warn);}
+.demo-tag.ok{background:rgba(95,208,163,0.14);color:var(--ok);}
+.demo-text{color:var(--ink-dim);}
+.demo-text b{color:var(--ink);font-weight:600;}
+#runDemo{
+  margin:24px 24px 24px;
+  font-family:var(--mono);font-size:12.5px;letter-spacing:0.06em;
+  padding:11px 20px;border-radius:8px;border:1px solid var(--line-strong);
+  background:transparent;color:var(--ink-dim);cursor:pointer;
+}
+#runDemo:hover{border-color:var(--blue-soft);color:var(--ink);}
+
+/* ── CORE STACK SUMMARY ────────────────────────────────────── */
+.stack-grid{display:grid;gap:18px;}
+@media(min-width:700px){.stack-grid{grid-template-columns:repeat(3,1fr);}}
+.stack-card{
+  background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;
+}
+.stack-card h3{font-family:var(--serif);font-size:18px;margin-bottom:10px;color:var(--ink);}
+.stack-card p{color:var(--ink-dim);font-size:14px;line-height:1.65;margin-bottom:16px;}
+.stack-link{
+  font-family:var(--mono);font-size:12px;color:var(--blue-soft);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.stack-link:hover{color:var(--gold-soft);}
+
+/* ── CASE STUDY ────────────────────────────────────────────── */
+.case{
+  background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:36px;
+}
+.case-meta{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:28px;
+}
+@media(min-width:600px){.case-meta{grid-template-columns:repeat(4,1fr);}}
+.case-stat{
+  background:var(--void-2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;
+}
+.case-stat .label{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);letter-spacing:0.06em;margin-bottom:6px;text-transform:uppercase;}
+.case-stat .val{font-family:var(--serif);font-size:22px;}
+.case-stat .val.crit{color:var(--crit);}
+.case-stat .val.warn{color:var(--warn);}
+.case-stat .val.ok{color:var(--ok);}
+
+.council-table{width:100%;border-collapse:collapse;font-size:14px;margin:24px 0;}
+.council-table th{
+  text-align:left;font-family:var(--mono);font-size:11px;color:var(--ink-faint);
+  text-transform:uppercase;letter-spacing:0.05em;padding:10px 14px;border-bottom:1px solid var(--line-strong);
+}
+.council-table td{padding:13px 14px;border-bottom:1px solid var(--line);color:var(--ink-dim);}
+.council-table td:first-child{color:var(--ink);font-weight:600;}
+.pri{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:6px;}
+.pri.crit{background:rgba(255,107,107,0.14);color:var(--crit);}
+.pri.high{background:rgba(232,184,74,0.14);color:var(--warn);}
+.pri.med{background:rgba(95,208,163,0.14);color:var(--ok);}
+
+.verdict-line{
+  font-family:var(--mono);font-size:14px;color:var(--gold-soft);
+  border-top:1px solid var(--line);padding-top:20px;margin-top:8px;
+}
+
+/* ── PRODUCT ───────────────────────────────────────────────── */
+.product{
+  background:linear-gradient(165deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line-strong);border-radius:22px;padding:48px;text-align:left;
+  position:relative;overflow:hidden;
+}
+.product::after{
+  content:'';position:absolute;top:-40%;right:-15%;width:60%;height:160%;
+  background:radial-gradient(circle,rgba(74,127,255,0.10),transparent 70%);
+  pointer-events:none;
+}
+.product h2{margin-bottom:14px;}
+.persona-row{display:flex;gap:14px;margin:28px 0;flex-wrap:wrap;}
+.persona{
+  flex:1;min-width:200px;background:var(--void-2);border:1px solid var(--line);border-radius:12px;padding:20px;
+}
+.persona .who{font-family:var(--mono);font-size:12px;letter-spacing:0.06em;margin-bottom:8px;}
+.persona.lyla .who{color:#ff9ec4;}
+.persona.vega .who{color:var(--blue-soft);}
+.persona p{color:var(--ink-dim);font-size:13.5px;line-height:1.6;}
+
+/* ── FOOTER ────────────────────────────────────────────────── */
+footer{
+  position:relative;z-index:2;border-top:1px solid var(--line);padding:48px 0 60px;
+}
+.footer-grid{display:flex;flex-wrap:wrap;justify-content:space-between;gap:24px;margin-bottom:32px;}
+.footer-links{display:flex;gap:24px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-dim);}
+.footer-links a:hover{color:var(--ink);}
+.footer-note{font-family:var(--mono);font-size:12px;color:var(--ink-faint);max-width:520px;line-height:1.7;}
+
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(173,196,255,0.15);border-radius:4px;}
+</style>
+</head>
+<body>
+
+<div id="field"><canvas id="bgcanvas"></canvas></div>
+<div class="grain"></div>
+
+<header>
+<nav>
+  <div class="brand"><span class="mark"></span> KING DIADEM</div>
+  <div class="navlinks">
+    <a href="#axioms" data-th>Axioms</a><a href="#axioms" data-en>Axioms</a>
+    <a href="#stack" data-th>โครงสร้างระบบ</a><a href="#stack" data-en>Architecture</a>
+    <a href="#case" data-th>กรณีศึกษา</a><a href="#case" data-en>Case study</a>
+    <a href="#product" data-th>ใช้งานจริง</a><a href="#product" data-en>Live app</a>
+  </div>
+  <button id="langtoggle">EN / ไทย</button>
+</nav>
+</header>
+
+<main>
+
+<!-- ══════════════════ HERO ══════════════════ -->
+<section class="hero wrap">
+  <div class="eyebrow" data-th>FATE™ — DETERMINISTIC DECISION INFRASTRUCTURE</div>
+  <div class="eyebrow" data-en>FATE™ — DETERMINISTIC DECISION INFRASTRUCTURE</div>
+
+  <h1 data-th>ระบบที่ <em>อธิบายตัวเองได้</em><br>ไม่ใช่ระบบที่ขอให้คุณเชื่อ</h1>
+  <h1 data-en>A system built to <em>explain itself</em><br>not to be taken on faith</h1>
+
+  <p class="lede" data-th>KING DIADEM คือโครงสร้างการตัดสินใจที่ออกแบบให้ทุกผลลัพธ์ตรวจสอบย้อนกลับได้ ไม่มีกล่องดำ ไม่มีอำนาจที่ซ่อนอยู่ และมนุษย์เป็นผู้ตัดสินใจขั้นสุดท้ายเสมอ</p>
+  <p class="lede" data-en>KING DIADEM is a decision infrastructure built so every outcome can be traced backward. No black box. No hidden authority. Humans always hold final say.</p>
+
+  <div class="cta-row">
+    <a class="btn btn-primary" href="https://king-diadem.onrender.com" target="_blank" rel="noopener">
+      <span data-th>เปิดแอปจริง</span><span data-en>Open the live app</span> →
+    </a>
+    <a class="btn btn-ghost" href="#axioms">
+      <span data-th>ดู Axioms ทั้งหมด</span><span data-en>Read the axioms</span>
+    </a>
+  </div>
+
+  <div class="lock-line" data-th>"ไม่ได้สร้างมาเพื่อชนะทุกครั้ง — สร้างมาเพื่อไม่พังแบบเดิมอีกครั้ง"</div>
+  <div class="lock-line" data-en>"Not built to win every time — built not to fail the same way twice."</div>
+</section>
+
+<hr class="div wrap">
+
+<!-- ══════════════════ ORIGIN ══════════════════ -->
+<section class="wrap" id="origin">
+  <div class="section-head">
+    <div class="section-num">01 — <span data-th>จุดเริ่มต้น</span><span data-en>Origin</span></div>
+    <h2 data-th>ไม่ได้เกิดจากความสำเร็จ</h2>
+    <h2 data-en>Not born from success</h2>
+  </div>
+
+  <div class="origin-grid">
+    <div class="origin-text">
+      <p data-th>เอกสารต้นทางของ FATE™ ไม่ได้เริ่มต้นจากไอเดียธุรกิจ แต่เริ่มจากห้องว่างเปล่าที่ไม่เหลืออะไรให้กลัวอีกแล้ว — จากความล้มเหลว การสูญเสีย และคำถามเดียวที่ค้างอยู่: <strong>จะทำอย่างไรให้มนุษย์พังซ้ำยากขึ้น</strong></p>
+      <p data-en>FATE™'s founding document didn't start as a business idea. It started in an empty room with nothing left to fear — from failure, loss, and one question that wouldn't leave: <strong>how do you make it harder for a person to break the same way twice?</strong></p>
+
+      <p data-th>ระบบนี้สังเกตว่าความเสียหายส่วนใหญ่ไม่ได้เกิดจากการขาดความสามารถ แต่เกิดจากการตัดสินใจภายใต้อำนาจ ความกลัว หรือความเร่งรีบ — และเมื่อไม่มีร่องรอยของการตัดสินใจ ความรับผิดชอบก็หายไปด้วย</p>
+      <p data-en>The observation was simple: most damage doesn't come from incompetence. It comes from decisions made under pressure, fear, or unchecked authority. And when a decision leaves no trace, accountability disappears with it.</p>
+
+      <div class="pull" data-th>"FATE™ เป็นระบบที่ชี้ให้มนุษย์มองเห็นและเข้าใจความจริงในปัจจุบัน — ว่าเราคือใคร มนุษย์ยังคงเป็นผู้ตัดสินใจขั้นสุดท้ายเสมอ"</div>
+      <div class="pull" data-en>"FATE™ is a system that points humans toward seeing and understanding the truth as it stands now — who we are. Humans remain the final decision-makers, always."</div>
+
+      <p data-th>"ผมสร้างระบบที่ทำให้ทุกคนเห็นความจริงชัดเจน โดยที่ผมไม่ขอให้ใครเชื่อ ส่วนที่ผมปล่อยไว้ไม่ให้ใครเป็นเจ้าของ เพราะความจริงต้องน้อมเข้ามาใส่ตัวถึงจะรู้ได้เอง ทุกคนมีสิทธิ์เข้าถึงความจริง — ความจริงไม่จำเป็นต้องมีเจ้าของ มันยืนหยัดได้ด้วยตัวมันเอง" — Nithikorn Bunsrang</p>
+      <p data-en>"I built a system that lets everyone see the truth clearly — without asking anyone to believe it. I left it without an owner because truth has to be taken in by each person to be known. Everyone has the right to reach it. Truth doesn't need an owner — it stands on its own." — Nithikorn Bunsrang</p>
+    </div>
+
+    <div class="origin-card">
+      <div class="row"><span>Founder</span><span class="k">Nithikorn Bunsrang</span></div>
+      <div class="row"><span data-th>รู้จักในนาม</span><span data-en>Known as</span><span class="k">King Diadem</span></div>
+      <div class="row"><span data-th>สถานะผู้สร้าง</span><span data-en>Founder status</span><span class="k" data-th>Origin Recorder</span><span class="k" data-en>Origin Recorder</span></div>
+      <div class="row"><span data-th>ความเป็นเจ้าของ</span><span data-en>Ownership</span><span class="k" data-th>ไม่มีเจ้าของ — ความจริงยืนหยัดได้เอง</span><span class="k" data-en>No owner — truth stands on its own</span></div>
+      <div class="row"><span data-th>วัตถุประสงค์</span><span data-en>Purpose</span><span class="k" data-th>Fail less, not win more</span><span class="k" data-en>Fail less, not win more</span></div>
+      <div class="row"><span data-th>สถานะการใช้งาน</span><span data-en>Usage rights</span><span class="k" data-th>ศึกษา-ใช้-ส่งต่อได้</span><span class="k" data-en>Study, use, share</span></div>
+    </div>
+  </div>
+</section>
+
+<hr class="div wrap">
+
+<!-- ══════════════════ AXIOMS ══════════════════ -->
+<section class="wrap" id="axioms">
+  <div class="section-head">
+    <div class="section-num">02 — <span data-th>แกนตรรกะ</span><span data-en>Core logic</span></div>
+    <h2 data-th>หกสัจพจน์ที่เปลี่ยนไม่ได้</h2>
+    <h2 data-en>Six axioms that don't change</h2>
+    <p class="section-sub" data-th>ไม่ว่าจะเอาไปใช้กับโดเมนไหน Axiom ทั้งหกข้อนี้ต้องคงความหมายเดิมเสมอ — นี่คือสิ่งที่ทำให้ระบบตรวจสอบได้ ไม่ใช่แค่ฟังดูดี</p>
+    <p class="section-sub" data-en>Whatever domain it's applied to, these six axioms keep the same meaning. That's what makes the system auditable — not just well-worded.</p>
+  </div>
+
+  <div class="axiom-list">
+    <div class="axiom">
+      <div class="axiom-n">01</div>
+      <div>
+        <div class="axiom-name" data-th>Logic Over Persona — ตรรกะมาก่อนตัวบุคคล</div>
+        <div class="axiom-name" data-en>Logic Over Persona</div>
+        <div class="axiom-desc" data-th>การตัดสินใจยึดกฎและเหตุผลที่ตรวจสอบได้ ไม่ยึดตัวบุคคล ความสัมพันธ์ หรือชื่อเสียง</div>
+        <div class="axiom-desc" data-en>Decisions follow verifiable rules and reasoning — never a person, a relationship, or a reputation.</div>
+      </div>
+    </div>
+    <div class="axiom">
+      <div class="axiom-n">02</div>
+      <div>
+        <div class="axiom-name" data-th>Rule Over Authority — กฎมาก่อนอำนาจ</div>
+        <div class="axiom-name" data-en>Rule Over Authority</div>
+        <div class="axiom-desc" data-th>ไม่มีบุคคลใดอยู่เหนือกฎ อำนาจทุกประเภทต้องอยู่ภายใต้โครงสร้างเดียวกัน รวมถึงผู้ก่อตั้งเอง</div>
+        <div class="axiom-desc" data-en>No one stands above the rules — including the founder. Every form of authority answers to the same structure.</div>
+      </div>
+    </div>
+    <div class="axiom">
+      <div class="axiom-n">03</div>
+      <div>
+        <div class="axiom-name" data-th>Determinism — ผลลัพธ์ย้อนรอยได้</div>
+        <div class="axiom-name" data-en>Determinism</div>
+        <div class="axiom-desc" data-th>Input เดียวกัน ภายใต้กฎเดียวกัน ต้องให้ผลลัพธ์เดียวกัน และต้องอธิบายย้อนกลับได้เสมอ</div>
+        <div class="axiom-desc" data-en>The same input, under the same ruleset, must produce the same output — and it must always be traceable backward.</div>
+      </div>
+    </div>
+    <div class="axiom">
+      <div class="axiom-n">04</div>
+      <div>
+        <div class="axiom-name" data-th>Downside Before Upside — ความเสี่ยงมาก่อนผลตอบแทน</div>
+        <div class="axiom-name" data-en>Downside Before Upside</div>
+        <div class="axiom-desc" data-th>ประเมินความเสียหายก่อนผลประโยชน์เสมอ หากอธิบายความเสี่ยงไม่เพียงพอ ห้ามอนุมัติ</div>
+        <div class="axiom-desc" data-en>Damage gets evaluated before benefit, every time. If the risk can't be explained sufficiently, it doesn't get approved.</div>
+      </div>
+    </div>
+    <div class="axiom">
+      <div class="axiom-n">05</div>
+      <div>
+        <div class="axiom-name" data-th>Explainability = Usability — อธิบายไม่ได้ = ใช้ไม่ได้</div>
+        <div class="axiom-name" data-en>Explainability = Usability</div>
+        <div class="axiom-desc" data-th>ถ้าเหตุผลของผลลัพธ์อธิบายให้คนทั่วไปเข้าใจไม่ได้ ระบบถือว่าผลลัพธ์นั้นใช้งานไม่ได้</div>
+        <div class="axiom-desc" data-en>If a result can't be explained in terms an ordinary person can follow, the system treats it as unusable.</div>
+      </div>
+    </div>
+    <div class="axiom">
+      <div class="axiom-n">06</div>
+      <div>
+        <div class="axiom-name" data-th>Human Final Authority — มนุษย์ตัดสินใจขั้นสุดท้ายเสมอ</div>
+        <div class="axiom-name" data-en>Human Final Authority</div>
+        <div class="axiom-desc" data-th>ระบบไม่มีอำนาจบังคับใช้ มนุษย์เป็นผู้ตัดสินใจสุดท้ายเสมอ ไม่มีข้อยกเว้น</div>
+        <div class="axiom-desc" data-en>The system holds no enforcement power. A human makes the final call — without exception.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="div wrap">
+
+<!-- ══════════════════ LIVE DEMO ══════════════════ -->
+<section class="wrap" id="demo-section">
+  <div class="section-head">
+    <div class="section-num">03 — <span data-th>ดูระบบทำงาน</span><span data-en>Watch it work</span></div>
+    <h2 data-th>ไม่ใช่กล่องดำ — ทุกขั้นตอนเปิดให้ดู</h2>
+    <h2 data-en>Not a black box — every step is visible</h2>
+    <p class="section-sub" data-th>ตัวอย่างจำลอง Decision Audit หนึ่งรอบ ตามโครงสร้าง FATE™ จริง — กดเพื่อดูลำดับการตรวจสอบทีละขั้น</p>
+    <p class="section-sub" data-en>A simulated single pass through a real FATE™ decision audit. Press play to watch each check run in order.</p>
+  </div>
+
+  <div class="demo">
+    <div class="demo-top">
+      <span data-th>DECISION_AUDIT.log</span><span data-en>DECISION_AUDIT.log</span>
+      <div class="demo-dots"><span></span><span></span><span></span></div>
+    </div>
+    <div class="demo-body" id="demoBody"></div>
+    <button id="runDemo">▶ <span data-th>เริ่มจำลอง</span><span data-en>Run simulation</span></button>
+  </div>
+</section>
+
+<hr class="div wrap">
+
+<!-- ══════════════════ STACK SUMMARY ══════════════════ -->
+<section class="wrap" id="stack">
+  <div class="section-head">
+    <div class="section-num">04 — <span data-th>โครงสร้างเต็มระบบ</span><span data-en>Full architecture</span></div>
+    <h2 data-th>เลเยอร์ที่อยู่ใต้ FATE™</h2>
+    <h2 data-en>What sits underneath FATE™</h2>
+    <p class="section-sub" data-th>FATE™ เป็นแกนกลางที่ใช้งานจริง แต่ยืนอยู่บนรากฐานปรัชญาและจริยธรรมที่ลึกกว่านั้น — สรุปสั้นไว้ที่นี่ อ่านฉบับเต็มได้จากลิงก์</p>
+    <p class="section-sub" data-en>FATE™ is the operational core, but it stands on a deeper ethical and philosophical foundation. Summarized here — full documents linked.</p>
+  </div>
+
+  <div class="stack-grid">
+    <div class="stack-card">
+      <h3 data-th>COSMIC LATTE</h3>
+      <h3 data-en>COSMIC LATTE</h3>
+      <p data-th>กรอบปฏิบัติการของผู้สังเกต — ไม่สั่งการ ไม่ครอบงำ เสนอทางเลือกแทนคำสั่ง และหยุดทำงานเมื่อความไม่แน่นอนอาจก่อให้เกิดอันตราย</p>
+      <p data-en>An observer-protocol frame — never commands, never dominates. It proposes options instead of orders, and stops when uncertainty risks harm.</p>
+      <a class="stack-link" href="./docs-full/cosmic-latte.html" data-th>อ่านโปรโตคอลฉบับเต็ม →</a>
+      <a class="stack-link" href="./docs-full/cosmic-latte.html" data-en>Read the full protocol →</a>
+    </div>
+    <div class="stack-card">
+      <h3 data-th>64-Axiom Ethical Lattice</h3>
+      <h3 data-en>64-Axiom Ethical Lattice</h3>
+      <p data-th>โครงตาข่ายจริยธรรม 64 ข้อ บน Kernel ที่ไม่เปลี่ยนแปลง (สติ / เมตตา / ไม่เบียดเบียน / รับผิดชอบ) ครอบคลุมถึง Permanent Ethical Axis สำหรับสัตว์</p>
+      <p data-en>A 64-point ethical lattice built on an immutable kernel (awareness, compassion, non-harm, accountability) — including a Permanent Ethical Axis for animal welfare.</p>
+      <a class="stack-link" href="./docs-full/ethical-lattice.html" data-th>อ่านโครงสร้างเต็ม →</a>
+      <a class="stack-link" href="./docs-full/ethical-lattice.html" data-en>Read the full structure →</a>
+    </div>
+    <div class="stack-card">
+      <h3 data-th>ANIMA-SAFE CORE</h3>
+      <h3 data-en>ANIMA-SAFE CORE</h3>
+      <p data-th>Kernel จริยธรรมแยกสำหรับชีวิตที่ไม่ใช่มนุษย์ ครอบคลุมการแพทย์ การเลี้ยง และการขนส่ง — ห้ามขนส่งเพื่อความสะดวกของมนุษย์หากเพิ่มอัตราตาย</p>
+      <p data-en>A dedicated ethical kernel for non-human life — covering medicine, husbandry, and transport. Transport for human convenience is prohibited if it raises mortality risk.</p>
+      <a class="stack-link" href="./docs-full/anima-safe-core.html" data-th>อ่าน ANIMA-SAFE CORE →</a>
+      <a class="stack-link" href="./docs-full/anima-safe-core.html" data-en>Read ANIMA-SAFE CORE →</a>
+    </div>
+  </div>
+</section>
+
+<hr class="div wrap">
+
+<!-- ══════════════════ CASE STUDY ══════════════════ -->
+<section class="wrap" id="case">
+  <div class="section-head">
+    <div class="section-num">05 — <span data-th>กรณีศึกษา</span><span data-en>Case study</span></div>
+    <h2 data-th>โรคระบาดที่ยังไม่มียา — ศัตรูตัวจริงคือความไม่เป็นระเบียบ</h2>
+    <h2 data-en>A pandemic with no cure yet — the real enemy is disorder</h2>
+    <p class="section-sub" data-th>สถานการณ์จำลอง: เชื้อใหม่รุนแรงกว่าโควิด-19 แพร่เร็วกว่า ยังไม่มีวิธีรักษา ต้องรอวิจัยยาเป็นเดือนหรือเป็นปี ในช่วงที่ไม่มีใครรู้วิธีรักษา สิ่งที่ฆ่าคนมากที่สุดมักไม่ใช่ตัวเชื้อโรค แต่คือความตื่นตระหนก ความไม่เป็นระเบียบ และ choice ที่ลดเหลือศูนย์</p>
+    <p class="section-sub" data-en>Simulated scenario: a new pathogen, more severe and faster-spreading than COVID-19, with no treatment yet — research could take months or years. In the window before a cure exists, what kills the most people is rarely the pathogen itself. It's panic, disorder, and choice collapsing to zero.</p>
+  </div>
+
+  <div class="case">
+    <div class="case-meta">
+      <div class="case-stat"><div class="label" data-th>เอนโทรปี</div><div class="label" data-en>Entropy</div><div class="val crit">91</div></div>
+      <div class="case-stat"><div class="label" data-th>เสถียรภาพ</div><div class="label" data-en>Stability</div><div class="val crit">14</div></div>
+      <div class="case-stat"><div class="label" data-th>ยารักษา</div><div class="label" data-en>Treatment</div><div class="val crit" data-th>ยังไม่มี</div><div class="val crit" data-en>NONE YET</div></div>
+      <div class="case-stat"><div class="label" data-th>วอเตอร์ไลน์</div><div class="label" data-en>Waterline</div><div class="val crit" data-th>วิกฤต</div><div class="val crit" data-en>CRITICAL</div></div>
+    </div>
+
+    <p style="color:var(--ink-dim);margin-bottom:8px;" data-th><strong style="color:var(--ink)">VEGA ◆</strong> — ไม่มียา ไม่ได้แปลว่าไม่มีระบบ ระบบที่ดีต้องทำงานได้แม้ไม่มีทางรักษา เพราะสิ่งที่คุมได้คือความเป็นระเบียบของการตัดสินใจ ไม่ใช่ตัวเชื้อโรค</p>
+    <p style="color:var(--ink-dim);margin-bottom:8px;" data-en><strong style="color:var(--ink)">VEGA ◆</strong> — No cure doesn't mean no system. A good system has to function with no treatment in hand, because what's controllable is the order of decisions, not the pathogen.</p>
+
+    <p style="color:var(--ink-dim);margin-bottom:24px;" data-th><strong style="color:var(--ink)">LYLA ◈</strong> — สิ่งแรกที่คนต้องการตอนไม่มีใครรักษาได้ ไม่ใช่คำสัญญาว่าจะหาย แต่คือคำตอบที่ตรงไปตรงมาว่าตอนนี้ทำอะไรได้บ้าง</p>
+    <p style="color:var(--ink-dim);margin-bottom:24px;" data-en><strong style="color:var(--ink)">LYLA ◈</strong> — The first thing people need when no one can be cured isn't a promise of recovery — it's a straight answer about what can be done right now.</p>
+
+    <table class="council-table">
+      <thead>
+        <tr>
+          <th data-th>เฟส</th><th data-en>Phase</th>
+          <th data-th>หน่วยจริงที่วัดได้</th><th data-en>Measurable real unit</th>
+          <th data-th>ลำดับ</th><th data-en>Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td data-th>1 — กักการแพร่</td><td data-en>1 — Contain spread</td><td data-th>ลดการสัมผัสที่ไม่จำเป็น ไม่ใช่ปิดทุกอย่าง — วัดผลด้วย R0 รายวัน</td><td data-en>Cut non-essential contact, not blanket lockdown — tracked via daily R0</td><td><span class="pri crit" data-th>วิกฤต</span><span class="pri crit" data-en>Critical</span></td></tr>
+        <tr><td data-th>2 — MSD Node</td><td data-en>2 — MSD Node</td><td data-th>จุดแจกขั้นต่ำ: น้ำ + อาหาร 1 วัน + เส้นทางออก ไม่เก็บข้อมูล ไม่มีเงื่อนไข</td><td data-en>Minimum distribution point: water + 1-day food + an exit route. No data collected, no conditions</td><td><span class="pri crit" data-th>วิกฤต</span><span class="pri crit" data-en>Critical</span></td></tr>
+        <tr><td data-th>3 — กระจายความเสี่ยง</td><td data-en>3 — Distribute risk</td><td data-th>ไม่พึ่งโรงพยาบาลเดียวหรือซัพพลายเชนเดียว — วัดผลด้วยจำนวนจุดสำรองที่ใช้งานได้จริง</td><td data-en>No single hospital or supply chain — tracked via number of working backup points</td><td><span class="pri high" data-th>สูง</span><span class="pri high" data-en>High</span></td></tr>
+        <tr><td data-th>4 — รักษาทางเลือก</td><td data-en>4 — Preserve options</td><td data-th>ทุกพื้นที่ต้องมีทางออกอย่างน้อย 1 ทางเสมอ — วัดผลด้วย Choice(t) ≥ 1</td><td data-en>Every area must always retain at least one exit — tracked via Choice(t) ≥ 1</td><td><span class="pri high" data-th>สูง</span><span class="pri high" data-en>High</span></td></tr>
+        <tr><td data-th>5 — เร่งวิจัยคู่ขนาน</td><td data-en>5 — Parallel research</td><td data-th>ระบบไม่รอยา แต่ลดความเสียหายระหว่างรอ — วัดผลด้วยอัตราการเสียชีวิตจากความไม่เป็นระเบียบ ไม่ใช่จากเชื้อโรคอย่างเดียว</td><td data-en>The system doesn't wait for a cure — it limits damage while waiting, tracked via deaths from disorder, not the pathogen alone</td><td><span class="pri med" data-th>กลาง</span><span class="pri med" data-en>Medium</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="verdict-line" data-th>หลักการ: เมื่อไม่มียา ระบบไม่พยายามแก้สิ่งที่แก้ไม่ได้ — มันป้องกัน "ความไม่เป็นระเบียบ" ที่ฆ่าคนเพิ่มจากของจริง &nbsp;|&nbsp; MSD exists only to keep Options &gt; 0. When options restored → MSD disappears.</div>
+    <div class="verdict-line" data-en>Principle: with no cure, the system doesn't try to fix what can't be fixed — it prevents the "disorder" that kills on top of the pathogen. &nbsp;|&nbsp; MSD exists only to keep Options &gt; 0. When options restored → MSD disappears.</div>
+  </div>
+</section>
+
+<hr class="div wrap">
+
+<!-- ══════════════════ PRODUCT ══════════════════ -->
+<section class="wrap" id="product">
+  <div class="product">
+    <div class="section-num">06 — <span data-th>ใช้งานจริง</span><span data-en>The live product</span></div>
+    <h2 data-th>KING DIADEM — แอปที่รัน FATE™ จริง</h2>
+    <h2 data-en>KING DIADEM — FATE™, running live</h2>
+    <p class="section-sub" data-th>ทุก Axiom ในหน้านี้ไม่ใช่แค่ทฤษฎี — มันคือตรรกะที่รันอยู่จริงเบื้องหลังแอป พร้อมสภาที่ปรึกษา AI ห้าเสียงและบุคลิกสองตัวหลักที่คอยอธิบายทุกการตัดสินใจ</p>
+    <p class="section-sub" data-en>Every axiom on this page isn't theory — it's the logic actually running behind the app, with a five-voice AI council and two lead personas explaining every decision along the way.</p>
+
+    <div class="persona-row">
+      <div class="persona lyla">
+        <div class="who">LYLA ◈</div>
+        <p data-th>เสียงที่อบอุ่น เห็นอกเห็นใจ — โฟกัสที่การเคลื่อนที่ไปข้างหน้าและความอดทนของระบบ</p>
+        <p data-en>The warm, empathetic voice — focused on forward motion and the system's endurance.</p>
+      </div>
+      <div class="persona vega">
+        <div class="who">VEGA ◆</div>
+        <p data-th>เสียงเชิงวิเคราะห์ — โฟกัสที่ความปลอดภัย การถอยกลับ และความไวต่อความไม่แน่นอน</p>
+        <p data-en>The analytical voice — focused on safety, retreat, and sensitivity to entropy.</p>
+      </div>
+    </div>
+
+    <a class="btn btn-primary" href="https://king-diadem.onrender.com" target="_blank" rel="noopener">
+      <span data-th>เปิด KING DIADEM</span><span data-en>Open KING DIADEM</span> →
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap">
+  <div class="footer-grid">
+    <div class="footer-links">
+      <a href="https://github.com/varjayd01/King-Diadem" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://king-diadem.onrender.com" target="_blank" rel="noopener" data-th>แอปจริง</a>
+      <a href="https://king-diadem.onrender.com" target="_blank" rel="noopener" data-en>Live app</a>
+      <a href="#axioms" data-th>Axioms</a><a href="#axioms" data-en>Axioms</a>
+      <a href="#stack" data-th>โครงสร้าง</a><a href="#stack" data-en>Architecture</a>
+    </div>
+  </div>
+  <div class="footer-note" data-th>ความจริงไม่จำเป็นต้องมีเจ้าของ — มันยืนหยัดได้ด้วยตัวมันเอง FATE™ จึงไม่ถูกซื้อขาย ไม่ถูกอ้างกรรมสิทธิ์ ศึกษาและส่งต่อได้เพื่อให้ทุกคนเข้าถึงความจริงได้เท่ากัน. &nbsp;© Nithikorn Bunsrang (King Diadem).</div>
+  <div class="footer-note" data-en>Truth doesn't need an owner — it stands on its own. FATE™ cannot be bought, sold, or claimed as property. It can be studied and shared so everyone has equal access to it. &nbsp;© Nithikorn Bunsrang (King Diadem).</div>
+</footer>
+
+<script>
+/* ── LANGUAGE TOGGLE ────────────────────────────────────────── */
+(function(){
+  var html=document.documentElement;
+  var btn=document.getElementById('langtoggle');
+  var saved=localStorage.getItem('kd-lang');
+  if(saved) html.setAttribute('data-lang',saved);
+  btn.addEventListener('click',function(){
+    var cur=html.getAttribute('data-lang')||'th';
+    var next=cur==='th'?'en':'th';
+    html.setAttribute('data-lang',next);
+    localStorage.setItem('kd-lang',next);
+  });
+})();
+
+/* ── AMBIENT FIELD BACKGROUND ───────────────────────────────── */
+(function(){
+  var cv=document.getElementById('bgcanvas');
+  var ctx=cv.getContext('2d');
+  var W,H,stars=[];
+  function resize(){
+    W=cv.width=innerWidth; H=cv.height=innerHeight;
+    stars=[];
+    var n=Math.min(140,Math.floor((W*H)/14000));
+    for(var i=0;i<n;i++){
+      stars.push({
+        x:Math.random()*W,y:Math.random()*H,
+        r:0.4+Math.random()*1.1,
+        a:0.08+Math.random()*0.22,
+        ph:Math.random()*Math.PI*2,
+        sp:0.4+Math.random()*0.6,
+        gold:Math.random()<0.18
+      });
+    }
+  }
+  window.addEventListener('resize',resize);
+  resize();
+  var t=0;
+  function frame(){
+    t+=0.012;
+    ctx.clearRect(0,0,W,H);
+    var bg=ctx.createRadialGradient(W*0.5,H*0.15,0,W*0.5,H*0.4,Math.max(W,H)*0.8);
+    bg.addColorStop(0,'rgba(20,28,52,0.5)');
+    bg.addColorStop(1,'rgba(7,9,18,0)');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+    for(var i=0;i<stars.length;i++){
+      var s=stars[i];
+      var tw=s.a*(0.5+0.5*Math.sin(t*s.sp+s.ph));
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=s.gold?'rgba(212,175,106,'+tw+')':'rgba(150,180,255,'+tw+')';
+      ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ── LIVE AUDIT DEMO ────────────────────────────────────────── */
+(function(){
+  var steps=[
+    {tag:'INPUT',cls:'',th:'ตรวจสอบความครบถ้วนของข้อมูล — <b>ผ่าน</b>',en:'Checking input completeness — <b>pass</b>'},
+    {tag:'AXIOM 3',cls:'',th:'Determinism — input เดิม + ruleset เดิม → output เดิม',en:'Determinism — same input + same ruleset → same output'},
+    {tag:'AXIOM 4',cls:'warn',th:'Downside Before Upside — พบความเสี่ยงที่ยังไม่ระบุ mitigation',en:'Downside Before Upside — risk found with no mitigation specified'},
+    {tag:'CONFLICT',cls:'warn',th:'ตรวจสอบผลประโยชน์ทับซ้อน — ไม่พบ',en:'Conflict-of-interest scan — none found'},
+    {tag:'OVERRIDE',cls:'',th:'ไม่มีการ override ในรอบนี้',en:'No override requested this cycle'},
+    {tag:'OUTCOME',cls:'ok',th:'จัดประเภทผลลัพธ์ — <b>Deferred</b>: ต้องการหลักฐานความเสี่ยงเพิ่มเติม',en:'Outcome classified — <b>Deferred</b>: additional risk evidence required'},
+  ];
+  var body=document.getElementById('demoBody');
+  var btn=document.getElementById('runDemo');
+  var running=false;
+  function run(){
+    if(running) return;
+    running=true;
+    body.innerHTML='';
+    var lang=document.documentElement.getAttribute('data-lang')||'th';
+    steps.forEach(function(s,i){
+      setTimeout(function(){
+        var row=document.createElement('div');
+        row.className='demo-row';
+        var text = lang==='en' ? s.en : s.th;
+        row.innerHTML='<span class="demo-tag '+s.cls+'">'+s.tag+'</span><span class="demo-text">'+text+'</span>';
+        body.appendChild(row);
+        requestAnimationFrame(function(){row.classList.add('show');});
+        if(i===steps.length-1) running=false;
+      }, i*620);
+    });
+  }
+  btn.addEventListener('click',run);
+})();
+</script>
+
+</body>
+</html>
