@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FATE™ Decision Report — KING DIADEM</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Noto+Sans+Thai:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --white:#ffffff;--off:#f7f8fc;--surface:#f0f2f9;--panel:#e8ebf5;
+  --navy:#050d2e;--navy-2:#0a1845;--indigo:#1a3af0;--indigo-soft:#4060ff;
+  --indigo-glow:rgba(26,58,240,0.10);
+  --ink:#08112b;--ink-mid:#2a3560;--ink-dim:#6b7aab;--ink-faint:#a8b2d8;
+  --gold:#c8922a;--gold-soft:#e8b84a;--red:#d93025;--ok:#0d7a4e;--warn:#b45309;
+  --display:'Syne',sans-serif;--mono:'DM Mono',monospace;--thai:'Noto Sans Thai',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--white);color:var(--ink);font-family:var(--display);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:50;
+  padding:0 40px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,0.9);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--panel);
+}
+.nav-brand{font-weight:800;font-size:14px;color:var(--navy);display:flex;align-items:center;gap:8px;}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--indigo);box-shadow:0 0 6px rgba(26,58,240,0.5);}
+.nav-right{display:flex;gap:12px;}
+.btn-sm{
+  font-family:var(--display);font-size:12px;font-weight:700;
+  padding:8px 18px;border-radius:5px;border:none;cursor:pointer;
+  transition:all .15s;
+}
+.btn-fill{background:var(--navy);color:#fff;}
+.btn-fill:hover{background:var(--indigo);}
+.btn-outline{background:transparent;color:var(--navy);border:1.5px solid var(--panel);}
+.btn-outline:hover{border-color:var(--indigo);color:var(--indigo);}
+
+/* ── PAGE ── */
+.page{max-width:800px;margin:0 auto;padding:48px 28px 80px;}
+
+/* ── HERO REPORT ── */
+.report-hero{
+  background:var(--navy);border-radius:16px;padding:40px;margin-bottom:32px;
+  position:relative;overflow:hidden;
+}
+.report-hero::before{
+  content:'';position:absolute;top:-40%;right:-10%;width:60%;height:180%;
+  background:radial-gradient(circle,rgba(26,58,240,0.25),transparent 65%);
+  pointer-events:none;
+}
+.rh-eyebrow{
+  font-family:var(--mono);font-size:10px;letter-spacing:0.18em;
+  color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:16px;
+}
+.rh-id{
+  font-family:var(--mono);font-size:13px;color:#7da3ff;margin-bottom:8px;
+}
+.rh-verdict{
+  font-family:var(--display);font-weight:800;
+  font-size:clamp(28px,5vw,42px);letter-spacing:-0.02em;
+  color:#fff;margin-bottom:20px;
+}
+.rh-verdict.approved{color:#5fd0a3;}
+.rh-verdict.deferred{color:#febc2e;}
+.rh-verdict.rejected{color:#ff5f57;}
+.rh-meta{display:flex;flex-wrap:wrap;gap:16px;}
+.meta-item{font-family:var(--mono);font-size:11px;}
+.meta-label{color:rgba(255,255,255,0.3);display:block;margin-bottom:3px;letter-spacing:0.06em;text-transform:uppercase;}
+.meta-val{color:rgba(255,255,255,0.8);}
+
+/* ── SECTION ── */
+.sec{margin-bottom:28px;}
+.sec-title{
+  font-family:var(--mono);font-size:10px;color:var(--ink-faint);
+  letter-spacing:0.14em;text-transform:uppercase;
+  margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--panel);}
+
+/* ── INPUT BLOCK ── */
+.input-block{
+  background:var(--off);border:1px solid var(--panel);border-radius:10px;
+  padding:20px;font-size:14px;color:var(--ink-mid);line-height:1.75;
+}
+
+/* ── AXIOM AUDIT ── */
+.axiom-list{display:grid;gap:2px;}
+.ax-row{
+  display:grid;grid-template-columns:52px 1fr 70px;
+  background:var(--off);border:1px solid var(--panel);
+  border-radius:4px;overflow:hidden;
+}
+.ax-code{
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  color:var(--indigo);background:var(--indigo-glow);
+  border-right:1px solid var(--panel);
+}
+.ax-body{padding:14px 18px;}
+.ax-name{font-weight:700;font-size:13px;color:var(--navy);margin-bottom:4px;}
+.ax-note{font-size:12px;color:var(--ink-dim);line-height:1.5;}
+.ax-status{
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  border-left:1px solid var(--panel);
+}
+.ax-status.PASS{color:var(--ok);background:rgba(13,122,78,0.06);}
+.ax-status.WARN{color:var(--warn);background:rgba(180,83,9,0.06);}
+.ax-status.FAIL{color:var(--red);background:rgba(217,48,37,0.06);}
+
+/* ── SUMMARY BAR ── */
+.summary-bar{
+  background:var(--navy);border-radius:10px;padding:20px 24px;
+  display:flex;gap:24px;flex-wrap:wrap;margin-top:16px;
+}
+.sb-item{text-align:center;}
+.sb-num{font-family:var(--display);font-weight:800;font-size:24px;}
+.sb-num.pass{color:#5fd0a3;}
+.sb-num.warn{color:#febc2e;}
+.sb-num.fail{color:#ff5f57;}
+.sb-label{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.06em;margin-top:3px;}
+
+/* ── RESPONSE BLOCK ── */
+.response-block{
+  background:var(--off);border:1px solid var(--panel);border-radius:10px;
+  padding:24px;font-size:14px;color:var(--ink-mid);line-height:1.8;
+}
+.persona-tag{
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  letter-spacing:0.08em;margin-bottom:12px;display:block;
+}
+.persona-tag.LYLA{color:#ff9ec4;}
+.persona-tag.VEGA{color:#7da3ff;}
+
+/* ── RISK METER ── */
+.risk-row{display:flex;align-items:center;gap:14px;margin-bottom:6px;}
+.risk-label{font-family:var(--mono);font-size:11px;color:var(--ink-dim);width:80px;flex:none;}
+.risk-bar-wrap{flex:1;background:var(--panel);border-radius:999px;height:6px;overflow:hidden;}
+.risk-bar{height:100%;border-radius:999px;transition:width .6s ease;}
+.risk-val{font-family:var(--mono);font-size:11px;color:var(--ink-mid);width:36px;text-align:right;flex:none;}
+
+/* ── CONSENSUS ── */
+.consensus-block{
+  background:var(--indigo-glow);border:1px solid rgba(26,58,240,0.15);
+  border-radius:10px;padding:20px;font-size:13.5px;color:var(--ink-mid);line-height:1.75;
+}
+
+/* ── SHARE ROW ── */
+.share-row{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  background:var(--off);border:1px solid var(--panel);border-radius:10px;
+  padding:16px 20px;
+}
+.share-url{
+  flex:1;font-family:var(--mono);font-size:12px;color:var(--ink-dim);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
+}
+.btn-copy{
+  font-family:var(--display);font-size:12px;font-weight:700;
+  padding:9px 18px;border-radius:5px;border:none;cursor:pointer;
+  background:var(--indigo);color:#fff;flex:none;transition:background .15s;
+}
+.btn-copy:hover{background:var(--indigo-soft);}
+.btn-copy.copied{background:var(--ok);}
+
+/* ── FOOTER ── */
+.report-footer{
+  border-top:1px solid var(--panel);padding-top:24px;margin-top:40px;
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  font-family:var(--mono);font-size:11px;color:var(--ink-faint);
+}
+
+/* ── LOADING / ERROR ── */
+#loading{text-align:center;padding:80px 24px;font-family:var(--mono);font-size:13px;color:var(--ink-faint);}
+#error-block{display:none;text-align:center;padding:80px 24px;}
+#error-block h2{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:8px;}
+#error-block p{color:var(--ink-dim);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand"><div class="nav-dot"></div>KING DIADEM</div>
+  <div class="nav-right">
+    <a href="/" class="btn-sm btn-outline">← หน้าหลัก</a>
+    <a href="https://king-diadem.onrender.com" class="btn-sm btn-fill" target="_blank">เปิดระบบ →</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div id="loading">⟳ กำลังโหลด Decision Report...</div>
+  <div id="error-block">
+    <h2>Report ไม่พบ</h2>
+    <p>Report นี้อาจหมดอายุหรือ ID ไม่ถูกต้อง</p>
+  </div>
+  <div id="report-content" style="display:none"></div>
+</div>
+
+<script>
+(function(){
+  var id = location.pathname.split('/').pop();
+  if(!id || id === 'report'){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('error-block').style.display='block';
+    return;
+  }
+
+  fetch('/api/report/' + id)
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){
+      document.getElementById('loading').style.display='none';
+      if(!d || d.error){
+        document.getElementById('error-block').style.display='block';
+        return;
+      }
+      renderReport(d);
+    })
+    .catch(function(){
+      document.getElementById('loading').style.display='none';
+      document.getElementById('error-block').style.display='block';
+    });
+
+  function verdictClass(v){
+    if(v==='APPROVED') return 'approved';
+    if(v==='DEFERRED') return 'deferred';
+    return 'rejected';
+  }
+  function statusColor(s){
+    if(s==='PASS') return '#0d7a4e';
+    if(s==='WARN') return '#b45309';
+    return '#d93025';
+  }
+  function riskColor(r){
+    if(r < 35) return '#0d7a4e';
+    if(r < 65) return '#b45309';
+    return '#d93025';
+  }
+
+  function renderReport(d){
+    var audit = d.fate_audit || {};
+    var checks = audit.checks || [];
+    var gov = d.governance || {};
+    var hs = (gov.human_state || {});
+
+    var checksHtml = checks.map(function(c){
+      return '<div class="ax-row">'
+        +'<div class="ax-code">'+c.code+'</div>'
+        +'<div class="ax-body"><div class="ax-name">'+c.name+'</div>'
+        +'<div class="ax-note">'+c.note+'</div></div>'
+        +'<div class="ax-status '+c.status+'">'+c.status+'</div>'
+        +'</div>';
+    }).join('');
+
+    var riskRows = [
+      {label:'Entropy',  val: hs.entropy  || 0, inv: true},
+      {label:'Stability',val: hs.stability || 0, inv: false},
+      {label:'Resource', val: hs.resource  || 0, inv: false},
+    ].map(function(item){
+      var pct = Math.max(0,Math.min(100, item.val));
+      var danger = item.inv ? pct : (100-pct);
+      var col = danger > 65 ? '#d93025' : danger > 40 ? '#b45309' : '#0d7a4e';
+      return '<div class="risk-row">'
+        +'<div class="risk-label">'+item.label+'</div>'
+        +'<div class="risk-bar-wrap"><div class="risk-bar" style="width:'+pct+'%;background:'+col+'"></div></div>'
+        +'<div class="risk-val">'+Math.round(pct)+'</div>'
+        +'</div>';
+    }).join('');
+
+    var consensusSection = d.consensus
+      ? '<div class="sec"><div class="sec-title">Council Consensus</div>'
+        +'<div class="consensus-block">'+d.consensus+'</div></div>'
+      : '';
+
+    var shareUrl = location.origin + '/report/' + d.id;
+
+    var html = ''
+    // Hero
+    +'<div class="report-hero">'
+    +'<div class="rh-eyebrow">FATE™ Decision Report · KING DIADEM</div>'
+    +'<div class="rh-id">ID: '+d.id+' &nbsp;·&nbsp; '+new Date(d.created_at).toLocaleString('th-TH')+'</div>'
+    +'<div class="rh-verdict '+verdictClass(audit.verdict||'')+'">'+( audit.verdict || 'PENDING' )+'</div>'
+    +'<div class="rh-meta">'
+    +'<div class="meta-item"><span class="meta-label">Route</span><span class="meta-val">'+(d.route||'general').toUpperCase()+'</span></div>'
+    +'<div class="meta-item"><span class="meta-label">Persona</span><span class="meta-val">'+(d.persona||'LYLA')+'</span></div>'
+    +'<div class="meta-item"><span class="meta-label">Risk Score</span><span class="meta-val" style="color:'+(riskColor(d.risk_score||0))+'">'+(d.risk_score||0).toFixed(0)+'</span></div>'
+    +'<div class="meta-item"><span class="meta-label">Axiom Pass</span><span class="meta-val" style="color:#5fd0a3">'+(audit.axiom_pass||0)+'/6</span></div>'
+    +'</div>'
+    +'</div>'
+
+    // Input
+    +'<div class="sec"><div class="sec-title">Input</div>'
+    +'<div class="input-block">'+escHtml(d.input_text||'')+'</div></div>'
+
+    // FATE Audit
+    +'<div class="sec"><div class="sec-title">FATE™ Axiom Audit</div>'
+    +'<div class="axiom-list">'+checksHtml+'</div>'
+    +'<div class="summary-bar">'
+    +'<div class="sb-item"><div class="sb-num pass">'+(audit.axiom_pass||0)+'</div><div class="sb-label">PASS</div></div>'
+    +'<div class="sb-item"><div class="sb-num warn">'+(audit.axiom_warn||0)+'</div><div class="sb-label">WARN</div></div>'
+    +'<div class="sb-item"><div class="sb-num fail">'+(audit.axiom_fail||0)+'</div><div class="sb-label">FAIL</div></div>'
+    +'</div></div>'
+
+    // Human State
+    +(riskRows ? '<div class="sec"><div class="sec-title">Human State</div>'+riskRows+'</div>' : '')
+
+    // Response
+    +'<div class="sec"><div class="sec-title">AI Response</div>'
+    +'<div class="response-block">'
+    +'<span class="persona-tag '+(d.persona||'LYLA')+'">'+(d.persona||'LYLA')+' ◈</span>'
+    +escHtml(d.ai_response||'').replace(/\n/g,'<br>')
+    +'</div></div>'
+
+    // Consensus
+    + consensusSection
+
+    // Share
+    +'<div class="sec"><div class="sec-title">แชร์ Report นี้</div>'
+    +'<div class="share-row">'
+    +'<div class="share-url">'+shareUrl+'</div>'
+    +'<button class="btn-copy" id="copyBtn" onclick="copyUrl(\''+shareUrl+'\')">คัดลอกลิงก์</button>'
+    +'<a href="/api/report/'+d.id+'/pdf" class="btn-sm btn-outline" style="padding:9px 18px;font-size:12px;font-weight:700;">Export PDF</a>'
+    +'</div></div>'
+
+    // Footer
+    +'<div class="report-footer">'
+    +'<span>FATE™ v1.0 · KING DIADEM</span>'
+    +'<span>Nithikorn Bunsrang (King Diadem) · king-diadem.onrender.com</span>'
+    +'</div>';
+
+    var el = document.getElementById('report-content');
+    el.innerHTML = html;
+    el.style.display = 'block';
+
+    // update page title
+    document.title = 'FATE™ Report: '+(audit.verdict||'')+ ' — KING DIADEM';
+  }
+
+  function escHtml(s){
+    return String(s)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  window.copyUrl = function(url){
+    navigator.clipboard.writeText(url).then(function(){
+      var btn = document.getElementById('copyBtn');
+      if(!btn) return;
+      btn.textContent = '✓ คัดลอกแล้ว';
+      btn.classList.add('copied');
+      setTimeout(function(){ btn.textContent='คัดลอกลิงก์'; btn.classList.remove('copied'); }, 2000);
+    });
+  };
+})();
+</script>
+</body>
+</html>
+
+
