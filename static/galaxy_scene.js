@@ -1,246 +1,3 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>KING DIADEM — Galaxy Screen</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=DM+Mono:wght@300;400;500&display=swap">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:100%;height:100%;overflow:hidden;background:#020409;}
-canvas{display:block;position:fixed;inset:0;width:100%;height:100%;}
-
-/* ── HUD OVERLAY ── */
-#hud{
-  position:fixed;inset:0;pointer-events:none;z-index:10;
-  font-family:'DM Mono',monospace;
-}
-
-/* Top bar */
-#topbar{
-  position:absolute;top:0;left:0;right:0;height:48px;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;
-  background:linear-gradient(to bottom,rgba(2,4,9,0.85),rgba(2,4,9,0));
-  border-bottom:1px solid rgba(200,168,75,0.08);
-}
-.tb-brand{
-  display:flex;align-items:center;gap:10px;
-}
-.tb-crown{
-  width:22px;height:22px;border-radius:5px;
-  border:1px solid rgba(200,168,75,0.40);
-  background:rgba(200,168,75,0.10);
-  display:flex;align-items:center;justify-content:center;
-  font-size:11px;
-  box-shadow:0 0 10px rgba(200,168,75,0.20);
-}
-.tb-title{
-  font-family:'Cinzel',serif;font-size:11px;letter-spacing:.18em;
-  background:linear-gradient(135deg,#78bcff,#e8cc7a);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
-.tb-right{display:flex;gap:10px;align-items:center;}
-.tb-badge{
-  font-size:7px;letter-spacing:.12em;padding:3px 8px;border-radius:3px;
-  border:1px solid;text-transform:uppercase;
-}
-.tb-badge.ok {border-color:rgba(80,220,160,0.35);color:rgba(80,220,160,0.85);background:rgba(80,220,160,0.06);}
-.tb-badge.off{border-color:rgba(255,74,110,0.35);color:rgba(255,74,110,0.70);background:rgba(255,74,110,0.06);}
-#tb-time{font-size:9px;color:rgba(200,168,75,0.40);}
-
-/* Waterline float */
-#wl-float{
-  position:absolute;top:56px;right:16px;
-  display:flex;flex-direction:column;gap:3px;align-items:flex-end;
-}
-.wl-dot{
-  font-size:7px;letter-spacing:.14em;
-  padding:3px 10px;border-radius:999px;
-  border:1px solid rgba(74,158,255,0.20);
-  background:rgba(2,4,9,0.65);
-  backdrop-filter:blur(8px);
-  color:rgba(120,188,255,0.65);
-}
-.wl-dot.warn{border-color:rgba(240,168,20,0.30);color:rgba(240,168,20,0.75);}
-.wl-dot.crit{border-color:rgba(255,74,110,0.35);color:rgba(255,100,130,0.80);animation:critBlink .9s ease-in-out infinite;}
-@keyframes critBlink{0%,100%{opacity:.6;}50%{opacity:1;}}
-
-/* LYLA float */
-#lyla-float{
-  position:absolute;top:56px;left:16px;
-  font-size:7px;letter-spacing:.14em;
-  padding:3px 10px;border-radius:999px;
-  border:1px solid rgba(200,168,75,0.22);
-  background:rgba(2,4,9,0.65);
-  backdrop-filter:blur(8px);
-  color:rgba(220,190,100,0.60);
-}
-
-/* Route pills */
-#route-pills{
-  position:absolute;bottom:72px;left:50%;transform:translateX(-50%);
-  display:flex;gap:6px;flex-wrap:wrap;justify-content:center;
-  pointer-events:all;
-  padding:0 16px;
-}
-.rpill{
-  font-size:8px;letter-spacing:.12em;padding:6px 14px;border-radius:999px;
-  border:1px solid rgba(74,158,255,0.16);
-  background:rgba(2,4,9,0.60);
-  color:rgba(100,150,220,0.55);
-  cursor:pointer;transition:all .18s;
-  backdrop-filter:blur(8px);
-}
-.rpill:hover{border-color:rgba(200,168,75,0.40);color:rgba(220,190,100,0.90);background:rgba(200,168,75,0.08);}
-.rpill.active{
-  border-color:rgba(200,168,75,0.55);
-  color:rgba(232,204,122,0.95);
-  background:rgba(200,168,75,0.14);
-  box-shadow:0 0 14px rgba(200,168,75,0.18);
-}
-
-/* HUD bottom bar */
-#hud-bottom{
-  position:absolute;bottom:0;left:0;right:0;height:52px;
-  display:flex;align-items:center;justify-content:center;gap:20px;
-  background:linear-gradient(to top,rgba(2,4,9,0.90),rgba(2,4,9,0));
-  padding:0 20px;
-}
-.hud-stat{
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-}
-.hud-stat-k{font-size:6px;letter-spacing:.16em;color:rgba(100,130,200,0.40);text-transform:uppercase;}
-.hud-stat-v{font-size:11px;font-weight:400;color:rgba(160,200,255,0.80);}
-.hud-stat-v.gold{color:rgba(220,190,100,0.85);}
-.hud-stat-v.warn{color:rgba(240,168,20,0.90);}
-.hud-stat-v.crit{color:rgba(255,90,120,0.95);}
-
-/* Intro overlay */
-#intro{
-  position:fixed;inset:0;z-index:50;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:rgba(2,4,9,1);
-  transition:opacity 1.2s ease;
-}
-#intro.fade{opacity:0;pointer-events:none;}
-.intro-title{
-  font-family:'Cinzel',serif;font-size:clamp(22px,5vw,40px);
-  letter-spacing:.14em;
-  background:linear-gradient(135deg,#ffffff,#c8a84b);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  margin-bottom:6px;
-}
-.intro-sub{font-size:9px;letter-spacing:.28em;color:rgba(74,158,255,0.50);margin-bottom:28px;}
-.intro-bar{width:180px;height:1px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;}
-.intro-fill{height:100%;background:linear-gradient(90deg,#4a9eff,#c8a84b);width:0;transition:width 2.2s ease;}
-.intro-tagline{margin-top:16px;font-size:8px;letter-spacing:.20em;color:rgba(140,170,220,0.35);}
-
-/* Ctx tags */
-#ctx-tags{
-  position:absolute;top:56px;left:50%;transform:translateX(-50%);
-  display:flex;gap:6px;
-  pointer-events:all;
-}
-.ctx-tag{
-  font-size:8px;letter-spacing:.10em;padding:4px 12px;border-radius:999px;
-  border:1px solid rgba(74,158,255,0.14);
-  background:rgba(2,4,9,0.55);
-  color:rgba(100,140,210,0.50);
-  cursor:pointer;transition:all .18s;
-  backdrop-filter:blur(6px);
-}
-.ctx-tag:hover{color:rgba(120,188,255,0.80);border-color:rgba(74,158,255,0.35);}
-.ctx-tag.active{
-  border-color:rgba(200,168,75,0.45);
-  color:rgba(232,204,122,0.90);
-  background:rgba(200,168,75,0.10);
-}
-</style>
-</head>
-<body>
-
-<!-- CANVAS -->
-<canvas id="galaxy"></canvas>
-
-<!-- INTRO -->
-<div id="intro">
-  <div class="intro-title">KING DIADEM</div>
-  <div class="intro-sub">DRIFTZERO · WATERLINE · FATE™</div>
-  <div class="intro-bar"><div class="intro-fill" id="intro-fill"></div></div>
-  <div class="intro-tagline">FAIL LESS · HARM LESS · RESTORE CHOICE</div>
-</div>
-
-<!-- HUD -->
-<div id="hud">
-  <div id="topbar">
-    <div class="tb-brand">
-      <div class="tb-crown">♛</div>
-      <div class="tb-title">KING DIADEM</div>
-    </div>
-    <div class="tb-right">
-      <span class="tb-badge ok" id="b-fate">FATE</span>
-      <span class="tb-badge ok" id="b-lyla">LYLA</span>
-      <span class="tb-badge off" id="b-crit">WL</span>
-      <div id="tb-time">--:--</div>
-    </div>
-  </div>
-
-  <div id="lyla-float">LYLA ◈ ONLINE</div>
-
-  <div id="wl-float">
-    <div class="wl-dot" id="wl-val">WATERLINE 89</div>
-    <div class="wl-dot" id="wl-status">SAFE</div>
-  </div>
-
-  <div id="ctx-tags">
-    <div class="ctx-tag active" data-r="general"  onclick="setRoute('general')">GENERAL</div>
-    <div class="ctx-tag"        data-r="risk"     onclick="setRoute('risk')">RISK</div>
-    <div class="ctx-tag"        data-r="survival" onclick="setRoute('survival')">SURVIVAL</div>
-    <div class="ctx-tag"        data-r="collapse" onclick="setRoute('collapse')">COLLAPSE</div>
-    <div class="ctx-tag"        data-r="civil"    onclick="setRoute('civil')">CIVIL</div>
-    <div class="ctx-tag"        data-r="vega"     onclick="setRoute('vega')">VEGA</div>
-  </div>
-
-  <div id="hud-bottom">
-    <div class="hud-stat">
-      <div class="hud-stat-k">Entropy</div>
-      <div class="hud-stat-v" id="h-ent">45</div>
-    </div>
-    <div class="hud-stat">
-      <div class="hud-stat-k">Stability</div>
-      <div class="hud-stat-v gold" id="h-stb">62</div>
-    </div>
-    <div class="hud-stat">
-      <div class="hud-stat-k">Resources</div>
-      <div class="hud-stat-v gold" id="h-rsc">78</div>
-    </div>
-    <div class="hud-stat">
-      <div class="hud-stat-k">Waterline</div>
-      <div class="hud-stat-v" id="h-wl">89</div>
-    </div>
-    <div class="hud-stat">
-      <div class="hud-stat-k">Choice(t)</div>
-      <div class="hud-stat-v gold" id="h-choice">≥1</div>
-    </div>
-    <div class="hud-stat">
-      <div class="hud-stat-k">Route</div>
-      <div class="hud-stat-v gold" id="h-route">GENERAL</div>
-    </div>
-  </div>
-
-  <div id="route-pills">
-    <div class="rpill active" data-r="general"  onclick="setRoute('general')">ทั่วไป</div>
-    <div class="rpill"        data-r="risk"     onclick="setRoute('risk')">ความเสี่ยง</div>
-    <div class="rpill"        data-r="survival" onclick="setRoute('survival')">รอดชีวิต</div>
-    <div class="rpill"        data-r="collapse" onclick="setRoute('collapse')">วิกฤต</div>
-    <div class="rpill"        data-r="civil"    onclick="setRoute('civil')">สังคม</div>
-    <div class="rpill"        data-r="vega"     onclick="setRoute('vega')">VEGA</div>
-  </div>
-</div>
-
-<script>
 /* ============================================================
    KING DIADEM — Galaxy Screen v36 STANDALONE
    Full cosmic engine — no backend needed
@@ -917,16 +674,46 @@ document.addEventListener('keydown',function(e){
   if(e.key==='r'||e.key==='R'){STATE.entropy=Math.random()*80+10;STATE.stability=Math.random()*80+10;STATE.resources=Math.random()*80+10;}
 });
 
-})();
 
-/* ── INTRO ── */
-(function(){
-  var fill=document.getElementById('intro-fill');
-  var intro=document.getElementById('intro');
-  if(fill)setTimeout(function(){fill.style.width='100%';},100);
-  setTimeout(function(){if(intro)intro.classList.add('fade');},2800);
-  setTimeout(function(){if(intro&&intro.parentNode)intro.parentNode.removeChild(intro);},4200);
+/* ── PUBLIC API — exposed to galaxy_scene_api.js and index.html ── */
+window.KD_pulse = function(route) {
+  if (route && ROUTE_HUE[route]) {
+    activeRoute = route;
+    STATE.activeRoute = route;
+    _tgtHue = ROUTE_HUE[route] || 208;
+  }
+  var sx = SX(), sy = SY();
+  spawnEx(sx, sy, '120,180,255', 22);
+  shockwave(sx, sy, '80,160,255', false);
+};
+
+window.LYLA_thinking = function() {
+  STATE.thinking = true;
+  clearTimeout(window._lylaThinkT);
+  window._lylaThinkT = setTimeout(function() { STATE.thinking = false; }, 5000);
+  var sx = SX(), sy = SY();
+  spawnEx(sx, sy, '200,168,75', 12);
+};
+
+window.LYLA_answered = function() {
+  STATE.thinking = false;
+  var sx = SX(), sy = SY();
+  spawnEx(sx, sy, '80,220,160', 28);
+  shockwave(sx, sy, '80,220,160', false);
+};
+
+window.KD_setState = function(s, v) {
+  if (s == null) return;
+  if (typeof s === "string") { var tmp = {}; tmp[s] = v; s = tmp; }
+  if (s.entropy   != null) STATE.entropy   = +s.entropy;
+  if (s.stability != null) STATE.stability = +s.stability;
+  if (s.resources != null) STATE.resources = +s.resources;
+  if (s.waterline != null) STATE.waterline = +s.waterline;
+  if (s.choice_count != null) STATE.choice_count = +s.choice_count;
+};
+
+window.KD_setRoute = function(r) {
+  if (typeof window.setRoute === 'function') window.setRoute(r);
+};
+
 })();
-</script>
-</body>
-</html>
