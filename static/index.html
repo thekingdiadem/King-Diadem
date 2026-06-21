@@ -1456,7 +1456,20 @@ function _hGet(sid){ if(!_KD_HIST[sid])_KD_HIST[sid]=[]; return _KD_HIST[sid]; }
 function _hPush(sid,role,content){ var h=_hGet(sid); h.push({role:role,content:String(content)}); if(h.length>40)h.splice(0,h.length-40); }
 var _errT=null;
 function showErr(msg,ms){ var el=document.getElementById('err-toast'); if(!el)return; el.textContent=msg; el.style.display='block'; clearTimeout(_errT); _errT=setTimeout(function(){el.style.display='none';},ms||5000); }
-async function readJson(res){ var ct=(res.headers.get('content-type')||'').toLowerCase(); var txt=await res.text(); if(!res.ok)throw new Error('HTTP '+res.status+' — '+txt.slice(0,140)); var tr=txt.trim(); if(tr.startsWith('<')||(!ct.includes('json')&&tr.charAt(0)!=='{'&&tr.charAt(0)!=='['))throw new Error('Server ตอบไม่ใช่ JSON'); try{return JSON.parse(txt);}catch(e){throw new Error('Not JSON');} }
+async function readJson(res){
+  var ct=(res.headers.get('content-type')||'').toLowerCase();
+  var txt=await res.text();
+  if(!res.ok){
+    if(res.status===502||res.status===503||res.status===504){
+      throw new Error('ระบบกำลังตื่นนอน — รอ 30 วินาทีแล้วลองใหม่ (Render cold start)');
+    }
+    throw new Error('HTTP '+res.status+' — '+txt.slice(0,80));
+  }
+  var tr=txt.trim();
+  if(tr.startsWith('<')||(!ct.includes('json')&&tr.charAt(0)!=='{'&&tr.charAt(0)!=='['))
+    throw new Error('Server ตอบไม่ใช่ JSON — อาจยังไม่ตื่น ลองใหม่สักครู่');
+  try{return JSON.parse(txt);}catch(e){throw new Error('Not JSON');}
+}
 async function fetchRetry(url,opts,retries,delayMs){
   retries=retries||3; delayMs=delayMs||1200;
   for(var i=0;i<retries;i++){
