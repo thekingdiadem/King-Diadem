@@ -1,9 +1,10 @@
-const CACHE = "king-diadem-v2"
-
+const CACHE = "king-diadem-v3"
 const STATIC_ASSETS = [
   "/",
-  "/index.html",
-  "/manifest.json"
+  "/manifest.json",
+  "/static/index.html",
+  "/static/style.css",
+  "/static/logo.png"
 ]
 
 // INSTALL
@@ -32,10 +33,8 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   e.respondWith(
     caches.match(e.request).then(res => {
-
       // 1. cache first
       if (res) return res
-
       // 2. network + cache
       return fetch(e.request).then(net => {
         return caches.open(CACHE).then(cache => {
@@ -43,10 +42,9 @@ self.addEventListener("fetch", e => {
           return net
         })
       }).catch(() => {
-        // 3. fallback
-        return caches.match("/index.html")
+        // 3. fallback → static/index.html
+        return caches.match("/static/index.html")
       })
-
     })
   )
 })
