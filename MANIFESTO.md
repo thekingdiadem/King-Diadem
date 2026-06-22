@@ -1,63 +1,71 @@
-KING DIADEM MANIFESTO
+# KING DIADEM — MANIFESTO
 
-Systems rarely collapse suddenly.
+สร้างโดย นิธิกร บุญสร้าง
 
-They collapse slowly.
+---
 
-Small problems accumulate.
-Signals are ignored.
-Choices disappear.
+ระบบไม่เคยพังในคืนเดียว
 
-When choices reach zero,
-collapse becomes inevitable.
+มันพังจากการสะสมเล็กๆ ที่ไม่มีใครหยุด
+จากสัญญาณที่ถูกเพิกเฉย
+จากทางเลือกที่หายไปทีละทาง
+จนวันหนึ่ง — ไม่มีอะไรให้เลือกอีกแล้ว
 
-Most modern systems attempt to optimize outcomes.
+---
 
-KING DIADEM follows a different principle.
+ระบบส่วนใหญ่พยายาม optimize ผลลัพธ์
 
-Preserve choice.
+KING DIADEM ทำสิ่งที่ต่างออกไป
 
-A system that still has one viable option
-can still recover.
+**ปกป้องทางเลือก**
 
-A system with zero options
-cannot.
+ระบบที่ยังมีทางออกหนึ่งทาง — ยังรอดได้
+ระบบที่ไม่มีทางออกเลย — ไม่มีวันรอด
 
-Therefore the purpose of this framework
-is not control.
+---
 
-Not domination.
+จุดประสงค์ของ framework นี้ไม่ใช่การควบคุม
+ไม่ใช่การครอบงำ
+ไม่ใช่การทำนาย
 
-Not prediction.
+จุดประสงค์คือ **ความอยู่รอด**
 
-The purpose is survival.
+ตรวจจับ drift ก่อนที่มันจะสะสมจนเกินแก้
+เปิดทางออกก่อนที่ทุกทางจะปิด
+ช่วยให้มนุษย์เดินผ่านความไม่แน่นอน โดยไม่ต้องสูญเสียอิสรภาพ
 
-To detect drift early.
+---
 
-To restore options before collapse.
+เทคโนโลยีไม่ควรลดทางเลือกของมนุษย์
 
-To help humans navigate uncertainty
-without removing their freedom.
+**เทคโนโลยีควรปกป้องมัน**
 
-Technology should not remove human choice.
+ถ้าทางหนึ่งหายไป ต้องหาทางใหม่
+ถ้าความไม่แน่นอนเพิ่ม ความชัดเจนต้องเพิ่มตาม
+ถ้าระบบเริ่ม drift ต้องแก้ก่อนที่จะสาย
 
-Technology should protect it.
+---
 
-If one path disappears,
-another must be created.
+กฎมีเพียงข้อเดียว
 
-If uncertainty increases,
-clarity must increase.
+```
+Choice(t) ≥ 1 → collapse = False
+```
 
-If systems drift,
-correction must begin early.
+ตราบใดที่ยังมีทางออกอย่างน้อยหนึ่งทาง
+การพังยังหลีกเลี่ยงได้
 
-The rule is simple:
+---
 
-Choice must never reach zero.
+ระบบนี้ไม่ใช่ศาสนา
+ไม่ใช่อุดมการณ์
+ไม่ใช่คำสั่ง
 
-As long as one path remains,
-collapse can still be avoided.
+มันคือพื้นสุดท้าย
+ที่ไม่ควรมีใครร่วงลงไปต่ำกว่านี้
 
-Preserve choice.
-Preserve humanity.
+---
+
+**Fail Less · Harm Less · Restore Choice**
+
+KING DIADEM — นิธิกร บุญสร้าง · 2026
