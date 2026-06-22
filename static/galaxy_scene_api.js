@@ -1,17 +1,24 @@
 /**
- * galaxy_scene_api.js — KING DIADEM v4.6 STABLE
- * เชื่อม galaxy_scene.js กับ backend /api/galaxy/*
+ * galaxy_scene_api.js — KING DIADEM v4.7
+ * Fix: exponential backoff on fail, no polling storm after worker restart
  */
 (function () {
   'use strict';
-  var POLL_MS = 6000;
-  var _wired = false;
+
+  var POLL_MS      = 6000;
+  var POLL_MAX_MS  = 60000; // backoff ceiling
+  var _wired       = false;
+  var _failCount   = 0;
+  var _pollTimer   = null;
 
   function poll() {
     fetch('/api/galaxy/nodes', { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
       .then(function (d) {
+        _failCount = 0; // reset on success
+        schedulePoll(POLL_MS);
         if (!d) return;
+
         if (d.active_route) {
           var cur = (document.querySelector('.ctx-tag.active') || {}).dataset || {};
           if (d.active_route !== cur.r) {
@@ -21,6 +28,7 @@
         }
         if (d.lyla_mode === 'thinking' && typeof window.LYLA_thinking === 'function') window.LYLA_thinking();
         else if (d.lyla_mode === 'burst' && typeof window.LYLA_answered === 'function') window.LYLA_answered();
+
         var w = d.waterline || {};
         _meter('wl-entropy',   w.entropy,   true);
         _meter('wl-stability', w.stability, false);
@@ -28,6 +36,7 @@
         _txt('wl-entropy-val',   Math.round(w.entropy   || 40));
         _txt('wl-stability-val', Math.round(w.stability || 60));
         _txt('wl-resource-val',  Math.round(w.resource  || 50));
+
         if (d.risk_score != null) {
           var rs = Math.round(d.risk_score);
           _txt('lyla-drift',     (rs / 100 * 0.15).toFixed(2) + '%');
@@ -37,7 +46,17 @@
           if (wlEl) wlEl.className = 'lyla-val ' + (rs > 60 ? 'warn' : 'safe');
         }
       })
-      .catch(function () {});
+      .catch(function () {
+        _failCount++;
+        // exponential backoff: 6s → 12s → 24s → 48s → 60s (ceiling)
+        var delay = Math.min(POLL_MS * Math.pow(2, _failCount - 1), POLL_MAX_MS);
+        schedulePoll(delay);
+      });
+  }
+
+  function schedulePoll(ms) {
+    clearTimeout(_pollTimer);
+    _pollTimer = setTimeout(poll, ms);
   }
 
   function _signal(route, mode) {
@@ -100,8 +119,7 @@
 
   function start() {
     wireIntercepts();
-    poll();
-    setInterval(poll, POLL_MS);
+    poll(); // first poll immediate
   }
 
   if (document.readyState === 'loading') {
@@ -111,3 +129,4 @@
   }
 
 })();
+
