@@ -1572,6 +1572,34 @@ body {
 <script src="/static/galaxy_scene.js"></script>
 <script src="/static/galaxy_scene_api.js"></script>
 <script>
+/* ── GALAXY INIT GUARD ───────────────────────────────────────────
+   galaxy_scene.js ต้องการ canvas #galaxy — init ทันทีหลัง load
+   ถ้า fail → fallback nebula gradient แทนหน้าดำ
+   ─────────────────────────────────────────────────────────────── */
+(function(){
+  try {
+    var cv = document.getElementById('galaxy');
+    if (!cv) return;
+    // ถ้า galaxy_scene.js expose initGalaxy หรือ KD_init → เรียก
+    if (typeof window.initGalaxy === 'function') { window.initGalaxy(cv); return; }
+    if (typeof window.KD_init === 'function') { window.KD_init(); return; }
+    // ถ้าไม่มี → วาด fallback nebula CSS gradient บน #galaxy-bg
+    var bg = document.getElementById('galaxy-bg');
+    if (bg) {
+      bg.style.background = [
+        'radial-gradient(ellipse 70% 55% at 15% 45%, rgba(74,158,255,0.13) 0%, transparent 65%)',
+        'radial-gradient(ellipse 55% 60% at 82% 60%, rgba(200,168,75,0.09) 0%, transparent 60%)',
+        'radial-gradient(ellipse 80% 80% at 50% 50%, rgba(180,138,255,0.04) 0%, transparent 70%)',
+        '#03040d'
+      ].join(',');
+    }
+  } catch(e) {
+    console.warn('[KD] galaxy init failed:', e);
+    // fallback สีพื้น void ไม่ให้ดำเปล่า
+    var bg2 = document.getElementById('galaxy-bg');
+    if (bg2) bg2.style.background = 'linear-gradient(145deg,#04060f 0%,#020308 100%)';
+  }
+})();
 (function(){
   var el=document.getElementById('intro-screen');
   if(!el) return;
