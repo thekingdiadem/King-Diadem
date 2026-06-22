@@ -2,364 +2,740 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#010206">
 <title>FATE™ Decision Report — KING DIADEM</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Noto+Sans+Thai:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap">
 <style>
-:root{
-  --white:#ffffff;--off:#f7f8fc;--surface:#f0f2f9;--panel:#e8ebf5;
-  --navy:#050d2e;--navy-2:#0a1845;--indigo:#1a3af0;--indigo-soft:#4060ff;
-  --indigo-glow:rgba(26,58,240,0.10);
-  --ink:#08112b;--ink-mid:#2a3560;--ink-dim:#6b7aab;--ink-faint:#a8b2d8;
-  --gold:#c8922a;--gold-soft:#e8b84a;--red:#d93025;--ok:#0d7a4e;--warn:#b45309;
-  --display:'Syne',sans-serif;--mono:'DM Mono',monospace;--thai:'Noto Sans Thai',sans-serif;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{background:var(--white);color:var(--ink);font-family:var(--display);-webkit-font-smoothing:antialiased;}
-a{text-decoration:none;color:inherit;}
+/* ═══════════════════════════════════════════════════════════════════
+   KING DIADEM — FATE™ Decision Report
+   OBSIDIAN SOVEREIGN — coherent with main app
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --void:    #010206;
+  --deep:    #040710;
+  --mid:     #070918;
+  --near:    #0b0f26;
+  --surface: #101630;
 
-/* ── NAV ── */
-nav{
-  position:sticky;top:0;z-index:50;
-  padding:0 40px;height:56px;
-  display:flex;align-items:center;justify-content:space-between;
-  background:rgba(255,255,255,0.9);backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--panel);
-}
-.nav-brand{font-weight:800;font-size:14px;color:var(--navy);display:flex;align-items:center;gap:8px;}
-.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--indigo);box-shadow:0 0 6px rgba(26,58,240,0.5);}
-.nav-right{display:flex;gap:12px;}
-.btn-sm{
-  font-family:var(--display);font-size:12px;font-weight:700;
-  padding:8px 18px;border-radius:5px;border:none;cursor:pointer;
-  transition:all .15s;
-}
-.btn-fill{background:var(--navy);color:#fff;}
-.btn-fill:hover{background:var(--indigo);}
-.btn-outline{background:transparent;color:var(--navy);border:1.5px solid var(--panel);}
-.btn-outline:hover{border-color:var(--indigo);color:var(--indigo);}
+  --gold:      #c8a440;
+  --gold-hi:   #edcc62;
+  --gold-lo:   rgba(200,164,64,0.09);
+  --gold-line: rgba(200,164,64,0.20);
+  --gold-glow: 0 0 22px rgba(200,164,64,0.20), 0 0 64px rgba(200,164,64,0.07);
 
-/* ── PAGE ── */
-.page{max-width:800px;margin:0 auto;padding:48px 28px 80px;}
+  --blue:      #3a86f5;
+  --blue-hi:   #76aeff;
+  --blue-lo:   rgba(58,134,245,0.09);
+  --blue-line: rgba(58,134,245,0.17);
 
-/* ── HERO REPORT ── */
-.report-hero{
-  background:var(--navy);border-radius:16px;padding:40px;margin-bottom:32px;
-  position:relative;overflow:hidden;
-}
-.report-hero::before{
-  content:'';position:absolute;top:-40%;right:-10%;width:60%;height:180%;
-  background:radial-gradient(circle,rgba(26,58,240,0.25),transparent 65%);
-  pointer-events:none;
-}
-.rh-eyebrow{
-  font-family:var(--mono);font-size:10px;letter-spacing:0.18em;
-  color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:16px;
-}
-.rh-id{
-  font-family:var(--mono);font-size:13px;color:#7da3ff;margin-bottom:8px;
-}
-.rh-verdict{
-  font-family:var(--display);font-weight:800;
-  font-size:clamp(28px,5vw,42px);letter-spacing:-0.02em;
-  color:#fff;margin-bottom:20px;
-}
-.rh-verdict.approved{color:#5fd0a3;}
-.rh-verdict.deferred{color:#febc2e;}
-.rh-verdict.rejected{color:#ff5f57;}
-.rh-meta{display:flex;flex-wrap:wrap;gap:16px;}
-.meta-item{font-family:var(--mono);font-size:11px;}
-.meta-label{color:rgba(255,255,255,0.3);display:block;margin-bottom:3px;letter-spacing:0.06em;text-transform:uppercase;}
-.meta-val{color:rgba(255,255,255,0.8);}
+  --vega:  #a67df5;
+  --red:   #f03558;
+  --ok:    #2bcfb4;
+  --warn:  #f0a820;
 
-/* ── SECTION ── */
-.sec{margin-bottom:28px;}
-.sec-title{
-  font-family:var(--mono);font-size:10px;color:var(--ink-faint);
-  letter-spacing:0.14em;text-transform:uppercase;
-  margin-bottom:14px;display:flex;align-items:center;gap:10px;
-}
-.sec-title::after{content:'';flex:1;height:1px;background:var(--panel);}
+  --tx-hi:  rgba(246,250,255,0.97);
+  --tx:     rgba(198,216,248,0.82);
+  --tx-mid: rgba(125,158,218,0.50);
+  --tx-lo:  rgba(60,95,170,0.26);
 
-/* ── INPUT BLOCK ── */
-.input-block{
-  background:var(--off);border:1px solid var(--panel);border-radius:10px;
-  padding:20px;font-size:14px;color:var(--ink-mid);line-height:1.75;
+  --s1: 0 1px 4px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.022);
+  --s2: 0 4px 20px rgba(0,0,0,0.58), 0 0 0 1px rgba(255,255,255,0.028);
+  --s3: 0 14px 48px rgba(0,0,0,0.68), 0 0 0 1px rgba(255,255,255,0.032);
+
+  --r-xl: 28px;
+  --r-l:  18px;
+  --r:    12px;
+  --r-s:  8px;
+
+  --f-display: 'Cinzel', serif;
+  --f-mono:    'DM Mono', monospace;
+  --f-body:    'Noto Sans Thai', system-ui, sans-serif;
 }
 
-/* ── AXIOM AUDIT ── */
-.axiom-list{display:grid;gap:2px;}
-.ax-row{
-  display:grid;grid-template-columns:52px 1fr 70px;
-  background:var(--off);border:1px solid var(--panel);
-  border-radius:4px;overflow:hidden;
-}
-.ax-code{
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:11px;font-weight:700;
-  color:var(--indigo);background:var(--indigo-glow);
-  border-right:1px solid var(--panel);
-}
-.ax-body{padding:14px 18px;}
-.ax-name{font-weight:700;font-size:13px;color:var(--navy);margin-bottom:4px;}
-.ax-note{font-size:12px;color:var(--ink-dim);line-height:1.5;}
-.ax-status{
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:10px;font-weight:700;
-  border-left:1px solid var(--panel);
-}
-.ax-status.PASS{color:var(--ok);background:rgba(13,122,78,0.06);}
-.ax-status.WARN{color:var(--warn);background:rgba(180,83,9,0.06);}
-.ax-status.FAIL{color:var(--red);background:rgba(217,48,37,0.06);}
-
-/* ── SUMMARY BAR ── */
-.summary-bar{
-  background:var(--navy);border-radius:10px;padding:20px 24px;
-  display:flex;gap:24px;flex-wrap:wrap;margin-top:16px;
-}
-.sb-item{text-align:center;}
-.sb-num{font-family:var(--display);font-weight:800;font-size:24px;}
-.sb-num.pass{color:#5fd0a3;}
-.sb-num.warn{color:#febc2e;}
-.sb-num.fail{color:#ff5f57;}
-.sb-label{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.06em;margin-top:3px;}
-
-/* ── RESPONSE BLOCK ── */
-.response-block{
-  background:var(--off);border:1px solid var(--panel);border-radius:10px;
-  padding:24px;font-size:14px;color:var(--ink-mid);line-height:1.8;
-}
-.persona-tag{
-  font-family:var(--mono);font-size:11px;font-weight:700;
-  letter-spacing:0.08em;margin-bottom:12px;display:block;
-}
-.persona-tag.LYLA{color:#ff9ec4;}
-.persona-tag.VEGA{color:#7da3ff;}
-
-/* ── RISK METER ── */
-.risk-row{display:flex;align-items:center;gap:14px;margin-bottom:6px;}
-.risk-label{font-family:var(--mono);font-size:11px;color:var(--ink-dim);width:80px;flex:none;}
-.risk-bar-wrap{flex:1;background:var(--panel);border-radius:999px;height:6px;overflow:hidden;}
-.risk-bar{height:100%;border-radius:999px;transition:width .6s ease;}
-.risk-val{font-family:var(--mono);font-size:11px;color:var(--ink-mid);width:36px;text-align:right;flex:none;}
-
-/* ── CONSENSUS ── */
-.consensus-block{
-  background:var(--indigo-glow);border:1px solid rgba(26,58,240,0.15);
-  border-radius:10px;padding:20px;font-size:13.5px;color:var(--ink-mid);line-height:1.75;
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { height:100%; scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+body {
+  min-height:100%;
+  background: var(--void);
+  color: var(--tx);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ── SHARE ROW ── */
-.share-row{
-  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-  background:var(--off);border:1px solid var(--panel);border-radius:10px;
-  padding:16px 20px;
-}
-.share-url{
-  flex:1;font-family:var(--mono);font-size:12px;color:var(--ink-dim);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
-}
-.btn-copy{
-  font-family:var(--display);font-size:12px;font-weight:700;
-  padding:9px 18px;border-radius:5px;border:none;cursor:pointer;
-  background:var(--indigo);color:#fff;flex:none;transition:background .15s;
-}
-.btn-copy:hover{background:var(--indigo-soft);}
-.btn-copy.copied{background:var(--ok);}
-
-/* ── FOOTER ── */
-.report-footer{
-  border-top:1px solid var(--panel);padding-top:24px;margin-top:40px;
-  display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
-  font-family:var(--mono);font-size:11px;color:var(--ink-faint);
+/* ambient field */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 0%, rgba(14,24,68,0.72) 0%, transparent 68%),
+    radial-gradient(ellipse 35% 35% at 90% 85%, rgba(8,16,52,0.48) 0%, transparent 60%);
 }
 
-/* ── LOADING / ERROR ── */
-#loading{text-align:center;padding:80px 24px;font-family:var(--mono);font-size:13px;color:var(--ink-faint);}
-#error-block{display:none;text-align:center;padding:80px 24px;}
-#error-block h2{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:8px;}
-#error-block p{color:var(--ink-dim);}
+a { text-decoration: none; color: inherit; }
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(200,164,64,0.18); border-radius: 2px; }
+
+/* ── NAV ──────────────────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(16px,4vw,48px); height: 56px;
+  background: rgba(1,2,6,0.90);
+  backdrop-filter: blur(32px) saturate(1.6);
+  -webkit-backdrop-filter: blur(32px) saturate(1.6);
+  border-bottom: 1px solid rgba(255,255,255,0.036);
+  box-shadow: 0 1px 0 rgba(200,164,64,0.06), 0 8px 32px rgba(0,0,0,0.40);
+}
+nav::after {
+  content: '';
+  position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(58,134,245,0.30) 25%,
+    rgba(200,164,64,0.48) 50%,
+    rgba(58,134,245,0.30) 75%,
+    transparent 100%);
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--f-display); font-size: 13px; font-weight: 600;
+  letter-spacing: .14em;
+  background: linear-gradient(135deg, #76aeff 0%, #d8eeff 35%, #edcc62 65%, #c8a440 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.nav-logo {
+  width: 24px; height: 24px; object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(58,134,245,0.65)) drop-shadow(0 0 14px rgba(200,164,64,0.32));
+}
+.nav-actions { display: flex; gap: 8px; }
+.nav-btn {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: .10em;
+  padding: 7px 16px; border-radius: 999px; cursor: pointer;
+  border: 1px solid; transition: all .18s cubic-bezier(0.4,0,0.2,1);
+  white-space: nowrap;
+}
+.nav-btn-ghost {
+  border-color: rgba(255,255,255,0.08);
+  background: transparent;
+  color: var(--tx-mid);
+}
+.nav-btn-ghost:hover {
+  border-color: rgba(58,134,245,0.32);
+  color: var(--blue-hi);
+  background: rgba(58,134,245,0.06);
+}
+.nav-btn-gold {
+  border-color: rgba(200,164,64,0.30);
+  background: rgba(200,164,64,0.10);
+  color: var(--gold-hi);
+}
+.nav-btn-gold:hover {
+  border-color: rgba(200,164,64,0.55);
+  background: rgba(200,164,64,0.18);
+  box-shadow: var(--gold-glow);
+  transform: translateY(-1px);
+}
+
+/* ── PAGE SHELL ───────────────────────────────────────────────── */
+.page {
+  position: relative; z-index: 1;
+  max-width: 820px; margin: 0 auto;
+  padding: 48px clamp(16px,5vw,40px) 100px;
+}
+
+/* ── LOADING / ERROR ──────────────────────────────────────────── */
+#loading {
+  text-align: center; padding: 120px 24px;
+  font-family: var(--f-mono); font-size: 12px;
+  color: var(--tx-lo); letter-spacing: .14em;
+}
+.loading-dot {
+  display: inline-block;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(200,164,64,0.55);
+  margin: 0 3px;
+  animation: ldot 1.2s ease-in-out infinite;
+}
+.loading-dot:nth-child(2) { animation-delay: .2s; background: rgba(58,134,245,0.55); }
+.loading-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes ldot { 0%,100%{opacity:.15;transform:scale(.6)} 50%{opacity:.9;transform:scale(1)} }
+
+#error-block {
+  display: none; text-align: center; padding: 120px 24px;
+}
+.err-code {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: .22em;
+  color: rgba(240,53,88,0.45); margin-bottom: 16px; text-transform: uppercase;
+}
+.err-title {
+  font-family: var(--f-display); font-size: 28px; font-weight: 600;
+  letter-spacing: .08em; color: var(--tx-hi); margin-bottom: 10px;
+}
+.err-body { font-size: 14px; color: var(--tx-mid); margin-bottom: 28px; }
+.err-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: .10em;
+  padding: 12px 24px; border-radius: 999px;
+  border: 1px solid rgba(200,164,64,0.28);
+  background: rgba(200,164,64,0.08);
+  color: var(--gold-hi); cursor: pointer;
+  transition: all .18s cubic-bezier(0.4,0,0.2,1);
+}
+.err-btn:hover {
+  border-color: rgba(200,164,64,0.52);
+  background: rgba(200,164,64,0.16);
+  box-shadow: var(--gold-glow);
+  transform: translateY(-1px);
+}
+
+/* ── HERO ─────────────────────────────────────────────────────── */
+.report-hero {
+  position: relative; overflow: hidden;
+  border-radius: var(--r-l);
+  border: 1px solid rgba(255,255,255,0.048);
+  background: rgba(6,8,20,0.95);
+  padding: clamp(28px,5vw,48px);
+  margin-bottom: 24px;
+  box-shadow: var(--s3);
+}
+.report-hero::before {
+  content: '';
+  position: absolute; top: -30%; right: -5%; width: 55%; height: 160%;
+  background: radial-gradient(ellipse at center,
+    rgba(58,134,245,0.10) 0%,
+    rgba(200,164,64,0.06) 45%,
+    transparent 70%);
+  pointer-events: none;
+}
+.report-hero::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(200,164,64,0.35) 30%,
+    rgba(58,134,245,0.28) 70%,
+    transparent 100%);
+}
+.hero-eyebrow {
+  font-family: var(--f-mono); font-size: 8px; letter-spacing: .22em;
+  color: rgba(200,164,64,0.40); text-transform: uppercase;
+  margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-eyebrow::before {
+  content: ''; width: 16px; height: 1px;
+  background: rgba(200,164,64,0.32);
+}
+.hero-id {
+  font-family: var(--f-mono); font-size: 11px;
+  color: rgba(58,134,245,0.55); margin-bottom: 14px;
+  letter-spacing: .06em;
+}
+.hero-verdict {
+  font-family: var(--f-display); font-weight: 700;
+  font-size: clamp(30px,6vw,48px); letter-spacing: .08em;
+  margin-bottom: 24px; line-height: 1;
+}
+.hero-verdict.approved { color: var(--ok); text-shadow: 0 0 40px rgba(43,207,180,0.28); }
+.hero-verdict.deferred { color: var(--warn); text-shadow: 0 0 40px rgba(240,168,32,0.28); }
+.hero-verdict.rejected { color: var(--red); text-shadow: 0 0 40px rgba(240,53,88,0.28); }
+.hero-verdict.pending  { color: var(--tx-mid); }
+
+.hero-meta {
+  display: flex; flex-wrap: wrap; gap: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.038);
+}
+.meta-item { display: flex; flex-direction: column; gap: 4px; }
+.meta-label {
+  font-family: var(--f-mono); font-size: 7px;
+  letter-spacing: .20em; text-transform: uppercase;
+  color: var(--tx-lo);
+}
+.meta-val {
+  font-family: var(--f-mono); font-size: 13px;
+  color: var(--tx-hi); font-weight: 500;
+}
+
+/* ── SECTION ──────────────────────────────────────────────────── */
+.sec { margin-bottom: 20px; }
+.sec-title {
+  font-family: var(--f-mono); font-size: 8px;
+  letter-spacing: .20em; text-transform: uppercase;
+  color: rgba(200,164,64,0.48);
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-title::before {
+  content: ''; width: 2px; height: 10px; flex-shrink: 0;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, var(--gold), rgba(58,134,245,0.50));
+  box-shadow: 0 0 6px rgba(200,164,64,0.32);
+}
+.sec-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(255,255,255,0.038);
+}
+
+/* ── CARD ─────────────────────────────────────────────────────── */
+.card {
+  border-radius: var(--r);
+  border: 1px solid rgba(255,255,255,0.048);
+  background: rgba(6,8,20,0.90);
+  box-shadow: var(--s2);
+  overflow: hidden;
+}
+
+/* ── INPUT BLOCK ──────────────────────────────────────────────── */
+.input-block {
+  padding: 20px;
+  font-size: 14px; line-height: 1.80;
+  color: var(--tx);
+  white-space: pre-wrap; word-break: break-word;
+}
+
+/* ── AXIOM AUDIT ──────────────────────────────────────────────── */
+.ax-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 64px;
+  border-bottom: 1px solid rgba(255,255,255,0.032);
+}
+.ax-row:last-child { border-bottom: none; }
+
+.ax-code {
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-mono); font-size: 10px; font-weight: 500;
+  color: rgba(200,164,64,0.65);
+  background: rgba(200,164,64,0.04);
+  border-right: 1px solid rgba(255,255,255,0.032);
+  letter-spacing: .06em;
+}
+.ax-body { padding: 14px 18px; }
+.ax-name {
+  font-size: 13px; font-weight: 500;
+  color: var(--tx-hi); margin-bottom: 4px;
+}
+.ax-note { font-size: 11.5px; color: var(--tx-mid); line-height: 1.55; }
+.ax-status {
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-mono); font-size: 9px; font-weight: 700;
+  border-left: 1px solid rgba(255,255,255,0.032);
+  letter-spacing: .08em;
+}
+.ax-status.PASS { color: var(--ok); background: rgba(43,207,180,0.06); }
+.ax-status.WARN { color: var(--warn); background: rgba(240,168,32,0.06); }
+.ax-status.FAIL { color: var(--red); background: rgba(240,53,88,0.06); }
+
+/* Summary bar */
+.audit-summary {
+  display: flex; gap: 0;
+  margin-top: 12px;
+  border-radius: var(--r);
+  border: 1px solid rgba(255,255,255,0.048);
+  overflow: hidden;
+  box-shadow: var(--s1);
+}
+.aud-item {
+  flex: 1; text-align: center;
+  padding: 16px 8px;
+  border-right: 1px solid rgba(255,255,255,0.038);
+  background: rgba(6,8,20,0.90);
+}
+.aud-item:last-child { border-right: none; }
+.aud-num {
+  font-family: var(--f-display); font-weight: 700;
+  font-size: 28px; letter-spacing: .04em; line-height: 1;
+  margin-bottom: 5px;
+}
+.aud-num.pass { color: var(--ok); }
+.aud-num.warn { color: var(--warn); }
+.aud-num.fail { color: var(--red); }
+.aud-label {
+  font-family: var(--f-mono); font-size: 8px;
+  letter-spacing: .16em; color: var(--tx-lo);
+}
+
+/* ── WATERLINE METERS ─────────────────────────────────────────── */
+.wl-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.032);
+}
+.wl-row:last-child { border-bottom: none; }
+.wl-key {
+  font-family: var(--f-mono); font-size: 8px;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--tx-lo); width: 72px; flex-shrink: 0;
+}
+.wl-bar-wrap {
+  flex: 1; height: 3px;
+  background: rgba(255,255,255,0.038); border-radius: 3px; overflow: hidden;
+}
+.wl-bar { height: 100%; border-radius: 3px; transition: width .8s cubic-bezier(0.4,0,0.2,1); }
+.wl-val {
+  font-family: var(--f-mono); font-size: 12px;
+  color: var(--tx-mid); width: 30px; text-align: right; flex-shrink: 0;
+}
+
+/* ── RESPONSE BLOCK ───────────────────────────────────────────── */
+.response-block { padding: 22px 20px; }
+.persona-tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--f-mono); font-size: 8px; letter-spacing: .16em;
+  text-transform: uppercase; margin-bottom: 14px;
+  padding: 4px 12px; border-radius: 999px; border: 1px solid;
+}
+.persona-tag.LYLA {
+  color: rgba(118,174,255,0.80); border-color: rgba(58,134,245,0.20);
+  background: rgba(58,134,245,0.06);
+}
+.persona-tag.VEGA {
+  color: rgba(166,125,245,0.88); border-color: rgba(166,125,245,0.24);
+  background: rgba(166,125,245,0.06);
+}
+.persona-tag.crisis {
+  color: rgba(240,53,88,0.90); border-color: rgba(240,53,88,0.26);
+  background: rgba(240,53,88,0.06);
+}
+.response-text {
+  font-size: 14px; line-height: 1.82;
+  color: var(--tx); white-space: pre-wrap; word-break: break-word;
+}
+
+/* ── CONSENSUS BLOCK ──────────────────────────────────────────── */
+.consensus-block {
+  padding: 20px;
+  font-size: 14px; line-height: 1.80; color: var(--tx);
+  border-left: 2px solid rgba(200,164,64,0.30);
+  margin: 0 4px;
+}
+
+/* ── SHARE ROW ────────────────────────────────────────────────── */
+.share-card {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  padding: 16px 20px;
+}
+.share-url-text {
+  flex: 1; min-width: 0;
+  font-family: var(--f-mono); font-size: 11px;
+  color: rgba(58,134,245,0.55);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.share-btns { display: flex; gap: 8px; flex-shrink: 0; }
+.share-btn {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: .10em;
+  padding: 8px 16px; border-radius: 999px; cursor: pointer;
+  border: 1px solid; transition: all .18s cubic-bezier(0.4,0,0.2,1);
+  white-space: nowrap;
+}
+.share-btn-gold {
+  border-color: rgba(200,164,64,0.30);
+  background: rgba(200,164,64,0.08);
+  color: var(--gold-hi);
+}
+.share-btn-gold:hover {
+  border-color: rgba(200,164,64,0.55);
+  background: rgba(200,164,64,0.16);
+  box-shadow: var(--gold-glow);
+  transform: translateY(-1px);
+}
+.share-btn-gold.copied {
+  border-color: rgba(43,207,180,0.40);
+  background: rgba(43,207,180,0.10);
+  color: var(--ok);
+}
+.share-btn-blue {
+  border-color: rgba(58,134,245,0.22);
+  background: rgba(58,134,245,0.07);
+  color: var(--blue-hi);
+}
+.share-btn-blue:hover {
+  border-color: rgba(58,134,245,0.45);
+  background: rgba(58,134,245,0.14);
+  transform: translateY(-1px);
+}
+
+/* ── FOOTER ───────────────────────────────────────────────────── */
+.report-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.038);
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  font-family: var(--f-mono); font-size: 9px;
+  color: var(--tx-lo); letter-spacing: .10em;
+}
+.footer-fate {
+  background: linear-gradient(135deg, var(--gold), var(--blue-hi));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  font-weight: 500;
+}
+
+/* ── AXIOM FORMULA ────────────────────────────────────────────── */
+.axiom-formula {
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--f-mono); font-size: 11px;
+  color: rgba(166,125,245,0.80);
+  letter-spacing: .04em;
+}
+.axiom-formula::before {
+  content: '◈'; font-size: 12px;
+  color: rgba(200,164,64,0.45);
+  flex-shrink: 0;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────── */
+@media(max-width:480px) {
+  .hero-meta { gap: 14px; }
+  .audit-summary { flex-direction: row; }
+  .nav-brand span { display: none; }
+  .share-card { flex-direction: column; align-items: stretch; }
+  .share-btns { flex-direction: row; }
+}
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-brand"><div class="nav-dot"></div>KING DIADEM</div>
-  <div class="nav-right">
-    <a href="/" class="btn-sm btn-outline">← หน้าหลัก</a>
-    <a href="https://king-diadem.onrender.com" class="btn-sm btn-fill" target="_blank">เปิดระบบ →</a>
+  <div class="nav-brand">
+    <img src="/static/logo.png" alt="" class="nav-logo">
+    <span>KING DIADEM</span>
+  </div>
+  <div class="nav-actions">
+    <a href="/" class="nav-btn nav-btn-ghost">← หน้าหลัก</a>
+    <a href="/" class="nav-btn nav-btn-gold">เปิดระบบ</a>
   </div>
 </nav>
 
 <div class="page">
-  <div id="loading">⟳ กำลังโหลด Decision Report...</div>
-  <div id="error-block">
-    <h2>Report ไม่พบ</h2>
-    <p>Report นี้อาจหมดอายุหรือ ID ไม่ถูกต้อง</p>
+
+  <div id="loading">
+    <div style="margin-bottom:16px;">
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+    </div>
+    <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:.18em;color:var(--tx-lo);">LOADING DECISION REPORT</div>
   </div>
+
+  <div id="error-block">
+    <div class="err-code">REPORT · 404</div>
+    <div class="err-title">Report ไม่พบ</div>
+    <div class="err-body">Report นี้อาจหมดอายุหรือ ID ไม่ถูกต้อง</div>
+    <a href="/" class="err-btn">← กลับหน้าหลัก</a>
+  </div>
+
   <div id="report-content" style="display:none"></div>
+
 </div>
 
 <script>
 (function(){
-  var id = location.pathname.split('/').pop();
+  var id = location.pathname.split('/').filter(Boolean).pop();
   if(!id || id === 'report'){
-    document.getElementById('loading').style.display='none';
-    document.getElementById('error-block').style.display='block';
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-block').style.display = 'block';
     return;
   }
 
   fetch('/api/report/' + id)
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(d){
-      document.getElementById('loading').style.display='none';
+      document.getElementById('loading').style.display = 'none';
       if(!d || d.error){
-        document.getElementById('error-block').style.display='block';
+        document.getElementById('error-block').style.display = 'block';
         return;
       }
       renderReport(d);
     })
     .catch(function(){
-      document.getElementById('loading').style.display='none';
-      document.getElementById('error-block').style.display='block';
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error-block').style.display = 'block';
     });
 
-  function verdictClass(v){
-    if(v==='APPROVED') return 'approved';
-    if(v==='DEFERRED') return 'deferred';
-    return 'rejected';
+  function esc(s){
+    return String(s||'')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
-  function statusColor(s){
-    if(s==='PASS') return '#0d7a4e';
-    if(s==='WARN') return '#b45309';
-    return '#d93025';
+  function verdictClass(v){
+    var m = {APPROVED:'approved', DEFERRED:'deferred', REJECTED:'rejected'};
+    return m[v] || 'pending';
   }
   function riskColor(r){
-    if(r < 35) return '#0d7a4e';
-    if(r < 65) return '#b45309';
-    return '#d93025';
+    r = +r || 0;
+    if(r < 35) return 'var(--ok)';
+    if(r < 65) return 'var(--warn)';
+    return 'var(--red)';
+  }
+  function barColor(pct, inv){
+    var danger = inv ? pct : (100 - pct);
+    if(danger > 65) return 'linear-gradient(90deg,rgba(240,53,88,0.65),#f03558)';
+    if(danger > 40) return 'linear-gradient(90deg,rgba(240,168,32,0.65),#f0a820)';
+    return 'linear-gradient(90deg,rgba(58,134,245,0.60),rgba(118,174,255,0.95))';
   }
 
   function renderReport(d){
-    var audit = d.fate_audit || {};
-    var checks = audit.checks || [];
-    var gov = d.governance || {};
-    var hs = (gov.human_state || {});
+    var audit   = d.fate_audit  || {};
+    var checks  = audit.checks  || [];
+    var gov     = d.governance  || {};
+    var hs      = gov.human_state || {};
+    var verdict = audit.verdict || 'PENDING';
 
+    // ── AXIOM CHECKS ──
     var checksHtml = checks.map(function(c){
       return '<div class="ax-row">'
-        +'<div class="ax-code">'+c.code+'</div>'
-        +'<div class="ax-body"><div class="ax-name">'+c.name+'</div>'
-        +'<div class="ax-note">'+c.note+'</div></div>'
-        +'<div class="ax-status '+c.status+'">'+c.status+'</div>'
+        +'<div class="ax-code">'+esc(c.code)+'</div>'
+        +'<div class="ax-body">'
+          +'<div class="ax-name">'+esc(c.name)+'</div>'
+          +'<div class="ax-note">'+esc(c.note)+'</div>'
+        +'</div>'
+        +'<div class="ax-status '+(c.status||'')+'">'+esc(c.status||'')+'</div>'
         +'</div>';
     }).join('');
 
-    var riskRows = [
-      {label:'Entropy',  val: hs.entropy  || 0, inv: true},
-      {label:'Stability',val: hs.stability || 0, inv: false},
-      {label:'Resource', val: hs.resource  || 0, inv: false},
+    // ── WATERLINE ROWS ──
+    var wlRows = [
+      {key:'ENTROPY',  val: +(hs.entropy  || 0), inv: true},
+      {key:'STABILITY',val: +(hs.stability || 0), inv: false},
+      {key:'RESOURCE', val: +(hs.resource  || 0), inv: false},
     ].map(function(item){
-      var pct = Math.max(0,Math.min(100, item.val));
-      var danger = item.inv ? pct : (100-pct);
-      var col = danger > 65 ? '#d93025' : danger > 40 ? '#b45309' : '#0d7a4e';
-      return '<div class="risk-row">'
-        +'<div class="risk-label">'+item.label+'</div>'
-        +'<div class="risk-bar-wrap"><div class="risk-bar" style="width:'+pct+'%;background:'+col+'"></div></div>'
-        +'<div class="risk-val">'+Math.round(pct)+'</div>'
+      var pct = Math.max(0,Math.min(100,item.val));
+      var col = barColor(pct, item.inv);
+      return '<div class="wl-row">'
+        +'<div class="wl-key">'+item.key+'</div>'
+        +'<div class="wl-bar-wrap"><div class="wl-bar" style="width:'+pct+'%;background:'+col+'"></div></div>'
+        +'<div class="wl-val">'+Math.round(pct)+'</div>'
         +'</div>';
     }).join('');
 
-    var consensusSection = d.consensus
-      ? '<div class="sec"><div class="sec-title">Council Consensus</div>'
-        +'<div class="consensus-block">'+d.consensus+'</div></div>'
+    // ── PERSONA TAG ──
+    var personaName = String(d.persona || 'LYLA').toUpperCase();
+    var personaCls  = personaName === 'VEGA' ? 'VEGA' : 'LYLA';
+    var personaSym  = personaName === 'VEGA' ? '◆' : '◈';
+
+    // ── CONSENSUS ──
+    var consensusHtml = d.consensus
+      ? '<div class="sec">'
+          +'<div class="sec-title">COUNCIL CONSENSUS</div>'
+          +'<div class="card"><div class="consensus-block">'+esc(d.consensus)+'</div></div>'
+        +'</div>'
       : '';
 
-    var shareUrl = location.origin + '/report/' + d.id;
+    // ── AXIOM FORMULA ──
+    var risk = +(d.risk_score || 0);
+    var formulaVal = risk >= 75
+      ? '<span style="color:var(--red)">True</span>'
+      : '<span style="color:var(--ok)">False</span>';
+    var axiomHtml = '<div class="card"><div class="axiom-formula">'
+      +'Choice(t) ≥ 1 → collapse = '+formulaVal
+      +'&nbsp;&nbsp;·&nbsp;&nbsp;Risk '+Math.round(risk)+'/100'
+      +'</div></div>';
 
-    var html = ''
-    // Hero
-    +'<div class="report-hero">'
-    +'<div class="rh-eyebrow">FATE™ Decision Report · KING DIADEM</div>'
-    +'<div class="rh-id">ID: '+d.id+' &nbsp;·&nbsp; '+new Date(d.created_at).toLocaleString('th-TH')+'</div>'
-    +'<div class="rh-verdict '+verdictClass(audit.verdict||'')+'">'+( audit.verdict || 'PENDING' )+'</div>'
-    +'<div class="rh-meta">'
-    +'<div class="meta-item"><span class="meta-label">Route</span><span class="meta-val">'+(d.route||'general').toUpperCase()+'</span></div>'
-    +'<div class="meta-item"><span class="meta-label">Persona</span><span class="meta-val">'+(d.persona||'LYLA')+'</span></div>'
-    +'<div class="meta-item"><span class="meta-label">Risk Score</span><span class="meta-val" style="color:'+(riskColor(d.risk_score||0))+'">'+(d.risk_score||0).toFixed(0)+'</span></div>'
-    +'<div class="meta-item"><span class="meta-label">Axiom Pass</span><span class="meta-val" style="color:#5fd0a3">'+(audit.axiom_pass||0)+'/6</span></div>'
-    +'</div>'
-    +'</div>'
+    // ── SHARE ──
+    var shareUrl = location.origin + '/report/' + esc(d.id||id);
+    var dateStr  = d.created_at ? new Date(d.created_at).toLocaleString('th-TH') : '—';
 
-    // Input
-    +'<div class="sec"><div class="sec-title">Input</div>'
-    +'<div class="input-block">'+escHtml(d.input_text||'')+'</div></div>'
+    var html =
+      // HERO
+      '<div class="report-hero">'
+        +'<div class="hero-eyebrow">FATE™ Decision Report · KING DIADEM</div>'
+        +'<div class="hero-id">ID: '+esc(d.id||id)+'&nbsp;&nbsp;·&nbsp;&nbsp;'+esc(dateStr)+'</div>'
+        +'<div class="hero-verdict '+verdictClass(verdict)+'">'+esc(verdict)+'</div>'
+        +'<div class="hero-meta">'
+          +'<div class="meta-item"><div class="meta-label">Route</div><div class="meta-val">'+esc((d.route||'GENERAL').toUpperCase())+'</div></div>'
+          +'<div class="meta-item"><div class="meta-label">Persona</div><div class="meta-val">'+esc(personaName)+' '+personaSym+'</div></div>'
+          +'<div class="meta-item"><div class="meta-label">Risk Score</div><div class="meta-val" style="color:'+riskColor(risk)+'">'+Math.round(risk)+' / 100</div></div>'
+          +'<div class="meta-item"><div class="meta-label">Axiom Pass</div><div class="meta-val" style="color:var(--ok)">'+(audit.axiom_pass||0)+' / 6</div></div>'
+        +'</div>'
+      +'</div>'
 
-    // FATE Audit
-    +'<div class="sec"><div class="sec-title">FATE™ Axiom Audit</div>'
-    +'<div class="axiom-list">'+checksHtml+'</div>'
-    +'<div class="summary-bar">'
-    +'<div class="sb-item"><div class="sb-num pass">'+(audit.axiom_pass||0)+'</div><div class="sb-label">PASS</div></div>'
-    +'<div class="sb-item"><div class="sb-num warn">'+(audit.axiom_warn||0)+'</div><div class="sb-label">WARN</div></div>'
-    +'<div class="sb-item"><div class="sb-num fail">'+(audit.axiom_fail||0)+'</div><div class="sb-label">FAIL</div></div>'
-    +'</div></div>'
+      // INPUT
+      +'<div class="sec">'
+        +'<div class="sec-title">INPUT</div>'
+        +'<div class="card"><div class="input-block">'+esc(d.input_text||'')+'</div></div>'
+      +'</div>'
 
-    // Human State
-    +(riskRows ? '<div class="sec"><div class="sec-title">Human State</div>'+riskRows+'</div>' : '')
+      // FATE AUDIT
+      +'<div class="sec">'
+        +'<div class="sec-title">FATE™ AXIOM AUDIT</div>'
+        +'<div class="card">'+checksHtml+'</div>'
+        +'<div class="audit-summary">'
+          +'<div class="aud-item"><div class="aud-num pass">'+(audit.axiom_pass||0)+'</div><div class="aud-label">PASS</div></div>'
+          +'<div class="aud-item"><div class="aud-num warn">'+(audit.axiom_warn||0)+'</div><div class="aud-label">WARN</div></div>'
+          +'<div class="aud-item"><div class="aud-num fail">'+(audit.axiom_fail||0)+'</div><div class="aud-label">FAIL</div></div>'
+        +'</div>'
+      +'</div>'
 
-    // Response
-    +'<div class="sec"><div class="sec-title">AI Response</div>'
-    +'<div class="response-block">'
-    +'<span class="persona-tag '+(d.persona||'LYLA')+'">'+(d.persona||'LYLA')+' ◈</span>'
-    +escHtml(d.ai_response||'').replace(/\n/g,'<br>')
-    +'</div></div>'
+      // AXIOM FORMULA
+      +'<div class="sec">'
+        +'<div class="sec-title">AXIOM</div>'
+        +axiomHtml
+      +'</div>'
 
-    // Consensus
-    + consensusSection
+      // HUMAN STATE
+      +'<div class="sec">'
+        +'<div class="sec-title">HUMAN STATE · WATERLINE</div>'
+        +'<div class="card">'+wlRows+'</div>'
+      +'</div>'
 
-    // Share
-    +'<div class="sec"><div class="sec-title">แชร์ Report นี้</div>'
-    +'<div class="share-row">'
-    +'<div class="share-url">'+shareUrl+'</div>'
-    +'<button class="btn-copy" id="copyBtn" onclick="copyUrl(\''+shareUrl+'\')">คัดลอกลิงก์</button>'
-    +'<a href="/api/report/'+d.id+'/pdf" class="btn-sm btn-outline" style="padding:9px 18px;font-size:12px;font-weight:700;">Export PDF</a>'
-    +'</div></div>'
+      // AI RESPONSE
+      +'<div class="sec">'
+        +'<div class="sec-title">AI RESPONSE</div>'
+        +'<div class="card"><div class="response-block">'
+          +'<div class="persona-tag '+personaCls+'">'+esc(personaName)+' '+personaSym+'</div>'
+          +'<div class="response-text">'+esc(d.ai_response||'').replace(/\n/g,'<br>')+'</div>'
+        +'</div></div>'
+      +'</div>'
 
-    // Footer
-    +'<div class="report-footer">'
-    +'<span>FATE™ v1.0 · KING DIADEM</span>'
-    +'<span>Nithikorn Bunsrang (King Diadem) · king-diadem.onrender.com</span>'
-    +'</div>';
+      // CONSENSUS
+      + consensusHtml
+
+      // SHARE
+      +'<div class="sec">'
+        +'<div class="sec-title">แชร์ REPORT นี้</div>'
+        +'<div class="card"><div class="share-card">'
+          +'<div class="share-url-text">'+esc(shareUrl)+'</div>'
+          +'<div class="share-btns">'
+            +'<button class="share-btn share-btn-gold" id="copyBtn" onclick="doCopy(\''+shareUrl+'\')">คัดลอกลิงก์</button>'
+            +'<a href="/" class="share-btn share-btn-blue">เปิดระบบ</a>'
+          +'</div>'
+        +'</div></div>'
+      +'</div>'
+
+      // FOOTER
+      +'<div class="report-footer">'
+        +'<span class="footer-fate">FATE™ v1.0 · KING DIADEM</span>'
+        +'<span>Nithikorn Bunsrang · king-diadem.onrender.com</span>'
+      +'</div>';
 
     var el = document.getElementById('report-content');
     el.innerHTML = html;
     el.style.display = 'block';
-
-    // update page title
-    document.title = 'FATE™ Report: '+(audit.verdict||'')+ ' — KING DIADEM';
+    document.title = 'FATE™ ' + verdict + ' — KING DIADEM';
   }
 
-  function escHtml(s){
-    return String(s)
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;');
-  }
-
-  window.copyUrl = function(url){
+  window.doCopy = function(url){
     navigator.clipboard.writeText(url).then(function(){
       var btn = document.getElementById('copyBtn');
       if(!btn) return;
       btn.textContent = '✓ คัดลอกแล้ว';
       btn.classList.add('copied');
-      setTimeout(function(){ btn.textContent='คัดลอกลิงก์'; btn.classList.remove('copied'); }, 2000);
+      setTimeout(function(){
+        btn.textContent = 'คัดลอกลิงก์';
+        btn.classList.remove('copied');
+      }, 2400);
     });
   };
 })();
 </script>
 </body>
 </html>
-
-
