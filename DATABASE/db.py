@@ -1,11 +1,7 @@
-# DATABASE/db.py — KING DIADEM v2.1
-# v2.1 — แก้ log_decision() signature ให้ตรงกับที่ app.py เรียก
-#         (app.py เรียกด้วย kwargs: user_id, input, output, route, persona)
-#         เดิม (v2.0) ใช้ user_email/input_text/response → TypeError ทุกครั้ง
-#         (ถูก except: pass กลืนไว้ใน app.py เลย log ไม่เคยทำงาน)
-# credits table ใช้ upsert ไม่ใช่ insert ซ้ำ
+# DATABASE/db.py — KING DIADEM v2.2
+# v2.2 — เพิ่ม chat_memory table สำหรับ cross-session RAG memory
 
-import sqlite3, os
+import sqlite3, os, json
 
 DB_PATH = os.getenv("DB_PATH", "data/king_diadem.db")
 
@@ -50,10 +46,144 @@ def init_db():
             payload TEXT NOT NULL,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
+        CREATE TABLE IF NOT EXISTS chat_memory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_email TEXT NOT NULL,
+            memory_key TEXT NOT NULL,
+            content TEXT NOT NULL,
+            route TEXT,
+            importance INTEGER DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_chat_memory_user
+            ON chat_memory(user_email, importance DESC, updated_at DESC);
     """)
     conn.commit()
     conn.close()
     print("✅ DB initialized")
+
+# ── CHAT MEMORY API ────────────────────────────────────────────
+
+def save_memory(user_email: str, memory_key: str, content: str,
+                route: str = "general", importance: int = 1):
+    """บันทึกหรืออัปเดต memory ด้วย key"""
+    conn = get_conn()
+    try:
+        conn.execute("""
+            INSERT INTO chat_memory (user_email, memory_key, content, route, importance, updated_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT DO NOTHING
+        """, (user_email, memory_key, content, route, importance))
+        # ถ้า key ซ้ำ update แทน
+        conn.execute("""
+            UPDATE chat_memory
+            SET content=?, route=?, importance=?, updated_at=CURRENT_TIMESTAMP
+            WHERE user_email=? AND memory_key=?
+        """, (content, route, importance, user_email, memory_key))
+        conn.commit()
+    finally:
+        conn.close()
+
+def get_relevant_memory(user_email: str, limit: int = 5) -> list:
+    """ดึง memory ที่สำคัญที่สุด เรียงตาม importance + recency"""
+    conn = get_conn()
+    try:
+        rows = conn.execute("""
+            SELECT memory_key, content, route, importance, updated_at
+            FROM chat_memory
+            WHERE user_email=?
+            ORDER BY importance DESC, updated_at DESC
+            LIMIT ?
+        """, (user_email, limit)).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+def get_recent_decisions(user_email: str, limit: int = 3) -> list:
+    """ดึง decision log ล่าสุด เพื่อ context continuity"""
+    conn = get_conn()
+    try:
+        rows = conn.execute("""
+            SELECT input, route, response, created_at
+            FROM decision_log
+            WHERE user_email=? AND user_email != 'anonymous'
+            ORDER BY created_at DESC
+            LIMIT ?
+        """, (user_email, limit)).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+def build_memory_context(user_email: str) -> str:
+    """
+    สร้าง memory context string ให้ inject เข้า prompt
+    ถ้าไม่มี memory คืน empty string (ไม่บวม token)
+    """
+    if not user_email or user_email in ("anonymous", "guest"):
+        return ""
+
+    memories = get_relevant_memory(user_email, limit=5)
+    recent = get_recent_decisions(user_email, limit=2)
+
+    if not memories and not recent:
+        return ""
+
+    parts = []
+    if memories:
+        mem_lines = "\n".join(
+            f"- [{m['memory_key']}] {m['content']}"
+            for m in memories
+        )
+        parts.append(f"[MEMORY — สิ่งที่รู้เกี่ยวกับผู้ใช้]\n{mem_lines}")
+
+    if recent:
+        rec_lines = "\n".join(
+            f"- ({r['route']}) {r['input'][:80]}…"
+            for r in recent
+        )
+        parts.append(f"[บทสนทนาล่าสุด]\n{rec_lines}")
+
+    return "\n\n".join(parts)
+
+def auto_extract_memory(user_email: str, user_input: str,
+                        ai_response: str, route: str = "general"):
+    """
+    Auto-extract memory จาก conversation โดยอัตโนมัติ
+    จับ pattern สำคัญแล้วบันทึก — ทำงานหลัง log_decision
+    """
+    if not user_email or user_email in ("anonymous", "guest"):
+        return
+
+    text = user_input.lower()
+
+    # Route สำคัญ = importance สูง
+    importance_map = {
+        "survival": 5,
+        "collapse": 5,
+        "risk": 4,
+        "vega": 3,
+        "civil": 2,
+        "general": 1,
+    }
+    imp = importance_map.get(route, 1)
+
+    # บันทึกเป้าหมายหลัก
+    if any(k in text for k in ["อยากทำ", "เป้าหมาย", "ตั้งใจ", "plan", "project"]):
+        save_memory(user_email, f"goal_{route}",
+                    user_input[:200], route, importance=imp + 1)
+
+    # บันทึกสถานการณ์วิกฤต
+    if any(k in text for k in ["วิกฤต", "เงินหมด", "ตกงาน", "พัง", "ไม่ไหว", "หนี้"]):
+        save_memory(user_email, "crisis_context",
+                    user_input[:200], route, importance=5)
+
+    # บันทึก route ที่ใช้บ่อย
+    save_memory(user_email, "last_route", route, route, importance=1)
+
+# ══════════════════════════════════════════════════════════════
+# ฟังก์ชันเดิมทั้งหมด (ไม่เปลี่ยน)
+# ══════════════════════════════════════════════════════════════
 
 def ensure_user(email: str):
     if not email or email in ("anonymous", "guest"):
@@ -95,7 +225,6 @@ def add_credits(user_email: str, amount: int):
         conn.close()
 
 def deduct_credits(user_email: str, amount: int) -> bool:
-    """หักเครดิต — คืน False ถ้าไม่พอ"""
     conn = get_conn()
     try:
         row = conn.execute(
@@ -114,14 +243,6 @@ def deduct_credits(user_email: str, amount: int) -> bool:
     finally:
         conn.close()
 
-
-# ══════════════════════════════════════════════════════════════
-# v2.1 FIX — log_decision()
-# app.py เรียกด้วย: log_decision(user_id=email, input=user_input,
-#                                  output=..., route=..., persona=...)
-# รับทั้ง kwargs ใหม่ (user_id/input/output/persona) และชื่อเดิม
-# (user_email/input_text/response) เพื่อ backward-compat
-# ══════════════════════════════════════════════════════════════
 def log_decision(
     user_id=None, input=None, output=None, route=None, persona=None,
     user_email=None, input_text=None, response=None,
@@ -135,18 +256,14 @@ def log_decision(
         conn.execute(
             "INSERT INTO decision_log (user_email,input,route,persona,response) "
             "VALUES (?,?,?,?,?)",
-            (
-                final_email,
-                str(final_input)[:2000],
-                route,
-                persona,
-                str(final_resp)[:4000],
-            )
+            (final_email, str(final_input)[:2000], route, persona, str(final_resp)[:4000])
         )
         conn.commit()
     finally:
         conn.close()
 
+    # Auto-extract memory หลัง log
+    auto_extract_memory(final_email, str(final_input), str(final_resp), route or "general")
 
 def save_chat_state(user_email: str, payload_json: str):
     conn = get_conn()
