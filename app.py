@@ -920,3 +920,4 @@ async def create_report_manual(request: Request, data: dict):
         }
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
+        
