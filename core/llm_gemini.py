@@ -1,6 +1,6 @@
 """
 core/llm_gemini.py
-KING DIADEM — AI Core v3.3
+KING DIADEM — AI Core v3.3 + memory injection patch
 
 การแก้ไข v3.2:
 1. _fallback_response — โทน LYLA/VEGA จริง ไม่มีคำว่า "โหลดหนัก"
@@ -12,9 +12,11 @@ KING DIADEM — AI Core v3.3
 
 การแก้ไข v3.3:
 7. Default model: gemini-2.0-flash → gemini-2.0-flash-lite
-   (gemini-2.0-flash ถูกปลดระวางตั้งแต่ 1 มิ.ย. 2026 — ทุก request
-   ที่ผ่านมาจึง 404 แล้วตกไปที่ _fallback_response เสมอ
-   ทำให้ทุกคำตอบกลายเป็น "RISK 45" canned message)
+
+memory injection patch:
+8. build_memory_context import + fallback stub
+9. user_email param ใน generate_with_governance()
+10. inject mem_ctx เข้า ctx_parts
 
 LYLA = หญิง (ค่ะ/นะคะ) · VEGA = ชาย (ครับ/นะครับ) · CRISIS = วิกฤต
 """
@@ -26,7 +28,13 @@ from typing import Optional
 from google import genai
 from google.genai import types
 
-# ══════════════════════════════════════════════════════════════════
+# ── MEMORY INJECTION ──────────────────────────────────────────────
+try:
+    from DATABASE.db import build_memory_context
+except ImportError:
+    def build_memory_context(user_email: str) -> str:
+        return ""
+
 # ══════════════════════════════════════════════════════════════════
 # KING DIADEM — DNA CORE (inject ทุก session อัตโนมัติ)
 # ══════════════════════════════════════════════════════════════════
@@ -366,7 +374,9 @@ _cache: dict = {}
 _CACHE_TTL = 60
 
 def _cache_key(system: str, prompt: str) -> str:
-    return hashlib.md5(f"{system[:50]}|{prompt}".encode()).hexdigest()
+    # ★ FIX: hash full system string ไม่ใช่แค่ 50 chars
+    # ป้องกัน collision เมื่อ system เริ่มต้นด้วย KD_DNA เหมือนกัน
+    return hashlib.md5(f"{system}|{prompt}".encode()).hexdigest()
 
 def _cache_get(key: str) -> Optional[str]:
     entry = _cache.get(key)
@@ -429,9 +439,6 @@ class GeminiLLM:
             self._init_client()
             print(f"🔄 Key rotated → index {self._key_index}")
 
-    # ★ v3.4 — Model fallback chain
-    # ถ้าโมเดลหลัก (self.model) ตอบ 404/not found (เช่นปลดระวางหรือยังไม่ rollout
-    # ให้ API key นี้) ระบบจะลองโมเดลถัดไปในลิสต์นี้ทันที โดยไม่ต้อง redeploy
     MODEL_FALLBACK_CHAIN = ["gemini-2.0-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash-8b"]
 
     def _call(self, system: str, contents: list,
@@ -449,7 +456,6 @@ class GeminiLLM:
             max_output_tokens=max_tokens,
         )
 
-        # โมเดลหลัก (self.model) ก่อน แล้วค่อย fallback ตามลำดับ
         models_to_try = [self.model] + [
             m for m in self.MODEL_FALLBACK_CHAIN if m != self.model
         ]
@@ -482,7 +488,7 @@ class GeminiLLM:
                         "404", "not_found", "not found", "is not supported for"
                     ]):
                         print(f"⚠ Model '{model_name}' ใช้ไม่ได้ ({e}) — ลองโมเดลถัดไปในลิสต์")
-                        break  # ออกจาก attempt-loop ไปลองโมเดลถัดไปทันที
+                        break
 
                     elif any(k in err for k in [
                         "permission_denied", "unauthenticated", "api_key_invalid"
@@ -497,14 +503,6 @@ class GeminiLLM:
         return self._fallback_response(system, prompt_text)
 
     def _fallback_response(self, system: str, prompt_text: str = "") -> str:
-        """
-        ★ v3.4 FIX
-        - Detection เดิม ("เจ็บปวด" / "VEGA") พังเพราะ KD_DNA มีคำเหล่านี้ในทุก prompt แล้ว
-          เปลี่ยนไปเช็คประโยคเฉพาะของแต่ละ persona แทน
-        - เมื่อ Gemini หมด quota ทุกคีย์ ระบบต้องไม่ตอบแค่ "ลองใหม่นะคะ"
-          เพราะนั่นคือ Choice(t) = 0 ซึ่งขัดแก่นของระบบเอง
-          → ใช้ local deterministic logic เปิดทางเลือก ≥ 2 เสมอ
-        """
         is_crisis = "คุณกำลังพูดกับคนที่เจ็บปวดมาก" in system
         is_vega   = "คุณคือ VEGA — strategic intelligence" in system
 
@@ -540,11 +538,6 @@ class GeminiLLM:
         )
 
     def _offline_choices(self, prompt_text: str) -> str:
-        """
-        Local deterministic logic — Choice(t) >= 2 เสมอ แม้ไม่มี AI
-        จับคำสำคัญแบบหยาบ แล้วคืนทางเลือก 2 ทางที่ใช้ได้จริงทันที
-        ไม่ใช่คำแนะนำเฉพาะเจาะจง แต่เป็น "จุดเริ่มคิด" ที่ทำให้ไม่ติดอยู่ที่ 0 ทางเลือก
-        """
         t = (prompt_text or "").lower()
 
         if any(k in t for k in ["ตกงาน", "ไล่ออก", "ออกจากงาน", "หางาน"]):
@@ -602,6 +595,7 @@ class GeminiLLM:
         route: str = "general",
         voice_mode: str = "lyla",
         emotion_state: str = "NEUTRAL",
+        user_email: str = "",
     ) -> str:
 
         # ── CRISIS override ────────────────────────────────────
@@ -641,6 +635,11 @@ class GeminiLLM:
             ctx_parts.append(emotion_state)
         elif detect_emotion(prompt):
             ctx_parts.append("EMOTIONAL_CONTEXT: รับรู้ก่อน แล้วค่อยวิเคราะห์")
+
+        # ── MEMORY INJECTION ───────────────────────────────────
+        mem_ctx = build_memory_context(user_email) if user_email else ""
+        if mem_ctx:
+            ctx_parts.append(mem_ctx)
 
         ctx_note = " | ".join(ctx_parts)
         contents = _build_contents(history or [], prompt, ctx_note)
