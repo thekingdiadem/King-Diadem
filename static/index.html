@@ -765,268 +765,506 @@ body {
 @media(max-height:500px) and (orientation:landscape) { #topbar { padding-top:5px; padding-bottom:5px; min-height:40px; } #input-dock { padding-top:5px; padding-bottom:calc(5px + var(--sab)); } #tabbar { display:none; } .icon-btn { display:inline-flex !important; } }
 
 /* ═══════════════════════════════════════════════════════════════
-   KING DIADEM — SOVEREIGN BI EDITION
-   Merged: LYLA CSS recommendations + PDF design system
-   "Structure is the antidote to chaos."
+
+/* ═══════════════════════════════════════════════════════════════
+   KING DIADEM — OBSIDIAN SOVEREIGN v3
+   One design language. Zero compromise.
+   Depth through restraint. Power through precision.
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── SOVEREIGN COLOR OVERRIDE ─────────────────────────────── */
 :root {
-  --void:       #05060a;
-  --deep:       #07090f;
-  --mid:        #0a0c14;
-  --near:       #0d1020;
-  --surface:    #10132a;
+  /* Void — true black with chromatic depth */
+  --void:    #020308;
+  --deep:    #050810;
+  --mid:     #08091a;
+  --near:    #0c1028;
+  --surface: #111830;
 
-  --gold:       #d4af37;
-  --gold-hi:    #f0cc55;
-  --gold-lo:    rgba(212,175,55,0.12);
-  --gold-line:  rgba(212,175,55,0.25);
-  --gold-glow:  rgba(212,175,55,0.10);
+  /* Crown gold — warm, sovereign, unmistakable */
+  --gold:      #c9a84c;
+  --gold-hi:   #eecf6d;
+  --gold-lo:   rgba(201,168,76,0.10);
+  --gold-line: rgba(201,168,76,0.22);
+  --gold-glow: rgba(201,168,76,0.14);
 
-  --blue:       #4a9eff;
-  --blue-hi:    #5c9eff;
-  --blue-lo:    rgba(92,158,255,0.10);
-  --blue-line:  rgba(92,158,255,0.18);
+  /* Stellar blue — precise, cold, intelligent */
+  --blue:      #3d8bff;
+  --blue-hi:   #7ab3ff;
+  --blue-lo:   rgba(61,139,255,0.10);
+  --blue-line: rgba(61,139,255,0.18);
 
-  --tx-hi:      rgba(245,248,255,0.96);
-  --tx:         rgba(195,215,245,0.80);
-  --tx-mid:     rgba(140,165,220,0.52);
-  --tx-lo:      rgba(80,105,175,0.30);
+  /* Signal colors */
+  --teal:  #2dd4b8;
+  --vega:  #a78bfa;
+  --red:   #f43f5e;
 
-  /* Sovereign shadow system */
-  --shadow-sm:  0 4px 6px -1px rgba(0,0,0,0.35);
-  --shadow-md:  0 8px 16px -4px rgba(0,0,0,0.45);
-  --shadow-lg:  0 16px 32px -8px rgba(0,0,0,0.55);
-  --shadow-glow-gold: 0 0 24px rgba(212,175,55,0.14);
-  --shadow-glow-blue: 0 0 20px rgba(92,158,255,0.12);
+  /* Text hierarchy — optical precision */
+  --tx-hi:  rgba(248,250,255,0.97);
+  --tx:     rgba(200,218,248,0.82);
+  --tx-mid: rgba(130,160,220,0.52);
+  --tx-lo:  rgba(70,100,175,0.28);
 
-  /* Sovereign radius — Instagram/Threads grade */
-  --r-xl: 24px;
-  --r-l:  16px;
+  /* Glass layers */
+  --g1: rgba(8,9,24,0.60);
+  --g2: rgba(5,6,16,0.82);
+  --g3: rgba(3,4,10,0.96);
+
+  /* Shadow system — Z-axis depth */
+  --s1: 0 1px 3px rgba(0,0,0,0.40), 0 0 0 1px rgba(255,255,255,0.025);
+  --s2: 0 4px 16px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03);
+  --s3: 0 12px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.035);
+  --sg: 0 0 20px rgba(201,168,76,0.18), 0 0 60px rgba(201,168,76,0.06);
+  --sb: 0 0 18px rgba(61,139,255,0.16), 0 0 50px rgba(61,139,255,0.05);
+
+  /* Geometry */
+  --r-xl: 26px;
+  --r-l:  18px;
   --r:    12px;
   --r-s:  8px;
   --r-xs: 4px;
+
+  /* Topbar & tabbar */
+  --topbar-h:  58px;
+  --sidebar-w: 264px;
+  --tabbar-h:  64px;
 }
 
-/* ── GALAXY BG — Dramatic Depth (PDF: Cosmic Latte palette) ── */
+/* ── GALAXY BG — Cosmic depth field ───────────────────────────── */
 #galaxy-bg {
-  background: radial-gradient(ellipse at 50% 30%, #10152a 0%, #07090f 55%, #05060a 100%);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(20,30,80,0.65) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 90% 90%, rgba(10,20,60,0.40) 0%, transparent 60%),
+    #020308;
 }
 
-/* ── CHAT BUBBLES — iMessage/Threads grade ─────────────────── */
-.msg.user .msg-text {
-  font-size: 15px;
-  padding: 14px 20px;
-  border-radius: 22px 22px 5px 22px;
-  background: rgba(92,158,255,0.13);
-  border: 1px solid rgba(92,158,255,0.18);
-  box-shadow: var(--shadow-sm);
+/* ── INTRO — Cinematic entry ───────────────────────────────────── */
+.intro-title {
+  font-size: clamp(28px,7.5vw,56px);
+  letter-spacing: .36em;
+  text-shadow: 0 0 80px rgba(201,168,76,0.35);
 }
-.msg.system .msg-text {
-  font-size: 15px;
-  padding: 14px 20px;
-  border-radius: 5px 22px 22px 22px;
-  background: rgba(10,12,20,0.82);
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: var(--shadow-sm);
+.intro-sub { color: rgba(61,139,255,0.42); }
+.intro-tagline { color: rgba(201,168,76,0.28); }
+
+/* ── TOPBAR — Sovereign command crown ─────────────────────────── */
+#topbar {
+  border-bottom: 1px solid transparent;
+  position: relative;
+}
+#topbar.chat-mode {
+  background: rgba(2,3,8,0.90);
+  border-bottom-color: rgba(255,255,255,0.04);
+  backdrop-filter: blur(32px) saturate(1.6) brightness(1.05);
+  -webkit-backdrop-filter: blur(32px) saturate(1.6) brightness(1.05);
+  box-shadow: 0 1px 0 rgba(201,168,76,0.08), 0 8px 32px rgba(0,0,0,0.35);
+}
+#topbar.chat-mode::after {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(61,139,255,0.30) 25%,
+    rgba(201,168,76,0.45) 50%,
+    rgba(61,139,255,0.30) 75%,
+    transparent 100%);
+}
+.logo-text {
+  background: linear-gradient(135deg, #7ab3ff 0%, #d8eeff 35%, #f0d070 65%, #c9a84c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: .14em;
+  font-size: 14.5px;
+}
+.sys-badge.ok {
+  border-color: rgba(61,139,255,0.40);
+  color: rgba(120,180,255,0.90);
+  background: rgba(61,139,255,0.08);
+  box-shadow: 0 0 8px rgba(61,139,255,0.12);
+  font-size: 7.5px;
+  letter-spacing: .08em;
 }
 
-/* ── INPUT DOCK — Instagram/Threads command bar ─────────────── */
-#input-dock.chat-mode {
-  background: rgba(5,6,10,0.96);
-  border-top: 1px solid rgba(255,255,255,0.05);
-  backdrop-filter: blur(24px) saturate(1.4);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
-}
-#main-input {
-  background: rgba(255,255,255,0.055);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 30px;
-  padding: 14px 20px;
-  font-size: 15px;
-  box-shadow: none;
-  transition: border-color .22s, background .22s;
-}
-#main-input:focus {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(212,175,55,0.32);
-  box-shadow: 0 0 0 3px rgba(212,175,55,0.06);
-}
-#run-btn {
-  border-radius: 22px;
-  min-width: 54px; min-height: 50px;
-  background: rgba(212,175,55,0.14);
-  border-color: rgba(212,175,55,0.30);
-  box-shadow: var(--shadow-glow-gold);
-}
-#run-btn:hover:not(:disabled) {
-  background: rgba(212,175,55,0.24);
-  border-color: rgba(212,175,55,0.55);
-  box-shadow: 0 0 28px rgba(212,175,55,0.22);
-}
-
-/* ── SIDEBAR — BI Command Center (PDF: Kraken Sidebar) ─────── */
+/* ── SIDEBAR — Command intelligence panel ──────────────────────── */
 #sidebar {
-  background: rgba(5,6,10,0.97);
-  border-right: 1px solid rgba(255,255,255,0.045);
-  box-shadow: 2px 0 32px rgba(0,0,0,0.55);
+  background: rgba(2,3,8,0.98);
+  border-right: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 2px 0 48px rgba(0,0,0,0.65);
+  padding-left: calc(14px + var(--sal));
 }
 #rail {
-  background: rgba(5,6,10,0.99);
-  border-right: 1px solid rgba(255,255,255,0.045);
+  background: rgba(2,3,8,0.995);
+  border-right: 1px solid rgba(255,255,255,0.04);
+}
+.sb-brand-text {
+  font-size: 13.5px;
+  letter-spacing: .14em;
+  background: linear-gradient(135deg, #eecf6d, #c9a84c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .sb-new {
   background: transparent;
-  border: 1px solid rgba(212,175,55,0.28);
+  border: 1px solid rgba(201,168,76,0.25);
   color: var(--gold-hi);
   border-radius: var(--r-l);
+  font-size: 13.5px;
   font-weight: 600;
-  font-size: 14px;
-  transition: background .20s, border-color .20s, box-shadow .20s;
+  letter-spacing: .02em;
+  position: relative;
+  overflow: hidden;
 }
+.sb-new::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity .22s;
+}
+.sb-new:hover::before { opacity: 1; }
 .sb-new:hover {
-  background: rgba(212,175,55,0.10);
-  border-color: rgba(212,175,55,0.50);
-  box-shadow: var(--shadow-glow-gold);
+  border-color: rgba(201,168,76,0.50);
+  box-shadow: var(--sg);
 }
-.session-item { border-radius: var(--r); }
+.sb-btn { border-radius: var(--r-s); font-size: 13px; }
+.sb-btn:hover { background: rgba(61,139,255,0.06); }
+.sb-btn.active {
+  background: rgba(61,139,255,0.08);
+  color: var(--blue-hi);
+  box-shadow: inset 2px 0 0 rgba(61,139,255,0.60);
+}
+.session-item { border-radius: var(--r-s); font-size: 13px; }
+.session-item:hover { background: rgba(61,139,255,0.05); }
 .session-item.on {
-  background: rgba(92,158,255,0.08);
-  box-shadow: inset 2px 0 0 rgba(92,158,255,0.55), var(--shadow-sm);
+  background: rgba(61,139,255,0.08);
+  color: var(--blue-hi);
+  box-shadow: inset 2px 0 0 rgba(61,139,255,0.60);
 }
-
-/* ── TOPBAR — Sovereign command crown ─────────────────────── */
-#topbar.chat-mode {
-  background: rgba(5,6,10,0.88);
-  border-bottom-color: rgba(212,175,55,0.09);
-  backdrop-filter: blur(28px) saturate(1.4);
-  -webkit-backdrop-filter: blur(28px) saturate(1.4);
-  box-shadow: 0 1px 0 rgba(212,175,55,0.05), 0 4px 24px rgba(0,0,0,0.30);
-}
-
-/* ── SECTIONS — BI insight cards (PDF: Predictive insight cards) */
-.section {
+.sb-google {
   border-radius: var(--r-l);
-  background: rgba(7,9,15,0.82);
+  border-color: rgba(255,255,255,0.08);
+  font-size: 13px;
+}
+.sb-google:hover {
+  background: rgba(201,168,76,0.07);
+  border-color: rgba(201,168,76,0.28);
+}
+
+/* ── CHAT MESSAGES — Obsidian glass bubbles ────────────────────── */
+.msg { margin-bottom: 20px; }
+
+.msg.user .msg-text {
+  font-size: 15px;
+  line-height: 1.72;
+  padding: 13px 19px;
+  border-radius: 24px 24px 6px 24px;
+  background: linear-gradient(145deg, rgba(61,139,255,0.16) 0%, rgba(61,139,255,0.09) 100%);
+  border: 1px solid rgba(61,139,255,0.22);
+  box-shadow: var(--s1), inset 0 1px 0 rgba(255,255,255,0.06);
+  color: rgba(225,238,255,0.95);
+}
+
+.msg.system .msg-text {
+  font-size: 15px;
+  line-height: 1.86;
+  padding: 16px 20px;
+  border-radius: 6px 24px 24px 24px;
+  background: rgba(7,9,22,0.88);
   border: 1px solid rgba(255,255,255,0.055);
-  box-shadow: var(--shadow-md);
-  transition: border-color .25s, box-shadow .25s, transform .20s;
-}
-.section:hover {
-  border-color: rgba(92,158,255,0.15);
-  box-shadow: var(--shadow-lg), var(--shadow-glow-blue);
-  transform: translateY(-1px);
-}
-.sec-head {
-  background: linear-gradient(90deg, rgba(212,175,55,0.04), transparent);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  box-shadow: var(--s2), inset 0 1px 0 rgba(255,255,255,0.03);
+  color: rgba(210,228,252,0.92);
 }
 
-/* ── ROUTE CHIPS — Sovereign decision paths ─────────────────── */
-.route-chip {
-  border-radius: var(--r-l);
-  font-size: 13px; font-weight: 500;
-  border: 1px solid rgba(255,255,255,0.07);
-  background: rgba(7,9,15,0.70);
-  box-shadow: var(--shadow-sm);
-  transition: all .20s ease;
-}
-.route-chip:hover {
-  border-color: rgba(212,175,55,0.35);
-  background: rgba(212,175,55,0.09);
-  box-shadow: var(--shadow-glow-gold);
-  transform: translateY(-1px);
-}
-.route-chip.active {
-  border-color: rgba(212,175,55,0.50);
-  background: rgba(212,175,55,0.12);
-  box-shadow: var(--shadow-glow-gold), inset 0 0 0 1px rgba(212,175,55,0.10);
+.msg.system .msg-avatar {
+  background: rgba(61,139,255,0.07);
+  border: 1px solid rgba(61,139,255,0.16);
+  box-shadow: 0 0 16px rgba(61,139,255,0.12);
 }
 
-/* ── CTX TAGS — Command bar chips ─────────────────────────── */
+.msg-persona { font-size: 8.5px; letter-spacing: .14em; margin-top: 8px; }
+.msg-persona.lyla { color: rgba(122,179,255,0.55); }
+.msg-persona.vega { color: rgba(167,139,250,0.62); }
+.msg-persona.crisis { color: rgba(244,63,94,0.65); }
+
+.route-tag { font-size: 7.5px; letter-spacing: .09em; margin-top: 6px; color: var(--tx-lo); }
+
+/* Thinking dots */
+.thinking span {
+  width: 6px; height: 6px;
+  box-shadow: 0 0 8px rgba(61,139,255,0.50);
+}
+.thinking span:nth-child(2) {
+  background: rgba(201,168,76,0.70);
+  box-shadow: 0 0 8px rgba(201,168,76,0.45);
+}
+
+/* ── INPUT DOCK — Command interface ────────────────────────────── */
+#input-dock {
+  padding: 10px 16px calc(12px + var(--sab));
+  padding-right: calc(16px + var(--sar));
+}
+#input-dock.chat-mode {
+  background: rgba(2,3,8,0.94);
+  border-top: 1px solid rgba(255,255,255,0.04);
+  backdrop-filter: blur(32px) saturate(1.5);
+  -webkit-backdrop-filter: blur(32px) saturate(1.5);
+}
+#input-dock.chat-mode::before {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(61,139,255,0.25) 30%,
+    rgba(201,168,76,0.35) 70%,
+    transparent 100%);
+}
+
 .ctx-tag {
   border-radius: 999px;
-  font-size: 13px; font-weight: 500;
-  padding: 6px 16px;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 6px 15px;
   border: 1px solid rgba(255,255,255,0.07);
-  background: rgba(7,9,15,0.60);
-  backdrop-filter: blur(12px);
-  transition: all .18s ease;
+  background: rgba(8,9,22,0.65);
+  backdrop-filter: blur(14px);
+  color: var(--tx-mid);
+  transition: all .18s cubic-bezier(0.4,0,0.2,1);
 }
 .ctx-tag:hover {
-  border-color: rgba(212,175,55,0.35);
-  background: rgba(212,175,55,0.09);
+  border-color: rgba(201,168,76,0.32);
+  background: rgba(201,168,76,0.08);
   color: var(--gold-hi);
+  box-shadow: 0 0 12px rgba(201,168,76,0.09);
 }
 .ctx-tag.active {
-  border-color: rgba(212,175,55,0.48);
-  background: rgba(212,175,55,0.12);
+  border-color: rgba(201,168,76,0.48);
+  background: rgba(201,168,76,0.11);
   color: var(--gold-hi);
-  box-shadow: 0 0 12px rgba(212,175,55,0.10);
+  box-shadow: 0 0 16px rgba(201,168,76,0.12);
 }
 
-/* ── TABBAR — Mobile sovereign navigator ───────────────────── */
-#tabbar {
-  background: rgba(5,6,10,0.97);
-  border-top: 1px solid rgba(255,255,255,0.045);
-  box-shadow: 0 -8px 32px rgba(0,0,0,0.50);
+#main-input {
+  border-radius: 32px;
+  padding: 14px 22px;
+  font-size: 15.5px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow: none;
+  transition: border-color .22s, background .22s, box-shadow .22s;
 }
-.tab-btn { font-size: 11px; font-weight: 500; }
+#main-input:focus {
+  background: rgba(255,255,255,0.075);
+  border-color: rgba(201,168,76,0.38);
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.07);
+}
+#main-input::placeholder { color: rgba(70,100,175,0.32); }
+
+#run-btn {
+  border-radius: 24px;
+  min-width: 56px;
+  min-height: 52px;
+  background: linear-gradient(145deg, rgba(201,168,76,0.18) 0%, rgba(201,168,76,0.10) 100%);
+  border: 1px solid rgba(201,168,76,0.32);
+  box-shadow: var(--sg);
+  transition: all .20s cubic-bezier(0.4,0,0.2,1);
+}
+#run-btn:hover:not(:disabled) {
+  background: linear-gradient(145deg, rgba(201,168,76,0.30) 0%, rgba(201,168,76,0.18) 100%);
+  border-color: rgba(201,168,76,0.58);
+  box-shadow: 0 0 32px rgba(201,168,76,0.28), 0 0 80px rgba(201,168,76,0.08);
+  transform: scale(1.05);
+}
+#run-btn:active:not(:disabled) { transform: scale(0.97); }
+
+/* ── TABBAR — Mobile sovereign navigator ───────────────────────── */
+#tabbar {
+  background: rgba(2,3,8,0.97);
+  border-top: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 -12px 40px rgba(0,0,0,0.55);
+}
+.tab-btn {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: .03em;
+  transition: color .20s;
+}
+.tab-btn:hover { color: var(--tx); }
 .tab-btn.active { color: var(--gold-hi); }
 .tab-btn.active::before {
-  background: linear-gradient(90deg, rgba(212,175,55,0.70), rgba(92,158,255,0.50));
-  box-shadow: 0 0 12px rgba(212,175,55,0.30);
+  background: linear-gradient(90deg, rgba(201,168,76,0.75), rgba(61,139,255,0.55));
+  box-shadow: 0 0 14px rgba(201,168,76,0.32), 0 0 40px rgba(201,168,76,0.08);
 }
 
-/* ── BUTTONS — Sovereign CTA ───────────────────────────────── */
-.btn { border-radius: var(--r-l); font-weight: 500; font-size: 14px; }
-.btn-gold {
-  box-shadow: var(--shadow-glow-gold);
-  background: rgba(212,175,55,0.10);
-  border-color: rgba(212,175,55,0.28);
+/* ── SECTIONS — Intelligence insight cards ─────────────────────── */
+.section {
+  border-radius: var(--r-l);
+  background: rgba(7,8,20,0.88);
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: var(--s2);
+  transition: border-color .28s, box-shadow .28s, transform .22s cubic-bezier(0.4,0,0.2,1);
 }
-.btn-gold:hover {
-  background: rgba(212,175,55,0.20);
-  box-shadow: 0 0 28px rgba(212,175,55,0.18);
+.section:hover {
+  border-color: rgba(61,139,255,0.14);
+  box-shadow: var(--s3), var(--sb);
+  transform: translateY(-2px);
+}
+.sec-head {
+  padding: 11px 18px;
+  background: linear-gradient(90deg, rgba(201,168,76,0.045), transparent 70%);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 8px;
+  letter-spacing: .16em;
+  color: rgba(201,168,76,0.55);
+}
+.sec-head::before {
+  width: 2px; height: 11px;
+  background: linear-gradient(to bottom, var(--gold), rgba(61,139,255,0.50));
+  box-shadow: 0 0 8px rgba(201,168,76,0.35);
+}
+.sec-body { padding: 18px; }
+
+/* ── ROUTE CHIPS ───────────────────────────────────────────────── */
+.route-grid { gap: 8px; }
+.route-chip {
+  border-radius: var(--r-l);
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(7,8,20,0.70);
+  box-shadow: var(--s1);
+  transition: all .22s cubic-bezier(0.4,0,0.2,1);
+  min-height: 52px;
+  letter-spacing: .01em;
+}
+.route-chip:hover {
+  border-color: rgba(201,168,76,0.38);
+  background: rgba(201,168,76,0.09);
+  color: var(--gold-hi);
+  box-shadow: var(--sg);
+  transform: translateY(-2px);
+}
+.route-chip.active {
+  border-color: rgba(201,168,76,0.55);
+  background: rgba(201,168,76,0.13);
+  color: var(--gold-hi);
+  box-shadow: var(--sg), inset 0 0 0 1px rgba(201,168,76,0.09);
+}
+
+/* ── WATERLINE METERS ───────────────────────────────────────────── */
+.wl-label { font-size: 8px; letter-spacing: .12em; color: var(--tx-lo); margin: 12px 0 5px; }
+.wl-meter { height: 3px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; }
+.wl-fill { border-radius: 3px; }
+.wl-fill.safe { background: linear-gradient(90deg, rgba(61,139,255,0.55), rgba(122,179,255,0.92)); box-shadow: 0 0 8px rgba(61,139,255,0.35); }
+.wl-fill.warn { background: linear-gradient(90deg, rgba(200,140,20,0.60), #f0a820); box-shadow: 0 0 8px rgba(200,140,20,0.30); }
+.wl-fill.crit { background: linear-gradient(90deg, rgba(244,63,94,0.60), #f43f5e); box-shadow: 0 0 10px rgba(244,63,94,0.42); }
+
+/* ── LYLA STATUS ────────────────────────────────────────────────── */
+.lyla-item { margin: 11px 0; }
+.lyla-key { font-size: 7.5px; letter-spacing: .14em; }
+.lyla-val { font-size: 11.5px; }
+.lyla-val.safe, .lyla-val.nominal { color: rgba(122,179,255,0.92); }
+.lyla-val.warn { color: #f0a820; }
+.lyla-val.crit { color: #f43f5e; }
+
+/* ── BUTTONS ────────────────────────────────────────────────────── */
+.btn {
+  border-radius: var(--r-l);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  min-height: 52px;
+  transition: all .22s cubic-bezier(0.4,0,0.2,1);
 }
 .btn-primary {
-  box-shadow: var(--shadow-glow-blue);
+  background: rgba(61,139,255,0.10);
+  border-color: rgba(61,139,255,0.25);
+  color: var(--blue-hi);
+  box-shadow: var(--sb);
+}
+.btn-primary:hover {
+  background: rgba(61,139,255,0.20);
+  border-color: rgba(61,139,255,0.50);
+  box-shadow: 0 0 28px rgba(61,139,255,0.22);
+  transform: translateY(-1px);
+}
+.btn-gold {
+  background: rgba(201,168,76,0.10);
+  border-color: rgba(201,168,76,0.28);
+  color: var(--gold-hi);
+  box-shadow: var(--sg);
+}
+.btn-gold:hover {
+  background: rgba(201,168,76,0.20);
+  border-color: rgba(201,168,76,0.50);
+  box-shadow: 0 0 28px rgba(201,168,76,0.22);
+  transform: translateY(-1px);
 }
 
-/* ── UPGRADE MODAL — Sovereign tier ───────────────────────── */
+/* ── UPGRADE MODAL ──────────────────────────────────────────────── */
 #upgrade-modal > div {
   border-radius: var(--r-xl) !important;
-  box-shadow: 0 0 80px rgba(212,175,55,0.14), 0 0 160px rgba(92,158,255,0.06) !important;
+  box-shadow: 0 0 80px rgba(201,168,76,0.18), 0 0 160px rgba(61,139,255,0.07) !important;
 }
 
-/* ── ERR TOAST ─────────────────────────────────────────────── */
+/* ── ERR TOAST ──────────────────────────────────────────────────── */
 #err-toast {
   border-radius: var(--r-l);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--s3);
 }
 
-/* ── WATERLINE METERS — BI data viz ───────────────────────── */
-.wl-meter { height: 4px; border-radius: 4px; background: rgba(255,255,255,0.04); }
-.wl-fill { border-radius: 4px; }
-
-/* ── ICON BTN ──────────────────────────────────────────────── */
-.icon-btn {
+/* ── INPUTS (tools tab) ─────────────────────────────────────────── */
+.section textarea,
+.section input[type="text"],
+.section input[type="email"],
+.section input[type="tel"],
+.section input[type="file"],
+.stripe-input,
+.sim-path input {
   border-radius: var(--r);
-  border: 1px solid rgba(255,255,255,0.07);
-  background: rgba(7,9,15,0.70);
+  background: rgba(3,4,10,0.72);
+  border-color: rgba(255,255,255,0.08);
+  font-size: 14.5px;
+}
+.section textarea:focus,
+.section input:focus,
+.stripe-input:focus,
+.sim-path input:focus {
+  border-color: rgba(201,168,76,0.42);
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.07);
 }
 
-/* ── SCROLLBAR — Sovereign minimal ───────────────────────── */
-::-webkit-scrollbar { width: 2px; }
-::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.18); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.30); }
+/* ── SCROLLBAR ──────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 2px; height: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.18); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(201,168,76,0.32); }
 
-/* ── THINKING DOTS — LYLA heartbeat ──────────────────────── */
-.thinking span { width: 7px; height: 7px; box-shadow: 0 0 8px rgba(92,158,255,0.45); }
-.thinking span:nth-child(2) { box-shadow: 0 0 8px rgba(212,175,55,0.45); }
+/* ── HUD FLOATS ─────────────────────────────────────────────────── */
+#lyla-float { font-size: 7px; color: rgba(201,168,76,0.26); letter-spacing: .18em; }
+.wl-dot {
+  border-color: rgba(61,139,255,0.10);
+  color: rgba(61,139,255,0.30);
+  font-size: 7px;
+  letter-spacing: .10em;
+}
 
-</style>
+/* ── THINKING DOTS ──────────────────────────────────────────────── */
+.thinking span { width: 6px; height: 6px; box-shadow: 0 0 9px rgba(61,139,255,0.52); }
+.thinking span:nth-child(2) { box-shadow: 0 0 9px rgba(201,168,76,0.48); }
+
+/* ── BOTTOM NOTE ────────────────────────────────────────────────── */
+#bottom-note { font-size: 7px; letter-spacing: .12em; padding: 5px 8px 8px; }
+
+/* ── ICON BTN ───────────────────────────────────────────────────── */
+.icon-btn {
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(7,8,20,0.72);
+  border-radius: var(--r);
+}
+.icon-btn:hover { background: rgba(201,168,76,0.08); border-color: rgba(201,168,76,0.25); }
+
+/* ── TONE PILL ──────────────────────────────────────────────────── */
+.tone-pill { font-size: 7.5px; padding: 3px 11px; letter-spacing: .10em; }
+.tone-pill.lyla { border-color: rgba(61,139,255,0.30); color: rgba(122,179,255,0.82); }
+.tone-pill.vega { border-color: rgba(167,139,250,0.36); color: rgba(192,168,255,0.88); }
+.tone-pill.crisis { border-color: rgba(244,63,94,0.42); color: rgba(255,100,130,0.90); }
+
 </head>
 <body>
 
