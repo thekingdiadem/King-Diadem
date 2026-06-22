@@ -1,21 +1,353 @@
-HUMAN GUIDE
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#03040d">
+<title>HUMAN GUIDE — KING DIADEM</title>
+<link rel="icon" href="/static/logo.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500&family=Noto+Sans+Thai:wght@300;400;500&display=swap">
+<style>
+:root {
+  --void:      #020308;
+  --deep:      #04060f;
+  --gold:      #c8a84b;
+  --gold-hi:   #f0d070;
+  --gold-lo:   rgba(200,168,75,0.10);
+  --gold-line: rgba(200,168,75,0.22);
+  --blue:      #4a9eff;
+  --blue-hi:   #90ccff;
+  --blue-lo:   rgba(74,158,255,0.08);
+  --blue-line: rgba(74,158,255,0.18);
+  --teal:      #38d9b8;
+  --vega:      #b48aff;
+  --tx-hi:     rgba(240,248,255,0.96);
+  --tx:        rgba(195,215,245,0.80);
+  --tx-mid:    rgba(140,170,220,0.55);
+  --tx-lo:     rgba(80,110,180,0.30);
+  --r:         12px;
+  --r-l:       18px;
+  --f-display: 'Cinzel', serif;
+  --f-mono:    'DM Mono', monospace;
+  --f-body:    'Noto Sans Thai', system-ui, sans-serif;
+}
 
-1. ASK
-Use when you face a real decision.
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-2. BRAIN
-Explore how the AI analyzes reality.
+html, body {
+  height: 100%;
+  background: var(--void);
+  color: var(--tx);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
 
-3. GALAXY
-Navigate domains of strategy.
+/* ── STARFIELD ── */
+#stars {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.star {
+  position: absolute; border-radius: 50%;
+  background: white; animation: twinkle var(--d, 4s) ease-in-out infinite var(--delay, 0s);
+}
+@keyframes twinkle {
+  0%,100% { opacity: var(--a1, 0.15); transform: scale(1); }
+  50%      { opacity: var(--a2, 0.55); transform: scale(1.3); }
+}
 
-4. WALLET
-Support infrastructure of the system.
+/* nebula blobs */
+.nebula {
+  position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+  filter: blur(80px); animation: nebulaDrift 18s ease-in-out infinite alternate;
+}
+@keyframes nebulaDrift {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(20px,15px) scale(1.06); }
+}
 
-IMPORTANT
+/* ── LAYOUT ── */
+#page {
+  position: relative; z-index: 1;
+  min-height: 100dvh;
+  display: flex; flex-direction: column;
+  align-items: center;
+  padding: calc(env(safe-area-inset-top,0px) + 48px) 20px calc(env(safe-area-inset-bottom,0px) + 60px);
+  max-width: 560px; margin: 0 auto;
+  gap: 0;
+}
 
-KING DIADEM does not replace human judgment.
+/* ── BACK LINK ── */
+.back-link {
+  align-self: flex-start;
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: .16em;
+  color: var(--tx-lo); text-decoration: none; text-transform: uppercase;
+  margin-bottom: 36px;
+  transition: color .2s;
+  opacity: 0; animation: fadeUp .6s ease .1s forwards;
+}
+.back-link:hover { color: var(--gold); }
+.back-link::before { content: '←'; font-size: 11px; }
 
-It reveals possibilities.
+/* ── HEADER ── */
+.guide-header {
+  text-align: center; margin-bottom: 52px; width: 100%;
+  opacity: 0; animation: fadeUp .8s cubic-bezier(.16,1,.3,1) .2s forwards;
+}
+.guide-eyebrow {
+  font-family: var(--f-mono); font-size: 8px; letter-spacing: .30em;
+  color: rgba(74,158,255,0.40); text-transform: uppercase; margin-bottom: 14px;
+}
+.guide-title {
+  font-family: var(--f-display); font-size: clamp(26px, 8vw, 44px);
+  font-weight: 600; letter-spacing: .18em;
+  background: linear-gradient(135deg, #4a9eff 0%, #c8e4ff 35%, #fff 50%, #f0d070 68%, #c8a84b 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 10px;
+}
+.guide-rule {
+  width: 180px; height: 1px; margin: 0 auto;
+  background: linear-gradient(90deg, transparent, rgba(200,168,75,.35), rgba(74,158,255,.28), transparent);
+}
 
-The final choice is always yours.
+/* ── SECTION MODULES ── */
+.modules { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+
+.module {
+  position: relative; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.055);
+  border-radius: var(--r-l);
+  background: rgba(4,6,15,.72);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  padding: 22px 22px 20px;
+  cursor: default;
+  transition: border-color .22s, box-shadow .22s, transform .22s;
+  opacity: 0; animation: fadeUp .7s cubic-bezier(.16,1,.3,1) var(--md, .3s) forwards;
+}
+.module:hover {
+  border-color: var(--m-line, rgba(74,158,255,.28));
+  box-shadow: 0 0 32px var(--m-glow, rgba(74,158,255,.08)), 0 8px 32px rgba(0,0,0,.40);
+  transform: translateY(-2px);
+}
+.module::before {
+  content: ''; position: absolute; inset: 0; opacity: 0;
+  background: radial-gradient(ellipse at var(--mx,50%) var(--my,50%), var(--m-glow, rgba(74,158,255,.10)) 0%, transparent 65%);
+  transition: opacity .35s; pointer-events: none;
+}
+.module:hover::before { opacity: 1; }
+
+/* accent bar left */
+.module::after {
+  content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
+  width: 2px; border-radius: 0 2px 2px 0;
+  background: var(--m-bar, rgba(74,158,255,.55));
+  box-shadow: 0 0 10px var(--m-bar, rgba(74,158,255,.55));
+  opacity: 0; transition: opacity .22s;
+}
+.module:hover::after { opacity: 1; }
+
+.module-head {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 10px;
+}
+.module-num {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: .16em;
+  color: var(--m-color, var(--blue)); opacity: .55;
+  min-width: 24px;
+}
+.module-icon {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  background: var(--m-icon-bg, rgba(74,158,255,.08));
+  border: 1px solid var(--m-line, rgba(74,158,255,.18));
+  box-shadow: 0 0 14px var(--m-glow, rgba(74,158,255,.06));
+}
+.module-label {
+  font-family: var(--f-display); font-size: 15px; font-weight: 600;
+  letter-spacing: .12em; color: var(--m-color, var(--blue-hi));
+}
+.module-desc {
+  font-size: 13.5px; line-height: 1.72; color: var(--tx-mid);
+  padding-left: 48px;
+}
+
+/* color variants */
+.mod-ask   { --m-color: var(--blue-hi);  --m-line: rgba(74,158,255,.22);  --m-bar: rgba(74,158,255,.60);  --m-glow: rgba(74,158,255,.09);  --m-icon-bg: rgba(74,158,255,.07);  }
+.mod-brain { --m-color: var(--teal);     --m-line: rgba(56,217,184,.20);  --m-bar: rgba(56,217,184,.55);  --m-glow: rgba(56,217,184,.08);  --m-icon-bg: rgba(56,217,184,.06);  }
+.mod-gal   { --m-color: var(--gold-hi);  --m-line: rgba(200,168,75,.22);  --m-bar: rgba(200,168,75,.55);  --m-glow: rgba(200,168,75,.09);  --m-icon-bg: rgba(200,168,75,.07);  }
+.mod-wal   { --m-color: var(--vega);     --m-line: rgba(180,138,255,.20); --m-bar: rgba(180,138,255,.50); --m-glow: rgba(180,138,255,.08); --m-icon-bg: rgba(180,138,255,.06); }
+
+/* ── IMPORTANT BLOCK ── */
+.important {
+  width: 100%; margin-top: 32px;
+  padding: 24px 22px;
+  border-radius: var(--r-l);
+  border: 1px solid var(--gold-line);
+  background: rgba(200,168,75,.04);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  position: relative; overflow: hidden;
+  opacity: 0; animation: fadeUp .7s cubic-bezier(.16,1,.3,1) .75s forwards;
+}
+.important::before {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 140px; height: 140px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,168,75,.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.important-head {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.important-badge {
+  font-family: var(--f-mono); font-size: 8px; letter-spacing: .22em;
+  padding: 3px 10px; border-radius: 4px;
+  border: 1px solid rgba(200,168,75,.35);
+  color: var(--gold); background: rgba(200,168,75,.06);
+  text-transform: uppercase;
+}
+.important-rule {
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, rgba(200,168,75,.18), transparent);
+}
+.important p {
+  font-size: 13.5px; color: var(--tx-mid); line-height: 1.78; margin-bottom: 8px;
+}
+.important p:last-child { margin-bottom: 0; }
+.important strong { color: var(--tx-hi); font-weight: 500; }
+
+/* ── FOOTER ── */
+.guide-footer {
+  margin-top: 48px; text-align: center;
+  opacity: 0; animation: fadeUp .6s ease .9s forwards;
+}
+.guide-footer-text {
+  font-family: var(--f-mono); font-size: 7.5px; letter-spacing: .20em;
+  color: var(--tx-lo); text-transform: uppercase;
+  line-height: 2;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- nebula atmosphere -->
+<div class="nebula" style="width:500px;height:500px;top:-100px;left:-120px;background:radial-gradient(circle,rgba(74,158,255,0.06),transparent 70%);animation-duration:20s;"></div>
+<div class="nebula" style="width:400px;height:400px;bottom:-80px;right:-100px;background:radial-gradient(circle,rgba(200,168,75,0.05),transparent 70%);animation-duration:15s;animation-delay:-7s;"></div>
+<div class="nebula" style="width:300px;height:300px;top:40%;left:60%;background:radial-gradient(circle,rgba(180,138,255,0.04),transparent 70%);animation-duration:24s;animation-delay:-3s;"></div>
+
+<!-- starfield -->
+<div id="stars"></div>
+
+<div id="page">
+
+  <a href="/" class="back-link">Back to System</a>
+
+  <header class="guide-header">
+    <div class="guide-eyebrow">Documentation · v1.0</div>
+    <div class="guide-title">HUMAN GUIDE</div>
+    <div class="guide-rule"></div>
+  </header>
+
+  <div class="modules">
+
+    <div class="module mod-ask" style="--md:.30s">
+      <div class="module-head">
+        <span class="module-num">01</span>
+        <div class="module-icon">◈</div>
+        <span class="module-label">ASK</span>
+      </div>
+      <p class="module-desc">Use when you face a real decision. Describe your situation honestly — LYLA will open paths from zero to at least one.</p>
+    </div>
+
+    <div class="module mod-brain" style="--md:.40s">
+      <div class="module-head">
+        <span class="module-num">02</span>
+        <div class="module-icon">⬡</div>
+        <span class="module-label">BRAIN</span>
+      </div>
+      <p class="module-desc">Explore how the AI analyzes reality. Watch entropy, stability, and resource signals shape the system's understanding of your context.</p>
+    </div>
+
+    <div class="module mod-gal" style="--md:.50s">
+      <div class="module-head">
+        <span class="module-num">03</span>
+        <div class="module-icon">◆</div>
+        <span class="module-label">GALAXY</span>
+      </div>
+      <p class="module-desc">Navigate domains of strategy. Each planet represents a decision route — GENERAL, RISK, SURVIVAL, COLLAPSE, CIVIL, VEGA.</p>
+    </div>
+
+    <div class="module mod-wal" style="--md:.60s">
+      <div class="module-head">
+        <span class="module-num">04</span>
+        <div class="module-icon">✦</div>
+        <span class="module-label">WALLET</span>
+      </div>
+      <p class="module-desc">Support the infrastructure of the system. Premium access removes message limits and unlocks VEGA strategic mode.</p>
+    </div>
+
+  </div>
+
+  <div class="important">
+    <div class="important-head">
+      <span class="important-badge">Important</span>
+      <div class="important-rule"></div>
+    </div>
+    <p>KING DIADEM does <strong>not replace human judgment</strong>. It reveals possibilities.</p>
+    <p>The final choice is <strong>always yours</strong>.</p>
+  </div>
+
+  <footer class="guide-footer">
+    <div class="guide-footer-text">
+      KING DIADEM · DriftZero · Waterline OS<br>
+      Fail less · Harm less · Restore more
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var stars = document.getElementById('stars');
+  for(var i = 0; i < 180; i++){
+    var s = document.createElement('div');
+    s.className = 'star';
+    var sz = .5 + Math.random() * 1.4;
+    var x  = Math.random() * 100;
+    var y  = Math.random() * 100;
+    var d  = (3 + Math.random() * 6).toFixed(1) + 's';
+    var dl = (-Math.random() * 8).toFixed(1) + 's';
+    var a1 = (.04 + Math.random() * .12).toFixed(2);
+    var a2 = (.18 + Math.random() * .40).toFixed(2);
+    s.style.cssText = 'width:'+sz+'px;height:'+sz+'px;left:'+x+'%;top:'+y+'%;--d:'+d+';--delay:'+dl+'s;--a1:'+a1+';--a2:'+a2+';';
+    stars.appendChild(s);
+  }
+
+  // mouse parallax on desktop
+  document.addEventListener('mousemove', function(e){
+    var cx = (e.clientX / window.innerWidth  - .5) * 14;
+    var cy = (e.clientY / window.innerHeight - .5) * 10;
+    stars.style.transform = 'translate('+cx+'px,'+cy+'px)';
+  }, {passive: true});
+
+  // module mouse-glow follow
+  document.querySelectorAll('.module').forEach(function(el){
+    el.addEventListener('mousemove', function(e){
+      var r = el.getBoundingClientRect();
+      var x = ((e.clientX - r.left) / r.width  * 100).toFixed(1) + '%';
+      var y = ((e.clientY - r.top)  / r.height * 100).toFixed(1) + '%';
+      el.style.setProperty('--mx', x);
+      el.style.setProperty('--my', y);
+    }, {passive: true});
+  });
+})();
+</script>
+</body>
+</html>
