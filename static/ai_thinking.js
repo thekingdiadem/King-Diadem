@@ -1,30 +1,53 @@
-// static/ai_thinking.js
+// static/ai_thinking.js — KING DIADEM
 (function () {
-  const el = () => window.KD.byId("thinking");
-  let dots = 0;
-  let timer = null;
+  'use strict';
+
+  var _timer = null;
+  var _dots  = 0;
+  var _FRAMES = ['', '.', '..', '...'];
+
+  function _el() {
+    return document.getElementById('thinking');
+  }
 
   function start() {
-    if (timer) return;
-    timer = setInterval(() => {
-      const node = el();
-      if (!node) return;
-      dots = (dots + 1) % 4;
-      node.textContent = "Thinking" + ".".repeat(dots);
+    if (_timer) return;
+    var node = _el();
+    if (node) { node.style.display = 'block'; }
+    _dots = 0;
+    _timer = setInterval(function () {
+      var n = _el();
+      if (!n) return;
+      _dots = (_dots + 1) % 4;
+      n.textContent = 'Thinking' + _FRAMES[_dots];
     }, 450);
   }
 
   function stop() {
-    if (timer) clearInterval(timer);
-    timer = null;
-    dots = 0;
+    clearInterval(_timer);
+    _timer = null;
+    _dots  = 0;
+    var node = _el();
+    if (node) { node.style.display = 'none'; node.textContent = ''; }
   }
 
-  window.addEventListener("KD:response", () => {
-    stop();
-  });
+  // Public API
+  window.KDThinking = { start: start, stop: stop };
 
-  document.addEventListener("DOMContentLoaded", () => {
+  // Hook KD:thinking / KD:response events
+  window.addEventListener('KD:thinking', start);
+  window.addEventListener('KD:response', stop);
+
+  // Hook galaxy API ถ้ามี
+  var _origThink = window.LYLA_thinking;
+  window.LYLA_thinking = function () {
     start();
-  });
+    if (typeof _origThink === 'function') _origThink.apply(this, arguments);
+  };
+  var _origAnswered = window.LYLA_answered;
+  window.LYLA_answered = function () {
+    stop();
+    if (typeof _origAnswered === 'function') _origAnswered.apply(this, arguments);
+  };
+
 })();
