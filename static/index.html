@@ -1959,5 +1959,14 @@ function filterChats(q){ var items=document.querySelectorAll('#session-list .ses
 async function checkPremium(){ try{var r=await fetch('/me',{credentials:'same-origin'});var d=await r.json();window.__kdPremium=d.premium||false;updateLimitUI();}catch(_){window.__kdPremium=false;} }
 setTimeout(function(){initSidebarSearch();checkPremium();updateLimitUI();},500);
 </script>
+      <script>
+window.onerror=function(m,s,l,c,e){
+  document.body.style.background='#03040d';
+  var d=document.createElement('div');
+  d.style.cssText='position:fixed;top:0;left:0;right:0;padding:16px;background:rgba(255,0,0,.15);color:#ff6666;font-size:12px;z-index:99999;font-family:monospace;white-space:pre-wrap;';
+  d.textContent='ERROR: '+m+'\n'+s+':'+l;
+  document.body.appendChild(d);
+};
+</script>                                                                                                                                                  
 </body>
 </html>
