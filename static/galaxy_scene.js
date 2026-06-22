@@ -522,10 +522,11 @@ function loop(ts){
   }catch(e){console.error('[v37]',e);}
   requestAnimationFrame(loop);
 }
-requestAnimationFrame(loop);
-
 /* ── INIT ── */
+// doResize MUST run before first rAF frame — W,H=0 ทำให้ canvas ดำ
 doResize();
+// double-resize: mobile บางตัว innerWidth ยังไม่ settle ตอน script load
+requestAnimationFrame(function(){ doResize(); requestAnimationFrame(loop); });
 
 /* ── ROUTE ── */
 window.setRoute=function(r){
