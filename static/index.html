@@ -763,6 +763,269 @@ body {
 /* Reduced motion */
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
 @media(max-height:500px) and (orientation:landscape) { #topbar { padding-top:5px; padding-bottom:5px; min-height:40px; } #input-dock { padding-top:5px; padding-bottom:calc(5px + var(--sab)); } #tabbar { display:none; } .icon-btn { display:inline-flex !important; } }
+
+/* ═══════════════════════════════════════════════════════════════
+   KING DIADEM — SOVEREIGN BI EDITION
+   Merged: LYLA CSS recommendations + PDF design system
+   "Structure is the antidote to chaos."
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── SOVEREIGN COLOR OVERRIDE ─────────────────────────────── */
+:root {
+  --void:       #05060a;
+  --deep:       #07090f;
+  --mid:        #0a0c14;
+  --near:       #0d1020;
+  --surface:    #10132a;
+
+  --gold:       #d4af37;
+  --gold-hi:    #f0cc55;
+  --gold-lo:    rgba(212,175,55,0.12);
+  --gold-line:  rgba(212,175,55,0.25);
+  --gold-glow:  rgba(212,175,55,0.10);
+
+  --blue:       #4a9eff;
+  --blue-hi:    #5c9eff;
+  --blue-lo:    rgba(92,158,255,0.10);
+  --blue-line:  rgba(92,158,255,0.18);
+
+  --tx-hi:      rgba(245,248,255,0.96);
+  --tx:         rgba(195,215,245,0.80);
+  --tx-mid:     rgba(140,165,220,0.52);
+  --tx-lo:      rgba(80,105,175,0.30);
+
+  /* Sovereign shadow system */
+  --shadow-sm:  0 4px 6px -1px rgba(0,0,0,0.35);
+  --shadow-md:  0 8px 16px -4px rgba(0,0,0,0.45);
+  --shadow-lg:  0 16px 32px -8px rgba(0,0,0,0.55);
+  --shadow-glow-gold: 0 0 24px rgba(212,175,55,0.14);
+  --shadow-glow-blue: 0 0 20px rgba(92,158,255,0.12);
+
+  /* Sovereign radius — Instagram/Threads grade */
+  --r-xl: 24px;
+  --r-l:  16px;
+  --r:    12px;
+  --r-s:  8px;
+  --r-xs: 4px;
+}
+
+/* ── GALAXY BG — Dramatic Depth (PDF: Cosmic Latte palette) ── */
+#galaxy-bg {
+  background: radial-gradient(ellipse at 50% 30%, #10152a 0%, #07090f 55%, #05060a 100%);
+}
+
+/* ── CHAT BUBBLES — iMessage/Threads grade ─────────────────── */
+.msg.user .msg-text {
+  font-size: 15px;
+  padding: 14px 20px;
+  border-radius: 22px 22px 5px 22px;
+  background: rgba(92,158,255,0.13);
+  border: 1px solid rgba(92,158,255,0.18);
+  box-shadow: var(--shadow-sm);
+}
+.msg.system .msg-text {
+  font-size: 15px;
+  padding: 14px 20px;
+  border-radius: 5px 22px 22px 22px;
+  background: rgba(10,12,20,0.82);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── INPUT DOCK — Instagram/Threads command bar ─────────────── */
+#input-dock.chat-mode {
+  background: rgba(5,6,10,0.96);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+}
+#main-input {
+  background: rgba(255,255,255,0.055);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 30px;
+  padding: 14px 20px;
+  font-size: 15px;
+  box-shadow: none;
+  transition: border-color .22s, background .22s;
+}
+#main-input:focus {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(212,175,55,0.32);
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.06);
+}
+#run-btn {
+  border-radius: 22px;
+  min-width: 54px; min-height: 50px;
+  background: rgba(212,175,55,0.14);
+  border-color: rgba(212,175,55,0.30);
+  box-shadow: var(--shadow-glow-gold);
+}
+#run-btn:hover:not(:disabled) {
+  background: rgba(212,175,55,0.24);
+  border-color: rgba(212,175,55,0.55);
+  box-shadow: 0 0 28px rgba(212,175,55,0.22);
+}
+
+/* ── SIDEBAR — BI Command Center (PDF: Kraken Sidebar) ─────── */
+#sidebar {
+  background: rgba(5,6,10,0.97);
+  border-right: 1px solid rgba(255,255,255,0.045);
+  box-shadow: 2px 0 32px rgba(0,0,0,0.55);
+}
+#rail {
+  background: rgba(5,6,10,0.99);
+  border-right: 1px solid rgba(255,255,255,0.045);
+}
+.sb-new {
+  background: transparent;
+  border: 1px solid rgba(212,175,55,0.28);
+  color: var(--gold-hi);
+  border-radius: var(--r-l);
+  font-weight: 600;
+  font-size: 14px;
+  transition: background .20s, border-color .20s, box-shadow .20s;
+}
+.sb-new:hover {
+  background: rgba(212,175,55,0.10);
+  border-color: rgba(212,175,55,0.50);
+  box-shadow: var(--shadow-glow-gold);
+}
+.session-item { border-radius: var(--r); }
+.session-item.on {
+  background: rgba(92,158,255,0.08);
+  box-shadow: inset 2px 0 0 rgba(92,158,255,0.55), var(--shadow-sm);
+}
+
+/* ── TOPBAR — Sovereign command crown ─────────────────────── */
+#topbar.chat-mode {
+  background: rgba(5,6,10,0.88);
+  border-bottom-color: rgba(212,175,55,0.09);
+  backdrop-filter: blur(28px) saturate(1.4);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  box-shadow: 0 1px 0 rgba(212,175,55,0.05), 0 4px 24px rgba(0,0,0,0.30);
+}
+
+/* ── SECTIONS — BI insight cards (PDF: Predictive insight cards) */
+.section {
+  border-radius: var(--r-l);
+  background: rgba(7,9,15,0.82);
+  border: 1px solid rgba(255,255,255,0.055);
+  box-shadow: var(--shadow-md);
+  transition: border-color .25s, box-shadow .25s, transform .20s;
+}
+.section:hover {
+  border-color: rgba(92,158,255,0.15);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-blue);
+  transform: translateY(-1px);
+}
+.sec-head {
+  background: linear-gradient(90deg, rgba(212,175,55,0.04), transparent);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+/* ── ROUTE CHIPS — Sovereign decision paths ─────────────────── */
+.route-chip {
+  border-radius: var(--r-l);
+  font-size: 13px; font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(7,9,15,0.70);
+  box-shadow: var(--shadow-sm);
+  transition: all .20s ease;
+}
+.route-chip:hover {
+  border-color: rgba(212,175,55,0.35);
+  background: rgba(212,175,55,0.09);
+  box-shadow: var(--shadow-glow-gold);
+  transform: translateY(-1px);
+}
+.route-chip.active {
+  border-color: rgba(212,175,55,0.50);
+  background: rgba(212,175,55,0.12);
+  box-shadow: var(--shadow-glow-gold), inset 0 0 0 1px rgba(212,175,55,0.10);
+}
+
+/* ── CTX TAGS — Command bar chips ─────────────────────────── */
+.ctx-tag {
+  border-radius: 999px;
+  font-size: 13px; font-weight: 500;
+  padding: 6px 16px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(7,9,15,0.60);
+  backdrop-filter: blur(12px);
+  transition: all .18s ease;
+}
+.ctx-tag:hover {
+  border-color: rgba(212,175,55,0.35);
+  background: rgba(212,175,55,0.09);
+  color: var(--gold-hi);
+}
+.ctx-tag.active {
+  border-color: rgba(212,175,55,0.48);
+  background: rgba(212,175,55,0.12);
+  color: var(--gold-hi);
+  box-shadow: 0 0 12px rgba(212,175,55,0.10);
+}
+
+/* ── TABBAR — Mobile sovereign navigator ───────────────────── */
+#tabbar {
+  background: rgba(5,6,10,0.97);
+  border-top: 1px solid rgba(255,255,255,0.045);
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.50);
+}
+.tab-btn { font-size: 11px; font-weight: 500; }
+.tab-btn.active { color: var(--gold-hi); }
+.tab-btn.active::before {
+  background: linear-gradient(90deg, rgba(212,175,55,0.70), rgba(92,158,255,0.50));
+  box-shadow: 0 0 12px rgba(212,175,55,0.30);
+}
+
+/* ── BUTTONS — Sovereign CTA ───────────────────────────────── */
+.btn { border-radius: var(--r-l); font-weight: 500; font-size: 14px; }
+.btn-gold {
+  box-shadow: var(--shadow-glow-gold);
+  background: rgba(212,175,55,0.10);
+  border-color: rgba(212,175,55,0.28);
+}
+.btn-gold:hover {
+  background: rgba(212,175,55,0.20);
+  box-shadow: 0 0 28px rgba(212,175,55,0.18);
+}
+.btn-primary {
+  box-shadow: var(--shadow-glow-blue);
+}
+
+/* ── UPGRADE MODAL — Sovereign tier ───────────────────────── */
+#upgrade-modal > div {
+  border-radius: var(--r-xl) !important;
+  box-shadow: 0 0 80px rgba(212,175,55,0.14), 0 0 160px rgba(92,158,255,0.06) !important;
+}
+
+/* ── ERR TOAST ─────────────────────────────────────────────── */
+#err-toast {
+  border-radius: var(--r-l);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── WATERLINE METERS — BI data viz ───────────────────────── */
+.wl-meter { height: 4px; border-radius: 4px; background: rgba(255,255,255,0.04); }
+.wl-fill { border-radius: 4px; }
+
+/* ── ICON BTN ──────────────────────────────────────────────── */
+.icon-btn {
+  border-radius: var(--r);
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(7,9,15,0.70);
+}
+
+/* ── SCROLLBAR — Sovereign minimal ───────────────────────── */
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.18); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.30); }
+
+/* ── THINKING DOTS — LYLA heartbeat ──────────────────────── */
+.thinking span { width: 7px; height: 7px; box-shadow: 0 0 8px rgba(92,158,255,0.45); }
+.thinking span:nth-child(2) { box-shadow: 0 0 8px rgba(212,175,55,0.45); }
+
 </style>
 </head>
 <body>
