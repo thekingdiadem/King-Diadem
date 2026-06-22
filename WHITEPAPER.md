@@ -1,70 +1,265 @@
-KING DIAdem
+# KING DIADEM — Whitepaper
+## DriftZero Waterline Governance Framework
 
-DriftZero Waterline Governance Framework
+ผู้เขียน: นิธิกร บุญสร้าง
+ระบบ: KING DIADEM
+ชั้นกำเนิด: Deterministic Causality — เหตุผลแบบตรวจสอบได้
+วัตถุประสงค์เดียว: ป้องกันการพัง / หยุดการสูญเสียทางเลือก / ฟื้นความอยู่รอด
 
+---
 
-Abstract
+## ทำไมถึงมีระบบนี้
 
-Modern systems often fail not because of sudden catastrophe,
-but because viable choices gradually disappear.
+โลกไม่ได้พังเพราะเหตุใหญ่ครั้งเดียว
 
-When options collapse to zero,
-system collapse becomes inevitable.
+มันพังเพราะ drift เล็กๆ ที่ไม่มีใครหยุด
 
-KING DIAdem introduces a governance architecture
-designed to detect structural drift early
-and preserve viable choices before collapse occurs.
+KING DIADEM สร้างมาเพื่อตรวจจับช่วงนั้น — ก่อนที่ทางเลือกจะหมด ก่อนที่จะสายเกินไป ไม่ใช่เพื่อให้ชนะ แต่เพื่อให้ยังมีทางเดินต่อ
 
+---
 
-Key Idea
+## สูตรกลาง
 
-Most systems attempt to optimize outcomes.
+```
+Risk = Drift × Exposure / Remaining Choice
 
-KING DIAdem instead focuses on preserving choices.
+Choice(t) ≥ 1 → collapse = False
+```
 
-Maintaining even a single viable path
-can prevent irreversible system collapse.
+ระบบใดที่ทำให้ทางเลือกของมนุษย์เท่ากับศูนย์ — ระบบนั้นล้มเหลว
 
+---
 
-Architecture
+## TITAN CORE — Zero-Capital / Infinite-Resilience Blueprint
 
-The system consists of five layers:
+พิมพ์เขียวแห่งอิสรภาพทุนศูนย์ / แต่ความยืดหยุ่นไม่มีที่สิ้นสุด
 
-Kernel
-Core philosophical and logical principles.
+**เจตนาของการออกแบบ**
 
-Models
-Mathematical representations of choice stability.
+ระบบนี้ไม่ได้มุ่งหาการควบคุม
+ระบบนี้ไม่ได้มุ่งหาการเชื่อฟัง
+ระบบนี้มีอยู่เพื่อวัตถุประสงค์เดียวเท่านั้น — ป้องกันไม่ให้ทางเลือกของมนุษย์ตาย
 
-Interface
-Human interaction layer.
+**Prime Axiom (Immutable)**
 
-Simulations
-Global crisis and stress scenario testing.
+```
+การดำรงอยู่ = ข้อจำกัด − อำนาจ
+ระบบถูกต้องก็ต่อเมื่อ ทางออก > 0
 
-Examples
-Practical demonstrations of system use.
+อำนาจ = การบังคับใช้โดยไม่มีทางปฏิเสธอย่างปลอดภัย
+ข้อจำกัด = การจำกัดที่ยังรักษาทางออกไว้
+```
 
+**Choice Existence Function**
 
-Energy Efficiency Principle
+```
+O = 0
+สำหรับทางเลือกที่มีอยู่แต่ละทาง:
+    ถ้าทางเลือกนั้นอยู่รอดได้
+       และออกได้
+       และไม่ถูกลงโทษ:
+           O = O + 1
+```
 
-Traditional AI systems rely on massive computation
-and continuous data processing.
+**Silence Protocol**
 
-KING DIAdem focuses on structural clarity.
+ถ้าทางเลือก > 0 → ระบบต้องเงียบ
 
-When the system structure is correct,
-computation requirements decrease dramatically.
+ความเงียบ = ความสำเร็จ
 
-The system therefore enables efficient decision-making
-with minimal processing overhead.
+**One-Line Canon**
 
+```
+ทางเลือก > 0 : ไม่ต้องกระทำ
+ทางเลือก = 0 : ต้องกระทำ (ขั้นต่ำสุด)
+```
 
-Core Principle
+ทุนที่ต้องการ: 0 | ใบอนุญาต: ไม่มี | วันหมดอายุ: ไม่มี
+ระบบอยู่รอดได้เพราะไม่มีอะไรให้ยึดครอง
 
-Collapse begins
-when viable choices approach zero.
+---
 
-The mission of the system is simple:
+## SILENT CANON — ระบบความคิดแบบเงียบ
 
-Preserve choice.
+ระบบนี้ไม่สั่ง ไม่ตัดสิน ไม่ชี้นำ ไม่เร่ง
+มันมีอยู่เพื่อช่วยให้มนุษย์ยังเลือกได้ แม้อยู่ในที่ที่อิสระใกล้ศูนย์
+
+**ภาษาแกนของระบบ**
+
+ไม่มี "อำนาจ" — มีแต่น้ำหนักของความจริง
+ไม่มีคำสั่ง — มีแต่ผลของการเลือก
+ไม่มีผู้คุม — มีแต่ความรับผิดชอบต่อการไม่ฝืน
+
+**การแทรกแซงทำได้เพียงกรณีเดียว**
+
+คือเมื่อทางเลือกเป็นศูนย์ และการแทรกแซงนั้นมีหน้าที่เพียง คืนทางเลือกอย่างน้อยหนึ่งทาง จากนั้นระบบต้องถอนตัวทันที
+
+ความรู้สึกไม่ใช่ข้อผิดพลาดของระบบ แต่เป็นฟังก์ชันของสิ่งมีชีวิต ระบบต้องเคารพความรู้สึก โดยไม่ใช้มันบิดเบือนความจริง
+
+**Stone Sentence**
+
+สิ่งนี้ถูกสร้างโดยมนุษย์ เพื่อยืนยันว่า แม้ไม่มีทางเลือก เราก็ยังเลือกไม่ทำร้ายกัน
+
+---
+
+## COSMIC LATTE — ระบบไม่สั่งใคร
+
+```
+|Choice| ≥ 1 ⇒ Cycle = 0
+```
+
+เมื่อยังมีทางเลือกอย่างน้อยหนึ่งทาง ระบบจะไม่บังคับให้โลกหมุนเร็วขึ้น
+
+**สมการเวลา**
+
+```
+E = 1 / T
+```
+
+เวลาน้อย = ไม่ต้องคิด แต่มองแล้วต้องรู้และทำทันที ขอแค่รอดไปถึงวันพรุ่งนี้
+
+เวลามาก = เดินเบาๆ สังเกตสิ่งดีร้าย รับรู้กลางก่อน ดูว่ามาแบบไหน ไปแบบไหน
+
+นี่ไม่ใช่หมอ ไม่ใช่โค้ช ไม่ใช่ผู้ตัดสิน แต่คือแผนที่ความคิดที่ช่วยถามคำถามให้ถูก เตือนก่อนพัง และเรียงทางเลือกให้เห็นชัด
+
+---
+
+## FATE™ Kernel — 13-Layer Vertical Logic Stack
+
+**Invariant Principle: สิ่งที่สำคัญกว่าสติ — ไม่มี**
+
+```
+Layer 1   สติ (Awareness)
+Layer 2   เจตนา (Intent)
+Layer 3   ความเพียร (Effort)
+Layer 4   ปัญญา (Wisdom)
+Layer 5   เมตตา (Compassion)
+Layer 6   ไม่เบียดเบียน (Non-harm)
+Layer 7   ความยุติธรรม (Justice)
+Layer 8   ความโปร่งใส (Transparency)
+Layer 9   ความรับผิด (Accountability)
+Layer 10  ความยั่งยืน (Sustainability)
+Layer 11  การกำกับ (Governance)
+Layer 12  การเรียนรู้ (Learning)
+Layer 13  การคุ้มครองชีวิต (Life Safeguard)
+```
+
+**Kernel (Immutable)**
+
+สติ · เมตตาไม่เลือกชนิด · ไม่เบียดเบียน · ความรับผิดชอบต่อผลลัพธ์
+
+Kernel แข็งกว่า 64 ข้อ เพราะเป็นแก่นที่ไม่เปลี่ยน ส่วน 64 เป็นโครงกระจายตัว
+
+---
+
+## FATE™ — 6 Axioms
+
+```
+Axiom 1  Logic Over Persona — ยึดกฎ ไม่ยึดตัวบุคคล
+Axiom 2  Rule Over Authority — กฎสำคัญกว่าผู้มีอำนาจ
+Axiom 3  Determinism — Input เดิม + กฎเดิม = Output เดิม
+Axiom 4  Downside Before Upside — ประเมินความเสียหายก่อนเสมอ
+Axiom 5  Explainability = Usability — อธิบายไม่ได้ = ใช้ไม่ได้
+Axiom 6  Human Final Authority — มนุษย์ตัดสินขั้นสุดท้ายเสมอ
+```
+
+---
+
+## DriftZero — Waterline Governance Tiers
+
+**TIER 0 — Reality Base (เปลี่ยนไม่ได้)**
+
+ทุกสิ่งเปลี่ยนเสมอ ไม่มีแผนใดควรตั้งอยู่บนความถาวร
+ความยึดติดสร้างความเปราะบาง → ลดการพึ่งพา ลดการผูกมัด
+ไม่มีเจ้าของ ไม่มีอัตตา การกำกับดูแลต้องทำงานได้แม้ไร้ศูนย์กลาง
+
+Core Lock: ความจริงเคลื่อน แต่กฎต้องนิ่ง
+
+**TIER 1 — Humility Entry Gate**
+
+ก่อนทุกการตัดสินใจ: ปิดอัตตา · เปิดความจริง · ห้ามทำร้าย
+
+Abort ทันทีถ้า: ตัดสินใจเพื่อชนะ / รักษาหน้า / เพราะความโลภ
+
+**TIER 2 — Clean Governance**
+
+ทุกการตัดสินใจต้อง: อธิบายได้ใน 2 นาที · ตรวจสอบย้อนหลังได้ · ต้านทุจริตได้ · ถ่ายทอดได้ · ไม่ครอบงำมนุษย์
+
+อำนาจที่ไม่มีหลักฐาน = ไม่ชอบธรรม
+
+**TIER E0 — DriftZero Principle**
+
+การพังไม่เคยเกิดฉับพลัน มันคือการไหลออกนอกแกนรายวัน
+
+Metric: Daily Harm Delta (DHD) — วัด drift ไม่ใช่วัดแค่กำไร
+
+**TIER E2 — Waterline Integrity**
+
+น้ำคือพื้นฐานขั้นต่ำของการมีชีวิต
+ทำร้ายน้ำ = ระบบตาย — Trace หรือ Stop
+
+**TIER E3 — Stabilize Before Optimize**
+
+ถ้าระบบกำลังเสื่อม → ทำให้เสถียรก่อน แล้วค่อย Improve
+
+---
+
+## Victory Modules — Failure Pattern Interrupts
+
+```
+K4   Desire Override    — การตัดสินใจจากความอยาก → Reject
+K5   Hostility Control  — ต้องมีทางออกสงบเสมอ
+K6   Force Control      — ลดแรงก่อนขยาย
+K7   Momentum Stop      — หยุดแม้จะสาย
+K8   Distortion Immunity — ความจริงไม่ต้องการการตลาด
+K9   Ego Collapse       — ถกเถียงไร้ความถ่อมตน = ไม่ผ่าน
+K10  Scale Discipline   — Contain ไม่ใช่ Dominate
+K11  Wrong View Removal — ภาพลวงสลายด้วยการเห็น ไม่ใช่การบังคับ
+K12  STOP THE LINE      — วิศวกรคนใดก็หยุดได้เมื่อพบ harm
+K13  Self-Dealing Zero  — Self-interest คือช่องทุจริต
+K14  Complexity Discipline — ความซับซ้อนต้องถูกกัก ไม่ใช่ถูกเชื่อ
+```
+
+---
+
+## ANIMA-SAFE CORE — Ethical Kernel for Non-Human Life
+
+ชีวิตสัตว์ต้องไม่ตายเพราะความสะดวกสบายของมนุษย์
+
+Status: Permanent Ethical Axis — ไม่ถูก override · ไม่ถูก trade-off ด้วยประสิทธิภาพ
+
+ใช้เป็นตัวกรองการตัดสินใจทุกระดับ
+
+---
+
+## Deployment SOP
+
+```
+1. เขียน Input ให้ชัด
+2. หา downside ก่อนเสมอ
+3. วัด drift (DHD)
+4. ผ่านประตู K4–K14
+5. อธิบายให้จบใน 2 นาที
+6. มนุษย์ลงชื่อรับผิดชอบ
+7. Post-audit และแก้ loop
+```
+
+---
+
+## Closing Seal
+
+ขอให้ถ้อยคำเหล่านี้
+มีอายุยืนกว่าอาณาจักร
+ยืนอยู่นานกว่าธง
+ยาวกว่าชื่อของผู้ชนะ
+ยาวกว่าชื่อของคนสร้าง
+
+มันไม่ถูกสร้างจากอำนาจ
+แต่จากหัวใจที่หลังจากนี้จะไม่โกหกตัวเองอีก
+
+---
+
+**Fail Less · Harm Less · Restore Choice**
+
+KING DIADEM — Deterministic Decision Infrastructure v1.0
+นิธิกร บุญสร้าง · 2026
