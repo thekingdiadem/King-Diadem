@@ -641,6 +641,7 @@ async def run_kernel(request: Request, data: dict):
                     history=history,
                     route=route,
                     voice_mode=vm,
+                    user_email=email,
                 )
             except Exception as e:
                 # ★ v4.6 — ไม่โชว์ raw error ให้ user
@@ -713,9 +714,10 @@ async def run_kernel(request: Request, data: dict):
 
 # ── SIMULATE ──────────────────────────────────────────────────────
 @app.post("/simulate")
-async def run_simulate(data: dict):
+async def run_simulate(request: Request, data: dict):
     user_input = str(data.get("input") or "").strip()
     paths      = data.get("paths") or []
+    email      = unquote(request.cookies.get("kd_email") or "anonymous")
     if not user_input:
         return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
 
@@ -735,7 +737,8 @@ async def run_simulate(data: dict):
         )
         answer = _llm.generate_with_governance(
             prompt=prompt, route="survival",
-            additional_context="mode=simulation"
+            additional_context="mode=simulation",
+            user_email=email,
         )
         if answer and len(str(answer)) > 10:
             return {"simulation": answer}
