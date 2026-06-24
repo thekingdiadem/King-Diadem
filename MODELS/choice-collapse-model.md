@@ -1,147 +1,96 @@
-CHOICE COLLAPSE MODEL
-KING DIADEM – Structural Survival Model
+# MODELS/choice-collapse-model.md — KING DIADEM
+# System-level: โมเดล Drift สะสม → Collapse ระดับระบบ
+# Author: Nithikorn Bunsrang
+# Fail less. Harm less. Restore more.
 
-Author: Nithikorn Bunsrang
-
-Purpose:
-Model the relationship between drift accumulation and the reduction of viable choices within a system.
-
----
-
-1. Core Variables
-
-Choice(t)
-
-Number of viable decisions available to a system at time t.
-
-
-Drift(t)
-
-Accumulated structural degradation affecting the system.
-
-
-Entropy(t)
-
-Natural disorder and resource loss occurring over time.
-
-
-Intervention(t)
-
-External or internal actions taken to restore system stability.
-
-
-Resources(t)
-
-Total usable energy, materials, infrastructure, and human capacity available to the system.
-
+## CHOICE COLLAPSE MODEL
+**Scope: System Level — Drift สะสมระยะยาว**
 
 ---
 
-2. System Evolution Equation
+### Purpose
 
-Choice(t + Δ) =
-Choice(t)
-− Drift(t)
-− Entropy(t)
-+ Intervention(t)
-
-
-Where:
-
-Drift(t) ≥ 0  
-Entropy(t) ≥ 0  
-Intervention(t) ≥ 0
-
+อธิบายกลไกที่ระบบล่มสลายจาก Drift เล็กน้อยสะสม ไม่ใช่จากเหตุการณ์ครั้งเดียว
+ต่างจาก Balance Model ที่ดู action เดียว — Collapse Model ดู trajectory ของทั้งระบบ
 
 ---
 
-3. Collapse Threshold
+### Core Variables
 
-If
-
-Choice(t + Δ) → 0
-
-then
-
-System State = Collapse Risk
-
-
-Meaning:
-
-No viable decision pathways remain for the system.
-
+| Variable | คำอธิบาย |
+|----------|----------|
+| `Choice(t)` | จำนวน viable decisions ที่ระบบมีในเวลา t |
+| `Drift(t)` | การเสื่อมเชิงโครงสร้างสะสม (≥ 0) |
+| `Entropy(t)` | ความผิดปกติตามธรรมชาติ + การสูญเสียทรัพยากร (≥ 0) |
+| `Intervention(t)` | action ที่ดึง choice กลับมา (≥ 0) |
+| `Resources(t)` | พลังงาน วัสดุ โครงสร้าง capacity ของมนุษย์ |
 
 ---
 
-4. Drift Accumulation Model
+### System Evolution Equation
 
-Drift(t) =
-Σ Daily Harm Delta (DHD)
+```
+Choice(t+Δ) = Choice(t) - Drift(t) - Entropy(t) + Intervention(t)
+```
 
-
-Where:
-
-DHD measures small negative changes including
-
-- infrastructure degradation
-- financial burden increase
-- systemic stress
-- resource depletion
-- governance failure
-
+**ต่างจาก Balance Model:** มี `Drift(t)` แยกชัด = ความเสื่อมเชิงโครงสร้างที่สะสม
+ไม่ใช่แค่ entropy จาก action เดียว
 
 ---
 
-5. Early Warning Condition
+### Drift Accumulation (DHD)
 
-If
+```
+Drift(t) = Σ Daily Harm Delta (DHD)
+```
 
-Choice(t + Δ) < Safe Threshold
-
-Then
-
-Trigger Early Warning
-
-
-Safe Threshold defines the minimum viable options required for recovery.
-
-
----
-
-6. Recovery Pathway
-
-If
-
-Intervention(t) > Drift(t)
-
-Then
-
-Choice(t) stabilizes or increases.
-
-
-Meaning the system has regained viable decision capacity.
-
+DHD วัดการเสื่อมเล็กน้อยรายวัน:
+- โครงสร้างพื้นฐานเสื่อม
+- ภาระหนี้สินเพิ่ม
+- ความเครียดสะสม
+- ทรัพยากรลด
+- Governance ล้มเหลว
 
 ---
 
-7. System Survival Principle
+### Collapse Threshold
 
-A system survives as long as:
-
-Choice(t) ≥ 1
-
-
-When
-
-Choice(t) = 0
-
-collapse becomes irreversible.
-
+```
+if Choice(t+Δ) → 0:  System State = COLLAPSE_RISK
+if Choice(t) = 0:    collapse irreversible
+```
 
 ---
 
-Final Principle
+### Early Warning Condition
 
-Fail Less  
-Harm Less  
-Restore Choice
+```
+if Choice(t+Δ) < Safe_Threshold:
+    → Trigger Early Warning
+    → Generate Intervention options
+```
+
+`Safe_Threshold` = จำนวน options ขั้นต่ำที่ระบบต้องมีเพื่อ recover ได้
+
+---
+
+### Recovery Pathway
+
+```
+if Intervention(t) > Drift(t):
+    Choice(t) stabilizes or increases
+```
+
+---
+
+### FATE™ Audit
+
+```
+model:          choice-collapse
+scope:          system_level
+drift_source:   DHD daily accumulation
+equation:       Choice(t+Δ) = Choice(t) - Drift(t) - Entropy(t) + Intervention(t)
+collapse_at:    Choice(t) = 0  →  irreversible
+early_warn_at:  Choice(t+Δ) < Safe_Threshold
+fate_lock:      Fail less. Harm less. Restore more.
+```
