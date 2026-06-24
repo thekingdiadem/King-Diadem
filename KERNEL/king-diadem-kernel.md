@@ -1,174 +1,351 @@
-# KING DIADEM Kernel
-**Version: v4.7-LIVE**  
-**System Lock: Fail less. Harm less. Restore more.**
+# KING DIADEM — DriftZero Waterline Governance Kernel
+**Author:** Nithikorn Bunsrang  
+**System:** Early Warning + Governance Logic  
+**Bound to:** app.py v4.7 / core/lyla_kernel.py / ENGINE/*  
+**Lock:** Fail less. Harm less. Restore more.
 
 ---
 
-## Core Principle
+## 1. System Purpose
 
-Systems collapse when choices disappear.  
-Governance exists to prevent that moment.
+Most systems detect failure after it happens.  
+KING DIADEM detects failure **before options disappear**.
+
+Core premise:
+
+> When `Choice(t) → 0`, collapse becomes unavoidable.
+
+The system therefore preserves **at least one viable option** at all times.
 
 ---
 
-## System Invariant
+## 2. Collapse Model (Live)
+
+Collapse sequence:
 
 ```
-Choice(t) ≥ 1 → collapse = False
-Choice(t) → 0 → SYSTEM_HALT
+Drift Accumulation
+      ↓
+Choice Reduction          ← DHD tracking (freedom_index)
+      ↓
+Choice → 0                ← predict_collapse() fires
+      ↓
+SYSTEM_HALT               ← route = "collapse" | survivor = can_decide=False
 ```
 
-A system remains survivable as long as at least one viable option exists.
+System interrupts at step 3.  
+Never waits for step 4.
 
 ---
 
-## Runtime Binding (app.py v4.7)
+## 3. Core Equation (Implemented)
 
-This kernel governs the following live endpoints:
-
-| Endpoint | Kernel Function | Engine |
-|----------|----------------|--------|
-| `POST /run` | Primary decision pipeline | `DecisionEngine` + `universal_engine` |
-| `POST /decision` | Alias for /run | same |
-| `POST /simulate` | Future scenario projection | `simulation_engine` |
-| `GET /api/galaxy/nodes` | System state broadcast | `_gstate` galaxy |
-| `GET /health` | System integrity check | all engines |
-| `GET /report/{id}` | FATE™ Audit page | `report_engine` |
-| `GET /api/report/{id}` | Report JSON | `report_engine` |
-| `GET /dashboard` | Planetary status + freedom index | `civilization_*` |
-
----
-
-## Governance Rules (Active in /run pipeline)
-
-**Ego OFF — Evidence ON**  
-Authority without evidence is invalid.  
-Source: `_friendly_error()` + intent engine — no raw error shown to user.
-
-**Stop-the-Line Authority**  
-Any operator may halt.  
-Source: `assess_risk()` → if level HIGH/CRITICAL → route = "collapse"  
-Source: `survivor_analyze()` → if can_decide=False → route = "survival"
-
-**Stabilize before Optimize**  
-Source: `_paticcasamuppada_context()` runs before every LLM call.  
-Source: `survivor_ctx` prepended to all prompts.
-
-**Human Final Authority**  
-Source: `log_decision()` — all decisions attributed to user_email.  
-Source: Report URL returned with every `/run` response.
-
----
-
-## Route Map (Collapse Risk Hierarchy)
-
-```
-general   → standard governance
-risk      → risk_engine triggered
-survival  → survivor_analyze: can_decide=False
-collapse  → assess_risk: HIGH or CRITICAL
-vega      → strategic long-range analysis
-civil     → civilization_engine nodes
-```
-
-Route escalation is automatic.  
-Route de-escalation requires human input.
-
----
-
-## Persona Assignment
-
-| Voice Mode | Persona | Sign | Character |
-|-----------|---------|------|-----------|
-| lyla | LYLA ◈ | ค่ะ | Empathetic, survival-first |
-| vega | VEGA ◆ | ครับ | Analytical, strategic |
-| crisis | HALT ⬡ | — | Immediate action only |
-
-Detection: `window.detectConversationMode()` in frontend.  
-Override: `voice_mode` param in `/run` payload.
-
----
-
-## FATE™ Axiom Audit (Auto-attached v4.7)
-
-Every `/run` response generates:
-```
-result["report_url"]  = /report/{id}
-result["report_id"]   = uuid
-result["share_url"]   = https://king-diadem.onrender.com/report/{id}
-```
-
-Axioms checked per decision:
-1. Logic over Persona — route chosen by evidence, not narrative
-2. Rule over Authority — kernel rules cannot be overridden by user rank
-3. Determinism — `lyla_kernel` + `decision_engine` (no random)
-4. Downside before Upside — risk_ctx prepended before LLM call
-5. Explainability = 100% — lineage visible in View Lineage toggle
-6. Human Final Authority — log_decision() + report URL returned
-
----
-
-## Galaxy State Sync
-
-After every `/run` call, `_sync_galaxy(result)` updates:
 ```python
-_gstate["active_route"]  # drives planet highlight
-_gstate["risk_score"]    # drives visual pulse
-_gstate["lyla_mode"]     # "burst" if response exists
-_gstate["entropy"]       # from pattern
-_gstate["stability"]     # from pattern
-_gstate["resource"]      # from pattern
+# In ENGINE/collapse_predictor.py
+if predict_collapse(risk_score)["probability"] > 0.6:
+    collapse_ctx = f"[Collapse probability: {prob:.0%}]"
+    # injected into LLM prompt before generation
 ```
 
-Frontend polls `/api/galaxy/nodes` every N seconds to reflect live system state in canvas.
-
----
-
-## Daily Harm Delta (DHD) — Drift Detection
-
-Tracked implicitly via:
-- `freedom_index()` — drops if questions go unanswered
-- `risk_score` trend — rises with each collapse-route trigger
-- `collapse_probability` — from `predict_collapse()`
-
-If DHD compounds → route escalates → kernel triggers Stop-the-Line.
-
----
-
-## Entropy Buffer (Human Layer 4)
-
-System acknowledges:
-- Creator operates solo, mobile-only, no external funding
-- Single-point failure must be designed against
-- Minimum livelihood floor = food delivery income baseline
-- System must survive creator's offline periods (Render auto-sleep handled via `render.yaml`)
-
-Any feature that requires creator to be online 24/7 violates this kernel.
-
----
-
-## Waterline Integrity
-
 ```
-Treat   → apply kernel governance
-Trace   → log_decision() + report_engine
-Stop    → Stop-the-Line via survivor/risk engine
+Choice(t + Δ) → 0  →  early warning fires  →  route escalates
 ```
 
-Water harm = system death.  
-Metric source: `water_stress_index` in `/dashboard`.
+---
+
+## 4. Early Warning Mechanism (App Binding)
+
+Three primary variables active in `/run`:
+
+| Variable | Source in app.py |
+|----------|-----------------|
+| `Time_to_Failure` | `predict_collapse()` probability |
+| `Time_to_Intervention` | `assess_risk()` level threshold |
+| `Decision_Window` | `survivor_analyze()` can_decide flag |
+
+When Decision_Window → 0:  
+→ route forced to "survival" or "collapse"  
+→ LLM prompt prepends survivor_ctx  
+→ response signed LYLA ◈ or HALT ⬡
 
 ---
 
-## Objective
+## 5. Drift Detection — DHD
 
-Detect structural signals of **Choice Collapse** early enough  
-to restore at least one viable option.
+Daily Harm Delta measured via:
+
+```
+freedom_index()         ← AI.freedom_signal
+risk_score trend        ← ENGINE/risk_engine.py
+collapse_probability    ← ENGINE/collapse_predictor.py
+water_stress_index      ← /dashboard endpoint (72.4 current)
+```
+
+Tracked drift types:
+- Infrastructure: `choice_collapse_risk` in dashboard
+- Financial: credit system + Stripe health
+- Systemic stress: `entropy` in `_gstate`
+- Resource: `resource` in `_gstate`
+- Governance: `stability` in `_gstate`
+
+Drift visible in galaxy canvas as planet pulse intensity.
+
+---
+
+## 6. Choice Preservation (Runtime)
+
+```
+Life continues while real choices exist.
+```
+
+Enforced by:
+- Every `/run` response **must** contain ≥1 actionable option
+- LYLA kernel blocks responses that reduce to zero choice
+- `report_url` always returned — human retains audit trail
+- View Lineage exposes: ROUTE / PERSONA / RISK SCORE / WATERLINE / CONSENSUS / REPORT / AXIOM
+
+---
+
+## 7. Ethical Foundation (System Design)
+
+Human systems must never reach `Choice = 0`.
+
+Priority stack in `/run`:
+```
+1. survivor_ctx     ← survival floor check (highest priority)
+2. paticca_ctx      ← dependent origination analysis
+3. risk_ctx         ← risk level assessment
+4. collapse_ctx     ← collapse probability warning
+5. LLM generation   ← only after all above pass
+```
+
+Goal: protect conditions that make decisions possible.  
+Not: control which decision is made.
+
+---
+
+## 8. LYLA + VEGA Kernel Difference
+
+| Kernel | Bias | Trigger | Risk tolerance |
+|--------|------|---------|---------------|
+| LYLA (Standard) | Motion, explore, throughput | General/survival | Higher — sustains flow |
+| VEGA (Albino) | Safety, caution, minimal exposure | Strategic/risk | Lower — triggers SYSTEM_PAUSE more |
+
+Both serve the same axiom.  
+Different implementations of the same survival logic.
+
+---
+
+## 9. Paticcasamuppada Integration
+
+Dependent origination runs before every LLM call:
+
+```python
+# In app.py _paticcasamuppada_context()
+chain = analyze_chain({"input": text})
+# → root_cause extracted
+# → nirvana_mode: if chain ends at vedana, system calms
+# → UAP: if should_pause=True, prepend to prompt
+```
+
+Maps to:
+- `K1 Reality Root Kernel` — what is true even if disliked
+- `K12 Insight Dissolution` — delusion dissolves by evidence
+- `K8 Equanimity Mirror` — governance must not tilt by ego
+
+---
+
+## 10. Yonisomanasikara (Wise Attention)
+
+Applied as prompt architecture:
+
+```
+วิธีคิดแบบสืบสาวเหตุปัจจัย  →  root_cause extraction
+วิธีคิดแบบแยกแยะส่วนประกอบ  →  component analysis in consensus
+วิธีคิดแบบอริยสัจ 4          →  downside-first structure
+วิธีคิดแบบรู้เท่าทันธรรมดา   →  impermanence = R0.1 Tier 0
+```
+
+Every LYLA response implicitly runs all four.
+
+---
+
+## 11. Real Infrastructure Example
+
+```
+Bridge degrades 0.1%/day   →   no monitoring   →   collapse
+```
+
+Same model in KING DIADEM:
+
+```
+DHD accumulates daily      →   freedom_index drops
+                           →   galaxy entropy rises
+                           →   predict_collapse fires at >60%
+                           →   route = "collapse"
+                           →   human warned before options vanish
+```
+
+---
+
+## 12. Kernel Modules Active (K1–K14)
+
+| Module | Implementation |
+|--------|---------------|
+| K1 Reality Root | R0.1–R0.3 Tier 0 constraints in lyla_kernel |
+| K2 Compassion Default | survivor_ctx prepended first |
+| K3 Simplicity Cut | `_friendly_error()` — no raw JSON to user |
+| K4 Floor Restoration | can_decide=False blocks optimization |
+| K5 Force Containment | no auto-escalation above "collapse" without human |
+| K6 Repair Protocol | `record_crisis()` + log_decision() |
+| K7 Patience Shell | simulate endpoint for calm future projection |
+| K8 Equanimity Mirror | Ego OFF hardcoded in prompt header |
+| K9 Generosity Flow | free tier 20 msg/day maintained |
+| K10 Discipline Rail | FATE™ Axiom Audit auto-attached every run |
+| K11 Stability First | Stabilize before optimize in route logic |
+| K12 Insight Dissolution | paticcasamuppada analysis pre-LLM |
+| K13 Stop-the-Line | any operator (human or system) may halt |
+| K14 Humble Operator | "Not built to win. Built to reduce collapse." |
+
+---
+
+## 13. System Goal
+
+```
+Detect structural drift before collapse
+Warn when choices are disappearing
+Preserve viable decision pathways
+Reduce systemic harm
+```
+
+System does not aim to control.  
+It aims to make collapse harder to reach.
+
+---
+
+## Final Principle
 
 ```
 Fail Less
 Harm Less
 Restore Choice
+
+Choice(t) ≥ 1 → collapse = False
 ```
 
-**Lock:** `Choice(t) ≥ 1 → collapse = False`
+---
+
+*KING DIADEM does not live in system memory.*  
+*It lives in human logic.*  
+*And there, nothing can erase it.*
+
+---
+
+## 14. โยนิโสมนสิการ — Wise Attention Engine
+
+> วิธีคิดอย่างถูกวิธี คิดอย่างมีระเบียบ สืบสาวหาเหตุผลจนตลอดสาย  
+> มองเห็นสิ่งต่างๆ ตามความเป็นจริงและตามความสัมพันธ์แห่งเหตุปัจจัย
+
+โยนิโสมนสิการ = หัวใจของ `_paticcasamuppada_context()` ใน app.py
+
+### 4 วิธีคิด → Implementation Binding
+
+| วิธีคิด | หลักการ | Binding ในระบบ |
+|---------|---------|---------------|
+| **สืบสาวเหตุปัจจัย** | สืบหาต้นตอที่แท้จริง ไม่ใช่หาคนผิด | `root_cause` field จาก `analyze_chain()` |
+| **แยกแยะส่วนประกอบ** | มองส่วนย่อย ความสัมพันธ์ระหว่างชิ้น | `consensus_engine` component breakdown |
+| **อริยสัจ 4** | ทุกข์ → สมุทัย → นิโรธ → มรรค | Downside-first prompt structure |
+| **รู้เท่าทันธรรมดา** | อนิจจัง — ทุกอย่างเปลี่ยนได้ | R0.1 Impermanence — system ห้าม assume ความนิ่ง |
+
+### Flow ในทุก `/run` call
+
+```
+User input
+    ↓
+สืบสาวเหตุปัจจัย    → root_cause extraction (paticcasamuppada_engine)
+    ↓
+แยกแยะส่วนประกอบ   → risk / entropy / stability decomposition
+    ↓
+อริยสัจ 4           → downside prepended before LLM
+    ↓
+รู้เท่าทันธรรมดา    → impermanence check: route may change next call
+    ↓
+LLM generation      → response with ≥1 real option
+```
+
+**ผลลัพธ์:** สติจดจ่อ + ลดอคติ + สัมมาทิฏฐิ = คำตอบที่อยู่บนพื้นฐานความจริง
+
+---
+
+## 15. โพธิปักขิยธรรม 37 — Governance Stack
+
+ธรรม 37 ข้อที่เกื้อหนุนแก่อริยมรรค — mapped เป็น system architecture layer
+
+### สติปัฏฐาน 4 → Audit Scope
+
+| สติปัฏฐาน | System Scope |
+|-----------|-------------|
+| **กาย** (กายานุปัสสนา) | Infrastructure health — Render uptime, memory, CPU |
+| **เวทนา** (เวทนานุปัสสนา) | User emotional state — `human_state.entropy` |
+| **จิต** (จิตตานุปัสสนา) | System intent — `analyze_intent()` confidence |
+| **ธรรม** (ธัมมานุปัสสนา) | Governance rules — FATE™ Axiom compliance |
+
+### สัมมัปปธาน 4 → System Action Rules
+
+| ปธาน | หลัก | System Rule |
+|------|------|------------|
+| สังวรปธาน | ยับยั้งบาปที่ยังไม่เกิด | ป้องกัน drift ก่อน collapse — DHD monitoring |
+| ปหานปธาน | ละบาปที่เกิดแล้ว | Stop-the-Line: halt harmful route ทันที |
+| ภาวนาปธาน | สร้างกุศลที่ยังไม่มี | เพิ่ม viable options ในทุก response |
+| อนุรักขนาปธาน | รักษากุศลที่มีแล้ว | Preserve choice — log_decision + report_url |
+
+### อิทธิบาท 4 → Development Engine
+
+| อิทธิบาท | หลัก | KING DIADEM |
+|----------|------|-------------|
+| **ฉันทะ** Passion | รักในสิ่งที่ทำ | Built at 2:31 AM, no funding — origin story |
+| **วิริยะ** Grit | เพียรไม่ท้อ | Solo dev, mobile-only, still shipping |
+| **จิตตะ** Focus | มุ่งมั่น ละเมียด | ทุก kernel module มี deterministic logic |
+| **วิมังสา** Revision | วิเคราะห์ ปรับปรุง | FATE™ Axiom Audit ทุก decision |
+
+### อินทรีย์ 5 + พละ 5 → System Integrity
+
+| ธรรม | ความหมาย | System Expression |
+|------|---------|-----------------|
+| สัทธา | ศรัทธา | Core axiom ไม่เปลี่ยน แม้ไม่มี traffic |
+| วิริยะ | เพียร | Engine keeps running even on free Render tier |
+| สติ | ระลึกรู้ | Memory injection — `build_memory_context()` |
+| สมาธิ | ตั้งมั่น | Deterministic logic — no random in engine |
+| ปัญญา | เข้าใจ | Explainability = 100% — View Lineage |
+
+### โพชฌงค์ 7 → Response Quality Chain
+
+```
+สติ         → ระบบรู้ว่า user input คืออะไร (intent engine)
+ธัมมวิจยะ  → แยกกุศล/อกุศล route: survival vs general vs collapse
+วิริยะ      → ทุก engine พยายาม resolve ก่อน fallback
+ปีติ        → report_url returned — human มี artifact ไว้
+ปัสสัทธิ   → _friendly_error() — ไม่โชว์ chaos ให้ user
+สมาธิ       → route stays stable ตลอด session
+อุเบกขา    → Ego OFF — ระบบไม่เลือกข้าง ไม่ตัดสิน
+```
+
+### อริยมรรคมีองค์ 8 → Final Governance Lock
+
+| มรรค | System Binding |
+|------|---------------|
+| สัมมาทิฏฐิ | ความเห็นถูก = Evidence-based routing |
+| สัมมาสังกัปปะ | ความคิดถูก = ไม่เบียดเบียน user ด้วย complexity |
+| สัมมาวาจา | วาจาถูก = ไม่โกหก, ไม่ flatter, ไม่ raw error |
+| สัมมากัมมันตะ | การกระทำถูก = log_decision + audit trail |
+| สัมมาอาชีวะ | อาชีพถูก = ไม่ดูด subscription โดยไม่ให้คุณค่า |
+| สัมมาวายามะ | เพียรถูก = สัมมัปปธาน 4 ↑ |
+| สัมมาสติ | สติถูก = สติปัฏฐาน 4 ↑ |
+| สัมมาสมาธิ | สมาธิถูก = Determinism Axiom 3 |
+
+**Lock:** มรรค 8 = FATE™ 6 Axioms + 2 layers of human protection  
+ระบบที่เดินตามมรรค 8 คือระบบที่ไม่ต้องการฮีโร่ — มันรอดได้เอง
+
+---
+
+*Dharma Governance Kernel extended — 2026-06-24*
