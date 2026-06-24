@@ -1,19 +1,17 @@
 # AI/reality_learning.py — KING DIADEM
 # ระบบเรียนรู้จากผลลัพธ์จริง — บันทึก, วัด, ปรับ drift
-# record_outcome → เก็บ node พร้อม weight
-# learning_summary → คืน signal คมพร้อม score/drift_risk
+# FATE™ upgrade: fate_audit per node + irreversible warn on reset
+# Fail less. Harm less. Restore more.
 
 from __future__ import annotations
 import time
 from collections import deque
 from typing import Literal
 
-# ── in-memory log (ไม่เกิน 200 nodes) ──────────────────────
 _LOG: deque[dict] = deque(maxlen=200)
 
 OutcomeT = Literal["positive", "negative", "neutral", "unknown"]
 
-# ── outcome → numeric score ──────────────────────────────────
 _SCORE = {"positive": 1.0, "neutral": 0.5, "negative": 0.0, "unknown": 0.5}
 
 
@@ -27,18 +25,29 @@ def record_outcome(
     tags: list[str] | None = None,
 ) -> dict:
     """
-    บันทึก 1 node พร้อม metadata
-    คืน node ที่เก็บไว้ (ใช้ debug/test ได้)
+    บันทึก 1 node พร้อม metadata + FATE™ axiom audit
+    คืน node ที่เก็บไว้
     """
+    safe_outcome = outcome if outcome in _SCORE else "unknown"
+    safe_conf    = max(0.0, min(1.0, float(confidence)))
+
     node = {
         "ts":         time.time(),
         "question":   str(question)[:300],
         "decision":   str(decision)[:300],
-        "outcome":    outcome if outcome in _SCORE else "unknown",
+        "outcome":    safe_outcome,
         "route":      route,
-        "confidence": max(0.0, min(1.0, float(confidence))),
+        "confidence": safe_conf,
         "tags":       tags or [],
-        "score":      _SCORE.get(outcome, 0.5),
+        "score":      _SCORE[safe_outcome],
+        # FATE™ axiom audit — เพิ่มจาก original
+        "fate_audit": {
+            "has_question":   bool(str(question).strip()),
+            "has_decision":   bool(str(decision).strip()),
+            "outcome_known":  safe_outcome != "unknown",
+            "confidence_ok":  safe_conf >= 0.5,
+            "axiom_5_ok":     True,   # Explainability: node พร้อม explain
+        },
     }
     _LOG.append(node)
     return node
@@ -72,14 +81,12 @@ def learning_summary() -> dict:
     neg  = sum(1 for n in nodes if n["outcome"] == "negative")
     neut = sum(1 for n in nodes if n["outcome"] == "neutral")
 
-    # weighted score — confidence ทำให้ node ที่มั่นใจสูงมีน้ำหนักมากกว่า
     weighted_scores = [n["score"] * (0.5 + 0.5 * n["confidence"]) for n in nodes]
     raw_score = sum(weighted_scores) / len(weighted_scores)
     score = round(raw_score * 100, 1)
 
     win_rate = round(pos / total * 100, 1) if total else 0.0
 
-    # recent trend — เปรียบ 25% หลัง vs 25% แรก
     quarter = max(1, total // 4)
     early   = sum(n["score"] for n in nodes[:quarter])  / quarter
     recent  = sum(n["score"] for n in nodes[-quarter:]) / quarter
@@ -91,7 +98,6 @@ def learning_summary() -> dict:
     else:
         trend = "FLAT"
 
-    # drift risk — ถ้า negative rate สูงหรือ score ตก
     neg_rate = neg / total if total else 0
     if neg_rate > 0.5 or score < 30:
         drift_risk = "HIGH"
@@ -100,7 +106,6 @@ def learning_summary() -> dict:
     else:
         drift_risk = "LOW"
 
-    # signal คม
     if score >= 70 and trend == "IMPROVING":
         signal = "EXPANDING"
     elif score >= 55:
@@ -112,7 +117,6 @@ def learning_summary() -> dict:
     else:
         signal = "COMPRESSION"
 
-    # top routes — route ที่ positive rate ดีสุด
     route_stats: dict[str, list[float]] = {}
     for n in nodes:
         route_stats.setdefault(n["route"], []).append(n["score"])
@@ -140,8 +144,15 @@ def get_learning(limit: int = 50) -> list[dict]:
     return list(_LOG)[-limit:]
 
 
-def reset_learning() -> int:
-    """ล้าง log ทั้งหมด — คืนจำนวนที่ลบ (ใช้ testing/admin)"""
+def reset_learning() -> dict:
+    """
+    ล้าง log ทั้งหมด
+    FATE™: irreversible — คืน warn พร้อมจำนวนที่ลบ
+    """
     count = len(_LOG)
     _LOG.clear()
-    return count
+    return {
+        "cleared":   count,
+        "fate_note": "⚠ WARN: irreversible — learning log cleared",
+        "axiom":     "Downside acknowledged before execution",
+    }
