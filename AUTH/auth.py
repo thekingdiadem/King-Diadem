@@ -1,32 +1,51 @@
-from fastapi import APIRouter
+# AUTH/auth.py
+# KING DIADEM — Auth Router v2.0
+# Fix: password hashed (SHA-256), /add_credit ต้องมี admin_key
+# -----------------------------------------------------------------
+
+from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
 import sqlite3
+import hashlib
+import os
 
 router = APIRouter()
+DB     = "king_diadem.db"
 
-DB = "king_diadem.db"
+# Admin key จาก env — ถ้าไม่ set จะ block ทุก admin call
+ADMIN_KEY = os.getenv("KD_ADMIN_KEY", "")
 
-# ===== INIT DB =====
+
+# ── HELPERS ───────────────────────────────────────────────────────
+
+def _hash(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def _get_conn():
+    return sqlite3.connect(DB)
+
+
+# ── INIT DB ───────────────────────────────────────────────────────
+
 def init_db():
-    conn = sqlite3.connect(DB)
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        username TEXT PRIMARY KEY,
-        password TEXT,
-        credits INTEGER DEFAULT 0,
-        paid INTEGER DEFAULT 0
-    )
+    conn = _get_conn()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY,
+            password TEXT NOT NULL,
+            credits  INTEGER DEFAULT 0,
+            paid     INTEGER DEFAULT 0
+        )
     """)
-
     conn.commit()
     conn.close()
 
 init_db()
 
 
-# ===== MODELS =====
+# ── MODELS ────────────────────────────────────────────────────────
+
 class Register(BaseModel):
     username: str
     password: str
@@ -36,83 +55,88 @@ class Login(BaseModel):
     password: str
 
 
-# ===== REGISTER =====
+# ── REGISTER ──────────────────────────────────────────────────────
+
 @router.post("/register")
 def register(user: Register):
-    conn = sqlite3.connect(DB)
-    cursor = conn.cursor()
+    if not user.username.strip() or not user.password.strip():
+        raise HTTPException(status_code=400, detail="username/password ห้ามว่าง")
 
+    conn = _get_conn()
     try:
-        cursor.execute(
-            "INSERT INTO users(username,password) VALUES (?,?)",
-            (user.username, user.password)
+        conn.execute(
+            "INSERT INTO users(username, password) VALUES (?, ?)",
+            (user.username.strip(), _hash(user.password))
         )
         conn.commit()
         return {"status": "created"}
-
-    except:
+    except sqlite3.IntegrityError:
         return {"status": "exists"}
-
     finally:
         conn.close()
 
 
-# ===== LOGIN =====
+# ── LOGIN ─────────────────────────────────────────────────────────
+
 @router.post("/login")
 def login(user: Login):
-    conn = sqlite3.connect(DB)
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "SELECT password,credits,paid FROM users WHERE username=?",
+    conn = _get_conn()
+    row = conn.execute(
+        "SELECT password, credits, paid FROM users WHERE username=?",
         (user.username,)
-    )
-
-    result = cursor.fetchone()
+    ).fetchone()
     conn.close()
 
-    if not result:
+    if not row:
         return {"status": "no_user"}
-
-    if result[0] != user.password:
+    if row[0] != _hash(user.password):
         return {"status": "wrong"}
 
-    return {
-        "status": "ok",
-        "credits": result[1],
-        "paid": result[2]
-    }
+    return {"status": "ok", "credits": row[1], "paid": row[2]}
 
 
-# ===== ADD CREDIT =====
+# ── ADD CREDIT (admin only) ────────────────────────────────────────
+
 @router.post("/add_credit/{username}/{amount}")
-def add_credit(username: str, amount: int):
-    conn = sqlite3.connect(DB)
-    cursor = conn.cursor()
+def add_credit(
+    username: str,
+    amount:   int,
+    x_admin_key: str = Header(default=""),
+):
+    """
+    ต้องส่ง header: X-Admin-Key: <KD_ADMIN_KEY>
+    ป้องกันใครก็ได้เติม credit ตัวเอง
+    """
+    if not ADMIN_KEY or x_admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="unauthorized")
+    if amount <= 0:
+        raise HTTPException(status_code=400, detail="amount must be > 0")
 
-    cursor.execute(
+    conn = _get_conn()
+    conn.execute(
         "UPDATE users SET credits = credits + ? WHERE username=?",
         (amount, username)
     )
-
     conn.commit()
     conn.close()
+    return {"status": "credited", "username": username, "amount": amount}
 
-    return {"status": "credited"}
 
+# ── SET PAID (admin only) ──────────────────────────────────────────
 
-# ===== SET PAID =====
 @router.post("/set_paid/{username}")
-def set_paid(username: str):
-    conn = sqlite3.connect(DB)
-    cursor = conn.cursor()
+def set_paid(
+    username:    str,
+    x_admin_key: str = Header(default=""),
+):
+    if not ADMIN_KEY or x_admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="unauthorized")
 
-    cursor.execute(
-        "UPDATE users SET paid = 1 WHERE username=?",
+    conn = _get_conn()
+    conn.execute(
+        "UPDATE users SET paid=1 WHERE username=?",
         (username,)
     )
-
     conn.commit()
     conn.close()
-
-    return {"status": "paid"}
+    return {"status": "paid", "username": username}
