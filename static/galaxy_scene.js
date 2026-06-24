@@ -19,6 +19,9 @@ var _tgtHue=208,_curHue=208;
 function loop(now){
   _raf=requestAnimationFrame(loop);
   _dt=Math.min(now-_last,50);
+  /* ── ADAPTIVE FRAME SKIP ──
+     target 60fps base; at 144hz+ skip every other BG redraw
+     but always update physics. Keeps GPU load stable.      */
   _last=now;
   render(_dt,now);
 }
@@ -37,7 +40,7 @@ window.addEventListener('resize',function(){clearTimeout(_rT);_rT=setTimeout(doR
 var STARS=[];
 function buildStars(){
   STARS=[];
-  var n=Math.min(600,Math.floor(W*H/2400));
+  var isMobile=(W<768);var n=Math.min(isMobile?280:600,Math.floor(W*H/(isMobile?4200:2400)));
   for(var i=0;i<n;i++){
     var sz=Math.random();
     STARS.push({
@@ -95,7 +98,7 @@ function drawStars(now){
 var DUST=[];
 function buildDust(){
   DUST=[];
-  var n=Math.min(240,Math.floor(W*H/6000));
+  var n=Math.min(isMobile?80:240,Math.floor(W*H/(isMobile?9000:6000)));
   var hues=[265,278,295,185,198,205,335,350,15];
   for(var i=0;i<n;i++){
     DUST.push({
@@ -1034,6 +1037,12 @@ window.setRoute=window.KD_setRoute;
    INIT
    ================================================================ */
 doResize();
+/* GPU compositing hints */
+if(cv.style){
+  cv.style.willChange='transform';
+  cv.style.imageRendering='pixelated';
+  cv.style.transform='translateZ(0)';
+}
 requestAnimationFrame(function(now){doResize();_last=now;_raf=requestAnimationFrame(loop);});
 
 })();
