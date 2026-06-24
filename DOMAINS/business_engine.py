@@ -1,114 +1,92 @@
+# DOMAINS/business_engine.py
+# KING DIADEM — Business Domain Engine
+# Deterministic logic ไม่มี random — ทุก output ตรวจสอบได้
+
 import time
 
-from INTELLIGENCE.risk_engine import analyze_risk
-from INTELLIGENCE.decision_intelligence import intelligence_layer
-from DATABASE.decision_history import save_decision
 
+def analyze_business(context: dict) -> dict:
+    revenue     = float(context.get("revenue", 0))
+    cost        = float(context.get("cost", 0))
+    market_growth = float(context.get("market_growth", 0.5))
+    competition   = float(context.get("competition", 0.5))
+    demand        = float(context.get("demand", 0.5))
 
-def analyze_business(context):
-
-    revenue = context.get("revenue", 0)
-    cost = context.get("cost", 0)
-
-    market_growth = context.get("market_growth", 0.5)
-    competition = context.get("competition", 0.5)
-    demand = context.get("demand", 0.5)
-
+    # ── Core metrics ──────────────────────────────────────────────
     profit = revenue - cost
+    margin = (profit / revenue) if revenue > 0 else -1.0
+    cost_pressure = (cost / revenue) if revenue > 0 else 1.0
 
-    margin = 0
-
-    if revenue > 0:
-        margin = profit / revenue
-
-
-    # ---------- OPPORTUNITY MODEL ----------
-
-    opportunity_score = (
-
+    # ── Opportunity score (deterministic weighted sum) ────────────
+    opportunity = (
         market_growth * 0.35 +
-        demand * 0.40 +
+        demand        * 0.40 +
         (1 - competition) * 0.25
-
     )
 
+    # ── Waterline score 0-100 ──────────────────────────────────────
+    waterline = 50.0
+    waterline += margin     * 25    # margin ดี → บวก
+    waterline += opportunity * 25   # โอกาสดี → บวก
+    waterline -= cost_pressure * 20 # ต้นทุนสูง → ลบ
+    waterline  = max(0.0, min(100.0, waterline))
 
-    # ---------- COST PRESSURE ----------
+    # ── Risk level ────────────────────────────────────────────────
+    if waterline < 25:
+        risk_level = "critical"
+    elif waterline < 45:
+        risk_level = "high"
+    elif waterline < 65:
+        risk_level = "moderate"
+    else:
+        risk_level = "low"
 
-    cost_pressure = 0
-
-    if revenue > 0:
-        cost_pressure = cost / revenue
-
-
-    # ---------- CORE BUSINESS SCORE ----------
-
-    base_score = (
-
-        opportunity_score * 0.6 +
-        margin * 0.4
-
-    )
-
-
-    # ---------- RISK ANALYSIS ----------
-
-    risk = analyze_risk(base_score)
-
-
-    # ---------- STRATEGY ENGINE ----------
-
-    strategy = "observe"
-
-
+    # ── Strategy (FATE-style: deterministic, auditable) ───────────
     if margin < 0:
         strategy = "pivot"
-
-    elif risk["risk_level"] == "critical":
+        reason   = "ขาดทุน — ต้องเปลี่ยนโมเดล"
+    elif risk_level == "critical":
         strategy = "defensive"
-
-    elif opportunity_score > 0.75 and margin > 0.25:
+        reason   = "waterline ต่ำวิกฤต — ลดค่าใช้จ่ายก่อน"
+    elif opportunity > 0.75 and margin > 0.25:
         strategy = "scale"
-
-    elif opportunity_score > 0.55:
+        reason   = "โอกาสสูง margin ดี — ขยายได้"
+    elif opportunity > 0.55:
         strategy = "optimize"
-
+        reason   = "โอกาสพอมี — ปรับ efficiency"
     elif demand < 0.3:
         strategy = "rethink_market"
-
-
-    # ---------- RESULT OBJECT ----------
+        reason   = "demand ต่ำ — ต้องหา segment ใหม่"
+    else:
+        strategy = "observe"
+        reason   = "ยังไม่มีสัญญาณชัด — รอข้อมูลเพิ่ม"
 
     result = {
-
-        "domain": "business",
-
-        "timestamp": time.time(),
-
-        "input": context,
-
-        "profit": profit,
-
-        "profit_margin": round(margin, 3),
-
-        "opportunity_score": round(opportunity_score, 3),
-
-        "cost_pressure": round(cost_pressure, 3),
-
-        "base_score": round(base_score, 3),
-
+        "domain":               "business",
+        "timestamp":            time.time(),
+        "profit":               round(profit, 2),
+        "profit_margin":        round(margin, 3),
+        "opportunity_score":    round(opportunity, 3),
+        "cost_pressure":        round(cost_pressure, 3),
+        "waterline":            round(waterline, 1),
+        "risk_level":           risk_level,
         "recommended_strategy": strategy,
-
-        "risk_analysis": risk
-
+        "reason":               reason,
+        "input":                context,
     }
 
+    # ── optional saves (ไม่ crash ถ้าไม่มี) ─────────────────────
+    try:
+        from DATABASE.db import log_decision
+        if log_decision:
+            log_decision(
+                user_id="system",
+                input=str(context),
+                output=strategy,
+                route="business",
+                persona="VEGA",
+            )
+    except Exception:
+        pass
 
-    # ---------- SAVE DECISION HISTORY ----------
-
-    save_decision(result)
-
-
-    # ---------- INTELLIGENCE LAYER ----------
-
-    return intelligence_layer(result)
+    return result
