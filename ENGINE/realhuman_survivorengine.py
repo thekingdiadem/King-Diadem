@@ -1,36 +1,54 @@
 # ENGINE/realhuman_survivorengine.py
-"""
-REAL HUMAN SURVIVOR ENGINE — KING DIADEM
-วิเคราะห์สถานะมนุษย์จริง แล้วส่ง context ให้ LYLA ตอบ
-ไม่ใช่ hardcode string — engine อ่าน state แล้วบอก LYLA ว่าควรโฟกัสอะไร
-"""
+# KING DIADEM — Real Human Survivor Engine
+# พี่เขียน logic หลักไว้ดีแล้ว — เพิ่ม wire เข้า emotion_state + input_interpreter + ai_council
 
+from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Optional
+
+# ── Optional wires ────────────────────────────────────────────────
+try:
+    from ENGINE.emotion_state    import get_emotion_state
+    _EMOTION_LOADED = True
+except ImportError:
+    _EMOTION_LOADED = False
+
+try:
+    from ENGINE.input_interpreter import parse_context
+    _INTERPRETER_LOADED = True
+except ImportError:
+    _INTERPRETER_LOADED = False
+
+try:
+    from ENGINE.ai_council import ai_council
+    _COUNCIL_LOADED = True
+except ImportError:
+    _COUNCIL_LOADED = False
 
 
 # ── Data structures ───────────────────────────────────────────────
 
 @dataclass
 class HumanState:
-    energy:          float = 50.0   # 0-100
-    money:           float = 0.0    # เงินที่มี (บาท หรือ arbitrary unit)
+    energy:          float = 50.0
+    money:           float = 0.0
     food_access:     bool  = True
     safe_place:      bool  = True
     mental_state:    str   = "stable"   # stable / stressed / overwhelmed
-    time_available:  float = 8.0    # ชั่วโมงที่มี
-    sleep_hours:     float = 6.0    # นอนล่าสุดกี่ชั่วโมง
-    days_in_crisis:  int   = 0      # ติดต่อกันกี่วันแล้ว
+    time_available:  float = 8.0
+    sleep_hours:     float = 6.0
+    days_in_crisis:  int   = 0
 
 
 @dataclass
 class SurvivalOutput:
-    status:      str
-    priority:    str            # สิ่งที่ต้องทำก่อนทุกอย่าง
-    context_for_lyla: str       # ★ ส่งให้ LYLA ใช้เป็น context จริง
-    waterline:   float          # 0-100 (100 = ปลอดภัย)
-    can_decide:  bool           # ตอนนี้ควรตัดสินใจใหญ่ไหม
-    flags:       list = field(default_factory=list)
+    status:           str
+    priority:         str
+    context_for_lyla: str
+    waterline:        float
+    can_decide:       bool
+    flags:            list = field(default_factory=list)
+    council:          dict = field(default_factory=dict)   # ★ เพิ่ม
+    emotion:          str  = "NEUTRAL"                     # ★ เพิ่ม
 
 
 # ── Engine ────────────────────────────────────────────────────────
@@ -40,141 +58,222 @@ class RealHumanSurvivorEngine:
     ENERGY_MIN      = 20
     ENERGY_CRITICAL = 10
     SLEEP_MIN       = 4
-    CRISIS_LIMIT    = 7  # วัน
+    CRISIS_LIMIT    = 7
 
-    def run(self, state: HumanState) -> SurvivalOutput:
-        flags = self._scan_flags(state)
+    def run(
+        self,
+        state:      HumanState,
+        session_id: str = "default",
+        text:       str = "",
+    ) -> SurvivalOutput:
+
+        flags     = self._scan_flags(state)
         waterline = self._calc_waterline(state)
 
-        # ── Level 0: overwhelmed — ห้ามตัดสินใจ ──
+        # ── Emotion context ───────────────────────────────────────
+        emotion_note = ""
+        current_emotion = "NEUTRAL"
+        if _EMOTION_LOADED and text:
+            es = get_emotion_state(session_id)
+            current_emotion = es.update(text)
+            emotion_note    = es.context_note()
+
+        # ── Council vote ──────────────────────────────────────────
+        council_result: dict = {}
+        if _COUNCIL_LOADED:
+            try:
+                council_result = ai_council(
+                    money    = state.money,
+                    food     = 1.0 if state.food_access else 0.0,
+                    risk     = "critical" if waterline < 25 else
+                               "high"     if waterline < 45 else
+                               "moderate" if waterline < 65 else "low",
+                    context  = {
+                        "waterline":  waterline,
+                        "energy":     state.energy,
+                        "safe_place": state.safe_place,
+                        "relationships": 50,
+                    },
+                )
+            except Exception:
+                pass
+
+        # ── Level 0: overwhelmed ──────────────────────────────────
         if state.mental_state == "overwhelmed" or state.energy < self.ENERGY_CRITICAL:
             return SurvivalOutput(
                 status   = "RESET_REQUIRED",
                 priority = "หยุดก่อน ร่างกายและจิตใจต้องการ reset",
-                context_for_lyla = (
-                    f"[SURVIVOR ENGINE] สถานะ: OVERWHELMED | "
+                context_for_lyla = self._ctx(
+                    "OVERWHELMED",
                     f"energy={state.energy:.0f} mental={state.mental_state} "
-                    f"sleep={state.sleep_hours:.1f}h days_crisis={state.days_in_crisis} | "
-                    f"ห้ามตัดสินใจใหญ่ตอนนี้ — ให้ LYLA โฟกัสที่การ stabilize ก่อน "
-                    f"ไม่ใช่ให้คำแนะนำเชิงกลยุทธ์ | flags={flags}"
+                    f"sleep={state.sleep_hours:.1f}h days_crisis={state.days_in_crisis}",
+                    "ห้ามตัดสินใจใหญ่ตอนนี้ — ให้ LYLA โฟกัสที่การ stabilize ก่อน "
+                    "ไม่ใช่ให้คำแนะนำเชิงกลยุทธ์",
+                    flags, emotion_note,
                 ),
-                waterline  = waterline,
-                can_decide = False,
-                flags      = flags,
+                waterline      = waterline,
+                can_decide     = False,
+                flags          = flags,
+                council        = council_result,
+                emotion        = current_emotion,
             )
 
-        # ── Level 1: no food / no shelter ──
+        # ── Level 1: no food ──────────────────────────────────────
         if not state.food_access:
             return SurvivalOutput(
                 status   = "CRITICAL_NO_FOOD",
                 priority = "หาอาหารก่อนทุกอย่าง",
-                context_for_lyla = (
-                    f"[SURVIVOR ENGINE] ไม่มีอาหาร | energy={state.energy:.0f} money={state.money:.0f} | "
-                    f"LYLA ต้องช่วยหาทางได้อาหารทันที ไม่ใช่วางแผนระยะยาว | flags={flags}"
+                context_for_lyla = self._ctx(
+                    "NO_FOOD",
+                    f"energy={state.energy:.0f} money={state.money:.0f}",
+                    "LYLA ต้องช่วยหาทางได้อาหารทันที ไม่ใช่วางแผนระยะยาว",
+                    flags, emotion_note,
                 ),
                 waterline  = waterline,
                 can_decide = False,
                 flags      = flags,
+                council    = council_result,
+                emotion    = current_emotion,
             )
 
+        # ── Level 1: no shelter ───────────────────────────────────
         if not state.safe_place:
             return SurvivalOutput(
                 status   = "CRITICAL_NO_SHELTER",
                 priority = "หาที่ปลอดภัยก่อน",
-                context_for_lyla = (
-                    f"[SURVIVOR ENGINE] ไม่มีที่ปลอดภัย | energy={state.energy:.0f} | "
-                    f"LYLA ต้องช่วยหาพื้นที่ปลอดภัยก่อน ทุกเรื่องอื่นรอได้ | flags={flags}"
+                context_for_lyla = self._ctx(
+                    "NO_SHELTER",
+                    f"energy={state.energy:.0f}",
+                    "LYLA ต้องช่วยหาพื้นที่ปลอดภัยก่อน ทุกเรื่องอื่นรอได้",
+                    flags, emotion_note,
                 ),
                 waterline  = waterline,
                 can_decide = False,
                 flags      = flags,
+                council    = council_result,
+                emotion    = current_emotion,
             )
 
-        # ── Level 2: low energy / sleep ──
+        # ── Level 2: low energy / sleep ───────────────────────────
         if state.energy < self.ENERGY_MIN or state.sleep_hours < self.SLEEP_MIN:
             return SurvivalOutput(
                 status   = "LOW_ENERGY",
                 priority = "พักก่อน ร่างกายไม่พร้อมทำงาน",
-                context_for_lyla = (
-                    f"[SURVIVOR ENGINE] พลังงานต่ำ | energy={state.energy:.0f} "
-                    f"sleep={state.sleep_hours:.1f}h money={state.money:.0f} | "
-                    f"LYLA แนะนำให้พักก่อน อย่าผลักดันให้ตัดสินใจใหญ่ "
-                    f"ถ้าต้องทำอะไรให้เลือกอย่างเดียวที่เล็กที่สุดก่อน | flags={flags}"
+                context_for_lyla = self._ctx(
+                    "LOW_ENERGY",
+                    f"energy={state.energy:.0f} sleep={state.sleep_hours:.1f}h money={state.money:.0f}",
+                    "LYLA แนะนำให้พักก่อน อย่าผลักดันให้ตัดสินใจใหญ่ "
+                    "ถ้าต้องทำอะไรให้เลือกอย่างเดียวที่เล็กที่สุดก่อน",
+                    flags, emotion_note,
                 ),
                 waterline  = waterline,
                 can_decide = False,
                 flags      = flags,
+                council    = council_result,
+                emotion    = current_emotion,
             )
 
-        # ── Level 3: stressed แต่ยังไหว ──
+        # ── Level 3: stressed ─────────────────────────────────────
         if state.mental_state == "stressed" or state.days_in_crisis > 3:
             return SurvivalOutput(
                 status   = "STRESSED_FUNCTIONAL",
                 priority = "ทำได้แต่ต้องระวัง — จำกัดการตัดสินใจ",
-                context_for_lyla = (
-                    f"[SURVIVOR ENGINE] stressed แต่ยังทำได้ | "
+                context_for_lyla = self._ctx(
+                    "STRESSED",
                     f"energy={state.energy:.0f} days_crisis={state.days_in_crisis} "
-                    f"time={state.time_available:.1f}h | "
-                    f"LYLA เสนอทางเลือกที่ใช้แรงน้อยก่อน "
-                    f"อย่าให้ list ยาว ให้โฟกัสหนึ่งอย่าง | flags={flags}"
+                    f"time={state.time_available:.1f}h",
+                    "LYLA เสนอทางเลือกที่ใช้แรงน้อยก่อน "
+                    "อย่าให้ list ยาว ให้โฟกัสหนึ่งอย่าง",
+                    flags, emotion_note,
                 ),
                 waterline  = waterline,
                 can_decide = True,
                 flags      = flags,
+                council    = council_result,
+                emotion    = current_emotion,
             )
 
-        # ── Level 4: stable ──
+        # ── Level 4: stable ───────────────────────────────────────
         return SurvivalOutput(
             status   = "STABLE",
             priority = "พร้อมทำงานปกติ",
-            context_for_lyla = (
-                f"[SURVIVOR ENGINE] stable | energy={state.energy:.0f} "
-                f"time={state.time_available:.1f}h money={state.money:.0f} | "
-                f"LYLA วิเคราะห์ได้เต็มที่ เสนอทางเลือกได้หลายทาง | flags={flags}"
+            context_for_lyla = self._ctx(
+                "STABLE",
+                f"energy={state.energy:.0f} time={state.time_available:.1f}h money={state.money:.0f}",
+                "LYLA วิเคราะห์ได้เต็มที่ เสนอทางเลือกได้หลายทาง",
+                flags, emotion_note,
             ),
             waterline  = waterline,
             can_decide = True,
             flags      = flags,
+            council    = council_result,
+            emotion    = current_emotion,
         )
 
-    # ── helpers ──────────────────────────────────────────────────
+    # ── Helpers ───────────────────────────────────────────────────
+
+    @staticmethod
+    def _ctx(
+        status:       str,
+        metrics:      str,
+        instruction:  str,
+        flags:        list,
+        emotion_note: str,
+    ) -> str:
+        parts = [f"[SURVIVOR ENGINE] สถานะ: {status} | {metrics}"]
+        parts.append(instruction)
+        if flags:
+            parts.append(f"flags={flags}")
+        if emotion_note:
+            parts.append(emotion_note)
+        return " | ".join(parts)
 
     def _scan_flags(self, state: HumanState) -> list:
         flags = []
-        if state.energy < self.ENERGY_CRITICAL:
-            flags.append("CRITICAL_ENERGY")
-        if state.sleep_hours < self.SLEEP_MIN:
-            flags.append("SLEEP_DEBT")
-        if not state.food_access:
-            flags.append("NO_FOOD")
-        if not state.safe_place:
-            flags.append("NO_SHELTER")
-        if state.days_in_crisis >= self.CRISIS_LIMIT:
-            flags.append("CHRONIC_CRISIS")
-        if state.money <= 0:
-            flags.append("NO_MONEY")
+        if state.energy < self.ENERGY_CRITICAL:   flags.append("CRITICAL_ENERGY")
+        if state.sleep_hours < self.SLEEP_MIN:     flags.append("SLEEP_DEBT")
+        if not state.food_access:                  flags.append("NO_FOOD")
+        if not state.safe_place:                   flags.append("NO_SHELTER")
+        if state.days_in_crisis >= self.CRISIS_LIMIT: flags.append("CHRONIC_CRISIS")
+        if state.money <= 0:                       flags.append("NO_MONEY")
         return flags
 
     def _calc_waterline(self, state: HumanState) -> float:
         score = 100.0
-        score -= max(0, (50 - state.energy))         # energy penalty
-        score -= max(0, (6  - state.sleep_hours) * 5) # sleep penalty
-        if not state.food_access:  score -= 30
-        if not state.safe_place:   score -= 40
-        if state.mental_state == "overwhelmed": score -= 25
-        if state.mental_state == "stressed":    score -= 10
+        score -= max(0, (50 - state.energy))
+        score -= max(0, (6  - state.sleep_hours) * 5)
+        if not state.food_access:                      score -= 30
+        if not state.safe_place:                       score -= 40
+        if state.mental_state == "overwhelmed":        score -= 25
+        if state.mental_state == "stressed":           score -= 10
         score -= min(20, state.days_in_crisis * 2)
         return max(0.0, min(100.0, score))
 
 
-# ── Parse text input → HumanState ────────────────────────────────
-# ให้ app.py เรียกตรงนี้แทนที่จะ construct HumanState เอง
+# ── Parse context → HumanState ───────────────────────────────────
 
 def parse_state_from_context(context: dict) -> HumanState:
     """
-    แปลง context dict จาก frontend → HumanState
-    ใช้ค่า default ที่สมเหตุสมผลถ้าไม่มีข้อมูล
+    แปลง raw context dict → HumanState
+    ใช้ input_interpreter ถ้าโหลดได้ ไม่งั้น fallback
     """
+    if _INTERPRETER_LOADED:
+        try:
+            parsed = parse_context(context)
+            return HumanState(
+                energy         = parsed["energy"],
+                money          = parsed["money"],
+                food_access    = parsed["food_access"],
+                safe_place     = parsed["safe_place"],
+                mental_state   = parsed["mental_state"],
+                time_available = parsed["time_available"],
+                sleep_hours    = parsed["sleep_hours"],
+                days_in_crisis = int(context.get("days_in_crisis", 0)),
+            )
+        except Exception:
+            pass
+
+    # fallback — direct parse
     return HumanState(
         energy         = float(context.get("energy",         50)),
         money          = float(context.get("money",           0)),
@@ -187,13 +286,10 @@ def parse_state_from_context(context: dict) -> HumanState:
     )
 
 
-# ── Monday reset (ยังเก็บไว้) ─────────────────────────────────────
+# ── Monday reset ─────────────────────────────────────────────────
 
 def monday_reset(pleasure_level: float, energy: float) -> dict:
-    """
-    วิเคราะห์ effect หลัง weekend — ยังคง concept เดิม
-    """
-    drop = max(0.0, pleasure_level - energy)
+    drop     = max(0.0, pleasure_level - energy)
     severity = "HIGH" if drop > 30 else "MODERATE" if drop > 15 else "LOW"
     return {
         "effect":   "EMOTIONAL_RESET",
