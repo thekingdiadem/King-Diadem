@@ -1,17 +1,12 @@
-from collections import deque
+# NETWORK/global_network.py
+# KING DIADEM — Global Network
+# redirect ไป global_chat.py — ไม่ duplicate store อีกต่อไป
 
-global_chat=deque(maxlen=200)
+from NETWORK.global_chat import (
+    add_chat     as add_message,   # backward compat
+    get_chat     as get_messages,
+    count_messages,
+    clear_old_messages,
+)
 
-def add_message(user,text):
-
-    global_chat.append({
-
-        "user":user,
-
-        "message":text
-
-    })
-
-def get_messages():
-
-    return list(global_chat)
+__all__ = ["add_message", "get_messages", "count_messages", "clear_old_messages"]
