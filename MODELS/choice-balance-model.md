@@ -1,70 +1,64 @@
-CHOICE BALANCE MODEL
+# MODELS/choice-balance-model.md — KING DIADEM
+# Micro-level: วัด balance ของ action เดียวต่อ choice ที่เหลือ
+# Fail less. Harm less. Restore more.
 
-Purpose
+## CHOICE BALANCE MODEL
+**Scope: Individual Action Level — ทุกการกระทำเดียว**
 
-The Choice Balance Model evaluates how human actions
-affect future available options.
+---
 
-The goal is not restriction.
-The goal is preserving viable paths.
+### Purpose
 
+วัดว่า action หนึ่งๆ เพิ่มหรือลด Choice ของมนุษย์
+ไม่ใช่การห้าม — แต่คือการทำให้มองเห็นก่อนตัดสินใจ
 
-Core Variables
+---
 
-Choice(t)
-Number of viable options available to a human at time t.
+### Core Variables
 
-Resource(t)
-Total accessible resources at time t.
+| Variable | คำอธิบาย |
+|----------|----------|
+| `Choice(t)` | จำนวนทางเลือกที่มีอยู่จริงในเวลา t |
+| `Resource(t)` | ทรัพยากรที่เข้าถึงได้ (เงิน เวลา สุขภาพ) |
+| `Entropy(t)` | ความเสื่อมจากการกระทำนั้นๆ |
+| `Balance(t)` | action ที่ชดเชย entropy กลับมา |
 
-Entropy(t)
-System stress or degradation over time.
+---
 
-Balance(t)
-Adjustment actions that restore system stability.
+### Core Equation
 
-
-Core Equation
-
+```
 Choice(t+Δ) = Choice(t) + Balance(t) − Entropy(t)
+```
 
+---
 
-Interpretation
+### Decision Rule
 
-If Entropy(t) grows faster than Balance(t),
-available choices shrink.
+```
+Balance(t) ≥ Entropy(t)  →  Choice คงที่หรือเพิ่ม   ✓
+Balance(t) < Entropy(t)  →  Choice ลด              ⚠
+Choice(t+Δ) → 0          →  SYSTEM_PAUSE           STOP
+```
 
-If Balance(t) offsets Entropy(t),
-choices remain stable or grow.
+---
 
+### Application Example
 
-Application Example
+**Action:** กินอาหารแคลอรีสูง
+- Entropy เพิ่ม: สุขภาพระยะยาวลด
+- Balance ที่ชดเชยได้: เดิน / ดื่มน้ำ / ปรับสัดส่วน
 
-Eating high-calorie food increases Entropy(t).
+ถ้า Balance ≥ Entropy → Choice คงอยู่ได้
 
-Balancing actions such as walking,
-hydration, or portion adjustment
-increase Balance(t).
+---
 
+### FATE™ Audit
 
-System Objective
-
-Maintain:
-
-Choice(t) > 0
-
-
-Collapse Condition
-
-If
-
-Choice(t) → 0
-
-system collapse becomes inevitable.
-
-
-System Responsibility
-
-Detect imbalance early
-and generate balance actions
-before choice collapse occurs.
+```
+model:     choice-balance
+scope:     individual_action
+equation:  Choice(t+Δ) = Choice(t) + Balance(t) - Entropy(t)
+trigger:   Choice(t+Δ) <= 0 → SYSTEM_PAUSE
+fate_lock: Fail less. Harm less. Restore more.
+```
