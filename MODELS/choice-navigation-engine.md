@@ -1,125 +1,96 @@
-CHOICE NAVIGATION ENGINE
-KING DIADEM Decision Support Model
+# MODELS/choice-navigation-engine.md — KING DIADEM
+# Decision Support: สร้าง pathways จริงจาก context ของผู้ใช้
+# Author: Nithikorn Bunsrang
+# Fail less. Harm less. Restore more.
 
-Author: Nithikorn Bunsrang
-
-Purpose:
-Provide human users with multiple survival pathways while preserving or increasing available choices.
-
----
-
-1. System Input
-
-User provides real-world context:
-
-Location
-Country
-Current activity
-Available food
-Available water
-Available energy
-Available money
-Available tools
-Available time
-
-Example input:
-
-Country: Thailand
-Resources: rice, water, phone
-Money: low
-Energy: medium
+## CHOICE NAVIGATION ENGINE
+**Scope: User-Facing Decision Support — สร้าง options จาก context จริง**
 
 ---
 
-2. System Objective
+### Purpose
 
-The system must generate decision pathways that do not reduce the user's future options.
-
-Rule:
-
-Each option must preserve or expand Choice(t).
-
-No option should intentionally trap the user in irreversible loss.
+ต่างจาก Balance/Collapse Model ที่เป็น theoretical —
+Navigation Engine คือ runtime layer ที่รับ input จากผู้ใช้จริง แล้วสร้างทางเลือกที่ทำได้ทันที
 
 ---
 
-3. Decision Generation
+### System Input
 
-The system produces 3–4 possible actions.
+```
+location:        ประเทศ / พื้นที่
+activity:        กิจกรรมปัจจุบัน
+resources:       อาหาร น้ำ พลังงาน เงิน เครื่องมือ เวลา
+risk_level:      self-assess 1–10
+entropy_score:   ระดับความเครียด/ความไม่แน่นอน
+```
 
-For each action:
-
-Evaluate:
-
-Resource consumption
-Risk level
-Future optionality
+ตัวอย่าง:
+```
+country:   Thailand
+resources: ข้าว, น้ำ, โทรศัพท์
+money:     ต่ำ
+energy:    กลาง
+```
 
 ---
 
-4. Option Safety Rule
+### Option Safety Rule
 
-Each option must satisfy:
+แต่ละ option ต้องผ่านเงื่อนไข:
 
+```
 Choice(t+1) ≥ Choice(t)
+```
 
-or
-
-Choice(t+1) > Choice(t)
-
-Options that reduce long-term choices must be rejected.
+Options ที่ลด long-term choices → rejected ก่อน output
 
 ---
 
-5. Output Structure
+### Output Structure (3–4 options เสมอ)
 
-The system outputs multiple safe paths.
+```
+Option 1 [lowest risk]:   xxxxxxx  →  consequence
+Option 2 [medium]:        xxxxxxx  →  consequence
+Option 3 [higher action]: xxxxxxx  →  consequence
+Option 4 [fallback]:      stabilize / wait / observe
+```
 
-Example:
-
-Option 1
-Preserve resources and rest.
-
-Option 2
-Seek nearby food or water sources.
-
-Option 3
-Connect with other humans for cooperation.
-
-Option 4
-Move to a safer or more resource-rich location.
-
-Each option must be survivable.
-
-No option should be framed as “correct” or “incorrect”.
-
-The human chooses freely.
+กฎ:
+- ทุก option ต้อง survivable
+- ไม่มี option ใดถูกระบุว่า "ถูก" หรือ "ผิด"
+- มนุษย์เลือกเองเสมอ — Human Final Authority
 
 ---
 
-6. Ethical Constraint
+### Ethical Constraint
 
-Violence is always considered a last resort.
-
-The system prioritizes:
-
-cooperation
-resource sharing
-conflict avoidance
-survival without domination
+```
+Violence priority:  last resort เท่านั้น
+Preferred paths:    cooperation → resource sharing → conflict avoidance
+Domination:         rejected
+```
 
 ---
 
-7. Core Rule
+### Integration with Other Models
 
-A decision system should not control humans.
-
-It should only illuminate viable paths.
+```
+Balance Model   → ประเมินว่า option แต่ละตัวเพิ่ม/ลด Choice หรือไม่
+Collapse Model  → เช็คว่า current state ใกล้ collapse threshold ไหม
+Navigation Engine → สร้าง options จาก context จริง แล้ว output ให้มนุษย์
+```
 
 ---
 
-Final Principle
+### FATE™ Audit
 
-Fail Less  
-Harm Less  
-Restore Choice
+```
+model:          choice-navigation
+scope:          user_facing_runtime
+input:          real_world_context
+output:         3-4 viable options, sorted risk ASC
+safety_rule:    Choice(t+1) >= Choice(t) per option
+human_authority: final decision always with human
+fate_lock:      Fail less. Harm less. Restore more.
+```
