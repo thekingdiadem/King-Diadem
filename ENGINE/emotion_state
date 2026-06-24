@@ -1,16 +1,6 @@
 # ENGINE/emotion_state.py — KING DIADEM
-# จำ + track อารมณ์ของมนุษย์ข้ามหลายเทิร์น
-# ไม่ใช่ keyword list — คืน state ที่ decision_engine inject เข้า LLM
-# ────────────────────────────────────────────────────────────────
-# อารมณ์ที่ track:
-#   SAD       — เศร้า เสียใจ ร้องไห้ ท้อ
-#   STRESSED  — เครียด กังวล กลัว ตื่นตระหนก
-#   LONELY    — เหงา โดดเดี่ยว ไม่มีใคร
-#   CRISIS    — วิกฤต อยากตาย ทนไม่ไหว
-#   JOY       — มีความสุข ดีใจ ตื่นเต้น
-#   LOVE      — มีรัก แฟน สัมพันธ์ใหม่ ตกหลุมรัก
-#   WORK_WIN  — ได้งาน โปรเจกต์สำเร็จ milestone
-#   NEUTRAL   — ทั่วไป ไม่ชัดเจน
+# track อารมณ์ข้ามหลายเทิร์น + inject context ให้ LYLA
+# ไฟล์นี้ logic ดีแล้ว — ปรับ CRISIS persistence + brain.py integration
 
 from __future__ import annotations
 import time
@@ -22,8 +12,7 @@ EmotionT = Literal[
     "JOY", "LOVE", "WORK_WIN", "NEUTRAL"
 ]
 
-# น้ำหนักความสำคัญของแต่ละ emotion (สูง = override อื่น)
-_PRIORITY = {
+_PRIORITY: dict[str, int] = {
     "CRISIS":   10,
     "SAD":       7,
     "STRESSED":  6,
@@ -34,10 +23,9 @@ _PRIORITY = {
     "NEUTRAL":   0,
 }
 
-# keyword → emotion
-_SIGNALS: list[tuple[EmotionT, list[str]]] = [
+_SIGNALS: list[tuple[str, list[str]]] = [
     ("CRISIS",   ["อยากตาย","ไม่อยากอยู่","ฆ่าตัว","จบชีวิต","ทนไม่ไหวแล้ว",
-                  "suicid","want to die","end it","kill myself"]),
+                  "suicid","want to die","end it","kill myself","หมดแล้ว"]),
     ("SAD",      ["เสียใจ","ร้องไห้","เศร้า","หมดหวัง","ท้อ","เจ็บปวด",
                   "อกหัก","เลิกกัน","แฟนทิ้ง","sad","cry","heartbreak","hopeless"]),
     ("STRESSED", ["เครียด","กังวล","กลัว","ตื่นตระหนก","หนักใจ","วิตก","ไม่ไหว",
@@ -45,70 +33,77 @@ _SIGNALS: list[tuple[EmotionT, list[str]]] = [
     ("LONELY",   ["เหงา","โดดเดี่ยว","ไม่มีใคร","อ้างว้าง","ว้าเหว่",
                   "lonely","alone","isolated","no one"]),
     ("LOVE",     ["แฟนใหม่","ตกหลุมรัก","ชอบคนนี้","มีความรู้สึก","คนที่ชอบ",
-                  "รักแล้ว","สารภาพรัก","โปรด",
-                  "in love","crush","confession","relationship","dating"]),
-    ("WORK_WIN", ["ได้งาน","ได้โปรเจกต์","สำเร็จแล้ว","ผ่านแล้ว","ได้รับ",
-                  "ทำได้","ทำสำเร็จ","เสร็จแล้ว","milestone","promotion",
-                  "got the job","landed","accepted","completed","achieved"]),
+                  "รักแล้ว","สารภาพรัก","in love","crush","confession","dating"]),
+    ("WORK_WIN", ["ได้งาน","ได้โปรเจกต์","สำเร็จแล้ว","ผ่านแล้ว","ทำสำเร็จ",
+                  "milestone","promotion","got the job","landed","accepted","achieved"]),
     ("JOY",      ["มีความสุข","ดีใจ","ตื่นเต้น","สนุก","ยินดี","เยี่ยม",
-                  "เฮ้","happy","excited","great","wonderful","amazing","joy"]),
+                  "happy","excited","great","wonderful","amazing","joy"]),
 ]
+
+_RESPONSE_GUIDE: dict[str, str] = {
+    "CRISIS":   "GUIDE:ช้าลง รับรู้ก่อน อย่ารีบวิเคราะห์ — Choice(t)≥1 ยังเป็นจริง",
+    "SAD":      "GUIDE:รับรู้ความรู้สึกก่อน 1 ประโยค แล้วค่อยเปิดทางออก",
+    "STRESSED": "GUIDE:ลดความกดดัน ให้ก้าวเล็กๆ ที่ทำได้วันนี้",
+    "LONELY":   "GUIDE:อยู่เป็นเพื่อน ไม่ต้องรีบแก้ปัญหา",
+    "JOY":      "GUIDE:รับอารมณ์บวก ไม่ต้องกังวลแทน",
+    "LOVE":     "GUIDE:รับฟังเรื่องรัก ไม่ตัดสิน ไม่ over-advise",
+    "WORK_WIN": "GUIDE:ชื่นชม ถามถึง milestone ถัดไปได้",
+}
+
+# จำนวนเทิร์น POSITIVE ที่ต้องเห็นก่อน CRISIS จะ clear
+_CRISIS_RECOVERY_TURNS = 3
 
 
 def detect_emotion(text: str) -> EmotionT:
-    """
-    อ่าน emotion จาก text 1 เทิร์น
-    คืน EmotionT ที่มี priority สูงสุด
-    """
     if not text:
         return "NEUTRAL"
     t = text.lower()
-    found: list[tuple[int, EmotionT]] = []
+    found: list[tuple[int, str]] = []
     for emotion, keywords in _SIGNALS:
         hits = sum(1 for k in keywords if k in t)
         if hits:
             found.append((_PRIORITY[emotion] * hits, emotion))
     if not found:
         return "NEUTRAL"
-    return max(found, key=lambda x: x[0])[1]
+    return max(found, key=lambda x: x[0])[1]  # type: ignore
 
 
 class EmotionState:
-    """
-    Track อารมณ์ข้ามหลายเทิร์นใน 1 session
-    ใช้ deque maxlen=20 เก็บ history
-    expose: current, trajectory, context_note สำหรับ inject เข้า LLM
-    """
-
     def __init__(self, maxlen: int = 20):
         self._log: deque[dict] = deque(maxlen=maxlen)
         self.current: EmotionT = "NEUTRAL"
-        self.prev: EmotionT = "NEUTRAL"
+        self.prev:    EmotionT = "NEUTRAL"
+        self._positive_streak = 0  # ติดตาม recovery จาก CRISIS
 
     def update(self, text: str) -> EmotionT:
-        """เรียกทุกเทิร์นที่ user พูด — อัปเดต state และคืน emotion ปัจจุบัน"""
         emotion = detect_emotion(text)
         self.prev = self.current
-        # ถ้า CRISIS มาไม่ override กลับไป NEUTRAL ง่ายๆ (ต้อง explicit recover)
-        if self.current == "CRISIS" and emotion == "NEUTRAL":
-            emotion = "CRISIS"  # ยังอยู่ใน crisis จนกว่าจะมี signal บวก
-        self.current = emotion
+
+        # CRISIS persistence — ต้องเห็น positive N เทิร์นติดกันก่อน clear
+        if self.current == "CRISIS":
+            if emotion in ("JOY", "WORK_WIN", "NEUTRAL"):
+                self._positive_streak += 1
+                if self._positive_streak >= _CRISIS_RECOVERY_TURNS:
+                    self.current = emotion
+                    self._positive_streak = 0
+                else:
+                    emotion = "CRISIS"  # ยังอยู่ใน crisis
+            else:
+                self._positive_streak = 0
+                self.current = emotion
+        else:
+            self._positive_streak = 0
+            self.current = emotion
+
         self._log.append({
             "ts":      time.time(),
-            "emotion": emotion,
+            "emotion": self.current,
             "text":    text[:120],
         })
-        return emotion
+        return self.current
 
     @property
     def trajectory(self) -> str:
-        """
-        ทิศทางอารมณ์:
-          IMPROVING  — จาก negative ไป positive
-          WORSENING  — จาก neutral/positive ไป negative
-          STABLE     — ไม่เปลี่ยน
-          RECOVERING — จาก CRISIS ไป SAD/STRESSED (ดีขึ้นจากวิกฤต)
-        """
         p, c = self.prev, self.current
         neg = {"CRISIS", "SAD", "STRESSED", "LONELY"}
         pos = {"JOY", "LOVE", "WORK_WIN"}
@@ -121,17 +116,13 @@ class EmotionState:
         return "STABLE"
 
     def context_note(self) -> str:
-        """
-        คืน string สั้นๆ สำหรับ inject เข้า LLM context
-        ตัวอย่าง: "EMOTION:SAD | prev:STRESSED | trend:RECOVERING"
-        """
+        """inject เข้า LLM context"""
         parts = [f"EMOTION:{self.current}"]
         if self.prev != self.current:
             parts.append(f"prev:{self.prev}")
         t = self.trajectory
         if t != "STABLE":
             parts.append(f"trend:{t}")
-        # เพิ่ม instruction สั้นๆ ตาม emotion
         guide = _RESPONSE_GUIDE.get(self.current, "")
         if guide:
             parts.append(guide)
@@ -140,30 +131,18 @@ class EmotionState:
     def reset(self):
         self._log.clear()
         self.current = "NEUTRAL"
-        self.prev = "NEUTRAL"
+        self.prev    = "NEUTRAL"
+        self._positive_streak = 0
 
 
-# คำแนะนำสั้นๆ ต่อ emotion — inject เข้า LLM เพื่อให้ตอบถูก tone
-_RESPONSE_GUIDE: dict[str, str] = {
-    "CRISIS":   "GUIDE:ช้าลง รับรู้ก่อน อย่ารีบวิเคราะห์",
-    "SAD":      "GUIDE:รับรู้ความรู้สึกก่อน 1 ประโยค แล้วค่อยเปิดทางออก",
-    "STRESSED": "GUIDE:ลดความกดดัน ให้ก้าวเล็กๆ ที่ทำได้วันนี้",
-    "LONELY":   "GUIDE:อยู่เป็นเพื่อน ไม่ต้องรีบแก้ปัญหา",
-    "JOY":      "GUIDE:ยินดีด้วยจริงๆ รับอารมณ์บวก ไม่ต้องกังวลแทน",
-    "LOVE":     "GUIDE:ยินดีด้วย รับฟังเรื่องรัก ไม่ตัดสิน ไม่ over-advise",
-    "WORK_WIN": "GUIDE:ให้กำลังใจ ชื่นชม ถามถึง milestone ถัดไปได้",
-}
-
-
-# ── Singleton per-session (เก็บใน dict key=session_id) ──────────
+# ── Singleton per-session ─────────────────────────────────────────
 _sessions: dict[str, EmotionState] = {}
-
 
 def get_emotion_state(session_id: str = "default") -> EmotionState:
     if session_id not in _sessions:
         _sessions[session_id] = EmotionState()
     return _sessions[session_id]
 
-
-def clear_emotion_state(session_id: str = "default"):
+def clear_emotion_state(session_id: str = "default") -> None:
     _sessions.pop(session_id, None)
+
