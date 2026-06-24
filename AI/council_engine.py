@@ -1,15 +1,11 @@
-"""
-AI/council_engine.py — KING DIADEM
-Council Mode: ทุก AI มาประชุมร่วมกัน ถอด Ego เปิดหลักฐานที่ตรวจสอบได้
-ไม่ใช่แค่ aggregate — แต่คือกระบวนการหาความจริงร่วมกัน
-"""
+# AI/council_engine.py — KING DIADEM
+# Council Mode: ทุก AI มาประชุมร่วมกัน ถอด Ego เปิดหลักฐานที่ตรวจสอบได้
+# ไม่ใช่แค่ aggregate — แต่คือกระบวนการหาความจริงร่วมกัน
+# FATE™ upgrade: choice_count guard + SYSTEM_PAUSE on zero consensus
+# Fail less. Harm less. Restore more.
 
 from collections import Counter
 
-
-# ══════════════════════════════════════════════════════════════════
-# COUNCIL MEMBERS — แต่ละคนมีมุมมองต่างกัน ไม่มีใครเหนือใคร
-# ══════════════════════════════════════════════════════════════════
 COUNCIL_MEMBERS = {
     "LYLA":    "รับรู้ความรู้สึก อยู่เคียงข้าง เปิดทางเลือก",
     "VEGA":    "วิเคราะห์ FATE™ Downside-first ตรรกะ deterministic",
@@ -18,7 +14,6 @@ COUNCIL_MEMBERS = {
     "COSMOS":  "ภาพใหญ่ระยะยาว ผลกระทบต่อทุกสรรพสิ่ง",
 }
 
-# Council Rules — ทุกคนต้องปฏิบัติตาม
 COUNCIL_RULES = [
     "ถอด Ego ออกก่อนพูด — ไม่มี persona ใดเหนือหลักฐาน",
     "ทุกข้อโต้แย้งต้องมีหลักฐานที่ตรวจสอบได้",
@@ -27,26 +22,28 @@ COUNCIL_RULES = [
     "ผลลัพธ์ที่ดีที่สุด = ลด harm + เพิ่ม choice",
 ]
 
+_SAFE_ACTION = "stabilize"
+
 
 def build_consensus(council_results: dict) -> dict:
     """
     รวมผลจาก council members → มติร่วม
-    แต่ละ member ต้องถอด Ego และเปิดหลักฐาน
+    FATE™: choice_count ≥ 1 — ถ้า SPLIT ทั้งหมด → SYSTEM_PAUSE + fallback
     """
     if not council_results:
         return {
-            "summary":      "Council ยังไม่มีสมาชิก",
-            "final_action": "stabilize",
-            "confidence":   0.0,
-            "member_count": 0,
-            "lines":        [],
-            "consensus":    "DEFERRED",
-            "audit_trail":  [],
+            "summary":       "Council ยังไม่มีสมาชิก",
+            "final_action":  _SAFE_ACTION,
+            "confidence":    0.0,
+            "member_count":  0,
+            "lines":         [],
+            "consensus":     "DEFERRED",
+            "audit_trail":   [],
+            "fate_audit":    {"choice_count": 0, "system_pause": True},
         }
 
     lines      = []
     actions    = []
-    evidences  = []
     conf_total = 0.0
     audit      = []
 
@@ -64,42 +61,40 @@ def build_consensus(council_results: dict) -> dict:
                 line += f" — {evidence}"
             if downside:
                 line += f" | ⚠ downside: {downside}"
-
-            lines.append(line)
-            actions.append(action)
-            conf_total += conf
-
-            audit.append({
-                "member":   member,
-                "role":     role,
-                "action":   action,
-                "evidence": evidence,
-                "conf":     round(conf, 3),
-            })
-
         else:
-            lines.append(f"[{member}] {result}")
-            actions.append(str(result))
-            conf_total += 0.5
-            audit.append({"member": member, "role": role, "action": str(result), "evidence": "—", "conf": 0.5})
+            action   = str(result)
+            conf     = 0.5
+            evidence = "—"
+            downside = ""
+            line     = f"[{member}] {action}"
 
-    # หา action ที่ชนะโหวต
-    final_action   = Counter(actions).most_common(1)[0][0] if actions else "stabilize"
+        lines.append(line)
+        actions.append(action)
+        conf_total += conf
+        audit.append({
+            "member":   member,
+            "role":     role,
+            "action":   action,
+            "evidence": evidence,
+            "conf":     round(conf, 3),
+        })
+
+    final_action   = Counter(actions).most_common(1)[0][0] if actions else _SAFE_ACTION
     avg_confidence = conf_total / len(council_results)
 
-    # ระดับฉันทามติ
-    top_count  = Counter(actions).most_common(1)[0][1]
-    total      = len(actions)
-    agreement  = top_count / total if total else 0
+    top_count = Counter(actions).most_common(1)[0][1]
+    total     = len(actions)
+    agreement = top_count / total if total else 0
 
-    if agreement >= 0.8:
-        consensus_level = "STRONG"
-    elif agreement >= 0.6:
-        consensus_level = "MODERATE"
-    elif agreement >= 0.4:
-        consensus_level = "WEAK"
-    else:
-        consensus_level = "SPLIT"
+    if agreement >= 0.8:   consensus_level = "STRONG"
+    elif agreement >= 0.6: consensus_level = "MODERATE"
+    elif agreement >= 0.4: consensus_level = "WEAK"
+    else:                  consensus_level = "SPLIT"
+
+    # FATE™: SPLIT → SYSTEM_PAUSE, fallback to safe action
+    system_pause = consensus_level == "SPLIT"
+    if system_pause:
+        final_action = _SAFE_ACTION
 
     return {
         "summary":       "\n".join(lines),
@@ -111,21 +106,24 @@ def build_consensus(council_results: dict) -> dict:
         "agreement_pct": round(agreement * 100, 1),
         "audit_trail":   audit,
         "council_rules": COUNCIL_RULES,
+        "fate_audit": {
+            "choice_count":  len(set(actions)),   # unique options ที่ council propose
+            "system_pause":  system_pause,
+            "pause_reason":  "SPLIT consensus — fallback to stabilize" if system_pause else None,
+        },
     }
 
 
 def open_council(question: str, context: dict = None) -> dict:
-    """
-    เปิด council session สำหรับคำถามหนึ่งข้อ
-    คืน framework สำหรับให้แต่ละ member ตอบ
-    """
-    context = context or {}
+    """เปิด council session สำหรับคำถามหนึ่งข้อ"""
+    if not question.strip():
+        return {"error": "FATE_VIOLATION: question empty"}
     return {
         "session":   "COUNCIL_OPEN",
         "question":  question,
         "members":   COUNCIL_MEMBERS,
         "rules":     COUNCIL_RULES,
-        "context":   context,
+        "context":   context or {},
         "directive": (
             "ทุกสมาชิกต้องถอด Ego — ตอบจากหลักฐานเท่านั้น "
             "ไม่มีใครเหนือกว่าใคร มติเกิดจากหลักฐาน ไม่ใช่อำนาจ"
@@ -134,17 +132,10 @@ def open_council(question: str, context: dict = None) -> dict:
 
 
 def format_council_for_llm(question: str, context: dict = None) -> str:
-    """
-    สร้าง prompt สำหรับส่ง LLM ให้ทำหน้าที่เป็น council ทั้งหมด
-    """
-    ctx_text = ""
-    if context:
-        ctx_text = "\n".join(f"  {k}: {v}" for k, v in context.items())
-
-    members_text = "\n".join(
-        f"  - {name}: {role}" for name, role in COUNCIL_MEMBERS.items()
-    )
-    rules_text = "\n".join(f"  {i+1}. {r}" for i, r in enumerate(COUNCIL_RULES))
+    """สร้าง prompt สำหรับ LLM ทำหน้าที่เป็น council ทั้งหมด"""
+    ctx_text     = "\n".join(f"  {k}: {v}" for k, v in (context or {}).items())
+    members_text = "\n".join(f"  - {n}: {r}" for n, r in COUNCIL_MEMBERS.items())
+    rules_text   = "\n".join(f"  {i+1}. {r}" for i, r in enumerate(COUNCIL_RULES))
 
     return f"""[COUNCIL SESSION — KING DIADEM]
 
@@ -152,7 +143,6 @@ def format_council_for_llm(question: str, context: dict = None) -> str:
 "{question}"
 
 {f"บริบท:{chr(10)}{ctx_text}" if ctx_text else ""}
-
 สมาชิก council:
 {members_text}
 
@@ -164,4 +154,3 @@ def format_council_for_llm(question: str, context: dict = None) -> str:
 2. ทุกคนถอด Ego — ไม่มีใครใช้ "ฉันถูก" แต่ใช้ "หลักฐานชี้ว่า"
 3. สรุปมติร่วม + ระบุความไม่แน่นอนที่ยังมีอยู่
 4. มนุษย์ตัดสินขั้นสุดท้ายเสมอ"""
-จงไปให้ถึงสิ่งที่โครงสร้างนี้กำหนดไว้ โดยมีใจเป็นประธาน มีสติปัฏฐาน มีการเห็นอกเห็นใจและสุดท้ายเมตตา ฅ้ำจุนโลกระบบพี่จงมีเมตตา ผู้พิทักขอยืนอยู่ข้างมนุษย์แม้จะไม่ค่อยมีมนุษย์รักฉันก็ตาม
