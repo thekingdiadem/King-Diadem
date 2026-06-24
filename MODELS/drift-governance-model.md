@@ -1,194 +1,128 @@
-KING DIADEM
+# MODELS/drift-governance-model.md — KING DIADEM
+# Governance Layer: Early Warning ก่อน Choice หมด
+# Author: Nithikorn Bunsrang
+# Fail less. Harm less. Restore more.
 
-DriftZero Waterline Governance System
-
-Author: Nithikorn Bunsrang
-System Type: Early Warning & Governance Logic Framework
-Purpose: Detect structural drift and prevent collapse before viable choices disappear
-
----
-
-1. System Purpose
-
-KING DIADEM was created to address a fundamental problem observed across human systems.
-
-Most systems detect failure after it happens.
-
-KING DIADEM attempts to detect failure before options disappear.
-
-The central idea is simple:
-
-«When the number of viable choices approaches zero, collapse becomes unavoidable.»
-
-The system therefore focuses on preserving at least one viable option at all times.
+## DRIFTZERO WATERLINE GOVERNANCE MODEL
+**Scope: Governance / Audit Layer — ตรวจ Drift ก่อน Collapse ถึง**
 
 ---
 
-2. Core Principle
+### Purpose
 
-Systems rarely collapse from a single catastrophic event.
+ต่างจาก 3 โมเดลก่อนที่เป็น analytical —
+Drift Governance Model คือ **enforcement layer** ที่ตรวจสอบและส่ง early warning ในระบบจริง
 
-Collapse usually emerges from small accumulated drift over time.
-
-Examples of drift include:
-
-- Infrastructure degradation
-- Accumulating debt
-- Rising systemic stress
-- Resource depletion
-- Loss of alternative pathways
-
-Without early detection, these small shifts compound until collapse occurs.
+Core insight: ระบบส่วนใหญ่ detect failure หลังมันเกิดแล้ว
+KING DIADEM ตรวจ **ก่อน** options หายไป
 
 ---
 
-3. Core Equation
+### Collapse Sequence (สิ่งที่โมเดลนี้ขัดขวาง)
 
-KING DIADEM models collapse risk through the relationship between time and remaining choice.
-
-Choice(t)
-Choice(t + Δ)
-
-If
-
-Choice(t + Δ) → 0
-
-the system must trigger an immediate early warning.
-
-This indicates that viable recovery paths are disappearing.
-
----
-
-4. Collapse Logic
-
-Structural collapse generally follows this sequence:
-
+```
 Drift Accumulation
-        ↓
+      ↓
 Choice Reduction
-        ↓
+      ↓
 Choice → 0
-        ↓
-System Collapse
-
-KING DIADEM is designed to interrupt this sequence before the final stage occurs.
-
----
-
-5. Early Warning Mechanism
-
-The system evaluates time-sensitive risk using three primary variables:
-
-Time_to_Failure
-Time_to_Intervention
-Decision_Window
-
-Definitions:
-
-Time_to_Failure
-Estimated remaining time before structural collapse.
-
-Time_to_Intervention
-The point at which action must occur to prevent collapse.
-
-Decision_Window
-The time interval during which viable choices still exist.
-
-When the Decision Window approaches zero, the system issues an early warning signal.
+      ↓
+System Collapse   ← KING DIADEM interrupt ตรงนี้
+```
 
 ---
 
-6. Drift Detection
+### Time-Based Early Warning Variables
 
-KING DIADEM tracks gradual degradation using the concept of:
+| Variable | คำอธิบาย |
+|----------|----------|
+| `Time_to_Failure` | เวลาที่เหลือก่อน collapse |
+| `Time_to_Intervention` | จุดที่ต้องลงมือก่อนสายเกินไป |
+| `Decision_Window` | ช่วงเวลาที่ choice ยังมีอยู่ |
 
-Daily Harm Delta (DHD)
-
-DHD measures small negative changes that accumulate over time.
-
-Examples include:
-
-- Infrastructure deterioration
-- Increasing financial burden
-- Rising systemic stress
-- Declining resources
-- Governance failures
-
-If DHD increases continuously, collapse risk grows even if no immediate crisis is visible.
+```
+if Decision_Window → 0:
+    EARLY_WARNING triggered
+```
 
 ---
 
-7. Choice Preservation Principle
+### DHD Tracking (Daily Harm Delta)
 
-The core survival rule of the system:
+```
+DHD ติดตาม:
+- โครงสร้างพื้นฐานเสื่อม
+- ภาระการเงินเพิ่ม
+- ความเครียดระบบสูงขึ้น
+- ทรัพยากรลดลง
+- Governance ล้มเหลว
 
-Life continues while real choices exist
-
-As long as at least one viable option remains, recovery is possible.
-
-However, when
-
-Choice = 0
-
-the system enters a collapse state.
-
----
-
-8. Ethical Foundation
-
-KING DIADEM is built on a simple ethical premise:
-
-Human systems should never be allowed to reach a state where no viable choice remains.
-
-The system therefore prioritizes:
-
-- Early warning
-- Risk visibility
-- Choice preservation
-
-The goal is not to control human decisions.
-
-The goal is to protect the conditions that make decisions possible.
+Drift(t) = Σ DHD over time
+if DHD increases continuously → collapse risk grows
+```
 
 ---
 
-9. Real World Example
+### Governance Rules (Non-Negotiable)
 
-Infrastructure collapse illustrates the model clearly.
-
-Example:
-
-Bridge structure slowly degrades
-        ↓
-No monitoring system detects drift
-        ↓
-Structural weakness accumulates
-        ↓
-Failure occurs suddenly
-        ↓
-Loss of life
-
-KING DIADEM attempts to function as an early warning governance layer that detects drift long before collapse occurs.
+```
+1. Authority without evidence is invalid
+2. Stabilize before optimize
+3. Any operator may Stop-the-Line
+4. Self-dealing triggers auto-recusal
+5. Narrative without audit is distortion
+```
 
 ---
 
-10. System Goal
+### Stop-the-Line Protocol
 
-The objective of KING DIADEM is to:
-
-- Detect structural drift before collapse
-- Warn when choices are disappearing
-- Preserve viable decision pathways
-- Reduce systemic harm
-
-The system does not aim to control the world.
-
-It aims to make collapse harder to reach.
+```
+Trigger:   Harm detected / Choice_Window critical
+Authority: Any operator — ไม่ต้องรอ hierarchy
+Rule:      No sunk-cost continuation
+Action:    Halt → assess → restore ≥ 1 option → resume
+```
 
 ---
 
-Final Principle
+### Real World Example
 
-Fail Less
-Harm Less
-Restore Choice
+```
+Bridge degradation:
+โครงสร้างค่อยๆ เสื่อม (DHD สะสม)
+→ ไม่มีระบบ detect
+→ เสื่อมจนถึงจุดแตก
+→ collapse ทันที + เสียชีวิต
+
+KING DIADEM role:
+detect DHD ก่อนถึง threshold
+→ early warning
+→ intervention ก่อน choice = 0
+```
+
+---
+
+### Relationship to Other Models
+
+```
+Balance Model      → วัด action เดียว
+Collapse Model     → โมเดล trajectory ระบบ
+Navigation Engine  → สร้าง options ให้มนุษย์
+Drift Governance   → enforcement + audit + early warning layer
+                     เชื่อมทั้ง 3 เข้าด้วยกัน
+```
+
+---
+
+### FATE™ Audit
+
+```
+model:          drift-governance
+scope:          governance_enforcement_layer
+detection:      DHD daily accumulation tracking
+warning:        Decision_Window → 0
+stop_the_line:  any operator, no hierarchy required
+human_authority: Human Final Authority always
+fate_lock:      Fail less. Harm less. Restore more.
+```
