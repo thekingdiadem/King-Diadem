@@ -1,28 +1,68 @@
-import random
+# DOMAINS/world_engine.py
+# KING DIADEM — World Domain Engine
+# ใช้ข้อมูลจริง ไม่มี random — volatility คำนวณจาก input จริง
+
 import time
 
 
-def analyze_world(context):
+def analyze_world(context: dict) -> dict:
+    # ── รับ world signals จาก context ────────────────────────────
+    food_security   = float(context.get("food_security",   0.6))  # 0-1 (1 = มั่นคง)
+    energy_price    = float(context.get("energy_price",    0.5))  # 0-1 (1 = แพงมาก)
+    political_risk  = float(context.get("political_risk",  0.4))  # 0-1
+    climate_stress  = float(context.get("climate_stress",  0.4))  # 0-1
+    supply_chain    = float(context.get("supply_chain",    0.6))  # 0-1 (1 = ดี)
+    conflict_level  = float(context.get("conflict_level",  0.3))  # 0-1
 
-    volatility = random.uniform(0.2,0.9)
+    # ── Volatility score (deterministic) ─────────────────────────
+    # ปัจจัยที่เพิ่ม volatility
+    volatility = (
+        (1 - food_security) * 0.25 +
+        energy_price        * 0.20 +
+        political_risk      * 0.20 +
+        climate_stress      * 0.15 +
+        (1 - supply_chain)  * 0.10 +
+        conflict_level      * 0.10
+    )
+    volatility = max(0.0, min(1.0, volatility))
 
-    trend = "uncertain"
+    # ── Choice collapse index ─────────────────────────────────────
+    # เมื่อ resource หายาก → ทางเลือกของมนุษย์ลดลง (FATE Axiom)
+    choice_index = max(0.0, 1.0 - volatility)
 
-    if volatility < 0.4:
-        trend = "stable cycle"
+    # ── Trend ─────────────────────────────────────────────────────
+    if volatility < 0.30:
+        trend        = "stable_cycle"
+        lyla_signal  = "ระบบโลกเสถียร — วางแผนระยะยาวได้"
+    elif volatility < 0.55:
+        trend        = "moderate_stress"
+        lyla_signal  = "ความผันผวนปานกลาง — เน้น flexibility"
+    elif volatility < 0.75:
+        trend        = "high_instability"
+        lyla_signal  = "ความไม่แน่นอนสูง — ลดการผูกมัดระยะยาว"
+    else:
+        trend        = "systemic_collapse_risk"
+        lyla_signal  = "วิกฤตระดับระบบ — เน้น survival ก่อน"
 
-    if volatility > 0.75:
-        trend = "high instability"
+    # ── DriftZero waterline ───────────────────────────────────────
+    waterline = round(choice_index * 100, 1)
 
     return {
-
-        "domain": "world",
-
-        "timestamp": time.time(),
-
-        "analysis": context,
-
-        "global_volatility": round(volatility,3),
-
-        "trend": trend
+        "domain":           "world",
+        "timestamp":        time.time(),
+        "global_volatility": round(volatility, 3),
+        "choice_index":     round(choice_index, 3),
+        "waterline":        waterline,
+        "trend":            trend,
+        "lyla_signal":      lyla_signal,
+        "drift_risk":       "HIGH" if volatility > 0.65 else "MODERATE" if volatility > 0.40 else "LOW",
+        "factors": {
+            "food_security":  food_security,
+            "energy_price":   energy_price,
+            "political_risk": political_risk,
+            "climate_stress": climate_stress,
+            "supply_chain":   supply_chain,
+            "conflict_level": conflict_level,
+        },
+        "input": context,
     }
