@@ -15,6 +15,8 @@ var W=0,H=0,_raf=null,_last=0,_dt=0;
 var activeRoute='general';
 var ROUTE_HUE={general:208,risk:22,collapse:338,survival:142,civil:268,vega:286};
 var _tgtHue=208,_curHue=208;
+// FIX: isMobile declared at module scope — was only inside buildStars() causing ReferenceError in buildDust()
+var isMobile=false;
 
 function loop(now){
   _raf=requestAnimationFrame(loop);
@@ -30,9 +32,15 @@ var _rT;
 function doResize(){
   W=cv.width=window.innerWidth;
   H=cv.height=window.innerHeight;
+  isMobile=(W<768);
   buildStars();buildDust();buildBelt();buildKuiper();
 }
 window.addEventListener('resize',function(){clearTimeout(_rT);_rT=setTimeout(doResize,80);},{passive:true});
+window.addEventListener('KD:resize',function(){clearTimeout(_rT);_rT=setTimeout(doResize,80);},{passive:true});
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){if(_raf){cancelAnimationFrame(_raf);_raf=null;}}
+  else{if(!_raf){_last=performance.now();_raf=requestAnimationFrame(loop);}}
+},{passive:true});
 
 /* ================================================================
    STAR FIELD — 600 stars, 5 layers, diffraction, pastel
@@ -40,7 +48,7 @@ window.addEventListener('resize',function(){clearTimeout(_rT);_rT=setTimeout(doR
 var STARS=[];
 function buildStars(){
   STARS=[];
-  var isMobile=(W<768);var n=Math.min(isMobile?280:600,Math.floor(W*H/(isMobile?4200:2400)));
+  var n=Math.min(isMobile?280:600,Math.floor(W*H/(isMobile?4200:2400)));
   for(var i=0;i<n;i++){
     var sz=Math.random();
     STARS.push({
