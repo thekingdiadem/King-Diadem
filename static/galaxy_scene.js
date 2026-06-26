@@ -60,9 +60,9 @@ function buildStars(){
       r:  [0.25 + Math.random()*0.35,
            0.45 + Math.random()*0.65,
            0.80 + Math.random()*1.30][sz],
-      a:  [0.15+Math.random()*0.38,
-           0.25+Math.random()*0.52,
-           0.38+Math.random()*0.72][sz],
+      a:  [0.22+Math.random()*0.45,
+           0.35+Math.random()*0.58,
+           0.52+Math.random()*0.80][sz],
       tw: Math.random() < 0.60,
       ph: Math.random() * Math.PI * 2,
       sp: 0.15 + Math.random() * 0.65,
@@ -77,9 +77,9 @@ function drawStars(now){
   for (var i = 0; i < STARS.length; i++){
     var s = STARS[i];
     var a = s.tw ? s.a*(0.38+0.62*Math.sin(now*s.sp*0.00048+s.ph)) : s.a;
-    var col = s.ct==='blue'  ? 'rgba(168,205,255,'+a.toFixed(3)+')' :
-              s.ct==='warm'  ? 'rgba(255,228,185,'+a.toFixed(3)+')' :
-                               'rgba(210,225,248,'+a.toFixed(3)+')';
+    var col = s.ct==='blue'  ? 'rgba(180,215,255,'+a.toFixed(3)+')' :
+              s.ct==='warm'  ? 'rgba(255,235,195,'+a.toFixed(3)+')' :
+                               'rgba(225,238,255,'+a.toFixed(3)+')';
     if (s.cross && a > s.a*0.55){
       ctx.strokeStyle = col; ctx.lineWidth = 0.35;
       var cl = s.r * 3.8;
@@ -105,7 +105,7 @@ function buildDust(){
       x:   Math.random() * W,
       y:   Math.random() * H,
       r:   22 + Math.random() * 65,
-      a:   0.010 + Math.random() * 0.024,
+      a:   0.016 + Math.random() * 0.036,
       ph:  Math.random() * Math.PI * 2,
       sp:  0.04 + Math.random() * 0.14,
       hue: hues[Math.floor(Math.random()*hues.length)],
@@ -134,13 +134,13 @@ function drawDust(now){
 function drawBg(now){
   ctx.clearRect(0, 0, W, H);
 
-  /* deep space gradient — brighter than before */
+  /* deep space — rich navy blue, clearly visible */
   var bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0,   '#0e1a2e');
-  bg.addColorStop(0.22,'#0a1422');
-  bg.addColorStop(0.55,'#08101c');
-  bg.addColorStop(0.82,'#060c16');
-  bg.addColorStop(1,   '#050a12');
+  bg.addColorStop(0,   '#1a2d4a');
+  bg.addColorStop(0.20,'#152440');
+  bg.addColorStop(0.45,'#111e36');
+  bg.addColorStop(0.72,'#0e192e');
+  bg.addColorStop(1,   '#0b1526');
   ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
 
   /* route tint — very subtle */
@@ -151,24 +151,34 @@ function drawBg(now){
   rt.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle = rt; ctx.fillRect(0,0,W,H);
 
-  /* soft violet left nebula */
-  var nb1 = ctx.createRadialGradient(W*0.08, H*0.35, 0, W*0.08, H*0.35, W*0.45);
-  nb1.addColorStop(0,'rgba(85,62,145,0.10)'); nb1.addColorStop(1,'rgba(0,0,0,0)');
+  /* strong blue nebula center */
+  var nb0 = ctx.createRadialGradient(W*0.50, H*0.50, 0, W*0.50, H*0.50, W*0.65);
+  nb0.addColorStop(0,'rgba(30,80,160,0.18)'); nb0.addColorStop(0.5,'rgba(20,55,120,0.08)'); nb0.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = nb0; ctx.fillRect(0,0,W,H);
+
+  /* violet left */
+  var nb1 = ctx.createRadialGradient(W*0.05, H*0.30, 0, W*0.05, H*0.30, W*0.52);
+  nb1.addColorStop(0,'rgba(80,55,180,0.20)'); nb1.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle = nb1; ctx.fillRect(0,0,W,H);
 
-  /* warm rose right */
-  var nb2 = ctx.createRadialGradient(W*0.90, H*0.62, 0, W*0.90, H*0.62, W*0.40);
-  nb2.addColorStop(0,'rgba(128,55,82,0.08)'); nb2.addColorStop(1,'rgba(0,0,0,0)');
+  /* rose right */
+  var nb2 = ctx.createRadialGradient(W*0.92, H*0.58, 0, W*0.92, H*0.58, W*0.45);
+  nb2.addColorStop(0,'rgba(160,70,100,0.16)'); nb2.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle = nb2; ctx.fillRect(0,0,W,H);
 
-  /* milky way spine — faint horizontal band */
-  var mw = ctx.createLinearGradient(0, H*0.45, W, H*0.55);
-  mw.addColorStop(0,'rgba(0,0,0,0)');
-  mw.addColorStop(0.25,'rgba(80,100,160,0.025)');
-  mw.addColorStop(0.50,'rgba(100,120,180,0.040)');
-  mw.addColorStop(0.75,'rgba(80,100,160,0.025)');
-  mw.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle = mw; ctx.fillRect(0,H*0.35,W,H*0.30);
+  /* teal bottom */
+  var nb3 = ctx.createRadialGradient(W*0.30, H*0.90, 0, W*0.30, H*0.90, W*0.50);
+  nb3.addColorStop(0,'rgba(25,100,160,0.16)'); nb3.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = nb3; ctx.fillRect(0,0,W,H);
+
+  /* milky way band */
+  var mw = ctx.createLinearGradient(0, H*0.40, W, H*0.60);
+  mw.addColorStop(0,   'rgba(0,0,0,0)');
+  mw.addColorStop(0.28,'rgba(60,100,200,0.06)');
+  mw.addColorStop(0.50,'rgba(80,120,220,0.10)');
+  mw.addColorStop(0.72,'rgba(60,100,200,0.06)');
+  mw.addColorStop(1,   'rgba(0,0,0,0)');
+  ctx.fillStyle = mw; ctx.fillRect(0, H*0.28, W, H*0.44);
   ctx.restore();
 }
 
@@ -247,14 +257,12 @@ function drawSun(now){
    (as fraction of H from sun center) */
 
 var PLANETS = [
-  /* id        label     route      orbitR  period  yOff   rf_desk rf_mob  draw */
-  /* yOff tuned so all 6 planets fit on a 780px-tall mobile screen */
-  {id:'mercury', lbl:'GENERAL',   route:'general',  orb:0.13, per:0.241, yOff:0.18, rD:0.025, rM:0.032, draw:drawMercury},
-  {id:'venus',   lbl:'RISK',      route:'risk',     orb:0.20, per:0.615, yOff:0.28, rD:0.033, rM:0.042, draw:drawVenus  },
-  {id:'earth',   lbl:'SURVIVAL',  route:'survival', orb:0.27, per:1.000, yOff:0.38, rD:0.038, rM:0.048, draw:drawEarth, moon:true},
-  {id:'mars',    lbl:'COLLAPSE',  route:'collapse', orb:0.36, per:1.881, yOff:0.48, rD:0.027, rM:0.036, draw:drawMars  },
-  {id:'jupiter', lbl:'CIVIL',     route:'civil',    orb:0.50, per:11.86, yOff:0.58, rD:0.054, rM:0.066, draw:drawJupiter},
-  {id:'vega',    lbl:'VEGA',      route:'vega',     orb:0.60, per:29.46, yOff:0.70, rD:0.036, rM:0.044, draw:drawVega  },
+  {id:'mercury', lbl:'GENERAL',  route:'general',  orb:0.11, per:0.241, yOff:0.18, rD:0.025, rM:0.030, draw:drawMercury},
+  {id:'venus',   lbl:'RISK',     route:'risk',     orb:0.17, per:0.615, yOff:0.28, rD:0.033, rM:0.040, draw:drawVenus  },
+  {id:'earth',   lbl:'SURVIVAL', route:'survival', orb:0.23, per:1.000, yOff:0.38, rD:0.038, rM:0.046, draw:drawEarth, moon:true},
+  {id:'mars',    lbl:'COLLAPSE', route:'collapse', orb:0.30, per:1.881, yOff:0.48, rD:0.027, rM:0.034, draw:drawMars  },
+  {id:'jupiter', lbl:'CIVIL',    route:'civil',    orb:0.40, per:11.86, yOff:0.60, rD:0.050, rM:0.060, draw:drawJupiter},
+  {id:'vega',    lbl:'VEGA',     route:'vega',     orb:0.46, per:29.46, yOff:0.72, rD:0.034, rM:0.042, draw:drawVega  },
 ];
 
 /* Sun center */
