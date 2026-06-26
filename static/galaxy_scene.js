@@ -49,25 +49,25 @@ document.addEventListener('visibilitychange', function(){
 var STARS = [];
 function buildStars(){
   STARS = [];
-  var total = isMobile ? 180 : 380;
+  var total = isMobile ? 280 : 500;
   for (var i = 0; i < total; i++){
-    var layer = Math.random();           // 0=far 1=near
-    var sz    = layer < 0.55 ? 0 :
-                layer < 0.80 ? 1 : 2;   // far/mid/near
+    var layer = Math.random();
+    var sz    = layer < 0.50 ? 0 :
+                layer < 0.78 ? 1 : 2;
     STARS.push({
       x:  Math.random() * W,
       y:  Math.random() * H,
-      r:  [0.20 + Math.random()*0.30,
-           0.35 + Math.random()*0.55,
-           0.65 + Math.random()*1.10][sz],
-      a:  [0.08+Math.random()*0.28,
-           0.14+Math.random()*0.45,
-           0.22+Math.random()*0.62][sz],
-      tw: Math.random() < 0.55,
+      r:  [0.25 + Math.random()*0.35,
+           0.45 + Math.random()*0.65,
+           0.80 + Math.random()*1.30][sz],
+      a:  [0.15+Math.random()*0.38,
+           0.25+Math.random()*0.52,
+           0.38+Math.random()*0.72][sz],
+      tw: Math.random() < 0.60,
       ph: Math.random() * Math.PI * 2,
       sp: 0.15 + Math.random() * 0.65,
       ct: Math.random()<0.22?'blue': Math.random()<0.10?'warm':'white',
-      cross: sz===2 && Math.random()<0.50
+      cross: sz===2 && Math.random()<0.55
     });
   }
 }
@@ -98,14 +98,14 @@ function drawStars(now){
 var DUST = [];
 function buildDust(){
   DUST = [];
-  var n = isMobile ? 40 : 80;
+  var n = isMobile ? 55 : 100;
   var hues = [260,278,295,185,200,340];
   for (var i = 0; i < n; i++){
     DUST.push({
       x:   Math.random() * W,
       y:   Math.random() * H,
-      r:   18 + Math.random() * 55,
-      a:   0.006 + Math.random() * 0.016,
+      r:   22 + Math.random() * 65,
+      a:   0.010 + Math.random() * 0.024,
       ph:  Math.random() * Math.PI * 2,
       sp:  0.04 + Math.random() * 0.14,
       hue: hues[Math.floor(Math.random()*hues.length)],
@@ -134,13 +134,13 @@ function drawDust(now){
 function drawBg(now){
   ctx.clearRect(0, 0, W, H);
 
-  /* deep space gradient */
+  /* deep space gradient — brighter than before */
   var bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0,   '#08101e');
-  bg.addColorStop(0.22,'#060c18');
-  bg.addColorStop(0.55,'#050a14');
-  bg.addColorStop(0.82,'#040810');
-  bg.addColorStop(1,   '#03060c');
+  bg.addColorStop(0,   '#0e1a2e');
+  bg.addColorStop(0.22,'#0a1422');
+  bg.addColorStop(0.55,'#08101c');
+  bg.addColorStop(0.82,'#060c16');
+  bg.addColorStop(1,   '#050a12');
   ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
 
   /* route tint — very subtle */
@@ -152,14 +152,23 @@ function drawBg(now){
   ctx.fillStyle = rt; ctx.fillRect(0,0,W,H);
 
   /* soft violet left nebula */
-  var nb1 = ctx.createRadialGradient(W*0.08, H*0.35, 0, W*0.08, H*0.35, W*0.42);
-  nb1.addColorStop(0,'rgba(75,52,130,0.055)'); nb1.addColorStop(1,'rgba(0,0,0,0)');
+  var nb1 = ctx.createRadialGradient(W*0.08, H*0.35, 0, W*0.08, H*0.35, W*0.45);
+  nb1.addColorStop(0,'rgba(85,62,145,0.10)'); nb1.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle = nb1; ctx.fillRect(0,0,W,H);
 
   /* warm rose right */
-  var nb2 = ctx.createRadialGradient(W*0.90, H*0.62, 0, W*0.90, H*0.62, W*0.38);
-  nb2.addColorStop(0,'rgba(115,50,75,0.045)'); nb2.addColorStop(1,'rgba(0,0,0,0)');
+  var nb2 = ctx.createRadialGradient(W*0.90, H*0.62, 0, W*0.90, H*0.62, W*0.40);
+  nb2.addColorStop(0,'rgba(128,55,82,0.08)'); nb2.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle = nb2; ctx.fillRect(0,0,W,H);
+
+  /* milky way spine — faint horizontal band */
+  var mw = ctx.createLinearGradient(0, H*0.45, W, H*0.55);
+  mw.addColorStop(0,'rgba(0,0,0,0)');
+  mw.addColorStop(0.25,'rgba(80,100,160,0.025)');
+  mw.addColorStop(0.50,'rgba(100,120,180,0.040)');
+  mw.addColorStop(0.75,'rgba(80,100,160,0.025)');
+  mw.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = mw; ctx.fillRect(0,H*0.35,W,H*0.30);
   ctx.restore();
 }
 
@@ -239,12 +248,13 @@ function drawSun(now){
 
 var PLANETS = [
   /* id        label     route      orbitR  period  yOff   rf_desk rf_mob  draw */
-  {id:'mercury', lbl:'GENERAL',   route:'general',  orb:0.14, per:0.241, yOff:0.20, rD:0.024, rM:0.030, draw:drawMercury},
-  {id:'venus',   lbl:'RISK',      route:'risk',     orb:0.22, per:0.615, yOff:0.30, rD:0.032, rM:0.040, draw:drawVenus  },
-  {id:'earth',   lbl:'SURVIVAL',  route:'survival', orb:0.30, per:1.000, yOff:0.40, rD:0.036, rM:0.046, draw:drawEarth, moon:true},
-  {id:'mars',    lbl:'COLLAPSE',  route:'collapse', orb:0.40, per:1.881, yOff:0.52, rD:0.026, rM:0.034, draw:drawMars  },
-  {id:'jupiter', lbl:'CIVIL',     route:'civil',    orb:0.56, per:11.86, yOff:0.66, rD:0.052, rM:0.064, draw:drawJupiter},
-  {id:'vega',    lbl:'VEGA',      route:'vega',     orb:0.68, per:29.46, yOff:0.80, rD:0.034, rM:0.040, draw:drawVega  },
+  /* yOff tuned so all 6 planets fit on a 780px-tall mobile screen */
+  {id:'mercury', lbl:'GENERAL',   route:'general',  orb:0.13, per:0.241, yOff:0.18, rD:0.025, rM:0.032, draw:drawMercury},
+  {id:'venus',   lbl:'RISK',      route:'risk',     orb:0.20, per:0.615, yOff:0.28, rD:0.033, rM:0.042, draw:drawVenus  },
+  {id:'earth',   lbl:'SURVIVAL',  route:'survival', orb:0.27, per:1.000, yOff:0.38, rD:0.038, rM:0.048, draw:drawEarth, moon:true},
+  {id:'mars',    lbl:'COLLAPSE',  route:'collapse', orb:0.36, per:1.881, yOff:0.48, rD:0.027, rM:0.036, draw:drawMars  },
+  {id:'jupiter', lbl:'CIVIL',     route:'civil',    orb:0.50, per:11.86, yOff:0.58, rD:0.054, rM:0.066, draw:drawJupiter},
+  {id:'vega',    lbl:'VEGA',      route:'vega',     orb:0.60, per:29.46, yOff:0.70, rD:0.036, rM:0.044, draw:drawVega  },
 ];
 
 /* Sun center */
