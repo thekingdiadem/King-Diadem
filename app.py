@@ -1,14 +1,12 @@
 # =========================
-# 👑 KING DIADEM — app.py v4.7
+# 👑 KING DIADEM — app.py v4.8
 # LYLA (หญิง/ค่ะ) · VEGA (ชาย/ครับ) · ปฏิจสมุปบาท · โยนิโสมนสิการ · สุญยตา
 # Fail less. Harm less. Restore more.
 #
-# PATCH v4.7
-# - Decision Report URL: ทุก decision สร้าง shareable /report/{id} อัตโนมัติ
-# - FATE™ Axiom Audit แนบมากับทุก response
-# - /report/{id}  → serve report.html
-# - /api/report/{id} → return JSON
-# - /api/report/create → manual report creation
+# PATCH v4.8
+# - belief_core wired: audit() ก่อน LLM, enforce() ก่อน return
+# - SYSTEM_PAUSE path: Choice=0 → block LLM ทันที
+# - belief_audit แนบทุก response (FATE™ transparency)
 # =========================
 
 from fastapi import FastAPI, Request, File, UploadFile
@@ -147,6 +145,18 @@ except Exception as e:
     planetary_status = get_learning = get_nodes = None
     record_learning  = add_node = None
 
+# ── BELIEF CORE — v4.8 ────────────────────────────────────────────
+try:
+    from AI_KERNEL.belief_core import (
+        audit as belief_audit,
+        enforce as belief_enforce,
+        get_belief_audit,
+    )
+    print("✅ Belief core loaded")
+except Exception as e:
+    print(f"⚠ belief_core: {e}")
+    belief_audit = belief_enforce = get_belief_audit = None
+
 # ── GOOGLE OAUTH ──────────────────────────────────────────────────
 try:
     from authlib.integrations.starlette_client import OAuth
@@ -177,7 +187,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ══════════════════════════════════════════════════════════════════
 # ERROR MESSAGE HELPER — v4.6
-# แปล error ดิบให้เป็นข้อความ user-friendly
 # ══════════════════════════════════════════════════════════════════
 def _friendly_error(err: str) -> str:
     e = str(err).lower()
@@ -193,7 +202,6 @@ def _friendly_error(err: str) -> str:
         return "กำลังตรวจสอบ API — กรุณาลองใหม่อีกครั้ง"
     if "timeout" in e or "timed out" in e:
         return "การเชื่อมต่อหมดเวลา — กรุณาลองใหม่"
-    # fallback สั้น ไม่โชว์ JSON ดิบ
     return "ระบบไม่พร้อมชั่วคราว — กรุณาลองใหม่อีกครั้ง"
 
 
@@ -324,6 +332,7 @@ def health():
         "simulation_engine":  simulate is not None,
         "risk_engine":        assess_risk is not None,
         "survivor_engine":    survivor_analyze is not None,
+        "belief_core":        belief_audit is not None,   # ← v4.8
         "galaxy_api":         True,
         "stripe_loaded":      bool(os.getenv("STRIPE_SECRET_KEY")),
         "freedom_score":      freedom_index() if freedom_index else 0,
@@ -558,19 +567,19 @@ async def run_kernel(request: Request, data: dict):
 
     if record_question: record_question()
 
-    # human state
+    # ── human state ───────────────────────────────────────────────
     human_state = {"entropy": 40, "resource": 50, "stability": 60, "risk_score": 10}
     if analyze_human:
         try: human_state = analyze_human(data.get("context", {})) or human_state
         except Exception: pass
 
-    # intent
+    # ── intent ────────────────────────────────────────────────────
     intent = {"intent": "general", "confidence": 0.5}
     if analyze_intent:
         try: intent = analyze_intent(user_input) or intent
         except Exception: pass
 
-    # risk
+    # ── risk ──────────────────────────────────────────────────────
     risk_ctx = ""
     if assess_risk:
         try:
@@ -581,7 +590,7 @@ async def run_kernel(request: Request, data: dict):
                     route = "collapse"
         except Exception: pass
 
-    # collapse
+    # ── collapse ──────────────────────────────────────────────────
     collapse_ctx = ""
     if predict_collapse:
         try:
@@ -592,7 +601,7 @@ async def run_kernel(request: Request, data: dict):
 
     paticca_ctx = _paticcasamuppada_context(user_input)
 
-    # survivor
+    # ── survivor ──────────────────────────────────────────────────
     survivor_ctx = ""
     if orchestrator:
         try:
@@ -612,6 +621,38 @@ async def run_kernel(request: Request, data: dict):
                 route = sr.get("route", route)
         except Exception: pass
 
+    # ── BELIEF CORE AUDIT — v4.8 ──────────────────────────────────
+    # เช็ค B-1/B-2 ก่อนส่ง LLM ทุกครั้ง
+    belief_report = None
+    if belief_audit:
+        try:
+            belief_ctx = {**human_state, **data.get("context", {})}
+            belief_report = belief_audit(belief_ctx)
+
+            # B-2: Survival floor พัง → force route = survival
+            if not belief_report["survival_ok"] and route not in ("vega",):
+                route = "survival"
+
+            # B-1: Choice = 0 → SYSTEM_PAUSE ทันที ไม่รัน LLM
+            if belief_report["pause_required"]:
+                pause_result = {
+                    "observer":    "KING DIADEM",
+                    "status":      "SYSTEM_PAUSE",
+                    "route":       route,
+                    "persona":     "VEGA" if vm == "vega" else "LYLA",
+                    "voice_mode":  vm,
+                    "ai_response": "",
+                    "pattern":     human_state,
+                    "risk_score":  human_state.get("risk_score", 0),
+                }
+                pause_result = belief_enforce(pause_result, belief_report)
+                _sync_galaxy(pause_result)
+                return pause_result
+
+        except Exception as _be:
+            print(f"⚠ belief_audit error: {_be}")
+
+    # ── build effective prompt ────────────────────────────────────
     extra_ctx = " ".join(p for p in [paticca_ctx, risk_ctx, collapse_ctx] if p)
     effective = ""
     if survivor_ctx:
@@ -644,7 +685,6 @@ async def run_kernel(request: Request, data: dict):
                     user_email=email,
                 )
             except Exception as e:
-                # ★ v4.6 — ไม่โชว์ raw error ให้ user
                 print(f"⚠ LLM error: {e}")
                 return {"error": _friendly_error(str(e))}
 
@@ -662,7 +702,7 @@ async def run_kernel(request: Request, data: dict):
             "risk_score":  human_state.get("risk_score", 0),
         }
 
-    # ★ v4.6 — ถ้า result มี error field ให้ clean ก่อนส่ง
+    # ── error clean ───────────────────────────────────────────────
     if result.get("error"):
         result["error"] = _friendly_error(str(result["error"]))
         return result
@@ -685,6 +725,14 @@ async def run_kernel(request: Request, data: dict):
 
     _sync_galaxy(result)
 
+    # ── BELIEF ENFORCE — v4.8 ─────────────────────────────────────
+    # แนบ belief_audit เข้าทุก response + SYSTEM_PAUSE ถ้าจำเป็น
+    if belief_enforce:
+        try:
+            result = belief_enforce(result, belief_report)
+        except Exception as _bfe:
+            print(f"⚠ belief_enforce error: {_bfe}")
+
     if log_decision:
         try:
             log_decision(
@@ -703,9 +751,9 @@ async def run_kernel(request: Request, data: dict):
                 user_input=user_input,
                 result=result,
             )
-            result["report_url"]   = f"/report/{report_id}"
-            result["report_id"]    = report_id
-            result["share_url"]    = f"https://king-diadem.onrender.com/report/{report_id}"
+            result["report_url"] = f"/report/{report_id}"
+            result["report_id"]  = report_id
+            result["share_url"]  = f"https://king-diadem.onrender.com/report/{report_id}"
         except Exception as _re:
             print(f"⚠ report creation failed: {_re}")
 
@@ -721,7 +769,6 @@ async def run_simulate(request: Request, data: dict):
     if not user_input:
         return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
 
-    # Primary: LLM direct
     try:
         _llm = get_llm()
         paths_text = "\n".join("- " + str(p) for p in paths if str(p).strip()) or "ไม่ระบุ"
@@ -745,7 +792,6 @@ async def run_simulate(request: Request, data: dict):
     except Exception as e:
         print(f"simulate LLM: {e}")
 
-    # Fallback: simulation_engine
     if not simulate:
         return {"simulation": "ระบบจำลองไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งครับ"}
     try:
@@ -761,15 +807,12 @@ async def run_simulate(request: Request, data: dict):
 async def create_checkout(request: Request, data: dict):
     email = unquote(request.cookies.get("kd_email") or "") or data.get("email", "")
     plan  = data.get("plan", "basic")
-
     if plan == "civilization":
         price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
     else:
         price_id = os.getenv("STRIPE_PRICE_ID") or os.getenv("STRIPE_PREMIUM_PRICE_ID")
-
     if not price_id:
         return JSONResponse({"error": "ยังไม่ได้ตั้งค่า STRIPE_PRICE_ID"}, status_code=500)
-
     try:
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -786,7 +829,7 @@ async def create_checkout(request: Request, data: dict):
 
 @app.post("/create-subscription")
 async def create_subscription(request: Request):
-    email = unquote(request.cookies.get("kd_email") or "")
+    email    = unquote(request.cookies.get("kd_email") or "")
     price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
     if not price_id:
         return JSONResponse({"error": "ยังไม่ได้ตั้งค่า STRIPE_PRICE_ID"}, status_code=500)
@@ -857,7 +900,6 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
             system_instruction="คุณคือ LYLA governance scanner วิเคราะห์ภาพแล้วรายงาน risk/choice/waterline",
             temperature=0.5, max_output_tokens=800,
         )
-        # vision: try flash-2.0 first, fallback 1.5
         vision_model = getattr(_llm, 'vision_model', None) or 'gemini-2.0-flash'
         try:
             resp = _llm.client.models.generate_content(model=vision_model, contents=contents, config=cfg)
@@ -880,10 +922,8 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
 # ════════════════════════════════════════════════════════════════
 # DECISION REPORT ROUTES — v4.7
 # ════════════════════════════════════════════════════════════════
-
 @app.get("/report/{report_id}")
 async def report_page(report_id: str):
-    """Serve shareable FATE™ Decision Report page"""
     html_path = os.path.join(os.path.dirname(__file__), "static", "report.html")
     if not os.path.exists(html_path):
         return JSONResponse({"error": "report.html not found in static/"}, status_code=500)
@@ -892,7 +932,6 @@ async def report_page(report_id: str):
 
 @app.get("/api/report/{report_id}")
 async def get_report_api(report_id: str):
-    """Return FATE™ Decision Report data as JSON"""
     if not _get_report:
         return JSONResponse({"error": "report engine not loaded"}, status_code=503)
     data = _get_report(report_id)
@@ -903,10 +942,9 @@ async def get_report_api(report_id: str):
 
 @app.post("/api/report/create")
 async def create_report_manual(request: Request, data: dict):
-    """Manual report creation endpoint"""
     if not _create_report:
         return JSONResponse({"error": "report engine not loaded"}, status_code=503)
-    email = unquote(request.cookies.get("kd_email") or "anonymous")
+    email      = unquote(request.cookies.get("kd_email") or "anonymous")
     user_input = data.get("input", "")
     result     = data.get("result", {})
     if not user_input or not result:
@@ -920,4 +958,3 @@ async def create_report_manual(request: Request, data: dict):
         }
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
-        
