@@ -1,48 +1,362 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/static/style.css">
-<title>Wallet</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#020308">
+<title>KING DIADEM — Wallet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Noto+Sans+Thai:wght@300;400;500&display=swap">
+<style>
+:root {
+  --void: #020308; --deep: #04060f;
+  --gold: #c8a84b; --gold-hi: #f0d070;
+  --gold-lo: rgba(200,168,75,0.15); --gold-line: rgba(200,168,75,0.28);
+  --blue: #4a9eff; --blue-lo: rgba(74,158,255,0.10); --blue-line: rgba(74,158,255,0.18);
+  --red: #ff5577; --red-lo: rgba(255,85,119,0.10);
+  --green: #4ade80;
+  --tx-hi: rgba(240,248,255,0.96); --tx: rgba(195,215,245,0.80);
+  --tx-lo: rgba(80,110,180,0.35);
+  --r: 10px; --r-l: 14px;
+  --f-mono: 'DM Mono', monospace;
+  --f-body: 'Noto Sans Thai', system-ui, sans-serif;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; background:var(--void); color:var(--tx); font-family:var(--f-body); font-size:15px; }
+body { display:flex; align-items:center; justify-content:center; min-height:100dvh; padding:20px; }
+
+.card {
+  width:100%; max-width:420px;
+  background:rgba(6,9,20,0.92);
+  border:1px solid var(--blue-line);
+  border-top:2px solid var(--gold);
+  border-radius:var(--r-l);
+  padding:28px 24px;
+  backdrop-filter:blur(20px);
+  box-shadow:0 8px 48px rgba(0,0,0,0.6);
+  position:relative; overflow:hidden;
+}
+.card::before {
+  content:''; position:absolute; top:-60px; right:-60px;
+  width:180px; height:180px;
+  background:radial-gradient(circle, rgba(200,168,75,0.06), transparent 70%);
+  pointer-events:none;
+}
+
+.header { margin-bottom:24px; }
+.header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+.title { font-family:var(--f-mono); font-size:9px; letter-spacing:3px; color:var(--gold); text-transform:uppercase; }
+.back-link { font-family:var(--f-mono); font-size:9px; color:var(--tx-lo); text-decoration:none; letter-spacing:1px; transition:color .15s; }
+.back-link:hover { color:var(--blue); }
+
+.balance-wrap {
+  background:rgba(2,3,8,0.70);
+  border:1px solid var(--gold-line);
+  border-radius:var(--r);
+  padding:16px 18px;
+  margin-bottom:20px;
+  position:relative;
+}
+.balance-label { font-family:var(--f-mono); font-size:8px; letter-spacing:2px; color:var(--tx-lo); margin-bottom:6px; }
+.balance-amount {
+  font-family:var(--f-mono); font-size:28px; font-weight:500;
+  color:var(--gold-hi);
+}
+.balance-amount span { font-size:13px; color:var(--gold); margin-left:4px; }
+.balance-sub { font-family:var(--f-mono); font-size:8px; color:var(--tx-lo); margin-top:4px; letter-spacing:1px; }
+
+.field-label { font-family:var(--f-mono); font-size:8px; letter-spacing:2px; color:var(--tx-lo); margin-bottom:6px; display:block; }
+
+.input-wrap { position:relative; margin-bottom:14px; }
+.input-prefix {
+  position:absolute; left:13px; top:50%; transform:translateY(-50%);
+  font-family:var(--f-mono); font-size:12px; color:var(--gold);
+  pointer-events:none;
+}
+input[type="number"], input[type="email"] {
+  width:100%; padding:12px 14px 12px 32px;
+  background:rgba(2,3,8,0.70); color:var(--tx-hi);
+  border:1px solid var(--blue-line); border-radius:var(--r);
+  font-size:15px; font-family:var(--f-body); outline:none;
+  -webkit-appearance:none; appearance:none;
+  transition:border-color .18s, box-shadow .18s;
+}
+input[type="email"] { padding-left:14px; }
+input:focus { border-color:rgba(200,168,75,0.40); box-shadow:0 0 0 3px rgba(200,168,75,0.06); }
+input::placeholder { color:var(--tx-lo); }
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; }
+
+.quick-amounts { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+.quick-btn {
+  flex:1; min-width:60px; padding:7px 10px;
+  background:var(--blue-lo); border:1px solid var(--blue-line);
+  color:rgba(144,204,255,0.80); font-family:var(--f-mono); font-size:11px;
+  border-radius:6px; cursor:pointer; text-align:center;
+  transition:background .14s, border-color .14s;
+}
+.quick-btn:hover { background:rgba(74,158,255,0.18); border-color:rgba(74,158,255,0.35); }
+
+.btn-topup {
+  width:100%; padding:14px;
+  background:var(--gold-lo); border:1px solid var(--gold-line);
+  color:var(--gold-hi); font-family:var(--f-body); font-size:14px; font-weight:500;
+  border-radius:var(--r-l); cursor:pointer;
+  transition:background .18s, border-color .20s, box-shadow .20s;
+  min-height:50px; position:relative; overflow:hidden;
+}
+.btn-topup:hover:not(:disabled) { background:rgba(200,168,75,0.22); border-color:rgba(200,168,75,0.50); box-shadow:0 0 20px rgba(200,168,75,0.12); }
+.btn-topup:disabled { opacity:0.45; cursor:not-allowed; }
+
+/* Status messages */
+.status-box {
+  display:none; padding:12px 14px; border-radius:var(--r);
+  font-family:var(--f-mono); font-size:11px; letter-spacing:0.5px;
+  margin-top:14px; line-height:1.6;
+}
+.status-box.ok    { display:block; background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); color:#4ade80; }
+.status-box.error { display:block; background:var(--red-lo); border:1px solid rgba(255,85,119,0.28); color:rgba(255,120,150,0.92); }
+
+/* History */
+.history-label { font-family:var(--f-mono); font-size:8px; letter-spacing:2px; color:var(--tx-lo); margin:20px 0 8px; text-transform:uppercase; }
+.history-list { display:flex; flex-direction:column; gap:6px; }
+.history-item {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:8px 12px; background:rgba(2,3,8,0.50);
+  border:1px solid rgba(74,158,255,0.07); border-radius:6px;
+  font-family:var(--f-mono); font-size:10px; color:var(--tx-lo);
+}
+.history-item .hi-amount { color:var(--green); }
+.history-empty { font-family:var(--f-mono); font-size:9px; color:var(--tx-lo); letter-spacing:1px; padding:8px 0; }
+
+.footer-lock {
+  margin-top:20px; padding-top:14px; border-top:1px solid rgba(74,158,255,0.06);
+  font-family:var(--f-mono); font-size:7px; color:rgba(80,110,180,0.20);
+  letter-spacing:2px; text-align:center;
+}
+</style>
 </head>
-
 <body>
+<div class="card">
 
-<div class="container">
+  <div class="header">
+    <div class="header-top">
+      <div class="title">◆ WALLET</div>
+      <a href="/" class="back-link">← BACK</a>
+    </div>
+  </div>
 
-<h1>Wallet</h1>
+  <!-- Balance -->
+  <div class="balance-wrap">
+    <div class="balance-label">CURRENT BALANCE</div>
+    <div class="balance-amount" id="balance-display">—<span>THB</span></div>
+    <div class="balance-sub" id="balance-sub">กำลังโหลด...</div>
+  </div>
 
-<input id="amount" placeholder="Amount (บาท)">
+  <!-- Email (if not logged in via cookie) -->
+  <label class="field-label">EMAIL</label>
+  <input type="email" id="wallet-email" placeholder="your@email.com" autocomplete="email">
 
-<button onclick="topup()">Top Up</button>
+  <!-- Amount -->
+  <label class="field-label">จำนวนเงิน (บาท)</label>
+  <div class="input-wrap">
+    <span class="input-prefix">฿</span>
+    <input type="number" id="wallet-amount" placeholder="0" min="10" max="10000" step="10">
+  </div>
 
+  <!-- Quick amounts -->
+  <div class="quick-amounts">
+    <div class="quick-btn" onclick="setAmount(50)">฿50</div>
+    <div class="quick-btn" onclick="setAmount(100)">฿100</div>
+    <div class="quick-btn" onclick="setAmount(200)">฿200</div>
+    <div class="quick-btn" onclick="setAmount(500)">฿500</div>
+  </div>
+
+  <button class="btn-topup" id="topup-btn" onclick="topup()">
+    เติมเครดิต
+  </button>
+
+  <div class="status-box" id="status-box"></div>
+
+  <!-- History -->
+  <div class="history-label">TRANSACTION HISTORY</div>
+  <div class="history-list" id="history-list">
+    <div class="history-empty">ยังไม่มีรายการ</div>
+  </div>
+
+  <div class="footer-lock">KING DIADEM™ · FATE™ A6 · HUMAN FINAL AUTHORITY</div>
 </div>
 
 <script>
+(function(){
 
-async function topup(){
+  var HISTORY_KEY = 'kd_wallet_history';
 
-    const email = localStorage.getItem("email")
+  // ─── helpers ────────────────────────────────────────────────────
+  function getEmail(){
+    var el = document.getElementById('wallet-email');
+    var stored = localStorage.getItem('email') || window.__kdUserEmail || '';
+    if(el && !el.value && stored) el.value = stored;
+    return (el ? el.value : stored).trim();
+  }
 
+  function setAmount(n){
+    var el = document.getElementById('wallet-amount');
+    if(el){ el.value = n; el.focus(); }
+  }
+  window.setAmount = setAmount;
+
+  function showStatus(msg, type){
+    var box = document.getElementById('status-box');
+    if(!box) return;
+    box.textContent = msg;
+    box.className = 'status-box ' + (type || 'ok');
+  }
+
+  function clearStatus(){
+    var box = document.getElementById('status-box');
+    if(box){ box.className = 'status-box'; box.textContent = ''; }
+  }
+
+  function setLoading(on){
+    var btn = document.getElementById('topup-btn');
+    if(!btn) return;
+    btn.disabled = on;
+    btn.textContent = on ? 'กำลังดำเนินการ...' : 'เติมเครดิต';
+  }
+
+  // ─── history ────────────────────────────────────────────────────
+  function loadHistory(){
+    try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+    catch(_){ return []; }
+  }
+
+  function saveHistory(h){ localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0,20))); }
+
+  function pushHistory(amount, total){
+    var h = loadHistory();
+    h.unshift({
+      amount: amount,
+      total: total,
+      ts: new Date().toLocaleString('th-TH', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short' })
+    });
+    saveHistory(h);
+    renderHistory(h);
+  }
+
+  function renderHistory(h){
+    var list = document.getElementById('history-list');
+    if(!list) return;
+    if(!h || !h.length){
+      list.innerHTML = '<div class="history-empty">ยังไม่มีรายการ</div>';
+      return;
+    }
+    list.innerHTML = h.slice(0,5).map(function(item){
+      return '<div class="history-item">' +
+        '<span>' + item.ts + '</span>' +
+        '<span class="hi-amount">+฿' + item.amount + '</span>' +
+        '<span>รวม ฿' + item.total + '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  // ─── balance display ────────────────────────────────────────────
+  function setBalance(total){
+    var el = document.getElementById('balance-display');
+    var sub = document.getElementById('balance-sub');
+    if(el) el.innerHTML = Number(total).toLocaleString() + '<span>THB</span>';
+    if(sub) sub.textContent = 'อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
+  }
+
+  async function fetchBalance(email){
+    if(!email) return;
+    try{
+      var res = await fetch('/wallet/balance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email }),
+        credentials: 'same-origin'
+      });
+      if(!res.ok) return;
+      var d = await res.json();
+      if(d.total_credit != null) setBalance(d.total_credit);
+      var sub = document.getElementById('balance-sub');
+      if(sub) sub.textContent = 'อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
+    } catch(_){}
+  }
+
+  // ─── topup ──────────────────────────────────────────────────────
+  window.topup = async function(){
+    clearStatus();
+
+    var email = getEmail();
     if(!email){
-        alert("กรุณา login ก่อน")
-        return
+      showStatus('⚠ กรุณากรอก Email ก่อน', 'error');
+      document.getElementById('wallet-email')?.focus();
+      return;
+    }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      showStatus('⚠ รูปแบบ Email ไม่ถูกต้อง', 'error');
+      return;
     }
 
-    const amount = document.getElementById("amount").value
+    var rawAmount = document.getElementById('wallet-amount')?.value;
+    var amount = Number(rawAmount);
+    if(!amount || !Number.isFinite(amount) || amount < 10){
+      showStatus('⚠ จำนวนเงินขั้นต่ำ ฿10', 'error');
+      return;
+    }
+    if(amount > 10000){
+      showStatus('⚠ จำนวนสูงสุดต่อครั้ง ฿10,000', 'error');
+      return;
+    }
 
-    const res = await fetch("/wallet/topup",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({email, amount})
-    })
+    setLoading(true);
 
-    const result = await res.json()
+    try{
+      var res = await fetch('/wallet/topup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, amount: amount }),
+        credentials: 'same-origin'
+      });
 
-    alert("เติมสำเร็จ เครดิตรวม: " + result.total_credit)
-}
+      var d;
+      try{ d = await res.json(); }
+      catch(_){ throw new Error('Server ตอบกลับผิดรูปแบบ'); }
 
+      if(!res.ok || d.error){
+        throw new Error(d.error || d.message || 'เติมเครดิตไม่สำเร็จ HTTP ' + res.status);
+      }
+
+      var total = d.total_credit ?? d.balance ?? amount;
+      setBalance(total);
+      pushHistory(amount, total);
+      localStorage.setItem('email', email);
+      showStatus('✓ เติมเครดิต ฿' + amount.toLocaleString() + ' สำเร็จ\nเครดิตรวม: ฿' + Number(total).toLocaleString(), 'ok');
+      document.getElementById('wallet-amount').value = '';
+
+    } catch(e){
+      console.error('[KD:wallet]', e);
+      showStatus('⚠ ' + e.message, 'error');
+    } finally{
+      setLoading(false);
+    }
+  };
+
+  // ─── init ───────────────────────────────────────────────────────
+  renderHistory(loadHistory());
+
+  // pre-fill email + fetch balance
+  var emailEl = document.getElementById('wallet-email');
+  var stored = localStorage.getItem('email') || window.__kdUserEmail || '';
+  if(stored && emailEl){ emailEl.value = stored; fetchBalance(stored); }
+
+  // Enter key on amount → topup
+  document.getElementById('wallet-amount')?.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') window.topup();
+  });
+
+})();
 </script>
-
 </body>
 </html>
