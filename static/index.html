@@ -1844,28 +1844,64 @@ async function simulate(){
   var label=document.getElementById('sim-btn-label');
   var resultWrap=document.getElementById('sim-result');
   var out=document.getElementById('sim-result-text');
+  if(!resultWrap||!out){console.warn('[KD] simulate: missing DOM elements');return;}
   resultWrap.style.display='block';
-  if(!input){out.textContent='พิมพ์สถานการณ์ก่อนนะคะ';return;}
-  btn.disabled=true;
+  if(!input){
+    out.textContent='พิมพ์สถานการณ์ก่อนนะคะ';
+    return;
+  }
+  if(btn)btn.disabled=true;
   if(icon)icon.style.animation='spin 1s linear infinite';
   if(label)label.textContent='กำลังจำลองอนาคต…';
-  out.textContent='⬡ FATE กำลังประมวลผลเส้นทาง…';
-  var paths=[...document.querySelectorAll('#sim-paths input')].map(function(i){return i.value;}).filter(Boolean);
+  out.textContent='⬡ FATE™ กำลังประมวลผลเส้นทาง…';
+  var paths=[...document.querySelectorAll('#sim-paths input')]
+    .map(function(i){return(i.value||'').trim();})
+    .filter(Boolean);
   try{
-    var r=await fetchRetry('/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:input,paths:paths})},2,1200);
+    var r=await fetchRetry('/simulate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        input:input,
+        paths:paths,
+        user_email:window.__kdUserEmail||null
+      })
+    },2,1200);
     var d=await readJson(r);
-    var txt=d.simulation||d.message||d.error||'';
+    if(d.error){
+      out.textContent='⚠ '+d.error;
+      showErr(d.error,5000);
+      return;
+    }
+    var txt=d.simulation||d.message||'';
     if(!txt&&typeof d==='object')txt=JSON.stringify(d,null,2);
     if(!txt)txt='ผลลัพธ์ว่าง — กรุณาลองใหม่';
-    if(d.lyla_observation&&Object.keys(d.lyla_observation).length){
+    if(d.lyla_observation&&typeof d.lyla_observation==='object'&&Object.keys(d.lyla_observation).length){
       var obs=d.lyla_observation;
-      txt+='\n\n── การสังเกตของ LYLA ──\nโดเมน: '+(obs.domain||'—')+' | Waterline: '+(obs.waterline||'—')+' | Drift: '+(obs.drift_risk||'—');
+      txt+='\n\n── การสังเกตของ LYLA ──\nโดเมน: '+(obs.domain||'—')+
+           ' | Waterline: '+(obs.waterline||'—')+
+           ' | Drift: '+(obs.drift_risk||'—');
+    }
+    if(d.paths&&Array.isArray(d.paths)&&d.paths.length){
+      txt+='\n\n── เส้นทางที่จำลอง ──';
+      d.paths.forEach(function(p,i){
+        txt+='\n'+(i+1)+'. '+(p.path||p.label||'path '+(i+1))+
+             (p.outcome?' → '+p.outcome:'')+
+             (p.risk_score!=null?' [RISK: '+Math.round(p.risk_score)+']':'');
+      });
     }
     out.textContent=txt;
-  }catch(e){out.textContent='ERROR: '+e;}
-  btn.disabled=false;
-  if(icon)icon.style.animation='';
-  if(label)label.textContent='เริ่มจำลองอนาคต';
+    // dispatch to orbit + lineage if available
+    window.dispatchEvent(new CustomEvent('KD:response',{detail:d}));
+  }catch(e){
+    console.error('[KD:simulate]',e);
+    out.textContent='ERROR: '+e.message;
+    showErr('Simulate: '+e.message,6000);
+  }finally{
+    if(btn)btn.disabled=false;
+    if(icon)icon.style.animation='';
+    if(label)label.textContent='เริ่มจำลองอนาคต';
+  }
 }
 async function stripeCheckout(){
   var email=document.getElementById('payment-email').value.trim();var plan=document.querySelector('input[name="plan"]:checked')?.value||'basic';
