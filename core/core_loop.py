@@ -1,25 +1,49 @@
-# core/core_loop.py — KING DIADEM v3.1
+"""
+core/core_loop.py
+CORE LOOP — KING DIADEM v3.1
+
+แก้จาก v3.0:
+  - ตัด EmotionState object ใน dict → serialize พัง (JSON ไม่รู้จัก object)
+  - ตัด record_outcome ออกจาก core → side effect ใน core loop ผิด FATE Axiom 3
+  - เพิ่ม SilentCanon.evaluate() — ทุก tick ต้องผ่าน Canon
+  - เพิ่ม evaluate_laws() — ตรวจ Reality Laws ทุก tick
+  - estimate_choice_count() derive จาก state เองโดยไม่รอ user input
+"""
+
 from core.time_engine import compute_time_to_failure, compute_decision_window
-from core.silent_canon import SilentCanon
+from core.silent_canon import SilentCanon, CanonStatus
+from core.reality_laws import evaluate_laws
 
-def clamp(v):
-    return max(0, min(100, v))
 
-def compute_drift(state):
+def clamp(v: float) -> float:
+    return max(0.0, min(100.0, v))
+
+
+def compute_drift(state: dict) -> float:
     return clamp((state["entropy"] * 0.5) + ((100 - state["resource"]) * 0.5))
 
-def update_entropy(state):
+
+def update_entropy(state: dict) -> dict:
     state["entropy"] = clamp(state["entropy"] + state["drift"] * 0.1 - 1.5)
     return state
 
-def update_stability(state):
+
+def update_stability(state: dict) -> dict:
     state["stability"] = clamp(state["stability"] - state["drift"] * 0.3 + 0.5)
     return state
 
-def stop_the_line(state):
+
+def stop_the_line(state: dict) -> bool:
+    """DriftZero stop-the-line: stability < 20 หรือ resource < 10"""
     return state["stability"] < 20 or state["resource"] < 10
 
-def estimate_choice_count(state) -> int:
+
+def estimate_choice_count(state: dict) -> int:
+    """
+    Derive choice_count จาก system state
+    ไม่รอ user input — ระบบ estimate เองได้
+    score 0–3 → Canon ใช้ตัวนี้ evaluate
+    """
     score = 0
     if state["stability"] >= 40:
         score += 1
@@ -29,34 +53,57 @@ def estimate_choice_count(state) -> int:
         score += 1
     return score
 
-def run_core(state, user_prompt=None):
-    # 1. Physics
-    state["drift"] = compute_drift(state)
-    state = update_entropy(state)
-    state = update_stability(state)
 
-    # 2. Stop-the-line
+def run_core(state: dict, user_prompt: str = None) -> dict:
+    """
+    KING DIADEM Core Loop v3.1
+    Pipeline: physics → reality laws → silent canon → time engine
+    """
+    # 1. Physics — entropy / stability / drift
+    state["drift"]     = compute_drift(state)
+    state              = update_entropy(state)
+    state              = update_stability(state)
+
+    # 2. Reality Laws check — ตรวจก่อน canon
+    law_result = evaluate_laws({
+        "entropy":       state["entropy"],
+        "stability":     state["stability"],
+        "resource":      state["resource"],
+        "choice_count":  estimate_choice_count(state),
+        "explainable":   state.get("explainable", True),
+        "ego_in_signal": state.get("ego_in_signal", False),
+    })
+    state["law_violations"] = law_result["violations"]
+
+    # 3. Stop-the-line — DriftZero hard floor
     if stop_the_line(state):
-        return {"status": "HALT", "state": state}
+        return {
+            "status":         "HALT",
+            "reason":         "stop_the_line: stability or resource below floor",
+            "state":          state,
+            "law_violations": law_result["violations"],
+        }
 
-    # 3. Silent Canon check
+    # 4. Silent Canon — prime law enforcement
     choice_count = estimate_choice_count(state)
     canon_result = SilentCanon.evaluate(choice_count)
 
-    if canon_result["status"] == "INTERVENE":
+    if canon_result.status == CanonStatus.INTERVENE:
         state["intervention"] = "restore_minimum_path"
     else:
-        state.pop("intervention", None)  # Canon บอกนิ่ง ล้าง flag เดิม
+        state.pop("intervention", None)
 
-    # 4. Time engine
-    ttf = compute_time_to_failure(state)
+    # 5. Time engine
+    ttf    = compute_time_to_failure(state)
     window = compute_decision_window(ttf)
 
     return {
-        "status": "RUNNING",
-        "state": state,
+        "status":          "RUNNING",
+        "state":           state,
         "time_to_failure": ttf,
         "decision_window": window,
-        "canon": canon_result["status"],
-        "choice_count": choice_count
+        "canon":           canon_result.status.value,
+        "choice_count":    choice_count,
+        "law_violations":  law_result["violations"],
+        "reality_aligned": law_result["reality_aligned"],
     }
