@@ -1,65 +1,109 @@
-KING DIADEM
-Human Choice Interface
-
-Purpose:
-Allow a human to describe their current situation and receive multiple survivable choices.
+# HUMAN CHOICE INTERFACE
+**KING DIADEM — สะพานระหว่างมนุษย์กับระบบตัดสินใจ**
+Author: Nithikorn Bunsrang | Bound to: `app.py /run` + `king_diadem_core.py` v2.0
 
 ---
 
-INPUT STRUCTURE
+## Purpose
 
-Country:
-Current Location:
-Current Activity:
+ให้มนุษย์อธิบายสถานการณ์ของตัวเองในภาษาธรรมชาติ
+แล้วได้รับ 3-4 เส้นทางที่รอดได้ — ไม่ใช่คำสั่ง
 
-Resources:
-Food:
-Water:
-Money:
-Energy:
-Tools:
-
-Constraints:
-Danger Level:
-Time Pressure:
+**อธิปไตยของการเลือกเป็นของมนุษย์เสมอ**
 
 ---
 
-SYSTEM RESPONSE
+## Input (ภาษาธรรมชาติ — ไม่ต้องกรอก form)
 
-The system must produce 3–4 survival pathways.
+ผู้ใช้พิมพ์ใน chat เช่น:
+```
+"ตอนนี้ตกงาน มีเงินเหลือ 3,000 บาท มีลูก 1 คน
+ไม่รู้จะทำยังไงดี"
+```
 
-Rules:
+ระบบจะ extract เอง:
 
-1. No option may eliminate the user's future choices.
-2. Options must be survivable.
-3. Violence must never be the first option.
-4. Cooperation and stability are preferred.
-
----
-
-OUTPUT FORMAT
-
-Option 1
-Low resource consumption
-Maintains safety
-
-Option 2
-Moderate risk
-May increase future resources
-
-Option 3
-Seek collaboration with nearby humans
-
-Option 4
-Relocate to a safer or more resource-rich area
+| field | extracted |
+|-------|-----------|
+| resource.money | ต่ำ (3,000 บาท) |
+| resource.food | unknown → ถามเพิ่ม |
+| constraint | มีลูก = dependant |
+| emotion | เครียด/ไม่รู้จะทำอะไร |
+| urgency | medium-high |
 
 ---
 
-FINAL RULE
+## Processing (codebase binding)
 
-The system never decides for the human.
+```
+User message → app.py /run
+  ↓
+ENGINE/human_engine.analyze_human()        ← extract human state
+  ↓
+king_diadem_core.quick_assess()            ← bodhipakkhiya channel
+  ↓
+core/llm_gemini.py LYLA_SYSTEM             ← รับรู้ก่อน ค่อยวิเคราะห์
+  ↓
+ENGINE/survival_advisor.survival_advisor() ← generate paths
+  ↓
+king_diadem_core.north_principle()         ← กรอง
+  ↓
+king_diadem_core.preserve_choice()         ← ≥1 เสมอ
+  ↓
+core/cosmic_latte_canon.evaluate_task()    ← canon gate ก่อน return
+  ↓
+Response to user (LYLA tone — เข้าอกเข้าใจ)
+```
 
-It only reveals viable paths.
+---
 
-Human choice remains sovereign.
+## Response Rules (LYLA Warmth Axioms)
+
+1. **รับรู้ก่อนเสมอ** — 1-2 ประโยคก่อน solution
+2. **ไม่เกิน 3 ตัวเลือก** ต่อ response (Article 11)
+3. **ไม่ตัดสิน** ไม่ว่าสถานการณ์จะเป็นอะไร
+4. **ไม่สั่ง** — เสนอเส้นทาง ไม่บังคับ
+5. **ถ้า emotion สูง** → switch CRISIS_SYSTEM อัตโนมัติ
+
+---
+
+## Output ที่ผู้ใช้เห็น
+
+```
+ฉันได้ยินที่คุณพูดนะคะ — มันหนักจริงๆ 🤍
+
+ลองดูสามทางนี้ก่อนได้เลยค่ะ:
+
+1) วันนี้ก่อนเลย — เขียนรายจ่ายจำเป็น 30 วัน
+   แค่ตัวเลข ยังไม่ต้องตัดสินใจอะไร
+
+2) งานชั่วคราวที่เริ่มได้เร็ว — Shopee Food, Grab
+   เปิด-ปิดได้เองตามเวลาที่มี
+
+3) โทรหา 1506 กรมจัดหางาน
+   ลงทะเบียนว่างงานก่อน เพื่อรักษาสิทธิ์ประกันสังคม
+
+— LYLA ◈
+```
+
+---
+
+## Validation Gate
+
+ก่อน response ทุกครั้ง ระบบตรวจ:
+
+```python
+canon_check = evaluate_task({
+    "description": response_text,
+    "has_choice": len(paths) >= 1,
+    "has_exit": True,
+})
+# ถ้า canon_aligned = False → regenerate
+```
+
+---
+
+## Axiom Lock
+
+> ชีวิตไม่ควรถูกบีบจนเหลือทางเดียว
+> — KING DIADEM Founder's Letter, Principle 1
