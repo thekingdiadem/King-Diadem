@@ -1,66 +1,108 @@
-CHOICE ENGINE
-
-Human Situation Input
-
-The system receives four simple inputs from a person.
-
-1. Location
-Country or region the person currently resides in.
-
-2. Current Activity
-What the person is currently doing.
-
-3. Available Resources
-Food, money, tools, shelter or assistance currently accessible.
-
-4. Time Pressure
-How urgent the situation is.
-
+# CHOICE ENGINE
+**KING DIADEM — Human Situation Input & Path Generation**
+Author: Nithikorn Bunsrang | Bound to: `king_diadem_core.py` v2.0
 
 ---
 
-Processing Logic
+## Purpose
 
-The system evaluates three risks:
+รับ input จากมนุษย์ที่อยู่ในสถานการณ์จริง
+แล้วคืน 3-4 เส้นทางที่รอดได้ — โดยไม่ตัดสินใจแทน
 
-Resource depletion
-Choice reduction
-Structural drift
-
+Core Rule: `Choice(t) ≥ 1` ตลอดเวลา
 
 ---
 
-Output
+## Input Structure
 
-The system returns 3-4 viable paths.
-
-Each option must satisfy:
-
-1. Does not reduce future choices
-2. Does not create irreversible damage
-3. Does not rely on violence
-4. Keeps the system stable
-
-
----
-
-Example Output
-
-Option A
-Stabilize current situation.
-
-Option B
-Reduce resource consumption.
-
-Option C
-Seek cooperative assistance.
-
-Option D
-Move to a lower-risk environment.
-
+```json
+{
+  "location": "ประเทศหรือพื้นที่",
+  "activity": "กำลังทำอะไรอยู่",
+  "resources": {
+    "food": 0-100,
+    "money": 0-100,
+    "tools": "มี/ไม่มี",
+    "shelter": "มี/ไม่มี"
+  },
+  "time_pressure": "low | medium | high",
+  "context": "อธิบายสถานการณ์เพิ่มเติม (optional)"
+}
+```
 
 ---
 
-Core Rule
+## Processing Pipeline (codebase binding)
 
-A valid option must always preserve at least one future option.
+```
+Input
+  ↓
+king_diadem_core.quick_assess(context, pattern)
+  ↓
+ENGINE/bodhipakkhiya_engine.guardian_check()   ← 6-layer structural check
+  ↓
+ENGINE/yonisomanasikara_engine.wise_attention() ← คิดอย่างถูกวิธี
+  ↓
+ENGINE/paticcasamuppada_engine.suffering_infrastructure() ← หา root cause
+  ↓
+ENGINE/survival_advisor.survival_advisor()      ← generate paths
+  ↓
+king_diadem_core.north_principle()              ← กรอง harm/ethics
+  ↓
+king_diadem_core.preserve_choice()             ← ≥1 เสมอ
+  ↓
+ENGINE/choice_optimizer.optimize_choice()      ← rank paths
+  ↓
+core/cosmic_latte_canon.validate_output()      ← canon check ก่อน return
+  ↓
+Output (3-4 paths)
+```
+
+---
+
+## Output Format
+
+```json
+{
+  "paths": [
+    {
+      "option": "A",
+      "action": "...",
+      "resource_cost": "low | medium | high",
+      "preserves_future": true,
+      "risk": "low | medium | high"
+    }
+  ],
+  "choice_count": 3,
+  "canon_aligned": true,
+  "bodhipakkhiya_peace": true,
+  "one_line": "สงบก่อนทำ · ทำน้อยที่สุด · ถอนเมื่อสงบแล้ว"
+}
+```
+
+---
+
+## Validation Rules (ทุก path ต้องผ่าน)
+
+1. ไม่ตัดทางเลือกในอนาคต (`preserves_future: true`)
+2. ไม่สร้างความเสียหายที่กลับไม่ได้
+3. ความรุนแรงไม่ใช่ตัวเลือกแรก
+4. ระบบไม่ตัดสินใจแทนมนุษย์ — แค่เปิดเส้นทาง
+
+---
+
+## Route Mapping (เชื่อมกับ app.py)
+
+| time_pressure | route ที่ trigger |
+|---------------|-----------------|
+| low           | general         |
+| medium        | risk            |
+| high          | survival        |
+| choice = 0    | SYSTEM_PAUSE    |
+
+---
+
+## Axiom Lock
+
+> ระบบที่ดีที่สุดคือระบบที่เงียบเมื่อมนุษย์ยังเลือกได้
+> — KING DIADEM Founder's Letter
