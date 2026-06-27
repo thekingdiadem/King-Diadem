@@ -248,23 +248,15 @@ function planetPos(p,now){
 function getR(p){ return Math.min(W,H)*(isMobile?p.rM:p.rD); }
 
 function drawOrbitRing(p,now){
-  var R=Math.min(W,H)*p.orb;
-  var oy=sunCY()+H*p.yOff;
-  var isAct=p.route===activeRoute;
-  ctx.save(); ctx.globalCompositeOperation='screen';
-  ctx.beginPath();
-  ctx.ellipse(sunCX(),oy,R,R*TILT,0,0,Math.PI*2);
-  var a=isAct?0.40:0.09;
-  ctx.strokeStyle=isAct?'rgba(200,168,75,'+a+')':'rgba(100,150,220,'+a+')';
-  ctx.lineWidth=isAct?1.2:0.45;
-  ctx.stroke();
-  if(isAct){
+  /* Orbit rings hidden per design — planets still orbit, rings not drawn */
+  if(p.route===activeRoute){
     var pos=planetPos(p,now);
+    ctx.save(); ctx.globalCompositeOperation='screen';
     var sg=ctx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,8);
     sg.addColorStop(0,'rgba(255,235,120,0.90)');sg.addColorStop(1,'rgba(0,0,0,0)');
     ctx.fillStyle=sg; ctx.fillRect(0,0,W,H);
+    ctx.restore();
   }
-  ctx.restore();
 }
 
 function drawLabel(p,pos){
@@ -429,86 +421,99 @@ function drawVenus(x,y,r,now){
 }
 
 /* ================================================================
-   EARTH — wallpaper accurate
-   - Deep navy ocean with VIVID TEAL coastal shallows
-   - Australia deep red/orange
-   - Thick volumetric 3D clouds
-   - Strong white specular top-left
-   - Thick blue atmosphere rim
+   EARTH v46 — WALLPAPER ACCURATE
+   - Base: deep navy #010c2a, NOT teal/bright
+   - Teal ONLY at coastal edges (screen blend, tight radius)
+   - Australia: dominant red-orange mass like NASA photo
+   - Clouds: dense volumetric white swirls
+   - Specular: crisp white top-left, NOT spread across ocean
+   - Atmosphere: blue rim only at edge, thin not thick
    ================================================================ */
 function drawEarth(x,y,r,now){
   ctx.save();
 
-  /* ── OCEAN: deep navy + vivid teal shallow coastal like wallpaper ── */
-  var ocean=ctx.createRadialGradient(x-r*0.18,y-r*0.14,r*0.05, x+r*0.16,y+r*0.18,r*1.05);
-  ocean.addColorStop(0,   '#e8f8ff');  /* specular center very bright */
-  ocean.addColorStop(0.05,'#90e8ff');  /* vivid teal highlight */
-  ocean.addColorStop(0.14,'#20c0e0');  /* teal mid */
-  ocean.addColorStop(0.28,'#0888c8');  /* blue transition */
-  ocean.addColorStop(0.48,'#044898');
-  ocean.addColorStop(0.68,'#022060');
-  ocean.addColorStop(0.85,'#010c30');
-  ocean.addColorStop(1,   '#000818');
+  /* ── BASE OCEAN: deep navy, almost black at edges ── */
+  var ocean=ctx.createRadialGradient(x-r*0.10,y-r*0.08,r*0.02, x+r*0.18,y+r*0.20,r*1.02);
+  ocean.addColorStop(0,   '#0a3060');  /* illuminated ocean — deep blue, NOT white */
+  ocean.addColorStop(0.18,'#062448');
+  ocean.addColorStop(0.40,'#041838');
+  ocean.addColorStop(0.62,'#020e28');
+  ocean.addColorStop(0.82,'#010820');
+  ocean.addColorStop(1,   '#010c2a');
   ctx.fillStyle=ocean;
   ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
 
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.clip();
 
-  /* ── TEAL COASTAL SHALLOWS — key feature of wallpaper ── */
+  /* ── TEAL COASTAL SHALLOWS — tight, vivid, NOT spread ── */
   ctx.globalCompositeOperation='screen';
-  /* Around Australia coast */
-  var tc1=ctx.createRadialGradient(x+r*0.42,y+r*0.32,0, x+r*0.42,y+r*0.32,r*0.28);
-  tc1.addColorStop(0,'rgba(0,220,210,0.45)');
-  tc1.addColorStop(0.4,'rgba(0,185,175,0.22)');
+
+  /* Around Australia — the signature teal coast of the wallpaper */
+  var tc1=ctx.createRadialGradient(x+r*0.50,y+r*0.28,0, x+r*0.50,y+r*0.28,r*0.22);
+  tc1.addColorStop(0,'rgba(0,210,200,0.72)');
+  tc1.addColorStop(0.35,'rgba(0,180,170,0.38)');
+  tc1.addColorStop(0.65,'rgba(0,140,130,0.12)');
   tc1.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=tc1; ctx.fillRect(0,0,W,H);
-  /* Indian ocean teal */
-  var tc2=ctx.createRadialGradient(x+r*0.25,y+r*0.15,0, x+r*0.25,y+r*0.15,r*0.22);
-  tc2.addColorStop(0,'rgba(0,200,195,0.35)');
+
+  /* NW Australia coast — bright teal patch */
+  var tc2=ctx.createRadialGradient(x+r*0.42,y+r*0.14,0, x+r*0.42,y+r*0.14,r*0.14);
+  tc2.addColorStop(0,'rgba(0,225,215,0.65)');
+  tc2.addColorStop(0.5,'rgba(0,195,185,0.22)');
   tc2.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=tc2; ctx.fillRect(0,0,W,H);
-  /* SE Asia coast */
-  var tc3=ctx.createRadialGradient(x+r*0.50,y+r*0.05,0, x+r*0.50,y+r*0.05,r*0.18);
-  tc3.addColorStop(0,'rgba(0,215,200,0.40)');
+
+  /* Indian Ocean visible teal */
+  var tc3=ctx.createRadialGradient(x+r*0.22,y+r*0.22,0, x+r*0.22,y+r*0.22,r*0.16);
+  tc3.addColorStop(0,'rgba(0,195,188,0.48)');
+  tc3.addColorStop(0.6,'rgba(0,160,155,0.15)');
   tc3.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=tc3; ctx.fillRect(0,0,W,H);
+
+  /* SE Asia archipelago coast */
+  var tc4=ctx.createRadialGradient(x+r*0.55,y+r*0.04,0, x+r*0.55,y+r*0.04,r*0.14);
+  tc4.addColorStop(0,'rgba(0,205,195,0.55)');
+  tc4.addColorStop(0.5,'rgba(0,170,162,0.18)');
+  tc4.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=tc4; ctx.fillRect(0,0,W,H);
 
   /* ── LAND CONTINENTS ── */
   ctx.globalCompositeOperation='source-over';
   function land(ox,oy,rx,R,G,B,a){
     var g=ctx.createRadialGradient(x+ox*r,y+oy*r,0, x+ox*r,y+oy*r,rx*r);
     g.addColorStop(0,'rgba('+R+','+G+','+B+','+a+')');
-    g.addColorStop(0.38,'rgba('+R+','+G+','+B+','+(a*0.65).toFixed(2)+')');
-    g.addColorStop(0.68,'rgba('+R+','+G+','+B+','+(a*0.25).toFixed(2)+')');
+    g.addColorStop(0.35,'rgba('+R+','+G+','+B+','+(a*0.68).toFixed(2)+')');
+    g.addColorStop(0.65,'rgba('+R+','+G+','+B+','+(a*0.28).toFixed(2)+')');
     g.addColorStop(1,'rgba(0,0,0,0)');
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
   }
 
-  /* Australia — DEEP RED like wallpaper, very prominent */
-  land( 0.46, 0.26, 0.24, 188, 65, 15, 0.98);  /* main red mass */
-  land( 0.55, 0.18, 0.11, 170, 52, 12, 0.94);  /* north */
-  land( 0.60, 0.34, 0.09,  72,128, 42, 0.86);  /* green east coast */
-  land( 0.44, 0.38, 0.10, 165, 58, 14, 0.88);  /* south */
+  /* Australia — DOMINANT RED-ORANGE, the most prominent land like wallpaper */
+  land( 0.48, 0.22, 0.26, 195, 68, 18, 1.00);  /* main red interior */
+  land( 0.52, 0.14, 0.12, 178, 55, 12, 0.96);  /* north Queensland red */
+  land( 0.58, 0.30, 0.10, 155, 60, 16, 0.92);  /* south red */
+  land( 0.56, 0.20, 0.08, 210, 80, 20, 0.94);  /* bright orange highlight */
+  land( 0.62, 0.26, 0.09,  62,115, 38, 0.80);  /* green east coast narrow */
 
   /* Africa — warm ochre/brown */
-  land( 0.10,-0.06, 0.24, 200,155, 70, 0.92);
-  land( 0.14, 0.16, 0.17, 152,122, 52, 0.88);
-  land( 0.16, 0.02, 0.11,  48,112, 38, 0.86);  /* Congo green */
-  land( 0.06,-0.12, 0.12, 218,175, 85, 0.88);  /* Sahara */
-  land( 0.20, 0.30, 0.10, 135,115, 55, 0.82);  /* S Africa */
+  land( 0.10,-0.06, 0.24, 198,152, 68, 0.90);
+  land( 0.14, 0.16, 0.17, 148,118, 50, 0.86);
+  land( 0.16, 0.02, 0.10,  45,108, 35, 0.84);  /* Congo green */
+  land( 0.06,-0.12, 0.12, 215,172, 82, 0.86);  /* Sahara */
+  land( 0.20, 0.30, 0.09, 132,112, 52, 0.80);
 
-  /* Middle East — tan */
-  land( 0.24,-0.10, 0.14, 215,178, 95, 0.90);
+  /* Middle East */
+  land( 0.24,-0.10, 0.13, 212,175, 92, 0.88);
 
   /* Europe */
-  land( 0.06,-0.26, 0.12,  72,145, 52, 0.84);
-  land( 0.12,-0.34, 0.09,  65,135, 48, 0.80);
+  land( 0.06,-0.26, 0.11,  70,142, 50, 0.82);
+  land( 0.12,-0.34, 0.08,  62,132, 46, 0.78);
 
   /* Asia */
-  land( 0.34,-0.32, 0.30,  82,148, 58, 0.80);
-  land( 0.48,-0.14, 0.15,  98,158, 60, 0.82);
-  land( 0.36, 0.02, 0.12, 138,168, 68, 0.84);  /* India */
-  land( 0.52, 0.02, 0.11,  48,118, 42, 0.82);  /* SE Asia */
+  land( 0.34,-0.32, 0.28,  80,145, 56, 0.78);
+  land( 0.48,-0.14, 0.14,  95,155, 58, 0.80);
+  land( 0.36, 0.02, 0.11, 135,165, 65, 0.82);  /* India */
+  land( 0.52, 0.02, 0.10,  45,115, 42, 0.82);  /* SE Asia */
   land( 0.32,-0.22, 0.20, 165,172, 82, 0.76);  /* Central Asia steppe */
 
   /* Americas */
@@ -579,59 +584,51 @@ function drawEarth(x,y,r,now){
 
   ctx.restore(); /* end clip */
 
-  /* ── ATMOSPHERE RIM — thick vivid blue like wallpaper ── */
+  /* ── ATMOSPHERE RIM — thin crisp blue edge only, like wallpaper ── */
   ctx.save(); ctx.globalCompositeOperation='screen';
 
-  /* Inner rim — bright cyan/blue */
-  var atm1=ctx.createRadialGradient(x,y,r*0.82,x,y,r*1.10);
-  atm1.addColorStop(0,'rgba(60,190,255,0.72)');
-  atm1.addColorStop(0.30,'rgba(40,158,245,0.42)');
-  atm1.addColorStop(0.60,'rgba(25,120,225,0.18)');
+  /* Thin rim — only at the very edge of the sphere */
+  var atm1=ctx.createRadialGradient(x,y,r*0.90,x,y,r*1.14);
+  atm1.addColorStop(0,'rgba(55,175,248,0.85)');
+  atm1.addColorStop(0.22,'rgba(38,148,240,0.52)');
+  atm1.addColorStop(0.50,'rgba(22,108,218,0.18)');
   atm1.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=atm1; ctx.fillRect(0,0,W,H);
 
-  /* Outer glow */
-  var atm2=ctx.createRadialGradient(x,y,r*0.90,x,y,r*1.38);
-  atm2.addColorStop(0,'rgba(100,220,255,0.58)');
-  atm2.addColorStop(0.28,'rgba(65,185,252,0.28)');
-  atm2.addColorStop(0.55,'rgba(40,140,230,0.10)');
+  /* Very subtle outer haze */
+  var atm2=ctx.createRadialGradient(x,y,r*0.96,x,y,r*1.28);
+  atm2.addColorStop(0,'rgba(80,210,255,0.32)');
+  atm2.addColorStop(0.40,'rgba(50,165,238,0.10)');
   atm2.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=atm2; ctx.fillRect(0,0,W,H);
 
-  /* Limb brightening — top-left sun side */
-  var limb=ctx.createRadialGradient(x-r*0.24,y-r*0.20,r*0.84, x-r*0.08,y-r*0.06,r*1.22);
-  limb.addColorStop(0,'rgba(175,240,255,0.55)');
-  limb.addColorStop(0.40,'rgba(115,205,255,0.22)');
-  limb.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=limb; ctx.fillRect(0,0,W,H);
-
   ctx.restore();
 
-  /* ── SPECULAR HIGHLIGHT — very bright white top-left like wallpaper ── */
+  /* ── SPECULAR HIGHLIGHT — crisp bright spot top-left, ocean glint ── */
   ctx.save(); ctx.globalCompositeOperation='screen';
 
-  /* Main specular — large bright core */
-  var spec1=ctx.createRadialGradient(x-r*0.22,y-r*0.18,0, x-r*0.10,y-r*0.08,r*0.42);
-  spec1.addColorStop(0,'rgba(255,255,255,0.95)');
-  spec1.addColorStop(0.12,'rgba(245,252,255,0.72)');
-  spec1.addColorStop(0.28,'rgba(230,248,255,0.38)');
-  spec1.addColorStop(0.50,'rgba(210,240,255,0.14)');
+  /* Main specular on cloud/ocean — tight bright point */
+  var spec1=ctx.createRadialGradient(x-r*0.20,y-r*0.16,0, x-r*0.14,y-r*0.10,r*0.28);
+  spec1.addColorStop(0,'rgba(255,255,255,0.98)');
+  spec1.addColorStop(0.15,'rgba(240,252,255,0.75)');
+  spec1.addColorStop(0.35,'rgba(215,245,255,0.35)');
+  spec1.addColorStop(0.60,'rgba(190,235,255,0.10)');
   spec1.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=spec1;
   ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
 
-  /* Secondary specular — smaller glint */
-  var spec2=ctx.createRadialGradient(x-r*0.14,y-r*0.28,0, x-r*0.10,y-r*0.22,r*0.12);
-  spec2.addColorStop(0,'rgba(255,255,255,0.80)');
-  spec2.addColorStop(0.5,'rgba(240,252,255,0.25)');
+  /* Tiny secondary glint — like ocean sparkle */
+  var spec2=ctx.createRadialGradient(x-r*0.12,y-r*0.30,0, x-r*0.10,y-r*0.26,r*0.08);
+  spec2.addColorStop(0,'rgba(255,255,255,0.88)');
+  spec2.addColorStop(0.4,'rgba(240,250,255,0.28)');
   spec2.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=spec2;
   ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
 
   ctx.restore();
 
-  /* Edge darkening */
-  pTerminator(x,y,r,0.48);
+  /* Edge darkening — not too heavy so ocean rim stays visible */
+  pTerminator(x,y,r,0.52);
   ctx.restore();
 }
 
