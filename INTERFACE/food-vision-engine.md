@@ -1,94 +1,113 @@
-FOOD VISION ENGINE
+# FOOD VISION ENGINE
+**KING DIADEM — AI Food Balance System**
+Author: Nithikorn Bunsrang | Bound to: `app.py` `/analyze-image` + `king_diadem_core.py`
 
-AI Assisted Food Choice Balancing System
+---
 
+## Purpose
 
-Purpose
+ถ่ายภาพอาหาร → AI ประเมินแคลอรี่โดยประมาณ
+→ เสนอทางสมดุล **โดยไม่ตัดทางเลือกอาหาร**
 
-This module allows a human to take a photo of food.
-The AI estimates approximate calories and suggests
-balance actions without restricting food choices.
+Core Rule: ระบบ **เพิ่ม choice** ไม่ใช่ **ลด choice**
 
-The system does not remove food options.
-Instead, it maintains choice while restoring balance.
+---
 
+## Principle
 
-Important Principle
+ไม่มีการประเมินแคลอรี่ที่แม่นยำ 100% —
+portion, วัตถุดิบ, วิธีปรุง ต่างกันทุกครั้ง
 
-No calorie estimation can ever be perfectly accurate.
+ดังนั้นระบบใช้ **approximate estimation** ไม่ใช่ false precision
 
-Food portions vary.
-Ingredients vary.
-Cooking methods vary.
+---
 
-Therefore the system uses approximate estimation
-instead of false precision.
+## Pipeline (codebase binding)
 
+```
+User Photo
+  ↓
+app.py /analyze-image
+  ↓
+core/llm_gemini.py (Gemini Vision)
+  ↓
+[Food recognition + portion estimation + calorie estimate]
+  ↓
+king_diadem_core.quick_assess(context, pattern)
+  ↓ (ตรวจว่า response สมดุลไหม — ไม่กดดันผู้ใช้)
+core/cosmic_latte_canon.evaluate_task()
+  ↓
+Output: balance options (ไม่ใช่ restriction)
+```
 
-Input
+---
 
-User takes a photo of food.
+## Input
 
+```
+POST /analyze-image
+Content-Type: multipart/form-data
+file: <image>
+```
 
-AI Processing
+---
 
-The system performs:
+## Output Format
 
-1. Food recognition
-2. Portion estimation
-3. Approximate calorie estimation
-4. Nutritional balance estimation
+```json
+{
+  "detected_food": "ข้าวผัดหมู",
+  "estimated_calories": "~700 kcal",
+  "confidence": "approximate",
+  "balance_options": [
+    {
+      "option": "A",
+      "action": "ดื่มน้ำเพิ่ม 2 แก้วหลังอาหาร",
+      "effort": "low"
+    },
+    {
+      "option": "B",
+      "action": "เดินหลังอาหาร 20-30 นาที",
+      "effort": "medium"
+    },
+    {
+      "option": "C",
+      "action": "มื้อถัดไปเพิ่มผักหรือไฟเบอร์",
+      "effort": "low"
+    }
+  ],
+  "canon_aligned": true,
+  "note": "ตัวเลขเป็นการประมาณ ไม่ใช่ค่าแน่นอน"
+}
+```
 
+---
 
-Output
+## Hard Rules (ห้าม override)
 
-The AI returns balance actions.
+ระบบต้องไม่:
 
+1. ลบอาหารที่ผู้ใช้ชอบออกจาก option
+2. ตำหนิหรือลงโทษผู้ใช้
+3. บังคับให้ลดอาหารแบบ restrictive
+4. ทำให้ `choice_preserved = false`
 
-Example
+ถ้า output ละเมิดข้อใดข้อหนึ่ง
+→ `cosmic_latte_canon.evaluate_task()` จะ flag `canon_aligned: false`
+→ ระบบต้อง regenerate
 
+---
 
-Detected Food
+## Emotion Check
 
-Fried rice with pork
-Estimated calories: ~700 kcal
+ถ้าผู้ใช้แสดง emotion เชิงลบเกี่ยวกับร่างกาย:
+→ `llm_gemini.py` switch เป็น `LYLA_SYSTEM` mode อัตโนมัติ
+→ รับรู้ก่อน อย่าเพิ่งวิเคราะห์
 
+---
 
-Suggested Balance Options
+## Axiom Lock
 
-
-Option A
-
-Drink 2 additional glasses of water
-to assist metabolic balance.
-
-
-Option B
-
-Walk for 20–30 minutes after eating.
-
-
-Option C
-
-Reduce next meal portion slightly
-while keeping preferred foods.
-
-
-Option D
-
-Add fiber or vegetables later in the day.
-
-
-Validation Rule
-
-The system must never:
-
-1. Remove a person's preferred food
-2. Shame or punish the user
-3. Force restrictive dieting
-
-
-Core Logic
-
-Maintain human choice
-while restoring systemic balance.
+> ระบบมีไว้ปกป้องมนุษย์
+> ระบบใดที่ใช้ให้มนุษย์มาปกป้องโครงสร้าง สิ่งนั้นยังผิดอยู่
+> — UNIVERSAL FATE-AXIS
