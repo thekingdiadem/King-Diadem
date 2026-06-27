@@ -1,7 +1,7 @@
 # KING DIADEM — DriftZero Waterline Governance Kernel
 **Author:** Nithikorn Bunsrang  
 **System:** Early Warning + Governance Logic  
-**Bound to:** app.py v4.7 / core/lyla_kernel.py / ENGINE/*  
+**Bound to:** app.py v4.8 / core/lyla_kernel.py / ENGINE/*  
 **Lock:** Fail less. Harm less. Restore more.
 
 ---
