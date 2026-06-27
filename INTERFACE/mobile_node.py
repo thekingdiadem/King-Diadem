@@ -1,5 +1,6 @@
 from GLOBAL_NODE.network_sync import sync_node
 
+
 def mobile_report(location, food, risk):
 
     node_data = {
