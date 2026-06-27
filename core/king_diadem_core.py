@@ -15,11 +15,9 @@ from ENGINE.choice_optimizer import optimize_choice
 # =========================
 
 def north_principle(actions):
-
     """
     Filter actions based on KING DIADEM core law
     """
-
     filtered = []
 
     for action in actions:
@@ -43,11 +41,9 @@ def north_principle(actions):
 # =========================
 
 def preserve_choice(actions):
-
     """
     Ensure at least one option always exists
     """
-
     if len(actions) == 0:
 
         return [{
@@ -79,17 +75,10 @@ def king_diadem_decision(location, lat, lng, food, money, risk):
     best = ranked[0]
 
     return {
-
         "system": "KING DIADEM",
-
         "location": location,
-
         "zone": world["zone"],
-
         "survival_score": survival["survival_score"],
-
         "north_direction": best["action"],
-
         "alternatives": ranked
-
     }
