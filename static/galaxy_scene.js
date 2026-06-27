@@ -440,45 +440,163 @@ function drawVenus(x,y,r,now){
 
 function drawEarth(x,y,r,now){
   ctx.save();
-  /* ocean */
-  var ocean=ctx.createRadialGradient(x-r*0.22,y-r*0.18,0,x+r*0.08,y+r*0.10,r*1.02);
-  ocean.addColorStop(0,'#a8d8f8');ocean.addColorStop(0.18,'#5898e0');ocean.addColorStop(0.42,'#1c60c4');ocean.addColorStop(0.72,'#083272');ocean.addColorStop(1,'#041840');
-  ctx.fillStyle=ocean;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
-  ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.clip();
-  /* land blobs */
-  var eg=function(ox,oy,rx,R,G,B,a){
+
+  /* ── OCEAN — deep teal to navy, matches wallpaper ── */
+  var ocean = ctx.createRadialGradient(x-r*0.18,y-r*0.14,0, x+r*0.12,y+r*0.14,r*1.02);
+  ocean.addColorStop(0,   '#c8f0f8');  /* bright teal highlight */
+  ocean.addColorStop(0.08,'#6cd4e8');
+  ocean.addColorStop(0.20,'#28a8d0');
+  ocean.addColorStop(0.38,'#0a70b0');
+  ocean.addColorStop(0.58,'#053e80');
+  ocean.addColorStop(0.78,'#031e50');
+  ocean.addColorStop(1,   '#010c28');
+  ctx.fillStyle = ocean;
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+
+  ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.clip();
+  ctx.globalCompositeOperation = 'source-over';
+
+  /* ── LAND — continent blobs ── */
+  function land(ox,oy,rx,R,G,B,a){
     var g=ctx.createRadialGradient(x+ox*r,y+oy*r,0,x+ox*r,y+oy*r,rx*r);
     g.addColorStop(0,'rgba('+R+','+G+','+B+','+a+')');
-    g.addColorStop(0.5,'rgba('+R+','+G+','+B+','+(a*0.50).toFixed(2)+')');
+    g.addColorStop(0.45,'rgba('+R+','+G+','+B+','+(a*0.55).toFixed(2)+')');
+    g.addColorStop(0.80,'rgba('+R+','+G+','+B+','+(a*0.18).toFixed(2)+')');
     g.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  };
-  ctx.globalCompositeOperation='source-over';
-  eg(-0.32,-0.28,0.20,72,128,55,0.90);eg(0.10,-0.20,0.18,78,148,62,0.86);
-  eg(0.10, 0.00,0.16,218,195,108,0.84);eg(0.14,0.18,0.14,148,168,72,0.82);
-  eg(0.32,-0.36,0.28,78,148,62,0.78);eg(0.44,-0.10,0.14,98,158,65,0.82);
-  eg(0.46, 0.32,0.14,218,175,85,0.82);eg(-0.18,0.20,0.12,38,108,38,0.88);
-  /* polar ice */
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  }
+
+  /* Australia — RED/ORANGE like wallpaper */
+  land( 0.46, 0.30, 0.20, 195, 80,  28, 0.96);
+  land( 0.54, 0.22, 0.10, 180, 65,  20, 0.88);
+  land( 0.60, 0.38, 0.08,  85,140,  55, 0.80); /* green east coast */
+
+  /* Africa — warm brown */
+  land( 0.10,-0.02, 0.20, 210,165,  80, 0.90);
+  land( 0.14, 0.18, 0.15, 160,130,  60, 0.88);
+  land( 0.18, 0.05, 0.10,  55,120,  45, 0.85); /* Congo green */
+  land( 0.06,-0.08, 0.10, 225,180,  90, 0.85); /* Sahara */
+
+  /* Middle East / Arabia — tan */
+  land( 0.24,-0.06, 0.12, 220,185, 100, 0.88);
+
+  /* Europe */
+  land( 0.06,-0.22, 0.10,  80,150,  58, 0.84);
+  land( 0.10,-0.30, 0.08,  70,140,  52, 0.80);
+
+  /* Asia */
+  land( 0.34,-0.28, 0.26,  88,155,  62, 0.80);
+  land( 0.46,-0.10, 0.14, 105,165,  65, 0.82);
+  land( 0.36, 0.06, 0.10, 145,175,  72, 0.84); /* India */
+  land( 0.50, 0.06, 0.10,  55,125,  48, 0.82); /* SE Asia */
+
+  /* Americas */
+  land(-0.32,-0.26, 0.20,  78,138,  55, 0.86);
+  land(-0.22, 0.20, 0.14,  42,108,  40, 0.90); /* Amazon */
+  land(-0.30, 0.24, 0.05, 130,110,  62, 0.80); /* Andes */
+  land(-0.10,-0.50, 0.08, 218,228, 238, 0.85); /* Greenland */
+
+  /* Antarctica */
+  var ant=ctx.createRadialGradient(x,y+r*0.86,0,x,y+r*0.86,r*0.28);
+  ant.addColorStop(0,'rgba(248,252,255,0.96)'); ant.addColorStop(0.5,'rgba(235,245,255,0.70)'); ant.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=ant; ctx.fillRect(0,0,W,H);
+
+  /* North pole ice */
+  var np=ctx.createRadialGradient(x,y-r*0.80,0,x,y-r*0.80,r*0.24);
+  np.addColorStop(0,'rgba(245,252,255,0.90)'); np.addColorStop(0.5,'rgba(228,244,255,0.60)'); np.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=np; ctx.fillRect(0,0,W,H);
+
+  /* ── THICK CLOUDS — wallpaper style ── */
   ctx.globalCompositeOperation='screen';
-  var np=ctx.createRadialGradient(x,y-r*0.78,0,x,y-r*0.78,r*0.28);
-  np.addColorStop(0,'rgba(245,252,255,0.92)');np.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=np;ctx.fillRect(0,0,W,H);
-  var sp=ctx.createRadialGradient(x,y+r*0.82,0,x,y+r*0.82,r*0.22);
-  sp.addColorStop(0,'rgba(242,250,255,0.88)');sp.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=sp;ctx.fillRect(0,0,W,H);
-  /* cloud */
-  [[x-r*0.38,y-r*0.05,r*0.26,0.18],[x+r*0.18,y-r*0.08,r*0.22,0.14],[x-r*0.12,y+r*0.36,r*0.18,0.14]].forEach(function(cl){
-    var cg=ctx.createRadialGradient(cl[0],cl[1],0,cl[0],cl[1],cl[2]);
-    cg.addColorStop(0,'rgba(245,250,255,'+cl[3]+')');cg.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=cg;ctx.fillRect(0,0,W,H);
+
+  /* Large swirling cloud mass — top center/left (cyclone) */
+  var cSpiral=now*0.000055;
+  for(var ci=0;ci<5;ci++){
+    var ca=cSpiral+ci*(Math.PI*2/5);
+    var cr2=r*(0.12+ci*0.060);
+    var cx2=x-r*0.24+Math.cos(ca)*cr2*0.55;
+    var cy2=y-r*0.08+Math.sin(ca)*cr2*0.30;
+    var cg=ctx.createRadialGradient(cx2,cy2,0,cx2,cy2,r*(0.18+ci*0.045));
+    cg.addColorStop(0,'rgba(255,255,255,'+(0.42-ci*0.06)+')');
+    cg.addColorStop(0.4,'rgba(248,252,255,'+(0.22-ci*0.03)+')');
+    cg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=cg; ctx.fillRect(0,0,W,H);
+  }
+
+  /* Indian ocean cloud band */
+  var cb=[
+    [x+r*0.28,y+r*0.14,r*0.28,0.36],
+    [x-r*0.08,y+r*0.32,r*0.24,0.30],
+    [x-r*0.44,y-r*0.10,r*0.20,0.32],
+    [x+r*0.46,y-r*0.18,r*0.16,0.28],
+    [x-r*0.18,y-r*0.42,r*0.18,0.26],
+    [x+r*0.08,y+r*0.55,r*0.22,0.24],
+  ];
+  cb.forEach(function(c){
+    var drift=Math.sin(now*0.0000068+c[0]*0.001)*r*0.018;
+    var g=ctx.createRadialGradient(c[0]+drift,c[1],0,c[0]+drift,c[1],c[2]);
+    g.addColorStop(0,'rgba(255,255,255,'+c[3]+')');
+    g.addColorStop(0.38,'rgba(245,250,255,'+(c[3]*0.55).toFixed(3)+')');
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
   });
+
+  /* Terminator shadow — night side */
+  ctx.globalCompositeOperation='multiply';
+  var term=ctx.createRadialGradient(x+r*0.30,y+r*0.24,r*0.10,x+r*0.30,y+r*0.24,r*1.12);
+  term.addColorStop(0,'rgba(0,0,0,0)');
+  term.addColorStop(0.55,'rgba(0,0,0,0.15)');
+  term.addColorStop(0.78,'rgba(0,0,0,0.52)');
+  term.addColorStop(1,'rgba(0,0,0,0.78)');
+  ctx.fillStyle=term; ctx.fillRect(0,0,W,H);
+
+  /* Ocean depth shading */
+  ctx.globalCompositeOperation='multiply';
+  var depth=ctx.createRadialGradient(x-r*0.42,y+r*0.10,0,x-r*0.42,y+r*0.10,r*0.50);
+  depth.addColorStop(0,'rgba(0,10,40,0.22)'); depth.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=depth; ctx.fillRect(0,0,W,H);
+
   ctx.restore();
-  /* atm */
-  ctx.save();ctx.globalCompositeOperation='screen';
-  var a1=ctx.createRadialGradient(x,y,r*0.88,x,y,r*1.24);
-  a1.addColorStop(0,'rgba(98,165,255,0.38)');a1.addColorStop(0.5,'rgba(78,145,240,0.14)');a1.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=a1;ctx.fillRect(0,0,W,H);ctx.restore();
-  pLimb(x,y,r,'rgba(118,198,255,0.68)');pDark(x,y,r,0.52);pSpec(x,y,r,0.18);
+
+  /* ── ATMOSPHERE RIM — thick blue like wallpaper ── */
+  ctx.save(); ctx.globalCompositeOperation='screen';
+
+  var atm1=ctx.createRadialGradient(x,y,r*0.85,x,y,r*1.10);
+  atm1.addColorStop(0,'rgba(80,180,255,0.55)');
+  atm1.addColorStop(0.4,'rgba(50,145,235,0.28)');
+  atm1.addColorStop(0.7,'rgba(30,110,210,0.12)');
+  atm1.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=atm1; ctx.fillRect(0,0,W,H);
+
+  /* Outer glow */
+  var atm2=ctx.createRadialGradient(x,y,r*0.94,x,y,r*1.28);
+  atm2.addColorStop(0,'rgba(120,210,255,0.48)');
+  atm2.addColorStop(0.35,'rgba(75,175,248,0.20)');
+  atm2.addColorStop(0.65,'rgba(40,130,220,0.08)');
+  atm2.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=atm2; ctx.fillRect(0,0,W,H);
+
+  /* Limb brightening — upper left like wallpaper */
+  var limb=ctx.createRadialGradient(x-r*0.28,y-r*0.22,r*0.88,x-r*0.10,y-r*0.08,r*1.18);
+  limb.addColorStop(0,'rgba(160,230,255,0.42)');
+  limb.addColorStop(0.5,'rgba(100,195,255,0.16)');
+  limb.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=limb; ctx.fillRect(0,0,W,H);
+  ctx.restore();
+
+  /* ── SPECULAR HIGHLIGHT — bright white top-left ── */
+  ctx.save(); ctx.globalCompositeOperation='screen';
+  var spec=ctx.createRadialGradient(x-r*0.20,y-r*0.16,0,x-r*0.08,y-r*0.06,r*0.52);
+  spec.addColorStop(0,'rgba(255,255,255,0.72)');
+  spec.addColorStop(0.18,'rgba(240,250,255,0.38)');
+  spec.addColorStop(0.45,'rgba(200,235,255,0.10)');
+  spec.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=spec; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  /* Rim darkening */
+  pDark(x,y,r,0.48);
+
   ctx.restore();
 }
 
