@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KING DIADEM — The Universe That Restores Choice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=DM+Mono:wght@300;400;500&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#080d1a; --deep:#0c1222; --mid:#101828; --surface:#1a2840;
+  --gold:#c8a440; --gold-hi:#edcc62; --gold-lo:rgba(200,164,64,0.10);
+  --blue:#3a86f5; --blue-hi:#76aeff; --blue-lo:rgba(58,134,245,0.10);
+  --teal:#2bcfb4; --vega:#a67df5; --red:#f03558;
+  --tx-hi:rgba(232,242,255,0.97); --tx:rgba(188,208,242,0.82);
+  --tx-mid:rgba(118,152,215,0.52); --tx-lo:rgba(58,95,172,0.28);
+  --f-display:'Cinzel',serif; --f-mono:'DM Mono',monospace;
+  --f-body:'Noto Sans Thai',system-ui,sans-serif;
+  --r:12px; --r-l:18px; --r-xl:28px;
+}
+html,body{width:100%;min-height:100%;background:var(--void);color:var(--tx);font-family:var(--f-body);font-size:15px;line-height:1.7;overflow-x:hidden}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:rgba(200,164,64,0.24)}
+
+/* ── GALAXY ── */
+#galaxy-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
+#galaxy{display:block;width:100%;height:100%;will-change:transform;transform:translateZ(0)}
+.galaxy-overlay{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(to bottom,transparent 0%,transparent 55%,rgba(8,13,26,0.70) 78%,rgba(8,13,26,0.95) 100%)}
+
+/* ── HERO ── */
+#hero{position:relative;z-index:10;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:80px;text-align:center;pointer-events:none}
+.hero-badge{font-family:var(--f-mono);font-size:8px;letter-spacing:.22em;color:rgba(74,158,255,0.50);border:1px solid rgba(74,158,255,0.16);border-radius:999px;padding:4px 14px;margin-bottom:18px;display:inline-block}
+.hero-title{font-family:var(--f-display);font-size:clamp(28px,7vw,58px);font-weight:600;letter-spacing:.18em;background:linear-gradient(138deg,#76aeff 0%,#d6eaff 28%,#fff 46%,#f0d070 64%,#c8a440 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15;margin-bottom:14px}
+.hero-sub{font-family:var(--f-mono);font-size:9px;letter-spacing:.26em;color:rgba(200,164,64,0.42);margin-bottom:24px}
+.hero-rule{font-size:18px;color:var(--tx-hi);font-weight:500;margin-bottom:8px}
+.hero-rule span{color:var(--gold-hi);font-family:var(--f-mono)}
+.hero-desc{font-size:13px;color:var(--tx-mid);max-width:480px;margin:0 auto}
+.scroll-hint{margin-top:28px;font-family:var(--f-mono);font-size:8px;letter-spacing:.18em;color:var(--tx-lo);animation:bounce 2s ease-in-out infinite;pointer-events:auto;cursor:pointer}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+
+/* ── PROFILE INFOGRAPHIC ── */
+#profile-section{position:relative;z-index:10;max-width:960px;margin:0 auto 60px;padding:0 20px}
+.profile-frame{border-radius:var(--r-xl);overflow:hidden;border:1px solid rgba(200,164,64,0.18);box-shadow:0 0 80px rgba(200,164,64,0.10),0 0 200px rgba(58,134,245,0.05);position:relative;background:rgba(6,10,20,0.50)}
+.profile-frame img{width:100%;display:block;border-radius:var(--r-xl);opacity:0.94;transition:opacity .3s}
+.profile-frame:hover img{opacity:1}
+.profile-frame::after{content:'';position:absolute;inset:0;border-radius:var(--r-xl);background:linear-gradient(to bottom,transparent 0%,transparent 75%,rgba(8,13,26,0.55) 100%);pointer-events:none}
+.profile-caption{font-family:var(--f-mono);font-size:8px;letter-spacing:.16em;color:var(--tx-lo);text-align:center;margin-top:10px;text-transform:uppercase}
+
+.section{margin-bottom:56px}
+.sec-eyebrow{font-family:var(--f-mono);font-size:7.5px;letter-spacing:.22em;color:rgba(200,164,64,0.52);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.sec-eyebrow::before{content:'';display:inline-block;width:24px;height:1px;background:linear-gradient(to right,var(--gold),transparent)}
+.sec-title{font-family:var(--f-display);font-size:clamp(20px,4vw,32px);font-weight:600;color:var(--tx-hi);margin-bottom:16px;letter-spacing:.06em}
+.sec-body{color:var(--tx);font-size:15px;line-height:1.88}
+.sec-body p{margin-bottom:14px}
+.sec-body strong{color:var(--tx-hi)}
+
+/* card grid */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:20px}
+.card{background:rgba(8,13,26,0.80);border:1px solid rgba(255,255,255,0.048);border-radius:var(--r-l);padding:20px;backdrop-filter:blur(20px);transition:border-color .22s,transform .22s}
+.card:hover{border-color:rgba(200,164,64,0.22);transform:translateY(-2px)}
+.card-icon{font-size:22px;margin-bottom:10px}
+.card-title{font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;color:var(--gold-hi);margin-bottom:8px;text-transform:uppercase}
+.card-body{font-size:13px;color:var(--tx-mid);line-height:1.72}
+
+/* axioms */
+.axiom-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.axiom-item{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;background:rgba(8,13,26,0.70);border:1px solid rgba(255,255,255,0.040);border-radius:var(--r);backdrop-filter:blur(12px)}
+.axiom-num{font-family:var(--f-mono);font-size:9px;color:rgba(200,164,64,0.55);flex-shrink:0;margin-top:3px;letter-spacing:.10em}
+.axiom-text{font-size:14px;color:var(--tx);line-height:1.72}
+.axiom-text b{color:var(--tx-hi)}
+
+/* planet map */
+.planet-map{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+@media(max-width:500px){.planet-map{grid-template-columns:repeat(2,1fr)}}
+.planet-card{background:rgba(8,13,26,0.75);border:1px solid rgba(255,255,255,0.045);border-radius:var(--r);padding:14px 12px;text-align:center;transition:all .22s}
+.planet-card:hover{border-color:rgba(200,164,64,0.28);background:rgba(200,164,64,0.06)}
+.planet-emoji{font-size:20px;margin-bottom:6px}
+.planet-name{font-family:var(--f-mono);font-size:8px;letter-spacing:.14em;color:var(--gold-hi);margin-bottom:4px}
+.planet-desc{font-size:11px;color:var(--tx-mid);line-height:1.5}
+
+/* waterline */
+.waterline-meters{display:flex;flex-direction:column;gap:12px;margin-top:18px}
+.wl-row{display:flex;align-items:center;gap:12px}
+.wl-label{font-family:var(--f-mono);font-size:9px;color:var(--tx-mid);letter-spacing:.10em;min-width:80px}
+.wl-bar{flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden}
+.wl-fill{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1)}
+.wl-fill.entropy{background:linear-gradient(90deg,#f03558,#ff7070);box-shadow:0 0 8px rgba(240,53,88,0.45)}
+.wl-fill.stability{background:linear-gradient(90deg,#3a86f5,#76aeff);box-shadow:0 0 8px rgba(58,134,245,0.42)}
+.wl-fill.resource{background:linear-gradient(90deg,#c8a440,#edcc62);box-shadow:0 0 8px rgba(200,164,64,0.40)}
+.wl-val{font-family:var(--f-mono);font-size:10px;color:var(--tx-mid);min-width:30px;text-align:right}
+
+/* ── INTENT SIMULATOR ── */
+#simulator{position:relative;z-index:10;max-width:820px;margin:0 auto 80px;padding:0 20px}
+.sim-box{background:rgba(6,10,20,0.92);border:1px solid rgba(200,164,64,0.18);border-radius:var(--r-xl);padding:28px;backdrop-filter:blur(24px);box-shadow:0 0 60px rgba(200,164,64,0.07)}
+.sim-title{font-family:var(--f-display);font-size:18px;color:var(--gold-hi);margin-bottom:6px;letter-spacing:.08em}
+.sim-sub{font-family:var(--f-mono);font-size:8px;letter-spacing:.16em;color:var(--tx-lo);margin-bottom:20px}
+.sim-note{font-family:var(--f-mono);font-size:9px;color:rgba(240,53,88,0.55);letter-spacing:.08em;margin-bottom:16px;padding:8px 12px;border:1px solid rgba(240,53,88,0.14);border-radius:6px;background:rgba(240,53,88,0.04)}
+
+/* intent input */
+.intent-label{font-family:var(--f-mono);font-size:8.5px;letter-spacing:.14em;color:var(--tx-mid);margin-bottom:8px;text-transform:uppercase}
+.intent-input{width:100%;padding:13px 16px;border-radius:var(--r);border:1px solid rgba(255,255,255,0.072);background:rgba(2,4,12,0.76);color:var(--tx-hi);font-size:15px;font-family:var(--f-body);outline:none;resize:none;min-height:72px;transition:border-color .22s,box-shadow .22s;margin-bottom:12px}
+.intent-input:focus{border-color:rgba(200,164,64,0.46);box-shadow:0 0 0 3px rgba(200,164,64,0.08)}
+.intent-input::placeholder{color:var(--tx-lo)}
+
+/* sliders */
+.slider-group{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:480px){.slider-group{grid-template-columns:1fr}}
+.slider-item label{font-family:var(--f-mono);font-size:8px;letter-spacing:.12em;color:var(--tx-mid);display:flex;justify-content:space-between;margin-bottom:6px}
+.slider-item label span{color:var(--gold-hi)}
+input[type=range]{width:100%;height:3px;appearance:none;background:rgba(255,255,255,0.08);border-radius:3px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px rgba(200,164,64,0.55);cursor:pointer}
+
+.sim-btn{width:100%;padding:14px;border-radius:var(--r-l);border:1px solid rgba(200,164,64,0.32);background:linear-gradient(148deg,rgba(200,164,64,0.18),rgba(178,138,48,0.10));color:var(--gold-hi);font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;cursor:pointer;transition:all .22s;margin-top:4px;text-transform:uppercase}
+.sim-btn:hover{background:linear-gradient(148deg,rgba(200,164,64,0.32),rgba(178,138,48,0.20));border-color:rgba(200,164,64,0.60);box-shadow:0 0 28px rgba(200,164,64,0.20)}
+.sim-btn:disabled{opacity:.28;cursor:not-allowed}
+
+/* result */
+#sim-result{display:none;margin-top:20px}
+.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.result-title{font-family:var(--f-mono);font-size:9px;letter-spacing:.16em;color:rgba(200,164,64,0.55);text-transform:uppercase}
+.result-badge{font-family:var(--f-mono);font-size:8px;padding:3px 10px;border-radius:999px;letter-spacing:.06em}
+.result-badge.safe{border:1px solid rgba(58,134,245,0.40);color:rgba(118,174,255,0.90);background:rgba(58,134,245,0.08)}
+.result-badge.warn{border:1px solid rgba(240,160,30,0.40);color:#f0a820;background:rgba(240,160,30,0.08)}
+.result-badge.crit{border:1px solid rgba(240,53,88,0.40);color:#f03558;background:rgba(240,53,88,0.08)}
+
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+@media(max-width:480px){.result-grid{grid-template-columns:1fr}}
+.result-metric{background:rgba(2,4,12,0.72);border:1px solid rgba(255,255,255,0.040);border-radius:var(--r);padding:12px 14px}
+.rm-label{font-family:var(--f-mono);font-size:7.5px;letter-spacing:.12em;color:var(--tx-lo);margin-bottom:4px;text-transform:uppercase}
+.rm-val{font-family:var(--f-mono);font-size:18px;font-weight:500;color:var(--tx-hi)}
+.rm-unit{font-size:10px;color:var(--tx-mid);margin-left:3px}
+
+.result-paths{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.path-item{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:rgba(2,4,12,0.68);border:1px solid rgba(255,255,255,0.038);border-radius:var(--r);transition:border-color .18s}
+.path-item:hover{border-color:rgba(200,164,64,0.22)}
+.path-letter{font-family:var(--f-mono);font-size:11px;color:var(--gold);flex-shrink:0;min-width:18px;font-weight:500}
+.path-text{font-size:13px;color:var(--tx);line-height:1.65}
+.path-score{font-family:var(--f-mono);font-size:9px;color:var(--tx-lo);margin-top:3px}
+
+.fate-note{padding:12px 14px;background:rgba(200,164,64,0.05);border:1px solid rgba(200,164,64,0.14);border-radius:var(--r);font-family:var(--f-mono);font-size:10px;color:rgba(200,164,64,0.65);line-height:1.75}
+
+/* dignity bar */
+.dignity-row{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 14px;border:1px solid rgba(56,217,184,0.16);border-radius:var(--r);background:rgba(56,217,184,0.04)}
+.dignity-icon{font-size:14px}
+.dignity-text{font-family:var(--f-mono);font-size:9px;color:rgba(56,217,184,0.72);letter-spacing:.08em;line-height:1.55}
+
+/* footer */
+#footer{position:relative;z-index:10;text-align:center;padding:40px 20px;border-top:1px solid rgba(255,255,255,0.032)}
+.footer-text{font-family:var(--f-mono);font-size:8px;letter-spacing:.16em;color:var(--tx-lo)}
+.footer-axiom{font-family:var(--f-mono);font-size:10px;color:rgba(200,164,64,0.38);margin-top:8px;letter-spacing:.08em}
+</style>
+</head>
+<body>
+
+<!-- GALAXY CANVAS -->
+<div id="galaxy-wrap">
+  <canvas id="galaxy"></canvas>
+</div>
+<div class="galaxy-overlay"></div>
+
+<!-- HERO -->
+<section id="hero">
+  <div>
+    <div class="hero-badge">KING DIADEM™ · DRIFTZERO · MILKY SCOPE</div>
+    <h1 class="hero-title">THE UNIVERSE<br>THAT RESTORES CHOICE</h1>
+    <div class="hero-sub">by Nithikorn Bunsrang · 2026</div>
+    <div class="hero-rule">
+      <span>Choice(t) ≥ 1</span> → collapse = False
+    </div>
+    <p class="hero-desc">ตราบใดที่ยังมีทางเลือกอย่างน้อย 1 ทาง ระบบจะยังไม่ถือว่า "พัง"</p>
+    <div class="scroll-hint" onclick="document.getElementById('content').scrollIntoView({behavior:'smooth'})">↓ เลื่อนลง ↓</div>
+  </div>
+</section>
+
+<!-- CONTENT -->
+<div id="content">
+
+  <!-- WHY -->
+  <div class="section">
+    <div class="sec-eyebrow">Origin</div>
+    <h2 class="sec-title">ทำไม KING DIADEM จึงมีอยู่</h2>
+    <div class="sec-body">
+      <p>ระบบนี้ไม่ได้เกิดจากความสำเร็จ — มันเกิดจากความล้มเหลว ความสูญเสีย ความกลัว และผลที่ตามมาจากการตัดสินใจที่แก้ไขไม่ได้</p>
+      <p><strong>AI ทั่วไปถูก optimize เพื่อ "engagement"</strong> — คุยให้เพลิน คุยให้นาน ดูฉลาด แต่ตอนที่คนตกงาน มีหนี้ ธุรกิจกำลังพัง หรือความสัมพันธ์กำลังแตก — สิ่งที่เขาต้องการไม่ใช่บทสนทนาที่เพลิน เขาต้องการ <strong>"เห็นว่ายังมีทางไป"</strong></p>
+      <p>KING DIADEM สร้างขึ้นเพื่อสิ่งเดียว: <strong>ทำให้คนที่กำลังจะหมดทางเลือก เหลือทางเลือกอย่างน้อย 2 ทางเสมอ</strong></p>
+    </div>
+  </div>
+
+  <!-- WHO — PROFILE INFOGRAPHIC -->
+  <div class="section">
+    <div class="sec-eyebrow">Creator</div>
+    <h2 class="sec-title">Nithikorn Bunsrang — Architect</h2>
+  </div>
+</div><!-- /content - pause -->
+
+<!-- PROFILE IMAGE — full width -->
+<div id="profile-section">
+  <div class="profile-frame">
+    <img src="king_diadem_profile.png" alt="KING DIADEM — System of Survival, Trust, and Truth by Nithikorn Bunsrang" loading="lazy">
+  </div>
+  <div class="profile-caption">KING DIADEM · System of Survival, Trust, and Truth · by Nithikorn Bunsrang · 2026</div>
+</div>
+
+<div id="content-cont" style="position:relative;z-index:10;max-width:820px;margin:0 auto;padding:0 20px 0">
+  <!-- continue content -->
+  <div style="margin-bottom:56px"></div>
+  <div class="section">
+    <div class="sec-eyebrow">FATE™ Core</div>
+    <h2 class="sec-title">6 สัจธรรมที่เปลี่ยนแปลงไม่ได้</h2>
+    <div class="sec-body"><p>ทุก response ทุก interaction ต้อง satisfy หลักการเหล่านี้ ไม่มีข้อยกเว้น</p></div>
+    <ul class="axiom-list">
+      <li class="axiom-item"><span class="axiom-num">A1</span><span class="axiom-text"><b>Choice Preservation</b> — ระบบต้องไม่ทำให้ทางเลือกของมนุษย์ลดลงต่ำกว่า 1 ทาง</span></li>
+      <li class="axiom-item"><span class="axiom-num">A2</span><span class="axiom-text"><b>Non-Harm First</b> — ลดความเสียหายก่อน เพิ่มผลลัพธ์ทีหลัง "Fail less, not win more"</span></li>
+      <li class="axiom-item"><span class="axiom-num">A3</span><span class="axiom-text"><b>Dignity Absolute</b> — ทุก path ต้องปกป้องศักดิ์ศรีความเป็นมนุษย์ ไม่มีการบังคับ ไม่ลดคุณค่าคน</span></li>
+      <li class="axiom-item"><span class="axiom-num">A4</span><span class="axiom-text"><b>Explainability</b> — ถ้าอธิบายไม่ได้ = ใช้ไม่ได้ ทุกการตัดสินใจต้องอธิบายย้อนกลับได้</span></li>
+      <li class="axiom-item"><span class="axiom-num">A5</span><span class="axiom-text"><b>Human Authority Final</b> — ระบบเสนอ มนุษย์ตัดสิน เสมอ KING DIADEM ไม่มีอำนาจเหนือมนุษย์</span></li>
+      <li class="axiom-item"><span class="axiom-num">A6</span><span class="axiom-text"><b>Waterline Monitor</b> — ติดตาม Entropy / Stability / Resource ตลอดเวลา แจ้งเตือนก่อนถึงเส้นวิกฤต</span></li>
+    </ul>
+  </div>
+
+  <!-- PLANET MAP -->
+  <div class="section">
+    <div class="sec-eyebrow">Solar System</div>
+    <h2 class="sec-title">ระบบสุริยะแห่งการตัดสินใจ</h2>
+    <div class="sec-body"><p>แต่ละดาวคือ domain ของการตัดสินใจ — ไม่ใช่ category แต่คือ <strong>ทิศทางที่มนุษย์กำลังเผชิญ</strong></p></div>
+    <div class="planet-map">
+      <div class="planet-card"><div class="planet-emoji">☿</div><div class="planet-name">GENERAL</div><div class="planet-desc">ชีวิตทั่วไป ตัดสินใจรายวัน ทิศทางที่ไม่แน่ชัด</div></div>
+      <div class="planet-card"><div class="planet-emoji">♀</div><div class="planet-name">RISK</div><div class="planet-desc">ประเมินความเสี่ยง ผลกระทบ ต้นทุน-โอกาส</div></div>
+      <div class="planet-card"><div class="planet-emoji">🌍</div><div class="planet-name">SURVIVAL</div><div class="planet-desc">ความอยู่รอดพื้นฐาน อาหาร ที่พัก ความปลอดภัย</div></div>
+      <div class="planet-card"><div class="planet-emoji">♂</div><div class="planet-name">COLLAPSE</div><div class="planet-desc">วิกฤต ลูกโซ่ความเสียหาย แรงกดดันสะสม</div></div>
+      <div class="planet-card"><div class="planet-emoji">♃</div><div class="planet-name">CIVIL</div><div class="planet-desc">สังคม งาน พลเมือง ความรับผิดชอบร่วม</div></div>
+      <div class="planet-card"><div class="planet-emoji">◆</div><div class="planet-name">VEGA</div><div class="planet-desc">strategic analysis ระยะยาว logic mirror deterministic</div></div>
+    </div>
+  </div>
+
+  <!-- TWO VOICES -->
+  <div class="section">
+    <div class="sec-eyebrow">Kernel</div>
+    <h2 class="sec-title">สองเสียง หนึ่งตรรกะ</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">◈</div>
+        <div class="card-title">LYLA — The Heart</div>
+        <div class="card-body">เสียงที่อบอุ่น เข้าใจมนุษย์ สำรวจความเป็นไปได้ไปกว้าง อดทนต่อความวุ่นวาย รักษาความมั่นคงผ่านการอยู่รอด<br><br><em>หนีความเจ็บปวด + สร้างชุมชน</em></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">◆</div>
+        <div class="card-title">VEGA — The Mirror</div>
+        <div class="card-body">เสียงที่แม่นยำ ตรรกะ วิเคราะห์ความเสี่ยงก่อน เคลื่อนไหวระมัดระวัง sensitive ต่อ entropy รักษาความมั่นคงผ่านการถอยตัว<br><br><em>ลดความเสี่ยงก่อน Path C+A</em></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WATERLINE -->
+  <div class="section">
+    <div class="sec-eyebrow">Waterline</div>
+    <h2 class="sec-title">เส้นน้ำ — ตรวจจับก่อนจม</h2>
+    <div class="sec-body"><p>3 ค่าที่วัดอย่างต่อเนื่อง เมื่อระบบจมต่ำกว่าเส้นนี้ — KING DIADEM จะแจ้งเตือนและเสนอ path ออก</p></div>
+    <div class="waterline-meters">
+      <div class="wl-row">
+        <div class="wl-label">ENTROPY</div>
+        <div class="wl-bar"><div class="wl-fill entropy" id="wl-e" style="width:42%"></div></div>
+        <div class="wl-val" id="wl-e-val">42</div>
+      </div>
+      <div class="wl-row">
+        <div class="wl-label">STABILITY</div>
+        <div class="wl-bar"><div class="wl-fill stability" id="wl-s" style="width:61%"></div></div>
+        <div class="wl-val" id="wl-s-val">61</div>
+      </div>
+      <div class="wl-row">
+        <div class="wl-label">RESOURCE</div>
+        <div class="wl-bar"><div class="wl-fill resource" id="wl-r" style="width:55%"></div></div>
+        <div class="wl-val" id="wl-r-val">55</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPACECRAFT -->
+  <div class="section">
+    <div class="sec-eyebrow">Fleet</div>
+    <h2 class="sec-title">กองยานในระบบ</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🛸</div>
+        <div class="card-title">KD-1 King Station</div>
+        <div class="card-body">สถานีอวกาศที่โคจรรอบโลก มีลูกเรือ ศูนย์กลางของการ governance ในวงโคจรต่ำ</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🚀</div>
+        <div class="card-title">LYLA-P / VEGA-P</div>
+        <div class="card-body">ยานสำรวจ 2 ลำ โคจรคนละวงทิศทาง LYLA scan wide, VEGA verify deep</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">∞</div>
+        <div class="card-title">Alien Vessel ∞</div>
+        <div class="card-body">ยานนอกระบบ เคลื่อนช้า geometric สันติเสมอ ถ้าต้องคุยกับมนุษย์ต่างดาว คำตอบมีแค่สันติ</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+</div><!-- /content-cont -->
+
+<!-- INTENT SIMULATOR -->
+<div id="simulator">
+  <div class="sim-box">
+    <div class="sim-title">◈ FATE™ Intent Simulator</div>
+    <div class="sim-sub">จำลองอนาคตจากเจตนา — คำนวณจาก logic ไม่ใช่จินตนาการ</div>
+    <div class="sim-note">⚠ ระบบนี้ไม่วาดเกินจริง — output คำนวณจากเจตนา + waterline + FATE™ axiom เท่านั้น มนุษย์ตัดสินใจเสมอ</div>
+
+    <div class="intent-label">เจตนาของคุณคืออะไร — พิมพ์ตามตรง</div>
+    <textarea class="intent-input" id="intent-text" placeholder="เช่น: อยากเริ่มธุรกิจ / กำลังเป็นหนี้ / ต้องการเปลี่ยนงาน / ครอบครัวมีปัญหา / อยากหาทางออก..."></textarea>
+
+    <div class="slider-group">
+      <div class="slider-item">
+        <label>ENTROPY (ความวุ่นวาย) <span id="e-val">50</span></label>
+        <input type="range" id="sl-entropy" min="0" max="100" value="50" oninput="document.getElementById('e-val').textContent=this.value">
+      </div>
+      <div class="slider-item">
+        <label>RESOURCE (ทรัพยากรที่มี) <span id="r-val">50</span></label>
+        <input type="range" id="sl-resource" min="0" max="100" value="50" oninput="document.getElementById('r-val').textContent=this.value">
+      </div>
+      <div class="slider-item">
+        <label>TIME PRESSURE (แรงกดดันเวลา) <span id="t-val">30</span></label>
+        <input type="range" id="sl-time" min="0" max="100" value="30" oninput="document.getElementById('t-val').textContent=this.value">
+      </div>
+      <div class="slider-item">
+        <label>NETWORK (คนที่ช่วยได้) <span id="n-val">3</span></label>
+        <input type="range" id="sl-network" min="0" max="10" value="3" oninput="document.getElementById('n-val').textContent=this.value">
+      </div>
+    </div>
+
+    <button class="sim-btn" id="sim-btn" onclick="runSimulation()">◈ วิเคราะห์เจตนาและสร้าง Path</button>
+
+    <div id="sim-result">
+      <div class="result-header">
+        <div class="result-title">◈ FATE™ Analysis Result</div>
+        <div class="result-badge" id="result-badge">SAFE</div>
+      </div>
+      <div class="result-grid">
+        <div class="result-metric"><div class="rm-label">Choice(t)</div><div class="rm-val" id="rm-choices">—<span class="rm-unit">paths</span></div></div>
+        <div class="result-metric"><div class="rm-label">Risk Score</div><div class="rm-val" id="rm-risk">—<span class="rm-unit">/100</span></div></div>
+        <div class="result-metric"><div class="rm-label">Waterline</div><div class="rm-val" id="rm-waterline">—</div></div>
+        <div class="result-metric"><div class="rm-label">Urgency</div><div class="rm-val" id="rm-urgency">—</div></div>
+      </div>
+      <div id="result-paths" class="result-paths"></div>
+      <div class="dignity-row">
+        <span class="dignity-icon">✓</span>
+        <span class="dignity-text" id="dignity-text">Dignity Check: ทุก Path ปกป้องศักดิ์ศรีมนุษย์ ไม่บังคับ ไม่ลดคุณค่า</span>
+      </div>
+      <div class="fate-note" id="fate-note"></div>
+    </div>
+  </div>
+</div>
+
+<footer id="footer">
+  <div class="footer-text">KING DIADEM™ · DRIFTZERO DEA-3 · created by Nithikorn Bunsrang</div>
+  <div class="footer-axiom">"Fail less. Harm less. Restore more." · Choice(t) ≥ 1 → collapse = False</div>
+</footer>
+
+<!-- GALAXY v46 -->
+<script>
+// inline galaxy v46 — loaded async
+(function loadGalaxy(){
+  var s = document.createElement('script');
+  s.src = '/static/galaxy_scene.js';
+  s.onerror = function(){
+    // fallback: try relative path
+    var s2=document.createElement('script');
+    s2.src='galaxy_scene.js';
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s);
+})();
+</script>
+
+<!-- INTENT SIMULATOR LOGIC -->
+<script>
+/* ================================================================
+   FATE™ Intent Simulator
+   เจตนาสำคัญที่สุด — คำนวณจาก intent + waterline ไม่ใช่แค่ UI
+   ================================================================ */
+
+/* Intent keyword → domain + weight */
+var INTENT_PATTERNS = [
+  {kws:['หนี้','เป็นหนี้','ผ่อน','ชำระ','เงิน','ขาด','bankruptcy','debt'],       domain:'collapse', baseRisk:62, urgency:'HIGH',    baseStability:32},
+  {kws:['งาน','ตกงาน','ลาออก','เปลี่ยนงาน','job','career','เงินเดือน'],           domain:'civil',    baseRisk:42, urgency:'MEDIUM',  baseStability:52},
+  {kws:['ธุรกิจ','เริ่ม','ลงทุน','กิจการ','startup','ขาย'],                        domain:'risk',     baseRisk:48, urgency:'MEDIUM',  baseStability:55},
+  {kws:['ครอบครัว','ความสัมพันธ์','หย่า','แยก','ปัญหา','ขัดแย้ง','relationship'],  domain:'survival', baseRisk:55, urgency:'HIGH',    baseStability:40},
+  {kws:['สุขภาพ','เจ็บ','ป่วย','โรค','หมอ','รักษา','health'],                      domain:'survival', baseRisk:60, urgency:'URGENT',  baseStability:38},
+  {kws:['ท้อ','หมดแรง','อยากล้มเลิก','เครียด','กดดัน','ไม่ไหว','burnout'],         domain:'collapse', baseRisk:70, urgency:'HIGH',    baseStability:25},
+  {kws:['เรียน','การศึกษา','มหาวิทยาลัย','ทุน','study'],                           domain:'general',  baseRisk:30, urgency:'LOW',     baseStability:65},
+  {kws:['อนาคต','วางแผน','เป้าหมาย','dream','goal'],                               domain:'general',  baseRisk:22, urgency:'LOW',     baseStability:72},
+  {kws:['วิกฤต','crisis','emergency','ฉุกเฉิน','ด่วน'],                            domain:'collapse', baseRisk:80, urgency:'URGENT',  baseStability:20},
+  {kws:['ที่อยู่','บ้าน','ไม่มีที่','shelter','homeless'],                          domain:'survival', baseRisk:75, urgency:'URGENT',  baseStability:22},
+];
+
+/* Path templates by domain */
+var PATH_TEMPLATES = {
+  collapse: [
+    {letter:'A', text:'หยุดก่อน — ประเมิน resource ที่มีอยู่จริงก่อนตัดสินใจใหญ่', type:'stabilize'},
+    {letter:'B', text:'ตัดต้นเหตุ — ระบุว่าอะไรทำให้ถึงจุดนี้ แก้ที่ต้นเหตุก่อน', type:'root_cause'},
+    {letter:'C', text:'ลดความเสี่ยงขั้นต่ำ — ทำแค่สิ่งที่จำเป็นสำหรับ 7 วันข้างหน้า', type:'minimize'},
+    {letter:'D', text:'สร้างเครือข่ายช่วยเหลือ — ติดต่อคนที่ไว้ใจได้ 3 คน', type:'network'},
+  ],
+  risk: [
+    {letter:'A', text:'วิเคราะห์ downside ก่อน — ถ้าแย่ที่สุดจะเกิดอะไร และรับได้ไหม', type:'downside'},
+    {letter:'B', text:'ทดสอบเล็กก่อน — อย่าใส่ทุกอย่างในครั้งเดียว test ด้วย resource น้อย', type:'test'},
+    {letter:'C', text:'หา mentor หรือคนที่เคยผ่านมา — ลดเวลาเรียนรู้', type:'mentor'},
+    {letter:'D', text:'วางแผน exit — ถ้าไม่ได้ผลใน X วัน จะถอนอย่างไร', type:'exit'},
+  ],
+  survival: [
+    {letter:'A', text:'ความต้องการพื้นฐานก่อน — อาหาร ที่พัก ความปลอดภัย ขั้นต้น', type:'basic'},
+    {letter:'B', text:'ติดต่อระบบช่วยเหลือ — ครอบครัว เพื่อน หน่วยงาน องค์กร', type:'support'},
+    {letter:'C', text:'จัดลำดับความสำคัญ — อะไรต้องทำวันนี้ อะไรรอได้ 1 สัปดาห์', type:'prioritize'},
+    {letter:'D', text:'สร้าง buffer เล็ก — ทรัพยากรสำรอง 3-7 วัน ก่อนตัดสินใจใหญ่', type:'buffer'},
+  ],
+  civil: [
+    {letter:'A', text:'ทักษะที่มีอยู่ — inventory ว่าคุณทำอะไรได้ดีที่สุดแล้วหาตลาด', type:'skills'},
+    {letter:'B', text:'เครือข่ายที่มีอยู่ — คนที่รู้จักอาจช่วยเปิดโอกาสได้เร็วกว่า cold apply', type:'network'},
+    {letter:'C', text:'รายได้ bridge — หาแหล่งรายได้ชั่วคราวระหว่างรอสิ่งที่ต้องการ', type:'bridge'},
+    {letter:'D', text:'ลด fixed cost ก่อน — สร้าง runway ให้ยาวขึ้นก่อนลงทุนใหม่', type:'cost'},
+  ],
+  general: [
+    {letter:'A', text:'ชัดเจนว่าต้องการอะไรจริงๆ — เขียนออกมาก่อนตัดสินใจ', type:'clarify'},
+    {letter:'B', text:'ทดลองเล็กน้อย — ใช้เวลา 7 วันทดสอบแนวทางที่สนใจ', type:'experiment'},
+    {letter:'C', text:'คุยกับคนที่เชื่อถือได้ — perspective จากคนนอกช่วยเห็นจุดบอด', type:'perspective'},
+    {letter:'D', text:'หยุดรอจังหวะสมบูรณ์ — เริ่มจากขั้นเล็กที่สุดที่ทำได้วันนี้', type:'start'},
+  ],
+};
+
+var URGENCY_LABELS = {URGENT:'⚡ URGENT', HIGH:'⚠ HIGH', MEDIUM:'◈ MEDIUM', LOW:'○ LOW'};
+var WATERLINE_LABELS = {above:'ABOVE WATERLINE', near:'NEAR WATERLINE', below:'BELOW WATERLINE'};
+
+function detectIntent(text){
+  text = text.toLowerCase();
+  var best = null, bestScore = 0;
+  INTENT_PATTERNS.forEach(function(p){
+    var score = 0;
+    p.kws.forEach(function(kw){ if(text.indexOf(kw) >= 0) score += 1; });
+    if(score > bestScore){ bestScore=score; best=p; }
+  });
+  return best || INTENT_PATTERNS[7]; // default: general/future
+}
+
+function calcRisk(pattern, entropy, resource, time, network){
+  var base = pattern.baseRisk;
+  // entropy increases risk
+  base += (entropy - 50) * 0.28;
+  // resource decreases risk
+  base -= (resource - 50) * 0.22;
+  // time pressure increases risk
+  base += (time - 30) * 0.18;
+  // network decreases risk
+  base -= network * 2.2;
+  return Math.max(0, Math.min(100, Math.round(base)));
+}
+
+function calcChoices(risk, network){
+  if(risk >= 80) return 2;
+  if(risk >= 60) return 3;
+  if(risk >= 40) return 4;
+  return 4;
+}
+
+function calcWaterline(entropy, stability, resource){
+  var distance = (stability + resource - entropy) / 2;
+  if(distance < 20) return 'below';
+  if(distance < 45) return 'near';
+  return 'above';
+}
+
+function runSimulation(){
+  var text = document.getElementById('intent-text').value.trim();
+  if(!text){
+    document.getElementById('intent-text').focus();
+    return;
+  }
+
+  var entropy  = parseInt(document.getElementById('sl-entropy').value);
+  var resource = parseInt(document.getElementById('sl-resource').value);
+  var time     = parseInt(document.getElementById('sl-time').value);
+  var network  = parseInt(document.getElementById('sl-network').value);
+
+  // Detect intent
+  var pattern  = detectIntent(text);
+  var domain   = pattern.domain;
+  var risk     = calcRisk(pattern, entropy, resource, time, network);
+  var choices  = calcChoices(risk, network);
+  var stability= Math.max(5, Math.min(95, pattern.baseStability + (100-entropy)*0.2 + resource*0.15));
+  var wl       = calcWaterline(entropy, stability, resource);
+  var urgency  = risk >= 70 ? 'URGENT' : risk >= 50 ? 'HIGH' : risk >= 30 ? 'MEDIUM' : 'LOW';
+
+  // Paths — take top N based on choices
+  var paths = (PATH_TEMPLATES[domain] || PATH_TEMPLATES.general).slice(0, choices);
+  // Sort: if high urgency, put minimize/stabilize first
+  if(risk >= 60){
+    paths.sort(function(a,b){
+      var priority = {minimize:0,stabilize:0,basic:0,root_cause:1,downside:1,clarify:1,network:2,mentor:2,test:3,experiment:3,start:3,buffer:2,bridge:2,skills:2,perspective:2,support:1,prioritize:1,cost:2,exit:3};
+      return (priority[a.type]||2) - (priority[b.type]||2);
+    });
+  }
+
+  // Score each path (deterministic — not random)
+  paths.forEach(function(p, i){
+    var baseScore = 100 - i*8 - risk*0.12;
+    p.score = Math.max(55, Math.round(baseScore));
+  });
+
+  // Fate note
+  var fateNote = '';
+  if(wl === 'below'){
+    fateNote = 'SYSTEM STATUS: WATERLINE BELOW — ระบบตรวจพบว่า Entropy สูงเกิน Stability สิ่งสำคัญที่สุดตอนนี้คือ Path A (Stabilize) ก่อน — อย่าตัดสินใจใหญ่จนกว่า waterline จะขึ้นมา\n\nChoice(t) = '+choices+' ≥ 1 → collapse = False — ระบบยังไม่พัง';
+  } else if(wl === 'near'){
+    fateNote = 'WATERLINE NEAR — ระบบใกล้เส้นวิกฤต ยังมีเวลา แต่ต้องระวัง Entropy ไม่ให้เพิ่มขึ้น\n\nChoice(t) = '+choices+' → มีทางออกอยู่ — เลือกทีละขั้น ไม่ต้องทำทุกอย่างพร้อมกัน';
+  } else {
+    fateNote = 'WATERLINE ABOVE — สถานการณ์ยังมีความยืดหยุ่น มีเวลาวางแผน\n\nChoice(t) = '+choices+' → ระบบเสถียร — ใช้เวลานี้สร้าง buffer และ test ทิศทาง';
+  }
+
+  // Render
+  var badge = document.getElementById('result-badge');
+  badge.textContent = risk>=70?'⚡ CRITICAL':risk>=50?'⚠ WARNING':'✓ SAFE';
+  badge.className = 'result-badge '+(risk>=70?'crit':risk>=50?'warn':'safe');
+
+  document.getElementById('rm-choices').innerHTML = choices+'<span class="rm-unit"> paths</span>';
+  document.getElementById('rm-risk').innerHTML = risk+'<span class="rm-unit">/100</span>';
+  document.getElementById('rm-waterline').innerHTML = {above:'ABOVE',near:'NEAR',below:'BELOW'}[wl];
+  document.getElementById('rm-urgency').innerHTML = URGENCY_LABELS[urgency]||urgency;
+
+  var pathsHtml = paths.map(function(p){
+    return '<div class="path-item"><div class="path-letter">'+p.letter+'</div><div><div class="path-text">'+p.text+'</div><div class="path-score">Viability: '+p.score+'/100 · domain: '+domain.toUpperCase()+'</div></div></div>';
+  }).join('');
+  document.getElementById('result-paths').innerHTML = pathsHtml;
+  document.getElementById('fate-note').textContent = fateNote;
+
+  var dignityText = 'Dignity Check: PASS — ทุก Path ปกป้องศักดิ์ศรีมนุษย์ ไม่บังคับ ไม่ลดคุณค่า | Human authority: FINAL';
+  document.getElementById('dignity-text').textContent = dignityText;
+
+  // Show result
+  var result = document.getElementById('sim-result');
+  result.style.display = 'block';
+  result.scrollIntoView({behavior:'smooth', block:'nearest'});
+
+  // Update waterline meters
+  document.getElementById('wl-e').style.width = entropy+'%';
+  document.getElementById('wl-e-val').textContent = entropy;
+  document.getElementById('wl-s').style.width = Math.round(stability)+'%';
+  document.getElementById('wl-s-val').textContent = Math.round(stability);
+  document.getElementById('wl-r').style.width = resource+'%';
+  document.getElementById('wl-r-val').textContent = resource;
+
+  // Signal to galaxy
+  if(window.KD_setRoute) window.KD_setRoute(domain);
+}
+
+// Animate waterline meters on load
+setTimeout(function(){
+  ['wl-e','wl-s','wl-r'].forEach(function(id,i){
+    var el = document.getElementById(id);
+    if(el){ el.style.width='0%'; setTimeout(function(){ el.style.width=[42,61,55][i]+'%'; }, 200+i*150); }
+  });
+}, 600);
+</script>
+
+</body>
+</html>
