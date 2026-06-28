@@ -1,8 +1,10 @@
 /* ================================================================
-   KING DIADEM — Galaxy Scene v45 PHOTOREALISTIC
-   Sun tucked higher · Each planet multi-layer shading
-   Earth: realistic like wallpaper · Perspective tilt
-   Mobile adaptive · delta-time · GPU hints
+   KING DIADEM — Galaxy Scene v47 COSMIC LOVE EDITION
+   โทน: Pink Nebula · Lavender Starfield · Warm Rose Dust
+   Earth: satellite view ใหญ่ขึ้น · city lights amber
+   เพราะจักรวาลขาดความรักไม่ได้
+   ================================================================
+   Wire: KD:resize · KD:response · KD:decision · KD:visibility
    ================================================================ */
 (function(){
 'use strict';
@@ -14,16 +16,22 @@ var W=0, H=0, _raf=null, _last=0, _dt=0;
 var activeRoute = 'general';
 var isMobile = false;
 
-var ROUTE_HUE = {general:208,risk:22,collapse:338,survival:142,civil:268,vega:286};
-var _tgtHue=208, _curHue=208;
+/* ── PINK LOVE PALETTE ─────────────────────────────────────── */
+var ROUTE_HUE = {general:300,risk:355,collapse:320,survival:270,civil:285,vega:260};
+var _tgtHue=300, _curHue=300;
 
 function loop(now){
-  _raf = requestAnimationFrame(loop);
+  if(!window.KD||window.KD.visible!==false){
+    _raf = requestAnimationFrame(loop);
+  } else {
+    _raf = null; return;
+  }
   _dt  = Math.min(now-_last, 50);
   _last = now;
   render(_dt, now);
 }
 
+/* ── RESIZE — listen to KD:resize from system.js ────────────── */
 var _rT;
 function doResize(){
   W = cv.width  = window.innerWidth;
@@ -31,32 +39,61 @@ function doResize(){
   isMobile = W < 768;
   buildStars();
   buildDust();
+  buildCityLights();
 }
-window.addEventListener('resize',function(){ clearTimeout(_rT); _rT=setTimeout(doResize,80); },{passive:true});
+window.addEventListener('KD:resize', function(){ doResize(); }, {passive:true});
+window.addEventListener('resize', function(){ clearTimeout(_rT); _rT=setTimeout(doResize,80); },{passive:true});
+
+/* ── VISIBILITY via KD:visibility ───────────────────────────── */
+window.addEventListener('KD:visibility', function(e){
+  var vis = e.detail && e.detail.visible;
+  if(vis && !_raf){ _last=performance.now(); _raf=requestAnimationFrame(loop); }
+}, {passive:true});
 document.addEventListener('visibilitychange',function(){
   if(document.hidden){ if(_raf){cancelAnimationFrame(_raf);_raf=null;} }
   else { if(!_raf){_last=performance.now();_raf=requestAnimationFrame(loop);} }
 },{passive:true});
 
+/* ── KD:response — route pulse ──────────────────────────────── */
+window.addEventListener('KD:response', function(e){
+  var detail = e.detail || {};
+  var route  = detail.consensus && detail.consensus.final_action;
+  if(route && ROUTE_HUE[route]){ _tgtHue = ROUTE_HUE[route]; }
+  /* risk burst */
+  var risk = detail.risk && detail.risk.risk_score;
+  if(risk > 75) _burstAlpha = 0.35;
+  else if(risk > 45) _burstAlpha = 0.18;
+}, {passive:true});
+
+/* ── KD:decision — planet highlight ────────────────────────── */
+window.addEventListener('KD:decision', function(e){
+  var route = e.detail && e.detail.route;
+  if(route){ activeRoute = route; _tgtHue = ROUTE_HUE[route]||300; }
+}, {passive:true});
+
+var _burstAlpha = 0;
+
 /* ================================================================
-   STARFIELD
+   STARFIELD — pink-lavender-white mix
    ================================================================ */
 var STARS=[];
 function buildStars(){
   STARS=[];
-  var total = isMobile ? 300 : 550;
+  var total = isMobile ? 320 : 580;
   for(var i=0;i<total;i++){
     var layer = Math.random();
     var sz = layer<0.50?0:layer<0.78?1:2;
+    /* โทน: pink · lavender · warm white · ice blue */
+    var ct = Math.random()<0.28?'pink':Math.random()<0.35?'lavender':Math.random()<0.12?'warm':'white';
     STARS.push({
       x: Math.random()*W, y: Math.random()*H,
-      r: [0.25+Math.random()*0.35, 0.45+Math.random()*0.65, 0.80+Math.random()*1.30][sz],
-      a: [0.22+Math.random()*0.45, 0.35+Math.random()*0.58, 0.52+Math.random()*0.80][sz],
-      tw: Math.random()<0.60,
+      r: [0.20+Math.random()*0.30, 0.40+Math.random()*0.60, 0.75+Math.random()*1.20][sz],
+      a: [0.18+Math.random()*0.42, 0.30+Math.random()*0.55, 0.48+Math.random()*0.78][sz],
+      tw: Math.random()<0.65,
       ph: Math.random()*Math.PI*2,
-      sp: 0.15+Math.random()*0.65,
-      ct: Math.random()<0.22?'blue':Math.random()<0.10?'warm':'white',
-      cross: sz===2&&Math.random()<0.55
+      sp: 0.12+Math.random()*0.70,
+      ct: ct,
+      cross: sz===2&&Math.random()<0.50
     });
   }
 }
@@ -65,13 +102,15 @@ function drawStars(now){
   ctx.save(); ctx.globalCompositeOperation='screen';
   for(var i=0;i<STARS.length;i++){
     var s=STARS[i];
-    var a=s.tw?s.a*(0.38+0.62*Math.sin(now*s.sp*0.00048+s.ph)):s.a;
-    var col = s.ct==='blue' ?'rgba(180,215,255,'+a.toFixed(3)+')':
-              s.ct==='warm' ?'rgba(255,235,195,'+a.toFixed(3)+')':
-                             'rgba(225,238,255,'+a.toFixed(3)+')';
+    var a=s.tw?s.a*(0.35+0.65*Math.sin(now*s.sp*0.00048+s.ph)):s.a;
+    var col;
+    if(s.ct==='pink')     col='rgba(255,180,220,'+a.toFixed(3)+')';
+    else if(s.ct==='lavender') col='rgba(200,170,255,'+a.toFixed(3)+')';
+    else if(s.ct==='warm') col='rgba(255,230,200,'+a.toFixed(3)+')';
+    else                   col='rgba(230,240,255,'+a.toFixed(3)+')';
     if(s.cross&&a>s.a*0.55){
-      ctx.strokeStyle=col; ctx.lineWidth=0.35;
-      var cl=s.r*3.8;
+      ctx.strokeStyle=col; ctx.lineWidth=0.32;
+      var cl=s.r*3.6;
       ctx.beginPath();ctx.moveTo(s.x-cl,s.y);ctx.lineTo(s.x+cl,s.y);ctx.stroke();
       ctx.beginPath();ctx.moveTo(s.x,s.y-cl);ctx.lineTo(s.x,s.y+cl);ctx.stroke();
     }
@@ -82,22 +121,25 @@ function drawStars(now){
 }
 
 /* ================================================================
-   NEBULA DUST
+   NEBULA DUST — rose · mauve · lavender · soft teal
    ================================================================ */
 var DUST=[];
 function buildDust(){
   DUST=[];
-  var n=isMobile?55:100;
-  var hues=[260,278,295,185,200,340];
+  var n=isMobile?60:110;
+  /* pink-lavender nebula hues */
+  var hues=[315,295,280,265,340,320,308];
+  var sats=[35,30,28,26,38,32,30];
+  var lums=[62,58,60,55,65,60,58];
   for(var i=0;i<n;i++){
+    var hi=Math.floor(Math.random()*hues.length);
     DUST.push({
       x:Math.random()*W, y:Math.random()*H,
-      r:22+Math.random()*65,
-      a:0.016+Math.random()*0.036,
+      r:28+Math.random()*80,
+      a:0.020+Math.random()*0.048,
       ph:Math.random()*Math.PI*2,
-      sp:0.04+Math.random()*0.14,
-      hue:hues[Math.floor(Math.random()*hues.length)],
-      sat:18+Math.random()*22, lum:50+Math.random()*22
+      sp:0.03+Math.random()*0.12,
+      hue:hues[hi], sat:sats[hi], lum:lums[hi]
     });
   }
 }
@@ -106,7 +148,7 @@ function drawDust(now){
   ctx.save(); ctx.globalCompositeOperation='screen';
   for(var i=0;i<DUST.length;i++){
     var d=DUST[i];
-    var a=d.a*(0.42+0.58*Math.sin(now*d.sp*0.00019+d.ph));
+    var a=d.a*(0.38+0.62*Math.sin(now*d.sp*0.00019+d.ph));
     var g=ctx.createRadialGradient(d.x,d.y,0,d.x,d.y,d.r);
     g.addColorStop(0,'hsla('+d.hue+','+d.sat+'%,'+d.lum+'%,'+a.toFixed(4)+')');
     g.addColorStop(1,'rgba(0,0,0,0)');
@@ -116,50 +158,150 @@ function drawDust(now){
 }
 
 /* ================================================================
-   BACKGROUND — deep space navy, not pure black
+   CITY LIGHTS — pre-cached
+   ================================================================ */
+var CITY_DOTS=[];
+var CITY_CLUSTERS=[
+  [-0.38,-0.18, isMobile?100:180, 0.13, 255,205,120,'usa_east'],
+  [-0.48,-0.12, isMobile? 45: 80, 0.09, 255,190,100,'usa_mid'],
+  [-0.56,-0.08, isMobile? 35: 60, 0.07, 255,195,110,'usa_west'],
+  [-0.08,-0.28, isMobile? 90:160, 0.11, 255,215,135,'europe_w'],
+  [-0.10,-0.30, isMobile? 30: 55, 0.04, 255,228,160,'paris'],
+  [ 0.06,-0.26, isMobile? 35: 60, 0.07, 255,205,125,'europe_e'],
+  [ 0.52,-0.18, isMobile? 50: 90, 0.07, 255,225,145,'japan'],
+  [ 0.44,-0.10, isMobile? 55:100, 0.09, 255,215,130,'china'],
+  [ 0.28, 0.08, isMobile? 40: 70, 0.08, 255,200,118,'india'],
+  [ 0.46, 0.18, isMobile? 28: 50, 0.06, 255,205,120,'sea'],
+];
+
+function buildCityLights(){ _cityBuilt=false; CITY_DOTS=[]; }
+var _cityBuilt=false, _cityR=0;
+
+function rebuildCityDots(x,y,r){
+  CITY_DOTS=[]; _cityR=r;
+  for(var ci=0;ci<CITY_CLUSTERS.length;ci++){
+    var cl=CITY_CLUSTERS[ci];
+    var ox=cl[0],oy=cl[1],density=cl[2],spread=cl[3];
+    var R=cl[4],G=cl[5],B=cl[6];
+    var cx2=x+ox*r, cy2=y+oy*r;
+    var nightFade=Math.max(0,Math.min(1,(-ox+0.08)*3.5));
+    if(nightFade<=0.05) continue;
+    for(var di=0;di<density;di++){
+      var ang=Math.random()*Math.PI*2;
+      var dist=Math.random()*spread*r;
+      var dx=cx2+Math.cos(ang)*dist;
+      var dy=cy2+Math.sin(ang)*dist;
+      var ddx=dx-x, ddy=dy-y;
+      if(ddx*ddx+ddy*ddy>r*r*0.94) continue;
+      CITY_DOTS.push({
+        x:dx, y:dy,
+        sz:0.5+Math.random()*1.4,
+        brightness:(0.45+Math.random()*0.55)*nightFade,
+        ph:Math.random()*Math.PI*2,
+        sp:0.0008+Math.random()*0.0012,
+        R:R, G:G, B:B
+      });
+    }
+  }
+  _cityBuilt=true;
+}
+
+function drawCityLights(now){
+  if(!_cityBuilt||CITY_DOTS.length===0) return;
+  ctx.save(); ctx.globalCompositeOperation='screen';
+  for(var i=0;i<CITY_DOTS.length;i++){
+    var d=CITY_DOTS[i];
+    var flicker=0.82+0.18*Math.sin(now*d.sp+d.ph);
+    var a=d.brightness*flicker;
+    var sz=d.sz;
+    ctx.globalAlpha=a*0.90;
+    ctx.fillStyle='rgba('+d.R+','+d.G+','+d.B+',1)';
+    ctx.beginPath(); ctx.arc(d.x,d.y,sz*0.6,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=a*0.35;
+    var dg=ctx.createRadialGradient(d.x,d.y,0,d.x,d.y,sz*3.0);
+    dg.addColorStop(0,'rgba('+d.R+','+d.G+','+d.B+',1)');
+    dg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=dg;
+    ctx.beginPath(); ctx.arc(d.x,d.y,sz*3.0,0,Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  ctx.restore();
+}
+
+/* ================================================================
+   BACKGROUND — Pink Nebula Love Tone
    ================================================================ */
 function drawBg(now){
   ctx.clearRect(0,0,W,H);
+
+  /* base gradient — deep purple-black with warm rose undertone */
   var bg=ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,  '#0d1728');
-  bg.addColorStop(0.20,'#0a1220');
-  bg.addColorStop(0.50,'#080f1c');
-  bg.addColorStop(0.78,'#060c18');
-  bg.addColorStop(1,  '#050a14');
+  bg.addColorStop(0,  '#120818');
+  bg.addColorStop(0.20,'#0e0614');
+  bg.addColorStop(0.45,'#0b0512');
+  bg.addColorStop(0.72,'#090410');
+  bg.addColorStop(1,  '#07030e');
   ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
 
   _curHue+=(_tgtHue-_curHue)*0.004*(_dt/16);
   ctx.save(); ctx.globalCompositeOperation='screen';
 
-  var nb0=ctx.createRadialGradient(W*0.50,H*0.50,0,W*0.50,H*0.50,W*0.65);
-  nb0.addColorStop(0,'rgba(28,75,155,0.16)');nb0.addColorStop(0.5,'rgba(18,52,115,0.07)');nb0.addColorStop(1,'rgba(0,0,0,0)');
+  /* main pink-rose nebula center */
+  var nb0=ctx.createRadialGradient(W*0.50,H*0.42,0,W*0.50,H*0.42,W*0.72);
+  nb0.addColorStop(0,'rgba(200,100,160,0.16)');
+  nb0.addColorStop(0.4,'rgba(160,70,130,0.08)');
+  nb0.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=nb0; ctx.fillRect(0,0,W,H);
 
-  var nb1=ctx.createRadialGradient(W*0.05,H*0.30,0,W*0.05,H*0.30,W*0.52);
-  nb1.addColorStop(0,'rgba(75,50,175,0.18)');nb1.addColorStop(1,'rgba(0,0,0,0)');
+  /* lavender-purple left */
+  var nb1=ctx.createRadialGradient(W*0.06,H*0.35,0,W*0.06,H*0.35,W*0.58);
+  nb1.addColorStop(0,'rgba(140,80,220,0.20)');
+  nb1.addColorStop(0.5,'rgba(100,50,180,0.09)');
+  nb1.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=nb1; ctx.fillRect(0,0,W,H);
 
-  var nb2=ctx.createRadialGradient(W*0.92,H*0.58,0,W*0.92,H*0.58,W*0.45);
-  nb2.addColorStop(0,'rgba(155,65,95,0.14)');nb2.addColorStop(1,'rgba(0,0,0,0)');
+  /* rose-mauve right */
+  var nb2=ctx.createRadialGradient(W*0.90,H*0.55,0,W*0.90,H*0.55,W*0.50);
+  nb2.addColorStop(0,'rgba(220,80,130,0.15)');
+  nb2.addColorStop(0.5,'rgba(180,60,110,0.06)');
+  nb2.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=nb2; ctx.fillRect(0,0,W,H);
 
-  /* warm orange nebula bottom-left like wallpaper */
-  var nb4=ctx.createRadialGradient(W*0.08,H*0.88,0,W*0.08,H*0.88,W*0.55);
-  nb4.addColorStop(0,'rgba(180,90,30,0.12)');nb4.addColorStop(1,'rgba(0,0,0,0)');
+  /* warm peach/gold bottom-left — ดาวสาดแสง */
+  var nb3=ctx.createRadialGradient(W*0.10,H*0.85,0,W*0.10,H*0.85,W*0.52);
+  nb3.addColorStop(0,'rgba(200,120,80,0.13)');
+  nb3.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=nb3; ctx.fillRect(0,0,W,H);
+
+  /* soft teal highlight top-right */
+  var nb4=ctx.createRadialGradient(W*0.88,H*0.12,0,W*0.88,H*0.12,W*0.38);
+  nb4.addColorStop(0,'rgba(80,200,200,0.08)');
+  nb4.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=nb4; ctx.fillRect(0,0,W,H);
 
-  var mw=ctx.createLinearGradient(0,H*0.40,W,H*0.60);
+  /* milky way band — pink-lavender tint */
+  var mw=ctx.createLinearGradient(0,H*0.38,W,H*0.62);
   mw.addColorStop(0,'rgba(0,0,0,0)');
-  mw.addColorStop(0.28,'rgba(58,95,195,0.055)');
-  mw.addColorStop(0.50,'rgba(78,115,215,0.090)');
-  mw.addColorStop(0.72,'rgba(58,95,195,0.055)');
+  mw.addColorStop(0.22,'rgba(160,80,180,0.045)');
+  mw.addColorStop(0.50,'rgba(180,90,190,0.075)');
+  mw.addColorStop(0.78,'rgba(160,80,180,0.045)');
   mw.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=mw; ctx.fillRect(0,H*0.28,W,H*0.44);
+  ctx.fillStyle=mw; ctx.fillRect(0,H*0.26,W,H*0.48);
+
+  /* risk burst overlay */
+  if(_burstAlpha>0.005){
+    _burstAlpha*=0.94;
+    var burst=ctx.createRadialGradient(W*0.5,H*0.5,0,W*0.5,H*0.5,W*0.6);
+    burst.addColorStop(0,'rgba(255,80,140,'+(_burstAlpha).toFixed(3)+')');
+    burst.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=burst; ctx.fillRect(0,0,W,H);
+  }
+
   ctx.restore();
 }
 
 /* ================================================================
-   SUN — corona only visible at top, body hidden off-screen
+   SUN — soft rose-gold corona
    ================================================================ */
 function sunCX(){ return W*0.50; }
 function sunCY(){ return H*(-0.10); }
@@ -167,54 +309,55 @@ function sunCY(){ return H*(-0.10); }
 function drawSun(now){
   var cx=sunCX(), cy=sunCY();
   var Rs=Math.min(W,H)*(isMobile?0.16:0.13);
+  ctx.save(); ctx.globalCompositeOperation='screen';
 
-  ctx.save();
-  ctx.globalCompositeOperation='screen';
-
+  /* wide corona — rose-gold tint */
   var c1=ctx.createRadialGradient(cx,cy,Rs*0.3,cx,cy,Rs*6.5);
-  c1.addColorStop(0,'rgba(255,100,12,0.048)');
-  c1.addColorStop(0.35,'rgba(255,80,6,0.020)');
+  c1.addColorStop(0,'rgba(255,120,80,0.050)');
+  c1.addColorStop(0.35,'rgba(220,80,60,0.022)');
   c1.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=c1; ctx.fillRect(0,0,W,H);
 
   var c2=ctx.createRadialGradient(cx,cy,Rs*0.5,cx,cy,Rs*3.2);
-  c2.addColorStop(0,'rgba(255,115,16,0.13)');
-  c2.addColorStop(0.5,'rgba(255,90,8,0.052)');
+  c2.addColorStop(0,'rgba(255,130,90,0.14)');
+  c2.addColorStop(0.5,'rgba(220,90,60,0.055)');
   c2.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=c2; ctx.fillRect(0,0,W,H);
 
   var c3=ctx.createRadialGradient(cx,cy,Rs*0.6,cx,cy,Rs*1.9);
-  c3.addColorStop(0,'rgba(255,135,24,0.24)');
-  c3.addColorStop(0.6,'rgba(255,88,10,0.10)');
+  c3.addColorStop(0,'rgba(255,150,100,0.26)');
+  c3.addColorStop(0.6,'rgba(230,100,60,0.11)');
   c3.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=c3; ctx.fillRect(0,0,W,H);
 
+  /* rays */
   ctx.save();
   for(var ri=0;ri<12;ri++){
     var ra=(ri/12)*Math.PI*2+now*0.000013;
-    var rl=Rs*(1.32+0.26*Math.sin(now*0.000011+ri*0.8));
-    ctx.globalAlpha=0.020+0.009*Math.abs(Math.sin(now*0.00015+ri));
+    var rl=Rs*(1.30+0.24*Math.sin(now*0.000011+ri*0.8));
+    ctx.globalAlpha=0.018+0.008*Math.abs(Math.sin(now*0.00015+ri));
     var rx1=cx+Math.cos(ra)*Rs*0.5, ry1=cy+Math.sin(ra)*Rs*0.5;
     var rx2=cx+Math.cos(ra)*rl,     ry2=cy+Math.sin(ra)*rl;
     var rg=ctx.createLinearGradient(rx1,ry1,rx2,ry2);
-    rg.addColorStop(0,'rgba(255,152,32,1)');
+    rg.addColorStop(0,'rgba(255,168,80,1)');
     rg.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.strokeStyle=rg; ctx.lineWidth=Rs*0.052; ctx.lineCap='round';
+    ctx.strokeStyle=rg; ctx.lineWidth=Rs*0.048; ctx.lineCap='round';
     ctx.beginPath();ctx.moveTo(rx1,ry1);ctx.lineTo(rx2,ry2);ctx.stroke();
   }
   ctx.globalAlpha=1; ctx.restore();
 
+  /* body */
   ctx.globalCompositeOperation='source-over';
   var ph=ctx.createRadialGradient(cx-Rs*0.22,cy-Rs*0.16,0,cx+Rs*0.08,cy+Rs*0.10,Rs);
-  ph.addColorStop(0,'#fff9e0');ph.addColorStop(0.08,'#ffe050');ph.addColorStop(0.25,'#ff9c10');
-  ph.addColorStop(0.50,'#ff5800');ph.addColorStop(0.75,'#cc1600');ph.addColorStop(1,'#6a0400');
+  ph.addColorStop(0,'#fff8e0');ph.addColorStop(0.08,'#ffe080');ph.addColorStop(0.25,'#ff9c30');
+  ph.addColorStop(0.50,'#ff5820');ph.addColorStop(0.75,'#cc2000');ph.addColorStop(1,'#6a0800');
   ctx.fillStyle=ph;
   ctx.beginPath(); ctx.arc(cx,cy,Rs,0,Math.PI*2); ctx.fill();
 
   ctx.globalCompositeOperation='screen';
   var hi=ctx.createRadialGradient(cx-Rs*0.16,cy-Rs*0.12,0,cx,cy,Rs);
-  hi.addColorStop(0,'rgba(255,255,220,0.62)');
-  hi.addColorStop(0.30,'rgba(255,230,80,0.10)');
+  hi.addColorStop(0,'rgba(255,255,220,0.60)');
+  hi.addColorStop(0.30,'rgba(255,220,80,0.10)');
   hi.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=hi;
   ctx.beginPath(); ctx.arc(cx,cy,Rs,0,Math.PI*2); ctx.fill();
@@ -229,7 +372,8 @@ var TILT = 0.28;
 var PLANETS=[
   {id:'mercury',lbl:'GENERAL', route:'general', orb:0.10,per:0.241,yOff:0.24,rD:0.025,rM:0.032,draw:drawMercury},
   {id:'venus',  lbl:'RISK',    route:'risk',    orb:0.16,per:0.615,yOff:0.34,rD:0.033,rM:0.042,draw:drawVenus  },
-  {id:'earth',  lbl:'SURVIVAL',route:'survival',orb:0.22,per:1.000,yOff:0.44,rD:0.040,rM:0.050,draw:drawEarth,moon:true},
+  /* Earth ใหญ่ขึ้น — satellite view */
+  {id:'earth',  lbl:'SURVIVAL',route:'survival',orb:0.22,per:1.000,yOff:0.44,rD:0.072,rM:0.090,draw:drawEarth,moon:true},
   {id:'mars',   lbl:'COLLAPSE',route:'collapse',orb:0.29,per:1.881,yOff:0.54,rD:0.028,rM:0.036,draw:drawMars  },
   {id:'jupiter',lbl:'CIVIL',   route:'civil',   orb:0.38,per:11.86,yOff:0.64,rD:0.052,rM:0.064,draw:drawJupiter},
   {id:'vega',   lbl:'VEGA',    route:'vega',    orb:0.44,per:29.46,yOff:0.75,rD:0.036,rM:0.046,draw:drawVega  },
@@ -254,14 +398,15 @@ function drawOrbitRing(p,now){
   ctx.save(); ctx.globalCompositeOperation='screen';
   ctx.beginPath();
   ctx.ellipse(sunCX(),oy,R,R*TILT,0,0,Math.PI*2);
-  var a=isAct?0.40:0.09;
-  ctx.strokeStyle=isAct?'rgba(200,168,75,'+a+')':'rgba(100,150,220,'+a+')';
-  ctx.lineWidth=isAct?1.2:0.45;
+  var a=isAct?0.40:0.08;
+  /* orbit ring สีชมพู-ม่วงแทน blue */
+  ctx.strokeStyle=isAct?'rgba(220,140,200,'+a+')':'rgba(180,120,220,'+a+')';
+  ctx.lineWidth=isAct?1.1:0.40;
   ctx.stroke();
   if(isAct){
     var pos=planetPos(p,now);
-    var sg=ctx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,8);
-    sg.addColorStop(0,'rgba(255,235,120,0.90)');sg.addColorStop(1,'rgba(0,0,0,0)');
+    var sg=ctx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,10);
+    sg.addColorStop(0,'rgba(255,180,220,0.88)');sg.addColorStop(1,'rgba(0,0,0,0)');
     ctx.fillStyle=sg; ctx.fillRect(0,0,W,H);
   }
   ctx.restore();
@@ -275,10 +420,10 @@ function drawLabel(p,pos){
   ctx.font='500 '+fs+'px "DM Mono",monospace';
   ctx.textAlign='center'; ctx.textBaseline='top';
   if(isAct){
-    ctx.shadowColor='rgba(200,168,75,0.85)'; ctx.shadowBlur=8;
-    ctx.fillStyle='rgba(248,210,95,0.97)';
+    ctx.shadowColor='rgba(240,160,210,0.88)'; ctx.shadowBlur=9;
+    ctx.fillStyle='rgba(255,200,235,0.97)';
   } else {
-    ctx.fillStyle='rgba(130,170,230,0.45)';
+    ctx.fillStyle='rgba(190,150,220,0.42)';
   }
   ctx.fillText(p.lbl,pos.x,pos.y+r+6);
   ctx.restore();
@@ -302,8 +447,7 @@ cv.addEventListener('touchend',function(e){
 },{passive:true});
 
 /* ================================================================
-   PLANET HELPERS — Photorealistic light model
-   Light source: top-left (matches Sun above)
+   PLANET HELPERS
    ================================================================ */
 function pSphere(x,y,r,stops){
   var g=ctx.createRadialGradient(x-r*0.32,y-r*0.26,r*0.01,x+r*0.12,y+r*0.12,r*1.04);
@@ -311,7 +455,6 @@ function pSphere(x,y,r,stops){
   ctx.fillStyle=g;
   ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
 }
-
 function pTerminator(x,y,r,strength){
   strength=strength||0.72;
   ctx.save(); ctx.globalCompositeOperation='multiply';
@@ -325,7 +468,6 @@ function pTerminator(x,y,r,strength){
   ctx.beginPath(); ctx.arc(x,y,r*1.04,0,Math.PI*2); ctx.fill();
   ctx.restore();
 }
-
 function pRimLight(x,y,r,col){
   ctx.save(); ctx.globalCompositeOperation='screen';
   var g=ctx.createRadialGradient(x-r*0.28,y-r*0.22,r*0.82,x,y,r*1.02);
@@ -336,7 +478,6 @@ function pRimLight(x,y,r,col){
   ctx.beginPath(); ctx.arc(x,y,r*1.02,0,Math.PI*2); ctx.fill();
   ctx.restore();
 }
-
 function pSpecular(x,y,r,a,size){
   a=a||0.22; size=size||0.45;
   ctx.save(); ctx.globalCompositeOperation='screen';
@@ -348,30 +489,27 @@ function pSpecular(x,y,r,a,size){
   ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
   ctx.restore();
 }
-
 function pAtmosphere(x,y,r,col0,col1,size){
   size=size||1.32;
   ctx.save(); ctx.globalCompositeOperation='screen';
   var g=ctx.createRadialGradient(x,y,r*0.88,x,y,r*size);
-  g.addColorStop(0,col0);
-  g.addColorStop(0.45,col1);
-  g.addColorStop(1,'rgba(0,0,0,0)');
+  g.addColorStop(0,col0); g.addColorStop(0.45,col1); g.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
   ctx.restore();
 }
-
 function pActive(x,y,r,now){
   ctx.save(); ctx.globalCompositeOperation='screen';
   var pulse=0.65+0.35*Math.sin(now*0.0026);
   var g=ctx.createRadialGradient(x,y,r*0.5,x,y,r*2.6);
-  g.addColorStop(0,'rgba(200,168,75,'+(0.30*pulse).toFixed(3)+')');
-  g.addColorStop(0.5,'rgba(200,168,75,'+(0.10*pulse).toFixed(3)+')');
+  /* pink active glow */
+  g.addColorStop(0,'rgba(240,140,200,'+(0.32*pulse).toFixed(3)+')');
+  g.addColorStop(0.5,'rgba(200,100,180,'+(0.12*pulse).toFixed(3)+')');
   g.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-  ctx.globalAlpha=0.22*pulse;
-  ctx.strokeStyle='rgba(255,48,48,0.72)';ctx.lineWidth=1.2;
+  ctx.globalAlpha=0.20*pulse;
+  ctx.strokeStyle='rgba(255,120,180,0.75)';ctx.lineWidth=1.2;
   ctx.beginPath();ctx.arc(x+1.5,y,r*1.10,0,Math.PI*2);ctx.stroke();
-  ctx.strokeStyle='rgba(48,48,255,0.72)';
+  ctx.strokeStyle='rgba(180,100,255,0.75)';
   ctx.beginPath();ctx.arc(x-1.5,y,r*1.10,0,Math.PI*2);ctx.stroke();
   ctx.globalAlpha=1; ctx.restore();
 }
@@ -429,290 +567,113 @@ function drawVenus(x,y,r,now){
 }
 
 /* ================================================================
-   EARTH v47 — NASA Satellite View
-   - Day side: ocean depth, continents, clouds, atmosphere
-   - Night side: city lights constellation (USA, Europe, Asia)
-   - Terminator: soft twilight band
-   - Specular: ocean glint top-left
+   EARTH v47 — Satellite View + Pink Atmosphere Rim
    ================================================================ */
 function drawEarth(x,y,r,now){
   ctx.save();
+  if(!_cityBuilt || Math.abs(_cityR-r)>1){ rebuildCityDots(x,y,r); }
 
-  /* ── BASE: deep space black (night side base) ── */
   ctx.fillStyle='#000510';
   ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
 
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.clip();
 
-  /* ── OCEAN — day side only (right half) ── */
+  /* Ocean */
   ctx.globalCompositeOperation='source-over';
-  var ocean=ctx.createRadialGradient(x-r*0.15,y-r*0.12,r*0.05, x+r*0.20,y+r*0.20,r*1.05);
-  ocean.addColorStop(0,  '#c0eeff');
-  ocean.addColorStop(0.06,'#52ccea');
-  ocean.addColorStop(0.16,'#1a90cc');
-  ocean.addColorStop(0.32,'#0660a8');
-  ocean.addColorStop(0.52,'#033a80');
-  ocean.addColorStop(0.72,'#011c48');
-  ocean.addColorStop(0.88,'#000c28');
-  ocean.addColorStop(1,  '#000510');
-  ctx.fillStyle=ocean;
-  ctx.fillRect(0,0,W,H);
+  var ocean=ctx.createRadialGradient(x-r*0.15,y-r*0.12,r*0.05,x+r*0.20,y+r*0.20,r*1.05);
+  ocean.addColorStop(0,'#c0eeff'); ocean.addColorStop(0.06,'#52ccea');
+  ocean.addColorStop(0.16,'#1a90cc'); ocean.addColorStop(0.32,'#0660a8');
+  ocean.addColorStop(0.52,'#033a80'); ocean.addColorStop(0.72,'#011c48');
+  ocean.addColorStop(0.88,'#000c28'); ocean.addColorStop(1,'#000510');
+  ctx.fillStyle=ocean; ctx.fillRect(0,0,W,H);
 
-  /* ── CONTINENTS — day side ── */
   function land(ox,oy,rx,R,G,B,a){
-    var g=ctx.createRadialGradient(x+ox*r,y+oy*r,0, x+ox*r,y+oy*r,rx*r);
+    var g=ctx.createRadialGradient(x+ox*r,y+oy*r,0,x+ox*r,y+oy*r,rx*r);
     g.addColorStop(0,'rgba('+R+','+G+','+B+','+a+')');
     g.addColorStop(0.38,'rgba('+R+','+G+','+B+','+(a*0.70).toFixed(2)+')');
     g.addColorStop(0.68,'rgba('+R+','+G+','+B+','+(a*0.28).toFixed(2)+')');
     g.addColorStop(1,'rgba(0,0,0,0)');
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
   }
-  /* Australia — iconic red/orange */
-  land( 0.46, 0.26,0.22,188,64,14,0.98);
-  land( 0.55, 0.18,0.10,170,52,12,0.94);
-  land( 0.60, 0.34,0.08, 65,122,38,0.88);
-  /* Africa */
+  land( 0.46, 0.26,0.24,200,60,10,0.99);
+  land( 0.55, 0.18,0.12,185,48,8, 0.96);
+  land( 0.60, 0.34,0.09, 65,122,38,0.90);
   land( 0.10,-0.05,0.23,200,154,68,0.92);
   land( 0.14, 0.16,0.17,152,122,52,0.88);
   land( 0.15, 0.02,0.10, 44,108,35,0.86);
   land( 0.06,-0.13,0.12,218,175,84,0.88);
-  /* Middle East */
   land( 0.24,-0.09,0.14,215,178,95,0.90);
-  /* Europe */
   land( 0.06,-0.25,0.12, 68,140,48,0.84);
   land( 0.12,-0.34,0.09, 62,130,44,0.80);
-  /* Asia */
   land( 0.34,-0.32,0.29, 78,142,52,0.80);
   land( 0.48,-0.14,0.15, 92,152,56,0.82);
   land( 0.36, 0.02,0.12,132,162,62,0.84);
   land( 0.52, 0.02,0.10, 44,112,38,0.82);
   land( 0.30,-0.22,0.18,162,170,82,0.76);
-  /* Americas */
   land(-0.32,-0.30,0.22, 68,125,46,0.86);
   land(-0.22, 0.16,0.15, 32, 98,32,0.92);
   land(-0.30, 0.20,0.06,120,100,54,0.80);
   land(-0.10,-0.54,0.08,212,224,232,0.86);
 
-  /* ── COASTAL TEAL SHALLOWS — subtle ── */
+  /* Coastal teal */
   ctx.globalCompositeOperation='screen';
-  var tc=ctx.createRadialGradient(x+r*0.40,y+r*0.22,r*0.12, x+r*0.40,y+r*0.22,r*0.25);
-  tc.addColorStop(0,'rgba(0,195,185,0.26)'); tc.addColorStop(1,'rgba(0,0,0,0)');
+  var tc=ctx.createRadialGradient(x+r*0.40,y+r*0.22,r*0.12,x+r*0.40,y+r*0.22,r*0.26);
+  tc.addColorStop(0,'rgba(0,200,188,0.30)'); tc.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=tc; ctx.fillRect(0,0,W,H);
 
-  /* ── ICE CAPS ── */
-  var ant=ctx.createRadialGradient(x,y+r*0.80,0, x,y+r*0.80,r*0.28);
-  ant.addColorStop(0,'rgba(252,255,255,0.96)'); ant.addColorStop(0.5,'rgba(232,246,255,0.70)'); ant.addColorStop(1,'rgba(0,0,0,0)');
+  /* Ice caps */
+  ctx.globalCompositeOperation='source-over';
+  var ant=ctx.createRadialGradient(x,y+r*0.80,0,x,y+r*0.80,r*0.30);
+  ant.addColorStop(0,'rgba(252,255,255,0.96)'); ant.addColorStop(0.5,'rgba(232,246,255,0.72)'); ant.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=ant; ctx.fillRect(0,0,W,H);
-  var np=ctx.createRadialGradient(x,y-r*0.77,0, x,y-r*0.77,r*0.22);
-  np.addColorStop(0,'rgba(245,252,255,0.90)'); np.addColorStop(0.5,'rgba(225,244,255,0.60)'); np.addColorStop(1,'rgba(0,0,0,0)');
+  var np=ctx.createRadialGradient(x,y-r*0.77,0,x,y-r*0.77,r*0.22);
+  np.addColorStop(0,'rgba(245,252,255,0.92)'); np.addColorStop(0.5,'rgba(225,244,255,0.62)'); np.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=np; ctx.fillRect(0,0,W,H);
 
-  /* ── CLOUDS — day side, volumetric ── */
+  /* Clouds */
+  ctx.globalCompositeOperation='screen';
   var cSpin=now*0.000040;
-  for(var ci=0;ci<7;ci++){
-    var ca=cSpin+ci*(Math.PI*2/7);
-    var crad=r*(0.08+ci*0.058);
-    var cx2=x-r*0.16+Math.cos(ca)*crad*0.58;
-    var cy2=y-r*0.08+Math.sin(ca)*crad*0.30;
-    var calpha=Math.max(0.06,0.52-ci*0.058);
-    var cg=ctx.createRadialGradient(cx2,cy2,0,cx2,cy2,r*(0.18+ci*0.036));
-    cg.addColorStop(0,'rgba(255,255,255,'+calpha+')');
-    cg.addColorStop(0.35,'rgba(252,254,255,'+(calpha*0.62).toFixed(3)+')');
-    cg.addColorStop(0.65,'rgba(245,250,255,'+(calpha*0.24).toFixed(3)+')');
+  for(var ci=0;ci<14;ci++){
+    var ca=cSpin+ci*(Math.PI*2/14);
+    var crad=r*(0.08+ci*0.016);
+    var cx2=x+Math.cos(ca)*crad*0.55;
+    var cy2=y+Math.sin(ca)*crad*0.28;
+    var csz=r*(0.13+Math.sin(ci*1.3)*0.055);
+    var cg=ctx.createRadialGradient(cx2,cy2,0,cx2,cy2,csz);
+    var ca2=(0.20+0.16*Math.sin(ci*0.9+now*0.000012));
+    cg.addColorStop(0,'rgba(255,255,255,'+ca2+')');
+    cg.addColorStop(0.5,'rgba(240,248,255,'+(ca2*0.48).toFixed(3)+')');
     cg.addColorStop(1,'rgba(0,0,0,0)');
     ctx.fillStyle=cg; ctx.fillRect(0,0,W,H);
   }
-  [[x+r*0.22,y+r*0.10,r*0.28,0.46],[x-r*0.06,y+r*0.26,r*0.22,0.38],
-   [x-r*0.42,y-r*0.07,r*0.20,0.40],[x+r*0.40,y-r*0.15,r*0.17,0.34],
-   [x-r*0.14,y-r*0.37,r*0.18,0.30],[x+r*0.06,y+r*0.48,r*0.20,0.28],
-   [x+r*0.28,y+r*0.40,r*0.14,0.26]
-  ].forEach(function(c){
-    var drift=Math.sin(now*0.0000058+c[0]*0.001)*r*0.010;
-    var cpg=ctx.createRadialGradient(c[0]+drift,c[1],0,c[0]+drift,c[1],c[2]);
-    cpg.addColorStop(0,'rgba(255,255,255,'+c[3]+')');
-    cpg.addColorStop(0.28,'rgba(255,255,255,'+(c[3]*0.72).toFixed(3)+')');
-    cpg.addColorStop(0.55,'rgba(248,252,255,'+(c[3]*0.36).toFixed(3)+')');
-    cpg.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=cpg; ctx.fillRect(0,0,W,H);
-  });
 
-  /* ── TERMINATOR — soft twilight band ── */
-  ctx.globalCompositeOperation='multiply';
-  var term=ctx.createRadialGradient(x+r*0.28,y+r*0.22,r*0.04, x+r*0.30,y+r*0.24,r*1.18);
-  term.addColorStop(0,   'rgba(0,0,0,0)');
-  term.addColorStop(0.38,'rgba(0,0,0,0.05)');
-  term.addColorStop(0.55,'rgba(0,0,8,0.38)');
-  term.addColorStop(0.70,'rgba(0,0,12,0.72)');
-  term.addColorStop(0.85,'rgba(0,2,20,0.90)');
-  term.addColorStop(1,   'rgba(0,3,22,0.97)');
-  ctx.fillStyle=term; ctx.fillRect(0,0,W,H);
+  /* City lights */
+  drawCityLights(now);
 
-  /* ── CITY LIGHTS — night side ── */
+  /* Terminator */
+  ctx.globalAlpha=1; ctx.globalCompositeOperation='multiply';
+  var term=ctx.createLinearGradient(x-r*0.05,y,x+r*0.50,y);
+  term.addColorStop(0,'rgba(0,0,0,0)'); term.addColorStop(0.30,'rgba(0,4,18,0.18)');
+  term.addColorStop(0.58,'rgba(0,4,18,0.62)'); term.addColorStop(0.78,'rgba(0,2,10,0.86)');
+  term.addColorStop(1,'rgba(0,0,0,0.95)');
+  ctx.fillStyle=term; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  ctx.globalAlpha=1;
+  ctx.restore();
+
+  /* Atmosphere — pink-blue rim แบบ cockpit window */
   ctx.globalCompositeOperation='screen';
-  function city(ox,oy,size,brightness,color){
-    /* only draw if on night side (right+bottom = night) */
-    var g=ctx.createRadialGradient(x+ox*r,y+oy*r,0, x+ox*r,y+oy*r,size*r);
-    g.addColorStop(0,'rgba('+color+','+brightness+')');
-    g.addColorStop(0.35,'rgba('+color+','+(brightness*0.45).toFixed(3)+')');
-    g.addColorStop(0.70,'rgba('+color+','+(brightness*0.12).toFixed(3)+')');
-    g.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-  }
+  var atm=ctx.createRadialGradient(x,y,r*0.87,x,y,r*1.22);
+  atm.addColorStop(0,'rgba(180,140,255,0.22)');
+  atm.addColorStop(0.30,'rgba(120,100,230,0.10)');
+  atm.addColorStop(0.60,'rgba(80,160,255,0.06)');
+  atm.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=atm; ctx.fillRect(0,0,W,H);
 
-  /* USA East Coast + Midwest — amber-white */
-  city(-0.28,-0.20,0.060,0.82,'255,228,145');
-  city(-0.22,-0.22,0.042,0.68,'255,215,130');
-  city(-0.34,-0.18,0.034,0.58,'255,222,140');
-  city(-0.18,-0.28,0.032,0.52,'255,210,128');
-  city(-0.26,-0.26,0.025,0.48,'255,225,148');
-  /* USA West Coast */
-  city(-0.44,-0.20,0.028,0.45,'255,220,135');
-  city(-0.46,-0.22,0.020,0.38,'255,218,138');
-  /* USA Midwest corridor */
-  city(-0.30,-0.24,0.022,0.42,'255,222,142');
-  city(-0.24,-0.20,0.018,0.38,'255,218,138');
-  /* Europe cluster — bright */
-  city( 0.05,-0.28,0.050,0.78,'255,235,160');
-  city( 0.10,-0.32,0.034,0.62,'255,228,148');
-  city( 0.16,-0.26,0.030,0.56,'255,225,145');
-  city( 0.02,-0.22,0.028,0.50,'255,230,150');
-  city( 0.12,-0.24,0.022,0.45,'255,228,148');
-  city( 0.18,-0.30,0.020,0.40,'255,225,145');
-  /* Japan + Korea — bright dense */
-  city( 0.56,-0.22,0.035,0.68,'255,240,170');
-  city( 0.52,-0.18,0.025,0.55,'255,235,160');
-  city( 0.58,-0.24,0.018,0.45,'255,238,165');
-  /* China East coast */
-  city( 0.48,-0.12,0.040,0.58,'255,228,148');
-  city( 0.44,-0.08,0.028,0.45,'255,222,140');
-  city( 0.50,-0.16,0.022,0.38,'255,225,145');
-  /* India */
-  city( 0.36, 0.05,0.036,0.50,'255,218,138');
-  city( 0.40, 0.08,0.022,0.38,'255,215,135');
-  /* Middle East */
-  city( 0.22,-0.08,0.032,0.52,'255,230,155');
-  city( 0.26,-0.10,0.020,0.40,'255,228,150');
-  /* SE Asia */
-  city( 0.54, 0.06,0.025,0.42,'255,220,145');
-  /* Australia east */
-  city( 0.58, 0.32,0.022,0.38,'255,215,135');
-
-  /* Tiny city sparkle nodes — more realistic scatter */
-  var sparkles=[
-    [-0.26,-0.24,0.008,0.80],[-0.30,-0.20,0.007,0.70],[-0.20,-0.26,0.007,0.68],
-    [-0.24,-0.18,0.007,0.65],[-0.32,-0.22,0.006,0.60],[-0.18,-0.22,0.006,0.58],
-    [ 0.06,-0.30,0.008,0.75],[ 0.12,-0.28,0.007,0.65],[ 0.08,-0.24,0.007,0.62],
-    [ 0.14,-0.32,0.006,0.58],[ 0.02,-0.26,0.006,0.55],[ 0.18,-0.28,0.006,0.52],
-    [ 0.56,-0.20,0.007,0.65],[ 0.50,-0.16,0.006,0.55],[ 0.46,-0.10,0.007,0.50],
-    [ 0.38, 0.04,0.006,0.48],[ 0.24,-0.10,0.006,0.50],[ 0.60, 0.30,0.005,0.42],
-  ];
-  sparkles.forEach(function(s){
-    var sg=ctx.createRadialGradient(x+s[0]*r,y+s[1]*r,0, x+s[0]*r,y+s[1]*r,s[2]*r);
-    sg.addColorStop(0,'rgba(255,240,180,'+s[3]+')');
-    sg.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=sg; ctx.fillRect(0,0,W,H);
-  });
-
-  /* City light connection filaments — like the Gemini satellite image */
-  ctx.globalCompositeOperation='screen';
-  /* USA network */
-  ctx.strokeStyle='rgba(255,220,120,0.10)'; ctx.lineWidth=0.6;
-  var links=[
-    [-0.28,-0.20,-0.22,-0.22],[-0.22,-0.22,-0.18,-0.28],
-    [-0.28,-0.20,-0.34,-0.18],[-0.30,-0.24,-0.26,-0.26],
-    [-0.24,-0.20,-0.22,-0.22],[-0.28,-0.20,-0.24,-0.20],
-    /* Europe */
-    [ 0.06,-0.28, 0.12,-0.28],[ 0.06,-0.28, 0.02,-0.22],
-    [ 0.10,-0.32, 0.16,-0.26],[ 0.12,-0.24, 0.18,-0.30],
-    [ 0.05,-0.28, 0.10,-0.32],
-    /* East Asia */
-    [ 0.56,-0.20, 0.50,-0.16],[ 0.56,-0.20, 0.58,-0.24],
-    [ 0.48,-0.12, 0.44,-0.08],[ 0.50,-0.16, 0.48,-0.12],
-    /* cross-regional faint */
-    [ 0.16,-0.26, 0.22,-0.08],[ 0.36, 0.05, 0.40, 0.08],
-  ];
-  links.forEach(function(l){
-    ctx.beginPath();
-    ctx.moveTo(x+l[0]*r,y+l[1]*r);
-    ctx.lineTo(x+l[2]*r,y+l[3]*r);
-    ctx.stroke();
-  });
-  /* brighter core links */
-  ctx.strokeStyle='rgba(255,228,145,0.16)'; ctx.lineWidth=0.4;
-  [[-0.28,-0.20,-0.30,-0.24],[0.06,-0.28,0.12,-0.28],[0.56,-0.22,0.52,-0.18]].forEach(function(l){
-    ctx.beginPath(); ctx.moveTo(x+l[0]*r,y+l[1]*r); ctx.lineTo(x+l[2]*r,y+l[3]*r); ctx.stroke();
-  });
-
-  ctx.restore(); /* end clip */
-
-  /* ── ATMOSPHERE RIM — blue glow ── */
-  ctx.save(); ctx.globalCompositeOperation='screen';
-  var atm1=ctx.createRadialGradient(x,y,r*0.82,x,y,r*1.10);
-  atm1.addColorStop(0,'rgba(50,175,252,0.70)');
-  atm1.addColorStop(0.30,'rgba(35,142,238,0.38)');
-  atm1.addColorStop(0.62,'rgba(20,108,220,0.14)');
-  atm1.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=atm1; ctx.fillRect(0,0,W,H);
-
-  var atm2=ctx.createRadialGradient(x,y,r*0.90,x,y,r*1.38);
-  atm2.addColorStop(0,'rgba(88,205,255,0.56)');
-  atm2.addColorStop(0.28,'rgba(58,170,248,0.24)');
-  atm2.addColorStop(0.56,'rgba(32,125,225,0.09)');
-  atm2.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=atm2; ctx.fillRect(0,0,W,H);
-
-  /* Limb brightening — sun side top-left */
-  var limb=ctx.createRadialGradient(x-r*0.22,y-r*0.18,r*0.85, x-r*0.08,y-r*0.06,r*1.22);
-  limb.addColorStop(0,'rgba(155,232,255,0.52)');
-  limb.addColorStop(0.40,'rgba(95,195,255,0.20)');
-  limb.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=limb; ctx.fillRect(0,0,W,H);
-
-  /* Twilight orange band at terminator edge */
-  var twi=ctx.createRadialGradient(x+r*0.24,y+r*0.18,r*0.60, x+r*0.26,y+r*0.20,r*0.80);
-  twi.addColorStop(0,'rgba(0,0,0,0)');
-  twi.addColorStop(0.5,'rgba(255,128,30,0.06)');
-  twi.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=twi; ctx.fillRect(0,0,W,H);
-  ctx.restore();
-
-  /* ── OCEAN SPECULAR — top-left glint ── */
-  ctx.save(); ctx.globalCompositeOperation='screen';
-  var spec=ctx.createRadialGradient(x-r*0.18,y-r*0.14,0, x-r*0.06,y-r*0.05,r*0.42);
-  spec.addColorStop(0,'rgba(255,255,255,0.90)');
-  spec.addColorStop(0.14,'rgba(240,252,255,0.62)');
-  spec.addColorStop(0.30,'rgba(220,244,255,0.28)');
-  spec.addColorStop(0.52,'rgba(200,235,255,0.08)');
-  spec.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=spec;
-  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
-  ctx.restore();
-
-  pTerminator(x,y,r,0.46);
-  ctx.restore();
-}
-
-/* ================================================================
-   MOON
-   ================================================================ */
-function drawMoon(x,y,r,now){
-  ctx.save();
-  pSphere(x,y,r,[
-    [0,'#ddd4c8'],[0.18,'#b09080'],[0.40,'#806050'],
-    [0.65,'#503828'],[0.85,'#302018'],[1,'#180c06']
-  ]);
-  ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.clip();
-  [[-0.12,-0.08,0.34,0.50],[0.16,0.12,0.24,0.44],[-0.26,0.20,0.18,0.42]].forEach(function(m){
-    var mg=ctx.createRadialGradient(x+m[0]*r,y+m[1]*r,0,x+m[0]*r,y+m[1]*r,m[2]*r);
-    mg.addColorStop(0,'rgba(40,28,18,'+m[3]+')');
-    mg.addColorStop(0.6,'rgba(55,40,25,'+(m[3]*0.45).toFixed(3)+')');
-    mg.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.globalCompositeOperation='multiply'; ctx.fillStyle=mg; ctx.fillRect(0,0,W,H);
-  });
-  ctx.restore();
-  pTerminator(x,y,r,0.72); pRimLight(x,y,r,'rgba(210,200,185,0.50)');
-  pSpecular(x,y,r,0.08,0.38);
-  ctx.restore();
+  pSpecular(x,y,r,0.28,0.36);
+  pTerminator(x,y,r,0.68);
+  /* pink rim light แบบ cockpit glow */
+  pRimLight(x,y,r,'rgba(200,150,255,0.58)');
+  ctx.globalAlpha=1; ctx.restore();
 }
 
 /* ================================================================
@@ -721,23 +682,22 @@ function drawMoon(x,y,r,now){
 function drawMars(x,y,r,now){
   ctx.save();
   pSphere(x,y,r,[
-    [0,'#f0b890'],[0.18,'#d07048'],[0.40,'#b85030'],
-    [0.62,'#8c3820'],[0.82,'#601808'],[1,'#380c02']
+    [0,'#f0b090'],[0.15,'#c86038'],[0.35,'#9c3018'],
+    [0.58,'#6a1808'],[0.80,'#400c02'],[1,'#200400']
   ]);
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.clip();
-  ctx.globalCompositeOperation='multiply';
-  var vm=ctx.createLinearGradient(x-r*0.55,y+r*0.06,x+r*0.20,y+r*0.14);
-  vm.addColorStop(0,'rgba(80,14,4,0)');vm.addColorStop(0.15,'rgba(42,6,2,0.70)');
-  vm.addColorStop(0.85,'rgba(38,5,1,0.72)');vm.addColorStop(1,'rgba(80,14,4,0)');
-  ctx.fillStyle=vm; ctx.fillRect(x-r,y+r*0.04,r*2,r*0.10);
-  ctx.globalCompositeOperation='screen';
-  var np3=ctx.createRadialGradient(x,y-r*0.72,0,x,y-r*0.72,r*0.28);
-  np3.addColorStop(0,'rgba(250,242,230,0.94)');np3.addColorStop(0.6,'rgba(235,228,215,0.55)');np3.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=np3; ctx.fillRect(0,0,W,H);
+  ctx.globalCompositeOperation='overlay';
+  [[0.18,-0.12,0.32,0.28],[-0.14,0.22,0.24,0.22],[0.30,0.10,0.18,0.20]].forEach(function(c){
+    var mg=ctx.createRadialGradient(x+c[0]*r,y+c[1]*r,0,x+c[0]*r,y+c[1]*r,c[2]*r);
+    mg.addColorStop(0,'rgba(180,80,40,'+c[3]+')'); mg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=mg; ctx.fillRect(0,0,W,H);
+  });
   ctx.restore();
-  pAtmosphere(x,y,r,'rgba(205,118,58,0.12)','rgba(185,90,38,0.04)',1.22);
-  pTerminator(x,y,r,0.68); pRimLight(x,y,r,'rgba(235,160,110,0.58)');
-  pSpecular(x,y,r,0.08,0.38);
+  var pc=ctx.createRadialGradient(x,y-r*0.78,0,x,y-r*0.78,r*0.20);
+  pc.addColorStop(0,'rgba(240,240,255,0.88)'); pc.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=pc; ctx.globalCompositeOperation='source-over'; ctx.fillRect(0,0,W,H);
+  pTerminator(x,y,r,0.76); pRimLight(x,y,r,'rgba(255,180,100,0.50)');
+  pSpecular(x,y,r,0.10,0.38);
   ctx.restore();
 }
 
@@ -747,442 +707,171 @@ function drawMars(x,y,r,now){
 function drawJupiter(x,y,r,now){
   ctx.save();
   pSphere(x,y,r,[
-    [0,'#f5e5c5'],[0.15,'#ddc598'],[0.35,'#ba9865'],
-    [0.58,'#8c6830'],[0.80,'#604020'],[1,'#301808']
+    [0,'#f0d8b0'],[0.12,'#d4a060'],[0.28,'#b87838'],
+    [0.50,'#9a5820'],[0.72,'#6c3408'],[1,'#3c1800']
   ]);
   ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.clip();
-  [{yo:-0.72,h:0.14,col:'rgba(150,100,45,0.55)'},{yo:-0.56,h:0.12,col:'rgba(195,155,85,0.42)'},
-   {yo:-0.42,h:0.16,col:'rgba(138,82,30,0.62)'},{yo:-0.24,h:0.13,col:'rgba(190,152,82,0.46)'},
-   {yo:-0.09,h:0.18,col:'rgba(132,78,28,0.64)'},{yo:0.11,h:0.13,col:'rgba(178,125,55,0.50)'},
-   {yo:0.26,h:0.16,col:'rgba(142,92,40,0.56)'},{yo:0.44,h:0.12,col:'rgba(172,122,52,0.46)'},
-   {yo:0.58,h:0.16,col:'rgba(128,75,26,0.60)'}].forEach(function(b,idx){
-    var drift=Math.sin(now*0.0000038+idx*0.55)*0.012;
-    var lg=ctx.createLinearGradient(x-r,y+(b.yo+drift)*r,x+r,y+(b.yo+drift+b.h)*r);
-    var tc=b.col.replace(/[\d.]+\)$/,'0)');
-    lg.addColorStop(0,tc);lg.addColorStop(0.20,b.col);lg.addColorStop(0.80,b.col);lg.addColorStop(1,tc);
-    ctx.globalCompositeOperation='overlay'; ctx.fillStyle=lg; ctx.fillRect(x-r,y+(b.yo+drift)*r,r*2,b.h*r);
-  });
-  var gx=x+r*0.22+Math.sin(now*0.0000048)*r*0.04, gy=y+r*0.10;
-  ctx.globalCompositeOperation='source-over';
-  var grs=ctx.createRadialGradient(gx,gy,0,gx,gy,r*0.14);
-  grs.addColorStop(0,'rgba(185,50,18,0.92)');grs.addColorStop(0.4,'rgba(165,35,12,0.72)');
-  grs.addColorStop(0.75,'rgba(140,25,8,0.40)');grs.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=grs; ctx.fillRect(0,0,W,H);
+  ctx.globalCompositeOperation='overlay';
+  var jSpin=now*0.0000058;
+  for(var bi=0;bi<10;bi++){
+    var by=y-r*0.88+bi*r*0.20+Math.sin(jSpin+bi*0.7)*r*0.018;
+    var ba=0.12+0.14*Math.abs(Math.sin(bi*0.55+jSpin));
+    var jg=ctx.createLinearGradient(x-r,by,x+r,by+r*0.05);
+    var c1b=bi%3===0?'rgba(160,80,40,'+ba+')':bi%3===1?'rgba(200,140,70,'+ba+')':'rgba(140,100,60,'+ba+')';
+    var c2b=bi%3===0?'rgba(120,50,20,'+ba+')':bi%3===1?'rgba(180,110,50,'+ba+')':'rgba(100,70,40,'+ba+')';
+    jg.addColorStop(0,'rgba(0,0,0,0)');jg.addColorStop(0.25,c1b);jg.addColorStop(0.5,c2b);
+    jg.addColorStop(0.75,c1b);jg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=jg; ctx.fillRect(x-r,by,r*2,r*0.16);
+  }
+  var grs=ctx.createRadialGradient(x+r*0.20,y+r*0.12,0,x+r*0.20,y+r*0.12,r*0.14);
+  grs.addColorStop(0,'rgba(180,50,30,0.72)');grs.addColorStop(0.5,'rgba(140,40,20,0.40)');grs.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.globalCompositeOperation='overlay'; ctx.fillStyle=grs; ctx.fillRect(0,0,W,H);
   ctx.restore();
-  pTerminator(x,y,r,0.60); pRimLight(x,y,r,'rgba(240,215,165,0.50)');
-  pSpecular(x,y,r,0.10,0.40);
+  pTerminator(x,y,r,0.62); pRimLight(x,y,r,'rgba(255,220,160,0.48)');
+  pSpecular(x,y,r,0.14,0.50);
   ctx.restore();
 }
 
 /* ================================================================
-   VEGA
+   VEGA — ringed ice planet, albino, pink-purple ring
    ================================================================ */
 function drawVega(x,y,r,now){
   ctx.save();
   pSphere(x,y,r,[
-    [0,'#e0d0ff'],[0.12,'#9868e0'],[0.32,'#6838b8'],
-    [0.58,'#401880'],[0.80,'#200848'],[1,'#0c0220']
+    [0,'#f0e8ff'],[0.15,'#d0b8f8'],[0.35,'#a888e0'],
+    [0.58,'#7048b8'],[0.80,'#301878'],[1,'#100838']
   ]);
-  ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.clip();
-  ctx.globalCompositeOperation='screen';
-  for(var vi=0;vi<12;vi++){
-    var va=(vi/12)*Math.PI*2+now*0.0000140;
-    var vr=r*(0.08+0.65*Math.abs(Math.sin(vi*0.85+now*0.0000105)));
-    ctx.beginPath();
-    ctx.moveTo(x+Math.cos(va)*r*0.05,y+Math.sin(va)*r*0.05);
-    ctx.lineTo(x+Math.cos(va)*vr,y+Math.sin(va)*vr);
-    ctx.strokeStyle='rgba(195,165,255,0.20)'; ctx.lineWidth=0.8; ctx.stroke();
-  }
-  var pulse=0.20+0.16*Math.sin(now*0.0032);
-  var cp=ctx.createRadialGradient(x,y,0,x,y,r*0.42);
-  cp.addColorStop(0,'rgba(225,210,255,'+pulse+')');
-  cp.addColorStop(0.5,'rgba(180,150,255,'+(pulse*0.5).toFixed(3)+')');
-  cp.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=cp; ctx.fillRect(0,0,W,H);
+  ctx.save(); ctx.globalCompositeOperation='screen';
+  ctx.beginPath();
+  ctx.ellipse(x,y,r*1.85,r*0.32,0,0,Math.PI*2);
+  var rg=ctx.createLinearGradient(x-r*1.85,y,x+r*1.85,y);
+  rg.addColorStop(0,'rgba(240,180,255,0)');
+  rg.addColorStop(0.15,'rgba(220,160,255,0.32)');
+  rg.addColorStop(0.38,'rgba(200,140,240,0.52)');
+  rg.addColorStop(0.50,'rgba(180,120,220,0.20)');
+  rg.addColorStop(0.62,'rgba(200,140,240,0.52)');
+  rg.addColorStop(0.85,'rgba(220,160,255,0.32)');
+  rg.addColorStop(1,'rgba(240,180,255,0)');
+  ctx.strokeStyle=rg; ctx.lineWidth=r*0.22; ctx.stroke();
   ctx.restore();
-  ctx.globalCompositeOperation='screen';
-  var ec=ctx.createRadialGradient(x,y,r*0.46,x,y,r*2.20);
-  ec.addColorStop(0,'rgba(148,88,255,'+(0.30+0.12*Math.sin(now*0.0020)).toFixed(3)+')');
-  ec.addColorStop(0.40,'rgba(115,65,218,0.10)');ec.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=ec; ctx.fillRect(0,0,W,H);
-  pAtmosphere(x,y,r,'rgba(148,88,255,0.24)','rgba(108,58,200,0.08)',1.35);
-  pTerminator(x,y,r,0.50); pRimLight(x,y,r,'rgba(195,165,255,0.72)');
-  pSpecular(x,y,r,0.22,0.48);
+  pTerminator(x,y,r,0.66); pRimLight(x,y,r,'rgba(220,170,255,0.72)');
+  pSpecular(x,y,r,0.20,0.40);
   ctx.restore();
 }
 
 /* ================================================================
-   SPACECRAFT v46 — Sci-fi future, clockwise orbits
-   3 vessel types:
-   1. KING STATION  — large ISS-style, orbits Earth
-   2. PROBE x3      — small fast survey vessels, cross between planets
-   3. ALIEN VESSEL  — slow, geometric, peaceful — outer system
-   All carry crew indicators (soft glow = life aboard)
+   MOON
    ================================================================ */
-
-var VESSELS = [
-  /* KING STATION — ISS style, Earth orbit */
-  {
-    id: 'king_station',
-    type: 'station',
-    orbitPlanet: 'earth',    /* orbits around Earth position */
-    orbitR: 0.068,           /* relative to planet radius */
-    speed: 0.00058,          /* rad/ms — fast LEO */
-    angle: 0.8,
-    label: 'KD-1',
-    crew: true,
-    size: 1.0,
-    color: '#c8e8ff',
-    engineColor: 'rgba(120,200,255,0.85)',
-    alienGlow: false,
-  },
-  /* PROBE LYLA — survey, crosses inner system */
-  {
-    id: 'probe_lyla',
-    type: 'probe',
-    orbitCenter: 'sun',      /* orbits sun directly */
-    orbitRFrac: 0.18,        /* fraction of min(W,H) */
-    yOffFrac: 0.30,
-    speed: 0.000095,
-    angle: 1.2,
-    label: 'LYLA-P',
-    crew: false,
-    size: 0.55,
-    color: '#76aeff',
-    engineColor: 'rgba(74,158,255,0.90)',
-    alienGlow: false,
-  },
-  /* PROBE VEGA — faster, outer track */
-  {
-    id: 'probe_vega',
-    type: 'probe',
-    orbitCenter: 'sun',
-    orbitRFrac: 0.32,
-    yOffFrac: 0.50,
-    speed: 0.000062,
-    angle: 3.5,
-    label: 'VEGA-P',
-    crew: false,
-    size: 0.55,
-    color: '#b48aff',
-    engineColor: 'rgba(180,138,255,0.88)',
-    alienGlow: false,
-  },
-  /* ALIEN VESSEL — slow, geometric, outer system, PEACEFUL */
-  {
-    id: 'alien_one',
-    type: 'alien',
-    orbitCenter: 'sun',
-    orbitRFrac: 0.42,
-    yOffFrac: 0.68,
-    speed: 0.000028,
-    angle: 0.3,
-    label: '∞',
-    crew: true,
-    size: 0.80,
-    color: '#38d9b8',
-    engineColor: 'rgba(56,217,184,0.82)',
-    alienGlow: true,
-  },
-];
-
-/* Update vessel angles — clockwise = subtract */
-function updateVessels(dt){
-  VESSELS.forEach(function(v){
-    v.angle = (v.angle - v.speed * dt + Math.PI*2) % (Math.PI*2);
-  });
-}
-
-/* Get vessel screen position */
-function vesselPos(v, now, planetPositions){
-  if(v.type === 'station'){
-    /* orbits around the Earth planet position */
-    var earthPos = planetPositions['earth'];
-    if(!earthPos) return null;
-    var earthR = Math.min(W,H) * (isMobile ? 0.050 : 0.040);
-    var orbitR  = earthR * (5.5 + 1.5*Math.sin(now*0.00012));  /* slight ellipse */
-    return {
-      x: earthPos.x + Math.cos(v.angle) * orbitR,
-      y: earthPos.y + Math.sin(v.angle) * orbitR * 0.45,  /* perspective flatten */
-    };
-  } else {
-    /* orbits sun */
-    var R  = Math.min(W,H) * v.orbitRFrac;
-    var oy = sunCY() + H * v.yOffFrac;
-    return {
-      x: sunCX() + Math.cos(v.angle) * R,
-      y: oy       + Math.sin(v.angle) * R * TILT,
-    };
-  }
-}
-
-/* Draw ISS-style King Station */
-function drawStation(vx, vy, sz, v, now){
+function drawMoon(earthPos,now){
+  var mr=getR(PLANETS[2])*0.28;
+  var ma=now*0.000120;
+  var md=getR(PLANETS[2])*1.85;
+  var mx2=earthPos.x+Math.cos(ma)*md;
+  var my2=earthPos.y+Math.sin(ma)*md*0.40;
   ctx.save();
-  var s = sz * (isMobile ? 7 : 10);
-  /* Engine glow */
-  ctx.globalCompositeOperation='screen';
-  var eg=ctx.createRadialGradient(vx,vy,0,vx,vy,s*3.5);
-  eg.addColorStop(0,'rgba(120,200,255,0.28)');
-  eg.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=eg; ctx.fillRect(0,0,W,H);
-
-  /* Rotate toward direction of travel */
-  var heading = v.angle - Math.PI/2;
-  ctx.translate(vx, vy);
-  ctx.rotate(heading);
-
-  /* Central module */
-  ctx.globalCompositeOperation='source-over';
-  ctx.fillStyle='#c8e8ff';
-  ctx.fillRect(-s*0.28, -s*0.18, s*0.56, s*0.36);
-
-  /* Solar panels — left */
-  ctx.fillStyle='rgba(58,134,245,0.90)';
-  ctx.fillRect(-s*1.10, -s*0.08, s*0.72, s*0.16);
-  /* Solar panels — right */
-  ctx.fillRect( s*0.38, -s*0.08, s*0.72, s*0.16);
-  /* Panel struts */
-  ctx.fillStyle='rgba(160,210,255,0.70)';
-  ctx.fillRect(-s*0.38, -s*0.04, s*0.76, s*0.08);
-
-  /* Docking port */
-  ctx.fillStyle='rgba(200,230,255,0.85)';
-  ctx.beginPath(); ctx.arc(0, 0, s*0.10, 0, Math.PI*2); ctx.fill();
-
-  /* Crew glow — warm amber dot */
-  if(v.crew){
-    ctx.globalCompositeOperation='screen';
-    var cg=ctx.createRadialGradient(0,-s*0.05,0,0,-s*0.05,s*0.22);
-    cg.addColorStop(0,'rgba(255,220,100,0.55)');
-    cg.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=cg; ctx.fillRect(-s,-s,s*2,s*2);
-  }
-  ctx.restore();
-
-  /* Label */
-  ctx.save();
-  ctx.globalCompositeOperation='screen';
-  ctx.font='500 '+(isMobile?6:7)+'px "DM Mono",monospace';
-  ctx.textAlign='center'; ctx.fillStyle='rgba(120,200,255,0.60)';
-  ctx.fillText(v.label, vx, vy + s*1.6);
+  pSphere(mx2,my2,mr,[
+    [0,'#f0e8e0'],[0.20,'#d0c8b0'],[0.50,'#a09078'],
+    [0.78,'#706050'],[1,'#302818']
+  ]);
+  pTerminator(mx2,my2,mr,0.78);
+  /* pink tinted moonlight */
+  pRimLight(mx2,my2,mr,'rgba(240,200,220,0.40)');
   ctx.restore();
 }
 
-/* Draw probe — small dart shape */
-function drawProbe(vx, vy, sz, v, now){
-  ctx.save();
-  var s = sz * (isMobile ? 4 : 5.5);
-  var heading = v.angle - Math.PI/2;
-
-  /* Engine trail */
-  ctx.globalCompositeOperation='screen';
-  var trailAngle = v.angle + Math.PI;  /* behind */
-  for(var ti=0;ti<5;ti++){
-    var tx = vx + Math.cos(trailAngle)*s*(1.2+ti*0.8);
-    var ty = vy + Math.sin(trailAngle)*s*(0.6+ti*0.4)*TILT;
-    var ta = (0.45-ti*0.08);
-    var tg=ctx.createRadialGradient(tx,ty,0,tx,ty,s*(0.6+ti*0.3));
-    tg.addColorStop(0,v.engineColor.replace(/[\d.]+\)$/,ta.toFixed(2)+')'));
-    tg.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=tg; ctx.fillRect(0,0,W,H);
-  }
-
-  ctx.translate(vx, vy);
-  ctx.rotate(heading);
-  ctx.globalCompositeOperation='source-over';
-
-  /* Body */
-  ctx.fillStyle=v.color;
-  ctx.beginPath();
-  ctx.moveTo(0, -s);            /* nose */
-  ctx.lineTo(s*0.30, s*0.55);  /* right */
-  ctx.lineTo(0, s*0.30);       /* back center */
-  ctx.lineTo(-s*0.30, s*0.55); /* left */
-  ctx.closePath(); ctx.fill();
-
-  /* Wing nubs */
-  ctx.fillStyle='rgba(255,255,255,0.45)';
-  ctx.fillRect(-s*0.55, s*0.10, s*0.22, s*0.22);
-  ctx.fillRect( s*0.33, s*0.10, s*0.22, s*0.22);
-
-  /* Engine glow at back */
-  ctx.globalCompositeOperation='screen';
-  var eg2=ctx.createRadialGradient(0,s*0.45,0,0,s*0.45,s*0.38);
-  eg2.addColorStop(0,v.engineColor);
-  eg2.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=eg2; ctx.fillRect(-s,0,s*2,s*1.2);
-
-  ctx.restore();
-
-  /* Label */
-  ctx.save();
-  ctx.font='500 '+(isMobile?5:6)+'px "DM Mono",monospace';
-  ctx.textAlign='center'; ctx.fillStyle='rgba(180,220,255,0.45)';
-  ctx.fillText(v.label, vx, vy + s*1.4);
-  ctx.restore();
-}
-
-/* Draw alien vessel — geometric, tetrahedron-ish, peaceful teal */
-function drawAlien(vx, vy, sz, v, now){
-  ctx.save();
-  var s = sz * (isMobile ? 6 : 8);
-  var spin = now * 0.000095;  /* slow self-rotation */
-
-  /* Outer peaceful aura */
-  ctx.globalCompositeOperation='screen';
-  var pulse = 0.18 + 0.10*Math.sin(now*0.0018);
-  var ag=ctx.createRadialGradient(vx,vy,s*0.5,vx,vy,s*3.8);
-  ag.addColorStop(0,'rgba(56,217,184,'+pulse+')');
-  ag.addColorStop(0.5,'rgba(56,200,170,'+(pulse*0.35).toFixed(3)+')');
-  ag.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=ag; ctx.fillRect(0,0,W,H);
-
-  ctx.translate(vx, vy);
-  ctx.rotate(spin);
-  ctx.globalCompositeOperation='source-over';
-
-  /* Outer ring */
-  ctx.strokeStyle='rgba(56,217,184,0.70)';
-  ctx.lineWidth=1.2;
-  ctx.beginPath(); ctx.arc(0,0,s,0,Math.PI*2); ctx.stroke();
-
-  /* Inner rotating triangle */
-  ctx.rotate(spin * 2.5);
-  ctx.strokeStyle='rgba(100,240,210,0.85)';
-  ctx.lineWidth=0.9;
-  ctx.beginPath();
-  for(var ai=0;ai<3;ai++){
-    var aa=(ai/3)*Math.PI*2 - Math.PI/2;
-    if(ai===0) ctx.moveTo(Math.cos(aa)*s*0.62, Math.sin(aa)*s*0.62);
-    else        ctx.lineTo(Math.cos(aa)*s*0.62, Math.sin(aa)*s*0.62);
-  }
-  ctx.closePath(); ctx.stroke();
-
-  /* Core — pulsing orb */
-  ctx.globalCompositeOperation='screen';
-  var cp2=ctx.createRadialGradient(0,0,0,0,0,s*0.30);
-  cp2.addColorStop(0,'rgba(180,255,240,'+(0.65+0.22*Math.sin(now*0.0022))+')');
-  cp2.addColorStop(0.5,'rgba(56,217,184,0.35)');
-  cp2.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=cp2; ctx.fillRect(-s,-s,s*2,s*2);
-
-  /* 6 spoke nodes */
-  ctx.globalCompositeOperation='source-over';
-  for(var ni=0;ni<6;ni++){
-    var na=(ni/6)*Math.PI*2+spin;
-    var nx=Math.cos(na)*s*0.72, ny=Math.sin(na)*s*0.72;
-    ctx.fillStyle='rgba(100,240,210,0.80)';
-    ctx.beginPath(); ctx.arc(nx,ny,s*0.075,0,Math.PI*2); ctx.fill();
-  }
-
-  ctx.restore();
-
-  /* Crew/life indicator — peaceful amber */
-  ctx.save();
-  ctx.globalCompositeOperation='screen';
-  var lg2=ctx.createRadialGradient(vx,vy-s*0.5,0,vx,vy-s*0.5,s*0.40);
-  lg2.addColorStop(0,'rgba(255,220,80,0.45)');
-  lg2.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=lg2; ctx.fillRect(0,0,W,H);
-  ctx.restore();
-
-  /* Label */
-  ctx.save();
-  ctx.font='bold '+(isMobile?7:9)+'px "DM Mono",monospace';
-  ctx.textAlign='center'; ctx.fillStyle='rgba(56,217,184,0.70)';
-  ctx.fillText(v.label, vx, vy + s*1.5);
-  ctx.restore();
-}
-
-/* Draw orbit ring for vessels orbiting sun */
-function drawVesselOrbit(v){
-  if(v.type === 'station') return;  /* station orbit too small, skip */
-  var R  = Math.min(W,H) * v.orbitRFrac;
-  var oy = sunCY() + H * v.yOffFrac;
+/* ================================================================
+   SPACECRAFT — pink labels
+   ================================================================ */
+function drawSpacecraft(now){
+  var st=0.000022, sa=(now*st)%(Math.PI*2);
+  var sr=Math.min(W,H)*0.62;
+  var sx=sunCX()+Math.cos(sa)*sr;
+  var sy=sunCY()+H*0.28+Math.sin(sa)*sr*TILT;
   ctx.save(); ctx.globalCompositeOperation='screen';
-  ctx.beginPath();
-  ctx.ellipse(sunCX(), oy, R, R*TILT, 0, 0, Math.PI*2);
-  ctx.strokeStyle = v.alienGlow
-    ? 'rgba(56,217,184,0.06)'
-    : 'rgba(74,158,255,0.05)';
-  ctx.lineWidth = 0.35;
-  ctx.setLineDash([3,8]);
-  ctx.stroke();
-  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(220,200,255,0.88)';
+  ctx.beginPath(); ctx.arc(sx,sy,2.0,0,Math.PI*2); ctx.fill();
+  var sg=ctx.createRadialGradient(sx,sy,0,sx,sy,6);
+  sg.addColorStop(0,'rgba(200,160,255,0.58)');sg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=sg; ctx.fillRect(sx-6,sy-6,12,12);
+  ctx.font='500 8px "DM Mono",monospace';
+  ctx.fillStyle='rgba(210,180,255,0.62)';
+  ctx.fillText('KD-1',sx+4,sy-4);
   ctx.restore();
-}
 
-/* Master draw call */
-function drawVessels(now, planetPositions){
-  VESSELS.forEach(function(v){
-    var pos = vesselPos(v, now, planetPositions);
-    if(!pos) return;
-    if(pos.x < -60 || pos.x > W+60 || pos.y < -60 || pos.y > H+60) return;
+  var lp=0.000035, la=(now*lp+1.8)%(Math.PI*2);
+  var lr=Math.min(W,H)*0.48;
+  var lx=sunCX()+Math.cos(la)*lr;
+  var ly=sunCY()+H*0.20+Math.sin(la)*lr*TILT;
+  ctx.save(); ctx.globalCompositeOperation='screen';
+  ctx.fillStyle='rgba(255,180,220,0.82)';
+  ctx.beginPath(); ctx.arc(lx,ly,1.5,0,Math.PI*2); ctx.fill();
+  ctx.font='500 7px "DM Mono",monospace';
+  ctx.fillStyle='rgba(255,170,210,0.58)';
+  ctx.fillText('LYLA-P',lx+3,ly-3);
+  ctx.restore();
 
-    if(v.type === 'station') drawStation(pos.x, pos.y, v.size, v, now);
-    else if(v.type === 'probe') drawProbe(pos.x, pos.y, v.size, v, now);
-    else if(v.type === 'alien') drawAlien(pos.x, pos.y, v.size, v, now);
-  });
+  var vp=0.000028, va=(now*vp+3.5)%(Math.PI*2);
+  var vr=Math.min(W,H)*0.54;
+  var vx=sunCX()+Math.cos(va)*vr;
+  var vy=sunCY()+H*0.22+Math.sin(va)*vr*TILT;
+  ctx.save(); ctx.globalCompositeOperation='screen';
+  ctx.fillStyle='rgba(200,170,255,0.82)';
+  ctx.beginPath(); ctx.arc(vx,vy,1.5,0,Math.PI*2); ctx.fill();
+  ctx.font='500 7px "DM Mono",monospace';
+  ctx.fillStyle='rgba(190,160,255,0.58)';
+  ctx.fillText('VEGA-P',vx+3,vy-3);
+  ctx.restore();
 }
 
 /* ================================================================
    RENDER
    ================================================================ */
 function render(dt,now){
-  drawBg(now); drawDust(now); drawStars(now);
-
-  /* vessel orbit guides — dashed, very faint */
-  VESSELS.forEach(function(v){ drawVesselOrbit(v); });
-
-  for(var i=0;i<PLANETS.length;i++) drawOrbitRing(PLANETS[i],now);
+  drawBg(now);
+  drawDust(now);
+  drawStars(now);
   drawSun(now);
-
-  /* compute planet positions for this frame */
-  var planetPositions = {};
-  var posed=PLANETS.map(function(p,idx){ return {p:p,pos:planetPos(p,now),idx:idx}; });
-  posed.sort(function(a,b){ return a.pos.y-b.pos.y; });
-  posed.forEach(function(item){ planetPositions[item.p.id] = item.pos; });
-
+  for(var i=0;i<PLANETS.length;i++) drawOrbitRing(PLANETS[i],now);
   _cache=[];
-  for(var i=0;i<PLANETS.length;i++) _cache.push({x:0,y:0});
-
-  for(var i=0;i<posed.length;i++){
-    var item=posed[i], p=item.p, pos=item.pos, r=getR(p);
-    _cache[item.idx]={x:pos.x,y:pos.y};
+  for(var j=0;j<PLANETS.length;j++){
+    var p=PLANETS[j];
+    var pos=planetPos(p,now);
+    _cache.push(pos);
+    var r=getR(p);
     if(p.route===activeRoute) pActive(pos.x,pos.y,r,now);
     p.draw(pos.x,pos.y,r,now);
-    if(p.moon){
-      var moonR=r*0.28;
-      var moonOff=r*1.58+Math.sin(now*0.00092)*r*0.10;
-      drawMoon(pos.x+moonOff,pos.y+r*0.20,moonR,now);
-    }
+    if(p.moon) drawMoon(pos,now);
     drawLabel(p,pos);
   }
-
-  /* update + draw vessels on top of planets */
-  updateVessels(dt);
-  drawVessels(now, planetPositions);
+  drawSpacecraft(now);
 }
 
 /* ================================================================
    PUBLIC API
    ================================================================ */
-window.KD_setState=function(){};
-window.KD_setRoute=function(r){
-  if(!ROUTE_HUE[r]) return;
-  activeRoute=r; _tgtHue=ROUTE_HUE[r]||208;
-  document.querySelectorAll('.rpill,.ctx-tag,.route-chip').forEach(function(el){
-    el.classList.toggle('active',el.dataset.r===r);
-  });
+window.KD_setRoute=function(route){
+  activeRoute=route;
+  _tgtHue=ROUTE_HUE[route]||300;
+  /* sync app.js route system */
+  if(typeof window.setRoute==='function') window.setRoute(route);
+  window.dispatchEvent(new CustomEvent('KD:routeChange',{detail:{route:route}}));
 };
-window.KD_pulse=function(){};
-window.LYLA_thinking=function(){};
-window.LYLA_answered=function(){};
-window.setRoute=window.KD_setRoute;
 
+/* KD_pulse compat shim */
+window.KD_pulse = window.KD_pulse || function(route){
+  if(route) window.KD_setRoute(route);
+};
+
+/* expose setState for brain.js */
+window.KD_setState = window.KD_setState || function(key, val){
+  if(!window.KD) window.KD={};
+  if(!window.KD.state) window.KD.state={};
+  window.KD.state[key]=val;
+};
+
+/* ── INIT ──────────────────────────────────────────────────── */
 doResize();
-if(cv.style){ cv.style.willChange='transform'; cv.style.transform='translateZ(0)'; }
-requestAnimationFrame(function(now){ doResize(); _last=now; _raf=requestAnimationFrame(loop); });
+_last=performance.now();
+_raf=requestAnimationFrame(loop);
 
 })();
