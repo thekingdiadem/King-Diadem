@@ -1,11 +1,13 @@
 /* ============================================================
-   KING DIADEM — static/app.js v3.0
+   KING DIADEM — static/app.js v3.1
+   ★ PATCH v3.1: ลบ simulate() และ addSimPath() ออก
+     เพราะ index.html มี version ที่ถูกต้องอยู่แล้ว
+     (อ่านจาก #sim-input-text)
    ★ LYLA◈/VEGA◆ จาก backend · memory sync /api/chat-state
-   ★ ตัดทิ้ง: galaxy_expand, AI/decision_memory (duplicate)
    ============================================================ */
 'use strict';
 
-/* ── Conversation history (sync กับ /api/chat-state) ────────── */
+/* ── Conversation history ───────────────────────────────────── */
 const _convHistory = {};
 let _memorySyncTimer = null;
 
@@ -26,12 +28,11 @@ function _pushHistory(sid, role, content) {
   _scheduleMemorySync(sid);
 }
 
-/* ── Memory persistence (/api/chat-state) ───────────────────── */
+/* ── Memory persistence ─────────────────────────────────────── */
 function _scheduleMemorySync(sid) {
   clearTimeout(_memorySyncTimer);
   _memorySyncTimer = setTimeout(() => _syncMemory(sid), 1500);
 }
-
 async function _syncMemory(sid) {
   try {
     await fetch('/api/chat-state', {
@@ -41,7 +42,6 @@ async function _syncMemory(sid) {
     });
   } catch (_) {}
 }
-
 async function _loadMemory() {
   try {
     const r = await fetch('/api/chat-state');
@@ -82,7 +82,7 @@ function hideWelcome() {
   if (w) w.remove();
 }
 
-/* ── addMsg ★ รับ persona จาก backend ──────────────────────── */
+/* ── addMsg ─────────────────────────────────────────────────── */
 function addMsg(type, text, meta, persona) {
   hideWelcome();
   const area = document.getElementById('chat-scroll');
@@ -94,7 +94,6 @@ function addMsg(type, text, meta, persona) {
     ? '<div class="msg-avatar">YOU</div>'
     : '<div class="msg-avatar"><img class="msg-logo" src="/static/logo.png" alt=""></div>';
 
-  /* persona signature — ★ ใช้จาก backend เท่านั้น */
   let sigHtml = '';
   if (type !== 'user' && persona) {
     const isVega = persona === 'VEGA';
@@ -166,7 +165,7 @@ function useHint(el) {
   if(typeof closeRailMobile==='function')closeRailMobile();
 }
 
-/* ── Main send ★ ─────────────────────────────────────────────── */
+/* ── Main send ──────────────────────────────────────────────── */
 async function run() {
   const inp  = document.getElementById('main-input');
   const text = (inp.value||'').trim();
@@ -176,7 +175,6 @@ async function run() {
   const mode      = window.detectConversationMode(text);
   const voiceHint = window.buildVoiceHint(text, mode);
 
-  /* tone pill */
   const tp = document.getElementById('tone-pill');
   if (tp) { tp.textContent = mode.toUpperCase(); tp.className = 'tone-pill ' + mode; }
 
@@ -212,17 +210,16 @@ async function run() {
     if (data.error) { addMsg('system','⚠ '+data.error,'ERROR'); return; }
 
     const reply   = data.ai_response || data.message || JSON.stringify(data,null,2);
-    const persona = data.persona || (mode==='vega'?'VEGA':'LYLA'); /* ★ จาก backend */
+    const persona = data.persona || (mode==='vega'?'VEGA':'LYLA');
     const risk    = data.risk_score!=null?' · RISK '+Math.round(data.risk_score):'';
     const meta    = 'ROUTE '+(data.route||window._KD_ROUTE).toUpperCase()+risk;
 
     _pushHistory(sid, 'assistant', reply);
-    addMsg('system', reply, meta, persona); /* ★ ส่ง persona ด้วย */
+    addMsg('system', reply, meta, persona);
 
     updateLyla(data);
     if (typeof refreshMe==='function') refreshMe();
 
-    /* galaxy pulse */
     try {
       const intent=(data.governance&&data.governance.intent)||{};
       const pat=data.pattern||{};
@@ -247,27 +244,6 @@ async function run() {
   }
 }
 
-/* ── Simulate ────────────────────────────────────────────────── */
-function addSimPath() {
-  const g=document.getElementById('sim-paths'),d=document.createElement('div');
-  d.className='sim-path'; d.innerHTML='<input type="text" placeholder="เส้นทางใหม่…">'; g.appendChild(d);
-}
-async function simulate() {
-  const input=(document.getElementById('main-input').value||'').trim();
-  const btn=document.getElementById('sim-btn'),out=document.getElementById('sim-result');
-  out.style.display='block';
-  if(!input){out.textContent='พิมพ์ข้อความในช่องแชทก่อน แล้วกลับมากดใหม่';return;}
-  if(btn)btn.disabled=true; out.textContent='กำลังจำลอง…';
-  const paths=[...document.querySelectorAll('#sim-paths input')].map(i=>i.value).filter(Boolean);
-  try {
-    const d=await _post('/simulate',{input,paths});
-    let txt=d.simulation||d.message||d.error||'—';
-    if(d.lyla_observation)txt+='\n\nLYLA OBSERVATION\n'+(typeof d.lyla_observation==='object'?JSON.stringify(d.lyla_observation,null,2):d.lyla_observation);
-    out.textContent=txt;
-  } catch(e){out.textContent='ERROR '+e;}
-  if(btn)btn.disabled=false;
-}
-
 /* ── Stripe ──────────────────────────────────────────────────── */
 async function stripeCheckout() {
   const email=(document.getElementById('payment-email').value||'').trim();
@@ -285,7 +261,7 @@ async function uploadImage() {
     const res=await fetch('/analyze-image',{method:'POST',body:fd});
     const data=await res.json();
     if(data.error){out.textContent='❌ '+data.error;return;}
-    out.textContent=(data.analysis||'')+'\n\n['+data.persona+'] ['+(data.filename||'')+']';
+    out.textContent=(data.analysis||'')+'\n\n['+(data.persona||'')+'] ['+(data.filename||'')+']';
   } catch(e){out.textContent='ERROR '+e;}
 }
 
@@ -297,13 +273,15 @@ async function _post(url,body) {
   } catch(e){return{error:String(e)};}
 }
 
-/* ── Init — load memory on page load ────────────────────────── */
+/* ── Init ────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function() {
   _loadMemory();
 });
 
 /* ── Expose globals ──────────────────────────────────────────── */
 window.run=run; window.setRoute=setRoute; window.useHint=useHint;
-window.simulate=simulate; window.addSimPath=addSimPath;
 window.stripeCheckout=stripeCheckout; window.uploadImage=uploadImage;
 window.autoResize=autoResize; window.addMsg=addMsg; window.updateLyla=updateLyla;
+
+/* NOTE: simulate() และ addSimPath() ถูกลบออกจากไฟล์นี้แล้ว
+   ใช้ version ใน index.html แทน ซึ่งอ่านจาก #sim-input-text ถูกต้อง */
