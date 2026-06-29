@@ -1,8 +1,8 @@
 /* ================================================================
-   KING DIADEM — Galaxy Scene v52 NASA NIGHT EARTH
-   ใช้ WebGL-style canvas + NASA night lights texture data
-   โลกหมุน night side แสดง city lights สว่าง
-   Performance: ลด complexity ให้ลื่น mobile
+   KING DIADEM — Galaxy Scene v53 NIGHT EARTH SOVEREIGN
+   Canvas-only — no external image URLs (CORS safe, always works)
+   Target: dark void Earth + amber city lights dominant
+   Atmosphere = thin rim only, not solid blue overlay
    ================================================================ */
 (function(){
 'use strict';
@@ -14,24 +14,6 @@ var W=0, H=0, _raf=null, _last=0;
 var activeRoute = 'general';
 var isMobile = false;
 var _burstAlpha = 0;
-
-/* ── EARTH IMAGE — load NASA night texture ─────────────────── */
-/* ใช้ public domain NASA image via URL */
-var earthImg = new Image();
-var earthImgLoaded = false;
-earthImg.crossOrigin = 'anonymous';
-/* NASA Blue Marble Night 2012 — public domain */
-earthImg.src = 'https://eoimages.gsfc.nasa.gov/images/imagerecords/55000/55167/earth_lights_lrg.jpg';
-earthImg.onload = function(){ earthImgLoaded = true; };
-earthImg.onerror = function(){
-  /* fallback: try alternate source */
-  earthImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/The_earth_at_night.jpg/1280px-The_earth_at_night.jpg';
-  earthImg.onload = function(){ earthImgLoaded = true; };
-};
-
-/* offscreen canvas for Earth texture */
-var earthOff = document.createElement('canvas');
-var earthOffCtx = earthOff.getContext('2d');
 
 function loop(now){
   if(!window.KD||window.KD.visible!==false){
@@ -189,85 +171,11 @@ function earthCX(){ return W*0.50; }
 function earthCY(){ return H*(isMobile?0.56:0.54); }
 function earthR(){  return Math.min(W,H)*(isMobile?0.34:0.40); }
 
-/* Pre-render Earth sphere from texture — cached per frame */
-var _earthCache = null;
-var _earthCacheLon = -999;
+/* Earth cache vars */
 var _earthCacheR = 0;
 
-function renderEarthSphere(cx,cy,r,earthLon){
-  /* ถ้า texture ไม่โหลด → fallback canvas Earth */
-  if(!earthImgLoaded){ drawEarthFallback(cx,cy,r,earthLon); return; }
-
-  /* resize offscreen canvas */
-  var sz = Math.ceil(r*2);
-  if(earthOff.width !== sz*2) { earthOff.width=sz*2; earthOff.height=sz*2; }
-  earthOffCtx.clearRect(0,0,sz*2,sz*2);
-
-  /* The texture is 2:1 aspect ratio (equirectangular)
-     We simulate sphere by drawing horizontal strips
-     each strip at latitude y has width compressed by cos(lat) */
-  var strips = isMobile ? 60 : 100;
-  for(var si=0;si<strips;si++){
-    var yFrac = si/strips; /* 0=north 1=south */
-    var lat = (yFrac - 0.5) * Math.PI; /* -PI/2 to PI/2 */
-    var cosLat = Math.cos(lat);
-    var sinLat = Math.sin(lat);
-
-    /* strip y position on sphere */
-    var sy = r - sinLat*r; /* screen y from top of bounding box */
-    var sw = cosLat*r*2;   /* width of this strip */
-    var sh = (r*2)/strips + 1; /* height of strip */
-
-    /* texture x offset based on earthLon */
-    var texW = earthImg.naturalWidth || 2048;
-    var texH = earthImg.naturalHeight || 1024;
-    var lonOffset = (earthLon/(Math.PI*2)) * texW;
-
-    /* source strip from texture */
-    var srcY = yFrac * texH;
-    var srcH = texH/strips;
-
-    if(sw < 1) continue;
-
-    /* clip to sphere shape for this strip */
-    earthOffCtx.save();
-    earthOffCtx.beginPath();
-    earthOffCtx.ellipse(r, sy, sw/2, sh/2+0.5, 0, 0, Math.PI*2);
-    earthOffCtx.clip();
-
-    /* draw texture strip — scroll by lonOffset */
-    /* draw in 2 parts to handle wrap-around */
-    var drawW = sw;
-    var drawX = r - drawW/2;
-    var scaledTexW = texW * (sw/texW) * (texW/texW); /* map tex width to strip width */
-    var stripTexW = sw * (texW/sw); /* how much tex fits in strip width */
-
-    /* simpler: just draw full texture width but clip to strip */
-    var scaleX = sw/texW;
-    earthOffCtx.save();
-    earthOffCtx.translate(drawX, sy-sh/2);
-    earthOffCtx.scale(scaleX, sh/srcH);
-    /* part 1 */
-    var x1 = -lonOffset*scaleX;
-    if(x1 > 0) x1 -= texW*scaleX;
-    earthOffCtx.drawImage(earthImg, 0, srcY, texW, srcH, x1/scaleX, 0, texW, srcH);
-    /* part 2 wrap */
-    earthOffCtx.drawImage(earthImg, 0, srcY, texW, srcH, (x1+texW*scaleX)/scaleX, 0, texW, srcH);
-    earthOffCtx.restore();
-
-    earthOffCtx.restore();
-  }
-
-  /* Draw offscreen canvas to main canvas clipped to circle */
-  ctx.save();
-  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.clip();
-  ctx.drawImage(earthOff, 0, 0, sz*2, sz*2, cx-r, cy-r, r*2, r*2);
-  ctx.restore();
-}
-
 /* ================================================================
-   EARTH FALLBACK — ถ้า texture ยังไม่โหลด
-   Canvas-based night earth ที่ performance ดีกว่าเดิม
+   EARTH — Canvas night earth (primary, no external URLs)
    ================================================================ */
 
 /* Static city dots — pre-generated, not rebuilt every frame */
@@ -355,7 +263,7 @@ function buildCityStatic(cx,cy,r,lon){
 var _lastBuildLon=-999;
 function drawEarthFallback(cx,cy,r,earthLon){
   /* Rebuild cities when lon changes enough */
-  if(!CITY_BUILT||Math.abs(earthLon-_lastBuildLon)>0.12||Math.abs(_earthCacheR-r)>2){
+  if(!CITY_BUILT||Math.abs(_earthCacheR-r)>2){  /* rebuild only on resize */
     buildCityStatic(cx,cy,r,earthLon);
     _lastBuildLon=earthLon;
     _earthCacheR=r;
@@ -365,9 +273,9 @@ function drawEarthFallback(cx,cy,r,earthLon){
 
   /* base — near-black ocean */
   var oc=ctx.createRadialGradient(cx-r*0.16,cy-r*0.12,r*0.02,cx+r*0.10,cy+r*0.08,r*1.04);
-  oc.addColorStop(0,'#0d2040'); oc.addColorStop(0.05,'#081528');
-  oc.addColorStop(0.15,'#040c18'); oc.addColorStop(0.35,'#020810');
-  oc.addColorStop(0.60,'#010508'); oc.addColorStop(0.85,'#010304'); oc.addColorStop(1,'#000202');
+  oc.addColorStop(0,'#060d18'); oc.addColorStop(0.08,'#040a12');
+  oc.addColorStop(0.20,'#020709'); oc.addColorStop(0.42,'#010408');
+  oc.addColorStop(0.68,'#010306'); oc.addColorStop(0.88,'#010203'); oc.addColorStop(1,'#000102');
   ctx.fillStyle=oc; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
 
   /* dark continent shapes */
@@ -405,21 +313,27 @@ function drawEarthFallback(cx,cy,r,earthLon){
   ctx.fillStyle=term; ctx.fillRect(0,0,W,H);
   ctx.restore();
 
-  /* atmosphere blue rim */
+  /* atmosphere — THIN RIM ONLY — outside sphere edge, not overlaying city lights */
   ctx.save(); ctx.globalCompositeOperation='screen';
-  var atm=ctx.createRadialGradient(cx,cy,r*0.88,cx,cy,r*1.26);
-  atm.addColorStop(0,'rgba(95,165,255,0.32)'); atm.addColorStop(0.24,'rgba(65,125,245,0.16)');
-  atm.addColorStop(0.52,'rgba(42,92,218,0.07)'); atm.addColorStop(1,'rgba(0,0,0,0)');
+  /* outer diffuse glow — barely visible */
+  var atm=ctx.createRadialGradient(cx,cy,r*0.96,cx,cy,r*1.22);
+  atm.addColorStop(0,'rgba(100,175,255,0.22)');
+  atm.addColorStop(0.30,'rgba(70,140,248,0.10)');
+  atm.addColorStop(0.65,'rgba(45,100,220,0.04)');
+  atm.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=atm; ctx.fillRect(0,0,W,H);
-  var atm2=ctx.createRadialGradient(cx,cy,r*0.93,cx,cy,r*1.06);
-  atm2.addColorStop(0,'rgba(125,188,255,0.20)'); atm2.addColorStop(1,'rgba(0,0,0,0)');
+  /* sharp bright rim exactly at sphere edge */
+  var atm2=ctx.createRadialGradient(cx,cy,r*0.975,cx,cy,r*1.035);
+  atm2.addColorStop(0,'rgba(140,200,255,0.30)');
+  atm2.addColorStop(0.55,'rgba(100,165,255,0.12)');
+  atm2.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=atm2; ctx.fillRect(0,0,W,H);
   ctx.restore();
 
   /* specular */
   ctx.save(); ctx.globalCompositeOperation='screen';
   var sp=ctx.createRadialGradient(cx-r*0.22,cy-r*0.18,0,cx-r*0.06,cy-r*0.05,r*0.38);
-  sp.addColorStop(0,'rgba(255,255,255,0.28)'); sp.addColorStop(1,'rgba(0,0,0,0)');
+  sp.addColorStop(0,'rgba(255,255,255,0.08)'); sp.addColorStop(1,'rgba(0,0,0,0)');  /* subtle specular */
   ctx.fillStyle=sp; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
   ctx.restore();
 
@@ -471,69 +385,7 @@ function drawDarkContinents(cx,cy,r,earthLon){
 function drawEarth(now){
   var cx=earthCX(), cy=earthCY(), r=earthR();
   var earthLon=(now*0.000055)%(Math.PI*2);
-
-  if(earthImgLoaded){
-    /* Use NASA texture */
-    ctx.save();
-    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.clip();
-
-    /* Map equirectangular texture to sphere */
-    var texW=earthImg.naturalWidth||2048, texH=earthImg.naturalHeight||1024;
-    var strips=isMobile?50:80;
-    for(var si=0;si<strips;si++){
-      var yFrac=si/strips;
-      var lat=(yFrac-0.5)*Math.PI;
-      var cosLat=Math.cos(lat), sinLat=Math.sin(lat);
-      var sy2=(cy-r) + (1-((sinLat+1)/2))*r*2;
-      var sw2=cosLat*r*2;
-      var sh2=r*2/strips+1;
-      if(sw2<1) continue;
-      var srcY2=yFrac*texH;
-      var srcH2=texH/strips+1;
-      var lonOff=(earthLon/(Math.PI*2))*texW;
-      var drawX=cx-sw2/2;
-      ctx.save();
-      ctx.beginPath();
-      ctx.ellipse(cx,sy2+sh2/2,sw2/2,sh2/2+0.5,0,0,Math.PI*2);
-      ctx.clip();
-      var scaleX=sw2/texW;
-      var scaleY=sh2/srcH2;
-      ctx.save();
-      ctx.translate(drawX,sy2);
-      ctx.scale(scaleX,scaleY);
-      var x1=-lonOff;
-      if(x1>0) x1-=texW;
-      ctx.drawImage(earthImg,0,srcY2,texW,srcH2,x1,0,texW,srcH2);
-      ctx.drawImage(earthImg,0,srcY2,texW,srcH2,x1+texW,0,texW,srcH2);
-      ctx.restore();
-      ctx.restore();
-    }
-
-    /* atmosphere + specular over texture */
-    ctx.globalCompositeOperation='screen';
-    var atm=ctx.createRadialGradient(cx,cy,r*0.88,cx,cy,r*1.26);
-    atm.addColorStop(0,'rgba(95,165,255,0.28)'); atm.addColorStop(0.25,'rgba(65,125,245,0.12)');
-    atm.addColorStop(0.55,'rgba(40,90,215,0.05)'); atm.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=atm; ctx.fillRect(0,0,W,H);
-    var sp=ctx.createRadialGradient(cx-r*0.20,cy-r*0.16,0,cx-r*0.05,cy-r*0.04,r*0.36);
-    sp.addColorStop(0,'rgba(255,255,255,0.22)'); sp.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=sp; ctx.fillRect(0,0,W,H);
-    ctx.globalCompositeOperation='multiply';
-    var ld=ctx.createRadialGradient(cx-r*0.10,cy-r*0.08,r*0.65,cx,cy,r*1.02);
-    ld.addColorStop(0,'rgba(0,0,0,0)'); ld.addColorStop(0.72,'rgba(0,4,15,0.15)'); ld.addColorStop(1,'rgba(0,2,10,0.48)');
-    ctx.fillStyle=ld; ctx.fillRect(0,0,W,H);
-    ctx.restore();
-
-    /* rim outside */
-    ctx.save(); ctx.globalCompositeOperation='screen';
-    var rim=ctx.createRadialGradient(cx,cy,r*0.93,cx,cy,r*1.08);
-    rim.addColorStop(0,'rgba(120,190,255,0.20)'); rim.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=rim; ctx.fillRect(0,0,W,H);
-    ctx.restore();
-
-  } else {
-    drawEarthFallback(cx,cy,r,earthLon);
-  }
+  drawEarthFallback(cx,cy,r,earthLon);
 }
 
 /* ================================================================
