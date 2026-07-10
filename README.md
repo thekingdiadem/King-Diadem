@@ -1,88 +1,90 @@
 # KING DIADEM
+**ระบบช่วยตัดสินใจ ก่อนที่ทางเลือกจะหมดไปแบบย้อนกลับไม่ได้**
 
-**DriftZero Waterline Governance Framework**
+> เวลาคนเราจนตรอก ไม่ใช่เพราะพังวันเดียว
+> แต่เพราะทางเลือกหายไปทีละนิด จนวันหนึ่งไม่เหลือทางไปต่อ
+> KING DIADEM สร้างมาเพื่อจับสัญญาณนั้น ก่อนที่มันจะสาย
 
-Detect and prevent Choice Collapse before it becomes irreversible.
-
-Created by Nithikorn Bunsrang
-
----
-
-## What It Does
-
-KING DIADEM monitors systems for shrinking choices.
-
-When viable options approach zero — collapse is inevitable.
-This framework detects that moment early enough to intervene.
-
-**Risk = Drift × Exposure / Remaining Choice**
+สร้างโดย นิธิกร บุญสร้าง
 
 ---
 
-## Core Output
-
-- Detects accumulating drift before it compounds
-- Flags when viable options are disappearing
-- Triggers governance intervention before the floor collapses
-- Restores choice where it has been lost
+### ตอนนี้หน้าเว็บปิดเพราะผมยังไม่มีเงิน 💸 จ่ายค่าเซิฟเวอร์ แต่ทุกท่านทักมาที่IGหรือ Fastwork เพื่อที่จะให้ผมสร้างAIให้ได้
+🔗 [king-diadem.onrender.com](https://king-diadem.onrender.com)
+📷 [@thekingdiadem](https://www.instagram.com/thekingdiadem)
 
 ---
 
-## Who It's For
+## มันคืออะไร (พูดง่ายๆ)
 
-Any system where choices must remain available:
+ลองนึกภาพเข็มวัดน้ำมันรถ — ก่อนน้ำมันหมด มันจะเตือนล่วงหน้า
+KING DIADEM ทำแบบเดียวกัน แต่กับ **ทางเลือกในชีวิต/ธุรกิจ/ระบบ**
 
-Business governance · Infrastructure resilience · AI oversight  
-Supply chain risk · Public policy · Personal decision frameworks
+ระบบนี้คอยจับว่า "ทางออกที่เหลือ" ของคุณกำลังลดลงเรื่อยๆ หรือเปล่า
+(ศัพท์เทคนิค: ตรวจจับ **Drift** ก่อนเกิด **Choice Collapse**)
 
----
-
-## How to Evaluate Any Situation
-
-1. What drift is accumulating?
-2. What evidence confirms it?
-3. How many real choices remain?
-
-If the answer to (3) approaches zero — intervene now.
+ถ้าทางเลือกเหลือใกล้ศูนย์ → มันจะเตือนให้แก้ตอนนี้ ก่อนที่จะไม่เหลือทางเลือกให้แก้แล้ว
 
 ---
 
-## Governance Principles
+## ใช้กับใครได้บ้าง
 
-**Ego OFF · Evidence ON**  
-Authority requires verifiable evidence.
+คนที่กำลังเจอสถานการณ์จริง เช่น ตกงาน มีหนี้ ธุรกิจกำลังจะพัง ความสัมพันธ์กำลังแตก
+ไม่ได้ให้คำแนะนำสวยหรู แต่ช่วยหาว่า **ตอนนี้ยังมีทางไหนเดินได้บ้าง**
 
-**Stop-the-Line Authority**  
-Any operator may halt a process when harm is detected.
-
-**Stabilize Before Optimize**  
-Never improve a broken foundation.
-
-**Energy Discipline**  
-Creation must exceed consumption.
+ใช้ได้ทั้งกับคนคนเดียว ธุรกิจ หรือระบบ AI ก็ได้
 
 ---
 
-## System Architecture
+## หลักคิดสำคัญที่สุด (มีข้อเดียว)
 
-Human Decision Layer
-↓ Evidence Validation
-↓ Drift Detection
-↓ Choice Evaluation
-↓ Waterline Integrity Check
-↓ Governance Intervention
-↓ Choice Restoration
+```
+ถ้ายังมีทางเลือกอย่างน้อย 1 ทาง → ระบบยังไม่พัง
+Choice(t) ≥ 1 → collapse = False
+```
+
+พูดง่ายๆ: **อย่าปล่อยให้เหลือทางเลือกเป็นศูนย์** แค่นั้น
+
 ---
 
-## Design Principle
+## หลักการทำงาน 3 ข้อ
 
-Not built to win.  
-Built to prevent collapse.
+1. **ดูของจริงก่อนสรุป** — ไม่เดา ไม่มโน ต้องมีหลักฐาน (Ego OFF · Evidence ON)
+2. **ใครก็หยุดระบบได้ ถ้าเห็นว่ากำลังจะพัง** — ไม่ต้องรอสั่งจากบนลงล่าง (Stop-the-Line Authority)
+3. **ซ่อมฐานให้แน่นก่อน ค่อยพัฒนาต่อ** — อย่าต่อเติมบนของที่พังอยู่ (Stabilize Before Optimize)
+
+---
+
+## เบื้องหลังทางเทคนิค (สำหรับคนสายเทค)
+
+```
+Human Input → FATE™ Decision Engine → Multi-AI Council
+→ ตรวจระดับ Waterline → ส่งทางเลือกกลับมาอย่างน้อย 1 ทางเสมอ
+```
+
+Stack: FastAPI · Python · Gemini · SQLite · Render
+
+---
+
+## ไม่ได้สร้างมาเพื่อชนะ
+
+สร้างมาเพื่อ **ไม่พังซ้ำ**
 
 **Fail Less · Harm Less · Restore Choice**
 
 ---
 
+## Support
+
+README และแนวคิดนี้ อ่านฟรี ลองใช้ฟรี
+ถ้าเครื่องมือนี้ช่วยคุณได้จริง การสนับสนุนช่วยให้ระบบยังรันต่อไปได้
+
+[ลิงก์รับเงิน — เติมของพี่เอง]
+
+---
+
 ## License
 
-Open governance framework. Use responsibly.
+Open governance framework.
+No proprietary claim. Not for profit. Use it to survive.
+
