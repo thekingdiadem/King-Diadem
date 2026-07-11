@@ -1,5 +1,5 @@
 # FATE™ DEBT FREEDOM
-## ระบบวางแผนปลดหนี้ฟรี สำหรับคนไทยทุกคน
+## ระบบวางแผนปลดหนี้ฟรี สำหรับมนุษย์ไม่จำกัดประเทศและจำนวนการใช้งาน
 ### โดย นิธิกร บุญสร้าง | KING DIADEM
 ### Fail Less. Harm Less. Restore Choice.
 
@@ -76,11 +76,11 @@ Prompt นี้ถูกออกแบบให้ AI ไม่สามาร
 
 ## เกี่ยวกับระบบนี้
 
-FATE™ Debt Freedom เป็นส่วนหนึ่งของ KING DIADEM
+FATE™ Debt Freedom เป็นส่วนหนึ่งของ ระบบ FATE DETERMINISTIC LOGIC KERNEL ของ KING DIADEM
 ระบบตัดสินใจที่สร้างขึ้นจากวันที่ไม่มีอะไรเหลือ
 เพื่อให้คนที่อยู่ในวันแบบนั้นมีทางออกอย่างน้อย 1 ทางเสมอ
 
-king-diadem.onrender.com
+https://fastwork.co/user/thekingdiadem?source=web_marketplace_top-navbar_profile
 
 ---
 
