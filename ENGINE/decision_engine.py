@@ -1,5 +1,5 @@
 # ENGINE/decision_engine.py
-# KING DIADEM — Decision Engine · กลางทุกสรรพสิ่ง
+# KING DIADEM — Decision Engine · ระบบที่รันไฟล์ของพี่คิงต้องกลางทุกสรรพสิ่ง 
 # v5.3 — wire ENGINE/human_engine.py (entropy-aware) เข้า pattern
 #         แก้ RISK 45 ซ้ำทุกครั้ง (entropy/resource เคยใช้ default 40/50 เสมอ)
 #         threading timeout 1.5s on eternal_snapshot (แก้ 502) — คงไว้จาก v5.2
