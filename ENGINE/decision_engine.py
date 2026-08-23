@@ -12,6 +12,13 @@ from ENGINE.pattern_engine import analyze_pattern
 from core.llm_gemini import get_llm          # ← singleton
 from core.emptiness_guard import emptiness_guard
 
+# ── Wisdom Index (พี่คิง 2026-07-04): Wisdom = Outcome Usefully / Spent Energy
+try:
+    from ENGINE.freedom_signal import wisdom_index as _wisdom_index, snapshot as _wisdom_snapshot
+except Exception:
+    _wisdom_index = None
+    _wisdom_snapshot = None
+
 
 class DecisionEngine:
 
@@ -198,6 +205,16 @@ class DecisionEngine:
                 if guarded.get("emotional_flag"):
                     context_parts.append("EMOTIONAL_FLAG: true — ผู้ใช้อาจอยู่ในสถานการณ์ยาก")
 
+                # ── Wisdom Index: Outcome Usefully / Spent Energy ────
+                if _wisdom_index is not None:
+                    try:
+                        w = _wisdom_index()
+                        if w > 0:
+                            tag = "ต่ำกว่า 1 (เสียพลังงานมากกว่าที่ได้ผล)" if w < 1 else "≥ 1 (ได้ผลคุ้มพลังงานที่เสีย)"
+                            context_parts.append(f"Wisdom Index: {w:.2f} — {tag}")
+                    except Exception:
+                        pass
+
                 # ── Human Engine context (entropy-aware) ─────
                 if isinstance(human_engine_result, dict):
                     if human_engine_result.get("context_for_lyla"):
@@ -264,6 +281,7 @@ class DecisionEngine:
             "lyla":            lyla_note,
             "risk_score":      guarded.get("risk_score", 0),
             "emotional_flag":  guarded.get("emotional_flag", False),
+            "wisdom":          _wisdom_snapshot() if _wisdom_snapshot else None,
         }
 
     def _run_route(self, route: str, pattern: dict) -> dict:
@@ -296,11 +314,17 @@ class DecisionEngine:
 # SINGLETON + PUBLIC API
 # ══════════════════════════════════════════════════════════════
 _ENGINE_SINGLETON = None
+_ENGINE_LOCK = threading.Lock()
 
 def _engine() -> DecisionEngine:
     global _ENGINE_SINGLETON
     if _ENGINE_SINGLETON is None:
-        _ENGINE_SINGLETON = DecisionEngine()
+        # BUG FIX v5.4: เดิมเช็ค None แล้วสร้างเลย ไม่มี lock —
+        # ถ้า 2 request มาพร้อมกันตอนยังไม่เคย init อาจสร้าง DecisionEngine()
+        # 2 ตัวซ้อนกัน (โหลด LLM/router/lyla ซ้ำ เปลือง memory และเวลา)
+        with _ENGINE_LOCK:
+            if _ENGINE_SINGLETON is None:  # double-check หลังได้ lock
+                _ENGINE_SINGLETON = DecisionEngine()
     return _ENGINE_SINGLETON
 
 
@@ -403,7 +427,12 @@ def run_decision(data) -> dict:
         merged["_human_engine"] = human_result
         if isinstance(human_result, dict):
             for k in ("entropy", "resource", "stability"):
-                if k in human_result and k not in data:
+                # BUG FIX v5.4: เดิมเช็ค `k not in data` (payload ดิบจาก frontend)
+                # ทำให้ resource ที่ _build_payload คำนวณจาก money ไปแล้ว
+                # (ผ่าน out.setdefault("resource", ...)) โดน human_engine ทับทิ้งเงียบๆ
+                # ทุกครั้งที่ frontend ส่ง "money" มาแทนที่จะส่ง "resource" ตรงๆ
+                # ตอนนี้เช็คจาก merged (payload ที่ผ่านการคำนวณแล้ว) แทน
+                if k in human_result and k not in merged:
                     merged[k] = human_result[k]
     except Exception:
         merged["_human_engine"] = None
@@ -471,11 +500,11 @@ def decision_intelligence(state: dict, risk: dict) -> dict:
     level = str(risk.get("level", "MEDIUM")).upper()
 
     try:    score = float(risk.get("risk_score", 0))
-    except: score = 0.0
+    except (TypeError, ValueError): score = 0.0
     try:    res   = float(state.get("resource",  50))
-    except: res   = 50.0
+    except (TypeError, ValueError): res   = 50.0
     try:    stab  = float(state.get("stability", 60))
-    except: stab  = 60.0
+    except (TypeError, ValueError): stab  = 60.0
 
     if level == "CRITICAL" or score >= 85 or res <= 10:
         return {"action": "stabilize",        "message": "ชะลอการตัดสินใจใหญ่ — ดูแลพื้นฐานก่อน"}
