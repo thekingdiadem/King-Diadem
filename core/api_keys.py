@@ -37,7 +37,18 @@ from fastapi.responses import JSONResponse
 # =============================================================================
 
 _DB_PATH     = os.getenv("KD_DB_PATH", "data/king_diadem.db")
-_SECRET_SALT = os.getenv("SECRET_KEY", "king-diadem-secret-2026")
+
+# SECURITY: ห้ามมี default fallback สำหรับ SECRET_KEY
+# เดิมฝัง "king-diadem-secret-2026" ไว้ตรงนี้ ซึ่งอยู่ใน public repo แล้ว —
+# ใครก็คำนวณ key_hash / key_id signature ปลอมได้ถ้ายังใช้ค่านี้จริงใน production
+_SECRET_SALT = os.getenv("SECRET_KEY")
+if not _SECRET_SALT:
+    raise RuntimeError(
+        "❌ SECRET_KEY environment variable ไม่ได้ตั้งค่า — "
+        "core/api_keys.py ต้องมี SECRET_KEY จริงจาก environment เท่านั้น "
+        "(ห้ามใช้ default เดิมที่เคยฝังใน public repo)"
+    )
+
 _KEY_PREFIX  = "kd_"
 
 # Rate limits per scope (requests per window)
