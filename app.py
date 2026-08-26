@@ -176,10 +176,22 @@ except Exception as e:
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 # ── APP ───────────────────────────────────────────────────────────
+# SECURITY: SECRET_KEY ต้องตั้งจาก environment เท่านั้น — ห้ามมี default
+# เดิมมี fallback "king-diadem-secret-2026" ฝังในโค้ด public repo
+# ถ้า deploy แล้วลืมตั้ง env var จะเซ็น session token ด้วยค่านี้ทันที
+# ซึ่งใครก็ปลอม session ได้เพราะค่านี้อยู่ใน git history แล้ว
+_SECRET_KEY = os.getenv("SECRET_KEY")
+if not _SECRET_KEY:
+    raise RuntimeError(
+        "❌ SECRET_KEY environment variable ไม่ได้ตั้งค่า — "
+        "ห้าม deploy โดยไม่มี SECRET_KEY (ห้ามใช้ default ที่เคยฝังใน public repo). "
+        "ตั้งค่าใน Render environment ก่อน: SECRET_KEY=<random 32+ chars>"
+    )
+
 app = FastAPI(title="KING DIADEM OS")
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.getenv("SECRET_KEY", "king-diadem-secret-2026")
+    secret_key=_SECRET_KEY
 )
 engine = DecisionEngine() if DecisionEngine else None
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -405,8 +417,10 @@ async def google_callback(request: Request):
         except Exception:
             pass
         response = RedirectResponse("/")
-        response.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30)
-        response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30)
+        response.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30,
+                             httponly=True, secure=True, samesite="lax")
+        response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30,
+                             httponly=True, secure=True, samesite="lax")
         return response
     except Exception as e:
         print(f"google_callback error: {repr(e)}")
@@ -431,33 +445,24 @@ async def logout():
     return r
 
 
-# ── EMAIL LOGIN / REGISTER ────────────────────────────────────────
+# ── EMAIL LOGIN / REGISTER (DISABLED FOR SECURITY) ───────────────
+# เดิม endpoint นี้ออก auth cookie จากแค่ email string โดยไม่เช็ค password
+# = ใครก็สวมสิทธิ์คนอื่นได้ + /register แจก 10 credits ให้ email ใหม่ทุกครั้ง
+# ไม่มี email verification = ฟาร์ม credit ไม่จำกัดได้ ปิดถาวร ใช้ Google OAuth เท่านั้น
 @app.post("/register")
-async def register(data: dict):
-    email = (data.get("email") or "").strip()
-    if not email:
-        return {"status": "error", "message": "กรุณากรอก email"}
-    if ensure_user: ensure_user(email)
-    if add_credits and get_credits and get_credits(email) == 0:
-        add_credits(email, 10)
-    credits = get_credits(email) if get_credits else 0
-    r = JSONResponse({"status": "ok", "email": email, "credits": credits})
-    r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30)
-    r.set_cookie("kd_name",  _cookie_ascii(email), max_age=86400*30)
-    return r
+async def register():
+    return JSONResponse(
+        {"status": "error", "message": "กรุณาล็อกอินผ่าน Google OAuth เท่านั้น"},
+        status_code=403
+    )
 
 
 @app.post("/login")
-async def login_email(data: dict):
-    email = (data.get("email") or "").strip()
-    if not email:
-        return {"status": "error"}
-    if ensure_user: ensure_user(email)
-    credits = get_credits(email) if get_credits else 0
-    r = JSONResponse({"status": "ok", "email": email, "credit": credits})
-    r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30)
-    r.set_cookie("kd_name",  _cookie_ascii((data.get("name") or email).strip()), max_age=86400*30)
-    return r
+async def login_email():
+    return JSONResponse(
+        {"status": "error", "message": "กรุณาล็อกอินผ่าน Google OAuth เท่านั้น"},
+        status_code=403
+    )
 
 
 # ── CHAT STATE ────────────────────────────────────────────────────
