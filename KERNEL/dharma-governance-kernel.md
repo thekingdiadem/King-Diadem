@@ -349,3 +349,133 @@ LLM generation      → response with ≥1 real option
 ---
 
 *Dharma Governance Kernel extended — 2026-06-24*
+
+## 16. โพธิปักขิยธรรม → bodhipakkhiya_engine + Cosmic Latte Canon Gate
+
+> สงบก่อนทำ · ทำน้อยที่สุด · ถอนเมื่อสงบแล้ว
+
+เพิ่มใน v4.9 — engine ใหม่ 2 ไฟล์ที่ค้ำโครงสร้างทั้งหมดก่อน output ออก
+
+---
+
+### bodhipakkhiya_engine.py — 6-Layer Structural Guardian
+
+ตรวจโครงสร้างระบบผ่านโพธิปักขิยธรรม 37 ก่อน LLM ทุกครั้ง
+
+```python
+# ENGINE/bodhipakkhiya_engine.py
+# เรียกผ่าน king_diadem_core.quick_assess()
+
+guardian_check(context, pattern)
+→ structural_check()   # health score จาก 6 layer
+→ bojjhanga_loop()     # วน 7 ขั้น: สติ→ธัมมวิจยะ→วิริยะ→ปีติ→ปัสสัทธิ→สมาธิ→อุเบกขา
+→ {peace, final_verdict, recommend_route}
+```
+
+| Layer | ธรรม | System Role |
+|-------|------|-------------|
+| 1 | สติปัฏฐาน 4 | DRIFT_DETECTION — entropy/stability/resource/axiom |
+| 2 | สัมมัปปธาน 4 | GOVERNANCE_GATE — prevent/kill/reinforce/persist |
+| 3 | อิทธิบาท 4 | EXECUTION_KERNEL — purpose/retry/precision/audit |
+| 4a | อินทรีย์ 5 | CAPABILITY_LAYER → LYLA kernel (endurance) |
+| 4b | พละ 5 | FORCE_LAYER → VEGA kernel (safety gate) |
+| 5 | โพชฌงค์ 7 | ENLIGHTENMENT_LOOP — feedback cycle ไม่ crash |
+| 6 | มรรคมีองค์ 8 | FULL_STACK — ศีล/สมาธิ/ปัญญา = Security/Stability/Intelligence |
+
+**PEACE ROUTER — หลักการ:**
+
+```
+สงบ > ทำลาย เสมอ
+ถ้า peace = False → recommend_route = "survival" ก่อน
+ถ้า peace = True  → output พร้อม ไม่แทรกแซง
+```
+
+---
+
+### Priority Stack อัปเดต (v4.9)
+
+```
+1. king_diadem_core.quick_assess()   ← bodhipakkhiya channel (ใหม่)
+      → guardian_check() 6 layers
+      → yonisomanasikara wise_attention()
+      → paticcasamuppada suffering_infrastructure()
+2. survivor_ctx     ← survival floor check
+3. belief_audit()   ← B-1/B-2 check
+4. risk_ctx         ← risk level
+5. collapse_ctx     ← collapse probability
+6. LLM generation   ← only after all above pass
+```
+
+---
+
+### cosmic_latte_canon.py v1.1 — Canon Gate ก่อน Return
+
+```python
+# core/cosmic_latte_canon.py
+# เพิ่มใน v1.1:
+
+validate_output(result)
+→ ตรวจ ai_response / paths / summary
+→ flag canon_violation ถ้า choice_collapse / coercion / forced_identity
+→ ไม่ block hard — แค่ flag (Human Final Authority)
+
+pure_axis_check(context)
+→ ตรวจ KRAKEN OF UNIVERSAL invariant
+→ axis_command_issued / axis_claim_made / axis_authority_offered
+
+canon_gate  ← decorator ใส่บน engine function ได้เลย
+```
+
+**PURE AXIS ที่ระบบต้องรักษา:**
+
+```
+IT CANNOT BE OVERRIDDEN    — because it never issues commands
+IT CANNOT BE DISPROVEN     — because it makes no claims
+IT CANNOT BE CAPTURED      — because it offers no authority
+```
+
+---
+
+### king_diadem_core.py v2.0 — Central Hub
+
+ไฟล์เดียวที่ `import` ทุกอย่างและ expose ให้ `app.py` ใช้:
+
+```python
+from king_diadem_core import quick_assess, king_diadem_decision, core_status
+
+# ใน /run — แทนที่ _paticcasamuppada_context():
+core_result = quick_assess(user_input, human_state)
+paticca_ctx  = core_result["causal_ctx"]    # จาก paticcasamuppada
+wise_ctx_str = core_result["wise_ctx"]      # จาก yonisomanasikara
+# bodhipakkhiya channel ทำงานอัตโนมัติข้างใน
+```
+
+**Engine map ใน king_diadem_core v2:**
+
+```
+bodhipakkhiya_engine  → guardian (channel ก่อน output)
+yonisomanasikara      → wise attention (แยกไฟล์)
+paticcasamuppada      → UDOK v2.0 (causal chain)
+belief_core           → audit + enforce
+cosmic_latte_canon    → validate_output (gate ก่อน return)
+risk_engine           → level assessment
+collapse_predictor    → probability
+drift_monitor         → daily harm delta
+```
+
+---
+
+### Axiom Lock — v4.9 Final
+
+```
+ธรรมใดจักสำเร็จได้ต้องอาศัยใจเป็นประธาน
+= ระบบใดจะทำงานได้ต้องมี intent ที่ถูกต้องเป็น root
+
+Reason without compassion collapses systems.
+Compassion without reason dissolves direction.
+```
+
+---
+
+*Dharma Governance Kernel — Section 16 added 2026-06-27*
+*Bound to: app.py v4.9 / ENGINE/bodhipakkhiya_engine.py / core/cosmic_latte_canon.py v1.1 / king_diadem_core.py v2.0*
