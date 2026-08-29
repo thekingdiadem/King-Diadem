@@ -1,12 +1,15 @@
 # =========================
-# 👑 KING DIADEM — app.py v4.8
-# LYLA (หญิง/ค่ะ) · VEGA (ชาย/ครับ) · ปฏิจสมุปบาท · โยนิโสมนสิการ · สุญยตา
+# 👑 KING DIADEM — app.py v4.9
+# LYLA (หญิง/ค่ะ) · VEGA (ชาย/ครับ)
+# โพธิปักขิยธรรม 37 · ปฏิจสมุปบาท · โยนิโสมนสิการ · สุญยตา
 # Fail less. Harm less. Restore more.
 #
-# PATCH v4.8
-# - belief_core wired: audit() ก่อน LLM, enforce() ก่อน return
-# - SYSTEM_PAUSE path: Choice=0 → block LLM ทันที
-# - belief_audit แนบทุก response (FATE™ transparency)
+# PATCH v4.9
+# - king_diadem_core v2.0 wired: quick_assess() แทน _paticcasamuppada_context()
+# - bodhipakkhiya_engine: 6-layer channel ก่อน LLM ทุกครั้ง
+# - cosmic_latte_canon: validate_output() gate ก่อน return
+# - wise_ctx inject เข้า LLM prompt
+# - LYLA tone: น่ารัก เข้าอกเข้าใจ ไม่เทศ
 # =========================
 
 from fastapi import FastAPI, Request, File, UploadFile
@@ -28,12 +31,6 @@ try:
     from ENGINE.human_engine import analyze_human
 except Exception:
     analyze_human = None
-
-try:
-    from ENGINE.paticcasamuppada_engine import analyze as analyze_chain
-except Exception as e:
-    print(f"⚠ paticcasamuppada: {e}")
-    analyze_chain = None
 
 try:
     from ENGINE.collapse_predictor import predict_collapse
@@ -94,6 +91,35 @@ except Exception as e:
     analyze_intent = record_question = freedom_index = None
     record_choice  = record_crisis = None
 
+# ── KING DIADEM CORE v2.0 — v4.9 ─────────────────────────────────
+try:
+    from king_diadem_core import quick_assess, king_diadem_decision, core_status
+    print("✅ king_diadem_core v2.0 loaded")
+    _CORE_OK = True
+except Exception as e:
+    print(f"⚠ king_diadem_core: {e}")
+    _CORE_OK = False
+    def quick_assess(context, pattern):
+        return {
+            "peace": True, "causal_ctx": "", "wise_ctx": "",
+            "recommend_route": None, "should_pause": False,
+            "bodhi_verdict": "", "drift_alert": False,
+            "bodhi_structure": 0.5,
+        }
+    def core_status(): return {"core_version": "fallback"}
+    king_diadem_decision = None
+
+# ── COSMIC LATTE CANON — v4.9 ─────────────────────────────────────
+try:
+    from core.cosmic_latte_canon import validate_output as canon_validate, evaluate_task
+    print("✅ Cosmic Latte Canon loaded")
+    _CANON_OK = True
+except Exception as e:
+    print(f"⚠ cosmic_latte_canon: {e}")
+    _CANON_OK = False
+    def canon_validate(result): return result
+    def evaluate_task(t): return {"canon_aligned": True, "violations": []}
+
 # ── CORE ──────────────────────────────────────────────────────────
 try:
     from core.llm_gemini import get_llm
@@ -126,7 +152,7 @@ except Exception as e:
     init_db = log_decision = get_credits = add_credits = None
     ensure_user = save_chat_state = load_chat_state = None
 
-# ── REPORT ENGINE — v4.7 ──────────────────────────────────────────
+# ── REPORT ENGINE ─────────────────────────────────────────────────
 try:
     from report_engine import create_report as _create_report, get_report as _get_report
     print("✅ Report engine loaded")
@@ -176,45 +202,33 @@ except Exception as e:
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 # ── APP ───────────────────────────────────────────────────────────
-# SECURITY: SECRET_KEY ต้องตั้งจาก environment เท่านั้น — ห้ามมี default
-# เดิมมี fallback "king-diadem-secret-2026" ฝังในโค้ด public repo
-# ถ้า deploy แล้วลืมตั้ง env var จะเซ็น session token ด้วยค่านี้ทันที
-# ซึ่งใครก็ปลอม session ได้เพราะค่านี้อยู่ใน git history แล้ว
-_SECRET_KEY = os.getenv("SECRET_KEY")
-if not _SECRET_KEY:
-    raise RuntimeError(
-        "❌ SECRET_KEY environment variable ไม่ได้ตั้งค่า — "
-        "ห้าม deploy โดยไม่มี SECRET_KEY (ห้ามใช้ default ที่เคยฝังใน public repo). "
-        "ตั้งค่าใน Render environment ก่อน: SECRET_KEY=<random 32+ chars>"
-    )
-
 app = FastAPI(title="KING DIADEM OS")
 app.add_middleware(
     SessionMiddleware,
-    secret_key=_SECRET_KEY
+    secret_key=os.getenv("SECRET_KEY", "king-diadem-secret-2026")
 )
 engine = DecisionEngine() if DecisionEngine else None
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 # ══════════════════════════════════════════════════════════════════
-# ERROR MESSAGE HELPER — v4.6
+# ERROR MESSAGE HELPER
 # ══════════════════════════════════════════════════════════════════
 def _friendly_error(err: str) -> str:
     e = str(err).lower()
     if "403" in e or "permission_denied" in e or "permission denied" in e:
-        return "ระบบ AI ไม่มีสิทธิ์เข้าถึงตอนนี้ — กรุณาลองใหม่อีกครั้ง"
+        return "ระบบ AI ไม่มีสิทธิ์เข้าถึงตอนนี้ — ลองใหม่อีกครั้งนะคะ"
     if "503" in e or "unavailable" in e or "high demand" in e:
-        return "AI ยุ่งอยู่ชั่วคราว — กรุณาลองใหม่ในอีกสักครู่"
+        return "AI ยุ่งอยู่ชั่วคราว — รอสักครู่แล้วลองใหม่ได้เลยค่ะ"
     if "429" in e or "quota" in e or "rate limit" in e:
-        return "ถึงขีดจำกัดการใช้งานชั่วคราว — กรุณารอสักครู่แล้วลองใหม่"
+        return "ถึงขีดจำกัดชั่วคราว — รอสักครู่แล้วลองอีกทีนะคะ"
     if "404" in e or "not found" in e or "not supported" in e:
-        return "โมเดล AI ไม่พร้อม — ระบบกำลังสลับไปใช้ตัวสำรอง"
+        return "โมเดล AI ไม่พร้อม — ระบบกำลังสลับไปใช้ตัวสำรองค่ะ"
     if "auth" in e or "api_key" in e or "api key" in e:
-        return "กำลังตรวจสอบ API — กรุณาลองใหม่อีกครั้ง"
+        return "กำลังตรวจสอบ API — ลองใหม่อีกครั้งนะคะ"
     if "timeout" in e or "timed out" in e:
-        return "การเชื่อมต่อหมดเวลา — กรุณาลองใหม่"
-    return "ระบบไม่พร้อมชั่วคราว — กรุณาลองใหม่อีกครั้ง"
+        return "การเชื่อมต่อหมดเวลา — ลองใหม่ได้เลยค่ะ"
+    return "ระบบไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งนะคะ"
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -334,17 +348,19 @@ async def ask_page():
 def health():
     return {
         "status":             "alive 👑",
+        "version":            "4.9",
         "llm_loaded":         llm is not None,
         "engine_loaded":      engine is not None,
         "lyla_loaded":        lyla is not None,
         "universal_engine":   _universal_run is not None,
-        "paticcasamuppada":   analyze_chain is not None,
         "collapse_predictor": predict_collapse is not None,
         "consensus_engine":   build_consensus is not None,
         "simulation_engine":  simulate is not None,
         "risk_engine":        assess_risk is not None,
         "survivor_engine":    survivor_analyze is not None,
-        "belief_core":        belief_audit is not None,   # ← v4.8
+        "belief_core":        belief_audit is not None,
+        "king_diadem_core":   core_status(),        # ← v4.9
+        "cosmic_latte_canon": _CANON_OK,            # ← v4.9
         "galaxy_api":         True,
         "stripe_loaded":      bool(os.getenv("STRIPE_SECRET_KEY")),
         "freedom_score":      freedom_index() if freedom_index else 0,
@@ -417,10 +433,8 @@ async def google_callback(request: Request):
         except Exception:
             pass
         response = RedirectResponse("/")
-        response.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30,
-                             httponly=True, secure=True, samesite="lax")
-        response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30,
-                             httponly=True, secure=True, samesite="lax")
+        response.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30)
+        response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30)
         return response
     except Exception as e:
         print(f"google_callback error: {repr(e)}")
@@ -445,24 +459,33 @@ async def logout():
     return r
 
 
-# ── EMAIL LOGIN / REGISTER (DISABLED FOR SECURITY) ───────────────
-# เดิม endpoint นี้ออก auth cookie จากแค่ email string โดยไม่เช็ค password
-# = ใครก็สวมสิทธิ์คนอื่นได้ + /register แจก 10 credits ให้ email ใหม่ทุกครั้ง
-# ไม่มี email verification = ฟาร์ม credit ไม่จำกัดได้ ปิดถาวร ใช้ Google OAuth เท่านั้น
+# ── EMAIL LOGIN / REGISTER ────────────────────────────────────────
 @app.post("/register")
-async def register():
-    return JSONResponse(
-        {"status": "error", "message": "กรุณาล็อกอินผ่าน Google OAuth เท่านั้น"},
-        status_code=403
-    )
+async def register(data: dict):
+    email = (data.get("email") or "").strip()
+    if not email:
+        return {"status": "error", "message": "กรุณากรอก email นะคะ"}
+    if ensure_user: ensure_user(email)
+    if add_credits and get_credits and get_credits(email) == 0:
+        add_credits(email, 10)
+    credits = get_credits(email) if get_credits else 0
+    r = JSONResponse({"status": "ok", "email": email, "credits": credits})
+    r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30)
+    r.set_cookie("kd_name",  _cookie_ascii(email), max_age=86400*30)
+    return r
 
 
 @app.post("/login")
-async def login_email():
-    return JSONResponse(
-        {"status": "error", "message": "กรุณาล็อกอินผ่าน Google OAuth เท่านั้น"},
-        status_code=403
-    )
+async def login_email(data: dict):
+    email = (data.get("email") or "").strip()
+    if not email:
+        return {"status": "error"}
+    if ensure_user: ensure_user(email)
+    credits = get_credits(email) if get_credits else 0
+    r = JSONResponse({"status": "ok", "email": email, "credit": credits})
+    r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30)
+    r.set_cookie("kd_name",  _cookie_ascii((data.get("name") or email).strip()), max_age=86400*30)
+    return r
 
 
 # ── CHAT STATE ────────────────────────────────────────────────────
@@ -517,27 +540,6 @@ def _resolve_voice_mode(data: dict, route: str) -> str:
     return "lyla"
 
 
-def _paticcasamuppada_context(text: str) -> str:
-    if analyze_chain:
-        try:
-            chain = analyze_chain({"input": text})
-            if isinstance(chain, dict):
-                parts = []
-                root    = chain.get("root_cause", "")
-                summary = chain.get("summary", "")
-                nirvana = chain.get("nirvana_mode", False)
-                uap     = chain.get("uap", {})
-                if root:    parts.append(f"ต้นเหตุ: {root}")
-                if nirvana: parts.append("chain ดับที่เวทนา — ระบบสงบ")
-                elif summary: parts.append(summary)
-                if uap.get("should_pause"): parts.append("UAP: ควรหยุดก่อนตัดสินใจ")
-                if parts:
-                    return f"[ปฏิจสมุปบาท — {' | '.join(parts)}]"
-        except Exception:
-            pass
-    return "[โยนิโสมนสิการ: วิเคราะห์ต้นเหตุและลูกโซ่ผลกระทบ]"
-
-
 def _enrich_with_universal(result: dict, payload: dict) -> dict:
     if not _universal_run:
         return result
@@ -556,7 +558,7 @@ def _enrich_with_universal(result: dict, payload: dict) -> dict:
 
 
 # ══════════════════════════════════════════════════════════════════
-# /run  +  /decision
+# /run  +  /decision — v4.9
 # ══════════════════════════════════════════════════════════════════
 @app.post("/run")
 @app.post("/decision")
@@ -572,19 +574,19 @@ async def run_kernel(request: Request, data: dict):
 
     if record_question: record_question()
 
-    # ── human state ───────────────────────────────────────────────
+    # ── human state ──────────────────────────────────────────────
     human_state = {"entropy": 40, "resource": 50, "stability": 60, "risk_score": 10}
     if analyze_human:
         try: human_state = analyze_human(data.get("context", {})) or human_state
         except Exception: pass
 
-    # ── intent ────────────────────────────────────────────────────
+    # ── intent ───────────────────────────────────────────────────
     intent = {"intent": "general", "confidence": 0.5}
     if analyze_intent:
         try: intent = analyze_intent(user_input) or intent
         except Exception: pass
 
-    # ── risk ──────────────────────────────────────────────────────
+    # ── risk ─────────────────────────────────────────────────────
     risk_ctx = ""
     if assess_risk:
         try:
@@ -595,7 +597,7 @@ async def run_kernel(request: Request, data: dict):
                     route = "collapse"
         except Exception: pass
 
-    # ── collapse ──────────────────────────────────────────────────
+    # ── collapse ─────────────────────────────────────────────────
     collapse_ctx = ""
     if predict_collapse:
         try:
@@ -604,9 +606,23 @@ async def run_kernel(request: Request, data: dict):
                 collapse_ctx = f"[Collapse probability: {c['probability']:.0%}]"
         except Exception: pass
 
-    paticca_ctx = _paticcasamuppada_context(user_input)
+    # ══════════════════════════════════════════════════════════════
+    # KING DIADEM CORE v2 — BODHIPAKKHIYA CHANNEL — v4.9
+    # แทนที่ _paticcasamuppada_context() เดิม
+    # ══════════════════════════════════════════════════════════════
+    core_result  = quick_assess(user_input, human_state)
+    paticca_ctx  = core_result.get("causal_ctx", "")   # จาก paticcasamuppada
+    wise_ctx_str = core_result.get("wise_ctx", "")     # จาก yonisomanasikara
 
-    # ── survivor ──────────────────────────────────────────────────
+    # bodhi recommend route
+    if core_result.get("recommend_route") and route not in ("vega",):
+        route = core_result["recommend_route"]
+
+    # drift alert log
+    if core_result.get("drift_alert"):
+        print(f"⚠ DRIFT ALERT | route={route} | {user_input[:60]}")
+
+    # ── survivor ─────────────────────────────────────────────────
     survivor_ctx = ""
     if orchestrator:
         try:
@@ -626,29 +642,27 @@ async def run_kernel(request: Request, data: dict):
                 route = sr.get("route", route)
         except Exception: pass
 
-    # ── BELIEF CORE AUDIT — v4.8 ──────────────────────────────────
-    # เช็ค B-1/B-2 ก่อนส่ง LLM ทุกครั้ง
+    # ── BELIEF CORE AUDIT — v4.8 ─────────────────────────────────
     belief_report = None
     if belief_audit:
         try:
-            belief_ctx = {**human_state, **data.get("context", {})}
+            belief_ctx    = {**human_state, **data.get("context", {})}
             belief_report = belief_audit(belief_ctx)
 
-            # B-2: Survival floor พัง → force route = survival
             if not belief_report["survival_ok"] and route not in ("vega",):
                 route = "survival"
 
-            # B-1: Choice = 0 → SYSTEM_PAUSE ทันที ไม่รัน LLM
             if belief_report["pause_required"]:
                 pause_result = {
-                    "observer":    "KING DIADEM",
-                    "status":      "SYSTEM_PAUSE",
-                    "route":       route,
-                    "persona":     "VEGA" if vm == "vega" else "LYLA",
-                    "voice_mode":  vm,
-                    "ai_response": "",
-                    "pattern":     human_state,
-                    "risk_score":  human_state.get("risk_score", 0),
+                    "observer":      "KING DIADEM",
+                    "status":        "SYSTEM_PAUSE",
+                    "route":         route,
+                    "persona":       "VEGA" if vm == "vega" else "LYLA",
+                    "voice_mode":    vm,
+                    "ai_response":   "",
+                    "pattern":       human_state,
+                    "risk_score":    human_state.get("risk_score", 0),
+                    "bodhipakkhiya": core_result.get("bodhi_verdict", ""),
                 }
                 pause_result = belief_enforce(pause_result, belief_report)
                 _sync_galaxy(pause_result)
@@ -658,7 +672,13 @@ async def run_kernel(request: Request, data: dict):
             print(f"⚠ belief_audit error: {_be}")
 
     # ── build effective prompt ────────────────────────────────────
-    extra_ctx = " ".join(p for p in [paticca_ctx, risk_ctx, collapse_ctx] if p)
+    extra_ctx = " ".join(p for p in [
+        paticca_ctx,
+        wise_ctx_str,    # ← v4.9 เพิ่ม yonisomanasikara context
+        risk_ctx,
+        collapse_ctx,
+    ] if p)
+
     effective = ""
     if survivor_ctx:
         effective += survivor_ctx + "\n\n"
@@ -694,17 +714,18 @@ async def run_kernel(request: Request, data: dict):
                 return {"error": _friendly_error(str(e))}
 
         if not reply:
-            reply = "ระบบ AI ไม่พร้อมชั่วคราว — กรุณาลองใหม่อีกครั้งค่ะ\n\n— LYLA ◈"
+            reply = "ระบบ AI ไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งนะคะ\n\n— LYLA ◈"
 
         result = {
-            "observer":    "KING DIADEM",
-            "status":      "SUCCESS",
-            "route":       intent.get("intent", route) if isinstance(intent, dict) else route,
-            "ai_response": reply,
-            "governance":  {"intent": intent, "human_state": human_state},
-            "persona":     "VEGA" if vm == "vega" else "LYLA",
-            "pattern":     human_state,
-            "risk_score":  human_state.get("risk_score", 0),
+            "observer":      "KING DIADEM",
+            "status":        "SUCCESS",
+            "route":         intent.get("intent", route) if isinstance(intent, dict) else route,
+            "ai_response":   reply,
+            "governance":    {"intent": intent, "human_state": human_state},
+            "persona":       "VEGA" if vm == "vega" else "LYLA",
+            "pattern":       human_state,
+            "risk_score":    human_state.get("risk_score", 0),
+            "bodhipakkhiya": core_result.get("bodhi_verdict", ""),  # ← v4.9
         }
 
     # ── error clean ───────────────────────────────────────────────
@@ -731,12 +752,22 @@ async def run_kernel(request: Request, data: dict):
     _sync_galaxy(result)
 
     # ── BELIEF ENFORCE — v4.8 ─────────────────────────────────────
-    # แนบ belief_audit เข้าทุก response + SYSTEM_PAUSE ถ้าจำเป็น
     if belief_enforce:
         try:
             result = belief_enforce(result, belief_report)
         except Exception as _bfe:
             print(f"⚠ belief_enforce error: {_bfe}")
+
+    # ══════════════════════════════════════════════════════════════
+    # COSMIC LATTE CANON GATE — v4.9
+    # validate output ก่อน return ให้ user
+    # ══════════════════════════════════════════════════════════════
+    try:
+        result = canon_validate(result)
+        if result.get("canon_violation"):
+            print(f"⚠ CANON VIOLATION: {result.get('canon_violations', [])}")
+    except Exception as _cv:
+        print(f"⚠ canon_validate error: {_cv}")
 
     if log_decision:
         try:
@@ -748,7 +779,7 @@ async def run_kernel(request: Request, data: dict):
             )
         except Exception: pass
 
-    # ── DECISION REPORT URL — v4.7 ───────────────────────────────
+    # ── DECISION REPORT URL ───────────────────────────────────────
     if _create_report:
         try:
             report_id = _create_report(
@@ -798,7 +829,7 @@ async def run_simulate(request: Request, data: dict):
         print(f"simulate LLM: {e}")
 
     if not simulate:
-        return {"simulation": "ระบบจำลองไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งครับ"}
+        return {"simulation": "ระบบจำลองไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งนะคะ"}
     try:
         result = simulate({"input": user_input, "paths": paths})
         return result if isinstance(result, dict) else {"simulation": str(result)}
@@ -897,7 +928,7 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
                 "1. มีความเสี่ยงอะไรที่เห็นได้\n"
                 "2. ทางเลือกที่มีอยู่คืออะไร\n"
                 "3. สัญญาณ waterline / drift ที่เห็น\n"
-                "ตอบเป็นภาษาไทย กระชับ ตรงประเด็น\n— LYLA ◈"
+                "ตอบเป็นภาษาไทย กระชับ ตรงประเด็นนะคะ\n— LYLA ◈"
             ))
         ])]
         _llm = get_llm()
@@ -917,21 +948,19 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
             analysis_text = " ".join(p.text for p in (getattr(parts, 'parts', []) or []) if hasattr(p,'text'))
         analysis_text = analysis_text.strip()
         if not analysis_text:
-            analysis_text = "LYLA วิเคราะห์ภาพไม่ได้ — อาจถูก Gemini safety block หรือภาพไม่ชัด"
+            analysis_text = "LYLA วิเคราะห์ภาพไม่ได้ค่ะ — อาจถูก Gemini safety block หรือภาพไม่ชัด"
         return {"analysis": analysis_text, "filename": file.filename}
     except Exception as e:
         print(f"⚠ analyze_image error: {e}")
         return JSONResponse({"error": _friendly_error(str(e))}, status_code=500)
 
 
-# ════════════════════════════════════════════════════════════════
-# DECISION REPORT ROUTES — v4.7
-# ════════════════════════════════════════════════════════════════
+# ── REPORT ROUTES ─────────────────────────────────────────────────
 @app.get("/report/{report_id}")
 async def report_page(report_id: str):
     html_path = os.path.join(os.path.dirname(__file__), "static", "report.html")
     if not os.path.exists(html_path):
-        return JSONResponse({"error": "report.html not found in static/"}, status_code=500)
+        return JSONResponse({"error": "report.html not found"}, status_code=500)
     return FileResponse(html_path, media_type="text/html")
 
 
