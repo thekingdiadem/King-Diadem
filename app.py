@@ -202,10 +202,21 @@ except Exception as e:
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 # ── APP ───────────────────────────────────────────────────────────
+# SECURITY: SECRET_KEY ต้องตั้งจาก environment เท่านั้น — ห้ามมี default
+# ค่า default เดิม "king-diadem-secret-2026" เคยอยู่ใน public repo git history
+# ถ้าใครเดา/ดึงค่านั้นได้ = ปลอม session cookie ได้ทันที
+_SECRET_KEY = os.getenv("SECRET_KEY")
+if not _SECRET_KEY:
+    raise RuntimeError(
+        "❌ SECRET_KEY environment variable ไม่ได้ตั้งค่า — "
+        "ห้าม deploy โดยไม่มี SECRET_KEY (ห้ามใช้ default ที่เคยฝังใน public repo). "
+        "ตั้งค่าใน Render environment ก่อน: SECRET_KEY=<random 32+ chars>"
+    )
+
 app = FastAPI(title="KING DIADEM OS")
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.getenv("SECRET_KEY", "king-diadem-secret-2026")
+    secret_key=_SECRET_KEY
 )
 engine = DecisionEngine() if DecisionEngine else None
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -540,6 +551,24 @@ def _resolve_voice_mode(data: dict, route: str) -> str:
     return "lyla"
 
 
+# ── ROUTE SEVERITY — v4.9.1 ──────────────────────────────────────
+# ป้องกัน route ถูก downgrade เงียบ ๆ เมื่อหลาย engine เขียนทับกัน
+# (risk_engine / king_diadem_core / survivor_engine / belief_core)
+# ต้อง escalate ตามลำดับความรุนแรงเท่านั้น ห้ามลดระดับโดยไม่ตั้งใจ
+_ROUTE_SEVERITY = {
+    "general": 0, "risk": 1, "civil": 1,
+    "survival": 2, "collapse": 3,
+}
+
+def _escalate_route(current: str, candidate: str) -> str:
+    if not candidate or candidate == "vega":
+        return current
+    if _ROUTE_SEVERITY.get(candidate, 0) >= _ROUTE_SEVERITY.get(current, 0):
+        return candidate
+    print(f"⚠ ROUTE DOWNGRADE BLOCKED: {current} → {candidate} (ignored, kept {current})")
+    return current
+
+
 def _enrich_with_universal(result: dict, payload: dict) -> dict:
     if not _universal_run:
         return result
@@ -594,7 +623,7 @@ async def run_kernel(request: Request, data: dict):
             if isinstance(r, dict) and r.get("level"):
                 risk_ctx = f"[Risk: {r['level']}]"
                 if r.get("level") in ("HIGH", "CRITICAL") and route not in ("vega",):
-                    route = "collapse"
+                    route = _escalate_route(route, "collapse")
         except Exception: pass
 
     # ── collapse ─────────────────────────────────────────────────
@@ -616,7 +645,7 @@ async def run_kernel(request: Request, data: dict):
 
     # bodhi recommend route
     if core_result.get("recommend_route") and route not in ("vega",):
-        route = core_result["recommend_route"]
+        route = _escalate_route(route, core_result["recommend_route"])
 
     # drift alert log
     if core_result.get("drift_alert"):
@@ -632,14 +661,14 @@ async def run_kernel(request: Request, data: dict):
             )
             survivor_ctx = sr.get("survivor_context", "")
             if not sr.get("can_decide", True) and route not in ("vega",):
-                route = sr.get("route", route)
+                route = _escalate_route(route, sr.get("route", route))
         except Exception: pass
     elif survivor_analyze:
         try:
             sr = survivor_analyze(user_input, data.get("context", {}))
             survivor_ctx = sr.get("context", "")
             if not sr.get("can_decide", True) and route not in ("vega",):
-                route = sr.get("route", route)
+                route = _escalate_route(route, sr.get("route", route))
         except Exception: pass
 
     # ── BELIEF CORE AUDIT — v4.8 ─────────────────────────────────
@@ -650,7 +679,7 @@ async def run_kernel(request: Request, data: dict):
             belief_report = belief_audit(belief_ctx)
 
             if not belief_report["survival_ok"] and route not in ("vega",):
-                route = "survival"
+                route = _escalate_route(route, "survival")
 
             if belief_report["pause_required"]:
                 pause_result = {
@@ -751,12 +780,25 @@ async def run_kernel(request: Request, data: dict):
 
     _sync_galaxy(result)
 
-    # ── BELIEF ENFORCE — v4.8 ─────────────────────────────────────
+    # ── BELIEF ENFORCE — v4.8 (v4.9.1: safe-default guard) ────────
+    # ถ้า belief_audit fail ก่อนหน้านี้ belief_report จะเป็น None
+    # ห้ามส่ง None เข้า belief_enforce เงียบ ๆ — ต้อง fail loud ตาม
+    # FATE™ Axiom "Explainability = 100%" ไม่ใช่ fail silent
     if belief_enforce:
         try:
-            result = belief_enforce(result, belief_report)
+            if isinstance(belief_report, dict):
+                result = belief_enforce(result, belief_report)
+            else:
+                safe_belief_report = {
+                    "survival_ok": True, "pause_required": False,
+                    "note": "belief_audit unavailable — enforcement skipped",
+                }
+                result = belief_enforce(result, safe_belief_report)
+                result["governance_warning"] = "belief_audit_failed"
+                print("⚠ belief_report was None — belief_enforce ran on safe default")
         except Exception as _bfe:
             print(f"⚠ belief_enforce error: {_bfe}")
+            result["governance_warning"] = "belief_enforce_failed"
 
     # ══════════════════════════════════════════════════════════════
     # COSMIC LATTE CANON GATE — v4.9
