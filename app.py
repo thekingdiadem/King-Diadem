@@ -1,5 +1,5 @@
 # =========================
-# 👑 KING DIADEM — app.py v4.9
+# 👑 KING DIADEM — app.py v5.0
 # LYLA (หญิง/ค่ะ) · VEGA (ชาย/ครับ)
 # โพธิปักขิยธรรม 37 · ปฏิจสมุปบาท · โยนิโสมนสิการ · สุญยตา
 # Fail less. Harm less. Restore more.
@@ -10,6 +10,21 @@
 # - cosmic_latte_canon: validate_output() gate ก่อน return
 # - wise_ctx inject เข้า LLM prompt
 # - LYLA tone: น่ารัก เข้าอกเข้าใจ ไม่เทศ
+#
+# PATCH v4.9.1
+# - SECRET_KEY: ลบ hardcoded default, raise ถ้าไม่ได้ตั้ง env
+# - route resolution: severity-ranked escalation (_escalate_route), ห้าม downgrade เงียบๆ
+# - belief_report=None guard ก่อนส่งเข้า belief_enforce, เพิ่ม governance_warning
+#
+# PATCH v5.0
+# - cookies: httponly/secure/samesite ทุกจุดที่ set_cookie
+# - /analyze-image: guard ขนาดไฟล์ (10MB) + mime type whitelist
+# - stripe webhook: credit ผูกกับ price_id จริง ไม่ใช่ quantity จาก client
+# - rate limit /run /decision: 20 req / 60s ต่อ identity (in-memory)
+# - canon gate: hard block จริงสำหรับ severe violations (choice_collapse/coercion/forced_identity)
+#   + canon_notice โชว์ให้ user เห็น ไม่ใช่แค่ print server-side
+# - payload ส่ง wise_context/causal_context/core_verdict เป็น field แยก ไม่ใช่แค่ text ต่อท้าย
+# - LYLA/VEGA tone instruction ผูกเข้า additional_context จริง
 # =========================
 
 from fastapi import FastAPI, Request, File, UploadFile
@@ -246,6 +261,12 @@ def _friendly_error(err: str) -> str:
 # GALAXY STATE
 # ══════════════════════════════════════════════════════════════════
 _glock = threading.Lock()
+# NOTE (v5.0): _gstate ถูกเขียนทั้งจาก async def handlers (event loop thread)
+# และ def handlers ธรรมดา (threadpool thread ของ FastAPI) — threading.Lock
+# คือตัวที่ถูกต้อง เพราะ asyncio.Lock ป้องกันได้แค่ coroutine บน loop เดียวกัน
+# ไม่ป้องกัน cross-thread race กับ threadpool เลย ห้ามเปลี่ยนเป็น asyncio.Lock
+# เงื่อนไขที่ต้องรักษาไว้: ห้ามมี await ใดๆ อยู่ใน `with _glock:` block เด็ดขาด
+# (ตอนนี้ทุก block เป็นแค่ dict write ล้วน ปลอดภัยอยู่)
 _gstate = {
     "active_route": "general",
     "lyla_mode":    "idle",
@@ -359,7 +380,7 @@ async def ask_page():
 def health():
     return {
         "status":             "alive 👑",
-        "version":            "4.9",
+        "version":            "5.0",
         "llm_loaded":         llm is not None,
         "engine_loaded":      engine is not None,
         "lyla_loaded":        lyla is not None,
@@ -409,6 +430,12 @@ async def dashboard():
 def _cookie_ascii(value: str) -> str:
     return quote(str(value or ""), safe="")
 
+_COOKIE_KW = dict(httponly=True, secure=True, samesite="lax")
+
+def _set_auth_cookies(response, email: str, name: str):
+    response.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
+    response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30, **_COOKIE_KW)
+
 
 @app.get("/login/google")
 async def google_login(request: Request):
@@ -444,8 +471,8 @@ async def google_callback(request: Request):
         except Exception:
             pass
         response = RedirectResponse("/")
-        response.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30)
-        response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30)
+        response.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
+        response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30, **_COOKIE_KW)
         return response
     except Exception as e:
         print(f"google_callback error: {repr(e)}")
@@ -481,8 +508,8 @@ async def register(data: dict):
         add_credits(email, 10)
     credits = get_credits(email) if get_credits else 0
     r = JSONResponse({"status": "ok", "email": email, "credits": credits})
-    r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30)
-    r.set_cookie("kd_name",  _cookie_ascii(email), max_age=86400*30)
+    r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
+    r.set_cookie("kd_name",  _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
     return r
 
 
@@ -494,8 +521,8 @@ async def login_email(data: dict):
     if ensure_user: ensure_user(email)
     credits = get_credits(email) if get_credits else 0
     r = JSONResponse({"status": "ok", "email": email, "credit": credits})
-    r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30)
-    r.set_cookie("kd_name",  _cookie_ascii((data.get("name") or email).strip()), max_age=86400*30)
+    r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
+    r.set_cookie("kd_name",  _cookie_ascii((data.get("name") or email).strip()), max_age=86400*30, **_COOKIE_KW)
     return r
 
 
@@ -586,8 +613,31 @@ def _enrich_with_universal(result: dict, payload: dict) -> dict:
     return result
 
 
+# ── RATE LIMIT — v5.0 ────────────────────────────────────────────
+# /run และ /decision เรียก Gemini ทุกครั้ง = แพงสุดในระบบ
+# จำกัดต่อ identity (email ถ้า login, ไม่งั้น IP) แบบ in-memory sliding window
+# หมายเหตุ: in-memory ใช้ได้กับ single-process deploy เท่านั้น ถ้า scale หลาย
+# worker/instance ต้องย้ายไป Redis-based limiter
+_rate_lock   = threading.Lock()
+_rate_bucket: dict = {}
+_RATE_LIMIT_N       = 20     # จำนวนครั้ง
+_RATE_LIMIT_WINDOW  = 60     # ต่อกี่วินาที
+
+def _rate_check(identity: str) -> bool:
+    now = time.time()
+    with _rate_lock:
+        hits = _rate_bucket.get(identity, [])
+        hits = [t for t in hits if now - t < _RATE_LIMIT_WINDOW]
+        if len(hits) >= _RATE_LIMIT_N:
+            _rate_bucket[identity] = hits
+            return False
+        hits.append(now)
+        _rate_bucket[identity] = hits
+        return True
+
+
 # ══════════════════════════════════════════════════════════════════
-# /run  +  /decision — v4.9
+# /run  +  /decision — v5.0
 # ══════════════════════════════════════════════════════════════════
 @app.post("/run")
 @app.post("/decision")
@@ -596,7 +646,14 @@ async def run_kernel(request: Request, data: dict):
     if not user_input:
         return {"error": "Input is required"}
 
-    email   = unquote(request.cookies.get("kd_email") or "anonymous")
+    email = unquote(request.cookies.get("kd_email") or "anonymous")
+    _identity = email if email != "anonymous" else (request.client.host if request.client else "unknown")
+    if not _rate_check(_identity):
+        return JSONResponse(
+            {"error": f"ใช้งานถี่เกินไป — จำกัด {_RATE_LIMIT_N} ครั้ง / {_RATE_LIMIT_WINDOW} วินาที กรุณารอสักครู่"},
+            status_code=429
+        )
+
     route   = data.get("route") or "general"
     vm      = _resolve_voice_mode(data, route)
     history = data.get("history") or []
@@ -715,7 +772,17 @@ async def run_kernel(request: Request, data: dict):
     if extra_ctx:
         effective += f"\n\n{extra_ctx}"
 
-    payload = {**data, "input": effective, "history": history}
+    # v5.0: ส่ง context แยกเป็น field ชัดๆ ด้วย ไม่ใช่ฝังใน "input" text อย่างเดียว
+    # เผื่อ full_run_decision / DecisionEngine รองรับ field เหล่านี้โดยตรง
+    # (ถ้า engine ไม่รู้จัก field พวกนี้ ก็ยังมี text ใน "input" เป็น fallback เดิม)
+    payload = {
+        **data,
+        "input":          effective,
+        "history":        history,
+        "wise_context":   wise_ctx_str,
+        "causal_context": paticca_ctx,
+        "core_verdict":   core_result.get("bodhi_verdict", ""),
+    }
 
     # ── MAIN DECISION PIPELINE ────────────────────────────────────
     if full_run_decision:
@@ -731,7 +798,8 @@ async def run_kernel(request: Request, data: dict):
                     additional_context=(
                         f"entropy={human_state.get('entropy')}, "
                         f"stability={human_state.get('stability')}, "
-                        f"voice_mode={vm}"
+                        f"voice_mode={vm}, "
+                        f"tone={'น่ารัก เข้าอกเข้าใจ ไม่เทศน์ ใช้คำลงท้าย ค่ะ' if vm != 'vega' else 'กระชับ ตรงประเด็น วิเคราะห์เชิงกลยุทธ์ ใช้คำลงท้าย ครับ'}"
                     ),
                     history=history,
                     route=route,
@@ -801,13 +869,31 @@ async def run_kernel(request: Request, data: dict):
             result["governance_warning"] = "belief_enforce_failed"
 
     # ══════════════════════════════════════════════════════════════
-    # COSMIC LATTE CANON GATE — v4.9
-    # validate output ก่อน return ให้ user
+    # COSMIC LATTE CANON GATE — v4.9 (v5.0: no longer a silent no-op)
+    # ตาม axiom เดิม: ไม่ block hard ทุกกรณี (Human Final Authority)
+    # แต่ severe categories (choice_collapse / coercion / forced_identity)
+    # ต้อง block จริง ไม่ใช่แค่ print — ไม่งั้น gate นี้ไม่มีผลอะไรเลย
     # ══════════════════════════════════════════════════════════════
+    _CANON_HARD_BLOCK = {"choice_collapse", "coercion", "forced_identity"}
     try:
         result = canon_validate(result)
+        violations = result.get("canon_violations", []) or []
         if result.get("canon_violation"):
-            print(f"⚠ CANON VIOLATION: {result.get('canon_violations', [])}")
+            print(f"⚠ CANON VIOLATION: {violations}")
+            # ให้ user เห็นจริง ไม่ใช่แค่ log server-side
+            result["canon_notice"] = f"ตรวจพบความเบี่ยงเบนจาก canon: {violations}"
+            severe = [v for v in violations if str(v).lower() in _CANON_HARD_BLOCK]
+            if severe:
+                print(f"⛔ CANON HARD BLOCK: {severe}")
+                return {
+                    "observer":        "KING DIADEM",
+                    "status":          "CANON_BLOCKED",
+                    "route":           result.get("route", route),
+                    "persona":         result.get("persona"),
+                    "ai_response":     "คำตอบนี้ถูกระงับเพราะขัดกับหลัก canon พื้นฐานของระบบค่ะ",
+                    "canon_violation": True,
+                    "canon_violations": severe,
+                }
     except Exception as _cv:
         print(f"⚠ canon_validate error: {_cv}")
 
@@ -936,12 +1022,27 @@ async def stripe_webhook(request: Request):
     if event["type"] == "checkout.session.completed":
         sess  = event["data"]["object"]
         email = sess.get("customer_email")
-        qty   = 1
+        # ── SECURITY: credit ต้องผูกกับ price_id ที่ Stripe ยืนยันจริง
+        # ห้ามคำนวณจาก quantity ที่ client ส่งมา เพราะแก้ค่านั้นได้ก่อนถึง checkout
+        _CREDITS_PER_PRICE = {
+            os.getenv("STRIPE_PRICE_ID"):         10,
+            os.getenv("STRIPE_PREMIUM_PRICE_ID"): 100,
+        }
+        total_credits = 0
         try:
             items = stripe.checkout.Session.list_line_items(sess["id"])
-            qty   = sum(i.get("quantity", 1) for i in items.get("data", []))
-        except Exception: pass
-        if email and add_credits: add_credits(email, qty * 10)
+            for i in items.get("data", []):
+                price_id = (i.get("price") or {}).get("id")
+                per_unit = _CREDITS_PER_PRICE.get(price_id, 0)
+                qty      = i.get("quantity", 1)
+                if per_unit:
+                    total_credits += per_unit * qty
+                else:
+                    print(f"⚠ unknown price_id in webhook: {price_id} — 0 credits granted")
+        except Exception as _we:
+            print(f"⚠ stripe line_items error: {_we}")
+        if email and add_credits and total_credits > 0:
+            add_credits(email, total_credits)
     return {"status": "ok"}
 
 
@@ -955,12 +1056,25 @@ async def get_user_credits(request: Request):
 
 
 # ── ANALYZE IMAGE ─────────────────────────────────────────────────
+_MAX_IMAGE_BYTES = 10 * 1024 * 1024  # 10MB
+_ALLOWED_IMAGE_MIME = ("image/jpeg", "image/png", "image/webp")
+
 @app.post("/analyze-image")
 async def analyze_image(request: Request, file: UploadFile = File(...)):
     if not llm:
         return JSONResponse({"error": "LLM ไม่พร้อม"}, status_code=503)
+    if file.content_type not in _ALLOWED_IMAGE_MIME:
+        return JSONResponse(
+            {"error": f"รองรับเฉพาะไฟล์ภาพ jpeg/png/webp เท่านั้น (ได้รับ {file.content_type})"},
+            status_code=400
+        )
     try:
         data = await file.read()
+        if len(data) > _MAX_IMAGE_BYTES:
+            return JSONResponse(
+                {"error": f"ไฟล์ใหญ่เกินไป — จำกัดไม่เกิน {_MAX_IMAGE_BYTES // (1024*1024)}MB"},
+                status_code=413
+            )
         mime = file.content_type or "image/jpeg"
         from google.genai import types as gt
         contents = [gt.Content(role="user", parts=[
