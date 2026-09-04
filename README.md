@@ -125,7 +125,6 @@ Human Input → FATE™ Decision Engine → Multi-AI Council (LYLA + VEGA)
 
 ## Support
 
-README และแนวคิดนี้อ่านฟรี ลองใช้ฟรี ถ้าเครื่องมือนี้ช่วยคุณได้จริง การสนับสนุนช่วยให้ระบบยังรันต่อไปได้
 
 จ้างงานได้ที่ [Fastwork](https://fastwork.co/user/thekingdiadem) หรือทักผ่าน [Instagram](https://www.instagram.com/thekingdiadem)
 
