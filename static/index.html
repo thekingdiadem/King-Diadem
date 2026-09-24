@@ -4,263 +4,268 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>KING DIADEM</title>
-<meta name="description" content="KING DIADEM — ระบบช่วยตัดสินใจที่รักษาทางเลือกของมนุษย์ไว้อย่างน้อยหนึ่งทางเสมอ">
-<meta name="theme-color" content="#f3f2ee" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
+<meta name="description" content="KING DIADEM — จักรวาลการตัดสินใจ ที่รักษาทางเลือกของมนุษย์ไว้อย่างน้อยหนึ่งทางเสมอ">
+<meta name="theme-color" content="#04050d">
 <link rel="icon" href="/static/logo.png">
 <link rel="apple-touch-icon" href="/static/logo.png">
 <link rel="manifest" href="/static/manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ════════════════════════════════════════════════════════════════
-   KING DIADEM — static/index.html
-   หน้าแอปหลักที่ /  ·  ไม่มีฉากจักรวาล ไม่มีค่าหลอก
-   ทุกตัวเลขบนหน้านี้มาจาก response จริงของ backend หรือจากโค้ดจริงใน repo
+   KING DIADEM — static/index.html · จักรวาลการตัดสินใจ
+   ภาพ: โทนแบรนด์ (static/hero.png, static/logo.png) — น้ำเงินซ้าย ทองขวา
+   ข้อมูล: ทุกดาวมาจากคำตอบจริงของ /run หรือไฟล์จริงใน repo ไม่มีค่าที่แต่งขึ้น
    ════════════════════════════════════════════════════════════════ */
 :root{
-  --bg:#f3f2ee; --panel:#fbfaf7; --panel-2:#efede7; --ink:#15171a; --ink-2:#474c54; --ink-3:#80858d;
-  --line:#dcd9d1; --line-2:#c7c3b9; --focus:#1f4fb2;
-  --ok:#0f6b4f; --ok-bg:#e3efe8; --warn:#9a5b00; --warn-bg:#f6ecd9; --bad:#b3261e; --bad-bg:#f7e2df; --info:#1f4fb2; --info-bg:#e2e8f5;
-  --lyla:#0f6b4f; --vega:#1f4fb2; --crisis:#b3261e;
-  --c-boot:#0f6b4f; --c-request:#52a37f; --c-web:#1f4fb2; --c-dormant:#a7a298; --c-broken:#b3261e; --c-docs:#8a6a24; --c-site:#6b7a99; --c-config:#5f5a50; --c-artifact:#cfcabf;
-  --f-sans:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --bg:#04050d; --glass:rgba(9,12,30,.72);
+  --ink:#eef1fb; --ink-2:#b4bcd8; --ink-3:#737c9e;
+  --line:rgba(120,150,255,.16); --line-2:rgba(140,170,255,.30); --focus:#7fb4ff;
+  --blue:#4d9bff; --blue-hi:#8cc2ff; --gold:#f6b24a; --gold-hi:#ffd98f;
+  --ok:#57d39b; --ok-bg:rgba(87,211,155,.12); --warn:#f6b24a; --warn-bg:rgba(246,178,74,.13); --bad:#ff5d6c; --bad-bg:rgba(255,93,108,.13); --info:#8cc2ff; --info-bg:rgba(77,155,255,.14);
+  --lyla:#ffcf7a; --vega:#8cc2ff; --crisis:#ff5d6c;
+  --c-boot:#f6b24a; --c-request:#ffe2a8; --c-web:#4d9bff; --c-dormant:#4a5584; --c-broken:#ff5d6c; --c-docs:#a78bfa; --c-site:#6c82b8; --c-config:#8e96b0; --c-artifact:#3b4270;
+  --arc:linear-gradient(90deg,#4d9bff 0%,#b8c8ff 48%,#f6b24a 100%);
+  --f-title:"Cinzel",Georgia,serif;
+  --f-sans:"Noto Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-  --r:6px; --sb-w:272px; --tr-w:340px; --top-h:52px; --tab-h:58px;
+  --r:8px; --sb-w:272px; --tr-w:340px; --top-h:54px; --tab-h:60px;
   --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
-  color-scheme:light;
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#111214; --panel:#17181b; --panel-2:#1d1f23; --ink:#e7e5df; --ink-2:#b2b0aa; --ink-3:#7d7c78;
-    --line:#2a2c31; --line-2:#3a3d43; --focus:#8fb0ff;
-    --ok:#5cc79a; --ok-bg:#15291f; --warn:#e0a54a; --warn-bg:#2d2414; --bad:#ff7b6e; --bad-bg:#331916; --info:#8fb0ff; --info-bg:#172036;
-    --lyla:#5cc79a; --vega:#8fb0ff; --crisis:#ff7b6e;
-    --c-boot:#5cc79a; --c-request:#2f7d5c; --c-web:#8fb0ff; --c-dormant:#5a5955; --c-broken:#ff7b6e; --c-docs:#c9a45a; --c-site:#8492b0; --c-config:#8c877c; --c-artifact:#3a3935;
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#111214; --panel:#17181b; --panel-2:#1d1f23; --ink:#e7e5df; --ink-2:#b2b0aa; --ink-3:#7d7c78;
-  --line:#2a2c31; --line-2:#3a3d43; --focus:#8fb0ff;
-  --ok:#5cc79a; --ok-bg:#15291f; --warn:#e0a54a; --warn-bg:#2d2414; --bad:#ff7b6e; --bad-bg:#331916; --info:#8fb0ff; --info-bg:#172036;
-  --lyla:#5cc79a; --vega:#8fb0ff; --crisis:#ff7b6e;
-  --c-boot:#5cc79a; --c-request:#2f7d5c; --c-web:#8fb0ff; --c-dormant:#5a5955; --c-broken:#ff7b6e; --c-docs:#c9a45a; --c-site:#8492b0; --c-config:#8c877c; --c-artifact:#3a3935;
   color-scheme:dark;
 }
-
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;height:100%}
-body{
-  background:var(--bg); color:var(--ink); font:15px/1.6 var(--f-sans);
-  -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent; overflow:hidden;
-}
+body{background:var(--bg);color:var(--ink);font:15px/1.65 var(--f-sans);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow:hidden}
 button,input,textarea,select{font:inherit;color:inherit}
 button{cursor:pointer}
-a{color:var(--info)}
+a{color:var(--blue-hi)}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .mono{font-family:var(--f-mono)}
 .muted{color:var(--ink-3)}
 .hide{display:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.gold{color:var(--gold-hi)}
+
+/* ── universe canvas (อยู่หลังทุกอย่าง) ────────────────────────── */
+#cosmos{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+#veil{position:fixed;inset:0;z-index:1;pointer-events:none;background:rgba(3,4,12,.66);opacity:0;transition:opacity .6s ease}
+body[data-veil="1"] #veil{opacity:.5} body[data-veil="2"] #veil{opacity:1}
 
 /* ── shell ─────────────────────────────────────────────────────── */
-#app{display:grid;grid-template-columns:var(--sb-w) minmax(0,1fr);height:100dvh}
+#app{position:relative;z-index:2;display:grid;grid-template-columns:var(--sb-w) minmax(0,1fr);height:100dvh}
 @media (min-width:1240px){ #app.has-trace{grid-template-columns:var(--sb-w) minmax(0,1fr) var(--tr-w)} }
 @media (max-width:899px){ #app{grid-template-columns:minmax(0,1fr)} }
+.glass{background:var(--glass);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2)}
 
 /* ── sidebar ───────────────────────────────────────────────────── */
-#sidebar{
-  background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;
-  padding:calc(12px + var(--sat)) 12px calc(12px + var(--sab));
-}
+#sidebar{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;padding:calc(12px + var(--sat)) 12px calc(12px + var(--sab))}
 @media (max-width:899px){
-  #sidebar{position:fixed;inset:0 auto 0 0;width:min(86vw,300px);z-index:60;transform:translateX(-102%);transition:transform .22s ease;box-shadow:0 0 0 1px var(--line)}
+  #sidebar{position:fixed;inset:0 auto 0 0;width:min(86vw,300px);z-index:60;transform:translateX(-102%);transition:transform .22s ease;background:rgba(7,9,24,.96)}
   #sidebar.open{transform:none}
 }
-#scrim{position:fixed;inset:0;background:rgba(0,0,0,.36);z-index:55;opacity:0;pointer-events:none;transition:opacity .2s}
+#scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:55;opacity:0;pointer-events:none;transition:opacity .2s}
 #scrim.on{opacity:1;pointer-events:auto}
 .brand{display:flex;align-items:center;gap:10px;padding:2px 4px 12px;border-bottom:1px solid var(--line);margin-bottom:12px}
-.brand img{width:30px;height:30px;object-fit:contain}
-.brand b{display:block;font:600 13px/1.2 var(--f-mono);letter-spacing:.14em}
-.brand small{display:block;font:11px/1.3 var(--f-mono);color:var(--ink-3);letter-spacing:.04em}
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 14px;
-  border:1px solid var(--line-2);border-radius:var(--r);background:var(--panel);font-size:14px;font-weight:500;text-decoration:none;color:var(--ink);
-}
-.btn:hover{background:var(--panel-2)}
+.brand img{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 0 10px rgba(77,155,255,.45)) drop-shadow(0 0 14px rgba(246,178,74,.25))}
+.brand b{display:block;font:600 15px/1.15 var(--f-title);letter-spacing:.12em;background:linear-gradient(90deg,#cfe3ff,#ffe2a8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand small{display:block;font:11px/1.3 var(--f-mono);color:var(--ink-3)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 14px;border:1px solid var(--line-2);border-radius:var(--r);background:rgba(20,26,58,.6);font-size:14px;font-weight:500;text-decoration:none;color:var(--ink)}
+.btn:hover{background:rgba(32,40,84,.8)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--bg)}
-.btn.primary:hover{opacity:.88}
+.btn.primary{border:0;color:#0b0d1c;font-weight:600;background:var(--arc);box-shadow:0 0 22px rgba(77,155,255,.22),0 0 28px rgba(246,178,74,.16)}
+.btn.primary:hover{filter:brightness(1.08)}
 .btn.block{width:100%}
 .btn.sm{min-height:32px;padding:4px 10px;font-size:13px}
-.sb-label{font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:16px 4px 8px}
-#chat-search{width:100%;margin-top:10px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);font-size:13px}
+.sb-label{font:500 11px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:16px 4px 8px}
+#chat-search{width:100%;margin-top:10px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r);background:rgba(4,6,16,.6);font-size:13px}
 #sessions{flex:1;min-height:60px;overflow-y:auto;margin:6px -4px 0;padding:0 4px;overscroll-behavior:contain}
 .sess{display:flex;align-items:center;gap:4px;border-radius:var(--r)}
 .sess button.t{flex:1;min-width:0;text-align:left;border:0;background:none;padding:8px;border-radius:var(--r);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;color:var(--ink-2)}
-.sess:hover{background:var(--panel-2)}
-.sess.on{background:var(--panel-2)} .sess.on button.t{color:var(--ink);font-weight:500}
+.sess:hover{background:rgba(77,155,255,.08)}
+.sess.on{background:rgba(77,155,255,.13)} .sess.on button.t{color:var(--ink);font-weight:500}
 .sess button.x{border:0;background:none;color:var(--ink-3);width:30px;height:30px;border-radius:var(--r);opacity:0;font-size:16px}
 .sess:hover button.x,.sess.on button.x{opacity:1}
 @media (hover:none){.sess button.x{opacity:.7}}
 .nav button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:9px 8px;border-radius:var(--r);font-size:14px;color:var(--ink-2);text-align:left}
-.nav button:hover{background:var(--panel-2)}
-.nav button.on{background:var(--panel-2);color:var(--ink);font-weight:600}
+.nav button:hover{background:rgba(77,155,255,.08)}
+.nav button.on{background:rgba(246,178,74,.10);color:var(--gold-hi);font-weight:600}
 .nav .k{font:500 11px var(--f-mono);color:var(--ink-3);margin-left:auto}
 .account{border-top:1px solid var(--line);margin-top:12px;padding-top:12px;font-size:13px}
 .account .who{font:12px/1.4 var(--f-mono);color:var(--ink-2);word-break:break-all;margin-bottom:8px}
 
 /* ── main column ───────────────────────────────────────────────── */
 #main{display:flex;flex-direction:column;min-width:0;min-height:0}
-#topbar{
-  height:calc(var(--top-h) + var(--sat));padding:var(--sat) 14px 0;display:flex;align-items:center;gap:10px;
-  border-bottom:1px solid var(--line);background:var(--bg);flex-shrink:0;
-}
+#topbar{height:calc(var(--top-h) + var(--sat));padding:var(--sat) 14px 0;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);flex-shrink:0;background:linear-gradient(180deg,rgba(4,5,13,.72),rgba(4,5,13,.35))}
 .icon-btn{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent;border-radius:var(--r);background:none;font-size:18px;color:var(--ink-2)}
-.icon-btn:hover{background:var(--panel-2)}
+.icon-btn:hover{background:rgba(77,155,255,.1)}
 #menu-btn{display:none}
 @media (max-width:899px){#menu-btn{display:inline-flex}}
-#view-title{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#view-title{font:600 16px/1.2 var(--f-title);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .top-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-.pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px;border:1px solid var(--line);border-radius:999px;font:500 11px/1 var(--f-mono);color:var(--ink-2);background:var(--panel);white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border:1px solid var(--line);border-radius:999px;font:500 11px/1 var(--f-mono);color:var(--ink-2);background:rgba(9,12,30,.6);white-space:nowrap}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--ink-3);flex-shrink:0}
-.dot.ok{background:var(--ok)} .dot.bad{background:var(--bad)} .dot.warn{background:var(--warn)}
-#upgrade-pill{border-color:var(--warn);color:var(--warn);cursor:pointer;background:var(--warn-bg)}
+.dot.ok{background:var(--ok);box-shadow:0 0 8px var(--ok)} .dot.bad{background:var(--bad)} .dot.warn{background:var(--warn)}
+#upgrade-pill{border-color:rgba(246,178,74,.5);color:var(--gold-hi);cursor:pointer;background:var(--warn-bg)}
 @media (max-width:520px){ #credits-pill{display:none} }
 
-.view{display:none;flex:1;min-height:0}
+.view{display:none;flex:1;min-height:0;position:relative}
 .view.on{display:flex;flex-direction:column}
 .scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
-.pad{max-width:880px;margin:0 auto;padding:22px 18px 40px}
+.pad{max-width:900px;margin:0 auto;padding:22px 18px 40px}
 @media (max-width:899px){ .pad{padding:16px 16px calc(var(--tab-h) + 28px + var(--sab))} }
 
 /* ── chat ──────────────────────────────────────────────────────── */
 #msgs{max-width:780px;margin:0 auto;padding:22px 18px 12px}
-.m{margin:0 0 18px;display:flex;flex-direction:column}
+.m{margin:0 0 20px;display:flex;flex-direction:column}
 .m.u{align-items:flex-end}
-.m.u .bubble{background:var(--ink);color:var(--bg);border-radius:14px 14px 4px 14px;padding:10px 14px;max-width:86%;white-space:pre-wrap;word-break:break-word}
-.m.a .bubble,.m.e .bubble{max-width:100%;word-break:break-word}
-.m.a .who,.m.e .who{font:600 11px/1 var(--f-mono);letter-spacing:.1em;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.m.u .bubble{background:linear-gradient(135deg,rgba(77,155,255,.28),rgba(77,155,255,.14));border:1px solid rgba(120,170,255,.35);border-radius:16px 16px 4px 16px;padding:10px 14px;max-width:86%;white-space:pre-wrap;word-break:break-word}
+.m.a .bubble,.m.e .bubble{max-width:100%;word-break:break-word;background:rgba(8,11,28,.7);border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:12px 16px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.m.a .who,.m.e .who{font:600 11px/1 var(--f-mono);letter-spacing:.12em;margin-bottom:7px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .who .lyla{color:var(--lyla)} .who .vega{color:var(--vega)} .who .crisis{color:var(--crisis)}
 .who .tag{font-weight:500;color:var(--ink-3);letter-spacing:.04em}
-.m.e .bubble{color:var(--bad);font-size:14px}
-.m.a .bubble strong{font-weight:600}
+.who .star{width:9px;height:9px;border-radius:50%;box-shadow:0 0 10px currentColor;background:currentColor}
+.m.e .bubble{color:var(--bad);font-size:14px;border-color:rgba(255,93,108,.35)}
+.m.a .bubble strong{font-weight:600;color:var(--gold-hi)}
 .m.a details{margin-top:8px}
-.m.a summary{list-style:none;display:inline-flex;align-items:center;gap:6px;font:500 12px/1 var(--f-mono);color:var(--ink-3);cursor:pointer;padding:6px 8px;margin-left:-8px;border-radius:var(--r)}
-.m.a summary::-webkit-details-marker{display:none}
-.m.a summary:hover{background:var(--panel-2);color:var(--ink-2)}
-.m.a summary::before{content:"▸";font-size:10px}
-.m.a details[open] summary::before{content:"▾"}
-.thinking{display:inline-flex;gap:5px;padding:6px 0}
-.thinking i{width:6px;height:6px;border-radius:50%;background:var(--ink-3);animation:blink 1.2s infinite}
-.thinking i:nth-child(2){animation-delay:.15s}.thinking i:nth-child(3){animation-delay:.3s}
+.m.a summary,#u-card summary{list-style:none;display:inline-flex;align-items:center;gap:6px;font:500 12px/1 var(--f-mono);color:var(--ink-3);cursor:pointer;padding:6px 8px;margin-left:-8px;border-radius:var(--r)}
+.m.a summary::-webkit-details-marker,#u-card summary::-webkit-details-marker{display:none}
+.m.a summary:hover,#u-card summary:hover{background:rgba(77,155,255,.1);color:var(--ink-2)}
+.m.a summary::before,#u-card summary::before{content:"▸";font-size:10px}
+.m.a details[open] summary::before,#u-card details[open] summary::before{content:"▾"}
+.thinking{display:inline-flex;gap:6px;padding:6px 0}
+.thinking i{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:blink 1.2s infinite}
+.thinking i:nth-child(2){animation-delay:.15s;background:#c9d4ff;box-shadow:0 0 8px #c9d4ff}.thinking i:nth-child(3){animation-delay:.3s;background:var(--blue);box-shadow:0 0 8px var(--blue)}
 @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
-.crisis-card{margin-top:10px;border:1px solid var(--bad);background:var(--bad-bg);border-radius:var(--r);padding:10px 12px;font-size:14px}
+.crisis-card{margin-top:10px;border:1px solid rgba(255,93,108,.5);background:var(--bad-bg);border-radius:var(--r);padding:10px 12px;font-size:14px}
 .crisis-card b{color:var(--bad)}
-.crisis-card a{color:var(--bad);font-weight:600;text-decoration:none;font-family:var(--f-mono);margin-right:12px;white-space:nowrap}
+.crisis-card a{color:#ff8e98;font-weight:600;text-decoration:none;font-family:var(--f-mono);margin-right:12px;white-space:nowrap}
 
-/* empty state */
-#empty{max-width:640px;margin:0 auto;padding:8vh 18px 20px}
-#empty h1{font:600 26px/1.25 var(--f-sans);margin:0 0 10px;letter-spacing:-.01em}
-#empty p{color:var(--ink-2);margin:0 0 18px}
-.axiom{display:inline-block;font:500 13px/1 var(--f-mono);padding:6px 10px;border:1px solid var(--line-2);border-radius:var(--r);margin-bottom:22px;background:var(--panel)}
-.sugg{display:grid;gap:8px}
-.sugg button{text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:11px 14px;font-size:14px;color:var(--ink-2)}
+/* empty state — แกนมงกุฎวาดบน canvas ตรงช่อง #core-space */
+#empty{max-width:660px;margin:0 auto;padding:0 18px 24px;text-align:center}
+#core-space{height:clamp(150px,32vh,330px)}
+@media (max-width:520px){ #empty .sub{letter-spacing:.1em;font-size:11px} #core-space{height:clamp(140px,26vh,240px)} }
+#empty h1{font:600 clamp(30px,5.4vw,48px)/1.1 var(--f-title);letter-spacing:.1em;margin:0 0 6px;background:linear-gradient(90deg,#9fc8ff 0%,#fff3d6 50%,#ffc86b 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px rgba(246,178,74,.25))}
+#empty .sub{font:500 12px/1.4 var(--f-mono);letter-spacing:.2em;color:var(--ink-3);text-transform:uppercase;margin-bottom:18px}
+#empty p{color:var(--ink-2);margin:0 auto 16px;max-width:540px}
+.axiom{display:inline-block;font:500 13px/1 var(--f-mono);padding:7px 12px;border:1px solid rgba(246,178,74,.35);border-radius:999px;margin-bottom:20px;color:var(--gold-hi);background:rgba(246,178,74,.07)}
+.sugg{display:grid;gap:8px;text-align:left}
+.sugg button{border:1px solid var(--line);background:rgba(8,11,28,.62);border-radius:var(--r);padding:11px 14px;font-size:14px;color:var(--ink-2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .sugg button:hover{border-color:var(--line-2);color:var(--ink)}
-.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:26px}
-.facts div{background:var(--panel);padding:12px}
-.facts b{display:block;font:600 18px/1.1 var(--f-mono)}
-.facts span{font-size:12px;color:var(--ink-3)}
 
 /* composer */
-#composer{flex-shrink:0;border-top:1px solid var(--line);background:var(--bg);padding:10px 14px 12px}
+#composer{flex-shrink:0;padding:10px 14px 12px;background:linear-gradient(0deg,rgba(4,5,13,.9) 55%,rgba(4,5,13,0))}
 @media (max-width:899px){ #composer{padding-bottom:calc(var(--tab-h) + 10px + var(--sab))} }
 .comp-in{max-width:780px;margin:0 auto}
 .comp-row1{display:flex;gap:8px;align-items:center;margin-bottom:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:1px}
 .comp-row1::-webkit-scrollbar{display:none}
-.chip{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-size:13px;color:var(--ink-2);white-space:nowrap}
+.chip{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border:1px solid var(--line);border-radius:999px;background:rgba(9,12,30,.7);font-size:13px;color:var(--ink-2);white-space:nowrap}
 .chip:hover{border-color:var(--line-2)}
-.chip.on{border-color:var(--ink);color:var(--ink);font-weight:500}
-.chip.state.set{border-color:var(--ok);color:var(--ok);background:var(--ok-bg)}
-.seg{flex-shrink:0;display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel)}
-.seg button{border:0;background:none;height:28px;padding:0 10px;font:500 12px var(--f-mono);color:var(--ink-3)}
-.seg button.on{background:var(--ink);color:var(--bg)}
+.chip.on{border-color:rgba(246,178,74,.6);color:var(--gold-hi);background:rgba(246,178,74,.08)}
+.chip.state.set{border-color:rgba(87,211,155,.55);color:var(--ok);background:var(--ok-bg)}
+.seg{flex-shrink:0;display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:rgba(9,12,30,.7)}
+.seg button{border:0;background:none;height:28px;padding:0 11px;font:500 12px var(--f-mono);color:var(--ink-3)}
+.seg button.on{background:var(--arc);color:#0b0d1c;font-weight:600}
 .vsep{width:1px;height:20px;background:var(--line);flex-shrink:0}
-.inrow{display:flex;gap:8px;align-items:flex-end;border:1px solid var(--line-2);border-radius:10px;background:var(--panel);padding:6px 6px 6px 12px}
-.inrow:focus-within{border-color:var(--ink-2)}
+.inrow{display:flex;gap:8px;align-items:flex-end;border:1px solid var(--line-2);border-radius:14px;background:rgba(8,11,28,.84);padding:6px 6px 6px 14px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.inrow:focus-within{border-color:rgba(246,178,74,.55);box-shadow:0 0 24px rgba(77,155,255,.14),0 0 30px rgba(246,178,74,.10)}
 #input{flex:1;border:0;outline:0;background:none;resize:none;max-height:160px;min-height:24px;padding:7px 0;font-size:16px;line-height:1.5}
-#send{width:40px;height:40px;border-radius:8px;border:0;background:var(--ink);color:var(--bg);font-size:17px;flex-shrink:0}
+#input::placeholder{color:var(--ink-3)}
+#send{width:42px;height:42px;border-radius:10px;border:0;background:var(--arc);color:#0b0d1c;font-size:17px;flex-shrink:0}
 #send:disabled{opacity:.35;cursor:not-allowed}
 .comp-note{font:11px/1.4 var(--f-mono);color:var(--ink-3);margin-top:6px;text-align:center}
 @media (max-width:520px){ .comp-note{display:none} }
 
-/* ── trace (what the system actually did) ─────────────────────── */
-#trace-panel{display:none;border-left:1px solid var(--line);background:var(--panel);min-height:0;overflow-y:auto;padding:calc(14px + var(--sat)) 16px 20px}
+/* ── trace ─────────────────────────────────────────────────────── */
+#trace-panel{display:none;border-left:1px solid var(--line);min-height:0;overflow-y:auto;padding:calc(14px + var(--sat)) 16px 20px}
 @media (min-width:1240px){ #app.has-trace #trace-panel{display:block} }
-.tp-h{font:600 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:4px 0 12px}
-.trace{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);font-size:13px;overflow:hidden}
+.tp-h{font:600 11px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:4px 0 12px}
+.trace{border:1px solid var(--line);border-radius:var(--r);background:rgba(6,8,22,.74);font-size:13px;overflow:hidden}
 .m .trace{margin-top:6px;max-width:560px}
 .tr-row{display:grid;grid-template-columns:112px minmax(0,1fr);gap:10px;padding:7px 11px;border-top:1px solid var(--line)}
 .tr-row:first-child{border-top:0}
 .tr-row .k{font:500 11px/1.6 var(--f-mono);color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em}
 .tr-row .v{min-width:0;word-break:break-word}
-.tr-note{padding:8px 11px;background:var(--warn-bg);color:var(--warn);font-size:12px;border-top:1px solid var(--line)}
-.bar{height:6px;border-radius:3px;background:var(--panel-2);overflow:hidden;margin-top:5px}
-.bar>i{display:block;height:100%;background:var(--ok)}
-.bar.warn>i{background:var(--warn)} .bar.bad>i{background:var(--bad)}
-.badge{display:inline-block;font:600 11px/1 var(--f-mono);padding:4px 7px;border-radius:4px;background:var(--panel-2);color:var(--ink-2);margin:0 4px 4px 0;letter-spacing:.03em}
-.badge.ok{background:var(--ok-bg);color:var(--ok)} .badge.warn{background:var(--warn-bg);color:var(--warn)} .badge.bad{background:var(--bad-bg);color:var(--bad)} .badge.info{background:var(--info-bg);color:var(--info)}
+.tr-note{padding:8px 11px;background:var(--warn-bg);color:var(--gold-hi);font-size:12px;border-top:1px solid var(--line)}
+.bar{height:6px;border-radius:3px;background:rgba(120,150,255,.12);overflow:hidden;margin-top:5px}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--ok))}
+.bar.warn>i{background:linear-gradient(90deg,var(--blue),var(--gold))} .bar.bad>i{background:linear-gradient(90deg,var(--gold),var(--bad))}
+.badge{display:inline-block;font:600 11px/1 var(--f-mono);padding:4px 7px;border-radius:4px;background:rgba(120,150,255,.12);color:var(--ink-2);margin:0 4px 4px 0;letter-spacing:.03em}
+.badge.ok{background:var(--ok-bg);color:var(--ok)} .badge.warn{background:var(--warn-bg);color:var(--gold-hi)} .badge.bad{background:var(--bad-bg);color:#ff8e98} .badge.info{background:var(--info-bg);color:var(--info)}
+
+/* ── universe view overlay ─────────────────────────────────────── */
+#view-universe{cursor:crosshair;touch-action:manipulation}
+#view-universe.hovering{cursor:pointer}
+.u-top{position:absolute;top:14px;left:14px;right:14px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;pointer-events:none}
+.u-top>*{pointer-events:auto}
+.u-title{font:500 12px/1.4 var(--f-mono);letter-spacing:.06em;color:var(--ink-2);margin-right:auto;pointer-events:none!important}
+.u-title b{display:block;font:600 22px/1.25 var(--f-title);letter-spacing:.06em;color:var(--ink)}
+.u-legend{position:absolute;left:14px;bottom:14px;max-width:min(440px,calc(100% - 28px));border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--ink-2)}
+@media (max-width:899px){ .u-legend{bottom:calc(var(--tab-h) + 12px + var(--sab))} }
+.u-legend .row{display:flex;flex-wrap:wrap;gap:4px 12px}
+.u-legend .row span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.u-legend .sw{width:9px;height:9px;border-radius:50%;display:inline-block}
+.u-legend .hint{color:var(--ink-3);margin-top:6px;font-family:var(--f-mono);font-size:11px}
+#u-card{position:absolute;right:14px;top:74px;width:min(380px,calc(100% - 28px));max-height:calc(100% - 96px);overflow-y:auto;border:1px solid var(--line-2);border-radius:10px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.45);cursor:auto}
+@media (max-width:899px){ #u-card{top:auto;bottom:calc(var(--tab-h) + 12px + var(--sab));right:12px;left:12px;width:auto;max-height:58%;z-index:3} }
+#u-card h3{font-size:15px;margin:0 30px 4px 0;word-break:break-word}
+#u-card .meta{font:12px/1.5 var(--f-mono);color:var(--ink-3);margin-bottom:10px}
+#u-card .q{border-left:2px solid var(--blue);padding:2px 0 2px 10px;color:var(--ink-2);font-size:14px;margin:0 0 10px;white-space:pre-wrap;word-break:break-word}
+#u-card .a{font-size:14px;margin:0 0 12px;word-break:break-word}
+#u-card .x{position:absolute;top:8px;right:8px}
+.u-empty{position:absolute;left:50%;bottom:24%;transform:translateX(-50%);text-align:center;color:var(--ink-2);font-size:14px;width:min(440px,90%);cursor:auto}
 
 /* ── tools / cards ─────────────────────────────────────────────── */
-.card{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-bottom:18px}
+.card{border:1px solid var(--line);border-radius:10px;margin-bottom:18px}
 .card-h{padding:14px 16px 0}
 .card-h h2{font-size:16px;margin:0 0 4px}
 .card-h p{margin:0;color:var(--ink-3);font-size:13px}
+.card-h code{color:var(--blue-hi)}
 .card-b{padding:14px 16px 16px}
 .field{display:block;margin-bottom:12px}
 .field>span{display:block;font:500 12px/1.3 var(--f-mono);color:var(--ink-2);margin-bottom:6px}
-.inp,textarea.inp,select.inp{width:100%;border:1px solid var(--line-2);border-radius:var(--r);background:var(--bg);padding:10px 12px;font-size:16px;outline:0}
-.inp:focus{border-color:var(--ink-2)}
+.inp,textarea.inp,select.inp{width:100%;border:1px solid var(--line-2);border-radius:var(--r);background:rgba(4,6,16,.7);padding:10px 12px;font-size:16px;outline:0}
+.inp:focus{border-color:rgba(246,178,74,.6)}
+select.inp option{background:#0b0e22}
 .paths{display:grid;gap:6px;margin-bottom:10px}
 .path{display:flex;gap:8px;align-items:center}
-.path b{width:22px;text-align:center;font:600 12px var(--f-mono);color:var(--ink-3);flex-shrink:0}
+.path b{width:22px;text-align:center;font:600 12px var(--f-mono);color:var(--gold);flex-shrink:0}
 .path .inp{padding:8px 10px;font-size:15px}
 .path button{border:0;background:none;color:var(--ink-3);width:30px;height:30px;font-size:16px;flex-shrink:0}
-.out{margin-top:12px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);padding:12px 14px;white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.65;max-height:520px;overflow-y:auto}
+.out{margin-top:12px;border:1px solid var(--line);border-radius:var(--r);background:rgba(4,6,16,.7);padding:12px 14px;white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.7;max-height:520px;overflow-y:auto}
 .out.empty{color:var(--ink-3)}
 .radio-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.radio-row label{flex:1;min-width:130px;display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;cursor:pointer;font-size:14px;background:var(--bg)}
-.radio-row label:has(input:checked){border-color:var(--ink)}
+.radio-row label{flex:1;min-width:130px;display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;cursor:pointer;font-size:14px;background:rgba(4,6,16,.5)}
+.radio-row label:has(input:checked){border-color:rgba(246,178,74,.6);background:rgba(246,178,74,.06)}
+.radio-row input{accent-color:var(--gold)}
 .radio-row small{display:block;color:var(--ink-3);font-size:12px}
-.drop{display:flex;align-items:center;gap:12px;border:1px dashed var(--line-2);border-radius:var(--r);padding:12px;background:var(--bg);cursor:pointer}
+.drop{display:flex;align-items:center;gap:12px;border:1px dashed var(--line-2);border-radius:var(--r);padding:12px;background:rgba(4,6,16,.5);cursor:pointer}
 .drop img{width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid var(--line)}
 .fine{font-size:12px;color:var(--ink-3);margin:8px 0 0}
 
 /* ── system map ────────────────────────────────────────────────── */
-.sys-hero h1{font-size:24px;margin:0 0 6px;letter-spacing:-.01em}
-.sys-hero p{color:var(--ink-2);margin:0 0 18px;max-width:680px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:16px}
-.stats div{background:var(--panel);padding:12px 14px}
-.stats b{display:block;font:600 22px/1.1 var(--f-mono)}
+.sys-hero h1{font:600 26px/1.25 var(--f-title);letter-spacing:.04em;margin:0 0 6px}
+.sys-hero p{color:var(--ink-2);margin:0 0 18px;max-width:700px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.stats div{background:rgba(8,11,28,.85);padding:12px 14px}
+.stats b{display:block;font:600 22px/1.1 var(--f-mono);color:var(--gold-hi)}
 .stats span{font-size:12px;color:var(--ink-3)}
-@media (max-width:600px){ .stats{grid-template-columns:repeat(2,1fr)} .facts{grid-template-columns:1fr} }
-.stack{display:flex;height:14px;border-radius:3px;overflow:hidden;background:var(--panel-2)}
+@media (max-width:600px){ .stats{grid-template-columns:repeat(2,1fr)} }
+.stack{display:flex;height:12px;border-radius:6px;overflow:hidden;background:rgba(120,150,255,.1)}
 .stack i{display:block;height:100%}
-.stack.sm{height:6px;border-radius:2px}
+.stack.sm{height:6px;border-radius:3px}
 .legend{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
-.legend button{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 10px 5px 8px;font-size:12px;color:var(--ink-2)}
-.legend button.off{opacity:.4}
-.legend .sw{width:10px;height:10px;border-radius:2px}
+.legend button{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:rgba(4,6,16,.6);border-radius:999px;padding:5px 10px 5px 8px;font-size:12px;color:var(--ink-2)}
+.legend button.off{opacity:.35}
+.legend .sw,.cat-defs .sw{width:10px;height:10px;border-radius:50%}
 .legend b{font:600 12px var(--f-mono);color:var(--ink)}
 .cat-defs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px 18px;font-size:13px;color:var(--ink-2);margin:10px 0 0}
 .cat-defs div{display:flex;gap:8px}
-.cat-defs .sw{width:10px;height:10px;border-radius:2px;margin-top:6px;flex-shrink:0}
+.cat-defs .sw{margin-top:6px;flex-shrink:0}
 .pipe{list-style:none;margin:0;padding:0;counter-reset:s}
 .pipe li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--line);counter-increment:s}
 .pipe li:first-child{border-top:0}
-.pipe li::before{content:counter(s,decimal-leading-zero);font:600 12px/1.9 var(--f-mono);color:var(--ink-3)}
+.pipe li::before{content:counter(s,decimal-leading-zero);font:600 12px/1.9 var(--f-mono);color:var(--gold)}
 .pipe .t{font-weight:600;font-size:14px}
 .pipe .d{font-size:13px;color:var(--ink-2)}
 .pipe code,.files code{font:12px var(--f-mono);color:var(--ink-3)}
@@ -281,7 +286,7 @@ a{color:var(--info)}
 .files td{padding:6px 4px;border-top:1px dashed var(--line);vertical-align:top}
 .files td.f{font-family:var(--f-mono);font-size:12px;word-break:break-all;width:34%}
 .files td.l{font:12px var(--f-mono);color:var(--ink-3);text-align:right;width:52px;white-space:nowrap}
-.files td.s{width:104px}
+.files td.s{width:108px}
 .files td.d{color:var(--ink-2)}
 @media (max-width:640px){
   .files td.f{width:auto} .files tr{display:grid;grid-template-columns:1fr auto;gap:0 8px;border-top:1px dashed var(--line);padding:6px 0}
@@ -289,42 +294,44 @@ a{color:var(--info)}
   .dir summary{grid-template-columns:minmax(0,1fr) 54px 70px}
 }
 .st{display:inline-flex;align-items:center;gap:6px;font:500 11px/1 var(--f-mono);white-space:nowrap}
-.st i{width:8px;height:8px;border-radius:2px}
+.st i{width:8px;height:8px;border-radius:50%}
 
 /* ── tabbar (mobile) ───────────────────────────────────────────── */
 #tabbar{display:none}
 @media (max-width:899px){
-  #tabbar{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;left:0;right:0;bottom:0;z-index:40;height:calc(var(--tab-h) + var(--sab));padding-bottom:var(--sab);background:var(--panel);border-top:1px solid var(--line)}
+  #tabbar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:40;height:calc(var(--tab-h) + var(--sab));padding-bottom:var(--sab);background:rgba(5,7,18,.92);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line)}
   #tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;color:var(--ink-3)}
-  #tabbar button .i{font:600 15px/1 var(--f-mono)}
-  #tabbar button.on{color:var(--ink);font-weight:600}
+  #tabbar button .i{font:600 16px/1 var(--f-mono)}
+  #tabbar button.on{color:var(--gold-hi);font-weight:600}
 }
 
 /* ── dialogs / toast ───────────────────────────────────────────── */
-dialog{border:1px solid var(--line-2);border-radius:10px;background:var(--panel);color:var(--ink);padding:0;width:min(520px,calc(100vw - 32px));max-height:calc(100dvh - 40px)}
-dialog::backdrop{background:rgba(0,0,0,.42)}
+dialog{border:1px solid var(--line-2);border-radius:12px;background:rgba(9,12,30,.97);color:var(--ink);padding:0;width:min(520px,calc(100vw - 32px));max-height:calc(100dvh - 40px);box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 40px rgba(77,155,255,.08)}
+dialog::backdrop{background:rgba(2,3,10,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .dlg-h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
 .dlg-h h2{font-size:16px;margin:0}
 .dlg-b{padding:16px;overflow-y:auto;max-height:calc(100dvh - 180px)}
 .dlg-f{display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--line)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
 @media (max-width:480px){.grid2{grid-template-columns:1fr}}
-input[type=range]{width:100%;accent-color:var(--ink)}
-.wl-preview{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;background:var(--bg);font-size:13px;margin-top:4px}
-.wl-preview b{font:600 20px var(--f-mono)}
-#toast{position:fixed;left:50%;bottom:calc(20px + var(--sab));transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:90;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px;max-width:min(92vw,560px);transition:all .2s;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+input[type=range]{width:100%;accent-color:var(--gold)}
+.wl-preview{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;background:rgba(4,6,16,.7);font-size:13px;margin-top:4px}
+.wl-preview b{font:600 20px var(--f-mono);color:var(--gold-hi)}
+#toast{position:fixed;left:50%;top:calc(66px + var(--sat));transform:translate(-50%,-10px);opacity:0;pointer-events:none;z-index:90;background:rgba(16,21,48,.96);border:1px solid var(--line-2);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:14px;max-width:min(92vw,560px);transition:all .2s;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 #toast.on{opacity:1;transform:translate(-50%,0)}
-#toast.bad{background:var(--bad);color:#fff}
-@media (max-width:899px){#toast{bottom:calc(var(--tab-h) + 16px + var(--sab))}}
+#toast.bad{border-color:rgba(255,93,108,.6);color:#ffb3ba}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
-<body>
+<body data-veil="0">
+<canvas id="cosmos" aria-hidden="true"></canvas>
+<div id="veil"></div>
+
 <div id="app" class="has-trace">
   <div id="scrim"></div>
 
   <!-- ── SIDEBAR ───────────────────────────────────────────── -->
-  <aside id="sidebar" aria-label="เมนู">
+  <aside id="sidebar" class="glass" aria-label="เมนู">
     <div class="brand">
       <img src="/static/logo.png" alt="">
       <div><b>KING DIADEM</b><small>Choice(t) ≥ 1</small></div>
@@ -335,13 +342,12 @@ input[type=range]{width:100%;accent-color:var(--ink)}
     <div class="sb-label">มุมมอง</div>
     <nav class="nav">
       <button type="button" data-view="chat">ปรึกษา <span class="k">/run</span></button>
+      <button type="button" data-view="universe">จักรวาลการตัดสินใจ <span class="k" id="nav-stars">0</span></button>
       <button type="button" data-view="tools">เครื่องมือ <span class="k">sim · img</span></button>
       <button type="button" data-view="system">ระบบจริง <span class="k" id="nav-files">272</span></button>
     </nav>
     <div class="account">
-      <div id="acc-guest">
-        <a class="btn block" href="/login/google">เข้าสู่ระบบด้วย Google</a>
-      </div>
+      <div id="acc-guest"><a class="btn block" href="/login/google">เข้าสู่ระบบด้วย Google</a></div>
       <div id="acc-user" class="hide">
         <div class="who" id="acc-email"></div>
         <button type="button" class="btn sm block" id="logout">ออกจากระบบ</button>
@@ -358,7 +364,6 @@ input[type=range]{width:100%;accent-color:var(--ink)}
         <span class="pill hide" id="upgrade-pill" role="button" tabindex="0">▲ อัปเกรด</span>
         <span class="pill" id="credits-pill" title="เครดิต">—</span>
         <span class="pill" id="ai-pill" title="สถานะ backend จาก /health"><span class="dot" id="ai-dot"></span><span id="ai-txt">AI</span></span>
-        <button type="button" class="icon-btn" id="theme-btn" aria-label="สลับธีม">◐</button>
       </div>
     </header>
 
@@ -366,18 +371,15 @@ input[type=range]{width:100%;accent-color:var(--ink)}
     <section class="view on" id="view-chat" aria-label="ปรึกษา">
       <div class="scroll" id="chat-scroll">
         <div id="empty">
-          <h1>เล่ามาตามจริง แล้วเราจะหาทางเลือกด้วยกัน</h1>
-          <p>KING DIADEM ไม่ได้ตัดสินใจแทนคุณ แต่ช่วยดูว่าตอนนี้ยังมีทางเลือกอะไรเหลืออยู่บ้าง และต้องทำอะไรก่อนเพื่อไม่ให้ทางเลือกหมดไป</p>
+          <div id="core-space" aria-hidden="true"></div>
+          <h1>King Diadem</h1>
+          <div class="sub">DriftZero · Waterline · Decision Universe</div>
+          <p>ทุกเรื่องที่คุณเล่าจะกลายเป็นดาวหนึ่งดวงในจักรวาลการตัดสินใจของคุณ เราไม่ตัดสินใจแทน แต่ช่วยดูว่ายังเหลือทางเลือกอะไร และต้องทำอะไรก่อนเพื่อไม่ให้ทางเลือกหมดไป</p>
           <div class="axiom">Choice(t) ≥ 1 → collapse = False</div>
           <div class="sugg" id="sugg">
             <button type="button">เงินเหลือไม่ถึงสิ้นเดือน ควรเริ่มจากอะไรก่อน</button>
             <button type="button">ลังเลว่าจะลาออกไปทำธุรกิจเองดีไหม ช่วยดู downside ให้หน่อย</button>
             <button type="button">นอนไม่พอมาหลายวัน งานก็ค้าง รู้สึกตัน</button>
-          </div>
-          <div class="facts">
-            <div><b id="f-files">272</b><span>ไฟล์ในระบบ</span></div>
-            <div><b id="f-live">33</b><span>โมดูลที่ทำงานจริงตอนตอบ</span></div>
-            <div><b>2</b><span>ผู้ตอบ: LYLA · VEGA</span></div>
           </div>
         </div>
         <div id="msgs" aria-live="polite"></div>
@@ -403,10 +405,24 @@ input[type=range]{width:100%;accent-color:var(--ink)}
       </div>
     </section>
 
+    <!-- UNIVERSE -->
+    <section class="view" id="view-universe" aria-label="จักรวาลการตัดสินใจ">
+      <div class="u-top">
+        <div class="u-title"><b>จักรวาลการตัดสินใจ</b><span id="u-count">—</span></div>
+        <div class="seg glass" id="u-mode" role="group" aria-label="โหมดจักรวาล">
+          <button type="button" data-m="decisions" class="on">การตัดสินใจของฉัน</button>
+          <button type="button" data-m="system">ระบบ 272 ไฟล์</button>
+        </div>
+      </div>
+      <div class="u-empty hide" id="u-empty">ยังไม่มีดาว — ทุกคำตอบจากการปรึกษาจะกลายเป็นดาวบนวงโคจรของเส้นทางนั้น<br><br><button type="button" class="btn primary" data-view="chat">เริ่มปรึกษา</button></div>
+      <div class="u-legend glass" id="u-legend"></div>
+      <div id="u-card" class="glass hide" aria-live="polite"></div>
+    </section>
+
     <!-- TOOLS -->
     <section class="view" id="view-tools" aria-label="เครื่องมือ">
       <div class="scroll"><div class="pad">
-        <div class="card" id="card-sim">
+        <div class="card glass" id="card-sim">
           <div class="card-h"><h2>จำลองทางเลือก</h2><p>ใส่สถานการณ์และทางเลือกที่มี แล้วระบบจะวิเคราะห์แต่ละทางแบบ Downside First พร้อมผลใน 30/90 วัน <code class="mono">POST /simulate</code></p></div>
           <div class="card-b">
             <label class="field"><span>สถานการณ์</span><textarea class="inp" id="sim-input" rows="3" placeholder="เช่น ร้านขาดทุนสามเดือนติด ต้องเลือกว่าจะขยาย ลด หรือปิด"></textarea></label>
@@ -416,8 +432,7 @@ input[type=range]{width:100%;accent-color:var(--ink)}
             <div class="out empty" id="sim-out">ผลจะแสดงที่นี่</div>
           </div>
         </div>
-
-        <div class="card" id="card-img">
+        <div class="card glass" id="card-img">
           <div class="card-h"><h2>วิเคราะห์ภาพ</h2><p>อ่านความเสี่ยงและทางเลือกจากภาพ (jpeg / png / webp ไม่เกิน 10MB) <code class="mono">POST /analyze-image</code></p></div>
           <div class="card-b">
             <label class="drop" for="img-file"><img id="img-prev" class="hide" alt=""><span id="img-name">แตะเพื่อเลือกภาพ</span></label>
@@ -426,8 +441,7 @@ input[type=range]{width:100%;accent-color:var(--ink)}
             <div class="out empty" id="img-out">ผลจะแสดงที่นี่</div>
           </div>
         </div>
-
-        <div class="card" id="card-pay">
+        <div class="card glass" id="card-pay">
           <div class="card-h"><h2>แพ็กเกจ</h2><p>ชำระผ่าน Stripe Checkout — ระบบไม่เก็บข้อมูลบัตร</p></div>
           <div class="card-b">
             <label class="field"><span>อีเมล (สำหรับใบเสร็จ)</span><input class="inp" type="email" id="pay-email" autocomplete="email" placeholder="you@example.com"></label>
@@ -447,26 +461,23 @@ input[type=range]{width:100%;accent-color:var(--ink)}
       <div class="scroll" id="sys-scroll"><div class="pad" id="sys-root">
         <div class="sys-hero">
           <h1>ระบบนี้ทำงานอย่างไรจริงๆ</h1>
-          <p>ไฟล์ทุกไฟล์ใน repo ถูกแยกตามสิ่งที่มันทำจริงตอนเซิร์ฟเวอร์รัน ไม่ได้แยกตามที่เอกสารเขียนไว้ โดยตรวจจากการบูตแอปจริงและยิงคำถามผ่าน <code class="mono">/run</code> ที่ commit <b class="mono" id="sys-commit">—</b></p>
+          <p>ไฟล์ทุกไฟล์ใน repo ถูกแยกตามสิ่งที่มันทำจริงตอนเซิร์ฟเวอร์รัน ไม่ได้แยกตามที่เอกสารเขียนไว้ โดยตรวจจากการบูตแอปจริงและยิงคำถามผ่าน <code class="mono">/run</code> ที่ commit <b class="mono gold" id="sys-commit">—</b> · ดูเป็นดาวได้ที่ <a href="#" id="to-sys-universe">จักรวาล › ระบบ 272 ไฟล์</a></p>
         </div>
         <div class="stats" id="sys-stats"></div>
-        <div class="card"><div class="card-b">
+        <div class="card glass"><div class="card-b">
           <div class="stack" id="sys-stack"></div>
           <div class="legend" id="sys-legend"></div>
           <div class="cat-defs" id="sys-defs"></div>
         </div></div>
-
-        <div class="card">
+        <div class="card glass">
           <div class="card-h"><h2>เส้นทางของหนึ่งข้อความ</h2><p>สิ่งที่เกิดขึ้นเรียงตามลำดับ ตั้งแต่กดส่งจนได้คำตอบ ตาม <code class="mono">app.py → run_kernel()</code></p></div>
           <div class="card-b"><ol class="pipe" id="sys-pipe"></ol></div>
         </div>
-
-        <div class="card">
+        <div class="card glass">
           <div class="card-h"><h2>สถานะเซิร์ฟเวอร์ตอนนี้</h2><p>อ่านสดจาก <code class="mono">GET /health</code> · <span id="sys-health-at">—</span></p></div>
           <div class="card-b"><div class="hl" id="sys-health"><span class="muted">กำลังโหลด…</span></div></div>
         </div>
-
-        <div class="card">
+        <div class="card glass">
           <div class="card-h"><h2>ไฟล์ทั้งหมด</h2><p>กดที่หมวดด้านบนเพื่อกรอง หรือพิมพ์ค้นชื่อไฟล์หรือคำอธิบาย</p></div>
           <div class="card-b">
             <div class="fx-tools"><input class="inp" type="search" id="fx-q" placeholder="ค้นหา เช่น llm, waterline, payment" aria-label="ค้นหาไฟล์"></div>
@@ -478,14 +489,15 @@ input[type=range]{width:100%;accent-color:var(--ink)}
   </main>
 
   <!-- ── TRACE PANEL (desktop wide) ────────────────────────── -->
-  <aside id="trace-panel" aria-label="สิ่งที่ระบบทำกับข้อความล่าสุด">
+  <aside id="trace-panel" class="glass" aria-label="สิ่งที่ระบบทำกับข้อความล่าสุด">
     <div class="tp-h">ระบบทำอะไรกับข้อความล่าสุด</div>
-    <div id="trace-last"><p class="muted" style="font-size:13px;margin:0">ส่งข้อความแล้วตรงนี้จะแสดงสิ่งที่ backend คืนมาจริง: เส้นทาง, waterline, ความเสี่ยง, การตรวจของ belief core, canon gate และลิงก์รายงาน</p></div>
+    <div id="trace-last"></div>
   </aside>
 </div>
 
 <nav id="tabbar" aria-label="แท็บ">
   <button type="button" data-view="chat"><span class="i">◇</span>ปรึกษา</button>
+  <button type="button" data-view="universe"><span class="i">✦</span>จักรวาล</button>
   <button type="button" data-view="tools"><span class="i">⌗</span>เครื่องมือ</button>
   <button type="button" data-view="system"><span class="i">▦</span>ระบบจริง</button>
 </nav>
@@ -495,7 +507,7 @@ input[type=range]{width:100%;accent-color:var(--ink)}
   <form method="dialog" id="state-form">
     <div class="dlg-h"><h2 id="dlg-state-h">สถานะของฉันตอนนี้</h2><button class="icon-btn" value="cancel" aria-label="ปิด">✕</button></div>
     <div class="dlg-b">
-      <p class="muted" style="font-size:13px;margin:0 0 14px">ข้อมูลนี้ส่งไปกับทุกข้อความเป็น <code class="mono">context</code> เพื่อให้ <code class="mono">realhuman_survivorengine</code> คำนวณ waterline จากสภาพจริงของคุณ ถ้าไม่ระบุ ระบบจะใช้ค่าเริ่มต้นซึ่งไม่ใช่ของคุณ ข้อมูลเก็บไว้บนเครื่องนี้เท่านั้น</p>
+      <p class="muted" style="font-size:13px;margin:0 0 14px">ข้อมูลนี้ส่งไปกับทุกข้อความเป็น <code class="mono">context</code> เพื่อให้ <code class="mono">realhuman_survivorengine</code> คำนวณ waterline จากสภาพจริงของคุณ และกำหนดความสว่างของแกนมงกุฎในจักรวาล ถ้าไม่ระบุ ระบบจะใช้ค่าเริ่มต้นซึ่งไม่ใช่ของคุณ ข้อมูลเก็บไว้บนเครื่องนี้เท่านั้น</p>
       <label class="field"><span>พลังงาน · <b id="st-energy-v">50</b>/100</span><input type="range" min="0" max="100" step="5" id="st-energy" value="50"></label>
       <div class="grid2">
         <label class="field"><span>นอนเมื่อคืน (ชั่วโมง)</span><input class="inp" type="number" min="0" max="16" step="any" id="st-sleep" value="6" inputmode="decimal"></label>
@@ -521,7 +533,7 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 <dialog id="dlg-up" aria-labelledby="dlg-up-h">
   <div class="dlg-h"><h2 id="dlg-up-h">ครบโควตาฟรีของวันนี้แล้ว</h2><button class="icon-btn" id="up-close" aria-label="ปิด">✕</button></div>
   <div class="dlg-b">
-    <p style="margin:0 0 12px">ใช้ฟรีได้ <b class="mono">20</b> ข้อความต่อวัน ถ้าต้องการใช้ต่อ สมัคร Premium ได้ที่ <b class="mono">279</b> บาท/เดือน</p>
+    <p style="margin:0 0 12px">ใช้ฟรีได้ <b class="mono gold">20</b> ข้อความต่อวัน ถ้าต้องการใช้ต่อ สมัคร Premium ได้ที่ <b class="mono gold">279</b> บาท/เดือน</p>
     <ul style="margin:0;padding-left:18px;color:var(--ink-2);font-size:14px">
       <li>ส่งข้อความได้ไม่จำกัด</li><li>วิเคราะห์ภาพและจำลองทางเลือก</li><li>เก็บประวัติแชทไว้บนบัญชี</li><li>ใช้ VEGA วิเคราะห์เชิงกลยุทธ์</li>
     </ul>
@@ -531,7 +543,7 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 
 <div id="toast" role="status" aria-live="polite"></div>
 
-<script type="application/json" id="system-map">{"commit":"ab86d8b","files":[[".vscode/launch.json",14,"config",""],["404.html",21,"site","Page Not Found"],["AI/HUMAN_PROTOCOL.py",139,"dormant","VEGA = FATE™ + COSMIC LATTE CANON — Downside First, deterministic, มีหัวใจ"],["AI/KING_prompt.md",73,"docs","system prompt ฉบับเอกสาร — ไม่มีโค้ดไหนโหลด"],["AI/__init__.py",1,"dormant",""],["AI/choice_points.py",65,"dormant","Point system: ติดตาม choice credits ของแต่ละ user"],["AI/civilization_engine.py",60,"boot","FATE™ Axiom compliance: Explainability=100% · Downside First"],["AI/civilization_learning.py",247,"boot","Civilization Learning Engine + Real-World Supply Chain Signal"],["AI/consensus_engine.py",140,"dormant","Consensus Engine: weighted vote + evidence audit + FATE™ guard"],["AI/council_engine.py",156,"dormant","Council Mode: ทุก AI มาประชุมร่วมกัน ถอด Ego เปิดหลักฐานที่ตรวจสอบได้"],["AI/decision_engine.py",70,"dormant","FATE™ Axiom compliance: Determinism · Downside First · Choice(t) ≥ 1"],["AI/decision_heatmap.py",71,"dormant","Heatmap ของ decision pressure จาก memory"],["AI/decision_memory.py",113,"dormant","Decision memory: dedup + timestamp + search + persist-ready"],["AI/decision_tree.py",151,"dormant","Deterministic Decision Tree"],["AI/decision_tree_expand.py",124,"dormant","Expanding Decision Tree"],["AI/freedom_signal.py",341,"boot","Freedom Signal Monitor — Master Equation Engine"],["AI/galaxy_expand.py",140,"dormant","Galaxy Expansion Engine"],["AI/galaxy_tree.py",90,"dormant","Galaxy Option Tree"],["AI/galaxy_visualization.py",81,"dormant","FATE™ Axiom compliance: Determinism — ใช้ hash แทน random"],["AI/global_decision_map.py",63,"dormant","FATE™ Axiom compliance: Determinism · Explainability=100%"],["AI/intent_engine.py",243,"boot","โยนิโสมนสิการ: อ่านเจตนาจากเหตุปัจจัย ไม่ใช่ keyword matching ล้วนๆ"],["AI/king_response.py",144,"dormant","KING = governance observer / voice ที่ผู้ใช้ได้ยิน"],["AI/node_consensus.py",192,"dormant","Node Consensus Engine — Deterministic Weighted Voting"],["AI/persona_engine.py",153,"dormant","LYLA Persona Engine v2.0"],["AI/planetary_dashboard.py",110,"boot","FIX: graceful import fallback ทุกตัว — ไม่มี import ที่พังระบบ"],["AI/planetary_reality.py",83,"dormant","Planetary Reality Engine"],["AI/planetary_signal.py",90,"dormant","Planetary Signal Engine"],["AI/reality_feedback.py",132,"dormant","FATE™ Axiom compliance: Determinism · Explainability=100% · Downside First"],["AI/reality_learning.py",158,"dormant","ระบบเรียนรู้จากผลลัพธ์จริง — บันทึก, วัด, ปรับ drift"],["AI/simulation_engine.py",134,"dormant","Simulation Engine"],["AI/strategic_engine.py",132,"dormant","Strategic Analysis Engine"],["AI/strategic_memory.py",125,"dormant","Strategic Memory Graph"],["AI/world_connector.py",94,"dormant","World Signal Connector"],["AI_KERNEL/__init__.py",1,"dormant",""],["AI_KERNEL/belief_core.py",503,"boot","ตรวจ Choice/Survival floor ก่อนตอบ — SYSTEM_PAUSE ได้จริง"],["AI_KERNEL/core_principles.py",207,"dormant","Core Principles — Permanent Reference Layer"],["AI_KERNEL/cosmic_latte.py",241,"request","Cosmic Latte — Sunyata Context Engine"],["AI_KERNEL/living_water.py",271,"request","จับการรั่วของอารมณ์ CRISIS/DISTRESS (1323/988)"],["AI_KERNEL/reality_constraint.py",269,"dormant","Reality Constraint Engine"],["AI_KERNEL/scl7_core.py",249,"dormant","SCL-7: System Core of Living Truth"],["AI_KERNEL/udok.py",291,"dormant","UNIVERSAL DEPENDENT ORIGINATION KERNEL (UDOK v1.0)"],["AI_KERNEL/unified_world_kernel.py",430,"dormant","KING DIADEM™ Entropy × FATE™ AXIS"],["AUTH/__init__.py",1,"dormant",""],["AUTH/api_key_manager.py",85,"dormant","Credit Manager v2.0"],["AUTH/api_keys.py",101,"dormant","API Key Generator v2.0"],["AUTH/auth.py",142,"dormant","Auth Router v2.0"],["AUTH/auth_system.py",31,"dormant","ใช้ use_credit จาก api_key_manager — ไม่ตัด credit ซ้ำ"],["AUTH/gateway.py",30,"dormant","Gateway v2.0"],["CREDENTIALS.md",190,"docs","KING DIADEM"],["DATABASE/__init__.py",1,"dormant",""],["DATABASE/credit_store.py",132,"dormant","Credit Store"],["DATABASE/db.py",315,"boot","SQLite จริงที่ระบบใช้ (users, credits, memory, chat state)"],["DATABASE/decision_history.py",164,"dormant","Decision History"],["DATABASE/init_db.py",70,"dormant","DB Initializer"],["DATABASE/payment_store.py",91,"dormant","Payment Store"],["DATABASE/user_db.py",167,"dormant","User DB"],["DATABASE/user_store.py",137,"dormant","User Store (in-memory + DB bridge)"],["DOMAINS/__init__.py",1,"dormant",""],["DOMAINS/business_engine.py",92,"dormant","Business Domain Engine"],["DOMAINS/domain_router.py",65,"dormant","Domain Router"],["DOMAINS/human_engine.py",77,"dormant","Human Domain Engine"],["DOMAINS/life_engine.py",69,"dormant","Life Domain Engine"],["DOMAINS/survival_engine.py",884,"dormant","Survival Domain Engine v2.0"],["DOMAINS/world_engine.py",68,"dormant","World Domain Engine"],["ENGINE/__init__.py",1,"dormant",""],["ENGINE/__pycache__/__init__.cpython-312.pyc",0,"artifact",""],["ENGINE/__pycache__/civil_work_engine.cpython-312.pyc",0,"artifact",""],["ENGINE/__pycache__/decision_engine.cpython-312.pyc",0,"artifact",""],["ENGINE/ai_council.py",139,"boot","AI Council (Multi-perspective deterministic voting)"],["ENGINE/ai_needs.py",101,"dormant","AI Needs Detector"],["ENGINE/brain.py",148,"broken","import .decision ที่ไม่มีอยู่จริง"],["ENGINE/choice_optimizer.py",118,"dormant","Choice Optimizer"],["ENGINE/civil_work_engine.py",33,"dormant","CIVIL WORK ENGINE"],["ENGINE/collapse_predictor.py",43,"boot","คืนค่าเป็น string แต่ app.py เช็ค dict → ไม่มีผลกับคำตอบ"],["ENGINE/consensus_engine.py",57,"boot","FIX: ลบ circular import decision_engine ออก ใช้ inline logic แทน"],["ENGINE/core.py",58,"dormant","1. session_id ไม่ถูกส่งต่อจากผู้เรียก -> ทุก user แชร์ session"],["ENGINE/council_engine.py",44,"boot","แก้: Altair → Choice (option preservation)"],["ENGINE/debt_engine.py",308,"dormant","ตัวจำลองปลดหนี้ Avalanche/Snowball ครบ — ยังไม่ต่อสาย"],["ENGINE/decision_engine.py",517,"broken","import emptiness_guard ที่ถูกลบไปตั้งแต่ 25 มิ.ย. → DecisionEngine ไม่เคยโหลดได้"],["ENGINE/dialogue_engine.py",183,"dormant","Dialogue Engine"],["ENGINE/dicision.py",150,"dormant","Decision Engine"],["ENGINE/emotion_state",148,"broken","ไม่มีนามสกุล .py → import ไม่ได้ ระบบจำอารมณ์ข้ามข้อความจึงไม่ทำงาน"],["ENGINE/energy_governor.py",120,"dormant","Energy Governor"],["ENGINE/engine_router.py",271,"dormant","ศูนย์กลางเชื่อม engine ทั้งหมด"],["ENGINE/escape_routes.py",116,"request","orchestrator เรียก assess() ซึ่งไฟล์นี้ไม่มี"],["ENGINE/eternal_runtime.py",205,"dormant","Eternal Runtime"],["ENGINE/eternal_snapshot_patch.py",24,"dormant","วางไฟล์นี้ที่ ENGINE/eternal_snapshot_patch.py"],["ENGINE/freedom_signal.py",98,"dormant","Freedom / Wisdom Signal"],["ENGINE/future_simulator.py",135,"broken","import load_model ที่ไม่มีอยู่จริง"],["ENGINE/human_engine.py",54,"boot","แปลง context ของผู้ใช้ → entropy/resource/risk"],["ENGINE/human_state_engine.py",161,"dormant","Human State Engine"],["ENGINE/input_interpreter.py",150,"boot","Input Interpreter"],["ENGINE/intent.py",111,"dormant","Intent Detector"],["ENGINE/intent_engine.py",72,"dormant","Intent Engine (standalone, ไม่ใช้ intent.py)"],["ENGINE/intervention_engine.py",208,"dormant","Intervention Engine"],["ENGINE/kernel_runtime.py",257,"dormant","Kernel Runtime"],["ENGINE/king_response.py",91,"dormant","Response Formatter"],["ENGINE/language_detector.py",83,"dormant","Language Detector"],["ENGINE/learning_engine.py",479,"dormant","Learning Engine"],["ENGINE/map_bridge.py",88,"dormant","Map Bridge"],["ENGINE/memory.py",137,"dormant","Session Memory"],["ENGINE/path_generator.py",167,"dormant","Path Generator"],["ENGINE/paticcasamuppada_engine.py",237,"request","ปฏิจจสมุปบาท — เกือบทุกข้อความได้ 'หยุดก่อนตัดสินใจ'"],["ENGINE/pattern_engine.py",223,"boot","Pattern Engine"],["ENGINE/persona_engine.py",129,"dormant","Persona Engine"],["ENGINE/realhuman_survivorengine.py",304,"boot","คำนวณ waterline จาก energy/sleep/food/shelter จริง"],["ENGINE/relationship_engine.py",86,"dormant","Relationship Engine"],["ENGINE/resource_estimator.py",102,"dormant","Resource Estimator"],["ENGINE/response_translator.py",78,"dormant","Response Translator"],["ENGINE/risk.py",98,"dormant","Risk Evaluator"],["ENGINE/risk_engine.py",79,"boot","Risk Engine"],["ENGINE/self_evolution.py",90,"dormant","Self Evolution Layer"],["ENGINE/self_learning.py",122,"dormant","Self Learning Engine"],["ENGINE/simulation_engine.py",107,"boot","Simulation Engine"],["ENGINE/situation_analyzer.py",91,"dormant","Situation Analyzer"],["ENGINE/strategy_planner.py",134,"request","Strategy Planner"],["ENGINE/survival_advisor.py",185,"request","Survival Advisor"],["ENGINE/survival_map_engine.py",84,"dormant","Survival Map Engine"],["ENGINE/survival_nodes.py",91,"dormant","Survival Node Scanner"],["ENGINE/tool_executor.py",133,"dormant","รันเครื่องมือด้วย eval — ไม่ควรต่อเข้ากับข้อความผู้ใช้"],["ENGINE/universal_engine.py",165,"boot","Universal Engine"],["ENGINE/world_intel.py",282,"dormant","World Intelligence Layer"],["ENGINE/world_intelligence.py",154,"dormant","World Intelligence"],["ENGINE/world_model.py",162,"dormant","World Model"],["ENGINE/yonisomanasikara_engine.py",274,"dormant","Yonisomanasikara Engine"],["EXAMPLES/__init__.py",1,"dormant",""],["EXAMPLES/food-shortage-scenario.md",94,"docs","KING DIADEM — Food Shortage Scenario"],["EXAMPLES/human-survival-scenarios.md",100,"docs","KING DIADEM — Human Survival Scenarios"],["FATE_DEBT_FREEDOM.md",90,"docs","FATE™ DEBT FREEDOM"],["GLOBAL_NODE/__init__.py",1,"dormant",""],["GLOBAL_NODE/feed_store.py",106,"dormant","Global Feed Store"],["GLOBAL_NODE/mobile.nood.py",13,"broken","มีจุดในชื่อไฟล์ → import ไม่ได้"],["GLOBAL_NODE/network_sync.py",104,"dormant","Network Sync Bridge"],["GLOBAL_NODE/node_model.py",166,"dormant","Global Node Model"],["GLOBAL_NODE/node_trust.py",196,"dormant","Node Trust Registry"],["INTEGRATIONS/__init__.py",1,"dormant",""],["INTEGRATIONS/google_docs.py",123,"dormant","Google Docs real integration"],["INTEGRATIONS/google_maps.py",133,"dormant","Google Maps real integration"],["INTEGRATIONS/google_search.py",112,"dormant","Google Search real integration"],["INTELLIGENCE/__init__.py",1,"dormant",""],["INTELLIGENCE/decision_intelligence.py",237,"dormant","Decision Intelligence Layer v2.0"],["INTELLIGENCE/pattern_engine.py",196,"dormant","Pattern Engine v2.0"],["INTELLIGENCE/risk_engine.py",274,"dormant","Risk Engine v2.0"],["INTERFACE/__init__.py",1,"dormant",""],["INTERFACE/api.py",357,"dormant","KING DIADEM v2.0"],["INTERFACE/choice-engine.md",108,"docs","CHOICE ENGINE"],["INTERFACE/cli-prototype.md",112,"docs","CLI PROTOTYPE"],["INTERFACE/food-vision-engine.md",113,"docs","FOOD VISION ENGINE"],["INTERFACE/human-choice-interface.md",109,"docs","HUMAN CHOICE INTERFACE"],["KERNEL/__init__.py",1,"dormant",""],["KERNEL/dharma-governance-kernel.md",481,"docs","KING DIADEM — DriftZero Waterline Governance Kernel"],["KERNEL/king-diadem-kernel.md",351,"docs","Governance Kernel (ซ้ำกับ dharma-governance-kernel.md ~99%)"],["KING_DIADEM_core.py",208,"broken","app.py import เป็น king_diadem_core (ตัวเล็ก) บน Linux หาไม่เจอ + import โมดูลที่ไม่มีจริง 5 ตัว → ใช้ fallback"],["LICENSE",52,"docs","สัญญาอนุญาต"],["MANIFESTO.md",71,"docs","KING DIADEM — MANIFESTO"],["MODELS/__init__.py",1,"dormant",""],["MODELS/choice-balance-model.md",64,"docs","MODELS/choice-balance-model.md — KING DIADEM"],["MODELS/choice-collapse-model.md",96,"docs","MODELS/choice-collapse-model.md — KING DIADEM"],["MODELS/choice-navigation-engine.md",96,"docs","MODELS/choice-navigation-engine.md — KING DIADEM"],["MODELS/drift-governance-model.md",128,"docs","MODELS/drift-governance-model.md — KING DIADEM"],["NETWORK/__init__.py",1,"dormant",""],["NETWORK/global_chat.py",128,"dormant","Global Chat Store"],["NETWORK/global_network.py",12,"dormant","Global Network"],["NETWORK/node_registry.py",152,"dormant","Node Registry"],["NETWORK/node_sync.py",106,"dormant","Network Sync & Health"],["NETWORK/planetary_node.py",87,"dormant","Planetary Node"],["PAYMENT/__init__.py",1,"dormant",""],["PAYMENT/create_checkout.py",93,"dormant","Stripe Checkout — secure, rate-limited, plan-aware"],["PAYMENT/stripe_payment.py",22,"dormant","Legacy entry point — delegate ไปที่ create_checkout.py"],["PAYMENT/stripe_webhook.py",105,"dormant","Webhook handler — signature verify + idempotency + fraud guard"],["PAYMENT/wallet_engine.py",58,"dormant","Wallet: topup + deduct + balance check"],["PERSONA/lyla_core.py",252,"dormant","LYLA Persona Engine — Warmth-Preserving Structural Logic"],["PERSONA/vega_core.py",390,"dormant","VEGA Kernel — Deterministic Logic Mirror"],["README.md",135,"docs","KING DIADEM"],["ROADMAP.md",91,"docs","KING DIADEM — Development Roadmap"],["SECURITY/__init__.py",1,"dormant",""],["SECURITY/emergency_mode.py",237,"dormant","IP-based Rate Limiter + Emergency Lockdown"],["SECURITY/survival_mode.py",188,"dormant","Global Traffic Survival Mode"],["SIMULATIONS/__init__.py",1,"dormant",""],["SIMULATIONS/black_swan_detector.py",87,"dormant","Black Swan: เหตุการณ์หายาก คาดไม่ถึง ผลกระทบสูง"],["SIMULATIONS/entropy_engine.py",78,"dormant","Entropy analysis: deterministic + signal-based"],["SIMULATIONS/future_simulator.py",67,"dormant","จำลองอนาคต: deterministic scenarios จาก state จริง"],["SIMULATIONS/montecarlo_engine.py",65,"dormant","Monte Carlo: จำลอง n runs ด้วย bounded perturbation"],["SIMULATIONS/pandemic-survival-simulation.md",125,"docs","KING DIADEM — Pandemic Survival Simulation"],["SIMULATIONS/scenario_engine.py",70,"dormant","Scenario Engine: ประเมินอนาคตจาก context จริง"],["SIMULATIONS/scenario_tree.py",84,"dormant","Scenario Tree: เส้นทางที่เป็นไปได้ตาม context"],["SYSTEM_ARCHITECTURE.md",109,"docs","KING DIADEM — System Architecture"],["SYSTEM_OVERVIEW.md",82,"docs","KING DIADEM — System Overview"],["WHITEPAPER.md",265,"docs","KING DIADEM — Whitepaper"],["WORLD_MODEL/__init__.py",1,"dormant",""],["WORLD_MODEL/earth_guardian.py",64,"dormant",""],["WORLD_MODEL/environment.py",180,"dormant","Environment State Engine"],["WORLD_MODEL/human_behavior.py",244,"dormant","Human Behavior Engine — วิเคราะห์พฤติกรรมมนุษย์จากบริบทจริง"],["WORLD_MODEL/human_bias.py",44,"dormant",""],["WORLD_MODEL/human_state.py",192,"dormant","Human State Engine — สภาวะมนุษย์จริง ไม่ใช่ hardcode"],["WORLD_MODEL/small_animal_model.py",258,"dormant","Small Animal Welfare Model"],["WORLD_MODEL/survival_threshold.py",295,"dormant","Survival Threshold Engine"],["app.py",1150,"boot","ประตูหลัก FastAPI v5.0 — /run, /simulate, auth, Stripe, report"],["core/__init__.py",1,"dormant",""],["core/api_keys.py",837,"dormant","ระบบ API key HMAC + rate limit ครบ — ยังไม่ต่อสาย"],["core/axioms.py",177,"dormant","Core Axioms & Governance Constants"],["core/brain.py",130,"dormant","KING DIADEM v2.0"],["core/civil_work_core.py",178,"dormant","CIVIL WORK CORE: Human-independent decision support"],["core/core_loop.py",109,"dormant","CORE LOOP — KING DIADEM v3.1"],["core/cosmic_latte_canon.py",294,"boot","ประตู canon — จับ 'ต้องทำ' แบบ substring ทำให้ 'ไม่ต้องทำ' โดนบล็อก"],["core/creator_identity.py",94,"dormant","Creator Identity Lock — Immutable"],["core/creator_story.py",72,"dormant","Creator Story: เปิดเผยเมื่อถูกถามเท่านั้น"],["core/database.py",83,"dormant","SQLite database — users + payments + decisions + sessions"],["core/dependency_cycle.py",151,"dormant","Dependency Cycle Engine — Water Flow Model"],["core/drift_monitor.py",222,"dormant","DriftZero Waterline Governance Standard"],["core/emptiness_guard.py",1789,"boot","ชั้น TITAN/Waterline — มีฟังก์ชันครบ แต่เส้นทางจริงใช้แค่บางส่วน"],["core/entropy_guard.py",303,"dormant","Entropy Guard: ระบบป้องกันความพัง"],["core/fate_core.py",172,"dormant","FATE™ v1.0 — Deterministic Decision Infrastructure"],["core/king_diadem_core.py",84,"dormant","KING DIADEM CORE"],["core/llm_gemini.py",689,"boot","คุย Gemini + ตรวจวิกฤต (1323) — ถูกเรียก 2 ครั้งต่อ 1 ข้อความ"],["core/lyla_kernel.py",119,"boot","LYLA OPEN SYSTEM CORE LOGIC KERNEL"],["core/master_brain.py",132,"dormant","Master Brain (v2)"],["core/memory_store.py",107,"dormant","MEMORY STORE — KING DIADEM CORE LAYER v2"],["core/navigator.py",66,"dormant","Truth Engine: ใช้ Gemini + FATE™ logic"],["core/parables.py",120,"request","Human Wisdom Layer — KING DIADEM"],["core/reality_laws.py",266,"dormant","REALITY LAWS — KING DIADEM CORE LAYER v2"],["core/silent_canon.py",270,"dormant","SILENT CANON — KING DIADEM CORE LAYER v3"],["core/survival_threshold.py",5,"dormant","Layer 0 Law: Choice(t) >= 1 → collapse = False"],["core/system_orchestrator.py",265,"boot","ร้อยเครื่องยนต์ย่อย แล้วเรียก LLM เอง 1 รอบ (คำตอบถูกทิ้ง)"],["core/time_engine.py",251,"dormant","Time Awareness Engine"],["core/truth_system.py",176,"dormant","Truth Infrastructure: สะท้อนความจริง + เปิดทางเลือก"],["core/users.py",277,"dormant","User Registry"],["core/vega_mode.py",168,"request","VEGA Mode — ALTIER Logic Core (adapted for VEGA)"],["core/vigilance_protocol.py",38,"dormant","Vigilance Protocol"],["docs/docs-full/anima-safe-core.html",173,"site","ANIMA-SAFE CORE | KING DIADEM"],["docs/docs-full/cosmic-latte.html",140,"site","COSMIC LATTE — Observer Protocol | KING DIADEM"],["docs/docs-full/ethical-lattice.html",163,"site","64-Axiom Ethical Lattice | KING DIADEM"],["docs/index.html",948,"site","KING DIADEM — DriftZero Governance Infrastructure"],["gunicorn.conf.py",9,"dormant","Render free tier optimized"],["manifest.json",45,"site","สำเนา static/manifest.json สำหรับ GitHub Pages"],["portfolio.html",725,"site","Nithikorn Bunsrang — AI Systems Architect"],["render.yaml",36,"config",""],["report_engine.py",181,"boot","สร้างรายงาน FATE ที่แชร์ได้ /report/<id>"],["requirements.txt",15,"config",""],["service_worker.js",50,"site","service worker ยุค GitHub Pages (cache-first) — เซิร์ฟเวอร์ไม่ได้เสิร์ฟไฟล์นี้"],["simulation_graph.js",127,"dormant","Real-time Decision Stability Graph"],["static/__init__.py",1,"dormant",""],["static/ai_brain.js",100,"dormant","KING DIADEM AI Core Bridge v2.0"],["static/ai_orbit.js",324,"dormant","KING DIADEM Orbital Engine v2.0"],["static/ai_thinking.js",53,"dormant","ตัวแสดงจุด 'กำลังคิด' — ไม่มีหน้าไหนโหลด"],["static/ai_thinking_orbit.js",315,"dormant","AI Thinking Orbit Visualizer v2.0"],["static/app.js",287,"dormant","แอปฝั่งหน้าเว็บรุ่นเก่า v3.1 — ไม่มีหน้าไหนโหลด"],["static/ask.html",303,"web","ASK — KING DIADEM"],["static/brain.js",300,"dormant","KING DIADEM Neural Core v2.0"],["static/decision.js",309,"dormant","Decision Engine Interface v2.0"],["static/galaxy.js",224,"dormant","KING DIADEM Solar System v2"],["static/galaxy_council.js",277,"dormant","Council Vote Renderer"],["static/galaxy_decision.js",212,"dormant","Decision Summary Renderer"],["static/galaxy_scene.js",375,"dormant","ฉากกาแล็กซีของหน้าแรกรุ่นก่อน — เลิกใช้แล้ว"],["static/galaxy_scene_api.js",132,"dormant","poll /api/galaxy/nodes ให้ฉากกาแล็กซี — เลิกใช้แล้ว"],["static/guide.html",353,"web","HUMAN GUIDE — KING DIADEM"],["static/hero.png",0,"web","ภาพพื้นหลังหน้า login/register"],["static/index.html",1207,"web","หน้าแอปหลักที่ / (ไฟล์นี้)"],["static/kd_theme_deepspace.css",431,"dormant","ธีม Deep Space ของหน้าแรกรุ่นก่อน — เลิกใช้แล้ว"],["static/king_diadem_profile (1).png",0,"dormant","รูปโปรไฟล์ — ไม่มีหน้าไหนใช้"],["static/king_diadem_universe.html",568,"web","KING DIADEM — The Universe That Restores Choice"],["static/login.html",456,"web","KING DIADEM · ACCESS"],["static/logo.png",0,"web","โลโก้"],["static/main.js",319,"dormant","KING DIADEM Core Bridge v3.0"],["static/manifest.json",45,"web","PWA manifest"],["static/register.html",674,"web","KING DIADEM · REGISTER"],["static/report.html",741,"web","หน้ารายงานการตัดสินใจ /report/<id>"],["static/service-worker.js",102,"dormant","ลงทะเบียน scope '/' จาก /static/ ไม่ได้ (ไม่มี header Service-Worker-Allowed)"],["static/style.css",303,"broken","บรรทัดแรกเป็นข้อความแชท AI ไม่ใช่ CSS"],["static/system.js",141,"dormant","System Kernel v2.1"],["static/wallet.html",362,"broken","เรียก /wallet/balance และ /wallet/topup ซึ่ง app.py ไม่มี (404)"],["static/warp_intro.js",111,"dormant","warp_intro.js"]]}</script>
+<script type="application/json" id="system-map">{"commit":"ab86d8b","files":[[".vscode/launch.json",14,"config",""],["404.html",21,"site","Page Not Found"],["AI/HUMAN_PROTOCOL.py",139,"dormant","VEGA = FATE™ + COSMIC LATTE CANON — Downside First, deterministic, มีหัวใจ"],["AI/KING_prompt.md",73,"docs","system prompt ฉบับเอกสาร — ไม่มีโค้ดไหนโหลด"],["AI/__init__.py",1,"dormant",""],["AI/choice_points.py",65,"dormant","Point system: ติดตาม choice credits ของแต่ละ user"],["AI/civilization_engine.py",60,"boot","FATE™ Axiom compliance: Explainability=100% · Downside First"],["AI/civilization_learning.py",247,"boot","Civilization Learning Engine + Real-World Supply Chain Signal"],["AI/consensus_engine.py",140,"dormant","Consensus Engine: weighted vote + evidence audit + FATE™ guard"],["AI/council_engine.py",156,"dormant","Council Mode: ทุก AI มาประชุมร่วมกัน ถอด Ego เปิดหลักฐานที่ตรวจสอบได้"],["AI/decision_engine.py",70,"dormant","FATE™ Axiom compliance: Determinism · Downside First · Choice(t) ≥ 1"],["AI/decision_heatmap.py",71,"dormant","Heatmap ของ decision pressure จาก memory"],["AI/decision_memory.py",113,"dormant","Decision memory: dedup + timestamp + search + persist-ready"],["AI/decision_tree.py",151,"dormant","Deterministic Decision Tree"],["AI/decision_tree_expand.py",124,"dormant","Expanding Decision Tree"],["AI/freedom_signal.py",341,"boot","Freedom Signal Monitor — Master Equation Engine"],["AI/galaxy_expand.py",140,"dormant","Galaxy Expansion Engine"],["AI/galaxy_tree.py",90,"dormant","Galaxy Option Tree"],["AI/galaxy_visualization.py",81,"dormant","FATE™ Axiom compliance: Determinism — ใช้ hash แทน random"],["AI/global_decision_map.py",63,"dormant","FATE™ Axiom compliance: Determinism · Explainability=100%"],["AI/intent_engine.py",243,"boot","โยนิโสมนสิการ: อ่านเจตนาจากเหตุปัจจัย ไม่ใช่ keyword matching ล้วนๆ"],["AI/king_response.py",144,"dormant","KING = governance observer / voice ที่ผู้ใช้ได้ยิน"],["AI/node_consensus.py",192,"dormant","Node Consensus Engine — Deterministic Weighted Voting"],["AI/persona_engine.py",153,"dormant","LYLA Persona Engine v2.0"],["AI/planetary_dashboard.py",110,"boot","FIX: graceful import fallback ทุกตัว — ไม่มี import ที่พังระบบ"],["AI/planetary_reality.py",83,"dormant","Planetary Reality Engine"],["AI/planetary_signal.py",90,"dormant","Planetary Signal Engine"],["AI/reality_feedback.py",132,"dormant","FATE™ Axiom compliance: Determinism · Explainability=100% · Downside First"],["AI/reality_learning.py",158,"dormant","ระบบเรียนรู้จากผลลัพธ์จริง — บันทึก, วัด, ปรับ drift"],["AI/simulation_engine.py",134,"dormant","Simulation Engine"],["AI/strategic_engine.py",132,"dormant","Strategic Analysis Engine"],["AI/strategic_memory.py",125,"dormant","Strategic Memory Graph"],["AI/world_connector.py",94,"dormant","World Signal Connector"],["AI_KERNEL/__init__.py",1,"dormant",""],["AI_KERNEL/belief_core.py",503,"boot","ตรวจ Choice/Survival floor ก่อนตอบ — SYSTEM_PAUSE ได้จริง"],["AI_KERNEL/core_principles.py",207,"dormant","Core Principles — Permanent Reference Layer"],["AI_KERNEL/cosmic_latte.py",241,"request","Cosmic Latte — Sunyata Context Engine"],["AI_KERNEL/living_water.py",271,"request","จับการรั่วของอารมณ์ CRISIS/DISTRESS (1323/988)"],["AI_KERNEL/reality_constraint.py",269,"dormant","Reality Constraint Engine"],["AI_KERNEL/scl7_core.py",249,"dormant","SCL-7: System Core of Living Truth"],["AI_KERNEL/udok.py",291,"dormant","UNIVERSAL DEPENDENT ORIGINATION KERNEL (UDOK v1.0)"],["AI_KERNEL/unified_world_kernel.py",430,"dormant","KING DIADEM™ Entropy × FATE™ AXIS"],["AUTH/__init__.py",1,"dormant",""],["AUTH/api_key_manager.py",85,"dormant","Credit Manager v2.0"],["AUTH/api_keys.py",101,"dormant","API Key Generator v2.0"],["AUTH/auth.py",142,"dormant","Auth Router v2.0"],["AUTH/auth_system.py",31,"dormant","ใช้ use_credit จาก api_key_manager — ไม่ตัด credit ซ้ำ"],["AUTH/gateway.py",30,"dormant","Gateway v2.0"],["CREDENTIALS.md",190,"docs","KING DIADEM"],["DATABASE/__init__.py",1,"dormant",""],["DATABASE/credit_store.py",132,"dormant","Credit Store"],["DATABASE/db.py",315,"boot","SQLite จริงที่ระบบใช้ (users, credits, memory, chat state)"],["DATABASE/decision_history.py",164,"dormant","Decision History"],["DATABASE/init_db.py",70,"dormant","DB Initializer"],["DATABASE/payment_store.py",91,"dormant","Payment Store"],["DATABASE/user_db.py",167,"dormant","User DB"],["DATABASE/user_store.py",137,"dormant","User Store (in-memory + DB bridge)"],["DOMAINS/__init__.py",1,"dormant",""],["DOMAINS/business_engine.py",92,"dormant","Business Domain Engine"],["DOMAINS/domain_router.py",65,"dormant","Domain Router"],["DOMAINS/human_engine.py",77,"dormant","Human Domain Engine"],["DOMAINS/life_engine.py",69,"dormant","Life Domain Engine"],["DOMAINS/survival_engine.py",884,"dormant","Survival Domain Engine v2.0"],["DOMAINS/world_engine.py",68,"dormant","World Domain Engine"],["ENGINE/__init__.py",1,"dormant",""],["ENGINE/__pycache__/__init__.cpython-312.pyc",0,"artifact",""],["ENGINE/__pycache__/civil_work_engine.cpython-312.pyc",0,"artifact",""],["ENGINE/__pycache__/decision_engine.cpython-312.pyc",0,"artifact",""],["ENGINE/ai_council.py",139,"boot","AI Council (Multi-perspective deterministic voting)"],["ENGINE/ai_needs.py",101,"dormant","AI Needs Detector"],["ENGINE/brain.py",148,"broken","import .decision ที่ไม่มีอยู่จริง"],["ENGINE/choice_optimizer.py",118,"dormant","Choice Optimizer"],["ENGINE/civil_work_engine.py",33,"dormant","CIVIL WORK ENGINE"],["ENGINE/collapse_predictor.py",43,"boot","คืนค่าเป็น string แต่ app.py เช็ค dict → ไม่มีผลกับคำตอบ"],["ENGINE/consensus_engine.py",57,"boot","FIX: ลบ circular import decision_engine ออก ใช้ inline logic แทน"],["ENGINE/core.py",58,"dormant","1. session_id ไม่ถูกส่งต่อจากผู้เรียก -> ทุก user แชร์ session"],["ENGINE/council_engine.py",44,"boot","แก้: Altair → Choice (option preservation)"],["ENGINE/debt_engine.py",308,"dormant","ตัวจำลองปลดหนี้ Avalanche/Snowball ครบ — ยังไม่ต่อสาย"],["ENGINE/decision_engine.py",517,"broken","import emptiness_guard ที่ถูกลบไปตั้งแต่ 25 มิ.ย. → DecisionEngine ไม่เคยโหลดได้"],["ENGINE/dialogue_engine.py",183,"dormant","Dialogue Engine"],["ENGINE/dicision.py",150,"dormant","Decision Engine"],["ENGINE/emotion_state",148,"broken","ไม่มีนามสกุล .py → import ไม่ได้ ระบบจำอารมณ์ข้ามข้อความจึงไม่ทำงาน"],["ENGINE/energy_governor.py",120,"dormant","Energy Governor"],["ENGINE/engine_router.py",271,"dormant","ศูนย์กลางเชื่อม engine ทั้งหมด"],["ENGINE/escape_routes.py",116,"request","orchestrator เรียก assess() ซึ่งไฟล์นี้ไม่มี"],["ENGINE/eternal_runtime.py",205,"dormant","Eternal Runtime"],["ENGINE/eternal_snapshot_patch.py",24,"dormant","วางไฟล์นี้ที่ ENGINE/eternal_snapshot_patch.py"],["ENGINE/freedom_signal.py",98,"dormant","Freedom / Wisdom Signal"],["ENGINE/future_simulator.py",135,"broken","import load_model ที่ไม่มีอยู่จริง"],["ENGINE/human_engine.py",54,"boot","แปลง context ของผู้ใช้ → entropy/resource/risk"],["ENGINE/human_state_engine.py",161,"dormant","Human State Engine"],["ENGINE/input_interpreter.py",150,"boot","Input Interpreter"],["ENGINE/intent.py",111,"dormant","Intent Detector"],["ENGINE/intent_engine.py",72,"dormant","Intent Engine (standalone, ไม่ใช้ intent.py)"],["ENGINE/intervention_engine.py",208,"dormant","Intervention Engine"],["ENGINE/kernel_runtime.py",257,"dormant","Kernel Runtime"],["ENGINE/king_response.py",91,"dormant","Response Formatter"],["ENGINE/language_detector.py",83,"dormant","Language Detector"],["ENGINE/learning_engine.py",479,"dormant","Learning Engine"],["ENGINE/map_bridge.py",88,"dormant","Map Bridge"],["ENGINE/memory.py",137,"dormant","Session Memory"],["ENGINE/path_generator.py",167,"dormant","Path Generator"],["ENGINE/paticcasamuppada_engine.py",237,"request","ปฏิจจสมุปบาท — เกือบทุกข้อความได้ 'หยุดก่อนตัดสินใจ'"],["ENGINE/pattern_engine.py",223,"boot","Pattern Engine"],["ENGINE/persona_engine.py",129,"dormant","Persona Engine"],["ENGINE/realhuman_survivorengine.py",304,"boot","คำนวณ waterline จาก energy/sleep/food/shelter จริง"],["ENGINE/relationship_engine.py",86,"dormant","Relationship Engine"],["ENGINE/resource_estimator.py",102,"dormant","Resource Estimator"],["ENGINE/response_translator.py",78,"dormant","Response Translator"],["ENGINE/risk.py",98,"dormant","Risk Evaluator"],["ENGINE/risk_engine.py",79,"boot","Risk Engine"],["ENGINE/self_evolution.py",90,"dormant","Self Evolution Layer"],["ENGINE/self_learning.py",122,"dormant","Self Learning Engine"],["ENGINE/simulation_engine.py",107,"boot","Simulation Engine"],["ENGINE/situation_analyzer.py",91,"dormant","Situation Analyzer"],["ENGINE/strategy_planner.py",134,"request","Strategy Planner"],["ENGINE/survival_advisor.py",185,"request","Survival Advisor"],["ENGINE/survival_map_engine.py",84,"dormant","Survival Map Engine"],["ENGINE/survival_nodes.py",91,"dormant","Survival Node Scanner"],["ENGINE/tool_executor.py",133,"dormant","รันเครื่องมือด้วย eval — ไม่ควรต่อเข้ากับข้อความผู้ใช้"],["ENGINE/universal_engine.py",165,"boot","Universal Engine"],["ENGINE/world_intel.py",282,"dormant","World Intelligence Layer"],["ENGINE/world_intelligence.py",154,"dormant","World Intelligence"],["ENGINE/world_model.py",162,"dormant","World Model"],["ENGINE/yonisomanasikara_engine.py",274,"dormant","Yonisomanasikara Engine"],["EXAMPLES/__init__.py",1,"dormant",""],["EXAMPLES/food-shortage-scenario.md",94,"docs","KING DIADEM — Food Shortage Scenario"],["EXAMPLES/human-survival-scenarios.md",100,"docs","KING DIADEM — Human Survival Scenarios"],["FATE_DEBT_FREEDOM.md",90,"docs","FATE™ DEBT FREEDOM"],["GLOBAL_NODE/__init__.py",1,"dormant",""],["GLOBAL_NODE/feed_store.py",106,"dormant","Global Feed Store"],["GLOBAL_NODE/mobile.nood.py",13,"broken","มีจุดในชื่อไฟล์ → import ไม่ได้"],["GLOBAL_NODE/network_sync.py",104,"dormant","Network Sync Bridge"],["GLOBAL_NODE/node_model.py",166,"dormant","Global Node Model"],["GLOBAL_NODE/node_trust.py",196,"dormant","Node Trust Registry"],["INTEGRATIONS/__init__.py",1,"dormant",""],["INTEGRATIONS/google_docs.py",123,"dormant","Google Docs real integration"],["INTEGRATIONS/google_maps.py",133,"dormant","Google Maps real integration"],["INTEGRATIONS/google_search.py",112,"dormant","Google Search real integration"],["INTELLIGENCE/__init__.py",1,"dormant",""],["INTELLIGENCE/decision_intelligence.py",237,"dormant","Decision Intelligence Layer v2.0"],["INTELLIGENCE/pattern_engine.py",196,"dormant","Pattern Engine v2.0"],["INTELLIGENCE/risk_engine.py",274,"dormant","Risk Engine v2.0"],["INTERFACE/__init__.py",1,"dormant",""],["INTERFACE/api.py",357,"dormant","KING DIADEM v2.0"],["INTERFACE/choice-engine.md",108,"docs","CHOICE ENGINE"],["INTERFACE/cli-prototype.md",112,"docs","CLI PROTOTYPE"],["INTERFACE/food-vision-engine.md",113,"docs","FOOD VISION ENGINE"],["INTERFACE/human-choice-interface.md",109,"docs","HUMAN CHOICE INTERFACE"],["KERNEL/__init__.py",1,"dormant",""],["KERNEL/dharma-governance-kernel.md",481,"docs","KING DIADEM — DriftZero Waterline Governance Kernel"],["KERNEL/king-diadem-kernel.md",351,"docs","Governance Kernel (ซ้ำกับ dharma-governance-kernel.md ~99%)"],["KING_DIADEM_core.py",208,"broken","app.py import เป็น king_diadem_core (ตัวเล็ก) บน Linux หาไม่เจอ + import โมดูลที่ไม่มีจริง 5 ตัว → ใช้ fallback"],["LICENSE",52,"docs","สัญญาอนุญาต"],["MANIFESTO.md",71,"docs","KING DIADEM — MANIFESTO"],["MODELS/__init__.py",1,"dormant",""],["MODELS/choice-balance-model.md",64,"docs","MODELS/choice-balance-model.md — KING DIADEM"],["MODELS/choice-collapse-model.md",96,"docs","MODELS/choice-collapse-model.md — KING DIADEM"],["MODELS/choice-navigation-engine.md",96,"docs","MODELS/choice-navigation-engine.md — KING DIADEM"],["MODELS/drift-governance-model.md",128,"docs","MODELS/drift-governance-model.md — KING DIADEM"],["NETWORK/__init__.py",1,"dormant",""],["NETWORK/global_chat.py",128,"dormant","Global Chat Store"],["NETWORK/global_network.py",12,"dormant","Global Network"],["NETWORK/node_registry.py",152,"dormant","Node Registry"],["NETWORK/node_sync.py",106,"dormant","Network Sync & Health"],["NETWORK/planetary_node.py",87,"dormant","Planetary Node"],["PAYMENT/__init__.py",1,"dormant",""],["PAYMENT/create_checkout.py",93,"dormant","Stripe Checkout — secure, rate-limited, plan-aware"],["PAYMENT/stripe_payment.py",22,"dormant","Legacy entry point — delegate ไปที่ create_checkout.py"],["PAYMENT/stripe_webhook.py",105,"dormant","Webhook handler — signature verify + idempotency + fraud guard"],["PAYMENT/wallet_engine.py",58,"dormant","Wallet: topup + deduct + balance check"],["PERSONA/lyla_core.py",252,"dormant","LYLA Persona Engine — Warmth-Preserving Structural Logic"],["PERSONA/vega_core.py",390,"dormant","VEGA Kernel — Deterministic Logic Mirror"],["README.md",135,"docs","KING DIADEM"],["ROADMAP.md",91,"docs","KING DIADEM — Development Roadmap"],["SECURITY/__init__.py",1,"dormant",""],["SECURITY/emergency_mode.py",237,"dormant","IP-based Rate Limiter + Emergency Lockdown"],["SECURITY/survival_mode.py",188,"dormant","Global Traffic Survival Mode"],["SIMULATIONS/__init__.py",1,"dormant",""],["SIMULATIONS/black_swan_detector.py",87,"dormant","Black Swan: เหตุการณ์หายาก คาดไม่ถึง ผลกระทบสูง"],["SIMULATIONS/entropy_engine.py",78,"dormant","Entropy analysis: deterministic + signal-based"],["SIMULATIONS/future_simulator.py",67,"dormant","จำลองอนาคต: deterministic scenarios จาก state จริง"],["SIMULATIONS/montecarlo_engine.py",65,"dormant","Monte Carlo: จำลอง n runs ด้วย bounded perturbation"],["SIMULATIONS/pandemic-survival-simulation.md",125,"docs","KING DIADEM — Pandemic Survival Simulation"],["SIMULATIONS/scenario_engine.py",70,"dormant","Scenario Engine: ประเมินอนาคตจาก context จริง"],["SIMULATIONS/scenario_tree.py",84,"dormant","Scenario Tree: เส้นทางที่เป็นไปได้ตาม context"],["SYSTEM_ARCHITECTURE.md",109,"docs","KING DIADEM — System Architecture"],["SYSTEM_OVERVIEW.md",82,"docs","KING DIADEM — System Overview"],["WHITEPAPER.md",265,"docs","KING DIADEM — Whitepaper"],["WORLD_MODEL/__init__.py",1,"dormant",""],["WORLD_MODEL/earth_guardian.py",64,"dormant",""],["WORLD_MODEL/environment.py",180,"dormant","Environment State Engine"],["WORLD_MODEL/human_behavior.py",244,"dormant","Human Behavior Engine — วิเคราะห์พฤติกรรมมนุษย์จากบริบทจริง"],["WORLD_MODEL/human_bias.py",44,"dormant",""],["WORLD_MODEL/human_state.py",192,"dormant","Human State Engine — สภาวะมนุษย์จริง ไม่ใช่ hardcode"],["WORLD_MODEL/small_animal_model.py",258,"dormant","Small Animal Welfare Model"],["WORLD_MODEL/survival_threshold.py",295,"dormant","Survival Threshold Engine"],["app.py",1150,"boot","ประตูหลัก FastAPI v5.0 — /run, /simulate, auth, Stripe, report"],["core/__init__.py",1,"dormant",""],["core/api_keys.py",837,"dormant","ระบบ API key HMAC + rate limit ครบ — ยังไม่ต่อสาย"],["core/axioms.py",177,"dormant","Core Axioms & Governance Constants"],["core/brain.py",130,"dormant","KING DIADEM v2.0"],["core/civil_work_core.py",178,"dormant","CIVIL WORK CORE: Human-independent decision support"],["core/core_loop.py",109,"dormant","CORE LOOP — KING DIADEM v3.1"],["core/cosmic_latte_canon.py",294,"boot","ประตู canon — จับ 'ต้องทำ' แบบ substring ทำให้ 'ไม่ต้องทำ' โดนบล็อก"],["core/creator_identity.py",94,"dormant","Creator Identity Lock — Immutable"],["core/creator_story.py",72,"dormant","Creator Story: เปิดเผยเมื่อถูกถามเท่านั้น"],["core/database.py",83,"dormant","SQLite database — users + payments + decisions + sessions"],["core/dependency_cycle.py",151,"dormant","Dependency Cycle Engine — Water Flow Model"],["core/drift_monitor.py",222,"dormant","DriftZero Waterline Governance Standard"],["core/emptiness_guard.py",1789,"boot","ชั้น TITAN/Waterline — มีฟังก์ชันครบ แต่เส้นทางจริงใช้แค่บางส่วน"],["core/entropy_guard.py",303,"dormant","Entropy Guard: ระบบป้องกันความพัง"],["core/fate_core.py",172,"dormant","FATE™ v1.0 — Deterministic Decision Infrastructure"],["core/king_diadem_core.py",84,"dormant","KING DIADEM CORE"],["core/llm_gemini.py",689,"boot","คุย Gemini + ตรวจวิกฤต (1323) — ถูกเรียก 2 ครั้งต่อ 1 ข้อความ"],["core/lyla_kernel.py",119,"boot","LYLA OPEN SYSTEM CORE LOGIC KERNEL"],["core/master_brain.py",132,"dormant","Master Brain (v2)"],["core/memory_store.py",107,"dormant","MEMORY STORE — KING DIADEM CORE LAYER v2"],["core/navigator.py",66,"dormant","Truth Engine: ใช้ Gemini + FATE™ logic"],["core/parables.py",120,"request","Human Wisdom Layer — KING DIADEM"],["core/reality_laws.py",266,"dormant","REALITY LAWS — KING DIADEM CORE LAYER v2"],["core/silent_canon.py",270,"dormant","SILENT CANON — KING DIADEM CORE LAYER v3"],["core/survival_threshold.py",5,"dormant","Layer 0 Law: Choice(t) >= 1 → collapse = False"],["core/system_orchestrator.py",265,"boot","ร้อยเครื่องยนต์ย่อย แล้วเรียก LLM เอง 1 รอบ (คำตอบถูกทิ้ง)"],["core/time_engine.py",251,"dormant","Time Awareness Engine"],["core/truth_system.py",176,"dormant","Truth Infrastructure: สะท้อนความจริง + เปิดทางเลือก"],["core/users.py",277,"dormant","User Registry"],["core/vega_mode.py",168,"request","VEGA Mode — ALTIER Logic Core (adapted for VEGA)"],["core/vigilance_protocol.py",38,"dormant","Vigilance Protocol"],["docs/docs-full/anima-safe-core.html",173,"site","ANIMA-SAFE CORE | KING DIADEM"],["docs/docs-full/cosmic-latte.html",140,"site","COSMIC LATTE — Observer Protocol | KING DIADEM"],["docs/docs-full/ethical-lattice.html",163,"site","64-Axiom Ethical Lattice | KING DIADEM"],["docs/index.html",948,"site","KING DIADEM — DriftZero Governance Infrastructure"],["gunicorn.conf.py",9,"dormant","Render free tier optimized"],["manifest.json",45,"site","สำเนา static/manifest.json สำหรับ GitHub Pages"],["portfolio.html",725,"site","Nithikorn Bunsrang — AI Systems Architect"],["render.yaml",36,"config",""],["report_engine.py",181,"boot","สร้างรายงาน FATE ที่แชร์ได้ /report/<id>"],["requirements.txt",15,"config",""],["service_worker.js",50,"site","service worker ยุค GitHub Pages (cache-first) — เซิร์ฟเวอร์ไม่ได้เสิร์ฟไฟล์นี้"],["simulation_graph.js",127,"dormant","Real-time Decision Stability Graph"],["static/__init__.py",1,"dormant",""],["static/ai_brain.js",100,"dormant","KING DIADEM AI Core Bridge v2.0"],["static/ai_orbit.js",324,"dormant","KING DIADEM Orbital Engine v2.0"],["static/ai_thinking.js",53,"dormant","ตัวแสดงจุด 'กำลังคิด' — ไม่มีหน้าไหนโหลด"],["static/ai_thinking_orbit.js",315,"dormant","AI Thinking Orbit Visualizer v2.0"],["static/app.js",287,"dormant","แอปฝั่งหน้าเว็บรุ่นเก่า v3.1 — ไม่มีหน้าไหนโหลด"],["static/ask.html",303,"web","ASK — KING DIADEM"],["static/brain.js",300,"dormant","KING DIADEM Neural Core v2.0"],["static/decision.js",309,"dormant","Decision Engine Interface v2.0"],["static/galaxy.js",224,"dormant","KING DIADEM Solar System v2"],["static/galaxy_council.js",277,"dormant","Council Vote Renderer"],["static/galaxy_decision.js",212,"dormant","Decision Summary Renderer"],["static/galaxy_scene.js",375,"dormant","ฉากกาแล็กซีรุ่นก่อน — หน้าแรกตอนนี้วาดจักรวาลการตัดสินใจเองจากข้อมูลจริง จึงไม่ได้โหลดไฟล์นี้"],["static/galaxy_scene_api.js",132,"dormant","poll /api/galaxy/nodes ให้ฉากกาแล็กซีรุ่นก่อน — หน้าแรกตอนนี้ไม่ได้โหลด"],["static/guide.html",353,"web","HUMAN GUIDE — KING DIADEM"],["static/hero.png",0,"web","ภาพแบรนด์ KING DIADEM — พื้นหลังหน้า login/register และต้นแบบโทนสีของหน้าแรก"],["static/index.html",1472,"web","หน้าแอปหลักที่ / — จักรวาลการตัดสินใจ แชท เครื่องมือ และแผนที่ระบบ (ไฟล์นี้)"],["static/kd_theme_deepspace.css",431,"dormant","ธีม Deep Space (ชมพู-ลาเวนเดอร์) ของหน้าแรกรุ่นก่อน — หน้าแรกตอนนี้ไม่ได้โหลด"],["static/king_diadem_profile (1).png",0,"dormant","รูปโปรไฟล์ — ไม่มีหน้าไหนใช้"],["static/king_diadem_universe.html",568,"web","KING DIADEM — The Universe That Restores Choice"],["static/login.html",456,"web","KING DIADEM · ACCESS"],["static/logo.png",0,"web","โลโก้ — แกนมงกุฎกลางจักรวาลการตัดสินใจในหน้าแรก"],["static/main.js",319,"dormant","KING DIADEM Core Bridge v3.0"],["static/manifest.json",45,"web","PWA manifest"],["static/register.html",674,"web","KING DIADEM · REGISTER"],["static/report.html",741,"web","หน้ารายงานการตัดสินใจ /report/<id>"],["static/service-worker.js",102,"dormant","ลงทะเบียน scope '/' จาก /static/ ไม่ได้ (ไม่มี header Service-Worker-Allowed)"],["static/style.css",303,"broken","บรรทัดแรกเป็นข้อความแชท AI ไม่ใช่ CSS"],["static/system.js",141,"dormant","System Kernel v2.1"],["static/wallet.html",362,"broken","เรียก /wallet/balance และ /wallet/topup ซึ่ง app.py ไม่มี (404)"],["static/warp_intro.js",111,"dormant","warp_intro.js"]]}</script>
 <script>
 'use strict';
 /* ════════════════════════════════════════════════════════════════
@@ -546,13 +558,13 @@ function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(_){} }
 function lsDel(k){ try{ localStorage.removeItem(k); }catch(_){} }
 function num(v, d){ var n = Number(v); return isFinite(n) ? n : d; }
 function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 var _toastT = null;
 function toast(msg, bad, ms){
   var el = $('#toast'); el.textContent = msg; el.className = 'on' + (bad ? ' bad' : '');
   clearTimeout(_toastT); _toastT = setTimeout(function(){ el.className = ''; }, ms || 4200);
 }
-
 async function readJson(res){
   var txt = await res.text(), data = null;
   try{ data = JSON.parse(txt); }catch(_){}
@@ -585,26 +597,30 @@ async function fetchRetry(url, opts, tries){
 }
 
 /* ════════════════════════════════════════════════════════════════
-   THEME
+   SYSTEM MAP DATA — ข้อมูลจริงจาก repo (ฝังไว้ใน #system-map)
    ════════════════════════════════════════════════════════════════ */
-(function(){
-  var t = lsGet('kd_theme'); if(t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
-  $('#theme-btn').addEventListener('click', function(){
-    var cur = document.documentElement.dataset.theme ||
-      (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    var next = cur === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = next; lsSet('kd_theme', next);
-  });
-})();
+var MAP = (function(){ try{ return JSON.parse($('#system-map').textContent); }catch(_){ return {commit:'', files:[]}; } })();
+var CATS = [
+  ['boot',    'ทำงานตอนบูต',        'โหลดทันทีที่เซิร์ฟเวอร์เริ่ม และอยู่ในเส้นทางของ /run'],
+  ['request', 'ทำงานตอนตอบ',        'ถูก import ตอนมีข้อความเข้ามา ผ่าน system_orchestrator'],
+  ['web',     'หน้าเว็บที่ใช้อยู่',   'หน้าและไฟล์ที่ FastAPI เสิร์ฟจริง'],
+  ['broken',  'เสีย',               'import ไม่ได้ หรือเรียกสิ่งที่ไม่มีอยู่จริง'],
+  ['dormant', 'ยังไม่ต่อสาย',        'มีโค้ดอยู่แต่ไม่มีเส้นทางจริงเรียกใช้ (รวมไฟล์หน้าเว็บที่ไม่มีหน้าไหนโหลด)'],
+  ['docs',    'เอกสาร',             'Markdown อธิบายแนวคิด ไม่ถูกโหลดโดยโค้ด'],
+  ['site',    'เว็บ GitHub Pages',  'หน้าเว็บ/ไฟล์ของ docs site แยกจากแอป'],
+  ['config',  'ตั้งค่า',             'requirements, render.yaml, launch.json'],
+  ['artifact','ไฟล์ build',          '.pyc ที่ถูก commit ติดมา']
+];
+var CAT_NAME = {}; CATS.forEach(function(c){ CAT_NAME[c[0]] = c[1]; });
 
 /* ════════════════════════════════════════════════════════════════
    AUTH  (GET /me · POST /logout)
    ════════════════════════════════════════════════════════════════ */
 var Auth = { loggedIn:false, email:'', premium:false, credits:null };
 async function refreshMe(){
+  var was = Auth.email;
   try{
     var d = await readJson(await fetch('/me', {credentials:'same-origin'}));
-    var was = Auth.email;
     Auth.loggedIn = !!d.logged_in; Auth.email = d.logged_in ? (d.email || d.name || '') : '';
     Auth.premium = !!d.premium; Auth.credits = d.logged_in ? num(d.credits, 0) : null;
   }catch(_){ Auth.loggedIn = false; Auth.email = ''; Auth.credits = null; }
@@ -630,7 +646,6 @@ function keyV5(){ return 'kd_chat_v5_' + b64(Auth.email || 'guest'); }
 function keyV4(){ var e = Auth.email || 'guest'; try{ return 'kd_sessions_v4_' + btoa(encodeURIComponent(e)).replace(/=/g,''); }catch(_){ return 'kd_sessions_v4_guest'; } }
 function newId(){ return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function freshState(){ var id = newId(); return { v:5, active:id, items:[{id:id, title:'แชทใหม่', msgs:[]}], savedAt:0 }; }
-
 /* แปลง HTML ของรุ่นเก่าเป็นข้อความ — DOMParser สร้างเอกสารเฉื่อย ไม่รันสคริปต์ ไม่โหลดรูป */
 function htmlToMsgs(html){
   if(!html || typeof html !== 'string') return [];
@@ -660,8 +675,8 @@ function normalize(s){
 var Chat = {
   s: null,
   load: function(){
-    var raw = lsGet(keyV5()), st = null;
-    try{ st = normalize(JSON.parse(raw)); }catch(_){}
+    var st = null;
+    try{ st = normalize(JSON.parse(lsGet(keyV5()))); }catch(_){}
     if(!st){ try{ st = normalize(JSON.parse(lsGet(keyV4()))); }catch(_){} }
     this.s = st || freshState();
   },
@@ -688,7 +703,6 @@ var Chat = {
     c.title = text.replace(/\s+/g,' ').trim().slice(0, 40); this.save(); renderSessions();
   }
 };
-
 /* ── sync กับบัญชี (GET/PUT /api/chat-state) ───────────────────── */
 var Cloud = {
   t: null,
@@ -797,27 +811,17 @@ var MyState = {
 $('#state-chip').addEventListener('click', function(){ MyState.fillForm(); $('#dlg-state').showModal(); });
 $('#state-form').addEventListener('input', function(){ MyState.preview(); });
 $('#dlg-state').addEventListener('close', function(){
-  if(this.returnValue === 'save'){ lsSet(MyState.KEY, JSON.stringify(MyState.readForm())); MyState.chip(); toast('บันทึกสถานะแล้ว — จะส่งไปกับทุกข้อความ'); }
+  if(this.returnValue === 'save'){ lsSet(MyState.KEY, JSON.stringify(MyState.readForm())); MyState.chip(); Cosmos.syncCore(); toast('บันทึกสถานะแล้ว — จะส่งไปกับทุกข้อความ'); }
 });
-$('#st-clear').addEventListener('click', function(){ lsDel(MyState.KEY); MyState.chip(); $('#dlg-state').close('clear'); toast('ไม่ส่งสถานะแล้ว — ระบบจะใช้ค่าเริ่มต้น'); });
+$('#st-clear').addEventListener('click', function(){ lsDel(MyState.KEY); MyState.chip(); Cosmos.syncCore(); $('#dlg-state').close('clear'); toast('ไม่ส่งสถานะแล้ว — ระบบจะใช้ค่าเริ่มต้น'); });
 
 /* ════════════════════════════════════════════════════════════════
    ROUTE + PERSONA
    ════════════════════════════════════════════════════════════════ */
-var ROUTES = [['general','ทั่วไป'],['risk','ความเสี่ยง'],['survival','อยู่รอด'],['collapse','วิกฤต'],['civil','งาน/สังคม'],['vega','VEGA กลยุทธ์']];
+var ROUTES = [['general','ทั่วไป'],['risk','ความเสี่ยง'],['civil','งาน/สังคม'],['survival','อยู่รอด'],['collapse','วิกฤต'],['vega','VEGA กลยุทธ์']];
+var ROUTE_NAME = {}; ROUTES.forEach(function(r){ ROUTE_NAME[r[0]] = r[1]; });
 var Route = lsGet('kd_route') || 'general', Persona = lsGet('kd_persona') || 'auto';
-if(!ROUTES.some(function(r){ return r[0] === Route; })) Route = 'general';
-(function(){
-  var box = $('#routes');
-  ROUTES.forEach(function(r){
-    var b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.r = r[0]; b.textContent = r[1];
-    b.addEventListener('click', function(){ Route = r[0]; lsSet('kd_route', Route); syncChips(); });
-    box.appendChild(b);
-  });
-  $$('#persona-seg button').forEach(function(b){
-    b.addEventListener('click', function(){ Persona = b.dataset.p; lsSet('kd_persona', Persona); syncChips(); });
-  });
-})();
+if(!ROUTE_NAME[Route]) Route = 'general';
 function syncChips(){
   $$('#routes .chip').forEach(function(b){ b.classList.toggle('on', b.dataset.r === Route); });
   $$('#persona-seg button').forEach(function(b){ b.classList.toggle('on', b.dataset.p === Persona); });
@@ -859,7 +863,7 @@ function traceHTML(t){
   function row(k, v){ rows.push('<div class="tr-row"><div class="k">' + esc(k) + '</div><div class="v">' + v + '</div></div>'); }
   var stCls = t.status === 'SUCCESS' ? 'ok' : (t.status === 'SYSTEM_PAUSE' ? 'warn' : (t.status ? 'bad' : ''));
   row('ผลลัพธ์', '<span class="badge ' + stCls + '">' + esc(t.status || '—') + '</span>');
-  row('เส้นทาง', '<span class="mono">' + esc((t.route || '—').toUpperCase()) + '</span> · ' + esc(t.persona || '—'));
+  row('เส้นทาง', '<span class="mono">' + esc(String(t.route || '—').toUpperCase()) + '</span> · ' + esc(t.persona || '—'));
   if(t.wl != null){
     var c = lvlClass(t.wl);
     row('Waterline', '<span class="mono">' + Math.round(t.wl) + '/100</span> · ' + esc(t.hs || '') + '<div class="bar ' + (c==='ok'?'':c) + '"><i style="width:' + Math.max(0, Math.min(100, t.wl)) + '%"></i></div>' + (t.pri ? '<div class="muted" style="font-size:12px;margin-top:4px">' + esc(t.pri) + '</div>' : ''));
@@ -867,7 +871,7 @@ function traceHTML(t){
   if(t.risk != null) row('ความเสี่ยง', '<span class="badge ' + lvlClass(t.risk, true) + '">' + Math.round(t.risk) + ' / 100</span>');
   if(flags.length) row('Flags', flags.map(function(f){ return '<span class="badge warn">' + esc(f) + '</span>'; }).join(''));
   if(t.canDecide === false) row('ตัดสินใจใหญ่', '<span class="badge warn">ยังไม่ควร</span> <span class="muted">survivor engine ให้ stabilize ก่อน</span>');
-  if(t.belief && t.belief.lvl) row('Belief core', '<span class="badge ' + (t.belief.lvl === 'ok' ? 'ok' : t.belief.lvl === 'warn' ? 'warn' : 'bad') + '">' + esc(t.belief.lvl.toUpperCase()) + '</span>' + (Array.isArray(t.belief.arts) && t.belief.arts.length ? t.belief.arts.map(function(a){ return '<span class="badge">' + esc(a) + '</span>'; }).join('') : '') + '<div class="muted" style="font-size:12px">' + esc(t.belief.msg) + '</div>');
+  if(t.belief && t.belief.lvl) row('Belief core', '<span class="badge ' + (t.belief.lvl === 'ok' ? 'ok' : t.belief.lvl === 'warn' ? 'warn' : 'bad') + '">' + esc(String(t.belief.lvl).toUpperCase()) + '</span>' + (Array.isArray(t.belief.arts) && t.belief.arts.length ? t.belief.arts.map(function(a){ return '<span class="badge">' + esc(a) + '</span>'; }).join('') : '') + '<div class="muted" style="font-size:12px">' + esc(t.belief.msg) + '</div>');
   row('Canon gate', t.canon === 'blocked' ? '<span class="badge bad">บล็อกคำตอบ</span> ' + esc(canonV.join(', ')) : t.canon === 'notice' ? '<span class="badge warn">เตือน</span>' : '<span class="badge ok">ผ่าน</span>');
   if(t.consensus) row('Consensus', '<span class="mono">' + esc(t.consensus) + '</span>');
   if(t.report) row('รายงาน', '<a href="/report/' + encodeURIComponent(t.report) + '" target="_blank" rel="noopener" class="mono">/report/' + esc(t.report) + '</a>');
@@ -875,9 +879,271 @@ function traceHTML(t){
   var note = t.sentState ? '' : '<div class="tr-note">ยังไม่ได้ระบุ “สถานะของฉัน” — waterline และความเสี่ยงข้างบนมาจากค่าเริ่มต้นของ backend ไม่ใช่สภาพจริงของคุณ</div>';
   return '<div class="trace">' + rows.join('') + note + '</div>';
 }
+/* สีของดาว = ความเสี่ยง (ฟ้า → ทอง → แดง) */
+function riskColor(r){ if(r == null) return '#c9d4ff'; return r >= 75 ? '#ff5d6c' : r >= 45 ? '#f6b24a' : '#6fb2ff'; }
 
 /* ════════════════════════════════════════════════════════════════
-   RENDER
+   COSMOS — จักรวาลการตัดสินใจ (canvas)
+   แกน   = มงกุฎ (logo.png) ความสว่างตาม waterline ของผู้ใช้
+   วงโคจร = เส้นทาง 6 แบบ · ดาว = คำตอบจริงแต่ละครั้ง สีตามความเสี่ยง
+   โหมดระบบ = ไฟล์จริง 272 ไฟล์ วงในคือโค้ดที่รันจริง วงนอกคือฝุ่นที่ยังไม่ต่อสาย
+   ════════════════════════════════════════════════════════════════ */
+var Cosmos = (function(){
+  var cv = $('#cosmos'), ctx = cv.getContext('2d'), W = 0, H = 0, DPR = 1, bgCv = null, twk = [], raf = 0;
+  var logo = new Image(), logoOk = false; logo.onload = function(){ logoOk = true; kick(); }; logo.src = '/static/logo.png';
+  var mode = 'decisions', view = 'chat', nodes = [], hover = null, sel = null, think = false, focusR = null, focusT = 0;
+  var births = [], coreWL = null, t0 = performance.now(), lastPaint = 0;
+  var ORB = ['general','risk','civil','survival','collapse','vega'];
+  var SYS_ORB = { boot:0, request:1, web:2, broken:3, docs:4, site:4, config:4, artifact:4, dormant:5 };
+  var SYS_COL = { boot:'#f6b24a', request:'#ffe2a8', web:'#4d9bff', broken:'#ff5d6c', docs:'#a78bfa', site:'#6c82b8', config:'#8e96b0', artifact:'#3b4270', dormant:'#5a6694' };
+  var SYS_ORB_NAME = ['ทำงานตอนบูต','ทำงานตอนตอบ','หน้าเว็บที่ใช้อยู่','เสีย','เอกสาร · docs · ตั้งค่า','ยังไม่ต่อสาย'];
+
+  function hash(s){ var h = 2166136261; s = String(s); for(var i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967295; }
+  function geo(){
+    var r = $('#main').getBoundingClientRect(), cx = r.left + r.width / 2, cy, R, small = Math.min(r.width, H);
+    var top = r.top + 54;
+    if(view === 'chat' && !$('#empty').classList.contains('hide')){
+      var cs = $('#core-space').getBoundingClientRect(); cy = cs.top + cs.height * 0.52; R = Math.max(34, Math.min(cs.height * 0.33, small * 0.13));
+    } else if(view === 'universe'){ cy = top + (r.bottom - top) * 0.5; R = Math.max(28, small * 0.072); }
+    else { cy = top + (r.bottom - top) * 0.42; R = Math.max(28, small * 0.085); }
+    var portrait = r.width < (r.bottom - top) * 0.8;
+    var span = Math.min(r.width * (portrait ? 0.47 : 0.46), (r.bottom - top) * (view === 'universe' ? 1.02 : 1.1));
+    return { cx:cx, cy:cy, R:R, span:span, tilt: portrait ? -0.1 : -0.13, squash: view === 'universe' ? (portrait ? 0.66 : 0.44) : (portrait ? 0.5 : 0.34) };
+  }
+  function orbitRx(g, i){ var inner = g.R * 1.8, outer = Math.max(inner + 60, g.span); return inner + (outer - inner) * (i / 5); }
+  function pos(g, i, ang){
+    var rx = orbitRx(g, i), ry = rx * g.squash, x = Math.cos(ang) * rx, y = Math.sin(ang) * ry;
+    var c = Math.cos(g.tilt), s = Math.sin(g.tilt);
+    return { x: g.cx + x * c - y * s, y: g.cy + x * s + y * c, back: Math.sin(ang) < 0 };
+  }
+  function buildBg(){
+    bgCv = document.createElement('canvas'); bgCv.width = Math.round(W * DPR); bgCv.height = Math.round(H * DPR);
+    var b = bgCv.getContext('2d'); b.scale(DPR, DPR);
+    var g = b.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#03040c'); g.addColorStop(.55, '#070a1f'); g.addColorStop(1, '#0a0b1e'); b.fillStyle = g; b.fillRect(0, 0, W, H);
+    var M = Math.max(W, H);
+    function neb(x, y, r, col){ var n = b.createRadialGradient(x, y, 0, x, y, r); n.addColorStop(0, col); n.addColorStop(1, 'rgba(0,0,0,0)'); b.fillStyle = n; b.fillRect(0, 0, W, H); }
+    b.globalCompositeOperation = 'screen';
+    neb(W * .12, H * .30, M * .55, 'rgba(46,96,255,.30)');
+    neb(W * .30, H * .10, M * .30, 'rgba(90,140,255,.14)');
+    neb(W * .90, H * .26, M * .50, 'rgba(255,140,40,.24)');
+    neb(W * .72, H * .08, M * .25, 'rgba(255,190,90,.10)');
+    neb(W * .04, H * .94, M * .40, 'rgba(110,70,200,.22)');
+    neb(W * .96, H * .94, M * .40, 'rgba(170,90,160,.16)');
+    neb(W * .5, H * 1.08, M * .45, 'rgba(255,190,110,.13)');
+    b.globalCompositeOperation = 'source-over';
+    var n = Math.min(1400, Math.round(W * H / 1500));
+    for(var i = 0; i < n; i++){
+      var x = Math.random() * W, y = Math.random() * H, r = Math.random() < .93 ? Math.random() * .8 + .2 : Math.random() * 1.4 + .8;
+      var warm = x / W + (Math.random() - .5) * .5 > .55;
+      b.fillStyle = (warm ? 'rgba(255,214,150,' : 'rgba(170,205,255,') + (Math.random() * .6 + .2).toFixed(2) + ')';
+      b.beginPath(); b.arc(x, y, r, 0, 6.2832); b.fill();
+    }
+    twk = [];
+    for(var j = 0; j < 70; j++) twk.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.2 + .6, p: Math.random() * 6.28, s: Math.random() * 1.5 + .5, warm: Math.random() < .5 });
+  }
+  function resize(){
+    DPR = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); buildBg(); kick();
+  }
+  function countDecisions(){ var n = 0; if(Chat.s) Chat.s.items.forEach(function(it){ it.msgs.forEach(function(m){ if(m.r === 'a' && m.tr) n++; }); }); return n; }
+  function rebuild(){
+    nodes = [];
+    if(mode === 'decisions'){
+      if(Chat.s) Chat.s.items.forEach(function(it){
+        it.msgs.forEach(function(m, idx){
+          if(m.r !== 'a' || !m.tr) return;
+          var rt = String(m.tr.route || 'general').toLowerCase(); if(rt === 'crisis') rt = 'collapse';
+          var oi = ORB.indexOf(rt); if(oi < 0) oi = 0;
+          var q = ''; for(var k = idx - 1; k >= 0; k--){ if(it.msgs[k].r === 'u'){ q = it.msgs[k].t; break; } }
+          nodes.push({ kind:'d', orb:oi, a0: hash(m.ts + '|' + it.id + '|' + idx) * 6.2832, r: 3.4 + Math.min(4.2, (m.tr.risk || 0) / 20), col: riskColor(m.tr.risk), ts: m.ts || 0, sid: it.id, m: m, q: q });
+        });
+      });
+      nodes.sort(function(a, b){ return a.ts - b.ts; });
+    } else {
+      (MAP.files || []).forEach(function(f){
+        var oi = SYS_ORB[f[2]]; if(oi == null) oi = 5;
+        nodes.push({ kind:'f', orb:oi, a0: hash(f[0]) * 6.2832, r: Math.max(1.4, Math.min(6.5, Math.sqrt(f[1] || 1) / 6)), col: SYS_COL[f[2]] || '#5a6694', f: f });
+      });
+    }
+    $('#nav-stars').textContent = countDecisions();
+    if(view === 'universe') legend();
+    kick();
+  }
+  function speed(i){ return REDUCED ? 0 : (0.02 / (1 + i * 0.55)); }
+  function drawOrbits(g, half){
+    for(var i = 0; i < 6; i++){
+      var rx = orbitRx(g, i), ry = rx * g.squash;
+      var a = view === 'universe' ? .36 : .24;
+      if(focusR != null && ORB[i] === focusR && mode === 'decisions' && performance.now() - focusT < 2600) a = .85;
+      if(mode === 'system' && i === 5) a *= .6;
+      ctx.save(); ctx.translate(g.cx, g.cy); ctx.rotate(g.tilt);
+      var grad = ctx.createLinearGradient(-rx, 0, rx, 0);
+      grad.addColorStop(0, 'rgba(77,155,255,' + a + ')'); grad.addColorStop(.5, 'rgba(210,220,255,' + (a * .7) + ')'); grad.addColorStop(1, 'rgba(246,178,74,' + a + ')');
+      ctx.strokeStyle = grad; ctx.lineWidth = i === 0 ? 1.5 : 1;
+      ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, half === 'back' ? Math.PI : 0, half === 'back' ? 2 * Math.PI : Math.PI); ctx.stroke();
+      ctx.restore();
+      if(view === 'universe' && half === 'front' && W >= 640){
+        /* ป้ายชื่อวง: เรียงไว้ที่ขอบบนของแต่ละวง เหนือแกนมงกุฎ */
+        var lab = mode === 'decisions' ? (ROUTE_NAME[ORB[i]] || ORB[i]) : SYS_ORB_NAME[i];
+        var p = pos(g, i, -Math.PI / 2);
+        ctx.font = '500 11px "IBM Plex Mono", monospace'; ctx.textBaseline = 'bottom'; ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(205,215,245,.72)'; ctx.fillText(lab, p.x, p.y - 4); ctx.textAlign = 'start';
+      }
+    }
+  }
+  function drawNodes(g, now, back){
+    var tsec = (now - t0) / 1000, fade = view === 'universe' ? 1 : .85;
+    for(var i = 0; i < nodes.length; i++){
+      var n = nodes[i], p = pos(g, n.orb, n.a0 + tsec * speed(n.orb));
+      n.x = p.x; n.y = p.y;
+      if(p.back !== back) continue;
+      var dim = n.kind === 'f' && n.f[2] === 'dormant', r = n.r, alpha = fade * (p.back ? .72 : 1), x = p.x, y = p.y;
+      for(var bi = 0; bi < births.length; bi++){
+        if(n.kind !== 'd' || births[bi].ts !== n.ts) continue;
+        var k = Math.min(1, (now - births[bi].at) / 1600), e = 1 - Math.pow(1 - k, 3);
+        x = g.cx + (p.x - g.cx) * e; y = g.cy + (p.y - g.cy) * e;
+        ctx.globalAlpha = .55 * (1 - k); ctx.strokeStyle = n.col; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(g.cx, g.cy); ctx.lineTo(x, y); ctx.stroke();
+        r = r * (1 + (1 - k) * 1.6);
+      }
+      var glow = ctx.createRadialGradient(x, y, 0, x, y, r * 4.5);
+      glow.addColorStop(0, n.col); glow.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.globalAlpha = alpha * (dim ? .3 : .55); ctx.fillStyle = glow;
+      ctx.beginPath(); ctx.arc(x, y, r * 4.5, 0, 6.2832); ctx.fill();
+      ctx.globalAlpha = alpha * (dim ? .6 : 1); ctx.fillStyle = (n === hover || n === sel) ? '#ffffff' : n.col;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
+      if(n === sel || n === hover){ ctx.globalAlpha = 1; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x, y, r + 5, 0, 6.2832); ctx.stroke(); }
+      if(n.kind === 'd' && i === nodes.length - 1 && !REDUCED){
+        var pr = (tsec % 2.4) / 2.4; ctx.globalAlpha = .6 * (1 - pr); ctx.strokeStyle = n.col; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(x, y, r + 4 + pr * 16, 0, 6.2832); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+  function drawCore(g, now){
+    var tsec = (now - t0) / 1000, wl = coreWL == null ? 72 : coreWL;
+    var breathe = REDUCED ? 0 : Math.sin(tsec * (think ? 3.4 : 1.1)) * (think ? .08 : .03);
+    var lum = .35 + wl / 100 * .65, R = g.R * (1 + breathe);
+    var halo = ctx.createRadialGradient(g.cx, g.cy, R * .2, g.cx, g.cy, R * 3.4);
+    halo.addColorStop(0, 'rgba(255,236,200,' + (.26 * lum) + ')'); halo.addColorStop(.35, 'rgba(120,160,255,' + (.15 * lum) + ')'); halo.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(g.cx, g.cy, R * 3.4, 0, 6.2832); ctx.fill();
+    if(logoOk){
+      ctx.save(); ctx.globalAlpha = .55 + lum * .45;
+      ctx.shadowColor = wl < 35 ? 'rgba(255,93,108,.85)' : 'rgba(246,178,74,.55)'; ctx.shadowBlur = R * .6;
+      var s = R * 2.6; ctx.drawImage(logo, g.cx - s / 2, g.cy - s / 2, s, s); ctx.restore();
+    } else {
+      ctx.fillStyle = 'rgba(232,217,176,.85)'; ctx.beginPath(); ctx.arc(g.cx, g.cy, R * .7, 0, 6.2832); ctx.fill();
+    }
+    if(coreWL != null && view === 'universe'){
+      ctx.font = '600 11px "IBM Plex Mono", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = 'rgba(230,236,255,.8)';
+      ctx.fillText('WATERLINE ' + Math.round(coreWL), g.cx, g.cy + R * 1.55); ctx.textAlign = 'start';
+    }
+  }
+  function frame(now){
+    raf = 0;
+    if(document.hidden || !W) return;
+    /* ตอนอยู่หน้าอื่นที่มีม่านบัง วาดแค่ ~20fps ประหยัดแบต */
+    if(view !== 'universe' && view !== 'chat' && now - lastPaint < 50){ kick(); return; }
+    lastPaint = now;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.drawImage(bgCv, 0, 0, W, H);
+    var tsec = (now - t0) / 1000;
+    for(var i = 0; i < twk.length; i++){
+      var s = twk[i]; ctx.globalAlpha = REDUCED ? .5 : .25 + .75 * Math.abs(Math.sin(tsec * s.s + s.p));
+      ctx.fillStyle = s.warm ? '#ffe2b0' : '#cfe0ff'; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    var g = geo();
+    drawOrbits(g, 'back'); drawNodes(g, now, true);
+    drawCore(g, now);
+    drawOrbits(g, 'front'); drawNodes(g, now, false);
+    births = births.filter(function(b){ return now - b.at < 1700; });
+    if(!REDUCED || births.length) kick();
+  }
+  function kick(){ if(!raf) raf = requestAnimationFrame(frame); }
+  function pick(x, y){
+    var best = null, bd = 20 * 20;
+    nodes.forEach(function(n){ if(n.x == null) return; var dx = n.x - x, dy = n.y - y, d = dx * dx + dy * dy; if(d < bd){ bd = d; best = n; } });
+    return best;
+  }
+  function card(n){
+    var c = $('#u-card');
+    if(!n){ c.classList.add('hide'); c.innerHTML = ''; return; }
+    var h = '<button type="button" class="icon-btn x" aria-label="ปิด">✕</button>';
+    if(n.kind === 'd'){
+      var t = n.m.tr || {}, when = n.ts ? new Date(n.ts).toLocaleString('th-TH', {dateStyle:'medium', timeStyle:'short'}) : '';
+      h += '<h3>' + esc(ROUTE_NAME[ORB[n.orb]] || ORB[n.orb]) + ' · <span style="color:' + n.col + '">ความเสี่ยง ' + (t.risk != null ? Math.round(t.risk) : '—') + '</span></h3>' +
+        '<div class="meta">' + esc(when) + (t.wl != null ? ' · WL ' + Math.round(t.wl) : '') + ' · ' + esc(n.m.p || '') + '</div>' +
+        (n.q ? '<p class="q">' + esc(n.q.slice(0, 280)) + '</p>' : '') +
+        '<p class="a">' + fmt(n.m.t.slice(0, 420) + (n.m.t.length > 420 ? '…' : '')) + '</p>' + (t.mode === 'crisis' || /1323|1669/.test(n.m.t) ? crisisCard() : '') +
+        '<details><summary>ระบบทำอะไรกับข้อความนี้</summary>' + traceHTML(t) + '</details>' +
+        '<div style="margin-top:12px"><button type="button" class="btn sm primary" id="u-open">เปิดแชทนี้</button></div>';
+    } else {
+      var f = n.f;
+      h += '<h3 class="mono" style="font-size:14px">' + esc(f[0]) + '</h3><div class="meta"><span style="color:' + n.col + '">● ' + esc(CAT_NAME[f[2]] || f[2]) + '</span> · ' + (f[1] || 0).toLocaleString('en-US') + ' บรรทัด</div>' +
+        '<p class="a">' + esc(f[3] || 'ไม่มีคำอธิบายในไฟล์') + '</p>';
+    }
+    c.innerHTML = h; c.classList.remove('hide');
+    c.querySelector('.x').addEventListener('click', function(){ sel = null; card(null); kick(); });
+    var o = $('#u-open'); if(o) o.addEventListener('click', function(){ Chat.select(n.sid); });
+  }
+  function legend(){
+    var L = $('#u-legend'), cnt = countDecisions();
+    if(mode === 'decisions'){
+      $('#u-count').textContent = cnt + ' ดวง · ' + (coreWL == null ? 'ยังไม่ระบุ waterline' : 'waterline ' + Math.round(coreWL));
+      L.innerHTML = '<div class="row"><span><i class="sw" style="background:#6fb2ff"></i>ความเสี่ยงต่ำ &lt;45</span><span><i class="sw" style="background:#f6b24a"></i>กลาง 45–74</span><span><i class="sw" style="background:#ff5d6c"></i>สูง ≥75</span></div>' +
+        '<div class="hint">แกนกลาง = คุณ สว่างตาม waterline · วงในสุด → นอกสุด = ทั่วไป · ความเสี่ยง · งาน/สังคม · อยู่รอด · วิกฤต · VEGA · แตะดาวเพื่อดูการตัดสินใจ</div>';
+      $('#u-empty').classList.toggle('hide', cnt > 0);
+    } else {
+      var F = MAP.files || [], counts = {};
+      F.forEach(function(f){ counts[f[2]] = (counts[f[2]] || 0) + 1; });
+      $('#u-count').textContent = F.length + ' ไฟล์ · commit ' + (MAP.commit || '—');
+      L.innerHTML = '<div class="row">' + CATS.filter(function(c){ return counts[c[0]]; }).map(function(c){ return '<span><i class="sw" style="background:' + SYS_COL[c[0]] + '"></i>' + esc(c[1]) + ' ' + counts[c[0]] + '</span>'; }).join('') + '</div>' +
+        '<div class="hint">ขนาดดาว = จำนวนบรรทัด · วงในคือโค้ดที่รันจริง วงนอกคือฝุ่นดาวที่ยังไม่ต่อสาย · แตะดาวเพื่อดูไฟล์</div>';
+      $('#u-empty').classList.add('hide');
+    }
+  }
+  var U = $('#view-universe'), UI_SEL = '.u-top,#u-card,.u-legend,.u-empty';
+  U.addEventListener('pointermove', function(e){
+    var n = e.target.closest(UI_SEL) ? null : pick(e.clientX, e.clientY);
+    if(n !== hover){ hover = n; U.classList.toggle('hovering', !!n); kick(); }
+  });
+  U.addEventListener('click', function(e){
+    if(e.target.closest(UI_SEL)) return;
+    sel = pick(e.clientX, e.clientY); card(sel); kick();
+  });
+  function setMode(m){ mode = m; sel = null; hover = null; card(null); $$('#u-mode button').forEach(function(x){ x.classList.toggle('on', x.dataset.m === m); }); rebuild(); legend(); }
+  $$('#u-mode button').forEach(function(b){ b.addEventListener('click', function(){ setMode(b.dataset.m); }); });
+  addEventListener('resize', function(){ clearTimeout(resize._t); resize._t = setTimeout(resize, 120); });
+  document.addEventListener('visibilitychange', kick);
+  $('#chat-scroll').addEventListener('scroll', function(){ if(REDUCED) kick(); }, {passive:true});
+  return {
+    init: function(){ resize(); this.syncCore(); },
+    rebuild: rebuild,
+    setView: function(v){ view = v; if(v !== 'universe'){ sel = null; hover = null; card(null); } else legend(); kick(); },
+    setMode: setMode,
+    syncCore: function(){ var s = MyState.get(); coreWL = s ? MyState.waterline(s) : null; if(view === 'universe') legend(); kick(); },
+    thinking: function(on){ think = on; kick(); },
+    birth: function(ts){ births.push({ ts:ts, at: performance.now() }); kick(); },
+    focusRoute: function(r){ focusR = r; focusT = performance.now(); kick(); }
+  };
+})();
+
+/* route chips (หลัง Cosmos เพราะกดแล้ววงโคจรของเส้นทางนั้นจะสว่าง) */
+(function(){
+  var box = $('#routes');
+  ROUTES.forEach(function(r){
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.r = r[0]; b.textContent = r[1];
+    b.addEventListener('click', function(){ Route = r[0]; lsSet('kd_route', Route); syncChips(); Cosmos.focusRoute(Route); });
+    box.appendChild(b);
+  });
+  $$('#persona-seg button').forEach(function(b){
+    b.addEventListener('click', function(){ Persona = b.dataset.p; lsSet('kd_persona', Persona); syncChips(); });
+  });
+})();
+
+/* ════════════════════════════════════════════════════════════════
+   RENDER CHAT
    ════════════════════════════════════════════════════════════════ */
 var PNAME = { LYLA:['LYLA','lyla'], VEGA:['VEGA','vega'], CRISIS:['HALT · ช่วยเหลือฉุกเฉิน','crisis'] };
 function crisisCard(){
@@ -890,25 +1156,26 @@ function msgEl(m){
   if(m.r === 'e'){ el.innerHTML = '<div class="who"><span class="crisis">ERROR</span></div><div class="bubble">' + fmt(m.t) + '</div>'; return el; }
   var t = m.tr || {}, key = (t.mode === 'crisis') ? 'CRISIS' : ((m.p || 'LYLA').toUpperCase() === 'VEGA' ? 'VEGA' : 'LYLA');
   var pn = PNAME[key], tags = [];
-  if(t.route) tags.push(t.route.toUpperCase());
+  if(t.route) tags.push(String(t.route).toUpperCase());
   if(t.risk != null) tags.push('RISK ' + Math.round(t.risk));
   if(t.wl != null) tags.push('WL ' + Math.round(t.wl));
   var crisis = t.mode === 'crisis' || /1323|1669/.test(m.t);
-  el.innerHTML = '<div class="who"><span class="' + pn[1] + '">' + pn[0] + '</span><span class="tag">' + esc(tags.join(' · ')) + '</span></div>' +
+  var star = m.tr ? '<span class="star" style="color:' + riskColor(t.risk) + '" title="ดาวของการตัดสินใจนี้"></span>' : '';
+  el.innerHTML = '<div class="who">' + star + '<span class="' + pn[1] + '">' + pn[0] + '</span><span class="tag">' + esc(tags.join(' · ')) + '</span></div>' +
     '<div class="bubble">' + fmt(m.t) + '</div>' + (crisis ? crisisCard() : '') +
     (m.tr ? '<details><summary>ระบบทำอะไรกับข้อความนี้</summary>' + traceHTML(m.tr) + '</details>' : '');
   return el;
 }
+var TRACE_EMPTY = '<p class="muted" style="font-size:13px;margin:0">ส่งข้อความแล้วตรงนี้จะแสดงสิ่งที่ backend คืนมาจริง: เส้นทาง, waterline, ความเสี่ยง, การตรวจของ belief core, canon gate และลิงก์รายงาน — และคำตอบนั้นจะกลายเป็นดาวในจักรวาล</p>';
 function renderMsgs(){
   var c = Chat.cur(), box = $('#msgs'); box.innerHTML = '';
   c.msgs.forEach(function(m){ box.appendChild(msgEl(m)); });
   $('#empty').classList.toggle('hide', c.msgs.length > 0);
   var last = null; for(var i = c.msgs.length-1; i >= 0; i--){ if(c.msgs[i].tr){ last = c.msgs[i].tr; break; } }
-  showTrace(last);
-  scrollBottom();
+  $('#trace-last').innerHTML = last ? traceHTML(last) : TRACE_EMPTY;
+  updateVeil(); scrollBottom();
 }
-function showTrace(t){ $('#trace-last').innerHTML = t ? traceHTML(t) : '<p class="muted" style="font-size:13px;margin:0">ส่งข้อความแล้วตรงนี้จะแสดงสิ่งที่ backend คืนมาจริง: เส้นทาง, waterline, ความเสี่ยง, การตรวจของ belief core, canon gate และลิงก์รายงาน</p>'; }
-function scrollBottom(){ var s = $('#chat-scroll'); requestAnimationFrame(function(){ s.scrollTop = s.scrollHeight; }); }
+function scrollBottom(){ var s = $('#chat-scroll'), empty = !Chat.s || !Chat.cur().msgs.length; requestAnimationFrame(function(){ s.scrollTop = empty ? 0 : s.scrollHeight; }); }
 function renderSessions(){
   var box = $('#sessions'), q = ($('#chat-search').value || '').trim().toLowerCase(); box.innerHTML = '';
   Chat.s.items.forEach(function(it){
@@ -921,7 +1188,7 @@ function renderSessions(){
     row.appendChild(t); row.appendChild(x); box.appendChild(row);
   });
 }
-function renderAll(){ renderSessions(); renderMsgs(); }
+function renderAll(){ renderSessions(); renderMsgs(); Cosmos.rebuild(); }
 $('#chat-search').addEventListener('input', renderSessions);
 $('#new-chat').addEventListener('click', function(){ Chat.create(); });
 
@@ -939,25 +1206,28 @@ async function send(textArg){
   var state = MyState.payload(), sentState = Object.keys(state).length > 0;
   Chat.push({ r:'u', t:text }); Chat.rename(text);
   inp.value = ''; autosize(); renderAll();
-  busy = true; $('#send').disabled = true;
+  busy = true; $('#send').disabled = true; Cosmos.thinking(true);
   var th = document.createElement('div'); th.className = 'm a'; th.innerHTML = '<div class="who"><span class="' + (mode==='vega'?'vega':mode==='crisis'?'crisis':'lyla') + '">' + (mode==='vega'?'VEGA':mode==='crisis'?'HALT':'LYLA') + '</span><span class="tag">กำลังคิด…</span></div><div class="thinking"><i></i><i></i><i></i></div>';
   $('#msgs').appendChild(th); scrollBottom();
   var body = { input:text, route:Route, voice_mode:mode, voice_hint:voiceHint(mode), history:history,
     context: Object.assign({ client_voice:mode, tone_notes:voiceHint(mode), route_ui:Route }, state) };
+  var born = null;
   try{
     var d = await readJson(await fetchRetry('/run', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) }, 3));
     var target = Chat.s.items.find(function(x){ return x.id === sessId; }) || Chat.cur();
     if(d.error){ target.msgs.push({ r:'e', t:String(d.error), ts:Date.now() }); toast(String(d.error), true); }
     else{
       var reply = String(d.ai_response || d.pause_reason || d.message || '').replace(/\s*[—–-]+\s*(LYLA\s*[◈✦✧]?|VEGA\s*[◆◇]?|HALT\s*[⬡]?)\s*$/gi, '').trim();
-      target.msgs.push({ r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : 'LYLA'), tr: traceOf(d, mode, sentState), ts:Date.now() });
+      born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : 'LYLA'), tr: traceOf(d, mode, sentState), ts:Date.now() };
+      target.msgs.push(born);
     }
     Chat.persist(); refreshMe();
   }catch(e){
     var tg = Chat.s.items.find(function(x){ return x.id === sessId; }) || Chat.cur();
     tg.msgs.push({ r:'e', t:e.message, ts:Date.now() }); Chat.persist(); toast(e.message, true, 6000);
   }finally{
-    busy = false; $('#send').disabled = false; th.remove(); renderAll();
+    busy = false; $('#send').disabled = false; th.remove(); Cosmos.thinking(false); renderAll();
+    if(born) Cosmos.birth(born.ts);
   }
 }
 function autosize(){ var t = $('#input'); t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 160) + 'px'; }
@@ -997,7 +1267,6 @@ $('#sim-run').addEventListener('click', async function(){
   }catch(e){ out.className = 'out'; out.textContent = '⚠ ' + e.message; }
   finally{ btn.disabled = false; }
 });
-
 $('#img-file').addEventListener('change', function(){
   var f = this.files[0], prev = $('#img-prev');
   if(!f){ prev.classList.add('hide'); $('#img-name').textContent = 'แตะเพื่อเลือกภาพ'; return; }
@@ -1018,7 +1287,6 @@ $('#img-run').addEventListener('click', async function(){
   }catch(e){ out.className = 'out'; out.textContent = '⚠ ' + e.message; }
   finally{ btn.disabled = false; }
 });
-
 $('#pay-run').addEventListener('click', async function(){
   var btn = this, email = $('#pay-email').value.trim(), plan = ($('input[name=plan]:checked') || {}).value || 'basic';
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ toast('กรอกอีเมลให้ถูกต้องก่อน', true); $('#pay-email').focus(); return; }
@@ -1035,12 +1303,13 @@ $('#pay-run').addEventListener('click', async function(){
    ════════════════════════════════════════════════════════════════ */
 var Health = { d:null, at:0 };
 var HEALTH_ROWS = [
-  ['llm_loaded','Gemini LLM', 'bool'], ['engine_loaded','DecisionEngine', 'bool'], ['universal_engine','Universal engine', 'bool'],
-  ['belief_core','Belief core', 'bool'], ['survivor_engine','Survivor engine', 'bool'], ['risk_engine','Risk engine', 'bool'],
-  ['consensus_engine','Consensus engine', 'bool'], ['collapse_predictor','Collapse predictor', 'bool'], ['simulation_engine','Simulation engine', 'bool'],
-  ['cosmic_latte_canon','Canon gate', 'bool'], ['king_diadem_core','KING DIADEM core', 'core'], ['stripe_loaded','Stripe', 'bool'],
-  ['db_initialized','Database', 'bool'], ['freedom_score','Freedom score', 'num']
+  ['llm_loaded','Gemini LLM','bool'], ['engine_loaded','DecisionEngine','bool'], ['universal_engine','Universal engine','bool'],
+  ['belief_core','Belief core','bool'], ['survivor_engine','Survivor engine','bool'], ['risk_engine','Risk engine','bool'],
+  ['consensus_engine','Consensus engine','bool'], ['collapse_predictor','Collapse predictor','bool'], ['simulation_engine','Simulation engine','bool'],
+  ['cosmic_latte_canon','Canon gate','bool'], ['king_diadem_core','KING DIADEM core','core'], ['stripe_loaded','Stripe','bool'],
+  ['db_initialized','Database','bool'], ['freedom_score','Freedom score','num']
 ];
+var sysBuilt = false;
 async function checkHealth(){
   if(document.hidden) return;
   try{
@@ -1065,21 +1334,8 @@ function renderHealth(){
 }
 
 /* ════════════════════════════════════════════════════════════════
-   SYSTEM MAP — ข้อมูลจริงจาก repo (ฝังไว้ใน #system-map)
+   SYSTEM VIEW
    ════════════════════════════════════════════════════════════════ */
-var MAP = (function(){ try{ return JSON.parse($('#system-map').textContent); }catch(_){ return {commit:'', files:[]}; } })();
-var CATS = [
-  ['boot',    'ทำงานตอนบูต',        'โหลดทันทีที่เซิร์ฟเวอร์เริ่ม และอยู่ในเส้นทางของ /run'],
-  ['request', 'ทำงานตอนตอบ',        'ถูก import ตอนมีข้อความเข้ามา ผ่าน system_orchestrator'],
-  ['web',     'หน้าเว็บที่ใช้อยู่',   'หน้าและไฟล์ที่ FastAPI เสิร์ฟจริง'],
-  ['broken',  'เสีย',               'import ไม่ได้ หรือเรียกสิ่งที่ไม่มีอยู่จริง'],
-  ['dormant', 'ยังไม่ต่อสาย',        'มีโค้ดอยู่แต่ไม่มีเส้นทางจริงเรียกใช้ (รวมไฟล์หน้าเว็บที่ไม่มีหน้าไหนโหลด)'],
-  ['docs',    'เอกสาร',             'Markdown อธิบายแนวคิด ไม่ถูกโหลดโดยโค้ด'],
-  ['site',    'เว็บ GitHub Pages',  'หน้าเว็บ/ไฟล์ของ docs site แยกจากแอป'],
-  ['config',  'ตั้งค่า',             'requirements, render.yaml, launch.json'],
-  ['artifact','ไฟล์ build',          '.pyc ที่ถูก commit ติดมา']
-];
-var CAT_NAME = {}; CATS.forEach(function(c){ CAT_NAME[c[0]] = c[1]; });
 var PIPE = [
   ['จำกัดความถี่', 'สูงสุด 20 ข้อความต่อ 60 วินาทีต่อคน (อีเมลหรือ IP)', 'app.py', 'ok', 'ทำงาน'],
   ['อ่านสถานะคน', 'แปลง context (พลังงาน การนอน อาหาร ที่พัก จิตใจ) เป็น waterline 0–100 — หน้านี้ส่งจาก “สถานะของฉัน”', 'ENGINE/human_engine.py → realhuman_survivorengine.py', 'ok', 'ทำงาน'],
@@ -1095,9 +1351,9 @@ var PIPE = [
   ['Consensus', 'สรุป final action จากข้อความ คำตอบ และสถานะ', 'ENGINE/consensus_engine.py', 'ok', 'ทำงาน'],
   ['Belief enforce', 'แนบผล audit ลงคำตอบ และแทนคำตอบด้วยข้อความ PAUSE ถ้าจำเป็น', 'AI_KERNEL/belief_core.py', 'ok', 'ทำงาน'],
   ['Canon gate', 'บล็อกคำตอบที่ลดทางเลือก แต่จับคำว่า “ต้องทำ” แบบ substring ทำให้ “ไม่ต้องทำ” โดนบล็อกด้วย', 'core/cosmic_latte_canon.py', 'warn', 'บล็อกเกิน'],
-  ['บันทึก + รายงาน', 'บันทึกการตัดสินใจลง SQLite และสร้างรายงานที่แชร์ได้ /report/<id>', 'DATABASE/db.py · report_engine.py', 'ok', 'ทำงาน']
+  ['บันทึก + รายงาน', 'บันทึกการตัดสินใจลง SQLite สร้างรายงานที่แชร์ได้ /report/<id> — และหน้านี้เปลี่ยนคำตอบเป็นดาวในจักรวาล', 'DATABASE/db.py · report_engine.py', 'ok', 'ทำงาน']
 ];
-var sysBuilt = false, catOn = {};
+var catOn = {};
 CATS.forEach(function(c){ catOn[c[0]] = true; });
 function catColor(c){ return 'var(--c-' + c + ')'; }
 function buildSystem(){
@@ -1147,8 +1403,8 @@ function renderFiles(){
   });
   order.sort(function(a, b){ return a === '/ (root)' ? -1 : b === '/ (root)' ? 1 : a.localeCompare(b); });
   var html = order.map(function(dir){
-    var fs = groups[dir], cc = {}, ln = 0;
-    fs.forEach(function(f){ cc[f[2]] = (cc[f[2]] || 0) + 1; ln += f[1]; });
+    var fs = groups[dir], cc = {};
+    fs.forEach(function(f){ cc[f[2]] = (cc[f[2]] || 0) + 1; });
     var bar = CATS.filter(function(c){ return cc[c[0]]; }).map(function(c){ return '<i style="width:' + (cc[c[0]] / fs.length * 100) + '%;background:' + catColor(c[0]) + '"></i>'; }).join('');
     var rows = fs.map(function(f){
       var name = dir === '/ (root)' ? f[0] : f[0].slice(dir.length);
@@ -1158,21 +1414,32 @@ function renderFiles(){
   }).join('');
   $('#fx').innerHTML = html || '<p class="muted">ไม่พบไฟล์ที่ตรงกับเงื่อนไข</p>';
 }
+$('#to-sys-universe').addEventListener('click', function(e){ e.preventDefault(); setView('universe'); Cosmos.setMode('system'); });
 
 /* ════════════════════════════════════════════════════════════════
    NAV
    ════════════════════════════════════════════════════════════════ */
-var VIEW_TITLE = { chat:'ปรึกษา', tools:'เครื่องมือ', system:'ระบบจริง' };
+var VIEW_TITLE = { chat:'ปรึกษา', universe:'จักรวาลการตัดสินใจ', tools:'เครื่องมือ', system:'ระบบจริง' };
+var curView = 'chat';
+/* ม่านบนจักรวาล: 0 = เห็นเต็ม · 1 = จางลงให้อ่านแชทได้ · 2 = มืดสำหรับหน้าข้อมูล */
+function updateVeil(){
+  document.body.dataset.veil = curView === 'universe' ? '0' : curView === 'chat' ? ($('#empty').classList.contains('hide') ? '1' : '0') : '2';
+}
 function setView(v){
   if(!VIEW_TITLE[v]) v = 'chat';
+  curView = v;
   $$('.view').forEach(function(el){ el.classList.toggle('on', el.id === 'view-' + v); });
-  $$('[data-view]').forEach(function(b){ b.classList.toggle('on', b.dataset.view === v); });
+  $$('.nav [data-view], #tabbar [data-view]').forEach(function(b){ b.classList.toggle('on', b.dataset.view === v); });
   $('#view-title').textContent = VIEW_TITLE[v];
   $('#app').classList.toggle('has-trace', v === 'chat');
   if(v === 'system') buildSystem();
   if(v === 'chat') scrollBottom();
+  updateVeil(); Cosmos.setView(v);
 }
-$$('[data-view]').forEach(function(b){ b.addEventListener('click', function(){ setView(b.dataset.view); closeDrawer(); }); });
+document.addEventListener('click', function(e){
+  var b = e.target.closest('[data-view]'); if(!b) return;
+  setView(b.dataset.view); closeDrawer();
+});
 function openDrawer(){ $('#sidebar').classList.add('open'); $('#scrim').classList.add('on'); }
 function closeDrawer(){ $('#sidebar').classList.remove('open'); $('#scrim').classList.remove('on'); }
 $('#menu-btn').addEventListener('click', openDrawer);
@@ -1183,15 +1450,13 @@ addEventListener('keydown', function(e){ if(e.key === 'Escape') closeDrawer(); }
    BOOT
    ════════════════════════════════════════════════════════════════ */
 (async function boot(){
-  var F = MAP.files || [];
-  if(F.length){
-    $('#nav-files').textContent = F.length; $('#f-files').textContent = F.length;
-    $('#f-live').textContent = F.filter(function(f){ return f[2] === 'boot' || f[2] === 'request'; }).length;
-  }
+  if((MAP.files || []).length) $('#nav-files').textContent = MAP.files.length;
   syncChips(); MyState.chip();
-  Chat.load(); renderAll();
-  var qs = new URLSearchParams(location.search);
-  setView(qs.get('tab') === 'tools' ? 'tools' : qs.get('tab') === 'system' ? 'system' : 'chat');
+  Chat.load();
+  Cosmos.init();
+  renderAll();
+  var qs = new URLSearchParams(location.search), tab = qs.get('tab');
+  setView(VIEW_TITLE[tab] ? tab : 'chat');
   if(qs.get('payment') === 'success') toast('ชำระเงินสำเร็จ — เครดิตจะเข้าหลัง Stripe ยืนยันรายการ', false, 7000);
   if(qs.get('payment') === 'cancel') toast('ยกเลิกการชำระเงินแล้ว', false, 5000);
   if(qs.has('payment') || qs.has('tab') || qs.has('new')) history.replaceState(null, '', location.pathname);
