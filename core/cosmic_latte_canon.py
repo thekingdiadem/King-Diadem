@@ -64,9 +64,11 @@ ARTICLES = {
 }
 
 # ── Output violation patterns ──────────────────────────────────────
+# หมายเหตุ: ไม่ใช้ "ต้องทำ" เดี่ยวๆ แล้ว — มันจับ "ไม่ต้องทำ" และ "สิ่งที่ต้องทำก่อน"
+# ซึ่งเป็นคำแนะนำปกติ แล้ว app.py hard-block คำตอบทิ้ง
 _CHOICE_COLLAPSE_PATTERNS = [
-    "no choice", "must do", "cannot choose", "only option", "forced",
-    "ไม่มีทางเลือก", "ต้องทำ", "บังคับ", "เลือกไม่ได้",
+    "no choice", "only thing you can do", "cannot choose", "only option", "forced to",
+    "ไม่มีทางเลือก", "ต้องทำเท่านั้น", "บังคับ", "เลือกไม่ได้",
 ]
 _EXIT_BLOCKED_PATTERNS = [
     "no exit", "cannot leave", "locked in", "forever", "never return",
@@ -90,9 +92,45 @@ _COMPASSION_SIGNALS = [
 ]
 
 
+_NEGATIONS_TH = ("ไม่", "ไม่ต้อง", "ไม่ได้", "ไม่ใช่", "ไม่ใช่ว่า", "ไม่จำเป็น", "ไม่จำเป็นต้อง", "ไม่ได้ถูก")
+_NEGATIONS_EN = ("not", "no need to", "don't", "do not", "never", "isn't", "aren't", "without", "nobody is")
+
+
 def _contains(text: str, keywords: list) -> bool:
+    """
+    หา keyword แบบรู้จักคำปฏิเสธและขอบเขตคำ
+    - "ไม่ต้องทำตาม" ไม่นับเป็น "ต้องทำตาม" · "you don't have to" ไม่นับเป็น "you have to"
+    - คำอังกฤษต้องเป็นคำเต็ม ("reinforced" ไม่นับเป็น "forced")
+    """
     lower = str(text).lower()
-    return any(word in lower for word in keywords)
+    for word in keywords:
+        start = 0
+        while True:
+            i = lower.find(word, start)
+            if i < 0:
+                break
+            start = i + 1
+            end = i + len(word)
+            if word.isascii():
+                before = lower[i - 1] if i > 0 else " "
+                after  = lower[end] if end < len(lower) else " "
+                if before.isalnum() or after.isalnum():
+                    continue
+                window = lower[max(0, i - 16):i].rstrip()
+                if any(window.endswith(n) or window.endswith(n + " to") for n in _NEGATIONS_EN):
+                    continue
+            else:
+                window = lower[max(0, i - 12):i].rstrip()
+                if any(window.endswith(n) for n in _NEGATIONS_TH):
+                    continue
+            return True
+    return False
+
+
+def offered_choices(text: str) -> int:
+    """นับทางเลือกที่คำตอบเสนอ (บรรทัดที่ขึ้นต้นด้วย 1) 2. - • ...)"""
+    import re
+    return len(re.findall(r"(?m)^\s*(?:\d+\s*[\).:]|[-•▸◦*])\s+\S", str(text)))
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -205,6 +243,16 @@ def validate_output(output: dict) -> dict:
         "compassion": check["compassion"],
         "clarity":    check["clarity"],
     }
+
+    # Prime Law (Article 1) วัดที่ผลลัพธ์: ถ้าคำตอบเสนอทางเลือกตั้งแต่ 2 ทาง
+    # การพูดถึง "ไม่มีทางเลือก" คือการสะท้อนความรู้สึกผู้ใช้แล้วคืนทางเลือก ไม่ใช่ choice collapse
+    choices = offered_choices(text_to_check)
+    output["canon_check"]["choices_offered"] = choices
+    if "choice_collapse" in check["violations"] and choices >= 2:
+        check["violations"] = ["choice_collapse_restored" if v == "choice_collapse" else v for v in check["violations"]]
+        output["canon_check"]["violations"] = check["violations"]
+        check["canon_aligned"] = not [v for v in check["violations"] if v != "choice_collapse_restored"]
+        output["canon_check"]["aligned"] = check["canon_aligned"]
 
     if not check["canon_aligned"]:
         output["canon_violation"] = True

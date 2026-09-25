@@ -692,7 +692,9 @@ def _rate_check(identity: str) -> bool:
 # ══════════════════════════════════════════════════════════════════
 @app.post("/run")
 @app.post("/decision")
-async def run_kernel(request: Request, data: dict):
+def run_kernel(request: Request, data: dict):
+    # sync handler → FastAPI รันใน threadpool: การรอ Gemini (และ time.sleep ตอน retry)
+    # จะไม่บล็อก event loop ของ worker เดียวที่ทุกคนใช้ร่วมกัน
     user_input = data.get("input") or data.get("text") or ""
     if not user_input:
         return {"error": "Input is required"}
@@ -739,8 +741,12 @@ async def run_kernel(request: Request, data: dict):
     if predict_collapse:
         try:
             c = predict_collapse(human_state.get("risk_score", human_state.get("entropy", 40)))
+            # predict_collapse() คืนข้อความ ("high/moderate/low collapse probability")
+            # เดิมเช็คแค่ dict จึงไม่เคยเติมบริบทนี้ให้ LLM เลย
             if isinstance(c, dict) and c.get("probability", 0) > 0.6:
                 collapse_ctx = f"[Collapse probability: {c['probability']:.0%}]"
+            elif isinstance(c, str) and not c.startswith("low"):
+                collapse_ctx = f"[Collapse: {c}]"
         except Exception: pass
 
     # ══════════════════════════════════════════════════════════════
@@ -925,7 +931,9 @@ async def run_kernel(request: Request, data: dict):
     # แต่ severe categories (choice_collapse / coercion / forced_identity)
     # ต้อง block จริง ไม่ใช่แค่ print — ไม่งั้น gate นี้ไม่มีผลอะไรเลย
     # ══════════════════════════════════════════════════════════════
-    _CANON_HARD_BLOCK = {"choice_collapse", "coercion", "forced_identity"}
+    # coercion_detected ไม่อยู่ใน hard block (เดิมเขียน "coercion" ซึ่งไม่ตรงกับชื่อจริงเลยไม่เคยทำงาน)
+    # เพราะ "คุณต้อง..." ในภาษาไทยมักเป็นคำแนะนำด้วยความห่วงใย — flag อย่างเดียวพอ
+    _CANON_HARD_BLOCK = {"choice_collapse", "forced_identity"}
     try:
         result = canon_validate(result)
         violations = result.get("canon_violations", []) or []
@@ -977,7 +985,7 @@ async def run_kernel(request: Request, data: dict):
 
 # ── SIMULATE ──────────────────────────────────────────────────────
 @app.post("/simulate")
-async def run_simulate(request: Request, data: dict):
+def run_simulate(request: Request, data: dict):
     user_input = str(data.get("input") or "").strip()
     paths      = data.get("paths") or []
     email      = _session_email(request, "anonymous")

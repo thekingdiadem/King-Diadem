@@ -476,7 +476,18 @@ class GeminiLLM:
         ]
 
         last_error = None
+        # เพดานเวลารวมต่อ 1 การเรียก — /run เรียก LLM 2 ครั้ง ต้องจบก่อน gunicorn --timeout 120
+        deadline = time.time() + float(os.getenv("LLM_CALL_BUDGET_S", "45"))
+
+        def _wait(sec: float) -> bool:
+            if time.time() + sec > deadline:
+                return False
+            time.sleep(sec)
+            return True
+
         for model_name in models_to_try:
+            if time.time() > deadline:
+                break
             for attempt in range(len(self._keys) * 2):
                 try:
                     resp = self.client.models.generate_content(
@@ -497,7 +508,8 @@ class GeminiLLM:
                     if any(k in err for k in ["429", "quota", "rate limit", "resource exhausted"]):
                         print(f"⚠ Rate limit (model={model_name}, attempt {attempt+1}) — rotating key")
                         self._rotate_key()
-                        time.sleep(5 if attempt < 2 else 15)
+                        if not _wait(5 if attempt < 2 else 15):
+                            break
 
                     elif any(k in err for k in [
                         "404", "not_found", "not found", "is not supported for"
@@ -512,7 +524,8 @@ class GeminiLLM:
 
                     else:
                         print(f"⚠ API error (model={model_name}, attempt {attempt+1}): {e}")
-                        time.sleep(2)
+                        if not _wait(2):
+                            break
 
         print(f"❌ ทุกโมเดลและทุก attempt ล้มเหลว: {last_error}")
         return self._fallback_response(system, prompt_text)
