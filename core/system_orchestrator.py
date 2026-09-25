@@ -205,7 +205,9 @@ class SystemOrchestrator:
         result  = self.execute(route, data)
         persona = result.get("voice_mode", "lyla")
 
-        if result.get("ai_response") is None:
+        # _skip_llm: ผู้เรียกต้องการแค่ survivor context (app.py สร้างคำตอบเองอยู่แล้ว)
+        # เดิมเรียก LLM ทุกครั้งแล้วคำตอบถูกทิ้ง = เสีย quota 2 เท่าต่อ 1 ข้อความ
+        if result.get("ai_response") is None and not data.get("_skip_llm"):
             try:
                 from core.llm_gemini import get_llm
                 llm = get_llm()  # ★ FIX: ใช้ singleton เดียวกับทั้งระบบ
@@ -247,7 +249,7 @@ class SystemOrchestrator:
 
     def run_with_survivor_engine(self, user_input: str, human_context: dict = None) -> Dict[str, Any]:
         """app.py เรียกตัวนี้ — normalize output ให้ app.py อ่านได้ตรง"""
-        raw = self.run({"input": user_input, "context": human_context or {}})
+        raw = self.run({"input": user_input, "context": human_context or {}, "_skip_llm": True})
         return {
             **raw,
             "survivor_context": raw.get("context_for_lyla", ""),
