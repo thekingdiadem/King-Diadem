@@ -1,7 +1,7 @@
 # DATABASE/db.py — KING DIADEM v2.2
 # v2.2 — เพิ่ม chat_memory table สำหรับ cross-session RAG memory
 
-import sqlite3, os, json
+import sqlite3, os, json, hashlib, hmac, secrets
 
 DB_PATH = os.getenv("DB_PATH", "data/king_diadem.db")
 
@@ -58,10 +58,69 @@ def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_chat_memory_user
             ON chat_memory(user_email, importance DESC, updated_at DESC);
+        CREATE TABLE IF NOT EXISTS user_passwords (
+            user_email TEXT PRIMARY KEY,
+            password_hash TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
     """)
     conn.commit()
     conn.close()
     print("✅ DB initialized")
+
+# ── PASSWORD (email login) ─────────────────────────────────────
+# PBKDF2-HMAC-SHA256 จาก standard library — ไม่ต้องเพิ่ม dependency
+_PBKDF2_ROUNDS = 200_000
+
+def _hash_password(password: str, salt: str = None) -> str:
+    salt = salt or secrets.token_hex(16)
+    dk = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), _PBKDF2_ROUNDS)
+    return f"pbkdf2_sha256${_PBKDF2_ROUNDS}${salt}${dk.hex()}"
+
+def has_password(user_email: str) -> bool:
+    conn = get_conn()
+    try:
+        row = conn.execute("SELECT 1 FROM user_passwords WHERE user_email = ?", (user_email,)).fetchone()
+        return row is not None
+    finally:
+        conn.close()
+
+def set_password(user_email: str, password: str) -> bool:
+    """ตั้งรหัสผ่านครั้งแรกเท่านั้น — คืน False ถ้าอีเมลนี้มีรหัสผ่านอยู่แล้ว"""
+    conn = get_conn()
+    try:
+        cur = conn.execute(
+            "INSERT OR IGNORE INTO user_passwords (user_email, password_hash) VALUES (?, ?)",
+            (user_email, _hash_password(password)),
+        )
+        conn.commit()
+        return cur.rowcount == 1
+    finally:
+        conn.close()
+
+def verify_password(user_email: str, password: str) -> bool:
+    conn = get_conn()
+    try:
+        row = conn.execute("SELECT password_hash FROM user_passwords WHERE user_email = ?", (user_email,)).fetchone()
+    finally:
+        conn.close()
+    if not row:
+        # เทียบกับ hash หลอกเพื่อให้เวลาตอบเท่ากัน ไม่บอกว่าอีเมลมีอยู่หรือไม่
+        _hash_password(password or "x")
+        return False
+    try:
+        _, rounds, salt, want = row["password_hash"].split("$")
+        got = hashlib.pbkdf2_hmac("sha256", (password or "").encode(), salt.encode(), int(rounds)).hex()
+        return hmac.compare_digest(got, want)
+    except Exception:
+        return False
+
+def user_exists(user_email: str) -> bool:
+    conn = get_conn()
+    try:
+        return conn.execute("SELECT 1 FROM users WHERE email = ?", (user_email,)).fetchone() is not None
+    finally:
+        conn.close()
 
 # ── CHAT MEMORY API ────────────────────────────────────────────
 

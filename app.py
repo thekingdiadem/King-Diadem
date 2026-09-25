@@ -159,6 +159,7 @@ try:
     from DATABASE.db import (
         init_db, log_decision, get_credits, add_credits,
         ensure_user, save_chat_state, load_chat_state,
+        set_password, verify_password, user_exists,
     )
     init_db()
     print("✅ Database initialized")
@@ -166,6 +167,7 @@ except Exception as e:
     print(f"⚠ DB: {e}")
     init_db = log_decision = get_credits = add_credits = None
     ensure_user = save_chat_state = load_chat_state = None
+    set_password = verify_password = user_exists = None
 
 # ── REPORT ENGINE ─────────────────────────────────────────────────
 try:
@@ -431,10 +433,45 @@ def _cookie_ascii(value: str) -> str:
     return quote(str(value or ""), safe="")
 
 _COOKIE_KW = dict(httponly=True, secure=True, samesite="lax")
+_SESSION_MAX_AGE = 86400 * 30
+
+# SECURITY: cookie ตัวตนต้องเซ็นด้วย SECRET_KEY — เดิมเก็บอีเมลเปล่าๆ
+# ใครตั้ง cookie kd_email เป็นอีเมลคนอื่นก็อ่านแชท/ความจำ/เครดิตของคนนั้นได้
+from itsdangerous import URLSafeTimedSerializer, BadSignature
+_session_signer = URLSafeTimedSerializer(_SECRET_KEY, salt="kd-auth-v1")
 
 def _set_auth_cookies(response, email: str, name: str):
-    response.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
-    response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30, **_COOKIE_KW)
+    response.set_cookie("kd_email", _session_signer.dumps(email), max_age=_SESSION_MAX_AGE, **_COOKIE_KW)
+    response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=_SESSION_MAX_AGE, **_COOKIE_KW)
+
+def _session_email(request: Request, default: str = "") -> str:
+    """อีเมลของผู้ใช้จาก cookie ที่เซ็นแล้วเท่านั้น — cookie ปลอม/หมดอายุ = ไม่ได้ล็อกอิน"""
+    raw = request.cookies.get("kd_email") or ""
+    if not raw:
+        return default
+    try:
+        email = _session_signer.loads(raw, max_age=_SESSION_MAX_AGE)
+    except BadSignature:
+        return default
+    return str(email).strip() or default
+
+# จำกัดการเดารหัสผ่าน: 8 ครั้ง / 10 นาที ต่อ (IP, อีเมล)
+_login_lock = threading.Lock()
+_login_fail: dict = {}
+_LOGIN_MAX, _LOGIN_WINDOW = 8, 600
+
+def _login_blocked(key: str) -> bool:
+    now = time.time()
+    with _login_lock:
+        hits = [t for t in _login_fail.get(key, []) if now - t < _LOGIN_WINDOW]
+        _login_fail[key] = hits
+        return len(hits) >= _LOGIN_MAX
+
+def _login_failed(key: str):
+    with _login_lock:
+        _login_fail.setdefault(key, []).append(time.time())
+
+_EMAIL_RE = __import__("re").compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 @app.get("/login/google")
@@ -471,8 +508,7 @@ async def google_callback(request: Request):
         except Exception:
             pass
         response = RedirectResponse("/")
-        response.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
-        response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30, **_COOKIE_KW)
+        _set_auth_cookies(response, email, name)
         return response
     except Exception as e:
         print(f"google_callback error: {repr(e)}")
@@ -481,7 +517,7 @@ async def google_callback(request: Request):
 
 @app.get("/me")
 async def me(request: Request):
-    email = unquote(request.cookies.get("kd_email") or "")
+    email = _session_email(request)
     name  = unquote(request.cookies.get("kd_name")  or "")
     if not email:
         return {"logged_in": False}
@@ -498,38 +534,53 @@ async def logout():
 
 
 # ── EMAIL LOGIN / REGISTER ────────────────────────────────────────
+# SECURITY: เดิม /login และ /register รับแค่อีเมล ไม่มีรหัสผ่าน
+# = ใครก็เข้าบัญชีใครก็ได้ ตอนนี้ต้องมีรหัสผ่าน (PBKDF2) และจำกัดการเดา
 @app.post("/register")
-async def register(data: dict):
-    email = (data.get("email") or "").strip()
-    if not email:
-        return {"status": "error", "message": "กรุณากรอก email นะคะ"}
+async def register(request: Request, data: dict):
+    email    = str(data.get("email") or "").strip().lower()
+    password = str(data.get("password") or "")
+    if not _EMAIL_RE.match(email) or len(email) > 254:
+        return JSONResponse({"status": "error", "message": "รูปแบบอีเมลไม่ถูกต้อง"}, status_code=400)
+    if len(password) < 6:
+        return JSONResponse({"status": "error", "message": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"}, status_code=400)
+    if not set_password:
+        return JSONResponse({"status": "error", "message": "ระบบบัญชีไม่พร้อมชั่วคราว"}, status_code=503)
+    # อีเมลที่มีอยู่แล้ว (เช่นเคยเข้าด้วย Google) ห้ามตั้งรหัสผ่านทับ — ไม่งั้นยึดบัญชีคนอื่นได้
+    if (user_exists and user_exists(email)) or not set_password(email, password):
+        return JSONResponse(
+            {"status": "error", "message": "อีเมลนี้มีบัญชีแล้ว — เข้าสู่ระบบด้วยรหัสผ่านเดิม หรือด้วย Google"},
+            status_code=409,
+        )
     if ensure_user: ensure_user(email)
-    if add_credits and get_credits and get_credits(email) == 0:
-        add_credits(email, 10)
     credits = get_credits(email) if get_credits else 0
     r = JSONResponse({"status": "ok", "email": email, "credits": credits})
-    r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
-    r.set_cookie("kd_name",  _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
+    _set_auth_cookies(r, email, email)
     return r
 
 
 @app.post("/login")
-async def login_email(data: dict):
-    email = (data.get("email") or "").strip()
-    if not email:
-        return {"status": "error"}
+async def login_email(request: Request, data: dict):
+    email    = str(data.get("email") or "").strip().lower()
+    password = str(data.get("password") or "")
+    ip       = request.client.host if request.client else "unknown"
+    key      = f"{ip}|{email}"
+    if _login_blocked(key):
+        return JSONResponse({"status": "error", "message": "ลองผิดหลายครั้งเกินไป — รอ 10 นาทีแล้วลองใหม่"}, status_code=429)
+    if not email or not password or not verify_password or not verify_password(email, password):
+        _login_failed(key)
+        return JSONResponse({"status": "error", "message": "อีเมลหรือรหัสผ่านไม่ถูกต้อง"}, status_code=401)
     if ensure_user: ensure_user(email)
     credits = get_credits(email) if get_credits else 0
-    r = JSONResponse({"status": "ok", "email": email, "credit": credits})
-    r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
-    r.set_cookie("kd_name",  _cookie_ascii((data.get("name") or email).strip()), max_age=86400*30, **_COOKIE_KW)
+    r = JSONResponse({"status": "ok", "email": email, "credits": credits})
+    _set_auth_cookies(r, email, (str(data.get("name") or "").strip() or email)[:80])
     return r
 
 
 # ── CHAT STATE ────────────────────────────────────────────────────
 @app.get("/api/chat-state")
 async def get_chat_state(request: Request):
-    email = unquote(request.cookies.get("kd_email") or "").strip()
+    email = _session_email(request)
     if not email or not load_chat_state:
         return {"state": None}
     raw = load_chat_state(email)
@@ -541,7 +592,7 @@ async def get_chat_state(request: Request):
 
 @app.put("/api/chat-state")
 async def put_chat_state(request: Request, data: dict):
-    email = unquote(request.cookies.get("kd_email") or "").strip()
+    email = _session_email(request)
     if not email or not save_chat_state:
         return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
     state = data.get("state") if isinstance(data.get("state"), dict) else data
@@ -646,7 +697,7 @@ async def run_kernel(request: Request, data: dict):
     if not user_input:
         return {"error": "Input is required"}
 
-    email = unquote(request.cookies.get("kd_email") or "anonymous")
+    email = _session_email(request, "anonymous")
     _identity = email if email != "anonymous" else (request.client.host if request.client else "unknown")
     if not _rate_check(_identity):
         return JSONResponse(
@@ -929,7 +980,7 @@ async def run_kernel(request: Request, data: dict):
 async def run_simulate(request: Request, data: dict):
     user_input = str(data.get("input") or "").strip()
     paths      = data.get("paths") or []
-    email      = unquote(request.cookies.get("kd_email") or "anonymous")
+    email      = _session_email(request, "anonymous")
     if not user_input:
         return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
 
@@ -969,7 +1020,7 @@ async def run_simulate(request: Request, data: dict):
 # ── STRIPE ────────────────────────────────────────────────────────
 @app.post("/create-checkout-session")
 async def create_checkout(request: Request, data: dict):
-    email = unquote(request.cookies.get("kd_email") or "") or data.get("email", "")
+    email = _session_email(request) or data.get("email", "")
     plan  = data.get("plan", "basic")
     if plan == "civilization":
         price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
@@ -993,7 +1044,7 @@ async def create_checkout(request: Request, data: dict):
 
 @app.post("/create-subscription")
 async def create_subscription(request: Request):
-    email    = unquote(request.cookies.get("kd_email") or "")
+    email    = _session_email(request)
     price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
     if not price_id:
         return JSONResponse({"error": "ยังไม่ได้ตั้งค่า STRIPE_PRICE_ID"}, status_code=500)
@@ -1048,7 +1099,7 @@ async def stripe_webhook(request: Request):
 
 @app.get("/credits")
 async def get_user_credits(request: Request):
-    email = unquote(request.cookies.get("kd_email") or "")
+    email = _session_email(request)
     if not email:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     credits = get_credits(email) if get_credits else 0
@@ -1134,7 +1185,7 @@ async def get_report_api(report_id: str):
 async def create_report_manual(request: Request, data: dict):
     if not _create_report:
         return JSONResponse({"error": "report engine not loaded"}, status_code=503)
-    email      = unquote(request.cookies.get("kd_email") or "anonymous")
+    email      = _session_email(request, "anonymous")
     user_input = data.get("input", "")
     result     = data.get("result", {})
     if not user_input or not result:

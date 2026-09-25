@@ -637,7 +637,7 @@ async function register() {
   btn.querySelector('.btn-text').textContent = 'INITIALIZING...';
 
   var res = await fetch(
-    'https://king-diadem.onrender.com/register',
+    '/register',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -652,8 +652,8 @@ async function register() {
 
   if(res.ok){
     msg.className = 'msg success';
-    msg.textContent = '✓ สร้างบัญชีสำเร็จ — กำลังนำทางเข้าสู่ระบบ...';
-    setTimeout(function(){ window.location.href = '/static/login.html'; }, 1800);
+    msg.textContent = '✓ สร้างบัญชีสำเร็จ — กำลังเข้าสู่ระบบ...';
+    setTimeout(function(){ window.location.href = '/'; }, 1200);
   } else {
     msg.className = 'msg error';
     msg.textContent = '⚠ ' + (data.detail || data.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่');

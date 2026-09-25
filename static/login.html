@@ -359,6 +359,15 @@ html, body {
 @media(prefers-reduced-motion:reduce) {
   *, *::before, *::after { animation-duration:.01ms !important; }
 }
+.email-form{display:none;flex-direction:column;gap:10px;margin-top:14px;text-align:left}
+.email-form.on,.email-form:target{display:flex}
+.email-form input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(0,210,255,0.22);background:rgba(3,6,18,0.7);color:#e8f4ff;font-size:16px;outline:none}
+.email-form input:focus{border-color:rgba(232,184,75,0.6)}
+.email-form button{padding:12px;border-radius:10px;border:1px solid rgba(232,184,75,0.5);background:rgba(232,184,75,0.14);color:#ffe2a8;font-size:15px;cursor:pointer}
+.email-form button:disabled{opacity:.5}
+.email-msg{font-size:13px;min-height:18px;color:#ff8e98}
+.email-msg.ok{color:#7fe0b0}
+.email-form a{color:rgba(0,210,255,0.8);font-size:13px;text-align:center}
 </style>
 </head>
 <body>
@@ -410,9 +419,16 @@ html, body {
         ยืนยันตัวตนด้วย Google
       </a>
 
-      <a href="/static/login.html#email" class="email-link">
+      <a href="#email" class="email-link" id="email-toggle">
         ◈ เข้าด้วยอีเมล &amp; รหัสผ่าน
       </a>
+      <form class="email-form" id="email" autocomplete="on">
+        <input id="login-email" type="email" placeholder="your@email.com" autocomplete="email" required>
+        <input id="login-password" type="password" placeholder="รหัสผ่าน" autocomplete="current-password" required>
+        <div class="email-msg" id="login-msg" role="status"></div>
+        <button type="submit" id="login-btn">เข้าสู่ระบบ</button>
+        <a href="/static/register.html">ยังไม่มีบัญชี? สมัครด้วยอีเมล</a>
+      </form>
 
       <!-- footer -->
       <div class="footer">
@@ -445,6 +461,27 @@ html, body {
       'animation-delay:'+delay+'s;';
     container.appendChild(p);
   }
+})();
+
+/* ── Email + password login (POST /login) ── */
+(function(){
+  var form = document.getElementById('email'), msg = document.getElementById('login-msg');
+  document.getElementById('email-toggle').addEventListener('click', function(e){
+    e.preventDefault(); form.classList.add('on'); document.getElementById('login-email').focus();
+  });
+  if(location.hash === '#email') form.classList.add('on');
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    var btn = document.getElementById('login-btn'); btn.disabled = true; msg.className = 'email-msg'; msg.textContent = '';
+    try{
+      var res = await fetch('/login', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email: document.getElementById('login-email').value.trim(), password: document.getElementById('login-password').value }) });
+      var data = {}; try{ data = await res.json(); }catch(_){}
+      if(res.ok){ msg.className = 'email-msg ok'; msg.textContent = '✓ เข้าสู่ระบบแล้ว'; location.href = '/'; return; }
+      msg.textContent = '⚠ ' + (data.message || 'เข้าสู่ระบบไม่สำเร็จ');
+    }catch(_){ msg.textContent = '⚠ เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง'; }
+    btn.disabled = false;
+  });
 })();
 
 /* ── Touch: ป้องกัน double-tap zoom ── */
