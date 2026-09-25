@@ -1787,3 +1787,69 @@ COMPLIANCE_FOOTER = {
         "Fail less. Harm less. Restore more."
     ),
 }
+
+
+# ═══════════════════════════════════════════════════════════════
+# EMPTINESS_GUARD — ADAPTER FOR ENGINE/decision_engine.py
+# decision_engine.py imports emptiness_guard(pattern) expecting a
+# specific contract (blocked/reason/risk_score/emotional_flag/
+# suggested_route/forced_action). This wraps emptiness_check()
+# to satisfy that contract without changing emptiness_check() itself.
+# ═══════════════════════════════════════════════════════════════
+
+_RISK_SCORE_MAP = {"clear": 5, "warning": 45, "critical": 85}
+
+def emptiness_guard(pattern: dict) -> dict:
+    """
+    Adapter consumed by ENGINE/decision_engine.py.
+    pattern: same node dict accepted by emptiness_check()
+             (needs domain/choice_count/entropy/stability at minimum).
+    """
+    pattern = dict(pattern) if isinstance(pattern, dict) else {}
+    pattern.setdefault("domain", "domain_engine")
+
+    # analyze_pattern() ส่ง entropy/resource/stability มาเป็นสเกล 0–100
+    # แต่ไม่มี choice_count — ถ้าปล่อย default 1 ไว้ domain_engine (survival_floor)
+    # จะถูกตีเป็น SURVIVAL_FLOOR_BREACH / critical ทุกครั้ง
+    entropy  = float(pattern.get("entropy",  40) or 0)
+    resource = float(pattern.get("resource", 50) or 0)
+    risk_num = max(0.0, min(100.0, entropy * 0.5 + (100.0 - resource) * 0.5))
+    if pattern.get("choice_count") is None:
+        # สูตรเดียวกับ ENGINE/risk_engine.assess(): remaining_choices
+        pattern["choice_count"] = max(1, int((100 - risk_num) / 20))
+    stability = float(pattern.get("stability", 60) or 0)
+    if stability > 1:
+        # emptiness_check คิด drift = entropy - stability*100 (stability สเกล 0–1)
+        pattern["stability"] = stability / 100.0
+
+    try:
+        result = emptiness_check(pattern)
+    except Exception as e:
+        return {
+            "blocked": True,
+            "reason": "invalid_state",
+            "risk_score": 85,
+            "emotional_flag": False,
+            "suggested_route": None,
+            "forced_action": "stabilize",
+            "error": str(e),
+        }
+
+    choice_count = result.get("choice_count", pattern.get("choice_count", 1))
+    risk_level   = result.get("risk_level", "clear")
+    violations   = result.get("violations", [])
+
+    blocked = choice_count < 1 or any("CHOICE_COLLAPSE" in v for v in violations)
+    reason  = "CHOICE_COLLAPSE" if blocked else None
+
+    return {
+        "blocked":         blocked,
+        "reason":          reason,
+        "risk_score":      max(round(risk_num, 2), _RISK_SCORE_MAP["critical"]) if risk_level == "critical" else round(risk_num, 2),
+        "emotional_flag":  bool(pattern.get("emotional_flag", False)),
+        "suggested_route": "survival" if risk_level == "critical" and not blocked else None,
+        "forced_action":   "stabilize" if risk_level in ("warning", "critical") else None,
+        "risk_level":      risk_level,
+        "violations":      violations,
+        "recommendation":  result.get("recommendation", ""),
+    }
