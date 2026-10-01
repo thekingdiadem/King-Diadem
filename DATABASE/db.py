@@ -58,6 +58,18 @@ def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_chat_memory_user
             ON chat_memory(user_email, importance DESC, updated_at DESC);
+        CREATE TABLE IF NOT EXISTS stripe_events (
+            event_id TEXT PRIMARY KEY,
+            event_type TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS premium (
+            user_email TEXT PRIMARY KEY,
+            premium_until REAL NOT NULL DEFAULT 0,
+            stripe_customer TEXT,
+            stripe_subscription TEXT,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
         CREATE TABLE IF NOT EXISTS user_passwords (
             user_email TEXT PRIMARY KEY,
             password_hash TEXT NOT NULL,
@@ -119,6 +131,65 @@ def user_exists(user_email: str) -> bool:
     conn = get_conn()
     try:
         return conn.execute("SELECT 1 FROM users WHERE email = ?", (user_email,)).fetchone() is not None
+    finally:
+        conn.close()
+
+# ── STRIPE: idempotency + premium ──────────────────────────────
+def claim_stripe_event(event_id: str, event_type: str = "") -> bool:
+    """บันทึก event id — คืน False ถ้าเคยประมวลผลแล้ว (Stripe ส่งซ้ำได้)"""
+    if not event_id:
+        return True
+    conn = get_conn()
+    try:
+        cur = conn.execute(
+            "INSERT OR IGNORE INTO stripe_events (event_id, event_type) VALUES (?, ?)",
+            (event_id, event_type),
+        )
+        conn.commit()
+        return cur.rowcount == 1
+    finally:
+        conn.close()
+
+def release_stripe_event(event_id: str):
+    """ยกเลิกการ claim เมื่อประมวลผลล้มเหลว เพื่อให้ Stripe retry ได้"""
+    conn = get_conn()
+    try:
+        conn.execute("DELETE FROM stripe_events WHERE event_id = ?", (event_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+def set_premium_until(user_email: str, until_ts: float, customer: str = None, subscription: str = None):
+    conn = get_conn()
+    try:
+        conn.execute("""
+            INSERT INTO premium (user_email, premium_until, stripe_customer, stripe_subscription, updated_at)
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(user_email) DO UPDATE SET
+                premium_until       = excluded.premium_until,
+                stripe_customer     = COALESCE(excluded.stripe_customer, premium.stripe_customer),
+                stripe_subscription = COALESCE(excluded.stripe_subscription, premium.stripe_subscription),
+                updated_at          = CURRENT_TIMESTAMP
+        """, (user_email, float(until_ts), customer, subscription))
+        conn.commit()
+    finally:
+        conn.close()
+
+def get_premium_until(user_email: str) -> float:
+    conn = get_conn()
+    try:
+        row = conn.execute("SELECT premium_until FROM premium WHERE user_email = ?", (user_email,)).fetchone()
+        return float(row["premium_until"]) if row else 0.0
+    finally:
+        conn.close()
+
+def email_for_stripe_customer(customer: str):
+    if not customer:
+        return None
+    conn = get_conn()
+    try:
+        row = conn.execute("SELECT user_email FROM premium WHERE stripe_customer = ?", (customer,)).fetchone()
+        return row["user_email"] if row else None
     finally:
         conn.close()
 

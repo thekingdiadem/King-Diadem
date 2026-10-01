@@ -30,6 +30,7 @@
 from fastapi import FastAPI, Request, File, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
 import os, json, stripe, math, time, threading
 from urllib.parse import quote, unquote
@@ -160,6 +161,8 @@ try:
         init_db, log_decision, get_credits, add_credits,
         ensure_user, save_chat_state, load_chat_state,
         set_password, verify_password, user_exists,
+        claim_stripe_event, release_stripe_event,
+        set_premium_until, get_premium_until, email_for_stripe_customer,
     )
     init_db()
     print("✅ Database initialized")
@@ -168,6 +171,8 @@ except Exception as e:
     init_db = log_decision = get_credits = add_credits = None
     ensure_user = save_chat_state = load_chat_state = None
     set_password = verify_password = user_exists = None
+    claim_stripe_event = release_stripe_event = None
+    set_premium_until = get_premium_until = email_for_stripe_customer = None
 
 # ── REPORT ENGINE ─────────────────────────────────────────────────
 try:
@@ -235,7 +240,12 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=_SECRET_KEY
 )
-engine = DecisionEngine() if DecisionEngine else None
+# ใช้ singleton ตัวเดียวกับ run_decision() — เดิมสร้าง DecisionEngine ตัวที่สองแยกไว้เฉยๆ (โหลด LLM/router ซ้ำ)
+try:
+    from ENGINE.decision_engine import _engine as _decision_engine_singleton
+    engine = _decision_engine_singleton() if DecisionEngine else None
+except Exception:
+    engine = DecisionEngine() if DecisionEngine else None
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
@@ -257,6 +267,33 @@ def _friendly_error(err: str) -> str:
     if "timeout" in e or "timed out" in e:
         return "การเชื่อมต่อหมดเวลา — ลองใหม่ได้เลยค่ะ"
     return "ระบบไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งนะคะ"
+
+
+# ══════════════════════════════════════════════════════════════════
+# REQUEST HELPERS
+# ══════════════════════════════════════════════════════════════════
+_PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://king-diadem.onrender.com").rstrip("/")
+
+def _public_url(path: str) -> str:
+    return _PUBLIC_BASE_URL + path
+
+def _client_ip(request: Request) -> str:
+    """IP จริงของผู้ใช้หลัง proxy ของ Render — เดิมใช้ request.client.host
+    ซึ่งเป็น IP ของ proxy ทำให้ผู้ใช้ที่ไม่ล็อกอินทุกคนแชร์ rate limit ก้อนเดียว"""
+    h = request.headers
+    ip = h.get("cf-connecting-ip") or h.get("true-client-ip")
+    if not ip:
+        xff = h.get("x-forwarded-for", "")
+        ip = xff.split(",")[0].strip() if xff else ""
+    return ip or (request.client.host if request.client else "unknown")
+
+def _is_premium(email: str) -> bool:
+    if not email or not get_premium_until:
+        return False
+    try:
+        return get_premium_until(email) > time.time()
+    except Exception:
+        return False
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -397,6 +434,7 @@ def health():
         "cosmic_latte_canon": _CANON_OK,            # ← v4.9
         "galaxy_api":         True,
         "stripe_loaded":      bool(os.getenv("STRIPE_SECRET_KEY")),
+        "stripe_webhook":     bool(os.getenv("STRIPE_WEBHOOK_SECRET")),
         "freedom_score":      freedom_index() if freedom_index else 0,
         "db_initialized":     init_db is not None,
     }
@@ -414,7 +452,9 @@ async def dashboard():
     return {
         "observer":  "KING DIADEM",
         "planetary": status,
+        # ค่าใน supply_chain เป็นค่าคงที่ที่เขียนไว้ในโค้ด ไม่ได้มาจากแหล่งข้อมูลจริง
         "supply_chain": {
+            "source":                 "static_placeholder — not live data",
             "global_food_security":   "DECLINING",
             "energy_drift_daily":     0.1,
             "water_stress_index":     72.4,
@@ -522,7 +562,9 @@ async def me(request: Request):
     if not email:
         return {"logged_in": False}
     credits = get_credits(email) if get_credits else 0
-    return {"logged_in": True, "email": email, "name": name, "credits": credits}
+    until   = get_premium_until(email) if get_premium_until else 0
+    return {"logged_in": True, "email": email, "name": name, "credits": credits,
+            "premium": until > time.time(), "premium_until": int(until) if until else None}
 
 
 @app.post("/logout")
@@ -563,7 +605,7 @@ async def register(request: Request, data: dict):
 async def login_email(request: Request, data: dict):
     email    = str(data.get("email") or "").strip().lower()
     password = str(data.get("password") or "")
-    ip       = request.client.host if request.client else "unknown"
+    ip       = _client_ip(request)
     key      = f"{ip}|{email}"
     if _login_blocked(key):
         return JSONResponse({"status": "error", "message": "ลองผิดหลายครั้งเกินไป — รอ 10 นาทีแล้วลองใหม่"}, status_code=429)
@@ -578,6 +620,7 @@ async def login_email(request: Request, data: dict):
 
 
 # ── CHAT STATE ────────────────────────────────────────────────────
+_CHAT_STATE_MAX_BYTES = 2 * 1024 * 1024   # กันคนยัด JSON ขนาดใหญ่เข้า SQLite
 @app.get("/api/chat-state")
 async def get_chat_state(request: Request):
     email = _session_email(request)
@@ -598,7 +641,10 @@ async def put_chat_state(request: Request, data: dict):
     state = data.get("state") if isinstance(data.get("state"), dict) else data
     if not isinstance(state, dict):
         return JSONResponse({"ok": False, "error": "invalid"}, status_code=400)
-    save_chat_state(email, json.dumps(state, ensure_ascii=False))
+    blob = json.dumps(state, ensure_ascii=False)
+    if len(blob.encode("utf-8")) > _CHAT_STATE_MAX_BYTES:
+        return JSONResponse({"ok": False, "error": "chat state too large"}, status_code=413)
+    save_chat_state(email, blob)
     return {"ok": True}
 
 
@@ -700,7 +746,7 @@ def run_kernel(request: Request, data: dict):
         return {"error": "Input is required"}
 
     email = _session_email(request, "anonymous")
-    _identity = email if email != "anonymous" else (request.client.host if request.client else "unknown")
+    _identity = email if email != "anonymous" else _client_ip(request)
     if not _rate_check(_identity):
         return JSONResponse(
             {"error": f"ใช้งานถี่เกินไป — จำกัด {_RATE_LIMIT_N} ครั้ง / {_RATE_LIMIT_WINDOW} วินาที กรุณารอสักครู่"},
@@ -976,7 +1022,7 @@ def run_kernel(request: Request, data: dict):
             )
             result["report_url"] = f"/report/{report_id}"
             result["report_id"]  = report_id
-            result["share_url"]  = f"https://king-diadem.onrender.com/report/{report_id}"
+            result["share_url"]  = _public_url(f"/report/{report_id}")
         except Exception as _re:
             print(f"⚠ report creation failed: {_re}")
 
@@ -991,6 +1037,8 @@ def run_simulate(request: Request, data: dict):
     email      = _session_email(request, "anonymous")
     if not user_input:
         return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
+    if not _rate_check(email if email != "anonymous" else _client_ip(request)):
+        return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
 
     try:
         _llm = get_llm()
@@ -1042,8 +1090,9 @@ async def create_checkout(request: Request, data: dict):
             line_items=[{"price": price_id, "quantity": 1}],
             mode="subscription",
             customer_email=email or None,
-            success_url="https://king-diadem.onrender.com/?payment=success",
-            cancel_url="https://king-diadem.onrender.com/?payment=cancel",
+            success_url=_public_url("/?payment=success"),
+            cancel_url=_public_url("/?payment=cancel"),
+            client_reference_id=email or None,
         )
         return {"url": session.url}
     except Exception as e:
@@ -1062,25 +1111,36 @@ async def create_subscription(request: Request):
             line_items=[{"price": price_id, "quantity": 1}],
             mode="subscription",
             customer_email=email or None,
-            success_url="https://king-diadem.onrender.com/?payment=success",
-            cancel_url="https://king-diadem.onrender.com/?payment=cancel",
+            success_url=_public_url("/?payment=success"),
+            cancel_url=_public_url("/?payment=cancel"),
+            client_reference_id=email or None,
         )
         return {"url": session.url}
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
-@app.post("/webhook/stripe")
-async def stripe_webhook(request: Request):
-    payload = await request.body()
-    sig     = request.headers.get("stripe-signature", "")
-    secret  = os.getenv("STRIPE_WEBHOOK_SECRET", "")
-    try:    event = stripe.Webhook.construct_event(payload, sig, secret)
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=400)
-    if event["type"] == "checkout.session.completed":
-        sess  = event["data"]["object"]
-        email = sess.get("customer_email")
+# ── STRIPE WEBHOOK ────────────────────────────────────────────────
+# - ทุก event ถูก claim ด้วย event.id ก่อน → Stripe ส่งซ้ำ (retry) จะไม่เติมเครดิตซ้ำ
+# - subscription: checkout สำเร็จ / invoice.paid ต่ออายุ premium · subscription ถูกยกเลิก → หมด premium
+#   (ใน Stripe Dashboard ต้องเปิด event: checkout.session.completed, invoice.paid,
+#    customer.subscription.deleted ให้ endpoint นี้)
+_PREMIUM_GRACE = 2 * 86400
+
+def _handle_stripe_event(event) -> None:
+    etype = event["type"]
+    obj   = event["data"]["object"]
+    now   = time.time()
+
+    if etype == "checkout.session.completed":
+        if obj.get("payment_status") not in ("paid", "no_payment_required"):
+            return
+        email = (obj.get("customer_email")
+                 or (obj.get("customer_details") or {}).get("email")
+                 or obj.get("client_reference_id"))
+        if not email:
+            print(f"⚠ stripe checkout without email: {obj.get('id')}")
+            return
         # ── SECURITY: credit ต้องผูกกับ price_id ที่ Stripe ยืนยันจริง
         # ห้ามคำนวณจาก quantity ที่ client ส่งมา เพราะแก้ค่านั้นได้ก่อนถึง checkout
         _CREDITS_PER_PRICE = {
@@ -1088,20 +1148,61 @@ async def stripe_webhook(request: Request):
             os.getenv("STRIPE_PREMIUM_PRICE_ID"): 100,
         }
         total_credits = 0
-        try:
-            items = stripe.checkout.Session.list_line_items(sess["id"])
-            for i in items.get("data", []):
-                price_id = (i.get("price") or {}).get("id")
-                per_unit = _CREDITS_PER_PRICE.get(price_id, 0)
-                qty      = i.get("quantity", 1)
-                if per_unit:
-                    total_credits += per_unit * qty
-                else:
-                    print(f"⚠ unknown price_id in webhook: {price_id} — 0 credits granted")
-        except Exception as _we:
-            print(f"⚠ stripe line_items error: {_we}")
-        if email and add_credits and total_credits > 0:
+        items = stripe.checkout.Session.list_line_items(obj["id"])
+        for i in items.get("data", []):
+            price_id = (i.get("price") or {}).get("id")
+            per_unit = _CREDITS_PER_PRICE.get(price_id, 0)
+            if per_unit:
+                total_credits += per_unit * int(i.get("quantity", 1) or 1)
+            else:
+                print(f"⚠ unknown price_id in webhook: {price_id} — 0 credits granted")
+        if ensure_user: ensure_user(email)
+        if add_credits and total_credits > 0:
             add_credits(email, total_credits)
+        if obj.get("mode") == "subscription" and set_premium_until:
+            set_premium_until(email, now + 32 * 86400 + _PREMIUM_GRACE,
+                              obj.get("customer"), obj.get("subscription"))
+
+    elif etype == "invoice.paid":
+        customer = obj.get("customer")
+        email = obj.get("customer_email") or (email_for_stripe_customer(customer) if email_for_stripe_customer else None)
+        if not email or not set_premium_until:
+            return
+        ends = [((l.get("period") or {}).get("end") or 0) for l in ((obj.get("lines") or {}).get("data") or [])]
+        period_end = max(ends + [obj.get("period_end") or 0])
+        if period_end:
+            set_premium_until(email, max(period_end, now) + _PREMIUM_GRACE, customer, obj.get("subscription"))
+
+    elif etype == "customer.subscription.deleted":
+        customer = obj.get("customer")
+        email = email_for_stripe_customer(customer) if email_for_stripe_customer else None
+        if email and set_premium_until:
+            set_premium_until(email, now, customer, obj.get("id"))
+
+
+@app.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    sig     = request.headers.get("stripe-signature", "")
+    secret  = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+    if not secret:
+        return JSONResponse({"error": "webhook not configured"}, status_code=500)
+    try:
+        event = stripe.Webhook.construct_event(payload, sig, secret)
+    except Exception:
+        return JSONResponse({"error": "invalid signature"}, status_code=400)
+
+    event_id = event.get("id", "")
+    if claim_stripe_event and not claim_stripe_event(event_id, event.get("type", "")):
+        return {"status": "duplicate"}
+    try:
+        # stripe SDK เป็น blocking I/O → ย้ายออกจาก event loop
+        await run_in_threadpool(_handle_stripe_event, event)
+    except Exception as e:
+        print(f"❌ stripe webhook {event.get('type')} {event_id}: {e}")
+        if release_stripe_event:
+            release_stripe_event(event_id)   # ให้ Stripe retry ได้
+        return JSONResponse({"error": "processing failed"}, status_code=500)
     return {"status": "ok"}
 
 
@@ -1122,52 +1223,64 @@ _ALLOWED_IMAGE_MIME = ("image/jpeg", "image/png", "image/webp")
 async def analyze_image(request: Request, file: UploadFile = File(...)):
     if not llm:
         return JSONResponse({"error": "LLM ไม่พร้อม"}, status_code=503)
+    email = _session_email(request)
+    if not _rate_check(email or _client_ip(request)):
+        return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
     if file.content_type not in _ALLOWED_IMAGE_MIME:
         return JSONResponse(
             {"error": f"รองรับเฉพาะไฟล์ภาพ jpeg/png/webp เท่านั้น (ได้รับ {file.content_type})"},
             status_code=400
         )
     try:
-        data = await file.read()
+        data = await file.read(_MAX_IMAGE_BYTES + 1)
         if len(data) > _MAX_IMAGE_BYTES:
             return JSONResponse(
                 {"error": f"ไฟล์ใหญ่เกินไป — จำกัดไม่เกิน {_MAX_IMAGE_BYTES // (1024*1024)}MB"},
                 status_code=413
             )
         mime = file.content_type or "image/jpeg"
-        from google.genai import types as gt
-        contents = [gt.Content(role="user", parts=[
-            gt.Part.from_bytes(data=data, mime_type=mime),
-            gt.Part.from_text(text=(
-                "วิเคราะห์ภาพนี้ในมุม KING DIADEM Governance:\n"
-                "1. มีความเสี่ยงอะไรที่เห็นได้\n"
-                "2. ทางเลือกที่มีอยู่คืออะไร\n"
-                "3. สัญญาณ waterline / drift ที่เห็น\n"
-                "ตอบเป็นภาษาไทย กระชับ ตรงประเด็นนะคะ\n— LYLA ◈"
-            ))
-        ])]
-        _llm = get_llm()
-        cfg  = gt.GenerateContentConfig(
-            system_instruction="คุณคือ LYLA governance scanner วิเคราะห์ภาพแล้วรายงาน risk/choice/waterline",
-            temperature=0.5, max_output_tokens=800,
-        )
-        vision_model = getattr(_llm, 'vision_model', None) or 'gemini-2.0-flash'
-        try:
-            resp = _llm.client.models.generate_content(model=vision_model, contents=contents, config=cfg)
-        except Exception:
-            resp = _llm.client.models.generate_content(model='gemini-1.5-flash', contents=contents, config=cfg)
-        try:
-            analysis_text = resp.text or ""
-        except Exception:
-            parts = getattr(getattr(resp, 'candidates', [None])[0], 'content', None)
-            analysis_text = " ".join(p.text for p in (getattr(parts, 'parts', []) or []) if hasattr(p,'text'))
-        analysis_text = analysis_text.strip()
-        if not analysis_text:
-            analysis_text = "LYLA วิเคราะห์ภาพไม่ได้ค่ะ — อาจถูก Gemini safety block หรือภาพไม่ชัด"
+        analysis_text = await run_in_threadpool(_analyze_image_sync, data, mime)
         return {"analysis": analysis_text, "filename": file.filename}
     except Exception as e:
         print(f"⚠ analyze_image error: {e}")
         return JSONResponse({"error": _friendly_error(str(e))}, status_code=500)
+
+
+def _analyze_image_sync(data: bytes, mime: str) -> str:
+    """เรียก Gemini vision แบบ blocking — รันใน threadpool ไม่บล็อก event loop"""
+    from google.genai import types as gt
+    contents = [gt.Content(role="user", parts=[
+        gt.Part.from_bytes(data=data, mime_type=mime),
+        gt.Part.from_text(text=(
+            "วิเคราะห์ภาพนี้ในมุม KING DIADEM Governance:\n"
+            "1. มีความเสี่ยงอะไรที่เห็นได้\n"
+            "2. ทางเลือกที่มีอยู่คืออะไร\n"
+            "3. สัญญาณ waterline / drift ที่เห็น\n"
+            "ตอบเป็นภาษาไทย กระชับ ตรงประเด็นนะคะ\n— LYLA ◈"
+        ))
+    ])]
+    _llm = get_llm()
+    cfg  = gt.GenerateContentConfig(
+        system_instruction="คุณคือ LYLA governance scanner วิเคราะห์ภาพแล้วรายงาน risk/choice/waterline",
+        temperature=0.5, max_output_tokens=800,
+    )
+    # ลองตามลำดับเดียวกับ LLM หลัก (gemini-1.5-flash ที่เคยใช้เป็นตัวสำรองถูกปลดแล้ว)
+    models = [getattr(_llm, "vision_model", None) or "gemini-2.0-flash", "gemini-2.0-flash-lite"]
+    last = None
+    for m in models:
+        try:
+            resp = _llm.client.models.generate_content(model=m, contents=contents, config=cfg)
+            break
+        except Exception as e:
+            last = e
+    else:
+        raise last
+    try:
+        text = resp.text or ""
+    except Exception:
+        parts = getattr(getattr(resp, "candidates", [None])[0], "content", None)
+        text = " ".join(p.text for p in (getattr(parts, "parts", []) or []) if hasattr(p, "text"))
+    return text.strip() or "LYLA วิเคราะห์ภาพไม่ได้ค่ะ — อาจถูก Gemini safety block หรือภาพไม่ชัด"
 
 
 # ── REPORT ROUTES ─────────────────────────────────────────────────
@@ -1194,6 +1307,8 @@ async def create_report_manual(request: Request, data: dict):
     if not _create_report:
         return JSONResponse({"error": "report engine not loaded"}, status_code=503)
     email      = _session_email(request, "anonymous")
+    if not _rate_check(email if email != "anonymous" else _client_ip(request)):
+        return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
     user_input = data.get("input", "")
     result     = data.get("result", {})
     if not user_input or not result:
@@ -1203,7 +1318,7 @@ async def create_report_manual(request: Request, data: dict):
         return {
             "report_id":  report_id,
             "report_url": f"/report/{report_id}",
-            "share_url":  f"https://king-diadem.onrender.com/report/{report_id}",
+            "share_url":  _public_url(f"/report/{report_id}"),
         }
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
