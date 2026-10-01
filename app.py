@@ -34,14 +34,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 import os, json, stripe, math, time, threading, re
 from urllib.parse import quote, unquote
-from passlib.context import CryptContext
+import bcrypt as _bcrypt
 
-# ── PASSWORD HASHING (bcrypt via passlib) ───────────────────────
-_pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# ── PASSWORD HASHING (bcrypt direct — passlib has compat issues with bcrypt 5.x) ──
 def hash_password(pw: str) -> str:
-    return _pwd_ctx.hash(pw)
+    return _bcrypt.hashpw(pw.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8")
 def verify_password(pw: str, hashed: str) -> bool:
-    return _pwd_ctx.verify(pw, hashed) if hashed else False
+    try:
+        return _bcrypt.checkpw(pw.encode("utf-8"), hashed.encode("utf-8"))
+    except Exception:
+        return False
 
 # ── EMAIL VALIDATION ─────────────────────────────────────────────
 _EMAIL_RE = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
@@ -255,14 +257,15 @@ if not _SECRET_KEY:
     )
 
 app = FastAPI(title="KING DIADEM OS")
+# ── v5.1: Session cookie — https_only on production, off for local/test ──
+_is_prod = os.getenv("ENV", "development").lower() in ("production", "prod", "render")
 app.add_middleware(
     SessionMiddleware,
     secret_key=_SECRET_KEY,
     session_cookie="kd_session",
     max_age=86400 * 30,
-    httponly=True,
-    secure=True,
-    samesite="lax",
+    same_site="lax",
+    https_only=_is_prod,
 )
 # ── CORS: default same-origin only, configurable via ALLOWED_ORIGINS env ──
 _allowed_origins = os.getenv("ALLOWED_ORIGINS", "").strip()
@@ -582,9 +585,19 @@ async def register(request: Request, data: dict):
     # ── v5.1: Password required (min 8 chars) ───────────────────
     if len(password) < 8:
         return {"status": "error", "message": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษรนะคะ"}
+    # ── v5.1: Prevent account takeover — reject if email already registered ──
+    if get_user_password:
+        if get_user_password(email):
+            return {"status": "error", "message": "อีเมลนี้ลงทะเบียนแล้ว — กรุณาล็อกอินหรือใช้อีเมลอื่นนะคะ"}
+    else:
+        # ── v5.1: Fail closed if password system unavailable ──
+        return JSONResponse(
+            {"status": "error", "message": "ระบบยืนยันตัวตนไม่พร้อม กรุณาลองใหม่ภายหลังนะคะ"},
+            status_code=503
+        )
     if ensure_user: ensure_user(email)
     # ── v5.1: Store hashed password ─────────────────────────────
-    if set_user_password: set_user_password(email, hash_password(password))
+    set_user_password(email, hash_password(password))
     if add_credits and get_credits and get_credits(email) == 0:
         add_credits(email, 10)
     credits = get_credits(email) if get_credits else 0
@@ -606,15 +619,15 @@ async def login_email(request: Request, data: dict):
     password = (data.get("password") or "").strip()
     if not email:
         return {"status": "error", "message": "กรุณากรอก email นะคะ"}
-    # ── v5.1: Verify password ──────────────────────────────────
-    if get_user_password:
-        stored_hash = get_user_password(email)
-        if not stored_hash or not verify_password(password, stored_hash):
-            return {"status": "error", "message": "อีเมลหรือรหัสผ่านไม่ถูกต้องนะคะ"}
-    else:
-        # Fallback: if password system not available, still require password
-        if not password:
-            return {"status": "error", "message": "กรุณากรอกรหัสผ่านนะคะ"}
+    # ── v5.1: Verify password (fail closed if system unavailable) ──
+    if not get_user_password:
+        return JSONResponse(
+            {"status": "error", "message": "ระบบยืนยันตัวตนไม่พร้อม กรุณาลองใหม่ภายหลังนะคะ"},
+            status_code=503
+        )
+    stored_hash = get_user_password(email)
+    if not stored_hash or not verify_password(password, stored_hash):
+        return {"status": "error", "message": "อีเมลหรือรหัสผ่านไม่ถูกต้องนะคะ"}
     if ensure_user: ensure_user(email)
     name = (data.get("name") or email).strip()
     credits = get_credits(email) if get_credits else 0
@@ -787,14 +800,18 @@ async def run_kernel(request: Request, data: dict):
             {"error": f"ใช้งานถี่เกินไป — จำกัด {_RATE_LIMIT_N} ครั้ง / {_RATE_LIMIT_WINDOW} วินาที กรุณารอสักครู่"},
             status_code=429
         )
-    # ── v5.1: Credit deduction (1 credit per /run call) ─────────
+    # ── v5.1: Credit deduction (1 credit per /run call, fail closed) ──
     _CREDIT_COST = 1
-    if deduct_credits:
-        if not deduct_credits(email, _CREDIT_COST):
-            return JSONResponse(
-                {"error": "เครดิตไม่เพียงพอ — กรุณาเติมเครดิตนะคะ", "credits_needed": _CREDIT_COST},
-                status_code=402
-            )
+    if not deduct_credits:
+        return JSONResponse(
+            {"error": "ระบบเครดิตไม่พร้อม กรุณาลองใหม่ภายหลังนะคะ"},
+            status_code=503
+        )
+    if not deduct_credits(email, _CREDIT_COST):
+        return JSONResponse(
+            {"error": "เครดิตไม่เพียงพอ — กรุณาเติมเครดิตนะคะ", "credits_needed": _CREDIT_COST},
+            status_code=402
+        )
 
     route   = data.get("route") or "general"
     vm      = _resolve_voice_mode(data, route)
@@ -1088,12 +1105,16 @@ async def run_simulate(request: Request, data: dict):
             status_code=429
         )
     _SIM_CREDIT_COST = 2
-    if deduct_credits:
-        if not deduct_credits(email, _SIM_CREDIT_COST):
-            return JSONResponse(
-                {"error": "เครดิตไม่เพียงพอ — จำเป็น 2 credits สำหรับการจำลองนะคะ"},
-                status_code=402
-            )
+    if not deduct_credits:
+        return JSONResponse(
+            {"error": "ระบบเครดิตไม่พร้อม กรุณาลองใหม่ภายหลังนะคะ"},
+            status_code=503
+        )
+    if not deduct_credits(email, _SIM_CREDIT_COST):
+        return JSONResponse(
+            {"error": "เครดิตไม่เพียงพอ — จำเป็น 2 credits สำหรับการจำลองนะคะ"},
+            status_code=402
+        )
     user_input = str(data.get("input") or "").strip()
     paths      = data.get("paths") or []
     # ── v5.1: paths type check ──────────────────────────────────
@@ -1140,8 +1161,13 @@ async def run_simulate(request: Request, data: dict):
 # ── STRIPE ────────────────────────────────────────────────────────
 @app.post("/create-checkout-session")
 async def create_checkout(request: Request, data: dict):
-    # ── v5.1: Use session email, don't trust client "email" field ──
-    email = _get_session_email(request) or ""
+    # ── v5.1: Require login — checkout needs customer_email for webhook ──
+    email = _get_session_email(request)
+    if not email:
+        return JSONResponse(
+            {"error": "กรุณาล็อกอินก่อนชำระเงินนะคะ"},
+            status_code=401
+        )
     plan  = data.get("plan", "basic")
     if plan == "civilization":
         price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
@@ -1166,8 +1192,13 @@ async def create_checkout(request: Request, data: dict):
 
 @app.post("/create-subscription")
 async def create_subscription(request: Request):
-    # ── v5.1: Use session email ─────────────────────────────────
-    email    = _get_session_email(request) or ""
+    # ── v5.1: Require login ─────────────────────────────────────
+    email    = _get_session_email(request)
+    if not email:
+        return JSONResponse(
+            {"error": "กรุณาล็อกอินก่อนชำระเงินนะคะ"},
+            status_code=401
+        )
     price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
     if not price_id:
         return JSONResponse({"error": "ยังไม่ได้ตั้งค่าระบบชำระเงิน"}, status_code=500)
@@ -1244,12 +1275,16 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
     if not _rate_check(_identity):
         return JSONResponse({"error": "ใช้งานถี่เกินไป — กรุณารอสักครู่"}, status_code=429)
     _IMG_CREDIT_COST = 1
-    if deduct_credits:
-        if not deduct_credits(email, _IMG_CREDIT_COST):
-            return JSONResponse(
-                {"error": "เครดิตไม่เพียงพอ — จำเป็น 1 credit สำหรับการวิเคราะห์ภาพนะคะ"},
-                status_code=402
-            )
+    if not deduct_credits:
+        return JSONResponse(
+            {"error": "ระบบเครดิตไม่พร้อม กรุณาลองใหม่ภายหลังนะคะ"},
+            status_code=503
+        )
+    if not deduct_credits(email, _IMG_CREDIT_COST):
+        return JSONResponse(
+            {"error": "เครดิตไม่เพียงพอ — จำเป็น 1 credit สำหรับการวิเคราะห์ภาพนะคะ"},
+            status_code=402
+        )
     if not llm:
         return JSONResponse({"error": "LLM ไม่พร้อม"}, status_code=503)
     if file.content_type not in _ALLOWED_IMAGE_MIME:

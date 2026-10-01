@@ -292,6 +292,43 @@ html, body {
 }
 .email-link:hover { color: rgba(0,210,255,0.70); }
 
+/* ── EMAIL FORM (v5.1) ── */
+.email-form { display: none; margin-top: 16px; }
+.email-form.active { display: block; }
+.field-label {
+  display: block; font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: rgba(0,210,255,0.50);
+  letter-spacing: .08em; margin-bottom: 6px;
+}
+.field-input {
+  width: 100%; box-sizing: border-box;
+  padding: 10px 14px; margin-bottom: 14px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--text); font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; outline: none;
+  transition: border-color .2s;
+}
+.field-input:focus { border-color: rgba(0,210,255,0.40); }
+.field-input.error { border-color: rgba(255,80,80,0.50); }
+.submit-btn {
+  width: 100%; padding: 12px;
+  border-radius: 10px; border: none;
+  background: linear-gradient(135deg, rgba(0,210,255,0.15), rgba(232,184,75,0.10));
+  border: 1px solid rgba(0,210,255,0.25);
+  color: var(--text); font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all .22s ease;
+}
+.submit-btn:hover { border-color: rgba(0,210,255,0.50); box-shadow: 0 6px 24px rgba(0,210,255,0.15); }
+.form-msg {
+  text-align: center; font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; margin-top: 10px; min-height: 16px;
+}
+.form-msg.ok { color: rgba(0,255,136,0.70); }
+.form-msg.err { color: rgba(255,100,100,0.70); }
+
 /* ── FOOTER ── */
 .footer {
   margin-top: 28px;
@@ -410,9 +447,19 @@ html, body {
         ยืนยันตัวตนด้วย Google
       </a>
 
-      <a href="/static/login.html#email" class="email-link">
+      <a href="#email" class="email-link" id="email-toggle">
         ◈ เข้าด้วยอีเมล &amp; รหัสผ่าน
       </a>
+
+      <!-- v5.1: Email login form -->
+      <div class="email-form" id="email-form">
+        <label class="field-label" for="login-email">◈ อีเมล</label>
+        <input class="field-input" id="login-email" type="email" placeholder="you@example.com" autocomplete="email">
+        <label class="field-label" for="login-password">◈ รหัสผ่าน</label>
+        <input class="field-input" id="login-password" type="password" placeholder="••••••••" autocomplete="current-password">
+        <button class="submit-btn" onclick="loginEmail()">เข้าสู่ระบบ</button>
+        <div class="form-msg" id="login-msg"></div>
+      </div>
 
       <!-- footer -->
       <div class="footer">
@@ -451,6 +498,66 @@ html, body {
 document.querySelector('.google-btn')?.addEventListener('touchend', function(e){
   e.preventDefault(); window.location.href=this.href;
 },{passive:false});
+
+/* ── v5.1: Email login form toggle ── */
+(function(){
+  var toggle = document.getElementById('email-toggle');
+  var form = document.getElementById('email-form');
+  if(toggle && form){
+    toggle.addEventListener('click', function(e){
+      e.preventDefault();
+      form.classList.toggle('active');
+      if(form.classList.contains('active')){
+        var emailInput = document.getElementById('login-email');
+        if(emailInput) emailInput.focus();
+      }
+    });
+    // Auto-open if URL has #email
+    if(window.location.hash === '#email'){
+      form.classList.add('active');
+    }
+  }
+})();
+
+/* ── v5.1: Email login ── */
+function loginEmail(){
+  var email = document.getElementById('login-email').value.trim();
+  var password = document.getElementById('login-password').value;
+  var msg = document.getElementById('login-msg');
+  msg.className = 'form-msg';
+  if(!email || !password){
+    msg.textContent = 'กรุณากรอกอีเมลและรหัสผ่านนะคะ';
+    msg.classList.add('err');
+    return;
+  }
+  msg.textContent = 'กำลังเข้าสู่ระบบ...';
+  fetch('/login', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email: email, password: password})
+  })
+  .then(function(r){ return r.json().then(function(d){ return {ok: r.ok, data: d}; }); })
+  .then(function(res){
+    if(res.data.status === 'ok'){
+      msg.textContent = '✓ เข้าสู่ระบบสำเร็จ';
+      msg.classList.add('ok');
+      setTimeout(function(){ window.location.href = '/'; }, 800);
+    } else {
+      msg.textContent = res.data.message || 'เข้าสู่ระบบไม่สำเร็จนะคะ';
+      msg.classList.add('err');
+    }
+  })
+  .catch(function(err){
+    msg.textContent = 'การเชื่อมต่อผิดพลาด — ลองอีกครั้งนะคะ';
+    msg.classList.add('err');
+  });
+}
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && document.getElementById('email-form')?.classList.contains('active')){
+    loginEmail();
+  }
+});
 </script>
 </body>
 </html>
