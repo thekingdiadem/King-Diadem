@@ -58,6 +58,12 @@ def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_chat_memory_user
             ON chat_memory(user_email, importance DESC, updated_at DESC);
+        -- v5.1: password storage
+        CREATE TABLE IF NOT EXISTS user_passwords (
+            user_email TEXT PRIMARY KEY,
+            password_hash TEXT NOT NULL,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
     """)
     conn.commit()
     conn.close()
@@ -180,6 +186,41 @@ def auto_extract_memory(user_email: str, user_input: str,
 
     # บันทึก route ที่ใช้บ่อย
     save_memory(user_email, "last_route", route, route, importance=1)
+
+# ══════════════════════════════════════════════════════════════
+# v5.1: Password management
+# ══════════════════════════════════════════════════════════════
+
+def set_user_password(user_email: str, password_hash: str):
+    """บันทึกหรืออัปเดต password hash"""
+    if not user_email or not password_hash:
+        return
+    conn = get_conn()
+    try:
+        conn.execute(
+            """INSERT INTO user_passwords (user_email, password_hash, updated_at)
+               VALUES (?,?,CURRENT_TIMESTAMP)
+               ON CONFLICT(user_email) DO UPDATE SET
+                 password_hash=excluded.password_hash, updated_at=CURRENT_TIMESTAMP""",
+            (user_email, password_hash)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+def get_user_password(user_email: str):
+    """ดึง password hash ของ user"""
+    if not user_email:
+        return None
+    conn = get_conn()
+    try:
+        row = conn.execute(
+            "SELECT password_hash FROM user_passwords WHERE user_email=?",
+            (user_email,)
+        ).fetchone()
+        return row["password_hash"] if row else None
+    finally:
+        conn.close()
 
 # ══════════════════════════════════════════════════════════════
 # ฟังก์ชันเดิมทั้งหมด (ไม่เปลี่ยน)

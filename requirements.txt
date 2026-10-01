@@ -13,3 +13,5 @@ Pillow
 authlib
 httpx
 itsdangerous
+passlib[bcrypt]
+bcrypt

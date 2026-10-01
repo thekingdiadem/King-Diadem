@@ -1,5 +1,5 @@
 # =========================
-# 👑 KING DIADEM — app.py v5.0
+# 👑 KING DIADEM — app.py v5.1 (Security Patch)
 # LYLA (หญิง/ค่ะ) · VEGA (ชาย/ครับ)
 # โพธิปักขิยธรรม 37 · ปฏิจสมุปบาท · โยนิโสมนสิการ · สุญยตา
 # Fail less. Harm less. Restore more.
@@ -30,9 +30,33 @@
 from fastapi import FastAPI, Request, File, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-import os, json, stripe, math, time, threading
+import os, json, stripe, math, time, threading, re
 from urllib.parse import quote, unquote
+from passlib.context import CryptContext
+
+# ── PASSWORD HASHING (bcrypt via passlib) ───────────────────────
+_pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
+def hash_password(pw: str) -> str:
+    return _pwd_ctx.hash(pw)
+def verify_password(pw: str, hashed: str) -> bool:
+    return _pwd_ctx.verify(pw, hashed) if hashed else False
+
+# ── EMAIL VALIDATION ─────────────────────────────────────────────
+_EMAIL_RE = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+def _valid_email(email: str) -> bool:
+    return bool(_EMAIL_RE.match(email or ""))
+
+# ── SESSION AUTH HELPERS ─────────────────────────────────────────
+def _get_session_email(request: Request) -> str:
+    """ดึง email จาก signed session cookie"""
+    sess = getattr(request, "session", None) or {}
+    return str(sess.get("email", "")).strip()
+
+def _require_auth(request: Request) -> str | None:
+    """ตรวจ auth — คืน email หรือ None"""
+    return _get_session_email(request) or None
 
 # ── ENGINE ────────────────────────────────────────────────────────
 try:
@@ -157,15 +181,17 @@ except Exception as e:
 # ── DATABASE ──────────────────────────────────────────────────────
 try:
     from DATABASE.db import (
-        init_db, log_decision, get_credits, add_credits,
+        init_db, log_decision, get_credits, add_credits, deduct_credits,
         ensure_user, save_chat_state, load_chat_state,
+        get_user_password, set_user_password,
     )
     init_db()
     print("✅ Database initialized")
 except Exception as e:
     print(f"⚠ DB: {e}")
-    init_db = log_decision = get_credits = add_credits = None
+    init_db = log_decision = get_credits = add_credits = deduct_credits = None
     ensure_user = save_chat_state = load_chat_state = None
+    get_user_password = set_user_password = None
 
 # ── REPORT ENGINE ─────────────────────────────────────────────────
 try:
@@ -231,10 +257,35 @@ if not _SECRET_KEY:
 app = FastAPI(title="KING DIADEM OS")
 app.add_middleware(
     SessionMiddleware,
-    secret_key=_SECRET_KEY
+    secret_key=_SECRET_KEY,
+    session_cookie="kd_session",
+    max_age=86400 * 30,
+    httponly=True,
+    secure=True,
+    samesite="lax",
+)
+# ── CORS: default same-origin only, configurable via ALLOWED_ORIGINS env ──
+_allowed_origins = os.getenv("ALLOWED_ORIGINS", "").strip()
+_cors_origins = [o.strip() for o in _allowed_origins.split(",") if o.strip()] or [
+    "https://king-diadem.onrender.com",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 engine = DecisionEngine() if DecisionEngine else None
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# ── STRIPE ERROR SANITIZER ───────────────────────────────────────
+def _safe_stripe_error(e: Exception) -> str:
+    """ไม่รั่ว raw Stripe error ไป client"""
+    msg = str(e)
+    if "api_key" in msg.lower() or "secret" in msg.lower():
+        return "การเชื่อมต่อระบบชำระเงินมีปัญหา — กรุณาลองอีกครั้งนะคะ"
+    return "ไม่สามารถสร้าง session ชำระเงินได้ — กรุณาลองอีกครั้งนะคะ"
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -334,11 +385,18 @@ def galaxy_nodes():
 
 
 @app.post("/api/galaxy/signal")
-async def galaxy_signal(data: dict):
+async def galaxy_signal(request: Request, data: dict):
+    # ── v5.1: Require auth ──────────────────────────────────────
+    if not _get_session_email(request):
+        return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
     route = str(data.get("route", "general")).lower()
     mode  = str(data.get("lyla_mode", "idle")).lower()
     if route not in _PLANETS:
         return JSONResponse({"ok": False, "error": "unknown route"}, status_code=400)
+    # ── v5.1: Validate lyla_mode ────────────────────────────────
+    _VALID_MODES = {"idle", "burst", "crisis"}
+    if mode not in _VALID_MODES:
+        return JSONResponse({"ok": False, "error": f"invalid mode, must be one of {_VALID_MODES}"}, status_code=400)
     with _glock:
         _gstate["active_route"] = route
         _gstate["lyla_mode"]    = mode
@@ -380,7 +438,7 @@ async def ask_page():
 def health():
     return {
         "status":             "alive 👑",
-        "version":            "5.0",
+        "version":            "5.1",
         "llm_loaded":         llm is not None,
         "engine_loaded":      engine is not None,
         "lyla_loaded":        lyla is not None,
@@ -402,7 +460,10 @@ def health():
 
 # ── DASHBOARD ─────────────────────────────────────────────────────
 @app.get("/dashboard")
-async def dashboard():
+async def dashboard(request: Request):
+    # ── v5.1: Require auth ──────────────────────────────────────
+    if not _get_session_email(request):
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
     try:    status   = planetary_status() if planetary_status else {}
     except: status   = {}
     try:    learning = get_learning()     if get_learning     else []
@@ -468,8 +529,11 @@ async def google_callback(request: Request):
                         k.startswith("_state") or "oauth" in k.lower() or k.endswith("_token")
                     ):
                         sess.pop(k, None)
-        except Exception:
-            pass
+                # ── v5.1: Store in signed session ──────────────────
+                sess["email"] = email
+                sess["name"] = name
+        except Exception as _se:
+            print(f"⚠ google_callback session error: {_se}")
         response = RedirectResponse("/")
         response.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
         response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30, **_COOKIE_KW)
@@ -481,8 +545,10 @@ async def google_callback(request: Request):
 
 @app.get("/me")
 async def me(request: Request):
-    email = unquote(request.cookies.get("kd_email") or "")
-    name  = unquote(request.cookies.get("kd_name")  or "")
+    # ── v5.1: Read from signed session ─────────────────────────
+    email = _get_session_email(request)
+    sess = getattr(request, "session", None) or {}
+    name  = str(sess.get("name", email or ""))
     if not email:
         return {"logged_in": False}
     credits = get_credits(email) if get_credits else 0
@@ -490,64 +556,108 @@ async def me(request: Request):
 
 
 @app.post("/logout")
-async def logout():
+async def logout(request: Request):
+    # ── v5.1: Clear signed session ──────────────────────────────
+    sess = getattr(request, "session", None)
+    if sess is not None:
+        sess.clear()
     r = JSONResponse({"status": "ok"})
-    r.delete_cookie("kd_email")
-    r.delete_cookie("kd_name")
+    # ── v5.1: delete_cookie with matching options ──────────────
+    r.delete_cookie("kd_email", **_COOKIE_KW)
+    r.delete_cookie("kd_name", **_COOKIE_KW)
     return r
 
 
 # ── EMAIL LOGIN / REGISTER ────────────────────────────────────────
 @app.post("/register")
-async def register(data: dict):
+async def register(request: Request, data: dict):
     email = (data.get("email") or "").strip()
+    password = (data.get("password") or "").strip()
+    name = (data.get("name") or email).strip()
     if not email:
         return {"status": "error", "message": "กรุณากรอก email นะคะ"}
+    # ── v5.1: Email format validation ───────────────────────────
+    if not _valid_email(email):
+        return {"status": "error", "message": "รูปแบบ email ไม่ถูกต้องนะคะ"}
+    # ── v5.1: Password required (min 8 chars) ───────────────────
+    if len(password) < 8:
+        return {"status": "error", "message": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษรนะคะ"}
     if ensure_user: ensure_user(email)
+    # ── v5.1: Store hashed password ─────────────────────────────
+    if set_user_password: set_user_password(email, hash_password(password))
     if add_credits and get_credits and get_credits(email) == 0:
         add_credits(email, 10)
     credits = get_credits(email) if get_credits else 0
+    # ── v5.1: Use signed session instead of raw cookie ──────────
+    sess = getattr(request, "session", None)
+    if sess is not None:
+        sess["email"] = email
+        sess["name"] = name
     r = JSONResponse({"status": "ok", "email": email, "credits": credits})
+    # Legacy cookies for backward compat (read-only, will be removed)
     r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
-    r.set_cookie("kd_name",  _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
+    r.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30, **_COOKIE_KW)
     return r
 
 
 @app.post("/login")
-async def login_email(data: dict):
+async def login_email(request: Request, data: dict):
     email = (data.get("email") or "").strip()
+    password = (data.get("password") or "").strip()
     if not email:
-        return {"status": "error"}
+        return {"status": "error", "message": "กรุณากรอก email นะคะ"}
+    # ── v5.1: Verify password ──────────────────────────────────
+    if get_user_password:
+        stored_hash = get_user_password(email)
+        if not stored_hash or not verify_password(password, stored_hash):
+            return {"status": "error", "message": "อีเมลหรือรหัสผ่านไม่ถูกต้องนะคะ"}
+    else:
+        # Fallback: if password system not available, still require password
+        if not password:
+            return {"status": "error", "message": "กรุณากรอกรหัสผ่านนะคะ"}
     if ensure_user: ensure_user(email)
+    name = (data.get("name") or email).strip()
     credits = get_credits(email) if get_credits else 0
-    r = JSONResponse({"status": "ok", "email": email, "credit": credits})
+    # ── v5.1: Use signed session ───────────────────────────────
+    sess = getattr(request, "session", None)
+    if sess is not None:
+        sess["email"] = email
+        sess["name"] = name
+    # ── v5.1: FIX BUG — "credit" → "credits" (plural) ──────────
+    r = JSONResponse({"status": "ok", "email": email, "credits": credits})
     r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
-    r.set_cookie("kd_name",  _cookie_ascii((data.get("name") or email).strip()), max_age=86400*30, **_COOKIE_KW)
+    r.set_cookie("kd_name",  _cookie_ascii(name), max_age=86400*30, **_COOKIE_KW)
     return r
 
 
 # ── CHAT STATE ────────────────────────────────────────────────────
 @app.get("/api/chat-state")
 async def get_chat_state(request: Request):
-    email = unquote(request.cookies.get("kd_email") or "").strip()
+    email = _get_session_email(request)
     if not email or not load_chat_state:
         return {"state": None}
     raw = load_chat_state(email)
     if not raw:
         return {"state": None}
     try:    return {"state": json.loads(raw)}
-    except: return {"state": None}
+    except Exception as e:
+        print(f"⚠ chat-state load error: {e}")
+        return {"state": None}
 
 
 @app.put("/api/chat-state")
 async def put_chat_state(request: Request, data: dict):
-    email = unquote(request.cookies.get("kd_email") or "").strip()
+    email = _get_session_email(request)
     if not email or not save_chat_state:
         return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
     state = data.get("state") if isinstance(data.get("state"), dict) else data
     if not isinstance(state, dict):
         return JSONResponse({"ok": False, "error": "invalid"}, status_code=400)
-    save_chat_state(email, json.dumps(state, ensure_ascii=False))
+    # ── v5.1: Size limit 256KB ─────────────────────────────────
+    payload_str = json.dumps(state, ensure_ascii=False)
+    if len(payload_str) > 262144:
+        return JSONResponse({"ok": False, "error": "payload too large (max 256KB)"}, status_code=413)
+    save_chat_state(email, payload_str)
     return {"ok": True}
 
 
@@ -622,10 +732,21 @@ _rate_lock   = threading.Lock()
 _rate_bucket: dict = {}
 _RATE_LIMIT_N       = 20     # จำนวนครั้ง
 _RATE_LIMIT_WINDOW  = 60     # ต่อกี่วินาที
+_RATE_CLEANUP_INTERVAL = 300  # ทำความสะอาดทุก 5 นาที
+_last_cleanup = time.time()
 
 def _rate_check(identity: str) -> bool:
+    global _last_cleanup
     now = time.time()
     with _rate_lock:
+        # ── Periodic cleanup: purge stale identities ────────────
+        if now - _last_cleanup > _RATE_CLEANUP_INTERVAL:
+            stale = [k for k, v in _rate_bucket.items()
+                     if not v or now - v[-1] > _RATE_LIMIT_WINDOW]
+            for k in stale:
+                del _rate_bucket[k]
+            _last_cleanup = now
+        # ── Sliding window check ────────────────────────────────
         hits = _rate_bucket.get(identity, [])
         hits = [t for t in hits if now - t < _RATE_LIMIT_WINDOW]
         if len(hits) >= _RATE_LIMIT_N:
@@ -634,6 +755,13 @@ def _rate_check(identity: str) -> bool:
         hits.append(now)
         _rate_bucket[identity] = hits
         return True
+
+def _identity_from_request(request: Request) -> str:
+    """สร้าง identity สำหรับ rate limiting"""
+    email = _get_session_email(request)
+    if email:
+        return email
+    return request.client.host if request.client else "unknown"
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -646,17 +774,36 @@ async def run_kernel(request: Request, data: dict):
     if not user_input:
         return {"error": "Input is required"}
 
-    email = unquote(request.cookies.get("kd_email") or "anonymous")
-    _identity = email if email != "anonymous" else (request.client.host if request.client else "unknown")
+    # ── v5.1: Session-based auth + credit check ─────────────────
+    email = _get_session_email(request)
+    if not email:
+        return JSONResponse(
+            {"error": "กรุณาล็อกอินก่อนใช้งานนะคะ"},
+            status_code=401
+        )
+    _identity = _identity_from_request(request)
     if not _rate_check(_identity):
         return JSONResponse(
             {"error": f"ใช้งานถี่เกินไป — จำกัด {_RATE_LIMIT_N} ครั้ง / {_RATE_LIMIT_WINDOW} วินาที กรุณารอสักครู่"},
             status_code=429
         )
+    # ── v5.1: Credit deduction (1 credit per /run call) ─────────
+    _CREDIT_COST = 1
+    if deduct_credits:
+        if not deduct_credits(email, _CREDIT_COST):
+            return JSONResponse(
+                {"error": "เครดิตไม่เพียงพอ — กรุณาเติมเครดิตนะคะ", "credits_needed": _CREDIT_COST},
+                status_code=402
+            )
 
     route   = data.get("route") or "general"
     vm      = _resolve_voice_mode(data, route)
-    history = data.get("history") or []
+    # ── v5.1: history type check ────────────────────────────────
+    history = data.get("history")
+    if history and not isinstance(history, list):
+        history = []
+    if not history:
+        history = []
 
     if record_question: record_question()
 
@@ -664,13 +811,13 @@ async def run_kernel(request: Request, data: dict):
     human_state = {"entropy": 40, "resource": 50, "stability": 60, "risk_score": 10}
     if analyze_human:
         try: human_state = analyze_human(data.get("context", {})) or human_state
-        except Exception: pass
+        except Exception as _he: print(f"⚠ analyze_human: {_he}")
 
     # ── intent ───────────────────────────────────────────────────
     intent = {"intent": "general", "confidence": 0.5}
     if analyze_intent:
         try: intent = analyze_intent(user_input) or intent
-        except Exception: pass
+        except Exception as _ie: print(f"⚠ analyze_intent: {_ie}")
 
     # ── risk ─────────────────────────────────────────────────────
     risk_ctx = ""
@@ -681,7 +828,7 @@ async def run_kernel(request: Request, data: dict):
                 risk_ctx = f"[Risk: {r['level']}]"
                 if r.get("level") in ("HIGH", "CRITICAL") and route not in ("vega",):
                     route = _escalate_route(route, "collapse")
-        except Exception: pass
+        except Exception as _ce: print(f"⚠ risk assess: {_ce}")
 
     # ── collapse ─────────────────────────────────────────────────
     collapse_ctx = ""
@@ -927,9 +1074,31 @@ async def run_kernel(request: Request, data: dict):
 # ── SIMULATE ──────────────────────────────────────────────────────
 @app.post("/simulate")
 async def run_simulate(request: Request, data: dict):
+    # ── v5.1: Auth + rate limit + credit deduction ──────────────
+    email = _get_session_email(request)
+    if not email:
+        return JSONResponse(
+            {"error": "กรุณาล็อกอินก่อนใช้งานนะคะ"},
+            status_code=401
+        )
+    _identity = _identity_from_request(request)
+    if not _rate_check(_identity):
+        return JSONResponse(
+            {"error": f"ใช้งานถี่เกินไป — กรุณารอสักครู่"},
+            status_code=429
+        )
+    _SIM_CREDIT_COST = 2
+    if deduct_credits:
+        if not deduct_credits(email, _SIM_CREDIT_COST):
+            return JSONResponse(
+                {"error": "เครดิตไม่เพียงพอ — จำเป็น 2 credits สำหรับการจำลองนะคะ"},
+                status_code=402
+            )
     user_input = str(data.get("input") or "").strip()
     paths      = data.get("paths") or []
-    email      = unquote(request.cookies.get("kd_email") or "anonymous")
+    # ── v5.1: paths type check ──────────────────────────────────
+    if paths and not isinstance(paths, list):
+        paths = []
     if not user_input:
         return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
 
@@ -946,8 +1115,10 @@ async def run_simulate(request: Request, data: dict):
             "3. ทางที่แนะนำพร้อมเหตุผล 1 ประโยค\n\n"
             "ตอบเป็นภาษาไทย กระชับ ใช้งานได้ทันที\n— VEGA"
         )
+        # ── v5.1: Use route from data, not hardcoded "survival" ──
+        sim_route = str(data.get("route") or "general").strip()
         answer = _llm.generate_with_governance(
-            prompt=prompt, route="survival",
+            prompt=prompt, route=sim_route,
             additional_context="mode=simulation",
             user_email=email,
         )
@@ -969,14 +1140,15 @@ async def run_simulate(request: Request, data: dict):
 # ── STRIPE ────────────────────────────────────────────────────────
 @app.post("/create-checkout-session")
 async def create_checkout(request: Request, data: dict):
-    email = unquote(request.cookies.get("kd_email") or "") or data.get("email", "")
+    # ── v5.1: Use session email, don't trust client "email" field ──
+    email = _get_session_email(request) or ""
     plan  = data.get("plan", "basic")
     if plan == "civilization":
         price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
     else:
         price_id = os.getenv("STRIPE_PRICE_ID") or os.getenv("STRIPE_PREMIUM_PRICE_ID")
     if not price_id:
-        return JSONResponse({"error": "ยังไม่ได้ตั้งค่า STRIPE_PRICE_ID"}, status_code=500)
+        return JSONResponse({"error": "ยังไม่ได้ตั้งค่าระบบชำระเงิน"}, status_code=500)
     try:
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -988,15 +1160,17 @@ async def create_checkout(request: Request, data: dict):
         )
         return {"url": session.url}
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        print(f"⚠ checkout error: {e}")
+        return JSONResponse({"error": _safe_stripe_error(e)}, status_code=500)
 
 
 @app.post("/create-subscription")
 async def create_subscription(request: Request):
-    email    = unquote(request.cookies.get("kd_email") or "")
+    # ── v5.1: Use session email ─────────────────────────────────
+    email    = _get_session_email(request) or ""
     price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
     if not price_id:
-        return JSONResponse({"error": "ยังไม่ได้ตั้งค่า STRIPE_PRICE_ID"}, status_code=500)
+        return JSONResponse({"error": "ยังไม่ได้ตั้งค่าระบบชำระเงิน"}, status_code=500)
     try:
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -1008,7 +1182,8 @@ async def create_subscription(request: Request):
         )
         return {"url": session.url}
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        print(f"⚠ subscription error: {e}")
+        return JSONResponse({"error": _safe_stripe_error(e)}, status_code=500)
 
 
 @app.post("/webhook/stripe")
@@ -1048,7 +1223,7 @@ async def stripe_webhook(request: Request):
 
 @app.get("/credits")
 async def get_user_credits(request: Request):
-    email = unquote(request.cookies.get("kd_email") or "")
+    email = _get_session_email(request)
     if not email:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     credits = get_credits(email) if get_credits else 0
@@ -1061,6 +1236,20 @@ _ALLOWED_IMAGE_MIME = ("image/jpeg", "image/png", "image/webp")
 
 @app.post("/analyze-image")
 async def analyze_image(request: Request, file: UploadFile = File(...)):
+    # ── v5.1: Auth + rate limit + credit deduction ──────────────
+    email = _get_session_email(request)
+    if not email:
+        return JSONResponse({"error": "กรุณาล็อกอินก่อนใช้งานนะคะ"}, status_code=401)
+    _identity = _identity_from_request(request)
+    if not _rate_check(_identity):
+        return JSONResponse({"error": "ใช้งานถี่เกินไป — กรุณารอสักครู่"}, status_code=429)
+    _IMG_CREDIT_COST = 1
+    if deduct_credits:
+        if not deduct_credits(email, _IMG_CREDIT_COST):
+            return JSONResponse(
+                {"error": "เครดิตไม่เพียงพอ — จำเป็น 1 credit สำหรับการวิเคราะห์ภาพนะคะ"},
+                status_code=402
+            )
     if not llm:
         return JSONResponse({"error": "LLM ไม่พร้อม"}, status_code=503)
     if file.content_type not in _ALLOWED_IMAGE_MIME:
@@ -1134,7 +1323,10 @@ async def get_report_api(report_id: str):
 async def create_report_manual(request: Request, data: dict):
     if not _create_report:
         return JSONResponse({"error": "report engine not loaded"}, status_code=503)
-    email      = unquote(request.cookies.get("kd_email") or "anonymous")
+    # ── v5.1: Require auth ──────────────────────────────────────
+    email = _get_session_email(request)
+    if not email:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
     user_input = data.get("input", "")
     result     = data.get("result", {})
     if not user_input or not result:
