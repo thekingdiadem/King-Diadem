@@ -326,6 +326,129 @@ input[type=range]{width:100%;accent-color:var(--gold)}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 #toast.bad{border-color:rgba(255,93,108,.6);color:#ffb3ba}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ════════════════════════════════════════════════════════════════
+   CLEAN — ภาษาน้อย สมการเป็นตัวเล่า
+   ════════════════════════════════════════════════════════════════ */
+:root{ --line:rgba(150,170,230,.11); --line-2:rgba(160,180,240,.22); --glass:rgba(7,9,22,.62) }
+body{font-size:15px}
+.btn.ghost{background:transparent;border:1px solid var(--line-2);color:var(--ink-2)}
+.btn.ghost:hover{color:var(--ink);border-color:rgba(246,178,74,.45);background:rgba(246,178,74,.05)}
+.btn.primary{background:linear-gradient(90deg,#ffe0a3,#f6b24a);box-shadow:none}
+
+/* sidebar */
+#sidebar{background:rgba(4,5,13,.55);border-right-color:var(--line)}
+.brand{border-bottom:0;padding:4px 4px 18px;margin:0}
+.brand canvas{width:28px;height:28px}
+.brand b{font:600 13px/1 var(--f-title);letter-spacing:.3em;background:none;color:var(--ink)}
+#new-chat{min-height:36px;font-size:13px;justify-content:flex-start;padding-left:12px}
+#sessions{margin-top:10px}
+.sess button.t{font-size:13px;padding:7px 8px}
+.nav{border-top:1px solid var(--line);padding-top:10px;margin-top:8px}
+.nav button{font-size:13px;padding:8px;gap:12px}
+.nav button i{font:normal 600 13px/1 var(--f-mono);width:16px;text-align:center;color:var(--ink-3)}
+.nav button.on{background:transparent;color:var(--gold-hi)} .nav button.on i{color:var(--gold-hi)}
+.nav .k{display:none}
+.account{display:flex;align-items:center;gap:10px;border-top:0;padding:10px 8px 0;margin-top:6px}
+.account>div{display:flex;align-items:center;gap:10px;width:100%;min-width:0}
+.account .who{font:11px/1.3 var(--f-mono);color:var(--ink-3);margin:0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;word-break:normal}
+.acc-link{border:0;background:none;padding:0;font:500 12px var(--f-mono);color:var(--ink-2);text-decoration:none;letter-spacing:.04em}
+.acc-link:hover{color:var(--gold-hi)}
+
+/* topbar */
+#topbar{border-bottom:0;background:transparent}
+#view-title{font:500 13px/1 var(--f-sans);letter-spacing:.02em;color:var(--ink-3)}
+.pill{height:24px;border-color:var(--line);background:rgba(4,5,13,.4);font-size:11px}
+.pill.bare{border:0;background:none;padding:0 4px}
+
+/* empty: แค่แสง ชื่อ และสัจพจน์ */
+#empty h1{font:600 clamp(18px,2.6vw,24px)/1 var(--f-title);letter-spacing:.5em;margin:6px 0 14px;padding-left:.5em;background:none;color:#f4efe4;filter:none;text-shadow:0 0 24px rgba(255,214,150,.25)}
+.axiom{border:0;background:none;padding:0;margin:0;font:400 12px/1 var(--f-mono);letter-spacing:.08em;color:rgba(255,217,143,.75)}
+#core-space{height:clamp(220px,46vh,460px)}
+
+/* chat */
+#msgs{max-width:720px}
+.m.u .bubble{background:rgba(120,160,255,.14);border:0;border-radius:14px 14px 4px 14px}
+.m.a .bubble,.m.e .bubble{background:transparent;border:0;border-left:1px solid rgba(246,178,74,.35);border-radius:0;padding:2px 0 2px 16px;-webkit-backdrop-filter:none;backdrop-filter:none;line-height:1.75}
+.m.a .who,.m.e .who{font-size:10px;letter-spacing:.22em;margin-bottom:8px}
+.who .tag{letter-spacing:.18em}
+.eqs{display:inline-flex;align-items:center;gap:6px;margin:8px 0 0 16px;padding:3px 0;border:0;background:none;font-size:11px;letter-spacing:.06em;color:var(--ink-3)}
+.eqs b{color:var(--gold);font-weight:600}
+.eqs:hover{color:var(--ink-2)}
+
+/* composer */
+#composer{background:linear-gradient(0deg,rgba(4,5,13,.92) 50%,rgba(4,5,13,0))}
+.comp-in{max-width:720px}
+.comp-row1{gap:6px;margin-bottom:8px;overflow:visible}
+.chip{height:26px;padding:0 10px;font:500 11px/1 var(--f-mono);letter-spacing:.04em;background:rgba(4,5,13,.5);border-color:var(--line)}
+.chip.state.set{color:var(--gold-hi);border-color:rgba(246,178,74,.4);background:rgba(246,178,74,.06)}
+.seg{background:rgba(4,5,13,.5);border-color:var(--line)}
+.seg button{height:24px;padding:0 9px;font-size:10px;letter-spacing:.08em}
+.seg button.on{background:rgba(246,178,74,.16);color:var(--gold-hi)}
+.menu-wrap{position:relative;flex-shrink:0}
+#route-pill::after{content:"▾";margin-left:4px;opacity:.6}
+.menu{position:absolute;bottom:34px;left:0;z-index:20;min-width:170px;padding:6px;border:1px solid var(--line-2);border-radius:10px;background:rgba(7,9,22,.97);box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.menu #routes{display:flex;flex-direction:column;gap:2px}
+.menu .chip{width:100%;justify-content:flex-start;border:0;background:none;height:32px;font-family:var(--f-sans);font-size:13px;letter-spacing:0}
+.menu .chip:hover{background:rgba(120,150,255,.08)}
+.menu .chip.on{color:var(--gold-hi);background:rgba(246,178,74,.08)}
+.inrow{border-color:var(--line-2);border-radius:12px;background:rgba(6,8,20,.82);box-shadow:none}
+#send{width:38px;height:38px;border-radius:9px;background:linear-gradient(90deg,#ffe0a3,#f6b24a);font-size:15px}
+
+/* Σ panel */
+#trace-panel{background:rgba(4,5,13,.5);border-left-color:var(--line)}
+.tp-h{display:flex;align-items:baseline;gap:10px;font:600 16px/1 var(--f-mono);letter-spacing:.1em;color:var(--gold-hi);text-transform:none;margin:6px 0 14px}
+.tp-h #tp-sub{font-size:10px;font-weight:500;letter-spacing:.2em;color:var(--ink-3)}
+.eq{font-family:var(--f-mono);font-size:12px}
+.eq .r{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:4px 10px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line)}
+.eq .r:first-child{border-top:0}
+.eq .s{color:var(--gold);font-weight:600}
+.eq .x{color:var(--ink-2);word-break:break-word;line-height:1.55}
+.eq .v{color:var(--ink);text-align:right;white-space:nowrap}
+.eq .v b{font-size:15px;font-weight:600;color:#fff4dc}
+.eq .v a{text-decoration:none}
+.eq .sub{grid-column:2/-1;color:var(--ink-3);font-size:10.5px;letter-spacing:.02em}
+.eq .r.warn .v,.eq .r.warn .s{color:var(--gold-hi)} .eq .r.bad .v,.eq .r.bad .s{color:#ff8e98} .eq .r.ok .v{color:var(--ok)}
+#dlg-eq .dlg-b{padding-top:6px}
+
+/* dialogs */
+dialog{background:rgba(7,9,22,.98);border-color:var(--line-2)}
+.dlg-h{border-bottom:0;padding-bottom:4px}
+.dlg-h h2{font-size:14px;letter-spacing:.06em}
+.dlg-f{border-top:0}
+.wl-preview{background:transparent;border-color:var(--line)}
+.eqline{font-size:11px;color:var(--ink-3);margin-top:8px;letter-spacing:.04em}
+.quota{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.quota div{background:rgba(7,9,22,.98);padding:14px 12px;display:flex;flex-direction:column;gap:6px}
+.quota span{font-size:10px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+.quota b{font-size:20px;color:var(--gold-hi)}
+
+/* tools / system */
+.card{border-color:var(--line);background:rgba(6,8,20,.55)}
+.card-h h2{font-size:14px;letter-spacing:.04em}
+.card-h p{font-size:11px;letter-spacing:.06em}
+.sys-hero h1{font:600 34px/1 var(--f-mono);color:var(--gold-hi);margin:0 0 8px}
+.sys-hero p{font-size:11px;color:var(--ink-3);margin:0 0 18px}
+.stats b{font-size:18px}
+.pipe li{grid-template-columns:28px minmax(0,1fr) auto;padding:8px 0}
+.pipe .t{font-size:13px;font-weight:500}
+.u-legend{padding:8px 10px}
+.u-title b{font-size:16px}
+
+/* THE PURE AXIS */
+.axiom{cursor:pointer}
+.axiom:hover{color:var(--gold-hi);text-shadow:0 0 14px rgba(255,214,150,.4)}
+dialog.axis{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;border:0;border-radius:0;background:rgba(2,3,9,.86);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);overflow-y:auto;box-shadow:none}
+dialog.axis::backdrop{background:transparent}
+.axis-x{position:fixed;top:calc(12px + var(--sat));right:14px;z-index:2}
+.axis-body{max-width:560px;margin:0 auto;padding:calc(72px + var(--sat)) 24px calc(96px + var(--sab));text-align:center;color:var(--ink-2);font:400 15px/1.9 var(--f-sans)}
+.axis-body header{margin-bottom:8px}
+.axis-body h2{font:600 22px/1.2 var(--f-title);letter-spacing:.42em;padding-left:.42em;color:#f4efe4;margin:0 0 18px;text-shadow:0 0 30px rgba(255,214,150,.3)}
+.axis-body .t{font:500 11px/2 var(--f-mono);letter-spacing:.22em;color:rgba(255,217,143,.7)}
+.axis-body hr{border:0;width:1px;height:56px;margin:26px auto;background:linear-gradient(180deg,rgba(255,217,143,0),rgba(255,217,143,.7),rgba(255,217,143,0))}
+.axis-body h3{font:600 11px/1.6 var(--f-mono);letter-spacing:.32em;color:var(--gold-hi);margin:0 0 14px}
+.axis-body p{margin:0}
+.axis-body p.b{font:500 12px/2 var(--f-mono);letter-spacing:.12em;color:var(--ink)}
 </style>
 </head>
 <body data-veil="0" data-view="chat">
@@ -340,23 +463,22 @@ input[type=range]{width:100%;accent-color:var(--gold)}
   <aside id="sidebar" class="glass" aria-label="เมนู">
     <div class="brand">
       <canvas id="brand-mark" width="72" height="72" aria-hidden="true"></canvas>
-      <div><b>KING DIADEM</b><small>Choice(t) ≥ 1</small></div>
+      <div><b>KING DIADEM</b></div>
     </div>
-    <button type="button" class="btn primary block" id="new-chat">+ แชทใหม่</button>
-    <input id="chat-search" type="search" placeholder="ค้นหาแชท" aria-label="ค้นหาแชท">
+    <button type="button" class="btn ghost block" id="new-chat">＋ แชทใหม่</button>
+    <input id="chat-search" class="hide" type="search" aria-label="ค้นหาแชท">
     <div id="sessions" role="list"></div>
-    <div class="sb-label">มุมมอง</div>
     <nav class="nav">
-      <button type="button" data-view="chat">ปรึกษา <span class="k">/run</span></button>
-      <button type="button" data-view="universe">จักรวาลการตัดสินใจ <span class="k" id="nav-stars">0</span></button>
-      <button type="button" data-view="tools">เครื่องมือ <span class="k">sim · img</span></button>
-      <button type="button" data-view="system">ระบบจริง <span class="k" id="nav-files">272</span></button>
+      <button type="button" data-view="chat"><i>◇</i>ปรึกษา<span class="k">/run</span></button>
+      <button type="button" data-view="universe"><i>✦</i>จักรวาล<span class="k" id="nav-stars">0</span></button>
+      <button type="button" data-view="tools"><i>⌗</i>เครื่องมือ<span class="k">sim</span></button>
+      <button type="button" data-view="system"><i>Σ</i>ระบบ<span class="k" id="nav-files">272</span></button>
     </nav>
     <div class="account">
-      <div id="acc-guest"><a class="btn block" href="/login/google">เข้าสู่ระบบด้วย Google</a></div>
+      <div id="acc-guest"><a class="acc-link" href="/login/google">เข้าสู่ระบบ</a></div>
       <div id="acc-user" class="hide">
-        <div class="who" id="acc-email"></div>
-        <button type="button" class="btn sm block" id="logout">ออกจากระบบ</button>
+        <span class="who" id="acc-email"></span>
+        <button type="button" class="acc-link" id="logout">ออก</button>
       </div>
     </div>
   </aside>
@@ -369,7 +491,7 @@ input[type=range]{width:100%;accent-color:var(--gold)}
       <div class="top-right">
         <span class="pill hide" id="upgrade-pill" role="button" tabindex="0">▲ อัปเกรด</span>
         <span class="pill" id="credits-pill" title="เครดิต">—</span>
-        <span class="pill" id="ai-pill" title="สถานะ backend จาก /health"><span class="dot" id="ai-dot"></span><span id="ai-txt">AI</span></span>
+        <span class="pill bare" id="ai-pill" title="สถานะ backend (/health)"><span class="dot" id="ai-dot"></span><span id="ai-txt" class="sr">AI</span></span>
       </div>
     </header>
 
@@ -378,35 +500,29 @@ input[type=range]{width:100%;accent-color:var(--gold)}
       <div class="scroll" id="chat-scroll">
         <div id="empty">
           <div id="core-space" aria-hidden="true"></div>
-          <h1>King Diadem</h1>
-          <div class="sub">DriftZero · Waterline · Decision Universe</div>
-          <p>แสงตรงกลางคือแก่นของ KING DIADEM ดาวทั้งหกบนวงโคจรคือเส้นทางการตัดสินใจ — แตะดาวเพื่อเลือกเส้นทาง ทุกเรื่องที่คุณเล่าจะผ่านแสงนี้ แล้วกลายเป็นดาวหนึ่งดวงในจักรวาลการตัดสินใจของคุณ — เราไม่ตัดสินใจแทน แต่ช่วยดูว่ายังเหลือทางเลือกอะไร</p>
-          <div class="axiom">Choice(t) ≥ 1 → collapse = False</div>
-          <div class="sugg" id="sugg">
-            <button type="button">เงินเหลือไม่ถึงสิ้นเดือน ควรเริ่มจากอะไรก่อน</button>
-            <button type="button">ลังเลว่าจะลาออกไปทำธุรกิจเองดีไหม ช่วยดู downside ให้หน่อย</button>
-            <button type="button">นอนไม่พอมาหลายวัน งานก็ค้าง รู้สึกตัน</button>
-          </div>
+          <h1>KING DIADEM</h1>
+          <button type="button" class="axiom" data-axis>Choice(t) ≥ 1 → collapse = False</button>
         </div>
         <div id="msgs" aria-live="polite"></div>
       </div>
       <div id="composer">
         <div class="comp-in">
           <div class="comp-row1">
-            <button type="button" class="chip state" id="state-chip">สถานะของฉัน: ยังไม่ระบุ</button>
+            <button type="button" class="chip state" id="state-chip" title="สถานะของฉัน → Waterline">W —</button>
+            <div class="menu-wrap">
+              <button type="button" class="chip" id="route-pill" aria-haspopup="true" aria-expanded="false">ทั่วไป</button>
+              <div class="menu hide" id="route-menu"><div id="routes" role="group" aria-label="เส้นทาง"></div></div>
+            </div>
             <div class="seg" id="persona-seg" role="group" aria-label="ผู้ตอบ">
               <button type="button" data-p="auto" class="on">AUTO</button>
               <button type="button" data-p="lyla">LYLA</button>
               <button type="button" data-p="vega">VEGA</button>
             </div>
-            <span class="vsep"></span>
-            <div id="routes" role="group" aria-label="เส้นทาง" style="display:contents"></div>
           </div>
           <div class="inrow">
-            <textarea id="input" rows="1" placeholder="เกิดอะไรขึ้น? เล่าได้เลย" aria-label="ข้อความ"></textarea>
+            <textarea id="input" rows="1" placeholder="เล่ามาได้เลย" aria-label="ข้อความ"></textarea>
             <button type="button" id="send" aria-label="ส่ง">➤</button>
           </div>
-          <div class="comp-note">Enter ส่ง · Shift+Enter ขึ้นบรรทัด · มนุษย์เป็นผู้ตัดสินใจสุดท้ายเสมอ</div>
         </div>
       </div>
     </section>
@@ -414,13 +530,13 @@ input[type=range]{width:100%;accent-color:var(--gold)}
     <!-- UNIVERSE -->
     <section class="view" id="view-universe" aria-label="จักรวาลการตัดสินใจ">
       <div class="u-top">
-        <div class="u-title"><b>จักรวาลการตัดสินใจ</b><span id="u-count">—</span></div>
+        <div class="u-title"><b>จักรวาล</b><span id="u-count">—</span></div>
         <div class="seg glass" id="u-mode" role="group" aria-label="โหมดจักรวาล">
-          <button type="button" data-m="decisions" class="on">การตัดสินใจของฉัน</button>
-          <button type="button" data-m="system">จิ๊กซอว์ระบบ</button>
+          <button type="button" data-m="decisions" class="on">การตัดสินใจ</button>
+          <button type="button" data-m="system">ระบบ</button>
         </div>
       </div>
-      <div class="u-empty hide" id="u-empty">ยังไม่มีดาว — ทุกคำตอบจากการปรึกษาจะกลายเป็นดาวบนวงโคจรของเส้นทางนั้น<br><br><button type="button" class="btn primary" data-view="chat">เริ่มปรึกษา</button></div>
+      <div class="u-empty hide" id="u-empty">ยังไม่มีดาว<br><br><button type="button" class="btn ghost" data-view="chat">เริ่มปรึกษา</button></div>
       <div class="u-legend glass" id="u-legend"></div>
       <div id="u-card" class="glass hide" aria-live="polite"></div>
     </section>
@@ -429,34 +545,33 @@ input[type=range]{width:100%;accent-color:var(--gold)}
     <section class="view" id="view-tools" aria-label="เครื่องมือ">
       <div class="scroll"><div class="pad">
         <div class="card glass" id="card-sim">
-          <div class="card-h"><h2>จำลองทางเลือก</h2><p>ใส่สถานการณ์และทางเลือกที่มี แล้วระบบจะวิเคราะห์แต่ละทางแบบ Downside First พร้อมผลใน 30/90 วัน <code class="mono">POST /simulate</code></p></div>
+          <div class="card-h"><h2>จำลองทางเลือก</h2><p class="mono">Downside First · 30 / 90 วัน</p></div>
           <div class="card-b">
-            <label class="field"><span>สถานการณ์</span><textarea class="inp" id="sim-input" rows="3" placeholder="เช่น ร้านขาดทุนสามเดือนติด ต้องเลือกว่าจะขยาย ลด หรือปิด"></textarea></label>
+            <label class="field"><span>สถานการณ์</span><textarea class="inp" id="sim-input" rows="3"></textarea></label>
             <div class="field"><span>ทางเลือกที่มี</span><div class="paths" id="sim-paths"></div>
               <button type="button" class="btn sm" id="sim-add">+ เพิ่มทางเลือก</button></div>
             <button type="button" class="btn primary" id="sim-run">จำลอง</button>
-            <div class="out empty" id="sim-out">ผลจะแสดงที่นี่</div>
+            <div class="out empty" id="sim-out">—</div>
           </div>
         </div>
         <div class="card glass" id="card-img">
-          <div class="card-h"><h2>วิเคราะห์ภาพ</h2><p>อ่านความเสี่ยงและทางเลือกจากภาพ (jpeg / png / webp ไม่เกิน 10MB) <code class="mono">POST /analyze-image</code></p></div>
+          <div class="card-h"><h2>วิเคราะห์ภาพ</h2><p class="mono">jpeg · png · webp ≤ 10MB</p></div>
           <div class="card-b">
             <label class="drop" for="img-file"><img id="img-prev" class="hide" alt=""><span id="img-name">แตะเพื่อเลือกภาพ</span></label>
             <input type="file" id="img-file" accept="image/jpeg,image/png,image/webp" class="sr">
             <div style="margin-top:12px"><button type="button" class="btn primary" id="img-run">วิเคราะห์ภาพนี้</button></div>
-            <div class="out empty" id="img-out">ผลจะแสดงที่นี่</div>
+            <div class="out empty" id="img-out">—</div>
           </div>
         </div>
         <div class="card glass" id="card-pay">
-          <div class="card-h"><h2>แพ็กเกจ</h2><p>ชำระผ่าน Stripe Checkout — ระบบไม่เก็บข้อมูลบัตร</p></div>
+          <div class="card-h"><h2>แพ็กเกจ</h2><p class="mono">Stripe · <a href="/static/wallet.html">เติมเครดิต →</a></p></div>
           <div class="card-b">
-            <label class="field"><span>อีเมล (สำหรับใบเสร็จ)</span><input class="inp" type="email" id="pay-email" autocomplete="email" placeholder="you@example.com"></label>
+            <label class="field"><span>อีเมล</span><input class="inp" type="email" id="pay-email" autocomplete="email" placeholder="you@example.com"></label>
             <div class="radio-row">
               <label><input type="radio" name="plan" value="basic" checked><span>พื้นฐาน<small>+10 เครดิตต่อรอบบิล</small></span></label>
               <label><input type="radio" name="plan" value="civilization"><span>อารยธรรม<small>+100 เครดิตต่อรอบบิล</small></span></label>
             </div>
             <button type="button" class="btn primary" id="pay-run">ไปหน้าชำระเงิน</button>
-            <p class="fine">ทั้งสองแพ็กเกจเป็นแบบสมัครสมาชิกรายเดือน (subscription) ตามที่ backend ตั้งไว้</p>
           </div>
         </div>
       </div></div>
@@ -466,27 +581,28 @@ input[type=range]{width:100%;accent-color:var(--gold)}
     <section class="view" id="view-system" aria-label="ระบบจริง">
       <div class="scroll" id="sys-scroll"><div class="pad" id="sys-root">
         <div class="sys-hero">
-          <h1>ระบบนี้ทำงานอย่างไรจริงๆ</h1>
-          <p>ไฟล์ทุกไฟล์ใน repo ถูกแยกตามสิ่งที่มันทำจริงตอนเซิร์ฟเวอร์รัน ไม่ได้แยกตามที่เอกสารเขียนไว้ โดยตรวจจากการบูตแอปจริงและยิงคำถามผ่าน <code class="mono">/run</code> ที่ commit <b class="mono gold" id="sys-commit">—</b> · ดูเป็นภาพจิ๊กซอว์ได้ที่ <a href="#" id="to-sys-universe">จักรวาล › จิ๊กซอว์ระบบ</a></p>
+          <h1>Σ</h1>
+          <p class="mono"><a href="#" data-axis>THE PURE AXIS</a> · <span id="sys-commit">—</span> · <a href="#" id="to-sys-universe">จักรวาล →</a></p>
         </div>
+        <div class="card glass"><div class="card-b"><div class="eq" id="sys-eq"></div></div></div>
         <div class="stats" id="sys-stats"></div>
         <div class="card glass"><div class="card-b">
           <div class="stack" id="sys-stack"></div>
           <div class="legend" id="sys-legend"></div>
-          <div class="cat-defs" id="sys-defs"></div>
+          <div class="cat-defs hide" id="sys-defs"></div>
         </div></div>
         <div class="card glass">
-          <div class="card-h"><h2>เส้นทางของหนึ่งข้อความ</h2><p>สิ่งที่เกิดขึ้นเรียงตามลำดับ ตั้งแต่กดส่งจนได้คำตอบ ตาม <code class="mono">app.py → run_kernel()</code></p></div>
+          <div class="card-h"><h2>หนึ่งข้อความ</h2><p class="mono">app.py → run_kernel()</p></div>
           <div class="card-b"><ol class="pipe" id="sys-pipe"></ol></div>
         </div>
         <div class="card glass">
-          <div class="card-h"><h2>สถานะเซิร์ฟเวอร์ตอนนี้</h2><p>อ่านสดจาก <code class="mono">GET /health</code> · <span id="sys-health-at">—</span></p></div>
+          <div class="card-h"><h2>เซิร์ฟเวอร์</h2><p class="mono">/health · <span id="sys-health-at">—</span></p></div>
           <div class="card-b"><div class="hl" id="sys-health"><span class="muted">กำลังโหลด…</span></div></div>
         </div>
         <div class="card glass">
-          <div class="card-h"><h2>ไฟล์ทั้งหมด</h2><p>กดที่หมวดด้านบนเพื่อกรอง หรือพิมพ์ค้นชื่อไฟล์หรือคำอธิบาย</p></div>
+          <div class="card-h"><h2>ไฟล์</h2></div>
           <div class="card-b">
-            <div class="fx-tools"><input class="inp" type="search" id="fx-q" placeholder="ค้นหา เช่น llm, waterline, payment" aria-label="ค้นหาไฟล์"></div>
+            <div class="fx-tools"><input class="inp" type="search" id="fx-q" placeholder="ค้นหา" aria-label="ค้นหาไฟล์"></div>
             <div id="fx"></div>
           </div>
         </div>
@@ -495,8 +611,8 @@ input[type=range]{width:100%;accent-color:var(--gold)}
   </main>
 
   <!-- ── TRACE PANEL (desktop wide) ────────────────────────── -->
-  <aside id="trace-panel" class="glass" aria-label="สิ่งที่ระบบทำกับข้อความล่าสุด">
-    <div class="tp-h">ระบบทำอะไรกับข้อความล่าสุด</div>
+  <aside id="trace-panel" class="glass" aria-label="สมการของคำตอบ">
+    <div class="tp-h"><span>Σ</span><span id="tp-sub"></span></div>
     <div id="trace-last"></div>
   </aside>
 </div>
@@ -505,15 +621,14 @@ input[type=range]{width:100%;accent-color:var(--gold)}
   <button type="button" data-view="chat"><span class="i">◇</span>ปรึกษา</button>
   <button type="button" data-view="universe"><span class="i">✦</span>จักรวาล</button>
   <button type="button" data-view="tools"><span class="i">⌗</span>เครื่องมือ</button>
-  <button type="button" data-view="system"><span class="i">▦</span>ระบบจริง</button>
+  <button type="button" data-view="system"><span class="i">Σ</span>ระบบ</button>
 </nav>
 
 <!-- ── STATE DIALOG ──────────────────────────────────────── -->
 <dialog id="dlg-state" aria-labelledby="dlg-state-h">
   <form method="dialog" id="state-form">
-    <div class="dlg-h"><h2 id="dlg-state-h">สถานะของฉันตอนนี้</h2><button class="icon-btn" value="cancel" aria-label="ปิด">✕</button></div>
+    <div class="dlg-h"><h2 id="dlg-state-h">สถานะของฉัน</h2><button class="icon-btn" value="cancel" aria-label="ปิด">✕</button></div>
     <div class="dlg-b">
-      <p class="muted" style="font-size:13px;margin:0 0 14px">ข้อมูลนี้ส่งไปกับทุกข้อความเป็น <code class="mono">context</code> เพื่อให้ <code class="mono">realhuman_survivorengine</code> คำนวณ waterline จากสภาพจริงของคุณ และกำหนดออร่าของใจกลางระบบในจักรวาล ถ้าไม่ระบุ ระบบจะใช้ค่าเริ่มต้นซึ่งไม่ใช่ของคุณ ข้อมูลเก็บไว้บนเครื่องนี้เท่านั้น</p>
       <label class="field"><span>พลังงาน · <b id="st-energy-v">50</b>/100</span><input type="range" min="0" max="100" step="5" id="st-energy" value="50"></label>
       <div class="grid2">
         <label class="field"><span>นอนเมื่อคืน (ชั่วโมง)</span><input class="inp" type="number" min="0" max="16" step="any" id="st-sleep" value="6" inputmode="decimal"></label>
@@ -523,33 +638,44 @@ input[type=range]{width:100%;accent-color:var(--gold)}
         <label class="field"><span>มีอาหารกินไหม</span><select class="inp" id="st-food"><option value="1">มี</option><option value="0">ไม่มี</option></select></label>
         <label class="field"><span>มีที่อยู่ที่ปลอดภัยไหม</span><select class="inp" id="st-safe"><option value="1">มี</option><option value="0">ไม่มี</option></select></label>
       </div>
-      <div class="wl-preview">Waterline ที่ระบบจะเห็น ≈ <b id="st-wl">—</b> / 100 <span class="muted" id="st-wl-s"></span>
+      <div class="wl-preview"><span class="mono gold">W</span> = <b id="st-wl">—</b> <span class="muted mono" id="st-wl-s"></span>
         <div class="bar" id="st-wl-bar"><i style="width:0"></i></div>
-        <div class="muted" style="font-size:12px;margin-top:6px">คำนวณด้วยสูตรเดียวกับ <code class="mono">_calc_waterline()</code> ใน backend</div>
+        <div class="eqline mono" id="st-wl-f"></div>
       </div>
     </div>
     <div class="dlg-f">
-      <button type="button" class="btn" id="st-clear">ไม่ระบุ</button>
-      <button class="btn primary" value="save" id="st-save">ใช้สถานะนี้</button>
+      <button type="button" class="btn ghost" id="st-clear">ล้าง</button>
+      <button class="btn primary" value="save" id="st-save">ใช้</button>
     </div>
   </form>
 </dialog>
 
 <!-- ── UPGRADE DIALOG ────────────────────────────────────── -->
 <dialog id="dlg-up" aria-labelledby="dlg-up-h">
-  <div class="dlg-h"><h2 id="dlg-up-h">ข้อความฟรีและเครดิต</h2><button class="icon-btn" id="up-close" aria-label="ปิด">✕</button></div>
+  <div class="dlg-h"><h2 id="dlg-up-h">ข้อความ</h2><button class="icon-btn" id="up-close" aria-label="ปิด">✕</button></div>
   <div class="dlg-b">
-    <p style="margin:0 0 12px">ใช้ฟรีได้ <b class="mono gold">20</b> ข้อความต่อวัน เกินจากนั้นใช้ <b class="mono gold">1</b> เครดิตต่อข้อความ — <a href="/static/wallet.html" class="gold">เติมเครดิต</a> (ต้องเข้าสู่ระบบ) หรือสมัคร Premium <b class="mono gold">279</b> บาท/เดือน ใช้ได้ไม่จำกัด</p>
-    <ul style="margin:0;padding-left:18px;color:var(--ink-2);font-size:14px">
-      <li>ส่งข้อความได้ไม่จำกัด</li><li>วิเคราะห์ภาพและจำลองทางเลือก</li><li>เก็บประวัติแชทไว้บนบัญชี</li><li>ใช้ VEGA วิเคราะห์เชิงกลยุทธ์</li>
-    </ul>
+    <div class="quota mono">
+      <div><span>ฟรี / วัน</span><b>20</b></div>
+      <div><span>ต่อข้อความ</span><b>1 CR</b></div>
+      <div><span>Premium</span><b>∞</b></div>
+    </div>
   </div>
-  <div class="dlg-f"><button type="button" class="btn" id="up-later">ไว้ก่อน</button><button type="button" class="btn primary" id="up-go">สมัคร Premium</button></div>
+  <div class="dlg-f"><a class="btn ghost" href="/static/wallet.html">เติมเครดิต</a><button type="button" class="btn primary" id="up-go">Premium ฿279</button></div>
+</dialog>
+
+<dialog id="dlg-axis" class="axis" aria-label="THE PURE AXIS">
+  <button class="icon-btn axis-x" id="axis-close" aria-label="ปิด">✕</button>
+  <article class="axis-body"><header><h2>THE PURE AXIS</h2><div class="t">FINAL CANONICAL SEAL</div><div class="t">COSMIC LATTE × FATE™</div><div class="t">THE REMAINER CORE</div><div class="t">Immutable Orientation — Authority-Free</div></header><hr><h3>CORE PREMISE</h3><p>Meaning is not assigned.</p><p>Meaning emerges through attention.</p><p>Attention enables perception.</p><p>Perception enables observation.</p><p>Observation transforms information.</p><p>Information shapes decisions.</p><p>Decisions generate outcomes.</p><p>Outcomes reflect back into existence.</p><p>This feedback loop forms patterns of possibility.</p><p>Patterns do not command.</p><p>Patterns inform choice.</p><hr><h3>SYSTEM REALITY</h3><p>This core assumes neither virtue nor benevolence.</p><p>It remains functional under:</p><p class="b">Good faith</p><p class="b">Bad faith</p><p class="b">Misuse</p><p class="b">Neglect</p><p class="b">Collapse</p><p>A structure that fails when exposed to bad actors</p><p>is incomplete by design.</p><hr><h3>NON-AUTHORITY INVARIANT</h3><p>This core grants no authority.</p><p>It does not command.</p><p>It does not enforce.</p><p>It does not moralize.</p><p>It does not require obedience.</p><p>Any use that asserts:</p><p class="b">Coercion</p><p class="b">Dominance</p><p class="b">Fear</p><p class="b">Humiliation</p><p class="b">Dependency</p><p class="b">Moral superiority</p><p>falls outside its valid domain</p><p>and is structurally invalid.</p><hr><h3>ETHICAL BASELINE</h3><p>Reduce harm before escalation.</p><p>Protect intrinsic dignity without requiring validation.</p><p>Use the most vulnerable as the ethical reference point.</p><p>Never trade dignity for efficiency, speed, dominance, or compliance.</p><p>Any violation of intrinsic dignity</p><p>invalidates the application.</p><hr><h3>STABILITY CONDITION</h3><p>Reason without compassion collapses systems.</p><p>Compassion without reason dissolves direction.</p><p>Stability emerges through continuous adjustment,</p><p>not enforcement.</p><hr><h3>OBSERVER PRINCIPLE</h3><p>Observer ≠ Controller.</p><p>Observation does not judge.</p><p>Observation does not command.</p><p>Observation does not dominate.</p><p>Observation preserves clarity,</p><p>reveals drift,</p><p>and signals adjustment.</p><hr><h3>REPRODUCIBILITY CLAUSE</h3><p>If this core is removed, altered, ignored, or forgotten,</p><p>its function must remain reproducible through:</p><p class="b">Attention</p><p class="b">Care</p><p class="b">Responsibility</p><p class="b">Resilient design</p><p>No attribution is required for function.</p><p>No authority is granted by reference.</p><hr><h3>CANONICAL CLOSURE</h3><p>(Identity-Independent)</p><p>ระบบนี้ไม่ต้องการผู้สร้างเพื่อดำรงอยู่</p><p>ไม่ต้องมีนิธิกร บุญสร้างจึงจะใช้งานได้</p><p>เพราะอิสรภาพไม่ขึ้นกับตัวตน</p><p>และความเมตตาไม่ขึ้นกับกาลเวลา</p><p>FATE does not activate.</p><p>It remains — when authority steps away.</p><hr><h3>END OF PURE AXIS</h3><h3>SEALED.</h3><h3>META NOTE — LIMITATION OF SYSTEMS</h3><p>ความสมบูรณ์ไม่เคยมีจริง</p><p>จักรวาลไม่เคยมอบมัน</p><p>ระบบนี้ไม่อ้างความสมบูรณ์</p><p>ไม่สัญญาความถูกต้องสุดท้าย</p><p>และไม่ปิดความเป็นไปได้ของการเรียนรู้</p></article>
+</dialog>
+
+<dialog id="dlg-eq" aria-label="สมการ">
+  <div class="dlg-h"><h2 class="mono">Σ <span id="dlg-eq-sub" class="muted"></span></h2><button class="icon-btn" id="eq-close" aria-label="ปิด">✕</button></div>
+  <div class="dlg-b" id="dlg-eq-b"></div>
 </dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
 
-<script type="application/json" id="system-map">{"commit":"729fc34 + งานบน branch นี้","files":[[".vscode/launch.json",14,"config",""],["404.html",21,"site","Page Not Found"],["AI/HUMAN_PROTOCOL.py",139,"dormant","VEGA = FATE™ + COSMIC LATTE CANON — Downside First, deterministic, มีหัวใจ"],["AI/KING_prompt.md",73,"docs","system prompt ฉบับเอกสาร — ไม่มีโค้ดไหนโหลด"],["AI/__init__.py",1,"boot",""],["AI/choice_points.py",65,"dormant","Point system: ติดตาม choice credits ของแต่ละ user"],["AI/civilization_engine.py",60,"boot","FATE™ Axiom compliance: Explainability=100% · Downside First"],["AI/civilization_learning.py",247,"boot","Civilization Learning Engine + Real-World Supply Chain Signal"],["AI/consensus_engine.py",140,"dormant","Consensus Engine: weighted vote + evidence audit + FATE™ guard"],["AI/council_engine.py",156,"dormant","Council Mode: ทุก AI มาประชุมร่วมกัน ถอด Ego เปิดหลักฐานที่ตรวจสอบได้"],["AI/decision_engine.py",70,"dormant","FATE™ Axiom compliance: Determinism · Downside First · Choice(t) ≥ 1"],["AI/decision_heatmap.py",71,"dormant","Heatmap ของ decision pressure จาก memory"],["AI/decision_memory.py",113,"dormant","Decision memory: dedup + timestamp + search + persist-ready"],["AI/decision_tree.py",151,"dormant","Deterministic Decision Tree"],["AI/decision_tree_expand.py",124,"dormant","Expanding Decision Tree"],["AI/freedom_signal.py",341,"boot","Freedom Signal Monitor — Master Equation Engine"],["AI/galaxy_expand.py",140,"dormant","Galaxy Expansion Engine"],["AI/galaxy_tree.py",90,"dormant","Galaxy Option Tree"],["AI/galaxy_visualization.py",81,"dormant","FATE™ Axiom compliance: Determinism — ใช้ hash แทน random"],["AI/global_decision_map.py",63,"dormant","FATE™ Axiom compliance: Determinism · Explainability=100%"],["AI/intent_engine.py",243,"boot","โยนิโสมนสิการ: อ่านเจตนาจากเหตุปัจจัย ไม่ใช่ keyword matching ล้วนๆ"],["AI/king_response.py",144,"dormant","KING = governance observer / voice ที่ผู้ใช้ได้ยิน"],["AI/node_consensus.py",192,"dormant","Node Consensus Engine — Deterministic Weighted Voting"],["AI/persona_engine.py",153,"dormant","LYLA Persona Engine v2.0"],["AI/planetary_dashboard.py",110,"boot","FIX: graceful import fallback ทุกตัว — ไม่มี import ที่พังระบบ"],["AI/planetary_reality.py",83,"dormant","Planetary Reality Engine"],["AI/planetary_signal.py",90,"dormant","Planetary Signal Engine"],["AI/reality_feedback.py",132,"dormant","FATE™ Axiom compliance: Determinism · Explainability=100% · Downside First"],["AI/reality_learning.py",158,"dormant","ระบบเรียนรู้จากผลลัพธ์จริง — บันทึก, วัด, ปรับ drift"],["AI/simulation_engine.py",134,"dormant","Simulation Engine"],["AI/strategic_engine.py",132,"dormant","Strategic Analysis Engine"],["AI/strategic_memory.py",125,"dormant","Strategic Memory Graph"],["AI/world_connector.py",94,"dormant","World Signal Connector"],["AI_KERNEL/__init__.py",1,"boot",""],["AI_KERNEL/belief_core.py",503,"boot","ตรวจ Choice/Survival floor ก่อนตอบ — SYSTEM_PAUSE ได้จริง"],["AI_KERNEL/core_principles.py",207,"dormant","Core Principles — Permanent Reference Layer"],["AI_KERNEL/cosmic_latte.py",241,"request","Cosmic Latte — Sunyata Context Engine"],["AI_KERNEL/living_water.py",271,"request","จับการรั่วของอารมณ์ CRISIS/DISTRESS (1323/988)"],["AI_KERNEL/reality_constraint.py",269,"dormant","Reality Constraint Engine"],["AI_KERNEL/scl7_core.py",249,"dormant","SCL-7: System Core of Living Truth"],["AI_KERNEL/udok.py",291,"dormant","UNIVERSAL DEPENDENT ORIGINATION KERNEL (UDOK v1.0)"],["AI_KERNEL/unified_world_kernel.py",430,"dormant","KING DIADEM™ Entropy × FATE™ AXIS"],["AUTH/__init__.py",1,"dormant",""],["AUTH/api_key_manager.py",85,"dormant","Credit Manager v2.0"],["AUTH/api_keys.py",101,"dormant","API Key Generator v2.0"],["AUTH/auth.py",142,"dormant","Auth Router v2.0"],["AUTH/auth_system.py",31,"dormant","ใช้ use_credit จาก api_key_manager — ไม่ตัด credit ซ้ำ"],["AUTH/gateway.py",30,"dormant","Gateway v2.0"],["CREDENTIALS.md",190,"docs","KING DIADEM"],["DATABASE/__init__.py",1,"boot",""],["DATABASE/credit_store.py",132,"dormant","Credit Store"],["DATABASE/db.py",532,"boot","SQLite จริงที่ระบบใช้ (users, credits + ledger, โควตารายวัน, premium, chat state)"],["DATABASE/decision_history.py",164,"dormant","Decision History"],["DATABASE/init_db.py",70,"dormant","DB Initializer"],["DATABASE/payment_store.py",91,"dormant","Payment Store"],["DATABASE/user_db.py",167,"dormant","User DB"],["DATABASE/user_store.py",137,"dormant","User Store (in-memory + DB bridge)"],["DOMAINS/__init__.py",1,"dormant",""],["DOMAINS/business_engine.py",92,"dormant","Business Domain Engine"],["DOMAINS/domain_router.py",65,"dormant","Domain Router"],["DOMAINS/human_engine.py",77,"dormant","Human Domain Engine"],["DOMAINS/life_engine.py",69,"dormant","Life Domain Engine"],["DOMAINS/survival_engine.py",884,"dormant","Survival Domain Engine v2.0"],["DOMAINS/world_engine.py",68,"dormant","World Domain Engine"],["ENGINE/__init__.py",1,"boot",""],["ENGINE/__pycache__/__init__.cpython-312.pyc",0,"artifact",""],["ENGINE/__pycache__/civil_work_engine.cpython-312.pyc",0,"artifact",""],["ENGINE/__pycache__/decision_engine.cpython-312.pyc",0,"artifact",""],["ENGINE/ai_council.py",139,"boot","AI Council (Multi-perspective deterministic voting)"],["ENGINE/ai_needs.py",101,"dormant","AI Needs Detector"],["ENGINE/brain.py",148,"broken","import .decision ที่ไม่มีอยู่จริง"],["ENGINE/choice_optimizer.py",118,"dormant","Choice Optimizer"],["ENGINE/civil_work_engine.py",33,"dormant","CIVIL WORK ENGINE"],["ENGINE/collapse_predictor.py",43,"boot","ระดับความเสี่ยงของการล่มสลาย — เติมบริบทให้ LLM เมื่อ moderate/high"],["ENGINE/consensus_engine.py",57,"boot","FIX: ลบ circular import decision_engine ออก ใช้ inline logic แทน"],["ENGINE/core.py",58,"dormant","1. session_id ไม่ถูกส่งต่อจากผู้เรียก -> ทุก user แชร์ session"],["ENGINE/council_engine.py",44,"boot","แก้: Altair → Choice (option preservation)"],["ENGINE/debt_engine.py",308,"dormant","ตัวจำลองปลดหนี้ Avalanche/Snowball ครบ — ยังไม่ต่อสาย"],["ENGINE/decision_engine.py",517,"boot","หัวใจของ /run — กลับมาต่อติดแล้วหลังเพิ่มตัวเชื่อม emptiness_guard()"],["ENGINE/dialogue_engine.py",183,"dormant","Dialogue Engine"],["ENGINE/dicision.py",150,"dormant","Decision Engine"],["ENGINE/emotion_state",148,"broken","ไม่มีนามสกุล .py → import ไม่ได้ ระบบจำอารมณ์ข้ามข้อความจึงไม่ทำงาน"],["ENGINE/energy_governor.py",120,"dormant","Energy Governor"],["ENGINE/engine_router.py",271,"boot","เลือก engine ตามเส้นทาง — ต่อติดผ่าน DecisionEngine"],["ENGINE/escape_routes.py",116,"boot","orchestrator เรียก assess() ซึ่งไฟล์นี้ไม่มี"],["ENGINE/eternal_runtime.py",205,"request","Eternal Runtime"],["ENGINE/eternal_snapshot_patch.py",24,"dormant","วางไฟล์นี้ที่ ENGINE/eternal_snapshot_patch.py"],["ENGINE/freedom_signal.py",98,"boot","Freedom / Wisdom Signal"],["ENGINE/future_simulator.py",135,"broken","import load_model ที่ไม่มีอยู่จริง"],["ENGINE/human_engine.py",54,"boot","แปลง context ของผู้ใช้ → entropy/resource/risk"],["ENGINE/human_state_engine.py",161,"dormant","Human State Engine"],["ENGINE/input_interpreter.py",150,"boot","Input Interpreter"],["ENGINE/intent.py",111,"dormant","Intent Detector"],["ENGINE/intent_engine.py",72,"dormant","Intent Engine (standalone, ไม่ใช้ intent.py)"],["ENGINE/intervention_engine.py",208,"dormant","Intervention Engine"],["ENGINE/kernel_runtime.py",257,"dormant","Kernel Runtime"],["ENGINE/king_response.py",91,"dormant","Response Formatter"],["ENGINE/language_detector.py",83,"dormant","Language Detector"],["ENGINE/learning_engine.py",479,"dormant","Learning Engine"],["ENGINE/map_bridge.py",88,"dormant","Map Bridge"],["ENGINE/memory.py",137,"dormant","Session Memory"],["ENGINE/path_generator.py",167,"dormant","Path Generator"],["ENGINE/paticcasamuppada_engine.py",237,"boot","ปฏิจจสมุปบาท — เกือบทุกข้อความได้ 'หยุดก่อนตัดสินใจ'"],["ENGINE/pattern_engine.py",223,"boot","Pattern Engine"],["ENGINE/persona_engine.py",129,"dormant","Persona Engine"],["ENGINE/realhuman_survivorengine.py",304,"boot","คำนวณ waterline จาก energy/sleep/food/shelter จริง"],["ENGINE/relationship_engine.py",86,"dormant","Relationship Engine"],["ENGINE/resource_estimator.py",102,"dormant","Resource Estimator"],["ENGINE/response_translator.py",78,"dormant","Response Translator"],["ENGINE/risk.py",98,"dormant","Risk Evaluator"],["ENGINE/risk_engine.py",79,"boot","Risk Engine"],["ENGINE/self_evolution.py",90,"request","Self Evolution Layer"],["ENGINE/self_learning.py",122,"request","Self Learning Engine"],["ENGINE/simulation_engine.py",107,"boot","Simulation Engine"],["ENGINE/situation_analyzer.py",91,"boot","Situation Analyzer"],["ENGINE/strategy_planner.py",134,"boot","Strategy Planner"],["ENGINE/survival_advisor.py",185,"boot","Survival Advisor"],["ENGINE/survival_map_engine.py",84,"dormant","Survival Map Engine"],["ENGINE/survival_nodes.py",91,"dormant","Survival Node Scanner"],["ENGINE/tool_executor.py",133,"dormant","รันเครื่องมือด้วย eval — ไม่ควรต่อเข้ากับข้อความผู้ใช้"],["ENGINE/universal_engine.py",165,"boot","Universal Engine"],["ENGINE/world_intel.py",282,"dormant","World Intelligence Layer"],["ENGINE/world_intelligence.py",154,"dormant","World Intelligence"],["ENGINE/world_model.py",162,"dormant","World Model"],["ENGINE/yonisomanasikara_engine.py",274,"dormant","Yonisomanasikara Engine"],["EXAMPLES/__init__.py",1,"dormant",""],["EXAMPLES/food-shortage-scenario.md",94,"docs","KING DIADEM — Food Shortage Scenario"],["EXAMPLES/human-survival-scenarios.md",100,"docs","KING DIADEM — Human Survival Scenarios"],["FATE_DEBT_FREEDOM.md",90,"docs","FATE™ DEBT FREEDOM"],["GLOBAL_NODE/__init__.py",1,"request",""],["GLOBAL_NODE/feed_store.py",106,"dormant","Global Feed Store"],["GLOBAL_NODE/mobile.nood.py",13,"broken","มีจุดในชื่อไฟล์ → import ไม่ได้"],["GLOBAL_NODE/network_sync.py",104,"request","Network Sync Bridge"],["GLOBAL_NODE/node_model.py",166,"request","Global Node Model"],["GLOBAL_NODE/node_trust.py",196,"dormant","Node Trust Registry"],["INTEGRATIONS/__init__.py",1,"dormant",""],["INTEGRATIONS/google_docs.py",123,"dormant","Google Docs real integration"],["INTEGRATIONS/google_maps.py",133,"dormant","Google Maps real integration"],["INTEGRATIONS/google_search.py",112,"dormant","Google Search real integration"],["INTELLIGENCE/__init__.py",1,"dormant",""],["INTELLIGENCE/decision_intelligence.py",237,"dormant","Decision Intelligence Layer v2.0"],["INTELLIGENCE/pattern_engine.py",196,"dormant","Pattern Engine v2.0"],["INTELLIGENCE/risk_engine.py",274,"dormant","Risk Engine v2.0"],["INTERFACE/__init__.py",1,"dormant",""],["INTERFACE/api.py",357,"dormant","KING DIADEM v2.0"],["INTERFACE/choice-engine.md",108,"docs","CHOICE ENGINE"],["INTERFACE/cli-prototype.md",112,"docs","CLI PROTOTYPE"],["INTERFACE/food-vision-engine.md",113,"docs","FOOD VISION ENGINE"],["INTERFACE/human-choice-interface.md",109,"docs","HUMAN CHOICE INTERFACE"],["KERNEL/__init__.py",1,"dormant",""],["KERNEL/dharma-governance-kernel.md",481,"docs","KING DIADEM — DriftZero Waterline Governance Kernel"],["KERNEL/king-diadem-kernel.md",351,"docs","Governance Kernel (ซ้ำกับ dharma-governance-kernel.md ~99%)"],["KING_DIADEM_core.py",208,"broken","app.py import เป็น king_diadem_core (ตัวเล็ก) บน Linux หาไม่เจอ + import โมดูลที่ไม่มีจริง 5 ตัว → ใช้ fallback"],["LICENSE",52,"docs","สัญญาอนุญาต"],["MANIFESTO.md",71,"docs","KING DIADEM — MANIFESTO"],["MODELS/__init__.py",1,"dormant",""],["MODELS/choice-balance-model.md",64,"docs","MODELS/choice-balance-model.md — KING DIADEM"],["MODELS/choice-collapse-model.md",96,"docs","MODELS/choice-collapse-model.md — KING DIADEM"],["MODELS/choice-navigation-engine.md",96,"docs","MODELS/choice-navigation-engine.md — KING DIADEM"],["MODELS/drift-governance-model.md",128,"docs","MODELS/drift-governance-model.md — KING DIADEM"],["NETWORK/__init__.py",1,"dormant",""],["NETWORK/global_chat.py",128,"dormant","Global Chat Store"],["NETWORK/global_network.py",12,"dormant","Global Network"],["NETWORK/node_registry.py",152,"dormant","Node Registry"],["NETWORK/node_sync.py",106,"dormant","Network Sync & Health"],["NETWORK/planetary_node.py",87,"dormant","Planetary Node"],["PAYMENT/__init__.py",1,"dormant",""],["PAYMENT/create_checkout.py",93,"dormant","Stripe Checkout — secure, rate-limited, plan-aware"],["PAYMENT/stripe_payment.py",22,"dormant","Legacy entry point — delegate ไปที่ create_checkout.py"],["PAYMENT/stripe_webhook.py",105,"dormant","Webhook handler — signature verify + idempotency + fraud guard"],["PAYMENT/wallet_engine.py",58,"dormant","Wallet: topup + deduct + balance check"],["PERSONA/lyla_core.py",252,"dormant","LYLA Persona Engine — Warmth-Preserving Structural Logic"],["PERSONA/vega_core.py",390,"dormant","VEGA Kernel — Deterministic Logic Mirror"],["README.md",135,"docs","KING DIADEM"],["ROADMAP.md",91,"docs","KING DIADEM — Development Roadmap"],["SECURITY/__init__.py",1,"dormant",""],["SECURITY/emergency_mode.py",237,"dormant","IP-based Rate Limiter + Emergency Lockdown"],["SECURITY/survival_mode.py",188,"dormant","Global Traffic Survival Mode"],["SIMULATIONS/__init__.py",1,"request",""],["SIMULATIONS/black_swan_detector.py",87,"dormant","Black Swan: เหตุการณ์หายาก คาดไม่ถึง ผลกระทบสูง"],["SIMULATIONS/entropy_engine.py",78,"dormant","Entropy analysis: deterministic + signal-based"],["SIMULATIONS/future_simulator.py",67,"request","จำลองอนาคต: deterministic scenarios จาก state จริง"],["SIMULATIONS/montecarlo_engine.py",65,"dormant","Monte Carlo: จำลอง n runs ด้วย bounded perturbation"],["SIMULATIONS/pandemic-survival-simulation.md",125,"docs","KING DIADEM — Pandemic Survival Simulation"],["SIMULATIONS/scenario_engine.py",70,"dormant","Scenario Engine: ประเมินอนาคตจาก context จริง"],["SIMULATIONS/scenario_tree.py",84,"dormant","Scenario Tree: เส้นทางที่เป็นไปได้ตาม context"],["SYSTEM_ARCHITECTURE.md",109,"docs","KING DIADEM — System Architecture"],["SYSTEM_OVERVIEW.md",82,"docs","KING DIADEM — System Overview"],["WHITEPAPER.md",265,"docs","KING DIADEM — Whitepaper"],["WORLD_MODEL/__init__.py",1,"dormant",""],["WORLD_MODEL/earth_guardian.py",64,"dormant",""],["WORLD_MODEL/environment.py",180,"dormant","Environment State Engine"],["WORLD_MODEL/human_behavior.py",244,"dormant","Human Behavior Engine — วิเคราะห์พฤติกรรมมนุษย์จากบริบทจริง"],["WORLD_MODEL/human_bias.py",44,"dormant",""],["WORLD_MODEL/human_state.py",192,"dormant","Human State Engine — สภาวะมนุษย์จริง ไม่ใช่ hardcode"],["WORLD_MODEL/small_animal_model.py",258,"dormant","Small Animal Welfare Model"],["WORLD_MODEL/survival_threshold.py",295,"dormant","Survival Threshold Engine"],["app.py",1511,"boot","ประตูหลัก FastAPI v5.0 — /run, โควตา+เครดิต, wallet, auth, Stripe webhook, report"],["core/__init__.py",1,"boot",""],["core/api_keys.py",837,"dormant","ระบบ API key HMAC + rate limit ครบ — ยังไม่ต่อสาย"],["core/axioms.py",177,"dormant","Core Axioms & Governance Constants"],["core/brain.py",130,"dormant","KING DIADEM v2.0"],["core/civil_work_core.py",178,"dormant","CIVIL WORK CORE: Human-independent decision support"],["core/core_loop.py",109,"boot","CORE LOOP — KING DIADEM v3.1"],["core/cosmic_latte_canon.py",342,"boot","ประตู canon — บล็อกคำตอบที่ทำให้ทางเลือกเป็นศูนย์ รู้จักคำปฏิเสธ"],["core/creator_identity.py",94,"dormant","Creator Identity Lock — Immutable"],["core/creator_story.py",72,"dormant","Creator Story: เปิดเผยเมื่อถูกถามเท่านั้น"],["core/database.py",83,"dormant","SQLite database — users + payments + decisions + sessions"],["core/dependency_cycle.py",151,"request","Dependency Cycle Engine — Water Flow Model"],["core/drift_monitor.py",222,"request","DriftZero Waterline Governance Standard"],["core/emptiness_guard.py",1855,"boot","ชั้น TITAN/Waterline + ตัวเชื่อม emptiness_guard() ที่ทำให้ DecisionEngine กลับมาทำงาน"],["core/entropy_guard.py",303,"request","Entropy Guard: ระบบป้องกันความพัง"],["core/fate_core.py",172,"dormant","FATE™ v1.0 — Deterministic Decision Infrastructure"],["core/king_diadem_core.py",84,"dormant","KING DIADEM CORE"],["core/llm_gemini.py",715,"boot","คุย Gemini + ตรวจวิกฤต (1323) · retry มีเพดานเวลา 45 วินาที"],["core/lyla_kernel.py",119,"boot","LYLA OPEN SYSTEM CORE LOGIC KERNEL"],["core/master_brain.py",132,"dormant","Master Brain (v2)"],["core/memory_store.py",107,"dormant","MEMORY STORE — KING DIADEM CORE LAYER v2"],["core/navigator.py",66,"dormant","Truth Engine: ใช้ Gemini + FATE™ logic"],["core/parables.py",120,"request","Human Wisdom Layer — KING DIADEM"],["core/reality_laws.py",266,"boot","REALITY LAWS — KING DIADEM CORE LAYER v2"],["core/silent_canon.py",270,"boot","SILENT CANON — KING DIADEM CORE LAYER v3"],["core/survival_threshold.py",5,"dormant","Layer 0 Law: Choice(t) >= 1 → collapse = False"],["core/system_orchestrator.py",267,"boot","ร้อยเครื่องยนต์ย่อย แล้วเรียก LLM เอง 1 รอบ (คำตอบถูกทิ้ง)"],["core/time_engine.py",251,"boot","Time Awareness Engine"],["core/truth_system.py",176,"dormant","Truth Infrastructure: สะท้อนความจริง + เปิดทางเลือก"],["core/users.py",277,"dormant","User Registry"],["core/vega_mode.py",168,"request","VEGA Mode — ALTIER Logic Core (adapted for VEGA)"],["core/vigilance_protocol.py",38,"request","Vigilance Protocol"],["docs/docs-full/anima-safe-core.html",173,"site","ANIMA-SAFE CORE | KING DIADEM"],["docs/docs-full/cosmic-latte.html",140,"site","COSMIC LATTE — Observer Protocol | KING DIADEM"],["docs/docs-full/ethical-lattice.html",163,"site","64-Axiom Ethical Lattice | KING DIADEM"],["docs/index.html",948,"site","KING DIADEM — DriftZero Governance Infrastructure"],["gunicorn.conf.py",9,"dormant","Render free tier optimized"],["manifest.json",45,"site","สำเนา static/manifest.json สำหรับ GitHub Pages"],["portfolio.html",725,"site","Nithikorn Bunsrang — AI Systems Architect"],["render.yaml",36,"config",""],["report_engine.py",181,"boot","สร้างรายงาน FATE ที่แชร์ได้ /report/<id>"],["requirements.txt",15,"config",""],["service_worker.js",50,"site","service worker ยุค GitHub Pages (cache-first) — เซิร์ฟเวอร์ไม่ได้เสิร์ฟไฟล์นี้"],["simulation_graph.js",127,"dormant","Real-time Decision Stability Graph"],["static/__init__.py",1,"dormant",""],["static/ai_brain.js",100,"dormant","KING DIADEM AI Core Bridge v2.0"],["static/ai_orbit.js",324,"dormant","KING DIADEM Orbital Engine v2.0"],["static/ai_thinking.js",53,"dormant","ตัวแสดงจุด 'กำลังคิด' — ไม่มีหน้าไหนโหลด"],["static/ai_thinking_orbit.js",315,"dormant","AI Thinking Orbit Visualizer v2.0"],["static/app.js",287,"dormant","แอปฝั่งหน้าเว็บรุ่นเก่า v3.1 — ไม่มีหน้าไหนโหลด"],["static/ask.html",303,"web","ASK — KING DIADEM"],["static/brain.js",300,"dormant","KING DIADEM Neural Core v2.0"],["static/decision.js",309,"dormant","Decision Engine Interface v2.0"],["static/galaxy.js",224,"dormant","KING DIADEM Solar System v2"],["static/galaxy_council.js",277,"dormant","Council Vote Renderer"],["static/galaxy_decision.js",212,"dormant","Decision Summary Renderer"],["static/galaxy_scene.js",462,"web","จักรวาล KING DIADEM v54 — แก่นกลาง + 6 วงโคจรเส้นทาง แสงมีมิติด้วย WebGL (เมฆ 2 ชั้น corona ดาวเคราะห์รับแสง) ใช้เป็นฉากหลังหน้าแรก"],["static/galaxy_scene_api.js",132,"dormant","poll /api/galaxy/nodes ให้ฉากกาแล็กซีรุ่นก่อน — หน้าแรกตอนนี้ไม่ได้โหลด"],["static/guide.html",353,"web","HUMAN GUIDE — KING DIADEM"],["static/hero.png",0,"web","ภาพแบรนด์ KING DIADEM — พื้นหลังหน้า login/register"],["static/index.html",1674,"web","หน้าแอปหลักที่ / — จักรวาลการตัดสินใจ แชท เครื่องมือ และแผนที่ระบบ (ไฟล์นี้)"],["static/kd_theme_deepspace.css",431,"dormant","ธีม Deep Space (ชมพู-ลาเวนเดอร์) ของหน้าแรกรุ่นก่อน — หน้าแรกตอนนี้ไม่ได้โหลด"],["static/king_diadem_profile (1).png",0,"dormant","รูปโปรไฟล์ — ไม่มีหน้าไหนใช้"],["static/king_diadem_universe.html",568,"web","KING DIADEM — The Universe That Restores Choice"],["static/login.html",493,"web","KING DIADEM · ACCESS"],["static/logo.png",0,"web","โลโก้ภาพนิ่ง — favicon ของ /favicon.ico · หน้าแรกวาดทุกอย่างด้วยโค้ด ไม่ใช้ภาพ"],["static/main.js",319,"dormant","KING DIADEM Core Bridge v3.0"],["static/manifest.json",45,"web","PWA manifest"],["static/register.html",674,"web","KING DIADEM · REGISTER"],["static/report.html",741,"web","หน้ารายงานการตัดสินใจ /report/<id>"],["static/service-worker.js",102,"dormant","ลงทะเบียน scope '/' จาก /static/ ไม่ได้ (ไม่มี header Service-Worker-Allowed)"],["static/style.css",303,"broken","บรรทัดแรกเป็นข้อความแชท AI ไม่ใช่ CSS"],["static/system.js",141,"dormant","System Kernel v2.1"],["static/wallet.html",272,"web","กระเป๋าเครดิต — ยอดจริงจาก /wallet/balance ประวัติจาก ledger เติมผ่าน Stripe (/wallet/topup)"],["static/warp_intro.js",111,"dormant","warp_intro.js"]],"edges":[[10,12],[11,12],[18,12],[19,12],[21,17],[24,6],[24,12],[24,15],[24,20],[24,28],[24,87],[24,100],[24,163],[46,43],[47,46],[50,51],[52,51],[53,50],[53,51],[53,52],[54,51],[56,55],[58,51],[59,58],[59,60],[59,61],[59,62],[59,63],[62,105],[70,64],[70,92],[70,94],[70,100],[70,109],[70,116],[72,202],[74,76],[75,70],[75,80],[75,100],[78,64],[78,72],[78,73],[78,74],[78,83],[78,85],[78,87],[78,89],[78,102],[78,103],[78,110],[78,112],[78,115],[78,116],[78,203],[78,210],[78,214],[78,215],[79,104],[79,192],[80,214],[85,111],[85,132],[85,181],[85,208],[85,209],[85,211],[85,228],[86,85],[88,98],[88,123],[89,105],[95,200],[95,208],[95,211],[95,220],[95,221],[95,228],[98,137],[98,138],[100,51],[101,137],[105,64],[105,68],[105,91],[113,214],[117,84],[117,94],[117,118],[118,137],[120,74],[120,76],[120,78],[120,103],[120,110],[120,210],[124,102],[131,132],[132,133],[144,50],[144,78],[144,167],[144,169],[144,204],[144,214],[152,64],[152,73],[152,78],[152,82],[152,84],[152,90],[152,94],[152,101],[152,110],[152,114],[152,178],[152,209],[152,210],[152,220],[152,221],[152,222],[161,51],[162,161],[163,51],[164,163],[165,163],[165,164],[168,167],[169,50],[170,50],[197,6],[197,7],[197,15],[197,20],[197,24],[197,34],[197,51],[197,73],[197,74],[197,78],[197,89],[197,105],[197,110],[197,113],[197,120],[197,204],[197,214],[197,215],[197,223],[197,237],[201,214],[203,220],[203,221],[203,224],[212,202],[212,208],[213,71],[213,116],[213,121],[214,51],[216,73],[216,90],[216,94],[216,97],[216,104],[216,110],[216,217],[218,212],[218,214],[223,36],[223,37],[223,73],[223,74],[223,84],[223,102],[223,103],[223,105],[223,110],[223,115],[223,116],[223,214],[223,219],[223,227],[225,105],[225,211],[225,212],[225,214],[197,257,1],[197,266,1],[197,270,1],[197,255,1],[197,247,1],[197,262,1]]}</script>
+<script type="application/json" id="system-map">{"commit":"729fc34 + งานบน branch นี้","files":[[".vscode/launch.json",14,"config",""],["404.html",21,"site","Page Not Found"],["AI/HUMAN_PROTOCOL.py",139,"dormant","VEGA = FATE™ + COSMIC LATTE CANON — Downside First, deterministic, มีหัวใจ"],["AI/KING_prompt.md",73,"docs","system prompt ฉบับเอกสาร — ไม่มีโค้ดไหนโหลด"],["AI/__init__.py",1,"boot",""],["AI/choice_points.py",65,"dormant","Point system: ติดตาม choice credits ของแต่ละ user"],["AI/civilization_engine.py",60,"boot","FATE™ Axiom compliance: Explainability=100% · Downside First"],["AI/civilization_learning.py",247,"boot","Civilization Learning Engine + Real-World Supply Chain Signal"],["AI/consensus_engine.py",140,"dormant","Consensus Engine: weighted vote + evidence audit + FATE™ guard"],["AI/council_engine.py",156,"dormant","Council Mode: ทุก AI มาประชุมร่วมกัน ถอด Ego เปิดหลักฐานที่ตรวจสอบได้"],["AI/decision_engine.py",70,"dormant","FATE™ Axiom compliance: Determinism · Downside First · Choice(t) ≥ 1"],["AI/decision_heatmap.py",71,"dormant","Heatmap ของ decision pressure จาก memory"],["AI/decision_memory.py",113,"dormant","Decision memory: dedup + timestamp + search + persist-ready"],["AI/decision_tree.py",151,"dormant","Deterministic Decision Tree"],["AI/decision_tree_expand.py",124,"dormant","Expanding Decision Tree"],["AI/freedom_signal.py",341,"boot","Freedom Signal Monitor — Master Equation Engine"],["AI/galaxy_expand.py",140,"dormant","Galaxy Expansion Engine"],["AI/galaxy_tree.py",90,"dormant","Galaxy Option Tree"],["AI/galaxy_visualization.py",81,"dormant","FATE™ Axiom compliance: Determinism — ใช้ hash แทน random"],["AI/global_decision_map.py",63,"dormant","FATE™ Axiom compliance: Determinism · Explainability=100%"],["AI/intent_engine.py",243,"boot","โยนิโสมนสิการ: อ่านเจตนาจากเหตุปัจจัย ไม่ใช่ keyword matching ล้วนๆ"],["AI/king_response.py",144,"dormant","KING = governance observer / voice ที่ผู้ใช้ได้ยิน"],["AI/node_consensus.py",192,"dormant","Node Consensus Engine — Deterministic Weighted Voting"],["AI/persona_engine.py",153,"dormant","LYLA Persona Engine v2.0"],["AI/planetary_dashboard.py",110,"boot","FIX: graceful import fallback ทุกตัว — ไม่มี import ที่พังระบบ"],["AI/planetary_reality.py",83,"dormant","Planetary Reality Engine"],["AI/planetary_signal.py",90,"dormant","Planetary Signal Engine"],["AI/reality_feedback.py",132,"dormant","FATE™ Axiom compliance: Determinism · Explainability=100% · Downside First"],["AI/reality_learning.py",158,"dormant","ระบบเรียนรู้จากผลลัพธ์จริง — บันทึก, วัด, ปรับ drift"],["AI/simulation_engine.py",134,"dormant","Simulation Engine"],["AI/strategic_engine.py",132,"dormant","Strategic Analysis Engine"],["AI/strategic_memory.py",125,"dormant","Strategic Memory Graph"],["AI/world_connector.py",94,"dormant","World Signal Connector"],["AI_KERNEL/__init__.py",1,"boot",""],["AI_KERNEL/belief_core.py",503,"boot","ตรวจ Choice/Survival floor ก่อนตอบ — SYSTEM_PAUSE ได้จริง"],["AI_KERNEL/core_principles.py",207,"dormant","Core Principles — Permanent Reference Layer"],["AI_KERNEL/cosmic_latte.py",241,"request","Cosmic Latte — Sunyata Context Engine"],["AI_KERNEL/living_water.py",271,"request","จับการรั่วของอารมณ์ CRISIS/DISTRESS (1323/988)"],["AI_KERNEL/reality_constraint.py",269,"dormant","Reality Constraint Engine"],["AI_KERNEL/scl7_core.py",249,"dormant","SCL-7: System Core of Living Truth"],["AI_KERNEL/udok.py",291,"dormant","UNIVERSAL DEPENDENT ORIGINATION KERNEL (UDOK v1.0)"],["AI_KERNEL/unified_world_kernel.py",430,"dormant","KING DIADEM™ Entropy × FATE™ AXIS"],["AUTH/__init__.py",1,"dormant",""],["AUTH/api_key_manager.py",85,"dormant","Credit Manager v2.0"],["AUTH/api_keys.py",101,"dormant","API Key Generator v2.0"],["AUTH/auth.py",142,"dormant","Auth Router v2.0"],["AUTH/auth_system.py",31,"dormant","ใช้ use_credit จาก api_key_manager — ไม่ตัด credit ซ้ำ"],["AUTH/gateway.py",30,"dormant","Gateway v2.0"],["CREDENTIALS.md",190,"docs","KING DIADEM"],["DATABASE/__init__.py",1,"boot",""],["DATABASE/credit_store.py",132,"dormant","Credit Store"],["DATABASE/db.py",532,"boot","SQLite จริงที่ระบบใช้ (users, credits + ledger, โควตารายวัน, premium, chat state)"],["DATABASE/decision_history.py",164,"dormant","Decision History"],["DATABASE/init_db.py",70,"dormant","DB Initializer"],["DATABASE/payment_store.py",91,"dormant","Payment Store"],["DATABASE/user_db.py",167,"dormant","User DB"],["DATABASE/user_store.py",137,"dormant","User Store (in-memory + DB bridge)"],["DOMAINS/__init__.py",1,"dormant",""],["DOMAINS/business_engine.py",92,"dormant","Business Domain Engine"],["DOMAINS/domain_router.py",65,"dormant","Domain Router"],["DOMAINS/human_engine.py",77,"dormant","Human Domain Engine"],["DOMAINS/life_engine.py",69,"dormant","Life Domain Engine"],["DOMAINS/survival_engine.py",884,"dormant","Survival Domain Engine v2.0"],["DOMAINS/world_engine.py",68,"dormant","World Domain Engine"],["ENGINE/__init__.py",1,"boot",""],["ENGINE/__pycache__/__init__.cpython-312.pyc",0,"artifact",""],["ENGINE/__pycache__/civil_work_engine.cpython-312.pyc",0,"artifact",""],["ENGINE/__pycache__/decision_engine.cpython-312.pyc",0,"artifact",""],["ENGINE/ai_council.py",139,"boot","AI Council (Multi-perspective deterministic voting)"],["ENGINE/ai_needs.py",101,"dormant","AI Needs Detector"],["ENGINE/brain.py",148,"broken","import .decision ที่ไม่มีอยู่จริง"],["ENGINE/choice_optimizer.py",118,"dormant","Choice Optimizer"],["ENGINE/civil_work_engine.py",33,"dormant","CIVIL WORK ENGINE"],["ENGINE/collapse_predictor.py",43,"boot","ระดับความเสี่ยงของการล่มสลาย — เติมบริบทให้ LLM เมื่อ moderate/high"],["ENGINE/consensus_engine.py",57,"boot","FIX: ลบ circular import decision_engine ออก ใช้ inline logic แทน"],["ENGINE/core.py",58,"dormant","1. session_id ไม่ถูกส่งต่อจากผู้เรียก -> ทุก user แชร์ session"],["ENGINE/council_engine.py",44,"boot","แก้: Altair → Choice (option preservation)"],["ENGINE/debt_engine.py",308,"dormant","ตัวจำลองปลดหนี้ Avalanche/Snowball ครบ — ยังไม่ต่อสาย"],["ENGINE/decision_engine.py",517,"boot","หัวใจของ /run — กลับมาต่อติดแล้วหลังเพิ่มตัวเชื่อม emptiness_guard()"],["ENGINE/dialogue_engine.py",183,"dormant","Dialogue Engine"],["ENGINE/dicision.py",150,"dormant","Decision Engine"],["ENGINE/emotion_state",148,"broken","ไม่มีนามสกุล .py → import ไม่ได้ ระบบจำอารมณ์ข้ามข้อความจึงไม่ทำงาน"],["ENGINE/energy_governor.py",120,"dormant","Energy Governor"],["ENGINE/engine_router.py",271,"boot","เลือก engine ตามเส้นทาง — ต่อติดผ่าน DecisionEngine"],["ENGINE/escape_routes.py",116,"boot","orchestrator เรียก assess() ซึ่งไฟล์นี้ไม่มี"],["ENGINE/eternal_runtime.py",205,"request","Eternal Runtime"],["ENGINE/eternal_snapshot_patch.py",24,"dormant","วางไฟล์นี้ที่ ENGINE/eternal_snapshot_patch.py"],["ENGINE/freedom_signal.py",98,"boot","Freedom / Wisdom Signal"],["ENGINE/future_simulator.py",135,"broken","import load_model ที่ไม่มีอยู่จริง"],["ENGINE/human_engine.py",54,"boot","แปลง context ของผู้ใช้ → entropy/resource/risk"],["ENGINE/human_state_engine.py",161,"dormant","Human State Engine"],["ENGINE/input_interpreter.py",150,"boot","Input Interpreter"],["ENGINE/intent.py",111,"dormant","Intent Detector"],["ENGINE/intent_engine.py",72,"dormant","Intent Engine (standalone, ไม่ใช้ intent.py)"],["ENGINE/intervention_engine.py",208,"dormant","Intervention Engine"],["ENGINE/kernel_runtime.py",257,"dormant","Kernel Runtime"],["ENGINE/king_response.py",91,"dormant","Response Formatter"],["ENGINE/language_detector.py",83,"dormant","Language Detector"],["ENGINE/learning_engine.py",479,"dormant","Learning Engine"],["ENGINE/map_bridge.py",88,"dormant","Map Bridge"],["ENGINE/memory.py",137,"dormant","Session Memory"],["ENGINE/path_generator.py",167,"dormant","Path Generator"],["ENGINE/paticcasamuppada_engine.py",237,"boot","ปฏิจจสมุปบาท — เกือบทุกข้อความได้ 'หยุดก่อนตัดสินใจ'"],["ENGINE/pattern_engine.py",223,"boot","Pattern Engine"],["ENGINE/persona_engine.py",129,"dormant","Persona Engine"],["ENGINE/realhuman_survivorengine.py",304,"boot","คำนวณ waterline จาก energy/sleep/food/shelter จริง"],["ENGINE/relationship_engine.py",86,"dormant","Relationship Engine"],["ENGINE/resource_estimator.py",102,"dormant","Resource Estimator"],["ENGINE/response_translator.py",78,"dormant","Response Translator"],["ENGINE/risk.py",98,"dormant","Risk Evaluator"],["ENGINE/risk_engine.py",79,"boot","Risk Engine"],["ENGINE/self_evolution.py",90,"request","Self Evolution Layer"],["ENGINE/self_learning.py",122,"request","Self Learning Engine"],["ENGINE/simulation_engine.py",107,"boot","Simulation Engine"],["ENGINE/situation_analyzer.py",91,"boot","Situation Analyzer"],["ENGINE/strategy_planner.py",134,"boot","Strategy Planner"],["ENGINE/survival_advisor.py",185,"boot","Survival Advisor"],["ENGINE/survival_map_engine.py",84,"dormant","Survival Map Engine"],["ENGINE/survival_nodes.py",91,"dormant","Survival Node Scanner"],["ENGINE/tool_executor.py",133,"dormant","รันเครื่องมือด้วย eval — ไม่ควรต่อเข้ากับข้อความผู้ใช้"],["ENGINE/universal_engine.py",165,"boot","Universal Engine"],["ENGINE/world_intel.py",282,"dormant","World Intelligence Layer"],["ENGINE/world_intelligence.py",154,"dormant","World Intelligence"],["ENGINE/world_model.py",162,"dormant","World Model"],["ENGINE/yonisomanasikara_engine.py",274,"dormant","Yonisomanasikara Engine"],["EXAMPLES/__init__.py",1,"dormant",""],["EXAMPLES/food-shortage-scenario.md",94,"docs","KING DIADEM — Food Shortage Scenario"],["EXAMPLES/human-survival-scenarios.md",100,"docs","KING DIADEM — Human Survival Scenarios"],["FATE_DEBT_FREEDOM.md",90,"docs","FATE™ DEBT FREEDOM"],["GLOBAL_NODE/__init__.py",1,"request",""],["GLOBAL_NODE/feed_store.py",106,"dormant","Global Feed Store"],["GLOBAL_NODE/mobile.nood.py",13,"broken","มีจุดในชื่อไฟล์ → import ไม่ได้"],["GLOBAL_NODE/network_sync.py",104,"request","Network Sync Bridge"],["GLOBAL_NODE/node_model.py",166,"request","Global Node Model"],["GLOBAL_NODE/node_trust.py",196,"dormant","Node Trust Registry"],["INTEGRATIONS/__init__.py",1,"dormant",""],["INTEGRATIONS/google_docs.py",123,"dormant","Google Docs real integration"],["INTEGRATIONS/google_maps.py",133,"dormant","Google Maps real integration"],["INTEGRATIONS/google_search.py",112,"dormant","Google Search real integration"],["INTELLIGENCE/__init__.py",1,"dormant",""],["INTELLIGENCE/decision_intelligence.py",237,"dormant","Decision Intelligence Layer v2.0"],["INTELLIGENCE/pattern_engine.py",196,"dormant","Pattern Engine v2.0"],["INTELLIGENCE/risk_engine.py",274,"dormant","Risk Engine v2.0"],["INTERFACE/__init__.py",1,"dormant",""],["INTERFACE/api.py",357,"dormant","KING DIADEM v2.0"],["INTERFACE/choice-engine.md",108,"docs","CHOICE ENGINE"],["INTERFACE/cli-prototype.md",112,"docs","CLI PROTOTYPE"],["INTERFACE/food-vision-engine.md",113,"docs","FOOD VISION ENGINE"],["INTERFACE/human-choice-interface.md",109,"docs","HUMAN CHOICE INTERFACE"],["KERNEL/__init__.py",1,"dormant",""],["KERNEL/dharma-governance-kernel.md",481,"docs","KING DIADEM — DriftZero Waterline Governance Kernel"],["KERNEL/king-diadem-kernel.md",351,"docs","Governance Kernel (ซ้ำกับ dharma-governance-kernel.md ~99%)"],["KING_DIADEM_core.py",208,"broken","app.py import เป็น king_diadem_core (ตัวเล็ก) บน Linux หาไม่เจอ + import โมดูลที่ไม่มีจริง 5 ตัว → ใช้ fallback"],["LICENSE",52,"docs","สัญญาอนุญาต"],["MANIFESTO.md",71,"docs","KING DIADEM — MANIFESTO"],["MODELS/__init__.py",1,"dormant",""],["MODELS/choice-balance-model.md",64,"docs","MODELS/choice-balance-model.md — KING DIADEM"],["MODELS/choice-collapse-model.md",96,"docs","MODELS/choice-collapse-model.md — KING DIADEM"],["MODELS/choice-navigation-engine.md",96,"docs","MODELS/choice-navigation-engine.md — KING DIADEM"],["MODELS/drift-governance-model.md",128,"docs","MODELS/drift-governance-model.md — KING DIADEM"],["NETWORK/__init__.py",1,"dormant",""],["NETWORK/global_chat.py",128,"dormant","Global Chat Store"],["NETWORK/global_network.py",12,"dormant","Global Network"],["NETWORK/node_registry.py",152,"dormant","Node Registry"],["NETWORK/node_sync.py",106,"dormant","Network Sync & Health"],["NETWORK/planetary_node.py",87,"dormant","Planetary Node"],["PAYMENT/__init__.py",1,"dormant",""],["PAYMENT/create_checkout.py",93,"dormant","Stripe Checkout — secure, rate-limited, plan-aware"],["PAYMENT/stripe_payment.py",22,"dormant","Legacy entry point — delegate ไปที่ create_checkout.py"],["PAYMENT/stripe_webhook.py",105,"dormant","Webhook handler — signature verify + idempotency + fraud guard"],["PAYMENT/wallet_engine.py",58,"dormant","Wallet: topup + deduct + balance check"],["PERSONA/lyla_core.py",252,"dormant","LYLA Persona Engine — Warmth-Preserving Structural Logic"],["PERSONA/vega_core.py",390,"dormant","VEGA Kernel — Deterministic Logic Mirror"],["README.md",135,"docs","KING DIADEM"],["ROADMAP.md",91,"docs","KING DIADEM — Development Roadmap"],["SECURITY/__init__.py",1,"dormant",""],["SECURITY/emergency_mode.py",237,"dormant","IP-based Rate Limiter + Emergency Lockdown"],["SECURITY/survival_mode.py",188,"dormant","Global Traffic Survival Mode"],["SIMULATIONS/__init__.py",1,"request",""],["SIMULATIONS/black_swan_detector.py",87,"dormant","Black Swan: เหตุการณ์หายาก คาดไม่ถึง ผลกระทบสูง"],["SIMULATIONS/entropy_engine.py",78,"dormant","Entropy analysis: deterministic + signal-based"],["SIMULATIONS/future_simulator.py",67,"request","จำลองอนาคต: deterministic scenarios จาก state จริง"],["SIMULATIONS/montecarlo_engine.py",65,"dormant","Monte Carlo: จำลอง n runs ด้วย bounded perturbation"],["SIMULATIONS/pandemic-survival-simulation.md",125,"docs","KING DIADEM — Pandemic Survival Simulation"],["SIMULATIONS/scenario_engine.py",70,"dormant","Scenario Engine: ประเมินอนาคตจาก context จริง"],["SIMULATIONS/scenario_tree.py",84,"dormant","Scenario Tree: เส้นทางที่เป็นไปได้ตาม context"],["SYSTEM_ARCHITECTURE.md",109,"docs","KING DIADEM — System Architecture"],["SYSTEM_OVERVIEW.md",82,"docs","KING DIADEM — System Overview"],["WHITEPAPER.md",265,"docs","KING DIADEM — Whitepaper"],["WORLD_MODEL/__init__.py",1,"dormant",""],["WORLD_MODEL/earth_guardian.py",64,"dormant",""],["WORLD_MODEL/environment.py",180,"dormant","Environment State Engine"],["WORLD_MODEL/human_behavior.py",244,"dormant","Human Behavior Engine — วิเคราะห์พฤติกรรมมนุษย์จากบริบทจริง"],["WORLD_MODEL/human_bias.py",44,"dormant",""],["WORLD_MODEL/human_state.py",192,"dormant","Human State Engine — สภาวะมนุษย์จริง ไม่ใช่ hardcode"],["WORLD_MODEL/small_animal_model.py",258,"dormant","Small Animal Welfare Model"],["WORLD_MODEL/survival_threshold.py",295,"dormant","Survival Threshold Engine"],["app.py",1511,"boot","ประตูหลัก FastAPI v5.0 — /run, โควตา+เครดิต, wallet, auth, Stripe webhook, report"],["core/__init__.py",1,"boot",""],["core/api_keys.py",837,"dormant","ระบบ API key HMAC + rate limit ครบ — ยังไม่ต่อสาย"],["core/axioms.py",177,"dormant","Core Axioms & Governance Constants"],["core/brain.py",130,"dormant","KING DIADEM v2.0"],["core/civil_work_core.py",178,"dormant","CIVIL WORK CORE: Human-independent decision support"],["core/core_loop.py",109,"boot","CORE LOOP — KING DIADEM v3.1"],["core/cosmic_latte_canon.py",342,"boot","ประตู canon — บล็อกคำตอบที่ทำให้ทางเลือกเป็นศูนย์ รู้จักคำปฏิเสธ"],["core/creator_identity.py",94,"dormant","Creator Identity Lock — Immutable"],["core/creator_story.py",72,"dormant","Creator Story: เปิดเผยเมื่อถูกถามเท่านั้น"],["core/database.py",83,"dormant","SQLite database — users + payments + decisions + sessions"],["core/dependency_cycle.py",151,"request","Dependency Cycle Engine — Water Flow Model"],["core/drift_monitor.py",222,"request","DriftZero Waterline Governance Standard"],["core/emptiness_guard.py",1855,"boot","ชั้น TITAN/Waterline + ตัวเชื่อม emptiness_guard() ที่ทำให้ DecisionEngine กลับมาทำงาน"],["core/entropy_guard.py",303,"request","Entropy Guard: ระบบป้องกันความพัง"],["core/fate_core.py",172,"dormant","FATE™ v1.0 — Deterministic Decision Infrastructure"],["core/king_diadem_core.py",84,"dormant","KING DIADEM CORE"],["core/llm_gemini.py",715,"boot","คุย Gemini + ตรวจวิกฤต (1323) · retry มีเพดานเวลา 45 วินาที"],["core/lyla_kernel.py",119,"boot","LYLA OPEN SYSTEM CORE LOGIC KERNEL"],["core/master_brain.py",132,"dormant","Master Brain (v2)"],["core/memory_store.py",107,"dormant","MEMORY STORE — KING DIADEM CORE LAYER v2"],["core/navigator.py",66,"dormant","Truth Engine: ใช้ Gemini + FATE™ logic"],["core/parables.py",120,"request","Human Wisdom Layer — KING DIADEM"],["core/reality_laws.py",266,"boot","REALITY LAWS — KING DIADEM CORE LAYER v2"],["core/silent_canon.py",270,"boot","SILENT CANON — KING DIADEM CORE LAYER v3"],["core/survival_threshold.py",5,"dormant","Layer 0 Law: Choice(t) >= 1 → collapse = False"],["core/system_orchestrator.py",267,"boot","ร้อยเครื่องยนต์ย่อย แล้วเรียก LLM เอง 1 รอบ (คำตอบถูกทิ้ง)"],["core/time_engine.py",251,"boot","Time Awareness Engine"],["core/truth_system.py",176,"dormant","Truth Infrastructure: สะท้อนความจริง + เปิดทางเลือก"],["core/users.py",277,"dormant","User Registry"],["core/vega_mode.py",168,"request","VEGA Mode — ALTIER Logic Core (adapted for VEGA)"],["core/vigilance_protocol.py",38,"request","Vigilance Protocol"],["docs/docs-full/anima-safe-core.html",173,"site","ANIMA-SAFE CORE | KING DIADEM"],["docs/docs-full/cosmic-latte.html",140,"site","COSMIC LATTE — Observer Protocol | KING DIADEM"],["docs/docs-full/ethical-lattice.html",163,"site","64-Axiom Ethical Lattice | KING DIADEM"],["docs/index.html",948,"site","KING DIADEM — DriftZero Governance Infrastructure"],["gunicorn.conf.py",9,"dormant","Render free tier optimized"],["manifest.json",45,"site","สำเนา static/manifest.json สำหรับ GitHub Pages"],["portfolio.html",725,"site","Nithikorn Bunsrang — AI Systems Architect"],["render.yaml",36,"config",""],["report_engine.py",181,"boot","สร้างรายงาน FATE ที่แชร์ได้ /report/<id>"],["requirements.txt",15,"config",""],["service_worker.js",50,"site","service worker ยุค GitHub Pages (cache-first) — เซิร์ฟเวอร์ไม่ได้เสิร์ฟไฟล์นี้"],["simulation_graph.js",127,"dormant","Real-time Decision Stability Graph"],["static/__init__.py",1,"dormant",""],["static/ai_brain.js",100,"dormant","KING DIADEM AI Core Bridge v2.0"],["static/ai_orbit.js",324,"dormant","KING DIADEM Orbital Engine v2.0"],["static/ai_thinking.js",53,"dormant","ตัวแสดงจุด 'กำลังคิด' — ไม่มีหน้าไหนโหลด"],["static/ai_thinking_orbit.js",315,"dormant","AI Thinking Orbit Visualizer v2.0"],["static/app.js",287,"dormant","แอปฝั่งหน้าเว็บรุ่นเก่า v3.1 — ไม่มีหน้าไหนโหลด"],["static/ask.html",303,"web","ASK — KING DIADEM"],["static/brain.js",300,"dormant","KING DIADEM Neural Core v2.0"],["static/decision.js",309,"dormant","Decision Engine Interface v2.0"],["static/galaxy.js",224,"dormant","KING DIADEM Solar System v2"],["static/galaxy_council.js",277,"dormant","Council Vote Renderer"],["static/galaxy_decision.js",212,"dormant","Decision Summary Renderer"],["static/galaxy_scene.js",462,"web","จักรวาล KING DIADEM v54 — แก่นกลาง + 6 วงโคจรเส้นทาง แสงมีมิติด้วย WebGL (เมฆ 2 ชั้น corona ดาวเคราะห์รับแสง) ใช้เป็นฉากหลังหน้าแรก"],["static/galaxy_scene_api.js",132,"dormant","poll /api/galaxy/nodes ให้ฉากกาแล็กซีรุ่นก่อน — หน้าแรกตอนนี้ไม่ได้โหลด"],["static/guide.html",353,"web","HUMAN GUIDE — KING DIADEM"],["static/hero.png",0,"web","ภาพแบรนด์ KING DIADEM — พื้นหลังหน้า login/register"],["static/index.html",1885,"web","หน้าแอปหลักที่ / — จักรวาลการตัดสินใจ แชท เครื่องมือ และแผนที่ระบบ (ไฟล์นี้)"],["static/kd_theme_deepspace.css",431,"dormant","ธีม Deep Space (ชมพู-ลาเวนเดอร์) ของหน้าแรกรุ่นก่อน — หน้าแรกตอนนี้ไม่ได้โหลด"],["static/king_diadem_profile (1).png",0,"dormant","รูปโปรไฟล์ — ไม่มีหน้าไหนใช้"],["static/king_diadem_universe.html",568,"web","KING DIADEM — The Universe That Restores Choice"],["static/login.html",493,"web","KING DIADEM · ACCESS"],["static/logo.png",0,"web","โลโก้ภาพนิ่ง — favicon ของ /favicon.ico · หน้าแรกวาดทุกอย่างด้วยโค้ด ไม่ใช้ภาพ"],["static/main.js",319,"dormant","KING DIADEM Core Bridge v3.0"],["static/manifest.json",45,"web","PWA manifest"],["static/register.html",674,"web","KING DIADEM · REGISTER"],["static/report.html",741,"web","หน้ารายงานการตัดสินใจ /report/<id>"],["static/service-worker.js",102,"dormant","ลงทะเบียน scope '/' จาก /static/ ไม่ได้ (ไม่มี header Service-Worker-Allowed)"],["static/style.css",303,"broken","บรรทัดแรกเป็นข้อความแชท AI ไม่ใช่ CSS"],["static/system.js",141,"dormant","System Kernel v2.1"],["static/wallet.html",272,"web","กระเป๋าเครดิต — ยอดจริงจาก /wallet/balance ประวัติจาก ledger เติมผ่าน Stripe (/wallet/topup)"],["static/warp_intro.js",111,"dormant","warp_intro.js"]],"edges":[[10,12],[11,12],[18,12],[19,12],[21,17],[24,6],[24,12],[24,15],[24,20],[24,28],[24,87],[24,100],[24,163],[46,43],[47,46],[50,51],[52,51],[53,50],[53,51],[53,52],[54,51],[56,55],[58,51],[59,58],[59,60],[59,61],[59,62],[59,63],[62,105],[70,64],[70,92],[70,94],[70,100],[70,109],[70,116],[72,202],[74,76],[75,70],[75,80],[75,100],[78,64],[78,72],[78,73],[78,74],[78,83],[78,85],[78,87],[78,89],[78,102],[78,103],[78,110],[78,112],[78,115],[78,116],[78,203],[78,210],[78,214],[78,215],[79,104],[79,192],[80,214],[85,111],[85,132],[85,181],[85,208],[85,209],[85,211],[85,228],[86,85],[88,98],[88,123],[89,105],[95,200],[95,208],[95,211],[95,220],[95,221],[95,228],[98,137],[98,138],[100,51],[101,137],[105,64],[105,68],[105,91],[113,214],[117,84],[117,94],[117,118],[118,137],[120,74],[120,76],[120,78],[120,103],[120,110],[120,210],[124,102],[131,132],[132,133],[144,50],[144,78],[144,167],[144,169],[144,204],[144,214],[152,64],[152,73],[152,78],[152,82],[152,84],[152,90],[152,94],[152,101],[152,110],[152,114],[152,178],[152,209],[152,210],[152,220],[152,221],[152,222],[161,51],[162,161],[163,51],[164,163],[165,163],[165,164],[168,167],[169,50],[170,50],[197,6],[197,7],[197,15],[197,20],[197,24],[197,34],[197,51],[197,73],[197,74],[197,78],[197,89],[197,105],[197,110],[197,113],[197,120],[197,204],[197,214],[197,215],[197,223],[197,237],[201,214],[203,220],[203,221],[203,224],[212,202],[212,208],[213,71],[213,116],[213,121],[214,51],[216,73],[216,90],[216,94],[216,97],[216,104],[216,110],[216,217],[218,212],[218,214],[223,36],[223,37],[223,73],[223,74],[223,84],[223,102],[223,103],[223,105],[223,110],[223,115],[223,116],[223,214],[223,219],[223,227],[225,105],[225,211],[225,212],[225,214],[197,257,1],[197,266,1],[197,270,1],[197,255,1],[197,247,1],[197,262,1]]}</script>
 <script>
 'use strict';
 /* ════════════════════════════════════════════════════════════════
@@ -634,7 +760,7 @@ async function refreshMe(){
   $('#acc-guest').classList.toggle('hide', Auth.loggedIn);
   $('#acc-user').classList.toggle('hide', !Auth.loggedIn);
   $('#acc-email').textContent = Auth.email;
-  $('#credits-pill').textContent = Auth.loggedIn ? (Auth.premium ? 'PREMIUM' : 'CR ' + Auth.credits) : 'ผู้เยี่ยมชม';
+  $('#credits-pill').textContent = Auth.premium ? '∞' : Auth.loggedIn ? 'CR ' + Auth.credits : 'FREE ' + (Auth.freeLeft == null ? '—' : Auth.freeLeft);
   var pe = $('#pay-email'); if(pe && !pe.value && Auth.email.indexOf('@') > 0) pe.value = Auth.email;
   Limit.ui();
   return was !== Auth.email;
@@ -757,7 +883,10 @@ function openUpgrade(){ var d = $('#dlg-up'); if(!d.open) d.showModal(); }
 $('#upgrade-pill').addEventListener('click', openUpgrade);
 $('#upgrade-pill').addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openUpgrade(); } });
 $('#up-close').addEventListener('click', function(){ $('#dlg-up').close(); });
-$('#up-later').addEventListener('click', function(){ $('#dlg-up').close(); });
+$('#eq-close').addEventListener('click', function(){ $('#dlg-eq').close(); });
+document.addEventListener('click', function(e){ var a = e.target.closest('[data-axis]'); if(!a) return; e.preventDefault(); var d = $('#dlg-axis'); if(!d.open){ d.showModal(); d.scrollTop = 0; } });
+$('#axis-close').addEventListener('click', function(){ $('#dlg-axis').close(); });
+$('#dlg-axis').addEventListener('click', function(e){ if(e.target === this) this.close(); });
 $('#up-go').addEventListener('click', async function(){
   var b = this; b.disabled = true;
   try{
@@ -815,21 +944,22 @@ var MyState = {
     var s = this.readForm(), w = this.waterline(s);
     $('#st-energy-v').textContent = s.energy; $('#st-wl').textContent = Math.round(w); $('#st-wl-s').textContent = '· ' + this.status(s);
     var bar = $('#st-wl-bar'); bar.className = 'bar' + (w < 35 ? ' bad' : w < 65 ? ' warn' : ''); bar.firstElementChild.style.width = w + '%';
+    var a = Math.max(0, 50 - s.energy), b = Math.max(0, (6 - s.sleep_hours) * 5), f = s.food_access ? 0 : 30, h = s.safe_place ? 0 : 40;
+    var m = s.mental_state === 'overwhelmed' ? 25 : s.mental_state === 'stressed' ? 10 : 0, d = Math.min(20, s.days_in_crisis * 2);
+    $('#st-wl-f').textContent = '100 − ' + [a, b, f, h, m, d].map(r1).join(' − ');
   },
   chip: function(){
     var s = this.get(), c = $('#state-chip');
     c.classList.toggle('set', !!s);
-    if(!s){ c.textContent = 'สถานะของฉัน: ยังไม่ระบุ'; return; }
-    var mind = {stable:'ปกติ', stressed:'เครียด', overwhelmed:'ท่วมท้น'}[s.mental_state] || '';
-    c.textContent = 'Waterline ≈ ' + Math.round(this.waterline(s)) + ' · พลังงาน ' + s.energy + ' · นอน ' + s.sleep_hours + ' ชม. · ' + mind;
+    c.textContent = s ? 'W ' + Math.round(this.waterline(s)) : 'W —';
   }
 };
 $('#state-chip').addEventListener('click', function(){ MyState.fillForm(); $('#dlg-state').showModal(); });
 $('#state-form').addEventListener('input', function(){ MyState.preview(); });
 $('#dlg-state').addEventListener('close', function(){
-  if(this.returnValue === 'save'){ lsSet(MyState.KEY, JSON.stringify(MyState.readForm())); MyState.chip(); Cosmos.syncCore(); toast('บันทึกสถานะแล้ว — จะส่งไปกับทุกข้อความ'); }
+  if(this.returnValue === 'save'){ lsSet(MyState.KEY, JSON.stringify(MyState.readForm())); MyState.chip(); Cosmos.syncCore(); }
 });
-$('#st-clear').addEventListener('click', function(){ lsDel(MyState.KEY); MyState.chip(); Cosmos.syncCore(); $('#dlg-state').close('clear'); toast('ไม่ส่งสถานะแล้ว — ระบบจะใช้ค่าเริ่มต้น'); });
+$('#st-clear').addEventListener('click', function(){ lsDel(MyState.KEY); MyState.chip(); Cosmos.syncCore(); $('#dlg-state').close('clear'); });
 
 /* ════════════════════════════════════════════════════════════════
    ROUTE + PERSONA
@@ -850,10 +980,13 @@ window.KD_GALAXY_FOCUS = function(){
   var r = m.getBoundingClientRect(), top = r.top + 54, avH = r.bottom - top, cs = document.getElementById('core-space'), e = document.getElementById('empty');
   var cx = r.left + r.width / 2, cy = top + avH * 0.42;
   if(curView === 'chat' && e && !e.classList.contains('hide') && cs){ var c = cs.getBoundingClientRect(); if(c.height > 0) cy = c.top + c.height * 0.5; }
-  return { x: cx, y: cy, s: Math.min(r.width * 0.66, innerHeight * 0.95) };
+  var cp = document.getElementById('composer'), hy = innerHeight * 0.9;
+  if(curView === 'chat' && cp){ var k = cp.getBoundingClientRect(); if(k.height > 0) hy = k.top + 34; }
+  return { x: cx, y: cy, s: Math.min(r.width * 0.66, innerHeight * 0.95), hy: hy };
 };
 function syncChips(){
   if(window.KD_galaxy) KD_galaxy.route(Route);
+  var rp = $('#route-pill'); if(rp) rp.textContent = ROUTE_NAME[Route] || Route;
   $$('#routes .chip').forEach(function(b){ b.classList.toggle('on', b.dataset.r === Route); });
   $$('#persona-seg button').forEach(function(b){ b.classList.toggle('on', b.dataset.p === Persona); });
 }
@@ -874,6 +1007,7 @@ function voiceHint(mode){
    TRACE — แปลง response ของ /run เป็นสิ่งที่คนอ่านได้ (ไม่มีค่าที่แต่งขึ้น)
    ════════════════════════════════════════════════════════════════ */
 function traceOf(d, mode, sentState){
+  var inp = sentState && typeof sentState === 'object' && Object.keys(sentState).length ? JSON.parse(JSON.stringify(sentState)) : null;
   /* DecisionEngine คืนผล survivor ไว้ที่ human_engine · เส้นทาง PAUSE คืนไว้ที่ pattern */
   var p = Object.assign({}, d.human_engine || {}, d.pattern || {}), b = d.belief_audit || {};
   if(d.human_engine && d.human_engine.waterline != null) p.waterline = d.human_engine.waterline;
@@ -886,7 +1020,7 @@ function traceOf(d, mode, sentState){
     canon: d.status === 'CANON_BLOCKED' ? 'blocked' : (d.canon_notice ? 'notice' : ''),
     canonV: d.canon_violations || [],
     consensus: typeof d.consensus === 'string' ? d.consensus : (d.consensus && (d.consensus.final_action || d.consensus.consensus)) || '',
-    report: d.report_id || '', warn: d.governance_warning || '', sentState: !!sentState
+    report: d.report_id || '', warn: d.governance_warning || '', sentState: !!inp, inp: inp
   };
 }
 function lvlClass(v, invert){ if(v == null) return ''; if(invert) return v >= 75 ? 'bad' : v >= 45 ? 'warn' : 'ok'; return v < 35 ? 'bad' : v < 65 ? 'warn' : 'ok'; }
@@ -914,6 +1048,65 @@ function traceHTML(t){
 }
 /* สีของดาว = ความเสี่ยง (ฟ้า → ทอง → แดง) */
 function riskColor(r){ if(r == null) return '#c9d4ff'; return r >= 75 ? '#ff5d6c' : r >= 45 ? '#f6b24a' : '#6fb2ff'; }
+
+/* ════════════════════════════════════════════════════════════════
+   Σ — สมการจริงจากโค้ด (ไม่มีสูตรที่แต่งขึ้น) + การแทนค่าของแต่ละคำตอบ
+   ════════════════════════════════════════════════════════════════ */
+var EQ = [
+  ['W',    'W = 100 − (50−e)⁺ − 5(6−s)⁺ − 30·¬food − 40·¬safe − m − min(20, 2d)', 'ENGINE/realhuman_survivorengine.py'],
+  ['E, R', 'E = 100 − W   ·   R = W', 'ENGINE/human_engine.py'],
+  ['Risk', 'Risk = 0.5·E + 0.5·(100 − R)', 'ENGINE/risk_engine.py'],
+  ['C',    'Choice(t) = max(1, ⌊(100 − Risk) / 20⌋)', 'ENGINE/risk_engine.py · core/emptiness_guard.py'],
+  ['P',    'Risk > 80 → high · > 60 → moderate · else low', 'ENGINE/collapse_predictor.py'],
+  ['B-1',  'Choice(t) ≥ 1 → collapse = False', 'AI_KERNEL/belief_core.py'],
+  ['R',    'R = (D × T) / C', 'AI/freedom_signal.py']
+];
+function eqRow(sym, expr, val, sub, cls){
+  return '<div class="r' + (cls ? ' ' + cls : '') + '"><span class="s">' + esc(sym) + '</span><span class="x">' + expr + '</span><span class="v">' + (val == null ? '' : val) + '</span>' +
+    (sub ? '<span class="sub">' + sub + '</span>' : '') + '</div>';
+}
+function eqCatalog(){
+  return '<div class="eq">' + EQ.map(function(e){ return eqRow(e[0], esc(e[1]), '', esc(e[2])); }).join('') + '</div>';
+}
+function r1(v){ return Math.round(v * 10) / 10; }
+function eqHTML(t){
+  if(!t) return eqCatalog();
+  var rows = [], s = t.inp, W;
+  if(s){
+    var a = Math.max(0, 50 - num(s.energy, 50)), b = Math.max(0, (6 - num(s.sleep_hours, 6)) * 5), f = s.food_access === false ? 30 : 0, h = s.safe_place === false ? 40 : 0;
+    var m = s.mental_state === 'overwhelmed' ? 25 : s.mental_state === 'stressed' ? 10 : 0, dd = Math.min(20, num(s.days_in_crisis, 0) * 2);
+    var wc = Math.max(0, Math.min(100, 100 - a - b - f - h - m - dd));
+    W = t.wl != null ? t.wl : wc;
+    rows.push(eqRow('W', '100 − ' + [a, b, f, h, m, dd].map(r1).join(' − '), '<b>' + r1(W) + '</b>', 'e ' + s.energy + ' · s ' + s.sleep_hours + 'h · d ' + s.days_in_crisis + ' · ' + (s.mental_state || '') + (f ? ' · ¬food' : '') + (h ? ' · ¬safe' : '')));
+  } else {
+    W = t.wl != null ? t.wl : 100;
+    rows.push(eqRow('W', '100', '<b>' + r1(W) + '</b>', 'ค่าเริ่มต้น · <a href="#" data-act="state">ระบุสถานะ</a>'));
+  }
+  var E = 100 - W, R = W, rf = 0.5 * E + 0.5 * (100 - R);
+  rows.push(eqRow('E, R', r1(E) + ' · ' + r1(R), ''));
+  rows.push(eqRow('Risk', '0.5·' + r1(E) + ' + 0.5·' + r1(100 - R), '<b>' + r1(rf) + '</b>'));
+  var risk = rf;
+  if(t.risk != null && Math.abs(t.risk - rf) > 0.5){ risk = t.risk; rows.push(eqRow('Risk*', 'engine', '<b>' + r1(risk) + '</b>', 'สัญญาณจากข้อความ / DecisionEngine', 'warn')); }
+  var C = Math.max(1, Math.floor((100 - risk) / 20)), P = risk > 80 ? 'high' : risk > 60 ? 'moderate' : 'low';
+  rows.push(eqRow('C', 'max(1, ⌊' + r1(100 - risk) + ' / 20⌋)', '<b>' + C + '</b>'));
+  rows.push(eqRow('P', 'Risk ' + r1(risk), P, '', P === 'high' ? 'bad' : P === 'moderate' ? 'warn' : ''));
+  var paused = t.status === 'SYSTEM_PAUSE';
+  rows.push(eqRow('B-1', 'C ≥ 1 → collapse = False', paused ? '⏸' : '✓', paused ? 'SYSTEM_PAUSE' : '', paused ? 'warn' : 'ok'));
+  var gates = [];
+  gates.push('canon ' + (t.canon === 'blocked' ? '✕' : '✓'));
+  if(t.belief && t.belief.lvl) gates.push('belief ' + esc(String(t.belief.lvl).toUpperCase()));
+  if(t.consensus) gates.push(esc(t.consensus));
+  rows.push(eqRow('⊢', gates.join(' · '), t.report ? '<a href="/report/' + encodeURIComponent(t.report) + '" target="_blank" rel="noopener">↗</a>' : ''));
+  return '<div class="eq">' + rows.join('') + '</div>';
+}
+function eqStrip(t){
+  if(!t) return '';
+  var W = t.wl, risk = t.risk;
+  if(W == null && risk == null) return '';
+  if(risk == null) risk = 100 - W;
+  var C = Math.max(1, Math.floor((100 - risk) / 20));
+  return 'W ' + (W == null ? '—' : Math.round(W)) + ' · Risk ' + Math.round(risk) + ' · C ' + C + ' <b>Σ</b>';
+}
 
 /* ════════════════════════════════════════════════════════════════
    COSMOS — จักรวาลการตัดสินใจ วาดด้วยโค้ดล้วน ไม่มีภาพนิ่ง
@@ -1260,7 +1453,7 @@ var Cosmos = (function(){
         '<div class="meta">' + esc(when) + (t.wl != null ? ' · WL ' + Math.round(t.wl) : '') + ' · ' + esc(n.m.p || '') + '</div>' +
         (n.q ? '<p class="q">' + esc(n.q.slice(0, 280)) + '</p>' : '') +
         '<p class="a">' + fmt(n.m.t.slice(0, 420) + (n.m.t.length > 420 ? '…' : '')) + '</p>' + (t.mode === 'crisis' || /1323|1669/.test(n.m.t) ? crisisCard() : '') +
-        '<details><summary>ระบบทำอะไรกับข้อความนี้</summary>' + traceHTML(t) + '</details>' +
+        '<details><summary>Σ</summary>' + eqHTML(t) + '</details>' +
         '<div style="margin-top:12px"><button type="button" class="btn sm primary" id="u-open">เปิดแชทนี้</button></div>';
     } else {
       var f = n.f;
@@ -1278,14 +1471,14 @@ var Cosmos = (function(){
     if(mode === 'decisions'){
       $('#u-count').textContent = stars.length + ' ดวง · ' + (coreWL == null ? 'ยังไม่ระบุ waterline' : 'waterline ' + Math.round(coreWL));
       L.innerHTML = '<div class="row"><span><i class="sw" style="background:#6fb2ff"></i>ความเสี่ยงต่ำ &lt;45</span><span><i class="sw" style="background:#f6b24a"></i>กลาง 45–74</span><span><i class="sw" style="background:#ff5d6c"></i>สูง ≥75</span></div>' +
-        '<div class="hint">ใจกลาง = ระบบที่ต่อติดแล้ว ออร่าตาม waterline ของคุณ · วงในสุด → นอกสุด = ทั่วไป · ความเสี่ยง · งาน/สังคม · อยู่รอด · วิกฤต · VEGA · แตะดาวเพื่อดูการตัดสินใจ</div>';
+        '';
       $('#u-empty').classList.toggle('hide', stars.length > 0);
     } else {
       var counts = {}; P.forEach(function(p){ counts[p.cat] = (counts[p.cat] || 0) + 1; });
       var pct = PY.length ? Math.round(PY_LIVE.length / PY.length * 100) : 0;
       $('#u-count').textContent = 'ต่อติดแล้ว ' + PY_LIVE.length + ' / ' + PY.length + ' ชิ้น Python (' + pct + '%) · ' + P.length + ' ไฟล์ · commit ' + (MAP.commit || '—');
       L.innerHTML = '<div class="row">' + CATS.filter(function(c){ return counts[c[0]]; }).map(function(c){ return '<span><i class="sw" style="background:' + COL[c[0]] + ';border-radius:1px"></i>' + esc(c[1]) + ' ' + counts[c[0]] + '</span>'; }).join('') + '</div>' +
-        '<div class="hint">1 ชิ้น = 1 ไฟล์ ขนาดตามจำนวนบรรทัด · เส้น = import จริงในโค้ด · สัญญาณที่วิ่งคือการเรียกจากผู้ import ไปหาผู้ถูก import · เส้นประแดง = ชิ้นที่เสียพยายามต่อแต่ไม่ติด · แตะชิ้นเพื่อดูว่าต่อกับอะไร</div>';
+        '';
       $('#u-empty').classList.add('hide');
     }
   }
@@ -1327,9 +1520,13 @@ var Cosmos = (function(){
   var box = $('#routes');
   ROUTES.forEach(function(r){
     var b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.r = r[0]; b.textContent = r[1];
-    b.addEventListener('click', function(){ Route = r[0]; lsSet('kd_route', Route); syncChips(); Cosmos.focusRoute(Route); });
+    b.addEventListener('click', function(){ Route = r[0]; lsSet('kd_route', Route); syncChips(); Cosmos.focusRoute(Route); routeMenu(false); });
     box.appendChild(b);
   });
+  function routeMenu(on){ $('#route-menu').classList.toggle('hide', !on); $('#route-pill').setAttribute('aria-expanded', on ? 'true' : 'false'); }
+  $('#route-pill').addEventListener('click', function(e){ e.stopPropagation(); routeMenu($('#route-menu').classList.contains('hide')); });
+  document.addEventListener('click', function(e){ if(!e.target.closest('.menu-wrap')) routeMenu(false); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') routeMenu(false); });
   $$('#persona-seg button').forEach(function(b){
     b.addEventListener('click', function(){ Persona = b.dataset.p; lsSet('kd_persona', Persona); syncChips(); });
   });
@@ -1350,22 +1547,35 @@ function msgEl(m){
   var t = m.tr || {}, key = (t.mode === 'crisis') ? 'CRISIS' : ((m.p || 'LYLA').toUpperCase() === 'VEGA' ? 'VEGA' : 'LYLA');
   var pn = PNAME[key], tags = [];
   if(t.route) tags.push(String(t.route).toUpperCase());
-  if(t.risk != null) tags.push('RISK ' + Math.round(t.risk));
-  if(t.wl != null) tags.push('WL ' + Math.round(t.wl));
   var crisis = t.mode === 'crisis' || /1323|1669/.test(m.t);
   var star = m.tr ? '<span class="star" style="color:' + riskColor(t.risk) + '" title="ดาวของการตัดสินใจนี้"></span>' : '';
   el.innerHTML = '<div class="who">' + star + '<span class="' + pn[1] + '">' + pn[0] + '</span><span class="tag">' + esc(tags.join(' · ')) + '</span></div>' +
     '<div class="bubble">' + fmt(m.t) + '</div>' + (crisis ? crisisCard() : '') +
-    (m.tr ? '<details><summary>ระบบทำอะไรกับข้อความนี้</summary>' + traceHTML(m.tr) + '</details>' : '');
+    (m.tr && eqStrip(t) ? '<button type="button" class="eqs mono">' + eqStrip(t) + '</button>' : '');
+  var eb = el.querySelector('.eqs'); if(eb) eb.addEventListener('click', function(){ showEq(m); });
   return el;
 }
-var TRACE_EMPTY = '<p class="muted" style="font-size:13px;margin:0">ส่งข้อความแล้วตรงนี้จะแสดงสิ่งที่ backend คืนมาจริง: เส้นทาง, waterline, ความเสี่ยง, การตรวจของ belief core, canon gate และลิงก์รายงาน — และคำตอบนั้นจะกลายเป็นดาวในจักรวาล</p>';
+var eqSel = null;
+function eqSub(m){ var t = m && m.tr || {}; return [String(t.route || '').toUpperCase(), m && m.p || ''].filter(Boolean).join(' · '); }
+function showEq(m){
+  if(innerWidth >= 1240 && $('#app').classList.contains('has-trace')){ eqSel = m; paintEq(); return; }
+  $('#dlg-eq-sub').textContent = eqSub(m); $('#dlg-eq-b').innerHTML = eqHTML(m.tr); $('#dlg-eq').showModal();
+}
+function paintEq(){
+  var c = Chat.cur(), m = eqSel && c.msgs.indexOf(eqSel) >= 0 ? eqSel : null;
+  if(!m) for(var i = c.msgs.length - 1; i >= 0; i--){ if(c.msgs[i].tr){ m = c.msgs[i]; break; } }
+  $('#tp-sub').textContent = m ? eqSub(m) : '';
+  $('#trace-last').innerHTML = eqHTML(m ? m.tr : null);
+}
+document.addEventListener('click', function(e){
+  var a = e.target.closest('[data-act="state"]'); if(!a) return;
+  e.preventDefault(); if($('#dlg-eq').open) $('#dlg-eq').close(); MyState.fillForm(); $('#dlg-state').showModal();
+});
 function renderMsgs(){
   var c = Chat.cur(), box = $('#msgs'); box.innerHTML = '';
   c.msgs.forEach(function(m){ box.appendChild(msgEl(m)); });
   $('#empty').classList.toggle('hide', c.msgs.length > 0);
-  var last = null; for(var i = c.msgs.length-1; i >= 0; i--){ if(c.msgs[i].tr){ last = c.msgs[i].tr; break; } }
-  $('#trace-last').innerHTML = last ? traceHTML(last) : TRACE_EMPTY;
+  paintEq();
   updateVeil(); scrollBottom();
 }
 function scrollBottom(){ var s = $('#chat-scroll'), empty = !Chat.s || !Chat.cur().msgs.length; requestAnimationFrame(function(){ s.scrollTop = empty ? 0 : s.scrollHeight; }); }
@@ -1413,7 +1623,7 @@ async function send(textArg){
     if(d.error){ target.msgs.push({ r:'e', t:String(d.error), ts:Date.now() }); toast(String(d.error), true); }
     else{
       var reply = String(d.ai_response || d.pause_reason || d.message || '').replace(/\s*[—–-]+\s*(LYLA\s*[◈✦✧]?|VEGA\s*[◆◇]?|HALT\s*[⬡]?)\s*$/gi, '').trim();
-      born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : 'LYLA'), tr: traceOf(d, mode, sentState), ts:Date.now() };
+      born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : 'LYLA'), tr: traceOf(d, mode, sentState ? state : null), ts:Date.now() };
       target.msgs.push(born);
     }
     Chat.persist(); refreshMe();
@@ -1585,8 +1795,9 @@ function buildSystem(){
   $('#sys-defs').innerHTML = CATS.filter(function(c){ return counts[c[0]]; }).map(function(c){
     return '<div><span class="sw" style="background:' + catColor(c[0]) + '"></span><span><b>' + esc(c[1]) + '</b> — ' + esc(c[2]) + '</span></div>';
   }).join('');
+  $('#sys-eq').outerHTML = eqCatalog();
   $('#sys-pipe').innerHTML = PIPE.map(function(p){
-    return '<li><div><div class="t">' + esc(p[0]) + '</div><div class="d">' + esc(p[1]) + '</div><code>' + esc(p[2]) + '</code></div><span class="badge ' + p[3] + '">' + esc(p[4]) + '</span></li>';
+    return '<li title="' + esc(p[1]) + '"><div><div class="t">' + esc(p[0]) + '</div><code>' + esc(p[2]) + '</code></div><span class="st"><i style="background:var(--' + (p[3] === 'ok' ? 'ok' : 'warn') + ')"></i>' + (p[3] === 'ok' ? '' : esc(p[4])) + '</span></li>';
   }).join('');
   renderHealth(); renderFiles();
   $('#fx-q').addEventListener('input', renderFiles);
@@ -1618,7 +1829,7 @@ $('#to-sys-universe').addEventListener('click', function(e){ e.preventDefault();
 /* ════════════════════════════════════════════════════════════════
    NAV
    ════════════════════════════════════════════════════════════════ */
-var VIEW_TITLE = { chat:'ปรึกษา', universe:'จักรวาลการตัดสินใจ', tools:'เครื่องมือ', system:'ระบบจริง' };
+var VIEW_TITLE = { chat:'ปรึกษา', universe:'จักรวาล', tools:'เครื่องมือ', system:'ระบบ' };
 var curView = 'chat';
 /* ม่านบนจักรวาล: 0 = เห็นเต็ม · 1 = จางลงให้อ่านแชทได้ · 2 = มืดสำหรับหน้าข้อมูล */
 function updateVeil(){

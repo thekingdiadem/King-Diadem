@@ -95,14 +95,14 @@ function tex(ch, u, v){
 function smoothstep(a, b, x){ var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
 
 /* ความหนาเมฆ (optical depth) ที่จุดหน้าจอ — ต้องตรงกับ dens() ใน shader */
-var COVER = 0.50, cloudScale = 800;
+var COVER = 0.46, cloudScale = 800;
 function densAt(px, py){
   var qx = px / cloudScale, qy = py / cloudScale;
   var ax = qx + drift1[0], ay = qy + drift1[1];
   ax += (tex(1, ax * 0.37, ay * 0.37) - 0.5) * 0.2; ay += (tex(2, ax * 0.37 + 0.5, ay * 0.37) - 0.5) * 0.2;
   var n = 0.50 * tex(0, ax, ay) + 0.28 * tex(0, ax * 2.13 + 0.31, ay * 2.13 + 0.17) + 0.22 * tex(1, ax * 4.37 + 0.71, ay * 4.37 + 0.29);
   var hf = tex(2, ax * 7.9 + 0.13, ay * 7.9 + 0.61);
-  var dA = smoothstep(COVER, COVER + 0.2, n) * (0.6 + 2.2 * Math.min(0.4, Math.max(0, n - COVER))) * (0.55 + 0.9 * hf);
+  var dA = smoothstep(COVER, COVER + 0.3, n) * (0.6 + 2.2 * Math.min(0.4, Math.max(0, n - COVER))) * (0.55 + 0.9 * hf);
   var bx = qx * 0.55 + drift2[0], by = qy * 0.55 + drift2[1];
   var n2 = 0.6 * tex(1, bx, by) + 0.4 * tex(2, bx * 2.31 + 0.5, by * 2.31 + 0.13);
   var dB = smoothstep(COVER + 0.08, COVER + 0.34, n2);
@@ -114,7 +114,9 @@ var geo = { cx: 0, cy: 0, s: 0, rd: 0, tilt: 0.22 };
 function computeGeo(){
   var f = typeof window.KD_GALAXY_FOCUS === 'function' ? window.KD_GALAXY_FOCUS() : null;
   var cx = W * 0.5, cy = H * 0.46, s = Math.min(W, H), portrait = W < H * 0.8;
-  if(f){ cx = f.x; cy = f.y; s = f.s || s; }
+  var hy = H * 0.86;
+  if(f){ cx = f.x; cy = f.y; s = f.s || s; if(f.hy) hy = f.hy; }
+  geo.hy = Math.max(cy + 60, Math.min(H - 10, hy));
   geo.cx = cx; geo.cy = cy; geo.s = s;
   geo.tilt = portrait ? 0.34 : 0.22;
   geo.rd = Math.max(7, Math.min(20, s * (portrait ? 0.03 : 0.02)));
@@ -124,7 +126,7 @@ function planets(now){
   ORBIT_ROUTES.forEach(function(rt){
     var R = geo.s * rt.orb, ang = (t * 0.2 / rt.per + rt.ao) % (Math.PI * 2);
     var sa = Math.sin(ang), act = rt.route === activeRoute;
-    var base = act ? 10 : 6.2, r = base * Math.max(0.75, Math.min(1.25, geo.s / 700)) * (1 + 0.14 * sa);
+    var base = act ? 5.5 : 3.6, r = base * Math.max(0.75, Math.min(1.25, geo.s / 700)) * (1 + 0.14 * sa);
     out.push({ rt: rt, x: geo.cx + Math.cos(ang) * R, y: geo.cy + sa * R * geo.tilt, z: sa * R, r: Math.max(4, r), act: act, R: R, sa: sa });
   });
   return out;
@@ -140,7 +142,7 @@ var FS = [
 'precision mediump float;',
 '#endif',
 'uniform vec2 uRes;uniform float uTime,uPx,uRd,uTc,uGain,uFlash,uCover,uScale;',
-'uniform vec2 uCore,uD1,uD2;uniform vec3 uTint;',
+'uniform vec2 uCore,uD1,uD2;uniform vec3 uTint;uniform float uHor;',
 'uniform vec4 uP[6];uniform vec3 uPC[6];uniform vec3 uPL[6];uniform float uPA[6];',
 'uniform sampler2D uN;',
 'float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}',
@@ -151,12 +153,12 @@ var FS = [
 '  a.x+=(T(a*.37,1)-.5)*.2;a.y+=(T(a*.37+vec2(.5,0.),2)-.5)*.2;',
 '  float n=.50*T(a,0)+.28*T(a*2.13+vec2(.31,.17),0)+.22*T(a*4.37+vec2(.71,.29),1);',
 '  float hf=T(a*7.9+vec2(.13,.61),2);',
-'  float dA=smoothstep(uCover,uCover+.2,n)*(.6+2.2*clamp(n-uCover,0.,.4))*(.55+.9*hf);',
+'  float dA=smoothstep(uCover,uCover+.3,n)*(.6+2.2*clamp(n-uCover,0.,.4))*(.55+.9*hf);',
 '  vec2 b=q*.55+uD2;float n2=.6*T(b,1)+.4*T(b*2.31+vec2(.5,.13),2);',
 '  float dB=smoothstep(uCover+.08,uCover+.34,n2);',
 '  shade=n*.5+hf*.3+n2*.2;return dA*1.6+dB*.7;}',
 'vec3 stars(vec2 p){',
-'  float cs=30.*uPx;vec2 c=floor(p/cs);float h=h21(c);if(h>.42)return vec3(0.);',
+'  float cs=34.*uPx;vec2 c=floor(p/cs);float h=h21(c);if(h>.16)return vec3(0.);',
 '  vec2 o=(c+.15+.7*vec2(h21(c+7.1),h21(c+3.7)))*cs;float d=length(p-o);',
 '  float b=pow(h21(c+11.3),3.)*.9+.05;float sz=(.55+1.3*pow(h21(c+5.9),8.))*uPx;',
 '  float tw=.65+.35*sin(uTime*(.7+2.*h)+h*60.);',
@@ -177,45 +179,57 @@ var FS = [
 'vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}',
 'void main(){',
 '  vec2 p=gl_FragCoord.xy;float d=length(p-uCore);float rd=uRd;',
-'  float vy=p.y/uRes.y;',
-'  vec3 col=mix(vec3(.004,.006,.014),vec3(.011,.015,.030),vy);',
-'  col+=stars(p);',
-'  vec3 lc=mix(vec3(1.,.95,.86),uTint,.45)*uGain;',
+'  float dx=p.x-uCore.x,adx=abs(dx);float up=max(p.y-uHor,0.);',
+'  vec3 lc=mix(vec3(1.,.93,.80),uTint,.35)*uGain;',
 '  lc=mix(lc,lc*vec3(1.35,.55,.42),uFlash*.65);',
+'  vec3 warm=mix(vec3(1.,.70,.40),uTint*vec3(1.,.8,.6),.25);',
+/* ท้องฟ้า: น้ำเงินลึกด้านบน สว่างขึ้นที่ขอบฟ้า */
+'  float hv=clamp(up/(uRes.y-uHor),0.,1.);',
+'  vec3 col=mix(vec3(.013,.017,.034),vec3(.002,.003,.008),pow(hv,.6));',
+/* แสงหลังขอบฟ้า (กลางจอ) — ต้นแสงที่ส่องใต้ท้องเมฆ */
+'  float colw=exp(-adx/(min(uRes.x,uRes.y)*.16));',
+'  float Lh=colw*(.10+.90*exp(-up/(uRes.y*.20)));',
+'  col+=warm*Lh*.07*uGain;',
+'  col+=stars(p)*smoothstep(.35,.85,hv);',
 '  vec3 gsum=vec3(0.);vec3 g;',
-/* ดาวเคราะห์ที่อยู่ไกลกว่าแก่นกลาง (หลัง) */
 '  for(int i=0;i<6;i++){if(uP[i].w<0.){vec4 pl=planet(p,uP[i],uPC[i],uPL[i],uPA[i],lc,g);col=mix(col,pl.rgb,pl.a);gsum+=g;}}',
-/* แก่นกลาง: ดิสก์เล็กสว่างจัด ขอบมืดลงเล็กน้อย มีลายพื้นผิวจางๆ */
-'  float disc=1.-smoothstep(rd-1.2*uPx,rd+.6*uPx,d);',
-'  if(disc>0.){vec2 dv=(p-uCore)/rd;float mu=sqrt(max(0.,1.-dot(dv,dv)));',
-'    float mar=T(dv*.18+vec2(.3,.6),2);vec3 dc=vec3(1.,.97,.9)*(.78+.3*mar)*(.55+.45*mu);',
-'    col=mix(col,dc*mix(vec3(1.),uTint,.2)*16.*uGain,disc);}',
 '  for(int i=0;i<6;i++){if(uP[i].w>=0.){vec4 pl=planet(p,uP[i],uPC[i],uPL[i],uPA[i],lc,g);col=mix(col,pl.rgb,pl.a);gsum+=g;}}',
-'  col+=gsum;',
-/* ชั้นบรรยากาศ: เมฆดูดแสงด้านหลัง แล้วกระเจิงแสงจากแก่นกลางเข้าตา */
-'  float sh,sh2;float D=dens(p,sh);float Tr=exp(-D*1.15);',
-'  vec2 tl=uCore-p;float tlen=length(tl);',
-'  float D2=dens(p+tl/max(tlen,1.)*min(tlen,rd*1.4),sh2);',
-'  float facing=clamp((D-D2)*1.4,-1.,1.);',
-'  col*=Tr;',
-'  float S=3.2*exp(-d/(rd*1.9))+.95*exp(-d/(rd*5.))+.16*exp(-d/(rd*13.))+.018*exp(-d/(rd*38.));',
-'  float self=exp(-D*1.7);',
-'  vec3 cloud=lc*S*(1.-Tr)*mix(1.,self,.72)*(.6+.8*sh)*(1.+.9*facing);',
-'  vec3 amb=vec3(.0058,.0080,.0150)*(1.-Tr)*(.35+1.1*sh)*(1.+.45*facing);',
-/* corona: วงสีรุ้งจากการเลี้ยวเบน เห็นเฉพาะตรงเมฆบาง */
-'  float x=d/(rd*4.6);',
-'  vec3 irid=.5+.5*cos(6.2832*(x*1.15+vec3(0.,.33,.67))+.9);',
-'  float env=exp(-x*2.1)*smoothstep(.35,.8,x);',
-'  float thin=clamp((1.-Tr)*Tr*4.,0.,1.);',
-'  irid=mix(vec3(1.,.93,.84),irid,.5);',
-'  vec3 corona=(irid*env*.55+vec3(.82,.9,1.)*exp(-x*x*5.)*.35)*thin*lc;',
-'  vec3 haze=lc*S*.035;',
-/* แสงจ้าในเลนส์ (glare) ขึ้นกับว่าดวงไฟถูกเมฆบังแค่ไหนจริงๆ */
-'  float G=uTc*(1.5*exp(-d/(rd*1.1))+.30*exp(-d/(rd*3.6))+.06*exp(-d/(rd*14.)));',
-'  col+=cloud+amb+corona+haze+lc*G;',
-'  col=aces(col*1.05);',
+'  col+=gsum*.6;',
+/* เมฆก้อนใหญ่: ลำตัวน้ำเงินเข้ม ขอบที่หันหาแสง (ล่าง/กลาง) ติดแสงทอง */
+'  float sh,sh2;float D=dens(p,sh);float Tr=exp(-D*1.35);',
+'  vec2 toL=normalize(vec2(-dx*.55,-(up+uRes.y*.05)));',
+'  float D2=dens(p+toL*14.*uPx,sh2);',
+'  float rim=clamp((D-D2)*1.8,0.,1.);',
+'  float self=exp(-D*1.4);',
+'  vec3 body=vec3(.010,.014,.028)*(.4+1.0*sh);',
+'  float Lc=1.4*exp(-d/(rd*5.))+.30*exp(-d/(rd*16.))+.03*exp(-d/(rd*50.));',
+'  vec3 rimC=mix(vec3(.80,.86,1.),warm,smoothstep(uRes.y*.75,uHor,p.y));',
+'  vec3 lit=rimC*(Lh*.9+Lc*.5)*(1.-Tr)*(.07*mix(1.,self,.6)+1.1*rim*(.5+.5*sh));',
+'  col=col*Tr+body*(1.-Tr)+lit;',
+/* THE PURE AXIS: เส้นแสงแนวตั้งบางคม จากฟ้าลงถึงขอบฟ้า */
+'  float bt=exp(-adx/(.55*uPx))*.95+exp(-adx/(4.*uPx))*.16+exp(-adx/(26.*uPx))*.045;',
+'  float bv=mix(.32,1.,exp(-abs(p.y-uCore.y)/(uRes.y*.30)))*smoothstep(uHor-2.*uPx,uHor+uRes.y*.04,p.y);',
+'  col+=vec3(1.,.92,.78)*bt*bv*uGain*(.75+.25*Tr);',
+/* จุดประกายตรงที่แกนทะลุเมฆ */
+'  float G=2.2*exp(-d/(rd*.45))+.55*exp(-d/(rd*1.8))+.12*exp(-d/(rd*7.));',
+'  float ray=exp(-abs(p.y-uCore.y)/(.6*uPx))*exp(-adx/(rd*2.2))*.5;',
+'  col+=lc*(G+ray);',
+/* โลกมนุษย์ด้านล่าง: เงาเนินเขา + แสงเมือง */
+'  float ridge=uHor+(T(vec2(p.x/uRes.x*.9,.27),2)-.5)*uRes.y*.035+(T(vec2(p.x/uRes.x*3.1,.61),1)-.5)*uRes.y*.012;',
+'  if(p.y<ridge){',
+'    float depth=clamp((ridge-p.y)/(uRes.y*.25),0.,1.);',
+'    vec3 gc=vec3(.010,.013,.024)+warm*.05*colw*(1.-depth);',
+'    float cs=4.*uPx;vec2 c=floor(p/cs);float h=h21(c);',
+'    float dens2=(.015+.09*colw)*(1.-depth);vec2 o=(c+.2+.6*vec2(h21(c+3.1),h21(c+5.3)))*cs;float dd=length(p-o);',
+'    float on=step(1.-dens2,h)*exp(-dd*dd/(.8*uPx*uPx))*(.7+.3*sin(uTime*(.5+h*3.)+h*40.));',
+'    gc+=mix(vec3(1.,.75,.45),vec3(.75,.85,1.),step(.85,h21(c+1.7)))*on*.7;',
+'    col=mix(col,gc,smoothstep(ridge,ridge-1.5*uPx,p.y));}',
+/* โทนภาพยนตร์: vignette + grain */
+'  vec2 q=(p/uRes-.5)*vec2(uRes.x/uRes.y,1.);',
+'  col*=mix(1.,.55,smoothstep(.35,1.05,length(q)));',
+'  col=aces(col);',
 '  col=pow(col,vec3(1./2.2));',
-'  col+=(h21(p+fract(uTime))-.5)/255.;',
+'  col+=(h21(p*.73+fract(uTime*7.3))-.5)*.022;',
 '  gl_FragColor=vec4(col,1.);}'
 ].join('\n');
 
@@ -235,7 +249,7 @@ function initGL(){
   var buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   var loc = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  ['uRes','uTime','uPx','uRd','uTc','uGain','uFlash','uCover','uScale','uCore','uD1','uD2','uTint','uN'].forEach(function(n){ U[n] = gl.getUniformLocation(prog, n); });
+  ['uRes','uTime','uPx','uRd','uTc','uGain','uFlash','uCover','uScale','uCore','uD1','uD2','uTint','uN','uHor'].forEach(function(n){ U[n] = gl.getUniformLocation(prog, n); });
   ['uP','uPC','uPL','uPA'].forEach(function(n){ U[n] = gl.getUniformLocation(prog, n + '[0]'); });
   var px = new Uint8Array(NS * NS * 4);
   for(var i = 0; i < NS * NS; i++){ px[i*4] = NOISE[0][i] * 255; px[i*4+1] = NOISE[1][i] * 255; px[i*4+2] = NOISE[2][i] * 255; px[i*4+3] = 255; }
@@ -265,7 +279,7 @@ function resize(){
   cv.width = Math.max(1, Math.round(W * glScale)); cv.height = Math.max(1, Math.round(H * glScale));
   ov.width = Math.round(W * DPR); ov.height = Math.round(H * DPR);
   computeGeo();
-  cloudScale = Math.max(380, geo.s * 0.85);
+  cloudScale = Math.max(620, geo.s * 1.7);
   if(!running) frame(performance.now());
 }
 var _rT;
@@ -287,12 +301,13 @@ function draw(now){
     gl.uniform1f(U.uRd, geo.rd * sx); gl.uniform1f(U.uTc, Tc); gl.uniform1f(U.uGain, gain);
     gl.uniform1f(U.uFlash, flash); gl.uniform1f(U.uCover, COVER); gl.uniform1f(U.uScale, cloudScale * sx);
     gl.uniform2f(U.uCore, geo.cx * sx, (H - geo.cy) * sx);
+    gl.uniform1f(U.uHor, (H - geo.hy) * sx);
     gl.uniform2f(U.uD1, drift1[0], drift1[1]); gl.uniform2f(U.uD2, drift2[0], drift2[1]);
     gl.uniform3f(U.uTint, tint[0], tint[1], tint[2]);
     var P = new Float32Array(24), PC = new Float32Array(18), PL = new Float32Array(18), PA = new Float32Array(6);
     pl.forEach(function(p, i){
       P[i*4] = p.x * sx; P[i*4+1] = (H - p.y) * sx; P[i*4+2] = p.r * sx; P[i*4+3] = p.sa;
-      var c = routeRGB(p.rt.route), k = p.act ? 1 : 0.72;
+      var c = routeRGB(p.rt.route), k = p.act ? 0.8 : 0.32;
       PC[i*3] = c[0] * k + 0.08 * (1 - k); PC[i*3+1] = c[1] * k + 0.08 * (1 - k); PC[i*3+2] = c[2] * k + 0.1 * (1 - k);
       /* ทิศแสงจากดาวเคราะห์ไปหาแก่นกลางใน 3 มิติ (GL: y ขึ้น, z เข้าหาผู้ดู) */
       var lx = geo.cx - p.x, ly = -(geo.cy - p.y), lz = -p.z * 0.9, ln = Math.sqrt(lx*lx + ly*ly + lz*lz) || 1;
@@ -345,32 +360,18 @@ function drawOverlay(pl, tsec){
       var back = Math.sin(am) < 0 ? 0.42 : 1;
       var near = smoothstep(geo.rd * 2.5, geo.rd * 9, dc);
       var veil = 0.35 + 0.65 * Math.exp(-densAt(xm, ym) * 1.15);
-      var a = (act ? 0.55 : 0.13) * back * near * veil;
+      var a = (act ? 0.14 : 0.035) * back * near * veil;
       if(a < 0.01) continue;
       g.strokeStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
       g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
     }
   });
-  /* ชื่อเส้นทางใต้ดาวเคราะห์ */
-  g.textAlign = 'center'; g.textBaseline = 'top';
+  /* ไม่มีชื่อบนดาว — แค่จุดให้แตะเลือกเส้นทาง */
   pl.forEach(function(p){
-    hits.push({ x: p.x, y: p.y, r: Math.max(16, p.r + 10), route: p.rt.route });
-    var veil = 0.4 + 0.6 * Math.exp(-densAt(p.x, p.y) * 1.15), depth = p.sa < 0 ? 0.6 : 1;
     var dc = Math.hypot(p.x - geo.cx, p.y - geo.cy);
-    if(p.sa < 0) depth *= smoothstep(geo.rd * 3, geo.rd * 9, dc);      /* อยู่หลังแสงจ้า → มองไม่เห็นชื่อ */
-    if(depth < 0.05){ hits.pop(); return; }
-    var ly = p.y + p.r + 5, coreLy = geo.cy + geo.rd * 2.4 + 6;
-    if(Math.abs(ly - coreLy) < 14 && Math.abs(p.x - geo.cx) < 70) depth *= 0.15;     /* ชนกับชื่อแก่นกลาง */
-    var col = routeRGB(p.rt.route).map(function(v){ return Math.round(Math.min(255, 120 + v * 160)); }).join(',');
-    g.font = (p.act ? '600 ' : '500 ') + (small ? 9 : 10) + 'px "IBM Plex Mono","DM Mono",ui-monospace,monospace';
-    g.fillStyle = p.act ? 'rgba(' + col + ',' + (0.95 * veil).toFixed(3) + ')' : 'rgba(176,186,220,' + (0.42 * veil * depth).toFixed(3) + ')';
-    g.fillText(p.rt.lbl, p.x, p.y + p.r + 5);
+    if(p.sa < 0 && dc < geo.rd * 5) return;
+    hits.push({ x: p.x, y: p.y, r: Math.max(18, p.r + 12), route: p.rt.route });
   });
-  /* ชื่อแก่นกลาง */
-  var lv = 0.5 + 0.5 * Math.exp(-densAt(geo.cx, geo.cy + geo.rd * 3) * 1.15);
-  g.font = '600 ' + (small ? 10 : 11) + 'px "IBM Plex Mono","DM Mono",ui-monospace,monospace';
-  g.fillStyle = 'rgba(255,246,228,' + (0.78 * lv).toFixed(3) + ')';
-  g.fillText('KING DIADEM', geo.cx, geo.cy + geo.rd * 2.4 + 6);
 }
 
 /* ── loop: ~30fps (เมฆเคลื่อนช้า) · หยุดเมื่อซ่อน ───────────────── */
