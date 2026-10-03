@@ -163,6 +163,7 @@ try:
         set_password, verify_password, user_exists,
         claim_stripe_event, release_stripe_event,
         set_premium_until, get_premium_until, email_for_stripe_customer,
+        spend_credit, credit_history, take_free_run, give_back_free_run, free_runs_used,
     )
     init_db()
     print("✅ Database initialized")
@@ -173,6 +174,7 @@ except Exception as e:
     set_password = verify_password = user_exists = None
     claim_stripe_event = release_stripe_event = None
     set_premium_until = get_premium_until = email_for_stripe_customer = None
+    spend_credit = credit_history = take_free_run = give_back_free_run = free_runs_used = None
 
 # ── REPORT ENGINE ─────────────────────────────────────────────────
 try:
@@ -294,6 +296,80 @@ def _is_premium(email: str) -> bool:
         return get_premium_until(email) > time.time()
     except Exception:
         return False
+
+
+# ══════════════════════════════════════════════════════════════════
+# BILLING — ทุกคำตอบจาก AI (/run, /simulate, /analyze-image) = 1 ข้อความ
+#   premium → ไม่จำกัด
+#   ฟรี FREE_DAILY_RUNS ข้อความ/วัน (นับฝั่ง server ต่ออีเมล หรือต่อ IP ถ้าไม่ล็อกอิน)
+#   เกินโควตา → หัก RUN_COST เครดิต (ต้องล็อกอิน) · เครดิตไม่พอ → 402
+#   ระบบตอบไม่ได้ (error / Gemini ล้ม / canon block / pause) → คืนให้
+# ══════════════════════════════════════════════════════════════════
+from datetime import datetime, timezone, timedelta
+try:
+    from core.llm_gemini import reset_fallback_flag, used_fallback
+except Exception:
+    reset_fallback_flag = lambda: None
+    used_fallback = lambda: False
+
+FREE_DAILY_RUNS = max(0, int(os.getenv("FREE_DAILY_RUNS", "20")))
+RUN_COST        = max(1, int(os.getenv("RUN_COST", "1")))
+THB_PER_CREDIT  = max(0.01, float(os.getenv("THB_PER_CREDIT", "1")))
+_BKK = timezone(timedelta(hours=7))
+
+def _today() -> str:
+    return datetime.now(_BKK).strftime("%Y-%m-%d")
+
+def _quota_identity(email: str, request: Request) -> str:
+    return email if email and email != "anonymous" else "ip:" + _client_ip(request)
+
+def _quota_status(email: str, request: Request) -> dict:
+    email = "" if email == "anonymous" else (email or "")
+    used  = free_runs_used(_quota_identity(email, request), _today()) if free_runs_used else 0
+    return {
+        "premium":   _is_premium(email),
+        "free_limit": FREE_DAILY_RUNS,
+        "free_left": max(0, FREE_DAILY_RUNS - used),
+        "credits":   (get_credits(email) if get_credits and email else None),
+        "run_cost":  RUN_COST,
+    }
+
+def _charge(email: str, request: Request, what: str):
+    """คืน (ticket, None) ถ้าใช้ได้ หรือ (None, JSONResponse 402) ถ้าโควตา/เครดิตหมด"""
+    email = "" if email == "anonymous" else (email or "")
+    if take_free_run is None:                       # DB ใช้ไม่ได้ → ไม่คิดเงิน
+        return {"mode": "unmetered"}, None
+    if _is_premium(email):
+        return {"mode": "premium"}, None
+    ident, day = _quota_identity(email, request), _today()
+    if take_free_run(ident, day, FREE_DAILY_RUNS):
+        return {"mode": "free", "identity": ident, "day": day}, None
+    if email and spend_credit and spend_credit(email, RUN_COST, what):
+        return {"mode": "credit", "email": email, "what": what}, None
+    msg = (f"ข้อความฟรีวันนี้ครบ {FREE_DAILY_RUNS} แล้ว — "
+           + ("เติมเครดิตหรือสมัคร Premium เพื่อใช้ต่อได้เลยค่ะ" if email
+              else "เข้าสู่ระบบแล้วเติมเครดิต หรือสมัคร Premium เพื่อใช้ต่อได้เลยค่ะ"))
+    body = {"error": msg, "code": "quota_exhausted", "quota": _quota_status(email, request)}
+    return None, JSONResponse(body, status_code=402)
+
+def _refund(ticket):
+    if not ticket:
+        return
+    try:
+        if ticket["mode"] == "free" and give_back_free_run:
+            give_back_free_run(ticket["identity"], ticket["day"])
+        elif ticket["mode"] == "credit" and add_credits:
+            add_credits(ticket["email"], RUN_COST, "refund", ticket.get("what"))
+    except Exception as e:
+        print(f"⚠ refund failed: {e}")
+
+def _answered(result) -> bool:
+    """ผู้ใช้ได้คำตอบจริงจาก AI หรือไม่ (ไม่ใช่ error/ข้อความสำรอง/ถูกระงับ)"""
+    if not isinstance(result, dict) or result.get("error"):
+        return False
+    if result.get("status") in ("CANON_BLOCKED", "SYSTEM_PAUSE"):
+        return False
+    return not used_fallback()
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -560,11 +636,14 @@ async def me(request: Request):
     email = _session_email(request)
     name  = unquote(request.cookies.get("kd_name")  or "")
     if not email:
-        return {"logged_in": False}
+        q = _quota_status("", request)
+        return {"logged_in": False, "free_left": q["free_left"], "free_limit": q["free_limit"]}
     credits = get_credits(email) if get_credits else 0
     until   = get_premium_until(email) if get_premium_until else 0
+    q       = _quota_status(email, request)
     return {"logged_in": True, "email": email, "name": name, "credits": credits,
-            "premium": until > time.time(), "premium_until": int(until) if until else None}
+            "premium": until > time.time(), "premium_until": int(until) if until else None,
+            "free_left": q["free_left"], "free_limit": q["free_limit"], "run_cost": RUN_COST}
 
 
 @app.post("/logout")
@@ -753,6 +832,23 @@ def run_kernel(request: Request, data: dict):
             status_code=429
         )
 
+    ticket, denied = _charge(email, request, "run")
+    if denied:
+        return denied
+    reset_fallback_flag()
+    try:
+        result = _run_kernel_impl(data, user_input, email)
+    except Exception:
+        _refund(ticket)
+        raise
+    if not _answered(result):
+        _refund(ticket)
+    if isinstance(result, dict):
+        result["quota"] = {**_quota_status(email, request), "charged": ticket["mode"]}
+    return result
+
+
+def _run_kernel_impl(data: dict, user_input: str, email: str):
     route   = data.get("route") or "general"
     vm      = _resolve_voice_mode(data, route)
     history = data.get("history") or []
@@ -1039,7 +1135,18 @@ def run_simulate(request: Request, data: dict):
         return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
     if not _rate_check(email if email != "anonymous" else _client_ip(request)):
         return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
+    ticket, denied = _charge(email, request, "simulate")
+    if denied:
+        return denied
+    reset_fallback_flag()
+    result = _simulate_impl(user_input, paths, email)
+    if not (isinstance(result, dict) and result.get("source") == "llm" and not used_fallback()):
+        _refund(ticket)
+    result["quota"] = {**_quota_status(email, request), "charged": ticket["mode"]}
+    return result
 
+
+def _simulate_impl(user_input: str, paths: list, email: str) -> dict:
     try:
         _llm = get_llm()
         paths_text = "\n".join("- " + str(p) for p in paths if str(p).strip()) or "ไม่ระบุ"
@@ -1059,7 +1166,7 @@ def run_simulate(request: Request, data: dict):
             user_email=email,
         )
         if answer and len(str(answer)) > 10:
-            return {"simulation": answer}
+            return {"simulation": answer, "source": "llm"}
     except Exception as e:
         print(f"simulate LLM: {e}")
 
@@ -1141,6 +1248,18 @@ def _handle_stripe_event(event) -> None:
         if not email:
             print(f"⚠ stripe checkout without email: {obj.get('id')}")
             return
+        meta = obj.get("metadata") or {}
+        if meta.get("kind") == "wallet_topup":
+            # จำนวนเครดิตคิดจากยอดที่ Stripe เก็บเงินจริง (amount_total) ไม่ใช่ค่าที่ client ส่ง
+            if str(obj.get("currency", "")).lower() != "thb":
+                print(f"⚠ wallet topup in unexpected currency: {obj.get('currency')}")
+                return
+            baht    = int(obj.get("amount_total") or 0) / 100
+            credits = int(baht / THB_PER_CREDIT + 1e-9)
+            target  = meta.get("email") or email
+            if credits > 0 and add_credits:
+                add_credits(target, credits, "topup", obj.get("id"))
+            return
         # ── SECURITY: credit ต้องผูกกับ price_id ที่ Stripe ยืนยันจริง
         # ห้ามคำนวณจาก quantity ที่ client ส่งมา เพราะแก้ค่านั้นได้ก่อนถึง checkout
         _CREDITS_PER_PRICE = {
@@ -1158,7 +1277,7 @@ def _handle_stripe_event(event) -> None:
                 print(f"⚠ unknown price_id in webhook: {price_id} — 0 credits granted")
         if ensure_user: ensure_user(email)
         if add_credits and total_credits > 0:
-            add_credits(email, total_credits)
+            add_credits(email, total_credits, "stripe_plan", obj.get("id"))
         if obj.get("mode") == "subscription" and set_premium_until:
             set_premium_until(email, now + 32 * 86400 + _PREMIUM_GRACE,
                               obj.get("customer"), obj.get("subscription"))
@@ -1206,6 +1325,61 @@ async def stripe_webhook(request: Request):
     return {"status": "ok"}
 
 
+# ── WALLET ────────────────────────────────────────────────────────
+# ตัวตนมาจาก cookie ที่เซ็นแล้วเท่านั้น — ไม่รับอีเมลจาก body (เดิม wallet.html ส่งอีเมลใครก็ได้มา)
+_TOPUP_MIN_THB, _TOPUP_MAX_THB = 20, 10000   # Stripe เก็บ THB ขั้นต่ำ ~฿10; ตั้ง ฿20 เผื่อค่าธรรมเนียม
+
+@app.get("/wallet/balance")
+@app.post("/wallet/balance")
+async def wallet_balance(request: Request):
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "กรุณาเข้าสู่ระบบก่อน", "code": "login_required"}, status_code=401)
+    q = _quota_status(email, request)
+    hist = credit_history(email, 20) if credit_history else []
+    return {
+        "email": email, "credits": q["credits"] or 0, "total_credit": q["credits"] or 0,
+        "thb_per_credit": THB_PER_CREDIT, "run_cost": RUN_COST,
+        "premium": q["premium"], "free_left": q["free_left"], "free_limit": q["free_limit"],
+        "topup_min": _TOPUP_MIN_THB, "topup_max": _TOPUP_MAX_THB,
+        "history": hist,
+    }
+
+
+@app.post("/wallet/topup")
+async def wallet_topup(request: Request, data: dict):
+    """สร้าง Stripe Checkout สำหรับเติมเครดิต — เครดิตเข้าบัญชีเมื่อ webhook ยืนยันการจ่ายเงินเท่านั้น"""
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "กรุณาเข้าสู่ระบบก่อนเติมเครดิต", "code": "login_required"}, status_code=401)
+    if not os.getenv("STRIPE_SECRET_KEY"):
+        return JSONResponse({"error": "ระบบชำระเงินยังไม่ได้ตั้งค่า"}, status_code=503)
+    try:
+        baht = int(float(data.get("amount") or 0))
+    except (TypeError, ValueError):
+        baht = 0
+    if baht < _TOPUP_MIN_THB or baht > _TOPUP_MAX_THB:
+        return JSONResponse({"error": f"เติมได้ครั้งละ ฿{_TOPUP_MIN_THB}–฿{_TOPUP_MAX_THB:,}"}, status_code=400)
+    credits = int(baht / THB_PER_CREDIT + 1e-9)
+    try:
+        session = await run_in_threadpool(lambda: stripe.checkout.Session.create(
+            mode="payment",
+            line_items=[{"quantity": 1, "price_data": {
+                "currency": "thb", "unit_amount": baht * 100,
+                "product_data": {"name": f"KING DIADEM — {credits:,} เครดิต"},
+            }}],
+            customer_email=email,
+            client_reference_id=email,
+            metadata={"kind": "wallet_topup", "email": email, "credits": str(credits)},
+            success_url=_public_url("/static/wallet.html?topup=success"),
+            cancel_url=_public_url("/static/wallet.html?topup=cancel"),
+        ))
+        return {"url": session.url, "credits": credits, "amount": baht}
+    except Exception as e:
+        print(f"⚠ wallet topup error: {e}")
+        return JSONResponse({"error": "สร้างหน้าชำระเงินไม่สำเร็จ — ลองใหม่อีกครั้ง"}, status_code=502)
+
+
 @app.get("/credits")
 async def get_user_credits(request: Request):
     email = _session_email(request)
@@ -1239,12 +1413,25 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
                 status_code=413
             )
         mime = file.content_type or "image/jpeg"
+    except Exception as e:
+        print(f"⚠ analyze_image read error: {e}")
+        return JSONResponse({"error": _friendly_error(str(e))}, status_code=500)
+    ticket, denied = _charge(email, request, "analyze_image")
+    if denied:
+        return denied
+    try:
         analysis_text = await run_in_threadpool(_analyze_image_sync, data, mime)
-        return {"analysis": analysis_text, "filename": file.filename}
     except Exception as e:
         print(f"⚠ analyze_image error: {e}")
+        _refund(ticket)
         return JSONResponse({"error": _friendly_error(str(e))}, status_code=500)
+    if analysis_text == _IMAGE_EMPTY:
+        _refund(ticket)
+    return {"analysis": analysis_text, "filename": file.filename,
+            "quota": {**_quota_status(email, request), "charged": ticket["mode"]}}
 
+
+_IMAGE_EMPTY = "LYLA วิเคราะห์ภาพไม่ได้ค่ะ — อาจถูก Gemini safety block หรือภาพไม่ชัด"
 
 def _analyze_image_sync(data: bytes, mime: str) -> str:
     """เรียก Gemini vision แบบ blocking — รันใน threadpool ไม่บล็อก event loop"""
@@ -1280,7 +1467,7 @@ def _analyze_image_sync(data: bytes, mime: str) -> str:
     except Exception:
         parts = getattr(getattr(resp, "candidates", [None])[0], "content", None)
         text = " ".join(p.text for p in (getattr(parts, "parts", []) or []) if hasattr(p, "text"))
-    return text.strip() or "LYLA วิเคราะห์ภาพไม่ได้ค่ะ — อาจถูก Gemini safety block หรือภาพไม่ชัด"
+    return text.strip() or _IMAGE_EMPTY
 
 
 # ── REPORT ROUTES ─────────────────────────────────────────────────

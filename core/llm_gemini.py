@@ -24,6 +24,7 @@ LYLA = หญิง (ค่ะ/นะคะ) · VEGA = ชาย (ครับ/�
 import os
 import time
 import hashlib
+import threading
 from typing import Optional
 from google import genai
 from google.genai import types
@@ -393,6 +394,17 @@ def _cache_key(system: str, prompt: str) -> str:
     # ป้องกัน collision เมื่อ system เริ่มต้นด้วย KD_DNA เหมือนกัน
     return hashlib.md5(f"{system}|{prompt}".encode()).hexdigest()
 
+# บอก app.py ว่าคำตอบล่าสุดของ thread นี้เป็นข้อความสำรอง (Gemini ล้มเหลว) หรือไม่
+# — ใช้คืนเครดิต/โควตาให้ผู้ใช้ เพราะไม่ได้รับคำตอบจริง
+_tls = threading.local()
+
+def reset_fallback_flag():
+    _tls.fallback = False
+
+def used_fallback() -> bool:
+    return bool(getattr(_tls, "fallback", False))
+
+
 def _cache_get(key: str) -> Optional[str]:
     entry = _cache.get(key)
     if entry and (time.time() - entry["ts"]) < _CACHE_TTL:
@@ -528,6 +540,7 @@ class GeminiLLM:
                             break
 
         print(f"❌ ทุกโมเดลและทุก attempt ล้มเหลว: {last_error}")
+        _tls.fallback = True
         return self._fallback_response(system, prompt_text)
 
     def _fallback_response(self, system: str, prompt_text: str = "") -> str:

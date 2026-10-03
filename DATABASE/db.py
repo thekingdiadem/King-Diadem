@@ -58,6 +58,22 @@ def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_chat_memory_user
             ON chat_memory(user_email, importance DESC, updated_at DESC);
+        CREATE TABLE IF NOT EXISTS credit_ledger (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_email TEXT NOT NULL,
+            delta INTEGER NOT NULL,
+            reason TEXT,
+            ref TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_credit_ledger_user
+            ON credit_ledger(user_email, id DESC);
+        CREATE TABLE IF NOT EXISTS usage_daily (
+            identity TEXT NOT NULL,
+            day TEXT NOT NULL,
+            n INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (identity, day)
+        );
         CREATE TABLE IF NOT EXISTS stripe_events (
             event_id TEXT PRIMARY KEY,
             event_type TEXT,
@@ -339,7 +355,7 @@ def get_credits(user_email: str) -> int:
     finally:
         conn.close()
 
-def add_credits(user_email: str, amount: int):
+def add_credits(user_email: str, amount: int, reason: str = "grant", ref: str = None):
     ensure_user(user_email)
     conn = get_conn()
     try:
@@ -350,7 +366,78 @@ def add_credits(user_email: str, amount: int):
                  updated_at = CURRENT_TIMESTAMP""",
             (user_email, amount)
         )
+        conn.execute(
+            "INSERT INTO credit_ledger (user_email, delta, reason, ref) VALUES (?, ?, ?, ?)",
+            (user_email, int(amount), reason, ref),
+        )
         conn.commit()
+    finally:
+        conn.close()
+
+def spend_credit(user_email: str, amount: int = 1, reason: str = "run", ref: str = None) -> bool:
+    """หักเครดิตแบบ atomic — คืน False ถ้าเครดิตไม่พอ (ไม่มีทางติดลบ)"""
+    if not user_email or amount <= 0:
+        return False
+    conn = get_conn()
+    try:
+        cur = conn.execute(
+            """UPDATE credits SET amount = amount - ?, updated_at = CURRENT_TIMESTAMP
+               WHERE user_email = ? AND amount >= ?""",
+            (amount, user_email, amount),
+        )
+        if cur.rowcount != 1:
+            conn.rollback()
+            return False
+        conn.execute(
+            "INSERT INTO credit_ledger (user_email, delta, reason, ref) VALUES (?, ?, ?, ?)",
+            (user_email, -int(amount), reason, ref),
+        )
+        conn.commit()
+        return True
+    finally:
+        conn.close()
+
+def credit_history(user_email: str, limit: int = 20) -> list:
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            """SELECT delta, reason, ref, created_at FROM credit_ledger
+               WHERE user_email = ? ORDER BY id DESC LIMIT ?""",
+            (user_email, int(limit)),
+        ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+# ── โควตาฟรีรายวัน (นับฝั่ง server — ล้าง localStorage ก็ไม่ได้เพิ่ม) ──
+def take_free_run(identity: str, day: str, limit: int) -> bool:
+    if not identity or limit <= 0:
+        return False
+    conn = get_conn()
+    try:
+        conn.execute("INSERT OR IGNORE INTO usage_daily (identity, day, n) VALUES (?, ?, 0)", (identity, day))
+        cur = conn.execute(
+            "UPDATE usage_daily SET n = n + 1 WHERE identity = ? AND day = ? AND n < ?",
+            (identity, day, int(limit)),
+        )
+        conn.commit()
+        return cur.rowcount == 1
+    finally:
+        conn.close()
+
+def give_back_free_run(identity: str, day: str):
+    conn = get_conn()
+    try:
+        conn.execute("UPDATE usage_daily SET n = n - 1 WHERE identity = ? AND day = ? AND n > 0", (identity, day))
+        conn.commit()
+    finally:
+        conn.close()
+
+def free_runs_used(identity: str, day: str) -> int:
+    conn = get_conn()
+    try:
+        row = conn.execute("SELECT n FROM usage_daily WHERE identity = ? AND day = ?", (identity, day)).fetchone()
+        return int(row["n"]) if row else 0
     finally:
         conn.close()
 
