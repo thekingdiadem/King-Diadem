@@ -6,7 +6,8 @@
 #
 # PATCH v4.9
 # - king_diadem_core v2.0 wired: quick_assess() แทน _paticcasamuppada_context()
-# - bodhipakkhiya_engine: 6-layer channel ก่อน LLM ทุกครั้ง
+# - bodhipakkhiya channel ก่อน LLM ทุกครั้ง (อยู่ใน core/king_diadem_core.quick_assess —
+#   ไฟล์ ENGINE/bodhipakkhiya_engine.py ไม่มีอยู่จริง)
 # - cosmic_latte_canon: validate_output() gate ก่อน return
 # - wise_ctx inject เข้า LLM prompt
 # - LYLA tone: น่ารัก เข้าอกเข้าใจ ไม่เทศ

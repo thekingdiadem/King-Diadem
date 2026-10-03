@@ -28,7 +28,7 @@
 
 พรอมพ์ตั้งต้นของ KING DIADEM เริ่มจากประโยคเดียว: อย่าปล่อยให้ทางเลือกเหลือศูนย์ วันนี้มันไม่ใช่แค่นั้นแล้ว
 
-หลังจากพัฒนาต่อเนื่อง ระบบกลายเป็น **governance kernel แบบ dual-engine** — 273 ไฟล์ Python, 1,600+ commits, 23+ modules ที่ประกอบด้วย axiom system ตายตัว, kernel คู่ขนานที่ต้องโหวตร่วมกันก่อนตัดสินใจ, severity scale ที่จัดชั้นความเสียหายจริง, และกลไก anti-capture ที่บล็อกไม่ให้แม้แต่ผู้สร้างเองยึดระบบคืนได้ตามใจ
+หลังจากพัฒนาต่อเนื่อง ระบบกลายเป็น **governance kernel แบบ dual-engine** — 274 ไฟล์ (Python 205 ไฟล์), 1,700+ commits, 23+ modules ที่ประกอบด้วย axiom system ตายตัว, kernel คู่ขนานที่ต้องโหวตร่วมกันก่อนตัดสินใจ, severity scale ที่จัดชั้นความเสียหายจริง, และกลไก anti-capture ที่บล็อกไม่ให้แม้แต่ผู้สร้างเองยึดระบบคืนได้ตามใจ
 
 หัวใจยังเป็นสัจธรรมเดิม แต่ตอนนี้มันรันผ่านเลเยอร์จริง ไม่ใช่แค่คำเตือนลอยๆ
 
@@ -109,7 +109,7 @@ Human Input → FATE™ Decision Engine → Multi-AI Council (LYLA + VEGA)
 ```
 
 **Stack:** FastAPI · Python · Gemini · SQLite · HTML/JS/CSS · Render
-**Scale:** 273 ไฟล์ · 1,600+ commits · 23+ modules (core, ENGINE, DOMAINS, KERNEL, PERSONA, SECURITY, WORLD_MODEL, SIMULATIONS, AI, AI_KERNEL, AUTH, DATABASE, PAYMENT, NETWORK ฯลฯ)
+**Scale:** 274 ไฟล์ (Python 205) · 1,700+ commits · 23+ modules (core, ENGINE, DOMAINS, KERNEL, PERSONA, SECURITY, WORLD_MODEL, SIMULATIONS, AI, AI_KERNEL, AUTH, DATABASE, PAYMENT, NETWORK ฯลฯ)
 
 หน้าเว็บมี galaxy visualization แบบ canvas ที่แปลงเส้นทางการตัดสินใจให้เห็นเป็นภาพจริง ไม่ใช่แค่ text output
 

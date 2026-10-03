@@ -352,6 +352,12 @@ LLM generation      → response with ≥1 real option
 
 ## 16. โพธิปักขิยธรรม → bodhipakkhiya_engine + Cosmic Latte Canon Gate
 
+> **สถานะจริงในโค้ด (ตรวจ 2026-10):** ไม่มีไฟล์ `ENGINE/bodhipakkhiya_engine.py` ใน repo
+> ช่อง bodhipakkhiya ทำงานจริงที่ `core/king_diadem_core.quick_assess()` (v2.1):
+> `structure = ((100−E) + R + S) / 300` · `peace = ไม่ต้องหยุด ∧ structure ≥ 0.4` · `structure < 0.35 → recommend_route = survival`
+> ร่วมกับ `paticcasamuppada_engine.suffering_infrastructure()` และ `yonisomanasikara_engine.wise_attention()`
+> ตาราง 6 layer ด้านล่างคือแบบที่ออกแบบไว้ ยังไม่มีโค้ดของ `guardian_check()` / `bojjhanga_loop()`
+
 > สงบก่อนทำ · ทำน้อยที่สุด · ถอนเมื่อสงบแล้ว
 
 เพิ่มใน v4.9 — engine ใหม่ 2 ไฟล์ที่ค้ำโครงสร้างทั้งหมดก่อน output ออก
