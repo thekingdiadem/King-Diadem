@@ -28,7 +28,8 @@ DEFENSIVE_KEYWORDS = [
 
 SURVIVAL_KEYWORDS = [
     # ไทย
-    "รอด", "ช่วย", "ฉุกเฉิน", "ด่วน", "ไม่มีเงิน", "หมด",
+    # เดิม "รอด" (ติด "รอดู") "หมด" (ติด "หมดเวลา") "ช่วย" (ติด "ช่วยอธิบาย") → ใช้วลี
+    "เอาตัวรอด", "ไม่รอด", "ช่วยด้วย", "ฉุกเฉิน", "ไม่มีเงิน", "เงินหมด", "หมดตัว",
     "วิกฤต", "อยู่ไม่ได้", "หมดแรง", "ทนไม่ไหว",
     # English
     "survive", "emergency", "urgent", "crisis", "broke", "help",
@@ -63,7 +64,7 @@ def analyze_patterns(user_input: str) -> dict:
         token_count        : int
     }
     """
-    text   = (user_input or "").lower().strip()
+    text   = str(user_input or "").lower().strip()
     tokens = _tokenize(text)
     n      = max(len(tokens), 1)
 
@@ -138,10 +139,18 @@ def _collect_hits(text: str, tokens: list) -> dict[str, list]:
     Return keyword hits per category (deduplicated)
     ใช้ substring matching รองรับทั้ง Thai และ English
     """
+    import re
+
+    def _hit(kw: str) -> bool:
+        # อังกฤษต้องเป็นคำเต็ม ("risk" ไม่ติด "asterisk", "loss" ไม่ติด "glossy", "how" ไม่ติด "show")
+        if kw.isascii():
+            return re.search(r"(?<![a-z])" + re.escape(kw) + r"(?![a-z])", text) is not None
+        return kw in text
+
     def hits_for(kw_list):
         found = []
         for kw in kw_list:
-            if kw in text and kw not in found:
+            if kw not in found and _hit(kw):
                 found.append(kw)
         return found
 

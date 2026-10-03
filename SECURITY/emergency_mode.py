@@ -44,9 +44,14 @@ _last_cleanup: float = 0.0
 # ══════════════════════════════════════════════════════════════════
 # HELPERS
 # ══════════════════════════════════════════════════════════════════
+import os as _os
+_IP_SALT = (_os.getenv("SECRET_KEY") or _os.urandom(16).hex()).encode()
+
+
 def _hash_ip(ip: str) -> str:
-    """Hash IP เพื่อไม่เก็บ raw IP ใน memory (privacy)"""
-    return hashlib.sha256(ip.encode()).hexdigest()[:16]
+    """Hash IP เพื่อไม่เก็บ raw IP ใน memory (privacy)
+    ใส่ salt — sha256 ของ IPv4 ล้วนไล่ย้อนกลับได้ทั้ง 2^32 ค่าในไม่กี่นาที"""
+    return hashlib.sha256(_IP_SALT + str(ip).encode()).hexdigest()[:16]
 
 
 def _now() -> float:
@@ -60,12 +65,15 @@ def _cleanup_stale():
     if now - _last_cleanup < CLEANUP_INTERVAL:
         return
     _last_cleanup = now
+    # เดิมข้าม entry ที่ requests ว่าง (ไม่เคยถูกลบ) และไม่ล้าง ban ที่หมดอายุ → โตไม่หยุด
     expired = [
         k for k, v in _ip_table.items()
-        if v["requests"] and (now - v["requests"][-1]) > RATE_LIMIT_WINDOW * 2
+        if not v["requests"] or (now - v["requests"][-1]) > RATE_LIMIT_WINDOW * 2
     ]
     for k in expired:
         del _ip_table[k]
+    for k in [k for k, until in _ban_list.items() if until <= now]:
+        del _ban_list[k]
 
 
 def _sliding_window_count(requests: list, window: float) -> int:

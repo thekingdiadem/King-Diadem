@@ -22,9 +22,43 @@
 #   )
 # =============================================================================
 
+import re
 import time
 import math
 from typing import Optional
+
+
+def _num(v, d: float) -> float:
+    """ตัวเลขจาก input — ค่าเสีย/NaN/inf → ค่าเริ่มต้น"""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x and abs(x) != float("inf") else d
+
+
+def _strs(v) -> list:
+    """list ของ string — รับ str เดี่ยวได้, ทิ้งค่าที่ไม่ใช่ string, จำกัด 50 รายการ"""
+    if isinstance(v, str):
+        v = [v]
+    if not isinstance(v, (list, tuple, set)):
+        return []
+    return [x.strip() for x in v if isinstance(x, str) and x.strip()][:50]
+
+
+def _dict(v) -> dict:
+    return v if isinstance(v, dict) else {}
+
+
+def _hit(text: str, kws) -> bool:
+    """คำอังกฤษตรงทั้งคำ (war ≠ software, pain ≠ Spain), คำไทยเป็นวลีเต็ม"""
+    for kw in kws:
+        if kw.isascii():
+            if re.search(r"(?<![a-z])" + re.escape(kw) + r"(?![a-z])", text):
+                return True
+        elif kw in text:
+            return True
+    return False
 
 try:
     from ENGINE.realhuman_survivorengine import (
@@ -48,6 +82,7 @@ def analyze_survival(context: dict) -> dict:
     Input: energy, stress, sleep_hours, money, food_access, safe_place
     Output: waterline, entropy, recommended_path, can_decide
     """
+    context = _dict(context)
     if _REAL_ENGINE and _engine:
         state  = parse_state_from_context(context)
         output = _engine.run(state)
@@ -67,10 +102,10 @@ def analyze_survival(context: dict) -> dict:
         }
 
     # Fallback deterministic
-    energy  = float(context.get("energy",        50))
-    stress  = float(context.get("stress",         50))
-    sleep   = float(context.get("sleep_hours",     6))
-    money   = float(context.get("money",           0))
+    energy  = _num(context.get("energy"),      50)
+    stress  = _num(context.get("stress"),      50)
+    sleep   = _num(context.get("sleep_hours"),  6)
+    money   = _num(context.get("money"),        0)
     food    = bool(context.get("food_access",   True))
     shelter = bool(context.get("safe_place",    True))
     social  = bool(context.get("social_support",True))
@@ -200,10 +235,12 @@ def analyze_medical_risk(
         risk_score 0–100, urgency_level, affected_systems,
         recommended_action, choices, fate_note
     """
-    comorbidities    = comorbidities    or []
-    genomic_variants = genomic_variants or []
-    vital_signs      = vital_signs      or {}
-    symptoms         = [s.lower().replace(" ","_") for s in symptoms]
+    comorbidities    = _strs(comorbidities)
+    genomic_variants = _strs(genomic_variants)
+    vital_signs      = _dict(vital_signs)
+    symptoms         = [s.lower().replace(" ","_") for s in _strs(symptoms)]
+    age              = max(0.0, min(130.0, _num(age, 40)))
+    duration_days    = max(1.0, min(3650.0, _num(duration_days, 1)))
 
     # ── Symptom scoring ──────────────────────────────────────────
     symptom_score   = 0.0
@@ -224,12 +261,12 @@ def analyze_medical_risk(
     vital_penalty = 0.0
     vital_notes   = []
 
-    bp_sys = vital_signs.get("bp_systolic", 120)
-    bp_dia = vital_signs.get("bp_diastolic", 80)
-    pulse  = vital_signs.get("pulse", 75)
-    temp   = vital_signs.get("temp_c", 37.0)
-    spo2   = vital_signs.get("spo2", 98)
-    rbs    = vital_signs.get("rbs", 100)   # random blood sugar mg/dL
+    bp_sys = _num(vital_signs.get("bp_systolic"), 120)
+    bp_dia = _num(vital_signs.get("bp_diastolic"), 80)
+    pulse  = _num(vital_signs.get("pulse"), 75)
+    temp   = _num(vital_signs.get("temp_c"), 37.0)
+    spo2   = _num(vital_signs.get("spo2"), 98)
+    rbs    = _num(vital_signs.get("rbs"), 100)   # random blood sugar mg/dL
 
     if bp_sys > 180 or bp_sys < 80:
         vital_penalty += 8.0
@@ -460,10 +497,12 @@ def analyze_global_event(
         threat_level, days_viable, minimum_viable_path,
         resource_gaps, immediate_actions, 30day_strategy
     """
-    location_context  = location_context  or {}
-    personal_resources = personal_resources or {}
+    location_context   = _dict(location_context)
+    personal_resources = _dict(personal_resources)
+    severity           = max(0.0, min(100.0, _num(severity, 50.0)))
+    affected_population = max(1, int(_num(affected_population, 1)))
 
-    event_type_clean = event_type.lower().replace(" ", "_")
+    event_type_clean = (event_type if isinstance(event_type, str) else "unknown").lower().strip().replace(" ", "_")
     profile = _EVENT_PROFILES.get(event_type_clean, {
         "base_threat": 50,
         "critical_resources": ["food", "water", "shelter"],
@@ -490,11 +529,11 @@ def analyze_global_event(
     threat_score = min(100.0, threat_score)
 
     # ── Resource viability ────────────────────────────────────────
-    food_days    = float(personal_resources.get("food_days", 3)) / max(1, affected_population)
-    water_liters = float(personal_resources.get("water_liters", 5)) / max(1, affected_population)
-    cash         = float(personal_resources.get("cash", 0))
-    medicine     = float(personal_resources.get("medicine_supply", 0))   # days
-    network      = int(personal_resources.get("network_size", 1))        # คนที่ช่วยได้
+    food_days    = max(0.0, _num(personal_resources.get("food_days"), 3)) / affected_population
+    water_liters = max(0.0, _num(personal_resources.get("water_liters"), 5)) / affected_population
+    cash         = _num(personal_resources.get("cash"), 0)
+    medicine     = max(0.0, _num(personal_resources.get("medicine_supply"), 0))   # days
+    network      = int(max(0.0, min(1e6, _num(personal_resources.get("network_size"), 1))))  # คนที่ช่วยได้
 
     # Minimum viable days before critical resource depletion
     water_days      = water_liters / 2.0   # 2L/person/day minimum
@@ -739,19 +778,19 @@ def full_survival_assessment(
     - มี event_type → global event layer
     - อื่นๆ → personal survival layer
     """
-    context = context or {}
-    text    = user_input.lower()
+    context = _dict(context)
+    text    = (user_input if isinstance(user_input, str) else "").lower()
     result  = {"domain": "survival_full", "timestamp": time.time(), "layers": []}
 
     # ── Medical detection ─────────────────────────────────────────
     medical_keywords = [
         "ปวด", "ไข้", "เจ็บ", "อาเจียน", "หอบ", "แน่นหน้าอก",
         "chest", "fever", "pain", "symptom", "sick", "hospital",
-        "โรค", "อาการ", "หมอ", "รักษา", "ยา", "โรงพยาบาล",
+        "โรค", "อาการ", "หมอ", "รักษา", "กินยา", "ซื้อยา", "โรงพยาบาล",
     ]
-    has_medical = any(kw in text for kw in medical_keywords)
+    has_medical = _hit(text, medical_keywords)
     if has_medical or context.get("symptoms"):
-        symptoms = context.get("symptoms", _extract_symptoms(text))
+        symptoms = _strs(context.get("symptoms")) or _extract_symptoms(text)
         med = analyze_medical_risk(
             symptoms=symptoms,
             age=context.get("age", 40),
@@ -766,16 +805,16 @@ def full_survival_assessment(
     # ── Global event detection ────────────────────────────────────
     event_keywords = {
         "pandemic":         ["ระบาด", "pandemic", "covid", "virus", "โรคระบาด"],
-        "war_conflict":     ["สงคราม", "war", "conflict", "ระเบิด", "ยิง"],
-        "economic_collapse":["วิกฤตเศรษฐกิจ", "เศรษฐกิจ", "economic", "collapse", "bankruptcy"],
+        "war_conflict":     ["สงคราม", "war", "armed conflict", "เสียงระเบิด", "ระเบิดลง", "ยิงกัน", "ถูกยิง"],
+        "economic_collapse":["วิกฤตเศรษฐกิจ", "เศรษฐกิจล่ม", "เศรษฐกิจพัง", "economic collapse", "bankruptcy"],
         "climate_disaster": ["น้ำท่วม", "flood", "earthquake", "ไฟป่า", "wildfire", "แผ่นดินไหว"],
         "food_shortage":    ["ขาดแคลนอาหาร", "food shortage", "ข้าวยาก"],
         "power_grid_failure":["ไฟดับ", "power outage", "blackout"],
     }
-    detected_event = context.get("event_type")
+    detected_event = context.get("event_type") if isinstance(context.get("event_type"), str) else None
     if not detected_event:
         for ev, kws in event_keywords.items():
-            if any(kw in text for kw in kws):
+            if _hit(text, kws):
                 detected_event = ev
                 break
 
@@ -826,14 +865,14 @@ def _extract_symptoms(text: str) -> list:
         "high_fever":          ["ไข้สูง", "high fever", "ตัวร้อน"],
         "severe_abdominal_pain":["ปวดท้องรุนแรง", "abdominal pain"],
         "sudden_headache":     ["ปวดหัวรุนแรง", "sudden headache"],
-        "confusion":           ["สับสน", "confused", "งง"],
+        "confusion":           ["จำใครไม่ได้", "ไม่รู้สึกตัว", "พูดไม่รู้เรื่อง", "confused"],
         "fatigue_severe":      ["อ่อนเพลียมาก", "exhausted", "fatigue"],
         "suicidal_ideation":   ["อยากตาย", "ฆ่าตัวตาย", "suicidal"],
     }
     found = []
     text_lower = text.lower()
     for sym, keywords in sym_keywords.items():
-        if any(kw in text_lower for kw in keywords):
+        if _hit(text_lower, keywords):
             found.append(sym)
     return found
 
@@ -881,4 +920,4 @@ def _status_to_path(status: str) -> str:
 
 def _count_choices(output) -> int:
     try:    return max(1, 6 - int(output.waterline / 20))
-    except: return 3
+    except Exception: return 3

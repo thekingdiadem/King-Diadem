@@ -14,16 +14,23 @@ import re
 import time
 from typing import Optional
 
+
+def _hit(w: str, text: str) -> bool:
+    """อังกฤษ = คำเต็ม ("rat" ไม่ติด "rather", "kill" ไม่ติด "skill"); ไทย = วลี"""
+    if w.isascii() and w.replace(" ", "").isalnum():
+        return re.search(r"(?<![a-z])" + re.escape(w.lower()) + r"(?![a-z])", text) is not None
+    return w.lower() in text
+
 # ══════════════════════════════════════════════════════════════════
 # EMOTION PATTERN REGISTRY — ครอบคลุมกว่าเดิมมาก
 # ══════════════════════════════════════════════════════════════════
 
 EMOTION_PATTERNS = {
     "joking":        ["555", "ฮ่า", "ขำ", "ตลก", "ล้อเล่น", "มุก", "haha", "lol", "😂", "🤣"],
-    "stress":        ["เหนื่อย", "ไม่ไหว", "พัง", "แย่", "หมดแรง", "ล้า", "กดดัน", "stressed", "overwhelmed"],
-    "hope":          ["หวัง", "อยาก", "ลอง", "ตั้งใจ", "พยายาม", "wish", "hope", "try"],
-    "love":          ["รัก", "คิดถึง", "ห่วง", "ใส่ใจ", "love", "miss", "care"],
-    "money_problem": ["เงิน", "จน", "หาเงิน", "หนี้", "ขาดเงิน", "broke", "debt", "ค่าใช้จ่าย"],
+    "stress":        ["เครียด", "เหนื่อย", "ไม่ไหว", "พังหมด", "แย่มาก", "หมดแรง", "เหนื่อยล้า", "กดดัน", "stressed", "overwhelmed"],
+    "hope":          ["หวังว่า", "ความหวัง", "อยากลอง", "ตั้งใจ", "พยายาม", "wish", "hope"],
+    "love":          ["ความรัก", "รักเขา", "รักเธอ", "คิดถึง", "เป็นห่วง", "ใส่ใจ", "love", "miss you", "care about"],
+    "money_problem": ["ยากจน", "หาเงิน", "หนี้", "ขาดเงิน", "เงินไม่พอ", "ปัญหาเรื่องเงิน", "ปัญหาเงิน", "broke", "debt", "ค่าใช้จ่าย"],
     "anger":         ["โกรธ", "หัวร้อน", "ไม่พอใจ", "เซ็ง", "짜증", "angry", "frustrated", "ทนไม่ได้"],
     "fear":          ["กลัว", "กังวล", "วิตก", "ไม่แน่ใจ", "ตื่นตระหนก", "afraid", "scared", "anxious"],
     "sadness":       ["เศร้า", "ร้องไห้", "หดหู่", "เสียใจ", "ผิดหวัง", "sad", "cry", "disappointed"],
@@ -52,12 +59,12 @@ BEHAVIOR_SIGNALS = {
 
 TOPIC_SIGNALS = {
     "money":        ["เงิน", "บาท", "บัญชี", "ธนาคาร", "หนี้", "ลงทุน", "รายได้", "salary", "income"],
-    "food":         ["อาหาร", "กิน", "ข้าว", "หิว", "ร้านอาหาร", "food", "eat", "hungry"],
-    "health":       ["สุขภาพ", "เจ็บ", "ป่วย", "หมอ", "ยา", "โรค", "health", "sick", "doctor"],
+    "food":         ["อาหาร", "กินข้าว", "ข้าว", "หิว", "ร้านอาหาร", "food", "eat", "hungry"],
+    "health":       ["สุขภาพ", "เจ็บป่วย", "ป่วย", "หมอ", "กินยา", "โรค", "health", "sick", "doctor"],
     "work":         ["งาน", "บริษัท", "เจ้านาย", "ลูกค้า", "โปรเจกต์", "work", "job", "boss"],
     "relationship": ["แฟน", "ครอบครัว", "เพื่อน", "ความสัมพันธ์", "partner", "family", "friend"],
-    "survival":     ["รอด", "อยู่รอด", "ขาดแคลน", "ไม่มีจะกิน", "survive", "scarce"],
-    "technology":   ["โค้ด", "ระบบ", "แอป", "AI", "code", "system", "app", "tech"],
+    "survival":     ["เอาตัวรอด", "อยู่รอด", "ขาดแคลน", "ไม่มีจะกิน", "survive", "scarce"],
+    "technology":   ["โค้ด", "ระบบ", "แอป", "ai", "code", "system", "app", "tech"],   # เดิม "AI" ไม่เคยตรงกับข้อความที่ lower แล้ว
 }
 
 
@@ -74,7 +81,7 @@ def detect_emotion(text: str) -> str:
     """
     if not text:
         return "neutral"
-    t = text.lower()
+    t = str(text or "").lower()
 
     # priority order — crisis signals ก่อน
     priority = ["fear", "sadness", "anger", "stress", "lonely",
@@ -83,7 +90,7 @@ def detect_emotion(text: str) -> str:
 
     for emotion in priority:
         words = EMOTION_PATTERNS.get(emotion, [])
-        if any(w in t for w in words):
+        if any(_hit(w, t) for w in words):
             return emotion
 
     return "neutral"
@@ -99,8 +106,8 @@ def detect_all_emotions(text: str) -> list:
     t       = text.lower()
     found   = []
     for emotion, words in EMOTION_PATTERNS.items():
-        if any(w in t for w in words):
-            hits = [w for w in words if w in t]
+        if any(_hit(w, t) for w in words):
+            hits = [w for w in words if _hit(w, t)]
             found.append({"emotion": emotion, "matched": hits})
     return found
 
@@ -111,9 +118,9 @@ def detect_behavior(text: str) -> Optional[str]:
     """
     if not text:
         return None
-    t = text.lower()
+    t = str(text or "").lower()
     for behavior, signals in BEHAVIOR_SIGNALS.items():
-        if any(s in t for s in signals):
+        if any(_hit(s, t) for s in signals):
             return behavior
     return None
 
@@ -127,7 +134,7 @@ def extract_context(text: str) -> dict:
         return {}
 
     context: dict = {}
-    t = text.lower()
+    t = str(text or "").lower()
 
     # numbers
     numbers = re.findall(r'\d+(?:\.\d+)?', text)
@@ -137,7 +144,7 @@ def extract_context(text: str) -> dict:
     # topic detection
     topics_found = []
     for topic, signals in TOPIC_SIGNALS.items():
-        if any(s in t for s in signals):
+        if any(_hit(s, t) for s in signals):
             topics_found.append(topic)
     if topics_found:
         context["topics"]       = topics_found

@@ -15,13 +15,23 @@ AXIOM_EXPLAINABILITY_100     = "A5"
 AXIOM_HUMAN_FINAL_AUTHORITY  = "A6"
 
 # ── SIGNAL THRESHOLDS (ปรับได้, ไม่ hardcode ใน logic) ───────────
+# risk จาก INTELLIGENCE/risk_engine อยู่ในช่วง 0–10 (หรือ R_CAP = collapse)
+# เดิม 10/20/50 → ไม่เคยเกิน สัญญาณเป็น normal ตลอด
+R_CAP = 1e9
 SIGNAL_THRESHOLDS = {
-    "collapse":    float("inf"),   # risk = inf  → collapse
-    "danger":      50.0,           # risk > 50
-    "warning":     20.0,           # risk > 20
-    "elevated":    10.0,           # risk > 10
-    "normal":       0.0,           # default
+    "collapse":    R_CAP,          # risk ≥ R_CAP / inf → collapse
+    "danger":      5.0,
+    "warning":     2.0,
+    "elevated":    1.0,
+    "normal":      0.0,            # default
 }
+
+
+def _f(v, d: float) -> float:
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return d
 
 PATTERN_THRESHOLDS = {
     "market_instability": 0.5,     # pivot_ratio
@@ -59,26 +69,28 @@ def intelligence_layer(
     """
 
     # ── 1. Normalize risk value ────────────────────────────────────
+    base_decision = base_decision if isinstance(base_decision, dict) else {}
+    patterns      = patterns if isinstance(patterns, dict) else {}
     if isinstance(risk, dict):
-        risk_value  = float(risk.get("risk", 0.0))
+        risk_value  = _f(risk.get("risk", 0.0), 0.0)
         risk_status = str(risk.get("status", "UNKNOWN"))
     else:
-        risk_value  = float(risk) if risk is not None else 0.0
+        risk_value  = _f(risk, 0.0) if risk is not None else 0.0
         risk_status = _risk_status_from_value(risk_value)
 
     # ── 2. Compute pattern signal ──────────────────────────────────
-    pivot_ratio     = float(patterns.get("pivot_ratio",     0.0))
-    defensive_ratio = float(patterns.get("defensive_ratio", 0.0))
+    pivot_ratio     = _f(patterns.get("pivot_ratio",     0.0), 0.0)
+    defensive_ratio = _f(patterns.get("defensive_ratio", 0.0), 0.0)
     pattern_signal  = _derive_pattern_signal(pivot_ratio, defensive_ratio)
 
     # ── 3. Derive system signal (risk takes priority) ──────────────
     system_signal = _derive_system_signal(risk_value, risk_status, pattern_signal)
 
     # ── 4. Waterline check (Choice >= 1 axiom) ────────────────────
-    remaining_choice = float(
-        risk.get("remaining_choice", 1.0) if isinstance(risk, dict) else 1.0
+    remaining_choice = _f(
+        risk.get("remaining_choice", 1.0) if isinstance(risk, dict) else 1.0, 1.0
     )
-    waterline_breach = remaining_choice <= 0 or risk_value == float("inf")
+    waterline_breach = remaining_choice <= 0 or risk_value >= R_CAP
 
     # ── 5. FATE™ Axiom Audit ───────────────────────────────────────
     axiom_audit = _build_axiom_audit(
@@ -124,7 +136,7 @@ def intelligence_layer(
 # ══════════════════════════════════════════════════════════════════
 
 def _risk_status_from_value(risk_value: float) -> str:
-    if risk_value == float("inf"):
+    if risk_value >= R_CAP:
         return "COLLAPSE"
     if risk_value > SIGNAL_THRESHOLDS["danger"]:
         return "DANGER"
@@ -155,7 +167,7 @@ def _derive_system_signal(
     """
     Risk-first: ถ้า risk สูง pattern ก็ overrule ไม่ได้
     """
-    if risk_value == float("inf") or risk_status == "COLLAPSE":
+    if risk_value >= R_CAP or risk_status == "COLLAPSE":
         return "collapse"
     if risk_status == "DANGER":
         return "danger"

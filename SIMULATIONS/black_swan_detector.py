@@ -3,6 +3,22 @@ SIMULATIONS/black_swan_detector.py — KING DIADEM
 Black Swan: เหตุการณ์หายาก คาดไม่ถึง ผลกระทบสูง
 ไม่ใช้ random — ใช้ signal จาก state จริง
 """
+import re
+
+
+def _hit(w: str, text: str) -> bool:
+    """คำอังกฤษเป็นคำเต็ม ("war" ไม่ติด "software", "ok" ไม่ติด "book"); ไทยเป็นวลี"""
+    if w.isascii():
+        return re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", text) is not None
+    return w in text
+
+
+def _num(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
 
 BLACK_SWAN_SIGNALS = [
     "pandemic", "collapse", "war", "earthquake", "flood", "crisis",
@@ -26,14 +42,14 @@ def detect_black_swan(state: dict = None, text: str = "") -> dict:
     ตรวจ black swan จาก state + text signal
     ไม่ใช้ random — ใช้ entropy threshold + keyword detection
     """
-    state   = state or {}
-    entropy = float(state.get("entropy",   40))
-    stab    = float(state.get("stability", 60))
-    resource= float(state.get("resource",  50))
-    text_l  = str(text).lower()
+    state   = state if isinstance(state, dict) else {}
+    entropy = _num(state.get("entropy",   40), 40.0)
+    stab    = _num(state.get("stability", 60), 60.0)
+    resource= _num(state.get("resource",  50), 50.0)
+    text_l  = str(text or "").lower()
 
     # keyword score
-    keyword_hits = sum(1 for w in BLACK_SWAN_SIGNALS if w in text_l)
+    keyword_hits = sum(1 for w in BLACK_SWAN_SIGNALS if _hit(w, text_l))
 
     # state score
     state_score = 0
@@ -74,7 +90,7 @@ def detect_black_swan(state: dict = None, text: str = "") -> dict:
 
 def _match_event(text: str) -> dict:
     for e in SWAN_EVENTS:
-        if any(w in text for w in e["event"].split()):
+        if any(_hit(w, text) for w in e["event"].split()):
             return e
     return SWAN_EVENTS[0]  # default: supply chain
 

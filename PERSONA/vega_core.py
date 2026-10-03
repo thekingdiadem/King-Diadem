@@ -177,13 +177,27 @@ NON_NEGOTIABLE = [
 # CHOICE EXISTENCE FUNCTION (TITAN)
 # ==================================================
 
+def _n(v, d: float) -> float:
+    """ค่าตัวเลขจากภายนอก — ไม่ใช่ตัวเลข/NaN → ค่าเริ่มต้น (เดิมเทียบ str กับ int แล้วพัง)"""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
+
+def _d(v) -> dict:
+    return v if isinstance(v, dict) else {}
+
+
 def compute_choice_count(options):
     """
     TITAN Section 2 — Choice Existence Function
     นับจำนวนทางเลือกจริงที่ใช้ได้
     """
     O = 0
-    for option in options:
+    for option in (options if isinstance(options, (list, tuple)) else []):
+        option = _d(option)
         survivable = option.get("survivable", False)
         exitable = option.get("exitable", False)
         not_punished = not option.get("punished", False)
@@ -203,10 +217,10 @@ def check_zero_choice(O, food, water, exit_blocked):
     MIN_WATER = 1
 
     zero_choice = (
-        O == 0
-        or food < MIN_FOOD
-        or water < MIN_WATER
-        or exit_blocked
+        _n(O, 0) < 1
+        or _n(food, 0) < MIN_FOOD
+        or _n(water, 0) < MIN_WATER
+        or exit_blocked is True
     )
 
     return zero_choice
@@ -241,6 +255,7 @@ def check_all_gates(decision_input):
     """
     passed = []
     failed = []
+    decision_input = _d(decision_input)
 
     if decision_input.get("evidence"):
         passed.append("G1-Reality")
@@ -291,9 +306,10 @@ def evaluate_downside_first(scenario):
     """
     FATE A4 — ประเมิน worst case ก่อนเสมอ
     """
+    scenario = _d(scenario)
     worst_case = scenario.get("worst_case", "unknown")
     best_case = scenario.get("best_case", "unknown")
-    probability_worst = scenario.get("probability_worst", 0.5)
+    probability_worst = max(0.0, min(1.0, _n(scenario.get("probability_worst", 0.5), 0.5)))
 
     risk_score = probability_worst * 100
 
@@ -321,11 +337,12 @@ def check_system_pause(state):
     VEGA ALBINO Kernel — triggers SYSTEM_PAUSE more often
     entropy-sensitive, safety first
     """
-    entropy = state.get("entropy", 0)
-    drift = state.get("drift", 0)
-    choices_remaining = state.get("choices_remaining", 1)
+    state = _d(state)
+    entropy = _n(state.get("entropy", 0), 0)
+    drift = _n(state.get("drift", 0), 0)
+    choices_remaining = _n(state.get("choices_remaining", 1), 1)
 
-    if choices_remaining <= 0:
+    if choices_remaining < 1:      # Choice(t) ≥ 1 — 0.5 ทางเลือกยังไม่ถึงหนึ่งทาง
         return True, "SYSTEM_PAUSE — Choice = 0, prime axiom violated"
 
     if entropy > 70:
@@ -335,8 +352,8 @@ def check_system_pause(state):
         return True, "SYSTEM_PAUSE — drift exceeds DriftZero threshold"
 
     waterline_ok = (
-        state.get("food", 1) >= 1
-        and state.get("water", 1) >= 1
+        _n(state.get("food", 1), 0) >= 1
+        and _n(state.get("water", 1), 0) >= 1
         and not state.get("shelter_lost", False)
     )
 
@@ -353,6 +370,7 @@ def build_vega_trace(input_data):
     """
     ทุก output ต้อง traceable — อธิบายไม่ได้ = ใช้ไม่ได้
     """
+    input_data = _d(input_data)
     gate_result = check_all_gates(input_data)
     downside = evaluate_downside_first(input_data.get("scenario", {}))
     pause, pause_reason = check_system_pause(input_data.get("state", {}))

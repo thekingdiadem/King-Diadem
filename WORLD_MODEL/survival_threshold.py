@@ -80,6 +80,16 @@ SURVIVAL_DIMENSIONS = {
 # CORE FUNCTIONS
 # ══════════════════════════════════════════════════════════════════
 
+
+def _unit(v, d: float) -> float:
+    """ค่า 0–1 — ค่าเสีย/NaN → ค่าเริ่มต้น"""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return round(max(0.0, min(1.0, x)), 4) if x == x else d
+
+
 def check_choice(options) -> dict:
     """
     ตรวจว่า options ยังมีอยู่ไหม
@@ -131,6 +141,7 @@ def survival_priority(context: dict) -> dict:
 
     FATE™ Downside First — แก้ที่อันตรายที่สุดก่อน
     """
+    context   = context if isinstance(context, dict) else {}
     missing   = []
     critical  = []
     warnings  = []
@@ -139,7 +150,7 @@ def survival_priority(context: dict) -> dict:
         if need not in context:
             missing.append(need)
         else:
-            val = float(context[need])
+            val = _unit(context[need], 0.5)
             dim = SURVIVAL_DIMENSIONS.get(need, {})
             if val <= dim.get("critical_floor", 0.2):
                 critical.append({"need": need, "value": val, "action": dim.get("action", "")})
@@ -190,12 +201,13 @@ def full_survival_check(context: dict) -> dict:
     ตรวจ survival ทุก dimension + choice + drift
     ใช้ใน eternal_snapshot / gateway
     """
+    context     = context if isinstance(context, dict) else {}
     results     = {}
     critical    = []
     warnings_   = []
 
     for dim, config in SURVIVAL_DIMENSIONS.items():
-        val = float(context.get(dim, 0.5))
+        val = _unit(context.get(dim), 0.5)
         if val <= config["critical_floor"]:
             sev = "CRITICAL"
             critical.append(dim)

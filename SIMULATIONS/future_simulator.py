@@ -6,6 +6,14 @@ SIMULATIONS/future_simulator.py — KING DIADEM
 import time
 
 
+def _num(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
+
 def simulate_future(system_state: dict, scenarios: int = 5) -> dict:
     """
     จำลอง n scenarios จาก state ปัจจุบัน
@@ -14,11 +22,16 @@ def simulate_future(system_state: dict, scenarios: int = 5) -> dict:
     if not isinstance(system_state, dict):
         system_state = {}
 
-    entropy  = max(0.0, min(100.0, float(system_state.get("entropy",  50))))
-    stability= max(0.0, min(100.0, float(system_state.get("stability",60))))
-    resource = max(0.0, min(100.0, float(system_state.get("resource", 50))))
+    entropy  = max(0.0, min(100.0, _num(system_state.get("entropy",  50), 50.0)))
+    stability= max(0.0, min(100.0, _num(system_state.get("stability",60), 60.0)))
+    resource = max(0.0, min(100.0, _num(system_state.get("resource", 50), 50.0)))
 
     # สร้าง deterministic scenarios ตาม intervention type
+    try:
+        scenarios = int(scenarios)
+    except (TypeError, ValueError):
+        scenarios = 5
+
     INTERVENTIONS = [
         {"name": "ไม่ทำอะไร (baseline)",     "e_delta": +3,  "s_delta": -2,  "r_delta": -2},
         {"name": "ลด entropy (focus)",        "e_delta": -10, "s_delta": +5,  "r_delta": -3},

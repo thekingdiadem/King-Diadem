@@ -51,14 +51,24 @@ class EnvironmentState:
 
     def update(self, delta: dict) -> dict:
         """อัปเดต state จาก signal ใหม่ — บันทึก history"""
+        if not isinstance(delta, dict):
+            delta = {}
         for k, v in delta.items():
             if k in self.state:
+                try:
+                    x = float(v)
+                except (TypeError, ValueError):
+                    continue
+                if x != x:  # NaN
+                    continue
                 old = self.state[k]
-                self.state[k] = round(max(0.0, min(1.0, float(v))), 4)
+                self.state[k] = round(max(0.0, min(1.0, x)), 4)
                 self.history.append({
                     "key": k, "from": old, "to": self.state[k],
                     "at": time.time()
                 })
+        if len(self.history) > 500:  # instance ระดับโมดูลอยู่ตลอดอายุ process
+            del self.history[:-500]
         self.updated_at = time.time()
         return self.state
 

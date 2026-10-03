@@ -5,14 +5,24 @@
 import time
 
 
+def _num(v, d: float) -> float:
+    """ตัวเลขจาก context — ค่าเสีย/NaN/inf → ค่าเริ่มต้น"""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x and abs(x) != float("inf") else d
+
+
 def analyze_human(context: dict) -> dict:
-    energy        = float(context.get("energy",        50))
-    money         = float(context.get("money",          0))
-    stress        = float(context.get("stress",        50))
-    risk_tolerance = float(context.get("risk",        0.5))
-    sleep_hours   = float(context.get("sleep_hours",    6))
-    relationships = float(context.get("relationships", 50))
-    purpose       = float(context.get("purpose",       50))
+    context = context if isinstance(context, dict) else {}
+    energy        = _num(context.get("energy"), 50)
+    money         = _num(context.get("money"), 0)
+    stress        = _num(context.get("stress"), 50)
+    risk_tolerance = _num(context.get("risk"), 0.5)
+    sleep_hours   = _num(context.get("sleep_hours"), 6)
+    relationships = _num(context.get("relationships"), 50)
+    purpose       = _num(context.get("purpose"), 50)
 
     # ── Entropy (ความเสื่อม / ความวุ่นวายสะสม) ──────────────────
     entropy = (
@@ -21,7 +31,7 @@ def analyze_human(context: dict) -> dict:
         max(0, (6 - sleep_hours) * 5) * 0.20 +
         (100 - relationships) * 0.10
     )
-    entropy = min(100.0, entropy)
+    entropy = max(0.0, min(100.0, entropy))
 
     # ── Waterline (ความสามารถในการตัดสินใจ) ──────────────────────
     waterline = 100.0

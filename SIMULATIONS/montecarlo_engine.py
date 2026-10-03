@@ -6,6 +6,14 @@ Monte Carlo: จำลอง n runs ด้วย bounded perturbation
 import math
 
 
+def _num(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
+
 def run_montecarlo(score: float, runs: int = 100,
                    volatility: float = 0.15) -> dict:
     """
@@ -15,8 +23,9 @@ def run_montecarlo(score: float, runs: int = 100,
     - volatility: ความผันผวน (0.0-1.0)
     คืน stats ครบ + distribution
     """
-    runs       = max(10, min(runs, 10000))
-    volatility = max(0.01, min(volatility, 0.5))
+    score      = _num(score, 0.0)
+    runs       = max(10, min(int(_num(runs, 100)), 10000))
+    volatility = max(0.01, min(_num(volatility, 0.15), 0.5))
 
     # ใช้ deterministic perturbation แทน pure random
     # (reproducible + bounded)
@@ -53,7 +62,9 @@ def run_montecarlo(score: float, runs: int = 100,
             "p75": round(p75, 4),
             "p90": round(p90, 4),
         },
+        # ค่ากระจายแบบ deterministic (golden angle) ไม่ใช่การสุ่ม — "probability" คือสัดส่วนของชุดนี้
         "survival_probability": round(above_zero / runs, 3),
+        "method":          "deterministic_golden_angle",
         "verdict": _verdict(avg, std_dev),
     }
 

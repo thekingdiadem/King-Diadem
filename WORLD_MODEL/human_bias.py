@@ -8,7 +8,10 @@ BIASES = {
 
 def apply_bias(decision_score, context="normal"):
 
-    score = decision_score
+    try:
+        score = float(decision_score)
+    except (TypeError, ValueError):
+        score = 0.0
 
     if context == "loss":
         score *= (1 - BIASES["loss_aversion"])
@@ -27,9 +30,10 @@ def apply_bias(decision_score, context="normal"):
 
 def detect_bias_context(text):
 
-    t = text.lower()
+    # เดิม "เสีย" "หาย" "ไม่ได้" "เคย" "เดิม" อยู่แทบทุกประโยค (หายใจ/เสียงดัง/ทำไม่ได้) → วลีที่บอก bias จริง
+    t = str(text or "").lower()
 
-    if any(w in t for w in ["เสีย", "หาย", "กลัว", "ไม่ได้"]):
+    if any(w in t for w in ["กลัวเสีย", "เสียดาย", "ไม่อยากเสีย", "กลัวหาย", "กลัวขาดทุน"]):
         return "loss"
 
     if any(w in t for w in ["ตื่นตระหนก", "ด่วน", "เร็วๆ", "รีบ"]):
@@ -38,7 +42,7 @@ def detect_bias_context(text):
     if any(w in t for w in ["แน่ใจ", "ชัวร์", "แน่นอน"]):
         return "overconfident"
 
-    if any(w in t for w in ["เดิม", "เคย", "เหมือนเก่า"]):
+    if any(w in t for w in ["แบบเดิม", "เหมือนเดิม", "เคยชิน", "เหมือนเก่า"]):
         return "familiar"
 
     return "normal"

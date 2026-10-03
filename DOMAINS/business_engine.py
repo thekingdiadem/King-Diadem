@@ -5,12 +5,22 @@
 import time
 
 
+def _num(v, d: float) -> float:
+    """ตัวเลขจาก context — ค่าเสีย/NaN/inf → ค่าเริ่มต้น"""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x and abs(x) != float("inf") else d
+
+
 def analyze_business(context: dict) -> dict:
-    revenue     = float(context.get("revenue", 0))
-    cost        = float(context.get("cost", 0))
-    market_growth = float(context.get("market_growth", 0.5))
-    competition   = float(context.get("competition", 0.5))
-    demand        = float(context.get("demand", 0.5))
+    context = context if isinstance(context, dict) else {}
+    revenue     = _num(context.get("revenue"), 0)
+    cost        = _num(context.get("cost"), 0)
+    market_growth = _num(context.get("market_growth"), 0.5)
+    competition   = _num(context.get("competition"), 0.5)
+    demand        = _num(context.get("demand"), 0.5)
 
     # ── Core metrics ──────────────────────────────────────────────
     profit = revenue - cost
@@ -81,7 +91,7 @@ def analyze_business(context: dict) -> dict:
         if log_decision:
             log_decision(
                 user_id="system",
-                input=str(context),
+                input=str(context)[:2000],
                 output=strategy,
                 route="business",
                 persona="VEGA",
