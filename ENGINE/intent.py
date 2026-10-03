@@ -3,6 +3,7 @@
 # ตรวจ intent จากภาษาไทย + อังกฤษ ครอบคลุม KING DIADEM use cases จริง
 
 from __future__ import annotations
+import re
 
 
 _PATTERNS: list[tuple[str, list[str]]] = [
@@ -73,17 +74,29 @@ _PATTERNS: list[tuple[str, list[str]]] = [
 ]
 
 
+def _hit(kw: str, t: str) -> bool:
+    """คำภาษาอังกฤษต้องตรงทั้งคำ — เดิม substring ทำให้ budget มีคำว่า get และ support มีคำว่า port"""
+    kw = kw.casefold()
+    if kw.isascii():
+        return re.search(r"(?<![a-z0-9])" + re.escape(kw) + r"(?![a-z0-9])", t) is not None
+    return kw in t
+
+
+def _scores(t: str) -> dict:
+    scores: dict[str, int] = {}
+    for intent, keywords in _PATTERNS:
+        count = sum(1 for kw in keywords if _hit(kw, t))
+        if count:
+            scores[intent] = count
+    return scores
+
+
 def detect_intent(text: str) -> str:
     t = (text or "").casefold().strip()
     if not t:
         return "empty"
 
-    # score แต่ละ intent
-    scores: dict[str, int] = {}
-    for intent, keywords in _PATTERNS:
-        count = sum(1 for kw in keywords if kw.casefold() in t)
-        if count:
-            scores[intent] = count
+    scores = _scores(t)
 
     if not scores:
         return "general"
@@ -98,12 +111,7 @@ def detect_multi_intent(text: str, top_n: int = 3) -> list[str]:
     if not t:
         return ["empty"]
 
-    scores: dict[str, int] = {}
-    for intent, keywords in _PATTERNS:
-        count = sum(1 for kw in keywords if kw.casefold() in t)
-        if count:
-            scores[intent] = count
-
+    scores = _scores(t)
     if not scores:
         return ["general"]
 

@@ -1,14 +1,17 @@
 # ENGINE/consensus_engine.py — KING DIADEM
 # FIX: ลบ circular import decision_engine ออก ใช้ inline logic แทน
 
+def _f(v, d):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return d
+
 def _decision_intelligence(human_state: dict, risk_proxy: dict) -> dict:
     level = str(risk_proxy.get("level", "MEDIUM")).upper()
-    try:    score = float(risk_proxy.get("risk_score", 0))
-    except: score = 0.0
-    try:    res   = float(human_state.get("resource", 50))
-    except: res   = 50.0
-    try:    stab  = float(human_state.get("stability", 60))
-    except: stab  = 60.0
+    score = _f(risk_proxy.get("risk_score"), 0.0)
+    res   = _f(human_state.get("resource"), 50.0)
+    stab  = _f(human_state.get("stability"), 60.0)
     if level == "CRITICAL" or score >= 85 or res <= 10:
         return {"action": "stabilize",        "message": "ชะลอการตัดสินใจใหญ่ — ดูแลพื้นฐานก่อน"}
     if level == "HIGH"     or score >= 60 or stab < 35:
@@ -23,9 +26,10 @@ def _route_to_risk(route: str) -> str:
     return {"collapse":"CRITICAL","survival":"HIGH","risk":"HIGH","civil":"MEDIUM","vega":"MEDIUM"}.get(route,"LOW")
 
 def build_consensus(payload: dict) -> dict:
+    payload     = payload if isinstance(payload, dict) else {}
     human_state = payload.get("human_state") or {}
     route       = payload.get("route", "general")
-    risk_proxy  = {"level": _route_to_risk(route), "risk_score": float(human_state.get("risk_score", 0))}
+    risk_proxy  = {"level": _route_to_risk(route), "risk_score": _f(human_state.get("risk_score"), 0.0)}
     di = _decision_intelligence(human_state, risk_proxy)
     try:
         from ENGINE.council_engine import council_engine
@@ -45,13 +49,14 @@ def resolve(pattern: dict) -> dict:
             "stability": pattern.get("stability")}
 
 def consensus_engine(council_result: dict, state: dict = None) -> dict:
+    council_result = council_result if isinstance(council_result, dict) else {}
     decision = council_result.get("decision", {})
     votes    = council_result.get("votes", [])
     tally = {}
     for vote in votes:
         action = vote.get("action", decision.get("action", "maintain"))
-        tally[action] = tally.get(action, 0) + float(vote.get("score", 0))
+        tally[action] = tally.get(action, 0) + _f(vote.get("score"), 0.0)
     final_action = max(tally, key=tally.get) if tally else decision.get("action", "maintain")
-    confidence   = round(min(100.0, max(0.0, float(council_result.get("score", 50)))), 2)
+    confidence   = round(min(100.0, max(0.0, _f(council_result.get("score"), 50.0))), 2)
     return {"final_action": final_action, "message": decision.get("message", ""),
             "confidence": confidence, "tally": tally, "voters": len(votes)}

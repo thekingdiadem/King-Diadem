@@ -11,6 +11,7 @@ def ai_needs(context: dict) -> dict:
     วิเคราะห์ว่า LYLA ต้องการข้อมูลอะไรเพิ่มก่อนตอบ
     return dict พร้อม needs list, urgency, และ can_proceed
     """
+    context  = context if isinstance(context, dict) else {}
     needs    = []
     critical = []
 

@@ -6,6 +6,14 @@
 from __future__ import annotations
 
 
+def _f(v, d: float) -> float:
+    """แปลงเป็นตัวเลขแบบไม่ล้ม — None/ข้อความ → ค่าเริ่มต้น"""
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return d
+
+
 def optimize_choice(
     actions: list,
     context: dict | None = None,
@@ -23,15 +31,15 @@ def optimize_choice(
         money       float
     """
     ctx = context or {}
-    waterline  = float(ctx.get("waterline",  50))
-    entropy    = float(ctx.get("entropy",    40))
-    resources  = float(ctx.get("resources",  50))
-    time_hours = float(ctx.get("time_hours",  8))
-    money      = float(ctx.get("money",       0))
+    waterline  = _f(ctx.get("waterline"),  50)
+    entropy    = _f(ctx.get("entropy"),    40)
+    resources  = _f(ctx.get("resources"),  50)
+    time_hours = _f(ctx.get("time_hours"),  8)
+    money      = _f(ctx.get("money"),       0)
 
     # ── normalize action → dict ────────────────────────────────
     normalized = []
-    for a in actions:
+    for a in (actions or []):
         if isinstance(a, str):
             normalized.append({"action": a, "cost": 0, "time": 1, "reversible": True})
         elif isinstance(a, dict):
@@ -41,8 +49,8 @@ def optimize_choice(
     scored = []
     for act in normalized:
         name      = act.get("action", str(act))
-        cost      = float(act.get("cost",      0))
-        time_req  = float(act.get("time",      1))
+        cost      = _f(act.get("cost"),      0)
+        time_req  = _f(act.get("time"),      1)
         reversible = bool(act.get("reversible", True))
 
         score = 50.0  # baseline

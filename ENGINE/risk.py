@@ -21,15 +21,21 @@ _CRISIS_SURVIVAL = (  # +3 — ขาดทรัพยากรพื้นฐ�
 _HIGH_STRESS = (  # +2 — ความเครียดสูง
     "พัง", "ล่ม", "หมดแรง", "ทนไม่ไหว", "กดดันมาก",
     "overwhelmed", "breakdown", "panic", "ล้มเหลว", "สิ้นหวัง",
-    "error", "traceback", "exception", "500", "502", "503",
-    "module not found", "import error", "crash",
 )
+# หมายเหตุ: เดิมมี "error", "500", "502", "deploy", "render", "now" ฯลฯ (สมัยเป็นผู้ช่วย dev)
+# ทำให้ "เหลือเงิน 500 บาท" ถูกนับเป็นความเครียดสูง และ "know" ติดคำว่า "now"
 _MODERATE_RISK = (  # +1 — ความเสี่ยงปานกลาง
     "เสี่ยง", "ไม่แน่ใจ", "กังวล", "กลัว", "ไม่ไหวแล้ว",
-    "deploy", "render", "cors", "uvicorn", "fastapi", "start command",
-    "urgent", "ด่วน", "เดี๋ยวนี้", "ทันที", "now", "immediately",
-    "ติดปัญหา", "ไม่ทำงาน", "ไม่ขึ้น",
+    "urgent", "ด่วน", "เดี๋ยวนี้", "ทันที", "immediately",
+    "ติดปัญหา",
 )
+
+
+def _num(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
 
 
 def evaluate_risk(text: str, context: dict | None = None) -> dict:
@@ -60,22 +66,22 @@ def evaluate_risk(text: str, context: dict | None = None) -> dict:
         flags.append("MODERATE_RISK")
 
     # ── Context scoring (ถ้ามี) ────────────────────────────────────
-    waterline = ctx.get("waterline")
-    money     = ctx.get("money")
-    energy    = ctx.get("energy")
+    waterline = _num(ctx.get("waterline"))
+    money     = _num(ctx.get("money"))
+    energy    = _num(ctx.get("energy"))
 
-    if waterline is not None and float(waterline) < 20:
+    if waterline is not None and waterline < 20:
         score += 3
         flags.append("LOW_WATERLINE")
-    elif waterline is not None and float(waterline) < 40:
+    elif waterline is not None and waterline < 40:
         score += 1
         flags.append("MODERATE_WATERLINE")
 
-    if money is not None and float(money) <= 0:
+    if money is not None and money <= 0:
         score += 2
         flags.append("NO_MONEY")
 
-    if energy is not None and float(energy) < 15:
+    if energy is not None and energy < 15:
         score += 2
         flags.append("CRITICAL_ENERGY")
 

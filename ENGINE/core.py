@@ -23,11 +23,11 @@ def run_engine(text: str, session_id: str = "default", mode: str = "chat", seed:
             "session_id": session_id,
         }
 
-    # ── decision (ต้องมี) — ไฟล์จริงชื่อ dicision.py ──────────
+    # ── think() อยู่ใน ENGINE/brain.py (dicision.py มีแค่ build_reply)
     try:
-        from ENGINE.dicision import think
+        from ENGINE.brain import think
     except Exception as e:
-        return {"error": f"decision error: cannot import ENGINE.dicision.think ({e})"}
+        return {"error": f"decision error: cannot import ENGINE.brain.think ({e})"}
 
     try:
         result = think(text, mode=mode, session_id=session_id, seed=seed)
@@ -36,23 +36,6 @@ def run_engine(text: str, session_id: str = "default", mode: str = "chat", seed:
 
     if not isinstance(result, dict):
         result = {"reply": str(result)}
-
-    # ── โมดูลเสริม (มีหรือไม่มีก็ไม่พัง) ──────────────────────
-    # ทำงานกับ result["reply"] (string) ไม่ใช่ result ทั้ง dict
-    try:
-        from ENGINE.brain import process
-        new_reply = process(result.get("reply", ""))
-        if new_reply:
-            result["reply"] = new_reply
-    except Exception:
-        pass
-
-    try:
-        from ENGINE.memory import recall
-        new_reply = recall(result.get("reply", ""))
-        if new_reply:
-            result["reply"] = new_reply
-    except Exception:
-        pass
-
+    # เดิมมีขั้น brain.process() / memory.recall() ต่อท้าย แต่ทั้งสองฟังก์ชันไม่มีอยู่จริง
+    # (ล้มเงียบใน except ทุกครั้ง) — think() บันทึก history ผ่าน ENGINE.memory ให้แล้ว
     return result

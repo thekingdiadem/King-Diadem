@@ -6,6 +6,14 @@
 from __future__ import annotations
 
 
+def _f(v, d: float) -> float:
+    """แปลงเป็นตัวเลขแบบไม่ล้ม — None/ข้อความ → ค่าเริ่มต้น"""
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return d
+
+
 def ai_council(
     location:  str   = "",
     food:      float = 50.0,
@@ -18,13 +26,14 @@ def ai_council(
     return dict พร้อม votes, consensus, final_action, confidence
     """
     ctx = context or {}
-    entropy    = float(ctx.get("entropy",    40))
-    waterline  = float(ctx.get("waterline",  50))
-    energy     = float(ctx.get("energy",     50))
-    has_shelter = bool(ctx.get("safe_place", True))
+    entropy    = _f(ctx.get("entropy"),    40)
+    waterline  = _f(ctx.get("waterline"),  50)
+    energy     = _f(ctx.get("energy"),     50)
+    has_shelter = ctx.get("safe_place", True) is not False
+    money, food = _f(money, 0.0), _f(food, 50.0)
 
     risk_score = {"low": 20, "moderate": 45, "high": 70, "critical": 90}.get(
-        risk.lower(), 45
+        str(risk or "").lower(), 45
     )
 
     votes = []
@@ -33,9 +42,11 @@ def ai_council(
     if waterline < 25 or not has_shelter:
         wl_vote = "halt_and_stabilize"
         wl_reason = "waterline ต่ำวิกฤต — ต้องหยุดก่อน"
-    elif money < food and food > 0:
+    elif food <= 0 or (food > 1 and money < food):
+        # food = 0/1 (มีอาหารไหม จาก survivor engine) หรือเป็นค่าอาหาร (>1)
+        # เดิมเทียบ money < food ตรงๆ → คนที่มีอาหาร (food=1) แต่เงิน 0 ถูกบอกให้ "หาอาหารก่อน"
         wl_vote = "secure_food_first"
-        wl_reason = "เงินน้อยกว่าค่าอาหาร — ต้องหาอาหารก่อน"
+        wl_reason = "ยังไม่มีอาหาร หรือเงินน้อยกว่าค่าอาหาร — ต้องหาอาหารก่อน"
     elif waterline > 70:
         wl_vote = "proceed_with_plan"
         wl_reason = "waterline ดี — ดำเนินแผนได้"
@@ -76,11 +87,11 @@ def ai_council(
     votes.append({"voice": "HALT", "vote": halt_vote, "reason": halt_reason})
 
     # ── CIVIL VOICE — ผลกระทบต่อคนรอบข้าง ───────────────────────
-    relationships = float(ctx.get("relationships", 50))
+    relationships = _f(ctx.get("relationships"), 50)
     if relationships < 30:
         civil_vote = "rebuild_support_network"
         civil_reason = "ความสัมพันธ์ต่ำ — หาแรงสนับสนุนก่อน"
-    elif location and ("อยู่คนเดียว" in location or "alone" in location.lower()):
+    elif location and ("อยู่คนเดียว" in str(location) or "alone" in str(location).lower()):
         civil_vote = "seek_community"
         civil_reason = "อยู่คนเดียว — หาคนช่วยได้ก่อนดีกว่า"
     else:

@@ -8,7 +8,7 @@ Route-aware orchestration layer
 from __future__ import annotations
 from typing import Optional
 
-from .decision import build_reply
+from .dicision import build_reply   # ไฟล์จริงสะกดว่า dicision.py (ไม่มี decision.py)
 from .intent   import detect_intent
 from .memory   import append_turn, get_state, snapshot
 from .risk     import evaluate_risk

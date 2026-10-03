@@ -8,7 +8,15 @@
 #       เดิมมีแค่ predict_collapse(risk_score) → import error ทุกครั้ง
 #       ที่ route="collapse" (กรณี engine_router โหลดไม่ได้)
 
+def _f(v, d):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return d
+
+
 def predict_collapse(risk_score):
+    risk_score = _f(risk_score, 0.0)   # เดิมเทียบตรงๆ — ส่งข้อความ/None มาแล้วล้ม
 
     if risk_score > 80:
         return "high collapse probability"
@@ -27,8 +35,8 @@ def analyze(pattern: dict) -> dict:
     if not isinstance(pattern, dict):
         pattern = {}
 
-    entropy  = float(pattern.get("entropy",  40))
-    resource = float(pattern.get("resource", 50))
+    entropy  = _f(pattern.get("entropy"),  40)
+    resource = _f(pattern.get("resource"), 50)
 
     # risk_score scale 0-100 (สูตรเดียวกับ emptiness_guard)
     risk_score = entropy * 0.5 + (100.0 - resource) * 0.5

@@ -13,10 +13,11 @@ MEMBERS = [
 
 def _safe_float(val, default=0.0):
     try: return float(val)
-    except: return default
+    except (TypeError, ValueError): return default
 
 def council_engine(decision: dict, state: dict = None) -> dict:
-    state      = state or {}
+    state      = state if isinstance(state, dict) else {}
+    decision   = decision if isinstance(decision, dict) else {"action": str(decision or "maintain")}
     risk_score = _safe_float(state.get("risk_score", 0))
     stability  = _safe_float(state.get("stability", 50))
     resource   = _safe_float(state.get("resource",  50))

@@ -43,11 +43,12 @@ def recommend_strategy(debts: list, monthly_extra: float) -> str:
     - ถ้าหนี้หลายก้อน balance ต่างกันมาก → Snowball ดีกว่า เพราะ momentum
     - ถ้าดอกเบี้ยต่างกันมาก → Avalanche ดีกว่า เพราะประหยัดจริง
     """
+    debts = [d for d in (debts or []) if float(d.get("balance", 0) or 0) > 0]
     if not debts:
         return "snowball"
 
-    rates   = [d["annual_rate"] for d in debts]
-    balances = [d["balance"] for d in debts]
+    rates   = [float(d.get("annual_rate", 0) or 0) for d in debts]
+    balances = [float(d["balance"]) for d in debts]
 
     rate_spread    = max(rates) - min(rates)
     balance_spread = max(balances) - min(balances)
@@ -72,6 +73,10 @@ def simulate_payoff(debts: list, monthly_budget: float,
     """
     จำลองการโปะหนี้รายเดือน
     คืน timeline + จำนวนเดือนรวม + ดอกเบี้ยรวมที่จ่าย
+
+    v2 — เงินที่จ่ายต่อเดือนไม่เกินงบจริง:
+      เดิมจ่าย "ดอกเบี้ย+1" ทุกก้อนแม้งบไม่พอ (budget_left ติดลบ) → แผนอ้างว่าปลดหนี้ได้
+      ทั้งที่จริงหนี้โตขึ้นทุกเดือน ตอนนี้ดอกเบี้ยที่จ่ายไม่ไหวถูกทบเข้าเงินต้น และบอก paid_off ตรงๆ
     """
     if strategy == "avalanche":
         ordered = rank_avalanche(debts)
@@ -81,30 +86,37 @@ def simulate_payoff(debts: list, monthly_budget: float,
     # deep copy เพื่อไม่แก้ของจริง
     active = [d.copy() for d in ordered]
     for d in active:
+        d["balance"]       = max(0.0, float(d.get("balance", 0) or 0))
+        d["monthly_rate"]  = float(d.get("monthly_rate", float(d.get("annual_rate", 0) or 0) / 1200))
         d["paid_interest"] = 0.0
         d["months_to_pay"] = 0
 
+    budget = max(0.0, float(monthly_budget or 0))
     timeline = []
     month    = 0
     max_months = 360  # cap 30 ปี
+    short_months = 0
 
     while any(d["balance"] > 0 for d in active) and month < max_months:
         month += 1
-        budget_left = monthly_budget
+        budget_left = budget
         row = {"month": month, "debts": []}
 
-        # จ่ายดอกเบี้ยขั้นต่ำทุกก้อนก่อน
+        # จ่ายขั้นต่ำ (ดอกเบี้ย + 1) ทุกก้อนก่อน — เท่าที่งบเหลือ
         for d in active:
             if d["balance"] <= 0:
                 row["debts"].append({"name": d["name"], "payment": 0,
                                      "interest": 0, "balance": 0})
                 continue
             interest = d["balance"] * d["monthly_rate"]
-            min_pay  = min(interest + 1, d["balance"])
-            d["balance"]      = max(0, d["balance"] - min_pay + interest)
+            due      = min(interest + 1, d["balance"] + interest)
+            pay      = min(due, budget_left)
+            if pay < due:
+                short_months += 1
+            d["balance"]       = max(0.0, d["balance"] + interest - pay)
             d["paid_interest"] += interest
-            budget_left        -= min_pay
-            row["debts"].append({"name": d["name"], "payment": round(min_pay, 2),
+            budget_left        -= pay
+            row["debts"].append({"name": d["name"], "payment": round(pay, 2),
                                  "interest": round(interest, 2),
                                  "balance": round(d["balance"], 2)})
 
@@ -112,9 +124,8 @@ def simulate_payoff(debts: list, monthly_budget: float,
         for d in active:
             if d["balance"] > 0 and budget_left > 0:
                 extra = min(budget_left, d["balance"])
-                d["balance"]   = max(0, d["balance"] - extra)
+                d["balance"]   = max(0.0, d["balance"] - extra)
                 budget_left   -= extra
-                # อัปเดต row
                 for r in row["debts"]:
                     if r["name"] == d["name"]:
                         r["payment"] = round(r["payment"] + extra, 2)
@@ -128,17 +139,21 @@ def simulate_payoff(debts: list, monthly_budget: float,
 
         timeline.append(row)
 
+    paid_off       = all(d["balance"] <= 0 for d in active)
     total_interest = sum(d["paid_interest"] for d in active)
-    payoff_months  = max((d["months_to_pay"] or month) for d in active)
+    payoff_months  = max([d["months_to_pay"] for d in active] + [0]) if paid_off else None
 
     return {
         "strategy":       strategy,
+        "paid_off":       paid_off,
         "payoff_months":  payoff_months,
-        "payoff_years":   round(payoff_months / 12, 1),
+        "payoff_years":   round(payoff_months / 12, 1) if payoff_months is not None else None,
         "total_interest": round(total_interest, 2),
+        "remaining":      round(sum(d["balance"] for d in active), 2),
+        "underfunded_payments": short_months,
         "timeline":       timeline,
         "debt_summary":   [{"name": d["name"],
-                            "months": d["months_to_pay"],
+                            "months": d["months_to_pay"] or None,
                             "interest_paid": round(d["paid_interest"], 2)}
                            for d in active],
     }
@@ -153,7 +168,7 @@ def advise_refinance(debts: list, monthly_income: float) -> list:
     ตรวจสอบหนี้ที่ควรรีไฟแนนซ์หรือเจรจาปรับโครงสร้าง
     """
     advice = []
-    total_debt = sum(d["balance"] for d in debts)
+    total_debt = sum(float(d.get("balance", 0) or 0) for d in debts)
     dti = total_debt / (monthly_income * 12) if monthly_income > 0 else 999
 
     for d in debts:
@@ -270,6 +285,10 @@ def run_debt_freedom(
     """
     if skills is None:
         skills = []
+    debts = [d for d in (debts or []) if isinstance(d, dict)]
+    if not debts:
+        return {"system": "FATE_DEBT_FREEDOM", "status": "NO_DEBT",
+                "message": "ไม่มีรายการหนี้ให้วางแผน", "lock": "Fail less. Harm less. Restore Choice."}
 
     monthly_extra = monthly_income - monthly_expense
     if monthly_extra <= 0:
@@ -278,6 +297,19 @@ def run_debt_freedom(
             "status":  "WATERLINE_BREACH",
             "message": "รายได้ไม่พอรายจ่าย — ต้องแก้รายจ่ายหรือหารายได้เสริมก่อน",
             "choice":  "หาอาชีพเสริมเพื่อสร้าง monthly_extra ก่อนโปะหนี้",
+            "lock":    "Fail less. Harm less. Restore Choice."
+        }
+
+    monthly_interest = sum(float(d.get("balance", 0) or 0) * float(d.get("annual_rate", 0) or 0) / 1200 for d in debts)
+    if monthly_extra <= monthly_interest:
+        return {
+            "system":  "FATE_DEBT_FREEDOM",
+            "status":  "BUDGET_BELOW_INTEREST",
+            "monthly_extra":    monthly_extra,
+            "monthly_interest": round(monthly_interest, 2),
+            "message": "เงินโปะต่อเดือนไม่พอแม้แต่ดอกเบี้ย — หนี้จะโตขึ้นทุกเดือน ต้องเจรจาลดดอกเบี้ย/ปรับโครงสร้าง หรือเพิ่มรายได้ก่อน",
+            "refinance_advice": advise_refinance(debts, monthly_income),
+            "side_income":      suggest_side_income(skills, monthly_interest - monthly_extra + 1000),
             "lock":    "Fail less. Harm less. Restore Choice."
         }
 
@@ -304,5 +336,8 @@ def run_debt_freedom(
             f"ด้วยเงินโปะ {monthly_extra:,.0f} บาท/เดือน "
             f"คาดว่าปลดหนี้ได้ใน {recommended['payoff_months']} เดือน "
             f"({recommended['payoff_years']} ปี)"
+            if recommended["paid_off"] else
+            f"ด้วยเงินโปะ {monthly_extra:,.0f} บาท/เดือน ยังปลดหนี้ไม่หมดใน 30 ปี "
+            f"(เหลือ {recommended['remaining']:,.0f} บาท) — ต้องลดดอกเบี้ยหรือเพิ่มเงินโปะ"
         )
     }

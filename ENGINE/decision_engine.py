@@ -83,7 +83,7 @@ class DecisionEngine:
         try:
             from ENGINE.emotion_state import get_emotion_state
             es = get_emotion_state(session_id)
-            es.update(user_input)
+            es.update(str(data.get("raw_input") or user_input))   # ข้อความดิบของผู้ใช้ ไม่ใช่ prompt ที่ต่อบริบทแล้ว
             emotion_ctx = es.context_note()
         except Exception:
             pass
