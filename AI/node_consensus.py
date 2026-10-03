@@ -64,6 +64,8 @@ def node_vote(options: list, nodes: list, weights: list = None) -> dict:
 
     FATE™ A3 — input เดิม = output เดิมเสมอ
     """
+    # options ต้อง hash ได้ (เป็น key ของ votes) — dict/list ทำให้ TypeError
+    options = [o if isinstance(o, (str, int, float, tuple)) else str(o) for o in (options or [])]
     if not options:
         return {
             "votes":      {},
@@ -81,8 +83,13 @@ def node_vote(options: list, nodes: list, weights: list = None) -> dict:
     n = len(nodes)
 
     # normalize weights
-    if weights and len(weights) == n:
-        w = [max(0.01, min(1.0, float(x))) for x in weights]
+    def _w(x):
+        try:
+            return max(0.01, min(1.0, float(x)))
+        except (TypeError, ValueError):
+            return 0.5
+    if isinstance(weights, (list, tuple)) and len(weights) == n:
+        w = [_w(x) for x in weights]
     else:
         w = [0.5] * n   # default trust = 0.5
 
@@ -117,8 +124,14 @@ def multi_round_vote(options: list, nodes: list,
     เพราะ node_vote ไม่มี random แล้ว ผลทุกรอบเหมือนกัน
     ใช้ multi-round เพื่อ weight amplification
     """
+    options = [o if isinstance(o, (str, int, float, tuple)) else str(o) for o in (options or [])]
     if not options:
         return {"winner": None, "rounds": rounds, "confidence": 0.0}
+    # ผลทุกรอบเหมือนกัน (deterministic) — rounds ใหญ่ๆ แค่เผา CPU จึงจำกัดไว้
+    try:
+        rounds = max(1, min(int(rounds), 100))
+    except (TypeError, ValueError):
+        rounds = 3
 
     win_count: dict = {o: 0 for o in options}
 
@@ -145,6 +158,7 @@ def weighted_consensus(options: list, node_trust_map: dict) -> dict:
     รับ dict {node_id: trust_score} แทน list แยก
     ใช้ใน consensus_engine ที่มี node_trust.py
     """
+    node_trust_map = node_trust_map if isinstance(node_trust_map, dict) else {}
     nodes   = list(node_trust_map.keys())
     weights = [node_trust_map[n] for n in nodes]
     return node_vote(options, nodes, weights)

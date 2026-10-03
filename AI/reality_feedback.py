@@ -31,6 +31,7 @@ def record_feedback(
 
     Returns: entry dict ที่เพิ่งบันทึก
     """
+    problem = str(problem or "")
     if not problem.strip():
         return {"error": "FATE_VIOLATION: problem empty"}
 
@@ -46,7 +47,7 @@ def record_feedback(
         "problem":     str(problem).strip()[:300],
         "option":      str(option).strip()[:300] or "ไม่ระบุ",
         "outcome":     outcome,
-        "route":       route,
+        "route":       str(route or "general")[:40],
         "note":        str(note).strip()[:200],
         "recorded_at": int(time.time()),
         "fate_audit": {
@@ -129,4 +130,8 @@ def feedback_stats() -> dict:
 
 def get_recent(limit: int = 20) -> list[dict]:
     """คืน feedback ล่าสุด N รายการ"""
-    return list(_STORE)[-limit:]
+    try:
+        limit = max(0, int(limit))
+    except (TypeError, ValueError):
+        limit = 20
+    return list(_STORE)[-limit:] if limit else []

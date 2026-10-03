@@ -8,7 +8,7 @@ import hashlib
 
 def _stable_coord(seed: str, lo: float, hi: float) -> float:
     """แปลง string → float ในช่วง [lo, hi] แบบ deterministic"""
-    h = int(hashlib.md5(seed.encode()).hexdigest()[:8], 16)
+    h = int(hashlib.sha256(seed.encode()).hexdigest()[:8], 16)
     return round(lo + (h / 0xFFFFFFFF) * (hi - lo), 6)
 
 
@@ -34,13 +34,16 @@ def heatmap() -> list:
         options  = m.get("options", [])
         context  = str(m.get("context") or m.get("input") or f"decision_{i}")
         route    = str(m.get("route") or "general")
-        label    = str(m.get("label") or context[:40])
+        # ไม่ใช้ข้อความผู้ใช้เป็น label (heatmap แสดงต่อสาธารณะได้)
+        label    = str(m.get("label") or f"{route}#{i + 1}")
 
         # pressure = จำนวน options × ความซับซ้อน route
         route_weight = {"collapse": 3, "survival": 2.5, "risk": 2, "vega": 1.8, "general": 1}
         pressure = len(options) * route_weight.get(route, 1)
 
+        # lat/lon เป็นพิกัดจาก hash เพื่อวางจุดให้คงที่ — ไม่ใช่ตำแหน่งจริงของผู้ใช้
         node = {
+            "synthetic_coords": True,
             "lat":      _stable_coord(context + "_lat", -90, 90),
             "lon":      _stable_coord(context + "_lon", -180, 180),
             "pressure": round(pressure, 2),

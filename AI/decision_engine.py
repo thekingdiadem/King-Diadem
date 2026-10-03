@@ -58,6 +58,7 @@ def process_decision(
         list of option dicts เรียง risk ASC
     FATE™: Choice(t) ≥ 1 เสมอ
     """
+    question = str(question or "")
     if not question.strip():
         options = _SAFE_FALLBACK
     else:
@@ -66,5 +67,6 @@ def process_decision(
     # เรียง Downside First (Axiom 4)
     options = sorted(options, key=lambda x: x["risk"])
 
-    store_decision(question, [o["action"] for o in options], route=route, context=context or {})
+    store_decision(question, [o["action"] for o in options], route=route,
+                   context=context if isinstance(context, dict) else {})
     return options

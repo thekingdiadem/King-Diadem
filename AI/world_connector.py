@@ -17,9 +17,10 @@ _ENDPOINTS = {
         "url":    "https://api.coindesk.com/v1/bpi/currentprice.json",
         "parser": lambda d: {"btc_usd": d["bpi"]["USD"]["rate"], "source": "coindesk"},
     },
+    # ตรวจว่าออกเน็ตได้ — ไม่คืน IP สาธารณะของเซิร์ฟเวอร์ (เดิมคืน "ip")
     "global_ip": {
         "url":    "https://api.ipify.org?format=json",
-        "parser": lambda d: {"ip": d.get("ip", "unknown"), "source": "ipify"},
+        "parser": lambda d: {"online": bool(d.get("ip")), "source": "ipify"},
     },
 }
 
@@ -31,17 +32,17 @@ def _fetch(url: str, timeout: int = _TIMEOUT) -> dict:
     """
     try:
         req  = urllib.request.Request(url, headers={"User-Agent": "KING-DIADEM/4.7"})
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            body = resp.read().decode("utf-8")
-            return json.loads(body)
+        with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310 — URL คงที่ https ในโค้ด
+            body = resp.read(1_000_000).decode("utf-8")
+            data = json.loads(body)
+            return data if isinstance(data, dict) else {"error": "unexpected_shape", "offline": True}
     except urllib.error.HTTPError as e:
-        return {"error": f"HTTP {e.code}: {e.reason}", "offline": True}
-    except urllib.error.URLError as e:
-        return {"error": f"URLError: {e.reason}", "offline": True}
-    except json.JSONDecodeError as e:
-        return {"error": f"JSON parse failed: {e}", "offline": True}
+        return {"error": f"HTTP {e.code}", "offline": True}
+    except json.JSONDecodeError:
+        return {"error": "JSON_PARSE_FAILED", "offline": True}
     except Exception as e:
-        return {"error": f"unexpected: {type(e).__name__}: {e}", "offline": True}
+        # ไม่ส่งรายละเอียดเครือข่าย/exception ภายในออกไป
+        return {"error": type(e).__name__, "offline": True}
 
 
 class WorldConnector:
@@ -66,8 +67,8 @@ class WorldConnector:
             else:
                 try:
                     results[key] = {**cfg["parser"](raw), "status": "ok"}
-                except (KeyError, TypeError) as e:
-                    results[key] = {"status": "parse_error", "error": str(e)}
+                except (KeyError, TypeError):
+                    results[key] = {"status": "parse_error", "error": "PARSE_ERROR"}
                     errors.append(key)
 
         fate_note = (
@@ -90,5 +91,5 @@ class WorldConnector:
             return {"btc_usd": None, "status": "offline", "error": raw.get("error")}
         try:
             return {**_ENDPOINTS["btc_price"]["parser"](raw), "status": "ok"}
-        except (KeyError, TypeError) as e:
-            return {"btc_usd": None, "status": "parse_error", "error": str(e)}
+        except (KeyError, TypeError):
+            return {"btc_usd": None, "status": "parse_error", "error": "PARSE_ERROR"}

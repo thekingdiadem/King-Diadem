@@ -18,8 +18,8 @@ _ROUTE_WEIGHT = {"collapse": 3.0, "survival": 2.5, "risk": 2.0, "vega": 1.8, "ge
 
 
 def _stable_coord(seed: str, lo: float, hi: float) -> float:
-    """string → float [lo,hi] deterministic via md5"""
-    h = int(hashlib.md5(seed.encode()).hexdigest()[:8], 16)
+    """string → float [lo,hi] deterministic via sha256"""
+    h = int(hashlib.sha256(seed.encode()).hexdigest()[:8], 16)
     return round(lo + (h / 0xFFFFFFFF) * (hi - lo), 4)
 
 
@@ -40,6 +40,10 @@ def galaxy_nodes(limit: int = 80) -> list[dict]:
     if not data:
         return []
 
+    try:
+        limit = max(1, int(limit))
+    except (TypeError, ValueError):
+        limit = 80
     nodes = []
     for i, d in enumerate(data[-limit:] if len(data) > limit else data):
         if not isinstance(d, dict):
@@ -57,7 +61,8 @@ def galaxy_nodes(limit: int = 80) -> list[dict]:
             "x":          _stable_coord(seed + "_x", -100, 100),
             "y":          _stable_coord(seed + "_y", -100, 100),
             "size":       size,
-            "label":      question,
+            # memory รวมทุกผู้ใช้ — ไม่ใช้ข้อความคำถามเป็น label (ตำแหน่งยังคงที่ด้วย hash)
+            "label":      f"{route}#{i + 1}",
             "route":      route,
             "color":      _ROUTE_COLOR.get(route, "#888888"),
             "options":    len(options),

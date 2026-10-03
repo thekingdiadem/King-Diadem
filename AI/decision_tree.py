@@ -96,8 +96,15 @@ class DecisionTree:
         Article 1 — ค่า risk/confidence มาจาก state จริง
         Article 3 — trace ได้ผ่าน entropy_band + stability_band
         """
-        eb = _entropy_band(float(entropy))
-        sb = _stability_band(float(stability))
+        def _n(v, d):
+            try:
+                x = float(v)
+            except (TypeError, ValueError):
+                return d
+            return x if x == x else d
+        entropy, stability = _n(entropy, 50.0), _n(stability, 50.0)
+        eb = _entropy_band(entropy)
+        sb = _stability_band(stability)
 
         raw_paths = _STRATEGY_REGISTRY.get((eb, sb), _STRATEGY_REGISTRY[("mid", "mid")])
 

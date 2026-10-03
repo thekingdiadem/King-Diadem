@@ -59,10 +59,16 @@ def strategic_analysis(
     Returns:
         risk_score, risk_level, route, options, principles, fate_audit
     """
-    # clamp inputs
-    food   = max(0.0, min(float(food),   10.0))
-    money  = max(0.0, float(money))
-    danger = max(0.0, min(float(danger), 10.0))
+    # clamp inputs (ค่าไม่ใช่ตัวเลข/NaN → ค่ากลาง ไม่ล้มทั้งฟังก์ชัน)
+    def _n(v, d):
+        try:
+            x = float(v)
+        except (TypeError, ValueError):
+            return d
+        return x if x == x else d
+    food   = max(0.0, min(_n(food, 5.0),   10.0))
+    money  = max(0.0, _n(money, 0.0))
+    danger = max(0.0, min(_n(danger, 0.0), 10.0))
 
     risk        = round((danger * 2.0) - food, 2)
     risk_label  = _risk_label(risk)

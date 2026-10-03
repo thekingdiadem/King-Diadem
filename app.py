@@ -539,8 +539,15 @@ async def dashboard():
             "lyla_signal":            "Systems losing 0.1% choice daily",
             "intervention_threshold": "Choice < 30%",
         },
-        "recent_learning": learning[-10:] if learning else [],
-        "active_nodes":    nodes[-10:]    if nodes    else [],
+        # /dashboard เปิดสาธารณะ — ไม่ส่งข้อความคำถาม/การตัดสินใจของผู้ใช้ออกไป เหลือแค่ผลลัพธ์
+        "recent_learning": [
+            {k: e.get(k) for k in ("id", "timestamp", "success", "outcome_label")}
+            for e in (learning[-10:] if learning else []) if isinstance(e, dict)
+        ],
+        "active_nodes":    [
+            {k: n.get(k) for k in ("id", "recorded_at", "node_type")}
+            for n in (nodes[-10:] if nodes else []) if isinstance(n, dict)
+        ],
         "freedom_index":   freedom_index() if freedom_index else 50,
     }
 
@@ -1040,7 +1047,11 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         result = {
             "observer":      "KING DIADEM",
             "status":        "SUCCESS",
-            "route":         intent.get("intent", route) if isinstance(intent, dict) else route,
+            # intent ("question"/"joy"/...) ไม่ใช่ route — ใช้แทนได้เฉพาะเมื่อ route ยังเป็น general
+            # และเป็นชื่อ route จริง ไม่งั้น survival/collapse ที่ยกระดับไว้จะหาย
+            "route":         (intent.get("intent") if route == "general" and isinstance(intent, dict)
+                              and intent.get("intent") in ("vega", "civil", "risk", "survival", "collapse")
+                              else route),
             "ai_response":   reply,
             "governance":    {"intent": intent, "human_state": human_state},
             "persona":       "VEGA" if vm == "vega" else "LYLA",
@@ -1126,6 +1137,17 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 }
     except Exception as _cv:
         print(f"⚠ canon_validate error: {_cv}")
+
+    # ── Freedom signal: R = (D × T) / C ──────────────────────────
+    # เดิมไม่มีใครเรียก record_choice/record_crisis → C = 0 ตลอด freedom_index() คืน 0 เสมอ
+    try:
+        if record_crisis and result.get("route") in ("collapse", "crisis"):
+            record_crisis()
+        if record_choice and result.get("ai_response"):
+            offered = (result.get("canon_check") or {}).get("choices_offered", 0) or 0
+            record_choice(max(1, int(offered)))
+    except Exception:
+        pass
 
     if log_decision:
         try:

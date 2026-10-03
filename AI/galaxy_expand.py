@@ -8,6 +8,14 @@
 
 from typing import Optional
 
+
+def _n(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
 # ── Expansion registry ────────────────────────────────────────────
 # Each route has ordered expansion options — Downside First (FATE™ principle)
 # highest risk route → fewest/safer options first
@@ -83,9 +91,10 @@ class GalaxyExpansion:
         Article 1 — depth มาจาก entropy/stability จริง
         Article 5 — COLLAPSE/SURVIVAL route ได้ options น้อยลงโดยอัตโนมัติ
         """
-        r = (route or "GENERAL").upper()
+        r = str(route or "GENERAL").upper()
         base = _ROUTE_EXPANSIONS.get(r, _ROUTE_EXPANSIONS["GENERAL"])
-        depth = _expansion_depth(float(entropy), float(stability))
+        entropy, stability = _n(entropy, 50.0), _n(stability, 50.0)
+        depth = _expansion_depth(entropy, stability)
 
         selected = base[:depth]
 

@@ -20,11 +20,13 @@ def add_node(node: dict) -> dict:
     if not isinstance(node, dict) or not node:
         return {"error": "FATE_VIOLATION: node must be non-empty dict"}
 
+    # id/recorded_at ต้องมาจากระบบ — เดิม **node อยู่ท้ายจึงเขียนทับได้ (ปลอม id/เวลา)
+    # และ len()+1 ซ้ำกันเมื่อ deque เต็ม (maxlen 500)
     enriched = {
-        "id":          len(_nodes) + 1,
-        "recorded_at": int(time.time()),
-        "node_type":   node.get("type", "event"),
         **node,
+        "id":          (_nodes[-1]["id"] + 1) if _nodes else 1,
+        "recorded_at": int(time.time()),
+        "node_type":   node.get("node_type", node.get("type", "event")),
     }
 
     if enriched["node_type"] not in _VALID_TYPES:
@@ -36,7 +38,11 @@ def add_node(node: dict) -> dict:
 
 def get_nodes(limit: int = 100) -> list[dict]:
     """คืน nodes ล่าสุด N รายการ"""
-    return list(_nodes)[-limit:]
+    try:
+        limit = max(0, int(limit))
+    except (TypeError, ValueError):
+        limit = 100
+    return list(_nodes)[-limit:] if limit else []
 
 
 def node_summary() -> dict:

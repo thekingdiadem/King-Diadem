@@ -43,6 +43,17 @@ RISK_MEDIUM          = 1.0   # R > 1 = MEDIUM
 
 _lock = threading.Lock()
 
+# JSON ไม่มี Infinity (FastAPI ตอบ 500 ถ้าเจอ inf) — ใช้ค่าเพดานที่อ่านได้แทน
+R_CAP = 1e9
+
+
+def _num(v, d: float = 0.0) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
 # ══════════════════════════════════════════════════════════════════
 # STATS STATE
 # ══════════════════════════════════════════════════════════════════
@@ -69,7 +80,8 @@ def record_question() -> None:
 def record_choice(count: int = 1) -> None:
     """บันทึก choice ที่ระบบให้ — เพิ่ม C"""
     with _lock:
-        _stats["choices"] += max(0, int(count))
+        count = max(0, int(_num(count, 0)))
+        _stats["choices"] += count
         _stats["choice_history"].append((time.time(), count))
         if len(_stats["choice_history"]) > 1000:
             _stats["choice_history"].pop(0)
@@ -87,7 +99,7 @@ def record_crisis() -> None:
 def record_drift(delta: float) -> None:
     """บันทึก drift amount โดยตรง"""
     with _lock:
-        _stats["drift_events"].append((time.time(), float(delta)))
+        _stats["drift_events"].append((time.time(), _num(delta, 0.0)))
         if len(_stats["drift_events"]) > 1000:
             _stats["drift_events"].pop(0)
 
@@ -111,14 +123,15 @@ def compute_collapse_risk(
     ถ้า C → 0 : R → ∞ (collapse แน่นอน)
     ถ้า C >= 1 : collapse = False (ยังฟื้นได้)
     """
-    drift    = max(0.0, float(drift))
-    time_e   = max(0.0, float(time_elapsed))
-    choices  = max(0.0, float(choices))
+    drift    = max(0.0, _num(drift, 0.0))
+    time_e   = max(0.0, _num(time_elapsed, 0.0))
+    choices  = max(0.0, _num(choices, 0.0))
 
-    # prevent division by zero — C=0 → R = ∞ (collapse)
+    # prevent division by zero — C=0 → R = ∞ (collapse) — ส่งเป็น R_CAP เพราะ JSON ไม่รองรับ inf
     if choices <= 0:
         return {
-            "R":             float("inf"),
+            "R":             R_CAP,
+            "R_infinite":    True,
             "risk_level":    "COLLAPSE",
             "collapse":      True,
             "choice_alive":  False,
@@ -157,7 +170,7 @@ def compute_collapse_risk(
     return {
         "R":             R,
         "risk_level":    risk_level,
-        "collapse":      R == float("inf"),
+        "collapse":      False,
         "choice_alive":  choices >= 1,
         "early_warning": early_warning,
         "action":        action,
@@ -197,7 +210,7 @@ def freedom_index(choices_available: Optional[int] = None) -> int:
     T = max(1.0, (time.time() - session_start) / 86400)
 
     # C = choices available
-    C = max(0, choices)
+    C = max(0, _num(choices, 0))
 
     if C == 0:
         return FREEDOM_MIN
@@ -257,6 +270,7 @@ def check_early_warning(choices_remaining: int) -> dict:
     Early Warning System
     ถ้า Choice(t+Δ) ≤ 1 → แจ้งเตือนทันที
     """
+    choices_remaining = _num(choices_remaining, 0.0)
     if choices_remaining <= CHOICE_COLLAPSE:
         return {
             "warning":    True,

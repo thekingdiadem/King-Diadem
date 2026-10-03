@@ -13,7 +13,7 @@ from typing import Optional
 from collections import deque
 
 # ── STORES ────────────────────────────────────────────────────────
-_learning: list[dict] = []
+_learning: deque = deque(maxlen=2000)   # เดิม list โตไม่จำกัด (memory leak)
 _world_cache: dict = {}          # cache signal โลก TTL 10 นาที
 _CACHE_TTL   = 600               # seconds
 
@@ -27,9 +27,9 @@ _OUTCOME_LABELS = {
 # ── REAL-WORLD SUPPLY CHAIN ENDPOINTS ─────────────────────────────
 # ทุกอันฟรี ไม่ต้อง API key
 _SUPPLY_ENDPOINTS = {
-    # ราคาน้ำมันดิบ Brent (proxy ต้นทุนขนส่งโลก)
+    # BTC เป็น proxy สภาพคล่องโลก (key เดิมชื่อ oil_price แต่ไม่เคยเป็นราคาน้ำมัน — คงชื่อไว้เพื่อ compat)
+    # coindesk v1 ปิดแล้ว → สถานะจะเป็น offline จนกว่าจะเปลี่ยนแหล่ง
     "oil_price": {
-        "url":    "https://api.open.fec.gov/v1/",   # placeholder — ใช้ coindesk แทน
         "url":    "https://api.coindesk.com/v1/bpi/currentprice.json",
         "parser": lambda d: {
             "btc_usd":   d["bpi"]["USD"]["rate"],
@@ -57,11 +57,11 @@ _SUPPLY_ENDPOINTS = {
             "note":      "Gold rise → global risk aversion",
         },
     },
-    # IP geolocation — ตรวจสอบ network ระบบ
+    # ตรวจว่าเซิร์ฟเวอร์ออกเน็ตได้ — ไม่คืน IP สาธารณะของเซิร์ฟเวอร์ให้ client (เดิมคืน "ip")
     "system_network": {
         "url":    "https://api.ipify.org?format=json",
         "parser": lambda d: {
-            "ip":     d.get("ip"),
+            "online": bool(d.get("ip")),
             "signal": "system_online",
             "note":   "System connectivity check",
         },
@@ -78,15 +78,14 @@ def _fetch_signal(key: str, cfg: dict) -> dict:
             cfg["url"],
             headers={"User-Agent": "KING-DIADEM/4.7"}
         )
-        with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
+        with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:  # nosec B310 — URL คงที่ https ในโค้ด
+            data = json.loads(resp.read(1_000_000).decode("utf-8"))
             return {**cfg["parser"](data), "status": "ok", "fetched_at": int(time.time())}
     except urllib.error.HTTPError as e:
         return {"status": "offline", "error": f"HTTP {e.code}", "signal": key}
-    except urllib.error.URLError as e:
-        return {"status": "offline", "error": f"URLError: {e.reason}", "signal": key}
     except Exception as e:
-        return {"status": "offline", "error": f"{type(e).__name__}: {e}", "signal": key}
+        # ไม่ส่งรายละเอียดเครือข่าย/exception ภายในออกไป
+        return {"status": "offline", "error": type(e).__name__, "signal": key}
 
 
 def fetch_world_signals(force: bool = False) -> dict:
@@ -178,6 +177,8 @@ def record_learning(
 
     FATE™: Determinism — entry เดิมแก้ไม่ได้ append only
     """
+    question = str(question or "")
+    decision = str(decision or "")
     if not question.strip():
         return {"error": "FATE_VIOLATION: question must not be empty"}
 
@@ -191,11 +192,11 @@ def record_learning(
         }
 
     entry = {
-        "id":             len(_learning) + 1,
+        "id":             (_learning[-1]["id"] + 1) if _learning else 1,
         "timestamp":      int(time.time()),
         "question":       question.strip(),
         "decision":       decision.strip() or "ไม่ระบุ",
-        "context":        planet_context or {},
+        "context":        planet_context if isinstance(planet_context, dict) else {},
         "success":        success,
         "outcome_label":  _OUTCOME_LABELS.get(success, "UNKNOWN"),
         "world_signal":   world_snapshot,
@@ -243,5 +244,5 @@ def get_learning_summary() -> dict:
         "fate_signal":                "STABLE" if success_rate >= 60 else "DRIFT_WARNING",
         "high_pressure_decisions":    len(high_pressure_decisions),
         "world_signal_attached":      sum(1 for e in _learning if e.get("world_signal")),
-        "recent_5":                   _learning[-5:] if _learning else [],
+        "recent_5":                   list(_learning)[-5:],
     }

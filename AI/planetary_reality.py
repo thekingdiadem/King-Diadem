@@ -60,7 +60,12 @@ def planetary_status(context: dict | None = None) -> dict:
     if context and isinstance(context, dict):
         for domain in _BASE_SIGNALS:
             if domain in context:
-                raw = float(context[domain])
+                try:
+                    raw = float(context[domain])
+                except (TypeError, ValueError):
+                    continue
+                if raw != raw:      # NaN
+                    continue
                 signals[domain] = round(min(max(raw, 0.0), 100.0), 2)
 
     freedom = _compute_freedom(signals)
@@ -80,4 +85,6 @@ def planetary_status(context: dict | None = None) -> dict:
         "signal_domains":   list(signals.keys()),
         "computed_at":      int(time.time()),
         "fate_note":        fate_note,
+        # baseline เป็นค่าตั้งต้นในโค้ด ไม่ได้วัดจากโลกจริง เว้นแต่ส่ง context เข้ามา
+        "source":           "injected" if context else "static_baseline",
     }
