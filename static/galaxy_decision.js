@@ -3,6 +3,8 @@
 // Renders final decision card into #summary + dispatches KD:decision for galaxy_scene.js
 
 (function () {
+  // ข้อมูลจาก backend ห้ามเข้า innerHTML ดิบ (คำตอบ LLM / ข้อความ error มี < > ได้)
+  const _e = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const RISK_COLOR = {
     low: "#4ade80",
     medium: "#f59e0b",
@@ -33,17 +35,17 @@
       if (n <= 0.85) return { label: "high", color: RISK_COLOR.high };
       return { label: "critical", color: RISK_COLOR.critical };
     }
-    return { label: s, color: "#aaa" };
+    return { label: _e(s), color: "#aaa" };
   }
 
   function buildCard(output, consensus, payload) {
     const action =
-      output.action || consensus.final_action || payload.final_action || "—";
-    const reason = output.reason || consensus.reason || payload.reason || "—";
-    const route = payload.route || output.route || "—";
+      _e(output.action || consensus.final_action || payload.final_action || "—");
+    const reason = _e(output.reason || consensus.reason || payload.reason || "—");
+    const route = _e(payload.route || output.route || "—");
     const waterline =
       payload.waterline ?? payload.risk?.waterline ?? null;
-    const axiom = payload.axiom || output.axiom || null;
+    const axiom = payload.axiom || output.axiom ? _e(payload.axiom || output.axiom) : null;
 
     const rawRisk =
       output.risk ?? payload.risk?.risk_score ?? consensus.risk ?? null;

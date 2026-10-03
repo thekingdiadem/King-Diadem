@@ -16,8 +16,9 @@
 
 import json, os, math, tempfile, time
 from typing import Union
+from core.paths import data_dir
 
-DATA_PATH = "data"
+DATA_PATH = data_dir()   # ข้าง DB_PATH (ดิสก์ถาวร) — ดู core/paths.py
 # เดิมเขียน/อ่าน "decision_log.json" ไฟล์เดียวกับ core/memory_store (คนละรูปแบบ) → ทับกันไปมา
 AUDIT_LOG = "risk_audit_log.json"
 R_CAP     = 1e9      # JSON ไม่มี Infinity

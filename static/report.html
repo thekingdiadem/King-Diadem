@@ -564,7 +564,7 @@ nav::after {
   function esc(s){
     return String(s||'')
       .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
   function verdictClass(v){
     var m = {APPROVED:'approved', DEFERRED:'deferred', REJECTED:'rejected'};
@@ -583,6 +583,7 @@ nav::after {
     return 'linear-gradient(90deg,rgba(58,134,245,0.60),rgba(118,174,255,0.95))';
   }
 
+  function n0(v){ v = Math.round(+v); return isFinite(v) ? v : 0; }   // ตัวเลขเท่านั้นที่เข้า HTML ตรงๆ
   function renderReport(d){
     var audit   = d.fate_audit  || {};
     var checks  = audit.checks  || [];
@@ -591,14 +592,16 @@ nav::after {
     var verdict = audit.verdict || 'PENDING';
 
     // ── AXIOM CHECKS ──
+    if(!Array.isArray(checks)) checks = [];
     var checksHtml = checks.map(function(c){
+      c = c || {};
       return '<div class="ax-row">'
         +'<div class="ax-code">'+esc(c.code)+'</div>'
         +'<div class="ax-body">'
           +'<div class="ax-name">'+esc(c.name)+'</div>'
           +'<div class="ax-note">'+esc(c.note)+'</div>'
         +'</div>'
-        +'<div class="ax-status '+(c.status||'')+'">'+esc(c.status||'')+'</div>'
+        +'<div class="ax-status '+(/^(PASS|WARN|FAIL)$/.test(c.status) ? c.status : '')+'">'+esc(c.status||'')+'</div>'
         +'</div>';
     }).join('');
 
@@ -631,7 +634,7 @@ nav::after {
       : '';
 
     // ── AXIOM FORMULA ──
-    var risk = +(d.risk_score || 0);
+    var risk = Math.max(0, Math.min(100, +d.risk_score || 0));
     var formulaVal = risk >= 75
       ? '<span style="color:var(--red)">True</span>'
       : '<span style="color:var(--ok)">False</span>';
@@ -641,7 +644,7 @@ nav::after {
       +'</div></div>';
 
     // ── SHARE ──
-    var shareUrl = location.origin + '/report/' + esc(d.id||id);
+    var shareUrl = location.origin + '/report/' + encodeURIComponent(d.id||id);
     var dateStr  = d.created_at ? new Date(d.created_at).toLocaleString('th-TH') : '—';
 
     var html =
@@ -657,7 +660,7 @@ nav::after {
           +'<div class="meta-item"><div class="meta-label">Route</div><div class="meta-val">'+esc((d.route||'GENERAL').toUpperCase())+'</div></div>'
           +'<div class="meta-item"><div class="meta-label">Persona</div><div class="meta-val">'+esc(personaName)+' '+personaSym+'</div></div>'
           +'<div class="meta-item"><div class="meta-label">Risk Score</div><div class="meta-val" style="color:'+riskColor(risk)+'">'+Math.round(risk)+' / 100</div></div>'
-          +'<div class="meta-item"><div class="meta-label">Axiom Pass</div><div class="meta-val" style="color:var(--ok)">'+(audit.axiom_pass||0)+' / 6</div></div>'
+          +'<div class="meta-item"><div class="meta-label">Axiom Pass</div><div class="meta-val" style="color:var(--ok)">'+n0(audit.axiom_pass)+' / 6</div></div>'
         +'</div>'
       +'</div>'
 
@@ -672,9 +675,9 @@ nav::after {
         +'<div class="sec-title">FATE™ AXIOM AUDIT</div>'
         +'<div class="card">'+checksHtml+'</div>'
         +'<div class="audit-summary">'
-          +'<div class="aud-item"><div class="aud-num pass">'+(audit.axiom_pass||0)+'</div><div class="aud-label">PASS</div></div>'
-          +'<div class="aud-item"><div class="aud-num warn">'+(audit.axiom_warn||0)+'</div><div class="aud-label">WARN</div></div>'
-          +'<div class="aud-item"><div class="aud-num fail">'+(audit.axiom_fail||0)+'</div><div class="aud-label">FAIL</div></div>'
+          +'<div class="aud-item"><div class="aud-num pass">'+n0(audit.axiom_pass)+'</div><div class="aud-label">PASS</div></div>'
+          +'<div class="aud-item"><div class="aud-num warn">'+n0(audit.axiom_warn)+'</div><div class="aud-label">WARN</div></div>'
+          +'<div class="aud-item"><div class="aud-num fail">'+n0(audit.axiom_fail)+'</div><div class="aud-label">FAIL</div></div>'
         +'</div>'
       +'</div>'
 
@@ -708,7 +711,7 @@ nav::after {
         +'<div class="card"><div class="share-card">'
           +'<div class="share-url-text">'+esc(shareUrl)+'</div>'
           +'<div class="share-btns">'
-            +'<button class="share-btn share-btn-gold" id="copyBtn" onclick="doCopy(\''+shareUrl+'\')">คัดลอกลิงก์</button>'
+            +'<button class="share-btn share-btn-gold" id="copyBtn" data-url="'+esc(shareUrl)+'" onclick="doCopy(this.dataset.url)">คัดลอกลิงก์</button>'
             +'<a href="/" class="share-btn share-btn-blue">เปิดระบบ</a>'
           +'</div>'
         +'</div></div>'

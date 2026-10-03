@@ -1,5 +1,5 @@
 /**
- * static/ai_brain.js — KING DIADEM Neural Core v2.0
+ * static/brain.js — KING DIADEM Neural Core v2.0
  * Full cosmic neural network — syncs with KD STATE
  * Features: pulse waves, synaptic fire, risk heatmap, signal cascades
  */

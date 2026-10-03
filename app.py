@@ -755,7 +755,9 @@ async def put_chat_state(request: Request, data: dict):
     email = _session_email(request)
     if not email or not save_chat_state:
         return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
-    state = data.get("state") if isinstance(data.get("state"), dict) else data
+    # ต้องห่อใน {"state": {...}} เท่านั้น — เดิม fallback เป็นทั้ง body ทำให้สคริปต์รุ่นเก่า (static/app.js
+    # ส่ง {session_id, history}) เขียนทับประวัติแชทจริงของบัญชีด้วยรูปแบบที่หน้าเว็บอ่านไม่ได้
+    state = data.get("state")
     if not isinstance(state, dict):
         return JSONResponse({"ok": False, "error": "invalid"}, status_code=400)
     blob = json.dumps(state, ensure_ascii=False)

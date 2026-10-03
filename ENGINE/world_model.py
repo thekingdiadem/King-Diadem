@@ -10,6 +10,7 @@ import json
 import os
 import time
 from typing import Optional
+from core.paths import data_path
 
 
 def _f(v, d=0.0):
@@ -19,8 +20,8 @@ def _f(v, d=0.0):
     except (TypeError, ValueError):
         return float(d)
 
-NODE_FILE  = "data/node_registry.json"
-WORLD_FILE = "data/world_history.json"
+NODE_FILE  = data_path("node_registry.json")   # ดู core/paths.py
+WORLD_FILE = data_path("world_history.json")
 
 # ── Safe file I/O ─────────────────────────────────────────────────
 def _load_json(path: str, default):

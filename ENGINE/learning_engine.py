@@ -15,9 +15,10 @@ import time
 import math
 from typing import Optional
 from collections import defaultdict
+from core.paths import data_path
 
-LOG_FILE   = "data/decision_log.jsonl"   # JSONL — append-safe กว่า JSON
-MODEL_FILE = "data/learning_model.json"
+LOG_FILE   = data_path("decision_log.jsonl")   # JSONL — append-safe กว่า JSON
+MODEL_FILE = data_path("learning_model.json")   # ดู core/paths.py
 _CACHE_MAX = 500          # จำนวน supply cache สูงสุดในไฟล์ model (เดิมโตไม่จำกัด)
 
 

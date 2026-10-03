@@ -15,8 +15,9 @@ import fcntl
 import tempfile
 import threading
 from datetime import datetime, timezone
+from core.paths import data_dir
 
-DATA_DIR    = "data"
+DATA_DIR    = data_dir()   # ข้าง DB_PATH (ดิสก์ถาวร) — ดู core/paths.py
 MAX_ENTRIES = 500  # Render disk limit guard
 
 WORLD_HISTORY = os.path.join(DATA_DIR, "world_history.json")

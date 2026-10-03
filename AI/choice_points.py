@@ -5,7 +5,9 @@ Point system: ติดตาม choice credits ของแต่ละ user
 """
 import json, math, os, tempfile, threading
 
-_STORE_PATH = "data/choice_points.json"
+from core.paths import data_path
+
+_STORE_PATH = data_path("choice_points.json")   # ข้าง DB_PATH (ดิสก์ถาวร) — ดู core/paths.py
 _lock = threading.Lock()
 
 
@@ -21,8 +23,9 @@ def _load() -> dict:
 
 def _save(db: dict):
     # เขียนไฟล์ชั่วคราวแล้ว os.replace — เดิมเปิด "w" ทับตรง: ล่มกลางทางยอดทุกคนหาย
-    os.makedirs("data", exist_ok=True)
-    fd, tmp = tempfile.mkstemp(dir="data", suffix=".tmp")
+    d = os.path.dirname(_STORE_PATH) or "."
+    os.makedirs(d, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=d, suffix=".tmp")
     try:
         with os.fdopen(fd, "w") as f:
             json.dump(db, f, indent=2)

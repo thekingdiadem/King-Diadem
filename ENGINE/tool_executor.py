@@ -9,6 +9,7 @@ import os
 import math
 import time
 from typing import Optional
+from core.paths import data_dir, data_path
 
 
 # ── Math evaluator — ไม่ใช้ eval() ──────────────────────────────
@@ -89,8 +90,8 @@ def _handle_write_note(decision: dict) -> dict:
     if not content:
         return {"tool": "file_system", "status": "error", "reason": "ไม่มีเนื้อหา"}
     try:
-        os.makedirs("data", exist_ok=True)
-        with open("data/notes.txt", "a", encoding="utf-8") as f:
+        os.makedirs(data_dir(), exist_ok=True)
+        with open(data_path("notes.txt"), "a", encoding="utf-8") as f:
             f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {content}\n")
         return {"tool": "file_system", "status": "saved",
                 "chars": len(content)}
@@ -104,14 +105,15 @@ def _handle_calculate(decision: dict) -> dict:
 def _handle_log_decision(decision: dict) -> dict:
     """บันทึก decision ลง audit log"""
     try:
-        os.makedirs("data", exist_ok=True)
+        os.makedirs(data_dir(), exist_ok=True)
         entry = {
             "timestamp": time.time(),
             "action":    decision.get("action"),
             "context":   decision.get("context", {}),
         }
         import json
-        with open("data/decision_log.jsonl", "a", encoding="utf-8") as f:
+        # แยกไฟล์: decision_log.jsonl เป็นของ learning_engine (คนละรูปแบบ — เดิมเขียนปนกัน)
+        with open(data_path("tool_audit_log.jsonl"), "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
         return {"tool": "audit_log", "status": "logged"}
     except Exception as e:

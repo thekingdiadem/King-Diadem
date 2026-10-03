@@ -9,8 +9,9 @@ import json
 import os
 import time
 from typing import Optional
+from core.paths import data_path
 
-MEMORY_FILE = "data/decision_history.json"
+MEMORY_FILE = data_path("decision_history.json")   # ดู core/paths.py
 MAX_RECORDS = 500
 
 
