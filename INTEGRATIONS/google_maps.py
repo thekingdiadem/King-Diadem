@@ -20,6 +20,17 @@ def _key() -> str:
     return key
 
 
+_MODES = ("driving", "walking", "transit", "bicycling")
+
+
+def _coord(v, lo: float, hi: float) -> float:
+    """พิกัดต้องเป็นตัวเลขในช่วง — เดิมต่อ string ตรงเข้า URL (ใส่ '&key=...' แทรกพารามิเตอร์ได้)"""
+    x = float(v)
+    if not (lo <= x <= hi):
+        raise ValueError("coordinate out of range")
+    return x
+
+
 def _get(url: str) -> dict:
     try:
         with urllib.request.urlopen(url, timeout=10) as resp:
@@ -38,11 +49,14 @@ def search_nearby(
     max_results: int = 5,
 ) -> list:
     """ค้นหาสถานที่ใกล้ coordinate — เหมาะกับ LYLA ตอน survival route"""
+    lat, lng = _coord(lat, -90, 90), _coord(lng, -180, 180)
+    radius_m = max(1, min(int(radius_m), 50000))
+    max_results = max(1, min(int(max_results), 20))
     url = (
         f"{PLACES_API}/nearbysearch/json"
         f"?location={lat},{lng}"
         f"&radius={radius_m}"
-        f"&keyword={urllib.parse.quote(keyword)}"
+        f"&keyword={urllib.parse.quote(str(keyword)[:200])}"
         f"&key={_key()}"
     )
     data = _get(url)
@@ -64,7 +78,7 @@ def search_nearby(
 
 def geocode(address: str) -> dict:
     """แปลงที่อยู่เป็น lat/lng"""
-    url = f"{GEO_API}?address={urllib.parse.quote(address)}&key={_key()}"
+    url = f"{GEO_API}?address={urllib.parse.quote(str(address)[:300])}&key={_key()}"
     data = _get(url)
     if not data.get("results"):
         return {"error": "ไม่พบที่อยู่นี้", "address": address}
@@ -79,6 +93,7 @@ def geocode(address: str) -> dict:
 
 def reverse_geocode(lat: float, lng: float) -> dict:
     """แปลง lat/lng เป็นที่อยู่"""
+    lat, lng = _coord(lat, -90, 90), _coord(lng, -180, 180)
     url = f"{GEO_API}?latlng={lat},{lng}&key={_key()}"
     data = _get(url)
     if not data.get("results"):
@@ -97,6 +112,9 @@ def get_directions(
     mode: str = "driving",  # driving | walking | transit | bicycling
 ) -> dict:
     """ขอเส้นทาง — return ระยะทาง เวลา และ summary"""
+    if mode not in _MODES:        # เดิมต่อ mode เข้า URL ตรงๆ
+        mode = "driving"
+    origin, destination = str(origin)[:300], str(destination)[:300]
     url = (
         f"{DIRECTIONS_API}"
         f"?origin={urllib.parse.quote(origin)}"

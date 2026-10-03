@@ -3,8 +3,20 @@
 # Article 1: Reality is measured, not assumed.
 # Article 5: Collapse probability must be computed, not guessed.
 
+import threading
 import time
 from typing import Optional
+
+
+def _num(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
+
+MAX_NODES = 5000   # node ที่ stale ไม่เคยถูกลบ → dict โตไม่หยุด
 
 # ── Constants ────────────────────────────────────────────────────
 DEFAULT_FOOD_SCORE     = 50.0
@@ -29,6 +41,7 @@ class GlobalNode:
     def __init__(self):
         self.nodes: dict[str, dict] = {}
         self.world_state: dict = self._blank_world_state()
+        self._lock = threading.Lock()
 
     # ── Node registration ─────────────────────────────────────────
     def register_node(self, location: str, data: dict) -> None:
@@ -38,12 +51,20 @@ class GlobalNode:
         """
         if not isinstance(data, dict):
             data = {}
+        location = str(location)[:120]
 
-        self.nodes[location] = {
-            "data":      data,
-            "time":      time.time(),
-            "location":  location,
-        }
+        with self._lock:
+            if location not in self.nodes and len(self.nodes) >= MAX_NODES:
+                now = time.time()
+                for loc in [l for l, n in self.nodes.items() if now - n["time"] > NODE_STALE_SECONDS]:
+                    self.nodes.pop(loc, None)
+                if len(self.nodes) >= MAX_NODES:
+                    self.nodes.pop(min(self.nodes, key=lambda l: self.nodes[l]["time"]))
+            self.nodes[location] = {
+                "data":      data,
+                "time":      time.time(),
+                "location":  location,
+            }
 
     def remove_node(self, location: str) -> bool:
         if location in self.nodes:
@@ -74,9 +95,9 @@ class GlobalNode:
 
         for node in active.values():
             d = node["data"]
-            food_sum     += float(d.get("food_score",     DEFAULT_FOOD_SCORE))
-            risk_sum     += float(d.get("risk_score",     DEFAULT_RISK_SCORE))
-            resource_sum += float(d.get("resource_score", DEFAULT_RESOURCE_SCORE))
+            food_sum     += _num(d.get("food_score"),     DEFAULT_FOOD_SCORE)
+            risk_sum     += _num(d.get("risk_score"),     DEFAULT_RISK_SCORE)
+            resource_sum += _num(d.get("resource_score"), DEFAULT_RESOURCE_SCORE)
 
         food_index     = round(food_sum     / count, 2)
         risk_index     = round(risk_sum     / count, 2)
@@ -114,8 +135,10 @@ class GlobalNode:
     def _active_nodes(self) -> dict:
         """คืนเฉพาะ node ที่ยังไม่ stale"""
         now = time.time()
+        with self._lock:
+            items = list(self.nodes.items())
         return {
-            loc: n for loc, n in self.nodes.items()
+            loc: n for loc, n in items
             if (now - n["time"]) <= NODE_STALE_SECONDS
         }
 

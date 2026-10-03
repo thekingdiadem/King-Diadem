@@ -23,7 +23,10 @@ def network_status() -> dict:
     waterlines     = []
 
     for node_id, data in nodes.items():
-        age = now - float(data.get("last_seen", now))
+        try:
+            age = now - float(data.get("last_seen", now))
+        except (TypeError, ValueError):
+            age = float("inf")       # อ่านเวลาไม่ได้ = ถือว่า stale
         wl  = data.get("waterline")
 
         if age < 30:
@@ -92,7 +95,7 @@ def sync_node_waterline(node_id: str, waterline: float) -> bool:
                     SET last_seen = ?,
                         meta = json_set(COALESCE(meta, '{}'), '$.waterline', ?)
                     WHERE node_id = ?
-                """, (time.time(), float(waterline), str(node_id)))
+                """, (time.time(), max(0.0, min(100.0, float(waterline))), str(node_id)))
                 conn.commit()
                 return True
             finally:

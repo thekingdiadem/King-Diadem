@@ -9,6 +9,14 @@ import threading
 
 _lock = threading.Lock()
 MAX_FETCH = 200
+MAX_MESSAGE_CHARS = 2000    # เดิมไม่จำกัด — ข้อความ MB เข้าตารางได้
+
+
+def _limit(v, d: int) -> int:
+    try:
+        return max(1, min(int(v), MAX_FETCH))
+    except (TypeError, ValueError):
+        return d
 
 
 def _conn():
@@ -56,12 +64,12 @@ def add_chat(user: str, message: str, channel: str = "global") -> bool:
         try:
             conn.execute(
                 "INSERT INTO global_chat (ts, user, message, channel) VALUES (?, ?, ?, ?)",
-                (time.time(), str(user), str(message), str(channel)),
+                (time.time(), str(user)[:120], str(message)[:MAX_MESSAGE_CHARS], str(channel)[:40]),
             )
             conn.commit()
             return True
         except Exception as e:
-            print(f"⚠ global_chat.add_chat: {e}")
+            print(f"⚠ global_chat.add_chat: {type(e).__name__}")
             return False
         finally:
             conn.close()
@@ -80,13 +88,13 @@ def get_chat(limit: int = 50, channel: str = "") -> list[dict]:
             rows = conn.execute(
                 "SELECT ts, user, message, channel FROM global_chat "
                 "WHERE channel = ? ORDER BY ts DESC LIMIT ?",
-                (channel, min(limit, MAX_FETCH)),
+                (channel, _limit(limit, 50)),
             ).fetchall()
         else:
             rows = conn.execute(
                 "SELECT ts, user, message, channel FROM global_chat "
                 "ORDER BY ts DESC LIMIT ?",
-                (min(limit, MAX_FETCH),),
+                (_limit(limit, 50),),
             ).fetchall()
         return [
             {"ts": r[0], "user": r[1], "message": r[2], "channel": r[3]}
@@ -117,6 +125,10 @@ def count_messages(channel: str = "") -> int:
 
 def clear_old_messages(keep_days: int = 7) -> int:
     """ลบ messages เก่ากว่า N วัน"""
+    try:
+        keep_days = max(1, int(keep_days))     # 0/ค่าลบ = ลบทั้งหมดโดยไม่ตั้งใจ
+    except (TypeError, ValueError):
+        keep_days = 7
     cutoff = time.time() - (keep_days * 86400)
     with _lock:
         conn = _conn()

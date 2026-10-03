@@ -51,6 +51,11 @@ except Exception:
 
 def register_node(node_id: str, data: dict) -> bool:
     now = time.time()
+    data = data if isinstance(data, dict) else {}
+    try:
+        started = float(data.get("started", now))
+    except (TypeError, ValueError):
+        started = now
     with _lock:
         conn = _conn()
         try:
@@ -63,13 +68,13 @@ def register_node(node_id: str, data: dict) -> bool:
                     meta      = excluded.meta
             """, (
                 str(node_id),
-                str(data.get("host", "")),
-                float(data.get("started", now)),
+                str(data.get("host", ""))[:200],
+                started,
                 now,
                 str(data.get("status", "active")),
                 json.dumps({k: v for k, v in data.items()
-                            if k not in ("host", "started", "status")},
-                           ensure_ascii=False),
+                            if k not in ("host", "started", "status", "last_seen")},
+                           ensure_ascii=False, default=str)[:4000],
             ))
             conn.commit()
             return True
@@ -120,12 +125,13 @@ def get_nodes() -> dict:
                 meta = json.loads(r[5]) if r[5] else {}
             except Exception:
                 meta = {}
+            # meta ก่อน แล้วค่อยทับด้วยคอลัมน์จริง — เดิม meta เขียนทับ last_seen/status ได้
             result[r[0]] = {
+                **(meta if isinstance(meta, dict) else {}),
                 "host":      r[1],
                 "started":   r[2],
                 "last_seen": r[3],
                 "status":    r[4],
-                **meta,
             }
         return result
     finally:

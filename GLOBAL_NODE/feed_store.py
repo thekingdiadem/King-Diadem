@@ -46,7 +46,10 @@ def get_feed(limit: int = FEED_FETCH_CAP) -> list:
     คืน feed ล่าสุด N รายการ
     Article 6 — bounded fetch ห้าม dump ทั้งหมด
     """
-    limit = max(1, min(limit, FEED_FETCH_CAP))
+    try:
+        limit = max(1, min(int(limit), FEED_FETCH_CAP))
+    except (TypeError, ValueError):
+        limit = FEED_FETCH_CAP
     with _lock:
         return list(_feed)[-limit:]
 
@@ -55,6 +58,10 @@ def get_feed_by_route(route: str, limit: int = 20) -> list:
     """
     filter feed ตาม route — ใช้ใน /api/feed?route=RISK
     """
+    try:
+        limit = max(1, min(int(limit), FEED_FETCH_CAP))
+    except (TypeError, ValueError):
+        limit = 20
     with _lock:
         filtered = [e for e in _feed if e.get("route") == route]
     return filtered[-limit:]

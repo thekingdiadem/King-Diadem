@@ -1,5 +1,5 @@
 # ============================================================
-# KING DIADEM CORE — v2.1  (bug-fix patch)
+# KING DIADEM CORE — v2.2  (wiring fix)
 # Author: Nithikorn Bunsrang
 # Architecture: UDOK × DriftZero × Silent Canon
 #
@@ -10,37 +10,43 @@
 #
 # --- PATCH v2.1 ---
 # FIX 1: SurvivalThreshold — ย้าย import ให้ตรง path จริง
-#         (WORLD_MODEL ไม่มีใน project → ใช้ core.survival_threshold)
 # FIX 2: predict_collapse() — ส่ง risk_score (float) แทน human_state (dict)
 # FIX 3: generate_paths() — ส่ง lat/lng แทน dict, เพิ่ม "viable" key
+#
+# --- PATCH v2.2 ---
+# เดิม import ไม่ได้เลย: find_escape_routes, ENGINE.drift_monitor, check_energy,
+# SILENT_CANON, validate_against_reality, SIMULATIONS.collapse_predictor ไม่มีอยู่จริง
+# และเรียก analyze_situation(question) / assess_risk(a, b) / intervention(paths, escape)
+# ผิด signature ทั้งหมด → ต่อกับฟังก์ชันที่มีจริง (โครงเดิมคงไว้)
+# ไม่สร้างพิกัด 0,0 เอง (อ่าวกินี) — ไม่มีพิกัด = ไม่สร้างเส้นทางบนแผนที่
 # ============================================================
 
 from ENGINE.situation_analyzer import analyze_situation
 from ENGINE.human_state_engine import analyze_human_state
 from ENGINE.collapse_predictor import predict_collapse
-from ENGINE.escape_routes import find_escape_routes
+from ENGINE.escape_routes import generate_escape_routes
 from ENGINE.path_generator import generate_paths
-from ENGINE.intervention_engine import intervention
-from ENGINE.decision_engine import run_decision
+from ENGINE.intervention_engine import intervene
 from ENGINE.risk_engine import assess_risk
-from ENGINE.drift_monitor import detect_drift
-from ENGINE.energy_governor import check_energy
 
 from core.emptiness_guard import emptiness_guard
-from core.silent_canon import SILENT_CANON
-from core.drift_monitor import log_drift_event
-from core.reality_laws import validate_against_reality
-
-from SIMULATIONS.collapse_predictor import CollapseSignal
-
-# ─── FIX 1 ────────────────────────────────────────────────
-# เดิม: from WORLD_MODEL.survival_threshold import SurvivalThreshold
-# WORLD_MODEL ไม่ได้อยู่ใน project structure จริง
-# ย้ายมาที่ core/ ซึ่งเป็น pattern ที่ใช้ตลอดทั้งไฟล์
-# ถ้า survival_threshold ยังไม่มีใน core/ → สร้างไฟล์นั้นก่อน
-# หรือถ้าอยู่ที่ path อื่น ให้แก้ import บรรทัดนี้ตาม path จริง
+from core.silent_canon import SilentCanon
+from core.drift_monitor import detect_drift, log_drift_event
 from core.survival_threshold import SurvivalThreshold
-# ──────────────────────────────────────────────────────────
+
+SILENT_CANON = {
+    "law":       SilentCanon.PRIME_LAW,
+    "limit":     SilentCanon.INTERVENTION_LIMIT,
+    "silence":   SilentCanon.SILENCE_IS,
+}
+
+
+def _f(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
 
 
 # ─────────────────────────────────────────────
@@ -48,12 +54,12 @@ from core.survival_threshold import SurvivalThreshold
 # ─────────────────────────────────────────────
 
 def _layer0_check(question: str) -> dict:
-    reality = validate_against_reality(question)
-    energy = check_energy()
+    # Reality = Universe − {Impossible}: ข้อความว่าง/ไม่ใช่ข้อความ = ไม่มีอะไรให้ตรวจ
+    valid = isinstance(question, str) and bool(question.strip())
     return {
-        "reality_verified": reality.get("valid", False),
-        "energy_level": energy.get("level", "low"),
-        "proceed": reality.get("valid", False)
+        "reality_verified": valid,
+        "energy_level": "n/a",      # ไม่มีตัววัดพลังงานจริงในระบบ (check_energy ไม่เคยมี)
+        "proceed": valid,
     }
 
 
@@ -61,14 +67,15 @@ def _layer0_check(question: str) -> dict:
 # KERNEL: CAUSAL INTERRUPT
 # ─────────────────────────────────────────────
 
-def _kernel_interrupt(human_state: dict) -> dict:
-    craving = human_state.get("craving_signal", False)
+def _kernel_interrupt(human_state: dict, state: dict) -> dict:
+    craving = bool(state.get("craving_signal"))
     if craving:
         human_state["kernel_flag"] = "CRAVING_DETECTED — pause before act"
         human_state["recommended_action"] = "re-evaluate from fact layer"
     else:
         human_state["kernel_flag"] = "CLEAR"
-    human_state = emptiness_guard(human_state)
+    # emptiness_guard คืนรายงานของตัวเอง — เดิมเอาไปเขียนทับ human_state ทั้งก้อน
+    human_state["guard"] = emptiness_guard(state)
     return human_state
 
 
@@ -76,12 +83,15 @@ def _kernel_interrupt(human_state: dict) -> dict:
 # DRIFT MONITOR
 # ─────────────────────────────────────────────
 
-def _monitor_drift(human_state: dict, situation: dict) -> dict:
-    drift = detect_drift(human_state, situation)
-    if drift.get("drifting"):
-        log_drift_event(drift)
-        human_state["drift_warning"] = drift.get("signal", "UNKNOWN")
-        human_state["drift_severity"] = drift.get("severity", 0)
+def _monitor_drift(human_state: dict, state: dict, session_id=None) -> dict:
+    drift = detect_drift({
+        "entropy":      state.get("entropy", 40),
+        "choice_count": state.get("choice_count", 1),
+    }, session_id=session_id)
+    if drift.get("status") not in ("stable", None):
+        log_drift_event(drift, session_id)
+        human_state["drift_warning"] = drift.get("status")
+        human_state["drift_severity"] = drift.get("drift_score", 0)
     else:
         human_state["drift_warning"] = None
     return human_state
@@ -91,13 +101,11 @@ def _monitor_drift(human_state: dict, situation: dict) -> dict:
 # CHOICE GUARD — Layer 0 Law
 # ─────────────────────────────────────────────
 
-def _choice_guard(paths: list, collapse_risk: dict) -> dict:
-    # ─── FIX 3 (ส่วนที่ 2) ───────────────────────────────────
-    # เดิม: p.get("viable") → generate_paths() ไม่เคย return key นี้
-    # path object มี keys: "type", "target", "viable" (หลัง patch path_generator)
-    # filter เฉพาะ path ที่ viable=True จริง ๆ
-    choice_count = len([p for p in paths if p.get("viable") is True])
-    # ─────────────────────────────────────────────────────────
+def _choice_guard(paths: list, escape: list) -> dict:
+    # ทางเลือกจริง = เส้นทางบนแผนที่ที่มีปลายทาง + เส้นทางออกที่ทำได้ (feasibility ไม่ใช่ LOW)
+    viable_paths  = [p for p in paths if p.get("viable") is True]
+    viable_escape = [e for e in escape if isinstance(e, dict) and e.get("feasibility") != "LOW"]
+    choice_count  = len(viable_paths) + len(viable_escape)
 
     threshold = SurvivalThreshold.MINIMUM_CHOICES  # default: 1
 
@@ -119,7 +127,15 @@ def _choice_guard(paths: list, collapse_risk: dict) -> dict:
 # MAIN CORE FUNCTION
 # ─────────────────────────────────────────────
 
-def king_diadem(question: str) -> dict:
+def king_diadem(question: str, context: dict = None, session_id: str = None,
+                with_decision: bool = False) -> dict:
+    """
+    context (optional): entropy/resource/stability/food/money/energy/shelter/network/
+                        lat/lng/location/craving_signal
+    with_decision=True จะเรียก DecisionEngine (มี LLM call) — ปิดไว้เป็นค่าเริ่มต้น
+    """
+    ctx = context if isinstance(context, dict) else {}
+
     # ── PRE-KERNEL ─────────────────────────────
     layer0 = _layer0_check(question)
     if not layer0["proceed"]:
@@ -129,67 +145,68 @@ def king_diadem(question: str) -> dict:
             "layer0": layer0
         }
 
-    # ── SITUATION ──────────────────────────────
-    situation = analyze_situation(question)
+    state = {
+        "entropy":   _f(ctx.get("entropy"), 40.0),
+        "resource":  _f(ctx.get("resource"), 50.0),
+        "stability": _f(ctx.get("stability"), 60.0),
+        "craving_signal": ctx.get("craving_signal", False),
+    }
 
     # ── HUMAN STATE ────────────────────────────
     human_state = analyze_human_state(question)
-    human_state = _kernel_interrupt(human_state)
-    human_state = _monitor_drift(human_state, situation)
+    human_state = _kernel_interrupt(human_state, state)
 
     # ── RISK & COLLAPSE ────────────────────────
-    risk = assess_risk(human_state, situation)
+    risk = assess_risk({**state, "raw_input": question})
+    risk_score_value = _f(risk.get("risk_score"), 40.0)
+    state["choice_count"] = risk.get("remaining_choices", 1)
+    human_state = _monitor_drift(human_state, state, session_id)
+    collapse_signal = predict_collapse(risk_score_value)
 
-    # ─── FIX 2 ────────────────────────────────
-    # เดิม: predict_collapse(human_state)
-    #   → ส่ง dict เข้าไป แต่ function รับ float
-    #   → _clamp() จับ exception แล้ว return 0.0
-    #   → risk_score = 0 ตลอด → collapse_level = "LOW" ผิด ๆ
-    #
-    # แก้: ดึง risk_score (float) จาก risk dict ก่อนส่ง
-    risk_score_value: float = float(risk.get("risk_score", 40))  # key จาก risk_engine.py
-    collapse_signal: CollapseSignal = predict_collapse(risk_score_value)
-    # ──────────────────────────────────────────
+    # ── SITUATION ──────────────────────────────
+    situation = analyze_situation(
+        food_score=ctx.get("food", 50.0),
+        risk_score=risk_score_value,
+        money=ctx.get("money", 50.0),
+        energy=ctx.get("energy", 50.0),
+        shelter=ctx.get("shelter", True) is not False,
+        network=ctx.get("network", 1),
+        context=ctx,
+    )
 
     # ── PATHS ──────────────────────────────────
-    # ─── FIX 3 (ส่วนที่ 1) ───────────────────────────────────
-    # เดิม: generate_paths(human_state)
-    #   → ส่ง dict แต่ function รับ (lat, lng)
-    #   → TypeError crash หรือ lat/lng เป็น dict → routes ผิดหมด
-    #   → path objects ไม่มี key "viable" → choice_count = 0 ทุกครั้ง
-    #
-    # แก้: ดึง lat/lng จาก situation ก่อนส่ง
-    #      และ generate_paths ต้องคืน "viable" key ด้วย (แก้ใน path_generator.py ด้วย)
-    lat = float(situation.get("lat", 0.0))
-    lng = float(situation.get("lng", 0.0))
-    raw_paths = generate_paths(lat, lng)
+    paths = []
+    if ctx.get("lat") is not None and ctx.get("lng") is not None:
+        gp = generate_paths(_f(ctx.get("lat"), 0.0), _f(ctx.get("lng"), 0.0))
+        paths = [
+            {**p, "viable": bool(p.get("type") and (p.get("target_lat") is not None or p.get("waypoints")))}
+            for p in (gp.get("paths", []) if isinstance(gp, dict) else [])
+        ]
 
-    # normalize: เพิ่ม "viable" key ถ้า path_generator ยังไม่มี
-    # viable = True ถ้า path มี type และ target ครบ
-    paths = [
-        {**p, "viable": bool(p.get("type") and p.get("target"))}
-        for p in raw_paths
-    ]
-    # ──────────────────────────────────────────
-
-    escape = find_escape_routes(human_state, situation)
+    escape = generate_escape_routes(
+        location=str(ctx.get("location", "")),
+        risk=risk_score_value / 10.0,
+        context=ctx,
+    )
 
     # ── CHOICE GUARD ───────────────────────────
-    choice_status = _choice_guard(paths, collapse_signal)
+    choice_status = _choice_guard(paths, escape)
 
     # ── INTERVENTION (only if choice → 0) ─────
     help_plan = None
     if choice_status["intervention_required"]:
-        help_plan = intervention(paths, escape)
+        help_plan = intervene(situation.get("risk_state", "critical"), ctx)
 
-    # ── DECISION ───────────────────────────────
-    decision = run_decision({
-        "location":     situation.get("location", "unknown"),
-        "food":         situation.get("food", "medium"),
-        "money":        situation.get("money", 0),
-        "risk":         risk.get("level", "medium"),
-        "choice_count": choice_status["choice_count"]
-    })
+    # ── DECISION (optional — LLM) ──────────────
+    decision = None
+    if with_decision:
+        from ENGINE.decision_engine import run_decision
+        decision = run_decision({
+            "input":        question,
+            "raw_input":    question,
+            "session_id":   session_id,
+            "context":      ctx,
+        })
 
     # ── OUTPUT ─────────────────────────────────
     return {
