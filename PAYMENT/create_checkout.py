@@ -82,12 +82,8 @@ def create_checkout(email: str, plan: str = "basic",
             "plan":       plan,
         }
     except stripe.error.CardError as e:
-        return {"error": f"Card error: {e.user_message}"}
-    except stripe.error.InvalidRequestError as e:
-        return {"error": f"Invalid request: {e}"}
-    except stripe.error.AuthenticationError:
-        return {"error": "Stripe API key ไม่ถูกต้อง"}
-    except stripe.error.StripeError as e:
-        return {"error": f"Stripe error: {e}"}
+        return {"error": f"Card error: {e.user_message}"}     # user_message ออกแบบมาให้แสดงผู้ใช้
     except Exception as e:
-        return {"error": f"ระบบชำระเงินมีปัญหา กรุณาลองใหม่"}
+        # ข้อความ InvalidRequest/StripeError อาจมีบางส่วนของ key หรือ request id — log ฝั่ง server
+        print(f"⚠ create_checkout: {type(e).__name__}: {e}")
+        return {"error": "ระบบชำระเงินมีปัญหา กรุณาลองใหม่"}

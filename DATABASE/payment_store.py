@@ -9,12 +9,32 @@ from typing import Optional
 
 from DATABASE.db import get_conn
 
+# เดิม query คอลัมน์ id/email/amount/plan/provider บนตาราง payments ของ db.py ซึ่งไม่มีคอลัมน์เหล่านี้
+# → ทุกคำสั่งล้ม: payment_exists คืน True เสมอ, record_payment คืน False เสมอ
+# ใช้ตารางของตัวเองที่มี payment_id เป็น PRIMARY KEY (idempotent จริงด้วย INSERT OR IGNORE)
+_TABLE = "payment_records"
+
+
+def _ensure():
+    with get_conn() as conn:
+        conn.execute(f"""
+            CREATE TABLE IF NOT EXISTS {_TABLE} (
+                id         TEXT PRIMARY KEY,
+                email      TEXT,
+                amount     REAL,
+                plan       TEXT,
+                provider   TEXT,
+                created_at REAL
+            )""")
+        conn.commit()
+
 
 def payment_exists(payment_id: str) -> bool:
     try:
+        _ensure()
         with get_conn() as conn:
             row = conn.execute(
-                "SELECT id FROM payments WHERE id = ?", (payment_id,)
+                f"SELECT id FROM {_TABLE} WHERE id = ?", (payment_id,)
             ).fetchone()
             return row is not None
     except Exception:
@@ -33,32 +53,30 @@ def record_payment(
     บันทึก payment — idempotent
     ถ้า payment_id ซ้ำ → return False ไม่ crash
     """
+    if not payment_id:
+        return False
     try:
+        _ensure()
         with get_conn() as conn:
-            # ตรวจก่อน insert — ป้องกัน race condition
-            existing = conn.execute(
-                "SELECT id FROM payments WHERE id = ?", (payment_id,)
-            ).fetchone()
-            if existing:
-                return False   # already recorded
-
-            conn.execute(
-                """INSERT INTO payments(id, email, amount, plan, provider, created_at)
+            # INSERT OR IGNORE บน PRIMARY KEY = atomic (เดิม SELECT แล้ว INSERT แยกกัน → race)
+            cur = conn.execute(
+                f"""INSERT OR IGNORE INTO {_TABLE}(id, email, amount, plan, provider, created_at)
                    VALUES(?, ?, ?, ?, ?, ?)""",
-                (payment_id, email, amount, plan, provider, time.time()),
+                (str(payment_id), email, amount, plan, provider, time.time()),
             )
             conn.commit()
-            return True
+            return cur.rowcount == 1
     except Exception:
         return False
 
 
 def get_payment(payment_id: str) -> Optional[dict]:
     try:
+        _ensure()
         with get_conn() as conn:
             row = conn.execute(
-                "SELECT id, email, amount, plan, provider, created_at "
-                "FROM payments WHERE id = ?", (payment_id,)
+                f"SELECT id, email, amount, plan, provider, created_at "
+                f"FROM {_TABLE} WHERE id = ?", (payment_id,)
             ).fetchone()
             if not row:
                 return None
@@ -76,10 +94,11 @@ def get_payment(payment_id: str) -> Optional[dict]:
 
 def get_payments_by_email(email: str) -> list:
     try:
+        _ensure()
         with get_conn() as conn:
             rows = conn.execute(
-                "SELECT id, amount, plan, provider, created_at "
-                "FROM payments WHERE email = ? ORDER BY created_at DESC",
+                f"SELECT id, amount, plan, provider, created_at "
+                f"FROM {_TABLE} WHERE email = ? ORDER BY created_at DESC",
                 (email,)
             ).fetchall()
             return [

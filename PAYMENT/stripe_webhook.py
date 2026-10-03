@@ -1,6 +1,8 @@
 """
 PAYMENT/stripe_webhook.py — KING DIADEM
 Webhook handler — signature verify + idempotency + fraud guard
+
+LEGACY: webhook ที่ใช้งานจริงคือ /webhook/stripe ใน app.py — ไฟล์นี้ไม่มีผู้เรียก
 """
 import os
 import time
@@ -40,18 +42,21 @@ def handle_webhook(payload: bytes, sig_header: str) -> tuple[str, int]:
     # ── Signature verification (CRITICAL — ห้ามข้าม) ────────────
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, WEBHOOK_SECRET)
-    except stripe.error.SignatureVerificationError:
+    except Exception:
         return "Invalid signature", 400
-    except Exception as e:
-        return f"Webhook error: {e}", 400
 
     # ── Idempotency guard ────────────────────────────────────────
-    _clean_old_events()
+    # เดิมใช้ dict ในหน่วยความจำ — restart/หลาย worker แล้ว Stripe ส่งซ้ำ = เติมเครดิตซ้ำ
     event_id = event.get("id", "")
-    if event_id in _processed:
-        return "duplicate", 200
-
-    _processed[event_id] = time.time()
+    try:
+        from DATABASE.db import claim_stripe_event
+        if not claim_stripe_event(event_id, event.get("type", "")):
+            return "duplicate", 200
+    except Exception:
+        _clean_old_events()
+        if event_id in _processed:
+            return "duplicate", 200
+        _processed[event_id] = time.time()
 
     # ── Event routing ────────────────────────────────────────────
     event_type = event.get("type", "")
@@ -88,15 +93,18 @@ def _handle_checkout_completed(session: dict):
         "civilization": 500,
         "topup":        50,
     }
-    credits = PLAN_CREDITS.get(plan, int(session.get("amount_total", 0) / 100))
-    credits = max(0, min(credits, 10000))  # cap ที่ 10,000
+    # plan ที่ไม่รู้จัก = 0 เครดิต (เดิมคิดจาก amount_total ซึ่งไม่ผูกกับราคาที่ตกลงไว้)
+    credits = PLAN_CREDITS.get(plan, 0)
+    if not credits:
+        print(f"⚠ unknown plan in webhook: {plan!r} — 0 credits")
+        return
 
     identifier = api_key or email
     try:
         add_credits(identifier, credits)
         print(f"✅ Credits added: {credits} → {identifier} (plan={plan})")
     except Exception as e:
-        print(f"❌ add_credits failed: {e}")
+        print(f"❌ add_credits failed: {type(e).__name__}")
 
 
 def _handle_payment_failed(payment_intent: dict):

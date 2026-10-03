@@ -7,11 +7,15 @@ KING DIADEM — User DB
 from __future__ import annotations
 import sqlite3
 import hashlib
+import hmac
 import os
 import time
 from typing import Optional
 
-DB_NAME = "king_diadem.db"
+# LEGACY (ไม่มีผู้เรียก): ระบบบัญชีจริงอยู่ใน DATABASE/db.py
+# เดิมเขียนลง "king_diadem.db" ที่ root ของโปรเจกต์ (คนละไฟล์กับ DB จริง data/king_diadem.db)
+# และตาราง users/payments มีชื่อชนกับ schema ของ db.py — แยกไฟล์ให้ชัดเจน ตั้งได้ด้วย USER_DB_PATH
+DB_NAME = os.getenv("USER_DB_PATH", "data/legacy_user_db.sqlite")
 
 
 # ── Password hashing — stdlib only ───────────────────────────────
@@ -23,14 +27,20 @@ def _hash_password(password: str, salt: Optional[bytes] = None) -> tuple[str, st
     return dk.hex(), salt.hex()
 
 def _verify_password(password: str, hash_hex: str, salt_hex: str) -> bool:
-    salt = bytes.fromhex(salt_hex)
-    dk   = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 200_000)
-    return dk.hex() == hash_hex
+    try:
+        salt = bytes.fromhex(salt_hex)
+    except (TypeError, ValueError):
+        return False
+    dk   = hashlib.pbkdf2_hmac("sha256", str(password).encode("utf-8"), salt, 200_000)
+    return hmac.compare_digest(dk.hex(), str(hash_hex))   # เดิม == (เวลาไม่คงที่)
 
 
 # ── Context manager helper ────────────────────────────────────────
 def _conn():
-    conn = sqlite3.connect(DB_NAME)
+    d = os.path.dirname(DB_NAME)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    conn = sqlite3.connect(DB_NAME, timeout=15)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -100,6 +110,7 @@ def get_user(email: str) -> Optional[dict]:
 def verify_user(email: str, password: str) -> bool:
     user = get_user(email)
     if not user:
+        _hash_password(str(password or "x"))   # เวลาเท่ากัน ไม่บอกใบ้ว่า email มีอยู่ไหม
         return False
     ok = _verify_password(password, user["pwd_hash"], user["pwd_salt"])
     if ok:
@@ -117,6 +128,12 @@ def verify_user(email: str, password: str) -> bool:
 
 
 def add_credit(email: str, amount: int) -> bool:
+    try:
+        amount = int(amount)
+    except (TypeError, ValueError):
+        return False
+    if amount <= 0:            # เดิมรับค่าลบ = หักเครดิตผ่านฟังก์ชัน "เพิ่ม"
+        return False
     try:
         with _conn() as conn:
             conn.execute(
@@ -137,19 +154,20 @@ def get_credits(email: str) -> int:
 def use_credit(email: str, amount: int = 1) -> bool:
     """Deduct credit — return False ถ้าไม่พอ"""
     try:
+        amount = int(amount)
+    except (TypeError, ValueError):
+        return False
+    if amount <= 0:
+        return False
+    try:
         with _conn() as conn:
-            row = conn.execute(
-                "SELECT credits FROM users WHERE email = ?",
-                (email.lower().strip(),)
-            ).fetchone()
-            if not row or row["credits"] < amount:
-                return False
-            conn.execute(
-                "UPDATE users SET credits = credits - ? WHERE email = ?",
-                (amount, email.lower().strip()),
+            # UPDATE มีเงื่อนไขคำสั่งเดียว = atomic (เดิม SELECT แล้ว UPDATE → หักซ้ำได้)
+            cur = conn.execute(
+                "UPDATE users SET credits = credits - ? WHERE email = ? AND credits >= ?",
+                (amount, email.lower().strip(), amount),
             )
             conn.commit()
-        return True
+        return cur.rowcount == 1
     except Exception:
         return False
 

@@ -11,9 +11,13 @@ def topup(email: str, amount: float, source: str = "manual") -> dict:
     if not email or not isinstance(email, str):
         return {"status": "error", "message": "email ไม่ถูกต้อง"}
 
-    amount = float(amount)
+    # เครดิตเป็นจำนวนเต็ม — เดิม float 0.5 ถูกปัดเป็น 0 แต่รายงานว่า "added 0.5"
+    try:
+        amount = int(amount)
+    except (TypeError, ValueError):
+        amount = 0
     if amount <= 0 or amount > 100000:
-        return {"status": "error", "message": f"จำนวนไม่ถูกต้อง: {amount}"}
+        return {"status": "error", "message": "จำนวนไม่ถูกต้อง"}
 
     try:
         new_balance = add_credits(email.strip(), amount)
@@ -24,8 +28,8 @@ def topup(email: str, amount: float, source: str = "manual") -> dict:
             "source":      source,
             "timestamp":   time.time(),
         }
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+    except Exception:
+        return {"status": "error", "message": "wallet_unavailable"}
 
 
 def spend(email: str, amount: float, reason: str = "") -> dict:
@@ -33,9 +37,12 @@ def spend(email: str, amount: float, reason: str = "") -> dict:
     if not email:
         return {"status": "error", "message": "ต้องระบุ email"}
 
-    amount = float(amount)
+    try:
+        amount = int(amount)
+    except (TypeError, ValueError):
+        amount = 0
     if amount <= 0:
-        return {"status": "error", "message": "จำนวนต้องมากกว่า 0"}
+        return {"status": "error", "message": "จำนวนต้องเป็นจำนวนเต็มมากกว่า 0"}
 
     try:
         ok, remaining = deduct_credits(email.strip(), amount)
@@ -43,8 +50,8 @@ def spend(email: str, amount: float, reason: str = "") -> dict:
             return {"status": "insufficient", "remaining": remaining,
                     "message": f"credits ไม่พอ (มี {remaining} ต้องการ {amount})"}
         return {"status": "success", "spent": amount, "remaining": remaining, "reason": reason}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+    except Exception:
+        return {"status": "error", "message": "wallet_unavailable"}
 
 
 def balance(email: str) -> dict:
@@ -54,5 +61,5 @@ def balance(email: str) -> dict:
     try:
         credits = get_credits(email.strip())
         return {"status": "ok", "email": email, "balance": credits}
-    except Exception as e:
-        return {"status": "error", "message": str(e), "balance": 0}
+    except Exception:
+        return {"status": "error", "message": "wallet_unavailable", "balance": 0}
