@@ -112,6 +112,14 @@ class SilentCanon:
     @staticmethod
     def evaluate(choice_count: int) -> CanonResult:
         """Art.1 + Art.2 — core evaluation"""
+        try:
+            choice_count = float(choice_count)
+        except (TypeError, ValueError):
+            choice_count = -1          # อ่านค่าไม่ได้ = state ผิดโครงสร้าง ไม่ใช่ "มีทางเลือก"
+        if choice_count != choice_count:
+            choice_count = -1          # NaN
+        if choice_count >= 1:
+            choice_count = int(choice_count)
         if choice_count < 0:
             return CanonResult(
                 status=CanonStatus.HALT, action="none",   # เดิมเป็น string "HALT" ไม่ใช่ enum
@@ -120,7 +128,7 @@ class SilentCanon:
                 choice_count=choice_count,
                 violations=["NEGATIVE_CHOICE_COUNT — impossible state"],
             )
-        if choice_count == 0:
+        if choice_count < 1:           # เดิม == 0 → 0.5 ทางเลือกถูกนับว่า "มีทางเลือก" แล้วนิ่ง
             return CanonResult(
                 status=CanonStatus.INTERVENE,
                 action="restore_one_choice",
@@ -186,7 +194,7 @@ class SilentCanon:
             return CanonResult(
                 status=CanonStatus.NOISE,
                 action="reject_meaning_lock",
-                reason=f"Meaning requires authority: '{meaning[:60]}'. Strip source. If survives, it is real.",
+                reason=f"Meaning requires authority: '{str(meaning)[:60]}'. Strip source. If survives, it is real.",
                 article_ref="Art.14 — Canon functions without dependency on creator identity",
                 withdraw_after=True,
                 signal_type=SignalType.DISTORTION,
@@ -273,7 +281,7 @@ def canon_self_test() -> dict:
 # ── API แบบฟังก์ชันที่ ENGINE/kernel_runtime เรียก (เดิม import silent_canon ซึ่งไม่มี) ──
 def silent_canon(choice_count) -> dict:
     try:
-        n = int(choice_count)
+        n = int(float(choice_count))
     except (TypeError, ValueError):
         n = 1
     r = SilentCanon.evaluate(n)

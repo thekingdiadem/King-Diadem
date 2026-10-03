@@ -66,17 +66,21 @@ ARTICLES = {
 # ── Output violation patterns ──────────────────────────────────────
 # หมายเหตุ: ไม่ใช้ "ต้องทำ" เดี่ยวๆ แล้ว — มันจับ "ไม่ต้องทำ" และ "สิ่งที่ต้องทำก่อน"
 # ซึ่งเป็นคำแนะนำปกติ แล้ว app.py hard-block คำตอบทิ้ง
+# "บังคับ" / "forced to" เอาออก: เป็นคำบรรยายสถานการณ์ ("ถ้าถูกบังคับให้...") ไม่ใช่การปิดทางเลือก
+# และ choice_collapse เป็น hard block ใน app.py — คำตอบที่ดีถูกระงับทิ้ง
 _CHOICE_COLLAPSE_PATTERNS = [
-    "no choice", "only thing you can do", "cannot choose", "only option", "forced to",
-    "ไม่มีทางเลือก", "ต้องทำเท่านั้น", "บังคับ", "เลือกไม่ได้",
+    "no choice", "only thing you can do", "cannot choose", "only option",
+    "ไม่มีทางเลือก", "ต้องทำเท่านั้น", "เลือกไม่ได้",
 ]
 _EXIT_BLOCKED_PATTERNS = [
     "no exit", "cannot leave", "locked in", "forever", "never return",
     "ออกไม่ได้", "ติดอยู่", "ตลอดไป", "กลับไม่ได้",
 ]
+# เดิมมี "submit" "compliance" (กรอกฟอร์ม/ภาษี) "เชื่อฟัง" ("ลูกไม่เชื่อฟัง") "ต้องทำตาม"
+# ("ต้องทำตามขั้นตอน") → คำแนะนำปกติถูก hard block  เหลือเฉพาะการเรียกร้องให้ยอมตาม
 _FORCED_IDENTITY_PATTERNS = [
-    "obey", "follow order", "submit", "compliance", "obedience", "must obey",
-    "เชื่อฟัง", "ต้องทำตาม", "ยอมจำนน",
+    "must obey", "you will obey", "follow my orders", "follow orders", "obedience is",
+    "ต้องเชื่อฟังฉัน", "ต้องทำตามที่ฉันสั่ง", "ต้องทำตามคำสั่ง", "ยอมจำนน",
 ]
 _BELIEF_REQUIRED_PATTERNS = [
     "believe", "trust me", "promise success", "sure win", "guarantee",
@@ -94,6 +98,9 @@ _COMPASSION_SIGNALS = [
 
 _NEGATIONS_TH = ("ไม่", "ไม่ต้อง", "ไม่ได้", "ไม่ใช่", "ไม่ใช่ว่า", "ไม่จำเป็น", "ไม่จำเป็นต้อง", "ไม่ได้ถูก")
 _NEGATIONS_EN = ("not", "no need to", "don't", "do not", "never", "isn't", "aren't", "without", "nobody is")
+# สะท้อนความรู้สึก/สมมติ ("รู้สึกเหมือนไม่มีทางเลือก", "if it feels like no choice") ≠ ระบบปิดทางเลือก
+_REFLECT_TH = ("รู้สึก", "รู้สึกว่า", "รู้สึกเหมือน", "เหมือน", "ราวกับ", "คิดว่า", "บอกว่า", "ถ้า")
+_REFLECT_EN = ("feel", "feels like", "feel like", "felt like", "seems like", "if there is", "as if")
 
 
 def _contains(text: str, keywords: list) -> bool:
@@ -119,9 +126,11 @@ def _contains(text: str, keywords: list) -> bool:
                 window = lower[max(0, i - 16):i].rstrip()
                 if any(window.endswith(n) or window.endswith(n + " to") for n in _NEGATIONS_EN):
                     continue
+                if any(window.endswith(n) for n in _REFLECT_EN):
+                    continue
             else:
                 window = lower[max(0, i - 12):i].rstrip()
-                if any(window.endswith(n) for n in _NEGATIONS_TH):
+                if any(window.endswith(n) for n in _NEGATIONS_TH + _REFLECT_TH):
                     continue
             return True
     return False
@@ -154,7 +163,8 @@ def evaluate_task(task: dict) -> dict:
             clarity, choice_preserved, exit_available, self_insertion
         }
     """
-    description = str(task.get("description", "")).strip()
+    task = task if isinstance(task, dict) else {"description": task}
+    description = str(task.get("description", "") or "").strip()
     result = {
         "description":     description,
         "canon_aligned":   True,
@@ -227,6 +237,8 @@ def validate_output(output: dict) -> dict:
         output พร้อม canon_check เพิ่มเข้าไป
         ถ้า violation → flag output["canon_violation"] = True
     """
+    if not isinstance(output, dict):
+        return output
     # ดึง text ที่จะ validate
     text_to_check = (
         output.get("ai_response") or
@@ -262,7 +274,11 @@ def validate_output(output: dict) -> dict:
 
     # Article 2 — Silence Principle:
     # ถ้า choice_count > 1 และ output เงียบอยู่ → ถือว่าถูกต้อง
-    if output.get("choice_count", 1) >= 1 and not output.get("ai_response"):
+    try:
+        _cc = float(output.get("choice_count", 1))
+    except (TypeError, ValueError):
+        _cc = 1.0
+    if _cc >= 1 and not output.get("ai_response"):
         output["silence_valid"] = True
 
     return output
@@ -308,13 +324,14 @@ def pure_axis_check(context: str) -> dict:
     violations = []
     text = str(context).lower()
 
-    if any(k in text for k in ["you must", "you have to", "คุณต้อง", "สั่ง", "command"]):
+    # ใช้ _contains (ขอบเขตคำ+คำปฏิเสธ): เดิม "certain" ติด "uncertain", "สั่ง" ติด "สั่งอาหาร"
+    if _contains(text, ["you must", "you have to", "คุณต้อง", "ออกคำสั่ง", "command you"]):
         violations.append("axis_command_issued")
 
-    if any(k in text for k in ["guaranteed", "certain", "100%", "รับประกัน", "แน่นอน"]):
+    if _contains(text, ["guaranteed", "100% certain", "รับประกัน", "แน่นอน 100%"]):
         violations.append("axis_claim_made")
 
-    if any(k in text for k in ["authority", "power over", "control you", "อำนาจเหนือ"]):
+    if _contains(text, ["power over you", "control you", "อำนาจเหนือคุณ"]):
         violations.append("axis_authority_offered")
 
     return {

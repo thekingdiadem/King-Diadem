@@ -63,7 +63,7 @@ def analyze_entropy_state(state: dict, entity_type: str = "human") -> dict:
     if not isinstance(state, dict):
         return _entropy_reject("INVALID_STATE")
 
-    profile  = ENTITY_PROFILES.get(entity_type, ENTITY_PROFILES["unknown"])
+    profile  = ENTITY_PROFILES.get(str(entity_type), ENTITY_PROFILES["unknown"])
     entropy  = _clamp(state.get("entropy",  50.0))
     stability= _clamp(state.get("stability",50.0))
     resource = _clamp(state.get("resource", 50.0))
@@ -145,7 +145,9 @@ def multi_entity_analysis(entities: dict) -> dict:
     results = {}
     warnings = []
 
-    for name, data in entities.items():
+    for name, data in (entities.items() if isinstance(entities, dict) else []):
+        if not isinstance(data, dict):
+            continue
         etype = data.get("entity_type", "unknown")
         state = {k: v for k, v in data.items() if k != "entity_type"}
         r = analyze_entropy_state(state, etype)
@@ -177,16 +179,18 @@ def record_entropy_event(event: dict) -> dict:
     ทุกเหตุการณ์สอนระบบว่า intervention ไหนได้ผล
     """
     required = ["entity_type", "before_state", "after_state", "intervention"]
+    if not isinstance(event, dict):
+        return {"error": f"ขาด fields: {required}"}
     missing  = [k for k in required if k not in event]
     if missing:
         return {"error": f"ขาด fields: {missing}"}
 
-    before = event["before_state"]
-    after  = event["after_state"]
+    before = event["before_state"] if isinstance(event["before_state"], dict) else {}
+    after  = event["after_state"] if isinstance(event["after_state"], dict) else {}
 
-    delta_entropy  = after.get("entropy",  50) - before.get("entropy",  50)
-    delta_stability= after.get("stability",50) - before.get("stability",50)
-    delta_resource = after.get("resource", 50) - before.get("resource", 50)
+    delta_entropy  = _clamp(after.get("entropy",  50)) - _clamp(before.get("entropy",  50))
+    delta_stability= _clamp(after.get("stability",50)) - _clamp(before.get("stability",50))
+    delta_resource = _clamp(after.get("resource", 50)) - _clamp(before.get("resource", 50))
 
     effectiveness = -delta_entropy + delta_stability + delta_resource
     verdict = "effective" if effectiveness > 5 else "neutral" if effectiveness > -5 else "harmful"
@@ -211,8 +215,13 @@ def record_entropy_event(event: dict) -> dict:
 # ══════════════════════════════════════════════════════════════════
 
 def _clamp(v, lo=0.0, hi=100.0) -> float:
-    try:    return max(lo, min(hi, float(v)))
-    except: return lo
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return lo
+    if x != x:          # NaN
+        return lo
+    return max(lo, min(hi, x))
 
 
 def _sigmoid_normalize(x: float) -> float:

@@ -271,5 +271,5 @@ def analyze(pattern: dict) -> dict:
         pattern = pattern if isinstance(pattern, dict) else {"input": str(pattern or "")}
         context = str(pattern.get("raw_input") or pattern.get("input", ""))
         return suffering_infrastructure(context, pattern)
-    except Exception as e:
-        return {"error": f"paticcasamuppada fail: {str(e)}"}
+    except Exception:
+        return {"error": "PATICCA_UNAVAILABLE"}

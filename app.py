@@ -110,7 +110,7 @@ except Exception as e:
 
 # ── KING DIADEM CORE v2.0 — v4.9 ─────────────────────────────────
 try:
-    from king_diadem_core import quick_assess, king_diadem_decision, core_status
+    from core.king_diadem_core import quick_assess, king_diadem_decision, core_status
     print("✅ king_diadem_core v2.0 loaded")
     _CORE_OK = True
 except Exception as e:

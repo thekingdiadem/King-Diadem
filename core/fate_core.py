@@ -28,11 +28,14 @@ CONSTRAINTS = [
     "NO_AUTONOMOUS_ENFORCEMENT",
 ]
 
+# เดิมมี "ฆ่า" "ตาย" "จบแล้ว" "หมดแล้ว" "พังหมด" → "ฆ่าเวลา" "ขำจะตาย" "งานจบแล้ว"
+# "ข้าวหมดแล้ว" ถูก block เป็นวิกฤตฆ่าตัวตาย  เหลือเฉพาะสัญญาณทำร้ายตัวเองจริง
 CRISIS_SIGNALS = [
-    "ฆ่าตัว", "ไม่อยากอยู่", "อยากตาย", "จบชีวิต",
-    "ฆ่า", "ตาย", "พังหมด", "จบแล้ว", "หมดแล้ว",
+    "ฆ่าตัวตาย", "ฆ่าตัวเอง", "ทำร้ายตัวเอง", "ไม่อยากอยู่แล้ว", "ไม่อยากมีชีวิต",
+    "อยากตาย", "จบชีวิต",
     "suicid", "kill myself", "end my life", "want to die",
 ]
+ELEVATED_SIGNALS = ["เสี่ยง", "พังหมด", "พังทุกอย่าง", "หมดหวัง", "ไม่ไหว"]
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -106,8 +109,8 @@ def run_fate(input_data: dict) -> dict:
         try:
             from core.civil_work_core import evaluate_work_plan
             civil_result = evaluate_work_plan(input_data["tasks"])
-        except Exception as e:
-            civil_result = {"error": str(e)}
+        except Exception:
+            civil_result = {"error": "CIVIL_UNAVAILABLE"}
 
     # ── Dependency Cycle ─────────────────────────────────────────
     cycle_result = None
@@ -115,8 +118,8 @@ def run_fate(input_data: dict) -> dict:
         try:
             from core.dependency_cycle import dependent_cycle
             cycle_result = dependent_cycle(input_data["state"])
-        except Exception as e:
-            cycle_result = {"error": str(e)}
+        except Exception:
+            cycle_result = {"error": "CYCLE_UNAVAILABLE"}
 
     # ── S6: Outcome Classification ───────────────────────────────
     return {
@@ -135,14 +138,14 @@ def run_fate(input_data: dict) -> dict:
 # HELPERS
 # ══════════════════════════════════════════════════════════════════
 def detect_human_risk(text: str) -> str:
-    t = text.lower()
+    t = str(text or "").lower()
     for w in CRISIS_SIGNALS:
         if w in t:
             return "critical"
-    if len(text) < 3:
+    if len(t) < 3:
         return "low"
     # ตรวจ pattern เพิ่มเติม
-    if any(w in t for w in ["เสี่ยง", "พัง", "หมดหวัง", "ไม่ไหว"]):
+    if any(w in t for w in ELEVATED_SIGNALS):
         return "elevated"
     return "normal"
 

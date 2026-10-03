@@ -14,7 +14,15 @@ Derived from KING DIADEM ECOSYSTEM CORE LOGIC KERNEL
   Article 15 — Stone Monolith Clause
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+
+
+def _f(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d   # NaN → ค่าเริ่มต้น
 
 PRIME_EQUATION = "Reality = Universe − {Impossible}"
 
@@ -175,12 +183,13 @@ def evaluate_laws(state: dict) -> dict:
     state keys: entropy, stability, resource, choice_count, explainable, ego_in_signal
     """
     violations = []
-    entropy   = state.get("entropy",       0.0)
-    stability = state.get("stability",   100.0)
-    resource  = state.get("resource",    100.0)
-    choices   = state.get("choice_count",    1)
-    explain   = state.get("explainable",  True)
-    ego       = state.get("ego_in_signal", False)
+    state     = state if isinstance(state, dict) else {}
+    entropy   = _f(state.get("entropy"),        0.0)
+    stability = _f(state.get("stability"),    100.0)
+    resource  = _f(state.get("resource"),     100.0)
+    choices   = _f(state.get("choice_count"),   1)
+    explain   = state.get("explainable",  True) is not False
+    ego       = state.get("ego_in_signal", False) is True
 
     if entropy > 60:
         violations.append(LawViolation(
@@ -198,7 +207,7 @@ def evaluate_laws(state: dict) -> dict:
             article_ref="Art.7",
         ))
 
-    if choices <= 0:
+    if choices < 1:   # Choice(t) ≥ 1 — 0.5 ทางเลือกก็ยังไม่ถึงหนึ่งทาง
         violations.append(LawViolation(
             law_id="choice_floor", law_name="Choice(t) >= 1 required",
             triggered=[f"choice_count={choices} — PRIME LAW VIOLATED"],
@@ -245,6 +254,8 @@ def evaluate_laws(state: dict) -> dict:
 
 def decision_quality(relevant: float, entropy: float) -> dict:
     """Decision(t) = Relevant(t) / Entropy(t)"""
+    relevant = _f(relevant, 0.0)
+    entropy  = _f(entropy, 0.001)
     if entropy <= 0:
         entropy = 0.001
     score = relevant / entropy

@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 
 # ── KING DIADEM CORE v2 ───────────────────────────────────────────
 try:
-    from king_diadem_core import (
+    from core.king_diadem_core import (
         quick_assess,
         king_diadem_decision,
         core_status,

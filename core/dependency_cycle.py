@@ -105,8 +105,12 @@ def simulate_days(initial_state: dict, days: int = 30,
     จำลอง n วัน พร้อม optional interventions
     interventions = {day_number: "intervention_name"}
     """
-    days = max(1, min(days, 365))
-    interventions = interventions or {}
+    try:
+        days = max(1, min(int(days), 365))
+    except (TypeError, ValueError):
+        days = 30
+    interventions = interventions if isinstance(interventions, dict) else {}
+    initial_state = initial_state if isinstance(initial_state, dict) else {}
 
     history = [{"day": 0, "state": initial_state.copy(),
                 "floor_breached": False, "event": "initial"}]
@@ -115,7 +119,7 @@ def simulate_days(initial_state: dict, days: int = 30,
     for d in range(1, days + 1):
         iv = interventions.get(d)
         result = dependent_cycle(current, intervention=iv)
-        current = result["state"]
+        current = result.get("state", current)
 
         history.append({
             "day":            d,
