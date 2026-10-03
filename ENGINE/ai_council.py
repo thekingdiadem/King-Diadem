@@ -30,6 +30,7 @@ def ai_council(
     waterline  = _f(ctx.get("waterline"),  50)
     energy     = _f(ctx.get("energy"),     50)
     has_shelter = ctx.get("safe_place", True) is not False
+    money_known = money is not None          # None = ผู้ใช้ไม่ได้บอกเงิน → ไม่นับว่า "ไม่มีเงิน"
     money, food = _f(money, 0.0), _f(food, 50.0)
 
     risk_score = {"low": 20, "moderate": 45, "high": 70, "critical": 90}.get(
@@ -42,7 +43,7 @@ def ai_council(
     if waterline < 25 or not has_shelter:
         wl_vote = "halt_and_stabilize"
         wl_reason = "waterline ต่ำวิกฤต — ต้องหยุดก่อน"
-    elif food <= 0 or (food > 1 and money < food):
+    elif food <= 0 or (money_known and food > 1 and money < food):
         # food = 0/1 (มีอาหารไหม จาก survivor engine) หรือเป็นค่าอาหาร (>1)
         # เดิมเทียบ money < food ตรงๆ → คนที่มีอาหาร (food=1) แต่เงิน 0 ถูกบอกให้ "หาอาหารก่อน"
         wl_vote = "secure_food_first"
@@ -73,7 +74,7 @@ def ai_council(
         energy < 15,
         risk_score >= 85,
         not has_shelter,
-        money <= 0 and food <= 0,
+        money_known and money <= 0 and food <= 0,
     ])
     if critical_flags >= 2:
         halt_vote = "HALT"
@@ -102,7 +103,7 @@ def ai_council(
     # ── FATE VOICE — Choice(t) ≥ 1 ────────────────────────────────
     # ตรวจว่ายังมีทางเลือกอยู่ไหม
     choice_count = sum([
-        money > 0,
+        money > 0 or not money_known,
         food > 0,
         has_shelter,
         energy > 20,

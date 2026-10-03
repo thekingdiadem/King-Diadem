@@ -15,7 +15,11 @@ Deterministic: ไม่มี random, ไม่มี time-based decay ที�
 input เดียวกัน -> output เดียวกันเสมอ ตาม logic kernel ของ King Diadem
 """
 
+import threading
+
 _question_count = 0
+_lock = threading.Lock()
+_LEDGER_MAX = 10000    # กันหน่วยความจำโตไม่หยุด (ยอดรวมยังนับครบ)
 
 # ---- Wisdom ledger: บันทึกทุก "ผลลัพธ์ที่ใช้ได้จริง" กับ "พลังงานที่เสียไป" ----
 _outcome_total = 0.0   # ผลลัพธ์ที่ใช้งานได้จริงสะสม (หน่วยพี่คิงกำหนดเอง เช่น บาท, งานที่เสร็จ, ปัญหาที่แก้)
@@ -26,7 +30,8 @@ _ledger = []           # ประวัติทุกรายการ เพ
 def record_question():
     """ของเดิม: นับจำนวนคำถาม/รอบที่ถามระบบ ยังใช้ได้เหมือนเดิม"""
     global _question_count
-    _question_count += 1
+    with _lock:
+        _question_count += 1
 
 
 def freedom_index() -> int:
@@ -40,10 +45,13 @@ def record_outcome(value: float, label: str = "") -> None:
     value ต้อง >= 0 (ผลลัพธ์ติดลบไม่ควรมี — ถ้ามีความเสียหายให้บันทึกเป็น energy แทน)
     """
     global _outcome_total
+    value = float(value)
     if value < 0:
         raise ValueError("record_outcome: value ต้องไม่ติดลบ (ความเสียหายให้ใช้ record_energy)")
-    _outcome_total += value
-    _ledger.append({"type": "outcome", "value": value, "label": label})
+    with _lock:
+        _outcome_total += value
+        _ledger.append({"type": "outcome", "value": value, "label": label})
+        del _ledger[:-_LEDGER_MAX]
 
 
 def record_energy(cost: float, label: str = "") -> None:
@@ -52,10 +60,13 @@ def record_energy(cost: float, label: str = "") -> None:
     cost ต้อง > 0
     """
     global _energy_total
+    cost = float(cost)
     if cost <= 0:
         raise ValueError("record_energy: cost ต้องมากกว่า 0")
-    _energy_total += cost
-    _ledger.append({"type": "energy", "value": cost, "label": label})
+    with _lock:
+        _energy_total += cost
+        _ledger.append({"type": "energy", "value": cost, "label": label})
+        del _ledger[:-_LEDGER_MAX]
 
 
 def wisdom_index() -> float:

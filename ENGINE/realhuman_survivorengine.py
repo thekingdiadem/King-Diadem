@@ -25,12 +25,16 @@ except ImportError:
     _COUNCIL_LOADED = False
 
 
+def _money(v) -> str:
+    return "ไม่ระบุ" if v is None else f"{v:.0f}"
+
+
 # ── Data structures ───────────────────────────────────────────────
 
 @dataclass
 class HumanState:
     energy:          float = 50.0
-    money:           float = 0.0
+    money:           float | None = None   # None = ผู้ใช้ไม่ได้บอก (ไม่ใช่ "ไม่มีเงิน")
     food_access:     bool  = True
     safe_place:      bool  = True
     mental_state:    str   = "stable"   # stable / stressed / overwhelmed
@@ -125,7 +129,7 @@ class RealHumanSurvivorEngine:
                 priority = "หาอาหารก่อนทุกอย่าง",
                 context_for_lyla = self._ctx(
                     "NO_FOOD",
-                    f"energy={state.energy:.0f} money={state.money:.0f}",
+                    f"energy={state.energy:.0f} money={_money(state.money)}",
                     "LYLA ต้องช่วยหาทางได้อาหารทันที ไม่ใช่วางแผนระยะยาว",
                     flags, emotion_note,
                 ),
@@ -161,7 +165,7 @@ class RealHumanSurvivorEngine:
                 priority = "พักก่อน ร่างกายไม่พร้อมทำงาน",
                 context_for_lyla = self._ctx(
                     "LOW_ENERGY",
-                    f"energy={state.energy:.0f} sleep={state.sleep_hours:.1f}h money={state.money:.0f}",
+                    f"energy={state.energy:.0f} sleep={state.sleep_hours:.1f}h money={_money(state.money)}",
                     "LYLA แนะนำให้พักก่อน อย่าผลักดันให้ตัดสินใจใหญ่ "
                     "ถ้าต้องทำอะไรให้เลือกอย่างเดียวที่เล็กที่สุดก่อน",
                     flags, emotion_note,
@@ -199,7 +203,7 @@ class RealHumanSurvivorEngine:
             priority = "พร้อมทำงานปกติ",
             context_for_lyla = self._ctx(
                 "STABLE",
-                f"energy={state.energy:.0f} time={state.time_available:.1f}h money={state.money:.0f}",
+                f"energy={state.energy:.0f} time={state.time_available:.1f}h money={_money(state.money)}",
                 "LYLA วิเคราะห์ได้เต็มที่ เสนอทางเลือกได้หลายทาง",
                 flags, emotion_note,
             ),
@@ -235,7 +239,7 @@ class RealHumanSurvivorEngine:
         if not state.food_access:                  flags.append("NO_FOOD")
         if not state.safe_place:                   flags.append("NO_SHELTER")
         if state.days_in_crisis >= self.CRISIS_LIMIT: flags.append("CHRONIC_CRISIS")
-        if state.money <= 0:                       flags.append("NO_MONEY")
+        if state.money is not None and state.money <= 0: flags.append("NO_MONEY")
         return flags
 
     def _calc_waterline(self, state: HumanState) -> float:
@@ -268,27 +272,38 @@ def parse_state_from_context(context: dict) -> HumanState:
                 mental_state   = parsed["mental_state"],
                 time_available = parsed["time_available"],
                 sleep_hours    = parsed["sleep_hours"],
-                days_in_crisis = int(context.get("days_in_crisis", 0)),
+                days_in_crisis = parsed["days_in_crisis"],
             )
         except Exception:
             pass
 
-    # fallback — direct parse
+    # fallback — direct parse (แปลงค่าแบบไม่ล้ม)
+    context = context if isinstance(context, dict) else {}
+    def _f(v, d):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return d
+    m = context.get("money")
     return HumanState(
-        energy         = float(context.get("energy",         50)),
-        money          = float(context.get("money",           0)),
-        food_access    = bool(context.get("food_access",   True)),
-        safe_place     = bool(context.get("safe_place",    True)),
+        energy         = _f(context.get("energy"),         50.0),
+        money          = _f(m, None) if m not in (None, "") else None,
+        food_access    = context.get("food_access", True) not in (False, "false", "0", 0),
+        safe_place     = context.get("safe_place",  True) not in (False, "false", "0", 0),
         mental_state   = str(context.get("mental_state", "stable")),
-        time_available = float(context.get("time_available",  8)),
-        sleep_hours    = float(context.get("sleep_hours",     6)),
-        days_in_crisis = int(context.get("days_in_crisis",    0)),
+        time_available = _f(context.get("time_available"),  8.0),
+        sleep_hours    = _f(context.get("sleep_hours"),     6.0),
+        days_in_crisis = int(_f(context.get("days_in_crisis"), 0)),
     )
 
 
 # ── Monday reset ─────────────────────────────────────────────────
 
 def monday_reset(pleasure_level: float, energy: float) -> dict:
+    try:
+        pleasure_level, energy = float(pleasure_level), float(energy)
+    except (TypeError, ValueError):
+        pleasure_level, energy = 50.0, 50.0
     drop     = max(0.0, pleasure_level - energy)
     severity = "HIGH" if drop > 30 else "MODERATE" if drop > 15 else "LOW"
     return {

@@ -20,8 +20,14 @@ _STORE: dict[str, dict] = {}
 _LOCK  = Lock()
 
 
+_MAX_USERS = 10000
+
 def _get_user(api_key: str, now: float) -> dict:
     """Get or init user record — always called under lock"""
+    if api_key not in _STORE and len(_STORE) >= _MAX_USERS:
+        # กันหน่วยความจำโตไม่หยุด: ทิ้ง record ที่ไม่ได้ใช้เกิน 1 ชม.
+        for k in [k for k, u in _STORE.items() if now - u["last_update"] > 3600]:
+            _STORE.pop(k, None)
     if api_key not in _STORE:
         _STORE[api_key] = {
             "timestamps":   [],

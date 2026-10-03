@@ -15,10 +15,16 @@ def plan(
     context:  Optional[dict] = None,
 ) -> dict:
     ctx       = context or {}
-    entropy   = float(pattern.get("entropy",   40))
-    resource  = float(pattern.get("resource",  50))
-    stability = float(pattern.get("stability", 60))
-    choices   = int(pattern.get("choices",      1))
+    pattern   = pattern if isinstance(pattern, dict) else {}
+    def _f(v, d):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return d
+    entropy   = _f(pattern.get("entropy"),   40)
+    resource  = _f(pattern.get("resource"),  50)
+    stability = _f(pattern.get("stability"), 60)
+    choices   = int(_f(pattern.get("choices"), 1))
     user_input= str(pattern.get("input",       ""))
 
     # ── COLLAPSE — choices = 0 ────────────────────────────────────

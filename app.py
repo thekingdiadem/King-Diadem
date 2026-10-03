@@ -367,7 +367,7 @@ def _answered(result) -> bool:
     """ผู้ใช้ได้คำตอบจริงจาก AI หรือไม่ (ไม่ใช่ error/ข้อความสำรอง/ถูกระงับ)"""
     if not isinstance(result, dict) or result.get("error"):
         return False
-    if result.get("status") in ("CANON_BLOCKED", "SYSTEM_PAUSE"):
+    if result.get("status") in ("CANON_BLOCKED", "SYSTEM_PAUSE", "BLOCKED"):
         return False
     return not used_fallback()
 

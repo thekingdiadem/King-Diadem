@@ -14,14 +14,19 @@ def generate_escape_routes(
     สร้าง escape routes จาก risk + context จริง
     แต่ละ route มี priority, feasibility, resource_cost, reason
     """
-    ctx        = context or {}
-    money      = float(ctx.get("money",        0))
-    energy     = float(ctx.get("energy",      50))
+    ctx        = context if isinstance(context, dict) else {}
+    def _f(v, d):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return d
+    money      = _f(ctx.get("money"),        0)
+    energy     = _f(ctx.get("energy"),      50)
     has_vehicle = bool(ctx.get("has_vehicle", False))
-    network    = float(ctx.get("relationships", 50))  # คนที่ช่วยได้
-    waterline  = float(ctx.get("waterline",    50))
+    network    = _f(ctx.get("relationships"), 50)  # คนที่ช่วยได้
+    waterline  = _f(ctx.get("waterline"),    50)
 
-    risk_norm = min(10.0, max(0.0, float(risk)))
+    risk_norm = min(10.0, max(0.0, _f(risk, 5.0)))
     routes = []
 
     # ── Route 1: ขอความช่วยเหลือจากเครือข่าย (เสมอ) ─────────────

@@ -18,6 +18,13 @@ def analyze_situation(
     context:       Optional[dict] = None,
 ) -> dict:
     ctx = context or {}
+    def _f(v, d):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return d
+    food_score, risk_score = _f(food_score, 50.0), _f(risk_score, 50.0)
+    money, energy, network = _f(money, 50.0), _f(energy, 50.0), int(_f(network, 1))
 
     # ── Risk tier ─────────────────────────────────────────────────
     if risk_score >= 75:

@@ -111,13 +111,19 @@ class DecisionEngine:
         if guarded.get("blocked") and guarded.get("reason") in (
             "CHOICE_COLLAPSE", "KERNEL_IMPORT_FAIL", "invalid_state"
         ):
+            collapse = guarded.get("reason") == "CHOICE_COLLAPSE"
             return {
                 "observer":    "KING DIADEM",
                 "route":       "BLOCKED",
                 "reason":      guarded.get("reason", "GUARD_BLOCK"),
                 "action":      "stabilize",
                 "status":      "BLOCKED",
-                "ai_response": "ระบบพบปัญหาภายใน กรุณาลองใหม่อีกครั้งครับ",
+                # ทางเลือกเหลือศูนย์ = คนกำลังลำบากจริง ไม่ใช่ "ระบบมีปัญหา" — ให้ทางช่วยเหลือทันที
+                "ai_response": (
+                    "ตอนนี้ยังไม่ต้องตัดสินใจอะไรใหญ่ค่ะ ขอให้อยู่ในที่ปลอดภัยก่อน "
+                    "ถ้ารู้สึกไม่ไหว โทร 1323 (สายด่วนสุขภาพจิต 24 ชม.) หรือ 1669 ได้เลย "
+                    "— ยังมีทางเสมอ Choice(t) ≥ 1"
+                ) if collapse else "ระบบพบปัญหาภายใน กรุณาลองใหม่อีกครั้งครับ",
                 "risk_score":  guarded.get("risk_score", 0),
                 "persona":     "LYLA",
                 "pattern": {
@@ -193,6 +199,7 @@ class DecisionEngine:
 
         # ── STEP 7: LLM ──────────────────────────────────────
         ai_response = None
+        llm_error   = None
         if self.llm:
             try:
                 context_parts = [
@@ -249,7 +256,10 @@ class DecisionEngine:
                     emotion_state      = emotion_ctx,
                 )
             except Exception as e:
-                ai_response = f"[Gemini unavailable: {e}]"
+                # เดิมส่ง "[Gemini unavailable: <error>]" เป็นคำตอบให้ผู้ใช้ (หลุดรายละเอียดภายใน
+                # และ app.py ไม่รู้ว่าล้ม จึงไม่คืนเครดิต) — ตอนนี้ส่งเป็น error ให้ app จัดการ
+                print(f"⚠ DecisionEngine LLM error: {e}")
+                ai_response, llm_error = None, "LLM_UNAVAILABLE"
 
         # ── STEP 8: LYLA Observation ─────────────────────────
         lyla_note = None
@@ -265,7 +275,7 @@ class DecisionEngine:
             "route":      route,
             "persona":    persona,
             "voice_mode": voice_mode,
-            "input":      user_input,
+            # (เดิมส่ง "input" = prompt ภายในทั้งก้อนกลับหน้าเว็บ — เอาออก)
             "pattern": {
                 "entropy":    pattern.get("entropy"),
                 "resource":   pattern.get("resource"),
@@ -282,6 +292,7 @@ class DecisionEngine:
             "risk_score":      guarded.get("risk_score", 0),
             "emotional_flag":  guarded.get("emotional_flag", False),
             "wisdom":          _wisdom_snapshot() if _wisdom_snapshot else None,
+            **({"error": llm_error} if llm_error else {}),
         }
 
     def _run_route(self, route: str, pattern: dict) -> dict:
@@ -347,12 +358,14 @@ def _build_payload(data: dict) -> dict:
         text = " | ".join(parts)
     out["input"] = text
 
-    if "money" in out:
-        try:
-            m = abs(float(out["money"]))
-            out.setdefault("resource", max(5.0, min(95.0, 100.0 - min(m, 99.0))))
-        except (TypeError, ValueError):
-            pass
+    # หมายเหตุ: เดิมคำนวณ resource = 100 − min(money, 99) → ยิ่งมีเงินมาก resource ยิ่งต่ำ (กลับด้าน)
+    # และค่านี้ไปบัง resource ที่ถูกต้องจาก human_engine — ตอนนี้ให้ human_engine เป็นคนคำนวณ
+    for k in ("entropy", "resource", "stability"):
+        if k in out:
+            try:
+                out[k] = max(0.0, min(100.0, float(out[k])))
+            except (TypeError, ValueError):
+                out.pop(k)          # ค่าที่ไม่ใช่ตัวเลขจาก client เดิมทำให้ /run ล้ม (500)
 
     risk_s = str(out.get("risk", "")).lower()
     if any(w in risk_s for w in ["high", "สูง", "critical"]):

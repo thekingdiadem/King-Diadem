@@ -11,10 +11,15 @@
 #     -> ปัดเป็น int ก่อน lookup
 
 import random
-import numpy as np
+from statistics import fmean
 
 from ENGINE.world_model import build_world_state
-from ENGINE.learning_engine import load_model
+# learning_engine ไม่มี load_model() — มีแค่ _load_model() (เดิม import ล้ม ทั้งไฟล์ใช้ไม่ได้)
+from ENGINE.learning_engine import _load_model as load_model
+
+# FATE Axiom: Determinism — input เดียวกันต้องได้ผลเดียวกัน
+# เดิมใช้ random ของทั้ง process → collapse_probability เปลี่ยนทุกครั้งที่เรียก
+_SEED = 20260704
 
 
 _MODEL_CACHE = None
@@ -41,7 +46,8 @@ def _get_world():
     return _WORLD_CACHE
 
 
-def simulate_step(state, model):
+def simulate_step(state, model, rng=None):
+    rng = rng or random.Random(_SEED)
 
     risk_patterns = model.get("risk_patterns", {})
     food_patterns = model.get("food_patterns", {})
@@ -49,8 +55,8 @@ def simulate_step(state, model):
     food_index = state.get("food_index", 50)
     risk_index = state.get("risk_index", 50)
 
-    food_noise = random.uniform(-3, 3)
-    risk_noise = random.uniform(-3, 3)
+    food_noise = rng.uniform(-3, 3)
+    risk_noise = rng.uniform(-3, 3)
 
     # v2 FIX: ปัดเป็น int ก่อน lookup (เดิม str(float) ไม่ตรง key)
     food_key = str(int(round(food_index)))
@@ -71,18 +77,19 @@ def simulate_step(state, model):
     }
 
 
-def simulate_future(steps=30, model=None, start_state=None):
+def simulate_future(steps=30, model=None, start_state=None, rng=None):
     """
     v2: รับ model จากภายนอกได้ (ไม่ต้อง load_model() ทุกครั้ง)
     """
     if model is None:
         model = _get_model()
+    rng = rng or random.Random(_SEED)
 
     state = start_state or {"food_index": 50, "risk_index": 50}
 
     history = []
-    for _ in range(steps):
-        state = simulate_step(state, model)
+    for _ in range(int(steps)):
+        state = simulate_step(state, model, rng)
         history.append({
             "food_index": state["food_index"],
             "risk_index": state["risk_index"],
@@ -96,9 +103,10 @@ def _run_batch(simulations, steps, model):
     collapse_count = 0
     food_finals = []
     risk_finals = []
+    rng = random.Random(_SEED)     # ลำดับสุ่มตายตัว → ผลซ้ำได้ (deterministic replay)
 
-    for _ in range(simulations):
-        future = simulate_future(steps, model=model)
+    for _ in range(int(simulations)):
+        future = simulate_future(steps, model=model, rng=rng)
         last = future[-1]
         food_finals.append(last["food_index"])
         risk_finals.append(last["risk_index"])
@@ -114,7 +122,7 @@ def collapse_probability(simulations=200, steps=30, model=None):
         model = _get_model()
 
     collapse_count, _, _ = _run_batch(simulations, steps, model)
-    return collapse_count / simulations
+    return collapse_count / max(1, int(simulations))
 
 
 def forecast(simulations=200, steps=30):
@@ -129,7 +137,7 @@ def forecast(simulations=200, steps=30):
     collapse_count, food_finals, risk_finals = _run_batch(simulations, steps, model)
 
     return {
-        "food_projection":      float(np.mean(food_finals)) if food_finals else 50.0,
-        "risk_projection":      float(np.mean(risk_finals)) if risk_finals else 50.0,
-        "collapse_probability": collapse_count / simulations,
+        "food_projection":      float(fmean(food_finals)) if food_finals else 50.0,
+        "risk_projection":      float(fmean(risk_finals)) if risk_finals else 50.0,
+        "collapse_probability": collapse_count / max(1, int(simulations)),
     }

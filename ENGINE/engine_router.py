@@ -26,11 +26,15 @@ _paticca_analyze   = _try_import("ENGINE.paticcasamuppada_engine", "analyze")
 _risk_assess       = _try_import("ENGINE.risk_engine",             "assess")
 _consensus_resolve = _try_import("ENGINE.consensus_engine",        "resolve")
 _consensus_engine  = _try_import("ENGINE.consensus_engine",        "consensus_engine")
-_simulate_future   = _try_import("ENGINE.consensus_engine",        "run_simulation")
-_council_run       = _try_import("ENGINE.council_engine",          "run")
+_decision_intel    = _try_import("ENGINE.consensus_engine",        "_decision_intelligence")
+# เดิม import "consensus_engine.run_simulation" และ "council_engine.run" ซึ่งไม่มีอยู่จริง
+# → สภาไม่เคยประชุม (consensus = maintain ทุกครั้ง) และการจำลองเป็นค่าคงที่เสมอ
+# simulation_engine.simulate() เรียก LLM อีกรอบ จึงไม่ต่อในเส้นทางของ /run (คง 1 LLM/ข้อความ)
+_simulate_future   = None
+_council_run       = _try_import("ENGINE.council_engine",          "council_engine")
 _strategy_plan     = _try_import("ENGINE.strategy_planner",        "plan")
 _survival_advise   = _try_import("ENGINE.survival_advisor",        "advise")
-_situation_analyze = _try_import("ENGINE.situation_analyzer",      "analyze")
+_situation_analyze = _try_import("ENGINE.situation_analyzer",      "analyze_situation")   # เดิมชื่อ "analyze" (ไม่มี)
 _escape_routes     = _try_import("ENGINE.escape_routes",           "generate_escape_routes")
 
 
@@ -59,10 +63,11 @@ def _fallback_risk(pattern: dict) -> dict:
     }
 
 def _fallback_simulation(state: dict) -> list:
+    # แม่แบบคงที่ ไม่ได้คำนวณจาก input — ติดป้าย source ไว้ ไม่ให้ใครเข้าใจว่าเป็นการจำลองจริง
     return [
-        {"future": "stable",        "risk": 2, "action": "maintain"},
-        {"future": "resource_drop", "risk": 5, "action": "secure_resources"},
-        {"future": "high_risk",     "risk": 8, "action": "escape"},
+        {"future": "stable",        "risk": 2, "action": "maintain",         "source": "static_template"},
+        {"future": "resource_drop", "risk": 5, "action": "secure_resources", "source": "static_template"},
+        {"future": "high_risk",     "risk": 8, "action": "escape",           "source": "static_template"},
     ]
 
 
@@ -79,7 +84,8 @@ def route(pattern: dict) -> dict:
     7. survival_advisor  — คำแนะนำเร่งด่วน
     8. escape_routes     — เส้นทางหนี (collapse/survival/risk)
     """
-    result: dict = {"input": pattern}
+    # เดิมเก็บ pattern ทั้งก้อน (รวม prompt ภายใน) ไว้ใน result["input"] แล้วส่งกลับหน้าเว็บ
+    result: dict = {}
 
     # ── STEP 1: Paticcasamuppada ────────────────────────
     try:
@@ -106,19 +112,26 @@ def route(pattern: dict) -> dict:
     risk_level     = risk.get("level", "MEDIUM")
     decision_level = risk.get("decision_level", "MEDIUM")
 
-    # ── STEP 3: Situation Analyzer (optional) ──────────
-    if _situation_analyze:
+    # ── STEP 3: Situation Analyzer (เฉพาะเมื่อมีข้อมูลจริงครบ ไม่เดาตัวเลขแทน) ──
+    if _situation_analyze and "food_score" in pattern:
         try:
-            result["situation"] = _situation_analyze(pattern)
+            result["situation"] = _situation_analyze(
+                food_score=float(pattern.get("food_score")),
+                risk_score=float(risk.get("risk_score", 50)),
+                money=float(pattern.get("money_score", 50)),
+                energy=float(pattern.get("energy", 50)),
+                shelter=pattern.get("safe_place", True) is not False,
+            )
         except Exception:
             pass
 
     # ── STEP 4: Council / Consensus ─────────────────────
     council_result = {"decision": {"action": "maintain", "message": ""}, "votes": [], "score": 50}
 
-    if _council_run:
+    if _council_run and _decision_intel:
         try:
-            council_result = _council_run(pattern) or council_result
+            decision = _decision_intel(pattern, risk)
+            council_result = _council_run(decision, pattern) or council_result
         except Exception:
             pass
 
@@ -226,7 +239,10 @@ def _build_message(r: dict) -> str:
         lines.append(f"[สาเหตุ] {summary}")
 
     # Risk
-    rs = risk.get("risk_score", 50)
+    try:
+        rs = float(risk.get("risk_score", 50))
+    except (TypeError, ValueError):
+        rs = 50.0
     rl = risk.get("level", "MEDIUM")
     lines.append(f"[ความเสี่ยง] {rl} ({rs:.0f}/100)")
 
@@ -251,7 +267,10 @@ def _build_message(r: dict) -> str:
             lines.append(f"[ทางหนี] {names}")
 
     # Confidence
-    conf = consensus.get("confidence", 50)
+    try:
+        conf = float(consensus.get("confidence", 50))
+    except (TypeError, ValueError):
+        conf = 50.0
     lines.append(f"[ความมั่นใจ] {conf:.0f}%")
 
     return "\n".join(lines)
@@ -263,9 +282,10 @@ def run(pattern: dict) -> dict:
     try:
         return route(pattern)
     except Exception as e:
+        # traceback เดิมถูกส่งกลับไปถึงหน้าเว็บผ่าน /run — log ฝั่ง server เท่านั้น
+        print(f"⚠ engine_router error: {e}\n{traceback.format_exc()}")
         return {
             "route":   "error",
             "action":  "maintain",
-            "message": f"engine_router error: {str(e)}",
-            "trace":   traceback.format_exc(),
+            "message": "engine_router error",
         }
