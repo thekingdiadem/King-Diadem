@@ -26,9 +26,22 @@ def king_response(
             consensus = {}
     else:
         consensus = consensus_json or {}
+    if not isinstance(consensus, dict):
+        consensus = {}
 
     action     = str(consensus.get("final_action", "observe")).upper()
-    confidence = float(consensus.get("confidence", 0.6))
+    try:
+        confidence = float(consensus.get("confidence", 0.6))
+    except (TypeError, ValueError):
+        confidence = 0.6
+    # consensus_engine ให้ 0–100 แต่ ai_council ให้ 0–1 — เดิมคูณ 100 เสมอ จึงขึ้น "6500%"
+    if confidence > 1:
+        confidence /= 100.0
+    try:
+        waterline = None if waterline is None else float(waterline)
+    except (TypeError, ValueError):
+        waterline = None
+    persona, route = str(persona or "LYLA"), str(route or "general")
     halt       = bool(consensus.get("halt", False))
     choice_count = consensus.get("choice_count")
     votes      = consensus.get("votes", [])
@@ -73,7 +86,7 @@ def king_response(
         wl_bar = "█" * int(waterline / 10) + "░" * (10 - int(waterline / 10))
         lines.append(f"Waterline:  {wl_bar} {waterline:.0f}")
 
-    if choice_count is not None:
+    if isinstance(choice_count, (int, float)):
         lines.append(f"Choice(t):  {choice_count} ({'≥1 ✓' if choice_count >= 1 else '= 0 ⚠'})")
 
     # ── Council summary (ถ้ามี) ───────────────────────────────────

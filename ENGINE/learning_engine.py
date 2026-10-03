@@ -18,6 +18,14 @@ from collections import defaultdict
 
 LOG_FILE   = "data/decision_log.jsonl"   # JSONL — append-safe กว่า JSON
 MODEL_FILE = "data/learning_model.json"
+_CACHE_MAX = 500          # จำนวน supply cache สูงสุดในไฟล์ model (เดิมโตไม่จำกัด)
+
+
+def _f(v, d: float) -> float:
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return d
 
 # ── Safe I/O ──────────────────────────────────────────────────────
 def _load_jsonl(path: str) -> list:
@@ -41,7 +49,12 @@ def _load_model() -> dict:
     try:
         if os.path.exists(MODEL_FILE):
             with open(MODEL_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
+                m = json.load(f)
+            if isinstance(m, dict):
+                # ไฟล์รุ่นเก่าอาจไม่มีบาง key → เดิม KeyError
+                for k in ("user_contexts", "location_patterns", "decision_outcomes", "supply_cache", "supply_cache_ttl"):
+                    m.setdefault(k, {})
+                return m
     except Exception:
         pass
     return {
@@ -55,6 +68,15 @@ def _load_model() -> dict:
     }
 
 def _save_model(model: dict) -> bool:
+    # ตัด cache ที่หมดอายุ/เกินจำนวน ก่อนเขียนลงดิสก์
+    try:
+        ttl = model.get("supply_cache_ttl", {})
+        now = time.time()
+        keep = sorted((k for k, t in ttl.items() if now - t < SUPPLY_CACHE_TTL), key=lambda k: -ttl[k])[:_CACHE_MAX]
+        model["supply_cache"]     = {k: v for k, v in model.get("supply_cache", {}).items() if k in keep}
+        model["supply_cache_ttl"] = {k: ttl[k] for k in keep}
+    except Exception:
+        pass
     try:
         os.makedirs(os.path.dirname(MODEL_FILE) or ".", exist_ok=True)
         tmp = MODEL_FILE + ".tmp"
@@ -153,7 +175,9 @@ def _query_supply_chain(
     พร้อม cache 1 ชั่วโมง
     """
     model    = _load_model()
-    cache_key = f"{category}:{lat:.4f},{lng:.4f}" if lat and lng else f"{category}:global"
+    lat = _f(lat, None) if lat is not None else None
+    lng = _f(lng, None) if lng is not None else None
+    cache_key = f"{category}:{lat:.4f},{lng:.4f}" if lat is not None and lng is not None else f"{category}:global"
     now      = time.time()
 
     # ── Cache hit ────────────────────────────────────────────────
@@ -165,7 +189,7 @@ def _query_supply_chain(
     results = []
 
     # ── Maps API ─────────────────────────────────────────────────
-    if _MAPS and lat and lng:
+    if _MAPS and lat is not None and lng is not None:
         for query in cfg["queries"][:2]:
             try:
                 found = search_nearby(lat, lng, query, radius_m=cfg["radius_m"])
@@ -273,8 +297,10 @@ def _train_from_logs(logs: list) -> dict:
     decision_outcomes: dict = defaultdict(lambda: {"total": 0, "success": 0})
 
     for entry in logs:
+        if not isinstance(entry, dict):
+            continue
         user    = entry.get("user",     "anonymous")
-        ctx     = entry.get("context",  {})
+        ctx     = entry.get("context") if isinstance(entry.get("context"), dict) else {}
         dec     = entry.get("decision", "unknown")
         outcome = entry.get("outcome")
         loc     = ctx.get("location",   "")
@@ -289,8 +315,8 @@ def _train_from_logs(logs: list) -> dict:
                 uc["locations"].append(loc)
         # Running average entropy/resource
         n = uc["visit_count"]
-        uc["avg_entropy"]  = (uc["avg_entropy"]  * (n-1) + float(ctx.get("entropy",  40))) / n
-        uc["avg_resource"] = (uc["avg_resource"] * (n-1) + float(ctx.get("resource", 50))) / n
+        uc["avg_entropy"]  = (uc["avg_entropy"]  * (n-1) + _f(ctx.get("entropy"),  40)) / n
+        uc["avg_resource"] = (uc["avg_resource"] * (n-1) + _f(ctx.get("resource"), 50)) / n
         if dec not in uc["decisions"]:
             uc["decisions"].append(dec)
 
@@ -299,8 +325,8 @@ def _train_from_logs(logs: list) -> dict:
             lp = location_patterns[loc]
             lp["visit_count"] += 1
             m = lp["visit_count"]
-            lp["avg_food"] = (lp["avg_food"] * (m-1) + float(ctx.get("food", 50))) / m
-            lp["avg_risk"] = (lp["avg_risk"] * (m-1) + float(ctx.get("risk", 50))) / m
+            lp["avg_food"] = (lp["avg_food"] * (m-1) + _f(ctx.get("food"), 50)) / m
+            lp["avg_risk"] = (lp["avg_risk"] * (m-1) + _f(ctx.get("risk"), 50)) / m
             if outcome:
                 lp["outcomes"].append(outcome)
 
@@ -347,6 +373,7 @@ def get_options(
         need (str: "food"|"water"|"income"|"shelter"|"medicine"|"medical")
     """
     t0    = time.time()
+    context = context if isinstance(context, dict) else {}
     model = _load_model()
     lat   = context.get("lat")
     lng   = context.get("lng")
@@ -369,9 +396,9 @@ def get_options(
     options.sort(key=lambda x: x["relevance_score"], reverse=True)
 
     # ── Survival floor check ──────────────────────────────────────
-    entropy  = float(context.get("entropy",  40))
-    resource = float(context.get("resource", 50))
-    money    = float(context.get("money",    100))
+    entropy  = _f(context.get("entropy"),  40)
+    resource = _f(context.get("resource"), 50)
+    money    = _f(context.get("money"),    100)
 
     waterline = round(
         (100 - entropy) * 0.40 +
@@ -402,9 +429,9 @@ def get_options(
 
 def _infer_need(context: dict) -> str:
     """อนุมาน need จาก context ถ้าไม่ได้ระบุ"""
-    food   = float(context.get("food",   3))
-    money  = float(context.get("money",  100))
-    energy = float(context.get("energy", 50))
+    food   = _f(context.get("food"),   3)
+    money  = _f(context.get("money"),  100)
+    energy = _f(context.get("energy"), 50)
 
     if food <= 1:
         return "food"
@@ -437,7 +464,7 @@ def _score_option(
 
     rating = item.get("rating")
     if rating:
-        score += (float(rating) - 3.0) * 0.08   # 5.0 → +0.16, 1.0 → -0.16
+        score += (_f(rating, 3.0) - 3.0) * 0.08   # 5.0 → +0.16, 1.0 → -0.16
 
     # location success rate
     outcomes = loc_pattern.get("outcomes", [])

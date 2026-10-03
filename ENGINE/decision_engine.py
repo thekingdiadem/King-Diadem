@@ -20,6 +20,13 @@ except Exception:
     _wisdom_snapshot = None
 
 
+_ROUTE_SEVERITY = {"stable": 0, "general": 0, "uncertain": 1, "civil": 1, "risk": 2,
+                   "survival": 3, "collapse": 4, "crisis": 5}
+
+def _max_route(current: str, candidate: str) -> str:
+    return candidate if _ROUTE_SEVERITY.get(candidate, 0) >= _ROUTE_SEVERITY.get(current, 0) else current
+
+
 class DecisionEngine:
 
     def __init__(self):
@@ -91,7 +98,7 @@ class DecisionEngine:
         # ── STEP 1: Pattern Analysis ─────────────────────────
         # data ตอนนี้มี entropy/resource/stability จริงแล้ว
         # (ถ้า ENGINE/human_engine.py คำนวณได้ — ดู run_decision())
-        pattern = analyze_pattern(data)
+        pattern = analyze_pattern(data, session_id)   # เดิมไม่ส่ง → ทุกคนแชร์ tracker "default"
         route   = pattern.get("route", "general")
 
         # ── STEP 1.5: Human Engine override ──────────────────
@@ -184,6 +191,7 @@ class DecisionEngine:
                 router_payload = {
                     **pattern,
                     "input":      user_input,
+                    "raw_input":  data.get("raw_input") or "",
                     "voice_mode": voice_mode,
                     "route_hint": route,
                     "paticca":    paticca_result,
@@ -191,7 +199,9 @@ class DecisionEngine:
                 router_result = self.router(router_payload)
                 if router_result and router_result.get("route") not in (None, "error"):
                     if voice_mode not in ("vega", "crisis"):
-                        route = router_result["route"]
+                        # router ยกระดับได้ แต่ห้ามลด — เดิมเขียนทับ "survival" ที่ survivor engine
+                        # ตั้งไว้ (เช่นคนที่ไม่มีอาหาร) กลับเป็น "general"
+                        route = _max_route(route, router_result["route"])
             except Exception as e:
                 router_result = {"error": f"router fail: {e}"}
         else:

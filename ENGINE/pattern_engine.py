@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 import time
-from collections import deque
+from collections import deque, OrderedDict
 from threading   import Lock
 
 # ── Clamp helper ─────────────────────────────────────────────────
@@ -19,7 +19,8 @@ def _clamp(value, low: float = 0.0, high: float = 100.0) -> float:
 
 # ── Per-session pattern store ────────────────────────────────────
 
-_STORE: dict[str, "_PatternTracker"] = {}
+_MAX_SESSIONS = 5000   # LRU — เดิมเก็บทุก session ตลอดอายุ process
+_STORE: "OrderedDict[str, _PatternTracker]" = OrderedDict()
 _LOCK  = Lock()
 
 
@@ -90,22 +91,30 @@ class _PatternTracker:
 
 def _get_tracker(session_id: str) -> "_PatternTracker":
     with _LOCK:
-        if session_id not in _STORE:
-            _STORE[session_id] = _PatternTracker()
-        return _STORE[session_id]
+        t = _STORE.get(session_id)
+        if t is None:
+            t = _STORE[session_id] = _PatternTracker()
+            while len(_STORE) > _MAX_SESSIONS:
+                _STORE.popitem(last=False)
+        else:
+            _STORE.move_to_end(session_id)
+        return t
 
 
 # ── Core analyze function ─────────────────────────────────────────
 
-def analyze_pattern(input_data: dict, session_id: str = "default") -> dict:
+def analyze_pattern(input_data: dict, session_id: str | None = None) -> dict:
     """
     วิเคราะห์ pattern จาก input + history ของ session
     เรียกจาก decision_engine, brain.py, app.py
+    session_id=None → ไม่เก็บประวัติร่วม (เดิม default "default" ทำให้ทุกผู้เรียกที่ไม่ระบุ
+    แชร์ tracker เดียวกัน — ธงพฤติกรรมของคนหนึ่งไปโผล่ในอีกคน)
     """
     if not isinstance(input_data, dict):
         input_data = {}
 
-    text       = str(input_data.get("input", input_data.get("question", ""))).strip().lower()
+    # ข้อความดิบของผู้ใช้ก่อน — "input" ของ /run คือ prompt ที่ต่อบริบทแล้ว (มีคำอย่าง "วิกฤต" จากบริบทระบบ)
+    text       = str(input_data.get("raw_input") or input_data.get("input", input_data.get("question", ""))).strip().lower()
     entropy    = _clamp(input_data.get("entropy",    40))
     resource   = _clamp(input_data.get("resource",   50))
     stability  = _clamp(input_data.get("stability",  60))
@@ -128,7 +137,7 @@ def analyze_pattern(input_data: dict, session_id: str = "default") -> dict:
     route = _resolve_route(text, entropy, resource, stability, waterline, confidence)
 
     # ── Session tracking ──────────────────────────────────────────
-    tracker = _get_tracker(session_id)
+    tracker = _get_tracker(session_id) if session_id else _PatternTracker()
     this_pattern = {
         "route":     route,
         "entropy":   entropy,
@@ -140,7 +149,8 @@ def analyze_pattern(input_data: dict, session_id: str = "default") -> dict:
     tracker.push(this_pattern)
 
     return {
-        "input":            text,
+        "input":            str(input_data.get("input", "")),
+        "raw_input":        str(input_data.get("raw_input") or ""),   # ส่งต่อข้อความจริงของผู้ใช้ให้ขั้นถัดไป
         "route":            route,
         "entropy":          entropy,
         "resource":         resource,
@@ -214,7 +224,7 @@ def _resolve_route(
 
 
 # ── Backward compat ───────────────────────────────────────────────
-def detect_pattern(input_data: dict, session_id: str = "default") -> dict:
+def detect_pattern(input_data: dict, session_id: str | None = None) -> dict:
     return analyze_pattern(input_data, session_id)
 
 

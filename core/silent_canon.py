@@ -114,7 +114,7 @@ class SilentCanon:
         """Art.1 + Art.2 — core evaluation"""
         if choice_count < 0:
             return CanonResult(
-                status="HALT", action="none",
+                status=CanonStatus.HALT, action="none",   # เดิมเป็น string "HALT" ไม่ใช่ enum
                 reason="Invalid state: choice_count < 0. Structural error upstream.",
                 article_ref="Art.1 — Prime Law violated by caller logic",
                 choice_count=choice_count,
@@ -268,3 +268,22 @@ def canon_self_test() -> dict:
     results["valid_vow_intact"]      = vow["vow_intact"] == True
     results["ALL_PASSED"]            = all(results.values())
     return results
+
+
+# ── API แบบฟังก์ชันที่ ENGINE/kernel_runtime เรียก (เดิม import silent_canon ซึ่งไม่มี) ──
+def silent_canon(choice_count) -> dict:
+    try:
+        n = int(choice_count)
+    except (TypeError, ValueError):
+        n = 1
+    r = SilentCanon.evaluate(n)
+    status = r.status.value if isinstance(r.status, CanonStatus) else str(r.status)
+    return {
+        "choice_count":    n,
+        "canon_status":    status,
+        "required_action": r.action,
+        "reason":          r.reason,
+        "article":         r.article_ref,
+        "collapse_flag":   n <= 0,
+        "axiom":           "Choice(t) ≥ 1 → collapse = False",
+    }

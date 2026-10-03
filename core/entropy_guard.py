@@ -301,3 +301,29 @@ def _entropy_reject(reason: str) -> dict:
         "fate_lock":  "Choice(t) ≥ 1 → collapse = False",
         "message":    "แม้ระบบ error — ทางเลือกยังมีอยู่เสมอ",
     }
+
+
+# ── API ที่ ENGINE/kernel_runtime และ ENGINE/eternal_runtime เรียก ─────────
+# (เดิมสองไฟล์นั้น import entropy_check / entropy_guard ซึ่งไม่มีอยู่ → ใช้ตัวสำรองตลอด)
+def entropy_check(state: dict) -> dict:
+    """สรุปผล analyze_entropy_state ให้อยู่ในรูปที่ runtime ใช้ (stop_line/level)"""
+    s = dict(state) if isinstance(state, dict) else {}
+    if "resource" not in s and "resources" in s:
+        s["resource"] = s["resources"]
+    r = analyze_entropy_state(s)
+    if r.get("error"):
+        return {"stop_line": False, "level": "unknown", "error": r["error"]}
+    level = {"heat_death_proxy": "critical", "collapse_risk": "critical", "high_risk": "high",
+             "unstable": "moderate", "balanced": "low", "stable": "low"}.get(r["state"], "moderate")
+    return {
+        "entropy_value":  r["entropy"],
+        "level":          level,
+        "state":          r["state"],
+        "drift_risk":     r["entropy"] > 60,
+        "stop_line":      r["state"] in ("heat_death_proxy", "collapse_risk"),
+        "survival_score": r["survival_score"],
+        "message":        r["message"],
+    }
+
+
+entropy_guard = entropy_check

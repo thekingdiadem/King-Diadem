@@ -44,8 +44,16 @@ def dependent_cycle(state: dict, intervention: str = None) -> dict:
     next_state = {}
     warnings   = []
 
+    # น้ำไหลลงเสมอ: ทรัพยากร/เสถียรภาพ "ลด" 0.1% ต่อรอบ ส่วน entropy "เพิ่ม" 0.1%
+    # เดิมลดทุกค่าเท่ากันรวมทั้ง entropy (ระบบดีขึ้นเองโดยไม่มีใครทำอะไร) และลด choices
+    # จนเป็นเศษ 0.01 — จำนวนทางเลือกเป็นจำนวนนับ ไม่ไหลตามเวลา
+    _RISING = ("entropy", "drift")
+    _COUNTS = ("choices", "choice_count")
     for key, value in working.items():
-        if isinstance(value, float):
+        if isinstance(value, float) and key not in _COUNTS:
+            if key in _RISING:
+                next_state[key] = round(min(100.0, value / DECAY_RATE), 3)
+                continue
             decayed = max(FLOOR, value * DECAY_RATE)
             next_state[key] = round(decayed, 3)
 
@@ -53,17 +61,18 @@ def dependent_cycle(state: dict, intervention: str = None) -> dict:
                 warnings.append(f"⚠ CRITICAL: {key} = {decayed:.1f} — ต่ำกว่า collapse line")
             elif decayed < WATERLINE:
                 warnings.append(f"⚠ {key} = {decayed:.1f} — ใกล้ waterline")
+        elif key in _COUNTS:
+            next_state[key] = int(value) if isinstance(value, float) else value
+            if isinstance(value, (int, float)) and value < 1:
+                warnings.append(f"⚠ CRITICAL: {key} = {int(value)} — Choice(t) < 1")
         else:
             next_state[key] = value
 
-    floor_breached  = any(
-        v < COLLAPSE_LINE for v in next_state.values()
-        if isinstance(v, float)
-    )
-    below_waterline = any(
-        v < WATERLINE for v in next_state.values()
-        if isinstance(v, float)
-    )
+    _levels = [v for k, v in next_state.items()
+               if isinstance(v, float) and k not in _RISING and k not in _COUNTS]
+    _no_choice = any(isinstance(next_state.get(k), (int, float)) and next_state[k] < 1 for k in _COUNTS if k in next_state)
+    floor_breached  = any(v < COLLAPSE_LINE for v in _levels) or _no_choice
+    below_waterline = any(v < WATERLINE for v in _levels) or floor_breached
 
     # LYLA signal
     if floor_breached:

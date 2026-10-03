@@ -34,7 +34,7 @@ except ImportError:
     _EG = False
 
 try:
-    from core.vigilance_protocol import vigilance_check
+    from core.vigilance_protocol import vigilance_report as vigilance_check   # คืน dict
     _VP = True
 except ImportError:
     _VP = False
@@ -121,7 +121,11 @@ def eternal_snapshot(system_state: Optional[dict] = None) -> dict:
 
     # Step 1 — Dependent cycle
     try:
-        state = dependent_cycle(state) if _DC else _dc_fallback(state)
+        if _DC:
+            cyc = dependent_cycle(state)                 # คืนรายงาน — state อยู่ใน ["state"]
+            state = {**state, **(cyc.get("state") or {})}
+        else:
+            state = _dc_fallback(state)
     except Exception as e:
         errors["dependent_cycle"] = str(e)
         state = _dc_fallback(state)
@@ -159,7 +163,7 @@ def eternal_snapshot(system_state: Optional[dict] = None) -> dict:
     # Step 6 — Vigilance
     vigilance = None
     try:
-        vigilance = vigilance_check() if _VP else _vigilance_fallback()
+        vigilance = vigilance_check(state) if _VP else _vigilance_fallback()   # เดิมเรียกโดยไม่ส่ง state → ล้มทุกครั้ง
     except Exception as e:
         vigilance = _vigilance_fallback()
         errors["vigilance"] = str(e)

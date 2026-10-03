@@ -15,7 +15,7 @@ from typing import Optional
 RISK_LEVELS = ("low", "moderate", "unstable", "critical", "collapse")
 
 def _normalize_risk(risk_state: str) -> str:
-    r = (risk_state or "").lower().strip()
+    r = str(risk_state or "").lower().strip()
     if r in RISK_LEVELS:
         return r
     # fuzzy map
@@ -173,19 +173,25 @@ def intervene(
     # ── Context-aware notes ───────────────────────────────────────
     notes = []
 
-    money  = ctx.get("money",  None)
-    food   = ctx.get("food",   None)
-    energy = ctx.get("energy", None)
-    people = ctx.get("people", None)
+    def _n(v):
+        try:
+            return None if v is None or v == "" else float(v)
+        except (TypeError, ValueError):
+            return None
+    ctx    = ctx if isinstance(ctx, dict) else {}
+    money  = _n(ctx.get("money"))
+    food   = _n(ctx.get("food"))
+    energy = _n(ctx.get("energy"))
+    people = _n(ctx.get("people"))
 
     if money is not None and money < 100:
-        notes.append(f"⚠ เงินเหลือ {money} บาท — ต่ำกว่า 72h threshold ควร prioritize ทันที")
+        notes.append(f"⚠ เงินเหลือ {money:,.0f} บาท — ต่ำกว่า 72h threshold ควร prioritize ทันที")
 
     if food is not None and food < 2:
-        notes.append(f"⚠ อาหารเหลือ {food} มื้อ — ต้องแก้ภายใน 24 ชั่วโมง")
+        notes.append(f"⚠ อาหารเหลือ {food:g} มื้อ — ต้องแก้ภายใน 24 ชั่วโมง")
 
     if energy is not None and energy < 30:
-        notes.append(f"⚠ energy {energy}% — ห้ามตัดสินใจใหญ่จนกว่าจะพักพอ")
+        notes.append(f"⚠ energy {energy:.0f}% — ห้ามตัดสินใจใหญ่จนกว่าจะพักพอ")
 
     if people is not None and people == 0:
         notes.append("⚠ ไม่มีคนช่วย — entropy สูงขึ้น ควรหาคนรับรู้สถานการณ์ด้วย 1 คน")
