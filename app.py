@@ -282,7 +282,9 @@ def _public_url(path: str) -> str:
 
 # จำนวน proxy ที่เชื่อถือได้หน้าแอป (Render = 1) — proxy จะ "ต่อท้าย" IP จริงใน X-Forwarded-For
 _TRUSTED_PROXY_HOPS = max(0, int(os.getenv("TRUSTED_PROXY_HOPS", "1")))
-_TRUST_CF_HEADER    = os.getenv("TRUST_CF_HEADER", "0") == "1"   # เปิดเฉพาะเมื่ออยู่หลัง Cloudflare จริง
+# Render วิ่งผ่าน Cloudflare ซึ่งเขียนทับ cf-connecting-ip ทุกครั้ง (client ปลอมไม่ได้) → เชื่อเมื่อรันบน Render
+# (Render ตั้ง env RENDER ให้เอง) ที่อื่นปิดไว้ เว้นแต่ตั้ง TRUST_CF_HEADER=1
+_TRUST_CF_HEADER    = os.getenv("TRUST_CF_HEADER", "1" if os.getenv("RENDER") else "0") == "1"
 
 def _client_ip(request: Request) -> str:
     """IP จริงของผู้ใช้หลัง proxy
