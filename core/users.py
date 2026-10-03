@@ -12,17 +12,24 @@ import threading
 import uuid
 import os
 import time
+import hashlib
+import hmac
+import secrets
+from contextlib import closing
 from typing import Optional
 
 try:
     import bcrypt
     _BCRYPT = True
 except ImportError:
-    import hashlib, secrets
     _BCRYPT = False
 
 # ── Config ────────────────────────────────────────────────────────
-DB_PATH         = os.environ.get("KD_DB_PATH", "data/king_diadem.db")
+# DB เดียวกับแอป (DB_PATH) — เดิมอ่าน KD_DB_PATH อย่างเดียว ตั้งค่าไม่ตรงกันได้ง่าย
+DB_PATH         = os.environ.get("KD_DB_PATH") or os.environ.get("DB_PATH", "data/king_diadem.db")
+# ตารางชื่อ users ถูก DATABASE/db.py สร้างไปแล้วด้วย schema อื่น (ไม่มี password_hash/api_key)
+# → CREATE IF NOT EXISTS ข้าม แล้ว INSERT ล้มเงียบทุกครั้ง  จึงใช้ตารางของตัวเอง
+TABLE           = "api_users"
 INITIAL_CREDITS = 10
 API_KEY_PREFIX  = "kd_"
 
@@ -31,16 +38,19 @@ _lock = threading.Lock()
 
 # ── DB init ───────────────────────────────────────────────────────
 def _get_conn() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+    d = os.path.dirname(DB_PATH)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False, timeout=10)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     return conn
 
 
 def ensure_table() -> None:
-    with _get_conn() as conn:
+    with closing(_get_conn()) as conn:
         conn.execute("""
-            CREATE TABLE IF NOT EXISTS users (
+            CREATE TABLE IF NOT EXISTS api_users (
                 email        TEXT PRIMARY KEY,
                 password_hash TEXT NOT NULL,
                 api_key      TEXT NOT NULL UNIQUE,
@@ -56,24 +66,37 @@ def ensure_table() -> None:
 def _hash_password(password: str) -> str:
     if _BCRYPT:
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    # fallback: sha256 + random salt (ถ้าไม่มี bcrypt)
+    # fallback (ไม่มี bcrypt): PBKDF2-SHA256 200k รอบ — เดิม sha256 รอบเดียว เดาได้เร็วมาก
     salt = secrets.token_hex(16)
-    h    = hashlib.sha256((salt + password).encode()).hexdigest()
-    return f"{salt}:{h}"
+    h    = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 200_000).hex()
+    return f"pbkdf2${salt}${h}"
 
 
 def _verify_password(password: str, stored: str) -> bool:
-    if _BCRYPT:
-        try:
-            return bcrypt.checkpw(password.encode(), stored.encode())
-        except Exception:
-            return False
-    # fallback
+    stored = str(stored or "")
     try:
-        salt, h = stored.split(":", 1)
-        return hashlib.sha256((salt + password).encode()).hexdigest() == h
+        if stored.startswith("pbkdf2$"):
+            _, salt, h = stored.split("$", 2)
+            calc = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 200_000).hex()
+            return hmac.compare_digest(calc, h)
+        if _BCRYPT and stored.startswith("$2"):
+            return bcrypt.checkpw(password.encode(), stored.encode())
+        if ":" in stored:   # รูปแบบเก่า salt:sha256 — compare แบบ constant-time
+            salt, h = stored.split(":", 1)
+            return hmac.compare_digest(hashlib.sha256((salt + password).encode()).hexdigest(), h)
     except Exception:
         return False
+    return False
+
+
+def _amount(v) -> int:
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return 0
+
+
+_DUMMY_HASH = _hash_password(secrets.token_hex(8))
 
 
 # ── Core API ──────────────────────────────────────────────────────
@@ -84,16 +107,17 @@ def create_user(email: str, password: str) -> Optional[str]:
 
     Article 2 — password hash + unique api_key เสมอ
     """
-    if not email or not password:
+    if not email or not password or not isinstance(email, str) or not isinstance(password, str):
         return None
 
-    api_key = API_KEY_PREFIX + uuid.uuid4().hex
+    api_key = API_KEY_PREFIX + secrets.token_hex(16)
 
     with _lock:
         try:
-            with _get_conn() as conn:
+            ensure_table()
+            with closing(_get_conn()) as conn:
                 conn.execute("""
-                    INSERT INTO users (email, password_hash, api_key, credits, created_at)
+                    INSERT INTO api_users (email, password_hash, api_key, credits, created_at)
                     VALUES (?, ?, ?, ?, ?)
                 """, (email.lower().strip(), _hash_password(password),
                       api_key, INITIAL_CREDITS, time.time()))
@@ -112,17 +136,18 @@ def authenticate_user(email: str, password: str) -> Optional[str]:
 
     ใช้ constant-time compare ผ่าน bcrypt
     """
-    if not email or not password:
+    if not email or not password or not isinstance(email, str) or not isinstance(password, str):
         return None
 
     try:
-        with _get_conn() as conn:
+        with closing(_get_conn()) as conn:
             row = conn.execute(
-                "SELECT api_key, password_hash FROM users WHERE email = ?",
+                "SELECT api_key, password_hash FROM api_users WHERE email = ?",
                 (email.lower().strip(),)
             ).fetchone()
 
         if not row:
+            _verify_password(password, _DUMMY_HASH)   # เวลาเท่ากัน ไม่บอกใบ้ว่า email มีอยู่ไหม
             return None
 
         if not _verify_password(password, row["password_hash"]):
@@ -130,9 +155,9 @@ def authenticate_user(email: str, password: str) -> Optional[str]:
 
         # update last_login (non-blocking best-effort)
         try:
-            with _get_conn() as conn:
+            with closing(_get_conn()) as conn:
                 conn.execute(
-                    "UPDATE users SET last_login = ? WHERE email = ?",
+                    "UPDATE api_users SET last_login = ? WHERE email = ?",
                     (time.time(), email.lower().strip())
                 )
                 conn.commit()
@@ -150,9 +175,9 @@ def get_user_by_api_key(api_key: str) -> Optional[dict]:
     if not api_key:
         return None
     try:
-        with _get_conn() as conn:
+        with closing(_get_conn()) as conn:
             row = conn.execute(
-                "SELECT email, credits, created_at, last_login FROM users WHERE api_key = ?",
+                "SELECT email, credits, created_at, last_login FROM api_users WHERE api_key = ?",
                 (api_key,)
             ).fetchone()
         return dict(row) if row else None
@@ -173,56 +198,55 @@ def deduct_credit(api_key: str, amount: int = 1) -> dict:
 
     Article 6 — atomic transaction ป้องกัน race condition
     """
+    amount = _amount(amount)
     if amount <= 0:
         return {"success": False, "credits_remaining": 0, "reason": "invalid amount"}
 
     with _lock:
         try:
-            with _get_conn() as conn:
-                row = conn.execute(
-                    "SELECT credits FROM users WHERE api_key = ?", (api_key,)
-                ).fetchone()
-
-                if not row:
-                    return {"success": False, "credits_remaining": 0, "reason": "user not found"}
-
-                current = int(row["credits"])
-                if current < amount:
-                    return {"success": False, "credits_remaining": current, "reason": "insufficient credits"}
-
-                new_credits = current - amount
-                conn.execute(
-                    "UPDATE users SET credits = ? WHERE api_key = ? AND credits = ?",
-                    (new_credits, api_key, current)  # optimistic lock
+            with closing(_get_conn()) as conn:
+                # UPDATE เดียวแบบมีเงื่อนไข = atomic ข้าม process ด้วย (gunicorn หลาย worker)
+                # เดิม SELECT แล้ว UPDATE ... AND credits=? แต่ไม่ดู rowcount → แพ้ race ก็ยังรายงานสำเร็จ
+                cur = conn.execute(
+                    "UPDATE api_users SET credits = credits - ? WHERE api_key = ? AND credits >= ?",
+                    (amount, api_key, amount)
                 )
                 conn.commit()
+                row = conn.execute(
+                    "SELECT credits FROM api_users WHERE api_key = ?", (api_key,)
+                ).fetchone()
 
-            return {"success": True, "credits_remaining": new_credits, "reason": "ok"}
-        except Exception as e:
-            return {"success": False, "credits_remaining": 0, "reason": str(e)}
+            if not row:
+                return {"success": False, "credits_remaining": 0, "reason": "user not found"}
+            if cur.rowcount == 0:
+                return {"success": False, "credits_remaining": int(row["credits"]), "reason": "insufficient credits"}
+            return {"success": True, "credits_remaining": int(row["credits"]), "reason": "ok"}
+        except Exception:
+            return {"success": False, "credits_remaining": 0, "reason": "db_error"}
 
 
 def add_credits(api_key: str, amount: int) -> dict:
     """เพิ่ม credits — ใช้หลัง payment / admin"""
+    amount = _amount(amount)
     if amount <= 0:
         return {"success": False, "reason": "invalid amount"}
 
     with _lock:
         try:
-            with _get_conn() as conn:
+            with closing(_get_conn()) as conn:
                 result = conn.execute(
-                    "UPDATE users SET credits = credits + ? WHERE api_key = ?",
+                    "UPDATE api_users SET credits = credits + ? WHERE api_key = ?",
                     (amount, api_key)
                 )
                 conn.commit()
                 if result.rowcount == 0:
                     return {"success": False, "reason": "user not found"}
                 row = conn.execute(
-                    "SELECT credits FROM users WHERE api_key = ?", (api_key,)
+                    "SELECT credits FROM api_users WHERE api_key = ?", (api_key,)
                 ).fetchone()
             return {"success": True, "credits_remaining": int(row["credits"])}
-        except Exception as e:
-            return {"success": False, "reason": str(e)}
+        except Exception:
+            return {"success": False, "reason": "db_error"}
 
 
 # ── Self-test ─────────────────────────────────────────────────────

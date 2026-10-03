@@ -275,7 +275,8 @@ class DecisionEngine:
         lyla_note = None
         if self.lyla:
             try:
-                lyla_note = self.lyla.observe(user_input)
+                # ข้อความผู้ใช้จริง — user_input คือ prompt ที่ต่อบริบท/นิทานแล้ว ("พัง" ในนิทาน = CRITICAL)
+                lyla_note = self.lyla.observe(str(data.get("raw_input") or user_input))
             except Exception:
                 pass
 

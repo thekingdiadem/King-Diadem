@@ -36,7 +36,7 @@ from fastapi.responses import JSONResponse
 # CONFIG
 # =============================================================================
 
-_DB_PATH     = os.getenv("KD_DB_PATH", "data/king_diadem.db")
+_DB_PATH     = os.getenv("KD_DB_PATH") or os.getenv("DB_PATH", "data/king_diadem.db")
 
 # SECURITY: ห้ามมี default fallback สำหรับ SECRET_KEY
 # เดิมฝัง "king-diadem-secret-2026" ไว้ตรงนี้ ซึ่งอยู่ใน public repo แล้ว —
@@ -101,7 +101,7 @@ _lock = threading.Lock()
 def _get_conn() -> sqlite3.Connection:
     """Get SQLite connection — reuses KD main DB."""
     os.makedirs(os.path.dirname(_DB_PATH) if os.path.dirname(_DB_PATH) else ".", exist_ok=True)
-    conn = sqlite3.connect(_DB_PATH, check_same_thread=False)
+    conn = sqlite3.connect(_DB_PATH, check_same_thread=False, timeout=10)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -292,7 +292,7 @@ def validate_api_key(
     Return: {"valid": True, "email": ..., "scope": ..., "key_id": ...}
     หรือ   {"valid": False, "reason": ...}
     """
-    if not raw_key or not raw_key.startswith(_KEY_PREFIX):
+    if not isinstance(raw_key, str) or not raw_key.startswith(_KEY_PREFIX) or len(raw_key) > 128:
         return {"valid": False, "reason": "INVALID_FORMAT"}
 
     key_hash = _hash_key(raw_key)
@@ -548,6 +548,10 @@ def get_usage_stats(user_email: str, hours: int = 24) -> Dict[str, Any]:
     คืน usage summary สำหรับ user — แสดงใน governance panel
     FATE™ principle: ทุกการใช้งานต้องอธิบายได้
     """
+    try:
+        hours = max(1, min(int(hours), 24 * 90))
+    except (TypeError, ValueError):
+        hours = 24
     conn = _get_conn()
     try:
         since = time.time() - (hours * 3600)
@@ -630,7 +634,7 @@ def _extract_raw_key(request: Request) -> Optional[str]:
     1. Authorization: Bearer kd_xxx
     2. X-API-Key: kd_xxx
     3. Cookie: kd_api_key (auto-set หลัง login)
-    4. Query param: api_key=kd_xxx (deprecated แต่ยังรองรับ)
+    (เลิกรับ ?api_key= แล้ว — key ใน URL ค้างใน access log / history / Referer)
     """
     # 1. Bearer token
     auth = request.headers.get("Authorization", "")
@@ -646,11 +650,6 @@ def _extract_raw_key(request: Request) -> Optional[str]:
     cookie = request.cookies.get("kd_api_key", "")
     if cookie.startswith(_KEY_PREFIX):
         return cookie
-
-    # 4. Query param (fallback)
-    qkey = request.query_params.get("api_key", "")
-    if qkey.startswith(_KEY_PREFIX):
-        return qkey
 
     return None
 
@@ -731,12 +730,12 @@ def require_api_key(permission: Optional[str] = None):
                 request.state.api_key_info = result
                 request.state.api_user_email = result["email"]
             else:
-                # fallback: cookie-based auth (ระบบเดิม)
-                email = request.cookies.get("kd_email", "")
-                if not email and permission:
+                # เดิมเชื่อ cookie "kd_email" ที่ไม่มีลายเซ็น → ตั้ง cookie เป็นอีเมลใครก็สวมรอยได้
+                # ไม่มี key = ไม่มีตัวตนจากชั้นนี้ (ผู้เรียกใช้ session ที่เซ็นแล้วของ app เอง)
+                if permission:
                     raise HTTPException(status_code=401, detail="Authentication required")
                 request.state.api_key_info  = None
-                request.state.api_user_email = email
+                request.state.api_user_email = ""
 
             return await func(request, *args, **kwargs)
         return wrapper
@@ -760,9 +759,9 @@ def on_user_login(email: str) -> Dict[str, Any]:
     try:
         result = ensure_api_key(email, scope="user", label="auto_login")
         return result
-    except Exception as e:
+    except Exception:
         # ไม่ให้ login fail เพราะ key system
-        return {"status": "error", "reason": str(e), "raw_key": None}
+        return {"status": "error", "reason": "API_KEY_UNAVAILABLE", "raw_key": None}
 
 
 # =============================================================================

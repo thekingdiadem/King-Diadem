@@ -53,23 +53,21 @@ def verify_creator_claim(claim: dict) -> dict:
     ตรวจสอบการอ้างตัวเป็นผู้สร้าง
     ต้องผ่าน verification ก่อนเสมอ
     """
+    # เดิมคืน verified=True เมื่อพิมพ์ชื่อ + คำว่า "id"/"ยืนยัน" (เช่น "I did") → ใครก็อ้างเป็นผู้สร้างได้
+    # โค้ดตรวจ passport/บัตรจริงไม่ได้ และ PURE AXIS: "No authority is granted by reference."
+    # → การอ้างตัวผ่านข้อความไม่เคย verified ในระบบ ต้องยืนยันนอกระบบเท่านั้น
+    claim = claim if isinstance(claim, dict) else {}
     name = str(claim.get("name", "")).strip()
-    method = str(claim.get("verification_method", "")).strip()
-
     name_match = (
         name == CREATOR["name_th"] or
         name.lower() == CREATOR["name_en"].lower()
     )
-    method_valid = any(
-        m.lower() in method.lower()
-        for m in ["passport", "linkedin", "id", "บัตร", "ยืนยัน"]
-    )
-
-    if name_match and method_valid:
+    if name_match:
         return {
-            "verified": True,
-            "name":     name,
-            "message":  "ยืนยันตัวตนผู้สร้างสำเร็จ",
+            "verified": False,
+            "pending":  "out_of_band_verification",
+            "message":  "ข้อความอ้างชื่อไม่ใช่การยืนยันตัวตน — ต้องยืนยันนอกระบบ",
+            "required": VERIFICATION_METHODS,
         }
 
     return {
@@ -85,7 +83,9 @@ def assert_core_unchanged() -> dict:
     เรียกได้เมื่อต้องการ audit integrity
     """
     return {
-        "status":    "INTACT",
+        # ประกาศค่าคงที่ ไม่ได้ตรวจ hash ของโค้ดจริง — เดิมเขียน INTACT เสมอซึ่งเป็นการยืนยันเกินจริง
+        "status":    "DECLARED",
+        "verified":  False,
         "creator":   CREATOR["name_th"],
         "immutable": IMMUTABLE,
         "mutable":   MUTABLE,

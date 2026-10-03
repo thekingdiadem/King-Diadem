@@ -43,11 +43,20 @@ def check_axioms(state: dict) -> dict:
 
     Article 3 — audit trail ต้องอธิบายได้ว่า axiom ไหน trigger ทำไม
     """
-    entropy           = float(state.get("entropy",           50.0))
-    stability         = float(state.get("stability",         50.0))
-    choices_available = int(state.get("choices_available",   1))
-    drift_delta       = float(state.get("drift_delta",       0.0))
-    collapse_prob     = float(state.get("collapse_probability", 0.0))
+    state = state if isinstance(state, dict) else {}
+
+    def _n(k, d):
+        try:
+            x = float(state.get(k, d))
+        except (TypeError, ValueError):
+            return d
+        return x if x == x else d
+
+    entropy           = _n("entropy",              50.0)
+    stability         = _n("stability",            50.0)
+    choices_available = int(_n("choices_available", 1))
+    drift_delta       = _n("drift_delta",          0.0)
+    collapse_prob     = _n("collapse_probability", 0.0)
 
     violations: list  = []
     stop_line: bool   = False

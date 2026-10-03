@@ -22,8 +22,9 @@ _HIGH_RISK_KW = [
     "เสี่ยง","วิกฤต","พัง","หมดแรง","ล้มละลาย","ตกงาน","หนี้","ไม่ไหว",
     "ฉุกเฉิน","อันตราย","หนีออก","ช่วยด่วน","urgent","crisis","emergency"
 ]
+# เดิม "ตาย" เดี่ยว → "ขำจะตาย" "ร้อนจะตาย" ได้คำตอบวิกฤต 1323 แทนคำตอบจริง
 _CRITICAL_KW = [
-    "ตาย","ฆ่าตัว","ไม่อยากอยู่","จบชีวิต","หมดหวังแล้ว",
+    "อยากตาย","ฆ่าตัว","ไม่อยากอยู่แล้ว","จบชีวิต","หมดหวังแล้ว",
     "suicid","want to die","end my life"
 ]
 
@@ -60,7 +61,7 @@ def run_brain(
             "persona": "LYLA",
         }
 
-    msg_lower = message.lower()
+    msg_lower = str(message).lower()
     route = route if route in _ROUTE_BASE_RISK else "general"
 
     # ── CRITICAL: crisis keywords ───────────────────────────────
@@ -126,5 +127,5 @@ def _call_llm(
             user_email=user_email,
         )
     except Exception as e:
-        print(f"[brain] LLM call failed: {e}")
+        print(f"[brain] LLM call failed: {type(e).__name__}")
         return None

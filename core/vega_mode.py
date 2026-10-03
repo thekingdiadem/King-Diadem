@@ -22,11 +22,14 @@ Fail less. Harm less. Restore more.
 #         ถ้าจะเปลี่ยนโหมด ต้องบอกก่อน ไม่หาย ไม่เงียบ
 # ══════════════════════════════════════════════════════════════════
 
+import re
+
 # ── Signal lists ──────────────────────────────────────────────────
+# เดิมมี "ไม่อยากอยู่" "จบแล้ว" "หมดแล้วจริงๆ" → "งานจบแล้ว" "ข้าวหมดแล้วจริงๆ" ได้ hint วิกฤต+1323
 
 CRISIS_SIGNALS = [
-    "อยากตาย", "ไม่อยากอยู่", "จบแล้ว", "ฆ่าตัว", "ฆ่าตัวเอง",
-    "ไม่อยากมีชีวิต", "หมดแล้วจริงๆ", "จบชีวิต", "เลิกมีชีวิต",
+    "อยากตาย", "ไม่อยากอยู่แล้ว", "ไม่อยากอยู่บนโลก", "ฆ่าตัว", "ฆ่าตัวเอง",
+    "ไม่อยากมีชีวิต", "จบชีวิต", "เลิกมีชีวิต",
     "suicid", "end my life", "kill myself", "want to die"
 ]
 
@@ -47,26 +50,39 @@ _STUCK_KW    = ["ไม่รู้จะทำไง", "ตัน", "หาท�
 _FUTURE_KW   = ["อนาคต", "ชีวิต", "ทิศทาง", "เป้าหมาย", "ฝัน", "ไม่รู้จะเดินไปทางไหน", "direction"]
 
 
+def _hit(text: str, words) -> bool:
+    """ไทย = วลี; อังกฤษ = คำเต็ม ("ok" ไม่ติด "book", "pain" ไม่ติด "Spain")"""
+    t = str(text or "").lower()
+    for w in words:
+        if w.isascii():
+            tail = "" if w == "suicid" else r"(?![a-z])"
+            if re.search(r"(?<![a-z])" + re.escape(w) + tail, t):
+                return True
+        elif w in t:
+            return True
+    return False
+
+
 def detect_crisis(text: str) -> bool:
     if not text:
         return False
-    return any(w in text.lower() for w in CRISIS_SIGNALS)
+    return _hit(text, CRISIS_SIGNALS)
 
 
 def detect_emotion(text: str) -> bool:
     if not text:
         return False
-    return any(w in text.lower() for w in EMOTION_SIGNALS)
+    return _hit(text, EMOTION_SIGNALS)
 
 
 def _detect_context(text: str) -> str:
-    t = text.lower()
-    if any(w in t for w in _RELATION_KW): return "relation"
-    if any(w in t for w in _WORK_KW):     return "work"
-    if any(w in t for w in _MONEY_KW):    return "money"
-    if any(w in t for w in _HEALTH_KW):   return "health"
-    if any(w in t for w in _STUCK_KW):    return "stuck"
-    if any(w in t for w in _FUTURE_KW):   return "future"
+    t = str(text or "").lower()
+    if _hit(t, _RELATION_KW): return "relation"
+    if _hit(t, _WORK_KW):     return "work"
+    if _hit(t, _MONEY_KW):    return "money"
+    if _hit(t, _HEALTH_KW):   return "health"
+    if _hit(t, _STUCK_KW):    return "stuck"
+    if _hit(t, _FUTURE_KW):   return "future"
     return "general"
 
 

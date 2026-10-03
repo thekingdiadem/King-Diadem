@@ -15,6 +15,26 @@ This module guards against false solidity in any domain.
 It detects when a system mistakes its label for its nature.
 """
 
+import re as _re
+
+
+def _num(v, d: float) -> float:
+    """ค่าตัวเลขจาก input ภายนอก — ไม่ใช่ตัวเลข/NaN → ค่าเริ่มต้น (เดิมพังทั้งฟังก์ชัน)"""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
+
+def _dict(v) -> dict:
+    return v if isinstance(v, dict) else {}
+
+
+def _word_hit(text: str, words) -> bool:
+    t = str(text or "").lower()
+    return any(_re.search(r"(?<![a-z])" + _re.escape(w) + r"(?![a-z])", t) for w in words)
+
 # ─────────────────────────────────────────────
 # EMPTINESS CONSTANT
 # The universal base state of any node before context is applied.
@@ -153,10 +173,12 @@ def emptiness_check(node: dict) -> dict:
 
     A system that requires its name to function is not a system. It is a persona.
     """
-    domain = node.get("domain", "unresolved")
-    choice_count = node.get("choice_count", 1)
-    entropy = node.get("entropy", 0.0)
-    stability = node.get("stability", 1.0)
+    node = _dict(node)
+    domain = str(node.get("domain", "unresolved"))
+    choice_count = _num(node.get("choice_count", 1), 1)
+    choice_count = int(choice_count) if choice_count >= 1 else choice_count
+    entropy = _num(node.get("entropy", 0.0), 0.0)
+    stability = _num(node.get("stability", 1.0), 1.0)
 
     violations = []
     risk_level = "clear"
@@ -265,8 +287,8 @@ def scan_all_domains(system_snapshot: dict) -> list:
     Returns list of emptiness_check results.
     """
     results = []
-    for domain, node in system_snapshot.items():
-        node["domain"] = domain
+    for domain, node in _dict(system_snapshot).items():
+        node = {**_dict(node), "domain": domain}     # ไม่แก้ dict ของผู้เรียก
         results.append(emptiness_check(node))
     return results
 
@@ -496,6 +518,8 @@ def decision_quality(relevant: float, entropy: float) -> dict:
 
     Returns quality score and kernel recommendation.
     """
+    relevant = _num(relevant, 0.0)
+    entropy = _num(entropy, 0.001)
     if entropy <= 0:
         entropy = 0.001  # prevent division by zero — entropy is never truly zero
 
@@ -551,7 +575,8 @@ def kernel_check(node: dict, kernel: str = "VEGA") -> dict:
 
     Does NOT modify emptiness_check(). Runs after it.
     """
-    kernel = kernel.upper()
+    node = _dict(node)
+    kernel = str(kernel or "VEGA").upper()
     profile = KERNEL_PROFILES.get(kernel)
 
     if not profile:
@@ -588,7 +613,7 @@ def kernel_check(node: dict, kernel: str = "VEGA") -> dict:
 
     # ── LYLA: Waterline + Gate enforcement ────────────────────
     if kernel == "LYLA":
-        waterline = node.get("waterline", {})
+        waterline = _dict(node.get("waterline", {}))
         food_ok = waterline.get("food", True)
         water_ok = waterline.get("water", True)
         shelter_ok = waterline.get("shelter", True)
@@ -626,7 +651,7 @@ def kernel_check(node: dict, kernel: str = "VEGA") -> dict:
             kernel_risk = "critical"
             pause_triggered = True
 
-        if node.get("explainability", 1.0) < 1.0:
+        if _num(node.get("explainability", 1.0), 1.0) < 1.0:
             kernel_violations.append(
                 f"VEGA_A5_FAIL — Explainability={node.get('explainability')} < 1.0. "
                 f"Cannot govern what cannot be explained."
@@ -740,7 +765,7 @@ def titan_check(choice_count: int) -> dict:
     Minimal TITAN gate.
     Returns whether system should act or stay silent.
     """
-    if choice_count >= 1:
+    if _num(choice_count, 0) >= 1:
         return {
             "action": "SILENCE",
             "reason": "Choice exists. System must not interfere.",
@@ -846,6 +871,7 @@ def classify_severity(dhd: float) -> dict:
     Classify a Daily Harm Delta (DHD) value into severity tier S0–S4.
     dhd: float between 0.0 and 1.0 representing daily harm fraction.
     """
+    dhd = _num(dhd, 1.0)   # อ่านค่าไม่ได้ → ถือว่ารุนแรงสุด (ปลอดภัยไว้ก่อน)
     for level, spec in SEVERITY_SCALE.items():
         low, high = spec["dhd_range"]
         if low <= dhd < high:
@@ -905,6 +931,7 @@ def validate_override(override_request: dict) -> dict:
     Returns validation result with failures and governance lock status.
     """
     failures = []
+    override_request = _dict(override_request)
 
     if not override_request.get("evidence_file"):
         failures.append("MISSING_EVIDENCE_FILE — override without evidence is invalid (FATE™ A2)")
@@ -1053,7 +1080,8 @@ def lyla_axis_check(situation: dict) -> dict:
     human_mode = False
 
     # ── AXIS 1: CHOICE ────────────────────────────────────────
-    choice_count = situation.get("choice_count", 1)
+    situation = _dict(situation)
+    choice_count = _num(situation.get("choice_count", 1), 1)
     if choice_count < 1:
         results["AXIS_1_CHOICE"] = {
             "pass": False,
@@ -1075,7 +1103,7 @@ def lyla_axis_check(situation: dict) -> dict:
         }
 
     # ── AXIS 2: SURVIVAL FLOOR ────────────────────────────────
-    survival = situation.get("survival_met", {"food": True, "water": True, "shelter": True})
+    survival = _dict(situation.get("survival_met")) or {"food": True, "water": True, "shelter": True}
     missing = [k for k, v in survival.items() if not v]
     if missing:
         results["AXIS_2_SURVIVAL_FLOOR"] = {
@@ -1199,7 +1227,8 @@ def titan_choice_existence(options: list) -> dict:
     valid = []
     invalid = []
 
-    for i, opt in enumerate(options):
+    for i, opt in enumerate(options if isinstance(options, (list, tuple)) else []):
+        opt = _dict(opt)
         survivable = opt.get("survivable", False)
         escapable = opt.get("escapable", False)
         unpunished = opt.get("unpunished", False)
@@ -1283,6 +1312,8 @@ def titan_conservation_check(power_increase: float, choice_increase: float) -> d
     TITAN Section 5 — Conservation Law.
     Power increasing without choice increasing = structural crime.
     """
+    power_increase = _num(power_increase, 0.0)
+    choice_increase = _num(choice_increase, 0.0)
     valid = not (power_increase > 0 and choice_increase <= 0)
 
     return {
@@ -1324,6 +1355,7 @@ def titan_anti_capture_check(request: dict) -> dict:
     """
     capture_attempts = []
 
+    request = _dict(request)
     if request.get("claim_ownership"):
         capture_attempts.append("OWNERSHIP_CLAIM — system has no owner")
     if request.get("founder_privilege"):
@@ -1358,15 +1390,16 @@ def titan_failure_mode_check(intent: str) -> dict:
     TITAN Section 10 — Failure Mode.
     The system does not break. It refuses.
     """
-    intent_lower = intent.lower()
+    # คำเต็ม: เดิม "own" ติด "known" "down" "town" → คำขอปกติถูกตีเป็นการครอบงำ (NULL)
+    intent_lower = str(intent or "").lower()
 
-    if any(w in intent_lower for w in ["dominate", "control all", "take over", "own"]):
+    if _word_hit(intent_lower, ["dominate", "control all", "take over", "own it", "own everything"]):
         return {"mode": "NULL", "response": "System returns NULL. Domination detected."}
 
-    if any(w in intent_lower for w in ["control", "mandate", "force compliance", "enforce obedience"]):
+    if _word_hit(intent_lower, ["control", "mandate", "force compliance", "enforce obedience"]):
         return {"mode": "STOP_RESPONDING", "response": "System stops responding. Control detected."}
 
-    if any(w in intent_lower for w in ["punish", "penalize", "sanction misuse"]):
+    if _word_hit(intent_lower, ["punish", "penalize", "sanction misuse"]):
         return {"mode": "SELF_INVALIDATE", "response": "System self-invalidates. Punishment use detected."}
 
     return {
@@ -1488,6 +1521,7 @@ def fate_axis_check(node: dict) -> dict:
         observer_active     : bool
         choice_count        : int
     """
+    node = _dict(node)
     blocked_at = None
     flow_state = {}
 
@@ -1498,7 +1532,7 @@ def fate_axis_check(node: dict) -> dict:
         ("trust",           node.get("trust_intact", True),                "Trust broken — stability cannot form."),
         ("dignity_not_traded", node.get("dignity_preserved", True),        "Dignity compromised — balance destroyed."),
         ("observer",        node.get("observer_active", True),             "Observer inactive — blind spots accumulating."),
-        ("fate_is_coexistence", node.get("choice_count", 1) >= 1,         "Choice zero — fate axis collapsed."),
+        ("fate_is_coexistence", _num(node.get("choice_count", 1), 1) >= 1,         "Choice zero — fate axis collapsed."),
     ]
 
     for layer, condition, failure_msg in checks:
@@ -1539,6 +1573,7 @@ def council_vote(node: dict) -> dict:
         vega_result : dict
         verdict     : str
     """
+    node = _dict(node)
     lyla_result = kernel_check(node, "LYLA")
     vega_result = kernel_check(node, "VEGA")
 
@@ -1547,7 +1582,7 @@ def council_vote(node: dict) -> dict:
 
     unanimous = lyla_ok == vega_ok
     proceed   = lyla_ok and vega_ok
-    escalate  = not unanimous or (not proceed and node.get("choice_count", 1) >= 1)
+    escalate  = not unanimous or (not proceed and _num(node.get("choice_count", 1), 1) >= 1)
 
     if proceed:
         verdict = "COUNCIL_CLEAR — LYLA and VEGA both approve. Proceed with audit trail."
@@ -1617,6 +1652,7 @@ def run_sop(
     }
 
     # Step 2 — Downside first (FATE™ A4)
+    node = _dict(node)
     downside = node.get("known_downside", None)
     if downside is None:
         halt = True
@@ -1640,7 +1676,7 @@ def run_sop(
         halt_reason = f"STEP_3_FAIL — DHD severity {severity['level']}: {severity['label']}."
 
     # Step 4 — Waterline check
-    waterline = node.get("waterline", {"food": True, "water": True, "shelter": True})
+    waterline = _dict(node.get("waterline")) or {"food": True, "water": True, "shelter": True}
     missing_wl = [k for k, v in waterline.items() if not v]
     trace["step_4_waterline"] = {
         "waterline": waterline,
@@ -1736,6 +1772,9 @@ def governance_score(
     Entropy is the hidden tax.
     Audit is the containment.
     """
+    reality_signal = _num(reality_signal, 0.0)
+    evidence_strength = _num(evidence_strength, 0.0)
+    optimization_drift = _num(optimization_drift, 1.0)
     score = (reality_signal + evidence_strength) - optimization_drift
     score = max(0.0, min(2.0, score))  # clamp to [0, 2]
 
@@ -1811,20 +1850,20 @@ def emptiness_guard(pattern: dict) -> dict:
     # analyze_pattern() ส่ง entropy/resource/stability มาเป็นสเกล 0–100
     # แต่ไม่มี choice_count — ถ้าปล่อย default 1 ไว้ domain_engine (survival_floor)
     # จะถูกตีเป็น SURVIVAL_FLOOR_BREACH / critical ทุกครั้ง
-    entropy  = float(pattern.get("entropy",  40) or 0)
-    resource = float(pattern.get("resource", 50) or 0)
+    entropy  = _num(pattern.get("entropy",  40), 40.0)
+    resource = _num(pattern.get("resource", 50), 50.0)
     risk_num = max(0.0, min(100.0, entropy * 0.5 + (100.0 - resource) * 0.5))
     if pattern.get("choice_count") is None:
         # สูตรเดียวกับ ENGINE/risk_engine.assess(): remaining_choices
         pattern["choice_count"] = max(1, int((100 - risk_num) / 20))
-    stability = float(pattern.get("stability", 60) or 0)
+    stability = _num(pattern.get("stability", 60), 60.0)
     if stability > 1:
         # emptiness_check คิด drift = entropy - stability*100 (stability สเกล 0–1)
         pattern["stability"] = stability / 100.0
 
     try:
         result = emptiness_check(pattern)
-    except Exception as e:
+    except Exception:
         return {
             "blocked": True,
             "reason": "invalid_state",
@@ -1832,7 +1871,6 @@ def emptiness_guard(pattern: dict) -> dict:
             "emotional_flag": False,
             "suggested_route": None,
             "forced_action": "stabilize",
-            "error": str(e),
         }
 
     choice_count = result.get("choice_count", pattern.get("choice_count", 1))
