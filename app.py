@@ -67,10 +67,11 @@ except Exception as e:
     simulate = None
 
 try:
-    from ENGINE.risk_engine import assess as assess_risk
+    from ENGINE.risk_engine import assess as assess_risk, evaluate_risk as text_risk
 except Exception as e:
     print(f"⚠ risk_engine: {e}")
     assess_risk = None
+    text_risk = None
 
 try:
     from ENGINE.realhuman_survivorengine import (
@@ -782,10 +783,14 @@ def _enrich_with_universal(result: dict, payload: dict) -> dict:
         for key in ("council", "consensus", "state", "decision"):
             if key in uni and key not in result:
                 result[key] = uni[key]
+        if isinstance(result.get("state"), dict):
+            # ไม่ส่งข้อความ/prompt กลับซ้ำ (เดิม state.input = prompt ภายในทั้งก้อน)
+            result["state"] = {k: v for k, v in result["state"].items() if k not in ("input", "raw_input")}
         if "risk" in uni and isinstance(uni["risk"], dict):
             result.setdefault("universal_risk", uni["risk"])
     except Exception as e:
-        result.setdefault("universal_engine_error", str(e))
+        print(f"⚠ universal_engine error: {e}")          # เดิมส่งข้อความ error ภายในกลับหน้าเว็บ
+        result.setdefault("universal_engine_error", True)
     return result
 
 
@@ -880,6 +885,19 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 risk_ctx = f"[Risk: {r['level']}]"
                 if r.get("level") in ("HIGH", "CRITICAL") and route not in ("vega",):
                     route = _escalate_route(route, "collapse")
+        except Exception: pass
+
+    # ── risk จากข้อความ ──────────────────────────────────────────
+    # เดิม assess_risk ได้แค่ human_state จาก context → คนที่พิมพ์ว่า "ไม่มีข้าวกิน" ไปทาง general
+    # ทำร้ายตัวเอง → collapse (มีสายด่วน) / ขาดปัจจัยพื้นฐานหรือหนักหลายเรื่อง → survival
+    if text_risk:
+        try:
+            tr = text_risk(user_input)
+            if route not in ("vega",):
+                if tr.get("self_harm"):
+                    route = _escalate_route(route, "collapse")
+                elif tr.get("basic_needs") or tr.get("level") == "high":
+                    route = _escalate_route(route, "survival")
         except Exception: pass
 
     # ── collapse ─────────────────────────────────────────────────
@@ -1035,6 +1053,10 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         return result
 
     result["route"]      = result.get("route") or route
+    # route ที่ app ยกระดับไว้ (ขาดอาหาร/วิกฤต จากข้อความ, survivor, belief audit) ต้องไม่หาย
+    # เพราะ engine ตัดสินจาก pattern อีกชุด — ยกขึ้นได้อย่างเดียว ไม่ลด vega/stable ที่ engine เลือก
+    if _ROUTE_SEVERITY.get(route, 0) > _ROUTE_SEVERITY.get(result["route"], 0):
+        result["route"] = route
     result["persona"]    = "VEGA" if vm == "vega" else "LYLA"
     result["voice_mode"] = vm
 

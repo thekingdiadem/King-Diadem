@@ -20,15 +20,17 @@ def translate(
     แปลข้อความ — ใช้ Google Translate unofficial endpoint
     ไม่ต้อง install package — stdlib urllib เท่านั้น
     fallback: return ต้นฉบับถ้า request ไม่สำเร็จ
+
+    ⚠ ความเป็นส่วนตัว: ข้อความถูกส่งไปยัง endpoint ภายนอกที่ไม่เป็นทางการ
+      อย่าเรียกกับข้อความส่วนตัวของผู้ใช้โดยไม่บอกเขาก่อน
     """
-    if not text or not text.strip():
+    if not text or not str(text).strip():
         return text
 
     try:
-        encoded = urllib.parse.quote(text)
-        url = (
-            f"https://translate.googleapis.com/translate_a/single"
-            f"?client=gtx&sl={source}&tl={target}&dt=t&q={encoded}"
+        # เดิมต่อ sl/tl เข้า URL ตรงๆ — ค่าอย่าง "en&x=1" แทรกพารามิเตอร์เพิ่มได้
+        url = "https://translate.googleapis.com/translate_a/single?" + urllib.parse.urlencode(
+            {"client": "gtx", "sl": str(source), "tl": str(target), "dt": "t", "q": str(text)[:5000]}
         )
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=5) as resp:

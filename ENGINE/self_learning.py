@@ -20,7 +20,9 @@ def load_history() -> list:
         return []
     try:
         with open(MEMORY_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
+        # ไฟล์เสีย/รูปแบบผิด → เดิมล้มทั้ง analyze (KeyError) ตอนนี้ข้ามแถวที่ใช้ไม่ได้
+        return [h for h in data if isinstance(h, dict)] if isinstance(data, list) else []
     except Exception:
         return []
 
@@ -38,15 +40,22 @@ def save_history(history: list) -> bool:
 
 # ── Record ────────────────────────────────────────────────────────
 def record_decision(result: dict) -> bool:
+    result = result if isinstance(result, dict) else {}
+
+    def _f(v, d):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return d
     history = load_history()
     history.append({
-        "survival_score": float(result.get("survival_score", 0)),
+        "survival_score": _f(result.get("survival_score"), 0),
         "strategy":       str(result.get("strategy",        "unknown")),
         "location":       str(result.get("location",        "unknown")),
         "risk_level":     str(result.get("risk_level",      "low")),
-        "waterline":      float(result.get("waterline",      50)),
-        "entropy":        float(result.get("entropy",        40)),
-        "resource":       float(result.get("resource",       50)),
+        "waterline":      _f(result.get("waterline"),      50),
+        "entropy":        _f(result.get("entropy"),        40),
+        "resource":       _f(result.get("resource"),       50),
         "timestamp":      time.time(),
     })
     return save_history(history)
@@ -64,7 +73,7 @@ def analyze_patterns() -> dict:
             "required": 3,
         }
 
-    scores     = [h["survival_score"] for h in history]
+    scores     = [float(h.get("survival_score", 0) or 0) for h in history]
     waterlines = [h.get("waterline", 50) for h in history]
     entropies  = [h.get("entropy",   40) for h in history]
 
@@ -86,7 +95,7 @@ def analyze_patterns() -> dict:
 
     # Most common strategy
     from collections import Counter
-    strategy_counts = Counter(h["strategy"] for h in history)
+    strategy_counts = Counter(str(h.get("strategy", "unknown")) for h in history)
     top_strategy    = strategy_counts.most_common(1)[0][0]
 
     # High-risk ratio

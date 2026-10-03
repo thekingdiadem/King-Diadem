@@ -7,6 +7,9 @@ from __future__ import annotations
 _SELF_HARM = ("อยากตาย", "ฆ่าตัวตาย", "ฆ่าตัวเอง", "ทำร้ายตัวเอง", "ไม่อยากมีชีวิต",
               "ไม่อยากอยู่แล้ว", "จบชีวิต", "kill myself", "suicide", "self-harm", "end my life")
 _SURVIVAL  = ("อดข้าว", "ไม่มีข้าวกิน", "ไม่มีเงิน", "เงินหมด", "ไม่มีที่อยู่", "ถูกไล่ออก")
+# ขาดปัจจัยพื้นฐาน (อาหาร/ที่อยู่) → ต้องไปเส้นทาง survival แม้ไม่ได้กรอก context
+_BASIC_NEEDS = ("อดข้าว", "ไม่มีข้าวกิน", "ไม่มีอะไรกิน", "ไม่ได้กินข้าว", "ไม่มีที่อยู่", "ไม่มีที่นอน",
+                "นอนข้างถนน", "ถูกไล่ออกจากบ้าน")
 _STRESS    = ("พัง", "ล่ม", "ไม่ไหว", "ทนไม่ไหว", "หมดแรง")
 _URGENT    = ("ด่วน", "เดี๋ยวนี้", "ทันที", "immediately", "urgent")
 
@@ -30,7 +33,8 @@ def evaluate_risk(text: str) -> dict:
     self_harm = any(k in t for k in _SELF_HARM)
     if self_harm:
         score += 6
-    if any(k in t for k in _SURVIVAL):
+    basic_needs = any(k in t for k in _BASIC_NEEDS)
+    if basic_needs or any(k in t for k in _SURVIVAL):
         score += 3
     if any(k in t for k in _STRESS):
         score += 2
@@ -42,6 +46,7 @@ def evaluate_risk(text: str) -> dict:
         "level": level,
         "pause": level in ("high", "critical"),
         "self_harm": self_harm,
+        "basic_needs": basic_needs,
     }
 
 def assess(pattern: dict) -> dict:

@@ -30,14 +30,21 @@ def build_survival_map(
     Full survival picture สำหรับ lat/lng
     context: {money, food, energy, risk_score, vehicle}
     """
-    ctx = context or {}
+    ctx = context if isinstance(context, dict) else {}
+    lat, lng = float(lat), float(lng)
+
+    def _f(v, d):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return d
 
     # Node scan
     nodes = find_survival_nodes(lat, lng)
 
     # Escape routes
     if _ESCAPE_LOADED:
-        risk_score = float(ctx.get("risk_score", 50))
+        risk_score = _f(ctx.get("risk_score"), 50)
         routes = generate_escape_routes(
             location={"lat": lat, "lng": lng},
             risk=risk_score / 10,  # normalize 0-10
@@ -53,10 +60,10 @@ def build_survival_map(
     # Intervention assessment
     intervention = None
     if _INTERVENTION_LOADED:
-        money  = float(ctx.get("money",  100))
-        food   = float(ctx.get("food",   3))
-        energy = float(ctx.get("energy", 50))
-        risk   = float(ctx.get("risk_score", 50))
+        money  = _f(ctx.get("money"),  100)
+        food   = _f(ctx.get("food"),   3)
+        energy = _f(ctx.get("energy"), 50)
+        risk   = _f(ctx.get("risk_score"), 50)
 
         if risk >= 75 or money < 50 or food <= 1:
             risk_level = "critical"

@@ -47,18 +47,18 @@ except ImportError:
 
 # ── Fallbacks ─────────────────────────────────────────────────────
 def _pattern_fallback(raw: dict) -> dict:
-    entropy   = float(raw.get("entropy",   40))
-    resource  = float(raw.get("resource",  50))
-    stability = float(raw.get("stability", 60))
+    entropy   = _f(raw.get("entropy"),   40)
+    resource  = _f(raw.get("resource"),  50)
+    stability = _f(raw.get("stability"), 60)
     route = "survival" if entropy > 65 or resource < 25 else \
             "business" if "ธุรกิจ" in str(raw.get("input","")) or "business" in str(raw.get("input","")).lower() else \
             "general"
     return {**raw, "route": route, "pattern_source": "fallback"}
 
 def _risk_fallback(state: dict) -> dict:
-    entropy   = float(state.get("entropy",   40))
-    resource  = float(state.get("resource",  50))
-    stability = float(state.get("stability", 60))
+    entropy   = _f(state.get("entropy"),   40)
+    resource  = _f(state.get("resource"),  50)
+    stability = _f(state.get("stability"), 60)
     score = round(max(0, min(100,
         entropy * 0.40 + (100 - resource) * 0.35 + (100 - stability) * 0.25
     )), 1)
@@ -94,7 +94,7 @@ def _consensus_fallback(council: dict, state: dict) -> dict:
     }
 
 def _guard_fallback(packet: dict) -> dict:
-    choices = int(packet.get("choices", 1))
+    choices = int(_f(packet.get("choices"), 1))
     if choices <= 0:
         return {**packet, "blocked": True,
                 "reason": "Choice(t) = 0 — SYSTEM_PAUSE",
@@ -103,16 +103,24 @@ def _guard_fallback(packet: dict) -> dict:
 
 
 # ── Normalize ─────────────────────────────────────────────────────
+def _f(v, d):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return d
+
+
 def _normalize(payload) -> dict:
     if not isinstance(payload, dict):
         payload = {}
     return {
-        "input":            str(payload.get("input", payload.get("question", ""))).strip(),
-        "entropy":          float(payload.get("entropy",    40)),
-        "resource":         float(payload.get("resource",   50)),
-        "stability":        float(payload.get("stability",  60)),
-        "choices":          int(payload.get("choices",       1)),
-        "confidence":       float(payload.get("confidence", 0.5)),
+        # ข้อความจริงของผู้ใช้ — "input" ของ /run คือ prompt ที่ต่อบริบทแล้ว (เดิมหลุดกลับหน้าเว็บผ่าน state)
+        "input":            str(payload.get("raw_input") or payload.get("input", payload.get("question", ""))).strip(),
+        "entropy":          _f(payload.get("entropy"),    40),
+        "resource":         _f(payload.get("resource"),   50),
+        "stability":        _f(payload.get("stability"),  60),
+        "choices":          int(_f(payload.get("choices"), 1)),
+        "confidence":       _f(payload.get("confidence"), 0.5),
         "decision":         payload.get("decision"),
         "previous_decision":payload.get("previous_decision"),
         "decision_history": payload.get("decision_history", []),

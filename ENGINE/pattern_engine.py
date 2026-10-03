@@ -4,6 +4,7 @@
 # Pattern = สิ่งที่ผู้ใช้ทำซ้ำๆ + แนวโน้ม + drift จาก waterline
 
 from __future__ import annotations
+import re
 import time
 from collections import deque, OrderedDict
 from threading   import Lock
@@ -171,6 +172,25 @@ def analyze_pattern(input_data: dict, session_id: str | None = None) -> dict:
     }
 
 
+# คำสั้นเดี่ยวๆ เดิม ("พัง" "ล้ม" "รอด" "หิว") ตรงกับประโยคธรรมดา: "รถพัง" "ล้มเลิก"
+# "รอดู" (มี "รอด") "หิวข้าว" → คนทั่วไปถูกส่งไป collapse/survival  จึงใช้วลีที่หมายถึงวิกฤตจริง
+_T_COLLAPSE = ("พังหมด", "พังทุกอย่าง", "ล่มสลาย", "ล้มละลาย", "วิกฤต", "ฉุกเฉิน", "collapse")
+_T_SURVIVAL = ("เอาตัวรอด", "ไม่รอด", "จะรอดไหม", "หิวมาก", "ไม่มีกิน", "ไม่มีข้าว", "ไม่มีเงิน",
+               "survive", "emergency")
+_T_RISK     = ("เสี่ยง", "อันตราย", "ประเมินความเสี่ยง", "risk", "danger")
+_T_VEGA     = ("วิเคราะห์", "กลยุทธ์", "analyze", "strategy", "long-term")
+
+
+def _hit_any(words, text: str) -> bool:
+    for k in words:
+        if k.isascii():
+            if re.search(r"(?<![a-z])" + re.escape(k) + r"(?![a-z])", text):
+                return True
+        elif k in text:
+            return True
+    return False
+
+
 def _resolve_route(
     text:       str,
     entropy:    float,
@@ -192,13 +212,14 @@ def _resolve_route(
     }
 
     # text signals
-    if any(k in text for k in ("พัง","ล้ม","collapse","ล่มสลาย","วิกฤต","ฉุกเฉิน")):
+    text = str(text or "").lower()
+    if _hit_any(_T_COLLAPSE, text):
         scores["collapse"] += 3
-    if any(k in text for k in ("รอด","หิว","ไม่มีกิน","ไม่มีเงิน","survive","emergency")):
+    if _hit_any(_T_SURVIVAL, text):
         scores["survival"] += 3
-    if any(k in text for k in ("เสี่ยง","risk","อันตราย","danger","ประเมิน")):
+    if _hit_any(_T_RISK, text):
         scores["risk"] += 2
-    if any(k in text for k in ("วิเคราะห์","กลยุทธ์","analyze","strategy","long-term")):
+    if _hit_any(_T_VEGA, text):
         scores["vega"] += 2
 
     # numeric signals
