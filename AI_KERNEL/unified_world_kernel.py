@@ -17,6 +17,15 @@ import time
 import hashlib
 from typing import Optional
 
+
+def _f(v, d: float = 0.0) -> float:
+    """ค่าตัวเลขจาก input ภายนอก — ไม่ใช่ตัวเลข/NaN → ค่าเริ่มต้น (เดิม float() พังทั้งฟังก์ชัน)"""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
 # ══════════════════════════════════════════════════════════════════
 # COPY BLOCK 3 — IMMUTABLE LOGIC AXIS (FATE™)
 # ══════════════════════════════════════════════════════════════════
@@ -160,12 +169,13 @@ def run_gate_check(state: dict) -> dict:
 
     FATE™ A3 — Same Input → Same Output (deterministic)
     """
+    state = state if isinstance(state, dict) else {}
     failed_gates = []
     passed_gates = []
 
-    waterline = float(state.get("waterline", 50.0))
-    drift     = float(state.get("drift",      0.0))
-    entropy   = float(state.get("entropy",    50.0))
+    waterline = _f(state.get("waterline", 50.0), 50.0)
+    drift     = _f(state.get("drift", 0.0), 0.0)
+    entropy   = _f(state.get("entropy", 50.0), 50.0)
 
     gate_states = {
         "reality_verified":       state.get("reality_verified", True),
@@ -222,10 +232,17 @@ def measure_dhd(current_harm: float, baseline_harm: float) -> dict:
 
     FATE™ A3 — deterministic
     """
+    current_harm  = _f(current_harm, 0.0)
+    baseline_harm = _f(baseline_harm, 0.0)
     dhd         = round(current_harm - baseline_harm, 6)
     dhd_pct     = round(dhd / max(baseline_harm, 0.001) * 100, 4)
-    exceeds     = abs(dhd) >= DRIFTZERO["threshold"]
-    compounded  = round((1 + abs(dhd)) ** 365 - 1, 4)  # yearly compound
+    # เฉพาะ harm ที่ "เพิ่ม" — เดิมใช้ abs() ทำให้ harm ที่ลดลง (ดีขึ้น) ก็ถูก stop-the-line
+    exceeds     = dhd >= DRIFTZERO["threshold"]
+    # (1+|dhd|)^365 ล้น float เมื่อ dhd ใหญ่ (OverflowError) → จำกัดผลไว้ที่ 1e12
+    try:
+        compounded = round(min((1 + max(dhd, 0.0)) ** 365 - 1, 1e12), 4)  # yearly compound
+    except OverflowError:
+        compounded = 1e12
 
     severity = "S0"
     if exceeds and compounded > 0.5:
@@ -251,6 +268,7 @@ def check_waterline(waterline: float) -> dict:
     "Water harm = system death"
     """
     floor = WATERLINE["floor"]
+    waterline = _f(waterline, 0.0)
     above = waterline >= floor
     gap   = round(waterline - floor, 2)
 
@@ -283,6 +301,7 @@ def run_runtime_sop(decision_input: dict) -> dict:
 
     FATE™ A5 — Explainability = 100%
     """
+    decision_input = decision_input if isinstance(decision_input, dict) else {}
     results = []
 
     # Step 1 — input
@@ -296,16 +315,16 @@ def run_runtime_sop(decision_input: dict) -> dict:
                     "data": downside})
 
     # Step 3 — drift
-    drift     = float(decision_input.get("drift", 0.0))
-    baseline  = float(decision_input.get("baseline_harm", 0.0))
-    current   = float(decision_input.get("current_harm", baseline))
+    drift     = _f(decision_input.get("drift", 0.0), 0.0)
+    baseline  = _f(decision_input.get("baseline_harm", 0.0), 0.0)
+    current   = _f(decision_input.get("current_harm", baseline), baseline)
     dhd       = measure_dhd(current, baseline)
     results.append({"step": 3, "action": "Measure drift impact (DHD)",
                     "status": "OK" if not dhd["exceeds_threshold"] else "ALERT",
                     "data": dhd})
 
     # Step 4 — waterline
-    wl     = float(decision_input.get("waterline", 50.0))
+    wl     = _f(decision_input.get("waterline", 50.0), 50.0)
     wl_check = check_waterline(wl)
     results.append({"step": 4, "action": "Check Waterline integrity",
                     "status": "OK" if wl_check["above_floor"] else "HALT",

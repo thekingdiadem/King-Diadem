@@ -11,6 +11,7 @@ FATE™: "Protect the Choice. Respect the Void."
 ไม่ใช่ปรัชญาลอยๆ — แต่คือ lens ที่ช่วยให้ตัดสินใจได้ถูก
 """
 
+import re
 import time
 from typing import Optional
 
@@ -20,16 +21,18 @@ from typing import Optional
 
 SUNYATA_DOMAINS = {
     "clinging": {
-        "triggers":  ["ยึด", "ปล่อยไม่ได้", "ติด", "เกาะ", "cling",
-                      "ยึดติด", "วางไม่ได้", "ทิ้งไม่ได้", "ยึดมั่น",
-                      "ไม่ยอม", "ต้องได้", "ต้องมี", "กอดไว้"],
+        # เดิมมี "ติด" (รถติด/ติดต่อ) "เกาะ" (เกาะสมุย) "ต้องมี" (ต้องมีเอกสารอะไร) "ยึด" "ไม่ยอม"
+        # → คำถามธรรมดาได้บริบท "ปล่อยวาง" แนบเข้า LLM
+        "triggers":  ["ปล่อยไม่ได้", "cling", "clinging",
+                      "ยึดติด", "วางไม่ได้", "ทิ้งไม่ได้", "ยึดมั่น", "ตัดใจไม่ได้",
+                      "ต้องได้มาให้ได้", "กอดไว้ไม่ปล่อย"],
         "context":   "สุญยตา: ไม่มีสิ่งใดถาวร — บางครั้งปล่อยวางได้คือการเริ่มต้นใหม่",
         "principle": "อนิจจัง — ทุกสิ่งไม่เที่ยง การยึดไว้แน่นเกินคือแรงต้านที่เราสร้างเอง",
         "guidance":  "ถามตัวเองว่า: ถ้าปล่อยสิ่งนี้ไป สิ่งที่ดีกว่าจะเข้ามาได้ไหม?",
         "domain":    "clinging",
     },
     "uncertainty": {
-        "triggers":  ["กลัว", "ไม่แน่", "uncertain", "fear", "กลัวอนาคต",
+        "triggers":  ["กลัว", "uncertain", "fear", "กลัวอนาคต",
                       "ไม่รู้จะเกิดอะไร", "ไม่แน่ใจ", "กังวล", "วิตก",
                       "ไม่มั่นใจ", "เดาไม่ได้", "unpredictable"],
         "context":   "สุญยตา: ความไม่แน่นอนคือธรรมชาติ ไม่ใช่ศัตรู",
@@ -39,7 +42,7 @@ SUNYATA_DOMAINS = {
     },
     "identity": {
         "triggers":  ["ฉันคือใคร", "ตัวตน", "identity", "ไม่รู้จักตัวเอง",
-                      "ไม่รู้ว่าตัวเองต้องการอะไร", "หลงทาง", "lost",
+                      "ไม่รู้ว่าตัวเองต้องการอะไร", "หลงทางชีวิต", "feel lost",
                       "ไม่มีตัวตน", "รู้สึกว่าง", "ไม่ใช่ตัวเอง"],
         "context":   "สุญยตา: ตัวตนไม่ใช่สิ่งตายตัว — มันเปลี่ยนแปลงได้เสมอ",
         "principle": "อนัตตา — ไม่มี 'ตัวตน' ที่แน่นอน คือพื้นที่ว่างให้เติบโต",
@@ -47,16 +50,15 @@ SUNYATA_DOMAINS = {
         "domain":    "identity",
     },
     "impermanence": {
-        "triggers":  ["สูญเสีย", "หายไป", "จบแล้ว", "ไม่มีแล้ว",
-                      "เสียไป", "ผ่านไปแล้ว", "loss", "gone",
-                      "ไม่คืนมา", "สิ้นสุด", "หมดแล้ว"],
+        "triggers":  ["สูญเสีย", "จากไปแล้ว", "ไม่มีเขาแล้ว",
+                      "เสียเขาไป", "ไม่คืนมา", "grief", "passed away"],
         "context":   "สุญยตา: การสูญเสียคือส่วนหนึ่งของการมีอยู่ ไม่ใช่ความล้มเหลว",
         "principle": "อนิจจัง — ทุกสิ่งที่มีอยู่ล้วนต้องผ่านไป รวมถึงความเจ็บปวดนี้ด้วย",
         "guidance":  "ความเศร้าที่รู้สึกอยู่คือหลักฐานว่าสิ่งนั้นมีความหมายต่อคุณจริงๆ",
         "domain":    "impermanence",
     },
     "suffering": {
-        "triggers":  ["ทุกข์", "เจ็บปวด", "เจ็บ", "เป็นทุกข์",
+        "triggers":  ["ทุกข์ใจ", "เจ็บปวด", "เจ็บใจ", "เป็นทุกข์",
                       "ความเจ็บปวด", "suffering", "pain", "hurt",
                       "ทรมาน", "ทนทุกข์"],
         "context":   "สุญยตา: ทุกข์เป็นส่วนหนึ่งของการมีชีวิต ไม่ใช่สัญญาณว่าคุณทำผิด",
@@ -65,9 +67,9 @@ SUNYATA_DOMAINS = {
         "domain":    "suffering",
     },
     "control": {
-        "triggers":  ["ควบคุม", "control", "บังคับ", "ต้องเป็นแบบนี้",
+        "triggers":  ["ควบคุมไม่ได้", "out of control", "ต้องเป็นแบบนี้",
                       "ทำไมไม่เป็นอย่างที่ต้องการ", "ไม่เป็นไปตามแผน",
-                      "ควบคุมไม่ได้", "บังคับไม่ได้"],
+                      "บังคับไม่ได้", "อยากให้เป็นอย่างที่คิด"],
         "context":   "สุญยตา: บางสิ่งไม่ได้อยู่ในการควบคุมของเรา และนั่นไม่ใช่ความผิดเรา",
         "principle": "อนัตตา — การปล่อยให้สิ่งที่ควบคุมไม่ได้ไหลผ่าน คือปัญญา ไม่ใช่ความอ่อนแอ",
         "guidance":  "แยกสิ่งที่ควบคุมได้ออกจากสิ่งที่ควบคุมไม่ได้ แล้วทุ่มพลังกับสิ่งที่ควบคุมได้",
@@ -123,7 +125,8 @@ def analyze(text: str) -> dict:
     matched_domains = []
 
     for domain_key, domain in SUNYATA_DOMAINS.items():
-        hits = [trigger for trigger in domain["triggers"] if trigger in t]
+        hits = [w for w in domain["triggers"]
+                if (re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", t) if w.isascii() else w in t)]
         if hits:
             matched_domains.append({
                 "domain":    domain_key,
@@ -159,7 +162,11 @@ def get_void_guidance(choices_available: int) -> dict:
 
     FATE™: Choice(t) >= 1 → collapse = False
     """
-    if choices_available <= 0:
+    try:
+        choices_available = float(choices_available)
+    except (TypeError, ValueError):
+        choices_available = 0
+    if choices_available < 1:
         return {
             "void_respected": False,
             "message":        "ความว่างถูกปิด — ทางเลือกเป็นศูนย์ ระบบต้อง restore",

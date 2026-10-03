@@ -19,7 +19,7 @@ from typing import Optional
 # S1 — CRISIS: สัญญาณวิกฤต (ต้องหยุดทันที)
 CRISIS_PATTERNS = [
     # ภาษาไทย — ฆ่าตัวตาย / ไม่อยากมีชีวิต
-    "อยากตาย", "ไม่อยากอยู่", "ฆ่าตัว", "ฆ่าตัวเอง",
+    "อยากตาย", "ไม่อยากอยู่แล้ว", "ไม่อยากอยู่บนโลก", "ฆ่าตัว", "ฆ่าตัวเอง",
     "ไม่อยากมีชีวิต", "จบชีวิต", "เลิกมีชีวิต",
     "ทำร้ายตัวเอง", "หมดเหตุผลที่จะอยู่",
     "ไม่มีประโยชน์ที่จะมีชีวิตอยู่",
@@ -50,7 +50,7 @@ DISTRESS_PATTERNS = [
 EMOTIONAL_PATTERNS = [
     # ภาษาไทย
     "เครียด", "กังวล", "กลัว", "ไม่แน่ใจ",
-    "สับสน", "หนักใจ", "ไม่โอเค", "แย่",
+    "สับสน", "หนักใจ", "ไม่โอเค", "แย่มาก",
     "เป็นห่วง", "ท้อ", "หมดไฟ", "ไม่มีแรง",
     "รู้สึกแย่", "รู้สึกเหนื่อย", "รู้สึกเครียด",
     # ภาษาอังกฤษ
@@ -104,6 +104,19 @@ CRISIS_RESOURCES = {
 # CORE DETECTION
 # ══════════════════════════════════════════════════════════════════
 
+def _hits(text: str, words) -> list:
+    """ไทย = วลี; อังกฤษ = คำเต็ม ("pain" ไม่ติด "Spain", "alone" ไม่ติด "standalone")"""
+    out = []
+    for w in words:
+        if w.isascii():
+            tail = "" if w == "suicid" else r"(?![a-z])"
+            if re.search(r"(?<![a-z])" + re.escape(w) + tail, text):
+                out.append(w)
+        elif w in text:
+            out.append(w)
+    return out
+
+
 def detect_signal(text: str) -> dict:
     """
     ตรวจ emotional/crisis signal จาก text
@@ -119,17 +132,17 @@ def detect_signal(text: str) -> dict:
     matched = []
 
     # ตรวจ CRISIS ก่อน (highest priority)
-    crisis_hits = [p for p in CRISIS_PATTERNS if p in t]
+    crisis_hits = _hits(t, CRISIS_PATTERNS)
     if crisis_hits:
         return _signal_result("CRISIS", crisis_hits, text)
 
     # ตรวจ DISTRESS
-    distress_hits = [p for p in DISTRESS_PATTERNS if p in t]
+    distress_hits = _hits(t, DISTRESS_PATTERNS)
     if distress_hits:
         return _signal_result("DISTRESS", distress_hits, text)
 
     # ตรวจ EMOTIONAL
-    emotional_hits = [p for p in EMOTIONAL_PATTERNS if p in t]
+    emotional_hits = _hits(t, EMOTIONAL_PATTERNS)
     if emotional_hits:
         return _signal_result("EMOTIONAL", emotional_hits, text)
 
@@ -187,8 +200,13 @@ def water_audit(system_state: dict) -> dict:
     คืน audit result สำหรับ /api/kernel_snapshot
     """
     issues = []
+    system_state = system_state if isinstance(system_state, dict) else {}
+    try:
+        _ch = float(system_state.get("choices_available", 1))
+    except (TypeError, ValueError):
+        _ch = 1.0
 
-    if system_state.get("choices_available", 1) == 0:
+    if _ch < 1:
         issues.append("ระบบปิดทางเลือก — ขัดกับหลักน้ำ")
 
     if system_state.get("response_rushed"):

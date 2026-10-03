@@ -843,7 +843,9 @@ def run_kernel(request: Request, data: dict):
     # ตัวตนของ session มาจาก server เท่านั้น — เดิมไม่ส่งเลย ทุกคนใช้ "default" ร่วมกัน
     # (state อารมณ์/วิกฤตของคนหนึ่งจะไปติดในคำตอบของอีกคน) และห้ามเชื่อค่าที่ client ส่งมา
     data = {**data, "session_id": _quota_identity(email, request),
-            "user_email": email if email != "anonymous" else ""}
+            "user_email": email if email != "anonymous" else "",
+            # context มาจาก client — ไม่ใช่ dict (list/str) ทำให้ engine ข้างล่างล้มทีละตัวแบบเงียบ
+            "context": data.get("context") if isinstance(data.get("context"), dict) else {}}
     reset_fallback_flag()
     try:
         result = _run_kernel_impl(data, user_input, email)
