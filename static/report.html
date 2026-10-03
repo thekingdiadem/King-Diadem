@@ -647,7 +647,10 @@ nav::after {
     var html =
       // HERO
       '<div class="report-hero">'
-        +'<div class="hero-eyebrow">FATE™ Decision Report · KING DIADEM</div>'
+        +'<div class="hero-eyebrow">FATE™ Decision Report · KING DIADEM'
+          // เนื้อหาที่ผู้ใช้ส่งมาเอง (/api/report/create) — ไม่ใช่ผลจากระบบ
+          +(d.user_submitted ? ' · <span style="color:var(--warn,#e0a040)">USER-SUBMITTED · ไม่ได้ผ่านระบบ</span>' : '')
+        +'</div>'
         +'<div class="hero-id">ID: '+esc(d.id||id)+'&nbsp;&nbsp;·&nbsp;&nbsp;'+esc(dateStr)+'</div>'
         +'<div class="hero-verdict '+verdictClass(verdict)+'">'+esc(verdict)+'</div>'
         +'<div class="hero-meta">'

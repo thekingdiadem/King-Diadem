@@ -1,18 +1,26 @@
 # DATABASE/db.py — KING DIADEM v2.2
 # v2.2 — เพิ่ม chat_memory table สำหรับ cross-session RAG memory
 
-import sqlite3, os, json, hashlib, hmac, secrets
+import sqlite3, os, json, hashlib, hmac, re, secrets
 
 DB_PATH = os.getenv("DB_PATH", "data/king_diadem.db")
 
 def get_conn():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
+    d = os.path.dirname(DB_PATH)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    # timeout + busy_timeout: เดิมใช้ค่าเริ่มต้น — worker หลาย thread เขียนพร้อมกันได้ "database is locked"
+    conn = sqlite3.connect(DB_PATH, timeout=15)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA busy_timeout = 15000")
     return conn
 
 def init_db():
     conn = get_conn()
+    try:
+        conn.execute("PRAGMA journal_mode = WAL")   # อ่านพร้อมเขียนได้ ไม่ล็อกทั้งไฟล์
+    except sqlite3.DatabaseError:
+        pass
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,6 +66,10 @@ def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_chat_memory_user
             ON chat_memory(user_email, importance DESC, updated_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_chat_memory_key
+            ON chat_memory(user_email, memory_key);
+        CREATE INDEX IF NOT EXISTS idx_decision_log_user
+            ON decision_log(user_email, created_at DESC);
         CREATE TABLE IF NOT EXISTS credit_ledger (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_email TEXT NOT NULL,
@@ -213,35 +225,39 @@ def email_for_stripe_customer(customer: str):
 
 def save_memory(user_email: str, memory_key: str, content: str,
                 route: str = "general", importance: int = 1):
-    """บันทึกหรืออัปเดต memory ด้วย key"""
+    """บันทึกหรืออัปเดต memory ด้วย key
+
+    เดิม INSERT ... ON CONFLICT DO NOTHING แต่ตารางไม่มี unique key → แทรกแถวใหม่ทุกครั้ง
+    ("last_route" +1 แถวต่อทุกข้อความ) ตารางโตไม่หยุด และ memory ที่ส่งเข้า prompt ซ้ำกัน
+    ตอนนี้: UPDATE ก่อน ถ้าไม่มีแถวค่อย INSERT
+    """
     conn = get_conn()
     try:
-        conn.execute("""
-            INSERT INTO chat_memory (user_email, memory_key, content, route, importance, updated_at)
-            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-            ON CONFLICT DO NOTHING
-        """, (user_email, memory_key, content, route, importance))
-        # ถ้า key ซ้ำ update แทน
-        conn.execute("""
+        cur = conn.execute("""
             UPDATE chat_memory
             SET content=?, route=?, importance=?, updated_at=CURRENT_TIMESTAMP
             WHERE user_email=? AND memory_key=?
         """, (content, route, importance, user_email, memory_key))
+        if cur.rowcount == 0:
+            conn.execute("""
+                INSERT INTO chat_memory (user_email, memory_key, content, route, importance, updated_at)
+                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            """, (user_email, memory_key, content, route, importance))
         conn.commit()
     finally:
         conn.close()
 
 def get_relevant_memory(user_email: str, limit: int = 5) -> list:
-    """ดึง memory ที่สำคัญที่สุด เรียงตาม importance + recency"""
+    """ดึง memory ที่สำคัญที่สุด เรียงตาม importance + recency (1 แถวต่อ key — แถวซ้ำเก่ายังอยู่ในตาราง)"""
     conn = get_conn()
     try:
         rows = conn.execute("""
             SELECT memory_key, content, route, importance, updated_at
             FROM chat_memory
-            WHERE user_email=?
+            WHERE id IN (SELECT MAX(id) FROM chat_memory WHERE user_email=? GROUP BY memory_key)
             ORDER BY importance DESC, updated_at DESC
             LIMIT ?
-        """, (user_email, limit)).fetchall()
+        """, (user_email, int(limit))).fetchall()
         return [dict(r) for r in rows]
     finally:
         conn.close()
@@ -301,7 +317,7 @@ def auto_extract_memory(user_email: str, user_input: str,
     if not user_email or user_email in ("anonymous", "guest"):
         return
 
-    text = user_input.lower()
+    text = str(user_input or "").lower()
 
     # Route สำคัญ = importance สูง
     importance_map = {
@@ -315,12 +331,14 @@ def auto_extract_memory(user_email: str, user_input: str,
     imp = importance_map.get(route, 1)
 
     # บันทึกเป้าหมายหลัก
-    if any(k in text for k in ["อยากทำ", "เป้าหมาย", "ตั้งใจ", "plan", "project"]):
+    # คำอังกฤษเป็นคำเต็ม ("plan" ไม่ติด "planet"/"explanation")
+    if any(k in text for k in ["อยากทำ", "เป้าหมาย", "ตั้งใจ"]) or \
+            re.search(r"(?<![a-z])(plan|project)(?![a-z])", text):
         save_memory(user_email, f"goal_{route}",
                     user_input[:200], route, importance=imp + 1)
 
     # บันทึกสถานการณ์วิกฤต
-    if any(k in text for k in ["วิกฤต", "เงินหมด", "ตกงาน", "พัง", "ไม่ไหว", "หนี้"]):
+    if any(k in text for k in ["วิกฤต", "เงินหมด", "ตกงาน", "พังหมด", "ไม่ไหวแล้ว", "เป็นหนี้", "หนี้สิน"]):
         save_memory(user_email, "crisis_context",
                     user_input[:200], route, importance=5)
 
@@ -356,6 +374,13 @@ def get_credits(user_email: str) -> int:
         conn.close()
 
 def add_credits(user_email: str, amount: int, reason: str = "grant", ref: str = None):
+    # จำนวนต้องเป็นจำนวนเต็มบวก — เดิมรับค่าลบ/ทศนิยม (credits เก็บค่าดิบ แต่ ledger ปัด int → ไม่ตรงกัน)
+    try:
+        amount = int(amount)
+    except (TypeError, ValueError):
+        return
+    if not user_email or amount <= 0:
+        return
     ensure_user(user_email)
     conn = get_conn()
     try:
@@ -376,6 +401,10 @@ def add_credits(user_email: str, amount: int, reason: str = "grant", ref: str = 
 
 def spend_credit(user_email: str, amount: int = 1, reason: str = "run", ref: str = None) -> bool:
     """หักเครดิตแบบ atomic — คืน False ถ้าเครดิตไม่พอ (ไม่มีทางติดลบ)"""
+    try:
+        amount = int(amount)
+    except (TypeError, ValueError):
+        return False
     if not user_email or amount <= 0:
         return False
     conn = get_conn()
@@ -442,23 +471,8 @@ def free_runs_used(identity: str, day: str) -> int:
         conn.close()
 
 def deduct_credits(user_email: str, amount: int) -> bool:
-    conn = get_conn()
-    try:
-        row = conn.execute(
-            "SELECT amount FROM credits WHERE user_email=?", (user_email,)
-        ).fetchone()
-        current = int(row["amount"]) if row else 0
-        if current < amount:
-            return False
-        conn.execute(
-            """UPDATE credits SET amount = amount - ?, updated_at = CURRENT_TIMESTAMP
-               WHERE user_email = ?""",
-            (amount, user_email)
-        )
-        conn.commit()
-        return True
-    finally:
-        conn.close()
+    """ชื่อเดิม — เดิม SELECT แล้ว UPDATE (หักซ้ำ/ติดลบได้เมื่อพร้อมกัน) และไม่ลง ledger"""
+    return spend_credit(user_email, amount, reason="deduct")
 
 def log_decision(
     user_id=None, input=None, output=None, route=None, persona=None,
@@ -525,7 +539,7 @@ def get_decision_history(user_email: str, limit: int = 20) -> list:
             """SELECT input, route, response, created_at
                FROM decision_log WHERE user_email=?
                ORDER BY created_at DESC LIMIT ?""",
-            (user_email, limit)
+            (user_email, max(1, min(int(limit), 200)))
         ).fetchall()
         return [dict(r) for r in rows]
     finally:

@@ -280,15 +280,25 @@ _PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://king-diadem.onrender.co
 def _public_url(path: str) -> str:
     return _PUBLIC_BASE_URL + path
 
+# จำนวน proxy ที่เชื่อถือได้หน้าแอป (Render = 1) — proxy จะ "ต่อท้าย" IP จริงใน X-Forwarded-For
+_TRUSTED_PROXY_HOPS = max(0, int(os.getenv("TRUSTED_PROXY_HOPS", "1")))
+_TRUST_CF_HEADER    = os.getenv("TRUST_CF_HEADER", "0") == "1"   # เปิดเฉพาะเมื่ออยู่หลัง Cloudflare จริง
+
 def _client_ip(request: Request) -> str:
-    """IP จริงของผู้ใช้หลัง proxy ของ Render — เดิมใช้ request.client.host
-    ซึ่งเป็น IP ของ proxy ทำให้ผู้ใช้ที่ไม่ล็อกอินทุกคนแชร์ rate limit ก้อนเดียว"""
+    """IP จริงของผู้ใช้หลัง proxy
+
+    เดิมเชื่อ cf-connecting-ip / true-client-ip / X-Forwarded-For "ตัวแรก" ซึ่ง client ใส่เองได้
+    → ผู้ใช้ไม่ล็อกอินปลอม IP ใหม่ทุกครั้ง = โควตาฟรีไม่จำกัด + หลบ rate limit + เดารหัสผ่านไม่จำกัด
+    ตอนนี้: นับจากขวาตามจำนวน proxy ที่เชื่อถือ (ค่าที่ proxy เติมเอง client ปลอมไม่ได้)
+    """
     h = request.headers
-    ip = h.get("cf-connecting-ip") or h.get("true-client-ip")
-    if not ip:
-        xff = h.get("x-forwarded-for", "")
-        ip = xff.split(",")[0].strip() if xff else ""
-    return ip or (request.client.host if request.client else "unknown")
+    if _TRUST_CF_HEADER and h.get("cf-connecting-ip"):
+        return h.get("cf-connecting-ip").strip()
+    if _TRUSTED_PROXY_HOPS:
+        parts = [p.strip() for p in h.get("x-forwarded-for", "").split(",") if p.strip()]
+        if len(parts) >= _TRUSTED_PROXY_HOPS:
+            return parts[-_TRUSTED_PROXY_HOPS]
+    return request.client.host if request.client else "unknown"
 
 def _is_premium(email: str) -> bool:
     if not email or not get_premium_until:
@@ -431,22 +441,25 @@ def _sync_galaxy(result: dict):
         pass
 
 
+# endpoint สาธารณะ — เดิมคืน route/risk/waterline ของ "ผู้ใช้คนล่าสุด" ให้ทุกคนเห็น
+# (สภาวะวิกฤตของคนหนึ่งโผล่บนหน้าจอของอีกคน) ตอนนี้คืนเฉพาะวงโคจร — route ของแต่ละคนอยู่ฝั่งหน้าเว็บ
+_NEUTRAL_WATERLINE = {"entropy": 40.0, "stability": 60.0, "resource": 50.0}
+
 @app.get("/api/galaxy/nodes")
 def galaxy_nodes():
     with _glock:
-        return {
-            "ok":           True,
-            "active_route": _gstate["active_route"],
-            "lyla_mode":    _gstate["lyla_mode"],
-            "risk_score":   _gstate["risk_score"],
-            "waterline": {
-                "entropy":   _gstate["entropy"],
-                "stability": _gstate["stability"],
-                "resource":  _gstate["resource"],
-            },
-            "nodes": _planet_positions(),
-            "ts":    int(time.time() * 1000),
-        }
+        nodes = _planet_positions()
+    for n in nodes:
+        n["active"] = False
+    return {
+        "ok":           True,
+        "active_route": "general",
+        "lyla_mode":    "idle",
+        "risk_score":   0.0,
+        "waterline":    dict(_NEUTRAL_WATERLINE),
+        "nodes":        nodes,
+        "ts":           int(time.time() * 1000),
+    }
 
 
 @app.post("/api/galaxy/signal")
@@ -455,17 +468,15 @@ async def galaxy_signal(data: dict):
     mode  = str(data.get("lyla_mode", "idle")).lower()
     if route not in _PLANETS:
         return JSONResponse({"ok": False, "error": "unknown route"}, status_code=400)
-    with _glock:
-        _gstate["active_route"] = route
-        _gstate["lyla_mode"]    = mode
-        _gstate["last_updated"] = int(time.time() * 1000)
-    return {"ok": True, "active_route": route, "lyla_mode": mode}
+    # ไม่เขียนสถานะรวมอีกต่อไป — เดิมใครก็เปลี่ยน route ที่ผู้ใช้ทุกคนเห็นได้
+    return {"ok": True, "active_route": route, "lyla_mode": mode if mode in ("idle", "burst", "think") else "idle"}
 
 
 @app.get("/api/galaxy/state")
 def galaxy_state_debug():
+    # debug เดิมคืน _gstate ทั้งก้อน (ข้อมูลของผู้ใช้คนล่าสุด) — เหลือเฉพาะวงโคจร
     with _glock:
-        return {**_gstate, "nodes": _planet_positions()}
+        return {"nodes": _planet_positions(), "last_updated": _gstate["last_updated"]}
 
 
 # ── PAGES ─────────────────────────────────────────────────────────
@@ -584,16 +595,30 @@ _login_lock = threading.Lock()
 _login_fail: dict = {}
 _LOGIN_MAX, _LOGIN_WINDOW = 8, 600
 
+_LOGIN_MAX_PER_EMAIL = 30   # ต่ออีเมล ไม่ว่ามาจากกี่ IP (กันเดารหัสจากหลายเครื่อง)
+
+def _prune(store: dict, window: float, now: float):
+    """ทิ้ง key ที่ไม่มีเหตุการณ์ในหน้าต่างเวลา — เดิม dict โตไม่หยุด (หนึ่ง key ต่อ IP/อีเมลที่เคยเห็น)"""
+    if len(store) > 10000:
+        for k in [k for k, v in store.items() if not v or now - v[-1] >= window]:
+            store.pop(k, None)
+
 def _login_blocked(key: str) -> bool:
     now = time.time()
+    email_key = "email|" + key.split("|", 1)[-1]
     with _login_lock:
+        _prune(_login_fail, _LOGIN_WINDOW, now)
         hits = [t for t in _login_fail.get(key, []) if now - t < _LOGIN_WINDOW]
         _login_fail[key] = hits
-        return len(hits) >= _LOGIN_MAX
+        ehits = [t for t in _login_fail.get(email_key, []) if now - t < _LOGIN_WINDOW]
+        _login_fail[email_key] = ehits
+        return len(hits) >= _LOGIN_MAX or len(ehits) >= _LOGIN_MAX_PER_EMAIL
 
 def _login_failed(key: str):
     with _login_lock:
-        _login_fail.setdefault(key, []).append(time.time())
+        now = time.time()
+        _login_fail.setdefault(key, []).append(now)
+        _login_fail.setdefault("email|" + key.split("|", 1)[-1], []).append(now)
 
 _EMAIL_RE = __import__("re").compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -615,12 +640,15 @@ async def google_callback(request: Request):
         return RedirectResponse("/static/login.html?error=oauth_disabled")
     try:
         token = await oauth.google.authorize_access_token(request)
-        user  = token.get("userinfo")
-        email = user.get("email", "unknown")
-        name  = user.get("name", email)
+        user  = token.get("userinfo") or {}
+        email = str(user.get("email") or "").strip().lower()
+        # ต้องเป็นอีเมลที่ Google ยืนยันแล้ว — เดิมไม่ตรวจ และถ้าไม่มีอีเมลใช้ "unknown" ร่วมกันทุกคน
+        if not email or not _EMAIL_RE.match(email) or user.get("email_verified") is False:
+            return RedirectResponse("/static/login.html?error=oauth_unverified")
+        name  = str(user.get("name") or email)[:80]
+        # ensure_user ให้ 10 เครดิตครั้งแรกครั้งเดียว — เดิมเติม 10 ทุกครั้งที่ login ตอนเครดิตเป็น 0
+        # (login ซ้ำ = เครดิตฟรีไม่จำกัด)
         if ensure_user: ensure_user(email)
-        if get_credits and add_credits and get_credits(email) == 0:
-            add_credits(email, 10)
         try:
             sess = getattr(request, "session", None)
             if sess:
@@ -809,11 +837,13 @@ def _enrich_with_universal(result: dict, payload: dict) -> dict:
 _rate_lock   = threading.Lock()
 _rate_bucket: dict = {}
 _RATE_LIMIT_N       = 20     # จำนวนครั้ง
+_MAX_INPUT_CHARS    = max(200, int(os.getenv("MAX_INPUT_CHARS", "4000")))
 _RATE_LIMIT_WINDOW  = 60     # ต่อกี่วินาที
 
 def _rate_check(identity: str) -> bool:
     now = time.time()
     with _rate_lock:
+        _prune(_rate_bucket, _RATE_LIMIT_WINDOW, now)
         hits = _rate_bucket.get(identity, [])
         hits = [t for t in hits if now - t < _RATE_LIMIT_WINDOW]
         if len(hits) >= _RATE_LIMIT_N:
@@ -833,8 +863,14 @@ def run_kernel(request: Request, data: dict):
     # sync handler → FastAPI รันใน threadpool: การรอ Gemini (และ time.sleep ตอน retry)
     # จะไม่บล็อก event loop ของ worker เดียวที่ทุกคนใช้ร่วมกัน
     user_input = data.get("input") or data.get("text") or ""
-    if not user_input:
+    if not isinstance(user_input, str):
+        user_input = str(user_input)
+    if not user_input.strip():
         return {"error": "Input is required"}
+    # เดิมไม่จำกัดความยาว — ข้อความ 1MB ถูกส่งเข้า LLM (ค่าใช้จ่าย) และเก็บลง log ทั้งก้อน
+    if len(user_input) > _MAX_INPUT_CHARS:
+        return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร — ลองสรุปให้สั้นลงนะคะ"},
+                            status_code=413)
 
     email = _session_email(request, "anonymous")
     _identity = email if email != "anonymous" else _client_ip(request)
@@ -1181,9 +1217,13 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
 def run_simulate(request: Request, data: dict):
     user_input = str(data.get("input") or "").strip()
     paths      = data.get("paths") or []
+    # ทางเลือกสูงสุด 7 ทาง ทางละ ≤ 300 ตัวอักษร — เดิมไม่จำกัดทั้งจำนวนและความยาว (ส่งเข้า LLM ทั้งหมด)
+    paths      = [str(p)[:300] for p in (paths if isinstance(paths, list) else [])][:7]
     email      = _session_email(request, "anonymous")
     if not user_input:
         return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
+    if len(user_input) > _MAX_INPUT_CHARS:
+        return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร"}, status_code=413)
     if not _rate_check(email if email != "anonymous" else _client_ip(request)):
         return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
     ticket, denied = _charge(email, request, "simulate")
@@ -1254,7 +1294,9 @@ async def create_checkout(request: Request, data: dict):
         )
         return {"url": session.url}
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        # ข้อความ error ของ Stripe อาจมีบางส่วนของ key/request id — log ฝั่ง server เท่านั้น
+        print(f"⚠ stripe checkout error: {type(e).__name__}: {e}")
+        return JSONResponse({"error": "ชำระเงินไม่สำเร็จชั่วคราว — ลองใหม่อีกครั้ง"}, status_code=502)
 
 
 @app.post("/create-subscription")
@@ -1275,7 +1317,9 @@ async def create_subscription(request: Request):
         )
         return {"url": session.url}
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        # ข้อความ error ของ Stripe อาจมีบางส่วนของ key/request id — log ฝั่ง server เท่านั้น
+        print(f"⚠ stripe checkout error: {type(e).__name__}: {e}")
+        return JSONResponse({"error": "ชำระเงินไม่สำเร็จชั่วคราว — ลองใหม่อีกครั้ง"}, status_code=502)
 
 
 # ── STRIPE WEBHOOK ────────────────────────────────────────────────
@@ -1293,9 +1337,11 @@ def _handle_stripe_event(event) -> None:
     if etype == "checkout.session.completed":
         if obj.get("payment_status") not in ("paid", "no_payment_required"):
             return
-        email = (obj.get("customer_email")
-                 or (obj.get("customer_details") or {}).get("email")
-                 or obj.get("client_reference_id"))
+        # client_reference_id / customer_email มาจาก session ของเราตรงๆ (ตรงกับบัญชีที่ใช้อยู่)
+        # อีเมลที่พิมพ์ในหน้า Stripe (customer_details) ตัวพิมพ์อาจต่างจากบัญชี → ใช้เป็นทางสุดท้ายแบบ lower
+        email = (obj.get("client_reference_id")
+                 or obj.get("customer_email")
+                 or str((obj.get("customer_details") or {}).get("email") or "").strip().lower())
         if not email:
             print(f"⚠ stripe checkout without email: {obj.get('id')}")
             return
@@ -1335,7 +1381,9 @@ def _handle_stripe_event(event) -> None:
 
     elif etype == "invoice.paid":
         customer = obj.get("customer")
-        email = obj.get("customer_email") or (email_for_stripe_customer(customer) if email_for_stripe_customer else None)
+        # ใช้การจับคู่ customer → บัญชีที่บันทึกไว้ตอนสมัครก่อน (ตรงตัว) แล้วค่อย customer_email
+        email = ((email_for_stripe_customer(customer) if email_for_stripe_customer else None)
+                 or str(obj.get("customer_email") or "").strip().lower() or None)
         if not email or not set_premium_until:
             return
         ends = [((l.get("period") or {}).get("end") or 0) for l in ((obj.get("lines") or {}).get("data") or [])]
@@ -1502,8 +1550,10 @@ def _analyze_image_sync(data: bytes, mime: str) -> str:
         system_instruction="คุณคือ LYLA governance scanner วิเคราะห์ภาพแล้วรายงาน risk/choice/waterline",
         temperature=0.5, max_output_tokens=800,
     )
-    # ลองตามลำดับเดียวกับ LLM หลัก (gemini-1.5-flash ที่เคยใช้เป็นตัวสำรองถูกปลดแล้ว)
-    models = [getattr(_llm, "vision_model", None) or "gemini-2.0-flash", "gemini-2.0-flash-lite"]
+    # ลำดับเดียวกับ LLM หลัก (GEMINI_MODEL + GEMINI_FALLBACK_MODELS) — เดิมตายตัว 2 รุ่น 2.0
+    chain  = [getattr(_llm, "vision_model", None) or getattr(_llm, "model", None) or "gemini-2.0-flash"]
+    chain += list(getattr(_llm, "MODEL_FALLBACK_CHAIN", []) or ["gemini-2.0-flash-lite"])
+    models = list(dict.fromkeys(m for m in chain if m))
     last = None
     for m in models:
         try:
@@ -1549,14 +1599,16 @@ async def create_report_manual(request: Request, data: dict):
         return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
     user_input = data.get("input", "")
     result     = data.get("result", {})
-    if not user_input or not result:
+    if not user_input or not isinstance(result, dict) or not result:
         return JSONResponse({"error": "input and result required"}, status_code=400)
     try:
-        report_id = _create_report(user_email=email, user_input=user_input, result=result)
+        # เนื้อหามาจาก client → ติดป้าย user_submitted (ไม่ให้ดูเหมือนระบบตัดสิน)
+        report_id = _create_report(user_email=email, user_input=user_input, result=result, source="user")
         return {
             "report_id":  report_id,
             "report_url": f"/report/{report_id}",
             "share_url":  _public_url(f"/report/{report_id}"),
         }
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        print(f"⚠ manual report failed: {type(e).__name__}")
+        return JSONResponse({"error": "report_failed"}, status_code=500)
