@@ -172,10 +172,12 @@ def analyze_pattern(input_data: dict, session_id: str | None = None) -> dict:
     }
 
 
+from core.thai_signals import NO_MONEY_ESSENTIAL
+
 # คำสั้นเดี่ยวๆ เดิม ("พัง" "ล้ม" "รอด" "หิว") ตรงกับประโยคธรรมดา: "รถพัง" "ล้มเลิก"
 # "รอดู" (มี "รอด") "หิวข้าว" → คนทั่วไปถูกส่งไป collapse/survival  จึงใช้วลีที่หมายถึงวิกฤตจริง
 _T_COLLAPSE = ("พังหมด", "พังทุกอย่าง", "ล่มสลาย", "ล้มละลาย", "วิกฤต", "ฉุกเฉิน", "collapse")
-_T_SURVIVAL = ("เอาตัวรอด", "ไม่รอด", "จะรอดไหม", "หิวมาก", "ไม่มีกิน", "ไม่มีข้าว", "ไม่มีเงิน",
+_T_SURVIVAL = ("เอาตัวรอด", "ไม่รอด", "จะรอดไหม", "หิวมาก", "ไม่มีกิน", "ไม่มีข้าว", NO_MONEY_ESSENTIAL,
                "survive", "emergency")
 _T_RISK     = ("เสี่ยง", "อันตราย", "ประเมินความเสี่ยง", "risk", "danger")
 _T_VEGA     = ("วิเคราะห์", "กลยุทธ์", "analyze", "strategy", "long-term")
@@ -183,7 +185,10 @@ _T_VEGA     = ("วิเคราะห์", "กลยุทธ์", "analyze"
 
 def _hit_any(words, text: str) -> bool:
     for k in words:
-        if k.isascii():
+        if isinstance(k, re.Pattern):        # วลีไทยที่ต้องดูบริบท (core/thai_signals)
+            if k.search(text):
+                return True
+        elif k.isascii():
             if re.search(r"(?<![a-z])" + re.escape(k) + r"(?![a-z])", text):
                 return True
         elif k in text:

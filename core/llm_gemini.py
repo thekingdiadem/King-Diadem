@@ -396,12 +396,14 @@ WORK_WIN_SYSTEM = """คุณคือ LYLA — governance intelligence ขอ�
 ❌ ห้าม "เยี่ยมมากเลย!" ว่างๆ
 ลงท้าย: — LYLA ◈ | Fail Less. Harm Less. Restore Choice."""
 
+from core.thai_signals import NOT_WANT_TO_LIVE   # noqa: E402
+
 # ══════════════════════════════════════════════════════════════════
 # SIGNAL DETECTION
 # ══════════════════════════════════════════════════════════════════
 # "ไม่อยากอยู่" เดี่ยวๆ ติด "ไม่อยากอยู่บ้าน" "ไม่อยากอยู่ที่ทำงาน" → ใช้วลีเต็ม
 _CRISIS_KW = [
-    "อยากตาย", "ไม่อยากอยู่แล้ว", "ไม่อยากอยู่บนโลก", "ไม่อยากอยู่ต่อ", "ฆ่าตัว", "ฆ่าตัวเอง",
+    "อยากตาย", NOT_WANT_TO_LIVE, "ฆ่าตัว", "ฆ่าตัวเอง",
     "ไม่อยากมีชีวิต", "จบชีวิต", "เลิกมีชีวิต",
     "suicid", "end my life", "kill myself", "want to die"
 ]
@@ -415,7 +417,10 @@ _EMOTION_KW = [
 def _kw_hit(text: str, words: list) -> bool:
     t = str(text or "").lower()
     for w in words:
-        if w.isascii():
+        if isinstance(w, re.Pattern):        # วลีไทยที่ต้องดูบริบท (core/thai_signals)
+            if w.search(t):
+                return True
+        elif w.isascii():
             # คำอังกฤษต้องเป็นคำเต็ม ("cry" ไม่ติด "crypto") ยกเว้นรากคำ "suicid" (suicide/suicidal)
             tail = "" if w == "suicid" else r"(?![a-z])"
             if re.search(r"(?<![a-z])" + re.escape(w) + tail, t):

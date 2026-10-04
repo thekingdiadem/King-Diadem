@@ -23,8 +23,10 @@ _HIGH_RISK_KW = [
     "ฉุกเฉิน","อันตราย","หนีออก","ช่วยด่วน","urgent","crisis","emergency"
 ]
 # เดิม "ตาย" เดี่ยว → "ขำจะตาย" "ร้อนจะตาย" ได้คำตอบวิกฤต 1323 แทนคำตอบจริง
+from core.thai_signals import NOT_WANT_TO_LIVE, has as _has
+
 _CRITICAL_KW = [
-    "อยากตาย","ฆ่าตัว","ไม่อยากอยู่แล้ว","จบชีวิต","หมดหวังแล้ว",
+    "อยากตาย","ฆ่าตัว",NOT_WANT_TO_LIVE,"จบชีวิต","หมดหวังแล้ว",
     "suicid","want to die","end my life"
 ]
 
@@ -65,7 +67,7 @@ def run_brain(
     route = route if route in _ROUTE_BASE_RISK else "general"
 
     # ── CRITICAL: crisis keywords ───────────────────────────────
-    if any(kw in msg_lower for kw in _CRITICAL_KW):
+    if any(_has(msg_lower, kw) for kw in _CRITICAL_KW):
         return {
             "text": (
                 "ฉันได้ยินค่ะ สิ่งที่คุณรู้สึกอยู่ตอนนี้มันหนักมาก "

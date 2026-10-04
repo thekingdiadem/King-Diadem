@@ -5,6 +5,8 @@
 
 import re
 
+from core.thai_signals import NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL
+
 
 class PersonaEngine:
 
@@ -12,11 +14,11 @@ class PersonaEngine:
     INTENT_MAP = [
         # เดิม "ฆ่า" "ตาย" "จบแล้ว" "หมดแล้ว" "ทนไม่ไหว" → "ฆ่าเวลา" "ขำจะตาย" "ข้าวหมดแล้ว" = crisis
         ("crisis", [
-            "ฆ่าตัว", "อยากตาย", "ไม่อยากอยู่แล้ว", "ไม่อยากมีชีวิต", "จบชีวิต", "ทำร้ายตัวเอง",
+            "ฆ่าตัว", "อยากตาย", NOT_WANT_TO_LIVE.pattern, "ไม่อยากมีชีวิต", "จบชีวิต", "ทำร้ายตัวเอง",
             r"\bsuicid", r"\bkill myself\b", r"\bwant to die\b", r"\bend my life\b",
         ]),
         ("survival", [
-            "ตกงาน", "ไม่มีเงิน", "หนี้", "ค่าเช่า", "กินข้าวไม่ได้",
+            "ตกงาน", NO_MONEY_ESSENTIAL.pattern, "หนี้", "ค่าเช่า", "กินข้าวไม่ได้",
             "ทรัพยากรหมด", "รอดยาก", "ฉุกเฉิน", "พังหมด",
             r"\bno money\b", r"\bbankrupt\b", r"\bevicted\b", r"\bsurvive\b",
         ]),
