@@ -277,7 +277,9 @@ async function askLyla(){
     if(data.error || !res.ok){ var m=data.error||data.detail||('HTTP '+res.status); rb.textContent='⚠ '+(typeof m==='string'?m:JSON.stringify(m)); rc.style.display='block'; return; }
 
     var reply = (data.ai_response||data.message||'').replace(/\s*[—–-]+\s*(LYLA\s*[◈✦]?|VEGA\s*[◆◇]?|HALT\s*[⬡]?)\s*$/gi,'').trim();
-    rb.textContent = reply;
+    // **ตัวหนา** จากคำตอบ — escape ก่อนแล้วแปลงเฉพาะ ** (เดิมใช้ textContent จึงเห็นดอกจันดิบ)
+    rb.innerHTML = reply.replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; })
+                        .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
 
     /* meta row */
     var risk = data.risk_score!=null?'RISK '+Math.round(data.risk_score):'';

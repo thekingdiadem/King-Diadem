@@ -540,7 +540,8 @@ nav::after {
 <script>
 (function(){
   var id = location.pathname.split('/').filter(Boolean).pop();
-  if(!id || id === 'report'){
+  // เปิด /static/report.html ตรงๆ เคยไปขอรายงานชื่อ "report.html" — id จริงเป็นตัวอักษร/ตัวเลขเท่านั้น
+  if(!id || id === 'report' || !/^[A-Za-z0-9_-]{1,64}$/.test(id)){
     document.getElementById('loading').style.display = 'none';
     document.getElementById('error-block').style.display = 'block';
     return;
