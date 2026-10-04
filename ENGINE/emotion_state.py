@@ -25,13 +25,13 @@ _PRIORITY: dict[str, int] = {
     "NEUTRAL":   0,
 }
 
-from core.thai_signals import NOT_WANT_TO_LIVE, has as _has
+from core.thai_signals import NOT_WANT_TO_LIVE, DISCOURAGED, has as _has
 
 _SIGNALS: list[tuple[str, list[str]]] = [
     ("CRISIS",   ["อยากตาย",NOT_WANT_TO_LIVE,"ฆ่าตัว","จบชีวิต","ทนไม่ไหวแล้ว",
                   "suicid","want to die","end it","kill myself"]),
     # หมายเหตุ: เดิมมี "หมดแล้ว" ทำให้ "เงินหมดแล้ว" ถูกนับเป็น CRISIS (ความเสี่ยงชีวิต) — เอาออก
-    ("SAD",      ["เสียใจ","ร้องไห้","เศร้า","หมดหวัง","ท้อ","เจ็บปวด",
+    ("SAD",      ["เสียใจ","ร้องไห้","เศร้า","หมดหวัง",DISCOURAGED,"เจ็บปวด",
                   "อกหัก","เลิกกัน","แฟนทิ้ง","sad","cry","heartbreak","hopeless"]),
     ("STRESSED", ["เครียด","กังวล","กลัว","ตื่นตระหนก","หนักใจ","วิตก","ไม่ไหว",
                   "panic","stress","anxious","scared","overwhelm"]),
