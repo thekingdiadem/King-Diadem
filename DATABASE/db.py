@@ -82,6 +82,15 @@ def init_db():
             ON credit_ledger(user_email, id DESC);
         CREATE INDEX IF NOT EXISTS idx_credit_ledger_ref
             ON credit_ledger(reason, ref);
+        CREATE TABLE IF NOT EXISTS pending_charges (
+            id TEXT PRIMARY KEY,
+            mode TEXT NOT NULL,
+            identity TEXT,
+            day TEXT,
+            email TEXT,
+            what TEXT,
+            created_at REAL NOT NULL
+        );
         CREATE TABLE IF NOT EXISTS usage_daily (
             identity TEXT NOT NULL,
             day TEXT NOT NULL,
@@ -609,5 +618,58 @@ def get_decision_history(user_email: str, limit: int = 20) -> list:
             (user_email, max(1, min(int(limit), 200)))
         ).fetchall()
         return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+
+# ── การหักที่ยังไม่ปิด (ใบเสร็จค้าง) ─────────────────────────────────────
+# เดิม "ตั๋ว" ของการหักโควตา/เครดิตอยู่ในหน่วยความจำของ request เท่านั้น ถ้า worker ถูกฆ่ากลางทาง
+# (gunicorn --timeout, deploy, เครื่องดับ) ผู้ใช้ถูกหักแต่ไม่ได้คำตอบและไม่ได้คืน
+# ตอนนี้จดลงฐานข้อมูลก่อน แล้วลบเมื่อได้คำตอบ/คืนแล้ว — แถวที่ค้างนานคือ request ที่ตายไปแล้ว
+def open_charge(ticket: dict) -> str:
+    import time as _t, uuid as _u
+    cid = _u.uuid4().hex
+    conn = get_conn()
+    try:
+        conn.execute(
+            "INSERT INTO pending_charges (id, mode, identity, day, email, what, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (cid, ticket.get("mode"), ticket.get("identity"), ticket.get("day"),
+             ticket.get("email"), ticket.get("what"), _t.time()))
+        conn.commit()
+    finally:
+        conn.close()
+    return cid
+
+
+def close_charge(cid: str) -> bool:
+    """ปิดใบเสร็จ — True ถ้ายังค้างอยู่ (ยังไม่ถูกเก็บคืนโดย reclaim_stale_charges)"""
+    if not cid:
+        return False
+    conn = get_conn()
+    try:
+        cur = conn.execute("DELETE FROM pending_charges WHERE id = ?", (cid,))
+        conn.commit()
+        return cur.rowcount > 0
+    finally:
+        conn.close()
+
+
+def reclaim_stale_charges(older_than_s: float = 300) -> list:
+    """เอาใบเสร็จที่ค้างนานกว่า older_than_s ออก แล้วคืนให้ผู้เรียกไปคืนโควตา/เครดิต
+    (request ที่ยังทำงานอยู่จบภายใน gunicorn --timeout 120 เสมอ)"""
+    import time as _t
+    conn = get_conn()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        rows = [dict(r) for r in conn.execute(
+            "SELECT * FROM pending_charges WHERE created_at < ?", (_t.time() - older_than_s,))]
+        if rows:
+            conn.executemany("DELETE FROM pending_charges WHERE id = ?", [(r["id"],) for r in rows])
+        conn.commit()
+        return rows
+    except Exception:
+        conn.rollback()
+        raise
     finally:
         conn.close()
