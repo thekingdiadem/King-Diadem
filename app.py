@@ -170,7 +170,7 @@ try:
         init_db, log_decision, get_credits, add_credits,
         ensure_user, save_chat_state, load_chat_state,
         set_password, verify_password, user_exists,
-        claim_stripe_event, release_stripe_event,
+        stripe_event_done, mark_stripe_event, add_credits_once, premium_subscription,
         set_premium_until, get_premium_until, email_for_stripe_customer,
         spend_credit, credit_history, take_free_run, give_back_free_run, free_runs_used,
     )
@@ -181,7 +181,7 @@ except Exception as e:
     init_db = log_decision = get_credits = add_credits = None
     ensure_user = save_chat_state = load_chat_state = None
     set_password = verify_password = user_exists = None
-    claim_stripe_event = release_stripe_event = None
+    stripe_event_done = mark_stripe_event = add_credits_once = premium_subscription = None
     set_premium_until = get_premium_until = email_for_stripe_customer = None
     spend_credit = credit_history = take_free_run = give_back_free_run = free_runs_used = None
 
@@ -328,10 +328,12 @@ def _is_premium(email: str) -> bool:
 # ══════════════════════════════════════════════════════════════════
 from datetime import datetime, timezone, timedelta
 try:
-    from core.llm_gemini import reset_fallback_flag, used_fallback
+    from core.llm_gemini import reset_fallback_flag, used_fallback, request_no_ai, ai_disabled
 except Exception:
     reset_fallback_flag = lambda: None
     used_fallback = lambda: False
+    request_no_ai = lambda on=True: None
+    ai_disabled = lambda: True
 
 FREE_DAILY_RUNS = max(0, int(os.getenv("FREE_DAILY_RUNS", "20")))
 RUN_COST        = max(1, int(os.getenv("RUN_COST", "1")))
@@ -906,11 +908,15 @@ def run_kernel(request: Request, data: dict):
             # context มาจาก client — ไม่ใช่ dict (list/str) ทำให้ engine ข้างล่างล้มทีละตัวแบบเงียบ
             "context": data.get("context") if isinstance(data.get("context"), dict) else {}}
     reset_fallback_flag()
+    # นับโควตาไม่ได้ (ฐานข้อมูลล่ม) → ยังตอบได้ แต่ตอบจากสมการเท่านั้น ไม่เปิดทางให้ใช้ AI ที่มีต้นทุนฟรีไม่จำกัด
+    request_no_ai(ticket.get("mode") == "unmetered")
     try:
         result = _run_kernel_impl(data, user_input, email)
     except Exception:
         _refund(ticket)
         raise
+    finally:
+        request_no_ai(False)
     if not _answered(result):
         _refund(ticket)
     if isinstance(result, dict):
@@ -1278,7 +1284,11 @@ def run_simulate(request: Request, data: dict):
     if denied:
         return denied
     reset_fallback_flag()
-    result = _simulate_impl(user_input, paths, email)
+    request_no_ai(ticket.get("mode") == "unmetered")
+    try:
+        result = _simulate_impl(user_input, paths, email)
+    finally:
+        request_no_ai(False)
     if not (isinstance(result, dict) and result.get("source") == "llm" and not used_fallback()):
         _refund(ticket)
     result["quota"] = {**_quota_status(email, request), "charged": ticket["mode"]}
@@ -1384,6 +1394,15 @@ async def create_subscription(request: Request):
 #    customer.subscription.deleted ให้ endpoint นี้)
 _PREMIUM_GRACE = 2 * 86400
 
+def _grant_once(email: str, credits: int, reason: str, ref: str) -> None:
+    """เครดิตจาก Stripe: ครั้งเดียวต่อ checkout session — ไม่มีฐานข้อมูล = error ให้ Stripe ส่งใหม่"""
+    if not add_credits_once:
+        raise RuntimeError("database unavailable")
+    if not ref:
+        raise RuntimeError("stripe object without id")
+    add_credits_once(email, credits, reason, ref)
+
+
 def _handle_stripe_event(event) -> None:
     etype = event["type"]
     obj   = event["data"]["object"]
@@ -1409,8 +1428,8 @@ def _handle_stripe_event(event) -> None:
             baht    = int(obj.get("amount_total") or 0) / 100
             credits = int(baht / THB_PER_CREDIT + 1e-9)
             target  = meta.get("email") or email
-            if credits > 0 and add_credits:
-                add_credits(target, credits, "topup", obj.get("id"))
+            if credits > 0:
+                _grant_once(target, credits, "topup", obj.get("id"))
             return
         # ── SECURITY: credit ต้องผูกกับ price_id ที่ Stripe ยืนยันจริง
         # ห้ามคำนวณจาก quantity ที่ client ส่งมา เพราะแก้ค่านั้นได้ก่อนถึง checkout
@@ -1428,8 +1447,8 @@ def _handle_stripe_event(event) -> None:
             else:
                 print(f"⚠ unknown price_id in webhook: {price_id} — 0 credits granted")
         if ensure_user: ensure_user(email)
-        if add_credits and total_credits > 0:
-            add_credits(email, total_credits, "stripe_plan", obj.get("id"))
+        if total_credits > 0:
+            _grant_once(email, total_credits, "stripe_plan", obj.get("id"))
         if obj.get("mode") == "subscription" and set_premium_until:
             set_premium_until(email, now + 32 * 86400 + _PREMIUM_GRACE,
                               obj.get("customer"), obj.get("subscription"))
@@ -1441,15 +1460,29 @@ def _handle_stripe_event(event) -> None:
                  or str(obj.get("customer_email") or "").strip().lower() or None)
         if not email or not set_premium_until:
             return
-        ends = [((l.get("period") or {}).get("end") or 0) for l in ((obj.get("lines") or {}).get("data") or [])]
-        period_end = max(ends + [obj.get("period_end") or 0])
+        # ถามสถานะจริงจาก Stripe — event มาไม่เรียงลำดับได้: invoice.paid ฉบับเก่าที่มาถึง
+        # หลัง subscription.deleted เคยคืน premium ให้บัญชีที่ยกเลิกไปแล้ว
+        sub_id = (obj.get("subscription")
+                  or (((obj.get("parent") or {}).get("subscription_details") or {}).get("subscription")))
+        if not sub_id:
+            return                                    # ใบแจ้งหนี้ครั้งเดียว ไม่ใช่สมาชิก
+        sub = stripe.Subscription.retrieve(sub_id)    # ล้ม → 500 → Stripe ส่งใหม่
+        if sub.get("status") not in ("active", "trialing"):
+            return
+        items = ((sub.get("items") or {}).get("data") or [])
+        period_end = max([sub.get("current_period_end") or 0] +
+                         [(it.get("current_period_end") or 0) for it in items])
         if period_end:
-            set_premium_until(email, max(period_end, now) + _PREMIUM_GRACE, customer, obj.get("subscription"))
+            set_premium_until(email, max(period_end, now) + _PREMIUM_GRACE, customer, sub_id)
 
     elif etype == "customer.subscription.deleted":
         customer = obj.get("customer")
         email = email_for_stripe_customer(customer) if email_for_stripe_customer else None
         if email and set_premium_until:
+            # ยกเลิกเฉพาะ subscription ที่ผูกกับ premium ตอนนี้ — ยกเลิกอันเก่าหลังสมัครใหม่ต้องไม่ตัดอันใหม่
+            current = premium_subscription(email) if premium_subscription else None
+            if current and obj.get("id") and current != obj.get("id"):
+                return
             set_premium_until(email, now, customer, obj.get("id"))
 
 
@@ -1465,16 +1498,18 @@ async def stripe_webhook(request: Request):
     except Exception:
         return JSONResponse({"error": "invalid signature"}, status_code=400)
 
+    # บันทึกว่า "เสร็จ" หลังประมวลผลสำเร็จเท่านั้น — ล่มกลางทาง Stripe ส่งใหม่แล้วทำต่อได้
+    # ส่วนการให้เครดิตกันซ้ำด้วย (reason, checkout id) ใน transaction เดียวกับยอด จึงประมวลผลซ้ำได้ปลอดภัย
     event_id = event.get("id", "")
-    if claim_stripe_event and not claim_stripe_event(event_id, event.get("type", "")):
+    if stripe_event_done and stripe_event_done(event_id):
         return {"status": "duplicate"}
     try:
         # stripe SDK เป็น blocking I/O → ย้ายออกจาก event loop
         await run_in_threadpool(_handle_stripe_event, event)
+        if mark_stripe_event:
+            mark_stripe_event(event_id, event.get("type", ""))
     except Exception as e:
-        print(f"❌ stripe webhook {event.get('type')} {event_id}: {e}")
-        if release_stripe_event:
-            release_stripe_event(event_id)   # ให้ Stripe retry ได้
+        print(f"❌ stripe webhook {event.get('type')} {event_id}: {type(e).__name__}")
         return JSONResponse({"error": "processing failed"}, status_code=500)
     return {"status": "ok"}
 
@@ -1549,8 +1584,10 @@ _ALLOWED_IMAGE_MIME = ("image/jpeg", "image/png", "image/webp")
 
 @app.post("/analyze-image")
 async def analyze_image(request: Request, file: UploadFile = File(...)):
-    if not llm:
-        return JSONResponse({"error": "LLM ไม่พร้อม"}, status_code=503)
+    # อ่านภาพต้องใช้ AI จริง — ไม่มีสมการแทนได้ จึงบอกตรงๆ แทนการเดา
+    if not llm or ai_disabled():
+        return JSONResponse({"error": "ตอนนี้ระบบอ่านภาพไม่ได้ (ไม่มี AI) — พิมพ์เล่าสถานการณ์แทนได้เลยค่ะ"},
+                            status_code=503)
     email = _session_email(request)
     if not _rate_check(email or _client_ip(request)):
         return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
@@ -1573,6 +1610,8 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
     ticket, denied = _charge(email, request, "analyze_image")
     if denied:
         return denied
+    if ticket.get("mode") == "unmetered":          # นับโควตาไม่ได้ → ไม่เปิด AI ฟรีไม่จำกัด
+        return JSONResponse({"error": "ระบบโควตาไม่พร้อมชั่วคราว — ลองใหม่ภายหลังค่ะ"}, status_code=503)
     try:
         analysis_text = await run_in_threadpool(_analyze_image_sync, data, mime)
     except Exception as e:

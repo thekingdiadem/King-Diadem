@@ -80,6 +80,8 @@ def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_credit_ledger_user
             ON credit_ledger(user_email, id DESC);
+        CREATE INDEX IF NOT EXISTS idx_credit_ledger_ref
+            ON credit_ledger(reason, ref);
         CREATE TABLE IF NOT EXISTS usage_daily (
             identity TEXT NOT NULL,
             day TEXT NOT NULL,
@@ -178,6 +180,62 @@ def claim_stripe_event(event_id: str, event_type: str = "") -> bool:
     finally:
         conn.close()
 
+def stripe_event_done(event_id: str) -> bool:
+    """event นี้ประมวลผลสำเร็จแล้วหรือยัง (บันทึกหลังทำเสร็จเท่านั้น)"""
+    if not event_id:
+        return False
+    conn = get_conn()
+    try:
+        return conn.execute("SELECT 1 FROM stripe_events WHERE event_id = ?", (event_id,)).fetchone() is not None
+    finally:
+        conn.close()
+
+def mark_stripe_event(event_id: str, event_type: str = ""):
+    """บันทึกว่าประมวลผลเสร็จแล้ว — เรียกหลังการให้เครดิต/premium สำเร็จ
+    (เดิม claim ก่อนประมวลผล: server ดับกลางทาง → Stripe ส่งซ้ำก็ถูกมองว่าซ้ำ เงินจ่ายแล้วแต่ไม่ได้เครดิต)"""
+    if not event_id:
+        return
+    conn = get_conn()
+    try:
+        conn.execute("INSERT OR IGNORE INTO stripe_events (event_id, event_type) VALUES (?, ?)",
+                     (event_id, event_type))
+        conn.commit()
+    finally:
+        conn.close()
+
+def add_credits_once(user_email: str, amount: int, reason: str, ref: str) -> bool:
+    """ให้เครดิตครั้งเดียวต่อ (reason, ref) — ยอดและ ledger อยู่ใน transaction เดียว
+    ref = id ของ Stripe checkout session: event ซ้ำ/ประมวลผลซ้ำหลังล่ม ไม่เติมซ้ำ"""
+    try:
+        amount = int(amount)
+    except (TypeError, ValueError):
+        return False
+    if not user_email or amount <= 0 or not ref:
+        return False
+    ensure_user(user_email)
+    conn = get_conn()
+    try:
+        conn.execute("BEGIN IMMEDIATE")          # ล็อกการเขียน: สอง delivery พร้อมกันจะเรียงคิว
+        if conn.execute("SELECT 1 FROM credit_ledger WHERE reason = ? AND ref = ?",
+                        (reason, ref)).fetchone():
+            conn.rollback()
+            return False
+        conn.execute(
+            """INSERT INTO credits (user_email, amount) VALUES (?, ?)
+               ON CONFLICT(user_email) DO UPDATE SET
+                 amount = amount + excluded.amount,
+                 updated_at = CURRENT_TIMESTAMP""",
+            (user_email, amount))
+        conn.execute("INSERT INTO credit_ledger (user_email, delta, reason, ref) VALUES (?, ?, ?, ?)",
+                     (user_email, amount, reason, ref))
+        conn.commit()
+        return True
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
 def release_stripe_event(event_id: str):
     """ยกเลิกการ claim เมื่อประมวลผลล้มเหลว เพื่อให้ Stripe retry ได้"""
     conn = get_conn()
@@ -208,6 +266,15 @@ def get_premium_until(user_email: str) -> float:
     try:
         row = conn.execute("SELECT premium_until FROM premium WHERE user_email = ?", (user_email,)).fetchone()
         return float(row["premium_until"]) if row else 0.0
+    finally:
+        conn.close()
+
+def premium_subscription(user_email: str):
+    """subscription id ที่ผูกกับ premium ของบัญชีนี้ล่าสุด"""
+    conn = get_conn()
+    try:
+        row = conn.execute("SELECT stripe_subscription FROM premium WHERE user_email = ?", (user_email,)).fetchone()
+        return row["stripe_subscription"] if row else None
     finally:
         conn.close()
 
