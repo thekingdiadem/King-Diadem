@@ -816,6 +816,7 @@ _ROUTE_SEVERITY = {
     "general": 0, "risk": 1, "civil": 1,
     "survival": 2, "collapse": 3,
 }
+_VALID_ROUTES = ("general", "risk", "civil", "survival", "collapse", "vega")
 
 def _escalate_route(current: str, candidate: str) -> str:
     if not candidate or candidate == "vega":
@@ -925,7 +926,8 @@ def run_kernel(request: Request, data: dict):
 
 
 def _run_kernel_impl(data: dict, user_input: str, email: str):
-    route   = data.get("route") or "general"
+    # route มาจาก client — ไม่ใช่ชื่อเส้นทางจริง (เช่น dict/list) เคยทำ /run ล่ม 500 ที่ _route_bias
+    route   = data.get("route") if data.get("route") in _VALID_ROUTES else "general"
     vm      = _resolve_voice_mode(data, route)
     history = data.get("history") or []
 
@@ -1346,7 +1348,7 @@ async def create_checkout(request: Request, data: dict):
     else:
         price_id = os.getenv("STRIPE_PRICE_ID") or os.getenv("STRIPE_PREMIUM_PRICE_ID")
     if not price_id:
-        return JSONResponse({"error": "ยังไม่ได้ตั้งค่า STRIPE_PRICE_ID"}, status_code=500)
+        return JSONResponse({"error": "ยังไม่ได้ตั้งค่า STRIPE_PRICE_ID"}, status_code=503)
     try:
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -1369,7 +1371,7 @@ async def create_subscription(request: Request):
     email    = _session_email(request)
     price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
     if not price_id:
-        return JSONResponse({"error": "ยังไม่ได้ตั้งค่า STRIPE_PRICE_ID"}, status_code=500)
+        return JSONResponse({"error": "ยังไม่ได้ตั้งค่า STRIPE_PRICE_ID"}, status_code=503)
     try:
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
