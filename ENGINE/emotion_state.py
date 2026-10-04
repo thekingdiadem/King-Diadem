@@ -1,10 +1,12 @@
 # ENGINE/emotion_state.py — KING DIADEM
+# (เดิมไฟล์นี้ไม่มีนามสกุล .py จึง import ไม่ได้ — ระบบจำอารมณ์ไม่เคยทำงาน)
 # track อารมณ์ข้ามหลายเทิร์น + inject context ให้ LYLA
 # ไฟล์นี้ logic ดีแล้ว — ปรับ CRISIS persistence + brain.py integration
 
 from __future__ import annotations
 import time
-from collections import deque
+import threading
+from collections import deque, OrderedDict
 from typing import Literal
 
 EmotionT = Literal[
@@ -25,7 +27,8 @@ _PRIORITY: dict[str, int] = {
 
 _SIGNALS: list[tuple[str, list[str]]] = [
     ("CRISIS",   ["อยากตาย","ไม่อยากอยู่","ฆ่าตัว","จบชีวิต","ทนไม่ไหวแล้ว",
-                  "suicid","want to die","end it","kill myself","หมดแล้ว"]),
+                  "suicid","want to die","end it","kill myself"]),
+    # หมายเหตุ: เดิมมี "หมดแล้ว" ทำให้ "เงินหมดแล้ว" ถูกนับเป็น CRISIS (ความเสี่ยงชีวิต) — เอาออก
     ("SAD",      ["เสียใจ","ร้องไห้","เศร้า","หมดหวัง","ท้อ","เจ็บปวด",
                   "อกหัก","เลิกกัน","แฟนทิ้ง","sad","cry","heartbreak","hopeless"]),
     ("STRESSED", ["เครียด","กังวล","กลัว","ตื่นตระหนก","หนักใจ","วิตก","ไม่ไหว",
@@ -135,14 +138,23 @@ class EmotionState:
         self._positive_streak = 0
 
 
-# ── Singleton per-session ─────────────────────────────────────────
-_sessions: dict[str, EmotionState] = {}
+# ── State ต่อ session (จำกัดจำนวน กันหน่วยความจำโตไม่หยุด) ─────────
+_MAX_SESSIONS = 5000
+_sessions: "OrderedDict[str, EmotionState]" = OrderedDict()
+_lock = threading.Lock()
 
 def get_emotion_state(session_id: str = "default") -> EmotionState:
-    if session_id not in _sessions:
-        _sessions[session_id] = EmotionState()
-    return _sessions[session_id]
+    with _lock:
+        es = _sessions.get(session_id)
+        if es is None:
+            es = _sessions[session_id] = EmotionState()
+            while len(_sessions) > _MAX_SESSIONS:
+                _sessions.popitem(last=False)
+        else:
+            _sessions.move_to_end(session_id)
+        return es
 
 def clear_emotion_state(session_id: str = "default") -> None:
-    _sessions.pop(session_id, None)
+    with _lock:
+        _sessions.pop(session_id, None)
 

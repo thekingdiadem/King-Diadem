@@ -2,19 +2,35 @@
 # สร้าง shareable Decision Report URL จาก decision result
 # เพิ่ม table: decision_reports ใน DB
 
-import sqlite3, os, uuid, json
-from datetime import datetime
+import sqlite3, os, json, secrets
 
 DB_PATH = os.getenv("DB_PATH", "data/king_diadem.db")
 
 def get_conn():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
+    d = os.path.dirname(DB_PATH)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    conn = sqlite3.connect(DB_PATH, timeout=15)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA busy_timeout = 15000")
     return conn
 
+
+_TABLE_READY = False
+
+
+def _f(v, d: float = 0.0) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
 def init_report_table():
-    """เรียกครั้งเดียวตอน startup"""
+    """เรียกครั้งเดียวตอน startup (เดิมถูกเรียกทุก create/get)"""
+    global _TABLE_READY
+    if _TABLE_READY:
+        return
     conn = get_conn()
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS decision_reports (
@@ -32,8 +48,14 @@ def init_report_table():
             expires_at  DATETIME
         );
     """)
+    # source: "system" = สร้างจาก /run จริง, "user" = ผู้ใช้ส่งเนื้อหามาเอง (/api/report/create)
+    # เดิมแยกไม่ได้ → ใครก็ทำรายงานที่ดูเหมือนระบบรับรองได้
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(decision_reports)")}
+    if "source" not in cols:
+        conn.execute("ALTER TABLE decision_reports ADD COLUMN source TEXT DEFAULT 'system'")
     conn.commit()
     conn.close()
+    _TABLE_READY = True
 
 def _run_fate_audit(result: dict, user_input: str) -> dict:
     """
@@ -42,9 +64,8 @@ def _run_fate_audit(result: dict, user_input: str) -> dict:
     """
     route    = result.get("route", "general")
     persona  = result.get("persona", "LYLA")
-    risk     = float(result.get("risk_score", 0))
+    risk     = _f(result.get("risk_score", 0))
     response = str(result.get("ai_response", ""))
-    gov      = result.get("governance", {})
 
     checks = []
 
@@ -122,37 +143,39 @@ def create_report(
     user_email: str,
     user_input: str,
     result: dict,
+    source: str = "system",
 ) -> str:
     """
     สร้าง report และบันทึก DB
-    คืน report_id (UUID สั้น)
+    คืน report_id (16 hex = 64 bit; เดิม 12 hex = 48 bit)
     """
     init_report_table()
+    result = result if isinstance(result, dict) else {}
 
-    report_id  = uuid.uuid4().hex[:12]
+    report_id  = secrets.token_hex(8)
     fate_audit = _run_fate_audit(result, user_input)
     governance = result.get("governance", {})
     consensus  = result.get("consensus", "")
-    expires    = datetime.utcnow().replace(microsecond=0)
 
     conn = get_conn()
     try:
         conn.execute(
             """INSERT INTO decision_reports
                (id, user_email, input_text, route, persona,
-                ai_response, governance, risk_score, consensus, fate_audit)
-               VALUES (?,?,?,?,?,?,?,?,?,?)""",
+                ai_response, governance, risk_score, consensus, fate_audit, source)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 report_id,
                 user_email or "anonymous",
                 str(user_input)[:2000],
-                result.get("route", "general"),
-                result.get("persona", "LYLA"),
+                str(result.get("route", "general"))[:40],
+                str(result.get("persona", "LYLA"))[:20],
                 str(result.get("ai_response", ""))[:4000],
-                json.dumps(governance, ensure_ascii=False),
-                float(result.get("risk_score", 0)),
+                json.dumps(governance, ensure_ascii=False, default=str)[:20000],
+                _f(result.get("risk_score", 0)),
                 str(consensus)[:2000],
                 json.dumps(fate_audit, ensure_ascii=False),
+                "user" if source == "user" else "system",
             )
         )
         conn.commit()
@@ -173,8 +196,17 @@ def get_report(report_id: str) -> dict | None:
         if not row:
             return None
         d = dict(row)
-        d["governance"]  = json.loads(d["governance"] or "{}")
-        d["fate_audit"]  = json.loads(d["fate_audit"] or "{}")
+        # ลิงก์รายงานแชร์ได้สาธารณะ — ไม่เปิดเผยอีเมลเจ้าของ
+        d.pop("user_email", None)
+        d["user_submitted"] = d.get("source") == "user"
+        try:
+            d["governance"] = json.loads(d["governance"] or "{}")
+        except ValueError:
+            d["governance"] = {}
+        try:
+            d["fate_audit"] = json.loads(d["fate_audit"] or "{}")
+        except ValueError:
+            d["fate_audit"] = {}
         return d
     finally:
         conn.close()

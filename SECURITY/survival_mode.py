@@ -137,12 +137,17 @@ def request_end(success: bool = True):
     with _lock:
         _concurrent = max(0, _concurrent - 1)
         if not success:
-            _error_window.append(time.time())
+            now = time.time()
+            _error_window.append(now)
+            while _error_window and _error_window[0] < now - 60:
+                _error_window.popleft()
             _circuit_errors += 1
-            if _circuit_errors >= CIRCUIT_THRESHOLD:
+            # เดิมนับ error สะสมตลอดกาล (ไม่เคยรีเซ็ตตอน CLOSED) → error 10 ครั้งห่างกันเป็นวัน
+            # ก็เปิด circuit ปิดทั้งระบบ 30 วิ  ตอนนี้: นับเฉพาะใน 60 วิ, half-open ล้ม = เปิดทันที
+            if _circuit_state == "HALF_OPEN" or len(_error_window) >= CIRCUIT_THRESHOLD:
                 _circuit_state     = "OPEN"
-                _circuit_opened_at = time.time()
-                print(f"🔴 Circuit OPEN after {_circuit_errors} errors")
+                _circuit_opened_at = now
+                print(f"🔴 Circuit OPEN after {len(_error_window)} errors in 60s")
         elif _circuit_state == "HALF_OPEN":
             _circuit_state  = "CLOSED"
             _circuit_errors = 0

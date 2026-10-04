@@ -5,7 +5,6 @@ Truth Infrastructure: สะท้อนความจริง + เปิด�
 """
 
 import asyncio
-import os
 
 # ══════════════════════════════════════════════════════════════════
 # TRUTH KERNEL PROMPT
@@ -40,15 +39,15 @@ class TruthSystem:
                 from core.llm_gemini import get_llm
                 self._llm = get_llm()
             except Exception as e:
-                print(f"⚠ TruthSystem: LLM unavailable — {e}")
+                print(f"⚠ TruthSystem: LLM unavailable — {type(e).__name__}")
         return self._llm
 
     async def gemini_view(self, context: str) -> str:
         llm = self._get_llm()
         if not llm:
-            return "[Gemini unavailable — LLM not loaded]"
+            return ""
         try:
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             result = await loop.run_in_executor(
                 None,
                 lambda: llm.generate(
@@ -57,9 +56,9 @@ class TruthSystem:
                     max_tokens=800,
                 )
             )
-            return result or "[Gemini: empty response]"
-        except Exception as e:
-            return f"[Gemini ERROR] {e}"
+            return result or ""
+        except Exception:
+            return ""          # ไม่ส่งข้อความ error ภายใน (key/โควตา) ออกไป
 
     async def gpt_view(self, context: str) -> str:
         # GPT removed — ใช้ VEGA mode แทน
@@ -69,15 +68,15 @@ class TruthSystem:
         try:
             from core.fate_core import run_fate
             return run_fate({"message": message})
-        except Exception as e:
-            return {"error": str(e)}
+        except Exception:
+            return {"error": "FATE_UNAVAILABLE"}
 
     async def entropy_view(self, state: dict) -> dict:
         try:
             from core.entropy_guard import analyze_entropy_state
             return analyze_entropy_state(state)
-        except Exception as e:
-            return {"error": str(e)}
+        except Exception:
+            return {"error": "ENTROPY_UNAVAILABLE"}
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -108,8 +107,8 @@ async def run_truth_infrastructure(user_input: str, state_dict: dict) -> dict:
             "actions": str(getattr(survival_out, "actions", "none")),
             "can_decide": getattr(survival_out, "can_decide", True),
         }
-    except Exception as e:
-        survival_json = {"error": str(e), "status": "unavailable"}
+    except Exception:
+        survival_json = {"error": "SURVIVOR_UNAVAILABLE", "status": "unavailable"}
 
     # ── 2. Build context ─────────────────────────────────────────
     context = (
@@ -119,20 +118,20 @@ async def run_truth_infrastructure(user_input: str, state_dict: dict) -> dict:
 
     ts = TruthSystem()
 
-    # ── 3. Run parallel ──────────────────────────────────────────
+    # ── 3. FATE ก่อน — ข้อความวิกฤตไม่ส่งให้ LLM (ได้ safe_response + 1323 แทน) ──
+    fate_result = await ts.fate_view(user_input)
+    blocked = isinstance(fate_result, dict) and fate_result.get("status") == "block"
     results = await asyncio.gather(
-        ts.gemini_view(context),
-        ts.fate_view(user_input),
+        ts.gemini_view(context) if not blocked else asyncio.sleep(0, result=fate_result.get("safe_response", "")),
         ts.entropy_view(state_dict),
         return_exceptions=True,
     )
 
     def _safe(r):
-        return f"[ERROR] {r}" if isinstance(r, Exception) else r
+        return {"error": "UNAVAILABLE"} if isinstance(r, Exception) else r
 
     gemini_result  = _safe(results[0])
-    fate_result    = _safe(results[1])
-    entropy_result = _safe(results[2])
+    entropy_result = _safe(results[1])
 
     # ── 4. Risk assessment ───────────────────────────────────────
     try:
@@ -160,17 +159,19 @@ async def run_truth_infrastructure(user_input: str, state_dict: dict) -> dict:
 def run_sync(user_input: str, state_dict: dict) -> dict:
     """Helper สำหรับ sync context เรียก async"""
     try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
+        try:
+            asyncio.get_running_loop()
+            running = True
+        except RuntimeError:
+            running = False
+        if running:
             import concurrent.futures
             with concurrent.futures.ThreadPoolExecutor() as pool:
                 future = pool.submit(
                     asyncio.run,
                     run_truth_infrastructure(user_input, state_dict)
                 )
-                return future.result(timeout=30)
-        return loop.run_until_complete(
-            run_truth_infrastructure(user_input, state_dict)
-        )
-    except Exception as e:
-        return {"error": str(e), "truth_lock": "Choice(t) ≥ 1 → collapse = False"}
+                return future.result(timeout=60)
+        return asyncio.run(run_truth_infrastructure(user_input, state_dict))
+    except Exception:
+        return {"error": "TRUTH_UNAVAILABLE", "truth_lock": "Choice(t) ≥ 1 → collapse = False"}

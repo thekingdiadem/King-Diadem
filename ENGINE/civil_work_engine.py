@@ -13,6 +13,7 @@ except ImportError:
     _CORE_LOADED = False
 
 def assess(pattern: dict) -> dict:
+    pattern = pattern if isinstance(pattern, dict) else {"input": str(pattern or "")}
     user_input = pattern.get("input") or pattern.get("description") or ""
     tasks = pattern.get("tasks")
 

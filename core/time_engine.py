@@ -9,6 +9,14 @@ import time
 import datetime
 from typing import Optional
 
+
+def _f(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d   # NaN → ค่าเริ่มต้น
+
 # ── Time Zone (Thailand UTC+7) ────────────────────────────────────
 TZ_OFFSET_HOURS = 7
 
@@ -89,9 +97,10 @@ def compute_time_to_failure(state: dict) -> dict:
 
     Article 1 — ค่าทุกตัวมาจาก state จริง อธิบายได้
     """
-    drift    = max(0.0, min(100.0, float(state.get("drift",    0.0))))
-    entropy  = max(0.0, min(100.0, float(state.get("entropy",  50.0))))
-    resource = max(0.0, min(100.0, float(state.get("resource", 50.0))))
+    state    = state if isinstance(state, dict) else {}
+    drift    = max(0.0, min(100.0, _f(state.get("drift"),     0.0)))
+    entropy  = max(0.0, min(100.0, _f(state.get("entropy"),  50.0)))
+    resource = max(0.0, min(100.0, _f(state.get("resource"), 50.0)))
 
     risk = (drift * 0.4) + (entropy * 0.3) + ((100.0 - resource) * 0.3)
     ttf  = round(max(0.0, 100.0 - risk), 2)
@@ -125,7 +134,9 @@ def compute_decision_window(ttf_result: dict) -> dict:
     window = TTF - 10 (bounded 0)
     ยิ่ง window กว้าง = มีเวลาคิดมากกว่า
     """
-    ttf    = ttf_result if isinstance(ttf_result, float) else ttf_result.get("ttf", 50.0)
+    # เดิมรับแค่ float หรือ dict — int (เช่น 80) ทำให้ .get พัง
+    raw    = ttf_result.get("ttf", 50.0) if isinstance(ttf_result, dict) else ttf_result
+    ttf    = _f(raw, 50.0)
     window = round(max(0.0, ttf - 10.0), 2)
 
     return {

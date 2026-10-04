@@ -33,8 +33,12 @@ def _get_cached(api_key: str) -> dict:
     with _lock:
         return dict(_cache.get(api_key, {}))
 
+_MAX_CACHE = 20000   # เดิมโตไม่จำกัด (หนึ่ง entry ต่อ key ที่เคยเห็น)
+
 def _set_cached(api_key: str, data: dict) -> None:
     with _lock:
+        if api_key not in _cache and len(_cache) >= _MAX_CACHE:
+            _cache.pop(next(iter(_cache)))
         _cache[api_key] = {**_cache.get(api_key, {}), **data}
 
 def _init_entry(api_key: str) -> dict:
@@ -64,7 +68,7 @@ def create_user(api_key: str, plan: str = "free") -> None:
 
 def get_plan(api_key: str) -> str:
     # DB first — ถ้า api_key เป็น email
-    if _DB_LOADED and "@" in api_key:
+    if _DB_LOADED and "@" in str(api_key):
         user = get_user(api_key)
         if user:
             return user.get("plan", "free")
@@ -127,7 +131,7 @@ def get_status(api_key: str) -> dict:
             pass
 
     return {
-        "api_key":           api_key[:8] + "...",   # ไม่ expose key เต็ม
+        "api_key":           str(api_key)[:8] + "...",   # ไม่ expose key เต็ม
         "plan":              plan,
         "queries_today":     used,
         "queries_limit":     limit,

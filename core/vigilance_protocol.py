@@ -26,8 +26,12 @@ VIGILANCE_KERNEL = {
 
 def vigilance_check(system_state):
 
-    stability = system_state.get("stability", 50)
-    entropy = system_state.get("entropy", 50)
+    system_state = system_state if isinstance(system_state, dict) else {}
+    try:
+        stability = float(system_state.get("stability", 50))
+        entropy = float(system_state.get("entropy", 50))
+    except (TypeError, ValueError):
+        stability, entropy = 50.0, 50.0
 
     if entropy > 70:
         return "high_attention_required"
@@ -36,3 +40,11 @@ def vigilance_check(system_state):
         return "stabilization_required"
 
     return "observe_and_preserve_choice"
+
+
+def vigilance_report(system_state=None) -> dict:
+    """รูปแบบ dict ที่ runtime ใช้ (vigilance_check เดิมคืน string — ผู้เรียกที่ใช้ .get() ล้ม)"""
+    st = system_state if isinstance(system_state, dict) else {}
+    signal = vigilance_check(st)
+    alerts = [] if signal == "observe_and_preserve_choice" else [signal]
+    return {"signal": signal, "alerts": alerts, "alert_count": len(alerts), "safe": not alerts}

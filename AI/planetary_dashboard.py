@@ -69,7 +69,10 @@ def planetary_status() -> dict:
         pass
 
     # ── status signal ─────────────────────────────────────────
-    learn_score: float = float(learning.get("score", 50))
+    try:
+        learn_score: float = float(learning.get("score", 50))
+    except (TypeError, ValueError):
+        learn_score = 50.0
     drift_risk:  str   = str(learning.get("drift_risk", "UNKNOWN"))
 
     if freedom < 25 or learn_score < 25:
@@ -102,9 +105,11 @@ def planetary_status() -> dict:
         "network_nodes":       node_count,
         "intent_engine_ok":    intent_ok,
         "learning":            learning,
+        # 3 ค่านี้เป็นค่าคงที่ในโค้ด ไม่ได้วัดจากแหล่งจริง — ระบุให้ผู้อ่านรู้
         "global_food_security":"DECLINING",
         "water_stress_index":  72.4,
         "energy_drift_daily":  0.1,
+        "static_reference":    ["global_food_security", "water_stress_index", "energy_drift_daily"],
         "choice_collapse_risk":choice_collapse,
         "lyla_signal":         lyla_signal,
     }

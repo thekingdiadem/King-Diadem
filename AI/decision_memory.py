@@ -3,10 +3,15 @@ AI/decision_memory.py — KING DIADEM
 Decision memory: dedup + timestamp + search + persist-ready
 """
 
+import itertools
+import threading
 import time
 
+# หมายเหตุ: memory นี้รวมทุกผู้ใช้ในโปรเซส — ห้ามเปิด search/get ให้ client โดยตรง
 _memory: list = []
 _MAX = 200
+_ids = itertools.count(1)        # เดิม len()+1 → id ซ้ำหลังตัดหัว (เกิน 200)
+_lock = threading.Lock()
 
 
 def store_decision(question: str, options: list, route: str = "general",
@@ -20,21 +25,25 @@ def store_decision(question: str, options: list, route: str = "general",
     question = str(question).strip()[:500]
     now = time.time()
 
-    # dedup — ป้องกัน question เดิมซ้ำในช่วง 60 วินาที
-    if _memory:
-        last = _memory[-1]
-        if last["question"] == question and (now - last["timestamp"]) < 60:
-            return last  # คืน entry เดิม ไม่บันทึกซ้ำ
+    with _lock:
+        # dedup — ป้องกัน question เดิมซ้ำในช่วง 60 วินาที
+        if _memory:
+            last = _memory[-1]
+            if last["question"] == question and (now - last["timestamp"]) < 60:
+                return last  # คืน entry เดิม ไม่บันทึกซ้ำ
+        return _append(question, options, route, result, tags, context, now)
 
+
+def _append(question, options, route, result, tags, context, now) -> dict:
     entry = {
-        "id":        len(_memory) + 1,
+        "id":        next(_ids),
         "timestamp": now,
         "question":  question,
         "options":   options if isinstance(options, list) else [str(options)],
         "route":     route,
         "result":    result,
-        "tags":      tags or [],
-        "context":   context or {},
+        "tags":      tags if isinstance(tags, list) else [],
+        "context":   context if isinstance(context, dict) else {},
     }
     _memory.append(entry)
 
@@ -47,7 +56,10 @@ def store_decision(question: str, options: list, route: str = "general",
 
 def get_memory(limit: int = 50) -> list:
     """คืน n entries ล่าสุด"""
-    limit = max(1, min(limit, _MAX))
+    try:
+        limit = max(1, min(int(limit), _MAX))
+    except (TypeError, ValueError):
+        limit = 50
     return _memory[-limit:]
 
 
@@ -61,7 +73,7 @@ def get_by_id(entry_id: int) -> dict | None:
 
 def search_memory(keyword: str, limit: int = 20) -> list:
     """ค้นหาจาก question, tags, หรือ result"""
-    kw = keyword.lower().strip()
+    kw = str(keyword or "").lower().strip()
     if not kw:
         return get_memory(limit)
 

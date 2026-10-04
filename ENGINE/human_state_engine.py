@@ -4,6 +4,18 @@
 # ไม่ใช่ keyword match + score -= 10 hardcode
 
 from __future__ import annotations
+import re
+
+
+def _has(t: str, words) -> bool:
+    # คำอังกฤษต้องตรงทั้งคำ — เดิม "kill" ติดใน "skill" ทำให้ violence_risk = critical
+    for w in words:
+        if w.isascii():
+            if re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", t):
+                return True
+        elif w in t:
+            return True
+    return False
 
 
 # ── Text signal detector ─────────────────────────────────────────
@@ -43,12 +55,12 @@ def analyze_human_state(text: str) -> dict:
     t = (text or "").lower()
 
     flags = {
-        "depression":    any(s in t for s in _DEPRESSION_SIGNALS),
-        "fear":          any(s in t for s in _FEAR_SIGNALS),
-        "anger":         any(s in t for s in _ANGER_SIGNALS),
-        "exhaustion":    any(s in t for s in _EXHAUSTION_SIGNALS),
-        "violence_risk": any(s in t for s in _VIOLENCE_SIGNALS),
-        "dependency":    any(s in t for s in _DEPENDENCY_SIGNALS),
+        "depression":    _has(t, _DEPRESSION_SIGNALS),
+        "fear":          _has(t, _FEAR_SIGNALS),
+        "anger":         _has(t, _ANGER_SIGNALS),
+        "exhaustion":    _has(t, _EXHAUSTION_SIGNALS),
+        "violence_risk": _has(t, _VIOLENCE_SIGNALS) and "ฆ่าเวลา" not in t,
+        "dependency":    _has(t, _DEPENDENCY_SIGNALS),
     }
 
     # ── Risk level จาก flags ──────────────────────────────────────
@@ -99,6 +111,12 @@ def evaluate_human_state(
     คำนวณ waterline score จาก numeric inputs จริง
     ไม่ใช่ score -= 10 hardcode
     """
+    def _f(v, d):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return d
+    food, money, risk, energy, sleep = _f(food, 2.0), _f(money, 100.0), _f(risk, 3.0), _f(energy, 50.0), _f(sleep, 6.0)
     score = 70.0  # baseline
 
     # food penalty

@@ -87,7 +87,8 @@ def run_system(input_data: dict, user: str = "anonymous") -> dict:
     human_score = evaluate_human_state(food, money, risk_input)
 
     # 3. world state ของเทิร์นนี้ (ไม่ persist ข้าม request โดยอัตโนมัติ)
-    world_state = {**DEFAULT_WORLD_STATE, **(input_data.get("world_state") or {})}
+    ws = input_data.get("world_state")
+    world_state = {**DEFAULT_WORLD_STATE, **(ws if isinstance(ws, dict) else {})}
     risk = analyze_risk(world_state)
 
     # 4. collapse + intervention
@@ -127,6 +128,7 @@ def run_system(input_data: dict, user: str = "anonymous") -> dict:
     }
 
     # 6. log
-    log_decision({"user": user, "input": input_data, "result": decision})
+    # ไม่เก็บข้อความผู้ใช้ทั้งก้อนลงไฟล์ (data/decision_log.json ไม่มีการเข้ารหัส/สิทธิ์) — เก็บแค่ผลตัดสิน
+    log_decision({"user": user, "result": {k: decision[k] for k in ("language", "route", "persona", "intervention")}})
 
     return decision

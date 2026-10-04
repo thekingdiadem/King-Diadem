@@ -1,5 +1,5 @@
 /**
- * static/brain.js — KING DIADEM AI Core Bridge v2.0
+ * static/ai_brain.js — KING DIADEM AI Core Bridge v2.0
  * Fetches /ai/brain + syncs state to window.KD
  * Triggers orbital + neural visual responses on state change
  */
@@ -8,12 +8,14 @@
 
   var POLL_MS  = 5000;
   var _polling = false;
+  var _timer   = null;
   var _last    = {};
 
   /* ── FETCH ─────────────────────────────────────── */
   async function loadBrain() {
     try {
       var res  = await fetch('/ai/brain', { credentials: 'same-origin' });
+      if (res.status === 404 && _timer) { clearInterval(_timer); _timer = null; _polling = false; return; }  // ไม่มี endpoint นี้ใน app.py
       if (!res.ok) return;
       var data = await res.json();
 
@@ -82,7 +84,7 @@
     if (_polling) return;
     _polling = true;
     loadBrain();
-    setInterval(loadBrain, POLL_MS);
+    _timer = setInterval(loadBrain, POLL_MS);
   }
 
   /* ── INIT ─────────────────────────────────────── */

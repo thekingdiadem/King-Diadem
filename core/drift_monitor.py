@@ -5,6 +5,8 @@ Structural drift detection with FATE™ Axiom integration
 v2.0 | Deterministic | No random | No stubs
 """
 
+import threading
+from collections import OrderedDict
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -39,6 +41,12 @@ DRIFT_THRESHOLDS = {
 
 def _normalize(value: float, floor: float = 0.0, ceiling: float = 100.0) -> float:
     """Clamp and normalize any raw metric to [0.0, 1.0]."""
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        return 0.0
+    if value != value:   # NaN
+        return 0.0
     return max(0.0, min(1.0, (value - floor) / (ceiling - floor)))
 
 
@@ -97,25 +105,43 @@ def _violated_axioms(dimensions: dict) -> list[str]:
 
 
 # ─── History Buffer (in-process; wire to db.py for persistence) ──────────────
-_drift_history: list[dict] = []
+# เดิมเป็น list เดียวร่วมทุกผู้ใช้: trend เทียบกับคะแนนของคนอื่น และ get_drift_history()
+# คืน email/session ของทุกคน → แยกต่อ session (LRU) + ไม่เก็บ email ใน history
+_drift_history: list[dict] = []          # ภาพรวมระบบ (ไม่มีข้อมูลระบุตัวตน)
+_session_history: "OrderedDict[str, list]" = OrderedDict()
 MAX_HISTORY = 50
+MAX_SESSIONS = 5000
+_HLOCK = threading.Lock()
 
 
-def _push_history(record: dict) -> None:
-    _drift_history.append(record)
-    if len(_drift_history) > MAX_HISTORY:
-        _drift_history.pop(0)
+def _push_history(record: dict, key: Optional[str] = None) -> None:
+    slim = {k: record.get(k) for k in ("timestamp", "drift_score", "status", "action", "choice_count")}
+    with _HLOCK:
+        _drift_history.append(slim)
+        if len(_drift_history) > MAX_HISTORY:
+            _drift_history.pop(0)
+        if key:
+            h = _session_history.setdefault(key, [])
+            _session_history.move_to_end(key)
+            h.append(slim)
+            if len(h) > MAX_HISTORY:
+                h.pop(0)
+            while len(_session_history) > MAX_SESSIONS:
+                _session_history.popitem(last=False)
 
 
-def get_drift_history() -> list[dict]:
-    return list(_drift_history)
+def get_drift_history(key: Optional[str] = None) -> list[dict]:
+    with _HLOCK:
+        return list(_session_history.get(key, [])) if key else list(_drift_history)
 
 
-def _trend(score: float) -> str:
-    """Compare current score against last recorded score."""
-    if len(_drift_history) < 2:
+def _trend(score: float, key: Optional[str] = None) -> str:
+    """Compare current score against the previous score of the same session."""
+    with _HLOCK:
+        hist = list(_session_history.get(key, [])) if key else list(_drift_history)
+    if not hist:
         return "insufficient_data"
-    delta = score - _drift_history[-2].get("drift_score", score)
+    delta = score - (hist[-1].get("drift_score") or score)
     if delta > 0.05:
         return "worsening"
     if delta < -0.05:
@@ -143,14 +169,19 @@ def detect_drift(
 
     Returns structured DriftZero report dict.
     """
+    system_state = system_state if isinstance(system_state, dict) else {}
     dimensions = {k: system_state.get(k, 0.0) for k in DIMENSION_WEIGHTS}
-    choice_count = int(system_state.get("choice_count", CHOICE_FLOOR))
+    try:
+        choice_count = int(float(system_state.get("choice_count", CHOICE_FLOOR)))
+    except (TypeError, ValueError):
+        choice_count = CHOICE_FLOOR
+    key = str(session_id or user_email or "") or None
 
     drift_score = _compute_weighted_drift(dimensions)
     status      = _classify_drift(drift_score)
     action      = _resolve_action(status, choice_count)
     violations  = _violated_axioms(dimensions)
-    trend       = _trend(drift_score)
+    trend       = _trend(drift_score, key)
 
     # Waterline breach override: status escalates if choice floor broken
     if choice_count < CHOICE_FLOOR:
@@ -172,24 +203,44 @@ def detect_drift(
         "titan_prime":    f"Choice({choice_count}) ≥ {CHOICE_FLOOR} → collapse = {choice_count < CHOICE_FLOOR}",
     }
 
-    _push_history(result)
+    _push_history(result, key)
     return result
+
+
+def log_drift_event(event: dict, session_id: Optional[str] = None) -> None:
+    """บันทึกผล drift ที่คำนวณจากที่อื่น (KING_DIADEM_core เรียก — เดิมไม่มีฟังก์ชันนี้)"""
+    if not isinstance(event, dict):
+        return
+    score = event.get("drift_score", event.get("drift", 0.0))
+    try:
+        score = float(score)
+    except (TypeError, ValueError):
+        score = 0.0
+    _push_history({
+        "timestamp":    datetime.now(timezone.utc).isoformat(),
+        "drift_score":  score,
+        "status":       event.get("status") or _classify_drift(_normalize(score, 0.0, 1.0)),
+        "action":       event.get("action"),
+        "choice_count": event.get("choice_count"),
+    }, session_id)
 
 
 # ─── Batch / Continuous Monitoring ────────────────────────────────────────────
 
 def monitor_batch(states: list[dict], **kwargs) -> list[dict]:
     """Run detect_drift across a list of system states. Returns list of reports."""
-    return [detect_drift(s, **kwargs) for s in states]
+    return [detect_drift(s, **kwargs) for s in (states if isinstance(states, list) else [])]
 
 
 def drift_summary() -> dict:
     """Aggregate summary across all buffered history."""
-    if not _drift_history:
+    with _HLOCK:
+        hist = list(_drift_history)
+    if not hist:
         return {"error": "no_history"}
 
-    scores = [r["drift_score"] for r in _drift_history]
-    statuses = [r["status"] for r in _drift_history]
+    scores = [float(r.get("drift_score") or 0.0) for r in hist]
+    statuses = [r.get("status") for r in hist]
 
     return {
         "samples":        len(scores),

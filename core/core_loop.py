@@ -19,17 +19,24 @@ def clamp(v: float) -> float:
     return max(0.0, min(100.0, v))
 
 
+def _f(v, d: float) -> float:
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return d
+
+
 def compute_drift(state: dict) -> float:
     return clamp((state["entropy"] * 0.5) + ((100 - state["resource"]) * 0.5))
 
 
 def update_entropy(state: dict) -> dict:
-    state["entropy"] = clamp(state["entropy"] + state["drift"] * 0.1 - 1.5)
+    state["entropy"] = clamp(_f(state.get("entropy"), 40) + _f(state.get("drift"), 0) * 0.1 - 1.5)
     return state
 
 
 def update_stability(state: dict) -> dict:
-    state["stability"] = clamp(state["stability"] - state["drift"] * 0.3 + 0.5)
+    state["stability"] = clamp(_f(state.get("stability"), 60) - _f(state.get("drift"), 0) * 0.3 + 0.5)
     return state
 
 
@@ -59,6 +66,11 @@ def run_core(state: dict, user_prompt: str = None) -> dict:
     KING DIADEM Core Loop v3.1
     Pipeline: physics → reality laws → silent canon → time engine
     """
+    # สำเนา + แปลงเป็นตัวเลข: เดิมแก้ dict ของผู้เรียกตรงๆ และค่า str/None ทำให้พังทั้ง loop
+    state = dict(state) if isinstance(state, dict) else {}
+    for k, d in (("entropy", 40), ("resource", 50), ("stability", 60)):
+        state[k] = clamp(_f(state.get(k), d))
+
     # 1. Physics — entropy / stability / drift
     state["drift"]     = compute_drift(state)
     state              = update_entropy(state)

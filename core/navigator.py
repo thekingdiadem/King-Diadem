@@ -3,7 +3,6 @@ core/navigator.py — KING DIADEM
 Truth Engine: ใช้ Gemini + FATE™ logic
 ไม่ใช้ GPT (removed) — ใช้ singleton LLM
 """
-import os
 import asyncio
 
 
@@ -33,28 +32,30 @@ async def run_truth_engine(user_input: str, resource=50) -> dict:
         resource_value = 50.0
     risk_index = round(max(0, min(100, (100 - resource_value) * 0.75)), 2)
 
-    # ── Gemini via singleton ──────────────────────────────────────
-    async def get_gemini_view() -> str:
-        try:
-            from core.llm_gemini import get_llm
-            llm = get_llm()
-            result = llm.generate(
-                prompt=f"{TRUTH_PROMPT}\n\nสถานการณ์:\n{user_input}",
-                temperature=0.65,
-            )
-            return result or "[GEMINI: empty response]"
-        except Exception as e:
-            return f"[GEMINI ERROR] {e}"
-
-    gemini_view = await get_gemini_view()
-
-    # ── FATE™ validation ─────────────────────────────────────────
+    # ── FATE™ validation ก่อน LLM ──────────────────────────────────
+    # เดิมเรียก LLM ก่อนแล้วค่อยตรวจ: ข้อความวิกฤตได้คำตอบ "ทางเลือก" จาก LLM แทนสายด่วน
     fate_check = None
     try:
         from core.fate_core import run_fate
         fate_check = run_fate({"message": user_input})
-    except Exception as e:
-        fate_check = {"error": str(e)}
+    except Exception:
+        fate_check = {"error": "FATE_UNAVAILABLE"}
+
+    if isinstance(fate_check, dict) and fate_check.get("status") == "block":
+        gemini_view = fate_check.get("safe_response", "")
+    else:
+        # ── Gemini via singleton ──────────────────────────────────
+        # generate() เป็น sync + มี time.sleep ตอน retry → เรียกใน thread ไม่บล็อก event loop
+        def _gen() -> str:
+            from core.llm_gemini import get_llm
+            return get_llm().generate(
+                prompt=f"{TRUTH_PROMPT}\n\nสถานการณ์:\n{user_input}",
+                temperature=0.65,
+            )
+        try:
+            gemini_view = await asyncio.to_thread(_gen) or ""
+        except Exception:
+            gemini_view = ""           # ไม่ส่งข้อความ error ภายใน (key/โควตา) ออกไปหา client
 
     return {
         "view_structural":  "[GPT REMOVED — ใช้ VEGA แทน]",

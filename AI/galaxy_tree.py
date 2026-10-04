@@ -5,6 +5,14 @@
 
 from typing import Optional
 
+
+def _n(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
 # ── STRATEGY REGISTRY ─────────────────────────────────────────────
 # deterministic weights: (base_risk, base_confidence)
 # risk   = probability of downside (0.0–1.0)
@@ -55,7 +63,14 @@ def expand_options(
 
     FATE™ guarantee: Choice(t) ≥ 1 → always returns ≥ 1 option
     """
-    if not problem or not problem.strip():
+    problem = str(problem or "")
+    route = str(route or "general")
+    entropy, stability = _n(entropy, 40.0), _n(stability, 60.0)
+    try:
+        max_options = max(1, int(max_options))
+    except (TypeError, ValueError):
+        max_options = 3
+    if not problem.strip():
         # FATE™ safe fallback — ไม่ block ทุกทางออก
         return [{
             "strategy":   "observe situation",

@@ -170,8 +170,7 @@
           energy:   KD_STATE.energy,
           food:     KD_STATE.food,
           safe:     KD_STATE.safe,
-          mode:     KD_STATE.mode,
-          session:  KD_STATE.sessionId,
+          route:    KD_STATE.mode,      // /run อ่าน route (เดิมส่ง mode → ถูกเมิน ได้ general เสมอ)
         }),
       });
 
@@ -184,9 +183,8 @@
 
       /* Output */
       if (outputEl) {
-        outputEl.textContent = typeof data.response === 'string'
-          ? data.response
-          : JSON.stringify(data, null, 2);
+        var reply = data.ai_response || data.response;   // /run ตอบใน ai_response
+        outputEl.textContent = typeof reply === 'string' ? reply : (data.error || '');
       }
 
       /* Session tracking */
@@ -221,15 +219,14 @@
     KD_STATE.msgCount++;
 
     try {
-      var res = await fetch('/chat', {
+      // เดิมยิง /chat ซึ่งไม่มีใน app.py (404 ทุกครั้ง) → ใช้ /run ตัวเดียวกับหน้าแชท
+      var res = await fetch('/run', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({
-          message:  input,
+          input:    input,
           route:    r,
-          session:  KD_STATE.sessionId,
-          energy:   KD_STATE.energy,
         }),
       });
 

@@ -4,11 +4,28 @@ Scenario Engine: ประเมินอนาคตจาก context จริ
 ไม่ใช้ random — ใช้ pattern จาก input
 """
 import time
+import re
 
 
-_RISK_KW   = ["risk","เสี่ยง","หนี้","ตกงาน","พัง","วิกฤต","crisis","debt","loss"]
-_GROWTH_KW = ["โอกาส","เติบโต","ใหม่","growth","opportunity","expand","improve"]
-_STABLE_KW = ["มั่นคง","stable","ดี","good","ok","ปกติ","normal"]
+def _hit(w: str, text: str) -> bool:
+    """คำอังกฤษเป็นคำเต็ม ("war" ไม่ติด "software", "ok" ไม่ติด "book"); ไทยเป็นวลี"""
+    if w.isascii():
+        return re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", text) is not None
+    return w in text
+
+
+def _num(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
+
+_RISK_KW   = ["risk","เสี่ยง","หนี้","ตกงาน","พังหมด","วิกฤต","crisis","debt","loss"]
+_GROWTH_KW = ["โอกาส","เติบโต","เริ่มใหม่","growth","opportunity","expand","improve"]
+# "ดี" "ใหม่" "พัง" เดี่ยวติดแทบทุกประโยค; "ok" ติด "book" → ใช้วลี + คำเต็ม
+_STABLE_KW = ["มั่นคง","stable","สบายดี","ไปได้ดี","good","ok","ปกติดี","normal"]
 
 
 def simulate_future(context: dict) -> dict:
@@ -20,14 +37,14 @@ def simulate_future(context: dict) -> dict:
         return {"error": "context ต้องเป็น dict"}
 
     text     = str(context.get("input", context.get("text", ""))).lower()
-    entropy  = float(context.get("entropy",  50))
-    stability= float(context.get("stability",60))
-    resource = float(context.get("resource", 50))
+    entropy  = _num(context.get("entropy",  50), 50.0)
+    stability= _num(context.get("stability",60), 60.0)
+    resource = _num(context.get("resource", 50), 50.0)
 
     # score จาก keywords
-    risk_hits   = sum(1 for w in _RISK_KW   if w in text)
-    growth_hits = sum(1 for w in _GROWTH_KW if w in text)
-    stable_hits = sum(1 for w in _STABLE_KW if w in text)
+    risk_hits   = sum(1 for w in _RISK_KW   if _hit(w, text))
+    growth_hits = sum(1 for w in _GROWTH_KW if _hit(w, text))
+    stable_hits = sum(1 for w in _STABLE_KW if _hit(w, text))
 
     # base success จาก state
     base = (stability - entropy + resource) / 300 + 0.5

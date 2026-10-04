@@ -28,17 +28,21 @@ def record_outcome(
     บันทึก 1 node พร้อม metadata + FATE™ axiom audit
     คืน node ที่เก็บไว้
     """
-    safe_outcome = outcome if outcome in _SCORE else "unknown"
-    safe_conf    = max(0.0, min(1.0, float(confidence)))
+    safe_outcome = outcome if isinstance(outcome, str) and outcome in _SCORE else "unknown"
+    try:
+        safe_conf = float(confidence)
+    except (TypeError, ValueError):
+        safe_conf = 0.5
+    safe_conf = max(0.0, min(1.0, safe_conf if safe_conf == safe_conf else 0.5))
 
     node = {
         "ts":         time.time(),
         "question":   str(question)[:300],
         "decision":   str(decision)[:300],
         "outcome":    safe_outcome,
-        "route":      route,
+        "route":      str(route or "general")[:40],
         "confidence": safe_conf,
-        "tags":       tags or [],
+        "tags":       tags if isinstance(tags, list) else [],
         "score":      _SCORE[safe_outcome],
         # FATE™ axiom audit — เพิ่มจาก original
         "fate_audit": {
@@ -141,7 +145,11 @@ def learning_summary() -> dict:
 
 def get_learning(limit: int = 50) -> list[dict]:
     """คืน node ล่าสุด N รายการ"""
-    return list(_LOG)[-limit:]
+    try:
+        limit = max(0, int(limit))
+    except (TypeError, ValueError):
+        limit = 50
+    return list(_LOG)[-limit:] if limit else []
 
 
 def reset_learning() -> dict:

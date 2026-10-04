@@ -46,7 +46,8 @@ except ImportError:
     _SC_LOADED = False
 
 try:
-    from core.vigilance_protocol import vigilance_check
+    # vigilance_check() คืน string — runtime ต้องการ dict จึงใช้ vigilance_report()
+    from core.vigilance_protocol import vigilance_report as vigilance_check
     _VP_LOADED = True
 except ImportError:
     _VP_LOADED = False
@@ -177,6 +178,7 @@ def _resolve_kernel_status(entropy_status: dict, canon_state: dict, vigilance: d
 
 # ── Main entry point ──────────────────────────────────────────────
 def run_kernel(system_state: dict) -> dict:
+    system_state = system_state if isinstance(system_state, dict) else {}
     """
     Args:
         system_state: {
@@ -192,7 +194,10 @@ def run_kernel(system_state: dict) -> dict:
 
     # Step 1 — Reality Drift (paticcasamuppada)
     if _DC_LOADED:
-        next_state = dependent_cycle(system_state)
+        # dependent_cycle คืนรายงาน — state จริงอยู่ใน ["state"] (เดิมเอารายงานมาใช้เป็น state)
+        cyc = dependent_cycle(system_state)
+        next_state = {**system_state, **(cyc.get("state") or {})}
+        report["cycle_warnings"] = cyc.get("warnings", [])
     else:
         next_state = _dependent_cycle_fallback(system_state)
     report["next_state"] = next_state

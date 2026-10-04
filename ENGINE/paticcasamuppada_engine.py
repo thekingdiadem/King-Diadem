@@ -39,11 +39,13 @@ ROOT_MAP = {
         "feeling": "unpleasant", "intensity_weight": 1.1
     },
     "craving":         {
-        "keywords": ["อยาก", "ต้องการ", "desire", "want", "หิว", "โลภ"],
+        # "หิว" เอาออก: ความหิวคือความต้องการเพื่อรอด ไม่ใช่ตัณหา (เดิมทำให้คนหิวถูกสั่ง "หยุดก่อน")
+        "keywords": ["อยาก", "ต้องการ", "desire", "want", "โลภ"],
         "feeling": "pleasant", "intensity_weight": 1.0
     },
     "clinging":        {
-        "keywords": ["ยึด", "ปล่อยไม่ได้", "cling", "ติด", "เกาะ"],
+        # "ติด" เดี่ยวๆ ไปติดใน "ติดต่อ" "ติดตาม" — ใช้คำเต็ม
+        "keywords": ["ยึด", "ปล่อยไม่ได้", "cling", "ยึดติด", "ติดใจ", "ติดกับ", "เกาะ"],
         "feeling": "unpleasant", "intensity_weight": 1.2
     },
     "aversion":        {
@@ -55,26 +57,54 @@ ROOT_MAP = {
         "feeling": "neutral", "intensity_weight": 0.7
     },
     "misinformation":  {
-        "keywords": ["ข้อมูลผิด", "fake", "misinformation", "หลอก", "ผิด"],
+        # "ผิด" เดี่ยวๆ ไปติดใน "รับผิดชอบ" "ผิดหวัง" — ใช้คำเต็ม
+        "keywords": ["ข้อมูลผิด", "ข่าวปลอม", "fake", "misinformation", "หลอก"],
         "feeling": "unpleasant", "intensity_weight": 0.9
     },
 }
 
 
+import re
+
+# อยาก + รู้/ถาม/ทราบ = ความใคร่รู้ ไม่ใช่ตัณหา
+# และคำปฏิเสธของความอยาก ("ไม่อยากได้", "ไม่ต้องการ") ไม่ใช่ตัณหา
+_CURIOUS = ("อยากรู้", "อยากถาม", "อยากทราบ", "อยากเข้าใจ", "อยากปรึกษา",
+            "ไม่อยากได้", "ไม่ต้องการ", "don't want", "do not want")
+
+# ไม่พบสัญญาณใดเลย = อทุกขมสุขเวทนา (neutral) — เดิมเดาเป็น unpleasant (craving 0.90)
+# ทำให้แทบทุกข้อความได้ "หยุดก่อน — ยังมีตัณหาหรืออวิชชา" และถูกส่งไปเส้นทาง risk
+_NO_SIGNAL = {"root": "ignorance", "feeling": "neutral", "intensity_weight": 0.5, "evidence": False}
+
+
+def _f(v, d):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return d
+
+
+def _hit(k: str, text: str) -> bool:
+    if k.isascii():
+        return re.search(r"(?<![a-z])" + re.escape(k) + r"(?![a-z])", text) is not None
+    return k in text
+
+
 # ── ตรวจ root cause จาก text ──────────────────────────────
 def detect_root_cause(context: str) -> dict:
     if not context:
-        return {"root": "ignorance", "feeling": "unpleasant", "intensity_weight": 0.8}
+        return dict(_NO_SIGNAL)
 
-    text = context.lower()
+    text = str(context).lower()
+    for c in _CURIOUS:
+        text = text.replace(c, " ")
     scores = {}
     for root, meta in ROOT_MAP.items():
-        hit = sum(1 for k in meta["keywords"] if k in text)
+        hit = sum(1 for k in meta["keywords"] if _hit(k, text))
         if hit:
             scores[root] = hit * meta["intensity_weight"]
 
     if not scores:
-        return {"root": "ignorance", "feeling": "unpleasant", "intensity_weight": 0.8}
+        return dict(_NO_SIGNAL)
 
     best = max(scores, key=scores.get)
     meta = ROOT_MAP[best]
@@ -97,9 +127,9 @@ def analyze_kill_zone(feeling_tone: str, pattern: dict) -> dict:
     craving_risk  = tone_meta["craving_risk"]
 
     # entropy สูง = ความไม่รู้ชัด = risk สูงขึ้น
-    entropy   = float(pattern.get("entropy",   40))
-    stability = float(pattern.get("stability", 60))
-    resource  = float(pattern.get("resource",  70))
+    entropy   = _f(pattern.get("entropy"),   40)
+    stability = _f(pattern.get("stability"), 60)
+    resource  = _f(pattern.get("resource"),  70)
 
     # ปรับ risk ตาม context
     context_factor = (entropy / 100) * (1 - stability / 100)
@@ -158,8 +188,8 @@ def run_uap(context: str, pattern: dict) -> dict:
     """
     root_info  = detect_root_cause(context)
     feeling    = root_info["feeling"]
-    entropy    = float(pattern.get("entropy",   40))
-    stability  = float(pattern.get("stability", 60))
+    entropy    = _f(pattern.get("entropy"),   40)
+    stability  = _f(pattern.get("stability"), 60)
 
     u1_ignorance = entropy > 55                        # ยังไม่รู้พอ
     u2_feeling   = feeling                             # ระบุเวทนา
@@ -186,7 +216,7 @@ def run_uap(context: str, pattern: dict) -> dict:
 
 # ── MAIN: suffering_infrastructure ────────────────────────
 def suffering_infrastructure(context: str, pattern: dict = None) -> dict:
-    pattern = pattern or {}
+    pattern = pattern if isinstance(pattern, dict) else {}
 
     # 1. หา root cause + feeling
     root_info = detect_root_cause(context)
@@ -194,13 +224,17 @@ def suffering_infrastructure(context: str, pattern: dict = None) -> dict:
     feeling   = root_info["feeling"]
 
     # 2. คำนวณ intensity จาก pattern
-    entropy   = float(pattern.get("entropy",   40))
-    stability = float(pattern.get("stability", 60))
+    entropy   = _f(pattern.get("entropy"),   40)
+    stability = _f(pattern.get("stability"), 60)
     iw        = root_info.get("intensity_weight", 1.0)
     intensity = round(max(0.3, min(2.0, iw * (entropy / 60) * (1 - stability / 120))), 3)
 
     # 3. วิเคราะห์ kill zone
     kz = analyze_kill_zone(feeling, pattern)
+    evidence = root_info.get("evidence", True)
+    if not evidence:
+        # ไม่มีหลักฐานของเวทนา/ตัณหาในข้อความ ≠ วงจรดับ (นิพพาน) — บอกตรงๆ ว่าไม่มีสัญญาณ
+        kz = {**kz, "outcome": "no_signal", "cut_point": None, "craving_risk": 0.5}
 
     # 4. จำลอง chain
     chain = simulate_chain(root, intensity, kz["propagates"], kz["cut_point"] or "decay_suffering")
@@ -208,7 +242,7 @@ def suffering_infrastructure(context: str, pattern: dict = None) -> dict:
     # 5. UAP
     uap = run_uap(context, pattern)
 
-    # 6. Nirvana check
+    # 6. Nirvana check (ต้องมีหลักฐานว่าวงจรถูกตัดจริง)
     nirvana_mode = (kz["outcome"] == "chain_cut")
 
     return {
@@ -219,7 +253,10 @@ def suffering_infrastructure(context: str, pattern: dict = None) -> dict:
         "collapse_chain":   chain,
         "uap":              uap,
         "nirvana_mode":     nirvana_mode,
+        "evidence":         evidence,
         "summary": (
+            "ไม่พบสัญญาณเวทนา/ตัณหาที่ชัดในข้อความ"
+            if not evidence else
             "วงจรดับที่เวทนา — ไม่เกิดตัณหา ระบบสงบ"
             if nirvana_mode else
             f"วงจรวิ่งถึง {kz['cut_point'] or 'decay_suffering'} — ต้องการการแทรกแซง"
@@ -231,7 +268,8 @@ def suffering_infrastructure(context: str, pattern: dict = None) -> dict:
 def analyze(pattern: dict) -> dict:
     """DecisionEngine เรียกผ่าน adapter นี้"""
     try:
-        context = str(pattern.get("input", ""))
+        pattern = pattern if isinstance(pattern, dict) else {"input": str(pattern or "")}
+        context = str(pattern.get("raw_input") or pattern.get("input", ""))
         return suffering_infrastructure(context, pattern)
-    except Exception as e:
-        return {"error": f"paticcasamuppada fail: {str(e)}"}
+    except Exception:
+        return {"error": "PATICCA_UNAVAILABLE"}

@@ -4,6 +4,14 @@
 # app.py import: from AI.intent_engine import analyze_intent
 
 from __future__ import annotations
+import re
+
+
+def _hit(k: str, t: str) -> bool:
+    # คำอังกฤษต้องตรงทั้งคำ — เดิม "end" ติดใน "friend/spend" (→ collapse 0.90), "war" ติดใน "software"
+    if k.isascii():
+        return re.search(r"(?<![a-z0-9])" + re.escape(k) + r"(?![a-z0-9])", t) is not None
+    return k in t
 
 _PATTERNS: list[tuple[str, list[str], float]] = [
     # (intent, keywords, base_confidence)
@@ -47,7 +55,7 @@ def analyze_intent(text: str) -> dict:
     if not text:
         return {"intent": "general_governance", "confidence": 0.50, "hits": 0}
 
-    t = text.lower()
+    t = str(text).lower()
     best_intent     = "general_governance"
     best_confidence = 0.60
     best_hits       = 0
@@ -55,7 +63,7 @@ def analyze_intent(text: str) -> dict:
     for intent, keywords, base_conf in _PATTERNS:
         if not keywords:
             continue
-        hits = sum(1 for k in keywords if k in t)
+        hits = sum(1 for k in keywords if _hit(k, t))
         if hits == 0:
             continue
         # confidence เพิ่มตาม hits แต่ไม่เกิน 0.98

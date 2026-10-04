@@ -4,6 +4,14 @@ Scenario Tree: เส้นทางที่เป็นไปได้ตา�
 ไม่ใช่ template แข็ง — ปรับตาม route และ state
 """
 
+
+def _num(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
 _ROUTE_PATHS = {
     "survival": [
         {"path": "secure_minimum",  "description": "รักษาทรัพยากรขั้นต่ำที่ต้องการ — อาหาร น้ำ ที่พัก", "risk": 2},
@@ -58,9 +66,9 @@ def build_tree(problem: str, state: dict = None) -> dict:
     """
     สร้าง decision tree เต็มรูปแบบ
     """
-    state = state or {}
-    entropy  = float(state.get("entropy",  50))
-    stability= float(state.get("stability",60))
+    state = state if isinstance(state, dict) else {}
+    entropy  = _num(state.get("entropy",  50), 50.0)
+    stability= _num(state.get("stability",60), 60.0)
 
     # auto-select route จาก state
     if entropy > 75 and stability < 30:

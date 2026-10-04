@@ -39,7 +39,8 @@ Input
   ↓
 king_diadem_core.quick_assess(context, pattern)
   ↓
-ENGINE/bodhipakkhiya_engine.guardian_check()   ← 6-layer structural check
+(bodhipakkhiya channel — ใน quick_assess เอง: structure = ((100−E)+R+S)/300;
+ ไฟล์ ENGINE/bodhipakkhiya_engine.py ยังไม่มีใน repo)
   ↓
 ENGINE/yonisomanasikara_engine.wise_attention() ← คิดอย่างถูกวิธี
   ↓

@@ -7,10 +7,11 @@ import sqlite3
 import threading
 import time
 import os
+from contextlib import contextmanager
 from typing import Optional
 
 # ── Config ────────────────────────────────────────────────────────
-DB_PATH          = os.environ.get("KD_DB_PATH", "data/king_diadem.db")
+DB_PATH          = os.environ.get("KD_DB_PATH") or os.environ.get("DB_PATH", "data/king_diadem.db")
 TRUST_DEFAULT    = 0.5
 TRUST_MAX        = 1.0
 TRUST_MIN        = 0.0
@@ -22,10 +23,34 @@ _lock = threading.Lock()
 
 
 # ── DB init ───────────────────────────────────────────────────────
-def _get_conn() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+_table_ready = False
+
+
+@contextmanager
+def _get_conn():
+    """เปิด-ปิด connection จริง (เดิม `with conn` แค่ commit ไม่ปิด → fd รั่ว)
+    และสร้างตารางเองครั้งแรก — เดิมสร้างแค่ใน _self_test ทำให้ production อัปเดต trust ล้มเงียบทุกครั้ง"""
+    global _table_ready
+    d = os.path.dirname(DB_PATH)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False, timeout=15)
     conn.row_factory = sqlite3.Row
-    return conn
+    try:
+        if not _table_ready:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS node_trust (
+                    node_id     TEXT PRIMARY KEY,
+                    score       REAL NOT NULL DEFAULT 0.5,
+                    updated_at  REAL NOT NULL,
+                    interactions INTEGER NOT NULL DEFAULT 0
+                )
+            """)
+            conn.commit()
+            _table_ready = True
+        yield conn
+    finally:
+        conn.close()
 
 
 def _ensure_table() -> None:
@@ -80,7 +105,7 @@ def update_trust(node_id: str, valid: bool = True) -> float:
                 current_score = float(row["score"]) if row else TRUST_DEFAULT
                 interactions  = int(row["interactions"]) + 1 if row else 1
 
-                delta     = TRUST_GAIN if valid else -TRUST_PENALTY
+                delta     = TRUST_GAIN if valid is True else -TRUST_PENALTY
                 new_score = round(
                     max(TRUST_MIN, min(TRUST_MAX, current_score + delta)), 4
                 )

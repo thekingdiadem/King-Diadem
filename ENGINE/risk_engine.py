@@ -4,27 +4,49 @@
 # คง evaluate_risk(text) ไว้เพื่อ backward compat
 from __future__ import annotations
 
+_SELF_HARM = ("อยากตาย", "ฆ่าตัวตาย", "ฆ่าตัวเอง", "ทำร้ายตัวเอง", "ไม่อยากมีชีวิต",
+              "ไม่อยากอยู่แล้ว", "จบชีวิต", "kill myself", "suicide", "self-harm", "end my life")
+_SURVIVAL  = ("อดข้าว", "ไม่มีข้าวกิน", "ไม่มีเงิน", "เงินหมด", "ไม่มีที่อยู่", "ถูกไล่ออก")
+# ขาดปัจจัยพื้นฐาน (อาหาร/ที่อยู่) → ต้องไปเส้นทาง survival แม้ไม่ได้กรอก context
+_BASIC_NEEDS = ("อดข้าว", "ไม่มีข้าวกิน", "ไม่มีอะไรกิน", "ไม่ได้กินข้าว", "ไม่มีที่อยู่", "ไม่มีที่นอน",
+                "นอนข้างถนน", "ถูกไล่ออกจากบ้าน")
+_STRESS    = ("พัง", "ล่ม", "ไม่ไหว", "ทนไม่ไหว", "หมดแรง")
+_URGENT    = ("ด่วน", "เดี๋ยวนี้", "ทันที", "immediately", "urgent")
+
+
+def _f(v, d):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return d
+
+
 def evaluate_risk(text: str) -> dict:
-    """ประเมิน risk จาก text — scale score 0-7"""
-    t = (text or "").casefold()
+    """ประเมิน risk จาก text — scale score 0-10
+
+    v2: เดิมนับคำของงาน dev ("error", "500", "deploy", "now") เป็นความเสี่ยงของคน
+    ("เหลือ 500 บาท" = เสี่ยง, "know" ติด "now") และ "ตาย" แบบ substring ได้แค่ +3 (ระดับกลาง)
+    ตอนนี้: สัญญาณทำร้ายตัวเอง = critical ทันที
+    """
+    t = str(text or "").casefold()
     score = 0
-    if any(k in t for k in ("error", "พัง", "ล่ม", "traceback", "exception",
-                              "module not found", "500", "502", "503")):
-        score += 2
-    if any(k in t for k in ("deploy", "render", "github pages", "cors",
-                              "uvicorn", "fastapi", "start command")):
-        score += 1
-    if any(k in t for k in ("อดข้าว", "ไม่มีเงิน", "เงินหมด", "ตาย",
-                              "kill myself", "suicide", "ทำร้ายตัวเอง")):
+    self_harm = any(k in t for k in _SELF_HARM)
+    if self_harm:
+        score += 6
+    basic_needs = any(k in t for k in _BASIC_NEEDS)
+    if basic_needs or any(k in t for k in _SURVIVAL):
         score += 3
-    if any(k in t for k in ("now", "ด่วน", "เดี๋ยวนี้", "ทันที",
-                              "immediately", "urgent")):
+    if any(k in t for k in _STRESS):
+        score += 2
+    if any(k in t for k in _URGENT):
         score += 1
-    level = "high" if score >= 4 else "medium" if score >= 2 else "low"
+    level = "critical" if self_harm else "high" if score >= 4 else "medium" if score >= 2 else "low"
     return {
         "score": score,
         "level": level,
-        "pause": level == "high",
+        "pause": level in ("high", "critical"),
+        "self_harm": self_harm,
+        "basic_needs": basic_needs,
     }
 
 def assess(pattern: dict) -> dict:
@@ -35,9 +57,9 @@ def assess(pattern: dict) -> dict:
     """
     if not isinstance(pattern, dict):
         pattern = {}
-    entropy   = float(pattern.get("entropy",   40))
-    resource  = float(pattern.get("resource",  50))
-    stability = float(pattern.get("stability", 60))
+    entropy   = _f(pattern.get("entropy"),   40)
+    resource  = _f(pattern.get("resource"),  50)
+    stability = _f(pattern.get("stability"), 60)
     risk_score = entropy * 0.5 + (100.0 - resource) * 0.5
     if risk_score >= 75:
         level = "CRITICAL"
@@ -47,8 +69,12 @@ def assess(pattern: dict) -> dict:
         level = "MEDIUM"
     else:
         level = "LOW"
-    text_risk = evaluate_risk(str(pattern.get("input", "")))
-    if text_risk["level"] == "high" and level not in ("CRITICAL", "HIGH"):
+    # ข้อความดิบของผู้ใช้ — "input" ใน /run คือ prompt ที่ระบบต่อบริบทแล้ว
+    text_risk = evaluate_risk(str(pattern.get("raw_input") or pattern.get("input", "")))
+    if text_risk["level"] == "critical":
+        level = "CRITICAL"
+        risk_score = max(risk_score, 85.0)
+    elif text_risk["level"] == "high" and level not in ("CRITICAL", "HIGH"):
         level = "HIGH"
         risk_score = max(risk_score, 60.0)
     remaining_choices = max(1, int((100 - risk_score) / 20))
@@ -60,7 +86,7 @@ def assess(pattern: dict) -> dict:
         "stability":         stability,
         "resource":          resource,
         "entropy":           entropy,
-        "drift":             float(pattern.get("drift", 0)),
+        "drift":             _f(pattern.get("drift"), 0),
         "text_risk":         text_risk,
     }
 

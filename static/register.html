@@ -636,27 +636,37 @@ async function register() {
   btn.disabled = true;
   btn.querySelector('.btn-text').textContent = 'INITIALIZING...';
 
-  var res = await fetch(
-    'https://king-diadem.onrender.com/register',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, password: password })
-    }
-  );
-
-  var data = await res.json();
+  // เดิม: เน็ตหลุด / 502 ตอน cold start (ไม่ใช่ JSON) → throw แล้วปุ่มค้าง INITIALIZING ตลอด
+  var res = null, data = {};
+  try{
+    res = await fetch(
+      '/register',
+      {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: password })
+      }
+    );
+    try{ data = await res.json(); }catch(_){ data = {}; }
+  }catch(_){ res = null; }
 
   btn.disabled = false;
   btn.querySelector('.btn-text').textContent = 'INITIALIZE ACCESS';
 
+  if(!res){
+    msg.className = 'msg error';
+    msg.textContent = '⚠ เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ — ลองใหม่อีกครั้ง';
+    return;
+  }
   if(res.ok){
     msg.className = 'msg success';
-    msg.textContent = '✓ สร้างบัญชีสำเร็จ — กำลังนำทางเข้าสู่ระบบ...';
-    setTimeout(function(){ window.location.href = '/static/login.html'; }, 1800);
+    msg.textContent = '✓ สร้างบัญชีสำเร็จ — กำลังเข้าสู่ระบบ...';
+    setTimeout(function(){ window.location.href = '/'; }, 1200);
   } else {
     msg.className = 'msg error';
-    msg.textContent = '⚠ ' + (data.detail || data.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+    var m = data.message || data.error || (typeof data.detail === 'string' ? data.detail : '');
+    msg.textContent = '⚠ ' + (m || (res.status >= 502 ? 'เซิร์ฟเวอร์กำลังตื่น — รอสัก 30 วินาทีแล้วลองใหม่' : 'เกิดข้อผิดพลาด กรุณาลองใหม่'));
   }
 }
 

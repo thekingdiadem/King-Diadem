@@ -30,7 +30,7 @@ def build_consensus(council_results: dict) -> dict:
     รวมผลจาก council members → มติร่วม
     FATE™: choice_count ≥ 1 — ถ้า SPLIT ทั้งหมด → SYSTEM_PAUSE + fallback
     """
-    if not council_results:
+    if not isinstance(council_results, dict) or not council_results:
         return {
             "summary":       "Council ยังไม่มีสมาชิก",
             "final_action":  _SAFE_ACTION,
@@ -51,8 +51,12 @@ def build_consensus(council_results: dict) -> dict:
         role = COUNCIL_MEMBERS.get(member, "observer")
 
         if isinstance(result, dict):
-            action   = result.get("action") or result.get("decision") or "observe"
-            conf     = float(result.get("confidence", 0.5))
+            action   = str(result.get("action") or result.get("decision") or "observe")
+            try:
+                conf = float(result.get("confidence", 0.5))
+            except (TypeError, ValueError):
+                conf = 0.5
+            conf = max(0.0, min(1.0, conf / 100.0 if conf > 1 else conf))
             evidence = result.get("evidence") or result.get("reason") or result.get("message") or "ไม่มีหลักฐานระบุ"
             downside = result.get("downside") or ""
 
@@ -116,6 +120,7 @@ def build_consensus(council_results: dict) -> dict:
 
 def open_council(question: str, context: dict = None) -> dict:
     """เปิด council session สำหรับคำถามหนึ่งข้อ"""
+    question = str(question or "")
     if not question.strip():
         return {"error": "FATE_VIOLATION: question empty"}
     return {
@@ -123,7 +128,7 @@ def open_council(question: str, context: dict = None) -> dict:
         "question":  question,
         "members":   COUNCIL_MEMBERS,
         "rules":     COUNCIL_RULES,
-        "context":   context or {},
+        "context":   context if isinstance(context, dict) else {},
         "directive": (
             "ทุกสมาชิกต้องถอด Ego — ตอบจากหลักฐานเท่านั้น "
             "ไม่มีใครเหนือกว่าใคร มติเกิดจากหลักฐาน ไม่ใช่อำนาจ"
@@ -133,7 +138,7 @@ def open_council(question: str, context: dict = None) -> dict:
 
 def format_council_for_llm(question: str, context: dict = None) -> str:
     """สร้าง prompt สำหรับ LLM ทำหน้าที่เป็น council ทั้งหมด"""
-    ctx_text     = "\n".join(f"  {k}: {v}" for k, v in (context or {}).items())
+    ctx_text     = "\n".join(f"  {k}: {v}" for k, v in (context if isinstance(context, dict) else {}).items())
     members_text = "\n".join(f"  - {n}: {r}" for n, r in COUNCIL_MEMBERS.items())
     rules_text   = "\n".join(f"  {i+1}. {r}" for i, r in enumerate(COUNCIL_RULES))
 

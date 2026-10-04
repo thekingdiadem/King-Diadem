@@ -1,9 +1,11 @@
+/* (ข้อความแชทและ rule ที่ไม่มี selector หลุดเข้ามาตอนสร้างไฟล์ — ปิดไว้เป็น comment)
 กำลังสร้าง static/css/style.css และ static/_logic.js ปรับ galaxy_scene.js ให้เป็นระบบ LYLA + 7 โหนด และแก้ manifest.json — ตรวจ google_callback เพิ่มเติมสำหรับ latin-1
 
 กำลังดึงเนื้อหา CSS ทั้งหมดจาก index.html แล้วเขียนไฟล์ใหม่
 
   background:linear-gradient(90deg,var(--gold),var(--gold-hot),var(--teal));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+*/
 .logo-sub{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.18em;color:rgba(232,192,120,.35);}
 .topbar-right{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end;max-width:52%;}
 .sys-badge{font-family:'Share Tech Mono',monospace;font-size:7px;padding:3px 6px;border-radius:3px;border:1px solid;letter-spacing:.06em;}

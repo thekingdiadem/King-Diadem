@@ -16,7 +16,8 @@ def route_domain(domain: str, context: dict) -> dict:
     ส่ง context ไป domain engine ที่ตรงกัน
     return dict พร้อม waterline, risk, advice เสมอ
     """
-    d = domain.lower().strip()
+    d = domain.lower().strip() if isinstance(domain, str) else ""
+    context = context if isinstance(context, dict) else {}
 
     if d == "life":
         return analyze_life(context)
@@ -47,19 +48,25 @@ def route_multi(domains: list, context: dict) -> dict:
     เช่น route_multi(["survival","business"], context)
     """
     results = {}
-    waterlines = []
+    scored = []   # (waterline, domain) — เดิมหา lowest_domain จาก index ของ waterlines
+                  # ซึ่งเพี้ยนเมื่อมี domain ที่ไม่คืน waterline
 
-    for d in domains:
+    for d in (domains if isinstance(domains, (list, tuple)) else []):
+        if not isinstance(d, str):
+            continue
         r = route_domain(d, context)
         results[d] = r
-        wl = r.get("waterline")
-        if wl is not None:
-            waterlines.append(float(wl))
+        if r.get("error"):
+            continue   # unknown domain คืน waterline 50 ปลอม — ไม่นับรวม
+        try:
+            scored.append((float(r.get("waterline")), d))
+        except (TypeError, ValueError):
+            pass
 
-    combined_waterline = min(waterlines) if waterlines else 50.0
+    lowest = min(scored) if scored else None
 
     return {
         "domains":            results,
-        "combined_waterline": round(combined_waterline, 1),
-        "lowest_domain":      domains[waterlines.index(min(waterlines))] if waterlines else None,
+        "combined_waterline": round(lowest[0], 1) if lowest else 50.0,
+        "lowest_domain":      lowest[1] if lowest else None,
     }

@@ -162,6 +162,7 @@ def check_scl7_violation(action: dict) -> dict:
     ตรวจสอบว่า action ละเมิด SCL-7 หรือไม่
     คืน violations + axiom ที่ถูก trigger
     """
+    action = action if isinstance(action, dict) else {}
     violations = []
 
     if action.get("reduces_choice"):

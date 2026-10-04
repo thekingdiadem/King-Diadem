@@ -10,8 +10,17 @@ import json
 import os
 import time
 from typing import Optional
+from core.paths import data_path
 
-WORLD_FILE = "data/world_history.json"
+
+def _f(v, d=0.0):
+    """ตัวเลขแบบไม่ล้ม — แถวเสียในไฟล์ประวัติเดิมทำให้ทั้ง map ล้ม"""
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return float(d)
+
+WORLD_FILE = data_path("world_history.json")   # ดู core/paths.py
 MAX_HISTORY = 2000
 
 
@@ -21,7 +30,8 @@ def load_world() -> list:
         return []
     try:
         with open(WORLD_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+            d = json.load(f)
+        return [e for e in d if isinstance(e, dict)] if isinstance(d, list) else []
     except Exception:
         return []
 
@@ -48,11 +58,11 @@ def update_world(
 ) -> bool:
     world = load_world()
     world.append({
-        "location":      location,
-        "food_score":    float(food_score),
-        "risk_score":    float(risk_score),
-        "water_score":   float(water_score),
-        "shelter_score": float(shelter_score),
+        "location":      str(location),
+        "food_score":    _f(food_score, 50),
+        "risk_score":    _f(risk_score, 50),
+        "water_score":   _f(water_score, 50),
+        "shelter_score": _f(shelter_score, 50),
         "timestamp":     time.time(),
         "audit_verified": True,
     })
@@ -68,7 +78,7 @@ def _avg_by_location(world: list, field: str) -> dict:
         loc = e.get("location")
         val = e.get(field)
         if loc and val is not None:
-            acc.setdefault(loc, []).append(float(val))
+            acc.setdefault(loc, []).append(_f(val))
     return {loc: round(sum(v)/len(v), 2) for loc, v in acc.items()}
 
 
@@ -90,10 +100,10 @@ def build_waterline_map() -> dict:
         loc = e.get("location")
         if not loc:
             continue
-        food    = float(e.get("food_score",    50))
-        risk    = float(e.get("risk_score",    50))
-        water   = float(e.get("water_score",   50))
-        shelter = float(e.get("shelter_score", 50))
+        food    = _f(e.get("food_score"), 50)
+        risk    = _f(e.get("risk_score"), 50)
+        water   = _f(e.get("water_score"), 50)
+        shelter = _f(e.get("shelter_score"), 50)
         wl = food*0.35 + water*0.25 + shelter*0.20 + (100 - risk)*0.20
         acc.setdefault(loc, []).append(wl)
     return {loc: round(sum(v)/len(v), 2) for loc, v in acc.items()}
@@ -122,10 +132,10 @@ def location_summary(location: str) -> dict:
         return {"location": location, "status": "NO_DATA", "choice": 0}
 
     latest = entries[-1]
-    food   = float(latest.get("food_score",  50))
-    risk   = float(latest.get("risk_score",  50))
-    water  = float(latest.get("water_score", 50))
-    shelter= float(latest.get("shelter_score",50))
+    food   = _f(latest.get("food_score"), 50)
+    risk   = _f(latest.get("risk_score"), 50)
+    water  = _f(latest.get("water_score"), 50)
+    shelter= _f(latest.get("shelter_score"), 50)
     wl     = food*0.35 + water*0.25 + shelter*0.20 + (100-risk)*0.20
 
     # Trend: เทียบ 5 entries ล่าสุด
@@ -133,10 +143,10 @@ def location_summary(location: str) -> dict:
     if len(entries) >= 3:
         recent_wl = []
         for e in entries[-5:]:
-            f = float(e.get("food_score",  50))
-            r = float(e.get("risk_score",  50))
-            w = float(e.get("water_score", 50))
-            s = float(e.get("shelter_score",50))
+            f = _f(e.get("food_score"), 50)
+            r = _f(e.get("risk_score"), 50)
+            w = _f(e.get("water_score"), 50)
+            s = _f(e.get("shelter_score"), 50)
             recent_wl.append(f*0.35 + w*0.25 + s*0.20 + (100-r)*0.20)
         if recent_wl[-1] > recent_wl[0] + 5:
             trend = "improving"

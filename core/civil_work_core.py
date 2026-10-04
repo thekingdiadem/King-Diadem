@@ -4,6 +4,8 @@ CIVIL WORK CORE: Human-independent decision support
 ทำงานได้แม้ไม่มีทรัพยากร — ออกแบบเพื่ออารยธรรมที่ยังมีชีวิต
 """
 
+import re
+
 # ══════════════════════════════════════════════════════════════════
 # CIVIL WORK AXIOMS
 # ══════════════════════════════════════════════════════════════════
@@ -59,8 +61,9 @@ def _normalize(item) -> dict:
 
 
 def _has(text: str, words: list) -> bool:
-    t = text.lower()
-    return any(w in t for w in words)
+    # คำเต็ม: เดิม "must" ติด "mustard", "stop" ติด "nonstop", "join" ฯลฯ
+    t = str(text or "").lower()
+    return any(re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", t) for w in words)
 
 
 def _infer(text: str, pos: list, neg: list, default=True) -> bool:
@@ -73,8 +76,9 @@ def _infer(text: str, pos: list, neg: list, default=True) -> bool:
 # VALIDATION
 # ══════════════════════════════════════════════════════════════════
 def validate_work_item(item: dict) -> dict:
-    desc = item.get("description", "")
-    out  = _normalize(item)
+    item = _normalize(item)
+    desc = str(item.get("description", "") or "")
+    out  = dict(item)
 
     out["has_choice"] = item.get("has_choice", _infer(desc,
         pos=["choice","option","alternate","possible","can choose"],
@@ -108,15 +112,18 @@ def validate_work_item(item: dict) -> dict:
 
 
 def score_work_item(item: dict) -> dict:
-    desc  = item.get("description", "")
+    item = _normalize(item)
+    if "has_choice" not in item:       # เรียกตรงโดยไม่ผ่าน validate → KeyError เดิม
+        item = validate_work_item(item)
+    desc  = str(item.get("description", "") or "")
     score = 0
     notes = []
 
-    if not item["has_choice"]:         score -= 40; notes.append("ไม่มีทางเลือก")
-    if not item["has_exit"]:           score -= 40; notes.append("ไม่มีทางออก")
-    if not item["no_forced_identity"]: score -= 30; notes.append("บังคับอัตลักษณ์")
-    if not item["no_required_belief"]: score -= 30; notes.append("ต้องการความเชื่อ")
-    if item["in_forbidden_scope"]:     score -= 40; notes.append("ขัดขอบเขตที่อนุญาต")
+    if not item.get("has_choice"):         score -= 40; notes.append("ไม่มีทางเลือก")
+    if not item.get("has_exit"):           score -= 40; notes.append("ไม่มีทางออก")
+    if not item.get("no_forced_identity"): score -= 30; notes.append("บังคับอัตลักษณ์")
+    if not item.get("no_required_belief"): score -= 30; notes.append("ต้องการความเชื่อ")
+    if item.get("in_forbidden_scope"):     score -= 40; notes.append("ขัดขอบเขตที่อนุญาต")
 
     if _has(desc, ["learn","understand","research","audit","review"]):
         score += 15; notes.append("เพิ่มความเข้าใจ ลดความโง่")
@@ -124,7 +131,7 @@ def score_work_item(item: dict) -> dict:
         score += 12; notes.append("ให้ความสำคัญกับการอยู่รอด")
     if _has(desc, ["grow","scale","expand"]):
         score += 4;  notes.append("มีแรงจูงใจเติบโต")
-    if item["in_allowed_scope"]:
+    if item.get("in_allowed_scope"):
         score += 6;  notes.append("อยู่ในขอบเขตที่อนุญาต")
 
     item["score"] = score
@@ -137,7 +144,9 @@ def evaluate_work_plan(items: list) -> dict:
     ประเมินแผนงานทั้งหมด
     คืน: recommendation + valid/rejected + axioms
     """
-    if not items:
+    if isinstance(items, (str, dict)):
+        items = [items]
+    if not isinstance(items, (list, tuple)) or not items:
         return {
             "system":  "CIVIL_WORK_CORE",
             "status":  "NO_WORK_DEFINED",

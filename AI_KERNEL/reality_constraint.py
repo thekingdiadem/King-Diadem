@@ -16,6 +16,15 @@ FATE™: "Reality + Evidence − Drift = Governance"
 import time
 from typing import Optional
 
+
+def _f(v, d: float = 0.0) -> float:
+    """ค่าตัวเลขจาก input ภายนอก — ไม่ใช่ตัวเลข/NaN → ค่าเริ่มต้น (เดิม float() พังทั้งฟังก์ชัน)"""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
 # ── Reality Laws (P1 — อนิจจัง ทุกขัง อนัตตา) ───────────────────
 REALITY_LAWS = {
     "impermanence":    "อนิจจัง — ทุกสิ่งไม่เที่ยง ระบบต้องรับการเปลี่ยนแปลงได้",
@@ -84,12 +93,13 @@ def enforce_reality(state: Optional[dict] = None) -> dict:
 
     FATE™: Reality + Evidence − Drift = Governance
     """
+    state = state if isinstance(state, dict) else {}
     if state is None:
         state = {}
 
-    entropy   = float(state.get("entropy",   50.0))
-    drift     = float(state.get("drift",      0.0))
-    stability = float(state.get("stability", 50.0))
+    entropy   = _f(state.get("entropy", 50.0), 50.0)
+    drift     = _f(state.get("drift", 0.0), 0.0)
+    stability = _f(state.get("stability", 50.0), 50.0)
 
     violations  = []
     critical    = False
@@ -159,7 +169,7 @@ def enforce_reality(state: Optional[dict] = None) -> dict:
         })
 
     # C6 — stale assumption
-    assumption_age = float(state.get("assumption_age_days", 0))
+    assumption_age = _f(state.get("assumption_age_days", 0), 0)
     if assumption_age > ASSUMPTION_DECAY_DAYS:
         violations.append({
             "constraint": "C6",
@@ -190,6 +200,7 @@ def check_action_reality(action: dict) -> dict:
     ตรวจ action เดี่ยวว่าขัดกับความเป็นจริงไหม
     ใช้ใน north_principle() และ decision pipeline
     """
+    action = action if isinstance(action, dict) else {}
     violations = []
 
     for cid, constraint in CONSTRAINTS.items():

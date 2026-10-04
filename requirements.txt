@@ -4,12 +4,8 @@ gunicorn==22.0.0
 google-genai
 stripe
 python-multipart
-requests
-jinja2
-numpy
-pandas
-scikit-learn
-Pillow
 authlib
 httpx
 itsdangerous
+# เอาออก: numpy, pandas, scikit-learn, Pillow, requests, jinja2 — ไม่มีไฟล์ไหน import
+# (build บน Render free tier ช้าลงหลายนาทีและกินดิสก์ ~200MB โดยไม่ได้ใช้)

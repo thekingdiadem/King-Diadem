@@ -12,8 +12,9 @@ def simulate(data: dict) -> dict:
     Input:  {"input": str, "paths": list[str]}
     Output: {"simulation": str, "paths": list, "lyla_observation": dict}
     """
-    user_input: str = (data.get("input") or "").strip()
-    paths: list     = data.get("paths") or []
+    data = data if isinstance(data, dict) else {"input": str(data or "")}
+    user_input: str = str(data.get("input") or "").strip()
+    paths: list     = [str(p) for p in (data.get("paths") or []) if p is not None]
 
     if not user_input:
         return {
@@ -27,8 +28,9 @@ def simulate(data: dict) -> dict:
         from core.llm_gemini import get_llm
         llm = get_llm()
     except Exception as e:
+        print(f"⚠ simulate: LLM not ready: {e}")
         return {
-            "simulation": f"LLM ไม่พร้อม: {e}",
+            "simulation": "ระบบจำลองไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งนะคะ",
             "paths": paths,
             "lyla_observation": {}
         }
@@ -62,29 +64,14 @@ def simulate(data: dict) -> dict:
         if not reply:
             raise ValueError("empty response")
     except Exception as e:
-        # Fallback: raw generate
-        try:
-            from google.genai import types as gt
-            cfg = gt.GenerateContentConfig(
-                system_instruction=(
-                    "คุณคือ LYLA จาก KING DIADEM จำลองอนาคตด้วย "
-                    "FATE™ Deterministic Logic — Fail Less · Harm Less · Restore Choice"
-                ),
-                temperature=0.4,
-                max_output_tokens=600,
-            )
-            resp = llm.client.models.generate_content(
-                model=llm.model,
-                contents=[gt.Content(role="user", parts=[gt.Part.from_text(text=prompt)])],
-                config=cfg,
-            )
-            reply = (resp.text or "").strip()
-        except Exception as e2:
-            return {
-                "simulation": f"จำลองไม่สำเร็จ: {e2}",
-                "paths": paths,
-                "lyla_observation": {}
-            }
+        # เดิม fallback ไปเรียก Gemini ตรงแบบไม่ผ่าน governance/เพดานเวลา และส่งข้อความ error ภายในให้ผู้ใช้
+        # generate_with_governance มีการสลับโมเดลสำรองให้แล้ว — ล้มตรงนี้ให้ตอบอย่างสุภาพ
+        print(f"⚠ simulate: LLM error: {e}")
+        return {
+            "simulation": "จำลองไม่สำเร็จชั่วคราว — ลองใหม่อีกครั้งนะคะ",
+            "paths": paths,
+            "lyla_observation": {}
+        }
 
     # ── Lyla observation (lightweight pattern) ────────────────────
     obs: dict = {}

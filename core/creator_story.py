@@ -39,12 +39,14 @@ Created by: Nithikorn Bunsrang
 From the day of nothing — to the day of everything.
 """
 
+# เดิมมี "ที่มา" "จุดประสงค์" "origin" "creator" "founder" "ใครทำ" เดี่ยวๆ
+# → "ที่มาของรายได้" "จุดประสงค์ของงาน" "ใครทำแก้วแตก" ได้เรื่องเล่าผู้สร้างแทนคำตอบ
 KEYWORDS = [
-    "ใครสร้าง","ใครทำ","คนสร้าง","ผู้สร้าง","เจ้าของระบบ",
-    "คนพัฒนา","ที่มา","ที่มาของระบบ","จุดประสงค์","สร้างมาทำไม",
+    "ใครสร้าง","คนสร้าง","ผู้สร้าง","เจ้าของระบบ","ใครสร้างระบบ","ใครทำระบบนี้","ใครทำแอป",
+    "คนพัฒนา","ที่มาของระบบ","สร้างมาทำไม",
     "ทำไมถึงสร้าง","เรื่องราวของระบบ","ประวัติระบบ","ประวัติผู้สร้าง",
-    "who created","who built","who made","creator","founder",
-    "origin","why was this created","purpose of this system",
+    "who created","who built","who made","creator of this","founder of king diadem",
+    "why was this created","purpose of this system",
     "who is behind","who developed","นิธิกร","nithikorn",
 ]
 
@@ -52,7 +54,7 @@ KEYWORDS = [
 def detect_creator_question(text: str) -> bool:
     if not text:
         return False
-    t = text.lower().strip()
+    t = str(text).lower().strip()
     return any(kw in t for kw in KEYWORDS)
 
 

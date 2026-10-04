@@ -23,6 +23,10 @@ def decision_map(limit: int = 100) -> list[dict]:
     if not data:
         return []
 
+    try:
+        limit = max(1, int(limit))
+    except (TypeError, ValueError):
+        limit = 100
     nodes = []
     for d in (data[-limit:] if len(data) > limit else data):
         if not isinstance(d, dict):
@@ -30,7 +34,8 @@ def decision_map(limit: int = 100) -> list[dict]:
 
         options  = d.get("options", [])
         route    = str(d.get("route", "general"))
-        question = str(d.get("question", ""))[:80]
+        # memory รวมทุกผู้ใช้ — ไม่ส่งข้อความคำถามของคนอื่นออกไป
+        question = ""
         weight   = _ROUTE_WEIGHT.get(route, 1.0)
         pressure = round(len(options) * weight, 2)
 

@@ -41,11 +41,12 @@ def _extract_context_fallback(text: str) -> dict:
         topic = "money"
     elif any(k in t for k in ("ข้าว", "กิน", "อาหาร", "หิว", "food")):
         topic = "food"
-    elif any(k in t for k in ("งาน", "ทำงาน", "ลา", "ออก", "job", "work")):
+    # คำสั้นอย่าง "ลา" "ออก" "ไป" "ยา" เดิมไปติดใน "เวลา" "ออกกำลัง" "ไปไหน" "พยายาม" — ใช้คำเต็มแทน
+    elif any(k in t for k in ("งาน", "ทำงาน", "ลาออก", "ออกจากงาน", "job", "work")):
         topic = "work"
-    elif any(k in t for k in ("รถ", "เดิน", "เส้นทาง", "ไป", "travel")):
+    elif any(k in t for k in ("รถ", "เดินทาง", "เส้นทาง", "travel")):
         topic = "travel"
-    elif any(k in t for k in ("เจ็บ", "ป่วย", "หมอ", "ยา", "health")):
+    elif any(k in t for k in ("เจ็บ", "ป่วย", "หมอ", "กินยา", "ยารักษา", "health")):
         topic = "health"
     return {"topic": topic, "raw": text}
 
@@ -137,6 +138,10 @@ def generate_reply(
     if _HB_LOADED:
         emotion = detect_emotion(text)
         context = extract_context(text)
+        if not isinstance(emotion, str):
+            emotion = str((emotion or {}).get("emotion", "neutral")) if isinstance(emotion, dict) else "neutral"
+        if not isinstance(context, dict):
+            context = _extract_context_fallback(text)
     else:
         emotion  = _detect_emotion_fallback(text)
         context  = _extract_context_fallback(text)

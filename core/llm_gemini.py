@@ -22,11 +22,36 @@ LYLA = หญิง (ค่ะ/นะคะ) · VEGA = ชาย (ครับ/�
 """
 
 import os
+import re
 import time
 import hashlib
+import threading
 from typing import Optional
-from google import genai
-from google.genai import types
+# มี AI ก็ดี ไม่มีก็ต้องตอบได้: ไม่มีไลบรารี google-genai → GeminiLLM สร้างไม่ได้
+# ทั้งระบบจะใช้ core/kernel_voice (คำตอบจากสมการ) แทน แทนที่ import ทั้งโมดูลจะล้ม
+try:
+    from google import genai
+    from google.genai import types
+except Exception:                       # pragma: no cover — ขึ้นกับสภาพแวดล้อม
+    genai = types = None
+
+# ── วงจรตัด AI: โควตาหมด/key เสีย → ไม่เรียกซ้ำจนครบเวลา (ไม่ให้ทุกข้อความรอ retry 45 วินาที)
+_ai_down_until = 0.0
+_ai_down_lock  = threading.Lock()
+
+
+def ai_disabled() -> bool:
+    """KD_AI=off บังคับไม่ใช้ AI เลย · หรือวงจรตัดยังไม่ครบเวลา"""
+    if os.getenv("KD_AI", "on").strip().lower() in ("off", "0", "false", "no"):
+        return True
+    return time.time() < _ai_down_until
+
+
+def _mark_ai_down(seconds: float):
+    global _ai_down_until
+    with _ai_down_lock:
+        _ai_down_until = max(_ai_down_until, time.time() + seconds)
+    print(f"⏸ AI paused {int(seconds)}s — ใช้คำตอบจากสมการ (kernel_voice) ระหว่างนี้")
 
 # ── MEMORY INJECTION ──────────────────────────────────────────────
 try:
@@ -364,8 +389,9 @@ WORK_WIN_SYSTEM = """คุณคือ LYLA — governance intelligence ขอ�
 # ══════════════════════════════════════════════════════════════════
 # SIGNAL DETECTION
 # ══════════════════════════════════════════════════════════════════
+# "ไม่อยากอยู่" เดี่ยวๆ ติด "ไม่อยากอยู่บ้าน" "ไม่อยากอยู่ที่ทำงาน" → ใช้วลีเต็ม
 _CRISIS_KW = [
-    "อยากตาย", "ไม่อยากอยู่", "ฆ่าตัว", "ฆ่าตัวเอง",
+    "อยากตาย", "ไม่อยากอยู่แล้ว", "ไม่อยากอยู่บนโลก", "ไม่อยากอยู่ต่อ", "ฆ่าตัว", "ฆ่าตัวเอง",
     "ไม่อยากมีชีวิต", "จบชีวิต", "เลิกมีชีวิต",
     "suicid", "end my life", "kill myself", "want to die"
 ]
@@ -376,41 +402,82 @@ _EMOTION_KW = [
     "sad", "cry", "hopeless", "panic", "depressed", "lonely", "scared"
 ]
 
+def _kw_hit(text: str, words: list) -> bool:
+    t = str(text or "").lower()
+    for w in words:
+        if w.isascii():
+            # คำอังกฤษต้องเป็นคำเต็ม ("cry" ไม่ติด "crypto") ยกเว้นรากคำ "suicid" (suicide/suicidal)
+            tail = "" if w == "suicid" else r"(?![a-z])"
+            if re.search(r"(?<![a-z])" + re.escape(w) + tail, t):
+                return True
+        elif w in t:
+            return True
+    return False
+
 def detect_crisis(text: str) -> bool:
-    return bool(text) and any(w in text.lower() for w in _CRISIS_KW)
+    return bool(text) and _kw_hit(text, _CRISIS_KW)
 
 def detect_emotion(text: str) -> bool:
-    return bool(text) and any(w in text.lower() for w in _EMOTION_KW)
+    return bool(text) and _kw_hit(text, _EMOTION_KW)
 
 # ══════════════════════════════════════════════════════════════════
 # SIMPLE RESPONSE CACHE (60 วินาที)
 # ══════════════════════════════════════════════════════════════════
 _cache: dict = {}
 _CACHE_TTL = 60
+_cache_lock = threading.Lock()
 
-def _cache_key(system: str, prompt: str) -> str:
-    # ★ FIX: hash full system string ไม่ใช่แค่ 50 chars
-    # ป้องกัน collision เมื่อ system เริ่มต้นด้วย KD_DNA เหมือนกัน
-    return hashlib.md5(f"{system}|{prompt}".encode()).hexdigest()
+def _cache_key(system: str, prompt: str, temperature: float = 0.0) -> str:
+    # prompt = ทุก turn ในบทสนทนา (ไม่ใช่แค่ข้อความสุดท้าย) — เดิม key ไม่รวม history
+    # → ผู้ใช้คนละคนพิมพ์ "ใช่" ภายใน 60 วิ ได้คำตอบที่ cache จากบทสนทนาของอีกคน
+    return hashlib.sha256(f"{system}|{temperature}|{prompt}".encode()).hexdigest()
+
+
+def _contents_text(contents: list) -> str:
+    out = []
+    for c in contents or []:
+        try:
+            out.append(f"{c.role}:" + "".join(p.text or "" for p in c.parts))
+        except Exception:
+            out.append(str(c))
+    return "\x1e".join(out)
+
+# บอก app.py ว่าคำตอบล่าสุดของ thread นี้เป็นข้อความสำรอง (Gemini ล้มเหลว) หรือไม่
+# — ใช้คืนเครดิต/โควตาให้ผู้ใช้ เพราะไม่ได้รับคำตอบจริง
+_tls = threading.local()
+
+def reset_fallback_flag():
+    _tls.fallback = False
+
+def used_fallback() -> bool:
+    return bool(getattr(_tls, "fallback", False))
+
 
 def _cache_get(key: str) -> Optional[str]:
-    entry = _cache.get(key)
+    with _cache_lock:
+        entry = _cache.get(key)
     if entry and (time.time() - entry["ts"]) < _CACHE_TTL:
         return entry["value"]
     return None
 
 def _cache_set(key: str, value: str):
-    if len(_cache) > 200:
-        oldest = min(_cache, key=lambda k: _cache[k]["ts"])
-        del _cache[oldest]
-    _cache[key] = {"value": value, "ts": time.time()}
+    if not value:
+        return                      # ไม่ cache คำตอบว่าง (โดน safety block / ล่ม) ให้ลองใหม่ได้
+    with _cache_lock:               # เดิมไม่มี lock: min() วนระหว่างอีก thread แก้ dict → RuntimeError
+        if len(_cache) > 200:
+            oldest = min(_cache, key=lambda k: _cache[k]["ts"])
+            del _cache[oldest]
+        _cache[key] = {"value": value, "ts": time.time()}
 
 # ══════════════════════════════════════════════════════════════════
 # HISTORY BUILDER
 # ══════════════════════════════════════════════════════════════════
 def _build_contents(history: list, user_input: str, ctx_note: str = "") -> list:
     contents = []
-    for turn in (history or [])[-8:]:
+    history = history if isinstance(history, list) else []
+    for turn in history[-8:]:
+        if not isinstance(turn, dict):
+            continue
         role = "user" if turn.get("role") == "user" else "model"
         text = str(turn.get("content", "")).strip()
         if text:
@@ -429,13 +496,18 @@ def _build_contents(history: list, user_input: str, ctx_note: str = "") -> list:
 # GeminiLLM CLASS
 # ══════════════════════════════════════════════════════════════════
 class GeminiLLM:
-    def __init__(self, model: str = "gemini-2.0-flash-lite"):
+    def __init__(self, model: str = ""):
+        model = model or os.getenv("GEMINI_MODEL", "gemini-2.0-flash-lite")
         key1 = os.getenv("GEMINI_API_KEY")
         key2 = os.getenv("GEMINI_API_KEY2")
         key3 = os.getenv("GEMINI_API_KEY3")
         key4 = os.getenv("GEMINI_API_KEY4")
         key5 = os.getenv("GEMINI_API_KEY5")
 
+        if genai is None:
+            raise ValueError("ไม่มีไลบรารี google-genai")
+        if os.getenv("KD_AI", "on").strip().lower() in ("off", "0", "false", "no"):
+            raise ValueError("KD_AI=off — ปิด AI")
         if not key1 and not key2:
             raise ValueError("ไม่พบ GEMINI_API_KEY")
 
@@ -454,12 +526,19 @@ class GeminiLLM:
             self._init_client()
             print(f"🔄 Key rotated → index {self._key_index}")
 
-    MODEL_FALLBACK_CHAIN = ["gemini-2.0-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash-8b"]
+    # gemini-1.5-flash-8b ถูกปลดแล้ว (404 ทุกครั้ง = เสียเวลา) — ตั้งเองได้ทาง GEMINI_FALLBACK_MODELS
+    MODEL_FALLBACK_CHAIN = [m.strip() for m in os.getenv(
+        "GEMINI_FALLBACK_MODELS",
+        "gemini-2.0-flash-lite,gemini-2.0-flash,gemini-2.5-flash-lite,gemini-2.5-flash",
+    ).split(",") if m.strip()]
 
     def _call(self, system: str, contents: list,
               temperature: float = 0.72, max_tokens: int = 1024) -> str:
         prompt_text = contents[-1].parts[0].text if contents else ""
-        ck = _cache_key(system, prompt_text)
+        if ai_disabled():
+            _tls.fallback = True
+            return self._fallback_response(system, prompt_text)
+        ck = _cache_key(system, _contents_text(contents), temperature)
         cached = _cache_get(ck)
         if cached:
             print("💾 Cache hit")
@@ -476,7 +555,19 @@ class GeminiLLM:
         ]
 
         last_error = None
+        quota_hits = 0
+        # เพดานเวลารวมต่อ 1 การเรียก — ต้องจบก่อน gunicorn --timeout 120
+        deadline = time.time() + float(os.getenv("LLM_CALL_BUDGET_S", "45"))
+
+        def _wait(sec: float) -> bool:
+            if time.time() + sec > deadline:
+                return False
+            time.sleep(sec)
+            return True
+
         for model_name in models_to_try:
+            if time.time() > deadline:
+                break
             for attempt in range(len(self._keys) * 2):
                 try:
                     resp = self.client.models.generate_content(
@@ -495,9 +586,11 @@ class GeminiLLM:
                     last_error = e
 
                     if any(k in err for k in ["429", "quota", "rate limit", "resource exhausted"]):
+                        quota_hits += 1
                         print(f"⚠ Rate limit (model={model_name}, attempt {attempt+1}) — rotating key")
                         self._rotate_key()
-                        time.sleep(5 if attempt < 2 else 15)
+                        if not _wait(5 if attempt < 2 else 15):
+                            break
 
                     elif any(k in err for k in [
                         "404", "not_found", "not found", "is not supported for"
@@ -508,13 +601,19 @@ class GeminiLLM:
                     elif any(k in err for k in [
                         "permission_denied", "unauthenticated", "api_key_invalid"
                     ]) or ("api key not valid" in err):
+                        _mark_ai_down(float(os.getenv("AI_AUTH_COOLDOWN_S", "3600")))
                         raise ValueError(f"Auth Error: {e}")
 
                     else:
                         print(f"⚠ API error (model={model_name}, attempt {attempt+1}): {e}")
-                        time.sleep(2)
+                        if not _wait(2):
+                            break
 
         print(f"❌ ทุกโมเดลและทุก attempt ล้มเหลว: {last_error}")
+        if quota_hits:
+            # เงิน/โควตาหมด: หยุดเรียก AI ชั่วคราว ข้อความถัดไปได้คำตอบจากสมการทันที
+            _mark_ai_down(float(os.getenv("AI_QUOTA_COOLDOWN_S", "900")))
+        _tls.fallback = True
         return self._fallback_response(system, prompt_text)
 
     def _fallback_response(self, system: str, prompt_text: str = "") -> str:
@@ -613,6 +712,7 @@ class GeminiLLM:
         user_email: str = "",
     ) -> str:
 
+        emotion_state = str(emotion_state or "NEUTRAL")
         # ── CRISIS override ────────────────────────────────────
         if detect_crisis(prompt) or voice_mode == "crisis" or "EMOTION:CRISIS" in emotion_state.upper():
             contents = _build_contents(history or [], prompt, additional_context)
@@ -682,7 +782,7 @@ class GeminiLLM:
 # ══════════════════════════════════════════════════════════════════
 _instance: Optional[GeminiLLM] = None
 
-def get_llm(model: str = "gemini-2.0-flash-lite") -> GeminiLLM:
+def get_llm(model: str = "") -> GeminiLLM:
     global _instance
     if _instance is None:
         _instance = GeminiLLM(model=model)

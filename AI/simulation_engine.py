@@ -87,6 +87,11 @@ class Simulation:
         Returns:
             outcomes list เรียงตาม risk ASC + fate_audit
         """
+        question = str(question or "")
+        try:
+            n = max(1, min(int(n), 20))
+        except (TypeError, ValueError):
+            n = 7
         if not question.strip():
             return {
                 "error":     "FATE_VIOLATION: question empty",
@@ -104,9 +109,13 @@ class Simulation:
 
         outcomes = []
         for action in target_paths:
+            known = action in _OUTCOME_TABLE
             base = _OUTCOME_TABLE.get(action, _OUTCOME_TABLE[_SAFE_FALLBACK])
             outcomes.append({
                 "action":      action,
+                # action ที่ไม่มีในตาราง ได้ผลของ "observe" แทน — บอกตรงๆ ไม่ให้ดูเหมือนจำลองจริง
+                "known":       known,
+                "template":    action if known else _SAFE_FALLBACK,
                 "short_term":  base["short_term"],
                 "long_term":   base["long_term"],
                 "risk":        base["risk"],

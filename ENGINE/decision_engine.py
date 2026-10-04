@@ -20,6 +20,13 @@ except Exception:
     _wisdom_snapshot = None
 
 
+_ROUTE_SEVERITY = {"stable": 0, "general": 0, "uncertain": 1, "civil": 1, "risk": 2,
+                   "survival": 3, "collapse": 4, "crisis": 5}
+
+def _max_route(current: str, candidate: str) -> str:
+    return candidate if _ROUTE_SEVERITY.get(candidate, 0) >= _ROUTE_SEVERITY.get(current, 0) else current
+
+
 class DecisionEngine:
 
     def __init__(self):
@@ -83,7 +90,7 @@ class DecisionEngine:
         try:
             from ENGINE.emotion_state import get_emotion_state
             es = get_emotion_state(session_id)
-            es.update(user_input)
+            es.update(str(data.get("raw_input") or user_input))   # ข้อความดิบของผู้ใช้ ไม่ใช่ prompt ที่ต่อบริบทแล้ว
             emotion_ctx = es.context_note()
         except Exception:
             pass
@@ -91,7 +98,7 @@ class DecisionEngine:
         # ── STEP 1: Pattern Analysis ─────────────────────────
         # data ตอนนี้มี entropy/resource/stability จริงแล้ว
         # (ถ้า ENGINE/human_engine.py คำนวณได้ — ดู run_decision())
-        pattern = analyze_pattern(data)
+        pattern = analyze_pattern(data, session_id)   # เดิมไม่ส่ง → ทุกคนแชร์ tracker "default"
         route   = pattern.get("route", "general")
 
         # ── STEP 1.5: Human Engine override ──────────────────
@@ -111,13 +118,19 @@ class DecisionEngine:
         if guarded.get("blocked") and guarded.get("reason") in (
             "CHOICE_COLLAPSE", "KERNEL_IMPORT_FAIL", "invalid_state"
         ):
+            collapse = guarded.get("reason") == "CHOICE_COLLAPSE"
             return {
                 "observer":    "KING DIADEM",
                 "route":       "BLOCKED",
                 "reason":      guarded.get("reason", "GUARD_BLOCK"),
                 "action":      "stabilize",
                 "status":      "BLOCKED",
-                "ai_response": "ระบบพบปัญหาภายใน กรุณาลองใหม่อีกครั้งครับ",
+                # ทางเลือกเหลือศูนย์ = คนกำลังลำบากจริง ไม่ใช่ "ระบบมีปัญหา" — ให้ทางช่วยเหลือทันที
+                "ai_response": (
+                    "ตอนนี้ยังไม่ต้องตัดสินใจอะไรใหญ่ค่ะ ขอให้อยู่ในที่ปลอดภัยก่อน "
+                    "ถ้ารู้สึกไม่ไหว โทร 1323 (สายด่วนสุขภาพจิต 24 ชม.) หรือ 1669 ได้เลย "
+                    "— ยังมีทางเสมอ Choice(t) ≥ 1"
+                ) if collapse else "ระบบพบปัญหาภายใน กรุณาลองใหม่อีกครั้งครับ",
                 "risk_score":  guarded.get("risk_score", 0),
                 "persona":     "LYLA",
                 "pattern": {
@@ -178,6 +191,7 @@ class DecisionEngine:
                 router_payload = {
                     **pattern,
                     "input":      user_input,
+                    "raw_input":  data.get("raw_input") or "",
                     "voice_mode": voice_mode,
                     "route_hint": route,
                     "paticca":    paticca_result,
@@ -185,7 +199,9 @@ class DecisionEngine:
                 router_result = self.router(router_payload)
                 if router_result and router_result.get("route") not in (None, "error"):
                     if voice_mode not in ("vega", "crisis"):
-                        route = router_result["route"]
+                        # router ยกระดับได้ แต่ห้ามลด — เดิมเขียนทับ "survival" ที่ survivor engine
+                        # ตั้งไว้ (เช่นคนที่ไม่มีอาหาร) กลับเป็น "general"
+                        route = _max_route(route, router_result["route"])
             except Exception as e:
                 router_result = {"error": f"router fail: {e}"}
         else:
@@ -193,6 +209,7 @@ class DecisionEngine:
 
         # ── STEP 7: LLM ──────────────────────────────────────
         ai_response = None
+        llm_error   = None
         if self.llm:
             try:
                 context_parts = [
@@ -249,13 +266,17 @@ class DecisionEngine:
                     emotion_state      = emotion_ctx,
                 )
             except Exception as e:
-                ai_response = f"[Gemini unavailable: {e}]"
+                # เดิมส่ง "[Gemini unavailable: <error>]" เป็นคำตอบให้ผู้ใช้ (หลุดรายละเอียดภายใน
+                # และ app.py ไม่รู้ว่าล้ม จึงไม่คืนเครดิต) — ตอนนี้ส่งเป็น error ให้ app จัดการ
+                print(f"⚠ DecisionEngine LLM error: {e}")
+                ai_response, llm_error = None, "LLM_UNAVAILABLE"
 
         # ── STEP 8: LYLA Observation ─────────────────────────
         lyla_note = None
         if self.lyla:
             try:
-                lyla_note = self.lyla.observe(user_input)
+                # ข้อความผู้ใช้จริง — user_input คือ prompt ที่ต่อบริบท/นิทานแล้ว ("พัง" ในนิทาน = CRITICAL)
+                lyla_note = self.lyla.observe(str(data.get("raw_input") or user_input))
             except Exception:
                 pass
 
@@ -265,7 +286,7 @@ class DecisionEngine:
             "route":      route,
             "persona":    persona,
             "voice_mode": voice_mode,
-            "input":      user_input,
+            # (เดิมส่ง "input" = prompt ภายในทั้งก้อนกลับหน้าเว็บ — เอาออก)
             "pattern": {
                 "entropy":    pattern.get("entropy"),
                 "resource":   pattern.get("resource"),
@@ -282,6 +303,7 @@ class DecisionEngine:
             "risk_score":      guarded.get("risk_score", 0),
             "emotional_flag":  guarded.get("emotional_flag", False),
             "wisdom":          _wisdom_snapshot() if _wisdom_snapshot else None,
+            **({"error": llm_error} if llm_error else {}),
         }
 
     def _run_route(self, route: str, pattern: dict) -> dict:
@@ -347,12 +369,14 @@ def _build_payload(data: dict) -> dict:
         text = " | ".join(parts)
     out["input"] = text
 
-    if "money" in out:
-        try:
-            m = abs(float(out["money"]))
-            out.setdefault("resource", max(5.0, min(95.0, 100.0 - min(m, 99.0))))
-        except (TypeError, ValueError):
-            pass
+    # หมายเหตุ: เดิมคำนวณ resource = 100 − min(money, 99) → ยิ่งมีเงินมาก resource ยิ่งต่ำ (กลับด้าน)
+    # และค่านี้ไปบัง resource ที่ถูกต้องจาก human_engine — ตอนนี้ให้ human_engine เป็นคนคำนวณ
+    for k in ("entropy", "resource", "stability"):
+        if k in out:
+            try:
+                out[k] = max(0.0, min(100.0, float(out[k])))
+            except (TypeError, ValueError):
+                out.pop(k)          # ค่าที่ไม่ใช่ตัวเลขจาก client เดิมทำให้ /run ล้ม (500)
 
     risk_s = str(out.get("risk", "")).lower()
     if any(w in risk_s for w in ["high", "สูง", "critical"]):

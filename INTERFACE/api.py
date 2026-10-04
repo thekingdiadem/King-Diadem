@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 
 # ── KING DIADEM CORE v2 ───────────────────────────────────────────
 try:
-    from king_diadem_core import (
+    from core.king_diadem_core import (
         quick_assess,
         king_diadem_decision,
         core_status,
@@ -42,13 +42,23 @@ except Exception as _e:
     def run_decision(body): return {"error": "decision_engine not loaded"}
 
 # ── DATABASE / CREDITS ────────────────────────────────────────────
+# ใช้ ledger จริงเดียวกับ app.py (DATABASE/db.py) — เดิมใช้ credit_store คนละตาราง
+# และถ้าโหลดไม่ได้ fallback เป็น get_credits = 999 / use_credit = ไม่หัก (ใช้ฟรีไม่จำกัด)
 try:
-    from DATABASE.credit_store import use_credit, get_credits
+    from DATABASE.db import spend_credit, get_credits, add_credits
     _CREDITS_OK = True
 except Exception:
     _CREDITS_OK = False
-    def get_credits(k): return 999
-    def use_credit(k): pass
+    def get_credits(k): return 0
+    def spend_credit(*a, **k): return False
+    def add_credits(*a, **k): return None
+
+# ── API KEY → ตัวตน ───────────────────────────────────────────────
+# เดิม header api_key เป็นสตริงอะไรก็ได้ แล้วใช้เป็นตัวตนตรงๆ (ใส่อีเมลคนอื่น = ใช้เครดิตคนอื่น)
+try:
+    from core.api_keys import validate_api_key
+except Exception:
+    validate_api_key = None
 
 # ── PAYMENT ───────────────────────────────────────────────────────
 try:
@@ -97,11 +107,46 @@ if os.path.exists("static"):
 
 
 # ── HELPERS ───────────────────────────────────────────────────────
-def _check_credits(api_key: str) -> int:
-    credits = get_credits(api_key)
-    if credits <= 0:
+MAX_INPUT_CHARS = int(os.getenv("MAX_INPUT_CHARS", "4000"))
+
+
+def _auth(api_key: str, permission: str) -> str:
+    """ตรวจ API key (HMAC + scope + rate limit) → อีเมลเจ้าของ key"""
+    if not validate_api_key:
+        raise HTTPException(status_code=503, detail="API key system unavailable")
+    info = validate_api_key(api_key, required_permission=permission)
+    if not info.get("valid"):
+        raise HTTPException(status_code=401, detail=info.get("reason", "invalid api key"))
+    return info["email"]
+
+
+def _charge(email: str, what: str) -> None:
+    """หักก่อนเรียก LLM แบบ atomic — เดิมเช็คยอดก่อนแล้วค่อยหักหลังรัน (ยิงพร้อมกันได้เกินยอด)"""
+    if not _CREDITS_OK or not spend_credit(email, 1, what):
         raise HTTPException(status_code=402, detail="No credits remaining")
-    return credits
+
+
+def _refund(email: str, what: str) -> None:
+    try:
+        add_credits(email, 1, "refund", what)
+    except Exception:
+        pass
+
+
+def _input(body: dict) -> str:
+    text = str(body.get("input", "")).strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="input required")
+    if len(text) > MAX_INPUT_CHARS:
+        raise HTTPException(status_code=413, detail="input too long")
+    return text
+
+
+def _ctx_num(d: dict, k: str, default: float) -> float:
+    try:
+        return float(d.get(k, default))
+    except (TypeError, ValueError):
+        return default
 
 def _friendly_error(err: str) -> str:
     e = str(err).lower()
@@ -145,17 +190,16 @@ async def decision(
     api_key: str = Header(...),
 ):
     body    = await request.json()
-    credits = _check_credits(api_key)
-
-    user_input = str(body.get("input", "")).strip()
-    if not user_input:
-        raise HTTPException(status_code=400, detail="input required")
+    body    = body if isinstance(body, dict) else {}
+    email   = _auth(api_key, "decision")
+    user_input = _input(body)
+    _charge(email, "api_decision")
 
     # ── bodhipakkhiya channel ────────────────────────────────────
     pattern = {
-        "entropy":   float(body.get("risk",   40)),
-        "stability": float(body.get("food",   60)),
-        "resource":  float(body.get("money",  50)),
+        "entropy":   _ctx_num(body, "risk",  40),
+        "stability": _ctx_num(body, "food",  60),
+        "resource":  _ctx_num(body, "money", 50),
         "input":     user_input,
     }
     core_result = quick_assess(user_input, pattern)
@@ -164,14 +208,15 @@ async def decision(
     canon = evaluate_task({"description": user_input})
 
     # ── run decision ──────────────────────────────────────────────
-    result = run_decision({**body, "input": user_input})
-
-    # ── deduct credit ─────────────────────────────────────────────
-    use_credit(api_key)
+    # ตัวตน/session มาจาก key เท่านั้น — ไม่เชื่อ user_email/session_id ใน body
+    result = run_decision({**body, "input": user_input, "raw_input": user_input,
+                           "user_email": email, "session_id": email})
+    if not isinstance(result, dict) or result.get("error"):
+        _refund(email, "api_decision")
 
     return {
         "decision":          result,
-        "credits_left":      credits - 1,
+        "credits_left":      get_credits(email),
         "bodhipakkhiya":     core_result.get("bodhi_verdict", ""),
         "peace":             core_result.get("peace", True),
         "canon_aligned":     canon.get("canon_aligned", True),
@@ -181,23 +226,26 @@ async def decision(
 
 # ── /run — main chat endpoint (no credit gate — ใช้ cookie ใน app.py) ──
 @app.post("/run")
-async def run(request: Request):
+async def run(request: Request, api_key: str = Header(...)):
+    # เดิมไม่มีการยืนยันตัวตน + รับ user_email จาก body → ดึง memory ของอีเมลใครก็ได้เข้า prompt
+    # และใช้ LLM ฟรีไม่จำกัด
     body       = await request.json()
-    user_input = str(body.get("input", "")).strip()
-    if not user_input:
-        raise HTTPException(status_code=400, detail="input required")
+    body       = body if isinstance(body, dict) else {}
+    email      = _auth(api_key, "run")
+    user_input = _input(body)
+    _charge(email, "api_run")
 
     route      = body.get("route", "general")
     voice_mode = body.get("voice_mode", "lyla")
-    history    = body.get("history", [])
-    context    = body.get("context", {})
-    user_email = body.get("user_email") or body.get("email", "")
+    history    = body.get("history") if isinstance(body.get("history"), list) else []
+    context    = body.get("context") if isinstance(body.get("context"), dict) else {}
+    user_email = email
 
     # ── bodhipakkhiya channel ────────────────────────────────────
     pattern = {
-        "entropy":   float(context.get("entropy",   40)),
-        "stability": float(context.get("stability", 60)),
-        "resource":  float(context.get("resource",  50)),
+        "entropy":   _ctx_num(context, "entropy",   40),
+        "stability": _ctx_num(context, "stability", 60),
+        "resource":  _ctx_num(context, "resource",  50),
         "input":     user_input,
     }
     core_result = quick_assess(user_input, pattern)
@@ -208,14 +256,17 @@ async def run(request: Request):
     # ── run decision ──────────────────────────────────────────────
     result = run_decision({
         "input":      user_input,
+        "raw_input":  user_input,
         "route":      route,
         "voice_mode": voice_mode,
-        "history":    history,
+        "history":    history[-8:],
         "user_email": user_email,
+        "session_id": user_email,
         "context":    context,
     })
 
     if isinstance(result, dict) and result.get("error"):
+        _refund(email, "api_run")
         result["error"] = _friendly_error(str(result["error"]))
 
     # ── attach core data ──────────────────────────────────────────
@@ -229,18 +280,24 @@ async def run(request: Request):
 
 # ── /simulate ────────────────────────────────────────────────────
 @app.post("/simulate")
-async def simulate(request: Request):
+async def simulate(request: Request, api_key: str = Header(...)):
     body       = await request.json()
-    user_input = str(body.get("input", "")).strip()
-    if not user_input:
-        raise HTTPException(status_code=400, detail="input required")
+    body       = body if isinstance(body, dict) else {}
+    email      = _auth(api_key, "simulate")
+    user_input = _input(body)
+    _charge(email, "api_simulate")
 
+    paths = body.get("paths") if isinstance(body.get("paths"), list) else []
     result = run_decision({
         "input":      user_input,
-        "paths":      body.get("paths", []),
+        "raw_input":  user_input,
+        "paths":      [str(p)[:300] for p in paths][:7],
         "mode":       "simulate",
-        "user_email": body.get("user_email", ""),
+        "user_email": email,
+        "session_id": email,
     })
+    if not isinstance(result, dict) or result.get("error"):
+        _refund(email, "api_simulate")
     return result
 
 
@@ -253,10 +310,11 @@ async def assess(request: Request):
     """
     body       = await request.json()
     user_input = str(body.get("input", "")).strip()
+    body       = body if isinstance(body, dict) else {}
     pattern    = {
-        "entropy":   float(body.get("entropy",   40)),
-        "stability": float(body.get("stability", 60)),
-        "resource":  float(body.get("resource",  50)),
+        "entropy":   _ctx_num(body, "entropy",   40),
+        "stability": _ctx_num(body, "stability", 60),
+        "resource":  _ctx_num(body, "resource",  50),
         "input":     user_input,
     }
 
@@ -311,8 +369,12 @@ async def put_chat_state(request: Request):
 async def buy(api_key: str = Header(...)):
     if not _PAYMENT_OK:
         raise HTTPException(status_code=503, detail="Payment not configured")
-    url = create_checkout(api_key)
-    return {"checkout_url": url}
+    # เดิมส่ง api_key เป็น "email" ให้ create_checkout (ผิด signature → อีเมลไม่ถูกต้องทุกครั้ง)
+    email = _auth(api_key, "run")
+    result = create_checkout(email)
+    if isinstance(result, dict) and result.get("error"):
+        raise HTTPException(status_code=400, detail=result["error"])
+    return {"checkout_url": result.get("url") if isinstance(result, dict) else result}
 
 
 # ── /stripe/webhook ───────────────────────────────────────────────
@@ -331,27 +393,17 @@ async def stripe_webhook(request: Request):
 # ── /wallet ───────────────────────────────────────────────────────
 @app.post("/wallet/topup")
 async def wallet_topup(request: Request):
-    body   = await request.json()
-    email  = str(body.get("email", "")).strip()
-    amount = float(body.get("amount", 0))
-    if not email:
-        raise HTTPException(status_code=400, detail="email required")
-    if amount < 10:
-        raise HTTPException(status_code=400, detail="minimum 10 THB")
-    current   = get_credits(email)
-    added     = int(amount)
-    new_total = current + added
-    return {"total_credit": new_total, "added": added}
+    # เดิมตอบ "เติมแล้ว" พร้อมยอดใหม่โดยไม่มีการจ่ายเงินและไม่ได้เติมจริง — หลอกผู้ใช้
+    # การเติมเงินจริงต้องผ่าน Stripe ของแอปหลัก (/wallet/topup ใน app.py)
+    raise HTTPException(status_code=501, detail="top-up is available in the main app only")
 
 @app.get("/wallet/balance")
-async def wallet_balance_get(request: Request):
-    email   = request.query_params.get("email", "")
-    credits = get_credits(email) if email else 0
-    return {"total_credit": credits, "email": email}
+async def wallet_balance_get(request: Request, api_key: str = Header(...)):
+    # เดิมดูยอดของอีเมลใดก็ได้จาก query — ตอนนี้ดูได้เฉพาะของเจ้าของ key
+    email = _auth(api_key, "report_read")
+    return {"total_credit": get_credits(email), "email": email}
 
 @app.post("/wallet/balance")
-async def wallet_balance_post(request: Request):
-    body    = await request.json()
-    email   = body.get("email", "")
-    credits = get_credits(email) if email else 0
-    return {"total_credit": credits, "email": email}
+async def wallet_balance_post(request: Request, api_key: str = Header(...)):
+    email = _auth(api_key, "report_read")
+    return {"total_credit": get_credits(email), "email": email}

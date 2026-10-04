@@ -1,6 +1,7 @@
 # DATABASE/credit_store.py
 # KING DIADEM — Credit Store
 # ต่อ SQLite จริง ไม่ใช่ in-memory dict ที่หายทุก restart
+# หมายเหตุ: ตาราง user_credits นี้แยกจาก credits ที่ app.py ใช้จริง (DATABASE/db.py) — legacy
 
 from __future__ import annotations
 import threading
@@ -58,8 +59,19 @@ def get_credits(email: str) -> int:
             conn.close()
 
 
+def _amount(v) -> int:
+    try:
+        n = int(v)
+    except (TypeError, ValueError):
+        return 0
+    return n if n > 0 else 0
+
+
 def add_credits(email: str, amount: int) -> int:
-    """เพิ่ม credits — return ยอดใหม่"""
+    """เพิ่ม credits — return ยอดใหม่ (จำนวนต้องเป็นจำนวนเต็มบวก — เดิมรับค่าลบ = หักได้)"""
+    amount = _amount(amount)
+    if amount <= 0:
+        return get_credits(email)
     with _lock:
         conn = _conn()
         try:
@@ -80,26 +92,30 @@ def add_credits(email: str, amount: int) -> int:
 
 
 def use_credit(email: str, amount: int = 1) -> bool:
-    """ใช้ credit — return True ถ้าสำเร็จ False ถ้าไม่พอ"""
+    """ใช้ credit — return True ถ้าสำเร็จ False ถ้าไม่พอ
+    UPDATE แบบมีเงื่อนไขคำสั่งเดียว (atomic ข้าม process) — เดิม SELECT แล้ว UPDATE แยกกัน"""
+    amount = _amount(amount)
+    if amount <= 0:
+        return False
     with _lock:
         conn = _conn()
         try:
-            row = conn.execute(
-                "SELECT credits FROM user_credits WHERE email = ?", (email,)
-            ).fetchone()
-            current = int(row[0]) if row else 0
-            if current < amount:
-                return False
-            conn.execute("""
+            cur = conn.execute("""
                 UPDATE user_credits
                 SET credits = credits - ?,
                     updated = julianday('now')
-                WHERE email = ?
-            """, (amount, email))
+                WHERE email = ? AND credits >= ?
+            """, (amount, email, amount))
             conn.commit()
-            return True
+            return cur.rowcount == 1
         finally:
             conn.close()
+
+
+def deduct_credits(email: str, amount: int) -> tuple[bool, int]:
+    """PAYMENT/wallet_engine เรียกชื่อนี้ (เดิมไม่มี → import ล้มทั้งโมดูล) — คืน (สำเร็จ, คงเหลือ)"""
+    ok = use_credit(email, amount)
+    return ok, get_credits(email)
 
 
 def set_credits(email: str, amount: int) -> int:

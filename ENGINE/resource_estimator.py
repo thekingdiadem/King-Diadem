@@ -27,13 +27,22 @@ def estimate_resources(
     ctx = context or {}
     alerts = []
 
+    def _f(v, d):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return d
+    food, money = max(0.0, _f(food, 0.0)), _f(money, 0.0)
+    daily_expense = _f(daily_expense, DAILY_FOOD_COST + DAILY_FIXED_COST)
+    water_liters, energy = max(0.0, _f(water_liters, 2.0)), _f(energy, 50.0)
+
     # ── Food runway ───────────────────────────────────────────────
     meals_per_day  = 3.0
     food_days      = round(food / meals_per_day, 2) if food > 0 else 0.0
 
     # ── Money runway ──────────────────────────────────────────────
     if daily_expense > 0:
-        money_days = round(money / daily_expense, 2)
+        money_days = round(max(0.0, money) / daily_expense, 2)   # หนี้ (เงินติดลบ) = 0 วัน ไม่ใช่วันติดลบ
     else:
         money_days = 999.0
 

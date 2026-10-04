@@ -10,11 +10,10 @@ class PersonaEngine:
 
     # ── INTENT ──────────────────────────────────────────────────
     INTENT_MAP = [
+        # เดิม "ฆ่า" "ตาย" "จบแล้ว" "หมดแล้ว" "ทนไม่ไหว" → "ฆ่าเวลา" "ขำจะตาย" "ข้าวหมดแล้ว" = crisis
         ("crisis", [
-            "ฆ่า", "ตาย", "ไม่อยากอยู่", "จบแล้ว", "หมดแล้ว", "สิ้นหวัง",
-            "ทนไม่ไหว", "ทรมาน", "หมดหวัง", "ไม่มีทางออก",
-            r"\bsuicide\b", r"\bhopeless\b", r"\bcan't go on\b", r"\bend it\b",
-            r"\bkill myself\b", r"\bwant to die\b",
+            "ฆ่าตัว", "อยากตาย", "ไม่อยากอยู่แล้ว", "ไม่อยากมีชีวิต", "จบชีวิต", "ทำร้ายตัวเอง",
+            r"\bsuicid", r"\bkill myself\b", r"\bwant to die\b", r"\bend my life\b",
         ]),
         ("survival", [
             "ตกงาน", "ไม่มีเงิน", "หนี้", "ค่าเช่า", "กินข้าวไม่ได้",
@@ -71,7 +70,7 @@ class PersonaEngine:
     # ────────────────────────────────────────────────────────────
 
     def detect_intent(self, text: str) -> str:
-        t = text.lower()
+        t = str(text or "").lower()
         for intent, patterns in self.INTENT_MAP:
             for pat in patterns:
                 if re.search(pat, t):
@@ -79,7 +78,7 @@ class PersonaEngine:
         return "general"
 
     def detect_style(self, text: str) -> str:
-        t = text.lower()
+        t = str(text or "").lower()
         for style, keywords in self.STYLE_MAP:
             for kw in keywords:
                 if kw in t:

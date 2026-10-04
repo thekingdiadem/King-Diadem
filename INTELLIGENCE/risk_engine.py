@@ -14,10 +14,14 @@
 #   - choice    = จำนวน viable path ที่เหลืออยู่จริง
 # -----------------------------------------------------------------
 
-import json, os, math, time
+import json, os, math, tempfile, time
 from typing import Union
+from core.paths import data_dir
 
-DATA_PATH = "data"
+DATA_PATH = data_dir()   # ข้าง DB_PATH (ดิสก์ถาวร) — ดู core/paths.py
+# เดิมเขียน/อ่าน "decision_log.json" ไฟล์เดียวกับ core/memory_store (คนละรูปแบบ) → ทับกันไปมา
+AUDIT_LOG = "risk_audit_log.json"
+R_CAP     = 1e9      # JSON ไม่มี Infinity
 
 # ── CONSTANTS ─────────────────────────────────────────────────────
 DRIFT_DECAY_HOURS    = 24.0    # drift ลดลงตาม time ถ้าไม่มี event ใหม่
@@ -26,12 +30,14 @@ EXPOSURE_RISKY_THRESHOLD = 0.5 # trust_score < 0.5 = risky node
 DEFAULT_CHOICE       = 5       # ถ้าไม่มีข้อมูล → assume 5 choices
 
 # ── RISK STATUS THRESHOLDS ────────────────────────────────────────
+# drift ≤ 10, exposure ≤ 1, choice ≥ 1 → risk อยู่ในช่วง 0–10 เสมอ
+# เดิม threshold 10/20/50 → ไม่มีทางเกิน dashboard ขึ้น SAFE ทุกครั้ง  ปรับให้ตรงสเกลจริง
 STATUS_THRESHOLDS = {
-    "COLLAPSE": float("inf"),
-    "DANGER":   50.0,
-    "WARNING":  20.0,
-    "ELEVATED": 10.0,
-    "SAFE":      0.0,
+    "COLLAPSE": R_CAP,
+    "DANGER":   5.0,
+    "WARNING":  2.0,
+    "ELEVATED": 1.0,
+    "SAFE":     0.0,
 }
 
 
@@ -53,8 +59,25 @@ def load_json(filename: str, default=None):
 def save_json(filename: str, data):
     os.makedirs(DATA_PATH, exist_ok=True)
     path = os.path.join(DATA_PATH, filename)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+    fd, tmp = tempfile.mkstemp(dir=DATA_PATH, suffix=".tmp")   # เขียนแบบ atomic
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False, default=str)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+def _f(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if math.isfinite(x) else d
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -71,8 +94,8 @@ def get_drift() -> float:
     - event เก่ากว่า → weight น้อยกว่า (exponential decay)
     - ผลลัพธ์ 0.0 → 10.0
     """
-    logs = load_json("decision_log.json", [])
-    if not logs:
+    logs = load_json(AUDIT_LOG, [])
+    if not isinstance(logs, list) or not logs:
         return 1.0  # baseline drift เสมอ (ไม่มีข้อมูล ≠ safe)
 
     now         = time.time()
@@ -80,7 +103,9 @@ def get_drift() -> float:
     drift_score = 0.0
 
     for entry in logs:
-        ts     = float(entry.get("timestamp", now))
+        if not isinstance(entry, dict):
+            continue
+        ts     = _f(entry.get("timestamp", now), now)
         status = str(entry.get("status", "SAFE")).upper()
         age    = max(now - ts, 0.0)
 
@@ -110,13 +135,13 @@ def get_exposure() -> float:
     - ถ้าไม่มีข้อมูล → 1.0 (worst case, unknown = exposed)
     """
     node_trust = load_json("node_trust.json", {})
-    if not node_trust:
+    if not isinstance(node_trust, dict) or not node_trust:
         return 1.0  # unknown system = fully exposed
 
     total  = len(node_trust)
     risky  = sum(
         1 for score in node_trust.values()
-        if float(score) < EXPOSURE_RISKY_THRESHOLD
+        if _f(score, 0.0) < EXPOSURE_RISKY_THRESHOLD
     )
 
     exposure = risky / total
@@ -135,6 +160,8 @@ def get_remaining_choice() -> float:
     - fallback = DEFAULT_CHOICE
     """
     world = load_json("world_history.json", {})
+    if not isinstance(world, dict):      # core/memory_store เขียนไฟล์นี้เป็น list
+        world = {}
 
     # Priority 1: open_paths list
     open_paths = world.get("open_paths")
@@ -144,7 +171,7 @@ def get_remaining_choice() -> float:
     # Priority 2: explicit choice count
     choices = world.get("choices")
     if choices is not None:
-        return max(float(choices), 1.0)
+        return max(_f(choices, float(DEFAULT_CHOICE)), 1.0)
 
     # Fallback
     return float(DEFAULT_CHOICE)
@@ -164,14 +191,16 @@ def calculate_risk(
     Returns risk score.
     inf ถ้า remaining_choice <= 0 (collapse state)
     """
+    drift, exposure = _f(drift, 0.0), _f(exposure, 0.0)
+    remaining_choice = _f(remaining_choice, 0.0)
     if remaining_choice <= 0:
-        return float("inf")
+        return R_CAP
     risk = (drift * exposure) / remaining_choice
     return round(risk, 4)
 
 
 def _status_from_risk(risk: float) -> str:
-    if risk == float("inf"):
+    if risk >= R_CAP:
         return "COLLAPSE"
     if risk > STATUS_THRESHOLDS["DANGER"]:
         return "DANGER"
@@ -219,14 +248,16 @@ def run_audit() -> dict:
     """
     dashboard = generate_dashboard()
 
-    logs = load_json("decision_log.json", [])
+    logs = load_json(AUDIT_LOG, [])
+    if not isinstance(logs, list):
+        logs = []
     logs.append(dashboard)
 
     # ไม่เก็บ log เกิน 500 entries (prevent drift inflation)
     if len(logs) > 500:
         logs = logs[-500:]
 
-    save_json("decision_log.json", logs)
+    save_json(AUDIT_LOG, logs)
     return dashboard
 
 
@@ -239,13 +270,13 @@ def assess(context: dict | None = None) -> dict:
     Entry point สำหรับ app.py: `from ENGINE.risk_engine import assess as assess_risk`
     รับ context dict optional เพื่อ override choice count จาก caller
     """
-    if context:
+    if isinstance(context, dict) and context:
         # caller อาจบอก remaining_choice โดยตรง (เช่น จาก simulation)
         explicit_choice = context.get("remaining_choice")
         if explicit_choice is not None:
             drift    = get_drift()
             exposure = get_exposure()
-            choice   = max(float(explicit_choice), 1.0)
+            choice   = max(_f(explicit_choice, 1.0), 1.0)
             risk     = calculate_risk(drift, exposure, choice)
             status   = _status_from_risk(risk)
             return {

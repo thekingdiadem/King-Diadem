@@ -6,7 +6,8 @@
 #
 # PATCH v4.9
 # - king_diadem_core v2.0 wired: quick_assess() แทน _paticcasamuppada_context()
-# - bodhipakkhiya_engine: 6-layer channel ก่อน LLM ทุกครั้ง
+# - bodhipakkhiya channel ก่อน LLM ทุกครั้ง (อยู่ใน core/king_diadem_core.quick_assess —
+#   ไฟล์ ENGINE/bodhipakkhiya_engine.py ไม่มีอยู่จริง)
 # - cosmic_latte_canon: validate_output() gate ก่อน return
 # - wise_ctx inject เข้า LLM prompt
 # - LYLA tone: น่ารัก เข้าอกเข้าใจ ไม่เทศ
@@ -30,6 +31,7 @@
 from fastapi import FastAPI, Request, File, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
 import os, json, stripe, math, time, threading
 from urllib.parse import quote, unquote
@@ -66,10 +68,11 @@ except Exception as e:
     simulate = None
 
 try:
-    from ENGINE.risk_engine import assess as assess_risk
+    from ENGINE.risk_engine import assess as assess_risk, evaluate_risk as text_risk
 except Exception as e:
     print(f"⚠ risk_engine: {e}")
     assess_risk = None
+    text_risk = None
 
 try:
     from ENGINE.realhuman_survivorengine import (
@@ -108,7 +111,7 @@ except Exception as e:
 
 # ── KING DIADEM CORE v2.0 — v4.9 ─────────────────────────────────
 try:
-    from king_diadem_core import quick_assess, king_diadem_decision, core_status
+    from core.king_diadem_core import quick_assess, king_diadem_decision, core_status
     print("✅ king_diadem_core v2.0 loaded")
     _CORE_OK = True
 except Exception as e:
@@ -146,6 +149,13 @@ except Exception as e:
     print(f"⚠ LLM/LYLA: {e}")
     llm = lyla = None
 
+# ── KERNEL VOICE — ตอบได้แม้ไม่มี AI (core/kernel_voice.py) ──────────
+try:
+    from core.kernel_voice import compose as kernel_compose, simulate as kernel_simulate, assess as kernel_assess
+except Exception as e:
+    print(f"⚠ kernel_voice: {e}")
+    kernel_compose = kernel_simulate = kernel_assess = None
+
 try:
     from core.system_orchestrator import get_orchestrator
     orchestrator = get_orchestrator()
@@ -159,6 +169,10 @@ try:
     from DATABASE.db import (
         init_db, log_decision, get_credits, add_credits,
         ensure_user, save_chat_state, load_chat_state,
+        set_password, verify_password, user_exists,
+        claim_stripe_event, release_stripe_event,
+        set_premium_until, get_premium_until, email_for_stripe_customer,
+        spend_credit, credit_history, take_free_run, give_back_free_run, free_runs_used,
     )
     init_db()
     print("✅ Database initialized")
@@ -166,6 +180,10 @@ except Exception as e:
     print(f"⚠ DB: {e}")
     init_db = log_decision = get_credits = add_credits = None
     ensure_user = save_chat_state = load_chat_state = None
+    set_password = verify_password = user_exists = None
+    claim_stripe_event = release_stripe_event = None
+    set_premium_until = get_premium_until = email_for_stripe_customer = None
+    spend_credit = credit_history = take_free_run = give_back_free_run = free_runs_used = None
 
 # ── REPORT ENGINE ─────────────────────────────────────────────────
 try:
@@ -179,12 +197,12 @@ except Exception as e:
 try:
     from AI.planetary_dashboard import planetary_status
     from AI.civilization_learning import record_learning, get_learning
-    from AI.civilization_engine import add_node, get_nodes
+    from AI.civilization_engine import add_node, get_nodes, node_summary
     print("✅ Civilization loaded")
 except Exception as e:
     print(f"⚠ CIVILIZATION: {e}")
     planetary_status = get_learning = get_nodes = None
-    record_learning  = add_node = None
+    record_learning  = add_node = node_summary = None
 
 # ── BELIEF CORE — v4.8 ────────────────────────────────────────────
 try:
@@ -233,7 +251,12 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=_SECRET_KEY
 )
-engine = DecisionEngine() if DecisionEngine else None
+# ใช้ singleton ตัวเดียวกับ run_decision() — เดิมสร้าง DecisionEngine ตัวที่สองแยกไว้เฉยๆ (โหลด LLM/router ซ้ำ)
+try:
+    from ENGINE.decision_engine import _engine as _decision_engine_singleton
+    engine = _decision_engine_singleton() if DecisionEngine else None
+except Exception:
+    engine = DecisionEngine() if DecisionEngine else None
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
@@ -255,6 +278,122 @@ def _friendly_error(err: str) -> str:
     if "timeout" in e or "timed out" in e:
         return "การเชื่อมต่อหมดเวลา — ลองใหม่ได้เลยค่ะ"
     return "ระบบไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งนะคะ"
+
+
+# ══════════════════════════════════════════════════════════════════
+# REQUEST HELPERS
+# ══════════════════════════════════════════════════════════════════
+_PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://king-diadem.onrender.com").rstrip("/")
+
+def _public_url(path: str) -> str:
+    return _PUBLIC_BASE_URL + path
+
+# จำนวน proxy ที่เชื่อถือได้หน้าแอป (Render = 1) — proxy จะ "ต่อท้าย" IP จริงใน X-Forwarded-For
+_TRUSTED_PROXY_HOPS = max(0, int(os.getenv("TRUSTED_PROXY_HOPS", "1")))
+# Render วิ่งผ่าน Cloudflare ซึ่งเขียนทับ cf-connecting-ip ทุกครั้ง (client ปลอมไม่ได้) → เชื่อเมื่อรันบน Render
+# (Render ตั้ง env RENDER ให้เอง) ที่อื่นปิดไว้ เว้นแต่ตั้ง TRUST_CF_HEADER=1
+_TRUST_CF_HEADER    = os.getenv("TRUST_CF_HEADER", "1" if os.getenv("RENDER") else "0") == "1"
+
+def _client_ip(request: Request) -> str:
+    """IP จริงของผู้ใช้หลัง proxy
+
+    เดิมเชื่อ cf-connecting-ip / true-client-ip / X-Forwarded-For "ตัวแรก" ซึ่ง client ใส่เองได้
+    → ผู้ใช้ไม่ล็อกอินปลอม IP ใหม่ทุกครั้ง = โควตาฟรีไม่จำกัด + หลบ rate limit + เดารหัสผ่านไม่จำกัด
+    ตอนนี้: นับจากขวาตามจำนวน proxy ที่เชื่อถือ (ค่าที่ proxy เติมเอง client ปลอมไม่ได้)
+    """
+    h = request.headers
+    if _TRUST_CF_HEADER and h.get("cf-connecting-ip"):
+        return h.get("cf-connecting-ip").strip()
+    if _TRUSTED_PROXY_HOPS:
+        parts = [p.strip() for p in h.get("x-forwarded-for", "").split(",") if p.strip()]
+        if len(parts) >= _TRUSTED_PROXY_HOPS:
+            return parts[-_TRUSTED_PROXY_HOPS]
+    return request.client.host if request.client else "unknown"
+
+def _is_premium(email: str) -> bool:
+    if not email or not get_premium_until:
+        return False
+    try:
+        return get_premium_until(email) > time.time()
+    except Exception:
+        return False
+
+
+# ══════════════════════════════════════════════════════════════════
+# BILLING — ทุกคำตอบจาก AI (/run, /simulate, /analyze-image) = 1 ข้อความ
+#   premium → ไม่จำกัด
+#   ฟรี FREE_DAILY_RUNS ข้อความ/วัน (นับฝั่ง server ต่ออีเมล หรือต่อ IP ถ้าไม่ล็อกอิน)
+#   เกินโควตา → หัก RUN_COST เครดิต (ต้องล็อกอิน) · เครดิตไม่พอ → 402
+#   ระบบตอบไม่ได้ (error / Gemini ล้ม / canon block / pause) → คืนให้
+# ══════════════════════════════════════════════════════════════════
+from datetime import datetime, timezone, timedelta
+try:
+    from core.llm_gemini import reset_fallback_flag, used_fallback
+except Exception:
+    reset_fallback_flag = lambda: None
+    used_fallback = lambda: False
+
+FREE_DAILY_RUNS = max(0, int(os.getenv("FREE_DAILY_RUNS", "20")))
+RUN_COST        = max(1, int(os.getenv("RUN_COST", "1")))
+THB_PER_CREDIT  = max(0.01, float(os.getenv("THB_PER_CREDIT", "1")))
+_BKK = timezone(timedelta(hours=7))
+
+def _today() -> str:
+    return datetime.now(_BKK).strftime("%Y-%m-%d")
+
+def _quota_identity(email: str, request: Request) -> str:
+    return email if email and email != "anonymous" else "ip:" + _client_ip(request)
+
+def _quota_status(email: str, request: Request) -> dict:
+    email = "" if email == "anonymous" else (email or "")
+    used  = free_runs_used(_quota_identity(email, request), _today()) if free_runs_used else 0
+    return {
+        "premium":   _is_premium(email),
+        "free_limit": FREE_DAILY_RUNS,
+        "free_left": max(0, FREE_DAILY_RUNS - used),
+        "credits":   (get_credits(email) if get_credits and email else None),
+        "run_cost":  RUN_COST,
+    }
+
+def _charge(email: str, request: Request, what: str):
+    """คืน (ticket, None) ถ้าใช้ได้ หรือ (None, JSONResponse 402) ถ้าโควตา/เครดิตหมด"""
+    email = "" if email == "anonymous" else (email or "")
+    if take_free_run is None:                       # DB ใช้ไม่ได้ → ไม่คิดเงิน
+        return {"mode": "unmetered"}, None
+    if _is_premium(email):
+        return {"mode": "premium"}, None
+    ident, day = _quota_identity(email, request), _today()
+    if take_free_run(ident, day, FREE_DAILY_RUNS):
+        return {"mode": "free", "identity": ident, "day": day}, None
+    if email and spend_credit and spend_credit(email, RUN_COST, what):
+        return {"mode": "credit", "email": email, "what": what}, None
+    msg = (f"ข้อความฟรีวันนี้ครบ {FREE_DAILY_RUNS} แล้ว — "
+           + ("เติมเครดิตหรือสมัคร Premium เพื่อใช้ต่อได้เลยค่ะ" if email
+              else "เข้าสู่ระบบแล้วเติมเครดิต หรือสมัคร Premium เพื่อใช้ต่อได้เลยค่ะ"))
+    body = {"error": msg, "code": "quota_exhausted", "quota": _quota_status(email, request)}
+    return None, JSONResponse(body, status_code=402)
+
+def _refund(ticket):
+    if not ticket:
+        return
+    try:
+        if ticket["mode"] == "free" and give_back_free_run:
+            give_back_free_run(ticket["identity"], ticket["day"])
+        elif ticket["mode"] == "credit" and add_credits:
+            add_credits(ticket["email"], RUN_COST, "refund", ticket.get("what"))
+    except Exception as e:
+        print(f"⚠ refund failed: {e}")
+
+def _answered(result) -> bool:
+    """ผู้ใช้ได้คำตอบจริงจาก AI หรือไม่ (ไม่ใช่ error/ข้อความสำรอง/ถูกระงับ)
+    คำตอบจากสมการ (answer_source=kernel) ไม่มีต้นทุน AI → ไม่หักโควตา/เครดิต"""
+    if not isinstance(result, dict) or result.get("error"):
+        return False
+    if result.get("answer_source") == "kernel":
+        return False
+    if result.get("status") in ("CANON_BLOCKED", "SYSTEM_PAUSE", "BLOCKED"):
+        return False
+    return not used_fallback()
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -315,22 +454,25 @@ def _sync_galaxy(result: dict):
         pass
 
 
+# endpoint สาธารณะ — เดิมคืน route/risk/waterline ของ "ผู้ใช้คนล่าสุด" ให้ทุกคนเห็น
+# (สภาวะวิกฤตของคนหนึ่งโผล่บนหน้าจอของอีกคน) ตอนนี้คืนเฉพาะวงโคจร — route ของแต่ละคนอยู่ฝั่งหน้าเว็บ
+_NEUTRAL_WATERLINE = {"entropy": 40.0, "stability": 60.0, "resource": 50.0}
+
 @app.get("/api/galaxy/nodes")
 def galaxy_nodes():
     with _glock:
-        return {
-            "ok":           True,
-            "active_route": _gstate["active_route"],
-            "lyla_mode":    _gstate["lyla_mode"],
-            "risk_score":   _gstate["risk_score"],
-            "waterline": {
-                "entropy":   _gstate["entropy"],
-                "stability": _gstate["stability"],
-                "resource":  _gstate["resource"],
-            },
-            "nodes": _planet_positions(),
-            "ts":    int(time.time() * 1000),
-        }
+        nodes = _planet_positions()
+    for n in nodes:
+        n["active"] = False
+    return {
+        "ok":           True,
+        "active_route": "general",
+        "lyla_mode":    "idle",
+        "risk_score":   0.0,
+        "waterline":    dict(_NEUTRAL_WATERLINE),
+        "nodes":        nodes,
+        "ts":           int(time.time() * 1000),
+    }
 
 
 @app.post("/api/galaxy/signal")
@@ -339,17 +481,15 @@ async def galaxy_signal(data: dict):
     mode  = str(data.get("lyla_mode", "idle")).lower()
     if route not in _PLANETS:
         return JSONResponse({"ok": False, "error": "unknown route"}, status_code=400)
-    with _glock:
-        _gstate["active_route"] = route
-        _gstate["lyla_mode"]    = mode
-        _gstate["last_updated"] = int(time.time() * 1000)
-    return {"ok": True, "active_route": route, "lyla_mode": mode}
+    # ไม่เขียนสถานะรวมอีกต่อไป — เดิมใครก็เปลี่ยน route ที่ผู้ใช้ทุกคนเห็นได้
+    return {"ok": True, "active_route": route, "lyla_mode": mode if mode in ("idle", "burst", "think") else "idle"}
 
 
 @app.get("/api/galaxy/state")
 def galaxy_state_debug():
+    # debug เดิมคืน _gstate ทั้งก้อน (ข้อมูลของผู้ใช้คนล่าสุด) — เหลือเฉพาะวงโคจร
     with _glock:
-        return {**_gstate, "nodes": _planet_positions()}
+        return {"nodes": _planet_positions(), "last_updated": _gstate["last_updated"]}
 
 
 # ── PAGES ─────────────────────────────────────────────────────────
@@ -395,6 +535,7 @@ def health():
         "cosmic_latte_canon": _CANON_OK,            # ← v4.9
         "galaxy_api":         True,
         "stripe_loaded":      bool(os.getenv("STRIPE_SECRET_KEY")),
+        "stripe_webhook":     bool(os.getenv("STRIPE_WEBHOOK_SECRET")),
         "freedom_score":      freedom_index() if freedom_index else 0,
         "db_initialized":     init_db is not None,
     }
@@ -412,7 +553,9 @@ async def dashboard():
     return {
         "observer":  "KING DIADEM",
         "planetary": status,
+        # ค่าใน supply_chain เป็นค่าคงที่ที่เขียนไว้ในโค้ด ไม่ได้มาจากแหล่งข้อมูลจริง
         "supply_chain": {
+            "source":                 "static_placeholder — not live data",
             "global_food_security":   "DECLINING",
             "energy_drift_daily":     0.1,
             "water_stress_index":     72.4,
@@ -420,9 +563,17 @@ async def dashboard():
             "lyla_signal":            "Systems losing 0.1% choice daily",
             "intervention_threshold": "Choice < 30%",
         },
-        "recent_learning": learning[-10:] if learning else [],
-        "active_nodes":    nodes[-10:]    if nodes    else [],
+        # /dashboard เปิดสาธารณะ — ไม่ส่งข้อความคำถาม/การตัดสินใจของผู้ใช้ออกไป เหลือแค่ผลลัพธ์
+        "recent_learning": [
+            {k: e.get(k) for k in ("id", "timestamp", "success", "outcome_label")}
+            for e in (learning[-10:] if learning else []) if isinstance(e, dict)
+        ],
+        "active_nodes":    [
+            {k: n.get(k) for k in ("id", "recorded_at", "node_type")}
+            for n in (nodes[-10:] if nodes else []) if isinstance(n, dict)
+        ],
         "freedom_index":   freedom_index() if freedom_index else 50,
+        "civilization":    (node_summary() if node_summary else {}),
     }
 
 
@@ -431,10 +582,59 @@ def _cookie_ascii(value: str) -> str:
     return quote(str(value or ""), safe="")
 
 _COOKIE_KW = dict(httponly=True, secure=True, samesite="lax")
+_SESSION_MAX_AGE = 86400 * 30
+
+# SECURITY: cookie ตัวตนต้องเซ็นด้วย SECRET_KEY — เดิมเก็บอีเมลเปล่าๆ
+# ใครตั้ง cookie kd_email เป็นอีเมลคนอื่นก็อ่านแชท/ความจำ/เครดิตของคนนั้นได้
+from itsdangerous import URLSafeTimedSerializer, BadSignature
+_session_signer = URLSafeTimedSerializer(_SECRET_KEY, salt="kd-auth-v1")
 
 def _set_auth_cookies(response, email: str, name: str):
-    response.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
-    response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30, **_COOKIE_KW)
+    response.set_cookie("kd_email", _session_signer.dumps(email), max_age=_SESSION_MAX_AGE, **_COOKIE_KW)
+    response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=_SESSION_MAX_AGE, **_COOKIE_KW)
+
+def _session_email(request: Request, default: str = "") -> str:
+    """อีเมลของผู้ใช้จาก cookie ที่เซ็นแล้วเท่านั้น — cookie ปลอม/หมดอายุ = ไม่ได้ล็อกอิน"""
+    raw = request.cookies.get("kd_email") or ""
+    if not raw:
+        return default
+    try:
+        email = _session_signer.loads(raw, max_age=_SESSION_MAX_AGE)
+    except BadSignature:
+        return default
+    return str(email).strip() or default
+
+# จำกัดการเดารหัสผ่าน: 8 ครั้ง / 10 นาที ต่อ (IP, อีเมล)
+_login_lock = threading.Lock()
+_login_fail: dict = {}
+_LOGIN_MAX, _LOGIN_WINDOW = 8, 600
+
+_LOGIN_MAX_PER_EMAIL = 30   # ต่ออีเมล ไม่ว่ามาจากกี่ IP (กันเดารหัสจากหลายเครื่อง)
+
+def _prune(store: dict, window: float, now: float):
+    """ทิ้ง key ที่ไม่มีเหตุการณ์ในหน้าต่างเวลา — เดิม dict โตไม่หยุด (หนึ่ง key ต่อ IP/อีเมลที่เคยเห็น)"""
+    if len(store) > 10000:
+        for k in [k for k, v in store.items() if not v or now - v[-1] >= window]:
+            store.pop(k, None)
+
+def _login_blocked(key: str) -> bool:
+    now = time.time()
+    email_key = "email|" + key.split("|", 1)[-1]
+    with _login_lock:
+        _prune(_login_fail, _LOGIN_WINDOW, now)
+        hits = [t for t in _login_fail.get(key, []) if now - t < _LOGIN_WINDOW]
+        _login_fail[key] = hits
+        ehits = [t for t in _login_fail.get(email_key, []) if now - t < _LOGIN_WINDOW]
+        _login_fail[email_key] = ehits
+        return len(hits) >= _LOGIN_MAX or len(ehits) >= _LOGIN_MAX_PER_EMAIL
+
+def _login_failed(key: str):
+    with _login_lock:
+        now = time.time()
+        _login_fail.setdefault(key, []).append(now)
+        _login_fail.setdefault("email|" + key.split("|", 1)[-1], []).append(now)
+
+_EMAIL_RE = __import__("re").compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 @app.get("/login/google")
@@ -454,12 +654,15 @@ async def google_callback(request: Request):
         return RedirectResponse("/static/login.html?error=oauth_disabled")
     try:
         token = await oauth.google.authorize_access_token(request)
-        user  = token.get("userinfo")
-        email = user.get("email", "unknown")
-        name  = user.get("name", email)
+        user  = token.get("userinfo") or {}
+        email = str(user.get("email") or "").strip().lower()
+        # ต้องเป็นอีเมลที่ Google ยืนยันแล้ว — เดิมไม่ตรวจ และถ้าไม่มีอีเมลใช้ "unknown" ร่วมกันทุกคน
+        if not email or not _EMAIL_RE.match(email) or user.get("email_verified") is False:
+            return RedirectResponse("/static/login.html?error=oauth_unverified")
+        name  = str(user.get("name") or email)[:80]
+        # ensure_user ให้ 10 เครดิตครั้งแรกครั้งเดียว — เดิมเติม 10 ทุกครั้งที่ login ตอนเครดิตเป็น 0
+        # (login ซ้ำ = เครดิตฟรีไม่จำกัด)
         if ensure_user: ensure_user(email)
-        if get_credits and add_credits and get_credits(email) == 0:
-            add_credits(email, 10)
         try:
             sess = getattr(request, "session", None)
             if sess:
@@ -471,8 +674,7 @@ async def google_callback(request: Request):
         except Exception:
             pass
         response = RedirectResponse("/")
-        response.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
-        response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=86400*30, **_COOKIE_KW)
+        _set_auth_cookies(response, email, name)
         return response
     except Exception as e:
         print(f"google_callback error: {repr(e)}")
@@ -481,12 +683,17 @@ async def google_callback(request: Request):
 
 @app.get("/me")
 async def me(request: Request):
-    email = unquote(request.cookies.get("kd_email") or "")
+    email = _session_email(request)
     name  = unquote(request.cookies.get("kd_name")  or "")
     if not email:
-        return {"logged_in": False}
+        q = _quota_status("", request)
+        return {"logged_in": False, "free_left": q["free_left"], "free_limit": q["free_limit"]}
     credits = get_credits(email) if get_credits else 0
-    return {"logged_in": True, "email": email, "name": name, "credits": credits}
+    until   = get_premium_until(email) if get_premium_until else 0
+    q       = _quota_status(email, request)
+    return {"logged_in": True, "email": email, "name": name, "credits": credits,
+            "premium": until > time.time(), "premium_until": int(until) if until else None,
+            "free_left": q["free_left"], "free_limit": q["free_limit"], "run_cost": RUN_COST}
 
 
 @app.post("/logout")
@@ -498,38 +705,54 @@ async def logout():
 
 
 # ── EMAIL LOGIN / REGISTER ────────────────────────────────────────
+# SECURITY: เดิม /login และ /register รับแค่อีเมล ไม่มีรหัสผ่าน
+# = ใครก็เข้าบัญชีใครก็ได้ ตอนนี้ต้องมีรหัสผ่าน (PBKDF2) และจำกัดการเดา
 @app.post("/register")
-async def register(data: dict):
-    email = (data.get("email") or "").strip()
-    if not email:
-        return {"status": "error", "message": "กรุณากรอก email นะคะ"}
+async def register(request: Request, data: dict):
+    email    = str(data.get("email") or "").strip().lower()
+    password = str(data.get("password") or "")
+    if not _EMAIL_RE.match(email) or len(email) > 254:
+        return JSONResponse({"status": "error", "message": "รูปแบบอีเมลไม่ถูกต้อง"}, status_code=400)
+    if len(password) < 6:
+        return JSONResponse({"status": "error", "message": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"}, status_code=400)
+    if not set_password:
+        return JSONResponse({"status": "error", "message": "ระบบบัญชีไม่พร้อมชั่วคราว"}, status_code=503)
+    # อีเมลที่มีอยู่แล้ว (เช่นเคยเข้าด้วย Google) ห้ามตั้งรหัสผ่านทับ — ไม่งั้นยึดบัญชีคนอื่นได้
+    if (user_exists and user_exists(email)) or not set_password(email, password):
+        return JSONResponse(
+            {"status": "error", "message": "อีเมลนี้มีบัญชีแล้ว — เข้าสู่ระบบด้วยรหัสผ่านเดิม หรือด้วย Google"},
+            status_code=409,
+        )
     if ensure_user: ensure_user(email)
-    if add_credits and get_credits and get_credits(email) == 0:
-        add_credits(email, 10)
     credits = get_credits(email) if get_credits else 0
     r = JSONResponse({"status": "ok", "email": email, "credits": credits})
-    r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
-    r.set_cookie("kd_name",  _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
+    _set_auth_cookies(r, email, email)
     return r
 
 
 @app.post("/login")
-async def login_email(data: dict):
-    email = (data.get("email") or "").strip()
-    if not email:
-        return {"status": "error"}
+async def login_email(request: Request, data: dict):
+    email    = str(data.get("email") or "").strip().lower()
+    password = str(data.get("password") or "")
+    ip       = _client_ip(request)
+    key      = f"{ip}|{email}"
+    if _login_blocked(key):
+        return JSONResponse({"status": "error", "message": "ลองผิดหลายครั้งเกินไป — รอ 10 นาทีแล้วลองใหม่"}, status_code=429)
+    if not email or not password or not verify_password or not verify_password(email, password):
+        _login_failed(key)
+        return JSONResponse({"status": "error", "message": "อีเมลหรือรหัสผ่านไม่ถูกต้อง"}, status_code=401)
     if ensure_user: ensure_user(email)
     credits = get_credits(email) if get_credits else 0
-    r = JSONResponse({"status": "ok", "email": email, "credit": credits})
-    r.set_cookie("kd_email", _cookie_ascii(email), max_age=86400*30, **_COOKIE_KW)
-    r.set_cookie("kd_name",  _cookie_ascii((data.get("name") or email).strip()), max_age=86400*30, **_COOKIE_KW)
+    r = JSONResponse({"status": "ok", "email": email, "credits": credits})
+    _set_auth_cookies(r, email, (str(data.get("name") or "").strip() or email)[:80])
     return r
 
 
 # ── CHAT STATE ────────────────────────────────────────────────────
+_CHAT_STATE_MAX_BYTES = 2 * 1024 * 1024   # กันคนยัด JSON ขนาดใหญ่เข้า SQLite
 @app.get("/api/chat-state")
 async def get_chat_state(request: Request):
-    email = unquote(request.cookies.get("kd_email") or "").strip()
+    email = _session_email(request)
     if not email or not load_chat_state:
         return {"state": None}
     raw = load_chat_state(email)
@@ -541,13 +764,18 @@ async def get_chat_state(request: Request):
 
 @app.put("/api/chat-state")
 async def put_chat_state(request: Request, data: dict):
-    email = unquote(request.cookies.get("kd_email") or "").strip()
+    email = _session_email(request)
     if not email or not save_chat_state:
         return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
-    state = data.get("state") if isinstance(data.get("state"), dict) else data
+    # ต้องห่อใน {"state": {...}} เท่านั้น — เดิม fallback เป็นทั้ง body ทำให้สคริปต์รุ่นเก่า (static/app.js
+    # ส่ง {session_id, history}) เขียนทับประวัติแชทจริงของบัญชีด้วยรูปแบบที่หน้าเว็บอ่านไม่ได้
+    state = data.get("state")
     if not isinstance(state, dict):
         return JSONResponse({"ok": False, "error": "invalid"}, status_code=400)
-    save_chat_state(email, json.dumps(state, ensure_ascii=False))
+    blob = json.dumps(state, ensure_ascii=False)
+    if len(blob.encode("utf-8")) > _CHAT_STATE_MAX_BYTES:
+        return JSONResponse({"ok": False, "error": "chat state too large"}, status_code=413)
+    save_chat_state(email, blob)
     return {"ok": True}
 
 
@@ -606,10 +834,14 @@ def _enrich_with_universal(result: dict, payload: dict) -> dict:
         for key in ("council", "consensus", "state", "decision"):
             if key in uni and key not in result:
                 result[key] = uni[key]
+        if isinstance(result.get("state"), dict):
+            # ไม่ส่งข้อความ/prompt กลับซ้ำ (เดิม state.input = prompt ภายในทั้งก้อน)
+            result["state"] = {k: v for k, v in result["state"].items() if k not in ("input", "raw_input")}
         if "risk" in uni and isinstance(uni["risk"], dict):
             result.setdefault("universal_risk", uni["risk"])
     except Exception as e:
-        result.setdefault("universal_engine_error", str(e))
+        print(f"⚠ universal_engine error: {e}")          # เดิมส่งข้อความ error ภายในกลับหน้าเว็บ
+        result.setdefault("universal_engine_error", True)
     return result
 
 
@@ -621,11 +853,13 @@ def _enrich_with_universal(result: dict, payload: dict) -> dict:
 _rate_lock   = threading.Lock()
 _rate_bucket: dict = {}
 _RATE_LIMIT_N       = 20     # จำนวนครั้ง
+_MAX_INPUT_CHARS    = max(200, int(os.getenv("MAX_INPUT_CHARS", "4000")))
 _RATE_LIMIT_WINDOW  = 60     # ต่อกี่วินาที
 
 def _rate_check(identity: str) -> bool:
     now = time.time()
     with _rate_lock:
+        _prune(_rate_bucket, _RATE_LIMIT_WINDOW, now)
         hits = _rate_bucket.get(identity, [])
         hits = [t for t in hits if now - t < _RATE_LIMIT_WINDOW]
         if len(hits) >= _RATE_LIMIT_N:
@@ -641,19 +875,50 @@ def _rate_check(identity: str) -> bool:
 # ══════════════════════════════════════════════════════════════════
 @app.post("/run")
 @app.post("/decision")
-async def run_kernel(request: Request, data: dict):
+def run_kernel(request: Request, data: dict):
+    # sync handler → FastAPI รันใน threadpool: การรอ Gemini (และ time.sleep ตอน retry)
+    # จะไม่บล็อก event loop ของ worker เดียวที่ทุกคนใช้ร่วมกัน
     user_input = data.get("input") or data.get("text") or ""
-    if not user_input:
+    if not isinstance(user_input, str):
+        user_input = str(user_input)
+    if not user_input.strip():
         return {"error": "Input is required"}
+    # เดิมไม่จำกัดความยาว — ข้อความ 1MB ถูกส่งเข้า LLM (ค่าใช้จ่าย) และเก็บลง log ทั้งก้อน
+    if len(user_input) > _MAX_INPUT_CHARS:
+        return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร — ลองสรุปให้สั้นลงนะคะ"},
+                            status_code=413)
 
-    email = unquote(request.cookies.get("kd_email") or "anonymous")
-    _identity = email if email != "anonymous" else (request.client.host if request.client else "unknown")
+    email = _session_email(request, "anonymous")
+    _identity = email if email != "anonymous" else _client_ip(request)
     if not _rate_check(_identity):
         return JSONResponse(
             {"error": f"ใช้งานถี่เกินไป — จำกัด {_RATE_LIMIT_N} ครั้ง / {_RATE_LIMIT_WINDOW} วินาที กรุณารอสักครู่"},
             status_code=429
         )
 
+    ticket, denied = _charge(email, request, "run")
+    if denied:
+        return denied
+    # ตัวตนของ session มาจาก server เท่านั้น — เดิมไม่ส่งเลย ทุกคนใช้ "default" ร่วมกัน
+    # (state อารมณ์/วิกฤตของคนหนึ่งจะไปติดในคำตอบของอีกคน) และห้ามเชื่อค่าที่ client ส่งมา
+    data = {**data, "session_id": _quota_identity(email, request),
+            "user_email": email if email != "anonymous" else "",
+            # context มาจาก client — ไม่ใช่ dict (list/str) ทำให้ engine ข้างล่างล้มทีละตัวแบบเงียบ
+            "context": data.get("context") if isinstance(data.get("context"), dict) else {}}
+    reset_fallback_flag()
+    try:
+        result = _run_kernel_impl(data, user_input, email)
+    except Exception:
+        _refund(ticket)
+        raise
+    if not _answered(result):
+        _refund(ticket)
+    if isinstance(result, dict):
+        result["quota"] = {**_quota_status(email, request), "charged": ticket["mode"]}
+    return result
+
+
+def _run_kernel_impl(data: dict, user_input: str, email: str):
     route   = data.get("route") or "general"
     vm      = _resolve_voice_mode(data, route)
     history = data.get("history") or []
@@ -683,13 +948,30 @@ async def run_kernel(request: Request, data: dict):
                     route = _escalate_route(route, "collapse")
         except Exception: pass
 
+    # ── risk จากข้อความ ──────────────────────────────────────────
+    # เดิม assess_risk ได้แค่ human_state จาก context → คนที่พิมพ์ว่า "ไม่มีข้าวกิน" ไปทาง general
+    # ทำร้ายตัวเอง → collapse (มีสายด่วน) / ขาดปัจจัยพื้นฐานหรือหนักหลายเรื่อง → survival
+    if text_risk:
+        try:
+            tr = text_risk(user_input)
+            if route not in ("vega",):
+                if tr.get("self_harm"):
+                    route = _escalate_route(route, "collapse")
+                elif tr.get("basic_needs") or tr.get("level") == "high":
+                    route = _escalate_route(route, "survival")
+        except Exception: pass
+
     # ── collapse ─────────────────────────────────────────────────
     collapse_ctx = ""
     if predict_collapse:
         try:
             c = predict_collapse(human_state.get("risk_score", human_state.get("entropy", 40)))
+            # predict_collapse() คืนข้อความ ("high/moderate/low collapse probability")
+            # เดิมเช็คแค่ dict จึงไม่เคยเติมบริบทนี้ให้ LLM เลย
             if isinstance(c, dict) and c.get("probability", 0) > 0.6:
                 collapse_ctx = f"[Collapse probability: {c['probability']:.0%}]"
+            elif isinstance(c, str) and not c.startswith("low"):
+                collapse_ctx = f"[Collapse: {c}]"
         except Exception: pass
 
     # ══════════════════════════════════════════════════════════════
@@ -777,6 +1059,7 @@ async def run_kernel(request: Request, data: dict):
     # (ถ้า engine ไม่รู้จัก field พวกนี้ ก็ยังมี text ใน "input" เป็น fallback เดิม)
     payload = {
         **data,
+        "raw_input":      user_input,
         "input":          effective,
         "history":        history,
         "wise_context":   wise_ctx_str,
@@ -807,16 +1090,18 @@ async def run_kernel(request: Request, data: dict):
                     user_email=email,
                 )
             except Exception as e:
+                # ไม่มี AI ก็ต้องมีคำตอบ — ปล่อย reply ว่าง ให้ kernel_voice ตอบด้านล่าง
                 print(f"⚠ LLM error: {e}")
-                return {"error": _friendly_error(str(e))}
-
-        if not reply:
-            reply = "ระบบ AI ไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งนะคะ\n\n— LYLA ◈"
+                reply = ""
 
         result = {
             "observer":      "KING DIADEM",
             "status":        "SUCCESS",
-            "route":         intent.get("intent", route) if isinstance(intent, dict) else route,
+            # intent ("question"/"joy"/...) ไม่ใช่ route — ใช้แทนได้เฉพาะเมื่อ route ยังเป็น general
+            # และเป็นชื่อ route จริง ไม่งั้น survival/collapse ที่ยกระดับไว้จะหาย
+            "route":         (intent.get("intent") if route == "general" and isinstance(intent, dict)
+                              and intent.get("intent") in ("vega", "civil", "risk", "survival", "collapse")
+                              else route),
             "ai_response":   reply,
             "governance":    {"intent": intent, "human_state": human_state},
             "persona":       "VEGA" if vm == "vega" else "LYLA",
@@ -825,12 +1110,40 @@ async def run_kernel(request: Request, data: dict):
             "bodhipakkhiya": core_result.get("bodhi_verdict", ""),  # ← v4.9
         }
 
+    # ── KERNEL VOICE: มี AI ก็ดี ไม่มีก็ต้องมีคำตอบ ──────────────────
+    # AI ล้ม/โควตาหมด/ไม่มี key/ไม่มีไลบรารี/คำตอบว่าง → ตอบจากสมการของระบบ (deterministic)
+    if not isinstance(result, dict):
+        result = {}
+    ai_text = result.get("ai_response")
+    if kernel_compose and (used_fallback() or result.get("error")
+                           or not (isinstance(ai_text, str) and ai_text.strip())):
+        k_route = result.get("route") if _ROUTE_SEVERITY.get(result.get("route"), -1) > _ROUTE_SEVERITY.get(route, 0) else route
+        result.pop("error", None)
+        result.update({
+            "observer":      result.get("observer") or "KING DIADEM",
+            "status":        "SUCCESS",
+            "route":         k_route,
+            # สถานะร่างกายใช้เฉพาะเมื่อผู้ใช้ส่งมาจริง — context ว่างให้ค่า W 100/Risk 0 ที่ไม่จริง
+            "ai_response":   kernel_compose(user_input, route=k_route, voice_mode=vm,
+                                            pattern=human_state if data.get("context") else None),
+            "answer_source": "kernel",
+        })
+        result.setdefault("pattern", human_state)
+        result.setdefault("risk_score", human_state.get("risk_score", 0))
+        result.setdefault("bodhipakkhiya", core_result.get("bodhi_verdict", ""))
+    else:
+        result.setdefault("answer_source", "llm")
+
     # ── error clean ───────────────────────────────────────────────
     if result.get("error"):
         result["error"] = _friendly_error(str(result["error"]))
         return result
 
     result["route"]      = result.get("route") or route
+    # route ที่ app ยกระดับไว้ (ขาดอาหาร/วิกฤต จากข้อความ, survivor, belief audit) ต้องไม่หาย
+    # เพราะ engine ตัดสินจาก pattern อีกชุด — ยกขึ้นได้อย่างเดียว ไม่ลด vega/stable ที่ engine เลือก
+    if _ROUTE_SEVERITY.get(route, 0) > _ROUTE_SEVERITY.get(result["route"], 0):
+        result["route"] = route
     result["persona"]    = "VEGA" if vm == "vega" else "LYLA"
     result["voice_mode"] = vm
 
@@ -847,6 +1160,16 @@ async def run_kernel(request: Request, data: dict):
         except Exception: pass
 
     _sync_galaxy(result)
+
+    # ── CIVILIZATION GRAPH: ทุกการตัดสินใจเป็น 1 node (ไม่มีข้อความ/อีเมล) ──
+    if add_node:
+        try:
+            k = kernel_assess(user_input, human_state if data.get("context") else None) if kernel_assess else {}
+            add_node({"type": "decision", "route": result.get("route"),
+                      "source": result.get("answer_source"),
+                      "W": k.get("W"), "risk": k.get("risk"), "topics": (k.get("topics") or [])[:3]})
+        except Exception as e:
+            print(f"⚠ civilization node: {type(e).__name__}")
 
     # ── BELIEF ENFORCE — v4.8 (v4.9.1: safe-default guard) ────────
     # ถ้า belief_audit fail ก่อนหน้านี้ belief_report จะเป็น None
@@ -874,7 +1197,9 @@ async def run_kernel(request: Request, data: dict):
     # แต่ severe categories (choice_collapse / coercion / forced_identity)
     # ต้อง block จริง ไม่ใช่แค่ print — ไม่งั้น gate นี้ไม่มีผลอะไรเลย
     # ══════════════════════════════════════════════════════════════
-    _CANON_HARD_BLOCK = {"choice_collapse", "coercion", "forced_identity"}
+    # coercion_detected ไม่อยู่ใน hard block (เดิมเขียน "coercion" ซึ่งไม่ตรงกับชื่อจริงเลยไม่เคยทำงาน)
+    # เพราะ "คุณต้อง..." ในภาษาไทยมักเป็นคำแนะนำด้วยความห่วงใย — flag อย่างเดียวพอ
+    _CANON_HARD_BLOCK = {"choice_collapse", "forced_identity"}
     try:
         result = canon_validate(result)
         violations = result.get("canon_violations", []) or []
@@ -897,6 +1222,17 @@ async def run_kernel(request: Request, data: dict):
     except Exception as _cv:
         print(f"⚠ canon_validate error: {_cv}")
 
+    # ── Freedom signal: R = (D × T) / C ──────────────────────────
+    # เดิมไม่มีใครเรียก record_choice/record_crisis → C = 0 ตลอด freedom_index() คืน 0 เสมอ
+    try:
+        if record_crisis and result.get("route") in ("collapse", "crisis"):
+            record_crisis()
+        if record_choice and result.get("ai_response"):
+            offered = (result.get("canon_check") or {}).get("choices_offered", 0) or 0
+            record_choice(max(1, int(offered)))
+    except Exception:
+        pass
+
     if log_decision:
         try:
             log_decision(
@@ -917,7 +1253,7 @@ async def run_kernel(request: Request, data: dict):
             )
             result["report_url"] = f"/report/{report_id}"
             result["report_id"]  = report_id
-            result["share_url"]  = f"https://king-diadem.onrender.com/report/{report_id}"
+            result["share_url"]  = _public_url(f"/report/{report_id}")
         except Exception as _re:
             print(f"⚠ report creation failed: {_re}")
 
@@ -926,13 +1262,30 @@ async def run_kernel(request: Request, data: dict):
 
 # ── SIMULATE ──────────────────────────────────────────────────────
 @app.post("/simulate")
-async def run_simulate(request: Request, data: dict):
+def run_simulate(request: Request, data: dict):
     user_input = str(data.get("input") or "").strip()
     paths      = data.get("paths") or []
-    email      = unquote(request.cookies.get("kd_email") or "anonymous")
+    # ทางเลือกสูงสุด 7 ทาง ทางละ ≤ 300 ตัวอักษร — เดิมไม่จำกัดทั้งจำนวนและความยาว (ส่งเข้า LLM ทั้งหมด)
+    paths      = [str(p)[:300] for p in (paths if isinstance(paths, list) else [])][:7]
+    email      = _session_email(request, "anonymous")
     if not user_input:
         return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
+    if len(user_input) > _MAX_INPUT_CHARS:
+        return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร"}, status_code=413)
+    if not _rate_check(email if email != "anonymous" else _client_ip(request)):
+        return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
+    ticket, denied = _charge(email, request, "simulate")
+    if denied:
+        return denied
+    reset_fallback_flag()
+    result = _simulate_impl(user_input, paths, email)
+    if not (isinstance(result, dict) and result.get("source") == "llm" and not used_fallback()):
+        _refund(ticket)
+    result["quota"] = {**_quota_status(email, request), "charged": ticket["mode"]}
+    return result
 
+
+def _simulate_impl(user_input: str, paths: list, email: str) -> dict:
     try:
         _llm = get_llm()
         paths_text = "\n".join("- " + str(p) for p in paths if str(p).strip()) or "ไม่ระบุ"
@@ -951,10 +1304,17 @@ async def run_simulate(request: Request, data: dict):
             additional_context="mode=simulation",
             user_email=email,
         )
-        if answer and len(str(answer)) > 10:
-            return {"simulation": answer}
+        if answer and len(str(answer)) > 10 and not used_fallback():
+            return {"simulation": answer, "source": "llm"}
     except Exception as e:
         print(f"simulate LLM: {e}")
+
+    # ไม่มี AI → จำลองจากสมการ (Downside ก่อน · ทางที่ย้อนกลับได้ชนะ)
+    if kernel_simulate:
+        try:
+            return {"simulation": kernel_simulate(user_input, paths), "source": "kernel"}
+        except Exception as e:
+            print(f"kernel simulate: {e}")
 
     if not simulate:
         return {"simulation": "ระบบจำลองไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งนะคะ"}
@@ -969,7 +1329,7 @@ async def run_simulate(request: Request, data: dict):
 # ── STRIPE ────────────────────────────────────────────────────────
 @app.post("/create-checkout-session")
 async def create_checkout(request: Request, data: dict):
-    email = unquote(request.cookies.get("kd_email") or "") or data.get("email", "")
+    email = _session_email(request) or data.get("email", "")
     plan  = data.get("plan", "basic")
     if plan == "civilization":
         price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
@@ -983,17 +1343,20 @@ async def create_checkout(request: Request, data: dict):
             line_items=[{"price": price_id, "quantity": 1}],
             mode="subscription",
             customer_email=email or None,
-            success_url="https://king-diadem.onrender.com/?payment=success",
-            cancel_url="https://king-diadem.onrender.com/?payment=cancel",
+            success_url=_public_url("/?payment=success"),
+            cancel_url=_public_url("/?payment=cancel"),
+            client_reference_id=email or None,
         )
         return {"url": session.url}
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        # ข้อความ error ของ Stripe อาจมีบางส่วนของ key/request id — log ฝั่ง server เท่านั้น
+        print(f"⚠ stripe checkout error: {type(e).__name__}: {e}")
+        return JSONResponse({"error": "ชำระเงินไม่สำเร็จชั่วคราว — ลองใหม่อีกครั้ง"}, status_code=502)
 
 
 @app.post("/create-subscription")
 async def create_subscription(request: Request):
-    email    = unquote(request.cookies.get("kd_email") or "")
+    email    = _session_email(request)
     price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
     if not price_id:
         return JSONResponse({"error": "ยังไม่ได้ตั้งค่า STRIPE_PRICE_ID"}, status_code=500)
@@ -1003,25 +1366,52 @@ async def create_subscription(request: Request):
             line_items=[{"price": price_id, "quantity": 1}],
             mode="subscription",
             customer_email=email or None,
-            success_url="https://king-diadem.onrender.com/?payment=success",
-            cancel_url="https://king-diadem.onrender.com/?payment=cancel",
+            success_url=_public_url("/?payment=success"),
+            cancel_url=_public_url("/?payment=cancel"),
+            client_reference_id=email or None,
         )
         return {"url": session.url}
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        # ข้อความ error ของ Stripe อาจมีบางส่วนของ key/request id — log ฝั่ง server เท่านั้น
+        print(f"⚠ stripe checkout error: {type(e).__name__}: {e}")
+        return JSONResponse({"error": "ชำระเงินไม่สำเร็จชั่วคราว — ลองใหม่อีกครั้ง"}, status_code=502)
 
 
-@app.post("/webhook/stripe")
-async def stripe_webhook(request: Request):
-    payload = await request.body()
-    sig     = request.headers.get("stripe-signature", "")
-    secret  = os.getenv("STRIPE_WEBHOOK_SECRET", "")
-    try:    event = stripe.Webhook.construct_event(payload, sig, secret)
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=400)
-    if event["type"] == "checkout.session.completed":
-        sess  = event["data"]["object"]
-        email = sess.get("customer_email")
+# ── STRIPE WEBHOOK ────────────────────────────────────────────────
+# - ทุก event ถูก claim ด้วย event.id ก่อน → Stripe ส่งซ้ำ (retry) จะไม่เติมเครดิตซ้ำ
+# - subscription: checkout สำเร็จ / invoice.paid ต่ออายุ premium · subscription ถูกยกเลิก → หมด premium
+#   (ใน Stripe Dashboard ต้องเปิด event: checkout.session.completed, invoice.paid,
+#    customer.subscription.deleted ให้ endpoint นี้)
+_PREMIUM_GRACE = 2 * 86400
+
+def _handle_stripe_event(event) -> None:
+    etype = event["type"]
+    obj   = event["data"]["object"]
+    now   = time.time()
+
+    if etype == "checkout.session.completed":
+        if obj.get("payment_status") not in ("paid", "no_payment_required"):
+            return
+        # client_reference_id / customer_email มาจาก session ของเราตรงๆ (ตรงกับบัญชีที่ใช้อยู่)
+        # อีเมลที่พิมพ์ในหน้า Stripe (customer_details) ตัวพิมพ์อาจต่างจากบัญชี → ใช้เป็นทางสุดท้ายแบบ lower
+        email = (obj.get("client_reference_id")
+                 or obj.get("customer_email")
+                 or str((obj.get("customer_details") or {}).get("email") or "").strip().lower())
+        if not email:
+            print(f"⚠ stripe checkout without email: {obj.get('id')}")
+            return
+        meta = obj.get("metadata") or {}
+        if meta.get("kind") == "wallet_topup":
+            # จำนวนเครดิตคิดจากยอดที่ Stripe เก็บเงินจริง (amount_total) ไม่ใช่ค่าที่ client ส่ง
+            if str(obj.get("currency", "")).lower() != "thb":
+                print(f"⚠ wallet topup in unexpected currency: {obj.get('currency')}")
+                return
+            baht    = int(obj.get("amount_total") or 0) / 100
+            credits = int(baht / THB_PER_CREDIT + 1e-9)
+            target  = meta.get("email") or email
+            if credits > 0 and add_credits:
+                add_credits(target, credits, "topup", obj.get("id"))
+            return
         # ── SECURITY: credit ต้องผูกกับ price_id ที่ Stripe ยืนยันจริง
         # ห้ามคำนวณจาก quantity ที่ client ส่งมา เพราะแก้ค่านั้นได้ก่อนถึง checkout
         _CREDITS_PER_PRICE = {
@@ -1029,26 +1419,124 @@ async def stripe_webhook(request: Request):
             os.getenv("STRIPE_PREMIUM_PRICE_ID"): 100,
         }
         total_credits = 0
-        try:
-            items = stripe.checkout.Session.list_line_items(sess["id"])
-            for i in items.get("data", []):
-                price_id = (i.get("price") or {}).get("id")
-                per_unit = _CREDITS_PER_PRICE.get(price_id, 0)
-                qty      = i.get("quantity", 1)
-                if per_unit:
-                    total_credits += per_unit * qty
-                else:
-                    print(f"⚠ unknown price_id in webhook: {price_id} — 0 credits granted")
-        except Exception as _we:
-            print(f"⚠ stripe line_items error: {_we}")
-        if email and add_credits and total_credits > 0:
-            add_credits(email, total_credits)
+        items = stripe.checkout.Session.list_line_items(obj["id"])
+        for i in items.get("data", []):
+            price_id = (i.get("price") or {}).get("id")
+            per_unit = _CREDITS_PER_PRICE.get(price_id, 0)
+            if per_unit:
+                total_credits += per_unit * int(i.get("quantity", 1) or 1)
+            else:
+                print(f"⚠ unknown price_id in webhook: {price_id} — 0 credits granted")
+        if ensure_user: ensure_user(email)
+        if add_credits and total_credits > 0:
+            add_credits(email, total_credits, "stripe_plan", obj.get("id"))
+        if obj.get("mode") == "subscription" and set_premium_until:
+            set_premium_until(email, now + 32 * 86400 + _PREMIUM_GRACE,
+                              obj.get("customer"), obj.get("subscription"))
+
+    elif etype == "invoice.paid":
+        customer = obj.get("customer")
+        # ใช้การจับคู่ customer → บัญชีที่บันทึกไว้ตอนสมัครก่อน (ตรงตัว) แล้วค่อย customer_email
+        email = ((email_for_stripe_customer(customer) if email_for_stripe_customer else None)
+                 or str(obj.get("customer_email") or "").strip().lower() or None)
+        if not email or not set_premium_until:
+            return
+        ends = [((l.get("period") or {}).get("end") or 0) for l in ((obj.get("lines") or {}).get("data") or [])]
+        period_end = max(ends + [obj.get("period_end") or 0])
+        if period_end:
+            set_premium_until(email, max(period_end, now) + _PREMIUM_GRACE, customer, obj.get("subscription"))
+
+    elif etype == "customer.subscription.deleted":
+        customer = obj.get("customer")
+        email = email_for_stripe_customer(customer) if email_for_stripe_customer else None
+        if email and set_premium_until:
+            set_premium_until(email, now, customer, obj.get("id"))
+
+
+@app.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    sig     = request.headers.get("stripe-signature", "")
+    secret  = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+    if not secret:
+        return JSONResponse({"error": "webhook not configured"}, status_code=500)
+    try:
+        event = stripe.Webhook.construct_event(payload, sig, secret)
+    except Exception:
+        return JSONResponse({"error": "invalid signature"}, status_code=400)
+
+    event_id = event.get("id", "")
+    if claim_stripe_event and not claim_stripe_event(event_id, event.get("type", "")):
+        return {"status": "duplicate"}
+    try:
+        # stripe SDK เป็น blocking I/O → ย้ายออกจาก event loop
+        await run_in_threadpool(_handle_stripe_event, event)
+    except Exception as e:
+        print(f"❌ stripe webhook {event.get('type')} {event_id}: {e}")
+        if release_stripe_event:
+            release_stripe_event(event_id)   # ให้ Stripe retry ได้
+        return JSONResponse({"error": "processing failed"}, status_code=500)
     return {"status": "ok"}
+
+
+# ── WALLET ────────────────────────────────────────────────────────
+# ตัวตนมาจาก cookie ที่เซ็นแล้วเท่านั้น — ไม่รับอีเมลจาก body (เดิม wallet.html ส่งอีเมลใครก็ได้มา)
+_TOPUP_MIN_THB, _TOPUP_MAX_THB = 20, 10000   # Stripe เก็บ THB ขั้นต่ำ ~฿10; ตั้ง ฿20 เผื่อค่าธรรมเนียม
+
+@app.get("/wallet/balance")
+@app.post("/wallet/balance")
+async def wallet_balance(request: Request):
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "กรุณาเข้าสู่ระบบก่อน", "code": "login_required"}, status_code=401)
+    q = _quota_status(email, request)
+    hist = credit_history(email, 20) if credit_history else []
+    return {
+        "email": email, "credits": q["credits"] or 0, "total_credit": q["credits"] or 0,
+        "thb_per_credit": THB_PER_CREDIT, "run_cost": RUN_COST,
+        "premium": q["premium"], "free_left": q["free_left"], "free_limit": q["free_limit"],
+        "topup_min": _TOPUP_MIN_THB, "topup_max": _TOPUP_MAX_THB,
+        "history": hist,
+    }
+
+
+@app.post("/wallet/topup")
+async def wallet_topup(request: Request, data: dict):
+    """สร้าง Stripe Checkout สำหรับเติมเครดิต — เครดิตเข้าบัญชีเมื่อ webhook ยืนยันการจ่ายเงินเท่านั้น"""
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "กรุณาเข้าสู่ระบบก่อนเติมเครดิต", "code": "login_required"}, status_code=401)
+    if not os.getenv("STRIPE_SECRET_KEY"):
+        return JSONResponse({"error": "ระบบชำระเงินยังไม่ได้ตั้งค่า"}, status_code=503)
+    try:
+        baht = int(float(data.get("amount") or 0))
+    except (TypeError, ValueError):
+        baht = 0
+    if baht < _TOPUP_MIN_THB or baht > _TOPUP_MAX_THB:
+        return JSONResponse({"error": f"เติมได้ครั้งละ ฿{_TOPUP_MIN_THB}–฿{_TOPUP_MAX_THB:,}"}, status_code=400)
+    credits = int(baht / THB_PER_CREDIT + 1e-9)
+    try:
+        session = await run_in_threadpool(lambda: stripe.checkout.Session.create(
+            mode="payment",
+            line_items=[{"quantity": 1, "price_data": {
+                "currency": "thb", "unit_amount": baht * 100,
+                "product_data": {"name": f"KING DIADEM — {credits:,} เครดิต"},
+            }}],
+            customer_email=email,
+            client_reference_id=email,
+            metadata={"kind": "wallet_topup", "email": email, "credits": str(credits)},
+            success_url=_public_url("/static/wallet.html?topup=success"),
+            cancel_url=_public_url("/static/wallet.html?topup=cancel"),
+        ))
+        return {"url": session.url, "credits": credits, "amount": baht}
+    except Exception as e:
+        print(f"⚠ wallet topup error: {e}")
+        return JSONResponse({"error": "สร้างหน้าชำระเงินไม่สำเร็จ — ลองใหม่อีกครั้ง"}, status_code=502)
 
 
 @app.get("/credits")
 async def get_user_credits(request: Request):
-    email = unquote(request.cookies.get("kd_email") or "")
+    email = _session_email(request)
     if not email:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     credits = get_credits(email) if get_credits else 0
@@ -1063,52 +1551,79 @@ _ALLOWED_IMAGE_MIME = ("image/jpeg", "image/png", "image/webp")
 async def analyze_image(request: Request, file: UploadFile = File(...)):
     if not llm:
         return JSONResponse({"error": "LLM ไม่พร้อม"}, status_code=503)
+    email = _session_email(request)
+    if not _rate_check(email or _client_ip(request)):
+        return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
     if file.content_type not in _ALLOWED_IMAGE_MIME:
         return JSONResponse(
             {"error": f"รองรับเฉพาะไฟล์ภาพ jpeg/png/webp เท่านั้น (ได้รับ {file.content_type})"},
             status_code=400
         )
     try:
-        data = await file.read()
+        data = await file.read(_MAX_IMAGE_BYTES + 1)
         if len(data) > _MAX_IMAGE_BYTES:
             return JSONResponse(
                 {"error": f"ไฟล์ใหญ่เกินไป — จำกัดไม่เกิน {_MAX_IMAGE_BYTES // (1024*1024)}MB"},
                 status_code=413
             )
         mime = file.content_type or "image/jpeg"
-        from google.genai import types as gt
-        contents = [gt.Content(role="user", parts=[
-            gt.Part.from_bytes(data=data, mime_type=mime),
-            gt.Part.from_text(text=(
-                "วิเคราะห์ภาพนี้ในมุม KING DIADEM Governance:\n"
-                "1. มีความเสี่ยงอะไรที่เห็นได้\n"
-                "2. ทางเลือกที่มีอยู่คืออะไร\n"
-                "3. สัญญาณ waterline / drift ที่เห็น\n"
-                "ตอบเป็นภาษาไทย กระชับ ตรงประเด็นนะคะ\n— LYLA ◈"
-            ))
-        ])]
-        _llm = get_llm()
-        cfg  = gt.GenerateContentConfig(
-            system_instruction="คุณคือ LYLA governance scanner วิเคราะห์ภาพแล้วรายงาน risk/choice/waterline",
-            temperature=0.5, max_output_tokens=800,
-        )
-        vision_model = getattr(_llm, 'vision_model', None) or 'gemini-2.0-flash'
-        try:
-            resp = _llm.client.models.generate_content(model=vision_model, contents=contents, config=cfg)
-        except Exception:
-            resp = _llm.client.models.generate_content(model='gemini-1.5-flash', contents=contents, config=cfg)
-        try:
-            analysis_text = resp.text or ""
-        except Exception:
-            parts = getattr(getattr(resp, 'candidates', [None])[0], 'content', None)
-            analysis_text = " ".join(p.text for p in (getattr(parts, 'parts', []) or []) if hasattr(p,'text'))
-        analysis_text = analysis_text.strip()
-        if not analysis_text:
-            analysis_text = "LYLA วิเคราะห์ภาพไม่ได้ค่ะ — อาจถูก Gemini safety block หรือภาพไม่ชัด"
-        return {"analysis": analysis_text, "filename": file.filename}
+    except Exception as e:
+        print(f"⚠ analyze_image read error: {e}")
+        return JSONResponse({"error": _friendly_error(str(e))}, status_code=500)
+    ticket, denied = _charge(email, request, "analyze_image")
+    if denied:
+        return denied
+    try:
+        analysis_text = await run_in_threadpool(_analyze_image_sync, data, mime)
     except Exception as e:
         print(f"⚠ analyze_image error: {e}")
+        _refund(ticket)
         return JSONResponse({"error": _friendly_error(str(e))}, status_code=500)
+    if analysis_text == _IMAGE_EMPTY:
+        _refund(ticket)
+    return {"analysis": analysis_text, "filename": file.filename,
+            "quota": {**_quota_status(email, request), "charged": ticket["mode"]}}
+
+
+_IMAGE_EMPTY = "LYLA วิเคราะห์ภาพไม่ได้ค่ะ — อาจถูก Gemini safety block หรือภาพไม่ชัด"
+
+def _analyze_image_sync(data: bytes, mime: str) -> str:
+    """เรียก Gemini vision แบบ blocking — รันใน threadpool ไม่บล็อก event loop"""
+    from google.genai import types as gt
+    contents = [gt.Content(role="user", parts=[
+        gt.Part.from_bytes(data=data, mime_type=mime),
+        gt.Part.from_text(text=(
+            "วิเคราะห์ภาพนี้ในมุม KING DIADEM Governance:\n"
+            "1. มีความเสี่ยงอะไรที่เห็นได้\n"
+            "2. ทางเลือกที่มีอยู่คืออะไร\n"
+            "3. สัญญาณ waterline / drift ที่เห็น\n"
+            "ตอบเป็นภาษาไทย กระชับ ตรงประเด็นนะคะ\n— LYLA ◈"
+        ))
+    ])]
+    _llm = get_llm()
+    cfg  = gt.GenerateContentConfig(
+        system_instruction="คุณคือ LYLA governance scanner วิเคราะห์ภาพแล้วรายงาน risk/choice/waterline",
+        temperature=0.5, max_output_tokens=800,
+    )
+    # ลำดับเดียวกับ LLM หลัก (GEMINI_MODEL + GEMINI_FALLBACK_MODELS) — เดิมตายตัว 2 รุ่น 2.0
+    chain  = [getattr(_llm, "vision_model", None) or getattr(_llm, "model", None) or "gemini-2.0-flash"]
+    chain += list(getattr(_llm, "MODEL_FALLBACK_CHAIN", []) or ["gemini-2.0-flash-lite"])
+    models = list(dict.fromkeys(m for m in chain if m))
+    last = None
+    for m in models:
+        try:
+            resp = _llm.client.models.generate_content(model=m, contents=contents, config=cfg)
+            break
+        except Exception as e:
+            last = e
+    else:
+        raise last
+    try:
+        text = resp.text or ""
+    except Exception:
+        parts = getattr(getattr(resp, "candidates", [None])[0], "content", None)
+        text = " ".join(p.text for p in (getattr(parts, "parts", []) or []) if hasattr(p, "text"))
+    return text.strip() or _IMAGE_EMPTY
 
 
 # ── REPORT ROUTES ─────────────────────────────────────────────────
@@ -1134,17 +1649,21 @@ async def get_report_api(report_id: str):
 async def create_report_manual(request: Request, data: dict):
     if not _create_report:
         return JSONResponse({"error": "report engine not loaded"}, status_code=503)
-    email      = unquote(request.cookies.get("kd_email") or "anonymous")
+    email      = _session_email(request, "anonymous")
+    if not _rate_check(email if email != "anonymous" else _client_ip(request)):
+        return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
     user_input = data.get("input", "")
     result     = data.get("result", {})
-    if not user_input or not result:
+    if not user_input or not isinstance(result, dict) or not result:
         return JSONResponse({"error": "input and result required"}, status_code=400)
     try:
-        report_id = _create_report(user_email=email, user_input=user_input, result=result)
+        # เนื้อหามาจาก client → ติดป้าย user_submitted (ไม่ให้ดูเหมือนระบบตัดสิน)
+        report_id = _create_report(user_email=email, user_input=user_input, result=result, source="user")
         return {
             "report_id":  report_id,
             "report_url": f"/report/{report_id}",
-            "share_url":  f"https://king-diadem.onrender.com/report/{report_id}",
+            "share_url":  _public_url(f"/report/{report_id}"),
         }
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        print(f"⚠ manual report failed: {type(e).__name__}")
+        return JSONResponse({"error": "report_failed"}, status_code=500)

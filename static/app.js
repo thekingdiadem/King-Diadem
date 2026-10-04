@@ -34,6 +34,10 @@ function _scheduleMemorySync(sid) {
   _memorySyncTimer = setTimeout(() => _syncMemory(sid), 1500);
 }
 async function _syncMemory(sid) {
+  // ปิด: /api/chat-state เก็บ state ของหน้าแชทหลัก (static/index.html: {state:{items,...}})
+  // รูปแบบ {session_id, history} ของไฟล์นี้จะเขียนทับประวัติแชทจริงของบัญชี
+  return;
+  // eslint-disable-next-line no-unreachable
   try {
     await fetch('/api/chat-state', {
       method: 'POST',

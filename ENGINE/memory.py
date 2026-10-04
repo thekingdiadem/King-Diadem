@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from datetime   import datetime, timezone
 from threading  import Lock
@@ -21,7 +22,8 @@ class SessionState:
     waterline: float      = 50.0   # track waterline ล่าสุดของ session
 
 
-_STORE: Dict[str, SessionState] = {}
+_MAX_SESSIONS = 5000   # กันหน่วยความจำโตไม่หยุด (เดิมเก็บทุก session ตลอดอายุ process)
+_STORE: "OrderedDict[str, SessionState]" = OrderedDict()
 _LOCK  = Lock()
 
 
@@ -30,9 +32,14 @@ _LOCK  = Lock()
 def get_state(session_id: str) -> SessionState:
     session_id = _clean(session_id)
     with _LOCK:
-        if session_id not in _STORE:
-            _STORE[session_id] = SessionState()
-        return _STORE[session_id]
+        st = _STORE.get(session_id)
+        if st is None:
+            st = _STORE[session_id] = SessionState()
+            while len(_STORE) > _MAX_SESSIONS:
+                _STORE.popitem(last=False)
+        else:
+            _STORE.move_to_end(session_id)
+        return st
 
 
 def append_turn(
@@ -51,11 +58,11 @@ def append_turn(
         item["waterline"]   = waterline
         state.waterline     = waterline
 
-    state.history.append(item)
-
-    # sliding window — เก็บแค่ MAX_HISTORY รายการล่าสุด
-    if len(state.history) > MAX_HISTORY:
-        state.history = state.history[-MAX_HISTORY:]
+    with _LOCK:
+        state.history.append(item)
+        # sliding window — เก็บแค่ MAX_HISTORY รายการล่าสุด
+        if len(state.history) > MAX_HISTORY:
+            state.history = state.history[-MAX_HISTORY:]
 
     # ── async DB save (ไม่ block ถ้า DB ไม่พร้อม) ─────────────────
     _try_db_save(session_id, role, text, waterline)
@@ -108,19 +115,19 @@ def _try_db_save(
     text:       str,
     waterline:  float | None,
 ) -> None:
-    """Save แบบ best-effort — ไม่ crash ถ้า DB ไม่พร้อม"""
-    if role != "assistant":  # save เฉพาะ reply ของ LYLA
+    """Save แบบ best-effort — ไม่ crash ถ้า DB ไม่พร้อม
+    เดิมเขียนลง chat_state (ตารางเดียวกับที่หน้าเว็บ sync แชททั้งหมดของผู้ใช้) → เขียนทับแชทจริงหาย
+    ตอนนี้เก็บเป็นความจำแยกใน chat_memory และเฉพาะ session ที่เป็นอีเมลเท่านั้น"""
+    if role != "assistant" or "@" not in session_id:
         return
     try:
-        from DATABASE.db import save_chat_state
-        if save_chat_state:
-            import json
-            state = get_state(session_id)
-            save_chat_state(session_id, json.dumps({
-                "history":   state.history[-10:],  # เก็บแค่ 10 ล่าสุด
-                "waterline": state.waterline,
-                "savedAt":   datetime.now(timezone.utc).isoformat(),
-            }, ensure_ascii=False))
+        from DATABASE.db import save_memory
+        import json
+        state = get_state(session_id)
+        save_memory(session_id, "engine_last_turns", json.dumps({
+            "history":   state.history[-6:],
+            "waterline": state.waterline,
+        }, ensure_ascii=False)[:4000], "general", importance=1)
     except Exception:
         pass
 

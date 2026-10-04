@@ -3,6 +3,8 @@
 // Supports: LYLA · VEGA · TITAN · PATICCA · COSMOS (dynamic from backend)
 
 (function () {
+  // ข้อมูลจาก backend ห้ามเข้า innerHTML ดิบ (คำตอบ LLM / ข้อความ error มี < > ได้)
+  const _e = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   // Member identity map — visual signature per persona
   const MEMBER_META = {
     LYLA: {
@@ -77,13 +79,13 @@
 
   function buildVoteRow(vote, index) {
     const meta = getMeta(vote.member);
-    const name = (vote.member || "UNKNOWN").toUpperCase();
-    const role = vote.role || meta.role_fallback;
-    const action = vote.action || "—";
+    const name = _e(String(vote.member || "UNKNOWN").toUpperCase());
+    const role = _e(vote.role || meta.role_fallback);
+    const action = _e(vote.action || "—");
     const bar = scoreBar(vote.score);
     const barPct = bar != null ? Math.round(bar * 100) : null;
-    const reasoning = vote.reason || vote.reasoning || null;
-    const weight = vote.weight != null ? `×${vote.weight}` : null;
+    const reasoning = vote.reason || vote.reasoning ? _e(vote.reason || vote.reasoning) : null;
+    const weight = vote.weight != null ? `×${_e(vote.weight)}` : null;
 
     return `
 <div class="kd-council-vote" style="
@@ -156,7 +158,8 @@
     const scoreBar_val = scoreBar(councilScore);
     const scorePct = scoreBar_val != null ? Math.round(scoreBar_val * 100) : null;
 
-    const voteRows = votes.map((v, i) => buildVoteRow(v, i)).join("");
+    councilAction = councilAction ? _e(councilAction) : councilAction;
+    const voteRows = votes.map((v, i) => buildVoteRow(v || {}, i)).join("");
 
     return `
 <div class="kd-council-panel" style="

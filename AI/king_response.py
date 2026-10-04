@@ -39,9 +39,13 @@ def _vega_response(
         risk_text  = _RISK_TEXT.get(opt.get("tier", ""), "")
         downside   = opt.get("downside", "ไม่ระบุ")
         reversible = "ย้อนได้" if opt.get("tier") not in ("high",) else "ย้อนยาก"
+        try:
+            risk_pct = f"{float(opt.get('risk', 0)):.0%}"
+        except (TypeError, ValueError):
+            risk_pct = "?"
         options_lines.append(
-            f"{i}. {opt['strategy'].upper()}\n"
-            f"   ความเสี่ยง: {opt['risk']:.0%} ({risk_text}) | {reversible}\n"
+            f"{i}. {str(opt.get('strategy', '')).upper()}\n"
+            f"   ความเสี่ยง: {risk_pct} ({risk_text}) | {reversible}\n"
             f"   Downside: {downside}"
         )
 
@@ -83,7 +87,7 @@ def _lyla_response(
     options_lines = []
     for i, opt in enumerate(options, 1):
         downside = opt.get("downside", "")
-        line = f"{i}. {opt['strategy']}"
+        line = f"{i}. {opt.get('strategy', '')}"
         if downside:
             line += f" — ระวัง: {downside}"
         options_lines.append(line)
@@ -124,6 +128,12 @@ def king_response(
 
     FATE™: Choice(t) ≥ 1 เสมอ | ไม่ force single path
     """
+    question = str(question or "")
+    council_summary = str(council_summary or "")
+    try:
+        entropy = float(entropy)
+    except (TypeError, ValueError):
+        entropy = 40.0
     if not question.strip():
         if persona == "VEGA":
             return "FATE_VIOLATION: ไม่มี input — ระบบไม่สามารถสร้าง response ได้ครับ"

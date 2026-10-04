@@ -124,6 +124,7 @@ def check_principle_alignment(action: dict) -> dict:
     ตรวจว่า action สอดคล้องกับ core principles ไหม
     ใช้ใน belief_core enforce layer
     """
+    action = action if isinstance(action, dict) else {}
     violations = []
 
     # CP1 — drift unchecked

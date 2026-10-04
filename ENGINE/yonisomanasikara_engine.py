@@ -14,7 +14,22 @@ KING DIADEM — Yonisomanasikara Engine
 
 from __future__ import annotations
 from typing import Optional
+import re
 import time
+
+
+def _f(v, d):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return d
+
+
+def _hit(k: str, text: str) -> bool:
+    # คำอังกฤษต้องเป็นคำเต็ม ("miss" ไม่ใช่ใน "mission")
+    if k.isascii():
+        return re.search(r"(?<![a-z])" + re.escape(k) + r"(?![a-z])", text) is not None
+    return k in text
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -109,10 +124,10 @@ BIAS_PATTERNS = {
 
 
 def detect_bias(text: str) -> list:
-    t = text.lower()
+    t = str(text or "").lower()
     found = []
     for bias_name, meta in BIAS_PATTERNS.items():
-        hits = [s for s in meta["signals"] if s in t]
+        hits = [s for s in meta["signals"] if _hit(s, t)]
         if hits:
             found.append({
                 "bias":        bias_name,
@@ -127,25 +142,33 @@ def detect_bias(text: str) -> list:
 # MODE SELECTOR — เลือก yoniso mode ที่เหมาะสมที่สุด
 # ══════════════════════════════════════════════════════════════════
 
+# คำเดี่ยวสั้นๆ อย่าง "จาก" "เสีย" "หาย" "ตาย" "ทำไม" "ทุกอย่าง" อยู่ในประโยคทั่วไปแทบทุกประโยค
+# ("มาจาก", "เสียงดัง", "หายใจ", "ทำไมราคาขึ้น") → เดิมเลือก mode ผิดเกือบตลอด จึงใช้วลีเต็ม
+_LOSS     = ("สูญเสีย", "เสียใจ", "เสียเขาไป", "เสียเธอไป", "หายไปแล้ว", "จากไปแล้ว", "จากไป", "เลิกกัน",
+             "เสียชีวิต", "ตายจาก", "ปล่อยวาง", "ปล่อยไม่ได้", "คิดถึง", "ลืมไม่ได้", "loss", "gone", "miss")
+_OVERLOAD = ("ทุกอย่างแย่", "ทุกอย่างพัง", "ไม่รู้จะเริ่ม", "ไม่รู้จะทำยังไง", "ไม่รู้ว่าจะทำ", "หนักมาก",
+             "จัดการไม่ไหว", "overwhelm")
+_REPEAT   = ("ซ้ำอีก", "ซ้ำๆ", "เกิดซ้ำ", "อีกแล้ว", "ทำไมถึง", "ทำไมต้องเป็น", "again", "why does")
+
+
 def _select_mode(text: str, pattern: dict) -> str:
-    t         = text.lower()
-    entropy   = float(pattern.get("entropy",   40))
-    stability = float(pattern.get("stability", 60))
+    t         = str(text or "").lower()
+    stability = _f(pattern.get("stability"), 60)
 
     # ถ้า stability ต่ำมาก → อริยสัจก่อน เพื่อหา action จริง
     if stability < 30:
         return "ariyasacca"
 
     # ถ้าพูดถึงการสูญเสีย หรือยึดติด
-    if any(k in t for k in ("เสีย", "หาย", "จาก", "ตาย", "ปล่อย", "คิดถึง", "ลืม", "loss", "gone", "miss")):
+    if any(_hit(k, t) for k in _LOSS):
         return "impermanence"
 
     # ถ้าพูดว่าทุกอย่างแย่ หรือจัดการไม่ได้
-    if any(k in t for k in ("ทุกอย่าง", "ไม่รู้จะ", "ไม่รู้ว่า", "หนักมาก", "overwhelm")):
+    if any(_hit(k, t) for k in _OVERLOAD):
         return "analytical"
 
     # ถ้าเกิดซ้ำๆ หรือไม่รู้ต้นตอ
-    if any(k in t for k in ("ซ้ำ", "อีกแล้ว", "ทำไมถึง", "again", "why does", "ทำไม")):
+    if any(_hit(k, t) for k in _REPEAT):
         return "causal"
 
     # default: อริยสัจ — ใช้ได้กับทุกสถานการณ์
@@ -178,7 +201,8 @@ def wise_attention(
           summary,
         }
     """
-    pattern   = pattern or {}
+    pattern   = pattern if isinstance(pattern, dict) else {}
+    context   = str(context or "")
     t0        = time.time()
 
     # เลือก mode
@@ -202,7 +226,7 @@ def wise_attention(
             "uap_note":     uap["audit_note"],
         }
         should_pause = uap["should_pause"] or len(biases) >= 2
-    except ImportError:
+    except Exception:
         should_pause = len(biases) >= 2
 
     # สร้าง questions ที่ context-aware
@@ -234,8 +258,8 @@ def wise_attention(
 
 def _contextualize_questions(questions: list, context: str, pattern: dict) -> list:
     """ปรับ questions ให้ specific กับ context จริง"""
-    entropy  = float(pattern.get("entropy",  40))
-    resource = float(pattern.get("resource", 50))
+    entropy  = _f(pattern.get("entropy"),  40)
+    resource = _f(pattern.get("resource"), 50)
     result   = []
 
     for q in questions:
@@ -256,10 +280,13 @@ def _contextualize_questions(questions: list, context: str, pattern: dict) -> li
 def analyze(pattern: dict) -> dict:
     """DecisionEngine เรียกผ่าน adapter นี้"""
     try:
-        context = str(pattern.get("input", ""))
+        if not isinstance(pattern, dict):
+            pattern = {}
+        # raw_input = ข้อความผู้ใช้จริง; "input" อาจเป็น prompt ที่ระบบเติม context แล้ว
+        context = str(pattern.get("raw_input") or pattern.get("input") or "")
         return wise_attention(context, pattern)
-    except Exception as e:
-        return {"error": f"yonisomanasikara fail: {str(e)}"}
+    except Exception:
+        return {"error": "YONISO_UNAVAILABLE"}
 
 
 # ── All modes info — สำหรับ UI ───────────────────────────────────

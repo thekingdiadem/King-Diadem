@@ -180,6 +180,7 @@ def audit_decision(context: dict) -> dict:
       - identity_shift   : bool — กำลังจะกลายเป็น "คนที่ทำแบบนี้"
       - clinging         : bool — ยึดมั่นกับผลลัพธ์ที่ต้องการ
     """
+    context = context if isinstance(context, dict) else {}
     flags   = []
     causal  = []
 

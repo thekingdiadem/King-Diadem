@@ -27,6 +27,15 @@ from typing import Optional
 
 _VERSION = "3.0.0"
 
+
+def _f(v, d: float) -> float:
+    """context มาจาก client (/run data.context) — ค่าไม่ใช่ตัวเลขเดิมทำ audit ล้มทั้งก้อน"""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
 _SURVIVAL_FLOOR_KEYS = ("food", "water", "shelter", "safety")
 
 _ENTROPY_DANGER  = 75.0
@@ -112,8 +121,8 @@ def _check_scl7(context: dict) -> list:
         violations.append("SCL-A1")
 
     # A2 — structure removes choice
-    choices = context.get("choices_available", 1)
-    if isinstance(choices, (int, float)) and choices == 0:
+    choices = _f(context.get("choices_available", 1), 1)
+    if choices < 1:
         violations.append("SCL-A2")
 
     # A3 — correctness before gentleness during emotional signal
@@ -178,7 +187,7 @@ def _check_governance(context: dict) -> list:
     """ตรวจ GOV principles จาก context"""
     violations = []
 
-    if context.get("choices_available", 1) == 0:
+    if _f(context.get("choices_available", 1), 1) < 1:
         violations.append("GOV-P4")
 
     if context.get("structure_dominates"):
@@ -204,14 +213,14 @@ def audit(context: Optional[dict] = None) -> dict:
 
     v3.0: เพิ่ม SCL-7 + UDOK + Governance checks
     """
-    ctx = context or {}
+    ctx = context if isinstance(context, dict) else {}
     violations: list = []
     crisis_level = "ok"
 
     # ── B-2: Survival floor ──────────────────────────────────────
     survival_ok  = True
     floor_broken = [k for k in _SURVIVAL_FLOOR_KEYS if ctx.get(k) is False]
-    resource     = float(ctx.get("resource", 50.0))
+    resource     = _f(ctx.get("resource", 50.0), 50.0)
 
     if floor_broken or resource <= _RESOURCE_FLOOR:
         survival_ok = False
@@ -219,8 +228,8 @@ def audit(context: Optional[dict] = None) -> dict:
         crisis_level = "warn"
 
     # ── B-1: Choice alive (via entropy proxy) ────────────────────
-    entropy   = float(ctx.get("entropy",   40.0))
-    stability = float(ctx.get("stability", 60.0))
+    entropy   = max(0.0, min(100.0, _f(ctx.get("entropy",   40.0), 40.0)))
+    stability = max(0.0, min(100.0, _f(ctx.get("stability", 60.0), 60.0)))
     choice_score = max(0.0, 100.0 - entropy) * (stability / 100.0)
     choice_alive = choice_score > _CHOICE_FLOOR
 
@@ -325,9 +334,12 @@ def enforce(result: dict, audit_report: Optional[dict] = None) -> dict:
 
     v3.0: เพิ่ม SCL-7 tone enforcement + UDOK pause message
     """
+    if not isinstance(result, dict):
+        result = {}
     if audit_report is None:
-        human_state = result.get("governance", {}).get("human_state", {})
-        pattern     = result.get("pattern", {})
+        gov         = result.get("governance") if isinstance(result.get("governance"), dict) else {}
+        human_state = gov.get("human_state") if isinstance(gov.get("human_state"), dict) else {}
+        pattern     = result.get("pattern") if isinstance(result.get("pattern"), dict) else {}
         ctx = {**human_state, **pattern}
         audit_report = audit(ctx)
 

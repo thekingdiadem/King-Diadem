@@ -43,12 +43,19 @@ def search(
 ) -> dict:
     """ค้นหาจริงผ่าน Google Custom Search API"""
     key, cse_id = _creds()
+    # lang/safe/num ต่อเข้า URL — เดิมไม่ตรวจ (แทรกพารามิเตอร์อื่นได้)
+    lang = lang if str(lang).isalpha() and len(str(lang)) <= 5 else "th"
+    safe = safe if safe in ("active", "off") else "active"
+    try:
+        num = max(1, min(int(num), 10))
+    except (TypeError, ValueError):
+        num = 5
     url = (
         f"{SEARCH_API}"
         f"?key={key}"
-        f"&cx={cse_id}"
-        f"&q={urllib.parse.quote(query)}"
-        f"&num={min(num, 10)}"
+        f"&cx={urllib.parse.quote(cse_id)}"
+        f"&q={urllib.parse.quote(str(query)[:300])}"
+        f"&num={num}"
         f"&hl={lang}"
         f"&safe={safe}"
     )
@@ -77,12 +84,16 @@ def search(
 def search_news(query: str, num: int = 5) -> dict:
     """ค้นหาข่าวล่าสุด — เพิ่ม dateRestrict เพื่อกรองเฉพาะข่าวใหม่"""
     key, cse_id = _creds()
+    try:
+        num = max(1, min(int(num), 10))
+    except (TypeError, ValueError):
+        num = 5
     url = (
         f"{SEARCH_API}"
         f"?key={key}"
-        f"&cx={cse_id}"
-        f"&q={urllib.parse.quote(query)}"
-        f"&num={min(num, 10)}"
+        f"&cx={urllib.parse.quote(cse_id)}"
+        f"&q={urllib.parse.quote(str(query)[:300])}"
+        f"&num={num}"
         f"&dateRestrict=d7"        # 7 วันล่าสุด
         f"&sort=date"
     )

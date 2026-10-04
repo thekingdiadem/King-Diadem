@@ -66,7 +66,8 @@ def analyze_location(lat: float, lng: float, context: Optional[dict] = None) -> 
     Tier 1 analysis: geography + baseline risk profile
     context: {season, local_conflict, infrastructure_score}
     """
-    ctx   = context or {}
+    ctx   = context if isinstance(context, dict) else {}
+    lat, lng = float(lat), float(lng)
     zone  = _classify_zone(lat, lng)
     prof  = _ZONE_PROFILE[zone].copy()
 
@@ -121,8 +122,11 @@ def assess_civilization_risk(
     คำนวณ civilization risk ตาม threat portfolio
     FATE™ A4: ประเมิน downside ก่อนเสมอ — ไม่ optimism bias
     """
-    threats = active_threats or list(CIVILIZATIONAL_THREATS.keys())
-    horizon = max(1, min(horizon_years, 100))
+    threats = active_threats if isinstance(active_threats, (list, tuple)) and active_threats else list(CIVILIZATIONAL_THREATS.keys())
+    try:
+        horizon = max(1, min(int(horizon_years), 100))
+    except (TypeError, ValueError):
+        horizon = 10
 
     results = []
     total_collapse_risk = 0.0
@@ -179,16 +183,16 @@ def assess_cosmic_event(
     EARTH_RADIUS_KM = 6371.0
     EARTH_CROSS_KM  = 12742.0
 
-    # Kinetic energy (Joules) — KE = 0.5 * m * v²
-    # density assume rocky: 2500 kg/m³
+    # Kinetic energy — KE = ½·m·v², ความหนาแน่นหิน 2500 kg/m³, 1 Mt TNT = 4.184e15 J
+    diameter_m, velocity_km_s = max(0.0, float(diameter_m)), max(0.0, float(velocity_km_s))
+    miss_distance_km, warning_days = max(0.0, float(miss_distance_km)), int(float(warning_days or 0))
     volume_m3   = (4/3) * math.pi * (diameter_m/2)**3
     mass_kg     = volume_m3 * 2500
-    velocity_ms = velocity_km_s * 1000
-    kinetic_j   = 0.5 * mass_kg * velocity_ms**2
-    kinetic_mt  = kinetic_j / 4.184e15   # Megatons TNT
+    kinetic_mt  = 0.5 * mass_kg * (velocity_km_s * 1000)**2 / 4.184e15
 
-    # Impact probability (simplified — based on miss distance)
-    if miss_distance_km <= EARTH_CROSS_KM:
+    # Impact probability (simplified — based on miss distance from Earth's centre)
+    # เดิมเทียบกับ "เส้นผ่านศูนย์กลาง" 12,742 km → วัตถุที่ผ่านห่าง 7,000–12,742 km ถูกนับว่าชนแน่
+    if miss_distance_km <= EARTH_RADIUS_KM:
         impact_probability = 1.0
     elif miss_distance_km < 100_000:
         impact_probability = max(0, 1 - (miss_distance_km / 100_000))
@@ -198,10 +202,10 @@ def assess_cosmic_event(
     # Torino-inspired classification
     if kinetic_mt < 1:
         scale = "LOCAL"
-        effect = "เฉพาะพื้นที่ — เทียบ Tunguska 1908"
+        effect = "เฉพาะพื้นที่ — เล็กกว่า Tunguska 1908 (~3–15 Mt)"
     elif kinetic_mt < 1000:
         scale = "REGIONAL"
-        effect = "ทำลายระดับประเทศ — tsunami ถ้าลงทะเล"
+        effect = "ทำลายระดับเมือง–ประเทศ (Tunguska อยู่ช่วงนี้) — tsunami ถ้าลงทะเล"
     elif kinetic_mt < 100_000:
         scale = "CONTINENTAL"
         effect = "ผลกระทบทวีป — winter effect"

@@ -30,6 +30,8 @@ services:
         sync: false
       - key: STRIPE_PRICE_ID
         sync: false
+      - key: STRIPE_PREMIUM_PRICE_ID     # app.py ใช้แยกราคา premium (ถ้าไม่ตั้ง = ใช้ STRIPE_PRICE_ID)
+        sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET

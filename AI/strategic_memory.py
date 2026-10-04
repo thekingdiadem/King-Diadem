@@ -13,11 +13,12 @@ from typing import Optional
 memory_graph: dict[str, dict] = {}
 
 _MAX_DECISIONS_PER_KEY = 50   # ป้องกัน unbounded growth
+_MAX_KEYS = 2000              # จำนวนคำถามก็ต้องจำกัด — เดิมโตไม่หยุด (memory leak)
 
 
 def _normalize(question: str) -> str:
     """Normalize key — lowercase + strip — deterministic"""
-    return question.lower().strip()
+    return str(question or "").lower().strip()[:300]
 
 
 def record_pattern(
@@ -38,12 +39,16 @@ def record_pattern(
     Returns:
         entry ที่เพิ่ง record
     """
+    question = str(question or "")
+    decision = str(decision or "")
     if not question.strip():
         return {"error": "FATE_VIOLATION: question empty"}
 
     key = _normalize(question)
 
     if key not in memory_graph:
+        while len(memory_graph) >= _MAX_KEYS:          # ทิ้งคำถามที่เก่าที่สุด
+            memory_graph.pop(next(iter(memory_graph)))
         memory_graph[key] = {
             "question_raw": question.strip(),
             "count":        0,
@@ -64,7 +69,7 @@ def record_pattern(
 
     entry = {
         "decision":    decision.strip() or "ไม่ระบุ",
-        "planet":      planet or {},
+        "planet":      planet if isinstance(planet, dict) else {},
         "outcome":     outcome,
         "recorded_at": int(time.time()),
     }

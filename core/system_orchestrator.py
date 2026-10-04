@@ -9,16 +9,18 @@ from typing import Dict, Any, Optional
 class SystemOrchestrator:
 
     def route(self, user_input: str, voice_mode: str = "lyla") -> str:
-        t = (user_input or "").lower()
-        if any(w in t for w in ["อยากตาย","ไม่อยากอยู่","ฆ่าตัว","จบชีวิต","suicid"]) or voice_mode == "crisis":
+        t = str(user_input or "").lower()
+        if any(w in t for w in ["อยากตาย","ไม่อยากอยู่แล้ว","ฆ่าตัว","จบชีวิต","suicid"]) or voice_mode == "crisis":
             return "crisis"
         if any(w in t for w in ["ระยะยาว","อนาคต","กลยุทธ์","strategic","ภาพรวม"]) or voice_mode == "vega":
             return "vega"
+        # อารมณ์เศร้า/เหนื่อย/กลัว → LYLA รับรู้ก่อน (เดิมส่งไป VEGA ซึ่งห้าม emoji และเน้นวิเคราะห์)
         if any(w in t for w in ["เครียด","ท้อ","เสียใจ","หมดหวัง","เหนื่อย","กลัว","ร้องไห้","โดดเดี่ยว"]):
-            return "vega"
-        if any(w in t for w in ["ไม่มีกิน","ไม่มีเงิน","หิว","หมดเงิน","ตกงาน","จน","หนี้"]):
+            return "general"
+        # เดิมมี "จน" (ติด "จนกว่า" "จนถึง") และ "หิว" (ติด "หิวข้าว") → ประโยคทั่วไปเป็น survival
+        if any(w in t for w in ["ไม่มีกิน","ไม่มีเงิน","อดข้าว","หมดเงิน","ตกงาน","ยากจน","หนี้"]):
             return "survival"
-        if any(w in t for w in ["เสี่ยง","อันตราย","ล้มละลาย","พัง","collapse","ขาดทุน"]):
+        if any(w in t for w in ["เสี่ยง","อันตราย","ล้มละลาย","พังหมด","collapse","ขาดทุน"]):
             return "risk"
         if any(w in t for w in ["แฟน","เลิก","ทะเลาะ","ครอบครัว","ความสัมพันธ์"]):
             return "relationship"
@@ -70,8 +72,9 @@ class SystemOrchestrator:
             return ""
 
     def execute(self, route: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        user_input = data.get("input", "")
-        context    = data.get("context", {})
+        data       = data if isinstance(data, dict) else {}
+        user_input = str(data.get("input", "") or "")
+        context    = data.get("context") if isinstance(data.get("context"), dict) else {}
         voice_mode = data.get("voice_mode", "lyla")
         persona    = self._resolve_persona(route, voice_mode)
 
@@ -113,8 +116,8 @@ class SystemOrchestrator:
             result["flags"]      = survival.flags
             if survival.context_for_lyla:
                 ctx_parts.append(survival.context_for_lyla)
-        except Exception as e:
-            ctx_parts.append(f"[SURVIVOR_SKIP: {e}]")
+        except Exception:
+            pass
 
         # 5. Route engines
         if route == "survival":
@@ -122,27 +125,28 @@ class SystemOrchestrator:
                 from ENGINE.survival_advisor import advise
                 r = advise(data)
                 if r: ctx_parts.append(f"[SURVIVAL] {r}")
-            except Exception as e:
-                ctx_parts.append(f"[SURVIVAL_SKIP: {e}]")
+            except Exception:
+                pass
 
         elif route == "risk":
             try:
                 # FIX: assess(dict) ไม่ใช่ assess_risk(energy, food, safe)
                 from ENGINE.risk_engine import assess
-                r = assess(context.get("state", result["pattern"]))
+                st = context.get("state")
+                r = assess({**(st if isinstance(st, dict) else result["pattern"]), "raw_input": user_input})
                 if isinstance(r, dict) and r.get("level"):
                     ctx_parts.append(f"[RISK: {r['level']} score={r.get('risk_score',0):.0f}]")
                     result["risk_score"] = float(r.get("risk_score", 10))
-            except Exception as e:
-                ctx_parts.append(f"[RISK_SKIP: {e}]")
+            except Exception:
+                pass
             try:
                 # FIX: analyze(pattern) ไม่ใช่ CollapsePredictor().predict()
                 from ENGINE.collapse_predictor import analyze as collapse_analyze
                 col = collapse_analyze(result["pattern"])
                 if isinstance(col, dict) and col.get("collapse_level"):
                     ctx_parts.append(f"[COLLAPSE: {col['collapse_level']} prob={col.get('probability',0):.0%}]")
-            except Exception as e:
-                ctx_parts.append(f"[COLLAPSE_SKIP: {e}]")
+            except Exception:
+                pass
 
         elif route in ("vega", "crisis"):
             try:
@@ -163,8 +167,8 @@ class SystemOrchestrator:
                 if isinstance(strat, dict) and strat.get("options"):
                     opts = strat["options"][:3]
                     ctx_parts.append(f"[STRATEGY] {' | '.join(str(o) for o in opts)}")
-            except Exception as e:
-                ctx_parts.append(f"[STRATEGY_SKIP: {e}]")
+            except Exception:
+                pass
 
         else:
             try:
@@ -184,11 +188,14 @@ class SystemOrchestrator:
             pass
 
         # 7. Escape routes
+        # เดิม import assess ที่ไม่มีใน escape_routes → ล้มเงียบทุกครั้ง ไม่เคยเติมเส้นทางออกเลย
         if result["risk_score"] > 55 or not result["can_decide"]:
             try:
-                from ENGINE.escape_routes import assess as escape_assess
-                esc = escape_assess(user_input)
-                if esc: ctx_parts.append(f"[ESCAPE_ROUTES] {esc}")
+                from ENGINE.escape_routes import generate_escape_routes
+                esc = generate_escape_routes(risk=result["risk_score"] / 10.0, context=context)
+                labels = [r.get("label") for r in (esc or [])[:3] if isinstance(r, dict) and r.get("label")]
+                if labels:
+                    ctx_parts.append(f"[ESCAPE_ROUTES] {' | '.join(labels)}")
             except Exception:
                 pass
 
@@ -196,6 +203,7 @@ class SystemOrchestrator:
         return result
 
     def run(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        data = data if isinstance(data, dict) else {}
         user_input = data.get("input", "")
         voice_mode = data.get("voice_mode", "lyla")
         route = data.get("route") or "general"
@@ -205,7 +213,9 @@ class SystemOrchestrator:
         result  = self.execute(route, data)
         persona = result.get("voice_mode", "lyla")
 
-        if result.get("ai_response") is None:
+        # _skip_llm: ผู้เรียกต้องการแค่ survivor context (app.py สร้างคำตอบเองอยู่แล้ว)
+        # เดิมเรียก LLM ทุกครั้งแล้วคำตอบถูกทิ้ง = เสีย quota 2 เท่าต่อ 1 ข้อความ
+        if result.get("ai_response") is None and not data.get("_skip_llm"):
             try:
                 from core.llm_gemini import get_llm
                 llm = get_llm()  # ★ FIX: ใช้ singleton เดียวกับทั้งระบบ
@@ -218,8 +228,8 @@ class SystemOrchestrator:
                     route              = route,
                     voice_mode         = persona,
                 )
-            except Exception as e:
-                result["ai_response"] = f"[LLM Error: {e}]"
+            except Exception:
+                result["ai_response"] = None      # ไม่ส่งข้อความ error ภายใน (key/โควตา) ให้ผู้ใช้
 
         if result.get("ai_response"):
             try:
@@ -247,7 +257,7 @@ class SystemOrchestrator:
 
     def run_with_survivor_engine(self, user_input: str, human_context: dict = None) -> Dict[str, Any]:
         """app.py เรียกตัวนี้ — normalize output ให้ app.py อ่านได้ตรง"""
-        raw = self.run({"input": user_input, "context": human_context or {}})
+        raw = self.run({"input": user_input, "context": human_context or {}, "_skip_llm": True})
         return {
             **raw,
             "survivor_context": raw.get("context_for_lyla", ""),

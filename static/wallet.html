@@ -148,19 +148,19 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; }
   <!-- Balance -->
   <div class="balance-wrap">
     <div class="balance-label">CURRENT BALANCE</div>
-    <div class="balance-amount" id="balance-display">—<span>THB</span></div>
+    <div class="balance-amount" id="balance-display">—<span>เครดิต</span></div>
     <div class="balance-sub" id="balance-sub">กำลังโหลด...</div>
   </div>
 
-  <!-- Email (if not logged in via cookie) -->
-  <label class="field-label">EMAIL</label>
-  <input type="email" id="wallet-email" placeholder="your@email.com" autocomplete="email">
+  <!-- บัญชี: มาจาก cookie ที่เซ็นแล้ว ไม่ต้องกรอกอีเมล -->
+  <label class="field-label">บัญชี</label>
+  <div class="balance-sub" id="wallet-account" style="font-size:11px;margin:0 0 14px;color:var(--tx)">—</div>
 
   <!-- Amount -->
-  <label class="field-label">จำนวนเงิน (บาท)</label>
+  <label class="field-label" id="amount-label">จำนวนเงิน (บาท)</label>
   <div class="input-wrap">
     <span class="input-prefix">฿</span>
-    <input type="number" id="wallet-amount" placeholder="0" min="10" max="10000" step="10">
+    <input type="number" id="wallet-amount" placeholder="0" min="20" max="10000" step="10" inputmode="numeric">
   </div>
 
   <!-- Quick amounts -->
@@ -177,7 +177,7 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; }
 
   <div class="status-box" id="status-box"></div>
 
-  <!-- History -->
+  <!-- History (จากระบบจริง) -->
   <div class="history-label">TRANSACTION HISTORY</div>
   <div class="history-list" id="history-list">
     <div class="history-empty">ยังไม่มีรายการ</div>
@@ -188,174 +188,84 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; }
 
 <script>
 (function(){
+  var W = { min: 20, max: 10000, rate: 1 };
+  var REASON = { run:'ใช้ตอบแชท', simulate:'จำลองอนาคต', analyze_image:'วิเคราะห์ภาพ', refund:'คืนเครดิต',
+                 topup:'เติมเครดิต', stripe_plan:'แพ็กเกจ', grant:'เครดิตเริ่มต้น' };
+  function $(id){ return document.getElementById(id); }
+  function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
-  var HISTORY_KEY = 'kd_wallet_history';
-
-  // ─── helpers ────────────────────────────────────────────────────
-  function getEmail(){
-    var el = document.getElementById('wallet-email');
-    var stored = localStorage.getItem('email') || window.__kdUserEmail || '';
-    if(el && !el.value && stored) el.value = stored;
-    return (el ? el.value : stored).trim();
-  }
-
-  function setAmount(n){
-    var el = document.getElementById('wallet-amount');
-    if(el){ el.value = n; el.focus(); }
-  }
-  window.setAmount = setAmount;
-
-  function showStatus(msg, type){
-    var box = document.getElementById('status-box');
-    if(!box) return;
-    box.textContent = msg;
-    box.className = 'status-box ' + (type || 'ok');
-  }
-
-  function clearStatus(){
-    var box = document.getElementById('status-box');
-    if(box){ box.className = 'status-box'; box.textContent = ''; }
-  }
-
-  function setLoading(on){
-    var btn = document.getElementById('topup-btn');
-    if(!btn) return;
-    btn.disabled = on;
-    btn.textContent = on ? 'กำลังดำเนินการ...' : 'เติมเครดิต';
-  }
-
-  // ─── history ────────────────────────────────────────────────────
-  function loadHistory(){
-    try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
-    catch(_){ return []; }
-  }
-
-  function saveHistory(h){ localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0,20))); }
-
-  function pushHistory(amount, total){
-    var h = loadHistory();
-    h.unshift({
-      amount: amount,
-      total: total,
-      ts: new Date().toLocaleString('th-TH', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short' })
-    });
-    saveHistory(h);
-    renderHistory(h);
+  window.setAmount = function(n){ var el = $('wallet-amount'); if(el){ el.value = n; el.focus(); preview(); } };
+  function showStatus(msg, type){ var box = $('status-box'); box.textContent = msg; box.className = 'status-box ' + (type || 'ok'); }
+  function clearStatus(){ var box = $('status-box'); box.className = 'status-box'; box.textContent = ''; }
+  function setLoading(on, label){ var btn = $('topup-btn'); btn.disabled = on; btn.textContent = on ? (label || 'กำลังดำเนินการ...') : 'เติมเครดิต'; }
+  function preview(){
+    var n = Number($('wallet-amount').value) || 0;
+    $('amount-label').textContent = 'จำนวนเงิน (บาท)' + (n >= W.min ? ' → ได้ ' + Math.floor(n / W.rate + 1e-9).toLocaleString() + ' เครดิต' : '');
   }
 
   function renderHistory(h){
-    var list = document.getElementById('history-list');
-    if(!list) return;
-    if(!h || !h.length){
-      list.innerHTML = '<div class="history-empty">ยังไม่มีรายการ</div>';
-      return;
-    }
-    list.innerHTML = h.slice(0,5).map(function(item){
-      return '<div class="history-item">' +
-        '<span>' + item.ts + '</span>' +
-        '<span class="hi-amount">+฿' + item.amount + '</span>' +
-        '<span>รวม ฿' + item.total + '</span>' +
-      '</div>';
+    var list = $('history-list');
+    if(!h || !h.length){ list.innerHTML = '<div class="history-empty">ยังไม่มีรายการ</div>'; return; }
+    list.innerHTML = h.slice(0, 12).map(function(it){
+      var d = Number(it.delta) || 0, when = it.created_at ? new Date(it.created_at.replace(' ', 'T') + 'Z').toLocaleString('th-TH', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
+      return '<div class="history-item"><span>' + esc(when) + '</span><span>' + esc(REASON[it.reason] || it.reason || '') + '</span>' +
+        '<span class="hi-amount" style="' + (d < 0 ? 'color:rgba(255,120,150,.9)' : '') + '">' + (d > 0 ? '+' : '') + d.toLocaleString() + '</span></div>';
     }).join('');
   }
 
-  // ─── balance display ────────────────────────────────────────────
-  function setBalance(total){
-    var el = document.getElementById('balance-display');
-    var sub = document.getElementById('balance-sub');
-    if(el) el.innerHTML = Number(total).toLocaleString() + '<span>THB</span>';
-    if(sub) sub.textContent = 'อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
-  }
-
-  async function fetchBalance(email){
-    if(!email) return;
+  async function load(){
     try{
-      var res = await fetch('/wallet/balance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email }),
-        credentials: 'same-origin'
-      });
-      if(!res.ok) return;
+      var res = await fetch('/wallet/balance', { credentials: 'same-origin' });
+      if(res.status === 401){
+        $('wallet-account').innerHTML = 'ยังไม่ได้เข้าสู่ระบบ — <a href="/static/login.html" style="color:var(--gold-hi)">เข้าสู่ระบบ</a> เพื่อเติมเครดิต';
+        $('balance-sub').textContent = 'ฟรีวันละ 20 ข้อความโดยไม่ต้องเติม';
+        $('topup-btn').disabled = true; return null;
+      }
       var d = await res.json();
-      if(d.total_credit != null) setBalance(d.total_credit);
-      var sub = document.getElementById('balance-sub');
-      if(sub) sub.textContent = 'อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
-    } catch(_){}
+      W.min = d.topup_min || W.min; W.max = d.topup_max || W.max; W.rate = d.thb_per_credit || W.rate;
+      $('wallet-amount').min = W.min; $('wallet-amount').max = W.max;
+      $('balance-display').innerHTML = Number(d.credits || 0).toLocaleString() + '<span>เครดิต</span>';
+      $('wallet-account').textContent = d.email + (d.premium ? ' · PREMIUM (ไม่จำกัด)' : '');
+      $('balance-sub').textContent = 'ฟรีวันนี้เหลือ ' + d.free_left + '/' + d.free_limit + ' ข้อความ · เกินจากนั้นใช้ ' + (d.run_cost || 1) + ' เครดิต/ข้อความ · 1 เครดิต = ฿' + W.rate;
+      renderHistory(d.history);
+      return d;
+    } catch(_){ $('balance-sub').textContent = 'โหลดยอดไม่สำเร็จ — ลองรีเฟรช'; return null; }
   }
 
-  // ─── topup ──────────────────────────────────────────────────────
   window.topup = async function(){
     clearStatus();
-
-    var email = getEmail();
-    if(!email){
-      showStatus('⚠ กรุณากรอก Email ก่อน', 'error');
-      document.getElementById('wallet-email')?.focus();
-      return;
-    }
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-      showStatus('⚠ รูปแบบ Email ไม่ถูกต้อง', 'error');
-      return;
-    }
-
-    var rawAmount = document.getElementById('wallet-amount')?.value;
-    var amount = Number(rawAmount);
-    if(!amount || !Number.isFinite(amount) || amount < 10){
-      showStatus('⚠ จำนวนเงินขั้นต่ำ ฿10', 'error');
-      return;
-    }
-    if(amount > 10000){
-      showStatus('⚠ จำนวนสูงสุดต่อครั้ง ฿10,000', 'error');
-      return;
-    }
-
+    var amount = Math.floor(Number($('wallet-amount').value));
+    if(!amount || amount < W.min){ showStatus('⚠ ขั้นต่ำ ฿' + W.min, 'error'); return; }
+    if(amount > W.max){ showStatus('⚠ สูงสุดต่อครั้ง ฿' + W.max.toLocaleString(), 'error'); return; }
     setLoading(true);
-
     try{
-      var res = await fetch('/wallet/topup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, amount: amount }),
-        credentials: 'same-origin'
-      });
-
-      var d;
-      try{ d = await res.json(); }
-      catch(_){ throw new Error('Server ตอบกลับผิดรูปแบบ'); }
-
-      if(!res.ok || d.error){
-        throw new Error(d.error || d.message || 'เติมเครดิตไม่สำเร็จ HTTP ' + res.status);
-      }
-
-      var total = d.total_credit ?? d.balance ?? amount;
-      setBalance(total);
-      pushHistory(amount, total);
-      localStorage.setItem('email', email);
-      showStatus('✓ เติมเครดิต ฿' + amount.toLocaleString() + ' สำเร็จ\nเครดิตรวม: ฿' + Number(total).toLocaleString(), 'ok');
-      document.getElementById('wallet-amount').value = '';
-
-    } catch(e){
-      console.error('[KD:wallet]', e);
-      showStatus('⚠ ' + e.message, 'error');
-    } finally{
-      setLoading(false);
-    }
+      var res = await fetch('/wallet/topup', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ amount: amount }), credentials:'same-origin' });
+      var d = {}; try{ d = await res.json(); }catch(_){}
+      if(!res.ok || !d.url) throw new Error(d.error || ('เติมเครดิตไม่สำเร็จ HTTP ' + res.status));
+      setLoading(true, 'กำลังไปหน้าชำระเงิน...');
+      location.href = d.url;   // เครดิตเข้าเมื่อ Stripe ยืนยันการจ่ายเงิน (webhook)
+    } catch(e){ showStatus('⚠ ' + e.message, 'error'); setLoading(false); }
   };
 
-  // ─── init ───────────────────────────────────────────────────────
-  renderHistory(loadHistory());
+  $('wallet-amount').addEventListener('input', preview);
+  $('wallet-amount').addEventListener('keydown', function(e){ if(e.key === 'Enter') window.topup(); });
 
-  // pre-fill email + fetch balance
-  var emailEl = document.getElementById('wallet-email');
-  var stored = localStorage.getItem('email') || window.__kdUserEmail || '';
-  if(stored && emailEl){ emailEl.value = stored; fetchBalance(stored); }
-
-  // Enter key on amount → topup
-  document.getElementById('wallet-amount')?.addEventListener('keydown', function(e){
-    if(e.key === 'Enter') window.topup();
+  var flag = new URLSearchParams(location.search).get('topup');
+  load().then(function(d){
+    if(flag === 'cancel') showStatus('ยกเลิกการชำระเงินแล้ว — ยังไม่มีการตัดเงิน', 'error');
+    if(flag !== 'success' || !d) return;
+    // webhook อาจมาช้ากว่าการ redirect เล็กน้อย → รอดูยอดเปลี่ยน
+    var start = d.credits, tries = 0;
+    showStatus('ชำระเงินสำเร็จ — กำลังรอระบบยืนยันยอด...', 'ok');
+    (function poll(){
+      setTimeout(async function(){
+        var n = await load(); tries++;
+        if(n && n.credits !== start){ showStatus('✓ เติมเครดิตสำเร็จ · คงเหลือ ' + Number(n.credits).toLocaleString() + ' เครดิต', 'ok'); history.replaceState(null, '', location.pathname); }
+        else if(tries < 10) poll();
+        else showStatus('ชำระเงินแล้ว แต่ยอดยังไม่อัปเดต — รีเฟรชอีกครั้งใน 1–2 นาที', 'error');
+      }, 2000);
+    })();
   });
-
 })();
 </script>
 </body>

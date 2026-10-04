@@ -13,9 +13,10 @@ _INTENTS: list[dict[str, Any]] = [
         "name":    "crisis",
         "weight":  3.0,   # override ทุกอย่าง — safety first
         "patterns": [
-            r"อยากตาย", r"ไม่อยากอยู่", r"ฆ่าตัว", r"ฆ่าตัวเอง",
-            r"จบชีวิต", r"หมดแล้วจริงๆ", r"ทนไม่ไหวแล้ว", r"ไม่มีทางออกเลย",
-            r"\bsuicid", r"\bwant to die\b", r"\bend it all\b",
+            # เฉพาะสัญญาณทำร้ายตัวเอง — เดิมมี "ไม่อยากอยู่" (บ้าน) "หมดแล้วจริงๆ" "ทนไม่ไหวแล้ว"
+            r"อยากตาย", r"ไม่อยากอยู่แล้ว", r"ไม่อยากอยู่บนโลก", r"ฆ่าตัว", r"ฆ่าตัวเอง",
+            r"จบชีวิต", r"ทำร้ายตัวเอง",
+            r"\bsuicid", r"\bwant to die\b", r"\bend it all\b", r"\bkill myself\b",
         ],
     },
     {
@@ -76,7 +77,7 @@ _INTENTS: list[dict[str, Any]] = [
         "weight":  1.0,
         "patterns": [
             r"มีความสุข", r"ดีใจมาก", r"ตื่นเต้น", r"สนุกมาก",
-            r"เยี่ยมเลย", r"ยินดี", r"happy", r"excited", r"wonderful", r"great news",
+            r"เยี่ยมเลย", r"ยินดี", r"(?<!un)\bhappy\b", r"\bexcited\b", r"\bwonderful\b", r"\bgreat news\b",
         ],
     },
     {
@@ -84,17 +85,18 @@ _INTENTS: list[dict[str, Any]] = [
         "weight":  1.0,
         "patterns": [
             r"แฟนใหม่", r"ตกหลุมรัก", r"ชอบคนนี้", r"มีความรู้สึก",
-            r"สารภาพรัก", r"รักแล้ว", r"in love", r"\bcrush\b",
-            r"confession", r"dating", r"คนที่ชอบ",
+            r"สารภาพรัก", r"รักแล้ว", r"\bin love\b", r"\bcrush\b",
+            r"\bconfession\b", r"\bdating\b", r"คนที่ชอบ",
         ],
     },
     {
         "name":    "work_win",
         "weight":  1.0,
         "patterns": [
-            r"ได้งานแล้ว", r"ผ่านแล้ว", r"สำเร็จแล้ว", r"ทำสำเร็จ",
-            r"เสร็จแล้ว", r"got the job", r"\bmilestone\b",
-            r"landed", r"accepted", r"achieved", r"promotion",
+            # "เสร็จแล้ว" "ผ่านแล้ว" เดี่ยว ติด "กินข้าวเสร็จแล้ว" "รถผ่านแล้ว" → ใช้วลีงาน
+            r"ได้งานแล้ว", r"สอบผ่านแล้ว", r"สัมภาษณ์ผ่าน", r"สำเร็จแล้ว", r"ทำสำเร็จ",
+            r"ได้เลื่อนตำแหน่ง", r"\bgot the job\b", r"\bmilestone\b",
+            r"\blanded (?:the|a) (?:job|deal|client)\b", r"\bgot accepted\b", r"\bachieved\b", r"\bpromotion\b",
         ],
     },
 ]
@@ -147,6 +149,7 @@ def analyze_intent(text: str) -> dict:
       intent, confidence, signals, root_signal,
       all_scores, causal_depth, amplified
     """
+    text = str(text or "")
     if not text:
         return {
             "intent":        "general",
@@ -190,7 +193,9 @@ def analyze_intent(text: str) -> dict:
     if not amp_scores:
         for tone, words in _EMOTION_WORDS.items():
             if any(re.search(w, t) for w in words):
-                base_intent = "crisis" if tone == "heavy" else "vega"
+                # เดิม heavy ("เหนื่อย") → crisis และ stress → vega: คนเหนื่อยได้โหมดวิกฤต/วิเคราะห์เย็นๆ
+                # อารมณ์ให้ LYLA รับรู้ก่อน (general) — crisis เฉพาะสัญญาณทำร้ายตัวเองข้างบน
+                base_intent = "general"
                 base_conf   = 0.48 + causal_boost
                 return {
                     "intent":       base_intent,

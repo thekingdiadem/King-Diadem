@@ -3,9 +3,20 @@
 # ใช้ Google Docs API v1 ผ่าน service account หรือ OAuth token
 
 import os
+import re
 import json
 import urllib.request
 import urllib.error
+
+_DOC_ID_RE = re.compile(r"^[A-Za-z0-9_-]{10,100}$")
+
+
+def _doc_id(doc_id: str) -> str:
+    """doc_id ถูกต่อเข้า path ของ URL — ต้องเป็นรูปแบบ id ของ Google เท่านั้น (กัน ../ หรือ ?param)"""
+    doc_id = str(doc_id or "")
+    if not _DOC_ID_RE.match(doc_id):
+        raise ValueError("invalid document id")
+    return doc_id
 
 DOCS_API = "https://docs.googleapis.com/v1/documents"
 DRIVE_API = "https://www.googleapis.com/drive/v3/files"
@@ -67,6 +78,7 @@ def create_document(title: str) -> dict:
 
 def get_document(doc_id: str) -> dict:
     """อ่านเนื้อหา Google Doc"""
+    doc_id = _doc_id(doc_id)
     url = f"{DOCS_API}/{doc_id}{_api_key_param()}"
     result = _request("GET", url)
     # ดึง plain text จาก body content
@@ -86,6 +98,7 @@ def get_document(doc_id: str) -> dict:
 
 def append_text(doc_id: str, text: str) -> dict:
     """เพิ่มข้อความท้าย document"""
+    doc_id = _doc_id(doc_id)
     url = f"{DOCS_API}/{doc_id}:batchUpdate{_api_key_param()}"
     body = {
         "requests": [
@@ -103,6 +116,10 @@ def append_text(doc_id: str, text: str) -> dict:
 
 def list_recent_docs(page_size: int = 10) -> list:
     """ดู Google Docs ล่าสุด (ต้องการ OAuth token ที่มี drive.readonly scope)"""
+    try:
+        page_size = max(1, min(int(page_size), 100))
+    except (TypeError, ValueError):
+        page_size = 10
     param = _api_key_param()
     sep = "&" if param else "?"
     url = (

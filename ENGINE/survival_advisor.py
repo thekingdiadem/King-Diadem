@@ -161,25 +161,35 @@ def advise(pattern: dict) -> dict:
     Map DecisionEngine pattern → survival_advisor inputs
     pattern keys: resource, stability, entropy, + optional overrides
     """
-    try:
-        resource  = float(pattern.get("resource",  50))
-        entropy   = float(pattern.get("entropy",   40))
+    pattern = pattern if isinstance(pattern, dict) else {}
 
-        # ถ้า pattern ส่ง raw values มาตรงๆ ใช้เลย
-        food    = float(pattern.get("food",   resource / 25))   # 0-4
-        money   = float(pattern.get("money",  resource * 10))   # scale to บาท
-        risk    = float(pattern.get("risk",   entropy  / 10))   # 0-10
-        energy  = float(pattern.get("energy", 100 - entropy))
-        shelter = bool(pattern.get("shelter", True))
-        network = int(pattern.get("network",  1))
+    def _f(v, d):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return d
 
-        return survival_advisor(
-            food=food,
-            money=money,
-            risk=risk,
-            energy=energy,
-            shelter=shelter,
-            network=network,
-        )
-    except Exception as e:
-        return {"error": f"survival_advisor fail: {str(e)}"}
+    resource  = _f(pattern.get("resource"),  50)
+    entropy   = _f(pattern.get("entropy"),   40)
+
+    # ค่าที่ไม่ได้ส่งมาตรงๆ จะประมาณจาก resource/entropy — บอกไว้ใน derived_inputs
+    # (เดิมไม่บอก ทำให้ "เงิน 500 บาท" ที่ประมาณจาก resource ดูเหมือนข้อมูลจริงของผู้ใช้)
+    derived = [k for k in ("food", "money", "risk", "energy") if pattern.get(k) is None
+               or (k == "risk" and not isinstance(pattern.get(k), (int, float, str)))]
+    food    = _f(pattern.get("food"),   resource / 25)   # มื้อ 0-4
+    money   = _f(pattern.get("money"),  resource * 10)   # บาท (ประมาณ)
+    risk    = _f(pattern.get("risk"),   entropy  / 10)   # 0-10
+    energy  = _f(pattern.get("energy"), 100 - entropy)
+    shelter = pattern.get("shelter", True) not in (False, "false", "0", 0)
+    network = int(_f(pattern.get("network"), 1))
+
+    out = survival_advisor(
+        food=food,
+        money=money,
+        risk=risk,
+        energy=energy,
+        shelter=shelter,
+        network=network,
+    )
+    out["derived_inputs"] = derived
+    return out

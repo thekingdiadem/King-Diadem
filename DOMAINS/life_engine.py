@@ -5,14 +5,24 @@
 import time
 
 
+def _num(v, d: float) -> float:
+    """ตัวเลขจาก context — ค่าเสีย/NaN/inf → ค่าเริ่มต้น"""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x and abs(x) != float("inf") else d
+
+
 def analyze_life(context: dict) -> dict:
+    context = context if isinstance(context, dict) else {}
     # ── รับค่าจาก context ────────────────────────────────────────
-    energy       = float(context.get("energy",       50))   # 0-100
-    stress       = float(context.get("stress",        50))   # 0-100
-    sleep_hours  = float(context.get("sleep_hours",    6))
-    money        = float(context.get("money",          0))
-    relationships = float(context.get("relationships", 50))  # คุณภาพความสัมพันธ์ 0-100
-    purpose      = float(context.get("purpose",        50))  # ความรู้สึกมีความหมาย 0-100
+    energy       = _num(context.get("energy"), 50)   # 0-100
+    stress       = _num(context.get("stress"), 50)   # 0-100
+    sleep_hours  = _num(context.get("sleep_hours"), 6)
+    money        = _num(context.get("money"), 0)
+    relationships = _num(context.get("relationships"), 50)  # คุณภาพความสัมพันธ์ 0-100
+    purpose      = _num(context.get("purpose"), 50)  # ความรู้สึกมีความหมาย 0-100
 
     # ── Happiness score (deterministic) ──────────────────────────
     happiness = (

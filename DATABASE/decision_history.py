@@ -58,6 +58,12 @@ def save_decision(decision: dict) -> bool:
     if not isinstance(decision, dict):
         return False
 
+    risk = decision.get("risk")
+    risk_level = decision.get("risk_level") or (risk.get("level", "") if isinstance(risk, dict) else "")
+    try:
+        waterline = float(decision.get("waterline")) if decision.get("waterline") is not None else None
+    except (TypeError, ValueError):
+        waterline = None
     with _lock:
         conn = _conn()
         try:
@@ -70,14 +76,14 @@ def save_decision(decision: dict) -> bool:
                 str(decision.get("domain",    "general")),
                 str(decision.get("route",     "general")),
                 str(decision.get("recommended_strategy", decision.get("strategy", ""))),
-                str(decision.get("risk_level",  decision.get("risk", {}).get("level", ""))),
-                decision.get("waterline"),
+                str(risk_level),
+                waterline,
                 json.dumps(decision, ensure_ascii=False, default=str),
             ))
             conn.commit()
             return True
         except Exception as e:
-            print(f"⚠ decision_history.save_decision: {e}")
+            print(f"⚠ decision_history.save_decision: {type(e).__name__}")
             return False
         finally:
             conn.close()
@@ -104,9 +110,13 @@ def get_recent_decisions(
             params.append(route)
 
         where = ("WHERE " + " AND ".join(where_parts)) if where_parts else ""
-        params.append(limit)
+        try:
+            params.append(max(1, min(int(limit), 500)))
+        except (TypeError, ValueError):
+            params.append(10)
 
-        rows = conn.execute(
+        # where ประกอบจากข้อความคงที่ในโค้ดเท่านั้น ค่าผู้ใช้ผ่าน ? ทั้งหมด
+        rows = conn.execute(  # nosec B608
             f"SELECT ts, domain, route, strategy, risk_level, waterline, payload "
             f"FROM decision_history {where} ORDER BY ts DESC LIMIT ?",
             params,
@@ -151,6 +161,10 @@ def count_decisions(domain: str = "") -> int:
 
 def clear_old_decisions(keep_days: int = 30) -> int:
     """ลบ decisions เก่ากว่า N วัน — return จำนวนที่ลบ"""
+    try:
+        keep_days = max(1, int(keep_days))     # 0/ค่าลบ = ลบทั้งหมดโดยไม่ตั้งใจ
+    except (TypeError, ValueError):
+        keep_days = 30
     cutoff = time.time() - (keep_days * 86400)
     with _lock:
         conn = _conn()

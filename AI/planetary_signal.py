@@ -74,10 +74,12 @@ def planetary_signal(context: dict | None = None) -> dict:
     values: dict[str, float] = {}
 
     for key, default_val in _DEFAULT.items():
-        if context and key in context:
-            values[key] = _clamp(float(context[key]))
-        else:
-            values[key] = default_val
+        raw = context.get(key) if isinstance(context, dict) else None
+        try:
+            v = float(raw) if raw is not None else None
+        except (TypeError, ValueError):
+            v = None
+        values[key] = _clamp(v) if v is not None and v == v else default_val
 
     stability = _compute_stability(values)
 
@@ -86,5 +88,6 @@ def planetary_signal(context: dict | None = None) -> dict:
         "planetary_stability": stability,
         "fate_note":           _fate_note(values, stability),
         "computed_at":         int(time.time()),
-        "source":              "injected" if context else "baseline",
+        # baseline = ค่าประมาณที่เขียนในโค้ด ไม่ใช่ข้อมูลโลกจริง
+        "source":              "injected" if isinstance(context, dict) and context else "static_baseline",
     }

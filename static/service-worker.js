@@ -42,20 +42,12 @@ self.addEventListener('fetch', function(e){
   var req = e.request;
   var url = new URL(req.url);
 
-  /* Skip non-GET, cross-origin, API calls */
+  /* allowlist: แคชเฉพาะไฟล์ใน /static/ — เดิมเป็น blocklist ที่ตก /wallet/balance, /credits,
+     /dashboard, /auth/google/callback → ยอดเครดิต/ข้อมูลบัญชีถูกแคชไว้ในเครื่อง (เครื่องที่ใช้ร่วมกันเห็นได้) */
   if(req.method !== 'GET') return;
   if(url.origin !== location.origin) return;
-  if(url.pathname.startsWith('/run') ||
-     url.pathname.startsWith('/api') ||
-     url.pathname.startsWith('/me') ||
-     url.pathname.startsWith('/health') ||
-     url.pathname.startsWith('/simulate') ||
-     url.pathname.startsWith('/login') ||
-     url.pathname.startsWith('/logout') ||
-     url.pathname.startsWith('/analyze-image') ||
-     url.pathname.startsWith('/payment') ||
-     url.pathname.startsWith('/create-') ||
-     url.pathname.startsWith('/report')) return;
+  if(!url.pathname.startsWith('/static/')) return;
+  if(url.search) return;
 
   /* Static JS/CSS/fonts: stale-while-revalidate
      ให้โหลดเร็ว แต่ update background */

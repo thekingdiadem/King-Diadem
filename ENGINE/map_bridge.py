@@ -11,6 +11,7 @@ from typing import Optional
 
 def open_google_maps(lat: float, lng: float, query: str = "") -> str:
     """backward compat — return search URL"""
+    lat, lng = float(lat), float(lng)
     if query:
         q = urllib.parse.quote(query)
         return f"https://www.google.com/maps/search/{q}/@{lat},{lng},15z"
@@ -27,12 +28,16 @@ def build_map_links(
     """
     Build links สำหรับทุก provider + deep link mobile
     """
-    q_enc = urllib.parse.quote(query) if query else ""
+    # บังคับเป็นตัวเลข — กันข้อความแปลกปลอมถูกต่อเข้า URL; และ 0.0 (เส้นศูนย์สูตร) ไม่ใช่ "ไม่มีค่า"
+    lat, lng = float(lat), float(lng)
+    to_lat = float(to_lat) if to_lat is not None else None
+    to_lng = float(to_lng) if to_lng is not None else None
+    q_enc = urllib.parse.quote(str(query)) if query else ""
 
     links = {}
 
     # ── Google Maps ───────────────────────────────────────────────
-    if to_lat and to_lng:
+    if to_lat is not None and to_lng is not None:
         links["google_maps"] = (
             f"https://www.google.com/maps/dir/{lat},{lng}/{to_lat},{to_lng}"
         )
@@ -50,7 +55,7 @@ def build_map_links(
         links["google_maps"] = f"https://www.google.com/maps/@{lat},{lng},16z"
 
     # ── Apple Maps ────────────────────────────────────────────────
-    if to_lat and to_lng:
+    if to_lat is not None and to_lng is not None:
         links["apple_maps"] = (
             f"https://maps.apple.com/?saddr={lat},{lng}&daddr={to_lat},{to_lng}&dirflg=d"
         )
@@ -81,7 +86,8 @@ def build_map_links(
 
 def nearest_search_url(lat: float, lng: float, category: str, radius_m: int = 2000) -> str:
     """Quick search URL สำหรับ category"""
-    q = urllib.parse.quote(category)
+    lat, lng = float(lat), float(lng)
+    q = urllib.parse.quote(str(category))
     return (
         f"https://www.google.com/maps/search/{q}/@{lat},{lng},15z"
         f"?hl=th"

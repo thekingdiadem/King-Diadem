@@ -17,12 +17,17 @@ def evolve_system(
     ปรับ system_state ตาม pattern จริง
     learning_data: output จาก self_learning.analyze_patterns()
     """
-    state = dict(system_state)
+    state = dict(system_state) if isinstance(system_state, dict) else {}
 
-    entropy   = float(state.get("entropy",   50))
-    stability = float(state.get("stability", 50))
-    resource  = float(state.get("resource",  50))
-    choices   = int(state.get("choices",      1))
+    def _f(v, d):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return d
+    entropy   = _f(state.get("entropy"),   50)
+    stability = _f(state.get("stability"), 50)
+    resource  = _f(state.get("resource"),  50)
+    choices   = int(_f(state.get("choices"), 1))
 
     adjustments = []
 
@@ -50,7 +55,7 @@ def evolve_system(
         adjustments.append({"rule": "no_choice_penalty", "delta": -15})
 
     # ── Apply learning data ───────────────────────────────────────
-    if learning_data and learning_data.get("status") == "active":
+    if isinstance(learning_data, dict) and learning_data.get("status") == "active":
         trend = learning_data.get("trend", "stable")
         drift = learning_data.get("drift_detected", False)
 

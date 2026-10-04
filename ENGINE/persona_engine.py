@@ -72,7 +72,7 @@ PERSONA_STYLES: dict[str, dict] = {
 def get_persona(mode: str | None = None) -> dict:
     if not mode:
         mode = DEFAULT_PERSONA
-    return PERSONA_STYLES.get(mode.lower(), PERSONA_STYLES["lyla"])
+    return PERSONA_STYLES.get(str(mode).lower(), PERSONA_STYLES["lyla"])
 
 
 def resolve_persona(route: str = "general", voice_mode: str = "lyla") -> dict:
@@ -80,8 +80,8 @@ def resolve_persona(route: str = "general", voice_mode: str = "lyla") -> dict:
     ตัดสิน persona จาก route + voice_mode
     เรียกจาก decision_engine, orchestrator, app.py
     """
-    vm = (voice_mode or "lyla").lower().strip()
-    rt = (route     or "general").lower().strip()
+    vm = str(voice_mode or "lyla").lower().strip()
+    rt = str(route     or "general").lower().strip()
 
     if vm == "crisis" or rt in ("crisis", "collapse"):
         return get_persona("crisis")
@@ -108,6 +108,10 @@ def build_system_prompt(
     """
     persona = resolve_persona(route, voice_mode)
     parts   = [persona["system_hint"]]
+    try:
+        waterline = None if waterline is None else float(waterline)
+    except (TypeError, ValueError):
+        waterline = None
 
     if waterline is not None:
         if waterline < 25:

@@ -3,6 +3,8 @@
 // Real backend call → KD:thinking → KD:response → KD:decision chain
 
 (function () {
+  // ข้อมูลจาก backend ห้ามเข้า innerHTML ดิบ (คำตอบ LLM / ข้อความ error มี < > ได้)
+  const _e = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
   // ─── CONFIG ───────────────────────────────────────────────────────────────
   const API_ENDPOINT = "/run";
@@ -122,7 +124,7 @@
     );
 
     const confPct = o.confidence != null
-      ? Math.round((o.confidence > 1 ? o.confidence : o.confidence * 100))
+      ? Math.max(0, Math.min(100, Math.round((o.confidence > 1 ? o.confidence : o.confidence * 100)) || 0))
       : null;
 
     el.innerHTML = `
@@ -146,12 +148,12 @@
   </div>
 
   <div style="font-size:15px;color:#e8d5a3;font-weight:700;letter-spacing:1px;margin-bottom:14px;">
-    ${o.action}
+    ${_e(o.action)}
   </div>
 
   ${o.message ? `
   <div style="color:#8899bb;line-height:1.6;margin-bottom:12px;font-size:10px;">
-    ${o.message}
+    ${_e(o.message)}
   </div>` : ""}
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
@@ -160,7 +162,7 @@
       <div style="display:flex;align-items:center;gap:5px;">
         <div style="width:7px;height:7px;border-radius:50%;background:${riskColor};box-shadow:0 0 5px ${riskColor}88;"></div>
         <span style="color:${riskColor};font-weight:600;text-transform:uppercase;font-size:11px;">
-          ${riskLabel || (o.risk ?? "n/a")}
+          ${_e(riskLabel || (o.risk ?? "n/a"))}
         </span>
       </div>
     </div>
@@ -179,7 +181,7 @@
   ${o.route ? `
   <div style="margin-bottom:10px;">
     <span style="font-size:7px;color:#5a6480;letter-spacing:2px;">ROUTE → </span>
-    <span style="color:#3a86f5;letter-spacing:1px;">${o.route}</span>
+    <span style="color:#3a86f5;letter-spacing:1px;">${_e(o.route)}</span>
   </div>` : ""}
 
   ${o.waterline != null ? `
@@ -193,12 +195,12 @@
   ${o.reason ? `
   <div style="background:#080b13;border:1px solid #141926;border-radius:5px;padding:9px 11px;margin-bottom:${o.axiom ? "10px" : "0"};">
     <div style="font-size:7px;color:#5a6480;letter-spacing:2px;margin-bottom:4px;">REASON</div>
-    <div style="color:#8899bb;line-height:1.6;">${o.reason}</div>
+    <div style="color:#8899bb;line-height:1.6;">${_e(o.reason)}</div>
   </div>` : ""}
 
   ${o.axiom ? `
   <div style="margin-top:10px;padding:7px 11px;border-left:2px solid #3a86f5;font-size:9px;color:#3a86f5;font-style:italic;">
-    ${o.axiom}
+    ${_e(o.axiom)}
   </div>` : ""}
 
   <div style="margin-top:12px;padding-top:8px;border-top:1px solid #0f1420;
@@ -275,7 +277,7 @@
   font-size:10px;
 ">
   <div style="font-size:8px;letter-spacing:3px;margin-bottom:8px;">⊘ SYSTEM ERROR</div>
-  <div style="color:#cc5555;">${err.message}</div>
+  <div style="color:#cc5555;">${_e(err.message)}</div>
   <div style="margin-top:10px;font-size:8px;color:#5a2020;letter-spacing:2px;">
     FATE™ A5 — EXPLAINABILITY ENFORCED
   </div>

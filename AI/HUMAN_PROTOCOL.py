@@ -66,8 +66,12 @@ def build_response(
         }
 
     # Entropy check — ถ้าสูงมาก SIMPLIFY
+    route = str(route or "general")
+    try:
+        entropy = float(entropy)
+    except (TypeError, ValueError):
+        entropy = 40.0
     simplified = entropy > 65
-
     if persona == "VEGA":
         opening = f"[{route.upper()}] Downside First — ทางเลือกที่มี:"
         closing = "ระบบไม่ตัดสินใจแทน ทางไหนใกล้สถานการณ์จริงของคุณที่สุดครับ — VEGA"
@@ -99,8 +103,9 @@ def build_response(
             "blocked":         False,
             "simplified":      simplified,
             "cosmic_latte":    COSMIC_LATTE,
-            "prohibitions_ok": True,
-            "lyla_safety_ok":  True,
+            # ประกาศ ไม่ได้ตรวจเนื้อหาจริง — ให้ validate_response() ตรวจก่อนส่ง
+            "prohibitions_ok": None,
+            "lyla_safety_ok":  None,
             "computed_at":     int(time.time()),
         },
     }
@@ -117,8 +122,9 @@ def validate_response(resp: dict) -> dict:
     Returns: {"valid": bool, "violations": list}
     """
     violations = []
+    resp = resp if isinstance(resp, dict) else {}
 
-    options = resp.get("options", {})
+    options = resp.get("options") if isinstance(resp.get("options"), dict) else {}
     filled  = [v for v in options.values() if str(v).strip() and v != "—"]
     if len(filled) < 1:
         violations.append("FATAL: choice_count < 1 — FATE_VIOLATION")

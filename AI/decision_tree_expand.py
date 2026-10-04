@@ -89,7 +89,11 @@ class ExpandingTree:
         สร้าง decision tree จาก route + problem context
         depth=1 → root + immediate children เท่านั้น
         """
-        roots = _ROUTE_ROOT_MAP.get(route, _ROUTE_ROOT_MAP["general"])
+        roots = _ROUTE_ROOT_MAP.get(str(route), _ROUTE_ROOT_MAP["general"])
+        try:
+            depth = int(depth)
+        except (TypeError, ValueError):
+            depth = 1
         nodes = []
 
         for root_key in roots:

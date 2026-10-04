@@ -39,7 +39,7 @@ def build_consensus(
         summary str, final_action, confidence, consensus_level,
         audit_trail, fate_audit
     """
-    if not council_results:
+    if not isinstance(council_results, dict) or not council_results:
         return {
             "summary":      "ไม่มีผลจาก council",
             "final_action": _SAFE_ACTION,
@@ -67,7 +67,13 @@ def build_consensus(
 
         if isinstance(result, dict):
             action   = str(result.get("action") or result.get("decision") or "observe").strip()
-            conf     = float(result.get("confidence", 0.5))
+            try:
+                conf = float(result.get("confidence", 0.5))
+            except (TypeError, ValueError):
+                conf = 0.5
+            if conf > 1:          # บาง engine ส่งเป็นเปอร์เซ็นต์ (เช่น 80) → ค่าเฉลี่ยเพี้ยน
+                conf = conf / 100.0
+            conf = max(0.0, min(1.0, conf))
             evidence = str(result.get("evidence") or result.get("reason") or result.get("message") or _MIN_EVIDENCE)
             downside = str(result.get("downside") or "")
 

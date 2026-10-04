@@ -52,9 +52,9 @@ def sync_state(system_state: dict) -> dict:
         merged["world_state"] = world
         merged["sync_at"]     = time.time()
         return merged
-    except Exception as e:
-        # ห้าม crash eternal_snapshot เพราะ sync ล้มเหลว
-        system_state["world_state"] = {"error": str(e), "source": "sync_failed"}
+    except Exception:
+        # ห้าม crash eternal_snapshot เพราะ sync ล้มเหลว (ไม่ส่งข้อความ exception ออกไป)
+        system_state["world_state"] = {"error": "SYNC_FAILED", "source": "sync_failed"}
         return system_state
 
 

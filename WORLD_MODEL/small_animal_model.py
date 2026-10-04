@@ -13,6 +13,14 @@ A64: ระบบที่ดีต้องทำให้การทำร้
 
 import time
 from typing import Optional
+import re
+
+
+def _hit(w: str, text: str) -> bool:
+    """อังกฤษ = คำเต็ม ("rat" ไม่ติด "rather", "kill" ไม่ติด "skill"); ไทย = วลี"""
+    if w.isascii() and w.replace(" ", "").isalnum():
+        return re.search(r"(?<![a-z])" + re.escape(w.lower()) + r"(?![a-z])", text) is not None
+    return w.lower() in text
 
 # ══════════════════════════════════════════════════════════════════
 # ANIMAL REGISTRY — ครอบคลุมสัตว์เล็กทั้งหมด
@@ -21,7 +29,7 @@ from typing import Optional
 SMALL_ANIMALS = {
     "hedgehog":  {"th": "เม่นแคระ", "habitat": "terrestrial", "protected": True},
     "hamster":   {"th": "แฮมสเตอร์", "habitat": "terrestrial", "protected": True},
-    "mouse":     {"th": "หนู",       "habitat": "terrestrial", "protected": True},
+    "mouse":     {"th": "หนู",       "habitat": "terrestrial", "protected": True},   # ดู _MOUSE_TH_RE
     "rat":       {"th": "หนูบ้าน",   "habitat": "terrestrial", "protected": True},
     "shrew":     {"th": "ตุ่น",      "habitat": "terrestrial", "protected": True},
     "squirrel":  {"th": "กระรอก",    "habitat": "arboreal",    "protected": True},
@@ -39,7 +47,8 @@ SMALL_ANIMALS = {
 
 HARM_SIGNALS = {
     "direct_harm": [
-        "ฆ่า", "ทำร้าย", "ทุบ", "วาง", "ยา", "จับ", "กับดัก",
+        # เดิม "ยา" (ติด "พยายาม") "วาง" "จับ" เดี่ยว → ประโยคทั่วไปถูกนับว่าทำร้ายสัตว์
+        "ฆ่า", "ทำร้าย", "ทุบ", "วางยา", "ยาเบื่อ", "จับขัง", "กับดัก",
         "kill", "harm", "trap", "poison", "hit", "catch", "destroy",
     ],
     "indirect_harm": [
@@ -89,6 +98,9 @@ WELFARE_INDICATORS = {
 # CORE FUNCTIONS
 # ══════════════════════════════════════════════════════════════════
 
+_MOUSE_TH_RE = re.compile(r"(เจอ|ตัว|กำจัด|ไล่|จับ|ฆ่า|มี|เลี้ยง|ให้อาหาร)\s*หนู|หนู\s*(ตัว|ใน|วิ่ง|กัด|เข้า|ออก|นา|ตะเภา|บ้าน)")
+
+
 def detect_small_animal(text: str) -> dict:
     """
     ตรวจว่า text พูดถึงสัตว์เล็กตัวไหน
@@ -97,11 +109,16 @@ def detect_small_animal(text: str) -> dict:
     if not text:
         return {"detected": False, "animals": []}
 
-    t       = text.lower()
+    t       = str(text or "").lower()
     found   = []
 
     for animal, info in SMALL_ANIMALS.items():
-        if animal in t or info["th"] in t:
+        if animal == "mouse":
+            # "หนู" เป็นสรรพนามแทนตัวเองด้วย ("หนูพยายามแล้วค่ะ") — นับเป็นสัตว์เมื่อมีบริบทเท่านั้น
+            th_hit = _MOUSE_TH_RE.search(t) is not None
+        else:
+            th_hit = info["th"] in t
+        if _hit(animal.replace("_", " "), t) or th_hit:
             found.append({
                 "animal":    animal,
                 "thai":      info["th"],
@@ -125,11 +142,11 @@ def detect_harm_intent(text: str) -> dict:
     if not text:
         return {"harm_detected": False, "harm_type": None}
 
-    t          = text.lower()
+    t          = str(text or "").lower()
     harm_found = []
 
     for harm_type, signals in HARM_SIGNALS.items():
-        hits = [s for s in signals if s in t]
+        hits = [s for s in signals if _hit(s, t)]
         if hits:
             harm_found.append({"type": harm_type, "signals": hits})
 
@@ -151,10 +168,10 @@ def assess_welfare(text: str) -> dict:
     ประเมินสภาวะสวัสดิภาพสัตว์จาก text
     A25 — ความเจ็บปวดต้องถูกวัด ไม่ใช่คาดเดา
     """
-    t = text.lower()
+    t = str(text or "").lower()
 
-    positive_hits = [w for w in WELFARE_INDICATORS["positive"] if w in t]
-    negative_hits = [w for w in WELFARE_INDICATORS["negative"] if w in t]
+    positive_hits = [w for w in WELFARE_INDICATORS["positive"] if _hit(w, t)]
+    negative_hits = [w for w in WELFARE_INDICATORS["negative"] if _hit(w, t)]
 
     if negative_hits and not positive_hits:
         welfare = "POOR"

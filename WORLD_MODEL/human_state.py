@@ -36,6 +36,18 @@ KERNEL_PROFILES = {
 }
 
 
+
+def _unit(v, d: float) -> float:
+    """ค่า 0–1 — ค่าเสีย/NaN → ค่าเริ่มต้น"""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return round(max(0.0, min(1.0, x)), 4) if x == x else d
+
+_DIMENSIONS = ("energy", "stress", "resources", "social_support", "time_pressure")
+
+
 class HumanState:
     """
     สภาวะมนุษย์ — อัปเดตได้จาก input จริง
@@ -50,11 +62,11 @@ class HumanState:
                  time_pressure:  float = 0.2,
                  kernel:         str   = "LYLA"):
 
-        self.energy         = round(max(0.0, min(1.0, energy)),         4)
-        self.stress         = round(max(0.0, min(1.0, stress)),         4)
-        self.resources      = round(max(0.0, min(1.0, resources)),      4)
-        self.social_support = round(max(0.0, min(1.0, social_support)), 4)
-        self.time_pressure  = round(max(0.0, min(1.0, time_pressure)),  4)
+        self.energy         = _unit(energy,         0.7)
+        self.stress         = _unit(stress,         0.3)
+        self.resources      = _unit(resources,      0.5)
+        self.social_support = _unit(social_support, 0.4)
+        self.time_pressure  = _unit(time_pressure,  0.2)
         self.kernel         = kernel if kernel in KERNEL_PROFILES else "LYLA"
         self.updated_at     = time.time()
 
@@ -105,9 +117,10 @@ class HumanState:
     # ── Update ────────────────────────────────────────────────────
     def update(self, **kwargs) -> "HumanState":
         """อัปเดต dimension — bounded 0–1"""
+        # เดิม hasattr(self, k) → update(snapshot=1) เขียนทับเมธอด, update(kernel=0.5) ทับชื่อ kernel
         for k, v in kwargs.items():
-            if hasattr(self, k):
-                setattr(self, k, round(max(0.0, min(1.0, float(v))), 4))
+            if k in _DIMENSIONS:
+                setattr(self, k, _unit(v, getattr(self, k)))
         self.updated_at = time.time()
         return self
 

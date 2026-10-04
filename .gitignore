@@ -1,0 +1,6 @@
+# ข้อมูลตอนรัน (ค่าเริ่มต้นของ core/paths.py เมื่อไม่ได้ตั้ง DB_PATH) — ไม่ใช่ซอร์สโค้ด
+data/
+*.db
+# bytecode
+__pycache__/
+*.pyc

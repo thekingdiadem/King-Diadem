@@ -13,15 +13,20 @@ def analyze_relationship(
     context: dict,
     detail:  bool = True,
 ) -> dict:
-    ctx = context or {}
+    ctx = context if isinstance(context, dict) else {}
 
-    depression     = bool(ctx.get("depression",    False))
-    fear           = bool(ctx.get("fear",          False))
-    dependency     = bool(ctx.get("dependency",    False))
-    violence_risk  = bool(ctx.get("violence_risk", False))
-    isolation      = bool(ctx.get("isolation",     False))
-    trust_broken   = bool(ctx.get("trust_broken",  False))
-    financial_ctrl = bool(ctx.get("financial_control", False))
+    def _b(k):
+        # เดิม bool("false") == True → ส่งค่า "false" มาแล้วนับเป็นความเสี่ยง
+        v = ctx.get(k, False)
+        return v is True or (isinstance(v, (int, float)) and v != 0) or str(v).strip().lower() in ("true", "1", "yes", "ใช่", "มี")
+
+    depression     = _b("depression")
+    fear           = _b("fear")
+    dependency     = _b("dependency")
+    violence_risk  = _b("violence_risk")
+    isolation      = _b("isolation")
+    trust_broken   = _b("trust_broken")
+    financial_ctrl = _b("financial_control")
 
     # ── Weighted risk score ───────────────────────────────────────
     score = 0.0

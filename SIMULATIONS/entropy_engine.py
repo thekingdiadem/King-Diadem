@@ -4,6 +4,14 @@ Entropy analysis: deterministic + signal-based
 ไม่ใช้ random drift — คำนวณจาก state จริง
 """
 
+
+def _num(v, d: float) -> float:
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return d
+    return x if x == x else d
+
 def analyze_entropy(system_state: dict) -> dict:
     """
     วิเคราะห์ entropy และคาดการณ์ทิศทาง
@@ -12,9 +20,9 @@ def analyze_entropy(system_state: dict) -> dict:
     if not isinstance(system_state, dict):
         system_state = {}
 
-    entropy  = max(0.0, min(100.0, float(system_state.get("entropy",  50))))
-    stability= max(0.0, min(100.0, float(system_state.get("stability",50))))
-    resource = max(0.0, min(100.0, float(system_state.get("resource", 50))))
+    entropy  = max(0.0, min(100.0, _num(system_state.get("entropy",  50), 50.0)))
+    stability= max(0.0, min(100.0, _num(system_state.get("stability",50), 50.0)))
+    resource = max(0.0, min(100.0, _num(system_state.get("resource", 50), 50.0)))
 
     # survival score = stability - entropy (weighted by resource)
     resource_weight = 0.5 + (resource / 200)  # 0.5–1.0
