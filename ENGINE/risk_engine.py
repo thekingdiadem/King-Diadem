@@ -4,9 +4,11 @@
 # คง evaluate_risk(text) ไว้เพื่อ backward compat
 from __future__ import annotations
 from core.thai_signals import NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, has as _has
+from core.lang_signals import SELF_HARM_INTL
 
 _SELF_HARM = ("อยากตาย", "ฆ่าตัวตาย", "ฆ่าตัวเอง", "ทำร้ายตัวเอง", "ไม่อยากมีชีวิต",
               NOT_WANT_TO_LIVE, "จบชีวิต", "kill myself", "suicide", "self-harm", "end my life")
+_SELF_HARM += SELF_HARM_INTL   # อังกฤษ จีน ญี่ปุ่น เกาหลี สเปน (core/lang_signals)
 _SURVIVAL  = ("อดข้าว", "ไม่มีข้าวกิน", NO_MONEY_ESSENTIAL, "เงินหมด", "ไม่มีที่อยู่", "ถูกไล่ออก")
 # ขาดปัจจัยพื้นฐาน (อาหาร/ที่อยู่) → ต้องไปเส้นทาง survival แม้ไม่ได้กรอก context
 _BASIC_NEEDS = ("อดข้าว", "ไม่มีข้าวกิน", "ไม่มีอะไรกิน", "ไม่ได้กินข้าว", "ไม่มีที่อยู่", "ไม่มีที่นอน",
