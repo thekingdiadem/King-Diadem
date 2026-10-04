@@ -405,7 +405,8 @@ INTERNAL_RULE = ("\n\nกฎบริบทภายใน: ข้อควา�
                  "ใช้ประกอบการคิดเท่านั้น ห้ามยกมาพูด ห้ามเอ่ยชื่อ engine ชื่อตัวแปร หรือศัพท์ภายใน "
                  "(เช่น root, feeling, craving, UAP, kill zone, entropy) ให้ผู้ใช้เห็น")
 _INTERNAL_TOKENS = re.compile(
-    r"root\s*=|feeling\s*=|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
+    r"root\s*=\s*(?:craving|fear|aversion|clinging|ignorance|bias|misinformation|non_existence)|"
+    r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
     r"SURVIVOR ENGINE|Router action|\[โหมด:|Wise attention|nirvana_mode|risk_score|EMOTION(?:AL_CONTEXT)?:|"
     r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|context_for_lyla", re.I)
 

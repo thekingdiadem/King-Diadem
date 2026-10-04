@@ -47,7 +47,8 @@ class SystemOrchestrator:
                 return note
         except Exception:
             pass
-        return "[โยนิโสมนสิการ: วิเคราะห์ต้นเหตุและลูกโซ่ผลกระทบก่อนตอบ]"
+        # เดิมคืน "[โยนิโสมนสิการ: วิเคราะห์ต้นเหตุ...]" เมื่อไม่มีสัญญาณ → "ตอบไวดี" ก็ถูกสั่งให้วิเคราะห์ต้นเหตุ
+        return ""
 
     def _living_water(self, text: str) -> bool:
         try:
@@ -107,7 +108,8 @@ class SystemOrchestrator:
             result["waterline"]  = survival.waterline
             result["can_decide"] = survival.can_decide
             result["flags"]      = survival.flags
-            if survival.context_for_lyla:
+            # STABLE = ค่าเริ่มต้น (ไม่ได้บอกสถานะ) — ไม่ส่ง ไม่งั้น LLM คิดว่าผู้ใช้ส่งรายงานสถานะมา
+            if survival.context_for_lyla and survival.status != "STABLE":
                 ctx_parts.append(survival.context_for_lyla)
         except Exception:
             pass

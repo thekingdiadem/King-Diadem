@@ -175,6 +175,7 @@ try:
         stripe_event_done, mark_stripe_event, add_credits_once, premium_subscription,
         set_premium_until, get_premium_until, email_for_stripe_customer,
         spend_credit, credit_history, take_free_run, give_back_free_run, free_runs_used,
+        open_charge, close_charge, reclaim_stale_charges,
     )
     init_db()
     print("✅ Database initialized")
@@ -186,6 +187,7 @@ except Exception as e:
     stripe_event_done = mark_stripe_event = add_credits_once = premium_subscription = None
     set_premium_until = get_premium_until = email_for_stripe_customer = None
     spend_credit = credit_history = take_free_run = give_back_free_run = free_runs_used = None
+    open_charge = close_charge = reclaim_stale_charges = None
 
 # ── REPORT ENGINE ─────────────────────────────────────────────────
 try:
@@ -268,18 +270,18 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 def _friendly_error(err: str) -> str:
     e = str(err).lower()
     if "403" in e or "permission_denied" in e or "permission denied" in e:
-        return "ระบบ AI ไม่มีสิทธิ์เข้าถึงตอนนี้ — ลองใหม่อีกครั้งนะคะ"
+        return "ระบบ AI ยังเข้าใช้งานไม่ได้ตอนนี้ค่ะ ลองใหม่อีกครั้งนะคะ"
     if "503" in e or "unavailable" in e or "high demand" in e:
-        return "AI ยุ่งอยู่ชั่วคราว — รอสักครู่แล้วลองใหม่ได้เลยค่ะ"
+        return "AI ยุ่งอยู่นิดหน่อยค่ะ รอสักครู่แล้วลองใหม่ได้เลยนะคะ"
     if "429" in e or "quota" in e or "rate limit" in e:
-        return "ถึงขีดจำกัดชั่วคราว — รอสักครู่แล้วลองอีกทีนะคะ"
+        return "ใช้งานถึงขีดจำกัดชั่วคราวค่ะ รอสักครู่แล้วลองอีกทีนะคะ"
     if "404" in e or "not found" in e or "not supported" in e:
-        return "โมเดล AI ไม่พร้อม — ระบบกำลังสลับไปใช้ตัวสำรองค่ะ"
+        return "โมเดล AI ยังไม่พร้อมค่ะ ระบบกำลังสลับไปใช้ตัวสำรองนะคะ"
     if "auth" in e or "api_key" in e or "api key" in e:
-        return "กำลังตรวจสอบ API — ลองใหม่อีกครั้งนะคะ"
+        return "ระบบกำลังตรวจสอบการเชื่อมต่อค่ะ ลองใหม่อีกครั้งนะคะ"
     if "timeout" in e or "timed out" in e:
-        return "การเชื่อมต่อหมดเวลา — ลองใหม่ได้เลยค่ะ"
-    return "ระบบไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งนะคะ"
+        return "การเชื่อมต่อช้าไปหน่อยค่ะ ลองใหม่ได้เลยนะคะ"
+    return "ระบบขอพักสักครู่ค่ะ ลองใหม่อีกครั้งนะคะ"
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -366,20 +368,60 @@ def _charge(email: str, request: Request, what: str):
         return {"mode": "unmetered"}, None
     if _is_premium(email):
         return {"mode": "premium"}, None
+    _reclaim_stale()
     ident, day = _quota_identity(email, request), _today()
     if take_free_run(ident, day, FREE_DAILY_RUNS):
-        return {"mode": "free", "identity": ident, "day": day}, None
+        return _open({"mode": "free", "identity": ident, "day": day}), None
     if email and spend_credit and spend_credit(email, RUN_COST, what):
-        return {"mode": "credit", "email": email, "what": what}, None
-    msg = (f"ข้อความฟรีวันนี้ครบ {FREE_DAILY_RUNS} แล้ว — "
-           + ("เติมเครดิตหรือสมัคร Premium เพื่อใช้ต่อได้เลยค่ะ" if email
-              else "เข้าสู่ระบบแล้วเติมเครดิต หรือสมัคร Premium เพื่อใช้ต่อได้เลยค่ะ"))
+        return _open({"mode": "credit", "email": email, "what": what}), None
+    msg = (f"วันนี้คุยครบ {FREE_DAILY_RUNS} ข้อความฟรีแล้วค่ะ พรุ่งนี้กลับมาคุยกันได้อีกนะคะ "
+           + ("หรือถ้าอยากคุยต่อตอนนี้ เติมเครดิตหรือสมัคร Premium ได้เลยค่ะ" if email
+              else "หรือถ้าอยากคุยต่อตอนนี้ เข้าสู่ระบบแล้วเติมเครดิต หรือสมัคร Premium ได้เลยค่ะ"))
     body = {"error": msg, "code": "quota_exhausted", "quota": _quota_status(email, request)}
     return None, JSONResponse(body, status_code=402)
+
+def _open(ticket: dict) -> dict:
+    """จดการหักลงฐานข้อมูล — ถ้า worker ตายกลางทาง _reclaim_stale จะคืนให้ภายหลัง"""
+    if open_charge:
+        try:
+            ticket["id"] = open_charge(ticket)
+        except Exception as e:
+            print(f"⚠ open_charge: {type(e).__name__}")
+    return ticket
+
+def _settle(ticket):
+    """ได้คำตอบแล้ว — ปิดใบเสร็จ (หักจริง)"""
+    if ticket and ticket.get("id") and close_charge:
+        try:
+            close_charge(ticket["id"])
+        except Exception as e:
+            print(f"⚠ close_charge: {type(e).__name__}")
+
+_reclaim_at = 0.0
+
+def _reclaim_stale(force: bool = False):
+    """คืนโควตา/เครดิตของ request ที่ตายไปแล้ว (ใบเสร็จค้างเกิน 5 นาที) — เช็กอย่างมาก 5 นาทีครั้ง"""
+    global _reclaim_at
+    now = time.time()
+    if not reclaim_stale_charges or (not force and now - _reclaim_at < 300):
+        return
+    _reclaim_at = now
+    try:
+        for t in reclaim_stale_charges(300):
+            _refund({k: t.get(k) for k in ("mode", "identity", "day", "email", "what")})
+    except Exception as e:
+        print(f"⚠ reclaim_stale_charges: {type(e).__name__}")
 
 def _refund(ticket):
     if not ticket:
         return
+    # ใบเสร็จถูกเก็บคืนไปแล้ว (reclaim) → คืนไปแล้ว ห้ามคืนซ้ำ
+    if ticket.get("id") and close_charge:
+        try:
+            if not close_charge(ticket["id"]):
+                return
+        except Exception as e:
+            print(f"⚠ close_charge: {type(e).__name__}")
     try:
         if ticket["mode"] == "free" and give_back_free_run:
             give_back_free_run(ticket["identity"], ticket["day"])
@@ -716,15 +758,21 @@ async def register(request: Request, data: dict):
     email    = str(data.get("email") or "").strip().lower()
     password = str(data.get("password") or "")
     if not _EMAIL_RE.match(email) or len(email) > 254:
-        return JSONResponse({"status": "error", "message": "รูปแบบอีเมลไม่ถูกต้อง"}, status_code=400)
+        return JSONResponse({"status": "error", "message": "อีเมลดูไม่ถูกรูปแบบนิดหน่อยค่ะ ลองเช็กอีกครั้งนะคะ"}, status_code=400)
     if len(password) < 6:
-        return JSONResponse({"status": "error", "message": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"}, status_code=400)
+        return JSONResponse({"status": "error", "message": "ขอรหัสผ่านอย่างน้อย 6 ตัวอักษรนะคะ"}, status_code=400)
     if not set_password:
-        return JSONResponse({"status": "error", "message": "ระบบบัญชีไม่พร้อมชั่วคราว"}, status_code=503)
+        return JSONResponse({"status": "error", "message": "ระบบบัญชีขอพักสักครู่นะคะ ลองใหม่อีกทีได้เลยค่ะ"}, status_code=503)
+    # 409 บอกได้ว่าอีเมลนี้มีบัญชี — จำกัดต่อ IP ไม่ให้ไล่เช็กอีเมลจำนวนมาก (8 ครั้ง / 10 นาที)
+    reg_key = f"reg|{_client_ip(request)}"
+    if _login_blocked(reg_key):
+        return JSONResponse({"status": "error", "message": "ลองสมัครหลายครั้งแล้ว พักสัก 10 นาทีแล้วค่อยลองใหม่นะคะ"},
+                            status_code=429)
     # อีเมลที่มีอยู่แล้ว (เช่นเคยเข้าด้วย Google) ห้ามตั้งรหัสผ่านทับ — ไม่งั้นยึดบัญชีคนอื่นได้
     if (user_exists and user_exists(email)) or not set_password(email, password):
+        _login_failed(reg_key)
         return JSONResponse(
-            {"status": "error", "message": "อีเมลนี้มีบัญชีแล้ว — เข้าสู่ระบบด้วยรหัสผ่านเดิม หรือด้วย Google"},
+            {"status": "error", "message": "อีเมลนี้เคยสมัครไว้แล้วค่ะ เข้าสู่ระบบด้วยรหัสผ่านเดิม หรือด้วย Google ได้เลยนะคะ"},
             status_code=409,
         )
     if ensure_user: ensure_user(email)
@@ -741,10 +789,10 @@ async def login_email(request: Request, data: dict):
     ip       = _client_ip(request)
     key      = f"{ip}|{email}"
     if _login_blocked(key):
-        return JSONResponse({"status": "error", "message": "ลองผิดหลายครั้งเกินไป — รอ 10 นาทีแล้วลองใหม่"}, status_code=429)
+        return JSONResponse({"status": "error", "message": "ลองหลายครั้งแล้ว พักสัก 10 นาทีแล้วค่อยลองใหม่นะคะ"}, status_code=429)
     if not email or not password or not verify_password or not verify_password(email, password):
         _login_failed(key)
-        return JSONResponse({"status": "error", "message": "อีเมลหรือรหัสผ่านไม่ถูกต้อง"}, status_code=401)
+        return JSONResponse({"status": "error", "message": "อีเมลหรือรหัสผ่านยังไม่ตรงค่ะ ลองอีกครั้งนะคะ"}, status_code=401)
     if ensure_user: ensure_user(email)
     credits = get_credits(email) if get_credits else 0
     r = JSONResponse({"status": "ok", "email": email, "credits": credits})
@@ -887,7 +935,7 @@ def run_kernel(request: Request, data: dict):
     if not isinstance(user_input, str):
         user_input = str(user_input)
     if not user_input.strip():
-        return {"error": "Input is required"}
+        return {"error": "พิมพ์ข้อความก่อนนะคะ"}
     # เดิมไม่จำกัดความยาว — ข้อความ 1MB ถูกส่งเข้า LLM (ค่าใช้จ่าย) และเก็บลง log ทั้งก้อน
     if len(user_input) > _MAX_INPUT_CHARS:
         return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร — ลองสรุปให้สั้นลงนะคะ"},
@@ -897,7 +945,7 @@ def run_kernel(request: Request, data: dict):
     _identity = email if email != "anonymous" else _client_ip(request)
     if not _rate_check(_identity):
         return JSONResponse(
-            {"error": f"ใช้งานถี่เกินไป — จำกัด {_RATE_LIMIT_N} ครั้ง / {_RATE_LIMIT_WINDOW} วินาที กรุณารอสักครู่"},
+            {"error": f"ส่งถี่ไปนิดนึงค่ะ (ได้ {_RATE_LIMIT_N} ครั้งต่อ {_RATE_LIMIT_WINDOW} วินาที) พักสักครู่แล้วส่งใหม่ได้เลยนะคะ"},
             status_code=429
         )
 
@@ -922,6 +970,8 @@ def run_kernel(request: Request, data: dict):
         request_no_ai(False)
     if not _answered(result):
         _refund(ticket)
+    else:
+        _settle(ticket)
     if isinstance(result, dict):
         result["quota"] = {**_quota_status(email, request), "charged": ticket["mode"]}
     return result
@@ -1255,7 +1305,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 print(f"⛔ CANON HARD BLOCK: {severe}")
                 # ระงับคำตอบ AI แล้วยังต้องมีคำตอบ — ใช้คำตอบจากสมการแทน (เดิมผู้ใช้ได้แค่ "ถูกระงับ")
                 b_route = result.get("route", route)
-                fallback, source = "คำตอบนี้ถูกระงับเพราะขัดกับหลัก canon พื้นฐานของระบบค่ะ", None
+                fallback, source = "ขอโทษนะคะ คำตอบที่เตรียมไว้ยังไม่ดีพอจะส่งให้ ลองเล่าเพิ่มอีกนิดได้ไหมคะ ฉันอยู่ตรงนี้ค่ะ", None
                 if kernel_compose:
                     try:
                         fallback = kernel_compose(user_input, route=b_route, voice_mode=vm,
@@ -1328,9 +1378,9 @@ def run_simulate(request: Request, data: dict):
     if not user_input:
         return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
     if len(user_input) > _MAX_INPUT_CHARS:
-        return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร"}, status_code=413)
+        return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร ลองสรุปให้สั้นลงนะคะ"}, status_code=413)
     if not _rate_check(email if email != "anonymous" else _client_ip(request)):
-        return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่แล้วลองใหม่ได้เลยนะคะ"}, status_code=429)
     ticket, denied = _charge(email, request, "simulate")
     if denied:
         return denied
@@ -1338,10 +1388,15 @@ def run_simulate(request: Request, data: dict):
     request_no_ai(ticket.get("mode") == "unmetered")
     try:
         result = _simulate_impl(user_input, paths, email)
+    except Exception:
+        _refund(ticket)
+        raise
     finally:
         request_no_ai(False)
     if not (isinstance(result, dict) and result.get("source") == "llm" and not used_fallback()):
         _refund(ticket)
+    else:
+        _settle(ticket)
     result["quota"] = {**_quota_status(email, request), "charged": ticket["mode"]}
     return result
 
@@ -1412,7 +1467,7 @@ async def create_checkout(request: Request, data: dict):
     except Exception as e:
         # ข้อความ error ของ Stripe อาจมีบางส่วนของ key/request id — log ฝั่ง server เท่านั้น
         print(f"⚠ stripe checkout error: {type(e).__name__}: {e}")
-        return JSONResponse({"error": "ชำระเงินไม่สำเร็จชั่วคราว — ลองใหม่อีกครั้ง"}, status_code=502)
+        return JSONResponse({"error": "ระบบชำระเงินขัดข้องชั่วคราวค่ะ ยังไม่มีการตัดเงิน ลองใหม่อีกครั้งนะคะ"}, status_code=502)
 
 
 @app.post("/create-subscription")
@@ -1435,7 +1490,7 @@ async def create_subscription(request: Request):
     except Exception as e:
         # ข้อความ error ของ Stripe อาจมีบางส่วนของ key/request id — log ฝั่ง server เท่านั้น
         print(f"⚠ stripe checkout error: {type(e).__name__}: {e}")
-        return JSONResponse({"error": "ชำระเงินไม่สำเร็จชั่วคราว — ลองใหม่อีกครั้ง"}, status_code=502)
+        return JSONResponse({"error": "ระบบชำระเงินขัดข้องชั่วคราวค่ะ ยังไม่มีการตัดเงิน ลองใหม่อีกครั้งนะคะ"}, status_code=502)
 
 
 # ── STRIPE WEBHOOK ────────────────────────────────────────────────
@@ -1574,7 +1629,7 @@ _TOPUP_MIN_THB, _TOPUP_MAX_THB = 20, 10000   # Stripe เก็บ THB ขั้
 async def wallet_balance(request: Request):
     email = _session_email(request)
     if not email:
-        return JSONResponse({"error": "กรุณาเข้าสู่ระบบก่อน", "code": "login_required"}, status_code=401)
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ", "code": "login_required"}, status_code=401)
     q = _quota_status(email, request)
     hist = credit_history(email, 20) if credit_history else []
     return {
@@ -1591,15 +1646,15 @@ async def wallet_topup(request: Request, data: dict):
     """สร้าง Stripe Checkout สำหรับเติมเครดิต — เครดิตเข้าบัญชีเมื่อ webhook ยืนยันการจ่ายเงินเท่านั้น"""
     email = _session_email(request)
     if not email:
-        return JSONResponse({"error": "กรุณาเข้าสู่ระบบก่อนเติมเครดิต", "code": "login_required"}, status_code=401)
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนแล้วค่อยเติมเครดิตนะคะ", "code": "login_required"}, status_code=401)
     if not os.getenv("STRIPE_SECRET_KEY"):
-        return JSONResponse({"error": "ระบบชำระเงินยังไม่ได้ตั้งค่า"}, status_code=503)
+        return JSONResponse({"error": "ระบบชำระเงินยังไม่เปิดใช้ค่ะ ขออภัยนะคะ"}, status_code=503)
     try:
         baht = int(float(data.get("amount") or 0))
     except (TypeError, ValueError):
         baht = 0
     if baht < _TOPUP_MIN_THB or baht > _TOPUP_MAX_THB:
-        return JSONResponse({"error": f"เติมได้ครั้งละ ฿{_TOPUP_MIN_THB}–฿{_TOPUP_MAX_THB:,}"}, status_code=400)
+        return JSONResponse({"error": f"เติมได้ครั้งละ ฿{_TOPUP_MIN_THB}–฿{_TOPUP_MAX_THB:,} นะคะ"}, status_code=400)
     credits = int(baht / THB_PER_CREDIT + 1e-9)
     try:
         session = await run_in_threadpool(lambda: stripe.checkout.Session.create(
@@ -1617,7 +1672,7 @@ async def wallet_topup(request: Request, data: dict):
         return {"url": session.url, "credits": credits, "amount": baht}
     except Exception as e:
         print(f"⚠ wallet topup error: {e}")
-        return JSONResponse({"error": "สร้างหน้าชำระเงินไม่สำเร็จ — ลองใหม่อีกครั้ง"}, status_code=502)
+        return JSONResponse({"error": "เปิดหน้าชำระเงินไม่สำเร็จค่ะ ยังไม่มีการตัดเงิน ลองใหม่อีกครั้งนะคะ"}, status_code=502)
 
 
 @app.get("/credits")
@@ -1641,17 +1696,17 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
                             status_code=503)
     email = _session_email(request)
     if not _rate_check(email or _client_ip(request)):
-        return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่แล้วลองใหม่ได้เลยนะคะ"}, status_code=429)
     if file.content_type not in _ALLOWED_IMAGE_MIME:
         return JSONResponse(
-            {"error": f"รองรับเฉพาะไฟล์ภาพ jpeg/png/webp เท่านั้น (ได้รับ {file.content_type})"},
+            {"error": "ตอนนี้รองรับภาพ jpeg, png และ webp ค่ะ ลองเปลี่ยนไฟล์ดูนะคะ"},
             status_code=400
         )
     try:
         data = await file.read(_MAX_IMAGE_BYTES + 1)
         if len(data) > _MAX_IMAGE_BYTES:
             return JSONResponse(
-                {"error": f"ไฟล์ใหญ่เกินไป — จำกัดไม่เกิน {_MAX_IMAGE_BYTES // (1024*1024)}MB"},
+                {"error": f"ไฟล์ใหญ่ไปนิดค่ะ ขอไม่เกิน {_MAX_IMAGE_BYTES // (1024*1024)}MB นะคะ"},
                 status_code=413
             )
         mime = file.content_type or "image/jpeg"
@@ -1662,7 +1717,7 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
     if denied:
         return denied
     if ticket.get("mode") == "unmetered":          # นับโควตาไม่ได้ → ไม่เปิด AI ฟรีไม่จำกัด
-        return JSONResponse({"error": "ระบบโควตาไม่พร้อมชั่วคราว — ลองใหม่ภายหลังค่ะ"}, status_code=503)
+        return JSONResponse({"error": "ระบบนับโควตาขอพักสักครู่ค่ะ ลองใหม่อีกทีนะคะ"}, status_code=503)
     try:
         analysis_text = await run_in_threadpool(_analyze_image_sync, data, mime)
     except Exception as e:
@@ -1671,6 +1726,8 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
         return JSONResponse({"error": _friendly_error(str(e))}, status_code=500)
     if analysis_text == _IMAGE_EMPTY:
         _refund(ticket)
+    else:
+        _settle(ticket)
     return {"analysis": analysis_text, "filename": file.filename,
             "quota": {**_quota_status(email, request), "charged": ticket["mode"]}}
 
@@ -1741,7 +1798,7 @@ async def create_report_manual(request: Request, data: dict):
         return JSONResponse({"error": "report engine not loaded"}, status_code=503)
     email      = _session_email(request, "anonymous")
     if not _rate_check(email if email != "anonymous" else _client_ip(request)):
-        return JSONResponse({"error": "ใช้งานถี่เกินไป — รอสักครู่แล้วลองใหม่"}, status_code=429)
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่แล้วลองใหม่ได้เลยนะคะ"}, status_code=429)
     user_input = data.get("input", "")
     result     = data.get("result", {})
     if not user_input or not isinstance(result, dict) or not result:
