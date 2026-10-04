@@ -40,20 +40,11 @@ class SystemOrchestrator:
     def _paticcasamuppada(self, text: str) -> str:
         # FIX: ชื่อจริงคือ analyze() ไม่ใช่ analyze_chain()
         try:
-            from ENGINE.paticcasamuppada_engine import analyze
-            r = analyze({"input": text})
-            if isinstance(r, dict):
-                parts = []
-                root    = r.get("root_cause", "")
-                summary = r.get("summary", "")
-                nirvana = r.get("nirvana_mode", False)
-                uap     = r.get("uap", {})
-                if root:     parts.append(f"ต้นเหตุ: {root}")
-                if nirvana:  parts.append("chain ดับที่เวทนา")
-                elif summary: parts.append(summary)
-                if uap.get("should_pause"): parts.append("UAP: หยุดก่อนตัดสินใจ")
-                if parts:
-                    return f"[ปฏิจสมุปบาท — {' | '.join(parts)}]"
+            from ENGINE.paticcasamuppada_engine import analyze, llm_note
+            # เดิมส่ง "ต้นเหตุ: craving | วงจรวิ่งถึง decay_suffering | UAP: ..." แล้ว LLM ยกไปพูดกับผู้ใช้
+            note = llm_note(analyze({"input": text}))
+            if note:
+                return note
         except Exception:
             pass
         return "[โยนิโสมนสิการ: วิเคราะห์ต้นเหตุและลูกโซ่ผลกระทบก่อนตอบ]"

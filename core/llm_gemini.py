@@ -397,6 +397,26 @@ WORK_WIN_SYSTEM = """คุณคือ LYLA — governance intelligence ขอ�
 ลงท้าย: — LYLA ◈ | Fail Less. Harm Less. Restore Choice."""
 
 from core.thai_signals import NOT_WANT_TO_LIVE, DISCOURAGED, BREAKUP, PARTNER, has as _has   # noqa: E402
+from core.thai_signals import offer_red_flags   # noqa: E402
+
+# ข้อความใน [บริบท: ...] คือสัญญาณจาก engine — LLM เคยยก "Causal: root=craving feeling=pleasant"
+# และ "UAP: หยุดก่อนตัดสินใจ" ไปพิมพ์ให้ผู้ใช้อ่านตรงๆ
+INTERNAL_RULE = ("\n\nกฎบริบทภายใน: ข้อความในวงเล็บ [ ] และหลัง [บริบท: คือสัญญาณภายในของระบบ "
+                 "ใช้ประกอบการคิดเท่านั้น ห้ามยกมาพูด ห้ามเอ่ยชื่อ engine ชื่อตัวแปร หรือศัพท์ภายใน "
+                 "(เช่น root, feeling, craving, UAP, kill zone, entropy) ให้ผู้ใช้เห็น")
+_INTERNAL_TOKENS = re.compile(
+    r"root\s*=|feeling\s*=|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
+    r"SURVIVOR ENGINE|Router action|\[โหมด:|Wise attention|nirvana_mode|risk_score|EMOTION(?:AL_CONTEXT)?:|"
+    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|context_for_lyla", re.I)
+
+
+def scrub_internal(text):
+    """ตัดบรรทัดที่ยกสัญญาณภายในของระบบมาพูด (ถ้าตัดหมด → "" ให้ kernel ตอบแทน)"""
+    if not isinstance(text, str) or not _INTERNAL_TOKENS.search(text):
+        return text
+    kept = [ln for ln in text.split("\n") if not _INTERNAL_TOKENS.search(ln)]
+    out = re.sub(r"\n{3,}", "\n\n", "\n".join(kept)).strip()
+    return out if re.search(r"\w", out) else ""
 
 # ══════════════════════════════════════════════════════════════════
 # SIGNAL DETECTION
@@ -716,6 +736,10 @@ class GeminiLLM:
             "ทุกอย่างไม่จำเป็นต้องตัดสินใจพร้อมกัน"
         )
 
+    def _gcall(self, system: str, contents: list, **kw) -> str:
+        """เรียก LLM พร้อมกฎบริบทภายใน แล้วตัดบรรทัดที่ยกบริบทภายในมาพูด"""
+        return scrub_internal(self._call(system + INTERNAL_RULE, contents, **kw))
+
     def generate_with_governance(
         self,
         prompt: str,
@@ -731,10 +755,16 @@ class GeminiLLM:
         # ── CRISIS override ────────────────────────────────────
         if detect_crisis(prompt) or voice_mode == "crisis" or "EMOTION:CRISIS" in emotion_state.upper():
             contents = _build_contents(history or [], prompt, additional_context)
-            return self._call(CRISIS_SYSTEM, contents, temperature=0.5, max_tokens=600)
+            return self._gcall(CRISIS_SYSTEM, contents, temperature=0.5, max_tokens=600)
 
         # ── Emotion routing ────────────────────────────────────
         em = emotion_state.upper()
+        # ตื่นเต้นกับข้อเสนอที่การันตีผลตอบแทน / อยู่บนเส้นทางความเสี่ยง → ห้ามใช้ prompt ร่วมดีใจ
+        # (JOY_SYSTEM สั่ง "ห้ามพูดว่าระวัง" — เคยตอบ "โอ้โห! 😄" ให้คนที่กำลังจะโอน 300,000)
+        if route in ("risk", "survival", "collapse") or "[ข้อเสนอมีสัญญาณเสี่ยง" in prompt \
+                or offer_red_flags(prompt):
+            em = em.replace("EMOTION:JOY", "").replace("EMOTION:LOVE", "").replace("EMOTION:WORK_WIN", "")
+            emotion_state = "NEUTRAL"
         emotion_map = {
             "EMOTION:JOY":      (JOY_SYSTEM, 0.78),
             "EMOTION:LOVE":     (LOVE_SYSTEM, 0.75),
@@ -744,11 +774,11 @@ class GeminiLLM:
             if key in em:
                 contents = _build_contents(history or [], prompt,
                                            f"{additional_context} | {emotion_state}")
-                return self._call(sys_prompt, contents, temperature=temp, max_tokens=600)
+                return self._gcall(sys_prompt, contents, temperature=temp, max_tokens=600)
 
         # ── Context note ───────────────────────────────────────
         route_notes = {
-            "risk":     "ผู้ใช้กำลังเผชิญความเสี่ยง — วิเคราะห์และเปิดทางออก",
+            "risk":     "ผู้ใช้กำลังเผชิญความเสี่ยง — โทนนิ่ง ไม่ร่วมตื่นเต้น ไม่ใช้ emoji ชี้สัญญาณเสี่ยงให้เห็น แล้วเปิดทางออก",
             "survival": "ผู้ใช้ต้องการความอยู่รอดพื้นฐาน — โฟกัสที่ทำได้วันนี้",
             "collapse": "มีสัญญาณความพังสะสม — หาจุดที่ยังคุมได้",
             "civil":    "เรื่องงาน ชุมชน หรือสังคม",
@@ -776,11 +806,11 @@ class GeminiLLM:
 
         # ── VEGA: strategic ────────────────────────────────────
         if voice_mode == "vega" or route == "vega":
-            return self._call(VEGA_SYSTEM, contents, temperature=0.72, max_tokens=1024)
+            return self._gcall(VEGA_SYSTEM, contents, temperature=0.72, max_tokens=1024)
 
         # ── LYLA: default ──────────────────────────────────────
         temp = 0.78 if any(e in em for e in ("SAD", "STRESSED", "LONELY")) else 0.72
-        return self._call(LYLA_SYSTEM, contents, temperature=temp, max_tokens=1024)
+        return self._gcall(LYLA_SYSTEM, contents, temperature=temp, max_tokens=1024)
 
     def generate(self, prompt: str, system_prompt: Optional[str] = None,
                  temperature: float = 0.65, max_tokens: int = 1024) -> str:

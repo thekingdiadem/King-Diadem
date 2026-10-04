@@ -5,6 +5,13 @@
 # ไม่ใช่ศาสนา — คือ Causal Operating System
 # ============================================================
 
+import re
+
+try:
+    from core.thai_signals import NOT_WANT_TO_LIVE
+except Exception:  # pragma: no cover — ใช้ได้แม้ไม่มี core
+    NOT_WANT_TO_LIVE = re.compile(r"ไม่อยากอยู่(?:แล้ว|ต่อ)")
+
 # ── 12 ปัจจัย (ลำดับจริงตามพระไตรปิฎก) ──────────────────
 CHAIN_12 = [
     "ignorance",       # 1 อวิชชา
@@ -45,10 +52,13 @@ ROOT_MAP = {
     },
     "clinging":        {
         # "ติด" เดี่ยวๆ ไปติดใน "ติดต่อ" "ติดตาม" — ใช้คำเต็ม
-        "keywords": ["ยึด", "ปล่อยไม่ได้", "cling", "ยึดติด", "ติดใจ", "ติดกับ", "เกาะ"],
+        # "ยึด" ≠ ยึดรถ/ยึดบ้าน (ถูกยึดทรัพย์) · "เกาะ" ≠ เกาะสมุย (เกาะกลางทะเล)
+        "keywords": [re.compile(r"ยึด(?!\s*(?:รถ|บ้าน|ทรัพย์|ที่ดิน|คอนโด|ทะเบียน|ใบขับขี่|ของ|คืน))"),
+                     "ปล่อยไม่ได้", "cling", "ติดใจ", "ติดกับ", "เกาะติด", "เกาะแกะ", "ไม่อยากเสีย"],
         "feeling": "unpleasant", "intensity_weight": 1.2
     },
     "aversion":        {
+        # "ไม่อยาก…" = ผลักออก (เวทนาทุกข์) ไม่ใช่ตัณหาแบบอยากได้ — นับที่ detect_root_cause
         "keywords": ["เกลียด", "โกรธ", "hate", "anger", "รำคาญ", "reject"],
         "feeling": "unpleasant", "intensity_weight": 1.15
     },
@@ -64,12 +74,20 @@ ROOT_MAP = {
 }
 
 
-import re
-
 # อยาก + รู้/ถาม/ทราบ = ความใคร่รู้ ไม่ใช่ตัณหา
 # และคำปฏิเสธของความอยาก ("ไม่อยากได้", "ไม่ต้องการ") ไม่ใช่ตัณหา
 _CURIOUS = ("อยากรู้", "อยากถาม", "อยากทราบ", "อยากเข้าใจ", "อยากปรึกษา",
             "ไม่อยากได้", "ไม่ต้องการ", "don't want", "do not want")
+
+# อยากตาย / ไม่อยากมีชีวิต = วิภวตัณหา (อยากให้ตัวเองไม่มี) เกิดจากเวทนาที่เป็นทุกข์
+# เดิมคำว่า "อยาก" ทำให้ถูกจัดเป็น craving + เวทนา "pleasant" แล้วส่งบริบทนี้ให้ LLM
+_NON_EXISTENCE = ("อยากตาย", "ฆ่าตัวตาย", "จบชีวิต", "อยากหายไป", "ไม่อยากมีชีวิต",
+                  "ไม่อยากตื่น", "suicide", "kill myself", "want to die", NOT_WANT_TO_LIVE)
+_NON_EXISTENCE_META = {"root": "non_existence", "feeling": "unpleasant", "intensity_weight": 1.3}
+
+# ความต้องการเพื่อรอด (กิน นอน พัก ยา ที่พัก ความช่วยเหลือ) ไม่ใช่ตัณหา — แบบเดียวกับที่เอา "หิว" ออก
+_NEED = re.compile(r"(?:อยาก|ต้องการ)\s*(?:กิน|นอน|พัก|หลับ|ความช่วยเหลือ|ยา|หมอ|ที่พัก|ที่นอน|ข้าว|อาหาร|"
+                   r"เงิน\S{0,6}ค่า(?:รักษา|ยา|เช่า|ข้าว|อาหาร|เทอม))")
 
 # ไม่พบสัญญาณใดเลย = อทุกขมสุขเวทนา (neutral) — เดิมเดาเป็น unpleasant (craving 0.90)
 # ทำให้แทบทุกข้อความได้ "หยุดก่อน — ยังมีตัณหาหรืออวิชชา" และถูกส่งไปเส้นทาง risk
@@ -83,7 +101,9 @@ def _f(v, d):
         return d
 
 
-def _hit(k: str, text: str) -> bool:
+def _hit(k, text: str) -> bool:
+    if isinstance(k, re.Pattern):
+        return k.search(text) is not None
     if k.isascii():
         return re.search(r"(?<![a-z])" + re.escape(k) + r"(?![a-z])", text) is not None
     return k in text
@@ -95,6 +115,9 @@ def detect_root_cause(context: str) -> dict:
         return dict(_NO_SIGNAL)
 
     text = str(context).lower()
+    if any(_hit(k, text) for k in _NON_EXISTENCE):
+        m = _NON_EXISTENCE_META
+        return {**m, "score": m["intensity_weight"]}
     for c in _CURIOUS:
         text = text.replace(c, " ")
     scores = {}
@@ -102,6 +125,18 @@ def detect_root_cause(context: str) -> dict:
         hit = sum(1 for k in meta["keywords"] if _hit(k, text))
         if hit:
             scores[root] = hit * meta["intensity_weight"]
+    # "ไม่อยาก…" นับเป็น aversion แล้วตัดออก ไม่ให้ "อยาก" ข้างในไปนับเป็น craving
+    text = text.replace("ไม่อยากเสีย", " ")
+    neg = text.count("ไม่อยาก")
+    if neg:
+        text = text.replace("ไม่อยาก", " ")
+        scores["aversion"] = scores.get("aversion", 0) + neg * ROOT_MAP["aversion"]["intensity_weight"]
+    text = _NEED.sub(" ", text)
+    craving = sum(1 for k in ROOT_MAP["craving"]["keywords"] if _hit(k, text))
+    if craving:
+        scores["craving"] = craving * ROOT_MAP["craving"]["intensity_weight"]
+    else:
+        scores.pop("craving", None)
 
     if not scores:
         return dict(_NO_SIGNAL)
@@ -273,3 +308,33 @@ def analyze(pattern: dict) -> dict:
         return suffering_infrastructure(context, pattern)
     except Exception:
         return {"error": "PATICCA_UNAVAILABLE"}
+
+
+# ── ข้อความบริบทสำหรับ LLM (ภาษาคน ไม่ใช่ชื่อตัวแปร) ─────────────────
+# เดิมส่ง "root=craving feeling=pleasant — วงจรวิ่งถึง decay_suffering" ให้ LLM แล้ว LLM
+# ยกมาพูดกับผู้ใช้ตรงๆ และตีความ pleasant ว่า "ความอยากนี้เป็นความรู้สึกที่ดี"
+ROOT_TH = {
+    "craving": "ความอยากได้ (ตัณหา)", "fear": "ความกลัว", "aversion": "ความไม่อยาก/อยากผลักออก",
+    "clinging": "ความยึดติด กลัวเสีย", "ignorance": "ข้อมูลยังไม่ชัด", "misinformation": "ข้อมูลที่อาจผิดหรือถูกหลอก",
+    "bias": "อคติ", "non_existence": "ความอยากหายไปจากความทุกข์",
+}
+FEELING_TH = {"pleasant": "ชอบใจ/ตื่นเต้น", "unpleasant": "ทุกข์/ไม่สบายใจ", "neutral": "เฉยๆ"}
+_GUIDE_TH = {
+    "craving": "ความรู้สึกดีตอนนี้ไม่ได้แปลว่าการตัดสินใจดี อย่าชมหรือเติมความอยาก ช่วยให้ชะลอและแยกข้อเท็จจริงออกจากความหวัง",
+    "non_existence": "ความปลอดภัยมาก่อนทุกอย่าง รับฟัง ไม่วิเคราะห์ยาว",
+    "fear": "รับรู้ความกลัวก่อน แล้วค่อยแยกสิ่งที่คุมได้กับคุมไม่ได้",
+    "clinging": "รับรู้ความกลัวเสียก่อน แล้วค่อยดูว่ายังมีทางเลือกอะไร",
+}
+
+
+def llm_note(p: dict) -> str:
+    """บริบทเหตุ-ปัจจัยสำหรับ LLM — เฉพาะเมื่อมีหลักฐานในข้อความ"""
+    if not isinstance(p, dict) or not p.get("evidence", True) or p.get("error"):
+        return ""
+    root = p.get("root_cause", "")
+    if root not in ROOT_TH:
+        return ""
+    guide = _GUIDE_TH.get(root, "รับรู้ความรู้สึกก่อน แล้วค่อยดูเหตุ")
+    pause = " · ยังไม่ควรตัดสินใจทันที" if (p.get("uap") or {}).get("should_pause") else ""
+    return (f"[เหตุ-ปัจจัย (ใช้ประกอบการคิด ห้ามยกข้อความนี้ไปพูด): {ROOT_TH[root]} · "
+            f"เวทนา {FEELING_TH.get(p.get('feeling_tone'), 'ไม่ชัด')}{pause} — {guide}]")

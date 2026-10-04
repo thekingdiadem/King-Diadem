@@ -5,6 +5,7 @@ FAKE_LLM ปรับพฤติกรรมของ Gemini ปลอมได
     mode = "ok"    → ตอบข้อความสั้นๆ
     mode = "fail"  → ทำเหมือนโควตาหมด (ระบบต้องตอบจากสมการแทน)
     calls / systems → นับจำนวนครั้งที่เรียก และ system prompt ที่ใช้
+    text = "..."    → ให้ Gemini ปลอมตอบข้อความนี้ (เช่น ทดสอบ canon gate)
 """
 import os
 import sys
@@ -29,7 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pytest  # noqa: E402
 import core.llm_gemini as L  # noqa: E402
 
-FAKE_LLM = {"mode": "ok", "calls": 0, "systems": []}
+FAKE_LLM = {"mode": "ok", "calls": 0, "systems": [], "text": None}
 
 
 def _fake_call(self, system, contents, temperature=0.72, max_tokens=1024):
@@ -38,7 +39,7 @@ def _fake_call(self, system, contents, temperature=0.72, max_tokens=1024):
         return self._fallback_response(system, "")
     FAKE_LLM["calls"] += 1
     FAKE_LLM["systems"].append(system)
-    return "เข้าใจค่ะ มี 2 ทาง 1) พักก่อน 2) เขียนสิ่งที่กังวล\n— LYLA ◈"
+    return FAKE_LLM["text"] or "เข้าใจค่ะ มี 2 ทาง 1) พักก่อน 2) เขียนสิ่งที่กังวล\n— LYLA ◈"
 
 
 L.GeminiLLM._call = _fake_call
@@ -50,7 +51,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 
 @pytest.fixture(autouse=True)
 def _reset_fake_llm():
-    FAKE_LLM.update(mode="ok", calls=0, systems=[])
+    FAKE_LLM.update(mode="ok", calls=0, systems=[], text=None)
     yield
 
 

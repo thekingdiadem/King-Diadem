@@ -240,17 +240,14 @@ class DecisionEngine:
                         context_parts.append(f"Priority: {human_engine_result['priority']}")
 
                 if paticca_result:
-                    root    = paticca_result.get("root_cause", "")
-                    feeling = paticca_result.get("feeling_tone", "")
-                    nirvana = paticca_result.get("nirvana_mode", False)
-                    kz_out  = paticca_result.get("kill_zone", {}).get("outcome", "")
-                    uap_note= paticca_result.get("uap", {}).get("audit_note", "")
-
-                    if root:     context_parts.append(f"ปฏิจสมุปบาท root: {root}")
-                    if feeling:  context_parts.append(f"เวทนา: {feeling}")
-                    if nirvana:  context_parts.append("nirvana_mode: chain ดับที่เวทนา")
-                    elif kz_out: context_parts.append(f"kill_zone: {kz_out}")
-                    if uap_note: context_parts.append(f"UAP: {uap_note}")
+                    # ภาษาคน ไม่ใช่ชื่อตัวแปร (root/kill_zone/UAP) — LLM เคยยกไปพูดกับผู้ใช้ตรงๆ
+                    try:
+                        from ENGINE.paticcasamuppada_engine import llm_note
+                        note = llm_note(paticca_result)
+                    except Exception:
+                        note = ""
+                    if note and note not in user_input:
+                        context_parts.append(note)
 
                 if router_result:
                     action = router_result.get("action", "")
