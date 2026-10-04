@@ -9,6 +9,8 @@ from typing import Any
 
 from core.thai_signals import NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL
 
+_NEG = r"(?<!ไม่)(?<!ไม่ได้)(?<!ไม่ค่อย)(?<!ไม่ค่อยได้)"   # lookbehind ความกว้างคงที่ทีละแบบ
+
 # ── Intent definitions พร้อม causal weight ───────────────────
 _INTENTS: list[dict[str, Any]] = [
     {
@@ -53,14 +55,14 @@ _INTENTS: list[dict[str, Any]] = [
         "patterns": [
             r"ธุรกิจ", r"บริษัท", r"ลูกค้า", r"โปรเจกต์", r"เจ้านาย",
             r"ลาออก", r"\bstartup\b", r"\bmarket\b", r"\brevenue\b",
-            r"สัญญา", r"ประชุม", r"งานพรีเซนต์",
+            r"สัญญา(?!ณ)", r"ประชุม", r"งานพรีเซนต์", r"ที่ทำงาน", r"ออฟฟิศ",
         ],
     },
     {
         "name":    "relationship",
         "weight":  1.1,
         "patterns": [
-            r"แฟน", r"เลิกกัน", r"ทะเลาะ", r"ครอบครัว",
+            r"แฟน(?!บอล|คลับ|เพจ|ไซต์|ตาซี|ซี|ๆ|เมด|ชั่น)", r"เลิกกัน", r"ทะเลาะ", r"ครอบครัว",
             r"พ่อแม่", r"ความสัมพันธ์", r"\brelationship\b",
             r"เพื่อน", r"คนรัก",
         ],
@@ -78,22 +80,22 @@ _INTENTS: list[dict[str, Any]] = [
         "name":    "joy",
         "weight":  1.0,
         "patterns": [
-            r"มีความสุข", r"ดีใจมาก", r"ตื่นเต้น", r"สนุกมาก",
-            r"เยี่ยมเลย", r"ยินดี", r"(?<!un)\bhappy\b", r"\bexcited\b", r"\bwonderful\b", r"\bgreat news\b",
+            _NEG + r"มีความสุข", _NEG + r"ดีใจมาก", _NEG + r"ตื่นเต้น", _NEG + r"สนุกมาก",
+            r"เยี่ยมเลย", _NEG + r"ยินดี", r"(?<!un)\bhappy\b", r"\bexcited\b", r"\bwonderful\b", r"\bgreat news\b",
         ],
     },
     {
         "name":    "love",
-        "weight":  1.0,
+        "weight":  1.2,   # เจาะจงกว่า relationship/joy — คะแนนใกล้กันให้ love ชนะ
         "patterns": [
-            r"แฟนใหม่", r"ตกหลุมรัก", r"ชอบคนนี้", r"มีความรู้สึก",
+            r"แฟนใหม่", r"ตกหลุมรัก", r"ชอบคนนี้", _NEG + r"มีความรู้สึก(?!อะไร)",
             r"สารภาพรัก", r"รักแล้ว", r"\bin love\b", r"\bcrush\b",
             r"\bconfession\b", r"\bdating\b", r"คนที่ชอบ",
         ],
     },
     {
         "name":    "work_win",
-        "weight":  1.0,
+        "weight":  1.2,   # "ได้งานแล้ว ดีใจมาก" = work_win ไม่ใช่ joy
         "patterns": [
             # "เสร็จแล้ว" "ผ่านแล้ว" เดี่ยว ติด "กินข้าวเสร็จแล้ว" "รถผ่านแล้ว" → ใช้วลีงาน
             r"ได้งานแล้ว", r"สอบผ่านแล้ว", r"สัมภาษณ์ผ่าน", r"สำเร็จแล้ว", r"ทำสำเร็จ",
@@ -102,6 +104,10 @@ _INTENTS: list[dict[str, Any]] = [
         ],
     },
 ]
+
+# คะแนนเท่ากัน → เลือกตัวที่เจาะจง/ร้ายแรงกว่า (เดิมขึ้นกับลำดับใน dict)
+_TIE = {"crisis": 9, "survival": 8, "risk": 7, "work_win": 6, "love": 5, "vega": 4,
+        "civil": 3, "relationship": 2, "joy": 1, "question": 0}
 
 # ── Causal amplifiers: คำเหล่านี้เพิ่ม weight ของ intent ที่ match ──
 _AMPLIFIERS = {
@@ -224,13 +230,20 @@ def analyze_intent(text: str) -> dict:
         }
 
     # ── เลือก best intent ────────────────────────────────────
-    best       = max(amp_scores, key=amp_scores.get)
+    # safety first: สัญญาณทำร้ายตัวเองชนะเสมอ — เดิม "ตกงาน ไม่มีเงิน อยากตาย" ได้ survival
+    # เพราะคะแนนสะสมของ survival หลายคำ (2×2) มากกว่า crisis 1 คำ (3)
+    if "crisis" in amp_scores:
+        best = "crisis"
+    else:
+        best = max(amp_scores, key=lambda k: (amp_scores[k], _TIE.get(k, 0)))
     best_score = amp_scores[best]
     total      = sum(amp_scores.values()) or 1.0
 
     # softmax-lite: ป้องกัน overconfidence
     raw_conf   = best_score / total
     conf       = round(min(0.95, raw_conf * (1 + math.log1p(best_score) * 0.05) + causal_boost), 3)
+    if best == "crisis":
+        conf = max(conf, 0.9)    # สัญญาณทำร้ายตัวเองไม่ใช่เรื่องสัดส่วนคะแนน
 
     # root signal = pattern แรกของ best intent
     root = matched_map[best][0] if matched_map.get(best) else None
