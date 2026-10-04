@@ -115,6 +115,17 @@ Human Input → FATE™ Decision Engine → Multi-AI Council (LYLA + VEGA)
 
 ---
 
+## ทดสอบ
+
+```
+pip install -r requirements-dev.txt
+pytest
+```
+
+ชุดทดสอบใน `tests/` ไม่ใช้เน็ตและไม่เสียค่า AI (Gemini เป็นตัวปลอม) ครอบคลุม: วลีไทยที่ต้องดูบริบท, ตัวจับวิกฤตทุกตัว, จับเจตนา, คำตอบจากสมการเมื่อไม่มี AI, โควตา/เครดิต/ล็อกอิน และ Stripe webhook
+
+---
+
 ## ไม่ได้สร้างมาเพื่อชนะ
 
 สร้างมาเพื่อ **ไม่พังซ้ำ**
