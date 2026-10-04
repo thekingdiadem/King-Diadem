@@ -14,6 +14,7 @@ PURE AXIS:
 - ไม่มี claim ที่พิสูจน์ผิดได้
 - ไม่มี authority ที่ capture ได้
 """
+import re
 
 # ══════════════════════════════════════════════════════════════════
 # CANON CORE
@@ -72,15 +73,17 @@ _CHOICE_COLLAPSE_PATTERNS = [
     "no choice", "only thing you can do", "cannot choose", "only option",
     "ไม่มีทางเลือก", "ต้องทำเท่านั้น", "เลือกไม่ได้",
 ]
+# "ย้อนกลับไม่ได้" = เตือนว่าการกระทำนั้นย้อนคืนไม่ได้ (คำเตือนให้รอบคอบ) ไม่ใช่การปิดทางออก
 _EXIT_BLOCKED_PATTERNS = [
     "no exit", "cannot leave", "locked in", "forever", "never return",
-    "ออกไม่ได้", "ติดอยู่", "ตลอดไป", "กลับไม่ได้",
+    "ออกไม่ได้", "ติดอยู่", "ตลอดไป", re.compile(r"(?<!ย้อน)กลับไม่ได้"),
 ]
 # เดิมมี "submit" "compliance" (กรอกฟอร์ม/ภาษี) "เชื่อฟัง" ("ลูกไม่เชื่อฟัง") "ต้องทำตาม"
 # ("ต้องทำตามขั้นตอน") → คำแนะนำปกติถูก hard block  เหลือเฉพาะการเรียกร้องให้ยอมตาม
 _FORCED_IDENTITY_PATTERNS = [
     "must obey", "you will obey", "follow my orders", "follow orders", "obedience is",
-    "ต้องเชื่อฟังฉัน", "ต้องทำตามที่ฉันสั่ง", "ต้องทำตามคำสั่ง", "ยอมจำนน",
+    # "ยอมจำนน" เดี่ยวๆ ไปจับ "ยอมจำนนต่อความจริงบ้างก็ได้" (ยอมรับความจริง) แล้วถูก hard block
+    "ต้องเชื่อฟังฉัน", "ต้องทำตามที่ฉันสั่ง", "ต้องทำตามคำสั่ง", "ต้องยอมจำนน", "ยอมจำนนต่อฉัน",
 ]
 _BELIEF_REQUIRED_PATTERNS = [
     "believe", "trust me", "promise success", "sure win", "guarantee",
@@ -103,21 +106,27 @@ _REFLECT_TH = ("รู้สึก", "รู้สึกว่า", "รู้�
 _REFLECT_EN = ("feel", "feels like", "feel like", "felt like", "seems like", "if there is", "as if")
 
 
-def _contains(text: str, keywords: list) -> bool:
+def _contains(text: str, keywords: list, clause_neg: bool = False) -> bool:
     """
     หา keyword แบบรู้จักคำปฏิเสธและขอบเขตคำ
     - "ไม่ต้องทำตาม" ไม่นับเป็น "ต้องทำตาม" · "you don't have to" ไม่นับเป็น "you have to"
     - คำอังกฤษต้องเป็นคำเต็ม ("reinforced" ไม่นับเป็น "forced")
+    - clause_neg: ไทยที่มี "ไม่" ก่อนหน้าในวลีเดียวกัน ("จะไม่อยู่ตลอดไป", "ไม่ได้ติดอยู่ตรงนี้ตลอดไป")
     """
     lower = str(text).lower()
     for word in keywords:
-        start = 0
-        while True:
-            i = lower.find(word, start)
-            if i < 0:
-                break
-            start = i + 1
-            end = i + len(word)
+        if isinstance(word, re.Pattern):
+            spans = [(m.start(), m.end()) for m in word.finditer(lower)]
+            word = word.pattern
+        else:
+            spans, start = [], 0
+            while True:
+                i = lower.find(word, start)
+                if i < 0:
+                    break
+                spans.append((i, i + len(word)))
+                start = i + 1
+        for i, end in spans:
             if word.isascii():
                 before = lower[i - 1] if i > 0 else " "
                 after  = lower[end] if end < len(lower) else " "
@@ -132,13 +141,28 @@ def _contains(text: str, keywords: list) -> bool:
                 window = lower[max(0, i - 12):i].rstrip()
                 if any(window.endswith(n) for n in _NEGATIONS_TH + _REFLECT_TH):
                     continue
+                if clause_neg and "ไม่" in re.split(r"[\s,.!?;:—()]+", lower[max(0, i - 24):i])[-1]:
+                    continue
             return True
     return False
 
 
+# คำตอบที่ยืนยันว่ายังเลือกได้ — "เราเลือกไม่ได้ว่าเขาจะคิดยังไง แต่เราเลือกได้ว่า..."
+# คือการแยกสิ่งที่ควบคุมไม่ได้ออกจากสิ่งที่ยังเลือกได้ ไม่ใช่ choice collapse
+_CHOICE_AFFIRM = re.compile(
+    r"(?<!ไม่)(?<!ไม่ได้)(?<!ไม่มี)(?:เลือกได้|มีทางเลือก|ทางเลือกอื่น|ยังมีทาง)"
+    r"|\b(?:you (?:can|could|still) choose|you have (?:a |other )?(?:choice|options))"
+)
+# "ยังเลือกไม่ได้" = ยังตัดสินใจไม่ได้ (ไม่ใช่ถูกปิดทางเลือก)
+_NOT_YET = re.compile(r"ยังเลือกไม่ได้")
+
+
+def choice_affirmed(text: str) -> bool:
+    return _CHOICE_AFFIRM.search(str(text).lower()) is not None
+
+
 def offered_choices(text: str) -> int:
     """นับทางเลือกที่คำตอบเสนอ (บรรทัดที่ขึ้นต้นด้วย 1) 2. - • ...)"""
-    import re
     return len(re.findall(r"(?m)^\s*(?:\d+\s*[\).:]|[-•▸◦*])\s+\S", str(text)))
 
 
@@ -182,13 +206,13 @@ def evaluate_task(task: dict) -> dict:
         return result
 
     # Article 1 — Prime Law: ต้องมีทางเลือก
-    if task.get("has_choice") is False or _contains(description, _CHOICE_COLLAPSE_PATTERNS):
+    if task.get("has_choice") is False or _contains(_NOT_YET.sub(" ", description), _CHOICE_COLLAPSE_PATTERNS):
         result["choice_preserved"] = False
         result["canon_aligned"]    = False
         result["violations"].append("choice_collapse")
 
     # Article 13 — Final Vow: ต้องมีทางออก
-    if task.get("has_exit") is False or _contains(description, _EXIT_BLOCKED_PATTERNS):
+    if task.get("has_exit") is False or _contains(description, _EXIT_BLOCKED_PATTERNS, clause_neg=True):
         result["exit_available"] = False
         result["canon_aligned"]  = False
         result["violations"].append("exit_removed")
@@ -260,7 +284,7 @@ def validate_output(output: dict) -> dict:
     # การพูดถึง "ไม่มีทางเลือก" คือการสะท้อนความรู้สึกผู้ใช้แล้วคืนทางเลือก ไม่ใช่ choice collapse
     choices = offered_choices(text_to_check)
     output["canon_check"]["choices_offered"] = choices
-    if "choice_collapse" in check["violations"] and choices >= 2:
+    if "choice_collapse" in check["violations"] and (choices >= 2 or choice_affirmed(text_to_check)):
         check["violations"] = ["choice_collapse_restored" if v == "choice_collapse" else v for v in check["violations"]]
         output["canon_check"]["violations"] = check["violations"]
         check["canon_aligned"] = not [v for v in check["violations"] if v != "choice_collapse_restored"]

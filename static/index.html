@@ -1080,7 +1080,7 @@ function eqHTML(t){
     var m = s.mental_state === 'overwhelmed' ? 25 : s.mental_state === 'stressed' ? 10 : 0, dd = Math.min(20, num(s.days_in_crisis, 0) * 2);
     var wc = Math.max(0, Math.min(100, 100 - a - b - f - h - m - dd));
     W = t.wl != null ? t.wl : wc;
-    rows.push(eqRow('W', '100 − ' + [a, b, f, h, m, dd].map(r1).join(' − '), '<b>' + r1(W) + '</b>', 'e ' + s.energy + ' · s ' + s.sleep_hours + 'h · d ' + s.days_in_crisis + ' · ' + (s.mental_state || '') + (f ? ' · ¬food' : '') + (h ? ' · ¬safe' : '')));
+    rows.push(eqRow('W', '100 − ' + [a, b, f, h, m, dd].map(r1).join(' − '), '<b>' + r1(W) + '</b>', esc('e ' + s.energy + ' · s ' + s.sleep_hours + 'h · d ' + s.days_in_crisis + ' · ' + (s.mental_state || '') + (f ? ' · ¬food' : '') + (h ? ' · ¬safe' : ''))));
   } else {
     W = t.wl != null ? t.wl : 100;
     rows.push(eqRow('W', '100', '<b>' + r1(W) + '</b>', 'ค่าเริ่มต้น · <a href="#" data-act="state">ระบุสถานะ</a>'));

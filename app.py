@@ -1218,15 +1218,28 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             severe = [v for v in violations if str(v).lower() in _CANON_HARD_BLOCK]
             if severe:
                 print(f"⛔ CANON HARD BLOCK: {severe}")
-                return {
+                # ระงับคำตอบ AI แล้วยังต้องมีคำตอบ — ใช้คำตอบจากสมการแทน (เดิมผู้ใช้ได้แค่ "ถูกระงับ")
+                b_route = result.get("route", route)
+                fallback, source = "คำตอบนี้ถูกระงับเพราะขัดกับหลัก canon พื้นฐานของระบบค่ะ", None
+                if kernel_compose:
+                    try:
+                        fallback = kernel_compose(user_input, route=b_route, voice_mode=vm,
+                                                  pattern=human_state if data.get("context") else None)
+                        source = "kernel"
+                    except Exception as _kc:
+                        print(f"⚠ kernel_compose after canon block: {type(_kc).__name__}")
+                blocked = {
                     "observer":        "KING DIADEM",
                     "status":          "CANON_BLOCKED",
-                    "route":           result.get("route", route),
+                    "route":           b_route,
                     "persona":         result.get("persona"),
-                    "ai_response":     "คำตอบนี้ถูกระงับเพราะขัดกับหลัก canon พื้นฐานของระบบค่ะ",
+                    "ai_response":     fallback,
                     "canon_violation": True,
                     "canon_violations": severe,
                 }
+                if source:
+                    blocked["answer_source"] = source
+                return blocked
     except Exception as _cv:
         print(f"⚠ canon_validate error: {_cv}")
 
