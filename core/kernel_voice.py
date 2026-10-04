@@ -18,6 +18,8 @@ from __future__ import annotations
 import hashlib
 import re
 
+from core.thai_signals import NOT_WANT_TO_LIVE
+
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
 HOTLINE_MENTAL = "1323"   # สายด่วนสุขภาพจิต กรมสุขภาพจิต 24 ชม.
 HOTLINE_EMS    = "1669"   # เจ็บป่วยฉุกเฉิน
@@ -235,7 +237,7 @@ TOPICS = [
     }),
 ]
 
-CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไม่อยากมีชีวิต", "ไม่อยากอยู่แล้ว", "จบชีวิต", "ทำร้ายตัวเอง",
+CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไม่อยากมีชีวิต", NOT_WANT_TO_LIVE, "จบชีวิต", "ทำร้ายตัวเอง",
                   "กรีดข้อมือ", "suicide", "kill myself"]
 GREETINGS = ["สวัสดี", "หวัดดี", "hello", "hi", "hey"]
 

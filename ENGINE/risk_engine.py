@@ -3,10 +3,11 @@
 # เพิ่ม assess(pattern) ให้ตรงกับที่ app.py และ engine_router เรียก
 # คง evaluate_risk(text) ไว้เพื่อ backward compat
 from __future__ import annotations
+from core.thai_signals import NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, has as _has
 
 _SELF_HARM = ("อยากตาย", "ฆ่าตัวตาย", "ฆ่าตัวเอง", "ทำร้ายตัวเอง", "ไม่อยากมีชีวิต",
-              "ไม่อยากอยู่แล้ว", "จบชีวิต", "kill myself", "suicide", "self-harm", "end my life")
-_SURVIVAL  = ("อดข้าว", "ไม่มีข้าวกิน", "ไม่มีเงิน", "เงินหมด", "ไม่มีที่อยู่", "ถูกไล่ออก")
+              NOT_WANT_TO_LIVE, "จบชีวิต", "kill myself", "suicide", "self-harm", "end my life")
+_SURVIVAL  = ("อดข้าว", "ไม่มีข้าวกิน", NO_MONEY_ESSENTIAL, "เงินหมด", "ไม่มีที่อยู่", "ถูกไล่ออก")
 # ขาดปัจจัยพื้นฐาน (อาหาร/ที่อยู่) → ต้องไปเส้นทาง survival แม้ไม่ได้กรอก context
 _BASIC_NEEDS = ("อดข้าว", "ไม่มีข้าวกิน", "ไม่มีอะไรกิน", "ไม่ได้กินข้าว", "ไม่มีที่อยู่", "ไม่มีที่นอน",
                 "นอนข้างถนน", "ถูกไล่ออกจากบ้าน")
@@ -30,11 +31,11 @@ def evaluate_risk(text: str) -> dict:
     """
     t = str(text or "").casefold()
     score = 0
-    self_harm = any(k in t for k in _SELF_HARM)
+    self_harm = any(_has(t, k) for k in _SELF_HARM)
     if self_harm:
         score += 6
     basic_needs = any(k in t for k in _BASIC_NEEDS)
-    if basic_needs or any(k in t for k in _SURVIVAL):
+    if basic_needs or any(_has(t, k) for k in _SURVIVAL):
         score += 3
     if any(k in t for k in _STRESS):
         score += 2

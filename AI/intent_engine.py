@@ -7,6 +7,8 @@ import re
 import math
 from typing import Any
 
+from core.thai_signals import NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL
+
 # ── Intent definitions พร้อม causal weight ───────────────────
 _INTENTS: list[dict[str, Any]] = [
     {
@@ -14,7 +16,7 @@ _INTENTS: list[dict[str, Any]] = [
         "weight":  3.0,   # override ทุกอย่าง — safety first
         "patterns": [
             # เฉพาะสัญญาณทำร้ายตัวเอง — เดิมมี "ไม่อยากอยู่" (บ้าน) "หมดแล้วจริงๆ" "ทนไม่ไหวแล้ว"
-            r"อยากตาย", r"ไม่อยากอยู่แล้ว", r"ไม่อยากอยู่บนโลก", r"ฆ่าตัว", r"ฆ่าตัวเอง",
+            r"อยากตาย", NOT_WANT_TO_LIVE.pattern, r"ฆ่าตัว", r"ฆ่าตัวเอง",
             r"จบชีวิต", r"ทำร้ายตัวเอง",
             r"\bsuicid", r"\bwant to die\b", r"\bend it all\b", r"\bkill myself\b",
         ],
@@ -23,7 +25,7 @@ _INTENTS: list[dict[str, Any]] = [
         "name":    "survival",
         "weight":  2.0,
         "patterns": [
-            r"ตกงาน", r"ไม่มีเงิน", r"หนี้ท่วม", r"กินไม่ได้", r"ไล่ออก",
+            r"ตกงาน", NO_MONEY_ESSENTIAL.pattern, r"หนี้ท่วม", r"กินไม่ได้", r"ไล่ออก",
             r"ไม่มีที่อยู่", r"พังหมดเลย", r"หมดทรัพยากร", r"เอาตัวรอดไม่ได้",
             r"\bno money\b", r"\bbankrupt\b", r"\bevicted\b",
         ],

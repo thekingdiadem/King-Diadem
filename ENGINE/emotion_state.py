@@ -25,8 +25,10 @@ _PRIORITY: dict[str, int] = {
     "NEUTRAL":   0,
 }
 
+from core.thai_signals import NOT_WANT_TO_LIVE, has as _has
+
 _SIGNALS: list[tuple[str, list[str]]] = [
-    ("CRISIS",   ["อยากตาย","ไม่อยากอยู่","ฆ่าตัว","จบชีวิต","ทนไม่ไหวแล้ว",
+    ("CRISIS",   ["อยากตาย",NOT_WANT_TO_LIVE,"ฆ่าตัว","จบชีวิต","ทนไม่ไหวแล้ว",
                   "suicid","want to die","end it","kill myself"]),
     # หมายเหตุ: เดิมมี "หมดแล้ว" ทำให้ "เงินหมดแล้ว" ถูกนับเป็น CRISIS (ความเสี่ยงชีวิต) — เอาออก
     ("SAD",      ["เสียใจ","ร้องไห้","เศร้า","หมดหวัง","ท้อ","เจ็บปวด",
@@ -63,7 +65,7 @@ def detect_emotion(text: str) -> EmotionT:
     t = text.lower()
     found: list[tuple[int, str]] = []
     for emotion, keywords in _SIGNALS:
-        hits = sum(1 for k in keywords if k in t)
+        hits = sum(1 for k in keywords if _has(t, k))
         if hits:
             found.append((_PRIORITY[emotion] * hits, emotion))
     if not found:

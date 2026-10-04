@@ -16,10 +16,12 @@ from typing import Optional
 # SIGNAL PATTERNS — ตรวจ emotional/crisis signal จาก text
 # ══════════════════════════════════════════════════════════════════
 
+from core.thai_signals import NOT_WANT_TO_LIVE
+
 # S1 — CRISIS: สัญญาณวิกฤต (ต้องหยุดทันที)
 CRISIS_PATTERNS = [
     # ภาษาไทย — ฆ่าตัวตาย / ไม่อยากมีชีวิต
-    "อยากตาย", "ไม่อยากอยู่แล้ว", "ไม่อยากอยู่บนโลก", "ฆ่าตัว", "ฆ่าตัวเอง",
+    "อยากตาย", NOT_WANT_TO_LIVE, "ฆ่าตัว", "ฆ่าตัวเอง",
     "ไม่อยากมีชีวิต", "จบชีวิต", "เลิกมีชีวิต",
     "ทำร้ายตัวเอง", "หมดเหตุผลที่จะอยู่",
     "ไม่มีประโยชน์ที่จะมีชีวิตอยู่",
@@ -108,7 +110,10 @@ def _hits(text: str, words) -> list:
     """ไทย = วลี; อังกฤษ = คำเต็ม ("pain" ไม่ติด "Spain", "alone" ไม่ติด "standalone")"""
     out = []
     for w in words:
-        if w.isascii():
+        if isinstance(w, re.Pattern):        # วลีไทยที่ต้องดูบริบท (core/thai_signals)
+            if w.search(text):
+                out.append("ไม่อยากอยู่")
+        elif w.isascii():
             tail = "" if w == "suicid" else r"(?![a-z])"
             if re.search(r"(?<![a-z])" + re.escape(w) + tail, text):
                 out.append(w)
