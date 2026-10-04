@@ -40,9 +40,19 @@ _ai_down_until = 0.0
 _ai_down_lock  = threading.Lock()
 
 
+_req = threading.local()
+
+
+def request_no_ai(on: bool = True):
+    """ปิด AI เฉพาะคำขอนี้ (thread นี้) — เช่น นับโควตาไม่ได้ → ตอบจากสมการเท่านั้น"""
+    _req.no_ai = bool(on)
+
+
 def ai_disabled() -> bool:
-    """KD_AI=off บังคับไม่ใช้ AI เลย · หรือวงจรตัดยังไม่ครบเวลา"""
+    """KD_AI=off บังคับไม่ใช้ AI เลย · คำขอนี้ถูกปิด AI · หรือวงจรตัดยังไม่ครบเวลา"""
     if os.getenv("KD_AI", "on").strip().lower() in ("off", "0", "false", "no"):
+        return True
+    if getattr(_req, "no_ai", False):
         return True
     return time.time() < _ai_down_until
 
