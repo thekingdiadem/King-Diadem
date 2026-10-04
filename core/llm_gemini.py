@@ -396,7 +396,7 @@ WORK_WIN_SYSTEM = """คุณคือ LYLA — governance intelligence ขอ�
 ❌ ห้าม "เยี่ยมมากเลย!" ว่างๆ
 ลงท้าย: — LYLA ◈ | Fail Less. Harm Less. Restore Choice."""
 
-from core.thai_signals import NOT_WANT_TO_LIVE   # noqa: E402
+from core.thai_signals import NOT_WANT_TO_LIVE, DISCOURAGED, BREAKUP, PARTNER, has as _has   # noqa: E402
 
 # ══════════════════════════════════════════════════════════════════
 # SIGNAL DETECTION
@@ -408,7 +408,7 @@ _CRISIS_KW = [
     "suicid", "end my life", "kill myself", "want to die"
 ]
 _EMOTION_KW = [
-    "ท้อ", "เสียใจ", "กลัว", "เครียด", "ร้องไห้", "หมดหวัง", "ไม่ไหว",
+    DISCOURAGED, "เสียใจ", "กลัว", "เครียด", "ร้องไห้", "หมดหวัง", "ไม่ไหว",
     "เหนื่อยมาก", "เหนื่อย", "หนักมาก", "อ้างว้าง", "เหงา", "โดดเดี่ยว",
     "ไม่มีใคร", "ทนไม่ไหว", "หมดแรง", "อกหัก", "เลิกกัน", "แฟนทิ้ง",
     "sad", "cry", "hopeless", "panic", "depressed", "lonely", "scared"
@@ -693,7 +693,7 @@ class GeminiLLM:
                 "— การตัดสิ่งที่ไม่คุ้มออกมักเห็นผลเร็วกว่าการหาทางเพิ่มรายได้"
             )
 
-        if any(k in t for k in ["ความสัมพันธ์", "แฟน", "ทะเลาะ", "เลิก"]):
+        if any(_has(t, k) for k in ["ความสัมพันธ์", PARTNER, "ทะเลาะ", BREAKUP]):
             return (
                 "1) เขียนสิ่งที่อยากพูดออกมาก่อน โดยยังไม่ต้องส่งหรือพูดออกไป "
                 "— จะเห็นว่าที่จริงอยากได้อะไร ไม่ใช่แค่อยากให้อีกฝ่ายเข้าใจ\n"
@@ -701,7 +701,7 @@ class GeminiLLM:
                 "— การรอไม่ใช่การหนีปัญหา แต่คืนพลังให้สมองคิดได้"
             )
 
-        if any(k in t for k in ["เครียด", "ไม่ไหว", "หมดแรง", "ท้อ"]):
+        if any(_has(t, k) for k in ["เครียด", "ไม่ไหว", "หมดแรง", DISCOURAGED]):
             return (
                 "1) เลือกสิ่งเดียวที่เล็กที่สุดที่ทำได้ตอนนี้ — แค่ 1 อย่าง "
                 "ไม่ใช่ทั้งรายการ — แล้วทำแค่นั้นพอ\n"

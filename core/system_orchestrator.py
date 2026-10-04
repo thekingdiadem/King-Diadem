@@ -5,24 +5,26 @@
 
 from typing import Dict, Any, Optional
 
+from core.thai_signals import NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, DISCOURAGED, BREAKUP, PARTNER, has as _has
+
 
 class SystemOrchestrator:
 
     def route(self, user_input: str, voice_mode: str = "lyla") -> str:
         t = str(user_input or "").lower()
-        if any(w in t for w in ["อยากตาย","ไม่อยากอยู่แล้ว","ฆ่าตัว","จบชีวิต","suicid"]) or voice_mode == "crisis":
+        if any(_has(t, w) for w in ["อยากตาย",NOT_WANT_TO_LIVE,"ฆ่าตัว","จบชีวิต","suicid"]) or voice_mode == "crisis":
             return "crisis"
         if any(w in t for w in ["ระยะยาว","อนาคต","กลยุทธ์","strategic","ภาพรวม"]) or voice_mode == "vega":
             return "vega"
         # อารมณ์เศร้า/เหนื่อย/กลัว → LYLA รับรู้ก่อน (เดิมส่งไป VEGA ซึ่งห้าม emoji และเน้นวิเคราะห์)
-        if any(w in t for w in ["เครียด","ท้อ","เสียใจ","หมดหวัง","เหนื่อย","กลัว","ร้องไห้","โดดเดี่ยว"]):
+        if any(_has(t, w) for w in ["เครียด",DISCOURAGED,"เสียใจ","หมดหวัง","เหนื่อย","กลัว","ร้องไห้","โดดเดี่ยว"]):
             return "general"
         # เดิมมี "จน" (ติด "จนกว่า" "จนถึง") และ "หิว" (ติด "หิวข้าว") → ประโยคทั่วไปเป็น survival
-        if any(w in t for w in ["ไม่มีกิน","ไม่มีเงิน","อดข้าว","หมดเงิน","ตกงาน","ยากจน","หนี้"]):
+        if any(_has(t, w) for w in ["ไม่มีกิน",NO_MONEY_ESSENTIAL,"อดข้าว","หมดเงิน","ตกงาน","ยากจน","หนี้"]):
             return "survival"
         if any(w in t for w in ["เสี่ยง","อันตราย","ล้มละลาย","พังหมด","collapse","ขาดทุน"]):
             return "risk"
-        if any(w in t for w in ["แฟน","เลิก","ทะเลาะ","ครอบครัว","ความสัมพันธ์"]):
+        if any(_has(t, w) for w in [PARTNER,BREAKUP,"ทะเลาะ","ครอบครัว","ความสัมพันธ์"]):
             return "relationship"
         if any(w in t for w in ["ธุรกิจ","บริษัท","ลูกค้า","โปรเจกต์","เจ้านาย"]):
             return "civil"

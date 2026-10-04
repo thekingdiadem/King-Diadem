@@ -7,7 +7,7 @@ import re
 import math
 from typing import Any
 
-from core.thai_signals import NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL
+from core.thai_signals import NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, DISCOURAGED
 
 _NEG = r"(?<!ไม่)(?<!ไม่ได้)(?<!ไม่ค่อย)(?<!ไม่ค่อยได้)"   # lookbehind ความกว้างคงที่ทีละแบบ
 
@@ -118,7 +118,7 @@ _AMPLIFIERS = {
 
 # ── Emotional tone fallback ──────────────────────────────────
 _EMOTION_WORDS = {
-    "heavy":  ["เหนื่อย", "ท้อ", "หมดแรง", "สิ้นหวัง", "หมดหวัง"],
+    "heavy":  ["เหนื่อย", DISCOURAGED.pattern, "หมดแรง", "สิ้นหวัง", "หมดหวัง"],
     "stress": ["เครียด", "กังวล", "กลัว", "ตื่นตระหนก", "หนักใจ"],
     "grief":  ["เสียใจ", "ร้องไห้", "เจ็บปวด", "เจ็บใจ", "สูญเสีย"],
 }
