@@ -85,3 +85,21 @@ def test_causal_note_is_plain_thai():
         assert jargon not in note
     assert "ตัณหา" in note and "ไม่ได้แปลว่าการตัดสินใจดี" in note
     assert llm_note(suffering_infrastructure("วันนี้อากาศดี")) == ""
+
+
+# ── สถานะเริ่มต้นไม่ถูกส่งเป็น "รายงานสถานะ" ──────────────────────────
+def test_casual_message_has_no_default_state_report(client):
+    """เดิม "ตอบไวดี" ได้คำตอบ "รับทราบสถานะของระบบแล้ว" เพราะ [SURVIVOR ENGINE] สถานะ: STABLE ถูกแนบทุกข้อความ"""
+    client.post("/run", json={"input": "ตอบไวดี"})
+    prompt = FAKE_LLM["prompts"][-1]
+    assert "SURVIVOR ENGINE" not in prompt and "STABLE" not in prompt
+    assert "โยนิโสมนสิการ" not in prompt
+
+
+def test_real_state_still_reaches_llm(client):
+    client.post("/run", json={"input": "ช่วยด้วย", "context": {"food_access": False}})
+    assert "NO_FOOD" in FAKE_LLM["prompts"][-1]
+
+
+def test_scrub_keeps_code():
+    assert scrub_internal("root = tk.Tk()\nok") == "root = tk.Tk()\nok"

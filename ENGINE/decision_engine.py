@@ -233,7 +233,9 @@ class DecisionEngine:
                         pass
 
                 # ── Human Engine context (entropy-aware) ─────
-                if isinstance(human_engine_result, dict):
+                # STABLE = ค่าเริ่มต้นเมื่อผู้ใช้ไม่ได้บอกสถานะ — เดิมส่ง "[SURVIVOR ENGINE] สถานะ: STABLE ..."
+                # ทุกข้อความ แล้ว LLM ตอบ "รับทราบสถานะของระบบแล้ว" กับคนที่พิมพ์แค่ "ตอบไวดี"
+                if isinstance(human_engine_result, dict) and human_engine_result.get("status") != "STABLE":
                     if human_engine_result.get("context_for_lyla"):
                         context_parts.append(human_engine_result["context_for_lyla"])
                     if human_engine_result.get("priority"):
