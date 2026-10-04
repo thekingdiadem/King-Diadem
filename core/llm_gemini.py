@@ -27,8 +27,31 @@ import time
 import hashlib
 import threading
 from typing import Optional
-from google import genai
-from google.genai import types
+# มี AI ก็ดี ไม่มีก็ต้องตอบได้: ไม่มีไลบรารี google-genai → GeminiLLM สร้างไม่ได้
+# ทั้งระบบจะใช้ core/kernel_voice (คำตอบจากสมการ) แทน แทนที่ import ทั้งโมดูลจะล้ม
+try:
+    from google import genai
+    from google.genai import types
+except Exception:                       # pragma: no cover — ขึ้นกับสภาพแวดล้อม
+    genai = types = None
+
+# ── วงจรตัด AI: โควตาหมด/key เสีย → ไม่เรียกซ้ำจนครบเวลา (ไม่ให้ทุกข้อความรอ retry 45 วินาที)
+_ai_down_until = 0.0
+_ai_down_lock  = threading.Lock()
+
+
+def ai_disabled() -> bool:
+    """KD_AI=off บังคับไม่ใช้ AI เลย · หรือวงจรตัดยังไม่ครบเวลา"""
+    if os.getenv("KD_AI", "on").strip().lower() in ("off", "0", "false", "no"):
+        return True
+    return time.time() < _ai_down_until
+
+
+def _mark_ai_down(seconds: float):
+    global _ai_down_until
+    with _ai_down_lock:
+        _ai_down_until = max(_ai_down_until, time.time() + seconds)
+    print(f"⏸ AI paused {int(seconds)}s — ใช้คำตอบจากสมการ (kernel_voice) ระหว่างนี้")
 
 # ── MEMORY INJECTION ──────────────────────────────────────────────
 try:
@@ -481,6 +504,10 @@ class GeminiLLM:
         key4 = os.getenv("GEMINI_API_KEY4")
         key5 = os.getenv("GEMINI_API_KEY5")
 
+        if genai is None:
+            raise ValueError("ไม่มีไลบรารี google-genai")
+        if os.getenv("KD_AI", "on").strip().lower() in ("off", "0", "false", "no"):
+            raise ValueError("KD_AI=off — ปิด AI")
         if not key1 and not key2:
             raise ValueError("ไม่พบ GEMINI_API_KEY")
 
@@ -508,6 +535,9 @@ class GeminiLLM:
     def _call(self, system: str, contents: list,
               temperature: float = 0.72, max_tokens: int = 1024) -> str:
         prompt_text = contents[-1].parts[0].text if contents else ""
+        if ai_disabled():
+            _tls.fallback = True
+            return self._fallback_response(system, prompt_text)
         ck = _cache_key(system, _contents_text(contents), temperature)
         cached = _cache_get(ck)
         if cached:
@@ -525,6 +555,7 @@ class GeminiLLM:
         ]
 
         last_error = None
+        quota_hits = 0
         # เพดานเวลารวมต่อ 1 การเรียก — ต้องจบก่อน gunicorn --timeout 120
         deadline = time.time() + float(os.getenv("LLM_CALL_BUDGET_S", "45"))
 
@@ -555,6 +586,7 @@ class GeminiLLM:
                     last_error = e
 
                     if any(k in err for k in ["429", "quota", "rate limit", "resource exhausted"]):
+                        quota_hits += 1
                         print(f"⚠ Rate limit (model={model_name}, attempt {attempt+1}) — rotating key")
                         self._rotate_key()
                         if not _wait(5 if attempt < 2 else 15):
@@ -569,6 +601,7 @@ class GeminiLLM:
                     elif any(k in err for k in [
                         "permission_denied", "unauthenticated", "api_key_invalid"
                     ]) or ("api key not valid" in err):
+                        _mark_ai_down(float(os.getenv("AI_AUTH_COOLDOWN_S", "3600")))
                         raise ValueError(f"Auth Error: {e}")
 
                     else:
@@ -577,6 +610,9 @@ class GeminiLLM:
                             break
 
         print(f"❌ ทุกโมเดลและทุก attempt ล้มเหลว: {last_error}")
+        if quota_hits:
+            # เงิน/โควตาหมด: หยุดเรียก AI ชั่วคราว ข้อความถัดไปได้คำตอบจากสมการทันที
+            _mark_ai_down(float(os.getenv("AI_QUOTA_COOLDOWN_S", "900")))
         _tls.fallback = True
         return self._fallback_response(system, prompt_text)
 

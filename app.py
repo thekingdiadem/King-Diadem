@@ -149,6 +149,13 @@ except Exception as e:
     print(f"⚠ LLM/LYLA: {e}")
     llm = lyla = None
 
+# ── KERNEL VOICE — ตอบได้แม้ไม่มี AI (core/kernel_voice.py) ──────────
+try:
+    from core.kernel_voice import compose as kernel_compose, simulate as kernel_simulate, assess as kernel_assess
+except Exception as e:
+    print(f"⚠ kernel_voice: {e}")
+    kernel_compose = kernel_simulate = kernel_assess = None
+
 try:
     from core.system_orchestrator import get_orchestrator
     orchestrator = get_orchestrator()
@@ -190,12 +197,12 @@ except Exception as e:
 try:
     from AI.planetary_dashboard import planetary_status
     from AI.civilization_learning import record_learning, get_learning
-    from AI.civilization_engine import add_node, get_nodes
+    from AI.civilization_engine import add_node, get_nodes, node_summary
     print("✅ Civilization loaded")
 except Exception as e:
     print(f"⚠ CIVILIZATION: {e}")
     planetary_status = get_learning = get_nodes = None
-    record_learning  = add_node = None
+    record_learning  = add_node = node_summary = None
 
 # ── BELIEF CORE — v4.8 ────────────────────────────────────────────
 try:
@@ -378,8 +385,11 @@ def _refund(ticket):
         print(f"⚠ refund failed: {e}")
 
 def _answered(result) -> bool:
-    """ผู้ใช้ได้คำตอบจริงจาก AI หรือไม่ (ไม่ใช่ error/ข้อความสำรอง/ถูกระงับ)"""
+    """ผู้ใช้ได้คำตอบจริงจาก AI หรือไม่ (ไม่ใช่ error/ข้อความสำรอง/ถูกระงับ)
+    คำตอบจากสมการ (answer_source=kernel) ไม่มีต้นทุน AI → ไม่หักโควตา/เครดิต"""
     if not isinstance(result, dict) or result.get("error"):
+        return False
+    if result.get("answer_source") == "kernel":
         return False
     if result.get("status") in ("CANON_BLOCKED", "SYSTEM_PAUSE", "BLOCKED"):
         return False
@@ -563,6 +573,7 @@ async def dashboard():
             for n in (nodes[-10:] if nodes else []) if isinstance(n, dict)
         ],
         "freedom_index":   freedom_index() if freedom_index else 50,
+        "civilization":    (node_summary() if node_summary else {}),
     }
 
 
@@ -1079,11 +1090,9 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                     user_email=email,
                 )
             except Exception as e:
+                # ไม่มี AI ก็ต้องมีคำตอบ — ปล่อย reply ว่าง ให้ kernel_voice ตอบด้านล่าง
                 print(f"⚠ LLM error: {e}")
-                return {"error": _friendly_error(str(e))}
-
-        if not reply:
-            reply = "ระบบ AI ไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งนะคะ\n\n— LYLA ◈"
+                reply = ""
 
         result = {
             "observer":      "KING DIADEM",
@@ -1100,6 +1109,30 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             "risk_score":    human_state.get("risk_score", 0),
             "bodhipakkhiya": core_result.get("bodhi_verdict", ""),  # ← v4.9
         }
+
+    # ── KERNEL VOICE: มี AI ก็ดี ไม่มีก็ต้องมีคำตอบ ──────────────────
+    # AI ล้ม/โควตาหมด/ไม่มี key/ไม่มีไลบรารี/คำตอบว่าง → ตอบจากสมการของระบบ (deterministic)
+    if not isinstance(result, dict):
+        result = {}
+    ai_text = result.get("ai_response")
+    if kernel_compose and (used_fallback() or result.get("error")
+                           or not (isinstance(ai_text, str) and ai_text.strip())):
+        k_route = result.get("route") if _ROUTE_SEVERITY.get(result.get("route"), -1) > _ROUTE_SEVERITY.get(route, 0) else route
+        result.pop("error", None)
+        result.update({
+            "observer":      result.get("observer") or "KING DIADEM",
+            "status":        "SUCCESS",
+            "route":         k_route,
+            # สถานะร่างกายใช้เฉพาะเมื่อผู้ใช้ส่งมาจริง — context ว่างให้ค่า W 100/Risk 0 ที่ไม่จริง
+            "ai_response":   kernel_compose(user_input, route=k_route, voice_mode=vm,
+                                            pattern=human_state if data.get("context") else None),
+            "answer_source": "kernel",
+        })
+        result.setdefault("pattern", human_state)
+        result.setdefault("risk_score", human_state.get("risk_score", 0))
+        result.setdefault("bodhipakkhiya", core_result.get("bodhi_verdict", ""))
+    else:
+        result.setdefault("answer_source", "llm")
 
     # ── error clean ───────────────────────────────────────────────
     if result.get("error"):
@@ -1127,6 +1160,16 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         except Exception: pass
 
     _sync_galaxy(result)
+
+    # ── CIVILIZATION GRAPH: ทุกการตัดสินใจเป็น 1 node (ไม่มีข้อความ/อีเมล) ──
+    if add_node:
+        try:
+            k = kernel_assess(user_input, human_state if data.get("context") else None) if kernel_assess else {}
+            add_node({"type": "decision", "route": result.get("route"),
+                      "source": result.get("answer_source"),
+                      "W": k.get("W"), "risk": k.get("risk"), "topics": (k.get("topics") or [])[:3]})
+        except Exception as e:
+            print(f"⚠ civilization node: {type(e).__name__}")
 
     # ── BELIEF ENFORCE — v4.8 (v4.9.1: safe-default guard) ────────
     # ถ้า belief_audit fail ก่อนหน้านี้ belief_report จะเป็น None
@@ -1261,10 +1304,17 @@ def _simulate_impl(user_input: str, paths: list, email: str) -> dict:
             additional_context="mode=simulation",
             user_email=email,
         )
-        if answer and len(str(answer)) > 10:
+        if answer and len(str(answer)) > 10 and not used_fallback():
             return {"simulation": answer, "source": "llm"}
     except Exception as e:
         print(f"simulate LLM: {e}")
+
+    # ไม่มี AI → จำลองจากสมการ (Downside ก่อน · ทางที่ย้อนกลับได้ชนะ)
+    if kernel_simulate:
+        try:
+            return {"simulation": kernel_simulate(user_input, paths), "source": "kernel"}
+        except Exception as e:
+            print(f"kernel simulate: {e}")
 
     if not simulate:
         return {"simulation": "ระบบจำลองไม่พร้อมชั่วคราว — ลองใหม่อีกครั้งนะคะ"}
