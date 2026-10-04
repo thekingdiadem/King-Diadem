@@ -133,12 +133,10 @@ def quick_assess(context, pattern=None) -> dict:
     causal_ctx = ""
     should_pause = False
     try:
-        from ENGINE.paticcasamuppada_engine import suffering_infrastructure
+        from ENGINE.paticcasamuppada_engine import suffering_infrastructure, llm_note
         p = suffering_infrastructure(text, pattern)
         should_pause = bool((p.get("uap") or {}).get("should_pause"))
-        if p.get("evidence"):
-            causal_ctx = (f"[Causal: root={p.get('root_cause')} feeling={p.get('feeling_tone')}"
-                          f" — {p.get('summary', '')}]")
+        causal_ctx = llm_note(p)
     except Exception:
         pass
 

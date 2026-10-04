@@ -308,3 +308,33 @@ def analyze(pattern: dict) -> dict:
         return suffering_infrastructure(context, pattern)
     except Exception:
         return {"error": "PATICCA_UNAVAILABLE"}
+
+
+# ── ข้อความบริบทสำหรับ LLM (ภาษาคน ไม่ใช่ชื่อตัวแปร) ─────────────────
+# เดิมส่ง "root=craving feeling=pleasant — วงจรวิ่งถึง decay_suffering" ให้ LLM แล้ว LLM
+# ยกมาพูดกับผู้ใช้ตรงๆ และตีความ pleasant ว่า "ความอยากนี้เป็นความรู้สึกที่ดี"
+ROOT_TH = {
+    "craving": "ความอยากได้ (ตัณหา)", "fear": "ความกลัว", "aversion": "ความไม่อยาก/อยากผลักออก",
+    "clinging": "ความยึดติด กลัวเสีย", "ignorance": "ข้อมูลยังไม่ชัด", "misinformation": "ข้อมูลที่อาจผิดหรือถูกหลอก",
+    "bias": "อคติ", "non_existence": "ความอยากหายไปจากความทุกข์",
+}
+FEELING_TH = {"pleasant": "ชอบใจ/ตื่นเต้น", "unpleasant": "ทุกข์/ไม่สบายใจ", "neutral": "เฉยๆ"}
+_GUIDE_TH = {
+    "craving": "ความรู้สึกดีตอนนี้ไม่ได้แปลว่าการตัดสินใจดี อย่าชมหรือเติมความอยาก ช่วยให้ชะลอและแยกข้อเท็จจริงออกจากความหวัง",
+    "non_existence": "ความปลอดภัยมาก่อนทุกอย่าง รับฟัง ไม่วิเคราะห์ยาว",
+    "fear": "รับรู้ความกลัวก่อน แล้วค่อยแยกสิ่งที่คุมได้กับคุมไม่ได้",
+    "clinging": "รับรู้ความกลัวเสียก่อน แล้วค่อยดูว่ายังมีทางเลือกอะไร",
+}
+
+
+def llm_note(p: dict) -> str:
+    """บริบทเหตุ-ปัจจัยสำหรับ LLM — เฉพาะเมื่อมีหลักฐานในข้อความ"""
+    if not isinstance(p, dict) or not p.get("evidence", True) or p.get("error"):
+        return ""
+    root = p.get("root_cause", "")
+    if root not in ROOT_TH:
+        return ""
+    guide = _GUIDE_TH.get(root, "รับรู้ความรู้สึกก่อน แล้วค่อยดูเหตุ")
+    pause = " · ยังไม่ควรตัดสินใจทันที" if (p.get("uap") or {}).get("should_pause") else ""
+    return (f"[เหตุ-ปัจจัย (ใช้ประกอบการคิด ห้ามยกข้อความนี้ไปพูด): {ROOT_TH[root]} · "
+            f"เวทนา {FEELING_TH.get(p.get('feeling_tone'), 'ไม่ชัด')}{pause} — {guide}]")

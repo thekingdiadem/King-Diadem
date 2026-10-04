@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import NOT_WANT_TO_LIVE
+from core.thai_signals import NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
 HOTLINE_MENTAL = "1323"   # สายด่วนสุขภาพจิต กรมสุขภาพจิต 24 ชม.
@@ -290,6 +290,19 @@ def _money(text: str):
 
 
 # ══════════════════════════════════════════════════════════════════
+# ข้อเสนอเงินที่การันตีผลตอบแทน/เร่งให้ตอบ (core/thai_signals.offer_red_flags)
+OFFER = {
+    "open": ["ข้อเสนอนี้ต้องชะลอก่อนตอบ"],
+    "paths": [
+        "ยังไม่ตอบตามเส้นตายของคนชวน — ข้อเสนอที่ดีจริงรอได้ 7 วัน ถ้ารอไม่ได้ นั่นคือคำตอบแล้ว",
+        "ขอหลักฐานเป็นเอกสาร: ทะเบียนบริษัท (กรมพัฒนาธุรกิจการค้า 1570) งบการเงิน และสัญญาที่ระบุว่าเงินไปทำอะไร ถ้าขาดทุนใครรับ",
+        "ตรวจกับ ก.ล.ต. (โทร 1207) ว่าได้รับอนุญาตไหม — การการันตีผลตอบแทนสูงในเวลาสั้นคือลักษณะของแชร์ลูกโซ่",
+        "ถ้าจะลง ลงเฉพาะเงินที่เสียได้ทั้งหมดโดยชีวิตยังเดินต่อ — ไม่กู้ ไม่ใช้เงินสำรอง",
+    ],
+    "ask": "ถ้าเงินก้อนนี้หายทั้งหมด ชีวิตคุณและความเป็นเพื่อนครั้งนี้ยังอยู่ได้ไหม?",
+}
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
     """ตัวเลขของระบบ (ไม่มี LLM): W, Risk, หัวข้อ, ความเร่งด่วน"""
     t = (text or "").lower()
@@ -320,8 +333,13 @@ def assess(text: str, pattern: dict | None = None) -> dict:
         W = min(W, 30)
     if crisis:
         W = min(W, 20)
+    # โครงสร้างของข้อเสนอ (การันตี + เร่ง + ชวนผ่านคนรู้จัก) — แยกจากอารมณ์ผู้ใช้
+    flags = offer_red_flags(text)
+    text_risk = max(text_risk, offer_risk(flags))
     return {
         "W": round(W), "risk": round(max(risk, text_risk)),
+        # risk จากข้อความล้วน (0 = ไม่มีสัญญาณ) — ใช้ยกค่า risk_score ที่ engine คิดจากสถานะอย่างเดียว
+        "text_risk": round(text_risk), "offer_flags": flags,
         "crisis": crisis, "topics": topics, "money": _money(text),
         "options": _options(text or ""),
     }
@@ -359,6 +377,8 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     lib = {name: d for name, _, d in TOPICS}
     main = lib.get(a["topics"][0]) if a["topics"] else GENERAL
     second = lib.get(a["topics"][1]) if len(a["topics"]) > 1 else None
+    if a["offer_flags"]:                 # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
+        main, second = OFFER, None
 
     paths = _paths(main, t)[:3]
     if second:
@@ -382,7 +402,7 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
 
     # ── เงิน: เวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน ─────────────
     money_line = ""
-    if a["money"] and any(x in a["topics"] for x in ("money", "debt", "job", "basic", "business")):
+    if a["money"] and not a["offer_flags"] and any(x in a["topics"] for x in ("money", "debt", "job", "basic", "business")):
         m = a["money"]
         per_day = 150
         money_line = (f"\n\nเวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน → {m:,.0f} ÷ {per_day} ≈ {m / per_day:,.0f} วัน "
@@ -392,6 +412,10 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     n = len(paths) + (len(opts) if len(opts) >= 2 else 0)
     body = "\n".join(f"{i + 1}) {p}" for i, p in enumerate(paths))
     opener = _pick(main["open"], text, "open")
+    if a["offer_flags"]:
+        opener = ("ข้อเสนอนี้มีสัญญาณที่พบบ่อยในการหลอกลงทุน/แชร์ลูกโซ่: "
+                  + " · ".join(OFFER_FLAG_TH[f] for f in a["offer_flags"])
+                  + f" — ความตื่นเต้นเป็นเรื่องปกติ{end} แต่ข้อเสนอแบบนี้ต้องชะลอก่อนตอบ")
     status = f"W {a['W']} · Risk {a['risk']} · Choice(t) = {n}"
 
     return (f"{opener}\n\n{status}\n\n{body}{opt_block}{money_line}\n\n"

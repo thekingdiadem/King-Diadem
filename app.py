@@ -152,9 +152,11 @@ except Exception as e:
 # ── KERNEL VOICE — ตอบได้แม้ไม่มี AI (core/kernel_voice.py) ──────────
 try:
     from core.kernel_voice import compose as kernel_compose, simulate as kernel_simulate, assess as kernel_assess
+    from core.thai_signals import OFFER_FLAG_TH
 except Exception as e:
     print(f"⚠ kernel_voice: {e}")
     kernel_compose = kernel_simulate = kernel_assess = None
+    OFFER_FLAG_TH = {}
 
 try:
     from core.system_orchestrator import get_orchestrator
@@ -969,6 +971,28 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                     route = _escalate_route(route, "survival")
         except Exception: pass
 
+    # ── ตัวเลขจากข้อความ (kernel): risk ของข้อความ + โครงสร้างข้อเสนอเงิน ──────────
+    # risk_score ที่ engine คืนคิดจากสถานะร่างกายอย่างเดียว ("อยากตาย" เคยได้ Risk 0)
+    k_assess, offer_ctx = {}, ""
+    if kernel_assess:
+        try:
+            k_assess = kernel_assess(user_input, human_state if data.get("context") else None) or {}
+        except Exception as e:
+            print(f"⚠ kernel_assess: {type(e).__name__}")
+    # [Risk: LOW] จากสถานะร่างกาย ขัดกับข้อความที่เสี่ยงชัด → บอก LLM ระดับจากข้อความแทน
+    t_risk = k_assess.get("text_risk", 0) or 0
+    if t_risk >= 35:
+        t_lvl = "CRITICAL" if t_risk >= 75 else "HIGH" if t_risk >= 55 else "MEDIUM"
+        if not risk_ctx or "LOW" in risk_ctx or ("MEDIUM" in risk_ctx and t_lvl != "MEDIUM"):
+            risk_ctx = f"[Risk: {t_lvl} จากข้อความ]"
+    offer_flags = k_assess.get("offer_flags") or []
+    if offer_flags:
+        if route not in ("vega",):
+            route = _escalate_route(route, "risk")
+        offer_ctx = ("[ข้อเสนอมีสัญญาณเสี่ยง: " + ", ".join(OFFER_FLAG_TH.get(f, f) for f in offer_flags) +
+                     " — พบบ่อยในการหลอกลงทุน/แชร์ลูกโซ่ ชี้ให้ผู้ใช้เห็นสัญญาณเหล่านี้ตรงๆ อย่างสุภาพ "
+                     "ไม่ร่วมตื่นเต้น ไม่ชมว่าเป็นโอกาสดี แนะนำให้ชะลอ ขอเอกสาร และตรวจกับ ก.ล.ต. 1207]")
+
     # ── collapse ─────────────────────────────────────────────────
     collapse_ctx = ""
     if predict_collapse:
@@ -1049,11 +1073,12 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
 
     # ── build effective prompt ────────────────────────────────────
     extra_ctx = " ".join(p for p in [
+        offer_ctx,
         paticca_ctx,
         wise_ctx_str,    # ← v4.9 เพิ่ม yonisomanasikara context
         risk_ctx,
         collapse_ctx,
-    ] if p)
+    ] if p and p not in survivor_ctx)     # orchestrator ใส่บริบทเหตุ-ปัจจัยไว้แล้ว — ไม่ส่งซ้ำ
 
     effective = ""
     if survivor_ctx:
@@ -1142,6 +1167,16 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     else:
         result.setdefault("answer_source", "llm")
 
+    # risk ที่แสดง = max(สถานะ, สัญญาณในข้อความ) — สมการเดียวกับ kernel_voice.assess
+    try:
+        engine_risk = float(result.get("risk_score") or 0)
+    except (TypeError, ValueError):
+        engine_risk = 0.0
+    if k_assess.get("text_risk", 0) > engine_risk:
+        result["risk_score"] = float(k_assess["text_risk"])
+    if offer_flags:
+        result["offer_flags"] = offer_flags
+
     # ── error clean ───────────────────────────────────────────────
     if result.get("error"):
         result["error"] = _friendly_error(str(result["error"]))
@@ -1172,7 +1207,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # ── CIVILIZATION GRAPH: ทุกการตัดสินใจเป็น 1 node (ไม่มีข้อความ/อีเมล) ──
     if add_node:
         try:
-            k = kernel_assess(user_input, human_state if data.get("context") else None) if kernel_assess else {}
+            k = k_assess
             add_node({"type": "decision", "route": result.get("route"),
                       "source": result.get("answer_source"),
                       "W": k.get("W"), "risk": k.get("risk"), "topics": (k.get("topics") or [])[:3]})
@@ -1233,6 +1268,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                     "status":          "CANON_BLOCKED",
                     "route":           b_route,
                     "persona":         result.get("persona"),
+                    "risk_score":      result.get("risk_score", 0),
                     "ai_response":     fallback,
                     "canon_violation": True,
                     "canon_violations": severe,
