@@ -1049,8 +1049,13 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         if not risk_ctx or "LOW" in risk_ctx or ("MEDIUM" in risk_ctx and t_lvl != "MEDIUM"):
             risk_ctx = f"[Risk: {t_lvl} จากข้อความ]"
     # ถูกทำร้าย/ถูกควบคุมในความสัมพันธ์ → เส้นทางความเสี่ยง (ความปลอดภัยมาก่อน)
-    if k_assess.get("relationship") in ("collapse_risk", "critical") and route not in ("vega",):
-        route = _escalate_route(route, "risk")
+    rel_ctx = ""
+    if k_assess.get("relationship") in ("collapse_risk", "critical"):
+        if route not in ("vega",):
+            route = _escalate_route(route, "risk")
+        # LLM เคยเปิดด้วย "ฉันตกใจมาก" — คนที่ถูกทำร้ายต้องการคนรับฟังที่มั่นคง ไม่ใช่ความตกใจ
+        rel_ctx = ("[ผู้ใช้เล่าว่าถูกทำร้ายหรือถูกควบคุม: รับฟังด้วยน้ำเสียงสงบและมั่นคง ไม่แสดงความตกใจ "
+                   "ไม่ตัดสินหรือโทษใคร ไม่บอกให้ให้อภัยหรืออดทน บอกว่าเขาไม่ผิด ให้ความปลอดภัยมาก่อน]")
     offer_flags = k_assess.get("offer_flags") or []
     if offer_flags:
         if route not in ("vega",):
@@ -1146,6 +1151,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         except Exception as e:
             print(f"⚠ engine_bridge: {type(e).__name__}")
     extra_ctx = " ".join(p for p in [
+        rel_ctx,
         offer_ctx,
         calc_ctx,
         paticca_ctx,

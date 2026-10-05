@@ -117,3 +117,15 @@ def test_hitting_words(text, hit):
 def test_register_needs_8_characters(client):
     r = client.post("/register", json={"email": "short@test.co", "password": "abc1234"})
     assert r.status_code == 400 and "8" in r.json()["message"]
+
+
+def test_abuse_disclosure_asks_llm_for_calm_tone(client):
+    """LYLA เคยเปิดด้วย "ฉันตกใจมาก" กับคนที่เล่าว่าพ่อตีหัว"""
+    client.post("/run", json={"input": "พ่อตีหัวผมเพราะสอบตก"})
+    prompt = FAKE_LLM["prompts"][-1]
+    assert "ไม่แสดงความตกใจ" in prompt and "ไม่ตัดสินหรือโทษใคร" in prompt
+
+
+def test_no_abuse_guidance_for_ordinary_talk(client):
+    client.post("/run", json={"input": "แม่ทำกับข้าวอร่อยมาก"})
+    assert "ไม่แสดงความตกใจ" not in FAKE_LLM["prompts"][-1]

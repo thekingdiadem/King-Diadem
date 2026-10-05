@@ -1110,7 +1110,8 @@ function eqHTML(t){
 }
 function eqStrip(t){
   if(!t) return '';
-  var W = t.wl, risk = t.risk;
+  /* ไม่ได้ระบุสถานะ → W 100 เป็นแค่ค่าเริ่มต้นของ backend แสดง "W —" (เดิมโชว์ W 100 คู่กับ Risk 80 ดูขัดกัน) */
+  var W = t.sentState === false ? null : t.wl, risk = t.risk;
   if(W == null && risk == null) return '';
   if(risk == null) risk = 100 - W;
   var C = Math.max(1, Math.floor((100 - risk) / 20));
