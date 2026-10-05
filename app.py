@@ -149,6 +149,14 @@ except Exception as e:
     print(f"⚠ LLM/LYLA: {e}")
     llm = lyla = None
 
+# ── วงจรเรียนรู้จาก 👍/👎 (core/feedback_loop.py) ──────────────────────
+try:
+    from core import feedback_loop
+    feedback_loop.warm()
+except Exception as e:
+    print(f"⚠ feedback_loop: {type(e).__name__}")
+    feedback_loop = None
+
 # ── KERNEL VOICE — ตอบได้แม้ไม่มี AI (core/kernel_voice.py) ──────────
 try:
     from core.kernel_voice import compose as kernel_compose, simulate as kernel_simulate, assess as kernel_assess
@@ -588,7 +596,25 @@ def health():
         "stripe_webhook":     bool(os.getenv("STRIPE_WEBHOOK_SECRET")),
         "freedom_score":      freedom_index() if freedom_index else 0,
         "db_initialized":     init_db is not None,
+        "feedback":           feedback_loop.stats() if feedback_loop else None,
     }
+
+
+# ── 👍/👎 ใต้คำตอบ → วงจรเรียนรู้ (เก็บแค่เส้นทาง · ความเสี่ยง · ผลโหวต) ─────────
+@app.post("/api/feedback")
+async def post_feedback(request: Request, data: dict):
+    if not feedback_loop:
+        return JSONResponse({"ok": False, "error": "ระบบรับความเห็นยังไม่พร้อมค่ะ"}, status_code=503)
+    if not _rate_check("fb|" + _client_ip(request)):
+        return JSONResponse({"ok": False, "error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่นะคะ"}, status_code=429)
+    data = data if isinstance(data, dict) else {}
+    r = await run_in_threadpool(feedback_loop.record, data.get("vote"), data.get("route"), data.get("risk"))
+    return r if r.get("ok") else JSONResponse(r, status_code=400)
+
+
+@app.get("/api/feedback/stats")
+def get_feedback_stats():
+    return feedback_loop.stats() if feedback_loop else {"votes": 0, "signal": "NO_DATA"}
 
 
 # ── DASHBOARD ─────────────────────────────────────────────────────
