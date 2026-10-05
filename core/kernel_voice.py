@@ -24,7 +24,7 @@ from core.thai_signals import (NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, DRUNK_DRIVING,
                                MISSING_PERSON, LABOR_RIGHTS, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
-                               HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY)
+                               HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, detect_lang
 from core.engine_bridge import analyze as bridge_analyze, rank_options
 
@@ -288,11 +288,13 @@ TOPICS = [
     }),
     ("basic", ["ไม่มีข้าวกิน", "ไม่มีอะไรกิน", "อดข้าว", "ไม่ได้กินข้าว", "ไม่มีเงินซื้อข้าว", "ไม่มีที่นอน",
                "ไม่มีที่อยู่", "นอนข้างถนน", "ไม่มีบ้านอยู่", "ถูกไล่ออกจากบ้าน", "ไม่มีน้ำกิน",
-               "ไม่มีเงินซื้อนม", EVICT_TONIGHT], {
+               "ไม่มีเงินซื้อนม", EVICT_TONIGHT, NO_MONEY_LEFT], {
         "open": ["ก่อนเรื่องอื่น — กิน นอน และปลอดภัย ต้องมาก่อน"],
         "paths": [
             f"โทร {HOTLINE_SOCIAL} (ศูนย์ช่วยเหลือสังคม พม. 24 ชม.) บอกตรงๆ ว่าขาดอาหาร/ที่พัก — มีระบบส่งต่อที่พักและอาหารฉุกเฉิน",
             "มื้อถัดไป: วัด มัสยิด โบสถ์ มูลนิธิ หรือโรงทานใกล้ตัว ส่วนใหญ่ให้อาหารโดยไม่ถามเหตุผล",
+            ([re.compile(r"งานหมด|ตกงาน|ถูกเลิกจ้าง|โดนไล่ออกจากงาน|ไม่มีงาน")],
+             "ถ้าเคยจ่ายประกันสังคม ขึ้นทะเบียนว่างงานภายใน 30 วันที่ sso.go.th หรือโทร 1506 — ได้เงินทดแทนระหว่างหางาน · หางานรายวัน/งานด่วนได้ที่สำนักงานจัดหางานจังหวัด โทร 1694"),
             "บอกคน 1 คนที่ไว้ใจได้ว่าตอนนี้ขาดอะไร — ขอแค่สิ่งเดียวที่ต้องใช้ใน 24 ชั่วโมง",
             "ยังไม่ต้องแก้ทั้งชีวิตวันนี้ เป้าหมายเดียวคือผ่านคืนนี้ไปให้ได้อย่างปลอดภัย",
         ],
@@ -819,6 +821,8 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     topics = [name for name, phrases, _ in TOPICS if _hit(own if name in _OWN_ONLY else t, phrases)]
     if tr.get("basic_needs") and "basic" not in topics:
         topics.insert(0, "basic")
+    elif "basic" in topics:                    # ขาดปัจจัยพื้นฐาน มาก่อนเรื่องเงินทั่วไป
+        topics.insert(0, topics.pop(topics.index("basic")))
     text_risk = {"critical": 90, "high": 75, "medium": 55}.get(str(tr.get("level")), 0)
     if crisis:
         text_risk = max(text_risk, 95)

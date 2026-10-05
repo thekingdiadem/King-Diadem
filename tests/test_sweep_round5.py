@@ -60,3 +60,38 @@ def test_own_crisis_after_naming_someone_else(text):
 def test_someone_else_in_crisis_still_detected(text):
     a = assess(text)
     assert "someone" in a["topics"] and not a["crisis"]
+
+
+@pytest.mark.parametrize("text", ["หมดทางเลือก", "หมดหนทาง", "ไม่มีทางไปแล้ว", "ไม่เหลืออะไรแล้ว", "สิ้นหวัง"])
+def test_hopelessness_is_a_warning_sign(text):
+    """เดิม "หมดทางเลือก" ได้ Risk 0 และ Choice(t) = 5 (เห็นจากหน้าจอจริงในโหมดสภา)"""
+    a = assess(text)
+    assert "warning" in a["topics"] and a["text_risk"] >= 65
+
+
+@pytest.mark.parametrize("text", ["ไม่มีทางเลือกอื่นนอกจากลาออก", "หมดทางเลือกของเมนูนี้", "ไม่มีทางแพ้หรอก"])
+def test_ordinary_no_option_phrases(text):
+    assert "warning" not in assess(text)["topics"]
+
+
+def test_council_falls_back_and_asks_about_safety(client):
+    from tests.conftest import FAKE_LLM
+    d = client.post("/run", json={"input": "หมดทางเลือก", "voice_mode": "council"}).json()
+    assert d["risk_score"] >= 65 and "สัญญาณเตือน" in FAKE_LLM["prompts"][-1]
+
+
+@pytest.mark.parametrize("text", ["ตอนนี้เงินหมด งานหมด ทำไง เงิน0", "I have no money"])
+def test_zero_money_gets_basic_needs_first(text):
+    """เดิมได้ "นับว่าเงินที่มีอยู่พอได้กี่วัน" ทั้งที่ผู้ใช้บอกว่าไม่มีเงินเลย"""
+    assert assess(text)["topics"][0] == "basic"
+
+
+def test_lost_job_gets_unemployment_benefit_step():
+    from core.kernel_voice import compose
+    r = compose("ตอนนี้เงินหมด งานหมด ทำไง เงิน0")
+    assert "1300" in r and "1506" in r and "พอสำหรับสิ่งที่ต้องจ่าย" not in r
+
+
+@pytest.mark.parametrize("text", ["เงินเดือน 30000", "เงินเดือน 0.5 ล้าน"])
+def test_salary_is_not_zero_money(text):
+    assert "basic" not in assess(text)["topics"]
