@@ -88,8 +88,10 @@ def feedback_stats() -> dict:
     effective_success = success_count + partial_count * 0.5
     success_rate      = round(effective_success / total, 3)
 
-    # FATE™ signal
-    if success_rate >= 0.70:
+    # FATE™ signal — ตัวอย่างน้อยกว่า 10 ยังไม่สรุป (👎 ครั้งเดียวเคยได้ DRIFT_ALERT)
+    if total < 10:
+        signal = "LOW_DATA"
+    elif success_rate >= 0.70:
         signal = "STABLE"
     elif success_rate >= 0.50:
         signal = "CAUTION"

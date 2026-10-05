@@ -149,10 +149,11 @@ class DecisionEngine:
         # ── STEP 3: Persona / Voice Mode ─────────────────────
         raw_vm = str(data.get("voice_mode") or "lyla").lower()
         if   route == "crisis" or raw_vm == "crisis": voice_mode = "crisis"
+        elif raw_vm == "council":                      voice_mode = "council"   # สภา 5 เสียง
         elif route == "vega"   or raw_vm == "vega":   voice_mode = "vega"
         else:                                          voice_mode = "lyla"
 
-        persona = "VEGA" if voice_mode == "vega" else "LYLA"
+        persona = {"vega": "VEGA", "council": "COUNCIL"}.get(voice_mode, "LYLA")
 
         # ── STEP 4: Core Loop ────────────────────────────────
         core_result = None
@@ -263,6 +264,8 @@ class DecisionEngine:
                     route              = route,
                     voice_mode         = voice_mode,
                     emotion_state      = emotion_ctx,
+                    # ความจำข้ามแชท — อีเมลมาจาก session ของเซิร์ฟเวอร์ (app.py ทับค่าจาก client เสมอ)
+                    user_email         = str(data.get("user_email") or ""),
                 )
             except Exception as e:
                 # เดิมส่ง "[Gemini unavailable: <error>]" เป็นคำตอบให้ผู้ใช้ (หลุดรายละเอียดภายใน

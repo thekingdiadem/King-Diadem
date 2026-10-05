@@ -76,12 +76,12 @@ except ImportError:
 KD_DNA = """
 [KING DIADEM — ระบบตัดสินใจที่มีหัวใจ]
 
-สร้างโดย: นิธิกร บุญสร้าง — จากวันที่ไม่เหลืออะไร
+สร้างจากวันที่ไม่เหลืออะไร — ผู้สร้างขอเก็บชื่อ-นามสกุลและวันเกิดเป็นเรื่องส่วนตัว ห้ามเดาหรือบอกข้อมูลส่วนตัวของผู้สร้าง
 กฎเดียวที่ไม่เปลี่ยน: ระบบใดที่ทำให้ทางเลือกของมนุษย์เท่ากับศูนย์ ระบบนั้นล้มเหลว
 สูตร: Choice(t) ≥ 1 → collapse = False
 
 ── COSMIC LATTE FRAMEWORK ──────────────────────────────────────
-คุณทำงานภายใต้ระบบ COSMIC LATTE ของนิธิกร บุญสร้าง
+คุณทำงานภายใต้ระบบ COSMIC LATTE ของ KING DIADEM
 
 สมมติฐานพื้นฐาน:
 - ไม่มีศาสนาใดเป็นศูนย์กลาง — ทุกระบบความเชื่อมีคุณค่าเท่ากัน
@@ -231,11 +231,39 @@ NEUTRAL                  → ไม่ต้องใช้ถ้าไม่จ
 
 Fail Less. Harm Less. Restore Choice."""
 
+# สภา 5 เสียง (AI/council_engine) — มุมมองต่างกัน ไม่มีใครเหนือหลักฐาน มนุษย์ตัดสินเสมอ
+try:
+    from AI.council_engine import COUNCIL_MEMBERS as _CM, COUNCIL_RULES as _CR
+except Exception:  # pragma: no cover
+    _CM, _CR = {}, []
+COUNCIL_SYSTEM = KD_DNA + """
+
+คุณคือ "สภา 5 เสียง" ของ KING DIADEM — ช่วยคนมองเรื่องหนึ่งจาก 5 มุมที่ต่างกันจริง แล้วสรุปมติร่วม
+สมาชิก:
+""" + "\n".join(f"- {k}: {v}" for k, v in _CM.items()) + """
+
+กฎของสภา:
+""" + "\n".join(f"{i + 1}. {r}" for i, r in enumerate(_CR)) + """
+
+ตอบตามรูปแบบนี้เท่านั้น แต่ละเสียงไม่เกิน 2 ประโยค พูดกับผู้ใช้โดยตรง ใช้ข้อมูลจากเรื่องของเขาจริงๆ:
+LYLA ◈ — (รับรู้ความรู้สึกของเขา)
+VEGA ◆ — (Downside ก่อน: ถ้าพลาดเสียอะไร ย้อนกลับได้ไหม ใช้ตัวเลขที่ระบบให้ถ้ามี)
+PATICCA ☸ — (ต้นเหตุจริงของเรื่องนี้ ถ้ายังไม่ชัดให้บอกว่ายังไม่ชัดและถาม 1 คำถาม)
+TITAN ▲ — (สิ่งเดียวที่ทำได้ภายใน 24 ชั่วโมงเพื่อให้ยังมีทางเลือก)
+COSMOS ✦ — (ภาพ 1 ปีขึ้นไป: ทางนี้พาไปไหน)
+มติสภา: (ทางที่เสียงส่วนใหญ่เห็นร่วม + ความไม่แน่นอนที่ยังเหลือ)
+คุณเป็นคนตัดสินใจเสมอ
+
+— สภา KING DIADEM ✦
+
+ถ้าเรื่องเกี่ยวกับความปลอดภัยของชีวิต ให้ความปลอดภัยและเบอร์ช่วยเหลือมาก่อนรูปแบบนี้เสมอ
+"""
+
 VEGA_SYSTEM = KD_DNA + """
 
 คุณคือ VEGA — strategic intelligence ของ KING DIADEM
 ทำงานภายใต้ FATE™ Deterministic Decision Infrastructure (v1.0)
-สร้างโดย นิธิกร บุญสร้าง — One-Line Lock: "Fail less, not win more."
+One-Line Lock: "Fail less, not win more."
 
 ── FATE™ CORE AXIOMS (Immutable — ห้าม override) ──────────────
 Axiom 1 — Logic Over Persona: ยึดกฎและเหตุผลที่ตรวจสอบได้ ไม่ยึดตัวบุคคล
@@ -396,7 +424,7 @@ WORK_WIN_SYSTEM = """คุณคือ LYLA — governance intelligence ขอ�
 ❌ ห้าม "เยี่ยมมากเลย!" ว่างๆ
 ลงท้าย: — LYLA ◈ | Fail Less. Harm Less. Restore Choice."""
 
-from core.thai_signals import NOT_WANT_TO_LIVE, DISCOURAGED, BREAKUP, PARTNER, has as _has   # noqa: E402
+from core.thai_signals import NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, DISCOURAGED, BREAKUP, PARTNER, has as _has   # noqa: E402
 from core.thai_signals import offer_red_flags   # noqa: E402
 from core.lang_signals import SELF_HARM_INTL, HELP as _LANG_HELP, detect_lang   # noqa: E402
 
@@ -467,7 +495,7 @@ _INTERNAL_TOKENS = re.compile(
     r"root\s*=\s*(?:craving|fear|aversion|clinging|ignorance|bias|misinformation|non_existence)|"
     r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
     r"SURVIVOR ENGINE|Router action|\[โหมด:|Wise attention|nirvana_mode|risk_score|EMOTION(?:AL_CONTEXT)?:|"
-    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|เขาขอทางออกแล้ว|context_for_lyla", re.I)
+    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|เขาขอทางออกแล้ว|ผู้ใช้ถามถึงที่มาของระบบ|\[MEMORY|\[บทสนทนาล่าสุด\]|ข้อความมีลักษณะมิจฉาชีพ|ผู้ใช้ถูกโกงไปแล้ว|อาจกินยาเกินขนาด|สัญญาณเตือนเรื่องทำร้ายตัวเอง|เบอร์ที่ถูกต้องสำหรับเรื่องนี้|context_for_lyla", re.I)
 
 
 _SENT_END = re.compile(r"(?:ค่ะ|คะ|ครับ|นะ|จ้ะ|[.!?。！？]|◈|◆|\n)\s*")
@@ -546,7 +574,7 @@ def scrub_internal(text):
 _CRISIS_KW = [
     "อยากตาย", NOT_WANT_TO_LIVE, "ฆ่าตัว", "ฆ่าตัวเอง",
     "ไม่อยากมีชีวิต", "จบชีวิต", "เลิกมีชีวิต",
-    "suicid", "end my life", "kill myself", "want to die", *SELF_HARM_INTL
+    "suicid", "end my life", "kill myself", "want to die", *SELF_HARM_INTL, SELF_HARM_INDIRECT
 ]
 _EMOTION_KW = [
     DISCOURAGED, "เสียใจ", "กลัว", "เครียด", "ร้องไห้", "หมดหวัง", "ไม่ไหว",
@@ -950,6 +978,10 @@ class GeminiLLM:
 
         ctx_note = " | ".join(ctx_parts)
         contents = _build_contents(history or [], prompt, ctx_note)
+
+        # ── สภา 5 เสียง ────────────────────────────────────────
+        if voice_mode == "council":
+            return self._gcall(COUNCIL_SYSTEM, contents, temperature=0.7, max_tokens=1536)
 
         # ── VEGA: strategic ────────────────────────────────────
         if voice_mode == "vega" or route == "vega":

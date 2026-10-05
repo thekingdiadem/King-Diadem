@@ -177,6 +177,27 @@ class RealHumanSurvivorEngine:
                 emotion    = current_emotion,
             )
 
+        # ── Level 2.5: no money (ยังมีอาหารและที่พัก) ──────────────────
+        # เดิมได้ STABLE "วิเคราะห์ได้เต็มที่" — คำตอบเลยไม่พูดถึงทางได้เงินในวันสองวันนี้
+        if state.money is not None and state.money <= 0:
+            return SurvivalOutput(
+                status   = "STRESSED_FUNCTIONAL",
+                priority = "หาเงินสำหรับไม่กี่วันข้างหน้า — ยังมีอาหารและที่พัก",
+                context_for_lyla = self._ctx(
+                    "NO_MONEY",
+                    f"energy={state.energy:.0f} money=0 food=yes shelter=yes",
+                    "LYLA เสนอทางที่ได้เงินหรือลดรายจ่ายได้ภายใน 1–3 วัน เป็นข้อๆ ที่ทำได้จริง "
+                    "(งานรายวัน ขายของที่ไม่ได้ใช้ ขอความช่วยเหลือ 1300 ประกันสังคม/สวัสดิการที่มีสิทธิ์) "
+                    "ยังมีอาหารและที่พัก ไม่ต้องตื่นตระหนก",
+                    flags, emotion_note,
+                ),
+                waterline  = waterline,
+                can_decide = True,
+                flags      = flags,
+                council    = council_result,
+                emotion    = current_emotion,
+            )
+
         # ── Level 3: stressed ─────────────────────────────────────
         if state.mental_state == "stressed" or state.days_in_crisis > 3:
             return SurvivalOutput(
@@ -251,6 +272,10 @@ class RealHumanSurvivorEngine:
         if state.mental_state == "overwhelmed":        score -= 25
         if state.mental_state == "stressed":           score -= 10
         score -= min(20, state.days_in_crisis * 2)
+        # เงินที่ใช้ได้ตอนนี้ (เฉพาะเมื่อผู้ใช้บอก) — เดิมไม่นับเลย: เงิน 0 บาทยังได้ W 94 STABLE
+        if state.money is not None:
+            if state.money <= 0:        score -= 20
+            elif state.money < 1000:    score -= 10     # น้อยกว่าค่าใช้จ่ายจำเป็นราวหนึ่งสัปดาห์
         return max(0.0, min(100.0, score))
 
 

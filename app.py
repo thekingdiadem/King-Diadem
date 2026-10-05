@@ -269,6 +269,17 @@ if not _SECRET_KEY:
     )
 
 app = FastAPI(title="KING DIADEM OS")
+
+
+# body ที่ไม่ใช่ JSON object (เช่น Infinity) เคยทำให้ทุก endpoint ตอบ 500 —
+# FastAPI พยายามส่งค่าที่ผิดกลับไปใน error แต่แปลง inf เป็น JSON ไม่ได้ · ตอบ 422 สั้นๆ โดยไม่ส่งค่ากลับ
+from fastapi.exceptions import RequestValidationError  # noqa: E402
+
+
+@app.exception_handler(RequestValidationError)
+async def _bad_body(request: Request, exc: RequestValidationError):
+    return JSONResponse({"error": "รูปแบบข้อมูลที่ส่งมาไม่ถูกต้องค่ะ"}, status_code=422)
+
 app.add_middleware(
     SessionMiddleware,
     secret_key=_SECRET_KEY
@@ -618,6 +629,42 @@ async def post_feedback(request: Request, data: dict):
     return r if r.get("ok") else JSONResponse(r, status_code=400)
 
 
+# ── ความจำข้ามแชทของ LYLA (เฉพาะผู้ที่เข้าสู่ระบบ) — ผู้ใช้ดู ปิด หรือล้างเองได้ ─────────
+@app.get("/api/memory")
+def get_my_memory(request: Request):
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    try:
+        from DATABASE.db import list_memory, memory_enabled
+        items = [{"key": m["memory_key"], "content": str(m["content"])[:300], "updated_at": str(m["updated_at"])}
+                 for m in list_memory(email)]
+        return {"enabled": memory_enabled(email), "items": items}
+    except Exception as e:
+        print(f"⚠ memory: {type(e).__name__}")
+        return JSONResponse({"error": "ดูความจำไม่ได้ชั่วคราว ลองใหม่อีกครั้งนะคะ"}, status_code=503)
+
+
+@app.post("/api/memory")
+def set_my_memory(request: Request, data: dict):
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    action = str((data or {}).get("action") or "")
+    try:
+        from DATABASE.db import clear_memory, set_memory_enabled, memory_enabled
+        if action == "clear":
+            clear_memory(email)
+        elif action in ("on", "off"):
+            set_memory_enabled(email, action == "on")
+        else:
+            return JSONResponse({"error": "action ต้องเป็น clear / on / off"}, status_code=400)
+        return {"ok": True, "enabled": memory_enabled(email)}
+    except Exception as e:
+        print(f"⚠ memory: {type(e).__name__}")
+        return JSONResponse({"error": "ตั้งค่าความจำไม่ได้ชั่วคราว ลองใหม่อีกครั้งนะคะ"}, status_code=503)
+
+
 @app.get("/api/feedback/stats")
 def get_feedback_stats():
     return feedback_loop.stats() if feedback_loop else {"votes": 0, "signal": "NO_DATA"}
@@ -899,6 +946,10 @@ _LISTEN_GENTLY = ("ค่อยๆ ฟังเขา: เริ่มจาก�
 # เรียกชื่อในข้อความ ("หาทางออกทีเวก้า") — เดิมรู้จักแค่ปุ่มเลือกและคำว่า vega
 _NAME_VEGA = re.compile(r"เวก้า|เวกา|วีก้า|(?<![a-z])vega(?![a-z])", re.I)
 _NAME_LYLA = re.compile(r"ไลล่า|ไลลา|(?<![a-z])lyla(?![a-z])", re.I)
+_NAME_COUNCIL = re.compile(r"ขอความเห็นสภา|เปิดสภา|ถามสภา|สภา\s*5\s*เสียง|(?<![a-z])council(?![a-z])", re.I)
+
+
+_PERSONA = {"vega": "VEGA", "council": "COUNCIL"}
 
 
 def _resolve_voice_mode(data: dict, route: str) -> str:
@@ -913,6 +964,14 @@ def _resolve_voice_mode(data: dict, route: str) -> str:
         except Exception:
             return "crisis"
         vm = ""
+    # สภา 5 เสียง: เลือกจากปุ่ม หรือขอในข้อความ — วิกฤตมาก่อนเสมอ (ตรวจไปแล้วด้านบน)
+    if vm == "council" or _NAME_COUNCIL.search(text):
+        try:
+            if text_risk and text_risk(text).get("self_harm"):
+                return "crisis"
+        except Exception:
+            pass
+        return "council"
     if _NAME_VEGA.search(text) and not _NAME_LYLA.search(text):  return "vega"
     if _NAME_LYLA.search(text) and not _NAME_VEGA.search(text):  return "lyla"
     if vm == "vega" or route == "vega":  return "vega"
@@ -1130,6 +1189,54 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                        "(1300 ศูนย์ช่วยเหลือสังคม 24 ชม." + (" · 1323 สายด่วนสุขภาพจิต" if prior_kind == "self_harm" else "") + ")]")
             # ความกังวลยังอยู่ แต่ลดลงตามเวลา — Risk = 0.75 × Risk ของสิ่งที่เล่าไว้
             k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
+    # สภา 5 เสียงไม่เหมาะกับเรื่องฉุกเฉิน (กินยาเกินขนาด ถูกทำร้าย ภัยพิบัติ ฯลฯ) — ให้ LYLA ตอบขั้นช่วยเหลือทันที
+    if vm == "council" and k_assess:
+        try:
+            from core.kernel_voice import council_unsuitable
+            if council_unsuitable(k_assess):
+                vm = "lyla"
+        except Exception:
+            pass
+    # ── สัญญาณที่เพิ่มในรอบหาบั๊กทุกไฟล์: มิจฉาชีพ · กินยาเกินขนาด · สัญญาณเตือน · เบอร์เฉพาะเรื่อง ──
+    sig_ctx = []
+    k_topics = k_assess.get("topics") or []
+    scam = k_assess.get("scam") or []
+    if scam:
+        if route not in ("vega",):
+            route = _escalate_route(route, "risk")
+        if scam == ["lost"]:
+            sig_ctx.append("[ผู้ใช้ถูกโกงไปแล้ว: ปลอบสั้นๆ ว่าไม่ใช่ความผิดเขา แล้วบอกสิ่งที่ต้องทำภายในวันนี้ — โทรธนาคารขอระงับบัญชีปลายทาง "
+                           "โทร 1441 (24 ชม.) แจ้งความออนไลน์ thaipoliceonline.go.th เก็บหลักฐาน และระวังคนอ้างว่าช่วยตามเงินคืนแต่ให้จ่ายก่อน]")
+        else:
+            sig_ctx.append("[ข้อความมีลักษณะมิจฉาชีพ (แอบอ้างหน่วยงาน/ให้กดลิงก์/ให้โอน/ขอ OTP): เตือนตรงๆ อย่างสุภาพ ให้วางสาย "
+                           "โทรกลับเบอร์ทางการเอง ไม่กดลิงก์ ไม่ติดตั้งแอป ไม่บอก OTP · ถ้าโอนหรือให้ข้อมูลไปแล้ว โทรธนาคาร + 1441]")
+    if "overdose" in k_topics:
+        if route not in ("vega",):
+            route = _escalate_route(route, "collapse")
+        sig_ctx.append("[อาจกินยาเกินขนาดหรือได้รับสารพิษ: ฉุกเฉิน ตอบสั้น ขั้นตอนก่อน — โทร 1669 ทันทีแม้ยังรู้สึกปกติ "
+                       "ศูนย์พิษวิทยา 1367 (24 ชม.) เก็บแผงยา/ฉลากไปด้วย · ถามอย่างอ่อนโยนว่าตั้งใจทำร้ายตัวเองไหม ถ้าใช่ บอก 1323]")
+    if "warning" in k_topics and not k_assess.get("crisis"):
+        if route not in ("vega",):
+            route = _escalate_route(route, "risk")
+        sig_ctx.append("[สัญญาณเตือนเรื่องทำร้ายตัวเอง: รับฟังอย่างอ่อนโยน แล้วถามตรงๆ หนึ่งคำถามว่าตอนนี้มีความคิดอยากทำร้ายตัวเอง"
+                       "หรือไม่อยากมีชีวิตอยู่ไหม (การถามตรงๆ ไม่ได้ทำให้แย่ลง) · บอกว่า 1323 คุยได้ฟรี 24 ชม. · ไม่เทศน์ ไม่ร่วมดีใจ]")
+    _HOT = {"addiction": "เลิกเหล้า 1413 · ยาเสพติด 1165 · เลิกบุหรี่ 1600 · พนัน/เกมที่หยุดไม่ได้ 1323",
+            "pregnancy": "ปรึกษาท้องไม่พร้อม 1663 (ฟรี เป็นความลับ ไม่ตัดสิน)",
+            "bullying": "สายด่วนเด็ก 1387 (อายุต่ำกว่า 18) · สุขภาพจิต 1323",
+            "grief": "สุขภาพจิต 1323 ถ้าเศร้าจนใช้ชีวิตไม่ได้นานหลายสัปดาห์"}
+    hot = [v for k, v in _HOT.items() if k in k_topics]
+    if hot:
+        sig_ctx.append("[เบอร์ที่ถูกต้องสำหรับเรื่องนี้ (ใช้เมื่อเหมาะ ห้ามแต่งเบอร์อื่น): " + " | ".join(hot) + "]")
+    # ถามถึงที่มาของระบบ → เล่าเรื่องจริงของระบบ (core/creator_story) ไม่ให้ LLM แต่งเอง
+    try:
+        from core.creator_story import detect_creator_question, CREATOR_STORY_TH
+        if detect_creator_question(user_input):
+            sig_ctx.append("[ผู้ใช้ถามถึงที่มาของระบบ: เล่าเรื่องนี้ด้วยน้ำเสียงของคุณอย่างสั้นและจริงใจ ห้ามเพิ่มรายละเอียดที่ไม่มีในเรื่อง "
+                           "และห้ามบอกชื่อ-นามสกุลหรือวันเกิดของผู้สร้าง — เรื่อง: "
+                           + " ".join(CREATOR_STORY_TH.split()) + "]")
+    except Exception:
+        pass
+    sig_ctx = " ".join(sig_ctx)
     # กำลังเจอภัย (น้ำท่วม แผ่นดินไหว ไฟไหม้ ...) → เส้นทางความอยู่รอด ขั้นแรกของภัยนั้นมาก่อน
     dis_ctx = ""
     dis = k_assess.get("disaster")
@@ -1140,11 +1247,16 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                    "เรียงตามลำดับ ยังไม่ถามเรื่องอื่นหรือวิเคราะห์ยาว ถามว่าตอนนี้เขากับคนที่อยู่ด้วยปลอดภัยไหม "
                    "ปิดท้ายด้วยเบอร์ 1784 / 1669 และบอกว่าพิมพ์มาได้ตลอด]")
     # เขาขอทางออกเองแล้ว ("หาทางออกที" "ทำยังไงดี") — เดิม LYLA ยังแค่รับฟังแล้วถามกลับ
-    if (rel_ctx or dis_ctx) and _ASKS_WAY_OUT.search(user_input):
+    # ข้อความสั้นๆ ต่อจากที่เพิ่งขอ ("หาทางออกที" → "เวก้า") ก็ยังเป็นคำขอเดิม
+    last_user = next((str(h.get("content") or "") for h in reversed(history if isinstance(history, list) else [])
+                      if isinstance(h, dict) and h.get("role") == "user"), "")
+    asks_way_out = bool(_ASKS_WAY_OUT.search(user_input) or
+                        (len(user_input.strip()) <= 15 and _ASKS_WAY_OUT.search(last_user[:500])))
+    if (rel_ctx or dis_ctx) and asks_way_out:
         eg = ("ไปอยู่ที่ปลอดภัย บอกคนที่ไว้ใจได้ โทร 1300" if rel_ctx else "ขึ้นที่สูงหรือออกจากจุดอันตราย โทร 1784")
         rel_ctx = (rel_ctx + " " if rel_ctx else "") + (
             f"[เขาขอทางออกแล้ว: ให้ทางเลือกที่ทำได้จริง 2–3 ข้อ เรียงจากปลอดภัยที่สุด เช่น {eg} "
-            "— ยังอ่อนโยนเหมือนเดิม แต่ไม่ถามกลับแทนการตอบ]")
+            "— ยังอ่อนโยนเหมือนเดิม แต่ไม่ถามกลับแทนการตอบ ถ้าต้องถามให้ถามแค่ 1 คำถามท้ายคำตอบ]")
     offer_flags = k_assess.get("offer_flags") or []
     if offer_flags:
         if route not in ("vega",):
@@ -1217,7 +1329,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                     "observer":      "KING DIADEM",
                     "status":        "SYSTEM_PAUSE",
                     "route":         route,
-                    "persona":       "VEGA" if vm == "vega" else "LYLA",
+                    "persona":       _PERSONA.get(vm, "LYLA"),
                     "voice_mode":    vm,
                     "ai_response":   "",
                     "pattern":       human_state,
@@ -1240,6 +1352,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         except Exception as e:
             print(f"⚠ engine_bridge: {type(e).__name__}")
     extra_ctx = " ".join(p for p in [
+        sig_ctx,
         dis_ctx,
         rel_ctx,
         offer_ctx,
@@ -1318,7 +1431,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                               else route),
             "ai_response":   reply,
             "governance":    {"intent": intent, "human_state": human_state},
-            "persona":       "VEGA" if vm == "vega" else "LYLA",
+            "persona":       _PERSONA.get(vm, "LYLA"),
             "pattern":       human_state,
             "risk_score":    human_state.get("risk_score", 0),
             "bodhipakkhiya": core_result.get("bodhi_verdict", ""),  # ← v4.9
@@ -1376,7 +1489,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # เพราะ engine ตัดสินจาก pattern อีกชุด — ยกขึ้นได้อย่างเดียว ไม่ลด vega/stable ที่ engine เลือก
     if _ROUTE_SEVERITY.get(route, 0) > _ROUTE_SEVERITY.get(result["route"], 0):
         result["route"] = route
-    result["persona"]    = "VEGA" if vm == "vega" else "LYLA"
+    result["persona"]    = _PERSONA.get(vm, "LYLA")
     result["voice_mode"] = vm
 
     result = _enrich_with_universal(result, payload)
@@ -1750,7 +1863,7 @@ async def stripe_webhook(request: Request):
     sig     = request.headers.get("stripe-signature", "")
     secret  = os.getenv("STRIPE_WEBHOOK_SECRET", "")
     if not secret:
-        return JSONResponse({"error": "webhook not configured"}, status_code=500)
+        return JSONResponse({"error": "webhook not configured"}, status_code=503)
     try:
         event = stripe.Webhook.construct_event(payload, sig, secret)
     except Exception:

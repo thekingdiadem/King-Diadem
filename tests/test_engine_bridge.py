@@ -236,3 +236,40 @@ def test_page_knows_thai_persona_names():
 def test_way_out_note_never_reaches_the_user():
     from core.llm_gemini import scrub_internal
     assert scrub_internal("ทางแรกคือ…\n[เขาขอทางออกแล้ว: ให้ทางเลือก]") == "ทางแรกคือ…"
+
+
+# ── ภาพจากเว็บจริง: "หาทางออกที" แล้วตามด้วย "เวก้า" → VEGA ถามกลับ 4 ข้อ ────────────
+def test_short_follow_up_keeps_the_way_out_request(client):
+    hist = ABUSE_HISTORY + [{"role": "user", "content": "หาทางออกที"},
+                            {"role": "assistant", "content": "ฉันรับฟังนะคะ"}]
+    client.post("/run", json={"input": "เวก้า", "history": hist})
+    prompt = FAKE_LLM["prompts"][-1]
+    assert "เขาขอทางออกแล้ว" in prompt and "แค่ 1 คำถาม" in prompt
+
+
+def test_long_new_message_is_judged_on_its_own(client):
+    hist = ABUSE_HISTORY + [{"role": "user", "content": "หาทางออกที"}]
+    client.post("/run", json={"input": "วันนี้ไปโรงเรียนมาแล้ว เพื่อนชวนไปกินข้าวเย็นด้วยกัน", "history": hist})
+    assert "เขาขอทางออกแล้ว" not in FAKE_LLM["prompts"][-1]
+
+
+# ── หน้า "สถานะของฉัน": เงิน 0 บาทเคยได้ W 94 STABLE ─────────────────────────────
+from ENGINE.realhuman_survivorengine import HumanState, RealHumanSurvivorEngine
+
+
+@pytest.mark.parametrize("money, w", [(None, 100), (0, 80), (500, 90), (5000, 100)])
+def test_money_counts_in_waterline(money, w):
+    st = HumanState(energy=50, money=money, food_access=True, safe_place=True, sleep_hours=8)
+    assert RealHumanSurvivorEngine()._calc_waterline(st) == w
+
+
+def test_no_money_gets_practical_guidance():
+    st = HumanState(energy=50, money=0, food_access=True, safe_place=True, sleep_hours=8)
+    out = RealHumanSurvivorEngine().run(st)
+    assert out.status == "STRESSED_FUNCTIONAL" and "NO_MONEY" in out.context_for_lyla and "1300" in out.context_for_lyla
+
+
+def test_page_formula_counts_money():
+    import pathlib
+    page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
+    assert "w -= this.moneyCut(s);" in page and "s.money <= 0 ? 20 : s.money < 1000 ? 10 : 0" in page

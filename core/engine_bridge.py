@@ -81,7 +81,11 @@ def _debt_segments(text: str) -> list:
 _DEBT_CTX = re.compile(r"หนี้|ค้าง|ผ่อน|กู้|ยืม|สินเชื่อ|บัตรเครดิต|บัตรกดเงินสด|ยอดบัตร|รูดบัตร|กยศ|นอกระบบ|ดอกเบี้ย|ดอก\s*\d")
 
 
+_PCT_TH = re.compile(r"ร้อยละ\s*(\d+(?:\.\d+)?)")
+
+
 def parse_debts(text: str) -> list:
+    text = _PCT_TH.sub(r"\1%", str(text or ""))          # "ดอกร้อยละ 20" = "ดอก 20%" (เดิมอ่านไม่ออก)
     debts = []
     for seg in _debt_segments(text):
         kind = next(((k, r) for k, r in _DEBT_KIND if k in seg), None)
@@ -187,11 +191,16 @@ def _runway(text: str) -> dict | None:
 
 
 # ── 3. ความสัมพันธ์ ─────────────────────────────────────────────────────
-_REL_CTX = re.compile(r"แฟน|สามี|ภรรยา|เมีย|ผัว|คู่รัก|คนรัก|พ่อ|แม่|ครอบครัว|ญาติ|คนที่บ้าน|พี่ชาย|น้องชาย")
+_REL_CTX = re.compile(r"แฟน|สามี|ภรรยา|เมีย|ผัว|คู่รัก|คนรัก|พ่อ|แม่|ครอบครัว|ญาติ|คนที่บ้าน|พี่ชาย|น้องชาย|"
+                      r"\b(?:boyfriend|girlfriend|husband|wife|partner|dad|father|mom|mother|stepdad|stepfather|parents?)\b",
+                      re.I)
 _REL_FLAGS = {
     # "ตี" เดี่ยวๆ ไปติด "ตีกอล์ฟ" "ตีความ" — ใช้รูปที่หมายถึงการทำร้ายคน
     "violence_risk": r"ตบ|ตี(?:ฉัน|หนู|ผม|เรา|ลูก|หัว|หน้า|จน|แรง)|(?:ถูก|โดน)\S{0,8}?ตี|ทุบ|ทำร้าย|เตะ|บีบคอ|"
-                     r"ขู่ฆ่า|ขู่จะทำร้าย|ซ้อม|ผลัก|ข่มขืน|ใช้กำลัง",
+                     r"ขู่ฆ่า|ขู่จะทำร้าย|ซ้อม|ผลัก|ข่มขืน|ใช้กำลัง|"
+                     # อังกฤษ: "my boyfriend hit me" เคยได้ Risk 0
+                     r"(?i:\b(?:hit|hits|hitting|beat|beats|beating|slap(?:s|ped)?|punch(?:es|ed)?|kick(?:s|ed)?|"
+                     r"chok(?:e|es|ed|ing)|hurts?|hurting|threaten(?:s|ed)? to kill)\s+me\b|\babus(?:e|es|ed|ive)\b)",
     "financial_control": r"ยึดเงิน|คุมเงิน|ไม่ให้ใช้เงิน|เอาเงินไปหมด|ยึดบัตร|เอาบัตรไป|ไม่ให้ทำงาน",
     "isolation": r"ไม่ให้เจอเพื่อน|ห้ามเจอ|ห้ามคุย|ไม่ให้ออกจากบ้าน|ห้ามออกจากบ้าน|ตัดขาด|ไม่ให้ติดต่อ|ยึดโทรศัพท์|ยึดมือถือ",
     "dependency": r"ต้องพึ่งเขา|ไม่มีรายได้ของตัวเอง|ไม่มีที่ไป|ออกไปก็ไม่มีที่อยู่",
@@ -292,7 +301,8 @@ def _disaster(text: str) -> dict | None:
 
 # ── 6. คิดเลขที่ผู้ใช้ถาม (ENGINE/tool_executor) ─────────────────────────
 # ต้องมีทั้งนิพจน์ (ตัวเลข เครื่องหมาย ตัวเลข) และคำถามหาผล — "24/7" "1-2 วัน" "50/50" ไม่ใช่โจทย์
-_CALC_EXPR = re.compile(r"(?<![\d/.])\d[\d,]*(?:\.\d+)?(?:\s*[+×x*÷]\s*\d[\d,]*(?:\.\d+)?)+(?![\d/])")
+# ลบต้องมีช่องว่างทั้งสองข้าง ("25000 - 18000") — "1-2 วัน" เป็นช่วง ไม่ใช่โจทย์
+_CALC_EXPR = re.compile(r"(?<![\d/.])\d[\d,]*(?:\.\d+)?(?:(?:\s*[+×x*÷]\s*|\s+-\s+)\d[\d,]*(?:\.\d+)?)+(?![\d/])")
 _CALC_ASK = re.compile(r"เท่าไหร่|เท่าไร|เท่าใด|ได้เท่า|ทั้งหมดกี่|รวมกี่|คิดยังไง|ช่วยคิด|ช่วยคำนวณ|คำนวณ|=\s*\?|=\s*$|how much", re.I)
 
 
@@ -314,7 +324,7 @@ def _calc(text: str) -> dict | None:
         r = _safe_calc(expr)
         if "result" not in r:
             continue
-        shown = re.sub(r"\s*([+×x*÷])\s*", lambda o: " " + {"x": "×", "*": "×", "÷": "÷"}.get(o.group(1), o.group(1)) + " ", raw)
+        shown = re.sub(r"\s*([+×x*÷-])\s*", lambda o: " " + {"x": "×", "*": "×", "÷": "÷"}.get(o.group(1), o.group(1)) + " ", raw)
         lines.append(f"คิดเลข: {shown.strip()} = {_fmt(float(r['result']))}")
         results.append(r["result"])
     return {"lines": lines, "data": {"results": results}} if lines else None
