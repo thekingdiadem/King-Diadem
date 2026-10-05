@@ -1442,10 +1442,15 @@ def _simulate_impl(user_input: str, paths: list, email: str) -> dict:
             "1. ความเสี่ยง (Downside First)\n"
             "2. ผลใน 30 / 90 วัน\n"
             "3. ทางที่แนะนำพร้อมเหตุผล 1 ประโยค\n\n"
-            "ตอบเป็นภาษาไทย กระชับ ใช้งานได้ทันที\n— VEGA"
+            "ตอบกระชับ ใช้งานได้ทันที\n— VEGA"
         )
+        # ภาษาเดียวกับผู้ใช้ (เดิมบังคับ "ตอบเป็นภาษาไทย") และเส้นทาง vega ตามลายเซ็น — VEGA
+        # (เดิม route="survival" ทุกครั้ง LLM จึงได้คำสั่ง "โฟกัสความอยู่รอดพื้นฐาน" กับการจำลองเรื่องงาน)
+        u_lang = detect_lang(user_input) if detect_lang else "th"
+        if u_lang != "th":
+            prompt += f"\n\n[ภาษาผู้ใช้: {u_lang}]"
         answer = _llm.generate_with_governance(
-            prompt=prompt, route="survival",
+            prompt=prompt, route="vega", voice_mode="vega",
             additional_context="mode=simulation",
             user_email=email,
         )

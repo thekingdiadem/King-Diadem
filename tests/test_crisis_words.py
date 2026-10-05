@@ -41,3 +41,11 @@ def test_emergency_th(text, hit):
 @pytest.mark.parametrize("text, hit", [("this is an emergency", True), ("how big should my emergency fund be", False)])
 def test_emergency_en(text, hit):
     assert bool(EMERGENCY_EN.search(text)) is hit
+
+
+# ── /simulate ─────────────────────────────────────────────────────────
+def test_simulate_uses_vega_and_users_language(client):
+    client.post("/simulate", json={"input": "Should I change jobs?", "paths": ["quit now", "stay and learn"]})
+    system = FAKE_LLM["systems"][-1]
+    assert "VEGA" in system and "ตอบเป็นภาษา English ทั้งหมด" in system
+    assert "ตอบเป็นภาษาไทย" not in FAKE_LLM["prompts"][-1]
