@@ -520,6 +520,9 @@ dialog.axis::backdrop{background:transparent}
       <button type="button" data-view="system"><i>Σ</i>ระบบ<span class="k" id="nav-files">272</span></button>
     </nav>
     <div class="account">
+      <select id="lang-pick" class="acc-link" aria-label="ภาษา / Language" data-i18n-skip>
+        <option value="th">ไทย</option><option value="en">English</option><option value="ja">日本語</option>
+      </select>
       <div id="acc-guest"><a class="acc-link" href="/login/google">เข้าสู่ระบบ</a></div>
       <div id="acc-user" class="hide">
         <span class="who" id="acc-email"></span>
@@ -2080,5 +2083,6 @@ addEventListener('keydown', function(e){ if(e.key === 'Escape') closeDrawer(); }
 })();
 </script>
 <script src="/static/galaxy_scene.js" defer></script>
+<script src="/static/i18n.js" defer></script>
 </body>
 </html>

@@ -71,7 +71,7 @@
 
 - Persistent database (PostgreSQL on Render)
 - UptimeRobot keep-alive automation
-- Multi-language support (EN · TH · JP)
+- Multi-language support (EN · TH · JP) — แชทตอบตามภาษาผู้ใช้ · หน้าเว็บสลับ ไทย/English/日本語 (static/i18n.js) ✅
 - Community decision nodes
 - Low-energy governance for resource-limited environments
 
