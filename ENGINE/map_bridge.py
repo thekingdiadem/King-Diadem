@@ -92,3 +92,10 @@ def nearest_search_url(lat: float, lng: float, category: str, radius_m: int = 20
         f"https://www.google.com/maps/search/{q}/@{lat},{lng},15z"
         f"?hl=th"
     )
+
+
+def near_me_link(query: str) -> str:
+    """ลิงก์ค้นหา "ใกล้ฉัน" ที่ไม่ต้องรู้พิกัด — แผนที่ในมือถือใช้ตำแหน่งของผู้ใช้เอง
+    (เซิร์ฟเวอร์ไม่ต้องรู้ว่าผู้ใช้อยู่ที่ไหน)"""
+    q = urllib.parse.quote(str(query or "").strip()[:80])
+    return f"https://www.google.com/maps/search/?api=1&query={q}"

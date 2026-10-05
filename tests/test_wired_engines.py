@@ -77,3 +77,50 @@ def test_spent_money_is_not_money_left():
     """เดิม "ลงทุนไปแล้ว 2 แสน" ได้ "200,000 ÷ 150 ≈ 1,333 วัน" เหมือนเป็นเงินที่ยังมี"""
     assert "1,333 วัน" not in compose("ลงทุนไปแล้ว 2 แสน เสียดายมาก ควรไปต่อไหม")
     assert "≈" in compose("ตกงาน มีเงินเหลือ 30,000 บาท")
+
+
+# ── ปุ่มหาความช่วยเหลือใกล้ตัว (ENGINE/map_bridge) ───────────────────────
+from core.engine_bridge import nearby
+
+
+def _labels(links):
+    return [l["label"] for l in links]
+
+
+def test_flood_gets_shelter_and_hospital_buttons(client):
+    d = client.post("/run", json={"input": "น้ำท่วมบ้าน ตอนนี้น้ำถึงเอวแล้ว"}).json()
+    assert _labels(d["help_links"]) == ["ศูนย์พักพิง/อพยพ", "โรงพยาบาล"]
+    assert all(l["url"].startswith("https://www.google.com/maps/search/?api=1&query=") for l in d["help_links"])
+
+
+@pytest.mark.parametrize("text, labels", [
+    ("พ่อเจ็บหน้าอก หายใจไม่ออก", ["โรงพยาบาล"]),
+    ("ร้านขายยาใกล้ฉันอยู่ตรงไหน", ["ร้านขายยา"]),
+    ("รถเสียกลางทาง แถวนี้มีอู่ไหม", ["อู่ซ่อมรถ"]),
+])
+def test_nearby_buttons(text, labels):
+    assert _labels(nearby(text)) == labels
+
+
+def test_abuse_gets_police_button():
+    a = assess("แฟนตบหน้าแล้วยึดโทรศัพท์ ไม่ให้เจอเพื่อน")
+    assert "สถานีตำรวจ" in _labels(nearby("แฟนตบหน้า", a["disaster"], a["relationship"]))
+
+
+@pytest.mark.parametrize("text", ["วันนี้อากาศดี", "หมอบอกว่าโรงพยาบาลนี้ดี", "เห็นข่าวน้ำท่วมภาคเหนือ"])
+def test_no_buttons_for_ordinary_talk(client, text):
+    assert "help_links" not in client.post("/run", json={"input": text}).json()
+
+
+def test_location_never_sent_to_server():
+    """ลิงก์ไม่มีพิกัด — แผนที่ในเครื่องผู้ใช้หาเอง"""
+    url = nearby("ร้านขายยาใกล้ฉัน")[0]["url"]
+    assert "@" not in url and "lat" not in url
+
+
+def test_help_card_only_trusts_google_maps_links():
+    import pathlib
+    page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
+    assert "function helpCard" in page and "l.url.indexOf('https://www.google.com/maps/') === 0" in page
+    assert "l: d.help_links" in page
+    assert "l: Array.isArray(m.l)" in page          # เปิดแชทใหม่อีกครั้งแล้วปุ่มยังอยู่

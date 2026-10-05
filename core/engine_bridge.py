@@ -10,6 +10,7 @@ core/engine_bridge.py — สะพานจากข้อความของ
 - DOMAINS/survival_engine.py    ภัยที่กำลังเจอ (น้ำท่วม แผ่นดินไหว ไฟไหม้ พายุ ยิงกัน) → ระดับภัย
 - ENGINE/tool_executor.py       คิดเลขที่ผู้ใช้ถามให้ตรง (ไม่ให้ AI เดาผลคูณ/ผลบวก)
 - WORLD_MODEL/human_bias.py     กับดักความคิดตอนตัดสินใจ (เสียดายของที่ลงไปแล้ว · ติดแบบเดิม)
+- ENGINE/map_bridge.py          ปุ่มหาโรงพยาบาล/ศูนย์พักพิง/ตำรวจใกล้ตัว (ไม่ส่งพิกัดมาที่เซิร์ฟเวอร์)
 
 คืน {"lines": [...ข้อความสำหรับคำตอบ...], "llm_ctx": "...", "data": {...}}
 """
@@ -340,6 +341,47 @@ def _bias(text: str) -> dict | None:
     if b not in _BIAS_NOTE:            # panic/overconfident จับจากคำกว้างเกินไป ("รีบ" "แน่นอน")
         return None
     return {"lines": [_BIAS_NOTE[b]], "data": {"kind": b}}
+
+
+# ── 8. ความช่วยเหลือใกล้ตัว (ENGINE/map_bridge) ──────────────────────────────
+# ลิงก์ค้นหาแผนที่ "ใกล้ฉัน" — ไม่ส่งพิกัดของผู้ใช้มาที่เซิร์ฟเวอร์
+_PLACES = {
+    "hospital": ("โรงพยาบาล", "โรงพยาบาล ใกล้ฉัน"),
+    "police":   ("สถานีตำรวจ", "สถานีตำรวจ ใกล้ฉัน"),
+    "shelter":  ("ศูนย์พักพิง/อพยพ", "ศูนย์พักพิงชั่วคราว ศูนย์อพยพ ใกล้ฉัน"),
+    "pharmacy": ("ร้านขายยา", "ร้านขายยา ใกล้ฉัน"),
+    "water":    ("ร้านสะดวกซื้อ (น้ำดื่ม)", "ร้านสะดวกซื้อ ใกล้ฉัน"),
+    "fuel":     ("ปั๊มน้ำมัน", "ปั๊มน้ำมัน ใกล้ฉัน"),
+    "mechanic": ("อู่ซ่อมรถ", "อู่ซ่อมรถ ใกล้ฉัน"),
+}
+_NEAR_ASK = re.compile(r"ใกล้(?:ฉัน|หนู|ผม|เรา|ๆ|ที่สุด|บ้าน)|แถวนี้|อยู่ตรงไหน|ไปที่ไหนได้|หาที่ไหน")
+_PLACE_WORDS = (("hospital", r"โรงพยาบาล|โรงบาล|รพ\.|คลินิก|ห้องฉุกเฉิน"), ("police", r"สถานีตำรวจ|โรงพัก|แจ้งความ"),
+                ("shelter", r"ศูนย์อพยพ|ศูนย์พักพิง|ที่พักพิง|ที่หลบภัย"), ("pharmacy", r"ร้านขายยา|ซื้อยา"),
+                ("fuel", r"ปั๊มน้ำมัน|เติมน้ำมัน"), ("mechanic", r"อู่ซ่อม|อู่รถ|รถเสีย|ยางแตก"))
+_HEALTH_NOW = re.compile(r"เจ็บหน้าอก|แน่นหน้าอก|หายใจไม่ออก|หมดสติ|ชัก|เลือดออกไม่หยุด|แขนขาอ่อนแรง|ปากเบี้ยว")
+
+
+def nearby(text: str, disaster: dict | None = None, relationship: str | None = None) -> list:
+    """[{label, url}] ที่ควรมีปุ่มให้กด — เฉพาะตอนที่ต้องไปหาที่ช่วยจริงๆ"""
+    want = []
+    if disaster and disaster.get("active"):
+        want += ["shelter", "hospital"]
+    if _HEALTH_NOW.search(text):
+        want.append("hospital")
+    if relationship in ("collapse_risk", "critical"):
+        want.append("police")
+    if _NEAR_ASK.search(text):
+        want += [k for k, rx in _PLACE_WORDS if re.search(rx, text)]
+    try:
+        from ENGINE.map_bridge import near_me_link
+    except Exception:  # pragma: no cover
+        return []
+    out, seen = [], set()
+    for k in want:
+        if k in _PLACES and k not in seen:
+            seen.add(k)
+            out.append({"label": _PLACES[k][0], "url": near_me_link(_PLACES[k][1])})
+    return out[:3]
 
 
 # ── 4. เรียงทางเลือก ────────────────────────────────────────────────────

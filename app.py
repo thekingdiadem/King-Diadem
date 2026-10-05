@@ -154,13 +154,13 @@ try:
     from core.kernel_voice import compose as kernel_compose, simulate as kernel_simulate, assess as kernel_assess
     from core.thai_signals import OFFER_FLAG_TH
     from core.lang_signals import detect_lang
-    from core.engine_bridge import analyze as bridge_analyze
+    from core.engine_bridge import analyze as bridge_analyze, nearby as bridge_nearby
 except Exception as e:
     print(f"⚠ kernel_voice: {e}")
     kernel_compose = kernel_simulate = kernel_assess = None
     OFFER_FLAG_TH = {}
     detect_lang = None
-    bridge_analyze = None
+    bridge_analyze = bridge_nearby = None
 
 try:
     from core.system_orchestrator import get_orchestrator
@@ -1310,6 +1310,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         result["risk_score"] = float(k_assess["text_risk"])
     if offer_flags:
         result["offer_flags"] = offer_flags
+    # ปุ่มหาความช่วยเหลือใกล้ตัว (โรงพยาบาล ศูนย์พักพิง ตำรวจ) — แผนที่ในมือถือใช้ตำแหน่งของผู้ใช้เอง
+    if bridge_nearby and isinstance(result, dict):
+        try:
+            links = bridge_nearby(user_input, k_assess.get("disaster"), k_assess.get("relationship"))
+            if links:
+                result["help_links"] = links
+        except Exception as e:
+            print(f"⚠ nearby: {type(e).__name__}")
 
     # ── error clean ───────────────────────────────────────────────
     if result.get("error"):
