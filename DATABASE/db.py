@@ -455,7 +455,8 @@ def auto_extract_memory(user_email: str, user_input: str,
         topics = [t for t in a.get("topics", []) if t not in ("positive", "decision")][:3]
         sensitive = bool(a.get("crisis") or a.get("relationship") or
                          set(topics) & {"warning", "overdose", "violence", "pregnancy", "addiction", "someone",
-                                        "sexual_abuse", "sextortion", "stop_meds", "panic", "drunk_drive"})
+                                        "sexual_abuse", "sextortion", "stop_meds", "panic", "drunk_drive",
+                                        "eating", "psychosis", "diagnosis", "legal"})
     except Exception:
         pass
     if sensitive:
@@ -470,7 +471,8 @@ def auto_extract_memory(user_email: str, user_input: str,
               "family": "ครอบครัว", "study": "การเรียน", "lonely": "ความเหงา", "stress": "ความเครียด",
               "health": "สุขภาพ", "basic": "ปัจจัยพื้นฐาน", "grief": "การสูญเสีย", "bullying": "การถูกแกล้ง",
               "scam": "มิจฉาชีพ", "help": "ขอความช่วยเหลือ", "health_emergency": "เจ็บป่วยฉุกเฉิน",
-              "first_aid": "ปฐมพยาบาล", "missing": "ตามหาคนหาย", "labor": "สิทธิแรงงาน", "housing": "ที่อยู่/ค่าเช่า"}
+              "first_aid": "ปฐมพยาบาล", "missing": "ตามหาคนหาย", "labor": "สิทธิแรงงาน", "housing": "ที่อยู่/ค่าเช่า",
+              "caregiver": "การดูแลคนในบ้าน", "health_rights": "สิทธิรักษา"}
         save_memory(user_email, "recent_topics", "เคยคุยเรื่อง: " + " · ".join(th.get(t, t) for t in topics),
                     route, importance=2)
 
