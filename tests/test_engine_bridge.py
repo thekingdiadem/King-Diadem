@@ -160,3 +160,13 @@ def test_trim_incomplete_reply():
     cut = "เข้าใจแล้วค่ะ ดีจังเลยค่ะ\n\nไม่ว่าจะเป็นเรื่องอะไรก็ตามที่กำลังอยู่ในใจของคุณในตอนนี้ค่ะ หรือถ้ามีอะไรที่ยังค้างคา"
     assert trim_incomplete(cut).endswith("ในตอนนี้ค่ะ")
     assert trim_incomplete("ข้อความสั้น") == "ข้อความสั้น"
+
+
+@pytest.mark.parametrize("payload", [
+    {"input": "พ่อตีหัวผมเพราะสอบตก"},
+    {"input": "เขาตีแบบเล่นๆ", "history": ABUSE_HISTORY},
+])
+def test_listen_gently_before_hotlines(client, payload):
+    client.post("/run", json=payload)
+    prompt = FAKE_LLM["prompts"][-1]
+    assert "ค่อยๆ ฟังเขา" in prompt and "ถามคำถามเปิดทีละคำถาม" in prompt
