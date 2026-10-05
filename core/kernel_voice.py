@@ -20,6 +20,7 @@ import re
 
 from core.thai_signals import NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk
 from core.lang_signals import SELF_HARM_INTL, compose_intl, detect_lang
+from core.engine_bridge import analyze as bridge_analyze, rank_options
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
 HOTLINE_MENTAL = "1323"   # สายด่วนสุขภาพจิต กรมสุขภาพจิต 24 ชม.
@@ -291,6 +292,17 @@ def _money(text: str):
 
 
 # ══════════════════════════════════════════════════════════════════
+# ถูกทำร้ายหรือถูกควบคุมในความสัมพันธ์ — เดิมได้ "เรื่องใจไม่ต้องรีบตัดสิน ให้เวลาตัวเอง 24–72 ชม."
+SAFETY = {
+    "open": ["ความปลอดภัยของคุณมาก่อนทุกอย่าง"],
+    "paths": [
+        "ไปอยู่ในที่ที่เขาเข้าไม่ถึง หรืออยู่ใกล้คนอื่นไว้ก่อน — เรื่องอื่นค่อยคิดทีหลัง",
+        "บอกคนที่ไว้ใจได้ 1 คนว่าเกิดอะไรขึ้น และตกลงคำหรือสัญญาณขอความช่วยเหลือกันไว้",
+        "เก็บรูปบาดแผลและข้อความขู่ไว้ในที่ที่เขาเข้าไม่ถึง เผื่อใช้แจ้งความหรือขอความคุ้มครอง",
+    ],
+    "ask": "ตอนนี้คุณอยู่ในที่ที่ปลอดภัยไหม?",
+}
+
 # ข้อเสนอเงินที่การันตีผลตอบแทน/เร่งให้ตอบ (core/thai_signals.offer_red_flags)
 OFFER = {
     "open": ["ข้อเสนอนี้ต้องชะลอก่อนตอบ"],
@@ -337,10 +349,20 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     # โครงสร้างของข้อเสนอ (การันตี + เร่ง + ชวนผ่านคนรู้จัก) — แยกจากอารมณ์ผู้ใช้
     flags = offer_red_flags(text)
     text_risk = max(text_risk, offer_risk(flags))
+    # ความรุนแรง/การควบคุมในความสัมพันธ์ (ENGINE/relationship_engine ผ่าน core/engine_bridge)
+    rel = None
+    try:
+        from core.engine_bridge import _relationship
+        rel = _relationship(text)
+    except Exception:
+        pass
+    if rel:
+        text_risk = max(text_risk, rel["data"]["risk_score"])
     return {
         "W": round(W), "risk": round(max(risk, text_risk)),
         # risk จากข้อความล้วน (0 = ไม่มีสัญญาณ) — ใช้ยกค่า risk_score ที่ engine คิดจากสถานะอย่างเดียว
         "text_risk": round(text_risk), "offer_flags": flags,
+        "relationship": rel["data"]["status"] if rel else None,
         "crisis": crisis, "topics": topics, "money": _money(text),
         "options": _options(text or ""),
     }
@@ -386,6 +408,8 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     second = lib.get(a["topics"][1]) if len(a["topics"]) > 1 else None
     if a["offer_flags"]:                 # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
         main, second = OFFER, None
+    elif a["relationship"] in ("collapse_risk", "critical"):   # ถูกทำร้าย/ควบคุม: ความปลอดภัยมาก่อน
+        main, second = SAFETY, None
 
     paths = _paths(main, t)[:3]
     if second:
@@ -402,14 +426,21 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     opt_block = ""
     if len(opts) >= 2:
         letters = "ABCDEFG"
-        rows = "\n".join(f"{letters[i]} · {o[:80]} — ถ้าพลาด ถอยกลับได้ไหม? หลังทำแล้วเหลือทางเลือกกี่ทาง?"
-                         for i, o in enumerate(opts))
-        opt_block = ("\n\nเทียบตัวเลือกของคุณ:\n" + rows +
+        # เรียงด้วย ENGINE/choice_optimizer — W ต่ำ ทางที่ย้อนกลับได้ได้เปรียบ
+        ranked = rank_options(opts, waterline=a["W"])
+        rows = "\n".join(f"{letters[i]} · {r['action'][:80]} — "
+                          f"{'ย้อนกลับได้' if r['reversible'] else 'ย้อนกลับยาก'}"
+                          for i, r in enumerate(ranked))
+        opt_block = ("\n\nเทียบตัวเลือกของคุณ (เรียงจากรอดที่สุด):\n" + rows +
                      "\n→ เลือกทางที่ Choice(t+1) มากกว่า: ย้อนกลับได้ ชนะ ย้อนกลับไม่ได้ (ถ้าผลพอๆ กัน)")
 
     # ── เงิน: เวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน ─────────────
+    # ── ตัวเลขจากเรื่องของผู้ใช้: หนี้ · เวลาที่มีจริง · ความสัมพันธ์ (core/engine_bridge) ──
+    bridge = bridge_analyze(text) if not a["offer_flags"] else {"lines": [], "data": {}}
+    calc_block = ("\n\nจากสิ่งที่คุณเล่า:\n" + "\n".join("· " + l for l in bridge["lines"])) if bridge["lines"] else ""
+
     money_line = ""
-    if a["money"] and not a["offer_flags"] and any(x in a["topics"] for x in ("money", "debt", "job", "basic", "business")):
+    if a["money"] and not a["offer_flags"] and "runway" not in bridge["data"] and "debt" not in bridge["data"] and any(x in a["topics"] for x in ("money", "debt", "job", "basic", "business")):
         m = a["money"]
         per_day = 150
         money_line = (f"\n\nเวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน → {m:,.0f} ÷ {per_day} ≈ {m / per_day:,.0f} วัน "
@@ -425,7 +456,7 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
                   + f" — ความตื่นเต้นเป็นเรื่องปกติ{end} แต่ข้อเสนอแบบนี้ต้องชะลอก่อนตอบ")
     status = f"W {a['W']} · Risk {a['risk']} · Choice(t) = {n}"
 
-    return (f"{opener}\n\n{status}\n\n{body}{opt_block}{money_line}\n\n"
+    return (f"{opener}\n\n{status}\n\n{body}{calc_block}{opt_block}{money_line}\n\n"
             f"คำถามเดียวที่ควรถามตัวเองตอนนี้: {main['ask']}\n\n{sign}" + tag)
 
 
@@ -446,8 +477,9 @@ def simulate(text: str, paths: list) -> str:
         lines.append(f"{'ABCDEFG'[i]} · {p}\n"
                      f"   Downside: {'ย้อนกลับยาก — ต้องมีเงินสำรองและแผนสำรองก่อน' if hard else 'ย้อนกลับได้ — เสียหายจำกัดถ้าทดลองขนาดเล็ก'}\n"
                      f"   30 วัน: ทดลองขนาดเล็กแล้ววัดผล · 90 วัน: ขยายเฉพาะถ้าตัวเลขยืนยัน")
-    soft = [i for i, p in enumerate(paths) if not _hit(p.lower(), irreversible)]
-    pick = soft[0] if soft else 0
+    # ENGINE/choice_optimizer เรียงจากรอดที่สุด — แนะนำทางที่ได้คะแนนสูงสุด
+    best = rank_options(paths, waterline=a["W"])[0]["action"]
+    pick = paths.index(best) if best in paths else 0
     return (f"W {a['W']} · Risk {a['risk']} · Choice(t) = {len(paths)}\n\n" + "\n\n".join(lines) +
             f"\n\nแนะนำเริ่มจาก {'ABCDEFG'[pick]} — ทางที่ย้อนกลับได้ เก็บทางอื่นไว้ใช้ทีหลัง (Choice(t+1) สูงกว่า)"
             "\n\n— VEGA ◆\n· จำลองจากสมการของระบบ — ไม่ได้ใช้ AI")
