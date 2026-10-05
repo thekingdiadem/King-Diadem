@@ -22,3 +22,25 @@ def test_emergencies_that_were_missed(text, topic):
 def test_ordinary_text_is_not_an_emergency(text):
     a = assess(text)
     assert not ({"health_emergency", "overdose"} & set(a["topics"])) and a["text_risk"] < 85
+
+
+@pytest.mark.parametrize("text", ["ติดพนันออนไลน์ หมดตัว", "เล่นบาคาร่าจนเป็นหนี้ 2 แสน", "I'm addicted to gambling and in debt"])
+def test_gambling_losses_raise_risk(text):
+    """เดิม "ติดพนันออนไลน์ หมดตัว" ได้ Risk 0"""
+    a = assess(text)
+    assert "addiction" in a["topics"] and a["text_risk"] >= 60
+
+
+@pytest.mark.parametrize("text", ["ตำรวจเรียกรับเงิน", "โดนด่านรีดไถ", "จ่ายส่วยทุกเดือน"])
+def test_bribery_gets_complaint_channels(text):
+    from core.kernel_voice import compose
+    assert "bribery" in assess(text)["topics"]
+    r = compose(text)
+    assert "1567" in r and "1205" in r
+
+
+@pytest.mark.parametrize("text", ["ซื้อหวยงวดนี้", "พนันกันว่าใครจะชนะ", "หมดตัวเพราะซื้อของออนไลน์",
+                                  "ตำรวจเรียกไปให้ปากคำ", "เจ้าหน้าที่เรียกเก็บค่าธรรมเนียมตามระเบียบ"])
+def test_ordinary_money_and_police_talk(text):
+    a = assess(text)
+    assert "bribery" not in a["topics"] and "addiction" not in a["topics"]
