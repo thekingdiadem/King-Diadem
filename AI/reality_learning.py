@@ -13,6 +13,7 @@ _LOG: deque[dict] = deque(maxlen=200)
 OutcomeT = Literal["positive", "negative", "neutral", "unknown"]
 
 _SCORE = {"positive": 1.0, "neutral": 0.5, "negative": 0.0, "unknown": 0.5}
+MIN_SAMPLES = 10        # น้อยกว่านี้ยังไม่สรุปสัญญาณ/แนวโน้ม
 
 
 def record_outcome(
@@ -103,6 +104,13 @@ def learning_summary() -> dict:
         trend = "FLAT"
 
     neg_rate = neg / total if total else 0
+    if total < MIN_SAMPLES:
+        # ตัวอย่างน้อยเกินจะสรุป — เดิม 👎 แค่ครั้งเดียวทำให้ทั้งระบบขึ้น DRIFT_ALERT / COLLAPSE_RISK
+        return {
+            "total": total, "positive": pos, "negative": neg, "neutral": neut,
+            "score": score, "signal": "LOW_DATA", "drift_risk": "UNKNOWN", "win_rate": win_rate,
+            "recent_trend": "FLAT", "top_routes": [], "enough_data": False,
+        }
     if neg_rate > 0.5 or score < 30:
         drift_risk = "HIGH"
     elif neg_rate > 0.3 or score < 45:
@@ -140,6 +148,7 @@ def learning_summary() -> dict:
         "win_rate":     win_rate,
         "recent_trend": trend,
         "top_routes":   top_routes,
+        "enough_data":  True,
     }
 
 

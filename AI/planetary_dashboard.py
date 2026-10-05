@@ -74,6 +74,8 @@ def planetary_status() -> dict:
     except (TypeError, ValueError):
         learn_score = 50.0
     drift_risk:  str   = str(learning.get("drift_risk", "UNKNOWN"))
+    if learning.get("enough_data") is False or not learning.get("total"):
+        learn_score = 50.0          # ยังไม่มีข้อมูลพอ = กลางๆ ไม่ใช่ "ใกล้ล่มสลาย"
 
     if freedom < 25 or learn_score < 25:
         status = "COLLAPSE_RISK"

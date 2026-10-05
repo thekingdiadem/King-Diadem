@@ -128,3 +128,30 @@ def test_new_tags_never_reach_the_user():
     for tag in ("[ข้อความมีลักษณะมิจฉาชีพ: x]", "[อาจกินยาเกินขนาด: x]", "[สัญญาณเตือนเรื่องทำร้ายตัวเอง: x]",
                 "[เบอร์ที่ถูกต้องสำหรับเรื่องนี้: x]", "[ผู้ใช้ถูกโกงไปแล้ว: x]"):
         assert scrub_internal("ตอบ\n" + tag) == "ตอบ"
+
+
+# ── ข้อมูลน้อยเกินจะสรุป: 👎 ครั้งเดียวเคยทำให้ /dashboard ขึ้น COLLAPSE_RISK ─────────
+def test_one_vote_does_not_raise_alarms():
+    from AI import reality_feedback, reality_learning
+    from AI.planetary_dashboard import planetary_status
+    reality_feedback._STORE.clear(); reality_learning._LOG.clear()
+    reality_learning.record_outcome("", "risk", "negative", route="risk")
+    reality_feedback.record_feedback("คำตอบเส้นทาง risk", "x", False, route="risk")
+    assert reality_learning.learning_summary()["signal"] == "LOW_DATA"
+    assert reality_feedback.feedback_stats()["signal"] == "LOW_DATA"
+    assert planetary_status()["planetary_status"] != "COLLAPSE_RISK"
+
+
+def test_signals_still_work_with_enough_data():
+    from AI import reality_learning
+    reality_learning._LOG.clear()
+    for _ in range(12):
+        reality_learning.record_outcome("", "risk", "negative", route="risk")
+    assert reality_learning.learning_summary()["drift_risk"] == "HIGH"
+
+
+# ── body ที่ไม่ใช่ JSON object เคยทำให้ทุก endpoint ตอบ 500 ─────────────────────
+@pytest.mark.parametrize("path", ["/run", "/simulate", "/register", "/api/feedback"])
+def test_weird_body_is_422_not_500(client, path):
+    r = client.post(path, content=b"Infinity", headers={"Content-Type": "application/json"})
+    assert r.status_code == 422

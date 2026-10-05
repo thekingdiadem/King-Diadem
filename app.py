@@ -269,6 +269,17 @@ if not _SECRET_KEY:
     )
 
 app = FastAPI(title="KING DIADEM OS")
+
+
+# body ที่ไม่ใช่ JSON object (เช่น Infinity) เคยทำให้ทุก endpoint ตอบ 500 —
+# FastAPI พยายามส่งค่าที่ผิดกลับไปใน error แต่แปลง inf เป็น JSON ไม่ได้ · ตอบ 422 สั้นๆ โดยไม่ส่งค่ากลับ
+from fastapi.exceptions import RequestValidationError  # noqa: E402
+
+
+@app.exception_handler(RequestValidationError)
+async def _bad_body(request: Request, exc: RequestValidationError):
+    return JSONResponse({"error": "รูปแบบข้อมูลที่ส่งมาไม่ถูกต้องค่ะ"}, status_code=422)
+
 app.add_middleware(
     SessionMiddleware,
     secret_key=_SECRET_KEY
@@ -1787,7 +1798,7 @@ async def stripe_webhook(request: Request):
     sig     = request.headers.get("stripe-signature", "")
     secret  = os.getenv("STRIPE_WEBHOOK_SECRET", "")
     if not secret:
-        return JSONResponse({"error": "webhook not configured"}, status_code=500)
+        return JSONResponse({"error": "webhook not configured"}, status_code=503)
     try:
         event = stripe.Webhook.construct_event(payload, sig, secret)
     except Exception:
