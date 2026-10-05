@@ -124,3 +124,35 @@ def test_help_card_only_trusts_google_maps_links():
     assert "function helpCard" in page and "l.url.indexOf('https://www.google.com/maps/') === 0" in page
     assert "l: d.help_links" in page
     assert "l: Array.isArray(m.l)" in page          # เปิดแชทใหม่อีกครั้งแล้วปุ่มยังอยู่
+
+
+# ── แผ่นดินไหวแต่ละที่ทำต่างกัน ──────────────────────────────────────────
+# เดิมทุกคนได้ "หมอบ ป้องศีรษะ เกาะโต๊ะ" — ใช้ไม่ได้กับคนที่ขับรถ อยู่ริมทะเล หรือติดในลิฟต์
+@pytest.mark.parametrize("text,place,must,must_not", [
+    ("แผ่นดินไหว ตอนนี้ขับรถอยู่บนทางด่วน", "ในรถ", "จอดชิดซ้าย", "เกาะโต๊ะ"),
+    ("อยู่ภูเก็ต แผ่นดินไหวแรงมาก", "ริมทะเล", "ขึ้นที่สูง", "เกาะโต๊ะ"),
+    ("ติดในลิฟต์ แผ่นดินไหว", "ในลิฟต์", "กดปุ่มทุกชั้น", "เกาะโต๊ะ"),
+    ("อยู่คอนโดชั้น 30 ตึกโยก", "ตึกสูง", "อย่าวิ่งลงบันได", "จอดชิดซ้าย"),
+    ("แผ่นดินไหว อยู่ข้างนอกบนถนน", "ข้างนอก", "อย่าวิ่งเข้าไปในตึก", "เกาะโต๊ะ"),
+    ("แผ่นดินไหว อยู่บนดอย", "เชิงเขา/บนดอย", "ดินถล่ม", "เกาะโต๊ะ"),
+    ("แผ่นดินไหวตอนอยู่ในห้าง", "ที่คนเยอะ", "อย่าวิ่งไปที่ประตู", "จอดชิดซ้าย"),
+    ("แผ่นดินไหว อยู่ในบ้าน", "ในบ้าน", "ปิดแก๊ส", "จอดชิดซ้าย"),
+])
+def test_quake_steps_depend_on_place(text, place, must, must_not):
+    a = assess(text)
+    d = a["disaster"]
+    assert d["kind"] == "quake" and d["place"] == place and d["active"] and a["text_risk"] >= 60
+    r = compose(text)
+    assert must in r and must_not not in r and f"อยู่{place}" in r
+
+
+def test_quake_without_place_asks_where():
+    d = assess("แผ่นดินไหว")["disaster"]
+    assert d["place"] is None and "ในรถ" in d["ask"]
+    assert "ตอนนี้อยู่ที่ไหน" in compose("แผ่นดินไหว")
+
+
+def test_run_tells_llm_the_place(client):
+    client.post("/run", json={"input": "แผ่นดินไหว ตอนนี้ขับรถอยู่"})
+    p = FAKE_LLM["prompts"][-1]
+    assert "อยู่ในรถ" in p and "จอดชิดซ้าย" in p

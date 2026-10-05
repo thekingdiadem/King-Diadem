@@ -816,7 +816,8 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     elif a["relationship"] in ("collapse_risk", "critical"):   # ถูกทำร้าย/ควบคุม: ความปลอดภัยมาก่อน
         main, second = SAFETY, None
     elif a["disaster"]:                  # กำลังเจอภัย: ขั้นแรกของภัยนั้นมาก่อนทุกอย่าง
-        main, second = {"open": [DISASTER_OPEN], "paths": a["disaster"]["steps"], "ask": DISASTER_ASK}, None
+        main, second = {"open": [DISASTER_OPEN], "paths": a["disaster"]["steps"],
+                        "ask": a["disaster"].get("ask") or DISASTER_ASK}, None
 
     paths = _paths(main, t)[:3]
     if second:
