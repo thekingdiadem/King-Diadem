@@ -44,3 +44,19 @@ def test_bribery_gets_complaint_channels(text):
 def test_ordinary_money_and_police_talk(text):
     a = assess(text)
     assert "bribery" not in a["topics"] and "addiction" not in a["topics"]
+
+
+@pytest.mark.parametrize("text", ["my boyfriend hits me I want to die", "my dad hit me and I'm suicidal"])
+def test_own_crisis_after_naming_someone_else(text):
+    """เดิม "my boyfriend ... I want to die" ถูกตีความว่าแฟนอยากตาย ผู้ใช้ไม่ได้สายด่วนของตัวเอง"""
+    from core.kernel_voice import compose
+    a = assess(text)
+    assert a["crisis"] and "someone" not in a["topics"]
+    assert "looking out for them" not in compose(text)
+
+
+@pytest.mark.parametrize("text", ["my friend wants to die", "my mom said she wants to die", "my sister is suicidal",
+                                  "my friend told me he wants to kill himself"])
+def test_someone_else_in_crisis_still_detected(text):
+    a = assess(text)
+    assert "someone" in a["topics"] and not a["crisis"]

@@ -268,7 +268,8 @@ THIRD_PARTY_CRISIS = re.compile(
     r"(?:เห็น|มี)(?:คน|ผู้ชาย|ผู้หญิง|เด็ก)\S{0,10}?(?:จะ|กำลัง|ยืน)\S{0,6}?(?:กระโดด|ผูกคอ|ฆ่าตัวตาย)|"
     r"(?:เพื่อน|แม่|พ่อ|แฟน|พี่|น้อง|ลูก)\S{0,6}?(?:กรีดข้อมือ|ทำร้ายตัวเอง|พยายามฆ่าตัวตาย)|"
     r"\bmy (?:friend|mom|mother|dad|father|sister|brother|partner|boyfriend|girlfriend|son|daughter)\b"
-    r"[^.!?]{0,30}\b(?:wants? to die|suicidal|kill (?:him|her|them)sel(?:f|ves))\b",
+    # ห้ามมี "I" คั่น — "my boyfriend hits me I want to die" คือผู้ใช้อยากตายเอง (เดิมตอบเหมือนแฟนอยากตาย)
+    r"(?:(?!\bI\b|\bI'm\b)[^.!?]){0,30}\b(?:wants to die|is suicidal|(?:said|says|told me|keeps saying)[^.!?]{0,20}\bwants? to die|kill (?:him|her|them)sel(?:f|ves))\b",
     re.I,
 )
 # เมาแล้วขับ
