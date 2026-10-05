@@ -32,7 +32,8 @@ def _amounts(seg: str, minimum: float = 100) -> list:
 
 def _after(text: str, words: str):
     """จำนวนเงินตัวแรกหลังคำ เช่น "เงินเดือน 18,000" """
-    m = re.search(rf"(?:{words})\D{{0,14}}?(\d[\d,]*(?:\.\d+)?)\s*(พัน|หมื่น|แสน|ล้าน|k|K)?", text)
+    m = re.search(rf"(?:{words})\D{{0,14}}?(\d[\d,]*(?:\.\d+)?)\s*(พัน|หมื่น|แสน|ล้าน|k|K)?"
+                  r"(?!\s*(?:%|มื้อ|วัน|เดือน|ปี|ชม|ชั่วโมง|ครั้ง|คน|ลิตร|ขวด|ซอง|ห่อ|กล่อง))", text)
     if not m:
         return None
     try:
@@ -45,7 +46,7 @@ def _after(text: str, words: str):
 _DEBT_KIND = (
     ("บัตรกดเงินสด", 25.0), ("สินเชื่อบุคคล", 25.0), ("บัตรเครดิต", 16.0), ("บัตร", 16.0),
     ("นอกระบบ", None), ("กยศ", 1.0), ("บ้าน", 6.0), ("รถ", 6.0), ("หนี้", None), ("กู้", None),
-    ("ยืม", None), ("สินเชื่อ", 25.0),
+    ("ยืม", 0.0), ("สินเชื่อ", 25.0),           # ยืมคนรู้จัก — ปกติไม่คิดดอก (บอกดอกมาจะใช้ค่าจริง)
 )
 _PER_MONTH = re.compile(r"เดือนละ|ต่อเดือน|/เดือน|ต่อด|ต่องวด|งวดละ")
 
@@ -72,11 +73,15 @@ def _debt_segments(text: str) -> list:
     return segs
 
 
+# คำที่บอกว่าเป็น "หนี้" จริง — "ซื้อบัตรคอนเสิร์ต 3,500" "อยากซื้อรถ 500,000" "บ้านราคา 2 ล้าน" ไม่ใช่หนี้
+_DEBT_CTX = re.compile(r"หนี้|ค้าง|ผ่อน|กู้|ยืม|สินเชื่อ|บัตรเครดิต|บัตรกดเงินสด|ยอดบัตร|รูดบัตร|กยศ|นอกระบบ|ดอกเบี้ย|ดอก\s*\d")
+
+
 def parse_debts(text: str) -> list:
     debts = []
     for seg in _debt_segments(text):
         kind = next(((k, r) for k, r in _DEBT_KIND if k in seg), None)
-        if not kind:
+        if not kind or not _DEBT_CTX.search(seg):
             continue
         # "ผ่อนบ้านเดือนละ 8,000" = ค่างวด ไม่ใช่ยอดหนี้
         if _PER_MONTH.search(seg) and not re.search(r"ยอด|คงเหลือ|เหลือ|ทั้งหมด", seg) and "%" not in seg:
@@ -94,7 +99,8 @@ def parse_debts(text: str) -> list:
             rate, assumed = kind[1], True
         else:
             rate, assumed = 18.0, True
-        name = "หนี้" + kind[0] if kind[0] not in ("หนี้", "กู้", "ยืม") else "หนี้ก้อนที่ " + str(len(debts) + 1)
+        name = ("เงินยืม" if kind[0] == "ยืม" else
+                "หนี้" + kind[0] if kind[0] not in ("หนี้", "กู้") else "หนี้ก้อนที่ " + str(len(debts) + 1))
         debts.append({"name": name, "balance": amts[0], "annual_rate": rate, "assumed_rate": assumed})
     return debts[:8]
 
@@ -108,8 +114,12 @@ def _debt(text: str) -> dict | None:
     lines, data = [], {"debts": debts, "income": income, "expense": expense}
     total = sum(d["balance"] for d in debts)
     order = sorted(debts, key=lambda d: d["annual_rate"], reverse=True)
-    lines.append(f"หนี้ที่คุณเล่ามา {len(debts)} ก้อน รวม {total:,.0f} บาท — ดอกสูงก่อน: " +
-                 " → ".join(f"{d['name']} {d['annual_rate']:g}%{'*' if d['assumed_rate'] else ''}" for d in order))
+    tag = lambda d: f"{d['name']} {d['balance']:,.0f} บาท ดอก {d['annual_rate']:g}%{'*' if d['assumed_rate'] else ''}"
+    if len(debts) == 1:
+        lines.append("หนี้ที่คุณเล่ามา: " + tag(debts[0]))
+    else:
+        lines.append(f"หนี้ที่คุณเล่ามา {len(debts)} ก้อน รวม {total:,.0f} บาท — ดอกสูงก่อน: " +
+                     " → ".join(f"{d['name']} {d['annual_rate']:g}%{'*' if d['assumed_rate'] else ''}" for d in order))
     if any("นอกระบบ" in d["name"] for d in debts):
         lines.append("หนี้นอกระบบ: กฎหมายให้ดอกเบี้ยเงินกู้ระหว่างบุคคลไม่เกิน 15% ต่อปี — "
                      "ปรึกษาหรือร้องเรียนได้ที่ศูนย์ดำรงธรรม 1567")
@@ -135,7 +145,8 @@ def _debt(text: str) -> dict | None:
 
 # ── 2. เงิน/อาหาร/น้ำ พอใช้อีกกี่วัน ───────────────────────────────────
 def _runway(text: str) -> dict | None:
-    money = _after(text, r"เหลือเงิน|มีเงิน|เงินเหลือ|เงินติดตัว|เหลือแค่|เหลืออยู่")
+    # เงินที่ "เหลือ" จริง — ไม่ใช่ "มีเงินเดือน 15,000" / "มีเงินเก็บ" และไม่ใช่ "เหลือแค่ 2 มื้อ" "เหลืออยู่ 3 วัน"
+    money = _after(text, r"เหลือเงิน|เงินเหลือ|เงินติดตัว|มีเงิน(?:อยู่)?(?:แค่|เหลือ)|เหลือ(?:แค่|อยู่)?(?=\s*\d[\d,]*\s*บาท)")
     meals_m = re.search(r"(\d+)\s*(?:มื้อ|ซอง|ห่อ|กล่อง)", text)
     water_m = re.search(r"น้ำ\D{0,8}?(\d+(?:\.\d+)?)\s*(?:ลิตร|ขวด)", text)
     no_shelter = bool(re.search(r"ไม่มีที่อยู่|ไม่มีที่นอน|นอนข้างถนน|ถูกไล่ออกจากบ้าน|ไม่มีที่พัก", text))
@@ -174,7 +185,9 @@ def _runway(text: str) -> dict | None:
 # ── 3. ความสัมพันธ์ ─────────────────────────────────────────────────────
 _REL_CTX = re.compile(r"แฟน|สามี|ภรรยา|เมีย|ผัว|คู่รัก|คนรัก|พ่อ|แม่|ครอบครัว|ญาติ|คนที่บ้าน|พี่ชาย|น้องชาย")
 _REL_FLAGS = {
-    "violence_risk": r"ตบ|ตีฉัน|ตีหนู|ตีผม|ทำร้าย|ทุบ|เตะ|บีบคอ|ขู่ฆ่า|ขู่จะทำร้าย|ซ้อม|ผลัก|ข่มขืน|ใช้กำลัง",
+    # "ตี" เดี่ยวๆ ไปติด "ตีกอล์ฟ" "ตีความ" — ใช้รูปที่หมายถึงการทำร้ายคน
+    "violence_risk": r"ตบ|ตี(?:ฉัน|หนู|ผม|เรา|ลูก|หัว|หน้า|จน|แรง)|(?:ถูก|โดน)\S{0,8}?ตี|ทุบ|ทำร้าย|เตะ|บีบคอ|"
+                     r"ขู่ฆ่า|ขู่จะทำร้าย|ซ้อม|ผลัก|ข่มขืน|ใช้กำลัง",
     "financial_control": r"ยึดเงิน|คุมเงิน|ไม่ให้ใช้เงิน|เอาเงินไปหมด|ยึดบัตร|เอาบัตรไป|ไม่ให้ทำงาน",
     "isolation": r"ไม่ให้เจอเพื่อน|ห้ามเจอ|ห้ามคุย|ไม่ให้ออกจากบ้าน|ห้ามออกจากบ้าน|ตัดขาด|ไม่ให้ติดต่อ|ยึดโทรศัพท์|ยึดมือถือ",
     "dependency": r"ต้องพึ่งเขา|ไม่มีรายได้ของตัวเอง|ไม่มีที่ไป|ออกไปก็ไม่มีที่อยู่",

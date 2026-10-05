@@ -82,3 +82,38 @@ def test_simulate_recommends_reversible_path():
 @pytest.mark.parametrize("text", ["วันนี้อากาศดี", "อยากเปิดร้านกาแฟ ลงทุน 200,000", "อยากตาย"])
 def test_no_bridge_output_without_signals(text):
     assert analyze(text)["lines"] == []
+
+
+# ── อ่านเฉพาะสิ่งที่ผู้ใช้บอกจริง (รอบหาบั๊ก) ──────────────────────────
+@pytest.mark.parametrize("text", [
+    "ผมมีเงินเดือน 15,000 แต่ใช้ไม่พอ",     # เงินเดือน ≠ เงินที่เหลือ
+    "เหลืออยู่ 3 วันก่อนสอบ",               # วัน ≠ บาท
+    "มีเงินเก็บ 50,000 ควรลงทุนอะไร",
+])
+def test_no_runway_from_salary_or_days(text):
+    assert "runway" not in analyze(text)["data"]
+
+
+def test_meals_are_not_money():
+    lines = analyze("ข้าวเหลือแค่ 2 มื้อ")["lines"]
+    assert lines == ["เวลาที่มีจริง: อาหาร 2 มื้อ ≈ 0.67 วัน"]
+
+
+@pytest.mark.parametrize("text", ["ซื้อบัตรคอนเสิร์ต 3,500 บาท ดีไหม", "อยากซื้อรถ 500,000 ดีไหม", "บ้านราคา 2 ล้าน น่าซื้อไหม"])
+def test_prices_are_not_debts(text):
+    assert parse_debts(text) == []
+
+
+def test_friend_loan_has_no_assumed_interest():
+    d = parse_debts("ยืมเงินเพื่อนมา 2,000 ยังไม่คืน")
+    assert d[0]["name"] == "เงินยืม" and d[0]["annual_rate"] == 0
+
+
+@pytest.mark.parametrize("text, hit", [("พ่อตีหัวผมเพราะสอบตก", True), ("โดนแฟนตีจนช้ำ", True), ("ไปตีกอล์ฟกับแฟน", False)])
+def test_hitting_words(text, hit):
+    assert ("relationship" in analyze(text)["data"]) is hit
+
+
+def test_register_needs_8_characters(client):
+    r = client.post("/register", json={"email": "short@test.co", "password": "abc1234"})
+    assert r.status_code == 400 and "8" in r.json()["message"]
