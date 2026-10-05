@@ -619,9 +619,9 @@ async function register() {
     document.getElementById('email').classList.add('error');
     return;
   }
-  if(password.length < 6){
+  if(password.length < 8){
     msg.className = 'msg error';
-    msg.textContent = '⚠ รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+    msg.textContent = '⚠ รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';
     document.getElementById('password').classList.add('error');
     return;
   }

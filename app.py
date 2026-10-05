@@ -763,8 +763,9 @@ async def register(request: Request, data: dict):
     password = str(data.get("password") or "")
     if not _EMAIL_RE.match(email) or len(email) > 254:
         return JSONResponse({"status": "error", "message": "อีเมลดูไม่ถูกรูปแบบนิดหน่อยค่ะ ลองเช็กอีกครั้งนะคะ"}, status_code=400)
-    if len(password) < 6:
-        return JSONResponse({"status": "error", "message": "ขอรหัสผ่านอย่างน้อย 6 ตัวอักษรนะคะ"}, status_code=400)
+    # อย่างน้อย 8 ตัวตามคำแนะนำสากล (เดิม 6) — บัญชีเดิมที่ตั้งไว้ 6–7 ตัวยังเข้าสู่ระบบได้ตามปกติ
+    if len(password) < 8:
+        return JSONResponse({"status": "error", "message": "ขอรหัสผ่านอย่างน้อย 8 ตัวอักษรนะคะ"}, status_code=400)
     if not set_password:
         return JSONResponse({"status": "error", "message": "ระบบบัญชีขอพักสักครู่นะคะ ลองใหม่อีกทีได้เลยค่ะ"}, status_code=503)
     # 409 บอกได้ว่าอีเมลนี้มีบัญชี — จำกัดต่อ IP ไม่ให้ไล่เช็กอีเมลจำนวนมาก (8 ครั้ง / 10 นาที)
