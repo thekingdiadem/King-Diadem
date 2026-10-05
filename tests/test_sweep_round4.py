@@ -113,3 +113,23 @@ def test_dementia_wandering_is_missing_person():
 def test_prize_sms_with_link_is_scam():
     assert "scam" in assess("ได้รับ SMS ว่าได้รางวัล กดลิงก์")["topics"]
     assert "scam" not in assess("ลูกได้รางวัลที่โรงเรียน")["topics"]
+
+
+@pytest.mark.parametrize("text, annual", [("เป็นหนี้นอกระบบ ดอก 20% ต่อเดือน", "240%"),
+                                          ("กู้นอกระบบ ดอกร้อยละ 10 ต่อวัน", "3,650%")])
+def test_informal_loan_without_principal_still_warns(text, annual):
+    """ไม่ได้บอกยอดเงินต้น — เดิมเงียบ ไม่เตือนว่าดอกผิดกฎหมาย"""
+    from core.engine_bridge import analyze
+    lines = " ".join(analyze(text)["lines"])
+    assert annual in lines and "15% ต่อปี" in lines and "1567" in lines
+
+
+def test_daily_rate_is_annualised():
+    """"2% ต่อวัน" เคยถูกนับเป็น 2% ต่อปี"""
+    from core.engine_bridge import parse_debts
+    assert parse_debts("กู้รายวัน 5000 ดอก 2% ต่อวัน")[0]["annual_rate"] == 730
+
+
+def test_no_credit_check_loan_gets_law_line():
+    from core.engine_bridge import analyze
+    assert "1567" in " ".join(analyze("กู้เงินด่วน ไม่เช็คบูโร")["lines"])

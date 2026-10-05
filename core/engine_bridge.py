@@ -103,6 +103,8 @@ def parse_debts(text: str) -> list:
             rate = float(rate_m.group(1))
             if re.search(r"(?:%|เปอร์เซ็นต์)\s*(?:ต่อเดือน|/เดือน|เดือนละ)", seg):
                 rate *= 12                                  # ดอกรายเดือน (มักเป็นหนี้นอกระบบ) → ต่อปี
+            elif re.search(r"(?:%|เปอร์เซ็นต์)\s*(?:ต่อวัน|/วัน|วันละ)", seg):
+                rate *= 365                                 # ดอกรายวัน (เงินกู้รายวัน) — เดิมนับเป็นต่อปี
         elif kind[1] is not None:
             rate, assumed = kind[1], True
         else:
@@ -113,10 +115,27 @@ def parse_debts(text: str) -> list:
     return debts[:8]
 
 
+_INFORMAL = re.compile(r"นอกระบบ|เงินกู้รายวัน|กู้รายวัน|เงินด่วน[^\n]{0,8}ไม่เช็ค\S{0,2}บูโร")
+_INFORMAL_LAW = ("หนี้นอกระบบ: กฎหมายให้ดอกเบี้ยเงินกู้ระหว่างบุคคลไม่เกิน 15% ต่อปี — "
+                 "ปรึกษาหรือร้องเรียนได้ที่ศูนย์ดำรงธรรม 1567")
+
+
 def _debt(text: str) -> dict | None:
     debts = parse_debts(text)
     if not debts:
-        return None
+        # ไม่ได้บอกยอดเงินต้น ("เป็นหนี้นอกระบบ ดอก 20% ต่อเดือน") — เดิมเงียบ ไม่เตือนเรื่องดอกผิดกฎหมายเลย
+        if not _INFORMAL.search(text):
+            return None
+        t = _PCT_TH.sub(r"\1%", text)
+        m = re.search(r"(\d+(?:\.\d+)?)\s*(?:%|เปอร์เซ็นต์)\s*(ต่อเดือน|/เดือน|เดือนละ|ต่อวัน|/วัน|วันละ)?", t)
+        lines = []
+        if m:
+            per = m.group(2) or ""
+            annual = float(m.group(1)) * (365 if "วัน" in per else 12 if "เดือน" in per else 1)
+            lines.append(f"ดอกที่เล่ามาคิดเป็นประมาณ {annual:,.0f}% ต่อปี" + (" — เกินที่กฎหมายกำหนดหลายเท่า" if annual > 15 else ""))
+        lines.append(_INFORMAL_LAW)
+        lines.append("บอกยอดหนี้ รายได้ และรายจ่ายต่อเดือนมาด้วย ระบบจะคำนวณให้ว่าปลดหนี้ได้ในกี่เดือน")
+        return {"lines": lines, "data": {"debts": [], "informal": True}}
     income = _after(text, r"เงินเดือน|รายได้|ได้เดือนละ|ทำได้เดือนละ|รับเดือนละ")
     expense = _after(text, r"รายจ่าย|ค่าใช้จ่าย|ใช้จ่าย|ใช้เดือนละ|จ่ายเดือนละ")
     lines, data = [], {"debts": debts, "income": income, "expense": expense}
@@ -128,9 +147,8 @@ def _debt(text: str) -> dict | None:
     else:
         lines.append(f"หนี้ที่คุณเล่ามา {len(debts)} ก้อน รวม {total:,.0f} บาท — ดอกสูงก่อน: " +
                      " → ".join(f"{d['name']} {d['annual_rate']:g}%{'*' if d['assumed_rate'] else ''}" for d in order))
-    if any("นอกระบบ" in d["name"] for d in debts):
-        lines.append("หนี้นอกระบบ: กฎหมายให้ดอกเบี้ยเงินกู้ระหว่างบุคคลไม่เกิน 15% ต่อปี — "
-                     "ปรึกษาหรือร้องเรียนได้ที่ศูนย์ดำรงธรรม 1567")
+    if any("นอกระบบ" in d["name"] for d in debts) or _INFORMAL.search(text):
+        lines.append(_INFORMAL_LAW)
     if any(d["assumed_rate"] for d in debts):
         lines.append("* ดอกเบี้ยที่ใช้เป็นค่าทั่วไปของหนี้ประเภทนั้น บอกดอกจริงมาจะคำนวณแม่นขึ้น")
     if income is not None and expense is not None:
