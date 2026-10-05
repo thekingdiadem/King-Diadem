@@ -467,7 +467,7 @@ _INTERNAL_TOKENS = re.compile(
     r"root\s*=\s*(?:craving|fear|aversion|clinging|ignorance|bias|misinformation|non_existence)|"
     r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
     r"SURVIVOR ENGINE|Router action|\[โหมด:|Wise attention|nirvana_mode|risk_score|EMOTION(?:AL_CONTEXT)?:|"
-    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|context_for_lyla", re.I)
+    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|เขาขอทางออกแล้ว|context_for_lyla", re.I)
 
 
 _SENT_END = re.compile(r"(?:ค่ะ|คะ|ครับ|นะ|จ้ะ|[.!?。！？]|◈|◆|\n)\s*")
@@ -483,17 +483,52 @@ def trim_incomplete(text):
 
 
 def _thinks(model_name) -> bool:
-    """gemini-2.5 flash/flash-lite คิดก่อนตอบ และนับคำที่คิดรวมในโควตาคำตอบ
-    (เคยใช้โควตาหมดจนคำตอบเหลือสองบรรทัด) — รุ่น pro ปิดการคิดไม่ได้ ส่วน 2.0 ไม่รู้จักค่านี้"""
+    """รุ่นที่คิดก่อนตอบ (2.5 ขึ้นไป · ชื่อ -latest) — นับคำที่คิดรวมในโควตาคำตอบ
+    เคยใช้โควตาหมดจนคำตอบเหลือสองบรรทัด · รุ่น 1.x / 2.0 ไม่คิด และไม่รู้จักค่านี้"""
     m = str(model_name or "").lower()
-    return "2.5" in m and "pro" not in m
+    return bool(m) and not re.search(r"gemini-(?:1\.|2\.0)", m)
 
 
-def _no_thinking(cfg):
+def _thinking_config(model_name):
+    """คิดให้น้อยที่สุดที่รุ่นนั้นยอม: 2.5 flash/lite ปิดได้ · 2.5 pro ต่ำสุด 128 · รุ่น 3 ขึ้นไปใช้ระดับ low"""
+    m = str(model_name or "").lower()
+    if "2.5" in m:
+        return types.ThinkingConfig(thinking_budget=128 if "pro" in m else 0)
+    return types.ThinkingConfig(thinking_level=types.ThinkingLevel.LOW)
+
+
+def _no_thinking(cfg, model_name="gemini-2.5-flash"):
     try:
-        return cfg.model_copy(update={"thinking_config": types.ThinkingConfig(thinking_budget=0)})
+        extra = 1024 if "2.5" not in str(model_name) else 0          # รุ่นที่ยังคิดอยู่บ้าง: เผื่อโควตาให้คำตอบ
+        return cfg.model_copy(update={"thinking_config": _thinking_config(model_name),
+                                      "max_output_tokens": (cfg.max_output_tokens or 1024) + extra})
     except Exception:
         return cfg
+
+
+# คนที่มาเล่าว่าถูกทำร้าย/คิดทำร้ายตัวเอง คือคนที่แอปนี้ตั้งใจช่วย — ค่าเริ่มต้นของตัวกรองเคยตัดคำตอบ
+# กลางประโยค ("…การที่เรื่องนี้ยังวนอยู่ในใจของคุณและ") จึงกรองเฉพาะเนื้อหาที่อันตรายสูงจริง
+def _safety_settings():
+    try:
+        return [types.SafetySetting(category=c, threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH)
+                for c in (types.HarmCategory.HARM_CATEGORY_HARASSMENT, types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                          types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT)]
+    except Exception:  # pragma: no cover
+        return None
+
+
+def _finish(resp) -> str:
+    try:
+        return str(getattr((resp.candidates or [None])[0], "finish_reason", "") or "").upper()
+    except Exception:
+        return ""
+
+
+def _trim_hard(text: str) -> str:
+    """ตัดถึงจุดจบประโยคสุดท้ายเสมอ (ใช้กับคำตอบที่รู้แน่ว่าถูกตัดกลางทาง)"""
+    ends = [m.end() for m in _SENT_END.finditer(text)]
+    cut = text[:ends[-1]].rstrip() if ends else ""
+    return cut if len(cut) >= 20 else ""
 
 
 def scrub_internal(text):
@@ -669,8 +704,9 @@ class GeminiLLM:
             system_instruction=system,
             temperature=temperature,
             max_output_tokens=max_tokens,
+            safety_settings=_safety_settings(),
         )
-        cfg_nothink = _no_thinking(cfg)
+        partial = ""            # คำตอบที่ถูกตัดกลางทาง — ใช้เมื่อทุกรุ่นตอบไม่จบ (ดีกว่าไม่มีคำตอบ)
 
         models_to_try = [self.model] + [
             m for m in self.MODEL_FALLBACK_CHAIN if m != self.model
@@ -690,22 +726,30 @@ class GeminiLLM:
         for model_name in models_to_try:
             if time.time() > deadline:
                 break
+            use = _no_thinking(cfg, model_name) if _thinks(model_name) else cfg
+            grown = False
             for attempt in range(len(self._keys) * 2):
                 try:
                     resp = self.client.models.generate_content(
                         model=model_name,
                         contents=contents,
-                        config=cfg_nothink if _thinks(model_name) else cfg
+                        config=use
                     )
                     result = (resp.text or "").strip()
-                    # ถูกตัดเพราะครบโควตาคำ → เก็บถึงประโยคที่จบสมบูรณ์ (เคยจบกลางประโยค "…หรือถ้ามีอะไรที่ยังค้างคา")
-                    try:
-                        fr = str(getattr((resp.candidates or [None])[0], "finish_reason", "") or "")
-                    except Exception:
-                        fr = ""
-                    if "MAX_TOKENS" in fr.upper():
-                        result = trim_incomplete(result)
-                    _cache_set(ck, result)
+                    fr = _finish(resp)
+                    if fr and "STOP" not in fr:
+                        # ตอบไม่จบ (ครบโควตาคำ / ตัวกรองตัด) — เคยส่งถึงผู้ใช้ทั้งที่จบกลางประโยค
+                        print(f"⚠ คำตอบไม่จบ (model={model_name}, finish={fr}, {len(result)} ตัวอักษร)")
+                        cut = _trim_hard(result) if result else ""
+                        if len(cut) > len(partial):
+                            partial = cut
+                        if "MAX_TOKENS" in fr and not grown:        # ให้โควตาเพิ่มอีกหนึ่งครั้ง
+                            grown = True
+                            use = use.model_copy(update={"max_output_tokens": (use.max_output_tokens or 1024) * 2})
+                            continue
+                        break                                        # ลองรุ่นถัดไป
+                    if result:
+                        _cache_set(ck, result)
                     if model_name != self.model:
                         print(f"✅ Fallback model สำเร็จ: {model_name} (primary={self.model} ใช้ไม่ได้)")
                     return result
@@ -713,6 +757,10 @@ class GeminiLLM:
                 except Exception as e:
                     err = str(e).lower()
                     last_error = e
+                    if "thinking" in err and use is not cfg:           # รุ่นนี้ไม่รับค่าการคิด → ส่งแบบเดิม
+                        print(f"⚠ Model '{model_name}' ไม่รับ thinking_config — ส่งแบบไม่มีค่าการคิด")
+                        use = cfg
+                        continue
 
                     if any(k in err for k in ["429", "quota", "rate limit", "resource exhausted"]):
                         quota_hits += 1
@@ -738,6 +786,9 @@ class GeminiLLM:
                         if not _wait(2):
                             break
 
+        if len(partial) >= 80:          # สั้นกว่านี้ คำตอบจากสมการ (มีขั้นตอนครบ) ช่วยได้มากกว่า
+            print("⚠ ทุกรุ่นตอบไม่จบ — ส่งส่วนที่จบประโยคแล้ว")
+            return partial
         print(f"❌ ทุกโมเดลและทุก attempt ล้มเหลว: {last_error}")
         if quota_hits:
             # เงิน/โควตาหมด: หยุดเรียก AI ชั่วคราว ข้อความถัดไปได้คำตอบจากสมการทันที

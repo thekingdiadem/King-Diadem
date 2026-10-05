@@ -191,9 +191,10 @@ def test_marker_never_reaches_the_user():
 
 
 @pytest.mark.parametrize("model, off", [("gemini-2.5-flash", True), ("gemini-2.5-flash-lite", True),
-                                        ("gemini-2.0-flash-lite", False), ("gemini-2.5-pro", False)])
-def test_thinking_off_only_where_it_eats_the_reply(model, off):
-    """2.5 flash คิดก่อนตอบโดยใช้โควตาคำเดียวกัน — เคยเหลือคำตอบแค่สองบรรทัด"""
+                                        ("gemini-2.0-flash-lite", False), ("gemini-1.5-flash", False),
+                                        ("gemini-2.5-pro", True), ("gemini-3-flash", True), ("gemini-flash-latest", True)])
+def test_thinking_limited_where_it_eats_the_reply(model, off):
+    """รุ่นที่คิดก่อนตอบใช้โควตาคำเดียวกัน — เคยเหลือคำตอบแค่สองบรรทัด"""
     from core.llm_gemini import _thinks
     assert _thinks(model) is off
 
@@ -206,3 +207,32 @@ def test_no_thinking_config_keeps_other_settings():
     out = llm_gemini._no_thinking(cfg)
     assert out.thinking_config.thinking_budget == 0 and out.max_output_tokens == 1024
     assert cfg.thinking_config is None                 # ไม่แก้ค่าที่ใช้กับรุ่น 2.0
+
+
+# ── ภาพจากเว็บจริง: "หาทางออกทีเวก้า" หลังเล่าว่าพ่อตีหัว ─────────────────────
+def test_way_out_request_gets_options_not_questions(client):
+    client.post("/run", json={"input": "หาทางออกที", "history": ABUSE_HISTORY})
+    prompt = FAKE_LLM["prompts"][-1]
+    assert "เขาขอทางออกแล้ว" in prompt and "1300" in prompt
+
+
+def test_no_way_out_note_without_hard_context(client):
+    client.post("/run", json={"input": "หาทางออกเรื่องงานที", "history": [{"role": "user", "content": "งานเยอะ"}]})
+    assert "เขาขอทางออกแล้ว" not in FAKE_LLM["prompts"][-1]
+
+
+@pytest.mark.parametrize("text, voice", [("หาทางออกทีเวก้า", "vega"), ("vega ช่วยวิเคราะห์หน่อย", "vega"),
+                                         ("ไลลา ฟังหน่อย", "lyla"), ("เครียดมาก", "lyla")])
+def test_calling_persona_by_name(app_module, text, voice):
+    assert app_module._resolve_voice_mode({"input": text, "voice_mode": "lyla" if voice == "vega" else ""}, "risk") == voice
+
+
+def test_page_knows_thai_persona_names():
+    import pathlib
+    page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
+    assert "เวก้า|เวกา|วีก้า" in page
+
+
+def test_way_out_note_never_reaches_the_user():
+    from core.llm_gemini import scrub_internal
+    assert scrub_internal("ทางแรกคือ…\n[เขาขอทางออกแล้ว: ให้ทางเลือก]") == "ทางแรกคือ…"

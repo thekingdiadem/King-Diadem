@@ -43,6 +43,7 @@ def _fake_call(self, system, contents, temperature=0.72, max_tokens=1024):
     return FAKE_LLM["text"] or "เข้าใจค่ะ มี 2 ทาง 1) พักก่อน 2) เขียนสิ่งที่กังวล\n— LYLA ◈"
 
 
+REAL_CALL = L.GeminiLLM._call          # ตัวจริง — ใช้ทดสอบการจัดการคำตอบจาก API ด้วย client ปลอม
 L.GeminiLLM._call = _fake_call
 L.GeminiLLM._init_client = lambda self: None
 

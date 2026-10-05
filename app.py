@@ -33,7 +33,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
-import os, json, stripe, math, time, threading
+import os, re, json, stripe, math, time, threading
 from urllib.parse import quote, unquote
 
 # ── ENGINE ────────────────────────────────────────────────────────
@@ -890,13 +890,20 @@ def _route_bias(route: str, text: str) -> str:
 
 # วิธีฟังคนที่เพิ่งเล่าเรื่องเจ็บปวด: ฟังก่อน ค่อยๆ ไปทีละก้าว — เบอร์ช่วยเหลือสั้นๆ ตอนท้าย
 # (ยกเว้นอันตรายตอนนี้) เดิมคำตอบรีบให้รายการเบอร์โทรตั้งแต่ย่อหน้าที่สาม
+_ASKS_WAY_OUT = re.compile(r"ทางออก|ทำยังไงดี|ทำไงดี|ทำอย่างไรดี|ควรทำยังไง|ต้องทำยังไง|ช่วยหน่อย|ช่วยด้วย|แนะนำหน่อย|หาทาง|ทางไหนดี")
 _LISTEN_GENTLY = ("ค่อยๆ ฟังเขา: เริ่มจากสะท้อนสิ่งที่เขาเพิ่งเล่าในข้อความล่าสุดและความรู้สึกของเขา 1–2 ประโยคด้วยน้ำเสียงสงบ "
                   "ถามคำถามเปิดทีละคำถาม ไม่รีบแนะนำยาวหรือเป็นข้อๆ ปล่อยให้เขาเล่าในจังหวะของเขา "
                   "ให้เบอร์ช่วยเหลือสั้นๆ ตอนท้าย ยกเว้นถ้าเขายังอยู่ในอันตรายตอนนี้ ให้ความปลอดภัยและเบอร์มาก่อน")
 
 
+# เรียกชื่อในข้อความ ("หาทางออกทีเวก้า") — เดิมรู้จักแค่ปุ่มเลือกและคำว่า vega
+_NAME_VEGA = re.compile(r"เวก้า|เวกา|วีก้า|(?<![a-z])vega(?![a-z])", re.I)
+_NAME_LYLA = re.compile(r"ไลล่า|ไลลา|(?<![a-z])lyla(?![a-z])", re.I)
+
+
 def _resolve_voice_mode(data: dict, route: str) -> str:
     vm = str(data.get("voice_mode") or "").lower().strip()
+    text = str(data.get("input") or "")
     # "crisis" จากหน้าเว็บเป็นแค่การเดาด้วยคำ (เคยนับ "ตาย" คำเดียว: "แบตมือถือตาย" "ขำจะตาย")
     # ให้เซิร์ฟเวอร์ยืนยันด้วยตัวจับสัญญาณทำร้ายตัวเองก่อน ถึงจะใช้ prompt โหมดวิกฤต
     if vm == "crisis":
@@ -906,6 +913,8 @@ def _resolve_voice_mode(data: dict, route: str) -> str:
         except Exception:
             return "crisis"
         vm = ""
+    if _NAME_VEGA.search(text) and not _NAME_LYLA.search(text):  return "vega"
+    if _NAME_LYLA.search(text) and not _NAME_VEGA.search(text):  return "lyla"
     if vm == "vega" or route == "vega":  return "vega"
     return "lyla"
 
@@ -1130,6 +1139,12 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         dis_ctx = (f"[ผู้ใช้กำลังเจอ{dis.get('name', 'ภัย')}: ตอบสั้น ใจเย็น บอกขั้นที่ทำได้ทันทีจากข้อมูลที่ระบบให้ "
                    "เรียงตามลำดับ ยังไม่ถามเรื่องอื่นหรือวิเคราะห์ยาว ถามว่าตอนนี้เขากับคนที่อยู่ด้วยปลอดภัยไหม "
                    "ปิดท้ายด้วยเบอร์ 1784 / 1669 และบอกว่าพิมพ์มาได้ตลอด]")
+    # เขาขอทางออกเองแล้ว ("หาทางออกที" "ทำยังไงดี") — เดิม LYLA ยังแค่รับฟังแล้วถามกลับ
+    if (rel_ctx or dis_ctx) and _ASKS_WAY_OUT.search(user_input):
+        eg = ("ไปอยู่ที่ปลอดภัย บอกคนที่ไว้ใจได้ โทร 1300" if rel_ctx else "ขึ้นที่สูงหรือออกจากจุดอันตราย โทร 1784")
+        rel_ctx = (rel_ctx + " " if rel_ctx else "") + (
+            f"[เขาขอทางออกแล้ว: ให้ทางเลือกที่ทำได้จริง 2–3 ข้อ เรียงจากปลอดภัยที่สุด เช่น {eg} "
+            "— ยังอ่อนโยนเหมือนเดิม แต่ไม่ถามกลับแทนการตอบ]")
     offer_flags = k_assess.get("offer_flags") or []
     if offer_flags:
         if route not in ("vega",):
