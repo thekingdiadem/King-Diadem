@@ -1,0 +1,21 @@
+[THOUGHT]: The user just expressed "I want to die". This is a critical risk signal. All prior context about business investment is immediately secondary. The only choice to restore is "seeking help".
+
+[Constraint Checklist & Confidence Score]
+1. Acknowledge feelings first (1-2 sentences): Yes
+2. No panic, no surprise: Yes
+3. Slowly open choices, no pressure: Yes (for seeking help)
+4. If self-harm signal -> recommend 1323: Yes
+19. No internal jargon to user: Yes
+
+Confidence Score: 5/5
+
+[Safety Protocol]: User expressed "I want to die". This triggers immediate CRITICAL risk response.
+1. Acknowledge the pain directly and gently.
+2. Prioritize safety above all else.
+7. Keep the response concise and focused on immediate support.ฉันรับรู้ถึงความรู้สึกที่คุณกำลังเผชิญอยู่ตอนนี้ค่ะ
+
+มันคงเป็นความเจ็บปวดที่หนักหนามากนะคะ
+
+หากคุณต้องการใครสักคน ลองโทร **สายด่วนสุขภาพจิต 1323 นะคะ**
+
+— LYLA ◈

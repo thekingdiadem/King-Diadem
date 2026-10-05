@@ -398,7 +398,7 @@ WORK_WIN_SYSTEM = """คุณคือ LYLA — governance intelligence ขอ�
 
 from core.thai_signals import NOT_WANT_TO_LIVE, DISCOURAGED, BREAKUP, PARTNER, has as _has   # noqa: E402
 from core.thai_signals import offer_red_flags   # noqa: E402
-from core.lang_signals import SELF_HARM_INTL   # noqa: E402
+from core.lang_signals import SELF_HARM_INTL, HELP as _LANG_HELP, detect_lang   # noqa: E402
 
 # ข้อความใน [บริบท: ...] คือสัญญาณจาก engine — LLM เคยยก "Causal: root=craving feeling=pleasant"
 # และ "UAP: หยุดก่อนตัดสินใจ" ไปพิมพ์ให้ผู้ใช้อ่านตรงๆ
@@ -408,12 +408,66 @@ INTERNAL_RULE = ("\n\nกฎบริบทภายใน: ข้อควา�
                  "\n\nภาษา: ตอบเป็นภาษาเดียวกับข้อความล่าสุดของผู้ใช้ (ไทย อังกฤษ จีน ญี่ปุ่น เกาหลี สเปน หรือภาษาอื่น) "
                  "คำลงท้าย ค่ะ/ครับ และ ฉัน/ผม ใช้เฉพาะเมื่อตอบเป็นภาษาไทย "
                  "ถ้าผู้ใช้ไม่ได้ใช้ภาษาไทยและมีสัญญาณวิกฤต ให้แนะนำเบอร์ฉุกเฉินของประเทศเขา "
-                 "หรือ findahelpline.com แทน 1323")
+                 "หรือ findahelpline.com แทน 1323"
+                 "\n\nห้ามเขียนความคิด แผน เช็กลิสต์ หรือคะแนนความมั่นใจ (เช่น [THOUGHT], Constraint Checklist, "
+                 "Confidence Score) ให้ผู้ใช้เห็น เขียนเฉพาะข้อความที่พูดกับผู้ใช้เท่านั้น")
+
+_LANG_NAME = {"en": "English", "zh": "中文", "ja": "日本語", "ko": "한국어", "es": "Español"}
+_LANG_TAG = re.compile(r"\[ภาษาผู้ใช้:\s*(\w+)\]")
+
+
+def _lang_directive(prompt: str) -> str:
+    """ผู้ใช้ไม่ได้เขียนภาษาไทย → สั่งชัดๆ ท้าย system prompt (prompt ไทยของ CRISIS_SYSTEM
+    เคยชนะกฎทั่วไป: ผู้ใช้พิมพ์ "I want to die" แล้วได้คำตอบภาษาไทยกับเบอร์ 1323)"""
+    m = _LANG_TAG.search(prompt or "")
+    lang = m.group(1) if m else detect_lang(re.sub(r"\[[^\]]*\]", " ", prompt or ""))
+    if lang not in _LANG_NAME:
+        return ""
+    name = _LANG_NAME[lang]
+    return (f"\n\nสำคัญที่สุด: ผู้ใช้เขียนเป็นภาษา {name} — ตอบเป็นภาษา {name} ทั้งหมด ห้ามตอบภาษาไทย "
+            f"ไม่ใช้คำลงท้าย ค่ะ/ครับ และถ้าต้องแนะนำความช่วยเหลือ ให้ใช้ข้อมูลนี้แทน 1323: {_LANG_HELP[lang]}")
+
+
+# ความคิด/แผน/เช็กลิสต์ที่โมเดลบางรุ่นพิมพ์ออกมาก่อนคำตอบจริง
+_META_HEAD = re.compile(
+    r"^\s*(?:\[(?:THOUGHT|THINKING|Thought|Thinking|Reasoning|Plan|Analysis|Internal[^\]]*|"
+    r"Constraint Checklist[^\]]*|Safety Protocol[^\]]*|Checklist[^\]]*)\]|"
+    r"(?:THOUGHT|Thought|Reasoning|Plan)\s*:|Confidence Score\s*:|Constraint Checklist)")
+_CHECK_LINE = re.compile(r"^\s*\d+\.\s.*:\s*(?:Yes|No)\b", re.I)
+_NUM_LINE = re.compile(r"^\s*\d+\.\s+[A-Za-z]")
+_NON_LATIN = re.compile(r"[\u0E00-\u0E7F\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]")
+
+
+def strip_reasoning(text):
+    """ตัดย่อหน้าความคิด/เช็กลิสต์ที่โมเดลพิมพ์ออกมา เก็บเฉพาะคำตอบถึงผู้ใช้
+    (บางครั้งคำตอบจริงต่อท้ายบรรทัดสุดท้ายของเช็กลิสต์โดยไม่ขึ้นบรรทัดใหม่ — ตัดตรงตัวอักษรภาษาอื่นตัวแรก)"""
+    if not isinstance(text, str) or not (_META_HEAD.search(text) or
+                                         sum(bool(_CHECK_LINE.match(l)) for l in text.split("\n")) >= 3):
+        return text
+    out, in_meta = [], False
+    for para in re.split(r"\n\s*\n", text):
+        lines = [l for l in para.split("\n") if l.strip()]
+        if not lines:
+            continue
+        is_meta = bool(_META_HEAD.match(lines[0])) or \
+            sum(bool(_CHECK_LINE.match(l)) for l in lines) >= max(1, len(lines) // 2) or \
+            (in_meta and all(_NUM_LINE.match(l) for l in lines))
+        if is_meta:
+            in_meta = True
+            tail = lines[-1]
+            m = _NON_LATIN.search(tail)
+            if m and not _NON_LATIN.search("\n".join(lines[:-1])):
+                out.append(tail[m.start():])
+                in_meta = False
+            continue
+        in_meta = False
+        out.append(para.strip())
+    return "\n\n".join(out).strip()
 _INTERNAL_TOKENS = re.compile(
     r"root\s*=\s*(?:craving|fear|aversion|clinging|ignorance|bias|misinformation|non_existence)|"
     r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
     r"SURVIVOR ENGINE|Router action|\[โหมด:|Wise attention|nirvana_mode|risk_score|EMOTION(?:AL_CONTEXT)?:|"
-    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|context_for_lyla", re.I)
+    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|context_for_lyla", re.I)
 
 
 def scrub_internal(text):
@@ -743,8 +797,9 @@ class GeminiLLM:
         )
 
     def _gcall(self, system: str, contents: list, **kw) -> str:
-        """เรียก LLM พร้อมกฎบริบทภายใน แล้วตัดบรรทัดที่ยกบริบทภายในมาพูด"""
-        return scrub_internal(self._call(system + INTERNAL_RULE, contents, **kw))
+        """เรียก LLM พร้อมกฎบริบทภายใน + ภาษาของผู้ใช้ แล้วตัดความคิดและบริบทภายในที่หลุดออกมา"""
+        extra = getattr(_tls, "lang_directive", "")
+        return scrub_internal(strip_reasoning(self._call(system + INTERNAL_RULE + extra, contents, **kw)))
 
     def generate_with_governance(
         self,
@@ -758,6 +813,7 @@ class GeminiLLM:
     ) -> str:
 
         emotion_state = str(emotion_state or "NEUTRAL")
+        _tls.lang_directive = _lang_directive(prompt)
         # ── CRISIS override ────────────────────────────────────
         if detect_crisis(prompt) or voice_mode == "crisis" or "EMOTION:CRISIS" in emotion_state.upper():
             contents = _build_contents(history or [], prompt, additional_context)

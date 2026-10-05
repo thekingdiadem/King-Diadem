@@ -153,10 +153,12 @@ except Exception as e:
 try:
     from core.kernel_voice import compose as kernel_compose, simulate as kernel_simulate, assess as kernel_assess
     from core.thai_signals import OFFER_FLAG_TH
+    from core.lang_signals import detect_lang
 except Exception as e:
     print(f"⚠ kernel_voice: {e}")
     kernel_compose = kernel_simulate = kernel_assess = None
     OFFER_FLAG_TH = {}
+    detect_lang = None
 
 try:
     from core.system_orchestrator import get_orchestrator
@@ -1136,6 +1138,11 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     effective += _route_bias(route, user_input)
     if extra_ctx:
         effective += f"\n\n{extra_ctx}"
+    # ภาษาของผู้ใช้ (ดูจากข้อความดิบ — prompt ที่ต่อแล้วมีบริบทภาษาไทยปน) ให้ LLM ตอบภาษาเดียวกัน
+    if detect_lang:
+        u_lang = detect_lang(user_input)
+        if u_lang != "th":
+            effective += f"\n\n[ภาษาผู้ใช้: {u_lang}]"
 
     # v5.0: ส่ง context แยกเป็น field ชัดๆ ด้วย ไม่ใช่ฝังใน "input" text อย่างเดียว
     # เผื่อ full_run_decision / DecisionEngine รองรับ field เหล่านี้โดยตรง

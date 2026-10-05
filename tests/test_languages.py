@@ -61,3 +61,39 @@ def test_thai_reply_unchanged():
 def test_llm_told_to_answer_in_users_language(client):
     client.post("/run", json={"input": "How do I deal with stress at work?"})
     assert "ตอบเป็นภาษาเดียวกับข้อความล่าสุดของผู้ใช้" in FAKE_LLM["systems"][-1]
+
+
+# ── ความคิดของโมเดลหลุดถึงผู้ใช้ (ภาพจากเว็บจริง: "I want to die") ──────────
+import os as _os
+from core.llm_gemini import strip_reasoning
+
+_LEAK = open(_os.path.join(_os.path.dirname(__file__), "fixtures", "leaked_reasoning.txt"), encoding="utf-8").read()
+
+
+def test_strip_reasoning_keeps_only_the_reply():
+    r = strip_reasoning(_LEAK)
+    assert r.startswith("ฉันรับรู้ถึงความรู้สึก")
+    for leak in ("[THOUGHT]", "Constraint Checklist", "Confidence Score", "Safety Protocol", ": Yes"):
+        assert leak not in r
+
+
+def test_strip_reasoning_leaves_normal_lists():
+    text = "Here are options:\n1. Rest first\n2. Talk to a friend"
+    assert strip_reasoning(text) == text
+
+
+def test_run_never_shows_model_reasoning(client):
+    FAKE_LLM["text"] = _LEAK
+    r = client.post("/run", json={"input": "I want to die"}).json()["ai_response"]
+    assert "[THOUGHT]" not in r and "Confidence Score" not in r and "Checklist" not in r
+
+
+def test_english_crisis_prompt_demands_english_and_local_help(client):
+    client.post("/run", json={"input": "I want to die"})
+    system = FAKE_LLM["systems"][-1]
+    assert "ตอบเป็นภาษา English ทั้งหมด" in system and "findahelpline.com" in system
+
+
+def test_thai_prompt_has_no_language_override(client):
+    client.post("/run", json={"input": "เครียดเรื่องงานมาก"})
+    assert "ห้ามตอบภาษาไทย" not in FAKE_LLM["systems"][-1]
