@@ -154,11 +154,13 @@ try:
     from core.kernel_voice import compose as kernel_compose, simulate as kernel_simulate, assess as kernel_assess
     from core.thai_signals import OFFER_FLAG_TH
     from core.lang_signals import detect_lang
+    from core.engine_bridge import analyze as bridge_analyze
 except Exception as e:
     print(f"⚠ kernel_voice: {e}")
     kernel_compose = kernel_simulate = kernel_assess = None
     OFFER_FLAG_TH = {}
     detect_lang = None
+    bridge_analyze = None
 
 try:
     from core.system_orchestrator import get_orchestrator
@@ -1037,6 +1039,9 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         t_lvl = "CRITICAL" if t_risk >= 75 else "HIGH" if t_risk >= 55 else "MEDIUM"
         if not risk_ctx or "LOW" in risk_ctx or ("MEDIUM" in risk_ctx and t_lvl != "MEDIUM"):
             risk_ctx = f"[Risk: {t_lvl} จากข้อความ]"
+    # ถูกทำร้าย/ถูกควบคุมในความสัมพันธ์ → เส้นทางความเสี่ยง (ความปลอดภัยมาก่อน)
+    if k_assess.get("relationship") in ("collapse_risk", "critical") and route not in ("vega",):
+        route = _escalate_route(route, "risk")
     offer_flags = k_assess.get("offer_flags") or []
     if offer_flags:
         if route not in ("vega",):
@@ -1124,8 +1129,16 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             print(f"⚠ belief_audit error: {_be}")
 
     # ── build effective prompt ────────────────────────────────────
+    # ตัวเลขจากเครื่องยนต์ที่ต่อใหม่ (หนี้ · เวลาที่มีจริง · ความสัมพันธ์) — ให้ LLM ใช้ตัวเลขจริงแทนการเดา
+    calc_ctx = ""
+    if bridge_analyze and not offer_flags:
+        try:
+            calc_ctx = bridge_analyze(user_input).get("llm_ctx", "")
+        except Exception as e:
+            print(f"⚠ engine_bridge: {type(e).__name__}")
     extra_ctx = " ".join(p for p in [
         offer_ctx,
+        calc_ctx,
         paticca_ctx,
         wise_ctx_str,    # ← v4.9 เพิ่ม yonisomanasikara context
         risk_ctx,
