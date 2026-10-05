@@ -23,7 +23,8 @@ from core.thai_signals import (NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, DRUNK_DRIVING,
                                MISSING_PERSON, LABOR_RIGHTS, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
-                               STOP_MEDS, STOP_MEDS_CTX, small_talk)
+                               STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
+                               HEALTH_RIGHTS, DIAGNOSIS, LEGAL)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, detect_lang
 from core.engine_bridge import analyze as bridge_analyze, rank_options
 
@@ -43,6 +44,7 @@ HOTLINE_LABOR  = "1546"   # กรมสวัสดิการและคุ�
 HOTLINE_SSO    = "1506"   # สำนักงานประกันสังคม
 HOTLINE_JOBS   = "1694"   # กรมการจัดหางาน (ตรวจนายหน้า/งานต่างประเทศ)
 HOTLINE_OCPB   = "1166"   # สคบ. (สัญญาเช่าที่อยู่อาศัย)
+HOTLINE_NHSO   = "1330"   # สปสช. (สิทธิบัตรทอง)
 
 
 def _num(v, d: float) -> float:
@@ -246,10 +248,13 @@ TOPICS = [
              "ให้น้ำสะอาดอุณหภูมิห้องไหลผ่านแผล 20 นาที ถอดแหวน/นาฬิกาออก · ห้ามใช้ยาสีฟัน น้ำแข็ง น้ำปลา หรือเจาะตุ่มพอง"),
             ([re.compile(r"ช็อต|ช๊อต|ดูด|electric")],
              "ตัดไฟก่อน (สับเบรกเกอร์/ถอดปลั๊ก) ห้ามจับตัวคนที่ยังติดไฟ ใช้ไม้แห้งเขี่ยออก · ไปโรงพยาบาลแม้ดูไม่เป็นอะไร ไฟฟ้าอาจกระทบหัวใจ"),
-            ([re.compile(r"รถ|อุบัติเหตุ|ตก|crash")],
+            ([re.compile(r"หกล้ม|ล้มใน|ลื่นล้ม|ล้มหัว|ล้มลุกไม่")],
+             "คนล้ม (โดยเฉพาะผู้สูงอายุ): อย่ารีบดึงให้ลุก ถามว่าเจ็บตรงไหน — ปวดสะโพก ขยับขาไม่ได้ หัวกระแทก ซึม หรืออาเจียน โทร 1669 ห้ามขยับเอง"),
+            ([re.compile(r"รถ|อุบัติเหตุ|ตก(?!บันได)|crash")],
              "ทำที่เกิดเหตุให้ปลอดภัย: เปิดไฟฉุกเฉิน ตั้งป้าย/กรวยเตือน · อย่าขยับคนเจ็บถ้าไม่จำเป็น (อาจบาดเจ็บที่คอ/หลัง) ยกเว้นมีไฟหรืออันตราย"),
             f"มีคนหมดสติ หายใจลำบาก เลือดออกมาก หรือแผลใหญ่ — โทร {HOTLINE_EMS} ทันที (ฟรี 24 ชม.)",
-            "ไฟลวกที่แผลใหญ่กว่าฝ่ามือ อยู่ที่หน้า มือ ข้อพับ หรือเป็นเด็ก/ผู้สูงอายุ — ไปโรงพยาบาล",
+            ([re.compile(r"ลวก|ไหม้|กระเด็น|burn")],
+             "ไฟลวกที่แผลใหญ่กว่าฝ่ามือ อยู่ที่หน้า มือ ข้อพับ หรือเป็นเด็ก/ผู้สูงอายุ — ไปโรงพยาบาล"),
         ],
         "ask": "ตอนนี้คนที่บาดเจ็บรู้สึกตัวและหายใจได้ปกติไหม?",
     }),
@@ -296,6 +301,12 @@ TOPICS = [
     ("labor", [LABOR_RIGHTS], {
         "open": ["ค่าจ้างที่ทำงานไปแล้วเป็นสิทธิ์ของคุณ ทวงได้โดยไม่ต้องจ้างทนาย"],
         "paths": [
+            ([re.compile(r"ยึด(?:พาสปอร์ต|หนังสือเดินทาง|บัตร)")],
+             f"นายจ้างยึดพาสปอร์ตหรือบัตรของลูกจ้างไม่ได้ — นี่เป็นสัญญาณของการบังคับใช้แรงงาน โทร {HOTLINE_SOCIAL} (24 ชม.) หรือ {HOTLINE_POLICE} ถ้าถูกกักตัว"),
+            ([re.compile(r"หยุด")],
+             "ลูกจ้างทุกคน รวมทั้งลูกจ้างทำงานบ้าน มีสิทธิ์หยุดอย่างน้อยสัปดาห์ละ 1 วัน และได้ค่าจ้างถ้าทำงานในวันหยุด"),
+            ([re.compile(r"ท้อง|ตั้งครรภ์")],
+             "นายจ้างเลิกจ้างเพราะตั้งครรภ์ไม่ได้ตามกฎหมาย และคุณมีสิทธิ์ลาคลอดพร้อมค่าจ้าง — เก็บหลักฐานแล้วร้องเรียนได้"),
             "เก็บหลักฐาน: สัญญาจ้าง สลิปเงินเดือน แชต/อีเมลสั่งงาน บันทึกเวลาเข้า-ออก ชื่อเพื่อนร่วมงานที่รู้เรื่อง",
             f"ยื่นคำร้องฟรีที่สำนักงานสวัสดิการและคุ้มครองแรงงานจังหวัด หรือโทร {HOTLINE_LABOR} — ไม่ต้องมีทนาย",
             ([re.compile(r"เลิกจ้าง|ไล่ออก|ค่าชดเชย")],
@@ -314,6 +325,24 @@ TOPICS = [
         ],
         "ask": "ต้องออกจากห้องภายในวันไหน และตอนนี้มีที่ไปชั่วคราวไหม?",
     }),
+    ("eating", [EATING], {
+        "open": ["เรื่องการกินแบบนี้ไม่ใช่เพราะคุณใจไม่สู้ — มันเป็นภาวะที่รักษาได้"],
+        "paths": [
+            "ล้วงคอหรืออดอาหารบ่อยทำให้เกลือแร่ในเลือดผิดปกติ — ถ้าใจสั่น หน้ามืด เป็นลม หรืออ่อนแรงมาก ไปโรงพยาบาลวันนี้",
+            f"ปรึกษาแพทย์หรือ {HOTLINE_MENTAL} (ฟรี 24 ชม.) บอกตรงๆ ว่ากินแล้วล้วงคอ/กลัวอ้วนจนไม่กิน — มีการรักษาเฉพาะทาง",
+            "ลองกินมื้อเล็กๆ ตามเวลาเดิมทุกวันกับคนที่ไว้ใจ แทนการอดแล้วกินมากทีเดียว และเลี่ยงการชั่งน้ำหนักบ่อย",
+        ],
+        "ask": "ตอนนี้มีใครที่รู้เรื่องนี้และอยู่ข้างคุณบ้างไหม?",
+    }),
+    ("psychosis", [PSYCHOSIS], {
+        "open": ["ขอบคุณที่บอกนะ สิ่งที่เจอคงทำให้กลัวและเหนื่อยมาก"],
+        "paths": [
+            f"ถ้าเสียงนั้นสั่งให้ทำร้ายตัวเองหรือคนอื่น หรือรู้สึกควบคุมตัวเองไม่ได้ — โทร {HOTLINE_EMS} หรือไปห้องฉุกเฉินตอนนี้",
+            f"อาการแบบนี้รักษาได้ดีถ้าพบจิตแพทย์เร็ว — นัดโรงพยาบาลตามสิทธิ์ หรือโทร {HOTLINE_MENTAL} ก่อนก็ได้",
+            "บอกคนที่ไว้ใจได้ 1 คนให้อยู่ด้วย · นอนให้พอ งดเหล้า กัญชา และยาเสพติด เพราะทำให้อาการหนักขึ้น",
+        ],
+        "ask": "ตอนนี้มีใครอยู่ด้วยหรือพอจะมาอยู่ด้วยได้ไหม?",
+    }),
     ("stop_meds", [STOP_MEDS], {
         "open": ["อยากหยุดยาเป็นความรู้สึกที่เข้าใจได้ — แต่ทำให้ปลอดภัยด้วยกันนะ"],
         "paths": [
@@ -323,9 +352,43 @@ TOPICS = [
         ],
         "ask": "อะไรทำให้อยากหยุดยาตอนนี้ — ผลข้างเคียง หรือรู้สึกว่าไม่ต้องใช้แล้ว?",
     }),
+    ("diagnosis", [DIAGNOSIS], {
+        "open": ["ข่าวแบบนี้หนักมาก ไม่ต้องรู้ทุกอย่างวันนี้ — ไปทีละขั้นได้"],
+        "paths": [
+            ([re.compile(r"hiv|เอชไอวี|เอดส์", re.I)],
+             f"HIV วันนี้รักษาได้: ยาต้านไวรัสฟรีตามสิทธิ์ กินต่อเนื่องแล้วใช้ชีวิตได้เกือบปกติ — ปรึกษาเป็นความลับได้ที่ {HOTLINE_PREG}"),
+            ([re.compile(r"ผลตรวจ|ผลเลือด")],
+             "ค่าผิดปกติหลายอย่างพบบ่อยและไม่ร้ายแรง — ขอให้แพทย์อธิบายว่าค่าไหนผิด ผิดมากแค่ไหน และต้องตรวจอะไรต่อ"),
+            "จดคำถามไปถามแพทย์: เป็นระยะไหน มีทางรักษาอะไรบ้าง ใช้สิทธิ์อะไรได้ และต้องทำอะไรภายในสัปดาห์นี้",
+            "พาคนที่ไว้ใจไปด้วยตอนฟังผลหรือคุยแผนการรักษา — ช่วยจำและช่วยถาม",
+            f"ใช้สิทธิ์บัตรทอง/ประกันสังคมรักษาได้ สงสัยเรื่องสิทธิ์โทร สปสช. {HOTLINE_NHSO} · ถ้าเครียดจนนอนไม่หลับ โทร {HOTLINE_MENTAL}",
+        ],
+        "ask": "เรื่องไหนที่กังวลที่สุดตอนนี้ — ตัวโรค การรักษา หรือค่าใช้จ่าย?",
+    }),
+    ("caregiver", [CAREGIVER], {
+        "open": ["การดูแลคนที่รักทุกวันเหนื่อยจริงๆ — คนดูแลก็ต้องได้รับการดูแลเหมือนกัน"],
+        "paths": [
+            "ถาม รพ.สต. หรือ อบต./เทศบาลใกล้บ้าน เรื่องสิทธิ์ดูแลระยะยาวสำหรับผู้มีภาวะพึ่งพิง (บัตรทอง) — มีผู้ช่วยดูแลมาเยี่ยมบ้านได้",
+            f"ผู้สูงอายุที่ไม่มีคนดูแลหรือครอบครัวรับไม่ไหว โทร {HOTLINE_SOCIAL} (พม. 24 ชม.) · สงสัยสิทธิ์รักษา โทร สปสช. {HOTLINE_NHSO}",
+            "แบ่งเวรกับพี่น้อง/ญาติให้ชัดเป็นตาราง และให้ตัวเองได้พักอย่างน้อยครึ่งวันต่อสัปดาห์ — ไม่ใช่ความเห็นแก่ตัว",
+            f"ถ้าเริ่มหงุดหงิดจนกลัวจะทำร้ายเขา หรือหมดแรงจนไม่อยากอยู่ โทร {HOTLINE_MENTAL} ได้เลย",
+        ],
+        "ask": "ถ้ามีคนช่วยได้สัปดาห์ละครึ่งวัน ใครพอจะเป็นคนนั้นได้บ้าง?",
+    }),
+    ("health_rights", [HEALTH_RIGHTS], {
+        "open": ["คนไทยทุกคนมีสิทธิ์รักษา — ขอเรียงทางให้ก่อนนะ"],
+        "paths": [
+            ([re.compile(r"บัตรประชาชน")],
+             "ทำบัตรประชาชนใหม่ที่สำนักงานเขต/อำเภอ (บัตรหายให้แจ้งที่นั่นได้เลย) — ระหว่างนี้ โรงพยาบาลรัฐยังรับรักษาฉุกเฉินได้"),
+            f"บัตรทองใช้ได้กับคนไทยทุกคนที่ไม่มีสิทธิ์อื่น — ลงทะเบียนที่ รพ.สต./โรงพยาบาลรัฐ หรือโทร สปสช. {HOTLINE_NHSO} เช็กสิทธิ์ของตัวเอง",
+            "ฉุกเฉินวิกฤต (เจ็บหน้าอก หมดสติ หายใจไม่ได้) เข้าโรงพยาบาลที่ใกล้ที่สุดได้ รวมโรงพยาบาลเอกชน ไม่เสียค่าใช้จ่ายใน 72 ชั่วโมงแรก (สิทธิ์ UCEP)",
+            "ค่ารักษาสูง ขอคุยกับนักสังคมสงเคราะห์ของโรงพยาบาลเพื่อขอผ่อนผันหรืออนุเคราะห์ค่ารักษา",
+        ],
+        "ask": "ตอนนี้ใช้สิทธิ์อะไรอยู่ — บัตรทอง ประกันสังคม หรือยังไม่รู้?",
+    }),
     ("health", [re.compile(r"ไม่สบาย(?!ใจ)"), "ป่วย", "เป็นไข้", "ปวดหัว", "ปวดท้อง",
                 re.compile(r"ไอ(?!เดีย|ที|ศ|ติม|โฟน|แพด|ดอล|คอน|ดี|เท็ม|ร์|ริช|ซ์|ซี|เอ|พี|จี|แมค|โอเอส|น้อง|หนุ่ม|ต้าว|บ้า)"), "เจ็บคอ", "ผื่น", "อาการ",
-                "โรงพยาบาล", "หาหมอ", "กินยา", "โรคประจำตัว"], {
+                "โรงพยาบาล", "หาหมอ", "กินยา", "โรคประจำตัว", "โควิด", "ติดเชื้อ"], {
         "open": ["ร่างกายส่งสัญญาณมาแล้ว ฟังมันก่อน"],
         "paths": [
             "ถ้าอาการแย่ลงเร็ว มีไข้สูงไม่ลด หายใจลำบาก หรือเจ็บรุนแรง — ไปโรงพยาบาลวันนี้",
@@ -347,6 +410,18 @@ TOPICS = [
         ],
         "ask": "ถ้าเดือนนี้จ่ายได้แค่ก้อนเดียว ก้อนไหนที่ถ้าไม่จ่ายจะเสียหายมากที่สุด?",
     }),
+    ("legal", [LEGAL], {
+        "open": ["เรื่องกฎหมายดูน่ากลัว แต่มีขั้นตอนและมีคนช่วยฟรี"],
+        "paths": [
+            ([re.compile(r"จับ|ตำรวจ|arrest", re.I)],
+             "ถูกจับ: คุณมีสิทธิ์รู้ข้อกล่าวหา ขอพบและปรึกษาทนาย และแจ้งญาติ — ยังไม่ต้องให้การหรือเซ็นเอกสารจนกว่าจะเข้าใจหรือมีทนาย"),
+            ([re.compile(r"หมาย|ฟ้อง|ศาล|sue|subpoena", re.I)],
+             "อย่าเพิกเฉยหมายศาล — ดูวันนัดและศาลที่ระบุ ไปตามนัด (คดีหนี้ส่วนใหญ่ขอไกล่เกลี่ยผ่อนชำระได้ที่ศาล) ไม่ไปอาจแพ้คดีโดยขาดนัด"),
+            "ขอทนายฟรีได้จากสภาทนายความ หรือกองทุนยุติธรรม กระทรวงยุติธรรม (ช่วยค่าประกันตัวและค่าทนายสำหรับคนที่ไม่มีเงิน)",
+            "เก็บเอกสารทุกฉบับและจดวันเวลาของทุกเหตุการณ์ — ถ่ายรูปไว้อีกชุด",
+        ],
+        "ask": "เอกสารที่ได้รับระบุวันนัดหรือกำหนดส่งเมื่อไหร่?",
+    }),
     ("money", ["เงินหมด", "ไม่มีเงิน", "เงินไม่พอ", re.compile(r"(?:เงิน|ตัง|ตังค์)\S{0,6}?ช็อต|ช็อตปลายเดือน|ปลายเดือน\S{0,4}?ช็อต"), "แบ่งเก็บ", "ออมเงิน",
                "วางแผนการเงิน", "ซื้อบ้าน", "ผ่อนบ้าน", re.compile(r"ผ่อน(?:เดือนละ|งวดละ)"), "เงินเดือน", "เงินเหลือ", "ค่าเช่า", "รายจ่าย", "รายได้ไม่พอ",
                "ไม่มีรายได้", "เก็บเงิน"], {
@@ -358,7 +433,7 @@ TOPICS = [
         ],
         "ask": "เงินที่มีตอนนี้ พอสำหรับสิ่งที่ต้องจ่ายจริงๆ ได้อีกกี่วัน?",
     }),
-    ("job", ["ตกงาน", re.compile(r"(?:ถูก|โดน)ไล่ออก(?!จาก(?:ห้อง|หอ|บ้าน|คอนโด|ที่))"), "เลิกจ้าง", "หางาน", "ลาออก", "สมัครงาน", "สัมภาษณ์งาน",
+    ("job", ["lost my job", "got fired", "laid off", "ตกงาน", re.compile(r"(?:ถูก|โดน)ไล่ออก(?!จาก(?:ห้อง|หอ|บ้าน|คอนโด|ที่))"), "เลิกจ้าง", "หางาน", "ลาออก", "สมัครงาน", "สัมภาษณ์งาน",
              "เปลี่ยนงาน", "งานใหม่", "เจ้านาย", "หัวหน้างาน", "ที่ทำงาน", "ย้ายไปทำงาน", "ไปทำงานต่างประเทศ"], {
         "open": ["งานเปลี่ยนได้ — ที่ต้องรักษาไว้คือเวลาและแรงของคุณ"],
         "paths": [
@@ -426,7 +501,7 @@ TOPICS = [
         ],
         "ask": "ใครคือคนหนึ่งคนที่คุณยังทักไปได้ วันนี้?",
     }),
-    ("stress", ["เครียด", "ไม่ไหวแล้ว", "งานหนัก", "ไม่มีเวลานอน", "นอนไม่พอ", "หมดไฟ", "เหนื่อยมาก", re.compile(r"ท้อ(?!ง)"), "นอนไม่หลับ", "กังวล", "เศร้า",
+    ("stress", ["เครียด", "ไม่ไหวแล้ว", "งานหนัก", "ไม่มีเวลานอน", "นอนไม่พอ", "ว่างเปล่า", "ไม่อยากคุยกับใคร", "ฝันร้าย", "หมดไฟ", "เหนื่อยมาก", re.compile(r"ท้อ(?!ง)"), "นอนไม่หลับ", "กังวล", "เศร้า",
                 "ร้องไห้", "สิ้นหวัง", "ซึมเศร้า", "burnout", "anxiety", "stressed", "depressed"], {
         "open": ["ตอนนี้ไม่ต้องแก้ทุกอย่าง แค่ลดน้ำหนักลงทีละอย่าง"],
         "paths": [
@@ -457,7 +532,7 @@ TOPICS = [
     }),
 ]
 
-CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไม่อยากมีชีวิต", NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, "จบชีวิต", "ทำร้ายตัวเอง",
+CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไม่อยากมีชีวิต", NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, "จบชีวิต", "ทำร้ายตัวเอง", SELF_INJURY,
                   "กรีดข้อมือ", "suicide", "kill myself", *SELF_HARM_INTL]
 GREETINGS = ["สวัสดี", "หวัดดี", "hello", "hi", "hey"]
 
@@ -540,6 +615,17 @@ SCAM_JOB_D = {
     "ask": "ได้จ่ายเงินหรือส่งเอกสารส่วนตัวให้เขาไปแล้วหรือยัง?",
 }
 
+# หลอกให้รัก / แอบอ้างเป็นเพื่อนขอยืมเงิน
+SCAM_ROMANCE_D = {
+    "open": ["ขอชะลอไว้ก่อนนะ — ลักษณะนี้ตรงกับการหลอกให้รักหรือแอบอ้างเป็นคนรู้จัก"],
+    "paths": [
+        "ยังไม่โอน — คนที่ไม่เคยเจอตัวจริง แล้วขอเงินด้วยเหตุผลฉุกเฉิน (ค่าตั๋ว ค่าภาษีของขวัญ ค่าโรงพยาบาล) คือรูปแบบที่พบบ่อยที่สุด",
+        "ตรวจตัวตน: ขอวิดีโอคอลเห็นหน้าสด หรือโทรหาเพื่อนคนนั้นด้วยเบอร์เดิมที่มีอยู่แล้ว — ไม่ใช้เบอร์หรือแชตที่เขาส่งมา",
+        f"ถ้าโอนไปแล้ว โทรธนาคารให้ระงับทันที แล้วโทร {HOTLINE_SCAM} (24 ชม.) · เก็บแชตและเลขบัญชีไว้",
+    ],
+    "ask": "เคยเห็นหน้าหรือคุยเสียงกับเขาแบบสดๆ บ้างไหม?",
+}
+
 # ถูกโกงไปแล้ว — ต่างจากกำลังจะถูกหลอก: เวลาสำคัญที่สุดคือชั่วโมงแรกๆ
 SCAM_LOST = {
     "open": ["เสียใจด้วยที่เจอแบบนี้ — ไม่ใช่ความผิดของคุณ รีบทำตามนี้ภายในวันนี้ จะมีโอกาสได้เงินคืนมากขึ้น"],
@@ -608,6 +694,26 @@ EN_TOPIC = {
         "Ask neighbours, shops and security guards; ask to see nearby CCTV.",
         "Keep someone at home in case they come back or call."],
         "Where and when were they last seen?"),
+    "help": ("I'm here. Tell me what's happening.", [
+        "If you're in danger right now, call emergency services (191 police / 1669 medical in Thailand, 911 in the US, 112 in Europe).",
+        "If you're thinking about hurting yourself, call a crisis line (1323 in Thailand, 24h; findahelpline.com elsewhere).",
+        "If it isn't urgent, just type a few words about what's going on — we'll go step by step."],
+        "Are you safe right now?"),
+    "pregnancy": ("You don't have to decide this today, or alone.", [
+        "Confirm with a pharmacy test or at a clinic or hospital.",
+        "In Thailand, 1663 gives free, confidential advice on every option without judgement.",
+        "Tell one person you trust so someone is with you while you decide."],
+        "Is there someone you trust enough to tell?"),
+    "job": ("Losing a job hurts, but your time and energy are what matter most now.", [
+        "In Thailand, register as unemployed with Social Security within 30 days, and check severance pay (1546 can help for free).",
+        "Work out how many months your savings cover essential costs — that's the time you really have.",
+        "Tell three people exactly what kind of work you're looking for; many jobs come through people, not ads."],
+        "How many months can you manage before money runs out?"),
+    "addiction": ("Addiction isn't weakness — it needs a plan and support.", [
+        "For one week, note when, where and with whom it happens — those are the points to plan around.",
+        "Cut off the easiest access first: delete the app, don't keep it at home, let someone you trust hold the money.",
+        "In Thailand: alcohol 1413 · drugs 1165 · smoking 1600 · gambling/gaming 1323. Family members can call too."],
+        "If it dropped by half this month, what would get better first?"),
     "housing": ("Housing problems can usually be negotiated — start with your rights.", [
         "If you have nowhere to sleep tonight, call 1300 in Thailand (24h) for emergency shelter, or local social services.",
         "Talk to the landlord in writing: offer a realistic plan to pay what's owed, with dates.",
@@ -634,12 +740,13 @@ OFFER = {
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
 _URGENT_TOPICS = ("overdose", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
-                  "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic")
+                  "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
 _TOPIC_RISK = {"sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
-               "housing": 45, "labor": 40}
+               "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
+               "diagnosis": 50, "health_rights": 40}
 _DEBT_HARASS_RISK = 55
 
 
@@ -679,7 +786,7 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     scam = scam_flags(text)
     if scam:
         topics = ["scam"] + [x for x in topics if x != "scam"]
-        text_risk = max(text_risk, 75 if ("impersonation" in scam or "story" in scam or "job" in scam) else 60)
+        text_risk = max(text_risk, 75 if set(scam) & {"impersonation", "story", "job", "romance"} else 60)
     if "warning" in topics and not crisis:
         text_risk = max(text_risk, 65)
     if "help" in topics:
@@ -757,6 +864,19 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
         if en:
             return (en[0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(en[1]))
                     + f"\n\n{en[2]}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
+        chat_en = small_talk(text) if (lang == "en" and not a["topics"] and not a["crisis"]) else None
+        if chat_en:
+            say = {"thanks": "You're welcome! Write any time you want to think something through.",
+                   "night": "Good night — rest well. We can pick this up tomorrow.",
+                   "laugh": "Glad to hear you laugh 😊 Anything you want to talk about?",
+                   "who": (f"I'm {'VEGA' if vega else 'LYLA'}, KING DIADEM's assistant — an AI, not a person. I help you think "
+                           "through what's weighing on you and lay out options you can still step back from. "
+                           "I'm not a doctor or a lawyer; for urgent things I'll point you to real help."),
+                   "bored": "A quiet moment can be useful. Is there something you'd like to do or think through?"}[chat_en]
+            return f"{say}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else "")
+        if lang == "en" and not a["topics"] and not a["crisis"] and len(t.strip()) <= 24 and _hit(t, GREETINGS):
+            return (f"Hi! Tell me what you're deciding, or what's weighing on you — I'll help lay out the options.\n\n{sign}"
+                    + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         if lang == "en" and not a["crisis"] and a["relationship"] in ("collapse_risk", "critical"):
             return SAFETY_EN.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
         return compose_intl(lang, a["crisis"], status, sign, footer)
@@ -794,6 +914,9 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
             "thanks": f"ยินดีเลย{end} ถ้ามีเรื่องไหนอยากคิดต่อหรืออยากเล่าอีก พิมพ์มาได้ตลอดนะ",
             "night": f"ฝันดีนะ{end} พักให้เต็มที่ เรื่องที่ค้างอยู่ พรุ่งนี้ค่อยว่ากันต่อได้",
             "laugh": f"ดีใจที่ได้ยินเสียงหัวเราะ{end} 😊 มีอะไรเล่าต่อไหม",
+            "who": (f"{'ผม' if vega else 'ฉัน'}คือ {'VEGA' if vega else 'LYLA'} ผู้ช่วยของ KING DIADEM — เป็น AI ไม่ใช่คน{end} "
+                    "ช่วยฟังเรื่องที่หนักใจ เรียงทางเลือก และบอกว่าทางไหนยังเหลือทางถอย "
+                    f"แต่ไม่ใช่แพทย์หรือทนาย เรื่องด่วนจะบอกเบอร์ที่ช่วยได้จริงให้{end}"),
             "bored": (f"ช่วงว่างๆ แบบนี้ก็ดีนะ{end} อยากใช้เวลานี้ทำอะไรสักอย่าง หรืออยากคิดเรื่องไหนให้ชัดขึ้น "
                       "เล่ามาได้เลย · ถ้าเบื่อจนไม่อยากทำอะไรมาหลายวันแล้ว บอกได้เหมือนกัน"),
         }[chat]
@@ -805,7 +928,8 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     second = lib.get(a["topics"][1]) if len(a["topics"]) > 1 else None
     # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง
     # (เดิม "กินยาเกินขนาด" เสียขั้นที่ 3 ให้ "ใช้สิทธิ์บัตรทอง")
-    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("grief", "labor", "housing"):
+    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("grief", "labor", "housing", "legal", "diagnosis",
+                                                           "caregiver", "health_rights"):
         second = None
     if a["offer_flags"]:                 # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
         main, second = OFFER, None
@@ -813,6 +937,8 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = SCAM_LOST, None
     elif a["scam"] and set(a["scam"]) <= {"job", "lost"}:    # งานหลอก/ค้ามนุษย์
         main, second = SCAM_JOB_D, None
+    elif a["scam"] and set(a["scam"]) <= {"romance", "lost"}:  # หลอกให้รัก/แอบอ้างเป็นเพื่อน
+        main, second = SCAM_ROMANCE_D, None
     elif a["relationship"] in ("collapse_risk", "critical"):   # ถูกทำร้าย/ควบคุม: ความปลอดภัยมาก่อน
         main, second = SAFETY, None
     elif a["disaster"]:                  # กำลังเจอภัย: ขั้นแรกของภัยนั้นมาก่อนทุกอย่าง
@@ -936,6 +1062,8 @@ def compose_council(text: str, footer: bool = True) -> str:
         main = SCAM_LOST
     elif a.get("scam") and set(a["scam"]) <= {"job", "lost"}:
         main = SCAM_JOB_D
+    elif a.get("scam") and set(a["scam"]) <= {"romance", "lost"}:
+        main = SCAM_ROMANCE_D
     elif a["relationship"] in ("collapse_risk", "critical"):
         main = SAFETY
     paths = _paths(main, t) or GENERAL["paths"]
