@@ -665,6 +665,20 @@ def set_my_memory(request: Request, data: dict):
         return JSONResponse({"error": "ตั้งค่าความจำไม่ได้ชั่วคราว ลองใหม่อีกครั้งนะคะ"}, status_code=503)
 
 
+@app.get("/api/waterline")
+def get_my_waterline(request: Request):
+    """เส้นระดับน้ำของผู้ใช้เอง — อ่านจาก session เท่านั้น ไม่รับอีเมลจาก query"""
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    try:
+        from DATABASE.db import waterline_history
+        return waterline_history(email)
+    except Exception as e:
+        print(f"⚠ waterline: {type(e).__name__}")
+        return JSONResponse({"error": "ดูระดับน้ำไม่ได้ชั่วคราว ลองใหม่อีกครั้งนะคะ"}, status_code=503)
+
+
 @app.get("/api/feedback/stats")
 def get_feedback_stats():
     return feedback_loop.stats() if feedback_loop else {"votes": 0, "signal": "NO_DATA"}
@@ -1110,6 +1124,13 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     if analyze_human:
         try: human_state = analyze_human(data.get("context", {})) or human_state
         except Exception: pass
+        # บันทึก waterline รายคนเฉพาะตอนผู้ใช้ส่งสถานะมาเอง — ค่าตั้งต้นไม่ใช่สภาพจริงของเขา
+        if data.get("context") and isinstance(data.get("context"), dict) and "waterline" in human_state:
+            try:
+                from DATABASE.db import record_waterline
+                record_waterline(email, human_state["waterline"], human_state.get("status", ""))
+            except Exception as _wl:
+                print(f"⚠ waterline log: {type(_wl).__name__}")
 
     # ── intent ───────────────────────────────────────────────────
     intent = {"intent": "general", "confidence": 0.5}

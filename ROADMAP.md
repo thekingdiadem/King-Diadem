@@ -47,12 +47,12 @@
 
 ---
 
-## Phase 5 — Memory & Personalization 🔄 In Progress
+## Phase 5 — Memory & Personalization ✅ Complete
 
 - chat_memory table · auto_extract_memory (db.py v2.2) ✅
 - build_memory_context injection into LLM ✅
-- Cross-session memory test (pending)
-- User-specific waterline tracking (pending)
+- Cross-session memory test (tests/test_memory.py) ✅
+- User-specific waterline tracking (/api/waterline · tests/test_waterline.py) ✅
 
 ---
 

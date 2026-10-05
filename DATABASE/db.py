@@ -70,6 +70,15 @@ def init_db():
             ON chat_memory(user_email, memory_key);
         CREATE INDEX IF NOT EXISTS idx_decision_log_user
             ON decision_log(user_email, created_at DESC);
+        CREATE TABLE IF NOT EXISTS waterline_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_email TEXT NOT NULL,
+            waterline REAL NOT NULL,
+            state TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_waterline_user
+            ON waterline_log(user_email, id DESC);
         CREATE TABLE IF NOT EXISTS credit_ledger (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_email TEXT NOT NULL,
@@ -392,6 +401,7 @@ def clear_memory(user_email: str) -> int:
     conn = get_conn()
     try:
         cur = conn.execute("DELETE FROM chat_memory WHERE user_email=? AND memory_key != 'memory_off'", (user_email,))
+        conn.execute("DELETE FROM waterline_log WHERE user_email=?", (user_email,))
         conn.commit()
         n = cur.rowcount
     finally:
@@ -400,6 +410,52 @@ def clear_memory(user_email: str) -> int:
     save_memory(user_email, "memory_reset", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
                 "general", importance=0)
     return n
+
+
+# ── waterline รายคน: ติดตามว่าช่วงนี้ผู้ใช้มั่นคงขึ้นหรือหนักลง ──────────────────────
+# เก็บเฉพาะตอนผู้ใช้เล่าสถานะเอง (ไม่เก็บค่าตั้งต้น) · ผูกกับสวิตช์ความจำ · ล้างพร้อมความจำ
+_WATERLINE_KEEP = 60
+
+
+def record_waterline(user_email: str, waterline, state: str = "") -> bool:
+    if not memory_enabled(user_email):
+        return False
+    try:
+        wl = max(0.0, min(100.0, float(waterline)))
+    except (TypeError, ValueError):
+        return False
+    conn = get_conn()
+    try:
+        conn.execute("INSERT INTO waterline_log (user_email, waterline, state) VALUES (?,?,?)",
+                     (user_email, wl, str(state or "")[:40]))
+        conn.execute("""DELETE FROM waterline_log WHERE user_email=? AND id NOT IN
+                        (SELECT id FROM waterline_log WHERE user_email=? ORDER BY id DESC LIMIT ?)""",
+                     (user_email, user_email, _WATERLINE_KEEP))
+        conn.commit()
+    finally:
+        conn.close()
+    return True
+
+
+def waterline_history(user_email: str, limit: int = 20) -> dict:
+    """ค่าล่าสุดก่อน · trend เทียบค่าเฉลี่ย 3 ครั้งล่าสุดกับ 3 ครั้งก่อนหน้า"""
+    if not memory_enabled(user_email):
+        return {"points": [], "latest": None, "trend": "unknown"}
+    conn = get_conn()
+    try:
+        rows = conn.execute("SELECT waterline, state, created_at FROM waterline_log "
+                            "WHERE user_email=? ORDER BY id DESC LIMIT ?",
+                            (user_email, max(1, min(int(limit), _WATERLINE_KEEP)))).fetchall()
+    finally:
+        conn.close()
+    points = [{"waterline": r["waterline"], "state": r["state"], "at": str(r["created_at"])} for r in rows]
+    trend = "unknown"
+    if len(points) >= 2:
+        k = min(3, len(points) // 2)
+        recent = sum(p["waterline"] for p in points[:k]) / k
+        before = sum(p["waterline"] for p in points[k:2 * k]) / k
+        trend = "rising" if recent - before >= 5 else "falling" if before - recent >= 5 else "steady"
+    return {"points": points, "latest": points[0]["waterline"] if points else None, "trend": trend}
 
 
 def build_memory_context(user_email: str) -> str:
