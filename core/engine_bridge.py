@@ -481,8 +481,23 @@ _HAZARD_FAR = re.compile(r"ถ้า|หาก|เผื่อ|เตรีย�
 _HAZARD_LEVEL_TH = {"EXTREME": "สูงมาก", "HIGH": "สูง", "MODERATE": "ปานกลาง", "LOW": "ต่ำ"}
 
 
+# สำนวน/เปรียบเทียบ — "น้ำท่วมปอด" (ดีใจล้น) "ใจเหมือนแผ่นดินไหว" "ไฟป่าในใจ" เคยได้ขั้นตอนหนีภัยและ Risk 53–64
+_HAZARD_IDIOM = re.compile(r"น้ำท่วมปอด|น้ำท่วมหัวเอาตัวไม่รอด|(?:เหมือน|ดั่ง|ดุจ|ราวกับ|ยังกับ)\S{0,8}$")
+_HAZARD_HEART = re.compile(r"^\S{0,4}(?:ใน|กลาง)(?:หัว)?(?:ใจ|อก)")
+
+
 def _disaster(text: str) -> dict | None:
-    hit = next((h for h in _HAZARDS if h[3].search(text)), None)
+    hit = None
+    for h in _HAZARDS:
+        for mm in h[3].finditer(text):
+            before, after = text[max(0, mm.start() - 12):mm.start()], text[mm.end():mm.end() + 10]
+            idiom = _HAZARD_IDIOM.search(text[max(0, mm.start() - 4):mm.end() + 24])
+            if (idiom and idiom.group(0).startswith("น้ำท่วม")) or _HAZARD_IDIOM.search(before) or _HAZARD_HEART.search(after):
+                continue
+            hit = h
+            break
+        if hit:
+            break
     if not hit:
         return None
     kind, event, name, _, steps = hit
