@@ -19,6 +19,7 @@ import hashlib
 import re
 
 from core.thai_signals import NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk
+from core.lang_signals import SELF_HARM_INTL, compose_intl, detect_lang
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
 HOTLINE_MENTAL = "1323"   # สายด่วนสุขภาพจิต กรมสุขภาพจิต 24 ชม.
@@ -238,7 +239,7 @@ TOPICS = [
 ]
 
 CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไม่อยากมีชีวิต", NOT_WANT_TO_LIVE, "จบชีวิต", "ทำร้ายตัวเอง",
-                  "กรีดข้อมือ", "suicide", "kill myself"]
+                  "กรีดข้อมือ", "suicide", "kill myself", *SELF_HARM_INTL]
 GREETINGS = ["สวัสดี", "หวัดดี", "hello", "hi", "hey"]
 
 GENERAL = {
@@ -355,6 +356,12 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     sign = "— VEGA ◆" if vega else "— LYLA ◈"
     tag = "\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if footer else ""
     t = text.lower()
+
+    # ── ภาษาอื่น: สมการเดียวกัน (W · Risk · Choice) แต่ใช้คำตอบของภาษานั้น ──
+    lang = detect_lang(text)
+    if lang != "th":
+        return compose_intl(lang, a["crisis"], f"W {a['W']} · Risk {a['risk']} · Choice(t) = 3",
+                            sign, footer)
 
     # ── 1. วิกฤต: ชีวิตมาก่อนทุกอย่าง — ไม่วิเคราะห์ ไม่ให้ตัวเลือกยาว ──
     if a["crisis"]:

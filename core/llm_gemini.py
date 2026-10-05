@@ -398,12 +398,17 @@ WORK_WIN_SYSTEM = """คุณคือ LYLA — governance intelligence ขอ�
 
 from core.thai_signals import NOT_WANT_TO_LIVE, DISCOURAGED, BREAKUP, PARTNER, has as _has   # noqa: E402
 from core.thai_signals import offer_red_flags   # noqa: E402
+from core.lang_signals import SELF_HARM_INTL   # noqa: E402
 
 # ข้อความใน [บริบท: ...] คือสัญญาณจาก engine — LLM เคยยก "Causal: root=craving feeling=pleasant"
 # และ "UAP: หยุดก่อนตัดสินใจ" ไปพิมพ์ให้ผู้ใช้อ่านตรงๆ
 INTERNAL_RULE = ("\n\nกฎบริบทภายใน: ข้อความในวงเล็บ [ ] และหลัง [บริบท: คือสัญญาณภายในของระบบ "
                  "ใช้ประกอบการคิดเท่านั้น ห้ามยกมาพูด ห้ามเอ่ยชื่อ engine ชื่อตัวแปร หรือศัพท์ภายใน "
-                 "(เช่น root, feeling, craving, UAP, kill zone, entropy) ให้ผู้ใช้เห็น")
+                 "(เช่น root, feeling, craving, UAP, kill zone, entropy) ให้ผู้ใช้เห็น"
+                 "\n\nภาษา: ตอบเป็นภาษาเดียวกับข้อความล่าสุดของผู้ใช้ (ไทย อังกฤษ จีน ญี่ปุ่น เกาหลี สเปน หรือภาษาอื่น) "
+                 "คำลงท้าย ค่ะ/ครับ และ ฉัน/ผม ใช้เฉพาะเมื่อตอบเป็นภาษาไทย "
+                 "ถ้าผู้ใช้ไม่ได้ใช้ภาษาไทยและมีสัญญาณวิกฤต ให้แนะนำเบอร์ฉุกเฉินของประเทศเขา "
+                 "หรือ findahelpline.com แทน 1323")
 _INTERNAL_TOKENS = re.compile(
     r"root\s*=\s*(?:craving|fear|aversion|clinging|ignorance|bias|misinformation|non_existence)|"
     r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
@@ -426,7 +431,7 @@ def scrub_internal(text):
 _CRISIS_KW = [
     "อยากตาย", NOT_WANT_TO_LIVE, "ฆ่าตัว", "ฆ่าตัวเอง",
     "ไม่อยากมีชีวิต", "จบชีวิต", "เลิกมีชีวิต",
-    "suicid", "end my life", "kill myself", "want to die"
+    "suicid", "end my life", "kill myself", "want to die", *SELF_HARM_INTL
 ]
 _EMOTION_KW = [
     DISCOURAGED, "เสียใจ", "กลัว", "เครียด", "ร้องไห้", "หมดหวัง", "ไม่ไหว",
