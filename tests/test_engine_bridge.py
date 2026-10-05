@@ -117,3 +117,56 @@ def test_hitting_words(text, hit):
 def test_register_needs_8_characters(client):
     r = client.post("/register", json={"email": "short@test.co", "password": "abc1234"})
     assert r.status_code == 400 and "8" in r.json()["message"]
+
+
+def test_abuse_disclosure_asks_llm_for_calm_tone(client):
+    """LYLA เคยเปิดด้วย "ฉันตกใจมาก" กับคนที่เล่าว่าพ่อตีหัว"""
+    client.post("/run", json={"input": "พ่อตีหัวผมเพราะสอบตก"})
+    prompt = FAKE_LLM["prompts"][-1]
+    assert "ไม่แสดงความตกใจ" in prompt and "ไม่ตัดสินหรือโทษใคร" in prompt
+
+
+def test_no_abuse_guidance_for_ordinary_talk(client):
+    client.post("/run", json={"input": "แม่ทำกับข้าวอร่อยมาก"})
+    assert "ไม่แสดงความตกใจ" not in FAKE_LLM["prompts"][-1]
+
+
+# ── สิ่งที่เล่าไว้ก่อนหน้าในแชทเดียวกัน (ภาพจากเว็บจริง) ──────────────────────
+ABUSE_HISTORY = [{"role": "user", "content": "พ่อตีหัวผมเพราะสอบตก"},
+                 {"role": "assistant", "content": "ความปลอดภัยของคุณมาก่อนนะคะ"}]
+
+
+@pytest.mark.parametrize("text", ["เขาตีแบบเล่นๆ", "ไม่มีแล้ว"])
+def test_minimizing_after_disclosure_keeps_care(client, text):
+    """เดิม "เขาตีแบบเล่นๆ" ได้ Risk 0 และ "ไม่มีแล้ว" ได้ "ดีจังเลยค่ะ 🤍" """
+    d = client.post("/run", json={"input": text, "history": ABUSE_HISTORY}).json()
+    assert d["route"] == "risk" and d["risk_score"] >= 50
+    assert "ไม่ด่วนสรุปว่าปลอดภัย" in FAKE_LLM["prompts"][-1]
+    assert "มีความสุขหรือตื่นเต้น" not in FAKE_LLM["systems"][-1]      # ไม่ใช้ prompt ร่วมดีใจ
+
+
+def test_prior_self_harm_mentions_1323(client):
+    client.post("/run", json={"input": "ไม่เป็นไรแล้ว", "history": [{"role": "user", "content": "อยากตาย"}]})
+    assert "1323" in FAKE_LLM["prompts"][-1]
+
+
+def test_ordinary_history_changes_nothing(client):
+    d = client.post("/run", json={"input": "ไม่มีแล้ว", "history": [{"role": "user", "content": "มีการบ้านไหม"}]}).json()
+    assert d["route"] == "general" and "ก่อนหน้านี้ในแชทนี้" not in FAKE_LLM["prompts"][-1]
+
+
+def test_trim_incomplete_reply():
+    from core.llm_gemini import trim_incomplete
+    cut = "เข้าใจแล้วค่ะ ดีจังเลยค่ะ\n\nไม่ว่าจะเป็นเรื่องอะไรก็ตามที่กำลังอยู่ในใจของคุณในตอนนี้ค่ะ หรือถ้ามีอะไรที่ยังค้างคา"
+    assert trim_incomplete(cut).endswith("ในตอนนี้ค่ะ")
+    assert trim_incomplete("ข้อความสั้น") == "ข้อความสั้น"
+
+
+@pytest.mark.parametrize("payload", [
+    {"input": "พ่อตีหัวผมเพราะสอบตก"},
+    {"input": "เขาตีแบบเล่นๆ", "history": ABUSE_HISTORY},
+])
+def test_listen_gently_before_hotlines(client, payload):
+    client.post("/run", json=payload)
+    prompt = FAKE_LLM["prompts"][-1]
+    assert "ค่อยๆ ฟังเขา" in prompt and "ถามคำถามเปิดทีละคำถาม" in prompt

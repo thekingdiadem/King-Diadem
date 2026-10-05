@@ -856,6 +856,13 @@ def _route_bias(route: str, text: str) -> str:
     return f"{tag} {text}".strip() if tag else text
 
 
+# วิธีฟังคนที่เพิ่งเล่าเรื่องเจ็บปวด: ฟังก่อน ค่อยๆ ไปทีละก้าว — เบอร์ช่วยเหลือสั้นๆ ตอนท้าย
+# (ยกเว้นอันตรายตอนนี้) เดิมคำตอบรีบให้รายการเบอร์โทรตั้งแต่ย่อหน้าที่สาม
+_LISTEN_GENTLY = ("ค่อยๆ ฟังเขา: เริ่มจากสะท้อนสิ่งที่เขาเล่าและความรู้สึกของเขา 1–2 ประโยคด้วยน้ำเสียงสงบ "
+                  "ถามคำถามเปิดทีละคำถาม ไม่รีบแนะนำยาวหรือเป็นข้อๆ ปล่อยให้เขาเล่าในจังหวะของเขา "
+                  "ให้เบอร์ช่วยเหลือสั้นๆ ตอนท้าย ยกเว้นถ้าเขายังอยู่ในอันตรายตอนนี้ ให้ความปลอดภัยและเบอร์มาก่อน")
+
+
 def _resolve_voice_mode(data: dict, route: str) -> str:
     vm = str(data.get("voice_mode") or "").lower().strip()
     # "crisis" จากหน้าเว็บเป็นแค่การเดาด้วยคำ (เคยนับ "ตาย" คำเดียว: "แบตมือถือตาย" "ขำจะตาย")
@@ -1049,8 +1056,39 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         if not risk_ctx or "LOW" in risk_ctx or ("MEDIUM" in risk_ctx and t_lvl != "MEDIUM"):
             risk_ctx = f"[Risk: {t_lvl} จากข้อความ]"
     # ถูกทำร้าย/ถูกควบคุมในความสัมพันธ์ → เส้นทางความเสี่ยง (ความปลอดภัยมาก่อน)
-    if k_assess.get("relationship") in ("collapse_risk", "critical") and route not in ("vega",):
-        route = _escalate_route(route, "risk")
+    rel_ctx = ""
+    if k_assess.get("relationship") in ("collapse_risk", "critical"):
+        if route not in ("vega",):
+            route = _escalate_route(route, "risk")
+        # LLM เคยเปิดด้วย "ฉันตกใจมาก" — คนที่ถูกทำร้ายต้องการคนรับฟังที่มั่นคง ไม่ใช่ความตกใจ
+        rel_ctx = ("[ผู้ใช้เล่าว่าถูกทำร้ายหรือถูกควบคุม: " + _LISTEN_GENTLY +
+                   " ไม่แสดงความตกใจ ไม่ตัดสินหรือโทษใคร ไม่บอกให้ให้อภัยหรืออดทน บอกว่าเขาไม่ผิด]")
+    else:
+        # ── สิ่งที่ผู้ใช้เล่าไว้ก่อนหน้าในแชทเดียวกัน ──────────────────────────────
+        # เดิมดูแค่ข้อความล่าสุด: "พ่อตีหัวผม" (Risk 80) → "เขาตีแบบเล่นๆ" ได้ Risk 0 และ
+        # "ไม่มีแล้ว" ได้ "ดีจังเลยค่ะ 🤍" — คนที่ถูกทำร้ายมักลดทอนเรื่องลงหลังเล่าครั้งแรก
+        prior_risk, prior_kind = 0, ""
+        if kernel_assess:
+            past = history[-8:] if isinstance(history, list) else []      # history มาจาก client — อาจไม่ใช่ list
+            for h in [h for h in past if isinstance(h, dict) and h.get("role") == "user"]:
+                try:
+                    pa = kernel_assess(str(h.get("content") or "")[:2000]) or {}
+                except Exception:
+                    continue
+                kind = ("self_harm" if pa.get("crisis") else
+                        "abuse" if pa.get("relationship") in ("collapse_risk", "critical") else "")
+                if kind and pa.get("text_risk", 0) >= prior_risk:
+                    prior_risk, prior_kind = pa.get("text_risk", 0), kind
+        if prior_kind:
+            if route not in ("vega",):
+                route = _escalate_route(route, "risk")
+            what = "การทำร้ายตัวเอง" if prior_kind == "self_harm" else "การถูกทำร้ายหรือถูกควบคุม"
+            rel_ctx = (f"[ก่อนหน้านี้ในแชทนี้ผู้ใช้เล่าเรื่อง{what}: ถ้าตอนนี้เขาบอกว่า \"เล่นๆ\" \"ไม่เป็นไร\" "
+                       "\"ไม่มีแล้ว\" ให้รับฟังโดยไม่เถียง แต่ไม่ด่วนสรุปว่าปลอดภัยแล้วและไม่ร่วมดีใจ " + _LISTEN_GENTLY +
+                       " ถามอย่างอ่อนโยนว่าตอนนี้ปลอดภัยไหม และบอกว่ากลับมาเล่าหรือขอความช่วยเหลือได้เสมอ "
+                       "(1300 ศูนย์ช่วยเหลือสังคม 24 ชม." + (" · 1323 สายด่วนสุขภาพจิต" if prior_kind == "self_harm" else "") + ")]")
+            # ความกังวลยังอยู่ แต่ลดลงตามเวลา — Risk = 0.75 × Risk ของสิ่งที่เล่าไว้
+            k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
     offer_flags = k_assess.get("offer_flags") or []
     if offer_flags:
         if route not in ("vega",):
@@ -1146,6 +1184,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         except Exception as e:
             print(f"⚠ engine_bridge: {type(e).__name__}")
     extra_ctx = " ".join(p for p in [
+        rel_ctx,
         offer_ctx,
         calc_ctx,
         paticca_ctx,
