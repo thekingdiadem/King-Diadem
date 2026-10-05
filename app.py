@@ -1140,11 +1140,16 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                    "เรียงตามลำดับ ยังไม่ถามเรื่องอื่นหรือวิเคราะห์ยาว ถามว่าตอนนี้เขากับคนที่อยู่ด้วยปลอดภัยไหม "
                    "ปิดท้ายด้วยเบอร์ 1784 / 1669 และบอกว่าพิมพ์มาได้ตลอด]")
     # เขาขอทางออกเองแล้ว ("หาทางออกที" "ทำยังไงดี") — เดิม LYLA ยังแค่รับฟังแล้วถามกลับ
-    if (rel_ctx or dis_ctx) and _ASKS_WAY_OUT.search(user_input):
+    # ข้อความสั้นๆ ต่อจากที่เพิ่งขอ ("หาทางออกที" → "เวก้า") ก็ยังเป็นคำขอเดิม
+    last_user = next((str(h.get("content") or "") for h in reversed(history if isinstance(history, list) else [])
+                      if isinstance(h, dict) and h.get("role") == "user"), "")
+    asks_way_out = bool(_ASKS_WAY_OUT.search(user_input) or
+                        (len(user_input.strip()) <= 15 and _ASKS_WAY_OUT.search(last_user[:500])))
+    if (rel_ctx or dis_ctx) and asks_way_out:
         eg = ("ไปอยู่ที่ปลอดภัย บอกคนที่ไว้ใจได้ โทร 1300" if rel_ctx else "ขึ้นที่สูงหรือออกจากจุดอันตราย โทร 1784")
         rel_ctx = (rel_ctx + " " if rel_ctx else "") + (
             f"[เขาขอทางออกแล้ว: ให้ทางเลือกที่ทำได้จริง 2–3 ข้อ เรียงจากปลอดภัยที่สุด เช่น {eg} "
-            "— ยังอ่อนโยนเหมือนเดิม แต่ไม่ถามกลับแทนการตอบ]")
+            "— ยังอ่อนโยนเหมือนเดิม แต่ไม่ถามกลับแทนการตอบ ถ้าต้องถามให้ถามแค่ 1 คำถามท้ายคำตอบ]")
     offer_flags = k_assess.get("offer_flags") or []
     if offer_flags:
         if route not in ("vega",):
