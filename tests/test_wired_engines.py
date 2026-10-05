@@ -192,3 +192,34 @@ def test_flood_fire_without_place_ask_where(text, word):
 def test_not_a_fire_or_flood_disaster(text):
     d = assess(text)["disaster"]
     assert not d or d["kind"] not in ("fire",) and not (d["kind"] == "flood" and d["place"] == "อยู่ในรถ")
+
+
+# ── พายุ/ฟ้าผ่า/ดินถล่ม และเหตุยิง/ระเบิด ก็แยกตามที่อยู่ ───────────────────────
+@pytest.mark.parametrize("text,kind,place,must,must_not", [
+    ("พายุเข้า ตอนนี้อยู่ในบ้าน หลังคาจะปลิว", "storm", "อยู่ในบ้าน", "ห้องน้ำ", "ทุ่งนา"),
+    ("ฟ้าผ่ากลางนา", "storm", "อยู่กลางแจ้ง", "นั่งยองๆ", "ห้องน้ำ"),
+    ("เพื่อนโดนฟ้าผ่า", "storm", "มีคนถูกฟ้าผ่า", "CPR", "นั่งยองๆ"),
+    ("ดินถล่ม อยู่เชิงเขา", "storm", "อยู่เชิงเขา/ริมห้วย", "ขวางกับทิศที่ดินไหล", "ห้องน้ำ"),
+    ("พายุเข้า ตอนนี้อยู่บนเรือ", "storm", "อยู่ทะเล/บนเรือ", "เสื้อชูชีพ", "ห้องน้ำ"),
+    ("พายุพัดแรง ขับรถอยู่", "storm", "อยู่ในรถ", "หลังคาปิด", "นั่งยองๆ"),
+    ("ได้ยินเสียงปืนในห้าง", "violence", "อยู่ในห้าง/อาคารที่คนเยอะ", "ล็อกประตู", "ขับออกห่าง"),
+    ("มีคนยิงกันหน้าบ้าน", "violence", "อยู่ในบ้าน", "ผนังปูน", "ทางพนักงาน"),
+    ("เสียงระเบิดแถวตลาด", "violence", "มีระเบิด", "ลูกที่สอง", "ขับออกห่าง"),
+    ("มีคนยิง ตอนนี้ขับรถอยู่", "violence", "อยู่ในรถ", "ขับออกห่าง", "ทางพนักงาน"),
+    ("มีคนยิงกันบนถนน ตอนนี้อยู่ข้างนอก", "violence", "อยู่ข้างนอก", "กำแพงปูน", "ทางพนักงาน"),
+])
+def test_storm_and_shooting_steps_depend_on_place(text, kind, place, must, must_not):
+    d = assess(text)["disaster"]
+    assert d["kind"] == kind and d["place"] == place and d["active"]
+    r = compose(text)
+    assert must in r and must_not not in r and place in r
+
+
+@pytest.mark.parametrize("text,word", [("พายุเข้า", "ใกล้เชิงเขา"), ("มีคนยิง", "หนีออกได้ไหม")])
+def test_storm_shooting_without_place_ask_where(text, word):
+    assert assess(text)["disaster"]["place"] is None and word in compose(text)
+
+
+@pytest.mark.parametrize("text", ["ข่าวนี้เหมือนฟ้าผ่า", "ฟ้าร้องดังมาก", "ระเบิดอารมณ์ใส่แฟน", "ถือปืนฉีดน้ำเล่นกับลูก"])
+def test_not_a_storm_or_shooting(text):
+    assert not assess(text)["disaster"]
