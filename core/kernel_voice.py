@@ -649,6 +649,12 @@ SAFETY_EN = ("Your safety comes first.\n\n{status}\n\n"
 # ภาษาอังกฤษ: เรื่องด่วนที่เคยได้ "Let's lay this out step by step." (open, paths, ask)
 _EN_LOCAL = "In Thailand: {th}. Elsewhere, call your local emergency number or find help at findahelpline.com"
 EN_TOPIC = {
+    # เดิม "I got scammed" ได้ "Let's lay this out step by step." — ไม่มีขั้นตอนอายัดบัญชี
+    "scam": ("I'm sorry this happened — it's not your fault. Acting today gives you the best chance of getting money back.", [
+        "Don't send any more money or codes, even if they promise a refund or threaten you — that's the next step of the scam.",
+        "Call your bank now and ask them to freeze the receiving account (in Thailand also call 1441, 24h; in the US report at reportfraud.ftc.gov).",
+        "Keep the evidence: transfer slips, account numbers, chats, links and phone numbers — screenshot before you block or delete anything, then report it to the police."],
+        "Have you already sent money, or are they still asking you to?"),
     "overdose": ("This is an emergency — please do this first.", [
         "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe), even if you feel okay — some pills act slowly.",
         "While waiting, call poison control (1367 in Thailand, 24h) and say what you took, how much and when. Keep the packets.",

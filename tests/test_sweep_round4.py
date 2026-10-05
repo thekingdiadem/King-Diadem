@@ -33,3 +33,40 @@ def test_idioms_are_not_disasters(text):
                                         ("บ้านเหมือนจะพังเพราะแผ่นดินไหว", "quake")])
 def test_real_disasters_still_detected(text, kind):
     assert assess(text)["disaster"]["kind"] == kind
+
+
+@pytest.mark.parametrize("text", ["อยากลาโลก", "คิดจะลาโลกแล้ว"])
+def test_la_lok_slang_is_a_crisis(text):
+    """"ลาโลก" = สแลงของการฆ่าตัวตาย — เดิมได้ Risk 0"""
+    assert assess(text)["crisis"]
+
+
+def test_friend_la_lok_is_someone_else():
+    a = assess("เพื่อนโพสต์ว่าจะลาโลก")
+    assert "someone" in a["topics"] and not a["crisis"]
+
+
+@pytest.mark.parametrize("text", ["จะลาโลกโซเชียลสักพัก", "ไม่อยากลาโลกหรอก แค่เหนื่อย"])
+def test_la_lok_social_media_is_not_a_crisis(text):
+    assert not assess(text)["crisis"] and assess(text)["text_risk"] == 0
+
+
+def test_child_swallowed_detergent_is_poisoning():
+    assert "overdose" in assess("ลูกกินผงซักฟอกเข้าไป")["topics"]
+    assert assess("ผงซักฟอกยี่ห้อไหนดี")["text_risk"] == 0
+
+
+@pytest.mark.parametrize("text", ["โดนแก๊งคอลเซ็นเตอร์หลอกโอนเงิน", "I got scammed", "I was scammed out of $2000"])
+def test_scam_victims_are_recognised(text):
+    """แก๊งที่ชื่อยาวกว่า 10 ตัวอักษร และภาษาอังกฤษ เคยไม่ถูกนับว่าโดนหลอก"""
+    assert "scam" in assess(text)["topics"]
+
+
+def test_scam_question_is_not_a_victim():
+    assert "scam" not in assess("how do scammers work")["topics"]
+
+
+def test_english_scam_reply_has_bank_freeze_steps():
+    from core.kernel_voice import compose
+    r = compose("I got scammed")
+    assert "freeze" in r and "1441" in r and "ค่ะ" not in r
