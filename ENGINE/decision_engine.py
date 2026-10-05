@@ -264,6 +264,8 @@ class DecisionEngine:
                     route              = route,
                     voice_mode         = voice_mode,
                     emotion_state      = emotion_ctx,
+                    # ความจำข้ามแชท — อีเมลมาจาก session ของเซิร์ฟเวอร์ (app.py ทับค่าจาก client เสมอ)
+                    user_email         = str(data.get("user_email") or ""),
                 )
             except Exception as e:
                 # เดิมส่ง "[Gemini unavailable: <error>]" เป็นคำตอบให้ผู้ใช้ (หลุดรายละเอียดภายใน

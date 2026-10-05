@@ -629,6 +629,42 @@ async def post_feedback(request: Request, data: dict):
     return r if r.get("ok") else JSONResponse(r, status_code=400)
 
 
+# ── ความจำข้ามแชทของ LYLA (เฉพาะผู้ที่เข้าสู่ระบบ) — ผู้ใช้ดู ปิด หรือล้างเองได้ ─────────
+@app.get("/api/memory")
+def get_my_memory(request: Request):
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    try:
+        from DATABASE.db import list_memory, memory_enabled
+        items = [{"key": m["memory_key"], "content": str(m["content"])[:300], "updated_at": str(m["updated_at"])}
+                 for m in list_memory(email)]
+        return {"enabled": memory_enabled(email), "items": items}
+    except Exception as e:
+        print(f"⚠ memory: {type(e).__name__}")
+        return JSONResponse({"error": "ดูความจำไม่ได้ชั่วคราว ลองใหม่อีกครั้งนะคะ"}, status_code=503)
+
+
+@app.post("/api/memory")
+def set_my_memory(request: Request, data: dict):
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    action = str((data or {}).get("action") or "")
+    try:
+        from DATABASE.db import clear_memory, set_memory_enabled, memory_enabled
+        if action == "clear":
+            clear_memory(email)
+        elif action in ("on", "off"):
+            set_memory_enabled(email, action == "on")
+        else:
+            return JSONResponse({"error": "action ต้องเป็น clear / on / off"}, status_code=400)
+        return {"ok": True, "enabled": memory_enabled(email)}
+    except Exception as e:
+        print(f"⚠ memory: {type(e).__name__}")
+        return JSONResponse({"error": "ตั้งค่าความจำไม่ได้ชั่วคราว ลองใหม่อีกครั้งนะคะ"}, status_code=503)
+
+
 @app.get("/api/feedback/stats")
 def get_feedback_stats():
     return feedback_loop.stats() if feedback_loop else {"votes": 0, "signal": "NO_DATA"}

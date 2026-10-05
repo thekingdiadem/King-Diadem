@@ -353,16 +353,68 @@ def get_recent_decisions(user_email: str, limit: int = 3) -> list:
     finally:
         conn.close()
 
+# ── ความจำข้ามแชท: ผู้ใช้ควบคุมเองได้ (ดู · ปิด · ล้าง) ──────────────────────────
+# แถวเหล่านี้เป็นค่าตั้ง/ข้อมูลภายใน ไม่ใช่ "สิ่งที่รู้เกี่ยวกับผู้ใช้" — ไม่ส่งเข้า prompt และไม่แสดง
+_MEM_INTERNAL = ("engine_last_turns", "last_route", "memory_reset", "memory_off")
+
+
+def _mem_value(user_email: str, key: str):
+    conn = get_conn()
+    try:
+        row = conn.execute("SELECT content FROM chat_memory WHERE user_email=? AND memory_key=? "
+                           "ORDER BY id DESC LIMIT 1", (user_email, key)).fetchone()
+        return row["content"] if row else None
+    finally:
+        conn.close()
+
+
+def memory_enabled(user_email: str) -> bool:
+    if not user_email or user_email in ("anonymous", "guest"):
+        return False
+    return _mem_value(user_email, "memory_off") != "1"
+
+
+def set_memory_enabled(user_email: str, on: bool) -> None:
+    save_memory(user_email, "memory_off", "0" if on else "1", "general", importance=0)
+
+
+def list_memory(user_email: str) -> list:
+    """สิ่งที่ LYLA จำไว้ (สำหรับให้ผู้ใช้ดูเอง)"""
+    if not user_email or user_email in ("anonymous", "guest"):
+        return []
+    return [m for m in get_relevant_memory(user_email, limit=50) if m["memory_key"] not in _MEM_INTERNAL]
+
+
+def clear_memory(user_email: str) -> int:
+    """ลบความจำทั้งหมดของผู้ใช้ และไม่ดึงบทสนทนาก่อนหน้านี้มาใช้อีก (คงค่าเปิด/ปิดไว้)"""
+    if not user_email or user_email in ("anonymous", "guest"):
+        return 0
+    conn = get_conn()
+    try:
+        cur = conn.execute("DELETE FROM chat_memory WHERE user_email=? AND memory_key != 'memory_off'", (user_email,))
+        conn.commit()
+        n = cur.rowcount
+    finally:
+        conn.close()
+    from datetime import datetime, timezone
+    save_memory(user_email, "memory_reset", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+                "general", importance=0)
+    return n
+
+
 def build_memory_context(user_email: str) -> str:
     """
     สร้าง memory context string ให้ inject เข้า prompt
     ถ้าไม่มี memory คืน empty string (ไม่บวม token)
     """
-    if not user_email or user_email in ("anonymous", "guest"):
+    if not memory_enabled(user_email):
         return ""
 
-    memories = get_relevant_memory(user_email, limit=5)
-    recent = get_recent_decisions(user_email, limit=2)
+    memories = [m for m in get_relevant_memory(user_email, limit=10)
+                if m["memory_key"] not in _MEM_INTERNAL][:5]
+    reset_at = _mem_value(user_email, "memory_reset") or ""
+    recent = [r for r in get_recent_decisions(user_email, limit=2)
+              if not reset_at or str(r.get("created_at") or "") > reset_at]
 
     if not memories and not recent:
         return ""
@@ -373,7 +425,8 @@ def build_memory_context(user_email: str) -> str:
             f"- [{m['memory_key']}] {m['content']}"
             for m in memories
         )
-        parts.append(f"[MEMORY — สิ่งที่รู้เกี่ยวกับผู้ใช้]\n{mem_lines}")
+        parts.append("[MEMORY — สิ่งที่รู้เกี่ยวกับผู้ใช้จากแชทก่อนๆ: ใช้เพื่อเข้าใจต่อเนื่องอย่างอ่อนโยน "
+                     "พูดถึงเฉพาะเมื่อเกี่ยวกับเรื่องตอนนี้ ห้ามยกป้ายนี้มาพูด]\n" + mem_lines)
 
     if recent:
         rec_lines = "\n".join(
@@ -390,10 +443,34 @@ def auto_extract_memory(user_email: str, user_input: str,
     Auto-extract memory จาก conversation โดยอัตโนมัติ
     จับ pattern สำคัญแล้วบันทึก — ทำงานหลัง log_decision
     """
-    if not user_email or user_email in ("anonymous", "guest"):
+    if not memory_enabled(user_email):
         return
 
     text = str(user_input or "").lower()
+    # เรื่องเปราะบาง (ทำร้ายตัวเอง/ถูกทำร้าย/วิกฤต) ไม่เก็บข้อความ — เก็บแค่ว่าเคยผ่านช่วงหนัก เพื่อถามไถ่อย่างอ่อนโยน
+    topics, sensitive = [], False
+    try:
+        from core.kernel_voice import assess
+        a = assess(str(user_input or "")[:2000])
+        topics = [t for t in a.get("topics", []) if t not in ("positive", "decision")][:3]
+        sensitive = bool(a.get("crisis") or a.get("relationship") or
+                         set(topics) & {"warning", "overdose", "violence", "pregnancy", "addiction"})
+    except Exception:
+        pass
+    if sensitive:
+        from datetime import date
+        save_memory(user_email, "sensitive_checkin",
+                    f"เคยเล่าเรื่องที่หนักมาก (เมื่อ {date.today().isoformat()}) — ถามไถ่อย่างอ่อนโยนว่าตอนนี้เป็นอย่างไร "
+                    "ไม่ต้องลงรายละเอียดเรื่องเดิม", route, importance=5)
+        save_memory(user_email, "last_route", route, route, importance=1)
+        return
+    if topics:
+        th = {"debt": "หนี้", "money": "เงิน", "job": "งาน", "business": "ธุรกิจ", "relationship": "ความรัก",
+              "family": "ครอบครัว", "study": "การเรียน", "lonely": "ความเหงา", "stress": "ความเครียด",
+              "health": "สุขภาพ", "basic": "ปัจจัยพื้นฐาน", "grief": "การสูญเสีย", "bullying": "การถูกแกล้ง",
+              "scam": "มิจฉาชีพ", "help": "ขอความช่วยเหลือ", "health_emergency": "เจ็บป่วยฉุกเฉิน"}
+        save_memory(user_email, "recent_topics", "เคยคุยเรื่อง: " + " · ".join(th.get(t, t) for t in topics),
+                    route, importance=2)
 
     # Route สำคัญ = importance สูง
     importance_map = {
@@ -413,10 +490,10 @@ def auto_extract_memory(user_email: str, user_input: str,
         save_memory(user_email, f"goal_{route}",
                     user_input[:200], route, importance=imp + 1)
 
-    # บันทึกสถานการณ์วิกฤต
-    if any(k in text for k in ["วิกฤต", "เงินหมด", "ตกงาน", "พังหมด", "ไม่ไหวแล้ว", "เป็นหนี้", "หนี้สิน"]):
+    # บันทึกสถานการณ์ที่ยาก (เงิน/งาน) — เรื่องเปราะบางกว่านี้ไม่ถึงตรงนี้ (กรองไว้ด้านบน)
+    if any(k in text for k in ["วิกฤต", "เงินหมด", "ตกงาน", "พังหมด", "เป็นหนี้", "หนี้สิน"]):
         save_memory(user_email, "crisis_context",
-                    user_input[:200], route, importance=5)
+                    user_input[:160], route, importance=4)
 
     # บันทึก route ที่ใช้บ่อย
     save_memory(user_email, "last_route", route, route, importance=1)

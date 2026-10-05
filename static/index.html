@@ -68,6 +68,8 @@ body[data-veil="1"] #veil{opacity:.78} body[data-veil="2"] #veil{opacity:1}
 @media (max-width:899px){
   #sidebar{position:fixed;inset:0 auto 0 0;width:min(86vw,300px);z-index:60;transform:translateX(-102%);transition:transform .22s ease;background:rgba(7,9,24,.96)}
   #sidebar.open{transform:none}
+  /* แถบแท็บล่างบังส่วนบัญชีท้ายเมนู (ปุ่มออก/ความจำกดไม่ได้) — เว้นที่ให้ */
+  #sidebar{padding-bottom:calc(12px + var(--tab-h, 64px) + var(--sab))}
 }
 #scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:55;opacity:0;pointer-events:none;transition:opacity .2s}
 #scrim.on{opacity:1;pointer-events:auto}
@@ -178,6 +180,10 @@ body[data-veil="1"] #veil{opacity:.78} body[data-veil="2"] #veil{opacity:1}
 .future .hint{color:var(--ink-2);font-size:13px}
 .future table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
 .future th,.future td{text-align:left;padding:3px 4px;border-bottom:1px solid var(--line)}
+.mem-tog{display:flex;gap:8px;align-items:center;margin:10px 0;font-size:14px}
+.mem-list{list-style:none;padding:0;margin:8px 0;display:grid;gap:6px;font-size:14px}
+.mem-list li{border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.row-end{display:flex;justify-content:flex-end;margin-top:8px}
 .help-card{margin-top:10px;border:1px solid var(--line-2);border-radius:var(--r);padding:10px 12px;font-size:14px}
 .help-card a{display:inline-block;margin:6px 12px 0 0;font-weight:600;text-decoration:none;white-space:nowrap;color:var(--focus)}
 .crisis-card a{color:#ff8e98;font-weight:600;text-decoration:none;font-family:var(--f-mono);margin-right:12px;white-space:nowrap}
@@ -517,6 +523,7 @@ dialog.axis::backdrop{background:transparent}
       <div id="acc-guest"><a class="acc-link" href="/login/google">เข้าสู่ระบบ</a></div>
       <div id="acc-user" class="hide">
         <span class="who" id="acc-email"></span>
+        <button type="button" class="acc-link" id="mem-open" title="สิ่งที่ LYLA จำไว้จากแชทก่อนๆ">ความจำ</button>
         <button type="button" class="acc-link" id="logout">ออก</button>
       </div>
     </div>
@@ -666,6 +673,17 @@ dialog.axis::backdrop{background:transparent}
 </nav>
 
 <!-- ── STATE DIALOG ──────────────────────────────────────── -->
+<dialog id="dlg-mem" aria-labelledby="dlg-mem-h">
+  <form method="dialog">
+    <div class="dlg-h"><h2 id="dlg-mem-h">สิ่งที่ LYLA จำไว้</h2><button class="icon-btn" value="cancel" aria-label="ปิด">✕</button></div>
+    <div class="dlg-b">
+      <p class="muted">LYLA จำเรื่องสำคัญจากแชทก่อนๆ เพื่อคุยต่อได้ไม่ต้องเล่าใหม่ · เรื่องเปราะบางจะจำแค่ว่าเคยผ่านช่วงหนัก ไม่เก็บข้อความ · ปิดหรือล้างได้ทุกเมื่อ</p>
+      <label class="mem-tog"><input type="checkbox" id="mem-on"> ให้ LYLA จำเรื่องจากแชทก่อนๆ</label>
+      <ul id="mem-list" class="mem-list"></ul>
+      <div class="row-end"><button type="button" class="btn ghost" id="mem-clear">ล้างความจำทั้งหมด</button></div>
+    </div>
+  </form>
+</dialog>
 <dialog id="dlg-state" aria-labelledby="dlg-state-h">
   <form method="dialog" id="state-form">
     <div class="dlg-h"><h2 id="dlg-state-h">สถานะของฉัน</h2><button class="icon-btn" value="cancel" aria-label="ปิด">✕</button></div>
@@ -810,6 +828,27 @@ async function refreshMe(){
   Limit.ui();
   return was !== Auth.email;
 }
+/* ── ความจำข้ามแชท (/api/memory) ── */
+var MEM_TH = { goal_general:'เป้าหมาย', goal_vega:'เป้าหมาย', goal_risk:'เป้าหมาย', goal_survival:'เป้าหมาย', goal_collapse:'เป้าหมาย', goal_civil:'เป้าหมาย',
+  crisis_context:'สถานการณ์ที่ยาก', recent_topics:'หัวข้อที่เคยคุย', sensitive_checkin:'ช่วงที่หนัก' };
+async function loadMemory(){
+  var box = $('#mem-list');
+  try{
+    var d = await readJson(await fetch('/api/memory', {credentials:'same-origin', cache:'no-store'}));
+    $('#mem-on').checked = !!d.enabled;
+    var items = Array.isArray(d.items) ? d.items : [];
+    box.innerHTML = items.length ? items.map(function(m){ return '<li><b>' + esc(MEM_TH[m.key] || m.key) + '</b> ' + esc(m.content) + '</li>'; }).join('')
+      : '<li class="muted">ยังไม่มีอะไรที่จำไว้</li>';
+  }catch(e){ box.innerHTML = '<li class="muted">' + esc(e.message || 'ดูความจำไม่ได้ชั่วคราว') + '</li>'; }
+}
+async function memAction(action){
+  try{ await readJson(await fetch('/api/memory', {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:action})})); }
+  catch(e){ toast(e.message || 'ตั้งค่าความจำไม่ได้', true); }
+  loadMemory();
+}
+$('#mem-open').addEventListener('click', function(){ loadMemory(); $('#dlg-mem').showModal(); });
+$('#mem-on').addEventListener('change', function(){ memAction(this.checked ? 'on' : 'off'); });
+$('#mem-clear').addEventListener('click', function(){ if(confirm('ล้างทุกอย่างที่ LYLA จำไว้? ย้อนกลับไม่ได้')) memAction('clear'); });
 $('#logout').addEventListener('click', async function(){
   try{ Chat.persist(); await Cloud.push(); }catch(_){}
   try{ await fetch('/logout', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'}); }catch(_){}
@@ -2006,7 +2045,9 @@ function setView(v){
   if(window.KD_galaxy){ if(v === 'universe') KD_galaxy.pause(); else { KD_galaxy.resume(); KD_galaxy.refocus(); } }
 }
 document.addEventListener('click', function(e){
-  var b = e.target.closest('[data-view]'); if(!b) return;
+  // เฉพาะปุ่มเปลี่ยนหน้า — <body> ก็มี data-view (ไว้ให้ CSS) เดิมคลิกตรงไหนก็ตรงกับ body
+  // จึงสั่งปิดเมนูทุกครั้ง: ปุ่ม ☰ บนมือถือเปิดเมนูไม่ได้เลย และแชทเลื่อนลงล่างทุกครั้งที่คลิก
+  var b = e.target.closest('button[data-view], a[data-view]'); if(!b) return;
   setView(b.dataset.view); closeDrawer();
 });
 function openDrawer(){ $('#sidebar').classList.add('open'); $('#scrim').classList.add('on'); }
