@@ -520,6 +520,9 @@ dialog.axis::backdrop{background:transparent}
       <button type="button" data-view="system"><i>Σ</i>ระบบ<span class="k" id="nav-files">272</span></button>
     </nav>
     <div class="account">
+      <select id="lang-pick" class="acc-link" aria-label="ภาษา / Language" data-i18n-skip>
+        <option value="th">ไทย</option><option value="en">English</option><option value="ja">日本語</option>
+      </select>
       <div id="acc-guest"><a class="acc-link" href="/login/google">เข้าสู่ระบบ</a></div>
       <div id="acc-user" class="hide">
         <span class="who" id="acc-email"></span>
@@ -1842,7 +1845,8 @@ function drawFuture(f){
   var legend = P.map(function(p, i){ return '<li><span class="sw s' + (i + 1) + '"></span><b>' + esc(p.label) + '</b> ' + esc(p.action) + ' <span class="muted">· ' + (p.reversible ? 'ย้อนกลับได้' : 'ย้อนกลับไม่ได้ (เส้นประ)') + (p.same ? ' · สมการให้ผลเท่ากัน' : '') + '</span>' +
     (p.money && Array.isArray(p.money.notes) && p.money.notes.length ? '<div class="mn">' + esc(p.money.notes.join(' · ')) + '</div>' : '') + '</li>'; }).join('');
   var notes = P.filter(function(p){ return p.money && p.money.runs_out_month != null; }).map(function(p){ return '<p>⚠ ' + esc(p.label) + ': ตามตัวเลขที่บอก เงินเก็บจะหมดราวเดือนที่ ' + num(p.money.runs_out_month, 0) + ' — ลองลดเงินก้อนแรก หรือหารายได้ช่วงเปลี่ยนผ่านก่อน</p>'; }).join('') +
-    P.filter(function(p){ return p.below_floor_month != null; }).map(function(p){ return '<p>⚠ ' + esc(p.label) + ': กรณีแย่ลงไปต่ำกว่าเส้นอันตรายได้ตั้งแต่เดือนที่ ' + p.below_floor_month + ' — เตรียมเงินสำรองหรือทางถอยไว้ก่อนเริ่ม</p>'; }).join('');
+    P.filter(function(p){ return p.below_floor_month != null; }).map(function(p){ return '<p>⚠ ' + esc(p.label) + ': กรณีแย่ลงไปต่ำกว่าเส้นอันตรายได้ตั้งแต่เดือนที่ ' + p.below_floor_month + ' — เตรียมเงินสำรองหรือทางถอยไว้ก่อนเริ่ม</p>'; }).join('') +
+    (f.black_swan ? '<p>🦢 เรื่องที่เล่ามีโอกาสเกิดเหตุช็อกใหญ่ (ฟื้นตัวราว ' + num(f.black_swan.recovery_days, 0) + ' วัน) — ' + P.map(function(p){ return esc(p.label) + ' ถ้าโดนช็อก W อาจลงถึง ' + num(p.tail_worst, 0); }).join(' · ') + '. ' + esc(f.black_swan.recommendation || '') + '</p>' : '');
   var mb = f.money_basis || {}, basisTxt = [['savings', 'เงินเก็บ'], ['income', 'รายได้/เดือน'], ['expense', 'รายจ่าย/เดือน']].filter(function(k){ return mb[k[0]] != null; }).map(function(k){ return k[1] + ' ' + Math.round(num(mb[k[0]], 0)).toLocaleString('th-TH'); }).join(' · ');
   var cols = [0, 3, 6, 9, 12].filter(function(t){ return t <= n; });
   var table = '<details><summary>ดูเป็นตาราง</summary><table><tr><th>ทาง</th>' + cols.map(function(t){ return '<th>' + (t ? 'เดือน ' + t : 'วันนี้') + '</th>'; }).join('') + '</tr>' +
@@ -2079,5 +2083,6 @@ addEventListener('keydown', function(e){ if(e.key === 'Escape') closeDrawer(); }
 })();
 </script>
 <script src="/static/galaxy_scene.js" defer></script>
+<script src="/static/i18n.js" defer></script>
 </body>
 </html>

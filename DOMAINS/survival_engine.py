@@ -448,6 +448,13 @@ _EVENT_PROFILES = {
         "time_horizon_days": 14,
         "primary_risk": "infrastructure_loss",
     },
+    # ภัยภูมิอากาศแบบค่อยๆ มา (คลื่นความร้อน · ฝุ่นควัน · ภัยแล้ง) — อันตรายช้ากว่าแต่ลากยาวเป็นสัปดาห์
+    "climate_disruption": {
+        "base_threat": 65,
+        "critical_resources": ["water", "cooling", "clean_air", "medicine", "food"],
+        "time_horizon_days": 45,
+        "primary_risk": "chronic_health_strain",
+    },
     "power_grid_failure": {
         "base_threat": 50,
         "critical_resources": ["water", "food", "warmth_or_cooling", "communication"],

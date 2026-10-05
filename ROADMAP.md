@@ -41,9 +41,9 @@
 
 - Pandemic survival simulation ✅
 - Food shortage scenario ✅
-- Climate disruption framework (pending)
+- Climate disruption framework — คลื่นความร้อน · ฝุ่น PM2.5 · ภัยแล้ง (tests/test_climate_hazards.py) ✅
 - Real-time disaster data integration (USGS · JMA) (pending)
-- Black swan detection · Monte Carlo engine (partial)
+- Black swan detection · Monte Carlo engine (หางซ้าย · ต่อเข้าภาพอนาคต · tests/test_black_swan.py) ✅
 
 ---
 
@@ -71,7 +71,7 @@
 
 - Persistent database (PostgreSQL on Render)
 - UptimeRobot keep-alive automation
-- Multi-language support (EN · TH · JP)
+- Multi-language support (EN · TH · JP) — แชทตอบตามภาษาผู้ใช้ · หน้าเว็บสลับ ไทย/English/日本語 (static/i18n.js) ✅
 - Community decision nodes
 - Low-energy governance for resource-limited environments
 

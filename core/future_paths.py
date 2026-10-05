@@ -115,6 +115,17 @@ def project(text: str, paths: list) -> dict | None:
         print(f"⚠ future_paths: {type(e).__name__}")
         return None
     w0 = float(assess(text)["W"])
+    # เหตุการณ์หายากที่ผู้ใช้เล่าเอง (ระบาด · สงคราม · ภัยใหญ่) → ใส่หางซ้ายให้ Monte Carlo
+    # ทางที่ย้อนกลับไม่ได้โดนแรงกว่า เพราะถอยไม่ได้ตอนช็อกมา
+    swan = None
+    try:
+        from SIMULATIONS.black_swan_detector import detect_black_swan
+        bs = detect_black_swan({}, text)
+        if bs.get("black_swan"):
+            swan = {"event": bs["event"], "impact": bs["impact"], "recovery_days": bs["recovery_days"],
+                    "recommendation": bs["recommendation"]}
+    except Exception as e:  # pragma: no cover
+        print(f"⚠ black_swan: {type(e).__name__}")
     ranked = rank_options(paths, waterline=w0)
     letter = {p: chr(65 + i) for i, p in enumerate(paths)}           # A/B/C ตามที่ผู้ใช้พิมพ์
     base = basis(text)
@@ -141,13 +152,16 @@ def project(text: str, paths: list) -> dict | None:
     for g in groups[:MAX_PATHS]:
         rev, score, _ = g["key"]
         mid = g["mid"]
-        lo, hi = [], []
+        lo, hi, tail = [], [], []
+        shock_p = (0.10 if not rev else 0.05) if swan else 0.0
+        shock_s = swan["impact"] / (25 if not rev else 50) if swan else 0.0
         for t, m in enumerate(mid):
             if t == 0:                                      # วันนี้รู้ค่าแน่นอน
                 lo.append(round(m, 1)); hi.append(round(m, 1))
                 continue
             vol = (0.04 if rev else 0.10) * math.sqrt(t)
-            mc = run_montecarlo(m / 100, runs=200, volatility=vol)
+            mc = run_montecarlo(m / 100, runs=200, volatility=vol, shock_prob=shock_p, shock_size=shock_s)
+            tail.append(max(0.0, min(100.0, mc["expected_shortfall_10"] * 100)))
             lo.append(round(max(0.0, min(100.0, mc["percentiles"]["p10"] * 100)), 1))
             hi.append(round(max(0.0, min(100.0, mc["percentiles"]["p90"] * 100)), 1))
         below = next((t for t, v in enumerate(lo) if v < FLOOR), None)
@@ -157,6 +171,7 @@ def project(text: str, paths: list) -> dict | None:
             "same": len(g["items"]) > 1,
             "mid": [round(v, 1) for v in mid], "lo": lo, "hi": hi,
             "end": round(mid[-1]), "worst": round(min(lo)), "below_floor_month": below,
+            "tail_worst": round(min(tail)) if tail else round(mid[0]),
             "money": ({"notes": g["money"]["notes"], "runs_out_month": g["runs_out"]} if g["money"] else None),
         })
     has_money = any(g["money"] for g in groups)
@@ -169,5 +184,6 @@ def project(text: str, paths: list) -> dict | None:
         "months": MONTHS, "floor": FLOOR, "w0": round(w0), "paths": out,
         "money_basis": {k: v for k, v in base.items() if v is not None}, "money_hint": hint,
         "hidden": [r["action"] for g in groups[MAX_PATHS:] for r in g["items"]],
+        "black_swan": swan,
         "method": "choice_optimizer + montecarlo (deterministic)",
     }
