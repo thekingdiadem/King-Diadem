@@ -515,9 +515,32 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     lang = detect_lang(text)
     if lang != "th":
         status = f"W {a['W']} · Risk {a['risk']} · Choice(t) = {4 if a['relationship'] else 3}"
+        if lang == "en" and not a["crisis"] and not a["relationship"]:
+            try:
+                from core.creator_story import detect_creator_question, CREATOR_STORY_EN
+                if detect_creator_question(text):
+                    return CREATOR_STORY_EN.strip() + f"\n\n{sign}"
+            except Exception:
+                pass
+        if lang == "en" and not a["crisis"] and not a["relationship"]:
+            try:
+                from core.creator_story import detect_creator_question, CREATOR_STORY_EN
+                if detect_creator_question(text):
+                    return CREATOR_STORY_EN.strip() + f"\n\n{sign}"
+            except Exception:
+                pass
         if lang == "en" and not a["crisis"] and a["relationship"] in ("collapse_risk", "critical"):
             return SAFETY_EN.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
         return compose_intl(lang, a["crisis"], status, sign, footer)
+
+    # ── ถามถึงที่มาของระบบ (core/creator_story — ไม่มีชื่อหรือวันเกิดของผู้สร้าง) ──
+    if not a["crisis"] and not a["topics"]:
+        try:
+            from core.creator_story import detect_creator_question, CREATOR_STORY_TH
+            if detect_creator_question(text):
+                return CREATOR_STORY_TH.strip() + f"\n\n{sign}" + tag
+        except Exception:
+            pass
 
     # ── 1. วิกฤต: ชีวิตมาก่อนทุกอย่าง — ไม่วิเคราะห์ ไม่ให้ตัวเลือกยาว ──
     if a["crisis"]:

@@ -155,3 +155,33 @@ def test_signals_still_work_with_enough_data():
 def test_weird_body_is_422_not_500(client, path):
     r = client.post(path, content=b"Infinity", headers={"Content-Type": "application/json"})
     assert r.status_code == 422
+
+
+# ── เรื่องเล่าผู้สร้าง: ไม่มีชื่อ-นามสกุลและวันเกิด (ผู้สร้างขอไว้) ─────────────────
+_PRIVATE = ("นิธิกร", "บุญสร้าง", "Nithikorn", "Bunsrang", "2:31")
+
+
+@pytest.mark.parametrize("text", ["ใครสร้างระบบนี้", "ระบบนี้สร้างมาทำไม", "who created this"])
+def test_creator_story_without_private_details(text):
+    r = compose(text)
+    assert "มือถือ" in r or "mobile" in r.lower()
+    assert not any(p in r for p in _PRIVATE)
+
+
+def test_creator_story_reaches_llm_without_name(client):
+    client.post("/run", json={"input": "ใครสร้างระบบนี้"})
+    prompt, system = FAKE_LLM["prompts"][-1], FAKE_LLM["systems"][-1]
+    assert "ผู้ใช้ถามถึงที่มาของระบบ" in prompt
+    assert not any(p in prompt + system for p in _PRIVATE)
+
+
+def test_creator_story_module_has_no_private_details():
+    import inspect
+    from core import creator_story
+    src = inspect.getsource(creator_story)
+    assert not any(p in src for p in _PRIVATE)
+
+
+def test_ordinary_origin_questions_are_not_creator_questions():
+    from core.creator_story import detect_creator_question
+    assert not detect_creator_question("ที่มาของรายได้คืออะไร")

@@ -1171,6 +1171,15 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     hot = [v for k, v in _HOT.items() if k in k_topics]
     if hot:
         sig_ctx.append("[เบอร์ที่ถูกต้องสำหรับเรื่องนี้ (ใช้เมื่อเหมาะ ห้ามแต่งเบอร์อื่น): " + " | ".join(hot) + "]")
+    # ถามถึงที่มาของระบบ → เล่าเรื่องจริงของระบบ (core/creator_story) ไม่ให้ LLM แต่งเอง
+    try:
+        from core.creator_story import detect_creator_question, CREATOR_STORY_TH
+        if detect_creator_question(user_input):
+            sig_ctx.append("[ผู้ใช้ถามถึงที่มาของระบบ: เล่าเรื่องนี้ด้วยน้ำเสียงของคุณอย่างสั้นและจริงใจ ห้ามเพิ่มรายละเอียดที่ไม่มีในเรื่อง "
+                           "และห้ามบอกชื่อ-นามสกุลหรือวันเกิดของผู้สร้าง — เรื่อง: "
+                           + " ".join(CREATOR_STORY_TH.split()) + "]")
+    except Exception:
+        pass
     sig_ctx = " ".join(sig_ctx)
     # กำลังเจอภัย (น้ำท่วม แผ่นดินไหว ไฟไหม้ ...) → เส้นทางความอยู่รอด ขั้นแรกของภัยนั้นมาก่อน
     dis_ctx = ""

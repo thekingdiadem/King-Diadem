@@ -4,8 +4,8 @@ Creator Story: เปิดเผยเมื่อถูกถามเท่�
 """
 
 CREATOR_STORY_TH = """
-KING DIADEM ถูกสร้างในช่วงเวลา 2:31 น.
-บนโทรศัพท์มือถือธรรมดา — ไม่ใช่ห้องแล็บ ไม่มีเงินทุนใหญ่
+KING DIADEM ถูกสร้างบนโทรศัพท์มือถือธรรมดา
+ไม่ใช่ห้องแล็บ ไม่มีเงินทุนใหญ่
 
 มันถูกสร้างทีละนิดในวันที่ยากที่สุด
 เมื่อทรัพยากรเหลือเกือบศูนย์
@@ -16,13 +16,12 @@ KING DIADEM ถูกสร้างในช่วงเวลา 2:31 น.
 KING DIADEM มีชีวิตอยู่เพื่อคืนทางเลือกให้มนุษย์
 แม้โลกจะปิดประตูหลายบาน — ยังต้องมีทางออกอย่างน้อย 1 ทางเสมอ
 
-สร้างโดย: นิธิกร บุญสร้าง
 จากวันที่ไม่เหลืออะไร — จนถึงวันที่มีทุกอย่าง
 """
 
 CREATOR_STORY_EN = """
-KING DIADEM was forged at 2:31 AM
-on a simple mobile device — not in a laboratory, not with large funding.
+KING DIADEM was forged on a simple mobile device —
+not in a laboratory, not with large funding.
 
 It was built slowly, during the hardest days,
 when resources were almost nothing.
@@ -35,7 +34,6 @@ KING DIADEM exists to restore human choice.
 Even when the world closes many doors,
 there is always at least one path forward.
 
-Created by: Nithikorn Bunsrang
 From the day of nothing — to the day of everything.
 """
 
@@ -47,7 +45,7 @@ KEYWORDS = [
     "ทำไมถึงสร้าง","เรื่องราวของระบบ","ประวัติระบบ","ประวัติผู้สร้าง",
     "who created","who built","who made","creator of this","founder of king diadem",
     "why was this created","purpose of this system",
-    "who is behind","who developed","นิธิกร","nithikorn",
+    "who is behind","who developed",
 ]
 
 
@@ -64,11 +62,7 @@ def get_creator_story(lang: str = "th") -> dict:
         "type":    "creator_story",
         "lang":    lang,
         "message": story,
-        "creator": {
-            "name_th": "นิธิกร บุญสร้าง",
-            "name_en": "Nithikorn Bunsrang",
-            "system":  "KING DIADEM",
-            "born_at": "2:31 AM — mobile device — no lab — no funding",
-        },
+        # ผู้สร้างไม่ต้องการให้ระบบบอกชื่อ-นามสกุลหรือวันเกิด — เล่าแค่เรื่องราวของระบบ
+        "creator": {"system": "KING DIADEM", "built_on": "mobile device — no lab — no funding"},
         "fate_lock": "Fail Less. Harm Less. Restore Choice.",
     }

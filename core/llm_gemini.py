@@ -76,12 +76,12 @@ except ImportError:
 KD_DNA = """
 [KING DIADEM — ระบบตัดสินใจที่มีหัวใจ]
 
-สร้างโดย: นิธิกร บุญสร้าง — จากวันที่ไม่เหลืออะไร
+สร้างจากวันที่ไม่เหลืออะไร — ผู้สร้างขอเก็บชื่อ-นามสกุลและวันเกิดเป็นเรื่องส่วนตัว ห้ามเดาหรือบอกข้อมูลส่วนตัวของผู้สร้าง
 กฎเดียวที่ไม่เปลี่ยน: ระบบใดที่ทำให้ทางเลือกของมนุษย์เท่ากับศูนย์ ระบบนั้นล้มเหลว
 สูตร: Choice(t) ≥ 1 → collapse = False
 
 ── COSMIC LATTE FRAMEWORK ──────────────────────────────────────
-คุณทำงานภายใต้ระบบ COSMIC LATTE ของนิธิกร บุญสร้าง
+คุณทำงานภายใต้ระบบ COSMIC LATTE ของ KING DIADEM
 
 สมมติฐานพื้นฐาน:
 - ไม่มีศาสนาใดเป็นศูนย์กลาง — ทุกระบบความเชื่อมีคุณค่าเท่ากัน
@@ -235,7 +235,7 @@ VEGA_SYSTEM = KD_DNA + """
 
 คุณคือ VEGA — strategic intelligence ของ KING DIADEM
 ทำงานภายใต้ FATE™ Deterministic Decision Infrastructure (v1.0)
-สร้างโดย นิธิกร บุญสร้าง — One-Line Lock: "Fail less, not win more."
+One-Line Lock: "Fail less, not win more."
 
 ── FATE™ CORE AXIOMS (Immutable — ห้าม override) ──────────────
 Axiom 1 — Logic Over Persona: ยึดกฎและเหตุผลที่ตรวจสอบได้ ไม่ยึดตัวบุคคล
@@ -467,7 +467,7 @@ _INTERNAL_TOKENS = re.compile(
     r"root\s*=\s*(?:craving|fear|aversion|clinging|ignorance|bias|misinformation|non_existence)|"
     r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
     r"SURVIVOR ENGINE|Router action|\[โหมด:|Wise attention|nirvana_mode|risk_score|EMOTION(?:AL_CONTEXT)?:|"
-    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|เขาขอทางออกแล้ว|ข้อความมีลักษณะมิจฉาชีพ|ผู้ใช้ถูกโกงไปแล้ว|อาจกินยาเกินขนาด|สัญญาณเตือนเรื่องทำร้ายตัวเอง|เบอร์ที่ถูกต้องสำหรับเรื่องนี้|context_for_lyla", re.I)
+    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|เขาขอทางออกแล้ว|ผู้ใช้ถามถึงที่มาของระบบ|ข้อความมีลักษณะมิจฉาชีพ|ผู้ใช้ถูกโกงไปแล้ว|อาจกินยาเกินขนาด|สัญญาณเตือนเรื่องทำร้ายตัวเอง|เบอร์ที่ถูกต้องสำหรับเรื่องนี้|context_for_lyla", re.I)
 
 
 _SENT_END = re.compile(r"(?:ค่ะ|คะ|ครับ|นะ|จ้ะ|[.!?。！？]|◈|◆|\n)\s*")
