@@ -1089,6 +1089,15 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                        "(1300 ศูนย์ช่วยเหลือสังคม 24 ชม." + (" · 1323 สายด่วนสุขภาพจิต" if prior_kind == "self_harm" else "") + ")]")
             # ความกังวลยังอยู่ แต่ลดลงตามเวลา — Risk = 0.75 × Risk ของสิ่งที่เล่าไว้
             k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
+    # กำลังเจอภัย (น้ำท่วม แผ่นดินไหว ไฟไหม้ ...) → เส้นทางความอยู่รอด ขั้นแรกของภัยนั้นมาก่อน
+    dis_ctx = ""
+    dis = k_assess.get("disaster")
+    if dis:
+        if route not in ("vega",):
+            route = _escalate_route(route, "survival")
+        dis_ctx = (f"[ผู้ใช้กำลังเจอ{dis.get('name', 'ภัย')}: ตอบสั้น ใจเย็น บอกขั้นที่ทำได้ทันทีจากข้อมูลที่ระบบให้ "
+                   "เรียงตามลำดับ ยังไม่ถามเรื่องอื่นหรือวิเคราะห์ยาว ถามว่าตอนนี้เขากับคนที่อยู่ด้วยปลอดภัยไหม "
+                   "ปิดท้ายด้วยเบอร์ 1784 / 1669 และบอกว่าพิมพ์มาได้ตลอด]")
     offer_flags = k_assess.get("offer_flags") or []
     if offer_flags:
         if route not in ("vega",):
@@ -1184,6 +1193,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         except Exception as e:
             print(f"⚠ engine_bridge: {type(e).__name__}")
     extra_ctx = " ".join(p for p in [
+        dis_ctx,
         rel_ctx,
         offer_ctx,
         calc_ctx,
