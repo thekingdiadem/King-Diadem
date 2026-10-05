@@ -97,3 +97,25 @@ def test_english_crisis_prompt_demands_english_and_local_help(client):
 def test_thai_prompt_has_no_language_override(client):
     client.post("/run", json={"input": "เครียดเรื่องงานมาก"})
     assert "ห้ามตอบภาษาไทย" not in FAKE_LLM["systems"][-1]
+
+
+# ── ภาพจากเว็บจริง: โน้ตกำกับในวงเล็บท้ายย่อหน้า ─────────────────────────
+def test_tail_notes_are_removed():
+    from core.llm_gemini import strip_notes
+    text = ("ฉันรับรู้ได้เลยนะคะว่าคุณเหนื่อยล้าไปหมด [รับรู้อารมณ์: STRESSED, LOW_ENERGY]\n\n"
+            "ให้เลือกแค่สิ่งเดียวที่เล็กที่สุดก่อนนะคะ [เปิดทางเลือกเล็กที่สุด, ไม่สั่ง]\n\n"
+            "ฉันจะอยู่ตรงนี้กับคุณนะคะ 🤍 [ให้ความอบอุ่น, นั่งอยู่ด้วย]")
+    out = strip_notes(text)
+    assert "[" not in out and out.endswith("อยู่ตรงนี้กับคุณนะคะ 🤍")
+
+
+def test_ordinary_brackets_stay():
+    from core.llm_gemini import strip_notes
+    for t in ("ลองดูตัวเลือก [A] ก่อน", "[1] พักก่อน\n[2] ดื่มน้ำ", "อ่านเพิ่มที่ [ลิงก์นี้] นะคะ ว่าทำยังไง"):
+        assert strip_notes(t) == t
+
+
+def test_run_hides_tail_notes(client):
+    FAKE_LLM["text"] = "พักก่อนนะคะ [ลดความกดดัน, Focus: พักผ่อน]\n— LYLA ◈"
+    r = client.post("/run", json={"input": "เหนื่อยมาก"}).json()["ai_response"]
+    assert "Focus" not in r and "พักก่อนนะคะ" in r

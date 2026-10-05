@@ -466,6 +466,17 @@ _NUM_LINE = re.compile(r"^\s*\d+\.\s+[A-Za-z]")
 _NON_LATIN = re.compile(r"[\u0E00-\u0E7F\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]")
 
 
+# โน้ตกำกับที่โมเดลพิมพ์ต่อท้ายย่อหน้า ("…เหนื่อยล้าไปหมด [รับรู้อารมณ์: STRESSED, LOW_ENERGY]")
+# วงเล็บเหลี่ยมท้ายบรรทัดที่มีป้ายภาษาอังกฤษตัวใหญ่ หรือ ":" / "," แบบรายการ — LYLA ไม่ใช้วงเล็บแบบนี้คุยกับคน
+_TAIL_NOTE = re.compile(r"[ \t]*\[(?=[^\[\]\n]{2,90}\])(?=[^\]\n]*(?:[A-Z_]{3,}|[:,]))[^\[\]\n]{2,90}\][ \t]*(?=\n|$)")
+
+
+def strip_notes(text):
+    if not isinstance(text, str) or "[" not in text:
+        return text
+    return _TAIL_NOTE.sub("", text)
+
+
 def strip_reasoning(text):
     """ตัดย่อหน้าความคิด/เช็กลิสต์ที่โมเดลพิมพ์ออกมา เก็บเฉพาะคำตอบถึงผู้ใช้
     (บางครั้งคำตอบจริงต่อท้ายบรรทัดสุดท้ายของเช็กลิสต์โดยไม่ขึ้นบรรทัดใหม่ — ตัดตรงตัวอักษรภาษาอื่นตัวแรก)"""
@@ -912,7 +923,7 @@ class GeminiLLM:
     def _gcall(self, system: str, contents: list, **kw) -> str:
         """เรียก LLM พร้อมกฎบริบทภายใน + ภาษาของผู้ใช้ แล้วตัดความคิดและบริบทภายในที่หลุดออกมา"""
         extra = getattr(_tls, "lang_directive", "")
-        return scrub_internal(strip_reasoning(self._call(system + INTERNAL_RULE + extra, contents, **kw)))
+        return scrub_internal(strip_notes(strip_reasoning(self._call(system + INTERNAL_RULE + extra, contents, **kw))))
 
     def generate_with_governance(
         self,
