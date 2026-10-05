@@ -857,7 +857,15 @@ def _route_bias(route: str, text: str) -> str:
 
 def _resolve_voice_mode(data: dict, route: str) -> str:
     vm = str(data.get("voice_mode") or "").lower().strip()
-    if vm == "crisis":                   return "crisis"
+    # "crisis" จากหน้าเว็บเป็นแค่การเดาด้วยคำ (เคยนับ "ตาย" คำเดียว: "แบตมือถือตาย" "ขำจะตาย")
+    # ให้เซิร์ฟเวอร์ยืนยันด้วยตัวจับสัญญาณทำร้ายตัวเองก่อน ถึงจะใช้ prompt โหมดวิกฤต
+    if vm == "crisis":
+        try:
+            if not text_risk or text_risk(str(data.get("input") or "")).get("self_harm"):
+                return "crisis"              # ไม่มีตัวตรวจ → ปลอดภัยไว้ก่อน
+        except Exception:
+            return "crisis"
+        vm = ""
     if vm == "vega" or route == "vega":  return "vega"
     return "lyla"
 
@@ -1162,6 +1170,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # (ถ้า engine ไม่รู้จัก field พวกนี้ ก็ยังมี text ใน "input" เป็น fallback เดิม)
     payload = {
         **data,
+        "voice_mode":     vm,            # ค่าที่เซิร์ฟเวอร์ยืนยันแล้ว ไม่ใช่ค่าที่หน้าเว็บเดามา
         "raw_input":      user_input,
         "input":          effective,
         "history":        history,
@@ -1433,10 +1442,15 @@ def _simulate_impl(user_input: str, paths: list, email: str) -> dict:
             "1. ความเสี่ยง (Downside First)\n"
             "2. ผลใน 30 / 90 วัน\n"
             "3. ทางที่แนะนำพร้อมเหตุผล 1 ประโยค\n\n"
-            "ตอบเป็นภาษาไทย กระชับ ใช้งานได้ทันที\n— VEGA"
+            "ตอบกระชับ ใช้งานได้ทันที\n— VEGA"
         )
+        # ภาษาเดียวกับผู้ใช้ (เดิมบังคับ "ตอบเป็นภาษาไทย") และเส้นทาง vega ตามลายเซ็น — VEGA
+        # (เดิม route="survival" ทุกครั้ง LLM จึงได้คำสั่ง "โฟกัสความอยู่รอดพื้นฐาน" กับการจำลองเรื่องงาน)
+        u_lang = detect_lang(user_input) if detect_lang else "th"
+        if u_lang != "th":
+            prompt += f"\n\n[ภาษาผู้ใช้: {u_lang}]"
         answer = _llm.generate_with_governance(
-            prompt=prompt, route="survival",
+            prompt=prompt, route="vega", voice_mode="vega",
             additional_context="mode=simulation",
             user_email=email,
         )

@@ -172,13 +172,14 @@ def analyze_pattern(input_data: dict, session_id: str | None = None) -> dict:
     }
 
 
-from core.thai_signals import NO_MONEY_ESSENTIAL
+from core.thai_signals import NO_MONEY_ESSENTIAL, PERSONAL_CRISIS, EMERGENCY, EMERGENCY_EN
 
 # คำสั้นเดี่ยวๆ เดิม ("พัง" "ล้ม" "รอด" "หิว") ตรงกับประโยคธรรมดา: "รถพัง" "ล้มเลิก"
 # "รอดู" (มี "รอด") "หิวข้าว" → คนทั่วไปถูกส่งไป collapse/survival  จึงใช้วลีที่หมายถึงวิกฤตจริง
-_T_COLLAPSE = ("พังหมด", "พังทุกอย่าง", "ล่มสลาย", "ล้มละลาย", "วิกฤต", "ฉุกเฉิน", "collapse")
+# "วิกฤตเศรษฐกิจ" "เงินสำรองฉุกเฉิน" "emergency fund" ไม่ใช่วิกฤตของตัวผู้ใช้ (core/thai_signals)
+_T_COLLAPSE = ("พังหมด", "พังทุกอย่าง", "ล่มสลาย", "ล้มละลาย", PERSONAL_CRISIS, EMERGENCY, "collapse")
 _T_SURVIVAL = ("เอาตัวรอด", "ไม่รอด", "จะรอดไหม", "หิวมาก", "ไม่มีกิน", "ไม่มีข้าว", NO_MONEY_ESSENTIAL,
-               "survive", "emergency")
+               "survive", EMERGENCY_EN)
 _T_RISK     = ("เสี่ยง", "อันตราย", "ประเมินความเสี่ยง", "risk", "danger")
 _T_VEGA     = ("วิเคราะห์", "กลยุทธ์", "analyze", "strategy", "long-term")
 
