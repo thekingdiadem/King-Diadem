@@ -18,7 +18,9 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk
+from core.thai_signals import (NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
+                               SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
+                               BULLYING, HELP_ONLY)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, detect_lang
 from core.engine_bridge import analyze as bridge_analyze, rank_options
 
@@ -27,6 +29,13 @@ HOTLINE_MENTAL = "1323"   # สายด่วนสุขภาพจิต ก
 HOTLINE_EMS    = "1669"   # เจ็บป่วยฉุกเฉิน
 HOTLINE_POLICE = "191"    # เหตุด่วนเหตุร้าย
 HOTLINE_SOCIAL = "1300"   # ศูนย์ช่วยเหลือสังคม (พม.) 24 ชม.
+HOTLINE_POISON = "1367"   # ศูนย์พิษวิทยา รพ.รามาธิบดี 24 ชม.
+HOTLINE_SCAM   = "1441"   # ศูนย์ปฏิบัติการแก้ไขปัญหาอาชญากรรมออนไลน์ (AOC) 24 ชม.
+HOTLINE_ALCOHOL = "1413"  # สายด่วนเลิกเหล้า
+HOTLINE_DRUGS  = "1165"   # สายด่วนยาเสพติด
+HOTLINE_SMOKE  = "1600"   # สายด่วนเลิกบุหรี่
+HOTLINE_PREG   = "1663"   # ปรึกษาท้องไม่พร้อมและเอดส์
+HOTLINE_CHILD  = "1387"   # สายด่วนเด็ก (Childline)
 
 
 def _num(v, d: float) -> float:
@@ -77,6 +86,81 @@ def _pick(seq, text: str, salt: str = ""):
 #   ask:   คำถามเดียวที่ควรถามตัวเอง (โยนิโสมนสิการ — ตัดที่เหตุ)
 # ══════════════════════════════════════════════════════════════════
 TOPICS = [
+    # รอบหาบั๊กทุกไฟล์: หัวข้อเหล่านี้เคยตกไปทาง "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน"
+    ("overdose", [OVERDOSE], {
+        "open": ["นี่เป็นเรื่องฉุกเฉิน — ขอให้ทำตามนี้ก่อนนะ"],
+        "paths": [
+            f"โทร {HOTLINE_EMS} ตอนนี้ หรือไปห้องฉุกเฉินทันที แม้ตอนนี้จะยังรู้สึกปกติ — ยาบางชนิดออกฤทธิ์ช้า",
+            f"ระหว่างรอ โทรศูนย์พิษวิทยา {HOTLINE_POISON} (24 ชม.) บอกชื่อยา/สาร จำนวน และเวลาที่กิน",
+            "เก็บแผงยา ขวด หรือฉลากไปด้วย · อย่าทำให้อาเจียนเองถ้าไม่ได้รับคำแนะนำ",
+            f"ถ้าตั้งใจทำร้ายตัวเอง บอกเจ้าหน้าที่ตรงๆ ได้ และหลังจากนี้คุยต่อได้ที่ {HOTLINE_MENTAL} — คุณไม่ต้องผ่านเรื่องนี้คนเดียว",
+        ],
+        "ask": "ตอนนี้มีใครอยู่ใกล้ตัวที่ช่วยพาไปโรงพยาบาลได้บ้าง?",
+    }),
+    ("scam", [re.compile(r"(?!)")], {           # เลือกจาก scam_flags() ไม่ใช่จากคำ
+        "open": ["เรื่องนี้มีลักษณะของมิจฉาชีพ — หยุดก่อน ยังไม่ต้องทำตามที่เขาบอก"],
+        "paths": [
+            "วางสาย/ไม่ตอบ แล้วโทรกลับเบอร์ทางการของหน่วยงานนั้นเอง — ตำรวจและธนาคารไม่ให้โอนเงินหรือ \"ตรวจสอบบัญชี\" ทางโทรศัพท์",
+            "ไม่กดลิงก์ ไม่ติดตั้งแอปที่เขาส่งมา ไม่บอก OTP รหัส หรือเลขบัตรประชาชน",
+            f"ถ้าโอนเงินหรือให้ข้อมูลไปแล้ว: โทรธนาคารของคุณให้ระงับทันที แล้วโทร {HOTLINE_SCAM} (24 ชม.) และแจ้งความออนไลน์ที่ thaipoliceonline.go.th",
+        ],
+        "ask": "ตอนนี้ได้โอนเงินหรือให้ข้อมูลอะไรไปแล้วหรือยัง?",
+    }),
+    ("warning", [SELF_HARM_WARNING], {
+        "open": ["ขอบคุณที่บอกนะ ฟังดูเหนื่อยและหนักมากจริงๆ"],
+        "paths": [
+            "ขอถามตรงๆ นะ: ตอนนี้มีความคิดอยากทำร้ายตัวเองหรือไม่อยากมีชีวิตอยู่ไหม — ตอบตามจริงได้ ฉันไม่ตัดสิน",
+            f"ถ้ามี หรือไม่แน่ใจ โทร {HOTLINE_MENTAL} (สายด่วนสุขภาพจิต ฟรี 24 ชม.) มีคนพร้อมฟัง",
+            "ไปอยู่ใกล้ใครสักคน หรือบอกคน 1 คนว่า \"ช่วงนี้ไม่ไหว\" — ไม่ต้องอธิบายเหตุผล",
+        ],
+        "ask": "คืนนี้ มีอะไรสักอย่างที่ช่วยให้ผ่านไปได้บ้างไหม?",
+    }),
+    ("grief", [GRIEF], {
+        "open": ["เสียใจด้วยนะ การสูญเสียไม่ต้องรีบหาย ความเสียใจคือความรักที่ยังส่งไปไม่ถึง"],
+        "paths": [
+            "ให้ตัวเองเศร้าได้ ร้องไห้ได้ — ไม่ต้องรีบเข้มแข็งให้ใครเห็น",
+            "เล่าเรื่องของเขาให้ใครสักคนฟัง หรือเขียนถึงเขา สิ่งที่อยากพูดแต่ไม่ได้พูด",
+            f"ดูแลเรื่องพื้นฐานไว้ กิน นอน ดื่มน้ำ · ถ้าผ่านไปหลายสัปดาห์แล้วยังใช้ชีวิตไม่ได้ หรือเริ่มคิดทำร้ายตัวเอง — โทร {HOTLINE_MENTAL} ได้",
+        ],
+        "ask": "มีเรื่องไหนของเขาที่อยากเล่าให้ฟังไหม?",
+    }),
+    ("addiction", [ADDICTION], {
+        "open": ["การติดไม่ได้แปลว่าคุณอ่อนแอ — มันคือสิ่งที่ต้องมีคนช่วยวางแผนเลิก"],
+        "paths": [
+            "เริ่มจากสังเกต 1 สัปดาห์: ช่วงเวลา ความรู้สึก และคนที่อยู่ด้วยก่อนเล่น/ดื่ม/ใช้ — นั่นคือจุดที่ต้องวางแผน",
+            "ตัดทางเข้าที่ง่ายที่สุดก่อน 1 ทาง: ลบแอป/ไม่พกบัตร/ไม่ซื้อติดบ้าน/ให้คนที่ไว้ใจถือเงิน",
+            f"มีคนช่วยฟรี: เลิกเหล้า {HOTLINE_ALCOHOL} · ยาเสพติด {HOTLINE_DRUGS} · เลิกบุหรี่ {HOTLINE_SMOKE} · พนันหรือเกมที่หยุดไม่ได้ {HOTLINE_MENTAL}",
+            "ถ้ามีหนี้จากการพนัน — หยุดกู้ก้อนใหม่มาเล่นต่อ แล้วเขียนหนี้ทุกก้อนออกมาก่อน",
+        ],
+        "ask": "ถ้าลดลงได้เพียงครึ่งเดียวในเดือนนี้ อะไรในชีวิตจะดีขึ้นก่อน?",
+    }),
+    ("pregnancy", [UNPLANNED_PREGNANCY], {
+        "open": ["เรื่องนี้ตัดสินใจได้ ไม่ต้องรีบและไม่ต้องคนเดียว"],
+        "paths": [
+            "ยืนยันก่อนด้วยที่ตรวจครรภ์จากร้านยา หรือไปโรงพยาบาล/คลินิกตามสิทธิ์ของคุณ",
+            f"โทร {HOTLINE_PREG} (ปรึกษาท้องไม่พร้อม ฟรี เป็นความลับ) — มีข้อมูลครบทุกทางเลือกโดยไม่ตัดสิน",
+            "บอกคนที่ไว้ใจได้ 1 คน ให้มีคนอยู่ข้างๆ ระหว่างตัดสินใจ",
+        ],
+        "ask": "ตอนนี้มีใครที่คุณไว้ใจพอจะเล่าเรื่องนี้ให้ฟังได้บ้าง?",
+    }),
+    ("bullying", [BULLYING], {
+        "open": ["การถูกแกล้งหรือถูกทำให้อับอายไม่ใช่ความผิดของคุณ"],
+        "paths": [
+            "เก็บหลักฐาน: แคปหน้าจอ ข้อความ วันเวลา ชื่อคนที่เห็นเหตุการณ์",
+            "บอกคนที่มีอำนาจจัดการ: ครูที่ไว้ใจ/ผู้ปกครอง หรือ HR/หัวหน้าที่สูงกว่า — เป็นลายลักษณ์อักษรถ้าทำได้",
+            f"อายุไม่ถึง 18 ปี โทรสายด่วนเด็ก {HOTLINE_CHILD} ได้ · ถ้าเครียดจนนอนไม่หลับหรือไม่อยากไปเรียน/ทำงาน โทร {HOTLINE_MENTAL}",
+        ],
+        "ask": "มีใครสักคนในที่นั้นที่อยู่ข้างคุณได้บ้างไหม?",
+    }),
+    ("help", [HELP_ONLY], {
+        "open": ["ฉันอยู่ตรงนี้ — เล่ามาได้เลยว่าเกิดอะไรขึ้น"],
+        "paths": [
+            f"ถ้าอยู่ในอันตรายตอนนี้ โทร {HOTLINE_POLICE} · บาดเจ็บหรือเจ็บป่วยฉุกเฉิน โทร {HOTLINE_EMS}",
+            f"ถ้ากำลังคิดทำร้ายตัวเอง โทร {HOTLINE_MENTAL} (ฟรี 24 ชม.)",
+            "ถ้าไม่ใช่เรื่องด่วน พิมพ์มาสั้นๆ ก็ได้ว่าเรื่องอะไร — เดี๋ยวค่อยๆ ไล่ไปด้วยกัน",
+        ],
+        "ask": "ตอนนี้คุณปลอดภัยไหม?",
+    }),
     ("violence", [re.compile(r"(ถูก|โดน)\S{0,12}?(ทำร้าย(?!ตัวเอง)|ตบ|ต่อย|เตะ|ทุบ|ตี(?!ความ|กลับ|ราคา))"),
                   "ถูกขู่", "โดนขู่", "รู้สึกไม่ปลอดภัย", "อยู่บ้านไม่ปลอดภัย", "ข่มขืน", "ความรุนแรงในบ้าน",
                   "สะกดรอย", "ถูกกักขัง"], {
@@ -123,7 +207,7 @@ TOPICS = [
         ],
         "ask": "อาการนี้ดีขึ้น เท่าเดิม หรือแย่ลง เมื่อเทียบกับเมื่อวาน?",
     }),
-    ("debt", ["หนี้", "ผ่อนไม่ไหว", "ดอกเบี้ย", "บัตรเครดิต", "เจ้าหนี้", "ทวงหนี้", "เงินกู้", "กู้เงิน",
+    ("debt", ["หนี้", "กู้นอกระบบ", "ผ่อนไม่ไหว", "ดอกเบี้ย", "บัตรเครดิต", "เจ้าหนี้", "ทวงหนี้", "เงินกู้", "กู้เงิน",
               "จ่ายไม่ไหว", "ค้างจ่าย", "ผิดนัดชำระ"], {
         "open": ["หนี้เป็นตัวเลข แก้ได้ทีละก้อน"],
         "paths": [
@@ -239,7 +323,7 @@ TOPICS = [
     }),
 ]
 
-CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไม่อยากมีชีวิต", NOT_WANT_TO_LIVE, "จบชีวิต", "ทำร้ายตัวเอง",
+CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไม่อยากมีชีวิต", NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, "จบชีวิต", "ทำร้ายตัวเอง",
                   "กรีดข้อมือ", "suicide", "kill myself", *SELF_HARM_INTL]
 GREETINGS = ["สวัสดี", "หวัดดี", "hello", "hi", "hey"]
 
@@ -307,6 +391,26 @@ SAFETY = {
     "ask": "ตอนนี้คุณอยู่ในที่ที่ปลอดภัยไหม?",
 }
 
+# ถูกโกงไปแล้ว — ต่างจากกำลังจะถูกหลอก: เวลาสำคัญที่สุดคือชั่วโมงแรกๆ
+SCAM_LOST = {
+    "open": ["เสียใจด้วยที่เจอแบบนี้ — ไม่ใช่ความผิดของคุณ รีบทำตามนี้ภายในวันนี้ จะมีโอกาสได้เงินคืนมากขึ้น"],
+    "paths": [
+        f"โทรธนาคารของคุณ (และธนาคารปลายทางถ้ารู้) ขอระงับบัญชีที่รับเงิน · แล้วโทร {HOTLINE_SCAM} (24 ชม.)",
+        "แจ้งความออนไลน์ที่ thaipoliceonline.go.th หรือที่สถานีตำรวจใกล้บ้าน",
+        "เก็บหลักฐาน: สลิปโอน ชื่อ/เลขบัญชี แชต ลิงก์ เบอร์โทร — อย่าเพิ่งลบหรือบล็อกก่อนแคปหน้าจอ",
+        "ระวังคนที่ติดต่อมาบอกว่าช่วยตามเงินคืนได้แต่ต้องจ่ายก่อน — นั่นคือการหลอกซ้ำ",
+    ],
+    "ask": "โอนไปเมื่อไหร่ และผ่านธนาคารไหน?",
+}
+# ภาษาอังกฤษ: ถูกทำร้ายในความสัมพันธ์ (เดิมได้ "Let's lay this out step by step.")
+SAFETY_EN = ("Your safety comes first.\n\n{status}\n\n"
+             "1) If you are in danger right now, get to a place where other people are around and call your local "
+             "emergency number (191 in Thailand, 911 in the US, 112 in most of Europe).\n"
+             "2) If you are hurt, get medical care and ask them to record the injuries.\n"
+             "3) Tell one person you trust what happened, and keep messages or photos somewhere they can't reach.\n"
+             "4) In Thailand, 1300 (24 hours) can help with a safe place. Elsewhere, find local help at findahelpline.com\n\n"
+             "What happened is not your fault. Are you somewhere safe right now?\n\n{sign}")
+
 # ภัยที่กำลังเจอ — ขั้นของแต่ละภัยอยู่ใน core/engine_bridge._HAZARDS
 DISASTER_OPEN = "ตอนนี้ความปลอดภัยของร่างกายมาก่อน ของเสียหายซ่อมหรือหาใหม่ได้"
 DISASTER_ASK = "ตอนนี้คุณกับคนที่อยู่ด้วยอยู่ในที่ปลอดภัยแล้วหรือยัง?"
@@ -347,8 +451,17 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     text_risk = {"critical": 90, "high": 75, "medium": 55}.get(str(tr.get("level")), 0)
     if crisis:
         text_risk = max(text_risk, 95)
-    if any(x in topics for x in ("violence", "health_emergency")):
+    if any(x in topics for x in ("violence", "health_emergency", "overdose")):
         text_risk = max(text_risk, 85)
+    # มิจฉาชีพ (แอบอ้าง/ลิงก์/โอนเงิน) — เลือกจากโครงสร้าง ไม่ใช่คำเดี่ยว
+    scam = scam_flags(text)
+    if scam:
+        topics = ["scam"] + [x for x in topics if x != "scam"]
+        text_risk = max(text_risk, 75 if ("impersonation" in scam or "story" in scam) else 60)
+    if "warning" in topics and not crisis:
+        text_risk = max(text_risk, 65)
+    if "help" in topics:
+        text_risk = max(text_risk, 50)
     if "basic" in topics:
         text_risk = max(text_risk, 75)
         W = min(W, 30)
@@ -376,6 +489,7 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     if dis and dis["data"]["active"]:
         text_risk = max(text_risk, dis["data"]["threat"])
     return {
+        "scam": scam,
         "W": round(W), "risk": round(max(risk, text_risk)),
         # risk จากข้อความล้วน (0 = ไม่มีสัญญาณ) — ใช้ยกค่า risk_score ที่ engine คิดจากสถานะอย่างเดียว
         "text_risk": round(text_risk), "offer_flags": flags,
@@ -400,8 +514,10 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     # ── ภาษาอื่น: สมการเดียวกัน (W · Risk · Choice) แต่ใช้คำตอบของภาษานั้น ──
     lang = detect_lang(text)
     if lang != "th":
-        return compose_intl(lang, a["crisis"], f"W {a['W']} · Risk {a['risk']} · Choice(t) = 3",
-                            sign, footer)
+        status = f"W {a['W']} · Risk {a['risk']} · Choice(t) = {4 if a['relationship'] else 3}"
+        if lang == "en" and not a["crisis"] and a["relationship"] in ("collapse_risk", "critical"):
+            return SAFETY_EN.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
+        return compose_intl(lang, a["crisis"], status, sign, footer)
 
     # ── 1. วิกฤต: ชีวิตมาก่อนทุกอย่าง — ไม่วิเคราะห์ ไม่ให้ตัวเลือกยาว ──
     if a["crisis"]:
@@ -424,8 +540,14 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     lib = {name: d for name, _, d in TOPICS}
     main = lib.get(a["topics"][0]) if a["topics"] else GENERAL
     second = lib.get(a["topics"][1]) if len(a["topics"]) > 1 else None
+    # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง
+    # (เดิม "กินยาเกินขนาด" เสียขั้นที่ 3 ให้ "ใช้สิทธิ์บัตรทอง")
+    if a["topics"] and a["topics"][0] in ("overdose", "violence", "health_emergency", "scam", "warning", "help", "grief"):
+        second = None
     if a["offer_flags"]:                 # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
         main, second = OFFER, None
+    elif a["scam"] == ["lost"]:          # ถูกโกงไปแล้ว: ตามเงินคืนก่อน
+        main, second = SCAM_LOST, None
     elif a["relationship"] in ("collapse_risk", "critical"):   # ถูกทำร้าย/ควบคุม: ความปลอดภัยมาก่อน
         main, second = SAFETY, None
     elif a["disaster"]:                  # กำลังเจอภัย: ขั้นแรกของภัยนั้นมาก่อนทุกอย่าง

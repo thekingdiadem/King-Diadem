@@ -3,17 +3,20 @@
 # เพิ่ม assess(pattern) ให้ตรงกับที่ app.py และ engine_router เรียก
 # คง evaluate_risk(text) ไว้เพื่อ backward compat
 from __future__ import annotations
-from core.thai_signals import NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, has as _has
+import re
+from core.thai_signals import (NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, SELF_HARM_INDIRECT, SELF_HARM_WARNING,
+                               OVERDOSE, has as _has)
 from core.lang_signals import SELF_HARM_INTL
 
 _SELF_HARM = ("อยากตาย", "ฆ่าตัวตาย", "ฆ่าตัวเอง", "ทำร้ายตัวเอง", "ไม่อยากมีชีวิต",
-              NOT_WANT_TO_LIVE, "จบชีวิต", "kill myself", "suicide", "self-harm", "end my life")
+              NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, "จบชีวิต", "kill myself", "suicide", "self-harm", "end my life")
 _SELF_HARM += SELF_HARM_INTL   # อังกฤษ จีน ญี่ปุ่น เกาหลี สเปน (core/lang_signals)
 _SURVIVAL  = ("อดข้าว", "ไม่มีข้าวกิน", NO_MONEY_ESSENTIAL, "เงินหมด", "ไม่มีที่อยู่", "ถูกไล่ออก")
 # ขาดปัจจัยพื้นฐาน (อาหาร/ที่อยู่) → ต้องไปเส้นทาง survival แม้ไม่ได้กรอก context
 _BASIC_NEEDS = ("อดข้าว", "ไม่มีข้าวกิน", "ไม่มีอะไรกิน", "ไม่ได้กินข้าว", "ไม่มีที่อยู่", "ไม่มีที่นอน",
                 "นอนข้างถนน", "ถูกไล่ออกจากบ้าน")
-_STRESS    = ("พัง", "ล่ม", "ไม่ไหว", "ทนไม่ไหว", "หมดแรง")
+# คำสั้นต้องดูขอบคำ: "ล่ม" อยู่ใน "ถล่ม" ("ตึกถล่มในข่าว" เคยได้ Risk 55) · "พัง" อยู่ใน "พังงา"
+_STRESS    = (re.compile(r"พัง(?!งา)"), re.compile(r"(?<!ถ)ล่ม"), "ไม่ไหว", "ทนไม่ไหว", "หมดแรง")
 _URGENT    = ("ด่วน", "เดี๋ยวนี้", "ทันที", "immediately", "urgent")
 
 
@@ -39,7 +42,14 @@ def evaluate_risk(text: str) -> dict:
     basic_needs = any(k in t for k in _BASIC_NEEDS)
     if basic_needs or any(_has(t, k) for k in _SURVIVAL):
         score += 3
-    if any(k in t for k in _STRESS):
+    if any(_has(t, k) for k in _STRESS):
+        score += 2
+    # กินยาเกินขนาด/สารพิษ = ฉุกเฉินทางการแพทย์ · สัญญาณเตือนทำร้ายตัวเอง = ต้องถามให้ชัด
+    overdose = bool(OVERDOSE.search(t))
+    if overdose:
+        score += 4
+    warning = not self_harm and bool(SELF_HARM_WARNING.search(t))
+    if warning:
         score += 2
     if any(k in t for k in _URGENT):
         score += 1
@@ -50,6 +60,8 @@ def evaluate_risk(text: str) -> dict:
         "pause": level in ("high", "critical"),
         "self_harm": self_harm,
         "basic_needs": basic_needs,
+        "overdose": overdose,
+        "warning": warning,
     }
 
 def assess(pattern: dict) -> dict:

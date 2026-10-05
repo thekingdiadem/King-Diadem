@@ -396,7 +396,7 @@ WORK_WIN_SYSTEM = """คุณคือ LYLA — governance intelligence ขอ�
 ❌ ห้าม "เยี่ยมมากเลย!" ว่างๆ
 ลงท้าย: — LYLA ◈ | Fail Less. Harm Less. Restore Choice."""
 
-from core.thai_signals import NOT_WANT_TO_LIVE, DISCOURAGED, BREAKUP, PARTNER, has as _has   # noqa: E402
+from core.thai_signals import NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, DISCOURAGED, BREAKUP, PARTNER, has as _has   # noqa: E402
 from core.thai_signals import offer_red_flags   # noqa: E402
 from core.lang_signals import SELF_HARM_INTL, HELP as _LANG_HELP, detect_lang   # noqa: E402
 
@@ -467,7 +467,7 @@ _INTERNAL_TOKENS = re.compile(
     r"root\s*=\s*(?:craving|fear|aversion|clinging|ignorance|bias|misinformation|non_existence)|"
     r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
     r"SURVIVOR ENGINE|Router action|\[โหมด:|Wise attention|nirvana_mode|risk_score|EMOTION(?:AL_CONTEXT)?:|"
-    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|เขาขอทางออกแล้ว|context_for_lyla", re.I)
+    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|เขาขอทางออกแล้ว|ข้อความมีลักษณะมิจฉาชีพ|ผู้ใช้ถูกโกงไปแล้ว|อาจกินยาเกินขนาด|สัญญาณเตือนเรื่องทำร้ายตัวเอง|เบอร์ที่ถูกต้องสำหรับเรื่องนี้|context_for_lyla", re.I)
 
 
 _SENT_END = re.compile(r"(?:ค่ะ|คะ|ครับ|นะ|จ้ะ|[.!?。！？]|◈|◆|\n)\s*")
@@ -546,7 +546,7 @@ def scrub_internal(text):
 _CRISIS_KW = [
     "อยากตาย", NOT_WANT_TO_LIVE, "ฆ่าตัว", "ฆ่าตัวเอง",
     "ไม่อยากมีชีวิต", "จบชีวิต", "เลิกมีชีวิต",
-    "suicid", "end my life", "kill myself", "want to die", *SELF_HARM_INTL
+    "suicid", "end my life", "kill myself", "want to die", *SELF_HARM_INTL, SELF_HARM_INDIRECT
 ]
 _EMOTION_KW = [
     DISCOURAGED, "เสียใจ", "กลัว", "เครียด", "ร้องไห้", "หมดหวัง", "ไม่ไหว",

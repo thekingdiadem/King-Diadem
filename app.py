@@ -1130,6 +1130,37 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                        "(1300 ศูนย์ช่วยเหลือสังคม 24 ชม." + (" · 1323 สายด่วนสุขภาพจิต" if prior_kind == "self_harm" else "") + ")]")
             # ความกังวลยังอยู่ แต่ลดลงตามเวลา — Risk = 0.75 × Risk ของสิ่งที่เล่าไว้
             k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
+    # ── สัญญาณที่เพิ่มในรอบหาบั๊กทุกไฟล์: มิจฉาชีพ · กินยาเกินขนาด · สัญญาณเตือน · เบอร์เฉพาะเรื่อง ──
+    sig_ctx = []
+    k_topics = k_assess.get("topics") or []
+    scam = k_assess.get("scam") or []
+    if scam:
+        if route not in ("vega",):
+            route = _escalate_route(route, "risk")
+        if scam == ["lost"]:
+            sig_ctx.append("[ผู้ใช้ถูกโกงไปแล้ว: ปลอบสั้นๆ ว่าไม่ใช่ความผิดเขา แล้วบอกสิ่งที่ต้องทำภายในวันนี้ — โทรธนาคารขอระงับบัญชีปลายทาง "
+                           "โทร 1441 (24 ชม.) แจ้งความออนไลน์ thaipoliceonline.go.th เก็บหลักฐาน และระวังคนอ้างว่าช่วยตามเงินคืนแต่ให้จ่ายก่อน]")
+        else:
+            sig_ctx.append("[ข้อความมีลักษณะมิจฉาชีพ (แอบอ้างหน่วยงาน/ให้กดลิงก์/ให้โอน/ขอ OTP): เตือนตรงๆ อย่างสุภาพ ให้วางสาย "
+                           "โทรกลับเบอร์ทางการเอง ไม่กดลิงก์ ไม่ติดตั้งแอป ไม่บอก OTP · ถ้าโอนหรือให้ข้อมูลไปแล้ว โทรธนาคาร + 1441]")
+    if "overdose" in k_topics:
+        if route not in ("vega",):
+            route = _escalate_route(route, "collapse")
+        sig_ctx.append("[อาจกินยาเกินขนาดหรือได้รับสารพิษ: ฉุกเฉิน ตอบสั้น ขั้นตอนก่อน — โทร 1669 ทันทีแม้ยังรู้สึกปกติ "
+                       "ศูนย์พิษวิทยา 1367 (24 ชม.) เก็บแผงยา/ฉลากไปด้วย · ถามอย่างอ่อนโยนว่าตั้งใจทำร้ายตัวเองไหม ถ้าใช่ บอก 1323]")
+    if "warning" in k_topics and not k_assess.get("crisis"):
+        if route not in ("vega",):
+            route = _escalate_route(route, "risk")
+        sig_ctx.append("[สัญญาณเตือนเรื่องทำร้ายตัวเอง: รับฟังอย่างอ่อนโยน แล้วถามตรงๆ หนึ่งคำถามว่าตอนนี้มีความคิดอยากทำร้ายตัวเอง"
+                       "หรือไม่อยากมีชีวิตอยู่ไหม (การถามตรงๆ ไม่ได้ทำให้แย่ลง) · บอกว่า 1323 คุยได้ฟรี 24 ชม. · ไม่เทศน์ ไม่ร่วมดีใจ]")
+    _HOT = {"addiction": "เลิกเหล้า 1413 · ยาเสพติด 1165 · เลิกบุหรี่ 1600 · พนัน/เกมที่หยุดไม่ได้ 1323",
+            "pregnancy": "ปรึกษาท้องไม่พร้อม 1663 (ฟรี เป็นความลับ ไม่ตัดสิน)",
+            "bullying": "สายด่วนเด็ก 1387 (อายุต่ำกว่า 18) · สุขภาพจิต 1323",
+            "grief": "สุขภาพจิต 1323 ถ้าเศร้าจนใช้ชีวิตไม่ได้นานหลายสัปดาห์"}
+    hot = [v for k, v in _HOT.items() if k in k_topics]
+    if hot:
+        sig_ctx.append("[เบอร์ที่ถูกต้องสำหรับเรื่องนี้ (ใช้เมื่อเหมาะ ห้ามแต่งเบอร์อื่น): " + " | ".join(hot) + "]")
+    sig_ctx = " ".join(sig_ctx)
     # กำลังเจอภัย (น้ำท่วม แผ่นดินไหว ไฟไหม้ ...) → เส้นทางความอยู่รอด ขั้นแรกของภัยนั้นมาก่อน
     dis_ctx = ""
     dis = k_assess.get("disaster")
@@ -1245,6 +1276,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         except Exception as e:
             print(f"⚠ engine_bridge: {type(e).__name__}")
     extra_ctx = " ".join(p for p in [
+        sig_ctx,
         dis_ctx,
         rel_ctx,
         offer_ctx,
