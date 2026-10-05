@@ -170,3 +170,39 @@ def test_listen_gently_before_hotlines(client, payload):
     client.post("/run", json=payload)
     prompt = FAKE_LLM["prompts"][-1]
     assert "ค่อยๆ ฟังเขา" in prompt and "ถามคำถามเปิดทีละคำถาม" in prompt
+
+
+# ── ตอบข้อความล่าสุด ไม่ใช่ข้อความก่อนหน้า (ภาพจากเว็บจริง: "พ่อตีหัว" หลัง "ไม่มีแล้ว") ──
+def test_prompt_marks_the_message_to_answer(client):
+    hist = ABUSE_HISTORY + [{"role": "user", "content": "ไม่มีแล้ว"},
+                            {"role": "assistant", "content": "ขอบคุณที่เล่าให้ฟังนะคะ"}]
+    client.post("/run", json={"input": "พ่อตีหัว", "history": hist})
+    assert "[ข้อความล่าสุดที่ต้องตอบ: «พ่อตีหัว»" in FAKE_LLM["prompts"][-1]
+
+
+def test_no_marker_in_a_fresh_chat(client):
+    client.post("/run", json={"input": "พ่อตีหัว"})
+    assert "ข้อความล่าสุดที่ต้องตอบ" not in FAKE_LLM["prompts"][-1]
+
+
+def test_marker_never_reaches_the_user():
+    from core.llm_gemini import scrub_internal
+    assert scrub_internal("ฟังอยู่นะคะ\n[ข้อความล่าสุดที่ต้องตอบ: «พ่อตีหัว»]") == "ฟังอยู่นะคะ"
+
+
+@pytest.mark.parametrize("model, off", [("gemini-2.5-flash", True), ("gemini-2.5-flash-lite", True),
+                                        ("gemini-2.0-flash-lite", False), ("gemini-2.5-pro", False)])
+def test_thinking_off_only_where_it_eats_the_reply(model, off):
+    """2.5 flash คิดก่อนตอบโดยใช้โควตาคำเดียวกัน — เคยเหลือคำตอบแค่สองบรรทัด"""
+    from core.llm_gemini import _thinks
+    assert _thinks(model) is off
+
+
+def test_no_thinking_config_keeps_other_settings():
+    from core import llm_gemini
+    if llm_gemini.types is None:
+        pytest.skip("ไม่มี google-genai")
+    cfg = llm_gemini.types.GenerateContentConfig(system_instruction="x", max_output_tokens=1024)
+    out = llm_gemini._no_thinking(cfg)
+    assert out.thinking_config.thinking_budget == 0 and out.max_output_tokens == 1024
+    assert cfg.thinking_config is None                 # ไม่แก้ค่าที่ใช้กับรุ่น 2.0

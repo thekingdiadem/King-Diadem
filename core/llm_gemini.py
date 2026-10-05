@@ -467,7 +467,7 @@ _INTERNAL_TOKENS = re.compile(
     r"root\s*=\s*(?:craving|fear|aversion|clinging|ignorance|bias|misinformation|non_existence)|"
     r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
     r"SURVIVOR ENGINE|Router action|\[โหมด:|Wise attention|nirvana_mode|risk_score|EMOTION(?:AL_CONTEXT)?:|"
-    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ก่อนหน้านี้ในแชทนี้|context_for_lyla", re.I)
+    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|context_for_lyla", re.I)
 
 
 _SENT_END = re.compile(r"(?:ค่ะ|คะ|ครับ|นะ|จ้ะ|[.!?。！？]|◈|◆|\n)\s*")
@@ -480,6 +480,20 @@ def trim_incomplete(text):
     ends = [m.end() for m in _SENT_END.finditer(text)]
     cut = ends[-1] if ends else 0
     return text[:cut].rstrip() if cut >= len(text) * 0.5 else text
+
+
+def _thinks(model_name) -> bool:
+    """gemini-2.5 flash/flash-lite คิดก่อนตอบ และนับคำที่คิดรวมในโควตาคำตอบ
+    (เคยใช้โควตาหมดจนคำตอบเหลือสองบรรทัด) — รุ่น pro ปิดการคิดไม่ได้ ส่วน 2.0 ไม่รู้จักค่านี้"""
+    m = str(model_name or "").lower()
+    return "2.5" in m and "pro" not in m
+
+
+def _no_thinking(cfg):
+    try:
+        return cfg.model_copy(update={"thinking_config": types.ThinkingConfig(thinking_budget=0)})
+    except Exception:
+        return cfg
 
 
 def scrub_internal(text):
@@ -656,6 +670,7 @@ class GeminiLLM:
             temperature=temperature,
             max_output_tokens=max_tokens,
         )
+        cfg_nothink = _no_thinking(cfg)
 
         models_to_try = [self.model] + [
             m for m in self.MODEL_FALLBACK_CHAIN if m != self.model
@@ -680,7 +695,7 @@ class GeminiLLM:
                     resp = self.client.models.generate_content(
                         model=model_name,
                         contents=contents,
-                        config=cfg
+                        config=cfg_nothink if _thinks(model_name) else cfg
                     )
                     result = (resp.text or "").strip()
                     # ถูกตัดเพราะครบโควตาคำ → เก็บถึงประโยคที่จบสมบูรณ์ (เคยจบกลางประโยค "…หรือถ้ามีอะไรที่ยังค้างคา")
