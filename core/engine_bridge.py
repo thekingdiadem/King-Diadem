@@ -7,6 +7,10 @@ core/engine_bridge.py — สะพานจากข้อความของ
 - ENGINE/resource_estimator.py  เงิน/อาหาร/น้ำ พอใช้อีกกี่วัน
 - ENGINE/relationship_engine.py สัญญาณความรุนแรง/ควบคุมในความสัมพันธ์
 - ENGINE/choice_optimizer.py    เรียงทางเลือกของผู้ใช้จากรอดสุด → เสี่ยงสุด
+- DOMAINS/survival_engine.py    ภัยที่กำลังเจอ (น้ำท่วม แผ่นดินไหว ไฟไหม้ พายุ ยิงกัน) → ระดับภัย
+- ENGINE/tool_executor.py       คิดเลขที่ผู้ใช้ถามให้ตรง (ไม่ให้ AI เดาผลคูณ/ผลบวก)
+- WORLD_MODEL/human_bias.py     กับดักความคิดตอนตัดสินใจ (เสียดายของที่ลงไปแล้ว · ติดแบบเดิม)
+- ENGINE/map_bridge.py          ปุ่มหาโรงพยาบาล/ศูนย์พักพิง/ตำรวจใกล้ตัว (ไม่ส่งพิกัดมาที่เซิร์ฟเวอร์)
 
 คืน {"lines": [...ข้อความสำหรับคำตอบ...], "llm_ctx": "...", "data": {...}}
 """
@@ -225,6 +229,161 @@ def _relationship(text: str) -> dict | None:
     return {"lines": lines, "data": {"status": r["status"], "risk_score": r["risk_score"], "flags": list(ctx)}}
 
 
+# ── 5. ภัยที่กำลังเจอ (DOMAINS/survival_engine) ──────────────────────────
+# เดิม "น้ำท่วมบ้าน" "แผ่นดินไหว ตึกสั่น" ได้ Risk 0 และคำตอบทั่วไป
+# (ชนิดภัย, ประเภทใน survival_engine, ชื่อไทย, ขั้นแรกที่ทำได้ทันที)
+_HAZARDS = (
+    ("flood", "climate_disaster", "น้ำท่วม",
+     re.compile(r"น้ำท่วม(?!ขัง|ปาก|ทุ่ง)|น้ำเข้าบ้าน|น้ำป่า|น้ำขึ้นถึง|น้ำทะลัก|เขื่อนแตก|คันกั้นน้ำแตก"),
+     ["ตัดไฟที่เบรกเกอร์ถ้ามือและเท้าแห้งและน้ำยังไม่ถึงปลั๊ก — ถ้าน้ำถึงแล้ว อย่าแตะสวิตช์ อย่าลงน้ำที่อาจมีไฟรั่ว",
+      "ขึ้นที่สูงหรือชั้นบนพร้อมคนในบ้าน เอายาประจำตัว เอกสาร โทรศัพท์กับพาวเวอร์แบงก์ไปด้วย",
+      "อย่าเดินหรือขับรถลุยน้ำไหล — น้ำสูงแค่เข่าก็พัดคนล้มได้"]),
+    ("quake", "climate_disaster", "แผ่นดินไหว",
+     re.compile(r"แผ่นดินไหว|ตึกสั่น|อาคารสั่น|ตึกถล่ม|ตึกร้าว"),
+     ["ถ้ายังสั่นอยู่: หมอบ ป้องศีรษะ เกาะโต๊ะที่แข็งแรง อยู่ห่างกระจกและของที่ล้มได้",
+      "หยุดสั่นแล้วค่อยออกทางบันได — ไม่ใช้ลิฟต์ แล้วไปอยู่ที่โล่ง ห่างตึกและเสาไฟ",
+      "ระวังอาฟเตอร์ช็อก และอย่ากลับเข้าอาคารที่มีรอยร้าวจนกว่าจะมีคนตรวจ"]),
+    ("fire", "climate_disaster", "ไฟไหม้",
+     re.compile(r"ไฟไหม้(?!ฟาง)|ไฟลุก|ควันเต็ม|ไฟป่า|ควันไฟเข้า"),
+     ["ออกจากอาคารทันที ไม่ย้อนกลับไปเอาของ — ไม่ใช้ลิฟต์",
+      "ควันเยอะ: ก้มต่ำ ใช้ผ้าชุบน้ำปิดจมูก ก่อนเปิดประตูให้ใช้หลังมือแตะลูกบิด ถ้าร้อนอย่าเปิด",
+      "ออกมาแล้วโทร 199 (ดับเพลิง) และนับคนให้ครบ"]),
+    ("storm", "climate_disaster", "พายุ/ดินถล่ม",
+     re.compile(r"พายุเข้า|พายุพัด|พายุหนัก|หลังคาปลิว|ต้นไม้ล้มทับ|ดินถล่ม|ดินสไลด์|โคลนถล่ม"),
+     ["อยู่ในอาคารที่แข็งแรง ห่างหน้าต่างและต้นไม้ใหญ่ — ถ้าอยู่ตีนเขาหรือริมลำห้วย ย้ายออกก่อน",
+      "อย่าเข้าใกล้สายไฟที่ขาด และอย่าข้ามลำน้ำที่ไหลแรง",
+      "เตรียมไฟฉาย น้ำดื่ม ยา และชาร์จโทรศัพท์ไว้"]),
+    ("violence", "war_conflict", "เหตุยิงหรือระเบิด",
+     re.compile(r"เสียงระเบิด|ระเบิดลง|ยิงกัน|มีคนยิง|กราดยิง|เสียงปืน|คนร้ายถือปืน"),
+     ["หนีออกห่างจากเสียงถ้าทำได้ปลอดภัย — ถ้าหนีไม่ได้ ซ่อนในห้องที่ล็อกได้ ปิดไฟ ปิดเสียงโทรศัพท์",
+      "อยู่ห่างหน้าต่างและประตู หมอบต่ำหลังสิ่งที่กันกระสุนได้ (ผนังปูน)",
+      "ปลอดภัยแล้วค่อยโทร 191 บอกตำแหน่ง — ถ้ามีคนเจ็บ โทร 1669"]),
+)
+_HAZARD_NEAR = re.compile(r"ตอนนี้|กำลัง|ติดอยู่|ออกไม่ได้|หนีไม่ทัน|ช่วยด้วย|ถึงเอว|ถึงอก|ท่วมบ้าน|เข้าบ้าน|ในบ้าน|"
+                          r"ที่บ้าน|ข้างบ้าน|ห้องข้างๆ|ที่นี่|แถวนี้|ยังสั่น|ตึกสั่น|อาคารสั่น|ควันเต็ม|ใกล้มาก")
+# พูดถึงภัยแต่ไม่ได้เกิดกับตัวตอนนี้: ข่าว · สมมติ · เรื่องเก่า → เตรียมตัว ไม่ยก Risk
+_HAZARD_FAR = re.compile(r"ถ้า|หาก|เผื่อ|เตรียม(?:ตัว)?รับ|ข่าว|ดูหนัง|ในหนัง|ในเกม|ปีที่แล้ว|เมื่อปี|ตอนเด็ก|เคยเจอ|สมัยก่อน")
+_HAZARD_LEVEL_TH = {"EXTREME": "สูงมาก", "HIGH": "สูง", "MODERATE": "ปานกลาง", "LOW": "ต่ำ"}
+
+
+def _disaster(text: str) -> dict | None:
+    hit = next((h for h in _HAZARDS if h[3].search(text)), None)
+    if not hit:
+        return None
+    kind, event, name, _, steps = hit
+    far = bool(_HAZARD_FAR.search(text)) and not _HAZARD_NEAR.search(text)
+    severity = 25 if far else 85 if _HAZARD_NEAR.search(text) else 60
+    try:
+        from DOMAINS.survival_engine import analyze_global_event
+        r = analyze_global_event(event_type=event, severity=severity)
+        threat, level = float(r.get("threat_score") or 0), str(r.get("threat_level") or "")
+    except Exception:  # pragma: no cover
+        threat, level = 0.0, ""
+    hotline = ("เบอร์ที่ใช้ได้: 1784 (ปภ. สายด่วนนิรภัย) · 1669 (เจ็บป่วยฉุกเฉิน) · 191 (ตำรวจ)"
+               + (" · 199 (ดับเพลิง)" if kind == "fire" else ""))
+    if far:
+        lines = [f"แผนเตรียมรับ{name} — รู้ไว้ก่อนว่าถ้าเกิดจริงต้องทำอะไรก่อน: {steps[0]}", hotline]
+    else:
+        lv = _HAZARD_LEVEL_TH.get(level, "")
+        lines = [f"ภัยที่กำลังเจอ: {name}" + (f" · ระดับภัย {lv}" if lv else "")] + steps + [hotline]
+    return {"lines": lines, "data": {"kind": kind, "name": name, "active": not far,
+                                     "threat": round(threat), "steps": steps}}
+
+
+# ── 6. คิดเลขที่ผู้ใช้ถาม (ENGINE/tool_executor) ─────────────────────────
+# ต้องมีทั้งนิพจน์ (ตัวเลข เครื่องหมาย ตัวเลข) และคำถามหาผล — "24/7" "1-2 วัน" "50/50" ไม่ใช่โจทย์
+_CALC_EXPR = re.compile(r"(?<![\d/.])\d[\d,]*(?:\.\d+)?(?:\s*[+×x*÷]\s*\d[\d,]*(?:\.\d+)?)+(?![\d/])")
+_CALC_ASK = re.compile(r"เท่าไหร่|เท่าไร|เท่าใด|ได้เท่า|ทั้งหมดกี่|รวมกี่|คิดยังไง|ช่วยคิด|ช่วยคำนวณ|คำนวณ|=\s*\?|=\s*$|how much", re.I)
+
+
+def _fmt(v: float) -> str:
+    return f"{v:,.0f}" if abs(v - round(v)) < 1e-9 else f"{v:,.2f}"
+
+
+def _calc(text: str) -> dict | None:
+    if not _CALC_ASK.search(text):
+        return None
+    try:
+        from ENGINE.tool_executor import _safe_calc
+    except Exception:  # pragma: no cover
+        return None
+    lines, results = [], []
+    for m in list(_CALC_EXPR.finditer(text))[:3]:
+        raw = m.group(0)
+        expr = raw.replace(",", "").replace("×", "*").replace("x", "*").replace("÷", "/")
+        r = _safe_calc(expr)
+        if "result" not in r:
+            continue
+        shown = re.sub(r"\s*([+×x*÷])\s*", lambda o: " " + {"x": "×", "*": "×", "÷": "÷"}.get(o.group(1), o.group(1)) + " ", raw)
+        lines.append(f"คิดเลข: {shown.strip()} = {_fmt(float(r['result']))}")
+        results.append(r["result"])
+    return {"lines": lines, "data": {"results": results}} if lines else None
+
+
+# ── 7. กับดักความคิดตอนตัดสินใจ (WORLD_MODEL/human_bias) ─────────────────
+_DECIDING = re.compile(r"ควร.{0,40}ไหม|ดีไหม|ลังเล|ตัดสินใจ|เลือก|หรือจะ|ต่อดีหรือ|เลิกดีไหม|ไปต่อ|พอแค่นี้")
+_BIAS_NOTE = {
+    "loss": ("ความเสียดายสิ่งที่ลงไปแล้ว (เงิน เวลา แรง) อาจกำลังดึงการตัดสินใจอยู่ — "
+             "ลองถามว่า ถ้าเริ่มจากศูนย์วันนี้ จะยังเลือกทางนี้ไหม"),
+    "familiar": ("ความเคยชินกับแบบเดิมอาจทำให้ทางเดิมดูปลอดภัยกว่าที่เป็นจริง — "
+                 "ลองเทียบทั้งสองทางด้วยคำถามเดียวกัน: อีก 1 ปีข้างหน้า แต่ละทางพาไปอยู่ตรงไหน"),
+}
+
+
+def _bias(text: str) -> dict | None:
+    if not _DECIDING.search(text):
+        return None
+    try:
+        from WORLD_MODEL.human_bias import detect_bias_context
+    except Exception:  # pragma: no cover
+        return None
+    b = detect_bias_context(text)
+    if b not in _BIAS_NOTE:            # panic/overconfident จับจากคำกว้างเกินไป ("รีบ" "แน่นอน")
+        return None
+    return {"lines": [_BIAS_NOTE[b]], "data": {"kind": b}}
+
+
+# ── 8. ความช่วยเหลือใกล้ตัว (ENGINE/map_bridge) ──────────────────────────────
+# ลิงก์ค้นหาแผนที่ "ใกล้ฉัน" — ไม่ส่งพิกัดของผู้ใช้มาที่เซิร์ฟเวอร์
+_PLACES = {
+    "hospital": ("โรงพยาบาล", "โรงพยาบาล ใกล้ฉัน"),
+    "police":   ("สถานีตำรวจ", "สถานีตำรวจ ใกล้ฉัน"),
+    "shelter":  ("ศูนย์พักพิง/อพยพ", "ศูนย์พักพิงชั่วคราว ศูนย์อพยพ ใกล้ฉัน"),
+    "pharmacy": ("ร้านขายยา", "ร้านขายยา ใกล้ฉัน"),
+    "water":    ("ร้านสะดวกซื้อ (น้ำดื่ม)", "ร้านสะดวกซื้อ ใกล้ฉัน"),
+    "fuel":     ("ปั๊มน้ำมัน", "ปั๊มน้ำมัน ใกล้ฉัน"),
+    "mechanic": ("อู่ซ่อมรถ", "อู่ซ่อมรถ ใกล้ฉัน"),
+}
+_NEAR_ASK = re.compile(r"ใกล้(?:ฉัน|หนู|ผม|เรา|ๆ|ที่สุด|บ้าน)|แถวนี้|อยู่ตรงไหน|ไปที่ไหนได้|หาที่ไหน")
+_PLACE_WORDS = (("hospital", r"โรงพยาบาล|โรงบาล|รพ\.|คลินิก|ห้องฉุกเฉิน"), ("police", r"สถานีตำรวจ|โรงพัก|แจ้งความ"),
+                ("shelter", r"ศูนย์อพยพ|ศูนย์พักพิง|ที่พักพิง|ที่หลบภัย"), ("pharmacy", r"ร้านขายยา|ซื้อยา"),
+                ("fuel", r"ปั๊มน้ำมัน|เติมน้ำมัน"), ("mechanic", r"อู่ซ่อม|อู่รถ|รถเสีย|ยางแตก"))
+_HEALTH_NOW = re.compile(r"เจ็บหน้าอก|แน่นหน้าอก|หายใจไม่ออก|หมดสติ|ชัก|เลือดออกไม่หยุด|แขนขาอ่อนแรง|ปากเบี้ยว")
+
+
+def nearby(text: str, disaster: dict | None = None, relationship: str | None = None) -> list:
+    """[{label, url}] ที่ควรมีปุ่มให้กด — เฉพาะตอนที่ต้องไปหาที่ช่วยจริงๆ"""
+    want = []
+    if disaster and disaster.get("active"):
+        want += ["shelter", "hospital"]
+    if _HEALTH_NOW.search(text):
+        want.append("hospital")
+    if relationship in ("collapse_risk", "critical"):
+        want.append("police")
+    if _NEAR_ASK.search(text):
+        want += [k for k, rx in _PLACE_WORDS if re.search(rx, text)]
+    try:
+        from ENGINE.map_bridge import near_me_link
+    except Exception:  # pragma: no cover
+        return []
+    out, seen = [], set()
+    for k in want:
+        if k in _PLACES and k not in seen:
+            seen.add(k)
+            out.append({"label": _PLACES[k][0], "url": near_me_link(_PLACES[k][1])})
+    return out[:3]
+
+
 # ── 4. เรียงทางเลือก ────────────────────────────────────────────────────
 _IRREVERSIBLE = re.compile(r"ลาออก|ขายบ้าน|ขายรถ|ขายที่ดิน|ขายกิจการ|ย้ายประเทศ|ย้ายบ้าน|หย่า|กู้|ลงทุนทั้งหมด|"
                            r"เงินเก็บทั้งหมด|ทุ่มหมด|เซ็นสัญญา|ปิดร้าน|ปิดกิจการ|quit|all in", re.I)
@@ -245,7 +404,8 @@ def rank_options(options: list, waterline: float = 50, entropy: float = 40) -> l
 def analyze(text: str) -> dict:
     text = str(text or "")
     out = {"lines": [], "llm_ctx": "", "data": {}}
-    for name, fn in (("relationship", _relationship), ("debt", _debt), ("runway", _runway)):
+    for name, fn in (("disaster", _disaster), ("relationship", _relationship), ("debt", _debt),
+                     ("runway", _runway), ("calc", _calc), ("bias", _bias)):
         try:
             r = fn(text)
         except Exception as e:  # ห้ามทำให้คำตอบล้ม

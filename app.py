@@ -149,18 +149,26 @@ except Exception as e:
     print(f"⚠ LLM/LYLA: {e}")
     llm = lyla = None
 
+# ── วงจรเรียนรู้จาก 👍/👎 (core/feedback_loop.py) ──────────────────────
+try:
+    from core import feedback_loop
+    feedback_loop.warm()
+except Exception as e:
+    print(f"⚠ feedback_loop: {type(e).__name__}")
+    feedback_loop = None
+
 # ── KERNEL VOICE — ตอบได้แม้ไม่มี AI (core/kernel_voice.py) ──────────
 try:
     from core.kernel_voice import compose as kernel_compose, simulate as kernel_simulate, assess as kernel_assess
     from core.thai_signals import OFFER_FLAG_TH
     from core.lang_signals import detect_lang
-    from core.engine_bridge import analyze as bridge_analyze
+    from core.engine_bridge import analyze as bridge_analyze, nearby as bridge_nearby
 except Exception as e:
     print(f"⚠ kernel_voice: {e}")
     kernel_compose = kernel_simulate = kernel_assess = None
     OFFER_FLAG_TH = {}
     detect_lang = None
-    bridge_analyze = None
+    bridge_analyze = bridge_nearby = None
 
 try:
     from core.system_orchestrator import get_orchestrator
@@ -588,7 +596,25 @@ def health():
         "stripe_webhook":     bool(os.getenv("STRIPE_WEBHOOK_SECRET")),
         "freedom_score":      freedom_index() if freedom_index else 0,
         "db_initialized":     init_db is not None,
+        "feedback":           feedback_loop.stats() if feedback_loop else None,
     }
+
+
+# ── 👍/👎 ใต้คำตอบ → วงจรเรียนรู้ (เก็บแค่เส้นทาง · ความเสี่ยง · ผลโหวต) ─────────
+@app.post("/api/feedback")
+async def post_feedback(request: Request, data: dict):
+    if not feedback_loop:
+        return JSONResponse({"ok": False, "error": "ระบบรับความเห็นยังไม่พร้อมค่ะ"}, status_code=503)
+    if not _rate_check("fb|" + _client_ip(request)):
+        return JSONResponse({"ok": False, "error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่นะคะ"}, status_code=429)
+    data = data if isinstance(data, dict) else {}
+    r = await run_in_threadpool(feedback_loop.record, data.get("vote"), data.get("route"), data.get("risk"))
+    return r if r.get("ok") else JSONResponse(r, status_code=400)
+
+
+@app.get("/api/feedback/stats")
+def get_feedback_stats():
+    return feedback_loop.stats() if feedback_loop else {"votes": 0, "signal": "NO_DATA"}
 
 
 # ── DASHBOARD ─────────────────────────────────────────────────────
@@ -858,7 +884,7 @@ def _route_bias(route: str, text: str) -> str:
 
 # วิธีฟังคนที่เพิ่งเล่าเรื่องเจ็บปวด: ฟังก่อน ค่อยๆ ไปทีละก้าว — เบอร์ช่วยเหลือสั้นๆ ตอนท้าย
 # (ยกเว้นอันตรายตอนนี้) เดิมคำตอบรีบให้รายการเบอร์โทรตั้งแต่ย่อหน้าที่สาม
-_LISTEN_GENTLY = ("ค่อยๆ ฟังเขา: เริ่มจากสะท้อนสิ่งที่เขาเล่าและความรู้สึกของเขา 1–2 ประโยคด้วยน้ำเสียงสงบ "
+_LISTEN_GENTLY = ("ค่อยๆ ฟังเขา: เริ่มจากสะท้อนสิ่งที่เขาเพิ่งเล่าในข้อความล่าสุดและความรู้สึกของเขา 1–2 ประโยคด้วยน้ำเสียงสงบ "
                   "ถามคำถามเปิดทีละคำถาม ไม่รีบแนะนำยาวหรือเป็นข้อๆ ปล่อยให้เขาเล่าในจังหวะของเขา "
                   "ให้เบอร์ช่วยเหลือสั้นๆ ตอนท้าย ยกเว้นถ้าเขายังอยู่ในอันตรายตอนนี้ ให้ความปลอดภัยและเบอร์มาก่อน")
 
@@ -1089,6 +1115,15 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                        "(1300 ศูนย์ช่วยเหลือสังคม 24 ชม." + (" · 1323 สายด่วนสุขภาพจิต" if prior_kind == "self_harm" else "") + ")]")
             # ความกังวลยังอยู่ แต่ลดลงตามเวลา — Risk = 0.75 × Risk ของสิ่งที่เล่าไว้
             k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
+    # กำลังเจอภัย (น้ำท่วม แผ่นดินไหว ไฟไหม้ ...) → เส้นทางความอยู่รอด ขั้นแรกของภัยนั้นมาก่อน
+    dis_ctx = ""
+    dis = k_assess.get("disaster")
+    if dis:
+        if route not in ("vega",):
+            route = _escalate_route(route, "survival")
+        dis_ctx = (f"[ผู้ใช้กำลังเจอ{dis.get('name', 'ภัย')}: ตอบสั้น ใจเย็น บอกขั้นที่ทำได้ทันทีจากข้อมูลที่ระบบให้ "
+                   "เรียงตามลำดับ ยังไม่ถามเรื่องอื่นหรือวิเคราะห์ยาว ถามว่าตอนนี้เขากับคนที่อยู่ด้วยปลอดภัยไหม "
+                   "ปิดท้ายด้วยเบอร์ 1784 / 1669 และบอกว่าพิมพ์มาได้ตลอด]")
     offer_flags = k_assess.get("offer_flags") or []
     if offer_flags:
         if route not in ("vega",):
@@ -1184,6 +1219,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         except Exception as e:
             print(f"⚠ engine_bridge: {type(e).__name__}")
     extra_ctx = " ".join(p for p in [
+        dis_ctx,
         rel_ctx,
         offer_ctx,
         calc_ctx,
@@ -1204,6 +1240,11 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         u_lang = detect_lang(user_input)
         if u_lang != "th":
             effective += f"\n\n[ภาษาผู้ใช้: {u_lang}]"
+    # มีประวัติแชท → บอกให้ชัดว่าข้อความไหนต้องตอบตอนนี้ (ข้อความล่าสุดถูกบริบทยาวๆ ล้อมไว้
+    # เคยเล่า "พ่อตีหัว" แล้ว LYLA หันไปตอบข้อความก่อนหน้า "ไม่มีแล้ว")
+    if isinstance(history, list) and any(isinstance(t, dict) and t.get("role") == "user" for t in history):
+        effective += (f"\n\n[ข้อความล่าสุดที่ต้องตอบ: «{user_input[:300]}» "
+                      "— ข้อความก่อนหน้าในแชทเป็นแค่บริบท]")
 
     # v5.0: ส่ง context แยกเป็น field ชัดๆ ด้วย ไม่ใช่ฝังใน "input" text อย่างเดียว
     # เผื่อ full_run_decision / DecisionEngine รองรับ field เหล่านี้โดยตรง
@@ -1295,6 +1336,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         result["risk_score"] = float(k_assess["text_risk"])
     if offer_flags:
         result["offer_flags"] = offer_flags
+    # ปุ่มหาความช่วยเหลือใกล้ตัว (โรงพยาบาล ศูนย์พักพิง ตำรวจ) — แผนที่ในมือถือใช้ตำแหน่งของผู้ใช้เอง
+    if bridge_nearby and isinstance(result, dict):
+        try:
+            links = bridge_nearby(user_input, k_assess.get("disaster"), k_assess.get("relationship"))
+            if links:
+                result["help_links"] = links
+        except Exception as e:
+            print(f"⚠ nearby: {type(e).__name__}")
 
     # ── error clean ───────────────────────────────────────────────
     if result.get("error"):

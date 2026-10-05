@@ -276,6 +276,10 @@ _UNITS = {"พัน": 1e3, "หมื่น": 1e4, "แสน": 1e5, "ล้า
 _MONEY = re.compile(r"(\d[\d,]*(?:\.\d+)?)\s*(พัน|หมื่น|แสน|ล้าน|k|K)?\s*(บาท|฿)?")
 
 
+# เงินที่ลง/จ่าย/เสียไปแล้ว ไม่ใช่เงินที่เหลือใช้ ("ลงทุนไปแล้ว 2 แสน" เคยได้ "≈ 1,333 วัน")
+_SPENT = re.compile(r"(?:ลงทุน|เสีย|จ่าย|ใช้|หมด|โดนโกง|ถูกโกง|โอน)\S{0,6}ไป|ขาดทุน")
+
+
 def _money(text: str):
     best = None
     for m in _MONEY.finditer(text):
@@ -302,6 +306,10 @@ SAFETY = {
     ],
     "ask": "ตอนนี้คุณอยู่ในที่ที่ปลอดภัยไหม?",
 }
+
+# ภัยที่กำลังเจอ — ขั้นของแต่ละภัยอยู่ใน core/engine_bridge._HAZARDS
+DISASTER_OPEN = "ตอนนี้ความปลอดภัยของร่างกายมาก่อน ของเสียหายซ่อมหรือหาใหม่ได้"
+DISASTER_ASK = "ตอนนี้คุณกับคนที่อยู่ด้วยอยู่ในที่ปลอดภัยแล้วหรือยัง?"
 
 # ข้อเสนอเงินที่การันตีผลตอบแทน/เร่งให้ตอบ (core/thai_signals.offer_red_flags)
 OFFER = {
@@ -358,11 +366,21 @@ def assess(text: str, pattern: dict | None = None) -> dict:
         pass
     if rel:
         text_risk = max(text_risk, rel["data"]["risk_score"])
+    # ภัยที่กำลังเจอ (DOMAINS/survival_engine ผ่าน core/engine_bridge) — เดิม "น้ำท่วมบ้าน" ได้ Risk 0
+    dis = None
+    try:
+        from core.engine_bridge import _disaster
+        dis = _disaster(text)
+    except Exception:
+        pass
+    if dis and dis["data"]["active"]:
+        text_risk = max(text_risk, dis["data"]["threat"])
     return {
         "W": round(W), "risk": round(max(risk, text_risk)),
         # risk จากข้อความล้วน (0 = ไม่มีสัญญาณ) — ใช้ยกค่า risk_score ที่ engine คิดจากสถานะอย่างเดียว
         "text_risk": round(text_risk), "offer_flags": flags,
         "relationship": rel["data"]["status"] if rel else None,
+        "disaster": dis["data"] if dis and dis["data"]["active"] else None,
         "crisis": crisis, "topics": topics, "money": _money(text),
         "options": _options(text or ""),
     }
@@ -410,6 +428,8 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = OFFER, None
     elif a["relationship"] in ("collapse_risk", "critical"):   # ถูกทำร้าย/ควบคุม: ความปลอดภัยมาก่อน
         main, second = SAFETY, None
+    elif a["disaster"]:                  # กำลังเจอภัย: ขั้นแรกของภัยนั้นมาก่อนทุกอย่าง
+        main, second = {"open": [DISASTER_OPEN], "paths": a["disaster"]["steps"], "ask": DISASTER_ASK}, None
 
     paths = _paths(main, t)[:3]
     if second:
@@ -437,10 +457,11 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     # ── เงิน: เวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน ─────────────
     # ── ตัวเลขจากเรื่องของผู้ใช้: หนี้ · เวลาที่มีจริง · ความสัมพันธ์ (core/engine_bridge) ──
     bridge = bridge_analyze(text) if not a["offer_flags"] else {"lines": [], "data": {}}
-    calc_block = ("\n\nจากสิ่งที่คุณเล่า:\n" + "\n".join("· " + l for l in bridge["lines"])) if bridge["lines"] else ""
+    shown = [l for l in bridge["lines"] if l not in paths]          # ขั้นของภัยอยู่ในรายการหลักแล้ว
+    calc_block = ("\n\nจากสิ่งที่คุณเล่า:\n" + "\n".join("· " + l for l in shown)) if shown else ""
 
     money_line = ""
-    if a["money"] and not a["offer_flags"] and "runway" not in bridge["data"] and "debt" not in bridge["data"] and any(x in a["topics"] for x in ("money", "debt", "job", "basic", "business")):
+    if a["money"] and not a["offer_flags"] and not _SPENT.search(t) and "runway" not in bridge["data"] and "debt" not in bridge["data"] and any(x in a["topics"] for x in ("money", "debt", "job", "basic", "business")):
         m = a["money"]
         per_day = 150
         money_line = (f"\n\nเวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน → {m:,.0f} ÷ {per_day} ≈ {m / per_day:,.0f} วัน "
