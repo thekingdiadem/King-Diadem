@@ -857,7 +857,15 @@ def _route_bias(route: str, text: str) -> str:
 
 def _resolve_voice_mode(data: dict, route: str) -> str:
     vm = str(data.get("voice_mode") or "").lower().strip()
-    if vm == "crisis":                   return "crisis"
+    # "crisis" จากหน้าเว็บเป็นแค่การเดาด้วยคำ (เคยนับ "ตาย" คำเดียว: "แบตมือถือตาย" "ขำจะตาย")
+    # ให้เซิร์ฟเวอร์ยืนยันด้วยตัวจับสัญญาณทำร้ายตัวเองก่อน ถึงจะใช้ prompt โหมดวิกฤต
+    if vm == "crisis":
+        try:
+            if not text_risk or text_risk(str(data.get("input") or "")).get("self_harm"):
+                return "crisis"              # ไม่มีตัวตรวจ → ปลอดภัยไว้ก่อน
+        except Exception:
+            return "crisis"
+        vm = ""
     if vm == "vega" or route == "vega":  return "vega"
     return "lyla"
 
@@ -1162,6 +1170,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # (ถ้า engine ไม่รู้จัก field พวกนี้ ก็ยังมี text ใน "input" เป็น fallback เดิม)
     payload = {
         **data,
+        "voice_mode":     vm,            # ค่าที่เซิร์ฟเวอร์ยืนยันแล้ว ไม่ใช่ค่าที่หน้าเว็บเดามา
         "raw_input":      user_input,
         "input":          effective,
         "history":        history,

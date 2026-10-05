@@ -997,7 +997,9 @@ function syncChips(){
   $$('#routes .chip').forEach(function(b){ b.classList.toggle('on', b.dataset.r === Route); });
   $$('#persona-seg button').forEach(function(b){ b.classList.toggle('on', b.dataset.p === Persona); });
 }
-var CRISIS_RE = /ฆ่าตัว|อยากตาย|ไม่อยากอยู่|ตาย|ทำร้ายตัวเอง|suicide|kill myself|emergency|urgent|ช่วยด่วน|หนีออก|วิกฤต/i;
+/* สัญญาณทำร้ายตัวเองเท่านั้น — เดิมนับ "ตาย" "urgent" "วิกฤต" คำเดียว ("แบตมือถือตาย" "ขำจะตาย" ก็เป็นวิกฤต)
+   เซิร์ฟเวอร์ตรวจซ้ำอีกชั้นก่อนใช้โหมดวิกฤต */
+var CRISIS_RE = /ฆ่าตัว|อยากตาย|ไม่อยากมีชีวิต|ไม่อยากอยู่(?!(?:แล้ว|ต่อ)?\s*(?:ที่|กับ|บ้าน|บริษัท|ห้อง|หอ|ตรงนี้|ทีม|งาน|ใน))|จบชีวิต|ทำร้ายตัวเอง|กรีดข้อมือ|suicid|kill myself|want to die|end my life|死にたい|想死(?!你|您|他|她|我了)|自杀|자살|죽고\s*싶|quiero morir/i;
 function detectMode(text){
   if(CRISIS_RE.test(text)) return 'crisis';
   if(Persona === 'vega' || Persona === 'lyla') return Persona;
