@@ -467,7 +467,19 @@ _INTERNAL_TOKENS = re.compile(
     r"root\s*=\s*(?:craving|fear|aversion|clinging|ignorance|bias|misinformation|non_existence)|"
     r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
     r"SURVIVOR ENGINE|Router action|\[โหมด:|Wise attention|nirvana_mode|risk_score|EMOTION(?:AL_CONTEXT)?:|"
-    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|context_for_lyla", re.I)
+    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ก่อนหน้านี้ในแชทนี้|context_for_lyla", re.I)
+
+
+_SENT_END = re.compile(r"(?:ค่ะ|คะ|ครับ|นะ|จ้ะ|[.!?。！？]|◈|◆|\n)\s*")
+
+
+def trim_incomplete(text):
+    """ตัดส่วนท้ายที่ถูกตัดกลางประโยคทิ้ง (เก็บถึงจุดจบประโยคสุดท้าย ถ้าเหลืออย่างน้อยครึ่งหนึ่ง)"""
+    if not isinstance(text, str) or not text.strip():
+        return text
+    ends = [m.end() for m in _SENT_END.finditer(text)]
+    cut = ends[-1] if ends else 0
+    return text[:cut].rstrip() if cut >= len(text) * 0.5 else text
 
 
 def scrub_internal(text):
@@ -671,6 +683,13 @@ class GeminiLLM:
                         config=cfg
                     )
                     result = (resp.text or "").strip()
+                    # ถูกตัดเพราะครบโควตาคำ → เก็บถึงประโยคที่จบสมบูรณ์ (เคยจบกลางประโยค "…หรือถ้ามีอะไรที่ยังค้างคา")
+                    try:
+                        fr = str(getattr((resp.candidates or [None])[0], "finish_reason", "") or "")
+                    except Exception:
+                        fr = ""
+                    if "MAX_TOKENS" in fr.upper():
+                        result = trim_incomplete(result)
                     _cache_set(ck, result)
                     if model_name != self.model:
                         print(f"✅ Fallback model สำเร็จ: {model_name} (primary={self.model} ใช้ไม่ได้)")
@@ -817,7 +836,7 @@ class GeminiLLM:
         # ── CRISIS override ────────────────────────────────────
         if detect_crisis(prompt) or voice_mode == "crisis" or "EMOTION:CRISIS" in emotion_state.upper():
             contents = _build_contents(history or [], prompt, additional_context)
-            return self._gcall(CRISIS_SYSTEM, contents, temperature=0.5, max_tokens=600)
+            return self._gcall(CRISIS_SYSTEM, contents, temperature=0.5, max_tokens=1024)
 
         # ── Emotion routing ────────────────────────────────────
         em = emotion_state.upper()
@@ -836,7 +855,7 @@ class GeminiLLM:
             if key in em:
                 contents = _build_contents(history or [], prompt,
                                            f"{additional_context} | {emotion_state}")
-                return self._gcall(sys_prompt, contents, temperature=temp, max_tokens=600)
+                return self._gcall(sys_prompt, contents, temperature=temp, max_tokens=1024)
 
         # ── Context note ───────────────────────────────────────
         route_notes = {
