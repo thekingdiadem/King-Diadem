@@ -103,6 +103,8 @@ def parse_debts(text: str) -> list:
             rate = float(rate_m.group(1))
             if re.search(r"(?:%|เปอร์เซ็นต์)\s*(?:ต่อเดือน|/เดือน|เดือนละ)", seg):
                 rate *= 12                                  # ดอกรายเดือน (มักเป็นหนี้นอกระบบ) → ต่อปี
+            elif re.search(r"(?:%|เปอร์เซ็นต์)\s*(?:ต่อวัน|/วัน|วันละ)", seg):
+                rate *= 365                                 # ดอกรายวัน (เงินกู้รายวัน) — เดิมนับเป็นต่อปี
         elif kind[1] is not None:
             rate, assumed = kind[1], True
         else:
@@ -113,10 +115,27 @@ def parse_debts(text: str) -> list:
     return debts[:8]
 
 
+_INFORMAL = re.compile(r"นอกระบบ|เงินกู้รายวัน|กู้รายวัน|เงินด่วน[^\n]{0,8}ไม่เช็ค\S{0,2}บูโร")
+_INFORMAL_LAW = ("หนี้นอกระบบ: กฎหมายให้ดอกเบี้ยเงินกู้ระหว่างบุคคลไม่เกิน 15% ต่อปี — "
+                 "ปรึกษาหรือร้องเรียนได้ที่ศูนย์ดำรงธรรม 1567")
+
+
 def _debt(text: str) -> dict | None:
     debts = parse_debts(text)
     if not debts:
-        return None
+        # ไม่ได้บอกยอดเงินต้น ("เป็นหนี้นอกระบบ ดอก 20% ต่อเดือน") — เดิมเงียบ ไม่เตือนเรื่องดอกผิดกฎหมายเลย
+        if not _INFORMAL.search(text):
+            return None
+        t = _PCT_TH.sub(r"\1%", text)
+        m = re.search(r"(\d+(?:\.\d+)?)\s*(?:%|เปอร์เซ็นต์)\s*(ต่อเดือน|/เดือน|เดือนละ|ต่อวัน|/วัน|วันละ)?", t)
+        lines = []
+        if m:
+            per = m.group(2) or ""
+            annual = float(m.group(1)) * (365 if "วัน" in per else 12 if "เดือน" in per else 1)
+            lines.append(f"ดอกที่เล่ามาคิดเป็นประมาณ {annual:,.0f}% ต่อปี" + (" — เกินที่กฎหมายกำหนดหลายเท่า" if annual > 15 else ""))
+        lines.append(_INFORMAL_LAW)
+        lines.append("บอกยอดหนี้ รายได้ และรายจ่ายต่อเดือนมาด้วย ระบบจะคำนวณให้ว่าปลดหนี้ได้ในกี่เดือน")
+        return {"lines": lines, "data": {"debts": [], "informal": True}}
     income = _after(text, r"เงินเดือน|รายได้|ได้เดือนละ|ทำได้เดือนละ|รับเดือนละ")
     expense = _after(text, r"รายจ่าย|ค่าใช้จ่าย|ใช้จ่าย|ใช้เดือนละ|จ่ายเดือนละ")
     lines, data = [], {"debts": debts, "income": income, "expense": expense}
@@ -128,9 +147,8 @@ def _debt(text: str) -> dict | None:
     else:
         lines.append(f"หนี้ที่คุณเล่ามา {len(debts)} ก้อน รวม {total:,.0f} บาท — ดอกสูงก่อน: " +
                      " → ".join(f"{d['name']} {d['annual_rate']:g}%{'*' if d['assumed_rate'] else ''}" for d in order))
-    if any("นอกระบบ" in d["name"] for d in debts):
-        lines.append("หนี้นอกระบบ: กฎหมายให้ดอกเบี้ยเงินกู้ระหว่างบุคคลไม่เกิน 15% ต่อปี — "
-                     "ปรึกษาหรือร้องเรียนได้ที่ศูนย์ดำรงธรรม 1567")
+    if any("นอกระบบ" in d["name"] for d in debts) or _INFORMAL.search(text):
+        lines.append(_INFORMAL_LAW)
     if any(d["assumed_rate"] for d in debts):
         lines.append("* ดอกเบี้ยที่ใช้เป็นค่าทั่วไปของหนี้ประเภทนั้น บอกดอกจริงมาจะคำนวณแม่นขึ้น")
     if income is not None and expense is not None:
@@ -261,7 +279,8 @@ _HAZARDS = (
                 # "ติดไฟ" เฉยๆ = ติดตั้งหลอดไฟ/ติดไฟแดง — ต้องมีของที่ติดไฟ · "fire" เฉยๆ = ไล่ออก ("boss will fire me")
                 r"(?:น้ำมัน|กระทะ|รถ|บ้าน|ผ้าม่าน|ที่นอน)\S{0,4}ติดไฟ(?!แดง|เขียว)|"
                 r"ปลั๊ก\S{0,6}(?:ไหม้|มีควัน)|สายไฟ\S{0,6}(?:ไหม้|มีควัน)|ไฟฟ้าลัดวงจร|"
-                r"\bwildfire\b|\b(?:house|building|room|kitchen|car) (?:is )?on fire\b", re.I),
+                r"\bwildfire\b|\b(?:house|building|room|kitchen|car) (?:is )?on fire\b|"
+                r"\b(?:a )?fire in (?:my|the|our) (?:house|home|kitchen|building|room|apartment|flat|condo)\b|\b(?:house|building|apartment) fire\b", re.I),
      ["ออกจากอาคารทันที ไม่ย้อนกลับไปเอาของ — ไม่ใช้ลิฟต์",
       "ควันเยอะ: ก้มต่ำ ใช้ผ้าชุบน้ำปิดจมูก ก่อนเปิดประตูให้ใช้หลังมือแตะลูกบิด ถ้าร้อนอย่าเปิด",
       "ออกมาแล้วโทร 199 (ดับเพลิง) และนับคนให้ครบ"]),
@@ -291,6 +310,16 @@ _HAZARDS = (
      ["แยกน้ำดื่มไว้ก่อน — คนละอย่างน้อย 3 ลิตรต่อวัน น้ำไม่แน่ใจให้ต้มเดือดอย่างน้อย 1 นาทีก่อนดื่ม",
       "ใช้น้ำซ้ำ: น้ำล้างผักเอาไปรดต้นไม้หรือราดชักโครก — เก็บน้ำในภาชนะมีฝาปิด กันยุงวางไข่",
       "ติดต่อ อบต./เทศบาล หรือ ปภ. 1784 เรื่องรถน้ำแจกจ่าย และคอยดูอาการขาดน้ำ (ปากแห้ง ปัสสาวะน้อยสีเข้ม เวียนหัว)"]),
+    # เดิม "มีคนพยายามงัดประตูบ้าน" "มีคนเดินตามตลอดทาง" ได้ Risk 0
+    ("intruder", "war_conflict", "คนบุกรุก/ถูกตาม",
+     re.compile(r"(?:มีคน|โจร|ขโมย|ผู้ชาย|ใครไม่รู้)\S{0,10}(?:งัด|ปีน|บุก|พัง|แอบเข้า)\S{0,6}(?:ประตู|หน้าต่าง|บ้าน|ห้อง|รั้ว|เข้า)|"
+                r"(?:โจร|ขโมย)ขึ้นบ้าน|มีคน(?:แอบ)?อยู่ในบ้าน\S{0,6}(?:ไม่รู้จัก|แปลกหน้า)|"
+                r"มีคน\S{0,10}(?:เดินตาม|ขับรถตาม|ขี่รถตาม|แอบตาม|ตามมาถึง)|(?:โดน|ถูก)\S{0,4}(?:สะกดรอยตาม|ตามมาถึงบ้าน)|"
+                r"\bbreaking into my\b|\bintruder (?:in|inside|at)\b|\bthere'?s an intruder\b|\bsomeone (?:is )?(?:in|inside) my (?:house|home|room|apartment)\b|"
+                r"\b(?:i'?m|i am) being followed\b|\bsomeone (?:is )?following me\b|\bstalking me\b", re.I),
+     ["อย่าออกไปเผชิญหน้า — ล็อกตัวเองในห้องที่ล็อกได้ เปิดไฟ แล้วโทร 191 บอกที่อยู่ให้ชัด (พูดไม่ได้ให้เปิดสายค้างไว้)",
+      "ถ้ากำลังถูกตาม: อย่ากลับบ้าน (เขาจะรู้ที่อยู่) — ไปที่มีคนเยอะและมีไฟสว่าง เช่น ร้านสะดวกซื้อ ปั๊ม หรือสถานีตำรวจ",
+      "โทรหาคนที่ไว้ใจแล้วเปิดสายคุยไว้ แชร์ตำแหน่งให้เขา และจำรูปร่าง เสื้อผ้า หรือทะเบียนรถไว้ถ้าทำได้ปลอดภัย"]),
     ("violence", "war_conflict", "เหตุยิงหรือระเบิด",
      re.compile(r"เสียงระเบิด|ระเบิดลง|ระเบิดขึ้น|ยิงกัน|มีคนยิง|กราดยิง|เสียงปืน|ไล่ยิง|"
                 r"(?:คนร้าย|มีคน|ผู้ชาย|ผู้หญิง|ใคร)\S{0,6}ถือปืน(?!ฉีดน้ำ|ของเล่น|อัดลม|บีบี)|"
@@ -477,12 +506,28 @@ def _hazard_place(kind: str, text: str):
     places = _HAZARD_PLACES.get(kind, ((), None))[0]
     return next((q for q in places if q[2].search(text)), None)
 # พูดถึงภัยแต่ไม่ได้เกิดกับตัวตอนนี้: ข่าว · สมมติ · เรื่องเก่า → เตรียมตัว ไม่ยก Risk
-_HAZARD_FAR = re.compile(r"ถ้า|หาก|เผื่อ|เตรียม(?:ตัว)?รับ|ข่าว|ดูหนัง|ในหนัง|ในเกม|ปีที่แล้ว|เมื่อปี|ตอนเด็ก|เคยเจอ|สมัยก่อน")
+_HAZARD_FAR = re.compile(r"ถ้า|หาก|เผื่อ|เตรียม(?:ตัว)?รับ|ข่าว|ดูหนัง|ในหนัง|ในเกม|ปีที่แล้ว|เมื่อปี|ตอนเด็ก|เคยเจอ|สมัยก่อน|"
+                         r"(?i:\bif\b|\bin case\b|\bprepare\b|\bin the (?:news|movie|game)\b|\blast year\b)")
 _HAZARD_LEVEL_TH = {"EXTREME": "สูงมาก", "HIGH": "สูง", "MODERATE": "ปานกลาง", "LOW": "ต่ำ"}
 
 
+# สำนวน/เปรียบเทียบ — "น้ำท่วมปอด" (ดีใจล้น) "ใจเหมือนแผ่นดินไหว" "ไฟป่าในใจ" เคยได้ขั้นตอนหนีภัยและ Risk 53–64
+_HAZARD_IDIOM = re.compile(r"น้ำท่วมปอด|น้ำท่วมหัวเอาตัวไม่รอด|(?:เหมือน|ดั่ง|ดุจ|ราวกับ|ยังกับ)\S{0,8}$")
+_HAZARD_HEART = re.compile(r"^\S{0,4}(?:ใน|กลาง)(?:หัว)?(?:ใจ|อก)")
+
+
 def _disaster(text: str) -> dict | None:
-    hit = next((h for h in _HAZARDS if h[3].search(text)), None)
+    hit = None
+    for h in _HAZARDS:
+        for mm in h[3].finditer(text):
+            before, after = text[max(0, mm.start() - 12):mm.start()], text[mm.end():mm.end() + 10]
+            idiom = _HAZARD_IDIOM.search(text[max(0, mm.start() - 4):mm.end() + 24])
+            if (idiom and idiom.group(0).startswith("น้ำท่วม")) or _HAZARD_IDIOM.search(before) or _HAZARD_HEART.search(after):
+                continue
+            hit = h
+            break
+        if hit:
+            break
     if not hit:
         return None
     kind, event, name, _, steps = hit
@@ -591,7 +636,7 @@ def nearby(text: str, disaster: dict | None = None, relationship: str | None = N
     want = []
     if disaster and disaster.get("active"):
         # ร้อนจัด/ฝุ่น ต้องไปหาหมอ ไม่ใช่ศูนย์อพยพ · ภัยแล้งไม่มีที่ใกล้ตัวที่ช่วยได้ตรงๆ (ให้เบอร์ ปภ. แทน)
-        want += {"heat": ["hospital"], "haze": ["hospital"], "drought": []}.get(disaster.get("kind"),
+        want += {"heat": ["hospital"], "haze": ["hospital"], "drought": [], "intruder": ["police"]}.get(disaster.get("kind"),
                                                                                  ["shelter", "hospital"])
     if _HEALTH_NOW.search(text):
         want.append("hospital")
@@ -628,11 +673,34 @@ def rank_options(options: list, waterline: float = 50, entropy: float = 40) -> l
 
 
 # ── รวม ────────────────────────────────────────────────────────────────
+# ── 9. สัตว์เล็ก (WORLD_MODEL/small_animal_model · ANIMA-SAFE) ──────────────────
+# เดิมไม่มีใครเรียก — "จะวางยาเบื่อหนู" ได้คำตอบที่ไม่เคยเห็นทางที่ไม่ต้องฆ่า
+# ยังตอบเรื่องที่ผู้ใช้ถามตามปกติ แค่ให้ทางที่ไม่ทำร้ายเป็นตัวเลือกแรก · สัตว์ป่วย → หาหมอ
+def _animal(text: str) -> dict | None:
+    from WORLD_MODEL.small_animal_model import full_assessment
+    a = full_assessment(text)
+    animals = [x["thai"] for x in a["animal_detection"]["animals"]]
+    sick = (a.get("welfare") or {}).get("welfare_status") == "POOR"
+    if not animals or (a["response_type"] != "INTERVENE" and not sick):
+        return None
+    name = " ".join(dict.fromkeys(animals))
+    if sick:
+        lines = [f"{name}มีอาการน่าห่วง — สัตว์เล็กซ่อนอาการเก่ง ไม่กินเกิน 12–24 ชั่วโมงก็อันตรายแล้ว "
+                 "ควรพาไปหาสัตวแพทย์ (คลินิกสัตว์เล็ก/exotic) เร็วที่สุด ระหว่างนี้ให้อยู่ในที่อุ่น เงียบ มีน้ำสะอาด"]
+        if not any(x["animal"] in ("hamster", "rabbit", "guinea_pig", "gerbil") for x in a["animal_detection"]["animals"]):
+            lines.append("ถ้าเป็นสัตว์ป่าบาดเจ็บ: กรมอุทยานฯ สายด่วน 1362")
+    else:
+        lines = [f"เรื่อง{name}: ลองทางที่ไม่ต้องฆ่าก่อน — " + " · ".join(a["responses"][:3]),
+                 "ถ้าจำเป็นต้องจับ ใช้กรงดักแบบเป็น แล้วปล่อยไกลจากบ้าน — ยาเบื่อและกาวดักทำให้ตายช้าและทรมาน "
+                 "และเป็นอันตรายต่อแมว หมา และเด็กในบ้านด้วย"]
+    return {"lines": lines, "data": {"animals": animals, "intervene": a["response_type"] == "INTERVENE", "sick": sick}}
+
+
 def analyze(text: str) -> dict:
     text = str(text or "")
     out = {"lines": [], "llm_ctx": "", "data": {}}
     for name, fn in (("disaster", _disaster), ("relationship", _relationship), ("debt", _debt),
-                     ("runway", _runway), ("calc", _calc), ("bias", _bias)):
+                     ("runway", _runway), ("calc", _calc), ("bias", _bias), ("animal", _animal)):
         try:
             r = fn(text)
         except Exception as e:  # ห้ามทำให้คำตอบล้ม
