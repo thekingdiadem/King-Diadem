@@ -157,6 +157,12 @@ except Exception as e:
     print(f"⚠ feedback_loop: {type(e).__name__}")
     feedback_loop = None
 
+try:
+    from core.future_paths import project as future_project
+except Exception as e:
+    print(f"⚠ future_paths: {type(e).__name__}")
+    future_project = None
+
 # ── KERNEL VOICE — ตอบได้แม้ไม่มี AI (core/kernel_voice.py) ──────────
 try:
     from core.kernel_voice import compose as kernel_compose, simulate as kernel_simulate, assess as kernel_assess
@@ -1515,6 +1521,14 @@ def run_simulate(request: Request, data: dict):
         _refund(ticket)
     else:
         _settle(ticket)
+    # ภาพจำลองอนาคต 12 เดือนของแต่ละทาง (core/future_paths — สมการ ไม่ใช่ AI)
+    if future_project and isinstance(result, dict):
+        try:
+            fut = future_project(user_input, paths)
+            if fut:
+                result["future"] = fut
+        except Exception as e:
+            print(f"⚠ future_paths: {type(e).__name__}")
     result["quota"] = {**_quota_status(email, request), "charged": ticket["mode"]}
     return result
 
