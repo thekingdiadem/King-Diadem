@@ -90,7 +90,9 @@ HUMANE_RESPONSES = {
 
 WELFARE_INDICATORS = {
     "positive": ["วิ่ง", "กิน", "เล่น", "สบาย", "active", "eating", "playing"],
-    "negative": ["นิ่ง", "ไม่กิน", "หายใจลำบาก", "บาดเจ็บ", "still", "not eating", "injured"],
+    # "ไม่ยอมกิน" เคยติด "กิน" ฝั่งดี → กระต่ายที่ไม่กินข้าวถูกประเมินว่าสบายดี
+    "negative": ["นิ่ง", "ไม่กิน", "ไม่ยอมกิน", "ไม่ค่อยกิน", "ซึม", "ป่วย", "ไม่สบาย", "ท้องเสีย", "หายใจลำบาก",
+                 "บาดเจ็บ", "เลือดออก", "ขาหัก", "still", "not eating", "injured", "sick", "bleeding"],
 }
 
 
@@ -98,7 +100,11 @@ WELFARE_INDICATORS = {
 # CORE FUNCTIONS
 # ══════════════════════════════════════════════════════════════════
 
-_MOUSE_TH_RE = re.compile(r"(เจอ|ตัว|กำจัด|ไล่|จับ|ฆ่า|มี|เลี้ยง|ให้อาหาร)\s*หนู|หนู\s*(ตัว|ใน|วิ่ง|กัด|เข้า|ออก|นา|ตะเภา|บ้าน)")
+_MOUSE_TH_RE = re.compile(r"(เจอ|ตัว|กำจัด|ไล่|จับ|ฆ่า|มี|เลี้ยง|ให้อาหาร|ยาเบื่อ|กับดัก|กาวดัก|รัง|ขี้|ฉี่)\s*หนู|"
+                          r"หนู\s*(ตัว|ใน|วิ่ง|กัด|เข้า|ออก|นา|ตะเภา|บ้าน|แทะ)|หนู\S{0,10}(?:ในครัว|บนฝ้า|บนเพดาน|ใต้หลังคา)")
+# คำเล่น/สำนวนที่มีคำว่าฆ่า/kill แต่ไม่เกี่ยวกับการทำร้าย ("ฆ่าเวลาเล่นกับกระต่าย")
+_IDIOM_RE = re.compile(r"ฆ่าเวลา|kill(?:ing)? time", re.I)
+_ALIASES = {"mouse": ("mice",)}
 
 
 def detect_small_animal(text: str) -> dict:
@@ -118,7 +124,9 @@ def detect_small_animal(text: str) -> dict:
             th_hit = _MOUSE_TH_RE.search(t) is not None
         else:
             th_hit = info["th"] in t
-        if _hit(animal.replace("_", " "), t) or th_hit:
+        en = animal.replace("_", " ")
+        en_hit = any(_hit(w, t) for w in (en, en + "s") + _ALIASES.get(animal, ()))   # "rats" "mice"
+        if en_hit or th_hit:
             found.append({
                 "animal":    animal,
                 "thai":      info["th"],
@@ -142,7 +150,7 @@ def detect_harm_intent(text: str) -> dict:
     if not text:
         return {"harm_detected": False, "harm_type": None}
 
-    t          = str(text or "").lower()
+    t          = _IDIOM_RE.sub(" ", str(text or "").lower())
     harm_found = []
 
     for harm_type, signals in HARM_SIGNALS.items():
@@ -172,6 +180,7 @@ def assess_welfare(text: str) -> dict:
 
     positive_hits = [w for w in WELFARE_INDICATORS["positive"] if _hit(w, t)]
     negative_hits = [w for w in WELFARE_INDICATORS["negative"] if _hit(w, t)]
+    positive_hits = [w for w in positive_hits if not any(w in n for n in negative_hits)]
 
     if negative_hits and not positive_hits:
         welfare = "POOR"

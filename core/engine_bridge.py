@@ -628,11 +628,34 @@ def rank_options(options: list, waterline: float = 50, entropy: float = 40) -> l
 
 
 # ── รวม ────────────────────────────────────────────────────────────────
+# ── 9. สัตว์เล็ก (WORLD_MODEL/small_animal_model · ANIMA-SAFE) ──────────────────
+# เดิมไม่มีใครเรียก — "จะวางยาเบื่อหนู" ได้คำตอบที่ไม่เคยเห็นทางที่ไม่ต้องฆ่า
+# ยังตอบเรื่องที่ผู้ใช้ถามตามปกติ แค่ให้ทางที่ไม่ทำร้ายเป็นตัวเลือกแรก · สัตว์ป่วย → หาหมอ
+def _animal(text: str) -> dict | None:
+    from WORLD_MODEL.small_animal_model import full_assessment
+    a = full_assessment(text)
+    animals = [x["thai"] for x in a["animal_detection"]["animals"]]
+    sick = (a.get("welfare") or {}).get("welfare_status") == "POOR"
+    if not animals or (a["response_type"] != "INTERVENE" and not sick):
+        return None
+    name = " ".join(dict.fromkeys(animals))
+    if sick:
+        lines = [f"{name}มีอาการน่าห่วง — สัตว์เล็กซ่อนอาการเก่ง ไม่กินเกิน 12–24 ชั่วโมงก็อันตรายแล้ว "
+                 "ควรพาไปหาสัตวแพทย์ (คลินิกสัตว์เล็ก/exotic) เร็วที่สุด ระหว่างนี้ให้อยู่ในที่อุ่น เงียบ มีน้ำสะอาด"]
+        if not any(x["animal"] in ("hamster", "rabbit", "guinea_pig", "gerbil") for x in a["animal_detection"]["animals"]):
+            lines.append("ถ้าเป็นสัตว์ป่าบาดเจ็บ: กรมอุทยานฯ สายด่วน 1362")
+    else:
+        lines = [f"เรื่อง{name}: ลองทางที่ไม่ต้องฆ่าก่อน — " + " · ".join(a["responses"][:3]),
+                 "ถ้าจำเป็นต้องจับ ใช้กรงดักแบบเป็น แล้วปล่อยไกลจากบ้าน — ยาเบื่อและกาวดักทำให้ตายช้าและทรมาน "
+                 "และเป็นอันตรายต่อแมว หมา และเด็กในบ้านด้วย"]
+    return {"lines": lines, "data": {"animals": animals, "intervene": a["response_type"] == "INTERVENE", "sick": sick}}
+
+
 def analyze(text: str) -> dict:
     text = str(text or "")
     out = {"lines": [], "llm_ctx": "", "data": {}}
     for name, fn in (("disaster", _disaster), ("relationship", _relationship), ("debt", _debt),
-                     ("runway", _runway), ("calc", _calc), ("bias", _bias)):
+                     ("runway", _runway), ("calc", _calc), ("bias", _bias), ("animal", _animal)):
         try:
             r = fn(text)
         except Exception as e:  # ห้ามทำให้คำตอบล้ม
