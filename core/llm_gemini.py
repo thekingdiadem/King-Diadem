@@ -425,7 +425,7 @@ WORK_WIN_SYSTEM = """คุณคือ LYLA — governance intelligence ขอ�
 ลงท้าย: — LYLA ◈ | Fail Less. Harm Less. Restore Choice."""
 
 from core.thai_signals import NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, DISCOURAGED, BREAKUP, PARTNER, has as _has   # noqa: E402
-from core.thai_signals import offer_red_flags   # noqa: E402
+from core.thai_signals import offer_red_flags, strip_third_party   # noqa: E402
 from core.lang_signals import SELF_HARM_INTL, HELP as _LANG_HELP, detect_lang   # noqa: E402
 
 # ข้อความใน [บริบท: ...] คือสัญญาณจาก engine — LLM เคยยก "Causal: root=craving feeling=pleasant"
@@ -506,7 +506,7 @@ _INTERNAL_TOKENS = re.compile(
     r"root\s*=\s*(?:craving|fear|aversion|clinging|ignorance|bias|misinformation|non_existence)|"
     r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
     r"SURVIVOR ENGINE|Router action|\[โหมด:|Wise attention|nirvana_mode|risk_score|EMOTION(?:AL_CONTEXT)?:|"
-    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|เขาขอทางออกแล้ว|ผู้ใช้ถามถึงที่มาของระบบ|\[MEMORY|\[บทสนทนาล่าสุด\]|ข้อความมีลักษณะมิจฉาชีพ|ผู้ใช้ถูกโกงไปแล้ว|อาจกินยาเกินขนาด|สัญญาณเตือนเรื่องทำร้ายตัวเอง|เบอร์ที่ถูกต้องสำหรับเรื่องนี้|context_for_lyla", re.I)
+    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|เขาขอทางออกแล้ว|ผู้ใช้ถามถึงที่มาของระบบ|\[MEMORY|\[บทสนทนาล่าสุด\]|ข้อความมีลักษณะมิจฉาชีพ|ผู้ใช้ถูกโกงไปแล้ว|อาจกินยาเกินขนาด|สัญญาณเตือนเรื่องทำร้ายตัวเอง|เบอร์ที่ถูกต้องสำหรับเรื่องนี้|ผู้ใช้กำลังช่วยคนอื่น|ผู้ใช้อาจถูกล่วงละเมิด|ผู้ใช้ถูกขู่ปล่อยคลิป|เรื่องเร่งด่วนต่อชีวิต|ผู้ใช้อยากหยุดยาที่แพทย์สั่ง|context_for_lyla", re.I)
 
 
 _SENT_END = re.compile(r"(?:ค่ะ|คะ|ครับ|นะ|จ้ะ|[.!?。！？]|◈|◆|\n)\s*")
@@ -610,7 +610,8 @@ def _kw_hit(text: str, words: list) -> bool:
     return False
 
 def detect_crisis(text: str) -> bool:
-    return bool(text) and _kw_hit(text, _CRISIS_KW)
+    # "เพื่อนบอกว่าอยากตาย" ไม่ใช่วิกฤตของผู้ใช้เอง — CRISIS_SYSTEM จะคุยกับเขาเหมือนเขาอยากตาย
+    return bool(text) and _kw_hit(strip_third_party(text), _CRISIS_KW)
 
 def detect_emotion(text: str) -> bool:
     return bool(text) and _kw_hit(text, _EMOTION_KW)

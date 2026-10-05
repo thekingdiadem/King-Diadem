@@ -5,7 +5,7 @@
 from __future__ import annotations
 import re
 from core.thai_signals import (NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, SELF_HARM_INDIRECT, SELF_HARM_WARNING,
-                               OVERDOSE, has as _has)
+                               OVERDOSE, THIRD_PARTY_CRISIS, strip_third_party, has as _has)
 from core.lang_signals import SELF_HARM_INTL
 
 _SELF_HARM = ("อยากตาย", "ฆ่าตัวตาย", "ฆ่าตัวเอง", "ทำร้ายตัวเอง", "ไม่อยากมีชีวิต",
@@ -36,7 +36,10 @@ def evaluate_risk(text: str) -> dict:
     """
     t = str(text or "").casefold()
     score = 0
-    self_harm = any(_has(t, k) for k in _SELF_HARM)
+    # "เพื่อนบอกว่าอยากตาย" = ผู้ใช้กำลังช่วยคนอื่น ไม่ใช่ผู้ใช้อยากตายเอง — ดูสัญญาณของตัวผู้ใช้จากส่วนที่เหลือ
+    third_party = bool(THIRD_PARTY_CRISIS.search(t))
+    own = strip_third_party(t) if third_party else t
+    self_harm = any(_has(own, k) for k in _SELF_HARM)
     if self_harm:
         score += 6
     basic_needs = any(k in t for k in _BASIC_NEEDS)
@@ -48,9 +51,11 @@ def evaluate_risk(text: str) -> dict:
     overdose = bool(OVERDOSE.search(t))
     if overdose:
         score += 4
-    warning = not self_harm and bool(SELF_HARM_WARNING.search(t))
+    warning = not self_harm and bool(SELF_HARM_WARNING.search(own))
     if warning:
         score += 2
+    if third_party:
+        score += 4
     if any(k in t for k in _URGENT):
         score += 1
     level = "critical" if self_harm else "high" if score >= 4 else "medium" if score >= 2 else "low"
@@ -62,6 +67,7 @@ def evaluate_risk(text: str) -> dict:
         "basic_needs": basic_needs,
         "overdose": overdose,
         "warning": warning,
+        "third_party": third_party,
     }
 
 def assess(pattern: dict) -> dict:

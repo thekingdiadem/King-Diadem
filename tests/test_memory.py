@@ -72,3 +72,12 @@ def test_mobile_menu_is_not_closed_by_every_click():
     page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
     assert "e.target.closest('button[data-view], a[data-view]')" in page
     assert "e.target.closest('[data-view]')" not in page
+
+
+def test_new_sensitive_topics_are_not_stored_as_text(user):
+    # รอบหาบั๊ก 2: ล่วงละเมิด · แบล็กเมล์ · ช่วยคนอื่นที่อยากตาย · หยุดยาจิตเวช — เก็บแค่ว่าเคยผ่านช่วงหนัก
+    for text in ("พ่อเลี้ยงจับตัวหนู", "แฟนขู่จะปล่อยคลิป", "เพื่อนบอกว่าอยากตาย", "กินยาซึมเศร้าอยู่ อยากหยุดยา"):
+        user.post("/run", json={"input": text})
+    mem = _contents(user.email)
+    for word in ("พ่อเลี้ยง", "คลิป", "อยากตาย", "ยาซึมเศร้า", "ล่วงละเมิด"):
+        assert word not in mem
