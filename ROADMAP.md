@@ -43,7 +43,7 @@
 - Food shortage scenario ✅
 - Climate disruption framework — คลื่นความร้อน · ฝุ่น PM2.5 · ภัยแล้ง (tests/test_climate_hazards.py) ✅
 - Real-time disaster data integration (USGS · JMA) (pending)
-- Black swan detection · Monte Carlo engine (partial)
+- Black swan detection · Monte Carlo engine (หางซ้าย · ต่อเข้าภาพอนาคต · tests/test_black_swan.py) ✅
 
 ---
 

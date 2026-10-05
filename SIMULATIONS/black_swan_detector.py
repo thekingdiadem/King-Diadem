@@ -27,13 +27,22 @@ BLACK_SWAN_SIGNALS = [
 ]
 
 # ระดับความรุนแรงของ black swan
+# "words" = คำที่บอกว่าเป็นเหตุการณ์นี้ — เดิมจับคู่จากชื่ออังกฤษอย่างเดียว ข้อความไทยทุกแบบ
+# (น้ำท่วม · โรคระบาด · สงคราม) เลยตกไปเป็น supply chain collapse หมด
 SWAN_EVENTS = [
-    {"event": "supply chain collapse",     "impact": 9, "recovery_days": 180},
-    {"event": "financial system shock",    "impact": 8, "recovery_days": 90},
-    {"event": "pandemic outbreak",         "impact": 9, "recovery_days": 365},
-    {"event": "infrastructure failure",   "impact": 7, "recovery_days": 60},
-    {"event": "political instability",    "impact": 6, "recovery_days": 120},
-    {"event": "environmental disaster",   "impact": 8, "recovery_days": 240},
+    {"event": "supply chain collapse",     "impact": 9, "recovery_days": 180,
+     "words": ["supply chain", "shortage", "ขาดแคลน", "ของขาดตลาด"]},
+    {"event": "financial system shock",    "impact": 8, "recovery_days": 90,
+     "words": ["market crash", "financial", "bank run", "หุ้นตก", "ตลาดหุ้นพัง", "แบงก์ล้ม", "ค่าเงิน", "เศรษฐกิจพัง"]},
+    {"event": "pandemic outbreak",         "impact": 9, "recovery_days": 365,
+     "words": ["pandemic", "outbreak", "ระบาด", "โรคติดต่อ", "ล็อกดาวน์", "lockdown"]},
+    {"event": "infrastructure failure",   "impact": 7, "recovery_days": 60,
+     "words": ["blackout", "ไฟดับทั้ง", "ไฟดับทั่ว", "เน็ตล่ม", "ประปาไม่ไหล"]},
+    {"event": "political instability",    "impact": 6, "recovery_days": 120,
+     "words": ["war", "coup", "สงคราม", "รัฐประหาร", "ปิดประเทศ", "จลาจล"]},
+    {"event": "environmental disaster",   "impact": 8, "recovery_days": 240,
+     "words": ["earthquake", "flood", "tsunami", "drought", "น้ำท่วม", "แผ่นดินไหว", "สึนามิ", "ภัยแล้ง",
+               "คลื่นความร้อน", "ไฟป่า", "พายุ"]},
 ]
 
 
@@ -49,7 +58,8 @@ def detect_black_swan(state: dict = None, text: str = "") -> dict:
     text_l  = str(text or "").lower()
 
     # keyword score
-    keyword_hits = sum(1 for w in BLACK_SWAN_SIGNALS if _hit(w, text_l))
+    words = set(BLACK_SWAN_SIGNALS) | {w for e in SWAN_EVENTS for w in e["words"]}
+    keyword_hits = sum(1 for w in words if _hit(w, text_l))
 
     # state score
     state_score = 0
@@ -89,10 +99,9 @@ def detect_black_swan(state: dict = None, text: str = "") -> dict:
 
 
 def _match_event(text: str) -> dict:
-    for e in SWAN_EVENTS:
-        if any(_hit(w, text) for w in e["event"].split()):
-            return e
-    return SWAN_EVENTS[0]  # default: supply chain
+    """เหตุการณ์ที่มีคำตรงมากที่สุด · เสมอกันเลือกตัวที่อยู่ก่อน · ไม่มีคำตรงเลย = supply chain (ผลกระทบกว้างสุด)"""
+    best = max(SWAN_EVENTS, key=lambda e: sum(1 for w in e["words"] if _hit(w, text)))
+    return best if any(_hit(w, text) for w in best["words"]) else SWAN_EVENTS[0]
 
 
 def _recommend(impact: int) -> str:
