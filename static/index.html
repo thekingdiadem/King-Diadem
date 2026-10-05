@@ -127,7 +127,8 @@ body[data-veil="1"] #veil{opacity:.78} body[data-veil="2"] #veil{opacity:1}
 .m.u .bubble{background:linear-gradient(135deg,rgba(77,155,255,.28),rgba(77,155,255,.14));border:1px solid rgba(120,170,255,.35);border-radius:16px 16px 4px 16px;padding:10px 14px;max-width:86%;white-space:pre-wrap;word-break:break-word}
 .m.a .bubble,.m.e .bubble{max-width:100%;word-break:break-word;background:rgba(8,11,28,.7);border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:12px 16px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .m.a .who,.m.e .who{font:600 11px/1 var(--f-mono);letter-spacing:.12em;margin-bottom:7px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.who .lyla{color:var(--lyla)} .who .vega{color:var(--vega)} .who .crisis{color:var(--crisis)}
+.who .lyla{color:var(--lyla)} .who .vega{color:var(--vega)} .who .crisis{color:var(--crisis)} .who .council{color:var(--ok)}
+.bubble .cm{color:var(--ink)}
 .who .tag{font-weight:500;color:var(--ink-3);letter-spacing:.04em}
 .who .star{width:9px;height:9px;border-radius:50%;box-shadow:0 0 10px currentColor;background:currentColor}
 .m.e .bubble{color:var(--bad);font-size:14px;border-color:rgba(255,93,108,.35)}
@@ -555,6 +556,7 @@ dialog.axis::backdrop{background:transparent}
               <button type="button" data-p="auto" class="on">AUTO</button>
               <button type="button" data-p="lyla">LYLA</button>
               <button type="button" data-p="vega">VEGA</button>
+              <button type="button" data-p="council" title="สภา 5 เสียง: LYLA · VEGA · PATICCA · TITAN · COSMOS">สภา</button>
             </div>
           </div>
           <div class="inrow">
@@ -1046,13 +1048,15 @@ function detectMode(text){
   if(CRISIS_RE.test(text)) return 'crisis';
   var callV = /เวก้า|เวกา|วีก้า|\bvega\b/i.test(text), callL = /ไลล่า|ไลลา|\blyla\b/i.test(text);   // เรียกชื่อในข้อความ
   if(callV !== callL) return callV ? 'vega' : 'lyla';
-  if(Persona === 'vega' || Persona === 'lyla') return Persona;
+  if(/ขอความเห็นสภา|เปิดสภา|ถามสภา|สภา\s*5\s*เสียง|\bcouncil\b/i.test(text)) return 'council';
+  if(Persona === 'vega' || Persona === 'lyla' || Persona === 'council') return Persona;
   if(/วิเคราะห์|ประเมิน|คำนวณ|โอกาส|เปรียบเทียบ|สถิติ|ข้อมูล|logic|analy[sz]e|compare|probability/i.test(text)) return 'vega';
   return 'lyla';
 }
 function voiceHint(mode){
   if(mode === 'crisis') return 'พูดด้วยความเร่งด่วน ให้ความช่วยเหลือทันที';
   if(mode === 'vega') return 'ให้ข้อมูลเชิงวิเคราะห์ ตัวเลข ความน่าจะเป็น';
+  if(mode === 'council') return 'ให้ 5 มุมมอง แล้วสรุปมติร่วม';
   return 'พูดด้วยความเข้าใจ ให้ทางเลือกที่ชัดเจน';
 }
 
@@ -1603,10 +1607,14 @@ var Cosmos = (function(){
 /* ════════════════════════════════════════════════════════════════
    RENDER CHAT
    ════════════════════════════════════════════════════════════════ */
-var PNAME = { LYLA:['LYLA','lyla'], VEGA:['VEGA','vega'], CRISIS:['HALT · ช่วยเหลือฉุกเฉิน','crisis'] };
+var PNAME = { LYLA:['LYLA','lyla'], VEGA:['VEGA','vega'], COUNCIL:['สภา 5 เสียง','council'], CRISIS:['HALT · ช่วยเหลือฉุกเฉิน','crisis'] };
 function crisisCard(){
   return '<div class="crisis-card"><b>ถ้ากำลังอยู่ในอันตราย หรือคิดทำร้ายตัวเอง</b> โทรหาคนที่ช่วยได้ทันที<br>' +
     '<a href="tel:1323">1323</a>สายด่วนสุขภาพจิต 24 ชม.<br><a href="tel:1669">1669</a>เจ็บป่วยฉุกเฉิน <a href="tel:191">191</a>ตำรวจ</div>';
+}
+/* สภา 5 เสียง: ชื่อแต่ละเสียงเป็นตัวหนา อ่านง่ายบนมือถือ */
+function councilFmt(t){
+  return fmt(t).replace(/(^|<br>)(LYLA ◈|VEGA ◆|PATICCA ☸|TITAN ▲|COSMOS ✦|มติสภา[^:<]{0,24}:)/g, '$1<strong class="cm">$2</strong>');
 }
 function helpCard(links){
   // ลิงก์มาจากเซิร์ฟเวอร์ — รับเฉพาะ Google Maps แบบ https เท่านั้น
@@ -1619,13 +1627,13 @@ function msgEl(m){
   var el = document.createElement('div'); el.className = 'm ' + m.r;
   if(m.r === 'u'){ el.innerHTML = '<div class="bubble"></div>'; el.firstChild.textContent = m.t; return el; }
   if(m.r === 'e'){ el.innerHTML = '<div class="who"><span class="crisis">ERROR</span></div><div class="bubble">' + fmt(m.t) + '</div>'; return el; }
-  var t = m.tr || {}, key = (t.mode === 'crisis') ? 'CRISIS' : ((m.p || 'LYLA').toUpperCase() === 'VEGA' ? 'VEGA' : 'LYLA');
+  var t = m.tr || {}, key = (t.mode === 'crisis') ? 'CRISIS' : (PNAME[(m.p || 'LYLA').toUpperCase()] && (m.p || '').toUpperCase() !== 'CRISIS' ? (m.p || 'LYLA').toUpperCase() : 'LYLA');
   var pn = PNAME[key], tags = [];
   if(t.route) tags.push(String(t.route).toUpperCase());
   var crisis = t.mode === 'crisis' || /1323|1669/.test(m.t);
   var star = m.tr ? '<span class="star" style="color:' + riskColor(t.risk) + '" title="ดาวของการตัดสินใจนี้"></span>' : '';
   el.innerHTML = '<div class="who">' + star + '<span class="' + pn[1] + '">' + pn[0] + '</span><span class="tag">' + esc(tags.join(' · ')) + '</span></div>' +
-    '<div class="bubble">' + fmt(m.t) + '</div>' + (crisis ? crisisCard() : '') + helpCard(m.l) +
+    '<div class="bubble">' + (key === 'COUNCIL' ? councilFmt(m.t) : fmt(m.t)) + '</div>' + (crisis ? crisisCard() : '') + helpCard(m.l) +
     (m.tr && eqStrip(t) ? '<button type="button" class="eqs mono">' + eqStrip(t) + '</button>' : '') +
     (m.tr ? voteRow(m) : '');
   var eb = el.querySelector('.eqs'); if(eb) eb.addEventListener('click', function(){ showEq(m); });
@@ -1703,7 +1711,7 @@ async function send(textArg){
   inp.value = ''; autosize(); renderAll();
   busy = true; $('#send').disabled = true; Cosmos.thinking(true);
   window.dispatchEvent(new CustomEvent('KD:thinking', { detail:{ on:true } }));
-  var th = document.createElement('div'); th.className = 'm a'; th.innerHTML = '<div class="who"><span class="' + (mode==='vega'?'vega':mode==='crisis'?'crisis':'lyla') + '">' + (mode==='vega'?'VEGA':mode==='crisis'?'HALT':'LYLA') + '</span><span class="tag">กำลังคิด…</span></div><div class="thinking"><i></i><i></i><i></i></div>';
+  var th = document.createElement('div'); th.className = 'm a'; th.innerHTML = '<div class="who"><span class="' + (mode==='vega'?'vega':mode==='crisis'?'crisis':mode==='council'?'council':'lyla') + '">' + (mode==='vega'?'VEGA':mode==='crisis'?'HALT':mode==='council'?'สภา 5 เสียง':'LYLA') + '</span><span class="tag">กำลังคิด…</span></div><div class="thinking"><i></i><i></i><i></i></div>';
   $('#msgs').appendChild(th); scrollBottom();
   var body = { input:text, route:Route, voice_mode:mode, voice_hint:voiceHint(mode), history:history,
     context: Object.assign({ client_voice:mode, tone_notes:voiceHint(mode), route_ui:Route }, state) };
@@ -1715,8 +1723,8 @@ async function send(textArg){
     if(!d.error) window.dispatchEvent(new CustomEvent('KD:response', { detail:{ route: d.route, risk_score: num(d.risk_score, 0), consensus: d.consensus } }));
     if(d.error){ target.msgs.push({ r:'e', t:String(d.error), ts:Date.now() }); toast(String(d.error), true); }
     else{
-      var reply = String(d.ai_response || d.pause_reason || d.message || '').replace(/\s*[—–-]+\s*(LYLA\s*[◈✦✧]?|VEGA\s*[◆◇]?|HALT\s*[⬡]?)\s*$/gi, '').trim();
-      born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : 'LYLA'), tr: traceOf(d, mode, sentState ? state : null), l: d.help_links, ts:Date.now() };
+      var reply = String(d.ai_response || d.pause_reason || d.message || '').replace(/\s*[—–-]+\s*(LYLA\s*[◈✦✧]?|VEGA\s*[◆◇]?|HALT\s*[⬡]?|สภา\s*KING\s*DIADEM\s*✦?)\s*$/gi, '').trim();
+      born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : mode==='council' ? 'COUNCIL' : 'LYLA'), tr: traceOf(d, mode, sentState ? state : null), l: d.help_links, ts:Date.now() };
       target.msgs.push(born);
     }
     Chat.persist(); refreshMe();

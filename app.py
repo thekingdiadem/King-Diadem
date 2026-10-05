@@ -910,6 +910,10 @@ _LISTEN_GENTLY = ("ค่อยๆ ฟังเขา: เริ่มจาก�
 # เรียกชื่อในข้อความ ("หาทางออกทีเวก้า") — เดิมรู้จักแค่ปุ่มเลือกและคำว่า vega
 _NAME_VEGA = re.compile(r"เวก้า|เวกา|วีก้า|(?<![a-z])vega(?![a-z])", re.I)
 _NAME_LYLA = re.compile(r"ไลล่า|ไลลา|(?<![a-z])lyla(?![a-z])", re.I)
+_NAME_COUNCIL = re.compile(r"ขอความเห็นสภา|เปิดสภา|ถามสภา|สภา\s*5\s*เสียง|(?<![a-z])council(?![a-z])", re.I)
+
+
+_PERSONA = {"vega": "VEGA", "council": "COUNCIL"}
 
 
 def _resolve_voice_mode(data: dict, route: str) -> str:
@@ -924,6 +928,14 @@ def _resolve_voice_mode(data: dict, route: str) -> str:
         except Exception:
             return "crisis"
         vm = ""
+    # สภา 5 เสียง: เลือกจากปุ่ม หรือขอในข้อความ — วิกฤตมาก่อนเสมอ (ตรวจไปแล้วด้านบน)
+    if vm == "council" or _NAME_COUNCIL.search(text):
+        try:
+            if text_risk and text_risk(text).get("self_harm"):
+                return "crisis"
+        except Exception:
+            pass
+        return "council"
     if _NAME_VEGA.search(text) and not _NAME_LYLA.search(text):  return "vega"
     if _NAME_LYLA.search(text) and not _NAME_VEGA.search(text):  return "lyla"
     if vm == "vega" or route == "vega":  return "vega"
@@ -1141,6 +1153,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                        "(1300 ศูนย์ช่วยเหลือสังคม 24 ชม." + (" · 1323 สายด่วนสุขภาพจิต" if prior_kind == "self_harm" else "") + ")]")
             # ความกังวลยังอยู่ แต่ลดลงตามเวลา — Risk = 0.75 × Risk ของสิ่งที่เล่าไว้
             k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
+    # สภา 5 เสียงไม่เหมาะกับเรื่องฉุกเฉิน (กินยาเกินขนาด ถูกทำร้าย ภัยพิบัติ ฯลฯ) — ให้ LYLA ตอบขั้นช่วยเหลือทันที
+    if vm == "council" and k_assess:
+        try:
+            from core.kernel_voice import council_unsuitable
+            if council_unsuitable(k_assess):
+                vm = "lyla"
+        except Exception:
+            pass
     # ── สัญญาณที่เพิ่มในรอบหาบั๊กทุกไฟล์: มิจฉาชีพ · กินยาเกินขนาด · สัญญาณเตือน · เบอร์เฉพาะเรื่อง ──
     sig_ctx = []
     k_topics = k_assess.get("topics") or []
@@ -1273,7 +1293,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                     "observer":      "KING DIADEM",
                     "status":        "SYSTEM_PAUSE",
                     "route":         route,
-                    "persona":       "VEGA" if vm == "vega" else "LYLA",
+                    "persona":       _PERSONA.get(vm, "LYLA"),
                     "voice_mode":    vm,
                     "ai_response":   "",
                     "pattern":       human_state,
@@ -1375,7 +1395,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                               else route),
             "ai_response":   reply,
             "governance":    {"intent": intent, "human_state": human_state},
-            "persona":       "VEGA" if vm == "vega" else "LYLA",
+            "persona":       _PERSONA.get(vm, "LYLA"),
             "pattern":       human_state,
             "risk_score":    human_state.get("risk_score", 0),
             "bodhipakkhiya": core_result.get("bodhi_verdict", ""),  # ← v4.9
@@ -1433,7 +1453,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # เพราะ engine ตัดสินจาก pattern อีกชุด — ยกขึ้นได้อย่างเดียว ไม่ลด vega/stable ที่ engine เลือก
     if _ROUTE_SEVERITY.get(route, 0) > _ROUTE_SEVERITY.get(result["route"], 0):
         result["route"] = route
-    result["persona"]    = "VEGA" if vm == "vega" else "LYLA"
+    result["persona"]    = _PERSONA.get(vm, "LYLA")
     result["voice_mode"] = vm
 
     result = _enrich_with_universal(result, payload)

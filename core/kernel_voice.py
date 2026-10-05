@@ -504,6 +504,8 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
             pattern: dict | None = None, footer: bool = True) -> str:
     """คำตอบเต็มจากสมการ — ไม่มี AI · input เดิม → คำตอบเดิม"""
     text = text if isinstance(text, str) else str(text or "")
+    if voice_mode == "council":
+        return compose_council(text, footer=footer)
     a = assess(text, pattern)
     vega = voice_mode == "vega" or route == "vega"
     end = "ครับ" if vega else "ค่ะ"
@@ -649,3 +651,105 @@ def simulate(text: str, paths: list) -> str:
     return (f"W {a['W']} · Risk {a['risk']} · Choice(t) = {len(paths)}\n\n" + "\n\n".join(lines) +
             f"\n\nแนะนำเริ่มจาก {'ABCDEFG'[pick]} — ทางที่ย้อนกลับได้ เก็บทางอื่นไว้ใช้ทีหลัง (Choice(t+1) สูงกว่า)"
             "\n\n— VEGA ◆\n· จำลองจากสมการของระบบ — ไม่ได้ใช้ AI")
+
+
+# ══════════════════════════════════════════════════════════════════
+# สภา 5 เสียง (AI/council_engine) — ตอบได้แม้ไม่มี AI
+#   แต่ละเสียงมาจากเครื่องยนต์ที่มีอยู่แล้ว · มติรวมด้วย build_consensus · มนุษย์ตัดสินเสมอ
+# ══════════════════════════════════════════════════════════════════
+_PATICCA_SAY = {
+    "craving": "ต้นเหตุที่เห็นคือความอยากได้ — ความรู้สึกดีตอนนี้ไม่ได้แปลว่าทางนี้ดี ลองแยกข้อเท็จจริงออกจากความหวัง",
+    "fear": "ต้นเหตุคือความกลัว — แยกให้ชัดว่าสิ่งที่กลัวเกิดขึ้นจริงแล้ว หรือยังเป็นแค่ความเป็นไปได้",
+    "aversion": "ต้นเหตุคือความอยากผลักสิ่งที่ไม่ชอบออกไป — ถามตัวเองว่ากำลังหนีจากอะไร และอยากไปหาอะไร",
+    "clinging": "ต้นเหตุคือความยึดติด กลัวเสีย — ถ้าเริ่มจากศูนย์วันนี้ จะยังเลือกแบบเดิมไหม",
+    "misinformation": "ข้อมูลอาจผิดหรือถูกหลอก — ตรวจจากแหล่งที่สองก่อนตัดสินใจ",
+    "bias": "อาจมีอคติปนอยู่ — ลองหาเหตุผลของอีกฝั่งดูสักข้อ",
+}
+_COUNCIL_ACTION_TH = {
+    "proceed_small": "เดินหน้าได้ แต่เริ่มแบบเล็กและย้อนกลับได้ก่อน",
+    "pause": "ชะลอไว้ก่อน หาข้อมูลเพิ่มอีกนิดแล้วค่อยตัดสินใจ",
+    "stabilize": "ทำให้ตัวเองมั่นคงก่อน (กิน นอน ความปลอดภัย เงินสำหรับไม่กี่วัน) แล้วค่อยตัดสินใจเรื่องใหญ่",
+}
+
+
+_URGENT_TOPICS = ("overdose", "violence", "health_emergency", "scam", "warning", "help", "basic")
+
+
+def council_unsuitable(a: dict) -> bool:
+    """เรื่องฉุกเฉินไม่ควรรอ 5 มุมมอง — ให้ขั้นตอนช่วยเหลือทันที"""
+    return bool(a.get("crisis") or a.get("disaster") or a.get("relationship") in ("collapse_risk", "critical")
+                or (a.get("topics") and a["topics"][0] in _URGENT_TOPICS))
+
+
+def compose_council(text: str, footer: bool = True) -> str:
+    """สภา 5 เสียง: LYLA ใจ · VEGA ความเสี่ยง · PATICCA ต้นเหตุ · TITAN ทางรอดวันนี้ · COSMOS ภาพยาว"""
+    text = text if isinstance(text, str) else str(text or "")
+    a = assess(text)
+    if council_unsuitable(a) or detect_lang(text) != "th":
+        return compose(text, footer=footer)          # ฉุกเฉิน/ภาษาอื่น: คำตอบที่ปลอดภัยที่สุดมาก่อนสภา
+    t = text.lower()
+    lib = {name: d for name, _, d in TOPICS}
+    main = lib.get(a["topics"][0]) if a["topics"] else GENERAL
+    if a["offer_flags"]:
+        main = OFFER
+    elif a.get("scam") == ["lost"]:
+        main = SCAM_LOST
+    elif a["relationship"] in ("collapse_risk", "critical"):
+        main = SAFETY
+    paths = _paths(main, t) or GENERAL["paths"]
+
+    # VEGA — Downside ก่อน: ทางเลือกของผู้ใช้เรียงด้วย choice_optimizer
+    opts = a["options"]
+    if len(opts) >= 2:
+        ranked = rank_options(opts, waterline=a["W"])
+        irr = [r["action"][:40] for r in ranked if not r["reversible"]]
+        vega = (f"W {a['W']} · Risk {a['risk']} — ทางที่รอดที่สุดคือ \"{ranked[0]['action'][:50]}\""
+                + (f" · \"{irr[0]}\" ย้อนกลับยาก ต้องมีเงินสำรองก่อน" if irr else ""))
+        reversible_first = ranked[0]["reversible"]
+    else:
+        vega = (f"W {a['W']} · Risk {a['risk']} — ถามก่อนว่าถ้าพลาดจะเสียอะไร และถอยกลับได้ไหม "
+                "ทางที่ย้อนกลับได้ชนะ ถ้าผลพอๆ กัน")
+        reversible_first = True
+    if a["offer_flags"]:
+        vega = (f"W {a['W']} · Risk {a['risk']} — ข้อเสนอนี้มีสัญญาณของการหลอก: "
+                + " · ".join(OFFER_FLAG_TH[f] for f in a["offer_flags"]) + " — ลงเงินแล้วอาจถอยไม่ได้")
+
+    # PATICCA — ต้นเหตุจากข้อความ (ENGINE/paticcasamuppada_engine)
+    root = {}
+    try:
+        from ENGINE.paticcasamuppada_engine import detect_root_cause
+        root = detect_root_cause(text) or {}
+    except Exception:
+        pass
+    has_root = root.get("evidence", True) and root.get("root") in _PATICCA_SAY
+    paticca = (_PATICCA_SAY[root["root"]] if has_root else
+               "จากที่เล่ายังไม่เห็นต้นเหตุชัด — เรื่องนี้เริ่มจากอะไร ก่อนจะเป็นแบบนี้เกิดอะไรขึ้น")
+
+    lyla = _pick(main["open"], text, "council")
+    titan = paths[0]
+    cosmos = main["ask"]
+
+    # มติ: ให้แต่ละเสียงโหวตจากหลักฐานของตัวเอง แล้วรวมด้วย AI/council_engine.build_consensus
+    risky = a["risk"] >= 55 or bool(a["offer_flags"]) or bool(a.get("scam"))
+    votes = {
+        "LYLA":    {"action": "stabilize" if risky else "proceed_small", "confidence": 0.6},
+        "VEGA":    {"action": "proceed_small" if (reversible_first and not risky) else "pause", "confidence": 0.7},
+        "PATICCA": {"action": "pause" if has_root and root["root"] in ("craving", "fear", "misinformation") else "proceed_small",
+                    "confidence": 0.6},
+        "TITAN":   {"action": "stabilize" if a["risk"] >= 75 else "proceed_small", "confidence": 0.7},
+        "COSMOS":  {"action": "pause" if risky else "proceed_small", "confidence": 0.5},
+    }
+    verdict, agree = _COUNCIL_ACTION_TH["pause"], ""
+    try:
+        from AI.council_engine import build_consensus
+        c = build_consensus(votes)
+        verdict = _COUNCIL_ACTION_TH.get(c["final_action"], verdict)
+        top = max(sum(1 for v in votes.values() if v["action"] == c["final_action"]), 1)
+        agree = f" (เห็นตรงกัน {top}/5)"
+    except Exception:
+        pass
+
+    tag = "\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if footer else ""
+    return (f"LYLA ◈ — {lyla}\n\nVEGA ◆ — {vega}\n\nPATICCA ☸ — {paticca}\n\n"
+            f"TITAN ▲ — ก้าวที่ทำได้ภายใน 24 ชั่วโมง: {titan}\n\nCOSMOS ✦ — {cosmos}\n\n"
+            f"มติสภา{agree}: {verdict}\nคุณเป็นคนตัดสินใจเสมอ\n\n— สภา KING DIADEM ✦" + tag)
