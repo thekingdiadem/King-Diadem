@@ -124,3 +124,71 @@ def test_help_card_only_trusts_google_maps_links():
     assert "function helpCard" in page and "l.url.indexOf('https://www.google.com/maps/') === 0" in page
     assert "l: d.help_links" in page
     assert "l: Array.isArray(m.l)" in page          # เปิดแชทใหม่อีกครั้งแล้วปุ่มยังอยู่
+
+
+# ── แผ่นดินไหวแต่ละที่ทำต่างกัน ──────────────────────────────────────────
+# เดิมทุกคนได้ "หมอบ ป้องศีรษะ เกาะโต๊ะ" — ใช้ไม่ได้กับคนที่ขับรถ อยู่ริมทะเล หรือติดในลิฟต์
+@pytest.mark.parametrize("text,place,must,must_not", [
+    ("แผ่นดินไหว ตอนนี้ขับรถอยู่บนทางด่วน", "อยู่ในรถ", "จอดชิดซ้าย", "เกาะโต๊ะ"),
+    ("อยู่ภูเก็ต แผ่นดินไหวแรงมาก", "อยู่ริมทะเล", "ขึ้นที่สูง", "เกาะโต๊ะ"),
+    ("ติดในลิฟต์ แผ่นดินไหว", "อยู่ในลิฟต์", "กดปุ่มทุกชั้น", "เกาะโต๊ะ"),
+    ("อยู่คอนโดชั้น 30 ตึกโยก", "อยู่บนตึกสูง", "อย่าวิ่งลงบันได", "จอดชิดซ้าย"),
+    ("แผ่นดินไหว อยู่ข้างนอกบนถนน", "อยู่ข้างนอก", "อย่าวิ่งเข้าไปในตึก", "เกาะโต๊ะ"),
+    ("แผ่นดินไหว อยู่บนดอย", "อยู่เชิงเขา/บนดอย", "ดินถล่ม", "เกาะโต๊ะ"),
+    ("แผ่นดินไหวตอนอยู่ในห้าง", "อยู่ในที่คนเยอะ", "อย่าวิ่งไปที่ประตู", "จอดชิดซ้าย"),
+    ("แผ่นดินไหว อยู่ในบ้าน", "อยู่ในบ้าน", "ปิดแก๊ส", "จอดชิดซ้าย"),
+])
+def test_quake_steps_depend_on_place(text, place, must, must_not):
+    a = assess(text)
+    d = a["disaster"]
+    assert d["kind"] == "quake" and d["place"] == place and d["active"] and a["text_risk"] >= 60
+    r = compose(text)
+    assert must in r and must_not not in r and place in r
+
+
+def test_quake_without_place_asks_where():
+    d = assess("แผ่นดินไหว")["disaster"]
+    assert d["place"] is None and "ในรถ" in d["ask"]
+    assert "ตอนนี้อยู่ที่ไหน" in compose("แผ่นดินไหว")
+
+
+def test_run_tells_llm_the_place(client):
+    client.post("/run", json={"input": "แผ่นดินไหว ตอนนี้ขับรถอยู่"})
+    p = FAKE_LLM["prompts"][-1]
+    assert "อยู่ในรถ" in p and "จอดชิดซ้าย" in p
+
+
+# ── น้ำท่วม/ไฟไหม้ก็แยกตามที่อยู่ ─────────────────────────────────────────
+@pytest.mark.parametrize("text,kind,place,must,must_not", [
+    ("น้ำท่วม รถจมน้ำ ติดอยู่ในรถ", "flood", "อยู่ในรถ", "ออกทางหน้าต่าง", "เบรกเกอร์"),
+    ("น้ำท่วมลานจอดรถใต้ดิน", "flood", "อยู่ชั้นใต้ดิน/ทางลอด", "ออกจากชั้นใต้ดิน", "หลังคา"),
+    ("น้ำป่ามา ตอนนี้กางเต็นท์อยู่ริมห้วย", "flood", "อยู่ริมห้วย/เชิงเขา", "ด้านข้างลำน้ำ", "เบรกเกอร์"),
+    ("น้ำท่วม ตอนนี้เดินลุยน้ำอยู่บนถนน", "flood", "อยู่ข้างนอก", "ท่อระบายน้ำ", "ออกทางหน้าต่าง"),
+    ("น้ำท่วม อยู่คอนโดชั้น 8", "flood", "อยู่บนตึกสูง/คอนโด", "ไม่ใช้ลิฟต์", "ออกทางหน้าต่าง"),
+    ("น้ำท่วมบ้าน", "flood", "อยู่ในบ้าน", "เบรกเกอร์", "ออกทางหน้าต่าง"),
+    ("ไฟไหม้กระทะ", "fire", "ไฟจากครัว/แก๊ส", "ห้ามราดน้ำ", "บันไดหนีไฟ"),
+    ("ปลั๊กไหม้มีควัน", "fire", "ไฟจากไฟฟ้า", "ห้ามใช้น้ำ", "กระทะ"),
+    ("รถไฟไหม้ข้างทาง", "fire", "รถไฟไหม้", "ห้ามเปิดฝากระโปรง", "บันไดหนีไฟ"),
+    ("ไฟป่าใกล้หมู่บ้าน ตอนนี้ควันเข้าบ้าน", "fire", "ไฟป่า/หมอกควัน", "N95", "กระทะ"),
+    ("ไฟไหม้ในห้าง", "fire", "อยู่ในที่คนเยอะ", "ทางหนีไฟ", "กระทะ"),
+    ("ไฟไหม้ ตอนนี้อยู่คอนโดชั้น 20 ควันเต็มทางเดิน", "fire", "ออกจากห้องไม่ได้", "อุดช่องใต้ประตู", "กระทะ"),
+    ("ไฟไหม้ อยู่คอนโดชั้น 12", "fire", "อยู่บนตึกสูง/คอนโด", "หลังมือแตะประตู", "กระทะ"),
+])
+def test_flood_and_fire_steps_depend_on_place(text, kind, place, must, must_not):
+    d = assess(text)["disaster"]
+    assert d["kind"] == kind and d["place"] == place and d["active"]
+    r = compose(text)
+    assert must in r and must_not not in r and place in r
+
+
+@pytest.mark.parametrize("text,word", [("ไฟไหม้", "ไฟไหม้ตรงไหน"), ("น้ำท่วม", "ในบ้าน ในรถ")])
+def test_flood_fire_without_place_ask_where(text, word):
+    d = assess(text)["disaster"]
+    assert d["place"] is None and word in compose(text)
+
+
+@pytest.mark.parametrize("text", ["เพิ่งติดไฟใหม่ในห้อง", "รถติดไฟแดงนานมาก", "my boss will fire me", "ไฟไหม้มือนิดหน่อย",
+                                  "อย่าเดินลุยน้ำนะ"])
+def test_not_a_fire_or_flood_disaster(text):
+    d = assess(text)["disaster"]
+    assert not d or d["kind"] not in ("fire",) and not (d["kind"] == "flood" and d["place"] == "อยู่ในรถ")
