@@ -70,3 +70,46 @@ def test_english_scam_reply_has_bank_freeze_steps():
     from core.kernel_voice import compose
     r = compose("I got scammed")
     assert "freeze" in r and "1441" in r and "ค่ะ" not in r
+
+
+@pytest.mark.parametrize("text", ["มีคนพยายามงัดประตูบ้าน", "มีคนเดินตามตลอดทาง กลัวมาก",
+                                  "someone is breaking into my house", "I'm being followed home",
+                                  "there's an intruder in my house"])
+def test_intruder_and_being_followed_are_danger(text):
+    """เดิมได้ Risk 0"""
+    a = assess(text)
+    assert a["disaster"]["kind"] == "intruder" and a["text_risk"] >= 60
+
+
+@pytest.mark.parametrize("text", ["มีคนตามมาสมทบทีหลัง", "ถ้ามีคนงัดบ้านควรทำยังไง", "the intruder movie was great",
+                                  "ลืมกุญแจ ปีนหน้าต่างเข้าบ้านตัวเอง", "followers on IG"])
+def test_ordinary_text_is_not_intruder(text):
+    assert assess(text)["disaster"] is None
+
+
+def test_intruder_button_is_police():
+    from core.engine_bridge import nearby
+    assert [l["label"] for l in nearby("", {"kind": "intruder", "active": True})] == ["สถานีตำรวจ"]
+
+
+@pytest.mark.parametrize("text, must", [("there's a fire in my kitchen", "Get out now"),
+                                        ("someone is breaking into my house", "Don't confront"),
+                                        ("earthquake right now building shaking", "drop, cover")])
+def test_english_hazards_get_english_steps(text, must):
+    """เดิมภัยทุกชนิดที่พิมพ์ภาษาอังกฤษได้ "Let's lay this out step by step." """
+    from core.kernel_voice import compose
+    r = compose(text)
+    assert must in r and "Let's lay this out" not in r
+
+
+def test_english_plan_question_is_not_active():
+    assert assess("what should I do if there's a fire in my kitchen")["disaster"] is None
+
+
+def test_dementia_wandering_is_missing_person():
+    assert "missing" in assess("แม่เป็นอัลไซเมอร์ เดินออกจากบ้านหาย")["topics"]
+
+
+def test_prize_sms_with_link_is_scam():
+    assert "scam" in assess("ได้รับ SMS ว่าได้รางวัล กดลิงก์")["topics"]
+    assert "scam" not in assess("ลูกได้รางวัลที่โรงเรียน")["topics"]

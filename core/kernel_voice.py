@@ -648,6 +648,38 @@ SAFETY_EN = ("Your safety comes first.\n\n{status}\n\n"
 
 # ภาษาอังกฤษ: เรื่องด่วนที่เคยได้ "Let's lay this out step by step." (open, paths, ask)
 _EN_LOCAL = "In Thailand: {th}. Elsewhere, call your local emergency number or find help at findahelpline.com"
+# ภัยที่กำลังเจอ ภาษาอังกฤษ — เดิม "there's a fire in my kitchen" "someone is breaking into my house"
+# ได้ "Let's lay this out step by step." แทนขั้นตอนหนีภัย (core/engine_bridge._HAZARDS มีแต่ภาษาไทย)
+EN_HAZARD = {
+    "flood": ["Switch off power at the breaker only if your hands and feet are dry and water hasn't reached the sockets.",
+              "Move to higher ground or an upper floor with everyone; take medicine, documents and your phone.",
+              "Don't walk or drive through moving water — knee-deep water can knock a person over."],
+    "quake": ["While it shakes: drop, cover your head, hold on to sturdy furniture, away from glass.",
+              "When it stops, leave by the stairs — never the lift — and go to open ground away from buildings and poles.",
+              "Expect aftershocks; don't re-enter a cracked building until it has been checked. Near the sea: go to high ground now."],
+    "fire": ["Get out now and don't go back for belongings. Don't use the lift.",
+             "In smoke, stay low and cover your nose with a wet cloth; touch door handles with the back of your hand — if hot, don't open.",
+             "Once outside, call the fire service (199 in Thailand) and make sure everyone is accounted for."],
+    "storm": ["Stay inside a solid building, away from windows and big trees; leave hillsides and stream banks early.",
+              "Keep away from fallen power lines and don't cross fast-flowing water.",
+              "Have a torch, drinking water, medicine and a charged phone ready."],
+    "violence": ["Run away from the sound if you can do it safely; if not, hide in a lockable room, lights off, phone silent.",
+                 "Stay away from doors and windows, low behind something solid like a concrete wall.",
+                 "When safe, call the police (191 in Thailand) with your exact location; 1669 if someone is hurt."],
+    "intruder": ["Don't confront them — lock yourself in a room, turn lights on and call the police (191 in Thailand) with your address. If you can't talk, leave the line open.",
+                 "If you're being followed, don't go home — go somewhere bright and busy: a convenience store, petrol station or police station.",
+                 "Call someone you trust and stay on the line, share your location, and note their appearance or plate number only if it's safe."],
+    "heat": ["Move into shade or air-con now, loosen clothing, wipe the neck, armpits and groin with wet cloths and fan them.",
+             "If they're alert, give sips of water or electrolytes. If confused, not sweating or unconscious, call 1669 now and give nothing by mouth.",
+             "Avoid the sun 11:00–15:00 and check on older people, small children and anyone with health conditions."],
+    "haze": ["Stay indoors with doors and windows shut; use an air purifier if you have one. Outside, wear a well-fitted N95 — cloth or surgical masks don't stop fine dust.",
+             "Skip outdoor exercise; if you have asthma or lung disease, keep your inhaler close.",
+             "Breathlessness, chest tightness or a cough that won't stop — especially in children or older people — means a hospital visit."],
+    "drought": ["Set drinking water aside first — at least 3 litres per person per day; boil anything you're unsure of for a full minute.",
+                "Reuse water (rinse water for plants or flushing) and keep stored water covered against mosquitoes.",
+                "Ask the local council or disaster office (1784 in Thailand) about water trucks, and watch for dehydration."],
+}
+
 EN_TOPIC = {
     # เดิม "I got scammed" ได้ "Let's lay this out step by step." — ไม่มีขั้นตอนอายัดบัญชี
     "scam": ("I'm sorry this happened — it's not your fault. Acting today gives you the best chance of getting money back.", [
@@ -866,6 +898,13 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
                     return CREATOR_STORY_EN.strip() + f"\n\n{sign}"
             except Exception:
                 pass
+        haz = EN_HAZARD.get((a.get("disaster") or {}).get("kind")) if (lang == "en" and not a["crisis"]) else None
+        if haz:
+            return ("Your safety comes first right now — things can be replaced.\n\n" + status + "\n\n"
+                    + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(haz))
+                    + "\n\n" + _EN_LOCAL.format(th="191 police · 1669 medical · 199 fire · 1784 disaster")
+                    + "\n\nWhere are you right now, and is anyone with you?\n\n" + sign
+                    + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         en = EN_TOPIC.get(a["topics"][0]) if (lang == "en" and a["topics"] and not a["crisis"]) else None
         if en:
             return (en[0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(en[1]))
