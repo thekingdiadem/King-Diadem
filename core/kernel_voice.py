@@ -24,7 +24,7 @@ from core.thai_signals import (NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, DRUNK_DRIVING,
                                MISSING_PERSON, LABOR_RIGHTS, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
-                               HEALTH_RIGHTS, DIAGNOSIS, LEGAL)
+                               HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, detect_lang
 from core.engine_bridge import analyze as bridge_analyze, rank_options
 
@@ -288,15 +288,26 @@ TOPICS = [
     }),
     ("basic", ["ไม่มีข้าวกิน", "ไม่มีอะไรกิน", "อดข้าว", "ไม่ได้กินข้าว", "ไม่มีเงินซื้อข้าว", "ไม่มีที่นอน",
                "ไม่มีที่อยู่", "นอนข้างถนน", "ไม่มีบ้านอยู่", "ถูกไล่ออกจากบ้าน", "ไม่มีน้ำกิน",
-               "ไม่มีเงินซื้อนม", EVICT_TONIGHT], {
+               "ไม่มีเงินซื้อนม", EVICT_TONIGHT, NO_MONEY_LEFT], {
         "open": ["ก่อนเรื่องอื่น — กิน นอน และปลอดภัย ต้องมาก่อน"],
         "paths": [
             f"โทร {HOTLINE_SOCIAL} (ศูนย์ช่วยเหลือสังคม พม. 24 ชม.) บอกตรงๆ ว่าขาดอาหาร/ที่พัก — มีระบบส่งต่อที่พักและอาหารฉุกเฉิน",
             "มื้อถัดไป: วัด มัสยิด โบสถ์ มูลนิธิ หรือโรงทานใกล้ตัว ส่วนใหญ่ให้อาหารโดยไม่ถามเหตุผล",
+            ([re.compile(r"งานหมด|ตกงาน|ถูกเลิกจ้าง|โดนไล่ออกจากงาน|ไม่มีงาน")],
+             "ถ้าเคยจ่ายประกันสังคม ขึ้นทะเบียนว่างงานภายใน 30 วันที่ sso.go.th หรือโทร 1506 — ได้เงินทดแทนระหว่างหางาน · หางานรายวัน/งานด่วนได้ที่สำนักงานจัดหางานจังหวัด โทร 1694"),
             "บอกคน 1 คนที่ไว้ใจได้ว่าตอนนี้ขาดอะไร — ขอแค่สิ่งเดียวที่ต้องใช้ใน 24 ชั่วโมง",
             "ยังไม่ต้องแก้ทั้งชีวิตวันนี้ เป้าหมายเดียวคือผ่านคืนนี้ไปให้ได้อย่างปลอดภัย",
         ],
         "ask": "สิ่งเดียวที่ถ้าได้ภายในคืนนี้ จะทำให้พรุ่งนี้ยังมีแรงไปต่อ คืออะไร?",
+    }),
+    ("bribery", [BRIBERY], {
+        "open": ["เจ้าหน้าที่เรียกเงินนอกระบบไม่ได้ — คุณมีสิทธิ์ขอใบสั่งหรือเอกสารทุกครั้ง"],
+        "paths": [
+            "ตอนนั้น: ใจเย็น ไม่โต้เถียง ขอดูบัตรและขอใบสั่ง/ใบเสร็จอย่างเป็นทางการ — ค่าปรับจ่ายที่สถานีหรือช่องทางทางการ ไม่จ่ายเป็นเงินสดให้ตัวบุคคล",
+            "จดไว้: ชื่อ ยศ หรือป้ายชื่อ · เวลาและสถานที่ · ทะเบียนรถ · จำนวนเงินที่ถูกขอ · ถ้าปลอดภัยให้บันทึกเสียงหรือวิดีโอ",
+            "ร้องเรียนได้ที่ ศูนย์ดำรงธรรม 1567 · ป.ป.ช. 1205 · ถ้าเป็นตำรวจ แจ้งศูนย์รับเรื่องร้องเรียนตำรวจ 1599 — ขอให้ปกปิดชื่อผู้ร้องได้",
+        ],
+        "ask": "ตอนนี้ยังอยู่ตรงนั้นอยู่ไหม หรือผ่านมาแล้ว?",
     }),
     ("labor", [LABOR_RIGHTS], {
         "open": ["ค่าจ้างที่ทำงานไปแล้วเป็นสิทธิ์ของคุณ ทวงได้โดยไม่ต้องจ้างทนาย"],
@@ -784,7 +795,7 @@ _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
 _TOPIC_RISK = {"sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
-               "diagnosis": 50, "health_rights": 40}
+               "diagnosis": 50, "health_rights": 40, "bribery": 45}
 _DEBT_HARASS_RISK = 55
 
 
@@ -810,6 +821,8 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     topics = [name for name, phrases, _ in TOPICS if _hit(own if name in _OWN_ONLY else t, phrases)]
     if tr.get("basic_needs") and "basic" not in topics:
         topics.insert(0, "basic")
+    elif "basic" in topics:                    # ขาดปัจจัยพื้นฐาน มาก่อนเรื่องเงินทั่วไป
+        topics.insert(0, topics.pop(topics.index("basic")))
     text_risk = {"critical": 90, "high": 75, "medium": 55}.get(str(tr.get("level")), 0)
     if crisis:
         text_risk = max(text_risk, 95)
@@ -818,6 +831,10 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     for name, lvl in _TOPIC_RISK.items():
         if name in topics:
             text_risk = max(text_risk, lvl)
+    if GAMBLING_LOSS.search(t):                # พนันจนหมดตัว/เป็นหนี้ — มักลามเป็นหนี้นอกระบบและความคิดทำร้ายตัวเอง
+        text_risk = max(text_risk, 60)
+        if "addiction" not in topics:
+            topics.append("addiction")
     if DEBT_HARASS.search(t):                  # ทวงหนี้ขู่/ประจาน — ผิดกฎหมายและกดดันหนัก
         text_risk = max(text_risk, _DEBT_HARASS_RISK)
     # มิจฉาชีพ (แอบอ้าง/ลิงก์/โอนเงิน) — เลือกจากโครงสร้าง ไม่ใช่คำเดี่ยว
