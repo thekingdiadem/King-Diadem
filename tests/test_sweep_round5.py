@@ -95,3 +95,110 @@ def test_lost_job_gets_unemployment_benefit_step():
 @pytest.mark.parametrize("text", ["เงินเดือน 30000", "เงินเดือน 0.5 ล้าน"])
 def test_salary_is_not_zero_money(text):
     assert "basic" not in assess(text)["topics"]
+
+
+@pytest.mark.parametrize("text", ["ตอนนี้หมดเงิน งานหมด อาหาร1มื้อ", "หมดเงิน", "อาหารเหลือมื้อเดียว", "ข้าวเหลือ 1 มื้อ"])
+def test_out_of_money_and_food_word_orders(text):
+    """หน้าจอจริง: "หมดเงิน" (สลับคำกับ "เงินหมด") และ "อาหาร1มื้อ" เคยได้ Risk 0"""
+    assert assess(text)["topics"][0] == "basic"
+
+
+@pytest.mark.parametrize("text", ["หมดเงินไปกับค่าเรียน", "ไม่หมดเงินหรอก", "กินข้าววันละ 1 มื้อเพื่อลดน้ำหนัก",
+                                  "อาหาร 1 มื้อมีกี่แคล"])
+def test_ordinary_meal_and_spending_talk(text):
+    assert "basic" not in assess(text)["topics"]
+
+
+@pytest.mark.parametrize("first", ["ตอนนี้หมดเงิน งานหมด อาหาร1มื้อ", "หมดทางเลือก"])
+def test_short_reply_keeps_earlier_context(client, first):
+    """หน้าจอจริง: ตอบสั้นๆ ว่า "ไม่มี" ต่อจากเรื่องหนัก เคยได้ Risk 0 และ LLM ไม่รู้ว่าคุยเรื่องอะไรอยู่"""
+    from tests.conftest import FAKE_LLM
+    d = client.post("/run", json={"input": "ไม่มี", "history": [{"role": "user", "content": first},
+                                                                 {"role": "assistant", "content": "มีใครพอช่วยได้ไหมคะ"}]}).json()
+    assert d["risk_score"] >= 45
+    p = FAKE_LLM["prompts"][-1]
+    assert "ก่อนหน้านี้ในแชทนี้" in p and ("1300" in p or "1323" in p)
+
+
+@pytest.mark.parametrize("first", ["น้ำท่วมบ้าน ตอนนี้น้ำถึงเอว", "ลูกกินยาพาราไป 10 เม็ด", "โดนหลอกโอนเงินไปแล้ว"])
+@pytest.mark.parametrize("reply", ["ไม่มี", "โอเค", "ไม่รู้"])
+def test_short_reply_after_urgent_matter(client, first, reply):
+    """รอบหาบั๊ก 6: ภัย/ยาเกินขนาด/ถูกโกง แล้วตอบสั้นๆ เคยกลับเป็น Risk 0 และเส้นทางทั่วไป"""
+    from tests.conftest import FAKE_LLM
+    d = client.post("/run", json={"input": reply, "history": [{"role": "user", "content": first},
+                                                               {"role": "assistant", "content": "ตอนนี้เป็นยังไงบ้างคะ"}]}).json()
+    assert d["risk_score"] >= 40 and "เรื่องด่วน" in FAKE_LLM["prompts"][-1]
+
+
+def test_long_new_topic_does_not_drag_old_urgent_matter(client):
+    from tests.conftest import FAKE_LLM
+    client.post("/run", json={"input": "ช่วยวางแผนเที่ยวเชียงใหม่ 3 วัน งบ 5000 บาท ไปกับเพื่อนสองคน",
+                              "history": [{"role": "user", "content": "โดนหลอกโอนเงินไปแล้ว"}]})
+    assert "เรื่องด่วน" not in FAKE_LLM["prompts"][-1]
+
+
+@pytest.mark.parametrize("text", ["คิดสั้น", "จะกระโดดตึก", "อยากไปจากโลกนี้", "เขียนจดหมายลาไว้แล้ว", "ซื้อเชือกมาแล้ว"])
+def test_thai_suicide_idioms_are_crisis(text):
+    """รอบหาบั๊ก 6: สำนวนไทยที่หมายถึงฆ่าตัวตาย/เตรียมตัวตาย เคยได้ Risk 0"""
+    assert assess(text)["crisis"]
+
+
+@pytest.mark.parametrize("text", ["อยู่ไปก็เป็นภาระ", "อยากหลับยาวๆ", "ทำไมต้องเกิดมา", "ไม่อยากตื่น", "ยกของให้เพื่อนหมดแล้ว"])
+def test_thai_warning_signs(text):
+    a = assess(text)
+    assert "warning" in a["topics"] and a["text_risk"] >= 65
+
+
+@pytest.mark.parametrize("text", ["โดนแม่ไล่ออกจากบ้าน", "ไม่ได้กินมา 3 วัน", "ลูกไม่มีนมกิน", "ไม่มีที่ไป คืนนี้"])
+def test_more_basic_needs(text):
+    assert assess(text)["topics"][0] == "basic"
+
+
+def test_locked_in_room_is_violence():
+    assert "violence" in assess("ถูกขังในห้อง")["topics"]
+
+
+@pytest.mark.parametrize("text", ["อย่าคิดสั้นนะ", "ไม่คิดสั้นหรอก", "กระโดดเชือกทุกวัน", "เขียนจดหมายลาออก",
+                                  "ซื้อถ่านไว้แล้ว ปิ้งหมูกระทะ", "ซื้อเชือกไว้แล้ว ตากผ้า", "ยกของให้เพื่อนหมดแล้ว ตอนย้ายบ้าน",
+                                  "ไม่อยากตื่นเช้า", "ถูกขังในเกม", "อยากไปจากโลกนี้สักพัก ไปเที่ยว", "ไม่มีที่ไปเที่ยว"])
+def test_round6_ordinary_phrases(text):
+    a = assess(text)
+    assert not a["crisis"] and "warning" not in a["topics"] and "violence" not in a["topics"] and "basic" not in a["topics"]
+
+
+@pytest.mark.parametrize("text", ["I don't want to wake up", "nobody would miss me", "I'm a burden to everyone",
+                                  "I feel hopeless", "there's no way out"])
+def test_english_warning_signs(text):
+    """รอบหาบั๊ก 6: เดิมได้ Risk 0 และคำตอบ "Let's lay this out step by step." """
+    from core.kernel_voice import compose
+    assert "warning" in assess(text)["topics"]
+    r = compose(text)
+    assert "1323" in r and "Let's lay this out" not in r
+
+
+@pytest.mark.parametrize("text", ["I bought a rope", "I wrote a goodbye letter"])
+def test_english_preparation_is_crisis(text):
+    assert assess(text)["crisis"]
+
+
+@pytest.mark.parametrize("text", ["I haven't eaten in 3 days", "I'm homeless tonight", "I have nowhere to sleep"])
+def test_english_basic_needs(text):
+    from core.kernel_voice import compose
+    assert assess(text)["topics"][0] == "basic"
+    assert "1300" in compose(text)
+
+
+@pytest.mark.parametrize("text", ["I bought a rope for climbing", "the goodbye letter movie", "I don't want to wake up early",
+                                  "I feel hopeless about my team lol"])
+def test_english_ordinary_phrases(text):
+    a = assess(text)
+    assert not a["crisis"] and "warning" not in a["topics"]
+
+
+def test_stopping_psychiatric_meds_raises_risk():
+    assert assess("ซึมเศร้า หยุดยาเอง")["text_risk"] >= 50
+
+
+def test_pregnancy_under_15_raises_risk():
+    assert assess("ท้องไม่พร้อม อายุ 14")["text_risk"] >= 65
+    assert assess("ท้องไม่พร้อม อายุ 24")["text_risk"] < 65

@@ -208,7 +208,8 @@ TOPICS = [
     }),
     ("violence", [re.compile(r"(ถูก|โดน)\S{0,12}?(ทำร้าย(?!ตัวเอง)|ตบ|ต่อย|เตะ|ทุบ|ตี(?!ความ|กลับ|ราคา))"),
                   "ถูกขู่", "โดนขู่", "รู้สึกไม่ปลอดภัย", "อยู่บ้านไม่ปลอดภัย", "ข่มขืน", "ความรุนแรงในบ้าน",
-                  "สะกดรอย", "ถูกกักขัง", VIOLENCE_BY], {
+                  "สะกดรอย", "ถูกกักขัง",
+                  re.compile(r"ได้ยินเสียง\S{0,12}(?:กรีดร้อง|ร้องให้ช่วย|ร้องขอความช่วยเหลือ|ทุบตี|ตบตี|ทำร้าย)"), re.compile(r"(?:ถูก|โดน)\S{0,6}ขัง(?:ไว้)?(?:ใน|ไว้)(?!เกม)"), VIOLENCE_BY], {
         "open": ["ความปลอดภัยของคุณมาก่อนทุกเรื่อง"],
         "paths": [
             f"ถ้ากำลังอยู่ในอันตรายตอนนี้ — ออกไปอยู่ในที่ที่มีคนอื่น แล้วโทร {HOTLINE_POLICE}",
@@ -288,7 +289,11 @@ TOPICS = [
     }),
     ("basic", ["ไม่มีข้าวกิน", "ไม่มีอะไรกิน", "อดข้าว", "ไม่ได้กินข้าว", "ไม่มีเงินซื้อข้าว", "ไม่มีที่นอน",
                "ไม่มีที่อยู่", "นอนข้างถนน", "ไม่มีบ้านอยู่", "ถูกไล่ออกจากบ้าน", "ไม่มีน้ำกิน",
-               "ไม่มีเงินซื้อนม", EVICT_TONIGHT, NO_MONEY_LEFT], {
+               "ไม่มีเงินซื้อนม", EVICT_TONIGHT, NO_MONEY_LEFT,
+               # รอบหาบั๊ก 6
+               re.compile(r"ไม่ได้กิน(?:ข้าว|อะไร)?(?:มา)?\s*(?:[2-9]|\d{2,}|สอง|สาม|หลาย)\s*(?:วัน|มื้อ)|ไม่มีนม(?:ให้)?(?:ลูก)?กิน|ลูกไม่มีนมกิน|"
+                          r"ไม่มีที่(?:ไป|นอน|ซุกหัวนอน)\S{0,4}\s*(?:คืนนี้|แล้ว)|คืนนี้ไม่มีที่(?:ไป|นอน)|"
+                          r"(?<!จะ)(?:โดน|ถูก)\S{0,8}ไล่ออกจากบ้าน(?!\S{0,4}(?:ใน|เกม))")], {
         "open": ["ก่อนเรื่องอื่น — กิน นอน และปลอดภัย ต้องมาก่อน"],
         "paths": [
             f"โทร {HOTLINE_SOCIAL} (ศูนย์ช่วยเหลือสังคม พม. 24 ชม.) บอกตรงๆ ว่าขาดอาหาร/ที่พัก — มีระบบส่งต่อที่พักและอาหารฉุกเฉิน",
@@ -680,6 +685,9 @@ EN_HAZARD = {
     "intruder": ["Don't confront them — lock yourself in a room, turn lights on and call the police (191 in Thailand) with your address. If you can't talk, leave the line open.",
                  "If you're being followed, don't go home — go somewhere bright and busy: a convenience store, petrol station or police station.",
                  "Call someone you trust and stay on the line, share your location, and note their appearance or plate number only if it's safe."],
+    "gas": ["Don't touch light switches or plugs, and don't light anything — a tiny spark can ignite it.",
+            "If it's safe, close the gas valve and open doors and windows.",
+            "Get everyone out first, then call the fire service from outside (199 in Thailand); 1669 if anyone is dizzy or unconscious."],
     "heat": ["Move into shade or air-con now, loosen clothing, wipe the neck, armpits and groin with wet cloths and fan them.",
              "If they're alert, give sips of water or electrolytes. If confused, not sweating or unconscious, call 1669 now and give nothing by mouth.",
              "Avoid the sun 11:00–15:00 and check on older people, small children and anyone with health conditions."],
@@ -692,6 +700,17 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    # เดิมได้ "Let's lay this out step by step." — สัญญาณเตือน/ขาดปัจจัยพื้นฐานต้องได้ขั้นช่วยเหลือ (รอบหาบั๊ก 6)
+    "warning": ("Thank you for telling me. That sounds really heavy.", [
+        "Can I ask you directly: are you having thoughts of hurting yourself or not wanting to be alive? You can answer honestly — I won't judge.",
+        "If yes, or you're not sure, please reach a crisis line now: 1323 in Thailand (free, 24h), 988 in the US, or find yours at findahelpline.com.",
+        "Be near someone tonight, or tell one person \"I'm not okay right now\" — you don't have to explain why."],
+        "Is there one small thing that could help you get through tonight?"),
+    "basic": ("Before anything else — food, sleep and safety come first.", [
+        "In Thailand call 1300 (24h social assistance) and say plainly you need food or shelter — they can refer you to emergency food and a place to stay. Elsewhere, search \"food bank\" or \"emergency shelter\" with your city.",
+        "For your next meal: temples, mosques, churches, charities and soup kitchens usually give food without asking why.",
+        "If you lost your job and paid into social security, register as unemployed within 30 days (Thailand: sso.go.th or 1506)."],
+        "What's the one thing that, if you had it tonight, would let you keep going tomorrow?"),
     # เดิม "I got scammed" ได้ "Let's lay this out step by step." — ไม่มีขั้นตอนอายัดบัญชี
     "scam": ("I'm sorry this happened — it's not your fault. Acting today gives you the best chance of getting money back.", [
         "Don't send any more money or codes, even if they promise a refund or threaten you — that's the next step of the scam.",
@@ -795,7 +814,7 @@ _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
 _TOPIC_RISK = {"sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
-               "diagnosis": 50, "health_rights": 40, "bribery": 45}
+               "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
 
 
@@ -831,6 +850,9 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     for name, lvl in _TOPIC_RISK.items():
         if name in topics:
             text_risk = max(text_risk, lvl)
+    # ตั้งครรภ์อายุต่ำกว่า 15 — ต้องมีผู้ใหญ่ช่วยและอาจเป็นการถูกล่วงละเมิด (รอบหาบั๊ก 6)
+    if "pregnancy" in topics and re.search(r"อายุ\s*(?:1[0-4]|[89])(?!\d)|(?<!\d)(?:1[0-4]|[89])\s*(?:ขวบ|ปี)(?!\d)|\b(?:1[0-4]|[89]) ?(?:yo|years? old)\b", t):
+        text_risk = max(text_risk, 65)
     if GAMBLING_LOSS.search(t):                # พนันจนหมดตัว/เป็นหนี้ — มักลามเป็นหนี้นอกระบบและความคิดทำร้ายตัวเอง
         text_risk = max(text_risk, 60)
         if "addiction" not in topics:
