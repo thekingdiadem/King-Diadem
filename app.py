@@ -1188,7 +1188,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         # ── สิ่งที่ผู้ใช้เล่าไว้ก่อนหน้าในแชทเดียวกัน ──────────────────────────────
         # เดิมดูแค่ข้อความล่าสุด: "พ่อตีหัวผม" (Risk 80) → "เขาตีแบบเล่นๆ" ได้ Risk 0 และ
         # "ไม่มีแล้ว" ได้ "ดีจังเลยค่ะ 🤍" — คนที่ถูกทำร้ายมักลดทอนเรื่องลงหลังเล่าครั้งแรก
-        prior_risk, prior_kind = 0, ""
+        prior_risk, prior_kind, urgent_what = 0, "", ""
         if kernel_assess:
             past = history[-8:] if isinstance(history, list) else []      # history มาจาก client — อาจไม่ใช่ list
             for h in [h for h in past if isinstance(h, dict) and h.get("role") == "user"]:
@@ -1200,10 +1200,32 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 kind = ("self_harm" if pa.get("crisis") else
                         "abuse" if pa.get("relationship") in ("collapse_risk", "critical") else
                         "warning" if "warning" in (pa.get("topics") or []) else
-                        "basic" if "basic" in (pa.get("topics") or []) else "")
+                        "basic" if "basic" in (pa.get("topics") or []) else
+                        # ภัย · ยาเกินขนาด · ถูกโกง · ฉุกเฉิน — "ไม่มี" "โอเค" ต่อจากนั้นเคยกลับเป็น Risk 0 (รอบหาบั๊ก 6)
+                        "urgent" if (pa.get("disaster") or pa.get("scam") or
+                                     {"overdose", "health_emergency", "violence", "missing", "sexual_abuse"} & set(pa.get("topics") or []))
+                        else "")
                 if kind and pa.get("text_risk", 0) >= prior_risk:
                     prior_risk, prior_kind = pa.get("text_risk", 0), kind
-        if prior_kind == "basic":
+                    if kind == "urgent":
+                        urgent_what = (str((pa.get("disaster") or {}).get("name") or "") or
+                                       ("การถูกโกง" if pa.get("scam") else
+                                        {"overdose": "กินยาเกินขนาด/สารพิษ", "health_emergency": "อาการฉุกเฉิน", "violence": "การถูกทำร้าย",
+                                         "missing": "คนหาย", "sexual_abuse": "การถูกล่วงละเมิด"}.get(
+                                            next((t for t in (pa.get("topics") or []) if t in
+                                                  ("overdose", "health_emergency", "violence", "missing", "sexual_abuse")), ""), "เรื่องด่วน")))
+
+        # เรื่องด่วน/ขาดปัจจัยพื้นฐาน ลากต่อเฉพาะข้อความสั้นที่ตอบต่อ — ข้อความยาวเรื่องใหม่ประเมินจากตัวเองพอ
+        if prior_kind in ("urgent", "basic") and len(user_input.strip()) > 30:
+            prior_kind = ""
+        if prior_kind == "urgent":
+            if route not in ("vega",):
+                route = _escalate_route(route, "risk")
+            rel_ctx = (f"[ก่อนหน้านี้ในแชทนี้ผู้ใช้เล่าเรื่องด่วน ({urgent_what}): ข้อความสั้นนี้ตอบต่อจากเรื่องนั้น อย่าเปลี่ยนเรื่องหรือทักทายใหม่ "
+                       "— ทวนขั้นที่ต้องทำทันทีและเบอร์ฉุกเฉินของเรื่องนั้นสั้นๆ (1669 เจ็บป่วย · 1367 สารพิษ · 191 ตำรวจ · 1784 ภัยพิบัติ · "
+                       "1441 ถูกโกง) แล้วถามว่าตอนนี้เป็นอย่างไรบ้าง ปลอดภัยไหม]")
+            k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
+        elif prior_kind == "basic":
             if route not in ("vega",):
                 route = _escalate_route(route, "survival")
             rel_ctx = ("[ก่อนหน้านี้ในแชทนี้ผู้ใช้บอกว่าขาดเงิน/อาหาร/ที่พัก: ข้อความนี้ตอบต่อจากเรื่องนั้น อย่าเปลี่ยนเรื่อง "

@@ -118,3 +118,20 @@ def test_short_reply_keeps_earlier_context(client, first):
     assert d["risk_score"] >= 45
     p = FAKE_LLM["prompts"][-1]
     assert "ก่อนหน้านี้ในแชทนี้" in p and ("1300" in p or "1323" in p)
+
+
+@pytest.mark.parametrize("first", ["น้ำท่วมบ้าน ตอนนี้น้ำถึงเอว", "ลูกกินยาพาราไป 10 เม็ด", "โดนหลอกโอนเงินไปแล้ว"])
+@pytest.mark.parametrize("reply", ["ไม่มี", "โอเค", "ไม่รู้"])
+def test_short_reply_after_urgent_matter(client, first, reply):
+    """รอบหาบั๊ก 6: ภัย/ยาเกินขนาด/ถูกโกง แล้วตอบสั้นๆ เคยกลับเป็น Risk 0 และเส้นทางทั่วไป"""
+    from tests.conftest import FAKE_LLM
+    d = client.post("/run", json={"input": reply, "history": [{"role": "user", "content": first},
+                                                               {"role": "assistant", "content": "ตอนนี้เป็นยังไงบ้างคะ"}]}).json()
+    assert d["risk_score"] >= 40 and "เรื่องด่วน" in FAKE_LLM["prompts"][-1]
+
+
+def test_long_new_topic_does_not_drag_old_urgent_matter(client):
+    from tests.conftest import FAKE_LLM
+    client.post("/run", json={"input": "ช่วยวางแผนเที่ยวเชียงใหม่ 3 วัน งบ 5000 บาท ไปกับเพื่อนสองคน",
+                              "history": [{"role": "user", "content": "โดนหลอกโอนเงินไปแล้ว"}]})
+    assert "เรื่องด่วน" not in FAKE_LLM["prompts"][-1]
