@@ -95,3 +95,26 @@ def test_lost_job_gets_unemployment_benefit_step():
 @pytest.mark.parametrize("text", ["เงินเดือน 30000", "เงินเดือน 0.5 ล้าน"])
 def test_salary_is_not_zero_money(text):
     assert "basic" not in assess(text)["topics"]
+
+
+@pytest.mark.parametrize("text", ["ตอนนี้หมดเงิน งานหมด อาหาร1มื้อ", "หมดเงิน", "อาหารเหลือมื้อเดียว", "ข้าวเหลือ 1 มื้อ"])
+def test_out_of_money_and_food_word_orders(text):
+    """หน้าจอจริง: "หมดเงิน" (สลับคำกับ "เงินหมด") และ "อาหาร1มื้อ" เคยได้ Risk 0"""
+    assert assess(text)["topics"][0] == "basic"
+
+
+@pytest.mark.parametrize("text", ["หมดเงินไปกับค่าเรียน", "ไม่หมดเงินหรอก", "กินข้าววันละ 1 มื้อเพื่อลดน้ำหนัก",
+                                  "อาหาร 1 มื้อมีกี่แคล"])
+def test_ordinary_meal_and_spending_talk(text):
+    assert "basic" not in assess(text)["topics"]
+
+
+@pytest.mark.parametrize("first", ["ตอนนี้หมดเงิน งานหมด อาหาร1มื้อ", "หมดทางเลือก"])
+def test_short_reply_keeps_earlier_context(client, first):
+    """หน้าจอจริง: ตอบสั้นๆ ว่า "ไม่มี" ต่อจากเรื่องหนัก เคยได้ Risk 0 และ LLM ไม่รู้ว่าคุยเรื่องอะไรอยู่"""
+    from tests.conftest import FAKE_LLM
+    d = client.post("/run", json={"input": "ไม่มี", "history": [{"role": "user", "content": first},
+                                                                 {"role": "assistant", "content": "มีใครพอช่วยได้ไหมคะ"}]}).json()
+    assert d["risk_score"] >= 45
+    p = FAKE_LLM["prompts"][-1]
+    assert "ก่อนหน้านี้ในแชทนี้" in p and ("1300" in p or "1323" in p)

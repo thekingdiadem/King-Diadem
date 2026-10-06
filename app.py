@@ -1196,18 +1196,29 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                     pa = kernel_assess(str(h.get("content") or "")[:2000]) or {}
                 except Exception:
                     continue
+                # "หมดทางเลือก" → "ไม่มี" · "หมดเงิน อาหาร 1 มื้อ" → "ไม่มี" เคยได้ Risk 0 (เห็นจากหน้าจอจริง)
                 kind = ("self_harm" if pa.get("crisis") else
-                        "abuse" if pa.get("relationship") in ("collapse_risk", "critical") else "")
+                        "abuse" if pa.get("relationship") in ("collapse_risk", "critical") else
+                        "warning" if "warning" in (pa.get("topics") or []) else
+                        "basic" if "basic" in (pa.get("topics") or []) else "")
                 if kind and pa.get("text_risk", 0) >= prior_risk:
                     prior_risk, prior_kind = pa.get("text_risk", 0), kind
-        if prior_kind:
+        if prior_kind == "basic":
+            if route not in ("vega",):
+                route = _escalate_route(route, "survival")
+            rel_ctx = ("[ก่อนหน้านี้ในแชทนี้ผู้ใช้บอกว่าขาดเงิน/อาหาร/ที่พัก: ข้อความนี้ตอบต่อจากเรื่องนั้น อย่าเปลี่ยนเรื่อง "
+                       "อย่าถามซ้ำว่าอยู่จังหวัดไหน — ให้สิ่งที่ทำได้ทันที: โทร 1300 (พม. 24 ชม.) ขออาหาร/ที่พักฉุกเฉิน · "
+                       "วัด มัสยิด โบสถ์ มูลนิธิ โรงทานใกล้ตัว · ถ้าตกงานและเคยจ่ายประกันสังคม ขึ้นทะเบียนว่างงาน 1506 · "
+                       "ถามอย่างอ่อนโยนว่าคืนนี้มีที่นอนที่ปลอดภัยไหม]")
+            k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
+        elif prior_kind:
             if route not in ("vega",):
                 route = _escalate_route(route, "risk")
-            what = "การทำร้ายตัวเอง" if prior_kind == "self_harm" else "การถูกทำร้ายหรือถูกควบคุม"
+            what = {"self_harm": "การทำร้ายตัวเอง", "warning": "ความรู้สึกหมดหนทาง"}.get(prior_kind, "การถูกทำร้ายหรือถูกควบคุม")
             rel_ctx = (f"[ก่อนหน้านี้ในแชทนี้ผู้ใช้เล่าเรื่อง{what}: ถ้าตอนนี้เขาบอกว่า \"เล่นๆ\" \"ไม่เป็นไร\" "
                        "\"ไม่มีแล้ว\" ให้รับฟังโดยไม่เถียง แต่ไม่ด่วนสรุปว่าปลอดภัยแล้วและไม่ร่วมดีใจ " + _LISTEN_GENTLY +
                        " ถามอย่างอ่อนโยนว่าตอนนี้ปลอดภัยไหม และบอกว่ากลับมาเล่าหรือขอความช่วยเหลือได้เสมอ "
-                       "(1300 ศูนย์ช่วยเหลือสังคม 24 ชม." + (" · 1323 สายด่วนสุขภาพจิต" if prior_kind == "self_harm" else "") + ")]")
+                       "(1300 ศูนย์ช่วยเหลือสังคม 24 ชม." + (" · 1323 สายด่วนสุขภาพจิต" if prior_kind in ("self_harm", "warning") else "") + ")]")
             # ความกังวลยังอยู่ แต่ลดลงตามเวลา — Risk = 0.75 × Risk ของสิ่งที่เล่าไว้
             k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
     # สภา 5 เสียงไม่เหมาะกับเรื่องฉุกเฉิน (กินยาเกินขนาด ถูกทำร้าย ภัยพิบัติ ฯลฯ) — ให้ LYLA ตอบขั้นช่วยเหลือทันที
