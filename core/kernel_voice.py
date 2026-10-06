@@ -208,7 +208,8 @@ TOPICS = [
     }),
     ("violence", [re.compile(r"(ถูก|โดน)\S{0,12}?(ทำร้าย(?!ตัวเอง)|ตบ|ต่อย|เตะ|ทุบ|ตี(?!ความ|กลับ|ราคา))"),
                   "ถูกขู่", "โดนขู่", "รู้สึกไม่ปลอดภัย", "อยู่บ้านไม่ปลอดภัย", "ข่มขืน", "ความรุนแรงในบ้าน",
-                  "สะกดรอย", "ถูกกักขัง", re.compile(r"(?:ถูก|โดน)\S{0,6}ขัง(?:ไว้)?(?:ใน|ไว้)(?!เกม)"), VIOLENCE_BY], {
+                  "สะกดรอย", "ถูกกักขัง",
+                  re.compile(r"ได้ยินเสียง\S{0,12}(?:กรีดร้อง|ร้องให้ช่วย|ร้องขอความช่วยเหลือ|ทุบตี|ตบตี|ทำร้าย)"), re.compile(r"(?:ถูก|โดน)\S{0,6}ขัง(?:ไว้)?(?:ใน|ไว้)(?!เกม)"), VIOLENCE_BY], {
         "open": ["ความปลอดภัยของคุณมาก่อนทุกเรื่อง"],
         "paths": [
             f"ถ้ากำลังอยู่ในอันตรายตอนนี้ — ออกไปอยู่ในที่ที่มีคนอื่น แล้วโทร {HOTLINE_POLICE}",
@@ -684,6 +685,9 @@ EN_HAZARD = {
     "intruder": ["Don't confront them — lock yourself in a room, turn lights on and call the police (191 in Thailand) with your address. If you can't talk, leave the line open.",
                  "If you're being followed, don't go home — go somewhere bright and busy: a convenience store, petrol station or police station.",
                  "Call someone you trust and stay on the line, share your location, and note their appearance or plate number only if it's safe."],
+    "gas": ["Don't touch light switches or plugs, and don't light anything — a tiny spark can ignite it.",
+            "If it's safe, close the gas valve and open doors and windows.",
+            "Get everyone out first, then call the fire service from outside (199 in Thailand); 1669 if anyone is dizzy or unconscious."],
     "heat": ["Move into shade or air-con now, loosen clothing, wipe the neck, armpits and groin with wet cloths and fan them.",
              "If they're alert, give sips of water or electrolytes. If confused, not sweating or unconscious, call 1669 now and give nothing by mouth.",
              "Avoid the sun 11:00–15:00 and check on older people, small children and anyone with health conditions."],
