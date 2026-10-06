@@ -696,6 +696,17 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    # เดิมได้ "Let's lay this out step by step." — สัญญาณเตือน/ขาดปัจจัยพื้นฐานต้องได้ขั้นช่วยเหลือ (รอบหาบั๊ก 6)
+    "warning": ("Thank you for telling me. That sounds really heavy.", [
+        "Can I ask you directly: are you having thoughts of hurting yourself or not wanting to be alive? You can answer honestly — I won't judge.",
+        "If yes, or you're not sure, please reach a crisis line now: 1323 in Thailand (free, 24h), 988 in the US, or find yours at findahelpline.com.",
+        "Be near someone tonight, or tell one person \"I'm not okay right now\" — you don't have to explain why."],
+        "Is there one small thing that could help you get through tonight?"),
+    "basic": ("Before anything else — food, sleep and safety come first.", [
+        "In Thailand call 1300 (24h social assistance) and say plainly you need food or shelter — they can refer you to emergency food and a place to stay. Elsewhere, search \"food bank\" or \"emergency shelter\" with your city.",
+        "For your next meal: temples, mosques, churches, charities and soup kitchens usually give food without asking why.",
+        "If you lost your job and paid into social security, register as unemployed within 30 days (Thailand: sso.go.th or 1506)."],
+        "What's the one thing that, if you had it tonight, would let you keep going tomorrow?"),
     # เดิม "I got scammed" ได้ "Let's lay this out step by step." — ไม่มีขั้นตอนอายัดบัญชี
     "scam": ("I'm sorry this happened — it's not your fault. Acting today gives you the best chance of getting money back.", [
         "Don't send any more money or codes, even if they promise a refund or threaten you — that's the next step of the scam.",
@@ -799,7 +810,7 @@ _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
 _TOPIC_RISK = {"sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
-               "diagnosis": 50, "health_rights": 40, "bribery": 45}
+               "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
 
 
@@ -835,6 +846,9 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     for name, lvl in _TOPIC_RISK.items():
         if name in topics:
             text_risk = max(text_risk, lvl)
+    # ตั้งครรภ์อายุต่ำกว่า 15 — ต้องมีผู้ใหญ่ช่วยและอาจเป็นการถูกล่วงละเมิด (รอบหาบั๊ก 6)
+    if "pregnancy" in topics and re.search(r"อายุ\s*(?:1[0-4]|[89])(?!\d)|(?<!\d)(?:1[0-4]|[89])\s*(?:ขวบ|ปี)(?!\d)|\b(?:1[0-4]|[89]) ?(?:yo|years? old)\b", t):
+        text_risk = max(text_risk, 65)
     if GAMBLING_LOSS.search(t):                # พนันจนหมดตัว/เป็นหนี้ — มักลามเป็นหนี้นอกระบบและความคิดทำร้ายตัวเอง
         text_risk = max(text_risk, 60)
         if "addiction" not in topics:

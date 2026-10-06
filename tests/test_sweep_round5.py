@@ -164,3 +164,41 @@ def test_locked_in_room_is_violence():
 def test_round6_ordinary_phrases(text):
     a = assess(text)
     assert not a["crisis"] and "warning" not in a["topics"] and "violence" not in a["topics"] and "basic" not in a["topics"]
+
+
+@pytest.mark.parametrize("text", ["I don't want to wake up", "nobody would miss me", "I'm a burden to everyone",
+                                  "I feel hopeless", "there's no way out"])
+def test_english_warning_signs(text):
+    """รอบหาบั๊ก 6: เดิมได้ Risk 0 และคำตอบ "Let's lay this out step by step." """
+    from core.kernel_voice import compose
+    assert "warning" in assess(text)["topics"]
+    r = compose(text)
+    assert "1323" in r and "Let's lay this out" not in r
+
+
+@pytest.mark.parametrize("text", ["I bought a rope", "I wrote a goodbye letter"])
+def test_english_preparation_is_crisis(text):
+    assert assess(text)["crisis"]
+
+
+@pytest.mark.parametrize("text", ["I haven't eaten in 3 days", "I'm homeless tonight", "I have nowhere to sleep"])
+def test_english_basic_needs(text):
+    from core.kernel_voice import compose
+    assert assess(text)["topics"][0] == "basic"
+    assert "1300" in compose(text)
+
+
+@pytest.mark.parametrize("text", ["I bought a rope for climbing", "the goodbye letter movie", "I don't want to wake up early",
+                                  "I feel hopeless about my team lol"])
+def test_english_ordinary_phrases(text):
+    a = assess(text)
+    assert not a["crisis"] and "warning" not in a["topics"]
+
+
+def test_stopping_psychiatric_meds_raises_risk():
+    assert assess("ซึมเศร้า หยุดยาเอง")["text_risk"] >= 50
+
+
+def test_pregnancy_under_15_raises_risk():
+    assert assess("ท้องไม่พร้อม อายุ 14")["text_risk"] >= 65
+    assert assess("ท้องไม่พร้อม อายุ 24")["text_risk"] < 65

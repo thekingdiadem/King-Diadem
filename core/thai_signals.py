@@ -115,6 +115,7 @@ SELF_HARM_INDIRECT = re.compile(
     # รอบหาบั๊ก 6 — สำนวนไทยที่หมายถึงฆ่าตัวตาย/เตรียมตัวตาย เคยได้ Risk 0
     r"(?<!ไม่)(?<!ไม่ได้)(?<!อย่า)(?<!อย่าไป)(?:อยาก|จะ|คิดจะ|กำลัง)?คิดสั้น|(?<!ไม่)(?:อยาก|จะ|คิดจะ)\S{0,4}กระโดด(?:ตึก|สะพาน|น้ำตาย|ลงไป|จากชั้น)|"
     r"(?<!ไม่)อยากไปจากโลก(?>(?:นี้)?)(?!\s*(?:สัก|ซัก|ไปเที่ยว|ไปพัก))|(?:เขียน|ทิ้ง)จดหมายลา(?!ออก|งาน|ป่วย)|(?:ซื้อ|เตรียม)(?:เชือก|ถ่าน)\S{0,6}(?:แล้ว|ไว้)(?![^\n]{0,20}(?:ปิ้ง|ย่าง|ตาก|ผ้า|มวย|บาร์บีคิว|หมูกระทะ))|"
+    r"(?i:\bi (?:bought|got|have) (?:a )?rope\b(?![^.\n]{0,20}\b(?:climb|camp|swing|boat|tie)\w*)|\b(?:goodbye|suicide) (?:letter|note)\b(?![^.\n]{0,20}\b(?:movie|book|song|film|class)\b))|"
     # "ลาโลก" = สแลงของการฆ่าตัวตาย (ไม่นับ "ลาโลกโซเชียล" = เลิกเล่นโซเชียล)
     r"(?<!ไม่)(?:อยาก|จะ|ขอ)ลาโลก(?!\s*(?:โซเชียล|โซเชี่ยล|ออนไลน์|เฟส|ไอจี|ทวิต|อินเทอร์เน็ต))|"
     r"อยากหายไปจากโลก|อยากจบทุกอย่าง|อยากจบ(?:ชีวิต|ทุกสิ่ง)|ไม่อยากหายใจ(?:อีก)?แล้ว|"
@@ -132,7 +133,8 @@ SELF_HARM_WARNING = re.compile(
     r"ยก(?:ของ|ข้าวของ|สมบัติ|ของรัก)\S{0,8}ให้\S{0,8}(?:หมด|ไปหมด)(?:แล้ว)?(?![^\n]{0,20}(?:ย้าย|บริจาค|ขาย|เคลียร์|ไม่ใช้))|"
     r"เบื่อชีวิต|ไม่มีอะไรจะเสีย(?:แล้ว)?|อยู่ไปก็(?:ไม่มีประโยชน์|ไร้ค่า|เท่านั้น|เปล่าประโยชน์)|"
     r"ชีวิต(?:นี้)?ไม่มีความหมาย|ไม่มีใครต้องการ(?:ฉัน|เรา|หนู|ผม)|เป็นภาระ(?:ของ|ให้)?(?:ทุกคน|ครอบครัว|คนอื่น|พ่อแม่)|"
-    r"\bwant to disappear\b|\bwish i (?:was|were) (?:dead|never born)\b|\bcan'?t go on\b",
+    r"\bwant to disappear\b|\bi (?:don'?t|do not) want to wake up\b(?!\s+(?:early|tomorrow|at|for|so|today))|\bno ?one would (?:miss|notice|care)\b|\bnobody would (?:miss|notice|care)\b|"
+    r"\bi'?m (?:just )?a burden\b|\bi (?:feel|am|'?m) (?:so )?hopeless\b(?!\s+(?:at|about|with)\b)|\bthere'?s no way out\b|\bno reason to live\b|\bwish i (?:was|were) (?:dead|never born)\b|\bcan'?t go on\b",
     re.I,
 )
 
@@ -318,7 +320,8 @@ NO_MONEY_LEFT = re.compile(
     r"(?<!ไม่)หมดเงิน(?!\S{0,3}(?:ไปกับ|ไปเยอะ|ไปหลาย|ค่า))|"
     r"(?:(?:อาหาร|ข้าว|ของกิน)(?:\S{0,6}เหลือ)?\s*(?:1|หนึ่ง)\s*มื้อ|(?:อาหาร|ข้าว|ของกิน)\S{0,6}เหลือ\S{0,2}มื้อเดียว)"
     r"(?![^\n]*(?:ลดน้ำหนัก|ไดเอท|ไดเอ็ท|คุมน้ำหนัก|แคล|โปรตีน|ราคา|กี่บาท|\bdiet\b|\bIF\b))|"  # "หมดตัว" ไม่นับ — ส่วนใหญ่มากับการพนัน (GAMBLING_LOSS ดูแลแล้ว)
-    r"\b(?:i have|i've got|with) (?:no|zero) money\b|\bflat broke\b",
+    r"\b(?:i have|i've got|with) (?:no|zero) money\b|\bflat broke\b|\bi (?:haven'?t|have not) eaten (?:in|for) (?:\d+|two|three|several|many) days\b|"
+    r"\bi'?m homeless\b|\b(?:i have )?nowhere to (?:sleep|stay|go) tonight\b|\bi have nowhere to (?:sleep|stay)\b|\bno food (?:left|at home)\b",
     re.I,
 )
 
