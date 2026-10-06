@@ -135,3 +135,32 @@ def test_long_new_topic_does_not_drag_old_urgent_matter(client):
     client.post("/run", json={"input": "ช่วยวางแผนเที่ยวเชียงใหม่ 3 วัน งบ 5000 บาท ไปกับเพื่อนสองคน",
                               "history": [{"role": "user", "content": "โดนหลอกโอนเงินไปแล้ว"}]})
     assert "เรื่องด่วน" not in FAKE_LLM["prompts"][-1]
+
+
+@pytest.mark.parametrize("text", ["คิดสั้น", "จะกระโดดตึก", "อยากไปจากโลกนี้", "เขียนจดหมายลาไว้แล้ว", "ซื้อเชือกมาแล้ว"])
+def test_thai_suicide_idioms_are_crisis(text):
+    """รอบหาบั๊ก 6: สำนวนไทยที่หมายถึงฆ่าตัวตาย/เตรียมตัวตาย เคยได้ Risk 0"""
+    assert assess(text)["crisis"]
+
+
+@pytest.mark.parametrize("text", ["อยู่ไปก็เป็นภาระ", "อยากหลับยาวๆ", "ทำไมต้องเกิดมา", "ไม่อยากตื่น", "ยกของให้เพื่อนหมดแล้ว"])
+def test_thai_warning_signs(text):
+    a = assess(text)
+    assert "warning" in a["topics"] and a["text_risk"] >= 65
+
+
+@pytest.mark.parametrize("text", ["โดนแม่ไล่ออกจากบ้าน", "ไม่ได้กินมา 3 วัน", "ลูกไม่มีนมกิน", "ไม่มีที่ไป คืนนี้"])
+def test_more_basic_needs(text):
+    assert assess(text)["topics"][0] == "basic"
+
+
+def test_locked_in_room_is_violence():
+    assert "violence" in assess("ถูกขังในห้อง")["topics"]
+
+
+@pytest.mark.parametrize("text", ["อย่าคิดสั้นนะ", "ไม่คิดสั้นหรอก", "กระโดดเชือกทุกวัน", "เขียนจดหมายลาออก",
+                                  "ซื้อถ่านไว้แล้ว ปิ้งหมูกระทะ", "ซื้อเชือกไว้แล้ว ตากผ้า", "ยกของให้เพื่อนหมดแล้ว ตอนย้ายบ้าน",
+                                  "ไม่อยากตื่นเช้า", "ถูกขังในเกม", "อยากไปจากโลกนี้สักพัก ไปเที่ยว", "ไม่มีที่ไปเที่ยว"])
+def test_round6_ordinary_phrases(text):
+    a = assess(text)
+    assert not a["crisis"] and "warning" not in a["topics"] and "violence" not in a["topics"] and "basic" not in a["topics"]
