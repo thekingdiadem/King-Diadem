@@ -48,3 +48,31 @@ def test_round6b_ordinary_phrases(text):
     a = assess(text)
     assert not a["crisis"] and not a["scam"] and a["disaster"] is None
     assert not {"someone", "warning"} & set(a["topics"])
+
+
+@pytest.mark.parametrize("text, topic", [
+    ("ลูกเอาเงินบำนาญแม่ไปหมด ไม่ให้กินข้าว", "violence"),
+    ("ยายถูกทิ้งไว้คนเดียว ไม่มีใครดูแล", "basic"),
+    ("แรงงานพม่าถูกยึดบัตร ไม่ได้ค่าแรง", "labor"),
+    ("ตำรวจจับ ไม่ให้โทรหาใคร", "legal"),
+    ("กินเหล้าทุกวัน หยุดไม่ได้", "addiction"),
+    ("แฟนติดยา อาละวาด", "violence"),
+    ("น้องสาวหายไปกับคนในเน็ต", "missing"),
+    ("คนแก่หลงทาง เดินอยู่ริมถนน", "missing"),
+    ("my boss touches me", "sexual_abuse"),
+    ("my husband won't let me leave", "violence"),
+    ("my child is missing", "missing"),
+])
+def test_round7_missed_topics(text, topic):
+    """รอบหาบั๊ก 7: ผู้สูงอายุ · แรงงาน · เสพติด · คนหาย · ภาษาอังกฤษ เคยไม่เข้าหัวข้อ"""
+    assert topic in assess(text)["topics"]
+
+
+def test_english_right_now_hazard_is_active():
+    assert assess("I smell gas in my apartment right now")["text_risk"] >= 60
+
+
+@pytest.mark.parametrize("text", ["แม่ไม่ให้กินขนม", "กินเหล้าทุกวันเสาร์", "ไม่ให้กินข้าวก่อนเจาะเลือด",
+                                  "my boss touches base with me weekly"])
+def test_round7_ordinary_phrases(text):
+    assert not {"violence", "sexual_abuse", "addiction"} & set(assess(text)["topics"])
