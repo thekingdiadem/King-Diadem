@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (HARM_OTHERS, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
+from core.thai_signals import (HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, DRUNK_DRIVING,
@@ -215,6 +215,16 @@ TOPICS = [
             "ถ้าคนนั้นทำร้ายคุณอยู่ แจ้ง 191 หรือ 1300 ให้คนกลางจัดการ — ไม่ต้องลงมือเอง",
         ],
         "ask": "ตอนนี้คุณอยู่ห่างจากคนนั้นแล้วหรือยัง?",
+    }),
+    # บอกว่ามีปืนเฉยๆ อาจเป็นแค่เล่า — ไม่ตื่นตูม แต่ถามว่าของใคร/ใครตกอยู่ในอันตรายไหม (ความเสี่ยงขึ้นเมื่อมีบริบทน่ากลัว: ดู assess)
+    ("weapon", [WEAPON_AT_HOME], {
+        "open": ["เรื่องปืนในบ้านขึ้นกับว่าเป็นของใครและตอนนี้ปลอดภัยไหม"],
+        "paths": [
+            "ถ้าไม่รู้ว่าเป็นของใคร อย่าแตะหรือขยับ — ออกห่างแล้วโทร 191 ให้ตำรวจมาเก็บ",
+            "ถ้าเป็นของคนในบ้านและเขากำลังเมา โกรธ หรือขู่ ออกจากบ้านไปที่ปลอดภัยก่อน แล้วโทร 191",
+            "ถ้าในบ้านมีเด็กหรือคนที่กำลังเครียดหนัก ขอให้เก็บปืนใส่ตู้ล็อก แยกกระสุนไว้อีกที่ — หรือฝากไว้นอกบ้านชั่วคราว",
+        ],
+        "ask": "ปืนนั้นเป็นของใคร และตอนนี้มีใครตกอยู่ในอันตรายไหม?",
     }),
     ("witness", [WITNESS_VIOLENCE], {
         "open": ["ดีแล้วที่ไม่เพิกเฉย — แต่ความปลอดภัยของคุณเองก็สำคัญ"],
@@ -731,6 +741,11 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "weapon": ("A gun at home depends on whose it is and whether anyone is in danger right now.", [
+        "If you don't know whose it is, don't touch or move it — step away and call the police (191 in Thailand, 911 in the US).",
+        "If it belongs to someone at home who is drunk, angry or making threats, leave for a safe place first, then call the police.",
+        "If there are children or someone in deep distress at home, ask for it to be locked away with the ammunition stored separately — or kept outside the home for now."],
+        "Whose gun is it, and is anyone in danger right now?"),
     "harm_others": ("Anger this strong usually means something heavy happened — thank you for saying it instead of acting on it.", [
         "Step away from that person now and put anything sharp or any weapon out of reach — give the anger 20 minutes to drop.",
         "Call a crisis line to talk it through (1323 in Thailand, 988 in the US) — no judgement.",
@@ -899,6 +914,10 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     # ตั้งครรภ์อายุต่ำกว่า 15 — ต้องมีผู้ใหญ่ช่วยและอาจเป็นการถูกล่วงละเมิด (รอบหาบั๊ก 6)
     if "pregnancy" in topics and re.search(r"อายุ\s*(?:1[0-4]|[89])(?!\d)|(?<!\d)(?:1[0-4]|[89])\s*(?:ขวบ|ปี)(?!\d)|\b(?:1[0-4]|[89]) ?(?:yo|years? old)\b", t):
         text_risk = max(text_risk, 65)
+    # ปืนในบ้าน: เล่าเฉยๆ ไม่ตื่นตูม (50) — แต่ไม่รู้ของใคร/กลัว/ขู่/เมา หรือมีความคิดทำร้าย = อันตรายจริง (85)
+    if "weapon" in topics:
+        danger = WEAPON_DANGER.search(t) or text_risk >= 65 or set(topics) & {"harm_others", "violence", "warning"}
+        text_risk = max(text_risk, 85 if danger else 50)
     if GAMBLING_LOSS.search(t):                # พนันจนหมดตัว/เป็นหนี้ — มักลามเป็นหนี้นอกระบบและความคิดทำร้ายตัวเอง
         text_risk = max(text_risk, 60)
         if "addiction" not in topics:
