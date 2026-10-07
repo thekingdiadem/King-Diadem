@@ -1179,7 +1179,8 @@ function eqHTML(t){
     rows.push(eqRow('W', '100 − ' + [a, b, f, h, m, dd].map(r1).join(' − '), '<b>' + r1(W) + '</b>', esc('e ' + s.energy + ' · s ' + s.sleep_hours + 'h · d ' + s.days_in_crisis + ' · ' + (s.mental_state || '') + (f ? ' · ¬food' : '') + (h ? ' · ¬safe' : ''))));
   } else {
     W = t.wl != null ? t.wl : 100;
-    rows.push(eqRow('W', '100', '<b>' + r1(W) + '</b>', 'ค่าเริ่มต้น · <a href="#" data-act="state">ระบุสถานะ</a>'));
+    /* ยังไม่มีสถานะ: ไม่โชว์ 100 ตัวหนา (ดูเหมือน "ปลอดภัยทุกอย่าง") — แสดง — แล้วบอกว่าคำนวณต่อด้วย 100 ชั่วคราว */
+    rows.push(eqRow('W', t.wl != null ? '100' : '—', t.wl != null ? '<b>' + r1(W) + '</b>' : '<b>—</b>', (t.wl != null ? 'ค่าเริ่มต้น' : 'ยังไม่ระบุ · ใช้ 100 ชั่วคราวในสูตรถัดไป') + ' · <a href="#" data-act="state">ระบุสถานะ</a>'));
   }
   var E = 100 - W, R = W, rf = 0.5 * E + 0.5 * (100 - R);
   rows.push(eqRow('E, R', r1(E) + ' · ' + r1(R), ''));
