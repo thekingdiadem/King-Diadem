@@ -149,7 +149,7 @@ class DecisionEngine:
         # ── STEP 3: Persona / Voice Mode ─────────────────────
         raw_vm = str(data.get("voice_mode") or "lyla").lower()
         if   route == "crisis" or raw_vm == "crisis": voice_mode = "crisis"
-        elif raw_vm == "council":                      voice_mode = "council"   # สภา 5 เสียง
+        elif raw_vm == "council":                      voice_mode = "council"   # สภา 6 เสียง
         elif route == "vega"   or raw_vm == "vega":   voice_mode = "vega"
         else:                                          voice_mode = "lyla"
 

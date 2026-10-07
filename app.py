@@ -960,7 +960,7 @@ _LISTEN_GENTLY = ("ค่อยๆ ฟังเขา: เริ่มจาก�
 # เรียกชื่อในข้อความ ("หาทางออกทีเวก้า") — เดิมรู้จักแค่ปุ่มเลือกและคำว่า vega
 _NAME_VEGA = re.compile(r"เวก้า|เวกา|วีก้า|(?<![a-z])vega(?![a-z])", re.I)
 _NAME_LYLA = re.compile(r"ไลล่า|ไลลา|(?<![a-z])lyla(?![a-z])", re.I)
-_NAME_COUNCIL = re.compile(r"ขอความเห็นสภา|เปิดสภา|ถามสภา|สภา\s*5\s*เสียง|(?<![a-z])council(?![a-z])", re.I)
+_NAME_COUNCIL = re.compile(r"ขอความเห็นสภา|เปิดสภา|ถามสภา|สภา\s*[56]\s*เสียง|(?<![a-z])council(?![a-z])", re.I)
 
 
 _PERSONA = {"vega": "VEGA", "council": "COUNCIL"}
@@ -988,7 +988,7 @@ def _resolve_voice_mode(data: dict, route: str) -> str:
         except Exception:
             return "crisis"
         vm = ""
-    # สภา 5 เสียง: เลือกจากปุ่ม หรือขอในข้อความ — วิกฤตมาก่อนเสมอ (ตรวจไปแล้วด้านบน)
+    # สภา 6 เสียง: เลือกจากปุ่ม หรือขอในข้อความ — วิกฤตมาก่อนเสมอ (ตรวจไปแล้วด้านบน)
     if vm == "council" or _NAME_COUNCIL.search(text):
         try:
             if text_risk and text_risk(text).get("self_harm"):
@@ -1267,7 +1267,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                        "(1300 ศูนย์ช่วยเหลือสังคม 24 ชม." + (" · 1323 สายด่วนสุขภาพจิต" if prior_kind in ("self_harm", "warning") else "") + ")]")
             # ความกังวลยังอยู่ แต่ลดลงตามเวลา — Risk = 0.75 × Risk ของสิ่งที่เล่าไว้
             k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
-    # สภา 5 เสียงไม่เหมาะกับเรื่องฉุกเฉิน (กินยาเกินขนาด ถูกทำร้าย ภัยพิบัติ ฯลฯ) — ให้ LYLA ตอบขั้นช่วยเหลือทันที
+    # สภา 6 เสียงไม่เหมาะกับเรื่องฉุกเฉิน (กินยาเกินขนาด ถูกทำร้าย ภัยพิบัติ ฯลฯ) — ให้ LYLA ตอบขั้นช่วยเหลือทันที
     if vm == "council" and k_assess:
         try:
             from core.kernel_voice import council_unsuitable

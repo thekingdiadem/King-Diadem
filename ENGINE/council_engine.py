@@ -1,15 +1,12 @@
 # ENGINE/council_engine.py — KING DIADEM
 # แก้: Altair → Choice (option preservation)
 
-MEMBERS = [
-    ("Choice",    "option preservation & expansion"),
-    ("Vega",      "risk stability"),
-    ("Lyla",      "human welfare & harm reduction"),
-    ("Titan",     "structural reasoning"),
-    ("DriftZero", "drift audit"),
-    ("FATE",      "decision integrity"),
-    ("Pratiya",   "cause-effect chain"),
-]
+# สมาชิกมาจากสภาเดียวของระบบ (AI/council_engine.COUNCIL_SEATS) — เดิมมี 7 ชื่อของตัวเอง
+# (Choice/Vega/Lyla/Titan/DriftZero/FATE/Pratiya) ไม่ตรงกับสภาที่ผู้ใช้เห็น
+from AI.council_engine import COUNCIL_SEATS
+
+MEMBERS = [(name, duty) for name, _, _, duty in COUNCIL_SEATS]
+_CHOICE_KEEPER = "LYLA"        # เสียงที่ดูแล Choice(t) — ได้น้ำหนักเพิ่มเมื่อเสี่ยงสูง/ยังขยายทางเลือกได้
 
 def _safe_float(val, default=0.0):
     try: return float(val)
@@ -27,14 +24,14 @@ def council_engine(decision: dict, state: dict = None) -> dict:
         weight = 100 - idx * 6
         if action == "stabilize":
             vote_action = "stabilize"
-            bonus = 12 if member == "Choice" and risk_score >= 70 else (10 if risk_score >= 80 else 0)
+            bonus = 12 if member == _CHOICE_KEEPER and risk_score >= 70 else (10 if risk_score >= 80 else 0)
             vote_score = weight + bonus
         elif action == "recover_resource":
             vote_action = "recover_resource"
             vote_score  = weight + (8 if resource < 30 else 0)
         elif action == "expand_choices":
             vote_action = "expand_choices"
-            bonus = 10 if member == "Choice" and stability >= 35 else (6 if stability >= 40 else -5)
+            bonus = 10 if member == _CHOICE_KEEPER and stability >= 35 else (6 if stability >= 40 else -5)
             vote_score = weight + bonus
         else:
             vote_action = "maintain"

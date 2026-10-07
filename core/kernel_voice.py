@@ -1220,7 +1220,7 @@ def simulate(text: str, paths: list) -> str:
 
 
 # ══════════════════════════════════════════════════════════════════
-# สภา 5 เสียง (AI/council_engine) — ตอบได้แม้ไม่มี AI
+# สภา 6 เสียง (AI/council_engine) — ตอบได้แม้ไม่มี AI
 #   แต่ละเสียงมาจากเครื่องยนต์ที่มีอยู่แล้ว · มติรวมด้วย build_consensus · มนุษย์ตัดสินเสมอ
 # ══════════════════════════════════════════════════════════════════
 _PATICCA_SAY = {
@@ -1231,6 +1231,34 @@ _PATICCA_SAY = {
     "misinformation": "ข้อมูลอาจผิดหรือถูกหลอก — ตรวจจากแหล่งที่สองก่อนตัดสินใจ",
     "bias": "อาจมีอคติปนอยู่ — ลองหาเหตุผลของอีกฝั่งดูสักข้อ",
 }
+# CIVIL ⬡ — แรงกระเพื่อม: ใครอยู่ในเรื่องนี้ด้วย และใครช่วยแบกได้
+_CIVIL_PEOPLE = ((r"ลูก(?!ค้า|น้อง|ชิ้น|อม|เตะ|บอล|ศิษย์|หนี้|จ้าง)", "ลูก"), (r"พ่อ(?!ค้า)|แม่(?!ค้า|น้ำ|บ้าน)", "พ่อแม่"),
+                 (r"แฟน(?!บอล|คลับ|เพจ)", "แฟน"), (r"สามี|ภรรยา|ผัว|เมีย", "คู่ชีวิต"), (r"ครอบครัว|ที่บ้าน", "ครอบครัว"),
+                 (r"(?<!รุ่น)(?:พี่|น้อง)(?!ชาย|สาว)?", "พี่น้อง"), (r"เพื่อน", "เพื่อน"), (r"ลูกน้อง|ทีม|ลูกจ้าง", "ทีม"),
+                 (r"ลูกค้า", "ลูกค้า"), (r"หุ้นส่วน", "หุ้นส่วน"), (r"หมา|แมว|สัตว์เลี้ยง", "สัตว์ที่เลี้ยง"))
+_IRREVERSIBLE = re.compile(r"ลาออก|กู้|ลงทุน|ขาย(?:บ้าน|รถ|ที่ดิน)|จำนอง|ค้ำประกัน|ย้ายประเทศ|หย่า|\b(?:quit|loan|invest|mortgage)\b", re.I)
+_CIVIL_ALONE = re.compile(r"ไม่มีใคร|อยู่คนเดียว|ตัวคนเดียว|ไม่มีเพื่อน|ไม่กล้าบอกใคร|ไม่อยากให้ใครรู้|\balone\b|no one", re.I)
+
+
+def _civil_voice(text: str, risky: bool, reversible: bool = True) -> tuple[str, str]:
+    """คืน (ข้อความ, โหวต) — มองว่าการตัดสินใจนี้กระทบใคร และใครช่วยแบกได้"""
+    if _CIVIL_ALONE.search(text):
+        return ("ตอนนี้ดูเหมือนคุณแบกเรื่องนี้อยู่คนเดียว — การตัดสินใจที่ดีมักมาจากคนสองคนขึ้นไป "
+                "หาคนหนึ่งคนที่เล่าให้ฟังได้ หรือโทร 1300 (ฟรี 24 ชม.) ก่อนลงมือ", "stabilize")
+    who = []
+    for pat, label in _CIVIL_PEOPLE:
+        if re.search(pat, text) and label not in who:
+            who.append(label)
+    if who:
+        names = " · ".join(who[:3])
+        return (f"แรงกระเพื่อมของเรื่องนี้ไปถึง {names} ด้วย — ถามตัวเองว่าทางไหนที่ถ้าพลาด "
+                f"พวกเขายังไม่ต้องรับผลหนัก และในนั้นมีใครช่วยแบกส่วนหนึ่งได้บ้าง",
+                # มีคนพึ่งเราอยู่ + ทางที่ย้อนกลับยาก (ลาออก กู้ ลงทุน) → ชะลอ ให้คนที่รับผลด้วยได้มีส่วนรู้ก่อน
+                "pause" if risky or (not reversible and set(who) & {"ลูก", "คู่ชีวิต", "พ่อแม่"}) else "proceed_small")
+    return ("ทุกการตัดสินใจมีคนอื่นอยู่ในนั้นเสมอ — ใครได้ ใครเสียจากทางนี้ "
+            "และมีใครสักคนที่ช่วยแบกหรือช่วยดูทางให้คุณได้ไหม", "proceed_small")
+
+
 _COUNCIL_ACTION_TH = {
     "proceed_small": "เดินหน้าได้ แต่เริ่มแบบเล็กและย้อนกลับได้ก่อน",
     "pause": "ชะลอไว้ก่อน หาข้อมูลเพิ่มอีกนิดแล้วค่อยตัดสินใจ",
@@ -1241,13 +1269,13 @@ _COUNCIL_ACTION_TH = {
 
 
 def council_unsuitable(a: dict) -> bool:
-    """เรื่องฉุกเฉินไม่ควรรอ 5 มุมมอง — ให้ขั้นตอนช่วยเหลือทันที"""
+    """เรื่องฉุกเฉินไม่ควรรอ 6 มุมมอง — ให้ขั้นตอนช่วยเหลือทันที"""
     return bool(a.get("crisis") or a.get("disaster") or a.get("relationship") in ("collapse_risk", "critical")
                 or (a.get("topics") and a["topics"][0] in _URGENT_TOPICS))
 
 
 def compose_council(text: str, footer: bool = True) -> str:
-    """สภา 5 เสียง: LYLA ใจ · VEGA ความเสี่ยง · PATICCA ต้นเหตุ · TITAN ทางรอดวันนี้ · COSMOS ภาพยาว"""
+    """สภา 6 เสียง: LYLA ใจ · VEGA ความเสี่ยง · PATICCA ต้นเหตุ · TITAN ทางรอดวันนี้ · COSMOS ภาพยาว · CIVIL แรงกระเพื่อม"""
     text = text if isinstance(text, str) else str(text or "")
     a = assess(text)
     if council_unsuitable(a) or detect_lang(text) != "th":
@@ -1308,17 +1336,19 @@ def compose_council(text: str, footer: bool = True) -> str:
         "TITAN":   {"action": "stabilize" if a["risk"] >= 75 else "proceed_small", "confidence": 0.7},
         "COSMOS":  {"action": "pause" if risky else "proceed_small", "confidence": 0.5},
     }
+    civil, civil_vote = _civil_voice(text, risky, reversible_first and not _IRREVERSIBLE.search(text))
+    votes["CIVIL"] = {"action": civil_vote, "confidence": 0.6}
     verdict, agree = _COUNCIL_ACTION_TH["pause"], ""
     try:
         from AI.council_engine import build_consensus
         c = build_consensus(votes)
         verdict = _COUNCIL_ACTION_TH.get(c["final_action"], verdict)
         top = max(sum(1 for v in votes.values() if v["action"] == c["final_action"]), 1)
-        agree = f" (เห็นตรงกัน {top}/5)"
+        agree = f" (เห็นตรงกัน {top}/{len(votes)})"
     except Exception:
         pass
 
     tag = "\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if footer else ""
     return (f"LYLA ◈ — {lyla}\n\nVEGA ◆ — {vega}\n\nPATICCA ☸ — {paticca}\n\n"
-            f"TITAN ▲ — ก้าวที่ทำได้ภายใน 24 ชั่วโมง: {titan}\n\nCOSMOS ✦ — {cosmos}\n\n"
+            f"TITAN ▲ — ก้าวที่ทำได้ภายใน 24 ชั่วโมง: {titan}\n\nCOSMOS ✦ — {cosmos}\n\nCIVIL ⬡ — {civil}\n\n"
             f"มติสภา{agree}: {verdict}\nคุณเป็นคนตัดสินใจเสมอ\n\n— สภา KING DIADEM ✦" + tag)
