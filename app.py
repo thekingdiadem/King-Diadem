@@ -1218,6 +1218,17 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         # เรื่องด่วน/ขาดปัจจัยพื้นฐาน ลากต่อเฉพาะข้อความสั้นที่ตอบต่อ — ข้อความยาวเรื่องใหม่ประเมินจากตัวเองพอ
         if prior_kind in ("urgent", "basic") and len(user_input.strip()) > 30:
             prior_kind = ""
+        # ข้อความสั้นที่มีเรื่องของตัวเอง ("จะเผาตอซังดีไหม" หลังคุยเรื่องหมดเงิน) คือเรื่องใหม่ ไม่ใช่คำตอบต่อ
+        # — เดิมได้ 1300 + "คืนนี้มีที่นอนไหม" แทรกมา (หน้าจอจริง)
+        if prior_kind in ("urgent", "basic"):
+            own = set(k_assess.get("topics") or []) - {"positive", "stress", "lonely", "decision", "help"}
+            try:
+                from core.engine_bridge import analyze as _bridge
+                own |= set(_bridge(user_input).get("data") or {})
+            except Exception:
+                pass
+            if own or k_assess.get("disaster") or k_assess.get("scam"):
+                prior_kind = ""
         if prior_kind == "urgent":
             if route not in ("vega",):
                 route = _escalate_route(route, "risk")

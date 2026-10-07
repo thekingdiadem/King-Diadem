@@ -31,3 +31,11 @@ def test_unrelated_or_active_fire_is_not_earth_advice(text):
 def test_run_passes_alternatives_to_llm(client):
     client.post("/run", json={"input": "จะเผาตอซังพรุ่งนี้ ดีไหม"})
     assert "ไถกลบ" in FAKE_LLM["prompts"][-1]
+
+
+def test_new_short_topic_is_not_dragged_into_earlier_basic_needs(client):
+    """หน้าจอจริง: "จะเผาตอซังดีไหม" หลังคุยเรื่องหมดเงิน ได้ 1300 + "คืนนี้มีที่นอนไหม" แทรกมา และเส้นทาง SURVIVAL"""
+    d = client.post("/run", json={"input": "จะเผาตอซังดีไหม", "history": [
+        {"role": "user", "content": "ตอนนี้หมดเงิน งานหมด อาหาร1มื้อ"}, {"role": "assistant", "content": "..."}]}).json()
+    p = FAKE_LLM["prompts"][-1]
+    assert d["route"] != "survival" and "1300" not in p and "ไถกลบ" in p
