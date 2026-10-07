@@ -10,7 +10,7 @@
 <link rel="manifest" href="/static/manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+Thai+Looped:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ════════════════════════════════════════════════════════════════
    KING DIADEM — static/index.html · จักรวาลการตัดสินใจ
@@ -26,9 +26,10 @@
   --lyla:#ffcf7a; --vega:#8cc2ff; --crisis:#ff5d6c;
   --c-boot:#f6b24a; --c-request:#ffe2a8; --c-web:#4d9bff; --c-dormant:#4a5584; --c-broken:#ff5d6c; --c-docs:#a78bfa; --c-site:#6c82b8; --c-config:#8e96b0; --c-artifact:#3b4270; --c-legacy:#3a4060; --c-vision:#8a6fd1; --c-tests:#2bcfb4; --c-pkg:#2e3352;
   --arc:linear-gradient(90deg,#4d9bff 0%,#b8c8ff 48%,#f6b24a 100%);
-  --f-title:"Cinzel",Georgia,serif;
-  --f-sans:"Noto Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --f-title:"Cinzel","Noto Sans Thai Looped",Georgia,serif;
+  /* ไทยแบบมีหัว — แบบไม่มีหัวทำให้ "ระบบ" อ่านเป็น "ระUU" บนมือถือ */
+  --f-sans:"Noto Sans Thai Looped",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono","Noto Sans Thai Looped",ui-monospace,SFMono-Regular,Menlo,monospace;
   --r:8px; --sb-w:272px; --tr-w:340px; --top-h:54px; --tab-h:60px;
   --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
   color-scheme:dark;
@@ -494,6 +495,20 @@ dialog.axis::backdrop{background:transparent}
 .axis-body h3{font:600 11px/1.6 var(--f-mono);letter-spacing:.32em;color:var(--gold-hi);margin:0 0 14px}
 .axis-body p{margin:0}
 .axis-body p.b{font:500 12px/2 var(--f-mono);letter-spacing:.12em;color:var(--ink)}
+
+/* ── มือถือ: ปุ่มต้องใหญ่พอให้นิ้วกด (≥ 36–44px) ─────────────────── */
+.bubble a.tel{color:var(--gold-hi);font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+@media (max-width:899px){
+  .chip{height:36px;padding:0 13px;font-size:12px}
+  .seg button{height:34px;padding:0 12px;font-size:11px}
+  .comp-row1{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  #lang-pick{min-height:36px;padding:0 8px}
+  .acc-link{display:inline-flex;align-items:center;min-height:36px;padding:0 6px}
+  #send{width:46px;height:46px}
+  .menu{bottom:42px}
+  .menu .chip{height:42px}
+  .bubble a.tel{display:inline-block;padding:2px 4px;margin:-2px 0}
+}
 </style>
 </head>
 <body data-veil="0" data-view="chat">
@@ -747,6 +762,9 @@ var $ = function(s, r){ return (r||document).querySelector(s); };
 var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
 function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function fmt(t){ return esc(t).replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); }
+/* เบอร์สายด่วนในคำตอบ → แตะโทรได้ทันทีบนมือถือ (ไม่แตะจำนวนเงิน เช่น "1300 บาท") */
+var HOTLINES = /(^|[^\d\w.\/:-])(191|1669|1323|1300|1784|1650|1599|1155|1111|1441|1213|1195|1387|1506|1330|1192|1567|1586|1543|199|911|988)(?![\d.,]|\s*(?:บาท|฿|baht|ปี|คน|ครั้ง|%))/g;
+function telify(html){ return html.replace(HOTLINES, '$1<a class="tel" href="tel:$2">$2</a>'); }
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(_){} }
 function lsDel(k){ try{ localStorage.removeItem(k); }catch(_){} }
@@ -1676,7 +1694,7 @@ function msgEl(m){
   var crisis = t.mode === 'crisis' || /1323|1669/.test(m.t);
   var star = m.tr ? '<span class="star" style="color:' + riskColor(t.risk) + '" title="ดาวของการตัดสินใจนี้"></span>' : '';
   el.innerHTML = '<div class="who">' + star + '<span class="' + pn[1] + '">' + pn[0] + '</span><span class="tag">' + esc(tags.join(' · ')) + '</span></div>' +
-    '<div class="bubble">' + (key === 'COUNCIL' ? councilFmt(m.t) : fmt(m.t)) + '</div>' + (crisis ? crisisCard() : '') + helpCard(m.l) +
+    '<div class="bubble">' + telify(key === 'COUNCIL' ? councilFmt(m.t) : fmt(m.t)) + '</div>' + (crisis ? crisisCard() : '') + helpCard(m.l) +
     (m.tr && eqStrip(t) ? '<button type="button" class="eqs mono">' + eqStrip(t) + '</button>' : '') +
     (m.tr ? voteRow(m) : '');
   var eb = el.querySelector('.eqs'); if(eb) eb.addEventListener('click', function(){ showEq(m); });
