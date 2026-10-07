@@ -264,7 +264,7 @@ def _relationship(text: str) -> dict | None:
 _HAZARDS = (
     ("flood", "climate_disaster", "น้ำท่วม",
      re.compile(r"น้ำท่วม(?!ขัง|ปาก|ทุ่ง)|น้ำเข้าบ้าน|น้ำป่า|น้ำขึ้นถึง|น้ำทะลัก|เขื่อนแตก|คันกั้นน้ำแตก|"
-                r"น้ำเข้ารถ|รถจมน้ำ|รถ\S{0,6}ลอย(?:น้ำ)?|\bflood"),
+                r"น้ำเข้ารถ|รถจมน้ำ|รถ\S{0,6}ลอย(?:น้ำ)?|\bflood|(?i:\bwater (?:is )?(?:rising|coming in)\b|\b(?:river|canal|dam) (?:is )?(?:overflowing|burst)\b)"),
      ["ตัดไฟที่เบรกเกอร์ถ้ามือและเท้าแห้งและน้ำยังไม่ถึงปลั๊ก — ถ้าน้ำถึงแล้ว อย่าแตะสวิตช์ อย่าลงน้ำที่อาจมีไฟรั่ว",
       "ขึ้นที่สูงหรือชั้นบนพร้อมคนในบ้าน เอายาประจำตัว เอกสาร โทรศัพท์กับพาวเวอร์แบงก์ไปด้วย",
       "อย่าเดินหรือขับรถลุยน้ำไหล — น้ำสูงแค่เข่าก็พัดคนล้มได้"]),
@@ -320,7 +320,7 @@ _HAZARDS = (
     ("intruder", "war_conflict", "คนบุกรุก/ถูกตาม",
      re.compile(r"(?:มีคน|โจร|ขโมย|ผู้ชาย|ใครไม่รู้)\S{0,10}(?:งัด|ปีน|บุก|พัง|แอบเข้า)\S{0,6}(?:ประตู|หน้าต่าง|บ้าน|ห้อง|รั้ว|เข้า)|"
                 r"(?:โจร|ขโมย)ขึ้นบ้าน|มีคน(?:แอบ)?อยู่ในบ้าน\S{0,6}(?:ไม่รู้จัก|แปลกหน้า)|"
-                r"มีคน\S{0,10}(?:เดินตาม|ขับรถตาม|ขี่รถตาม|แอบตาม|ตามมาถึง)|(?:โดน|ถูก)\S{0,4}(?:สะกดรอยตาม|ตามมาถึงบ้าน)|"
+                r"มีคน\S{0,10}(?:เดินตาม|ขับรถตาม|ขี่รถตาม|แอบตาม|ตามมาถึง|ตาม(?:ผม|ฉัน|หนู|เรา)(?:มา|กลับ)?)|(?:โดน|ถูก)\S{0,4}(?:สะกดรอยตาม|ตามมาถึงบ้าน)|"
                 r"\bbreaking into my\b|\bintruder (?:in|inside|at)\b|\bthere'?s an intruder\b|\bsomeone (?:is )?(?:in|inside) my (?:house|home|room|apartment)\b|"
                 r"\b(?:i'?m|i am) being followed\b|\bsomeone (?:is )?following me\b|\bstalking me\b", re.I),
      ["อย่าออกไปเผชิญหน้า — ล็อกตัวเองในห้องที่ล็อกได้ เปิดไฟ แล้วโทร 191 บอกที่อยู่ให้ชัด (พูดไม่ได้ให้เปิดสายค้างไว้)",
@@ -514,6 +514,7 @@ def _hazard_place(kind: str, text: str):
 # พูดถึงภัยแต่ไม่ได้เกิดกับตัวตอนนี้: ข่าว · สมมติ · เรื่องเก่า → เตรียมตัว ไม่ยก Risk
 _HAZARD_FAR = re.compile(r"ถ้า|หาก|เผื่อ|เตรียม(?:ตัว)?รับ|ข่าว|ดูหนัง|ในหนัง|ในเกม|ปีที่แล้ว|เมื่อปี|ตอนเด็ก|เคยเจอ|สมัยก่อน|"
                          r"(?i:\bif\b|\bin case\b|\bprepare\b|\bin the (?:news|movie|game)\b|\blast year\b)")
+_HAZARD_NOW = re.compile(r"(?i:\bright now\b|\bhappening now\b|\bhelp\b|\btrapped\b|\bcan'?t get out\b)|ตอนนี้|กำลัง|ติดอยู่|ออกไม่ได้|หนีไม่ทัน|ช่วยด้วย|ยังสั่น|ยังโยก|ใกล้มาก")
 _HAZARD_LEVEL_TH = {"EXTREME": "สูงมาก", "HIGH": "สูง", "MODERATE": "ปานกลาง", "LOW": "ต่ำ"}
 
 
@@ -544,9 +545,10 @@ def _disaster(text: str) -> dict | None:
             place, steps = q[1], q[3]
         else:
             ask = _HAZARD_PLACES[kind][1]               # ยังไม่รู้ว่าอยู่ที่ไหน — ให้ขั้นทั่วไปแล้วถาม
-    far = bool(_HAZARD_FAR.search(text)) and not _HAZARD_NEAR.search(text)
+    # "ข่าวน้ำท่วมบ้าน" "น้ำท่วมบ้านเมื่อปีที่แล้ว": คำว่า "บ้าน" อย่างเดียวไม่พอจะลบว่าเป็นเรื่องเล่า — ต้องมีคำว่ากำลังเกิดจริง
+    far = bool(_HAZARD_FAR.search(text)) and not _HAZARD_NOW.search(text)
     # บอกที่ที่ตัวเองอยู่ตอนเกิดภัย ("ติดในลิฟต์" "อยู่ภูเก็ต แผ่นดินไหวแรงมาก") = กำลังเจออยู่จริง
-    severity = 25 if far else 85 if (_HAZARD_NEAR.search(text) or place) else 60
+    severity = 25 if far else 85 if (_HAZARD_NEAR.search(text) or place or kind == "gas") else 60   # ได้กลิ่นแก๊ส = อยู่ตรงนั้นแล้ว
     try:
         from DOMAINS.survival_engine import analyze_global_event
         r = analyze_global_event(event_type=event, severity=severity)
