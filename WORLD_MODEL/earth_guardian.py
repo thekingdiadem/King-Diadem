@@ -1,73 +1,69 @@
+"""
+WORLD_MODEL/earth_guardian.py — KING DIADEM
+กฎปกป้องโลก: เผาไร่/เผาขยะ (ต้นเหตุฝุ่น PM2.5) · ทิ้งขยะ/น้ำเสียลงแหล่งน้ำ
+
+ยังตอบเรื่องที่ผู้ใช้ถามตามปกติ — แค่ยกทางที่ไม่ทำร้ายอากาศ/น้ำขึ้นมาก่อน พร้อมเหตุผลที่เป็นประโยชน์กับเขาเอง
+ไม่ตัดสิน ไม่สั่งสอน (คนเผาส่วนใหญ่ไม่มีทางเลือกที่ถูกกว่า)
+"""
+import re
+
 EARTH_RULES = {
     "protect_animals": True,
     "protect_forests": True,
     "protect_water": True,
-    "reduce_harm": True
+    "reduce_harm": True,
 }
 
-import re
+# (ชนิด, ชื่อไทย, รูปประโยค, ทางที่ไม่ต้องเผา/ไม่ต้องทิ้ง)
+# "เผา" ต้องเป็นการตั้งใจเผาของ — ไฟไหม้ไร่/ไฟป่าที่กำลังเกิดเป็นภัย (core/engine_bridge._HAZARDS) ไม่ใช่ที่นี่
+_RULES = (
+    ("field_burning", "การเผาตอซัง/เผาไร่",
+     re.compile(r"(?<!ห้าม)เผา(?:ตอซัง|ฟาง|ซังข้าว|ใบอ้อย|อ้อย|ไร่|นา|ซังข้าวโพด|ข้าวโพด|เศษพืช|ป่า|หญ้า|วัชพืช)"
+                r"|\b(?:burn(?:ing)? (?:the )?(?:field|crop|stubble|straw|rice straw)s?|stubble burning)\b", re.I),
+     ["ไถกลบตอซังแล้วใส่จุลินทรีย์ย่อยสลาย (สารเร่ง พด.2 แจกฟรีที่สถานีพัฒนาที่ดิน) — ได้ปุ๋ยกลับคืนดิน ไม่ต้องซื้อปุ๋ยเพิ่ม",
+      "อัดฟาง/ใบอ้อยขาย หรือให้โรงไฟฟ้าชีวมวลมารับ — บางพื้นที่มีคนรับซื้อถึงไร่",
+      "ถามเกษตรอำเภอเรื่องเครื่องจักรให้ยืมและโครงการชดเชยการไม่เผา",
+      "ถ้าจำเป็นต้องเผาจริง แจ้งผู้ใหญ่บ้านก่อน ทำแนวกันไฟ และเลี่ยงวันที่ค่าฝุ่นสูงหรือลมแรง — ช่วงห้ามเผาอาจโดนปรับ"]),
+    ("trash_burning", "การเผาขยะ",
+     re.compile(r"(?<!ห้าม)เผา(?:ขยะ|ถุงพลาสติก|พลาสติก|ยาง|ใบไม้)|\bburn(?:ing)? (?:the )?(?:trash|garbage|rubbish|plastic|tyres|tires)\b", re.I),
+     ["ควันจากพลาสติกและยางมีสารพิษที่ก่อมะเร็ง — คนในบ้านที่สูดควันเป็นคนได้รับมากที่สุด",
+      "แยกขวด กระป๋อง กระดาษไปขายร้านรับซื้อของเก่า ที่เหลือนัดรถเก็บขยะของ อบต./เทศบาล",
+      "ใบไม้และเศษอาหารทำปุ๋ยหมักได้ — ขุดหลุมหรือใส่ถัง กลบด้วยดินบางๆ ไม่มีกลิ่นถ้าไม่แฉะ"]),
+    ("water_dumping", "การทิ้งขยะ/น้ำเสียลงแหล่งน้ำ",
+     re.compile(r"(?:ทิ้ง|เท|ปล่อย)(?:ขยะ|น้ำมัน(?:เครื่อง|ทอด)?|สารเคมี|ยาฆ่าแมลง|น้ำเสีย)\S{0,8}(?:ลง)?(?:แม่น้ำ|คลอง|ทะเล|ลำห้วย|บ่อ|ท่อระบายน้ำ|แหล่งน้ำ)"
+                r"|\b(?:dump(?:ing)?|pour(?:ing)?) (?:trash|oil|chemicals?) (?:in|into) (?:the )?(?:river|canal|sea|drain)\b", re.I),
+     ["น้ำมันทอดใช้แล้วเก็บใส่ขวด — มีร้านรับซื้อไปทำไบโอดีเซล ส่วนน้ำมันเครื่องคืนอู่ซ่อมรถได้",
+      "สารเคมี/ยาฆ่าแมลงเหลือใช้ ส่งจุดรับของเสียอันตรายของเทศบาล — ลงน้ำแล้วกลับมาในปลาและน้ำที่คนกิน",
+      "แจ้งเหตุคนอื่นทิ้งของเสียลงน้ำได้ที่ กรมควบคุมมลพิษ 1650"]),
+)
+# พูดถึงแบบข่าว/ห้าม/ถามความรู้ — ไม่ใช่ตัวเองกำลังจะทำ
+_NOT_SELF = re.compile(r"ข่าว|ห้าม|ทำไม(?:คน)?(?:ถึง)?|เพื่อนบ้าน|ข้างบ้าน|คนอื่น|ใครเผา|หมู่บ้าน\S{0,4}เผา|\bneighbo")
 
 
-def _hit(w: str, text: str) -> bool:
-    """อังกฤษ = คำเต็ม ("rat" ไม่ติด "rather", "kill" ไม่ติด "skill"); ไทย = วลี"""
-    if w.isascii() and w.replace(" ", "").isalnum():
-        return re.search(r"(?<![a-z])" + re.escape(w.lower()) + r"(?![a-z])", text) is not None
-    return w.lower() in text
-
-ANIMAL_WORDS = [
-    "hedgehog",
-    "hamster",
-    "rat",
-    "mouse",
-    "squirrel",
-    "bird"
-]
-
-HARM_WORDS = [
-    "kill",
-    "burn",
-    "destroy",
-    "poison"
-]
-
-POLLUTION_WORDS = [
-    "dump",
-    "trash",
-    "waste",
-    "plastic"
-]
+def assess_earth(text: str) -> dict | None:
+    """คืน {kind, name, alternatives, self} หรือ None — self=False เมื่อเป็นเรื่องที่คนอื่นทำ"""
+    t = str(text or "")
+    hit = next((r for r in _RULES if r[2].search(t)), None)
+    if not hit:
+        return None
+    kind, name, _, alts = hit
+    return {"kind": kind, "name": name, "alternatives": list(alts), "self": not _NOT_SELF.search(t)}
 
 
+# ── ของเดิม (คงชื่อไว้ให้โค้ดที่อาจเรียก) ─────────────────────────────────
 def detect_animal_context(text):
-
-    t = str(text or "").lower()
-
-    for w in ANIMAL_WORDS:
-        if _hit(w, t):
-            return True
-
-    return False
+    from WORLD_MODEL.small_animal_model import detect_small_animal
+    return detect_small_animal(text)["detected"]
 
 
 def detect_environment_harm(text):
-
-    t = str(text or "").lower()
-
-    for w in HARM_WORDS:
-        if _hit(w, t):
-            return "harm"
-
-    for w in POLLUTION_WORDS:
-        if _hit(w, t):
-            return "pollution"
-
-    return None
+    a = assess_earth(text)
+    return None if not a else ("pollution" if a["kind"] == "water_dumping" else "harm")
 
 
 def earth_response():
-
     return [
         "Option A — ปล่อยธรรมชาติทำงานตามระบบของมัน",
         "Option B — ลดการรบกวน เช่นไม่เผาป่า ไม่ทิ้งขยะลงน้ำ",
-        "Option C — ช่วยระบบนิเวศ เช่นเก็บขยะหรือให้อาหารสัตว์เล็กอย่างปลอดภัย"
+        "Option C — ช่วยระบบนิเวศ เช่นเก็บขยะหรือให้อาหารสัตว์เล็กอย่างปลอดภัย",
     ]

@@ -334,7 +334,7 @@ _HAZARDS = (
       "อยู่ห่างหน้าต่างและประตู หมอบต่ำหลังสิ่งที่กันกระสุนได้ (ผนังปูน)",
       "ปลอดภัยแล้วค่อยโทร 191 บอกตำแหน่ง — ถ้ามีคนเจ็บ โทร 1669"]),
 )
-_HAZARD_NEAR = re.compile(r"เต็มบ้าน|เต็มห้อง|ตอนนี้|กำลัง|ติดอยู่|ออกไม่ได้|หนีไม่ทัน|ช่วยด้วย|ถึงเอว|ถึงอก|ท่วมบ้าน|เข้าบ้าน|ในบ้าน|"
+_HAZARD_NEAR = re.compile(r"(?i:\bright now\b|\bhelp\b|\btrapped\b)|เต็มบ้าน|เต็มห้อง|ตอนนี้|กำลัง|ติดอยู่|ออกไม่ได้|หนีไม่ทัน|ช่วยด้วย|ถึงเอว|ถึงอก|ท่วมบ้าน|เข้าบ้าน|ในบ้าน|"
                           r"ที่บ้าน|ข้างบ้าน|ห้องข้างๆ|ที่นี่|แถวนี้|ยังสั่น|ตึกสั่น|อาคารสั่น|ตึกโยก|ยังโยก|ควันเต็ม|ใกล้มาก")
 
 # แผ่นดินไหว: ทำอะไรก่อนขึ้นกับว่าอยู่ที่ไหน — "หมอบเกาะโต๊ะ" ใช้ไม่ได้ในรถ ริมทะเล หรือในลิฟต์
@@ -702,11 +702,31 @@ def _animal(text: str) -> dict | None:
     return {"lines": lines, "data": {"animals": animals, "intervene": a["response_type"] == "INTERVENE", "sick": sick}}
 
 
+# ── 10. เผาไร่/เผาขยะ/ทิ้งของเสียลงน้ำ (WORLD_MODEL/earth_guardian) ───────────────
+# เดิมไฟล์นี้ไม่มีใครเรียก และมีแค่คำอังกฤษไม่กี่คำ — "จะเผาตอซังดีไหม" ไม่เคยได้ทางที่ไม่ต้องเผา
+def _earth(text: str) -> dict | None:
+    from WORLD_MODEL.earth_guardian import assess_earth
+    e = assess_earth(text)
+    if not e:
+        return None
+    if e["self"]:
+        how = "ทางที่ไม่ต้องทิ้งลงน้ำ" if e["kind"] == "water_dumping" else "ทางที่ไม่ต้องเผา"
+        lines = [f"เรื่อง{e['name']}: {how} — " + " · ".join(e["alternatives"][:3])]
+        if len(e["alternatives"]) > 3:
+            lines.append(e["alternatives"][3])
+    elif e["kind"] == "water_dumping":
+        lines = [e["alternatives"][-1]]
+    else:                                       # คนอื่นเผา — ผู้ใช้เป็นคนสูดควัน
+        lines = ["ควันจากที่อื่นเผา: ปิดประตูหน้าต่าง ใส่หน้ากาก N95 ถ้าต้องออกไป และดูแลเด็ก ผู้สูงอายุ คนเป็นหอบหืดเป็นพิเศษ",
+                 "แจ้งผู้ใหญ่บ้าน/อบต. หรือศูนย์ดำรงธรรม 1567 ได้ — ช่วงประกาศห้ามเผา การเผาในที่โล่งมีโทษปรับ"]
+    return {"lines": lines, "data": {"kind": e["kind"], "self": e["self"]}}
+
+
 def analyze(text: str) -> dict:
     text = str(text or "")
     out = {"lines": [], "llm_ctx": "", "data": {}}
     for name, fn in (("disaster", _disaster), ("relationship", _relationship), ("debt", _debt),
-                     ("runway", _runway), ("calc", _calc), ("bias", _bias), ("animal", _animal)):
+                     ("runway", _runway), ("calc", _calc), ("bias", _bias), ("animal", _animal), ("earth", _earth)):
         try:
             r = fn(text)
         except Exception as e:  # ห้ามทำให้คำตอบล้ม
