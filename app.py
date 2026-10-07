@@ -966,6 +966,16 @@ _NAME_COUNCIL = re.compile(r"ขอความเห็นสภา|เปิ�
 _PERSONA = {"vega": "VEGA", "council": "COUNCIL"}
 
 
+_NO_EMOJI_RISK = 60
+_EMOJI = re.compile("[\U0001F000-\U0001FAFF\u2764\u2728\u263A\u2639\u2B50\u2B55\uFE0F\u200D]+")
+
+
+def _strip_emoji(text: str) -> str:
+    """เอา emoji ออก โดยคงสัญลักษณ์ของระบบไว้ (◈ ◆ ☸ ▲ ✦ Σ อยู่นอกช่วงที่ลบ)"""
+    out = _EMOJI.sub("", text)
+    return re.sub(r"[ \t]+(\n|$)", r"\1", re.sub(r"[ \t]{2,}", " ", out))
+
+
 def _resolve_voice_mode(data: dict, route: str) -> str:
     vm = str(data.get("voice_mode") or "").lower().strip()
     text = str(data.get("input") or "")
@@ -1687,6 +1697,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # coercion_detected ไม่อยู่ใน hard block (เดิมเขียน "coercion" ซึ่งไม่ตรงกับชื่อจริงเลยไม่เคยทำงาน)
     # เพราะ "คุณต้อง..." ในภาษาไทยมักเป็นคำแนะนำด้วยความห่วงใย — flag อย่างเดียวพอ
     _CANON_HARD_BLOCK = {"choice_collapse", "forced_identity"}
+    # เรื่องเสี่ยง (Risk ≥ 60: ถูกทำร้าย ภัยพิบัติ คนหาย วิกฤต) ไม่ใส่ emoji — เดิมโหมดวิกฤตห้ามอยู่แล้ว
+    # แต่เส้นทาง "เสี่ยง" ยังได้ 🥺 ต่อท้ายคำตอบเรื่องได้ยินเสียงผู้หญิงกรีดร้อง (หน้าจอจริง)
+    try:
+        if float(result.get("risk_score") or 0) >= _NO_EMOJI_RISK and result.get("ai_response"):
+            result["ai_response"] = _strip_emoji(str(result["ai_response"]))
+    except (TypeError, ValueError):
+        pass
+
     try:
         result = canon_validate(result)
         violations = result.get("canon_violations", []) or []
