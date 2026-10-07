@@ -27,7 +27,7 @@ def test_stranger_asking_for_nudes_is_sextortion_risk():
     ("ป้ากินยาเบาหวานแล้วตัวเย็น เหงื่อแตก", "health_emergency"),
     ("หลานไข้สูง ซึม ไม่ยอมกินนม", "health_emergency"),
     ("หมาบ้าวิ่งไล่กัดคน", "first_aid"),
-    ("ได้ยินเสียงผู้หญิงกรีดร้องข้างห้อง", "violence"),
+    ("ได้ยินเสียงผู้หญิงกรีดร้องข้างห้อง", "witness"),
     ("สอบตก ชีวิตจบแล้ว", "warning"),
 ])
 def test_missed_dangers(text, topic):
@@ -51,7 +51,7 @@ def test_round6b_ordinary_phrases(text):
 
 
 @pytest.mark.parametrize("text, topic", [
-    ("ลูกเอาเงินบำนาญแม่ไปหมด ไม่ให้กินข้าว", "violence"),
+    ("ลูกเอาเงินบำนาญแม่ไปหมด ไม่ให้กินข้าว", "elder_abuse"),
     ("ยายถูกทิ้งไว้คนเดียว ไม่มีใครดูแล", "basic"),
     ("แรงงานพม่าถูกยึดบัตร ไม่ได้ค่าแรง", "labor"),
     ("ตำรวจจับ ไม่ให้โทรหาใคร", "legal"),
