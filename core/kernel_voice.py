@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
+from core.thai_signals import (HARM_OTHERS, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, DRUNK_DRIVING,
@@ -207,6 +207,15 @@ TOPICS = [
         "ask": "ตอนนี้คุณปลอดภัยไหม?",
     }),
     # รอบหาบั๊ก 8 — ผู้ใช้เป็นพยาน/ญาติ ไม่ใช่เหยื่อ: เดิมได้ "ความปลอดภัยของคุณมาก่อน · คืนนี้คุณนอนที่ไหน"
+    ("harm_others", [HARM_OTHERS], {
+        "open": ["ความโกรธขนาดนี้ต้องมีเรื่องที่หนักมากเกิดขึ้น — ขอบคุณที่พูดออกมาแทนที่จะทำ"],
+        "paths": [
+            "ตอนนี้ออกห่างจากคนนั้นก่อน และเอาของมีคม/อาวุธไปไว้ไกลตัว — ให้เวลาความโกรธลดลงสัก 20 นาที",
+            "โทร 1323 (สายด่วนสุขภาพจิต 24 ชม. ฟรี) คุยเรื่องความโกรธได้ ไม่มีใครตัดสิน",
+            "ถ้าคนนั้นทำร้ายคุณอยู่ แจ้ง 191 หรือ 1300 ให้คนกลางจัดการ — ไม่ต้องลงมือเอง",
+        ],
+        "ask": "ตอนนี้คุณอยู่ห่างจากคนนั้นแล้วหรือยัง?",
+    }),
     ("witness", [WITNESS_VIOLENCE], {
         "open": ["ดีแล้วที่ไม่เพิกเฉย — แต่ความปลอดภัยของคุณเองก็สำคัญ"],
         "paths": [
@@ -494,7 +503,8 @@ TOPICS = [
         "ask": "ถ้าทั้งหมดนี้ไม่เวิร์ก คุณยอมเสียได้มากที่สุดเท่าไร โดยที่ชีวิตยังเดินต่อได้?",
     }),
     ("relationship", [re.compile(r"แฟน(?!บอล|คลับ|เพจ|ไซต์|ตาซี|ซี|ๆ|เมด|ชั่น)"), "บอกเลิก", "เลิกกัน", "อกหัก", "ทะเลาะ", "นอกใจ", "คนรัก", "สามี", "ภรรยา",
-                      "แต่งงาน", "หย่า", "คนที่ชอบ", "แอบชอบ", "ชอบเพื่อน", "มีกิ๊ก"], {
+                      "แต่งงาน", "หย่า", "คนที่ชอบ", "แอบชอบ", "ชอบเพื่อน", "มีกิ๊ก",
+                      re.compile(r"\bmy (?:wife|husband|girlfriend|boyfriend|partner) (?:left|cheated|dumped)\b|\bbroke up with me\b", re.I)], {
         "open": ["เรื่องใจไม่ต้องรีบตัดสิน"],
         "paths": [
             "ให้เวลาตัวเอง 24–72 ชั่วโมง ก่อนตัดสินใจหรือส่งข้อความที่ย้อนกลับไม่ได้",
@@ -721,6 +731,11 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "harm_others": ("Anger this strong usually means something heavy happened — thank you for saying it instead of acting on it.", [
+        "Step away from that person now and put anything sharp or any weapon out of reach — give the anger 20 minutes to drop.",
+        "Call a crisis line to talk it through (1323 in Thailand, 988 in the US) — no judgement.",
+        "If they are hurting you, let the police (191 in Thailand) or 1300 handle it — you don't have to do it yourself."],
+        "Are you away from that person right now?"),
     "witness": ("Good that you didn't ignore it — and your own safety matters too.", [
         "If it's still happening, call the police now (191 in Thailand, 911 in the US, 112 in Europe) with the exact address and floor — you can stay anonymous.",
         "Don't go in alone; if you help, go with others or building security.",
@@ -843,7 +858,7 @@ _URGENT_TOPICS = ("overdose", "violence", "health_emergency", "scam", "warning",
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
