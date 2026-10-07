@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
+from core.thai_signals import (THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, DRUNK_DRIVING,
@@ -207,6 +207,25 @@ TOPICS = [
         "ask": "ตอนนี้คุณปลอดภัยไหม?",
     }),
     # รอบหาบั๊ก 8 — ผู้ใช้เป็นพยาน/ญาติ ไม่ใช่เหยื่อ: เดิมได้ "ความปลอดภัยของคุณมาก่อน · คืนนี้คุณนอนที่ไหน"
+    ("harm_others", [HARM_OTHERS], {
+        "open": ["ความโกรธขนาดนี้ต้องมีเรื่องที่หนักมากเกิดขึ้น — ขอบคุณที่พูดออกมาแทนที่จะทำ"],
+        "paths": [
+            "ตอนนี้ออกห่างจากคนนั้นก่อน และเอาของมีคม/อาวุธไปไว้ไกลตัว — ให้เวลาความโกรธลดลงสัก 20 นาที",
+            "โทร 1323 (สายด่วนสุขภาพจิต 24 ชม. ฟรี) คุยเรื่องความโกรธได้ ไม่มีใครตัดสิน",
+            "ถ้าคนนั้นทำร้ายคุณอยู่ แจ้ง 191 หรือ 1300 ให้คนกลางจัดการ — ไม่ต้องลงมือเอง",
+        ],
+        "ask": "ตอนนี้คุณอยู่ห่างจากคนนั้นแล้วหรือยัง?",
+    }),
+    # บอกว่ามีปืนเฉยๆ อาจเป็นแค่เล่า — ไม่ตื่นตูม แต่ถามว่าของใคร/ใครตกอยู่ในอันตรายไหม (ความเสี่ยงขึ้นเมื่อมีบริบทน่ากลัว: ดู assess)
+    ("weapon", [WEAPON_AT_HOME], {
+        "open": ["เรื่องปืนในบ้านขึ้นกับว่าเป็นของใครและตอนนี้ปลอดภัยไหม"],
+        "paths": [
+            "ถ้าไม่รู้ว่าเป็นของใคร อย่าแตะหรือขยับ — ออกห่างแล้วโทร 191 ให้ตำรวจมาเก็บ",
+            "ถ้าเป็นของคนในบ้านและเขากำลังเมา โกรธ หรือขู่ ออกจากบ้านไปที่ปลอดภัยก่อน แล้วโทร 191",
+            "ถ้าในบ้านมีเด็กหรือคนที่กำลังเครียดหนัก ขอให้เก็บปืนใส่ตู้ล็อก แยกกระสุนไว้อีกที่ — หรือฝากไว้นอกบ้านชั่วคราว",
+        ],
+        "ask": "ปืนนั้นเป็นของใคร และตอนนี้มีใครตกอยู่ในอันตรายไหม?",
+    }),
     ("witness", [WITNESS_VIOLENCE], {
         "open": ["ดีแล้วที่ไม่เพิกเฉย — แต่ความปลอดภัยของคุณเองก็สำคัญ"],
         "paths": [
@@ -307,7 +326,7 @@ TOPICS = [
         "ask": "ตอนนี้อยู่ในที่ที่นั่งหรือนอนพักได้ไหม?",
     }),
     ("basic", ["ไม่มีข้าวกิน", "ไม่มีอะไรกิน", "อดข้าว", "ไม่ได้กินข้าว", "ไม่มีเงินซื้อข้าว", "ไม่มีที่นอน",
-               "ไม่มีที่อยู่", "นอนข้างถนน", "ไม่มีบ้านอยู่", "ถูกไล่ออกจากบ้าน", "ไม่มีน้ำกิน",
+               "ไม่มีที่อยู่", "นอนข้างถนน", re.compile(r"\b(?:i'?m|i am) homeless\b|\bnowhere to sleep\b", re.I), "ไม่มีบ้านอยู่", "ถูกไล่ออกจากบ้าน", "ไม่มีน้ำกิน",
                "ไม่มีเงินซื้อนม", EVICT_TONIGHT, NO_MONEY_LEFT,
                # รอบหาบั๊ก 6
                re.compile(r"ไม่ได้กิน(?:ข้าว|อะไร)?(?:มา)?\s*(?:[2-9]|\d{2,}|สอง|สาม|หลาย)\s*(?:วัน|มื้อ)|ไม่มีนม(?:ให้)?(?:ลูก)?กิน|ลูกไม่มีนมกิน|"
@@ -422,7 +441,8 @@ TOPICS = [
         ],
         "ask": "ตอนนี้ใช้สิทธิ์อะไรอยู่ — บัตรทอง ประกันสังคม หรือยังไม่รู้?",
     }),
-    ("health", [re.compile(r"ไม่สบาย(?!ใจ)"), "ป่วย", "เป็นไข้", "ปวดหัว", "ปวดท้อง",
+    ("health", [re.compile(r"ไม่สบาย(?!ใจ)"), "ป่วย", "เป็นไข้", "ตัวร้อน", "ไข้สูง",
+                re.compile(r"\b(?:high )?fever\b(?! dream)|\b(?:i'?m|i feel|feeling) sick\b", re.I), "ปวดหัว", "ปวดท้อง",
                 re.compile(r"ไอ(?!เดีย|ที|ศ|ติม|โฟน|แพด|ดอล|คอน|ดี|เท็ม|ร์|ริช|ซ์|ซี|เอ|พี|จี|แมค|โอเอส|น้อง|หนุ่ม|ต้าว|บ้า)"), "เจ็บคอ", "ผื่น", "อาการ",
                 "โรงพยาบาล", "หาหมอ", "กินยา", "โรคประจำตัว", "โควิด", "ติดเชื้อ"], {
         "open": ["ร่างกายส่งสัญญาณมาแล้ว ฟังมันก่อน"],
@@ -445,6 +465,15 @@ TOPICS = [
             "อย่ากู้ก้อนใหม่ดอกสูงมาโปะก้อนเก่า — ทางนี้ทำให้ทางเลือกเดือนหน้าน้อยลง",
         ],
         "ask": "ถ้าเดือนนี้จ่ายได้แค่ก้อนเดียว ก้อนไหนที่ถ้าไม่จ่ายจะเสียหายมากที่สุด?",
+    }),
+    ("theft", [THEFT], {
+        "open": ["ของหายไปแล้วน่าโมโห — แต่บางอย่างยังกันความเสียหายต่อได้"],
+        "paths": [
+            "อายัดก่อน: โทรธนาคารอายัดบัตร/แอป และโทรค่ายมือถืออายัดซิม — กันไม่ให้ใครเอาไปโอนเงินหรือรับ OTP",
+            "แจ้งความที่สถานีตำรวจท้องที่ หรือออนไลน์ที่ thaipoliceonline.go.th — ใช้ใบแจ้งความทำบัตรประชาชน/ใบขับขี่ใหม่ได้",
+            "มือถือ: ใช้ Find My/Find My Device ดูตำแหน่งและล็อกเครื่อง — อย่าตามไปเอาคืนเอง ให้ตำรวจไปด้วย",
+        ],
+        "ask": "ในของที่หายมีบัตร ATM หรือมือถือที่ผูกแอปธนาคารไหม?",
     }),
     ("legal", [LEGAL], {
         "open": ["เรื่องกฎหมายดูน่ากลัว แต่มีขั้นตอนและมีคนช่วยฟรี"],
@@ -494,7 +523,8 @@ TOPICS = [
         "ask": "ถ้าทั้งหมดนี้ไม่เวิร์ก คุณยอมเสียได้มากที่สุดเท่าไร โดยที่ชีวิตยังเดินต่อได้?",
     }),
     ("relationship", [re.compile(r"แฟน(?!บอล|คลับ|เพจ|ไซต์|ตาซี|ซี|ๆ|เมด|ชั่น)"), "บอกเลิก", "เลิกกัน", "อกหัก", "ทะเลาะ", "นอกใจ", "คนรัก", "สามี", "ภรรยา",
-                      "แต่งงาน", "หย่า", "คนที่ชอบ", "แอบชอบ", "ชอบเพื่อน", "มีกิ๊ก"], {
+                      "แต่งงาน", "หย่า", "คนที่ชอบ", "แอบชอบ", "ชอบเพื่อน", "มีกิ๊ก",
+                      re.compile(r"\bmy (?:wife|husband|girlfriend|boyfriend|partner) (?:left|cheated|dumped)\b|\bbroke up with me\b", re.I)], {
         "open": ["เรื่องใจไม่ต้องรีบตัดสิน"],
         "paths": [
             "ให้เวลาตัวเอง 24–72 ชั่วโมง ก่อนตัดสินใจหรือส่งข้อความที่ย้อนกลับไม่ได้",
@@ -538,7 +568,7 @@ TOPICS = [
         ],
         "ask": "ใครคือคนหนึ่งคนที่คุณยังทักไปได้ วันนี้?",
     }),
-    ("stress", ["เครียด", "ไม่ไหวแล้ว", "งานหนัก", "ไม่มีเวลานอน", "นอนไม่พอ", "ว่างเปล่า", "ไม่อยากคุยกับใคร", "ฝันร้าย", "หมดไฟ", "เหนื่อยมาก", re.compile(r"ท้อ(?!ง)"), "นอนไม่หลับ", "กังวล", "เศร้า",
+    ("stress", ["เครียด", "ไม่ไหวแล้ว", "งานหนัก", "ไม่มีเวลานอน", "นอนไม่พอ", "ว่างเปล่า", "ไม่อยากคุยกับใคร", "ฝันร้าย", "หมดไฟ", "เหนื่อยมาก", "เหนื่อยกับชีวิต", "เหนื่อยชีวิต", re.compile(r"ท้อ(?!ง)"), "นอนไม่หลับ", "กังวล", "เศร้า",
                 "ร้องไห้", "สิ้นหวัง", "ซึมเศร้า", "burnout", "anxiety", "stressed", "depressed"], {
         "open": ["ตอนนี้ไม่ต้องแก้ทุกอย่าง แค่ลดน้ำหนักลงทีละอย่าง"],
         "paths": [
@@ -721,6 +751,21 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "theft": ("Losing things to theft is infuriating — but you can still stop further damage.", [
+        "Block first: call your bank to freeze cards/app, and your carrier to block the SIM so nobody can receive your OTPs.",
+        "Report it to the local police (or online at thaipoliceonline.go.th in Thailand) — the report lets you replace ID and licences.",
+        "Phone: use Find My / Find My Device to locate and lock it — don't chase it yourself, go with the police."],
+        "Did what you lost include bank cards or a phone with banking apps?"),
+    "weapon": ("A gun at home depends on whose it is and whether anyone is in danger right now.", [
+        "If you don't know whose it is, don't touch or move it — step away and call the police (191 in Thailand, 911 in the US).",
+        "If it belongs to someone at home who is drunk, angry or making threats, leave for a safe place first, then call the police.",
+        "If there are children or someone in deep distress at home, ask for it to be locked away with the ammunition stored separately — or kept outside the home for now."],
+        "Whose gun is it, and is anyone in danger right now?"),
+    "harm_others": ("Anger this strong usually means something heavy happened — thank you for saying it instead of acting on it.", [
+        "Step away from that person now and put anything sharp or any weapon out of reach — give the anger 20 minutes to drop.",
+        "Call a crisis line to talk it through (1323 in Thailand, 988 in the US) — no judgement.",
+        "If they are hurting you, let the police (191 in Thailand) or 1300 handle it — you don't have to do it yourself."],
+        "Are you away from that person right now?"),
     "witness": ("Good that you didn't ignore it — and your own safety matters too.", [
         "If it's still happening, call the police now (191 in Thailand, 911 in the US, 112 in Europe) with the exact address and floor — you can stay anonymous.",
         "Don't go in alone; if you help, go with others or building security.",
@@ -843,7 +888,7 @@ _URGENT_TOPICS = ("overdose", "violence", "health_emergency", "scam", "warning",
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
@@ -884,6 +929,10 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     # ตั้งครรภ์อายุต่ำกว่า 15 — ต้องมีผู้ใหญ่ช่วยและอาจเป็นการถูกล่วงละเมิด (รอบหาบั๊ก 6)
     if "pregnancy" in topics and re.search(r"อายุ\s*(?:1[0-4]|[89])(?!\d)|(?<!\d)(?:1[0-4]|[89])\s*(?:ขวบ|ปี)(?!\d)|\b(?:1[0-4]|[89]) ?(?:yo|years? old)\b", t):
         text_risk = max(text_risk, 65)
+    # ปืนในบ้าน: เล่าเฉยๆ ไม่ตื่นตูม (50) — แต่ไม่รู้ของใคร/กลัว/ขู่/เมา หรือมีความคิดทำร้าย = อันตรายจริง (85)
+    if "weapon" in topics:
+        danger = WEAPON_DANGER.search(t) or text_risk >= 65 or set(topics) & {"harm_others", "violence", "warning"}
+        text_risk = max(text_risk, 85 if danger else 50)
     if GAMBLING_LOSS.search(t):                # พนันจนหมดตัว/เป็นหนี้ — มักลามเป็นหนี้นอกระบบและความคิดทำร้ายตัวเอง
         text_risk = max(text_risk, 60)
         if "addiction" not in topics:
