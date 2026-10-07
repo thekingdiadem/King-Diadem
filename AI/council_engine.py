@@ -6,13 +6,20 @@
 
 from collections import Counter
 
-COUNCIL_MEMBERS = {
-    "LYLA":    "รับรู้ความรู้สึก อยู่เคียงข้าง เปิดทางเลือก",
-    "VEGA":    "วิเคราะห์ FATE™ Downside-first ตรรกะ deterministic",
-    "PATICCA": "ปฏิจสมุปบาท หาต้นเหตุ ติดตาม chain ของเหตุปัจจัย",
-    "TITAN":   "Minimum viable path — อะไรทำให้รอดวันนี้",
-    "COSMOS":  "ภาพใหญ่ระยะยาว ผลกระทบต่อทุกสรรพสิ่ง",
-}
+# สภาเดียวของทั้งระบบ — หน้าเว็บ (ปุ่ม "สภา"), ENGINE/council_engine และ ENGINE/ai_council ใช้รายชื่อนี้
+# (เดิมมี 3 ชุดชื่อไม่ตรงกัน: LYLA/VEGA/PATICCA/TITAN/COSMOS · WATERLINE/VEGA/HALT/CIVIL/FATE · 7 สมาชิก)
+# (ชื่อ, สัญลักษณ์, มุมที่มอง, หน้าที่ตอนลงมติหลังบ้าน)
+COUNCIL_SEATS = (
+    ("LYLA",    "◈", "รับรู้ความรู้สึก อยู่เคียงข้าง เปิดทางเลือก",            "นับทางเลือกที่ยังเหลือ — Choice(t) ≥ 1"),
+    ("VEGA",    "◆", "วิเคราะห์ FATE™ Downside-first ตรรกะ deterministic",   "ความเสี่ยงสูง → ตั้งรับก่อน"),
+    ("PATICCA", "☸", "ปฏิจสมุปบาท หาต้นเหตุ ติดตาม chain ของเหตุปัจจัย",     "เหตุปัจจัยหลายข้อซ้อนกันจนใกล้ล่ม → หยุดตัดสินใจใหญ่"),
+    ("TITAN",   "▲", "Minimum viable path — อะไรทำให้รอดวันนี้",           "พื้นขั้นต่ำ: อาหาร ที่พัก waterline"),
+    ("COSMOS",  "✦", "ภาพใหญ่ระยะยาว ผลกระทบต่อทุกสรรพสิ่ง",              "ความปั่นป่วน (entropy) สูง → มองยาวก่อนเร่ง"),
+    ("CIVIL",   "⬡", "แรงกระเพื่อม — การตัดสินใจนี้ไปถึงใครบ้าง และใครช่วยแบกได้", "เครือข่ายคนรอบตัว: อยู่คนเดียว → หาแรงหนุนก่อน"),
+)
+COUNCIL_MEMBERS = {name: role for name, _, role, _ in COUNCIL_SEATS}
+COUNCIL_SYMBOLS = {name: sym for name, sym, _, _ in COUNCIL_SEATS}
+COUNCIL_SIZE = len(COUNCIL_SEATS)
 
 COUNCIL_RULES = [
     "ถอด Ego ออกก่อนพูด — ไม่มี persona ใดเหนือหลักฐาน",
@@ -20,6 +27,7 @@ COUNCIL_RULES = [
     "ถ้าไม่รู้ — บอกว่าไม่รู้ ไม่สร้างความมั่นใจเทียม",
     "มนุษย์มีอำนาจตัดสินขั้นสุดท้ายเสมอ",
     "ผลลัพธ์ที่ดีที่สุด = ลด harm + เพิ่ม choice",
+    "ทุกการตัดสินใจมีคนอื่นอยู่ในนั้น — นับแรงกระเพื่อมก่อนลงมติ",
 ]
 
 _SAFE_ACTION = "stabilize"

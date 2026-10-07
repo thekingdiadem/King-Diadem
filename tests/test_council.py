@@ -1,4 +1,4 @@
-"""สภา 5 เสียง (AI/council_engine) — LYLA · VEGA · PATICCA · TITAN · COSMOS + มติร่วม"""
+"""สภา 6 เสียง (AI/council_engine) — LYLA · VEGA · PATICCA · TITAN · COSMOS · CIVIL + มติร่วม"""
 import pathlib
 
 import pytest
@@ -6,7 +6,7 @@ import pytest
 from core.kernel_voice import compose, compose_council
 from tests.conftest import FAKE_LLM
 
-MEMBERS = ("LYLA ◈", "VEGA ◆", "PATICCA ☸", "TITAN ▲", "COSMOS ✦", "มติสภา")
+MEMBERS = ("LYLA ◈", "VEGA ◆", "PATICCA ☸", "TITAN ▲", "COSMOS ✦", "CIVIL ⬡", "มติสภา")
 
 
 def test_kernel_council_has_all_voices_and_human_decides():
@@ -29,7 +29,7 @@ def test_crisis_beats_council(text):
 def test_run_council_from_button(client):
     d = client.post("/run", json={"input": "ควรย้ายงานไหม", "voice_mode": "council"}).json()
     assert d["persona"] == "COUNCIL" and d["voice_mode"] == "council"
-    assert "สภา 5 เสียง" in FAKE_LLM["systems"][-1] and "PATICCA" in FAKE_LLM["systems"][-1]
+    assert "สภา 6 เสียง" in FAKE_LLM["systems"][-1] and "PATICCA" in FAKE_LLM["systems"][-1]
 
 
 def test_run_council_from_text(client):
@@ -50,10 +50,10 @@ def test_council_without_ai_uses_kernel(client):
 
 def test_page_has_council_button():
     page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
-    assert 'data-p="council"' in page and "function councilFmt" in page and "COUNCIL:['สภา 5 เสียง'" in page
+    assert 'data-p="council"' in page and "function councilFmt" in page and "COUNCIL:['สภา 6 เสียง'" in page
 
 
 @pytest.mark.parametrize("text", ["กินยาเกินขนาดไป", "น้ำท่วมบ้าน ตอนนี้น้ำถึงเอว", "แฟนตบหน้า"])
 def test_run_urgent_skips_council(client, text):
     d = client.post("/run", json={"input": text, "voice_mode": "council"}).json()
-    assert d["persona"] == "LYLA" and "สภา 5 เสียง" not in FAKE_LLM["systems"][-1]
+    assert d["persona"] == "LYLA" and "สภา 6 เสียง" not in FAKE_LLM["systems"][-1]

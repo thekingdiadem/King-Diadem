@@ -13,7 +13,7 @@
     'สถานะ backend (/health)': ['Backend status (/health)', 'バックエンドの状態 (/health)'],
     'สถานะของฉัน → Waterline': ['My state → Waterline', '自分の状態 → Waterline'],
     'ทั่วไป': ['General', '一般'], 'เส้นทาง': ['Route', 'ルート'], 'ผู้ตอบ': ['Responder', '応答者'],
-    'สภา 5 เสียง: LYLA · VEGA · PATICCA · TITAN · COSMOS': ['Council of 5: LYLA · VEGA · PATICCA · TITAN · COSMOS', '5人の評議会: LYLA · VEGA · PATICCA · TITAN · COSMOS'],
+    'สภา 6 เสียง: LYLA · VEGA · PATICCA · TITAN · COSMOS · CIVIL': ['Council of 6: LYLA · VEGA · PATICCA · TITAN · COSMOS · CIVIL', '6人の評議会: LYLA · VEGA · PATICCA · TITAN · COSMOS · CIVIL'],
     'สภา': ['Council', '評議会'], 'เล่ามาได้เลย': ['Tell me what’s going on', '何でも話してください'],
     'ข้อความ': ['Message', 'メッセージ'], 'ส่ง': ['Send', '送信'],
     'จักรวาลการตัดสินใจ': ['Decision universe', '意思決定の宇宙'], 'โหมดจักรวาล': ['Universe mode', '宇宙モード'],

@@ -1,7 +1,9 @@
 # ENGINE/ai_council.py
 # KING DIADEM — AI Council (Multi-perspective deterministic voting)
 # ไม่มี random — ทุก vote มาจาก logic ที่ตรวจสอบได้
-# Council: WATERLINE · VEGA · HALT · CIVIL · FATE
+# สภาเดียวกับที่ผู้ใช้เห็น (AI/council_engine.COUNCIL_SEATS): LYLA · VEGA · PATICCA · TITAN · COSMOS · CIVIL
+# เดิมใช้ชื่อ WATERLINE · VEGA · HALT · CIVIL · FATE — หน้าที่เดิมย้ายไปอยู่กับที่นั่งที่ตรงที่สุด:
+#   WATERLINE → TITAN (พื้นขั้นต่ำ) · HALT → PATICCA (เหตุปัจจัยซ้อนจนใกล้ล่ม) · FATE → LYLA (Choice(t))
 
 from __future__ import annotations
 
@@ -22,7 +24,7 @@ def ai_council(
     context:   dict  | None = None,
 ) -> dict:
     """
-    5-voice council — แต่ละ voice ตัดสินจาก logic ของตัวเอง
+    6-voice council (สภาเดียวของระบบ) — แต่ละ voice ตัดสินจาก logic ของตัวเอง
     return dict พร้อม votes, consensus, final_action, confidence
     """
     ctx = context or {}
@@ -39,7 +41,7 @@ def ai_council(
 
     votes = []
 
-    # ── WATERLINE VOICE — โฟกัส survival floor ────────────────────
+    # ── TITAN (เดิม WATERLINE) — โฟกัส survival floor ────────────────────
     if waterline < 25 or not has_shelter:
         wl_vote = "halt_and_stabilize"
         wl_reason = "waterline ต่ำวิกฤต — ต้องหยุดก่อน"
@@ -54,9 +56,9 @@ def ai_council(
     else:
         wl_vote = "conserve_resources"
         wl_reason = "รักษาทรัพยากรไว้ก่อน"
-    votes.append({"voice": "WATERLINE", "vote": wl_vote, "reason": wl_reason})
+    votes.append({"voice": "TITAN", "vote": wl_vote, "reason": wl_reason})
 
-    # ── VEGA VOICE — strategic analysis ───────────────────────────
+    # ── VEGA — strategic analysis ───────────────────────────
     if risk_score >= 70:
         vega_vote = "defensive_position"
         vega_reason = f"risk score {risk_score} — ถอยตั้งรับก่อน"
@@ -68,7 +70,7 @@ def ai_council(
         vega_reason = "ยังไม่มีข้อมูลพอจะ advance"
     votes.append({"voice": "VEGA", "vote": vega_vote, "reason": vega_reason})
 
-    # ── HALT VOICE — ตรวจ collapse threshold ──────────────────────
+    # ── PATICCA (เดิม HALT) — เหตุปัจจัยซ้อนกันจนถึง collapse threshold ──────────────────────
     critical_flags = sum([
         waterline < 20,
         energy < 15,
@@ -85,13 +87,17 @@ def ai_council(
     else:
         halt_vote = "clear"
         halt_reason = "ไม่มี critical flag"
-    votes.append({"voice": "HALT", "vote": halt_vote, "reason": halt_reason})
+    votes.append({"voice": "PATICCA", "vote": halt_vote, "reason": halt_reason})
 
-    # ── CIVIL VOICE — ผลกระทบต่อคนรอบข้าง ───────────────────────
+    # ── CIVIL — แรงกระเพื่อมต่อคนรอบข้าง และใครช่วยแบกได้ ───────────────────────
     relationships = _f(ctx.get("relationships"), 50)
+    dependents = _f(ctx.get("dependents"), 0)       # คนที่พึ่งผู้ใช้อยู่ (ลูก พ่อแม่ ฯลฯ) ถ้าผู้เรียกส่งมา
     if relationships < 30:
         civil_vote = "rebuild_support_network"
         civil_reason = "ความสัมพันธ์ต่ำ — หาแรงสนับสนุนก่อน"
+    elif dependents > 0 and (waterline < 40 or risk_score >= 70):
+        civil_vote = "protect_dependents_first"
+        civil_reason = f"มีคนพึ่งคุณอยู่ {dependents:.0f} คน — แรงกระเพื่อมของการพลาดตกถึงเขาด้วย เลือกทางที่ย้อนกลับได้"
     elif location and ("อยู่คนเดียว" in str(location) or "alone" in str(location).lower()):
         civil_vote = "seek_community"
         civil_reason = "อยู่คนเดียว — หาคนช่วยได้ก่อนดีกว่า"
@@ -100,7 +106,7 @@ def ai_council(
         civil_reason = "เครือข่ายโอเค — รักษาไว้"
     votes.append({"voice": "CIVIL", "vote": civil_vote, "reason": civil_reason})
 
-    # ── FATE VOICE — Choice(t) ≥ 1 ────────────────────────────────
+    # ── LYLA (เดิม FATE) — Choice(t) ≥ 1 ────────────────────────────────
     # ตรวจว่ายังมีทางเลือกอยู่ไหม
     choice_count = sum([
         money > 0 or not money_known,
@@ -118,7 +124,14 @@ def ai_council(
     else:
         fate_vote = "choices_available"
         fate_reason = f"Choice(t) = {choice_count} ≥ 1 — ยังมีทางเลือกพอ"
-    votes.append({"voice": "FATE", "vote": fate_vote, "reason": fate_reason})
+    votes.append({"voice": "LYLA", "vote": fate_vote, "reason": fate_reason})
+
+    # ── COSMOS — มองยาว: ความปั่นป่วนสูงอย่าเพิ่งเร่ง ────────
+    if entropy >= 70:
+        cosmos_vote, cosmos_reason = "slow_down_long_view", f"entropy {entropy:.0f} — ชีวิตกำลังปั่นป่วน ตัดสินใจระยะยาวตอนนี้มักพลาด"
+    else:
+        cosmos_vote, cosmos_reason = "long_view_clear", "ภาพระยะยาวยังมองเห็น — วางแผน 1 ปีได้"
+    votes.append({"voice": "COSMOS", "vote": cosmos_vote, "reason": cosmos_reason})
 
     # ── Consensus ─────────────────────────────────────────────────
     halt_triggered = halt_vote == "HALT" or fate_vote == "collapse_imminent"
