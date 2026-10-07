@@ -2,7 +2,7 @@
 # v2 — แก้ 4 อย่าง:
 #  1. session_id ไม่ถูกส่งต่อจากผู้เรียก -> ทุก user แชร์ session
 #     "default" เดียวกันหมด (history/context cross-talk ข้าม user)
-#     -> เพิ่ม param session_id/mode/seed ส่งต่อให้ ENGINE.dicision.think
+#     -> เพิ่ม param session_id/mode/seed ส่งต่อให้ ENGINE.decision.think
 #  2. return type ไม่คงเส้นคงวา: error path เดิมคืน str,
 #     success path คืน dict (จาก think()) -> ทำให้ทุก path คืน dict
 #  3. process()/recall() เดิมรับ result (dict) ทั้งก้อน แต่ออกแบบมาให้
@@ -23,7 +23,7 @@ def run_engine(text: str, session_id: str = "default", mode: str = "chat", seed:
             "session_id": session_id,
         }
 
-    # ── think() อยู่ใน ENGINE/brain.py (dicision.py มีแค่ build_reply)
+    # ── think() อยู่ใน ENGINE/brain.py (decision.py มีแค่ build_reply)
     try:
         from ENGINE.brain import think
     except Exception as e:

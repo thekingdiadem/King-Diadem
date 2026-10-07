@@ -966,6 +966,16 @@ _NAME_COUNCIL = re.compile(r"ขอความเห็นสภา|เปิ�
 _PERSONA = {"vega": "VEGA", "council": "COUNCIL"}
 
 
+_NO_EMOJI_RISK = 60
+_EMOJI = re.compile("[\U0001F000-\U0001FAFF\u2764\u2728\u263A\u2639\u2B50\u2B55\uFE0F\u200D]+")
+
+
+def _strip_emoji(text: str) -> str:
+    """เอา emoji ออก โดยคงสัญลักษณ์ของระบบไว้ (◈ ◆ ☸ ▲ ✦ Σ อยู่นอกช่วงที่ลบ)"""
+    out = _EMOJI.sub("", text)
+    return re.sub(r"[ \t]+(\n|$)", r"\1", re.sub(r"[ \t]{2,}", " ", out))
+
+
 def _resolve_voice_mode(data: dict, route: str) -> str:
     vm = str(data.get("voice_mode") or "").lower().strip()
     text = str(data.get("input") or "")
@@ -1193,7 +1203,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                         "missing": "คนหาย", "sexual_abuse": "การถูกล่วงละเมิด", "witness": "ได้ยิน/เห็นคนอื่นถูกทำร้าย",
                         "harm_others": "ความโกรธจนอยากทำร้ายคนอื่น", "elder_abuse": "ผู้สูงอายุถูกทำร้าย/ทอดทิ้ง",
                         "weapon": "ปืน/อาวุธในบ้าน", "sextortion": "ถูกขู่/ภาพส่วนตัวถูกเผยแพร่", "first_aid": "การบาดเจ็บ",
-                        "drunk_drive": "เมาแล้วขับ", "theft": "การถูกขโมย"}
+                        "drunk_drive": "เมาแล้วขับ", "theft": "การถูกขโมย", "threat": "การถูกข่มขู่"}
         prior_risk, prior_kind, urgent_what = 0, "", ""
         if kernel_assess:
             past = history[-8:] if isinstance(history, list) else []      # history มาจาก client — อาจไม่ใช่ list
@@ -1309,6 +1319,10 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         sig_ctx.append("[เรื่องเร่งด่วนต่อชีวิต/ร่างกาย: ตอบสั้น ขั้นตอนที่ทำได้ทันทีก่อน ไม่ชวนคุยยาว · ใช้เบอร์ 1669 (เจ็บป่วยฉุกเฉิน) "
                        "191 (ตำรวจ/คนหาย ไม่ต้องรอ 24 ชม.) 1300 (ศูนย์ช่วยเหลือสังคม) ตามเรื่อง]")
     # รอบหาบั๊ก 9 — หัวข้อที่มีขั้นตอนเฉพาะในคำตอบจากสมการ แต่ LLM ยังไม่รู้ (หน้าจอจริง: ได้ยินเสียงกรีดร้อง → ถามกลับว่าดังแค่ไหน)
+    if "threat" in k_topics:
+        sig_ctx.append("[ผู้ใช้ถูกข่มขู่: ยอมรับว่าความกลัวสมเหตุสมผล แล้วให้ขั้นตอน — เก็บหลักฐาน (แคป บันทึกเสียง จดวันเวลา) · "
+                       "ถ้าคนขู่รู้ที่อยู่หรือบอกว่าจะมาหา โทร 191 และอย่าอยู่คนเดียว · แจ้งความได้โดยไม่ต้องรอให้ถูกทำร้าย · "
+                       "ถามคำถามเดียวว่าคนที่ขู่รู้ที่อยู่หรือที่ทำงานไหม]")
     if "theft" in k_topics:
         sig_ctx.append("[ผู้ใช้ถูกขโมย/ของหาย: ให้ขั้นตอนกันความเสียหายก่อน — อายัดบัตร/แอปธนาคาร และซิม · แจ้งความที่สถานีหรือ thaipoliceonline.go.th "
                        "(ใช้ทำบัตรใหม่ได้) · มือถือใช้ Find My ล็อกเครื่อง อย่าตามไปเอาคืนเอง · ถามคำถามเดียวว่าในของที่หายมีบัตร ATM หรือมือถือผูกแอปธนาคารไหม]")
@@ -1683,6 +1697,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # coercion_detected ไม่อยู่ใน hard block (เดิมเขียน "coercion" ซึ่งไม่ตรงกับชื่อจริงเลยไม่เคยทำงาน)
     # เพราะ "คุณต้อง..." ในภาษาไทยมักเป็นคำแนะนำด้วยความห่วงใย — flag อย่างเดียวพอ
     _CANON_HARD_BLOCK = {"choice_collapse", "forced_identity"}
+    # เรื่องเสี่ยง (Risk ≥ 60: ถูกทำร้าย ภัยพิบัติ คนหาย วิกฤต) ไม่ใส่ emoji — เดิมโหมดวิกฤตห้ามอยู่แล้ว
+    # แต่เส้นทาง "เสี่ยง" ยังได้ 🥺 ต่อท้ายคำตอบเรื่องได้ยินเสียงผู้หญิงกรีดร้อง (หน้าจอจริง)
+    try:
+        if float(result.get("risk_score") or 0) >= _NO_EMOJI_RISK and result.get("ai_response"):
+            result["ai_response"] = _strip_emoji(str(result["ai_response"]))
+    except (TypeError, ValueError):
+        pass
+
     try:
         result = canon_validate(result)
         violations = result.get("canon_violations", []) or []

@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
+from core.thai_signals import (THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, DRUNK_DRIVING,
@@ -259,7 +259,8 @@ TOPICS = [
     }),
     ("health_emergency", ["เจ็บหน้าอก", "แน่นหน้าอก", "หายใจไม่ออก", "หมดสติ", "ชักเกร็ง", "ชักกระตุก",
                           "ชักไม่หยุด",
-                          "เลือดออกไม่หยุด", "ปากเบี้ยว", "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY], {
+                          "เลือดออกไม่หยุด", "ปากเบี้ยว", "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
+                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious|drowning)\b", re.I)], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
         "paths": [
             f"โทร {HOTLINE_EMS} ตอนนี้ หรือให้คนใกล้ตัวพาไปห้องฉุกเฉิน — อย่าขับรถเอง",
@@ -466,6 +467,15 @@ TOPICS = [
         ],
         "ask": "ถ้าเดือนนี้จ่ายได้แค่ก้อนเดียว ก้อนไหนที่ถ้าไม่จ่ายจะเสียหายมากที่สุด?",
     }),
+    ("threat", [THREAT], {
+        "open": ["การถูกขู่ทำให้ไม่ปลอดภัยแม้ยังไม่เกิดอะไร — ความกลัวนั้นสมเหตุสมผล"],
+        "paths": [
+            "เก็บหลักฐานทุกอย่าง: แคปข้อความ บันทึกเสียงโทร จดวันเวลาและเบอร์ — อย่าลบแม้จะไม่อยากเห็น",
+            "ถ้าเขารู้ที่อยู่หรือบอกว่าจะมาหา โทร 191 ได้เลย และบอกคนใกล้ตัวให้รู้ไว้ อย่าอยู่คนเดียว",
+            "แจ้งความที่สถานีตำรวจหรือ thaipoliceonline.go.th — การข่มขู่เป็นความผิดตามกฎหมาย ไม่ต้องรอให้ถูกทำร้ายก่อน",
+        ],
+        "ask": "คนที่ขู่รู้ที่อยู่หรือที่ทำงานของคุณไหม?",
+    }),
     ("theft", [THEFT], {
         "open": ["ของหายไปแล้วน่าโมโห — แต่บางอย่างยังกันความเสียหายต่อได้"],
         "paths": [
@@ -568,7 +578,7 @@ TOPICS = [
         ],
         "ask": "ใครคือคนหนึ่งคนที่คุณยังทักไปได้ วันนี้?",
     }),
-    ("stress", ["เครียด", "ไม่ไหวแล้ว", "งานหนัก", "ไม่มีเวลานอน", "นอนไม่พอ", "ว่างเปล่า", "ไม่อยากคุยกับใคร", "ฝันร้าย", "หมดไฟ", "เหนื่อยมาก", "เหนื่อยกับชีวิต", "เหนื่อยชีวิต", re.compile(r"ท้อ(?!ง)"), "นอนไม่หลับ", "กังวล", "เศร้า",
+    ("stress", ["เครียด", "ไม่ไหวแล้ว", "งานหนัก", "ไม่มีเวลานอน", "นอนไม่พอ", "ว่างเปล่า", "ไม่อยากคุยกับใคร", "ฝันร้าย", "หมดไฟ", "เหนื่อยมาก", "เหนื่อยกับชีวิต", "เหนื่อยชีวิต", "ไม่รู้จะทำอะไรกับชีวิต", "ไม่รู้จะใช้ชีวิตยังไง", re.compile(r"ท้อ(?!ง)"), "นอนไม่หลับ", "กังวล", "เศร้า",
                 "ร้องไห้", "สิ้นหวัง", "ซึมเศร้า", "burnout", "anxiety", "stressed", "depressed"], {
         "open": ["ตอนนี้ไม่ต้องแก้ทุกอย่าง แค่ลดน้ำหนักลงทีละอย่าง"],
         "paths": [
@@ -751,6 +761,11 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "threat": ("Being threatened makes you unsafe even before anything happens — that fear makes sense.", [
+        "Keep every piece of evidence: screenshots, call recordings, dates, times and numbers — don't delete them.",
+        "If they know where you live or say they're coming, call the police now (191 in Thailand, 911 in the US) and tell someone close to you.",
+        "Report it to the police (thaipoliceonline.go.th in Thailand) — threats are a crime; you don't have to wait to be hurt."],
+        "Does the person know where you live or work?"),
     "theft": ("Losing things to theft is infuriating — but you can still stop further damage.", [
         "Block first: call your bank to freeze cards/app, and your carrier to block the SIM so nobody can receive your OTPs.",
         "Report it to the local police (or online at thaipoliceonline.go.th in Thailand) — the report lets you replace ID and licences.",
@@ -888,7 +903,7 @@ _URGENT_TOPICS = ("overdose", "violence", "health_emergency", "scam", "warning",
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
@@ -977,6 +992,9 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     return {
         "scam": scam,
         "W": round(W), "risk": round(max(risk, text_risk)),
+        # ตัวเลขที่โชว์ในคำตอบ: ยังไม่รู้สถานะจริงของผู้ใช้ → W "—" และ Risk จากข้อความล้วน
+        # (เดิมโชว์ "W 57 · Risk 45" จากค่าตั้งต้น ขณะที่แถบใต้คำตอบโชว์ "W — · Risk 0" — สองตัวเลขขัดกัน)
+        "W_shown": round(W) if p else "—", "risk_shown": round(max(risk, text_risk)) if p else round(text_risk),
         # risk จากข้อความล้วน (0 = ไม่มีสัญญาณ) — ใช้ยกค่า risk_score ที่ engine คิดจากสถานะอย่างเดียว
         "text_risk": round(text_risk), "offer_flags": flags,
         "relationship": rel["data"]["status"] if rel else None,
@@ -1002,7 +1020,7 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     # ── ภาษาอื่น: สมการเดียวกัน (W · Risk · Choice) แต่ใช้คำตอบของภาษานั้น ──
     lang = detect_lang(text)
     if lang != "th":
-        status = f"W {a['W']} · Risk {a['risk']} · Choice(t) = {4 if a['relationship'] else 3}"
+        status = f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = {4 if a['relationship'] else 3}"
         if lang == "en" and not a["crisis"] and not a["relationship"]:
             try:
                 from core.creator_story import detect_creator_question, CREATOR_STORY_EN
@@ -1170,7 +1188,7 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
         opener = ("ข้อเสนอนี้มีสัญญาณที่พบบ่อยในการหลอกลงทุน/แชร์ลูกโซ่: "
                   + " · ".join(OFFER_FLAG_TH[f] for f in a["offer_flags"])
                   + f" — ความตื่นเต้นเป็นเรื่องปกติ{end} แต่ข้อเสนอแบบนี้ต้องชะลอก่อนตอบ")
-    status = f"W {a['W']} · Risk {a['risk']} · Choice(t) = {n}"
+    status = f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = {n}"
 
     return (f"{opener}\n\n{status}\n\n{body}{calc_block}{opt_block}{money_line}\n\n"
             f"คำถามเดียวที่ควรถามตัวเองตอนนี้: {main['ask']}\n\n{sign}" + tag)
@@ -1196,7 +1214,7 @@ def simulate(text: str, paths: list) -> str:
     # ENGINE/choice_optimizer เรียงจากรอดที่สุด — แนะนำทางที่ได้คะแนนสูงสุด
     best = rank_options(paths, waterline=a["W"])[0]["action"]
     pick = paths.index(best) if best in paths else 0
-    return (f"W {a['W']} · Risk {a['risk']} · Choice(t) = {len(paths)}\n\n" + "\n\n".join(lines) +
+    return (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = {len(paths)}\n\n" + "\n\n".join(lines) +
             f"\n\nแนะนำเริ่มจาก {'ABCDEFG'[pick]} — ทางที่ย้อนกลับได้ เก็บทางอื่นไว้ใช้ทีหลัง (Choice(t+1) สูงกว่า)"
             "\n\n— VEGA ◆\n· จำลองจากสมการของระบบ — ไม่ได้ใช้ AI")
 
@@ -1254,15 +1272,15 @@ def compose_council(text: str, footer: bool = True) -> str:
     if len(opts) >= 2:
         ranked = rank_options(opts, waterline=a["W"])
         irr = [r["action"][:40] for r in ranked if not r["reversible"]]
-        vega = (f"W {a['W']} · Risk {a['risk']} — ทางที่รอดที่สุดคือ \"{ranked[0]['action'][:50]}\""
+        vega = (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} — ทางที่รอดที่สุดคือ \"{ranked[0]['action'][:50]}\""
                 + (f" · \"{irr[0]}\" ย้อนกลับยาก ต้องมีเงินสำรองก่อน" if irr else ""))
         reversible_first = ranked[0]["reversible"]
     else:
-        vega = (f"W {a['W']} · Risk {a['risk']} — ถามก่อนว่าถ้าพลาดจะเสียอะไร และถอยกลับได้ไหม "
+        vega = (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} — ถามก่อนว่าถ้าพลาดจะเสียอะไร และถอยกลับได้ไหม "
                 "ทางที่ย้อนกลับได้ชนะ ถ้าผลพอๆ กัน")
         reversible_first = True
     if a["offer_flags"]:
-        vega = (f"W {a['W']} · Risk {a['risk']} — ข้อเสนอนี้มีสัญญาณของการหลอก: "
+        vega = (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} — ข้อเสนอนี้มีสัญญาณของการหลอก: "
                 + " · ".join(OFFER_FLAG_TH[f] for f in a["offer_flags"]) + " — ลงเงินแล้วอาจถอยไม่ได้")
 
     # PATICCA — ต้นเหตุจากข้อความ (ENGINE/paticcasamuppada_engine)

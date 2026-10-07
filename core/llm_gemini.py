@@ -611,7 +611,16 @@ def _kw_hit(text: str, words: list) -> bool:
 
 def detect_crisis(text: str) -> bool:
     # "เพื่อนบอกว่าอยากตาย" ไม่ใช่วิกฤตของผู้ใช้เอง — CRISIS_SYSTEM จะคุยกับเขาเหมือนเขาอยากตาย
-    return bool(text) and _kw_hit(strip_third_party(text), _CRISIS_KW)
+    if not text:
+        return False
+    if _kw_hit(strip_third_party(text), _CRISIS_KW):
+        return True
+    # ตัวตรวจกลางเดียวกับที่ใช้เลือกเส้นทางและ Risk — ไม่ให้ prompt กับ Risk ขัดกัน
+    try:
+        from ENGINE.risk_engine import evaluate_risk
+        return bool(evaluate_risk(text).get("self_harm"))
+    except Exception:
+        return False
 
 def detect_emotion(text: str) -> bool:
     return bool(text) and _kw_hit(text, _EMOTION_KW)
