@@ -142,6 +142,12 @@ def detect_human_risk(text: str) -> str:
     for w in CRISIS_SIGNALS:
         if w in t:
             return "critical"
+    try:                                    # ตัวตรวจกลางเดียวกับ /run — "I have a plan to end it" เคยได้ normal
+        from ENGINE.risk_engine import evaluate_risk
+        if evaluate_risk(text).get("self_harm"):
+            return "critical"
+    except Exception:
+        pass
     if len(t) < 3:
         return "low"
     # ตรวจ pattern เพิ่มเติม

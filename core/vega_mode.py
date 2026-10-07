@@ -71,7 +71,13 @@ def _hit(text: str, words) -> bool:
 def detect_crisis(text: str) -> bool:
     if not text:
         return False
-    return _hit(text, CRISIS_SIGNALS)
+    if _hit(text, CRISIS_SIGNALS):
+        return True
+    try:                                    # ตัวตรวจกลาง (ENGINE/risk_engine) — ไม่ให้ VEGA ชวนวางแผนกับคนที่กำลังวิกฤต
+        from ENGINE.risk_engine import evaluate_risk
+        return bool(evaluate_risk(text).get("self_harm"))
+    except Exception:
+        return False
 
 
 def detect_emotion(text: str) -> bool:
