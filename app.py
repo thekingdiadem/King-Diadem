@@ -1188,6 +1188,12 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         # ── สิ่งที่ผู้ใช้เล่าไว้ก่อนหน้าในแชทเดียวกัน ──────────────────────────────
         # เดิมดูแค่ข้อความล่าสุด: "พ่อตีหัวผม" (Risk 80) → "เขาตีแบบเล่นๆ" ได้ Risk 0 และ
         # "ไม่มีแล้ว" ได้ "ดีจังเลยค่ะ 🤍" — คนที่ถูกทำร้ายมักลดทอนเรื่องลงหลังเล่าครั้งแรก
+        # หัวข้อด่วนที่ข้อความสั้นถัดไปต้องตอบต่อ — "ได้ยินเสียงกรีดร้องข้างห้อง" → "นี่" เคยกลับเป็น GENERAL Risk 0 (หน้าจอจริง)
+        _URGENT_WHAT = {"overdose": "กินยาเกินขนาด/สารพิษ", "health_emergency": "อาการฉุกเฉิน", "violence": "การถูกทำร้าย",
+                        "missing": "คนหาย", "sexual_abuse": "การถูกล่วงละเมิด", "witness": "ได้ยิน/เห็นคนอื่นถูกทำร้าย",
+                        "harm_others": "ความโกรธจนอยากทำร้ายคนอื่น", "elder_abuse": "ผู้สูงอายุถูกทำร้าย/ทอดทิ้ง",
+                        "weapon": "ปืน/อาวุธในบ้าน", "sextortion": "ถูกขู่/ภาพส่วนตัวถูกเผยแพร่", "first_aid": "การบาดเจ็บ",
+                        "drunk_drive": "เมาแล้วขับ", "theft": "การถูกขโมย"}
         prior_risk, prior_kind, urgent_what = 0, "", ""
         if kernel_assess:
             past = history[-8:] if isinstance(history, list) else []      # history มาจาก client — อาจไม่ใช่ list
@@ -1203,17 +1209,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                         "basic" if "basic" in (pa.get("topics") or []) else
                         # ภัย · ยาเกินขนาด · ถูกโกง · ฉุกเฉิน — "ไม่มี" "โอเค" ต่อจากนั้นเคยกลับเป็น Risk 0 (รอบหาบั๊ก 6)
                         "urgent" if (pa.get("disaster") or pa.get("scam") or
-                                     {"overdose", "health_emergency", "violence", "missing", "sexual_abuse"} & set(pa.get("topics") or []))
+                                     set(_URGENT_WHAT) & set(pa.get("topics") or []))
                         else "")
                 if kind and pa.get("text_risk", 0) >= prior_risk:
                     prior_risk, prior_kind = pa.get("text_risk", 0), kind
                     if kind == "urgent":
                         urgent_what = (str((pa.get("disaster") or {}).get("name") or "") or
                                        ("การถูกโกง" if pa.get("scam") else
-                                        {"overdose": "กินยาเกินขนาด/สารพิษ", "health_emergency": "อาการฉุกเฉิน", "violence": "การถูกทำร้าย",
-                                         "missing": "คนหาย", "sexual_abuse": "การถูกล่วงละเมิด"}.get(
-                                            next((t for t in (pa.get("topics") or []) if t in
-                                                  ("overdose", "health_emergency", "violence", "missing", "sexual_abuse")), ""), "เรื่องด่วน")))
+                                        _URGENT_WHAT.get(next((t for t in (pa.get("topics") or []) if t in _URGENT_WHAT), ""), "เรื่องด่วน")))
 
         # เรื่องด่วน/ขาดปัจจัยพื้นฐาน ลากต่อเฉพาะข้อความสั้นที่ตอบต่อ — ข้อความยาวเรื่องใหม่ประเมินจากตัวเองพอ
         if prior_kind in ("urgent", "basic") and len(user_input.strip()) > 30:
