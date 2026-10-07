@@ -13,7 +13,7 @@ from tests.conftest import FAKE_LLM
 ])
 def test_own_burning_or_dumping_gets_alternatives(text, kind, must):
     r = analyze(text)
-    assert r["data"]["earth"] == {"kind": kind, "self": True}
+    assert r["data"]["earth"]["kind"] == kind and r["data"]["earth"]["self"] is True
     assert must in " ".join(r["lines"])
 
 

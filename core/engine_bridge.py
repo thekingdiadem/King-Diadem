@@ -699,7 +699,8 @@ def _animal(text: str) -> dict | None:
         lines = [f"เรื่อง{name}: ลองทางที่ไม่ต้องฆ่าก่อน — " + " · ".join(a["responses"][:3]),
                  "ถ้าจำเป็นต้องจับ ใช้กรงดักแบบเป็น แล้วปล่อยไกลจากบ้าน — ยาเบื่อและกาวดักทำให้ตายช้าและทรมาน "
                  "และเป็นอันตรายต่อแมว หมา และเด็กในบ้านด้วย"]
-    return {"lines": lines, "data": {"animals": animals, "intervene": a["response_type"] == "INTERVENE", "sick": sick}}
+    return {"lines": lines, "data": {"animals": animals, "intervene": a["response_type"] == "INTERVENE", "sick": sick,
+                                     "steps": (lines if sick else a["responses"][:2] + lines[1:])}}
 
 
 # ── 10. เผาไร่/เผาขยะ/ทิ้งของเสียลงน้ำ (WORLD_MODEL/earth_guardian) ───────────────
@@ -719,7 +720,8 @@ def _earth(text: str) -> dict | None:
     else:                                       # คนอื่นเผา — ผู้ใช้เป็นคนสูดควัน
         lines = ["ควันจากที่อื่นเผา: ปิดประตูหน้าต่าง ใส่หน้ากาก N95 ถ้าต้องออกไป และดูแลเด็ก ผู้สูงอายุ คนเป็นหอบหืดเป็นพิเศษ",
                  "แจ้งผู้ใหญ่บ้าน/อบต. หรือศูนย์ดำรงธรรม 1567 ได้ — ช่วงประกาศห้ามเผา การเผาในที่โล่งมีโทษปรับ"]
-    return {"lines": lines, "data": {"kind": e["kind"], "self": e["self"]}}
+    return {"lines": lines, "data": {"kind": e["kind"], "self": e["self"], "name": e["name"],
+                                     "steps": e["alternatives"][:4] if e["self"] else lines}}
 
 
 def analyze(text: str) -> dict:

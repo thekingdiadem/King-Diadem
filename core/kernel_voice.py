@@ -24,7 +24,7 @@ from core.thai_signals import (NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, DRUNK_DRIVING,
                                MISSING_PERSON, LABOR_RIGHTS, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
-                               HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT)
+                               HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, detect_lang
 from core.engine_bridge import analyze as bridge_analyze, rank_options
 
@@ -206,10 +206,29 @@ TOPICS = [
         ],
         "ask": "ตอนนี้คุณปลอดภัยไหม?",
     }),
+    # รอบหาบั๊ก 8 — ผู้ใช้เป็นพยาน/ญาติ ไม่ใช่เหยื่อ: เดิมได้ "ความปลอดภัยของคุณมาก่อน · คืนนี้คุณนอนที่ไหน"
+    ("witness", [WITNESS_VIOLENCE], {
+        "open": ["ดีแล้วที่ไม่เพิกเฉย — แต่ความปลอดภัยของคุณเองก็สำคัญ"],
+        "paths": [
+            "ถ้ายังได้ยินหรือเห็นอยู่ตอนนี้ โทร 191 บอกที่อยู่ให้ชัด (บ้านเลขที่/ห้อง ชั้น) — แจ้งได้โดยไม่ต้องบอกชื่อ",
+            "อย่าเข้าไปห้ามคนเดียว ถ้าจะช่วยให้ไปกับคนอื่นหรือเจ้าหน้าที่นิติ/รปภ.",
+            "ถ้าเป็นเด็กหรือเรื่องในครอบครัวที่เกิดซ้ำ โทร 1300 (24 ชม.) — เจ้าหน้าที่ลงไปดูได้ และจดวันเวลาที่ได้ยินไว้เป็นหลักฐาน",
+        ],
+        "ask": "ตอนนี้ยังได้ยินหรือเห็นเหตุการณ์อยู่ไหม?",
+    }),
+    ("elder_abuse", [ELDER_ABUSE], {
+        "open": ["ผู้สูงอายุที่ถูกเอาเงินหรือไม่ได้รับการดูแล มีหน่วยงานช่วยได้ — คุณไม่ต้องจัดการคนเดียว"],
+        "paths": [
+            "โทร 1300 (ศูนย์ช่วยเหลือสังคม 24 ชม.) แจ้งว่าผู้สูงอายุถูกทอดทิ้ง/ถูกเอาเงิน — มีเจ้าหน้าที่ลงพื้นที่และหาที่พักให้ได้",
+            "เรื่องเงิน: พาท่านไปธนาคารเปลี่ยนรหัส/บัตร หรือขอให้เงินบำนาญเข้าบัญชีใหม่ที่คนอื่นเข้าไม่ถึง",
+            "ถ้ามีการทำร้ายร่างกายหรือไม่ให้กินอาหาร แจ้ง 191 ได้ — ผู้สูงอายุมีสิทธิ์ได้รับความช่วยเหลือทางกฎหมายฟรี",
+        ],
+        "ask": "ตอนนี้ท่านมีข้าวกินและอยู่ในที่ปลอดภัยไหม?",
+    }),
     ("violence", [re.compile(r"(ถูก|โดน)\S{0,12}?(ทำร้าย(?!ตัวเอง)|ตบ|ต่อย|เตะ|ทุบ|ตี(?!ความ|กลับ|ราคา))"),
                   "ถูกขู่", "โดนขู่", "รู้สึกไม่ปลอดภัย", "อยู่บ้านไม่ปลอดภัย", "ข่มขืน", "ความรุนแรงในบ้าน",
                   "สะกดรอย", "ถูกกักขัง",
-                  re.compile(r"ได้ยินเสียง\S{0,12}(?:กรีดร้อง|ร้องให้ช่วย|ร้องขอความช่วยเหลือ|ทุบตี|ตบตี|ทำร้าย)"), re.compile(r"(?:ถูก|โดน)\S{0,6}ขัง(?:ไว้)?(?:ใน|ไว้)(?!เกม)"), VIOLENCE_BY], {
+                  re.compile(r"(?:ถูก|โดน)\S{0,6}ขัง(?:ไว้)?(?:ใน|ไว้)(?!เกม)"), VIOLENCE_BY], {
         "open": ["ความปลอดภัยของคุณมาก่อนทุกเรื่อง"],
         "paths": [
             f"ถ้ากำลังอยู่ในอันตรายตอนนี้ — ออกไปอยู่ในที่ที่มีคนอื่น แล้วโทร {HOTLINE_POLICE}",
@@ -701,6 +720,16 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "witness": ("Good that you didn't ignore it — and your own safety matters too.", [
+        "If it's still happening, call the police now (191 in Thailand, 911 in the US, 112 in Europe) with the exact address and floor — you can stay anonymous.",
+        "Don't go in alone; if you help, go with others or building security.",
+        "If a child is involved or it keeps happening, call 1300 in Thailand (24h) and write down the dates and times you heard it."],
+        "Is it still happening right now?"),
+    "elder_abuse": ("Older people who are neglected or have money taken can get help — you don't have to handle this alone.", [
+        "In Thailand call 1300 (24h) and say an older person is being neglected or financially abused — staff can visit and arrange a safe place.",
+        "Money: take them to the bank to change PINs/cards, or have the pension paid into a new account others can't reach.",
+        "If there's violence or food is being withheld, call the police (191 in Thailand)."],
+        "Do they have food and a safe place right now?"),
     # เดิมได้ "Let's lay this out step by step." — สัญญาณเตือน/ขาดปัจจัยพื้นฐานต้องได้ขั้นช่วยเหลือ (รอบหาบั๊ก 6)
     "warning": ("Thank you for telling me. That sounds really heavy.", [
         "Can I ask you directly: are you having thoughts of hurting yourself or not wanting to be alive? You can answer honestly — I won't judge.",
@@ -813,7 +842,7 @@ _URGENT_TOPICS = ("overdose", "violence", "health_emergency", "scam", "warning",
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
@@ -1029,6 +1058,22 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     elif a["disaster"]:                  # กำลังเจอภัย: ขั้นแรกของภัยนั้นมาก่อนทุกอย่าง
         main, second = {"open": [DISASTER_OPEN], "paths": a["disaster"]["steps"],
                         "ask": a["disaster"].get("ask") or DISASTER_ASK}, None
+    elif set(a["topics"]) <= {"decision", "health", "family"}:
+        # สัตว์เล็ก/เผาไร่/ทิ้งของเสีย — เดิมทางเลือกไปอยู่ท้ายคำตอบ ใต้ "เขียนสิ่งที่เกิดขึ้นเป็นประโยคเดียว" (รอบหาบั๊ก 8)
+        try:
+            _d = bridge_analyze(text)["data"]
+        except Exception:
+            _d = {}
+        if (_d.get("earth") or {}).get("steps"):
+            e = _d["earth"]
+            main, second = {"open": [f"เรื่อง{e['name']}มีทาง{'ที่ไม่ต้องทิ้งลงน้ำ' if e.get('kind') == 'water_dumping' else 'ที่ไม่ต้องเผา'} และหลายทางประหยัดกว่าด้วย" if e["self"]
+                                     else "ควันหรือของเสียจากคนอื่นกระทบคุณได้ — ป้องกันตัวเองก่อน แล้วค่อยแจ้ง"],
+                            "paths": e["steps"], "ask": "ทางไหนที่พอทำได้จริงในพื้นที่ของคุณ?"}, None
+        elif (_d.get("animal") or {}).get("steps"):
+            an = _d["animal"]
+            main, second = {"open": ["สัตว์ป่วยมักซ่อนอาการ — ดูแลเร็วดีที่สุด" if an.get("sick")
+                                     else "แก้ปัญหาได้โดยไม่ต้องฆ่า — และปลอดภัยกับคนในบ้านกว่า"],
+                            "paths": an["steps"], "ask": "ตอนนี้ปัญหาหลักคืออะไร — เข้าบ้าน กัดของ หรือเรื่องสุขภาพ?"}, None
 
     paths = _paths(main, t)[:3]
     if second:
@@ -1056,7 +1101,8 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     # ── เงิน: เวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน ─────────────
     # ── ตัวเลขจากเรื่องของผู้ใช้: หนี้ · เวลาที่มีจริง · ความสัมพันธ์ (core/engine_bridge) ──
     bridge = bridge_analyze(text) if not a["offer_flags"] else {"lines": [], "data": {}}
-    shown = [l for l in bridge["lines"] if l not in paths]          # ขั้นของภัยอยู่ในรายการหลักแล้ว
+    # ขั้นของภัย/ทางเลือกสัตว์-เผาไร่อยู่ในรายการหลักแล้ว — ไม่พิมพ์ซ้ำ (รวมบรรทัดสรุปที่มีข้อเดียวกันอยู่ข้างใน)
+    shown = [l for l in bridge["lines"] if l not in paths and not any(len(p) > 20 and p in l for p in paths)]
     calc_block = ("\n\nจากสิ่งที่คุณเล่า:\n" + "\n".join("· " + l for l in shown)) if shown else ""
 
     money_line = ""
