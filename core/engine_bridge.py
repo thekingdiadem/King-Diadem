@@ -514,6 +514,7 @@ def _hazard_place(kind: str, text: str):
 # พูดถึงภัยแต่ไม่ได้เกิดกับตัวตอนนี้: ข่าว · สมมติ · เรื่องเก่า → เตรียมตัว ไม่ยก Risk
 _HAZARD_FAR = re.compile(r"ถ้า|หาก|เผื่อ|เตรียม(?:ตัว)?รับ|ข่าว|ดูหนัง|ในหนัง|ในเกม|ปีที่แล้ว|เมื่อปี|ตอนเด็ก|เคยเจอ|สมัยก่อน|"
                          r"(?i:\bif\b|\bin case\b|\bprepare\b|\bin the (?:news|movie|game)\b|\blast year\b)")
+_HAZARD_NOW = re.compile(r"(?i:\bright now\b|\bhappening now\b|\bhelp\b|\btrapped\b|\bcan'?t get out\b)|ตอนนี้|กำลัง|ติดอยู่|ออกไม่ได้|หนีไม่ทัน|ช่วยด้วย|ยังสั่น|ยังโยก|ใกล้มาก")
 _HAZARD_LEVEL_TH = {"EXTREME": "สูงมาก", "HIGH": "สูง", "MODERATE": "ปานกลาง", "LOW": "ต่ำ"}
 
 
@@ -544,9 +545,10 @@ def _disaster(text: str) -> dict | None:
             place, steps = q[1], q[3]
         else:
             ask = _HAZARD_PLACES[kind][1]               # ยังไม่รู้ว่าอยู่ที่ไหน — ให้ขั้นทั่วไปแล้วถาม
-    far = bool(_HAZARD_FAR.search(text)) and not _HAZARD_NEAR.search(text)
+    # "ข่าวน้ำท่วมบ้าน" "น้ำท่วมบ้านเมื่อปีที่แล้ว": คำว่า "บ้าน" อย่างเดียวไม่พอจะลบว่าเป็นเรื่องเล่า — ต้องมีคำว่ากำลังเกิดจริง
+    far = bool(_HAZARD_FAR.search(text)) and not _HAZARD_NOW.search(text)
     # บอกที่ที่ตัวเองอยู่ตอนเกิดภัย ("ติดในลิฟต์" "อยู่ภูเก็ต แผ่นดินไหวแรงมาก") = กำลังเจออยู่จริง
-    severity = 25 if far else 85 if (_HAZARD_NEAR.search(text) or place) else 60
+    severity = 25 if far else 85 if (_HAZARD_NEAR.search(text) or place or kind == "gas") else 60   # ได้กลิ่นแก๊ส = อยู่ตรงนั้นแล้ว
     try:
         from DOMAINS.survival_engine import analyze_global_event
         r = analyze_global_event(event_type=event, severity=severity)

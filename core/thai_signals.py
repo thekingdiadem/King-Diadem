@@ -168,6 +168,12 @@ SCAM_LOST = re.compile(r"(?:โดน|ถูก)(?:แก๊ง\S{0,18})?(?:โ�
                        r"(?i:\b(?:got|been|was|were|being|get) scammed\b|\bscammed (?:me|out of)\b)")
 
 
+# SMS/ไลน์ส่งลิงก์มาให้กดยืนยันบัญชี/รับเงิน — เคยไม่ขึ้นว่าเป็นมิจฉาชีพเลย
+SCAM_PHISH = re.compile(r"(?:sms|เอสเอ็มเอส|ข้อความ|ไลน์|line|อีเมล|email)[^\n]{0,20}?(?:กด|คลิก|เปิด)?ลิ(?:ง|ฃ)ก์[^\n]{0,20}?"
+                        r"(?:ยืนยัน|บัญชี|รับเงิน|รับสิทธิ์|รางวัล|อัปเดต|อัพเดท|ระงับ|คืนเงิน|ภาษี|พัสดุ)"
+                        r"|\b(?:text|sms|email)\b[^\n]{0,20}?\blink\b[^\n]{0,30}?\b(?:verify|account|prize|refund|suspended|parcel)\b", re.I)
+
+
 def scam_flags(text) -> list:
     """โครงสร้างของมิจฉาชีพ: แอบอ้าง + ติดต่อมา + ขอให้โอน/กดลิงก์/ให้ข้อมูล หรือเรื่องหลอก + ขอสิ่งเดียวกัน"""
     t = str(text or "")
@@ -175,7 +181,7 @@ def scam_flags(text) -> list:
     asks = bool(SCAM_ASK.search(t))
     if asks and SCAM_IMPERSONATE.search(t) and (SCAM_CONTACT.search(t) or "บอกว่า" in t):
         flags.append("impersonation")
-    if asks and SCAM_STORY.search(t):
+    if (asks and SCAM_STORY.search(t)) or SCAM_PHISH.search(t):
         flags.append("story")
     if SCAM_LOST.search(t):
         flags.append("lost")
