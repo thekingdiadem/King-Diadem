@@ -1,71 +1,41 @@
 """
 core/database.py — KING DIADEM
-SQLite database — users + payments + decisions + sessions
-thread-safe + WAL mode
+ทางเข้าฐานข้อมูลแบบเก่า (get_db / init_db) — ตอนนี้ชี้ไปที่ฐานเดียวกับแอป (DATABASE/db.py)
+
+เดิมไฟล์นี้เปิด king_diadem.db ของตัวเอง (DB_FILE ที่ root) และมีตาราง users/payments
+คนละโครงกับของแอป ถ้าวันหนึ่งมีโค้ดเรียกใช้ ข้อมูลจะแตกเป็นสองฐาน — และถ้าชี้มาที่ฐานเดียวกัน
+CREATE INDEX ... ON payments(email) จะล้มเพราะตารางของแอปใช้คอลัมน์ user_email
+
+ตอนนี้: ที่อยู่ไฟล์ · pragma · โครงตาราง มาจาก DATABASE/db.py ที่เดียว
+เปิดใช้เมื่อไหร่ก็ได้ข้อมูลชุดเดียวกับแอปโดยไม่ต้องแก้อะไร
 """
 import sqlite3
-import os
 import threading
 
-DB_FILE = os.getenv("DB_FILE", "king_diadem.db")
+from DATABASE import db as _app_db
+
 _local = threading.local()
 
 
+def db_path() -> str:
+    """ไฟล์ฐานข้อมูลที่ใช้จริง — ตัวเดียวกับแอป (DB_PATH)"""
+    return _app_db.DB_PATH
+
+
 def get_db() -> sqlite3.Connection:
-    """คืน connection ที่ thread-safe"""
-    if not hasattr(_local, "conn") or _local.conn is None:
-        _local.conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-        _local.conn.row_factory = sqlite3.Row
-        _local.conn.execute("PRAGMA journal_mode=WAL")
-        _local.conn.execute("PRAGMA foreign_keys=ON")
-    return _local.conn
+    """connection ต่อ thread ไปยังฐานเดียวกับแอป (WAL · busy_timeout · row_factory แบบเดียวกัน)"""
+    conn = getattr(_local, "conn", None)
+    if conn is None or getattr(_local, "path", None) != _app_db.DB_PATH:
+        conn = _app_db.get_conn()
+        _local.conn, _local.path = conn, _app_db.DB_PATH
+    return conn
 
 
 def init_db():
-    """สร้าง tables ทั้งหมด — idempotent"""
+    """สร้างตารางของแอป (idempotent) + ตาราง sessions ที่ไฟล์นี้เคยมีและแอปยังไม่มี"""
+    _app_db.init_db()
     conn = get_db()
-    c = conn.cursor()
-
-    # Users
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
-        email       TEXT UNIQUE NOT NULL,
-        password    TEXT,
-        api_key     TEXT,
-        credits     REAL    DEFAULT 10.0,
-        plan        TEXT    DEFAULT 'basic',
-        created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
-        last_seen   DATETIME DEFAULT CURRENT_TIMESTAMP
-    )""")
-
-    # Payments
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS payments (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
-        email       TEXT    NOT NULL,
-        amount      REAL    NOT NULL,
-        plan        TEXT    DEFAULT 'basic',
-        stripe_id   TEXT,
-        status      TEXT    DEFAULT 'pending',
-        timestamp   DATETIME DEFAULT CURRENT_TIMESTAMP
-    )""")
-
-    # Decision log
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS decisions (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
-        session_id  TEXT,
-        email       TEXT,
-        input       TEXT,
-        route       TEXT,
-        risk_score  REAL,
-        ai_response TEXT,
-        timestamp   DATETIME DEFAULT CURRENT_TIMESTAMP
-    )""")
-
-    # Sessions
-    c.execute("""
+    conn.execute("""
     CREATE TABLE IF NOT EXISTS sessions (
         id          TEXT PRIMARY KEY,
         email       TEXT,
@@ -73,11 +43,4 @@ def init_db():
         created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
     )""")
-
-    # Index
-    c.execute("CREATE INDEX IF NOT EXISTS idx_users_email    ON users(email)")
-    c.execute("CREATE INDEX IF NOT EXISTS idx_payments_email ON payments(email)")
-    c.execute("CREATE INDEX IF NOT EXISTS idx_decisions_email ON decisions(email)")
-
     conn.commit()
-    print("✅ DB initialized")
