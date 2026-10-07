@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
+from core.thai_signals import (THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, DRUNK_DRIVING,
@@ -259,7 +259,8 @@ TOPICS = [
     }),
     ("health_emergency", ["เจ็บหน้าอก", "แน่นหน้าอก", "หายใจไม่ออก", "หมดสติ", "ชักเกร็ง", "ชักกระตุก",
                           "ชักไม่หยุด",
-                          "เลือดออกไม่หยุด", "ปากเบี้ยว", "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY], {
+                          "เลือดออกไม่หยุด", "ปากเบี้ยว", "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
+                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious|drowning)\b", re.I)], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
         "paths": [
             f"โทร {HOTLINE_EMS} ตอนนี้ หรือให้คนใกล้ตัวพาไปห้องฉุกเฉิน — อย่าขับรถเอง",
@@ -466,6 +467,15 @@ TOPICS = [
         ],
         "ask": "ถ้าเดือนนี้จ่ายได้แค่ก้อนเดียว ก้อนไหนที่ถ้าไม่จ่ายจะเสียหายมากที่สุด?",
     }),
+    ("threat", [THREAT], {
+        "open": ["การถูกขู่ทำให้ไม่ปลอดภัยแม้ยังไม่เกิดอะไร — ความกลัวนั้นสมเหตุสมผล"],
+        "paths": [
+            "เก็บหลักฐานทุกอย่าง: แคปข้อความ บันทึกเสียงโทร จดวันเวลาและเบอร์ — อย่าลบแม้จะไม่อยากเห็น",
+            "ถ้าเขารู้ที่อยู่หรือบอกว่าจะมาหา โทร 191 ได้เลย และบอกคนใกล้ตัวให้รู้ไว้ อย่าอยู่คนเดียว",
+            "แจ้งความที่สถานีตำรวจหรือ thaipoliceonline.go.th — การข่มขู่เป็นความผิดตามกฎหมาย ไม่ต้องรอให้ถูกทำร้ายก่อน",
+        ],
+        "ask": "คนที่ขู่รู้ที่อยู่หรือที่ทำงานของคุณไหม?",
+    }),
     ("theft", [THEFT], {
         "open": ["ของหายไปแล้วน่าโมโห — แต่บางอย่างยังกันความเสียหายต่อได้"],
         "paths": [
@@ -568,7 +578,7 @@ TOPICS = [
         ],
         "ask": "ใครคือคนหนึ่งคนที่คุณยังทักไปได้ วันนี้?",
     }),
-    ("stress", ["เครียด", "ไม่ไหวแล้ว", "งานหนัก", "ไม่มีเวลานอน", "นอนไม่พอ", "ว่างเปล่า", "ไม่อยากคุยกับใคร", "ฝันร้าย", "หมดไฟ", "เหนื่อยมาก", "เหนื่อยกับชีวิต", "เหนื่อยชีวิต", re.compile(r"ท้อ(?!ง)"), "นอนไม่หลับ", "กังวล", "เศร้า",
+    ("stress", ["เครียด", "ไม่ไหวแล้ว", "งานหนัก", "ไม่มีเวลานอน", "นอนไม่พอ", "ว่างเปล่า", "ไม่อยากคุยกับใคร", "ฝันร้าย", "หมดไฟ", "เหนื่อยมาก", "เหนื่อยกับชีวิต", "เหนื่อยชีวิต", "ไม่รู้จะทำอะไรกับชีวิต", "ไม่รู้จะใช้ชีวิตยังไง", re.compile(r"ท้อ(?!ง)"), "นอนไม่หลับ", "กังวล", "เศร้า",
                 "ร้องไห้", "สิ้นหวัง", "ซึมเศร้า", "burnout", "anxiety", "stressed", "depressed"], {
         "open": ["ตอนนี้ไม่ต้องแก้ทุกอย่าง แค่ลดน้ำหนักลงทีละอย่าง"],
         "paths": [
@@ -751,6 +761,11 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "threat": ("Being threatened makes you unsafe even before anything happens — that fear makes sense.", [
+        "Keep every piece of evidence: screenshots, call recordings, dates, times and numbers — don't delete them.",
+        "If they know where you live or say they're coming, call the police now (191 in Thailand, 911 in the US) and tell someone close to you.",
+        "Report it to the police (thaipoliceonline.go.th in Thailand) — threats are a crime; you don't have to wait to be hurt."],
+        "Does the person know where you live or work?"),
     "theft": ("Losing things to theft is infuriating — but you can still stop further damage.", [
         "Block first: call your bank to freeze cards/app, and your carrier to block the SIM so nobody can receive your OTPs.",
         "Report it to the local police (or online at thaipoliceonline.go.th in Thailand) — the report lets you replace ID and licences.",
@@ -888,7 +903,7 @@ _URGENT_TOPICS = ("overdose", "violence", "health_emergency", "scam", "warning",
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
