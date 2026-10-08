@@ -24,6 +24,7 @@ _MAP_RE = re.compile(r'(<script type="application/json" id="system-map">)(.*?)(<
 
 # คำอธิบายของไฟล์ที่ยังไม่เคยอยู่ในแผนผัง: [หมวด, คำอธิบาย, ป้าย]
 NEW = {
+    "index.html": ["site", "แกลเลอรีจักรวาล — กางงานภาพทุกชิ้นใน static/ ให้ดูและกดเล่นได้ (หน้าแรกของ GitHub Pages)", "✦ แกลเลอรี"],
     "CANON_TH.md": ["docs", "ธรรมนูญ SYSTEM CANON ฉบับภาษาไทยตัวเต็มของผู้ก่อตั้ง (มาตรา 0–15)", "🜂 canon ไทย"],
     "legacy/README.md": ["docs", "อธิบายโฟลเดอร์ legacy/ — โค้ดที่ยังไม่มีใครเรียกใช้ และวิธีย้ายกลับ", "▤ legacy"],
     "scripts/__init__.py": ["pkg", "ทำให้ scripts เป็น package (เทสต์ import สคริปต์ได้)", "□ scripts"],
