@@ -2,6 +2,7 @@
 core/cosmic_latte_canon.py
 COSMIC LATTE SYSTEM CANON v1.1
 Author: Nithikorn Bunsrang
+ต้นฉบับภาษาไทยตัวเต็ม: CANON_TH.md (ARTICLES ข้างล่างเป็นสรุปภาษาอังกฤษของมาตรา 0–15)
 
 การเปลี่ยนแปลงจาก v1.0:
 + validate_output() — ตรวจ result ก่อน return ให้ user
@@ -161,6 +162,9 @@ def choice_affirmed(text: str) -> bool:
     return _CHOICE_AFFIRM.search(str(text).lower()) is not None
 
 
+MAX_OPTIONS = 3   # Article 11 — Options ≤ 3, Choice ∈ {A, B, C}
+
+
 def offered_choices(text: str) -> int:
     """นับทางเลือกที่คำตอบเสนอ (บรรทัดที่ขึ้นต้นด้วย 1) 2. - • ...)"""
     return len(re.findall(r"(?m)^\s*(?:\d+\s*[\).:]|[-•▸◦*])\s+\S", str(text)))
@@ -284,6 +288,8 @@ def validate_output(output: dict) -> dict:
     # การพูดถึง "ไม่มีทางเลือก" คือการสะท้อนความรู้สึกผู้ใช้แล้วคืนทางเลือก ไม่ใช่ choice collapse
     choices = offered_choices(text_to_check)
     output["canon_check"]["choices_offered"] = choices
+    # Article 11 — Options ≤ 3: บันทึกไว้ให้ตรวจย้อนได้ (ไม่ block — เกิน 3 ทางไม่ใช่การปิดทางเลือก)
+    output["canon_check"]["options_within_limit"] = choices <= MAX_OPTIONS
     if "choice_collapse" in check["violations"] and (choices >= 2 or choice_affirmed(text_to_check)):
         check["violations"] = ["choice_collapse_restored" if v == "choice_collapse" else v for v in check["violations"]]
         output["canon_check"]["violations"] = check["violations"]

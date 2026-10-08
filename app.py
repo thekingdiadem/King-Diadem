@@ -1070,6 +1070,20 @@ def _rate_check(identity: str) -> bool:
 # ══════════════════════════════════════════════════════════════════
 # /run  +  /decision — v5.0
 # ══════════════════════════════════════════════════════════════════
+_RISK_RANK = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
+
+
+def _risk_ctx_from_text(risk_ctx: str, t_risk) -> str:
+    """ใช้ระดับจากข้อความเมื่อสูงกว่าระดับจากสถานะร่างกาย — เดิมเทียบแค่ LOW/MEDIUM
+    สถานะ HIGH + ข้อความ CRITICAL ("อยากตาย") จึงบอก LLM ว่าแค่ HIGH"""
+    if t_risk < 35:
+        return risk_ctx
+    t_lvl = "CRITICAL" if t_risk >= 75 else "HIGH" if t_risk >= 55 else "MEDIUM"
+    m = re.search(r"\[Risk: (\w+)", risk_ctx or "")
+    cur = _RISK_RANK.get(m.group(1), -1) if m else -1
+    return f"[Risk: {t_lvl} จากข้อความ]" if _RISK_RANK[t_lvl] > cur else risk_ctx
+
+
 @app.post("/run")
 @app.post("/decision")
 def run_kernel(request: Request, data: dict):
@@ -1181,11 +1195,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         except Exception as e:
             print(f"⚠ kernel_assess: {type(e).__name__}")
     # [Risk: LOW] จากสถานะร่างกาย ขัดกับข้อความที่เสี่ยงชัด → บอก LLM ระดับจากข้อความแทน
-    t_risk = k_assess.get("text_risk", 0) or 0
-    if t_risk >= 35:
-        t_lvl = "CRITICAL" if t_risk >= 75 else "HIGH" if t_risk >= 55 else "MEDIUM"
-        if not risk_ctx or "LOW" in risk_ctx or ("MEDIUM" in risk_ctx and t_lvl != "MEDIUM"):
-            risk_ctx = f"[Risk: {t_lvl} จากข้อความ]"
+    risk_ctx = _risk_ctx_from_text(risk_ctx, k_assess.get("text_risk", 0) or 0)
     # ถูกทำร้าย/ถูกควบคุมในความสัมพันธ์ → เส้นทางความเสี่ยง (ความปลอดภัยมาก่อน)
     rel_ctx = ""
     if k_assess.get("relationship") in ("collapse_risk", "critical"):
