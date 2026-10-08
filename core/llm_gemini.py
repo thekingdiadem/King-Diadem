@@ -1020,6 +1020,11 @@ class GeminiLLM:
         if mem_ctx:
             ctx_parts.append(mem_ctx)
 
+        # คุยต่อเนื่อง: ไม่ทักทายซ้ำ และรักษาเสียงของตัวเอง แม้คำตอบก่อนหน้าในแชทเป็นอีกเสียง
+        if any(isinstance(h, dict) and h.get("role") in ("assistant", "model") for h in (history or [])):
+            who = "VEGA (ผม/ครับ)" if voice_mode == "vega" else "LYLA (ฉัน/ค่ะ)"
+            ctx_parts.append(f"[คุยต่อเนื่องในแชทเดิม: ไม่ต้องขึ้นต้นด้วยคำทักทาย · ตอบในเสียง {who} "
+                             "แม้คำตอบก่อนหน้าในแชทจะเป็นอีกเสียง]")
         ctx_note = " | ".join(ctx_parts)
         contents = _build_contents(history or [], prompt, ctx_note)
 
@@ -1028,7 +1033,9 @@ class GeminiLLM:
             return self._gcall(COUNCIL_SYSTEM, contents, temperature=0.7, max_tokens=1536)
 
         # ── VEGA: strategic ────────────────────────────────────
-        if voice_mode == "vega" or route == "vega":
+        # เสียงตามที่ระบบเลือกแล้ว — เดิม route "vega" บังคับ prompt VEGA แม้ voice_mode เป็น lyla
+        # (หัวข้อขึ้น LYLA แต่ตอบ "ครับ/ผม")
+        if voice_mode == "vega" or (route == "vega" and not voice_mode):
             return self._gcall(VEGA_SYSTEM, contents, temperature=0.72, max_tokens=1024)
 
         # ── LYLA: default ──────────────────────────────────────

@@ -1435,7 +1435,7 @@ var Cosmos = (function(){
       R = Math.min(cs.height / 2 / (portrait ? 1.95 : 1.55), avW / 2 / 3.2);
     } else if(view === 'universe'){
       cy = top + avH * (portrait ? .5 : .53);
-      R = mode === 'system' ? Math.min(avW / 2 / 3.45, (avH - 170) / 2 / (3.45 * (portrait ? .62 : .46))) : Math.min(avW / 2 / 3.35, (avH - 150) / 2 / (portrait ? 2.3 : 1.55));
+      R = mode === 'system' ? Math.min(avW / 2 / 3.45, (avH - 170) / 2 / (3.45 * (portrait ? .62 : .46))) : Math.min(avW / 2 / (portrait ? 3.75 : 3.45), (avH - 150) / 2 / (portrait ? 2.3 : 1.55));
     } else { cy = top + avH * .44; R = Math.min(avW / 2 / 3.45, avH / 2 / (3.45 * (portrait ? .62 : .46))); }
     return { cx:cx, cy:cy, R: Math.max(14, R), tilt: portrait ? -.1 : -.13, squash: portrait ? .62 : .42, portrait: portrait };
   }
@@ -1637,6 +1637,18 @@ var Cosmos = (function(){
     ctx.globalAlpha = 1;
   }
   /* ดาวเคราะห์ 1 ดวงต่อเส้นทาง — ใหญ่ขึ้นตามจำนวนการตัดสินใจบนวงนั้น · เส้นทางที่เพิ่งใช้เรืองแสงขึ้น */
+  /* ป้ายชื่อดาว: ลองขวา → ซ้าย → ขยับขึ้น/ลง จนไม่ชนป้ายอื่น ข้อความ "ยังไม่มีดาว" และไม่ตกขอบจอ */
+  var LBL = [];
+  function placeLabel(x, y, r, w){
+    var h = 14, tries = [[x + r + 6, y], [x - r - 6 - w, y], [x + r + 6, y + h], [x - r - 6 - w, y + h], [x + r + 6, y - h], [x - r - 6 - w, y - h], [x - w / 2, y + r + 10], [x - w / 2, y - r - 10]];
+    for(var k = 0; k < tries.length; k++){
+      var tx = tries[k][0], ty = tries[k][1], box = [tx - 2, ty - h / 2, tx + w + 2, ty + h / 2];
+      if(box[0] < 6 || box[2] > W - 6) continue;
+      if(LBL.some(function(b){ return box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1]; })) continue;
+      LBL.push(box); return [tx, ty];
+    }
+    var fx = clamp(x + r + 6, 6, W - 6 - w); LBL.push([fx, y - h / 2, fx + w, y + h / 2]); return [fx, y];
+  }
   function drawPlanets(g, now, back){
     var tsec = (now - t0) / 1000, k = clamp(g.R / 60, .6, 1.2);
     for(var i = 0; i < ORB.length; i++){
@@ -1656,10 +1668,9 @@ var Cosmos = (function(){
         ctx.restore();
       }
       ctx.globalAlpha = dim * .85; ctx.fillStyle = '#e6ecff'; ctx.font = '500 11px "Noto Sans Thai Looped", sans-serif';
-      ctx.textBaseline = 'middle';
-      var lbl = (ROUTE_NAME[ORB[i]] || ORB[i]) + (orbN[i] ? ' · ' + orbN[i] : ''), right = p.x + r + 6 + ctx.measureText(lbl).width < W - 8;
-      ctx.textAlign = right ? 'left' : 'right';      /* ชิดขอบขวา → ย้ายป้ายไปซ้ายของดาว ไม่ให้ตกขอบจอ */
-      ctx.fillText(lbl, right ? p.x + r + 6 : p.x - r - 6, p.y);
+      ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+      var lbl = (ROUTE_NAME[ORB[i]] || ORB[i]) + (orbN[i] ? ' · ' + orbN[i] : ''), at2 = placeLabel(p.x, p.y, r, ctx.measureText(lbl).width);
+      ctx.fillText(lbl, at2[0], at2[1]);
     }
     ctx.globalAlpha = 1; ctx.textAlign = 'start';
   }
@@ -1677,7 +1688,10 @@ var Cosmos = (function(){
     ctx.globalAlpha = 1;
     var g = geo(), decisions = view === 'universe' && mode === 'decisions';
     place(g, tsec);
-    if(decisions){ drawOrbits(g, 'back'); drawPlanets(g, now, true); drawStars(g, now, true); drawSun(g, now); drawOrbits(g, 'front'); drawPlanets(g, now, false); drawStars(g, now, false); }
+    if(decisions){
+      LBL = [];
+      var ue = $('#u-empty'); if(ue && !ue.classList.contains('hide')){ var q = ue.getBoundingClientRect(); LBL.push([q.left, q.top, q.right, q.bottom]); }
+      drawOrbits(g, 'back'); drawPlanets(g, now, true); drawStars(g, now, true); drawSun(g, now); drawOrbits(g, 'front'); drawPlanets(g, now, false); drawStars(g, now, false); }
     else drawSystem(g, now, true);
     if(view === 'universe' && coreWL != null){
       ctx.globalAlpha = .85; ctx.font = '600 11px "IBM Plex Mono", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = '#e6ecff';
@@ -1902,7 +1916,7 @@ async function send(textArg){
   window.dispatchEvent(new CustomEvent('KD:thinking', { detail:{ on:true } }));
   var th = document.createElement('div'); th.className = 'm a'; th.innerHTML = '<div class="who"><span class="' + (mode==='vega'?'vega':mode==='crisis'?'crisis':mode==='council'?'council':'lyla') + '">' + (mode==='vega'?'VEGA':mode==='crisis'?'HALT':mode==='council'?'สภา 6 เสียง':'LYLA') + '</span><span class="tag">กำลังคิด…</span></div><div class="thinking"><i></i><i></i><i></i></div>';
   $('#msgs').appendChild(th); scrollBottom();
-  var body = { input:text, route:Route, voice_mode:mode, voice_hint:voiceHint(mode), history:history,
+  var body = { input:text, route:Route, voice_mode:mode, persona_ui:Persona, voice_hint:voiceHint(mode), history:history,
     context: Object.assign({ client_voice:mode, tone_notes:voiceHint(mode), route_ui:Route }, state) };
   var born = null;
   try{

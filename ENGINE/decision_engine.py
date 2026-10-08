@@ -148,8 +148,11 @@ class DecisionEngine:
 
         # ── STEP 3: Persona / Voice Mode ─────────────────────
         raw_vm = str(data.get("voice_mode") or "lyla").lower()
+        # ผู้ใช้เลือกเสียงเอง (ปุ่ม LYLA/VEGA หรือเรียกชื่อ) → ห้ามสลับไป VEGA ตามเส้นทาง
+        locked = bool(data.get("voice_locked")) and raw_vm in ("lyla", "vega")
         if   route == "crisis" or raw_vm == "crisis": voice_mode = "crisis"
         elif raw_vm == "council":                      voice_mode = "council"   # สภา 6 เสียง
+        elif locked:                                   voice_mode = raw_vm
         elif route == "vega"   or raw_vm == "vega":   voice_mode = "vega"
         else:                                          voice_mode = "lyla"
 
