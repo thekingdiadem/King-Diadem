@@ -496,6 +496,71 @@ dialog.axis::backdrop{background:transparent}
 .axis-body p{margin:0}
 .axis-body p.b{font:500 12px/2 var(--f-mono);letter-spacing:.12em;color:var(--ink)}
 
+/* ── ฟ้ายามเย็น: ปุ่ม/สัญลักษณ์ร้อนสลับเย็น ─────────────────────────
+   สีจากรูปถ่ายของผู้สร้าง — ทะเลตอนพระอาทิตย์ตก (ทอง/พีช) · ฟ้าเช้า (ฟ้าอมม่วง)
+   · จันทร์เสี้ยวกับดาว (ลาเวนเดอร์) · วงแสงรอบพระจันทร์ (halo) — เย็น ☾ ☁ สลับ อุ่น ✦ ☼ */
+:root{
+  --sky:#a9bcff; --sky-hi:#d6e0ff; --lilac:#c8b6f0; --peach:#ffc6a1; --sun:#ffb35c; --moon:#fff1d2;
+  --warm:linear-gradient(135deg,#fff0cf 0%,#ffcf96 55%,#ffb35c 100%);
+  --cool:linear-gradient(135deg,#e6ecff 0%,#b9c8ff 55%,#9aa9f2 100%);
+  --dusk:linear-gradient(120deg,#a9bcff 0%,#c8b6f0 40%,#ffc6a1 72%,#ffb35c 100%);
+}
+@keyframes twinkle{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.12);filter:brightness(1.25)}}
+@keyframes halo{0%,100%{box-shadow:0 0 0 0 rgba(200,182,240,.0),0 0 14px rgba(255,198,161,.35)}50%{box-shadow:0 0 0 4px rgba(200,182,240,.12),0 0 22px rgba(169,188,255,.45)}}
+
+/* แท็บล่าง + เมนูข้าง: ไอคอนอยู่ในฟองกลม สีเย็น-อุ่นสลับกัน */
+#tabbar button .i,.nav button i{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font:400 17px/1 var(--f-sans);transition:transform .2s ease,background .3s ease}
+.nav button i{width:26px;height:26px;font-size:15px}
+#tabbar button:nth-child(odd) .i,.nav button:nth-child(odd) i{color:var(--sky)}
+#tabbar button:nth-child(even) .i,.nav button:nth-child(even) i{color:var(--sun)}
+#tabbar button:active .i,.nav button:active i{transform:scale(.88)}
+#tabbar button.on .i,.nav button.on i{color:#1a1630;animation:twinkle 2.8s ease-in-out infinite}
+#tabbar button.on:nth-child(odd) .i,.nav button.on:nth-child(odd) i{background:var(--cool);box-shadow:0 0 16px rgba(169,188,255,.55)}
+#tabbar button.on:nth-child(even) .i,.nav button.on:nth-child(even) i{background:var(--warm);box-shadow:0 0 16px rgba(255,179,92,.55)}
+#tabbar button.on:nth-child(odd),.nav button.on:nth-child(odd){color:var(--sky-hi)}
+#tabbar button.on:nth-child(even),.nav button.on:nth-child(even){color:var(--moon)}
+
+/* ปุ่มส่ง = ดวงจันทร์ทรงกลมมีวงแสง */
+#send{border-radius:50%;background:var(--dusk);color:#1a1630;box-shadow:0 0 18px rgba(255,198,161,.35);transition:transform .15s ease}
+#send:hover{animation:halo 2.4s ease-in-out infinite}
+#send:active{transform:scale(.9)}
+
+/* ช่องพิมพ์: ขอบเรืองลาเวนเดอร์ตอนกำลังพิมพ์ */
+.inrow{border-radius:22px;transition:border-color .3s ease,box-shadow .3s ease}
+.inrow:focus-within{border-color:rgba(200,182,240,.55);box-shadow:0 0 0 3px rgba(200,182,240,.10),0 0 26px rgba(255,198,161,.12)}
+
+/* ผู้ตอบ: AUTO จันทร์นวล · LYLA อุ่น · VEGA เย็น · สภา ลาเวนเดอร์ */
+.seg button{border-radius:999px;transition:background .25s ease,color .25s ease}
+.seg button.on{color:#1a1630}
+.seg button[data-p="auto"].on{background:linear-gradient(135deg,#fff7e6,#ffe3b8)}
+.seg button[data-p="lyla"].on{background:var(--warm)}
+.seg button[data-p="vega"].on{background:var(--cool)}
+.seg button[data-p="council"].on{background:linear-gradient(135deg,#efe6ff,#c8b6f0)}
+
+/* chip / ปุ่มทั่วไป: มนเป็นแคปซูล */
+.chip{border-radius:999px}
+.chip.state.set{color:var(--moon);border-color:rgba(255,198,161,.45);background:rgba(255,198,161,.08)}
+#route-pill{color:var(--sky-hi)}
+.btn{border-radius:999px}
+.btn.primary{background:var(--dusk);color:#1a1630;box-shadow:0 0 18px rgba(200,182,240,.25)}
+.btn.ghost:hover{border-color:rgba(200,182,240,.5);background:rgba(200,182,240,.06)}
+#new-chat{border-style:dashed;border-color:rgba(200,182,240,.35);color:var(--sky-hi)}
+#new-chat:hover{color:var(--moon);border-color:rgba(255,198,161,.5)}
+.icon-btn{border-radius:50%}
+.icon-btn:hover{background:rgba(200,182,240,.08)}
+
+/* พระจันทร์ขโมยไม่ได้ — วงเอ็นโซหมึก: บนพื้นมืดเป็นหมอกจันทร์ · ในฟองที่เลือกเป็นหมึกบนกระดาษ */
+svg.moon{width:22px;height:22px;display:block;filter:drop-shadow(0 0 4px rgba(255,241,210,.35))}
+.nav button i svg.moon{width:20px;height:20px}
+#tabbar button.on .i svg.moon,.nav button.on i svg.moon{filter:drop-shadow(0 0 3px rgba(255,241,210,.6))}
+.koan{display:flex;flex-direction:column;align-items:center;gap:10px;margin:26px auto 0;max-width:300px;font:400 12.5px/1.8 var(--f-sans);letter-spacing:.04em;color:rgba(214,224,255,.62)}
+.koan svg.moon{width:44px;height:44px;color:rgba(200,182,240,.75);filter:drop-shadow(0 0 14px rgba(255,241,210,.28))}
+
+/* จุดกำลังคิด: ดาวเย็น-อุ่น-เย็น */
+.thinking i{background:var(--sky);box-shadow:0 0 8px var(--sky)}
+.thinking i:nth-child(2){background:var(--peach);box-shadow:0 0 8px var(--peach)}
+.thinking i:nth-child(3){background:var(--lilac);box-shadow:0 0 8px var(--lilac)}
+
 /* ── มือถือ: ปุ่มต้องใหญ่พอให้นิ้วกด (≥ 36–44px) ─────────────────── */
 .bubble a.tel{color:var(--gold-hi);font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
 @media (max-width:899px){
@@ -512,6 +577,17 @@ dialog.axis::backdrop{background:transparent}
 </style>
 </head>
 <body data-veil="0" data-view="chat">
+<!-- พระจันทร์ขโมยไม่ได้: วงเอ็นโซหมึกล้อมความว่าง กับจันทร์เสี้ยวนวลที่ยังอยู่ตรงนั้นเสมอ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <radialGradient id="ink-void" cx="44%" cy="42%" r="62%"><stop offset="0" stop-color="#3a3352" stop-opacity=".95"/><stop offset=".72" stop-color="#14111f" stop-opacity=".92"/><stop offset="1" stop-color="#14111f" stop-opacity="0"/></radialGradient>
+  <mask id="enso-gap"><rect width="32" height="32" fill="#fff"/><polygon points="16,16 32,7.5 32,23" fill="#000"/></mask>
+  <mask id="cres-cut"><rect width="32" height="32" fill="#fff"/><circle cx="13.2" cy="13.4" r="7.2" fill="#000"/></mask>
+  <symbol id="moon-enso" viewBox="0 0 32 32">
+    <circle cx="16" cy="16" r="10.6" fill="url(#ink-void)"/>
+    <path d="M4 16a12 12 0 1 0 24 0a12 12 0 1 0-24 0ZM6.1 15.8a10.6 10.6 0 1 0 21.2 0a10.6 10.6 0 1 0-21.2 0Z" fill="currentColor" fill-rule="evenodd" mask="url(#enso-gap)"/>
+    <circle class="cres" cx="16.6" cy="16.2" r="7" fill="#fff1d2" mask="url(#cres-cut)"/>
+  </symbol>
+</defs></svg>
 <canvas id="galaxy" aria-hidden="true"></canvas>
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div id="veil"></div>
@@ -525,14 +601,14 @@ dialog.axis::backdrop{background:transparent}
       <canvas id="brand-mark" width="72" height="72" aria-hidden="true"></canvas>
       <div><b>KING DIADEM</b></div>
     </div>
-    <button type="button" class="btn ghost block" id="new-chat">＋ แชทใหม่</button>
+    <button type="button" class="btn ghost block" id="new-chat">✧ แชทใหม่</button>
     <input id="chat-search" class="hide" type="search" aria-label="ค้นหาแชท">
     <div id="sessions" role="list"></div>
     <nav class="nav">
-      <button type="button" data-view="chat"><i>◇</i>ปรึกษา<span class="k">/run</span></button>
+      <button type="button" data-view="chat"><i><svg class="moon" aria-hidden="true"><use href="#moon-enso"/></svg></i>ปรึกษา<span class="k">/run</span></button>
       <button type="button" data-view="universe"><i>✦</i>จักรวาล<span class="k" id="nav-stars">0</span></button>
-      <button type="button" data-view="tools"><i>⌗</i>เครื่องมือ<span class="k">sim</span></button>
-      <button type="button" data-view="system"><i>Σ</i>ระบบ<span class="k" id="nav-files">272</span></button>
+      <button type="button" data-view="tools"><i>☁</i>เครื่องมือ<span class="k">sim</span></button>
+      <button type="button" data-view="system"><i>☼</i>ระบบ<span class="k" id="nav-files">272</span></button>
     </nav>
     <div class="account">
       <select id="lang-pick" class="acc-link" aria-label="ภาษา / Language" data-i18n-skip>
@@ -566,6 +642,7 @@ dialog.axis::backdrop{background:transparent}
           <div id="core-space" aria-hidden="true"></div>
           <h1>KING DIADEM</h1>
           <button type="button" class="axiom" data-axis>Choice(t) ≥ 1 → collapse = False</button>
+          <p class="koan"><svg class="moon" aria-hidden="true"><use href="#moon-enso"/></svg><span>หัวขโมยทิ้งมันไว้เบื้องหลัง: ดวงจันทร์ที่หน้าต่าง</span></p>
         </div>
         <div id="msgs" aria-live="polite"></div>
       </div>
@@ -684,10 +761,10 @@ dialog.axis::backdrop{background:transparent}
 </div>
 
 <nav id="tabbar" aria-label="แท็บ">
-  <button type="button" data-view="chat"><span class="i">◇</span>ปรึกษา</button>
+  <button type="button" data-view="chat"><span class="i"><svg class="moon" aria-hidden="true"><use href="#moon-enso"/></svg></span>ปรึกษา</button>
   <button type="button" data-view="universe"><span class="i">✦</span>จักรวาล</button>
-  <button type="button" data-view="tools"><span class="i">⌗</span>เครื่องมือ</button>
-  <button type="button" data-view="system"><span class="i">Σ</span>ระบบ</button>
+  <button type="button" data-view="tools"><span class="i">☁</span>เครื่องมือ</button>
+  <button type="button" data-view="system"><span class="i">☼</span>ระบบ</button>
 </nav>
 
 <!-- ── STATE DIALOG ──────────────────────────────────────── -->
@@ -1772,7 +1849,7 @@ async function send(textArg){
   inp.value = ''; autosize(); renderAll();
   busy = true; $('#send').disabled = true; Cosmos.thinking(true);
   window.dispatchEvent(new CustomEvent('KD:thinking', { detail:{ on:true } }));
-  var th = document.createElement('div'); th.className = 'm a'; th.innerHTML = '<div class="who"><span class="' + (mode==='vega'?'vega':mode==='crisis'?'crisis':mode==='council'?'council':'lyla') + '">' + (mode==='vega'?'VEGA':mode==='crisis'?'HALT':mode==='council'?'สภา 5 เสียง':'LYLA') + '</span><span class="tag">กำลังคิด…</span></div><div class="thinking"><i></i><i></i><i></i></div>';
+  var th = document.createElement('div'); th.className = 'm a'; th.innerHTML = '<div class="who"><span class="' + (mode==='vega'?'vega':mode==='crisis'?'crisis':mode==='council'?'council':'lyla') + '">' + (mode==='vega'?'VEGA':mode==='crisis'?'HALT':mode==='council'?'สภา 6 เสียง':'LYLA') + '</span><span class="tag">กำลังคิด…</span></div><div class="thinking"><i></i><i></i><i></i></div>';
   $('#msgs').appendChild(th); scrollBottom();
   var body = { input:text, route:Route, voice_mode:mode, voice_hint:voiceHint(mode), history:history,
     context: Object.assign({ client_voice:mode, tone_notes:voiceHint(mode), route_ui:Route }, state) };
