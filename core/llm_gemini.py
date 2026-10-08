@@ -614,7 +614,9 @@ def detect_crisis(text: str) -> bool:
     # "เพื่อนบอกว่าอยากตาย" ไม่ใช่วิกฤตของผู้ใช้เอง — CRISIS_SYSTEM จะคุยกับเขาเหมือนเขาอยากตาย
     if not text:
         return False
-    if _kw_hit(strip_third_party(text), _CRISIS_KW):
+    from core.thai_signals import normalize_mixed
+    from core.lang_signals import strip_someone_intl
+    if _kw_hit(strip_someone_intl(strip_third_party(normalize_mixed(text))), _CRISIS_KW):
         return True
     # ตัวตรวจกลางเดียวกับที่ใช้เลือกเส้นทางและ Risk — ไม่ให้ prompt กับ Risk ขัดกัน
     try:

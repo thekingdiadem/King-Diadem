@@ -148,7 +148,7 @@ def detect_harm_intent(text: str) -> dict:
     A64 — ระบบต้องทำให้การทำร้ายสัตว์ยากโดยอัตโนมัติ
     """
     if not text:
-        return {"harm_detected": False, "harm_type": None}
+        return {"harm_detected": False, "harm_type": None, "halt": False}   # เดิมขาด "halt" → ข้อความว่างทำ full_assessment ล้ม
 
     t          = _IDIOM_RE.sub(" ", str(text or "").lower())
     harm_found = []

@@ -4,7 +4,7 @@
 # คง evaluate_risk(text) ไว้เพื่อ backward compat
 from __future__ import annotations
 import re
-from core.thai_signals import (NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, SELF_HARM_INDIRECT, SELF_HARM_WARNING, SELF_INJURY,
+from core.thai_signals import (normalize_mixed, reported_clauses, NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, SELF_HARM_INDIRECT, SELF_HARM_WARNING, SELF_INJURY,
                                OVERDOSE, THIRD_PARTY_CRISIS, strip_third_party, has as _has)
 from core.lang_signals import SELF_HARM_INTL
 
@@ -37,11 +37,19 @@ def evaluate_risk(text: str) -> dict:
     ("เหลือ 500 บาท" = เสี่ยง, "know" ติด "now") และ "ตาย" แบบ substring ได้แค่ +3 (ระดับกลาง)
     ตอนนี้: สัญญาณทำร้ายตัวเอง = critical ทันที
     """
-    t = str(text or "").casefold()
+    t = normalize_mixed(text).casefold()
     score = 0
     # "เพื่อนบอกว่าอยากตาย" = ผู้ใช้กำลังช่วยคนอื่น ไม่ใช่ผู้ใช้อยากตายเอง — ดูสัญญาณของตัวผู้ใช้จากส่วนที่เหลือ
-    third_party = bool(THIRD_PARTY_CRISIS.search(t))
+    clauses = reported_clauses(t)
+    third_party = bool(THIRD_PARTY_CRISIS.search(t)) or any(_has(c, k) for c in clauses for k in _SELF_HARM)
     own = strip_third_party(t) if third_party else t
+    # ภาษาอื่น: "我朋友说他想自杀" "친구가 죽고 싶대" = คนอื่นอยากตาย ไม่ใช่ผู้ใช้
+    try:
+        from core.lang_signals import strip_someone_intl, urgent_intl
+        if any(k == "someone" for k, _ in urgent_intl(t, "all")):
+            third_party, own = True, strip_someone_intl(own)
+    except Exception:
+        pass
     self_harm = any(_has(own, k) for k in _SELF_HARM)
     if self_harm:
         score += 6
