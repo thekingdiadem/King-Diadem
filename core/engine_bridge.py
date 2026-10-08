@@ -97,7 +97,7 @@ def parse_debts(text: str) -> list:
         amts = _amounts(seg)
         if not amts:
             continue
-        rate_m = re.search(r"(\d+(?:\.\d+)?)\s*(?:%|เปอร์เซ็นต์)", seg)
+        rate_m = re.search(r"(?<![\d.])(\d+(?:\.\d+)?)\s*(?:%|เปอร์เซ็นต์)", seg)
         rate, assumed = None, False
         if rate_m:
             rate = float(rate_m.group(1))
@@ -127,7 +127,7 @@ def _debt(text: str) -> dict | None:
         if not _INFORMAL.search(text):
             return None
         t = _PCT_TH.sub(r"\1%", text)
-        m = re.search(r"(\d+(?:\.\d+)?)\s*(?:%|เปอร์เซ็นต์)\s*(ต่อเดือน|/เดือน|เดือนละ|ต่อวัน|/วัน|วันละ)?", t)
+        m = re.search(r"(?<![\d.])(\d+(?:\.\d+)?)\s*(?:%|เปอร์เซ็นต์)\s*(ต่อเดือน|/เดือน|เดือนละ|ต่อวัน|/วัน|วันละ)?", t)
         lines = []
         if m:
             per = m.group(2) or ""
@@ -173,7 +173,7 @@ def _debt(text: str) -> dict | None:
 def _runway(text: str) -> dict | None:
     # เงินที่ "เหลือ" จริง — ไม่ใช่ "มีเงินเดือน 15,000" / "มีเงินเก็บ" และไม่ใช่ "เหลือแค่ 2 มื้อ" "เหลืออยู่ 3 วัน"
     money = _after(text, r"เหลือเงิน|เงินเหลือ|เงินติดตัว|มีเงิน(?:อยู่)?(?:แค่|เหลือ)|เหลือ(?:แค่|อยู่)?(?=\s*\d[\d,]*\s*บาท)")
-    meals_m = re.search(r"(\d+)\s*(?:มื้อ|ซอง|ห่อ|กล่อง)", text)
+    meals_m = re.search(r"(?<![\d.])(\d+)\s*(?:มื้อ|ซอง|ห่อ|กล่อง)", text)
     water_m = re.search(r"น้ำ\D{0,8}?(\d+(?:\.\d+)?)\s*(?:ลิตร|ขวด)", text)
     no_shelter = bool(re.search(r"ไม่มีที่อยู่|ไม่มีที่นอน|นอนข้างถนน|ถูกไล่ออกจากบ้าน|ไม่มีที่พัก", text))
     if money is None and not meals_m and not water_m:
