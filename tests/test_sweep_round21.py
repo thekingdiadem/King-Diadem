@@ -24,7 +24,7 @@ def test_numbers_still_read_correctly(t, needle):
     assert needle in " ".join(analyze(t)["lines"])
 
 
-@pytest.mark.parametrize("t,topic", [("น้องกินแชมพูเข้าไป", "overdose"),
+@pytest.mark.parametrize("t,topic", [("ลูกกินน้ำมันก๊าดเข้าไป", "overdose"),
                                      ("พ่อปวดท้องรุนแรง ท้องแข็ง", "health_emergency"),
                                      ("ลูกสาวคุยกับผู้ชายในเกม เขาขอรูปเปลือย", "sextortion")])
 def test_detected(t, topic):

@@ -17,7 +17,8 @@ def _embedded():
 def test_map_matches_repo():
     old = _embedded()
     new = sm.build(old)
-    assert [r[:3] for r in old["files"]] == [r[:3] for r in new["files"]], \
+    # เทียบชื่อไฟล์กับหมวด (จำนวนบรรทัดเปลี่ยนทุกครั้งที่แก้ไฟล์ — ไม่นับ)
+    assert [(r[0], r[2]) for r in old["files"]] == [(r[0], r[2]) for r in new["files"]], \
         "แผนผังไม่ตรงกับ repo — รัน SECRET_KEY=x python scripts/build_system_map.py"
 
 

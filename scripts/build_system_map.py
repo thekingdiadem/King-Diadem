@@ -167,7 +167,7 @@ def main() -> int:
     old = json.loads(m.group(2))
     new = build(old)
     if "--check" in sys.argv:
-        same = [r[:3] for r in old.get("files", [])] == [r[:3] for r in new["files"]]
+        same = [(r[0], r[2]) for r in old.get("files", [])] == [(r[0], r[2]) for r in new["files"]]
         print("แผนผังตรงกับ repo" if same else "แผนผังไม่ตรงกับ repo — รัน scripts/build_system_map.py")
         return 0 if same else 1
     payload = json.dumps(new, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")

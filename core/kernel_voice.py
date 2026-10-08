@@ -25,7 +25,8 @@ from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAP
                                MISSING_PERSON, LABOR_RIGHTS, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
                                HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE,
-                               PET_POISON, strip_pet_poison, ADULT_INVITE)
+                               PET_POISON, strip_pet_poison, ADULT_INVITE,
+                               CHILD_HOUSEHOLD, SLEEPLESS)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl
 from core.engine_bridge import analyze as bridge_analyze, rank_options
 
@@ -111,6 +112,15 @@ TOPICS = [
             f"ถ้าตั้งใจทำร้ายตัวเอง บอกเจ้าหน้าที่ตรงๆ ได้ และหลังจากนี้คุยต่อได้ที่ {HOTLINE_MENTAL} — คุณไม่ต้องผ่านเรื่องนี้คนเดียว",
         ],
         "ask": "ตอนนี้มีใครอยู่ใกล้ตัวที่ช่วยพาไปโรงพยาบาลได้บ้าง?",
+    }),
+    ("household", [CHILD_HOUSEHOLD], {
+        "open": ["ส่วนใหญ่ไม่อันตรายมากถ้ากินไปนิดเดียว — แต่ถามผู้เชี่ยวชาญก่อนดีที่สุด"],
+        "paths": [
+            f"โทรศูนย์พิษวิทยา {HOTLINE_POISON} (24 ชม.) บอกชื่อสินค้า กินไปเท่าไหร่ และอายุ/น้ำหนักของเด็ก — เขาจะบอกว่าต้องไปโรงพยาบาลไหม",
+            "เช็ดปากและให้จิบน้ำนิดหน่อย อย่าทำให้อาเจียนเอง · เก็บขวดหรือฉลากไว้ใกล้ตัว",
+            f"ถ้าไอไม่หยุด หายใจลำบาก ซึม หรืออาเจียนไม่หยุด โทร {HOTLINE_EMS} ทันที",
+        ],
+        "ask": "เด็กกินไปประมาณเท่าไหร่ และตอนนี้มีอาการอะไรบ้างไหม?",
     }),
     ("pet_poison", [PET_POISON], {
         "open": ["รีบหน่อยนะ — เรื่องนี้รอดูอาการไม่ได้"],
@@ -311,6 +321,8 @@ TOPICS = [
              "ผึ้ง/ต่อต่อย: ขูดเหล็กไนออกด้วยขอบบัตร (อย่าบีบ) ล้างแผล ประคบเย็น · ถูกต่อยหลายตัว ต่อยที่คอ/ปาก หรือหน้าบวม หายใจลำบาก เวียนหัว — โทร 1669 ทันที"),
             ([re.compile(r"งู|snake")],
              "งูกัด: อยู่นิ่งๆ ดามส่วนที่ถูกกัดไม่ให้ขยับ ให้อยู่ต่ำกว่าหัวใจ · ห้ามกรีด ห้ามดูดพิษ ห้ามขันชะเนาะ · จำลักษณะงูไว้ถ้าทำได้อย่างปลอดภัย"),
+            ([re.compile(r"(?:ไข้|หนาวสั่น|บวมแดง|มีหนอง)[^\n]*?(?:กัด|ข่วน)|(?:กัด|ข่วน)[^\n]*?(?:ไข้|หนาวสั่น|บวมแดง|มีหนอง)")],
+             "มีไข้ หนาวสั่น หรือแผลบวมแดงหลังโดนสัตว์กัด/ข่วน อาจติดเชื้อ (เช่น ไข้หนูกัด เลปโตสไปโรซิส) — ไปโรงพยาบาลวันนี้ บอกหมอว่าโดนอะไรกัดและเมื่อไหร่"),
             ([re.compile(r"หมา|สุนัข|แมว|ลิง|หนู|dog")],
              "ล้างแผลด้วยสบู่กับน้ำไหลผ่านนานๆ อย่างน้อย 15 นาที แล้วไปโรงพยาบาลวันนี้เพื่อฉีดวัคซีนพิษสุนัขบ้า — แม้แผลเล็กหรือแค่ข่วน"),
             ([re.compile(r"ลวก|ไหม้|กระเด็น|burn")],
@@ -418,6 +430,15 @@ TOPICS = [
             "ลองกินมื้อเล็กๆ ตามเวลาเดิมทุกวันกับคนที่ไว้ใจ แทนการอดแล้วกินมากทีเดียว และเลี่ยงการชั่งน้ำหนักบ่อย",
         ],
         "ask": "ตอนนี้มีใครที่รู้เรื่องนี้และอยู่ข้างคุณบ้างไหม?",
+    }),
+    ("sleepless", [SLEEPLESS], {
+        "open": ["ไม่ได้นอนหลายวันทำให้ทั้งร่างกายและใจล้ามาก — ความรู้สึกแปลกๆ ตอนนี้อาจมาจากตรงนี้"],
+        "paths": [
+            "คืนนี้ขอแค่ได้พัก: ปิดจอ ห้องมืด เงียบ ไม่ต้องบังคับให้หลับ แค่นอนพักก็ได้ · เลี่ยงกาแฟ เครื่องดื่มชูกำลัง และแอลกอฮอล์",
+            "ไม่ได้นอนเกิน 2–3 คืน หรือเริ่มได้ยินเสียง เห็นภาพ ใจเต้นแรง คิดเร็วจนหยุดไม่ได้ — ไปพบแพทย์เร็วที่สุด",
+            f"ถ้ามีความคิดทำร้ายตัวเองหรือรู้สึกควบคุมตัวเองไม่ได้ โทร {HOTLINE_MENTAL} (24 ชม.) หรือ {HOTLINE_EMS}",
+        ],
+        "ask": "ตอนนี้มีอะไรที่ทำให้นอนไม่ได้ — ความคิด งาน หรือร่างกาย?",
     }),
     ("psychosis", [PSYCHOSIS], {
         "open": ["ขอบคุณที่บอกนะ สิ่งที่เจอคงทำให้กลัวและเหนื่อยมาก"],
@@ -927,12 +948,12 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("overdose", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("overdose", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
