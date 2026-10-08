@@ -68,3 +68,16 @@ def test_validate_output_records_option_limit():
     assert validate_output({"ai_response": five})["canon_check"]["options_within_limit"] is False
     three = "\n".join(f"{i}. ทางที่ {i}" for i in range(1, 4))
     assert validate_output({"ai_response": three})["canon_check"]["options_within_limit"] is True
+
+
+def test_thai_canon_matches_articles():
+    """CANON_TH.md (ต้นฉบับ) กับ ARTICLES ในโค้ดต้องมีมาตราชุดเดียวกัน 0–15"""
+    import os
+    import re
+    from core.cosmic_latte_canon import ARTICLES
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "CANON_TH.md")
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+    numbers = [int(n) for n in re.findall(r"(?m)^## มาตรา (\d+) —", text)]
+    assert numbers == sorted(ARTICLES) == list(range(16))
+    assert r"Alive(t) \iff Choices(t) \ge 1" in text

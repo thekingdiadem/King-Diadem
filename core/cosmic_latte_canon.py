@@ -2,6 +2,7 @@
 core/cosmic_latte_canon.py
 COSMIC LATTE SYSTEM CANON v1.1
 Author: Nithikorn Bunsrang
+ต้นฉบับภาษาไทยตัวเต็ม: CANON_TH.md (ARTICLES ข้างล่างเป็นสรุปภาษาอังกฤษของมาตรา 0–15)
 
 การเปลี่ยนแปลงจาก v1.0:
 + validate_output() — ตรวจ result ก่อน return ให้ user
