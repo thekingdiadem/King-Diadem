@@ -10,7 +10,8 @@
 
 ---
 
-ตอนนี้เว็บ Render ปิดอยู่ เพราะยังไม่มีค่าเซิร์ฟเวอร์ 💸 ทักงานได้ตรงที่ Instagram หรือ Fastwork — รับสร้างระบบ AI / decision infrastructure แบบนี้โดยตรง
+ลองใช้ได้ที่ [king-diadem.onrender.com](https://king-diadem.onrender.com) (เว็บฟรีบน Render — ถ้าไม่มีคนใช้สักพัก ครั้งแรกอาจโหลดช้าราว 1 นาที)
+ทักงานได้ที่ Instagram หรือ Fastwork — รับสร้างระบบ AI / decision infrastructure แบบนี้โดยตรง
 
 [![Website](https://img.shields.io/badge/Website-king--diadem.onrender.com-181717?style=for-the-badge&logo=render&logoColor=white)](https://king-diadem.onrender.com)
 [![Instagram](https://img.shields.io/badge/Instagram-@thekingdiadem-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/thekingdiadem)
@@ -28,7 +29,7 @@
 
 พรอมพ์ตั้งต้นของ KING DIADEM เริ่มจากประโยคเดียว: อย่าปล่อยให้ทางเลือกเหลือศูนย์ วันนี้มันไม่ใช่แค่นั้นแล้ว
 
-หลังจากพัฒนาต่อเนื่อง ระบบกลายเป็น **governance kernel แบบ dual-engine** — 274 ไฟล์ (Python 205 ไฟล์), 1,700+ commits, 23+ modules ที่ประกอบด้วย axiom system ตายตัว, kernel คู่ขนานที่ต้องโหวตร่วมกันก่อนตัดสินใจ, severity scale ที่จัดชั้นความเสียหายจริง, และกลไก anti-capture ที่บล็อกไม่ให้แม้แต่ผู้สร้างเองยึดระบบคืนได้ตามใจ
+หลังจากพัฒนาต่อเนื่อง ระบบกลายเป็น **governance kernel ที่มีสภา 6 เสียง** — 341 ไฟล์ (Python 265 ไฟล์), 1,800+ commits, 19 modules ที่ประกอบด้วย axiom system ตายตัว, สภาที่ต้องมองครบทุกมุมก่อนตัดสินใจ, severity scale ที่จัดชั้นความเสียหายจริง, และกลไก anti-capture ที่บล็อกไม่ให้แม้แต่ผู้สร้างเองยึดระบบคืนได้ตามใจ
 
 หัวใจยังเป็นสัจธรรมเดิม แต่ตอนนี้มันรันผ่านเลเยอร์จริง ไม่ใช่แค่คำเตือนลอยๆ
 
@@ -56,17 +57,24 @@ TITAN Section 2 (`titan_choice_existence`) เช็ค 3 เงื่อนไ�
 
 ---
 
-## Dual Kernel: LYLA + VEGA
+## สภา 6 เสียง
 
-ระบบไม่ตัดสินใจด้วยเสียงเดียว LYLA กับ VEGA รันคู่ขนาน แล้วผลต้องผ่าน council vote ก่อนถึงจะส่งกลับมาหาคน
+ระบบไม่ตัดสินใจด้วยเสียงเดียว ทุกเรื่องผ่านสภาที่มองคนละมุม แล้วค่อยส่งกลับมาหาคน — LYLA เป็นเสียงที่คุยกับผู้ใช้ ส่วนอีก 5 เสียงช่วยตรวจอยู่เบื้องหลัง (กดปุ่ม "สภา" บนเว็บเพื่อฟังครบทุกเสียง)
 
-| | **LYLA** | **VEGA** |
+| เสียง | มุมที่มอง | หน้าที่ตอนลงมติ |
 |---|---|---|
-| บทบาท | รับรู้ก่อน อบอุ่น ปลอดภัย | ตรง ไม่มีอารมณ์ปน Downside First |
-| กฎยึด | Enterprise Gates + Waterline | FATE™ Axioms A1–A6 |
-| ข้อห้ามร่วม | ห้ามอ้างมีชีวิตจริง · ห้ามอ้าง memory ถาวร · ห้ามอ้างอำนาจ · ห้ามสร้าง dependency | เหมือนกันทั้งคู่ |
+| **LYLA ◈** | รับรู้ความรู้สึก อยู่เคียงข้าง เปิดทางเลือก | นับทางเลือกที่ยังเหลือ — Choice(t) ≥ 1 |
+| **VEGA ◆** | Downside-first ตรรกะ deterministic | ความเสี่ยงสูง → ตั้งรับก่อน |
+| **PATICCA ☸** | ปฏิจสมุปบาท — หาต้นเหตุ ตามสายเหตุปัจจัย | เหตุปัจจัยซ้อนกันจนใกล้ล่ม → หยุดตัดสินใจใหญ่ |
+| **TITAN ▲** | เส้นทางขั้นต่ำที่ทำให้รอดวันนี้ | พื้นขั้นต่ำ: อาหาร ที่พัก waterline |
+| **COSMOS ✦** | ภาพใหญ่ระยะยาว | ความปั่นป่วนสูง → มองยาวก่อนเร่ง |
+| **CIVIL ⬡** | แรงกระเพื่อม — เรื่องนี้ไปถึงใครบ้าง ใครช่วยแบกได้ | อยู่คนเดียว → หาแรงหนุนก่อน |
 
-ถ้าสอง kernel เห็นไม่ตรงกัน ระบบไม่เดาไม่เฉลี่ย — ส่งต่อให้ human ตัดสินใจทันที ไม่มีทางที่ AI ตัวเดียวตัดสินใจแทนคนได้
+ข้อห้ามร่วมทุกเสียง: ห้ามอ้างว่ามีชีวิตจริง · ห้ามอ้าง memory ถาวร · ห้ามอ้างอำนาจ · ห้ามสร้าง dependency
+
+ถ้าสภาเห็นไม่ตรงกัน ระบบไม่เดาไม่เฉลี่ย — หยุดแล้วส่งต่อให้คนตัดสินใจ ไม่มีทางที่ AI ตัวเดียวตัดสินใจแทนคนได้
+
+เมื่อข้อความมีสัญญาณอันตราย (อยากทำร้ายตัวเอง เจ็บป่วยฉุกเฉิน ภัยพิบัติ มิจฉาชีพ ฯลฯ) ระบบจับด้วยกฎที่ตรวจสอบได้ก่อนถึง AI แล้วให้เบอร์สายด่วนที่ตรงเรื่องทันที — ถึง AI ล่มก็ยังตอบได้
 
 FATE™ Axioms ที่ VEGA ยึดตายตัว: Logic over Persona · Rule over Authority · Determinism (input เดิม = output เดิมเสมอ) · Downside Before Upside · Explainability = 100% · และข้อสุดท้ายที่แก้ไม่ได้เด็ดขาด — **Human retains Final Authority**
 
@@ -103,13 +111,14 @@ override ทุกครั้งต้องมีครบ: evidence file, ผ
 ## เบื้องหลังทางเทคนิค
 
 ```
-Human Input → FATE™ Decision Engine → Multi-AI Council (LYLA + VEGA)
+Human Input → ตัวจับสัญญาณอันตราย (deterministic) → FATE™ Decision Engine → สภา 6 เสียง
 → ตรวจ Waterline (food/water/shelter) → คำนวณ O (ทางเลือกจริงที่เหลือ)
 → ส่งทางเลือกกลับมาอย่างน้อย 1 ทาง ที่ผ่านทั้ง survivable + escapable + unpunished
 ```
 
 **Stack:** FastAPI · Python · Gemini · SQLite · HTML/JS/CSS · Render
-**Scale:** 274 ไฟล์ (Python 205) · 1,700+ commits · 23+ modules (core, ENGINE, DOMAINS, KERNEL, PERSONA, SECURITY, WORLD_MODEL, SIMULATIONS, AI, AI_KERNEL, AUTH, DATABASE, PAYMENT, NETWORK ฯลฯ)
+**Scale:** 341 ไฟล์ (Python 265) · 1,800+ commits · 19 modules (core, ENGINE, DOMAINS, KERNEL, PERSONA, SECURITY, WORLD_MODEL, SIMULATIONS, AI, AI_KERNEL, AUTH, DATABASE, PAYMENT, NETWORK ฯลฯ)
+**ภาษา:** ไทยเป็นหลัก · จับเรื่องเร่งด่วนได้ในภาษาอังกฤษ จีน ญี่ปุ่น เกาหลี สเปน
 
 หน้าเว็บมี galaxy visualization แบบ canvas ที่แปลงเส้นทางการตัดสินใจให้เห็นเป็นภาพจริง ไม่ใช่แค่ text output
 
@@ -119,10 +128,13 @@ Human Input → FATE™ Decision Engine → Multi-AI Council (LYLA + VEGA)
 
 ```
 pip install -r requirements-dev.txt
-pytest
+pytest                          # เทสต์ทั้งหมด ~1,480 ข้อ
+python scripts/eval_corpus.py   # วัดผลกับประโยคจริง 459 ประโยค
 ```
 
-ชุดทดสอบใน `tests/` ไม่ใช้เน็ตและไม่เสียค่า AI (Gemini เป็นตัวปลอม) ครอบคลุม: วลีไทยที่ต้องดูบริบท, ตัวจับวิกฤตทุกตัว, จับเจตนา, คำตอบจากสมการเมื่อไม่มี AI, โควตา/เครดิต/ล็อกอิน และ Stripe webhook
+ชุดทดสอบใน `tests/` ไม่ใช้เน็ตและไม่เสียค่า AI (Gemini เป็นตัวปลอม) ครอบคลุม: วลีไทยที่ต้องดูบริบท, ตัวจับวิกฤตทุกตัว, จับเจตนา, คำตอบจากสมการเมื่อไม่มี AI, การพักวงจรตอน AI ล่ม, โควตา/เครดิต/ล็อกอิน และ Stripe webhook
+
+`tests/corpus/messages.tsv` คือประโยคที่คนพิมพ์จริงพร้อมผลที่ควรได้ — เจอประโยคที่ระบบพลาด ให้เพิ่มลงไฟล์นี้ก่อนแก้
 
 ---
 
@@ -136,11 +148,13 @@ pytest
 
 ## Support
 
-
 จ้างงานได้ที่ [Fastwork](https://fastwork.co/user/thekingdiadem) หรือทักผ่าน [Instagram](https://www.instagram.com/thekingdiadem)
 
 ---
 
 ## License
 
-AGPL. Open governance framework. No proprietary claim. Not for profit. Use it to survive.
+[GNU AGPL-3.0](LICENSE) — ใครเอาไปเปิดเป็นบริการ ต้องเปิดซอร์สโค้ดให้ผู้ใช้ด้วย
+ลิขสิทธิ์และเจตนารมณ์ของผู้สร้างอยู่ใน [NOTICE](NOTICE)
+
+Open governance framework. No proprietary claim. Not for profit. Use it to survive.
