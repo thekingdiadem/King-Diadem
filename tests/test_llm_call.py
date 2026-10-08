@@ -87,3 +87,29 @@ def test_model_that_rejects_thinking_config_is_retried_plain():
     llm = make([ValueError("400 thinking_level is not supported"), (FULL, "FinishReason.STOP")],
                model="gemini-flash-latest", chain=())
     assert call(llm) == FULL and llm.client.models.configs[1].thinking_config is None
+
+
+def test_outage_trips_breaker_so_next_users_dont_wait(monkeypatch):
+    """Gemini ล่มแบบ 503 (ไม่ใช่โควตา) — เดิมทุกข้อความรอได้ถึง 45 วินาที เพราะไม่เคยพักวงจร"""
+    monkeypatch.setattr(L.time, "sleep", lambda s: None)
+    monkeypatch.setattr(L, "_ai_down_until", 0.0)
+    L._fail_times.clear()
+    boom = [RuntimeError("503 Service Unavailable")] * 8
+    for _ in range(2):
+        llm = make(list(boom), chain=("gemini-2.0-flash-lite",))
+        call(llm)
+        assert L._tls.fallback
+    assert L.ai_disabled()                                  # ล้มทั้งชุด 2 ครั้ง → พักสั้นๆ
+    llm = make([(FULL, "FinishReason.STOP")])
+    call(llm)
+    assert llm.client.models.models == []                  # คนถัดไปไม่ต้องรอ Gemini เลย
+    monkeypatch.setattr(L, "_ai_down_until", 0.0)
+
+
+def test_single_failure_does_not_trip_breaker(monkeypatch):
+    monkeypatch.setattr(L.time, "sleep", lambda s: None)
+    monkeypatch.setattr(L, "_ai_down_until", 0.0)
+    L._fail_times.clear()
+    call(make([RuntimeError("503")] * 4, chain=("gemini-2.0-flash-lite",)))
+    assert not L.ai_disabled()
+    L._fail_times.clear()

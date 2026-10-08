@@ -57,6 +57,23 @@ def ai_disabled() -> bool:
     return time.time() < _ai_down_until
 
 
+# ตัดวงจรเมื่อ Gemini ล่มแบบอื่น (500/503/ค้าง) — เดิมพักเฉพาะตอนโควตาหมด
+# ระหว่างที่ Gemini ล่ม ทุกข้อความต้องรอได้ถึง LLM_CALL_BUDGET_S (45 วินาที) ก่อนได้คำตอบจากสมการ
+_fail_times: list = []
+
+
+def _note_total_failure():
+    """ล้มทั้งชุด (ทุกรุ่น ทุก key) 2 ครั้งภายใน 2 นาที → พัก AI สั้นๆ ให้คนถัดไปได้คำตอบทันที"""
+    now = time.time()
+    with _ai_down_lock:
+        _fail_times[:] = [t for t in _fail_times if now - t < 120] + [now]
+        tripped = len(_fail_times) >= 2
+        if tripped:
+            _fail_times.clear()
+    if tripped:
+        _mark_ai_down(float(os.getenv("AI_ERROR_COOLDOWN_S", "60")))
+
+
 def _mark_ai_down(seconds: float):
     global _ai_down_until
     with _ai_down_lock:
@@ -845,6 +862,8 @@ class GeminiLLM:
         if quota_hits:
             # เงิน/โควตาหมด: หยุดเรียก AI ชั่วคราว ข้อความถัดไปได้คำตอบจากสมการทันที
             _mark_ai_down(float(os.getenv("AI_QUOTA_COOLDOWN_S", "900")))
+        else:
+            _note_total_failure()
         _tls.fallback = True
         return self._fallback_response(system, prompt_text)
 
