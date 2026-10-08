@@ -16,7 +16,9 @@ def test_thinking_label_matches_council_size():
 
 def test_tab_icons_alternate_cool_and_warm():
     tabbar = re.search(r'<nav id="tabbar".*?</nav>', HTML, re.S).group(0)
-    assert re.findall(r'<span class="i">(.)</span>', tabbar) == ["☾", "✦", "☁", "☼"]
+    icons = re.findall(r'<span class="i">(.*?)</span>', tabbar)
+    assert '<use href="#moon-enso"/>' in icons[0] and icons[1:] == ["✦", "☁", "☼"]   # ☾ = พระจันทร์หมึก (SVG)
+    assert '<symbol id="moon-enso"' in HTML
     assert "#tabbar button:nth-child(odd) .i" in HTML and "#tabbar button:nth-child(even) .i" in HTML
 
 
