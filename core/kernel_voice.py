@@ -21,7 +21,7 @@ import re
 from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
-                               FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, DRUNK_DRIVING,
+                               FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
                                MISSING_PERSON, LABOR_RIGHTS, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
                                HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE)
@@ -929,7 +929,9 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     # "เพื่อนบอกว่าอยากตาย" → ผู้ใช้กำลังช่วยคนอื่น: วิกฤตของผู้ใช้ดูจากส่วนที่เหลือของข้อความ
     own = strip_third_party(t) if (THIRD_PARTY_CRISIS.search(t) or tr.get("third_party")) else t
     crisis = bool(tr.get("self_harm")) or _hit(own, CRISIS_PHRASES)
-    topics = [name for name, phrases, _ in TOPICS if _hit(own if name in _OWN_ONLY else t, phrases)]
+    # "พี่เคยทำร้ายเขา … ตอนนี้ไม่มีแล้ว" — ผู้ใช้สารภาพเรื่องเก่า ไม่ใช่คนที่กำลังถูกทำร้าย
+    t_now, own = strip_own_past_harm(t), strip_own_past_harm(own)
+    topics = [name for name, phrases, _ in TOPICS if _hit(own if name in _OWN_ONLY else t_now, phrases)]
     if tr.get("third_party") and "someone" not in topics:      # "เพื่อนบอกว่ากรีดแขน" — คนอื่นกำลังวิกฤต
         topics.insert(0, "someone")
     # ภาษาอื่น (zh ja ko es): เรื่องด่วนเข้าหัวข้อเดียวกับภาษาไทย — "เพื่อนอยากตาย" ไม่ใช่วิกฤตของผู้ใช้เอง
@@ -986,7 +988,7 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     rel = None
     try:
         from core.engine_bridge import _relationship
-        rel = _relationship(text)
+        rel = _relationship(strip_own_past_harm(text))
     except Exception:
         pass
     if rel:

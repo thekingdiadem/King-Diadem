@@ -240,6 +240,8 @@ _REL_ACTION = {
 
 
 def _relationship(text: str) -> dict | None:
+    from core.thai_signals import strip_own_past_harm   # "พี่เคยตีน้อง … ขอโทษนะ" = ผู้ใช้เป็นคนทำ ไม่ใช่ถูกทำ
+    text = strip_own_past_harm(text)
     if not _REL_CTX.search(text):
         return None
     ctx = {k: True for k, rx in _REL_FLAGS.items() if re.search(rx, text)}
