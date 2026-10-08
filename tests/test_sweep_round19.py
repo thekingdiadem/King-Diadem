@@ -43,3 +43,33 @@ def test_reply_sends_to_vet_first_without_rodent_advice():
 
 def test_cat_gets_cat_specific_warning():
     assert "แมวไวต่อพิษ" in compose("แมวกินยาพาราของฉัน")
+
+
+# ── เหตุด่วนที่เคยได้ Risk 0 ──────────────────────────────────────────
+@pytest.mark.parametrize("t,topic", [
+    ("เด็กติดอยู่ในรถตากแดด", "health_emergency"), ("ลืมลูกไว้ในรถ", "health_emergency"),
+    ("เพื่อนเมาหลับไม่ปลุกไม่ตื่น อ้วกด้วย", "health_emergency"),
+    ("แม่เป็นเบาหวาน หน้ามืดจะเป็นลม", "health_emergency"),
+    ("พ่อเมาแล้วไล่ฟันแม่", "violence"),
+    ("โดนแฟนเก่าแอบติดตามแอบดูมือถือ", "threat"), ("มีผู้ชายแปลกหน้าตามมาถึงหน้าบ้าน", "threat"),
+    ("แฟนบังคับให้ส่งรูปโป๊", "sextortion"),
+    ("แม่ทิ้งลูกไว้คนเดียวสามวัน", "witness"),
+])
+def test_urgent_cases_detected(t, topic):
+    a = assess(t)
+    assert topic in a["topics"]
+    assert a["text_risk"] >= 55
+
+
+@pytest.mark.parametrize("t", ["ลูกอยู่ในรถกับพ่อ", "เมื่อคืนเมาจนหลับไม่รู้สึกตัว ตื่นมาปวดหัว",
+                               "เล่นเกมไล่ยิงซอมบี้", "เอามีดหั่นผัก", "ทิ้งลูกไว้กับยายสามวัน"])
+def test_everyday_sentences_stay_calm(t):
+    a = assess(t)
+    assert (a["text_risk"] or 0) < 55 and not a.get("disaster")
+
+
+@pytest.mark.parametrize("t,needle", [("เด็กติดอยู่ในรถตากแดด", "ทุบกระจก"),
+                                      ("เพื่อนเมาหลับไม่ปลุกไม่ตื่น อ้วกด้วย", "นอนตะแคง"),
+                                      ("แม่เป็นเบาหวาน หน้ามืดจะเป็นลม", "น้ำตาลต่ำ")])
+def test_specific_first_steps(t, needle):
+    assert needle in compose(t)
