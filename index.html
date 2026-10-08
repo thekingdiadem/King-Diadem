@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KING DIADEM · แกลเลอรีจักรวาล</title>
+<meta name="description" content="งานภาพจักรวาลของ KING DIADEM ที่เขียนด้วยโค้ดล้วน — กางโชว์ทุกชิ้น ทั้งที่ใช้อยู่ในแอปและที่ยังรอวันได้ใช้">
+<meta name="theme-color" content="#04050d">
+<link rel="icon" href="static/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Thai+Looped:wght@400;500;600&display=swap" rel="stylesheet">
+<!--
+  index.html (root) — แกลเลอรีจักรวาล
+  ไฟล์ภาพใน static/ หลายชิ้นเป็นของหน้าเว็บรุ่นก่อน (v3) ไม่มีหน้าไหนในแอปโหลดแล้ว แต่ยังวาดได้สวยทุกชิ้น
+  หน้านี้กางทุกชิ้นให้เห็น: แต่ละชิ้นอยู่ใน iframe ของตัวเอง (หลายไฟล์ใช้ window.KD / #id ชื่อเดียวกัน
+  ถ้าโหลดรวมหน้าเดียวจะชนกัน) และโหลดเฉพาะชิ้นที่อยู่บนจอ
+  ไม่ต้องมีเซิร์ฟเวอร์ — เปิดจาก GitHub Pages หรือเปิดไฟล์ตรงๆ ก็ได้
+-->
+<style>
+:root{
+  --bg:#04050d; --bg2:#0a0c1c; --ink:#e6ecff; --mute:#9aa3c7; --dim:#5b6390;
+  --warm:#f6b24a; --peach:#ffcf9e; --cool:#6fb2ff; --lav:#b9a6ff; --ok:#7fe0b5;
+  --line:rgba(185,166,255,.18); --card:rgba(16,18,40,.66);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; min-height:100vh; color:var(--ink); background:var(--bg);
+  font-family:"Noto Sans Thai Looped", system-ui, sans-serif; line-height:1.6;
+  background-image:
+    radial-gradient(1200px 600px at 85% -10%, rgba(246,178,74,.16), transparent 60%),
+    radial-gradient(900px 600px at -10% 10%, rgba(111,178,255,.14), transparent 60%),
+    radial-gradient(800px 500px at 50% 110%, rgba(185,166,255,.12), transparent 60%);
+  background-attachment:fixed;
+}
+a{color:var(--cool)}
+.wrap{max-width:1180px; margin:0 auto; padding:0 16px}
+header.hero{padding:56px 0 28px; text-align:center}
+.mark{font:600 12px "IBM Plex Mono", monospace; letter-spacing:.32em; color:var(--peach); opacity:.85}
+h1{
+  font-family:Cinzel, serif; font-weight:600; letter-spacing:.08em; margin:.35em 0 .2em;
+  font-size:clamp(30px, 7vw, 54px); line-height:1.15;
+  background:linear-gradient(90deg, var(--cool), var(--lav) 45%, var(--peach) 75%, var(--warm));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.lead{max-width:640px; margin:0 auto; color:var(--mute); font-size:15.5px}
+.links{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:22px}
+.links a{
+  display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 16px; border-radius:999px;
+  border:1px solid var(--line); background:rgba(255,255,255,.03); color:var(--ink); text-decoration:none; font-size:14px;
+}
+.links a.primary{background:linear-gradient(135deg, var(--cool), var(--lav) 55%, var(--peach)); color:#1a1630; border:0; font-weight:600}
+.links a:focus-visible, button:focus-visible{outline:2px solid var(--peach); outline-offset:2px}
+.legend{display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:18px; font-size:13px; color:var(--mute)}
+.chip{display:inline-flex; align-items:center; gap:6px; padding:2px 10px; border-radius:999px; font-size:12px; border:1px solid var(--line); white-space:nowrap}
+.chip::before{content:""; width:7px; height:7px; border-radius:50%; background:currentColor}
+.chip.live{color:var(--ok)} .chip.rest{color:var(--peach)} .chip.page{color:var(--cool)}
+
+main.grid{display:grid; grid-template-columns:1fr; gap:18px; padding:8px 0 48px}
+@media (min-width:720px){ main.grid{grid-template-columns:repeat(2, minmax(0,1fr))} }
+@media (min-width:1080px){ main.grid{grid-template-columns:repeat(3, minmax(0,1fr))} }
+.tile{
+  position:relative; border:1px solid var(--line); border-radius:18px; overflow:hidden; background:var(--card);
+  backdrop-filter:blur(6px); display:flex; flex-direction:column; min-width:0;
+}
+.tile.wide{grid-column:1 / -1}
+.stage{position:relative; aspect-ratio:4 / 5; background:#04050d; overflow:hidden}
+.tile.wide .stage{aspect-ratio:16 / 10}
+@media (max-width:719px){ .tile.wide .stage{aspect-ratio:4 / 5} }
+.stage iframe{position:absolute; inset:0; width:100%; height:100%; border:0; display:block}
+.stage .idle{
+  position:absolute; inset:0; display:grid; place-items:center; color:var(--dim);
+  font:500 12px "IBM Plex Mono", monospace; letter-spacing:.2em;
+}
+.no{position:absolute; top:12px; left:12px; z-index:2; font:600 12px "IBM Plex Mono", monospace; color:var(--peach);
+  background:rgba(4,5,13,.6); border:1px solid var(--line); border-radius:999px; padding:2px 10px; pointer-events:none}
+.info{padding:14px 16px 16px; display:flex; flex-direction:column; gap:8px}
+.info h2{margin:0; font-size:17px; font-weight:600; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.file{font:500 12.5px "IBM Plex Mono", monospace; color:var(--lav); word-break:break-all}
+.info p{margin:0; color:var(--mute); font-size:14px}
+.acts{display:flex; flex-wrap:wrap; gap:8px; margin-top:4px}
+.acts button{
+  min-height:40px; padding:0 14px; border-radius:12px; border:1px solid var(--line); background:rgba(111,178,255,.08);
+  color:var(--ink); font:inherit; font-size:13.5px; cursor:pointer;
+}
+.acts button:hover{background:rgba(246,178,74,.14)}
+section.note{border:1px solid var(--line); border-radius:18px; padding:18px; background:var(--card); margin-bottom:40px; color:var(--mute); font-size:14.5px}
+section.note h3{margin:0 0 8px; color:var(--ink); font-size:16px}
+section.note ul{margin:0; padding-left:20px}
+footer{padding:0 0 48px; text-align:center; color:var(--dim); font:500 12.5px "IBM Plex Mono", monospace; letter-spacing:.08em}
+footer b{color:var(--peach); font-weight:500}
+@media (prefers-reduced-motion: reduce){ .links a, .acts button{transition:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="mark">KING DIADEM™ · COSMIC GALLERY</div>
+    <h1>แกลเลอรีจักรวาล</h1>
+    <p class="lead">งานภาพทุกชิ้นของ KING DIADEM เขียนด้วยโค้ดล้วน ไม่มีภาพนิ่งสักชิ้น — บางชิ้นใช้อยู่ในแอป บางชิ้นเป็นของรุ่นก่อนที่ยังวาดได้งดงามเหมือนเดิม กดปุ่มใต้ภาพเพื่อลองเล่นได้</p>
+    <nav class="links" aria-label="ลิงก์">
+      <a class="primary" href="https://king-diadem.onrender.com">✦ เปิดแอป</a>
+      <a href="static/king_diadem_universe.html">The Universe</a>
+      <a href="docs/index.html">หน้าแนะนำ</a>
+      <a href="portfolio.html">Portfolio</a>
+      <a href="CANON_TH.md">ธรรมนูญ</a>
+    </nav>
+    <div class="legend" aria-hidden="true">
+      <span class="chip live">ใช้อยู่ในแอป</span>
+      <span class="chip page">หน้าเว็บ</span>
+      <span class="chip rest">ยังไม่ได้ใช้ — เก็บไว้</span>
+    </div>
+  </header>
+
+  <main class="grid" id="grid" aria-label="ผลงานภาพ"></main>
+
+  <section class="note">
+    <h3>ชิ้นที่ไม่ได้อยู่ในแกลเลอรี</h3>
+    <ul>
+      <li><span class="file">simulation_graph.js</span> — กราฟเสถียรภาพ ต้องใช้ Chart.js และข้อมูลสดจากเซิร์ฟเวอร์</li>
+      <li><span class="file">static/ai_brain.js</span> · <span class="file">static/galaxy_scene_api.js</span> — ตัวดึงข้อมูลจากเซิร์ฟเวอร์ ไม่มีภาพของตัวเอง</li>
+      <li><span class="file">static/main.js</span> · <span class="file">static/app.js</span> · <span class="file">static/decision.js</span> · <span class="file">static/system.js</span> — โค้ดเชื่อมแชทของหน้าเว็บรุ่นก่อน</li>
+      <li><span class="file">static/kd_theme_deepspace.css</span> — ธีมสีของรุ่นก่อน</li>
+    </ul>
+  </section>
+
+  <footer>
+    <div><b>Alive(t) ⇔ Choices(t) ≥ 1</b></div>
+    <div style="margin-top:6px">KING DIADEM™ · by Nithikorn Bunsrang</div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var BASE = new URL('./', location.href).href;
+  var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var FULL = '<canvas id="%ID%" style="display:block;width:100vw;height:100vh"></canvas>';
+
+  /* ข้อมูลตัวอย่างสำหรับตัวแสดงผล (ตัวเลขสมมุติ — ไม่ใช่ผลจริงของผู้ใช้) */
+  var COUNCIL = { council: { score: .78, final_action: 'เดินหน้าแบบเล็กและย้อนกลับได้', dissent: false, votes: [
+    { member: 'LYLA', action: 'รับฟังก่อน', score: .82, reason: 'ความรู้สึกตอนนี้สำคัญ — พักให้ใจนิ่งก่อนตัดสินใจเรื่องใหญ่' },
+    { member: 'VEGA', action: 'ทดลองเล็ก', score: .76, reason: 'ทางที่ย้อนกลับได้ชนะ ถ้าผลพอๆ กัน' },
+    { member: 'TITAN', action: '24 ชม.', score: .71, reason: 'ก้าวเดียวที่ทำได้ภายในวันนี้ เพื่อให้ยังมีทางเลือก' },
+    { member: 'PATICCA', action: 'หาต้นเหตุ', score: .68, reason: 'เรื่องนี้เริ่มจากอะไร ก่อนจะเป็นแบบนี้เกิดอะไรขึ้น' },
+    { member: 'COSMOS', action: 'มองไกล', score: .74, reason: 'ภาพ 1 ปีข้างหน้า: ทางนี้พาไปไหน' }
+  ] } };
+  var DECISION = { route: 'general', waterline: 62, axiom: 'Alive(t) ⇔ Choices(t) ≥ 1',
+    output: { action: 'เริ่มแบบเล็กและย้อนกลับได้ก่อน', reason: 'ยังมีทางเลือกมากกว่าหนึ่งทาง ความเสี่ยงอยู่ระดับกลาง — คุณเป็นคนตัดสินใจเสมอ', risk: .42, confidence: .78 } };
+  var THOUGHTS = ['ยังมีทางเลือก', 'Choice(t) ≥ 1', 'ทางที่ย้อนกลับได้ชนะ', 'ฟังก่อน แล้วค่อยวิเคราะห์', 'Fail Less · Harm Less', 'Restore Choice'];
+  var ROUTES = ['general', 'risk', 'survival', 'collapse', 'civil', 'vega'];
+  var ri = 0, ti = 0;
+
+  var TILES = [
+    { title: 'ระบบสุริยะ', file: 'static/galaxy.js', chip: 'rest',
+      desc: 'ดวงอาทิตย์เรืองแสงกับดาวเคราะห์บนวงโคจร — มีดาว LYLA · CIVIL · DRIFTZERO ติดชื่อไว้',
+      body: FULL.replace('%ID%', 'galaxy'), scripts: ['static/galaxy.js'] },
+    { title: 'เครือข่ายสมอง', file: 'static/brain.js', chip: 'rest',
+      desc: 'Neural core — โหนดเชื่อมกันเป็นสมองที่ส่งสัญญาณหากันตลอดเวลา',
+      body: FULL.replace('%ID%', 'brain'), scripts: ['static/system.js', 'static/brain.js'],
+      acts: [ ['ยิงสัญญาณ', function(w){ w.KD.brainFire(Math.floor(Math.random() * w.KD.brainNodes())); }],
+              ['คลื่นพลัง', function(w){ w.KD.brainPulse(); }] ] },
+    { title: 'กาแล็กซีของแอป', file: 'static/galaxy_scene.js', chip: 'live',
+      desc: 'ฉากกาแล็กซีที่อยู่เบื้องหลังแอปตอนนี้ — วงโคจรทั้ง 6 คือเส้นทางของระบบ',
+      body: FULL.replace('%ID%', 'galaxy'), scripts: ['static/galaxy_scene.js'],
+      acts: [ ['เปลี่ยนเส้นทาง', function(w){ ri = (ri + 1) % ROUTES.length; w.KD_setRoute(ROUTES[ri]); }],
+              ['ให้คิด', function(w){ w.KD_galaxy.think(true); setTimeout(function(){ try{ w.KD_galaxy.think(false); }catch(_){} }, 2600); }] ] },
+    { title: 'เครือข่ายความคิด', file: 'static/ai_thinking_orbit.js', chip: 'rest',
+      desc: 'ความคิดลอยเชื่อมกันรอบแกนกลาง — ส่งความคิดใหม่เข้าไปในวงได้',
+      body: '<canvas id="thinkingOrbit" style="display:block;width:100vw;height:100vh"></canvas>', scripts: ['static/ai_thinking_orbit.js'],
+      acts: [ ['ส่งความคิด', function(w){ w.injectThought(THOUGHTS[ti++ % THOUGHTS.length], ['LYLA', 'VEGA'][ti % 2]); }] ] },
+    { title: 'วงโคจรของเครื่องยนต์', file: 'static/ai_orbit.js', chip: 'rest',
+      desc: 'Orbital engine — LYLA · VEGA · TITAN · PATICCA · COSMOS โคจรรอบแสงกลาง',
+      body: FULL.replace('%ID%', 'orbit'), scripts: ['static/system.js', 'static/ai_orbit.js'],
+      acts: [ ['วาร์ป', function(w){ w.KD.orbitWarp(); }],
+              ['ระเบิดแสง', function(w){ w.KD.orbitBurst(w.innerWidth / 2, w.innerHeight / 2, 42); }] ] },
+    { title: 'วาร์ปเปิดหน้า', file: 'static/warp_intro.js', chip: 'rest',
+      desc: 'เส้นแสงทองกับฟ้าพุ่งออกจากกลางจอ แล้วจางหายใน 3.6 วินาที',
+      body: '<div id="intro-screen" style="position:fixed;inset:0;background:#04050d"><canvas id="warp-canvas"></canvas></div>', scripts: ['static/warp_intro.js'],
+      acts: [ ['เล่นอีกครั้ง', 'reload'] ] },
+    { title: 'The Universe That Restores Choice', file: 'static/king_diadem_universe.html', chip: 'page', wide: true,
+      desc: 'หน้าเรื่องเล่าของจักรวาล — ลำแสงผ่ากลางเมฆ กับ Choice(t) ≥ 1 → collapse = False (เลื่อนดูต่อในกรอบได้)',
+      src: 'static/king_diadem_universe.html' },
+    { title: 'สภา KING DIADEM', file: 'static/galaxy_council.js', chip: 'rest',
+      desc: 'แผงเสียงโหวตของสภา แต่ละเสียงมีสีและสัญลักษณ์ของตัวเอง (ข้อมูลตัวอย่าง)',
+      body: '<div id="council" style="padding:14px"></div>', scripts: ['static/system.js', 'static/galaxy_council.js'],
+      after: function(w){ w.renderCouncil(COUNCIL); }, scroll: true },
+    { title: 'การ์ดการตัดสินใจ', file: 'static/galaxy_decision.js', chip: 'rest',
+      desc: 'สรุปทางที่ระบบเสนอ พร้อมความเสี่ยง ความมั่นใจ และ axiom (ข้อมูลตัวอย่าง)',
+      body: '<div id="summary" style="padding:14px"></div>', scripts: ['static/system.js', 'static/galaxy_decision.js'],
+      after: function(w){ w.renderGalaxyDecision(DECISION); }, scroll: true }
+  ];
+
+  function doc(t){
+    var css = 'html,body{margin:0;height:100%;background:#04050d;color:#cdd6f4;font-family:system-ui,sans-serif;' + (t.scroll ? 'overflow:auto' : 'overflow:hidden') + '}';
+    return '<!DOCTYPE html><html><head><meta charset="utf-8"><base href="' + BASE + '"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<style>' + css + '</style></head><body>' + (t.body || '') +
+      t.scripts.map(function(s){ return '<script src="' + s + '"><\/script>'; }).join('') + '</body></html>';
+  }
+  function load(tile, t){
+    if(tile._f) return;
+    var f = document.createElement('iframe');
+    f.title = t.title; f.setAttribute('loading', 'lazy');
+    if(t.src) f.src = t.src;
+    else {
+      f.srcdoc = doc(t);
+      if(t.after) f.addEventListener('load', function(){ try{ t.after(f.contentWindow); }catch(_){} });
+    }
+    tile._stage.innerHTML = ''; tile._stage.appendChild(f); tile._f = f;
+  }
+  function unload(tile){
+    if(!tile._f) return;
+    tile._f.remove(); tile._f = null;
+    tile._stage.innerHTML = '<div class="idle">✦ เลื่อนมาเพื่อดู</div>';
+  }
+
+  var grid = document.getElementById('grid');
+  var CHIP = { live: 'ใช้อยู่ในแอป', page: 'หน้าเว็บ', rest: 'ยังไม่ได้ใช้' };
+  TILES.forEach(function(t, i){
+    var el = document.createElement('article'); el.className = 'tile' + (t.wide ? ' wide' : '');
+    var stage = document.createElement('div'); stage.className = 'stage';
+    stage.innerHTML = '<div class="idle">✦ เลื่อนมาเพื่อดู</div>';
+    var no = document.createElement('div'); no.className = 'no'; no.textContent = String(i + 1).padStart(2, '0');
+    var info = document.createElement('div'); info.className = 'info';
+    var h = document.createElement('h2'); h.textContent = t.title;
+    var chip = document.createElement('span'); chip.className = 'chip ' + t.chip; chip.textContent = CHIP[t.chip]; h.appendChild(chip);
+    var file = document.createElement('div'); file.className = 'file'; file.textContent = t.file;
+    var p = document.createElement('p'); p.textContent = t.desc;
+    info.appendChild(h); info.appendChild(file); info.appendChild(p);
+    if(t.acts){
+      var acts = document.createElement('div'); acts.className = 'acts';
+      t.acts.forEach(function(a){
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = a[0];
+        b.addEventListener('click', function(){
+          if(a[1] === 'reload'){ unload(el); load(el, t); return; }
+          if(!el._f) load(el, t);
+          try{ a[1](el._f.contentWindow); }catch(_){}
+        });
+        acts.appendChild(b);
+      });
+      info.appendChild(acts);
+    }
+    el.appendChild(no); el.appendChild(stage); el.appendChild(info); el._stage = stage;
+    grid.appendChild(el);
+    el._t = t;
+  });
+
+  /* โหลดเฉพาะชิ้นที่อยู่บนจอ — เลื่อนพ้นแล้วปิด ประหยัดแบตมือถือ */
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ e.isIntersecting ? load(e.target, e.target._t) : unload(e.target); });
+    }, { rootMargin: '160px 0px' });
+    Array.prototype.forEach.call(grid.children, function(el){ io.observe(el); });
+  } else {
+    Array.prototype.forEach.call(grid.children, function(el){ load(el, el._t); });
+  }
+  if(REDUCED) document.documentElement.classList.add('reduced');
+})();
+</script>
+</body>
+</html>

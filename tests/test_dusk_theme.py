@@ -32,3 +32,13 @@ def test_universe_mode_toggle_stays_readable():
     assert ".seg button.on{color:#1a1630}" not in HTML
     assert re.search(r'#u-mode button\[data-m="decisions"\]\.on\{background:var\(--warm\)\}', HTML)
     assert re.search(r'#u-mode button:not\(\[data-m="decisions"\]\)\.on\{background:var\(--cool\)\}', HTML)
+
+
+def test_decisions_universe_is_a_solar_system():
+    """โหมดการตัดสินใจวาดเป็นระบบสุริยะแบบ static/galaxy.js — ดวงอาทิตย์ใจกลาง ดาวเคราะห์ = เส้นทาง"""
+    assert "function drawSun(" in HTML and "function drawPlanets(" in HTML
+    assert "drawPlanets(g, now, true); drawStars(g, now, true); drawSun(g, now)" in HTML
+
+
+def test_universe_links_to_the_universe_page():
+    assert 'class="u-link glass" href="/static/king_diadem_universe.html"' in HTML

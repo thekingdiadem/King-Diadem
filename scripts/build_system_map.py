@@ -24,6 +24,7 @@ _MAP_RE = re.compile(r'(<script type="application/json" id="system-map">)(.*?)(<
 
 # คำอธิบายของไฟล์ที่ยังไม่เคยอยู่ในแผนผัง: [หมวด, คำอธิบาย, ป้าย]
 NEW = {
+    "index.html": ["site", "แกลเลอรีจักรวาล — กางงานภาพทุกชิ้นใน static/ ให้ดูและกดเล่นได้ (หน้าแรกของ GitHub Pages)", "✦ แกลเลอรี"],
     "CANON_TH.md": ["docs", "ธรรมนูญ SYSTEM CANON ฉบับภาษาไทยตัวเต็มของผู้ก่อตั้ง (มาตรา 0–15)", "🜂 canon ไทย"],
     "legacy/README.md": ["docs", "อธิบายโฟลเดอร์ legacy/ — โค้ดที่ยังไม่มีใครเรียกใช้ และวิธีย้ายกลับ", "▤ legacy"],
     "scripts/__init__.py": ["pkg", "ทำให้ scripts เป็น package (เทสต์ import สคริปต์ได้)", "□ scripts"],
@@ -116,12 +117,24 @@ def boot_modules(mods: dict[str, str]) -> set[str]:
     return {mods[m] for m in loaded if m in mods}
 
 
+def static_refs(files: list[str]) -> set[str]:
+    """ชื่อไฟล์ที่หน้า HTML ใน static/ โหลดผ่าน <script src> / <link href>"""
+    refs = set()
+    for f in files:
+        if f.startswith("static/") and f.endswith(".html"):
+            html = open(os.path.join(ROOT, f), encoding="utf-8").read()
+            html = _MAP_RE.sub("", html)          # ไม่นับชื่อไฟล์ที่อยู่ในข้อมูลแผนผังเอง
+            refs.update(os.path.basename(m) for m in re.findall(r'(?:src|href)="([^"#?]+\.(?:js|css))"', html))
+    return refs
+
+
 def build(old: dict) -> dict:
     files = tracked()
     mods = module_map(files)
     live, edges = reachable("app.py", mods)
     boot = boot_modules(mods)
     prev = {row[0]: row for row in old.get("files", [])}
+    web_refs = static_refs(files)
     rows = []
     for f in files:
         if f in prev:
@@ -151,6 +164,10 @@ def build(old: dict) -> dict:
                 row[6] = (row[6] + " · " if row[6] else "") + "ต่อเข้าระบบแล้ว"
             if row[2] in _LIVE_FROM or row[2] in ("boot", "request"):
                 row[2] = cat
+        # JS/CSS ใน static/: หน้าเว็บโหลดจริง = web · ไม่มีหน้าไหนโหลด = legacy
+        # (เดิม galaxy_scene.js ที่ index.html โหลดอยู่ ยังถูกจัดเป็นรุ่นเก่า)
+        if f.startswith("static/") and f.endswith((".js", ".css")) and row[2] in ("web", "legacy"):
+            row[2] = "web" if os.path.basename(f) in web_refs else "legacy"
         rows.append(row)
     index = {r[0]: i for i, r in enumerate(rows)}
     edge_rows = sorted({(index[a], index[b], 0) for a, b in edges if a in index and b in index})
