@@ -784,7 +784,7 @@ def titan_check(choice_count: int) -> dict:
 # ═══════════════════════════════════════════════════════════════
 
 CONNECTED_MODULES = {
-    "core/axioms.py":             "FATE™ Axioms A1–A5 + DriftZero DHD thresholds",
+    "legacy/core/axioms.py":             "FATE™ Axioms A1–A5 + DriftZero DHD thresholds",
     "core/drift_monitor.py":      "detect_drift() feeds entropy/stability into emptiness_check()",
     "core/cosmic_latte_canon.py": "evaluate_task() canon alignment check",
     "core/lyla_kernel.py":        "LYLA full enterprise audit operator (extend from KERNEL_PROFILES['LYLA'])",
@@ -795,8 +795,8 @@ CONNECTED_MODULES = {
     "core/entropy_guard.py":      "entropy containment (sibling guard module)",
     "ENGINE/brain.py":            "route-aware dispatch — kernel selection happens here",
     "ENGINE/council_engine.py":   "multi-kernel council: LYLA + VEGA vote on decisions",
-    "SIMULATIONS/entropy_engine.py": "DHD simulation — feeds real entropy values into decision_quality()",
-    "DOMAINS/domain_router.py":   "domain label → DOMAIN_REGISTRY lookup",
+    "legacy/SIMULATIONS/entropy_engine.py": "DHD simulation — feeds real entropy values into decision_quality()",
+    "legacy/DOMAINS/domain_router.py":   "domain label → DOMAIN_REGISTRY lookup",
 }
 
 
