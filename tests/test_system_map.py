@@ -39,3 +39,11 @@ def test_map_json_cannot_close_the_script_tag():
     html = open(sm.INDEX, encoding="utf-8").read()
     body = re.search(r'id="system-map">(.*?)</script>', html, re.S).group(1)
     assert "</" not in body
+
+
+def test_web_assets_follow_what_pages_load():
+    """เดิม galaxy_scene.js ที่ index.html โหลดอยู่ ยังขึ้นว่าเป็นรุ่นเก่า"""
+    rows = {r[0]: r for r in _embedded()["files"]}
+    assert rows["static/galaxy_scene.js"][2] == "web"
+    assert rows["static/i18n.js"][2] == "web"
+    assert rows["static/ai_brain.js"][2] == "legacy"      # ไม่มีหน้าไหนโหลด
