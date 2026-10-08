@@ -25,3 +25,10 @@ def test_tab_icons_alternate_cool_and_warm():
 def test_dusk_theme_respects_reduced_motion():
     assert "@keyframes twinkle" in HTML
     assert re.search(r"prefers-reduced-motion:reduce\)\{\*\{animation:none!important", HTML)
+
+
+def test_universe_mode_toggle_stays_readable():
+    # สีตัวอักษรเข้มของปุ่มผู้ตอบเคยไปโดนปุ่มโหมดจักรวาลด้วย → ตัวเข้มบนพื้นทองหม่นอ่านไม่ออก
+    assert ".seg button.on{color:#1a1630}" not in HTML
+    assert re.search(r'#u-mode button\[data-m="decisions"\]\.on\{background:var\(--warm\)\}', HTML)
+    assert re.search(r'#u-mode button:not\(\[data-m="decisions"\]\)\.on\{background:var\(--cool\)\}', HTML)

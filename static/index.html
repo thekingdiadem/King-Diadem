@@ -531,7 +531,11 @@ dialog.axis::backdrop{background:transparent}
 
 /* ผู้ตอบ: AUTO จันทร์นวล · LYLA อุ่น · VEGA เย็น · สภา ลาเวนเดอร์ */
 .seg button{border-radius:999px;transition:background .25s ease,color .25s ease}
-.seg button.on{color:#1a1630}
+.seg button[data-p].on{color:#1a1630}
+/* โหมดจักรวาล: การตัดสินใจ = อุ่น · ระบบ = เย็น (เดิมตัวเข้มบนทองหม่นจนอ่านไม่ออก) */
+#u-mode button.on{color:#1a1630}
+#u-mode button[data-m="decisions"].on{background:var(--warm)}
+#u-mode button:not([data-m="decisions"]).on{background:var(--cool)}
 .seg button[data-p="auto"].on{background:linear-gradient(135deg,#fff7e6,#ffe3b8)}
 .seg button[data-p="lyla"].on{background:var(--warm)}
 .seg button[data-p="vega"].on{background:var(--cool)}
