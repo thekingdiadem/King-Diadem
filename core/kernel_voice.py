@@ -24,7 +24,8 @@ from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAP
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
                                MISSING_PERSON, LABOR_RIGHTS, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
-                               HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE)
+                               HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE,
+                               PET_POISON, strip_pet_poison, ADULT_INVITE)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl
 from core.engine_bridge import analyze as bridge_analyze, rank_options
 
@@ -111,6 +112,17 @@ TOPICS = [
         ],
         "ask": "ตอนนี้มีใครอยู่ใกล้ตัวที่ช่วยพาไปโรงพยาบาลได้บ้าง?",
     }),
+    ("pet_poison", [PET_POISON], {
+        "open": ["รีบหน่อยนะ — เรื่องนี้รอดูอาการไม่ได้"],
+        "paths": [
+            "พาไปโรงพยาบาลสัตว์ตอนนี้ แม้น้องยังดูปกติ — พิษหลายชนิดออกฤทธิ์ช้าเป็นชั่วโมงหรือเป็นวัน โทรบอกคลินิกก่อนไปว่ากินอะไร เท่าไหร่ กี่โมง",
+            ([re.compile(r"แมว|cat|kitten")],
+             "แมวไวต่อพิษกว่าหมามาก — ยาพาราแม้เม็ดเดียว และดอก/ใบ/เกสรลิลลี่แม้นิดเดียวก็ทำให้ไตวายหรือเสียชีวิตได้"),
+            "อย่าทำให้อาเจียนเองด้วยน้ำเกลือหรือล้วงคอถ้าสัตวแพทย์ไม่ได้บอก · เก็บซอง ฉลาก แผงยา หรือของที่เหลือไปให้หมอดู",
+            "หาคลินิกที่เปิด 24 ชม. ไว้ล่วงหน้า และเก็บยา ช็อกโกแลต องุ่น ยาเบื่อ ให้พ้นที่ที่น้องเอื้อมถึง",
+        ],
+        "ask": "น้องกินไปประมาณเท่าไหร่ และนานแค่ไหนแล้ว?",
+    }),
     ("scam", [re.compile(r"(?!)")], {           # เลือกจาก scam_flags() ไม่ใช่จากคำ
         "open": ["เรื่องนี้มีลักษณะของมิจฉาชีพ — หยุดก่อน ยังไม่ต้องทำตามที่เขาบอก"],
         "paths": [
@@ -188,6 +200,15 @@ TOPICS = [
         ],
         "ask": "ตอนนี้มีใครที่คุณไว้ใจพอจะเล่าเรื่องนี้ให้ฟังได้บ้าง?",
     }),
+    ("adult_invite", [ADULT_INVITE], {
+        "open": ["ดีแล้วที่ถามก่อนไปนะ — เรื่องนี้ควรเช็กให้ชัดก่อน"],
+        "paths": [
+            "ถามให้ละเอียดก่อนว่าให้ไปทำอะไร — ถ้าแค่ไปเอางานหรือของ ขอให้รับที่โรงเรียนตอนกลางวันแทนได้ไหม",
+            "ถ้าต้องไปจริง ชวนพ่อแม่หรือคนในครอบครัวไปด้วยจะดีที่สุด และบอกที่บ้านเสมอว่าไปที่ไหน กับใคร กลับกี่โมง",
+            f"ผู้ใหญ่ที่หวังดีจะไม่ขอให้ไปหาคนเดียวตอนกลางคืน หรือขอให้เก็บเป็นความลับ — ถ้ารู้สึกไม่สบายใจ ปฏิเสธได้เลย แล้วเล่าให้ผู้ใหญ่ที่ไว้ใจฟัง หรือโทร {HOTLINE_CHILD} (สายด่วนเด็ก ฟรี)",
+        ],
+        "ask": "เขาบอกไหมว่าให้ไปทำอะไร และที่บ้านรู้เรื่องนี้หรือยัง?",
+    }),
     ("bullying", [BULLYING], {
         "open": ["การถูกแกล้งหรือถูกทำให้อับอายไม่ใช่ความผิดของคุณ"],
         "paths": [
@@ -244,7 +265,7 @@ TOPICS = [
         ],
         "ask": "ตอนนี้ท่านมีข้าวกินและอยู่ในที่ปลอดภัยไหม?",
     }),
-    ("violence", [re.compile(r"(ถูก|โดน)\S{0,12}?(ทำร้าย(?!ตัวเอง)|ตบ|ต่อย|เตะ|ทุบ|ตี(?!ความ|กลับ|ราคา))"),
+    ("violence", [re.compile(r"(ถูก|โดน)\S{0,12}?(ทำร้าย(?!ตัวเอง)|ตบ|(?<!ผึ้ง)(?<!แตน)(?<!ต่อ)(?<!มด)(?<!แมลง)ต่อย|เตะ|ทุบ|ตี(?!ความ|กลับ|ราคา))"),
                   "ถูกขู่", "โดนขู่", "รู้สึกไม่ปลอดภัย", "อยู่บ้านไม่ปลอดภัย", "ข่มขืน", "ความรุนแรงในบ้าน",
                   "สะกดรอย", "ถูกกักขัง",
                   re.compile(r"(?:ถูก|โดน)\S{0,6}ขัง(?:ไว้|อยู่)?\s*(?:ใน|ไว้)(?!เกม)"), VIOLENCE_BY], {
@@ -267,9 +288,15 @@ TOPICS = [
             ([re.compile(r"พูดไม่ชัด|ปากเบี้ยว|ชา|อ่อนแรง")],
              "อาจเป็นหลอดเลือดสมอง (สโตรก) — ทุกนาทีมีผล ถึงโรงพยาบาลภายใน 4.5 ชั่วโมงรักษาได้ดีกว่ามาก จดเวลาที่เริ่มมีอาการ ไม่ให้กินยาหรืออาหาร"),
             ([re.compile(r"ท้อง|ครรภ์")],
-             "คนท้องที่มีเลือดออก น้ำเดิน หรือลูกไม่ดิ้น ไปโรงพยาบาลที่ฝากครรภ์ทันที นอนตะแคงซ้ายระหว่างเดินทาง"),
+             "คนท้องที่มีเลือดออก น้ำเดิน ลูกไม่ดิ้น หรือปวดหัวมาก ตาพร่า บวม (อาจเป็นครรภ์เป็นพิษ) ไปโรงพยาบาลที่ฝากครรภ์ทันที นอนตะแคงซ้ายระหว่างเดินทาง"),
             ([re.compile(r"ไข้")],
              "เด็กไข้สูง: เช็ดตัวด้วยน้ำอุณหภูมิปกติ (ไม่ใช้น้ำเย็นจัด) ให้ยาลดไข้ตามน้ำหนักตัว — ถ้าซึม ชัก หายใจเร็ว หรืออายุไม่ถึง 3 เดือน ไปโรงพยาบาลเลย"),
+            ([re.compile(r"ใน(?:รถ)|in (?:a |the |my )?(?:hot )?car", re.I)],
+             "เด็กติดในรถ: ถ้าเปิดไม่ได้และเด็กร้อน ซึม หรือไม่ตอบสนอง ทุบกระจกด้านที่ไกลจากเด็กได้เลย แล้วพาไปที่ร่ม คลายเสื้อผ้า เช็ดตัวด้วยน้ำ"),
+            ([re.compile(r"เมา")],
+             "คนเมาจนปลุกไม่ตื่น: จับนอนตะแคง (กันสำลักอาเจียน) อยู่เฝ้าตลอด ห้ามให้อาบน้ำเย็นหรือกินกาแฟ — หายใจช้า ตัวเย็นซีด หรือชัก คือพิษสุราขั้นอันตราย"),
+            ([re.compile(r"เบาหวาน")],
+             "เบาหวานแล้วหน้ามืด ใจสั่น เหงื่อแตก อาจเป็นน้ำตาลต่ำ — ถ้ายังรู้สึกตัวและกลืนได้ ให้น้ำหวานหรือลูกอม แล้วดูอาการ 15 นาที · ถ้าไม่รู้สึกตัว ห้ามกรอกอะไรเข้าปาก"),
             ([re.compile(r"กลืน|ติดคอ|สำลัก|เหรียญ|ถ่าน")],
              "ถ้ายังไอหรือร้องได้ ให้ไอออกเอง ห้ามล้วงคอ · ถ้าหายใจไม่ได้/พูดไม่ได้ ทำกดท้อง (Heimlich) · กลืนถ่านกระดุมหรือแม่เหล็ก ต้องไปโรงพยาบาลทันทีแม้ดูปกติ"),
             "ระหว่างรอ: นั่งหรือนอนในท่าที่หายใจสบายที่สุด ปลดเสื้อผ้าที่รัด",
@@ -280,6 +307,8 @@ TOPICS = [
     ("first_aid", [FIRST_AID], {
         "open": ["ปฐมพยาบาลให้ถูกก่อน แล้วค่อยไปหาแพทย์"],
         "paths": [
+            ([re.compile(r"ผึ้ง|แตน|ต่อต่อย|โดนต่อ|\bbee|\bwasp|\bhornet", re.I)],
+             "ผึ้ง/ต่อต่อย: ขูดเหล็กไนออกด้วยขอบบัตร (อย่าบีบ) ล้างแผล ประคบเย็น · ถูกต่อยหลายตัว ต่อยที่คอ/ปาก หรือหน้าบวม หายใจลำบาก เวียนหัว — โทร 1669 ทันที"),
             ([re.compile(r"งู|snake")],
              "งูกัด: อยู่นิ่งๆ ดามส่วนที่ถูกกัดไม่ให้ขยับ ให้อยู่ต่ำกว่าหัวใจ · ห้ามกรีด ห้ามดูดพิษ ห้ามขันชะเนาะ · จำลักษณะงูไว้ถ้าทำได้อย่างปลอดภัย"),
             ([re.compile(r"หมา|สุนัข|แมว|ลิง|หนู|dog")],
@@ -898,12 +927,12 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("overdose", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("overdose", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
@@ -932,6 +961,11 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     # "พี่เคยทำร้ายเขา … ตอนนี้ไม่มีแล้ว" — ผู้ใช้สารภาพเรื่องเก่า ไม่ใช่คนที่กำลังถูกทำร้าย
     t_now, own = strip_own_past_harm(t), strip_own_past_harm(own)
     topics = [name for name, phrases, _ in TOPICS if _hit(own if name in _OWN_ONLY else t_now, phrases)]
+    # สัตว์เลี้ยงกินของมีพิษ: ยาเกินขนาด/ปฐมพยาบาล/สุขภาพ ต้องเป็นเรื่องของคนในส่วนที่เหลือของข้อความ
+    if "pet_poison" in topics:
+        human = strip_pet_poison(t_now)
+        topics = [n for n in topics if n not in ("overdose", "first_aid", "health")
+                  or _hit(human, next(ph for nm, ph, _ in TOPICS if nm == n))]
     if tr.get("third_party") and "someone" not in topics:      # "เพื่อนบอกว่ากรีดแขน" — คนอื่นกำลังวิกฤต
         topics.insert(0, "someone")
     # ภาษาอื่น (zh ja ko es): เรื่องด่วนเข้าหัวข้อเดียวกับภาษาไทย — "เพื่อนอยากตาย" ไม่ใช่วิกฤตของผู้ใช้เอง
@@ -976,6 +1010,9 @@ def assess(text: str, pattern: dict | None = None) -> dict:
         text_risk = max(text_risk, 65)
     if "help" in topics:
         text_risk = max(text_risk, 50)
+    # ผู้ใหญ่ชวนไปที่ลับตาแล้วขอให้เก็บเป็นความลับ — สัญญาณล่อลวงที่ชัดกว่าการชวนเฉยๆ
+    if "adult_invite" in topics and re.search(r"(?:ห้าม|อย่า|ไม่ให้)บอก|เป็นความลับ|\bdon'?t tell\b|\bsecret\b", t):
+        text_risk = max(text_risk, 65)
     if "basic" in topics:
         text_risk = max(text_risk, 75)
         W = min(W, 30)
@@ -1129,7 +1166,7 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     second = lib.get(a["topics"][1]) if len(a["topics"]) > 1 else None
     # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง
     # (เดิม "กินยาเกินขนาด" เสียขั้นที่ 3 ให้ "ใช้สิทธิ์บัตรทอง")
-    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("grief", "labor", "housing", "legal", "diagnosis",
+    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "housing", "legal", "diagnosis",
                                                            "caregiver", "health_rights"):
         second = None
     if a["offer_flags"]:                 # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
@@ -1167,9 +1204,11 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
         extra = _pick(_paths(second, t)[:2], text, "2nd")
         if extra and extra not in paths:
             paths = paths[:2] + [extra]
-    if route == "survival" and "basic" not in a["topics"] and not any("กิน" in p for p in paths):
+    # เรื่องด่วนมีขั้นของตัวเองครบแล้ว — ไม่แทรกข้อทั่วไปจนขั้นสำคัญ (เช่นเบอร์สายด่วน) ถูกดันตก
+    urgent_main = bool(a["topics"]) and a["topics"][0] in _URGENT_TOPICS
+    if route == "survival" and not urgent_main and "basic" not in a["topics"] and not any("กิน" in p for p in paths):
         paths.insert(0, "ดูแลร่างกายก่อน: กิน นอน ดื่มน้ำ และอยู่ในที่ปลอดภัย — ตัดสินใจเรื่องใหญ่หลังจากนั้น")
-    if route == "collapse" and a["topics"] and a["topics"][0] not in ("violence", "health_emergency", "basic"):
+    if route == "collapse" and a["topics"] and not urgent_main and a["topics"][0] not in ("violence", "health_emergency", "basic"):
         paths.insert(0, "หยุดสิ่งที่ทำให้เสียหายเพิ่มก่อน (Stop the line) — ยังไม่ต้องหาทางชนะ ขอแค่ไม่แย่ลง")
 
     # ── ตัวเลือกที่ผู้ใช้ให้มา: วัดด้วย Choice(t+1) ──────────────────
@@ -1199,7 +1238,8 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
         money_line = (f"\n\nเวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน → {m:,.0f} ÷ {per_day} ≈ {m / per_day:,.0f} วัน "
                       f"(ตัวอย่างที่วันละ {per_day} บาท — ใส่ตัวเลขจริงของคุณแทนได้)")
 
-    paths = paths[:4] or GENERAL["paths"][:1]          # Choice(t) ≥ 1 เสมอ
+    # Canon มาตรา 11: Options ≤ 3 — เดิม [:4] เส้นทาง survival/collapse จึงเสนอ 4 ทาง · Choice(t) ≥ 1 เสมอ
+    paths = paths[:3] or GENERAL["paths"][:1]
     n = len(paths) + (len(opts) if len(opts) >= 2 else 0)
     body = "\n".join(f"{i + 1}) {p}" for i, p in enumerate(paths))
     opener = _pick(main["open"], text, "open")
