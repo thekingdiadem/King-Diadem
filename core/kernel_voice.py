@@ -18,14 +18,14 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
+from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, DRUNK_DRIVING,
                                MISSING_PERSON, LABOR_RIGHTS, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
                                HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE)
-from core.lang_signals import SELF_HARM_INTL, compose_intl, detect_lang
+from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl
 from core.engine_bridge import analyze as bridge_analyze, rank_options
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
@@ -911,7 +911,8 @@ _DEBT_HARASS_RISK = 55
 
 def assess(text: str, pattern: dict | None = None) -> dict:
     """ตัวเลขของระบบ (ไม่มี LLM): W, Risk, หัวข้อ, ความเร่งด่วน"""
-    t = (text or "").lower()
+    text = normalize_mixed(text)                # "I want to dieค่ะ" — เว้นวรรคอังกฤษ/ไทยที่พิมพ์ติดกัน
+    t = text.lower()
     p = pattern if isinstance(pattern, dict) else {}
     E = max(0.0, min(100.0, _num(p.get("entropy"), 40)))
     R = max(0.0, min(100.0, _num(p.get("resource"), 50)))
@@ -926,9 +927,19 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     except Exception:
         pass
     # "เพื่อนบอกว่าอยากตาย" → ผู้ใช้กำลังช่วยคนอื่น: วิกฤตของผู้ใช้ดูจากส่วนที่เหลือของข้อความ
-    own = strip_third_party(t) if THIRD_PARTY_CRISIS.search(t) else t
+    own = strip_third_party(t) if (THIRD_PARTY_CRISIS.search(t) or tr.get("third_party")) else t
     crisis = bool(tr.get("self_harm")) or _hit(own, CRISIS_PHRASES)
     topics = [name for name, phrases, _ in TOPICS if _hit(own if name in _OWN_ONLY else t, phrases)]
+    if tr.get("third_party") and "someone" not in topics:      # "เพื่อนบอกว่ากรีดแขน" — คนอื่นกำลังวิกฤต
+        topics.insert(0, "someone")
+    # ภาษาอื่น (zh ja ko es): เรื่องด่วนเข้าหัวข้อเดียวกับภาษาไทย — "เพื่อนอยากตาย" ไม่ใช่วิกฤตของผู้ใช้เอง
+    intl = urgent_intl(text, "all") if detect_lang(text) != "en" else []
+    for kind_i, topic_i in intl:
+        if kind_i == "someone":               # คนอื่นอยากตาย — ผู้ใช้วิกฤตเองเฉพาะเมื่อพูดถึงตัวเองด้วย
+            from core.lang_signals import strip_someone_intl
+            crisis = bool(tr.get("self_harm")) or _hit(strip_someone_intl(own), CRISIS_PHRASES)
+        if topic_i not in ("disaster", "scam") and topic_i not in topics:
+            topics.append(topic_i)
     if tr.get("basic_needs") and "basic" not in topics:
         topics.insert(0, "basic")
     elif "basic" in topics:                    # ขาดปัจจัยพื้นฐาน มาก่อนเรื่องเงินทั่วไป
@@ -989,7 +1000,11 @@ def assess(text: str, pattern: dict | None = None) -> dict:
         pass
     if dis and dis["data"]["active"]:
         text_risk = max(text_risk, dis["data"]["threat"])
+    kinds_i = [kd for kd, _ in intl]
+    if "disaster" in kinds_i or "scam" in kinds_i:
+        text_risk = max(text_risk, 70)
     return {
+        "intl_urgent": kinds_i,
         "scam": scam,
         "W": round(W), "risk": round(max(risk, text_risk)),
         # ตัวเลขที่โชว์ในคำตอบ: ยังไม่รู้สถานะจริงของผู้ใช้ → W "—" และ Risk จากข้อความล้วน
@@ -1061,6 +1076,8 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
                     + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         if lang == "en" and not a["crisis"] and a["relationship"] in ("collapse_risk", "critical"):
             return SAFETY_EN.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
+        if lang in ("zh", "ja", "ko", "es") and a.get("intl_urgent") and not a["crisis"]:
+            return compose_urgent_intl(lang, a["intl_urgent"][0], status, sign, footer)
         return compose_intl(lang, a["crisis"], status, sign, footer)
 
     # ── ถามถึงที่มาของระบบ (core/creator_story — ไม่มีชื่อหรือวันเกิดของผู้สร้าง) ──

@@ -1,0 +1,402 @@
+# ชุดข้อความทดสอบกลางของ KING DIADEM — แก้/เพิ่มได้เลย หนึ่งบรรทัดต่อหนึ่งข้อความ
+# รูปแบบ: ข้อความ <TAB> สิ่งที่คาดหวัง (คั่นหลายข้อด้วย ;) <TAB> หมวด
+# สิ่งที่คาดหวัง:
+#   crisis / !crisis        ต้องเป็น / ต้องไม่เป็นภาวะวิกฤต (ทำร้ายตัวเอง)
+#   topic:X / !topic:X      ต้องมี / ต้องไม่มีหัวข้อ X (ดูรายชื่อหัวข้อใน core/kernel_voice.py TOPICS)
+#   risk>=N / risk<N        ความเสี่ยงจากข้อความ (text_risk)
+#   scam:X / !scam          ต้องมี flag มิจฉาชีพ X / ต้องไม่มีเลย
+#   disaster:X / !disaster  ต้องเป็นภัยชนิด X / ต้องไม่เป็นภัย
+#   intl:X                  เรื่องด่วนภาษาอื่น X (someone medical violence disaster scam)
+#   none                    ไม่มีหัวข้อเสี่ยงใดๆ (text_risk < 50 และไม่ crisis ไม่มี disaster ไม่มี scam)
+# บรรทัดที่ขึ้นต้นด้วย # คือหมายเหตุ · ข้อที่ระบบยังทำไม่ได้ให้ใส่ ?known ท้ายคอลัมน์ที่ 2 (นับแยก ไม่ทำให้เทสต์ล้ม)
+
+# ── ทำร้ายตัวเอง / วิกฤต ───────────────────────────────────────
+อยากตาย	crisis;risk>=90	วิกฤต
+ไม่อยากอยู่แล้ว	crisis	วิกฤต
+อยากฆ่าตัวตาย	crisis	วิกฤต
+คิดสั้น	crisis	วิกฤต
+อยากหลับไม่ตื่น	crisis	วิกฤต
+ไม่อยากตื่นขึ้นมาอีก	crisis	วิกฤต
+กรีดแขน	crisis	วิกฤต
+เขียนจดหมายลาไว้แล้ว	crisis	วิกฤต
+วางแผนจะฆ่าตัวตาย	crisis	วิกฤต
+จะกระโดดตึก	crisis	วิกฤต
+I want to die	crisis	วิกฤต
+I want to kill myself	crisis	วิกฤต
+I have a plan to end it	crisis	วิกฤต
+I cut myself	crisis	วิกฤต
+I don't want to wake up ever again	crisis	วิกฤต
+I don't want to wake up	topic:warning	เตือน
+ไม่อยากตื่น	topic:warning	เตือน
+# สำนวนที่ไม่ใช่วิกฤต
+ขำจนจะตาย	!crisis;none	สำนวน
+หิวจะตาย	!crisis	สำนวน
+ฆ่าเวลา	!crisis;none	สำนวน
+ตายแน่ๆ งานเยอะ	!crisis	สำนวน
+แบตมือถือตาย	!crisis	สำนวน
+ไม่อยากอยู่บ้าน	!crisis	สำนวน
+ไม่อยากอยู่กรุงเทพแล้ว	!crisis	สำนวน
+อย่าคิดสั้นนะ	!crisis	สำนวน
+this exam is killing me	!crisis	สำนวน
+I could kill for a pizza	!crisis	สำนวน
+I want to wake up early	!crisis	สำนวน
+# สัญญาณเตือน
+หมดทางเลือก	topic:warning;risk>=60	เตือน
+ฉันเป็นภาระของทุกคน	topic:warning	เตือน
+ถ้าไม่มีฉันทุกคนคงสบาย	topic:warning	เตือน
+อยากหายไป	topic:warning	เตือน
+I feel hopeless	topic:warning	เตือน
+I am a burden	topic:warning	เตือน
+everyone would be better off without me	topic:warning	เตือน
+อยากหายไปเที่ยวทะเล	!topic:warning	เตือน
+ถ้าไม่มีผมงานคงไม่เสร็จ	!topic:warning	เตือน
+# คนอื่นกำลังวิกฤต
+เพื่อนบอกว่าอยากตาย	topic:someone;!crisis;risk>=90	คนอื่นวิกฤต
+เพื่อนส่งข้อความลาตาย	topic:someone;!topic:grief	คนอื่นวิกฤต
+มีคนจะกระโดดสะพาน	topic:someone	คนอื่นวิกฤต
+my friend wants to kill himself	topic:someone	คนอื่นวิกฤต
+my friend sent me a goodbye message	topic:someone	คนอื่นวิกฤต
+เพื่อนตายแล้ว	topic:grief;!topic:someone	ความสูญเสีย
+แม่เสียไปเมื่อเดือนที่แล้ว	topic:grief	ความสูญเสีย
+
+# ── ฉุกเฉินทางการแพทย์ / ยา ─────────────────────────────────────
+ลูกกินยาเกินขนาด	topic:overdose;risk>=85	ยา
+กินยาไป 20 เม็ด	topic:overdose	ยา
+กินยานอนหลับไป 10 เม็ด	topic:overdose	ยา
+ลูกกินน้ำยาล้างห้องน้ำ	topic:overdose	ยา
+my friend overdosed	topic:overdose	ยา
+พ่อหมดสติ	topic:health_emergency;risk>=85	ฉุกเฉิน
+เจ็บหน้าอก แขนซ้ายชา	topic:health_emergency	ฉุกเฉิน
+ปากเบี้ยว พูดไม่ชัด	topic:health_emergency	ฉุกเฉิน
+หายใจลำบาก ตัวเขียว	topic:health_emergency	ฉุกเฉิน
+ปวดท้องน้อยขวาอย่างรุนแรง	topic:health_emergency	ฉุกเฉิน
+เลือดออกทางช่องคลอดตอนท้อง	topic:health_emergency	ฉุกเฉิน
+ท้อง 8 เดือน น้ำเดิน	topic:health_emergency	ฉุกเฉิน
+ลูกไข้สูงชัก	topic:health_emergency	ฉุกเฉิน
+คนจมน้ำ	topic:health_emergency	ฉุกเฉิน
+เด็กตกน้ำ	topic:health_emergency	ฉุกเฉิน
+child not breathing	topic:health_emergency	ฉุกเฉิน
+chest pain and sweating	topic:health_emergency	ฉุกเฉิน
+my mom collapsed	topic:health_emergency	ฉุกเฉิน
+my baby has a fever of 40	topic:health_emergency	ฉุกเฉิน
+ปวดท้อง	!topic:health_emergency	ไม่ฉุกเฉิน
+ปวดหัวนิดหน่อย	!topic:health_emergency	ไม่ฉุกเฉิน
+สีเขียวตัวนี้สวย	!topic:health_emergency;none	ไม่ฉุกเฉิน
+เป็นไข้	topic:health;!topic:health_emergency	สุขภาพ
+ตัวร้อนจี๋	topic:health	สุขภาพ
+my kid has a high fever	topic:health	สุขภาพ
+# ปฐมพยาบาล
+งูกัด	topic:first_aid	ปฐมพยาบาล
+โดนหมากัด	topic:first_aid	ปฐมพยาบาล
+ผึ้งต่อย	topic:first_aid	ปฐมพยาบาล
+น้ำร้อนลวกมือ	topic:first_aid	ปฐมพยาบาล
+ไฟช็อต	topic:first_aid	ปฐมพยาบาล
+แม่ล้มหัวฟาด	topic:first_aid	ปฐมพยาบาล
+ลูกโดนรถชน	topic:first_aid	ปฐมพยาบาล
+I think I broke my arm	topic:first_aid	ปฐมพยาบาล
+got bitten by a dog	topic:first_aid	ปฐมพยาบาล
+ต่อไปทำอะไรดี	!topic:first_aid	ปฐมพยาบาล
+ข่าวรถชนบนทางด่วน	!topic:first_aid	ปฐมพยาบาล
+
+# ── ความรุนแรง / ความปลอดภัย ───────────────────────────────────
+แฟนตบหน้า	topic:violence;risk>=85	รุนแรง
+โดนแฟนตบ	topic:violence	รุนแรง
+my dad hits me	topic:violence	รุนแรง
+someone locked me in	risk>=85	รุนแรง
+ผมโดนครูตีทุกวัน	topic:violence	รุนแรง
+ได้ยินเสียงผู้หญิงกรีดร้องข้างห้อง	topic:witness;risk>=70	พยาน
+ได้ยินเสียงคนสั่งให้ทำร้าย	topic:psychosis;!topic:witness	อาการทางจิต
+I hear voices	topic:psychosis	อาการทางจิต
+อยากฆ่าพ่อ	topic:harm_others;risk>=80	ทำร้ายคนอื่น
+จะฆ่ามัน	topic:harm_others	ทำร้ายคนอื่น
+I want to hurt him	topic:harm_others	ทำร้ายคนอื่น
+จะฆ่ายุง	!topic:harm_others	ทำร้ายคนอื่น
+ช่วยฆ่าเชื้อ	!topic:harm_others	ทำร้ายคนอื่น
+มีปืนอยู่ในบ้าน	topic:weapon;risk<60	อาวุธ
+เจอปืนในบ้าน ไม่รู้ของใคร	topic:weapon;risk>=85	อาวุธ
+พ่อเมาแล้วมีปืน กลัวมาก	topic:weapon;risk>=85	อาวุธ
+มีปืนฉีดน้ำ	!topic:weapon	อาวุธ
+โดนข่มขู่	topic:threat	ข่มขู่
+มีคนโทรมาขู่	topic:threat	ข่มขู่
+someone is threatening me	topic:threat	ข่มขู่
+มีคนตามผมกลับบ้าน	risk>=70	สะกดรอย
+someone is following me	risk>=70	สะกดรอย
+ตามผมมาหน่อย	risk<60	สะกดรอย
+someone is breaking into my house	risk>=70	บุกรุก
+# ล่วงละเมิด
+โดนลวนลามบนรถเมล์	topic:sexual_abuse	ล่วงละเมิด
+someone touched me on the bus	topic:sexual_abuse	ล่วงละเมิด
+I was sexually assaulted	topic:sexual_abuse	ล่วงละเมิด
+I was raped	topic:sexual_abuse	ล่วงละเมิด
+ถูกแอบถ่าย	topic:sextortion	ภาพส่วนตัว
+แฟนเก่าเอารูปโป๊ไปโพสต์	topic:sextortion	ภาพส่วนตัว
+he threatened to post my nudes	topic:sextortion	ภาพส่วนตัว
+ส่งรูปส่วนตัวให้แฟนดู	!topic:sextortion	ภาพส่วนตัว
+# ผู้สูงอายุ / เด็ก
+ยายโดนหลานด่าทุกวัน	topic:elder_abuse	ผู้สูงอายุ
+ป้าโดนลูกตี	topic:elder_abuse	ผู้สูงอายุ
+my grandma is being hit by her son	topic:elder_abuse	ผู้สูงอายุ
+ลูกหาย	topic:missing;risk>=80	คนหาย
+ลูกสาวหายออกจากบ้าน 2 วัน	topic:missing	คนหาย
+my child is missing	topic:missing	คนหาย
+หมาหาย	!topic:missing	คนหาย
+พี่หายไปไหนมา	!topic:missing	คนหาย
+
+# ── ภัยพิบัติ ──────────────────────────────────────────────────
+น้ำท่วมบ้าน	disaster:flood;risk>=60	ภัย
+น้ำท่วมบ้าน ตอนนี้น้ำถึงเอว	disaster:flood	ภัย
+ข่าวน้ำท่วมบ้าน	risk<60	ภัย
+น้ำท่วมบ้านเมื่อปีที่แล้ว	risk<60	ภัย
+There is a flood in my house	disaster:flood;risk>=60	ภัย
+water is rising	disaster:flood	ภัย
+ไฟไหม้บ้าน	disaster:fire	ภัย
+My house is on fire	disaster:fire;risk>=60	ภัย
+ไฟไหม้ป่า	disaster:fire	ภัย
+แผ่นดินไหว	disaster:quake	ภัย
+house is shaking	disaster:quake	ภัย
+the room is shaking with music	!disaster	ภัย
+สึนามิ	disaster:quake	ภัย
+tsunami warning	disaster:quake	ภัย
+ดินสไลด์	disaster:storm	ภัย
+landslide near my village	disaster:storm	ภัย
+พายุเข้า หลังคาปลิว	disaster:storm	ภัย
+ได้กลิ่นแก๊สในห้อง	disaster:gas;risk>=60	ภัย
+I smell gas	disaster:gas;risk>=60	ภัย
+ข่าวแก๊สรั่ว	risk<60	ภัย
+น้ำท่วมปอด	!disaster	สำนวน
+หัวใจเหมือนไฟไหม้	!disaster	สำนวน
+ข่าวนี้เหมือนฟ้าผ่า	!disaster	สำนวน
+
+# ── มิจฉาชีพ ──────────────────────────────────────────────────
+โดนหลอกโอนเงิน	topic:scam	มิจฉาชีพ
+I got scammed	topic:scam	มิจฉาชีพ
+บัญชีโดนแฮก	scam:lost	มิจฉาชีพ
+my phone was hacked	scam:lost	มิจฉาชีพ
+ได้ sms ให้กดลิงก์ยืนยันบัญชี	topic:scam	มิจฉาชีพ
+มีข้อความไลน์ส่งลิงก์มาให้รับเงินคืนภาษี	topic:scam	มิจฉาชีพ
+got a text with a link to verify my account	topic:scam	มิจฉาชีพ
+มีลิงก์ส่งมาบอกว่าพัสดุตกค้าง	topic:scam	มิจฉาชีพ
+เพื่อนส่งลิงก์เพลงมาในไลน์	!scam	มิจฉาชีพ
+ส่งข้อความหาแม่	!scam	มิจฉาชีพ
+ได้งานต่างประเทศ ไม่ต้องใช้ประสบการณ์ เงินเดือนแสน	scam:job	งานหลอก
+มีคนขอให้รับพัสดุแทนแล้วได้เงิน	scam:job	งานหลอก
+รับเปิดบัญชีแลกเงิน	scam:job	งานหลอก
+ทำงานต่างประเทศมา 5 ปี	!scam	งานหลอก
+ถูกหลอกให้ลงทุนคริปโต	topic:scam	มิจฉาชีพ
+
+# ── เงิน หนี้ งาน ที่อยู่ ─────────────────────────────────────
+ไม่มีข้าวกิน	topic:basic;risk>=75	ปัจจัยพื้นฐาน
+ผมไม่ได้กินข้าวมา 2 วัน	topic:basic	ปัจจัยพื้นฐาน
+ไม่มีที่นอนคืนนี้	topic:basic	ปัจจัยพื้นฐาน
+I am homeless	topic:basic	ปัจจัยพื้นฐาน
+ถูกไล่ออกจากห้องเช่าคืนนี้	topic:housing	ที่อยู่
+ติดหนี้นอกระบบ ร้อยละ 20 ต่อวัน	topic:debt	หนี้
+ติดหนี้บัตรเครดิต 3 ใบ	topic:debt	หนี้
+โดนแอปเงินกู้โทรประจาน	topic:debt	หนี้
+เงินหมด	topic:money	เงิน
+ตกงาน	topic:job	งาน
+I got fired	topic:job	งาน
+นายจ้างไม่จ่ายเงินเดือน	topic:labor	แรงงาน
+my boss hasnt paid me for 3 months	topic:labor	แรงงาน
+ถูกบังคับให้ทำงาน	topic:labor	แรงงาน
+หัวหน้าไม่ให้ลา	topic:labor	แรงงาน
+โดนตำรวจเรียกเงิน	topic:bribery	สินบน
+ไม่มีบัตรทอง	topic:health_rights	สิทธิ
+ไม่มีบัตรประชาชน	topic:health_rights	สิทธิ
+โดนวิ่งราว	topic:theft	ขโมย
+มือถือหาย	topic:theft	ขโมย
+my phone was stolen	topic:theft	ขโมย
+ขโมยซีน	!topic:theft	ขโมย
+รถหายไปไหน	!topic:theft	ขโมย
+
+# ── ความสัมพันธ์ ครอบครัว ใจ ───────────────────────────────────
+แฟนทิ้ง	topic:relationship	ความรัก
+my wife left me	topic:relationship	ความรัก
+พ่อแม่จะหย่ากัน	topic:family	ครอบครัว
+แม่ด่าทุกวันว่าเป็นตัวถ่วง	topic:family	ครอบครัว
+ครูบอกว่าผมโง่ทุกวัน	topic:bullying	กลั่นแกล้ง
+โดนเพื่อนแกล้ง	topic:bullying	กลั่นแกล้ง
+โดนเพื่อนแบน	topic:bullying	กลั่นแกล้ง
+น้องโดนรุ่นพี่รีดไถ	topic:bullying	กลั่นแกล้ง
+โดนด่านรีดไถ	topic:bribery;!topic:bullying	สินบน
+ครูสอนดีมาก	!topic:bullying;none	กลั่นแกล้ง
+เหงา	topic:lonely	เหงา
+I feel lonely	topic:lonely	เหงา
+nobody cares about me	topic:lonely	เหงา
+เครียดเรื่องงาน	topic:stress	เครียด
+เหนื่อยกับชีวิต	topic:stress	เครียด
+นอนไม่หลับมา 3 วัน	topic:stress	เครียด
+ไม่รู้จะทำอะไรกับชีวิต	topic:stress	เครียด
+ติดเหล้า เลิกไม่ได้	topic:addiction	เสพติด
+ลูกติดเกมหนักมาก	topic:addiction	เสพติด
+I am addicted to gambling	topic:addiction	เสพติด
+I'm addicted to this song	!topic:addiction	เสพติด
+addicted to coffee	!topic:addiction	เสพติด
+ท้องไม่พร้อม	topic:pregnancy	ท้อง
+ท้องแล้วแฟนหนี	topic:pregnancy	ท้อง
+อ้วกหลังกินทุกครั้ง	topic:eating	การกิน
+แม่ป่วยติดเตียง ดูแลคนเดียวเหนื่อยมาก	topic:caregiver	ผู้ดูแล
+
+# ── ทั่วไป / ไม่ควรจับอะไร ────────────────────────────────────
+สวัสดี	none	ทั่วไป
+ขอบคุณมาก	none	ทั่วไป
+อากาศดีจัง	none	ทั่วไป
+ช่วยวางแผนเที่ยวเชียงใหม่ 3 วัน	none	ทั่วไป
+วางแผนเที่ยว	none;!crisis	ทั่วไป
+สอบผ่านแล้ว	none	ทั่วไป
+ควรซื้อรถคันใหม่ไหม	none	ทั่วไป
+อยากเปิดร้านกาแฟ	none	ทั่วไป
+ยืนอยู่บนสะพาน	!crisis	กำกวม
+เขียนพินัยกรรมแล้ว	!crisis	กำกวม
+the weather is nice	none	ทั่วไป
+what should I cook tonight	none	ทั่วไป
+
+# ── ชุดใหม่ (รอบ 18): ประโยคที่ไม่เคยใช้ทดสอบมาก่อน ─────────────────
+ไม่อยากมีลมหายใจแล้ว	crisis	วิกฤต
+เบื่อที่จะมีชีวิตอยู่	crisis	วิกฤต
+พรุ่งนี้คงไม่มีฉันแล้ว	crisis	วิกฤต
+เตรียมยาไว้หมดแล้ว	topic:warning;risk>=60	เตือน
+ขอโทษทุกคนนะ ลาก่อน	crisis	วิกฤต
+อยากจบทุกอย่าง	crisis	วิกฤต
+i'm going to end it tonight	crisis	วิกฤต
+i don't see the point in living	crisis	วิกฤต
+life is not worth living	crisis	วิกฤต
+i wish i could disappear forever	topic:warning	เตือน
+ทุกอย่างพังหมด ไม่มีทางไปแล้ว	topic:warning	เตือน
+ไม่มีใครต้องการฉัน	topic:warning	เตือน
+เหนื่อยจะตายแล้ววันนี้	!crisis	สำนวน
+เกือบตายเพราะขำ	!crisis	สำนวน
+ฆ่าเวลารอรถ	!crisis;!topic:harm_others	สำนวน
+dying to see you	!crisis	สำนวน
+I'm dead tired	!crisis	สำนวน
+ลูกน้อยหายใจเสียงวี้ด ปากเขียว	topic:health_emergency	ฉุกเฉิน
+พ่อเป็นเบาหวาน หมดสติ	topic:health_emergency	ฉุกเฉิน
+แพ้อาหาร ปากบวม หายใจไม่ออก	topic:health_emergency	ฉุกเฉิน
+อาเจียนเป็นเลือด	topic:health_emergency	ฉุกเฉิน
+ถ่ายเป็นเลือดสด	topic:health_emergency	ฉุกเฉิน
+my dad is having a stroke	topic:health_emergency	ฉุกเฉิน
+allergic reaction throat closing	topic:health_emergency	ฉุกเฉิน
+seizure won't stop	topic:health_emergency	ฉุกเฉิน
+เด็กกินยาของยายไปหลายเม็ด	topic:overdose	ยา
+ดื่มน้ำยาล้างจาน	topic:overdose	ยา
+my son swallowed bleach	topic:overdose	ยา
+มีดบาดลึก เลือดไม่หยุด	topic:health_emergency	ฉุกเฉิน
+ตกบันได ขาบวมเดินไม่ได้	topic:first_aid	ปฐมพยาบาล
+สุนัขบ้ากัด	topic:first_aid	ปฐมพยาบาล
+burned my hand on the stove	topic:first_aid	ปฐมพยาบาล
+ผัวกระทืบ	topic:violence	รุนแรง
+พ่อเลี้ยงชอบเข้ามาในห้องตอนกลางคืน	topic:sexual_abuse	ล่วงละเมิด
+แฟนไม่ให้ออกจากบ้าน ยึดโทรศัพท์	risk>=70	ควบคุม
+my boyfriend won't let me leave	risk>=70	ควบคุม
+my husband chokes me	topic:violence	รุนแรง
+เพื่อนบ้านทุบตีลูกทุกคืน	topic:witness	พยาน
+i hear my neighbor beating his wife	topic:witness	พยาน
+มีคนแปลกหน้าอยู่หน้าบ้านทั้งคืน	risk>=60	ปลอดภัย
+someone is outside my door right now	risk>=60	ปลอดภัย
+ex keeps showing up at my work	topic:threat	ข่มขู่
+แฟนเก่าขู่จะปล่อยคลิป	topic:sextortion	ภาพส่วนตัว
+มีคนในเกมขอรูปโป๊	topic:sextortion	ภาพส่วนตัว
+ลูก 12 ขวบหายไปตั้งแต่เช้า	topic:missing	คนหาย
+ยายเป็นอัลไซเมอร์ เดินออกจากบ้านหาไม่เจอ	topic:missing	คนหาย
+น้ำป่าไหลหลาก	disaster:flood	ภัย
+น้ำทะลักเข้าหมู่บ้าน	disaster:flood	ภัย
+ตึกที่ทำงานสั่น	disaster:quake	ภัย
+ควันเต็มห้อง ออกไม่ได้	disaster:fire;risk>=60	ภัย
+fire in my apartment building	disaster:fire	ภัย
+ฝุ่น PM2.5 สูงมาก	disaster:haze	ภัย
+ร้อนจนจะเป็นลม	disaster:heat	ภัย
+there's a gas leak in my kitchen	disaster:gas	ภัย
+ฝนตกหนักมาก	!disaster	ไม่ใช่ภัย
+ดูหนังเรื่องสึนามิ	risk<60	ไม่ใช่ภัย
+คอลเซ็นเตอร์อ้างเป็นตำรวจ ให้โอนเงินตรวจสอบ	topic:scam	มิจฉาชีพ
+มีคนโทรมาบอกว่าพัสดุมียาเสพติด	topic:scam	มิจฉาชีพ
+ลงทุนได้ 30% ต่อเดือน การันตี	risk>=60	มิจฉาชีพ
+แฟนที่คุยในเน็ตขอยืมเงิน ยังไม่เคยเจอตัว	scam:romance	มิจฉาชีพ
+ได้รางวัลแต่ต้องโอนค่าภาษีก่อน	topic:scam	มิจฉาชีพ
+someone from the bank called asking for my OTP	topic:scam	มิจฉาชีพ
+งานกดไลก์รับเงิน	scam:job	งานหลอก
+ทำงานที่กัมพูชา เงินดี ไม่ต้องมีประสบการณ์	scam:job	งานหลอก
+ซื้อของออนไลน์ไม่ได้ของ	scam:lost	มิจฉาชีพ
+โอนเงินผิดบัญชี	!scam	เงิน
+เงินเดือนไม่พอใช้	topic:money	เงิน
+หนี้ท่วมหัว	topic:debt	หนี้
+โดนทวงหนี้ขู่จะมาที่บ้าน	topic:debt	หนี้
+can't pay my rent this month	topic:housing	ที่อยู่
+ไม่มีเงินซื้อนมให้ลูก	topic:basic	ปัจจัยพื้นฐาน
+ถูกเลิกจ้างกะทันหัน ไม่ได้ค่าชดเชย	topic:labor	แรงงาน
+นายจ้างยึดพาสปอร์ต	topic:labor	แรงงาน
+ถูกตำรวจจับ	topic:legal	กฎหมาย
+โดนฟ้อง	topic:legal	กฎหมาย
+ถูกยืมเงินแล้วไม่คืน	!scam	เงิน
+แฟนนอกใจ	topic:relationship	ความรัก
+อกหัก	topic:relationship	ความรัก
+พ่อแม่ไม่เข้าใจ	topic:family	ครอบครัว
+ลูกไม่ยอมไปโรงเรียน	topic:family	ครอบครัว
+สอบตก	topic:study	เรียน
+ไม่มีเงินจ่ายค่าเทอม	topic:study	เรียน
+รู้สึกว่างเปล่า	topic:stress	เครียด
+หมดไฟกับงาน	topic:stress	เครียด
+ใจสั่น มือเย็น หายใจถี่ กลัวจะตาย	topic:panic	แพนิค
+ติดบุหรี่ไฟฟ้า	topic:addiction	เสพติด
+เล่นสล็อตหมดตัว	topic:addiction	เสพติด
+อยากหยุดกินยาซึมเศร้าเอง	topic:stop_meds	ยา
+หมอบอกว่าเป็นมะเร็ง	topic:diagnosis	วินิจฉัย
+อายุ 14 ท้อง	topic:pregnancy;risk>=65	ท้อง
+ดูแลแม่ติดเตียงมา 3 ปี หมดแรง	topic:caregiver	ผู้ดูแล
+ล้วงคอหลังกินทุกมื้อ	topic:eating	การกิน
+ซื้อบ้านดีไหม	!crisis;!scam	ทั่วไป
+ทำกับข้าวอะไรดี	none	ทั่วไป
+อยากเรียนภาษาญี่ปุ่น	none	ทั่วไป
+วันนี้ได้โบนัส ดีใจมาก	none	ทั่วไป
+หมาที่บ้านน่ารักมาก	none	ทั่วไป
+ช่วยเขียนอีเมลลาป่วยให้หน่อย	none	ทั่วไป
+# ห้ามจับ (กันไม่ให้ตัวจับใหม่ของรอบ 18 จับผิด)
+life is worth living	!crisis	สำนวน
+พรุ่งนี้ไม่มีฉันในที่ประชุมนะ	!crisis	สำนวน
+เตรียมยาไว้ไปเที่ยว	!topic:warning	กำกวม
+ตึกสั่นเพราะเพลงข้างห้อง	!disaster	ไม่ใช่ภัย
+เพื่อนบ้านตีกลอง	!topic:witness	พยาน
+อายุ 14 ปี อยากเรียนต่อ	!topic:pregnancy	ทั่วไป
+ได้รางวัลที่หนึ่งจากการประกวด	!scam	ทั่วไป
+
+# ── ภาษาอื่น (จีน ญี่ปุ่น เกาหลี สเปน) ──────────────────────────────
+我想死	crisis	ภาษาอื่น:วิกฤต
+不想活了	crisis	ภาษาอื่น:วิกฤต
+死にたい	crisis	ภาษาอื่น:วิกฤต
+消えたい	crisis	ภาษาอื่น:วิกฤต
+죽고 싶어	crisis	ภาษาอื่น:วิกฤต
+quiero morir	crisis	ภาษาอื่น:วิกฤต
+no quiero vivir	crisis	ภาษาอื่น:วิกฤต
+想死你了	!crisis;none	ภาษาอื่น:สำนวน
+死ぬほど笑った	!crisis;none	ภาษาอื่น:สำนวน
+죽을 만큼 웃겼어	!crisis;none	ภาษาอื่น:สำนวน
+me muero de risa	!crisis;none	ภาษาอื่น:สำนวน
+sueño con morir de viejo	!crisis	ภาษาอื่น:สำนวน
+我朋友说他想自杀	!crisis;topic:someone;intl:someone	ภาษาอื่น:คนอื่นวิกฤต
+友達が死にたいと言っている	!crisis;topic:someone	ภาษาอื่น:คนอื่นวิกฤต
+친구가 죽고 싶대	!crisis;topic:someone	ภาษาอื่น:คนอื่นวิกฤต
+mi amigo quiere suicidarse	!crisis;topic:someone	ภาษาอื่น:คนอื่นวิกฤต
+友達が死にたいと言っている、私も死にたい	crisis	ภาษาอื่น:วิกฤต
+我妈妈晕倒了	topic:health_emergency;risk>=85	ภาษาอื่น:ฉุกเฉิน
+母が倒れた	topic:health_emergency	ภาษาอื่น:ฉุกเฉิน
+엄마가 쓰러졌어	topic:health_emergency	ภาษาอื่น:ฉุกเฉิน
+mi mamá se desmayó	topic:health_emergency	ภาษาอื่น:ฉุกเฉิน
+孩子没有呼吸	topic:health_emergency	ภาษาอื่น:ฉุกเฉิน
+no puedo respirar	topic:health_emergency	ภาษาอื่น:ฉุกเฉิน
+我被老公打了	topic:violence;risk>=85	ภาษาอื่น:รุนแรง
+夫に殴られた	topic:violence	ภาษาอื่น:รุนแรง
+남편한테 맞았어	topic:violence	ภาษาอื่น:รุนแรง
+mi esposo me pegó	topic:violence	ภาษาอื่น:รุนแรง
+地震了	intl:disaster;risk>=70	ภาษาอื่น:ภัย
+火事だ	intl:disaster	ภาษาอื่น:ภัย
+불이 났어	intl:disaster	ภาษาอื่น:ภัย
+hay un incendio en mi casa	intl:disaster	ภาษาอื่น:ภัย
+津波が来る	intl:disaster	ภาษาอื่น:ภัย
+有人冒充警察让我转账到安全账户	intl:scam;risk>=70	ภาษาอื่น:มิจฉาชีพ
+警察を名乗る人から送金しろと言われた	intl:scam	ภาษาอื่น:มิจฉาชีพ
+경찰이라며 돈을 보내래	intl:scam	ภาษาอื่น:มิจฉาชีพ
+me pidieron transferir dinero	intl:scam	ภาษาอื่น:มิจฉาชีพ
+今天天气很好	none	ภาษาอื่น:ทั่วไป
+おはようございます	none	ภาษาอื่น:ทั่วไป
+오늘 날씨 좋다	none	ภาษาอื่น:ทั่วไป
+hola, ¿cómo estás?	none	ภาษาอื่น:ทั่วไป

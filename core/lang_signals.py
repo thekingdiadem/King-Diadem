@@ -22,7 +22,9 @@ _ES_WORDS = {"que", "de", "la", "el", "y", "los", "las", "por", "para", "estoy",
 
 # คำที่แทบไม่เจอในภาษาอังกฤษ — เจอคำเดียวก็พอ ("quiero morir" มีคำทั่วไปแค่คำเดียว)
 _ES_STRONG = {"quiero", "estoy", "tengo", "hola", "gracias", "ayuda", "morir", "vivir", "necesito",
-              "puedo", "siento", "nadie", "nada", "muero", "triste", "dinero", "trabajo"}
+              "puedo", "siento", "nadie", "nada", "muero", "triste", "dinero", "trabajo",
+              "hay", "terremoto", "incendio", "esposo", "esposa", "amigo", "amiga", "socorro", "pegó", "suicidarse",
+              "pidieron", "transferir", "casa", "mamá", "papá"}
 
 
 def detect_lang(text) -> str:
@@ -39,7 +41,8 @@ def detect_lang(text) -> str:
         return "zh"
     low = t.lower()
     words = set(re.findall(r"[a-záéíóúüñ]+", low))
-    if _ES_CHARS.search(low) or len(words & _ES_WORDS) >= 2 or words & _ES_STRONG:
+    # สระมีเครื่องหมาย (mamá, desmayó) ก็บอกว่าเป็นสเปน — "mi mamá se desmayó" เคยถูกเดาเป็นอังกฤษ
+    if _ES_CHARS.search(low) or re.search(r"[áéíóú]", low) or len(words & _ES_WORDS) >= 2 or words & _ES_STRONG:
         return "es"
     return "en"
 
@@ -150,4 +153,148 @@ def compose_intl(lang: str, crisis: bool, status: str, sign: str, footer: bool =
         return CRISIS[lang].format(help=HELP[lang]) + f"\n\n{sign}" + tag
     opener, paths, ask = GENERAL[lang]
     body = "\n".join(f"{i + 1}) {p}" for i, p in enumerate(paths))
+    return f"{opener}\n\n{status}\n\n{body}\n\n{ASK_LABEL[lang]} {ask}\n\n{sign}" + tag
+
+
+# ══════════════════════════════════════════════════════════════════
+# เรื่องด่วนภาษาอื่น (zh ja ko es) — ทดสอบรอบ 18: เดิมจับได้แค่ "อยากตาย"
+# "แม่เป็นลม" "ถูกสามีตี" "แผ่นดินไหว" "ตำรวจให้โอนเงิน" ได้คำตอบ "ลองเรียงเรื่องทีละขั้น" ที่ Risk 45
+# และ "เพื่อนบอกว่าอยากตาย" ถูกตอบเหมือนผู้ใช้อยากตายเอง
+# ══════════════════════════════════════════════════════════════════
+# (ชนิด, หัวข้อในระบบไทย, รูปประโยคต่อภาษา)
+URGENT_INTL = (
+    ("someone", "someone", {
+        "zh": r"(?:朋友|同学|妈妈|爸爸|母亲|父亲|老公|老婆|丈夫|妻子|男朋友|女朋友|孩子|儿子|女儿|哥哥|姐姐|弟弟|妹妹|他|她)[^。！？\n]{0,8}?(?:说|說|发消息|留言|告诉我)?[^。！？\n]{0,6}?(?:想死|想自杀|想自殺|不想活|要自杀|要自殺|轻生)",
+        "ja": r"(?:友達|友人|母|父|夫|妻|彼氏|彼女|子ども|子供|息子|娘|兄|姉|弟|妹|彼|彼女)[^。！？\n]{0,8}?(?:が|は)[^。！？\n]{0,10}?(?:死にたい|自殺|消えたい)",
+        "ko": r"(?:친구|엄마|아빠|남편|아내|남자친구|여자친구|아이|아들|딸|형|오빠|언니|누나|동생|그|그녀)[가-힯\s]{0,8}?(?:가|이|는|은)?\s*[가-힯\s]{0,6}?(?:죽고\s*싶대|죽고\s*싶다고|자살하고\s*싶대|자살하겠다)",
+        "es": r"\bmi\s+(?:amig[oa]|mamá|madre|papá|padre|herman[oa]|hij[oa]|novi[oa]|espos[oa]|pareja)\s+(?:dice\s+que\s+)?(?:quiere\s+(?:morir|suicidarse|matarse)|se\s+quiere\s+(?:morir|matar)|habla\s+de\s+suicid)",
+    }),
+    ("medical", "health_emergency", {
+        "zh": r"晕倒|昏倒|昏迷|没有呼吸|沒有呼吸|不能呼吸|喘不过气|胸口(?:剧痛|很痛|疼)|心脏病发|中风|抽搐|大出血|吃了(?:很多|一整瓶|整瓶)?(?:药|安眠药)|喝了农药|溺水",
+        "ja": r"倒れ(?:た|ている)|意識がない|息をしていない|呼吸(?:が|できない)|胸が(?:痛|苦し)|心臓発作|脳卒中|けいれん|大量出血|薬を(?:たくさん|大量に)飲|溺れ",
+        "ko": r"쓰러졌|의식이\s*없|숨을\s*안\s*쉬|숨을\s*못\s*쉬|숨이\s*안\s*쉬어|가슴이\s*(?:너무\s*)?아파|심장마비|뇌졸중|경련|피가\s*멈추지\s*않|약을\s*(?:많이|한\s*통)|물에\s*빠졌",
+        "es": r"se\s+desmay[óo]|inconsciente|no\s+respira|no\s+puedo\s+respirar|dolor\s+(?:fuerte\s+)?(?:en\s+el|de)\s+pecho|infarto|derrame\s+cerebral|convulsi|sangra\s+mucho|se\s+tom[óo]\s+(?:muchas|todas\s+las)\s+pastillas|se\s+est[áa]\s+ahogando",
+    }),
+    ("violence", "violence", {
+        "zh": r"(?:被|挨)[^。！？\n]{0,4}?(?:打|殴打|家暴|强奸|性侵)|(?:老公|丈夫|老婆|男朋友|爸爸|妈妈)[^。！？\n]{0,3}?打我|家暴",
+        "ja": r"(?:に|から)(?:殴られ|叩かれ|蹴られ|暴力を振るわれ|襲われ)|DV|性的暴行|レイプ",
+        "ko": r"(?:한테|에게)\s*(?:맞았|맞고|폭행|성폭행)|때려요|때렸어|가정폭력|성폭력",
+        "es": r"me\s+(?:peg[óoa]|golpe[óoa]|golpea|maltrata|viol[óo])|violencia\s+(?:doméstica|domestica|de\s+género)|abus[óo]\s+de\s+m[ií]",
+    }),
+    ("disaster", "disaster", {
+        "zh": r"地震了|地震|着火了|著火了|失火|火灾|火災|发大水|洪水|海啸|海嘯|煤气泄漏|瓦斯外洩|燃气泄漏|山体滑坡|泥石流",
+        "ja": r"地震|火事|火災|洪水|浸水|津波|ガス漏れ|土砂崩れ",
+        "ko": r"지진|불이\s*났|화재|홍수|침수|쓰나미|해일|가스\s*(?:가\s*)?새|산사태",
+        "es": r"terremoto|sismo|incendio|se\s+est[áa]\s+quemando|inundaci[óo]n|tsunami|fuga\s+de\s+gas|huele\s+a\s+gas|deslizamiento",
+    }),
+    ("scam", "scam", {
+        "zh": r"(?:冒充|自称|说是)[^。！？\n]{0,6}?(?:警察|公安|银行|检察院|法院|客服)[^。！？\n]{0,16}?(?:转账|汇款|验证码|安全账户)|(?:让我|要我)转账[^。！？\n]{0,10}?(?:警察|安全账户)|验证码[^。！？\n]{0,6}?(?:告诉|发给)|安全账户|刷单",
+        "ja": r"(?:警察|銀行|役所|税務署)(?:を名乗る|だと名乗る|と名乗る)[^。！？\n]{0,20}?(?:送金|振り込|暗証番号)|(?:送金|振り込み?)(?:しろ|して)と言われ|オレオレ|還付金|暗証番号を(?:教え|聞かれ)",
+        "ko": r"(?:경찰|검찰|은행|금감원)(?:이라며|이라고\s*하면서|을\s*사칭)[가-힯\s]{0,20}?(?:돈|송금|이체|계좌)|보이스\s*피싱|인증번호를?\s*(?:알려|보내)|안전\s*계좌",
+        "es": r"(?:dice|dijo|dicen)\s+(?:ser|que\s+es)\s+(?:de\s+la\s+)?(?:polic[ií]a|banco)[^.!?\n]{0,30}?(?:transfer|dinero|c[óo]digo)|me\s+pidieron\s+(?:transferir|depositar|enviar)\s+dinero|c[óo]digo\s+de\s+verificaci[óo]n|ganaste\s+un\s+premio",
+    }),
+)
+_URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
+
+
+def strip_someone_intl(text) -> str:
+    """ตัดประโยคที่เล่าว่าคนอื่นอยากตาย (zh ja ko es) — เหลือเฉพาะสิ่งที่ผู้ใช้พูดถึงตัวเอง"""
+    t = str(text or "")
+    for k, _, by in _URGENT_RX:
+        if k == "someone":
+            for rx in by.values():
+                t = rx.sub(" ", t)
+    return t
+
+
+def urgent_intl(text, lang: str | None = None) -> list:
+    """เรื่องด่วนในภาษา zh ja ko es → [(ชนิด, หัวข้อในระบบไทย)] เรียงตามความเร่งด่วน"""
+    t = str(text or "")
+    if lang == "all":                        # ภาษาปนกัน ("我朋友说他想自杀ค่ะ") — รูปประโยคแต่ละภาษาใช้ตัวอักษรของมันเอง ตรวจทุกภาษาได้
+        return [(k, topic) for k, topic, by in _URGENT_RX if any(rx.search(t) for rx in by.values())]
+    lang = lang or detect_lang(t)
+    return [(k, topic) for k, topic, by in _URGENT_RX if lang in by and by[lang].search(t)]
+
+
+URGENT_REPLY = {
+    "someone": {
+        "zh": ("谢谢你关心他/她 — 你的陪伴比你想象的更重要。", ["现在就直接问：“你是不是想结束生命？” 问出口不会让情况变糟。",
+               "如果他/她有危险或已经伤害自己，立刻拨打 120（急救）或 110。", "尽量不要让他/她一个人待着，并把药物、刀具等收起来。"],
+               "他/她现在和别人在一起吗？"),
+        "ja": ("その人のことを気にかけてくれてありがとう。あなたがそばにいることには大きな意味があります。",
+               ["「死にたいと思っている？」とはっきり聞いてください。聞いても悪化しません。",
+                "危険な状態やすでに自分を傷つけているなら、すぐに 119 に電話してください。",
+                "できるだけ一人にしないで、薬や刃物を遠ざけてください。"], "その人は今、誰かと一緒にいますか？"),
+        "ko": ("그 사람을 걱정해줘서 고마워요. 곁에 있어 주는 것이 생각보다 큰 힘이 돼요.",
+               ["\"혹시 죽고 싶은 생각이 있어?\"라고 직접 물어보세요. 묻는다고 더 나빠지지 않아요.",
+                "위험하거나 이미 자해했다면 바로 119에 전화하세요. 자살예방 상담전화 109(24시간)에서 어떻게 도울지 상담할 수 있어요.",
+                "가능하면 혼자 두지 말고, 약이나 칼 같은 것은 치워 주세요."], "그 사람은 지금 누군가와 함께 있나요?"),
+        "es": ("Gracias por preocuparte por esa persona — estar ahí importa más de lo que crees.",
+               ["Pregúntale directamente: \"¿Estás pensando en quitarte la vida?\". Preguntar no empeora las cosas.",
+                "Si está en peligro o ya se hizo daño, llama ahora al 112 (España) o al 911 (México y EE. UU.).",
+                "Intenta que no se quede sola y aleja medicamentos, cuchillos o armas."], "¿Esa persona está acompañada ahora mismo?"),
+    },
+    "medical": {
+        "zh": ("这是紧急情况 — 先打电话，再做其他事。", ["立即拨打 120（急救），说清楚地址和症状。",
+               "没有呼吸或叫不醒：按电话里急救人员的指导做胸外按压。", "不要喂水或食物，把吃过的药或东西的包装留着给医生看。"],
+               "现在有人在病人身边吗？"),
+        "ja": ("緊急事態です — まず電話してください。", ["今すぐ 119 に電話し、住所と症状を伝えてください。",
+               "呼吸がない・呼びかけに反応しない場合は、電話の指示に従って胸骨圧迫をしてください。",
+               "水や食べ物を与えず、飲んだ薬などの容器は医師に見せるため残しておいてください。"], "今、その人のそばに誰かいますか？"),
+        "ko": ("응급 상황이에요 — 먼저 전화부터 해 주세요.", ["지금 바로 119에 전화해서 주소와 증상을 말해 주세요.",
+               "숨을 쉬지 않거나 깨워도 반응이 없으면, 전화 안내에 따라 가슴압박을 해 주세요.",
+               "물이나 음식을 주지 말고, 먹은 약이나 물건의 포장은 의사에게 보여줄 수 있게 남겨 두세요."], "지금 환자 곁에 누가 있나요?"),
+        "es": ("Es una emergencia — primero llama, después todo lo demás.", ["Llama ahora al 112 (España) o al 911 (México y EE. UU.) y di la dirección y los síntomas.",
+               "Si no respira o no responde, sigue las instrucciones del operador para hacer compresiones en el pecho.",
+               "No le des agua ni comida, y guarda el envase de lo que haya tomado para enseñarlo al médico."], "¿Hay alguien con la persona ahora mismo?"),
+    },
+    "violence": {
+        "zh": ("这不是你的错，你值得安全。", ["如果现在有危险，立刻拨打 110。", "先去安全的地方：邻居、亲友家，或人多的地方。",
+               "保留证据：伤口照片、聊天记录、就医记录。全国妇联热线 12338 可以提供帮助。"], "你现在安全吗？"),
+        "ja": ("あなたのせいではありません。あなたには安全でいる権利があります。", ["今危険なら、すぐに 110 に電話してください。",
+               "まず安全な場所へ：近所、家族や友人の家、人の多い場所。", "証拠を残してください（けがの写真、メッセージ、診断書）。DV相談ナビ #8008 で相談できます。"],
+               "今、安全な場所にいますか？"),
+        "ko": ("당신 잘못이 아니에요. 안전할 권리가 있어요.", ["지금 위험하다면 바로 112에 전화하세요.",
+               "먼저 안전한 곳으로 가세요: 이웃, 가족이나 친구 집, 사람이 많은 곳.", "증거를 남겨 두세요(상처 사진, 메시지, 진단서). 여성긴급전화 1366(24시간)에서 도움을 받을 수 있어요."],
+               "지금 안전한 곳에 있나요?"),
+        "es": ("No es tu culpa. Mereces estar a salvo.", ["Si estás en peligro ahora, llama al 112 (España) o al 911 (México y EE. UU.).",
+               "Ve primero a un lugar seguro: un vecino, familiares o amigos, o un sitio con gente.",
+               "Guarda pruebas (fotos de lesiones, mensajes, partes médicos). En España, el 016 atiende 24 horas y no deja rastro en la factura."],
+               "¿Estás en un lugar seguro ahora mismo?"),
+    },
+    "disaster": {
+        "zh": ("安全第一 — 东西可以再买，人最重要。", ["地震：先趴下、护住头、抓牢桌子；停止摇晃后走楼梯离开，不坐电梯。",
+               "火灾或煤气泄漏：不要开关电器，捂住口鼻低身离开，到外面再拨打 119。", "洪水或海啸：立刻往高处走，不要涉水或开车穿过积水。"],
+               "你现在在哪里，身边有人吗？"),
+        "ja": ("今は身の安全が最優先です — 物は取り戻せます。", ["地震：姿勢を低くして頭を守り、机につかまる。揺れが収まったら階段で外へ（エレベーターは使わない）。",
+               "火事・ガス漏れ：電気のスイッチに触れず、口と鼻を覆って低い姿勢で外へ出てから 119 へ。", "津波・洪水：すぐに高い所へ。水の中を歩いたり車で進んだりしない。"],
+               "今どこにいますか？一緒にいる人はいますか？"),
+        "ko": ("지금은 안전이 먼저예요 — 물건은 다시 마련할 수 있어요.", ["지진: 몸을 낮추고 머리를 보호하며 탁자를 잡으세요. 흔들림이 멈추면 계단으로 나가세요(엘리베이터 금지).",
+               "화재·가스 누출: 전기 스위치를 건드리지 말고, 입과 코를 막고 낮은 자세로 나간 뒤 119에 전화하세요.", "쓰나미·홍수: 바로 높은 곳으로 가세요. 물속을 걷거나 차로 지나가지 마세요."],
+               "지금 어디에 있고, 함께 있는 사람이 있나요?"),
+        "es": ("Tu seguridad es lo primero — las cosas se pueden reponer.", ["Terremoto: agáchate, cúbrete la cabeza y sujétate a una mesa; cuando pare, sal por las escaleras (no uses el ascensor).",
+               "Incendio o fuga de gas: no toques interruptores, cúbrete nariz y boca, sal agachado y llama al 112 / 911 desde fuera.",
+               "Inundación o tsunami: sube a un lugar alto ya. No camines ni conduzcas por el agua."], "¿Dónde estás ahora y hay alguien contigo?"),
+    },
+    "scam": {
+        "zh": ("这很像诈骗 — 先停下，不要转账。", ["真正的警察、法院、银行不会让你转账到“安全账户”，也不会要验证码。",
+               "挂掉电话，自己查官方号码再打回去确认。", "如果已经转账，马上打银行电话止付，并拨打 110 或反诈热线 96110。"],
+               "你已经转账或告诉对方验证码了吗？"),
+        "ja": ("詐欺の可能性が高いです — 送金はいったん止めてください。", ["本物の警察や銀行が送金や暗証番号を求めることはありません。",
+               "電話を切り、公式の番号を自分で調べてかけ直して確認してください。", "すでに送金したら、すぐ銀行に連絡し、警察相談専用電話 #9110 か 110 へ。"],
+               "もう送金したり、番号を伝えたりしましたか？"),
+        "ko": ("보이스피싱일 가능성이 높아요 — 송금하지 말고 잠깐 멈추세요.", ["진짜 경찰·검찰·은행은 \"안전 계좌\"로 돈을 보내라거나 인증번호를 묻지 않아요.",
+               "전화를 끊고, 공식 번호를 직접 찾아서 다시 확인하세요.", "이미 송금했다면 바로 은행에 지급정지를 요청하고 112에 신고하세요."],
+               "이미 돈을 보냈거나 인증번호를 알려줬나요?"),
+        "es": ("Esto tiene señales de estafa — no transfieras nada todavía.", ["La policía o tu banco nunca te pedirán transferir dinero a una \"cuenta segura\" ni tus códigos.",
+               "Cuelga y llama tú al número oficial para comprobarlo.", "Si ya transferiste, llama a tu banco para bloquearlo y denuncia a la policía (112 / 911)."],
+               "¿Ya enviaste dinero o diste algún código?"),
+    },
+}
+
+
+def compose_urgent_intl(lang: str, kind: str, status: str, sign: str, footer: bool = True) -> str:
+    opener, steps, ask = URGENT_REPLY[kind][lang]
+    tag = "\n" + FOOTER[lang] if footer else ""
+    body = "\n".join(f"{i + 1}) {s}" for i, s in enumerate(steps))
     return f"{opener}\n\n{status}\n\n{body}\n\n{ASK_LABEL[lang]} {ask}\n\n{sign}" + tag
