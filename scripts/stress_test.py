@@ -70,7 +70,8 @@ for i in range(N):
         if kind in ("suffix", "space") and t.strip() != src.strip():
             b = assess(src)
             v("ลงท้ายแล้ววิกฤตเปลี่ยน", b["crisis"] != a["crisis"] and not t.strip().endswith("ช่วยด้วย"))
-            v("ลงท้ายแล้วหัวข้อหลักหาย", b["topics"][:1] and b["topics"][0] not in a["topics"])
+            # "555" ระบบตั้งใจอ่านเป็นการพูดเล่น (เช่น "ชีวิตจบแล้ว 555") — ไม่นับ
+            v("ลงท้ายแล้วหัวข้อหลักหาย", b["topics"][:1] and b["topics"][0] not in a["topics"] and not t.rstrip().endswith("555"))
         if kind == "upper":
             v("ตัวพิมพ์ใหญ่แล้ววิกฤตหาย", assess(src)["crisis"] and not a["crisis"])
     except Exception as e:

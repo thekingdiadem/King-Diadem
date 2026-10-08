@@ -45,3 +45,20 @@ def test_someone_elses_farewell(t):
                                "เพื่อนบอกว่าพรุ่งนี้คงไม่มีฉันแล้ว ส่วนฉันก็อยากตายเหมือนกัน"])
 def test_users_own_crisis_still_detected(t):
     assert assess(t)["crisis"]
+
+
+# ── พบจากทดสอบหนัก: คำลงท้าย/อีโมจิทำให้สัญญาณหาย · ไปนอนไม่ใช่คำบอกลา ──
+@pytest.mark.parametrize("t", ["ไม่อยากตื่น 🥲", "ไม่อยากตื่น จริงๆ"])
+def test_warning_survives_trailers(t):
+    assert "warning" in assess(t)["topics"]
+
+
+@pytest.mark.parametrize("t", ["ไม่ไหวแล้วจริงๆ ขอไปก่อนนะนะ", "ไม่ไหวแล้วจริงๆ ขอไปก่อนนะอะ", "ไม่ไหวแล้ว ขอไปก่อนนะ"])
+def test_farewell_survives_trailers(t):
+    assert assess(t)["crisis"]
+
+
+@pytest.mark.parametrize("t", ["ง่วงไม่ไหวแล้ว ขอไปก่อนนะ เดี๋ยวคุยต่อพรุ่งนี้", "ไม่ไหวแล้ว ขอไปนอนก่อนนะ ฝันดี",
+                               "ไม่อยากตื่นเช้าไปทำงาน"])
+def test_going_to_bed_is_not_a_farewell(t):
+    assert not assess(t)["crisis"]
