@@ -5,7 +5,7 @@
 from __future__ import annotations
 import re
 from core.thai_signals import (normalize_mixed, reported_clauses, NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, SELF_HARM_INDIRECT, SELF_HARM_WARNING, SELF_INJURY,
-                               OVERDOSE, THIRD_PARTY_CRISIS, strip_third_party, has as _has)
+                               OVERDOSE, THIRD_PARTY_CRISIS, strip_third_party, strip_pet_poison, has as _has)
 from core.lang_signals import SELF_HARM_INTL
 
 _SELF_HARM = ("อยากตาย", "ฆ่าตัวตาย", "ฆ่าตัวเอง", "ทำร้ายตัวเอง", "ไม่อยากมีชีวิต",
@@ -59,7 +59,7 @@ def evaluate_risk(text: str) -> dict:
     if any(_has(t, k) for k in _STRESS):
         score += 2
     # กินยาเกินขนาด/สารพิษ = ฉุกเฉินทางการแพทย์ · สัญญาณเตือนทำร้ายตัวเอง = ต้องถามให้ชัด
-    overdose = bool(OVERDOSE.search(t))
+    overdose = bool(OVERDOSE.search(strip_pet_poison(t)))   # "หมากินยาเบื่อหนู" ไม่ใช่คนกินยาเกินขนาด
     if overdose:
         score += 4
     warning = not self_harm and bool(SELF_HARM_WARNING.search(own))

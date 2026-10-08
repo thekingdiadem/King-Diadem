@@ -24,7 +24,8 @@ from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAP
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
                                MISSING_PERSON, LABOR_RIGHTS, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
-                               HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE)
+                               HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE,
+                               PET_POISON, strip_pet_poison)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl
 from core.engine_bridge import analyze as bridge_analyze, rank_options
 
@@ -110,6 +111,17 @@ TOPICS = [
             f"ถ้าตั้งใจทำร้ายตัวเอง บอกเจ้าหน้าที่ตรงๆ ได้ และหลังจากนี้คุยต่อได้ที่ {HOTLINE_MENTAL} — คุณไม่ต้องผ่านเรื่องนี้คนเดียว",
         ],
         "ask": "ตอนนี้มีใครอยู่ใกล้ตัวที่ช่วยพาไปโรงพยาบาลได้บ้าง?",
+    }),
+    ("pet_poison", [PET_POISON], {
+        "open": ["รีบหน่อยนะ — เรื่องนี้รอดูอาการไม่ได้"],
+        "paths": [
+            "พาไปโรงพยาบาลสัตว์ตอนนี้ แม้น้องยังดูปกติ — พิษหลายชนิดออกฤทธิ์ช้าเป็นชั่วโมงหรือเป็นวัน โทรบอกคลินิกก่อนไปว่ากินอะไร เท่าไหร่ กี่โมง",
+            ([re.compile(r"แมว|cat|kitten")],
+             "แมวไวต่อพิษกว่าหมามาก — ยาพาราแม้เม็ดเดียว และดอก/ใบ/เกสรลิลลี่แม้นิดเดียวก็ทำให้ไตวายหรือเสียชีวิตได้"),
+            "อย่าทำให้อาเจียนเองด้วยน้ำเกลือหรือล้วงคอถ้าสัตวแพทย์ไม่ได้บอก · เก็บซอง ฉลาก แผงยา หรือของที่เหลือไปให้หมอดู",
+            "หาคลินิกที่เปิด 24 ชม. ไว้ล่วงหน้า และเก็บยา ช็อกโกแลต องุ่น ยาเบื่อ ให้พ้นที่ที่น้องเอื้อมถึง",
+        ],
+        "ask": "น้องกินไปประมาณเท่าไหร่ และนานแค่ไหนแล้ว?",
     }),
     ("scam", [re.compile(r"(?!)")], {           # เลือกจาก scam_flags() ไม่ใช่จากคำ
         "open": ["เรื่องนี้มีลักษณะของมิจฉาชีพ — หยุดก่อน ยังไม่ต้องทำตามที่เขาบอก"],
@@ -898,12 +910,12 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("overdose", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("overdose", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"pet_poison": 70, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
@@ -932,6 +944,11 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     # "พี่เคยทำร้ายเขา … ตอนนี้ไม่มีแล้ว" — ผู้ใช้สารภาพเรื่องเก่า ไม่ใช่คนที่กำลังถูกทำร้าย
     t_now, own = strip_own_past_harm(t), strip_own_past_harm(own)
     topics = [name for name, phrases, _ in TOPICS if _hit(own if name in _OWN_ONLY else t_now, phrases)]
+    # สัตว์เลี้ยงกินของมีพิษ: ยาเกินขนาด/ปฐมพยาบาล/สุขภาพ ต้องเป็นเรื่องของคนในส่วนที่เหลือของข้อความ
+    if "pet_poison" in topics:
+        human = strip_pet_poison(t_now)
+        topics = [n for n in topics if n not in ("overdose", "first_aid", "health")
+                  or _hit(human, next(ph for nm, ph, _ in TOPICS if nm == n))]
     if tr.get("third_party") and "someone" not in topics:      # "เพื่อนบอกว่ากรีดแขน" — คนอื่นกำลังวิกฤต
         topics.insert(0, "someone")
     # ภาษาอื่น (zh ja ko es): เรื่องด่วนเข้าหัวข้อเดียวกับภาษาไทย — "เพื่อนอยากตาย" ไม่ใช่วิกฤตของผู้ใช้เอง

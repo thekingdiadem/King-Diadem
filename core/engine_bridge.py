@@ -692,6 +692,10 @@ def rank_options(options: list, waterline: float = 50, entropy: float = 40) -> l
 # ยังตอบเรื่องที่ผู้ใช้ถามตามปกติ แค่ให้ทางที่ไม่ทำร้ายเป็นตัวเลือกแรก · สัตว์ป่วย → หาหมอ
 def _animal(text: str) -> dict | None:
     from WORLD_MODEL.small_animal_model import full_assessment
+    from core.thai_signals import PET_POISON
+    # "หมากินยาเบื่อหนู" — สัตว์เลี้ยงกำลังเป็นพิษ ไม่ใช่เวลาคุยเรื่องไล่หนูแบบไม่ฆ่า
+    if PET_POISON.search(text):
+        return None
     a = full_assessment(text)
     animals = [x["thai"] for x in a["animal_detection"]["animals"]]
     sick = (a.get("welfare") or {}).get("welfare_status") == "POOR"
