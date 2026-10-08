@@ -73,3 +73,35 @@ def test_everyday_sentences_stay_calm(t):
                                       ("แม่เป็นเบาหวาน หน้ามืดจะเป็นลม", "น้ำตาลต่ำ")])
 def test_specific_first_steps(t, needle):
     assert needle in compose(t)
+
+
+# ── ผู้ใหญ่ชวนไปที่ลับตาคนเดียว (เจ้าของโปรเจกต์: เสี่ยง แต่ให้ถามให้ละเอียดและชวนครอบครัวไปด้วย) ──
+@pytest.mark.parametrize("t", ["ครูให้ไปหาที่บ้านคนเดียวตอนกลางคืน", "โค้ชชวนไปห้องพักคนเดียว บอกว่าห้ามบอกพ่อแม่",
+                               "my coach asked me to come to his house alone"])
+def test_adult_invite(t):
+    a = assess(t)
+    assert "adult_invite" in a["topics"] and a["text_risk"] >= 55
+
+
+def test_secrecy_raises_risk():
+    assert assess("โค้ชชวนไปห้องพักคนเดียว บอกว่าห้ามบอกพ่อแม่")["text_risk"] >= 65
+
+
+@pytest.mark.parametrize("t", ["ครูให้ไปเอางานที่ห้องพักครูตอนพักเที่ยง", "ครูให้ไปหาที่บ้านพร้อมเพื่อนๆ ตอนบ่ายวันเสาร์",
+                               "ครูให้ไปหาที่บ้านตอนกลางคืนกับพ่อ", "ลุงชวนไปกินข้าวที่บ้าน", "แม่ให้ไปซื้อของคนเดียว"])
+def test_ordinary_invites(t):
+    assert "adult_invite" not in assess(t)["topics"]
+
+
+def test_adult_invite_reply_asks_and_brings_family():
+    out = compose("ครูให้ไปหาที่บ้านคนเดียวตอนกลางคืน")
+    assert "ถามให้ละเอียด" in out and "พ่อแม่หรือคนในครอบครัวไปด้วย" in out and "1387" in out
+
+
+@pytest.mark.parametrize("text,needle", [("หมากินยาเบื่อหนู", "โรงพยาบาลสัตว์"),
+                                         ("ครูให้ไปหาที่บ้านคนเดียวตอนกลางคืน", "ชวนพ่อแม่หรือคนในครอบครัวไปด้วย")])
+def test_ai_gets_the_guidance(client, text, needle):
+    from tests.conftest import FAKE_LLM
+    r = client.post("/run", json={"input": text}, headers={"cf-connecting-ip": f"10.9.{len(text)}.19"})
+    assert r.status_code == 200
+    assert FAKE_LLM["prompts"] and needle in FAKE_LLM["prompts"][-1]

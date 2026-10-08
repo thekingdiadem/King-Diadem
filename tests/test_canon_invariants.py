@@ -30,6 +30,18 @@ def test_every_reply_offers_at_most_three_options(replies):
     assert not over
 
 
+@pytest.mark.parametrize("route", ["survival", "collapse", "risk"])
+def test_every_route_offers_at_most_three_options(route):
+    """เดิม paths[:4] — เส้นทาง survival/collapse แทรกข้อทั่วไปจนเสนอ 4 ทาง"""
+    over = [r["text"] for r in _ROWS if offered_choices(compose(r["text"], route=route)) > MAX_OPTIONS]
+    assert not over
+
+
+def test_urgent_steps_are_not_pushed_out_by_route_lines():
+    out = compose("ไม่อยากตื่น", route="collapse")
+    assert "1323" in out and "Stop the line" not in out
+
+
 def test_no_reply_is_empty(replies):
     assert all(out.strip() for _, _, out in replies)
 
