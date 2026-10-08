@@ -109,7 +109,7 @@ def parse_sleep(value: str | int | float) -> float:
     text = str(value).strip().lower()
 
     # ตัวเลขพร้อมหน่วยชัดเจนมาก่อน — เดิม "นอนน้อย 5 ชม" ได้ 4 (เจอ "น้อย" ก่อน)
-    m = re.search(r"(\d+(?:\.\d+)?)\s*(?:ชั่วโมง|ชม|h|hr|hours?)", text)
+    m = re.search(r"(?<![\d.])(\d+(?:\.\d+)?)\s*(?:ชั่วโมง|ชม|h|hr|hours?)", text)
     if m:
         return max(0.0, min(24.0, float(m.group(1))))
 
@@ -125,7 +125,7 @@ def parse_sleep(value: str | int | float) -> float:
         return 8.0
 
     # "นอน 5 ชั่วโมง" / "5h"
-    m = re.search(r"(\d+(?:\.\d+)?)\s*(?:ชั่วโมง|h|hr|hours?)", text)
+    m = re.search(r"(?<![\d.])(\d+(?:\.\d+)?)\s*(?:ชั่วโมง|h|hr|hours?)", text)
     if m:
         return max(0.0, min(24.0, float(m.group(1))))
 
@@ -154,7 +154,7 @@ def parse_time_available(value: str | int | float) -> float:
     if "เยอะ" in text:
         return 8.0
 
-    m = re.search(r"(\d+(?:\.\d+)?)\s*(?:ชั่วโมง|h|hr|hours?)", text)
+    m = re.search(r"(?<![\d.])(\d+(?:\.\d+)?)\s*(?:ชั่วโมง|h|hr|hours?)", text)
     if m:
         return max(0.0, min(24.0, float(m.group(1))))
 
