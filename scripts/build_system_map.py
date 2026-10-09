@@ -32,6 +32,10 @@ NEW = {
     "scripts/stress_test.py": ["tests", "ทดสอบหนัก: ดัดแปลงข้อความเป็นแสน ตรวจไม่ล้ม · ไม่เกิน 3 ทาง · คงเส้นคงวา", "⚡ stress"],
     "scripts/build_system_map.py": ["config", "สร้างแผนผังระบบในหน้าเว็บใหม่จาก repo จริง", "⌘ แผนผัง"],
     "static/i18n.js": ["web", "ข้อความหน้าเว็บหลายภาษา", "文 i18n"],
+    "static/earth/README.md": ["docs", "ที่มาและสัญญาอนุญาตของภาพโลกหน้าแรก (NASA · สาธารณสมบัติ)", "🜨 earth"],
+    "static/earth/day.jpg": ["web", "ภาพโลกกลางวัน NASA Blue Marble 2048×1024 — ประเทศตรงตำแหน่งจริง", "🜨 day"],
+    "static/earth/lights.jpg": ["web", "ไฟเมืองกลางคืน NASA Earth at Night — สกัดเฉพาะแสงเมือง", "✺ lights"],
+    "static/earth/clouds.jpg": ["web", "เมฆทั้งโลก 2048×1024 — ลอยช้ากว่าพื้นโลกเล็กน้อย", "☁ clouds"],
     "tests/corpus/messages.tsv": ["tests", "ชุดข้อความทดสอบกลาง — ข้อความจริงพร้อมสิ่งที่ระบบควรตอบ", "☰ corpus"],
 }
 _LIVE_FROM = ("vision", "legacy", "dormant", "broken")

@@ -79,13 +79,29 @@ def test_universe_files_share_one_visual_language():
     assert "rose" in _static("warp_intro.js")
 
 
-def test_front_page_is_a_whole_earth_half_light_half_dark():
-    """หน้าแรกเป็นโลกทั้งใบ: ซีกหนึ่งรับแสง อีกซีกเป็นกลางคืนมีไฟเมือง มีวงโคจรทอง
-    เครื่องที่ไม่มี WebGL ใช้พื้นหลัง 2D เดิม"""
-    assert "var DAWN_FS = [" in HTML and "function backdrop(now, dt){" in HTML
-    assert "float city=" in HTML and "float night=" in HTML and "float ring=" in HTML
-    assert "l:[-.82, .32, .42]" in HTML                       # แสงจากซ้ายบน · เส้นแบ่งวัน-คืนผ่านกลางโลก
+def test_front_page_earth_uses_real_satellite_imagery():
+    """โลกหน้าแรกใช้ภาพจริงของ NASA: ประเทศตรงตำแหน่ง ไฟเมืองตามเมืองใหญ่จริง เมฆ
+    ระหว่างโหลดหรือโหลดไม่ได้ ใช้โลกที่สร้างจาก noise · เครื่องที่ไม่มี WebGL ใช้พื้นหลัง 2D เดิม"""
+    import os
+    root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static", "earth")
+    for name in ("day.jpg", "lights.jpg", "clouds.jpg"):
+        path = os.path.join(root, name)
+        assert os.path.getsize(path) < 450 * 1024, name                 # มือถือโหลดไหว
+        assert "'/static/earth/" + name + "'" in HTML
+    credits = open(os.path.join(root, "README.md"), encoding="utf-8").read()
+    assert "NASA" in credits and "MIT" in credits
+    assert "uniform sampler2D uDay,uLights,uClouds;" in HTML
+    assert "if(uTex>.5){" in HTML and "} else {" in HTML                  # มีโลก noise สำรอง
+    assert "im.onerror = function(){ EARTH_TEX = 'failed'; };" in HTML
     assert "if(!drew) ctx.drawImage(bgCv, 0, 0, W, H);" in HTML
+
+
+def test_front_page_routes_orbit_the_earth():
+    """วงโคจร 6 เส้นทางรอบโลก (แบบภาพอ้างอิง) · เส้นทางที่เลือกเรือง · มีสถานีอวกาศวิ่ง · ครึ่งหลังถูกโลกบัง"""
+    assert "var ROUTE_EN = ['GENERAL', 'RISK', 'CIVIL', 'SURVIVAL', 'COLLAPSE', 'VEGA'];" in HTML
+    body = HTML[HTML.index("function drawRoutes("):HTML.index("var DAWN = { show: 1")]
+    assert "function hidden(q)" in body and "ORB[i] === cur" in body and "สถานีอวกาศ" in body
+    assert "drawRoutes(cx, cy, r, tsec, DAWN.show, top, bottom);" in HTML
 
 
 def test_front_page_is_clean_and_fades_when_chatting():
