@@ -1327,12 +1327,12 @@ var Cosmos = (function(){
   var births = [], packets = [], coreWL = null, t0 = performance.now(), lastPaint = 0, lastSpawn = 0, stars = [];
   var ORB = ['general','risk','civil','survival','collapse','vega'];
   /* โหมดการตัดสินใจ = ระบบสุริยะ (แบบเดียวกับ static/galaxy.js): ดวงอาทิตย์คือใจกลาง ดาวเคราะห์คือเส้นทาง */
-  var PCOL = ['#f6c66a', '#ff8a4c', '#b9a6ff', '#6fb2ff', '#ff5d6c', '#8c9bff'], orbN = [0, 0, 0, 0, 0, 0];
+  var PCOL = ['#ffd99a', '#ffa860', '#c9c2ff', '#8cc2ff', '#ff7a66', '#a9c4ff'], orbN = [0, 0, 0, 0, 0, 0];
   var COL = { boot:'#f6b24a', request:'#ffe2a8', web:'#6fb2ff', broken:'#ff5d6c', docs:'#a78bfa', site:'#7d8fc4', config:'#9aa2bc', artifact:'#4a5284', dormant:'#7a86b8', legacy:'#3a4060', vision:'#8a6fd1', tests:'#2bcfb4', pkg:'#2e3352' };
   var TAU = Math.PI * 2;
   /* ── มิติ: กล้อง 3 มิติ + สนามดาวที่มีความลึก ─────────────────────
      ทุกการเคลื่อนไหวคิดจากเวลาจริง (dt) จึงลื่นเท่ากันทั้งจอ 60 / 120 / 240 Hz — วาดทุกเฟรมที่จอขอ */
-  var cam = { yaw: 0, pitch: null, vy: 0, vp: 0, lx: 0, ly: 0, drag: null }, FIELD = [], galCv = null, warpAt = 0, dtLast = 0;
+  var cam = { yaw: 0, pitch: null, vy: 0, vp: 0, lx: 0, ly: 0, drag: null }, FIELD = [], DISK = [], warpAt = 0, dtLast = 0;
 
   function hash(s){ var h = 2166136261; s = String(s); for(var i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967295; }
   function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
@@ -1416,7 +1416,7 @@ var Cosmos = (function(){
     neb(W * .96, H * .94, M * .40, 'rgba(170,90,160,.14)');
     neb(W * .5, H * 1.08, M * .45, 'rgba(255,190,110,.12)');
     b.globalCompositeOperation = 'source-over';
-    var n = Math.min(900, Math.round(W * H / 2600));
+    var n = Math.min(600, Math.round(W * H / 3600));
     for(var i = 0; i < n; i++){
       var x = Math.random() * W, y = Math.random() * H, r = Math.random() < .93 ? Math.random() * .8 + .2 : Math.random() * 1.4 + .8;
       var warm = x / W + (Math.random() - .5) * .5 > .55;
@@ -1424,11 +1424,10 @@ var Cosmos = (function(){
       b.beginPath(); b.arc(x, y, r, 0, TAU); b.fill();
     }
     twk = [];
-    for(var j = 0; j < 40; j++) twk.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.1 + .5, p: Math.random() * 6.28, s: Math.random() * 1.5 + .5, warm: Math.random() < .5 });
+    for(var j = 0; j < 18; j++) twk.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.1 + .5, p: Math.random() * 6.28, s: Math.random() * 1.5 + .5, warm: Math.random() < .5 });
     FIELD = [];
-    var nf = Math.min(1100, Math.round(W * H / 950));
+    var nf = Math.min(520, Math.round(W * H / 1900));
     for(var f = 0; f < nf; f++) FIELD.push(fieldStar(Math.random()));
-    if(!galCv) galCv = buildGalaxy();
   }
   /* ดาวในสนาม 3 มิติ: x,y กระจายรอบกล้อง z = ระยะลึก (1 ไกลสุด → 0 ชนกล้อง) */
   function fieldStar(z){
@@ -1436,29 +1435,9 @@ var Cosmos = (function(){
     return { x: (Math.random() - .5) * 2.4, y: (Math.random() - .5) * 2.4, z: z, m: r < .9 ? .35 + Math.random() * .5 : .9 + Math.random() * .6,
       c: r < .5 ? '#cfe0ff' : r < .82 ? '#ffffff' : r < .95 ? '#ffd9a8' : '#ffb3a0' };
   }
-  /* กาแล็กซีกังหัน 2 แขน (สุ่มครั้งเดียว) — ใจกลางอุ่น แขนฟ้า มีฝุ่นมืดคั่น */
-  function buildGalaxy(){
-    var S = 520, c = document.createElement('canvas'); c.width = c.height = S; var b = c.getContext('2d'), h = S / 2;
-    var core = b.createRadialGradient(h, h, 0, h, h, S * .2);
-    core.addColorStop(0, 'rgba(255,236,200,.95)'); core.addColorStop(.25, 'rgba(255,190,110,.55)'); core.addColorStop(1, 'rgba(255,140,60,0)');
-    b.fillStyle = core; b.fillRect(0, 0, S, S);
-    b.globalCompositeOperation = 'lighter';
-    for(var i = 0; i < 7000; i++){
-      var arm = i % 2, t = Math.pow(Math.random(), .7), a = arm * Math.PI + t * 7.2 + (Math.random() - .5) * (.9 - t * .5);
-      var rr = (.04 + t * .46) * S * (1 + (Math.random() - .5) * .18), x = h + Math.cos(a) * rr, y = h + Math.sin(a) * rr;
-      var warm = t < .25 || Math.random() < .12, al = (1 - t) * .5 + .08;
-      b.fillStyle = warm ? 'rgba(255,214,160,' + al.toFixed(2) + ')' : (Math.random() < .2 ? 'rgba(255,170,220,' : 'rgba(160,195,255,') + (al * .9).toFixed(2) + ')';
-      var sz = Math.random() < .03 ? 2.2 : Math.random() * 1.3 + .4; b.fillRect(x, y, sz, sz);
-    }
-    b.globalCompositeOperation = 'source-over';
-    var halo = b.createRadialGradient(h, h, S * .05, h, h, h);
-    halo.addColorStop(0, 'rgba(120,150,255,.10)'); halo.addColorStop(1, 'rgba(0,0,0,0)');
-    b.fillStyle = halo; b.fillRect(0, 0, S, S);
-    return c;
-  }
   /* วาดสนามดาว: เคลื่อนเข้าหากล้องช้าๆ (ดาวใกล้ขยับเร็วกว่า = เห็นความลึก) · ตอนวาร์ปเป็นเส้นแสงพุ่งออกจากกลาง */
   function drawField(now, dt, g){
-    var k = warpAt ? clamp((now - warpAt) / 1500, 0, 1) : 1, boost = REDUCED ? 0 : 2.4 * Math.pow(1 - k, 2.2);
+    var k = warpAt ? clamp((now - warpAt) / 1500, 0, 1) : 1, boost = REDUCED ? 0 : 1.6 * Math.pow(1 - k, 2.6);
     var speed = REDUCED ? 0 : .018 + boost, dz = speed * dt, F = Math.max(W, H) * .55, cx = g.cx, cy = g.cy;
     var ox = -cam.lx * F * .05, oy = -cam.ly * F * .05;
     ctx.globalCompositeOperation = 'lighter';
@@ -1471,21 +1450,11 @@ var Cosmos = (function(){
       ctx.globalAlpha = a; ctx.fillStyle = s.c; ctx.strokeStyle = s.c;
       if(boost > .05){
         var z2 = s.z + dz * 7, iz2 = 1 / z2, x2 = cx + s.x * F * iz2 + ox * iz2, y2 = cy + s.y * F * iz2 + oy * iz2;
-        ctx.lineWidth = Math.max(.6, r * .9); ctx.beginPath(); ctx.moveTo(x2, y2); ctx.lineTo(x, y); ctx.stroke();
+        ctx.lineWidth = Math.max(.5, r * .6); ctx.beginPath(); ctx.moveTo(x2, y2); ctx.lineTo(x, y); ctx.stroke();
       } else if(r < 1.1) ctx.fillRect(x - r / 2, y - r / 2, r, r);
       else { ctx.drawImage(glow(s.c), x - r * 3.2, y - r * 3.2, r * 6.4, r * 6.4); }
     }
     ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-  }
-  /* กาแล็กซีไกลๆ เอียงเป็นจาน หมุนช้ามาก และเลื่อนน้อยกว่าดาวใกล้ (พารัลแลกซ์) */
-  function drawGalaxy(tsec){
-    if(!galCv) return;
-    var portrait = W < H * .8, M = Math.max(W, H), sz = M * (portrait ? .42 : .36);
-    var x = W * (portrait ? .8 : .84) - cam.lx * 6, y = H * (portrait ? .29 : .24) - cam.ly * 6;
-    ctx.save(); ctx.translate(x, y); ctx.rotate(-.55); ctx.scale(1, .34); ctx.rotate(REDUCED ? 0 : tsec * .012);
-    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .5;
-    ctx.drawImage(galCv, -sz / 2, -sz / 2, sz, sz);
-    ctx.restore(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   }
   function resize(){
     DPR = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight;
@@ -1665,11 +1634,11 @@ var Cosmos = (function(){
   }
   function drawOrbits(g, half){
     for(var i = 0; i < 6; i++){
-      var rx = orbitRx(g, i), a = view === 'universe' ? .36 : .2;
+      var rx = orbitRx(g, i), a = view === 'universe' ? .22 : .14;
       if(focusR != null && ORB[i] === focusR && performance.now() - focusT < 2600) a = .85;
       var grad = ctx.createLinearGradient(g.cx - rx, 0, g.cx + rx, 0);
       grad.addColorStop(0, 'rgba(77,155,255,' + a + ')'); grad.addColorStop(.5, 'rgba(210,220,255,' + (a * .7) + ')'); grad.addColorStop(1, 'rgba(246,178,74,' + a + ')');
-      ctx.globalAlpha = g.zoom == null ? 1 : g.zoom; ctx.strokeStyle = grad; ctx.lineWidth = (i === 0 ? 1.4 : 1) * (half === 'back' ? .8 : 1.15);
+      ctx.globalAlpha = g.zoom == null ? 1 : g.zoom; ctx.strokeStyle = grad; ctx.lineWidth = half === 'back' ? .6 : .85;
       ctx.beginPath(); var on = false, pv = null;
       for(var k = 0; k <= 120; k++){
         var q = orbitPos(g, i, k / 120 * TAU);
@@ -1702,24 +1671,77 @@ var Cosmos = (function(){
     }
     ctx.globalAlpha = 1;
   }
-  /* ดวงอาทิตย์: รัศมีหมุน + โคโรนา + เนื้อดวงไล่สีขาว→ทอง→ส้ม · waterline ต่ำ (< 35) โทนแดงขึ้น · กำลังคิด = เต้นเร็ว */
-  function drawSun(g, now){
-    var tsec = (now - t0) / 1000, wl = coreWL == null ? 72 : coreWL, low = wl < 35;
-    var R = g.R * .42, pulse = REDUCED ? 0 : Math.sin(tsec * (think ? 3.4 : 1.1)) * (think ? .08 : .03), GL = R * 3.2 * (1 + pulse);
-    ctx.globalCompositeOperation = 'lighter';
-    for(var i = 0; i < 16; i++){
-      var a = (REDUCED ? 0 : tsec * .09) + i * TAU / 16, len = GL * (.95 + (REDUCED ? 0 : Math.sin(tsec * .6 + i) * .18));
-      ctx.globalAlpha = .07 + (REDUCED ? 0 : Math.sin(tsec * 1.2 + i) * .03); ctx.strokeStyle = low ? '#ff7a6a' : '#ffc850'; ctx.lineWidth = 1.4;
-      ctx.beginPath(); ctx.moveTo(g.cx + Math.cos(a) * R, g.cy + Math.sin(a) * R); ctx.lineTo(g.cx + Math.cos(a) * len, g.cy + Math.sin(a) * len); ctx.stroke();
+  /* ── ใจกลาง (แทนดวงอาทิตย์) ──────────────────────────────────
+     ภาษาภาพเดียวกับงานของผู้ก่อตั้ง: จุดแสงจุดเดียวที่คมและสว่างที่สุดในจอ · แกนแสงแนวตั้งพาดผ่าน ·
+     เส้นแสงแนวนอนบางๆ · จานสสารเอียงหมุนรอบ ฝั่งหนึ่งร้อน (ทอง) อีกฝั่งเย็น (ฟ้า) · ที่เหลือคือความมืด
+     waterline ต่ำ (< 35) จานร้อนกลายเป็นแดง · กำลังคิด = หายใจเร็วขึ้น */
+  function buildDisk(){
+    DISK = [];
+    for(var i = 0; i < 1400; i++){
+      var t = Math.pow(Math.random(), 1.35);
+      DISK.push({ r: .18 + t * 1.1, a: Math.random() * TAU, w: .45 + Math.random() * .7, y: (Math.random() - .5) * .012, m: Math.random() });
     }
-    var co = ctx.createRadialGradient(g.cx, g.cy, R * .5, g.cx, g.cy, GL * 1.6);
-    co.addColorStop(0, low ? 'rgba(255,120,100,.30)' : 'rgba(255,220,60,.30)'); co.addColorStop(.3, low ? 'rgba(255,60,60,.12)' : 'rgba(255,120,20,.14)');
-    co.addColorStop(.6, 'rgba(255,60,0,.04)'); co.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.globalAlpha = 1; ctx.fillStyle = co; ctx.beginPath(); ctx.arc(g.cx, g.cy, GL * 1.6, 0, TAU); ctx.fill();
-    ctx.globalCompositeOperation = 'source-over';
-    var body = ctx.createRadialGradient(g.cx - R * .35, g.cy - R * .35, 0, g.cx, g.cy, R);
-    body.addColorStop(0, '#fff8e0'); body.addColorStop(.35, low ? '#ffb070' : '#ffdd44'); body.addColorStop(.65, low ? '#ff5a3a' : '#ff8800'); body.addColorStop(1, low ? '#991f1f' : '#bb3300');
-    ctx.fillStyle = body; ctx.beginPath(); ctx.arc(g.cx, g.cy, R, 0, TAU); ctx.fill();
+  }
+  function diskCol(d, ang, low){
+    /* ร้อนด้านใน (ทอง/ขาว) → เย็นด้านนอก (ฟ้า) */
+    if(d.r < .32) return '255,240,215';
+    if(d.r < .62) return low ? '255,110,90' : '255,190,110';
+    if(d.r < .82) return '220,200,235';
+    return '125,175,255';
+  }
+  function drawDisk(g, now, back){
+    if(!DISK.length) buildDisk();
+    var tsec = (now - t0) / 1000, U = orbitRx(g, 0), low = coreWL != null && coreWL < 35, z = g.zoom == null ? 1 : g.zoom;
+    ctx.globalCompositeOperation = 'lighter';
+    for(var i = 0; i < DISK.length; i++){
+      var d = DISK[i], ang = d.a + (REDUCED ? 0 : tsec * (think ? .9 : .32) / Math.pow(d.r + .15, 1.5)), rr = d.r * U * .62;
+      var q = project(g, Math.cos(ang) * rr, d.y * U, Math.sin(ang) * rr);
+      if(q.back !== back) continue;
+      var inner = 1 - clamp(d.r / 1.28, 0, 1), a = (.06 + inner * .4) * (.3 + d.m * .7) * z * (back ? .6 : 1);
+      ctx.globalAlpha = a; ctx.fillStyle = 'rgb(' + diskCol(d, ang, low) + ')';
+      var sz = d.w * q.s * (1 + inner * .5); ctx.fillRect(q.x - sz / 2, q.y - sz / 2, sz, sz);
+    }
+    /* วงแสงเรียบของจาน (ครึ่งหลัง/หน้า) — ทองด้านใน ฟ้าด้านนอก */
+    var RINGS = [[.3, low ? '255,120,100' : '255,214,160', .5], [.52, low ? '255,90,70' : '255,180,100', .32], [.8, '150,190,255', .22], [1.05, '110,160,255', .12]];
+    RINGS.forEach(function(rg){
+      var rr = rg[0] * U * .62; ctx.strokeStyle = 'rgba(' + rg[1] + ',' + (rg[2] * z * (back ? .6 : 1)) + ')'; ctx.lineWidth = 1.2; ctx.globalAlpha = 1;
+      ctx.beginPath(); var on = false;
+      for(var k = 0; k <= 72; k++){
+        var q = project(g, Math.cos(k / 72 * TAU) * rr, 0, Math.sin(k / 72 * TAU) * rr);
+        if(q.back === back){ if(on) ctx.lineTo(q.x, q.y); else { ctx.moveTo(q.x, q.y); on = true; } } else on = false;
+      }
+      ctx.stroke();
+    });
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  }
+  function drawCore(g, now){
+    var tsec = (now - t0) / 1000, low = coreWL != null && coreWL < 35, z = g.zoom == null ? 1 : g.zoom;
+    var br = REDUCED ? 1 : 1 + Math.sin(tsec * (think ? 3.2 : .9)) * (think ? .22 : .07), x = g.cx, y = g.cy, R = g.R;
+    ctx.globalCompositeOperation = 'lighter';
+    /* แกนแสงแนวตั้ง — เอียงตามมุมกล้อง (แกน Y ของระบบ) */
+    var top = { x: x, y: y - H }, bot = { x: x, y: y + H };
+    var ax = ctx.createLinearGradient(top.x, top.y, bot.x, bot.y);
+    ax.addColorStop(0, 'rgba(140,190,255,0)'); ax.addColorStop(.3, 'rgba(160,200,255,.10)'); ax.addColorStop(.47, 'rgba(200,225,255,.45)'); ax.addColorStop(.5, 'rgba(255,250,240,.95)');
+    ax.addColorStop(.53, 'rgba(255,215,160,.45)'); ax.addColorStop(.7, 'rgba(255,190,120,.10)'); ax.addColorStop(1, 'rgba(255,170,90,0)');
+    ctx.globalAlpha = z; ctx.strokeStyle = ax;
+    ctx.lineWidth = 5; ctx.globalAlpha = .18 * z; ctx.beginPath(); ctx.moveTo(top.x, top.y); ctx.lineTo(bot.x, bot.y); ctx.stroke();
+    ctx.lineWidth = 1; ctx.globalAlpha = .9 * z; ctx.beginPath(); ctx.moveTo(top.x, top.y); ctx.lineTo(bot.x, bot.y); ctx.stroke();
+    /* เส้นแสงแนวนอน (anamorphic) เย็นซ้าย ร้อนขวา */
+    var L = Math.min(W * .48, R * 7.5) * br, hz = ctx.createLinearGradient(x - L, y, x + L, y);
+    hz.addColorStop(0, 'rgba(110,170,255,0)'); hz.addColorStop(.38, 'rgba(140,190,255,.35)'); hz.addColorStop(.5, 'rgba(255,250,235,.95)');
+    hz.addColorStop(.62, low ? 'rgba(255,110,90,.38)' : 'rgba(255,190,110,.38)'); hz.addColorStop(1, 'rgba(255,170,90,0)');
+    ctx.globalAlpha = z; ctx.fillStyle = hz; ctx.fillRect(x - L, y - .6, L * 2, 1.2);
+    /* แสงฟุ้งรอบจุด: เล็กและแน่น ไม่ใช่ลูกบอล */
+    var hr = R * 1.25 * br, halo = ctx.createRadialGradient(x, y, 0, x, y, hr);
+    halo.addColorStop(0, 'rgba(255,248,232,.95)'); halo.addColorStop(.06, low ? 'rgba(255,140,120,.55)' : 'rgba(255,214,150,.50)');
+    halo.addColorStop(.22, low ? 'rgba(255,70,60,.14)' : 'rgba(255,160,80,.12)'); halo.addColorStop(.5, 'rgba(110,150,255,.05)'); halo.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalAlpha = z; ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(x, y, hr, 0, TAU); ctx.fill();
+    /* แฉกแสงสั้น 4 ทิศ */
+    var sp = R * .55 * br; ctx.strokeStyle = 'rgba(255,248,235,.55)'; ctx.lineWidth = .8;
+    ctx.beginPath(); ctx.moveTo(x - sp, y); ctx.lineTo(x + sp, y); ctx.moveTo(x, y - sp); ctx.lineTo(x, y + sp); ctx.stroke();
+    /* จุดแสง */
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = z; ctx.fillStyle = '#fffaf0';
+    ctx.beginPath(); ctx.arc(x, y, Math.max(1.6, R * .055) * br, 0, TAU); ctx.fill();
     ctx.globalAlpha = 1;
   }
   /* ดาวเคราะห์ 1 ดวงต่อเส้นทาง — ใหญ่ขึ้นตามจำนวนการตัดสินใจบนวงนั้น · เส้นทางที่เพิ่งใช้เรืองแสงขึ้น */
@@ -1740,20 +1762,17 @@ var Cosmos = (function(){
     for(var i = 0; i < ORB.length; i++){
       var p = orbitPos(g, i, i * 1.05 + 2.2 + (REDUCED ? 0 : tsec * .05 / (1 + i * .5)));
       if(p.back !== back) continue;
-      var col = PCOL[i], r = (4.5 + Math.min(5, orbN[i] * .5)) * k * p.s, hot = focusR === ORB[i] && performance.now() - focusT < 2600;
-      var dim = (back ? .72 : 1) * (g.zoom == null ? 1 : g.zoom), aR = r * (hot ? 6 : 4);
-      var at = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, aR);
-      at.addColorStop(0, col + (hot ? '88' : '55')); at.addColorStop(1, col + '00');
-      ctx.globalAlpha = dim; ctx.fillStyle = at; ctx.beginPath(); ctx.arc(p.x, p.y, aR, 0, TAU); ctx.fill();
-      var bd = ctx.createRadialGradient(p.x - r * .3, p.y - r * .3, 0, p.x, p.y, r);
-      bd.addColorStop(0, col); bd.addColorStop(.55, col + 'dd'); bd.addColorStop(1, col + '44');
-      ctx.fillStyle = bd; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); ctx.fill();
-      if(i === 5){                                  /* VEGA มีวงแหวน */
+      var col = PCOL[i], r = (3.6 + Math.min(4, orbN[i] * .45)) * k * p.s, hot = focusR === ORB[i] && performance.now() - focusT < 2600;
+      var dim = (back ? .6 : 1) * (g.zoom == null ? 1 : g.zoom);
+      ctx.globalCompositeOperation = 'lighter';
+      star(p.x, p.y, r * .62, col, dim * (hot ? 1 : .85), hot ? 4 : 0, hot ? 6 : 4.2);
+      ctx.globalCompositeOperation = 'source-over';
+      if(i === 5){                                  /* VEGA มีวงแหวนบางๆ */
         ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(g.tilt); ctx.scale(1, Math.max(.12, Math.sin(cam.pitch) * .5));
-        ctx.strokeStyle = 'rgba(200,210,255,.55)'; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(0, 0, r * 2.3, 0, TAU); ctx.stroke();
+        ctx.globalAlpha = dim * .6; ctx.strokeStyle = 'rgba(200,215,255,.8)'; ctx.lineWidth = .8; ctx.beginPath(); ctx.arc(0, 0, r * 2.2, 0, TAU); ctx.stroke();
         ctx.restore();
       }
-      ctx.globalAlpha = dim * .85; ctx.fillStyle = '#e6ecff'; ctx.font = '500 11px "Noto Sans Thai Looped", sans-serif';
+      ctx.globalAlpha = dim * .62; ctx.fillStyle = '#d8e0f5'; ctx.font = '400 10.5px "Noto Sans Thai Looped", sans-serif';
       ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
       var lbl = (ROUTE_NAME[ORB[i]] || ORB[i]) + (orbN[i] ? ' · ' + orbN[i] : ''), at2 = placeLabel(p.x, p.y, r, ctx.measureText(lbl).width);
       ctx.fillText(lbl, at2[0], at2[1]);
@@ -1769,7 +1788,6 @@ var Cosmos = (function(){
     ctx.drawImage(bgCv, 0, 0, W, H);
     var tsec = (now - t0) / 1000;
     var g = geo(), decisions = view === 'universe' && mode === 'decisions';
-    drawGalaxy(tsec);
     drawField(now, dt, g);
     for(var i = 0; i < twk.length; i++){
       var s = twk[i]; ctx.globalAlpha = REDUCED ? .5 : .25 + .75 * Math.abs(Math.sin(tsec * s.s + s.p));
@@ -1780,7 +1798,7 @@ var Cosmos = (function(){
     if(decisions){
       LBL = [];
       var ue = $('#u-empty'); if(ue && !ue.classList.contains('hide')){ var q = ue.getBoundingClientRect(); LBL.push([q.left, q.top, q.right, q.bottom]); }
-      drawOrbits(g, 'back'); drawPlanets(g, now, true); drawStars(g, now, true); drawSun(g, now); drawOrbits(g, 'front'); drawPlanets(g, now, false); drawStars(g, now, false); }
+      drawOrbits(g, 'back'); drawDisk(g, now, true); drawPlanets(g, now, true); drawStars(g, now, true); drawCore(g, now); drawDisk(g, now, false); drawOrbits(g, 'front'); drawPlanets(g, now, false); drawStars(g, now, false); }
     else drawSystem(g, now, true);
     if(view === 'universe' && coreWL != null){
       ctx.globalAlpha = .85; ctx.font = '600 11px "IBM Plex Mono", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = '#e6ecff';
