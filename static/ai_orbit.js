@@ -118,14 +118,22 @@
     ctx.clearRect(0, 0, W, H);
     var cx = W * 0.50, cy = H * 0.50;
 
+    /* ── ฉากหลังร้อนสลับเย็น: ซ้ายคราม ขวากุหลาบอมอำพัน ── */
+    [[W * 0.05, H * 0.4, '40,70,190', 0.14], [W * 0.95, H * 0.45, '170,60,110', 0.12], [W * 0.85, H * 0.1, '200,110,40', 0.07]].forEach(function (n) {
+      var ng = ctx.createRadialGradient(n[0], n[1], 0, n[0], n[1], Math.max(W, H) * 0.6);
+      ng.addColorStop(0, 'rgba(' + n[2] + ',' + n[3] + ')'); ng.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = ng; ctx.fillRect(0, 0, W, H);
+    });
+
     /* ── Central core ── */
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
     var coreHue = danger > 0.7 ? 10 : danger > 0.4 ? 36 : 48;
     var corePulse = thinking ? 1 + Math.sin(ts * 0.005) * 0.3 : 1;
     var cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(W, H) * 0.07 * corePulse);
-    cg.addColorStop(0, 'hsla(' + coreHue + ',100%,85%,0.90)');
-    cg.addColorStop(0.3, 'hsla(' + coreHue + ',90%,60%,0.40)');
+    cg.addColorStop(0, 'hsla(' + coreHue + ',100%,88%,0.65)');
+    cg.addColorStop(0.3, 'hsla(' + coreHue + ',85%,62%,0.24)');
+    cg.addColorStop(0.6, 'hsla(225,80%,60%,0.06)');
     cg.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.beginPath();
     ctx.arc(cx, cy, Math.min(W, H) * 0.07 * corePulse, 0, Math.PI * 2);
@@ -135,8 +143,13 @@
     /* Core dot */
     ctx.beginPath();
     ctx.arc(cx, cy, Math.min(W, H) * 0.012 * corePulse, 0, Math.PI * 2);
-    ctx.fillStyle = 'hsla(' + coreHue + ',100%,92%,0.96)';
+    ctx.fillStyle = 'hsla(' + coreHue + ',100%,92%,0.85)';
     ctx.fill();
+    /* เส้นแสงแนวนอน: เย็นซ้าย ร้อนขวา */
+    var HL = Math.min(W * 0.45, 380), hz = ctx.createLinearGradient(cx - HL, cy, cx + HL, cy);
+    hz.addColorStop(0, 'rgba(90,200,230,0)'); hz.addColorStop(0.35, 'rgba(110,170,255,0.2)'); hz.addColorStop(0.5, 'rgba(255,245,235,0.5)');
+    hz.addColorStop(0.65, 'rgba(255,150,190,0.2)'); hz.addColorStop(1, 'rgba(255,180,100,0)');
+    ctx.fillStyle = hz; ctx.fillRect(cx - HL, cy - 0.6, HL * 2, 1.2);
     ctx.restore();
 
     /* ── Orbit ellipses (faint structural) ── */

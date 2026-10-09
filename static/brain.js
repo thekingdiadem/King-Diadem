@@ -139,6 +139,12 @@
       bg.addColorStop(1,   'rgba(0,0,0,0)');
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
+      /* ร้อนสลับเย็น: ซ้ายคราม ขวากุหลาบ */
+      [[W * 0.08, '40,70,190', 0.12], [W * 0.92, '170,60,110', 0.10]].forEach(function (n) {
+        var sg = ctx.createRadialGradient(n[0], H * 0.45, 0, n[0], H * 0.45, Math.max(W, H) * 0.55);
+        sg.addColorStop(0, 'rgba(' + n[1] + ',' + n[2] + ')'); sg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = sg; ctx.fillRect(0, 0, W, H);
+      });
     }
 
     /* ── Auto-fire when thinking ── */
@@ -177,7 +183,7 @@
       var base  = e.active ? 0.55 : (e.w * 0.08 + 0.02);
       var pulse = thinking ? (0.5 + 0.5 * Math.sin(ts * 0.004 + e.a)) * 0.15 : 0;
       var alpha = Math.min(0.85, base + pulse);
-      var hue   = e.active ? (danger > 0.6 ? 10 : 185) : 200;
+      var hue   = e.active ? (danger > 0.6 ? 10 : 38) : 220;
       var sat   = e.active ? 90 : 50;
       ctx.beginPath();
       ctx.moveTo(na.x, na.y);
@@ -205,7 +211,8 @@
     NODES.forEach(function (n) {
       var fireP  = n.firing ? Math.max(0, 1 - n.fireAge / 600) : 0;
       var sz     = n.r * (1 + fireP * 2.2);
-      var hue    = n.layer === 0 ? 200 : n.layer === 4 ? (danger > 0.6 ? 10 : 120) : 210 - n.layer * 18;
+      /* ชั้นข้อมูลเข้าเย็น (ฟ้า) → ม่วง → กุหลาบ → ชั้นตัดสินใจร้อน (ทอง) · อันตรายสูงชั้นสุดท้ายเป็นแดง */
+      var hue    = n.layer === 4 && danger > 0.6 ? 10 : [215, 252, 290, 328, 40][n.layer] || 215;
       var alpha  = 0.35 + n.charge * 0.40 + fireP * 0.50;
 
       /* Glow */

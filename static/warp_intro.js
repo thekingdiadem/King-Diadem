@@ -14,16 +14,16 @@
   function resize() { W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; }
   resize();
 
-  /* generate streaks — gold + teal mix */
+  /* generate streaks — ทอง · ฟ้า · กุหลาบ (ร้อนสลับเย็น เหมือนแท็บจักรวาล) */
   for (var i = 0; i < 320; i++) {
     var a = Math.random() * Math.PI * 2;
     var d = Math.random() * Math.max(W, H) * 0.58 + 20;
-    var gold = Math.random() > 0.45;
+    var r0 = Math.random(), gold = r0 > 0.5, rose = !gold && r0 > 0.32;
     stars.push({
       a: a, d: 0, maxD: d,
       vd: d * 0.018 + 2,
       done: false,
-      gold: gold,
+      gold: gold, rose: rose,
     });
   }
 
@@ -54,9 +54,11 @@
       var g = ctx.createLinearGradient(tx, ty, x, y);
       g.addColorStop(0, 'rgba(0,0,0,0)');
       if (s.gold) {
-        g.addColorStop(1, 'rgba(255,210,80,' + alpha + ')');
+        g.addColorStop(1, 'rgba(255,205,130,' + alpha + ')');
+      } else if (s.rose) {
+        g.addColorStop(1, 'rgba(255,150,195,' + alpha * 0.85 + ')');
       } else {
-        g.addColorStop(1, 'rgba(80,220,255,' + alpha + ')');
+        g.addColorStop(1, 'rgba(130,180,255,' + alpha + ')');
       }
       ctx.strokeStyle = g;
       ctx.lineWidth   = 0.7 + progress * 1.4;

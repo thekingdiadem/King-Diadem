@@ -59,3 +59,21 @@ def test_energy_flows_have_intention():
 
 def test_universe_links_to_the_universe_page():
     assert 'class="u-link glass" href="/static/king_diadem_universe.html"' in HTML
+
+
+def _static(name):
+    import os
+    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static", name), encoding="utf-8") as f:
+        return f.read()
+
+
+def test_universe_files_share_one_visual_language():
+    """ไฟล์จักรวาลทุกไฟล์ใช้ภาษาภาพเดียวกับแท็บจักรวาล: แก่นแสงแทนลูกบอลส้ม · ร้อนสลับเย็น · สีเสียงตรงกับแอป"""
+    galaxy = _static("galaxy.js")
+    assert '"#ff8800"' not in galaxy and "Sun rays (16 rays)" not in galaxy     # ดวงอาทิตย์ลูกส้มเดิม
+    assert "ทรงกลมรับแสงจากแก่น" in galaxy
+    scene = _static("galaxy_scene.js")
+    assert "เนบิวลาร้อนสลับเย็น" in scene and "rimSide" in scene
+    thinking = _static("ai_thinking_orbit.js")
+    assert 'LYLA:    { color: "#ffcf7a"' in thinking and 'VEGA:    { color: "#8cc2ff"' in thinking   # ตรงกับ --lyla / --vega
+    assert "rose" in _static("warp_intro.js")

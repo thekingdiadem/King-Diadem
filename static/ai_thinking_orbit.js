@@ -13,11 +13,11 @@
 
   // ─── PERSONA PALETTE ──────────────────────────────────────────────────────
   const PERSONA = {
-    LYLA:    { color: "#e879a0", glow: "rgba(232,121,160,0.18)", trail: "rgba(232,121,160,0.08)", radius: 2.5 },
-    VEGA:    { color: "#3a86f5", glow: "rgba(58,134,245,0.18)",  trail: "rgba(58,134,245,0.08)",  radius: 2.2 },
+    LYLA:    { color: "#ffcf7a", glow: "rgba(255,207,122,0.18)", trail: "rgba(255,207,122,0.08)", radius: 2.5 },
+    VEGA:    { color: "#8cc2ff", glow: "rgba(140,194,255,0.18)", trail: "rgba(140,194,255,0.08)",  radius: 2.2 },
     TITAN:   { color: "#c8a440", glow: "rgba(200,164,64,0.22)",  trail: "rgba(200,164,64,0.10)",  radius: 3.0 },
-    PATICCA: { color: "#a78bfa", glow: "rgba(167,139,250,0.18)", trail: "rgba(167,139,250,0.08)", radius: 2.0 },
-    COSMOS:  { color: "#22d3ee", glow: "rgba(34,211,238,0.18)",  trail: "rgba(34,211,238,0.08)",  radius: 2.2 },
+    PATICCA: { color: "#ff9ac4", glow: "rgba(255,154,196,0.16)", trail: "rgba(255,154,196,0.07)", radius: 2.0 },
+    COSMOS:  { color: "#5fd4e0", glow: "rgba(95,212,224,0.16)",  trail: "rgba(95,212,224,0.07)",  radius: 2.2 },
     DEFAULT: { color: "#66ccff", glow: "rgba(102,204,255,0.12)", trail: "rgba(102,204,255,0.06)", radius: 2.0 },
   };
 

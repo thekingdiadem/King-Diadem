@@ -27,13 +27,13 @@
   }));
 
   // ── NEBULA CLOUDS — บางลงมาก ดาวโผล่ชัด ─────────────────────
+  /* ร้อนสลับเย็น (ภาษาเดียวกับแท็บจักรวาล): ซ้ายคราม/เทอร์ควอยซ์ · ขวากุหลาบ/อำพัน */
   const NEBULA = [
-    {x:-320, y:-180, r:160, c:"255,60,0",   a:0.04},
-    {x:380,  y:160,  r:190, c:"0,80,200",   a:0.045},
-    {x:-80,  y:280,  r:130, c:"120,0,200",  a:0.035},
-    {x:580,  y:-80,  r:170, c:"0,140,80",   a:0.03},
-    {x:-480, y:120,  r:210, c:"200,100,0",  a:0.035},
-    {x:200,  y:-300, r:150, c:"0,180,255",  a:0.025},
+    {x:-420, y:-120, r:320, c:"40,70,190",  a:0.10},
+    {x:-260, y:240,  r:260, c:"20,120,140", a:0.07},
+    {x:420,  y:-160, r:300, c:"170,60,110", a:0.08},
+    {x:520,  y:200,  r:280, c:"200,110,40", a:0.07},
+    {x:40,   y:-320, r:200, c:"110,70,190", a:0.05},
   ];
 
   // ── SOLAR SYSTEM — ดาวเคราะห์ใหญ่ขึ้น ──────────────────────
@@ -47,8 +47,8 @@
     {name:"",          color:"#88ddee", size:13,  orbit:520, speed:0.0005, angle:5.5,  rings:false},
     {name:"",          color:"#2255cc", size:12,  orbit:600, speed:0.0003, angle:2.8,  rings:false},
     // KING DIADEM nodes
-    {name:"LYLA",      color:"#00d4ff", size:7,   orbit:155, speed:0.0018, angle:0.5,  rings:false, kd:true},
-    {name:"VEGA",      color:"#ffd27f", size:6,   orbit:278, speed:0.0014, angle:3.5,  rings:false, kd:true},
+    {name:"LYLA",      color:"#ffcf7a", size:7,   orbit:155, speed:0.0018, angle:0.5,  rings:false, kd:true},
+    {name:"VEGA",      color:"#8cc2ff", size:6,   orbit:278, speed:0.0014, angle:3.5,  rings:false, kd:true},
     {name:"DRIFTZERO", color:"#ff6a00", size:4,   orbit:200, speed:0.003,  angle:1.0,  rings:false, kd:true},
     {name:"CIVIL",     color:"#aa88ff", size:5,   orbit:465, speed:0.0004, angle:4.5,  rings:false, kd:true},
   ];
@@ -100,44 +100,36 @@
     for (const p of PLANETS) {
       ctx.beginPath();
       ctx.ellipse(cx, cy, p.orbit, p.orbit*0.28, 0, 0, Math.PI*2);
-      ctx.strokeStyle = p.kd ? "rgba(0,212,255,0.09)" : "rgba(255,255,255,0.045)";
-      ctx.lineWidth = 1;
+      const og = ctx.createLinearGradient(cx - p.orbit, 0, cx + p.orbit, 0);
+      og.addColorStop(0, `rgba(110,170,255,${p.kd ? 0.16 : 0.07})`); og.addColorStop(0.5, "rgba(220,220,255,0.05)"); og.addColorStop(1, `rgba(255,190,120,${p.kd ? 0.16 : 0.07})`);
+      ctx.strokeStyle = og;
+      ctx.lineWidth = 0.8;
       ctx.stroke();
     }
 
-    // Sun rays (16 rays)
-    for (let i = 0; i < 16; i++) {
-      const a = (frame*0.0015) + i*(Math.PI*2/16);
-      const len = SUN_GLOW + Math.sin(frame*0.01+i)*22;
-      ctx.beginPath();
-      ctx.moveTo(cx+Math.cos(a)*SUN_R, cy+Math.sin(a)*SUN_R);
-      ctx.lineTo(cx+Math.cos(a)*len,   cy+Math.sin(a)*len);
-      ctx.strokeStyle = `rgba(255,200,80,${0.05+Math.sin(frame*0.02+i)*0.02})`;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+    // แก่นแสง: ไม่ใช่ลูกบอลส้ม — จุดคมกลางฮาโลอุ่น ขอบนอกเย็น + เส้นแสงแนวนอนฟ้า→ทอง + วงทรงกลดสีรุ้ง
+    const br = 1 + Math.sin(frame * 0.02) * 0.06;
+    ctx.globalCompositeOperation = "lighter";
+    const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, SUN_GLOW * 1.6 * br);
+    halo.addColorStop(0,    "rgba(255,240,220,0.55)");
+    halo.addColorStop(0.08, "rgba(255,200,130,0.30)");
+    halo.addColorStop(0.3,  "rgba(220,110,150,0.10)");
+    halo.addColorStop(0.6,  "rgba(90,130,255,0.05)");
+    halo.addColorStop(1,    "transparent");
+    ctx.fillStyle = halo;
+    ctx.beginPath(); ctx.arc(cx, cy, SUN_GLOW * 1.6 * br, 0, Math.PI*2); ctx.fill();
+    const L = Math.min(canvas.width * 0.42, 420), hz = ctx.createLinearGradient(cx - L, cy, cx + L, cy);
+    hz.addColorStop(0, "rgba(90,200,230,0)"); hz.addColorStop(0.35, "rgba(110,170,255,0.22)"); hz.addColorStop(0.5, "rgba(255,245,235,0.6)");
+    hz.addColorStop(0.65, "rgba(255,150,190,0.22)"); hz.addColorStop(1, "rgba(255,180,100,0)");
+    ctx.fillStyle = hz; ctx.fillRect(cx - L, cy - 0.6, L * 2, 1.2);
+    for (let k = 0; k < 3; k++) {
+      ctx.strokeStyle = ["rgba(255,120,120,0.07)", "rgba(255,220,140,0.06)", "rgba(120,170,255,0.07)"][k];
+      ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(cx, cy, SUN_GLOW * 0.95 - k * 2.2, 0, Math.PI*2); ctx.stroke();
     }
-
-    // Sun corona
-    const corona = ctx.createRadialGradient(cx, cy, SUN_R*0.5, cx, cy, SUN_GLOW*2.2);
-    corona.addColorStop(0,    "rgba(255,220,60,0.28)");
-    corona.addColorStop(0.25, "rgba(255,120,20,0.14)");
-    corona.addColorStop(0.55, "rgba(255,60,0,0.05)");
-    corona.addColorStop(1,    "transparent");
-    ctx.beginPath();
-    ctx.arc(cx, cy, SUN_GLOW*2.2, 0, Math.PI*2);
-    ctx.fillStyle = corona;
-    ctx.fill();
-
-    // Sun body
-    const sunG = ctx.createRadialGradient(cx-SUN_R*0.35, cy-SUN_R*0.35, 0, cx, cy, SUN_R);
-    sunG.addColorStop(0,    "#fff8e0");
-    sunG.addColorStop(0.35, "#ffdd44");
-    sunG.addColorStop(0.65, "#ff8800");
-    sunG.addColorStop(1,    "#bb3300");
-    ctx.beginPath();
-    ctx.arc(cx, cy, SUN_R, 0, Math.PI*2);
-    ctx.fillStyle = sunG;
-    ctx.fill();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = "#fff6ea";
+    ctx.beginPath(); ctx.arc(cx, cy, 3.2 * br, 0, Math.PI*2); ctx.fill();
 
     // Planets
     for (const p of PLANETS) {
@@ -155,10 +147,13 @@
       ctx.fill();
 
       // Planet body
-      const pg = ctx.createRadialGradient(x-p.size*0.3, y-p.size*0.3, 0, x, y, p.size);
-      pg.addColorStop(0,    p.color+"ff");
-      pg.addColorStop(0.55, p.color+"dd");
-      pg.addColorStop(1,    p.color+"44");
+      // ทรงกลมรับแสงจากแก่น: ด้านที่หันเข้าหาแก่นสว่างอุ่น ด้านหลังมืดเย็น
+      const lx = cx - x, ly = cy - y, ll = Math.hypot(lx, ly) || 1;
+      const pg = ctx.createRadialGradient(x + lx/ll*p.size*0.45, y + ly/ll*p.size*0.45, p.size*0.05, x, y, p.size*1.05);
+      pg.addColorStop(0,    "#fff3e2");
+      pg.addColorStop(0.3,  p.color);
+      pg.addColorStop(0.75, "#1a2350");
+      pg.addColorStop(1,    "#070a1c");
       ctx.beginPath();
       ctx.arc(x, y, p.size, 0, Math.PI*2);
       ctx.fillStyle = pg;
@@ -195,7 +190,7 @@
 
       // KD node labels
       if (p.kd) {
-        ctx.fillStyle = "rgba(200,240,255,0.55)";
+        ctx.fillStyle = "rgba(230,224,245,0.6)";
         ctx.font = "7px 'Share Tech Mono',monospace";
         ctx.fillText(p.name, x+p.size+4, y+3);
       }
