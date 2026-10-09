@@ -108,13 +108,13 @@ def test_front_page_routes_orbit_the_earth():
 
 def test_front_page_matches_founders_reference():
     """ฉากหน้าแรกตามภาพอ้างอิงของผู้ก่อตั้ง: ดวงอาทิตย์ซ้ายบน · ดาวเสาร์ (วงแหวนหน้า-หลัง) ดาวพฤหัส ดาวยูเรนัสทางขวา
-    · เนบิวลาซ้ายล่าง · ทุกดวงรับแสงจากดวงอาทิตย์บนจอ · มีป้ายชื่อ · จอตั้งจัดวางคนละแบบไม่ให้ดาวเบียดขอบ"""
+    · เนบิวลาซ้ายล่าง · ทุกดวงรับแสงจากดวงอาทิตย์บนจอ · มีป้ายชื่อ · บนมือถือโลกเล็กลงให้พอดีจอ"""
     assert "uniform vec3 uSun,uSat,uJup,uUra;" in HTML
     assert "vec3 sunDir(vec2 c)" in HTML and "vec4 planet(vec2 p,vec3 P,float k,float t)" in HTML
     assert "if(q.y<0.) col=mix(col,ringC,ring*.9);" in HTML and "if(q.y>=0.)" in HTML      # วงแหวนหลัง/หน้าดาวเสาร์
     assert "float nm=smoothstep(1.,0.," in HTML                                             # เนบิวลา
     assert "[['Sun', B.sun, 1.25], ['Saturn', B.sat, 1.25], ['Jupiter', B.jup, 1.35], ['Uranus', B.ura, 1.6]]" in HTML
-    assert "var BOD = portrait ? {" in HTML
+    assert "portrait ? Math.min(avW * .3, avH * .22)" in HTML        # มือถือ: โลกราว 60% ของความกว้างจอ (เดิม 86% ใหญ่เกิน)
     # โคโรนาวาดก่อนตัวดวง (เดิมขอบในไม่มีโคโรนา เลยเป็นวงจุดดำรอบดวงอาทิตย์)
     sun = HTML[HTML.index("' if(sr<7.){',"):HTML.index("' if(sr<1.){',")]
     assert "smoothstep(.9,1.,sr)" in sun

@@ -2185,22 +2185,17 @@ var Cosmos = (function(){
     var cp = $('#composer'), bottom = cp && cp.getBoundingClientRect().height ? cp.getBoundingClientRect().top : m.bottom;
     /* จัดวางแบบภาพอ้างอิง: โลกดวงใหญ่กลางพื้นที่ · ดวงอาทิตย์ซ้ายบน · เสาร์ พฤหัส ยูเรนัส ขวา · เนบิวลาซ้ายล่าง */
     var top = m.top + 54, avW = m.width, avH = bottom - top, portrait = avW < avH * .9;
-    var r = Math.max(70, portrait ? Math.min(avW * .43, avH * .3) : Math.min(avW * .36, avH * .42));
+    /* จอตั้ง (มือถือ): โลกกว้างราว 60% ของจอ — เดิม 86% ดูใหญ่คับจอและดาวเบียดขอบ · จอคอมคงเดิม */
+    var r = Math.max(70, portrait ? Math.min(avW * .3, avH * .22) : Math.min(avW * .36, avH * .42));
     var cx = m.left + avW * (portrait ? .5 : .52), cy = top + avH * (portrait ? .5 : .52);
-    var sunR = Math.max(14, r * .16), sunX = Math.max(m.left + sunR * 1.7, cx - r * (portrait ? .74 : 1.0)), sunY = Math.max(top + sunR * 1.6, cy - r * (portrait ? 1.13 : 1.02));
-    var BOD = portrait ? {
-      /* จอตั้ง: ด้านข้างแคบ → เสาร์ขึ้นไปขวาบนเหนือโลก · พฤหัสชิดขอบโลกขวา · ยูเรนัสลงไปขวาล่าง */
+    /* ใช้การจัดวางเดียวกันทุกจอ (แบบจอคอมที่ผู้ก่อตั้งชอบ) · กันไม่ให้ตกขอบจอ */
+    var sunR = Math.max(12, r * .16), sunX = Math.max(m.left + sunR * 1.7, cx - r), sunY = Math.max(top + sunR * 1.6, cy - r * 1.02);
+    var BOD = {
       sun: [sunX, sunY, sunR],
-      sat: [Math.min(m.right - r * .3, cx + r * .74), Math.max(top + r * .2, cy - r * 1.17), Math.max(7, r * .085)],
-      jup: [Math.min(m.right - r * .14, cx + r * .99), cy - r * .42, Math.max(8, r * .1)],
-      ura: [Math.min(m.right - r * .1, cx + r * .9), cy + r * 1.13, Math.max(5, r * .055)],
-      neb: [m.left + avW * .12, bottom - avH * .08]
-    } : {
-      sun: [sunX, sunY, sunR],
-      sat: [Math.min(m.right - r * .26, cx + r * 1.05), cy - r * .92, Math.max(7, r * .085)],
-      jup: [Math.min(m.right - r * .12, cx + r * .98), cy - r * .4, Math.max(8, r * .1)],
-      ura: [Math.min(m.right - r * .06, cx + r * 1.2), cy - r * .2, Math.max(5, r * .05)],
-      neb: [m.left + avW * .1, bottom - avH * .1]
+      sat: [Math.min(m.right - r * .26, cx + r * 1.05), cy - r * .92, Math.max(6, r * .085)],
+      jup: [Math.min(m.right - r * .12, cx + r * .98), cy - r * .4, Math.max(7, r * .1)],
+      ura: [Math.min(m.right - r * .06 - 10, cx + r * 1.2), cy - r * .2, Math.max(4.5, r * .05)],
+      neb: [m.left + avW * (portrait ? .12 : .1), bottom - avH * (portrait ? .08 : .1)]
     };
     var drew = false;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalAlpha = 1;
