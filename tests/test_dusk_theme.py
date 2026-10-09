@@ -35,9 +35,11 @@ def test_universe_mode_toggle_stays_readable():
 
 
 def test_decisions_universe_is_a_solar_system():
-    """โหมดการตัดสินใจวาดเป็นระบบสุริยะแบบ static/galaxy.js — ดวงอาทิตย์ใจกลาง ดาวเคราะห์ = เส้นทาง"""
-    assert "function drawSun(" in HTML and "function drawPlanets(" in HTML
-    assert "drawPlanets(g, now, true); drawStars(g, now, true); drawSun(g, now)" in HTML
+    """โหมดการตัดสินใจวาดเป็นระบบสุริยะ — ใจกลางแสง (แทนดวงอาทิตย์) ดาวเคราะห์ = เส้นทาง
+    วาดครึ่งหลังของจาน/ดาวก่อนใจกลาง แล้วครึ่งหน้าทับ (ลำดับความลึก)"""
+    assert "function drawCore(" in HTML and "function drawDisk(" in HTML and "function drawPlanets(" in HTML
+    assert "drawDisk(g, now, true); drawPlanets(g, now, true); drawStars(g, now, true); drawCore(g, now); drawDisk(g, now, false)" in HTML
+    assert "function drawSun(" not in HTML
 
 
 def test_universe_links_to_the_universe_page():
