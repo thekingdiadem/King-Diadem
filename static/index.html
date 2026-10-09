@@ -1492,22 +1492,22 @@ var Cosmos = (function(){
       ' col=(1.-exp(-col*1.3))*uDim;',
       ' gl_FragColor=vec4(col,1.);',
       '}'].join('\n');
-    /* ── ฉากหน้าแรก: โลกทั้งใบจากภาพถ่ายดาวเทียมจริง (static/earth/) ─────────────
-       ประเทศตรงตำแหน่งจริง (NASA Blue Marble) · ซีกกลางคืนมีไฟเมืองตามเมืองใหญ่จริง (NASA Earth at Night)
-       เมฆลอยช้ากว่าพื้นโลกเล็กน้อย · ทะเลสะท้อนแสงอาทิตย์ · บรรยากาศเรืองฟ้า · เส้นแบ่งวัน-คืนอมทอง
-       โลกเอียงให้ซีกเหนือหันมาหา และหมุนจากประเทศไทยเป็นจุดเริ่ม
-       ระหว่างโหลดภาพ (หรือโหลดไม่ได้) ใช้โลกที่สร้างจาก noise แทน · uShow: 1 = หน้าว่าง · 0 = เริ่มพิมพ์/มีแชท */
+    /* ── ฉากหน้าแรก (แบบภาพอ้างอิงของผู้ก่อตั้ง) ─────────────────────────────────
+       โลกดวงใหญ่จากภาพดาวเทียมจริง (static/earth/) หันเอเชียตะวันออกเฉียงใต้เข้าหา · ไฟเมืองสีทองทั่วโลก
+       แผ่นดินเห็นจางๆ ทะเลน้ำเงินลึก ขอบโลกเรืองทองฝั่งดวงอาทิตย์ · ดวงอาทิตย์มุมซ้ายบน (ผิวเดือดเป็นเม็ด + โคโรนา)
+       ดาวเสาร์ (มีวงแหวน หน้า-หลังถูกต้อง) ดาวพฤหัส (แถบเมฆ) ดาวยูเรนัส ทางขวา · เนบิวลาฝุ่นอุ่นมุมซ้ายล่าง
+       ทุกดวงรับแสงจากดวงอาทิตย์บนจอ · uShow: 1 = หน้าว่าง · 0 = เริ่มพิมพ์/มีแชท เหลือพื้นมืดกับดาวจางๆ */
     var DAWN_FS = [
       '#ifdef GL_OES_standard_derivatives',
       '#extension GL_OES_standard_derivatives : enable',
       '#endif',
       'precision highp float;',
-      'uniform vec2 uRes,uC;uniform float uQ,uT,uR,uShow,uThink,uRisk,uDim,uTex,uSpin;uniform vec3 uL;',
+      'uniform vec2 uRes,uC,uNeb;uniform float uQ,uT,uR,uShow,uThink,uRisk,uDim,uTex,uSpin;',
+      'uniform vec3 uSun,uSat,uJup,uUra;',
       'uniform sampler2D uDay,uLights,uClouds;',
       'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
       'float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),f.x),f.y);}',
       'float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<5;i++){s+=a*n(p);p=p*2.07+vec2(3.1,1.7);a*=.5;}return s;}',
-      /* u ของภาพแบบ equirect: เลือกระหว่างสองชุดที่รอยต่ออยู่คนละที่ (กันเส้นรอยต่อตอนย่อภาพ) */
       'float lonU(float lon){float u1=fract(lon/6.2831853+.5);',
       '#ifdef GL_OES_standard_derivatives',
       ' float u2=fract(lon/6.2831853+1.)-.5; return fwidth(u1)<=fwidth(u2)+1e-6?u1:u2;',
@@ -1515,61 +1515,106 @@ var Cosmos = (function(){
       ' return u1;',
       '#endif',
       '}',
+      /* ทิศแสงจากดวงอาทิตย์บนจอ มายังวัตถุที่ c */
+      'vec3 sunDir(vec2 c){vec2 v=uSun.xy-c;return normalize(vec3(v.x,-v.y,length(v)*.32));}',
+      /* ดาวเคราะห์: k=0 พฤหัส · 1 เสาร์ · 2 ยูเรนัส */
+      'vec4 planet(vec2 p,vec3 P,float k,float t){',
+      ' vec2 d=(p-P.xy)/P.z; float r=length(d); if(r>1.) return vec4(0.);',
+      ' vec3 nv=vec3(d.x,-d.y,sqrt(1.-r*r)); vec3 L=sunDir(P.xy); float dif=max(dot(nv,L),0.);',
+      ' float lat=nv.y, lo=atan(nv.x,nv.z); vec3 c;',
+      ' if(k<.5){ float tb=fbm(vec2(lo*2.+t*.01,lat*7.)); float b=sin(lat*21.+tb*2.6);',
+      '  c=mix(vec3(.55,.38,.25),vec3(.95,.88,.76),.5+.5*b); c=mix(c,vec3(.72,.55,.42),smoothstep(.65,1.,abs(lat))*.5);',
+      '  float spot=exp(-pow((lat+.32)/.07,2.)-pow((lo-.4)/.22,2.)); c=mix(c,vec3(.78,.36,.24),spot*.7); }',
+      ' else if(k<1.5){ float b=sin(lat*15.+n(vec2(lat*18.,2.))*1.4); c=mix(vec3(.78,.67,.47),vec3(.96,.9,.74),.5+.5*b); }',
+      ' else { c=mix(vec3(.50,.78,.84),vec3(.78,.94,.96),.5+.5*lat); }',
+      ' c*=dif*1.05+.035; c+=c*pow(1.-nv.z,3.)*.25;',
+      ' return vec4(c,smoothstep(1.,.96,r));',
+      '}',
       'void main(){',
-      ' vec2 p=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y)/uQ; vec2 S=uRes/uQ; float M=max(S.x,S.y); float t=uT; float A=uShow;',
-      ' vec3 L=normalize(uL);',
-      ' vec3 col=vec3(.006,.008,.016);',
-      ' vec2 sc=floor(p/2.5);float hs=h(sc);',
-      ' col+=vec3(.8,.86,1.)*step(.9975,hs)*(.3+.35*sin(t*(.6+hs*2.)+hs*40.)+.3)*mix(.35,1.,A);',
-      ' vec3 warm=mix(vec3(1.,.72,.42),vec3(1.,.4,.3),uRisk);',
-      ' vec2 sun=uC+vec2(L.x,-L.y)*M*.62; float dsun=length(p-sun)/M;',
-      ' col+=(warm*exp(-dsun*6.)*.08+vec3(1.,.95,.88)*exp(-dsun*dsun*20000.)*.9)*A;',
-      ' vec2 d=(p-uC)/uR; float r=length(d);',
-      ' vec3 earth=vec3(0.); float cover=0.;',
+      ' vec2 p=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y)/uQ; vec2 S=uRes/uQ; float M=max(S.x,S.y); float t=uT;',
+      ' vec3 bg=vec3(.006,.008,.016);',
+      /* ดาว: เล็กละเอียด + ดวงสว่างเป็นระยะ */
+      ' vec2 sc=floor(p/2.); float hs=h(sc);',
+      ' vec3 stars=mix(vec3(.72,.8,1.),vec3(1.,.9,.74),h(sc+9.))*step(.9968,hs)*(.3+.7*h(sc+3.1))*(.8+.2*sin(t*(.5+hs*2.)+hs*60.));',
+      ' vec2 s3=floor(p/28.); float h3=h(s3+1.3);',
+      ' if(h3>.94){vec2 o=(s3+.2+.6*vec2(h(s3+4.),h(s3+8.)))*28.; float dd=length(p-o); stars+=vec3(1.,.95,.86)*(exp(-dd*dd/1.1)*.9+exp(-dd/3.5)*.04);}',
+      ' vec3 plain=bg+stars*.35;',
+      ' vec3 col=bg+stars;',
+      /* เนบิวลาฝุ่นอุ่นมุมซ้ายล่าง + ดาวกระจุก */
+      ' vec2 nq=(p-uNeb)/(M*.36); float nm=smoothstep(1.,0.,length(nq*vec2(.9,1.25)));',
+      ' if(nm>0.){',
+      '  vec2 w=p/M; float dn=fbm(w*4.6+vec2(t*.002,0.)+fbm(w*2.3)*1.2); float d2=fbm(w*10.+5.);',
+      '  float dust=pow(smoothstep(.32,.85,dn),1.6)*nm;',
+      '  vec3 ncol=mix(vec3(.32,.11,.03),vec3(1.,.64,.30),smoothstep(.35,.8,d2));',
+      '  col+=ncol*dust*.62; col*=1.-smoothstep(.6,.78,d2)*nm*.45;',
+      '  vec2 c2=floor(p/3.); float hc=h(c2+7.);',
+      '  col+=vec3(1.,.86,.64)*step(1.-.016*nm,hc)*(.55+.45*sin(t*.8+hc*40.));',
+      ' }',
+      /* ดวงอาทิตย์ */
+      ' vec2 sd=(p-uSun.xy)/uSun.z; float sr=length(sd);',
+      ' col+=vec3(1.,.58,.22)*.16/(1.+sr*sr*.35);',
+      ' if(sr<7.){',
+      '  float an=atan(sd.y,sd.x); float ry=pow(n(vec2(an*5.,t*.07))*.6+n(vec2(an*13.,-t*.05))*.4,3.); float so=max(sr-1.,0.);',
+      '  col+=vec3(1.,.74,.38)*(exp(-so*4.)*.6+ry*exp(-so*1.3)*(.45+uThink*.4))*smoothstep(.9,1.,sr);',
+      ' }',
+      ' if(sr<1.){',
+      '  float g=fbm(sd*5.5+vec2(t*.02,0.)); float g2=n(sd*22.+t*.06);',
+      '  vec3 s0=mix(vec3(1.,.55,.12),vec3(1.,.95,.70),smoothstep(1.,.1,sr));',
+      '  s0*=(.74+.36*g+.12*g2)*(.72+.28*sqrt(1.-sr*sr));',
+      '  col=mix(col,s0*1.45,smoothstep(1.,.95,sr));',
+      ' }',
+      /* ดาวเสาร์: วงแหวนครึ่งหลัง → ตัวดาว → วงแหวนครึ่งหน้า */
+      ' vec2 q=(p-uSat.xy)/uSat.z; float ca=cos(.26),sa=sin(.26); q=vec2(q.x*ca+q.y*sa,-q.x*sa+q.y*ca);',
+      ' float rr=length(vec2(q.x,q.y/.3));',
+      ' float ring=smoothstep(1.3,1.36,rr)*smoothstep(2.4,2.3,rr)*(1.-.85*smoothstep(1.84,1.88,rr)*smoothstep(1.99,1.95,rr))*(.55+.45*n(vec2(rr*36.,0.)));',
+      ' vec3 ringC=vec3(.86,.77,.58)*ring*.85*(.35+.65*max(sunDir(uSat.xy).x*-1.,0.)+.3);',
+      ' if(q.y<0.) col=mix(col,ringC,ring*.9);',
+      ' vec4 P=planet(p,uSat,1.,t); col=mix(col,P.rgb,P.a);',
+      ' if(q.y>=0.){ float sh=1.-.6*step(length((p-uSat.xy)/uSat.z),1.)*0.; col=mix(col,ringC*sh,ring*.9); }',
+      ' P=planet(p,uJup,0.,t); col=mix(col,P.rgb,P.a);',
+      ' P=planet(p,uUra,2.,t); col=mix(col,P.rgb,P.a);',
+      /* โลก */
+      ' vec2 d=(p-uC)/uR; float r=length(d); vec3 L=sunDir(uC);',
+      ' vec2 sdir=normalize(L.xy+1e-5);',
       ' if(r<1.){',
-      '  vec3 nv=vec3(d.x,-d.y,sqrt(1.-r*r)); float lam=dot(nv,L);',
-      /* เอียงโลกให้ซีกเหนือหันเข้าหา (กลางภาพ ≈ ละติจูด 18°N) */
-      '  float ct=.949,st=.315; vec3 ng=vec3(nv.x,nv.y*ct+nv.z*st,-nv.y*st+nv.z*ct);',
+      '  vec3 nv=vec3(d.x,-d.y,sqrt(1.-r*r)); float sunF=max(dot(nv,L),0.);',
+      '  float ct=.985,st=.174; vec3 ng=vec3(nv.x,nv.y*ct+nv.z*st,-nv.y*st+nv.z*ct);',
       '  float lon=atan(ng.x,ng.z)+uSpin, lat=asin(clamp(ng.y,-1.,1.));',
-      '  float day=smoothstep(-.08,.2,lam), night=1.-smoothstep(-.14,.05,lam), term=exp(-pow(lam/.09,2.));',
-      '  vec3 ec;',
+      '  float lit=.075+.5*pow(sunF,1.6); vec3 ec;',
+      '  float pulse=1.+uThink*.22*sin(t*3.);',
       '  if(uTex>.5){',
       '   vec2 uv=vec2(lonU(lon),.5-lat/3.1415927);',
       '   vec3 tx=texture2D(uDay,uv).rgb; vec3 alb=pow(tx,vec3(2.2));',
-      '   float cl=texture2D(uClouds,vec2(lonU(lon+t*.0025),uv.y)).r; cl=smoothstep(.12,.85,cl);',
+      '   float cl=smoothstep(.15,.9,texture2D(uClouds,vec2(lonU(lon+t*.0025),uv.y)).r);',
       '   float li=texture2D(uLights,uv).r;',
       '   float water=smoothstep(.03,.12,tx.b-max(tx.r,tx.g)*.9);',
-      '   float dif=max(lam,0.);',
-      '   vec3 lit=alb*(dif*1.35+.004);',
-      '   vec3 hv=normalize(L+vec3(0.,0.,1.)); float sp=pow(max(dot(nv,hv),0.),260.)*water*(1.-cl);',
-      '   lit+=vec3(1.,.9,.75)*sp*.35*dif;',
-      '   lit=mix(lit,vec3(.92,.94,1.)*(dif*1.25+.0015),cl*.82);',
-      '   vec3 city=mix(vec3(1.,.55,.22),vec3(1.,.86,.6),li*li)*li*li*3.2*night*(1.-cl*.6);',
-      '   ec=lit+city+warm*term*.006*(1.-cl*.3);',
+      '   ec=alb*lit+water*vec3(.002,.010,.032)*(.7+sunF);',
+      '   vec3 hv=normalize(L+vec3(0.,0.,1.)); ec+=vec3(.5,.72,1.)*pow(max(dot(nv,hv),0.),24.)*water*(1.-cl)*.16;',
+      '   ec=mix(ec,vec3(.78,.82,.92)*(.025+sunF*.6),cl*.3);',
+      '   float ck=1.-.6*smoothstep(.35,.9,sunF);',
+      '   ec+=mix(vec3(1.,.55,.2),vec3(1.,.88,.62),li*li)*li*li*3.*ck*(1.-cl*.45)*pulse;',
       '  } else {',
-      '   vec2 uv=vec2(lon+t*.0,lat);',
+      '   vec2 uv=vec2(lon,lat);',
       '   float land=smoothstep(.555,.6,fbm(uv*vec2(1.5,2.1)+7.)); float ice=smoothstep(1.1,1.3,abs(lat));',
-      '   float cl=smoothstep(.50,.78,fbm(uv*vec2(3.6,6.)+vec2(t*.01,0.)));',
       '   vec3 alb=mix(vec3(.002,.012,.05),vec3(.04,.045,.02),land); alb=mix(alb,vec3(.6,.65,.7),ice);',
       '   vec2 g=uv*95.; vec2 fc=fract(g)-.5;',
       '   float cty=step(.58,h(floor(g)))*land*(1.-ice)*smoothstep(.45,.7,fbm(uv*8.+2.))*exp(-dot(fc,fc)*22.);',
-      '   ec=mix(alb*(max(lam,0.)*1.35+.004),vec3(.92,.94,1.)*max(lam,0.)*1.2,cl*.8)+vec3(1.,.66,.32)*cty*night*1.4+warm*term*.05;',
+      '   ec=alb*lit+vec3(1.,.66,.32)*cty*1.6*pulse;',
       '  }',
-      '  float fr=pow(1.-nv.z,2.6);',
-      '  ec+=vec3(.10,.28,.85)*fr*.55*smoothstep(-.1,.6,lam)+warm*fr*term*.06;',
-      '  earth=pow(ec/(1.+ec*.18)*1.12,vec3(.4545));',
-      '  cover=smoothstep(1.,.996,r);',
+      '  float fr=pow(1.-nv.z,2.5); float side=max(dot(normalize(vec2(d.x,-d.y)+1e-5),sdir),0.);',
+      '  vec3 warm=mix(vec3(1.,.66,.32),vec3(1.,.38,.28),uRisk);',
+      '  ec+=vec3(.10,.26,.75)*fr*.45+warm*fr*side*side*.4;',
+      '  vec3 earth=pow(ec/(1.+ec*.18)*1.12,vec3(.4545));',
+      '  col=mix(col,earth,smoothstep(1.,.99,r));',
       ' }',
-      /* บรรยากาศรอบโลก */
-      ' vec3 halo=vec3(0.);',
+      /* ขอบบรรยากาศ: ทองฝั่งดวงอาทิตย์ จางรอบทั้งดวง */
       ' if(r>=.97){',
-      '  vec2 dn=normalize(d); float rl=dot(vec3(dn.x,-dn.y,0.),L); float hg=r-1.;',
-      '  float atm=hg<0.?smoothstep(.97,1.,r)*.22:exp(-hg/.022)*.5+exp(-hg/.09)*.12;',
-      '  vec3 ac=mix(vec3(.30,.56,1.),warm,exp(-pow(rl/.3,2.))*.6);',
-      '  halo=ac*atm*(.1+.9*smoothstep(-.4,.3,rl));',
+      '  float hg=r-1.; float side=.5+.5*dot(normalize(vec2(d.x,-d.y)+1e-5),sdir);',
+      '  vec3 warm=mix(vec3(1.,.70,.36),vec3(1.,.40,.30),uRisk);',
+      '  float atm=hg<0.?smoothstep(.97,1.,r)*(.10+.25*side):exp(-hg/.011)*(.22+.5*side)+exp(-hg/.06)*(.05+.10*side);',
+      '  col+=mix(vec3(.35,.55,1.),warm,.45+.55*side)*atm;',
       ' }',
-      ' col=mix(col,earth,cover*A)+halo*A;',
-      ' col*=uDim;',
+      ' col=mix(plain,col,uShow)*uDim;',
       ' col+=(h(p+fract(t))-.5)*.008;',
       ' gl_FragColor=vec4(col,1.);',
       '}'].join('\n');
@@ -1584,7 +1629,7 @@ var Cosmos = (function(){
     function use(P){ if(cur === P) return; cur = P; gl.useProgram(P.pr); gl.enableVertexAttribArray(P.a); gl.vertexAttribPointer(P.a, 2, gl.FLOAT, false, 0, 0); }
     var GALAXY = prog(FS, ['uRes','uQ','uT','uR','uD','uPitch','uYaw','uTilt','uLow','uThink','uZoom','uDisk','uDim','uC']);
     try{ gl.getExtension('OES_standard_derivatives'); }catch(_){}
-    var DAWN = prog(DAWN_FS, ['uRes','uQ','uT','uC','uR','uL','uShow','uThink','uRisk','uDim','uTex','uSpin','uDay','uLights','uClouds']), cur = null;
+    var DAWN = prog(DAWN_FS, ['uRes','uQ','uT','uC','uR','uShow','uThink','uRisk','uDim','uTex','uSpin','uDay','uLights','uClouds','uSun','uSat','uJup','uUra','uNeb']), cur = null;
     /* ภาพโลกจริง: โหลดหลังหน้าเว็บขึ้นแล้ว (~790KB) · ระหว่างรอใช้โลก noise */
     var EARTH_TEX = null;
     function loadEarth(){
@@ -1613,7 +1658,7 @@ var Cosmos = (function(){
     var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,3,-1,-1,3]), gl.STATIC_DRAW);
     c.addEventListener('webglcontextlost', function(e){ e.preventDefault(); gl = null; });
     return {
-      size: function(){ var dp = window.devicePixelRatio || 1; Q = (mode2 === 'earth' ? Math.min(2, dp) * .9 : Math.min(1.25, dp) * .7) * qs;
+      size: function(){ var dp = window.devicePixelRatio || 1; Q = (mode2 === 'earth' ? Math.min(2, dp) : Math.min(1.25, dp) * .7) * qs;
         c.width = Math.round(W * Q); c.height = Math.round(H * Q); if(gl) gl.viewport(0, 0, c.width, c.height); },
       want: function(m){ if(m !== mode2){ mode2 = m; qs = 1; slow = 0; this.size(); } },
       ok: function(){ return !!gl; },
@@ -1638,11 +1683,13 @@ var Cosmos = (function(){
         if(!gl || !DAWN) return false;
         this.want('earth'); use(DAWN); var u = DAWN.U;
         gl.uniform2f(u.uRes, c.width, c.height); gl.uniform1f(u.uQ, Q); gl.uniform1f(u.uT, REDUCED ? 0 : tsec);
-        gl.uniform2f(u.uC, d.cx, d.cy); gl.uniform1f(u.uR, d.r); gl.uniform3f(u.uL, d.l[0], d.l[1], d.l[2]);
+        gl.uniform2f(u.uC, d.cx, d.cy); gl.uniform1f(u.uR, d.r);
+        gl.uniform3f(u.uSun, d.sun[0], d.sun[1], d.sun[2]); gl.uniform3f(u.uSat, d.sat[0], d.sat[1], d.sat[2]);
+        gl.uniform3f(u.uJup, d.jup[0], d.jup[1], d.jup[2]); gl.uniform3f(u.uUra, d.ura[0], d.ura[1], d.ura[2]); gl.uniform2f(u.uNeb, d.neb[0], d.neb[1]);
         gl.uniform1f(u.uShow, d.show); gl.uniform1f(u.uThink, d.think); gl.uniform1f(u.uRisk, d.risk); gl.uniform1f(u.uDim, d.dim);
         loadEarth();
         var ok = EARTH_TEX && typeof EARTH_TEX === 'object';
-        gl.uniform1f(u.uTex, ok ? 1 : 0); gl.uniform1f(u.uSpin, 1.606 - (REDUCED ? 0 : tsec * .006));
+        gl.uniform1f(u.uTex, ok ? 1 : 0); gl.uniform1f(u.uSpin, 1.885 - (REDUCED ? 0 : tsec * .004));
         if(ok){ for(var i = 0; i < 3; i++){ gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, EARTH_TEX[i]); } gl.activeTexture(gl.TEXTURE0);
           gl.uniform1i(u.uDay, 0); gl.uniform1i(u.uLights, 1); gl.uniform1i(u.uClouds, 2); }
         gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -2058,11 +2105,11 @@ var Cosmos = (function(){
     if(A < .01) return;
     var cur = typeof Route !== 'undefined' ? Route : 'general', hasLS = 'letterSpacing' in ctx;
     function orbit(i){
-      var rr = R * (1.3 + i * .23), k = .24 + i * .012, tau = -.17 + (i % 2 ? .05 : -.02) + i * .008, ct = Math.cos(tau), st = Math.sin(tau);
+      var rr = R * (1.12 + i * .2), k = .3 + i * .02, tau = -.17 + (i % 2 ? .05 : -.02) + i * .008, ct = Math.cos(tau), st = Math.sin(tau);
       return function(a){ var x = Math.cos(a) * rr, y = Math.sin(a) * rr * k; return { x: cx + x * ct - y * st, y: cy + x * st + y * ct, front: Math.sin(a) > 0, a: a, rr: rr, k: k, ct: ct, st: st }; };
     }
     function hidden(q){ return !q.front && Math.hypot(q.x - cx, q.y - cy) < R * 1.02; }
-    ctx.save(); ctx.lineCap = 'round';
+    ctx.save(); ctx.lineCap = 'round'; var boxes = [];
     for(var i = 0; i < 6; i++){
       var P = orbit(i), on = ORB[i] === cur, col = PCOL[i];
       /* เส้นวง: ครึ่งหลังจางกว่า · ช่วงที่อยู่หลังโลกไม่วาด */
@@ -2074,7 +2121,7 @@ var Cosmos = (function(){
           if(pen) ctx.lineTo(q.x, q.y); else { ctx.moveTo(q.x, q.y); pen = true; }
         }
         if(on){ ctx.strokeStyle = col; ctx.globalAlpha = A * (pass ? .9 : .16); ctx.lineWidth = pass ? 1 : 4; }
-        else { ctx.strokeStyle = 'rgba(214,224,248,1)'; ctx.globalAlpha = A * .17; ctx.lineWidth = .8; }
+        else { ctx.strokeStyle = 'rgba(226,232,246,1)'; ctx.globalAlpha = A * .26; ctx.lineWidth = .8; }
         ctx.stroke();
       }
       /* ชื่อเส้นทางตามแนววง: ด้านหน้าล่าง สลับซ้าย/ขวา · ถ้าตกจอหรือชนช่องพิมพ์ ย้ายไปอีกฝั่ง */
@@ -2083,7 +2130,9 @@ var Cosmos = (function(){
       cand = cand.map(function(c){ return c + (i - 2.5) * .06; });
       for(var c = 0; c < cand.length && !spot; c++){
         var q2 = P(cand[c]), nx = q2.x - cx, ny = q2.y - cy, nl = Math.hypot(nx, ny) || 1, lx = q2.x + nx / nl * 9, ly = q2.y + ny / nl * 9;
-        if(lx - tw / 2 > 8 && lx + tw / 2 < W - 8 && ly > top + 10 && ly < bottom - 14) spot = { q: q2, x: lx, y: ly };
+        var bx = [lx - tw / 2 - 4, ly - 8, lx + tw / 2 + 4, ly + 8];
+        var clash = boxes.some(function(o){ return bx[0] < o[2] && bx[2] > o[0] && bx[1] < o[3] && bx[3] > o[1]; });
+        if(!clash && lx - tw / 2 > 8 && lx + tw / 2 < W - 8 && ly > top + 10 && ly < bottom - 14){ spot = { q: q2, x: lx, y: ly }; boxes.push(bx); }
       }
       if(spot){
         var tx = -Math.sin(spot.q.a) * spot.q.rr, ty = Math.cos(spot.q.a) * spot.q.rr * spot.q.k;
@@ -2110,6 +2159,18 @@ var Cosmos = (function(){
     }
     ctx.restore(); ctx.globalAlpha = 1;
   }
+  /* ป้ายชื่อดวงอาทิตย์และดาวเคราะห์ (แบบภาพอ้างอิง) — ตัวเล็ก สีขาวนวล อยู่เหนือแต่ละดวง ไม่ตกขอบจอ */
+  function drawBodyLabels(B, R, A, top){
+    if(A < .01) return;
+    ctx.save(); ctx.font = '500 11px "Noto Sans Thai Looped", system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    [['Sun', B.sun, 1.25], ['Saturn', B.sat, 1.25], ['Jupiter', B.jup, 1.35], ['Uranus', B.ura, 1.6]].forEach(function(b){
+      var x = b[1][0], y = b[1][1] - b[1][2] * b[2] - 4, w = ctx.measureText(b[0]).width;
+      x = clamp(x, w / 2 + 6, W - w / 2 - 6); if(y < top + 12) y = b[1][1] + b[1][2] * b[2] + 16;
+      ctx.globalAlpha = A * .82; ctx.fillStyle = '#eef1f8'; ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 4;
+      ctx.fillText(b[0], x, y);
+    });
+    ctx.restore(); ctx.globalAlpha = 1;
+  }
   var DAWN = { show: 1, think: 0, last: 0 };
   function backdrop(now, dt){
     var tsec = (now - t0) / 1000, m = $('#main').getBoundingClientRect();
@@ -2122,16 +2183,34 @@ var Cosmos = (function(){
     if(Math.abs(want - DAWN.show) < .002) DAWN.show = want;
     DAWN.think += ((think ? 1 : 0) - DAWN.think) * Math.min(1, dt * 1.8);
     var cp = $('#composer'), bottom = cp && cp.getBoundingClientRect().height ? cp.getBoundingClientRect().top : m.bottom;
-    var top = m.top + 54, cx = m.left + m.width * .5, cy = top + (bottom - top) * .47;
-    var r = Math.max(60, Math.min(m.width * .27, (bottom - top) * .25));
+    /* จัดวางแบบภาพอ้างอิง: โลกดวงใหญ่กลางพื้นที่ · ดวงอาทิตย์ซ้ายบน · เสาร์ พฤหัส ยูเรนัส ขวา · เนบิวลาซ้ายล่าง */
+    var top = m.top + 54, avW = m.width, avH = bottom - top, portrait = avW < avH * .9;
+    var r = Math.max(70, portrait ? Math.min(avW * .43, avH * .3) : Math.min(avW * .36, avH * .42));
+    var cx = m.left + avW * (portrait ? .5 : .52), cy = top + avH * (portrait ? .5 : .52);
+    var sunR = Math.max(14, r * .16), sunX = Math.max(m.left + sunR * 1.7, cx - r * (portrait ? .74 : 1.0)), sunY = Math.max(top + sunR * 1.6, cy - r * (portrait ? 1.13 : 1.02));
+    var BOD = portrait ? {
+      /* จอตั้ง: ด้านข้างแคบ → เสาร์ขึ้นไปขวาบนเหนือโลก · พฤหัสชิดขอบโลกขวา · ยูเรนัสลงไปขวาล่าง */
+      sun: [sunX, sunY, sunR],
+      sat: [Math.min(m.right - r * .3, cx + r * .74), Math.max(top + r * .2, cy - r * 1.17), Math.max(7, r * .085)],
+      jup: [Math.min(m.right - r * .14, cx + r * .99), cy - r * .42, Math.max(8, r * .1)],
+      ura: [Math.min(m.right - r * .1, cx + r * .9), cy + r * 1.13, Math.max(5, r * .055)],
+      neb: [m.left + avW * .12, bottom - avH * .08]
+    } : {
+      sun: [sunX, sunY, sunR],
+      sat: [Math.min(m.right - r * .26, cx + r * 1.05), cy - r * .92, Math.max(7, r * .085)],
+      jup: [Math.min(m.right - r * .12, cx + r * .98), cy - r * .4, Math.max(8, r * .1)],
+      ura: [Math.min(m.right - r * .06, cx + r * 1.2), cy - r * .2, Math.max(5, r * .05)],
+      neb: [m.left + avW * .1, bottom - avH * .1]
+    };
     var drew = false;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalAlpha = 1;
     if(GLX && GLX.ok()){
       ctx.clearRect(0, 0, W, H); GLX.pace(dt);
-      drew = GLX.dawn({ cx:cx, cy:cy, r:r, l:[-.85, .25, .42], show: DAWN.show, think: DAWN.think, risk: coreWL != null && coreWL < 35 ? 1 : 0, dim: 1 }, tsec);
+      drew = GLX.dawn({ cx:cx, cy:cy, r:r, sun: BOD.sun, sat: BOD.sat, jup: BOD.jup, ura: BOD.ura, neb: BOD.neb, show: DAWN.show, think: DAWN.think, risk: coreWL != null && coreWL < 35 ? 1 : 0, dim: 1 }, tsec);
     }
     if(!drew) ctx.drawImage(bgCv, 0, 0, W, H);
     drawRoutes(cx, cy, r, tsec, DAWN.show, top, bottom);
+    if(drew) drawBodyLabels(BOD, r, DAWN.show, top);
     /* ตอนเป็นพื้นหลังเรียบ (show = 0) ภาพนิ่ง ไม่ต้องวาดซ้ำ — ประหยัดแบต · พิมพ์/เปลี่ยนหน้าจะปลุกเอง */
     if(!REDUCED && (DAWN.show > 0 || want > 0)) kick();
   }

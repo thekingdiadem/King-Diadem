@@ -97,11 +97,27 @@ def test_front_page_earth_uses_real_satellite_imagery():
 
 
 def test_front_page_routes_orbit_the_earth():
-    """วงโคจร 6 เส้นทางรอบโลก (แบบภาพอ้างอิง) · เส้นทางที่เลือกเรือง · มีสถานีอวกาศวิ่ง · ครึ่งหลังถูกโลกบัง"""
+    """วงโคจร 6 เส้นทางรอบโลก (แบบภาพอ้างอิง) · เส้นทางที่เลือกเรือง · มีสถานีอวกาศวิ่ง · ครึ่งหลังถูกโลกบัง
+    ชื่อเส้นทางไม่ทับกัน (เดิมบนมือถือ RISK ทับ GENERAL)"""
     assert "var ROUTE_EN = ['GENERAL', 'RISK', 'CIVIL', 'SURVIVAL', 'COLLAPSE', 'VEGA'];" in HTML
-    body = HTML[HTML.index("function drawRoutes("):HTML.index("var DAWN = { show: 1")]
+    body = HTML[HTML.index("function drawRoutes("):HTML.index("function drawBodyLabels(")]
     assert "function hidden(q)" in body and "ORB[i] === cur" in body and "สถานีอวกาศ" in body
+    assert "var clash = boxes.some(" in body
     assert "drawRoutes(cx, cy, r, tsec, DAWN.show, top, bottom);" in HTML
+
+
+def test_front_page_matches_founders_reference():
+    """ฉากหน้าแรกตามภาพอ้างอิงของผู้ก่อตั้ง: ดวงอาทิตย์ซ้ายบน · ดาวเสาร์ (วงแหวนหน้า-หลัง) ดาวพฤหัส ดาวยูเรนัสทางขวา
+    · เนบิวลาซ้ายล่าง · ทุกดวงรับแสงจากดวงอาทิตย์บนจอ · มีป้ายชื่อ · จอตั้งจัดวางคนละแบบไม่ให้ดาวเบียดขอบ"""
+    assert "uniform vec3 uSun,uSat,uJup,uUra;" in HTML
+    assert "vec3 sunDir(vec2 c)" in HTML and "vec4 planet(vec2 p,vec3 P,float k,float t)" in HTML
+    assert "if(q.y<0.) col=mix(col,ringC,ring*.9);" in HTML and "if(q.y>=0.)" in HTML      # วงแหวนหลัง/หน้าดาวเสาร์
+    assert "float nm=smoothstep(1.,0.," in HTML                                             # เนบิวลา
+    assert "[['Sun', B.sun, 1.25], ['Saturn', B.sat, 1.25], ['Jupiter', B.jup, 1.35], ['Uranus', B.ura, 1.6]]" in HTML
+    assert "var BOD = portrait ? {" in HTML
+    # โคโรนาวาดก่อนตัวดวง (เดิมขอบในไม่มีโคโรนา เลยเป็นวงจุดดำรอบดวงอาทิตย์)
+    sun = HTML[HTML.index("' if(sr<7.){',"):HTML.index("' if(sr<1.){',")]
+    assert "smoothstep(.9,1.,sr)" in sun
 
 
 def test_front_page_is_clean_and_fades_when_chatting():
