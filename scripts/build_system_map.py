@@ -32,6 +32,10 @@ NEW = {
     "scripts/stress_test.py": ["tests", "ทดสอบหนัก: ดัดแปลงข้อความเป็นแสน ตรวจไม่ล้ม · ไม่เกิน 3 ทาง · คงเส้นคงวา", "⚡ stress"],
     "scripts/build_system_map.py": ["config", "สร้างแผนผังระบบในหน้าเว็บใหม่จาก repo จริง", "⌘ แผนผัง"],
     "static/i18n.js": ["web", "ข้อความหน้าเว็บหลายภาษา", "文 i18n"],
+    "static/earth/README.md": ["docs", "ที่มาและสัญญาอนุญาตของภาพโลกหน้าแรก (NASA · สาธารณสมบัติ)", "🜨 earth"],
+    "static/earth/day.jpg": ["web", "ภาพโลกกลางวัน NASA Blue Marble 2048×1024 — ประเทศตรงตำแหน่งจริง", "🜨 day"],
+    "static/earth/lights.jpg": ["web", "ไฟเมืองกลางคืน NASA Earth at Night — สกัดเฉพาะแสงเมือง", "✺ lights"],
+    "static/earth/clouds.jpg": ["web", "เมฆทั้งโลก 2048×1024 — ลอยช้ากว่าพื้นโลกเล็กน้อย", "☁ clouds"],
     "tests/corpus/messages.tsv": ["tests", "ชุดข้อความทดสอบกลาง — ข้อความจริงพร้อมสิ่งที่ระบบควรตอบ", "☰ corpus"],
 }
 _LIVE_FROM = ("vision", "legacy", "dormant", "broken")
@@ -118,13 +122,15 @@ def boot_modules(mods: dict[str, str]) -> set[str]:
 
 
 def static_refs(files: list[str]) -> set[str]:
-    """ชื่อไฟล์ที่หน้า HTML ใน static/ โหลดผ่าน <script src> / <link href>"""
+    """ชื่อไฟล์ที่หน้า HTML ใน static/ โหลดผ่าน <script src> / <link href> หรือตั้ง .src ด้วย JS"""
     refs = set()
     for f in files:
         if f.startswith("static/") and f.endswith(".html"):
             html = open(os.path.join(ROOT, f), encoding="utf-8").read()
             html = _MAP_RE.sub("", html)          # ไม่นับชื่อไฟล์ที่อยู่ในข้อมูลแผนผังเอง
             refs.update(os.path.basename(m) for m in re.findall(r'(?:src|href)="([^"#?]+\.(?:js|css))"', html))
+            # โหลดด้วย JS: s.src = '/static/galaxy_scene.js' (หน้า The Universe โหลดฉากแบบนี้)
+            refs.update(os.path.basename(m) for m in re.findall(r"\.(?:src|href)\s*=\s*['\"]([^'\"#?]+\.(?:js|css))['\"]", html))
     return refs
 
 

@@ -77,3 +77,78 @@ def test_universe_files_share_one_visual_language():
     thinking = _static("ai_thinking_orbit.js")
     assert 'LYLA:    { color: "#ffcf7a"' in thinking and 'VEGA:    { color: "#8cc2ff"' in thinking   # ตรงกับ --lyla / --vega
     assert "rose" in _static("warp_intro.js")
+
+
+def test_front_page_earth_uses_real_satellite_imagery():
+    """โลกหน้าแรกใช้ภาพจริงของ NASA: ประเทศตรงตำแหน่ง ไฟเมืองตามเมืองใหญ่จริง เมฆ
+    ระหว่างโหลดหรือโหลดไม่ได้ ใช้โลกที่สร้างจาก noise · เครื่องที่ไม่มี WebGL ใช้พื้นหลัง 2D เดิม"""
+    import os
+    root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static", "earth")
+    for name in ("day.jpg", "lights.jpg", "clouds.jpg"):
+        path = os.path.join(root, name)
+        assert os.path.getsize(path) < 450 * 1024, name                 # มือถือโหลดไหว
+        assert "'/static/earth/" + name + "'" in HTML
+    credits = open(os.path.join(root, "README.md"), encoding="utf-8").read()
+    assert "NASA" in credits and "MIT" in credits
+    assert "uniform sampler2D uDay,uLights,uClouds;" in HTML
+    assert "if(uTex>.5){" in HTML and "} else {" in HTML                  # มีโลก noise สำรอง
+    assert "im.onerror = function(){ EARTH_TEX = 'failed'; };" in HTML
+    assert "if(!drew) ctx.drawImage(bgCv, 0, 0, W, H);" in HTML
+
+
+def test_front_page_routes_orbit_the_earth():
+    """วงโคจร 6 เส้นทางรอบโลก (แบบภาพอ้างอิง) · เส้นทางที่เลือกเรือง · มีสถานีอวกาศวิ่ง · ครึ่งหลังถูกโลกบัง
+    ชื่อเส้นทางไม่ทับกัน (เดิมบนมือถือ RISK ทับ GENERAL)"""
+    assert "var ROUTE_EN = ['GENERAL', 'RISK', 'CIVIL', 'SURVIVAL', 'COLLAPSE', 'VEGA'];" in HTML
+    body = HTML[HTML.index("function drawRoutes("):HTML.index("function drawBodyLabels(")]
+    assert "function hidden(q)" in body and "ORB[i] === cur" in body and "สถานีอวกาศ" in body
+    assert "var clash = boxes.some(" in body
+    assert "drawRoutes(cx, cy, r, tsec, DAWN.show, top, bottom);" in HTML
+
+
+def test_front_page_matches_founders_reference():
+    """ฉากหน้าแรกตามภาพอ้างอิงของผู้ก่อตั้ง: ดวงอาทิตย์ซ้ายบน · ดาวเสาร์ (วงแหวนหน้า-หลัง) ดาวพฤหัส ดาวยูเรนัสทางขวา
+    · เนบิวลาซ้ายล่าง · ทุกดวงรับแสงจากดวงอาทิตย์บนจอ · มีป้ายชื่อ · บนมือถือโลกเล็กลงให้พอดีจอ"""
+    assert "uniform vec3 uSun,uSat,uJup,uUra;" in HTML
+    assert "vec3 sunDir(vec2 c)" in HTML and "vec4 planet(vec2 p,vec3 P,float k,float t)" in HTML
+    assert "if(q.y<0.) col=mix(col,ringC,ring*.9);" in HTML and "if(q.y>=0.)" in HTML      # วงแหวนหลัง/หน้าดาวเสาร์
+    assert "float nm=smoothstep(1.,0.," in HTML                                             # เนบิวลา
+    assert "[['Sun', B.sun, 1.25], ['Saturn', B.sat, 1.25], ['Jupiter', B.jup, 1.35], ['Uranus', B.ura, 1.6]]" in HTML
+    assert "portrait ? Math.min(avW * .3, avH * .22)" in HTML        # มือถือ: โลกราว 60% ของความกว้างจอ (เดิม 86% ใหญ่เกิน)
+    # โคโรนาวาดก่อนตัวดวง (เดิมขอบในไม่มีโคโรนา เลยเป็นวงจุดดำรอบดวงอาทิตย์)
+    sun = HTML[HTML.index("' if(sr<7.){',"):HTML.index("' if(sr<1.){',")]
+    assert "smoothstep(.9,1.,sr)" in sun
+
+
+def test_front_page_is_clean_and_fades_when_chatting():
+    """พี่ขอเอาชื่อ สัจพจน์ และพระจันทร์ออกจากหน้าแรก · เริ่มพิมพ์หรือมีแชท โลกจางเหลือพื้นหลังเรียบ"""
+    empty = HTML[HTML.index('<div id="empty">'):HTML.index('<div id="msgs"')]
+    assert "<h1>" not in empty and "data-axis" not in empty and "koan" not in empty
+    assert "data-axis" in HTML                                 # THE PURE AXIS ยังเปิดได้จากหน้าระบบ
+    assert "var want = emptyOn && !(inp && inp.value.trim()) ? 1 : 0;" in HTML
+    assert "if(!REDUCED && (DAWN.show > 0 || want > 0)) kick();" in HTML     # พื้นหลังเรียบไม่วาดซ้ำ ประหยัดแบต
+
+
+def _simulate_frame_cap(hz, seconds=10):
+    """ตรรกะเดียวกับต้น frame() — สะสมเวลา วาดเมื่อครบ 1/90 วินาที"""
+    dt_last, acc, drawn, now = 0.0, 0.0, 0, 0.0
+    for _ in range(hz * seconds):
+        now += 1000 / hz
+        gap = (now - (dt_last or now)) / 1000
+        acc = min(acc + gap, 2 / 90)
+        if dt_last and acc + 1e-4 < 1 / 90:
+            dt_last = now
+            continue
+        acc = max(0.0, acc - 1 / 90)
+        dt_last = now
+        drawn += 1
+    return drawn / seconds
+
+
+def test_frame_rate_is_capped_at_90():
+    """พี่ขอให้ลดเหลือ 90 เฟรม: จอ 120/144/240 Hz วาดเฉลี่ย 90 · จอ 60 Hz ยังวาดเต็ม 60"""
+    assert "fpsAcc = Math.min(fpsAcc + gap, 2 / 90);" in HTML
+    assert "if(dtLast && fpsAcc + 1e-4 < 1 / 90)" in HTML
+    for hz in (120, 144, 240):
+        assert abs(_simulate_frame_cap(hz) - 90) < 0.5
+    assert abs(_simulate_frame_cap(60) - 60) < 0.5

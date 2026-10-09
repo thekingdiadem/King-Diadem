@@ -47,3 +47,10 @@ def test_web_assets_follow_what_pages_load():
     assert rows["static/galaxy_scene.js"][2] == "web"
     assert rows["static/i18n.js"][2] == "web"
     assert rows["static/ai_brain.js"][2] == "legacy"      # ไม่มีหน้าไหนโหลด
+
+
+def test_script_loaded_from_js_counts_as_used():
+    """หน้าแชทเลิกใช้ฉากเมฆแล้ว แต่หน้า The Universe ยังโหลด galaxy_scene.js ด้วย s.src = '...'
+    เดิมสคริปต์อ่านแค่ src="..." เลยจัดไฟล์ที่ยังใช้อยู่เป็นรุ่นเก่า"""
+    files = sm.tracked()
+    assert "galaxy_scene.js" in sm.static_refs(files)
