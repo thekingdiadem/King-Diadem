@@ -35,10 +35,45 @@ def test_universe_mode_toggle_stays_readable():
 
 
 def test_decisions_universe_is_a_solar_system():
-    """โหมดการตัดสินใจวาดเป็นระบบสุริยะแบบ static/galaxy.js — ดวงอาทิตย์ใจกลาง ดาวเคราะห์ = เส้นทาง"""
-    assert "function drawSun(" in HTML and "function drawPlanets(" in HTML
-    assert "drawPlanets(g, now, true); drawStars(g, now, true); drawSun(g, now)" in HTML
+    """โหมดการตัดสินใจวาดเป็นระบบสุริยะ — ใจกลางแสง (แทนดวงอาทิตย์) ดาวเคราะห์ = เส้นทาง
+    วาดครึ่งหลังของจาน/ดาวก่อนใจกลาง แล้วครึ่งหน้าทับ (ลำดับความลึก)"""
+    assert "function drawCore(" in HTML and "function drawDisk(" in HTML and "function drawPlanets(" in HTML
+    assert "drawPlanets(g, now, true); drawStars(g, now, true); drawCore(g, now);" in HTML
+    assert "function drawSun(" not in HTML
+
+
+def test_universe_galaxy_layer_has_a_fallback():
+    """กาแล็กซี/เนบิวลาวาดด้วย WebGL — เครื่องที่ไม่มี WebGL ต้องยังเห็นจานสสารแบบ 2D และพื้นหลังเดิม"""
+    assert "var GLX = (function(){" in HTML and "c.id = 'cosmos-gl'" in HTML
+    assert "if(!useGL) drawDisk(g, now, true)" in HTML and "else ctx.drawImage(bgCv, 0, 0, W, H);" in HTML
+    # เครื่องที่วาดไม่ทันลดความละเอียดชั้นภาพนุ่มเอง
+    assert "GLX.pace(dt)" in HTML
+
+
+def test_energy_flows_have_intention():
+    """กระแสพลังงานไหลตามแขนเกลียวเข้าหาแก่น (มีปลายทาง) ไม่ใช่ลอยสุ่ม และปิดเมื่อผู้ใช้ลดการเคลื่อนไหว"""
+    assert "function drawFlows(" in HTML
+    body = HTML[HTML.index("function drawFlows("):HTML.index("function drawFlows(") + 1600]
+    assert "if(REDUCED) return;" in body and "f.r -= dt" in body and "Math.log(f.r" in body
 
 
 def test_universe_links_to_the_universe_page():
     assert 'class="u-link glass" href="/static/king_diadem_universe.html"' in HTML
+
+
+def _static(name):
+    import os
+    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static", name), encoding="utf-8") as f:
+        return f.read()
+
+
+def test_universe_files_share_one_visual_language():
+    """ไฟล์จักรวาลทุกไฟล์ใช้ภาษาภาพเดียวกับแท็บจักรวาล: แก่นแสงแทนลูกบอลส้ม · ร้อนสลับเย็น · สีเสียงตรงกับแอป"""
+    galaxy = _static("galaxy.js")
+    assert '"#ff8800"' not in galaxy and "Sun rays (16 rays)" not in galaxy     # ดวงอาทิตย์ลูกส้มเดิม
+    assert "ทรงกลมรับแสงจากแก่น" in galaxy
+    scene = _static("galaxy_scene.js")
+    assert "เนบิวลาร้อนสลับเย็น" in scene and "rimSide" in scene
+    thinking = _static("ai_thinking_orbit.js")
+    assert 'LYLA:    { color: "#ffcf7a"' in thinking and 'VEGA:    { color: "#8cc2ff"' in thinking   # ตรงกับ --lyla / --vega
+    assert "rose" in _static("warp_intro.js")

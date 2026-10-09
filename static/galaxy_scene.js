@@ -191,6 +191,11 @@ var FS = [
 '  float Lh=colw*(.10+.90*exp(-up/(uRes.y*.20)));',
 '  col+=warm*Lh*.07*uGain;',
 '  col+=stars(p)*smoothstep(.35,.85,hv);',
+/* เนบิวลาร้อนสลับเย็น (ภาษาเดียวกับแท็บจักรวาล): ซ้ายคราม/เทอร์ควอยซ์ · ขวากุหลาบ/อำพัน */
+'  float sd=smoothstep(.08,.92,p.x/uRes.x);vec2 nq=p/uScale;',
+'  float nA=T(nq*.33+uD1*.6,0),nB=T(nq*.71+uD2,1);',
+'  vec3 nebC=mix(mix(vec3(.10,.16,.48),vec3(.04,.30,.40),nB),mix(vec3(.42,.10,.30),vec3(.58,.26,.07),nB),sd);',
+'  col+=nebC*pow(smoothstep(.42,.9,nA),1.5)*.16*smoothstep(.15,.9,hv);',
 '  vec3 gsum=vec3(0.);vec3 g;',
 '  for(int i=0;i<6;i++){if(uP[i].w<0.){vec4 pl=planet(p,uP[i],uPC[i],uPL[i],uPA[i],lc,g);col=mix(col,pl.rgb,pl.a);gsum+=g;}}',
 '  for(int i=0;i<6;i++){if(uP[i].w>=0.){vec4 pl=planet(p,uP[i],uPC[i],uPL[i],uPA[i],lc,g);col=mix(col,pl.rgb,pl.a);gsum+=g;}}',
@@ -201,17 +206,19 @@ var FS = [
 '  float D2=dens(p+toL*14.*uPx,sh2);',
 '  float rim=clamp((D-D2)*1.8,0.,1.);',
 '  float self=exp(-D*1.4);',
-'  vec3 body=vec3(.010,.014,.028)*(.4+1.0*sh);',
+'  vec3 body=mix(vec3(.008,.014,.032),vec3(.026,.012,.022),sd)*(.4+1.0*sh);',
 '  float Lc=1.4*exp(-d/(rd*5.))+.30*exp(-d/(rd*16.))+.03*exp(-d/(rd*50.));',
-'  vec3 rimC=mix(vec3(.80,.86,1.),warm,smoothstep(uRes.y*.75,uHor,p.y));',
+'  vec3 rimSide=mix(vec3(.62,.82,1.),vec3(1.,.70,.80),sd);',
+'  vec3 rimC=mix(rimSide,warm,smoothstep(uRes.y*.75,uHor,p.y)*.8);',
 '  vec3 lit=rimC*(Lh*.9+Lc*.5)*(1.-Tr)*(.07*mix(1.,self,.6)+1.1*rim*(.5+.5*sh));',
 '  col=col*Tr+body*(1.-Tr)+lit;',
 /* THE PURE AXIS: เส้นแสงแนวตั้งบางคม จากฟ้าลงถึงขอบฟ้า */
 '  float bt=exp(-adx/(.55*uPx))*.95+exp(-adx/(4.*uPx))*.16+exp(-adx/(26.*uPx))*.045;',
 '  float bv=mix(.32,1.,exp(-abs(p.y-uCore.y)/(uRes.y*.30)))*smoothstep(uHor-2.*uPx,uHor+uRes.y*.04,p.y);',
-'  col+=vec3(1.,.92,.78)*bt*bv*uGain*(.75+.25*Tr);',
+'  vec3 axC=mix(vec3(1.,.82,.62),vec3(.74,.86,1.),smoothstep(uCore.y-uRes.y*.05,uCore.y+uRes.y*.25,p.y));',
+'  col+=axC*bt*bv*uGain*(.62+.2*Tr);',
 /* จุดประกายตรงที่แกนทะลุเมฆ */
-'  float G=2.2*exp(-d/(rd*.45))+.55*exp(-d/(rd*1.8))+.12*exp(-d/(rd*7.));',
+'  float G=1.5*exp(-d/(rd*.45))+.45*exp(-d/(rd*1.8))+.10*exp(-d/(rd*7.));',
 '  float ray=exp(-abs(p.y-uCore.y)/(.6*uPx))*exp(-adx/(rd*2.2))*.5;',
 '  col+=lc*(G+ray);',
 /* โลกมนุษย์ด้านล่าง: เงาเนินเขา + แสงเมือง */
@@ -327,6 +334,11 @@ function drawFallback(pl, Tc){
   g.setTransform(1, 0, 0, 1, 0, 0);
   var bg = g.createLinearGradient(0, 0, 0, h); bg.addColorStop(0, '#0a0e1c'); bg.addColorStop(1, '#03040a');
   g.fillStyle = bg; g.fillRect(0, 0, w, h);
+  /* ไม่มี WebGL ก็ยังร้อนสลับเย็น: ซ้ายคราม ขวากุหลาบอมอำพัน */
+  [[0, h * .35, 'rgba(40,70,190,.16)'], [w, h * .4, 'rgba(170,60,90,.14)'], [w * .85, h * .15, 'rgba(200,110,40,.08)']].forEach(function(n){
+    var gr = g.createRadialGradient(n[0], n[1], 0, n[0], n[1], Math.max(w, h) * .6); gr.addColorStop(0, n[2]); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  });
   var cx = geo.cx * s, cy = geo.cy * s, r = geo.rd * s, c = 'rgba(' + Math.round(255 * tint[0]) + ',' + Math.round(240 * tint[1]) + ',' + Math.round(220 * tint[2]) + ',';
   g.globalCompositeOperation = 'lighter';
   [[r * 60, .05], [r * 18, .12], [r * 6, .3], [r * 2.2, .6]].forEach(function(L){

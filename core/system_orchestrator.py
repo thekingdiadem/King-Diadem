@@ -30,7 +30,10 @@ class SystemOrchestrator:
             return "civil"
         return "general"
 
-    def _resolve_persona(self, route: str, voice_mode: str) -> str:
+    def _resolve_persona(self, route: str, voice_mode: str, locked: bool = False) -> str:
+        # ผู้ใช้เลือกเสียงเอง (ปุ่ม LYLA/VEGA หรือเรียกชื่อ) → ห้ามสลับตามเส้นทาง
+        if locked and voice_mode in ("lyla", "vega"):
+            return voice_mode
         if voice_mode == "crisis" or route == "crisis":
             return "lyla"
         if voice_mode == "vega" or route == "vega":
@@ -70,7 +73,7 @@ class SystemOrchestrator:
         user_input = str(data.get("input", "") or "")
         context    = data.get("context") if isinstance(data.get("context"), dict) else {}
         voice_mode = data.get("voice_mode", "lyla")
-        persona    = self._resolve_persona(route, voice_mode)
+        persona    = self._resolve_persona(route, voice_mode, bool(data.get("voice_locked")))
 
         result = {
             "route":            route,
@@ -203,7 +206,8 @@ class SystemOrchestrator:
         voice_mode = data.get("voice_mode", "lyla")
         route = data.get("route") or "general"
         if route == "general":
-            route = self.route(user_input, voice_mode)
+            # จัดเส้นทางจากข้อความที่ผู้ใช้พิมพ์จริง — "input" มีบริบทที่ระบบต่อเพิ่ม (คำอย่าง "อนาคต" ในบริบทเคยพาไป VEGA)
+            route = self.route(data.get("raw_input") or user_input, voice_mode)
 
         result  = self.execute(route, data)
         persona = result.get("voice_mode", "lyla")

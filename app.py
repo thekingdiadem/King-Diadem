@@ -1002,6 +1002,14 @@ def _resolve_voice_mode(data: dict, route: str) -> str:
     return "lyla"
 
 
+def _voice_locked(data: dict) -> bool:
+    """ผู้ใช้เลือกเสียงเอง (ปุ่ม LYLA/VEGA/สภา หรือเรียกชื่อในข้อความ) — ไม่ใช่ AUTO"""
+    if str(data.get("persona_ui") or "").lower() in ("lyla", "vega", "council"):
+        return True
+    text = str(data.get("input") or "")
+    return bool(_NAME_VEGA.search(text) or _NAME_LYLA.search(text))
+
+
 # ── ROUTE SEVERITY — v4.9.1 ──────────────────────────────────────
 # ป้องกัน route ถูก downgrade เงียบ ๆ เมื่อหลาย engine เขียนทับกัน
 # (risk_engine / king_diadem_core / survivor_engine / belief_core)
@@ -1139,6 +1147,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # route มาจาก client — ไม่ใช่ชื่อเส้นทางจริง (เช่น dict/list) เคยทำ /run ล่ม 500 ที่ _route_bias
     route   = data.get("route") if data.get("route") in _VALID_ROUTES else "general"
     vm      = _resolve_voice_mode(data, route)
+    voice_locked = _voice_locked(data)
     history = data.get("history") or []
 
     if record_question: record_question()
@@ -1566,6 +1575,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     payload = {
         **data,
         "voice_mode":     vm,            # ค่าที่เซิร์ฟเวอร์ยืนยันแล้ว ไม่ใช่ค่าที่หน้าเว็บเดามา
+        "voice_locked":   voice_locked,
         "raw_input":      user_input,
         "input":          effective,
         "history":        history,
@@ -1669,6 +1679,9 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # เพราะ engine ตัดสินจาก pattern อีกชุด — ยกขึ้นได้อย่างเดียว ไม่ลด vega/stable ที่ engine เลือก
     if _ROUTE_SEVERITY.get(route, 0) > _ROUTE_SEVERITY.get(result["route"], 0):
         result["route"] = route
+    # AUTO แล้วส่วนจัดเส้นทางเลือกเสียง VEGA → ป้ายต้องบอก VEGA ด้วย (เดิมขึ้น LYLA แต่ตอบ "ครับ/ผม")
+    if vm == "lyla" and not voice_locked and str(result.get("persona") or "").upper() == "VEGA":
+        vm = "vega"
     result["persona"]    = _PERSONA.get(vm, "LYLA")
     result["voice_mode"] = vm
 
