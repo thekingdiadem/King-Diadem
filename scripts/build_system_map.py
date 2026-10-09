@@ -118,13 +118,15 @@ def boot_modules(mods: dict[str, str]) -> set[str]:
 
 
 def static_refs(files: list[str]) -> set[str]:
-    """ชื่อไฟล์ที่หน้า HTML ใน static/ โหลดผ่าน <script src> / <link href>"""
+    """ชื่อไฟล์ที่หน้า HTML ใน static/ โหลดผ่าน <script src> / <link href> หรือตั้ง .src ด้วย JS"""
     refs = set()
     for f in files:
         if f.startswith("static/") and f.endswith(".html"):
             html = open(os.path.join(ROOT, f), encoding="utf-8").read()
             html = _MAP_RE.sub("", html)          # ไม่นับชื่อไฟล์ที่อยู่ในข้อมูลแผนผังเอง
             refs.update(os.path.basename(m) for m in re.findall(r'(?:src|href)="([^"#?]+\.(?:js|css))"', html))
+            # โหลดด้วย JS: s.src = '/static/galaxy_scene.js' (หน้า The Universe โหลดฉากแบบนี้)
+            refs.update(os.path.basename(m) for m in re.findall(r"\.(?:src|href)\s*=\s*['\"]([^'\"#?]+\.(?:js|css))['\"]", html))
     return refs
 
 
