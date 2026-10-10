@@ -1074,6 +1074,11 @@ $('#eq-close').addEventListener('click', function(){ $('#dlg-eq').close(); });
 document.addEventListener('click', function(e){ var a = e.target.closest('[data-axis]'); if(!a) return; e.preventDefault(); var d = $('#dlg-axis'); if(!d.open){ d.showModal(); d.scrollTop = 0; } });
 $('#axis-close').addEventListener('click', function(){ $('#dlg-axis').close(); });
 $('#dlg-axis').addEventListener('click', function(e){ if(e.target === this) this.close(); });
+/* ราคาจริงจาก Stripe บนปุ่ม Premium (เดิมเขียน ฿279 ตายตัว) */
+fetch('/pricing').then(function(r){ return r.json(); }).then(function(d){
+  var p = d && d.premium; if(!p || !p.amount) return;
+  var b = $('#up-go'); if(b) b.textContent = 'Premium ' + (p.currency === 'THB' ? '฿' : p.currency + ' ') + Math.round(p.amount).toLocaleString('en-US') + (p.interval === 'month' ? ' / เดือน' : '');
+}).catch(function(){});
 $('#up-go').addEventListener('click', async function(){
   var b = this; b.disabled = true;
   try{

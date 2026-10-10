@@ -191,7 +191,7 @@ try:
         ensure_user, save_chat_state, load_chat_state,
         set_password, verify_password, user_exists,
         stripe_event_done, mark_stripe_event, add_credits_once, premium_subscription,
-        set_premium_until, get_premium_until, email_for_stripe_customer,
+        set_premium_until, get_premium_until, email_for_stripe_customer, customer_for_email,
         spend_credit, credit_history, take_free_run, give_back_free_run, free_runs_used,
         open_charge, close_charge, reclaim_stale_charges,
     )
@@ -203,7 +203,7 @@ except Exception as e:
     ensure_user = save_chat_state = load_chat_state = None
     set_password = verify_password = user_exists = None
     stripe_event_done = mark_stripe_event = add_credits_once = premium_subscription = None
-    set_premium_until = get_premium_until = email_for_stripe_customer = None
+    set_premium_until = get_premium_until = email_for_stripe_customer = customer_for_email = None
     spend_credit = credit_history = take_free_run = give_back_free_run = free_runs_used = None
     open_charge = close_charge = reclaim_stale_charges = None
 
@@ -2000,7 +2000,8 @@ def _handle_stripe_event(event) -> None:
     obj   = event["data"]["object"]
     now   = time.time()
 
-    if etype == "checkout.session.completed":
+    # PromptPay จ่ายแบบรอสแกน: completed มาก่อนด้วย unpaid แล้ว async_payment_succeeded ตามมาเมื่อโอนจริง
+    if etype in ("checkout.session.completed", "checkout.session.async_payment_succeeded"):
         if obj.get("payment_status") not in ("paid", "no_payment_required"):
             return
         # client_reference_id / customer_email มาจาก session ของเราตรงๆ (ตรงกับบัญชีที่ใช้อยู่)
@@ -2169,6 +2170,45 @@ async def wallet_topup(request: Request, data: dict):
     except Exception as e:
         print(f"⚠ wallet topup error: {e}")
         return JSONResponse({"error": "เปิดหน้าชำระเงินไม่สำเร็จค่ะ ยังไม่มีการตัดเงิน ลองใหม่อีกครั้งนะคะ"}, status_code=502)
+
+
+@app.post("/billing-portal")
+async def billing_portal(request: Request):
+    """หน้าจัดการสมาชิกของ Stripe — ยกเลิก เปลี่ยนบัตร ดูใบเสร็จ (เดิมไม่มีทางยกเลิกเอง)"""
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    customer = customer_for_email(email) if customer_for_email else None
+    if not customer or not os.getenv("STRIPE_SECRET_KEY"):
+        return JSONResponse({"error": "ยังไม่พบการสมัครสมาชิกของบัญชีนี้ค่ะ"}, status_code=404)
+    try:
+        s = await run_in_threadpool(lambda: stripe.billing_portal.Session.create(
+            customer=customer, return_url=_public_url("/static/wallet.html")))
+        return {"url": s.url}
+    except Exception as e:
+        print(f"⚠ billing portal error: {type(e).__name__}: {e}")
+        return JSONResponse({"error": "เปิดหน้าจัดการสมาชิกไม่สำเร็จ ลองใหม่อีกครั้งนะคะ"}, status_code=502)
+
+
+_PRICE_CACHE = {"t": 0.0, "v": None}
+
+
+@app.get("/pricing")
+async def pricing():
+    """ราคา Premium จริงจาก Stripe — เดิมปุ่มเขียน ฿279 ตายตัว อาจไม่ตรงกับที่ตั้งใน Stripe"""
+    pid = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
+    if not pid or not os.getenv("STRIPE_SECRET_KEY"):
+        return {"premium": None}
+    if time.time() - _PRICE_CACHE["t"] > 3600:
+        try:
+            pr = await run_in_threadpool(lambda: stripe.Price.retrieve(pid))
+            amt = pr.get("unit_amount")
+            _PRICE_CACHE.update(t=time.time(), v={"amount": (amt or 0) / 100, "currency": str(pr.get("currency") or "thb").upper(),
+                                                  "interval": ((pr.get("recurring") or {}).get("interval"))})
+        except Exception as e:
+            print(f"⚠ pricing error: {type(e).__name__}")
+            return {"premium": None}
+    return {"premium": _PRICE_CACHE["v"]}
 
 
 @app.get("/credits")
