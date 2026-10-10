@@ -1917,9 +1917,21 @@ def _simulate_impl(user_input: str, paths: list, email: str) -> dict:
 
 
 # ── STRIPE ────────────────────────────────────────────────────────
+def _grants_premium(price_ids) -> bool:
+    """Premium (ไม่จำกัด) ให้เฉพาะราคา STRIPE_PREMIUM_PRICE_ID — เดิมแพ็กเกจพื้นฐาน (+10 เครดิต)
+    ก็ได้ Premium ไม่จำกัดไปด้วย · ถ้าตั้งราคาไว้ราคาเดียว ราคานั้นคือ Premium"""
+    prem, ids = os.getenv("STRIPE_PREMIUM_PRICE_ID"), [p for p in price_ids if p]
+    if not prem or not ids:                 # ไม่รู้ราคา (ข้อมูลจาก Stripe ไม่มี price) → คงพฤติกรรมเดิม
+        return True
+    return prem in ids
+
+
 @app.post("/create-checkout-session")
 async def create_checkout(request: Request, data: dict):
-    email = _session_email(request) or data.get("email", "")
+    # ต้องล็อกอิน — เดิมรับอีเมลที่พิมพ์มาเอง เครดิต/Premium จึงไปลงอีเมลใครก็ได้ (หรืออีเมลที่ไม่มีบัญชี)
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนสมัครแพ็กเกจนะคะ เครดิตจะได้เข้าบัญชีของคุณ"}, status_code=401)
     plan  = data.get("plan", "basic")
     if plan == "civilization":
         price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
@@ -2029,7 +2041,8 @@ def _handle_stripe_event(event) -> None:
         if ensure_user: ensure_user(email)
         if total_credits > 0:
             _grant_once(email, total_credits, "stripe_plan", obj.get("id"))
-        if obj.get("mode") == "subscription" and set_premium_until:
+        if obj.get("mode") == "subscription" and set_premium_until and _grants_premium(
+                [(i.get("price") or {}).get("id") for i in items.get("data", [])]):
             set_premium_until(email, now + 32 * 86400 + _PREMIUM_GRACE,
                               obj.get("customer"), obj.get("subscription"))
 
@@ -2050,6 +2063,15 @@ def _handle_stripe_event(event) -> None:
         if sub.get("status") not in ("active", "trialing"):
             return
         items = ((sub.get("items") or {}).get("data") or [])
+        price_ids = [((it.get("price") or {}).get("id")) for it in items]
+        # แพ็กเกจพื้นฐาน: เติมเครดิตทุกรอบบิล (รอบแรกได้จาก checkout แล้ว) · ไม่ใช่ Premium
+        if obj.get("billing_reason") != "subscription_create":
+            per = {os.getenv("STRIPE_PRICE_ID"): 10, os.getenv("STRIPE_PREMIUM_PRICE_ID"): 100}
+            cyc = sum(per.get(pid, 0) for pid in price_ids if pid)
+            if cyc > 0:
+                _grant_once(email, cyc, "stripe_renewal", obj.get("id"))
+        if not _grants_premium(price_ids):
+            return
         period_end = max([sub.get("current_period_end") or 0] +
                          [(it.get("current_period_end") or 0) for it in items])
         if period_end:

@@ -77,3 +77,43 @@ def test_stale_invoice_after_cancel_does_not_restore_premium(hook, monkeypatch):
     assert get_premium_until(email) > time.time() + 29 * 86400  # subscription ใหม่ต่ออายุได้
     hook({"id": "evt_d2" + cs, "type": "customer.subscription.deleted", "data": {"object": {"id": old, "customer": cus}}})
     assert get_premium_until(email) > time.time() + 29 * 86400  # ยกเลิกอันเก่าทีหลังไม่ตัดอันใหม่
+
+
+def _plan_event(email, cs, price):
+    return {"id": "evt_" + cs, "type": "checkout.session.completed", "data": {"object": {
+        "id": cs, "payment_status": "paid", "client_reference_id": email, "mode": "subscription",
+        "customer": "cus_" + cs, "subscription": "sub_" + cs, "metadata": {}}}}, price
+
+
+def test_basic_plan_gives_credits_not_unlimited_premium(hook, monkeypatch):
+    """เดิมแพ็กเกจพื้นฐาน (+10 เครดิต) ได้ Premium ไม่จำกัดไปด้วย — Premium ต้องมาจากราคา Premium เท่านั้น"""
+    monkeypatch.setenv("STRIPE_PRICE_ID", "price_basic")
+    monkeypatch.setenv("STRIPE_PREMIUM_PRICE_ID", "price_prem")
+    email, cs = f"b{uuid.uuid4().hex[:8]}@x.co", "cs_" + uuid.uuid4().hex[:8]
+    monkeypatch.setattr(stripe.checkout.Session, "list_line_items",
+                        lambda sid: {"data": [{"price": {"id": "price_basic"}, "quantity": 1}]})
+    ev, _ = _plan_event(email, cs, "price_basic")
+    assert hook(ev)[0] == 200
+    assert [h["delta"] for h in credit_history(email, 50) if h.get("reason") == "stripe_plan"] == [10]
+    assert (get_premium_until(email) or 0) < time.time()
+
+
+def test_basic_renewal_adds_credits_each_cycle(hook, monkeypatch):
+    monkeypatch.setenv("STRIPE_PRICE_ID", "price_basic")
+    monkeypatch.setenv("STRIPE_PREMIUM_PRICE_ID", "price_prem")
+    email = f"r{uuid.uuid4().hex[:8]}@x.co"
+    monkeypatch.setattr(stripe.Subscription, "retrieve", lambda sid: {
+        "status": "active", "current_period_end": int(time.time()) + 30 * 86400,
+        "items": {"data": [{"price": {"id": "price_basic"}}]}})
+    inv = {"id": "evt_inv_" + email, "type": "invoice.paid", "data": {"object": {
+        "id": "in_" + email, "customer": "cus_none", "customer_email": email,
+        "subscription": "sub_x", "billing_reason": "subscription_cycle"}}}
+    assert hook(inv)[0] == 200
+    assert [h["delta"] for h in credit_history(email, 50) if h.get("reason") == "stripe_renewal"] == [10]
+    assert (get_premium_until(email) or 0) < time.time()
+
+
+def test_checkout_requires_login(client):
+    """เดิมรับอีเมลที่พิมพ์มาเอง — เครดิตไปลงอีเมลใครก็ได้"""
+    r = client.post("/create-checkout-session", json={"plan": "basic", "email": "someone@else.co"})
+    assert r.status_code == 401
