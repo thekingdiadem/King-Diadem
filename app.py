@@ -1959,6 +1959,9 @@ async def create_checkout(request: Request, data: dict):
 @app.post("/create-subscription")
 async def create_subscription(request: Request):
     email    = _session_email(request)
+    # ต้องล็อกอิน — ไม่งั้นเครดิต/Premium ไปลงอีเมลที่พิมพ์ในหน้า Stripe (อาจเป็นของคนอื่น)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนสมัคร Premium นะคะ"}, status_code=401)
     price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
     if not price_id:
         return JSONResponse({"error": "ยังไม่ได้ตั้งค่า STRIPE_PRICE_ID"}, status_code=503)
@@ -2042,10 +2045,16 @@ def _handle_stripe_event(event) -> None:
         if ensure_user: ensure_user(email)
         if total_credits > 0:
             _grant_once(email, total_credits, "stripe_plan", obj.get("id"))
-        if obj.get("mode") == "subscription" and set_premium_until and _grants_premium(
-                [(i.get("price") or {}).get("id") for i in items.get("data", [])]):
-            set_premium_until(email, now + 32 * 86400 + _PREMIUM_GRACE,
-                              obj.get("customer"), obj.get("subscription"))
+        if obj.get("mode") == "subscription" and set_premium_until:
+            # event ที่ส่งซ้ำ/มาช้าหลังยกเลิก ต้องไม่คืน premium → ถามสถานะจริงก่อน (เหมือน invoice.paid)
+            live = True
+            if obj.get("subscription"):
+                sub = stripe.Subscription.retrieve(obj["subscription"])   # ล้ม → 500 → Stripe ส่งใหม่
+                live = sub.get("status") in ("active", "trialing")
+            prem = live and _grants_premium([(i.get("price") or {}).get("id") for i in items.get("data", [])])
+            # เก็บ customer/subscription ทุกแพ็กเกจ — แพ็กเกจพื้นฐานจะได้เปิดหน้ายกเลิกและจับคู่รอบบิลถัดไปได้
+            until = now + 32 * 86400 + _PREMIUM_GRACE if prem else ((get_premium_until(email) if get_premium_until else 0) or 0)
+            set_premium_until(email, until, obj.get("customer"), obj.get("subscription"))
 
     elif etype == "invoice.paid":
         customer = obj.get("customer")
@@ -2148,7 +2157,7 @@ async def wallet_topup(request: Request, data: dict):
         return JSONResponse({"error": "ระบบชำระเงินยังไม่เปิดใช้ค่ะ ขออภัยนะคะ"}, status_code=503)
     try:
         baht = int(float(data.get("amount") or 0))
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         baht = 0
     if baht < _TOPUP_MIN_THB or baht > _TOPUP_MAX_THB:
         return JSONResponse({"error": f"เติมได้ครั้งละ ฿{_TOPUP_MIN_THB}–฿{_TOPUP_MAX_THB:,} นะคะ"}, status_code=400)

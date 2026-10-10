@@ -12,6 +12,7 @@ from DATABASE.db import get_credits, get_premium_until, credit_history
 def hook(client, monkeypatch):
     ev = {}
     monkeypatch.setattr(stripe.Webhook, "construct_event", lambda payload, sig, secret: ev["e"])
+    monkeypatch.setattr(stripe.Subscription, "retrieve", lambda sid: {"status": "active"})
     def post(e):
         ev["e"] = e
         r = client.post("/webhook/stripe", content=b"{}", headers={"stripe-signature": "s"})
@@ -132,3 +133,31 @@ def test_promptpay_credits_after_async_success(hook):
 def test_billing_portal_needs_login_and_pricing_safe_without_key(client):
     assert client.post("/billing-portal").status_code == 401
     assert client.get("/pricing").json()["premium"] is None
+
+
+def test_retried_checkout_after_cancel_does_not_restore_premium(hook, monkeypatch):
+    """checkout.session.completed ที่ส่งซ้ำหลังลูกค้ายกเลิกแล้ว ต้องไม่ให้ premium 34 วัน"""
+    email, cs = f"c{uuid.uuid4().hex[:8]}@x.co", "cs_" + uuid.uuid4().hex[:8]
+    monkeypatch.setattr(stripe.checkout.Session, "list_line_items", lambda sid: {"data": []})
+    monkeypatch.setattr(stripe.Subscription, "retrieve", lambda sid: {"status": "canceled"})
+    ev, _ = _plan_event(email, cs, None)
+    assert hook(ev)[0] == 200
+    assert (get_premium_until(email) or 0) < time.time()
+
+
+def test_basic_plan_stores_customer_for_portal(hook, monkeypatch):
+    from DATABASE.db import customer_for_email
+    monkeypatch.setenv("STRIPE_PRICE_ID", "price_basic")
+    monkeypatch.setenv("STRIPE_PREMIUM_PRICE_ID", "price_prem")
+    email, cs = f"d{uuid.uuid4().hex[:8]}@x.co", "cs_" + uuid.uuid4().hex[:8]
+    monkeypatch.setattr(stripe.checkout.Session, "list_line_items",
+                        lambda sid: {"data": [{"price": {"id": "price_basic"}, "quantity": 1}]})
+    ev, _ = _plan_event(email, cs, "price_basic")
+    assert hook(ev)[0] == 200
+    assert customer_for_email(email) == "cus_" + cs
+
+
+def test_subscription_and_topup_inputs(client):
+    assert client.post("/create-subscription").status_code == 401
+    r = client.post("/wallet/topup", content=b'{"amount": 1e999}', headers={"Content-Type": "application/json"})
+    assert r.status_code in (400, 401)          # เดิม 1e999 → OverflowError → 500
