@@ -12,6 +12,7 @@ from DATABASE.db import get_credits, get_premium_until, credit_history
 def hook(client, monkeypatch):
     ev = {}
     monkeypatch.setattr(stripe.Webhook, "construct_event", lambda payload, sig, secret: ev["e"])
+    monkeypatch.setattr(stripe.Subscription, "retrieve", lambda sid: {"status": "active"})
     def post(e):
         ev["e"] = e
         r = client.post("/webhook/stripe", content=b"{}", headers={"stripe-signature": "s"})
@@ -77,3 +78,86 @@ def test_stale_invoice_after_cancel_does_not_restore_premium(hook, monkeypatch):
     assert get_premium_until(email) > time.time() + 29 * 86400  # subscription ใหม่ต่ออายุได้
     hook({"id": "evt_d2" + cs, "type": "customer.subscription.deleted", "data": {"object": {"id": old, "customer": cus}}})
     assert get_premium_until(email) > time.time() + 29 * 86400  # ยกเลิกอันเก่าทีหลังไม่ตัดอันใหม่
+
+
+def _plan_event(email, cs, price):
+    return {"id": "evt_" + cs, "type": "checkout.session.completed", "data": {"object": {
+        "id": cs, "payment_status": "paid", "client_reference_id": email, "mode": "subscription",
+        "customer": "cus_" + cs, "subscription": "sub_" + cs, "metadata": {}}}}, price
+
+
+def test_basic_plan_gives_credits_not_unlimited_premium(hook, monkeypatch):
+    """เดิมแพ็กเกจพื้นฐาน (+10 เครดิต) ได้ Premium ไม่จำกัดไปด้วย — Premium ต้องมาจากราคา Premium เท่านั้น"""
+    monkeypatch.setenv("STRIPE_PRICE_ID", "price_basic")
+    monkeypatch.setenv("STRIPE_PREMIUM_PRICE_ID", "price_prem")
+    email, cs = f"b{uuid.uuid4().hex[:8]}@x.co", "cs_" + uuid.uuid4().hex[:8]
+    monkeypatch.setattr(stripe.checkout.Session, "list_line_items",
+                        lambda sid: {"data": [{"price": {"id": "price_basic"}, "quantity": 1}]})
+    ev, _ = _plan_event(email, cs, "price_basic")
+    assert hook(ev)[0] == 200
+    assert [h["delta"] for h in credit_history(email, 50) if h.get("reason") == "stripe_plan"] == [10]
+    assert (get_premium_until(email) or 0) < time.time()
+
+
+def test_basic_renewal_adds_credits_each_cycle(hook, monkeypatch):
+    monkeypatch.setenv("STRIPE_PRICE_ID", "price_basic")
+    monkeypatch.setenv("STRIPE_PREMIUM_PRICE_ID", "price_prem")
+    email = f"r{uuid.uuid4().hex[:8]}@x.co"
+    monkeypatch.setattr(stripe.Subscription, "retrieve", lambda sid: {
+        "status": "active", "current_period_end": int(time.time()) + 30 * 86400,
+        "items": {"data": [{"price": {"id": "price_basic"}}]}})
+    inv = {"id": "evt_inv_" + email, "type": "invoice.paid", "data": {"object": {
+        "id": "in_" + email, "customer": "cus_none", "customer_email": email,
+        "subscription": "sub_x", "billing_reason": "subscription_cycle"}}}
+    assert hook(inv)[0] == 200
+    assert [h["delta"] for h in credit_history(email, 50) if h.get("reason") == "stripe_renewal"] == [10]
+    assert (get_premium_until(email) or 0) < time.time()
+
+
+def test_checkout_requires_login(client):
+    """เดิมรับอีเมลที่พิมพ์มาเอง — เครดิตไปลงอีเมลใครก็ได้"""
+    r = client.post("/create-checkout-session", json={"plan": "basic", "email": "someone@else.co"})
+    assert r.status_code == 401
+
+
+def test_promptpay_credits_after_async_success(hook):
+    """PromptPay: completed มาแบบ unpaid (ยังไม่สแกน) ต้องไม่เติม · async_payment_succeeded แล้วค่อยเติม"""
+    email, cs = f"q{uuid.uuid4().hex[:8]}@x.co", "cs_" + uuid.uuid4().hex[:8]
+    ev = _topup(email, cs); ev["data"]["object"]["payment_status"] = "unpaid"
+    topups = lambda: [h["delta"] for h in credit_history(email, 50) if h.get("reason") == "topup"]
+    assert hook(ev)[0] == 200 and topups() == []
+    ok = _topup(email, cs); ok["id"] = "evt_async_" + cs; ok["type"] = "checkout.session.async_payment_succeeded"
+    assert hook(ok)[0] == 200 and topups() == [50]
+
+
+def test_billing_portal_needs_login_and_pricing_safe_without_key(client):
+    assert client.post("/billing-portal").status_code == 401
+    assert client.get("/pricing").json()["premium"] is None
+
+
+def test_retried_checkout_after_cancel_does_not_restore_premium(hook, monkeypatch):
+    """checkout.session.completed ที่ส่งซ้ำหลังลูกค้ายกเลิกแล้ว ต้องไม่ให้ premium 34 วัน"""
+    email, cs = f"c{uuid.uuid4().hex[:8]}@x.co", "cs_" + uuid.uuid4().hex[:8]
+    monkeypatch.setattr(stripe.checkout.Session, "list_line_items", lambda sid: {"data": []})
+    monkeypatch.setattr(stripe.Subscription, "retrieve", lambda sid: {"status": "canceled"})
+    ev, _ = _plan_event(email, cs, None)
+    assert hook(ev)[0] == 200
+    assert (get_premium_until(email) or 0) < time.time()
+
+
+def test_basic_plan_stores_customer_for_portal(hook, monkeypatch):
+    from DATABASE.db import customer_for_email
+    monkeypatch.setenv("STRIPE_PRICE_ID", "price_basic")
+    monkeypatch.setenv("STRIPE_PREMIUM_PRICE_ID", "price_prem")
+    email, cs = f"d{uuid.uuid4().hex[:8]}@x.co", "cs_" + uuid.uuid4().hex[:8]
+    monkeypatch.setattr(stripe.checkout.Session, "list_line_items",
+                        lambda sid: {"data": [{"price": {"id": "price_basic"}, "quantity": 1}]})
+    ev, _ = _plan_event(email, cs, "price_basic")
+    assert hook(ev)[0] == 200
+    assert customer_for_email(email) == "cus_" + cs
+
+
+def test_subscription_and_topup_inputs(client):
+    assert client.post("/create-subscription").status_code == 401
+    r = client.post("/wallet/topup", content=b'{"amount": 1e999}', headers={"Content-Type": "application/json"})
+    assert r.status_code in (400, 401)          # เดิม 1e999 → OverflowError → 500

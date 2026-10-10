@@ -296,6 +296,15 @@ def premium_subscription(user_email: str):
     finally:
         conn.close()
 
+def customer_for_email(user_email: str):
+    """Stripe customer ของบัญชีนี้ (ใช้เปิดหน้าจัดการสมาชิก)"""
+    conn = get_conn()
+    try:
+        row = conn.execute("SELECT stripe_customer FROM premium WHERE user_email = ?", (user_email,)).fetchone()
+        return row["stripe_customer"] if row else None
+    finally:
+        conn.close()
+
 def email_for_stripe_customer(customer: str):
     if not customer:
         return None

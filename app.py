@@ -191,7 +191,7 @@ try:
         ensure_user, save_chat_state, load_chat_state,
         set_password, verify_password, user_exists,
         stripe_event_done, mark_stripe_event, add_credits_once, premium_subscription,
-        set_premium_until, get_premium_until, email_for_stripe_customer,
+        set_premium_until, get_premium_until, email_for_stripe_customer, customer_for_email,
         spend_credit, credit_history, take_free_run, give_back_free_run, free_runs_used,
         open_charge, close_charge, reclaim_stale_charges,
     )
@@ -203,7 +203,7 @@ except Exception as e:
     ensure_user = save_chat_state = load_chat_state = None
     set_password = verify_password = user_exists = None
     stripe_event_done = mark_stripe_event = add_credits_once = premium_subscription = None
-    set_premium_until = get_premium_until = email_for_stripe_customer = None
+    set_premium_until = get_premium_until = email_for_stripe_customer = customer_for_email = None
     spend_credit = credit_history = take_free_run = give_back_free_run = free_runs_used = None
     open_charge = close_charge = reclaim_stale_charges = None
 
@@ -1746,6 +1746,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     except (TypeError, ValueError):
         pass
 
+    # มาตรา 11: ทางเลือกไม่เกิน 3 — LLM เคยตอบ 5 กลยุทธ์ (ภาพหน้าเว็บจริง) ตัดก่อนตรวจ canon
+    if result.get("ai_response"):
+        try:
+            from core.cosmic_latte_canon import limit_options
+            result["ai_response"] = limit_options(str(result["ai_response"]))
+        except Exception:
+            pass
+
     try:
         result = canon_validate(result)
         violations = result.get("canon_violations", []) or []
@@ -1909,9 +1917,21 @@ def _simulate_impl(user_input: str, paths: list, email: str) -> dict:
 
 
 # ── STRIPE ────────────────────────────────────────────────────────
+def _grants_premium(price_ids) -> bool:
+    """Premium (ไม่จำกัด) ให้เฉพาะราคา STRIPE_PREMIUM_PRICE_ID — เดิมแพ็กเกจพื้นฐาน (+10 เครดิต)
+    ก็ได้ Premium ไม่จำกัดไปด้วย · ถ้าตั้งราคาไว้ราคาเดียว ราคานั้นคือ Premium"""
+    prem, ids = os.getenv("STRIPE_PREMIUM_PRICE_ID"), [p for p in price_ids if p]
+    if not prem or not ids:                 # ไม่รู้ราคา (ข้อมูลจาก Stripe ไม่มี price) → คงพฤติกรรมเดิม
+        return True
+    return prem in ids
+
+
 @app.post("/create-checkout-session")
 async def create_checkout(request: Request, data: dict):
-    email = _session_email(request) or data.get("email", "")
+    # ต้องล็อกอิน — เดิมรับอีเมลที่พิมพ์มาเอง เครดิต/Premium จึงไปลงอีเมลใครก็ได้ (หรืออีเมลที่ไม่มีบัญชี)
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนสมัครแพ็กเกจนะคะ เครดิตจะได้เข้าบัญชีของคุณ"}, status_code=401)
     plan  = data.get("plan", "basic")
     if plan == "civilization":
         price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
@@ -1939,6 +1959,9 @@ async def create_checkout(request: Request, data: dict):
 @app.post("/create-subscription")
 async def create_subscription(request: Request):
     email    = _session_email(request)
+    # ต้องล็อกอิน — ไม่งั้นเครดิต/Premium ไปลงอีเมลที่พิมพ์ในหน้า Stripe (อาจเป็นของคนอื่น)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนสมัคร Premium นะคะ"}, status_code=401)
     price_id = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
     if not price_id:
         return JSONResponse({"error": "ยังไม่ได้ตั้งค่า STRIPE_PRICE_ID"}, status_code=503)
@@ -1980,7 +2003,8 @@ def _handle_stripe_event(event) -> None:
     obj   = event["data"]["object"]
     now   = time.time()
 
-    if etype == "checkout.session.completed":
+    # PromptPay จ่ายแบบรอสแกน: completed มาก่อนด้วย unpaid แล้ว async_payment_succeeded ตามมาเมื่อโอนจริง
+    if etype in ("checkout.session.completed", "checkout.session.async_payment_succeeded"):
         if obj.get("payment_status") not in ("paid", "no_payment_required"):
             return
         # client_reference_id / customer_email มาจาก session ของเราตรงๆ (ตรงกับบัญชีที่ใช้อยู่)
@@ -2022,8 +2046,15 @@ def _handle_stripe_event(event) -> None:
         if total_credits > 0:
             _grant_once(email, total_credits, "stripe_plan", obj.get("id"))
         if obj.get("mode") == "subscription" and set_premium_until:
-            set_premium_until(email, now + 32 * 86400 + _PREMIUM_GRACE,
-                              obj.get("customer"), obj.get("subscription"))
+            # event ที่ส่งซ้ำ/มาช้าหลังยกเลิก ต้องไม่คืน premium → ถามสถานะจริงก่อน (เหมือน invoice.paid)
+            live = True
+            if obj.get("subscription"):
+                sub = stripe.Subscription.retrieve(obj["subscription"])   # ล้ม → 500 → Stripe ส่งใหม่
+                live = sub.get("status") in ("active", "trialing")
+            prem = live and _grants_premium([(i.get("price") or {}).get("id") for i in items.get("data", [])])
+            # เก็บ customer/subscription ทุกแพ็กเกจ — แพ็กเกจพื้นฐานจะได้เปิดหน้ายกเลิกและจับคู่รอบบิลถัดไปได้
+            until = now + 32 * 86400 + _PREMIUM_GRACE if prem else ((get_premium_until(email) if get_premium_until else 0) or 0)
+            set_premium_until(email, until, obj.get("customer"), obj.get("subscription"))
 
     elif etype == "invoice.paid":
         customer = obj.get("customer")
@@ -2042,6 +2073,15 @@ def _handle_stripe_event(event) -> None:
         if sub.get("status") not in ("active", "trialing"):
             return
         items = ((sub.get("items") or {}).get("data") or [])
+        price_ids = [((it.get("price") or {}).get("id")) for it in items]
+        # แพ็กเกจพื้นฐาน: เติมเครดิตทุกรอบบิล (รอบแรกได้จาก checkout แล้ว) · ไม่ใช่ Premium
+        if obj.get("billing_reason") != "subscription_create":
+            per = {os.getenv("STRIPE_PRICE_ID"): 10, os.getenv("STRIPE_PREMIUM_PRICE_ID"): 100}
+            cyc = sum(per.get(pid, 0) for pid in price_ids if pid)
+            if cyc > 0:
+                _grant_once(email, cyc, "stripe_renewal", obj.get("id"))
+        if not _grants_premium(price_ids):
+            return
         period_end = max([sub.get("current_period_end") or 0] +
                          [(it.get("current_period_end") or 0) for it in items])
         if period_end:
@@ -2117,7 +2157,7 @@ async def wallet_topup(request: Request, data: dict):
         return JSONResponse({"error": "ระบบชำระเงินยังไม่เปิดใช้ค่ะ ขออภัยนะคะ"}, status_code=503)
     try:
         baht = int(float(data.get("amount") or 0))
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         baht = 0
     if baht < _TOPUP_MIN_THB or baht > _TOPUP_MAX_THB:
         return JSONResponse({"error": f"เติมได้ครั้งละ ฿{_TOPUP_MIN_THB}–฿{_TOPUP_MAX_THB:,} นะคะ"}, status_code=400)
@@ -2139,6 +2179,45 @@ async def wallet_topup(request: Request, data: dict):
     except Exception as e:
         print(f"⚠ wallet topup error: {e}")
         return JSONResponse({"error": "เปิดหน้าชำระเงินไม่สำเร็จค่ะ ยังไม่มีการตัดเงิน ลองใหม่อีกครั้งนะคะ"}, status_code=502)
+
+
+@app.post("/billing-portal")
+async def billing_portal(request: Request):
+    """หน้าจัดการสมาชิกของ Stripe — ยกเลิก เปลี่ยนบัตร ดูใบเสร็จ (เดิมไม่มีทางยกเลิกเอง)"""
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    customer = customer_for_email(email) if customer_for_email else None
+    if not customer or not os.getenv("STRIPE_SECRET_KEY"):
+        return JSONResponse({"error": "ยังไม่พบการสมัครสมาชิกของบัญชีนี้ค่ะ"}, status_code=404)
+    try:
+        s = await run_in_threadpool(lambda: stripe.billing_portal.Session.create(
+            customer=customer, return_url=_public_url("/static/wallet.html")))
+        return {"url": s.url}
+    except Exception as e:
+        print(f"⚠ billing portal error: {type(e).__name__}: {e}")
+        return JSONResponse({"error": "เปิดหน้าจัดการสมาชิกไม่สำเร็จ ลองใหม่อีกครั้งนะคะ"}, status_code=502)
+
+
+_PRICE_CACHE = {"t": 0.0, "v": None}
+
+
+@app.get("/pricing")
+async def pricing():
+    """ราคา Premium จริงจาก Stripe — เดิมปุ่มเขียน ฿279 ตายตัว อาจไม่ตรงกับที่ตั้งใน Stripe"""
+    pid = os.getenv("STRIPE_PREMIUM_PRICE_ID") or os.getenv("STRIPE_PRICE_ID")
+    if not pid or not os.getenv("STRIPE_SECRET_KEY"):
+        return {"premium": None}
+    if time.time() - _PRICE_CACHE["t"] > 3600:
+        try:
+            pr = await run_in_threadpool(lambda: stripe.Price.retrieve(pid))
+            amt = pr.get("unit_amount")
+            _PRICE_CACHE.update(t=time.time(), v={"amount": (amt or 0) / 100, "currency": str(pr.get("currency") or "thb").upper(),
+                                                  "interval": ((pr.get("recurring") or {}).get("interval"))})
+        except Exception as e:
+            print(f"⚠ pricing error: {type(e).__name__}")
+            return {"premium": None}
+    return {"premium": _PRICE_CACHE["v"]}
 
 
 @app.get("/credits")
