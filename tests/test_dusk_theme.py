@@ -152,3 +152,11 @@ def test_frame_rate_is_capped_at_90():
     for hz in (120, 144, 240):
         assert abs(_simulate_frame_cap(hz) - 90) < 0.5
     assert abs(_simulate_frame_cap(60) - 60) < 0.5
+
+
+def test_front_page_earth_spins_and_planets_orbit():
+    """พี่บอกว่าโลกไม่หมุน ดาวนิ่ง: โลกหมุนรอบละ ~90 วินาที ทุกประเทศวนมา · ปัดหมุนเองได้ · ดาวเคราะห์โคจรรอบโลก
+    · ป้ายชื่อดาวที่โคจรมาใกล้กันไม่ทับกัน"""
+    assert "tsec * .07" in HTML and "spin: DAWN.spinOff" in HTML
+    assert "function orb(k, a0, per, rad)" in HTML and "sat: orb(" in HTML
+    assert "function hit(yy)" in HTML

@@ -1474,7 +1474,7 @@ var Cosmos = (function(){
       '  if(den>1.){',
       '   float z1=u.y*uD/den, sc=uD/(uD-z1*cp), x1=u.x/sc; float cy=cos(uYaw),sy=sin(uYaw);',
       '   vec2 g=vec2(x1*cy+z1*sy,-x1*sy+z1*cy)/uR; float r=length(g), th=atan(g.y,g.x), lr=log(r+.015);',
-      '   float ph=th-2.4*lr+t*(.035+uThink*.12);',
+      '   float ph=th-2.4*lr+t*(.09+uThink*.2);',
       '   float arm=pow(.5+.5*cos(2.*ph),2.6), dust=pow(.5+.5*cos(2.*(ph-.42)),7.);',
       '   vec2 nc=vec2(lr*3.2,ph*1.15); float tx=fbm(nc*2.6+vec2(0.,t*.03)), kn=smoothstep(.70,.88,fbm(nc*6.5+4.));',
       '   float disk=exp(-r*2.1)*smoothstep(1.3,.55,r), bulge=exp(-r*r*38.);',
@@ -1689,7 +1689,7 @@ var Cosmos = (function(){
         gl.uniform1f(u.uShow, d.show); gl.uniform1f(u.uThink, d.think); gl.uniform1f(u.uRisk, d.risk); gl.uniform1f(u.uDim, d.dim);
         loadEarth();
         var ok = EARTH_TEX && typeof EARTH_TEX === 'object';
-        gl.uniform1f(u.uTex, ok ? 1 : 0); gl.uniform1f(u.uSpin, 1.885 - (REDUCED ? 0 : tsec * .004));
+        gl.uniform1f(u.uTex, ok ? 1 : 0); gl.uniform1f(u.uSpin, 1.885 + (d.spin || 0) - (REDUCED ? 0 : tsec * .07));
         if(ok){ for(var i = 0; i < 3; i++){ gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, EARTH_TEX[i]); } gl.activeTexture(gl.TEXTURE0);
           gl.uniform1i(u.uDay, 0); gl.uniform1i(u.uLights, 1); gl.uniform1i(u.uClouds, 2); }
         gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -2034,7 +2034,7 @@ var Cosmos = (function(){
   function drawPlanets(g, now, back){
     var tsec = (now - t0) / 1000, k = clamp(g.R / 60, .6, 1.2);
     for(var i = 0; i < ORB.length; i++){
-      var p = orbitPos(g, i, i * 1.05 + 2.2 + (REDUCED ? 0 : tsec * .05 / (1 + i * .5)));
+      var p = orbitPos(g, i, i * 1.05 + 2.2 + (REDUCED ? 0 : tsec * .16 / (1 + i * .35)));
       if(p.back !== back) continue;
       var col = PCOL[i], r = (4.2 + Math.min(4, orbN[i] * .45)) * k * p.s, hot = focusR === ORB[i] && performance.now() - focusT < 2600;
       var dim = (back ? .6 : 1) * (g.zoom == null ? 1 : g.zoom);
@@ -2162,16 +2162,28 @@ var Cosmos = (function(){
   /* ป้ายชื่อดวงอาทิตย์และดาวเคราะห์ (แบบภาพอ้างอิง) — ตัวเล็ก สีขาวนวล อยู่เหนือแต่ละดวง ไม่ตกขอบจอ */
   function drawBodyLabels(B, R, A, top){
     if(A < .01) return;
-    ctx.save(); ctx.font = '500 11px "Noto Sans Thai Looped", system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.save(); ctx.font = '500 11px "Noto Sans Thai Looped", system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; var placed = [];
     [['Sun', B.sun, 1.25], ['Saturn', B.sat, 1.25], ['Jupiter', B.jup, 1.35], ['Uranus', B.ura, 1.6]].forEach(function(b){
       var x = b[1][0], y = b[1][1] - b[1][2] * b[2] - 4, w = ctx.measureText(b[0]).width;
       x = clamp(x, w / 2 + 6, W - w / 2 - 6); if(y < top + 12) y = b[1][1] + b[1][2] * b[2] + 16;
+      /* ดาวโคจรเข้าใกล้กัน → ย้ายป้ายไปใต้ดวง · ถ้ายังชนก็ไม่แสดง */
+      function hit(yy){ return placed.some(function(o){ return Math.abs(o[0] - x) < (o[2] + w) / 2 + 4 && Math.abs(o[1] - yy) < 14; }); }
+      if(hit(y)) y = b[1][1] + b[1][2] * b[2] + 16;
+      if(hit(y)) return;
+      placed.push([x, y, w]);
       ctx.globalAlpha = A * .82; ctx.fillStyle = '#eef1f8'; ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 4;
       ctx.fillText(b[0], x, y);
     });
     ctx.restore(); ctx.globalAlpha = 1;
   }
-  var DAWN = { show: 1, think: 0, last: 0 };
+  var DAWN = { show: 1, think: 0, last: 0, spinOff: 0, drag: null };
+  /* ปัดหน้าจอเพื่อหมุนโลกเอง (หน้าแรกเท่านั้น) */
+  (function(){
+    var el = document.getElementById('chat-scroll'); if(!el) return;
+    el.addEventListener('pointerdown', function(e){ if(DAWN.show > .5) DAWN.drag = e.clientX; });
+    addEventListener('pointerup', function(){ DAWN.drag = null; });
+    el.addEventListener('pointermove', function(e){ if(DAWN.drag == null) return; DAWN.spinOff -= (e.clientX - DAWN.drag) * .008; DAWN.drag = e.clientX; kick(); });
+  })();
   function backdrop(now, dt){
     var tsec = (now - t0) / 1000, m = $('#main').getBoundingClientRect();
     /* หน้าว่างและยังไม่พิมพ์ = เห็นโลกเต็ม · เริ่มพิมพ์หรือมีแชท = โลกค่อยๆ จาง เหลือพื้นหลังมืดเรียบ */
@@ -2189,19 +2201,21 @@ var Cosmos = (function(){
     var r = Math.max(70, portrait ? Math.min(avW * .3, avH * .22) : Math.min(avW * .36, avH * .42));
     var cx = m.left + avW * (portrait ? .5 : .52), cy = top + avH * (portrait ? .5 : .52);
     /* ใช้การจัดวางเดียวกันทุกจอ (แบบจอคอมที่ผู้ก่อตั้งชอบ) · กันไม่ให้ตกขอบจอ */
+    function orb(k, a0, per, rad){ var a = a0 - (REDUCED ? 0 : tsec * TAU / per); return [cx + Math.cos(a) * r * k, cy + Math.sin(a) * r * k * .82, rad]; }
     var sunR = Math.max(12, r * .16), sunX = Math.max(m.left + sunR * 1.7, cx - r), sunY = Math.max(top + sunR * 1.6, cy - r * 1.02);
     var BOD = {
       sun: [sunX, sunY, sunR],
-      sat: [Math.min(m.right - r * .26, cx + r * 1.05), cy - r * .92, Math.max(6, r * .085)],
-      jup: [Math.min(m.right - r * .12, cx + r * .98), cy - r * .4, Math.max(7, r * .1)],
-      ura: [Math.min(m.right - r * .06 - 10, cx + r * 1.2), cy - r * .2, Math.max(4.5, r * .05)],
+      /* ดาวเคราะห์โคจรรอบโลกจริง (วงกลมนอกตัวโลก ไม่บังกัน) · รอบละ 70–150 วินาที */
+      sat: orb(1.32, -.75, 150, Math.max(6, r * .085)),
+      jup: orb(1.18, -.25, 95, Math.max(7, r * .1)),
+      ura: orb(1.5, .9, 70, Math.max(4.5, r * .05)),
       neb: [m.left + avW * (portrait ? .12 : .1), bottom - avH * (portrait ? .08 : .1)]
     };
     var drew = false;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalAlpha = 1;
     if(GLX && GLX.ok()){
       ctx.clearRect(0, 0, W, H); GLX.pace(dt);
-      drew = GLX.dawn({ cx:cx, cy:cy, r:r, sun: BOD.sun, sat: BOD.sat, jup: BOD.jup, ura: BOD.ura, neb: BOD.neb, show: DAWN.show, think: DAWN.think, risk: coreWL != null && coreWL < 35 ? 1 : 0, dim: 1 }, tsec);
+      drew = GLX.dawn({ spin: DAWN.spinOff, cx:cx, cy:cy, r:r, sun: BOD.sun, sat: BOD.sat, jup: BOD.jup, ura: BOD.ura, neb: BOD.neb, show: DAWN.show, think: DAWN.think, risk: coreWL != null && coreWL < 35 ? 1 : 0, dim: 1 }, tsec);
     }
     if(!drew) ctx.drawImage(bgCv, 0, 0, W, H);
     drawRoutes(cx, cy, r, tsec, DAWN.show, top, bottom);
@@ -2214,7 +2228,7 @@ var Cosmos = (function(){
   function stepCam(dt){
     if(REDUCED || cam.pitch == null) return;
     if(!cam.drag){
-      cam.yaw += (cam.vy + .035) * dt; cam.pitch = clamp(cam.pitch + cam.vp * dt, .14, 1.05);
+      cam.yaw += (cam.vy + .09) * dt; cam.pitch = clamp(cam.pitch + cam.vp * dt, .14, 1.05);
       var f = Math.pow(.04, dt); cam.vy *= f; cam.vp *= f;
       cam.lx *= Math.pow(.2, dt); cam.ly *= Math.pow(.2, dt);
     }
