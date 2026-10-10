@@ -117,3 +117,18 @@ def test_checkout_requires_login(client):
     """เดิมรับอีเมลที่พิมพ์มาเอง — เครดิตไปลงอีเมลใครก็ได้"""
     r = client.post("/create-checkout-session", json={"plan": "basic", "email": "someone@else.co"})
     assert r.status_code == 401
+
+
+def test_promptpay_credits_after_async_success(hook):
+    """PromptPay: completed มาแบบ unpaid (ยังไม่สแกน) ต้องไม่เติม · async_payment_succeeded แล้วค่อยเติม"""
+    email, cs = f"q{uuid.uuid4().hex[:8]}@x.co", "cs_" + uuid.uuid4().hex[:8]
+    ev = _topup(email, cs); ev["data"]["object"]["payment_status"] = "unpaid"
+    topups = lambda: [h["delta"] for h in credit_history(email, 50) if h.get("reason") == "topup"]
+    assert hook(ev)[0] == 200 and topups() == []
+    ok = _topup(email, cs); ok["id"] = "evt_async_" + cs; ok["type"] = "checkout.session.async_payment_succeeded"
+    assert hook(ok)[0] == 200 and topups() == [50]
+
+
+def test_billing_portal_needs_login_and_pricing_safe_without_key(client):
+    assert client.post("/billing-portal").status_code == 401
+    assert client.get("/pricing").json()["premium"] is None

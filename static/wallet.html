@@ -175,6 +175,9 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; }
     เติมเครดิต
   </button>
 
+  <p class="balance-sub" style="font-size:11px;margin:10px 0 0">จ่ายได้ทั้งบัตรและ PromptPay (สแกน QR) — PromptPay ยอดเข้าหลังโอนสำเร็จ</p>
+  <button type="button" class="btn-topup" id="portal-btn" style="margin-top:10px;background:none" onclick="portal()">จัดการสมาชิก · ยกเลิก · ใบเสร็จ</button>
+
   <div class="status-box" id="status-box"></div>
 
   <!-- History (จากระบบจริง) -->
@@ -250,6 +253,13 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; }
   $('wallet-amount').addEventListener('input', preview);
   $('wallet-amount').addEventListener('keydown', function(e){ if(e.key === 'Enter') window.topup(); });
 
+  window.portal = async function(){
+    try{
+      var r = await fetch('/billing-portal', { method:'POST', credentials:'same-origin' }), d = await r.json();
+      if(d.url){ location.href = d.url; return; }
+      showStatus(d.error || 'เปิดหน้าจัดการสมาชิกไม่สำเร็จ', 'error');
+    }catch(e){ showStatus('เชื่อมต่อไม่ได้ ลองใหม่อีกครั้งนะคะ', 'error'); }
+  };
   var flag = new URLSearchParams(location.search).get('topup');
   load().then(function(d){
     if(flag === 'cancel') showStatus('ยกเลิกการชำระเงินแล้ว — ยังไม่มีการตัดเงิน', 'error');
