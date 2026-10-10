@@ -813,7 +813,7 @@ svg.moon{width:22px;height:22px;display:block;filter:drop-shadow(0 0 4px rgba(25
   <div class="dlg-h"><h2 id="dlg-up-h">ข้อความ</h2><button class="icon-btn" id="up-close" aria-label="ปิด">✕</button></div>
   <div class="dlg-b">
     <div class="quota mono">
-      <div><span>ฟรี / วัน</span><b>20</b></div>
+      <div><span>ฟรี / วัน</span><b id="up-free">20</b></div>
       <div><span>ต่อข้อความ</span><b>1 CR</b></div>
       <div><span>Premium</span><b>∞</b></div>
     </div>
@@ -1062,6 +1062,7 @@ var Limit = {
   ui: function(){
     var low = Auth.freeLeft != null && Auth.freeLeft <= 5 && !(Auth.credits > 5);
     $('#upgrade-pill').classList.toggle('hide', Auth.premium || !low);
+    var uf = $('#up-free'); if(uf && Auth.freeLimit != null) uf.textContent = Auth.freeLimit;
     $('#upgrade-pill').textContent = Auth.freeLeft > 0 ? '▲ ฟรีเหลือ ' + Auth.freeLeft : '▲ เติม/อัปเกรด';
   }
 };
@@ -2604,7 +2605,7 @@ $('#img-run').addEventListener('click', async function(){
 });
 $('#pay-run').addEventListener('click', async function(){
   var btn = this, email = $('#pay-email').value.trim(), plan = ($('input[name=plan]:checked') || {}).value || 'basic';
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ toast('กรอกอีเมลให้ถูกต้องก่อน', true); $('#pay-email').focus(); return; }
+  if(!Auth.loggedIn){ toast('เข้าสู่ระบบก่อนนะคะ เครดิตจะได้เข้าบัญชีของคุณ', true); setTimeout(function(){ location.href = '/static/login.html'; }, 900); return; }
   btn.disabled = true;
   try{
     var d = await readJson(await fetch('/create-checkout-session', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ plan:plan, email:email, api_key:email }) }));
