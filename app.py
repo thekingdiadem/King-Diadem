@@ -1746,6 +1746,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     except (TypeError, ValueError):
         pass
 
+    # มาตรา 11: ทางเลือกไม่เกิน 3 — LLM เคยตอบ 5 กลยุทธ์ (ภาพหน้าเว็บจริง) ตัดก่อนตรวจ canon
+    if result.get("ai_response"):
+        try:
+            from core.cosmic_latte_canon import limit_options
+            result["ai_response"] = limit_options(str(result["ai_response"]))
+        except Exception:
+            pass
+
     try:
         result = canon_validate(result)
         violations = result.get("canon_violations", []) or []

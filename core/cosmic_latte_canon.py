@@ -170,6 +170,26 @@ def offered_choices(text: str) -> int:
     return len(re.findall(r"(?m)^\s*(?:\d+\s*[\).:]|[-•▸◦*])\s+\S", str(text)))
 
 
+_NUM_ITEM = re.compile(r"^(\d+)\s*[\).:]\s+\S")
+
+
+def limit_options(text: str, limit: int = MAX_OPTIONS) -> str:
+    """ตัดรายการทางเลือกแบบมีเลข (1. 2. 3. ...) ให้เหลือไม่เกิน limit ข้อ — มาตรา 11
+    LLM เคยตอบ 5 กลยุทธ์ในหน้าเว็บจริง · ตัดเฉพาะข้อที่เลขเกิน พร้อมบรรทัดย่อยของข้อนั้น
+    ย่อหน้าปกติหลังรายการ (ไม่เยื้อง ไม่ขึ้นต้นด้วยเลข) ยังอยู่ครบ"""
+    lines = str(text or "").split("\n")
+    out, dropping = [], False
+    for ln in lines:
+        m = _NUM_ITEM.match(ln)
+        if m:
+            dropping = int(m.group(1)) > limit
+        elif dropping and ln.strip() and not ln[:1].isspace() and not re.match(r"^[-•▸◦*]\s", ln):
+            dropping = False                     # ย่อหน้าใหม่หลังรายการ → เก็บ
+        if not dropping:
+            out.append(ln)
+    return "\n".join(out).rstrip() if len(out) != len(lines) else str(text or "")
+
+
 # ══════════════════════════════════════════════════════════════════
 # evaluate_task — ตรวจ INPUT/TASK ก่อนเข้าระบบ
 # ══════════════════════════════════════════════════════════════════
