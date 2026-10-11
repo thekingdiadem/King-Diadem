@@ -14,7 +14,7 @@
   --gold-line:rgba(200,164,64,0.20);--blue:#3a86f5;--blue-hi:#76aeff;
   --blue-lo:rgba(58,134,245,0.09);--blue-line:rgba(58,134,245,0.17);
   --tx-hi:rgba(246,250,255,0.97);--tx:rgba(198,216,248,0.82);
-  --tx-mid:rgba(125,158,218,0.50);--tx-lo:rgba(60,95,170,0.26);
+  --tx-mid:rgba(170,185,225,0.70);--tx-lo:rgba(160,172,215,0.50);
   --r:12px;--r-l:18px;--r-xl:28px;
   --f-display:'Cinzel',serif;--f-mono:'DM Mono',monospace;
   --f-body:'Noto Sans Thai Looped',system-ui,sans-serif;
@@ -51,7 +51,7 @@ body::before{
 
 /* header */
 .header{text-align:center;margin-bottom:40px;width:100%;}
-.eyebrow{font-family:var(--f-mono);font-size:8px;letter-spacing:.28em;color:rgba(58,134,245,0.38);text-transform:uppercase;margin-bottom:12px;}
+.eyebrow{font-family:var(--f-mono);font-size:9px;letter-spacing:.28em;color:rgba(169,188,255,0.62);text-transform:uppercase;margin-bottom:12px;}
 .title{
   font-family:var(--f-display);font-size:clamp(22px,7vw,38px);font-weight:600;letter-spacing:.18em;
   background:linear-gradient(135deg,#76aeff 0%,#d6eaff 32%,#edcc62 64%,#c8a440 100%);
@@ -74,8 +74,8 @@ body::before{
 /* label */
 label{
   display:block;
-  font-family:var(--f-mono);font-size:8px;letter-spacing:.16em;
-  color:rgba(200,164,64,0.52);text-transform:uppercase;margin-bottom:8px;
+  font-family:var(--f-body);font-size:13px;letter-spacing:.01em;
+  color:rgba(255,206,160,0.78);margin-bottom:8px;
 }
 
 /* inputs */
@@ -101,7 +101,7 @@ select option{background:#04060f;color:var(--tx-hi);}
 /* route pills */
 .route-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px;}
 .rpill{
-  font-family:var(--f-body);font-size:13px;font-weight:500;
+  font-family:var(--f-body);-webkit-appearance:none;appearance:none;font-size:13px;font-weight:500;
   padding:6px 16px;border-radius:999px;cursor:pointer;
   border:1px solid rgba(255,255,255,0.06);
   background:rgba(6,8,22,0.68);color:var(--tx-mid);
@@ -129,7 +129,10 @@ select option{background:#04060f;color:var(--tx-hi);}
   border-color:rgba(200,164,64,0.62);
   box-shadow:0 0 40px rgba(200,164,64,0.34);transform:translateY(-2px);
 }
-.btn:disabled{opacity:.28;cursor:not-allowed;}
+.btn:disabled{opacity:.45;cursor:progress;}
+.add-btn{background:transparent;border:1px solid var(--blue-line);border-radius:99px;color:#d6e0ff;font-family:var(--f-body);font-size:12.5px;
+  padding:6px 16px;cursor:pointer;margin-bottom:16px;transition:border-color .18s,color .18s,background .18s;}
+.add-btn:hover{border-color:rgba(255,198,161,.42);color:#ffd98f;background:rgba(255,198,161,.06);}
 .btn-icon{font-size:16px;}
 
 /* result */
@@ -171,11 +174,13 @@ select option{background:#04060f;color:var(--tx-hi);}
 .card:nth-child(2){animation-delay:.08s;}
 .card:nth-child(3){animation-delay:.14s;}
 </style>
+<link rel="stylesheet" href="/static/cinema.css">
 </head>
 <body>
+<canvas id="sky" data-density="3400" aria-hidden="true"></canvas>
 <div id="page">
 
-  <a href="/" class="back">กลับหน้าหลัก</a>
+  <a href="/" class="back kd-th">กลับหน้าหลัก</a>
 
   <div class="header">
     <div class="eyebrow">FATE™ · Decision Engine</div>
@@ -184,8 +189,8 @@ select option{background:#04060f;color:var(--tx-hi);}
   </div>
 
   <!-- SITUATION CARD -->
-  <div class="card">
-    <label>สถานการณ์ที่ต้องตัดสินใจ</label>
+  <div class="card kd-rim">
+    <label for="situation">สถานการณ์ที่ต้องตัดสินใจ</label>
     <textarea id="situation" placeholder="อธิบายปัญหาหรือสถานการณ์ที่กำลังเผชิญอยู่…&#10;เช่น: กำลังเลือกระหว่างงาน 2 ที่ เงินเดือนต่างกัน แต่ความมั่นคงต่างกัน"></textarea>
 
     <label>เส้นทางที่เป็นไปได้</label>
@@ -193,33 +198,33 @@ select option{background:#04060f;color:var(--tx-hi);}
       <input type="text" placeholder="ตัวเลือก A…" value="">
       <input type="text" placeholder="ตัวเลือก B…" value="">
     </div>
-    <button type="button" onclick="addPath()" style="background:transparent;border:1px solid var(--blue-line);border-radius:8px;color:var(--blue-hi);font-family:var(--f-mono);font-size:8px;padding:5px 14px;cursor:pointer;margin-bottom:14px;letter-spacing:.10em;transition:all .18s;" onmouseover="this.style.borderColor='rgba(200,164,64,.38)';this.style.color='var(--gold-hi)'" onmouseout="this.style.borderColor='var(--blue-line)';this.style.color='var(--blue-hi)'">+ เพิ่มตัวเลือก</button>
+    <button type="button" class="add-btn" onclick="addPath()">+ เพิ่มตัวเลือก</button>
 
     <label>เส้นทางการวิเคราะห์</label>
-    <div class="route-row">
-      <span class="rpill active" data-r="general" onclick="setR(this)">ทั่วไป</span>
-      <span class="rpill" data-r="risk" onclick="setR(this)">ความเสี่ยง</span>
-      <span class="rpill" data-r="survival" onclick="setR(this)">รอดชีวิต</span>
-      <span class="rpill" data-r="collapse" onclick="setR(this)">วิกฤต</span>
-      <span class="rpill" data-r="civil" onclick="setR(this)">สังคม</span>
-      <span class="rpill" data-r="vega" onclick="setR(this)">VEGA</span>
+    <div class="route-row" role="group" aria-label="เส้นทางการวิเคราะห์">
+      <button type="button" class="rpill active" data-r="general" aria-pressed="true" onclick="setR(this)">ทั่วไป</button>
+      <button type="button" class="rpill" data-r="risk" aria-pressed="false" onclick="setR(this)">ความเสี่ยง</button>
+      <button type="button" class="rpill" data-r="survival" aria-pressed="false" onclick="setR(this)">รอดชีวิต</button>
+      <button type="button" class="rpill" data-r="collapse" aria-pressed="false" onclick="setR(this)">วิกฤต</button>
+      <button type="button" class="rpill" data-r="civil" aria-pressed="false" onclick="setR(this)">สังคม</button>
+      <button type="button" class="rpill" data-r="vega" aria-pressed="false" onclick="setR(this)">VEGA</button>
     </div>
   </div>
 
   <!-- SUBMIT -->
-  <button class="btn" id="ask-btn" onclick="askLyla()">
+  <button type="button" class="btn kd-cta" id="ask-btn" onclick="askLyla()">
     <span class="btn-icon">◈</span>
     <span id="btn-label">ถาม LYLA</span>
   </button>
 
   <!-- RESULT -->
-  <div id="result-card" class="card">
-    <div class="result-head">ผลการวิเคราะห์ FATE™</div>
+  <div id="result-card" class="card kd-rim" aria-live="polite">
+    <div class="result-head kd-th">ผลการวิเคราะห์ FATE™</div>
     <div id="result-body"></div>
     <div class="result-meta" id="result-meta"></div>
   </div>
 
-  <div class="nav-row">
+  <div class="nav-row kd-th">
     <a href="/">← หน้าหลัก</a>
     &nbsp;·&nbsp;
     <a href="/static/guide.html">คู่มือ</a>
@@ -230,8 +235,8 @@ select option{background:#04060f;color:var(--tx-hi);}
 <script>
 var _route = 'general';
 function setR(el){
-  document.querySelectorAll('.rpill').forEach(function(r){r.classList.remove('active');});
-  el.classList.add('active');
+  document.querySelectorAll('.rpill').forEach(function(r){r.classList.remove('active');r.setAttribute('aria-pressed','false');});
+  el.classList.add('active');el.setAttribute('aria-pressed','true');
   _route = el.dataset.r;
 }
 function addPath(){
@@ -303,5 +308,6 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)) askLyla();
 });
 </script>
+<script src="/static/cinema_sky.js" defer></script>
 </body>
 </html>
