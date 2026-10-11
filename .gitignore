@@ -4,3 +4,6 @@ data/
 # bytecode
 __pycache__/
 *.pyc
+
+# ไฟล์ส่วนตัวที่ไม่ขึ้น repo สาธารณะ (เช่นรูปโปรไฟล์ผู้สร้าง — ส่งผ่าน KD_PROFILE_IMAGE)
+private/

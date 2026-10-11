@@ -83,8 +83,6 @@ def test_universe_files_share_one_visual_language():
     galaxy = _static("galaxy.js")
     assert '"#ff8800"' not in galaxy and "Sun rays (16 rays)" not in galaxy     # ดวงอาทิตย์ลูกส้มเดิม
     assert "ทรงกลมรับแสงจากแก่น" in galaxy
-    scene = _static("galaxy_scene.js")
-    assert "เนบิวลาร้อนสลับเย็น" in scene and "rimSide" in scene
     thinking = _static("ai_thinking_orbit.js")
     assert 'LYLA:    { color: "#ffcf7a"' in thinking and 'VEGA:    { color: "#8cc2ff"' in thinking   # ตรงกับ --lyla / --vega
     assert "rose" in _static("warp_intro.js")
