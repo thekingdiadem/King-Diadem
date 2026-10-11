@@ -32,11 +32,9 @@ def test_disabled_topup_stays_dim_after_reveal():
 
 
 def test_sky_has_no_center_and_respects_motion():
-    """ดาวสุ่มกระจายทั่วจอ (ไม่มีดวงไหนเป็นศูนย์กลาง) · จำกัดเฟรม · หยุดเมื่อซ่อนแท็บ · ลดการเคลื่อนไหว = ภาพนิ่ง"""
-    assert "x: Math.random() * W0, y: Math.random() * H0" in HTML
-    assert "if(t - last < 33) return;" in HTML
-    assert "visibilitychange" in HTML
-    assert "if(REDUCED){ draw(0); return; }" in HTML
+    """ฟ้าดาวใช้ไฟล์กลาง cinema_sky.js ร่วมกับหน้าเข้าสู่ระบบ/สมัคร (รายละเอียดเทสต์อยู่ใน test_portal_pages)"""
+    assert '<canvas id="sky"' in HTML
+    assert '<script src="/static/cinema_sky.js" defer></script>' in HTML
     assert "@media (prefers-reduced-motion:reduce)" in HTML
 
 
