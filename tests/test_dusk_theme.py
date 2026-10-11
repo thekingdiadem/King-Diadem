@@ -1,4 +1,5 @@
 """หน้าเว็บ: ป้ายตอนสภากำลังคิดต้องตรงกับสภาจริง และปุ่มธีมฟ้ายามเย็นยังกดง่ายบนมือถือ"""
+import math
 import re
 from pathlib import Path
 
@@ -34,27 +35,37 @@ def test_universe_mode_toggle_stays_readable():
     assert re.search(r'#u-mode button:not\(\[data-m="decisions"\]\)\.on\{background:var\(--cool\)\}', HTML)
 
 
-def test_decisions_universe_is_a_solar_system():
-    """โหมดการตัดสินใจวาดเป็นระบบสุริยะ — ใจกลางแสง (แทนดวงอาทิตย์) ดาวเคราะห์ = เส้นทาง
-    วาดครึ่งหลังของจาน/ดาวก่อนใจกลาง แล้วครึ่งหน้าทับ (ลำดับความลึก)"""
-    assert "function drawCore(" in HTML and "function drawDisk(" in HTML and "function drawPlanets(" in HTML
-    assert "drawPlanets(g, now, true); drawStars(g, now, true); drawCore(g, now);" in HTML
-    assert "function drawSun(" not in HTML
+def test_decisions_universe_has_no_center():
+    """พี่: "จักรวาลไม่ได้หมุนรอบใคร แต่ทุกคนร่วมกันเป็นส่วนหนึ่งของทั้งจักรวาล"
+    เดิมโหมดการตัดสินใจเป็นระบบสุริยะ: แก่นแสงตรงกลาง ดาวทุกดวงโคจรรอบมัน · ตอนนี้มองจากข้างในทางช้างเผือก
+    ไม่มีแก่นกลาง ไม่มีวงโคจรรอบจุดใด ดาวของเราเป็นกลุ่มดาวตามเส้นทาง และไม่มีกลุ่มไหนอยู่กลางจอ"""
+    for gone in ("function drawCore(", "function drawPlanets(", "function drawOrbits(", "function drawDisk(", "function drawSun("):
+        assert gone not in HTML, gone
+    assert "function drawSky(" in HTML and "function drawConstellations(" in HTML and "function drawStars(now)" in HTML
+    anch = re.search(r"var ANCH = (\[\[.*?\]\]),", HTML).group(1)
+    nums = [float(x) for x in re.findall(r"-?\d*\.?\d+", anch)]
+    pairs = list(zip(nums[0::2], nums[1::2]))
+    assert len(pairs) == 6 and all(math.hypot(x, y) >= .3 for x, y in pairs)
+    # ฟ้าไม่หมุนรอบเราเอง (เดิมกล้องหมุนวนรอบแก่นตลอด) — ผู้สังเกตต่างหากที่โคจร
+    assert "(cam.vy + .09)" not in HTML and "ox = .07 * Math.cos(w)" in HTML
 
 
-def test_universe_galaxy_layer_has_a_fallback():
-    """กาแล็กซี/เนบิวลาวาดด้วย WebGL — เครื่องที่ไม่มี WebGL ต้องยังเห็นจานสสารแบบ 2D และพื้นหลังเดิม"""
+def test_universe_sky_has_a_fallback():
+    """ท้องฟ้าวาดด้วย WebGL — เครื่องที่ไม่มี WebGL ยังเห็นแถบทางช้างเผือกแบบ 2D ในทิศเดียวกัน และดาวครบทุกดวง"""
     assert "var GLX = (function(){" in HTML and "c.id = 'cosmos-gl'" in HTML
-    assert "if(!useGL) drawDisk(g, now, true)" in HTML and "else ctx.drawImage(bgCv, 0, 0, W, H);" in HTML
+    assert "if(useGL){ ctx.clearRect(0, 0, W, H); GLX.pace(dt); GLX.sky(s, tsec, 1); }" in HTML
+    assert "else ctx.drawImage(bgCv, 0, 0, W, H);" in HTML
+    assert "ไม่มี WebGL: แถบทางช้างเผือกแบบ 2D" in HTML
     # เครื่องที่วาดไม่ทันลดความละเอียดชั้นภาพนุ่มเอง
     assert "GLX.pace(dt)" in HTML
 
 
 def test_energy_flows_have_intention():
-    """กระแสพลังงานไหลตามแขนเกลียวเข้าหาแก่น (มีปลายทาง) ไม่ใช่ลอยสุ่ม และปิดเมื่อผู้ใช้ลดการเคลื่อนไหว"""
-    assert "function drawFlows(" in HTML
+    """แสงไหลตามเส้นกลุ่มดาว จากการตัดสินใจเก่าไปหาดวงล่าสุด (ปลายทาง = ปัจจุบัน) ไม่ใช่ลอยสุ่ม
+    และปิดเมื่อผู้ใช้ลดการเคลื่อนไหว"""
+    assert "function drawFlows(now, dt)" in HTML
     body = HTML[HTML.index("function drawFlows("):HTML.index("function drawFlows(") + 1600]
-    assert "if(REDUCED) return;" in body and "f.r -= dt" in body and "Math.log(f.r" in body
+    assert "if(REDUCED) return;" in body and "f.p += dt" in body and "a = L[k], b = L[k + 1]" in body
 
 
 def test_universe_links_to_the_universe_page():

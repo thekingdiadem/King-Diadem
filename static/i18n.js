@@ -18,6 +18,8 @@
     'สภา': ['Council', '評議会'], 'เล่ามาได้เลย': ['Tell me what’s going on', '何でも話してください'],
     'ข้อความ': ['Message', 'メッセージ'], 'ส่ง': ['Send', '送信'],
     'จักรวาลการตัดสินใจ': ['Decision universe', '意思決定の宇宙'], 'โหมดจักรวาล': ['Universe mode', '宇宙モード'],
+    'จักรวาลไม่ได้หมุนรอบใคร': ['The universe revolves around no one', '宇宙は誰の周りも回っていない'],
+    'แต่ทุกคนร่วมกันเป็นส่วนหนึ่งของทั้งจักรวาล': ['yet all of us, together, are part of the whole', 'けれど私たちは皆、宇宙全体の一部だ'],
     'การตัดสินใจ': ['Decisions', '意思決定'], 'ยังไม่มีดาว': ['No stars yet', 'まだ星がありません'], 'เริ่มปรึกษา': ['Start talking', '相談を始める'],
     'จำลองทางเลือก': ['Simulate options', '選択肢をシミュレート'], 'Downside First · 30 / 90 วัน': ['Downside First · 30 / 90 days', 'Downside First · 30 / 90日'],
     'สถานการณ์': ['Situation', '状況'],
