@@ -43,10 +43,10 @@ def test_map_json_cannot_close_the_script_tag():
 
 def test_web_assets_follow_what_pages_load():
     """แผนผังจัดหมวดตามที่หน้าเว็บโหลดจริง: หน้า The Universe เปลี่ยนจากฉากเมฆ (galaxy_scene.js)
-    เป็นท้องฟ้าจากข้างใน (universe_sky.js) แล้ว — ไฟล์เดิมยังอยู่แต่ไม่มีหน้าไหนโหลด"""
+    เป็นท้องฟ้าจากข้างใน (universe_sky.js) แล้ว — ไฟล์เดิมลบออกจาก repo แล้ว (พี่อนุญาต)"""
     rows = {r[0]: r for r in _embedded()["files"]}
     assert rows["static/universe_sky.js"][2] == "web"
-    assert rows["static/galaxy_scene.js"][2] == "legacy"
+    assert "static/galaxy_scene.js" not in rows
     assert rows["static/i18n.js"][2] == "web"
     assert rows["static/ai_brain.js"][2] == "legacy"      # ไม่มีหน้าไหนโหลด
 

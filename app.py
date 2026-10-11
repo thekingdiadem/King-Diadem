@@ -577,6 +577,15 @@ def root():
 def favicon():
     return FileResponse("static/logo.png")
 
+# รูปโปรไฟล์ผู้สร้างไม่เก็บใน repo สาธารณะ — วางไฟล์ไว้บนเซิร์ฟเวอร์แล้วตั้ง KD_PROFILE_IMAGE เป็น path
+# ไม่ได้ตั้งหรือไม่มีไฟล์ = 404 แล้วหน้า The Universe ซ่อนส่วนรูปไปเอง
+@app.get("/profile-image")
+def profile_image():
+    path = os.getenv("KD_PROFILE_IMAGE", "")
+    if not path or not os.path.isfile(path):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return FileResponse(path, headers={"Cache-Control": "public, max-age=86400"})
+
 @app.get("/wallet")
 async def wallet_page():
     return FileResponse("static/wallet.html")
