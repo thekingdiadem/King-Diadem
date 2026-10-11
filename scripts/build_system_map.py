@@ -172,7 +172,8 @@ def build(old: dict) -> dict:
                 row[2] = cat
         # JS/CSS ใน static/: หน้าเว็บโหลดจริง = web · ไม่มีหน้าไหนโหลด = legacy
         # (เดิม galaxy_scene.js ที่ index.html โหลดอยู่ ยังถูกจัดเป็นรุ่นเก่า)
-        if f.startswith("static/") and f.endswith((".js", ".css")) and row[2] in ("web", "legacy"):
+        # ไฟล์ใหม่ใน static/ เดิมได้หมวด "config" ไปก่อนแล้วไม่ถูกจัดใหม่ — หน้าเว็บโหลดอยู่ก็ยังขึ้นว่าเป็นไฟล์ตั้งค่า
+        if f.startswith("static/") and f.endswith((".js", ".css")) and row[2] in ("web", "legacy", "config"):
             row[2] = "web" if os.path.basename(f) in web_refs else "legacy"
         rows.append(row)
     index = {r[0]: i for i, r in enumerate(rows)}
