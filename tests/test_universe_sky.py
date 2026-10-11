@@ -107,3 +107,12 @@ def test_entering_twice_does_not_streak_across_the_screen():
     body = HTML[HTML.index("setView: function(v){"):HTML.index("setView: function(v){") + 600]
     assert "SKYF.forEach(function(st){ st.lx = null; });" in body
     assert "if(warp && st.lx != null &&" in HTML
+
+
+def test_front_page_planets_follow_the_sun_not_the_earth():
+    """Orbiting Observer: ดาวเคราะห์หน้าแรกไม่โคจรรอบโลกแล้ว (เดิมวงโคจรมีศูนย์กลางที่ cx, cy ของโลก)
+    เลื่อนไปตามเส้นสุริยวิถีที่ลากออกจากดวงอาทิตย์ · ดวงที่อยู่หลังโลก/นอกจอไม่มีป้ายค้าง"""
+    body = HTML[HTML.index("function orb(k, a0, per, rad)"):HTML.index("function orb(k, a0, per, rad)") + 400]
+    assert "return [sunX + e * Math.cos(eT), sunY + e * Math.sin(eT)" in body
+    assert "cx + Math.cos(a) * r * k" not in HTML
+    assert "Math.hypot(b[1][0] - B.cx, b[1][1] - B.cy) < R) return;" in HTML
