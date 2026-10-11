@@ -2449,6 +2449,8 @@ var Cosmos = (function(){
     if(A < .01) return;
     ctx.save(); ctx.font = '500 11px "Noto Sans Thai Looped", system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; var placed = [];
     [['Sun', B.sun, 1.25], ['Saturn', B.sat, 1.25], ['Jupiter', B.jup, 1.35], ['Uranus', B.ura, 1.6]].forEach(function(b){
+      if(b[1][0] < -20 || b[1][0] > W + 20 || b[1][1] < -20 || b[1][1] > H + 20) return;      /* ออกนอกจอ = ไม่มีป้ายค้างที่ขอบ */
+      if(b[0] !== 'Sun' && Math.hypot(b[1][0] - B.cx, b[1][1] - B.cy) < R) return;              /* อยู่หลังโลก โลกบังทั้งดวงและป้าย */
       var x = b[1][0], y = b[1][1] - b[1][2] * b[2] - 4, w = ctx.measureText(b[0]).width;
       x = clamp(x, w / 2 + 6, W - w / 2 - 6); if(y < top + 12) y = b[1][1] + b[1][2] * b[2] + 16;
       /* ดาวโคจรเข้าใกล้กัน → ย้ายป้ายไปใต้ดวง · ถ้ายังชนก็ไม่แสดง */
@@ -2489,15 +2491,22 @@ var Cosmos = (function(){
     var r = Math.max(70, portrait ? Math.min(avW * .3, avH * .22) : Math.min(avW * .36, avH * .42));
     var cx = m.left + avW * (portrait ? .5 : .52), cy = top + avH * (portrait ? .5 : .52);
     /* ใช้การจัดวางเดียวกันทุกจอ (แบบจอคอมที่ผู้ก่อตั้งชอบ) · กันไม่ให้ตกขอบจอ */
-    function orb(k, a0, per, rad){ var a = a0 - (REDUCED ? 0 : tsec * TAU / per); return [cx + Math.cos(a) * r * k, cy + Math.sin(a) * r * k * .82, rad]; }
     var sunR = Math.max(12, r * .16), sunX = Math.max(m.left + sunR * 1.7, cx - r), sunY = Math.max(top + sunR * 1.6, cy - r * 1.02);
+    /* Orbiting Observer: ดาวเคราะห์ไม่ได้โคจรรอบโลก — ทุกดวง (รวมโลกที่เราโดยสาร) โคจรรอบดวงอาทิตย์
+       จากบนโลกเราจึงเห็นมันเลื่อนช้าๆ ไปตามเส้นสุริยวิถีที่ลากผ่านดวงอาทิตย์ ห่างออกแล้วเข้าใกล้สลับกัน
+       ดวงไกลเลื่อนช้ากว่า (พฤหัส → เสาร์ → ยูเรนัส) · ผ่านหลังขอบโลกเมื่อไร โลกบังจริง */
+    /* เส้นสุริยวิถีเชิดขึ้นทางขวาพ้นขอบบนของโลก แต่ไม่หลุดขอบจอด้านบน (จอกว้างมากก็ไม่ยืดยาวเกิน) */
+    var eL = Math.min(r * 2.5, Math.max(r * 1.6, m.left + avW - 24 - sunX)), eT = clamp(-(sunY - top - 60) / eL, -.15, .08);
+    function orb(k, a0, per, rad){ var a = a0 - (REDUCED ? 0 : tsec * TAU / per), e = Math.min(1, k + .14 * Math.sin(a)) * eL;
+      return [sunX + e * Math.cos(eT), sunY + e * Math.sin(eT) + rad * 1.6 * Math.cos(a), rad]; }
     var BOD = {
       sun: [sunX, sunY, sunR],
-      /* ดาวเคราะห์โคจรรอบโลกจริง (วงกลมนอกตัวโลก ไม่บังกัน) · รอบละ 70–150 วินาที */
-      sat: orb(1.32, -.75, 150, Math.max(6, r * .085)),
-      jup: orb(1.18, -.25, 95, Math.max(7, r * .1)),
-      ura: orb(1.5, .9, 70, Math.max(4.5, r * .05)),
-      neb: [m.left + avW * (portrait ? .12 : .1), bottom - avH * (portrait ? .08 : .1)]
+      /* เริ่มห่างกัน: พฤหัสใกล้ดวงอาทิตย์ · เสาร์กลางทาง · ยูเรนัสปลายเส้น แล้วค่อยๆ เลื่อนเข้าออก */
+      sat: orb(.74, 0, 150, Math.max(6, r * .085)),
+      jup: orb(.52, -1.57, 95, Math.max(7, r * .1)),
+      ura: orb(.88, 1.57, 210, Math.max(4.5, r * .05)),
+      neb: [m.left + avW * (portrait ? .12 : .1), bottom - avH * (portrait ? .08 : .1)],
+      cx: cx, cy: cy
     };
     var drew = false;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalAlpha = 1;
