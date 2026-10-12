@@ -39,7 +39,9 @@ def test_every_file_named_on_the_portfolio_exists_and_is_live():
 def test_links_point_to_the_real_repo_and_profile():
     assert "varjayd01" not in PF
     assert PF.count("https://github.com/thekingdiadem/King-Diadem") >= 3
-    assert 'href="https://fastwork.co/user/thekingdiadem"' in PF       # เดิมพาไปหน้าแรกของ Fastwork
+    assert 'href="https://fastwork.co/byob/CtqOnVfzC7"' in PF          # ลิงก์จริงจากพี่ (เดิมพาไปหน้าแรกของ Fastwork)
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "fastwork.co/user/" not in PF + readme and readme.count("https://fastwork.co/byob/CtqOnVfzC7") == 3
 
 
 def test_unused_files_moved_out_of_live_folders():
