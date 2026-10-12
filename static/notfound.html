@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#020309">
+<meta name="robots" content="noindex">
+<title>ที่นี่ยังไม่มีดาว · KING DIADEM</title>
+<link rel="icon" href="/static/logo.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=DM+Mono:wght@400&family=Noto+Sans+Thai+Looped:wght@400;500&family=Noto+Serif+Thai:wght@500;600&display=swap">
+<style>
+/* 404: หลงทางในจักรวาล — แต่ทางเลือกไม่เคยเหลือศูนย์ (Choice(t) ≥ 1) */
+:root { --void: #020309; --latte: #fff8e7; --tx: rgba(214,222,245,.84); --tx-lo: rgba(170,182,222,.6);
+  --gold-hi: #ffd98f; --peach: #ffc6a1; --sky-hi: #d6e0ff; --ease: cubic-bezier(.16,1,.3,1); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { min-height: 100%; background: var(--void); color: var(--tx); font-family: 'Noto Sans Thai Looped', system-ui, sans-serif; }
+main { position: relative; z-index: 2; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: max(32px, env(safe-area-inset-top)) 20px max(32px, env(safe-area-inset-bottom)); }
+.eyebrow { font: 400 10px/1.6 'DM Mono', monospace; letter-spacing: .34em; text-transform: uppercase; color: rgba(214,224,255,.6); margin-bottom: 20px; }
+/* ดาวที่หายไป: วงโคจรว่างหนึ่งวง มีดาวดวงเล็กไหลผ่าน — ไม่มีใจกลาง */
+.void { position: relative; width: 132px; height: 132px; margin: 0 auto 30px; }
+.void::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1px dashed rgba(255,248,231,.22); }
+.void::after { content: ""; position: absolute; inset: 30px; border-radius: 50%; border: 1px solid rgba(169,188,255,.14); }
+.void i { position: absolute; left: 50%; top: -3px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: var(--latte);
+  box-shadow: 0 0 10px 2px rgba(255,248,231,.8), 0 0 28px 6px rgba(255,198,161,.35); transform-origin: 3px 69px; animation: kd-orbit 14s linear infinite; }
+@keyframes kd-orbit { to { transform: rotate(360deg); } }
+h1 { font: 600 clamp(28px, 6.4vw, 46px)/1.3 'Noto Serif Thai', 'Cinzel', serif; color: var(--latte); text-shadow: 0 0 40px rgba(255,248,231,.22); }
+.lead { margin-top: 14px; font-size: 15.5px; line-height: 1.85; color: var(--tx); max-width: 30em; }
+.lead em { font-style: normal; color: var(--gold-hi); }
+.path { margin-top: 10px; font: 400 12px/1.6 'DM Mono', monospace; color: var(--tx-lo); word-break: break-all; max-width: 36em; }
+.choices { list-style: none; margin-top: 30px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100%; max-width: 440px; }
+.choices a { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; text-align: left; padding: 14px 16px; border-radius: 16px; text-decoration: none; color: var(--latte);
+  transition: transform .4s var(--ease), box-shadow .4s var(--ease); }
+.choices a small { font: 400 10px/1.5 'DM Mono', monospace; letter-spacing: .16em; color: var(--tx-lo); text-transform: uppercase; }
+.choices a span { font-size: 15px; font-weight: 500; }
+.choices a:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 18px 40px -18px rgba(255,179,92,.5); }
+.choices li:first-child a span { color: var(--gold-hi); }
+.axiom { margin-top: 28px; font: 400 11px/1.6 'DM Mono', monospace; letter-spacing: .14em; color: rgba(255,217,143,.62); }
+.en { margin-top: 6px; font-size: 12.5px; color: var(--tx-lo); }
+@media (max-width: 480px) { .choices { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .void i { animation: none; } }
+</style>
+<link rel="stylesheet" href="/static/cinema.css">
+</head>
+<body>
+<canvas id="sky" data-density="2400" aria-hidden="true"></canvas>
+<main>
+  <p class="eyebrow">404 · Lost in space</p>
+  <div class="void" aria-hidden="true"><i></i></div>
+  <h1>ที่นี่ยังไม่มีดาว</h1>
+  <p class="lead">ลิงก์นี้อาจถูกย้ายหรือพิมพ์ผิด — แต่<em>ทางเลือกไม่เคยเหลือศูนย์</em><br>เลือกทางต่อจากตรงนี้ได้เลย</p>
+  <p class="path" id="path" aria-label="ที่อยู่ที่เปิด"></p>
+  <ul class="choices">
+    <li><a class="kd-rim" href="/"><small>Home</small><span>กลับหน้าแรก</span></a></li>
+    <li><a class="kd-rim" href="/ask"><small>Ask</small><span>ถาม LYLA</span></a></li>
+    <li><a class="kd-rim" href="/guide"><small>Guide</small><span>อ่านคู่มือ</span></a></li>
+  </ul>
+  <p class="axiom">Choice(t) ≥ 1</p>
+  <p class="en">This page has no star yet — but there is always another way.</p>
+</main>
+<script>
+// แสดงที่อยู่ที่เปิดมา (textContent — ไม่ตีความเป็น HTML)
+try { document.getElementById('path').textContent = decodeURIComponent(location.pathname + location.search); }
+catch (_) { document.getElementById('path').textContent = location.pathname; }
+</script>
+<script src="/static/cinema_sky.js" defer></script>
+</body>
+</html>
