@@ -64,3 +64,11 @@ def test_new_static_script_is_classified_by_usage():
     old["files"] = [r for r in old["files"] if r[0] != "static/universe_sky.js"]
     rows = {r[0]: r for r in sm.build(old)["files"]}
     assert rows["static/universe_sky.js"][2] == "web"
+
+
+def test_file_moved_back_from_legacy_is_live():
+    """ย้ายไฟล์กลับจาก legacy/ แล้วต่อเข้าระบบ — เดิมสคริปต์ไม่รู้จัก ไฟล์ตกไปหมวด "config" ทั้งที่ทำงานจริง"""
+    rows = {r[0]: r for r in _embedded()["files"]}
+    assert "legacy/DOMAINS/business_engine.py" not in rows
+    assert rows["DOMAINS/business_engine.py"][2] == "request"
+    assert "ย้ายกลับจาก legacy/" in rows["DOMAINS/business_engine.py"][6]

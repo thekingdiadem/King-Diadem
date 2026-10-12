@@ -177,6 +177,12 @@ def build(old: dict) -> dict:
             row[0], row[2], row[5] = f, "legacy", "note"
             row[6] = "ย้ายไป legacy/ — ไม่มีโค้ดส่วนไหนเรียกใช้"
             row[7] = "ย้ายกลับได้ด้วย git mv แล้วต่อเข้ากับ app.py"
+        elif "legacy/" + f in prev:
+            # ย้ายกลับจาก legacy/ แล้วต่อเข้าระบบ — เดิมไม่รู้จัก ไฟล์จึงตกไปหมวด "config" ทั้งที่ทำงานจริง
+            row = list(prev["legacy/" + f])
+            row[0], row[5] = f, "fixed"
+            row[6] = "ย้ายกลับจาก legacy/"
+            row[7] = ""
         elif f in NEW:
             cat, desc, label = NEW[f]
             row = [f, 0, cat, desc, label, "new", "", ""]
