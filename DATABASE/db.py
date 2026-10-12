@@ -703,6 +703,10 @@ def log_decision(
     final_email = user_id or user_email or "anonymous"
     final_input = input if input is not None else (input_text or "")
     final_resp  = output if output is not None else (response or "")
+    # ประวัติเป็นของเจ้าของบัญชีเท่านั้น (พี่เลือก "เก็บไว้ในไอดี") — คนที่ไม่ได้เข้าสู่ระบบไม่มีเจ้าของให้ส่งออก/ลบ
+    # เดิมเก็บข้อความเต็มไว้ใต้ "anonymous" รวมกันทุกคน ซึ่งไม่มีใครเรียกดูหรือลบได้
+    if not _owned(final_email):
+        return
 
     conn = get_conn()
     try:
@@ -753,6 +757,38 @@ def record_payment(user_email: str, amount_usd: float, session_id: str):
         conn.commit()
     finally:
         conn.close()
+
+def _owned(email) -> bool:
+    e = str(email or "").strip().lower()
+    return bool(e) and e not in ("anonymous", "guest", "system", "default") and "@" in e
+
+
+def export_decision_history(user_email: str, limit: int = 1000) -> list:
+    """ประวัติการปรึกษาทั้งหมดของบัญชีนี้ (เก่า → ใหม่) สำหรับส่งออกให้เจ้าของ — ไม่ใช่ของคนอื่น"""
+    if not _owned(user_email):
+        return []
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            """SELECT input, route, persona, response, created_at FROM (
+                   SELECT input, route, persona, response, created_at, id FROM decision_log
+                   WHERE user_email=? ORDER BY id DESC LIMIT ?) ORDER BY id ASC""",
+            (user_email, max(1, min(int(limit), 5000)))
+        ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+def count_decision_history(user_email: str) -> int:
+    if not _owned(user_email):
+        return 0
+    conn = get_conn()
+    try:
+        return int(conn.execute("SELECT COUNT(*) FROM decision_log WHERE user_email=?", (user_email,)).fetchone()[0])
+    finally:
+        conn.close()
+
 
 def get_decision_history(user_email: str, limit: int = 20) -> list:
     conn = get_conn()

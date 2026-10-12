@@ -1253,7 +1253,7 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     calc_block = ("\n\nจากสิ่งที่คุณเล่า:\n" + "\n".join("· " + l for l in shown)) if shown else ""
 
     money_line = ""
-    if a["money"] and not a["offer_flags"] and not _SPENT.search(t) and "runway" not in bridge["data"] and "debt" not in bridge["data"] and any(x in a["topics"] for x in ("money", "debt", "job", "basic", "business")):
+    if a["money"] and not a["offer_flags"] and not _SPENT.search(t) and "runway" not in bridge["data"] and "debt" not in bridge["data"] and "business" not in bridge["data"] and any(x in a["topics"] for x in ("money", "debt", "job", "basic", "business")):
         m = a["money"]
         per_day = 150
         money_line = (f"\n\nเวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน → {m:,.0f} ÷ {per_day} ≈ {m / per_day:,.0f} วัน "

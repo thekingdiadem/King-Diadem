@@ -34,6 +34,7 @@ NEW = {
     "scripts/stress_test.py": ["tests", "ทดสอบหนัก: ดัดแปลงข้อความเป็นแสน ตรวจไม่ล้ม · ไม่เกิน 3 ทาง · คงเส้นคงวา", "⚡ stress"],
     "scripts/build_system_map.py": ["config", "สร้างแผนผังระบบในหน้าเว็บใหม่จาก repo จริง", "⌘ แผนผัง"],
     "static/i18n.js": ["web", "ข้อความหน้าเว็บหลายภาษา", "文 i18n"],
+    "core/history_export.py": ["request", "ส่งออกประวัติการปรึกษาของบัญชี: ไฟล์ข้อความ (ดาวน์โหลด) และส่งเข้าอีเมลของบัญชีนั้นผ่าน SMTP", "✉ history"],
     "static/system_map.json": ["web", "ข้อมูลแผนผังระบบ (ไฟล์ · หมวด · เส้นเชื่อม) ที่หน้า /architecture โหลดไปวาด — สร้างจาก scripts/build_system_map.py", "⌘ map.json"],
     "static/earth/README.md": ["docs", "ที่มาและสัญญาอนุญาตของภาพโลกหน้าแรก (NASA · สาธารณสมบัติ)", "🜨 earth"],
     "static/earth/day.jpg": ["web", "ภาพโลกกลางวัน NASA Blue Marble 2048×1024 — ประเทศตรงตำแหน่งจริง", "🜨 day"],
@@ -177,6 +178,12 @@ def build(old: dict) -> dict:
             row[0], row[2], row[5] = f, "legacy", "note"
             row[6] = "ย้ายไป legacy/ — ไม่มีโค้ดส่วนไหนเรียกใช้"
             row[7] = "ย้ายกลับได้ด้วย git mv แล้วต่อเข้ากับ app.py"
+        elif "legacy/" + f in prev:
+            # ย้ายกลับจาก legacy/ แล้วต่อเข้าระบบ — เดิมไม่รู้จัก ไฟล์จึงตกไปหมวด "config" ทั้งที่ทำงานจริง
+            row = list(prev["legacy/" + f])
+            row[0], row[5] = f, "fixed"
+            row[6] = "ย้ายกลับจาก legacy/"
+            row[7] = ""
         elif f in NEW:
             cat, desc, label = NEW[f]
             row = [f, 0, cat, desc, label, "new", "", ""]
@@ -195,7 +202,8 @@ def build(old: dict) -> dict:
             cat = "boot" if f in boot else "request"
             if row[2] in _LIVE_FROM:
                 row[6] = (row[6] + " · " if row[6] else "") + "ต่อเข้าระบบแล้ว"
-            if row[2] in _LIVE_FROM or row[2] in ("boot", "request"):
+            # ไฟล์ Python ใหม่ที่ต่อเข้าระบบแล้วเคยค้างหมวด "config" (ค่าเริ่มของไฟล์ใหม่) — ทำงานจริงก็ต้องขึ้นว่าทำงาน
+            if row[2] in _LIVE_FROM or row[2] in ("boot", "request", "config"):
                 row[2] = cat
         # JS/CSS ใน static/: หน้าเว็บโหลดจริง = web · ไม่มีหน้าไหนโหลด = legacy
         # (เดิม galaxy_scene.js ที่ index.html โหลดอยู่ ยังถูกจัดเป็นรุ่นเก่า)

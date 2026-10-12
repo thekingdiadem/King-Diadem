@@ -736,11 +736,49 @@ def _earth(text: str) -> dict | None:
                                      "steps": e["alternatives"][:4] if e["self"] else lines}}
 
 
+# ── ธุรกิจ: กำไร · margin · สัดส่วนต้นทุน (DOMAINS/business_engine) ─────────────
+# คิดเฉพาะเมื่อผู้ใช้บอกทั้งรายรับและต้นทุนของกิจการ — ไม่เดาตัวเลขที่ไม่ได้บอก ไม่ชี้ทางเดียว
+_BIZ_CTX = re.compile(r"ร้าน|ธุรกิจ|กิจการ|ยอดขาย|ขายได้|ขาย(?:ชิ้น|อัน|แก้ว|จาน|กล่อง|ถุง)ละ|ราคาขาย|ลูกค้า|สินค้า|ต้นทุน")
+_BIZ_REV = r"ยอดขาย|รายรับ|ขายได้|ราคาขาย|ขาย(?:ชิ้น|อัน|แก้ว|จาน|กล่อง|ถุง)ละ|รายได้(?:ร้าน|ของร้าน|กิจการ|ธุรกิจ)"
+_BIZ_COST = r"ต้นทุน|ค่าใช้จ่าย|รายจ่าย"
+_BIZ_UNIT = re.compile(r"(?:ชิ้น|อัน|แก้ว|จาน|กล่อง|ถุง)ละ|ต่อ(?:ชิ้น|อัน|แก้ว|จาน|กล่อง|ถุง)")
+
+
+def _pct(x: float) -> str:
+    v = x * 100
+    return f"{v:.1f}%" if abs(v) < 10 else f"{v:.0f}%"
+
+
+def _business(text: str) -> dict | None:
+    if not _BIZ_CTX.search(text):
+        return None
+    rev, cost = _after(text, _BIZ_REV), _after(text, _BIZ_COST)
+    if rev is None or cost is None:
+        return None
+    from DOMAINS.business_engine import analyze_business
+    b = analyze_business(rev, cost)
+    if not b:
+        return None
+    unit = bool(_BIZ_UNIT.search(text))
+    per = ("ต่อชิ้น" if unit else
+           "ต่อเดือน" if re.search(r"เดือนละ|ต่อเดือน|/เดือน", text) else
+           "ต่อวัน" if re.search(r"วันละ|ต่อวัน|/วัน", text) else "")
+    if b["profit"] > 0:
+        lines = [f"กำไร {b['profit']:,.0f} บาท{per} · margin {_pct(b['margin'])} · ต้นทุนกิน {_pct(b['cost_share'])} ของรายรับ"]
+    elif b["profit"] < 0:
+        lines = [f"ขาดทุน {abs(b['profit']):,.0f} บาท{per} — ต้นทุนเป็น {_pct(b['cost_share'])} ของรายรับ",
+                 f"ถึงจุดเท่าทุนต้องเพิ่มรายรับอีก {b['breakeven_gap']:,.0f} บาท{per} หรือลดต้นทุนลงเท่ากัน (หรือผสมกัน)"]
+    else:
+        lines = [f"เท่าทุนพอดี — รายรับ {b['revenue']:,.0f} = ต้นทุน{per} ยังไม่มีกำไรเหลือ"]
+    return {"lines": lines, "data": b | {"per": per, "unit": unit}}
+
+
 def analyze(text: str) -> dict:
     text = str(text or "")
     out = {"lines": [], "llm_ctx": "", "data": {}}
     for name, fn in (("disaster", _disaster), ("relationship", _relationship), ("debt", _debt),
-                     ("runway", _runway), ("calc", _calc), ("bias", _bias), ("animal", _animal), ("earth", _earth)):
+                     ("runway", _runway), ("business", _business), ("calc", _calc), ("bias", _bias),
+                     ("animal", _animal), ("earth", _earth)):
         try:
             r = fn(text)
         except Exception as e:  # ห้ามทำให้คำตอบล้ม

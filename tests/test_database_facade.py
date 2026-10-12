@@ -1,20 +1,24 @@
-"""core/database.py ต้องใช้ฐานเดียวกับแอป — เปิดใช้เมื่อไหร่ข้อมูลก็ไม่แตกเป็นสองฐาน"""
+"""ระบบตัดสินใจชุดเก่า (ENGINE/brain · decision · intent · risk · intervention_engine) และ core/database.py
+ย้ายไป legacy/ แล้ว (พี่อนุญาต) — กันไม่ให้ใคร import แล้วได้ pipeline หรือฐานข้อมูลชุดที่สองขึ้นมาซ้อนกับของจริง"""
 import importlib
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parent.parent
+MOVED = ["ENGINE/brain.py", "ENGINE/decision.py", "ENGINE/intent.py", "ENGINE/risk.py",
+         "ENGINE/intervention_engine.py", "core/database.py"]
 
 
-def test_core_database_points_to_app_db():
-    from core import database
+@pytest.mark.parametrize("path", MOVED)
+def test_old_second_pipeline_lives_in_legacy(path):
+    assert not (ROOT / path).exists()
+    assert (ROOT / "legacy" / path).exists()
+    with pytest.raises(ImportError):
+        importlib.import_module(path[:-3].replace("/", "."))
+
+
+def test_app_still_uses_the_one_real_database_and_pipeline():
     from DATABASE import db
-    assert database.db_path() == db.DB_PATH
-    database.init_db()                       # เดิม: CREATE INDEX ON payments(email) ล้มบนฐานของแอป
-    db.ensure_user("facade@test.local")
-    db.add_credits("facade@test.local", 7, reason="test")
-    row = database.get_db().execute("SELECT amount FROM credits WHERE user_email=?", ("facade@test.local",)).fetchone()
-    assert row and row["amount"] == db.get_credits("facade@test.local")
-    tables = {r[0] for r in database.get_db().execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    assert {"users", "credits", "payments", "sessions"} <= tables
-
-
-def test_misspelled_module_renamed():
-    assert importlib.import_module("ENGINE.decision").build_reply
-    import ENGINE.brain  # noqa: F401  — import ชื่อใหม่ได้
+    from ENGINE.decision_engine import run_decision
+    assert db.DB_PATH and callable(run_decision)

@@ -198,9 +198,10 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
           <button class="chip" data-f="ENGINE/risk_engine.py">ENGINE/risk_engine.py</button><button class="chip" data-f="core/kernel_voice.py">core/kernel_voice.py</button>
           <button class="chip" data-f="core/thai_signals.py">core/thai_signals.py</button><button class="chip" data-f="core/lang_signals.py">core/lang_signals.py</button></div></li>
       <li class="step"><h3>ใส่บริบท<small>context</small></h3>
-        <p>ร้อยบริบทเหตุปัจจัย (ปฏิจจสมุปบาท) ความว่าง (Cosmic Latte) สัญญาณวิกฤตและสายด่วน (Living Water) นิทาน และทางออก แล้วต่อเครื่องยนต์ตัวเลขจริง เช่น แผนปลดหนี้ เวลาที่มี ทรัพยากรพอใช้กี่วัน</p>
+        <p>ร้อยบริบทเหตุปัจจัย (ปฏิจจสมุปบาท) ความว่าง (Cosmic Latte) สัญญาณวิกฤตและสายด่วน (Living Water) นิทาน และทางออก แล้วต่อเครื่องยนต์ตัวเลขจริง เช่น แผนปลดหนี้ เวลาที่มี ทรัพยากรพอใช้กี่วัน กำไรและ margin ของร้าน</p>
         <div class="files"><button class="chip" data-f="core/king_diadem_core.py">core/king_diadem_core.py</button><button class="chip" data-f="core/system_orchestrator.py">core/system_orchestrator.py</button>
-          <button class="chip" data-f="core/engine_bridge.py">core/engine_bridge.py</button><button class="chip" data-f="AI_KERNEL/living_water.py">AI_KERNEL/living_water.py</button></div></li>
+          <button class="chip" data-f="core/engine_bridge.py">core/engine_bridge.py</button><button class="chip" data-f="AI_KERNEL/living_water.py">AI_KERNEL/living_water.py</button>
+          <button class="chip" data-f="DOMAINS/business_engine.py">DOMAINS/business_engine.py</button></div></li>
       <li class="step gate"><h3>ตรวจความเชื่อ<small>belief audit</small></h3>
         <p>Belief Core ตรวจว่าการอยู่รอดยังผ่านไหม ถ้าไม่ผ่านจะสั่ง SYSTEM_PAUSE แล้วคืนคำตอบที่ปลอดภัยทันที</p>
         <div class="files"><button class="chip" data-f="AI_KERNEL/belief_core.py">AI_KERNEL/belief_core.py</button></div></li>
@@ -228,6 +229,8 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
       <div class="box kd-rim"><p class="route">/login · /register · /login/google</p><h3>บัญชี</h3><p>รหัสผ่านหรือ Google OAuth · ตัวตนอยู่ใน cookie ที่เซ็นแล้ว — <code>DATABASE/db.py</code></p></div>
       <div class="box kd-rim"><p class="route">/wallet/topup · /webhook/stripe</p><h3>เครดิต</h3><p>Stripe (บัตร / PromptPay) → webhook ยืนยัน → เติมเครดิตลงบัญชี</p></div>
       <div class="box kd-rim"><p class="route">GET /report/&lt;id&gt;</p><h3>รายงานแชร์ได้</h3><p>ตรวจ FATE™ 6 ข้อของแต่ละคำตอบ — <code>report_engine.py</code> → <code>static/report.html</code></p></div>
+      <div class="box kd-rim"><p class="route">/api/history · /export · /email</p><h3>ประวัติในบัญชี</h3><p>เก็บไว้ในบัญชีของแต่ละคนเท่านั้น (ไม่ได้เข้าสู่ระบบ = ไม่เก็บข้อความ) · ดาวน์โหลดเป็นไฟล์ หรือส่งเข้าอีเมลของบัญชีนั้น — <code>core/history_export.py</code></p></div>
+      <div class="box kd-rim"><p class="route">GET /health</p><h3>สุขภาพระบบ</h3><p>โมดูลไหนโหลดอยู่ และโหลดจริงตอนนี้: คำขอต่อนาที · พร้อมกัน · error · เวลาตอบ — วัดอย่างเดียว ไม่บล็อกใคร · <code>SECURITY/survival_mode.py</code></p></div>
       <div class="box kd-rim"><p class="route">/api/feedback</p><h3>เรียนรู้จาก 👍/👎</h3><p>เก็บผลโหวตเป็นตัวเลข แล้วปรับน้ำหนักเส้นทาง — <code>core/feedback_loop.py</code></p></div>
     </div>
   </section>

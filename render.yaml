@@ -36,3 +36,14 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+      # ส่งประวัติการปรึกษาเข้าอีเมลของเจ้าของบัญชี (core/history_export) — ไม่ตั้ง = ปุ่มส่งอีเมลปิด ดาวน์โหลดได้ตามปกติ
+      - key: SMTP_HOST                   # เช่น smtp.gmail.com
+        sync: false
+      - key: SMTP_PORT                   # 587 (STARTTLS) หรือ 465 (SSL)
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS                   # Gmail: App Password 16 ตัว (ไม่ใช่รหัสผ่านปกติ)
+        sync: false
+      - key: MAIL_FROM                   # ชื่อผู้ส่ง เช่น "KING DIADEM <you@gmail.com>" (ไม่ตั้ง = SMTP_USER)
+        sync: false

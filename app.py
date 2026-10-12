@@ -309,6 +309,14 @@ except Exception:
     engine = DecisionEngine() if DecisionEngine else None
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# ตัววัดโหลด (อ่านอย่างเดียว — ไม่ปฏิเสธคำขอ): จำนวนคำขอ · พร้อมกัน · error 5xx · เวลาตอบ → /health "load"
+try:
+    from SECURITY.survival_mode import LoadMonitorMiddleware, get_survival_stats
+    app.add_middleware(LoadMonitorMiddleware)
+except Exception as e:  # pragma: no cover — ไม่มีตัววัด ระบบยังทำงานได้
+    print(f"⚠ load monitor: {type(e).__name__}")
+    get_survival_stats = None
+
 
 # ══════════════════════════════════════════════════════════════════
 # ERROR MESSAGE HELPER
@@ -648,6 +656,7 @@ def health():
         "freedom_score":      freedom_index() if freedom_index else 0,
         "db_initialized":     init_db is not None,
         "feedback":           feedback_loop.stats() if feedback_loop else None,
+        "load":               get_survival_stats() if get_survival_stats else None,
     }
 
 
@@ -677,6 +686,75 @@ def get_my_memory(request: Request):
     except Exception as e:
         print(f"⚠ memory: {type(e).__name__}")
         return JSONResponse({"error": "ดูความจำไม่ได้ชั่วคราว ลองใหม่อีกครั้งนะคะ"}, status_code=503)
+
+
+# ── ประวัติการปรึกษาในบัญชี: ดู · ดาวน์โหลด · ส่งเข้าอีเมลของบัญชี (core/history_export) ─────────
+# ส่งออกได้เฉพาะของตัวเอง · อีเมลปลายทาง = อีเมลของบัญชีเท่านั้น · ส่งเมลได้ 1 ครั้งต่อ 10 นาที
+_HISTORY_MAIL_GAP = 600
+_history_mail_last: dict = {}
+_history_mail_lock = threading.Lock()
+
+
+@app.get("/api/history")
+def history_info(request: Request):
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    try:
+        from DATABASE.db import count_decision_history
+        from core.history_export import email_configured
+        return {"count": count_decision_history(email), "email": email, "email_ready": email_configured()}
+    except Exception as e:
+        print(f"⚠ history: {type(e).__name__}")
+        return JSONResponse({"error": "ดูประวัติไม่ได้ชั่วคราว ลองใหม่อีกครั้งนะคะ"}, status_code=503)
+
+
+@app.get("/api/history/export")
+def history_export(request: Request):
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    try:
+        from DATABASE.db import export_decision_history
+        from core.history_export import format_history, filename
+        text = format_history(export_decision_history(email), email)
+    except Exception as e:
+        print(f"⚠ history export: {type(e).__name__}")
+        return JSONResponse({"error": "ส่งออกประวัติไม่ได้ชั่วคราว ลองใหม่อีกครั้งนะคะ"}, status_code=503)
+    from fastapi.responses import Response
+    return Response(text, media_type="text/plain; charset=utf-8",
+                    headers={"Content-Disposition": f'attachment; filename="{filename()}"', "Cache-Control": "no-store"})
+
+
+@app.post("/api/history/email")
+def history_email(request: Request):
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    from core.history_export import email_configured, format_history, send_history_email
+    if not email_configured():
+        return JSONResponse({"error": "ตอนนี้ระบบยังส่งอีเมลไม่ได้ค่ะ — ดาวน์โหลดเป็นไฟล์แทนได้เลยนะคะ",
+                             "download": "/api/history/export"}, status_code=503)
+    from DATABASE.db import export_decision_history
+    rows = export_decision_history(email)
+    if not rows:
+        return JSONResponse({"error": "ยังไม่มีประวัติในบัญชีนี้ค่ะ"}, status_code=404)
+    now = time.time()
+    with _history_mail_lock:
+        last = _history_mail_last.get(email, 0)
+        if now - last < _HISTORY_MAIL_GAP:
+            wait = int((_HISTORY_MAIL_GAP - (now - last)) // 60) + 1
+            return JSONResponse({"error": f"เพิ่งส่งไปเมื่อสักครู่ค่ะ ลองใหม่ได้อีกราว {wait} นาที"}, status_code=429)
+        _history_mail_last[email] = now
+    try:
+        send_history_email(email, format_history(rows, email))
+    except Exception as e:
+        with _history_mail_lock:
+            _history_mail_last.pop(email, None)      # ส่งไม่สำเร็จ — ไม่นับเป็นครั้งที่ส่ง
+        print(f"⚠ history email: {type(e).__name__}")
+        return JSONResponse({"error": "ส่งอีเมลไม่สำเร็จ ลองใหม่อีกครั้ง หรือดาวน์โหลดเป็นไฟล์แทนนะคะ",
+                             "download": "/api/history/export"}, status_code=502)
+    return {"ok": True, "sent_to": email, "count": len(rows)}
 
 
 @app.post("/api/memory")
@@ -1513,9 +1591,9 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     if core_result.get("recommend_route") and route not in ("vega",):
         route = _escalate_route(route, core_result["recommend_route"])
 
-    # drift alert log
+    # drift alert log — ไม่ใส่ข้อความของผู้ใช้ลง log เซิร์ฟเวอร์ (เดิมพิมพ์ 60 ตัวอักษรแรก ซึ่งอาจเป็นเรื่องเปราะบาง)
     if core_result.get("drift_alert"):
-        print(f"⚠ DRIFT ALERT | route={route} | {user_input[:60]}")
+        print(f"⚠ DRIFT ALERT | route={route}")
 
     # ── survivor ─────────────────────────────────────────────────
     survivor_ctx = ""
