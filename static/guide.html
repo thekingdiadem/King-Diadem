@@ -24,8 +24,8 @@
   --vega:      #b48aff;
   --tx-hi:     rgba(240,248,255,0.96);
   --tx:        rgba(195,215,245,0.80);
-  --tx-mid:    rgba(140,170,220,0.55);
-  --tx-lo:     rgba(80,110,180,0.30);
+  --tx-mid:    rgba(170,185,225,0.66);
+  --tx-lo:     rgba(160,172,215,0.48);
   --r:         12px;
   --r-l:       18px;
   --f-display: 'Cinzel', serif;
@@ -99,7 +99,7 @@ html, body {
 }
 .guide-eyebrow {
   font-family: var(--f-mono); font-size: 8px; letter-spacing: .30em;
-  color: rgba(74,158,255,0.40); text-transform: uppercase; margin-bottom: 14px;
+  color: rgba(169,188,255,0.62); text-transform: uppercase; margin-bottom: 14px;
 }
 .guide-title {
   font-family: var(--f-display); font-size: clamp(26px, 8vw, 44px);
@@ -170,15 +170,23 @@ html, body {
   letter-spacing: .12em; color: var(--m-color, var(--blue-hi));
 }
 .module-desc {
-  font-size: 13.5px; line-height: 1.72; color: var(--tx-mid);
+  font-size: 14px; line-height: 1.8; color: var(--tx);
   padding-left: 48px;
 }
 
 /* color variants */
-.mod-ask   { --m-color: var(--blue-hi);  --m-line: rgba(74,158,255,.22);  --m-bar: rgba(74,158,255,.60);  --m-glow: rgba(74,158,255,.09);  --m-icon-bg: rgba(74,158,255,.07);  }
-.mod-brain { --m-color: var(--teal);     --m-line: rgba(56,217,184,.20);  --m-bar: rgba(56,217,184,.55);  --m-glow: rgba(56,217,184,.08);  --m-icon-bg: rgba(56,217,184,.06);  }
-.mod-gal   { --m-color: var(--gold-hi);  --m-line: rgba(200,168,75,.22);  --m-bar: rgba(200,168,75,.55);  --m-glow: rgba(200,168,75,.09);  --m-icon-bg: rgba(200,168,75,.07);  }
-.mod-wal   { --m-color: var(--vega);     --m-line: rgba(180,138,255,.20); --m-bar: rgba(180,138,255,.50); --m-glow: rgba(180,138,255,.08); --m-icon-bg: rgba(180,138,255,.06); }
+.mod-ask   { --m-color: #ffd98f; --m-line: rgba(255,198,161,.26); --m-bar: rgba(255,179,92,.65);  --m-glow: rgba(255,179,92,.10);  --m-icon-bg: rgba(255,179,92,.08); }
+.mod-uni   { --m-color: #d6e0ff; --m-line: rgba(169,188,255,.26); --m-bar: rgba(169,188,255,.65); --m-glow: rgba(169,188,255,.10); --m-icon-bg: rgba(169,188,255,.08); }
+.mod-tool  { --m-color: #ffc6a1; --m-line: rgba(255,198,161,.24); --m-bar: rgba(255,198,161,.6);  --m-glow: rgba(255,198,161,.09); --m-icon-bg: rgba(255,198,161,.07); }
+.mod-wal   { --m-color: #c8b6f0; --m-line: rgba(200,182,240,.24); --m-bar: rgba(200,182,240,.6);  --m-glow: rgba(200,182,240,.09); --m-icon-bg: rgba(200,182,240,.07); }
+.mod-sys   { --m-color: #a9bcff; --m-line: rgba(169,188,255,.22); --m-bar: rgba(169,188,255,.55); --m-glow: rgba(169,188,255,.08); --m-icon-bg: rgba(169,188,255,.06); }
+.module-th { font-size: 14px; color: var(--tx-hi); margin-left: auto; font-weight: 500; }
+.module-desc strong { color: var(--tx-hi); font-weight: 500; }
+.module-go { display: inline-block; margin: 10px 0 0 48px; font-size: 13px; color: var(--m-color); text-decoration: none; opacity: .85; transition: opacity .2s, transform .3s; }
+.module-go:hover { opacity: 1; transform: translateX(3px); }
+.important { background: linear-gradient(180deg, rgba(40,28,22,.45), rgba(10,8,16,.8)) !important; }
+.important blockquote { margin-top: 14px; padding-left: 14px; border-left: 2px solid rgba(255,198,161,.4); font-size: 13.5px; line-height: 1.85; color: var(--tx); }
+.important cite { display: block; margin-top: 6px; font-style: normal; font-size: 12px; color: var(--tx-mid); }
 
 /* ── IMPORTANT BLOCK ── */
 .important {
@@ -201,7 +209,7 @@ html, body {
   display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
 }
 .important-badge {
-  font-family: var(--f-mono); font-size: 8px; letter-spacing: .22em;
+  font-family: var(--f-body); font-size: 12px; letter-spacing: .02em;
   padding: 3px 10px; border-radius: 4px;
   border: 1px solid rgba(200,168,75,.35);
   color: var(--gold); background: rgba(200,168,75,.06);
@@ -234,74 +242,87 @@ html, body {
   to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
 }
 </style>
+<link rel="stylesheet" href="/static/cinema.css">
 </head>
 <body>
 
-<!-- nebula atmosphere -->
-<div class="nebula" style="width:500px;height:500px;top:-100px;left:-120px;background:radial-gradient(circle,rgba(74,158,255,0.06),transparent 70%);animation-duration:20s;"></div>
-<div class="nebula" style="width:400px;height:400px;bottom:-80px;right:-100px;background:radial-gradient(circle,rgba(200,168,75,0.05),transparent 70%);animation-duration:15s;animation-delay:-7s;"></div>
-<div class="nebula" style="width:300px;height:300px;top:40%;left:60%;background:radial-gradient(circle,rgba(180,138,255,0.04),transparent 70%);animation-duration:24s;animation-delay:-3s;"></div>
-
-<!-- starfield -->
-<div id="stars"></div>
+<canvas id="sky" data-density="2600" aria-hidden="true"></canvas>
 
 <div id="page">
 
-  <a href="/" class="back-link">Back to System</a>
+  <a href="/" class="back-link kd-th">กลับหน้าหลัก</a>
 
   <header class="guide-header">
-    <div class="guide-eyebrow">Documentation · v1.0</div>
-    <div class="guide-title">HUMAN GUIDE</div>
+    <div class="guide-eyebrow">Human Guide · คู่มือ</div>
+    <h1 class="guide-title">HUMAN GUIDE</h1>
     <div class="guide-rule"></div>
   </header>
 
   <div class="modules">
 
-    <div class="module mod-ask" style="--md:.30s">
+    <section class="module mod-ask kd-rim" style="--md:.30s">
       <div class="module-head">
         <span class="module-num">01</span>
-        <div class="module-icon">◈</div>
-        <span class="module-label">ASK</span>
+        <div class="module-icon" aria-hidden="true">◈</div>
+        <h2 class="module-label">ASK</h2>
+        <span class="module-th">ปรึกษา</span>
       </div>
-      <p class="module-desc">Use when you face a real decision. Describe your situation honestly — LYLA will open paths from zero to at least one.</p>
-    </div>
+      <p class="module-desc">ใช้เมื่อมีเรื่องที่ต้องตัดสินใจจริง เล่าสถานการณ์ตามจริง LYLA จะช่วยเปิดทางเลือกจากที่เหมือนไม่มีทาง ให้มีอย่างน้อยหนึ่งทาง พร้อมบอกความเสี่ยงก่อนให้คุณเลือก</p>
+      <a class="module-go" href="/ask">ถาม LYLA →</a>
+    </section>
 
-    <div class="module mod-brain" style="--md:.40s">
+    <section class="module mod-uni kd-rim" style="--md:.38s">
       <div class="module-head">
         <span class="module-num">02</span>
-        <div class="module-icon">⬡</div>
-        <span class="module-label">BRAIN</span>
+        <div class="module-icon" aria-hidden="true">✦</div>
+        <h2 class="module-label">UNIVERSE</h2>
+        <span class="module-th">จักรวาล</span>
       </div>
-      <p class="module-desc">Explore how the AI analyzes reality. Watch entropy, stability, and resource signals shape the system's understanding of your context.</p>
-    </div>
+      <p class="module-desc">ทุกการตัดสินใจกลายเป็นดาวหนึ่งดวง รวมเป็นกลุ่มดาวตามเส้นทาง: ทั่วไป · ความเสี่ยง · รอดชีวิต · วิกฤต · สังคม · VEGA ลากเพื่อมองรอบตัว แตะดาวเพื่อเปิดดูการตัดสินใจนั้น <strong>จักรวาลไม่ได้หมุนรอบใคร</strong> เราแค่มองจากจุดที่เรายืน</p>
+    </section>
 
-    <div class="module mod-gal" style="--md:.50s">
+    <section class="module mod-tool kd-rim" style="--md:.46s">
       <div class="module-head">
         <span class="module-num">03</span>
-        <div class="module-icon">◆</div>
-        <span class="module-label">GALAXY</span>
+        <div class="module-icon" aria-hidden="true">☁</div>
+        <h2 class="module-label">TOOLS</h2>
+        <span class="module-th">เครื่องมือ</span>
       </div>
-      <p class="module-desc">Navigate domains of strategy. Each planet represents a decision route — GENERAL, RISK, SURVIVAL, COLLAPSE, CIVIL, VEGA.</p>
-    </div>
+      <p class="module-desc"><strong>จำลองทางเลือก</strong> ดูผลด้านร้ายก่อน (Downside First) ในอีก 30 และ 90 วัน · <strong>วิเคราะห์ภาพ</strong> ส่งภาพ jpeg / png / webp ไม่เกิน 10MB · และดูแพ็กเกจสมาชิก</p>
+    </section>
 
-    <div class="module mod-wal" style="--md:.60s">
+    <section class="module mod-wal kd-rim" style="--md:.54s">
       <div class="module-head">
         <span class="module-num">04</span>
-        <div class="module-icon">✦</div>
-        <span class="module-label">WALLET</span>
+        <div class="module-icon" aria-hidden="true">◆</div>
+        <h2 class="module-label">WALLET</h2>
+        <span class="module-th">กระเป๋าเครดิต</span>
       </div>
-      <p class="module-desc">Support the infrastructure of the system. Free: 20 messages a day. Credits cover messages beyond that; Premium removes the daily limit.</p>
-    </div>
+      <p class="module-desc">ฟรีวันละ 20 ข้อความ เกินจากนั้นใช้เครดิต ส่วน Premium ไม่จำกัดต่อวัน จ่ายได้ทั้งบัตรและ PromptPay</p>
+      <a class="module-go" href="/wallet">เปิด Wallet →</a>
+    </section>
+
+    <section class="module mod-sys kd-rim" style="--md:.62s">
+      <div class="module-head">
+        <span class="module-num">05</span>
+        <div class="module-icon" aria-hidden="true">☼</div>
+        <h2 class="module-label">SYSTEM</h2>
+        <span class="module-th">ระบบจริง</span>
+      </div>
+      <p class="module-desc">เปิดดูว่าระบบประกอบด้วยไฟล์อะไรบ้าง ส่วนไหนทำงานจริง ส่วนไหนเป็นของเก่า โปร่งใสทุกชิ้น</p>
+    </section>
 
   </div>
 
-  <div class="important">
+  <div class="important kd-rim">
     <div class="important-head">
-      <span class="important-badge">Important</span>
+      <span class="important-badge">สำคัญ</span>
       <div class="important-rule"></div>
     </div>
-    <p>KING DIADEM does <strong>not replace human judgment</strong>. It reveals possibilities.</p>
-    <p>The final choice is <strong>always yours</strong>.</p>
+    <p>KING DIADEM <strong>ไม่ได้ตัดสินใจแทนมนุษย์</strong> ระบบแค่ทำให้เห็นทางเลือก</p>
+    <p>การเลือกสุดท้าย <strong>เป็นของคุณเสมอ</strong></p>
+    <blockquote>จักรวาลไม่ได้หมุนรอบใคร แต่ทุกคนร่วมกันเป็นส่วนหนึ่งของทั้งจักรวาล
+      <cite>— Nithikorn Bunsrang</cite></blockquote>
   </div>
 
   <footer class="guide-footer">
@@ -315,28 +336,6 @@ html, body {
 
 <script>
 (function(){
-  var stars = document.getElementById('stars');
-  for(var i = 0; i < 180; i++){
-    var s = document.createElement('div');
-    s.className = 'star';
-    var sz = .5 + Math.random() * 1.4;
-    var x  = Math.random() * 100;
-    var y  = Math.random() * 100;
-    var d  = (3 + Math.random() * 6).toFixed(1) + 's';
-    var dl = (-Math.random() * 8).toFixed(1) + 's';
-    var a1 = (.04 + Math.random() * .12).toFixed(2);
-    var a2 = (.18 + Math.random() * .40).toFixed(2);
-    s.style.cssText = 'width:'+sz+'px;height:'+sz+'px;left:'+x+'%;top:'+y+'%;--d:'+d+';--delay:'+dl+';--a1:'+a1+';--a2:'+a2+';';
-    stars.appendChild(s);
-  }
-
-  // mouse parallax on desktop
-  document.addEventListener('mousemove', function(e){
-    var cx = (e.clientX / window.innerWidth  - .5) * 14;
-    var cy = (e.clientY / window.innerHeight - .5) * 10;
-    stars.style.transform = 'translate('+cx+'px,'+cy+'px)';
-  }, {passive: true});
-
   // module mouse-glow follow
   document.querySelectorAll('.module').forEach(function(el){
     el.addEventListener('mousemove', function(e){
@@ -349,5 +348,6 @@ html, body {
   });
 })();
 </script>
+<script src="/static/cinema_sky.js" defer></script>
 </body>
 </html>

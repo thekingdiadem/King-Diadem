@@ -37,8 +37,8 @@
 
   --tx-hi:  rgba(246,250,255,0.97);
   --tx:     rgba(198,216,248,0.82);
-  --tx-mid: rgba(125,158,218,0.50);
-  --tx-lo:  rgba(60,95,170,0.26);
+  --tx-mid: rgba(170,185,225,0.70);
+  --tx-lo:  rgba(160,172,215,0.52);
 
   --s1: 0 1px 4px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.022);
   --s2: 0 4px 20px rgba(0,0,0,0.58), 0 0 0 1px rgba(255,255,255,0.028);
@@ -114,7 +114,7 @@ nav::after {
 }
 .nav-actions { display: flex; gap: 8px; }
 .nav-btn {
-  font-family: var(--f-mono); font-size: 10px; letter-spacing: .10em;
+  font-family: var(--f-body); font-size: 12.5px; letter-spacing: .01em;
   padding: 7px 16px; border-radius: 999px; cursor: pointer;
   border: 1px solid; transition: all .18s cubic-bezier(0.4,0,0.2,1);
   white-space: nowrap;
@@ -179,7 +179,7 @@ nav::after {
 .err-body { font-size: 14px; color: var(--tx-mid); margin-bottom: 28px; }
 .err-btn {
   display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--f-mono); font-size: 11px; letter-spacing: .10em;
+  font-family: var(--f-body); font-size: 14px; letter-spacing: .01em;
   padding: 12px 24px; border-radius: 999px;
   border: 1px solid rgba(200,164,64,0.28);
   background: rgba(200,164,64,0.08);
@@ -265,9 +265,9 @@ nav::after {
 /* ── SECTION ──────────────────────────────────────────────────── */
 .sec { margin-bottom: 20px; }
 .sec-title {
-  font-family: var(--f-mono); font-size: 8px;
+  font-family: var(--f-mono); font-size: 9.5px;
   letter-spacing: .20em; text-transform: uppercase;
-  color: rgba(200,164,64,0.48);
+  color: rgba(255,206,160,0.72);
   margin-bottom: 12px;
   display: flex; align-items: center; gap: 10px;
 }
@@ -428,7 +428,7 @@ nav::after {
 }
 .share-btns { display: flex; gap: 8px; flex-shrink: 0; }
 .share-btn {
-  font-family: var(--f-mono); font-size: 9px; letter-spacing: .10em;
+  font-family: var(--f-body); font-size: 12.5px; letter-spacing: .01em;
   padding: 8px 16px; border-radius: 999px; cursor: pointer;
   border: 1px solid; transition: all .18s cubic-bezier(0.4,0,0.2,1);
   white-space: nowrap;
@@ -501,8 +501,10 @@ nav::after {
   *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
 </style>
+<link rel="stylesheet" href="/static/cinema.css">
 </head>
 <body>
+<canvas id="sky" data-density="3400" aria-hidden="true"></canvas>
 
 <nav>
   <div class="nav-brand">
@@ -630,7 +632,7 @@ nav::after {
     var consensusHtml = d.consensus
       ? '<div class="sec">'
           +'<div class="sec-title">COUNCIL CONSENSUS</div>'
-          +'<div class="card"><div class="consensus-block">'+esc(d.consensus)+'</div></div>'
+          +'<div class="card kd-rim"><div class="consensus-block">'+esc(d.consensus)+'</div></div>'
         +'</div>'
       : '';
 
@@ -639,7 +641,7 @@ nav::after {
     var formulaVal = risk >= 75
       ? '<span style="color:var(--red)">True</span>'
       : '<span style="color:var(--ok)">False</span>';
-    var axiomHtml = '<div class="card"><div class="axiom-formula">'
+    var axiomHtml = '<div class="card kd-rim"><div class="axiom-formula">'
       +'Choice(t) ≥ 1 → collapse = '+formulaVal
       +'&nbsp;&nbsp;·&nbsp;&nbsp;Risk '+Math.round(risk)+'/100'
       +'</div></div>';
@@ -668,13 +670,13 @@ nav::after {
       // INPUT
       +'<div class="sec">'
         +'<div class="sec-title">INPUT</div>'
-        +'<div class="card"><div class="input-block">'+esc(d.input_text||'')+'</div></div>'
+        +'<div class="card kd-rim"><div class="input-block">'+esc(d.input_text||'')+'</div></div>'
       +'</div>'
 
       // FATE AUDIT
       +'<div class="sec">'
         +'<div class="sec-title">FATE™ AXIOM AUDIT</div>'
-        +'<div class="card">'+checksHtml+'</div>'
+        +'<div class="card kd-rim">'+checksHtml+'</div>'
         +'<div class="audit-summary">'
           +'<div class="aud-item"><div class="aud-num pass">'+n0(audit.axiom_pass)+'</div><div class="aud-label">PASS</div></div>'
           +'<div class="aud-item"><div class="aud-num warn">'+n0(audit.axiom_warn)+'</div><div class="aud-label">WARN</div></div>'
@@ -691,13 +693,13 @@ nav::after {
       // HUMAN STATE
       +'<div class="sec">'
         +'<div class="sec-title">HUMAN STATE · WATERLINE</div>'
-        +'<div class="card">'+wlRows+'</div>'
+        +'<div class="card kd-rim">'+wlRows+'</div>'
       +'</div>'
 
       // AI RESPONSE
       +'<div class="sec">'
         +'<div class="sec-title">AI RESPONSE</div>'
-        +'<div class="card"><div class="response-block">'
+        +'<div class="card kd-rim"><div class="response-block">'
           +'<div class="persona-tag '+personaCls+'">'+esc(personaName)+' '+personaSym+'</div>'
           +'<div class="response-text">'+esc(d.ai_response||'').replace(/\n/g,'<br>')+'</div>'
         +'</div></div>'
@@ -708,8 +710,8 @@ nav::after {
 
       // SHARE
       +'<div class="sec">'
-        +'<div class="sec-title">แชร์ REPORT นี้</div>'
-        +'<div class="card"><div class="share-card">'
+        +'<div class="sec-title kd-th">แชร์ REPORT นี้</div>'
+        +'<div class="card kd-rim"><div class="share-card">'
           +'<div class="share-url-text">'+esc(shareUrl)+'</div>'
           +'<div class="share-btns">'
             +'<button class="share-btn share-btn-gold" id="copyBtn" data-url="'+esc(shareUrl)+'" onclick="doCopy(this.dataset.url)">คัดลอกลิงก์</button>'
@@ -744,5 +746,6 @@ nav::after {
   };
 })();
 </script>
+<script src="/static/cinema_sky.js" defer></script>
 </body>
 </html>
