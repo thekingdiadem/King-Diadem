@@ -122,15 +122,15 @@ summary .w { font-size: 13.5px; color: var(--tx); }
 summary .c { font: 400 11px/1 var(--f-mono); color: var(--tx-lo); white-space: nowrap; }
 details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
 .flist { list-style: none; padding: 8px 10px 12px; display: grid; gap: 2px; }
-.flist li { display: grid; grid-template-columns: 14px minmax(140px, 260px) 1fr; gap: 10px; align-items: baseline; padding: 5px 8px; border-radius: 8px; }
+.flist li { display: grid; grid-template-columns: 14px minmax(140px, 260px) minmax(0, 1fr); gap: 10px; align-items: baseline; padding: 5px 8px; border-radius: 8px; }
 .flist li:hover { background: rgba(255,255,255,.03); }
 .flist i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
 .flist button { text-align: left; background: none; border: 0; font: 400 12px/1.5 var(--f-mono); color: var(--sky-hi); cursor: pointer; word-break: break-all; }
-.flist span { font-size: 12.5px; color: var(--tx-mid); }
+.flist span { font-size: 12.5px; color: var(--tx-mid); min-width: 0; overflow-wrap: anywhere; }   /* คำอธิบายที่ยาวติดกัน (A/B/C, ก→ข→ค) ตัดบรรทัดได้ ไม่ดันเกินจอ */
 @media (max-width: 640px) {
   .layer { grid-template-columns: 1fr; gap: 4px; }
   summary { grid-template-columns: 1fr auto; } summary .w { grid-column: 1 / -1; }
-  .flist li { grid-template-columns: 14px 1fr; } .flist span { grid-column: 2; }
+  .flist li { grid-template-columns: 14px minmax(0, 1fr); } .flist span { grid-column: 2; }
   .info { left: 10px; right: 10px; bottom: max(10px, env(safe-area-inset-bottom)); width: auto; max-height: 46vh; }   /* มือถือ: แผ่นข้อมูลด้านล่างจอ */
   .bar nav a:not(:first-child) { display: none; }
 }

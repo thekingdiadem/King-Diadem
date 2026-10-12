@@ -44,7 +44,8 @@ body::before{
   display:inline-flex;align-items:center;gap:7px;
   font-family:var(--f-mono);font-size:9px;letter-spacing:.16em;
   color:var(--tx-lo);text-decoration:none;text-transform:uppercase;
-  margin-bottom:32px;transition:color .2s;
+  padding:8px 0;margin:-8px 0 24px;min-height:32px;   /* พื้นที่กดสูงพอสำหรับนิ้ว แต่ระยะห่างเท่าเดิม */
+  transition:color .2s;
 }
 .back:hover{color:var(--gold);}
 .back::before{content:'←';font-size:11px;}
@@ -165,7 +166,7 @@ select option{background:#04060f;color:var(--tx-hi);}
   margin-top:28px;text-align:center;
   font-family:var(--f-mono);font-size:8px;letter-spacing:.14em;color:var(--tx-lo);
 }
-.nav-row a{color:var(--tx-mid);text-decoration:none;transition:color .18s;}
+.nav-row a{display:inline-block;padding:9px 8px;color:var(--tx-mid);text-decoration:none;transition:color .18s;}   /* ตัวเล็กแต่กดง่าย */
 .nav-row a:hover{color:var(--gold-hi);}
 
 /* anim */
