@@ -15,12 +15,12 @@
 
 [![Website](https://img.shields.io/badge/Website-king--diadem.onrender.com-181717?style=for-the-badge&logo=render&logoColor=white)](https://king-diadem.onrender.com)
 [![Instagram](https://img.shields.io/badge/Instagram-@thekingdiadem-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/thekingdiadem)
-[![Fastwork](https://img.shields.io/badge/Fastwork-Hire%20Me-3B5BFE?style=for-the-badge&logoColor=white)](https://fastwork.co/user/thekingdiadem)
+[![Fastwork](https://img.shields.io/badge/Fastwork-Hire%20Me-3B5BFE?style=for-the-badge&logoColor=white)](https://fastwork.co/byob/CtqOnVfzC7)
 
 <p>
 <a href="https://king-diadem.onrender.com"><img src="https://www.google.com/s2/favicons?domain=render.com&sz=64" width="28" height="28" alt="Website"/></a>&nbsp;&nbsp;
 <a href="https://www.instagram.com/thekingdiadem"><img src="https://www.google.com/s2/favicons?domain=instagram.com&sz=64" width="28" height="28" alt="Instagram"/></a>&nbsp;&nbsp;
-<a href="https://fastwork.co/user/thekingdiadem"><img src="https://www.google.com/s2/favicons?domain=fastwork.co&sz=64" width="28" height="28" alt="Fastwork"/></a>
+<a href="https://fastwork.co/byob/CtqOnVfzC7"><img src="https://www.google.com/s2/favicons?domain=fastwork.co&sz=64" width="28" height="28" alt="Fastwork"/></a>
 </p>
 
 ---
@@ -148,7 +148,7 @@ python scripts/eval_corpus.py   # วัดผลกับประโยคจ�
 
 ## Support
 
-จ้างงานได้ที่ [Fastwork](https://fastwork.co/user/thekingdiadem) หรือทักผ่าน [Instagram](https://www.instagram.com/thekingdiadem)
+จ้างงานได้ที่ [Fastwork](https://fastwork.co/byob/CtqOnVfzC7) หรือทักผ่าน [Instagram](https://www.instagram.com/thekingdiadem)
 
 ---
 

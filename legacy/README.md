@@ -112,5 +112,11 @@
 - `ENGINE/intervention_engine.py` — ใช้โดย `ENGINE/brain.py` เท่านั้น
 - `core/database.py` — facade ของ `DATABASE/db.py`
 
-`AUTH/` และ `PAYMENT/` ยังอยู่ที่เดิมตามกฎด้านบน เพราะ `portfolio.html` อ้างถึง `AUTH/gateway.py` และ `PAYMENT/stripe_payment.py`
+ต่อมา `portfolio.html` แก้ให้ตรงกับระบบจริง (ไม่อ้างถึงไฟล์ที่ไม่ได้ต่อเข้าระบบแล้ว) จึงย้ายตามมา:
+- `AUTH/` ทั้งโฟลเดอร์ — ระบบบัญชี/เครดิตชุดที่สอง (ของจริงอยู่ใน `app.py` + `DATABASE/db.py`)
+- `PAYMENT/` ทั้งโฟลเดอร์ — Stripe Checkout ชุดเก่า (ของจริง: `/create-checkout-session` · `/wallet/topup` · `/webhook/stripe` ใน `app.py`)
+- `NETWORK/global_chat.py` · `NETWORK/global_network.py` — ห้องแชทรวมที่เก็บข้อความผู้ใช้ถาวร (ขัดกับหลักไม่เก็บข้อความ)
+- `AI_KERNEL/reality_constraint.py` — ซ้ำกับ `core/reality_laws.py` + `AI_KERNEL/belief_core.py` ด้วยเกณฑ์คนละชุด
+- `WORLD_MODEL/human_state.py` — ซ้ำกับ `ENGINE/human_engine.py` + survivor engine และใช้สเกลคนละแบบ
+- `SECURITY/emergency_mode.py` — แบน IP อัตโนมัติ 24 ชม. (คนที่ใช้ IP ร่วมกันโดนด้วย) ซ้ำกับ `_rate_check` ใน `app.py`
 
