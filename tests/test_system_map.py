@@ -72,3 +72,10 @@ def test_file_moved_back_from_legacy_is_live():
     assert "legacy/DOMAINS/business_engine.py" not in rows
     assert rows["DOMAINS/business_engine.py"][2] == "request"
     assert "ย้ายกลับจาก legacy/" in rows["DOMAINS/business_engine.py"][6]
+
+
+def test_new_live_python_file_is_not_stuck_in_config():
+    """ไฟล์ Python ใหม่ที่ app.py เรียกใช้ (core/history_export.py) เคยค้างหมวด "config" ทั้งที่ทำงานจริง"""
+    rows = {r[0]: r for r in _embedded()["files"]}
+    assert rows["core/history_export.py"][2] == "request"
+    assert rows["scripts/build_system_map.py"][2] == "config"     # สคริปต์ที่ไม่ได้อยู่ในเส้นทางของแอปยังเป็น config

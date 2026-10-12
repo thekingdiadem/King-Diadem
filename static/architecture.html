@@ -229,6 +229,7 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
       <div class="box kd-rim"><p class="route">/login · /register · /login/google</p><h3>บัญชี</h3><p>รหัสผ่านหรือ Google OAuth · ตัวตนอยู่ใน cookie ที่เซ็นแล้ว — <code>DATABASE/db.py</code></p></div>
       <div class="box kd-rim"><p class="route">/wallet/topup · /webhook/stripe</p><h3>เครดิต</h3><p>Stripe (บัตร / PromptPay) → webhook ยืนยัน → เติมเครดิตลงบัญชี</p></div>
       <div class="box kd-rim"><p class="route">GET /report/&lt;id&gt;</p><h3>รายงานแชร์ได้</h3><p>ตรวจ FATE™ 6 ข้อของแต่ละคำตอบ — <code>report_engine.py</code> → <code>static/report.html</code></p></div>
+      <div class="box kd-rim"><p class="route">/api/history · /export · /email</p><h3>ประวัติในบัญชี</h3><p>เก็บไว้ในบัญชีของแต่ละคนเท่านั้น (ไม่ได้เข้าสู่ระบบ = ไม่เก็บข้อความ) · ดาวน์โหลดเป็นไฟล์ หรือส่งเข้าอีเมลของบัญชีนั้น — <code>core/history_export.py</code></p></div>
       <div class="box kd-rim"><p class="route">GET /health</p><h3>สุขภาพระบบ</h3><p>โมดูลไหนโหลดอยู่ และโหลดจริงตอนนี้: คำขอต่อนาที · พร้อมกัน · error · เวลาตอบ — วัดอย่างเดียว ไม่บล็อกใคร · <code>SECURITY/survival_mode.py</code></p></div>
       <div class="box kd-rim"><p class="route">/api/feedback</p><h3>เรียนรู้จาก 👍/👎</h3><p>เก็บผลโหวตเป็นตัวเลข แล้วปรับน้ำหนักเส้นทาง — <code>core/feedback_loop.py</code></p></div>
     </div>
