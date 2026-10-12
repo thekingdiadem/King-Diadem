@@ -1513,9 +1513,9 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     if core_result.get("recommend_route") and route not in ("vega",):
         route = _escalate_route(route, core_result["recommend_route"])
 
-    # drift alert log
+    # drift alert log — ไม่ใส่ข้อความของผู้ใช้ลง log เซิร์ฟเวอร์ (เดิมพิมพ์ 60 ตัวอักษรแรก ซึ่งอาจเป็นเรื่องเปราะบาง)
     if core_result.get("drift_alert"):
-        print(f"⚠ DRIFT ALERT | route={route} | {user_input[:60]}")
+        print(f"⚠ DRIFT ALERT | route={route}")
 
     # ── survivor ─────────────────────────────────────────────────
     survivor_ctx = ""
