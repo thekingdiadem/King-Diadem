@@ -23,7 +23,8 @@ Human Input — static/index.html (แอปหน้าเดียว)
     │
     ▼
 ใส่บริบท — core/king_diadem_core.py · core/system_orchestrator.py · core/engine_bridge.py
-           (ปฏิจจสมุปบาท · Cosmic Latte · Living Water · นิทาน · ทางออก · ตัวเลขหนี้/เวลา/ทรัพยากร)
+           (ปฏิจจสมุปบาท · Cosmic Latte · Living Water · นิทาน · ทางออก · ตัวเลขหนี้/เวลา/ทรัพยากร
+            · กำไร/margin ของร้าน — DOMAINS/business_engine.py)
     │
     ▼
 ตรวจความเชื่อ — AI_KERNEL/belief_core.py (ไม่ผ่าน → SYSTEM_PAUSE)
@@ -44,6 +45,8 @@ Human Input — static/index.html (แอปหน้าเดียว)
     ▼
 Human Action (มนุษย์ตัดสินใจขั้นสุดท้ายเสมอ)
 ```
+
+ตัววัดโหลด `SECURITY/survival_mode.py` (ASGI middleware รอบ /run /simulate /analyze-image) — วัดอย่างเดียว ไม่บล็อกใคร · ดูได้ที่ `/health` → `load`
 
 ---
 
