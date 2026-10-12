@@ -4,66 +4,45 @@
 
 ---
 
+> แผนผังแบบโต้ตอบได้ (ทุกไฟล์ + การเชื่อมต่อจริง) อยู่ที่หน้าเว็บ **`/architecture`** (`static/architecture.html`)
+> ข้อมูลไฟล์และเส้นเชื่อมสร้างจาก repo ด้วย `scripts/build_system_map.py` → `static/system_map.json`
+
+**รูปแบบ:** layered monolith — FastAPI ตัวเดียว (`app.py`, gunicorn 1 worker บน Render, SQLite บนดิสก์ถาวร)
+ตรรกะของระบบประกบ AI ไว้ทั้งก่อนและหลัง (kernel sandwich) · AI เป็นทางเลือก — ไม่มี AI ก็ตอบจากสมการได้
+
 ```
-Human Input
+Human Input — static/index.html (แอปหน้าเดียว)
+    │  POST /run
+    ▼
+ประตูหน้า — app.py · DATABASE/db.py
+(ความยาว · rate limit · โควตาฟรี 20/วัน → เครดิต → Premium)
     │
     ▼
-Galaxy Interface — static/index.html
-(Canvas Solar System · LYLA/VEGA personas · Mobile PWA)
+อ่านสัญญาณ — ENGINE/human_engine.py · AI/intent_engine.py · ENGINE/risk_engine.py
+             core/kernel_voice.py (assess) · core/thai_signals.py · core/lang_signals.py
     │
     ▼
-API Layer — app.py (FastAPI)
-(Google OAuth · Session · Cookie · Rate Limit)
+ใส่บริบท — core/king_diadem_core.py · core/system_orchestrator.py · core/engine_bridge.py
+           (ปฏิจจสมุปบาท · Cosmic Latte · Living Water · นิทาน · ทางออก · ตัวเลขหนี้/เวลา/ทรัพยากร)
     │
     ▼
-FATE™ Decision Engine — ENGINE/decision_engine.py
-(Deterministic Logic · Choice Preservation · Route Detection)
+ตรวจความเชื่อ — AI_KERNEL/belief_core.py (ไม่ผ่าน → SYSTEM_PAUSE)
     │
     ▼
-Multi-AI Council
-────────────────────────────────────────
-LYLA ◈  — Warmth · Governance Intelligence
-VEGA ◆  — Strategic Analysis · Logic
-TITAN   — Risk Assessment · Threat Detection
-PATICCA — Dependent Origination · Root Cause
-COSMOS  — System Integrity · Final Arbiter
+เครื่องยนต์ตัดสินใจ — ENGINE/decision_engine.py → ENGINE/pattern_engine.py → core/emptiness_guard.py
+                      → ENGINE/engine_router.py (ปฏิจจสมุปบาท → ความเสี่ยง → สภา 6 เสียง → จำลอง → กลยุทธ์ → ทางรอด)
     │
     ▼
-Intelligence Layer
-────────────────────────────────────────
-ENGINE/human_engine.py        — Human State Analysis
-ENGINE/paticcasamuppada_engine.py — Causal Chain Mapping
-ENGINE/risk_engine.py         — Risk Scoring
-ENGINE/collapse_predictor.py  — Collapse Probability
-ENGINE/realhuman_survivorengine.py — Waterline Assessment
+เสียง — core/llm_gemini.py (Gemini) ── ล้ม/ไม่มี key ──► core/kernel_voice.py (คำตอบจากสมการ)
     │
     ▼
-Simulation Layer
-────────────────────────────────────────
-ENGINE/simulation_engine.py   — Future Path Simulation
-ENGINE/consensus_engine.py    — Council Consensus
-ENGINE/universal_engine.py    — Cross-Engine Enrichment
+ประตูหลัง — ทางเลือก ≤ 3 (มาตรา 11) · core/cosmic_latte_canon.py · AI_KERNEL/belief_core.py (enforce)
     │
     ▼
-Memory & Persistence
-────────────────────────────────────────
-DATABASE/db.py                — SQLite · User · Decision Log
-DATABASE/db.py                — chat_memory · auto_extract_memory
-report_engine.py              — FATE™ Decision Report URL
+บันทึก — AI/civilization_engine.py (ไม่มีข้อความ) · AI/freedom_signal.py · report_engine.py (/report/<id>) · DATABASE/db.py
     │
     ▼
-Decision Output
-────────────────────────────────────────
-ai_response     — LYLA/VEGA natural language
-route           — GENERAL · RISK · SURVIVAL · COLLAPSE · CIVIL · VEGA
-risk_score      — 0–100
-waterline       — entropy · stability · resource
-consensus       — Council verdict
-report_url      — Shareable FATE™ audit link
-    │
-    ▼
-Human Action
-(มนุษย์ตัดสินใจขั้นสุดท้ายเสมอ)
+Human Action (มนุษย์ตัดสินใจขั้นสุดท้ายเสมอ)
 ```
 
 ---

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#020309">
+<title>สถาปัตยกรรมระบบ · KING DIADEM</title>
+<meta name="description" content="KING DIADEM ทำงานอย่างไร — สถาปัตยกรรมแบบชั้นที่ตรรกะประกบ AI ไว้ทั้งก่อนและหลัง พร้อมแผนที่ไฟล์ทั้งหมดและการเชื่อมต่อจริง">
+<link rel="icon" href="/static/logo.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=DM+Mono:wght@400;500&family=Noto+Sans+Thai+Looped:wght@400;500;600&family=Noto+Serif+Thai:wght@500;600&display=swap">
+<style>
+/* ARCHITECTURE — อธิบายระบบให้คนที่สงสัย: รูปแบบสถาปัตยกรรม · เส้นทางของหนึ่งข้อความ · แผนที่ไฟล์ทั้งหมด
+   ข้อมูลไฟล์/เส้นเชื่อมโหลดจาก /static/system_map.json (สร้างจาก repo จริงด้วย scripts/build_system_map.py) */
+:root {
+  --void: #020309; --latte: #fff8e7; --tx-hi: rgba(242,246,255,.96); --tx: rgba(208,216,240,.84); --tx-mid: rgba(176,188,226,.72); --tx-lo: rgba(160,172,215,.52);
+  --gold: #e8b864; --gold-hi: #ffd98f; --sun: #ffb35c; --peach: #ffc6a1; --sky: #a9bcff; --sky-hi: #d6e0ff; --lilac: #c8b6f0; --ok: #8ef0b4;
+  --f-title: 'Cinzel', 'Noto Serif Thai', serif; --f-serif: 'Noto Serif Thai', serif;
+  --f-body: 'Noto Sans Thai Looped', system-ui, sans-serif; --f-mono: 'DM Mono', ui-monospace, monospace;
+  --ease: cubic-bezier(.16,1,.3,1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { background: var(--void); scroll-behavior: smooth; }
+body { min-height: 100vh; color: var(--tx); font-family: var(--f-body); font-size: 15px; line-height: 1.75; overflow-x: hidden; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+a { color: var(--gold-hi); }
+.bar { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: max(12px, env(safe-area-inset-top)) clamp(16px, 4vw, 40px) 12px; background: linear-gradient(180deg, rgba(2,3,9,.94), rgba(2,3,9,.6) 70%, rgba(2,3,9,0)); }
+.bar a { font-size: 13px; color: var(--tx-mid); text-decoration: none; }
+.bar a:hover { color: var(--latte); }
+.bar nav { display: flex; gap: 16px; flex-wrap: wrap; justify-content: flex-end; }
+main { position: relative; z-index: 2; max-width: 1080px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px) 120px; }
+section { margin-top: 96px; }
+.eyebrow { font: 400 10px/1.6 var(--f-mono); letter-spacing: .3em; text-transform: uppercase; color: rgba(214,224,255,.62); }
+.eyebrow .th { font: 500 12.5px/1.6 var(--f-body); letter-spacing: .03em; }   /* ไทยไม่ยืดระยะ — สระไม่หลุด */
+h1 { font: 600 clamp(30px, 6vw, 52px)/1.25 var(--f-serif); color: var(--latte); margin-top: 14px; text-shadow: 0 0 40px rgba(255,248,231,.18); }
+h2 { font: 600 clamp(22px, 3.4vw, 30px)/1.35 var(--f-serif); color: var(--latte); margin-top: 8px; }
+h3 { font: 600 16px/1.5 var(--f-body); color: var(--tx-hi); }
+.lead { margin-top: 18px; font-size: clamp(15.5px, 1.9vw, 18px); line-height: 1.9; max-width: 46em; }
+.lead strong, .sub strong { color: var(--gold-hi); font-weight: 500; }
+.sub { margin-top: 10px; color: var(--tx-mid); max-width: 52em; }
+code, .mono { font-family: var(--f-mono); font-size: .88em; }
+.hero { padding-top: 9vh; }
+.stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.stat { padding: 10px 16px; border-radius: 14px; }
+.stat b { display: block; font: 500 22px/1.2 var(--f-mono); color: var(--latte); }
+.stat span { font-size: 12px; color: var(--tx-lo); }
+
+/* รูปแบบสถาปัตยกรรม */
+.traits { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 26px; }
+.trait { padding: 20px 20px 18px; border-radius: 18px; }
+.trait .k { font: 500 10px/1 var(--f-mono); letter-spacing: .22em; text-transform: uppercase; color: var(--peach); }
+.trait h3 { margin-top: 10px; }
+.trait p { margin-top: 8px; font-size: 14px; color: var(--tx); }
+
+/* แผนภาพชั้น: ตรรกะประกบ AI */
+.sandwich { margin-top: 28px; display: grid; gap: 8px; max-width: 760px; }
+.layer { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; padding: 14px 18px; border-radius: 14px; }
+.layer .tag { font: 500 10.5px/1.4 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--tx-lo); }
+.layer p { font-size: 14px; }
+.layer.kernel { background: linear-gradient(90deg, rgba(169,188,255,.10), rgba(169,188,255,.03)); border: 1px solid rgba(169,188,255,.22); }
+.layer.ai { background: linear-gradient(90deg, rgba(255,179,92,.14), rgba(255,179,92,.04)); border: 1px dashed rgba(255,198,161,.45); }
+.layer.human { background: rgba(255,248,231,.05); border: 1px solid rgba(255,248,231,.2); }
+.layer.ai .tag { color: var(--peach); } .layer.kernel .tag { color: var(--sky); } .layer.human .tag { color: var(--latte); }
+
+/* เส้นทางของหนึ่งข้อความ */
+.flow { list-style: none; margin-top: 30px; position: relative; counter-reset: s; }
+.flow::before { content: ""; position: absolute; left: 19px; top: 10px; bottom: 10px; width: 1px; background: linear-gradient(180deg, var(--sky), var(--peach) 55%, var(--latte)); opacity: .45; }
+.step { position: relative; padding: 0 0 26px 58px; counter-increment: s; }
+.step::before { content: counter(s, decimal-leading-zero); position: absolute; left: 0; top: 0; width: 39px; height: 39px; border-radius: 50%;
+  display: grid; place-items: center; font: 500 11px/1 var(--f-mono); color: var(--latte); background: #0a0c1c; border: 1px solid rgba(255,248,231,.22); }
+.step.ai::before { border-color: rgba(255,198,161,.6); color: var(--peach); box-shadow: 0 0 18px rgba(255,179,92,.3); }
+.step.gate::before { border-color: rgba(169,188,255,.6); color: var(--sky-hi); }
+.step h3 { padding-top: 7px; }
+.step h3 small { font: 400 11px/1 var(--f-mono); letter-spacing: .12em; color: var(--tx-lo); margin-left: 8px; text-transform: uppercase; }
+.step p { margin-top: 4px; font-size: 14px; color: var(--tx); max-width: 50em; }
+.files { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { font: 400 11.5px/1 var(--f-mono); padding: 6px 10px; border-radius: 99px; border: 1px solid rgba(169,188,255,.22); background: rgba(169,188,255,.06);
+  color: var(--sky-hi); cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
+.chip:hover, .chip:focus-visible { background: rgba(255,198,161,.12); border-color: rgba(255,198,161,.5); color: var(--gold-hi); outline: none; }
+.chip.ai { border-color: rgba(255,198,161,.38); color: var(--peach); background: rgba(255,179,92,.07); }
+
+.side { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 26px; }
+.side .box { padding: 18px; border-radius: 16px; }
+.side .box p { font-size: 13.5px; margin-top: 6px; }
+.side .route { font: 500 11px/1 var(--f-mono); color: var(--gold-hi); letter-spacing: .06em; }
+
+/* แผนที่ไฟล์ทั้งหมด */
+.map-wrap { margin-top: 24px; border-radius: 20px; overflow: hidden; position: relative; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 14px 14px 10px; }
+.tools input { flex: 1 1 200px; min-width: 0; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(169,188,255,.2); background: rgba(2,3,10,.6);
+  color: var(--tx-hi); font: 400 14px/1.3 var(--f-body); outline: none; }
+.tools input:focus { border-color: rgba(255,198,161,.5); }
+.cats { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 12px; }
+.cat { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 99px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03);
+  font-size: 12px; color: var(--tx); cursor: pointer; }
+.cat i { width: 8px; height: 8px; border-radius: 50%; }
+.cat[aria-pressed="false"] { opacity: .4; }
+.cat b { font: 400 11px/1 var(--f-mono); color: var(--tx-lo); }
+#map { display: block; width: 100%; touch-action: manipulation; cursor: crosshair; }
+.info { position: fixed; z-index: 45; right: 16px; bottom: 16px; width: min(360px, calc(100% - 32px)); max-height: 62vh; overflow: auto; padding: 14px 16px; border-radius: 14px; display: none; }
+.info.on { display: block; }
+.info .p { font: 500 12.5px/1.5 var(--f-mono); color: var(--latte); word-break: break-all; }
+.info .m { font-size: 11.5px; color: var(--tx-lo); margin-top: 2px; }
+.info .d { font-size: 13.5px; margin-top: 8px; }
+.info h4 { font: 500 10px/1 var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--tx-lo); margin-top: 12px; }
+.info ul { list-style: none; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 5px; }
+.info li button { font: 400 11px/1 var(--f-mono); padding: 5px 8px; border-radius: 99px; border: 1px solid rgba(255,255,255,.12); background: none; color: var(--sky-hi); cursor: pointer; }
+.info .x { position: absolute; top: 8px; right: 10px; background: none; border: 0; color: var(--tx-lo); font-size: 18px; cursor: pointer; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; padding: 10px 14px 14px; font-size: 12px; color: var(--tx-lo); }
+.legend span::before { content: ""; display: inline-block; width: 22px; height: 0; margin-right: 6px; vertical-align: middle; border-top: 1.5px solid rgba(255,198,161,.8); }
+.legend span.web::before { border-top: 1.5px dashed rgba(169,188,255,.9); }
+.hint { font-size: 12.5px; color: var(--tx-lo); padding: 0 14px 12px; }
+
+/* โฟลเดอร์ */
+.folders { margin-top: 24px; display: grid; gap: 8px; }
+details { border-radius: 14px; }
+summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(110px, 160px) 1fr auto; gap: 14px; align-items: baseline; padding: 14px 18px; }
+summary::-webkit-details-marker { display: none; }
+summary .n { font: 500 13px/1.4 var(--f-mono); color: var(--latte); }
+summary .w { font-size: 13.5px; color: var(--tx); }
+summary .c { font: 400 11px/1 var(--f-mono); color: var(--tx-lo); white-space: nowrap; }
+details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
+.flist { list-style: none; padding: 8px 10px 12px; display: grid; gap: 2px; }
+.flist li { display: grid; grid-template-columns: 14px minmax(140px, 260px) 1fr; gap: 10px; align-items: baseline; padding: 5px 8px; border-radius: 8px; }
+.flist li:hover { background: rgba(255,255,255,.03); }
+.flist i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.flist button { text-align: left; background: none; border: 0; font: 400 12px/1.5 var(--f-mono); color: var(--sky-hi); cursor: pointer; word-break: break-all; }
+.flist span { font-size: 12.5px; color: var(--tx-mid); }
+@media (max-width: 640px) {
+  .layer { grid-template-columns: 1fr; gap: 4px; }
+  summary { grid-template-columns: 1fr auto; } summary .w { grid-column: 1 / -1; }
+  .flist li { grid-template-columns: 14px 1fr; } .flist span { grid-column: 2; }
+  .info { left: 10px; right: 10px; bottom: max(10px, env(safe-area-inset-bottom)); width: auto; max-height: 46vh; }   /* มือถือ: แผ่นข้อมูลด้านล่างจอ */
+  .bar nav a:not(:first-child) { display: none; }
+}
+.foot { margin-top: 90px; font-size: 13px; color: var(--tx-lo); }
+</style>
+<link rel="stylesheet" href="/static/cinema.css">
+</head>
+<body>
+<canvas id="sky" data-density="3600" aria-hidden="true"></canvas>
+<header class="bar">
+  <a href="/">← หน้าหลัก</a>
+  <nav aria-label="ในหน้านี้"><a href="#style">รูปแบบ</a><a href="#flow">เส้นทางข้อความ</a><a href="#map-sec">แผนที่ไฟล์</a><a href="#folders">โฟลเดอร์</a></nav>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="h-top">
+    <p class="eyebrow">Architecture · <span class="th">สถาปัตยกรรมระบบ</span></p>
+    <h1 id="h-top">KING DIADEM ทำงานอย่างไร</h1>
+    <p class="lead">ระบบนี้เป็น <strong>monolith แบบเป็นชั้น</strong> คือเซิร์ฟเวอร์ FastAPI ตัวเดียว ที่ให้<strong>ตรรกะของระบบล้อม AI ไว้ทั้งก่อนและหลัง</strong>
+      AI เป็นแค่ “เสียง” ที่เรียบเรียงคำตอบ ไม่ใช่ผู้ตัดสิน และถ้า AI ไม่อยู่ ระบบยังตอบได้จากสมการของตัวเอง</p>
+    <div class="stats" id="stats" aria-live="polite"></div>
+  </section>
+
+  <section id="style" aria-labelledby="h-style">
+    <p class="eyebrow">01 · Pattern</p>
+    <h2 id="h-style">เป็นสถาปัตยกรรมแบบไหน</h2>
+    <div class="traits">
+      <article class="trait kd-rim"><p class="k">Layered monolith</p><h3>ทุกอย่างอยู่ในโปรแกรมเดียว</h3>
+        <p><code>app.py</code> รับทุกคำขอ แล้วเรียกชั้นตรรกะ (<code>core/</code> <code>ENGINE/</code> <code>AI/</code> <code>AI_KERNEL/</code>) เป็นฟังก์ชันในตัว ไม่มี microservice
+          รันบน Render ด้วย gunicorn 1 worker · เก็บข้อมูลใน SQLite บนดิสก์ถาวร — ไล่เหตุผลได้ทุกบรรทัด</p></article>
+      <article class="trait kd-rim"><p class="k">Kernel sandwich</p><h3>ตรรกะประกบ AI ไว้</h3>
+        <p>ก่อนถึง AI: อ่านสัญญาณ ความเสี่ยง เส้นทาง และใส่ตัวเลขจริง · หลัง AI: ตัดทางเลือกให้ไม่เกิน 3 แล้วผ่านประตู Cosmic Latte Canon
+          ถ้าคำตอบบีบจนเหลือทางเดียวหรือบังคับตัวตน จะถูกหยุดและใช้คำตอบจากสมการแทน</p></article>
+      <article class="trait kd-rim"><p class="k">AI-optional</p><h3>ไม่มี AI ก็ยังตอบได้</h3>
+        <p>AI ล่ม โควตาหมด หรือไม่มี key → <code>core/kernel_voice.py</code> ตอบจากสมการ W · Risk · Choice(t) แบบเดิมทุกครั้ง (deterministic)
+          AI ใช้ Gemini ผ่าน <code>core/llm_gemini.py</code> ที่หมุน key และสลับรุ่นสำรองได้เอง</p></article>
+      <article class="trait kd-rim"><p class="k">Human final authority</p><h3>มนุษย์เลือกเองเสมอ</h3>
+        <p>ระบบไม่ตัดสินแทน — มีทางเลือก ≥ 1 ระบบเงียบ (Silent Canon) · เหลือ 0 ระบบคืนให้ 1 ทางแล้วถอย
+          สิ่งที่เก็บเพื่อเรียนรู้เป็นแค่ตัวเลข (เส้นทาง · ความเสี่ยง · ผลโหวต) ไม่เก็บข้อความ</p></article>
+    </div>
+
+    <div class="sandwich" role="img" aria-label="ชั้นของระบบ: มนุษย์ → ตรรกะก่อน AI → AI → ตรรกะหลัง AI → มนุษย์">
+      <div class="layer human"><span class="tag">Human</span><p>คนพิมพ์ข้อความในหน้าเว็บ</p></div>
+      <div class="layer kernel"><span class="tag">Kernel · ก่อน</span><p>ตรวจโควตา · อ่านสัญญาณภาษาไทย/5 ภาษา · ความเสี่ยง · เส้นทาง · บริบทเหตุปัจจัย · ตัวเลขจริง (หนี้ เวลา ทรัพยากร)</p></div>
+      <div class="layer ai"><span class="tag">AI · เสียง</span><p>Gemini เรียบเรียงคำตอบตามบุคลิก LYLA / VEGA / สภา — <em>ถ้าไม่มี AI ข้ามชั้นนี้ไปใช้คำตอบจากสมการ</em></p></div>
+      <div class="layer kernel"><span class="tag">Kernel · หลัง</span><p>ทางเลือก ≤ 3 · ประตู Canon · Belief Core · บันทึกตัวเลข · สร้างรายงานแชร์ได้</p></div>
+      <div class="layer human"><span class="tag">Human</span><p>คนอ่าน แล้วเลือกเอง</p></div>
+    </div>
+  </section>
+
+  <section id="flow" aria-labelledby="h-flow">
+    <p class="eyebrow">02 · One message</p>
+    <h2 id="h-flow">ข้อความหนึ่งข้อความเดินทางอย่างไร</h2>
+    <p class="sub">เส้นทางจริงของ <code>POST /run</code> ตามลำดับในโค้ด — แตะชื่อไฟล์เพื่อดูว่าไฟล์นั้นเชื่อมกับอะไรในแผนที่ด้านล่าง</p>
+    <ol class="flow">
+      <li class="step"><h3>หน้าเว็บส่งข้อความ<small>browser</small></h3>
+        <p>แอปหน้าเดียวส่งข้อความพร้อมเส้นทางและบุคลิกที่เลือก แชทเก็บไว้ในเครื่อง และซิงก์ขึ้นเซิร์ฟเวอร์เมื่อเข้าสู่ระบบ</p>
+        <div class="files"><button class="chip" data-f="static/index.html">static/index.html</button><button class="chip" data-f="static/i18n.js">static/i18n.js</button></div></li>
+      <li class="step gate"><h3>ประตูหน้า<small>gate</small></h3>
+        <p>ตรวจความยาวข้อความ อัตราการส่ง และโควตา (ฟรีวันละ 20 ข้อความ → เครดิต → Premium) ถ้านับโควตาไม่ได้ ยังตอบได้แต่ตอบจากสมการเท่านั้น</p>
+        <div class="files"><button class="chip" data-f="app.py">app.py</button><button class="chip" data-f="DATABASE/db.py">DATABASE/db.py</button></div></li>
+      <li class="step"><h3>อ่านสัญญาณ<small>signals</small></h3>
+        <p>สถานะคน เจตนา ความเสี่ยงจากตัวเลขและจากข้อความ ภาษาที่ใช้ และสัญญาณเฉพาะ เช่น วิกฤต มิจฉาชีพ ถูกทำร้าย ภัยพิบัติ — ยกเส้นทางขึ้นได้อย่างเดียว ไม่ลด</p>
+        <div class="files"><button class="chip" data-f="ENGINE/human_engine.py">ENGINE/human_engine.py</button><button class="chip" data-f="AI/intent_engine.py">AI/intent_engine.py</button>
+          <button class="chip" data-f="ENGINE/risk_engine.py">ENGINE/risk_engine.py</button><button class="chip" data-f="core/kernel_voice.py">core/kernel_voice.py</button>
+          <button class="chip" data-f="core/thai_signals.py">core/thai_signals.py</button><button class="chip" data-f="core/lang_signals.py">core/lang_signals.py</button></div></li>
+      <li class="step"><h3>ใส่บริบท<small>context</small></h3>
+        <p>ร้อยบริบทเหตุปัจจัย (ปฏิจจสมุปบาท) ความว่าง (Cosmic Latte) สัญญาณวิกฤตและสายด่วน (Living Water) นิทาน และทางออก แล้วต่อเครื่องยนต์ตัวเลขจริง เช่น แผนปลดหนี้ เวลาที่มี ทรัพยากรพอใช้กี่วัน</p>
+        <div class="files"><button class="chip" data-f="core/king_diadem_core.py">core/king_diadem_core.py</button><button class="chip" data-f="core/system_orchestrator.py">core/system_orchestrator.py</button>
+          <button class="chip" data-f="core/engine_bridge.py">core/engine_bridge.py</button><button class="chip" data-f="AI_KERNEL/living_water.py">AI_KERNEL/living_water.py</button></div></li>
+      <li class="step gate"><h3>ตรวจความเชื่อ<small>belief audit</small></h3>
+        <p>Belief Core ตรวจว่าการอยู่รอดยังผ่านไหม ถ้าไม่ผ่านจะสั่ง SYSTEM_PAUSE แล้วคืนคำตอบที่ปลอดภัยทันที</p>
+        <div class="files"><button class="chip" data-f="AI_KERNEL/belief_core.py">AI_KERNEL/belief_core.py</button></div></li>
+      <li class="step"><h3>เครื่องยนต์ตัดสินใจ<small>decision</small></h3>
+        <p>อ่านรูปแบบ → ตรวจสุญญตา (ถอดป้ายชื่อแล้วต้องยังมีทางเลือก ≥ 1) → ศูนย์กลางเครื่องยนต์: ปฏิจจสมุปบาท → ความเสี่ยง → สภา 6 เสียง → จำลอง → กลยุทธ์ → ทางรอด</p>
+        <div class="files"><button class="chip" data-f="ENGINE/decision_engine.py">ENGINE/decision_engine.py</button><button class="chip" data-f="ENGINE/pattern_engine.py">ENGINE/pattern_engine.py</button>
+          <button class="chip" data-f="core/emptiness_guard.py">core/emptiness_guard.py</button><button class="chip" data-f="ENGINE/engine_router.py">ENGINE/engine_router.py</button>
+          <button class="chip" data-f="ENGINE/paticcasamuppada_engine.py">ENGINE/paticcasamuppada_engine.py</button><button class="chip" data-f="ENGINE/council_engine.py">ENGINE/council_engine.py</button>
+          <button class="chip" data-f="AI/council_engine.py">AI/council_engine.py</button></div></li>
+      <li class="step ai"><h3>เสียง: AI หรือสมการ<small>voice</small></h3>
+        <p>Gemini เรียบเรียงคำตอบด้วย system prompt ของ LYLA / VEGA / โหมดวิกฤต — ล้มเมื่อไหร่ ใช้คำตอบจากสมการแทน ผู้ใช้ได้คำตอบเสมอ</p>
+        <div class="files"><button class="chip ai" data-f="core/llm_gemini.py">core/llm_gemini.py</button><button class="chip" data-f="core/kernel_voice.py">core/kernel_voice.py</button></div></li>
+      <li class="step gate"><h3>ประตูหลัง<small>canon gate</small></h3>
+        <p>ตัดทางเลือกให้ไม่เกิน 3 (มาตรา 11) แล้วตรวจกับ Cosmic Latte Canon — บีบจนเหลือทางเดียว หรือบังคับตัวตน = หยุดคำตอบนั้น · Belief Core บังคับใช้ผลตรวจอีกครั้ง</p>
+        <div class="files"><button class="chip" data-f="core/cosmic_latte_canon.py">core/cosmic_latte_canon.py</button><button class="chip" data-f="AI_KERNEL/belief_core.py">AI_KERNEL/belief_core.py</button></div></li>
+      <li class="step"><h3>บันทึกและตอบกลับ<small>record</small></h3>
+        <p>หนึ่งการตัดสินใจ = หนึ่งจุดในกราฟอารยธรรม (ไม่มีข้อความ/อีเมล) · นับดัชนีเสรีภาพ · สร้างรายงานที่แชร์ได้ที่ <code>/report/&lt;id&gt;</code> · หักโควตา แล้วส่งคำตอบ เส้นทาง ความเสี่ยง และลิงก์รายงานกลับหน้าเว็บ</p>
+        <div class="files"><button class="chip" data-f="AI/civilization_engine.py">AI/civilization_engine.py</button><button class="chip" data-f="AI/freedom_signal.py">AI/freedom_signal.py</button>
+          <button class="chip" data-f="report_engine.py">report_engine.py</button><button class="chip" data-f="DATABASE/db.py">DATABASE/db.py</button></div></li>
+    </ol>
+
+    <div class="side">
+      <div class="box kd-rim"><p class="route">POST /simulate</p><h3>จำลองทางเลือก</h3><p>ดูผลด้านร้ายก่อน (Downside First) ในอีก 30 / 90 วัน และภาพ 12 เดือนของแต่ละทาง — <code>core/future_paths.py</code></p></div>
+      <div class="box kd-rim"><p class="route">POST /analyze-image</p><h3>วิเคราะห์ภาพ</h3><p>ส่งภาพให้ Gemini อ่าน แล้วผ่านกฎเดียวกับข้อความ</p></div>
+      <div class="box kd-rim"><p class="route">/login · /register · /login/google</p><h3>บัญชี</h3><p>รหัสผ่านหรือ Google OAuth · ตัวตนอยู่ใน cookie ที่เซ็นแล้ว — <code>DATABASE/db.py</code></p></div>
+      <div class="box kd-rim"><p class="route">/wallet/topup · /webhook/stripe</p><h3>เครดิต</h3><p>Stripe (บัตร / PromptPay) → webhook ยืนยัน → เติมเครดิตลงบัญชี</p></div>
+      <div class="box kd-rim"><p class="route">GET /report/&lt;id&gt;</p><h3>รายงานแชร์ได้</h3><p>ตรวจ FATE™ 6 ข้อของแต่ละคำตอบ — <code>report_engine.py</code> → <code>static/report.html</code></p></div>
+      <div class="box kd-rim"><p class="route">/api/feedback</p><h3>เรียนรู้จาก 👍/👎</h3><p>เก็บผลโหวตเป็นตัวเลข แล้วปรับน้ำหนักเส้นทาง — <code>core/feedback_loop.py</code></p></div>
+    </div>
+  </section>
+
+  <section id="map-sec" aria-labelledby="h-map">
+    <p class="eyebrow">03 · Every file</p>
+    <h2 id="h-map">แผนที่ไฟล์ทั้งหมด</h2>
+    <p class="sub">ทุกไฟล์ใน repo เป็นดาวหนึ่งดวง จัดเป็นกลุ่มตามโฟลเดอร์ เส้นคือการเชื่อมจริง: <strong>import ในโค้ด</strong> และ<strong>หน้าเว็บที่โหลดไฟล์</strong> —
+      ข้อมูลสร้างจาก repo ด้วย <code>scripts/build_system_map.py</code> ทุกครั้งที่ไฟล์เปลี่ยน ไม่ได้วาดมือ</p>
+    <div class="map-wrap kd-rim">
+      <div class="tools"><input id="q" type="search" placeholder="ค้นหาไฟล์ เช่น canon, gemini, wallet" aria-label="ค้นหาไฟล์" autocomplete="off"></div>
+      <div class="cats" id="cats" role="group" aria-label="กรองตามหมวด"></div>
+      <p class="hint" id="hint">แตะดาวเพื่อดูว่าไฟล์นั้นทำอะไร และเชื่อมกับไฟล์ไหน</p>
+      <canvas id="map" aria-label="แผนที่ไฟล์และการเชื่อมต่อ — รายการแบบข้อความอยู่ในส่วนโฟลเดอร์ด้านล่าง"></canvas>
+      <div class="legend"><span>import ในโค้ด</span><span class="web">หน้าเว็บส่ง/โหลดไฟล์</span></div>
+      <div class="info kd-rim" id="info" role="dialog" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="folders" aria-labelledby="h-folders">
+    <p class="eyebrow">04 · Folders</p>
+    <h2 id="h-folders">แต่ละโฟลเดอร์คือส่วนไหนของระบบ</h2>
+    <p class="sub">เปิดดูได้ทุกไฟล์ พร้อมคำอธิบาย — สีจุดบอกว่าไฟล์นั้นทำงานจริงตอนไหน หรือเป็นของเก่า</p>
+    <div class="folders" id="flds"><p class="sub">กำลังโหลดแผนผัง…</p></div>
+  </section>
+
+  <p class="foot">ระบบที่ดีที่สุด คือระบบที่เงียบ เมื่อมนุษย์ยังเลือกได้ · <a href="/guide">คู่มือ</a> · <a href="/">กลับไปใช้งาน →</a></p>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // หมวดของไฟล์ (จาก scripts/build_system_map.py) → ชื่อไทย + สี · ลำดับ = ลำดับปุ่มกรอง
+  var CAT = {
+    boot:    ['ทำงานตั้งแต่เปิดเซิร์ฟเวอร์', '#ffd98f'],
+    request: ['ทำงานเมื่อมีข้อความเข้า', '#ffb07a'],
+    web:     ['หน้าเว็บ / ไฟล์ที่หน้าเว็บโหลด', '#a9c4ff'],
+    site:    ['หน้านอกแอป (GitHub Pages)', '#8fb0e8'],
+    tests:   ['เทสต์', '#c8b6f0'],
+    docs:    ['เอกสาร', '#e9e2d0'],
+    config:  ['ตั้งค่า / สคริปต์', '#9aa6c8'],
+    pkg:     ['ไฟล์ package', '#7d88a8'],
+    vision:  ['วิสัยทัศน์ (ยังไม่ต่อเข้าระบบ)', '#7fd8c8'],
+    dormant: ['พักไว้', '#6f7b9a'],
+    legacy:  ['รุ่นเก่า (ไม่มีใครเรียก)', '#545d78']
+  };
+  // คำอธิบายโฟลเดอร์ (เขียนมือ — ตรงกับหมวดที่วัดจาก repo)
+  var FOLDER = {
+    '(root)': 'ไฟล์บนสุด — app.py คือเซิร์ฟเวอร์ทั้งหมด · report_engine.py · เอกสารหลัก (CANON · LETTER · WHITEPAPER) · ไฟล์ deploy (render.yaml · gunicorn.conf.py)',
+    'static': 'ทุกอย่างที่เบราว์เซอร์เห็น — แอปหลัก index.html · หน้ารอง · CSS/JS กลาง · ภาพ',
+    'core': 'แก่นตรรกะ — อ่านสัญญาณภาษา · คำตอบจากสมการ · สมอง AI · ประตู Canon · สะพานไปเครื่องยนต์',
+    'ENGINE': 'เครื่องยนต์ตัดสินใจ — decision_engine → engine_router → ปฏิจจสมุปบาท · ความเสี่ยง · สภา · จำลอง · กลยุทธ์',
+    'AI': 'สภา 6 เสียง · อ่านเจตนา · ดัชนีเสรีภาพ · เรียนรู้จาก 👍/👎 · กราฟอารยธรรม',
+    'AI_KERNEL': 'Belief Core (หยุดระบบได้) · Cosmic Latte (บริบทความว่าง) · Living Water (สัญญาณวิกฤต + สายด่วน)',
+    'DATABASE': 'SQLite: ผู้ใช้ · เครดิต · โควตารายวัน · ความจำแชท · ประวัติโหวต',
+    'DOMAINS': 'ความรู้เฉพาะเรื่องภัยพิบัติและการรอดชีวิต',
+    'SIMULATIONS': 'จำลองอนาคต · Monte Carlo (ช่วง p10–p90) · จับ black swan',
+    'WORLD_MODEL': 'กฎปกป้องโลกและสัตว์เล็ก · กับดักความคิดตอนตัดสินใจ',
+    'GLOBAL_NODE': 'รวมสถานะโลกจาก node',
+    'NETWORK': 'ทะเบียน node และ heartbeat',
+    'AUTH': 'โครงเดิมของระบบบัญชี — ตอนนี้ทำใน app.py และ DATABASE/db.py',
+    'PAYMENT': 'โครงเดิมของการจ่ายเงิน — ตอนนี้ทำใน app.py (Stripe)',
+    'SECURITY': 'โมดูลความปลอดภัยที่พักไว้',
+    'tests': 'เทสต์ทั้งหมด (pytest) — แก้บั๊กทุกครั้งต้องมีเทสต์',
+    'scripts': 'สคริปต์: สร้างแผนผังนี้ · สร้างหน้าจดหมาย · ชุดทดสอบคำตอบ · stress test',
+    'legacy': 'โค้ดรุ่นเก่าที่ไม่มีใครเรียกแล้ว เก็บไว้เผื่อย้ายกลับ',
+    'docs': 'หน้าเอกสารบน GitHub Pages',
+    'INTERFACE': 'ข้อกำหนดแนวคิดของหน้าตาและการเลือก',
+    'KERNEL': 'ข้อกำหนดแนวคิดของ kernel',
+    'MODELS': 'แบบจำลองแนวคิด',
+    'EXAMPLES': 'ตัวอย่างสถานการณ์',
+    '.vscode': 'ตั้งค่าเครื่องมือเขียนโค้ด'
+  };
+  var ORDER = ['static', '(root)', 'core', 'ENGINE', 'AI', 'AI_KERNEL', 'DATABASE', 'DOMAINS', 'SIMULATIONS', 'WORLD_MODEL', 'GLOBAL_NODE', 'NETWORK',
+               'scripts', 'tests', 'AUTH', 'PAYMENT', 'SECURITY', 'docs', 'INTERFACE', 'KERNEL', 'MODELS', 'EXAMPLES', '.vscode', 'legacy'];
+
+  function el(tag, cls, txt){ var e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+  function topOf(p){ return p.indexOf('/') > 0 ? p.split('/')[0] : '(root)'; }
+
+  var F = [], E = [], OUT = [], IN = [], byPath = {}, groups = [], on = {}, sel = -1, query = '';
+  var cv = document.getElementById('map'), cx = cv.getContext('2d'), W = 0, H = 0, S = 1, OX = 0, OY = 0, dpr = 1;
+
+  fetch('/static/system_map.json', { cache: 'no-cache' }).then(function(r){ return r.json(); }).then(init).catch(function(){
+    document.getElementById('flds').innerHTML = '';
+    document.getElementById('flds').appendChild(el('p', 'sub', 'โหลดแผนผังไม่สำเร็จ — ลองรีเฟรชอีกครั้ง'));
+  });
+
+  function init(d){
+    F = d.files.map(function(r, i){ return { i: i, p: r[0], n: r[1], c: r[2], d: r[3] || '', g: topOf(r[0]) }; });
+    E = d.edges.map(function(e){ return { a: e[0], b: e[1], k: e[2] }; });
+    F.forEach(function(f){ byPath[f.p] = f.i; OUT[f.i] = []; IN[f.i] = []; });
+    E.forEach(function(e){ OUT[e.a].push(e.b); IN[e.b].push(e.a); });
+    Object.keys(CAT).forEach(function(k){ on[k] = true; });
+
+    // สถิติ
+    var live = F.filter(function(f){ return f.c === 'boot' || f.c === 'request'; }).length;
+    var lines = F.reduce(function(s, f){ return s + (/\.(py|js|html|css)$/.test(f.p) ? f.n : 0); }, 0);
+    var st = document.getElementById('stats');
+    [[F.length, 'ไฟล์ทั้งหมด'], [live, 'ไฟล์ Python ที่ทำงานจริง'], [E.length, 'เส้นเชื่อม'], [lines.toLocaleString(), 'บรรทัดโค้ด'], [d.commit, 'commit']].forEach(function(s){
+      var b = el('div', 'stat kd-rim'); b.appendChild(el('b', null, String(s[0]))); b.appendChild(el('span', null, s[1])); st.appendChild(b);
+    });
+
+    // กลุ่มตามโฟลเดอร์
+    var gm = {};
+    F.forEach(function(f){ (gm[f.g] = gm[f.g] || []).push(f); });
+    var names = Object.keys(gm).sort(function(a, b){
+      var ia = ORDER.indexOf(a), ib = ORDER.indexOf(b); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+    });
+    var rank = { boot: 0, request: 1, web: 2, site: 3, config: 4, vision: 5, dormant: 6, pkg: 7, docs: 8, tests: 9, legacy: 10 };
+    groups = names.map(function(n){
+      var fs = gm[n].slice().sort(function(a, b){ return (rank[a.c] - rank[b.c]) || (b.n - a.n); });
+      return { name: n, files: fs };
+    });
+
+    buildCats(); buildFolders(); layout(); draw();
+    addEventListener('resize', function(){ layout(); draw(); });
+    document.querySelectorAll('.chip[data-f]').forEach(function(b){
+      b.addEventListener('click', function(){ var i = byPath[b.dataset.f]; if(i != null){ select(i); document.getElementById('map-sec').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }); } });
+    });
+    document.getElementById('q').addEventListener('input', function(e){ query = e.target.value.trim().toLowerCase(); draw(); });
+    if(location.hash.indexOf('#f=') === 0){ var i = byPath[decodeURIComponent(location.hash.slice(3))]; if(i != null) select(i); }
+  }
+
+  function buildCats(){
+    var box = document.getElementById('cats');
+    Object.keys(CAT).forEach(function(k){
+      var n = F.filter(function(f){ return f.c === k; }).length; if(!n) return;
+      var b = el('button', 'cat'); b.type = 'button'; b.dataset.k = k; b.setAttribute('aria-pressed', 'true');
+      var dot = el('i'); dot.style.background = CAT[k][1]; b.appendChild(dot); b.appendChild(document.createTextNode(CAT[k][0] + ' ')); b.appendChild(el('b', null, String(n)));
+      b.addEventListener('click', function(){ on[k] = !on[k]; b.setAttribute('aria-pressed', String(on[k])); draw(); });
+      box.appendChild(b);
+    });
+  }
+
+  function buildFolders(){
+    var box = document.getElementById('flds'); box.innerHTML = '';
+    groups.forEach(function(g){
+      var det = el('details', 'kd-rim'), sum = el('summary');
+      sum.appendChild(el('span', 'n', g.name === '(root)' ? '/ (บนสุด)' : g.name + '/'));
+      sum.appendChild(el('span', 'w', FOLDER[g.name] || ''));
+      var live = g.files.filter(function(f){ return f.c === 'boot' || f.c === 'request'; }).length;
+      sum.appendChild(el('span', 'c', g.files.length + ' ไฟล์' + (live ? ' · ทำงาน ' + live : '')));
+      det.appendChild(sum);
+      var ul = el('ul', 'flist');
+      g.files.forEach(function(f){
+        var li = el('li'), dot = el('i'); dot.style.background = CAT[f.c] ? CAT[f.c][1] : '#888'; dot.title = CAT[f.c] ? CAT[f.c][0] : f.c;
+        var b = el('button', null, f.p); b.type = 'button';
+        b.addEventListener('click', function(){ select(f.i); document.getElementById('map-sec').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }); });
+        li.appendChild(dot); li.appendChild(b); li.appendChild(el('span', null, f.d || (CAT[f.c] ? CAT[f.c][0] : '')));
+        ul.appendChild(li);
+      });
+      det.appendChild(ul); box.appendChild(det);
+    });
+  }
+
+  /* จัดวาง: แต่ละโฟลเดอร์เป็นกลุ่มดาวแบบเกลียวทองคำ (กระจายเท่ากัน ไม่มีดวงไหนเป็นศูนย์กลางของทั้งแผนที่)
+     แล้ววางกลุ่มเป็นแถวตามสัดส่วนจอ — คำนวณใหม่ทุกครั้งที่ขนาดเปลี่ยน · ตำแหน่งคงที่ (ไม่สุ่ม) */
+  var GA = Math.PI * (3 - Math.sqrt(5)), STEP = 13;
+  function layout(){
+    W = cv.clientWidth || cv.parentNode.clientWidth;
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    groups.forEach(function(g){
+      g.r = STEP * Math.sqrt(g.files.length + .5) + 26;
+      g.files.forEach(function(f, k){ var rr = STEP * Math.sqrt(k + .5), a = k * GA; f.lx = Math.cos(a) * rr; f.ly = Math.sin(a) * rr; f.size = 1.6 + Math.min(4.2, Math.sqrt(f.n || 1) / 9); });
+    });
+    var area = groups.reduce(function(s, g){ return s + Math.pow(2 * g.r + 34, 2); }, 0);
+    var aspect = W < 640 ? .62 : 1.9, rowW = Math.max(Math.sqrt(area * aspect), 2 * groups[0].r + 40);
+    var x = 0, y = 0, rowH = 0, rows = [[]];
+    groups.forEach(function(g){
+      var w = 2 * g.r + 34;
+      if(x + w > rowW && x > 0){ x = 0; y += rowH; rowH = 0; rows.push([]); }
+      g.cx = x + w / 2; g.cy = y + g.r + 30; x += w; rowH = Math.max(rowH, 2 * g.r + 46); rows[rows.length - 1].push(g); g.rowRight = x;
+    });
+    rows.forEach(function(r){ var used = r.length ? r[r.length - 1].rowRight : 0, sh = (rowW - used) / 2; r.forEach(function(g){ g.cx += sh; }); });
+    var worldH = y + rowH;
+    S = Math.min(W / rowW, 1.6); H = Math.ceil(worldH * S) + 10; OX = (W - rowW * S) / 2; OY = 4;
+    cv.style.height = H + 'px'; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    F.forEach(function(f){ var g = groups.find(function(q){ return q.name === f.g; }); f.x = OX + (g.cx + f.lx) * S; f.y = OY + (g.cy + f.ly) * S; });
+    groups.forEach(function(g){ g.sx = OX + g.cx * S; g.sy = OY + (g.cy - g.r - 12) * S; g.sr = g.r * S; });
+  }
+
+  function visible(f){ return on[f.c] !== false; }
+  function match(f){ return query && f.p.toLowerCase().indexOf(query) >= 0; }
+
+  function draw(){
+    if(!F.length) return;
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H);
+    var hot = sel >= 0 ? new Set([sel].concat(OUT[sel], IN[sel])) : null;
+    // ชื่อกลุ่ม + วงจางๆ
+    groups.forEach(function(g){
+      cx.beginPath(); cx.arc(g.sx, OY + g.cy * S, g.sr, 0, 6.283); cx.strokeStyle = 'rgba(255,248,231,.05)'; cx.lineWidth = 1; cx.stroke();
+      cx.font = '500 ' + Math.max(10, 11 * Math.min(1.2, S + .2)) + 'px "DM Mono", monospace'; cx.textAlign = 'center';
+      cx.fillStyle = 'rgba(214,224,255,.62)'; cx.fillText(g.name === '(root)' ? '/' : g.name + '/', g.sx, Math.max(12, g.sy));
+    });
+    // เส้น
+    E.forEach(function(e){
+      var a = F[e.a], b = F[e.b]; if(!visible(a) || !visible(b)) return;
+      var lit = hot && (e.a === sel || e.b === sel);
+      if(hot && !lit) return;
+      var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 - Math.min(60, Math.hypot(b.x - a.x, b.y - a.y) * .18);
+      cx.beginPath(); cx.moveTo(a.x, a.y); cx.quadraticCurveTo(mx, my, b.x, b.y);
+      cx.setLineDash(e.k === 1 ? [4, 4] : []);
+      cx.strokeStyle = e.k === 1 ? (lit ? 'rgba(190,210,255,.95)' : 'rgba(169,188,255,.28)') : (lit ? 'rgba(255,206,150,.9)' : 'rgba(255,198,161,.2)');
+      cx.lineWidth = lit ? 1.4 : .8; cx.stroke();
+    });
+    cx.setLineDash([]);
+    // ดาว
+    F.forEach(function(f){
+      if(!visible(f)) return;
+      var col = CAT[f.c] ? CAT[f.c][1] : '#888', dim = (hot && !hot.has(f.i)) || (query && !match(f));
+      cx.globalAlpha = dim ? .18 : 1;
+      if(!dim && (f.c === 'boot' || f.c === 'request' || f.i === sel || match(f))){
+        cx.beginPath(); cx.arc(f.x, f.y, f.size * 3.2, 0, 6.283); cx.fillStyle = col + '22'; cx.fill();
+      }
+      cx.beginPath(); cx.arc(f.x, f.y, f.size, 0, 6.283); cx.fillStyle = col; cx.fill();
+      if(f.i === sel || match(f)){ cx.beginPath(); cx.arc(f.x, f.y, f.size + 4, 0, 6.283); cx.strokeStyle = '#fff8e7'; cx.lineWidth = 1.2; cx.stroke(); }
+    });
+    cx.globalAlpha = 1;
+    // ชื่อไฟล์ของดวงที่เลือก + ดวงที่เชื่อม
+    if(hot){
+      cx.font = '400 11px "DM Mono", monospace'; cx.textAlign = 'left';
+      hot.forEach(function(i){ var f = F[i]; if(!visible(f)) return; var t = f.p.split('/').pop();
+        if(t === '__init__.py' && i !== sel) return;          // ไฟล์ package ไม่ต้องติดป้าย — ป้ายซ้อนกันจนอ่านไม่ออก
+        cx.fillStyle = 'rgba(2,3,9,.75)'; var w = cx.measureText(t).width; cx.fillRect(f.x + 7, f.y - 8, w + 6, 15);
+        cx.fillStyle = i === sel ? '#fff8e7' : 'rgba(214,224,255,.9)'; cx.fillText(t, f.x + 10, f.y + 3); });
+    }
+  }
+
+  function pick(px, py){
+    var best = -1, bd = 22 * 22;
+    F.forEach(function(f){ if(!visible(f)) return; var d = (f.x - px) * (f.x - px) + (f.y - py) * (f.y - py); if(d < bd){ bd = d; best = f.i; } });
+    return best;
+  }
+  cv.addEventListener('click', function(e){ var r = cv.getBoundingClientRect(), i = pick(e.clientX - r.left, e.clientY - r.top); if(i >= 0) select(i); else close(); });
+  cv.addEventListener('mousemove', function(e){ var r = cv.getBoundingClientRect(); cv.style.cursor = pick(e.clientX - r.left, e.clientY - r.top) >= 0 ? 'pointer' : 'crosshair'; });
+
+  function list(title, ids, box){
+    if(!ids.length) return;
+    box.appendChild(el('h4', null, title + ' · ' + ids.length));
+    var ul = el('ul');
+    ids.forEach(function(i){ var li = el('li'), b = el('button', null, F[i].p); b.type = 'button'; b.addEventListener('click', function(){ select(i); }); li.appendChild(b); ul.appendChild(li); });
+    box.appendChild(ul);
+  }
+  function select(i){
+    sel = i; var f = F[i], box = document.getElementById('info');
+    if(!on[f.c]){ on[f.c] = true; var cb = document.querySelector('.cat[data-k="' + f.c + '"]'); if(cb) cb.setAttribute('aria-pressed', 'true'); }   // ไฟล์ที่เลือกอยู่ในหมวดที่ซ่อน → เปิดหมวดนั้น
+    box.innerHTML = '';
+    var x = el('button', 'x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'ปิด'); x.addEventListener('click', close); box.appendChild(x);
+    box.appendChild(el('div', 'p', f.p));
+    box.appendChild(el('div', 'm', (CAT[f.c] ? CAT[f.c][0] : f.c) + (f.n ? ' · ' + f.n.toLocaleString() + ' บรรทัด' : '')));
+    if(f.d) box.appendChild(el('div', 'd', f.d));
+    var outImp = OUT[i].filter(function(j){ return E.some(function(e){ return e.a === i && e.b === j && e.k === 0; }); });
+    var outWeb = OUT[i].filter(function(j){ return outImp.indexOf(j) < 0; });
+    list('เรียกใช้ (import)', outImp, box); list('ส่ง / โหลด', outWeb, box); list('ถูกใช้โดย', IN[i], box);
+    if(!OUT[i].length && !IN[i].length) box.appendChild(el('div', 'm', 'ไม่มีไฟล์ไหนเชื่อมกับไฟล์นี้ในโค้ด'));
+    box.classList.add('on');
+    try{ history.replaceState(null, '', '#f=' + encodeURIComponent(f.p)); }catch(_){}
+    draw();
+  }
+  function close(){ sel = -1; document.getElementById('info').classList.remove('on'); try{ history.replaceState(null, '', location.pathname); }catch(_){} draw(); }
+  addEventListener('keydown', function(e){ if(e.key === 'Escape' && sel >= 0) close(); });
+})();
+</script>
+<script src="/static/cinema_sky.js" defer></script>
+</body>
+</html>
