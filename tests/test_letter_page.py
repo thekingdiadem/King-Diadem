@@ -63,3 +63,9 @@ def test_old_hero_png_is_gone():
 def test_letter_route(client):
     r = client.get("/letter")
     assert r.status_code == 200 and "COSMIC LATTE" in r.text
+
+
+def test_universe_wording_matches_the_site():
+    """พี่ขอเปลี่ยน "เอกภพ" เป็น "จักรวาล" ให้ตรงกับคำที่ใช้ทั้งเว็บ"""
+    assert "เอกภพ" not in LETTER and "เอกภพ" not in PAGE
+    assert "อำนาจนั้นไม่สอดคล้องกับโครงสร้างของจักรวาล" in LETTER
