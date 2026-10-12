@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#020309">
+<title>COSMIC LATTE CANON — จดหมายจากผู้ก่อตั้ง · KING DIADEM</title>
+<meta name="description" content="กรอบตรรกะขั้นต่ำเพื่อปกป้องการเลือก — ระบบที่ดีที่สุด คือระบบที่เงียบ เมื่อมนุษย์ยังเลือกได้">
+<link rel="icon" href="/static/logo.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Mono:wght@400&family=Noto+Sans+Thai+Looped:wght@400;500&family=Noto+Serif+Thai:wght@400;500;600&display=swap">
+<script>
+/* เลือกภาษาก่อนวาด (ไม่กระพริบ): ?lang= > ที่เคยเลือก > ไทย */
+(function(){ var l = new URLSearchParams(location.search).get('lang'); try{ l = l || localStorage.getItem('kd_letter_lang'); }catch(_){}
+  document.documentElement.setAttribute('data-lang', l === 'en' ? 'en' : 'th'); })();
+</script>
+<style>
+/* จดหมาย: อ่านช้าๆ บนฟ้าดาว · ตัวอักษรสีแสงเฉลี่ยของจักรวาล (Cosmic Latte #FFF8E7) · ทีละท่อน */
+:root {
+  --void: #020309; --latte: #fff8e7; --latte-dim: rgba(255,248,231,.80); --latte-lo: rgba(255,248,231,.5);
+  --gold-hi: #ffd98f; --peach: #ffc6a1; --sky: #a9bcff; --sky-hi: #d6e0ff;
+  --f-title: 'Cinzel', 'Noto Serif Thai', Georgia, serif;
+  --f-th: 'Noto Serif Thai', 'Noto Sans Thai Looped', serif;
+  --f-en: 'Cormorant Garamond', Georgia, serif;
+  --f-mono: 'DM Mono', ui-monospace, monospace;
+  --ease: cubic-bezier(.16,1,.3,1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { background: var(--void); color: var(--latte-dim); scroll-behavior: smooth; }
+body { min-height: 100vh; font-family: var(--f-th); overflow-x: hidden; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* แถบความคืบหน้าการอ่าน */
+#progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 60; transform-origin: 0 50%; transform: scaleX(0);
+  background: linear-gradient(90deg, var(--sky), var(--latte) 50%, var(--gold-hi)); box-shadow: 0 0 12px rgba(255,217,143,.5); }
+
+.bar { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: max(14px, env(safe-area-inset-top)) clamp(16px, 4vw, 40px) 14px;
+  padding-bottom: 30px; background: linear-gradient(180deg, rgba(2,3,9,.96) 40%, rgba(2,3,9,0)); }
+.back { font-family: 'Noto Sans Thai Looped', sans-serif; font-size: 13px; color: var(--latte-lo); text-decoration: none; padding: 6px 10px; margin-left: -10px; border-radius: 99px; transition: color .2s, background .2s; }
+.back:hover { color: var(--latte); background: rgba(255,248,231,.06); }
+.lang { display: inline-flex; padding: 3px; border-radius: 99px; background: rgba(255,248,231,.05); border: 1px solid rgba(255,248,231,.12); }
+.lang button { font: 500 12px/1 var(--f-mono); letter-spacing: .12em; color: var(--latte-lo); background: none; border: 0; padding: 7px 13px; border-radius: 99px; cursor: pointer; transition: color .2s, background .3s var(--ease); }
+.lang button[aria-pressed="true"] { color: #1a1408; background: var(--latte); }
+:where(a, button):focus-visible { outline: 2px solid rgba(255,198,161,.6); outline-offset: 2px; }
+
+main { position: relative; z-index: 2; max-width: 680px; margin: 0 auto; padding: 0 clamp(22px, 6vw, 40px) 18vh; }
+
+/* ปก */
+.cover { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding-top: 60px; }
+.eyebrow { font: 400 10px/1.6 var(--f-mono); letter-spacing: .32em; text-transform: uppercase; color: rgba(214,224,255,.62); margin-bottom: 22px; }
+.eyebrow [data-only="th"] { font: 500 13px/1.6 'Noto Sans Thai Looped', sans-serif; letter-spacing: .04em; }  /* ไทยไม่ยืดระยะ — สระไม่หลุด */
+h1 { font: 600 clamp(30px, 7.4vw, 58px)/1.12 var(--f-title); letter-spacing: .12em; color: var(--latte);
+  text-shadow: 0 0 40px rgba(255,248,231,.28), 0 0 90px rgba(255,214,150,.18); }
+.swatch { display: inline-flex; align-items: center; gap: 10px; margin-top: 26px; font: 400 10.5px/1.6 var(--f-mono); letter-spacing: .14em; color: var(--latte-lo); }
+.swatch i { width: 14px; height: 14px; border-radius: 50%; background: var(--latte); box-shadow: 0 0 18px rgba(255,248,231,.7); }
+.swatch-note { margin-top: 8px; font: 400 13px/1.7 'Noto Sans Thai Looped', sans-serif; color: var(--latte-lo); }
+.scroll-cue { margin-top: 12vh; width: 1px; height: 54px; background: linear-gradient(180deg, transparent, var(--latte-lo)); animation: kd-cue 2.6s var(--ease) infinite; }
+@keyframes kd-cue { 0% { transform: scaleY(0); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } 51% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
+
+/* จดหมาย */
+.letter { display: none; }
+html[data-lang="th"] .letter[lang="th"], html[data-lang="en"] .letter[lang="en"] { display: block; }
+html[data-lang="th"] [data-only="en"], html[data-lang="en"] [data-only="th"] { display: none; }
+.letter[lang="en"] { font-family: var(--f-en); }
+.st { margin: 0 0 14vh; }
+.ln { display: block; font-size: clamp(18px, 2.6vw, 22px); line-height: 2.05; color: var(--latte-dim); }
+.letter[lang="en"] .ln { font-size: clamp(21px, 3vw, 26px); line-height: 1.75; font-weight: 500; }
+.ln.canon { font-family: var(--f-title); font-weight: 600; letter-spacing: .1em; color: var(--latte); font-size: clamp(19px, 2.8vw, 24px); }
+.asserts { list-style: none; counter-reset: a; margin: 22px 0 6px; padding: 0; }
+.asserts li { position: relative; counter-increment: a; padding: 14px 0 14px 54px; border-top: 1px solid rgba(255,248,231,.08); }
+.asserts li:last-child { border-bottom: 1px solid rgba(255,248,231,.08); }
+.asserts li::before { content: counter(a, decimal-leading-zero); position: absolute; left: 0; top: 22px; font: 400 11px/1 var(--f-mono); letter-spacing: .14em; color: rgba(255,217,143,.7); }
+.letter[lang="en"] .asserts li::before { top: 20px; }
+.asserts .ln { color: var(--latte); }
+.asserts li:last-child .ln { text-shadow: 0 0 22px rgba(255,248,231,.35); }
+.sign { margin-top: 7vh; text-align: center; }
+.sign .ln { font: 500 11px/2.2 var(--f-mono) !important; letter-spacing: .22em; text-transform: uppercase; color: rgba(255,217,143,.72) !important; }
+
+/* ค่อยๆ ชัดทีละบรรทัดเมื่อเลื่อนมาถึง (ไม่มี JS / ลดการเคลื่อนไหว = แสดงทันที) */
+html.js .st .ln { opacity: 0; filter: blur(7px); transform: translateY(8px); transition: opacity 1.1s var(--ease), filter 1.1s var(--ease), transform 1.1s var(--ease); transition-delay: calc(var(--i, 0) * 75ms); }
+html.js .st.in .ln { opacity: 1; filter: blur(0); transform: none; }
+
+/* ดาวหนึ่งดวงคืนสู่จักรวาล: ปรากฏใต้ลายเซ็น แล้วลอยขึ้นไปจางหายในฟ้า */
+.return { position: relative; height: 34vh; }
+.return i { position: absolute; left: 50%; top: 0; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--latte);
+  box-shadow: 0 0 10px 2px rgba(255,248,231,.85), 0 0 34px 8px rgba(255,214,150,.35); opacity: 0; }
+.return.in i { animation: kd-return 6s var(--ease) .6s forwards; }
+@keyframes kd-return { 0% { opacity: 0; transform: translateY(26vh) scale(.6); } 18% { opacity: 1; transform: translateY(20vh) scale(1); } 100% { opacity: 0; transform: translateY(-40vh) scale(.4); } }
+.after { text-align: center; font: 400 13px/1.9 'Noto Sans Thai Looped', sans-serif; color: var(--latte-lo); }
+.after a { color: var(--gold-hi); text-decoration: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .st .ln { opacity: 1; filter: none; transform: none; transition: none; }
+  .scroll-cue, .return { display: none; }
+}
+</style>
+<link rel="stylesheet" href="/static/cinema.css">
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+<canvas id="sky" data-density="2200" aria-hidden="true"></canvas>
+<div id="progress" aria-hidden="true"></div>
+
+<header class="bar">
+  <a class="back" href="/">← <span data-only="th">หน้าหลัก</span><span data-only="en">Home</span></a>
+  <div class="lang" role="group" aria-label="ภาษา / Language">
+    <button type="button" data-set="th" aria-pressed="true">ไทย</button>
+    <button type="button" data-set="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<main>
+  <section class="cover">
+    <p class="eyebrow"><span data-only="th">จดหมายจากผู้ก่อตั้ง</span><span data-only="en">A letter from the founder</span> · Founder Logic</p>
+    <h1>COSMIC LATTE<br>CANON</h1>
+    <p class="swatch"><i aria-hidden="true"></i>COSMIC LATTE · #FFF8E7</p>
+    <p class="swatch-note"><span data-only="th">สีเฉลี่ยของแสงจากดาวทั้งจักรวาล — แสงเดียวกันที่ทุกคนได้รับ</span><span data-only="en">The average colour of all starlight in the universe — the same light everyone receives.</span></p>
+    <div class="scroll-cue" aria-hidden="true"></div>
+  </section>
+
+  <article class="letter" lang="th" aria-label="จดหมายภาษาไทย">
+    <section class="st"><span class="ln canon">COSMIC LATTE CANON</span><span class="ln">คือกรอบตรรกะขั้นต่ำ</span><span class="ln">เพื่อปกป้อง “การเลือก”</span><span class="ln">ไม่ใช่เพื่อควบคุมพฤติกรรม</span><span class="ln">ไม่ใช่เพื่อกำหนดความเชื่อ</span><span class="ln">มันยืนยันเพียงว่า:</span><ol class="asserts"><li><span class="ln">ชีวิตไม่ควรถูกบีบจนเหลือทางเดียว</span></li><li><span class="ln">ระบบที่เติบโตโดยผลักคนออก คือระบบที่ล้มเหลว</span></li><li><span class="ln">อำนาจใดที่บังคับให้เลือกระหว่างการอยู่รอดกับการเป็นมนุษย์</span><span class="ln">อำนาจนั้นไม่สอดคล้องกับโครงสร้างของเอกภพ</span></li><li><span class="ln">การแทรกแซงควรเกิดเฉพาะเมื่อจำเป็น</span><span class="ln">และต้องหายไปเมื่อไม่จำเป็นแล้ว</span></li><li><span class="ln">ระบบที่ดีที่สุด คือระบบที่เงียบ</span><span class="ln">เมื่อมนุษย์ยังเลือกได้</span></li></ol></section>
+    <section class="st"><span class="ln">จดหมายฉบับนี้</span><span class="ln">ถูกเขียนขึ้นเพื่อใช้ได้ในยามปกติ</span><span class="ln">และเพื่อ “รันได้” ในยามวิกฤต</span><span class="ln">หากวันหนึ่งโลกต้องเผชิญเหตุการณ์</span><span class="ln">ที่เร่ง บีบ และพรากการตัดสินใจจากมนุษย์</span><span class="ln">ขอให้กรอบนี้</span><span class="ln">ถูกใช้เป็นเส้นขั้นต่ำ</span><span class="ln">เพื่อไม่ให้ใครถูกลบออกจากความเป็นคน</span></section>
+    <section class="st"><span class="ln">ข้าพเจ้าไม่อ้างความเป็นเจ้าของต่อความหมายนี้</span><span class="ln">ใครจะอ่าน นำไปใช้ หรือเพิกเฉย</span><span class="ln">ล้วนเป็นสิทธิ์โดยสมบูรณ์</span><span class="ln">หากวันหนึ่งชื่อผู้เขียนเลือนหาย</span><span class="ln">แต่โครงสร้างนี้ยังช่วยให้ใครสักคน</span><span class="ln">ไม่ทำร้ายชีวิต</span><span class="ln">แม้เพียงครั้งเดียว</span><span class="ln">นั่นถือว่าสำเร็จแล้ว</span></section>
+    <section class="st"><span class="ln">ข้าพเจ้าไม่ใช่หนึ่งในดวงดาว</span><span class="ln">ข้าพเจ้าเป็นเพียงผู้เชื่อ</span><span class="ln">และผู้เชื่อมความหมาย</span><span class="ln">ให้ดวงดาว</span><span class="ln">คืนสู่จักรวาล</span><span class="ln">ด้วยความเคารพต่อการมีอยู่ของทุกชีวิต</span><span class="ln">และทุกทางเลือกที่ยังไม่ถูกปิดตาย</span><footer class="sign"><span class="ln">Founder Logic — KING Diadem Foundation</span><span class="ln">(A System That Exists Without Ownership)</span></footer></section>
+  </article>
+  <article class="letter" lang="en" aria-label="Letter in English">
+    <section class="st"><span class="ln">To Humanity,</span><span class="ln">and to all sentient beings,</span><span class="ln">on Earth and beyond,</span><span class="ln">This letter is not a command.</span><span class="ln">It is not a law.</span><span class="ln">It is not a religion.</span><span class="ln">It is not a prophecy.</span><span class="ln">It is a structure of meaning,</span><span class="ln">designed to stand without an owner,</span><span class="ln">to function without authority,</span><span class="ln">and to do no harm</span><span class="ln">even when misunderstood.</span></section>
+    <section class="st"><span class="ln">One principle is declared clearly:</span><span class="ln">I did not create something worth one billion dollars.</span><span class="ln">I created something that makes billion-dollar systems</span><span class="ln">pay a price every time they update</span><span class="ln">if that update reduces human choice.</span><span class="ln">This is not about money.</span><span class="ln">It is about the cost of erasing humanity.</span></section>
+    <section class="st"><span class="ln canon">The COSMIC LATTE CANON</span><span class="ln">is a minimum logical framework</span><span class="ln">to preserve choice.</span><span class="ln">It does not dictate belief.</span><span class="ln">It does not control behavior.</span><span class="ln">It only asserts that:</span><ol class="asserts"><li><span class="ln">Life should never be compressed into a single path.</span></li><li><span class="ln">Growth that excludes people is systemic failure.</span></li><li><span class="ln">Authority that forces a choice between survival and humanity</span><span class="ln">contradicts the structure of the universe.</span></li><li><span class="ln">Intervention must be temporary.</span></li><li><span class="ln">A successful system is silent</span><span class="ln">when humans can still choose.</span></li></ol></section>
+    <section class="st"><span class="ln">This message is meant to endure.</span><span class="ln">To be readable in calm times.</span><span class="ln">And executable in crisis.</span><span class="ln">If a future arrives</span><span class="ln">where speed, fear, or power</span><span class="ln">strip choice away,</span><span class="ln">may this serve as a minimum boundary</span><span class="ln">so that no one is erased</span><span class="ln">without being seen.</span></section>
+    <section class="st"><span class="ln">I claim no ownership over this meaning.</span><span class="ln">Acceptance, rejection, or forgetting</span><span class="ln">are all equally valid.</span><span class="ln">If my name disappears</span><span class="ln">but this structure prevents harm</span><span class="ln">even once,</span><span class="ln">That is enough.</span></section>
+    <section class="st"><span class="ln">I am not one of the stars.</span><span class="ln">I am only one who believes,</span><span class="ln">and reconnects meaning,</span><span class="ln">returning the stars</span><span class="ln">to the universe.</span><span class="ln">With respect for all forms of life</span><span class="ln">and every choice not yet closed.</span><footer class="sign"><span class="ln">Founder Logic — KING Diadem Foundation</span><span class="ln">A system that exists without ownership.</span></footer></section>
+  </article>
+
+  <div class="return" aria-hidden="true"><i></i></div>
+  <p class="after"><span data-only="th">ทุกทางเลือกที่ยังไม่ถูกปิดตาย — <a href="/">กลับไปเลือกต่อ →</a></span><span data-only="en">Every choice not yet closed — <a href="/">return and choose →</a></span></p>
+</main>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // ภาษา
+  function setLang(l){
+    root.setAttribute('data-lang', l); root.lang = l;
+    document.querySelectorAll('.lang button').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.set === l)); });
+    try{ localStorage.setItem('kd_letter_lang', l); }catch(_){}
+    reveal();
+  }
+  document.querySelectorAll('.lang button').forEach(function(b){ b.addEventListener('click', function(){ setLang(b.dataset.set); }); });
+  setLang(root.getAttribute('data-lang') || 'th');
+
+  // ลำดับบรรทัดในแต่ละท่อน (ใช้หน่วงให้ชัดทีละบรรทัด)
+  document.querySelectorAll('.st').forEach(function(st){ st.querySelectorAll('.ln').forEach(function(ln, i){ ln.style.setProperty('--i', i); }); });
+
+  // ค่อยๆ ชัดเมื่อเลื่อนมาถึง
+  var io = ('IntersectionObserver' in window && !REDUCED) ? new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: .08 }) : null;
+  function reveal(){
+    document.querySelectorAll('.st, .return').forEach(function(el){ if(el.classList.contains('in')) return; if(io) io.observe(el); else el.classList.add('in'); });
+  }
+  reveal();
+
+  // แถบความคืบหน้า
+  var bar = document.getElementById('progress'), ticking = false;
+  function prog(){ ticking = false; var h = root.scrollHeight - innerHeight; bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, scrollY / h) : 0) + ')'; }
+  addEventListener('scroll', function(){ if(!ticking){ ticking = true; requestAnimationFrame(prog); } }, { passive: true });
+  prog();
+})();
+</script>
+<script src="/static/cinema_sky.js" defer></script>
+</body>
+</html>

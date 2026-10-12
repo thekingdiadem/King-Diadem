@@ -594,6 +594,10 @@ async def wallet_page():
 async def guide_page():
     return FileResponse("static/guide.html")
 
+@app.get("/letter")
+async def letter_page():
+    return FileResponse("static/letter.html")
+
 @app.get("/ask")
 async def ask_page():
     return FileResponse("static/ask.html")
