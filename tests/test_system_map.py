@@ -79,3 +79,14 @@ def test_new_live_python_file_is_not_stuck_in_config():
     rows = {r[0]: r for r in _embedded()["files"]}
     assert rows["core/history_export.py"][2] == "request"
     assert rows["scripts/build_system_map.py"][2] == "config"     # สคริปต์ที่ไม่ได้อยู่ในเส้นทางของแอปยังเป็น config
+
+
+def test_gallery_and_asset_files_are_classified_by_real_use():
+    """JS ที่หน้าแกลเลอรี (index.html ราก) โหลด เคยขึ้นว่า "รุ่นเก่า ไม่มีหน้าไหนโหลด" ·
+    ภาพที่ CSS ใช้ (hero.jpg) เคยขึ้นว่าเป็นไฟล์ตั้งค่า · คอมเมนต์ใน app.py ไม่นับเป็นการใช้งาน"""
+    rows = {r[0]: r for r in _embedded()["files"]}
+    assert rows["static/galaxy.js"][2] == "site" and "แกลเลอรี" in rows["static/galaxy.js"][3]
+    assert rows["static/hero.jpg"][2] == "web" and rows["static/icons/icon-192.png"][2] == "web"
+    assert rows["static/service-worker.js"][2] == "web"           # เสิร์ฟโดย app.py ที่ /service-worker.js
+    assert rows["static/app.js"][2] == "legacy"                    # ถูกพูดถึงแค่ในคอมเมนต์ของ app.py
+    assert rows["static/main.js"][2] == "legacy"

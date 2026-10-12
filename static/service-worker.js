@@ -1,94 +1,60 @@
 /* ================================================================
-   KING DIADEM — Service Worker v3.0
-   Strategy: Network-first (ไม่ block updates)
-   Static assets: stale-while-revalidate
+   KING DIADEM — Service Worker v4
+   เสิร์ฟที่ /service-worker.js (app.py ใส่ Service-Worker-Allowed: /) → ดูแลทั้งแอป ไม่ใช่แค่ /static/
+   ลงทะเบียนจาก static/index.html
+
+   หลัก: เครือข่ายมาก่อนเสมอ (network-first) — ทุกครั้งที่ออนไลน์ได้ไฟล์ใหม่ล่าสุด ไม่ค้างของเก่าหลัง deploy
+         แคชใช้เฉพาะตอนออฟไลน์: เปิดแอปได้ แชทที่เคยคุยยังอยู่ในเครื่อง (ข้อมูลแชทอยู่ใน localStorage)
+   แคชเฉพาะ: หน้าแรก "/" + ไฟล์ใน /static/ ที่ไม่มี query
+   ไม่แคชเด็ดขาด: API / บัญชี / เครดิต / รายงาน / ทุกอย่างที่ไม่ใช่ GET — ข้อมูลส่วนตัวไม่ค้างในเครื่องที่ใช้ร่วมกัน
    ================================================================ */
 'use strict';
 
-var CACHE = 'kd-v3';
-/* เฉพาะ static ที่ไม่ค่อยเปลี่ยน */
-var PRECACHE = [
-  '/static/logo.png',
-  '/static/manifest.json'
-];
+var CACHE = 'kd-v4';
+var OFFLINE = '/static/offline.html';
+var PRECACHE = ['/', OFFLINE, '/static/manifest.json', '/static/icons/icon-192.png', '/static/i18n.js'];
 
-/* ── INSTALL: cache เฉพาะ essentials ── */
-self.addEventListener('install', function(e){
+self.addEventListener('install', function (e) {
   e.waitUntil(
-    caches.open(CACHE).then(function(c){
-      return c.addAll(PRECACHE);
-    }).then(function(){
-      return self.skipWaiting(); /* activate immediately */
-    })
+    caches.open(CACHE)
+      .then(function (c) { return Promise.all(PRECACHE.map(function (u) { return c.add(u).catch(function () {}); })); })
+      .then(function () { return self.skipWaiting(); })
   );
 });
 
-/* ── ACTIVATE: ลบ cache เก่าทั้งหมด ── */
-self.addEventListener('activate', function(e){
+self.addEventListener('activate', function (e) {
   e.waitUntil(
-    caches.keys().then(function(keys){
-      return Promise.all(
-        keys.filter(function(k){ return k !== CACHE; })
-            .map(function(k){ return caches.delete(k); })
-      );
-    }).then(function(){
-      return self.clients.claim();
-    })
+    caches.keys()
+      .then(function (keys) { return Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); })); })
+      .then(function () { return self.clients.claim(); })
   );
 });
 
-/* ── FETCH: Network-first strategy ── */
-self.addEventListener('fetch', function(e){
+function cacheable(url) {
+  if (url.origin !== self.location.origin || url.search) return false;
+  return url.pathname === '/' || url.pathname.indexOf('/static/') === 0;
+}
+
+self.addEventListener('fetch', function (e) {
   var req = e.request;
+  if (req.method !== 'GET') return;
   var url = new URL(req.url);
+  var nav = req.mode === 'navigate';
+  if (!nav && !cacheable(url)) return;            // API/บัญชี/ข้ามโดเมน → ให้เบราว์เซอร์จัดการเอง ไม่แตะ
 
-  /* allowlist: แคชเฉพาะไฟล์ใน /static/ — เดิมเป็น blocklist ที่ตก /wallet/balance, /credits,
-     /dashboard, /auth/google/callback → ยอดเครดิต/ข้อมูลบัญชีถูกแคชไว้ในเครื่อง (เครื่องที่ใช้ร่วมกันเห็นได้) */
-  if(req.method !== 'GET') return;
-  if(url.origin !== location.origin) return;
-  if(!url.pathname.startsWith('/static/')) return;
-  if(url.search) return;
-
-  /* Static JS/CSS/fonts: stale-while-revalidate
-     ให้โหลดเร็ว แต่ update background */
-  if(url.pathname.match(/\.(js|css|woff2?|ttf)$/)){
-    e.respondWith(staleWhileRevalidate(req));
-    return;
-  }
-
-  /* HTML + images: network-first, cache fallback */
-  e.respondWith(networkFirst(req));
-});
-
-function networkFirst(req){
-  return fetch(req).then(function(res){
-    if(res && res.status === 200){
-      var clone = res.clone();
-      caches.open(CACHE).then(function(c){ c.put(req, clone); });
-    }
-    return res;
-  }).catch(function(){
-    return caches.match(req);
-  });
-}
-
-function staleWhileRevalidate(req){
-  return caches.open(CACHE).then(function(cache){
-    return cache.match(req).then(function(cached){
-      var fetchPromise = fetch(req).then(function(res){
-        if(res && res.status === 200){
-          cache.put(req, res.clone());
-        }
-        return res;
-      }).catch(function(){ return cached; });
-      return cached || fetchPromise;
-    });
-  });
-}
-
-/* ── Message: force update ── */
-self.addEventListener('message', function(e){
-  if(e.data && e.data.type === 'SKIP_WAITING'){
-    self.skipWaiting();
-  }
+  e.respondWith(
+    fetch(req).then(function (res) {
+      if (res && res.status === 200 && res.type === 'basic' && cacheable(url)) {
+        var copy = res.clone();
+        caches.open(CACHE).then(function (c) { c.put(req, copy); });
+      }
+      return res;
+    }).catch(function () {
+      return caches.match(req).then(function (hit) {
+        if (hit) return hit;
+        if (nav) return caches.match(url.pathname === '/' ? '/' : OFFLINE).then(function (r) { return r || caches.match(OFFLINE); });
+        return Response.error();
+      });
+    })
+  );
 });

@@ -598,6 +598,13 @@ def galaxy_state_debug():
 def root():
     return FileResponse("static/index.html")
 
+# service worker ต้องเสิร์ฟจากรากเว็บถึงจะดูแลทั้งแอปได้ (อยู่ใต้ /static/ = ดูแลได้แค่ /static/)
+# no-cache: เบราว์เซอร์เช็กเวอร์ชันใหม่ทุกครั้ง — deploy แล้วผู้ใช้ไม่ค้างตัวเก่า
+@app.get("/service-worker.js")
+def service_worker():
+    return FileResponse("static/service-worker.js", media_type="text/javascript",
+                        headers={"Service-Worker-Allowed": "/", "Cache-Control": "no-cache"})
+
 @app.get("/favicon.ico")
 def favicon():
     return FileResponse("static/logo.png")

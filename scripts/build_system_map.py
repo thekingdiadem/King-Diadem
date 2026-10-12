@@ -138,6 +138,37 @@ def static_refs(files: list[str]) -> set[str]:
     return refs
 
 
+def gallery_refs() -> set[str]:
+    """ไฟล์ใน static/ ที่หน้าแกลเลอรี index.html (ราก — GitHub Pages) โหลดผ่าน scripts: ['static/x.js'] ของแต่ละช่อง
+    เดิมไม่นับ ไฟล์พวกนี้จึงขึ้นว่า "รุ่นเก่า ไม่มีหน้าไหนโหลด" ทั้งที่แกลเลอรีกดเล่นได้อยู่"""
+    try:
+        html = open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
+    except OSError:
+        return set()
+    out = set()
+    for block in re.findall(r"scripts:\s*\[([^\]]*)\]", html):
+        out.update(re.findall(r"['\"](static/[\w./-]+\.(?:js|css))['\"]", block))
+    return out
+
+
+def asset_refs(files: list[str]) -> set[str]:
+    """ไฟล์ใน static/ ที่หน้าเว็บ · CSS · manifest · app.py อ้างถึงด้วย path /static/... หรือ static/..."""
+    text = ""
+    for f in files:
+        # ไม่อ่านไฟล์ .js — JS รุ่นเก่าที่ไม่มีใครโหลดอ้างถึงกันเอง จะทำให้ดูเหมือนถูกใช้งาน
+        if f in ("app.py", "static/manifest.json") or (f.startswith("static/") and f.endswith((".html", ".css"))):
+            try:
+                src = open(os.path.join(ROOT, f), encoding="utf-8").read()
+            except (OSError, UnicodeDecodeError):
+                continue
+            if f == "app.py":   # นับเฉพาะสตริงในโค้ด ไม่นับคอมเมนต์ที่เล่าถึงไฟล์เก่า
+                src = "\n".join(n.value for n in ast.walk(ast.parse(src))
+                                 if isinstance(n, ast.Constant) and isinstance(n.value, str))
+            text += src + "\n"
+    text = _MAP_RE.sub("", text)
+    return {"static/" + m for m in re.findall(r"/?static/([\w./-]+\.\w+)", text)}
+
+
 def web_edges(files: list[str]) -> list[tuple[str, str]]:
     """เส้น "ส่งให้/โหลด" ฝั่งเว็บ: app.py → หน้า HTML ที่ส่งด้วย FileResponse · หน้า HTML → JS/CSS ที่หน้าโหลด"""
     static_by_name = {}
@@ -169,6 +200,8 @@ def build(old: dict) -> dict:
     boot = boot_modules(mods)
     prev = {row[0]: row for row in old.get("files", [])}
     web_refs = static_refs(files)
+    g_refs = gallery_refs()
+    a_refs = asset_refs(files)
     rows = []
     for f in files:
         if f in prev:
@@ -211,8 +244,13 @@ def build(old: dict) -> dict:
         # หน้า HTML ใหม่ใน static/ ก็เคยได้ "config" (เช่น notfound.html) — เป็นหน้าเว็บ
         if f.startswith("static/") and f.endswith(".html") and row[2] == "config":
             row[2] = "web"
-        if f.startswith("static/") and f.endswith((".js", ".css")) and row[2] in ("web", "legacy", "config"):
-            row[2] = "web" if os.path.basename(f) in web_refs else "legacy"
+        if f.startswith("static/") and f.endswith((".js", ".css")) and row[2] in ("web", "legacy", "config", "site"):
+            row[2] = "web" if (os.path.basename(f) in web_refs or f in a_refs) else "site" if f in g_refs else "legacy"
+            if row[2] == "site" and "ไม่มีหน้าไหนโหลด" in row[3]:
+                row[3] = re.sub(r"\s*—\s*ไม่มีหน้าไหนโหลด\s*\(orphan\)", " — หน้าแกลเลอรี index.html (ราก) โหลด", row[3])
+        # ภาพ/manifest/หน้า HTML ใน static/ ที่มีคนอ้างถึงจริง เคยค้างหมวด "config" (เช่น hero.jpg ที่ portal.css ใช้)
+        elif f.startswith("static/") and row[2] == "config" and f in a_refs:
+            row[2] = "web"
         rows.append(row)
     index = {r[0]: i for i, r in enumerate(rows)}
     edge_rows = {(index[a], index[b], 0) for a, b in edges if a in index and b in index}

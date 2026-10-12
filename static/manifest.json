@@ -6,22 +6,31 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#06040e",
-  "theme_color": "#06040e",
+  "background_color": "#04050d",
+  "theme_color": "#04050d",
   "lang": "th",
-  "categories": ["productivity", "utilities"],
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
   "icons": [
     {
-      "src": "/static/logo.png",
+      "src": "/static/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/static/logo.png",
+      "src": "/static/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
@@ -30,16 +39,29 @@
       "short_name": "แชท",
       "description": "เริ่มแชทกับ LYLA",
       "url": "/?new=1",
-      "icons": [{ "src": "/static/logo.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/static/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "จำลองอนาคต",
       "short_name": "Simulate",
       "description": "Simulate Futures",
       "url": "/?tab=tools",
-      "icons": [{ "src": "/static/logo.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/static/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ],
   "screenshots": [],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "id": "/"
 }
