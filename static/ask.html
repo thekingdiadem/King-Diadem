@@ -54,7 +54,7 @@ body::before{
 .header{text-align:center;margin-bottom:40px;width:100%;}
 .eyebrow{font-family:var(--f-mono);font-size:9px;letter-spacing:.28em;color:rgba(169,188,255,0.62);text-transform:uppercase;margin-bottom:12px;}
 .title{
-  font-family:var(--f-display);font-size:clamp(22px,7vw,38px);font-weight:600;letter-spacing:.18em;
+  font-family:var(--f-display);font-size:clamp(22px,7vw,38px);font-weight:600;margin-top:0;letter-spacing:.18em;
   background:linear-gradient(135deg,#76aeff 0%,#d6eaff 32%,#edcc62 64%,#c8a440 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   margin-bottom:8px;
@@ -179,13 +179,13 @@ select option{background:#04060f;color:var(--tx-hi);}
 </head>
 <body>
 <canvas id="sky" data-density="3400" aria-hidden="true"></canvas>
-<div id="page">
+<main id="page">
 
   <a href="/" class="back kd-th">กลับหน้าหลัก</a>
 
   <div class="header">
     <div class="eyebrow">FATE™ · Decision Engine</div>
-    <div class="title">ASK LYLA</div>
+    <h1 class="title">ASK LYLA</h1>
     <div class="rule"></div>
   </div>
 
@@ -231,7 +231,7 @@ select option{background:#04060f;color:var(--tx-hi);}
     <a href="/static/guide.html">คู่มือ</a>
   </div>
 
-</div>
+</main>
 
 <script>
 var _route = 'general';

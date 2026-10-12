@@ -69,7 +69,7 @@ body::after { content: ""; position: fixed; inset: -120px; z-index: 3; pointer-e
 /* ── โลโก้ ── */
 .logo-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 22px; }
 .logo-img { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 0 18px rgba(169,188,255,.45)) drop-shadow(0 0 30px rgba(255,179,92,.3)); }
-.logo-name { font-family: var(--f-title); font-weight: 600; font-size: 24px; letter-spacing: .16em; margin-top: 12px; text-align: center;
+.logo-name { font-family: var(--f-title); font-weight: 600; font-size: 24px; letter-spacing: .16em; margin: 12px 0 0; text-align: center;
   background: linear-gradient(90deg, var(--sky-hi), #fff 45%, var(--gold-hi)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 .logo-sub { font-family: var(--f-mono); font-size: 9px; letter-spacing: .34em; color: var(--tx-lo); margin-top: 6px; text-transform: uppercase; }
 
