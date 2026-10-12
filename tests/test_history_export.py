@@ -108,3 +108,29 @@ def test_smtp_send_uses_tls_and_attaches_the_file(monkeypatch):
     hx.send_history_email("me@test.co", "hello")
     assert calls["conn"] == ("smtp.test", 587) and calls["tls"] and calls["to"] == "me@test.co"
     assert calls["files"][0].startswith("king-diadem-history-") and calls["files"][0].endswith(".txt")
+
+
+def test_old_unowned_rows_are_purged_and_owned_rows_kept(user):
+    """พี่ให้ล้างข้อความเก่าที่ไม่มีเจ้าของ (เดิมเก็บไว้ใต้ anonymous) — ประวัติของคนที่มีบัญชีต้องอยู่ครบ"""
+    user.post("/run", json={"input": "วันนี้อากาศดี"})
+    conn = db.get_conn()
+    try:
+        for e in ("anonymous", "ANONYMOUS ", "guest", "system", "", None, "not-an-email"):
+            conn.execute("INSERT INTO decision_log (user_email,input,route,persona,response) VALUES (?,?,?,?,?)",
+                         (e, "ข้อความเก่าไม่มีเจ้าของ", "general", "LYLA", "ตอบ"))
+        conn.commit()
+    finally:
+        conn.close()
+    assert db.purge_unowned_history() == 7
+    assert db.purge_unowned_history() == 0                       # รันซ้ำไม่มีอะไรให้ลบ
+    assert user.get("/api/history").json()["count"] == 1
+    conn = db.get_conn()
+    try:
+        assert conn.execute("SELECT COUNT(*) FROM decision_log WHERE input=?", ("ข้อความเก่าไม่มีเจ้าของ",)).fetchone()[0] == 0
+    finally:
+        conn.close()
+
+
+def test_purge_runs_when_the_server_starts():
+    import inspect
+    assert "purge_unowned_history(conn)" in inspect.getsource(db.init_db)

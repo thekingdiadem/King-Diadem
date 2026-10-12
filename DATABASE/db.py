@@ -125,8 +125,33 @@ def init_db():
         );
     """)
     conn.commit()
-    conn.close()
+    try:
+        n = purge_unowned_history(conn)
+        if n:
+            print(f"🧹 decision_log: ลบข้อความที่ไม่มีเจ้าของบัญชี {n} แถว")
+    finally:
+        conn.close()
     print("✅ DB initialized")
+
+
+# ประวัติเป็นของเจ้าของบัญชีเท่านั้น — แถวที่ไม่มีเจ้าของ (anonymous / guest / system / ว่าง / ไม่ใช่อีเมล)
+# เคยเก็บข้อความเต็มไว้โดยไม่มีใครเรียกดูหรือลบได้ · พี่ให้ล้าง (รันทุกครั้งที่เปิดเซิร์ฟเวอร์ — หลังครั้งแรกจะเป็น 0
+# เพราะ log_decision ไม่เขียนแถวแบบนี้แล้ว) · แถวของผู้ใช้ที่มีบัญชีไม่ถูกแตะ
+_UNOWNED_SQL = ("user_email IS NULL OR TRIM(user_email) = '' "
+                "OR LOWER(TRIM(user_email)) IN ('anonymous', 'guest', 'system', 'default') "
+                "OR INSTR(user_email, '@') = 0")
+
+
+def purge_unowned_history(conn=None) -> int:
+    own = conn is None
+    conn = conn or get_conn()
+    try:
+        cur = conn.execute(f"DELETE FROM decision_log WHERE {_UNOWNED_SQL}")
+        conn.commit()
+        return cur.rowcount or 0
+    finally:
+        if own:
+            conn.close()
 
 # ── PASSWORD (email login) ─────────────────────────────────────
 # PBKDF2-HMAC-SHA256 จาก standard library — ไม่ต้องเพิ่ม dependency
