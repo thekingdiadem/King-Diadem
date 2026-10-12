@@ -8,7 +8,7 @@ en = src.split("## English Version")[1].strip()
 ASSERT_START = {"th": "มันยืนยันเพียงว่า:", "en": "It only asserts that:"}
 ASSERT_END = {"th": "เมื่อมนุษย์ยังเลือกได้", "en": "when humans can still choose."}
 # บรรทัดที่ต่อจากบรรทัดก่อนหน้า (ข้อยืนยันเดียวกัน) — ไม่ขึ้นข้อใหม่
-CONT = {"อำนาจนั้นไม่สอดคล้องกับโครงสร้างของเอกภพ", "และต้องหายไปเมื่อไม่จำเป็นแล้ว", "เมื่อมนุษย์ยังเลือกได้",
+CONT = {"อำนาจนั้นไม่สอดคล้องกับโครงสร้างของจักรวาล", "และต้องหายไปเมื่อไม่จำเป็นแล้ว", "เมื่อมนุษย์ยังเลือกได้",
         "contradicts the structure of the universe.", "when humans can still choose."}
 SIGN = {"Founder Logic — KING Diadem Foundation", "(A System That Exists Without Ownership)", "A system that exists without ownership."}
 

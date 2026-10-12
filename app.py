@@ -280,6 +280,23 @@ from fastapi.exceptions import RequestValidationError  # noqa: E402
 async def _bad_body(request: Request, exc: RequestValidationError):
     return JSONResponse({"error": "รูปแบบข้อมูลที่ส่งมาไม่ถูกต้องค่ะ"}, status_code=422)
 
+
+# ลิงก์ผิด/ลิงก์เก่า: เดิมเบราว์เซอร์เห็น {"detail":"Not Found"} ดิบๆ · ตอนนี้คนที่เปิดด้วยเบราว์เซอร์
+# ได้หน้า 404 ในธีมเดียวกับทั้งเว็บ (สถานะยังเป็น 404) · โปรแกรม/API ที่ไม่ได้ขอ HTML ยังได้ JSON เหมือนเดิม
+from starlette.exceptions import HTTPException as _StarletteHTTPException  # noqa: E402
+from fastapi.exception_handlers import http_exception_handler as _default_http_handler  # noqa: E402
+
+_NOT_FOUND_PAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "notfound.html")
+
+
+@app.exception_handler(_StarletteHTTPException)
+async def _http_error(request: Request, exc: _StarletteHTTPException):
+    wants_html = "text/html" in request.headers.get("accept", "")
+    is_api = request.url.path.startswith("/api/")
+    if exc.status_code == 404 and request.method == "GET" and wants_html and not is_api and os.path.isfile(_NOT_FOUND_PAGE):
+        return FileResponse(_NOT_FOUND_PAGE, status_code=404, media_type="text/html")
+    return await _default_http_handler(request, exc)
+
 app.add_middleware(
     SessionMiddleware,
     secret_key=_SECRET_KEY
@@ -593,6 +610,10 @@ async def wallet_page():
 @app.get("/guide")
 async def guide_page():
     return FileResponse("static/guide.html")
+
+@app.get("/architecture")
+async def architecture_page():
+    return FileResponse("static/architecture.html")
 
 @app.get("/letter")
 async def letter_page():
