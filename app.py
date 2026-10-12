@@ -309,6 +309,14 @@ except Exception:
     engine = DecisionEngine() if DecisionEngine else None
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# ตัววัดโหลด (อ่านอย่างเดียว — ไม่ปฏิเสธคำขอ): จำนวนคำขอ · พร้อมกัน · error 5xx · เวลาตอบ → /health "load"
+try:
+    from SECURITY.survival_mode import LoadMonitorMiddleware, get_survival_stats
+    app.add_middleware(LoadMonitorMiddleware)
+except Exception as e:  # pragma: no cover — ไม่มีตัววัด ระบบยังทำงานได้
+    print(f"⚠ load monitor: {type(e).__name__}")
+    get_survival_stats = None
+
 
 # ══════════════════════════════════════════════════════════════════
 # ERROR MESSAGE HELPER
@@ -648,6 +656,7 @@ def health():
         "freedom_score":      freedom_index() if freedom_index else 0,
         "db_initialized":     init_db is not None,
         "feedback":           feedback_loop.stats() if feedback_loop else None,
+        "load":               get_survival_stats() if get_survival_stats else None,
     }
 
 
