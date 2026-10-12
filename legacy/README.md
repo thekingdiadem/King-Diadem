@@ -105,3 +105,12 @@
 - `core/truth_system.py`
 - `core/users.py`
 - `static/style.css`
+
+## ย้ายมาเพิ่ม (พี่อนุญาต)
+ระบบตัดสินใจชุดเก่าและ facade ฐานข้อมูล — ไม่มีโค้ดของแอปเรียกแล้ว แต่ถ้ามีใคร import จะได้ pipeline/ฐานข้อมูลชุดที่สองซ้อนกับของจริง
+- `ENGINE/brain.py` · `ENGINE/decision.py` · `ENGINE/intent.py` · `ENGINE/risk.py` — pipeline รุ่นเก่า (ของจริง: `ENGINE/decision_engine.py`, `AI/intent_engine.py`, `ENGINE/risk_engine.py`)
+- `ENGINE/intervention_engine.py` — ใช้โดย `ENGINE/brain.py` เท่านั้น
+- `core/database.py` — facade ของ `DATABASE/db.py`
+
+`AUTH/` และ `PAYMENT/` ยังอยู่ที่เดิมตามกฎด้านบน เพราะ `portfolio.html` อ้างถึง `AUTH/gateway.py` และ `PAYMENT/stripe_payment.py`
+
