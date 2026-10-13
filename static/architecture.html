@@ -16,7 +16,7 @@
   --void: #020309; --latte: #fff8e7; --tx-hi: rgba(242,246,255,.96); --tx: rgba(208,216,240,.84); --tx-mid: rgba(176,188,226,.72); --tx-lo: rgba(160,172,215,.52);
   --gold: #e8b864; --gold-hi: #ffd98f; --sun: #ffb35c; --peach: #ffc6a1; --sky: #a9bcff; --sky-hi: #d6e0ff; --lilac: #c8b6f0; --ok: #8ef0b4;
   --f-title: 'Cinzel', 'Noto Serif Thai', serif; --f-serif: 'Noto Serif Thai', serif;
-  --f-body: 'Noto Sans Thai Looped', system-ui, sans-serif; --f-mono: 'DM Mono', ui-monospace, monospace;
+  --f-body: 'Noto Sans Thai Looped', system-ui, sans-serif; --f-mono: 'DM Mono', 'Noto Sans Thai Looped', ui-monospace, monospace;
   --ease: cubic-bezier(.16,1,.3,1);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -92,7 +92,7 @@ code, .mono { font-family: var(--f-mono); font-size: .88em; }
   color: var(--tx-hi); font: 400 14px/1.3 var(--f-body); outline: none; }
 .tools input:focus { border-color: rgba(255,198,161,.5); }
 .cats { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 12px; }
-.cat { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 99px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03);
+.cat { font-family: var(--f-body); display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 99px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03);
   font-size: 12px; color: var(--tx); cursor: pointer; }
 .cat i { width: 8px; height: 8px; border-radius: 50%; }
 .cat[aria-pressed="false"] { opacity: .4; }
@@ -174,9 +174,9 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
 
     <div class="sandwich" role="img" aria-label="ชั้นของระบบ: มนุษย์ → ตรรกะก่อน AI → AI → ตรรกะหลัง AI → มนุษย์">
       <div class="layer human"><span class="tag">Human</span><p>คนพิมพ์ข้อความในหน้าเว็บ</p></div>
-      <div class="layer kernel"><span class="tag">Kernel · ก่อน</span><p>ตรวจโควตา · อ่านสัญญาณภาษาไทย/5 ภาษา · ความเสี่ยง · เส้นทาง · บริบทเหตุปัจจัย · ตัวเลขจริง (หนี้ เวลา ทรัพยากร)</p></div>
-      <div class="layer ai"><span class="tag">AI · เสียง</span><p>Gemini เรียบเรียงคำตอบตามบุคลิก LYLA / VEGA / สภา — <em>ถ้าไม่มี AI ข้ามชั้นนี้ไปใช้คำตอบจากสมการ</em></p></div>
-      <div class="layer kernel"><span class="tag">Kernel · หลัง</span><p>ทางเลือก ≤ 3 · ประตู Canon · Belief Core · บันทึกตัวเลข · สร้างรายงานแชร์ได้</p></div>
+      <div class="layer kernel"><span class="tag">Kernel · <span class="kd-th">ก่อน</span></span><p>ตรวจโควตา · อ่านสัญญาณภาษาไทย/5 ภาษา · ความเสี่ยง · เส้นทาง · บริบทเหตุปัจจัย · ตัวเลขจริง (หนี้ เวลา ทรัพยากร)</p></div>
+      <div class="layer ai"><span class="tag">AI · <span class="kd-th">เสียง</span></span><p>Gemini เรียบเรียงคำตอบตามบุคลิก LYLA / VEGA / สภา — <em>ถ้าไม่มี AI ข้ามชั้นนี้ไปใช้คำตอบจากสมการ</em></p></div>
+      <div class="layer kernel"><span class="tag">Kernel · <span class="kd-th">หลัง</span></span><p>ทางเลือก ≤ 3 · ประตู Canon · Belief Core · บันทึกตัวเลข · สร้างรายงานแชร์ได้</p></div>
       <div class="layer human"><span class="tag">Human</span><p>คนอ่าน แล้วเลือกเอง</p></div>
     </div>
   </section>

@@ -15,7 +15,7 @@
   --teal:#2bcfb4; --vega:#a67df5; --red:#f03558;
   --tx-hi:rgba(232,242,255,0.97); --tx:rgba(188,208,242,0.82);
   --tx-mid:rgba(118,152,215,0.52); --tx-lo:rgba(58,95,172,0.28);
-  --f-display:'Cinzel',serif; --f-mono:'DM Mono',monospace;
+  --f-display:'Cinzel','Noto Sans Thai Looped',serif; --f-mono:'DM Mono','Noto Sans Thai Looped',monospace;
   --f-body:'Noto Sans Thai Looped',system-ui,sans-serif; --f-serif:'Noto Serif Thai','Noto Sans Thai Looped',Georgia,serif;
   --r:12px; --r-l:18px; --r-xl:28px;
 }
@@ -107,7 +107,7 @@ html,body{width:100%;min-height:100%;background:var(--void);color:var(--tx);font
 .slider-group{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 @media(max-width:480px){.slider-group{grid-template-columns:1fr}}
 .slider-item label{font-family:var(--f-mono);font-size:8px;letter-spacing:.12em;color:var(--tx-mid);display:flex;justify-content:space-between;margin-bottom:6px}
-.slider-item label span{color:var(--gold-hi)}
+.slider-item label span[id]{color:var(--gold-hi)}
 input[type=range]{width:100%;height:3px;appearance:none;background:rgba(255,255,255,0.08);border-radius:3px;outline:none;cursor:pointer}
 input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px rgba(200,164,64,0.55);cursor:pointer}
 
@@ -220,6 +220,9 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 .ego-tap{text-align:center;margin-top:30px;font:400 9px/1.6 var(--f-mono);letter-spacing:.18em;color:rgba(214,224,255,.56)}
 @media (max-width:640px){ .horizon-list{gap:14vh} .horizon-card{padding:22px 20px} .hz-b{font-size:15px} }
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important;transition:none!important} .section,.reveal{opacity:1;transform:none;filter:none} }
+/* ภาษาไทย: ใช้ฟอนต์หัวกลม (Noto Sans Thai Looped) และไม่ถ่างตัวอักษร — ถ่างแล้วสระ/วรรณยุกต์ลอยห่างจากพยัญชนะ อ่านยาก */
+.scroll-hint,.ego-head h2,.ego-head h2 span,.hz-hint,.ego-quote cite,.ego-tap,.sec-title,.sim-sub,.sim-note,.intent-label,.sim-btn,.dignity-text{letter-spacing:.01em}
+.th-run{font-family:var(--f-body);letter-spacing:.01em}
 </style>
 </head>
 <body>
@@ -410,19 +413,19 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 
     <div class="slider-group">
       <div class="slider-item">
-        <label for="sl-entropy">ENTROPY (ความวุ่นวาย) <span id="e-val">50</span></label>
+        <label for="sl-entropy"><span class="sl-name">ENTROPY (<span class="th-run">ความวุ่นวาย</span>)</span> <span id="e-val">50</span></label>
         <input type="range" id="sl-entropy" min="0" max="100" value="50" oninput="document.getElementById('e-val').textContent=this.value">
       </div>
       <div class="slider-item">
-        <label for="sl-resource">RESOURCE (ทรัพยากรที่มี) <span id="r-val">50</span></label>
+        <label for="sl-resource"><span class="sl-name">RESOURCE (<span class="th-run">ทรัพยากรที่มี</span>)</span> <span id="r-val">50</span></label>
         <input type="range" id="sl-resource" min="0" max="100" value="50" oninput="document.getElementById('r-val').textContent=this.value">
       </div>
       <div class="slider-item">
-        <label for="sl-time">TIME PRESSURE (แรงกดดันเวลา) <span id="t-val">30</span></label>
+        <label for="sl-time"><span class="sl-name">TIME PRESSURE (<span class="th-run">แรงกดดันเวลา</span>)</span> <span id="t-val">30</span></label>
         <input type="range" id="sl-time" min="0" max="100" value="30" oninput="document.getElementById('t-val').textContent=this.value">
       </div>
       <div class="slider-item">
-        <label for="sl-network">NETWORK (คนที่ช่วยได้) <span id="n-val">3</span></label>
+        <label for="sl-network"><span class="sl-name">NETWORK (<span class="th-run">คนที่ช่วยได้</span>)</span> <span id="n-val">3</span></label>
         <input type="range" id="sl-network" min="0" max="10" value="3" oninput="document.getElementById('n-val').textContent=this.value">
       </div>
     </div>

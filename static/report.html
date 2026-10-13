@@ -49,8 +49,8 @@
   --r:    12px;
   --r-s:  8px;
 
-  --f-display: 'Cinzel', serif;
-  --f-mono:    'DM Mono', monospace;
+  --f-display: 'Cinzel', 'Noto Sans Thai Looped', serif;
+  --f-mono:    'DM Mono', 'Noto Sans Thai Looped', monospace;
   --f-body:    'Noto Sans Thai Looped', system-ui, sans-serif;
 }
 
@@ -530,7 +530,7 @@ nav::after {
 
   <div id="error-block">
     <div class="err-code">REPORT · 404</div>
-    <div class="err-title">Report ไม่พบ</div>
+    <div class="err-title">Report <span class="kd-th">ไม่พบ</span></div>
     <div class="err-body">Report นี้อาจหมดอายุหรือ ID ไม่ถูกต้อง</div>
     <a href="/" class="err-btn">← กลับหน้าหลัก</a>
   </div>
@@ -655,7 +655,7 @@ nav::after {
       '<div class="report-hero">'
         +'<div class="hero-eyebrow">FATE™ Decision Report · KING DIADEM'
           // เนื้อหาที่ผู้ใช้ส่งมาเอง (/api/report/create) — ไม่ใช่ผลจากระบบ
-          +(d.user_submitted ? ' · <span style="color:var(--warn,#e0a040)">USER-SUBMITTED · ไม่ได้ผ่านระบบ</span>' : '')
+          +(d.user_submitted ? ' · <span style="color:var(--warn,#e0a040)">USER-SUBMITTED · <span class="kd-th">ไม่ได้ผ่านระบบ</span></span>' : '')
         +'</div>'
         +'<div class="hero-id">ID: '+esc(d.id||id)+'&nbsp;&nbsp;·&nbsp;&nbsp;'+esc(dateStr)+'</div>'
         +'<h1 class="hero-verdict '+verdictClass(verdict)+'">'+esc(verdict)+'</h1>'
