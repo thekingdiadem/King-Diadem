@@ -28,8 +28,8 @@
   --tx-lo:     rgba(160,172,215,0.48);
   --r:         12px;
   --r-l:       18px;
-  --f-display: 'Cinzel', serif;
-  --f-mono:    'DM Mono', monospace;
+  --f-display: 'Cinzel', 'Noto Sans Thai Looped', serif;
+  --f-mono:    'DM Mono', 'Noto Sans Thai Looped', monospace;
   --f-body:    'Noto Sans Thai Looped', system-ui, sans-serif;
 }
 
@@ -248,12 +248,12 @@ html, body {
 
 <canvas id="sky" data-density="2600" aria-hidden="true"></canvas>
 
-<div id="page">
+<main id="page">
 
   <a href="/" class="back-link kd-th">กลับหน้าหลัก</a>
 
   <header class="guide-header">
-    <div class="guide-eyebrow">Human Guide · คู่มือ</div>
+    <div class="guide-eyebrow">Human Guide · <span class="kd-th">คู่มือ</span></div>
     <h1 class="guide-title">HUMAN GUIDE</h1>
     <div class="guide-rule"></div>
   </header>
@@ -334,7 +334,7 @@ html, body {
     </div>
   </footer>
 
-</div>
+</main>
 
 <script>
 (function(){

@@ -49,8 +49,8 @@
   --r:    12px;
   --r-s:  8px;
 
-  --f-display: 'Cinzel', serif;
-  --f-mono:    'DM Mono', monospace;
+  --f-display: 'Cinzel', 'Noto Sans Thai Looped', serif;
+  --f-mono:    'DM Mono', 'Noto Sans Thai Looped', monospace;
   --f-body:    'Noto Sans Thai Looped', system-ui, sans-serif;
 }
 
@@ -239,7 +239,7 @@ nav::after {
 .hero-verdict {
   font-family: var(--f-display); font-weight: 700;
   font-size: clamp(30px,6vw,48px); letter-spacing: .08em;
-  margin-bottom: 24px; line-height: 1;
+  margin: 0 0 24px; line-height: 1;
 }
 .hero-verdict.approved { color: var(--ok); text-shadow: 0 0 40px rgba(43,207,180,0.28); }
 .hero-verdict.deferred { color: var(--warn); text-shadow: 0 0 40px rgba(240,168,32,0.28); }
@@ -357,7 +357,7 @@ nav::after {
 .aud-num.fail { color: var(--red); }
 .aud-label {
   font-family: var(--f-mono); font-size: 8px;
-  letter-spacing: .16em; color: var(--tx-lo);
+  letter-spacing: .16em; color: var(--tx-mid);
 }
 
 /* ── WATERLINE METERS ─────────────────────────────────────────── */
@@ -467,7 +467,7 @@ nav::after {
   border-top: 1px solid rgba(255,255,255,0.038);
   display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
   font-family: var(--f-mono); font-size: 9px;
-  color: var(--tx-lo); letter-spacing: .10em;
+  color: var(--tx-mid); letter-spacing: .10em;
 }
 .footer-fate {
   background: linear-gradient(135deg, var(--gold), var(--blue-hi));
@@ -517,7 +517,7 @@ nav::after {
   </div>
 </nav>
 
-<div class="page">
+<main class="page">
 
   <div id="loading">
     <div style="margin-bottom:16px;">
@@ -530,14 +530,14 @@ nav::after {
 
   <div id="error-block">
     <div class="err-code">REPORT · 404</div>
-    <div class="err-title">Report ไม่พบ</div>
+    <div class="err-title">Report <span class="kd-th">ไม่พบ</span></div>
     <div class="err-body">Report นี้อาจหมดอายุหรือ ID ไม่ถูกต้อง</div>
     <a href="/" class="err-btn">← กลับหน้าหลัก</a>
   </div>
 
   <div id="report-content" style="display:none"></div>
 
-</div>
+</main>
 
 <script>
 (function(){
@@ -655,10 +655,10 @@ nav::after {
       '<div class="report-hero">'
         +'<div class="hero-eyebrow">FATE™ Decision Report · KING DIADEM'
           // เนื้อหาที่ผู้ใช้ส่งมาเอง (/api/report/create) — ไม่ใช่ผลจากระบบ
-          +(d.user_submitted ? ' · <span style="color:var(--warn,#e0a040)">USER-SUBMITTED · ไม่ได้ผ่านระบบ</span>' : '')
+          +(d.user_submitted ? ' · <span style="color:var(--warn,#e0a040)">USER-SUBMITTED · <span class="kd-th">ไม่ได้ผ่านระบบ</span></span>' : '')
         +'</div>'
         +'<div class="hero-id">ID: '+esc(d.id||id)+'&nbsp;&nbsp;·&nbsp;&nbsp;'+esc(dateStr)+'</div>'
-        +'<div class="hero-verdict '+verdictClass(verdict)+'">'+esc(verdict)+'</div>'
+        +'<h1 class="hero-verdict '+verdictClass(verdict)+'">'+esc(verdict)+'</h1>'
         +'<div class="hero-meta">'
           +'<div class="meta-item"><div class="meta-label">Route</div><div class="meta-val">'+esc((d.route||'GENERAL').toUpperCase())+'</div></div>'
           +'<div class="meta-item"><div class="meta-label">Persona</div><div class="meta-val">'+esc(personaName)+' '+personaSym+'</div></div>'

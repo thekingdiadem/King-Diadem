@@ -9,7 +9,7 @@
   --ok: #8ef0b4; --bad: #ff9fb2;
   --f-title: 'Cinzel', 'Noto Serif Thai', Georgia, serif;
   --f-body: 'Noto Sans Thai Looped', system-ui, sans-serif;
-  --f-mono: 'DM Mono', ui-monospace, monospace;
+  --f-mono: 'DM Mono', 'Noto Sans Thai Looped', ui-monospace, monospace;
   --ease: cubic-bezier(.16,1,.3,1);
   --pane: linear-gradient(180deg, rgba(15,18,40,.60), rgba(6,8,20,.80));
   --rim: linear-gradient(135deg, rgba(214,224,255,.48), rgba(169,188,255,.13) 26%, rgba(200,182,240,.04) 50%, rgba(255,198,161,.13) 74%, rgba(255,179,92,.48));
@@ -69,7 +69,7 @@ body::after { content: ""; position: fixed; inset: -120px; z-index: 3; pointer-e
 /* ── โลโก้ ── */
 .logo-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 22px; }
 .logo-img { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 0 18px rgba(169,188,255,.45)) drop-shadow(0 0 30px rgba(255,179,92,.3)); }
-.logo-name { font-family: var(--f-title); font-weight: 600; font-size: 24px; letter-spacing: .16em; margin-top: 12px; text-align: center;
+.logo-name { font-family: var(--f-title); font-weight: 600; font-size: 24px; letter-spacing: .16em; margin: 12px 0 0; text-align: center;
   background: linear-gradient(90deg, var(--sky-hi), #fff 45%, var(--gold-hi)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 .logo-sub { font-family: var(--f-mono); font-size: 9px; letter-spacing: .34em; color: var(--tx-lo); margin-top: 6px; text-transform: uppercase; }
 
@@ -96,7 +96,7 @@ body::after { content: ""; position: fixed; inset: -120px; z-index: 3; pointer-e
 
 .submit-btn, .email-form button { width: 100%; min-height: 52px; padding: 14px; border: 0; border-radius: 16px; position: relative; overflow: hidden; cursor: pointer;
   background: linear-gradient(180deg, rgba(255,198,120,.18), rgba(255,150,80,.08)); color: var(--gold-hi);
-  font-family: var(--f-body); font-size: 15px; font-weight: 500; letter-spacing: .06em;
+  font-family: var(--f-body); font-size: 15px; font-weight: 500; letter-spacing: .01em;   /* ปุ่มเป็นภาษาไทย — ไม่ถ่างตัวอักษร */
   box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 14px 34px -16px rgba(255,160,80,.55);
   transition: transform .4s var(--ease), box-shadow .4s var(--ease), opacity .3s; margin-top: 6px; }
 .email-form button { outline: 1px solid rgba(255,198,161,.32); outline-offset: -1px; }
