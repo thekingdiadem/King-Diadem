@@ -50,7 +50,7 @@
     'ล้าง': ['Clear', 'クリア'], 'ใช้': ['Apply', '適用'], 'ฟรี / วัน': ['Free / day', '無料 / 日'], 'ต่อข้อความ': ['per message', '1メッセージあたり'],
     'เติมเครดิต': ['Top up credits', 'クレジットを追加'], 'สมการ': ['Equation', '数式'],
     'ระบบนี้ไม่ต้องการผู้สร้างเพื่อดำรงอยู่': ['This system does not need its creator to exist', 'このシステムは存在するために作者を必要としない'],
-    'ไม่ต้องมีนิธิกร บุญสร้างจึงจะใช้งานได้': ['It works without Nithikorn Boonsang', 'ニティコーン・ブンサーンがいなくても動く'],
+    'ไม่ต้องมีใครคนใดคนหนึ่งจึงจะใช้งานได้': ['It works without any one person', '誰か一人がいなくても動く'],
     'เพราะอิสรภาพไม่ขึ้นกับตัวตน': ['because freedom does not depend on identity', '自由は個人に依存しないから'],
     'และความเมตตาไม่ขึ้นกับกาลเวลา': ['and compassion does not depend on time', 'そして慈悲は時に依存しないから'],
     'ความสมบูรณ์ไม่เคยมีจริง': ['Perfection never truly existed', '完全さは本当には存在しなかった'],
