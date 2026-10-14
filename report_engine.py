@@ -2,7 +2,7 @@
 # สร้าง shareable Decision Report URL จาก decision result
 # เพิ่ม table: decision_reports ใน DB
 
-import sqlite3, os, json, secrets
+import sqlite3, os, json, math, secrets
 
 DB_PATH = os.getenv("DB_PATH", "data/king_diadem.db")
 
@@ -24,7 +24,18 @@ def _f(v, d: float = 0.0) -> float:
         x = float(v)
     except (TypeError, ValueError):
         return d
-    return x if x == x else d
+    return x if math.isfinite(x) else d          # NaN/inf → ค่าเริ่ม (inf เคยทำให้รายงานเปิดไม่ได้ถาวร: 500)
+
+
+def _finite(o):
+    """แทน NaN/inf ที่ซ่อนใน dict/list ด้วย None — json.dumps เขียน Infinity ได้ แต่ส่งกลับเป็น JSON ไม่ได้"""
+    if isinstance(o, float):
+        return o if math.isfinite(o) else None
+    if isinstance(o, dict):
+        return {k: _finite(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_finite(v) for v in o]
+    return o
 
 def init_report_table():
     """เรียกครั้งเดียวตอน startup (เดิมถูกเรียกทุก create/get)"""
@@ -171,10 +182,10 @@ def create_report(
                 str(result.get("route", "general"))[:40],
                 str(result.get("persona", "LYLA"))[:20],
                 str(result.get("ai_response", ""))[:4000],
-                json.dumps(governance, ensure_ascii=False, default=str)[:20000],
+                json.dumps(_finite(governance), ensure_ascii=False, default=str)[:20000],
                 _f(result.get("risk_score", 0)),
                 str(consensus)[:2000],
-                json.dumps(fate_audit, ensure_ascii=False),
+                json.dumps(_finite(fate_audit), ensure_ascii=False),
                 "user" if source == "user" else "system",
             )
         )
@@ -199,12 +210,13 @@ def get_report(report_id: str) -> dict | None:
         # ลิงก์รายงานแชร์ได้สาธารณะ — ไม่เปิดเผยอีเมลเจ้าของ
         d.pop("user_email", None)
         d["user_submitted"] = d.get("source") == "user"
+        d["risk_score"] = _f(d.get("risk_score"))
         try:
-            d["governance"] = json.loads(d["governance"] or "{}")
+            d["governance"] = _finite(json.loads(d["governance"] or "{}"))   # รายงานเก่าที่มี Infinity ค้างอยู่ก็เปิดได้
         except ValueError:
             d["governance"] = {}
         try:
-            d["fate_audit"] = json.loads(d["fate_audit"] or "{}")
+            d["fate_audit"] = _finite(json.loads(d["fate_audit"] or "{}"))
         except ValueError:
             d["fate_audit"] = {}
         return d

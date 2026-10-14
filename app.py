@@ -268,7 +268,8 @@ if not _SECRET_KEY:
         "ตั้งค่าใน Render environment ก่อน: SECRET_KEY=<random 32+ chars>"
     )
 
-app = FastAPI(title="KING DIADEM OS")
+# /docs /redoc /openapi.json ปิด — เดิมเปิดสาธารณะ ลิสต์ทุก endpoint ให้คนไล่หาช่องโหว่ (ไม่มีหน้าไหนใช้)
+app = FastAPI(title="KING DIADEM OS", docs_url=None, redoc_url=None, openapi_url=None)
 
 
 # body ที่ไม่ใช่ JSON object (เช่น Infinity) เคยทำให้ทุก endpoint ตอบ 500 —
@@ -319,6 +320,85 @@ try:
 except Exception as e:  # pragma: no cover — ไม่มีตัววัด ระบบยังทำงานได้
     print(f"⚠ load monitor: {type(e).__name__}")
     get_survival_stats = None
+
+
+# ── ขนาดคำขอ + security headers ───────────────────────────────────
+# เดิมไม่จำกัดขนาด body: JSON ก้อนเดียว ~20MB กินหน่วยความจำ ~700MB (parse ทั้งก้อนก่อนถึงโค้ดเรา)
+# เซิร์ฟเวอร์มี worker เดียว → คำขอเดียวทำทุกคนล่ม · ตัดตั้งแต่ Content-Length และนับไบต์ที่สตรีมเข้ามาจริง
+_BODY_LIMIT_DEFAULT = 256 * 1024
+_BODY_LIMITS = {
+    "/analyze-image":   11 * 1024 * 1024,   # รูปสูงสุด 10MB + ส่วนหัว multipart
+    "/api/chat-state":   3 * 1024 * 1024,   # สถานะแชตจำกัด 2MB หลัง serialize
+    "/webhook/stripe":   1024 * 1024,
+}
+_SECURITY_HEADERS = [
+    (b"x-content-type-options", b"nosniff"),
+    (b"referrer-policy", b"strict-origin-when-cross-origin"),
+    (b"x-frame-options", b"DENY"),          # ไม่มีหน้าไหนต้องถูกฝังใน iframe — กัน clickjacking
+]
+
+
+def _body_limit(path: str) -> int:
+    return _BODY_LIMITS.get(path.rstrip("/") or "/", _BODY_LIMIT_DEFAULT)
+
+
+class BodyLimitMiddleware:
+    """ASGI ล้วน (ไม่ห่อ body ทั้งก้อน) — เกินขนาด = 413 ก่อนอ่าน/parse · เติม security headers ทุกคำตอบ"""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        started = False
+
+        async def send_with_headers(message):
+            nonlocal started
+            if message["type"] == "http.response.start":
+                started = True
+                have = {k.lower() for k, _ in message.get("headers", [])}
+                message = {**message, "headers": list(message.get("headers", [])) +
+                           [(k, v) for k, v in _SECURITY_HEADERS if k not in have]}
+            await send(message)
+
+        limit = _body_limit(scope.get("path", ""))
+        cl = next((v for k, v in scope.get("headers", []) if k == b"content-length"), None)
+        if cl is not None and (not cl.isdigit() or int(cl) > limit):
+            return await _too_large(send_with_headers)
+
+        seen = 0
+
+        async def limited_receive():
+            nonlocal seen
+            message = await receive()
+            if message["type"] == "http.request":
+                seen += len(message.get("body", b""))
+                if seen > limit:
+                    raise _BodyTooLarge()
+            return message
+
+        try:
+            await self.app(scope, limited_receive, send_with_headers)
+        except _BodyTooLarge:
+            if not started:
+                await _too_large(send_with_headers)
+
+
+class _BodyTooLarge(_StarletteHTTPException):
+    def __init__(self):
+        super().__init__(status_code=413, detail="request body too large")
+
+
+async def _too_large(send):
+    body = json.dumps({"error": "ข้อมูลที่ส่งมาใหญ่เกินไปค่ะ"}, ensure_ascii=False).encode()
+    await send({"type": "http.response.start", "status": 413,
+                "headers": [(b"content-type", b"application/json; charset=utf-8"),
+                            (b"content-length", str(len(body)).encode())]})
+    await send({"type": "http.response.body", "body": body})
+
+
+app.add_middleware(BodyLimitMiddleware)   # เพิ่มทีหลังสุด = ชั้นนอกสุด ตัดก่อนตัวอื่นแตะ body
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -1214,6 +1294,21 @@ _rate_lock   = threading.Lock()
 _rate_bucket: dict = {}
 _RATE_LIMIT_N       = 20     # จำนวนครั้ง
 _MAX_INPUT_CHARS    = max(200, int(os.getenv("MAX_INPUT_CHARS", "4000")))
+_HISTORY_TURNS, _HISTORY_TURN_CHARS = 8, 2000
+
+
+def _clean_history(raw) -> list:
+    if not isinstance(raw, list):
+        return []
+    out = []
+    for turn in raw[-_HISTORY_TURNS:]:
+        if not isinstance(turn, dict):
+            continue
+        role = "user" if turn.get("role") == "user" else "assistant"
+        text = str(turn.get("content") or "")[:_HISTORY_TURN_CHARS]
+        if text.strip():
+            out.append({"role": role, "content": text})
+    return out
 _RATE_LIMIT_WINDOW  = 60     # ต่อกี่วินาที
 
 def _rate_check(identity: str) -> bool:
@@ -1303,7 +1398,9 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     route   = data.get("route") if data.get("route") in _VALID_ROUTES else "general"
     vm      = _resolve_voice_mode(data, route)
     voice_locked = _voice_locked(data)
-    history = data.get("history") or []
+    # ประวัติแชตมาจาก client — เดิมส่งต่อให้ LLM ทั้งหมดโดยไม่ตัด: ข้อความเดียวพ่วงประวัติหลาย MB
+    # (ข้ามเพดาน 4000 ตัวอักษรของ input และเผาโควตา API) · เก็บ 8 รอบล่าสุด รอบละไม่เกิน 2000 ตัวอักษร
+    history = _clean_history(data.get("history"))
 
     if record_question: record_question()
 
@@ -2490,7 +2587,8 @@ async def report_page(report_id: str):
     html_path = os.path.join(os.path.dirname(__file__), "static", "report.html")
     if not os.path.exists(html_path):
         return JSONResponse({"error": "report.html not found"}, status_code=500)
-    return FileResponse(html_path, media_type="text/html")
+    # รายงานเปิดได้ด้วยลิงก์ — ไม่ให้เครื่องมือค้นหาเก็บไปแสดง (อาจมีเรื่องส่วนตัวของผู้ใช้)
+    return FileResponse(html_path, media_type="text/html", headers={"X-Robots-Tag": "noindex, nofollow"})
 
 
 @app.get("/api/report/{report_id}")
