@@ -9,6 +9,14 @@ import core.history_export as hx
 from DATABASE import db
 
 
+@pytest.fixture(autouse=True)
+def _google_verified(request):
+    """ผู้ใช้ในไฟล์นี้เป็นเจ้าของอีเมลที่ยืนยันแล้ว (เข้าด้วย Google) — บัญชีรหัสผ่านที่ยังไม่ยืนยันส่งอีเมลไม่ได้
+    (ดู test_unverified_password_account_cannot_email_history)"""
+    if "user" in request.fixturenames:
+        db.claim_verified_email(request.getfixturevalue("user").email)
+
+
 def _sent(monkeypatch):
     box = []
     monkeypatch.setenv("SMTP_HOST", "smtp.test"); monkeypatch.setenv("SMTP_USER", "bot@test"); monkeypatch.setenv("SMTP_PASS", "x")
@@ -134,3 +142,15 @@ def test_old_unowned_rows_are_purged_and_owned_rows_kept(user):
 def test_purge_runs_when_the_server_starts():
     import inspect
     assert "purge_unowned_history(conn)" in inspect.getsource(db.init_db)
+
+
+def test_unverified_password_account_cannot_email_history(client, monkeypatch):
+    """สมัครด้วยรหัสผ่านใช้อีเมลของใครก็ได้ — เดิมสมัครด้วยอีเมลคนอื่น พิมพ์ข้อความลง /run แล้วสั่งส่ง
+    ระบบจะส่งข้อความนั้นไปหาเจ้าของอีเมลจริงในนามระบบ · ตอนนี้ต้องยืนยันอีเมลก่อน (ดาวน์โหลดได้เสมอ)"""
+    box = _sent(monkeypatch)
+    email = f"v{uuid.uuid4().hex[:8]}@test.co"
+    assert client.post("/register", json={"email": email, "password": "secret12"}).status_code == 200
+    client.post("/run", json={"input": "ข้อความที่คนสมัครแทนเขียนไว้"})
+    r = client.post("/api/history/email")
+    assert r.status_code == 403 and r.json()["download"] == "/api/history/export" and not box
+    assert client.get("/api/history/export").status_code == 200

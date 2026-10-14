@@ -189,7 +189,7 @@ try:
     from DATABASE.db import (
         init_db, log_decision, get_credits, add_credits,
         ensure_user, save_chat_state, load_chat_state,
-        set_password, verify_password, user_exists,
+        set_password, verify_password, user_exists, email_verified, claim_verified_email,
         stripe_event_done, mark_stripe_event, add_credits_once, premium_subscription,
         set_premium_until, get_premium_until, email_for_stripe_customer, customer_for_email,
         spend_credit, credit_history, take_free_run, give_back_free_run, free_runs_used,
@@ -201,7 +201,7 @@ except Exception as e:
     print(f"⚠ DB: {e}")
     init_db = log_decision = get_credits = add_credits = None
     ensure_user = save_chat_state = load_chat_state = None
-    set_password = verify_password = user_exists = None
+    set_password = verify_password = user_exists = email_verified = claim_verified_email = None
     stripe_event_done = mark_stripe_event = add_credits_once = premium_subscription = None
     set_premium_until = get_premium_until = email_for_stripe_customer = customer_for_email = None
     spend_credit = credit_history = take_free_run = give_back_free_run = free_runs_used = None
@@ -299,7 +299,10 @@ async def _http_error(request: Request, exc: _StarletteHTTPException):
 
 app.add_middleware(
     SessionMiddleware,
-    secret_key=_SECRET_KEY
+    secret_key=_SECRET_KEY,
+    # เก็บแค่ state/nonce ของ OAuth ระหว่างไป-กลับ Google — ส่งเฉพาะ HTTPS และหมดอายุใน 10 นาที (เดิมไม่มี Secure, 14 วัน)
+    https_only=True,
+    max_age=600,
 )
 # ใช้ singleton ตัวเดียวกับ run_decision() — เดิมสร้าง DecisionEngine ตัวที่สองแยกไว้เฉยๆ (โหลด LLM/router ซ้ำ)
 try:
@@ -729,6 +732,11 @@ def history_email(request: Request):
     email = _session_email(request)
     if not email:
         return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    # ส่งได้เฉพาะอีเมลที่พิสูจน์ความเป็นเจ้าของแล้ว — สมัครด้วยรหัสผ่านใช้อีเมลของใครก็ได้
+    # (เดิมใช้ส่งข้อความที่ตัวเองเขียนไปหาคนอื่นในนามระบบได้)
+    if email_verified and not email_verified(email):
+        return JSONResponse({"error": "ส่งเข้าอีเมลได้เมื่อเข้าสู่ระบบด้วย Google (ยืนยันอีเมลแล้ว) ค่ะ — ดาวน์โหลดเป็นไฟล์ได้เลยนะคะ",
+                             "download": "/api/history/export"}, status_code=403)
     from core.history_export import email_configured, format_history, send_history_email
     if not email_configured():
         return JSONResponse({"error": "ตอนนี้ระบบยังส่งอีเมลไม่ได้ค่ะ — ดาวน์โหลดเป็นไฟล์แทนได้เลยนะคะ",
@@ -863,6 +871,7 @@ _login_fail: dict = {}
 _LOGIN_MAX, _LOGIN_WINDOW = 8, 600
 
 _LOGIN_MAX_PER_EMAIL = 30   # ต่ออีเมล ไม่ว่ามาจากกี่ IP (กันเดารหัสจากหลายเครื่อง)
+_LOGIN_MAX_PER_IP = 20      # ต่อ IP รวมทุกอีเมล — เดิมไล่ลองรหัสเดียวกับอีเมลนับพันจากเครื่องเดียวได้ไม่จำกัด
 
 def _prune(store: dict, window: float, now: float):
     """ทิ้ง key ที่ไม่มีเหตุการณ์ในหน้าต่างเวลา — เดิม dict โตไม่หยุด (หนึ่ง key ต่อ IP/อีเมลที่เคยเห็น)"""
@@ -870,22 +879,52 @@ def _prune(store: dict, window: float, now: float):
         for k in [k for k, v in store.items() if not v or now - v[-1] >= window]:
             store.pop(k, None)
 
+def _ip_key(key: str):
+    """key ของการ login คือ "ip|email" → นับรวมต่อ IP ด้วย · key อื่น (reg|ip) ไม่มีส่วนนี้"""
+    head = key.split("|", 1)[0]
+    return None if head in ("reg", "regok") else "ip|" + head
+
 def _login_blocked(key: str) -> bool:
     now = time.time()
     email_key = "email|" + key.split("|", 1)[-1]
+    ip_key = _ip_key(key)
     with _login_lock:
         _prune(_login_fail, _LOGIN_WINDOW, now)
         hits = [t for t in _login_fail.get(key, []) if now - t < _LOGIN_WINDOW]
         _login_fail[key] = hits
         ehits = [t for t in _login_fail.get(email_key, []) if now - t < _LOGIN_WINDOW]
         _login_fail[email_key] = ehits
-        return len(hits) >= _LOGIN_MAX or len(ehits) >= _LOGIN_MAX_PER_EMAIL
+        ihits = []
+        if ip_key:
+            ihits = [t for t in _login_fail.get(ip_key, []) if now - t < _LOGIN_WINDOW]
+            _login_fail[ip_key] = ihits
+        return len(hits) >= _LOGIN_MAX or len(ehits) >= _LOGIN_MAX_PER_EMAIL or len(ihits) >= _LOGIN_MAX_PER_IP
 
 def _login_failed(key: str):
     with _login_lock:
         now = time.time()
         _login_fail.setdefault(key, []).append(now)
         _login_fail.setdefault("email|" + key.split("|", 1)[-1], []).append(now)
+        ip_key = _ip_key(key)
+        if ip_key:
+            _login_fail.setdefault(ip_key, []).append(now)
+
+# สมัครสำเร็จได้ไม่เกิน 5 บัญชี / IP / วัน — เดิมนับเฉพาะที่สมัครไม่สำเร็จ สคริปต์สร้างบัญชีได้ไม่จำกัด
+# (แต่ละบัญชีได้เครดิตต้อนรับ 10 + โควตาฟรีรายวันของตัวเอง = ใช้ AI ฟรีไม่จำกัด)
+_REG_OK_MAX, _REG_OK_WINDOW = 5, 86400
+_reg_ok: dict = {}
+
+def _reg_quota_left(ip: str) -> bool:
+    now = time.time()
+    with _login_lock:
+        _prune(_reg_ok, _REG_OK_WINDOW, now)
+        hits = [t for t in _reg_ok.get(ip, []) if now - t < _REG_OK_WINDOW]
+        _reg_ok[ip] = hits
+        return len(hits) < _REG_OK_MAX
+
+def _reg_succeeded(ip: str):
+    with _login_lock:
+        _reg_ok.setdefault(ip, []).append(time.time())
 
 _EMAIL_RE = __import__("re").compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -916,6 +955,9 @@ async def google_callback(request: Request):
         # ensure_user ให้ 10 เครดิตครั้งแรกครั้งเดียว — เดิมเติม 10 ทุกครั้งที่ login ตอนเครดิตเป็น 0
         # (login ซ้ำ = เครดิตฟรีไม่จำกัด)
         if ensure_user: ensure_user(email)
+        # Google พิสูจน์แล้วว่าเป็นเจ้าของอีเมลนี้ — รหัสผ่านที่มีคนตั้งไว้ก่อน (ยังไม่ได้ยืนยัน) ถูกลบ กันยึดบัญชี
+        if claim_verified_email and claim_verified_email(email):
+            print("🔐 google login: dropped unverified password for an account")
         try:
             sess = getattr(request, "session", None)
             if sess:
@@ -972,17 +1014,20 @@ async def register(request: Request, data: dict):
     if not set_password:
         return JSONResponse({"status": "error", "message": "ระบบบัญชีขอพักสักครู่นะคะ ลองใหม่อีกทีได้เลยค่ะ"}, status_code=503)
     # 409 บอกได้ว่าอีเมลนี้มีบัญชี — จำกัดต่อ IP ไม่ให้ไล่เช็กอีเมลจำนวนมาก (8 ครั้ง / 10 นาที)
-    reg_key = f"reg|{_client_ip(request)}"
-    if _login_blocked(reg_key):
+    ip = _client_ip(request)
+    reg_key = f"reg|{ip}"
+    if _login_blocked(reg_key) or not _reg_quota_left(ip):
         return JSONResponse({"status": "error", "message": "ลองสมัครหลายครั้งแล้ว พักสัก 10 นาทีแล้วค่อยลองใหม่นะคะ"},
                             status_code=429)
     # อีเมลที่มีอยู่แล้ว (เช่นเคยเข้าด้วย Google) ห้ามตั้งรหัสผ่านทับ — ไม่งั้นยึดบัญชีคนอื่นได้
-    if (user_exists and user_exists(email)) or not set_password(email, password):
+    # PBKDF2 ใช้ CPU ~0.1 วินาที — ทำนอก event loop (เซิร์ฟเวอร์มี worker เดียว เดิมทุกคนค้างตามระหว่างแฮช)
+    if (user_exists and user_exists(email)) or not await run_in_threadpool(set_password, email, password):
         _login_failed(reg_key)
         return JSONResponse(
             {"status": "error", "message": "อีเมลนี้เคยสมัครไว้แล้วค่ะ เข้าสู่ระบบด้วยรหัสผ่านเดิม หรือด้วย Google ได้เลยนะคะ"},
             status_code=409,
         )
+    _reg_succeeded(ip)
     if ensure_user: ensure_user(email)
     credits = get_credits(email) if get_credits else 0
     r = JSONResponse({"status": "ok", "email": email, "credits": credits})
@@ -998,7 +1043,7 @@ async def login_email(request: Request, data: dict):
     key      = f"{ip}|{email}"
     if _login_blocked(key):
         return JSONResponse({"status": "error", "message": "ลองหลายครั้งแล้ว พักสัก 10 นาทีแล้วค่อยลองใหม่นะคะ"}, status_code=429)
-    if not email or not password or not verify_password or not verify_password(email, password):
+    if not email or not password or not verify_password or not await run_in_threadpool(verify_password, email, password):
         _login_failed(key)
         return JSONResponse({"status": "error", "message": "อีเมลหรือรหัสผ่านยังไม่ตรงค่ะ ลองอีกครั้งนะคะ"}, status_code=401)
     if ensure_user: ensure_user(email)
@@ -2108,6 +2153,14 @@ def _grant_once(email: str, credits: int, reason: str, ref: str) -> None:
     add_credits_once(email, credits, reason, ref)
 
 
+def _plain(o):
+    """ผลจาก Stripe SDK → dict ธรรมดา (v15+ ไม่ใช่ dict แล้ว เรียก .get() ไม่ได้) · dict อยู่แล้วคืนเดิม"""
+    for m in ("to_dict_recursive", "to_dict"):
+        if hasattr(o, m):
+            return getattr(o, m)()
+    return o
+
+
 def _handle_stripe_event(event) -> None:
     etype = event["type"]
     obj   = event["data"]["object"]
@@ -2144,7 +2197,7 @@ def _handle_stripe_event(event) -> None:
             os.getenv("STRIPE_PREMIUM_PRICE_ID"): 100,
         }
         total_credits = 0
-        items = stripe.checkout.Session.list_line_items(obj["id"])
+        items = _plain(stripe.checkout.Session.list_line_items(obj["id"]))
         for i in items.get("data", []):
             price_id = (i.get("price") or {}).get("id")
             per_unit = _CREDITS_PER_PRICE.get(price_id, 0)
@@ -2159,7 +2212,7 @@ def _handle_stripe_event(event) -> None:
             # event ที่ส่งซ้ำ/มาช้าหลังยกเลิก ต้องไม่คืน premium → ถามสถานะจริงก่อน (เหมือน invoice.paid)
             live = True
             if obj.get("subscription"):
-                sub = stripe.Subscription.retrieve(obj["subscription"])   # ล้ม → 500 → Stripe ส่งใหม่
+                sub = _plain(stripe.Subscription.retrieve(obj["subscription"]))   # ล้ม → 500 → Stripe ส่งใหม่
                 live = sub.get("status") in ("active", "trialing")
             prem = live and _grants_premium([(i.get("price") or {}).get("id") for i in items.get("data", [])])
             # เก็บ customer/subscription ทุกแพ็กเกจ — แพ็กเกจพื้นฐานจะได้เปิดหน้ายกเลิกและจับคู่รอบบิลถัดไปได้
@@ -2179,7 +2232,7 @@ def _handle_stripe_event(event) -> None:
                   or (((obj.get("parent") or {}).get("subscription_details") or {}).get("subscription")))
         if not sub_id:
             return                                    # ใบแจ้งหนี้ครั้งเดียว ไม่ใช่สมาชิก
-        sub = stripe.Subscription.retrieve(sub_id)    # ล้ม → 500 → Stripe ส่งใหม่
+        sub = _plain(stripe.Subscription.retrieve(sub_id))    # ล้ม → 500 → Stripe ส่งใหม่
         if sub.get("status") not in ("active", "trialing"):
             return
         items = ((sub.get("items") or {}).get("data") or [])
@@ -2216,7 +2269,10 @@ async def stripe_webhook(request: Request):
     if not secret:
         return JSONResponse({"error": "webhook not configured"}, status_code=503)
     try:
-        event = stripe.Webhook.construct_event(payload, sig, secret)
+        stripe.Webhook.construct_event(payload, sig, secret)
+        # ใช้ JSON ที่ Stripe เซ็นมาเป็น dict ธรรมดา — stripe-python ตั้งแต่ v15 คืน Event ที่ไม่ใช่ dict
+        # (.get() พัง) เดิม event จริงทุกตัวล่ม 500: ลูกค้าจ่ายเงินแล้วไม่ได้เครดิต/Premium
+        event = json.loads(payload)
     except Exception:
         return JSONResponse({"error": "invalid signature"}, status_code=400)
 
@@ -2320,7 +2376,7 @@ async def pricing():
         return {"premium": None}
     if time.time() - _PRICE_CACHE["t"] > 3600:
         try:
-            pr = await run_in_threadpool(lambda: stripe.Price.retrieve(pid))
+            pr = _plain(await run_in_threadpool(lambda: stripe.Price.retrieve(pid)))   # v15+ ไม่ใช่ dict — เดิม .get() พัง ราคาไม่ขึ้นเลย
             amt = pr.get("unit_amount")
             _PRICE_CACHE.update(t=time.time(), v={"amount": (amt or 0) / 100, "currency": str(pr.get("currency") or "thb").upper(),
                                                   "interval": ((pr.get("recurring") or {}).get("interval"))})

@@ -123,6 +123,10 @@ def init_db():
             password_hash TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
+        CREATE TABLE IF NOT EXISTS verified_emails (
+            email TEXT PRIMARY KEY,
+            verified_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
     """)
     conn.commit()
     try:
@@ -199,6 +203,32 @@ def verify_password(user_email: str, password: str) -> bool:
         return hmac.compare_digest(got, want)
     except Exception:
         return False
+
+def email_verified(user_email: str) -> bool:
+    """อีเมลนี้เคยพิสูจน์ความเป็นเจ้าของแล้วหรือยัง (เข้าด้วย Google ที่ยืนยันอีเมล)"""
+    conn = get_conn()
+    try:
+        return conn.execute("SELECT 1 FROM verified_emails WHERE email = ?", (user_email,)).fetchone() is not None
+    finally:
+        conn.close()
+
+def claim_verified_email(user_email: str) -> bool:
+    """เจ้าของอีเมลพิสูจน์ตัวแล้ว (Google) — ครั้งแรกที่พิสูจน์ ลบรหัสผ่านที่ตั้งไว้ก่อนหน้า
+
+    การสมัครด้วยรหัสผ่านไม่ได้ยืนยันอีเมล: ใครก็สมัครด้วยอีเมลของคนอื่นไว้ก่อนได้ แล้วรอเจ้าของจริง
+    เข้าด้วย Google มาใช้บัญชีเดียวกัน จากนั้นก็เข้าบัญชีนั้นด้วยรหัสผ่านที่ตัวเองตั้ง (ยึดบัญชี)
+    รหัสผ่านที่ตั้งก่อนเจ้าของพิสูจน์ตัวจึงไม่น่าเชื่อถือ → ลบทิ้ง · คืน True ถ้าลบรหัสผ่านไป"""
+    conn = get_conn()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        first = conn.execute("INSERT OR IGNORE INTO verified_emails (email) VALUES (?)", (user_email,)).rowcount == 1
+        dropped = 0
+        if first:
+            dropped = conn.execute("DELETE FROM user_passwords WHERE user_email = ?", (user_email,)).rowcount
+        conn.commit()
+        return dropped > 0
+    finally:
+        conn.close()
 
 def user_exists(user_email: str) -> bool:
     conn = get_conn()
