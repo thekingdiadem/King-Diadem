@@ -1883,7 +1883,7 @@ var Cosmos = (function(){
       '  if(uTex>.5){',
       '   vec2 uv=vec2(lonU(lon),.5-lat/3.1415927);',
       '   vec3 tx=texture2D(uDay,uv).rgb; vec3 alb=pow(tx,vec3(2.2));',
-      '   float cl=smoothstep(.15,.9,texture2D(uClouds,vec2(lonU(lon+t*.0025),uv.y)).r);',
+      '   float cl=smoothstep(.15,.9,texture2D(uClouds,vec2(lonU(lon+t*.008),uv.y)).r);',
       '   float li=texture2D(uLights,uv).r;',
       '   float water=smoothstep(.03,.12,tx.b-max(tx.r,tx.g)*.9);',
       '   ec=alb*lit+water*vec3(.002,.010,.032)*(.7+sunF);',
@@ -1991,7 +1991,7 @@ var Cosmos = (function(){
         gl.uniform1f(u.uShow, d.show); gl.uniform1f(u.uThink, d.think); gl.uniform1f(u.uRisk, d.risk); gl.uniform1f(u.uDim, d.dim);
         loadEarth();
         var ok = EARTH_TEX && typeof EARTH_TEX === 'object';
-        gl.uniform1f(u.uTex, ok ? 1 : 0); gl.uniform1f(u.uSpin, 1.885 + (d.spin || 0) - (REDUCED ? 0 : tsec * .07));
+        gl.uniform1f(u.uTex, ok ? 1 : 0); gl.uniform1f(u.uSpin, 1.885 + (d.spin || 0) - (REDUCED ? 0 : tsec * .025));
         if(ok){ for(var i = 0; i < 3; i++){ gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, EARTH_TEX[i]); } gl.activeTexture(gl.TEXTURE0);
           gl.uniform1i(u.uDay, 0); gl.uniform1i(u.uLights, 1); gl.uniform1i(u.uClouds, 2); }
         gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -2552,8 +2552,99 @@ var Cosmos = (function(){
     if(!drew) ctx.drawImage(bgCv, 0, 0, W, H);
     drawRoutes(cx, cy, r, tsec, DAWN.show, top, bottom);
     if(drew) drawBodyLabels(BOD, r, DAWN.show, top);
+    /* ── ดาวหางผ่านมาเป็นระยะๆ ────────────────────────────────────────────
+       ดาวหางไม่โคจรรอบโลก แต่เป็นวัตถุไกลๆ ที่พุ่งผ่านฉากหลังระบบสุริยะ
+       ปรากฏทุก ~8-15 วินาที · หางแสงเรืองชี้ออกจากดวงอาทิตย์ · ความเร็วและทิศสุ่ม
+       วาดบนชั้น 2D ทับกับฉาก WebGL · ใช้ 'lighter' composite ให้แสงรวมกับพื้นหลัง */
+    drawComet(tsec, DAWN.show);
     /* ตอนเป็นพื้นหลังเรียบ (show = 0) ภาพนิ่ง ไม่ต้องวาดซ้ำ — ประหยัดแบต · พิมพ์/เปลี่ยนหน้าจะปลุกเอง */
     if(!REDUCED && (DAWN.show > 0 || want > 0)) kick();
+  }
+  /* ── ดาวหาง: วัตถุเดินทางไกลที่ผ่านมาเป็นระยะ ─────────────────────────────
+     เกิดสุ่มทุก 8-15 วินาที · หางชี้หนีดวงอาทิตย์จริง (แสงอาทิตย์มาจากทิศ sun)
+     หัวสว่าง + หางจางค่อยๆ ยาว · ใช้ parallax เล็กน้อยให้ดูมีความลึก */
+  var COMET = { active: false, t0: 0, x0: 0, y0: 0, x1: 0, y1: 0, next: 0 };
+  function drawComet(tsec, show){
+    if(REDUCED || show <= 0){ COMET.active = false; return; }
+    var now = tsec;
+    /* สุ่มดาวหางใหม่ถ้าถึงเวลา */
+    if(!COMET.active && now >= COMET.next){
+      COMET.active = true; COMET.t0 = now;
+      /* จุดเริ่ม: ขอบจอฝั่งสุ่ม */
+      var side = Math.floor(Math.random() * 4);
+      var m = { l: 0, t: 0, r: W, b: H };
+      if(side === 0){ COMET.x0 = Math.random() * W; COMET.y0 = -20; }
+      else if(side === 1){ COMET.x0 = W + 20; COMET.y0 = Math.random() * H; }
+      else if(side === 2){ COMET.x0 = Math.random() * W; COMET.y0 = H + 20; }
+      else { COMET.x0 = -20; COMET.y0 = Math.random() * H; }
+      /* จุดหมาย: ไปทางตรงข้ามผ่ากลางจอ (เพิ่มความเร็วสุ่มเล็กน้อย) */
+      var cx0 = W * .5, cy0 = H * .5;
+      var dx = cx0 - COMET.x0, dy = cy0 - COMET.y0;
+      var len = Math.sqrt(dx * dx + dy * dy) || 1;
+      var speed = .12 + Math.random() * .08; /* เศษส่วนของระยะต่อวินาที */
+      var dur = 2.5 + Math.random() * 3; /* อยู่บนจอ 2.5-5.5 วินาที */
+      COMET.x1 = COMET.x0 + dx / len * len * speed * dur;
+      COMET.y1 = COMET.y0 + dy / len * len * speed * dur;
+      COMET.dur = dur;
+    }
+    if(!COMET.active) return;
+    var k = (now - COMET.t0) / COMET.dur;
+    if(k >= 1){
+      COMET.active = false;
+      COMET.next = now + 8 + Math.random() * 7; /* รอ 8-15 วินาที */
+      return;
+    }
+    /* easing: ช้าต้น เร็วกลาง ช้าปลาย */
+    var e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    var x = COMET.x0 + (COMET.x1 - COMET.x0) * e;
+    var y = COMET.y0 + (COMET.y1 - COMET.y0) * e;
+    /* ทิศหาง: ชี้ออกจากดวงอาทิตย์ (แสงจาก BOD.sun) */
+    var sunX2 = 0, sunY2 = 0;
+    try { sunX2 = BOD.sun[0]; sunY2 = BOD.sun[1]; } catch(_){}
+    var tdx = x - sunX2, tdy = y - sunY2;
+    var tl = Math.sqrt(tdx * tdx + tdy * tdy) || 1;
+    tdx /= tl; tdy /= tl;
+    var tailLen = 60 + 80 * Math.sin(Math.PI * k); /* หางยาวสุดตอนกลางทาง */
+    var tx2 = x + tdx * tailLen, ty2 = y + tdy * tailLen;
+    var fade = Math.sin(Math.PI * k); /* จางตอนเข้า-ออกจอ */
+    /* วาดหาง: gradient จากหัว (สว่าง) ไปท้าย (จาง) */
+    var grd = ctx.createLinearGradient(x, y, tx2, ty2);
+    grd.addColorStop(0, 'rgba(180,220,255,' + (.55 * fade) + ')');
+    grd.addColorStop(.25, 'rgba(140,180,255,' + (.28 * fade) + ')');
+    grd.addColorStop(.6, 'rgba(100,150,255,' + (.10 * fade) + ')');
+    grd.addColorStop(1, 'rgba(80,120,255,0)');
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    /* หางหลัก */
+    ctx.strokeStyle = grd;
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(tx2, ty2);
+    ctx.stroke();
+    /* หางรอง (กว้างขึ้น จางลง) */
+    ctx.lineWidth = 6;
+    ctx.globalAlpha = .35;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(tx2, ty2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    /* หัวดาวหาง: จุดสว่างเรือง */
+    ctx.fillStyle = 'rgba(220,240,255,' + (.9 * fade) + ')';
+    ctx.beginPath();
+    ctx.arc(x, y, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+    /* glow รอบหัว */
+    var hg = ctx.createRadialGradient(x, y, 0, x, y, 10);
+    hg.addColorStop(0, 'rgba(180,210,255,' + (.5 * fade) + ')');
+    hg.addColorStop(1, 'rgba(180,210,255,0)');
+    ctx.fillStyle = hg;
+    ctx.beginPath();
+    ctx.arc(x, y, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
   var INP = document.getElementById('input'); if(INP) INP.addEventListener('input', function(){ kick(); });
   /* หมุนกล้อง = หันมองรอบตัว (ฟ้าไม่ได้หมุนรอบเรา) · ปล่อยแล้วไหลต่อตามแรงเฉื่อย
