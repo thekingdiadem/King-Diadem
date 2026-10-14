@@ -705,7 +705,7 @@ def _build_contents(history: list, user_input: str, ctx_note: str = "") -> list:
         if not isinstance(turn, dict):
             continue
         role = "user" if turn.get("role") == "user" else "model"
-        text = str(turn.get("content", "")).strip()
+        text = str(turn.get("content", ""))[:2000].strip()   # รอบละไม่เกิน 2000 ตัวอักษร — กันประวัติยาวหลาย MB
         if text:
             contents.append(types.Content(
                 role=role,

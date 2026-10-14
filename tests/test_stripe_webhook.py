@@ -1,4 +1,5 @@
 """Stripe webhook: ล่มกลางทางแล้วส่งซ้ำต้องได้เครดิตครบครั้งเดียว · event มาไม่เรียงต้องไม่คืน premium"""
+import json
 import time
 import uuid
 
@@ -15,7 +16,8 @@ def hook(client, monkeypatch):
     monkeypatch.setattr(stripe.Subscription, "retrieve", lambda sid: {"status": "active"})
     def post(e):
         ev["e"] = e
-        r = client.post("/webhook/stripe", content=b"{}", headers={"stripe-signature": "s"})
+        # body = event จริง — webhook อ่าน event จาก JSON ที่ Stripe เซ็น (ไม่ใช่ผลของ construct_event)
+        r = client.post("/webhook/stripe", content=json.dumps(e), headers={"stripe-signature": "s"})
         return r.status_code, r.json().get("status") or r.json().get("error")
     return post
 
