@@ -1854,9 +1854,19 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         effective += f"\n\n{extra_ctx}"
     # VEGA Human DriftZero Kernel (14 Gates): ประตูที่ติดจากข้อความ → ให้ VEGA ถามคำถามของประตูนั้น
     # ไม่ใช้ตอนวิกฤต (ตอนนั้นต้องรับรู้และให้ทางช่วยก่อน ไม่ใช่ถามให้คิด)
+    # ตัดสินจากข้อความด้วย ไม่ใช่แค่ route — ผู้ใช้ที่เลือกเส้นทาง VEGA ไว้ route ไม่ถูกยกระดับ
+    # "อยากตาย จะลาออกคืนนี้เลย" เคยได้คำตอบสายด่วน 1323 แล้วตามด้วย "รอ 24 ชั่วโมงก่อนตัดสินใจได้ไหม"
     vega_gates = []
-    if vega_evaluate and vm == "vega" and route not in ("crisis", "collapse", "survival"):
-        vega_gates = vega_evaluate(user_input)
+    g_lang = (prompt_lang or detect_lang)(user_input) if detect_lang else "th"
+    g_urgent = bool(prior_kind)
+    if k_assess and not g_urgent:
+        try:
+            from core.kernel_voice import council_unsuitable
+            g_urgent = council_unsuitable(k_assess)
+        except Exception:
+            pass
+    if vega_evaluate and vm == "vega" and not g_urgent and route not in ("crisis", "collapse", "survival"):
+        vega_gates = vega_evaluate(user_input, lang="th" if g_lang == "th" else "en")
         if vega_gates:
             effective += "\n\n" + vega_llm_hint(vega_gates)
     # ภาษาของผู้ใช้ (ดูจากข้อความดิบ — prompt ที่ต่อแล้วมีบริบทภาษาไทยปน) ให้ LLM ตอบภาษาเดียวกัน
@@ -1936,6 +1946,8 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     if kernel_compose and (used_fallback() or result.get("error")
                            or not (isinstance(ai_text, str) and ai_text.strip())):
         k_route = result.get("route") if _ROUTE_SEVERITY.get(result.get("route"), -1) > _ROUTE_SEVERITY.get(route, 0) else route
+        if k_route in ("crisis", "collapse", "survival"):
+            vega_gates = []          # engine ยกระดับเป็นเรื่องวิกฤต → ให้ทางช่วยก่อน ไม่ถามให้คิด
         result.pop("error", None)
         result.update({
             "observer":      result.get("observer") or "KING DIADEM",
@@ -1948,7 +1960,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                                  kernel_compose((prior_text + "\n" + user_input) if prior_kind else user_input,
                                                 route=k_route, voice_mode=vm,
                                                 pattern=human_state if _has_user_state(data.get("context")) else None),
-                                 vega_gates),
+                                 vega_gates, g_lang),
             "answer_source": "kernel",
         })
         result.setdefault("pattern", human_state)
@@ -1964,6 +1976,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         engine_risk = 0.0
     if k_assess.get("text_risk", 0) > engine_risk:
         result["risk_score"] = float(k_assess["text_risk"])
+    # ข้อความสั้นที่ตอบต่อจากเรื่องฉุกเฉิน: คำตอบแบบไม่มี AI คิดจากเรื่องเดิม+ข้อความนี้ (เดิมขึ้น "Risk 85")
+    # แต่รายละเอียดใช้ Risk ที่ลดตามเวลา 0.75× (64) — ตัวเลขสองที่ต้องตรงกัน
+    if prior_kind and result.get("answer_source") == "kernel" and isinstance(result.get("ai_response"), str):
+        try:
+            result["ai_response"] = re.sub(r"Risk \d+", f"Risk {float(result.get('risk_score') or 0):.0f}",
+                                           result["ai_response"], count=1)
+        except (TypeError, ValueError):
+            pass
     if offer_flags:
         result["offer_flags"] = offer_flags
     # ปุ่มหาความช่วยเหลือใกล้ตัว (โรงพยาบาล ศูนย์พักพิง ตำรวจ) — แผนที่ในมือถือใช้ตำแหน่งของผู้ใช้เอง
@@ -2117,7 +2137,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             )
         except Exception: pass
 
-    if vega_gates:
+    if vega_gates and result.get("route") not in ("crisis", "collapse", "survival"):
         result["vega_gates"] = [{"id": g["id"], "name": g["name"], "ask": g["ask"]} for g in vega_gates]
 
     # ── รายงานที่แชร์ได้: สร้างเมื่อผู้ใช้กดแชร์เท่านั้น ─────────────────────
@@ -2143,13 +2163,16 @@ def run_simulate(request: Request, data: dict):
         return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร ลองสรุปให้สั้นลงนะคะ"}, status_code=413)
     if not _rate_check(email if email != "anonymous" else _client_ip(request)):
         return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่แล้วลองใหม่ได้เลยนะคะ"}, status_code=429)
+    urgent = _simulate_urgent(user_input)
     ticket, denied = _charge(email, request, "simulate")
+    if denied and urgent:
+        ticket, denied = {"mode": "unmetered"}, None       # เรื่องฉุกเฉินไม่ติดหน้าจ่ายเงิน (เหมือน /run)
     if denied:
         return denied
     reset_fallback_flag()
     request_no_ai(ticket.get("mode") == "unmetered")
     try:
-        result = _simulate_impl(user_input, paths, email)
+        result = _simulate_urgent_reply(user_input) if urgent else _simulate_impl(user_input, paths, email)
     except Exception:
         _refund(ticket)
         raise
@@ -2160,7 +2183,7 @@ def run_simulate(request: Request, data: dict):
     else:
         _settle(ticket)
     # ภาพจำลองอนาคต 12 เดือนของแต่ละทาง (core/future_paths — สมการ ไม่ใช่ AI)
-    if future_project and isinstance(result, dict):
+    if future_project and isinstance(result, dict) and not urgent:
         try:
             fut = future_project(user_input, paths)
             if fut:
@@ -2169,6 +2192,29 @@ def run_simulate(request: Request, data: dict):
             print(f"⚠ future_paths: {type(e).__name__}")
     result["quota"] = {**_quota_status(email, request), "charged": ticket["mode"]}
     return result
+
+
+def _simulate_urgent(text: str) -> bool:
+    """เรื่องฉุกเฉิน (ทำร้ายตัวเอง ยาเกินขนาด ถูกทำร้าย ภัยที่กำลังเกิด) — ไม่ใช่เวลาเทียบทางเลือก"""
+    if not kernel_assess:
+        return False
+    try:
+        from core.kernel_voice import council_unsuitable
+        return council_unsuitable(kernel_assess(text)) or _urgent_text(text)
+    except Exception:
+        return _urgent_text(text)
+
+
+def _simulate_urgent_reply(text: str) -> dict:
+    """เดิม "กินยาไป 30 เม็ด จะไปโรงพยาบาลหรือนอนเฉยๆ" ได้ตารางเทียบ 2 ทางว่า "ย้อนกลับได้ ทดลองขนาดเล็ก 30 วัน"
+    ไม่มีเบอร์ฉุกเฉินเลย — ตอนนี้ตอบขั้นช่วยเหลือของเรื่องนั้นทันที (สมการ ไม่ใช้ AI)"""
+    if kernel_compose:
+        try:
+            return {"simulation": kernel_compose(text), "source": "kernel", "urgent": True}
+        except Exception as e:
+            print(f"kernel urgent simulate: {type(e).__name__}")
+    return {"simulation": "เรื่องนี้ด่วนกว่าการเทียบทางเลือกค่ะ ถ้ามีอันตรายตอนนี้ โทร 1669 (เจ็บป่วยฉุกเฉิน) หรือ 1323 (สายด่วนสุขภาพจิต) ได้ตลอด 24 ชั่วโมงนะคะ",
+            "source": "kernel", "urgent": True}
 
 
 def _simulate_impl(user_input: str, paths: list, email: str) -> dict:
@@ -2650,11 +2696,11 @@ async def get_report_api(report_id: str):
     return data
 
 
-def _with_gate_questions(reply: str, gates: list) -> str:
-    """คำตอบแบบไม่มี AI ของ VEGA: แทรกคำถามของประตูที่ติด (2 ข้อ) ก่อนลายเซ็น"""
+def _with_gate_questions(reply: str, gates: list, lang: str = "th") -> str:
+    """คำตอบแบบไม่มี AI ของ VEGA: แทรกคำถามของประตูที่ติด (2 ข้อ) ก่อนลายเซ็น — ภาษาเดียวกับคำตอบ"""
     if not gates or not vega_offline_lines or not isinstance(reply, str):
         return reply
-    extra = vega_offline_lines(gates, vega=True)
+    extra = vega_offline_lines(gates, vega=True, lang=lang)
     i = reply.rfind("\n\n— VEGA")
     return (reply[:i] + "\n\n" + extra + reply[i:]) if i >= 0 else (reply + "\n\n" + extra)
 

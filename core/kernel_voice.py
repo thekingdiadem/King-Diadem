@@ -663,6 +663,32 @@ CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไ�
                   "กรีดข้อมือ", "suicide", "kill myself", *SELF_HARM_INTL]
 GREETINGS = ["สวัสดี", "หวัดดี", "hello", "hi", "hey"]
 
+# หัวข้อเงินแบบ "วางแผน" (มีรายได้ อยากเก็บ/ซื้อบ้าน) — เดิมทุกข้อความที่มีคำว่าเงินเดือน/เก็บเงิน
+# ได้ "เงินน้อย ไม่ได้แปลว่าไม่มีทาง" กับ "หารายได้เร็วที่สุด (งานรายวัน)" แม้เหลือเงิน 44% ของรายรับ
+MONEY_SHORT = re.compile(r"เงินหมด|ไม่มีเงิน|เงินไม่พอ|ไม่พอใช้|ไม่พอจ่าย|ช็อต|รายได้ไม่พอ|ไม่มีรายได้|ติดลบ|ขาดเงิน|ชักหน้าไม่ถึงหลัง")
+MONEY_PLAN = {
+    "open": ["มีรายได้เข้ามาอยู่แล้ว — ที่เหลือคือวางให้เงินทำงานตามลำดับ"],
+    "paths": [
+        "หักเงินเก็บทันทีที่เงินเดือนออก (เช่น 10–20%) ไปบัญชีแยกที่ไม่ผูกบัตร — เก็บก่อนใช้ ไม่ใช่ใช้แล้วค่อยเก็บ",
+        "สร้างเงินสำรองฉุกเฉินให้ได้ 3–6 เดือนของรายจ่ายจำเป็นก่อน ค่อยคิดเรื่องลงทุนหรือก่อหนี้ก้อนใหม่",
+        "จดรายจ่ายจริง 30 วัน แล้วดูว่ากองไหนลดได้โดยไม่กระทบชีวิต",
+    ],
+    "ask": "ถ้ามีเหตุไม่คาดคิดพรุ่งนี้ (ป่วย ตกงาน) เงินสำรองที่มีอยู่พอใช้ได้กี่เดือน?",
+}
+
+
+def _money_plan(text: str) -> bool:
+    """เรื่องเงินที่ไม่ใช่การขาดเงิน: ไม่มีคำว่าขาด/หมด และถ้าคำนวณงบได้ ต้องไม่ติดลบ"""
+    if MONEY_SHORT.search(text):
+        return False
+    try:
+        from core.engine_bridge import _budget
+        b = _budget(text)
+    except Exception:
+        b = None
+    return not b or b["data"]["left"] > 0
+
+
 GENERAL = {
     "open": ["ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน"],
     "paths": [
@@ -1199,6 +1225,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     # ── 3. หัวข้อ → ทาง (หลัก 2–3 ทาง + หัวข้อรอง 1 ทาง) ───────────
     lib = {name: d for name, _, d in TOPICS}
     main = lib.get(a["topics"][0]) if a["topics"] else GENERAL
+    if a["topics"] and a["topics"][0] == "money" and _money_plan(text):
+        main = MONEY_PLAN
     second = lib.get(a["topics"][1]) if len(a["topics"]) > 1 else None
     # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง
     # (เดิม "กินยาเกินขนาด" เสียขั้นที่ 3 ให้ "ใช้สิทธิ์บัตรทอง")
@@ -1248,7 +1276,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         paths.insert(0, "หยุดสิ่งที่ทำให้เสียหายเพิ่มก่อน (Stop the line) — ยังไม่ต้องหาทางชนะ ขอแค่ไม่แย่ลง")
 
     # ── ตัวเลือกที่ผู้ใช้ให้มา: วัดด้วย Choice(t+1) ──────────────────
-    opts = a["options"]
+    # เรื่องฉุกเฉินไม่เทียบทางเลือก — "กินยาไป 30 เม็ด จะไปโรงพยาบาลหรือนอนเฉยๆ" เคยได้ "นอนเฉยๆ — ย้อนกลับได้"
+    opts = a["options"] if not council_unsuitable(a) else []
     opt_block = ""
     if len(opts) >= 2:
         letters = "ABCDEFG"
@@ -1312,14 +1341,17 @@ def simulate(text: str, paths: list) -> str:
     text = text if isinstance(text, str) else str(text or "")
     paths = [str(p).strip()[:120] for p in (paths if isinstance(paths, list) else []) if str(p).strip()][:7]
     a = assess(text)
+    # เรื่องฉุกเฉินไม่ใช่เวลาเทียบทางเลือก — "กินยาไป 30 เม็ด จะไปโรงพยาบาลหรือนอนเฉยๆ" เคยได้
+    # "ย้อนกลับได้ ทดลองขนาดเล็ก 30 วัน" ทั้งสองทาง ไม่มีเบอร์ฉุกเฉิน
+    if council_unsuitable(a):
+        return compose(text)
     if not paths:
         return compose(text, route="vega", voice_mode="vega")
-    # ทางที่ย้อนกลับยาก — วลีเต็ม ("ขายออนไลน์" ไม่ใช่การขายบ้าน)
-    irreversible = ["ลาออก", "ขายบ้าน", "ขายรถ", "ขายที่ดิน", "ขายกิจการ", "ย้ายประเทศ", "ย้ายบ้าน", "หย่า",
-                    "กู้", "ลงทุนทั้งหมด", "เงินเก็บทั้งหมด", "ทุ่มหมด", "เซ็นสัญญา", "ปิดร้าน", "ปิดกิจการ",
-                    "quit", "all in"]
+    # ทางที่ย้อนกลับยาก — วลีเต็ม ("ขายออนไลน์" ไม่ใช่การขายบ้าน) · ชุดเดียวกับที่ใช้เรียงทางเลือก
+    from core.engine_bridge import irreversible
     en = detect_lang(text + " " + " ".join(paths)) != "th"          # ผู้ใช้เขียนอังกฤษ → ตอบอังกฤษ (เดิมตอบไทยเสมอ)
-    hard = [_hit(p.lower(), irreversible) for p in paths]
+    # "ไม่ลาออก" "don't quit" คือการไม่ทำสิ่งที่ย้อนกลับยาก — เดิมนับเป็นย้อนกลับยากเพราะมีคำว่าลาออก
+    hard = [irreversible(p) for p in paths]
     lines = []
     for i, p in enumerate(paths):
         if en:

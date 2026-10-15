@@ -695,7 +695,18 @@ def nearby(text: str, disaster: dict | None = None, relationship: str | None = N
 
 # ── 4. เรียงทางเลือก ────────────────────────────────────────────────────
 _IRREVERSIBLE = re.compile(r"ลาออก|ขายบ้าน|ขายรถ|ขายที่ดิน|ขายกิจการ|ย้ายประเทศ|ย้ายบ้าน|หย่า|กู้|ลงทุนทั้งหมด|"
-                           r"เงินเก็บทั้งหมด|ทุ่มหมด|เซ็นสัญญา|ปิดร้าน|ปิดกิจการ|quit|all in", re.I)
+                           r"เงินเก็บทั้งหมด|ทุ่มหมด|เซ็นสัญญา|ปิดร้าน|ปิดกิจการ|"
+                           r"(?<![a-z])quit(?![a-z])|(?<![a-z])all[- ]?in(?![a-z])", re.I)   # ไม่นับ "quite" "small investment"
+
+
+# "ไม่ลาออก" "ยังไม่ขายบ้าน" "don't quit" = ไม่ทำสิ่งที่ย้อนกลับยาก — เดิมนับเป็นย้อนกลับยาก (มีคำว่าลาออก)
+# แล้วจำลองทางเลือกแนะนำ "ลาออก" ว่าคะแนนรอดสูงสุด
+_NEGATED = re.compile(r"^\s*(?:ไม่|ยังไม่|อย่า|not\b|don'?t\b|do not\b|no\b|never\b)", re.I)
+
+
+def irreversible(option: str) -> bool:
+    o = str(option or "")
+    return bool(_IRREVERSIBLE.search(o)) and not _NEGATED.match(o)
 
 
 def rank_options(options: list, waterline: float = 50, entropy: float = 40) -> list:
@@ -703,9 +714,9 @@ def rank_options(options: list, waterline: float = 50, entropy: float = 40) -> l
     try:
         from ENGINE.choice_optimizer import optimize_choice
     except Exception:  # pragma: no cover
-        return [{"action": o, "reversible": not _IRREVERSIBLE.search(o), "collapse_risk": "", "reason": ""}
+        return [{"action": o, "reversible": not irreversible(o), "collapse_risk": "", "reason": ""}
                 for o in options]
-    acts = [{"action": o, "reversible": not _IRREVERSIBLE.search(o), "time": 1} for o in options]
+    acts = [{"action": o, "reversible": not irreversible(o), "time": 1} for o in options]
     return optimize_choice(acts, {"waterline": waterline, "entropy": entropy})
 
 
@@ -828,12 +839,64 @@ def _costs_listed(text: str) -> list:
     return out
 
 
+# ── 11. งบรายเดือนของคน (ไม่ใช่ร้าน): เงินเดือน − รายจ่ายที่เล่ามา ───────────────────
+# เดิม "เงินเดือน 25,000 ค่าเช่า 6,000 ผ่อนรถ 8,000 เหลือเก็บเท่าไหร่" ได้คำตอบทั่วไป "แยกรายจ่ายเป็น 3 กอง"
+# ไม่มีการลบให้เลย ทั้งที่ผู้ใช้ให้ตัวเลขครบ
+_INCOME = r"เงินเดือน(?!พนักงาน|ลูกน้อง)|รายได้(?:ต่อเดือน|เดือนละ)?|ได้(?:เงิน)?เดือนละ"
+_SPEND_TOTAL = r"รายจ่ายรวม|รายจ่ายทั้งหมด|ค่าใช้จ่ายรวม|ค่าใช้จ่ายทั้งหมด|(?<!ค่า)ใช้จ่าย(?:เดือนละ)?|ใช้เดือนละ|จ่ายเดือนละ"
+_SPEND_ITEM = (r"ค่า(?!แรง|จ้าง|คอม|ตอบแทน|ขนม(?:ลูก)?ที่ได้)[ก-๙]{1,14}|ผ่อน[ก-๙]{0,10}|ส่งเงิน(?:ให้)?[ก-๙]{0,8}|"
+               r"ให้(?:พ่อ|แม่|พ่อแม่|ที่บ้าน)|จ่ายหนี้|ใช้หนี้|ดอกเบี้ย|รายจ่าย(?!รวม|ทั้งหมด)|ค่าใช้จ่าย(?!รวม|ทั้งหมด)")
+_NOT_MONEY = r"(?!\s*(?:%|เปอร์|มื้อ|วัน|ปี|ชม|ชั่วโมง|ครั้ง|คน|ลิตร|ขวด|งวด))"
+
+
+def _spend_items(text: str) -> list:
+    out, seen = [], set()
+    for m in re.finditer(rf"({_SPEND_ITEM})\D{{0,10}}?(\d[\d,]*(?:\.\d+)?)\s*(พัน|หมื่น|แสน|k|K)?{_NOT_MONEY}", text):
+        key = re.sub(r"(?:เดือนละ|ต่อเดือน|ประมาณ|ราวๆ|อีก)$", "", re.sub(r"\s", "", m.group(1)))
+        if key in seen:
+            continue
+        try:
+            v = float(m.group(2).replace(",", "")) * _UNITS.get((m.group(3) or "").lower(), 1)
+        except ValueError:
+            continue
+        if v > 0:
+            seen.add(key)
+            out.append(v)
+    return out
+
+
+def _budget(text: str) -> dict | None:
+    if _BIZ_CTX.search(text) or re.search(r"วันละ|ต่อวัน|ปีละ|ต่อปี", text):
+        return None                                     # ร้านใช้ _business · รายได้รายวัน/รายปียังไม่คิดเป็นเดือน
+    income = _after(text, _INCOME)
+    if not income or income < 1000:
+        return None
+    total = _after(text, _SPEND_TOTAL)
+    items = [] if total else _spend_items(text)
+    spend = total if total else sum(items)
+    if not spend:
+        return None
+    left = income - spend
+    per = f"รายรับ {income:,.0f} − รายจ่าย" + (f"ที่เล่ามา {len(items)} รายการ" if len(items) > 1 else "") + f" {spend:,.0f}"
+    if left > 0:
+        lines = [f"{per} = เหลือ {left:,.0f} บาทต่อเดือน (≈ {_pct(left / income)} ของรายรับ)"]
+    elif left < 0:
+        lines = [f"{per} = ขาด {abs(left):,.0f} บาทต่อเดือน — รายจ่ายเกินรายรับ ต้องลดหรือเลื่อนรายจ่ายก่อน"]
+    else:
+        lines = [f"{per} = พอดี 0 บาท — ไม่มีเงินเหลือสำรองเลย"]
+    if 0 < left < income * 0.1:
+        lines.append("เหลือไม่ถึง 10% ของรายรับ — ถ้ามีเหตุไม่คาดคิด (ป่วย ซ่อมรถ) จะไม่มีกันชน")
+    return {"lines": lines, "data": {"income": income, "spend": spend, "left": left, "items": len(items) or 1}}
+
+
 def analyze(text: str) -> dict:
     text = str(text or "")
     out = {"lines": [], "llm_ctx": "", "data": {}}
     for name, fn in (("disaster", _disaster), ("relationship", _relationship), ("debt", _debt),
-                     ("runway", _runway), ("business", _business), ("calc", _calc), ("bias", _bias),
+                     ("runway", _runway), ("business", _business), ("budget", _budget), ("calc", _calc), ("bias", _bias),
                      ("animal", _animal), ("earth", _earth)):
+        if name == "budget" and "debt" in out["data"]:
+            continue                # แผนปลดหนี้คิดรายรับ−รายจ่ายของมันเองแล้ว — ไม่คิดซ้ำจนตัวเลขขัดกัน
         try:
             r = fn(text)
         except Exception as e:  # ห้ามทำให้คำตอบล้ม
