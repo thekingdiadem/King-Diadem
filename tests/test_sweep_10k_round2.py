@@ -46,3 +46,18 @@ def test_idioms_stay_calm(text):
 
 def test_threat_to_user_is_not_a_third_party_case():
     assert "อย่าเข้าไปขวางตัวต่อตัว" not in compose("สามีขู่ว่าจะฆ่าถ้าหนีไป")
+
+
+@pytest.mark.parametrize("text", ["เหลือเงิน 500 บาท อีก 10 วันเงินเดือนออก", "มีเงิน 300 บาท อีก 5 วันกว่าจะได้เงิน"])
+def test_cash_that_runs_out_before_payday_is_a_shortage(text):
+    out = compose(text)
+    assert "หักเงินเก็บ" not in out and "ไม่ได้แปลว่าไม่มีทาง" in out
+
+
+def test_enough_cash_until_payday_keeps_the_saving_plan():
+    assert "หักเงินเก็บ" in compose("เหลือเงิน 20000 บาท อีก 10 วันเงินเดือนออก")
+
+
+@pytest.mark.parametrize("text", ["mi hijo se tragó una pila", "孩子吞了纽扣电池", "子供がボタン電池を飲み込んだ", "아이가 건전지를 삼켰어요", "mi hija bebió lejía"])
+def test_swallowed_battery_or_bleach_in_other_languages(text):
+    assert assess(text)["text_risk"] >= 85

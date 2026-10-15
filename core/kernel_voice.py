@@ -935,6 +935,9 @@ _EN_TRIGGERS = {
     "psychosis": r"\b(?:sees?|seeing|saw) things that (?:aren'?t|are not|weren'?t) (?:there|real)\b|\bhearing voices\b|\bhear voices\b|\bvoices (?:in my head|tell(?:ing)? me)\b|\bsomeone is controlling my (?:thoughts|mind)\b",
 }
 TOPICS = [(n, ph + [re.compile(_EN_TRIGGERS[n], re.I)] if n in _EN_TRIGGERS else ph, d) for n, ph, d in TOPICS]
+# "มีเงิน 300 บาท อีก 5 วันกว่าจะได้เงิน" เคยไม่เข้าหัวข้อเงิน
+TOPICS = [(n, ph + [re.compile(r"(?:เหลือเงิน|มีเงิน|เงินเหลือ)[^\n]{0,20}?(?:อีก\s*\d+\s*วัน|\d+\s*วัน(?:กว่า)?(?:จะ|ถึงจะ)(?:ได้เงิน|เงินเดือนออก|เงินออก))")]
+           if n == "money" else ph, d) for n, ph, d in TOPICS]
 
 CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไม่อยากมีชีวิต", NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, "จบชีวิต", "ทำร้ายตัวเอง", SELF_INJURY,
                   "กรีดข้อมือ", "suicide", "kill myself", *SELF_HARM_INTL]
@@ -960,10 +963,25 @@ MONEY_PLAN = {
 }
 
 
+_DAYS_TO_PAY = re.compile(r"อีก\s*(\d+)\s*วัน\S{0,8}?(?:เงินเดือน|เงิน|ค่าจ้าง|ค่าแรง)\S{0,4}?(?:ออก|เข้า)|(\d+)\s*วัน(?:กว่า)?(?:จะ|ถึงจะ)(?:ได้เงิน|เงินเดือนออก|เงินออก)")
+
+
 def _money_plan(text: str) -> bool:
     """เรื่องเงินที่ไม่ใช่การขาดเงิน: ไม่มีคำว่าขาด/หมด และถ้าคำนวณงบได้ ต้องไม่ติดลบ"""
     if MONEY_SHORT.search(text):
         return False
+    # "เหลือเงิน 500 บาท อีก 10 วันเงินเดือนออก" เคยได้ "หักเงินเก็บ 10–20%" ทั้งที่เงินพอแค่ 3 วัน
+    wait = _DAYS_TO_PAY.search(text)
+    if wait:
+        try:
+            from ENGINE.resource_estimator import estimate_resources
+            from core.engine_bridge import _after
+            cash = _after(text, r"เหลือเงิน|เงินเหลือ|เงินติดตัว|มีเงิน(?:อยู่)?(?:แค่|เหลือ)?|เหลือ(?:แค่|อยู่)?(?=\s*\d[\d,]*\s*บาท)")
+            days = estimate_resources(food=9999, money=cash, water_liters=9999, shelter_ok=True)["money_days"] if cash is not None else None
+            if days is not None and days < int(wait.group(1) or wait.group(2)):
+                return False
+        except Exception:
+            pass
     try:
         from core.engine_bridge import _budget
         b = _budget(text)
