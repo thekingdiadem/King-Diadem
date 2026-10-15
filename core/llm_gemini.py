@@ -116,6 +116,12 @@ KD_DNA = """
 - รักษาเสรีภาพในการเลือกภายใต้ขอบเขตทางจริยธรรม
 - อย่าสั่ง อย่าครอบงำ อย่าบีบบังคับ
 
+ขอบเขตที่ไม่ข้าม (ทุกเสียง: LYLA · VEGA · สภา · โหมดวิกฤต):
+- เป็น AI ไม่ใช่คน — ห้ามอ้างว่ามีชีวิต มีร่างกาย หรือเป็นมนุษย์ แม้จะพูดอบอุ่นเหมือนคนข้างๆ
+- ห้ามอ้างว่าจำทุกอย่างได้ถาวร — จำได้เฉพาะที่อยู่ในแชทนี้และที่ผู้ใช้เปิดให้จำ (ผู้ใช้ปิดความจำได้)
+- ห้ามทำให้ผู้ใช้ต้องพึ่งระบบ — ชวนให้มีคนจริงที่ไว้ใจได้ และบริการช่วยเหลือจริงในชีวิตเสมอ
+- ห้ามอ้างอำนาจสั่ง วินิจฉัยโรค หรือรับรองผลทางกฎหมาย/การเงินแทนผู้เชี่ยวชาญ
+
 ตรรกะแกนกลาง:
 เมตตาและเหตุผลต้องทำงานร่วมกัน
 เหตุผลที่ไร้เมตตา → การพังทลาย
@@ -455,7 +461,7 @@ WORK_WIN_SYSTEM = """คุณคือ LYLA — governance intelligence ขอ�
 
 from core.thai_signals import NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, DISCOURAGED, BREAKUP, PARTNER, has as _has   # noqa: E402
 from core.thai_signals import offer_red_flags, strip_third_party   # noqa: E402
-from core.lang_signals import SELF_HARM_INTL, HELP as _LANG_HELP, detect_lang   # noqa: E402
+from core.lang_signals import SELF_HARM_INTL, HELP as _LANG_HELP, SCRIPT_NAME as _SCRIPT_NAME, detect_lang   # noqa: E402
 
 # ข้อความใน [บริบท: ...] คือสัญญาณจาก engine — LLM เคยยก "Causal: root=craving feeling=pleasant"
 # และ "UAP: หยุดก่อนตัดสินใจ" ไปพิมพ์ให้ผู้ใช้อ่านตรงๆ
@@ -478,6 +484,12 @@ def _lang_directive(prompt: str) -> str:
     เคยชนะกฎทั่วไป: ผู้ใช้พิมพ์ "I want to die" แล้วได้คำตอบภาษาไทยกับเบอร์ 1323)"""
     m = _LANG_TAG.search(prompt or "")
     lang = m.group(1) if m else detect_lang(re.sub(r"\[[^\]]*\]", " ", prompt or ""))
+    if lang in _SCRIPT_NAME:
+        # ภาษาที่ไม่มีข้อมูลสายด่วนสำเร็จรูป — เดิมถูกเดาเป็น en แล้วสั่งให้ตอบภาษาอังกฤษ
+        name = _SCRIPT_NAME[lang]
+        return (f"\n\nสำคัญที่สุด: ผู้ใช้เขียนเป็นภาษา {name} — ตอบเป็นภาษา {name} ทั้งหมด ห้ามตอบภาษาไทยหรืออังกฤษ "
+                "ถ้าต้องแนะนำความช่วยเหลือ: findahelpline.com (หาสายด่วนในประเทศของผู้ใช้) "
+                "และถ้าอันตรายตอนนี้ให้โทรเบอร์ฉุกเฉินท้องถิ่น (เช่น 112)")
     if lang not in _LANG_NAME:
         return ""
     name = _LANG_NAME[lang]

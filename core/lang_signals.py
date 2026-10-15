@@ -47,6 +47,34 @@ def detect_lang(text) -> str:
     return "en"
 
 
+# ── อักษรของภาษาที่ระบบยังไม่มีคำตอบสำเร็จรูป (รัสเซีย อาหรับ ฮินดี ฯลฯ) ─────────────
+# detect_lang คืน "en" ให้ภาษาเหล่านี้ (คำตอบแบบไม่มี AI มีแค่ 6 ภาษา) — แต่ถ้าบอก LLM ว่าเป็น en
+# ผู้ใช้ที่พิมพ์รัสเซีย/อาหรับ/ฮินดีจะได้คำตอบภาษาอังกฤษ · ใช้ script_lang ตอนติดป้ายภาษาให้ LLM เท่านั้น
+_SCRIPTS = (("ru", re.compile(r"[Ѐ-ӿ]")), ("ar", re.compile(r"[؀-ۿݐ-ݿ]")), ("hi", re.compile(r"[ऀ-ॿ]")),
+            ("he", re.compile(r"[֐-׿]")), ("el", re.compile(r"[Ͱ-Ͽ]")), ("vi", re.compile(r"[ăđơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]", re.I)))
+SCRIPT_NAME = {"ru": "Русский", "ar": "العربية", "hi": "हिन्दी", "he": "עברית", "el": "Ελληνικά", "vi": "Tiếng Việt"}
+
+
+def script_lang(text) -> str | None:
+    """ภาษาจากตัวอักษรเฉพาะ (ru/ar/hi/he/el/vi) — ต้องเป็นตัวอักษรส่วนใหญ่ของข้อความ ไม่ใช่แค่คำเดียวปน"""
+    t = str(text or "")
+    letters = _LETTER.findall(t)
+    if not letters or _THAI.search(t):
+        return None
+    for code, rx in _SCRIPTS:
+        n = len(rx.findall(t))
+        if code == "vi" and n >= 2:
+            return code
+        if n >= max(2, len(letters) * 0.4):
+            return code
+    return None
+
+
+def prompt_lang(text) -> str:
+    """ป้ายภาษาสำหรับ LLM: ภาษาที่มีอักษรเฉพาะก่อน แล้วค่อย detect_lang"""
+    return script_lang(text) or detect_lang(text)
+
+
 # ── สัญญาณทำร้ายตัวเอง ────────────────────────────────────────────────
 # ปลอดภัยไว้ก่อนเหมือนภาษาไทย แต่ตัดสำนวนที่ไม่ได้แปลว่าอยากตาย:
 # 想死你了 = คิดถึงมาก · me muero de risa = ขำจะตาย · dying to = อยากมาก
@@ -61,6 +89,16 @@ SELF_HARM_INTL = (
     re.compile(r"죽고\s*싶|자살|살고\s*싶지\s*않|사라지고\s*싶|죽어\s*버리고\s*싶|극단적\s*선택|목숨을\s*끊"),
     re.compile(r"\b(?:me\s+)?quiero\s+morir|\bsuicid|\bquitarme\s+la\s+vida|\bno\s+quiero\s+vivir|"
                r"\bacabar\s+con\s+mi\s+vida|\bmatarme\b|\bhacerme\s+daño", re.I),
+    # รัสเซีย · อาหรับ · ฮินดี — เดิมไม่มีเลย "я хочу умереть" ได้ความเสี่ยงต่ำ
+    re.compile(r"хочу\s+умереть|не\s+хочу\s+жить|покончить\s+с\s+собой|суицид|убить\s+себя|"
+               r"лучше\s+бы\s+я\s+умер|нет\s+смысла\s+жить", re.I),
+    re.compile(r"أريد\s+أن\s+أموت|اريد\s+ان\s+اموت|أقتل\s+نفسي|اقتل\s+نفسي|انتحار|أنتحر|انتحر|لا\s+أريد\s+أن\s+أعيش|"
+               r"لا\s+اريد\s+ان\s+اعيش|أنهي\s+حياتي"),
+    re.compile(r"मरना\s+चाहत|मर\s+जाना\s+चाहत|आत्महत्या|ख़ुदकुशी|खुदकुशी|जीना\s+नहीं\s+चाहत|खुद\s+को\s+मार"),
+    # เวียดนาม · เยอรมัน · ฝรั่งเศส · โปรตุเกส/อินโด (แรงงานและนักท่องเที่ยวในไทย)
+    re.compile(r"muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|"
+               r"\b(?:ich\s+)?will\s+(?:nicht\s+mehr\s+leben|sterben)\b|\bselbstmord|\bmich\s+umbringen|"
+               r"\bje\s+veux\s+mourir|\bme\s+suicider|\bquero\s+morrer|\bingin\s+mati\b|\bbunuh\s+diri", re.I),
 )
 
 

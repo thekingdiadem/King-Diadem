@@ -174,13 +174,13 @@ except Exception as e:  # pragma: no cover
 try:
     from core.kernel_voice import compose as kernel_compose, simulate as kernel_simulate, assess as kernel_assess
     from core.thai_signals import OFFER_FLAG_TH
-    from core.lang_signals import detect_lang
+    from core.lang_signals import detect_lang, prompt_lang
     from core.engine_bridge import analyze as bridge_analyze, nearby as bridge_nearby
 except Exception as e:
     print(f"⚠ kernel_voice: {e}")
     kernel_compose = kernel_simulate = kernel_assess = None
     OFFER_FLAG_TH = {}
-    detect_lang = None
+    detect_lang = prompt_lang = None
     bridge_analyze = bridge_nearby = None
 
 try:
@@ -1861,7 +1861,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             effective += "\n\n" + vega_llm_hint(vega_gates)
     # ภาษาของผู้ใช้ (ดูจากข้อความดิบ — prompt ที่ต่อแล้วมีบริบทภาษาไทยปน) ให้ LLM ตอบภาษาเดียวกัน
     if detect_lang:
-        u_lang = detect_lang(user_input)
+        u_lang = prompt_lang(user_input) if prompt_lang else detect_lang(user_input)
         if u_lang != "th":
             effective += f"\n\n[ภาษาผู้ใช้: {u_lang}]"
     # มีประวัติแชท → บอกให้ชัดว่าข้อความไหนต้องตอบตอนนี้ (ข้อความล่าสุดถูกบริบทยาวๆ ล้อมไว้
@@ -2187,7 +2187,7 @@ def _simulate_impl(user_input: str, paths: list, email: str) -> dict:
         )
         # ภาษาเดียวกับผู้ใช้ (เดิมบังคับ "ตอบเป็นภาษาไทย") และเส้นทาง vega ตามลายเซ็น — VEGA
         # (เดิม route="survival" ทุกครั้ง LLM จึงได้คำสั่ง "โฟกัสความอยู่รอดพื้นฐาน" กับการจำลองเรื่องงาน)
-        u_lang = detect_lang(user_input) if detect_lang else "th"
+        u_lang = (prompt_lang or detect_lang)(user_input) if detect_lang else "th"
         if u_lang != "th":
             prompt += f"\n\n[ภาษาผู้ใช้: {u_lang}]"
         answer = _llm.generate_with_governance(
