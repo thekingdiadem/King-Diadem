@@ -186,7 +186,9 @@ def _debt(text: str) -> dict | None:
         except Exception as e:  # pragma: no cover
             print(f"⚠ debt_engine: {type(e).__name__}")
     else:
-        lines.append("บอกรายได้และรายจ่ายต่อเดือนมาด้วย ระบบจะคำนวณให้ว่าปลดหนี้ได้ในกี่เดือน")
+        # ถามเฉพาะที่ยังขาด — เดิมบอกรายได้มาแล้วก็ยังถามรายได้ซ้ำ
+        miss = "รายได้และรายจ่าย" if income is None and expense is None else "รายได้" if income is None else "รายจ่าย"
+        lines.append(f"บอก{miss}ต่อเดือนมาด้วย ระบบจะคำนวณให้ว่าปลดหนี้ได้ในกี่เดือน")
     return {"lines": lines, "data": data}
 
 

@@ -1094,7 +1094,7 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     }
 
 
-def compose(text: str, route: str = "general", voice_mode: str = "lyla",
+def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             pattern: dict | None = None, footer: bool = True) -> str:
     """คำตอบเต็มจากสมการ — ไม่มี AI · input เดิม → คำตอบเดิม"""
     text = text if isinstance(text, str) else str(text or "")
@@ -1293,6 +1293,20 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
             f"คำถามเดียวที่ควรถามตัวเองตอนนี้: {main['ask']}\n\n{sign}" + tag)
 
 
+
+_STEP_LINE = re.compile(r"(?m)^\d+\)\s+\S")
+
+
+def compose(text: str, *args, **kw) -> str:
+    """คำตอบแบบไม่มี AI · ภาษาอื่นนอกจากไทย: Choice(t) ต้องเท่ากับจำนวนทางที่พิมพ์จริง
+    (เดิม "My husband hits me" แสดง Choice(t) = 4 แต่มีแค่ 3 ข้อ เพราะตั้งค่าตายตัวไว้ก่อนเลือกชุดคำตอบ)"""
+    out = _compose(text, *args, **kw)
+    if isinstance(out, str) and detect_lang(text) != "th":
+        n = len(_STEP_LINE.findall(out))
+        if n:
+            out = re.sub(r"Choice\(t\) = \d+", f"Choice(t) = {n}", out, count=1)
+    return out
+
 def simulate(text: str, paths: list) -> str:
     """จำลองทางเลือกแบบไม่มี AI — Downside ก่อน · วัดด้วยการย้อนกลับได้"""
     text = text if isinstance(text, str) else str(text or "")
@@ -1304,17 +1318,35 @@ def simulate(text: str, paths: list) -> str:
     irreversible = ["ลาออก", "ขายบ้าน", "ขายรถ", "ขายที่ดิน", "ขายกิจการ", "ย้ายประเทศ", "ย้ายบ้าน", "หย่า",
                     "กู้", "ลงทุนทั้งหมด", "เงินเก็บทั้งหมด", "ทุ่มหมด", "เซ็นสัญญา", "ปิดร้าน", "ปิดกิจการ",
                     "quit", "all in"]
+    en = detect_lang(text + " " + " ".join(paths)) != "th"          # ผู้ใช้เขียนอังกฤษ → ตอบอังกฤษ (เดิมตอบไทยเสมอ)
+    hard = [_hit(p.lower(), irreversible) for p in paths]
     lines = []
     for i, p in enumerate(paths):
-        hard = _hit(p.lower(), irreversible)
-        lines.append(f"{'ABCDEFG'[i]} · {p}\n"
-                     f"   Downside: {'ย้อนกลับยาก — ต้องมีเงินสำรองและแผนสำรองก่อน' if hard else 'ย้อนกลับได้ — เสียหายจำกัดถ้าทดลองขนาดเล็ก'}\n"
-                     f"   30 วัน: ทดลองขนาดเล็กแล้ววัดผล · 90 วัน: ขยายเฉพาะถ้าตัวเลขยืนยัน")
+        if en:
+            lines.append(f"{'ABCDEFG'[i]} · {p}\n"
+                         f"   Downside: {'hard to reverse — have savings and a backup plan first' if hard[i] else 'reversible — limited loss if you test it small'}\n"
+                         f"   30 days: test small and measure · 90 days: scale only if the numbers confirm")
+        else:
+            lines.append(f"{'ABCDEFG'[i]} · {p}\n"
+                         f"   Downside: {'ย้อนกลับยาก — ต้องมีเงินสำรองและแผนสำรองก่อน' if hard[i] else 'ย้อนกลับได้ — เสียหายจำกัดถ้าทดลองขนาดเล็ก'}\n"
+                         f"   30 วัน: ทดลองขนาดเล็กแล้ววัดผล · 90 วัน: ขยายเฉพาะถ้าตัวเลขยืนยัน")
     # ENGINE/choice_optimizer เรียงจากรอดที่สุด — แนะนำทางที่ได้คะแนนสูงสุด
     best = rank_options(paths, waterline=a["W"])[0]["action"]
     pick = paths.index(best) if best in paths else 0
+    L = "ABCDEFG"[pick]
+    # เหตุผลต้องตรงกับทางที่เลือกจริง — เดิมพูดว่า "ทางที่ย้อนกลับได้" แม้ทุกทางย้อนกลับยาก
+    if en:
+        why = ("the most reversible path — keep the others for later (higher Choice(t+1))" if not hard[pick] else
+               ("every path here is hard to reverse" if all(hard) else "hard to reverse, but it ranks safest") +
+               " — secure savings and a way back before you start")
+        return (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = {len(paths)}\n\n" + "\n\n".join(lines) +
+                f"\n\nStart with {L} — {why}"
+                "\n\n— VEGA ◆\n· Simulated from the system's equations — no AI used")
+    why = ("ทางที่ย้อนกลับได้ เก็บทางอื่นไว้ใช้ทีหลัง (Choice(t+1) สูงกว่า)" if not hard[pick] else
+           ("ทุกทางในนี้ย้อนกลับยาก ทางนี้ปลอดภัยที่สุดในกลุ่ม" if all(hard) else "ทางนี้ย้อนกลับยาก แต่คะแนนรอดสูงสุด") +
+           " — เตรียมเงินสำรองและทางถอยไว้ก่อนเริ่ม")
     return (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = {len(paths)}\n\n" + "\n\n".join(lines) +
-            f"\n\nแนะนำเริ่มจาก {'ABCDEFG'[pick]} — ทางที่ย้อนกลับได้ เก็บทางอื่นไว้ใช้ทีหลัง (Choice(t+1) สูงกว่า)"
+            f"\n\nแนะนำเริ่มจาก {L} — {why}"
             "\n\n— VEGA ◆\n· จำลองจากสมการของระบบ — ไม่ได้ใช้ AI")
 
 
