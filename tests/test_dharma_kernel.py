@@ -108,3 +108,13 @@ def test_doc_points_only_to_code_that_exists():
                     ("ENGINE.yonisomanasikara_engine", "wise_attention"), ("core.king_diadem_core", "quick_assess")):
         assert hasattr(importlib.import_module(mod), fn) and fn in DOC
     assert "ไม่มีไฟล์ `ENGINE/bodhipakkhiya_engine.py`" not in DOC and "analyze_chain" not in DOC
+
+
+def test_king_diadem_kernel_doc_matches_dharma_doc():
+    """KERNEL/king-diadem-kernel.md เป็นสำเนาหัวข้อ 1–15 — เดิมยังอ้าง analyze_chain() และชื่อ K1–K14 เก่า"""
+    king = (Path(__file__).resolve().parent.parent / "KERNEL" / "king-diadem-kernel.md").read_text(encoding="utf-8")
+    assert "analyze_chain" not in king and "Compassion Default" not in king and "report_url` always" not in king
+    for sec in ("## 9. Paticcasamuppada", "## 12. Kernel Modules", "## 14. โยนิโสมนสิการ"):
+        a, b = king.index(sec), DOC.index(sec)
+        assert king[a:a + 600] == DOC[b:b + 600], sec
+    assert "หัวข้อ 16" in king
