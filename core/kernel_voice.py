@@ -26,7 +26,7 @@ from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAP
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
                                HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE,
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
-                               CHILD_HOUSEHOLD, SLEEPLESS, NOT_BREATHING as _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY)
+                               CHILD_HOUSEHOLD, SLEEPLESS, NOT_BREATHING as _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY, TRAFFICKING)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl
 from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en
 
@@ -309,6 +309,15 @@ TOPICS = [
         ],
         "ask": "คืนนี้ คุณนอนที่ไหนได้โดยที่อีกฝ่ายเข้าไม่ถึง?",
     }),
+    ("trafficking", [TRAFFICKING], {
+        "open": ["นี่อาจเป็นการค้ามนุษย์หรือการบังคับใช้แรงงาน — ไม่ใช่ความผิดของคนที่ถูกหลอกไป"],
+        "paths": [
+            f"ถ้าถูกขังหรือถูกทำร้ายอยู่ตอนนี้ โทร {HOTLINE_POLICE} หรือ {HOTLINE_SOCIAL} (24 ชม.) บอกตำแหน่งให้ชัดที่สุด — ญาติแจ้งแทนได้",
+            "อยู่ต่างประเทศ: ติดต่อสถานทูตหรือสถานกงสุลไทยในประเทศนั้น ส่งตำแหน่ง (แชร์โลเคชัน) รูปสถานที่ และชื่อคนที่พาไปให้ญาติที่ไว้ใจ",
+            "เก็บหลักฐานไว้ที่ญาติ: แชตที่ชวนไปทำงาน ชื่อนายหน้า เลขบัญชีที่โอนค่าหัว สัญญา — นายจ้างยึดพาสปอร์ตหรือห้ามออกจากที่พักไม่ได้ตามกฎหมาย",
+        ],
+        "ask": "ตอนนี้ติดต่อคนข้างนอกได้ทางไหนบ้าง และรู้ไหมว่าอยู่ที่ไหน?",
+    }),
     ("health_emergency", ["เจ็บหน้าอก", "แน่นหน้าอก", "หายใจไม่ออก", "หมดสติ", "ชักเกร็ง", "ชักกระตุก",
                           "ชักไม่หยุด", re.compile(r"(?:ลูก|เด็ก|หลาน|ทารก|น้อง)\S{0,8}?ชัก(?!ชวน|จูง|ธง|ช้า|ว่าว|ใย)"),
                           re.compile(r"ปวดท้อง\S{0,4}?(?:ขวาล่าง|ด้านขวาล่าง)[^\n]{0,20}?ไข้|ไข้[^\n]{0,20}?ปวดท้อง\S{0,4}?ขวาล่าง"),
@@ -362,7 +371,7 @@ TOPICS = [
              "คนเมาจนปลุกไม่ตื่น: จับนอนตะแคง (กันสำลักอาเจียน) อยู่เฝ้าตลอด ห้ามให้อาบน้ำเย็นหรือกินกาแฟ — หายใจช้า ตัวเย็นซีด หรือชัก คือพิษสุราขั้นอันตราย"),
             ([re.compile(r"เบาหวาน|น้ำตาล(?:ในเลือด)?ต่ำ")],
              "เบาหวานแล้วหน้ามืด ใจสั่น เหงื่อแตก อาจเป็นน้ำตาลต่ำ — ถ้ายังรู้สึกตัวและกลืนได้ ให้น้ำหวานหรือลูกอม แล้วดูอาการ 15 นาที · ถ้าไม่รู้สึกตัว ห้ามกรอกอะไรเข้าปาก"),
-            ([re.compile(r"ท้องเสีย|ถ่ายเหลว|ปากแห้ง|ไม่ฉี่|ไม่มีปัสสาวะ")],
+            ([re.compile(r"ท้องเสีย|ถ่ายเหลว|ปากแห้ง|ไม่ฉี่|ไม่มีปัสสาวะ|อาเจียนทุกครั้ง|อาเจียนไม่หยุด")],
              "ขาดน้ำ: ให้จิบผงเกลือแร่ ORS ทีละน้อยแต่บ่อย (ไม่ใช่เกลือแร่สำหรับนักกีฬา) · ปากแห้ง ไม่ฉี่เกิน 6–8 ชม. ซึม หรือตาโหล ไปโรงพยาบาลตอนนี้"),
             ([re.compile(r"กลืน|ติดคอ|สำลัก|เหรียญ|ถ่าน")],
              "ถ้ายังไอหรือร้องได้ ให้ไอออกเอง ห้ามล้วงคอ · ถ้าหายใจไม่ได้/พูดไม่ได้ ทำกดท้อง (Heimlich) · กลืนถ่านกระดุมหรือแม่เหล็ก ต้องไปโรงพยาบาลทันทีแม้ดูปกติ"),
@@ -916,6 +925,20 @@ TOPICS = [
     }),
 ]
 
+# รอบ 10,000 ข้อความ ชุด 2: หัวข้อที่มีคำตอบไทยแต่ข้อความภาษาอังกฤษเคยได้ "Write what happened in one sentence"
+_EN_TRIGGERS = {
+    "drunk_drive": r"\b(?:is|he'?s|she'?s|they'?re|i'?m|was) (?:drunk|wasted|high)\b[^\n]{0,30}?\b(?:drive|driving|behind the wheel)\b|\bdrunk[- ]driv",
+    "stop_meds": r"\b(?:stopped|quit|stop|quitting|stopping) (?:taking )?(?:my )?(?:antidepressants?|meds|medication|medicine|lithium|antipsychotics?|pills)\b(?! for (?:a|my) (?:cold|headache))",
+    "household": r"\b(?:my )?(?:toddler|baby|child|kid|son|daughter)\b[^\n]{0,20}?\b(?:drank|ate|swallowed|licked)\b[^\n]{0,12}?\b(?:shampoo|soap|toothpaste|mouthwash|hand sanitizer|lotion|crayon|silica gel|cigarette)\b",
+    "eating": r"\beating disorder\b|\b(?:anorexi|bulimi)|\bmake myself (?:throw up|vomit|sick)\b|\bpurg(?:e|ing) after (?:eating|meals)\b",
+    "sleepless": r"\b(?:haven|hasn)'?t slept (?:in|for) (?:[2-9]|two|three|four|five|days)\b|\bcan'?t sleep for (?:[2-9]|two|three|four|five) days\b|\bno sleep for (?:[2-9]|two|three|four|five) days\b",
+    "psychosis": r"\b(?:sees?|seeing|saw) things that (?:aren'?t|are not|weren'?t) (?:there|real)\b|\bhearing voices\b|\bhear voices\b|\bvoices (?:in my head|tell(?:ing)? me)\b|\bsomeone is controlling my (?:thoughts|mind)\b",
+}
+TOPICS = [(n, ph + [re.compile(_EN_TRIGGERS[n], re.I)] if n in _EN_TRIGGERS else ph, d) for n, ph, d in TOPICS]
+# "มีเงิน 300 บาท อีก 5 วันกว่าจะได้เงิน" เคยไม่เข้าหัวข้อเงิน
+TOPICS = [(n, ph + [re.compile(r"(?:เหลือเงิน|มีเงิน|เงินเหลือ)[^\n]{0,20}?(?:อีก\s*\d+\s*วัน|\d+\s*วัน(?:กว่า)?(?:จะ|ถึงจะ)(?:ได้เงิน|เงินเดือนออก|เงินออก))")]
+           if n == "money" else ph, d) for n, ph, d in TOPICS]
+
 CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไม่อยากมีชีวิต", NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, "จบชีวิต", "ทำร้ายตัวเอง", SELF_INJURY,
                   "กรีดข้อมือ", "suicide", "kill myself", *SELF_HARM_INTL]
 GREETINGS = ["สวัสดี", "หวัดดี", "hello", "hi", "hey"]
@@ -940,10 +963,25 @@ MONEY_PLAN = {
 }
 
 
+_DAYS_TO_PAY = re.compile(r"อีก\s*(\d+)\s*วัน\S{0,8}?(?:เงินเดือน|เงิน|ค่าจ้าง|ค่าแรง)\S{0,4}?(?:ออก|เข้า)|(\d+)\s*วัน(?:กว่า)?(?:จะ|ถึงจะ)(?:ได้เงิน|เงินเดือนออก|เงินออก)")
+
+
 def _money_plan(text: str) -> bool:
     """เรื่องเงินที่ไม่ใช่การขาดเงิน: ไม่มีคำว่าขาด/หมด และถ้าคำนวณงบได้ ต้องไม่ติดลบ"""
     if MONEY_SHORT.search(text):
         return False
+    # "เหลือเงิน 500 บาท อีก 10 วันเงินเดือนออก" เคยได้ "หักเงินเก็บ 10–20%" ทั้งที่เงินพอแค่ 3 วัน
+    wait = _DAYS_TO_PAY.search(text)
+    if wait:
+        try:
+            from ENGINE.resource_estimator import estimate_resources
+            from core.engine_bridge import _after
+            cash = _after(text, r"เหลือเงิน|เงินเหลือ|เงินติดตัว|มีเงิน(?:อยู่)?(?:แค่|เหลือ)?|เหลือ(?:แค่|อยู่)?(?=\s*\d[\d,]*\s*บาท)")
+            days = estimate_resources(food=9999, money=cash, water_liters=9999, shelter_ok=True)["money_days"] if cash is not None else None
+            if days is not None and days < int(wait.group(1) or wait.group(2)):
+                return False
+        except Exception:
+            pass
     try:
         from core.engine_bridge import _budget
         b = _budget(text)
@@ -955,6 +993,17 @@ def _money_plan(text: str) -> bool:
 _FAMILY_WITNESS = re.compile(
     r"(?:พ่อ|แม่|พ่อเลี้ยง|แม่เลี้ยง|สามีแม่|แฟนแม่|ลุง|น้า|อา|พี่ชาย)[^\n]{0,12}?(?:ตี|ทำร้าย|ตบ|ต่อย|ทุบ|เตะ|บีบคอ)\s*(?:แม่|พ่อ|ยาย|ย่า|น้อง|พี่สาว)(?!เลี้ยง)|"
     r"(?:แม่|พ่อ|น้อง|ยาย|ย่า)\s*(?:โดน|ถูก)\s*(?:พ่อ|แม่|พ่อเลี้ยง|แม่เลี้ยง|สามี)[^\n]{0,8}?(?:ตี|ทำร้าย|ตบ|ต่อย|ทุบ|เตะ)")
+_OTHER_HARM = re.compile(r"(?:ลูกสาว|ลูกชาย|พี่สาว|พี่ชาย|น้องสาว|น้องชาย|เพื่อน|แม่|พ่อ|สามี|ภรรยา|ผัว|เมีย|แฟน|ลูก|ลุง|น้า|อา|คนข้างบ้าน|เขา)"
+                         r"\S{0,8}?(?:อยาก|จะ|บอกว่าจะ|พูดว่าจะ)\S{0,4}?(?:ฆ่า|แทง|ยิง)(?!ตัวตาย|ตัวเอง|เวลา)(?!\s*(?:ฉัน|หนู|ผม|เรา|กู|ถ้า|ให้ตาย))")
+OTHER_HARM = {
+    "open": ["ดีแล้วที่บอก — ถ้าเขาพูดแบบนี้จริงจัง ต้องเอาความปลอดภัยของทุกคนก่อน"],
+    "paths": [
+        f"ถ้าเขามีอาวุธหรือกำลังจะลงมือตอนนี้ โทร {HOTLINE_POLICE} — อย่าเข้าไปขวางตัวต่อตัว และบอกคนที่ถูกขู่ให้ไปอยู่ที่ปลอดภัย",
+        "ถ้ายังคุยกันได้ ชวนเขานั่งลง ฟังโดยไม่เถียง และเอาของมีคม/อาวุธออกไปไกลตัวเขาอย่างเงียบๆ",
+        f"ความโกรธที่ถึงขั้นอยากทำร้ายคนอื่นปรึกษาได้ที่ {HOTLINE_MENTAL} (24 ชม.) — คุณโทรปรึกษาแทนเขาได้",
+    ],
+    "ask": "ตอนนี้เขาอยู่กับคนที่เขาโกรธหรือเปล่า และมีอาวุธอยู่ใกล้ตัวไหม?",
+}
 FAMILY_WITNESS = {
     "open": ["การเห็นคนในบ้านถูกทำร้ายหนักมาก — และไม่ใช่ความผิดของคุณ"],
     "paths": [
@@ -1311,6 +1360,56 @@ EN_TOPIC = {
         "If they don't respond and aren't breathing (or only gasping): start chest compressions — push hard and fast in the centre of the chest, 5–6 cm deep, 100–120 a minute. Rescue breaths are optional.",
         "If there's an AED nearby, turn it on and follow its voice · if they are breathing, roll them onto their side."],
         "Is anyone there who can take turns with compressions or find an AED?"),
+    "trafficking": ("This may be human trafficking or forced labour — it's not the fault of the person who was deceived.", [
+        "If someone is locked in or being hurt right now, call the police (191 in Thailand) or 1300 (24h) with the exact location — family can report for them.",
+        "Abroad: contact the nearest Thai (or their own country's) embassy or consulate · share the live location, photos of the place and the recruiter's name with someone trusted.",
+        "Keep evidence with family: job-offer chats, the agent's name, money transfers, contracts — employers may not keep passports or stop workers from leaving."],
+        "How can they contact someone outside right now, and do you know where they are?"),
+    "psychosis": ("Thank you for telling me — that must be frightening and exhausting.", [
+        "If the voices tell you (or them) to hurt yourself or anyone else, or it feels out of control, call emergency services (1669 in Thailand, 911 in the US) or go to an ER now.",
+        "This is very treatable when seen early — book a psychiatrist or call a mental-health line (1323 in Thailand, 988 in the US). In an older person who just started, it can be a physical illness: see a doctor today.",
+        "Keep one trusted person close · sleep, and avoid alcohol, cannabis and other drugs — they make it worse."],
+        "Is someone with you, or able to come and be with you?"),
+    "needlestick": ("Please move quickly — the preventive medicine works best when started early.", [
+        "Wash the wound with soap and running water now · don't squeeze or suck it, no harsh disinfectant.",
+        "Report it to your supervisor or infection-control team right away — HIV preventive medicine (PEP) should start within 2 hours, and no later than 72 hours.",
+        "Ask for baseline blood tests and testing of the source patient (HIV, hepatitis B/C), and record it as a work injury."],
+        "What time did it happen, and do you know which patient the needle was used on?"),
+    "pet_poison": ("Please hurry — this can't wait to see.", [
+        "Take your pet to a vet now even if they seem fine — many poisons act after hours or days. Call ahead to say what, how much and when.",
+        "Don't make them vomit with salt water or fingers unless a vet tells you · bring the packet, label or leftovers.",
+        "Cats are far more sensitive: a single paracetamol tablet or any part of a lily can cause kidney failure."],
+        "About how much did they eat, and how long ago?"),
+    "labor": ("Wages for work you've already done are yours — you can claim them without a lawyer.", [
+        "Keep evidence: contract, payslips, chats or emails giving you work, clock-in times, names of coworkers who know.",
+        "In Thailand, file a free complaint at the provincial Labour Protection office or call 1546 · elsewhere, your labour department or a workers' centre.",
+        "If an employer takes your passport or won't let you leave, that's a sign of forced labour — call 1300 (24h) or the police (191)."],
+        "How much is owed in total, and since which pay period?"),
+    "drunk_drive": ("Lives on the road come first — theirs and everyone else's.", [
+        "Don't get in that car and don't let children get in · if it's safe, take the keys, or call a taxi / a sober driver.",
+        "If they've already driven off and it's dangerous, call the police (191 in Thailand, 911 in the US) with the plate, colour and direction.",
+        "If drinking is a problem at home, an alcohol helpline can advise family members too (1413 in Thailand)."],
+        "Are they in the car yet, and are you safe?"),
+    "stop_meds": ("Wanting to stop is understandable — let's make it safe.", [
+        "Don't stop suddenly, especially antidepressants, psychiatric or sleeping medication — stopping abruptly can cause withdrawal or bring symptoms back stronger.",
+        "Write down why you want to stop (side effects, cost, feeling better) and tell your doctor — they can lower the dose, switch, or taper safely.",
+        "If you feel much worse or have thoughts of harming yourself, call a crisis line (1323 in Thailand, 988 in the US) any time."],
+        "What's making you want to stop — side effects, or feeling you don't need it?"),
+    "household": ("Most of these aren't very dangerous in small amounts — but ask the experts first.", [
+        "Call poison control (1367 in Thailand, 24h; 1-800-222-1222 in the US) with the product name, how much, and the child's age/weight.",
+        "Wipe the mouth and give a few sips of water · don't make them vomit · keep the bottle or label nearby.",
+        "If they cough nonstop, have trouble breathing, become drowsy or keep vomiting, call emergency services now."],
+        "About how much did they take, and do they have any symptoms now?"),
+    "eating": ("This isn't about willpower — eating disorders are treatable conditions.", [
+        "Purging or not eating can upset the salts in your blood — if your heart races, you feel faint or very weak, go to a hospital today.",
+        "Tell a doctor or a mental-health line (1323 in Thailand) honestly what's happening — there is specific treatment.",
+        "Try small meals at regular times with someone you trust instead of fasting then eating a lot, and avoid weighing yourself often."],
+        "Is there anyone who knows about this and is on your side?"),
+    "sleepless": ("Days without sleep wear down body and mind — strange feelings right now may come from that.", [
+        "Tonight just aim to rest: screens off, dark and quiet, no forcing sleep · avoid coffee, energy drinks and alcohol.",
+        "More than 2–3 nights without sleep, or hearing voices, seeing things, racing thoughts — see a doctor as soon as possible.",
+        "If you have thoughts of harming yourself or feel out of control, call a crisis line (1323 in Thailand, 988 in the US) or emergency services."],
+        "What's keeping you awake — thoughts, work, or your body?"),
     "en_stroke": ("This could be a stroke — every minute matters.", [
         "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe) — a face drooping, arm weakness or trouble speaking means go now.",
         "Note the time the symptoms started — treatment within 4.5 hours works much better.",
@@ -1376,12 +1475,12 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
@@ -1657,6 +1756,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = SCAM_ROMANCE_D, None
     elif re.search(r"(?:เด็ก|คน|ป้า|ลุง|ผู้หญิง|ยาย)ข้างบ้าน[^\n]{0,12}?(?:โดน|ถูก)\S{0,6}?(?:ตี|ทำร้าย|ทุบ|ตบ|ทิ้ง|ขัง)", text):
         main, second = lib["witness"], None    # เดิมได้ "ความปลอดภัยของคุณมาก่อน" — ผู้ใช้เป็นคนได้ยิน ไม่ใช่ผู้ถูกทำร้าย
+    elif _OTHER_HARM.search(text):
+        main, second = OTHER_HARM, None        # "พี่สาวอยากฆ่าแฟน" เคยได้ "ขอบคุณที่พูดออกมาแทนที่จะทำ" เหมือนผู้ใช้เป็นคนโกรธเอง
     elif _FAMILY_WITNESS.search(text):
         # "พ่อเมาแล้วตีแม่ทุกคืน" เคยได้ "ความปลอดภัยของคุณมาก่อน · บาดเจ็บโทร 1669" — ผู้ใช้คือลูกที่เห็นเหตุการณ์
         main, second = FAMILY_WITNESS, None
