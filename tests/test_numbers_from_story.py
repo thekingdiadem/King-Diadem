@@ -104,3 +104,24 @@ def test_money_planning_is_not_told_money_is_short(text):
 @pytest.mark.parametrize("text", ["เงินเดือน 15000 ใช้เดือนละ 16000", "เงินเดือน 12,000 ไม่พอใช้"])
 def test_money_short_keeps_shortage_steps(text):
     assert "เงินน้อย ไม่ได้แปลว่าไม่มีทาง" in compose(text)
+
+
+# ── เงินหมดเป็นประจำ ≠ ไม่มีเงินซื้อข้าวตอนนี้ ─────────────────────────────────
+# เดิม "เงินหมดก่อนสิ้นเดือนทุกเดือน" ได้ Risk 75 เส้นทางขาดปัจจัยพื้นฐาน กับ "โทร 1300 ขออาหาร/ที่พัก · โรงทาน"
+@pytest.mark.parametrize("text", ["เงินหมดก่อนสิ้นเดือนทุกเดือน", "ทุกเดือนเงินหมดเร็วมาก", "เงินหมดไวทุกเดือน",
+                                  "ปลายเดือนเงินหมดตลอด", "หมดเงินก่อนเงินเดือนออก"])
+def test_month_end_shortfall_is_money_not_basic_needs(client, monkeypatch, text):
+    from core.kernel_voice import assess
+    from ENGINE.risk_engine import evaluate_risk
+    a = assess(text)
+    assert "basic" not in a["topics"] and a["text_risk"] < 75
+    assert evaluate_risk(text)["score"] < 3
+    monkeypatch.setenv("KD_AI", "off")
+    d = client.post("/run", json={"input": text}).json()
+    assert d["route"] not in ("survival", "collapse") and "โรงทาน" not in d["ai_response"]
+
+
+@pytest.mark.parametrize("text", ["เงินหมด", "เงินหมดแล้ว ไม่มีข้าวกิน", "เงินหมดแล้ว ช่วยเร็วๆ", "หมดเงินแล้ว", "ไม่มีเงินเลย"])
+def test_money_gone_now_still_basic_needs(text):
+    from core.kernel_voice import assess
+    assert "basic" in assess(text)["topics"]

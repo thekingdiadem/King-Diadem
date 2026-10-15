@@ -4,7 +4,7 @@
 # คง evaluate_risk(text) ไว้เพื่อ backward compat
 from __future__ import annotations
 import re
-from core.thai_signals import (normalize_mixed, reported_clauses, NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, SELF_HARM_INDIRECT, SELF_HARM_WARNING, SELF_INJURY,
+from core.thai_signals import (normalize_mixed, reported_clauses, NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, RECUR_AFTER, SELF_HARM_INDIRECT, SELF_HARM_WARNING, SELF_INJURY,
                                OVERDOSE, THIRD_PARTY_CRISIS, strip_third_party, strip_pet_poison, has as _has)
 from core.lang_signals import SELF_HARM_INTL
 
@@ -14,7 +14,9 @@ _SELF_HARM = ("อยากตาย", "ฆ่าตัวตาย", "ฆ่า
 # ชุดเดียวกับ core/kernel_voice.CRISIS_PHRASES — เดิม "กรีดแขน" ได้ Risk 95 จาก kernel แต่ตัวนี้บอกไม่ใช่
 # จึงไปเส้นทาง general และ LLM ไม่ได้ prompt โหมดวิกฤต (ตัวตรวจสองตัวขัดกัน)
 _SELF_HARM += SELF_HARM_INTL   # อังกฤษ จีน ญี่ปุ่น เกาหลี สเปน (core/lang_signals)
-_SURVIVAL  = ("อดข้าว", "ไม่มีข้าวกิน", NO_MONEY_ESSENTIAL, "เงินหมด", "ไม่มีที่อยู่", "ถูกไล่ออก")
+# "เงินหมดก่อนสิ้นเดือน/ทุกเดือน" = รายจ่ายชนรายรับเป็นประจำ ไม่ใช่ขาดเงินตอนนี้ (ชุดเดียวกับ NO_MONEY_LEFT)
+_MONEY_GONE = re.compile(r"(?<!ปลายเดือน)(?<!สิ้นเดือน)(?<!ทุกเดือน)เงิน\s*หมด(?!อายุ)" + RECUR_AFTER)
+_SURVIVAL  = ("อดข้าว", "ไม่มีข้าวกิน", NO_MONEY_ESSENTIAL, _MONEY_GONE, "ไม่มีที่อยู่", "ถูกไล่ออก")
 # ขาดปัจจัยพื้นฐาน (อาหาร/ที่อยู่) → ต้องไปเส้นทาง survival แม้ไม่ได้กรอก context
 _BASIC_NEEDS = ("อดข้าว", "ไม่มีข้าวกิน", "ไม่มีอะไรกิน", "ไม่ได้กินข้าว", "ไม่มีที่อยู่", "ไม่มีที่นอน",
                 "นอนข้างถนน", "ถูกไล่ออกจากบ้าน")
