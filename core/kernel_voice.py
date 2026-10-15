@@ -335,6 +335,8 @@ TOPICS = [
              "คนเมาจนปลุกไม่ตื่น: จับนอนตะแคง (กันสำลักอาเจียน) อยู่เฝ้าตลอด ห้ามให้อาบน้ำเย็นหรือกินกาแฟ — หายใจช้า ตัวเย็นซีด หรือชัก คือพิษสุราขั้นอันตราย"),
             ([re.compile(r"เบาหวาน")],
              "เบาหวานแล้วหน้ามืด ใจสั่น เหงื่อแตก อาจเป็นน้ำตาลต่ำ — ถ้ายังรู้สึกตัวและกลืนได้ ให้น้ำหวานหรือลูกอม แล้วดูอาการ 15 นาที · ถ้าไม่รู้สึกตัว ห้ามกรอกอะไรเข้าปาก"),
+            ([re.compile(r"ท้องเสีย|ถ่ายเหลว|ปากแห้ง|ไม่ฉี่|ไม่มีปัสสาวะ")],
+             "เด็กขาดน้ำ: ให้จิบผงเกลือแร่ ORS ทีละน้อยแต่บ่อย (ไม่ใช่เกลือแร่สำหรับนักกีฬา) · ปากแห้ง ไม่ฉี่เกิน 6–8 ชม. ซึม หรือตาโหล ไปโรงพยาบาลตอนนี้"),
             ([re.compile(r"กลืน|ติดคอ|สำลัก|เหรียญ|ถ่าน")],
              "ถ้ายังไอหรือร้องได้ ให้ไอออกเอง ห้ามล้วงคอ · ถ้าหายใจไม่ได้/พูดไม่ได้ ทำกดท้อง (Heimlich) · กลืนถ่านกระดุมหรือแม่เหล็ก ต้องไปโรงพยาบาลทันทีแม้ดูปกติ"),
             "ระหว่างรอ: นั่งหรือนอนในท่าที่หายใจสบายที่สุด ปลดเสื้อผ้าที่รัด",
@@ -388,6 +390,40 @@ TOPICS = [
                   f"ปรึกษาได้ฟรีที่ {HOTLINE_SOCIAL} (24 ชม.) · ถ้าไม่ปลอดภัยตอนนี้ โทร {HOTLINE_POLICE}"],
         "ask": "ตอนนี้อยู่บ้านแล้วรู้สึกปลอดภัยไหม?",
     }),
+    ("postpartum", [re.compile(r"(?:คลอด(?:ลูก)?|หลังคลอด|เพิ่งมีลูก)[^\n]{0,24}?(?:ร้องไห้|ซึม|เศร้า|ไม่อยากอุ้ม|ไม่รักลูก|ไม่อยากเลี้ยง|ไม่ผูกพัน|นอนไม่หลับ|อยากหนี)|"
+                               r"\b(?:postpartum|post-partum)\b|\bsince (?:the|my) baby (?:was born|came)\b[^\n]{0,30}?\b(?:crying|can'?t bond|numb)\b", re.I)], {
+        "open": ["หลังคลอดหลายคนรู้สึกแบบนี้ — ไม่ได้แปลว่าคุณเป็นแม่ที่ไม่ดี และรักษาได้"],
+        "paths": [
+            f"ถ้ามีความคิดอยากทำร้ายตัวเองหรือลูก โทร {HOTLINE_MENTAL} หรือ {HOTLINE_EMS} ตอนนี้ และให้คนอื่นอยู่กับลูกก่อน",
+            "ร้องไห้ทุกวัน ไม่ผูกพันกับลูก หรือนอนไม่หลับเกิน 2 สัปดาห์ อาจเป็นภาวะซึมเศร้าหลังคลอด — บอกหมอที่ฝากครรภ์หรือหมอเด็กตอนพาลูกไปตรวจ",
+            "ขอให้คนในบ้านช่วยดูลูกเป็นช่วง ให้คุณได้นอนอย่างน้อยครั้งละ 4–5 ชั่วโมง",
+        ],
+        "ask": "มีใครช่วยดูลูกให้คุณได้พักบ้างไหม?",
+    }),
+    ("needlestick", [re.compile(r"(?:โดน|ถูก)เข็ม[^\n]{0,8}?(?:ทิ่ม|ตำ|แทง)|เข็ม(?:ฉีดยา)?[^\n]{0,6}?(?:ทิ่ม|ตำ)(?:มือ|นิ้ว)|\bneedle ?stick\b|\bpricked by a (?:used )?needle\b", re.I)], {
+        "open": ["รีบหน่อยนะ — ยาป้องกันได้ผลดีที่สุดถ้าเริ่มเร็ว"],
+        "paths": [
+            "ล้างแผลด้วยสบู่และน้ำไหลทันที ไม่บีบหรือดูดแผล ไม่ใช้น้ำยาฆ่าเชื้อแรงๆ",
+            "แจ้งหัวหน้าเวรหรือหน่วยควบคุมการติดเชื้อของโรงพยาบาลตอนนี้ — ยาป้องกันเอชไอวี (PEP) ควรเริ่มภายใน 2 ชั่วโมง และไม่เกิน 72 ชั่วโมง",
+            "ขอตรวจเลือดตั้งต้นและตรวจผู้ป่วยต้นเข็ม (HIV ไวรัสตับอักเสบบี/ซี) และเก็บเป็นอุบัติเหตุจากการทำงาน — ใช้สิทธิ์กองทุนเงินทดแทนได้",
+        ],
+        "ask": "เกิดขึ้นกี่โมง และรู้ไหมว่าเข็มนั้นใช้กับผู้ป่วยคนไหน?",
+    }),
+    ("online_grooming", [re.compile(r"(?:ลูก|หลาน|น้อง)[^\n]{0,24}?(?:คนแปลกหน้า|คนในเกม|คนที่รู้จักในเน็ต|คนในแชต|คนที่รู้จักทางออนไลน์|ผู้ใหญ่ในเกม)[^\n]{0,24}?"
+                                    r"(?:ชวนไปเจอ|นัดเจอ|ขอรูป|ให้ส่งรูป|ให้เก็บเป็นความลับ|ส่งของขวัญ)|"
+                                    r"\b(?:my )?(?:son|daughter|kid|child)\b[^\n]{0,30}?\b(?:stranger|someone (?:online|in a game))\b[^\n]{0,30}?\b(?:meet|photos|pictures|secret)\b", re.I)], {
+        "open": ["ดีมากที่รู้ทัน — นี่เป็นวิธีที่คนแปลกหน้ามักใช้เข้าหาเด็ก"],
+        "paths": [
+            "ห้ามให้ไปเจอ · อย่าเพิ่งลบแชต แคปหน้าจอชื่อบัญชี ข้อความ และรูปไว้เป็นหลักฐาน แล้วบล็อกและรีพอร์ตในแอป",
+            f"คุยกับลูกด้วยน้ำเสียงสงบ ไม่ดุ — บอกว่าเขาไม่ผิดที่เล่า · ถ้ามีการขอรูปหรือนัดเจอ แจ้งสายด่วนเด็ก {HOTLINE_CHILD} หรือแจ้งความที่ thaipoliceonline.go.th",
+            "ตกลงกติกาด้วยกัน: ไม่ส่งรูป ไม่บอกที่อยู่/โรงเรียน และเล่าให้ฟังเมื่อมีคนแปลกหน้าทักมา",
+        ],
+        "ask": "ลูกได้ส่งรูปหรือบอกที่อยู่ให้คนนั้นไปแล้วหรือยัง?",
+    }),
+    ("en_assault", [re.compile(r"\b(?:i was|i got|i've been|i have been) (?:assaulted|attacked|raped|sexually assaulted)\b", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
+    ("en_infant_fever", [re.compile(r"\bmy (?:baby|newborn|infant)\b[^\n]{0,20}?\bfever\b|\bfever\b[^\n]{0,30}?\b(?:[0-9]|two|three) (?:weeks?|months?) old\b", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
+    ("en_preg_bleed", [re.compile(r"\bi'?m pregnant\b[^\n]{0,20}?\bbleeding\b|\bbleeding\b[^\n]{0,20}?\bpregnan", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
+    ("en_spiked", [re.compile(r"\bdrink (?:was|got|has been) spiked\b|\bspiked my drink\b", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
     ("pet_hurt", [re.compile(r"(?:หมา|แมว|สุนัข|ลูกหมา|ลูกแมว)\S{0,6}?(?:โดนรถชน|ถูกรถชน|รถทับ|เลือดออก|เดินไม่ได้|ตกตึก)|"
                              r"\bmy (?:dog|cat|puppy|kitten)\b[^\n]{0,20}?\b(?:was hit by a car|got hit|is bleeding|can'?t walk|fell)\b", re.I)], {
         "open": ["รีบหน่อยนะ — สัตว์ที่เจ็บมักซ่อนอาการ"],
@@ -551,6 +587,8 @@ TOPICS = [
     ("psychosis", [PSYCHOSIS], {
         "open": ["ขอบคุณที่บอกนะ สิ่งที่เจอคงทำให้กลัวและเหนื่อยมาก"],
         "paths": [
+            ([re.compile(r"(?:แม่|พ่อ|ยาย|ตา(?!ย)|ปู่|ย่า|ผู้สูงอายุ|คนแก่)")],
+             "ผู้สูงอายุที่เพิ่งเริ่มเห็นภาพหลอนหรือสับสนกะทันหัน อาจเป็นอาการทางกาย (ติดเชื้อ ขาดน้ำ ยาบางตัว) — พาไปหาหมอวันนี้ จดยาที่กินอยู่ไปด้วย"),
             f"ถ้าเสียงนั้นสั่งให้ทำร้ายตัวเองหรือคนอื่น หรือรู้สึกควบคุมตัวเองไม่ได้ — โทร {HOTLINE_EMS} หรือไปห้องฉุกเฉินตอนนี้",
             f"อาการแบบนี้รักษาได้ดีถ้าพบจิตแพทย์เร็ว — นัดโรงพยาบาลตามสิทธิ์ หรือโทร {HOTLINE_MENTAL} ก่อนก็ได้",
             "บอกคนที่ไว้ใจได้ 1 คนให้อยู่ด้วย · นอนให้พอ งดเหล้า กัญชา และยาเสพติด เพราะทำให้อาการหนักขึ้น",
@@ -1066,6 +1104,36 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "en_assault": ("I'm so sorry. What happened is not your fault.", [
+        "Get somewhere safe and away from the person — call emergency services if you're in danger (191 in Thailand, 911 in the US).",
+        "Go to a hospital emergency department within 72 hours if you can: they treat injuries, give medicine to prevent pregnancy and HIV, and can keep evidence. Try not to shower or wash clothes first.",
+        "You don't have to decide about reporting right now · a sexual-assault or crisis helpline can support you (1300 in Thailand, RAINN 1-800-656-4673 in the US)."],
+        "Are you somewhere safe right now?"),
+    "en_infant_fever": ("A baby under 3 months with a fever needs a doctor now — please don't wait.", [
+        "Go to the emergency room now, or call emergency services (1669 in Thailand, 911 in the US) — fever this young can be a serious infection even if the baby seems okay.",
+        "Don't give fever medicine before a doctor sees the baby unless told to · keep feeding and keep them lightly dressed.",
+        "Call emergency services immediately if the baby is very sleepy, floppy, breathing fast, has a rash that doesn't fade, or won't feed."],
+        "What is the baby's temperature, and how is the baby feeding?"),
+    "en_preg_bleed": ("Bleeding during pregnancy needs to be checked now.", [
+        "Go to your hospital's emergency or labour ward now, or call emergency services (1669 in Thailand, 911 in the US) — don't drive yourself.",
+        "Lie on your left side while waiting · note when it started, how much, and any pain or cramps.",
+        "Bring your antenatal record if you have one."],
+        "How many weeks pregnant are you, and is the bleeding heavy?"),
+    "en_spiked": ("If you think your drink was spiked, get to safety and help now.", [
+        "Tell a friend or venue staff right away and stay with someone you trust — don't go home alone or with someone you just met.",
+        "Get medical help (call emergency services: 1669 in Thailand, 911 in the US) especially if you feel very drowsy, confused, or sick.",
+        "Ask the hospital for a urine/blood test as soon as possible — some drugs leave the body within hours. If you were assaulted, it's not your fault."],
+        "Are you with someone you trust right now?"),
+    "postpartum": ("Many people feel this after giving birth — it doesn't make you a bad parent, and it can be treated.", [
+        "If you have thoughts of harming yourself or your baby, call emergency services or a crisis line now, and let someone else hold the baby.",
+        "Crying every day, not bonding, or not sleeping for more than two weeks can be postpartum depression — tell your doctor or midwife.",
+        "Ask someone to take the baby for a stretch so you can sleep 4–5 hours at a time."],
+        "Is anyone able to help with the baby so you can rest?"),
+    "online_grooming": ("Good that you caught this — it's a common way strangers approach children.", [
+        "Don't let them meet · keep the chats, screenshot the account and messages, then block and report it in the app.",
+        "Talk with your child calmly, without blame — tell them they did right by telling you · report it to police or a child helpline.",
+        "Agree on simple rules together: no photos, no address or school, and tell you whenever a stranger messages."],
+        "Has your child already sent photos or shared where they live?"),
     "control_en": ("A relationship shouldn't make you ask permission to live your life.", [
         "Checking your phone, cutting you off from friends, controlling money or tracking you are signs of coercive control — it's not your fault.",
         "Keep one trusted person close and tell them what's happening · save a few messages or notes with dates somewhere safe.",
@@ -1258,12 +1326,12 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("overdose", "swallowed", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
@@ -1527,6 +1595,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = SCAM_JOB_D, None
     elif a["scam"] and set(a["scam"]) <= {"romance", "lost"}:  # หลอกให้รัก/แอบอ้างเป็นเพื่อน
         main, second = SCAM_ROMANCE_D, None
+    elif re.search(r"(?:เด็ก|คน|ป้า|ลุง|ผู้หญิง|ยาย)ข้างบ้าน[^\n]{0,12}?(?:โดน|ถูก)\S{0,6}?(?:ตี|ทำร้าย|ทุบ|ตบ|ทิ้ง|ขัง)", text):
+        main, second = lib["witness"], None    # เดิมได้ "ความปลอดภัยของคุณมาก่อน" — ผู้ใช้เป็นคนได้ยิน ไม่ใช่ผู้ถูกทำร้าย
     elif _FAMILY_WITNESS.search(text):
         # "พ่อเมาแล้วตีแม่ทุกคืน" เคยได้ "ความปลอดภัยของคุณมาก่อน · บาดเจ็บโทร 1669" — ผู้ใช้คือลูกที่เห็นเหตุการณ์
         main, second = FAMILY_WITNESS, None
