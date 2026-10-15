@@ -26,7 +26,7 @@ from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAP
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
                                HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE,
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
-                               CHILD_HOUSEHOLD, SLEEPLESS)
+                               CHILD_HOUSEHOLD, SLEEPLESS, NOT_BREATHING as _NOT_BREATHING, CARBON_MONOXIDE)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl
 from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en
 
@@ -313,10 +313,21 @@ TOPICS = [
                           "ชักไม่หยุด", re.compile(r"(?:ลูก|เด็ก|หลาน|ทารก|น้อง)\S{0,8}?ชัก(?!ชวน|จูง|ธง|ช้า|ว่าว|ใย)"),
                           re.compile(r"ปวดท้อง\S{0,4}?(?:ขวาล่าง|ด้านขวาล่าง)[^\n]{0,20}?ไข้|ไข้[^\n]{0,20}?ปวดท้อง\S{0,4}?ขวาล่าง"),
                           "เลือดออกไม่หยุด", "ปากเบี้ยว", "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
-                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious|drowning)\b", re.I)], {
+                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious|drowning)\b", re.I),
+                          _NOT_BREATHING, CARBON_MONOXIDE], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
         "paths": [
             f"โทร {HOTLINE_EMS} ตอนนี้ หรือให้คนใกล้ตัวพาไปห้องฉุกเฉิน — อย่าขับรถเอง",
+            # "มีคนหมดสติไม่หายใจ" เคยได้ "นั่งหรือนอนในท่าที่หายใจสบาย" — คนไม่หายใจต้องได้การกดหน้าอก
+            ([_NOT_BREATHING, "หมดสติ", "ไม่ตอบสนอง"],
+             f"ถ้าเรียกแล้วไม่ตอบสนองและไม่หายใจ (หรือหายใจเฮือกๆ): เริ่มกดหน้าอก (CPR) ทันที — กดกลางหน้าอกลึก 5–6 ซม. เร็ว 100–120 ครั้ง/นาที ไม่ต้องเป่าปากก็ได้ "
+             f"มีเครื่อง AED ให้เปิดแล้วทำตามเสียง · ถ้ายังหายใจอยู่ จับนอนตะแคง · เจ้าหน้าที่ {HOTLINE_EMS} บอกวิธีทางโทรศัพท์ได้"),
+            ([re.compile(r"จมน้ำ|ตกน้ำ")],
+             "คนจมน้ำ: ตะโกนเรียกคน แล้วโยนของลอยน้ำ (แกลลอนเปล่า ขวดน้ำ ห่วงยาง) หรือยื่นไม้/เชือกให้จับ — อย่ากระโดดลงไปเองถ้าไม่ได้ฝึกช่วยคนจมน้ำ "
+             "· ขึ้นฝั่งแล้วไม่หายใจ ให้กดหน้าอก (CPR) ทันที ห้ามอุ้มพาดบ่าเพื่อเอาน้ำออก"),
+            ([CARBON_MONOXIDE],
+             "อาจเป็นพิษคาร์บอนมอนอกไซด์ — พาทุกคนออกไปที่อากาศโล่งทันที เปิดประตูหน้าต่าง ดับเครื่องหรือเตาถ้าทำได้อย่างปลอดภัย ห้ามนอนต่อในห้องนั้น "
+             "· ทุกคนที่อยู่ในห้องควรไปโรงพยาบาลแม้อาการดีขึ้นแล้ว"),
             ([re.compile(r"พูดไม่ชัด|ปากเบี้ยว|ชา|อ่อนแรง")],
              "อาจเป็นหลอดเลือดสมอง (สโตรก) — ทุกนาทีมีผล ถึงโรงพยาบาลภายใน 4.5 ชั่วโมงรักษาได้ดีกว่ามาก จดเวลาที่เริ่มมีอาการ ไม่ให้กินยาหรืออาหาร"),
             ([re.compile(r"(?:ผึ้ง|ต่อ|แตน|แพ้)[^\n]{0,20}?(?:หายใจลำบาก|หายใจไม่ออก|หน้าบวม|ปากบวม|คอบวม)")],
@@ -339,7 +350,8 @@ TOPICS = [
              "เด็กขาดน้ำ: ให้จิบผงเกลือแร่ ORS ทีละน้อยแต่บ่อย (ไม่ใช่เกลือแร่สำหรับนักกีฬา) · ปากแห้ง ไม่ฉี่เกิน 6–8 ชม. ซึม หรือตาโหล ไปโรงพยาบาลตอนนี้"),
             ([re.compile(r"กลืน|ติดคอ|สำลัก|เหรียญ|ถ่าน")],
              "ถ้ายังไอหรือร้องได้ ให้ไอออกเอง ห้ามล้วงคอ · ถ้าหายใจไม่ได้/พูดไม่ได้ ทำกดท้อง (Heimlich) · กลืนถ่านกระดุมหรือแม่เหล็ก ต้องไปโรงพยาบาลทันทีแม้ดูปกติ"),
-            "ระหว่างรอ: นั่งหรือนอนในท่าที่หายใจสบายที่สุด ปลดเสื้อผ้าที่รัด",
+            ([re.compile(r"^(?![\s\S]*(?:ไม่หายใจ|หมดสติ|ไม่ตอบสนอง|หัวใจหยุด|จมน้ำ|ตกน้ำ|not breathing|unconscious))", re.I)],
+             "ระหว่างรอ: นั่งหรือนอนในท่าที่หายใจสบายที่สุด ปลดเสื้อผ้าที่รัด"),
             "จดเวลาที่อาการเริ่ม ยาที่กินอยู่ และโรคประจำตัว ไว้บอกแพทย์",
         ],
         "ask": "ตอนนี้มีใครอยู่ใกล้ตัวที่ช่วยพาไปโรงพยาบาลได้บ้าง?",
@@ -1271,6 +1283,17 @@ EN_TOPIC = {
         "Write down when it started, any medicines and conditions.",
         "Stay with someone until help arrives."],
         "Is someone with you right now?"),
+    # "someone is not breathing" เคยได้แค่ "เขียนเวลาที่เริ่มมีอาการ" — คนไม่หายใจ/จมน้ำต้องได้ขั้นช่วยชีวิต
+    "en_cpr": ("Start helping now — every minute counts.", [
+        "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe) and put the phone on speaker — they can guide you.",
+        "If they don't respond and aren't breathing (or only gasping): start chest compressions — push hard and fast in the centre of the chest, 5–6 cm deep, 100–120 a minute. Rescue breaths are optional.",
+        "If there's an AED nearby, turn it on and follow its voice · if they are breathing, roll them onto their side."],
+        "Is anyone there who can take turns with compressions or find an AED?"),
+    "en_drowning": ("Get help to them without becoming a second victim.", [
+        "Shout for help and call emergency services (1669 in Thailand, 911 in the US, 112 in Europe).",
+        "Throw something that floats (an empty jug, bottle, ring) or reach with a pole or rope — don't jump in unless you're trained in water rescue.",
+        "Once out of the water, if they aren't breathing start chest compressions (CPR) right away — don't hang them upside down to drain water."],
+        "Is the person out of the water yet?"),
     "first_aid": ("First aid first, then a doctor.", [
         "Burns: cool under room-temperature running water for 20 minutes. No ice, toothpaste or butter.",
         "Animal bites: wash with soap and running water for 15 minutes, then see a doctor today about rabies shots. Snake bites: keep still, no cutting or sucking.",
@@ -1497,7 +1520,11 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
                     + "\n\n" + _EN_LOCAL.format(th="191 police · 1669 medical · 199 fire · 1784 disaster")
                     + "\n\nWhere are you right now, and is anyone with you?\n\n" + sign
                     + ("\n· Answered from the system's equations — no AI used" if footer else ""))
-        en = EN_TOPIC.get(a["topics"][0]) if (lang == "en" and a["topics"] and not a["crisis"]) else None
+        en_key = a["topics"][0] if a["topics"] else None
+        if en_key == "health_emergency":
+            en_key = ("en_drowning" if re.search(r"\bdrown", t, re.I)
+                      else "en_cpr" if _NOT_BREATHING.search(t) or re.search(r"\bunconscious\b", t, re.I) else en_key)
+        en = EN_TOPIC.get(en_key) if (lang == "en" and a["topics"] and not a["crisis"]) else None
         if en:
             return (en[0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(en[1]))
                     + f"\n\n{en[2]}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
