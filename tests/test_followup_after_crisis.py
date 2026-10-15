@@ -34,3 +34,13 @@ def test_council_is_not_used_right_after_a_crisis(client, no_ai):
 def test_normal_followup_unchanged(client, no_ai):
     d = _run(client, "แล้วควรเริ่มยังไง", "อยากเปลี่ยนงานไปทำการตลาด")
     assert "1323" not in d["ai_response"]
+
+
+@pytest.mark.parametrize("hist,text", [("กินยาไป 30 เม็ด", "ไม่มีแล้ว"), ("I took 30 pills", "ok")])
+def test_followup_risk_in_reply_matches_details(client, monkeypatch, hist, text):
+    """เดิมคำตอบเขียน "Risk 85" (คิดจากเรื่องเดิม) แต่รายละเอียดคำตอบแสดง 64 (ลดตามเวลา 0.75×)"""
+    import re
+    monkeypatch.setenv("KD_AI", "off")
+    d = client.post("/run", json={"input": text, "history": [{"role": "user", "content": hist}]}).json()
+    shown = re.search(r"Risk (\d+)", d["ai_response"])
+    assert shown and int(shown.group(1)) == round(d["risk_score"])
