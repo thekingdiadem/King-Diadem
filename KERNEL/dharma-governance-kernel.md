@@ -101,7 +101,7 @@ Life continues while real choices exist.
 Enforced by:
 - Every `/run` response **must** contain ≥1 actionable option
 - LYLA kernel blocks responses that reduce to zero choice
-- `report_url` always returned — human retains audit trail
+- `share_token` always returned — ผู้ใช้กดแชร์แล้วได้ลิงก์รายงาน (หมดอายุ 90 วัน ลบได้) · ไม่สร้างลิงก์สาธารณะเอง
 - View Lineage exposes: ROUTE / PERSONA / RISK SCORE / WATERLINE / CONSENSUS / REPORT / AXIOM
 
 ---
@@ -129,7 +129,7 @@ Not: control which decision is made.
 | Kernel | Bias | Trigger | Risk tolerance |
 |--------|------|---------|---------------|
 | LYLA (Standard) | Motion, explore, throughput | General/survival | Higher — sustains flow |
-| VEGA (Albino) | Safety, caution, minimal exposure | Strategic/risk | Lower — triggers SYSTEM_PAUSE more |
+| VEGA (Albino) | Safety, caution, minimal exposure | Strategic/risk | Lower — ถามคำถามของ 14 Gates ที่ติด (`core/vega_kernels.py`) |
 
 Both serve the same axiom.  
 Different implementations of the same survival logic.
@@ -141,11 +141,12 @@ Different implementations of the same survival logic.
 Dependent origination runs before every LLM call:
 
 ```python
-# In app.py _paticcasamuppada_context()
-chain = analyze_chain({"input": text})
-# → root_cause extracted
-# → nirvana_mode: if chain ends at vedana, system calms
-# → UAP: if should_pause=True, prepend to prompt
+# core/king_diadem_core.quick_assess() → ENGINE/paticcasamuppada_engine.py
+p = suffering_infrastructure(text, human_state)
+# → root_cause  (craving · fear · aversion · clinging · bias · misinformation · non_existence · ignorance)
+# → kill_zone   (เวทนา → ตัณหา: จุดตัดก่อนกลายเป็นความอยาก)
+# → nirvana_mode: ตัดที่เวทนาได้ → ระบบชะลอ ไม่เติมความอยาก
+# → uap.should_pause → llm_note(p) แนบเป็นบริบทก่อน LLM ("ยังไม่ควรตัดสินใจทันที")
 ```
 
 Maps to:
@@ -166,7 +167,9 @@ Applied as prompt architecture:
 วิธีคิดแบบรู้เท่าทันธรรมดา   →  impermanence = R0.1 Tier 0
 ```
 
-Every LYLA response implicitly runs all four.
+ทุกคำตอบเดินครบทั้ง 4 วิธีตามลำดับ — `ENGINE/yonisomanasikara_engine.four_ways()` (ดูหัวข้อ 14)
+ร่วมกับ `wise_attention()` ที่เลือกวิธีหลัก 1 วิธีและตรวจอคติ 8 แบบ
+(confirmation · sunk_cost · availability · catastrophizing · black_white · bandwagon · denial · personalization)
 
 ---
 
@@ -190,22 +193,26 @@ DHD accumulates daily      →   freedom_index drops
 
 ## 12. Kernel Modules Active (K1–K14)
 
-| Module | Implementation |
-|--------|---------------|
-| K1 Reality Root | R0.1–R0.3 Tier 0 constraints in lyla_kernel |
-| K2 Compassion Default | survivor_ctx prepended first |
-| K3 Simplicity Cut | `_friendly_error()` — no raw JSON to user |
-| K4 Floor Restoration | can_decide=False blocks optimization |
-| K5 Force Containment | no auto-escalation above "collapse" without human |
-| K6 Repair Protocol | `record_crisis()` + log_decision() |
-| K7 Patience Shell | simulate endpoint for calm future projection |
-| K8 Equanimity Mirror | Ego OFF hardcoded in prompt header |
-| K9 Generosity Flow | free tier 20 msg/day maintained |
-| K10 Discipline Rail | FATE™ Axiom Audit auto-attached every run |
-| K11 Stability First | Stabilize before optimize in route logic |
-| K12 Insight Dissolution | paticcasamuppada analysis pre-LLM |
-| K13 Stop-the-Line | any operator (human or system) may halt |
-| K14 Humble Operator | "Not built to win. Built to reduce collapse." |
+ตัวตรวจจริง: `core/vega_kernels.py` — อ่านสัญญาณ "ศัตรู" ของแต่ละ kernel จากข้อความ (ดีเทอร์มินิสติก)
+เลือกไม่เกิน 3 ประตูตามลำดับความสำคัญ K13 → K2 → K4 → K5 → K7 → … · ใช้ตอนเสียงเป็น VEGA (ไม่ใช้ตอนวิกฤต)
+และเป็นแรงในชั้น "พละ 5" ของโพธิปักขิยธรรม (หัวข้อ 16)
+
+| Module | ศัตรู | Binding ในโค้ด |
+|--------|------|---------------|
+| K1 Reality Root | ปฏิเสธความจริง | ประตู K1 · อคติ denial (`yonisomanasikara`) · มรรค "ปัญญา" |
+| K2 Downside-First Gate | ติดด้านดี | ประตู K2 · `offer_red_flags()` · สัมมัปปธาน "สังวรปธาน" |
+| K3 Simplicity Cut | ซับซ้อนเพราะอัตตา | ประตู K3 · อิทธิบาท "จิตตะ" · `_friendly_error()` |
+| K4 Floor Before Growth | ปรับให้ดีขณะเลือดไหล | ประตู K4 · route survival · `_budget()` / runway |
+| K5 Exit Must Exist | ระบบที่ติดกับ | ประตู K5 · `engine_bridge.irreversible()` · สัมมัปปธาน "อนุรักขนาปธาน" |
+| K6 Repair Protocol | ชินกับความเสียหาย | ประตู K6 · `record_crisis()` + `log_decision()` |
+| K7 Patience Shell | ใจร้อน โกรธ | ประตู K7 · อินทรีย์ "วิริยะ–สมาธิ" · `/simulate` |
+| K8 Equanimity Mirror | อารมณ์บิดภาพ | ประตู K8 · มรรค "สมาธิ" · Ego OFF ใน prompt |
+| K9 Generosity Flow | กักตุน | ประตู K9 · โควตาฟรีรายวัน + เรื่องฉุกเฉินตอบฟรีเสมอ |
+| K10 Integrity Rail | ผลประโยชน์ส่วนตัว | ประตู K10 · มรรค "ศีล" · FATE™ Axiom Audit ในรายงาน |
+| K11 Stability First | ทำอะไรสักอย่างเพราะทนนิ่งไม่ได้ | ประตู K11 · อิทธิบาท "วิริยะ" |
+| K12 Evidence Insight | ยึดความเห็นผิด | ประตู K12 · อิทธิบาท "วิมังสา" · `paticcasamuppada` |
+| K13 Stop-the-Line Authority | ความเสียหายกำลังเคลื่อน | ประตู K13 · สัมมัปปธาน "ปหานปธาน" · canon hard block |
+| K14 Humble Operator Stance | ต้องชนะให้ได้ | ประตู K14 · มรรค "ศีล" · "Not built to win. Built to reduce collapse." |
 
 ---
 
@@ -252,7 +259,7 @@ Choice(t) ≥ 1 → collapse = False
 
 | วิธีคิด | หลักการ | Binding ในระบบ |
 |---------|---------|---------------|
-| **สืบสาวเหตุปัจจัย** | สืบหาต้นตอที่แท้จริง ไม่ใช่หาคนผิด | `root_cause` field จาก `analyze_chain()` |
+| **สืบสาวเหตุปัจจัย** | สืบหาต้นตอที่แท้จริง ไม่ใช่หาคนผิด | `root_cause` จาก `suffering_infrastructure()` · `four_ways()` ขั้นที่ 1 |
 | **แยกแยะส่วนประกอบ** | มองส่วนย่อย ความสัมพันธ์ระหว่างชิ้น | `consensus_engine` component breakdown |
 | **อริยสัจ 4** | ทุกข์ → สมุทัย → นิโรธ → มรรค | Downside-first prompt structure |
 | **รู้เท่าทันธรรมดา** | อนิจจัง — ทุกอย่างเปลี่ยนได้ | R0.1 Impermanence — system ห้าม assume ความนิ่ง |
@@ -272,6 +279,9 @@ User input
     ↓
 LLM generation      → response with ≥1 real option
 ```
+
+**ในโค้ด:** `four_ways(text, pattern)` คืน 4 ขั้นตามลำดับนี้ (+ อคติที่พบและวิธีแก้)
+`quick_assess()` แนบเป็นบริบทภายในให้ LLM เมื่อข้อความมีต้นเหตุ อคติ หรือสถานะส่วนที่อ่อน (ข้อความทั่วไปอย่าง "วันนี้อากาศดี" ไม่แนบ)
 
 **ผลลัพธ์:** สติจดจ่อ + ลดอคติ + สัมมาทิฏฐิ = คำตอบที่อยู่บนพื้นฐานความจริง
 
@@ -352,11 +362,11 @@ LLM generation      → response with ≥1 real option
 
 ## 16. โพธิปักขิยธรรม → bodhipakkhiya_engine + Cosmic Latte Canon Gate
 
-> **สถานะจริงในโค้ด (ตรวจ 2026-10):** ไม่มีไฟล์ `ENGINE/bodhipakkhiya_engine.py` ใน repo
-> ช่อง bodhipakkhiya ทำงานจริงที่ `core/king_diadem_core.quick_assess()` (v2.1):
-> `structure = ((100−E) + R + S) / 300` · `peace = ไม่ต้องหยุด ∧ structure ≥ 0.4` · `structure < 0.35 → recommend_route = survival`
-> ร่วมกับ `paticcasamuppada_engine.suffering_infrastructure()` และ `yonisomanasikara_engine.wise_attention()`
-> ตาราง 6 layer ด้านล่างคือแบบที่ออกแบบไว้ ยังไม่มีโค้ดของ `guardian_check()` / `bojjhanga_loop()`
+> **สถานะในโค้ด (2026-10):** มีแล้วที่ `ENGINE/bodhipakkhiya_engine.py` — `guardian_check()` · `structural_check()` · `bojjhanga_loop()`
+> เรียกจาก `core/king_diadem_core.quick_assess()` ก่อน LLM ทุกครั้ง · อ่านทั้งสถานะ (E/R/S) และข้อความ
+> (สัญญาณกลาง: `kernel_voice.assess` · `vega_kernels.evaluate` · `yonisomanasikara.detect_bias`) · ดีเทอร์มินิสติก ไม่ใช้ AI
+> ผล: `PEACE` · `PAUSE (โพชฌงค์หยุดที่…)` · `STOP` (เรื่องฉุกเฉิน — ให้ความช่วยเหลือก่อน) · `STABILIZE` (พื้นรอดพัง → route survival)
+> ธรรมข้อที่ยังไม่ผ่านแนบเป็นบริบทภายในให้ LLM และอยู่ในช่อง `bodhipakkhiya` ของคำตอบ
 
 > สงบก่อนทำ · ทำน้อยที่สุด · ถอนเมื่อสงบแล้ว
 
@@ -378,15 +388,17 @@ guardian_check(context, pattern)
 → {peace, final_verdict, recommend_route}
 ```
 
-| Layer | ธรรม | System Role |
-|-------|------|-------------|
-| 1 | สติปัฏฐาน 4 | DRIFT_DETECTION — entropy/stability/resource/axiom |
-| 2 | สัมมัปปธาน 4 | GOVERNANCE_GATE — prevent/kill/reinforce/persist |
-| 3 | อิทธิบาท 4 | EXECUTION_KERNEL — purpose/retry/precision/audit |
-| 4a | อินทรีย์ 5 | CAPABILITY_LAYER → LYLA kernel (endurance) |
-| 4b | พละ 5 | FORCE_LAYER → VEGA kernel (safety gate) |
-| 5 | โพชฌงค์ 7 | ENLIGHTENMENT_LOOP — feedback cycle ไม่ crash |
-| 6 | มรรคมีองค์ 8 | FULL_STACK — ศีล/สมาธิ/ปัญญา = Security/Stability/Intelligence |
+| Layer | ธรรม | System Role | ตรวจอะไรในแต่ละคำขอ |
+|-------|------|-------------|---------------------|
+| 1 | สติปัฏฐาน 4 | DRIFT_DETECTION | กาย = resource ≥ 30 · เวทนา = entropy ≤ 65 และ Risk ข้อความ < 60 (วิกฤต = critical) · จิต = มีข้อความ · ธรรม = ไม่มีสัญญาณหลอก/เบียดเบียน |
+| 2 | สัมมัปปธาน 4 | GOVERNANCE_GATE | สังวร = ไม่ drift (E>65∧S<40) และไม่ติด K2 · ปหาน = ไม่มีความเสียหายกำลังเคลื่อน (K13 · ถูกโกงแล้ว · เรื่องฉุกเฉิน = critical) · ภาวนา = คำตอบต้องเพิ่มทางเลือก · อนุรักขนา = ไม่ติด K5 |
+| 3 | อิทธิบาท 4 | EXECUTION_KERNEL | ฉันทะ = มีเป้าหมาย · วิริยะ = ไม่ติด K11 · จิตตะ = ไม่ติด K3 · วิมังสา = ไม่ติด K12 |
+| 4a | อินทรีย์ 5 | CAPABILITY_LAYER → LYLA | สัทธา–ปัญญา สมดุล (ไม่มีข้อเสนอการันตี / K2 / K12) · วิริยะ–สมาธิ สมดุล (ไม่ติด K7/K11) · สติ = ไม่พบอคติ |
+| 4b | พละ 5 | FORCE_LAYER → VEGA | ประตู VEGA ติด ≤ 1 · structure ≥ 0.35 (ต่ำกว่า = critical) |
+| 5 | โพชฌงค์ 7 | ENLIGHTENMENT_LOOP | สติ → ธัมมวิจยะ (ไม่ใช่วิกฤต) → วิริยะ → ปีติ (ไม่ใช่เรื่องฉุกเฉิน) → ปัสสัทธิ (สงบพอ) → สมาธิ → อุเบกขา (ไม่เอียงด้วยอคติ/ความหวัง) — หยุดที่ขั้นแรกที่ยังไม่ผ่าน |
+| 6 | มรรคมีองค์ 8 | FULL_STACK | ศีล = ไม่เบียดเบียน (K10 · K14 · ทำร้าย/ติดสินบน) · สมาธิ = entropy ≤ 65 และไม่ติด K8 · ปัญญา = ไม่มีอคติ ไม่ติด K1/K12 |
+
+`peace = ไม่มีข้อ critical ∧ โพชฌงค์ครบ 7 ∧ health ≥ 0.8` · `recommend_route = survival` เมื่อ structure < 0.35 หรือขาดปัจจัยพื้นฐาน
 
 **PEACE ROUTER — หลักการ:**
 
@@ -485,3 +497,4 @@ Compassion without reason dissolves direction.
 
 *Dharma Governance Kernel — Section 16 added 2026-06-27*
 *Bound to: app.py v4.9 / ENGINE/bodhipakkhiya_engine.py / core/cosmic_latte_canon.py v1.1 / king_diadem_core.py v2.0*
+*ตรวจให้ตรงกับโค้ด 2026-10: เทสต์ `tests/test_dharma_kernel.py` ยืนยันทุกหัวข้อธรรมในเอกสารนี้ว่ามีโค้ดทำงานจริง*

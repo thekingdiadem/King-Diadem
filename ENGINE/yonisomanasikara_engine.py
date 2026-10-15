@@ -115,6 +115,17 @@ BIAS_PATTERNS = {
         "description": "มองว่ามีแค่ 2 ทางเลือก ทั้งที่มีอีกหลายทาง",
         "correction":  "ถามว่า มีทางที่ 3, 4 ไหม — ที่ไม่ใช่ทั้งสอง",
     },
+    # ตามฝูง · ปฏิเสธความจริง — "ทุกคนก็ทำกัน เดี๋ยวก็ดีเอง" เดิมไม่พบอคติเลย
+    "bandwagon": {
+        "signals": ["ทุกคนก็ทำ", "ใครๆ ก็ทำ", "ใครๆก็ทำ", "เพื่อนก็ทำ", "คนอื่นก็ทำ", "everyone does it", "everyone is doing"],
+        "description": "เชื่อว่าถูกเพราะคนส่วนใหญ่ทำ ไม่ใช่เพราะหลักฐาน",
+        "correction":  "ถามว่า ถ้าไม่มีใครทำเลย ทางนี้ยังสมเหตุสมผลไหม",
+    },
+    "denial": {
+        "signals": ["เดี๋ยวก็ดีเอง", "เดี๋ยวก็ผ่านไป", "ไม่เป็นไรหรอก", "คงไม่เป็นไร", "ช่างมันเถอะ", "it'll be fine", "it will be fine"],
+        "description": "มองข้ามความจริงที่ไม่อยากเห็น หวังว่าจะหายไปเอง",
+        "correction":  "ถามว่า ถ้าไม่ทำอะไรเลย 30 วันข้างหน้าจะเป็นอย่างไร — ดูตัวเลขจริงก่อน",
+    },
     "personalization": {
         "signals": ["เพราะฉัน", "เป็นความผิดฉัน", "ฉันทำให้", "my fault", "because of me"],
         "description": "รับผิดชอบเหตุการณ์ที่ตัวเองไม่ได้เป็นปัจจัยหลัก",
@@ -254,6 +265,57 @@ def wise_attention(
         "latency_ms":     round((time.time() - t0) * 1000, 1),
         "axiom":          "โยนิโสมนสิการ — ตัดที่เหตุ ไม่ตัดที่ผล",
     }
+
+
+def four_ways(context: str, pattern: Optional[dict] = None) -> dict:
+    """โยนิโสมนสิการครบ 4 วิธี ตามลำดับใน KERNEL/dharma-governance-kernel.md หัวข้อ 14
+    สืบสาวเหตุปัจจัย → แยกแยะส่วนประกอบ → อริยสัจ 4 → รู้เท่าทันธรรมดา
+    (เดิมเลือกวิธีเดียว และเกือบทุกข้อความได้อริยสัจ 4 — ไม่ตรงกับ "ทุกคำตอบใช้ครบทั้ง 4")"""
+    pattern = pattern if isinstance(pattern, dict) else {}
+    text = str(context or "")
+    e, r, st = (_f(pattern.get(k), d) for k, d in (("entropy", 40), ("resource", 50), ("stability", 60)))
+
+    root, feeling = "unknown", "neutral"
+    try:
+        from ENGINE.paticcasamuppada_engine import detect_root_cause
+        ri = detect_root_cause(text)
+        root, feeling = ri.get("root") or "unknown", ri.get("feeling") or "neutral"
+        if not ri.get("score"):                          # ไม่มีสัญญาณในข้อความ = ยังไม่รู้ต้นเหตุ (ไม่ใช่อวิชชา)
+            root = "unknown"
+    except Exception:
+        pass
+    _ROOT_TH = {"craving": "ความอยากได้ (ตัณหา)", "fear": "ความกลัว", "aversion": "ความไม่ชอบ/อยากหนี",
+                "clinging": "ความยึดติด", "misinformation": "ข้อมูลผิดหรือไม่ครบ", "bias": "อคติ", "ignorance": "อวิชชา — ยังไม่เห็นตามจริง",
+                "non_existence": "ความรู้สึกไม่อยากมีอยู่ (ภวตัณหา/วิภวตัณหา)", "unknown": "ยังไม่ชัด"}
+
+    # 1) สืบสาวเหตุปัจจัย — ต้นตอ ไม่ใช่คนผิด
+    causal = f"ต้นเหตุที่เห็น: {_ROOT_TH.get(root, root)}" + ("" if root != "unknown" else " — ถามว่าก่อนจะเป็นแบบนี้เกิดอะไรขึ้น")
+    # 2) แยกแยะส่วนประกอบ — แตกเป็น ส่วนที่คุมได้ / คุมไม่ได้ และสามแกนของสถานะ
+    weak = [n for n, bad in (("ใจ/ความเครียด", e > 65), ("ทรัพยากร", r < 30), ("ความมั่นคง", st < 40)) if bad]
+    analytical = "แยกเป็น 3 ส่วน: ใจ · เงิน/ทรัพยากร · ความมั่นคง — " + (f"ส่วนที่อ่อน: {', '.join(weak)}" if weak else "ยังไม่มีส่วนไหนต่ำเกินเส้น")
+    # 3) อริยสัจ 4 — ทุกข์ → สมุทัย → นิโรธ → มรรค (ด้านเสียก่อน)
+    ariyasacca = "ทุกข์ = ปัญหาจริงในประโยคเดียว · สมุทัย = ต้นตอที่คุมได้ · นิโรธ = สภาพที่ต้องการวัดได้ · มรรค = ก้าวแรกที่ทำได้วันนี้"
+    # 4) รู้เท่าทันธรรมดา — อนิจจัง: สถานการณ์และความรู้สึกเปลี่ยนได้ อย่าตัดสินใจถาวรจากสภาพชั่วคราว
+    impermanence = ("ความรู้สึกตอนนี้แรง แต่ไม่ถาวร — อย่าตัดสินใจที่ย้อนกลับไม่ได้จากสภาพชั่วคราว"
+                    if feeling in ("pleasant", "unpleasant") or e > 65 else
+                    "สถานการณ์เปลี่ยนได้ — ทบทวนอีกครั้งเมื่อข้อมูลใหม่มา")
+    biases = detect_bias(text)
+    return {
+        "steps": [("สืบสาวเหตุปัจจัย", causal), ("แยกแยะส่วนประกอบ", analytical),
+                  ("อริยสัจ 4", ariyasacca), ("รู้เท่าทันธรรมดา", impermanence)],
+        "root_cause": root, "feeling": feeling, "weak": weak,
+        "bias": [b["bias"] for b in biases], "corrections": [b["correction"] for b in biases],
+    }
+
+
+def four_ways_hint(fw: dict) -> str:
+    """บริบทสั้นให้ LLM (ภายใน — ห้ามยกไปพูด)"""
+    if not fw:
+        return ""
+    s = " → ".join(f"{n}: {v}" for n, v in fw["steps"])
+    if fw["bias"]:
+        s += " | แก้อคติ: " + "; ".join(fw["corrections"])
+    return "[โยนิโสมนสิการ 4 วิธี: " + s + "]"
 
 
 def _contextualize_questions(questions: list, context: str, pattern: dict) -> list:
