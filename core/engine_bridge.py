@@ -889,6 +889,48 @@ def _budget(text: str) -> dict | None:
     return {"lines": lines, "data": {"income": income, "spend": spend, "left": left, "items": len(items) or 1}}
 
 
+# ภาษาอังกฤษ: "I earn 3000 a month, rent 1200, car loan 500" — เดิมได้ "Write what happened in one sentence"
+_EN_INCOME = re.compile(r"\b(?:i\s+(?:earn|make|take home|get paid)|my\s+(?:salary|income|pay)\s+is|salary(?:\s+is)?|income(?:\s+is)?)"
+                        r"\s*(?:of\s+|about\s+|around\s+)?\$?\s*(\d[\d,]*(?:\.\d+)?)\s*(k)?\b", re.I)
+_EN_NOT_MONTHLY = re.compile(r"\b(?:a|per|an)\s+(?:year|hour|day|week)\b|\b(?:annually|yearly|hourly|weekly|daily)\b|/\s*(?:yr|year|hr|hour|day|wk|week)\b", re.I)
+_EN_SPEND_ITEM = re.compile(r"\b(rent|mortgage|car (?:loan|payment)|student loan|loan|bills?|utilities|food|groceries|phone|insurance|"
+                            r"childcare|tuition|credit card|transport(?:ation)?|gas|electricity|internet)\b"
+                            r"\s*(?:is|of|:|=|costs?|about|around)?\s*\$?\s*(\d[\d,]*(?:\.\d+)?)\s*(k)?\b", re.I)
+_EN_SPEND_TOTAL = re.compile(r"\b(?:i\s+spend|my\s+expenses\s+are|expenses(?:\s+are)?|spending(?:\s+is)?)\s*(?:about\s+|around\s+)?\$?\s*(\d[\d,]*(?:\.\d+)?)\s*(k)?\b", re.I)
+
+
+def _en_num(m, g=1) -> float:
+    return float(m.group(g).replace(",", "")) * (1000 if (m.group(g + 1) or "") else 1)
+
+
+def budget_en(text: str) -> dict | None:
+    """งบรายเดือนภาษาอังกฤษ: {"line", "left", "income", "spend"} หรือ None"""
+    text = str(text or "")
+    m = _EN_INCOME.search(text)
+    if not m or _EN_NOT_MONTHLY.search(text):
+        return None
+    income = _en_num(m)
+    tot = _EN_SPEND_TOTAL.search(text)
+    if tot:
+        spend, n = _en_num(tot), 1
+    else:
+        seen, vals = set(), []
+        for it in _EN_SPEND_ITEM.finditer(text):
+            k = it.group(1).lower()
+            if k not in seen:
+                seen.add(k)
+                vals.append(_en_num(it, 2))
+        spend, n = sum(vals), len(vals)
+    if income <= 0 or spend <= 0:
+        return None
+    left = income - spend
+    head = f"Income {income:,.0f} − " + (f"the {n} costs you listed " if n > 1 else "costs ") + f"{spend:,.0f}"
+    line = (f"{head} = {left:,.0f} left each month (≈ {_pct(left / income)} of income)" if left > 0 else
+            f"{head} = short by {abs(left):,.0f} each month — costs are higher than income" if left < 0 else
+            f"{head} = exactly 0 — nothing left over as a cushion")
+    return {"line": line, "left": left, "income": income, "spend": spend}
+
+
 def analyze(text: str) -> dict:
     text = str(text or "")
     out = {"lines": [], "llm_ctx": "", "data": {}}

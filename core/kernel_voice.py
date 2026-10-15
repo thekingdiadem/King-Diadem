@@ -22,13 +22,13 @@ from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAP
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
-                               MISSING_PERSON, LABOR_RIGHTS, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
+                               MISSING_PERSON, LABOR_RIGHTS, RESIGN_BLOCKED, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
                                HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE,
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
                                CHILD_HOUSEHOLD, SLEEPLESS)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl
-from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after
+from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
 HOTLINE_MENTAL = "1323"   # สายด่วนสุขภาพจิต กรมสุขภาพจิต 24 ชม.
@@ -395,6 +395,15 @@ TOPICS = [
         ],
         "ask": "ตอนนี้ยังอยู่ตรงนั้นอยู่ไหม หรือผ่านมาแล้ว?",
     }),
+    ("resign_block", [RESIGN_BLOCKED], {
+        "open": ["การลาออกเป็นสิทธิ์ของลูกจ้าง — ไม่มีใครกักคุณไว้ในงานได้"],
+        "paths": [
+            "แจ้งลาออกเป็นลายลักษณ์อักษร (อีเมล/จดหมาย) ระบุวันที่มีผล แล้วเก็บสำเนาไว้ — ตามกฎหมายแจ้งล่วงหน้าอย่างน้อย 1 รอบการจ่ายค่าจ้าง หรือตามที่สัญญาจ้างเขียนไว้",
+            "การขู่ฟ้องไม่ได้ทำให้เขาห้ามคุณลาออกได้ — นายจ้างเรียกค่าเสียหายได้เฉพาะเมื่อคุณผิดสัญญาจริงและพิสูจน์ได้ (เช่น สัญญาทุนหรือฝึกอบรมที่เซ็นไว้) อ่านสัญญาของตัวเองก่อน",
+            f"ค่าจ้างที่ทำงานไปแล้วต้องได้ครบแม้ลาออก — ถ้าถูกหัก ไม่จ่าย หรือไม่แน่ใจเรื่องสัญญา ถามฟรีที่ {HOTLINE_LABOR} (กรมสวัสดิการและคุ้มครองแรงงาน)",
+        ],
+        "ask": "สัญญาจ้างที่เซ็นไว้ เขียนเรื่องการลาออกหรือค่าปรับไว้ว่าอย่างไร?",
+    }),
     ("labor", [LABOR_RIGHTS], {
         "open": ["ค่าจ้างที่ทำงานไปแล้วเป็นสิทธิ์ของคุณ ทวงได้โดยไม่ต้องจ้างทนาย"],
         "paths": [
@@ -549,7 +558,7 @@ TOPICS = [
     }),
     ("money", ["เงินหมด", "ไม่มีเงิน", "เงินไม่พอ", re.compile(r"(?:เงิน|ตัง|ตังค์)\S{0,6}?ช็อต|ช็อตปลายเดือน|ปลายเดือน\S{0,4}?ช็อต"), "แบ่งเก็บ", "ออมเงิน",
                "วางแผนการเงิน", "ซื้อบ้าน", "ผ่อนบ้าน", re.compile(r"ผ่อน(?:เดือนละ|งวดละ)"), "เงินเดือน", "เงินเหลือ", "ค่าเช่า", "รายจ่าย", "รายได้ไม่พอ",
-               "ไม่มีรายได้", "เก็บเงิน"], {
+               "ไม่มีรายได้", "เก็บเงิน", "โบนัส", "เงินก้อน"], {
         "open": ["เงินน้อย ไม่ได้แปลว่าไม่มีทาง — แปลว่าต้องเรียงลำดับ"],
         "paths": [
             "แยกรายจ่าย 30 วันข้างหน้าเป็น 3 กอง: ต้องจ่าย (อาหาร ที่พัก ยา) · เลื่อนได้ · ตัดได้",
@@ -669,6 +678,8 @@ MONEY_SHORT = re.compile(r"เงินหมด|ไม่มีเงิน|เ
 MONEY_PLAN = {
     "open": ["มีรายได้เข้ามาอยู่แล้ว — ที่เหลือคือวางให้เงินทำงานตามลำดับ"],
     "paths": [
+        (["โบนัส", "เงินก้อน"],
+         "เงินก้อนแบ่งก่อนใช้ ตามลำดับ: ปิดหนี้ดอกเบี้ยสูงก่อน → เติมเงินสำรองฉุกเฉิน → ที่เหลือค่อยใช้หรือลงทุน"),
         "หักเงินเก็บทันทีที่เงินเดือนออก (เช่น 10–20%) ไปบัญชีแยกที่ไม่ผูกบัตร — เก็บก่อนใช้ ไม่ใช่ใช้แล้วค่อยเก็บ",
         "สร้างเงินสำรองฉุกเฉินให้ได้ 3–6 เดือนของรายจ่ายจำเป็นก่อน ค่อยคิดเรื่องลงทุนหรือก่อหนี้ก้อนใหม่",
         "จดรายจ่ายจริง 30 วัน แล้วดูว่ากองไหนลดได้โดยไม่กระทบชีวิต",
@@ -852,6 +863,11 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "resign_block": ("Quitting is your right — nobody can hold you in a job.", [
+        "Resign in writing (email or letter) with the date it takes effect, and keep a copy — give the notice your contract or local law requires.",
+        "A threat to sue doesn't take that right away — an employer can only claim damages for a real, provable breach of contract (for example a training bond you signed). Read your own contract first.",
+        "Wages for work you've already done are still owed after you leave — if they're withheld, contact your labour office (1546 in Thailand)."],
+        "What does your signed contract say about resigning or penalties?"),
     "threat": ("Being threatened makes you unsafe even before anything happens — that fear makes sense.", [
         "Keep every piece of evidence: screenshots, call recordings, dates, times and numbers — don't delete them.",
         "If they know where you live or say they're coming, call the police now (191 in Thailand, 911 in the US) and tell someone close to you.",
@@ -1144,13 +1160,6 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
                     return CREATOR_STORY_EN.strip() + f"\n\n{sign}"
             except Exception:
                 pass
-        if lang == "en" and not a["crisis"] and not a["relationship"]:
-            try:
-                from core.creator_story import detect_creator_question, CREATOR_STORY_EN
-                if detect_creator_question(text):
-                    return CREATOR_STORY_EN.strip() + f"\n\n{sign}"
-            except Exception:
-                pass
         haz = EN_HAZARD.get((a.get("disaster") or {}).get("kind")) if (lang == "en" and not a["crisis"]) else None
         if haz:
             return ("Your safety comes first right now — things can be replaced.\n\n" + status + "\n\n"
@@ -1179,6 +1188,18 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             return SAFETY_EN.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
         if lang in ("zh", "ja", "ko", "es") and a.get("intl_urgent") and not a["crisis"]:
             return compose_urgent_intl(lang, a["intl_urgent"][0], status, sign, footer)
+        b = budget_en(text) if (lang == "en" and not a["crisis"] and not a["topics"]) else None
+        if b:
+            steps = ([b["line"],
+                      "List the next 30 days of costs as must-pay · can-delay · can-cut — cut from the last pile first.",
+                      "Look for one extra income source using skills you already have, before any long-term plan."]
+                     if b["left"] <= 0 else
+                     [b["line"],
+                      "Pay yourself first: move a fixed amount to a separate savings account the day you're paid.",
+                      "Build an emergency fund of 3–6 months of essential costs before investing or taking on new debt."])
+            return ("Here are your own numbers first.\n\n" + status + "\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(steps))
+                    + "\n\nIf something unexpected happened tomorrow, how many months would your savings cover?\n\n" + sign
+                    + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         return compose_intl(lang, a["crisis"], status, sign, footer)
 
     # ── ถามถึงที่มาของระบบ (core/creator_story — ไม่มีชื่อหรือวันเกิดของผู้สร้าง) ──
@@ -1230,7 +1251,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     second = lib.get(a["topics"][1]) if len(a["topics"]) > 1 else None
     # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง
     # (เดิม "กินยาเกินขนาด" เสียขั้นที่ 3 ให้ "ใช้สิทธิ์บัตรทอง")
-    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "housing", "legal", "diagnosis",
+    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "housing", "legal", "diagnosis",
                                                            "caregiver", "health_rights"):
         second = None
     if a["offer_flags"]:                 # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
