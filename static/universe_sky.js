@@ -113,23 +113,13 @@
   /* แตะท้องฟ้า (ที่ไม่ใช่ปุ่ม/ช่องกรอก) = แสงเดียวกันแผ่ไปถึงทุกดวง */
   addEventListener('click', function (e) { if (e.target.closest('a,button,input,textarea,label,.sim-box')) return; ripple(e.clientX, e.clientY); });
 
-  /* บทของแนวคิด 5 ข้อ (data-sky บนแต่ละการ์ด) */
-  var CH = {
-    horizon: function () { tgt.pitch = .28; },
-    orbit: function () { tgt.sway = 4; },
-    uniform: function () { tgt.gal = 2.4; },
-    illusion: function () { if (!REDUCED) dolly = 0; },
-    egoless: function () { ripple(W / 2, H * .42); }
-  };
-  function chapter(name) { tgt.pitch = 0; tgt.gal = 1; tgt.sway = 1; if (CH[name]) CH[name](); kick(); }
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
-        if (e.target.dataset.sky && e.isIntersecting) chapter(e.target.dataset.sky);
         if (e.isIntersecting) e.target.classList.add('in');               // ค่อยๆ ชัดขึ้นเมื่อเลื่อนมาถึง
       });
     }, { threshold: .55 });
-    document.querySelectorAll('[data-sky],.section,.reveal').forEach(function (el) { io.observe(el); });
+    document.querySelectorAll('.section,.reveal').forEach(function (el) { io.observe(el); });
   } else document.querySelectorAll('.section,.reveal').forEach(function (el) { el.classList.add('in'); });
 
   /* เส้นขอบฟ้าส่วนตัว (HUD): เข็มทิศบางๆ ด้านบนเลื่อนตามมุมที่หัน */

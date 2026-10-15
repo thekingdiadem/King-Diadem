@@ -84,7 +84,7 @@ FATE™ Axioms: Logic over Persona · Rule over Authority · Determinism (input 
 | [`/guide`](https://king-diadem.onrender.com/guide) | คู่มือใช้งานแบบอ่านง่าย |
 | [`/letter`](https://king-diadem.onrender.com/letter) | จดหมายจากผู้ก่อตั้ง — COSMIC LATTE CANON (ไทย / English) |
 | [`/architecture`](https://king-diadem.onrender.com/architecture) | สถาปัตยกรรมและแผนที่ไฟล์ทั้งระบบ |
-| `/report/<id>` | รายงานการตัดสินใจที่แชร์ได้ |
+| `/report/<id>` | รายงานที่ผู้ใช้กดแชร์เอง — เปิดได้ 90 วัน เจ้าของลบได้ |
 | [`/wallet`](https://king-diadem.onrender.com/wallet) | เครดิต · Premium · จัดการสมาชิก |
 
 ใช้ได้ทั้งภาษาไทย อังกฤษ และญี่ปุ่น · ตัวจับเรื่องเร่งด่วนอ่านได้อีกหลายภาษา · ติดตั้งเป็นแอป (PWA) และเปิดหน้าเบอร์ฉุกเฉินได้ตอนไม่มีเน็ต

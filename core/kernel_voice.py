@@ -28,7 +28,7 @@ from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAP
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
                                CHILD_HOUSEHOLD, SLEEPLESS)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl
-from core.engine_bridge import analyze as bridge_analyze, rank_options
+from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
 HOTLINE_MENTAL = "1323"   # สายด่วนสุขภาพจิต กรมสุขภาพจิต 24 ชม.
@@ -700,6 +700,21 @@ _MONEY = re.compile(r"(\d[\d,]*(?:\.\d+)?)\s*(พัน|หมื่น|แส�
 _SPENT = re.compile(r"(?:ลงทุน|เสีย|จ่าย|ใช้|หมด|โดนโกง|ถูกโกง|โอน)\S{0,6}ไป|ขาดทุน")
 
 
+_CASH_WORDS = r"เงินเก็บ|เงินออม|เงินสำรอง|เก็บเงินไว้|ออมไว้|เงินติดตัว|มีเงิน(?!เดือน)(?:อยู่)?"
+_EXPENSE_WORDS = r"รายจ่าย(?:เดือนละ|ต่อเดือน)?|ค่าใช้จ่าย(?:เดือนละ|ต่อเดือน)?|ใช้จ่าย(?:เดือนละ)?|ใช้เดือนละ|จ่ายเดือนละ"
+
+
+def _cash_on_hand(text: str):
+    """เงินที่มีอยู่จริง (เงินเก็บ/สำรอง/ติดตัว) — ไม่ใช่เงินเดือน ราคาของ ค่าเช่า หรือยอดขาย"""
+    v = _amount_after(text, _CASH_WORDS)
+    return v if v and v >= 100 else None
+
+
+def _monthly_expense(text: str):
+    v = _amount_after(text, _EXPENSE_WORDS)
+    return v if v and v >= 1000 else None
+
+
 def _money(text: str):
     best = None
     for m in _MONEY.finditer(text):
@@ -1079,7 +1094,7 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     }
 
 
-def compose(text: str, route: str = "general", voice_mode: str = "lyla",
+def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             pattern: dict | None = None, footer: bool = True) -> str:
     """คำตอบเต็มจากสมการ — ไม่มี AI · input เดิม → คำตอบเดิม"""
     text = text if isinstance(text, str) else str(text or "")
@@ -1252,12 +1267,16 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     shown = [l for l in bridge["lines"] if l not in paths and not any(len(p) > 20 and p in l for p in paths)]
     calc_block = ("\n\nจากสิ่งที่คุณเล่า:\n" + "\n".join("· " + l for l in shown)) if shown else ""
 
+    # เฉพาะเงินที่ "มีอยู่" จริง (เงินเก็บ เงินสำรอง) — เดิมใช้ตัวเลขเงินตัวแรกในข้อความ:
+    # "เงินเดือน 15,000" "ค่าเช่า 5,000" "รถราคา 800,000" กลายเป็นเงินคงเหลือ ≈ 100 / 33 / 5,333 วัน
     money_line = ""
-    if a["money"] and not a["offer_flags"] and not _SPENT.search(t) and "runway" not in bridge["data"] and "debt" not in bridge["data"] and "business" not in bridge["data"] and any(x in a["topics"] for x in ("money", "debt", "job", "basic", "business")):
-        m = a["money"]
-        per_day = 150
-        money_line = (f"\n\nเวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน → {m:,.0f} ÷ {per_day} ≈ {m / per_day:,.0f} วัน "
-                      f"(ตัวอย่างที่วันละ {per_day} บาท — ใส่ตัวเลขจริงของคุณแทนได้)")
+    cash = _cash_on_hand(text)
+    if cash and not a["offer_flags"] and not _SPENT.search(t) and "runway" not in bridge["data"] and "debt" not in bridge["data"] and "business" not in bridge["data"]:
+        monthly = _monthly_expense(text)
+        per_day = round(monthly / 30) if monthly else 150
+        money_line = (f"\n\nเวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน → {cash:,.0f} ÷ {per_day:,} ≈ {cash / per_day:,.0f} วัน"
+                      + (f" (≈ {cash / monthly:,.1f} เดือน จากรายจ่ายที่คุณบอก)" if monthly
+                         else f" (ตัวอย่างที่วันละ {per_day} บาท — ใส่ตัวเลขจริงของคุณแทนได้)"))
 
     # Canon มาตรา 11: Options ≤ 3 — เดิม [:4] เส้นทาง survival/collapse จึงเสนอ 4 ทาง · Choice(t) ≥ 1 เสมอ
     paths = paths[:3] or GENERAL["paths"][:1]
@@ -1274,6 +1293,20 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
             f"คำถามเดียวที่ควรถามตัวเองตอนนี้: {main['ask']}\n\n{sign}" + tag)
 
 
+
+_STEP_LINE = re.compile(r"(?m)^\d+\)\s+\S")
+
+
+def compose(text: str, *args, **kw) -> str:
+    """คำตอบแบบไม่มี AI · ภาษาอื่นนอกจากไทย: Choice(t) ต้องเท่ากับจำนวนทางที่พิมพ์จริง
+    (เดิม "My husband hits me" แสดง Choice(t) = 4 แต่มีแค่ 3 ข้อ เพราะตั้งค่าตายตัวไว้ก่อนเลือกชุดคำตอบ)"""
+    out = _compose(text, *args, **kw)
+    if isinstance(out, str) and detect_lang(text) != "th":
+        n = len(_STEP_LINE.findall(out))
+        if n:
+            out = re.sub(r"Choice\(t\) = \d+", f"Choice(t) = {n}", out, count=1)
+    return out
+
 def simulate(text: str, paths: list) -> str:
     """จำลองทางเลือกแบบไม่มี AI — Downside ก่อน · วัดด้วยการย้อนกลับได้"""
     text = text if isinstance(text, str) else str(text or "")
@@ -1285,17 +1318,35 @@ def simulate(text: str, paths: list) -> str:
     irreversible = ["ลาออก", "ขายบ้าน", "ขายรถ", "ขายที่ดิน", "ขายกิจการ", "ย้ายประเทศ", "ย้ายบ้าน", "หย่า",
                     "กู้", "ลงทุนทั้งหมด", "เงินเก็บทั้งหมด", "ทุ่มหมด", "เซ็นสัญญา", "ปิดร้าน", "ปิดกิจการ",
                     "quit", "all in"]
+    en = detect_lang(text + " " + " ".join(paths)) != "th"          # ผู้ใช้เขียนอังกฤษ → ตอบอังกฤษ (เดิมตอบไทยเสมอ)
+    hard = [_hit(p.lower(), irreversible) for p in paths]
     lines = []
     for i, p in enumerate(paths):
-        hard = _hit(p.lower(), irreversible)
-        lines.append(f"{'ABCDEFG'[i]} · {p}\n"
-                     f"   Downside: {'ย้อนกลับยาก — ต้องมีเงินสำรองและแผนสำรองก่อน' if hard else 'ย้อนกลับได้ — เสียหายจำกัดถ้าทดลองขนาดเล็ก'}\n"
-                     f"   30 วัน: ทดลองขนาดเล็กแล้ววัดผล · 90 วัน: ขยายเฉพาะถ้าตัวเลขยืนยัน")
+        if en:
+            lines.append(f"{'ABCDEFG'[i]} · {p}\n"
+                         f"   Downside: {'hard to reverse — have savings and a backup plan first' if hard[i] else 'reversible — limited loss if you test it small'}\n"
+                         f"   30 days: test small and measure · 90 days: scale only if the numbers confirm")
+        else:
+            lines.append(f"{'ABCDEFG'[i]} · {p}\n"
+                         f"   Downside: {'ย้อนกลับยาก — ต้องมีเงินสำรองและแผนสำรองก่อน' if hard[i] else 'ย้อนกลับได้ — เสียหายจำกัดถ้าทดลองขนาดเล็ก'}\n"
+                         f"   30 วัน: ทดลองขนาดเล็กแล้ววัดผล · 90 วัน: ขยายเฉพาะถ้าตัวเลขยืนยัน")
     # ENGINE/choice_optimizer เรียงจากรอดที่สุด — แนะนำทางที่ได้คะแนนสูงสุด
     best = rank_options(paths, waterline=a["W"])[0]["action"]
     pick = paths.index(best) if best in paths else 0
+    L = "ABCDEFG"[pick]
+    # เหตุผลต้องตรงกับทางที่เลือกจริง — เดิมพูดว่า "ทางที่ย้อนกลับได้" แม้ทุกทางย้อนกลับยาก
+    if en:
+        why = ("the most reversible path — keep the others for later (higher Choice(t+1))" if not hard[pick] else
+               ("every path here is hard to reverse" if all(hard) else "hard to reverse, but it ranks safest") +
+               " — secure savings and a way back before you start")
+        return (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = {len(paths)}\n\n" + "\n\n".join(lines) +
+                f"\n\nStart with {L} — {why}"
+                "\n\n— VEGA ◆\n· Simulated from the system's equations — no AI used")
+    why = ("ทางที่ย้อนกลับได้ เก็บทางอื่นไว้ใช้ทีหลัง (Choice(t+1) สูงกว่า)" if not hard[pick] else
+           ("ทุกทางในนี้ย้อนกลับยาก ทางนี้ปลอดภัยที่สุดในกลุ่ม" if all(hard) else "ทางนี้ย้อนกลับยาก แต่คะแนนรอดสูงสุด") +
+           " — เตรียมเงินสำรองและทางถอยไว้ก่อนเริ่ม")
     return (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = {len(paths)}\n\n" + "\n\n".join(lines) +
-            f"\n\nแนะนำเริ่มจาก {'ABCDEFG'[pick]} — ทางที่ย้อนกลับได้ เก็บทางอื่นไว้ใช้ทีหลัง (Choice(t+1) สูงกว่า)"
+            f"\n\nแนะนำเริ่มจาก {L} — {why}"
             "\n\n— VEGA ◆\n· จำลองจากสมการของระบบ — ไม่ได้ใช้ AI")
 
 

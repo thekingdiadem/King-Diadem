@@ -173,21 +173,52 @@ def offered_choices(text: str) -> int:
 _NUM_ITEM = re.compile(r"^(\d+)\s*[\).:]\s+\S")
 
 
+_STEP_HDR = re.compile(r"ขั้นตอน|วิธี(?:ทำ|การ)?|ทำตามนี้|ทำทันที|ตามลำดับ|ปฐมพยาบาล|รายการ|ค่าใช้จ่าย|รายจ่าย|สรุปยอด|step|how to|instruction|breakdown", re.I)
+_AMOUNT_ITEM = re.compile(r"\d[\d,]*\s*(?:บาท|฿|%)|฿\s*\d")
+
+
 def limit_options(text: str, limit: int = MAX_OPTIONS) -> str:
-    """ตัดรายการทางเลือกแบบมีเลข (1. 2. 3. ...) ให้เหลือไม่เกิน limit ข้อ — มาตรา 11
+    """ตัดรายการ "ทางเลือก" แบบมีเลข (1. 2. 3. ...) ให้เหลือไม่เกิน limit ข้อ — มาตรา 11
     LLM เคยตอบ 5 กลยุทธ์ในหน้าเว็บจริง · ตัดเฉพาะข้อที่เลขเกิน พร้อมบรรทัดย่อยของข้อนั้น
-    ย่อหน้าปกติหลังรายการ (ไม่เยื้อง ไม่ขึ้นต้นด้วยเลข) ยังอยู่ครบ"""
+
+    ตัดเฉพาะรายการที่เป็นทางเลือกจริง — เดิมตัดทุกรายการที่มีเลข: รายการค่าใช้จ่าย 5 ข้อเหลือ 3
+    แต่ "รวม 17,500" ยังอยู่ (ตัวเลขไม่ตรงกัน) และขั้นตอนปฐมพยาบาลก็โดนตัด
+    รายการที่หัวข้อบอกว่าเป็นขั้นตอน/รายการเงิน หรือแต่ละข้อมีจำนวนเงิน → ไม่แตะ"""
     lines = str(text or "").split("\n")
-    out, dropping = [], False
-    for ln in lines:
-        m = _NUM_ITEM.match(ln)
-        if m:
-            dropping = int(m.group(1)) > limit
-        elif dropping and ln.strip() and not ln[:1].isspace() and not re.match(r"^[-•▸◦*]\s", ln):
-            dropping = False                     # ย่อหน้าใหม่หลังรายการ → เก็บ
-        if not dropping:
-            out.append(ln)
-    return "\n".join(out).rstrip() if len(out) != len(lines) else str(text or "")
+    trim = set()
+    i = 0
+    while i < len(lines):
+        m = _NUM_ITEM.match(lines[i])
+        if not (m and m.group(1) == "1"):
+            i += 1
+            continue
+        # หัวข้อของรายการ = บรรทัดที่มีเนื้อหาก่อนข้อ 1
+        hdr = next((lines[k] for k in range(i - 1, max(-1, i - 4), -1) if lines[k].strip()), "")
+        j, items = i, []
+        while j < len(lines):
+            mm = _NUM_ITEM.match(lines[j])
+            if mm:
+                items.append((j, int(mm.group(1))))
+            elif lines[j].strip() and not lines[j][:1].isspace() and not re.match(r"^[-•▸◦*]\s", lines[j]):
+                break
+            j += 1
+        heads = [lines[k] for k, _ in items]
+        money_list = sum(1 for h in heads if _AMOUNT_ITEM.search(h)) >= max(2, len(heads) // 2)
+        # รายการทั่วไปถือเป็นทางเลือก (คำแนะนำหลายทาง) · ยกเว้นหัวข้อบอกว่าเป็นขั้นตอน/รายการเงิน
+        is_steps = bool(_STEP_HDR.search(hdr))
+        if not is_steps and not money_list:
+            dropping = False
+            for k in range(i, j):
+                mm = _NUM_ITEM.match(lines[k])
+                if mm:
+                    dropping = int(mm.group(1)) > limit
+                if dropping and lines[k].strip():
+                    trim.add(k)
+        i = j
+    if not trim:
+        return str(text or "")
+    out = [ln for k, ln in enumerate(lines) if k not in trim]
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(out)).rstrip()
 
 
 # ══════════════════════════════════════════════════════════════════

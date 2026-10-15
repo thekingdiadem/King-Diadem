@@ -34,6 +34,7 @@ NEW = {
     "scripts/stress_test.py": ["tests", "ทดสอบหนัก: ดัดแปลงข้อความเป็นแสน ตรวจไม่ล้ม · ไม่เกิน 3 ทาง · คงเส้นคงวา", "⚡ stress"],
     "scripts/build_system_map.py": ["config", "สร้างแผนผังระบบในหน้าเว็บใหม่จาก repo จริง", "⌘ แผนผัง"],
     "static/i18n.js": ["web", "ข้อความหน้าเว็บหลายภาษา", "文 i18n"],
+    "core/vega_kernels.py": ["request", "VEGA Human DriftZero Kernel 14 ประตู (K1–K14): อ่านสัญญาณจากข้อความ แล้วให้ VEGA ถามคำถามของประตูที่ติด", "◆ 14 gates"],
     "core/history_export.py": ["request", "ส่งออกประวัติการปรึกษาของบัญชี: ไฟล์ข้อความ (ดาวน์โหลด) และส่งเข้าอีเมลของบัญชีนั้นผ่าน SMTP", "✉ history"],
     "static/system_map.json": ["web", "ข้อมูลแผนผังระบบ (ไฟล์ · หมวด · เส้นเชื่อม) ที่หน้า /architecture โหลดไปวาด — สร้างจาก scripts/build_system_map.py", "⌘ map.json"],
     "static/earth/README.md": ["docs", "ที่มาและสัญญาอนุญาตของภาพโลกหน้าแรก (NASA · สาธารณสมบัติ)", "🜨 earth"],

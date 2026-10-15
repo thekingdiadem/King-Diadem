@@ -34,3 +34,20 @@ def test_app_applies_limit_before_canon_check(client):
     FAKE_LLM["text"] = FIVE
     r = client.post("/run", json={"input": "ช่วยวางกลยุทธ์หาลูกค้าให้หน่อย"}).json()
     assert "5. ลาออกเลย" not in r["ai_response"]
+
+
+def test_money_breakdown_is_not_cut():
+    """เดิมรายการค่าใช้จ่าย 5 ข้อถูกตัดเหลือ 3 แต่ "รวม 17,500" ยังอยู่ — ตัวเลขไม่ตรงกัน"""
+    t = ("ค่าใช้จ่ายต่อเดือน:\n1. ค่าเช่า 5,000 บาท\n2. ค่าอาหาร 6,000 บาท\n3. ค่าเดินทาง 2,000 บาท\n"
+         "4. ค่าน้ำไฟ 1,500 บาท\n5. ค่าโทรศัพท์ 3,000 บาท\nรวม 17,500 บาท")
+    assert limit_options(t) == t
+
+
+def test_first_aid_steps_are_not_cut():
+    t = "ขั้นตอนปฐมพยาบาล:\n1. ตั้งสติ\n2. โทร 1669\n3. ห้ามเลือด\n4. ยกส่วนที่เจ็บให้สูง\n5. รอทีมแพทย์"
+    assert limit_options(t) == t
+
+
+def test_blank_line_before_closing_paragraph_kept():
+    out = limit_options(FIVE)
+    assert "\n\nไม่ว่าทางไหน" in out

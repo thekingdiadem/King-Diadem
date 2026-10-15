@@ -39,7 +39,7 @@ def test_universe_thai_labels_are_not_letter_spaced():
     html = _read("king_diadem_universe.html")
     rule = re.search(r"\n([^\n{}]*\.sim-btn[^\n{}]*)\{letter-spacing:\.01em\}", html)
     assert rule, "ไม่พบกฎลดระยะตัวอักษรของข้อความไทย"
-    for cls in (".scroll-hint", ".hz-hint", ".ego-tap", ".sec-title", ".sim-sub", ".sim-note",
+    for cls in (".scroll-hint", ".ego-tap", ".sec-title", ".sim-sub", ".sim-note",
                 ".intent-label", ".sim-btn", ".dignity-text", ".ego-quote cite"):
         assert cls in rule.group(1), cls
     assert ".th-run{font-family:var(--f-body);letter-spacing:.01em}" in html

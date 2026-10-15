@@ -33,7 +33,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
-import os, re, json, stripe, math, time, threading
+import os, re, json, stripe, math, time, threading, secrets
 from urllib.parse import quote, unquote
 
 # ── ENGINE ────────────────────────────────────────────────────────
@@ -163,17 +163,24 @@ except Exception as e:
     print(f"⚠ future_paths: {type(e).__name__}")
     future_project = None
 
+# ── VEGA Human DriftZero Kernel — 14 ประตู (core/vega_kernels.py) ─────
+try:
+    from core.vega_kernels import evaluate as vega_evaluate, llm_hint as vega_llm_hint, offline_lines as vega_offline_lines
+except Exception as e:  # pragma: no cover
+    print(f"⚠ vega_kernels: {type(e).__name__}")
+    vega_evaluate = vega_llm_hint = vega_offline_lines = None
+
 # ── KERNEL VOICE — ตอบได้แม้ไม่มี AI (core/kernel_voice.py) ──────────
 try:
     from core.kernel_voice import compose as kernel_compose, simulate as kernel_simulate, assess as kernel_assess
     from core.thai_signals import OFFER_FLAG_TH
-    from core.lang_signals import detect_lang
+    from core.lang_signals import detect_lang, prompt_lang
     from core.engine_bridge import analyze as bridge_analyze, nearby as bridge_nearby
 except Exception as e:
     print(f"⚠ kernel_voice: {e}")
     kernel_compose = kernel_simulate = kernel_assess = None
     OFFER_FLAG_TH = {}
-    detect_lang = None
+    detect_lang = prompt_lang = None
     bridge_analyze = bridge_nearby = None
 
 try:
@@ -209,11 +216,11 @@ except Exception as e:
 
 # ── REPORT ENGINE ─────────────────────────────────────────────────
 try:
-    from report_engine import create_report as _create_report, get_report as _get_report
+    from report_engine import create_report as _create_report, get_report as _get_report, delete_report as _delete_report
     print("✅ Report engine loaded")
 except Exception as e:
     print(f"⚠ report_engine: {e}")
-    _create_report = _get_report = None
+    _create_report = _get_report = _delete_report = None
 
 # ── CIVILIZATION ──────────────────────────────────────────────────
 try:
@@ -497,6 +504,32 @@ def _quota_status(email: str, request: Request) -> dict:
         "credits":   (get_credits(email) if get_credits and email else None),
         "run_cost":  RUN_COST,
     }
+
+_STATE_KEYS = ("energy", "sleep_hours", "mental_state", "food_access", "safe_place", "days_in_crisis", "money")
+
+
+def _has_user_state(ctx) -> bool:
+    """ผู้ใช้กรอก "สถานะของฉัน" จริงไหม — หน้าเว็บส่ง context ทุกครั้ง (client_voice, tone_notes, route_ui)
+    เดิมเช็กแค่ว่า context ไม่ว่าง: คนที่ไม่เคยกรอกได้ W 100 / STABLE ทุกข้อความ และถูกบันทึกลงกราฟ waterline"""
+    return isinstance(ctx, dict) and any(ctx.get(k) is not None for k in _STATE_KEYS)
+
+
+def _urgent_text(text: str) -> bool:
+    """ข้อความที่ต้องได้คำตอบเสมอแม้โควตาหมด: วิกฤต/ทำร้ายตัวเอง หรือความเสี่ยงจากข้อความ ≥ 75
+    (ถูกทำร้าย ไม่มีข้าวกิน กินยาเกินขนาด ฯลฯ) — กฎตายตัว ไม่ใช้ AI"""
+    if not kernel_assess:
+        return False
+    try:
+        a = kernel_assess(text)
+        if bool(a.get("crisis")) or float(a.get("text_risk") or 0) >= 75:
+            return True
+        # ภัยที่กำลังเกิดตรงหน้า (น้ำท่วม ติดบนหลังคา ไฟไหม้ แผ่นดินไหว) — ไม่ใช่ข่าวหรือเรื่องเล่า
+        from core.engine_bridge import _disaster
+        dis = _disaster(text)
+        return bool(dis and dis["data"].get("active"))
+    except Exception:
+        return False
+
 
 def _charge(email: str, request: Request, what: str):
     """คืน (ticket, None) ถ้าใช้ได้ หรือ (None, JSONResponse 402) ถ้าโควตา/เครดิตหมด"""
@@ -1366,6 +1399,10 @@ def run_kernel(request: Request, data: dict):
         )
 
     ticket, denied = _charge(email, request, "run")
+    if denied and _urgent_text(user_input):
+        # โควตาหมดแต่ข้อความเป็นเรื่องฉุกเฉิน (อยากตาย ถูกทำร้าย ไม่มีข้าวกิน กินยาเกินขนาด) — เดิมได้หน้าจ่ายเงิน 402
+        # ไม่มีเบอร์สายด่วนเลย · ตอนนี้ตอบฟรีจากสมการ (ไม่ใช้ AI จึงไม่มีต้นทุน) พร้อมเบอร์ที่ตรงเรื่อง
+        ticket, denied = {"mode": "unmetered"}, None
     if denied:
         return denied
     # ตัวตนของ session มาจาก server เท่านั้น — เดิมไม่ส่งเลย ทุกคนใช้ "default" ร่วมกัน
@@ -1410,7 +1447,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         try: human_state = analyze_human(data.get("context", {})) or human_state
         except Exception: pass
         # บันทึก waterline รายคนเฉพาะตอนผู้ใช้ส่งสถานะมาเอง — ค่าตั้งต้นไม่ใช่สภาพจริงของเขา
-        if data.get("context") and isinstance(data.get("context"), dict) and "waterline" in human_state:
+        if _has_user_state(data.get("context")) and "waterline" in human_state:
             try:
                 from DATABASE.db import record_waterline
                 record_waterline(email, human_state["waterline"], human_state.get("status", ""))
@@ -1452,13 +1489,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     k_assess, offer_ctx = {}, ""
     if kernel_assess:
         try:
-            k_assess = kernel_assess(user_input, human_state if data.get("context") else None) or {}
+            k_assess = kernel_assess(user_input, human_state if _has_user_state(data.get("context")) else None) or {}
         except Exception as e:
             print(f"⚠ kernel_assess: {type(e).__name__}")
     # [Risk: LOW] จากสถานะร่างกาย ขัดกับข้อความที่เสี่ยงชัด → บอก LLM ระดับจากข้อความแทน
     risk_ctx = _risk_ctx_from_text(risk_ctx, k_assess.get("text_risk", 0) or 0)
     # ถูกทำร้าย/ถูกควบคุมในความสัมพันธ์ → เส้นทางความเสี่ยง (ความปลอดภัยมาก่อน)
     rel_ctx = ""
+    prior_kind, prior_text = "", ""          # เรื่องฉุกเฉินที่เล่าไว้ก่อนหน้าในแชทนี้ (ถ้ามี)
     if k_assess.get("relationship") in ("collapse_risk", "critical"):
         if route not in ("vega",):
             route = _escalate_route(route, "risk")
@@ -1475,7 +1513,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                         "harm_others": "ความโกรธจนอยากทำร้ายคนอื่น", "elder_abuse": "ผู้สูงอายุถูกทำร้าย/ทอดทิ้ง",
                         "weapon": "ปืน/อาวุธในบ้าน", "sextortion": "ถูกขู่/ภาพส่วนตัวถูกเผยแพร่", "first_aid": "การบาดเจ็บ",
                         "drunk_drive": "เมาแล้วขับ", "theft": "การถูกขโมย", "threat": "การถูกข่มขู่"}
-        prior_risk, prior_kind, urgent_what = 0, "", ""
+        prior_risk, prior_kind, urgent_what, prior_text = 0, "", "", ""
         if kernel_assess:
             past = history[-8:] if isinstance(history, list) else []      # history มาจาก client — อาจไม่ใช่ list
             for h in [h for h in past if isinstance(h, dict) and h.get("role") == "user"]:
@@ -1494,6 +1532,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                         else "")
                 if kind and pa.get("text_risk", 0) >= prior_risk:
                     prior_risk, prior_kind = pa.get("text_risk", 0), kind
+                    prior_text = str(h.get("content") or "")[:2000]
                     if kind == "urgent":
                         urgent_what = (str((pa.get("disaster") or {}).get("name") or "") or
                                        ("การถูกโกง" if pa.get("scam") else
@@ -1539,6 +1578,9 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             # ความกังวลยังอยู่ แต่ลดลงตามเวลา — Risk = 0.75 × Risk ของสิ่งที่เล่าไว้
             k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
     # สภา 6 เสียงไม่เหมาะกับเรื่องฉุกเฉิน (กินยาเกินขนาด ถูกทำร้าย ภัยพิบัติ ฯลฯ) — ให้ LYLA ตอบขั้นช่วยเหลือทันที
+    # รวมถึงข้อความที่ตอบต่อจากเรื่องฉุกเฉินก่อนหน้า ("ขอความเห็นสภา ควรลาออกไหม" ต่อจาก "อยากตาย" เคยได้ "มติ 6/6 เดินหน้าได้")
+    if vm == "council" and prior_kind:
+        vm = "lyla"
     if vm == "council" and k_assess:
         try:
             from core.kernel_voice import council_unsuitable
@@ -1810,9 +1852,16 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     effective += _route_bias(route, user_input)
     if extra_ctx:
         effective += f"\n\n{extra_ctx}"
+    # VEGA Human DriftZero Kernel (14 Gates): ประตูที่ติดจากข้อความ → ให้ VEGA ถามคำถามของประตูนั้น
+    # ไม่ใช้ตอนวิกฤต (ตอนนั้นต้องรับรู้และให้ทางช่วยก่อน ไม่ใช่ถามให้คิด)
+    vega_gates = []
+    if vega_evaluate and vm == "vega" and route not in ("crisis", "collapse", "survival"):
+        vega_gates = vega_evaluate(user_input)
+        if vega_gates:
+            effective += "\n\n" + vega_llm_hint(vega_gates)
     # ภาษาของผู้ใช้ (ดูจากข้อความดิบ — prompt ที่ต่อแล้วมีบริบทภาษาไทยปน) ให้ LLM ตอบภาษาเดียวกัน
     if detect_lang:
-        u_lang = detect_lang(user_input)
+        u_lang = prompt_lang(user_input) if prompt_lang else detect_lang(user_input)
         if u_lang != "th":
             effective += f"\n\n[ภาษาผู้ใช้: {u_lang}]"
     # มีประวัติแชท → บอกให้ชัดว่าข้อความไหนต้องตอบตอนนี้ (ข้อความล่าสุดถูกบริบทยาวๆ ล้อมไว้
@@ -1893,8 +1942,13 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             "status":        "SUCCESS",
             "route":         k_route,
             # สถานะร่างกายใช้เฉพาะเมื่อผู้ใช้ส่งมาจริง — context ว่างให้ค่า W 100/Risk 0 ที่ไม่จริง
-            "ai_response":   kernel_compose(user_input, route=k_route, voice_mode=vm,
-                                            pattern=human_state if data.get("context") else None),
+            # ไม่มี AI: ข้อความสั้นที่ตอบต่อจากเรื่องฉุกเฉิน ต้องได้คำตอบของเรื่องนั้น (เบอร์ช่วยเหลือ)
+            # — เดิม kernel เห็นแค่ "ไม่เป็นไรแล้ว" จึงตอบทั่วไป "W 100 · Risk 0" ไม่มี 1323
+            "ai_response":   _with_gate_questions(
+                                 kernel_compose((prior_text + "\n" + user_input) if prior_kind else user_input,
+                                                route=k_route, voice_mode=vm,
+                                                pattern=human_state if _has_user_state(data.get("context")) else None),
+                                 vega_gates),
             "answer_source": "kernel",
         })
         result.setdefault("pattern", human_state)
@@ -2022,7 +2076,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 if kernel_compose:
                     try:
                         fallback = kernel_compose(user_input, route=b_route, voice_mode=vm,
-                                                  pattern=human_state if data.get("context") else None)
+                                                  pattern=human_state if _has_user_state(data.get("context")) else None)
                         source = "kernel"
                     except Exception as _kc:
                         print(f"⚠ kernel_compose after canon block: {type(_kc).__name__}")
@@ -2063,19 +2117,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             )
         except Exception: pass
 
-    # ── DECISION REPORT URL ───────────────────────────────────────
+    if vega_gates:
+        result["vega_gates"] = [{"id": g["id"], "name": g["name"], "ask": g["ask"]} for g in vega_gates]
+
+    # ── รายงานที่แชร์ได้: สร้างเมื่อผู้ใช้กดแชร์เท่านั้น ─────────────────────
+    # เดิมสร้างลิงก์สาธารณะทุกครั้งที่ถาม (ไม่มีวันหมดอายุ ลบไม่ได้) — เรื่องส่วนตัวค้างอยู่ในลิงก์ที่ใครมีก็อ่านได้
+    # ตอนนี้แค่จำผลไว้ชั่วคราวกับ token · กด "แชร์" แล้วค่อยสร้างจริง (POST /api/report/share)
     if _create_report:
-        try:
-            report_id = _create_report(
-                user_email=email,
-                user_input=user_input,
-                result=result,
-            )
-            result["report_url"] = f"/report/{report_id}"
-            result["report_id"]  = report_id
-            result["share_url"]  = _public_url(f"/report/{report_id}")
-        except Exception as _re:
-            print(f"⚠ report creation failed: {_re}")
+        result["share_token"] = _remember_for_share(email, user_input, result)
 
     return result
 
@@ -2138,7 +2187,7 @@ def _simulate_impl(user_input: str, paths: list, email: str) -> dict:
         )
         # ภาษาเดียวกับผู้ใช้ (เดิมบังคับ "ตอบเป็นภาษาไทย") และเส้นทาง vega ตามลายเซ็น — VEGA
         # (เดิม route="survival" ทุกครั้ง LLM จึงได้คำสั่ง "โฟกัสความอยู่รอดพื้นฐาน" กับการจำลองเรื่องงาน)
-        u_lang = detect_lang(user_input) if detect_lang else "th"
+        u_lang = (prompt_lang or detect_lang)(user_input) if detect_lang else "th"
         if u_lang != "th":
             prompt += f"\n\n[ภาษาผู้ใช้: {u_lang}]"
         answer = _llm.generate_with_governance(
@@ -2599,6 +2648,68 @@ async def get_report_api(report_id: str):
     if not data:
         return JSONResponse({"error": "Report not found"}, status_code=404)
     return data
+
+
+def _with_gate_questions(reply: str, gates: list) -> str:
+    """คำตอบแบบไม่มี AI ของ VEGA: แทรกคำถามของประตูที่ติด (2 ข้อ) ก่อนลายเซ็น"""
+    if not gates or not vega_offline_lines or not isinstance(reply, str):
+        return reply
+    extra = vega_offline_lines(gates, vega=True)
+    i = reply.rfind("\n\n— VEGA")
+    return (reply[:i] + "\n\n" + extra + reply[i:]) if i >= 0 else (reply + "\n\n" + extra)
+
+
+# ── แชร์รายงาน: จำผลของ /run ไว้ 2 ชั่วโมงในหน่วยความจำ (ไม่ลงดิสก์) จนกว่าผู้ใช้จะกดแชร์ ─────
+_SHARE_TTL, _SHARE_MAX = 2 * 3600, 2000
+_share_lock = threading.Lock()
+_share_cache: dict = {}        # token → {"email", "input", "result", "t", "report"}
+
+
+def _remember_for_share(email: str, user_input: str, result: dict) -> str:
+    token = secrets.token_urlsafe(12)
+    snap = {k: result.get(k) for k in ("route", "persona", "ai_response", "governance", "risk_score", "consensus")}
+    now = time.time()
+    with _share_lock:
+        if len(_share_cache) >= _SHARE_MAX:
+            for k in [k for k, v in _share_cache.items() if now - v["t"] > _SHARE_TTL] or list(_share_cache)[:_SHARE_MAX // 10]:
+                _share_cache.pop(k, None)
+        _share_cache[token] = {"email": email or "anonymous", "input": user_input, "result": snap, "t": now, "report": None}
+    return token
+
+
+@app.post("/api/report/share")
+def share_report(request: Request, data: dict):
+    """ผู้ใช้กดแชร์ → สร้างลิงก์รายงานจากผลที่ระบบตอบจริง (กดซ้ำได้ลิงก์เดิม)"""
+    if not _create_report:
+        return JSONResponse({"error": "report engine not loaded"}, status_code=503)
+    token = str(data.get("token") or "")
+    email = _session_email(request, "anonymous")
+    with _share_lock:
+        item = _share_cache.get(token)
+        if not item or time.time() - item["t"] > _SHARE_TTL:
+            _share_cache.pop(token, None)
+            return JSONResponse({"error": "ลิงก์แชร์ของคำตอบนี้หมดเวลาแล้วค่ะ ถามใหม่อีกครั้งแล้วกดแชร์ได้เลยนะคะ"}, status_code=410)
+        if item["email"] != "anonymous" and item["email"] != email:
+            return JSONResponse({"error": "แชร์ได้เฉพาะคำตอบของบัญชีตัวเองค่ะ"}, status_code=403)
+        report_id = item["report"]
+        if not report_id:
+            try:
+                report_id = _create_report(user_email=item["email"], user_input=item["input"], result=item["result"])
+            except Exception as e:
+                print(f"⚠ share report failed: {type(e).__name__}")
+                return JSONResponse({"error": "สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้งนะคะ"}, status_code=500)
+            item["report"] = report_id
+    return {"report_id": report_id, "report_url": f"/report/{report_id}", "share_url": _public_url(f"/report/{report_id}")}
+
+
+@app.delete("/api/report/{report_id}")
+def delete_my_report(request: Request, report_id: str):
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    if not _delete_report or not _delete_report(report_id, email):
+        return JSONResponse({"error": "ไม่พบรายงานนี้ในบัญชีของคุณค่ะ"}, status_code=404)
+    return {"ok": True}
 
 
 @app.post("/api/report/create")
