@@ -505,6 +505,23 @@ def _quota_status(email: str, request: Request) -> dict:
         "run_cost":  RUN_COST,
     }
 
+def _urgent_text(text: str) -> bool:
+    """ข้อความที่ต้องได้คำตอบเสมอแม้โควตาหมด: วิกฤต/ทำร้ายตัวเอง หรือความเสี่ยงจากข้อความ ≥ 75
+    (ถูกทำร้าย ไม่มีข้าวกิน กินยาเกินขนาด ฯลฯ) — กฎตายตัว ไม่ใช้ AI"""
+    if not kernel_assess:
+        return False
+    try:
+        a = kernel_assess(text)
+        if bool(a.get("crisis")) or float(a.get("text_risk") or 0) >= 75:
+            return True
+        # ภัยที่กำลังเกิดตรงหน้า (น้ำท่วม ติดบนหลังคา ไฟไหม้ แผ่นดินไหว) — ไม่ใช่ข่าวหรือเรื่องเล่า
+        from core.engine_bridge import _disaster
+        dis = _disaster(text)
+        return bool(dis and dis["data"].get("active"))
+    except Exception:
+        return False
+
+
 def _charge(email: str, request: Request, what: str):
     """คืน (ticket, None) ถ้าใช้ได้ หรือ (None, JSONResponse 402) ถ้าโควตา/เครดิตหมด"""
     email = "" if email == "anonymous" else (email or "")
@@ -1373,6 +1390,10 @@ def run_kernel(request: Request, data: dict):
         )
 
     ticket, denied = _charge(email, request, "run")
+    if denied and _urgent_text(user_input):
+        # โควตาหมดแต่ข้อความเป็นเรื่องฉุกเฉิน (อยากตาย ถูกทำร้าย ไม่มีข้าวกิน กินยาเกินขนาด) — เดิมได้หน้าจ่ายเงิน 402
+        # ไม่มีเบอร์สายด่วนเลย · ตอนนี้ตอบฟรีจากสมการ (ไม่ใช้ AI จึงไม่มีต้นทุน) พร้อมเบอร์ที่ตรงเรื่อง
+        ticket, denied = {"mode": "unmetered"}, None
     if denied:
         return denied
     # ตัวตนของ session มาจาก server เท่านั้น — เดิมไม่ส่งเลย ทุกคนใช้ "default" ร่วมกัน

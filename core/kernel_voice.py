@@ -28,7 +28,7 @@ from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAP
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
                                CHILD_HOUSEHOLD, SLEEPLESS)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl
-from core.engine_bridge import analyze as bridge_analyze, rank_options
+from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
 HOTLINE_MENTAL = "1323"   # สายด่วนสุขภาพจิต กรมสุขภาพจิต 24 ชม.
@@ -700,6 +700,21 @@ _MONEY = re.compile(r"(\d[\d,]*(?:\.\d+)?)\s*(พัน|หมื่น|แส�
 _SPENT = re.compile(r"(?:ลงทุน|เสีย|จ่าย|ใช้|หมด|โดนโกง|ถูกโกง|โอน)\S{0,6}ไป|ขาดทุน")
 
 
+_CASH_WORDS = r"เงินเก็บ|เงินออม|เงินสำรอง|เก็บเงินไว้|ออมไว้|เงินติดตัว|มีเงิน(?!เดือน)(?:อยู่)?"
+_EXPENSE_WORDS = r"รายจ่าย(?:เดือนละ|ต่อเดือน)?|ค่าใช้จ่าย(?:เดือนละ|ต่อเดือน)?|ใช้จ่าย(?:เดือนละ)?|ใช้เดือนละ|จ่ายเดือนละ"
+
+
+def _cash_on_hand(text: str):
+    """เงินที่มีอยู่จริง (เงินเก็บ/สำรอง/ติดตัว) — ไม่ใช่เงินเดือน ราคาของ ค่าเช่า หรือยอดขาย"""
+    v = _amount_after(text, _CASH_WORDS)
+    return v if v and v >= 100 else None
+
+
+def _monthly_expense(text: str):
+    v = _amount_after(text, _EXPENSE_WORDS)
+    return v if v and v >= 1000 else None
+
+
 def _money(text: str):
     best = None
     for m in _MONEY.finditer(text):
@@ -1252,12 +1267,16 @@ def compose(text: str, route: str = "general", voice_mode: str = "lyla",
     shown = [l for l in bridge["lines"] if l not in paths and not any(len(p) > 20 and p in l for p in paths)]
     calc_block = ("\n\nจากสิ่งที่คุณเล่า:\n" + "\n".join("· " + l for l in shown)) if shown else ""
 
+    # เฉพาะเงินที่ "มีอยู่" จริง (เงินเก็บ เงินสำรอง) — เดิมใช้ตัวเลขเงินตัวแรกในข้อความ:
+    # "เงินเดือน 15,000" "ค่าเช่า 5,000" "รถราคา 800,000" กลายเป็นเงินคงเหลือ ≈ 100 / 33 / 5,333 วัน
     money_line = ""
-    if a["money"] and not a["offer_flags"] and not _SPENT.search(t) and "runway" not in bridge["data"] and "debt" not in bridge["data"] and "business" not in bridge["data"] and any(x in a["topics"] for x in ("money", "debt", "job", "basic", "business")):
-        m = a["money"]
-        per_day = 150
-        money_line = (f"\n\nเวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน → {m:,.0f} ÷ {per_day} ≈ {m / per_day:,.0f} วัน "
-                      f"(ตัวอย่างที่วันละ {per_day} บาท — ใส่ตัวเลขจริงของคุณแทนได้)")
+    cash = _cash_on_hand(text)
+    if cash and not a["offer_flags"] and not _SPENT.search(t) and "runway" not in bridge["data"] and "debt" not in bridge["data"] and "business" not in bridge["data"]:
+        monthly = _monthly_expense(text)
+        per_day = round(monthly / 30) if monthly else 150
+        money_line = (f"\n\nเวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน → {cash:,.0f} ÷ {per_day:,} ≈ {cash / per_day:,.0f} วัน"
+                      + (f" (≈ {cash / monthly:,.1f} เดือน จากรายจ่ายที่คุณบอก)" if monthly
+                         else f" (ตัวอย่างที่วันละ {per_day} บาท — ใส่ตัวเลขจริงของคุณแทนได้)"))
 
     # Canon มาตรา 11: Options ≤ 3 — เดิม [:4] เส้นทาง survival/collapse จึงเสนอ 4 ทาง · Choice(t) ≥ 1 เสมอ
     paths = paths[:3] or GENERAL["paths"][:1]

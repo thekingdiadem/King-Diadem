@@ -45,13 +45,14 @@ def test_no_ai_answers_from_kernel_and_is_free(user):
 
 
 def test_quota_then_credits_then_402(user):
+    # ข้อความทั่วไป (ไม่ใช่เรื่องฉุกเฉิน — "เงินหมด" ตอนนี้ได้คำตอบฟรีจากสมการพร้อมเบอร์ 1300 เสมอ)
     start = get_credits(user.email)
-    modes = [user.post("/run", json={"input": "เงินหมด"}).json()["quota"]["charged"] for _ in range(5)]
+    modes = [user.post("/run", json={"input": "อยากเปลี่ยนงาน"}).json()["quota"]["charged"] for _ in range(5)]
     assert modes == ["free", "free", "free", "credit", "credit"]
     assert get_credits(user.email) == start - 2
     while spend_credit(user.email, 1, "drain"):
         pass
-    r = user.post("/run", json={"input": "เงินหมด"})
+    r = user.post("/run", json={"input": "อยากเปลี่ยนงาน"})
     assert r.status_code == 402 and r.json()["code"] == "quota_exhausted"
 
 

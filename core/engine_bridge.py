@@ -55,6 +55,17 @@ _DEBT_KIND = (
 _PER_MONTH = re.compile(r"เดือนละ|ต่อเดือน|/เดือน|ต่อด|ต่องวด|งวดละ")
 
 
+_NUM = r"\d[\d,]*(?:\.\d+)?\s*(?:พัน|หมื่น|แสน|ล้าน|k|K)?"
+_INSTALLMENT = re.compile(rf"(?:{_PER_MONTH.pattern})\D{{0,6}}?{_NUM}|{_NUM}\s*(?:บาท)?\s*(?:ต่อเดือน|/เดือน|ต่องวด)")
+
+
+_BUY_INTENT = re.compile(r"(?:อยาก|จะ|กำลังจะ|คิดจะ)ซื้อ")
+
+
+def _strip_installments(seg: str) -> str:
+    return _INSTALLMENT.sub(" ", seg)
+
+
 _DEBT_KW = re.compile("|".join(k for k, _ in _DEBT_KIND))
 _STOP_KW = re.compile(r"เงินเดือน|รายได้|รายจ่าย|ค่าใช้จ่าย|ใช้จ่าย|ได้เดือนละ|ใช้เดือนละ|จ่ายเดือนละ")
 
@@ -87,16 +98,26 @@ _PCT_TH = re.compile(r"ร้อยละ\s*(\d+(?:\.\d+)?)")
 def parse_debts(text: str) -> list:
     text = _PCT_TH.sub(r"\1%", str(text or ""))          # "ดอกร้อยละ 20" = "ดอก 20%" (เดิมอ่านไม่ออก)
     debts = []
+    pending = None                       # ประเภทหนี้จากช่วงที่มีแต่ค่างวด เช่น "ผ่อนบ้านเดือนละ 12,000 เหลือหนี้ 1.2 ล้าน"
     for seg in _debt_segments(text):
         kind = next(((k, r) for k, r in _DEBT_KIND if k in seg), None)
+        if kind and not _DEBT_CTX.search(seg) and _PER_MONTH.search(seg) and kind[0] not in ("หนี้", "กู้"):
+            pending = kind                  # "ผ่อน|บ้านเดือนละ ..." — คำว่าผ่อนอยู่ก่อนช่วงนี้
+            continue
         if not kind or not _DEBT_CTX.search(seg):
             continue
-        # "ผ่อนบ้านเดือนละ 8,000" = ค่างวด ไม่ใช่ยอดหนี้
-        if _PER_MONTH.search(seg) and not re.search(r"ยอด|คงเหลือ|เหลือ|ทั้งหมด", seg) and "%" not in seg:
+        # ของที่ "จะซื้อ" ("อยากซื้อบ้านราคา 2 ล้าน ผ่อนเดือนละ 15,000") ยังไม่ใช่หนี้ — เว้นแต่บอกว่าเป็นหนี้/ยอดค้างจริง
+        if (re.search(r"ราคา|ดาวน์", seg) or _BUY_INTENT.search(text)) and not re.search(r"หนี้|ค้าง|กู้|ยืม|เหลือ|ยอด", seg):
             continue
-        amts = _amounts(seg)
+        # ค่างวด ("ผ่อนเดือนละ 12,000" / "12,000 ต่อเดือน") ไม่ใช่ยอดหนี้ — ตัดเฉพาะตัวเลขนั้นออก
+        # เดิมทิ้งทั้งช่วง: "หนี้บ้าน 1,200,000 ผ่อนเดือนละ 12,000" เลยไม่เห็นหนี้เลย
+        amts = _amounts(_strip_installments(seg))
         if not amts:
+            if kind[0] not in ("หนี้", "กู้"):
+                pending = kind
             continue
+        if kind[0] in ("หนี้", "กู้") and pending:
+            kind, pending = pending, None
         rate_m = re.search(r"(?<![\d.])(\d+(?:\.\d+)?)\s*(?:%|เปอร์เซ็นต์)", seg)
         rate, assumed = None, False
         if rate_m:
@@ -739,8 +760,13 @@ def _earth(text: str) -> dict | None:
 # ── ธุรกิจ: กำไร · margin · สัดส่วนต้นทุน (DOMAINS/business_engine) ─────────────
 # คิดเฉพาะเมื่อผู้ใช้บอกทั้งรายรับและต้นทุนของกิจการ — ไม่เดาตัวเลขที่ไม่ได้บอก ไม่ชี้ทางเดียว
 _BIZ_CTX = re.compile(r"ร้าน|ธุรกิจ|กิจการ|ยอดขาย|ขายได้|ขาย(?:ชิ้น|อัน|แก้ว|จาน|กล่อง|ถุง)ละ|ราคาขาย|ลูกค้า|สินค้า|ต้นทุน")
-_BIZ_REV = r"ยอดขาย|รายรับ|ขายได้|ราคาขาย|ขาย(?:ชิ้น|อัน|แก้ว|จาน|กล่อง|ถุง)ละ|รายได้(?:ร้าน|ของร้าน|กิจการ|ธุรกิจ)"
+# "รายได้" เฉยๆ นับเป็นรายรับของกิจการได้ เพราะผ่าน _BIZ_CTX มาแล้ว ("ร้านกาแฟ รายได้เดือนละ 120,000")
+_BIZ_REV = r"ยอดขาย|รายรับ|ขายได้|ราคาขาย|ขาย(?:ชิ้น|อัน|แก้ว|จาน|กล่อง|ถุง)ละ|รายได้(?:ร้าน|ของร้าน|กิจการ|ธุรกิจ)?"
 _BIZ_COST = r"ต้นทุน|ค่าใช้จ่าย|รายจ่าย"
+# ต้นทุนแต่ละรายการ — เดิมนับแค่ตัวแรก: "ยอดขาย 50,000 ต้นทุน 30,000 ค่าส่ง 15,000 ค่าแอด 10,000" = กำไร 20,000 (จริงขาดทุน 5,000)
+_BIZ_COST_ITEM = (r"ต้นทุน(?!รวม)|ค่าใช้จ่าย(?!รวม|ทั้งหมด)|รายจ่าย(?!รวม|ทั้งหมด)|ค่าเช่า|ค่าแรง|ค่าจ้าง|ค่าพนักงาน|เงินเดือนพนักงาน|"
+                  r"ค่าส่ง|ค่าขนส่ง|ค่าแอด|ค่าโฆษณา|ค่ายิงแอด|ค่าน้ำ|ค่าไฟ|ค่าวัตถุดิบ|ค่าของ|ค่าแพลตฟอร์ม|ค่า\s?GP|ค่าคอม|ค่าแก๊ส|ค่าบรรจุภัณฑ์")
+_BIZ_COST_TOTAL = r"ต้นทุนรวม|ค่าใช้จ่ายรวม|ค่าใช้จ่ายทั้งหมด|รายจ่ายรวม|รายจ่ายทั้งหมด"
 _BIZ_UNIT = re.compile(r"(?:ชิ้น|อัน|แก้ว|จาน|กล่อง|ถุง)ละ|ต่อ(?:ชิ้น|อัน|แก้ว|จาน|กล่อง|ถุง)")
 
 
@@ -752,14 +778,22 @@ def _pct(x: float) -> str:
 def _business(text: str) -> dict | None:
     if not _BIZ_CTX.search(text):
         return None
-    rev, cost = _after(text, _BIZ_REV), _after(text, _BIZ_COST)
+    rev = _after(text, _BIZ_REV)
+    unit = bool(_BIZ_UNIT.search(text))
+    cost = _after(text, _BIZ_COST_TOTAL) if not unit else None
+    items = 1
+    if cost is None and not unit:
+        found = _costs_listed(text)
+        if found:
+            cost, items = sum(found), len(found)
+    if cost is None:
+        cost = _after(text, _BIZ_COST)                  # ราคาต่อชิ้น: ต้นทุนต่อชิ้นตัวเดียว
     if rev is None or cost is None:
         return None
     from DOMAINS.business_engine import analyze_business
     b = analyze_business(rev, cost)
     if not b:
         return None
-    unit = bool(_BIZ_UNIT.search(text))
     per = ("ต่อชิ้น" if unit else
            "ต่อเดือน" if re.search(r"เดือนละ|ต่อเดือน|/เดือน", text) else
            "ต่อวัน" if re.search(r"วันละ|ต่อวัน|/วัน", text) else "")
@@ -770,7 +804,26 @@ def _business(text: str) -> dict | None:
                  f"ถึงจุดเท่าทุนต้องเพิ่มรายรับอีก {b['breakeven_gap']:,.0f} บาท{per} หรือลดต้นทุนลงเท่ากัน (หรือผสมกัน)"]
     else:
         lines = [f"เท่าทุนพอดี — รายรับ {b['revenue']:,.0f} = ต้นทุน{per} ยังไม่มีกำไรเหลือ"]
-    return {"lines": lines, "data": b | {"per": per, "unit": unit}}
+    if items > 1:
+        lines.insert(0, f"ต้นทุนที่เล่ามา {items} รายการ รวม {cost:,.0f} บาท{per}")
+    return {"lines": lines, "data": b | {"per": per, "unit": unit, "cost_items": items}}
+
+
+def _costs_listed(text: str) -> list:
+    """ต้นทุนทุกรายการที่บอกมา (รายการละหนึ่งตัวเลข · คำซ้ำนับครั้งเดียว)"""
+    out, seen = [], set()
+    for m in re.finditer(rf"({_BIZ_COST_ITEM})\D{{0,14}}?(\d[\d,]*(?:\.\d+)?)\s*(พัน|หมื่น|แสน|ล้าน|k|K)?"
+                         r"(?!\s*(?:%|มื้อ|วัน|ปี|ชม|ชั่วโมง|ครั้ง|คน|ลิตร|ขวด))", text):
+        key = re.sub(r"\s", "", m.group(1))
+        if key in seen:
+            continue
+        try:
+            v = float(m.group(2).replace(",", "")) * _UNITS.get((m.group(3) or "").lower(), 1)
+        except ValueError:
+            continue
+        seen.add(key)
+        out.append(v)
+    return out
 
 
 def analyze(text: str) -> dict:
