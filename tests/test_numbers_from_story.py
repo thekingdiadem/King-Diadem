@@ -90,3 +90,17 @@ def test_budget_does_not_contradict_debt_plan():
 def test_budget_total_spend_word():
     from core.engine_bridge import analyze
     assert any("เหลือ 5,000" in l for l in analyze("เงินเดือน 20,000 ใช้จ่าย 15,000 พอไหม")["lines"])
+
+
+@pytest.mark.parametrize("text", ["เงินเดือน 25,000 ค่าเช่า 6,000 ผ่อนรถ 8,000 เหลือเก็บเท่าไหร่",
+                                  "เงินเดือน 30,000 วางแผนเก็บเงินยังไงดี"])
+def test_money_planning_is_not_told_money_is_short(text):
+    """เดิมคนที่เหลือเงิน 44% ของรายรับได้ "เงินน้อย ไม่ได้แปลว่าไม่มีทาง" กับ "หารายได้เร็วที่สุด (งานรายวัน)" """
+    out = compose(text)
+    assert "เงินน้อย" not in out and "งานรายวัน" not in out
+    assert "เงินสำรองฉุกเฉิน" in out
+
+
+@pytest.mark.parametrize("text", ["เงินเดือน 15000 ใช้เดือนละ 16000", "เงินเดือน 12,000 ไม่พอใช้"])
+def test_money_short_keeps_shortage_steps(text):
+    assert "เงินน้อย ไม่ได้แปลว่าไม่มีทาง" in compose(text)
