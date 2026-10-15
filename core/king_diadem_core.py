@@ -157,6 +157,16 @@ def quick_assess(context, pattern=None) -> dict:
     except Exception:
         pass
 
+    # โยนิโสมนสิการครบ 4 วิธี (หัวข้อ 14 ของ KERNEL/dharma-governance-kernel.md) — แนบเมื่อข้อความมีเหตุให้คิด
+    four = None
+    try:
+        from ENGINE.yonisomanasikara_engine import four_ways, four_ways_hint
+        four = four_ways(text, pattern)
+        if four["root_cause"] != "unknown" or four["bias"] or four["weak"]:
+            wise_ctx = (wise_ctx + " " + four_ways_hint(four)).strip()
+    except Exception:
+        pass
+
     drift_alert = entropy > 65 and stability < 40
     peace = not should_pause and structure >= 0.4
     recommend_route = "survival" if structure < 0.35 else None
@@ -168,6 +178,23 @@ def quick_assess(context, pattern=None) -> dict:
     else:
         verdict = "PAUSE — ทบทวนเหตุก่อนตัดสินใจ"
 
+    # โพธิปักขิยธรรม 37 (ENGINE/bodhipakkhiya_engine) — 6 layer + โพชฌงค์ 7 จากทั้งสถานะและข้อความ
+    # เดิมคิดจาก E/R/S อย่างเดียว: "ลูกกลืนถ่านกระดุม" ก็ได้ "PEACE — ดำเนินการได้"
+    detail = None
+    try:
+        from ENGINE.bodhipakkhiya_engine import guardian_check, llm_hint
+        detail = guardian_check(text, pattern)
+        peace = detail["peace"] and not should_pause
+        recommend_route = detail["recommend_route"]
+        verdict = detail["final_verdict"]
+        if peace is False and verdict.startswith("PEACE"):
+            verdict = "PAUSE — ทบทวนเหตุก่อนตัดสินใจ"
+        hint = llm_hint(detail)
+        if hint:
+            wise_ctx = (wise_ctx + " " + hint).strip()
+    except Exception:
+        pass
+
     return {
         "peace":           peace,
         "causal_ctx":      causal_ctx,
@@ -177,12 +204,15 @@ def quick_assess(context, pattern=None) -> dict:
         "bodhi_verdict":   verdict,
         "drift_alert":     drift_alert,
         "bodhi_structure": structure,
+        "bodhi_detail":    detail,
+        "yoniso_four":     four,
     }
 
 
 def core_status() -> dict:
     status = {"core_version": CORE_VERSION}
-    for name, mod in (("paticcasamuppada", "ENGINE.paticcasamuppada_engine"),
+    for name, mod in (("bodhipakkhiya", "ENGINE.bodhipakkhiya_engine"),
+                      ("paticcasamuppada", "ENGINE.paticcasamuppada_engine"),
                       ("yonisomanasikara", "ENGINE.yonisomanasikara_engine")):
         try:
             __import__(mod)
