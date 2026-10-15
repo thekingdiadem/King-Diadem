@@ -33,7 +33,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
-import os, re, json, stripe, math, time, threading
+import os, re, json, stripe, math, time, threading, secrets
 from urllib.parse import quote, unquote
 
 # ── ENGINE ────────────────────────────────────────────────────────
@@ -209,11 +209,11 @@ except Exception as e:
 
 # ── REPORT ENGINE ─────────────────────────────────────────────────
 try:
-    from report_engine import create_report as _create_report, get_report as _get_report
+    from report_engine import create_report as _create_report, get_report as _get_report, delete_report as _delete_report
     print("✅ Report engine loaded")
 except Exception as e:
     print(f"⚠ report_engine: {e}")
-    _create_report = _get_report = None
+    _create_report = _get_report = _delete_report = None
 
 # ── CIVILIZATION ──────────────────────────────────────────────────
 try:
@@ -2063,19 +2063,11 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             )
         except Exception: pass
 
-    # ── DECISION REPORT URL ───────────────────────────────────────
+    # ── รายงานที่แชร์ได้: สร้างเมื่อผู้ใช้กดแชร์เท่านั้น ─────────────────────
+    # เดิมสร้างลิงก์สาธารณะทุกครั้งที่ถาม (ไม่มีวันหมดอายุ ลบไม่ได้) — เรื่องส่วนตัวค้างอยู่ในลิงก์ที่ใครมีก็อ่านได้
+    # ตอนนี้แค่จำผลไว้ชั่วคราวกับ token · กด "แชร์" แล้วค่อยสร้างจริง (POST /api/report/share)
     if _create_report:
-        try:
-            report_id = _create_report(
-                user_email=email,
-                user_input=user_input,
-                result=result,
-            )
-            result["report_url"] = f"/report/{report_id}"
-            result["report_id"]  = report_id
-            result["share_url"]  = _public_url(f"/report/{report_id}")
-        except Exception as _re:
-            print(f"⚠ report creation failed: {_re}")
+        result["share_token"] = _remember_for_share(email, user_input, result)
 
     return result
 
@@ -2599,6 +2591,59 @@ async def get_report_api(report_id: str):
     if not data:
         return JSONResponse({"error": "Report not found"}, status_code=404)
     return data
+
+
+# ── แชร์รายงาน: จำผลของ /run ไว้ 2 ชั่วโมงในหน่วยความจำ (ไม่ลงดิสก์) จนกว่าผู้ใช้จะกดแชร์ ─────
+_SHARE_TTL, _SHARE_MAX = 2 * 3600, 2000
+_share_lock = threading.Lock()
+_share_cache: dict = {}        # token → {"email", "input", "result", "t", "report"}
+
+
+def _remember_for_share(email: str, user_input: str, result: dict) -> str:
+    token = secrets.token_urlsafe(12)
+    snap = {k: result.get(k) for k in ("route", "persona", "ai_response", "governance", "risk_score", "consensus")}
+    now = time.time()
+    with _share_lock:
+        if len(_share_cache) >= _SHARE_MAX:
+            for k in [k for k, v in _share_cache.items() if now - v["t"] > _SHARE_TTL] or list(_share_cache)[:_SHARE_MAX // 10]:
+                _share_cache.pop(k, None)
+        _share_cache[token] = {"email": email or "anonymous", "input": user_input, "result": snap, "t": now, "report": None}
+    return token
+
+
+@app.post("/api/report/share")
+def share_report(request: Request, data: dict):
+    """ผู้ใช้กดแชร์ → สร้างลิงก์รายงานจากผลที่ระบบตอบจริง (กดซ้ำได้ลิงก์เดิม)"""
+    if not _create_report:
+        return JSONResponse({"error": "report engine not loaded"}, status_code=503)
+    token = str(data.get("token") or "")
+    email = _session_email(request, "anonymous")
+    with _share_lock:
+        item = _share_cache.get(token)
+        if not item or time.time() - item["t"] > _SHARE_TTL:
+            _share_cache.pop(token, None)
+            return JSONResponse({"error": "ลิงก์แชร์ของคำตอบนี้หมดเวลาแล้วค่ะ ถามใหม่อีกครั้งแล้วกดแชร์ได้เลยนะคะ"}, status_code=410)
+        if item["email"] != "anonymous" and item["email"] != email:
+            return JSONResponse({"error": "แชร์ได้เฉพาะคำตอบของบัญชีตัวเองค่ะ"}, status_code=403)
+        report_id = item["report"]
+        if not report_id:
+            try:
+                report_id = _create_report(user_email=item["email"], user_input=item["input"], result=item["result"])
+            except Exception as e:
+                print(f"⚠ share report failed: {type(e).__name__}")
+                return JSONResponse({"error": "สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้งนะคะ"}, status_code=500)
+            item["report"] = report_id
+    return {"report_id": report_id, "report_url": f"/report/{report_id}", "share_url": _public_url(f"/report/{report_id}")}
+
+
+@app.delete("/api/report/{report_id}")
+def delete_my_report(request: Request, report_id: str):
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    if not _delete_report or not _delete_report(report_id, email):
+        return JSONResponse({"error": "ไม่พบรายงานนี้ในบัญชีของคุณค่ะ"}, status_code=404)
+    return {"ok": True}
 
 
 @app.post("/api/report/create")

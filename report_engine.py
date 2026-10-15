@@ -37,6 +37,10 @@ def _finite(o):
         return [_finite(v) for v in o]
     return o
 
+# ลิงก์รายงานเปิดได้กี่วัน (ค่าเริ่ม 90) — หลังจากนั้นเปิดไม่ได้และถูกลบ
+REPORT_TTL_DAYS = max(1, int(os.getenv("REPORT_TTL_DAYS", "90") or 90))
+
+
 def init_report_table():
     """เรียกครั้งเดียวตอน startup (เดิมถูกเรียกทุก create/get)"""
     global _TABLE_READY
@@ -64,6 +68,13 @@ def init_report_table():
     cols = {r[1] for r in conn.execute("PRAGMA table_info(decision_reports)")}
     if "source" not in cols:
         conn.execute("ALTER TABLE decision_reports ADD COLUMN source TEXT DEFAULT 'system'")
+    # รายงานเก่าสร้างอัตโนมัติทุกครั้งที่ถาม (ผู้ใช้ไม่ได้เลือกแชร์) และไม่มีวันหมดอายุ
+    # → ให้อายุนับจากวันที่สร้าง แล้วลบที่หมดอายุทิ้ง (ทำทุกครั้งที่เริ่มเซิร์ฟเวอร์)
+    conn.execute(f"UPDATE decision_reports SET expires_at = datetime(created_at, '+{REPORT_TTL_DAYS} days') "
+                 "WHERE expires_at IS NULL")
+    n = conn.execute("DELETE FROM decision_reports WHERE expires_at <= datetime('now')").rowcount
+    if n:
+        print(f"🧹 removed {n} expired reports")
     conn.commit()
     conn.close()
     _TABLE_READY = True
@@ -173,8 +184,8 @@ def create_report(
         conn.execute(
             """INSERT INTO decision_reports
                (id, user_email, input_text, route, persona,
-                ai_response, governance, risk_score, consensus, fate_audit, source)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+                ai_response, governance, risk_score, consensus, fate_audit, source, expires_at)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?, datetime('now', ?))""",
             (
                 report_id,
                 user_email or "anonymous",
@@ -187,6 +198,7 @@ def create_report(
                 str(consensus)[:2000],
                 json.dumps(_finite(fate_audit), ensure_ascii=False),
                 "user" if source == "user" else "system",
+                f"+{REPORT_TTL_DAYS} days",
             )
         )
         conn.commit()
@@ -202,7 +214,8 @@ def get_report(report_id: str) -> dict | None:
     conn = get_conn()
     try:
         row = conn.execute(
-            "SELECT * FROM decision_reports WHERE id=?", (report_id,)
+            "SELECT * FROM decision_reports WHERE id=? AND (expires_at IS NULL OR expires_at > datetime('now'))",
+            (report_id,)
         ).fetchone()
         if not row:
             return None
@@ -223,3 +236,17 @@ def get_report(report_id: str) -> dict | None:
     finally:
         conn.close()
   
+
+
+def delete_report(report_id: str, user_email: str) -> bool:
+    """เจ้าของลบรายงานของตัวเองได้ (ต้องล็อกอิน — รายงานของผู้ไม่ล็อกอินลบเองไม่ได้ แต่หมดอายุเอง)"""
+    if not user_email or user_email == "anonymous":
+        return False
+    init_report_table()
+    conn = get_conn()
+    try:
+        n = conn.execute("DELETE FROM decision_reports WHERE id=? AND user_email=?", (report_id, user_email)).rowcount
+        conn.commit()
+        return n > 0
+    finally:
+        conn.close()

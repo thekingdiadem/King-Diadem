@@ -176,7 +176,7 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
       <div class="layer human"><span class="tag">Human</span><p>คนพิมพ์ข้อความในหน้าเว็บ</p></div>
       <div class="layer kernel"><span class="tag">Kernel · <span class="kd-th">ก่อน</span></span><p>ตรวจโควตา · อ่านสัญญาณภาษาไทย/5 ภาษา · ความเสี่ยง · เส้นทาง · บริบทเหตุปัจจัย · ตัวเลขจริง (หนี้ เวลา ทรัพยากร)</p></div>
       <div class="layer ai"><span class="tag">AI · <span class="kd-th">เสียง</span></span><p>Gemini เรียบเรียงคำตอบตามบุคลิก LYLA / VEGA / สภา — <em>ถ้าไม่มี AI ข้ามชั้นนี้ไปใช้คำตอบจากสมการ</em></p></div>
-      <div class="layer kernel"><span class="tag">Kernel · <span class="kd-th">หลัง</span></span><p>ทางเลือก ≤ 3 · ประตู Canon · Belief Core · บันทึกตัวเลข · สร้างรายงานแชร์ได้</p></div>
+      <div class="layer kernel"><span class="tag">Kernel · <span class="kd-th">หลัง</span></span><p>ทางเลือก ≤ 3 · ประตู Canon · Belief Core · บันทึกตัวเลข · รายงานแชร์ได้เมื่อกดแชร์</p></div>
       <div class="layer human"><span class="tag">Human</span><p>คนอ่าน แล้วเลือกเอง</p></div>
     </div>
   </section>
@@ -218,7 +218,7 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
         <p>ตัดทางเลือกให้ไม่เกิน 3 (มาตรา 11) แล้วตรวจกับ Cosmic Latte Canon — บีบจนเหลือทางเดียว หรือบังคับตัวตน = หยุดคำตอบนั้น · Belief Core บังคับใช้ผลตรวจอีกครั้ง</p>
         <div class="files"><button class="chip" data-f="core/cosmic_latte_canon.py">core/cosmic_latte_canon.py</button><button class="chip" data-f="AI_KERNEL/belief_core.py">AI_KERNEL/belief_core.py</button></div></li>
       <li class="step"><h3>บันทึกและตอบกลับ<small>record</small></h3>
-        <p>หนึ่งการตัดสินใจ = หนึ่งจุดในกราฟอารยธรรม (ไม่มีข้อความ/อีเมล) · นับดัชนีเสรีภาพ · สร้างรายงานที่แชร์ได้ที่ <code>/report/&lt;id&gt;</code> · หักโควตา แล้วส่งคำตอบ เส้นทาง ความเสี่ยง และลิงก์รายงานกลับหน้าเว็บ</p>
+        <p>หนึ่งการตัดสินใจ = หนึ่งจุดในกราฟอารยธรรม (ไม่มีข้อความ/อีเมล) · นับดัชนีเสรีภาพ · จำผลไว้ชั่วคราวเผื่อผู้ใช้กดแชร์ (ไม่สร้างลิงก์สาธารณะเอง) · หักโควตา แล้วส่งคำตอบ เส้นทาง และความเสี่ยงกลับหน้าเว็บ</p>
         <div class="files"><button class="chip" data-f="AI/civilization_engine.py">AI/civilization_engine.py</button><button class="chip" data-f="AI/freedom_signal.py">AI/freedom_signal.py</button>
           <button class="chip" data-f="report_engine.py">report_engine.py</button><button class="chip" data-f="DATABASE/db.py">DATABASE/db.py</button></div></li>
     </ol>
@@ -228,7 +228,7 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
       <div class="box kd-rim"><p class="route">POST /analyze-image</p><h3>วิเคราะห์ภาพ</h3><p>ส่งภาพให้ Gemini อ่าน แล้วผ่านกฎเดียวกับข้อความ</p></div>
       <div class="box kd-rim"><p class="route">/login · /register · /login/google</p><h3>บัญชี</h3><p>รหัสผ่านหรือ Google OAuth · ตัวตนอยู่ใน cookie ที่เซ็นแล้ว — <code>DATABASE/db.py</code></p></div>
       <div class="box kd-rim"><p class="route">/wallet/topup · /webhook/stripe</p><h3>เครดิต</h3><p>Stripe (บัตร / PromptPay) → webhook ยืนยัน → เติมเครดิตลงบัญชี</p></div>
-      <div class="box kd-rim"><p class="route">GET /report/&lt;id&gt;</p><h3>รายงานแชร์ได้</h3><p>ตรวจ FATE™ 6 ข้อของแต่ละคำตอบ — <code>report_engine.py</code> → <code>static/report.html</code></p></div>
+      <div class="box kd-rim"><p class="route">GET /report/&lt;id&gt;</p><h3>รายงานแชร์ได้</h3><p>สร้างเมื่อผู้ใช้กดแชร์ · เปิดได้ 90 วัน · เจ้าของลบได้ · ตรวจ FATE™ 6 ข้อของคำตอบ — <code>report_engine.py</code> → <code>static/report.html</code></p></div>
       <div class="box kd-rim"><p class="route">/api/history · /export · /email</p><h3>ประวัติในบัญชี</h3><p>เก็บไว้ในบัญชีของแต่ละคนเท่านั้น (ไม่ได้เข้าสู่ระบบ = ไม่เก็บข้อความ) · ดาวน์โหลดเป็นไฟล์ หรือส่งเข้าอีเมลของบัญชีนั้น — <code>core/history_export.py</code></p></div>
       <div class="box kd-rim"><p class="route">GET /health</p><h3>สุขภาพระบบ</h3><p>โมดูลไหนโหลดอยู่ และโหลดจริงตอนนี้: คำขอต่อนาที · พร้อมกัน · error · เวลาตอบ — วัดอย่างเดียว ไม่บล็อกใคร · <code>SECURITY/survival_mode.py</code></p></div>
       <div class="box kd-rim"><p class="route">/api/feedback</p><h3>เรียนรู้จาก 👍/👎</h3><p>เก็บผลโหวตเป็นตัวเลข แล้วปรับน้ำหนักเส้นทาง — <code>core/feedback_loop.py</code></p></div>
