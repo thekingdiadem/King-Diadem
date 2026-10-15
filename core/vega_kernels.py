@@ -27,8 +27,10 @@ KERNELS = [
      r"ช่างมันเถอะ|ทำเป็นไม่เห็น|ปล่อยไว้ก่อน|it'?ll be fine|don'?t want to (?:know|look|think)"),
     ("K2", "Downside-First Gate", "upside addiction", "Check worst-case before best-case.",
      "ถ้าพลาดแบบแย่ที่สุด อะไรจะพังพื้นที่ทำให้อยู่รอด",
-     r"รวยเร็ว|ผลตอบแทนสูง|การันตีกำไร|กำไรแน่|เทหมดหน้าตัก|หมดหน้าตัก|all[- ]?in|ทุ่มหมด|ลงทุนทั้งหมด|"
-     r"เงินทั้งหมด|เอาเงินเก็บทั้งหมด|รวยแน่|x\s?[2-9]\b|เท่าตัว|get rich|guaranteed (?:return|profit)"),
+     r"รวยเร็ว|ผลตอบแทนสูง|การันตีกำไร|กำไรแน่|เทหมดหน้าตัก|หมดหน้าตัก|(?<![a-z])all[- ]?in(?![a-z])|ทุ่มหมด|ลงทุนทั้งหมด|"
+     # ไม่นับเมื่อติดกับตัวอักษรอังกฤษ: "small investment" เคยติด all-in (sm-all in-vestment)
+     
+     r"เงินทั้งหมด|เอาเงินเก็บทั้งหมด|รวยแน่|(?<![a-z])x\s?[2-9](?!\d)|เท่าตัว|get rich|guaranteed (?:return|profit)"),
     ("K3", "Simplicity Cut", "complexity as ego", "If you can't explain in 2 minutes, cut.",
      "กรอบที่ง่ายที่สุดและจริงที่สุดของเรื่องนี้คืออะไร — เล่าใน 2 ประโยคได้ไหม",
      r"ซับซ้อนมาก|ยุ่งเหยิง|หลายทางเกินไป|งงไปหมด|ไม่รู้จะเริ่มตรงไหน|too complicated|overwhelm"),
@@ -75,6 +77,24 @@ _FLOOR_BROKEN = re.compile(r"หนี้|ไม่มีเงิน|เงิ�
                            r"broke|can'?t pay|no money|lost my job|in debt", re.I)
 _GROWTH = re.compile(r"ขยาย(?:ร้าน|ธุรกิจ|สาขา)|ลงทุน|เปิด(?:ร้าน|สาขา)|ซื้อเพิ่ม|อัปเกรด|เทรด|คริปโต|crypto|invest|expand|scale up", re.I)
 
+# คำถามภาษาอังกฤษ — คำตอบแบบไม่มี AI ของผู้ใช้ภาษาอื่นเป็นภาษาอังกฤษ (เดิมได้คำถามภาษาไทยต่อท้าย)
+ASK_EN = {
+    "K1": "What is actually true right now — the numbers, the dates, what has already happened?",
+    "K2": "If this goes as badly as it can, what would break the floor you need to survive?",
+    "K3": "What is the simplest true version of this — can you say it in two sentences?",
+    "K4": "Is your floor (food money, housing, health) stable right now? If not, stabilize it before you grow.",
+    "K5": "If this doesn't work, how do you step back out and still be okay?",
+    "K6": "What is already damaged and needs repair before you build further?",
+    "K7": "Can you wait 24 hours before you decide?",
+    "K8": "Is your mood bending the picture right now — would a calmer you see it differently?",
+    "K9": "What needs to be shared or passed on for this to keep working?",
+    "K10": "Who benefits personally from this decision? If it's you, let someone else decide with you.",
+    "K11": "What happens if you do nothing today?",
+    "K12": "What evidence would change your mind?",
+    "K13": "Should you stop right now, before the damage spreads further?",
+    "K14": "Are you trying to survive this, or trying to win?",
+}
+
 _COMPILED = {k[0]: (re.compile(k[5], re.I) if k[5] else None) for k in KERNELS}
 _BY_ID = {k[0]: k for k in KERNELS}
 
@@ -89,8 +109,9 @@ def _floor_vs_growth(text: str) -> bool:
     return bool(_FLOOR_BROKEN.search(text) and _GROWTH.search(text))
 
 
-def evaluate(text: str, limit: int = MAX_GATES) -> list[dict]:
-    """ประตูที่ติด (เรียงตามความสำคัญ ไม่เกิน limit) — แต่ละอัน: id, name, enemy, rule, ask"""
+def evaluate(text: str, limit: int = MAX_GATES, lang: str = "th") -> list[dict]:
+    """ประตูที่ติด (เรียงตามความสำคัญ ไม่เกิน limit) — แต่ละอัน: id, name, enemy, rule, ask
+    lang ≠ "th" → ask เป็นภาษาอังกฤษ"""
     t = str(text or "")[:4000]
     if not t.strip():
         return []
@@ -104,7 +125,8 @@ def evaluate(text: str, limit: int = MAX_GATES) -> list[dict]:
     for kid in _PRIORITY:
         if kid in hit:
             k = _BY_ID[kid]
-            out.append({"id": k[0], "name": k[1], "enemy": k[2], "rule": k[3], "ask": k[4]})
+            out.append({"id": k[0], "name": k[1], "enemy": k[2], "rule": k[3],
+                        "ask": k[4] if lang == "th" else ASK_EN[k[0]]})
         if len(out) >= max(0, int(limit)):
             break
     return out
@@ -119,9 +141,11 @@ def llm_hint(gates: list[dict]) -> str:
             " · ใช้คำถามเหล่านี้ (ไม่เกิน 2 ข้อ) ช่วยผู้ใช้มองให้ชัด · ไม่ตัดสินแทน · คืนทางเลือกที่ปลอดภัย ≥ 1]")
 
 
-def offline_lines(gates: list[dict], vega: bool = True) -> str:
-    """ส่วนท้ายคำตอบแบบไม่มี AI: คำถามของประตูที่สำคัญที่สุด 2 ข้อ"""
+def offline_lines(gates: list[dict], vega: bool = True, lang: str = "th") -> str:
+    """ส่วนท้ายคำตอบแบบไม่มี AI: คำถามของประตูที่สำคัญที่สุด 2 ข้อ (ภาษาเดียวกับคำตอบ)"""
     if not gates:
         return ""
     qs = [f"{g['id']} · {g['ask']}" for g in gates[:2]]
+    if lang != "th":
+        return "Before you decide, ask yourself:\n" + "\n".join("· " + q for q in qs)
     return "ก่อนตัดสินใจ ลองตอบตัวเองก่อน" + ("ครับ" if vega else "ค่ะ") + "\n" + "\n".join("· " + q for q in qs)

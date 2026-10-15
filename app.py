@@ -1854,9 +1854,19 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         effective += f"\n\n{extra_ctx}"
     # VEGA Human DriftZero Kernel (14 Gates): ประตูที่ติดจากข้อความ → ให้ VEGA ถามคำถามของประตูนั้น
     # ไม่ใช้ตอนวิกฤต (ตอนนั้นต้องรับรู้และให้ทางช่วยก่อน ไม่ใช่ถามให้คิด)
+    # ตัดสินจากข้อความด้วย ไม่ใช่แค่ route — ผู้ใช้ที่เลือกเส้นทาง VEGA ไว้ route ไม่ถูกยกระดับ
+    # "อยากตาย จะลาออกคืนนี้เลย" เคยได้คำตอบสายด่วน 1323 แล้วตามด้วย "รอ 24 ชั่วโมงก่อนตัดสินใจได้ไหม"
     vega_gates = []
-    if vega_evaluate and vm == "vega" and route not in ("crisis", "collapse", "survival"):
-        vega_gates = vega_evaluate(user_input)
+    g_lang = (prompt_lang or detect_lang)(user_input) if detect_lang else "th"
+    g_urgent = bool(prior_kind)
+    if k_assess and not g_urgent:
+        try:
+            from core.kernel_voice import council_unsuitable
+            g_urgent = council_unsuitable(k_assess)
+        except Exception:
+            pass
+    if vega_evaluate and vm == "vega" and not g_urgent and route not in ("crisis", "collapse", "survival"):
+        vega_gates = vega_evaluate(user_input, lang="th" if g_lang == "th" else "en")
         if vega_gates:
             effective += "\n\n" + vega_llm_hint(vega_gates)
     # ภาษาของผู้ใช้ (ดูจากข้อความดิบ — prompt ที่ต่อแล้วมีบริบทภาษาไทยปน) ให้ LLM ตอบภาษาเดียวกัน
@@ -1936,6 +1946,8 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     if kernel_compose and (used_fallback() or result.get("error")
                            or not (isinstance(ai_text, str) and ai_text.strip())):
         k_route = result.get("route") if _ROUTE_SEVERITY.get(result.get("route"), -1) > _ROUTE_SEVERITY.get(route, 0) else route
+        if k_route in ("crisis", "collapse", "survival"):
+            vega_gates = []          # engine ยกระดับเป็นเรื่องวิกฤต → ให้ทางช่วยก่อน ไม่ถามให้คิด
         result.pop("error", None)
         result.update({
             "observer":      result.get("observer") or "KING DIADEM",
@@ -1948,7 +1960,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                                  kernel_compose((prior_text + "\n" + user_input) if prior_kind else user_input,
                                                 route=k_route, voice_mode=vm,
                                                 pattern=human_state if _has_user_state(data.get("context")) else None),
-                                 vega_gates),
+                                 vega_gates, g_lang),
             "answer_source": "kernel",
         })
         result.setdefault("pattern", human_state)
@@ -2117,7 +2129,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             )
         except Exception: pass
 
-    if vega_gates:
+    if vega_gates and result.get("route") not in ("crisis", "collapse", "survival"):
         result["vega_gates"] = [{"id": g["id"], "name": g["name"], "ask": g["ask"]} for g in vega_gates]
 
     # ── รายงานที่แชร์ได้: สร้างเมื่อผู้ใช้กดแชร์เท่านั้น ─────────────────────
@@ -2650,11 +2662,11 @@ async def get_report_api(report_id: str):
     return data
 
 
-def _with_gate_questions(reply: str, gates: list) -> str:
-    """คำตอบแบบไม่มี AI ของ VEGA: แทรกคำถามของประตูที่ติด (2 ข้อ) ก่อนลายเซ็น"""
+def _with_gate_questions(reply: str, gates: list, lang: str = "th") -> str:
+    """คำตอบแบบไม่มี AI ของ VEGA: แทรกคำถามของประตูที่ติด (2 ข้อ) ก่อนลายเซ็น — ภาษาเดียวกับคำตอบ"""
     if not gates or not vega_offline_lines or not isinstance(reply, str):
         return reply
-    extra = vega_offline_lines(gates, vega=True)
+    extra = vega_offline_lines(gates, vega=True, lang=lang)
     i = reply.rfind("\n\n— VEGA")
     return (reply[:i] + "\n\n" + extra + reply[i:]) if i >= 0 else (reply + "\n\n" + extra)
 

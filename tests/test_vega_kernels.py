@@ -77,3 +77,50 @@ def test_vega_prompt_and_ui_know_the_gates():
     assert "K13 Stop-the-Line" in L.VEGA_SYSTEM and "Human SOP" in L.VEGA_SYSTEM
     html = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
     assert "row('VEGA gates'" in html
+
+
+# ── รอบไล่หาบั๊ก: ภาษา · เรื่องวิกฤตตอนเลือกเส้นทาง VEGA · คำอังกฤษที่ซ้อนกัน ──────────
+
+def test_english_offline_reply_gets_english_gate_questions(client, monkeypatch):
+    """เดิมผู้ใช้ภาษาอังกฤษได้คำตอบอังกฤษ แล้วตามด้วย "ก่อนตัดสินใจ ลองตอบตัวเองก่อนครับ" ภาษาไทย"""
+    monkeypatch.setenv("KD_AI", "off")
+    d = client.post("/run", json={"input": "I'm about to co-sign a loan for my friend, should I?",
+                                  "persona_ui": "VEGA", "voice_mode": "vega"}).json()
+    assert [g["id"] for g in d.get("vega_gates", [])][:1] == ["K5"]
+    assert "step back out" in d["vega_gates"][0]["ask"]
+    if d.get("answer_source") == "kernel":
+        assert "Before you decide" in d["ai_response"]
+        assert "ก่อนตัดสินใจ" not in d["ai_response"] and "ถ้าทางนี้ไม่เวิร์ก" not in d["ai_response"]
+
+
+@pytest.mark.parametrize("text", ["อยากตาย จะลาออกคืนนี้เลย", "I want to die. I'll quit my job tonight",
+                                  "I took 30 pills, should I quit my job", "พ่อตีหัวผม จะลาออกคืนนี้เลย"])
+def test_crisis_on_vega_route_gets_no_gate_questions(client, monkeypatch, text):
+    """ผู้ใช้ที่เลือกเส้นทาง VEGA ไว้ (route ไม่ถูกยกระดับ) เคยได้สายด่วน 1323 แล้วตามด้วย
+    "รอ 24 ชั่วโมงก่อนตัดสินใจได้ไหม" — เรื่องวิกฤตต้องให้ทางช่วยก่อน ไม่ใช่ถามให้คิด"""
+    monkeypatch.setenv("KD_AI", "off")
+    d = client.post("/run", json={"input": text, "route": "vega", "persona_ui": "VEGA", "voice_mode": "vega"}).json()
+    assert "vega_gates" not in d
+    assert "ลองตอบตัวเองก่อน" not in d["ai_response"] and "Before you decide" not in d["ai_response"]
+
+
+def test_crisis_gates_not_in_llm_prompt(client):
+    from tests.conftest import FAKE_LLM
+    client.post("/run", json={"input": "อยากตาย จะลาออกคืนนี้เลย", "route": "vega", "persona_ui": "VEGA", "voice_mode": "vega"})
+    assert not any("VEGA 14 GATES" in p for p in FAKE_LLM["prompts"])
+
+
+@pytest.mark.parametrize("text", ["small investment idea for my shop", "box2 for sale", "how to install the app"])
+def test_english_words_that_only_contain_all_in_or_x2_do_not_fire(text):
+    assert evaluate(text) == []
+
+
+@pytest.mark.parametrize("text", ["จะall inเลย", "going all-in on crypto", "ได้กำไร x3 แน่นอน"])
+def test_real_all_in_still_fires_k2(text):
+    assert "K2" in [g["id"] for g in evaluate(text)]
+
+
+def test_offline_lines_english():
+    g = evaluate("I'm about to co-sign a loan", lang="en")
+    out = offline_lines(g, lang="en")
+    assert out.startswith("Before you decide") and "K5 ·" in out and "ครับ" not in out
