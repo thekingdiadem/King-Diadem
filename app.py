@@ -2155,13 +2155,16 @@ def run_simulate(request: Request, data: dict):
         return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร ลองสรุปให้สั้นลงนะคะ"}, status_code=413)
     if not _rate_check(email if email != "anonymous" else _client_ip(request)):
         return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่แล้วลองใหม่ได้เลยนะคะ"}, status_code=429)
+    urgent = _simulate_urgent(user_input)
     ticket, denied = _charge(email, request, "simulate")
+    if denied and urgent:
+        ticket, denied = {"mode": "unmetered"}, None       # เรื่องฉุกเฉินไม่ติดหน้าจ่ายเงิน (เหมือน /run)
     if denied:
         return denied
     reset_fallback_flag()
     request_no_ai(ticket.get("mode") == "unmetered")
     try:
-        result = _simulate_impl(user_input, paths, email)
+        result = _simulate_urgent_reply(user_input) if urgent else _simulate_impl(user_input, paths, email)
     except Exception:
         _refund(ticket)
         raise
@@ -2172,7 +2175,7 @@ def run_simulate(request: Request, data: dict):
     else:
         _settle(ticket)
     # ภาพจำลองอนาคต 12 เดือนของแต่ละทาง (core/future_paths — สมการ ไม่ใช่ AI)
-    if future_project and isinstance(result, dict):
+    if future_project and isinstance(result, dict) and not urgent:
         try:
             fut = future_project(user_input, paths)
             if fut:
@@ -2181,6 +2184,29 @@ def run_simulate(request: Request, data: dict):
             print(f"⚠ future_paths: {type(e).__name__}")
     result["quota"] = {**_quota_status(email, request), "charged": ticket["mode"]}
     return result
+
+
+def _simulate_urgent(text: str) -> bool:
+    """เรื่องฉุกเฉิน (ทำร้ายตัวเอง ยาเกินขนาด ถูกทำร้าย ภัยที่กำลังเกิด) — ไม่ใช่เวลาเทียบทางเลือก"""
+    if not kernel_assess:
+        return False
+    try:
+        from core.kernel_voice import council_unsuitable
+        return council_unsuitable(kernel_assess(text)) or _urgent_text(text)
+    except Exception:
+        return _urgent_text(text)
+
+
+def _simulate_urgent_reply(text: str) -> dict:
+    """เดิม "กินยาไป 30 เม็ด จะไปโรงพยาบาลหรือนอนเฉยๆ" ได้ตารางเทียบ 2 ทางว่า "ย้อนกลับได้ ทดลองขนาดเล็ก 30 วัน"
+    ไม่มีเบอร์ฉุกเฉินเลย — ตอนนี้ตอบขั้นช่วยเหลือของเรื่องนั้นทันที (สมการ ไม่ใช้ AI)"""
+    if kernel_compose:
+        try:
+            return {"simulation": kernel_compose(text), "source": "kernel", "urgent": True}
+        except Exception as e:
+            print(f"kernel urgent simulate: {type(e).__name__}")
+    return {"simulation": "เรื่องนี้ด่วนกว่าการเทียบทางเลือกค่ะ ถ้ามีอันตรายตอนนี้ โทร 1669 (เจ็บป่วยฉุกเฉิน) หรือ 1323 (สายด่วนสุขภาพจิต) ได้ตลอด 24 ชั่วโมงนะคะ",
+            "source": "kernel", "urgent": True}
 
 
 def _simulate_impl(user_input: str, paths: list, email: str) -> dict:

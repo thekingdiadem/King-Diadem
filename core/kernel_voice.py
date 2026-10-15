@@ -1248,7 +1248,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         paths.insert(0, "หยุดสิ่งที่ทำให้เสียหายเพิ่มก่อน (Stop the line) — ยังไม่ต้องหาทางชนะ ขอแค่ไม่แย่ลง")
 
     # ── ตัวเลือกที่ผู้ใช้ให้มา: วัดด้วย Choice(t+1) ──────────────────
-    opts = a["options"]
+    # เรื่องฉุกเฉินไม่เทียบทางเลือก — "กินยาไป 30 เม็ด จะไปโรงพยาบาลหรือนอนเฉยๆ" เคยได้ "นอนเฉยๆ — ย้อนกลับได้"
+    opts = a["options"] if not council_unsuitable(a) else []
     opt_block = ""
     if len(opts) >= 2:
         letters = "ABCDEFG"
@@ -1312,14 +1313,17 @@ def simulate(text: str, paths: list) -> str:
     text = text if isinstance(text, str) else str(text or "")
     paths = [str(p).strip()[:120] for p in (paths if isinstance(paths, list) else []) if str(p).strip()][:7]
     a = assess(text)
+    # เรื่องฉุกเฉินไม่ใช่เวลาเทียบทางเลือก — "กินยาไป 30 เม็ด จะไปโรงพยาบาลหรือนอนเฉยๆ" เคยได้
+    # "ย้อนกลับได้ ทดลองขนาดเล็ก 30 วัน" ทั้งสองทาง ไม่มีเบอร์ฉุกเฉิน
+    if council_unsuitable(a):
+        return compose(text)
     if not paths:
         return compose(text, route="vega", voice_mode="vega")
-    # ทางที่ย้อนกลับยาก — วลีเต็ม ("ขายออนไลน์" ไม่ใช่การขายบ้าน)
-    irreversible = ["ลาออก", "ขายบ้าน", "ขายรถ", "ขายที่ดิน", "ขายกิจการ", "ย้ายประเทศ", "ย้ายบ้าน", "หย่า",
-                    "กู้", "ลงทุนทั้งหมด", "เงินเก็บทั้งหมด", "ทุ่มหมด", "เซ็นสัญญา", "ปิดร้าน", "ปิดกิจการ",
-                    "quit", "all in"]
+    # ทางที่ย้อนกลับยาก — วลีเต็ม ("ขายออนไลน์" ไม่ใช่การขายบ้าน) · ชุดเดียวกับที่ใช้เรียงทางเลือก
+    from core.engine_bridge import irreversible
     en = detect_lang(text + " " + " ".join(paths)) != "th"          # ผู้ใช้เขียนอังกฤษ → ตอบอังกฤษ (เดิมตอบไทยเสมอ)
-    hard = [_hit(p.lower(), irreversible) for p in paths]
+    # "ไม่ลาออก" "don't quit" คือการไม่ทำสิ่งที่ย้อนกลับยาก — เดิมนับเป็นย้อนกลับยากเพราะมีคำว่าลาออก
+    hard = [irreversible(p) for p in paths]
     lines = []
     for i, p in enumerate(paths):
         if en:

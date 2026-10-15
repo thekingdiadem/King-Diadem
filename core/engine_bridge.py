@@ -695,7 +695,18 @@ def nearby(text: str, disaster: dict | None = None, relationship: str | None = N
 
 # ── 4. เรียงทางเลือก ────────────────────────────────────────────────────
 _IRREVERSIBLE = re.compile(r"ลาออก|ขายบ้าน|ขายรถ|ขายที่ดิน|ขายกิจการ|ย้ายประเทศ|ย้ายบ้าน|หย่า|กู้|ลงทุนทั้งหมด|"
-                           r"เงินเก็บทั้งหมด|ทุ่มหมด|เซ็นสัญญา|ปิดร้าน|ปิดกิจการ|quit|all in", re.I)
+                           r"เงินเก็บทั้งหมด|ทุ่มหมด|เซ็นสัญญา|ปิดร้าน|ปิดกิจการ|"
+                           r"(?<![a-z])quit(?![a-z])|(?<![a-z])all[- ]?in(?![a-z])", re.I)   # ไม่นับ "quite" "small investment"
+
+
+# "ไม่ลาออก" "ยังไม่ขายบ้าน" "don't quit" = ไม่ทำสิ่งที่ย้อนกลับยาก — เดิมนับเป็นย้อนกลับยาก (มีคำว่าลาออก)
+# แล้วจำลองทางเลือกแนะนำ "ลาออก" ว่าคะแนนรอดสูงสุด
+_NEGATED = re.compile(r"^\s*(?:ไม่|ยังไม่|อย่า|not\b|don'?t\b|do not\b|no\b|never\b)", re.I)
+
+
+def irreversible(option: str) -> bool:
+    o = str(option or "")
+    return bool(_IRREVERSIBLE.search(o)) and not _NEGATED.match(o)
 
 
 def rank_options(options: list, waterline: float = 50, entropy: float = 40) -> list:
@@ -703,9 +714,9 @@ def rank_options(options: list, waterline: float = 50, entropy: float = 40) -> l
     try:
         from ENGINE.choice_optimizer import optimize_choice
     except Exception:  # pragma: no cover
-        return [{"action": o, "reversible": not _IRREVERSIBLE.search(o), "collapse_risk": "", "reason": ""}
+        return [{"action": o, "reversible": not irreversible(o), "collapse_risk": "", "reason": ""}
                 for o in options]
-    acts = [{"action": o, "reversible": not _IRREVERSIBLE.search(o), "time": 1} for o in options]
+    acts = [{"action": o, "reversible": not irreversible(o), "time": 1} for o in options]
     return optimize_choice(acts, {"waterline": waterline, "entropy": entropy})
 
 
