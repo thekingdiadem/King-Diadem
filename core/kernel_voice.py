@@ -200,6 +200,16 @@ TOPICS = [
         ],
         "ask": "มีเรื่องไหนของเขาที่อยากเล่าให้ฟังไหม?",
     }),
+    ("child_gaming", [re.compile(r"(?:ลูก|หลาน)[^\n]{0,8}?ติด(?:เกม|มือถือ|โทรศัพท์|ไอแพด|แท็บเล็ต|ยูทูบ|ติ๊กต็อก|tiktok)|"
+                                 r"\bmy (?:son|daughter|kid|child)\b[^\n]{0,20}?\b(?:addicted to|won'?t stop) (?:games|gaming|his phone|her phone|the phone)\b", re.I)], {
+        "open": ["เด็กติดจอมักเพราะในจอมีสิ่งที่เขาหาไม่ได้ข้างนอก — เริ่มจากเข้าใจ ไม่ใช่ยึด"],
+        "paths": [
+            "ตกลงกติกาด้วยกัน (ไม่ใช่สั่งฝ่ายเดียว): ช่วงเวลาที่เล่นได้ และเวลาปิดจอก่อนนอน — เขียนไว้ให้เห็น",
+            "ชาร์จมือถือและวางอุปกรณ์นอกห้องนอนตอนกลางคืน · มีกิจกรรมอื่นที่ทำด้วยกันแทน ไม่ใช่แค่เอาจอออก",
+            f"ถ้าโกรธรุนแรง ทำร้ายตัวเองหรือคนอื่นเมื่อถูกห้าม หรือไม่ยอมไปโรงเรียน ปรึกษา {HOTLINE_MENTAL} หรือหมอเด็กได้",
+        ],
+        "ask": "ลูกเล่นอะไรอยู่ และเล่นกับใคร — รู้ไหมว่าในเกมเขาได้อะไรที่ข้างนอกไม่มี?",
+    }),
     ("addiction", [ADDICTION], {
         "open": ["การติดไม่ได้แปลว่าคุณอ่อนแอ — มันคือสิ่งที่ต้องมีคนช่วยวางแผนเลิก"],
         "paths": [
@@ -307,6 +317,8 @@ TOPICS = [
             f"โทร {HOTLINE_EMS} ตอนนี้ หรือให้คนใกล้ตัวพาไปห้องฉุกเฉิน — อย่าขับรถเอง",
             ([re.compile(r"พูดไม่ชัด|ปากเบี้ยว|ชา|อ่อนแรง")],
              "อาจเป็นหลอดเลือดสมอง (สโตรก) — ทุกนาทีมีผล ถึงโรงพยาบาลภายใน 4.5 ชั่วโมงรักษาได้ดีกว่ามาก จดเวลาที่เริ่มมีอาการ ไม่ให้กินยาหรืออาหาร"),
+            ([re.compile(r"(?:ผึ้ง|ต่อ|แตน|แพ้)[^\n]{0,20}?(?:หายใจลำบาก|หายใจไม่ออก|หน้าบวม|ปากบวม|คอบวม)")],
+             "แพ้รุนแรง: ถ้ามียาฉีดอะดรีนาลีน (EpiPen) ใช้ทันที · หายใจลำบากให้นั่ง ถ้าหน้ามืดให้นอนยกขา · อย่าให้อยู่คนเดียว"),
             ([re.compile(r"ชัก(?!ชวน|จูง|ธง|ช้า|ว่าว|ใย)")],
              f"ระหว่างชัก: จับนอนตะแคง ห้ามงัดปากหรือเอาอะไรใส่ปาก เอาของแข็งออกห่าง และจับเวลา — ชักเกิน 5 นาที ชักครั้งแรก หรือหลังชักไม่ตื่น โทร {HOTLINE_EMS}"),
             ([re.compile(r"ท้อง\S{0,4}?ขวาล่าง|ด้านขวาล่าง")],
@@ -328,11 +340,25 @@ TOPICS = [
         ],
         "ask": "ตอนนี้มีใครอยู่ใกล้ตัวที่ช่วยพาไปโรงพยาบาลได้บ้าง?",
     }),
+    ("pet_hurt", [re.compile(r"(?:หมา|แมว|สุนัข|ลูกหมา|ลูกแมว)\S{0,6}?(?:โดนรถชน|ถูกรถชน|รถทับ|เลือดออก|เดินไม่ได้|ตกตึก)|"
+                             r"\bmy (?:dog|cat|puppy|kitten)\b[^\n]{0,20}?\b(?:was hit by a car|got hit|is bleeding|can'?t walk|fell)\b", re.I)], {
+        "open": ["รีบหน่อยนะ — สัตว์ที่เจ็บมักซ่อนอาการ"],
+        "paths": [
+            "เข้าใกล้ช้าๆ สัตว์ที่เจ็บอาจกัดแม้เป็นตัวที่เลี้ยง — ใช้ผ้าห่มหรือผ้าขนหนูคลุมก่อนอุ้ม",
+            "ย้ายโดยให้ตัวราบที่สุด (ใช้แผ่นไม้ กล่อง หรือผ้าเป็นเปล) กดห้ามเลือดด้วยผ้าสะอาด",
+            "พาไปโรงพยาบาลสัตว์ตอนนี้ แม้ดูปกติ — เลือดออกในอาจไม่เห็นจากภายนอก โทรบอกคลินิกก่อนไป",
+        ],
+        "ask": "น้องยังรู้สึกตัวและหายใจได้ปกติไหม?",
+    }),
     ("first_aid", [FIRST_AID], {
         "open": ["ปฐมพยาบาลให้ถูกก่อน แล้วค่อยไปหาแพทย์"],
         "paths": [
             ([re.compile(r"ผึ้ง|แตน|ต่อต่อย|โดนต่อ|\bbee|\bwasp|\bhornet", re.I)],
              "ผึ้ง/ต่อต่อย: ขูดเหล็กไนออกด้วยขอบบัตร (อย่าบีบ) ล้างแผล ประคบเย็น · ถูกต่อยหลายตัว ต่อยที่คอ/ปาก หรือหน้าบวม หายใจลำบาก เวียนหัว — โทร 1669 ทันที"),
+            ([re.compile(r"หัว[^\n]{0,16}?(?:อาเจียน|อ้วก|ซึม|ชัก|ปวดหัวมาก|หลับ)|(?:ตก|ล้ม|กระแทก)[^\n]{0,12}?หัว[^\n]{0,16}?(?:อาเจียน|อ้วก|ซึม)")],
+             f"หัวกระแทกแล้วอาเจียน ซึม ปวดหัวมากขึ้น ชัก หรือพูดแปลกไป — ไปโรงพยาบาลตอนนี้หรือโทร {HOTLINE_EMS} · หลังจากนี้เฝ้าดูอาการต่อ 24 ชั่วโมง"),
+            ([re.compile(r"(?:ผึ้ง|ต่อ|แตน|แพ้)[^\n]{0,20}?(?:หายใจลำบาก|หายใจไม่ออก|หน้าบวม|ปากบวม|คอบวม)")],
+             f"แพ้รุนแรง: ถ้ามียาฉีดอะดรีนาลีน (EpiPen) ใช้ทันที แล้วโทร {HOTLINE_EMS} · หายใจลำบากให้นั่ง ถ้าหน้ามืดให้นอนยกขา · อย่าให้อยู่คนเดียว"),
             ([re.compile(r"งู|snake")],
              "งูกัด: อยู่นิ่งๆ ดามส่วนที่ถูกกัดไม่ให้ขยับ ให้อยู่ต่ำกว่าหัวใจ · ห้ามกรีด ห้ามดูดพิษ ห้ามขันชะเนาะ · จำลักษณะงูไว้ถ้าทำได้อย่างปลอดภัย"),
             ([re.compile(r"(?:ไข้|หนาวสั่น|บวมแดง|มีหนอง)[^\n]*?(?:กัด|ข่วน)|(?:กัด|ข่วน)[^\n]*?(?:ไข้|หนาวสั่น|บวมแดง|มีหนอง)")],
@@ -427,6 +453,10 @@ TOPICS = [
              "ลูกจ้างทุกคน รวมทั้งลูกจ้างทำงานบ้าน มีสิทธิ์หยุดอย่างน้อยสัปดาห์ละ 1 วัน และได้ค่าจ้างถ้าทำงานในวันหยุด"),
             ([re.compile(r"ท้อง|ตั้งครรภ์")],
              "นายจ้างเลิกจ้างเพราะตั้งครรภ์ไม่ได้ตามกฎหมาย และคุณมีสิทธิ์ลาคลอดพร้อมค่าจ้าง — เก็บหลักฐานแล้วร้องเรียนได้"),
+            ([re.compile(r"ประกันสังคม")],
+             f"นายจ้างต้องหักและส่งเงินสมทบประกันสังคมทุกเดือน — เช็กได้ในแอป SSO Connect หรือโทร {HOTLINE_SSO} แจ้งได้โดยไม่ต้องบอกชื่อ"),
+            ([re.compile(r"หัก(?:เงินเดือน|ค่าแรง|ค่าจ้าง)")],
+             "หักค่าจ้างเป็นค่าปรับ (มาสาย ทำของเสีย) ทำไม่ได้ตามกฎหมาย — หักได้แค่ภาษี ประกันสังคม และที่คุณยินยอมเป็นหนังสือ · ไม่จ่ายเฉพาะเวลาที่ไม่ได้ทำงานจริงได้"),
             "เก็บหลักฐาน: สัญญาจ้าง สลิปเงินเดือน แชต/อีเมลสั่งงาน บันทึกเวลาเข้า-ออก ชื่อเพื่อนร่วมงานที่รู้เรื่อง",
             f"ยื่นคำร้องฟรีที่สำนักงานสวัสดิการและคุ้มครองแรงงานจังหวัด หรือโทร {HOTLINE_LABOR} — ไม่ต้องมีทนาย",
             ([re.compile(r"เลิกจ้าง|ไล่ออก|ค่าชดเชย|ปลด")],
@@ -548,6 +578,8 @@ TOPICS = [
              "ขอหนังสือปฏิเสธเคลมเป็นลายลักษณ์อักษร ให้ระบุข้อในกรมธรรม์ที่ใช้ปฏิเสธ · ร้องเรียนฟรีที่ คปภ. 1186"),
             ([re.compile(r"ออนไลน์|ร้าน|ส่งของ|ได้ของ|seller|shop|store", re.I)],
              f"เปิดข้อพิพาทในแอปที่ซื้อ (ภายในเวลาที่แอปกำหนด) · จ่ายด้วยบัตรเครดิต ขอให้ธนาคารปฏิเสธรายการ (chargeback) · ร้องเรียน สคบ. {HOTLINE_OCPB}"),
+            ([re.compile(r"บัตร|เรียกเก็บ|unauthori", re.I)],
+             "โทรธนาคารตอนนี้ ขออายัดบัตรและปฏิเสธรายการที่ไม่ได้ทำ — แจ้งเร็วยิ่งได้คืนง่าย (เบอร์อยู่หลังบัตร)"),
             "เก็บหลักฐาน: ใบเสร็จ สลิป แชตกับร้านหรือบริษัท หน้าสินค้าหรือกรมธรรม์ — แคปไว้ก่อนเขาลบ",
             f"ถ้าร้านปิดเพจ บล็อก หรือหายไป นั่นคือการโกง แจ้ง {HOTLINE_SCAM} และแจ้งความที่ thaipoliceonline.go.th",
         ],
@@ -630,7 +662,8 @@ TOPICS = [
         "ask": "ถ้าวันนี้ไม่มีงาน คุณมีเวลาหาทางใหม่ได้กี่เดือนก่อนเงินหมด?",
     }),
     ("business", ["ธุรกิจ", "กิจการ", "ขาดทุน", "ยอดขาย", "ลูกค้า", "เปิดร้าน", "ร้านของ", "สตาร์ทอัพ",
-                  "ลงทุน", "กำไร", "ต้นทุน", "การตลาด", "วิเคราะห์ตลาด"], {
+                  "ลงทุน", "กำไร", "ต้นทุน", "การตลาด", "วิเคราะห์ตลาด",
+                  re.compile(r"\b(?:start|open|starting|opening) (?:a |my own |my )?(?:small )?(?:business|shop|cafe|store)\b", re.I)], {
         "open": ["ธุรกิจตัดสินกันที่ตัวเลข ไม่ใช่ความรู้สึก"],
         "paths": [
             ([re.compile(r"(?:อยาก|จะ|กำลังจะ|คิดจะ)\s*(?:เปิด|ทำ|เริ่ม)(?:ร้าน|ธุรกิจ|กิจการ)")],
@@ -682,7 +715,7 @@ TOPICS = [
     }),
     ("family", ["พ่อแม่", "คุณพ่อ", "คุณแม่", "ครอบครัว", "พี่น้อง", "ที่บ้านไม่", "ลูกไม่", "ลูกของ",
                 "เลี้ยงลูก", "ญาติ", "คนที่บ้าน", _VERBAL], {
-        "open": ["ครอบครัวเลือกไม่ได้ แต่ระยะห่างเลือกได้"],
+        "open": ["เรื่องในบ้านใกล้ใจที่สุด — ค่อยๆ คุยทีละเรื่อง"],
         "paths": [
             ([_VERBAL], "คำด่าที่ได้ยินซ้ำๆ ไม่ใช่ความจริงเกี่ยวกับตัวคุณ — มันคือการทำร้ายทางใจ และคุณไม่ได้สมควรโดน"),
             ([_VERBAL], f"อายุไม่ถึง 18 ปี โทรสายด่วนเด็ก {HOTLINE_CHILD} · ถ้าเริ่มเชื่อคำพวกนั้นหรือไม่อยากอยู่บ้าน โทร {HOTLINE_MENTAL} คุยได้ฟรี 24 ชม."),
@@ -759,6 +792,10 @@ MONEY_SHORT = re.compile(r"เงินหมด|ไม่มีเงิน|เ
 MONEY_PLAN = {
     "open": ["มีรายได้เข้ามาอยู่แล้ว — ที่เหลือคือวางให้เงินทำงานตามลำดับ"],
     "paths": [
+        ([re.compile(r"ซื้อรถ|ออกรถ|ผ่อนรถ")],
+         "ค่างวดรถรวมประกัน น้ำมัน และค่าซ่อม ไม่ควรเกินราว 20% ของรายได้ — ดาวน์มากขึ้นหรือรถมือสองช่วยให้ค่างวดเบาลง"),
+        ([re.compile(r"ซื้อ(?:บ้าน|คอนโด)|ผ่อน(?:บ้าน|คอนโด)")],
+         "ค่าผ่อนบ้านไม่ควรเกินราว 30–35% ของรายได้ และควรมีเงินสำรอง 6 เดือนหลังจ่ายเงินดาวน์ ค่าโอน และค่าตกแต่งแล้ว"),
         (["โบนัส", "เงินก้อน"],
          "เงินก้อนแบ่งก่อนใช้ ตามลำดับ: ปิดหนี้ดอกเบี้ยสูงก่อน → เติมเงินสำรองฉุกเฉิน → ที่เหลือค่อยใช้หรือลงทุน"),
         "หักเงินเก็บทันทีที่เงินเดือนออก (เช่น 10–20%) ไปบัญชีแยกที่ไม่ผูกบัตร — เก็บก่อนใช้ ไม่ใช่ใช้แล้วค่อยเก็บ",
@@ -944,6 +981,21 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "pet_hurt": ("Please hurry — injured animals often hide how hurt they are.", [
+        "Approach slowly — even your own pet may bite when in pain. Cover them with a towel or blanket before lifting.",
+        "Move them as flat as possible (a board, box or blanket as a stretcher) and press a clean cloth on any bleeding.",
+        "Go to a vet now even if they seem okay — internal bleeding isn't visible. Call the clinic on the way."],
+        "Is your pet conscious and breathing normally?"),
+    "business": ("A business is decided by numbers, not by how excited it feels.", [
+        "Split your money into three before starting: setup costs · six months of rent and wages even with no sales · personal savings you never touch.",
+        "Test small first — a market stall, online shop or pop-up for 1–3 months — before signing a lease.",
+        "Know your break-even: fixed costs ÷ (price − cost per item) = how many you must sell each month."],
+        "If it doesn't work, how much can you lose and still be okay?"),
+    "caregiver": ("Caring for someone every day is exhausting — the carer needs care too.", [
+        "For someone with dementia who wanders: put an ID bracelet or card with your number on them, add door chimes, and keep a recent photo ready.",
+        "If they're missing right now, call the police immediately (191 in Thailand, 911 in the US) — don't wait 24 hours.",
+        "Ask your local health centre or council about home-care support and respite, and share shifts with family so you get rest."],
+        "Is your mom safe at home right now, or is she missing?"),
     "hacked": ("A hacked account can be recovered — warn people first, before anyone sends money.", [
         "Tell friends and family through another channel that you were hacked and not to send money to anyone using your name.",
         "Recover the account only through the app's official page (e.g. facebook.com/hacked), change your password, turn on two-factor login and log out all devices.",
@@ -1352,12 +1404,15 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     # ── 3. หัวข้อ → ทาง (หลัก 2–3 ทาง + หัวข้อรอง 1 ทาง) ───────────
     lib = {name: d for name, _, d in TOPICS}
     main = lib.get(a["topics"][0]) if a["topics"] else GENERAL
-    if a["topics"] and a["topics"][0] == "money" and _money_plan(text):
+    if a["topics"] and a["topics"][0] == "money" and "job" in a["topics"] and not MONEY_SHORT.search(text) \
+            and not re.search(r"ซื้อ|ผ่อน|เก็บเงิน|ออม|โบนัส|เงินก้อน", text):
+        main = lib["job"]                      # "อยากเปลี่ยนงาน แต่กลัวเงินเดือนลด" เป็นเรื่องงาน ไม่ใช่แผนเก็บเงิน
+    elif a["topics"] and a["topics"][0] == "money" and _money_plan(text):
         main = MONEY_PLAN
     second = lib.get(a["topics"][1]) if len(a["topics"]) > 1 else None
     # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง
     # (เดิม "กินยาเกินขนาด" เสียขั้นที่ 3 ให้ "ใช้สิทธิ์บัตรทอง")
-    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "housing", "legal", "diagnosis",
+    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "child_gaming", "consumer", "pet_hurt", "housing", "legal", "diagnosis",
                                                            "caregiver", "health_rights"):
         second = None
     if a["offer_flags"]:                 # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
