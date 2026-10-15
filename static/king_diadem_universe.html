@@ -182,8 +182,8 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 .sec-body{font-size:15.5px}
 
 /* กระจกขอบแสงสองสี */
-.card,.axiom-item,.planet-card,.sim-box,.result-metric,.path-item,.horizon-card{position:relative;background:linear-gradient(180deg,rgba(16,19,42,.58),rgba(6,8,20,.7));border-color:transparent!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 24px 60px -26px rgba(0,0,0,.8)}
-.card::before,.axiom-item::before,.planet-card::before,.sim-box::before,.horizon-card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:var(--rim);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.8}
+.card,.axiom-item,.planet-card,.sim-box,.result-metric,.path-item{position:relative;background:linear-gradient(180deg,rgba(16,19,42,.58),rgba(6,8,20,.7));border-color:transparent!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 24px 60px -26px rgba(0,0,0,.8)}
+.card::before,.axiom-item::before,.planet-card::before,.sim-box::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:var(--rim);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.8}
 .card{transition:transform .5s var(--ease),box-shadow .5s var(--ease)}
 .card:hover{transform:translateY(-3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 30px 70px -24px rgba(0,0,0,.85),0 0 40px -12px rgba(255,198,161,.25)}
 .sim-box{background:linear-gradient(180deg,rgba(16,19,42,.78),rgba(6,8,20,.88));-webkit-backdrop-filter:blur(22px) saturate(1.3);backdrop-filter:blur(22px) saturate(1.3)}
@@ -197,25 +197,15 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 .ego-head{text-align:center;margin-bottom:46px}
 .ego-head h2{font:500 clamp(22px,4.2vw,40px)/1.5 var(--f-serif);letter-spacing:.04em;color:#f4efe4;text-shadow:0 0 30px rgba(255,214,150,.25)}
 .ego-head h2 span{display:block;font-size:.62em;color:rgba(214,224,255,.72);letter-spacing:.06em}
-.horizon-list{display:flex;flex-direction:column;gap:22vh;padding:6vh 0 10vh}
-.horizon-card{max-width:520px;border-radius:22px;padding:26px 28px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-.horizon-card:nth-child(even){margin-left:auto}
-.hz-n{font:500 9px/1 var(--f-mono);letter-spacing:.24em;color:rgba(255,211,154,.6);margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.hz-n::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(255,211,154,.35),transparent)}
-.hz-t{font:600 clamp(19px,2.6vw,26px)/1.3 var(--f-display);letter-spacing:.06em;color:#f1eee6;margin-bottom:6px}
-.hz-i{font-size:20px;margin-left:8px;vertical-align:-2px}
-.hz-b{font:400 16px/1.85 var(--f-serif);color:rgba(222,229,255,.86)}
-.hz-hint{margin-top:14px;font:400 9px/1.5 var(--f-mono);letter-spacing:.14em;color:rgba(169,188,255,.55)}
 .ego-quote{max-width:720px;margin:6vh auto 0;text-align:center}
 .ego-quote p{font:500 clamp(17px,2.4vw,23px)/1.95 var(--f-serif);color:#f4efe4;text-shadow:0 0 16px rgba(2,3,10,.9),0 0 30px rgba(255,214,150,.22)}
 .ego-letter{display:table;margin:26px auto 0;padding:10px 20px;border-radius:99px;font:500 13px/1.4 var(--f-body);color:#fff8e7;text-decoration:none;border:1px solid rgba(255,248,231,.22);background:rgba(255,248,231,.05);transition:background .3s,border-color .3s}
 .ego-letter:hover{background:rgba(255,248,231,.1);border-color:rgba(255,248,231,.4)}
 .ego-quote cite{display:block;margin-top:18px;font:400 9px/1 var(--f-mono);letter-spacing:.22em;color:rgba(255,211,154,.55);font-style:normal}
 .ego-tap{text-align:center;margin-top:30px;font:400 9px/1.6 var(--f-mono);letter-spacing:.18em;color:rgba(214,224,255,.56)}
-@media (max-width:640px){ .horizon-list{gap:14vh} .horizon-card{padding:22px 20px} .hz-b{font-size:15px} }
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important;transition:none!important} .section,.reveal{opacity:1;transform:none;filter:none} }
 /* ภาษาไทย: ใช้ฟอนต์หัวกลม (Noto Sans Thai Looped) และไม่ถ่างตัวอักษร — ถ่างแล้วสระ/วรรณยุกต์ลอยห่างจากพยัญชนะ อ่านยาก */
-.scroll-hint,.ego-head h2,.ego-head h2 span,.hz-hint,.ego-quote cite,.ego-tap,.sec-title,.sim-sub,.sim-note,.intent-label,.sim-btn,.dignity-text{letter-spacing:.01em}
+.scroll-hint,.ego-head h2,.ego-head h2 span,.ego-quote cite,.ego-tap,.sec-title,.sim-sub,.sim-note,.intent-label,.sim-btn,.dignity-text{letter-spacing:.01em}
 .th-run{font-family:var(--f-body);letter-spacing:.01em}
 </style>
 </head>
@@ -243,18 +233,11 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
   </div>
 </section>
 
-<!-- จักรวาลไร้ศูนย์กลาง — แนวคิดของผู้สร้าง · แต่ละการ์ดพาท้องฟ้าเปลี่ยนตาม (data-sky) -->
+<!-- จักรวาลไร้ศูนย์กลาง — แนวคิดของผู้สร้าง · เดิมมีการ์ดข้อความ 5 ใบเลื่อนผ่านท้องฟ้าที่หมุน (อ่านแล้วเวียนหัว — เอาออก) -->
 <section id="egoless" aria-labelledby="ego-h">
   <div class="ego-head reveal">
     <div class="sec-eyebrow" style="justify-content:center">Ego-less Universe</div>
     <h2 id="ego-h">จักรวาลไม่ได้หมุนรอบใคร<span>แต่ทุกคนร่วมกันเป็นส่วนหนึ่งของทั้งจักรวาล</span></h2>
-  </div>
-  <div class="horizon-list">
-    <article class="horizon-card reveal" data-sky="horizon"><div class="hz-n">01</div><h3 class="hz-t">Personal Horizon<span class="hz-i">👁️🌐</span></h3><p class="hz-b">เราเห็นทุกอย่างล้อมรอบตัว เพราะตาเราอยู่ที่นี่</p><div class="hz-hint">เลื่อนหน้าลง = หันมองรอบตัว · เข็มทิศด้านบนบอกมุมที่เราหัน</div></article>
-    <article class="horizon-card reveal" data-sky="orbit"><div class="hz-n">02</div><h3 class="hz-t">Orbiting Observer<span class="hz-i">🌍🔄</span></h3><p class="hz-b">เราเป็นแค่ผู้โดยสารบนยานโลกที่วิ่งรอบดวงอาทิตย์</p><div class="hz-hint">ฟ้าไหวตามเรา ไม่ใช่ฟ้าหมุนรอบเรา</div></article>
-    <article class="horizon-card reveal" data-sky="uniform"><div class="hz-n">03</div><h3 class="hz-t">Uniform Distribution<span class="hz-i">🌌✨</span></h3><p class="hz-b">แสงดาวกระจายไปทั่วจักรวาล ไม่ได้เล็งมาที่โลกเราแค่ที่เดียว</p><div class="hz-hint">กาแล็กซีไกลนับไม่ถ้วน สว่างขึ้นเท่าๆ กันทุกทิศ</div></article>
-    <article class="horizon-card reveal" data-sky="illusion"><div class="hz-n">04</div><h3 class="hz-t">Geometry Illusion<span class="hz-i">📐🎭</span></h3><p class="hz-b">ภาพลวงตาทางเรขาคณิตที่ทำให้รู้สึกเหมือนเป็นจุดศูนย์กลาง</p><div class="hz-hint">กล้องเลื่อนเข้าพร้อมซูมออก — ทุกอย่างดูพุ่งออกจากเรา ทั้งที่เป็นแค่มุมมอง</div></article>
-    <article class="horizon-card reveal" data-sky="egoless"><div class="hz-n">05</div><h3 class="hz-t">Ego-less Universe<span class="hz-i">🛡️💎</span></h3><p class="hz-b">จักรวาลไม่ได้หมุนรอบใคร แต่ทุกคนร่วมกันเป็นส่วนหนึ่งของทั้งจักรวาล</p><div class="hz-hint">แสงหนึ่งดวง แผ่ไปถึงทุกดวง</div></article>
   </div>
   <blockquote class="ego-quote reveal">
     <p>"การรู้สึกว่าเป็นศูนย์กลางคือสัญชาตญาณของการรับรู้ แต่การเข้าใจว่าเราเป็นเพียงจุดเล็กๆ ที่ได้รับแสงดาวนับพันล้านรอบจักรวาลสว่างท่ามกลางความกว้างใหญ่ คือปัญญาที่แท้จริงซึ่งช่วยให้เราเห็นความงดงามของผู้อื่นที่อาบแสงเดียวกับเรา"</p>

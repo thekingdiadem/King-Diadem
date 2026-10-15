@@ -1,4 +1,4 @@
-"""หน้า The Universe: ท้องฟ้าจากข้างใน ไม่มีลำแสงกลาง · แนวคิด 5 ข้อของผู้สร้างเป็นบทที่พาท้องฟ้าเปลี่ยน"""
+"""หน้า The Universe: ท้องฟ้าจากข้างใน ไม่มีลำแสงกลาง · เลื่อนหน้า = หันมองรอบตัว"""
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -13,10 +13,12 @@ def test_page_has_no_center_beam():
     assert "กลุ่มดาวแห่งการตัดสินใจ" in PAGE and "ระบบสุริยะแห่งการตัดสินใจ" not in PAGE
 
 
-def test_five_principles_drive_the_sky():
-    """แต่ละการ์ดของแนวคิดผูกกับผลบนท้องฟ้า: ขอบฟ้า · ผู้สังเกตโคจร · กระจายเท่ากัน · ภาพลวง · แสงเดียวกัน"""
-    for name in ("horizon", "orbit", "uniform", "illusion", "egoless"):
-        assert f'data-sky="{name}"' in PAGE and f"{name}: function" in SKY
+def test_text_cards_over_the_spinning_sky_are_gone():
+    """เจ้าของโปรเจกต์บอกว่าการ์ดข้อความ 5 ใบ (เช่น "เราเห็นทุกอย่างล้อมรอบตัว เพราะตาเราอยู่ที่นี่")
+    ที่เลื่อนผ่านท้องฟ้าซึ่งหมุนตามการเลื่อน อ่านแล้วเวียนหัว — เอาออก เหลือหัวเรื่องกับคำพูดผู้ก่อตั้ง"""
+    for gone in ("horizon-card", "data-sky", "ตาเราอยู่ที่นี่", "Personal Horizon", "Geometry Illusion"):
+        assert gone not in PAGE, gone
+    assert "chapter(" not in SKY and "data-sky" not in SKY
     assert "จักรวาลไม่ได้หมุนรอบใคร" in PAGE and "อาบแสงเดียวกับเรา" in PAGE
 
 
@@ -25,7 +27,6 @@ def test_scrolling_turns_the_viewer_not_the_sky():
     assert "scrollY / Math.max(1, document.documentElement.scrollHeight - H)" in SKY
     assert "sc * Math.PI * 2 * .92" in SKY
     assert "function ripple(x, y) { if (REDUCED) return;" in SKY
-    assert "illusion: function () { if (!REDUCED) dolly = 0; }" in SKY
 
 
 def test_sky_is_battery_friendly_and_has_fallback():
