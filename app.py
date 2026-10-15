@@ -163,6 +163,13 @@ except Exception as e:
     print(f"⚠ future_paths: {type(e).__name__}")
     future_project = None
 
+# ── VEGA Human DriftZero Kernel — 14 ประตู (core/vega_kernels.py) ─────
+try:
+    from core.vega_kernels import evaluate as vega_evaluate, llm_hint as vega_llm_hint, offline_lines as vega_offline_lines
+except Exception as e:  # pragma: no cover
+    print(f"⚠ vega_kernels: {type(e).__name__}")
+    vega_evaluate = vega_llm_hint = vega_offline_lines = None
+
 # ── KERNEL VOICE — ตอบได้แม้ไม่มี AI (core/kernel_voice.py) ──────────
 try:
     from core.kernel_voice import compose as kernel_compose, simulate as kernel_simulate, assess as kernel_assess
@@ -1810,6 +1817,13 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     effective += _route_bias(route, user_input)
     if extra_ctx:
         effective += f"\n\n{extra_ctx}"
+    # VEGA Human DriftZero Kernel (14 Gates): ประตูที่ติดจากข้อความ → ให้ VEGA ถามคำถามของประตูนั้น
+    # ไม่ใช้ตอนวิกฤต (ตอนนั้นต้องรับรู้และให้ทางช่วยก่อน ไม่ใช่ถามให้คิด)
+    vega_gates = []
+    if vega_evaluate and vm == "vega" and route not in ("crisis", "collapse", "survival"):
+        vega_gates = vega_evaluate(user_input)
+        if vega_gates:
+            effective += "\n\n" + vega_llm_hint(vega_gates)
     # ภาษาของผู้ใช้ (ดูจากข้อความดิบ — prompt ที่ต่อแล้วมีบริบทภาษาไทยปน) ให้ LLM ตอบภาษาเดียวกัน
     if detect_lang:
         u_lang = detect_lang(user_input)
@@ -1893,8 +1907,10 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             "status":        "SUCCESS",
             "route":         k_route,
             # สถานะร่างกายใช้เฉพาะเมื่อผู้ใช้ส่งมาจริง — context ว่างให้ค่า W 100/Risk 0 ที่ไม่จริง
-            "ai_response":   kernel_compose(user_input, route=k_route, voice_mode=vm,
-                                            pattern=human_state if data.get("context") else None),
+            "ai_response":   _with_gate_questions(
+                                 kernel_compose(user_input, route=k_route, voice_mode=vm,
+                                                pattern=human_state if data.get("context") else None),
+                                 vega_gates),
             "answer_source": "kernel",
         })
         result.setdefault("pattern", human_state)
@@ -2062,6 +2078,9 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 persona=result.get("persona", "LYLA"),
             )
         except Exception: pass
+
+    if vega_gates:
+        result["vega_gates"] = [{"id": g["id"], "name": g["name"], "ask": g["ask"]} for g in vega_gates]
 
     # ── รายงานที่แชร์ได้: สร้างเมื่อผู้ใช้กดแชร์เท่านั้น ─────────────────────
     # เดิมสร้างลิงก์สาธารณะทุกครั้งที่ถาม (ไม่มีวันหมดอายุ ลบไม่ได้) — เรื่องส่วนตัวค้างอยู่ในลิงก์ที่ใครมีก็อ่านได้
@@ -2591,6 +2610,15 @@ async def get_report_api(report_id: str):
     if not data:
         return JSONResponse({"error": "Report not found"}, status_code=404)
     return data
+
+
+def _with_gate_questions(reply: str, gates: list) -> str:
+    """คำตอบแบบไม่มี AI ของ VEGA: แทรกคำถามของประตูที่ติด (2 ข้อ) ก่อนลายเซ็น"""
+    if not gates or not vega_offline_lines or not isinstance(reply, str):
+        return reply
+    extra = vega_offline_lines(gates, vega=True)
+    i = reply.rfind("\n\n— VEGA")
+    return (reply[:i] + "\n\n" + extra + reply[i:]) if i >= 0 else (reply + "\n\n" + extra)
 
 
 # ── แชร์รายงาน: จำผลของ /run ไว้ 2 ชั่วโมงในหน่วยความจำ (ไม่ลงดิสก์) จนกว่าผู้ใช้จะกดแชร์ ─────
