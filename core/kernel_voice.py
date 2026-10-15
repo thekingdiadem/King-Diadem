@@ -22,7 +22,7 @@ from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAP
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
-                               MISSING_PERSON, LABOR_RIGHTS, RESIGN_BLOCKED, SWALLOWED_OBJECT, LENT_OUT, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
+                               MISSING_PERSON, LABOR_RIGHTS, RESIGN_BLOCKED, SWALLOWED_OBJECT, LENT_OUT, CONSUMER, HACKED, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
                                HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE,
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
@@ -298,7 +298,8 @@ TOPICS = [
         "ask": "คืนนี้ คุณนอนที่ไหนได้โดยที่อีกฝ่ายเข้าไม่ถึง?",
     }),
     ("health_emergency", ["เจ็บหน้าอก", "แน่นหน้าอก", "หายใจไม่ออก", "หมดสติ", "ชักเกร็ง", "ชักกระตุก",
-                          "ชักไม่หยุด",
+                          "ชักไม่หยุด", re.compile(r"(?:ลูก|เด็ก|หลาน|ทารก|น้อง)\S{0,8}?ชัก(?!ชวน|จูง|ธง|ช้า|ว่าว|ใย)"),
+                          re.compile(r"ปวดท้อง\S{0,4}?(?:ขวาล่าง|ด้านขวาล่าง)[^\n]{0,20}?ไข้|ไข้[^\n]{0,20}?ปวดท้อง\S{0,4}?ขวาล่าง"),
                           "เลือดออกไม่หยุด", "ปากเบี้ยว", "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
                           re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious|drowning)\b", re.I)], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
@@ -306,9 +307,13 @@ TOPICS = [
             f"โทร {HOTLINE_EMS} ตอนนี้ หรือให้คนใกล้ตัวพาไปห้องฉุกเฉิน — อย่าขับรถเอง",
             ([re.compile(r"พูดไม่ชัด|ปากเบี้ยว|ชา|อ่อนแรง")],
              "อาจเป็นหลอดเลือดสมอง (สโตรก) — ทุกนาทีมีผล ถึงโรงพยาบาลภายใน 4.5 ชั่วโมงรักษาได้ดีกว่ามาก จดเวลาที่เริ่มมีอาการ ไม่ให้กินยาหรืออาหาร"),
-            ([re.compile(r"ท้อง|ครรภ์")],
+            ([re.compile(r"ชัก(?!ชวน|จูง|ธง|ช้า|ว่าว|ใย)")],
+             f"ระหว่างชัก: จับนอนตะแคง ห้ามงัดปากหรือเอาอะไรใส่ปาก เอาของแข็งออกห่าง และจับเวลา — ชักเกิน 5 นาที ชักครั้งแรก หรือหลังชักไม่ตื่น โทร {HOTLINE_EMS}"),
+            ([re.compile(r"ท้อง\S{0,4}?ขวาล่าง|ด้านขวาล่าง")],
+             "ปวดท้องขวาล่างร่วมกับไข้ อาจเป็นไส้ติ่งอักเสบ — งดน้ำงดอาหาร และยังไม่กินยาแก้ปวดก่อนหมอตรวจ"),
+            ([re.compile(r"ตั้งครรภ์|ครรภ์|คนท้อง|ตั้งท้อง|ท้อง\s*\d+\s*(?:เดือน|สัปดาห์|วีค)")],
              "คนท้องที่มีเลือดออก น้ำเดิน ลูกไม่ดิ้น หรือปวดหัวมาก ตาพร่า บวม (อาจเป็นครรภ์เป็นพิษ) ไปโรงพยาบาลที่ฝากครรภ์ทันที นอนตะแคงซ้ายระหว่างเดินทาง"),
-            ([re.compile(r"ไข้")],
+            ([re.compile(r"(?:เด็ก|ลูก|หลาน|ทารก)[^\n]{0,14}?ไข้|ไข้[^\n]{0,14}?(?:เด็ก|ลูก)")],
              "เด็กไข้สูง: เช็ดตัวด้วยน้ำอุณหภูมิปกติ (ไม่ใช้น้ำเย็นจัด) ให้ยาลดไข้ตามน้ำหนักตัว — ถ้าซึม ชัก หายใจเร็ว หรืออายุไม่ถึง 3 เดือน ไปโรงพยาบาลเลย"),
             ([re.compile(r"ใน(?:รถ)|in (?:a |the |my )?(?:hot )?car", re.I)],
              "เด็กติดในรถ: ถ้าเปิดไม่ได้และเด็กร้อน ซึม หรือไม่ตอบสนอง ทุบกระจกด้านที่ไกลจากเด็กได้เลย แล้วพาไปที่ร่ม คลายเสื้อผ้า เช็ดตัวด้วยน้ำ"),
@@ -424,8 +429,11 @@ TOPICS = [
              "นายจ้างเลิกจ้างเพราะตั้งครรภ์ไม่ได้ตามกฎหมาย และคุณมีสิทธิ์ลาคลอดพร้อมค่าจ้าง — เก็บหลักฐานแล้วร้องเรียนได้"),
             "เก็บหลักฐาน: สัญญาจ้าง สลิปเงินเดือน แชต/อีเมลสั่งงาน บันทึกเวลาเข้า-ออก ชื่อเพื่อนร่วมงานที่รู้เรื่อง",
             f"ยื่นคำร้องฟรีที่สำนักงานสวัสดิการและคุ้มครองแรงงานจังหวัด หรือโทร {HOTLINE_LABOR} — ไม่ต้องมีทนาย",
-            ([re.compile(r"เลิกจ้าง|ไล่ออก|ค่าชดเชย")],
-             f"ทำงานครบ 120 วันขึ้นไป ถูกเลิกจ้างโดยไม่ได้ทำผิดร้ายแรง มีสิทธิ์ได้ค่าชดเชยตามอายุงาน (30–400 วันของค่าจ้าง) · ขึ้นทะเบียนว่างงานกับประกันสังคม {HOTLINE_SSO} ภายใน 30 วัน"),
+            ([re.compile(r"เลิกจ้าง|ไล่ออก|ค่าชดเชย|ปลด")],
+             "ถูกเลิกจ้างโดยไม่ได้ทำผิดร้ายแรง ได้ค่าชดเชยตามอายุงาน: 120 วัน–1 ปี = 30 วัน · 1–3 ปี = 90 วัน · 3–6 ปี = 180 วัน · "
+             "6–10 ปี = 240 วัน · 10–20 ปี = 300 วัน · 20 ปีขึ้นไป = 400 วันของค่าจ้างล่าสุด"),
+            ([re.compile(r"เลิกจ้าง|ไล่ออก|ค่าชดเชย|ปลด")],
+             f"ขึ้นทะเบียนว่างงานกับประกันสังคม {HOTLINE_SSO} ภายใน 30 วัน เพื่อรับเงินทดแทนระหว่างว่างงาน"),
             "ถ้ายังทำงานอยู่ ทวงเป็นลายลักษณ์อักษร (ข้อความ/อีเมล) ระบุยอดและงวดที่ค้าง — ได้ทั้งหลักฐานและเห็นท่าทีของนายจ้าง",
         ],
         "ask": "ค้างจ่ายรวมกี่บาท ตั้งแต่งวดไหน?",
@@ -524,6 +532,27 @@ TOPICS = [
         ],
         "ask": "อาการนี้ดีขึ้น เท่าเดิม หรือแย่ลง เมื่อเทียบกับเมื่อวาน?",
     }),
+    ("hacked", [HACKED], {
+        "open": ["บัญชีโดนแฮกกู้คืนได้ — รีบเตือนคนรู้จักก่อนเขาโอนเงิน"],
+        "paths": [
+            "บอกเพื่อนและครอบครัวทางช่องทางอื่น (โทร/แอปอื่น) ว่าบัญชีโดนแฮก ห้ามโอนเงินให้ใครที่อ้างเป็นคุณ",
+            "กู้บัญชีผ่านหน้าทางการของแอปเท่านั้น (เช่น facebook.com/hacked) แล้วเปลี่ยนรหัสผ่าน เปิดยืนยันตัวตน 2 ชั้น และออกจากระบบทุกเครื่อง",
+            f"ถ้ามีใครโอนเงินไปแล้ว: ให้คนนั้นโทรธนาคารขอระงับบัญชีปลายทาง แล้วแจ้ง {HOTLINE_SCAM} (24 ชม.)",
+        ],
+        "ask": "ตอนนี้ยังเข้าบัญชีได้อยู่ไหม และมีใครโอนเงินไปแล้วหรือยัง?",
+    }),
+    ("consumer", [CONSUMER], {
+        "open": ["เงินที่จ่ายไปแล้วยังมีทางตามคืน — เริ่มจากหลักฐานก่อน"],
+        "paths": [
+            ([re.compile(r"ประกัน|เคลม|insurance", re.I)],
+             "ขอหนังสือปฏิเสธเคลมเป็นลายลักษณ์อักษร ให้ระบุข้อในกรมธรรม์ที่ใช้ปฏิเสธ · ร้องเรียนฟรีที่ คปภ. 1186"),
+            ([re.compile(r"ออนไลน์|ร้าน|ส่งของ|ได้ของ|seller|shop|store", re.I)],
+             f"เปิดข้อพิพาทในแอปที่ซื้อ (ภายในเวลาที่แอปกำหนด) · จ่ายด้วยบัตรเครดิต ขอให้ธนาคารปฏิเสธรายการ (chargeback) · ร้องเรียน สคบ. {HOTLINE_OCPB}"),
+            "เก็บหลักฐาน: ใบเสร็จ สลิป แชตกับร้านหรือบริษัท หน้าสินค้าหรือกรมธรรม์ — แคปไว้ก่อนเขาลบ",
+            f"ถ้าร้านปิดเพจ บล็อก หรือหายไป นั่นคือการโกง แจ้ง {HOTLINE_SCAM} และแจ้งความที่ thaipoliceonline.go.th",
+        ],
+        "ask": "จ่ายเงินช่องทางไหน และเมื่อไหร่?",
+    }),
     ("lent", [LENT_OUT], {
         "open": ["เงินที่ให้ยืมไปแล้วทวงคืนได้ — เริ่มจากหลักฐานก่อน"],
         "paths": [
@@ -604,6 +633,10 @@ TOPICS = [
                   "ลงทุน", "กำไร", "ต้นทุน", "การตลาด", "วิเคราะห์ตลาด"], {
         "open": ["ธุรกิจตัดสินกันที่ตัวเลข ไม่ใช่ความรู้สึก"],
         "paths": [
+            ([re.compile(r"(?:อยาก|จะ|กำลังจะ|คิดจะ)\s*(?:เปิด|ทำ|เริ่ม)(?:ร้าน|ธุรกิจ|กิจการ)")],
+             "ก่อนเปิด แบ่งเงินเป็น 3 ก้อน: ค่าลงทุน · เงินหมุนพอจ่ายค่าเช่าและค่าแรง 6 เดือนแม้ยังขายไม่ได้ · เงินสำรองชีวิตที่ห้ามแตะ"),
+            ([re.compile(r"(?:อยาก|จะ|กำลังจะ|คิดจะ)\s*(?:เปิด|ทำ|เริ่ม)(?:ร้าน|ธุรกิจ|กิจการ)")],
+             "ลองขายแบบเล็กก่อน (ตลาดนัด ออนไลน์ หรือรถเข็น) 1–3 เดือน ให้ลูกค้าจริงตอบ ก่อนเซ็นสัญญาเช่าที่"),
             "ดูกระแสเงินสด 3 เดือนล่าสุด: เงินเข้า − เงินออก ต่อเดือน — บวกหรือลบ และลบมากี่เดือนแล้ว",
             "หาจุดคุ้มทุน: ต้นทุนคงที่ ÷ (ราคา − ต้นทุนต่อชิ้น) = ต้องขายกี่ชิ้นต่อเดือนถึงไม่ขาดทุน",
             "ทดลองเล็กก่อนลงทุนใหญ่: ขาย 10 ชิ้นแรก/ลูกค้า 10 คนแรก ให้ตลาดตอบก่อนขยาย",
@@ -616,6 +649,10 @@ TOPICS = [
                       re.compile(r"\bmy (?:wife|husband|girlfriend|boyfriend|partner) (?:left|cheated|dumped)\b|\bbroke up with me\b", re.I)], {
         "open": ["เรื่องใจไม่ต้องรีบตัดสิน"],
         "paths": [
+            ([re.compile(r"หย่า")],
+             "ลูกได้รับผลกระทบจากการเห็นพ่อแม่ทะเลาะต่อเนื่อง มากกว่าการแยกกันอย่างสงบ — ถ้าแยก ตกลงเรื่องลูกเป็นลายลักษณ์อักษร: อำนาจปกครอง ค่าเลี้ยงดู และวันเยี่ยม"),
+            ([re.compile(r"หย่า")],
+             "ปรึกษาเรื่องหย่า สินสมรส และสิทธิ์ของลูกได้ฟรีที่สภาทนายความ 1167 ก่อนตัดสินใจ"),
             "ให้เวลาตัวเอง 24–72 ชั่วโมง ก่อนตัดสินใจหรือส่งข้อความที่ย้อนกลับไม่ได้",
             "เขียนสิ่งที่อยากพูดลงกระดาษก่อน (ยังไม่ต้องส่ง) — จะเห็นว่าจริงๆ ต้องการอะไร",
             "คุยกับเพื่อน 1 คนที่ไม่เข้าข้างใคร เพื่อให้มีมุมที่สอง",
@@ -633,6 +670,16 @@ TOPICS = [
         ],
         "ask": "ลูกเคยเล่าไหมว่าที่โรงเรียนมีอะไรที่ทำให้ไม่อยากไป?",
     }),
+    ("elder_driving", [re.compile(r"(?:พ่อ|แม่|ปู่|ย่า|ตา|ยาย|ผู้สูงอายุ|คนแก่)[^\n]{0,20}?(?:ขับรถไม่ไหว|ไม่ยอมเลิกขับ|ขับรถ[^\n]{0,10}?(?:อันตราย|เฉี่ยว|ชน|หลงทาง))|"
+                                  r"\b(?:my )?(?:elderly |old |aging )?(?:dad|mom|father|mother|parent)\b[^\n]{0,30}?\b(?:won'?t stop driving|shouldn'?t be driving)\b", re.I)], {
+        "open": ["เรื่องนี้ยากเพราะการขับรถคืออิสระของเขา — คุยเรื่องความปลอดภัย ไม่ใช่เรื่องอายุ"],
+        "paths": [
+            "ให้หมอเป็นคนกลาง: พาไปตรวจสายตา การได้ยิน และยาที่กินอยู่ — คำแนะนำจากหมอมักฟังง่ายกว่าจากลูก",
+            "เตรียมทางเลือกก่อนขอให้เลิกขับ: ตารางคนในบ้านรับส่ง แอปเรียกรถ หรือรถประจำทาง — ไม่ให้เขารู้สึกว่าติดอยู่บ้าน",
+            "ถ้าเริ่มเฉี่ยวชน หลงทาง หรือขับกับหลาน ให้หยุดขับตอนนี้ก่อน แล้วค่อยคุยเรื่องระยะยาว",
+        ],
+        "ask": "ช่วงนี้มีเหตุเฉี่ยวชนหรือหลงทางเกิดขึ้นบ้างหรือยัง?",
+    }),
     ("family", ["พ่อแม่", "คุณพ่อ", "คุณแม่", "ครอบครัว", "พี่น้อง", "ที่บ้านไม่", "ลูกไม่", "ลูกของ",
                 "เลี้ยงลูก", "ญาติ", "คนที่บ้าน", _VERBAL], {
         "open": ["ครอบครัวเลือกไม่ได้ แต่ระยะห่างเลือกได้"],
@@ -649,6 +696,10 @@ TOPICS = [
                "มหาลัย", "มหาวิทยาลัย", "เกรด", "วิทยานิพนธ์", "ทีสิส", "การบ้าน"], {
         "open": ["การเรียนเป็นทางยาว — แบ่งให้สั้นลง"],
         "paths": [
+            ([re.compile(r"เรียนต่อ[^\n]{0,30}?กู้|กู้[^\n]{0,20}?เรียน")],
+             "ก่อนกู้เรียนต่อ เทียบสองฝั่ง: ค่าเรียนรวม + รายได้ที่หายไประหว่างเรียน กับเงินเดือนที่จะเพิ่มขึ้นจริงหลังจบ (ถามคนที่จบสาขานี้มาแล้ว)"),
+            ([re.compile(r"เรียนต่อ[^\n]{0,30}?กู้|กู้[^\n]{0,20}?เรียน")],
+             "หาทางที่ไม่ต้องกู้ก้อนใหญ่ก่อน: ทุนของมหาลัย ที่ทำงานช่วยจ่าย หลักสูตรภาคค่ำ/ออนไลน์ที่ทำงานไปด้วยได้"),
             (["ค่าเทอม", "กยศ"], "คุยกับฝ่ายการเงิน/กิจการนักศึกษา ขอผ่อนผันหรือแบ่งจ่ายค่าเทอม และถามทุนฉุกเฉินของสถานศึกษา "
                                  "· กยศ. ไม่ผ่าน ถามเหตุผลให้ชัดแล้วแก้เอกสารยื่นใหม่ได้"),
             "แบ่งงานเป็นก้อนละ 25–45 นาที ทำทีละก้อน พักสั้นๆ ระหว่างก้อน",
@@ -893,6 +944,21 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "hacked": ("A hacked account can be recovered — warn people first, before anyone sends money.", [
+        "Tell friends and family through another channel that you were hacked and not to send money to anyone using your name.",
+        "Recover the account only through the app's official page (e.g. facebook.com/hacked), change your password, turn on two-factor login and log out all devices.",
+        "If someone already sent money, they should call their bank to freeze the receiving account and report it (1441 in Thailand)."],
+        "Can you still log in, and has anyone already sent money?"),
+    "consumer": ("Money you've already paid can often still be recovered — start with the evidence.", [
+        "Keep receipts, transfer slips and every message with the seller or insurer — screenshot before they delete anything.",
+        "Open a dispute in the app you bought through, or ask your card issuer for a chargeback · for insurance, ask for the denial in writing with the policy clause.",
+        "If the seller vanished or blocked you, it's fraud — report it to the police (1441 in Thailand)."],
+        "How did you pay, and when?"),
+    "panic": ("A panic attack feels terrifying, but it passes — usually within 10–20 minutes.", [
+        "Breathe slowly: in through your nose for 4, hold for 4, out through your mouth for 6 — repeat until your heart slows.",
+        "Ground yourself: name 5 things you can see, 4 you can touch, 3 you can hear.",
+        "If you have chest pain spreading to your arm or jaw, trouble breathing that doesn't ease, or it's your first time and you're unsure — call emergency services (1669 in Thailand, 911 in the US)."],
+        "Is anyone near you right now who can sit with you?"),
     "lent": ("Money you lent can still be asked back — start with the evidence.", [
         "Keep the evidence: transfer slips and any messages where they admit borrowing the money.",
         "Ask in writing with the amount and a date, and offer instalments — getting it back in parts beats getting nothing.",
@@ -1334,7 +1400,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             paths = paths[:2] + [extra]
     # เรื่องด่วนมีขั้นของตัวเองครบแล้ว — ไม่แทรกข้อทั่วไปจนขั้นสำคัญ (เช่นเบอร์สายด่วน) ถูกดันตก
     urgent_main = bool(a["topics"]) and a["topics"][0] in _URGENT_TOPICS
-    if route == "survival" and not urgent_main and "basic" not in a["topics"] and not any("กิน" in p for p in paths):
+    if route == "survival" and not urgent_main and not a["disaster"] and "basic" not in a["topics"] and not any("กิน" in p for p in paths):
         paths.insert(0, "ดูแลร่างกายก่อน: กิน นอน ดื่มน้ำ และอยู่ในที่ปลอดภัย — ตัดสินใจเรื่องใหญ่หลังจากนั้น")
     if route == "collapse" and a["topics"] and not urgent_main and a["topics"][0] not in ("violence", "health_emergency", "basic"):
         paths.insert(0, "หยุดสิ่งที่ทำให้เสียหายเพิ่มก่อน (Stop the line) — ยังไม่ต้องหาทางชนะ ขอแค่ไม่แย่ลง")
@@ -1364,7 +1430,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     # "เงินเดือน 15,000" "ค่าเช่า 5,000" "รถราคา 800,000" กลายเป็นเงินคงเหลือ ≈ 100 / 33 / 5,333 วัน
     money_line = ""
     cash = _cash_on_hand(text)
-    if cash and not a["offer_flags"] and not _SPENT.search(t) and "runway" not in bridge["data"] and "debt" not in bridge["data"] and "business" not in bridge["data"]:
+    if cash and not a["offer_flags"] and not _SPENT.search(t) and "runway" not in bridge["data"] and "debt" not in bridge["data"] and "business" not in bridge["data"] and "business" not in a["topics"]:
         monthly = _monthly_expense(text)
         per_day = round(monthly / 30) if monthly else 150
         money_line = (f"\n\nเวลาที่มีจริง = เงิน ÷ รายจ่ายจำเป็นต่อวัน → {cash:,.0f} ÷ {per_day:,} ≈ {cash / per_day:,.0f} วัน"
