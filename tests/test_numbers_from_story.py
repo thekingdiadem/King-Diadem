@@ -54,3 +54,39 @@ def test_savings_use_stated_monthly_expense(monkeypatch):
 def test_business_counts_every_cost(text, expect):
     r = _business(text)
     assert r and any(expect in line for line in r["lines"]), r
+
+
+# ── งบรายเดือนของคน: เงินเดือน − รายจ่ายที่เล่ามา ─────────────────────────────
+# เดิม "เงินเดือน 25,000 ค่าเช่า 6,000 ผ่อนรถ 8,000 เหลือเก็บเท่าไหร่" ได้แค่ "แยกรายจ่ายเป็น 3 กอง" ไม่มีการลบให้
+@pytest.mark.parametrize("text,needle", [
+    ("เงินเดือน 25,000 ค่าเช่า 6,000 ผ่อนรถ 8,000 เหลือเก็บเท่าไหร่", "เหลือ 11,000 บาทต่อเดือน"),
+    ("เงินเดือน 18,000 ค่าห้อง 4500 ค่ากิน 6000 ค่าโทรศัพท์ 599 ส่งให้แม่ 3000", "4 รายการ 14,099 = เหลือ 3,901"),
+    ("เงินเดือน 15000 ใช้เดือนละ 16000", "ขาด 1,000 บาทต่อเดือน"),
+])
+def test_monthly_budget_from_story(text, needle):
+    from core.engine_bridge import analyze
+    from core.kernel_voice import compose
+    assert any(needle in l for l in analyze(text)["lines"])
+    assert needle in compose(text)
+
+
+@pytest.mark.parametrize("text", [
+    "เงินเดือน 20,000 อยากลาออก",                   # ไม่มีรายจ่าย — ไม่มีอะไรให้ลบ
+    "ได้ค่าแรงวันละ 400 ค่าเช่า 3000",               # รายได้รายวัน และค่าแรงไม่ใช่รายจ่าย
+    "ร้านกาแฟ รายได้ 50,000 ค่าเช่า 15,000",        # ร้าน → กำไรร้าน ไม่ใช่งบส่วนตัว
+])
+def test_monthly_budget_not_guessed(text):
+    from core.engine_bridge import analyze
+    assert "budget" not in analyze(text)["data"]
+
+
+def test_budget_does_not_contradict_debt_plan():
+    """มีหนี้ → แผนปลดหนี้คิดรายรับ−รายจ่ายเองแล้ว (เคยได้ "เหลือ 25,000" คู่กับ "เงินโปะไม่พอแม้แต่ดอกเบี้ย")"""
+    from core.engine_bridge import analyze
+    a = analyze("หนี้ 1.5 ล้าน ผ่อนเดือนละ 15,000 เงินเดือน 40,000 ใช้จ่าย 20,000")
+    assert "debt" in a["data"] and "budget" not in a["data"]
+
+
+def test_budget_total_spend_word():
+    from core.engine_bridge import analyze
+    assert any("เหลือ 5,000" in l for l in analyze("เงินเดือน 20,000 ใช้จ่าย 15,000 พอไหม")["lines"])
