@@ -93,6 +93,7 @@ _DEBT_CTX = re.compile(r"หนี้|ค้าง|ผ่อน|กู้|ยื
 
 
 _PCT_TH = re.compile(r"ร้อยละ\s*(\d+(?:\.\d+)?)")
+from core.thai_signals import LENT_OUT  # noqa: E402
 
 
 def parse_debts(text: str) -> list:
@@ -106,6 +107,8 @@ def parse_debts(text: str) -> list:
             continue
         if not kind or not _DEBT_CTX.search(seg):
             continue
+        if kind[0] == "ยืม" and LENT_OUT.search(text):
+            continue                    # ผู้ใช้เป็นคนให้ยืม — ไม่ใช่หนี้ของเขา
         # ของที่ "จะซื้อ" ("อยากซื้อบ้านราคา 2 ล้าน ผ่อนเดือนละ 15,000") ยังไม่ใช่หนี้ — เว้นแต่บอกว่าเป็นหนี้/ยอดค้างจริง
         if (re.search(r"ราคา|ดาวน์", seg) or _BUY_INTENT.search(text)) and not re.search(r"หนี้|ค้าง|กู้|ยืม|เหลือ|ยอด", seg):
             continue
@@ -552,6 +555,16 @@ _HAZARD_IDIOM = re.compile(r"น้ำท่วมปอด|น้ำท่ว�
 _HAZARD_HEART = re.compile(r"^\S{0,4}(?:ใน|กลาง)(?:หัว)?(?:ใจ|อก)")
 
 
+# หลังน้ำท่วม — "น้ำท่วมเมื่อวาน ตอนนี้น้ำลดแล้ว" เคยได้ "ขึ้นที่สูง" เหมือนน้ำยังท่วมอยู่
+_FLOOD_AFTER = re.compile(r"น้ำ(?:เริ่ม)?ลด(?:แล้ว|ลงแล้ว|ลง)|น้ำแห้ง(?:แล้ว)?|หลังน้ำท่วม|น้ำท่วม\S{0,10}?(?:เมื่อวาน|เมื่อคืน|อาทิตย์ที่แล้ว|สัปดาห์ที่แล้ว)|"
+                          r"\b(?:after the flood|flood(?:water)?s? (?:have|has) (?:gone|receded)|water (?:has )?(?:gone down|receded))\b", re.I)
+_FLOOD_AFTER_STEPS = [
+    "ก่อนเปิดไฟ ให้ช่างหรือการไฟฟ้าตรวจระบบไฟก่อน · ระวังงูและสัตว์มีพิษที่หลบเข้ามาในบ้าน",
+    "ล้างบ้านโดยใส่รองเท้าบูทและถุงมือ — แผลที่โดนน้ำท่วมเสี่ยงโรคฉี่หนู ถ้ามีไข้สูง ปวดน่อง ภายใน 2 สัปดาห์ ไปหาหมอและบอกว่าลุยน้ำมา",
+    "ถ่ายรูปความเสียหายก่อนซ่อมหรือทิ้งของ แล้วแจ้งผู้ใหญ่บ้าน/อบต./สำนักงานเขต เพื่อขอเงินช่วยเหลือผู้ประสบภัย · สอบถาม ปภ. 1784",
+]
+
+
 def _disaster(text: str) -> dict | None:
     hit = None
     for h in _HAZARDS:
@@ -567,6 +580,10 @@ def _disaster(text: str) -> dict | None:
     if not hit:
         return None
     kind, event, name, _, steps = hit
+    if kind == "flood" and _FLOOD_AFTER.search(text):
+        return {"lines": ["หลังน้ำลด: " + _FLOOD_AFTER_STEPS[0]] + _FLOOD_AFTER_STEPS[1:],
+                "data": {"kind": kind, "name": name, "active": False, "after": True, "threat": 0,
+                         "steps": _FLOOD_AFTER_STEPS, "place": None, "ask": None}}
     place, ask = None, None
     if kind in _HAZARD_PLACES:
         q = _hazard_place(kind, text)

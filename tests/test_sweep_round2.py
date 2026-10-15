@@ -71,7 +71,7 @@ def test_verbal_abuse_by_parent_gets_kind_words_and_hotlines():
                                        ("ปวดหัวรุนแรงที่สุดในชีวิต", "1669")])
 def test_medical_emergencies(text, word):
     a = assess(text)
-    assert a["topics"][0] == "health_emergency" and a["text_risk"] >= 85
+    assert a["topics"][0] in ("health_emergency", "swallowed") and a["text_risk"] >= 85   # กลืนเหรียญ/ถ่าน มีหัวข้อเฉพาะ
     r = compose(text)
     assert "1669" in r and word in r
 

@@ -22,7 +22,7 @@ from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAP
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
-                               MISSING_PERSON, LABOR_RIGHTS, RESIGN_BLOCKED, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
+                               MISSING_PERSON, LABOR_RIGHTS, RESIGN_BLOCKED, SWALLOWED_OBJECT, LENT_OUT, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
                                HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE,
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
@@ -112,6 +112,15 @@ TOPICS = [
             f"ถ้าตั้งใจทำร้ายตัวเอง บอกเจ้าหน้าที่ตรงๆ ได้ และหลังจากนี้คุยต่อได้ที่ {HOTLINE_MENTAL} — คุณไม่ต้องผ่านเรื่องนี้คนเดียว",
         ],
         "ask": "ตอนนี้มีใครอยู่ใกล้ตัวที่ช่วยพาไปโรงพยาบาลได้บ้าง?",
+    }),
+    ("swallowed", [SWALLOWED_OBJECT], {
+        "open": ["นี่เป็นเรื่องฉุกเฉิน แม้เด็กจะยังดูปกติ — ขอให้ทำตามนี้ก่อนนะ"],
+        "paths": [
+            f"ไปห้องฉุกเฉินตอนนี้ หรือโทร {HOTLINE_EMS} — ถ่านกระดุมและแม่เหล็กทำแผลไหม้ในหลอดอาหารได้ภายในไม่กี่ชั่วโมง ต้องให้แพทย์เอกซเรย์ดู",
+            f"ห้ามล้วงคอหรือทำให้อาเจียน งดให้อาหาร · เอาแพ็กเกจหรือถ่านแบบเดียวกันไปให้หมอดู · ระหว่างทางโทรศูนย์พิษวิทยา {HOTLINE_POISON} ได้",
+            f"ถ้าหายใจลำบาก ไอไม่หยุด น้ำลายไหลมาก หรือกลืนไม่ได้ โทร {HOTLINE_EMS} ทันทีและบอกว่าอาจมีของติดคอ",
+        ],
+        "ask": "กลืนไปตอนกี่โมง และรู้ไหมว่าเป็นถ่านแบบไหน?",
     }),
     ("household", [CHILD_HOUSEHOLD], {
         "open": ["ส่วนใหญ่ไม่อันตรายมากถ้ากินไปนิดเดียว — แต่ถามผู้เชี่ยวชาญก่อนดีที่สุด"],
@@ -425,6 +434,8 @@ TOPICS = [
         "open": ["เรื่องที่อยู่ค่อยๆ เจรจาได้ — เริ่มจากรู้สิทธิ์ของตัวเองก่อน"],
         "paths": [
             f"ถ้าคืนนี้ไม่มีที่นอน โทร {HOTLINE_SOCIAL} (24 ชม.) มีบ้านพักฉุกเฉิน",
+            ([re.compile(r"ภายใน|พรุ่งนี้|วันนี้|คืนนี้|ไล่")],
+             "เจ้าของต้องบอกกล่าวล่วงหน้าก่อน (โดยทั่วไปอย่างน้อย 1 รอบค่าเช่า หรือตามสัญญา) — บอกให้ออกภายในวันเดียว ขนของหรือล็อกห้องเองโดยไม่มีคำสั่งศาลทำไม่ได้ ขอดูสัญญาเช่าก่อน"),
             "คุยกับเจ้าของห้องเป็นลายลักษณ์อักษร ขอผ่อนค่าเช่าที่ค้างเป็นงวด ระบุยอดและวันที่จ่ายได้จริง",
             f"การล็อกห้อง ยึดของ หรือตัดน้ำไฟเพื่อบีบให้ออก อาจผิดกฎหมาย — เก็บหลักฐานแล้วปรึกษา สคบ. {HOTLINE_OCPB} หรือตำรวจ",
             "ถ้าต้องย้าย ขอเงินประกันคืนตามสัญญา และถ่ายรูปห้องตอนคืนไว้",
@@ -512,6 +523,15 @@ TOPICS = [
             "พักให้พอ ดื่มน้ำ และจดอาการเป็นช่วงเวลา จะช่วยให้แพทย์ประเมินได้ตรงขึ้น",
         ],
         "ask": "อาการนี้ดีขึ้น เท่าเดิม หรือแย่ลง เมื่อเทียบกับเมื่อวาน?",
+    }),
+    ("lent", [LENT_OUT], {
+        "open": ["เงินที่ให้ยืมไปแล้วทวงคืนได้ — เริ่มจากหลักฐานก่อน"],
+        "paths": [
+            "เก็บหลักฐาน: สลิปโอน แชตหรือข้อความที่เขายอมรับว่ายืม — ยืมเกิน 2,000 บาท ต้องมีหลักฐานเป็นหนังสือ ข้อความแชตที่เขายอมรับใช้ได้",
+            "ทวงเป็นลายลักษณ์อักษร ระบุยอดและวันที่ขอคืน และเสนอให้ผ่อนเป็นงวดได้ — ได้คืนทีละส่วนดีกว่าไม่ได้เลย",
+            "ถ้ายังไม่คืน ฟ้องเองที่ศาลแขวงได้โดยไม่ต้องมีทนาย (คดีมโนสาเร่) หรือขอไกล่เกลี่ยที่ศาลหรือที่ว่าการอำเภอก่อน",
+        ],
+        "ask": "มีสลิปโอนหรือข้อความที่เขายอมรับว่ายืมเงินไปไหม?",
     }),
     ("debt", ["หนี้", "กู้นอกระบบ", re.compile(r"ผ่อน\S{0,8}?ไม่ไหว|ยึด(?:รถ|บ้าน|ทรัพย์)|โดนยึด|ถูกยึด"), DEBT_HARASS, "ดอกเบี้ย", "บัตรเครดิต", "เจ้าหนี้", "ทวงหนี้", "เงินกู้", "กู้เงิน",
               "จ่ายไม่ไหว", "ค้างจ่าย", "ผิดนัดชำระ"], {
@@ -602,6 +622,16 @@ TOPICS = [
             "ถ้ามีการทำร้าย ข่มขู่ หรือควบคุม — นั่นไม่ใช่เรื่องความรัก แต่เป็นเรื่องความปลอดภัย",
         ],
         "ask": "ถ้าเพื่อนสนิทเจอเรื่องเดียวกันนี้ คุณจะบอกเขาว่าอะไร?",
+    }),
+    ("school_refusal", [re.compile(r"ลูก[^\n]{0,10}?(?:ไม่(?:ยอม|อยาก)ไป(?:โรงเรียน|เรียน)|ร้องไห้[^\n]{0,10}?(?:ไม่(?:ยอม)?ไป)?โรงเรียน)|"
+                                   r"\bmy (?:son|daughter|kid|child) (?:won'?t|refuses to|doesn'?t want to) go to school\b", re.I)], {
+        "open": ["เด็กที่ไม่อยากไปโรงเรียน มักมีเหตุที่ยังเล่าไม่ได้ — ฟังก่อนบังคับ"],
+        "paths": [
+            "ถามตอนที่เขาสบายใจ (ไม่ใช่ตอนเช้าที่รีบ) ว่าที่โรงเรียนมีอะไรที่ไม่อยากเจอ — เพื่อน ครู การเรียน หรือการเดินทาง",
+            "คุยกับครูประจำชั้นว่าที่โรงเรียนเห็นอะไรบ้าง · สังเกตปวดท้อง ปวดหัวตอนเช้า หรือนอนไม่หลับ ถ้าเป็นบ่อยให้หมอเด็กดู",
+            f"ถ้าเล่าว่าถูกแกล้ง ถูกทำร้าย หรือไม่อยากมีชีวิต โทรสายด่วนเด็ก {HOTLINE_CHILD} หรือ {HOTLINE_MENTAL} ได้ฟรี",
+        ],
+        "ask": "ลูกเคยเล่าไหมว่าที่โรงเรียนมีอะไรที่ทำให้ไม่อยากไป?",
     }),
     ("family", ["พ่อแม่", "คุณพ่อ", "คุณแม่", "ครอบครัว", "พี่น้อง", "ที่บ้านไม่", "ลูกไม่", "ลูกของ",
                 "เลี้ยงลูก", "ญาติ", "คนที่บ้าน", _VERBAL], {
@@ -785,7 +815,7 @@ SCAM_JOB_D = {
     "paths": [
         "งานจริงไม่เก็บเงินก่อนเริ่มงาน และไม่จ่ายเงินดีเกินจริงให้คนที่ไม่มีประสบการณ์ — "
         "ถ้าต้องจ่ายค่าสมัคร/มัดจำ/ค่าอุปกรณ์ก่อน หรือชวนทำภารกิจรับเงิน นั่นคือการหลอก",
-        ([re.compile(r"ต่างประเทศ|กัมพูชา|เมียนมา|พม่า|ดูไบ")],
+        ([re.compile(r"ต่างประเทศ|กัมพูชา|เมียนมา|พม่า|ดูไบ|ญี่ปุ่น|เกาหลี|ไต้หวัน|อิสราเอล|ยุโรป|ออสเตรเลีย|นายหน้า|ค่าหัว")],
          f"งานต่างประเทศ ตรวจกับกรมการจัดหางาน {HOTLINE_JOBS} ก่อนทุกครั้ง — นายหน้าเถื่อนมักยึดพาสปอร์ตและบังคับให้ทำงานหลอกคนอื่น "
          f"ถ้าคนรู้จักไปแล้วติดต่อไม่ได้ โทร {HOTLINE_POLICE}"),
         "ค้นชื่อบริษัท/เบอร์/บัญชีที่ให้โอนในอินเทอร์เน็ต และตรวจทะเบียนบริษัทกับกรมพัฒนาธุรกิจการค้า (1570)",
@@ -863,6 +893,16 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "lent": ("Money you lent can still be asked back — start with the evidence.", [
+        "Keep the evidence: transfer slips and any messages where they admit borrowing the money.",
+        "Ask in writing with the amount and a date, and offer instalments — getting it back in parts beats getting nothing.",
+        "If they still won't pay, small-claims court is usually possible without a lawyer (in Thailand: the district court, or mediation first)."],
+        "Do you have a transfer slip or a message where they admit they borrowed it?"),
+    "swallowed": ("This is an emergency even if your child seems fine right now.", [
+        "Go to the emergency room now or call your emergency number (1669 in Thailand, 911 in the US) — button batteries and magnets can burn the food pipe within hours and need an X-ray.",
+        "Don't make them vomit and don't give food · bring the battery packaging or a matching one for the doctor.",
+        "If they struggle to breathe, keep coughing, drool a lot or can't swallow, call emergency services immediately and say something may be stuck."],
+        "What time did they swallow it, and do you know what kind of battery or object it was?"),
     "resign_block": ("Quitting is your right — nobody can hold you in a job.", [
         "Resign in writing (email or letter) with the date it takes effect, and keep a copy — give the notice your contract or local law requires.",
         "A threat to sue doesn't take that right away — an employer can only claim damages for a real, provable breach of contract (for example a training bond you signed). Read your own contract first.",
@@ -1005,12 +1045,12 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("overdose", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("overdose", "swallowed", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
@@ -1273,7 +1313,10 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             _d = bridge_analyze(text)["data"]
         except Exception:
             _d = {}
-        if (_d.get("earth") or {}).get("steps"):
+        if (_d.get("disaster") or {}).get("after"):     # หลังน้ำลด — ขั้นหลังภัยเป็นทางหลัก ไม่ใช่ "เขียนเป็นประโยคเดียว"
+            main, second = {"open": ["น้ำลดแล้วคือช่วงที่ต้องระวังอีกแบบ — ไฟ โรค และการขอความช่วยเหลือ"],
+                            "paths": _d["disaster"]["steps"], "ask": "ตอนนี้ทุกคนในบ้านมีที่พักและน้ำสะอาดใช้แล้วหรือยัง?"}, None
+        elif (_d.get("earth") or {}).get("steps"):
             e = _d["earth"]
             main, second = {"open": [f"เรื่อง{e['name']}มีทาง{'ที่ไม่ต้องทิ้งลงน้ำ' if e.get('kind') == 'water_dumping' else 'ที่ไม่ต้องเผา'} และหลายทางประหยัดกว่าด้วย" if e["self"]
                                      else "ควันหรือของเสียจากคนอื่นกระทบคุณได้ — ป้องกันตัวเองก่อน แล้วค่อยแจ้ง"],
