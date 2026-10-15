@@ -93,6 +93,7 @@ _DEBT_CTX = re.compile(r"หนี้|ค้าง|ผ่อน|กู้|ยื
 
 
 _PCT_TH = re.compile(r"ร้อยละ\s*(\d+(?:\.\d+)?)")
+from core.thai_signals import LENT_OUT  # noqa: E402
 
 
 def parse_debts(text: str) -> list:
@@ -105,6 +106,11 @@ def parse_debts(text: str) -> list:
             pending = kind                  # "ผ่อน|บ้านเดือนละ ..." — คำว่าผ่อนอยู่ก่อนช่วงนี้
             continue
         if not kind or not _DEBT_CTX.search(seg):
+            continue
+        if kind[0] == "ยืม" and LENT_OUT.search(text):
+            continue                    # ผู้ใช้เป็นคนให้ยืม — ไม่ใช่หนี้ของเขา
+        # เงินกู้ที่ยังไม่ได้กู้ ("อยากเรียนต่อ แต่ต้องกู้ 300,000") ยังไม่ใช่หนี้ — เดิมคิดดอก 18% ให้
+        if re.search(r"(?:อยาก|จะ|ต้อง|ถ้า|กำลังจะ|คิดจะ|ควร)\s*กู้", text) and kind[0] in ("กู้", "หนี้") and not re.search(r"หนี้|ค้าง|เหลือ|ยอด|ผ่อนอยู่|กู้มาแล้ว|กู้ไปแล้ว", seg):
             continue
         # ของที่ "จะซื้อ" ("อยากซื้อบ้านราคา 2 ล้าน ผ่อนเดือนละ 15,000") ยังไม่ใช่หนี้ — เว้นแต่บอกว่าเป็นหนี้/ยอดค้างจริง
         if (re.search(r"ราคา|ดาวน์", seg) or _BUY_INTENT.search(text)) and not re.search(r"หนี้|ค้าง|กู้|ยืม|เหลือ|ยอด", seg):
@@ -552,6 +558,16 @@ _HAZARD_IDIOM = re.compile(r"น้ำท่วมปอด|น้ำท่ว�
 _HAZARD_HEART = re.compile(r"^\S{0,4}(?:ใน|กลาง)(?:หัว)?(?:ใจ|อก)")
 
 
+# หลังน้ำท่วม — "น้ำท่วมเมื่อวาน ตอนนี้น้ำลดแล้ว" เคยได้ "ขึ้นที่สูง" เหมือนน้ำยังท่วมอยู่
+_FLOOD_AFTER = re.compile(r"น้ำ(?:เริ่ม)?ลด(?:แล้ว|ลงแล้ว|ลง)|น้ำแห้ง(?:แล้ว)?|หลังน้ำท่วม|น้ำท่วม\S{0,10}?(?:เมื่อวาน|เมื่อคืน|อาทิตย์ที่แล้ว|สัปดาห์ที่แล้ว)|"
+                          r"\b(?:after the flood|flood(?:water)?s? (?:have|has) (?:gone|receded)|water (?:has )?(?:gone down|receded))\b", re.I)
+_FLOOD_AFTER_STEPS = [
+    "ก่อนเปิดไฟ ให้ช่างหรือการไฟฟ้าตรวจระบบไฟก่อน · ระวังงูและสัตว์มีพิษที่หลบเข้ามาในบ้าน",
+    "ล้างบ้านโดยใส่รองเท้าบูทและถุงมือ — แผลที่โดนน้ำท่วมเสี่ยงโรคฉี่หนู ถ้ามีไข้สูง ปวดน่อง ภายใน 2 สัปดาห์ ไปหาหมอและบอกว่าลุยน้ำมา",
+    "ถ่ายรูปความเสียหายก่อนซ่อมหรือทิ้งของ แล้วแจ้งผู้ใหญ่บ้าน/อบต./สำนักงานเขต เพื่อขอเงินช่วยเหลือผู้ประสบภัย · สอบถาม ปภ. 1784",
+]
+
+
 def _disaster(text: str) -> dict | None:
     hit = None
     for h in _HAZARDS:
@@ -567,6 +583,10 @@ def _disaster(text: str) -> dict | None:
     if not hit:
         return None
     kind, event, name, _, steps = hit
+    if kind == "flood" and _FLOOD_AFTER.search(text):
+        return {"lines": ["หลังน้ำลด: " + _FLOOD_AFTER_STEPS[0]] + _FLOOD_AFTER_STEPS[1:],
+                "data": {"kind": kind, "name": name, "active": False, "after": True, "threat": 0,
+                         "steps": _FLOOD_AFTER_STEPS, "place": None, "ask": None}}
     place, ask = None, None
     if kind in _HAZARD_PLACES:
         q = _hazard_place(kind, text)
@@ -887,6 +907,48 @@ def _budget(text: str) -> dict | None:
     if 0 < left < income * 0.1:
         lines.append("เหลือไม่ถึง 10% ของรายรับ — ถ้ามีเหตุไม่คาดคิด (ป่วย ซ่อมรถ) จะไม่มีกันชน")
     return {"lines": lines, "data": {"income": income, "spend": spend, "left": left, "items": len(items) or 1}}
+
+
+# ภาษาอังกฤษ: "I earn 3000 a month, rent 1200, car loan 500" — เดิมได้ "Write what happened in one sentence"
+_EN_INCOME = re.compile(r"\b(?:i\s+(?:earn|make|take home|get paid)|my\s+(?:salary|income|pay)\s+is|salary(?:\s+is)?|income(?:\s+is)?)"
+                        r"\s*(?:of\s+|about\s+|around\s+)?\$?\s*(\d[\d,]*(?:\.\d+)?)\s*(k)?\b", re.I)
+_EN_NOT_MONTHLY = re.compile(r"\b(?:a|per|an)\s+(?:year|hour|day|week)\b|\b(?:annually|yearly|hourly|weekly|daily)\b|/\s*(?:yr|year|hr|hour|day|wk|week)\b", re.I)
+_EN_SPEND_ITEM = re.compile(r"\b(rent|mortgage|car (?:loan|payment)|student loan|loan|bills?|utilities|food|groceries|phone|insurance|"
+                            r"childcare|tuition|credit card|transport(?:ation)?|gas|electricity|internet)\b"
+                            r"\s*(?:is|of|:|=|costs?|about|around)?\s*\$?\s*(\d[\d,]*(?:\.\d+)?)\s*(k)?\b", re.I)
+_EN_SPEND_TOTAL = re.compile(r"\b(?:i\s+spend|my\s+expenses\s+are|expenses(?:\s+are)?|spending(?:\s+is)?)\s*(?:about\s+|around\s+)?\$?\s*(\d[\d,]*(?:\.\d+)?)\s*(k)?\b", re.I)
+
+
+def _en_num(m, g=1) -> float:
+    return float(m.group(g).replace(",", "")) * (1000 if (m.group(g + 1) or "") else 1)
+
+
+def budget_en(text: str) -> dict | None:
+    """งบรายเดือนภาษาอังกฤษ: {"line", "left", "income", "spend"} หรือ None"""
+    text = str(text or "")
+    m = _EN_INCOME.search(text)
+    if not m or _EN_NOT_MONTHLY.search(text):
+        return None
+    income = _en_num(m)
+    tot = _EN_SPEND_TOTAL.search(text)
+    if tot:
+        spend, n = _en_num(tot), 1
+    else:
+        seen, vals = set(), []
+        for it in _EN_SPEND_ITEM.finditer(text):
+            k = it.group(1).lower()
+            if k not in seen:
+                seen.add(k)
+                vals.append(_en_num(it, 2))
+        spend, n = sum(vals), len(vals)
+    if income <= 0 or spend <= 0:
+        return None
+    left = income - spend
+    head = f"Income {income:,.0f} − " + (f"the {n} costs you listed " if n > 1 else "costs ") + f"{spend:,.0f}"
+    line = (f"{head} = {left:,.0f} left each month (≈ {_pct(left / income)} of income)" if left > 0 else
+            f"{head} = short by {abs(left):,.0f} each month — costs are higher than income" if left < 0 else
+            f"{head} = exactly 0 — nothing left over as a cushion")
+    return {"line": line, "left": left, "income": income, "spend": spend}
 
 
 def analyze(text: str) -> dict:
