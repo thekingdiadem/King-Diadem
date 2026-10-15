@@ -505,6 +505,15 @@ def _quota_status(email: str, request: Request) -> dict:
         "run_cost":  RUN_COST,
     }
 
+_STATE_KEYS = ("energy", "sleep_hours", "mental_state", "food_access", "safe_place", "days_in_crisis", "money")
+
+
+def _has_user_state(ctx) -> bool:
+    """ผู้ใช้กรอก "สถานะของฉัน" จริงไหม — หน้าเว็บส่ง context ทุกครั้ง (client_voice, tone_notes, route_ui)
+    เดิมเช็กแค่ว่า context ไม่ว่าง: คนที่ไม่เคยกรอกได้ W 100 / STABLE ทุกข้อความ และถูกบันทึกลงกราฟ waterline"""
+    return isinstance(ctx, dict) and any(ctx.get(k) is not None for k in _STATE_KEYS)
+
+
 def _urgent_text(text: str) -> bool:
     """ข้อความที่ต้องได้คำตอบเสมอแม้โควตาหมด: วิกฤต/ทำร้ายตัวเอง หรือความเสี่ยงจากข้อความ ≥ 75
     (ถูกทำร้าย ไม่มีข้าวกิน กินยาเกินขนาด ฯลฯ) — กฎตายตัว ไม่ใช้ AI"""
@@ -1438,7 +1447,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         try: human_state = analyze_human(data.get("context", {})) or human_state
         except Exception: pass
         # บันทึก waterline รายคนเฉพาะตอนผู้ใช้ส่งสถานะมาเอง — ค่าตั้งต้นไม่ใช่สภาพจริงของเขา
-        if data.get("context") and isinstance(data.get("context"), dict) and "waterline" in human_state:
+        if _has_user_state(data.get("context")) and "waterline" in human_state:
             try:
                 from DATABASE.db import record_waterline
                 record_waterline(email, human_state["waterline"], human_state.get("status", ""))
@@ -1480,13 +1489,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     k_assess, offer_ctx = {}, ""
     if kernel_assess:
         try:
-            k_assess = kernel_assess(user_input, human_state if data.get("context") else None) or {}
+            k_assess = kernel_assess(user_input, human_state if _has_user_state(data.get("context")) else None) or {}
         except Exception as e:
             print(f"⚠ kernel_assess: {type(e).__name__}")
     # [Risk: LOW] จากสถานะร่างกาย ขัดกับข้อความที่เสี่ยงชัด → บอก LLM ระดับจากข้อความแทน
     risk_ctx = _risk_ctx_from_text(risk_ctx, k_assess.get("text_risk", 0) or 0)
     # ถูกทำร้าย/ถูกควบคุมในความสัมพันธ์ → เส้นทางความเสี่ยง (ความปลอดภัยมาก่อน)
     rel_ctx = ""
+    prior_kind, prior_text = "", ""          # เรื่องฉุกเฉินที่เล่าไว้ก่อนหน้าในแชทนี้ (ถ้ามี)
     if k_assess.get("relationship") in ("collapse_risk", "critical"):
         if route not in ("vega",):
             route = _escalate_route(route, "risk")
@@ -1503,7 +1513,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                         "harm_others": "ความโกรธจนอยากทำร้ายคนอื่น", "elder_abuse": "ผู้สูงอายุถูกทำร้าย/ทอดทิ้ง",
                         "weapon": "ปืน/อาวุธในบ้าน", "sextortion": "ถูกขู่/ภาพส่วนตัวถูกเผยแพร่", "first_aid": "การบาดเจ็บ",
                         "drunk_drive": "เมาแล้วขับ", "theft": "การถูกขโมย", "threat": "การถูกข่มขู่"}
-        prior_risk, prior_kind, urgent_what = 0, "", ""
+        prior_risk, prior_kind, urgent_what, prior_text = 0, "", "", ""
         if kernel_assess:
             past = history[-8:] if isinstance(history, list) else []      # history มาจาก client — อาจไม่ใช่ list
             for h in [h for h in past if isinstance(h, dict) and h.get("role") == "user"]:
@@ -1522,6 +1532,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                         else "")
                 if kind and pa.get("text_risk", 0) >= prior_risk:
                     prior_risk, prior_kind = pa.get("text_risk", 0), kind
+                    prior_text = str(h.get("content") or "")[:2000]
                     if kind == "urgent":
                         urgent_what = (str((pa.get("disaster") or {}).get("name") or "") or
                                        ("การถูกโกง" if pa.get("scam") else
@@ -1567,6 +1578,9 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             # ความกังวลยังอยู่ แต่ลดลงตามเวลา — Risk = 0.75 × Risk ของสิ่งที่เล่าไว้
             k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
     # สภา 6 เสียงไม่เหมาะกับเรื่องฉุกเฉิน (กินยาเกินขนาด ถูกทำร้าย ภัยพิบัติ ฯลฯ) — ให้ LYLA ตอบขั้นช่วยเหลือทันที
+    # รวมถึงข้อความที่ตอบต่อจากเรื่องฉุกเฉินก่อนหน้า ("ขอความเห็นสภา ควรลาออกไหม" ต่อจาก "อยากตาย" เคยได้ "มติ 6/6 เดินหน้าได้")
+    if vm == "council" and prior_kind:
+        vm = "lyla"
     if vm == "council" and k_assess:
         try:
             from core.kernel_voice import council_unsuitable
@@ -1928,9 +1942,12 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             "status":        "SUCCESS",
             "route":         k_route,
             # สถานะร่างกายใช้เฉพาะเมื่อผู้ใช้ส่งมาจริง — context ว่างให้ค่า W 100/Risk 0 ที่ไม่จริง
+            # ไม่มี AI: ข้อความสั้นที่ตอบต่อจากเรื่องฉุกเฉิน ต้องได้คำตอบของเรื่องนั้น (เบอร์ช่วยเหลือ)
+            # — เดิม kernel เห็นแค่ "ไม่เป็นไรแล้ว" จึงตอบทั่วไป "W 100 · Risk 0" ไม่มี 1323
             "ai_response":   _with_gate_questions(
-                                 kernel_compose(user_input, route=k_route, voice_mode=vm,
-                                                pattern=human_state if data.get("context") else None),
+                                 kernel_compose((prior_text + "\n" + user_input) if prior_kind else user_input,
+                                                route=k_route, voice_mode=vm,
+                                                pattern=human_state if _has_user_state(data.get("context")) else None),
                                  vega_gates),
             "answer_source": "kernel",
         })
@@ -2059,7 +2076,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 if kernel_compose:
                     try:
                         fallback = kernel_compose(user_input, route=b_route, voice_mode=vm,
-                                                  pattern=human_state if data.get("context") else None)
+                                                  pattern=human_state if _has_user_state(data.get("context")) else None)
                         source = "kernel"
                     except Exception as _kc:
                         print(f"⚠ kernel_compose after canon block: {type(_kc).__name__}")
