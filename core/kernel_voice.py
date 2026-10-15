@@ -880,6 +880,19 @@ def _money_plan(text: str) -> bool:
     return not b or b["data"]["left"] > 0
 
 
+_FAMILY_WITNESS = re.compile(
+    r"(?:พ่อ|แม่|พ่อเลี้ยง|แม่เลี้ยง|สามีแม่|แฟนแม่|ลุง|น้า|อา|พี่ชาย)[^\n]{0,12}?(?:ตี|ทำร้าย|ตบ|ต่อย|ทุบ|เตะ|บีบคอ)\s*(?:แม่|พ่อ|ยาย|ย่า|น้อง|พี่สาว)(?!เลี้ยง)|"
+    r"(?:แม่|พ่อ|น้อง|ยาย|ย่า)\s*(?:โดน|ถูก)\s*(?:พ่อ|แม่|พ่อเลี้ยง|แม่เลี้ยง|สามี)[^\n]{0,8}?(?:ตี|ทำร้าย|ตบ|ต่อย|ทุบ|เตะ)")
+FAMILY_WITNESS = {
+    "open": ["การเห็นคนในบ้านถูกทำร้ายหนักมาก — และไม่ใช่ความผิดของคุณ"],
+    "paths": [
+        f"ตอนที่เกิดขึ้น: ไปอยู่ห้องที่ล็อกได้หรือบ้านเพื่อนบ้าน อย่าเข้าไปห้ามเอง แล้วโทร {HOTLINE_POLICE} — แจ้งได้โดยไม่ต้องบอกชื่อ",
+        f"โทร {HOTLINE_SOCIAL} (24 ชม.) — ช่วยคนที่ถูกทำร้ายหาที่พักปลอดภัยได้ · อายุไม่ถึง 18 ปี โทรสายด่วนเด็ก {HOTLINE_CHILD} ได้ด้วย",
+        "บอกผู้ใหญ่ที่ไว้ใจหนึ่งคน (ญาติ ครู) และจดวันเวลาที่เกิดไว้ — ถ้าเขาเมาแล้วทำซ้ำ เรื่องนี้แก้ไม่ได้ด้วยการอดทน",
+    ],
+    "ask": "ตอนนี้คุณกับคนที่ถูกทำร้ายอยู่ในที่ปลอดภัยไหม?",
+}
+
 TEACHER_HARM = {
     "open": ["ครูตีหรือทำร้ายเด็กไม่ได้ตามระเบียบ — คุณมีสิทธิ์ปกป้องลูก"],
     "paths": [
@@ -1254,6 +1267,10 @@ _TOPIC_RISK = {"swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
+_WITHDRAWAL = re.compile(r"(?:เลิก|หยุด|ขาด)(?:เหล้า|สุรา|ดื่ม)[^\n]{0,24}?(?:ลงแดง|มือสั่น|ตัวสั่น|ชัก|เห็นภาพหลอน|ประสาทหลอน|เหงื่อแตก)|"
+                         r"(?:ลงแดง|มือสั่น|ตัวสั่น)[^\n]{0,16}?(?:เลิก|หยุด|ขาด)(?:เหล้า|สุรา|ดื่ม)|ลงแดงเหล้า|"
+                         r"\b(?:alcohol withdrawal|withdrawal (?:shakes|seizure)|delirium tremens)\b|\bstopped drinking\b[^\n]{0,30}?\bshak", re.I)
+_DENGUE_WARN = re.compile(r"ไข้เลือดออก[^\n]{0,30}?(?:เกล็ดเลือดต่ำ|เลือดออก(?!ก)|ปวดท้อง|อาเจียน|ซึม|มือเท้าเย็น)|\bdengue\b[^\n]{0,30}?\b(?:low platelets?|bleeding|vomiting)\b", re.I)
 
 
 def assess(text: str, pattern: dict | None = None) -> dict:
@@ -1303,6 +1320,11 @@ def assess(text: str, pattern: dict | None = None) -> dict:
         text_risk = max(text_risk, 95)
     if any(x in topics for x in ("violence", "health_emergency", "overdose", "sexual_abuse", "someone")):
         text_risk = max(text_risk, 90 if "someone" in topics else 85)
+    # อาการขาดสุรา (ชักได้) · ไข้เลือดออกที่เกล็ดเลือดต่ำ/มีอาการเตือน — เดิม Risk 0 จึงไม่ได้ตอบฟรีตอนโควตาหมด
+    if _WITHDRAWAL.search(t):
+        text_risk = max(text_risk, 75)
+    if _DENGUE_WARN.search(t):
+        text_risk = max(text_risk, 75)
     for name, lvl in _TOPIC_RISK.items():
         if name in topics:
             text_risk = max(text_risk, lvl)
@@ -1505,6 +1527,9 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = SCAM_JOB_D, None
     elif a["scam"] and set(a["scam"]) <= {"romance", "lost"}:  # หลอกให้รัก/แอบอ้างเป็นเพื่อน
         main, second = SCAM_ROMANCE_D, None
+    elif _FAMILY_WITNESS.search(text):
+        # "พ่อเมาแล้วตีแม่ทุกคืน" เคยได้ "ความปลอดภัยของคุณมาก่อน · บาดเจ็บโทร 1669" — ผู้ใช้คือลูกที่เห็นเหตุการณ์
+        main, second = FAMILY_WITNESS, None
     elif re.search(r"(?:ลูก|หลาน)[^\n]{0,8}?(?:โดน|ถูก)ครู[^\n]{0,8}?(?:ตี|ทำร้าย|ตบ|ลงโทษ|หยิก|ด่า)", text):
         # "ลูกโดนครูตี" เคยได้ "ความปลอดภัยของคุณมาก่อน · ออกไปอยู่ที่ที่มีคนอื่นแล้วโทร 191" — ผู้ใช้คือพ่อแม่ ไม่ใช่ผู้ถูกทำร้าย
         main, second = TEACHER_HARM, None

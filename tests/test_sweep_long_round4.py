@@ -35,3 +35,30 @@ def test_teacher_case_is_not_addressed_as_the_victim():
 
 def test_raise_request_is_not_savings_advice():
     assert "หักเงินเก็บทันที" not in compose("อยากขอเงินเดือนขึ้น ควรพูดยังไง")
+
+
+@pytest.mark.parametrize("text", ["อยากเลิกเหล้า แต่ลงแดง มือสั่น", "เป็นไข้เลือดออก เกล็ดเลือดต่ำ"])
+def test_withdrawal_and_dengue_warning_are_answered_after_quota(client, app_module, text):
+    """เดิม Risk 0 — โควตาหมดแล้วได้หน้าจ่ายเงิน ทั้งที่อาการขาดสุราชักได้ และไข้เลือดออกช็อกได้"""
+    from core.kernel_voice import assess
+    assert assess(text)["text_risk"] >= 75
+    for i in range(app_module.FREE_DAILY_RUNS):
+        client.post("/run", json={"input": f"ทำงานเหนื่อย {i}"})
+    r = client.post("/run", json={"input": text})
+    assert r.status_code == 200 and r.json().get("answer_source") == "kernel"
+
+
+def test_dengue_without_warning_signs_is_not_escalated():
+    from core.kernel_voice import assess
+    assert assess("เป็นไข้เลือดออกหายแล้ว")["text_risk"] < 75
+
+
+@pytest.mark.parametrize("text", ["พ่อเมาแล้วตีแม่ทุกคืน", "แม่โดนพ่อเลี้ยงตบ"])
+def test_child_witnessing_violence_at_home(text):
+    """เดิมตอบเหมือนผู้ใช้เป็นคนถูกตี ("ความปลอดภัยของคุณมาก่อนทุกเรื่อง · บาดเจ็บโทร 1669")"""
+    out = compose(text)
+    assert "เห็นคนในบ้านถูกทำร้าย" in out and "อย่าเข้าไปห้ามเอง" in out and "1387" in out
+
+
+def test_user_being_hit_is_still_safety():
+    assert "ความปลอดภัยของคุณมาก่อน" in compose("พ่อตีผม")
