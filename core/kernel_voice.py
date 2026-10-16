@@ -1787,6 +1787,18 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     tag = "\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if footer else ""
     t = text.lower()
 
+    # ── ภาษาเอเชียที่มีคำตอบเรื่องด่วนของตัวเอง (พม่า เขมร ลาว เวียดนาม ฮินดี ฯลฯ) ──
+    if world_urgent(text):
+        from core.asia_replies import asia_lang, compose_asia
+        al = asia_lang(text)
+        kind = ("crisis" if a["crisis"] else "medical" if "health_emergency" in a["topics"]
+                else "violence" if "violence" in a["topics"] else "help" if "help" in a["topics"] else None)
+        if al and kind:
+            st = f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = 3"
+            out = compose_asia(al, kind, st, sign, footer)
+            if out:
+                return out
+
     # ── ภาษาอื่น: สมการเดียวกัน (W · Risk · Choice) แต่ใช้คำตอบของภาษานั้น ──
     lang = detect_lang(text)
     if lang != "th":

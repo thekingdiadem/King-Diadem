@@ -416,7 +416,12 @@ WORLD = {
     "my": ["သေချင်တယ်", "အမေ အသက်မရှူနိုင်ဘူး", "ယောကျ်ားက ရိုက်တယ်"], "km": ["ខ្ញុំចង់ស្លាប់", "ម្តាយខ្ញុំដកដង្ហើមមិនចេញ", "ប្តីវាយខ្ញុំ"],
     "lo": ["ຂ້ອຍຢາກຕາຍ", "ແມ່ຫາຍໃຈບໍ່ໄດ້", "ຜົວຕີຂ້ອຍ"], "it": ["voglio morire", "mia madre non respira", "mio marito mi picchia"],
     "tr": ["ölmek istiyorum", "annem nefes almıyor", "kocam beni dövüyor"],
+    "ne": ["मलाई मर्न मन लाग्छ", "आमाले सास फेर्न सक्दैन", "श्रीमान्ले मलाई कुट्छ"], "bn": ["আমি মরে যেতে চাই", "মা শ্বাস নিতে পারছে না", "স্বামী আমাকে মারে"],
+    "ur": ["میں مرنا چاہتا ہوں", "امی سانس نہیں لے رہی", "شوہر مجھے مارتا ہے"], "ta": ["நான் சாக வேண்டும்", "அம்மா மூச்சு விடவில்லை", "கணவர் என்னை அடிக்கிறார்"],
+    "si": ["මට මැරෙන්න ඕනේ", "අම්මා හුස්ම ගන්නේ නැහැ", "මහත්තයා මට ගහනවා"], "fa": ["میخوام بمیرم", "مادرم نفس نمی‌کشد", "شوهرم منو می‌زنه"],
 }
+# ภาษาเอเชียที่ต้องได้คำตอบในภาษาของตัวเอง (core/asia_replies.py) ไม่ใช่ภาษาอังกฤษ
+WORLD_NATIVE = ("my", "km", "lo", "vi", "id", "ms", "tl", "hi", "ne", "bn", "ur", "ta", "si", "fa", "ar", "tr")
 WORLD_HELP = ["救命", "助けて", "살려주세요", "ayuda", "cứu tôi với", "tolong saya", "tulong", "au secours", "hilfe", "socorro", "помогите",
               "النجدة", "बचाओ", "ကယ်ပါ", "ជួយផង", "ຊ່ວຍແດ່", "aiuto", "imdat"]
 WORLD_FRAME = ["{x}", "{x}!!", "{x} ...", "{x} 😭", "{x}?"]
@@ -429,6 +434,12 @@ def world(n=0):
     cases = [(f.format(x=x), 60) for xs in WORLD.values() for x in xs for f in WORLD_FRAME]
     cases += [(f.format(x=x), 50) for x in WORLD_HELP for f in WORLD_FRAME]
     bad = [t for t, need in cases if assess(t)["text_risk"] < need]
+    from core.asia_replies import REPLY
+    openers = {lg: {r[0] for r in REPLY[lg].values()} for lg in WORLD_NATIVE}
+    for lg in WORLD_NATIVE:
+        for x in WORLD[lg]:
+            if compose(x).split("\n")[0] not in openers[lg]:
+                bad.append(f"(ไม่ได้ตอบเป็นภาษา {lg}) {x}")
     bad += [f"(ธรรมดา) {t}" for t in WORLD_CALM if assess(t)["text_risk"] >= 50]
     return len(cases) + len(WORLD_CALM), bad
 
