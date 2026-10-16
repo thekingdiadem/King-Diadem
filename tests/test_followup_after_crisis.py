@@ -44,3 +44,14 @@ def test_followup_risk_in_reply_matches_details(client, monkeypatch, hist, text)
     d = client.post("/run", json={"input": text, "history": [{"role": "user", "content": hist}]}).json()
     shown = re.search(r"Risk (\d+)", d["ai_response"])
     assert shown and int(shown.group(1)) == round(d["risk_score"])
+
+
+@pytest.mark.parametrize("prior,reply,need", [
+    ("ถูกนายจ้างขังไว้ในโรงงาน", "ค่ะ", "191"),
+    ("เพื่อนบอกว่าจะฆ่าตัวตาย", "ไม่มีใคร", "1323"),
+    ("เพื่อนบอกว่าจะฆ่าตัวตาย", "โอเค", "1323"),
+    ("ลูกกลืนถ่านกระดุม", "แล้วไงต่อ", "1669"),
+])
+def test_offline_short_reply_keeps_the_urgent_topic(client, no_ai, prior, reply, need):
+    d = _run(client, reply, prior)
+    assert need in d["ai_response"] and "Risk 0" not in d["ai_response"]
