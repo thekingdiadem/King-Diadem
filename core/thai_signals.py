@@ -191,7 +191,7 @@ SELF_HARM_WARNING = re.compile(
 # เดิม "กินยาเกินขนาดไป" = หัวข้อสุขภาพทั่วไป Risk 45 ไม่มีเบอร์ฉุกเฉิน
 OVERDOSE = re.compile(
     # "กินยาคุมเกินไป 1 เม็ด" ไม่ใช่ยาเกินขนาดฉุกเฉิน · "ลูกกินยาพาราไป 10 เม็ด" เคยไม่ติด (มีชื่อยาคั่น)
-    r"กินยา(?:\S{0,6})?เกิน(?:ขนาด)?(?!\S{0,4}\s*[12]\s*เม็ด)|"
+    r"กินยา(?:\S{0,6})?เกิน(?:ขนาด)?(?!\S{0,4}\s*[12]\s*เม็ด)(?!(?:ไหม|มั้ย|หรือเปล่า|รึเปล่า)?[^\n]{0,24}?(?<!\d)[1-3]\s*เม็ด)|"
     r"(?:เด็ก|ลูก|หลาน)\S{0,6}กินยา\S{0,12}?(?:หลายเม็ด|ทั้งแผง|หมดแผง|ไปเยอะ|ทั้งขวด)|"
     r"(?i:\b(?:swallowed|drank|ate) (?:some )?(?:bleach|detergent|poison|pesticide|a battery|button battery|pills)\b)|"
     r"(?i:\b(?:swallowed|drank|ate) (?:some )?(?:rat poison|rodenticide|antifreeze|weed ?killer|insecticide|paraquat)\b)|"
@@ -202,7 +202,7 @@ OVERDOSE = re.compile(
     r"(?:กิน|กลืน)ยา\S{0,12}?ไป(?:เยอะ|หลายเม็ด|หลายแผง)[^\n]{0,20}?(?:มึน|ง่วงมาก|ซึม|ใจสั่น|อาเจียน|อ้วก|หายใจ|ไม่ค่อยรู้สึกตัว|ตาลาย|เบลอ)|"
     r"\b(?:took|swallowed|ate) (?:a |the |my )?(?:whole|entire) (?:bottle|pack|box|strip) of (?:pills|tablets|meds|sleeping pills|painkillers)\b|"
     r"(?:กิน|ดื่ม|กลืน)(?:ยา)?(?:ฆ่าหญ้า|พาราควอต|ไกลโฟเซต|เบื่อหนู)|"
-    r"(?:กิน|ดื่ม|กลืน)(?:ยาฆ่าแมลง|ยาเบื่อ|น้ำยา(?:ล้าง|ซัก|ฟอก)|สารพิษ|ยาพิษ|น้ำมัน|ผงซักฟอก|เม็ดซักผ้า|ไฮเตอร์|ทินเนอร์|น้ำยาถูพื้น)|เด็ก\S{0,8}?กลืน|\boverdos|"
+    r"(?:กิน|ดื่ม|กลืน)(?:ยาฆ่าแมลง|ยาเบื่อ|น้ำยา(?:ล้าง|ซัก|ฟอก)|สารพิษ|ยาพิษ|น้ำมัน|ผงซักฟอก|เม็ดซักผ้า|ไฮเตอร์|ทินเนอร์|น้ำยาถูพื้น)|เด็ก\S{0,8}?กลืน|\boverdos(?!\w*\s+(?:of|on)\s+(?:coffee|caffeine|sugar|cuteness|memes|love|anime|tiktok|carbs|chocolate|work))|"
     # เด็กกินของใช้ในบ้าน (รอบหาบั๊ก 21): "น้องกินแชมพูเข้าไป" เคยไม่ติด
     r"(?:เด็ก|ลูก|หลาน|น้อง|ทารก)\S{0,8}?(?:กิน|ดื่ม|กลืน|เลีย|อม)\S{0,6}?(?:น้ำยาบ้วนปาก|ยากันยุง|ลูกเหม็น|การบูร|น้ำมันก๊าด|เบนซิน|น้ำมันรถ|น้ำยาล้างเล็บ|ยาทาเล็บ|น้ำหอม|แอลกอฮอล์|เจลล้างมือ)|"
     r"\btook (?:too many|a lot of|all (?:my|of my|the)|\d+) (?:pills|tablets|meds|sleeping pills)",
@@ -834,7 +834,11 @@ SOFT_CRISIS = re.compile(
     r"(?:ดีขึ้น|หายแล้ว|ไม่แล้ว|ไม่คิดแล้ว|โอเค|ผ่านมาได้)|"
     r"(?:ป้องกัน|รายงาน|วิจัย|สถิติ|บทความ|ข้อมูลเรื่อง|เรียนเรื่อง|สัมมนา|อบรม)\S{0,12}?(?:การ)?ฆ่าตัวตาย|ฆ่าตัวตาย\S{0,16}?(?:ไปทำรายงาน|ทำรายงาน|ทำวิจัย)|"
     r"เพลง\S{0,10}?ชื่อ\S{0,4}?อยากตาย|"
-    r"\bi (?:don'?t|do not) (?:really )?want to die\b|\bi'?m not (?:suicidal|going to kill myself)\b|"
+    r"\bi (?:don'?t|do not) (?:really )?want to die\b|\bi(?:'?m| am) not (?:suicidal|going to (?:kill|hurt) myself)\b|"
+    # "I would never kill myself" "ไม่อยากตาย" "ฆ่าตัวตายไม่ใช่ทางออก" "Suicide Squad" เคยได้วิกฤต 95 (ตรวจทั้งไฟล์ core/ รอบ 397 ไฟล์)
+    r"\bi(?: would|'d| will|'ll)? never (?:want to )?(?:kill|hurt) myself\b|\bi never want to die\b|\bsuicide squad\b|"
+    r"ไม่(?:ได้)?อยาก\S{0,4}?(?:ตาย|ฆ่าตัวตาย|จบชีวิต)(?!\S{0,2}(?:แล้ว|เลย\S{0,4}แต่))|ฆ่าตัวตาย\S{0,4}?ไม่ใช่ทางออก|"
+    r"(?:หนัง|ซีรีส์|ซีรี่ส์|เพลง|นิยาย|การ์ตูน)\S{0,10}?(?:เรื่อง|ชื่อ)?\S{0,4}?(?:ฆ่าตัวตาย|อยากตาย)\S{0,6}?(?:ดี|สนุก|เศร้า|ซึ้ง)|"
     r"\bi used to be suicidal\b[^\n]{0,40}?\b(?:now|but)\b[^\n]{0,20}?\b(?:fine|better|okay|ok|good)\b|"
     r"\b(?:essay|report|research|paper|presentation|class|statistics|article) (?:about|on) suicide(?: prevention)?\b|\bsuicide prevention\b",
     re.I,

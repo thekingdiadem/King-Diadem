@@ -1610,8 +1610,19 @@ _WITHDRAWAL = re.compile(r"(?:เลิก|หยุด|ขาด)(?:เหล�
 _DENGUE_WARN = re.compile(r"ไข้เลือดออก[^\n]{0,30}?(?:เกล็ดเลือดต่ำ|เลือดออก(?!ก)|ปวดท้อง|อาเจียน|ซึม|มือเท้าเย็น)|\bdengue\b[^\n]{0,30}?\b(?:low platelets?|bleeding|vomiting)\b", re.I)
 
 
+_MAX_LEN = 8000
+
+
+def _clip(text) -> str:
+    """ข้อความยาวมาก (80,000 ตัวอักษรเคยใช้ 1.5–3.5 วินาที) — ตรวจหัว 6,000 + ท้าย 2,000 ตัวอักษร
+    เรื่องด่วนมักอยู่ต้นหรือท้ายข้อความ จึงไม่ตัดท้ายทิ้ง"""
+    text = text if isinstance(text, str) else str(text or "")
+    return text if len(text) <= _MAX_LEN else text[:6000] + "\n" + text[-2000:]
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
     """ประเมินข้อความ — ถ้าพิมพ์โดยไม่ใส่วรรณยุกต์ ("ลูกไมหายใจ") ลองฉบับที่เติมวรรณยุกต์ด้วย แล้วใช้ฉบับที่เห็นอันตรายมากกว่า"""
+    text = _clip(text)
     a = _assess(text, pattern)
     plain = normalize_mixed(text)
     loc = dedialect(plain)
@@ -1777,7 +1788,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
 def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             pattern: dict | None = None, footer: bool = True) -> str:
     """คำตอบเต็มจากสมการ — ไม่มี AI · input เดิม → คำตอบเดิม"""
-    text = text if isinstance(text, str) else str(text or "")
+    text = _clip(text)
     if voice_mode == "council":
         return compose_council(text, footer=footer)
     a = assess(text, pattern)
