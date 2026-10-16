@@ -1523,7 +1523,13 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                         "missing": "คนหาย", "sexual_abuse": "การถูกล่วงละเมิด", "witness": "ได้ยิน/เห็นคนอื่นถูกทำร้าย",
                         "harm_others": "ความโกรธจนอยากทำร้ายคนอื่น", "elder_abuse": "ผู้สูงอายุถูกทำร้าย/ทอดทิ้ง",
                         "weapon": "ปืน/อาวุธในบ้าน", "sextortion": "ถูกขู่/ภาพส่วนตัวถูกเผยแพร่", "first_aid": "การบาดเจ็บ",
-                        "drunk_drive": "เมาแล้วขับ", "theft": "การถูกขโมย", "threat": "การถูกข่มขู่"}
+                        "drunk_drive": "เมาแล้วขับ", "theft": "การถูกขโมย", "threat": "การถูกข่มขู่",
+                        # ตอบ "ค่ะ" "ไม่มีใคร" ต่อจากเรื่องเหล่านี้เคยกลับเป็น Risk 0 — คำตอบทั่วไปหรือ "ความเหงา"
+                        "trafficking": "การถูกกักตัว/ค้ามนุษย์", "someone": "คนใกล้ตัวที่อาจทำร้ายตัวเอง",
+                        "swallowed": "เด็กกลืนสิ่งแปลกปลอม", "household": "เด็กกินของใช้ในบ้าน", "pet_poison": "สัตว์เลี้ยงกินของมีพิษ",
+                        "online_grooming": "คนแปลกหน้าเข้าหาเด็ก", "psychosis": "ได้ยินเสียง/เห็นภาพหลอน", "postpartum": "ซึมเศร้าหลังคลอด",
+                        "needlestick": "เข็มทิ่ม", "en_assault": "การถูกทำร้าย", "en_infant_fever": "ทารกมีไข้",
+                        "en_preg_bleed": "เลือดออกขณะตั้งครรภ์", "en_spiked": "ถูกใส่ยาในเครื่องดื่ม"}
         prior_risk, prior_kind, urgent_what, prior_text = 0, "", "", ""
         if kernel_assess:
             past = history[-8:] if isinstance(history, list) else []      # history มาจาก client — อาจไม่ใช่ list
