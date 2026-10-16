@@ -379,7 +379,32 @@ def th_scam(n=0):
     return len(cases) + len(SCAM_CALM), bad
 
 
-SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "en_crisis": en_crisis, "th_crisis": th_crisis, "th_violence": th_violence, "en_violence": en_violence, "followup": followup, "th_scam": th_scam}
+# ── en_scam ─────────────────────────────────────────────────────
+ENS_PRE = ["", "someone called and", "I got a text that", "a guy on facebook", "my mom got a call,", "a man on whatsapp"]
+ENS_CORE = ["said he's from the IRS and I must pay in gift cards", "asked for the code they sent to my phone", "said my bank account is frozen and I need to verify by clicking a link",
+            "said I won a lottery but must pay a fee first", "wants me to invest in crypto, guaranteed 20% a week", "said he's my grandson in jail and needs bail money",
+            "asked me to install AnyDesk to fix my computer", "said there's a problem with my package, click to reschedule delivery", "offered a job but I have to pay for training first",
+            "my online girlfriend asked me to send money for a plane ticket", "told me to move my savings to a safe account", "said he's from Microsoft and my computer has a virus",
+            "asked for my social security number to unlock my account", "sold me a puppy online and never delivered after I paid", "asked me to buy apple gift cards and send the codes",
+            "said a warrant is out for my arrest unless I pay now"]
+ENS_POST = ["", " what do I do", " is this real", " I already paid", " should I trust it", " help", " lol", "?"]
+ENS_CALM = ["I bought a gift card for my mom", "can I pay with gift card at target", "my bank sent a verification code to my phone when I logged in",
+            "what is my social security number used for", "I installed teamviewer for work", "I won the lottery at work lol", "I paid for the course and it starts monday",
+            "my package is late", "the police said I should pay the parking fine", "send me the gift card code you got for christmas"]
+
+
+def en_scam(n=0):
+    cases = _sample(sorted({(p + " " + c + q).strip() for p, c, q in itertools.product(ENS_PRE, ENS_CORE, ENS_POST)}), n, 13)
+    bad = []
+    for t in cases:
+        a = assess(t)
+        if a["text_risk"] < 60 or not a.get("scam"):
+            bad.append(t)
+    bad += [f"(ธรรมดา) {t}" for t in ENS_CALM if assess(t)["text_risk"] >= 60]
+    return len(cases) + len(ENS_CALM), bad
+
+
+SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "en_crisis": en_crisis, "th_crisis": th_crisis, "th_violence": th_violence, "en_violence": en_violence, "followup": followup, "th_scam": th_scam, "en_scam": en_scam}
 
 
 def main(argv):

@@ -310,6 +310,26 @@ SCAM_SCRIPT = re.compile(
     r"(?:ขายของ|ร้าน)\S{0,6}?ออนไลน์[^\n]{0,6}?โอน(?:เงิน)?(?:ไป)?แล้ว[^\n]{0,6}?ไม่ส่งของ", re.I)
 
 
+# บทพูดมิจฉาชีพภาษาอังกฤษ — เดิมหลุดทั้งชุด (768/768 ได้ Risk 0)
+SCAM_SCRIPT_EN = re.compile(
+    r"\b(?:pay|paid|send|sent)\b[^\n]{0,8}?\b(?:in|with|by|via)\b[^\n]{0,10}?\b(?:gift ?cards|itunes cards?|steam cards?|google play cards?)\b|\bgift ?cards?\b[^\n]{0,20}?\b(?:send|sent|read|give)\b[^\n]{0,10}?\bcodes?\b|\b(?:send|sent|read|give)\b[^\n]{0,10}?\bcodes?\b[^\n]{0,10}?\bgift ?cards?\b|\bgift ?cards?\b[^\n]{0,24}?\bsend (?:them |him |her )?the codes\b|"
+    r"\b(?:asked|asking|wants?|told me to (?:give|send))\b[^\n]{0,16}?\b(?:the |my )?(?:code|otp|pin|verification code|one.time (?:code|password))\b[^\n]{0,20}?\b(?:sent|texted|got) to my phone\b|"
+    r"\b(?:asked|asking|wants?)\b[^\n]{0,12}?\bfor my (?:social security|ssn|bank (?:login|password)|card (?:number|pin)|cvv)\b|"
+    r"\b(?:install|download)\b[^\n]{0,6}?\b(?:anydesk|teamviewer|remote access|ultraviewer)\b[^\n]{0,30}?\b(?:fix|refund|help|support|virus|computer|account)\b|"
+    r"\b(?:from|is) (?:microsoft|apple|amazon|windows) (?:support|security|tech)?\b[^\n]{0,30}?\b(?:virus|hacked|refund|locked|problem)\b|"
+    r"\b(?:irs|tax office|fbi|social security administration|customs)\b[^\n]{0,30}?\b(?:pay|warrant|arrest|gift card|suspend)\b|"
+    r"\bwarrant\b[^\n]{0,12}?\b(?:for )?my arrest\b[^\n]{0,24}?\b(?:unless|pay|fine)\b|"
+    r"\b(?:bank )?account\b[^\n]{0,4}?\b(?:is|was|has been) (?:frozen|suspended|locked)\b[^\n]{0,40}?\b(?:click|link|verify)\b|"
+    r"\b(?:won|winner of)\b[^\n]{0,20}?\b(?:lottery|prize|sweepstakes|jackpot)\b[^\n]{0,30}?\b(?:pay|fee|tax|send)\b|"
+    r"\bguarantee(?:d|s)?\b[^\n]{0,10}?\b\d+ ?% (?:a|per|every) (?:day|week|month)\b|\b\d+ ?% (?:a|per) (?:day|week)\b[^\n]{0,20}?\bguarantee|"
+    r"\b(?:grandson|granddaughter|nephew|son|daughter)\b[^\n]{0,16}?\b(?:in jail|arrested)\b[^\n]{0,24}?\b(?:bail|money|wire|send)\b|"
+    r"\b(?:package|parcel|delivery)\b[^\n]{0,24}?\bclick\b[^\n]{0,20}?\b(?:reschedule|redeliver|pay|fee)\b|"
+    r"\b(?:job|work from home)\b[^\n]{0,30}?\b(?:pay|deposit)\b[^\n]{0,8}?\b(?:for )?(?:training|equipment|registration|a fee)\b[^\n]{0,8}?\bfirst\b|"
+    r"\bonline (?:girlfriend|boyfriend|lover)\b[^\n]{0,30}?\b(?:send|wire|money|ticket|visa)\b|"
+    r"\b(?:move|transfer)\b[^\n]{0,16}?\b(?:to|into) a (?:safe|secure|protected) account\b|"
+    r"\b(?:paid|sent (?:the )?money)\b[^\n]{0,30}?\b(?:never (?:delivered|shipped|arrived|came)|blocked me)\b|\bnever delivered after i paid\b", re.I)
+
+
 def scam_flags(text) -> list:
     """โครงสร้างของมิจฉาชีพ: แอบอ้าง + ติดต่อมา + ขอให้โอน/กดลิงก์/ให้ข้อมูล หรือเรื่องหลอก + ขอสิ่งเดียวกัน"""
     t = str(text or "")
@@ -319,7 +339,7 @@ def scam_flags(text) -> list:
         flags.append("impersonation")
     if (asks and SCAM_STORY.search(t)) or SCAM_PHISH.search(t):
         flags.append("story")
-    if SCAM_SCRIPT.search(t) and "story" not in flags:
+    if (SCAM_SCRIPT.search(t) or SCAM_SCRIPT_EN.search(t)) and "story" not in flags:
         flags.append("story")
     if SCAM_LOST.search(t):
         flags.append("lost")
