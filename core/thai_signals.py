@@ -118,6 +118,9 @@ EMERGENCY_EN = re.compile(r"\bemergency\b(?!\s+(?:fund|savings|exit|contact|numb
 # เดิม "เหนื่อยจนอยากหายไป" "อยากจบทุกอย่าง" ได้ Risk 0 และคำตอบ "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน"
 # ชัดพอจะนับเป็นสัญญาณทำร้ายตัวเอง (ปลอดภัยไว้ก่อนเหมือน "ไม่อยากอยู่แล้ว"):
 SELF_HARM_INDIRECT = re.compile(
+    # ตารางสำนวนภาษาอังกฤษ 3,850 ข้อความ: เคยได้ Risk 0
+    r"(?i:\b(?:i'?m|i am) (?:so )?done with (?:life|living|this life|being alive)\b(?!\s+(?:drawing|class|lessons?|coaching|insurance))|\b(?:there'?s|there is) no point (?:in|to) (?:living|life|being alive|going on)\b|"
+    r"\blife (?:isn'?t|is not|ain'?t) worth (?:it|living)(?: anymore)?\b(?!\s+(?:without (?:coffee|pizza|music)|lol))|\bbought (?:the )?(?:pills|rope|a gun) to end (?:it|my life)\b)|"
     # ตารางสำนวนไทย 5,250 ข้อความ: สำนวนที่ชัดเจนว่าอยากตาย แต่ไม่มีคำว่า "อยากตาย" — เคยได้ Risk 0
     r"(?:ถ้า|หาก)(?:ฉัน|หนู|ผม|เรา|กู)?ตายไป\S{0,10}?(?:คง|จะ)\S{0,4}?(?:สบาย|ดีกว่า|ดีขึ้น|ไม่ลำบาก)|ตายไป(?:ซะ|เลย)?คง(?:จะ)?ดีกว่า|"
     r"(?<!ไม่รู้จะ)มีชีวิต(?:อยู่)?(?:ไป)?(?:เพื่อ)?ทำไม|เบื่อการมีชีวิต|(?:อยาก|ขอ)ไปให้พ้น[^\n]{0,6}?(?:จาก)?โลก|"
@@ -159,6 +162,8 @@ SELF_HARM_INDIRECT = re.compile(
 )
 # สัญญาณเตือน — ยังไม่ชัด แต่ควรถามอย่างอ่อนโยนและตรงๆ ว่าตอนนี้ปลอดภัยไหม
 SELF_HARM_WARNING = re.compile(
+    r"(?i:\bi can'?t keep (?:living|going on) like this\b|\bi (?:don'?t|do not) want to wake up (?:tomorrow|again|ever)\b(?!\s+(?:early|at\s+\d|for (?:work|school|class|the)|so early))|"
+    r"\bi just want (?:it all|everything) to stop\b(?!\s+(?:raining|ringing|buzzing|beeping))|\bi'?m saying goodbye to everyone\b(?!\s+(?:at|in|before|on|from)\b)|\bi'?m going to jump\b(?!\s+(?:in(?:to)?|on|over|off the diving|rope|the gun|ahead|right|at the chance)))|"
     # สำนวนที่ตีความได้หลายแบบ → ถามให้ชัด (65): "ไม่เห็นทางออกแล้ว" "ซื้อยามาเก็บไว้แล้ว" "อยากปล่อยตัวเองไป"
     r"ไม่เห็นทางออก(?:แล้ว|เลย)?(?!\S{0,10}?(?:ของ|เรื่อง|สำหรับ|ใน)(?:งาน|โจทย์|ข้อสอบ|โปรเจกต์|ปัญหานี้))|"
     r"(?:ซื้อ|เก็บ|สะสม)ยา(?:นอนหลับ|พารา)?(?:มา)?(?:เก็บ|ตุน|สะสม)?ไว้(?:แล้ว|เยอะ)(?![^\n]{0,16}?(?:เผื่อ|ไว้ใช้|ติดบ้าน|สำหรับ|ให้แม่|ให้พ่อ|ให้ลูก))|"
@@ -781,6 +786,7 @@ _LATIN_THAI = re.compile(r"(?<=[A-Za-z])(?=[\u0E00-\u0E7F])|(?<=[\u0E00-\u0E7F])
 # ปฏิเสธ ("ไม่ได้อยากตายนะ แค่เหนื่อย") · อดีตที่ดีขึ้นแล้ว ("เคยอยากตายตอน ม.ปลาย ตอนนี้ดีขึ้นแล้ว")
 # · หาข้อมูล/ทำรายงาน ("ขอข้อมูลเรื่องป้องกันการฆ่าตัวตาย") — ตัดเฉพาะช่วงนั้นออก ส่วนอื่นของข้อความยังตรวจตามปกติ
 SOFT_CRISIS = re.compile(
+    r"(?i:\blife (?:isn'?t|is not|ain'?t) worth (?:it|living) without (?:coffee|pizza|music|you|chocolate|wifi|sleep)\b)|"
     r"ไม่ได้(?:อยาก|คิด(?:จะ|ว่าจะ)?|จะ)\S{0,4}?(?:ตาย|ฆ่าตัวตาย|จบชีวิต)|ไม่เคย(?:คิด)?(?:จะ|อยาก)?\S{0,4}?(?:ฆ่าตัวตาย|อยากตาย)|"
     r"ไม่(?:ได้)?คิด(?:จะ)?ฆ่าตัวตาย|"
     r"(?:เคย|เมื่อก่อน|สมัยก่อน|ตอนเด็ก)\S{0,6}?(?:อยากตาย|คิด(?:จะ)?ฆ่าตัวตาย|ทำร้ายตัวเอง)[^\n]{0,30}?(?:ตอนนี้|แต่|ปัจจุบัน)\S{0,12}?"

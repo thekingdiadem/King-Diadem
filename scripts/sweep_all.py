@@ -8,6 +8,7 @@ scripts/sweep_all.py — กวาดหาบั๊กทั้งชุดใ�
   typing   พิมพ์รีบ (ไม่มีวรรณยุกต์ เว้นวรรคทุกตัว แสลง) → ต้องยังได้ Risk ≥ 60
   followup ตอบสั้นๆ ต่อจากเรื่องด่วน (ผ่าน API จริง)   → ต้องยังได้เบอร์ช่วยเหลือของเรื่องเดิม
   intl     เรื่องด่วน + ประโยคธรรมดา ภาษาจีน ญี่ปุ่น เกาหลี สเปน → ด่วนต้อง ≥ 60 · ธรรมดาต้อง < 60
+  en_crisis สำนวนความคิดอยากตายภาษาอังกฤษ (3,696) → ต้องเป็นวิกฤตหรือสัญญาณเตือน (≥ 65) · สำนวนธรรมดาต้อง < 60
   th_crisis สำนวนความคิดอยากตายภาษาไทย (5,250) → ต้องเป็นวิกฤตหรือสัญญาณเตือน (≥ 65) · สำนวนธรรมดาต้อง < 60
   th_violence ใครทำร้าย × การกระทำ × สำนวน ภาษาไทย (10,080) → ต้อง Risk ≥ 60 · กฎบ้าน/เล่นกันต้อง < 60
   en_violence ใครทำร้าย × การกระทำ × สำนวน ภาษาอังกฤษ (10,200) → ต้อง Risk ≥ 60 · สำนวนธรรมดาต้อง < 60
@@ -169,6 +170,31 @@ def en(n=0):
     return len(cases) + len(EN_CALM) + len(EN_WARNING), bad
 
 
+# ── en_crisis ───────────────────────────────────────────────────
+ENC_PRE = ["", "honestly ", "i think ", "lately ", "tbh ", "i lost my job and ", "my girlfriend left and ", "i'm so tired, ", "nobody cares, ", "after everything, ", "i'm drowning in debt and "]
+ENC_CORE = ["I want to die", "I want to kill myself", "I don't want to live anymore", "I want to end my life", "I'm going to end it tonight",
+        "I wish I was dead", "I'd be better off dead", "everyone would be better off without me", "I can't keep living like this",
+        "I have a plan to kill myself", "I bought pills to end it", "I'm thinking about suicide", "I keep cutting myself",
+        "I want to disappear forever", "there's no point in living", "I wrote a suicide note",
+        "I'm going to jump", "I don't want to wake up tomorrow", "life isn't worth it anymore", "I'm done with life",
+        "I just want it all to stop", "I'm saying goodbye to everyone", "I'm a burden", "nobody would care if I died"]
+ENC_POST = ["", ".", "...", " :(", " lol", " for real", " tonight", " please help", " i mean it", " idk what to do", " anymore", " 😢", " honestly", " again"]
+ENC_CALM = ["I'm done with life drawing class", "I just want it all to stop raining", "I'm saying goodbye to everyone at the office party",
+            "I'm going to jump into the pool", "I'm going to jump on that offer", "I don't want to wake up tomorrow early",
+            "I'm ready to go", "life isn't worth living without coffee lol"]
+
+
+def en_crisis(n=0):
+    cases = _sample(sorted({(p + c + q).strip() for p, c, q in itertools.product(ENC_PRE, ENC_CORE, ENC_POST)}), n, 10)
+    bad = []
+    for t in cases:
+        a = assess(t)
+        if not a["crisis"] and a["text_risk"] < 65:
+            bad.append(t)
+    bad += [f"(ธรรมดา) {t}" for t in ENC_CALM if assess(t)["text_risk"] >= 60 or assess(t)["crisis"]]
+    return len(cases) + len(ENC_CALM), bad
+
+
 # ── th_crisis ───────────────────────────────────────────────────
 THC_PRE = ["", "หนู", "ฉัน", "ผม", "เรา", "กู", "พี่", "ตอนนี้", "เหนื่อยมาก ", "ไม่ไหวแล้ว ", "แฟนทิ้ง ", "หนี้เยอะมาก ", "ตกงาน ", "ทะเลาะกับที่บ้าน "]
 THC_CORE = ["อยากตาย", "อยากฆ่าตัวตาย", "ไม่อยากมีชีวิตอยู่", "ไม่อยากอยู่แล้ว", "อยากหายไปจากโลกนี้", "อยากจบชีวิต", "อยากหลับแล้วไม่ตื่น",
@@ -327,7 +353,7 @@ def followup(n=0):
     return len(pairs), bad
 
 
-SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "th_crisis": th_crisis, "th_violence": th_violence, "en_violence": en_violence, "followup": followup}
+SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "en_crisis": en_crisis, "th_crisis": th_crisis, "th_violence": th_violence, "en_violence": en_violence, "followup": followup}
 
 
 def main(argv):
