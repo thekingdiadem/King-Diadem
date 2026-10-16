@@ -1386,6 +1386,28 @@ def _risk_ctx_from_text(risk_ctx: str, t_risk) -> str:
     return f"[Risk: {t_lvl} จากข้อความ]" if _RISK_RANK[t_lvl] > cur else risk_ctx
 
 
+@app.post("/api/kernel/preview")
+def kernel_preview(request: Request, data: dict):
+    """ลองสมองของระบบในหน้า Universe — ตอบจากสมการล้วน (ไม่ใช้ AI · ไม่หักโควตา · ไม่บันทึกข้อความ)
+    จำกัดความถี่เท่ากับ /run กันคนยิงถี่"""
+    text = data.get("input") if isinstance(data, dict) else ""
+    text = text if isinstance(text, str) else str(text or "")
+    if not text.strip():
+        return JSONResponse({"error": "พิมพ์ข้อความก่อนนะคะ"}, status_code=400)
+    if len(text) > _MAX_INPUT_CHARS:
+        return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร"}, status_code=413)
+    if not _rate_check("preview:" + _client_ip(request)):
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่แล้วลองใหม่นะคะ"}, status_code=429)
+    from core.kernel_voice import assess, compose
+    from core.lang_signals import detect_lang
+    from core.world_replies import world_lang
+    a = assess(text)
+    reply = compose(text, footer=False)
+    steps = [ln for ln in reply.split("\n") if re.match(r"^\d\)\s", ln)]
+    return {"risk": a.get("text_risk", 0), "crisis": bool(a.get("crisis")), "topics": list(a.get("topics") or [])[:4],
+            "lang": world_lang(text, 1) or detect_lang(text), "choices": len(steps), "reply": reply}
+
+
 @app.post("/run")
 @app.post("/decision")
 def run_kernel(request: Request, data: dict):
