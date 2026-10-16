@@ -45,9 +45,44 @@ def test_showcase_numbers_are_real():
 def test_page_has_cockpit_scene_and_safe_rendering():
     assert 'id="cockpit-earth"' in PAGE and "/static/cockpit_earth.js" in PAGE
     js = (ROOT / "static" / "cockpit_earth.js").read_text(encoding="utf-8")
-    assert "earth/lights.jpg" in js and "prefers-reduced-motion" in js
-    assert 'id="sat-pos"' in PAGE and "KD_satLon" in js                # พิกัดบนจอคำนวณจากสมการเดียวกับภาพ
-    assert "bunny" not in PAGE                                          # เจ้าของขอแบบภาพดาวเทียมจริง ไม่มีของการ์ตูน
+    assert "'lights.jpg'" in js and "lights_4k.jpg" in js and "prefers-reduced-motion" in js
+    assert "bunny" not in PAGE and "sathud" not in PAGE                 # เจ้าของขอโลกสวยแบบของจริง ไม่เติมอะไรทับภาพ
     # คำตอบของระบบใส่ด้วย textContent เท่านั้น — กัน XSS จากข้อความที่ผู้ใช้พิมพ์สะท้อนกลับ
     live = PAGE[PAGE.index("function runSimulation(){"):PAGE.index("function tryText")]
     assert "innerHTML=d.reply" not in live.replace(" ", "") and "textContent=d.reply" in live.replace(" ", "")
+
+
+def test_capitals_cover_every_country_with_real_coordinates():
+    d = json.loads((ROOT / "static" / "earth" / "capitals.json").read_text(encoding="utf-8"))
+    caps = {c[0]: c for c in d["capitals"]}
+    assert len(d["capitals"]) >= 240
+    bkk = caps["Bangkok"]
+    assert abs(bkk[2] - 13.75) < .05 and abs(bkk[3] - 100.5) < .05
+    assert "Nay Pyi Taw" in caps and "Washington, D.C." in caps and "Phnom Penh" in caps
+
+
+def test_city_tiers_load_lazily_and_stay_light():
+    js = (ROOT / "static" / "cockpit_earth.js").read_text(encoding="utf-8")
+    for f in ("capitals.json", "cities_t2.json", "cities_t3.json", "cities_t4.json", "cities_t5.json"):
+        assert f in js and (ROOT / "static" / "earth" / f).exists()
+    total = sum((ROOT / "static" / "earth" / f"cities_t{i}.json").stat().st_size for i in range(2, 6))
+    assert total < 1_600_000                                           # ราว 49,000 เมือง — โหลดเฉพาะตอนซูมถึงชั้นนั้น
+    assert "if (show <= 0) return;" in js                              # มองทั้งโลกไม่วาดชื่อเมืองเลย
+
+
+def test_4k_textures_exist_and_are_optional():
+    js = (ROOT / "static" / "cockpit_earth.js").read_text(encoding="utf-8")
+    assert "MAX_TEXTURE_SIZE" in js and "saveData" in js
+    for f in ("lights_4k.jpg", "day_4k.jpg", "clouds_4k.jpg", "water.png"):
+        assert (ROOT / "static" / "earth" / f).exists()
+
+
+def test_calm_mode_stops_scroll_spin_and_is_remembered():
+    sky = (ROOT / "static" / "universe_sky.js").read_text(encoding="utf-8")
+    assert "kd-calm" in sky and "(calm ? 0 : sc * Math.PI * 2 * .92)" in sky   # ฟ้าไม่หมุนตามการเลื่อนจอ
+    assert "localStorage.getItem('kd-calm')" in PAGE and 'id="ec-calm"' in PAGE
+    assert "html.kd-calm *" in PAGE
+
+
+def test_language_list_is_folded_away():
+    assert '<details class="lang-more">' in PAGE

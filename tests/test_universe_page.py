@@ -26,7 +26,7 @@ def test_scrolling_turns_the_viewer_not_the_sky():
     """เลื่อนหน้า = หันมองรอบตัวเกือบครบรอบ · แตะฟ้า = แสงแผ่ไปทุกดวง · ลดการเคลื่อนไหวแล้วไม่มีแสงแผ่/ซูม"""
     assert "scrollY / Math.max(1, document.documentElement.scrollHeight - H)" in SKY
     assert "sc * Math.PI * 2 * .92" in SKY
-    assert "function ripple(x, y) { if (REDUCED) return;" in SKY
+    assert "function ripple(x, y) { if (CALM()) return;" in SKY          # ลดการเคลื่อนไหว (ในเครื่องหรือปุ่มในหน้า) = ไม่มีแสงแผ่
 
 
 def test_sky_is_battery_friendly_and_has_fallback():

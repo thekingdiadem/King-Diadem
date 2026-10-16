@@ -405,6 +405,9 @@ async def _too_large(send):
     await send({"type": "http.response.body", "body": body})
 
 
+# บีบอัดข้อความก่อนส่ง (JSON/HTML/JS) — ข้อมูลเมืองทั่วโลกของหน้า Universe 1.4 MB เหลือราว 0.7 MB
+from fastapi.middleware.gzip import GZipMiddleware
+app.add_middleware(GZipMiddleware, minimum_size=2048)
 app.add_middleware(BodyLimitMiddleware)   # เพิ่มทีหลังสุด = ชั้นนอกสุด ตัดก่อนตัวอื่นแตะ body
 
 

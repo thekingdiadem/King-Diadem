@@ -2,6 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
+<script>try{if(localStorage.getItem('kd-calm')==='1')document.documentElement.classList.add('kd-calm')}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>KING DIADEM — The Universe That Restores Choice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -222,19 +223,7 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
   background:linear-gradient(115deg,transparent 30%,rgba(166,125,245,.07) 42%,transparent 50%),
              linear-gradient(to bottom,transparent 55%,rgba(8,10,26,.55) 74%,rgba(8,13,26,.96) 100%)}
 #hero .hero-title{text-shadow:0 0 40px rgba(58,134,245,.25)}
-/* หน้าจอกล้องดาวเทียม — มุมทั้งสี่แบบภาพสดจากวงโคจร */
-.sathud{position:absolute;inset:calc(env(safe-area-inset-top,0px) + 54px) 14px auto 14px;height:62%;pointer-events:none;
-  font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;color:rgba(230,240,255,.78);text-shadow:0 0 4px rgba(0,0,0,.9)}
-.sathud>div{position:absolute}
-.hud-tl{top:0;left:0}.hud-tr{top:0;right:0}.hud-bl{bottom:0;left:0}.hud-br{bottom:0;right:0}
-.sathud .rec{color:#ff4d5e;animation:rec 1.2s steps(2) infinite}
-@keyframes rec{50%{opacity:.2}}
-.sathud .ret{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;
-  border:1px solid rgba(230,240,255,.35);border-radius:50%}
-.sathud .ret::before,.sathud .ret::after{content:'';position:absolute;background:rgba(230,240,255,.35)}
-.sathud .ret::before{left:50%;top:-8px;bottom:-8px;width:1px}.sathud .ret::after{top:50%;left:-8px;right:-8px;height:1px}
-@media (max-width:520px){.sathud{font-size:8px;letter-spacing:.06em;height:46%}}
-@media (prefers-reduced-motion:reduce){.sathud .rec{animation:none}}
+
 
 /* SHOWCASE + LIVE KERNEL */
 #showcase{position:relative;z-index:10;max-width:820px;margin:0 auto 60px;padding:0 20px}
@@ -259,6 +248,27 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 .try-chip:hover{border-color:rgba(200,164,64,.5)}
 .live-tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;color:#2bcfb4;margin-bottom:10px;min-height:14px}
 .fate-note{white-space:pre-wrap}
+
+/* ปุ่มมุมมองโลก + โหมดลดการเคลื่อนไหว */
+.earth-ctl{position:absolute;z-index:3;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);
+  display:flex;gap:6px;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100% - 24px);pointer-events:auto}
+.earth-ctl button{font:500 11px/1 var(--f-body);color:rgba(230,240,255,.85);background:rgba(8,13,26,.55);
+  border:1px solid rgba(230,240,255,.18);border-radius:999px;padding:7px 12px;cursor:pointer;backdrop-filter:blur(8px)}
+.earth-ctl button[aria-pressed="true"]{color:#0b0f1e;background:rgba(237,204,98,.92);border-color:transparent}
+.earth-ctl button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+.cockpit canvas{pointer-events:auto;touch-action:pan-y;cursor:grab}
+.cockpit canvas:active{cursor:grabbing}
+.cockpit #earth-labels{pointer-events:none;opacity:1}
+#hero>div:not(.cockpit):not(.earth-ctl){transition:opacity .6s ease}
+#hero.zoomed>div:not(.cockpit):not(.earth-ctl){opacity:.06}
+.earth-ctl .ec-z{width:30px;padding:7px 0;font-size:14px}
+html{scroll-behavior:smooth}
+html.kd-calm{scroll-behavior:auto}
+html.kd-calm *,html.kd-calm *::before,html.kd-calm *::after{animation:none!important;transition:none!important}
+html.kd-calm .section,html.kd-calm .reveal{opacity:1;transform:none;filter:none}
+html.kd-calm .hud,html.kd-calm .hud-deg{display:none}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.lang-more summary{cursor:pointer;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:rgba(118,152,215,.9);margin:6px 0 10px}
 </style>
 </head>
 <body>
@@ -273,16 +283,18 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 <main>
 <!-- HERO -->
 <section id="hero">
+  <div class="earth-ctl" role="group" aria-label="มุมมองโลก">
+    <button type="button" id="ec-globe" aria-pressed="false" onclick="KD_toggleGlobe()">ทั้งโลก</button>
+    <button type="button" onclick="KD_earth&&KD_earth.pole(true);KD_markGlobe(true)">ขั้วโลกเหนือ</button>
+    <button type="button" onclick="KD_earth&&KD_earth.pole(false);KD_markGlobe(true)">ขั้วโลกใต้</button>
+    <button type="button" class="ec-z" aria-label="ซูมเข้า" onclick="KD_earth&&KD_earth.zoomIn()">+</button>
+    <button type="button" class="ec-z" aria-label="ซูมออก" onclick="KD_earth&&KD_earth.zoomOut()">−</button>
+    <button type="button" id="ec-calm" aria-pressed="false" onclick="KD_toggleCalm()">ลดการเคลื่อนไหว</button>
+  </div>
   <div class="cockpit" aria-hidden="true">
-    <canvas id="cockpit-earth"></canvas>
+    <canvas id="cockpit-earth" role="img" aria-label="โลกตอนกลางคืนจากกล้องดาวเทียม ลากเพื่อหมุน ดับเบิลคลิกเพื่อซูมไปจุดนั้น"></canvas>
+    <canvas id="earth-labels" aria-hidden="true"></canvas>
     <div class="glass"></div>
-    <div class="sathud">
-      <div class="hud-tl"><span class="rec">● REC</span> KD-1 · ORBIT CAM 02</div>
-      <div class="hud-tr" id="sat-utc">UTC --:--:--</div>
-      <div class="hud-bl" id="sat-pos">LAT 40.0°N · LON 95.0°W</div>
-      <div class="hud-br">ALT 408 km · 7.66 km/s</div>
-      <i class="ret"></i>
-    </div>
   </div>
   <div>
     <div class="hero-badge">KING DIADEM™ · DRIFTZERO · MILKY SCOPE</div>
@@ -503,7 +515,7 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
       <div class="stat"><b id="sc-slip-n">0</b><span>หลุด</span></div>
       <div class="stat"><b id="sc-suite-n">13</b><span>ชุดกวาด</span></div>
     </div>
-    <div id="sc-langs" class="lang-wrap"></div>
+    <details class="lang-more"><summary>ดูรายชื่อภาษาทั้งหมด</summary><div id="sc-langs" class="lang-wrap"></div></details>
     <details class="suites"><summary>ดูผลทีละชุด</summary><div id="sc-suites"></div></details>
     <div class="sc-date" id="sc-date"></div>
   </div>
@@ -744,6 +756,14 @@ function runSimulation(){
     .catch(function(){live.textContent='⚠ ต่อเซิร์ฟเวอร์ไม่ได้ — แสดงผลจากเครื่องแทน';})
     .then(function(){btn.disabled=false;});
 }
+/* มุมมองโลก + ลดการเคลื่อนไหว (จำไว้ในเครื่อง) — สำหรับคนเวียนหัวง่ายเวลากล้องเลื่อน */
+function KD_markGlobe(on){var b=document.getElementById('ec-globe');if(b)b.setAttribute('aria-pressed',on?'true':'false');}
+function KD_toggleGlobe(){var on=document.getElementById('ec-globe').getAttribute('aria-pressed')!=='true';
+  if(window.KD_earth)KD_earth.globe(on);KD_markGlobe(on);}
+function KD_toggleCalm(){var h=document.documentElement,on=!h.classList.contains('kd-calm');h.classList.toggle('kd-calm',on);
+  try{localStorage.setItem('kd-calm',on?'1':'0')}catch(e){}
+  document.getElementById('ec-calm').setAttribute('aria-pressed',on?'true':'false');window.dispatchEvent(new Event('kd-calm'));}
+(function(){var b=document.getElementById('ec-calm');if(b&&document.documentElement.classList.contains('kd-calm'))b.setAttribute('aria-pressed','true');})();
 function tryText(t){var el=document.getElementById('intent-text');el.value=t;runSimulation();
   document.getElementById('simulator').scrollIntoView({behavior:'smooth',block:'start'});}
 
