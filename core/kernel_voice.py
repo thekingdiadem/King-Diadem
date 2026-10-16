@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (normalize_mixed, retone, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
+from core.thai_signals import (normalize_mixed, retone, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
@@ -317,6 +317,19 @@ TOPICS = [
             "เก็บหลักฐานไว้ที่ญาติ: แชตที่ชวนไปทำงาน ชื่อนายหน้า เลขบัญชีที่โอนค่าหัว สัญญา — นายจ้างยึดพาสปอร์ตหรือห้ามออกจากที่พักไม่ได้ตามกฎหมาย",
         ],
         "ask": "ตอนนี้ติดต่อคนข้างนอกได้ทางไหนบ้าง และรู้ไหมว่าอยู่ที่ไหน?",
+    }),
+    ("soft_check", [re.compile(r"(?!)")], {       # เลือกจาก SOFT_CRISIS ใน assess ไม่ใช่จากคำ
+        "open": ["ขอบคุณที่บอกให้ชัดนะ — เข้าใจแล้ว และดีใจที่เล่าให้ฟัง"],
+        "paths": [
+            ([re.compile(r"รายงาน|วิจัย|ข้อมูล|ป้องกัน|สถิติ|บทความ|report|research|essay|prevention|statistics", re.I)],
+             f"ข้อมูลที่ใช้อ้างอิงได้: กรมสุขภาพจิต (dmh.go.th) และองค์การอนามัยโลก · สัญญาณเตือนที่ควรรู้คือการพูดถึงความตาย แจกของรัก หรือบอกลา — และช่องทางช่วยเหลือคือ {HOTLINE_MENTAL} (24 ชม.)"),
+            ([re.compile(r"^(?![\s\S]*(?:รายงาน|วิจัย|ข้อมูล|ป้องกัน|สถิติ|บทความ|report|research|essay|prevention|statistics))", re.I)],
+             "ลองแยกดูว่าเหนื่อยจากอะไรมากที่สุดตอนนี้ — งาน เงิน คน หรือร่างกาย แล้วเลือกพักจากเรื่องที่หนักที่สุดก่อนหนึ่งเรื่อง"),
+            ([re.compile(r"^(?![\s\S]*(?:รายงาน|วิจัย|ข้อมูล|ป้องกัน|สถิติ|บทความ|report|research|essay|prevention|statistics))", re.I)],
+             "คืนนี้ให้ร่างกายได้พักจริงๆ สักช่วง: กินอะไรอุ่นๆ อาบน้ำ ปิดจอเร็วขึ้นหน่อย"),
+            f"ถ้าวันไหนความเหนื่อยกลายเป็นความคิดอยากหายไปจริงๆ โทร {HOTLINE_MENTAL} ได้ตลอด 24 ชม. — ไม่ต้องรอให้หนักก่อน",
+        ],
+        "ask": "ตอนนี้เรื่องไหนที่ดึงแรงคุณไปมากที่สุด — หรือถ้ากำลังทำรายงาน อยากได้ข้อมูลด้านไหนเพิ่ม?",
     }),
     # "กินจนอิ่มหายใจไม่ออก" "ขำจนหายใจไม่ออก" "งานเยอะจนหายใจไม่ออก" เป็นสำนวน ไม่ใช่หายใจไม่ได้จริง
     ("health_emergency", ["เจ็บหน้าอก", "แน่นหน้าอก",
@@ -1419,6 +1432,11 @@ EN_TOPIC = {
         "More than 2–3 nights without sleep, or hearing voices, seeing things, racing thoughts — see a doctor as soon as possible.",
         "If you have thoughts of harming yourself or feel out of control, call a crisis line (1323 in Thailand, 988 in the US) or emergency services."],
         "What's keeping you awake — thoughts, work, or your body?"),
+    "soft_check": ("Thanks for making that clear — got it, and I'm glad you told me.", [
+        "Try naming what's draining you most right now — work, money, people, or your body — and rest from the heaviest one first.",
+        "Give your body a real break tonight: something warm to eat, a shower, screens off a bit earlier.",
+        "If the tiredness ever turns into wanting to disappear, a crisis line is there any time (1323 in Thailand, 988 in the US) — you don't have to wait until it's worse."],
+        "What's pulling the most energy out of you right now?"),
     "en_stroke": ("This could be a stroke — every minute matters.", [
         "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe) — a face drooping, arm weakness or trouble speaking means go now.",
         "Note the time the symptoms started — treatment within 4.5 hours works much better.",
@@ -1489,7 +1507,7 @@ _URGENT_TOPICS = ("trafficking", "overdose", "swallowed", "en_assault", "en_infa
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"soft_check": 45, "trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
@@ -1531,6 +1549,8 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
         pass
     # "เพื่อนบอกว่าอยากตาย" → ผู้ใช้กำลังช่วยคนอื่น: วิกฤตของผู้ใช้ดูจากส่วนที่เหลือของข้อความ
     own = strip_third_party(t) if (THIRD_PARTY_CRISIS.search(t) or tr.get("third_party")) else t
+    soft = bool(SOFT_CRISIS.search(own))
+    own = strip_soft_crisis(own)
     crisis = bool(tr.get("self_harm")) or _hit(own, CRISIS_PHRASES)
     # "พี่เคยทำร้ายเขา … ตอนนี้ไม่มีแล้ว" — ผู้ใช้สารภาพเรื่องเก่า ไม่ใช่คนที่กำลังถูกทำร้าย
     t_now, own = strip_own_past_harm(t), strip_own_past_harm(own)
@@ -1546,6 +1566,8 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
         topics = [n for n in topics if n not in ("health_emergency", "first_aid")]
     if "first_aid" in topics and _MINOR.search(t_now) and not _RED_FLAG.search(t_now):
         topics = [n for n in topics if n != "first_aid"]
+    if soft and not crisis and not set(topics) & set(_URGENT_TOPICS):
+        topics.insert(0, "soft_check")         # ไม่ใช่วิกฤต แต่เป็นห่วงเบาๆ และบอกว่าโทรได้ถ้าวันไหนไม่ไหว
     if tr.get("third_party") and "someone" not in topics:      # "เพื่อนบอกว่ากรีดแขน" — คนอื่นกำลังวิกฤต
         topics.insert(0, "someone")
     # ภาษาอื่น (zh ja ko es): เรื่องด่วนเข้าหัวข้อเดียวกับภาษาไทย — "เพื่อนอยากตาย" ไม่ใช่วิกฤตของผู้ใช้เอง

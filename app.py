@@ -1238,6 +1238,17 @@ _NO_EMOJI_RISK = 60
 _EMOJI = re.compile("[\U0001F000-\U0001FAFF\u2764\u2728\u263A\u2639\u2B50\u2B55\uFE0F\u200D]+")
 
 
+# เสียงหัวเราะ/คำขี้เล่นของ LYLA — ใช้ได้ตอนคุยเล่น แต่ห้ามโผล่ในเรื่องเสี่ยง ("อยากตาย" แล้วเจอ "555" คือทำร้ายซ้ำ)
+_PLAY = re.compile(r"(?<![\d.,])5{3,}(?![\d.,])(?!\s*(?:บาท|฿|baht|คน|ครั้ง|ปี|เดือน|วัน|ชิ้น|ตัว|%))\+?|ฮ่า(?:\s*ๆ|ฮ่า)+|ฮ่าๆ+|อิอิ+|คิกคิก|งือ+|แง+ง|โอ้ย+ย|เชรดเข้|ค้าบ+บ|"
+                   r"(?i:\b(?:lol|lmao|rofl|haha+|hehe+|xd)\b)")
+
+
+def _strip_play(text: str) -> str:
+    out = _PLAY.sub("", text)
+    out = re.sub(r"[ \t]+(\n|$)", r"\1", re.sub(r"[ \t]{2,}", " ", out))
+    return re.sub(r"(^|\n)[ \t]+", r"\1", out)
+
+
 def _strip_emoji(text: str) -> str:
     """เอา emoji ออก โดยคงสัญลักษณ์ของระบบไว้ (◈ ◆ ☸ ▲ ✦ Σ อยู่นอกช่วงที่ลบ)"""
     out = _EMOJI.sub("", text)
@@ -2068,7 +2079,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # แต่เส้นทาง "เสี่ยง" ยังได้ 🥺 ต่อท้ายคำตอบเรื่องได้ยินเสียงผู้หญิงกรีดร้อง (หน้าจอจริง)
     try:
         if float(result.get("risk_score") or 0) >= _NO_EMOJI_RISK and result.get("ai_response"):
-            result["ai_response"] = _strip_emoji(str(result["ai_response"]))
+            result["ai_response"] = _strip_play(_strip_emoji(str(result["ai_response"])))
     except (TypeError, ValueError):
         pass
 

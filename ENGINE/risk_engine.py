@@ -52,6 +52,8 @@ def evaluate_risk(text: str) -> dict:
             third_party, own = True, strip_someone_intl(own)
     except Exception:
         pass
+    from core.thai_signals import strip_soft_crisis
+    own = strip_soft_crisis(own)              # "ไม่ได้อยากตายนะ" "ทำรายงานเรื่องป้องกันการฆ่าตัวตาย"
     self_harm = any(_has(own, k) for k in _SELF_HARM)
     if self_harm:
         score += 6
