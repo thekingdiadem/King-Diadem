@@ -41,3 +41,20 @@ def test_every_reply_is_complete():
         assert set(kinds) == {"crisis", "medical", "violence", "help", "general"}, lang
     for opener, steps, ask in list(GENERAL_ASIA.values()) + [r for k in WORLD_REPLY.values() for r in k.values()]:
         assert opener and ask and len(steps) == 3
+
+
+@pytest.mark.parametrize("lang,text", [("el", "η μητέρα μου δεν αναπνέει"), ("ro", "vreau să mor"), ("sv", "min man slår mig"),
+                                       ("he", "אמא לא נושמת"), ("mn", "туслаарай"), ("kk", "өлгім келеді"), ("uz", "erim meni uradi")])
+def test_remaining_languages_reply_in_own_language(lang, text):
+    first = compose(text).split("\n")[0]
+    assert first in {r[0] for r in WORLD_REPLY[lang].values()}, (lang, first)
+
+
+def test_romanian_is_not_vietnamese_and_kazakh_is_not_russian():
+    assert world_lang("vreau să mor") == "ro"
+    assert world_lang("анам тыныс алмайды", 1) == "kk"
+    assert world_lang("мама не дышит", 1) == "ru"
+
+
+def test_13yarn_in_english_crisis_reply():
+    assert "13YARN" in compose("I want to die")

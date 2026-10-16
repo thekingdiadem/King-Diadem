@@ -513,3 +513,233 @@ def compose_world(lang: str, kind: str, status: str, sign: str, footer: bool = T
     body = "\n".join(f"{i + 1}) {s}" for i, s in enumerate(steps))
     tag = "\n· Answered from the system's equations — no AI used" if footer else ""
     return f"{opener}\n\n{status}\n\n{body}\n\n{ask}\n\n{sign}" + tag
+
+
+# ══════════════════════════════════════════════════════════════════
+# รอบ "ทำภาษาที่เหลือ": กรีก โรมาเนีย สวีเดน ฮีบรู มองโกเลีย คาซัค อุซเบก
+# (ฮาวายและภาษาพื้นเมืองออสเตรเลีย: ผู้พูดเกือบทั้งหมดอ่านอังกฤษได้ และคำแนะนำทางการแพทย์ที่แปลเองเสี่ยงผิด
+#  จึงใช้คำตอบภาษาอังกฤษที่มีเบอร์ออสเตรเลีย + 13YARN สายด่วนของชาวอะบอริจินและช่องแคบทอร์เรส แทน)
+# ══════════════════════════════════════════════════════════════════
+WORLD_REPLY.update({
+    "el": {
+        "crisis": _set("Σε ακούω, και σε ευχαριστώ που μου το είπες.",
+                       ["Στην Ταϊλάνδη κάλεσε το 1323 (ψυχική υγεία, 24 ώρες). Αν κινδυνεύεις τώρα: 1669.",
+                        "Μη μείνεις μόνος/μόνη — πες σε έναν άνθρωπο που εμπιστεύεσαι ότι δεν είσαι καλά.",
+                        "Ελλάδα: γραμμή παρέμβασης για την αυτοκτονία 1018 · έκτακτη ανάγκη 112 · αλλού: findahelpline.com"],
+                       "Είσαι ασφαλής αυτή τη στιγμή;"),
+        "medical": _set("Είναι επείγον — τηλεφώνησε πρώτα.",
+                        ["Κάλεσε τώρα το 1669 (Ταϊλάνδη) · 112 ή ΕΚΑΒ 166 στην Ελλάδα. Πες τη διεύθυνση και τα συμπτώματα.",
+                         "Αν δεν αναπνέει ή δεν αντιδρά: πίεσε δυνατά στο κέντρο του στήθους, 100–120 φορές το λεπτό.",
+                         "Μη δώσεις νερό ή φαγητό. Κράτα τη συσκευασία του φαρμάκου για τον γιατρό."],
+                        "Είναι κάποιος με τον άνθρωπο αυτή τη στιγμή;"),
+        "violence": _set("Δεν φταις εσύ. Αξίζεις να είσαι ασφαλής.",
+                         ["Αν κινδυνεύεις τώρα: 191 (αστυνομία Ταϊλάνδης) · 100 ή 112 στην Ελλάδα.",
+                          "Πήγαινε πρώτα κάπου ασφαλές: σε γείτονα, σε φίλους, σε μέρος με κόσμο.",
+                          "Κράτα φωτογραφίες τραυμάτων και μηνύματα ως αποδείξεις. Ελλάδα: γραμμή SOS 15900."],
+                         "Είσαι ασφαλής τώρα;"),
+        "help": _set("Είμαι εδώ. Πες μου τι συμβαίνει.",
+                     ["Κίνδυνος ή τραυματισμός τώρα: 1669 (ιατρικό) · 191 (αστυνομία) στην Ταϊλάνδη · 112.",
+                      "Γράψε σε μία πρόταση τι έγινε.",
+                      "Αν μπορείς, πήγαινε κοντά σε άλλους ανθρώπους."],
+                     "Πού είσαι τώρα, και είναι κάποιος μαζί σου;"),
+        "general": _set("Ας το πάρουμε βήμα βήμα.",
+                        ["Γράψε σε μία πρόταση τι πραγματικά συμβαίνει.",
+                         "Κατέγραψε τι μπορείς να κάνεις σήμερα, ακόμα και κάτι μικρό.",
+                         "Διάλεξε ένα μόνο βήμα για τις επόμενες 24 ώρες."],
+                        "Τι σε βαραίνει περισσότερο αυτή τη στιγμή;"),
+    },
+    "ro": {
+        "crisis": _set("Te aud și îți mulțumesc că mi-ai spus.",
+                       ["În Thailanda sună la 1323 (sănătate mintală, 24 de ore). Dacă ești în pericol acum: 1669.",
+                        "Nu rămâne singur/singură — spune unei persoane de încredere că nu ești bine.",
+                        "România: 112 · Alianța Română de Prevenție a Suicidului 0800 801 200 · în alte țări: findahelpline.com"],
+                       "Ești în siguranță acum?"),
+        "medical": _set("Este o urgență — sună mai întâi.",
+                        ["Sună acum la 1669 (Thailanda) · 112 în Europa. Spune adresa și simptomele.",
+                         "Dacă nu respiră sau nu răspunde: apasă puternic în mijlocul pieptului, de 100–120 de ori pe minut.",
+                         "Nu da apă sau mâncare. Păstrează ambalajul medicamentului pentru medic."],
+                        "Este cineva lângă persoană acum?"),
+        "violence": _set("Nu este vina ta. Meriți să fii în siguranță.",
+                         ["Dacă ești în pericol acum: 191 (poliția din Thailanda) · 112 în Europa.",
+                          "Mergi mai întâi într-un loc sigur: la un vecin, la prieteni, unde sunt oameni.",
+                          "Păstrează fotografii cu rănile și mesajele ca dovezi. România: linia pentru victimele violenței 0800 500 333."],
+                         "Ești în siguranță acum?"),
+        "help": _set("Sunt aici. Spune-mi ce se întâmplă.",
+                     ["Pericol sau rănire acum: 1669 (medical) · 191 (poliție) în Thailanda · 112.",
+                      "Scrie într-o propoziție ce s-a întâmplat.",
+                      "Dacă poți, du-te lângă alți oameni."],
+                     "Unde ești acum și este cineva cu tine?"),
+        "general": _set("Hai să luăm lucrurile pas cu pas.",
+                        ["Scrie într-o propoziție ce se întâmplă de fapt.",
+                         "Notează ce poți face azi, chiar și ceva mic.",
+                         "Alege un singur pas pentru următoarele 24 de ore."],
+                        "Ce te apasă cel mai tare acum?"),
+    },
+    "sv": {
+        "crisis": _set("Jag hör dig, och tack för att du berättar.",
+                       ["I Thailand: ring 1323 (psykisk hälsa, dygnet runt). Om du är i fara nu: 1669.",
+                        "Var inte ensam — berätta för någon du litar på att du inte mår bra.",
+                        "Sverige: Självmordslinjen 90101 · nödnummer 112 · andra länder: findahelpline.com"],
+                       "Är du i säkerhet just nu?"),
+        "medical": _set("Det här är ett nödläge — ring först.",
+                        ["Ring 1669 nu (Thailand) · 112 i Europa. Säg adressen och symtomen.",
+                         "Om personen inte andas eller inte svarar: tryck hårt mitt på bröstet, 100–120 gånger per minut.",
+                         "Ge inte vatten eller mat. Spara förpackningen till läkemedlet åt läkaren."],
+                        "Är någon hos personen just nu?"),
+        "violence": _set("Det är inte ditt fel. Du förtjänar att vara trygg.",
+                         ["Om du är i fara nu: 191 (polisen i Thailand) · 112 i Europa.",
+                          "Gå först till en säker plats: en granne, vänner, en plats med folk.",
+                          "Spara bilder på skador och meddelanden som bevis. Sverige: Kvinnofridslinjen 020-50 50 50."],
+                         "Är du i säkerhet nu?"),
+        "help": _set("Jag är här. Berätta vad som händer.",
+                     ["Fara eller skada nu: 1669 (sjukvård) · 191 (polis) i Thailand · 112.",
+                      "Skriv i en mening vad som hände.",
+                      "Om du kan, gå till andra människor."],
+                     "Var är du nu, och är någon med dig?"),
+        "general": _set("Vi tar det steg för steg.",
+                        ["Skriv i en mening vad det egentligen handlar om.",
+                         "Skriv ner vad du kan göra i dag, även något litet.",
+                         "Välj ett enda steg för de kommande 24 timmarna."],
+                        "Vad tynger dig mest just nu?"),
+    },
+    "he": {
+        "crisis": _set("אני שומעת אותך, ותודה שסיפרת לי.",
+                       ["בתאילנד התקשרו ל־1323 (בריאות הנפש, 24 שעות). אם יש סכנה עכשיו: 1669.",
+                        "אל תישארו לבד — ספרו לאדם שאתם סומכים עליו שלא טוב לכם.",
+                        "בישראל: ער״ן 1201 · מד״א 101 · במדינות אחרות: findahelpline.com"],
+                       "האם אתם בטוחים עכשיו?"),
+        "medical": _set("זה מצב חירום — קודם כול מתקשרים.",
+                        ["התקשרו עכשיו ל־1669 (תאילנד) · מד״א 101 בישראל. מסרו כתובת ותסמינים.",
+                         "אם לא נושם או לא מגיב: לחצו חזק במרכז החזה, 100–120 פעמים בדקה.",
+                         "אל תתנו מים או אוכל. שמרו את אריזת התרופה כדי להראות לרופא."],
+                        "האם מישהו נמצא עכשיו ליד האדם?"),
+        "violence": _set("זו לא אשמתך. מגיע לך להיות בטוח/ה.",
+                         ["אם יש סכנה עכשיו: 191 (משטרת תאילנד) · 100 בישראל.",
+                          "לכו קודם למקום בטוח: שכנים, חברים, מקום שיש בו אנשים.",
+                          "שמרו תמונות של פציעות והודעות כראיה. בישראל: קו חירום לנפגעות אלימות 118."],
+                         "האם אתם בטוחים עכשיו?"),
+        "help": _set("אני כאן. ספרו לי מה קורה.",
+                     ["סכנה או פציעה עכשיו: 1669 (רפואה) · 191 (משטרה) בתאילנד · 101/100 בישראל.",
+                      "כתבו במשפט אחד מה קרה.",
+                      "אם אפשר, התקרבו לאנשים אחרים."],
+                     "איפה אתם עכשיו, והאם מישהו איתכם?"),
+        "general": _set("בואו ניקח את זה צעד אחר צעד.",
+                        ["כתבו במשפט אחד מה באמת קורה.",
+                         "רשמו מה אפשר לעשות היום, אפילו משהו קטן.",
+                         "בחרו צעד אחד בלבד ל־24 השעות הקרובות."],
+                        "מה הכי מכביד עליכם עכשיו?"),
+    },
+    "mn": {
+        "crisis": _set("Би таныг сонсож байна, хэлсэнд баярлалаа.",
+                       ["Тайландад 1323 (сэтгэцийн эрүүл мэнд, 24 цаг) руу залгаарай. Одоо аюулд байвал: 1669.",
+                        "Ганцаараа бүү бай — итгэдэг нэг хүндээ сайнгүй байгаагаа хэлээрэй.",
+                        "Монголд: түргэн тусламж 103 · цагдаа 102 · бусад улсад: findahelpline.com"],
+                       "Та яг одоо аюулгүй байна уу?"),
+        "medical": _set("Энэ яаралтай байдал — эхлээд залгаарай.",
+                        ["Одоо 1669 руу залга (Тайланд) · Монголд 103. Хаяг, шинж тэмдгийг хэл.",
+                         "Амьсгалахгүй эсвэл хариу өгөхгүй бол: цээжний голыг минутад 100–120 удаа хүчтэй дар.",
+                         "Ус, хоол бүү өг. Уусан эмийн хайрцгийг эмчид үзүүлэхээр хадгал."],
+                        "Одоо өвчтөний дэргэд хэн нэгэн байна уу?"),
+        "violence": _set("Энэ таны буруу биш. Та аюулгүй байх ёстой.",
+                         ["Одоо аюулд байвал: 191 (Тайландын цагдаа) · Монголд 102.",
+                          "Эхлээд аюулгүй газар оч: хөрш, найзын гэр, хүн олонтой газар.",
+                          "Гэмтлийн зураг, мессежүүдээ нотлох баримт болгон хадгал. Тайландад 24 цагийн тусламж: 1300."],
+                         "Та одоо аюулгүй байна уу?"),
+        "help": _set("Би энд байна. Юу болж байгааг хэлээрэй.",
+                     ["Одоо аюул эсвэл гэмтэл байвал: 1669 (эмнэлэг) · 191 (цагдаа) Тайландад · Монголд 103/102.",
+                      "Юу болсныг нэг өгүүлбэрээр бич.",
+                      "Боломжтой бол бусад хүмүүсийн дэргэд оч."],
+                     "Та одоо хаана байна, хажууд тань хэн нэгэн байна уу?"),
+        "general": _set("Алхам алхмаар авч үзье.",
+                        ["Юу болж байгааг нэг өгүүлбэрээр бич.",
+                         "Өнөөдөр хийж чадах зүйлсээ жагсаа, жижиг ч байсан.",
+                         "Дараагийн 24 цагт хийх ганц алхмыг сонго."],
+                        "Одоо таныг хамгийн их юу дарамталж байна вэ?"),
+    },
+    "kk": {
+        "crisis": _set("Мен сізді тыңдап отырмын, айтқаныңызға рахмет.",
+                       ["Таиландта 1323 нөміріне қоңырау шалыңыз (психикалық денсаулық, тәулік бойы). Қазір қауіп болса: 1669.",
+                        "Жалғыз қалмаңыз — сенетін бір адамға өзіңізді жаман сезініп жүргеніңізді айтыңыз.",
+                        "Қазақстанда: 112 · жедел жәрдем 103 · басқа елдерде: findahelpline.com"],
+                       "Сіз қазір қауіпсізсіз бе?"),
+        "medical": _set("Бұл шұғыл жағдай — алдымен қоңырау шалыңыз.",
+                        ["Қазір 1669 нөміріне қоңырау шалыңыз (Таиланд) · Қазақстанда 103 немесе 112. Мекенжай мен белгілерді айтыңыз.",
+                         "Тыныс алмаса немесе жауап бермесе: кеуденің ортасын минутына 100–120 рет қатты басыңыз.",
+                         "Су не тамақ бермеңіз. Ішкен дәрінің қорабын дәрігерге көрсету үшін сақтаңыз."],
+                        "Қазір науқастың жанында біреу бар ма?"),
+        "violence": _set("Бұл сіздің кінәңіз емес. Сіз қауіпсіз болуға лайықсыз.",
+                         ["Қазір қауіп болса: 191 (Таиланд полициясы) · Қазақстанда 102 немесе 112.",
+                          "Алдымен қауіпсіз жерге барыңыз: көршіге, достарыңызға, адам көп жерге.",
+                          "Жарақат суреттері мен хабарламаларды дәлел ретінде сақтаңыз. Таиландта тәулік бойы көмек: 1300."],
+                         "Сіз қазір қауіпсізсіз бе?"),
+        "help": _set("Мен осындамын. Не болып жатқанын айтыңыз.",
+                     ["Қазір қауіп не жарақат болса: 1669 (медициналық) · 191 (полиция) Таиландта · Қазақстанда 112.",
+                      "Не болғанын бір сөйлеммен жазыңыз.",
+                      "Мүмкін болса, басқа адамдардың қасына барыңыз."],
+                     "Қазір қайдасыз, қасыңызда біреу бар ма?"),
+        "general": _set("Қадам-қадаммен қарастырайық.",
+                        ["Не болып жатқанын бір сөйлеммен жазыңыз.",
+                         "Бүгін не істей алатыныңызды жазыңыз, кішкентай болса да.",
+                         "Келесі 24 сағатқа бір ғана қадам таңдаңыз."],
+                        "Қазір сізді ең көп не мазалап тұр?"),
+    },
+    "uz": {
+        "crisis": _set("Sizni eshityapman, aytganingiz uchun rahmat.",
+                       ["Tailandda 1323 raqamiga qo'ng'iroq qiling (ruhiy salomatlik, 24 soat). Hozir xavf bo'lsa: 1669.",
+                        "Yolg'iz qolmang — ishongan bir odamingizga o'zingizni yomon his qilayotganingizni ayting.",
+                        "O'zbekistonda: tez yordam 103 · militsiya 102 · boshqa davlatlarda: findahelpline.com"],
+                       "Hozir xavfsiz joydamisiz?"),
+        "medical": _set("Bu shoshilinch holat — avval qo'ng'iroq qiling.",
+                        ["Hozir 1669 ga qo'ng'iroq qiling (Tailand) · O'zbekistonda 103. Manzil va belgilarni ayting.",
+                         "Nafas olmasa yoki javob bermasa: ko'krakning o'rtasini daqiqasiga 100–120 marta qattiq bosing.",
+                         "Suv yoki ovqat bermang. Ichgan dorining qutisini shifokorga ko'rsatish uchun saqlang."],
+                        "Hozir bemorning yonida kimdir bormi?"),
+        "violence": _set("Bu sizning aybingiz emas. Siz xavfsiz bo'lishga haqlisiz.",
+                         ["Hozir xavf bo'lsa: 191 (Tailand politsiyasi) · O'zbekistonda 102.",
+                          "Avval xavfsiz joyga boring: qo'shni, do'stlar uyi yoki odam ko'p joy.",
+                          "Jarohat suratlari va xabarlarni dalil sifatida saqlang. Tailandda 24 soatlik yordam: 1300."],
+                         "Hozir xavfsizmisiz?"),
+        "help": _set("Men shu yerdaman. Nima bo'layotganini ayting.",
+                     ["Hozir xavf yoki jarohat bo'lsa: 1669 (tibbiy) · 191 (politsiya) Tailandda · O'zbekistonda 103/102.",
+                      "Nima bo'lganini bitta gap bilan yozing.",
+                      "Iloji bo'lsa, boshqa odamlar yoniga boring."],
+                     "Hozir qayerdasiz, yoningizda kimdir bormi?"),
+        "general": _set("Keling, qadamma-qadam ko'rib chiqamiz.",
+                        ["Aslida nima bo'layotganini bitta gap bilan yozing.",
+                         "Bugun nima qila olishingizni yozing, kichik bo'lsa ham.",
+                         "Keyingi 24 soat uchun bitta qadamni tanlang."],
+                        "Hozir sizni eng ko'p nima qiynayapti?"),
+    },
+})
+
+_WORD_RX.update({k: re.compile(r"(?<![\w'])(?:" + v + r")(?![\w'])", re.I) for k, v in {
+    "ro": r"vreau|să|mor|mama|nu|respiră|soțul|bate|ajutor|sunt|foarte|obosit|azi|astăzi|și|mă|eu",
+    "sv": r"jag|inte|vill|dö|andas|mamma|min|man|slår|mig|hjälp|är|mycket|trött|idag|och",
+    "uz": r"men|o'lmoqchiman|o'lishni|xohlayman|onam|nafas|olmayapti|erim|uradi|meni|yordam|bering|juda|charchadim|bugun|ishda",
+}.items()})
+_GREEK = re.compile(r"[Ͱ-Ͽ]")
+_HEBREW = re.compile(r"[֐-׿]")
+_KK = re.compile(r"[әғқңұһӘҒҚҢҰҺ]")
+_UZ_CYR = re.compile(r"[ўҳЎҲ]")
+_MN = re.compile(r"[өүӨҮ]|байна|туслаарай|ээж|намайг|амьсгал|өнөөдөр|ядарч")
+_KK_WORDS = re.compile(r"келеді|анам|тыныс|алмайды|мені|көмек|бүгін|шаршадым|өлгім|ұрады")
+_RO_ONLY = re.compile(r"[șțȘȚ]|\bsă\b|\bvreau\b|\bsoțul\b|\brespiră\b", re.I)
+_world_lang_base = world_lang
+
+
+def world_lang(text, min_hits: int = 2) -> str | None:  # noqa: F811 — ขยายตัวเดิมด้วยภาษารอบนี้
+    t = str(text or "")
+    if _GREEK.search(t):
+        return "el"
+    if _HEBREW.search(t):
+        return "he"
+    if _CYR.search(t):
+        if _UZ_CYR.search(t):
+            return "uz"
+        if _KK.search(t) or _KK_WORDS.search(t):
+            return "kk"
+        if _MN.search(t):
+            return "mn"
+    if _RO_ONLY.search(t):                       # โรมาเนียมี ă เหมือนเวียดนาม — ตรวจก่อน
+        return "ro"
+    return _world_lang_base(t, min_hits)

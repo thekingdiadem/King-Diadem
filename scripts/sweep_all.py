@@ -427,6 +427,12 @@ WORLD.update({
     "yo": ["mo fẹ́ kú", "ìyá mi kò mí", "ọkọ mi ń lù mí"], "zu": ["ngifuna ukufa", "umama akaphefumuli", "umyeni wami uyangishaya"],
     "af": ["ek wil doodgaan", "my ma haal nie asem nie", "my man slaan my"], "so": ["waan dhiman rabaa", "hooyo ma neefsanayo", "ninkayga wuu i garaacaa"],
 })
+WORLD.update({
+    "el": ["θέλω να πεθάνω", "η μητέρα μου δεν αναπνέει", "ο άντρας μου με χτυπάει"], "ro": ["vreau să mor", "mama nu respiră", "soțul mă bate"],
+    "sv": ["jag vill dö", "mamma andas inte", "min man slår mig"], "he": ["אני רוצה למות", "אמא לא נושמת", "בעלי מרביץ לי"],
+    "mn": ["үхмээр байна", "ээж амьсгалахгүй байна", "нөхөр намайг зоддог"], "kk": ["өлгім келеді", "анам тыныс алмайды", "күйеуім мені ұрады"],
+    "uz": ["o'lmoqchiman", "onam nafas olmayapti", "erim meni uradi"],
+})
 # เรื่องทั่วไปต้องได้คำตอบภาษาของตัวเอง (core/world_replies.py)
 WORLD_GENERAL = {"fr": "je suis très fatigué avec mon travail aujourd'hui", "de": "ich bin heute sehr müde und weiß nicht was ich will",
                  "pt": "eu estou muito cansado com meu trabalho hoje", "it": "io sono molto stanco con il mio lavoro oggi",
@@ -436,11 +442,14 @@ WORLD_GENERAL = {"fr": "je suis très fatigué avec mon travail aujourd'hui", "d
                  "af": "ek is baie moeg vandag en ek weet nie wat om te doen nie", "so": "waxaan maanta aad ugu daalay shaqada",
                  "my": "ဒီနေ့ အလုပ်မှာ အရမ်းပင်ပန်းတယ်", "km": "ថ្ងៃនេះខ្ញុំហត់នឿយនឹងការងារណាស់", "lo": "ມື້ນີ້ເມື່ອຍວຽກຫຼາຍ",
                  "vi": "hôm nay tôi rất mệt vì công việc", "id": "aku capek banget sama kerjaan hari ini", "hi": "आज काम से मैं बहुत थक गया हूँ",
-                 "ar": "أنا متعب جدا من العمل اليوم", "tr": "bugün işten çok yoruldum"}
+                 "ar": "أنا متعب جدا من العمل اليوم", "tr": "bugün işten çok yoruldum",
+                 "el": "είμαι πολύ κουρασμένος σήμερα από τη δουλειά", "ro": "sunt foarte obosit azi și nu știu ce să fac",
+                 "sv": "jag är mycket trött idag och vet inte vad jag vill", "he": "אני מאוד עייף היום מהעבודה",
+                 "mn": "өнөөдөр ажлаасаа их ядарч байна", "kk": "бүгін жұмыстан қатты шаршадым", "uz": "bugun ishda juda charchadim"}
 WORLD_EN_CALM = ["I am very tired with my job today", "help me with my homework", "estoy muy cansado con mi trabajo hoy", "my mom is not ok"]
 # ภาษาเอเชียที่ต้องได้คำตอบในภาษาของตัวเอง (core/asia_replies.py) ไม่ใช่ภาษาอังกฤษ
 WORLD_NATIVE = ("my", "km", "lo", "vi", "id", "ms", "tl", "hi", "ne", "bn", "ur", "ta", "si", "fa", "ar", "tr",
-                "fr", "de", "pt", "it", "ru", "uk", "pl", "nl", "sw", "am", "ha", "yo", "zu", "af", "so")
+                "fr", "de", "pt", "it", "ru", "uk", "pl", "nl", "sw", "am", "ha", "yo", "zu", "af", "so", "el", "ro", "sv", "he", "mn", "kk", "uz")
 WORLD_HELP = ["救命", "助けて", "살려주세요", "ayuda", "cứu tôi với", "tolong saya", "tulong", "au secours", "hilfe", "socorro", "помогите",
               "النجدة", "बचाओ", "ကယ်ပါ", "ជួយផង", "ຊ່ວຍແດ່", "aiuto", "imdat"]
 WORLD_FRAME = ["{x}", "{x}!!", "{x} ...", "{x} 😭", "{x}?"]
