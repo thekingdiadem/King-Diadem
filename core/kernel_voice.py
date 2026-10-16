@@ -1857,7 +1857,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         )
 
     # ── 2. ทักทายสั้นๆ ─────────────────────────────────────────────
-    if not a["topics"] and len(t.strip()) <= 24 and _hit(t, GREETINGS):
+    if not a["topics"] and a["text_risk"] < 35 and len(t.strip()) <= 24 and _hit(t, GREETINGS):
         return (f"สวัสดี{end} เล่าเรื่องที่กำลังตัดสินใจ หรือสิ่งที่หนักใจอยู่มาได้เลย "
                 f"ระบบจะช่วยเรียงทางเลือกที่มีให้เห็นชัดขึ้น{end}\n\n{sign}" + tag)
 
