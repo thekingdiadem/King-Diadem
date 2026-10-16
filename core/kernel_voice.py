@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (normalize_mixed, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
+from core.thai_signals import (normalize_mixed, retone, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
@@ -318,7 +318,9 @@ TOPICS = [
         ],
         "ask": "ตอนนี้ติดต่อคนข้างนอกได้ทางไหนบ้าง และรู้ไหมว่าอยู่ที่ไหน?",
     }),
-    ("health_emergency", ["เจ็บหน้าอก", "แน่นหน้าอก", "หายใจไม่ออก", "หมดสติ", "ชักเกร็ง", "ชักกระตุก",
+    # "กินจนอิ่มหายใจไม่ออก" "ขำจนหายใจไม่ออก" "งานเยอะจนหายใจไม่ออก" เป็นสำนวน ไม่ใช่หายใจไม่ได้จริง
+    ("health_emergency", ["เจ็บหน้าอก", "แน่นหน้าอก",
+                          re.compile(r"^(?![\s\S]*(?:อิ่ม|ขำ|หัวเราะ|งานเยอะ|งานล้น|ภาระ|หนี้)\S{0,8}?หายใจไม่ออก)[\s\S]*?หายใจไม่ออก"), "หมดสติ", "ชักเกร็ง", "ชักกระตุก",
                           "ชักไม่หยุด", re.compile(r"(?:ลูก|เด็ก|หลาน|ทารก|น้อง)\S{0,8}?ชัก(?!ชวน|จูง|ธง|ช้า|ว่าว|ใย)"),
                           re.compile(r"ปวดท้อง\S{0,4}?(?:ขวาล่าง|ด้านขวาล่าง)[^\n]{0,20}?ไข้|ไข้[^\n]{0,20}?ปวดท้อง\S{0,4}?ขวาล่าง"),
                           "เลือดออกไม่หยุด", "ปากเบี้ยว", "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
@@ -966,6 +968,13 @@ MONEY_PLAN = {
 _DAYS_TO_PAY = re.compile(r"อีก\s*(\d+)\s*วัน\S{0,8}?(?:เงินเดือน|เงิน|ค่าจ้าง|ค่าแรง)\S{0,4}?(?:ออก|เข้า)|(\d+)\s*วัน(?:กว่า)?(?:จะ|ถึงจะ)(?:ได้เงิน|เงินเดือนออก|เงินออก)")
 
 
+_FICTION = re.compile(r"หนัง(?:เรื่อง)?|ฉาก|ละคร|ซีรีส์|ข่าว|(?:อ่?าน|ดู|ฟัง)ข่?าว|นิยาย|การ์ตูน|ในเกม|(?i:\bin the (?:news|movie|show|game)\b)")
+_CLOSE = re.compile(r"ลูก|แม่|พ่อ|ฉัน|หนู|ผม|เรา|เพื่อน|แฟน|สามี|ภรรยา|น้อง|พี่|ยาย|ตา(?!ย)|ช่วยด้วย|(?i:\b(?:my|i|me|help)\b)")
+_MINOR = re.compile(r"นิดเดียว|นิดหน่?อย|ไม่?เป็นไร(?:มาก)?|ไม่?เข้?าเนื้?อ|ไม่มีแผล|ไม่ถึงกับ|เล่นๆ|(?i:\bjust a (?:little|scratch)\b|\bnot (?:bad|serious)\b|\bi'?m fine\b)")
+_RED_FLAG = re.compile(r"หมดสติ|ไม่รู้สึกตัว|ชัก|อาเจียน|อ้วก|ซึม|หายใจ|เลือด\S{0,6}?(?:ไม่หยุด|พุ่ง|เยอะ|มาก)|หัว(?:ฟาด|กระแทก|แตก)|ลุกไม่|ขยับ\S{0,4}?ไม่(?:ได้)?|เดินไม่ได้|บวมมาก|ผิดรูป|"
+                       r"งู|หมาบ้า|ค้างคาว|ลิง|ช็อต|ช๊อต|ดูด|ขาด|หัก|โผล่|ตา|ทารก|เด็ก(?:เล็ก)?|ผู้สูงอายุ|(?i:\bunconscious|\bbleeding|\bsnake)")
+
+
 def _money_plan(text: str) -> bool:
     """เรื่องเงินที่ไม่ใช่การขาดเงิน: ไม่มีคำว่าขาด/หมด และถ้าคำนวณงบได้ ต้องไม่ติดลบ"""
     if MONEY_SHORT.search(text):
@@ -1491,6 +1500,19 @@ _DENGUE_WARN = re.compile(r"ไข้เลือดออก[^\n]{0,30}?(?:เ�
 
 
 def assess(text: str, pattern: dict | None = None) -> dict:
+    """ประเมินข้อความ — ถ้าพิมพ์โดยไม่ใส่วรรณยุกต์ ("ลูกไมหายใจ") ลองฉบับที่เติมวรรณยุกต์ด้วย แล้วใช้ฉบับที่เห็นอันตรายมากกว่า"""
+    a = _assess(text, pattern)
+    plain = normalize_mixed(text)
+    alt = retone(plain)
+    if alt != plain:
+        b = _assess(alt, pattern)
+        # ฉบับเติมวรรณยุกต์ใกล้กับที่ผู้ใช้ตั้งใจพิมพ์กว่า ("อานขาว…" = "อ่านข่าว…" ไม่ใช่เรื่องด่วน)
+        # ยกเว้นฉบับเดิมเห็นวิกฤตแต่ฉบับเติมไม่เห็น — ไม่ยอมเสียสัญญาณวิกฤตเพราะเติมผิดคำ
+        return a if (a["crisis"] and not b["crisis"]) else b
+    return a
+
+
+def _assess(text: str, pattern: dict | None = None) -> dict:
     """ตัวเลขของระบบ (ไม่มี LLM): W, Risk, หัวข้อ, ความเร่งด่วน"""
     text = normalize_mixed(text)                # "I want to dieค่ะ" — เว้นวรรคอังกฤษ/ไทยที่พิมพ์ติดกัน
     t = text.lower()
@@ -1518,6 +1540,12 @@ def assess(text: str, pattern: dict | None = None) -> dict:
         human = strip_pet_poison(t_now)
         topics = [n for n in topics if n not in ("overdose", "first_aid", "health")
                   or _hit(human, next(ph for nm, ph, _ in TOPICS if nm == n))]
+    # รอบด้านกลับ: "หนังเรื่องนี้ฉากคนจมน้ำน่ากลัว" "อ่านข่าวคนถูกแทง" เคยได้ Risk 85 · "ตกบันไดนิดเดียวไม่เป็นไร"
+    # "แมวกัดเล่นไม่เข้าเนื้อ" เคยได้ 75 — เรื่องในหนัง/ข่าวที่ไม่เกี่ยวกับคนใกล้ตัว และเจ็บเล็กน้อยที่ผู้ใช้บอกเองว่าไม่เป็นไร
+    if _FICTION.search(t_now) and not _CLOSE.search(t_now):
+        topics = [n for n in topics if n not in ("health_emergency", "first_aid")]
+    if "first_aid" in topics and _MINOR.search(t_now) and not _RED_FLAG.search(t_now):
+        topics = [n for n in topics if n != "first_aid"]
     if tr.get("third_party") and "someone" not in topics:      # "เพื่อนบอกว่ากรีดแขน" — คนอื่นกำลังวิกฤต
         topics.insert(0, "someone")
     # ภาษาอื่น (zh ja ko es): เรื่องด่วนเข้าหัวข้อเดียวกับภาษาไทย — "เพื่อนอยากตาย" ไม่ใช่วิกฤตของผู้ใช้เอง
