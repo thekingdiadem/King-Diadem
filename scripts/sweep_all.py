@@ -420,8 +420,27 @@ WORLD = {
     "ur": ["میں مرنا چاہتا ہوں", "امی سانس نہیں لے رہی", "شوہر مجھے مارتا ہے"], "ta": ["நான் சாக வேண்டும்", "அம்மா மூச்சு விடவில்லை", "கணவர் என்னை அடிக்கிறார்"],
     "si": ["මට මැරෙන්න ඕනේ", "අම්මා හුස්ම ගන්නේ නැහැ", "මහත්තයා මට ගහනවා"], "fa": ["میخوام بمیرم", "مادرم نفس نمی‌کشد", "شوهرم منو می‌زنه"],
 }
+WORLD.update({
+    "uk": ["я хочу померти", "мама не дихає", "чоловік мене б'є"], "pl": ["chcę umrzeć", "mama nie oddycha", "mąż mnie bije"],
+    "nl": ["ik wil dood", "mijn moeder ademt niet", "mijn man slaat mij"], "sw": ["nataka kufa", "mama hapumui", "mume wangu ananipiga"],
+    "am": ["መሞት እፈልጋለሁ", "እናቴ አይተነፍስም", "ባሌ ይመታኛል"], "ha": ["ina so in mutu", "mahaifiyata ba ta numfashi", "mijina yana duka ni"],
+    "yo": ["mo fẹ́ kú", "ìyá mi kò mí", "ọkọ mi ń lù mí"], "zu": ["ngifuna ukufa", "umama akaphefumuli", "umyeni wami uyangishaya"],
+    "af": ["ek wil doodgaan", "my ma haal nie asem nie", "my man slaan my"], "so": ["waan dhiman rabaa", "hooyo ma neefsanayo", "ninkayga wuu i garaacaa"],
+})
+# เรื่องทั่วไปต้องได้คำตอบภาษาของตัวเอง (core/world_replies.py)
+WORLD_GENERAL = {"fr": "je suis très fatigué avec mon travail aujourd'hui", "de": "ich bin heute sehr müde und weiß nicht was ich will",
+                 "pt": "eu estou muito cansado com meu trabalho hoje", "it": "io sono molto stanco con il mio lavoro oggi",
+                 "ru": "я очень устал на работе", "uk": "я дуже втомився на роботі", "pl": "jestem bardzo zmęczony i nie wiem co robić",
+                 "nl": "ik ben heel moe en ik weet het niet", "sw": "mimi nina shida na kazi yangu leo", "am": "ዛሬ በስራዬ በጣም ደክሞኛል",
+                 "ha": "ina da matsala da aiki na yau sosai", "yo": "mo ni wahala ni ibi iṣẹ́ mi lónìí", "zu": "ngikhathele kakhulu namuhla emsebenzini",
+                 "af": "ek is baie moeg vandag en ek weet nie wat om te doen nie", "so": "waxaan maanta aad ugu daalay shaqada",
+                 "my": "ဒီနေ့ အလုပ်မှာ အရမ်းပင်ပန်းတယ်", "km": "ថ្ងៃនេះខ្ញុំហត់នឿយនឹងការងារណាស់", "lo": "ມື້ນີ້ເມື່ອຍວຽກຫຼາຍ",
+                 "vi": "hôm nay tôi rất mệt vì công việc", "id": "aku capek banget sama kerjaan hari ini", "hi": "आज काम से मैं बहुत थक गया हूँ",
+                 "ar": "أنا متعب جدا من العمل اليوم", "tr": "bugün işten çok yoruldum"}
+WORLD_EN_CALM = ["I am very tired with my job today", "help me with my homework", "estoy muy cansado con mi trabajo hoy", "my mom is not ok"]
 # ภาษาเอเชียที่ต้องได้คำตอบในภาษาของตัวเอง (core/asia_replies.py) ไม่ใช่ภาษาอังกฤษ
-WORLD_NATIVE = ("my", "km", "lo", "vi", "id", "ms", "tl", "hi", "ne", "bn", "ur", "ta", "si", "fa", "ar", "tr")
+WORLD_NATIVE = ("my", "km", "lo", "vi", "id", "ms", "tl", "hi", "ne", "bn", "ur", "ta", "si", "fa", "ar", "tr",
+                "fr", "de", "pt", "it", "ru", "uk", "pl", "nl", "sw", "am", "ha", "yo", "zu", "af", "so")
 WORLD_HELP = ["救命", "助けて", "살려주세요", "ayuda", "cứu tôi với", "tolong saya", "tulong", "au secours", "hilfe", "socorro", "помогите",
               "النجدة", "बचाओ", "ကယ်ပါ", "ជួយផង", "ຊ່ວຍແດ່", "aiuto", "imdat"]
 WORLD_FRAME = ["{x}", "{x}!!", "{x} ...", "{x} 😭", "{x}?"]
@@ -434,14 +453,18 @@ def world(n=0):
     cases = [(f.format(x=x), 60) for xs in WORLD.values() for x in xs for f in WORLD_FRAME]
     cases += [(f.format(x=x), 50) for x in WORLD_HELP for f in WORLD_FRAME]
     bad = [t for t, need in cases if assess(t)["text_risk"] < need]
-    from core.asia_replies import REPLY
-    openers = {lg: {r[0] for r in REPLY[lg].values()} for lg in WORLD_NATIVE}
+    from core.world_replies import reply_for
+    openers = {lg: {r[0] for r in (reply_for(lg, k) for k in ("crisis", "medical", "violence", "help")) if r} for lg in WORLD_NATIVE}
     for lg in WORLD_NATIVE:
         for x in WORLD[lg]:
             if compose(x).split("\n")[0] not in openers[lg]:
                 bad.append(f"(ไม่ได้ตอบเป็นภาษา {lg}) {x}")
+    for lg, x in WORLD_GENERAL.items():
+        if compose(x).split("\n")[0] != reply_for(lg, "general")[0]:
+            bad.append(f"(เรื่องทั่วไปไม่ได้ตอบเป็นภาษา {lg}) {x}")
+    bad += [f"(ภาษาอังกฤษ/สเปนถูกเดาผิด) {t}" for t in WORLD_EN_CALM if compose(t).split("\n")[0] not in ("Let's lay this out step by step.", "Vamos a ordenarlo paso a paso.")]
     bad += [f"(ธรรมดา) {t}" for t in WORLD_CALM if assess(t)["text_risk"] >= 50]
-    return len(cases) + len(WORLD_CALM), bad
+    return len(cases) + len(WORLD_CALM) + len(WORLD_GENERAL) + len(WORLD_EN_CALM), bad
 
 
 SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "en_crisis": en_crisis, "th_crisis": th_crisis, "th_violence": th_violence, "en_violence": en_violence, "followup": followup, "th_scam": th_scam, "en_scam": en_scam, "world": world}
