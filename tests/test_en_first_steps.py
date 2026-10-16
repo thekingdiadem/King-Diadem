@@ -28,3 +28,15 @@ def test_english_first_step(text, needle):
 @pytest.mark.parametrize("text", ["I burned my toast lol", "my son is drowning in homework", "my dad hit his head on the cabinet lol he's fine"])
 def test_english_idioms_stay_calm(text):
     assert assess(text)["text_risk"] < 60
+
+
+@pytest.mark.parametrize("text", ["I wrote my goodbye letters", "I'm going to jump off the bridge tonight", "I've been stockpiling my pills",
+                                  "tonight is my last night", "I just want the pain to stop forever", "I wish I could sleep and never wake up"])
+def test_english_warning_signs_are_a_crisis(text):
+    a = assess(text)
+    assert a["crisis"] and "988" in compose(text)
+
+
+@pytest.mark.parametrize("text", ["end it all with a bang at the party", "I can't go on with this project", "tonight is my last night in Bangkok"])
+def test_english_everyday_phrases_are_not(text):
+    assert not assess(text)["crisis"] and assess(text)["text_risk"] < 60

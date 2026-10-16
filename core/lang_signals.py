@@ -82,7 +82,7 @@ def prompt_lang(text) -> str:
 # 想死你了 = คิดถึงมาก · me muero de risa = ขำจะตาย · dying to = อยากมาก
 SELF_HARM_INTL = (
     re.compile(r"\b(?:i\s+)?(?:want|wanna|going)\s+to\s+die\b|\bkill(?:ing)?\s+myself\b|\bsuicid|"
-               r"\bend(?:ing)?\s+(?:my\s+life|it\s+all)\b|\bdon'?t\s+want\s+to\s+(?:live|be\s+alive|exist)\b|"
+               r"\bend(?:ing)?\s+(?:my\s+life|it\s+all)\b(?!\s+(?:with\s+a\s+bang|at\s+the\s+party|in\s+style))|\bdon'?t\s+want\s+to\s+(?:live|be\s+alive|exist)\b|"
                r"\bbetter\s+off\s+dead\b|\bno\s+reason\s+to\s+live\b|\b(?:hurt|harm|cut)(?:ting)?\s+myself\b|"
                r"\bself[- ]harm", re.I),
     re.compile(r"想死(?!你|您|他|她|它|我了|了你)|不想活|活不下去|自杀|自殺|轻生|輕生|结束(?:自己的)?生命|結束(?:自己的)?生命|"

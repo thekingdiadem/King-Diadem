@@ -125,6 +125,12 @@ SELF_HARM_INDIRECT = re.compile(
     r"(?:อยาก|คิด(?:จะ)?|จะ|กำลังจะ)\S{0,4}?(?:ยิง|แทง|เชือด)ตัวเอง|(?:อยาก|คิด(?:จะ)?|จะ|กำลังจะ)(?:แขวนคอ|ผูกคอ)(?:ตาย)?(?=\s|$|ค่ะ|ครับ|แล้ว)|"
     r"อยากหลับ(?:ไป)?(?:แล้ว)?ไม่(?:ต้อง)?ตื่น|อยากหลับ\S{0,8}?\s*ไม่(?:ต้อง)?ตื่น(?:ขึ้นมา)?(?:อีก)?(?!\s*(?:เช้า|แต่เช้า|ไป(?:ทำงาน|เรียน)|มา(?:ทำงาน|เรียน)|ตอน|ตี\s*\d|\d|เลยทั้งวัน|ทั้งวัน|สาย))|หลับไปเลยไม่ต้องตื่น|ไม่อยากตื่นขึ้นมา(?:อีก)?(?:แล้ว)?(?!\s*(?:เช้า|ตอน|ไป))|"
     r"\bi (?:have|made|'?ve got) a plan to (?:end it|end my life|kill myself|die)\b|\bplanning to end (?:it|my life)\b|"
+    # สัญญาณอันตรายภาษาอังกฤษที่ไม่มีคำว่า die/suicide — เคยได้ Risk 0 ("I wrote my goodbye letters" "stockpiling my pills")
+    r"\bi (?:wrote|have written|'?ve written|am writing|'?m writing) (?:my )?(?:goodbye|suicide) (?:letters?|notes?)\b|"
+    r"\bi'?m (?:going to|gonna|about to|planning to) (?:jump off (?:a |the )?(?:bridge|building|roof|cliff|balcony)|jump from|hang myself|overdose|take all (?:my|the) pills)\b|"
+    r"\b(?:sleep|go to sleep|fall asleep) and never wake up\b|\b(?:stockpiling|saving up|hoarding) (?:my |the )?(?:pills|meds|medication|sleeping pills)\b|"
+    r"\b(?:i'?ve |i have )?given away (?:all )?(?:of )?my (?:stuff|things|belongings|possessions|pets)\b|"
+    r"\btonight (?:is|will be) my last night\b(?!\s+(?:in|at|here|of)\b)|\bmy last night (?:alive|on earth)\b|\bwant the pain to stop (?:forever|for good|permanently)\b|"
     r"วางแผน(?:จะ)?(?:ฆ่าตัวตาย|จบชีวิต|ตาย)|"
     # รอบ 18 (ชุดข้อความทดสอบกลาง): สำนวนบอกลา/หมดอยากมีชีวิต
     r"ไม่อยากมีลมหายใจ|เบื่อ(?:ที่จะ)?มีชีวิตอยู่|พรุ่งนี้(?:คง)?ไม่มี(?:ฉัน|หนู|ผม|เรา|กู)(?:แล้ว|อีกแล้ว)?(?=\s|$|[.!…~]|ค่ะ|คะ|ครับ|นะ|อะ)|"
@@ -157,13 +163,13 @@ SELF_HARM_WARNING = re.compile(
     r"ยก(?:ของ|ข้าวของ|สมบัติ|ของรัก)\S{0,8}ให้\S{0,8}(?:หมด|ไปหมด)(?:แล้ว)?(?![^\n]{0,20}(?:ย้าย|บริจาค|ขาย|เคลียร์|ไม่ใช้))|"
     r"เบื่อชีวิต|เบื่อโลก(?!\S{0,4}(?:โซเชียล|ออนไลน์|การทำงาน|ธุรกิจ|ภายนอก))|ไม่มีอะไรจะเสีย(?:แล้ว)?|อยู่ไปก็(?:ไม่มีประโยชน์|ไร้ค่า|เท่านั้น|เปล่าประโยชน์)|"
     r"ชีวิต(?:นี้)?ไม่มีความหมาย|ไม่มีใครต้องการ(?:ฉัน|เรา|หนู|ผม)|เป็นภาระ(?:ของ|ให้)?(?:ทุกคน|ครอบครัว|คนอื่น|พ่อแม่)|"
-    r"\bwant to disappear\b|\bi (?:don'?t|do not) want to wake up\b(?!\s+(?:early|tomorrow|at|for|so|today))|\bno ?one would (?:miss|notice|care)\b|\bnobody would (?:miss|notice|care)\b|"
+    r"\bwant to disappear\b(?!\s+(?:for\s+(?:a|the|this)\s+(?:weekend|while|day|week|trip|holiday|vacation)|on\s+(?:a\s+)?(?:trip|holiday|vacation)))|\bi (?:don'?t|do not) want to wake up\b(?!\s+(?:early|tomorrow|at|for|so|today))|\bno ?one would (?:miss|notice|care)\b|\bnobody would (?:miss|notice|care)\b|"
     r"\bi(?:'?m| am) (?:just )?a burden\b|\b(?:wish i could |want to )disappear forever\b|"
     r"อยาก(?:ไปอยู่กับ|ตามไปหา|ไปหา)(?:แม่|พ่อ|ยาย|ตา|ปู่|ย่า|แฟน|ลูก|เขา)\S{0,6}?(?:บนสวรรค์|บนฟ้า|ที่จากไป|บนนั้น)|"
     r"(?:ซื้อ|สะสม|ตุน)ยา\S{0,8}?(?:มา)?\s*(?:[2-9]|\d{2,})\s*แผง|"
     r"ชีวิต(?:ฉัน|ผม|หนู|เรา)?\S{0,4}ไม่มีค่า|(?:ฉัน|ตัวเอง|หนู|ผม)\S{0,4}ไม่มีค่าอะไร|(?:สะสม|เตรียม|เก็บ)ยา(?:ไว้)?(?:หมดแล้ว|เยอะ|หลายแผง)|\b(?:everyone|they|my family) (?:would be|'d be) better off without me\b|"
     r"ถ้าไม่มี(?:ฉัน|หนู|ผม|เรา|กู)\S{0,10}?(?:คง|จะ)\S{0,4}?(?:สบาย|ดีกว่า|มีความสุข)|"
-    r"\bi'?m (?:just )?a burden\b|\bi (?:feel|am|'?m) (?:so )?hopeless\b(?!\s+(?:at|about|with)\b)|\bthere'?s no way out\b|\bno reason to live\b|\bwish i (?:was|were) (?:dead|never born)\b|\bcan'?t go on\b",
+    r"\bi'?m (?:just )?a burden\b|\bi (?:feel|am|'?m) (?:so )?hopeless\b(?!\s+(?:at|about|with)\b)|\bthere'?s no way out\b|\bno reason to live\b|\bwish i (?:was|were) (?:dead|never born)\b|\bcan'?t go on\b(?!\s+(?:with|doing|working|like\s+this\s+at\s+work))",
     re.I,
 )
 
