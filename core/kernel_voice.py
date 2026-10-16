@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (normalize_mixed, retone, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
+from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
@@ -344,10 +344,14 @@ TOPICS = [
     }),
     # "กินจนอิ่มหายใจไม่ออก" "ขำจนหายใจไม่ออก" "งานเยอะจนหายใจไม่ออก" เป็นสำนวน ไม่ใช่หายใจไม่ได้จริง
     ("health_emergency", ["เจ็บหน้าอก", "แน่นหน้าอก",
-                          re.compile(r"^(?![\s\S]*(?:อิ่ม|ขำ|หัวเราะ|งานเยอะ|งานล้น|ภาระ|หนี้)\S{0,8}?หายใจไม่ออก)[\s\S]*?หายใจไม่ออก"), "หมดสติ", "ชักเกร็ง", "ชักกระตุก",
+                          re.compile(r"^(?![\s\S]*(?:อิ่ม|ขำ|หัวเราะ|งานเยอะ|งานล้น|ภาระ|หนี้)\S{0,8}?หายใจไม่(?:ค่อย)?(?:ออก|ได้))(?![\s\S]*หายใจไม่(?:ค่อย)?(?:ออก|ได้)\S{0,4}?(?:ถ้า|หากไม่|ขาด|เพราะ(?:เธอ|เขา|คิดถึง)))[\s\S]*?หายใจไม่(?:ค่อย)?(?:ออก|ได้)"), "หมดสติ", "ชักเกร็ง", "ชักกระตุก",
                           "ชักไม่หยุด", re.compile(r"(?:ลูก|เด็ก|หลาน|ทารก|น้อง)\S{0,8}?ชัก(?!ชวน|จูง|ธง|ช้า|ว่าว|ใย)"),
                           re.compile(r"ปวดท้อง\S{0,4}?(?:ขวาล่าง|ด้านขวาล่าง)[^\n]{0,20}?ไข้|ไข้[^\n]{0,20}?ปวดท้อง\S{0,4}?ขวาล่าง"),
-                          "เลือดออกไม่หยุด", "ปากเบี้ยว", "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
+                          "เลือดออกไม่หยุด", "ปากเบี้ยว",
+                          # "พ่อล้มลงไม่รู้สึกตัว" "โดนมีดฟันเลือดออกมาก" เคยได้ Risk 0
+                          re.compile(r"(?:ล้ม|หมด|ฟุบ|ช็อก|เรียก\S{0,6}?|(?:พ่อ|แม่|ลูก|เด็ก|หลาน|ยาย|ตา|ปู่|ย่า|สามี|ภรรยา|แฟน|เพื่อน|มีคน|คน)\S{0,6}?)ไม่รู้สึกตัว(?!\S{0,4}?ว่า)"),
+                          re.compile(r"^(?![\s\S]*(?:ประจำเดือน|เมนส์|ไรฟัน|เลือดกำเดา\S{0,4}?นิดหน่อย))[\s\S]*?เลือด(?:ออก|ไหล)\S{0,4}?(?:มาก|เยอะ|ท่วม|ทะลัก|ไม่หยุด)"),
+                          re.compile(r"(?:โดน|ถูก)(?:มีด|ดาบ|พร้า|ขวาน)\S{0,4}?(?:ฟัน|แทง)(?!ธง)"), "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
                           re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious)\b|\bdrowning\b(?! in (?:homework|work|paperwork|debt|emails?|bills|tasks|assignments|love|tears|stress))", re.I),
                           _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
@@ -1610,6 +1614,11 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     """ประเมินข้อความ — ถ้าพิมพ์โดยไม่ใส่วรรณยุกต์ ("ลูกไมหายใจ") ลองฉบับที่เติมวรรณยุกต์ด้วย แล้วใช้ฉบับที่เห็นอันตรายมากกว่า"""
     a = _assess(text, pattern)
     plain = normalize_mixed(text)
+    loc = dedialect(plain)
+    if loc != plain:                            # ภาษาถิ่น: ใช้ฉบับคำกลางเมื่อเห็นอันตรายมากกว่า
+        d = _assess(loc, pattern)
+        if d["text_risk"] > a["text_risk"]:
+            a, plain = d, loc
     alt = retone(plain)
     if alt != plain:
         b = _assess(alt, pattern)
