@@ -28,10 +28,10 @@ def test_edges_point_at_real_files():
     assert m["edges"] and all(0 <= a < n and 0 <= b < n for a, b, _ in m["edges"])
 
 
-def test_moved_files_are_marked_legacy():
+def test_deleted_legacy_folder_is_gone_from_the_map():
+    """โฟลเดอร์ legacy/ ถูกลบแล้ว (พี่อนุญาต) — แผนที่ต้องไม่ชี้ไปหาไฟล์ที่ไม่มีอยู่"""
     rows = {r[0]: r for r in _embedded()["files"]}
-    legacy = [p for p in rows if p.startswith("legacy/") and p.endswith(".py")]
-    assert legacy and all(rows[p][2] == "legacy" for p in legacy)
+    assert not [p for p in rows if p.startswith("legacy/")]
     assert rows["app.py"][2] in ("boot", "request")
 
 

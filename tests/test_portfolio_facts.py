@@ -47,7 +47,8 @@ def test_links_point_to_the_real_repo_and_profile():
 def test_unused_files_moved_out_of_live_folders():
     for f in ("AUTH/gateway.py", "PAYMENT/stripe_payment.py", "NETWORK/global_chat.py", "AI_KERNEL/reality_constraint.py",
               "WORLD_MODEL/human_state.py", "SECURITY/emergency_mode.py"):
-        assert not (ROOT / f).exists() and (ROOT / "legacy" / f).exists(), f
+        assert not (ROOT / f).exists(), f
+    assert not (ROOT / "legacy").exists()          # โฟลเดอร์โค้ดที่ไม่ได้ใช้ ลบแล้ว (พี่อนุญาต)
 
 
 def test_thai_text_has_a_looped_font():
