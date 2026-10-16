@@ -46,6 +46,8 @@ def test_page_has_cockpit_scene_and_safe_rendering():
     assert 'id="cockpit-earth"' in PAGE and "/static/cockpit_earth.js" in PAGE
     js = (ROOT / "static" / "cockpit_earth.js").read_text(encoding="utf-8")
     assert "earth/lights.jpg" in js and "prefers-reduced-motion" in js
+    assert 'id="sat-pos"' in PAGE and "KD_satLon" in js                # พิกัดบนจอคำนวณจากสมการเดียวกับภาพ
+    assert "bunny" not in PAGE                                          # เจ้าของขอแบบภาพดาวเทียมจริง ไม่มีของการ์ตูน
     # คำตอบของระบบใส่ด้วย textContent เท่านั้น — กัน XSS จากข้อความที่ผู้ใช้พิมพ์สะท้อนกลับ
     live = PAGE[PAGE.index("function runSimulation(){"):PAGE.index("function tryText")]
     assert "innerHTML=d.reply" not in live.replace(" ", "") and "textContent=d.reply" in live.replace(" ", "")

@@ -1,4 +1,4 @@
-/* ฉากเปิดของหน้า Universe — มองออกจากหน้าต่างยาน เห็นโลกตอนกลางคืน แสงไฟเมืองสีส้มทั่วอเมริกาเหนือ
+/* ฉากเปิดของหน้า Universe — ภาพสดจากกล้องดาวเทียม เห็นโลกตอนกลางคืน แสงไฟเมืองสีส้ม เริ่มที่อเมริกาเหนือแล้วเคลื่อนไปตลอดเวลา
  * วาดด้วย WebGL จากภาพ NASA Black Marble ที่มีอยู่แล้ว (static/earth/lights.jpg · day.jpg · clouds.jpg)
  * ไม่มีไลบรารีเพิ่ม · ถ้าเครื่องไม่มี WebGL จะเหลือพื้นหลังไล่สีแทน · เคารพ prefers-reduced-motion
  */
@@ -10,12 +10,18 @@
 
   var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // ดาวเทียมเคลื่อนไปทางตะวันออกตลอดเวลา — รอบโลกใน ~12 นาที (เร็วกว่า ISS จริงราว 8 เท่า ให้เห็นการเคลื่อนไหว)
+  var LON0 = -95, RATE = 2 * Math.PI / 720;
+  window.KD_satLon = function (t) { var l = LON0 + (t * RATE) * 180 / Math.PI; return ((l + 540) % 360) - 180; };
   var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
   var FS = [
     'precision highp float;',
     'uniform vec2 res;uniform float t;uniform sampler2D lights,day,clouds;uniform float ready;',
     'const float PI=3.14159265;',
+    'const float LON0=' + LON0.toFixed(2) + ';const float RATE=' + RATE.toFixed(6) + ';',
     'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
+    'float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+1.),f.x),f.y);}',
+    'float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*vn(p);p*=2.03;a*=.5;}return v;}',
     'mat3 rx(float a){float c=cos(a),s=sin(a);return mat3(1.,0.,0.,0.,c,s,0.,-s,c);}',
     'mat3 ry(float a){float c=cos(a),s=sin(a);return mat3(c,0.,-s,0.,1.,0.,s,0.,c);}',
     'void main(){',
@@ -24,15 +30,19 @@
     '  float R=max(.82,aspect*.95);',                       // จอกว้าง → โลกใหญ่ขึ้น · จอแนวตั้งเห็นทั้งทวีป
     '  vec2 c=vec2(0.,-R-.02+.30);',                         // ขอบฟ้าอยู่ราวหนึ่งในสามจากด้านบน
     '  vec2 q=(uv-c)/R;float d=length(q);',
-    '  vec3 col=vec3(0.);',
-    // ดาวพื้นหลัง
-    '  vec2 g=floor(gl_FragCoord.xy/2.);float s=h(g);',
-    '  if(s>.996){float tw=.6+.4*sin(t*2.+s*90.);col+=vec3(.75,.8,1.)*tw*(s-.996)*220.;}',
-    '  col+=vec3(.04,.03,.09)*(1.-uv.y);',                   // ท้องฟ้าม่วงเข้มจางๆ
+    '  vec3 col=vec3(.004,.005,.012);',                                   // อวกาศจริงเกือบดำสนิท
+    // ดาวพื้นหลัง — หนาแน่นขึ้นในแถบทางช้างเผือก
+    '  vec2 g=floor(gl_FragCoord.xy/2.);float s=h(g);float th=.9975;',
+    '  if(s>th){float tw=.6+.4*sin(t*2.+s*90.);col+=vec3(.75,.8,1.)*tw*(s-th)*90.;}',
+    // ดวงจันทร์
+    '  vec2 mc=vec2(aspect<.8?-.10:.30*min(aspect,1.6),.40);float mr=.022;vec2 mq=(uv-mc)/mr;float md=length(mq);',
+    '  if(md<1.){float mz=sqrt(1.-md*md);float lit=clamp(dot(normalize(vec3(mq,mz)),normalize(vec3(-.5,.3,.8))),0.,1.);',
+    '    float cr=fbm(mq*3.5+5.);vec3 mcol=vec3(.86,.86,.9)*(.55+.45*cr)*(.25+.85*lit);col=mix(col,mcol,smoothstep(1.,.97,md));}',
+    '  col+=vec3(.6,.65,.9)*exp(-max(md-1.,0.)*7.)*step(1.,md)*.18;',      // แสงนวลรอบดวงจันทร์
     '  if(d<1.){',
     '    float z=sqrt(1.-d*d);vec3 n=vec3(q.x,q.y,z);',
     '    float pitch=asin(clamp(-c.y/R,-1.,1.))-.70;',          // ล็อกกลางจอที่ละติจูด 40°N ทุกขนาดจอ
-    '    n=ry(-1.66+.10*sin(t*.03))*rx(pitch)*n;',           // ลองจิจูด −95° (กลางสหรัฐฯ) แล้วส่ายช้าๆ
+    '    n=ry(radians(LON0)+t*RATE)*rx(pitch)*n;',           // เริ่มที่ลองจิจูด −95° (กลางสหรัฐฯ) แล้วเคลื่อนไปทางตะวันออกตลอดเวลา
     '    float lat=asin(clamp(n.y,-1.,1.)),lon=atan(n.x,n.z);',
     '    vec2 tc=vec2(lon/(2.*PI)+.5,.5-lat/PI);',
     '    vec2 px=vec2(1./2048.,1./1024.);',
@@ -40,16 +50,19 @@
     '    float B=(texture2D(lights,tc+px*vec2(3.,0.)).r+texture2D(lights,tc-px*vec2(3.,0.)).r+texture2D(lights,tc+px*vec2(0.,2.)).r+texture2D(lights,tc-px*vec2(0.,2.)).r)*.25;', // แสงเรืองจางๆ รอบเมือง
     '    float cl=texture2D(clouds,tc+vec2(t*.0006,0.)).r;',
     '    vec3 land=texture2D(day,tc).rgb;',
-    '    vec3 base=land*vec3(.022,.03,.065)+vec3(.003,.006,.02);', // ด้านกลางคืน แสงจันทร์สีน้ำเงินจางๆ
+    '    vec3 base=land*vec3(.018,.026,.05)+vec3(.002,.005,.014);',       // ด้านกลางคืนใต้แสงจันทร์ เห็นทะเลสีฟ้า
     '    vec3 city=vec3(1.,.48,.10)*pow(L,1.35)*2.4+vec3(1.,.78,.42)*pow(L,4.)*1.4+vec3(1.,.42,.1)*pow(B,1.5)*.45;',
     '    city*=1.-.55*cl;',                                     // เมฆบังแสงเมือง
-    '    vec3 surf=base+city*ready+vec3(.07,.08,.15)*cl*.35;',
+    '    vec3 surf=base+city*ready+vec3(.55,.62,.85)*pow(cl,1.4)*.16;',   // เมฆขาวอมฟ้าต้องแสงจันทร์
     '    float limb=pow(1.-z,2.6);',
-    '    surf+=vec3(.25,.38,1.)*limb*.7+vec3(.55,.35,1.)*pow(1.-z,7.)*.8;', // บรรยากาศฟ้าอมม่วงที่ขอบโลก
+    '    surf+=vec3(.18,.35,1.)*limb*.35+vec3(.35,.55,1.)*pow(1.-z,9.)*.6;', // บรรยากาศฟ้าอมม่วงที่ขอบโลก
     '    col=mix(col,surf,smoothstep(1.,.995,d));',
     '  }',
     '  float halo=exp(-max(d-1.,0.)*28.)*step(1.,d);',         // แสงบรรยากาศเหนือขอบฟ้า
-    '  col+=vec3(.25,.45,1.)*halo*.85+vec3(.6,.4,1.)*exp(-max(d-1.,0.)*90.)*step(1.,d)*.5;',
+    '  col+=vec3(.15,.35,1.)*halo*.45+vec3(.35,.6,1.)*exp(-max(d-1.,0.)*160.)*step(1.,d)*.55;',
+    '  col+=vec3(.20,.85,.42)*exp(-abs(d-1.007)*500.)*.5;',               // airglow สีเขียวบางๆ เหนือขอบฟ้า แบบภาพถ่ายจาก ISS
+    '  col*=1.-.35*pow(length(uv*vec2(.9,1.1)),2.2);',                     // vignette ของเลนส์
+    '  col+=(h(gl_FragCoord.xy+fract(t)*91.)-.5)*.018;',                   // เกรนเซนเซอร์กล้องจางๆ
     '  col=1.-exp(-col*1.35);',                                 // tone map
     '  gl_FragColor=vec4(pow(col,vec3(.92)),1.);',
     '}'
@@ -120,6 +133,7 @@
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(canvas);
   }
+  var hudPos = document.getElementById('sat-pos'), hudUtc = document.getElementById('sat-utc'), lastHud = 0;
   var t0 = performance.now();
   function frame(now) {
     if (visible || still) {
@@ -129,8 +143,15 @@
       gl.uniform1f(U.t, t);
       gl.uniform1f(U.ready, ready);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
+      if (hudPos && (!lastHud || now - lastHud > 250)) {          // พิกัดบนจอตรงกับภาพจริง (กลางจอ)
+        lastHud = now;
+        var lo = window.KD_satLon(t);
+        hudPos.textContent = 'LAT 40.0°N · LON ' + Math.abs(lo).toFixed(1) + '°' + (lo < 0 ? 'W' : 'E');
+        var d = new Date();
+        hudUtc.textContent = 'UTC ' + d.toISOString().slice(11, 19);
+      }
     }
-    if (!still || pending > 0 || ready < 1) requestAnimationFrame(frame);
+    requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 })();
