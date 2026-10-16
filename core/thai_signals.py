@@ -731,8 +731,65 @@ _LATIN_THAI = re.compile(r"(?<=[A-Za-z])(?=[\u0E00-\u0E7F])|(?<=[\u0E00-\u0E7F])
 
 
 def normalize_mixed(text) -> str:
-    """เว้นวรรคระหว่างอังกฤษกับไทยที่พิมพ์ติดกัน — "I want to dieค่ะ" เคยหลุดเพราะ \\b ไม่ตัดคำตรงนั้น"""
-    return _LATIN_THAI.sub(" ", str(text or ""))
+    """เว้นวรรคระหว่างอังกฤษกับไทยที่พิมพ์ติดกัน — "I want to dieค่ะ" เคยหลุดเพราะ \\b ไม่ตัดคำตรงนั้น
+    และซ่อมการพิมพ์แบบรีบ (ไม่ใส่วรรณยุกต์ · เว้นวรรคทุกตัว · "ม่" แทน "ไม่") ก่อนดูสัญญาณ"""
+    return repair_typing(_LATIN_THAI.sub(" ", str(text or "")))
+
+
+# รอบพิมพ์แบบคนจริง: "ลูกไมหายใจ" "อ ย า ก ต า ย" "ม่อยากมีชีวิตอยู่แล้ว" "ลุกชัก" เคยได้ Risk 0
+_TONES = "\u0e48\u0e49\u0e4a\u0e4b"
+_TONE_RE = re.compile(f"[{_TONES}]")
+_SPACED = re.compile(r"(?<=[\u0e00-\u0e7f]) (?=[\u0e00-\u0e7f])")
+_TONELESS = None
+
+
+def _toneless_vocab() -> tuple:
+    """คำไทยที่มีวรรณยุกต์ในสัญญาณของระบบ → รูปไม่มีวรรณยุกต์ (ตัดคำที่รูปไม่มีวรรณยุกต์เป็นคำจริงอยู่แล้ว)"""
+    toks = set()
+    for v in list(globals().values()):
+        src = v.pattern if isinstance(v, re.Pattern) else None
+        if src:
+            toks.update(re.findall(r"[\u0e01-\u0e4e]+", src))
+    plain, toned = {}, set()
+    for tk in toks:
+        if _TONE_RE.search(tk):
+            k = _TONE_RE.sub("", tk)
+            if len(k) >= 3:
+                plain.setdefault(k, set()).add(tk)
+        else:
+            toned.add(tk)
+    # ไม่เติมถ้ารูปไม่มีวรรณยุกต์ไปซ้อนอยู่ในคำที่ไม่มีวรรณยุกต์ ("อยาก" อยู่ใน "อยากตาย" — ห้ามกลายเป็น "อย่าก")
+    bare = "\n".join(toned)
+    m = {k: next(iter(v)) for k, v in plain.items() if len(v) == 1 and k not in bare}
+    m.setdefault("ไม", "ไม่")
+    keys = sorted(m, key=len, reverse=True)
+    return m, re.compile("|".join(map(re.escape, keys)))
+
+
+def repair_typing(t: str) -> str:
+    global _TONELESS
+    if not re.search(r"[\u0e01-\u0e2e]", t):
+        return t
+    words = t.split(" ")
+    if len(words) >= 4 and sum(len(w) == 1 for w in words) >= 0.7 * len(words):     # "อ ย า ก ต า ย"
+        t = re.sub(r" {2,}", "\x00", t)
+        t = _SPACED.sub("", t).replace("\x00", " ")
+    # "ม่" แทน "ไม่" — ไม่แตะ ใหม่ แม่ ม่วง ม่าน ม่าย
+    t = re.sub(r"(?<![ไหแเโใ])ม่(?![วาำ])(?=[\u0e01-\u0e2e])", "ไม่", t)
+    t = re.sub(r"ลุก(?=ชัก|หาย|กิน|ตก|กลืน|ถูก|โดน|ไข้|สาว|ชาย)", "ลูก", t)
+    return t
+
+
+def retone(t: str) -> str:
+    """ข้อความที่ไม่มีวรรณยุกต์เลย → เติมวรรณยุกต์ตามคำในสัญญาณของระบบ ("ลูกไมหายใจ" → "ลูกไม่หายใจ")
+    ใช้เป็นทางเลือกที่สองในการประเมินเท่านั้น — ไม่ใช้แทนข้อความจริง เพราะอาจเติมผิดคำ ("อยาก" → "อย่าก")"""
+    global _TONELESS
+    if _TONE_RE.search(t) or len(re.findall(r"[\u0e01-\u0e2e]", t)) < 4:
+        return t
+    if _TONELESS is None:
+        _TONELESS = _toneless_vocab()
+    m, rx = _TONELESS
+    return rx.sub(lambda x: m[x.group(0)], t)
 
 
 # ผู้ใช้เล่าว่า "ตัวเอง" เคยทำร้าย/พูดไม่ดีใส่คนอื่น แล้วรู้สึกผิดหรือเลิกแล้ว — ไม่ใช่คนที่กำลังถูกทำร้าย
