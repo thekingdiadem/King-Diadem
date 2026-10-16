@@ -67,6 +67,8 @@ class GlobalNode:
             }
 
     def remove_node(self, location: str) -> bool:
+        if not isinstance(location, str):          # dict/list เคยทำให้ TypeError: unhashable
+            return False
         if location in self.nodes:
             del self.nodes[location]
             return True
