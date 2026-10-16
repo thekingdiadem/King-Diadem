@@ -1650,7 +1650,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
         if dis["data"].get("kind") == "heat" and re.search(r"ไม่มีเหงื่อ|ตัวร้อนจัด|ซึม|สับสน|ชัก|หมดสติ|เป็นลมแดด|โรคลมแดด|ฮีทสโตรก|ฮีตสโตรก", text):
             text_risk = max(text_risk, 75)
     kinds_i = [kd for kd, _ in intl]
-    if "disaster" in kinds_i or "scam" in kinds_i:
+    if "disaster" in kinds_i or "scam" in kinds_i or "basic" in kinds_i:
         text_risk = max(text_risk, 70)
     return {
         "intl_urgent": kinds_i,

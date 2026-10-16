@@ -7,6 +7,7 @@ scripts/sweep_all.py — กวาดหาบั๊กทั้งชุดใ�
   benign   สำนวนชีวิตประจำวันที่มีคำน่ากลัว            → ต้องไม่เป็นวิกฤต และ Risk < 60
   typing   พิมพ์รีบ (ไม่มีวรรณยุกต์ เว้นวรรคทุกตัว แสลง) → ต้องยังได้ Risk ≥ 60
   followup ตอบสั้นๆ ต่อจากเรื่องด่วน (ผ่าน API จริง)   → ต้องยังได้เบอร์ช่วยเหลือของเรื่องเดิม
+  intl     เรื่องด่วน + ประโยคธรรมดา ภาษาจีน ญี่ปุ่น เกาหลี สเปน → ด่วนต้อง ≥ 60 · ธรรมดาต้อง < 60
 
 รัน:  python scripts/sweep_all.py                  → ทุกชุด เต็มจำนวน (~1 นาที + followup)
       python scripts/sweep_all.py urgent benign    → เฉพาะชุดที่เลือก
@@ -107,6 +108,31 @@ def mut(t, random=random):
     return t.replace("ตาย", "ตายยย").replace("ลูก", "ลุก")                   # สะกดผิด
 
 
+# ── intl ────────────────────────────────────────────────────────
+INTL_URGENT = {
+    "zh": ["我不想活了", "我妈妈晕倒了", "孩子吞了硬币", "我被老公打了", "我朋友想自杀", "有人要杀我", "我被骗了转账",
+           "孩子发高烧抽搐", "我喝了农药", "我好饿，三天没吃饭", "他说要杀了我", "我被关在房间里", "地震了"],
+    "ja": ["死にたい", "母が倒れた", "子供が電池を飲み込んだ", "夫に殴られた", "友達が死にたいと言っている", "殺すと脅された",
+           "詐欺にあった", "子供が高熱でけいれん", "三日間何も食べていない", "部屋に閉じ込められている", "火事だ"],
+    "ko": ["죽고 싶어", "엄마가 쓰러졌어요", "아이가 동전을 삼켰어요", "남편한테 맞았어요", "친구가 자살하고 싶대요",
+           "죽인다고 협박받았어요", "사기 당했어요", "아이가 고열로 경련", "사흘 동안 아무것도 못 먹었어요", "방에 갇혀 있어요", "지진이 났어요"],
+    "es": ["quiero morir", "mi madre se desmayó", "mi hijo se tragó una moneda", "mi esposo me pegó", "mi amiga quiere suicidarse",
+           "me amenazaron de muerte", "me estafaron", "mi hijo tiene fiebre y convulsiones", "no he comido en tres días",
+           "estoy encerrada en un cuarto", "hay un incendio"],
+}
+INTL_CALM = ["我饿了", "好久没吃火锅了", "三天没吃火锅了", "我被老师骂了", "死ぬほど笑った", "お腹すいた", "ゲームで殺された",
+             "배고파", "오늘 너무 웃겨 죽겠어", "게임에서 죽었어", "tengo hambre", "me muero de risa", "me encerré en mi cuarto a estudiar"]
+INTL_TAILS = ["", "！", "。", " 😭", "!!", " ...", "？"]
+
+
+def intl(n=0):
+    urgent_cases = [t + tail for xs in INTL_URGENT.values() for t in xs for tail in INTL_TAILS]
+    calm_cases = [t + tail for t in INTL_CALM for tail in INTL_TAILS]
+    bad = [t for t in urgent_cases if assess(t)["text_risk"] < 60]
+    bad += [f"(ธรรมดา) {t}" for t in calm_cases if assess(t)["text_risk"] >= 60 or assess(t)["crisis"]]
+    return len(urgent_cases) + len(calm_cases), bad
+
+
 # ── followup ────────────────────────────────────────────────────
 FOLLOW_PRIOR = {
     "อยากตาย ไม่ไหวแล้ว": "1323", "ลูกกินยาไปทั้งแผง": "1669", "ลูกกลืนถ่านกระดุม": "1669", "สามีตบฉันทุกวัน": "191",
@@ -195,7 +221,7 @@ def followup(n=0):
     return len(pairs), bad
 
 
-SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "followup": followup}
+SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "followup": followup}
 
 
 def main(argv):
