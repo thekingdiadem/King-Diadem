@@ -58,3 +58,23 @@ def test_romanian_is_not_vietnamese_and_kazakh_is_not_russian():
 
 def test_13yarn_in_english_crisis_reply():
     assert "13YARN" in compose("I want to die")
+
+
+@pytest.mark.parametrize("lang,text", [("cs", "manžel mě bije"), ("sk", "mama nedýcha"), ("hu", "meg akarok halni"),
+                                       ("fi", "äiti ei hengitä"), ("da", "min mand slår mig"), ("no", "mannen min slår meg"),
+                                       ("sh", "muž me tuče"), ("bg", "искам да умра"), ("ka", "დედა არ სუნთქავს"), ("hy", "օգնեցեք")])
+def test_more_european_and_caucasus_languages(lang, text):
+    first = compose(text).split("\n")[0]
+    assert first in {r[0] for r in WORLD_REPLY[lang].values()}, (lang, first)
+
+
+@pytest.mark.parametrize("text,lang", [("救命", "zh"), ("助けて", "ja"), ("살려주세요", "ko"), ("ayuda", "es")])
+def test_help_word_in_main_languages(text, lang):
+    from core.world_replies import HELP_MAIN
+    assert compose(text).split("\n")[0] == HELP_MAIN[lang][0]
+
+
+@pytest.mark.parametrize("text,lang", [("chcę umrzeć", "pl"), ("tôi muốn chết", "vi"), ("min man slår mig", "sv"),
+                                       ("meg akarok halni", "hu"), ("мама не дышит", "ru")])
+def test_similar_languages_are_told_apart(text, lang):
+    assert world_lang(text, 1) == lang

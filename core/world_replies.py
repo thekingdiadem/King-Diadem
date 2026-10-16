@@ -743,3 +743,345 @@ def world_lang(text, min_hits: int = 2) -> str | None:  # noqa: F811 — ขย�
     if _RO_ONLY.search(t):                       # โรมาเนียมี ă เหมือนเวียดนาม — ตรวจก่อน
         return "ro"
     return _world_lang_base(t, min_hits)
+
+
+# ══════════════════════════════════════════════════════════════════
+# รอบ "ทำภาษาที่เหลือให้ครบ": เช็ก สโลวัก ฮังการี ฟินแลนด์ เดนมาร์ก นอร์เวย์
+# โครเอเชีย/เซอร์เบีย/บอสเนีย (ใช้ชุดเดียวกัน) บัลแกเรีย จอร์เจีย อาร์เมเนีย
+# สร้างจากตารางวลี 25 ช่องต่อภาษา (ลำดับเดียวกับ 5 ชนิด × เปิด/3 ขั้น/คำถาม)
+# ══════════════════════════════════════════════════════════════════
+_KINDS = ("crisis", "medical", "violence", "help", "general")
+
+
+def _from_table(rows):
+    rows = list(rows)
+    assert len(rows) == 25
+    return {k: (rows[i * 5], rows[i * 5 + 1:i * 5 + 4], rows[i * 5 + 4]) for i, k in enumerate(_KINDS)}
+
+
+WORLD_REPLY.update({lg: _from_table(rows) for lg, rows in {
+    "cs": ["Slyším tě a děkuji, že jsi mi to řekl/a.",
+           "V Thajsku volej 1323 (duševní zdraví, nonstop). Pokud jsi v nebezpečí teď: 1669.",
+           "Nezůstávej sám/sama — řekni člověku, kterému věříš, že ti není dobře.",
+           "Česko: Linka první psychické pomoci 116 123 · tísňová linka 112 · jinde: findahelpline.com",
+           "Jsi teď v bezpečí?",
+           "Je to naléhavé — nejdřív volej.",
+           "Volej hned 1669 (Thajsko) · 155 nebo 112 v Česku. Řekni adresu a příznaky.",
+           "Pokud nedýchá nebo nereaguje: stlačuj silně střed hrudníku 100–120krát za minutu.",
+           "Nedávej vodu ani jídlo. Schovej obal od léku pro lékaře.",
+           "Je teď někdo u toho člověka?",
+           "Není to tvoje vina. Zasloužíš si být v bezpečí.",
+           "Pokud jsi v nebezpečí teď: 191 (thajská policie) · 158 nebo 112 v Česku.",
+           "Jdi nejdřív na bezpečné místo: k sousedům, k přátelům, mezi lidi.",
+           "Uschovej fotky zranění a zprávy jako důkaz. Česko: Bílý kruh bezpečí 116 006.",
+           "Jsi teď v bezpečí?",
+           "Jsem tady. Řekni mi, co se děje.",
+           "Nebezpečí nebo zranění teď: 1669 (zdravotní) · 191 (policie) v Thajsku · 112.",
+           "Napiš jednou větou, co se stalo.",
+           "Jestli můžeš, jdi mezi jiné lidi.",
+           "Kde teď jsi a je s tebou někdo?",
+           "Vezmeme to krok za krokem.",
+           "Napiš jednou větou, o co doopravdy jde.",
+           "Sepiš, co můžeš udělat dnes, i když je to něco malého.",
+           "Vyber jediný krok na příštích 24 hodin.",
+           "Co tě teď nejvíc tíží?"],
+    "sk": ["Počujem ťa a ďakujem, že si mi to povedal/a.",
+           "V Thajsku volaj 1323 (duševné zdravie, nonstop). Ak si v nebezpečenstve teraz: 1669.",
+           "Nezostávaj sám/sama — povedz človeku, ktorému veríš, že ti nie je dobre.",
+           "Slovensko: Linka dôvery 0800 500 333 · tiesňová linka 112 · inde: findahelpline.com",
+           "Si teraz v bezpečí?",
+           "Je to naliehavé — najprv volaj.",
+           "Volaj hneď 1669 (Thajsko) · 155 alebo 112 na Slovensku. Povedz adresu a príznaky.",
+           "Ak nedýcha alebo nereaguje: stláčaj silno stred hrudníka 100–120-krát za minútu.",
+           "Nedávaj vodu ani jedlo. Odlož obal od lieku pre lekára.",
+           "Je teraz niekto pri tom človeku?",
+           "Nie je to tvoja vina. Zaslúžiš si byť v bezpečí.",
+           "Ak si v nebezpečenstve teraz: 191 (thajská polícia) · 158 alebo 112 na Slovensku.",
+           "Choď najprv na bezpečné miesto: k susedom, k priateľom, medzi ľudí.",
+           "Odlož fotky zranení a správy ako dôkaz. Slovensko: linka pre ženy 0800 212 212.",
+           "Si teraz v bezpečí?",
+           "Som tu. Povedz mi, čo sa deje.",
+           "Nebezpečenstvo alebo zranenie teraz: 1669 (zdravotné) · 191 (polícia) v Thajsku · 112.",
+           "Napíš jednou vetou, čo sa stalo.",
+           "Ak môžeš, choď medzi iných ľudí.",
+           "Kde teraz si a je s tebou niekto?",
+           "Poďme na to krok za krokom.",
+           "Napíš jednou vetou, o čo naozaj ide.",
+           "Spíš, čo môžeš urobiť dnes, aj keď je to niečo malé.",
+           "Vyber jediný krok na nasledujúcich 24 hodín.",
+           "Čo ťa teraz najviac ťaží?"],
+    "hu": ["Hallak téged, és köszönöm, hogy elmondtad.",
+           "Thaiföldön hívd az 1323-at (lelki egészség, 0–24). Ha most veszélyben vagy: 1669.",
+           "Ne maradj egyedül — mondd el valakinek, akiben megbízol, hogy nem vagy jól.",
+           "Magyarország: Lelki Elsősegély 116 123 · segélyhívó 112 · máshol: findahelpline.com",
+           "Most biztonságban vagy?",
+           "Ez vészhelyzet — előbb telefonálj.",
+           "Hívd most az 1669-et (Thaiföld) · 112 Magyarországon. Mondd meg a címet és a tüneteket.",
+           "Ha nem lélegzik vagy nem reagál: nyomd erősen a mellkas közepét, percenként 100–120-szor.",
+           "Ne adj vizet vagy ételt. Őrizd meg a gyógyszer dobozát az orvosnak.",
+           "Van most valaki a beteg mellett?",
+           "Nem a te hibád. Megérdemled, hogy biztonságban legyél.",
+           "Ha most veszélyben vagy: 191 (thai rendőrség) · 112 Magyarországon.",
+           "Menj először biztonságos helyre: szomszédhoz, barátokhoz, emberek közé.",
+           "Őrizd meg a sérülésekről készült fotókat és az üzeneteket bizonyítéknak. Magyarország: OKIT 06 80 20 55 20.",
+           "Most biztonságban vagy?",
+           "Itt vagyok. Mondd el, mi történik.",
+           "Veszély vagy sérülés most: 1669 (mentő) · 191 (rendőrség) Thaiföldön · 112.",
+           "Írd le egy mondatban, mi történt.",
+           "Ha tudsz, menj más emberek közelébe.",
+           "Hol vagy most, és van veled valaki?",
+           "Vegyük lépésről lépésre.",
+           "Írd le egy mondatban, miről szól igazán.",
+           "Írd össze, mit tudsz ma megtenni, akár valami kicsit is.",
+           "Válassz egyetlen lépést a következő 24 órára.",
+           "Mi nyomaszt most a legjobban?"],
+    "fi": ["Kuulen sinua, ja kiitos että kerroit.",
+           "Thaimaassa soita 1323 (mielenterveys, 24 h). Jos olet vaarassa nyt: 1669.",
+           "Älä jää yksin — kerro jollekulle, johon luotat, ettet voi hyvin.",
+           "Suomi: Kriisipuhelin 09 2525 0111 · hätänumero 112 · muualla: findahelpline.com",
+           "Oletko nyt turvassa?",
+           "Tämä on hätätilanne — soita ensin.",
+           "Soita heti 1669 (Thaimaa) · 112 Suomessa. Kerro osoite ja oireet.",
+           "Jos hän ei hengitä tai ei reagoi: paina lujaa rintakehän keskeltä 100–120 kertaa minuutissa.",
+           "Älä anna vettä tai ruokaa. Säilytä lääkepakkaus lääkäriä varten.",
+           "Onko joku nyt hänen luonaan?",
+           "Se ei ole sinun syysi. Ansaitset olla turvassa.",
+           "Jos olet vaarassa nyt: 191 (Thaimaan poliisi) · 112 Suomessa.",
+           "Mene ensin turvalliseen paikkaan: naapuriin, ystävälle, ihmisten pariin.",
+           "Säilytä kuvat vammoista ja viestit todisteiksi. Suomi: Nollalinja 080 005 005.",
+           "Oletko nyt turvassa?",
+           "Olen tässä. Kerro, mitä tapahtuu.",
+           "Vaara tai vamma nyt: 1669 (ensiapu) · 191 (poliisi) Thaimaassa · 112.",
+           "Kirjoita yhdellä lauseella, mitä tapahtui.",
+           "Jos pystyt, mene muiden ihmisten luo.",
+           "Missä olet nyt, ja onko joku kanssasi?",
+           "Otetaan tämä askel kerrallaan.",
+           "Kirjoita yhdellä lauseella, mistä on oikeasti kyse.",
+           "Listaa, mitä voit tehdä tänään, vaikka jotain pientä.",
+           "Valitse yksi askel seuraaville 24 tunnille.",
+           "Mikä painaa sinua eniten juuri nyt?"],
+    "da": ["Jeg hører dig, og tak fordi du fortæller mig det.",
+           "I Thailand: ring 1323 (psykisk sundhed, døgnet rundt). Er du i fare nu: 1669.",
+           "Bliv ikke alene — fortæl en, du stoler på, at du ikke har det godt.",
+           "Danmark: Livslinien 70 201 201 · alarm 112 · andre lande: findahelpline.com",
+           "Er du i sikkerhed lige nu?",
+           "Det er en nødsituation — ring først.",
+           "Ring 1669 nu (Thailand) · 112 i Danmark. Sig adressen og symptomerne.",
+           "Hvis personen ikke trækker vejret eller ikke reagerer: tryk hårdt midt på brystet, 100–120 gange i minuttet.",
+           "Giv ikke vand eller mad. Gem medicinpakken til lægen.",
+           "Er der nogen hos personen lige nu?",
+           "Det er ikke din skyld. Du fortjener at være i sikkerhed.",
+           "Er du i fare nu: 191 (thailandsk politi) · 112 i Danmark.",
+           "Gå først et sikkert sted hen: en nabo, venner, et sted med mennesker.",
+           "Gem billeder af skader og beskeder som bevis. Danmark: Lev Uden Vold 1888.",
+           "Er du i sikkerhed nu?",
+           "Jeg er her. Fortæl mig, hvad der sker.",
+           "Fare eller skade nu: 1669 (sundhed) · 191 (politi) i Thailand · 112.",
+           "Skriv i én sætning, hvad der skete.",
+           "Hvis du kan, så gå hen til andre mennesker.",
+           "Hvor er du nu, og er der nogen hos dig?",
+           "Lad os tage det et skridt ad gangen.",
+           "Skriv i én sætning, hvad det egentlig handler om.",
+           "Skriv ned, hvad du kan gøre i dag, også noget småt.",
+           "Vælg ét skridt for de næste 24 timer.",
+           "Hvad tynger dig mest lige nu?"],
+    "no": ["Jeg hører deg, og takk for at du forteller meg det.",
+           "I Thailand: ring 1323 (psykisk helse, døgnåpent). Er du i fare nå: 1669.",
+           "Ikke vær alene — si til noen du stoler på at du ikke har det bra.",
+           "Norge: Mental Helse 116 123 · ambulanse 113 · andre land: findahelpline.com",
+           "Er du trygg akkurat nå?",
+           "Dette er en nødsituasjon — ring først.",
+           "Ring 1669 nå (Thailand) · 113 i Norge. Si adressen og symptomene.",
+           "Hvis personen ikke puster eller ikke reagerer: trykk hardt midt på brystet, 100–120 ganger i minuttet.",
+           "Ikke gi vann eller mat. Ta vare på medisinpakken til legen.",
+           "Er noen hos personen nå?",
+           "Det er ikke din skyld. Du fortjener å være trygg.",
+           "Er du i fare nå: 191 (thailandsk politi) · 112 i Norge.",
+           "Gå først til et trygt sted: en nabo, venner, et sted med folk.",
+           "Ta vare på bilder av skader og meldinger som bevis. Norge: Krisesentersekretariatet / 116 006.",
+           "Er du trygg nå?",
+           "Jeg er her. Fortell meg hva som skjer.",
+           "Fare eller skade nå: 1669 (helse) · 191 (politi) i Thailand · 112/113 i Norge.",
+           "Skriv i én setning hva som skjedde.",
+           "Hvis du kan, gå bort til andre mennesker.",
+           "Hvor er du nå, og er noen med deg?",
+           "La oss ta det ett steg om gangen.",
+           "Skriv i én setning hva det egentlig handler om.",
+           "Skriv ned hva du kan gjøre i dag, også noe lite.",
+           "Velg ett steg for de neste 24 timene.",
+           "Hva tynger deg mest akkurat nå?"],
+    "sh": ["Čujem te i hvala ti što si mi rekao/rekla.",
+           "U Tajlandu nazovi 1323 (mentalno zdravlje, 0–24). Ako si sada u opasnosti: 1669.",
+           "Nemoj ostati sam/sama — reci nekome kome vjeruješ da ti nije dobro.",
+           "Hrvatska 112 · Srbija 194 (hitna) / 192 (policija) · BiH 124 · drugdje: findahelpline.com",
+           "Jesi li sada na sigurnom?",
+           "Ovo je hitno — prvo nazovi.",
+           "Nazovi odmah 1669 (Tajland) · 112 u Hrvatskoj · 194 u Srbiji. Reci adresu i simptome.",
+           "Ako ne diše ili ne reagira: snažno pritišći sredinu prsnog koša, 100–120 puta u minuti.",
+           "Ne daj vodu ni hranu. Sačuvaj kutiju lijeka za liječnika.",
+           "Je li netko sada uz tu osobu?",
+           "Nisi ti kriv/kriva. Zaslužuješ biti siguran/sigurna.",
+           "Ako si sada u opasnosti: 191 (tajlandska policija) · 112 u Hrvatskoj · 192 u Srbiji.",
+           "Prvo idi na sigurno mjesto: kod susjeda, prijatelja, među ljude.",
+           "Sačuvaj slike ozljeda i poruke kao dokaz. U Tajlandu pomoć 0–24: 1300.",
+           "Jesi li sada na sigurnom?",
+           "Tu sam. Reci mi što se događa.",
+           "Opasnost ili ozljeda sada: 1669 (hitna) · 191 (policija) u Tajlandu · 112.",
+           "Napiši u jednoj rečenici što se dogodilo.",
+           "Ako možeš, idi među druge ljude.",
+           "Gdje si sada i je li netko s tobom?",
+           "Idemo korak po korak.",
+           "Napiši u jednoj rečenici o čemu se zapravo radi.",
+           "Zapiši što možeš učiniti danas, makar nešto malo.",
+           "Odaberi samo jedan korak za sljedeća 24 sata.",
+           "Što te sada najviše muči?"],
+    "bg": ["Чувам те и благодаря, че ми каза.",
+           "В Тайланд се обади на 1323 (психично здраве, денонощно). Ако си в опасност сега: 1669.",
+           "Не оставай сам/сама — кажи на човек, на когото имаш доверие, че не си добре.",
+           "България: спешен телефон 112 · други държави: findahelpline.com",
+           "В безопасност ли си сега?",
+           "Това е спешно — първо се обади.",
+           "Обади се сега на 1669 (Тайланд) · 112 в България. Кажи адреса и симптомите.",
+           "Ако не диша или не реагира: натискай силно в средата на гърдите, 100–120 пъти в минута.",
+           "Не давай вода или храна. Запази опаковката на лекарството за лекаря.",
+           "Има ли някой при човека сега?",
+           "Не е твоя вината. Заслужаваш да си в безопасност.",
+           "Ако си в опасност сега: 191 (тайландска полиция) · 112 в България.",
+           "Първо отиди на безопасно място: при съсед, приятели, където има хора.",
+           "Запази снимки на нараняванията и съобщенията като доказателство. Помощ в Тайланд 24 ч: 1300.",
+           "В безопасност ли си сега?",
+           "Тук съм. Кажи ми какво се случва.",
+           "Опасност или нараняване сега: 1669 (медицинска) · 191 (полиция) в Тайланд · 112.",
+           "Напиши с едно изречение какво се случи.",
+           "Ако можеш, отиди при други хора.",
+           "Къде си сега и има ли някой с теб?",
+           "Нека да го вземем стъпка по стъпка.",
+           "Напиши с едно изречение за какво всъщност става дума.",
+           "Запиши какво можеш да направиш днес, дори нещо малко.",
+           "Избери само една стъпка за следващите 24 часа.",
+           "Какво те тежи най-много сега?"],
+    "ka": ["მესმის შენი და მადლობა, რომ მითხარი.",
+           "ტაილანდში დარეკე 1323-ზე (ფსიქიკური ჯანმრთელობა, 24 საათი). თუ ახლა საფრთხეში ხარ: 1669.",
+           "მარტო ნუ დარჩები — უთხარი ვინმეს, ვისაც ენდობი, რომ კარგად არ ხარ.",
+           "საქართველო: 112 · სხვა ქვეყნებში: findahelpline.com",
+           "ახლა უსაფრთხოდ ხარ?",
+           "ეს გადაუდებელი შემთხვევაა — ჯერ დარეკე.",
+           "დარეკე ახლავე 1669-ზე (ტაილანდი) · 112 საქართველოში. თქვი მისამართი და სიმპტომები.",
+           "თუ არ სუნთქავს ან არ რეაგირებს: ძლიერად დააწექი მკერდის შუაგულს, წუთში 100–120-ჯერ.",
+           "ნუ მისცემ წყალს ან საჭმელს. შეინახე წამლის შეფუთვა ექიმისთვის.",
+           "ახლა ვინმე არის ავადმყოფთან?",
+           "ეს შენი ბრალი არ არის. იმსახურებ, რომ უსაფრთხოდ იყო.",
+           "თუ ახლა საფრთხეში ხარ: 191 (ტაილანდის პოლიცია) · 112 საქართველოში.",
+           "ჯერ წადი უსაფრთხო ადგილას: მეზობელთან, მეგობართან, სადაც ხალხია.",
+           "შეინახე დაზიანებების ფოტოები და შეტყობინებები მტკიცებულებად. ტაილანდში 24-საათიანი დახმარება: 1300.",
+           "ახლა უსაფრთხოდ ხარ?",
+           "აქ ვარ. მითხარი, რა ხდება.",
+           "საფრთხე ან დაზიანება ახლა: 1669 (სამედიცინო) · 191 (პოლიცია) ტაილანდში · 112.",
+           "ერთი წინადადებით დაწერე, რა მოხდა.",
+           "თუ შეგიძლია, სხვა ადამიანებთან ახლოს წადი.",
+           "სად ხარ ახლა და ვინმე არის შენთან?",
+           "მოდი ნაბიჯ-ნაბიჯ განვიხილოთ.",
+           "ერთი წინადადებით დაწერე, რა ხდება სინამდვილეში.",
+           "ჩამოწერე, რისი გაკეთება შეგიძლია დღეს, თუნდაც პატარა რამ.",
+           "აირჩიე მხოლოდ ერთი ნაბიჯი მომდევნო 24 საათისთვის.",
+           "რა გაწუხებს ყველაზე მეტად ახლა?"],
+    "hy": ["Լսում եմ քեզ, և շնորհակալ եմ, որ ասացիր։",
+           "Թաիլանդում զանգիր 1323 (հոգեկան առողջություն, շուրջօրյա)։ Եթե հիմա վտանգի մեջ ես՝ 1669։",
+           "Մենակ մի մնա — ասա մեկին, ում վստահում ես, որ լավ չես։",
+           "Հայաստան՝ 911 կամ 112 · այլ երկրներում՝ findahelpline.com",
+           "Հիմա ապահո՞վ ես։",
+           "Սա շտապ դեպք է — նախ զանգիր։",
+           "Զանգիր հիմա 1669 (Թաիլանդ) · 911 Հայաստանում։ Ասա հասցեն և ախտանիշները։",
+           "Եթե չի շնչում կամ չի արձագանքում՝ ուժեղ սեղմիր կրծքավանդակի մեջտեղը, րոպեում 100–120 անգամ։",
+           "Ջուր կամ ուտելիք մի տուր։ Պահիր դեղի տուփը բժշկի համար։",
+           "Հիմա ինչ-որ մեկը կա՞ հիվանդի կողքին։",
+           "Սա քո մեղքը չէ։ Դու արժանի ես ապահով լինելու։",
+           "Եթե հիմա վտանգի մեջ ես՝ 191 (Թաիլանդի ոստիկանություն) · 911 Հայաստանում։",
+           "Նախ գնա ապահով տեղ՝ հարևանի, ընկերների մոտ կամ մարդաշատ վայր։",
+           "Պահիր վնասվածքների լուսանկարները և հաղորդագրությունները որպես ապացույց։ Թաիլանդում շուրջօրյա օգնություն՝ 1300։",
+           "Հիմա ապահո՞վ ես։",
+           "Ես այստեղ եմ։ Ասա, թե ինչ է կատարվում։",
+           "Վտանգ կամ վնասվածք հիմա՝ 1669 (բժշկական) · 191 (ոստիկանություն) Թաիլանդում · 911։",
+           "Մեկ նախադասությամբ գրիր, թե ինչ պատահեց։",
+           "Եթե կարող ես, գնա ուրիշ մարդկանց մոտ։",
+           "Որտե՞ղ ես հիմա, և ինչ-որ մեկը կա՞ քեզ հետ։",
+           "Եկ քայլ առ քայլ նայենք։",
+           "Մեկ նախադասությամբ գրիր, թե իրականում ինչ է կատարվում։",
+           "Գրիր, թե ինչ կարող ես անել այսօր, թեկուզ փոքր բան։",
+           "Ընտրիր միայն մեկ քայլ հաջորդ 24 ժամվա համար։",
+           "Ի՞նչն է քեզ հիմա ամենաշատը ծանրացնում։"],
+}.items()})
+
+# "ช่วยด้วย" คำเดียวในจีน ญี่ปุ่น เกาหลี สเปน — เดิมได้คำตอบทั่วไป ("ลองเรียงเรื่องทีละขั้น")
+HELP_MAIN = {
+    "zh": ("我在这里。告诉我发生了什么。",
+           ["现在有危险或受伤：在泰国拨打 1669（急救）· 191（警察）· 中国大陆 120 / 110。",
+            "用一句话写下发生了什么。", "如果可以，先到有其他人的地方。"], "你现在在哪里？身边有人吗？"),
+    "ja": ("ここにいます。何が起きているか教えてください。",
+           ["今、危険やけががあるなら：タイでは 1669（救急）· 191（警察）、日本では 119 / 110。",
+            "何があったか一文で書いてください。", "できれば、ほかの人がいる場所へ移動してください。"], "今どこにいますか？そばに誰かいますか？"),
+    "ko": ("여기 있어요. 무슨 일이 있는지 말해 주세요.",
+           ["지금 위험하거나 다쳤다면: 태국에서는 1669(응급) · 191(경찰), 한국에서는 119 / 112.",
+            "무슨 일이 있었는지 한 문장으로 써 주세요.", "가능하면 다른 사람들이 있는 곳으로 가세요."], "지금 어디에 있고, 곁에 누가 있나요?"),
+    "es": ("Estoy aquí. Cuéntame qué está pasando.",
+           ["Si hay peligro o heridas ahora: en Tailandia 1669 (médico) · 191 (policía) · 112 en España · 911 en México y EE. UU.",
+            "Escribe en una frase qué pasó.", "Si puedes, acércate a otras personas."], "¿Dónde estás ahora y hay alguien contigo?"),
+}
+
+_CS = re.compile(r"[řěůŘĚŮ]")
+_SK = re.compile(r"[ľĺŕôĽĹŔÔ]")
+_HU = re.compile(r"[őűŐŰ]")
+_DANO = re.compile(r"[æøÆØ]")
+_SH = re.compile(r"[čćđČĆĐ]")
+_SR_CYR = re.compile(r"[ђјљњћџЂЈЉЊЋЏ]")
+_BG = re.compile(r"ъ|искам\s+да|не\s+диша|бие\s+ме|помощ|съм\b|днес")
+_PL = re.compile(r"[ąęłśźżĄĘŁŚŹŻ]")
+_HU_W = re.compile(r"\b(?:akarok|halni|lélegzik|férjem|segítség|nagyon|fáradt|vagyok|munkában)\b", re.I)
+_SK_W = re.compile(r"\b(?:nedýcha|zomrieť|ma\s+bije|veľmi|neviem|pomôžte|som\s+dnes)\b", re.I)
+_CS_W = re.compile(r"\b(?:pomozte|nedýchá|umřít|mě\s+bije|nevím|jsem\s+dnes)\b", re.I)
+_KA = re.compile(r"[Ⴀ-ჿ]")
+_HY = re.compile(r"[԰-֏]")
+_NO_W = re.compile(r"\b(?:hjelp|puster|veldig|ikkje|meg|deg|slår\s+meg|kjempe)\b", re.I)
+_DA_W = re.compile(r"\b(?:hjælp|vejret|meget|træt|mand|mig)\b", re.I)   # ไม่ใช้ mig/dig — สวีเดนก็ใช้
+_WORD_RX.update({k: re.compile(r"(?<![\w'])(?:" + v + r")(?![\w'])", re.I) for k, v in {
+    "cs": r"chci|umřít|nedýchá|manžel|mě|bije|pomoc|jsem|velmi|unavený|dnes|nevím|co|dělat",
+    "sk": r"chcem|zomrieť|nedýcha|manžel|ma|bije|pomoc|som|veľmi|unavený|dnes|neviem|čo|robiť",
+    "hu": r"meg|akarok|halni|anyám|nem|lélegzik|férjem|ver|segítség|nagyon|fáradt|vagyok|ma|munkában",
+    "fi": r"minä|haluan|kuolla|äiti|ei|hengitä|mieheni|lyö|minua|apua|olen|todella|väsynyt|tänään|töissä",
+    "sh": r"želim|umrijeti|umreti|mama|ne|diše|muž|me|tuče|upomoć|pomoć|jako|umoran|danas|sam",
+}.items()})
+_world_lang_prev = world_lang
+
+
+def world_lang(text, min_hits: int = 2) -> str | None:  # noqa: F811 — ขยายด้วยภาษายุโรปที่เหลือ
+    t = str(text or "")
+    if _KA.search(t):
+        return "ka"
+    if _HY.search(t):
+        return "hy"
+    if _CYR.search(t):
+        if _SR_CYR.search(t):
+            return "sh"
+        if _BG.search(t) and not re.search(r"[ыэё]", t):
+            return "bg"
+    if _VI_ONLY.search(t):                       # เวียดนามมี ô เหมือนสโลวัก — ให้ตัวเดิมตัดสิน
+        return _world_lang_prev(t, min_hits)
+    if _PL.search(t):                            # ą ę ł ś ź ż — โปแลนด์ (อย่าให้ ć ทำให้เดาเป็นโครเอเชีย)
+        return "pl"
+    if _HU.search(t) or _HU_W.search(t):          # "meg" ซ้ำกับนอร์เวย์ — ตรวจฮังการีก่อน
+        return "hu"
+    if _SK.search(t) or _SK_W.search(t):
+        return "sk"
+    if _CS.search(t) or _CS_W.search(t):
+        return "cs"
+    if _DANO.search(t) or _NO_W.search(t) or re.search(r"\b(?:jeg|hjælp|vejret|træt|mand)\b", t, re.I):
+        n, d = len(_NO_W.findall(t)), len(_DA_W.findall(t))
+        if n or d or _DANO.search(t):
+            return "no" if n > d else "da"
+    if _SH.search(t) and not re.search(r"[ăâîșț]", t):
+        return "sh"
+    return _world_lang_prev(t, min_hits)
+
+
+def help_main(lang: str):
+    return HELP_MAIN.get(lang)

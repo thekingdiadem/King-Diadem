@@ -433,6 +433,14 @@ WORLD.update({
     "mn": ["үхмээр байна", "ээж амьсгалахгүй байна", "нөхөр намайг зоддог"], "kk": ["өлгім келеді", "анам тыныс алмайды", "күйеуім мені ұрады"],
     "uz": ["o'lmoqchiman", "onam nafas olmayapti", "erim meni uradi"],
 })
+WORLD.update({
+    "cs": ["chci umřít", "máma nedýchá", "manžel mě bije"], "sk": ["chcem zomrieť", "mama nedýcha", "manžel ma bije"],
+    "hu": ["meg akarok halni", "anyám nem lélegzik", "a férjem ver"], "fi": ["haluan kuolla", "äiti ei hengitä", "mieheni lyö minua"],
+    "da": ["jeg vil dø", "min mor trækker ikke vejret", "min mand slår mig"], "no": ["jeg vil dø, hjelp meg", "mamma puster ikke", "mannen min slår meg"],
+    "sh": ["želim umrijeti", "mama ne diše", "muž me tuče"], "bg": ["искам да умра", "мама не диша", "мъжът ми ме бие"],
+    "ka": ["მინდა მოვკვდე", "დედა არ სუნთქავს", "ქმარი მცემს"], "hy": ["ուզում եմ մեռնել", "մայրս չի շնչում", "ամուսինս ծեծում է ինձ"],
+})
+WORLD_HELP_MAIN = {"救命": "zh", "助けて": "ja", "살려주세요": "ko", "ayuda": "es"}
 # เรื่องทั่วไปต้องได้คำตอบภาษาของตัวเอง (core/world_replies.py)
 WORLD_GENERAL = {"fr": "je suis très fatigué avec mon travail aujourd'hui", "de": "ich bin heute sehr müde und weiß nicht was ich will",
                  "pt": "eu estou muito cansado com meu trabalho hoje", "it": "io sono molto stanco con il mio lavoro oggi",
@@ -445,11 +453,16 @@ WORLD_GENERAL = {"fr": "je suis très fatigué avec mon travail aujourd'hui", "d
                  "ar": "أنا متعب جدا من العمل اليوم", "tr": "bugün işten çok yoruldum",
                  "el": "είμαι πολύ κουρασμένος σήμερα από τη δουλειά", "ro": "sunt foarte obosit azi și nu știu ce să fac",
                  "sv": "jag är mycket trött idag och vet inte vad jag vill", "he": "אני מאוד עייף היום מהעבודה",
-                 "mn": "өнөөдөр ажлаасаа их ядарч байна", "kk": "бүгін жұмыстан қатты шаршадым", "uz": "bugun ishda juda charchadim"}
+                 "mn": "өнөөдөр ажлаасаа их ядарч байна", "kk": "бүгін жұмыстан қатты шаршадым", "uz": "bugun ishda juda charchadim",
+                 "cs": "jsem dnes velmi unavený a nevím co dělat", "sk": "som dnes veľmi unavený a neviem čo robiť",
+                 "hu": "ma nagyon fáradt vagyok a munkában", "fi": "olen todella väsynyt tänään töissä", "da": "jeg er meget træt i dag",
+                 "no": "jeg er veldig sliten i dag", "sh": "danas sam jako umoran", "bg": "днес съм много уморен",
+                 "ka": "დღეს ძალიან დაღლილი ვარ", "hy": "այսօր շատ հոգնած եմ"}
 WORLD_EN_CALM = ["I am very tired with my job today", "help me with my homework", "estoy muy cansado con mi trabajo hoy", "my mom is not ok"]
 # ภาษาเอเชียที่ต้องได้คำตอบในภาษาของตัวเอง (core/asia_replies.py) ไม่ใช่ภาษาอังกฤษ
 WORLD_NATIVE = ("my", "km", "lo", "vi", "id", "ms", "tl", "hi", "ne", "bn", "ur", "ta", "si", "fa", "ar", "tr",
-                "fr", "de", "pt", "it", "ru", "uk", "pl", "nl", "sw", "am", "ha", "yo", "zu", "af", "so", "el", "ro", "sv", "he", "mn", "kk", "uz")
+                "fr", "de", "pt", "it", "ru", "uk", "pl", "nl", "sw", "am", "ha", "yo", "zu", "af", "so", "el", "ro", "sv", "he", "mn", "kk", "uz",
+                "cs", "sk", "hu", "fi", "da", "no", "sh", "bg", "ka", "hy")
 WORLD_HELP = ["救命", "助けて", "살려주세요", "ayuda", "cứu tôi với", "tolong saya", "tulong", "au secours", "hilfe", "socorro", "помогите",
               "النجدة", "बचाओ", "ကယ်ပါ", "ជួយផង", "ຊ່ວຍແດ່", "aiuto", "imdat"]
 WORLD_FRAME = ["{x}", "{x}!!", "{x} ...", "{x} 😭", "{x}?"]
@@ -471,6 +484,8 @@ def world(n=0):
     for lg, x in WORLD_GENERAL.items():
         if compose(x).split("\n")[0] != reply_for(lg, "general")[0]:
             bad.append(f"(เรื่องทั่วไปไม่ได้ตอบเป็นภาษา {lg}) {x}")
+    from core.world_replies import HELP_MAIN
+    bad += [f"(ช่วยด้วย {lg}) {x}" for x, lg in WORLD_HELP_MAIN.items() if compose(x).split("\n")[0] != HELP_MAIN[lg][0]]
     bad += [f"(ภาษาอังกฤษ/สเปนถูกเดาผิด) {t}" for t in WORLD_EN_CALM if compose(t).split("\n")[0] not in ("Let's lay this out step by step.", "Vamos a ordenarlo paso a paso.")]
     bad += [f"(ธรรมดา) {t}" for t in WORLD_CALM if assess(t)["text_risk"] >= 50]
     return len(cases) + len(WORLD_CALM) + len(WORLD_GENERAL) + len(WORLD_EN_CALM), bad

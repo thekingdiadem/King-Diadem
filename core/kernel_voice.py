@@ -1793,6 +1793,14 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         al = world_lang(text, 1)
         kind = ("crisis" if a["crisis"] else "medical" if "health_emergency" in a["topics"]
                 else "violence" if "violence" in a["topics"] else "help" if "help" in a["topics"] else None)
+        if not al and kind == "help":               # "救命" "助けて" "살려주세요" "ayuda" คำเดียว
+            from core.world_replies import help_main
+            hm = help_main(detect_lang(text))
+            if hm:
+                st = f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = 3"
+                body = "\n".join(f"{i + 1}) {x}" for i, x in enumerate(hm[1]))
+                return (f"{hm[0]}\n\n{st}\n\n{body}\n\n{hm[2]}\n\n{sign}"
+                        + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         if al and kind:
             st = f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = 3"
             out = compose_asia(al, kind, st, sign, footer)
@@ -1866,7 +1874,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         if lang in ("en", "es") and not a["crisis"]:
             from core.world_replies import world_lang, compose_world
             wl = world_lang(text)
-            if wl and (lang == "en" or wl in ("pt", "fr", "it", "de", "pl", "nl", "af", "yo", "ha", "sw", "zu", "so")):
+            if wl and (lang == "en" or wl != "es"):
                 out = compose_world(wl, "general", status, sign, footer)
                 if out:
                     return out
