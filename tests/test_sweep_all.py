@@ -6,7 +6,7 @@ import pytest
 from scripts import sweep_all
 
 
-@pytest.mark.parametrize("suite,n", [("urgent", 1500), ("violence", 1000), ("benign", 1500), ("typing", 0), ("intl", 0), ("en", 600), ("en_violence", 1000), ("th_violence", 1000), ("th_crisis", 1200), ("en_crisis", 1000)])
+@pytest.mark.parametrize("suite,n", [("urgent", 1500), ("violence", 1000), ("benign", 1500), ("typing", 0), ("intl", 0), ("en", 600), ("en_violence", 1000), ("th_violence", 1000), ("th_crisis", 1200), ("en_crisis", 1000), ("th_scam", 600)])
 def test_sweep_suite_has_no_slips(suite, n):
     total, bad = sweep_all.SUITES[suite](n)
     assert total > 0
