@@ -174,6 +174,7 @@ OVERDOSE = re.compile(
     r"กินยา(?:\S{0,6})?เกิน(?:ขนาด)?(?!\S{0,4}\s*[12]\s*เม็ด)|"
     r"(?:เด็ก|ลูก|หลาน)\S{0,6}กินยา\S{0,12}?(?:หลายเม็ด|ทั้งแผง|หมดแผง|ไปเยอะ|ทั้งขวด)|"
     r"(?i:\b(?:swallowed|drank|ate) (?:some )?(?:bleach|detergent|poison|pesticide|a battery|button battery|pills)\b)|"
+    r"(?i:\b(?:swallowed|drank|ate) (?:some )?(?:rat poison|rodenticide|antifreeze|weed ?killer|insecticide|paraquat)\b)|"
     r"กิน(?:ยา)?(?:พารา|ยา)\S{0,10}?(?:ไป)?\s*(?:[5-9]|[1-9]\d+)\s*เม็ด(?!\s*ต่อวัน|\s*ใน\s*\d+\s*วัน)|"
     # "กินยานอนหลับไปทั้งแผง" (ชื่อยายาว) "กลืนยาไปหมดแผง" เคยไม่ติด · "กินยาคุม/ยาฆ่าเชื้อหมดแผง(แล้ว)" = กินครบชุด ไม่ใช่ยาเกินขนาด
     r"(?<!อยาก)(?:กิน|กลืน)ยา\S{0,12}?(?:(?<!ครบ)ทั้ง(?:แผง|ขวด|กระปุก)|ไป(?:หมด|ทั้ง)(?:แผง|ขวด|กระปุก)|หมด(?:ขวด|กระปุก))"
@@ -224,7 +225,8 @@ SWALLOWED_OBJECT = re.compile(
     r"(?:ถ่าน(?:กระดุม|นาฬิกา|ไฟฉาย)?|แบตเตอรี่|แบตเตอรี|แม่เหล็ก|เหรียญ|เข็ม|ตะปู|ลูกปัด|ของเล่นชิ้นเล็ก)|"
     r"(?<!หมา)(?<!แมว)(?<!สุนัข)(?<!กระต่าย)กลืน(?:ถ่าน(?:กระดุม|นาฬิกา)?|แบตเตอรี่?|แม่เหล็ก|เหรียญ|เข็ม|ตะปู|ใบมีด)|"
     r"\b(?:my )?(?:son|daughter|kid|child|baby|toddler)\b[^\n]{0,30}?\bswallowed\b[^\n]{0,12}?"
-    r"\b(?:a |an |some )?(?:button )?(?:batter(?:y|ies)|magnets?|coins?|needle|pin)\b",
+    r"\b(?:a |an |some )?(?:button )?(?:batter(?:y|ies)|magnets?|coins?|needle|pin)\b|"
+    r"^(?![\s\S]*\b(?:dog|cat|puppy|kitten|pet)\b)[\s\S]*?\bswallowed (?:a |an |some )?(?:button )?(?:batter(?:y|ies)|magnets?|coins?|needle|pin|razor ?blade)\b",
     re.I,
 )
 
@@ -416,6 +418,12 @@ URGENT_BODY = re.compile(
     r"เมา\S{0,4}?(?:จน)?(?:ปลุกไม่ตื่น|ไม่รู้สึกตัว|หมดสติ)|ไข้\S{0,6}?คอแข็ง|อาเจียนทุกครั้งที่(?:กิน|ดื่ม)|อาเจียนไม่หยุด|"
     r"(?i:\b(?:vomiting|throwing up|coughing up|coughing) blood\b|\bblood in (?:my|her|his|their) (?:vomit|stool|poop)\b)|"
     r"(?i:\bcan'?t (?:speak|talk) (?:properly|clearly|right)\b|\bslurr(?:ed|ing) (?:speech|words|her words|his words)\b|\bface (?:is )?droop|\bhaving a stroke\b|\bsudden(?:ly)? (?:very )?confused\b|"
+    # รอบตารางภาษาอังกฤษ: เลือดไม่หยุด ตกสระ แพ้รุนแรง ลมแดด เมาปลุกไม่ตื่น ไข้คอแข็ง หน้าเบี้ยว — เคยได้ Risk 0
+    r"\b(?:fell|fallen) in(?:to)? (?:the |a )?(?:pool|river|lake|water|canal|sea|pond)\b|\bbleeding (?:a lot|heavily|badly|so much)\b|\bwon'?t stop bleeding\b|"
+    r"\bcan'?t stop the bleeding\b|\blots? of blood\b|\bstung by an? (?:bee|wasp|hornet)\b[^\n]{0,40}?\b(?:swell|can'?t breathe|trouble breathing)|"
+    r"\b(?:face|lips|tongue|throat) (?:is |are )?(?:swelling|swollen)\b[^\n]{0,30}?\b(?:breath|after eating|ate)|\bheat ?stroke\b|"
+    r"\b(?:very )?drunk\b[^\n]{0,20}?\b(?:won'?t|can'?t|doesn'?t) wake\b|\bwon'?t wake up\b|\bpassed out drunk\b|"
+    r"\bfever\b[^\n]{0,30}?\bstiff neck\b|\bstiff neck\b[^\n]{0,30}?\bfever\b|\bdrooping face\b|\bconfused suddenly\b|"
     r"\btook (?:some )?(?:ecstasy|molly|mdma|meth|cocaine|drugs)\b[^\n]{0,30}?\b(?:overheating|seizure|seizing|unconscious|chest pain|won'?t wake)\b)",
 )
 # เจ็บป่วย/บาดเจ็บฉุกเฉินที่เคยหลุด (สโตรก ครรภ์เลือดออก ไข้สูงในเด็ก ไฟช็อต งูกัด ไฟลวก รถชน)
@@ -463,7 +471,10 @@ FIRST_AID = re.compile(
     r"(?<!ข่าว)รถ(?:ชน|คว่ำ|ล้ม)|ถูกรถชน|อุบัติเหตุ\S{0,10}?(?:บาดเจ็บ|เลือด|หมดสติ)|ตกจากที่สูง|ตกบันได|"
     r"(?:นิ้ว|มือ|แขน|ขา|เท้า)(?:ขาด|หลุด)(?=\s|$|ค่ะ|ครับ|ทำ|ต้อง|อยู่|แล้ว|เลือด)|กระดูก\S{0,4}?(?:หัก|โผล่|ทิ่มออก)|หัว\S{0,6}?(?:ฟาด|กระแทก)|"
     r"ตา\S{0,4}?(?:โดน|เข้า)?\S{0,2}?(?:สารเคมี|น้ำยา|ปูน|โซดาไฟ|กรด|คลอรีน)|(?:สารเคมี|น้ำยา|ปูน|โซดาไฟ|กรด|คลอรีน)\S{0,10}?เข้าตา|"
-    r"\b(?:snake ?bite|dog bite|burn(?:ed|t)? (?:my|his|her)|electric shock|car crash)\b|"
+    r"\b(?:snake ?bite|dog bite|electric shock|car crash)\b|\bburn(?:ed|t)? (?:my|his|her|their) (?:hand|arm|leg|face|finger|foot|feet|skin|back|chest|neck|body|lip|mouth)s?\b|"
+    r"\bcut off (?:a |his |her |my |their )?(?:finger|toe|thumb|hand)s?\b|\b(?:finger|toe|thumb)s? (?:was |got )?(?:cut off|severed|chopped off)\b|"
+    r"\bhit (?:his|her|my|their) head\b|\bburn(?:ed|t) (?:with|by) (?:boiling|hot) (?:water|oil)\b|\bscald(?:ed|ing)?\b|\belectrocuted\b|"
+    r"\b(?:chemicals?|bleach|acid|cleaner|lime) (?:in|into|splashed in(?:to)?) (?:his|her|my|their|the) eyes?\b|"
     r"\b(?:broke|broken|fractured) (?:my |his |her )?(?:arm|leg|wrist|ankle|bone|hip)\b|\bbitten by (?:a |my )?(?:dog|snake|cat|monkey)\b|\bhit by a car\b",
     re.I,
 )
@@ -506,7 +517,7 @@ MISSING_PERSON = re.compile(
     # ผู้ป่วยสมองเสื่อมเดินออกจากบ้าน — มีคำอธิบายคั่นยาว ("แม่เป็นอัลไซเมอร์ เดินออกจากบ้านหาย")
     r"(?:อัลไซเมอร์|สมองเสื่อม|หลงลืม)[^\n.!?]{0,30}?(?:หายไป|หาไม่เจอ|ออกจากบ้าน\S{0,6}?หาย|ไม่กลับบ้าน)|"
     r"(?:ลูก|หลาน|น้อง|น้องสาว|น้องชาย|ลูกสาว|ลูกชาย)\S{0,6}หายไปกับ(?:คน|ผู้ชาย|ผู้หญิง|แฟน)|(?:คนแก่|ผู้สูงอายุ|ยาย|ตา|ปู่|ย่า)\S{0,4}หลงทาง|"
-    r"\bmy (?:child|son|daughter|kid|mom|dad|mother|father|wife|husband|sister|brother|friend|grandma|grandpa|girlfriend|boyfriend) (?:is|has gone|went|has been) missing\b|"
+    r"\bmy (?:child|son|daughter|kid|mom|dad|mother|father|wife|husband|sister|brother|friend|grandma|grandpa|girlfriend|boyfriend|baby|toddler|grandmother|grandfather|niece|nephew) (?:is|has gone|went|has been) missing\b|\b(?:a|the) (?:kid|child|toddler|little (?:boy|girl)) is missing\b|"
     r"(?:แจ้ง|ตามหา)คนหาย|\bmissing (?:child|person|son|daughter|mom|dad)\b",
     re.I,
 )

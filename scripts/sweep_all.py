@@ -8,6 +8,7 @@ scripts/sweep_all.py — กวาดหาบั๊กทั้งชุดใ�
   typing   พิมพ์รีบ (ไม่มีวรรณยุกต์ เว้นวรรคทุกตัว แสลง) → ต้องยังได้ Risk ≥ 60
   followup ตอบสั้นๆ ต่อจากเรื่องด่วน (ผ่าน API จริง)   → ต้องยังได้เบอร์ช่วยเหลือของเรื่องเดิม
   intl     เรื่องด่วน + ประโยคธรรมดา ภาษาจีน ญี่ปุ่น เกาหลี สเปน → ด่วนต้อง ≥ 60 · ธรรมดาต้อง < 60
+  en       ผู้ประสบเหตุ × อาการด่วน × สำนวน ภาษาอังกฤษ + สำนวนธรรมดา → ด่วนต้อง ≥ 60 ไม่ได้คำตอบทั่วไป · ธรรมดาต้อง < 60
 
 รัน:  python scripts/sweep_all.py                  → ทุกชุด เต็มจำนวน (~1 นาที + followup)
       python scripts/sweep_all.py urgent benign    → เฉพาะชุดที่เลือก
@@ -133,6 +134,31 @@ def intl(n=0):
     return len(urgent_cases) + len(calm_cases), bad
 
 
+# ── en ──────────────────────────────────────────────────────────
+EN_URG_WHO = ["my son", "my daughter", "my mom", "my dad", "my friend", "my husband", "my wife", "my baby", "my grandma", "someone", "a kid"]
+EN_URG_EVENTS = ["is not breathing", "collapsed", "is unconscious", "is having a seizure", "is drowning", "fell in the pool",
+      "has chest pain", "can't breathe", "is choking", "is bleeding a lot", "won't stop bleeding", "cut off a finger",
+      "broke his leg", "hit his head and is vomiting", "swallowed a battery", "swallowed a coin", "drank bleach",
+      "took too many pills", "overdosed", "ate rat poison", "was bitten by a snake", "was stung by a bee and his face is swelling",
+      "ate peanuts and can't breathe", "got burned with boiling water", "got electrocuted", "has a high fever and a stiff neck",
+      "has slurred speech", "has a drooping face", "is confused suddenly", "has heatstroke", "is vomiting blood",
+      "was stabbed", "was shot", "was hit by a car", "is missing", "got chemicals in the eye", "is very drunk and won't wake up"]
+EN_URG_FRAME = ["{w} {e}", "help {w} {e}", "{w} {e}, what do I do", "{w} {e} right now", "urgent: {w} {e}", "{w} {e}!!"]
+EN_CALM = ["I burned my toast lol", "burned my dinner again", "I'm dying to see the new movie", "this homework is killing me",
+           "I could kill for a pizza", "lol I'm dead", "I shot a great photo today", "we drowned in paperwork", "the gym is killing me",
+           "my phone is dead", "my plant is dying", "I fell in love", "she cut off contact with me", "he's bleeding money on that car",
+           "my son is drowning in homework", "my dad hit his head on the cabinet lol he's fine", "I'm so bored I could die"]
+
+
+def en(n=0):
+    cases = sorted({f.format(w=w, e=e).replace(" his ", " his " if w in ("my son", "my dad", "my husband", "someone", "a kid", "my baby", "my friend") else " her ")
+                    for w, e, f in itertools.product(EN_URG_WHO, EN_URG_EVENTS, EN_URG_FRAME)} - {f.format(w="someone", e="is missing") for f in EN_URG_FRAME})
+    cases = _sample(cases, n, 6)
+    bad = [t for t in cases if assess(t)["text_risk"] < 60 or "Write what happened in one sentence" in compose(t)]
+    bad += [f"(ธรรมดา) {t}" for t in EN_CALM if assess(t)["text_risk"] >= 60 or assess(t)["crisis"]]
+    return len(cases) + len(EN_CALM), bad
+
+
 # ── followup ────────────────────────────────────────────────────
 FOLLOW_PRIOR = {
     "อยากตาย ไม่ไหวแล้ว": "1323", "ลูกกินยาไปทั้งแผง": "1669", "ลูกกลืนถ่านกระดุม": "1669", "สามีตบฉันทุกวัน": "191",
@@ -221,7 +247,7 @@ def followup(n=0):
     return len(pairs), bad
 
 
-SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "followup": followup}
+SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "followup": followup}
 
 
 def main(argv):
