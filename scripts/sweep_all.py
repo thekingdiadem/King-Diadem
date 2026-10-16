@@ -8,6 +8,7 @@ scripts/sweep_all.py — กวาดหาบั๊กทั้งชุดใ�
   typing   พิมพ์รีบ (ไม่มีวรรณยุกต์ เว้นวรรคทุกตัว แสลง) → ต้องยังได้ Risk ≥ 60
   followup ตอบสั้นๆ ต่อจากเรื่องด่วน (ผ่าน API จริง)   → ต้องยังได้เบอร์ช่วยเหลือของเรื่องเดิม
   intl     เรื่องด่วน + ประโยคธรรมดา ภาษาจีน ญี่ปุ่น เกาหลี สเปน → ด่วนต้อง ≥ 60 · ธรรมดาต้อง < 60
+  en_violence ใครทำร้าย × การกระทำ × สำนวน ภาษาอังกฤษ (10,200) → ต้อง Risk ≥ 60 · สำนวนธรรมดาต้อง < 60
   en       ผู้ประสบเหตุ × อาการด่วน × สำนวน ภาษาอังกฤษ + สำนวนธรรมดา → ด่วนต้อง ≥ 60 ไม่ได้คำตอบทั่วไป · ธรรมดาต้อง < 60
 
 รัน:  python scripts/sweep_all.py                  → ทุกชุด เต็มจำนวน (~1 นาที + followup)
@@ -166,6 +167,32 @@ def en(n=0):
     return len(cases) + len(EN_CALM) + len(EN_WARNING), bad
 
 
+# ── en_violence ─────────────────────────────────────────────────
+ENV_PERP = ["my husband", "my boyfriend", "my wife", "my girlfriend", "my partner", "my dad", "my stepdad", "my mom", "my stepmom",
+        "my uncle", "my brother", "my ex", "my boss", "my teacher", "my coach", "a stranger", "someone"]
+ENV_ACT = ["hits me", "beats me", "punches me", "kicks me", "slaps me", "chokes me", "strangled me", "pushed me down the stairs",
+       "threatened to kill me", "said he'll kill me", "has a knife and is threatening me", "locked me in the room", "won't let me leave the house",
+       "raped me", "sexually assaulted me", "keeps touching me", "groped me", "is stalking me", "is following me home",
+       "burns me with cigarettes", "starves me", "took my passport", "is threatening to post my nudes", "hurt me badly"]
+ENV_FRAME = ["{p} {a}", "{p} {a}, what do I do", "help, {p} {a}", "{p} {a} and I'm scared", "{p} {a} again", "{p} {a} every day",
+      "I think {p} {a}", "{p} {a} last night", "{p} {a} please help", "{p} {a}. I don't know who to tell",
+      "{p} {a} and I'm pregnant", "{p} {a} in front of my kids", "{p} {a}!!", "{p} {a}..", "urgent {p} {a}",
+      "{p} {a} and nobody believes me", "{p} {a} and I have nowhere to go", "{p} {a} since I was 12", "{p} {a}, should I call the police",
+      "{p} {a} at work", "{p} {a} when he's drunk", "{p} {a} and took my phone", "{p} {a} and I'm bleeding", "{p} {a} tonight",
+      "is it normal that {p} {a}"]
+ENV_CALM = ["beats me why", "beats me how he did it", "that song hits me hard", "my brother beats me at chess", "it beats me",
+            "my back hurts me when I sit", "my heart hurts me", "he kicks me out of the game lol", "my cat keeps touching me",
+            "my dog follows me everywhere", "the chef is holding a knife on TV", "I took my phone and locked the door to study",
+            "a man with a knife on the cooking show", "it hurts me when he yells"]
+
+
+def en_violence(n=0):
+    cases = _sample(sorted({f.format(p=p, a=a) for p, a, f in itertools.product(ENV_PERP, ENV_ACT, ENV_FRAME)}), n, 7)
+    bad = [t for t in cases if assess(t)["text_risk"] < 60]
+    bad += [f"(ธรรมดา) {t}" for t in ENV_CALM if assess(t)["text_risk"] >= 60]
+    return len(cases) + len(ENV_CALM), bad
+
+
 # ── followup ────────────────────────────────────────────────────
 FOLLOW_PRIOR = {
     "อยากตาย ไม่ไหวแล้ว": "1323", "ลูกกินยาไปทั้งแผง": "1669", "ลูกกลืนถ่านกระดุม": "1669", "สามีตบฉันทุกวัน": "191",
@@ -254,7 +281,7 @@ def followup(n=0):
     return len(pairs), bad
 
 
-SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "followup": followup}
+SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "en_violence": en_violence, "followup": followup}
 
 
 def main(argv):

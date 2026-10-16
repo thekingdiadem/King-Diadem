@@ -331,7 +331,7 @@ SEXUAL_ABUSE = re.compile(
     r"(?:พี่ชาย|พี่|น้า|ลุง|อา|พ่อ|ญาติ|ครู|โค้ช)\S{0,8}?(?:ชอบ)?(?:เข้ามา)?(?:จับตัว|ลูบตัว|กอดแปลกๆ)\S{0,8}?(?:ตอนกลางคืน|ตอนหลับ|ตอนอาบน้ำ|ตอนอยู่กันสองคน)|\b(?:sexually (?:assaulted|abused)|molested)\b|\b(?:someone|a (?:man|guy|stranger)|he) (?:touched|groped|grabbed) (?:me|my)\b|\bgroped\b|ข่มขืน|ถูกบังคับ(?:ให้)?(?:มีเพศสัมพันธ์|ถอด|นอนด้วย)|(?:ถูก|โดน)\S{0,10}?(?:บังคับ|ขืนใจ)\S{0,4}?(?:มีเพศสัมพันธ์|มีอะไรด้วย|นอนด้วย|มีเซ็กส์)|ขืนใจ|"
     r"(?:จับ|ลูบ|คลำ)(?:หน้าอก|นม|ก้น|ของลับ|จุดซ่อนเร้น)|(?:จับ|ลูบ|คลำ)(?:ตัว|ขา|ต้นขา)(?:หนู|ฉัน|ผม|เรา|ลูก|น้อง)|"
     r"(?:พ่อเลี้ยง|แม่เลี้ยง|ลุง|น้า|อา|ครู|โค้ช|พระ)\S{0,10}?(?:จับ|ลูบ|คลำ|เข้ามาในห้อง\S{0,10}?กลางคืน|ให้ถอด)|"
-    r"\b(?:sexual(?:ly)? (?:abuse|assault)|molest|raped?)\b|\bmy (?:boss|teacher|coach|uncle|stepdad|stepfather|manager) (?:keeps )?(?:touch(?:es|ed)?|grop(?:es|ed))\b(?! base)",
+    r"\b(?:sexual(?:ly)? (?:abuse|assault)|molest|raped?)\b|\bmy (?:boss|teacher|coach|uncle|stepdad|stepfather|manager) (?:keeps )?(?:touch(?:es|ed|ing)?|grop(?:es|ed|ing))\b(?! base)",
     re.I,
 )
 # ผู้ใหญ่ชวนเด็ก/ลูกศิษย์ไปหาที่บ้าน/ห้องคนเดียวตอนกลางคืน หรือให้เก็บเป็นความลับ — อาจเป็นการล่อลวง
@@ -349,13 +349,23 @@ ADULT_INVITE = re.compile(
 VIOLENCE_BY = re.compile(
     # รอบหาบั๊ก 7: ผู้สูงอายุถูกเอาเงิน/ไม่ให้กิน · "แฟนติดยา อาละวาด" (มีช่องว่างคั่น) · ภาษาอังกฤษถูกกักตัว
     r"\b(?:someone|he|she|they) locked me (?:in|up)\b|\bi'?m locked in\b|"
+    # ตาราง 10,200 ข้อความ: ใครก็ตามที่ทำร้าย (ไม่ใช่แค่สามี/แฟน) — คนแปลกหน้า เจ้านาย พ่อเลี้ยง เคยได้ Risk 0
+    r"(?i:\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,12}?\b(?:hits|beats|punches|kicks|slaps|chokes|strangles|burns|starves|whips|pushed|shoved|threw) me\b(?!\s+(?:why|how|what|at\s+(?:chess|cards|games?|tennis|racing|everything)|in\s+(?:chess|cards|games?|tennis|racing)|out\b|off\b|up\b))|"
+    r"\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,12}?\b(?:won'?t let me (?:leave|go out|out of)|keeps? touching me|kept touching me|is touching me)\b|"
+    r"\b(?:has|with|holding|pulled|is holding) (?:a |an )?(?:knife|gun|machete|weapon)\b[^\n]{0,25}?\b(?:threaten\w*|at me|on me|to my)\b|"
+    r"\b(?:is |keeps |kept |been )?following me (?:home|everywhere|to my (?:house|car|room))\b)|"
+    # รอบตารางความรุนแรงภาษาอังกฤษ: เด็กถูกพ่อแม่ทำร้าย · พ่อตีแม่ · ถูกยึดโทรศัพท์ขังในห้อง · คนถือมีดหน้าประตู — เคยได้ Risk 0
+    r"(?i:\bmy (?:mom|mother|dad|father|stepdad|stepfather|stepmom|stepmother|parents?|uncle|aunt|grandpa|grandma|brother|sister)\b[^\n]{0,12}?"
+    r"\b(?:beats|hits|burns|whips|kicks|chokes|starves|punches|slaps) (?:me|my (?:mom|mother|dad|father|sister|brother))\b(?!\s+(?:why|how|what|at\s+(?:chess|cards|games?|tennis|racing|everything)|in\s+(?:chess|cards|games?|tennis|racing)|out\b|off\b|up\b))|"
+    r"\b(?:he|she|they)\b[^\n]{0,20}?\b(?:took|takes|smashed|broke) my phone\b[^\n]{0,30}?\block(?:ed|s)?\b|\blocked me (?:in|inside)\b|"
+    r"\b(?:a |the )?(?:man|guy|someone|person|stranger|people) with (?:a |an )?(?:knife|gun|machete|weapon)\b[^\n]{0,20}?\b(?:outside|at|near|in front of|trying)\b)|"
     r"(?i:\b(?:was|got|been|being|is being|are being|keeps? getting) (?:beaten|choked|strangled|punched|kicked|stabbed|shot|attacked)\b(?! (?:down|at dawn))|"
     r"\bthreatened (?:me |her |him |them |us )?with a (?:knife|gun|weapon|machete)\b|\b(?:is|am|'m|are|was|been|being) locked (?:in|up)\b)|"
     r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน|พ่อเลี้ยง|แม่เลี้ยง)\S{0,4}(?:กระทืบ|ตบ|ต่อย|เตะ|ทุบ|บีบคอ|ลากผม)|"
     # "สามีขังฉันไว้ในบ้าน" เคยได้แค่หัวข้อความสัมพันธ์ Risk 0 — ต้องมีคนถูกขัง ("แม่ขังหมาไว้ในบ้าน" ไม่ใช่)
     r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน|พ่อเลี้ยง|แม่เลี้ยง|พ่อ|แม่|นายจ้าง|เจ้านาย)\S{0,4}(?:กัก)?ขัง(?:(?:ฉัน|หนู|ผม|เรา|กู|ลูก)|(?:ไว้)?ใน(?:ห้อง|บ้าน))|"
     r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน)\S{0,4}ไม่ให้(?:ออกจากบ้าน|ไปไหน|เจอเพื่อน|เจอใคร)|ยึด(?:โทรศัพท์|มือถือ)(?:ของ)?(?:ฉัน|หนู|ผม|เรา)?|"
-    r"\b(?:chokes|choked|strangles|strangled|beats|kicks) me\b|"
+    r"(?<!it )(?<!that )(?<!this )\b(?:chokes|choked|strangles|strangled|beats|kicks) me\b(?!\s+(?:why|how|what|at\s+(?:chess|cards|games?|tennis|racing|everything)|in\s+(?:chess|cards|games?|tennis|racing)|out\b|off\b|up\b))|"
     r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน|พ่อ|แม่|ลูก)\S{0,8}(?:ติดยา|เมา)[^\n.]{0,4}?(?:อาละวาด|ทุบ|ทำร้าย)|"
     r"\bmy (?:husband|wife|boyfriend|girlfriend|partner|dad|father) (?:won'?t|doesn'?t|will not) let me (?:leave|go out|see|talk)\b|"
     r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน|พ่อ|แม่|ครู|พี่|ลุง|น้า|อา|คนในบ้าน|เขา|มัน)\S{0,10}?"
@@ -363,7 +373,7 @@ VIOLENCE_BY = re.compile(
     r"เตะ(?!บอล|ฟุตบอล|ตะกร้อ|ปี๊บ)|บีบคอ|ตี(?:หัว|หน้า|ตัว|ฉัน|หนู|ผม|เรา|ลูก|แม่)|ตีจน(?:เป็นแผล|เลือด|ช้ำ|บวม|เขียว|ลาย))|"
     r"อาละวาด\S{0,10}?(?:ทำร้าย|ทุบ|ขว้าง|ปา)|"
     # "พ่อเมาแล้วไล่ฟันแม่" เคยได้ Risk 0
-    r"ไล่(?:ฟัน|แทง|ยิง|ทุบ)(?!\S{0,10}?(?:เกม|ซอมบี้|มอนสเตอร์|บอส))|(?:ถือ|เอา|คว้า|หยิบ)(?:มีด|ปืน|ขวาน|พร้า|ดาบ|เสียม)\S{0,8}?(?:ไล่|ขู่|จ่อ|จะ(?:ฟัน|แทง|ยิง|ฆ่า))|ขู่(?:จะ)?(?:ฆ่า|ทำร้าย|ตี)|\b(?:hits?|beats?|hurts?) me\b",
+    r"ไล่(?:ฟัน|แทง|ยิง|ทุบ)(?!\S{0,10}?(?:เกม|ซอมบี้|มอนสเตอร์|บอส))|(?:ถือ|เอา|คว้า|หยิบ)(?:มีด|ปืน|ขวาน|พร้า|ดาบ|เสียม)\S{0,8}?(?:ไล่|ขู่|จ่อ|จะ(?:ฟัน|แทง|ยิง|ฆ่า))|ขู่(?:จะ)?(?:ฆ่า|ทำร้าย|ตี)|(?<!it )(?<!that )(?<!this )(?<!song )(?<!music )(?<!movie )(?<!book )(?<!back )(?<!head )(?<!stomach )(?<!leg )(?<!knee )(?<!tooth )(?<!teeth )(?<!eye )(?<!eyes )(?<!neck )(?<!shoulder )(?<!foot )(?<!feet )(?<!arm )(?<!heart )(?<!ear )(?<!throat )\b(?:hits?|beats?|hurts?) me\b(?!\s+(?:why|how|what|hard|deep|right|so\s+hard|at\s+(?:chess|cards|games?|tennis|racing|everything)|in\s+(?:chess|cards|games?|tennis|racing)|out\b|off\b|up\b))",
     re.I,
 )
 # แบล็กเมล์/ขู่ปล่อยคลิป/แอบถ่าย — ต้องไม่จ่าย ไม่ส่งเพิ่ม เก็บหลักฐาน
