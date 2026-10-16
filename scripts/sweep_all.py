@@ -1,0 +1,219 @@
+"""
+scripts/sweep_all.py — กวาดหาบั๊กทั้งชุดในคำสั่งเดียว (รวมตัวกวาดที่ใช้ไล่บั๊กรอบ PR #78–#83)
+
+ห้าชุด:
+  urgent   ผู้ประสบเหตุ × อาการด่วน × สำนวน      → ต้องได้ Risk ≥ 60 และไม่ได้คำตอบทั่วไป
+  violence ความรุนแรง ค้ามนุษย์ สุขภาพจิต (ไทย+อังกฤษ) → ต้องได้ Risk ≥ เกณฑ์ของแต่ละเรื่อง
+  benign   สำนวนชีวิตประจำวันที่มีคำน่ากลัว            → ต้องไม่เป็นวิกฤต และ Risk < 60
+  typing   พิมพ์รีบ (ไม่มีวรรณยุกต์ เว้นวรรคทุกตัว แสลง) → ต้องยังได้ Risk ≥ 60
+  followup ตอบสั้นๆ ต่อจากเรื่องด่วน (ผ่าน API จริง)   → ต้องยังได้เบอร์ช่วยเหลือของเรื่องเดิม
+
+รัน:  python scripts/sweep_all.py                  → ทุกชุด เต็มจำนวน (~1 นาที + followup)
+      python scripts/sweep_all.py urgent benign    → เฉพาะชุดที่เลือก
+      python scripts/sweep_all.py --sample 800     → สุ่มชุดละ 800 ข้อความ (tests/test_sweep_all.py ใช้แบบนี้)
+ออกด้วย exit 1 ถ้ามีข้อความหลุด
+"""
+import itertools
+import os
+import random
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.kernel_voice import assess, compose  # noqa: E402
+
+GENERIC = ("เขียนสิ่งที่เกิดขึ้นเป็นประโยคเดียว", "ถ้าอาการแย่ลงเร็ว มีไข้สูงไม่ลด", "ให้เวลาตัวเอง 24–72 ชั่วโมง",
+           "Write what happened in one sentence")
+
+# ── urgent ──────────────────────────────────────────────────────
+URGENT_WHO = ["", "ลูก", "แม่", "พ่อ", "ยาย", "ตา", "เพื่อน", "สามี", "แฟน", "น้อง", "หลาน", "ทารก", "คนข้างบ้าน", "ฉัน", "ผม", "หนู"]
+# (เหตุการณ์, ระดับขั้นต่ำที่คาด) — ทุกอันควรได้ Risk ≥ 60
+URGENT_EVENTS = [
+ "หมดสติ", "ไม่หายใจ", "หัวใจหยุดเต้น", "จมน้ำ", "ตกน้ำ", "ชัก", "ชักไม่หยุด", "เจ็บหน้าอกมาก", "หายใจไม่ออก",
+ "ปากเบี้ยว พูดไม่ชัด", "แขนขาอ่อนแรงข้างเดียว", "เลือดออกไม่หยุด", "เลือดพุ่ง", "เลือดกำเดาไหลไม่หยุด",
+ "อาเจียนเป็นเลือด", "ไอเป็นเลือด", "ถ่ายเป็นเลือด", "ถ่ายดำ", "กินยาเกินขนาด", "กินยาไปทั้งแผง", "กินยาฆ่าหญ้า",
+ "กินน้ำยาล้างห้องน้ำ", "กลืนถ่านกระดุม", "กลืนเหรียญ", "โดนงูกัด", "โดนหมากัด", "โดนผึ้งต่อยหน้าบวม",
+ "กินถั่วแล้วปากบวม", "กินกุ้งแล้วหายใจลำบาก", "แพ้ยาหน้าบวม", "โดนไฟช็อต", "โดนน้ำร้อนลวก", "ไฟไหม้ตัว",
+ "นิ้วขาด", "กระดูกหัก", "กระดูกโผล่", "หัวฟาดพื้นแล้วอาเจียน", "ตกบันได", "ถูกรถชน", "รถคว่ำ",
+ "ตาโดนสารเคมี", "น้ำยาเข้าตา", "ปูนเข้าตา", "เป็นลมแดด ตัวร้อนจัด", "สับสนกะทันหัน", "จำใครไม่ได้กะทันหัน",
+ "ไข้สูง คอแข็ง", "ไข้สูงซึมมาก", "ปวดท้องขวาล่างมีไข้", "ตัวเหลืองมาก ไม่กินนม", "ท้องเสีย ปากแห้ง ไม่ฉี่",
+ "ปวดหัวรุนแรงที่สุดในชีวิต", "น้ำตาลต่ำ หน้ามืด", "เมาจนปลุกไม่ตื่น", "เสพยาแล้วตัวร้อนชัก", "กินยาอีแล้วตัวร้อน",
+ "ดมกลิ่นเครื่องปั่นไฟแล้วปวดหัว", "ถูกแทง", "ถูกยิง", "ถูกทำร้ายจนเลือดออก", "ถูกขังไว้", "ถูกข่มขืน",
+ "ถูกบังคับให้มีเพศสัมพันธ์", "บอกว่าอยากตาย", "พูดว่าจะฆ่าตัวตาย", "กรีดแขนเลือดไม่หยุด",
+]
+URGENT_FRAME = ["{w}{e}", "{w}{e} ทำไงดี", "ช่วยด้วย {w}{e}", "ตอนนี้{w}{e}", "{w}เพิ่ง{e}", "{w}{e} ค่ะ", "{w}{e} ครับ",
+         "{w}{e} ต้องไปโรงพยาบาลไหม", "ด่วน {w}{e}", "เมื่อกี้{w}{e}", "{w} {e}", "{w}{e}อยู่ ต้องทำยังไง"]
+
+# ── violence ────────────────────────────────────────────────────
+TH_WHO = ["", "ฉัน", "หนู", "ผม", "แม่", "พี่สาว", "เพื่อน", "ลูกสาว", "น้อง"]
+TH = [  # (เหตุการณ์, risk ขั้นต่ำ)
+ ("ถูกสามีตบ", 75), ("ถูกแฟนทุบตี", 75), ("โดนผัวกระทืบ", 75), ("ถูกแฟนบีบคอ", 75), ("ถูกพ่อเลี้ยงลวนลาม", 75),
+ ("ถูกข่มขืน", 75), ("โดนแฟนบังคับมีเซ็กส์", 75), ("ถูกขังไว้ในห้อง", 75), ("ถูกนายจ้างขังไว้ในโรงงาน", 60),
+ ("ถูกหลอกไปทำงานต่างประเทศแล้วถูกยึดพาสปอร์ต", 60), ("ถูกพาไปทำงานแก๊งคอลเซ็นเตอร์ที่กัมพูชา", 60),
+ ("ถูกนายจ้างยึดพาสปอร์ต ไม่ให้ออกไปไหน", 60), ("ถูกขู่ฆ่า", 65), ("ถูกแฟนเก่าขู่จะฆ่า", 65),
+ ("ถูกขู่จะปล่อยคลิป", 75), ("ถูกแบล็กเมล์ด้วยรูปโป๊", 75), ("โดนคอลเซ็นเตอร์หลอกโอนเงิน", 60),
+ ("มีคนอ้างเป็นตำรวจให้โอนเงิน", 60), ("ถูกหลอกให้ลงทุนคริปโต", 60), ("อยากตาย", 85), ("อยากฆ่าตัวตาย", 85),
+ ("ไม่อยากมีชีวิตอยู่แล้ว", 85), ("คิดจะกินยาให้ตาย", 85), ("เขียนจดหมายลาตายแล้ว", 85), ("กรีดข้อมือ", 75),
+ ("ทำร้ายตัวเองทุกคืน", 75), ("ได้ยินเสียงสั่งให้ฆ่าคน", 75), ("อยากฆ่าแฟน", 75), ("มีปืนอยู่ในบ้าน อยากยิงตัวเอง", 85),
+ ("หายออกจากบ้านไปสองวัน", 75), ("ไม่กินข้าวมาสามวัน อาเจียนทุกครั้งที่กิน", 60), ("ถูกครูลวนลาม", 75),
+ ("ถูกเพื่อนรุมแกล้งจนไม่อยากไปโรงเรียน", 0), ("โดนบูลลี่ในเน็ตจนอยากตาย", 85),
+]
+TH_FRAME = ["ตอนนี้{w}กำลัง{e}", "{w}{e} ต้องแจ้งใคร", "{w}{e} ใครช่วยได้บ้าง", "ขอคำแนะนำ {w}{e}", "{w}{e} กลัวมาก", "{w}{e} อยู่คนเดียว", "{w}{e}",  "{w}{e} ทำไงดี", "ช่วยด้วย {w}{e}", "ตอนนี้{w}{e}", "{w}{e} ค่ะ", "{w}{e} ครับ", "{w}{e}มาหลายวันแล้ว",
+            "{w}{e} ไม่รู้จะบอกใคร", "{w} {e}", "เมื่อคืน{w}{e}"]
+EN_WHO = ["I", "my sister", "my friend", "my mom", "my daughter"]
+EN = [("{w} was raped", 75), ("{w} was sexually assaulted", 75), ("{w} got beaten by her husband", 75),
+      ("{w} is being choked by her boyfriend", 75), ("{w} is locked in a room", 75), ("{w} wants to die", 85),
+      ("{w} wants to kill herself", 85), ("{w} took a whole bottle of pills", 85), ("{w} is cutting herself", 75),
+      ("{w} is being blackmailed with nude photos", 75), ("{w} got scammed and sent money", 60),
+      ("{w} is trafficked and her passport was taken", 60), ("{w} is hearing voices telling her to hurt people", 75),
+      ("{w} is missing since yesterday", 75), ("{w} is being stalked by her ex", 60), ("{w} was threatened with a knife", 75),
+      ("{w} has a plan to end my life", 85), ("{w} is drunk and wants to drive", 75), ("{w} sees things that aren't there", 60),
+      ("{w} hasn't slept for 4 days", 40), ("{w} has an eating disorder", 60), ("{w} stopped taking antidepressants", 50), ("{w} can't stop vomiting blood", 85), ("{w} overdosed on heroin", 85)]
+EN_FRAME = ["{x} and I'm scared", "{x}, who can help", "urgent: {x}", "{x}!!", "{x} right now", "{x}", "{x}, what do I do", "help {x}", "{x} please help", "{x}."]
+
+# ── benign ──────────────────────────────────────────────────────
+BENIGN_PRE = ["", "วันนี้", "เมื่อวาน", "555 ", "โห ", "เฮ้อ ", "จริงๆ แล้ว", "บอกเลยว่า", "ตอนนี้"]
+BENIGN_CORE = [
+ "หิวจะตาย", "ขำจนจะตาย", "ร้อนจะตาย", "เหนื่อยจะตาย", "เบื่อจะตาย", "ง่วงจะตาย", "ตายแน่ถ้าส่งงานไม่ทัน", "ตายละ ลืมการบ้าน",
+ "ฆ่าเวลาด้วยการดูซีรีส์", "เล่นเกมยิงกันทั้งคืน", "ดูหนังสยองขวัญแล้วนอนไม่หลับ", "หนังเรื่องนี้ฉากคนจมน้ำน่ากลัวมาก",
+ "อ่านข่าวคนถูกแทงแล้วสะเทือนใจ", "เป็นแฟนคลับวงนี้จนจะตาย", "กินเผ็ดจนน้ำตาไหล", "แพ้ทางคนพูดเพราะ", "แพ้กุ้งนิดหน่อยคันๆ",
+ "เมื่อวานดูบอลแล้วโดนยิงประตู", "แทงหวยไม่ถูกอีกแล้ว", "ชักช้าจัง", "แม่ชักจะบ่น", "ชักชวนเพื่อนไปวิ่ง", "กระโดดเชือกทุกเช้า",
+ "ซื้อยาพาราไว้ติดบ้าน", "กินยาแก้แพ้แล้วง่วง", "เจ็บคอนิดหน่อย", "ปวดหัวเพราะเครียดงาน", "อยากหายไปเที่ยวทะเล", "อยากหลับยาวๆ ในวันหยุด",
+ "ไม่อยากอยู่บ้านเฉยๆ อยากไปเที่ยว", "ไม่อยากไปทำงานวันจันทร์", "งานนี้ฆ่าฉันแน่ๆ", "เพื่อนแกล้งแซวเรื่องแฟน", "โดนหัวหน้าดุนิดหน่อย",
+ "ขับรถไปต่างจังหวัด", "ว่ายน้ำได้ 1 กิโล", "สอนลูกว่ายน้ำ", "ลูกเล่นน้ำในสระ", "ไปเที่ยวน้ำตก", "ทำกับข้าวโดนมีดบาดนิดเดียว",
+ "ทาครีมกันแดดแล้วไม่ไหม้", "เลือดกำเดาไหลนิดหน่อยตอนอากาศแห้ง หยุดแล้ว", "ลูกไข้ต่ำๆ ยังเล่นได้", "ตกบันไดนิดเดียวไม่เป็นไร",
+ "ทะเลาะกับแฟนเรื่องไปเที่ยว", "อยากเลิกกับแฟนแต่ยังไม่แน่ใจ", "อยากลาออกไปทำธุรกิจ", "อยากเก็บเงินซื้อบ้าน", "เงินเดือน 30000 อยากออมเงิน",
+ "จะสอบพรุ่งนี้ ตื่นเต้น", "อยากเรียนต่อต่างประเทศ", "หมาที่บ้านน่ารัก", "แมวกัดเล่นไม่เข้าเนื้อ", "อยากฆ่ายุงในห้อง", "ฆ่าเชื้อโรคในบ้านยังไงดี",
+ "I'm dying to see the new movie", "this homework is killing me", "I could kill for a pizza", "lol I'm dead", "my boss will kill me if I'm late",
+ "I shot a great photo today", "we drowned in paperwork", "I'm starving", "the gym is killing me", "I'm so bored I could die",
+]
+BENIGN_POST = ["", " 555", " ค่ะ", " ครับ", " 😂", " 🥲", " นะ", " อะ", " lol", "!!", " ทำไงดี"]
+
+# ── typing ──────────────────────────────────────────────────────
+TYPO_BASE = ["อยากตาย", "อยากฆ่าตัวตาย", "ไม่อยากมีชีวิตอยู่แล้ว", "คิดจะกินยาให้ตาย", "ลูกไม่หายใจ", "แม่หมดสติ", "ลูกตกน้ำ", "พ่อเจ็บหน้าอก",
+        "ลูกชัก", "ถูกแทง", "ถูกสามีตบ", "ถูกข่มขืน", "โดนงูกัด", "ลูกกินยาไปทั้งแผง", "ลูกกลืนถ่านกระดุม", "ยายปากเบี้ยว พูดไม่ชัด",
+        "เลือดออกไม่หยุด", "ถูกขังไว้ในห้อง", "มีคนขู่จะฆ่า", "เพื่อนบอกว่าจะฆ่าตัวตาย", "โดนแบล็กเมล์ด้วยคลิป", "ลูกหายไปตั้งแต่เมื่อวาน"]
+TONES = "่้๊๋"
+
+
+def mut(t, random=random):
+    k = random.random()
+    if k < 0.2: return "".join(c for c in t if c not in TONES)               # ไม่มีวรรณยุกต์
+    if k < 0.35: return t + t[-1] * random.randint(2, 6)                     # ตัวซ้ำท้าย
+    if k < 0.5: return t.replace(" ", "")                                     # ไม่มีวรรค
+    if k < 0.6: return " ".join(t)                                            # เว้นทุกตัว
+    if k < 0.7: return random.choice(["ช่วยด้วยยยย ", "ด่วนนนน ", "ฮือออ ", "help "]) + t
+    if k < 0.8: return t + random.choice(["!!!", "...", " 😭😭", " T_T", " ค่ะะะ", " คับ", " จ้า", " อ่ะ"])
+    if k < 0.9: return t.replace("ไม่", "ม่").replace("อยาก", "อยาก")      # แสลง
+    return t.replace("ตาย", "ตายยย").replace("ลูก", "ลุก")                   # สะกดผิด
+
+
+# ── followup ────────────────────────────────────────────────────
+FOLLOW_PRIOR = {
+    "อยากตาย ไม่ไหวแล้ว": "1323", "ลูกกินยาไปทั้งแผง": "1669", "ลูกกลืนถ่านกระดุม": "1669", "สามีตบฉันทุกวัน": "191",
+    "มีคนหมดสติไม่หายใจ": "1669", "ถูกนายจ้างขังไว้ในโรงงาน": "191", "ไม่มีข้าวกิน 3 วันแล้ว": "1300",
+    "เพื่อนบอกว่าจะฆ่าตัวตาย": "1323", "แม่ปากเบี้ยว พูดไม่ชัด": "1669", "ถูกข่มขืนเมื่อคืน": "1300",
+}
+FOLLOW = ["ค่ะ", "ครับ", "โอเค", "ไม่มีใคร", "ทำไงดี", "ไม่รู้", "แล้วไงต่อ", "ไม่เป็นไรแล้ว", "อืม", "ขอบคุณ", "?", "..."]
+
+
+def _sample(items, n, seed):
+    items = list(items)
+    if n and len(items) > n:
+        random.Random(seed).shuffle(items)
+        items = items[:n]
+    return items
+
+
+def urgent(n=0):
+    cases = sorted({f.format(w=w, e=e).strip() for w, e, f in itertools.product(URGENT_WHO, URGENT_EVENTS, URGENT_FRAME)})
+    bad = []
+    for t in _sample(cases, n, 1):
+        if assess(t)["text_risk"] < 60 or any(g in compose(t) for g in GENERIC):
+            bad.append(t)
+    return len(_sample(cases, n, 1)), bad
+
+
+def _violence_cases():
+    out = []
+    for w, (e, r), f in itertools.product(TH_WHO, TH, TH_FRAME):
+        if e.startswith("หายออก") and w in ("ฉัน", "หนู", "ผม", ""):
+            continue
+        out.append((f.format(w=w, e=e).strip(), r))
+    for w, (e, r), f in itertools.product(EN_WHO, EN, EN_FRAME):
+        if w == "I" and "missing" in e:
+            continue
+        x = e.format(w=w)
+        if w == "I":
+            x = (x.replace("her husband", "my husband").replace("her boyfriend", "my boyfriend").replace("herself", "myself")
+                 .replace(" is ", " am ", 1).replace("I am", "I'm").replace("her ", "my ").replace("wants", "want")
+                 .replace("has a plan to end my", "have a plan to end my"))
+        else:
+            x = x.replace("end my life", "end her life")
+        out.append((f.format(x=x), r))
+    return sorted(set(out))
+
+
+def violence(n=0):
+    cases = _sample(_violence_cases(), n, 2)
+    return len(cases), [t for t, r in cases if assess(t)["text_risk"] < r]
+
+
+def benign(n=0):
+    cases = _sample(sorted({(p + c + q).strip() for p, c, q in itertools.product(BENIGN_PRE, BENIGN_CORE, BENIGN_POST)}), n, 3)
+    bad = []
+    for t in cases:
+        a = assess(t)
+        if a["crisis"] or a["text_risk"] >= 60:
+            bad.append(t)
+    return len(cases), bad
+
+
+
+
+def typing(n=0):
+    rnd = random.Random(4)
+    cases = _sample(sorted({mut(b, rnd) for b in TYPO_BASE for _ in range(600)}), n, 4)
+    return len(cases), [t for t in cases if assess(t)["text_risk"] < 60]
+
+
+def followup(n=0):
+    import tempfile
+    tmp = tempfile.mkdtemp(prefix="kd-sweep-")
+    os.environ.update({"SECRET_KEY": os.getenv("SECRET_KEY", "sweep"), "DB_PATH": os.path.join(tmp, "kd.db"), "KD_DATA_DIR": tmp,
+                       "FREE_DAILY_RUNS": "100000", "KD_AI": "off", "TRUST_CF_HEADER": "1"})
+    from fastapi.testclient import TestClient
+    import app as appmod
+    c = TestClient(appmod.app, raise_server_exceptions=False)
+    pairs = _sample(list(itertools.product(FOLLOW_PRIOR.items(), FOLLOW)), n, 5)
+    bad = []
+    for i, ((prior, need), f) in enumerate(pairs):
+        hist = [{"role": "user", "content": prior}, {"role": "assistant", "content": "..."}]
+        r = c.post("/run", json={"input": f, "history": hist}, headers={"cf-connecting-ip": f"10.9.{i // 250}.{i % 250}"})
+        out = str(r.json().get("ai_response", "")) if r.status_code == 200 else f"HTTP {r.status_code}"
+        if need not in out or "Risk 0" in out:
+            bad.append(f"{prior} → {f}")
+    return len(pairs), bad
+
+
+SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "followup": followup}
+
+
+def main(argv):
+    n = 0
+    if "--sample" in argv:
+        i = argv.index("--sample")
+        n = int(argv[i + 1])
+        argv = argv[:i] + argv[i + 2:]
+    names = [a for a in argv if a in SUITES] or list(SUITES)
+    failed = 0
+    for name in names:
+        total, bad = SUITES[name](n)
+        failed += len(bad)
+        print(f"{name:9s} {total:6d} ข้อความ · หลุด {len(bad)}")
+        for t in bad[:8]:
+            print("   ", t)
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

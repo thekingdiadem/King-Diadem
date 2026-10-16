@@ -785,6 +785,10 @@ def _toneless_vocab() -> tuple:
     bare = "\n".join(toned)
     m = {k: next(iter(v)) for k, v in plain.items() if len(v) == 1 and k not in bare}
     m.setdefault("ไม", "ไม่")
+    # คำสองตัวอักษรเติมเดี่ยวๆ ไม่ได้ (เดาผิดง่าย) — เติมเฉพาะในคู่คำที่มีความหมายเดียว ("มีคนขูจะฆา" เคยหลุด)
+    for k, v in {"ขูจะฆา": "ขู่จะฆ่า", "ขูจะ": "ขู่จะ", "ขูฆา": "ขู่ฆ่า", "จะฆา": "จะฆ่า", "ฆาฉัน": "ฆ่าฉัน", "ฆาหนู": "ฆ่าหนู", "ฆาผม": "ฆ่าผม",
+                 "ฆาตาย": "ฆ่าตาย", "ถูกขู": "ถูกขู่", "โดนขู": "โดนขู่", "ตกนำ": "ตกน้ำ", "จมนำ": "จมน้ำ"}.items():
+        m.setdefault(k, v)
     keys = sorted(m, key=len, reverse=True)
     return m, re.compile("|".join(map(re.escape, keys)))
 
