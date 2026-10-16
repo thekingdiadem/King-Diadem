@@ -27,7 +27,7 @@ from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, 
                                HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE,
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
                                CHILD_HOUSEHOLD, SLEEPLESS, NOT_BREATHING as _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY, TRAFFICKING)
-from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl
+from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl, world_urgent
 from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
@@ -1676,6 +1676,14 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
             crisis = bool(tr.get("self_harm")) or _hit(strip_someone_intl(own), CRISIS_PHRASES)
         if topic_i not in ("disaster", "scam") and topic_i not in topics:
             topics.append(topic_i)
+    # ภาษาอื่นนอกหกภาษาหลัก (เวียดนาม พม่า เขมร ลาว อาหรับ ฯลฯ) — เดิมได้ Risk 0 ทั้งหมด
+    for kind_w in world_urgent(text):
+        if kind_w == "crisis":
+            crisis = True
+        else:
+            topic_w = {"medical": "health_emergency", "violence": "violence", "help": "help"}[kind_w]
+            if topic_w not in topics:
+                topics.append(topic_w)
     if tr.get("basic_needs") and "basic" not in topics:
         topics.insert(0, "basic")
     elif "basic" in topics:                    # ขาดปัจจัยพื้นฐาน มาก่อนเรื่องเงินทั่วไป

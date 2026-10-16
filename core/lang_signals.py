@@ -100,7 +100,7 @@ SELF_HARM_INTL = (
     # เวียดนาม · เยอรมัน · ฝรั่งเศส · โปรตุเกส/อินโด (แรงงานและนักท่องเที่ยวในไทย)
     re.compile(r"muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|"
                r"\b(?:ich\s+)?will\s+(?:nicht\s+mehr\s+leben|sterben)\b|\bselbstmord|\bmich\s+umbringen|"
-               r"\bje\s+veux\s+mourir|\bme\s+suicider|\bquero\s+morrer|\bingin\s+mati\b|\bbunuh\s+diri", re.I),
+               r"\bje\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|\bme\s+suicider|\bquero\s+morrer|\bingin\s+mati\b|\bbunuh\s+diri", re.I),
 )
 
 
@@ -360,3 +360,59 @@ def compose_urgent_intl(lang: str, kind: str, status: str, sign: str, footer: bo
     tag = "\n" + FOOTER[lang] if footer else ""
     body = "\n".join(f"{i + 1}) {s}" for i, s in enumerate(steps))
     return f"{opener}\n\n{status}\n\n{body}\n\n{ASK_LABEL[lang]} {ask}\n\n{sign}" + tag
+
+
+# ══════════════════════════════════════════════════════════════════
+# เรื่องด่วนภาษาอื่นนอกหกภาษาหลัก (รอบ "เทสทุกภาษา ทุกวัฒนธรรม")
+# เวียดนาม อินโด มาเลย์ ตากาล็อก ฝรั่งเศส เยอรมัน โปรตุเกส อิตาลี ตุรกี รัสเซีย อาหรับ ฮินดี พม่า เขมร ลาว
+# เดิม "แม่ไม่หายใจ" "สามีตีฉัน" ในภาษาเหล่านี้ได้ Risk 0 ทั้งหมด และพม่า/เขมร/ลาว/ตากาล็อก/มาเลย์/อิตาลี/ตุรกี
+# พิมพ์ว่าอยากตายก็ไม่ขึ้นวิกฤต — แรงงานข้ามชาติและนักท่องเที่ยวในไทยใช้ภาษาเหล่านี้มาก
+# ไม่มีคำตอบสำเร็จรูปในภาษาเหล่านี้ จึงเข้าหัวข้อเดียวกับไทย/อังกฤษ (คำตอบอังกฤษ + เบอร์ในไทย)
+# ══════════════════════════════════════════════════════════════════
+WORLD_URGENT = {
+    "crisis": (
+        r"muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|\b(?:aku|saya|gue|gw)\s+(?:ingin|mau|pengen|nak)\s+mati(?!\s+(?:lampu|listrik))|ingin\s+bunuh\s+diri|bunuh\s+diri|"
+        r"gusto\s+(?:ko\s+)?(?:nang\s+)?mamatay|magpakamatay|je\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|me\s+suicider|envie\s+de\s+mourir|"
+        r"ich\s+will\s+(?:nicht\s+mehr\s+leben|sterben)|selbstmord|mich\s+umbringen|quero\s+morrer|me\s+matar|"
+        r"voglio\s+morire|suicidarmi|ammazzarmi|ölmek\s+istiyorum|intihar|"
+        r"хочу\s+умереть|не\s+хочу\s+жить|покончить\s+с\s+собой|суицид|"
+        r"أريد\s+أن\s+أموت|اريد\s+ان\s+اموت|أنتحر|انتحر|الانتحار|"
+        r"मरना\s+चाहत|आत्महत्या|जीना\s+नहीं\s+चाहत|"
+        r"သေချင်|ကိုယ့်ကိုယ်ကို\s*သတ်|ខ្ញុំចង់ស្លាប់|ចង់ស្លាប់|សម្លាប់ខ្លួន|ຢາກຕາຍ|ຂ້າໂຕຕາຍ"),
+    "medical": (
+        r"không\s+thở\s+được|ngừng\s+thở|bất\s+tỉnh|ngất\s+xỉu|đau\s+ngực|co\s+giật|chảy\s+máu\s+nhiều|đuối\s+nước|"
+        r"tidak\s+(?:bisa|dapat)\s+bernapas|tak\s+(?:boleh|dapat)\s+bernafas|tidak\s+bernapas|pingsan|tidak\s+sadarkan\s+diri|sesak\s+napas|kejang|tenggelam|"
+        r"hindi\s+makahinga|nawalan\s+ng\s+malay|hinimatay|nalulunod|"
+        r"ne\s+respire\s+(?:plus|pas)|je\s+ne\s+peux\s+(?:pas|plus)\s+respirer|inconscient|s['’]est\s+évanoui|crise\s+cardiaque|"
+        r"atmet\s+nicht|kann\s+nicht\s+atmen|bewusstlos|ohnmächtig|herzinfarkt|"
+        r"não\s+(?:respira|consigo\s+respirar)|desmaiou|inconsciente|ataque\s+cardíaco|"
+        r"non\s+respira|svenut[oa]|"
+        r"nefes\s+al(?:a)?mıyor|bayıldı|bilinci\s+yok|kalp\s+krizi|"
+        r"не\s+дышит|не\s+могу\s+дышать|без\s+сознания|потерял[аи]?\s+сознание|инфаркт|"
+        r"لا\s+(?:يتنفس|تتنفس|أستطيع\s+التنفس)|فاقد(?:ة)?\s+الوعي|أغمي\s+علي|نوبة\s+قلبية|"
+        r"साँस\s+नहीं|सांस\s+नहीं|बेहोश|दिल\s+का\s+दौरा|"
+        r"အသက်မရှူ|သတိလစ်|ដកដង្ហើមមិន|សន្លប់|ຫາຍໃຈບໍ່|ສະຫຼົບ|ບໍ່ຮູ້ສຶກຕົວ"),
+    "violence": (
+        r"(?:chồng|vợ|bố|cha|mẹ|anh\s+ấy|hắn)\s+(?:tôi\s+)?(?:đánh|đập)\s+tôi|bạo\s+lực\s+gia\s+đình|hiếp\s+dâm|"
+        r"(?:suami|istri|isteri|ayah|bapak|ibu|pacar)(?:ku|\s+saya)?\s+(?:memukul|pukul|menampar)(?:ku|\s+saya)|kdrt|diperkosa|"
+        r"sinasaktan\s+ako|binubugbog\s+ako|ginahasa|"
+        r"(?:mari|copain|père|mère)\s+me\s+(?:frappe|bat)|violence\s+conjugale|violée?|"
+        r"(?:mann|freund|vater|mutter)\s+schlägt\s+mich|häusliche\s+gewalt|vergewaltigt|"
+        r"(?:marido|namorado|pai|mãe)\s+me\s+(?:bate|agride)|violência\s+doméstica|estuprad[ao]|"
+        r"(?:marito|ragazzo|padre|madre)\s+mi\s+picchia|violenza\s+domestica|"
+        r"(?:kocam|babam|annem|sevgilim)\s+(?:beni\s+)?dövüyor|aile\s+içi\s+şiddet|tecavüz|"
+        r"(?:муж|отец|мать|парень)\s+(?:меня\s+)?(?:бь[её]т|избивает)|домашнее\s+насилие|изнасил|"
+        r"(?:زوجي|أبي|ابي)\s+يضربني|يضربني|عنف\s+أسري|اغتصاب|"
+        r"(?:पति|पिता|पापा)\s+मुझे\s+मार|घरेलू\s+हिंसा|बलात्कार|"
+        r"ရိုက်တယ်|ရိုက်နှက်|ဗလာ[တ]ကား|វាយខ្ញុំ|ຕີຂ້ອຍ|ທຸບຕີ"),
+    "help": (
+        r"^\W*(?:cứu\s+(?:tôi\s+)?(?:với)?|tolong(?:\s+saya)?|tulong|au\s+secours|à\s+l['’]aide|hilfe|socorro|auxilio|ayuda|aiuto|imdat|"
+        r"помогите|النجدة|ساعدوني|बचाओ|ကယ်ပါ|ជួយផង|ຊ່ວຍແດ່|ຊ່ວຍດ້ວຍ|救命|助けて|살려\s*주세요|도와\s*주세요)\W*$"),
+}
+_WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
+
+
+def world_urgent(text) -> list:
+    """เรื่องด่วนภาษาอื่นนอกไทย/อังกฤษ → ชนิดที่เจอ (crisis medical violence help)"""
+    t = str(text or "")
+    return [k for k, rx in _WORLD_RX.items() if rx.search(t)]

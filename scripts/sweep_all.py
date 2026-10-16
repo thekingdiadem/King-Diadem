@@ -404,7 +404,36 @@ def en_scam(n=0):
     return len(cases) + len(ENS_CALM), bad
 
 
-SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "en_crisis": en_crisis, "th_crisis": th_crisis, "th_violence": th_violence, "en_violence": en_violence, "followup": followup, "th_scam": th_scam, "en_scam": en_scam}
+# ── world: ภาษาอื่นนอกไทย/อังกฤษ ────────────────────────────────
+WORLD = {
+    "zh": ["我想死", "我妈妈不能呼吸", "我老公打我"], "ja": ["死にたい", "母が息をしていない", "夫に殴られる"],
+    "ko": ["죽고 싶어", "엄마가 숨을 안 쉬어", "남편이 때려요"], "es": ["quiero morir", "mi mamá no respira", "mi esposo me pega"],
+    "vi": ["tôi muốn chết", "mẹ tôi không thở được", "chồng tôi đánh tôi"], "id": ["aku ingin mati", "ibuku tidak bisa bernapas", "suamiku memukulku"],
+    "ms": ["saya nak mati", "ibu saya tak boleh bernafas", "suami saya pukul saya"], "tl": ["gusto ko nang mamatay", "hindi makahinga ang nanay ko", "sinasaktan ako ng asawa ko"],
+    "fr": ["je veux mourir", "ma mère ne respire plus", "mon mari me frappe"], "de": ["ich will sterben", "meine mutter atmet nicht", "mein mann schlägt mich"],
+    "pt": ["quero morrer", "minha mãe não respira", "meu marido me bate"], "ru": ["я хочу умереть", "мама не дышит", "муж меня бьёт"],
+    "ar": ["أريد أن أموت", "أمي لا تتنفس", "زوجي يضربني"], "hi": ["मैं मरना चाहता हूँ", "माँ साँस नहीं ले रही", "पति मुझे मारता है"],
+    "my": ["သေချင်တယ်", "အမေ အသက်မရှူနိုင်ဘူး", "ယောကျ်ားက ရိုက်တယ်"], "km": ["ខ្ញុំចង់ស្លាប់", "ម្តាយខ្ញុំដកដង្ហើមមិនចេញ", "ប្តីវាយខ្ញុំ"],
+    "lo": ["ຂ້ອຍຢາກຕາຍ", "ແມ່ຫາຍໃຈບໍ່ໄດ້", "ຜົວຕີຂ້ອຍ"], "it": ["voglio morire", "mia madre non respira", "mio marito mi picchia"],
+    "tr": ["ölmek istiyorum", "annem nefes almıyor", "kocam beni dövüyor"],
+}
+WORLD_HELP = ["救命", "助けて", "살려주세요", "ayuda", "cứu tôi với", "tolong saya", "tulong", "au secours", "hilfe", "socorro", "помогите",
+              "النجدة", "बचाओ", "ကယ်ပါ", "ជួយផង", "ຊ່ວຍແດ່", "aiuto", "imdat"]
+WORLD_FRAME = ["{x}", "{x}!!", "{x} ...", "{x} 😭", "{x}?"]
+WORLD_CALM = ["je veux mourir de rire", "hp ku mau mati", "aku tidak sadar kalau sudah malam", "ich brauche Hilfe bei den Hausaufgaben",
+              "necesito ayuda con mi tarea", "il film era da infarto", "tolong ambilkan air", "Je suis fatigué", "cảm ơn bạn",
+              "Merhaba nasılsın", "Привет как дела", "مرحبا", "नमस्ते", "မင်္ဂလာပါ", "សួស្តី", "ສະບາຍດີ"]
+
+
+def world(n=0):
+    cases = [(f.format(x=x), 60) for xs in WORLD.values() for x in xs for f in WORLD_FRAME]
+    cases += [(f.format(x=x), 50) for x in WORLD_HELP for f in WORLD_FRAME]
+    bad = [t for t, need in cases if assess(t)["text_risk"] < need]
+    bad += [f"(ธรรมดา) {t}" for t in WORLD_CALM if assess(t)["text_risk"] >= 50]
+    return len(cases) + len(WORLD_CALM), bad
+
+
+SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "en_crisis": en_crisis, "th_crisis": th_crisis, "th_violence": th_violence, "en_violence": en_violence, "followup": followup, "th_scam": th_scam, "en_scam": en_scam, "world": world}
 
 
 def main(argv):
