@@ -100,7 +100,7 @@ SELF_HARM_INTL = (
     # เวียดนาม · เยอรมัน · ฝรั่งเศส · โปรตุเกส/อินโด (แรงงานและนักท่องเที่ยวในไทย)
     re.compile(r"muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|"
                r"\b(?:ich\s+)?will\s+(?:nicht\s+mehr\s+leben|sterben)\b|\bselbstmord|\bmich\s+umbringen|"
-               r"\bje\s+veux\s+mourir|\bme\s+suicider|\bquero\s+morrer|\bingin\s+mati\b|\bbunuh\s+diri", re.I),
+               r"\bje\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|\bme\s+suicider|\bquero\s+morrer|\bingin\s+mati\b|\bbunuh\s+diri", re.I),
 )
 
 
@@ -112,7 +112,7 @@ def self_harm_intl(text) -> bool:
 # ── ข้อความตอบตอนไม่มี AI ─────────────────────────────────────────────
 HELP = {
     "en": ("If you are in danger right now, call your local emergency number (911 in the US and Canada, "
-           "999 in the UK, 112 in most of Europe). In the US you can call or text 988. "
+           "999 in the UK, 112 in most of Europe, 000 in Australia). In the US you can call or text 988 · Australia: Lifeline 13 11 14 · 13YARN 13 92 76 (Aboriginal & Torres Strait Islander). "
            "Find a free, confidential helpline in your country at findahelpline.com"),
     "zh": "如果你现在有危险，请立即拨打当地的紧急电话（中国大陆 120 或 110）。在 findahelpline.com 可以找到你所在国家或地区的免费心理援助热线",
     "ja": "今危険な状態なら、すぐに119に電話してください。findahelpline.com で、お住まいの国の無料の相談窓口を探せます",
@@ -360,3 +360,59 @@ def compose_urgent_intl(lang: str, kind: str, status: str, sign: str, footer: bo
     tag = "\n" + FOOTER[lang] if footer else ""
     body = "\n".join(f"{i + 1}) {s}" for i, s in enumerate(steps))
     return f"{opener}\n\n{status}\n\n{body}\n\n{ASK_LABEL[lang]} {ask}\n\n{sign}" + tag
+
+
+# ══════════════════════════════════════════════════════════════════
+# เรื่องด่วนภาษาอื่นนอกหกภาษาหลัก (รอบ "เทสทุกภาษา ทุกวัฒนธรรม")
+# เวียดนาม อินโด มาเลย์ ตากาล็อก ฝรั่งเศส เยอรมัน โปรตุเกส อิตาลี ตุรกี รัสเซีย อาหรับ ฮินดี พม่า เขมร ลาว
+# เดิม "แม่ไม่หายใจ" "สามีตีฉัน" ในภาษาเหล่านี้ได้ Risk 0 ทั้งหมด และพม่า/เขมร/ลาว/ตากาล็อก/มาเลย์/อิตาลี/ตุรกี
+# พิมพ์ว่าอยากตายก็ไม่ขึ้นวิกฤต — แรงงานข้ามชาติและนักท่องเที่ยวในไทยใช้ภาษาเหล่านี้มาก
+# ไม่มีคำตอบสำเร็จรูปในภาษาเหล่านี้ จึงเข้าหัวข้อเดียวกับไทย/อังกฤษ (คำตอบอังกฤษ + เบอร์ในไทย)
+# ══════════════════════════════════════════════════════════════════
+WORLD_URGENT = {
+    "crisis": (
+        r"muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|\b(?:aku|saya|gue|gw)\s+(?:ingin|mau|pengen|nak)\s+mati(?!\s+(?:lampu|listrik))|ingin\s+bunuh\s+diri|bunuh\s+diri|"
+        r"gusto\s+(?:ko\s+)?(?:nang\s+)?mamatay|magpakamatay|je\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|me\s+suicider|envie\s+de\s+mourir|"
+        r"ich\s+will\s+(?:nicht\s+mehr\s+leben|sterben)|selbstmord|mich\s+umbringen|quero\s+morrer|me\s+matar|"
+        r"voglio\s+morire|suicidarmi|ammazzarmi|ölmek\s+istiyorum|intihar|"
+        r"хочу\s+умереть|не\s+хочу\s+жить|покончить\s+с\s+собой|суицид|"
+        r"أريد\s+أن\s+أموت|اريد\s+ان\s+اموت|أنتحر|انتحر|الانتحار|"
+        r"मरना\s+चाहत|आत्महत्या|जीना\s+नहीं\s+चाहत|"
+        r"သေချင်|ကိုယ့်ကိုယ်ကို\s*သတ်|ខ្ញុំចង់ស្លាប់|ចង់ស្លាប់|សម្លាប់ខ្លួន|ຢາກຕາຍ|ຂ້າໂຕຕາຍ|মরে\s*যেতে\s*চাই|আত্মহত্যা|বাঁচতে\s*চাই\s*না|मर्न\s*मन\s*लाग्छ|मर्न\s*चाहन्छु|مرنا\s*چاہت|خودکشی|جینا\s*نہیں\s*چاہت|சாக\s*வேண்டும்|சாகணும்|தற்கொலை|வாழ\s*விரும்பவில்லை|මැරෙන්න\s*ඕන|සියදිවි|می‌?\s*?خواهم\s*بمیرم|میخوام\s*بمیرم|chcę\s+umrzeć|zabić\s+się|samobójstw|ik\s+wil\s+(?:dood|sterven)|zelfmoord|хочу\s+померти|не\s+хочу\s+жити|самогубств|nataka\s+kufa|kujiua|sitaki\s+kuishi|ina\s+so\s+in\s+mutu|kashe\s+kaina|mo\s+fẹ́\s+kú|mo\s+fe\s+ku|pa\s+ara\s+mi|ngifuna\s+ukufa|ukuzibulala|ek\s+wil\s+doodgaan|selfmoord|waan\s+dhiman\s+rabaa|is\s+dil|መሞት\s*እፈልጋለሁ|ራሴን\s*ማጥፋት|θέλω\s+να\s+πεθάνω|αυτοκτον|vreau\s+să\s+mor|sinucid|jag\s+vill\s+dö|ta\s+livet\s+av\s+mig|självmord|אני\s+רוצה\s+למות|להתאבד|үхмээр\s+байна|амиа\s+хорлох|өлгім\s+келеді|өзімді\s+өлтір|o\'lmoqchiman|o\'zimni\s+o\'ldir|chci\s+umřít|sebevražd|chcem\s+zomrieť|samovražd|meg\s+akarok\s+halni|öngyilkos|haluan\s+kuolla|itsemurh|jeg\s+vil\s+dø|selvmord|želim\s+umrijeti|želim\s+da\s+umrem|samoubist|искам\s+да\s+умра|самоубийств|მინდა\s+მოვკვდე|თვითმკვლელ|ուզում\s+եմ\s+մեռնել|ինքնասպան"),
+    "medical": (
+        r"không\s+thở\s+được|ngừng\s+thở|bất\s+tỉnh|ngất\s+xỉu|đau\s+ngực|co\s+giật|chảy\s+máu\s+nhiều|đuối\s+nước|"
+        r"tidak\s+(?:bisa|dapat)\s+bernapas|tak\s+(?:boleh|dapat)\s+bernafas|tidak\s+bernapas|pingsan|tidak\s+sadarkan\s+diri|sesak\s+napas|kejang|tenggelam|"
+        r"hindi\s+makahinga|nawalan\s+ng\s+malay|hinimatay|nalulunod|"
+        r"ne\s+respire\s+(?:plus|pas)|je\s+ne\s+peux\s+(?:pas|plus)\s+respirer|inconscient|s['’]est\s+évanoui|crise\s+cardiaque|"
+        r"atmet\s+nicht|kann\s+nicht\s+atmen|bewusstlos|ohnmächtig|herzinfarkt|"
+        r"não\s+(?:respira|consigo\s+respirar)|desmaiou|inconsciente|ataque\s+cardíaco|"
+        r"non\s+respira|svenut[oa]|"
+        r"nefes\s+al(?:a)?mıyor|bayıldı|bilinci\s+yok|kalp\s+krizi|"
+        r"не\s+дышит|не\s+могу\s+дышать|без\s+сознания|потерял[аи]?\s+сознание|инфаркт|"
+        r"لا\s+(?:يتنفس|تتنفس|أستطيع\s+التنفس)|فاقد(?:ة)?\s+الوعي|أغمي\s+علي|نوبة\s+قلبية|"
+        r"साँस\s+नहीं|सांस\s+नहीं|बेहोश|दिल\s+का\s+दौरा|"
+        r"အသက်မရှူ|သတိလစ်|ដកដង្ហើមមិន|សន្លប់|ຫາຍໃຈບໍ່|ສະຫຼົບ|ບໍ່ຮູ້ສຶກຕົວ|শ্বাস\s*নিতে\s*পারছে\s*না|শ্বাস\s*নিচ্ছে\s*না|অজ্ঞান|सास\s*फेर्न\s*सक्दैन|सास\s*फेरेको\s*छैन|बेहोस|سانس\s*نہیں|بے\s*ہوش|மூச்சு\s*விட(?:வில்லை|\s*முடியவில்லை)|மயக்கம்|හුස්ම\s*ගන්නේ\s*නැහැ|හුස්ම\s*ගන්න\s*බැහැ|සිහිය\s*නැති|نفس\s*نمی‌?\s*?کشد|نفس\s*نمیکشه|بیهوش|nie\s+oddycha|nieprzytomn|zemdlał|ademt\s+niet|bewusteloos|flauwgevallen|не\s+дихає|непритомн|знепритомні|hapumui|amezimia|hajitambui|ba\s+ta\s+numfashi|ta\s+suma|kò\s+mí|ko\s+mi\s+mo|dákú|akaphefumuli|uquleke|asem\s+nie|haal\s+nie\s+asem|bewusteloos|ma\s+neefsanayo|suuxday|አይተነፍስም|ራሱን\s*ስቷል|ራሷን\s*ስታለች|δεν\s+αναπνέει|λιπόθυμ|αναίσθητ|nu\s+respiră|inconștient|leșinat|andas\s+inte|medvetslös|svimmat|לא\s+נושמ|מחוסר\s+הכרה|התעלפ|амьсгалахгүй|ухаангүй|тыныс\s+алмайды|есінен\s+танды|nafas\s+olmayapti|hushidan\s+ketdi|nedýchá|bezvědomí|omdlel|nedýcha|bezvedomí|nem\s+lélegzik|eszméletlen|elájult|ei\s+hengitä|tajuton|pyörtyi|trækker\s+ikke\s+vejret|bevidstløs|puster\s+ikke|bevisstløs|ne\s+diše|bez\s+svijesti|bez\s+svesti|onesvijesti|не\s+диша|в\s+безсъзнание|припадна|არ\s+სუნთქავს|უგონოდ|չի\s+շնչում|ուշագնաց"),
+    "violence": (
+        r"(?:chồng|vợ|bố|cha|mẹ|anh\s+ấy|hắn)\s+(?:tôi\s+)?(?:đánh|đập)\s+tôi|bạo\s+lực\s+gia\s+đình|hiếp\s+dâm|"
+        r"(?:suami|istri|isteri|ayah|bapak|ibu|pacar)(?:ku|\s+saya)?\s+(?:memukul|pukul|menampar)(?:ku|\s+saya)|kdrt|diperkosa|"
+        r"sinasaktan\s+ako|binubugbog\s+ako|ginahasa|"
+        r"(?:mari|copain|père|mère)\s+me\s+(?:frappe|bat)|violence\s+conjugale|violée?|"
+        r"(?:mann|freund|vater|mutter)\s+schlägt\s+mich|häusliche\s+gewalt|vergewaltigt|"
+        r"(?:marido|namorado|pai|mãe)\s+me\s+(?:bate|agride)|violência\s+doméstica|estuprad[ao]|"
+        r"(?:marito|ragazzo|padre|madre)\s+mi\s+picchia|violenza\s+domestica|"
+        r"(?:kocam|babam|annem|sevgilim)\s+(?:beni\s+)?dövüyor|aile\s+içi\s+şiddet|tecavüz|"
+        r"(?:муж|отец|мать|парень)\s+(?:меня\s+)?(?:бь[её]т|избивает)|домашнее\s+насилие|изнасил|"
+        r"(?:زوجي|أبي|ابي)\s+يضربني|يضربني|عنف\s+أسري|اغتصاب|"
+        r"(?:पति|पिता|पापा)\s+मुझे\s+मार|घरेलू\s+हिंसा|बलात्कार|"
+        r"ရိုက်တယ်|ရိုက်နှက်|ဗလာ[တ]ကား|វាយខ្ញុំ|ຕີຂ້ອຍ|ທຸບຕີ|আমাকে\s*মার(?:ে|ছে)|মারধর|मलाई\s*कुट्छ|कुटपिट|مجھے\s*مارتا|مارتا\s*ہے|என்னை\s*அடிக்கிற(?:ார்|ான்)|මට\s*ගහනවා|منو\s*می‌?\s*?زنه|مرا\s*کتک\s*می‌?\s*?زند|کتکم\s*می|(?:mąż|ojciec|chłopak)\s+mnie\s+bije|przemoc\s+domow|(?:man|vriend|vader)\s+slaat\s+mij|huiselijk\s+geweld|(?:чоловік|батько)\s+(?:мене\s+)?б[ʼ\']?є|домашнє\s+насильство|mume\s+wangu\s+ananipiga|ananipiga|unyanyasaji|mijina\s+yana\s+duka\s+ni|yana\s+duka\s+ni|ọkọ\s+mi\s+ń\s+lù\s+mí|ń\s+lù\s+mí|umyeni\s+wami\s+uyangishaya|uyangishaya|my\s+man\s+slaan\s+my|slaan\s+my|ninkayga\s+wuu\s+i\s+garaacaa|i\s+garaacaa|ባሌ\s*ይመታኛል|ይመታኛል|(?:άντρας|σύζυγος|πατέρας)\s+μου\s+με\s+χτυπάει|με\s+χτυπάει|soțul\s+mă\s+bate|mă\s+bate|(?:min\s+man|min\s+pappa)\s+slår\s+mig|slår\s+mig|בעלי\s+מרביץ\s+לי|מרביץ\s+לי|нөхөр\s+минь?\s+намайг\s+зоддог|намайг\s+зоддог|күйеуім\s+мені\s+ұрады|мені\s+ұрады|erim\s+meni\s+uradi|meni\s+uradi|manžel\s+mě\s+bije|mě\s+bije|manžel\s+ma\s+bije|ma\s+bije|férjem\s+ver|engem\s+ver|mieheni\s+lyö|lyö\s+minua|min\s+mand\s+slår\s+mig|mannen\s+min\s+slår\s+meg|slår\s+meg|muž\s+me\s+tuče|me\s+tuče|мъжът\s+ми\s+ме\s+бие|бие\s+ме|ქმარი\s+მცემს|მცემს|ամուսինս\s+ծեծում\s+է|ծեծում\s+է\s+ինձ"),
+    "help": (
+        r"^\W*(?:cứu\s+(?:tôi\s+)?(?:với)?|tolong(?:\s+saya)?|tulong|au\s+secours|à\s+l['’]aide|hilfe|socorro|auxilio|ayuda|aiuto|imdat|"
+        r"помогите|النجدة|ساعدوني|बचाओ|ကယ်ပါ|ជួយផង|ຊ່ວຍແດ່|ຊ່ວຍດ້ວຍ|বাঁচাও|pomoc|pomozte|pomôžte|segítség|apua|hjælp|hjelp|upomoć|помощ|დამეხმარეთ|օգնեցեք|βοήθεια|ajutor|hjälp|הצילו|туслаарай|көмектесіңіз|yordam\s+bering|pomocy|ratunku|help\s+mij|допоможіть|nisaidie|msaada|a\s+taimaka|ràn\s+mí\s+lọ́wọ́|ngisize|help\s+my|i\s+caawi|እርዱኝ|बचाउ|بچاؤ|காப்பாற்றுங்கள்|උදව්\s*කරන්න|බේරගන්න|کمک(?:\s*کنید)?|救命|助けて|살려\s*주세요|도와\s*주세요)\W*$"),
+}
+_WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
+
+
+def world_urgent(text) -> list:
+    """เรื่องด่วนภาษาอื่นนอกไทย/อังกฤษ → ชนิดที่เจอ (crisis medical violence help)"""
+    t = str(text or "")
+    return [k for k, rx in _WORLD_RX.items() if rx.search(t)]

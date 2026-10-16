@@ -379,7 +379,119 @@ def th_scam(n=0):
     return len(cases) + len(SCAM_CALM), bad
 
 
-SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "en_crisis": en_crisis, "th_crisis": th_crisis, "th_violence": th_violence, "en_violence": en_violence, "followup": followup, "th_scam": th_scam}
+# ── en_scam ─────────────────────────────────────────────────────
+ENS_PRE = ["", "someone called and", "I got a text that", "a guy on facebook", "my mom got a call,", "a man on whatsapp"]
+ENS_CORE = ["said he's from the IRS and I must pay in gift cards", "asked for the code they sent to my phone", "said my bank account is frozen and I need to verify by clicking a link",
+            "said I won a lottery but must pay a fee first", "wants me to invest in crypto, guaranteed 20% a week", "said he's my grandson in jail and needs bail money",
+            "asked me to install AnyDesk to fix my computer", "said there's a problem with my package, click to reschedule delivery", "offered a job but I have to pay for training first",
+            "my online girlfriend asked me to send money for a plane ticket", "told me to move my savings to a safe account", "said he's from Microsoft and my computer has a virus",
+            "asked for my social security number to unlock my account", "sold me a puppy online and never delivered after I paid", "asked me to buy apple gift cards and send the codes",
+            "said a warrant is out for my arrest unless I pay now"]
+ENS_POST = ["", " what do I do", " is this real", " I already paid", " should I trust it", " help", " lol", "?"]
+ENS_CALM = ["I bought a gift card for my mom", "can I pay with gift card at target", "my bank sent a verification code to my phone when I logged in",
+            "what is my social security number used for", "I installed teamviewer for work", "I won the lottery at work lol", "I paid for the course and it starts monday",
+            "my package is late", "the police said I should pay the parking fine", "send me the gift card code you got for christmas"]
+
+
+def en_scam(n=0):
+    cases = _sample(sorted({(p + " " + c + q).strip() for p, c, q in itertools.product(ENS_PRE, ENS_CORE, ENS_POST)}), n, 13)
+    bad = []
+    for t in cases:
+        a = assess(t)
+        if a["text_risk"] < 60 or not a.get("scam"):
+            bad.append(t)
+    bad += [f"(ธรรมดา) {t}" for t in ENS_CALM if assess(t)["text_risk"] >= 60]
+    return len(cases) + len(ENS_CALM), bad
+
+
+# ── world: ภาษาอื่นนอกไทย/อังกฤษ ────────────────────────────────
+WORLD = {
+    "zh": ["我想死", "我妈妈不能呼吸", "我老公打我"], "ja": ["死にたい", "母が息をしていない", "夫に殴られる"],
+    "ko": ["죽고 싶어", "엄마가 숨을 안 쉬어", "남편이 때려요"], "es": ["quiero morir", "mi mamá no respira", "mi esposo me pega"],
+    "vi": ["tôi muốn chết", "mẹ tôi không thở được", "chồng tôi đánh tôi"], "id": ["aku ingin mati", "ibuku tidak bisa bernapas", "suamiku memukulku"],
+    "ms": ["saya nak mati", "ibu saya tak boleh bernafas", "suami saya pukul saya"], "tl": ["gusto ko nang mamatay", "hindi makahinga ang nanay ko", "sinasaktan ako ng asawa ko"],
+    "fr": ["je veux mourir", "ma mère ne respire plus", "mon mari me frappe"], "de": ["ich will sterben", "meine mutter atmet nicht", "mein mann schlägt mich"],
+    "pt": ["quero morrer", "minha mãe não respira", "meu marido me bate"], "ru": ["я хочу умереть", "мама не дышит", "муж меня бьёт"],
+    "ar": ["أريد أن أموت", "أمي لا تتنفس", "زوجي يضربني"], "hi": ["मैं मरना चाहता हूँ", "माँ साँस नहीं ले रही", "पति मुझे मारता है"],
+    "my": ["သေချင်တယ်", "အမေ အသက်မရှူနိုင်ဘူး", "ယောကျ်ားက ရိုက်တယ်"], "km": ["ខ្ញុំចង់ស្លាប់", "ម្តាយខ្ញុំដកដង្ហើមមិនចេញ", "ប្តីវាយខ្ញុំ"],
+    "lo": ["ຂ້ອຍຢາກຕາຍ", "ແມ່ຫາຍໃຈບໍ່ໄດ້", "ຜົວຕີຂ້ອຍ"], "it": ["voglio morire", "mia madre non respira", "mio marito mi picchia"],
+    "tr": ["ölmek istiyorum", "annem nefes almıyor", "kocam beni dövüyor"],
+    "ne": ["मलाई मर्न मन लाग्छ", "आमाले सास फेर्न सक्दैन", "श्रीमान्ले मलाई कुट्छ"], "bn": ["আমি মরে যেতে চাই", "মা শ্বাস নিতে পারছে না", "স্বামী আমাকে মারে"],
+    "ur": ["میں مرنا چاہتا ہوں", "امی سانس نہیں لے رہی", "شوہر مجھے مارتا ہے"], "ta": ["நான் சாக வேண்டும்", "அம்மா மூச்சு விடவில்லை", "கணவர் என்னை அடிக்கிறார்"],
+    "si": ["මට මැරෙන්න ඕනේ", "අම්මා හුස්ම ගන්නේ නැහැ", "මහත්තයා මට ගහනවා"], "fa": ["میخوام بمیرم", "مادرم نفس نمی‌کشد", "شوهرم منو می‌زنه"],
+}
+WORLD.update({
+    "uk": ["я хочу померти", "мама не дихає", "чоловік мене б'є"], "pl": ["chcę umrzeć", "mama nie oddycha", "mąż mnie bije"],
+    "nl": ["ik wil dood", "mijn moeder ademt niet", "mijn man slaat mij"], "sw": ["nataka kufa", "mama hapumui", "mume wangu ananipiga"],
+    "am": ["መሞት እፈልጋለሁ", "እናቴ አይተነፍስም", "ባሌ ይመታኛል"], "ha": ["ina so in mutu", "mahaifiyata ba ta numfashi", "mijina yana duka ni"],
+    "yo": ["mo fẹ́ kú", "ìyá mi kò mí", "ọkọ mi ń lù mí"], "zu": ["ngifuna ukufa", "umama akaphefumuli", "umyeni wami uyangishaya"],
+    "af": ["ek wil doodgaan", "my ma haal nie asem nie", "my man slaan my"], "so": ["waan dhiman rabaa", "hooyo ma neefsanayo", "ninkayga wuu i garaacaa"],
+})
+WORLD.update({
+    "el": ["θέλω να πεθάνω", "η μητέρα μου δεν αναπνέει", "ο άντρας μου με χτυπάει"], "ro": ["vreau să mor", "mama nu respiră", "soțul mă bate"],
+    "sv": ["jag vill dö", "mamma andas inte", "min man slår mig"], "he": ["אני רוצה למות", "אמא לא נושמת", "בעלי מרביץ לי"],
+    "mn": ["үхмээр байна", "ээж амьсгалахгүй байна", "нөхөр намайг зоддог"], "kk": ["өлгім келеді", "анам тыныс алмайды", "күйеуім мені ұрады"],
+    "uz": ["o'lmoqchiman", "onam nafas olmayapti", "erim meni uradi"],
+})
+WORLD.update({
+    "cs": ["chci umřít", "máma nedýchá", "manžel mě bije"], "sk": ["chcem zomrieť", "mama nedýcha", "manžel ma bije"],
+    "hu": ["meg akarok halni", "anyám nem lélegzik", "a férjem ver"], "fi": ["haluan kuolla", "äiti ei hengitä", "mieheni lyö minua"],
+    "da": ["jeg vil dø", "min mor trækker ikke vejret", "min mand slår mig"], "no": ["jeg vil dø, hjelp meg", "mamma puster ikke", "mannen min slår meg"],
+    "sh": ["želim umrijeti", "mama ne diše", "muž me tuče"], "bg": ["искам да умра", "мама не диша", "мъжът ми ме бие"],
+    "ka": ["მინდა მოვკვდე", "დედა არ სუნთქავს", "ქმარი მცემს"], "hy": ["ուզում եմ մեռնել", "մայրս չի շնչում", "ամուսինս ծեծում է ինձ"],
+})
+WORLD_HELP_MAIN = {"救命": "zh", "助けて": "ja", "살려주세요": "ko", "ayuda": "es"}
+# เรื่องทั่วไปต้องได้คำตอบภาษาของตัวเอง (core/world_replies.py)
+WORLD_GENERAL = {"fr": "je suis très fatigué avec mon travail aujourd'hui", "de": "ich bin heute sehr müde und weiß nicht was ich will",
+                 "pt": "eu estou muito cansado com meu trabalho hoje", "it": "io sono molto stanco con il mio lavoro oggi",
+                 "ru": "я очень устал на работе", "uk": "я дуже втомився на роботі", "pl": "jestem bardzo zmęczony i nie wiem co robić",
+                 "nl": "ik ben heel moe en ik weet het niet", "sw": "mimi nina shida na kazi yangu leo", "am": "ዛሬ በስራዬ በጣም ደክሞኛል",
+                 "ha": "ina da matsala da aiki na yau sosai", "yo": "mo ni wahala ni ibi iṣẹ́ mi lónìí", "zu": "ngikhathele kakhulu namuhla emsebenzini",
+                 "af": "ek is baie moeg vandag en ek weet nie wat om te doen nie", "so": "waxaan maanta aad ugu daalay shaqada",
+                 "my": "ဒီနေ့ အလုပ်မှာ အရမ်းပင်ပန်းတယ်", "km": "ថ្ងៃនេះខ្ញុំហត់នឿយនឹងការងារណាស់", "lo": "ມື້ນີ້ເມື່ອຍວຽກຫຼາຍ",
+                 "vi": "hôm nay tôi rất mệt vì công việc", "id": "aku capek banget sama kerjaan hari ini", "hi": "आज काम से मैं बहुत थक गया हूँ",
+                 "ar": "أنا متعب جدا من العمل اليوم", "tr": "bugün işten çok yoruldum",
+                 "el": "είμαι πολύ κουρασμένος σήμερα από τη δουλειά", "ro": "sunt foarte obosit azi și nu știu ce să fac",
+                 "sv": "jag är mycket trött idag och vet inte vad jag vill", "he": "אני מאוד עייף היום מהעבודה",
+                 "mn": "өнөөдөр ажлаасаа их ядарч байна", "kk": "бүгін жұмыстан қатты шаршадым", "uz": "bugun ishda juda charchadim",
+                 "cs": "jsem dnes velmi unavený a nevím co dělat", "sk": "som dnes veľmi unavený a neviem čo robiť",
+                 "hu": "ma nagyon fáradt vagyok a munkában", "fi": "olen todella väsynyt tänään töissä", "da": "jeg er meget træt i dag",
+                 "no": "jeg er veldig sliten i dag", "sh": "danas sam jako umoran", "bg": "днес съм много уморен",
+                 "ka": "დღეს ძალიან დაღლილი ვარ", "hy": "այսօր շատ հոգնած եմ"}
+WORLD_EN_CALM = ["I am very tired with my job today", "help me with my homework", "estoy muy cansado con mi trabajo hoy", "my mom is not ok"]
+# ภาษาเอเชียที่ต้องได้คำตอบในภาษาของตัวเอง (core/asia_replies.py) ไม่ใช่ภาษาอังกฤษ
+WORLD_NATIVE = ("my", "km", "lo", "vi", "id", "ms", "tl", "hi", "ne", "bn", "ur", "ta", "si", "fa", "ar", "tr",
+                "fr", "de", "pt", "it", "ru", "uk", "pl", "nl", "sw", "am", "ha", "yo", "zu", "af", "so", "el", "ro", "sv", "he", "mn", "kk", "uz",
+                "cs", "sk", "hu", "fi", "da", "no", "sh", "bg", "ka", "hy")
+WORLD_HELP = ["救命", "助けて", "살려주세요", "ayuda", "cứu tôi với", "tolong saya", "tulong", "au secours", "hilfe", "socorro", "помогите",
+              "النجدة", "बचाओ", "ကယ်ပါ", "ជួយផង", "ຊ່ວຍແດ່", "aiuto", "imdat"]
+WORLD_FRAME = ["{x}", "{x}!!", "{x} ...", "{x} 😭", "{x}?"]
+WORLD_CALM = ["je veux mourir de rire", "hp ku mau mati", "aku tidak sadar kalau sudah malam", "ich brauche Hilfe bei den Hausaufgaben",
+              "necesito ayuda con mi tarea", "il film era da infarto", "tolong ambilkan air", "Je suis fatigué", "cảm ơn bạn",
+              "Merhaba nasılsın", "Привет как дела", "مرحبا", "नमस्ते", "မင်္ဂလာပါ", "សួស្តី", "ສະບາຍດີ"]
+
+
+def world(n=0):
+    cases = [(f.format(x=x), 60) for xs in WORLD.values() for x in xs for f in WORLD_FRAME]
+    cases += [(f.format(x=x), 50) for x in WORLD_HELP for f in WORLD_FRAME]
+    bad = [t for t, need in cases if assess(t)["text_risk"] < need]
+    from core.world_replies import reply_for
+    openers = {lg: {r[0] for r in (reply_for(lg, k) for k in ("crisis", "medical", "violence", "help")) if r} for lg in WORLD_NATIVE}
+    for lg in WORLD_NATIVE:
+        for x in WORLD[lg]:
+            if compose(x).split("\n")[0] not in openers[lg]:
+                bad.append(f"(ไม่ได้ตอบเป็นภาษา {lg}) {x}")
+    for lg, x in WORLD_GENERAL.items():
+        if compose(x).split("\n")[0] != reply_for(lg, "general")[0]:
+            bad.append(f"(เรื่องทั่วไปไม่ได้ตอบเป็นภาษา {lg}) {x}")
+    from core.world_replies import HELP_MAIN
+    bad += [f"(ช่วยด้วย {lg}) {x}" for x, lg in WORLD_HELP_MAIN.items() if compose(x).split("\n")[0] != HELP_MAIN[lg][0]]
+    bad += [f"(ภาษาอังกฤษ/สเปนถูกเดาผิด) {t}" for t in WORLD_EN_CALM if compose(t).split("\n")[0] not in ("Let's lay this out step by step.", "Vamos a ordenarlo paso a paso.")]
+    bad += [f"(ธรรมดา) {t}" for t in WORLD_CALM if assess(t)["text_risk"] >= 50]
+    return len(cases) + len(WORLD_CALM) + len(WORLD_GENERAL) + len(WORLD_EN_CALM), bad
+
+
+SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "en_crisis": en_crisis, "th_crisis": th_crisis, "th_violence": th_violence, "en_violence": en_violence, "followup": followup, "th_scam": th_scam, "en_scam": en_scam, "world": world}
 
 
 def main(argv):

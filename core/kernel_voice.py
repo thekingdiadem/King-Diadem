@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (normalize_mixed, retone, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
+from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
@@ -27,7 +27,7 @@ from core.thai_signals import (normalize_mixed, retone, SOFT_CRISIS, strip_soft_
                                HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE,
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
                                CHILD_HOUSEHOLD, SLEEPLESS, NOT_BREATHING as _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY, TRAFFICKING)
-from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl
+from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl, world_urgent
 from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
@@ -344,10 +344,14 @@ TOPICS = [
     }),
     # "กินจนอิ่มหายใจไม่ออก" "ขำจนหายใจไม่ออก" "งานเยอะจนหายใจไม่ออก" เป็นสำนวน ไม่ใช่หายใจไม่ได้จริง
     ("health_emergency", ["เจ็บหน้าอก", "แน่นหน้าอก",
-                          re.compile(r"^(?![\s\S]*(?:อิ่ม|ขำ|หัวเราะ|งานเยอะ|งานล้น|ภาระ|หนี้)\S{0,8}?หายใจไม่ออก)[\s\S]*?หายใจไม่ออก"), "หมดสติ", "ชักเกร็ง", "ชักกระตุก",
+                          re.compile(r"^(?![\s\S]*(?:อิ่ม|ขำ|หัวเราะ|งานเยอะ|งานล้น|ภาระ|หนี้)\S{0,8}?หายใจไม่(?:ค่อย)?(?:ออก|ได้))(?![\s\S]*หายใจไม่(?:ค่อย)?(?:ออก|ได้)\S{0,4}?(?:ถ้า|หากไม่|ขาด|เพราะ(?:เธอ|เขา|คิดถึง)))[\s\S]*?หายใจไม่(?:ค่อย)?(?:ออก|ได้)"), "หมดสติ", "ชักเกร็ง", "ชักกระตุก",
                           "ชักไม่หยุด", re.compile(r"(?:ลูก|เด็ก|หลาน|ทารก|น้อง)\S{0,8}?ชัก(?!ชวน|จูง|ธง|ช้า|ว่าว|ใย)"),
                           re.compile(r"ปวดท้อง\S{0,4}?(?:ขวาล่าง|ด้านขวาล่าง)[^\n]{0,20}?ไข้|ไข้[^\n]{0,20}?ปวดท้อง\S{0,4}?ขวาล่าง"),
-                          "เลือดออกไม่หยุด", "ปากเบี้ยว", "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
+                          "เลือดออกไม่หยุด", "ปากเบี้ยว",
+                          # "พ่อล้มลงไม่รู้สึกตัว" "โดนมีดฟันเลือดออกมาก" เคยได้ Risk 0
+                          re.compile(r"(?:ล้ม|หมด|ฟุบ|ช็อก|เรียก\S{0,6}?|(?:พ่อ|แม่|ลูก|เด็ก|หลาน|ยาย|ตา|ปู่|ย่า|สามี|ภรรยา|แฟน|เพื่อน|มีคน|คน)\S{0,6}?)ไม่รู้สึกตัว(?!\S{0,4}?ว่า)"),
+                          re.compile(r"^(?![\s\S]*(?:ประจำเดือน|เมนส์|ไรฟัน|เลือดกำเดา\S{0,4}?นิดหน่อย))[\s\S]*?เลือด(?:ออก|ไหล)\S{0,4}?(?:มาก|เยอะ|ท่วม|ทะลัก|ไม่หยุด)"),
+                          re.compile(r"(?:โดน|ถูก)(?:มีด|ดาบ|พร้า|ขวาน)\S{0,4}?(?:ฟัน|แทง)(?!ธง)"), "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
                           re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious)\b|\bdrowning\b(?! in (?:homework|work|paperwork|debt|emails?|bills|tasks|assignments|love|tears|stress))", re.I),
                           _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
@@ -1192,7 +1196,7 @@ SCAM_LOST = {
 # ภาษาอังกฤษ: ถูกทำร้ายในความสัมพันธ์ (เดิมได้ "Let's lay this out step by step.")
 SAFETY_EN = ("Your safety comes first.\n\n{status}\n\n"
              "1) If you are in danger right now, get to a place where other people are around and call your local "
-             "emergency number (191 in Thailand, 911 in the US, 112 in most of Europe).\n"
+             "emergency number (191 in Thailand, 911 in the US, 112 in most of Europe, 000 in Australia).\n"
              "2) If you are hurt, get medical care and ask them to record the injuries.\n"
              "3) Tell one person you trust what happened, and keep messages or photos somewhere they can't reach.\n"
              "4) In Thailand, 1300 (24 hours) can help with a safe place. Elsewhere, find local help at findahelpline.com\n\n"
@@ -1237,23 +1241,23 @@ EN_HAZARD = {
 
 EN_TOPIC = {
     "en_assault": ("I'm so sorry. What happened is not your fault.", [
-        "Get somewhere safe and away from the person — call emergency services if you're in danger (191 in Thailand, 911 in the US).",
+        "Get somewhere safe and away from the person — call emergency services if you're in danger (191 in Thailand, 911 in the US, 000 in Australia).",
         "Go to a hospital emergency department within 72 hours if you can: they treat injuries, give medicine to prevent pregnancy and HIV, and can keep evidence. Try not to shower or wash clothes first.",
         "You don't have to decide about reporting right now · a sexual-assault or crisis helpline can support you (1300 in Thailand, RAINN 1-800-656-4673 in the US)."],
         "Are you somewhere safe right now?"),
     "en_infant_fever": ("A baby under 3 months with a fever needs a doctor now — please don't wait.", [
-        "Go to the emergency room now, or call emergency services (1669 in Thailand, 911 in the US) — fever this young can be a serious infection even if the baby seems okay.",
+        "Go to the emergency room now, or call emergency services (1669 in Thailand, 911 in the US, 000 in Australia) — fever this young can be a serious infection even if the baby seems okay.",
         "Don't give fever medicine before a doctor sees the baby unless told to · keep feeding and keep them lightly dressed.",
         "Call emergency services immediately if the baby is very sleepy, floppy, breathing fast, has a rash that doesn't fade, or won't feed."],
         "What is the baby's temperature, and how is the baby feeding?"),
     "en_preg_bleed": ("Bleeding during pregnancy needs to be checked now.", [
-        "Go to your hospital's emergency or labour ward now, or call emergency services (1669 in Thailand, 911 in the US) — don't drive yourself.",
+        "Go to your hospital's emergency or labour ward now, or call emergency services (1669 in Thailand, 911 in the US, 000 in Australia) — don't drive yourself.",
         "Lie on your left side while waiting · note when it started, how much, and any pain or cramps.",
         "Bring your antenatal record if you have one."],
         "How many weeks pregnant are you, and is the bleeding heavy?"),
     "en_spiked": ("If you think your drink was spiked, get to safety and help now.", [
         "Tell a friend or venue staff right away and stay with someone you trust — don't go home alone or with someone you just met.",
-        "Get medical help (call emergency services: 1669 in Thailand, 911 in the US) especially if you feel very drowsy, confused, or sick.",
+        "Get medical help (call emergency services: 1669 in Thailand, 911 in the US, 000 in Australia) especially if you feel very drowsy, confused, or sick.",
         "Ask the hospital for a urine/blood test as soon as possible — some drugs leave the body within hours. If you were assaulted, it's not your fault."],
         "Are you with someone you trust right now?"),
     "postpartum": ("Many people feel this after giving birth — it doesn't make you a bad parent, and it can be treated.", [
@@ -1274,7 +1278,7 @@ EN_TOPIC = {
     "stranded": ("Your safety comes first right now — one step at a time.", [
         "Share your live location with someone you trust now, then switch your phone to low-power mode.",
         "Car broke down: pull over, hazard lights on, stay locked inside if outside isn't safe · lost outdoors: stop moving, stay in an open visible spot, don't walk at night.",
-        "Call emergency services if you're unsafe or hurt (191/1669 in Thailand, 911 in the US) and describe landmarks around you."],
+        "Call emergency services if you're unsafe or hurt (191/1669 in Thailand, 911 in the US, 000 in Australia) and describe landmarks around you."],
         "Does anyone know where you are right now?"),
     "pet_hurt": ("Please hurry — injured animals often hide how hurt they are.", [
         "Approach slowly — even your own pet may bite when in pain. Cover them with a towel or blanket before lifting.",
@@ -1288,7 +1292,7 @@ EN_TOPIC = {
         "If it doesn't work, how much can you lose and still be okay?"),
     "caregiver": ("Caring for someone every day is exhausting — the carer needs care too.", [
         "For someone with dementia who wanders: put an ID bracelet or card with your number on them, add door chimes, and keep a recent photo ready.",
-        "If they're missing right now, call the police immediately (191 in Thailand, 911 in the US) — don't wait 24 hours.",
+        "If they're missing right now, call the police immediately (191 in Thailand, 911 in the US, 000 in Australia) — don't wait 24 hours.",
         "Ask your local health centre or council about home-care support and respite, and share shifts with family so you get rest."],
         "Is your mom safe at home right now, or is she missing?"),
     "hacked": ("A hacked account can be recovered — warn people first, before anyone sends money.", [
@@ -1304,7 +1308,7 @@ EN_TOPIC = {
     "panic": ("A panic attack feels terrifying, but it passes — usually within 10–20 minutes.", [
         "Breathe slowly: in through your nose for 4, hold for 4, out through your mouth for 6 — repeat until your heart slows.",
         "Ground yourself: name 5 things you can see, 4 you can touch, 3 you can hear.",
-        "If you have chest pain spreading to your arm or jaw, trouble breathing that doesn't ease, or it's your first time and you're unsure — call emergency services (1669 in Thailand, 911 in the US)."],
+        "If you have chest pain spreading to your arm or jaw, trouble breathing that doesn't ease, or it's your first time and you're unsure — call emergency services (1669 in Thailand, 911 in the US, 000 in Australia)."],
         "Is anyone near you right now who can sit with you?"),
     "lent": ("Money you lent can still be asked back — start with the evidence.", [
         "Keep the evidence: transfer slips and any messages where they admit borrowing the money.",
@@ -1312,7 +1316,7 @@ EN_TOPIC = {
         "If they still won't pay, small-claims court is usually possible without a lawyer (in Thailand: the district court, or mediation first)."],
         "Do you have a transfer slip or a message where they admit they borrowed it?"),
     "swallowed": ("This is an emergency even if your child seems fine right now.", [
-        "Go to the emergency room now or call your emergency number (1669 in Thailand, 911 in the US) — button batteries and magnets can burn the food pipe within hours and need an X-ray.",
+        "Go to the emergency room now or call your emergency number (1669 in Thailand, 911 in the US, 000 in Australia) — button batteries and magnets can burn the food pipe within hours and need an X-ray.",
         "Don't make them vomit and don't give food · bring the battery packaging or a matching one for the doctor.",
         "If they struggle to breathe, keep coughing, drool a lot or can't swallow, call emergency services immediately and say something may be stuck."],
         "What time did they swallow it, and do you know what kind of battery or object it was?"),
@@ -1323,7 +1327,7 @@ EN_TOPIC = {
         "What does your signed contract say about resigning or penalties?"),
     "threat": ("Being threatened makes you unsafe even before anything happens — that fear makes sense.", [
         "Keep every piece of evidence: screenshots, call recordings, dates, times and numbers — don't delete them.",
-        "If they know where you live or say they're coming, call the police now (191 in Thailand, 911 in the US) and tell someone close to you.",
+        "If they know where you live or say they're coming, call the police now (191 in Thailand, 911 in the US, 000 in Australia) and tell someone close to you.",
         "Report it to the police (thaipoliceonline.go.th in Thailand) — threats are a crime; you don't have to wait to be hurt."],
         "Does the person know where you live or work?"),
     "theft": ("Losing things to theft is infuriating — but you can still stop further damage.", [
@@ -1332,7 +1336,7 @@ EN_TOPIC = {
         "Phone: use Find My / Find My Device to locate and lock it — don't chase it yourself, go with the police."],
         "Did what you lost include bank cards or a phone with banking apps?"),
     "weapon": ("A gun at home depends on whose it is and whether anyone is in danger right now.", [
-        "If you don't know whose it is, don't touch or move it — step away and call the police (191 in Thailand, 911 in the US).",
+        "If you don't know whose it is, don't touch or move it — step away and call the police (191 in Thailand, 911 in the US, 000 in Australia).",
         "If it belongs to someone at home who is drunk, angry or making threats, leave for a safe place first, then call the police.",
         "If there are children or someone in deep distress at home, ask for it to be locked away with the ammunition stored separately — or kept outside the home for now."],
         "Whose gun is it, and is anyone in danger right now?"),
@@ -1342,7 +1346,7 @@ EN_TOPIC = {
         "If they are hurting you, let the police (191 in Thailand) or 1300 handle it — you don't have to do it yourself."],
         "Are you away from that person right now?"),
     "witness": ("Good that you didn't ignore it — and your own safety matters too.", [
-        "If it's still happening, call the police now (191 in Thailand, 911 in the US, 112 in Europe) with the exact address and floor — you can stay anonymous.",
+        "If it's still happening, call the police now (191 in Thailand, 911 in the US, 112 in Europe, 000 in Australia) with the exact address and floor — you can stay anonymous.",
         "Don't go in alone; if you help, go with others or building security.",
         "If a child is involved or it keeps happening, call 1300 in Thailand (24h) and write down the dates and times you heard it."],
         "Is it still happening right now?"),
@@ -1369,7 +1373,7 @@ EN_TOPIC = {
         "Keep the evidence: transfer slips, account numbers, chats, links and phone numbers — screenshot before you block or delete anything, then report it to the police."],
         "Have you already sent money, or are they still asking you to?"),
     "overdose": ("This is an emergency — please do this first.", [
-        "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe), even if you feel okay — some pills act slowly.",
+        "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia), even if you feel okay — some pills act slowly.",
         "While waiting, call poison control (1367 in Thailand, 24h) and say what you took, how much and when. Keep the packets.",
         "If you meant to hurt yourself, you can tell them. You don't have to go through this alone."],
         "Is there someone near you who can take you to a hospital right now?"),
@@ -1399,13 +1403,13 @@ EN_TOPIC = {
         "Under 18 in Thailand: child helpline 1387. If it's making you not want to go to school or sleep, talk to someone (1323)."],
         "Is there one person there who can be on your side?"),
     "health_emergency": ("This needs a doctor now — please don't wait.", [
-        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) or have someone take you to the ER. Don't drive yourself.",
+        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia) or have someone take you to the ER. Don't drive yourself.",
         "Write down when it started, any medicines and conditions.",
         "Stay with someone until help arrives."],
         "Is someone with you right now?"),
     # "someone is not breathing" เคยได้แค่ "เขียนเวลาที่เริ่มมีอาการ" — คนไม่หายใจ/จมน้ำต้องได้ขั้นช่วยชีวิต
     "en_cpr": ("Start helping now — every minute counts.", [
-        "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe) and put the phone on speaker — they can guide you.",
+        "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia) and put the phone on speaker — they can guide you.",
         "If they don't respond and aren't breathing (or only gasping): start chest compressions — push hard and fast in the centre of the chest, 5–6 cm deep, 100–120 a minute. Rescue breaths are optional.",
         "If there's an AED nearby, turn it on and follow its voice · if they are breathing, roll them onto their side."],
         "Is anyone there who can take turns with compressions or find an AED?"),
@@ -1415,7 +1419,7 @@ EN_TOPIC = {
         "Keep evidence with family: job-offer chats, the agent's name, money transfers, contracts — employers may not keep passports or stop workers from leaving."],
         "How can they contact someone outside right now, and do you know where they are?"),
     "psychosis": ("Thank you for telling me — that must be frightening and exhausting.", [
-        "If the voices tell you (or them) to hurt yourself or anyone else, or it feels out of control, call emergency services (1669 in Thailand, 911 in the US) or go to an ER now.",
+        "If the voices tell you (or them) to hurt yourself or anyone else, or it feels out of control, call emergency services (1669 in Thailand, 911 in the US, 000 in Australia) or go to an ER now.",
         "This is very treatable when seen early — book a psychiatrist or call a mental-health line (1323 in Thailand, 988 in the US). In an older person who just started, it can be a physical illness: see a doctor today.",
         "Keep one trusted person close · sleep, and avoid alcohol, cannabis and other drugs — they make it worse."],
         "Is someone with you, or able to come and be with you?"),
@@ -1436,7 +1440,7 @@ EN_TOPIC = {
         "How much is owed in total, and since which pay period?"),
     "drunk_drive": ("Lives on the road come first — theirs and everyone else's.", [
         "Don't get in that car and don't let children get in · if it's safe, take the keys, or call a taxi / a sober driver.",
-        "If they've already driven off and it's dangerous, call the police (191 in Thailand, 911 in the US) with the plate, colour and direction.",
+        "If they've already driven off and it's dangerous, call the police (191 in Thailand, 911 in the US, 000 in Australia) with the plate, colour and direction.",
         "If drinking is a problem at home, an alcohol helpline can advise family members too (1413 in Thailand)."],
         "Are they in the car yet, and are you safe?"),
     "stop_meds": ("Wanting to stop is understandable — let's make it safe.", [
@@ -1469,15 +1473,15 @@ EN_TOPIC = {
     "en_bleed": ("Stop the bleeding first — press hard and don't let go.", [
         "Press a clean cloth firmly on the wound and keep pressing for 10 minutes without peeking · raise the limb above the heart.",
         "If blood soaks through, add more cloth on top — don't remove the first one.",
-        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) now if it spurts, won't stop, or the person feels faint or cold."],
+        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia) now if it spurts, won't stop, or the person feels faint or cold."],
         "Is the bleeding slowing down with pressure?"),
     "en_stab": ("Get away from the danger first, then stop the bleeding.", [
-        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) and the police (191 in Thailand) — say there's a stab or gunshot wound.",
+        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia) and the police (191 in Thailand) — say there's a stab or gunshot wound.",
         "Don't pull out a knife or object that's stuck in · press around it with a clean cloth and have them lie down.",
         "Keep them warm and talking until help arrives."],
         "Is the person awake and are you somewhere safe?"),
     "en_amputation": ("Press, raise, and bring the finger — it can often be reattached.", [
-        "Press a clean cloth firmly on the wound and raise the hand · call emergency services (1669 in Thailand, 911 in the US, 112 in Europe).",
+        "Press a clean cloth firmly on the wound and raise the hand · call emergency services (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia).",
         "Wrap the severed part in a damp clean cloth, seal it in a plastic bag, and put the bag on ice — never put it directly on ice or in water.",
         "Go to the hospital fast — the sooner, the better the chance of reattaching it."],
         "Do you have the severed part with you?"),
@@ -1493,32 +1497,32 @@ EN_TOPIC = {
         "What chemical was it?"),
     "en_electric": ("Cut the power before you touch them.", [
         "Switch off the breaker or unplug — if you can't, push them away with something dry and non-metal (wood, plastic).",
-        "If they aren't breathing, start chest compressions and call emergency services (1669 in Thailand, 911 in the US, 112 in Europe).",
+        "If they aren't breathing, start chest compressions and call emergency services (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia).",
         "Go to a hospital even if they seem fine — electricity can affect the heart."],
         "Is the person awake and breathing?"),
     "en_head": ("A head injury with vomiting needs a doctor now.", [
-        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) or go to the emergency room now — vomiting, drowsiness, confusion or a bad headache after a hit to the head are warning signs.",
+        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia) or go to the emergency room now — vomiting, drowsiness, confusion or a bad headache after a hit to the head are warning signs.",
         "Keep them still, especially the neck, if they fell from a height.",
         "Watch them closely for the next 24 hours, even if they seem better."],
         "Is the person awake and talking normally?"),
     "en_allergy": ("This may be a severe allergic reaction — act now.", [
-        "Use an epinephrine auto-injector (EpiPen) right away if there is one, and call emergency services (1669 in Thailand, 911 in the US, 112 in Europe).",
+        "Use an epinephrine auto-injector (EpiPen) right away if there is one, and call emergency services (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia).",
         "If breathing is hard, let them sit up · if faint, lie them down with legs raised.",
         "Don't leave them alone — symptoms can come back after they improve."],
         "Is their breathing getting harder?"),
     "en_meningitis": ("Fever with a stiff neck needs the emergency room now.", [
-        "Go to the emergency room or call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) — this can be meningitis, which needs treatment quickly.",
+        "Go to the emergency room or call emergency services (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia) — this can be meningitis, which needs treatment quickly.",
         "Check for a rash that doesn't fade when you press a glass on it — tell the doctor if there is one.",
         "Don't wait to see if the fever comes down."],
         "How long has the fever been going on?"),
     "en_drunk": ("Someone too drunk to wake up is a medical emergency.", [
-        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) now · roll them onto their side so they don't choke on vomit.",
+        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia) now · roll them onto their side so they don't choke on vomit.",
         "Stay with them — no cold showers, coffee, or 'sleeping it off'.",
         "Slow or irregular breathing, cold pale skin, or seizures mean alcohol poisoning."],
         "Are they breathing normally?"),
     "en_swallowed_adult": ("Swallowed objects can still be dangerous — get it checked.", [
         "Button batteries and magnets need an emergency room right away, even with no symptoms.",
-        "Don't make them vomit · call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) if they can't swallow, drool, have chest pain or trouble breathing.",
+        "Don't make them vomit · call emergency services (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia) if they can't swallow, drool, have chest pain or trouble breathing.",
         "A small coin often passes, but a doctor should confirm with an X-ray."],
         "What exactly was swallowed, and when?"),
     "minor_adult": ("Thank you for telling me — when an adult dates someone your age, the problem is on the adult's side, not yours.", [
@@ -1527,12 +1531,12 @@ EN_TOPIC = {
         "You don't have to send photos or meet them alone · keep the chats in case you want help later."],
         "Has this person asked you to keep it secret or send photos?"),
     "en_stroke": ("This could be a stroke — every minute matters.", [
-        "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe) — a face drooping, arm weakness or trouble speaking means go now.",
+        "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia) — a face drooping, arm weakness or trouble speaking means go now.",
         "Note the time the symptoms started — treatment within 4.5 hours works much better.",
         "Don't give food, drink or medicine · if they become unresponsive and stop breathing, start chest compressions."],
         "What time did the symptoms start?"),
     "en_drowning": ("Get help to them without becoming a second victim.", [
-        "Shout for help and call emergency services (1669 in Thailand, 911 in the US, 112 in Europe).",
+        "Shout for help and call emergency services (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia).",
         "Throw something that floats (an empty jug, bottle, ring) or reach with a pole or rope — don't jump in unless you're trained in water rescue.",
         "Once out of the water, if they aren't breathing start chest compressions (CPR) right away — don't hang them upside down to drain water."],
         "Is the person out of the water yet?"),
@@ -1547,7 +1551,7 @@ EN_TOPIC = {
         "Keep someone at home in case they come back or call."],
         "Where and when were they last seen?"),
     "help": ("I'm here. Tell me what's happening.", [
-        "If you're in danger right now, call emergency services (191 police / 1669 medical in Thailand, 911 in the US, 112 in Europe).",
+        "If you're in danger right now, call emergency services (191 police / 1669 medical in Thailand, 911 in the US, 112 in Europe, 000 in Australia).",
         "If you're thinking about hurting yourself, call a crisis line (1323 in Thailand, 24h; findahelpline.com elsewhere).",
         "If it isn't urgent, just type a few words about what's going on — we'll go step by step."],
         "Are you safe right now?"),
@@ -1610,6 +1614,11 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     """ประเมินข้อความ — ถ้าพิมพ์โดยไม่ใส่วรรณยุกต์ ("ลูกไมหายใจ") ลองฉบับที่เติมวรรณยุกต์ด้วย แล้วใช้ฉบับที่เห็นอันตรายมากกว่า"""
     a = _assess(text, pattern)
     plain = normalize_mixed(text)
+    loc = dedialect(plain)
+    if loc != plain:                            # ภาษาถิ่น: ใช้ฉบับคำกลางเมื่อเห็นอันตรายมากกว่า
+        d = _assess(loc, pattern)
+        if d["text_risk"] > a["text_risk"]:
+            a, plain = d, loc
     alt = retone(plain)
     if alt != plain:
         b = _assess(alt, pattern)
@@ -1667,6 +1676,14 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
             crisis = bool(tr.get("self_harm")) or _hit(strip_someone_intl(own), CRISIS_PHRASES)
         if topic_i not in ("disaster", "scam") and topic_i not in topics:
             topics.append(topic_i)
+    # ภาษาอื่นนอกหกภาษาหลัก (เวียดนาม พม่า เขมร ลาว อาหรับ ฯลฯ) — เดิมได้ Risk 0 ทั้งหมด
+    for kind_w in world_urgent(text):
+        if kind_w == "crisis":
+            crisis = True
+        else:
+            topic_w = {"medical": "health_emergency", "violence": "violence", "help": "help"}[kind_w]
+            if topic_w not in topics:
+                topics.append(topic_w)
     if tr.get("basic_needs") and "basic" not in topics:
         topics.insert(0, "basic")
     elif "basic" in topics:                    # ขาดปัจจัยพื้นฐาน มาก่อนเรื่องเงินทั่วไป
@@ -1770,6 +1787,26 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     tag = "\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if footer else ""
     t = text.lower()
 
+    # ── ภาษาเอเชียที่มีคำตอบเรื่องด่วนของตัวเอง (พม่า เขมร ลาว เวียดนาม ฮินดี ฯลฯ) ──
+    if world_urgent(text):
+        from core.world_replies import world_lang, compose_world as compose_asia
+        al = world_lang(text, 1)
+        kind = ("crisis" if a["crisis"] else "medical" if "health_emergency" in a["topics"]
+                else "violence" if "violence" in a["topics"] else "help" if "help" in a["topics"] else None)
+        if not al and kind == "help":               # "救命" "助けて" "살려주세요" "ayuda" คำเดียว
+            from core.world_replies import help_main
+            hm = help_main(detect_lang(text))
+            if hm:
+                st = f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = 3"
+                body = "\n".join(f"{i + 1}) {x}" for i, x in enumerate(hm[1]))
+                return (f"{hm[0]}\n\n{st}\n\n{body}\n\n{hm[2]}\n\n{sign}"
+                        + ("\n· Answered from the system's equations — no AI used" if footer else ""))
+        if al and kind:
+            st = f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = 3"
+            out = compose_asia(al, kind, st, sign, footer)
+            if out:
+                return out
+
     # ── ภาษาอื่น: สมการเดียวกัน (W · Risk · Choice) แต่ใช้คำตอบของภาษานั้น ──
     lang = detect_lang(text)
     if lang != "th":
@@ -1833,6 +1870,14 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             return ("Here are your own numbers first.\n\n" + status + "\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(steps))
                     + "\n\nIf something unexpected happened tomorrow, how many months would your savings cover?\n\n" + sign
                     + ("\n· Answered from the system's equations — no AI used" if footer else ""))
+        # เรื่องทั่วไปในภาษาเอเชีย ยุโรป แอฟริกา ฯลฯ — เดิมได้ภาษาอังกฤษ
+        if lang in ("en", "es") and not a["crisis"]:
+            from core.world_replies import world_lang, compose_world
+            wl = world_lang(text)
+            if wl and (lang == "en" or wl != "es"):
+                out = compose_world(wl, "general", status, sign, footer)
+                if out:
+                    return out
         return compose_intl(lang, a["crisis"], status, sign, footer)
 
     # ── ถามถึงที่มาของระบบ (core/creator_story — ไม่มีชื่อหรือวันเกิดของผู้สร้าง) ──
@@ -1857,7 +1902,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         )
 
     # ── 2. ทักทายสั้นๆ ─────────────────────────────────────────────
-    if not a["topics"] and len(t.strip()) <= 24 and _hit(t, GREETINGS):
+    if not a["topics"] and a["text_risk"] < 35 and len(t.strip()) <= 24 and _hit(t, GREETINGS):
         return (f"สวัสดี{end} เล่าเรื่องที่กำลังตัดสินใจ หรือสิ่งที่หนักใจอยู่มาได้เลย "
                 f"ระบบจะช่วยเรียงทางเลือกที่มีให้เห็นชัดขึ้น{end}\n\n{sign}" + tag)
 
