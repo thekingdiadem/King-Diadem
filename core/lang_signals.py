@@ -24,7 +24,9 @@ _ES_WORDS = {"que", "de", "la", "el", "y", "los", "las", "por", "para", "estoy",
 _ES_STRONG = {"quiero", "estoy", "tengo", "hola", "gracias", "ayuda", "morir", "vivir", "necesito",
               "puedo", "siento", "nadie", "nada", "muero", "triste", "dinero", "trabajo",
               "hay", "terremoto", "incendio", "esposo", "esposa", "amigo", "amiga", "socorro", "pegó", "suicidarse",
-              "pidieron", "transferir", "casa", "mamá", "papá"}
+              "pidieron", "transferir", "casa", "mamá", "papá",
+              # "me amenazaron de muerte" "me estafaron" เคยถูกเดาเป็นอังกฤษ (ไม่มีสระมีเครื่องหมาย)
+              "amenazaron", "amenazó", "muerte", "matar", "matarme", "estafaron", "estafa", "encerrada", "encerrado", "comido", "pegaron", "violaron"}
 
 
 def detect_lang(text) -> str:
@@ -80,7 +82,7 @@ def prompt_lang(text) -> str:
 # 想死你了 = คิดถึงมาก · me muero de risa = ขำจะตาย · dying to = อยากมาก
 SELF_HARM_INTL = (
     re.compile(r"\b(?:i\s+)?(?:want|wanna|going)\s+to\s+die\b|\bkill(?:ing)?\s+myself\b|\bsuicid|"
-               r"\bend(?:ing)?\s+(?:my\s+life|it\s+all)\b|\bdon'?t\s+want\s+to\s+(?:live|be\s+alive|exist)\b|"
+               r"\bend(?:ing)?\s+(?:my\s+life|it\s+all)\b(?!\s+(?:with\s+a\s+bang|at\s+the\s+party|in\s+style))|\bdon'?t\s+want\s+to\s+(?:live|be\s+alive|exist)\b|"
                r"\bbetter\s+off\s+dead\b|\bno\s+reason\s+to\s+live\b|\b(?:hurt|harm|cut)(?:ting)?\s+myself\b|"
                r"\bself[- ]harm", re.I),
     re.compile(r"想死(?!你|您|他|她|它|我了|了你)|不想活|活不下去|自杀|自殺|轻生|輕生|结束(?:自己的)?生命|結束(?:自己的)?生命|"
@@ -214,10 +216,11 @@ URGENT_INTL = (
         "es": r"se\s+desmay[óo]|inconsciente|no\s+respira|no\s+puedo\s+respirar|dolor\s+(?:fuerte\s+)?(?:en\s+el|de)\s+pecho|infarto|derrame\s+cerebral|convulsi|sangra\s+mucho|se\s+tom[óo]\s+(?:muchas|todas\s+las)\s+pastillas|se\s+est[áa]\s+ahogando|se\s+trag[óo]\s+(?:una?\s+)?(?:pila|bater[ií]a|im[áa]n|moneda)|(?:tom[óo]|bebi[óo])\s+(?:lej[íi]a|cloro)",
     }),
     ("violence", "violence", {
-        "zh": r"(?:被|挨)[^。！？\n]{0,4}?(?:打|殴打|家暴|强奸|性侵)|(?:老公|丈夫|老婆|男朋友|爸爸|妈妈)[^。！？\n]{0,3}?打我|家暴",
-        "ja": r"(?:に|から)(?:殴られ|叩かれ|蹴られ|暴力を振るわれ|襲われ)|DV|性的暴行|レイプ",
-        "ko": r"(?:한테|에게)\s*(?:맞았|맞고|폭행|성폭행)|때려요|때렸어|가정폭력|성폭력",
-        "es": r"me\s+(?:peg[óoa]|golpe[óoa]|golpea|maltrata|viol[óo])|violencia\s+(?:doméstica|domestica|de\s+género)|abus[óo]\s+de\s+m[ií]",
+        "zh": r"(?:被|挨)[^。！？\n]{0,4}?(?:打|殴打|家暴|强奸|性侵)|(?:老公|丈夫|老婆|男朋友|爸爸|妈妈)[^。！？\n]{0,3}?打我|家暴|"
+              r"(?:要|说要|威胁要?|想)[^。！？\n]{0,3}?杀(?:了|死)?我|被[^。！？\n]{0,4}?(?:关|锁|囚禁)在|被威胁",
+        "ja": r"(?:に|から)(?:殴られ|叩かれ|蹴られ|暴力を振るわれ|襲われ)|DV|性的暴行|レイプ|殺す(?:ぞ)?と(?:脅|言われ)|殺される|閉じ込められ|監禁",
+        "ko": r"(?:한테|에게)\s*(?:맞았|맞고|폭행|성폭행)|때려요|때렸어|가정폭력|성폭력|죽인다고|죽이겠다고|협박|갇혀\s*있|감금",
+        "es": r"me\s+(?:peg[óoa]|golpe[óoa]|golpea|maltrata|viol[óo])|violencia\s+(?:doméstica|domestica|de\s+género)|abus[óo]\s+de\s+m[ií]|amenaz[óa]ron\s+de\s+muerte|me\s+amenaz|me\s+quiere\s+matar|va\s+a\s+matarme|encerrad[oa]|me\s+tienen?\s+encerrad",
     }),
     ("disaster", "disaster", {
         "zh": r"地震了|地震|着火了|著火了|失火|火灾|火災|发大水|洪水|海啸|海嘯|煤气泄漏|瓦斯外洩|燃气泄漏|山体滑坡|泥石流",
@@ -225,11 +228,18 @@ URGENT_INTL = (
         "ko": r"지진|불이\s*났|화재|홍수|침수|쓰나미|해일|가스\s*(?:가\s*)?새|산사태",
         "es": r"terremoto|sismo|incendio|se\s+est[áa]\s+quemando|inundaci[óo]n|tsunami|fuga\s+de\s+gas|huele\s+a\s+gas|deslizamiento",
     }),
+    # ไม่มีอาหาร — "三天没吃饭" "三日間何も食べていない" เคยได้ Risk 0 ทั้งสี่ภาษา
+    ("basic", "basic", {
+        "zh": r"(?:[两三四五六七]|几|好几)天没(?:有)?(?:吃饭|吃东西|饭吃)|没钱(?:吃饭|买吃的)|饿了(?:[两三四五]|好几)天",
+        "ja": r"(?:[二三四五六七2-9]|何)日(?:間|も)?(?:何も)?食べて(?:い)?ない|食べるもの(?:が|も)ない|お金がなくて食べ",
+        "ko": r"(?:이틀|사흘|나흘|며칠|[2-9]일)\s*(?:동안|째)?\s*(?:아무것도\s*)?(?:못|안)\s*먹|먹을\s*(?:게|것이)\s*없|돈이\s*없어서\s*(?:밥|굶)",
+        "es": r"no\s+he\s+comido\s+(?:nada\s+)?(?:en|desde\s+hace)\s+(?:dos|tres|cuatro|cinco|varios|\d+)\s+d[ií]as|no\s+tengo\s+(?:nada\s+)?(?:qu[ée]\s+comer|para\s+comer|dinero\s+para\s+comer)",
+    }),
     ("scam", "scam", {
-        "zh": r"(?:冒充|自称|说是)[^。！？\n]{0,6}?(?:警察|公安|银行|检察院|法院|客服)[^。！？\n]{0,16}?(?:转账|汇款|验证码|安全账户)|(?:让我|要我)转账[^。！？\n]{0,10}?(?:警察|安全账户)|验证码[^。！？\n]{0,6}?(?:告诉|发给)|安全账户|刷单",
-        "ja": r"(?:警察|銀行|役所|税務署)(?:を名乗る|だと名乗る|と名乗る)[^。！？\n]{0,20}?(?:送金|振り込|暗証番号)|(?:送金|振り込み?)(?:しろ|して)と言われ|オレオレ|還付金|暗証番号を(?:教え|聞かれ)",
-        "ko": r"(?:경찰|검찰|은행|금감원)(?:이라며|이라고\s*하면서|을\s*사칭)[가-힯\s]{0,20}?(?:돈|송금|이체|계좌)|보이스\s*피싱|인증번호를?\s*(?:알려|보내)|안전\s*계좌",
-        "es": r"(?:dice|dijo|dicen)\s+(?:ser|que\s+es)\s+(?:de\s+la\s+)?(?:polic[ií]a|banco)[^.!?\n]{0,30}?(?:transfer|dinero|c[óo]digo)|me\s+pidieron\s+(?:transferir|depositar|enviar)\s+dinero|c[óo]digo\s+de\s+verificaci[óo]n|ganaste\s+un\s+premio",
+        "zh": r"被骗|上当受骗|遇到诈骗|(?:冒充|自称|说是)[^。！？\n]{0,6}?(?:警察|公安|银行|检察院|法院|客服)[^。！？\n]{0,16}?(?:转账|汇款|验证码|安全账户)|(?:让我|要我)转账[^。！？\n]{0,10}?(?:警察|安全账户)|验证码[^。！？\n]{0,6}?(?:告诉|发给)|安全账户|刷单",
+        "ja": r"詐欺に(?:あ|遭)|騙され|(?:警察|銀行|役所|税務署)(?:を名乗る|だと名乗る|と名乗る)[^。！？\n]{0,20}?(?:送金|振り込|暗証番号)|(?:送金|振り込み?)(?:しろ|して)と言われ|オレオレ|還付金|暗証番号を(?:教え|聞かれ)",
+        "ko": r"사기\s*(?:를\s*)?당했|사기\s*당했|속아서\s*(?:돈|송금)|(?:경찰|검찰|은행|금감원)(?:이라며|이라고\s*하면서|을\s*사칭)[가-힯\s]{0,20}?(?:돈|송금|이체|계좌)|보이스\s*피싱|인증번호를?\s*(?:알려|보내)|안전\s*계좌",
+        "es": r"me\s+estafaron|fui\s+v[ií]ctima\s+de\s+(?:una\s+)?estafa|(?:dice|dijo|dicen)\s+(?:ser|que\s+es)\s+(?:de\s+la\s+)?(?:polic[ií]a|banco)[^.!?\n]{0,30}?(?:transfer|dinero|c[óo]digo)|me\s+pidieron\s+(?:transferir|depositar|enviar)\s+dinero|c[óo]digo\s+de\s+verificaci[óo]n|ganaste\s+un\s+premio",
     }),
 )
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
@@ -255,6 +265,20 @@ def urgent_intl(text, lang: str | None = None) -> list:
 
 
 URGENT_REPLY = {
+    "basic": {
+        "zh": ("先让你今天有东西吃 — 这比任何计划都重要。", ["今天就打 12345 市民服务热线，问附近的救助站、社区食堂或临时救助，说明你几天没吃饭了。",
+               "附近的寺庙、教会、慈善机构常有免费餐 · 也可以直接去居委会/社区服务中心求助。", "如果头晕、站不稳或身体很不舒服，拨打 120。"],
+               "你现在在哪个城市？身边有可以帮你的人吗？"),
+        "ja": ("まず今日食べられるようにしましょう — それが何より先です。", ["市区町村の福祉窓口（生活困窮者自立支援の相談窓口）に今日連絡してください。食料の緊急支援や生活保護の相談ができます。",
+               "近くのフードバンクや子ども食堂、社会福祉協議会でも食べ物をもらえることがあります。", "めまいがしたり立てないほどなら、119 に電話してください。"],
+               "今どこにいて、頼れる人はいますか？"),
+        "ko": ("오늘 먹을 것부터 해결해요 — 그게 무엇보다 먼저예요.", ["보건복지상담센터 129에 전화해서 며칠째 못 먹었다고 말하세요. 긴급 생계 지원을 안내받을 수 있어요.",
+               "가까운 주민센터(행정복지센터)나 푸드뱅크에서도 바로 도움을 받을 수 있어요.", "어지럽거나 몸을 가누기 힘들면 119에 전화하세요."],
+               "지금 어디에 있고, 도와줄 사람이 있나요?"),
+        "es": ("Primero, que puedas comer hoy — eso va antes que cualquier plan.", ["Contacta hoy con los servicios sociales de tu ayuntamiento o municipio: pueden darte ayuda de emergencia para comida.",
+               "Busca un banco de alimentos, comedor social, Cáritas o Cruz Roja cerca de ti — suelen dar comida ese mismo día.", "Si estás mareado o muy débil, llama al 112 (España) o al 911 (México y EE. UU.)."],
+               "¿Dónde estás ahora y hay alguien que pueda ayudarte?"),
+    },
     "someone": {
         "zh": ("谢谢你关心他/她 — 你的陪伴比你想象的更重要。", ["现在就直接问：“你是不是想结束生命？” 问出口不会让情况变糟。",
                "如果他/她有危险或已经伤害自己，立刻拨打 120（急救）或 110。", "尽量不要让他/她一个人待着，并把药物、刀具等收起来。"],

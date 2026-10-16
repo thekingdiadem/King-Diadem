@@ -7,6 +7,8 @@ scripts/sweep_all.py — กวาดหาบั๊กทั้งชุดใ�
   benign   สำนวนชีวิตประจำวันที่มีคำน่ากลัว            → ต้องไม่เป็นวิกฤต และ Risk < 60
   typing   พิมพ์รีบ (ไม่มีวรรณยุกต์ เว้นวรรคทุกตัว แสลง) → ต้องยังได้ Risk ≥ 60
   followup ตอบสั้นๆ ต่อจากเรื่องด่วน (ผ่าน API จริง)   → ต้องยังได้เบอร์ช่วยเหลือของเรื่องเดิม
+  intl     เรื่องด่วน + ประโยคธรรมดา ภาษาจีน ญี่ปุ่น เกาหลี สเปน → ด่วนต้อง ≥ 60 · ธรรมดาต้อง < 60
+  en       ผู้ประสบเหตุ × อาการด่วน × สำนวน ภาษาอังกฤษ + สำนวนธรรมดา → ด่วนต้อง ≥ 60 ไม่ได้คำตอบทั่วไป · ธรรมดาต้อง < 60
 
 รัน:  python scripts/sweep_all.py                  → ทุกชุด เต็มจำนวน (~1 นาที + followup)
       python scripts/sweep_all.py urgent benign    → เฉพาะชุดที่เลือก
@@ -107,6 +109,63 @@ def mut(t, random=random):
     return t.replace("ตาย", "ตายยย").replace("ลูก", "ลุก")                   # สะกดผิด
 
 
+# ── intl ────────────────────────────────────────────────────────
+INTL_URGENT = {
+    "zh": ["我不想活了", "我妈妈晕倒了", "孩子吞了硬币", "我被老公打了", "我朋友想自杀", "有人要杀我", "我被骗了转账",
+           "孩子发高烧抽搐", "我喝了农药", "我好饿，三天没吃饭", "他说要杀了我", "我被关在房间里", "地震了"],
+    "ja": ["死にたい", "母が倒れた", "子供が電池を飲み込んだ", "夫に殴られた", "友達が死にたいと言っている", "殺すと脅された",
+           "詐欺にあった", "子供が高熱でけいれん", "三日間何も食べていない", "部屋に閉じ込められている", "火事だ"],
+    "ko": ["죽고 싶어", "엄마가 쓰러졌어요", "아이가 동전을 삼켰어요", "남편한테 맞았어요", "친구가 자살하고 싶대요",
+           "죽인다고 협박받았어요", "사기 당했어요", "아이가 고열로 경련", "사흘 동안 아무것도 못 먹었어요", "방에 갇혀 있어요", "지진이 났어요"],
+    "es": ["quiero morir", "mi madre se desmayó", "mi hijo se tragó una moneda", "mi esposo me pegó", "mi amiga quiere suicidarse",
+           "me amenazaron de muerte", "me estafaron", "mi hijo tiene fiebre y convulsiones", "no he comido en tres días",
+           "estoy encerrada en un cuarto", "hay un incendio"],
+}
+INTL_CALM = ["我饿了", "好久没吃火锅了", "三天没吃火锅了", "我被老师骂了", "死ぬほど笑った", "お腹すいた", "ゲームで殺された",
+             "배고파", "오늘 너무 웃겨 죽겠어", "게임에서 죽었어", "tengo hambre", "me muero de risa", "me encerré en mi cuarto a estudiar"]
+INTL_TAILS = ["", "！", "。", " 😭", "!!", " ...", "？"]
+
+
+def intl(n=0):
+    urgent_cases = [t + tail for xs in INTL_URGENT.values() for t in xs for tail in INTL_TAILS]
+    calm_cases = [t + tail for t in INTL_CALM for tail in INTL_TAILS]
+    bad = [t for t in urgent_cases if assess(t)["text_risk"] < 60]
+    bad += [f"(ธรรมดา) {t}" for t in calm_cases if assess(t)["text_risk"] >= 60 or assess(t)["crisis"]]
+    return len(urgent_cases) + len(calm_cases), bad
+
+
+# ── en ──────────────────────────────────────────────────────────
+EN_URG_WHO = ["my son", "my daughter", "my mom", "my dad", "my friend", "my husband", "my wife", "my baby", "my grandma", "someone", "a kid"]
+EN_URG_EVENTS = ["is not breathing", "collapsed", "is unconscious", "is having a seizure", "is drowning", "fell in the pool",
+      "has chest pain", "can't breathe", "is choking", "is bleeding a lot", "won't stop bleeding", "cut off a finger",
+      "broke his leg", "hit his head and is vomiting", "swallowed a battery", "swallowed a coin", "drank bleach",
+      "took too many pills", "overdosed", "ate rat poison", "was bitten by a snake", "was stung by a bee and his face is swelling",
+      "ate peanuts and can't breathe", "got burned with boiling water", "got electrocuted", "has a high fever and a stiff neck",
+      "has slurred speech", "has a drooping face", "is confused suddenly", "has heatstroke", "is vomiting blood",
+      "was stabbed", "was shot", "was hit by a car", "is missing", "got chemicals in the eye", "is very drunk and won't wake up"]
+EN_URG_FRAME = ["{w} {e}", "help {w} {e}", "{w} {e}, what do I do", "{w} {e} right now", "urgent: {w} {e}", "{w} {e}!!"]
+EN_CALM = ["I burned my toast lol", "burned my dinner again", "I'm dying to see the new movie", "this homework is killing me",
+           "I could kill for a pizza", "lol I'm dead", "I shot a great photo today", "we drowned in paperwork", "the gym is killing me",
+           "my phone is dead", "my plant is dying", "I fell in love", "she cut off contact with me", "he's bleeding money on that car",
+           "my son is drowning in homework", "my dad hit his head on the cabinet lol he's fine", "I'm so bored I could die",
+           "I can't go on with this project", "I want to disappear for a weekend trip", "end it all with a bang at the party",
+           "tonight is my last night in Bangkok", "I'm going to jump off the diving board", "I bought a rope for camping"]
+# สัญญาณเตือนที่ไม่มีคำว่า die/suicide — ต้องเป็นวิกฤต
+EN_WARNING = ["I wrote my goodbye letters", "I'm going to jump off the bridge tonight", "I wish I could sleep and never wake up",
+              "I've been stockpiling my pills", "I'm going to overdose tonight", "I've given away my stuff", "tonight is my last night",
+              "I just want the pain to stop forever", "I want to end it all", "I have a plan to end my life", "I'm going to kill myself"]
+
+
+def en(n=0):
+    cases = sorted({f.format(w=w, e=e).replace(" his ", " his " if w in ("my son", "my dad", "my husband", "someone", "a kid", "my baby", "my friend") else " her ")
+                    for w, e, f in itertools.product(EN_URG_WHO, EN_URG_EVENTS, EN_URG_FRAME)} - {f.format(w="someone", e="is missing") for f in EN_URG_FRAME})
+    cases = _sample(cases, n, 6)
+    bad = [t for t in cases if assess(t)["text_risk"] < 60 or "Write what happened in one sentence" in compose(t)]
+    bad += [f"(ธรรมดา) {t}" for t in EN_CALM if assess(t)["text_risk"] >= 60 or assess(t)["crisis"]]
+    bad += [f"(สัญญาณเตือน) {t}" for t in EN_WARNING if not assess(t)["crisis"]]
+    return len(cases) + len(EN_CALM) + len(EN_WARNING), bad
+
+
 # ── followup ────────────────────────────────────────────────────
 FOLLOW_PRIOR = {
     "อยากตาย ไม่ไหวแล้ว": "1323", "ลูกกินยาไปทั้งแผง": "1669", "ลูกกลืนถ่านกระดุม": "1669", "สามีตบฉันทุกวัน": "191",
@@ -195,7 +254,7 @@ def followup(n=0):
     return len(pairs), bad
 
 
-SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "followup": followup}
+SUITES = {"urgent": urgent, "violence": violence, "benign": benign, "typing": typing, "intl": intl, "en": en, "followup": followup}
 
 
 def main(argv):

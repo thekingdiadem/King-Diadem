@@ -337,7 +337,7 @@ TOPICS = [
                           "ชักไม่หยุด", re.compile(r"(?:ลูก|เด็ก|หลาน|ทารก|น้อง)\S{0,8}?ชัก(?!ชวน|จูง|ธง|ช้า|ว่าว|ใย)"),
                           re.compile(r"ปวดท้อง\S{0,4}?(?:ขวาล่าง|ด้านขวาล่าง)[^\n]{0,20}?ไข้|ไข้[^\n]{0,20}?ปวดท้อง\S{0,4}?ขวาล่าง"),
                           "เลือดออกไม่หยุด", "ปากเบี้ยว", "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
-                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious|drowning)\b", re.I),
+                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious)\b|\bdrowning\b(?! in (?:homework|work|paperwork|debt|emails?|bills|tasks|assignments|love|tears|stress))", re.I),
                           _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
         "paths": [
@@ -983,9 +983,25 @@ _DAYS_TO_PAY = re.compile(r"อีก\s*(\d+)\s*วัน\S{0,8}?(?:เงิน
 
 _FICTION = re.compile(r"หนัง(?:เรื่อง)?|ฉาก|ละคร|ซีรีส์|ข่าว|(?:อ่?าน|ดู|ฟัง)ข่?าว|นิยาย|การ์ตูน|ในเกม|(?i:\bin the (?:news|movie|show|game)\b)")
 _CLOSE = re.compile(r"ลูก|แม่|พ่อ|ฉัน|หนู|ผม|เรา|เพื่อน|แฟน|สามี|ภรรยา|น้อง|พี่|ยาย|ตา(?!ย)|ช่วยด้วย|(?i:\b(?:my|i|me|help)\b)")
-_MINOR = re.compile(r"นิดเดียว|นิดหน่?อย|ไม่?เป็นไร(?:มาก)?|ไม่?เข้?าเนื้?อ|ไม่มีแผล|ไม่ถึงกับ|เล่นๆ|(?i:\bjust a (?:little|scratch)\b|\bnot (?:bad|serious)\b|\bi'?m fine\b)")
+_MINOR = re.compile(r"นิดเดียว|นิดหน่?อย|ไม่?เป็นไร(?:มาก)?|ไม่?เข้?าเนื้?อ|ไม่มีแผล|ไม่ถึงกับ|เล่นๆ|(?i:\bjust a (?:little|scratch)\b|\bnot (?:bad|serious)\b|\bi'?m fine\b|\b(?:he|she|they)(?:'s|'re| is| are) (?:fine|ok|okay|alright)\b)")
 _RED_FLAG = re.compile(r"หมดสติ|ไม่รู้สึกตัว|ชัก|อาเจียน|อ้วก|ซึม|หายใจ|เลือด\S{0,6}?(?:ไม่หยุด|พุ่ง|เยอะ|มาก)|หัว(?:ฟาด|กระแทก|แตก)|ลุกไม่|ขยับ\S{0,4}?ไม่(?:ได้)?|เดินไม่ได้|บวมมาก|ผิดรูป|"
-                       r"งู|หมาบ้า|ค้างคาว|ลิง|ช็อต|ช๊อต|ดูด|ขาด|หัก|โผล่|ตา|ทารก|เด็ก(?:เล็ก)?|ผู้สูงอายุ|(?i:\bunconscious|\bbleeding|\bsnake)")
+                       r"งู|หมาบ้า|ค้างคาว|ลิง|ช็อต|ช๊อต|ดูด|ขาด|หัก|โผล่|ตา|ทารก|เด็ก(?:เล็ก)?|ผู้สูงอายุ|(?i:\bunconscious|\bbleeding|\bsnake|\bvomit|\bthrow(?:ing)? up|\bdrowsy|\bconfused|\bseizure|\bwon'?t wake|\bcut off|\belectrocuted)")
+
+
+_EN_FIRST_STEP = [(re.compile(rx, re.I), k) for rx, k in (
+    (r"\b(?:was|got|been) (?:stabbed|shot)\b", "en_stab"),
+    (r"\bcut off\b|\bsevered\b|\bchopped off\b", "en_amputation"),
+    (r"\b(?:bleeding (?:a lot|heavily|badly|so much)|won'?t stop bleeding|can'?t stop the bleeding|lots? of blood)\b", "en_bleed"),
+    (r"\bburn(?:ed|t)\b|\bscald", "en_burn"),
+    (r"\b(?:chemicals?|bleach|acid|cleaner|lime)\b[^\n]{0,20}\beyes?\b", "en_eye"),
+    (r"\belectrocuted\b|\belectric shock\b", "en_electric"),
+    (r"\bhit (?:his|her|my|their) head\b", "en_head"),
+    (r"\bstung\b|\b(?:face|lips|tongue|throat) (?:is |are )?(?:swelling|swollen)\b|\bpeanuts?\b[^\n]{0,30}\bcan'?t breathe\b", "en_allergy"),
+    (r"\bstiff neck\b", "en_meningitis"),
+    (r"\bdrunk\b", "en_drunk"),
+    (r"\b(?:fell|fallen) in(?:to)?\b", "en_drowning"),
+    (r"\bswallowed (?:a |an |some )?(?:button )?(?:batter|magnet|coin|needle|pin|razor)", "en_swallowed_adult"),
+)]
 
 
 def _money_plan(text: str) -> bool:
@@ -1437,6 +1453,63 @@ EN_TOPIC = {
         "Give your body a real break tonight: something warm to eat, a shower, screens off a bit earlier.",
         "If the tiredness ever turns into wanting to disappear, a crisis line is there any time (1323 in Thailand, 988 in the US) — you don't have to wait until it's worse."],
         "What's pulling the most energy out of you right now?"),
+    # ขั้นปฐมพยาบาลภาษาอังกฤษเฉพาะเรื่อง — เดิมนิ้วขาด/น้ำร้อนลวก/สารเข้าตาได้ "Animal bites: wash…"
+    # และเลือดไม่หยุด/แพ้รุนแรง/ไข้คอแข็งได้แค่ "Write down when it started"
+    "en_bleed": ("Stop the bleeding first — press hard and don't let go.", [
+        "Press a clean cloth firmly on the wound and keep pressing for 10 minutes without peeking · raise the limb above the heart.",
+        "If blood soaks through, add more cloth on top — don't remove the first one.",
+        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) now if it spurts, won't stop, or the person feels faint or cold."],
+        "Is the bleeding slowing down with pressure?"),
+    "en_stab": ("Get away from the danger first, then stop the bleeding.", [
+        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) and the police (191 in Thailand) — say there's a stab or gunshot wound.",
+        "Don't pull out a knife or object that's stuck in · press around it with a clean cloth and have them lie down.",
+        "Keep them warm and talking until help arrives."],
+        "Is the person awake and are you somewhere safe?"),
+    "en_amputation": ("Press, raise, and bring the finger — it can often be reattached.", [
+        "Press a clean cloth firmly on the wound and raise the hand · call emergency services (1669 in Thailand, 911 in the US, 112 in Europe).",
+        "Wrap the severed part in a damp clean cloth, seal it in a plastic bag, and put the bag on ice — never put it directly on ice or in water.",
+        "Go to the hospital fast — the sooner, the better the chance of reattaching it."],
+        "Do you have the severed part with you?"),
+    "en_burn": ("Cool the burn right away — 20 minutes under running water.", [
+        "Run cool (not icy) tap water over the burn for 20 minutes · take off rings and watches.",
+        "No ice, toothpaste, butter, or fish sauce · don't pop blisters · cover loosely with clean plastic wrap.",
+        "Go to a hospital if it's bigger than a palm, on the face, hands, joints or groin, or the person is a child or elderly."],
+        "How big is the burn, and where is it?"),
+    "en_eye": ("Rinse the eye now — keep rinsing for at least 15–20 minutes.", [
+        "Hold the eye open under gently running clean water for 15–20 minutes · remove contact lenses.",
+        "Don't rub it or put other drops in · call poison control (1367 in Thailand, 1-800-222-1222 in the US) about the chemical.",
+        "Then go to an emergency room — bring the product's label."],
+        "What chemical was it?"),
+    "en_electric": ("Cut the power before you touch them.", [
+        "Switch off the breaker or unplug — if you can't, push them away with something dry and non-metal (wood, plastic).",
+        "If they aren't breathing, start chest compressions and call emergency services (1669 in Thailand, 911 in the US, 112 in Europe).",
+        "Go to a hospital even if they seem fine — electricity can affect the heart."],
+        "Is the person awake and breathing?"),
+    "en_head": ("A head injury with vomiting needs a doctor now.", [
+        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) or go to the emergency room now — vomiting, drowsiness, confusion or a bad headache after a hit to the head are warning signs.",
+        "Keep them still, especially the neck, if they fell from a height.",
+        "Watch them closely for the next 24 hours, even if they seem better."],
+        "Is the person awake and talking normally?"),
+    "en_allergy": ("This may be a severe allergic reaction — act now.", [
+        "Use an epinephrine auto-injector (EpiPen) right away if there is one, and call emergency services (1669 in Thailand, 911 in the US, 112 in Europe).",
+        "If breathing is hard, let them sit up · if faint, lie them down with legs raised.",
+        "Don't leave them alone — symptoms can come back after they improve."],
+        "Is their breathing getting harder?"),
+    "en_meningitis": ("Fever with a stiff neck needs the emergency room now.", [
+        "Go to the emergency room or call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) — this can be meningitis, which needs treatment quickly.",
+        "Check for a rash that doesn't fade when you press a glass on it — tell the doctor if there is one.",
+        "Don't wait to see if the fever comes down."],
+        "How long has the fever been going on?"),
+    "en_drunk": ("Someone too drunk to wake up is a medical emergency.", [
+        "Call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) now · roll them onto their side so they don't choke on vomit.",
+        "Stay with them — no cold showers, coffee, or 'sleeping it off'.",
+        "Slow or irregular breathing, cold pale skin, or seizures mean alcohol poisoning."],
+        "Are they breathing normally?"),
+    "en_swallowed_adult": ("Swallowed objects can still be dangerous — get it checked.", [
+        "Button batteries and magnets need an emergency room right away, even with no symptoms.",
+        "Don't make them vomit · call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) if they can't swallow, drool, have chest pain or trouble breathing.",
+        "A small coin often passes, but a doctor should confirm with an X-ray."],
+        "What exactly was swallowed, and when?"),
     "en_stroke": ("This could be a stroke — every minute matters.", [
         "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe) — a face drooping, arm weakness or trouble speaking means go now.",
         "Note the time the symptoms started — treatment within 4.5 hours works much better.",
@@ -1650,7 +1723,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
         if dis["data"].get("kind") == "heat" and re.search(r"ไม่มีเหงื่อ|ตัวร้อนจัด|ซึม|สับสน|ชัก|หมดสติ|เป็นลมแดด|โรคลมแดด|ฮีทสโตรก|ฮีตสโตรก", text):
             text_risk = max(text_risk, 75)
     kinds_i = [kd for kd, _ in intl]
-    if "disaster" in kinds_i or "scam" in kinds_i:
+    if "disaster" in kinds_i or "scam" in kinds_i or "basic" in kinds_i:
         text_risk = max(text_risk, 70)
     return {
         "intl_urgent": kinds_i,
@@ -1704,7 +1777,12 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             en_key = ("en_drowning" if re.search(r"\bdrown", t, re.I)
                       else "en_cpr" if _NOT_BREATHING.search(t) or re.search(r"\bunconscious\b", t, re.I)
                       else "en_stroke" if re.search(r"\bstroke\b|\bcan'?t (?:speak|talk)|\bslurr|\bface (?:is )?droop|\bconfused\b", t, re.I) else en_key)
-        elif en_key == "overdose" and "swallowed" in a["topics"]:
+        if en_key in ("health_emergency", "first_aid", "violence", "swallowed", "overdose"):
+            for rx, k in _EN_FIRST_STEP:
+                if rx.search(t) and (k != "en_swallowed_adult" or not re.search(r"\b(?:child|son|daughter|kid|baby|toddler)\b", t, re.I)):
+                    en_key = k
+                    break
+        if en_key == "overdose" and "swallowed" in a["topics"]:
             en_key = "swallowed"    # "my child swallowed a battery" เคยได้ "some pills act slowly"
         en = EN_TOPIC.get(en_key) if (lang == "en" and a["topics"] and not a["crisis"]) else None
         if en:
