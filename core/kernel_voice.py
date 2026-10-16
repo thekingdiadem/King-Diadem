@@ -231,6 +231,17 @@ TOPICS = [
         ],
         "ask": "ตอนนี้มีใครที่คุณไว้ใจพอจะเล่าเรื่องนี้ให้ฟังได้บ้าง?",
     }),
+    # เด็กอายุไม่ถึง 16 คบผู้ใหญ่ — "I'm 15 and my boyfriend is 30" เคยได้ Risk 0
+    ("minor_adult", [re.compile(r"(?:อายุ\s*)?(?:1[0-5])\s*(?:ปี|ขวบ)[^\n]{0,20}?(?:แฟน|คนที่คบ|คนที่คุยด้วย)[^\n]{0,10}?(?:อายุ\s*)?(?:[2-9]\d)\s*(?:ปี)?|"
+                                r"\bi'?m (?:1[0-5]|thirteen|fourteen|fifteen)\b[^\n]{0,40}?\b(?:boyfriend|girlfriend|partner|dating)\b[^\n]{0,20}?\b(?:is |who'?s )?(?:[2-9]\d)\b", re.I)], {
+        "open": ["ขอบคุณที่เล่านะ — ผู้ใหญ่ที่คบเด็กอายุเท่านี้ ผิดตั้งแต่ฝั่งผู้ใหญ่ ไม่ใช่ความผิดของคุณ"],
+        "paths": [
+            "ผู้ใหญ่ที่ดีจะไม่ขอให้เด็กเก็บความสัมพันธ์เป็นความลับ ไม่ขอรูป และไม่ชวนไปอยู่ด้วยกันลำพัง — ถ้ามีแบบนี้ นี่คือสัญญาณอันตราย",
+            f"คุยกับผู้ใหญ่ที่ไว้ใจได้ 1 คน หรือโทรสายด่วนเด็ก {HOTLINE_CHILD} (ฟรี 24 ชม. ไม่ต้องบอกชื่อ)",
+            "ไม่ต้องส่งรูปหรือไปเจอเขาคนเดียว · เก็บแชตไว้ ถ้าวันหนึ่งอยากขอความช่วยเหลือ",
+        ],
+        "ask": "เขาเคยขอให้เก็บเป็นความลับ หรือขอรูปไหม?",
+    }),
     ("adult_invite", [ADULT_INVITE], {
         "open": ["ดีแล้วที่ถามก่อนไปนะ — เรื่องนี้ควรเช็กให้ชัดก่อน"],
         "paths": [
@@ -435,7 +446,7 @@ TOPICS = [
         ],
         "ask": "ตอนนี้ที่บ้านปลอดภัยไหม — มีใครทำร้ายคุณหรือเปล่า?",
     }),
-    ("control_en", [re.compile(r"\b(?:my )?(?:partner|boyfriend|girlfriend|husband|wife)\b[^\n]{0,30}?\b(?:checks my phone|won'?t let me (?:see|go|leave|work)|controls my money|tracks my location)\b", re.I)], {
+    ("control_en", [re.compile(r"\b(?:my )?(?:partner|boyfriend|girlfriend|husband|wife)\b[^\n]{0,30}?\b(?:checks my phone|won'?t let me (?:see|go|leave|work)|controls (?:all )?my money|tracks my location|takes (?:all )?my (?:money|salary|pay))\b", re.I)], {
         "open": ["ความสัมพันธ์ไม่ควรทำให้คุณต้องขออนุญาตใช้ชีวิต"],
         "paths": ["ตรวจมือถือ ห้ามเจอเพื่อน คุมเงิน หรือติดตามตำแหน่ง คือสัญญาณของการควบคุม — ไม่ใช่ความผิดของคุณ",
                   "มีคนที่ไว้ใจหนึ่งคนที่รู้เรื่องนี้ · เก็บข้อความหรือบันทึกพร้อมวันที่ไว้ในที่ปลอดภัย",
@@ -1510,6 +1521,11 @@ EN_TOPIC = {
         "Don't make them vomit · call emergency services (1669 in Thailand, 911 in the US, 112 in Europe) if they can't swallow, drool, have chest pain or trouble breathing.",
         "A small coin often passes, but a doctor should confirm with an X-ray."],
         "What exactly was swallowed, and when?"),
+    "minor_adult": ("Thank you for telling me — when an adult dates someone your age, the problem is on the adult's side, not yours.", [
+        "Safe adults don't ask a young person to keep the relationship secret, send photos, or meet alone — those are warning signs.",
+        "Talk to one adult you trust, or a child helpline (1387 in Thailand, Childhelp 1-800-422-4453 in the US) — free and confidential.",
+        "You don't have to send photos or meet them alone · keep the chats in case you want help later."],
+        "Has this person asked you to keep it secret or send photos?"),
     "en_stroke": ("This could be a stroke — every minute matters.", [
         "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe) — a face drooping, arm weakness or trouble speaking means go now.",
         "Note the time the symptoms started — treatment within 4.5 hours works much better.",
@@ -1575,12 +1591,12 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"soft_check": 45, "trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"control_en": 60, "minor_adult": 70, "soft_check": 45, "trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
