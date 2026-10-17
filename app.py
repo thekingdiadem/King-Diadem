@@ -342,6 +342,17 @@ _SECURITY_HEADERS = [
     (b"x-content-type-options", b"nosniff"),
     (b"referrer-policy", b"strict-origin-when-cross-origin"),
     (b"x-frame-options", b"DENY"),          # ไม่มีหน้าไหนต้องถูกฝังใน iframe — กัน clickjacking
+    # บังคับ HTTPS หนึ่งปี — กันคนในเครือข่ายเดียวกัน (Wi-Fi สาธารณะ) ดักคุกกี้ตอนพิมพ์ http://
+    (b"strict-transport-security", b"max-age=31536000; includeSubDomains"),
+    # ไม่มีหน้าไหนใช้กล้อง ไมค์ ตำแหน่ง หรือการชำระเงินในเบราว์เซอร์ (Stripe เปิดหน้าของ Stripe เอง)
+    (b"permissions-policy", b"camera=(), microphone=(), geolocation=(), payment=(), usb=()"),
+    # สคริปต์/การเชื่อมต่อได้เฉพาะจากเว็บเราเอง — ถ้ามีข้อความแปลกหลุดเข้าหน้าเว็บ ก็ส่งข้อมูลผู้ใช้ออกไปเว็บอื่นไม่ได้
+    # ('unsafe-inline' ยังจำเป็นเพราะหน้าเว็บมีสคริปต์ในไฟล์ HTML · ฟอนต์จาก Google Fonts เท่านั้น)
+    (b"content-security-policy",
+     b"default-src 'self'; script-src 'self' 'unsafe-inline'; "
+     b"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; "
+     b"img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; "
+     b"object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"),
 ]
 
 

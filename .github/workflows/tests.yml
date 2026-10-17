@@ -27,3 +27,7 @@ jobs:
         env:
           KD_AI: "off"
         run: python scripts/sweep_all.py
+      - name: ตรวจช่องโหว่ของไลบรารี (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt
