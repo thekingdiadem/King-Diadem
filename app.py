@@ -966,8 +966,18 @@ _SESSION_MAX_AGE = 86400 * 30
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 _session_signer = URLSafeTimedSerializer(_SECRET_KEY, salt="kd-auth-v1")
 
+def _sess_ver(email: str) -> int:
+    try:
+        from DATABASE.db import session_version
+        return session_version(email)
+    except Exception:
+        return 0
+
+
 def _set_auth_cookies(response, email: str, name: str):
-    response.set_cookie("kd_email", _session_signer.dumps(email), max_age=_SESSION_MAX_AGE, **_COOKIE_KW)
+    # ใส่เลขรุ่นการล็อกอินในลายเซ็น — กดออกจากระบบแล้วคุกกี้ที่ถูกคัดลอกไว้ใช้ไม่ได้อีก (เดิมใช้ได้ต่อถึง 30 วัน)
+    token = _session_signer.dumps({"e": email, "v": _sess_ver(email)})
+    response.set_cookie("kd_email", token, max_age=_SESSION_MAX_AGE, **_COOKIE_KW)
     response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=_SESSION_MAX_AGE, **_COOKIE_KW)
 
 def _session_email(request: Request, default: str = "") -> str:
@@ -976,10 +986,16 @@ def _session_email(request: Request, default: str = "") -> str:
     if not raw:
         return default
     try:
-        email = _session_signer.loads(raw, max_age=_SESSION_MAX_AGE)
+        data = _session_signer.loads(raw, max_age=_SESSION_MAX_AGE)
     except BadSignature:
         return default
-    return str(email).strip() or default
+    if isinstance(data, dict):
+        email, ver = str(data.get("e") or "").strip(), data.get("v", 0)
+    else:                                   # คุกกี้รุ่นก่อน (อีเมลอย่างเดียว) = รุ่น 0
+        email, ver = str(data or "").strip(), 0
+    if not email or ver != _sess_ver(email):
+        return default                      # ออกจากระบบไปแล้ว — คุกกี้ใบนี้หมดสิทธิ์
+    return email
 
 # จำกัดการเดารหัสผ่าน: 8 ครั้ง / 10 นาที ต่อ (IP, อีเมล)
 _login_lock = threading.Lock()
@@ -1114,10 +1130,17 @@ async def me(request: Request):
 
 
 @app.post("/logout")
-async def logout():
+async def logout(request: Request):
+    email = _session_email(request)
+    if email:
+        try:
+            from DATABASE.db import bump_session_version
+            await run_in_threadpool(bump_session_version, email)
+        except Exception as e:
+            print(f"⚠ logout: {type(e).__name__}")
     r = JSONResponse({"status": "ok"})
-    r.delete_cookie("kd_email")
-    r.delete_cookie("kd_name")
+    for k in ("kd_email", "kd_name"):          # ลบด้วยค่าเดียวกับตอนตั้ง (secure/samesite) — บางเบราว์เซอร์ไม่ลบถ้าไม่ตรง
+        r.delete_cookie(k, secure=True, httponly=True, samesite="lax")
     return r
 
 
