@@ -1,0 +1,29 @@
+# รันเทสต์อัตโนมัติทุกครั้งที่ push หรือเปิด/อัปเดต PR — ล้มที่นี่ = อย่าเพิ่ง merge
+name: tests
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - name: pytest
+        run: python -m pytest -q -p no:warnings
+      - name: ชุดกวาดข้อความ (sweep_all — หลุดแม้ข้อเดียวก็ล้ม)
+        env:
+          KD_AI: "off"
+        run: python scripts/sweep_all.py

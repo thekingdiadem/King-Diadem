@@ -1,3 +1,4 @@
 # ชุดทดสอบ (ไม่ใช้บน Render) — ติดตั้ง: pip install -r requirements-dev.txt แล้วรัน: pytest
 -r requirements.txt
 pytest
+Pillow          # tests/test_pwa.py ตรวจขนาดไอคอน
