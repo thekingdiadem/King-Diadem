@@ -25,6 +25,9 @@ _ES_STRONG = {"quiero", "estoy", "tengo", "hola", "gracias", "ayuda", "morir", "
               "puedo", "siento", "nadie", "nada", "muero", "triste", "dinero", "trabajo",
               "hay", "terremoto", "incendio", "esposo", "esposa", "amigo", "amiga", "socorro", "pegó", "suicidarse",
               "pidieron", "transferir", "casa", "mamá", "papá",
+              # "mi madre no respira" เคยถูกเดาเป็นอังกฤษ → ไม่ได้ขั้นช่วยหายใจเลย (คำเหล่านี้ไม่ใช่คำอังกฤษ)
+              "madre", "padre", "hijo", "hija", "hermano", "hermana", "abuelo", "abuela", "bebe", "nino", "nina",
+              "respira", "respirar", "sangra", "sangre", "despierta", "responde", "ahogando", "desmayo",
               # "me amenazaron de muerte" "me estafaron" เคยถูกเดาเป็นอังกฤษ (ไม่มีสระมีเครื่องหมาย)
               "amenazaron", "amenazó", "muerte", "matar", "matarme", "estafaron", "estafa", "encerrada", "encerrado", "comido", "pegaron", "violaron"}
 
@@ -213,7 +216,7 @@ URGENT_INTL = (
         "zh": r"晕倒|昏倒|昏迷|没有呼吸|沒有呼吸|不能呼吸|喘不过气|胸口(?:剧痛|很痛|疼)|心脏病发|中风|抽搐|大出血|吃了(?:很多|一整瓶|整瓶)?(?:药|安眠药)|喝了农药|溺水|吞了(?:一[个颗枚])?(?:纽扣)?(?:电池|電池|磁铁|磁鐵|硬币|硬幣)|喝了(?:漂白水|漂白剂|消毒水)",
         "ja": r"倒れ(?:た|ている)|意識がない|息をしていない|呼吸(?:が|できない)|胸が(?:痛|苦し)|心臓発作|脳卒中|けいれん|大量出血|薬を(?:たくさん|大量に)飲|溺れ|(?:ボタン)?電池を(?:飲み込|飲ん)|磁石を(?:飲み込|飲ん)|漂白剤を飲",
         "ko": r"쓰러졌|의식이\s*없|숨을\s*안\s*쉬|숨을\s*못\s*쉬|숨이\s*안\s*쉬어|가슴이\s*(?:너무\s*)?아파|심장마비|뇌졸중|경련|피가\s*멈추지\s*않|약을\s*(?:많이|한\s*통)|물에\s*빠졌|(?:건전지|배터리|자석|동전)[을를]?\s*삼켰|락스[를을]?\s*마셨",
-        "es": r"se\s+desmay[óo]|inconsciente|no\s+respira|no\s+puedo\s+respirar|dolor\s+(?:fuerte\s+)?(?:en\s+el|de)\s+pecho|infarto|derrame\s+cerebral|convulsi|sangra\s+mucho|se\s+tom[óo]\s+(?:muchas|todas\s+las)\s+pastillas|se\s+est[áa]\s+ahogando|se\s+trag[óo]\s+(?:una?\s+)?(?:pila|bater[ií]a|im[áa]n|moneda)|(?:tom[óo]|bebi[óo])\s+(?:lej[íi]a|cloro)",
+        "es": r"se\s+desmay[óo]|inconsciente|no\s+respira|no\s+(?:se\s+)?despierta|no\s+reacciona|no\s+responde(?!\s+(?:el|los|mis|a\s+mis)\s+(?:mensajes?|correos?|llamadas?))|no\s+puedo\s+respirar|dolor\s+(?:fuerte\s+)?(?:en\s+el|de)\s+pecho|infarto|derrame\s+cerebral|convulsi|sangra\s+mucho|se\s+tom[óo]\s+(?:muchas|todas\s+las)\s+pastillas|se\s+est[áa]\s+ahogando|se\s+trag[óo]\s+(?:una?\s+)?(?:pila|bater[ií]a|im[áa]n|moneda)|(?:tom[óo]|bebi[óo])\s+(?:lej[íi]a|cloro)",
     }),
     ("violence", "violence", {
         "zh": r"(?:被|挨)[^。！？\n]{0,4}?(?:打|殴打|家暴|强奸|性侵)|(?:老公|丈夫|老婆|男朋友|爸爸|妈妈)[^。！？\n]{0,3}?打我|家暴|"
