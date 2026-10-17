@@ -827,7 +827,9 @@ _BIZ_UNIT = re.compile(r"(?:ชิ้น|อัน|แก้ว|จาน|กล
 
 def _pct(x: float) -> str:
     v = x * 100
-    return f"{v:.1f}%" if abs(v) < 10 else f"{v:.0f}%"
+    if abs(v) < 10 or (99.5 <= abs(v) < 100):            # "≈ 100% ของรายรับ" เคยขึ้นทั้งที่ยังมีรายจ่าย (99.67%)
+        return f"{v:.1f}%"
+    return f"{v:.0f}%"
 
 
 def _business(text: str) -> dict | None:
@@ -893,7 +895,7 @@ _NOT_MONEY = r"(?!\s*(?:%|เปอร์|มื้อ|วัน|ปี|ชม|�
 
 def _spend_items(text: str) -> list:
     out, seen = [], set()
-    for m in re.finditer(rf"({_SPEND_ITEM})\D{{0,10}}?(\d[\d,]*(?:\.\d+)?)\s*(พัน|หมื่น|แสน|k|K)?{_NOT_MONEY}", text):
+    for m in re.finditer(rf"({_SPEND_ITEM})\D{{0,10}}?(\d[\d,]*(?:\.\d+)?)\s*(พัน|หมื่น|แสน|ล้าน|k|K)?{_NOT_MONEY}", text):
         key = re.sub(r"(?:เดือนละ|ต่อเดือน|ประมาณ|ราวๆ|อีก)$", "", re.sub(r"\s", "", m.group(1)))
         if key in seen:
             continue
@@ -914,8 +916,15 @@ def _budget(text: str) -> dict | None:
     if not income or income < 1000:
         return None
     total = _after(text, _SPEND_TOTAL)
-    items = [] if total else _spend_items(text)
-    spend = total if total else sum(items)
+    items = _spend_items(text)
+    # "ใช้จ่าย 10,000 ค่าเช่า 5,000" — เดิมยอดรวมทับรายการ ค่าเช่าหายไปเงียบๆ
+    # ยอดรวมที่บอกมาน้อยกว่ารายการที่แจกแจง แปลว่ารายการเป็นของเพิ่ม → รวมทั้งคู่ · ไม่งั้นใช้ยอดรวม
+    if total and items and total < sum(items) + 1e-9 and max(items) != total:
+        spend = total + sum(i for i in items if i != total)
+    elif total:
+        spend, items = total, []
+    else:
+        spend = sum(items)
     if not spend:
         return None
     left = income - spend
@@ -953,15 +962,18 @@ def budget_en(text: str) -> dict | None:
         return None
     income = _en_num(m)
     tot = _EN_SPEND_TOTAL.search(text)
+    seen, vals = set(), []
+    for it in _EN_SPEND_ITEM.finditer(text):
+        k = it.group(1).lower()
+        if k not in seen:
+            seen.add(k)
+            vals.append(_en_num(it, 2))
     if tot:
         spend, n = _en_num(tot), 1
+        # "rent 3,500. I spend 200" — เดิมได้ "เหลือ 3,800" (ค่าเช่าหายไป) · ยอดรวมน้อยกว่ารายการ = รายการเป็นของเพิ่ม
+        if vals and spend < sum(vals):
+            spend, n = spend + sum(vals), len(vals) + 1
     else:
-        seen, vals = set(), []
-        for it in _EN_SPEND_ITEM.finditer(text):
-            k = it.group(1).lower()
-            if k not in seen:
-                seen.add(k)
-                vals.append(_en_num(it, 2))
         spend, n = sum(vals), len(vals)
     if income <= 0 or spend <= 0:
         return None

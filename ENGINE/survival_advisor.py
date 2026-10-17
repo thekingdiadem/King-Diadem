@@ -39,7 +39,7 @@ def survival_advisor(
         except (TypeError, ValueError):
             return d
         return x if x == x and abs(x) != float("inf") else d
-    food, money, risk, energy = _n(food, 0.0), _n(money, 0.0), _n(risk, 50.0), _n(energy, 50.0)
+    food, money, risk, energy = _n(food, 0.0), _n(money, 0.0), _n(risk, 4.0), _n(energy, 50.0)
     network = int(_n(network, 1))
     score    = 100.0
     actions  = []

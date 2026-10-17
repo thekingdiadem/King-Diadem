@@ -42,6 +42,8 @@ def estimate_resources(
     food_days      = round(food / meals_per_day, 2) if food > 0 else 0.0
 
     # ── Money runway ──────────────────────────────────────────────
+    if daily_expense <= 0 and daily_expense != 0:
+        daily_expense = 170.0          # ค่าติดลบเคยได้ "อยู่ได้ 999 วัน" — ถือว่าข้อมูลผิด ใช้ค่าเฉลี่ยรายวันแทน
     if daily_expense > 0:
         money_days = round(max(0.0, money) / daily_expense, 2)   # หนี้ (เงินติดลบ) = 0 วัน ไม่ใช่วันติดลบ
     else:
