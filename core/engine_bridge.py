@@ -568,7 +568,15 @@ _FLOOD_AFTER_STEPS = [
 ]
 
 
+# ซ้อมหนีไฟ / ทดสอบระบบเตือนภัย / ฉากในหนัง — ไม่ใช่เหตุที่กำลังเกิด (แต่ "this is not a drill" ยังเป็นเหตุจริง)
+_HAZARD_STAGED = re.compile(r"ซ้อม|ทดลองระบบ|ทดสอบระบบ|ฉากในหนัง|ในหนัง|ในเกม|ในซีรีส์|"
+                            r"\b(?:drills?|scene|movie|film|video game)\b", re.I)
+_HAZARD_REAL = re.compile(r"ไม่ใช่การซ้อม|ไม่ใช่ซ้อม|ของจริง|\bnot an? (?:drill|test)\b|\breal\b", re.I)
+
+
 def _disaster(text: str) -> dict | None:
+    if _HAZARD_STAGED.search(text) and not _HAZARD_REAL.search(text):
+        return None
     hit = None
     for h in _HAZARDS:
         for mm in h[3].finditer(text):

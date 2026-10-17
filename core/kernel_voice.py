@@ -1610,8 +1610,37 @@ _WITHDRAWAL = re.compile(r"(?:เลิก|หยุด|ขาด)(?:เหล�
 _DENGUE_WARN = re.compile(r"ไข้เลือดออก[^\n]{0,30}?(?:เกล็ดเลือดต่ำ|เลือดออก(?!ก)|ปวดท้อง|อาเจียน|ซึม|มือเท้าเย็น)|\bdengue\b[^\n]{0,30}?\b(?:low platelets?|bleeding|vomiting)\b", re.I)
 
 
+_MAX_LEN = 8000
+
+
+def _clip(text) -> str:
+    """ข้อความยาวมาก (80,000 ตัวอักษรเคยใช้ 1.5–3.5 วินาที) — ตรวจหัว 6,000 + ท้าย 2,000 ตัวอักษร
+    เรื่องด่วนมักอยู่ต้นหรือท้ายข้อความ จึงไม่ตัดท้ายทิ้ง"""
+    text = text if isinstance(text, str) else str(text or "")
+    return text if len(text) <= _MAX_LEN else text[:6000] + "\n" + text[-2000:]
+
+
+# เขียนนิยาย/ทำรายงาน/เป็นอาสาสายด่วน — คำว่า "ฆ่าตัวตาย" อยู่ในงาน ไม่ได้อยู่ในใจคนพิมพ์
+# ลดลงเฉพาะเมื่อไม่มีคำแทนตัวเองเลย ("ตัวละครอยากตาย เหมือนฉันตอนนี้" ยังเป็นวิกฤต)
+_WORK_FRAME = re.compile(r"นิยาย|ตัวละคร|บทละคร|เขียนบท|รายงานเรื่อง|ทำรายงาน|งานวิจัย|วิทยานิพนธ์|สถิติ|"
+                         r"ป้องกันการฆ่าตัวตาย|อาสาสมัคร|\b(?:research|paper|essay|thesis|statistics|novel|"
+                         r"character|screenplay|suicide prevention|volunteer)\b", re.I)
+_SELF_REF = re.compile(r"ฉัน|หนู|ผม|เรา|กู|ตัวเอง|เค้า|เขาว่า|อยากตาย|ไม่ไหว|"
+                       r"\b(?:i|i'm|im|me|my|myself|mine)\b(?!\s+(?:volunteer|am (?:writing|researching)|write|study|research|work))", re.I)
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
+    a = _assess_raw(text, pattern)
+    # ไม่ปิดเงียบ — ยังถามไถ่เบาๆ พร้อมเบอร์ 1323 เหมือนกรณี "ขอข้อมูลไปทำรายงาน" ที่มีอยู่แล้ว
+    if a["crisis"] and isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text):
+        a = dict(a, crisis=False, topics=a["topics"] + ["soft_check"], text_risk=45,
+                 risk=min(a["risk"], 45), risk_shown=min(a["risk_shown"], 45))
+    return a
+
+
+def _assess_raw(text: str, pattern: dict | None = None) -> dict:
     """ประเมินข้อความ — ถ้าพิมพ์โดยไม่ใส่วรรณยุกต์ ("ลูกไมหายใจ") ลองฉบับที่เติมวรรณยุกต์ด้วย แล้วใช้ฉบับที่เห็นอันตรายมากกว่า"""
+    text = _clip(text)
     a = _assess(text, pattern)
     plain = normalize_mixed(text)
     loc = dedialect(plain)
@@ -1777,7 +1806,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
 def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             pattern: dict | None = None, footer: bool = True) -> str:
     """คำตอบเต็มจากสมการ — ไม่มี AI · input เดิม → คำตอบเดิม"""
-    text = text if isinstance(text, str) else str(text or "")
+    text = _clip(text)
     if voice_mode == "council":
         return compose_council(text, footer=footer)
     a = assess(text, pattern)
@@ -2041,10 +2070,47 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
 _STEP_LINE = re.compile(r"(?m)^\d+\)\s+\S")
 
 
+# "อยากตาย 555" / "I want to die 😂" — มักพูดเล่น แต่บางคนใช้หัวเราะกลบความจริง
+# จึงยังให้เบอร์ช่วยเหลือครบเหมือนเดิม เปลี่ยนแค่ประโยคเปิดให้ถามไถ่เบาๆ ไม่ตกใจใส่
+_JOKE_MARK = re.compile(r"5{3,}|ฮ่า{2,}|ขำ|😂|🤣|😆|😅|\b(?:lol|lmao|haha+|jk)\b", re.I)
+_SERIOUS_MARK = re.compile(r"เม็ด|เชือก|กระโดด|ตึก|มีด|กรีด|ปืน|จดหมาย|ลาก่อน|คืนนี้|วันนี้แหละ|"
+                           r"pills?|rope|jump|bridge|knife|cut|gun|goodbye|tonight|note|plan", re.I)
+_SOFT_OPEN = {
+    "ฉันได้ยินสิ่งที่คุณพูดนะคะ และดีใจที่คุณพิมพ์มา":
+        "อ่านแล้วเหมือนพูดขำๆ นะคะ แต่ขอถามจริงๆ สักนิด — ช่วงนี้เหนื่อยหรือหนักใจอยู่หรือเปล่า "
+        "ถ้าแค่ล้อเล่นก็ไม่เป็นไรเลย แต่ถ้ามีส่วนไหนที่จริงอยู่ เก็บข้อความนี้ไว้นะคะ",
+    "I hear you, and I'm glad you wrote to me.":
+        "That sounds like it might be a joke — and if it is, that's okay. But I want to check gently: "
+        "are things feeling heavy lately? If any part of it is real, please keep this:",
+}
+
+
+_WORK_OPEN = {
+    "ขอบคุณที่บอกให้ชัดนะ — เข้าใจแล้ว และดีใจที่เล่าให้ฟัง":
+        "เรื่องนี้หนักแม้จะเป็นงานเขียนหรืองานค้นคว้า — ยินดีช่วยนะ และขอฝากไว้เผื่อระหว่างทำแล้วรู้สึกหนักใจเอง",
+    "Thanks for making that clear — got it, and I'm glad you told me.":
+        "Happy to help with the work — it's a heavy subject, so I'll leave a few things here in case it ever feels personal.",
+}
+
+
+def _soften_joking_crisis(text, out):
+    if isinstance(out, str) and isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text):
+        for plain, work in _WORK_OPEN.items():
+            if out.startswith(plain):
+                return work + out[len(plain):]
+    if not isinstance(out, str) or not _JOKE_MARK.search(text or "") or _SERIOUS_MARK.search(text or ""):
+        return out
+    for hard, soft in _SOFT_OPEN.items():
+        if out.startswith(hard):
+            return soft + out[len(hard):]
+    return out
+
+
 def compose(text: str, *args, **kw) -> str:
     """คำตอบแบบไม่มี AI · ภาษาอื่นนอกจากไทย: Choice(t) ต้องเท่ากับจำนวนทางที่พิมพ์จริง
     (เดิม "My husband hits me" แสดง Choice(t) = 4 แต่มีแค่ 3 ข้อ เพราะตั้งค่าตายตัวไว้ก่อนเลือกชุดคำตอบ)"""
     out = _compose(text, *args, **kw)
+    out = _soften_joking_crisis(text, out)
     if isinstance(out, str) and detect_lang(text) != "th":
         n = len(_STEP_LINE.findall(out))
         if n:

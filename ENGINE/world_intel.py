@@ -67,7 +67,12 @@ def analyze_location(lat: float, lng: float, context: Optional[dict] = None) -> 
     context: {season, local_conflict, infrastructure_score}
     """
     ctx   = context if isinstance(context, dict) else {}
-    lat, lng = float(lat), float(lng)
+    try:
+        lat, lng = float(lat), float(lng)
+    except (TypeError, ValueError):
+        lat = lng = float("nan")
+    if not (-90 <= lat <= 90 and -180 <= lng <= 180):   # None/nan/พิกัดเป็นไปไม่ได้ เคยล้มหรือหลุดไปใน JSON
+        lat, lng = 0.0, 0.0
     zone  = _classify_zone(lat, lng)
     prof  = _ZONE_PROFILE[zone].copy()
 

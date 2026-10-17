@@ -405,6 +405,9 @@ async def _too_large(send):
     await send({"type": "http.response.body", "body": body})
 
 
+# บีบอัดข้อความก่อนส่ง (JSON/HTML/JS) — ข้อมูลเมืองทั่วโลกของหน้า Universe 1.4 MB เหลือราว 0.7 MB
+from fastapi.middleware.gzip import GZipMiddleware
+app.add_middleware(GZipMiddleware, minimum_size=2048)
 app.add_middleware(BodyLimitMiddleware)   # เพิ่มทีหลังสุด = ชั้นนอกสุด ตัดก่อนตัวอื่นแตะ body
 
 
@@ -963,8 +966,18 @@ _SESSION_MAX_AGE = 86400 * 30
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 _session_signer = URLSafeTimedSerializer(_SECRET_KEY, salt="kd-auth-v1")
 
+def _sess_ver(email: str) -> int:
+    try:
+        from DATABASE.db import session_version
+        return session_version(email)
+    except Exception:
+        return 0
+
+
 def _set_auth_cookies(response, email: str, name: str):
-    response.set_cookie("kd_email", _session_signer.dumps(email), max_age=_SESSION_MAX_AGE, **_COOKIE_KW)
+    # ใส่เลขรุ่นการล็อกอินในลายเซ็น — กดออกจากระบบแล้วคุกกี้ที่ถูกคัดลอกไว้ใช้ไม่ได้อีก (เดิมใช้ได้ต่อถึง 30 วัน)
+    token = _session_signer.dumps({"e": email, "v": _sess_ver(email)})
+    response.set_cookie("kd_email", token, max_age=_SESSION_MAX_AGE, **_COOKIE_KW)
     response.set_cookie("kd_name",  _cookie_ascii(name),  max_age=_SESSION_MAX_AGE, **_COOKIE_KW)
 
 def _session_email(request: Request, default: str = "") -> str:
@@ -973,10 +986,16 @@ def _session_email(request: Request, default: str = "") -> str:
     if not raw:
         return default
     try:
-        email = _session_signer.loads(raw, max_age=_SESSION_MAX_AGE)
+        data = _session_signer.loads(raw, max_age=_SESSION_MAX_AGE)
     except BadSignature:
         return default
-    return str(email).strip() or default
+    if isinstance(data, dict):
+        email, ver = str(data.get("e") or "").strip(), data.get("v", 0)
+    else:                                   # คุกกี้รุ่นก่อน (อีเมลอย่างเดียว) = รุ่น 0
+        email, ver = str(data or "").strip(), 0
+    if not email or ver != _sess_ver(email):
+        return default                      # ออกจากระบบไปแล้ว — คุกกี้ใบนี้หมดสิทธิ์
+    return email
 
 # จำกัดการเดารหัสผ่าน: 8 ครั้ง / 10 นาที ต่อ (IP, อีเมล)
 _login_lock = threading.Lock()
@@ -1089,10 +1108,16 @@ async def google_callback(request: Request):
         return RedirectResponse("/static/login.html?error=oauth_error")
 
 
+def _safe_name(v) -> str:
+    """ชื่อที่แสดง — เป็นข้อความธรรมดา ≤ 80 ตัว ไม่มีอักขระ HTML/ควบคุม (เดิมส่งคืนจากคุกกี้ตามที่ได้มา เช่น "<script>")"""
+    v = str(v or "")
+    return re.sub(r"[<>\"'`\x00-\x1f\x7f]", "", v).strip()[:80]
+
+
 @app.get("/me")
 async def me(request: Request):
     email = _session_email(request)
-    name  = unquote(request.cookies.get("kd_name")  or "")
+    name  = _safe_name(unquote(request.cookies.get("kd_name")  or ""))
     if not email:
         q = _quota_status("", request)
         return {"logged_in": False, "free_left": q["free_left"], "free_limit": q["free_limit"]}
@@ -1105,10 +1130,17 @@ async def me(request: Request):
 
 
 @app.post("/logout")
-async def logout():
+async def logout(request: Request):
+    email = _session_email(request)
+    if email:
+        try:
+            from DATABASE.db import bump_session_version
+            await run_in_threadpool(bump_session_version, email)
+        except Exception as e:
+            print(f"⚠ logout: {type(e).__name__}")
     r = JSONResponse({"status": "ok"})
-    r.delete_cookie("kd_email")
-    r.delete_cookie("kd_name")
+    for k in ("kd_email", "kd_name"):          # ลบด้วยค่าเดียวกับตอนตั้ง (secure/samesite) — บางเบราว์เซอร์ไม่ลบถ้าไม่ตรง
+        r.delete_cookie(k, secure=True, httponly=True, samesite="lax")
     return r
 
 
@@ -1162,7 +1194,7 @@ async def login_email(request: Request, data: dict):
     if ensure_user: ensure_user(email)
     credits = get_credits(email) if get_credits else 0
     r = JSONResponse({"status": "ok", "email": email, "credits": credits})
-    _set_auth_cookies(r, email, (str(data.get("name") or "").strip() or email)[:80])
+    _set_auth_cookies(r, email, _safe_name(data.get("name")) or email[:80])
     return r
 
 
@@ -1386,6 +1418,28 @@ def _risk_ctx_from_text(risk_ctx: str, t_risk) -> str:
     return f"[Risk: {t_lvl} จากข้อความ]" if _RISK_RANK[t_lvl] > cur else risk_ctx
 
 
+@app.post("/api/kernel/preview")
+def kernel_preview(request: Request, data: dict):
+    """ลองสมองของระบบในหน้า Universe — ตอบจากสมการล้วน (ไม่ใช้ AI · ไม่หักโควตา · ไม่บันทึกข้อความ)
+    จำกัดความถี่เท่ากับ /run กันคนยิงถี่"""
+    text = data.get("input") if isinstance(data, dict) else ""
+    text = text if isinstance(text, str) else str(text or "")
+    if not text.strip():
+        return JSONResponse({"error": "พิมพ์ข้อความก่อนนะคะ"}, status_code=400)
+    if len(text) > _MAX_INPUT_CHARS:
+        return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร"}, status_code=413)
+    if not _rate_check("preview:" + _client_ip(request)):
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่แล้วลองใหม่นะคะ"}, status_code=429)
+    from core.kernel_voice import assess, compose
+    from core.lang_signals import detect_lang
+    from core.world_replies import world_lang
+    a = assess(text)
+    reply = compose(text, footer=False)
+    steps = [ln for ln in reply.split("\n") if re.match(r"^\d\)\s", ln)]
+    return {"risk": a.get("text_risk", 0), "crisis": bool(a.get("crisis")), "topics": list(a.get("topics") or [])[:4],
+            "lang": world_lang(text, 1) or detect_lang(text), "choices": len(steps), "reply": reply}
+
+
 @app.post("/run")
 @app.post("/decision")
 def run_kernel(request: Request, data: dict):
@@ -1395,7 +1449,7 @@ def run_kernel(request: Request, data: dict):
     if not isinstance(user_input, str):
         user_input = str(user_input)
     if not user_input.strip():
-        return {"error": "พิมพ์ข้อความก่อนนะคะ"}
+        return JSONResponse({"error": "พิมพ์ข้อความก่อนนะคะ"}, status_code=400)   # เดิม 200 — ไม่ตรงกับ endpoint อื่น
     # เดิมไม่จำกัดความยาว — ข้อความ 1MB ถูกส่งเข้า LLM (ค่าใช้จ่าย) และเก็บลง log ทั้งก้อน
     if len(user_input) > _MAX_INPUT_CHARS:
         return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร — ลองสรุปให้สั้นลงนะคะ"},
@@ -2169,13 +2223,16 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
 # ── SIMULATE ──────────────────────────────────────────────────────
 @app.post("/simulate")
 def run_simulate(request: Request, data: dict):
-    user_input = str(data.get("input") or "").strip()
+    raw        = data.get("input")
+    if raw is not None and not isinstance(raw, str):        # เดิม 123 ถูกแปลงเป็นข้อความ "123" แล้วตอบไปจริงจัง
+        return JSONResponse({"error": "ข้อความต้องเป็นตัวอักษรนะคะ"}, status_code=400)
+    user_input = (raw or "").strip()
     paths      = data.get("paths") or []
-    # ทางเลือกสูงสุด 7 ทาง ทางละ ≤ 300 ตัวอักษร — เดิมไม่จำกัดทั้งจำนวนและความยาว (ส่งเข้า LLM ทั้งหมด)
-    paths      = [str(p)[:300] for p in (paths if isinstance(paths, list) else [])][:7]
+    # ทางเลือกสูงสุด 7 ทาง ทางละ ≤ 300 ตัวอักษร · รับเฉพาะข้อความ (เดิม {"a":1} ถูกพิมพ์เป็น repr ของ Python ในคำตอบ)
+    paths      = [p.strip()[:300] for p in (paths if isinstance(paths, list) else []) if isinstance(p, str) and p.strip()][:7]
     email      = _session_email(request, "anonymous")
     if not user_input:
-        return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
+        return JSONResponse({"simulation": "พิมพ์สถานการณ์ก่อนนะคะ", "error": "พิมพ์สถานการณ์ก่อนนะคะ"}, status_code=400)
     if len(user_input) > _MAX_INPUT_CHARS:
         return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร ลองสรุปให้สั้นลงนะคะ"}, status_code=413)
     if not _rate_check(email if email != "anonymous" else _client_ip(request)):

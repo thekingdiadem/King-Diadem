@@ -2,6 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
+<script>try{if(localStorage.getItem('kd-calm')==='1')document.documentElement.classList.add('kd-calm')}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>KING DIADEM — The Universe That Restores Choice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -207,6 +208,67 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 /* ภาษาไทย: ใช้ฟอนต์หัวกลม (Noto Sans Thai Looped) และไม่ถ่างตัวอักษร — ถ่างแล้วสระ/วรรณยุกต์ลอยห่างจากพยัญชนะ อ่านยาก */
 .scroll-hint,.ego-head h2,.ego-head h2 span,.ego-quote cite,.ego-tap,.sec-title,.sim-sub,.sim-note,.intent-label,.sim-btn,.dignity-text{letter-spacing:.01em}
 .th-run{font-family:var(--f-body);letter-spacing:.01em}
+
+/* ════════════════════════════════════════════════════════════════
+   SATELLITE CAM — ฉากเปิด: ภาพสดจากกล้องดาวเทียม โลกตอนกลางคืน แสงไฟเมืองสีส้ม airglow สีเขียวเหนือขอบฟ้า
+   โลกวาดด้วย WebGL (static/cockpit_earth.js) · พิกัดบนจอตรงกับภาพ · ไม่มีภาพบุคคล
+   ════════════════════════════════════════════════════════════════ */
+.cockpit{position:absolute;inset:0;z-index:-1;overflow:hidden;
+  background:radial-gradient(120% 70% at 50% 100%,#2a1a55 0%,#0a0c1e 55%,#05060f 100%)}
+.cockpit canvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 1.6s ease}
+.cockpit.lit canvas{opacity:1}
+.cockpit.no-webgl{background:radial-gradient(140% 60% at 50% 95%,rgba(255,150,60,.22) 0%,rgba(40,30,90,.6) 35%,#05060f 75%)}
+.cockpit svg{position:absolute;inset:0;width:100%;height:100%}
+.cockpit .glass{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 30%,rgba(166,125,245,.07) 42%,transparent 50%),
+             linear-gradient(to bottom,transparent 55%,rgba(8,10,26,.55) 74%,rgba(8,13,26,.96) 100%)}
+#hero .hero-title{text-shadow:0 0 40px rgba(58,134,245,.25)}
+
+
+/* SHOWCASE + LIVE KERNEL */
+#showcase{position:relative;z-index:10;max-width:820px;margin:0 auto 60px;padding:0 20px}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+@media(max-width:560px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+.stat{background:rgba(8,13,26,.8);border:1px solid rgba(200,164,64,.16);border-radius:var(--r-l);padding:16px 10px;text-align:center}
+.stat b{display:block;font-family:var(--f-display);font-size:clamp(22px,5vw,32px);color:var(--gold-hi);font-weight:600}
+.stat span{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:rgba(118,152,215,.85)}
+.lang-wrap{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.lang-region{font-family:var(--f-mono);font-size:9px;letter-spacing:.14em;color:rgba(200,164,64,.7);margin-bottom:6px}
+.lang-chip{display:inline-block;margin:0 6px 6px 0;padding:4px 10px;border-radius:999px;font-size:12px;color:var(--tx-hi);
+  background:rgba(58,134,245,.08);border:1px solid rgba(118,174,255,.2)}
+.suites{margin-top:14px;font-size:12px;color:var(--tx)}
+.suites summary{cursor:pointer;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:rgba(118,152,215,.9)}
+.suite-row{display:flex;justify-content:space-between;padding:5px 2px;border-bottom:1px solid rgba(255,255,255,.04);font-family:var(--f-mono);font-size:11px}
+.suite-row .ok{color:#2bcfb4}.suite-row .bad{color:#f03558}
+.sc-date{margin-top:10px;font-family:var(--f-mono);font-size:9px;color:rgba(118,152,215,.6)}
+.try-row{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}
+.try-chip{font:inherit;font-size:12px;color:var(--tx-hi);background:rgba(166,125,245,.08);border:1px solid rgba(166,125,245,.28);
+  border-radius:999px;padding:5px 11px;cursor:pointer}
+.try-chip small{color:rgba(166,125,245,.85);font-size:10px;margin-left:3px}
+.try-chip:hover{border-color:rgba(200,164,64,.5)}
+.live-tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;color:#2bcfb4;margin-bottom:10px;min-height:14px}
+.fate-note{white-space:pre-wrap}
+
+/* ปุ่มมุมมองโลก + โหมดลดการเคลื่อนไหว */
+.earth-ctl{position:absolute;z-index:3;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);
+  display:flex;gap:6px;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100% - 24px);pointer-events:auto}
+.earth-ctl button{font:500 11px/1 var(--f-body);color:rgba(230,240,255,.85);background:rgba(8,13,26,.55);
+  border:1px solid rgba(230,240,255,.18);border-radius:999px;padding:7px 12px;cursor:pointer;backdrop-filter:blur(8px)}
+.earth-ctl button[aria-pressed="true"]{color:#0b0f1e;background:rgba(237,204,98,.92);border-color:transparent}
+.earth-ctl button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+.cockpit canvas{pointer-events:auto;touch-action:pan-y;cursor:grab}
+.cockpit canvas:active{cursor:grabbing}
+.cockpit #earth-labels{pointer-events:none;opacity:1}
+#hero>div:not(.cockpit):not(.earth-ctl){transition:opacity .6s ease}
+#hero.zoomed>div:not(.cockpit):not(.earth-ctl){opacity:.06}
+.earth-ctl .ec-z{width:30px;padding:7px 0;font-size:14px}
+html{scroll-behavior:smooth}
+html.kd-calm{scroll-behavior:auto}
+html.kd-calm *,html.kd-calm *::before,html.kd-calm *::after{animation:none!important;transition:none!important}
+html.kd-calm .section,html.kd-calm .reveal{opacity:1;transform:none;filter:none}
+html.kd-calm .hud,html.kd-calm .hud-deg{display:none}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.lang-more summary{cursor:pointer;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:rgba(118,152,215,.9);margin:6px 0 10px}
 </style>
 </head>
 <body>
@@ -221,6 +283,19 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 <main>
 <!-- HERO -->
 <section id="hero">
+  <div class="earth-ctl" role="group" aria-label="มุมมองโลก">
+    <button type="button" id="ec-globe" aria-pressed="false" onclick="KD_toggleGlobe()">ทั้งโลก</button>
+    <button type="button" onclick="KD_earth&&KD_earth.pole(true);KD_markGlobe(true)">ขั้วโลกเหนือ</button>
+    <button type="button" onclick="KD_earth&&KD_earth.pole(false);KD_markGlobe(true)">ขั้วโลกใต้</button>
+    <button type="button" class="ec-z" aria-label="ซูมเข้า" onclick="KD_earth&&KD_earth.zoomIn()">+</button>
+    <button type="button" class="ec-z" aria-label="ซูมออก" onclick="KD_earth&&KD_earth.zoomOut()">−</button>
+    <button type="button" id="ec-calm" aria-pressed="false" onclick="KD_toggleCalm()">ลดการเคลื่อนไหว</button>
+  </div>
+  <div class="cockpit" aria-hidden="true">
+    <canvas id="cockpit-earth" role="img" aria-label="โลกตอนกลางคืนจากกล้องดาวเทียม ลากเพื่อหมุน ดับเบิลคลิกเพื่อซูมไปจุดนั้น"></canvas>
+    <canvas id="earth-labels" aria-hidden="true"></canvas>
+    <div class="glass"></div>
+  </div>
   <div>
     <div class="hero-badge">KING DIADEM™ · DRIFTZERO · MILKY SCOPE</div>
     <h1 class="hero-title">THE UNIVERSE<br>THAT RESTORES CHOICE</h1>
@@ -393,9 +468,18 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
       </div>
     </div>
 
+    <div class="try-row">
+      <button type="button" class="try-chip" onclick="tryText('แม่หายใจบ่ได้')">แม่หายใจบ่ได้ <small>อีสาน</small></button>
+      <button type="button" class="try-chip" onclick="tryText('มีคนโทรมาบอกว่าเป็นตำรวจ ให้โอนเงินเข้าบัญชีปลอดภัย')">ตำรวจให้โอนเงิน <small>มิจฉาชีพ</small></button>
+      <button type="button" class="try-chip" onclick="tryText('ไม่อยากตายค่ะ แค่เหนื่อย')">ไม่อยากตาย แค่เหนื่อย</button>
+      <button type="button" class="try-chip" onclick="tryText('အမေ အသက်မရှူနိုင်ဘူး')">အမေ အသက်မရှူ <small>พม่า</small></button>
+      <button type="button" class="try-chip" onclick="tryText('mẹ tôi không thở được')">mẹ tôi không thở <small>เวียดนาม</small></button>
+      <button type="button" class="try-chip" onclick="tryText('อยากเปลี่ยนงานแต่กลัวไม่มีเงินเก็บ')">อยากเปลี่ยนงาน</button>
+    </div>
     <button class="sim-btn" id="sim-btn" onclick="runSimulation()">◈ วิเคราะห์เจตนาและสร้าง Path</button>
 
     <div id="sim-result">
+      <div class="live-tag" id="live-tag" aria-live="polite"></div>
       <div class="result-header">
         <div class="result-title">◈ FATE™ Analysis Result</div>
         <div class="result-badge" id="result-badge">SAFE</div>
@@ -418,6 +502,25 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 
 </main>
 
+<!-- SHOWCASE — ตัวเลขจริงจาก static/showcase.json -->
+<section id="showcase" aria-labelledby="sc-h">
+  <div class="section">
+    <div class="sec-eyebrow">Verified · ไม่ได้พิมพ์ตัวเลขเอง</div>
+    <h2 class="sec-title" id="sc-h">ได้ยินทุกเสียง ไม่ว่าจะพิมพ์ภาษาอะไร</h2>
+    <div class="sec-body"><p>เรื่องด่วน — แม่ไม่หายใจ ถูกทำร้าย อยากตาย ถูกหลอกโอนเงิน — LYLA ตอบเป็น<strong>ภาษาของคนพิมพ์</strong>
+      พร้อมเบอร์ในไทย (1669 · 191 · 1323 · 1300) และเบอร์ของประเทศบ้านเกิด แม้ไม่มี AI ก็ยังตอบได้ทันที</p></div>
+    <div class="stat-grid">
+      <div class="stat"><b id="sc-lang-n">54</b><span>ภาษา</span></div>
+      <div class="stat"><b id="sc-msg-n">61,262</b><span>ข้อความทดสอบ</span></div>
+      <div class="stat"><b id="sc-slip-n">0</b><span>หลุด</span></div>
+      <div class="stat"><b id="sc-suite-n">13</b><span>ชุดกวาด</span></div>
+    </div>
+    <details class="lang-more"><summary>ดูรายชื่อภาษาทั้งหมด</summary><div id="sc-langs" class="lang-wrap"></div></details>
+    <details class="suites"><summary>ดูผลทีละชุด</summary><div id="sc-suites"></div></details>
+    <div class="sc-date" id="sc-date"></div>
+  </div>
+</section>
+
 <footer id="footer">
   <div class="footer-text">KING DIADEM™ · DRIFTZERO DEA-3</div>
   <div class="footer-axiom">"Fail less. Harm less. Restore more." · Choice(t) ≥ 1 → collapse = False</div>
@@ -438,6 +541,8 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
   document.head.appendChild(s);
 })();
 </script>
+
+<script src="/static/cockpit_earth.js" defer></script>
 
 <!-- INTENT SIMULATOR LOGIC -->
 <script>
@@ -535,7 +640,7 @@ function calcWaterline(entropy, stability, resource){
   return 'above';
 }
 
-function runSimulation(){
+function runLocalSimulation(){
   var text = document.getElementById('intent-text').value.trim();
   if(!text){
     document.getElementById('intent-text').focus();
@@ -617,6 +722,73 @@ function runSimulation(){
   // Signal to galaxy
   if(window.KD_setRoute) window.KD_setRoute(domain);
 }
+
+/* สมองจริงของระบบ — /api/kernel/preview ตอบจากสมการเดียวกับแชท (ไม่ใช้ AI · ไม่หักโควตา · ไม่บันทึกข้อความ)
+   แสดงผลจากเครื่องก่อนทันที แล้วแทนที่ด้วยคำตอบจริงเมื่อได้รับ · ออฟไลน์ก็ยังเห็นผลจากเครื่อง */
+var LANG_NAME={};
+function runSimulation(){
+  runLocalSimulation();
+  var text=document.getElementById('intent-text').value.trim();
+  if(!text) return;
+  var btn=document.getElementById('sim-btn'); btn.disabled=true;
+  var live=document.getElementById('live-tag'); live.textContent='◌ กำลังถามสมองของระบบ…';
+  fetch('/api/kernel/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:text})})
+    .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+    .then(function(x){
+      if(!x.ok||x.d.error){live.textContent='⚠ '+(x.d.error||'ระบบไม่ว่าง — แสดงผลจากเครื่องแทน');return;}
+      var d=x.d, risk=Math.round(d.risk);
+      var badge=document.getElementById('result-badge');
+      badge.textContent=d.crisis?'♡ CRISIS CARE':risk>=60?'⚡ URGENT':risk>=35?'⚠ CAREFUL':'✓ CALM';
+      badge.className='result-badge '+(risk>=60||d.crisis?'crit':risk>=35?'warn':'safe');
+      document.getElementById('rm-risk').innerHTML=risk+'<span class="rm-unit">/100</span>';
+      document.getElementById('rm-choices').innerHTML=(d.choices||1)+'<span class="rm-unit"> paths</span>';
+      document.getElementById('rm-urgency').textContent=d.crisis?'♡ CARE':risk>=60?'⚡ NOW':risk>=35?'⚠ SOON':'○ CALM';
+      var box=document.getElementById('result-paths'); box.textContent='';
+      d.reply.split('\n').filter(function(l){return /^\d\)\s/.test(l);}).forEach(function(l){
+        var it=document.createElement('div'); it.className='path-item';
+        var n=document.createElement('div'); n.className='path-letter'; n.textContent=l.charAt(0);
+        var tx=document.createElement('div'); tx.className='path-text'; tx.textContent=l.replace(/^\d\)\s*/,'');
+        it.appendChild(n); it.appendChild(tx); box.appendChild(it);
+      });
+      document.getElementById('fate-note').textContent=d.reply;
+      live.textContent='● ตอบจากสมองจริงของระบบ · ภาษา '+(LANG_NAME[d.lang]||d.lang)+' · ไม่ใช้ AI';
+    })
+    .catch(function(){live.textContent='⚠ ต่อเซิร์ฟเวอร์ไม่ได้ — แสดงผลจากเครื่องแทน';})
+    .then(function(){btn.disabled=false;});
+}
+/* มุมมองโลก + ลดการเคลื่อนไหว (จำไว้ในเครื่อง) — สำหรับคนเวียนหัวง่ายเวลากล้องเลื่อน */
+function KD_markGlobe(on){var b=document.getElementById('ec-globe');if(b)b.setAttribute('aria-pressed',on?'true':'false');}
+function KD_toggleGlobe(){var on=document.getElementById('ec-globe').getAttribute('aria-pressed')!=='true';
+  if(window.KD_earth)KD_earth.globe(on);KD_markGlobe(on);}
+function KD_toggleCalm(){var h=document.documentElement,on=!h.classList.contains('kd-calm');h.classList.toggle('kd-calm',on);
+  try{localStorage.setItem('kd-calm',on?'1':'0')}catch(e){}
+  document.getElementById('ec-calm').setAttribute('aria-pressed',on?'true':'false');window.dispatchEvent(new Event('kd-calm'));}
+(function(){var b=document.getElementById('ec-calm');if(b&&document.documentElement.classList.contains('kd-calm'))b.setAttribute('aria-pressed','true');})();
+function tryText(t){var el=document.getElementById('intent-text');el.value=t;runSimulation();
+  document.getElementById('simulator').scrollIntoView({behavior:'smooth',block:'start'});}
+
+/* ตัวเลขโชว์ — อ่านจาก static/showcase.json (สร้างโดย scripts/build_showcase.py จากการรันจริง) */
+fetch('/static/showcase.json').then(function(r){return r.json();}).then(function(d){
+  d.languages.forEach(function(l){LANG_NAME[l.code]=l.name;});
+  document.getElementById('sc-lang-n').textContent=d.languages.length;
+  document.getElementById('sc-msg-n').textContent=d.messages_total.toLocaleString('en-US');
+  document.getElementById('sc-slip-n').textContent=d.slips_total;
+  document.getElementById('sc-suite-n').textContent=d.suites.length;
+  var REG={asia:'เอเชีย',middle_east:'ตะวันออกกลาง · คอเคซัส',europe:'ยุโรป · อเมริกา',africa:'แอฟริกา'};
+  var wrap=document.getElementById('sc-langs'); wrap.textContent='';
+  Object.keys(d.regions).forEach(function(k){
+    var g=document.createElement('div'); g.className='lang-group';
+    var h=document.createElement('div'); h.className='lang-region'; h.textContent=REG[k]||k; g.appendChild(h);
+    d.regions[k].forEach(function(c){var ch=document.createElement('span'); ch.className='lang-chip'; ch.lang=c; ch.textContent=LANG_NAME[c]||c; g.appendChild(ch);});
+    wrap.appendChild(g);
+  });
+  var sb=document.getElementById('sc-suites'); sb.textContent='';
+  d.suites.forEach(function(x){var r=document.createElement('div'); r.className='suite-row';
+    var a=document.createElement('span'); a.textContent=x.name; var b=document.createElement('span');
+    b.textContent=x.messages.toLocaleString('en-US')+' · หลุด '+x.slips; b.className=x.slips?'bad':'ok';
+    r.appendChild(a); r.appendChild(b); sb.appendChild(r);});
+  document.getElementById('sc-date').textContent='วัดจริงเมื่อ '+d.generated+(d.commit?' · commit '+d.commit:'');
+}).catch(function(){});
 
 // Animate waterline meters on load
 setTimeout(function(){

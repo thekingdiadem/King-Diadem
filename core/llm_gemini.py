@@ -1109,9 +1109,20 @@ class GeminiLLM:
 # SINGLETON
 # ══════════════════════════════════════════════════════════════════
 _instance: Optional[GeminiLLM] = None
+_instances: dict = {}
+_instance_lock = __import__("threading").Lock()
+
 
 def get_llm(model: str = "") -> GeminiLLM:
+    """ตัวเชื่อม Gemini หนึ่งตัวต่อหนึ่งโมเดล — เดิม get_llm(model="อื่น") คืนตัวเดิมเงียบๆ
+    และหลาย request พร้อมกันตอนเริ่มอาจสร้างซ้อนกันสองตัว"""
     global _instance
-    if _instance is None:
-        _instance = GeminiLLM(model=model)
-    return _instance
+    with _instance_lock:
+        if not model and _instance is not None:
+            return _instance
+        inst = _instances.get(model)
+        if inst is None:
+            inst = _instances[model] = GeminiLLM(model=model)
+        if not model or _instance is None:
+            _instance = inst
+        return inst

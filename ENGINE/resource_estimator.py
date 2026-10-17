@@ -5,6 +5,7 @@ KING DIADEM — Resource Estimator
 ไม่ใช่ if food >= 5: += 5 แบบ flat
 """
 from __future__ import annotations
+from math import isfinite as _isfinite
 from typing import Optional
 import time
 
@@ -29,7 +30,7 @@ def estimate_resources(
 
     def _f(v, d):
         try:
-            return float(v)
+            return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
         except (TypeError, ValueError):
             return d
     food, money = max(0.0, _f(food, 0.0)), _f(money, 0.0)

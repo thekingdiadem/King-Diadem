@@ -1,5 +1,5 @@
 """ระบบตัดสินใจชุดเก่า (ENGINE/brain · decision · intent · risk · intervention_engine) และ core/database.py
-ย้ายไป legacy/ แล้ว (พี่อนุญาต) — กันไม่ให้ใคร import แล้วได้ pipeline หรือฐานข้อมูลชุดที่สองขึ้นมาซ้อนกับของจริง"""
+ย้ายไป legacy/ แล้วลบออกจาก repo (พี่อนุญาต · ดูย้อนหลังได้ใน git) — กันไม่ให้ใครเอากลับมาแล้วได้ pipeline หรือฐานข้อมูลชุดที่สองซ้อนกับของจริง"""
 import importlib
 from pathlib import Path
 
@@ -11,9 +11,8 @@ MOVED = ["ENGINE/brain.py", "ENGINE/decision.py", "ENGINE/intent.py", "ENGINE/ri
 
 
 @pytest.mark.parametrize("path", MOVED)
-def test_old_second_pipeline_lives_in_legacy(path):
+def test_old_second_pipeline_is_gone(path):
     assert not (ROOT / path).exists()
-    assert (ROOT / "legacy" / path).exists()
     with pytest.raises(ImportError):
         importlib.import_module(path[:-3].replace("/", "."))
 

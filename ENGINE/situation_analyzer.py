@@ -4,6 +4,7 @@ KING DIADEM — Situation Analyzer
 Full multi-factor assessment — ไม่ใช่แค่ food + risk
 """
 from __future__ import annotations
+from math import isfinite as _isfinite
 import time
 from typing import Optional
 
@@ -20,7 +21,7 @@ def analyze_situation(
     ctx = context or {}
     def _f(v, d):
         try:
-            return float(v)
+            return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
         except (TypeError, ValueError):
             return d
     food_score, risk_score = _f(food_score, 50.0), _f(risk_score, 50.0)

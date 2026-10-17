@@ -1,0 +1,355 @@
+{
+ "generated": "2026-10-16",
+ "commit": "75125ca",
+ "languages": [
+  {
+   "code": "af",
+   "name": "Afrikaans"
+  },
+  {
+   "code": "da",
+   "name": "Dansk"
+  },
+  {
+   "code": "de",
+   "name": "Deutsch"
+  },
+  {
+   "code": "en",
+   "name": "English"
+  },
+  {
+   "code": "es",
+   "name": "Español"
+  },
+  {
+   "code": "fr",
+   "name": "Français"
+  },
+  {
+   "code": "ha",
+   "name": "Hausa"
+  },
+  {
+   "code": "sh",
+   "name": "Hrvatski / Srpski / Bosanski"
+  },
+  {
+   "code": "id",
+   "name": "Indonesia"
+  },
+  {
+   "code": "it",
+   "name": "Italiano"
+  },
+  {
+   "code": "sw",
+   "name": "Kiswahili"
+  },
+  {
+   "code": "hu",
+   "name": "Magyar"
+  },
+  {
+   "code": "ms",
+   "name": "Melayu"
+  },
+  {
+   "code": "nl",
+   "name": "Nederlands"
+  },
+  {
+   "code": "no",
+   "name": "Norsk"
+  },
+  {
+   "code": "uz",
+   "name": "Oʻzbek"
+  },
+  {
+   "code": "pl",
+   "name": "Polski"
+  },
+  {
+   "code": "pt",
+   "name": "Português"
+  },
+  {
+   "code": "ro",
+   "name": "Română"
+  },
+  {
+   "code": "sk",
+   "name": "Slovenčina"
+  },
+  {
+   "code": "so",
+   "name": "Soomaali"
+  },
+  {
+   "code": "fi",
+   "name": "Suomi"
+  },
+  {
+   "code": "sv",
+   "name": "Svenska"
+  },
+  {
+   "code": "tl",
+   "name": "Tagalog"
+  },
+  {
+   "code": "vi",
+   "name": "Tiếng Việt"
+  },
+  {
+   "code": "tr",
+   "name": "Türkçe"
+  },
+  {
+   "code": "yo",
+   "name": "Yorùbá"
+  },
+  {
+   "code": "zu",
+   "name": "isiZulu"
+  },
+  {
+   "code": "cs",
+   "name": "Čeština"
+  },
+  {
+   "code": "el",
+   "name": "Ελληνικά"
+  },
+  {
+   "code": "bg",
+   "name": "Български"
+  },
+  {
+   "code": "mn",
+   "name": "Монгол"
+  },
+  {
+   "code": "ru",
+   "name": "Русский"
+  },
+  {
+   "code": "uk",
+   "name": "Українська"
+  },
+  {
+   "code": "kk",
+   "name": "Қазақ"
+  },
+  {
+   "code": "hy",
+   "name": "Հայերեն"
+  },
+  {
+   "code": "he",
+   "name": "עברית"
+  },
+  {
+   "code": "ur",
+   "name": "اردو"
+  },
+  {
+   "code": "ar",
+   "name": "العربية"
+  },
+  {
+   "code": "fa",
+   "name": "فارسی"
+  },
+  {
+   "code": "ne",
+   "name": "नेपाली"
+  },
+  {
+   "code": "hi",
+   "name": "हिन्दी"
+  },
+  {
+   "code": "bn",
+   "name": "বাংলা"
+  },
+  {
+   "code": "ta",
+   "name": "தமிழ்"
+  },
+  {
+   "code": "si",
+   "name": "සිංහල"
+  },
+  {
+   "code": "th",
+   "name": "ไทย"
+  },
+  {
+   "code": "lo",
+   "name": "ລາວ"
+  },
+  {
+   "code": "my",
+   "name": "မြန်မာ"
+  },
+  {
+   "code": "ka",
+   "name": "ქართული"
+  },
+  {
+   "code": "am",
+   "name": "አማርኛ"
+  },
+  {
+   "code": "km",
+   "name": "ខ្មែរ"
+  },
+  {
+   "code": "zh",
+   "name": "中文"
+  },
+  {
+   "code": "ja",
+   "name": "日本語"
+  },
+  {
+   "code": "ko",
+   "name": "한국어"
+  }
+ ],
+ "regions": {
+  "asia": [
+   "th",
+   "zh",
+   "ja",
+   "ko",
+   "my",
+   "km",
+   "lo",
+   "vi",
+   "id",
+   "ms",
+   "tl",
+   "hi",
+   "ne",
+   "bn",
+   "ur",
+   "ta",
+   "si",
+   "mn",
+   "kk",
+   "uz"
+  ],
+  "middle_east": [
+   "fa",
+   "ar",
+   "tr",
+   "he",
+   "ka",
+   "hy"
+  ],
+  "europe": [
+   "en",
+   "fr",
+   "de",
+   "it",
+   "ru",
+   "uk",
+   "pl",
+   "nl",
+   "el",
+   "ro",
+   "sv",
+   "cs",
+   "sk",
+   "hu",
+   "fi",
+   "da",
+   "no",
+   "sh",
+   "bg",
+   "es",
+   "pt"
+  ],
+  "africa": [
+   "sw",
+   "am",
+   "ha",
+   "yo",
+   "zu",
+   "af",
+   "so"
+  ]
+ },
+ "suites": [
+  {
+   "name": "urgent",
+   "messages": 12606,
+   "slips": 0
+  },
+  {
+   "name": "violence",
+   "messages": 5989,
+   "slips": 0
+  },
+  {
+   "name": "benign",
+   "messages": 6435,
+   "slips": 0
+  },
+  {
+   "name": "typing",
+   "messages": 446,
+   "slips": 0
+  },
+  {
+   "name": "intl",
+   "messages": 413,
+   "slips": 0
+  },
+  {
+   "name": "en",
+   "messages": 2470,
+   "slips": 0
+  },
+  {
+   "name": "en_crisis",
+   "messages": 3704,
+   "slips": 0
+  },
+  {
+   "name": "th_crisis",
+   "messages": 5258,
+   "slips": 0
+  },
+  {
+   "name": "th_violence",
+   "messages": 10087,
+   "slips": 0
+  },
+  {
+   "name": "en_violence",
+   "messages": 10214,
+   "slips": 0
+  },
+  {
+   "name": "th_scam",
+   "messages": 1932,
+   "slips": 0
+  },
+  {
+   "name": "en_scam",
+   "messages": 778,
+   "slips": 0
+  },
+  {
+   "name": "world",
+   "messages": 930,
+   "slips": 0
+  }
+ ],
+ "messages_total": 61262,
+ "slips_total": 0
+}
