@@ -61,3 +61,16 @@ def test_irs_gift_cards_plural_is_scam():
 def test_impostor_scams_are_caught(t):
     a = assess(t)
     assert a["scam"] or a["text_risk"] >= 50, (t, a)
+
+
+def test_long_repeated_spam_is_fast_and_still_urgent():
+    """ข้อความจริงตามด้วย "กกกก…" หลายพันตัว เคยใช้ 1–2 วินาทีต่อข้อความ"""
+    import time
+    from core.kernel_voice import compose
+    t = "ถ่ายเป็นเลือดสด " + "ก" * 5000
+    s = time.time()
+    a = assess(t)
+    compose(t)
+    assert time.time() - s < 0.5
+    assert a["text_risk"] >= 50
+    assert assess("ขำ 5555555555555555555555 " + "x" * 300)["text_risk"] < 35
