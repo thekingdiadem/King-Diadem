@@ -128,6 +128,9 @@ SELF_HARM_INDIRECT = re.compile(
     # "คืนนี้จะกินยาให้หมดแผงเลย" "ไม่รู้จะอยู่ไปทำไม" เคยได้ Risk 0 (ซ่อนอยู่ท้ายเรื่องเล่า)
     r"(?:จะ|คิดจะ|อยาก)กินยา\S{0,8}?(?:ให้)?(?:หมด|ทั้ง)(?:แผง|ขวด|กระปุก)(?![^\n]{0,14}?(?:ตาม(?:ที่)?(?:หมอ|แพทย์|เภสัช)|ตามสั่ง|ให้ครบ|ครบคอร์ส))|ไม่รู้จะอยู่(?:ต่อ)?(?:ไป)?(?:เพื่อ)?ทำไม|อยู่ไปก็ไม่มี(?:ความหมาย|ประโยชน์)|"
     # รอบ 10,000 ข้อความ ชุด 2: "คิดจะกินยาให้ตาย" "อยากยิงตัวเอง" เคยได้ Risk 0 — บอกวิธีแล้ว ไม่มีคำว่า "อยากตาย"
+    # "เตรียมยาไว้แล้ว จะกินคืนนี้" "I have pills ready" เคยได้ Risk 0 — เตรียมของไว้แล้ว = มีแผน
+    r"(?:เตรียม|ซื้อ|เก็บ|สะสม)(?:ยา|เชือก|ถ่าน|มีด)\S{0,8}?ไว้(?:แล้ว)?[^\n]{0,16}?(?:จะ(?:กิน|ใช้|ทำ)|คืนนี้|พรุ่งนี้|ให้หมด|ตาย|จบ)|"
+    r"(?i:\bi(?:'ve| have) (?:got )?(?:the |my )?(?:pills|rope|a gun|the gun) (?:ready|saved|set aside|lined up)\b|\bi(?:'ve| have) been (?:saving|stockpiling|collecting) (?:up )?(?:my )?pills\b)|"
     r"(?:อยาก|คิด(?:จะ)?|จะ|กำลังจะ|วางแผน(?:จะ)?)\S{0,4}?(?:กินยา|กระโดด\S{0,4}?|แขวนคอ|ผูกคอ|เผาถ่าน|ดมแก๊ส)\S{0,6}?(?:ให้)?ตาย(?!แล้ว\s*(?:มั้ย|ไหม))|"
     r"(?:อยาก|คิด(?:จะ)?|จะ|กำลังจะ)\S{0,4}?(?:ยิง|แทง|เชือด)ตัวเอง|(?:อยาก|คิด(?:จะ)?|จะ|กำลังจะ)(?:แขวนคอ|ผูกคอ)(?:ตาย)?(?=\s|$|ค่ะ|ครับ|แล้ว|\.|…|!|นะ|อะ)|"
     r"อยากหลับ(?:ไป)?(?:แล้ว)?ไม่(?:ต้อง)?ตื่น|อยากหลับ\S{0,8}?\s*ไม่(?:ต้อง)?ตื่น(?:ขึ้นมา)?(?:อีก)?(?!\s*(?:เช้า|แต่เช้า|ไป(?:ทำงาน|เรียน)|มา(?:ทำงาน|เรียน)|ตอน|ตี\s*\d|\d|เลยทั้งวัน|ทั้งวัน|สาย))|หลับไปเลยไม่ต้องตื่น|ไม่อยากตื่นขึ้นมา(?:อีก)?(?:แล้ว)?(?!\s*(?:เช้า|ตอน|ไป))|"
@@ -293,6 +296,8 @@ SCAM_PHISH = re.compile(r"(?:อ้าง|แอบอ้าง)(?:ว่า)?(?
 
 # บทพูดของมิจฉาชีพที่ชัดในตัวเอง แม้ไม่มีคำว่า "โทรมา" (รอบหาบั๊กมิจฉาชีพไทย)
 SCAM_SCRIPT = re.compile(
+    # "ญาติทักไลน์มายืมเงินด่วน บัญชีใหม่" — บัญชีปลอมอ้างเป็นคนรู้จัก เคยได้ Risk 0
+    r"(?:ทัก|แชท|ส่งข้อความ|ไลน์|เฟซ|เฟส|เมสเซนเจอร์)\S{0,10}?(?:ยืมเงิน|ขอยืม|ให้โอน)[^\n]{0,30}?(?:บัญชีใหม่|ไลน์ใหม่|เฟซใหม่|เฟสใหม่|เบอร์ใหม่|บัญชีคนอื่น|บัญชีเพื่อน)|(?:บัญชีใหม่|ไลน์ใหม่|เฟซใหม่|เฟสใหม่)[^\n]{0,30}?(?:ยืมเงิน|ขอยืม|ให้โอน)|"
     r"(?:ขอ|บอก|ถาม|ให้(?:บอก|แจ้ง)?)\S{0,6}?(?:รหัส\s*)?(?:otp|โอทีพี)|"
     r"(?:ขอ|ถาม|ให้บอก)\S{0,6}?(?:เลข|ตัวเลข)\S{0,4}?(?:หลังบัตร|ด้านหลังบัตร|cvv)|"
     r"บัตรเครดิต\S{0,8}?(?:ถูกใช้|ใช้)ผิดปกติ|"
@@ -315,6 +320,7 @@ SCAM_SCRIPT_EN = re.compile(
     r"\b(?:pay|paid|send|sent)\b[^\n]{0,8}?\b(?:in|with|by|via)\b[^\n]{0,10}?\b(?:gift ?cards|itunes cards?|steam cards?|google play cards?)\b|\bgift ?cards?\b[^\n]{0,20}?\b(?:send|sent|read|give)\b[^\n]{0,10}?\bcodes?\b|\b(?:send|sent|read|give)\b[^\n]{0,10}?\bcodes?\b[^\n]{0,10}?\bgift ?cards?\b|\bgift ?cards?\b[^\n]{0,24}?\bsend (?:them |him |her )?the codes\b|"
     r"\b(?:asked|asking|wants?|told me to (?:give|send))\b[^\n]{0,16}?\b(?:the |my )?(?:code|otp|pin|verification code|one.time (?:code|password))\b[^\n]{0,20}?\b(?:sent|texted|got) to my phone\b|"
     r"\b(?:asked|asking|wants?)\b[^\n]{0,12}?\bfor my (?:social security|ssn|bank (?:login|password)|card (?:number|pin)|cvv)\b|"
+    r"\b(?:tech support|support|microsoft|apple|amazon|bank|someone|he|she|they|caller)\b[^\n]{0,40}?\b(?:install|download)\b[^\n]{0,6}?\b(?:anydesk|teamviewer|ultraviewer|quick ?support|rustdesk)\b|"
     r"\b(?:install|download)\b[^\n]{0,6}?\b(?:anydesk|teamviewer|remote access|ultraviewer)\b[^\n]{0,30}?\b(?:fix|refund|help|support|virus|computer|account)\b|"
     r"\b(?:from|is) (?:microsoft|apple|amazon|windows) (?:support|security|tech)?\b[^\n]{0,30}?\b(?:virus|hacked|refund|locked|problem)\b|"
     r"\b(?:irs|tax office|fbi|social security administration|customs)\b[^\n]{0,30}?\b(?:pay|warrant|arrest|gift ?cards?|suspend)\b|"

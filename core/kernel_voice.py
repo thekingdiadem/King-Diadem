@@ -1629,8 +1629,18 @@ _SELF_REF = re.compile(r"ฉัน|หนู|ผม|เรา|กู|ตัว�
                        r"\b(?:i|i'm|im|me|my|myself|mine)\b(?!\s+(?:volunteer|am (?:writing|researching)|write|study|research|work))", re.I)
 
 
+# "ฝันว่าจมน้ำ/รถชน/ระเบิดลง" = เล่าความฝัน ไม่ใช่เหตุตอนนี้ — แต่ความคิดอยากตายยังนับเสมอ
+# และถ้าตื่นมาแล้วมีอาการจริง ("ฝันร้ายแล้วตื่นมาเจ็บหน้าอก") ไม่ลด
+_DREAM = re.compile(r"^\s*(?:เมื่อคืน|คืนก่อน|เมื่อวาน)?\s*(?:ฉัน|หนู|ผม|เรา)?\s*ฝัน(?:ว่า|เห็น)|^\s*(?:last night )?i (?:dreamt|dreamed|had a dream)\b", re.I)
+_WOKE_REAL = re.compile(r"ตื่น(?:มา|ขึ้นมา)|ตอนนี้|\b(?:woke up|now|right now)\b", re.I)
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
     a = _assess_raw(text, pattern)
+    if not a["crisis"] and a["text_risk"] >= 35 and isinstance(text, str) and _DREAM.search(text) \
+            and not _WOKE_REAL.search(text):
+        return dict(a, text_risk=0, risk=min(a["risk"], 20), risk_shown=0, disaster=None,
+                    topics=[t for t in a["topics"] if t in ("positive", "soft_check")])
     # ไม่ปิดเงียบ — ยังถามไถ่เบาๆ พร้อมเบอร์ 1323 เหมือนกรณี "ขอข้อมูลไปทำรายงาน" ที่มีอยู่แล้ว
     if a["crisis"] and isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text):
         a = dict(a, crisis=False, topics=a["topics"] + ["soft_check"], text_risk=45,
