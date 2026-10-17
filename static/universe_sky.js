@@ -11,7 +11,9 @@
 (function () {
   'use strict';
   var cv = document.getElementById('galaxy'); if (!cv) return;
-  var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // โหมดลดการเคลื่อนไหว: ตั้งในเครื่อง หรือกดปุ่มในหน้า (html.kd-calm) — เดิมฟ้ายังหมุนตามการเลื่อนจอแม้ตั้งไว้แล้ว ทำให้เวียนหัว
+  var MQ = matchMedia('(prefers-reduced-motion: reduce)');
+  function CALM() { return MQ.matches || document.documentElement.classList.contains('kd-calm'); }
   var gl = null;
   try { gl = cv.getContext('webgl', { alpha: false, antialias: false, depth: false, stencil: false }); } catch (e) { gl = null; }
   if (!gl) { document.documentElement.classList.add('no-sky'); return; }   // ภาพสำรองใน CSS
@@ -109,7 +111,7 @@
     var cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch); v = [v[0], v[1] * cp - v[2] * sp, v[1] * sp + v[2] * cp];
     var cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw); return [v[0] * cy - v[2] * sy, v[1], v[0] * sy + v[2] * cy];
   }
-  function ripple(x, y) { if (REDUCED) return; var d = dirAt(x, y); rips[ripN % 2] = { x: d[0], y: d[1], z: d[2], w: 0 }; ripN++; kick(); }
+  function ripple(x, y) { if (CALM()) return; var d = dirAt(x, y); rips[ripN % 2] = { x: d[0], y: d[1], z: d[2], w: 0 }; ripN++; kick(); }
   /* แตะท้องฟ้า (ที่ไม่ใช่ปุ่ม/ช่องกรอก) = แสงเดียวกันแผ่ไปถึงทุกดวง */
   addEventListener('click', function (e) { if (e.target.closest('a,button,input,textarea,label,.sim-box')) return; ripple(e.clientX, e.clientY); });
 
@@ -139,14 +141,15 @@
     var gap = last ? (now - last) / 1000 : 0; last = now; acc = Math.min(acc + gap, 2 / 90);
     if (gap && acc + 1e-4 < 1 / 90) { raf = requestAnimationFrame(draw); return; }      // ไม่เกิน 90 เฟรม/วินาที
     acc = Math.max(0, acc - 1 / 90);
-    var dt = Math.min(.05, gap || .016); if (!REDUCED) tsec += dt;
+    var dt = Math.min(.05, gap || .016); if (!CALM()) tsec += dt;
     if (dt > 1 / 40) { slow += dt; if (slow > 1.2 && qs > .55) { qs *= .8; slow = 0; size(); } } else slow = Math.max(0, slow - dt * .5);
     var sc = scrollY / Math.max(1, document.documentElement.scrollHeight - H), k = Math.min(1, dt * 2.2);
     look.x += (look.tx - look.x) * k; look.y += (look.ty - look.y) * k;
     cam.pitch += (tgt.pitch - cam.pitch) * Math.min(1, dt * 1.2); cam.gal += (tgt.gal - cam.gal) * Math.min(1, dt * 1.5); cam.sway += (tgt.sway - cam.sway) * Math.min(1, dt);
-    var yaw = sc * Math.PI * 2 * .92 + routeYaw + look.x * .12 + (REDUCED ? 0 : cam.sway * .018 * Math.sin(tsec * .07));
-    var pitch = cam.pitch - look.y * .08 + .12 * Math.sin(sc * Math.PI * 2) + (REDUCED ? 0 : cam.sway * .01 * Math.sin(tsec * .05));
-    cam.yaw += (yaw - cam.yaw) * Math.min(1, dt * 4);
+    var calm = CALM();
+    var yaw = (calm ? 0 : sc * Math.PI * 2 * .92) + routeYaw + (calm ? 0 : look.x * .12) + (calm ? 0 : cam.sway * .018 * Math.sin(tsec * .07));
+    var pitch = cam.pitch + (calm ? 0 : -look.y * .08 + .12 * Math.sin(sc * Math.PI * 2) + cam.sway * .01 * Math.sin(tsec * .05));
+    cam.yaw += (yaw - cam.yaw) * (calm ? 1 : Math.min(1, dt * 4));
     if (dolly >= 0) { dolly += dt / 2.4; var e = Math.min(1, dolly); cam.zoom = 1 + .75 * Math.pow(1 - e, 2) * (e < .08 ? e / .08 : 1); if (dolly >= 1) { dolly = -1; cam.zoom = 1; } }
     rips.forEach(function (r) { if (r.w >= 0) { r.w += dt; if (r.w > 3.2) r.w = -1; } });
     var f = Math.max(W, H) * .66 * cam.zoom;
@@ -156,11 +159,12 @@
     gl.uniform4f(U.uRip, rips[0].x || 0, rips[0].y || 0, rips[0].z || -1, rips[0].w); gl.uniform4f(U.uRip2, rips[1].x || 0, rips[1].y || 0, rips[1].z || -1, rips[1].w);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     if (hud) { var deg = ((cam.yaw * 180 / Math.PI) % 360 + 360) % 360; hud.style.transform = 'translateX(' + (-deg * 2 - 120) + 'px)'; if (hudDeg) hudDeg.textContent = Math.round(deg) + '°'; }
-    var moving = !REDUCED || Math.abs(yaw - cam.yaw) > 1e-4 || dolly >= 0 || rips[0].w >= 0 || rips[1].w >= 0 || Math.abs(look.tx - look.x) > 1e-3;
+    var moving = !calm || Math.abs(yaw - cam.yaw) > 1e-4 || dolly >= 0 || rips[0].w >= 0 || rips[1].w >= 0 || Math.abs(look.tx - look.x) > 1e-3;
     if (moving) kick();
   }
   function kick() { if (!raf) raf = requestAnimationFrame(draw); }
   addEventListener('scroll', kick, { passive: true });
+  addEventListener('kd-calm', kick);
   addEventListener('resize', function () { clearTimeout(size._t); size._t = setTimeout(size, 120); });
   document.addEventListener('visibilitychange', kick);
   cv.addEventListener('webglcontextlost', function (e) { e.preventDefault(); document.documentElement.classList.add('no-sky'); });

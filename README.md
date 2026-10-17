@@ -143,7 +143,7 @@ uvicorn app:app --reload
 ### ทดสอบ
 
 ```
-pytest                          # 1,870+ ข้อ — ไม่ใช้เน็ต ไม่เสียค่า AI (Gemini เป็นตัวปลอม)
+pytest                          # 2,500+ ข้อ — ไม่ใช้เน็ต ไม่เสียค่า AI (Gemini เป็นตัวปลอม)
 python scripts/eval_corpus.py   # วัดผลกับประโยคที่คนพิมพ์จริง 492 ประโยค
 ```
 

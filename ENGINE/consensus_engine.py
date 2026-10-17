@@ -1,9 +1,10 @@
+from math import isfinite as _isfinite
 # ENGINE/consensus_engine.py — KING DIADEM
 # FIX: ลบ circular import decision_engine ออก ใช้ inline logic แทน
 
 def _f(v, d):
     try:
-        return float(v)
+        return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
     except (TypeError, ValueError):
         return d
 

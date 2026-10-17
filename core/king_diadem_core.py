@@ -11,13 +11,14 @@ v2.1 — app.py / INTERFACE/api.py เรียก quick_assess / core_status �
 """
 
 from __future__ import annotations
+from math import isfinite as _isfinite
 
 CORE_VERSION = "2.1"
 
 
 def _f(v, d: float) -> float:
     try:
-        return float(v)
+        return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
     except (TypeError, ValueError):
         return d
 

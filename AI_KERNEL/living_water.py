@@ -173,6 +173,7 @@ def get_response_guidance(signal_level: str, lang: str = "TH") -> dict:
     EMOTIONAL → ปรับ tone ก่อน logic
     CLEAR    → ดำเนินการปกติ
     """
+    signal_level = signal_level if isinstance(signal_level, str) else "CLEAR"   # dict/list เคยทำให้ TypeError
     level_info = SIGNAL_LEVELS.get(signal_level, SIGNAL_LEVELS["CLEAR"])
 
     guidance = {

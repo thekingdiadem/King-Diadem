@@ -3,6 +3,7 @@
 # คำนวณเส้นทางออกจาก context จริง ไม่ใช่ threshold hardcode
 
 from __future__ import annotations
+from math import isfinite as _isfinite
 
 
 def generate_escape_routes(
@@ -17,7 +18,7 @@ def generate_escape_routes(
     ctx        = context if isinstance(context, dict) else {}
     def _f(v, d):
         try:
-            return float(v)
+            return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
         except (TypeError, ValueError):
             return d
     money      = _f(ctx.get("money"),        0)

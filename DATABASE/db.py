@@ -127,6 +127,10 @@ def init_db():
             email TEXT PRIMARY KEY,
             verified_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
+        CREATE TABLE IF NOT EXISTS session_versions (
+            email TEXT PRIMARY KEY,
+            ver INTEGER NOT NULL DEFAULT 0
+        );
     """)
     conn.commit()
     try:
@@ -203,6 +207,28 @@ def verify_password(user_email: str, password: str) -> bool:
         return hmac.compare_digest(got, want)
     except Exception:
         return False
+
+def session_version(user_email: str) -> int:
+    """เลขรุ่นของการล็อกอิน — คุกกี้ที่เซ็นด้วยเลขเก่ากว่านี้ถือว่าออกจากระบบแล้ว"""
+    conn = get_conn()
+    try:
+        row = conn.execute("SELECT ver FROM session_versions WHERE email = ?", (user_email,)).fetchone()
+        return int(row[0]) if row else 0
+    finally:
+        conn.close()
+
+
+def bump_session_version(user_email: str) -> int:
+    """ออกจากระบบ = เพิ่มเลขรุ่น → คุกกี้ทุกใบที่ออกไปก่อนหน้า (รวมที่ถูกคัดลอกไว้) ใช้ไม่ได้ทันที"""
+    conn = get_conn()
+    try:
+        conn.execute("INSERT INTO session_versions (email, ver) VALUES (?, 1) "
+                     "ON CONFLICT(email) DO UPDATE SET ver = ver + 1", (user_email,))
+        conn.commit()
+        return int(conn.execute("SELECT ver FROM session_versions WHERE email = ?", (user_email,)).fetchone()[0])
+    finally:
+        conn.close()
+
 
 def email_verified(user_email: str) -> bool:
     """อีเมลนี้เคยพิสูจน์ความเป็นเจ้าของแล้วหรือยัง (เข้าด้วย Google ที่ยืนยันอีเมล)"""

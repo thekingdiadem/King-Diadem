@@ -3,6 +3,7 @@
 # พี่เขียน logic หลักไว้ดีแล้ว — เพิ่ม wire เข้า emotion_state + input_interpreter + ai_council
 
 from __future__ import annotations
+from math import isfinite as _isfinite
 from dataclasses import dataclass, field
 
 # ── Optional wires ────────────────────────────────────────────────
@@ -306,7 +307,7 @@ def parse_state_from_context(context: dict) -> HumanState:
     context = context if isinstance(context, dict) else {}
     def _f(v, d):
         try:
-            return float(v)
+            return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
         except (TypeError, ValueError):
             return d
     m = context.get("money")

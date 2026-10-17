@@ -19,7 +19,8 @@ def _conn():
     except Exception:
         import sqlite3, os
         path = os.getenv("DB_PATH", "data/king_diadem.db")
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+        if os.path.dirname(path):                 # DB_PATH เป็นชื่อไฟล์เปล่าๆ เคย FileNotFoundError
+            os.makedirs(os.path.dirname(path), exist_ok=True)
         return sqlite3.connect(path, check_same_thread=False)
 
 

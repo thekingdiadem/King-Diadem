@@ -5,6 +5,7 @@ Adaptive stability correction — deterministic ไม่ใช้ random
 DriftZero: ปรับตาม evidence จริง ไม่ใช่ roll dice
 """
 from __future__ import annotations
+from math import isfinite as _isfinite
 import time
 from typing import Optional
 
@@ -21,7 +22,7 @@ def evolve_system(
 
     def _f(v, d):
         try:
-            return float(v)
+            return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
         except (TypeError, ValueError):
             return d
     entropy   = _f(state.get("entropy"),   50)

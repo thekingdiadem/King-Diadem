@@ -13,6 +13,7 @@ KING DIADEM — Yonisomanasikara Engine
 """
 
 from __future__ import annotations
+from math import isfinite as _isfinite
 from typing import Optional
 import re
 import time
@@ -20,7 +21,7 @@ import time
 
 def _f(v, d):
     try:
-        return float(v)
+        return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
     except (TypeError, ValueError):
         return d
 
