@@ -1620,7 +1620,25 @@ def _clip(text) -> str:
     return text if len(text) <= _MAX_LEN else text[:6000] + "\n" + text[-2000:]
 
 
+# เขียนนิยาย/ทำรายงาน/เป็นอาสาสายด่วน — คำว่า "ฆ่าตัวตาย" อยู่ในงาน ไม่ได้อยู่ในใจคนพิมพ์
+# ลดลงเฉพาะเมื่อไม่มีคำแทนตัวเองเลย ("ตัวละครอยากตาย เหมือนฉันตอนนี้" ยังเป็นวิกฤต)
+_WORK_FRAME = re.compile(r"นิยาย|ตัวละคร|บทละคร|เขียนบท|รายงานเรื่อง|ทำรายงาน|งานวิจัย|วิทยานิพนธ์|สถิติ|"
+                         r"ป้องกันการฆ่าตัวตาย|อาสาสมัคร|\b(?:research|paper|essay|thesis|statistics|novel|"
+                         r"character|screenplay|suicide prevention|volunteer)\b", re.I)
+_SELF_REF = re.compile(r"ฉัน|หนู|ผม|เรา|กู|ตัวเอง|เค้า|เขาว่า|อยากตาย|ไม่ไหว|"
+                       r"\b(?:i|i'm|im|me|my|myself|mine)\b(?!\s+(?:volunteer|am (?:writing|researching)|write|study|research|work))", re.I)
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
+    a = _assess_raw(text, pattern)
+    # ไม่ปิดเงียบ — ยังถามไถ่เบาๆ พร้อมเบอร์ 1323 เหมือนกรณี "ขอข้อมูลไปทำรายงาน" ที่มีอยู่แล้ว
+    if a["crisis"] and isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text):
+        a = dict(a, crisis=False, topics=a["topics"] + ["soft_check"], text_risk=45,
+                 risk=min(a["risk"], 45), risk_shown=min(a["risk_shown"], 45))
+    return a
+
+
+def _assess_raw(text: str, pattern: dict | None = None) -> dict:
     """ประเมินข้อความ — ถ้าพิมพ์โดยไม่ใส่วรรณยุกต์ ("ลูกไมหายใจ") ลองฉบับที่เติมวรรณยุกต์ด้วย แล้วใช้ฉบับที่เห็นอันตรายมากกว่า"""
     text = _clip(text)
     a = _assess(text, pattern)
@@ -2067,7 +2085,19 @@ _SOFT_OPEN = {
 }
 
 
+_WORK_OPEN = {
+    "ขอบคุณที่บอกให้ชัดนะ — เข้าใจแล้ว และดีใจที่เล่าให้ฟัง":
+        "เรื่องนี้หนักแม้จะเป็นงานเขียนหรืองานค้นคว้า — ยินดีช่วยนะ และขอฝากไว้เผื่อระหว่างทำแล้วรู้สึกหนักใจเอง",
+    "Thanks for making that clear — got it, and I'm glad you told me.":
+        "Happy to help with the work — it's a heavy subject, so I'll leave a few things here in case it ever feels personal.",
+}
+
+
 def _soften_joking_crisis(text, out):
+    if isinstance(out, str) and isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text):
+        for plain, work in _WORK_OPEN.items():
+            if out.startswith(plain):
+                return work + out[len(plain):]
     if not isinstance(out, str) or not _JOKE_MARK.search(text or "") or _SERIOUS_MARK.search(text or ""):
         return out
     for hard, soft in _SOFT_OPEN.items():
