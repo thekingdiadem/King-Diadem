@@ -307,7 +307,7 @@ TOPICS = [
         ],
         "ask": "ตอนนี้ท่านมีข้าวกินและอยู่ในที่ปลอดภัยไหม?",
     }),
-    ("violence", [re.compile(r"(ถูก|โดน)\S{0,12}?(ทำร้าย(?!ตัวเอง)|ตบ|(?<!ผึ้ง)(?<!แตน)(?<!ต่อ)(?<!มด)(?<!แมลง)ต่อย|เตะ|ทุบ|ตี(?!ความ|กลับ|ราคา))"),
+    ("violence", [re.compile(r"(?<!มวย)(?<!มวยไทย)(?<!ต่อยมวย)(?<!นักมวย)(?<!ซ้อมมวย)(?<!เทควันโด)(?<!คาราเต้)(?<!ยูโด)(?!\S*?(?:บนเวที|ในสนาม|ตอนแข่ง|ตอนซ้อม|ในเกม))(ถูก|โดน)\S{0,12}?(ทำร้าย(?!ตัวเอง)|ตบ|(?<!ผึ้ง)(?<!แตน)(?<!ต่อ)(?<!มด)(?<!แมลง)ต่อย|เตะ|ทุบ|ตี(?!ความ|กลับ|ราคา))"),
                   "ถูกขู่", "โดนขู่", "รู้สึกไม่ปลอดภัย", "อยู่บ้านไม่ปลอดภัย", "ข่มขืน", "ความรุนแรงในบ้าน",
                   "สะกดรอย", "ถูกกักขัง",
                   re.compile(r"(?:ถูก|โดน)\S{0,6}ขัง(?:ไว้|อยู่)?\s*(?:ใน|ไว้)(?!เกม)"), VIOLENCE_BY], {
@@ -1613,10 +1613,16 @@ _DENGUE_WARN = re.compile(r"ไข้เลือดออก[^\n]{0,30}?(?:เ�
 _MAX_LEN = 8000
 
 
+_RUN = re.compile(r"(.)\1{12,}", re.S)
+
+
 def _clip(text) -> str:
     """ข้อความยาวมาก (80,000 ตัวอักษรเคยใช้ 1.5–3.5 วินาที) — ตรวจหัว 6,000 + ท้าย 2,000 ตัวอักษร
     เรื่องด่วนมักอยู่ต้นหรือท้ายข้อความ จึงไม่ตัดท้ายทิ้ง"""
     text = text if isinstance(text, str) else str(text or "")
+    # ตัวอักษรเดียวซ้ำยาวๆ ("กกกก…" หลายพันตัว) ทำให้ตรวจช้า 1–2 วินาทีต่อข้อความ — ย่อเหลือ 12 ตัว
+    # (ยังพอให้ "55555" "ๆๆ" "!!!!" อ่านความหมายได้เหมือนเดิม)
+    text = _RUN.sub(lambda m: m.group(1) * 12, text) if len(text) > 200 else text
     return text if len(text) <= _MAX_LEN else text[:6000] + "\n" + text[-2000:]
 
 
@@ -1629,8 +1635,18 @@ _SELF_REF = re.compile(r"ฉัน|หนู|ผม|เรา|กู|ตัว�
                        r"\b(?:i|i'm|im|me|my|myself|mine)\b(?!\s+(?:volunteer|am (?:writing|researching)|write|study|research|work))", re.I)
 
 
+# "ฝันว่าจมน้ำ/รถชน/ระเบิดลง" = เล่าความฝัน ไม่ใช่เหตุตอนนี้ — แต่ความคิดอยากตายยังนับเสมอ
+# และถ้าตื่นมาแล้วมีอาการจริง ("ฝันร้ายแล้วตื่นมาเจ็บหน้าอก") ไม่ลด
+_DREAM = re.compile(r"^\s*(?:เมื่อคืน|คืนก่อน|เมื่อวาน)?\s*(?:ฉัน|หนู|ผม|เรา)?\s*ฝัน(?:ว่า|เห็น)|^\s*(?:last night )?i (?:dreamt|dreamed|had a dream)\b", re.I)
+_WOKE_REAL = re.compile(r"ตื่น(?:มา|ขึ้นมา)|ตอนนี้|\b(?:woke up|now|right now)\b", re.I)
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
     a = _assess_raw(text, pattern)
+    if not a["crisis"] and a["text_risk"] >= 35 and isinstance(text, str) and _DREAM.search(text) \
+            and not _WOKE_REAL.search(text):
+        return dict(a, text_risk=0, risk=min(a["risk"], 20), risk_shown=0, disaster=None,
+                    topics=[t for t in a["topics"] if t in ("positive", "soft_check")])
     # ไม่ปิดเงียบ — ยังถามไถ่เบาๆ พร้อมเบอร์ 1323 เหมือนกรณี "ขอข้อมูลไปทำรายงาน" ที่มีอยู่แล้ว
     if a["crisis"] and isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text):
         a = dict(a, crisis=False, topics=a["topics"] + ["soft_check"], text_risk=45,
