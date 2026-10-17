@@ -86,3 +86,9 @@ def test_calm_mode_stops_scroll_spin_and_is_remembered():
 
 def test_language_list_is_folded_away():
     assert '<details class="lang-more">' in PAGE
+
+
+def test_suggestion_buttons_bind_to_real_class():
+    """index.html เคยผูกปุ่มคำแนะนำกับ #sugg ซึ่งไม่มีในหน้า (ใช้ class .sugg) — ปุ่มที่เพิ่มทีหลังจะกดไม่ติด"""
+    idx = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+    assert "$$('#sugg button')" not in idx and "$$('.sugg button')" in idx
