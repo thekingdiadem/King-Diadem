@@ -48,7 +48,8 @@ def test_web_assets_follow_what_pages_load():
     assert rows["static/universe_sky.js"][2] == "web"
     assert "static/galaxy_scene.js" not in rows
     assert rows["static/i18n.js"][2] == "web"
-    assert rows["static/ai_brain.js"][2] == "legacy"      # ไม่มีหน้าไหนโหลด
+    for gone in ("ai_brain.js", "galaxy_scene_api.js", "main.js", "app.js", "decision.js", "ai_thinking.js"):
+        assert f"static/{gone}" not in rows                 # ไม่มีหน้าไหนหรือแกลเลอรีโหลด — ลบแล้ว (พี่อนุญาต)
 
 
 def test_script_loaded_from_js_counts_as_used():
@@ -88,5 +89,4 @@ def test_gallery_and_asset_files_are_classified_by_real_use():
     assert rows["static/galaxy.js"][2] == "site" and "แกลเลอรี" in rows["static/galaxy.js"][3]
     assert rows["static/hero.jpg"][2] == "web" and rows["static/icons/icon-192.png"][2] == "web"
     assert rows["static/service-worker.js"][2] == "web"           # เสิร์ฟโดย app.py ที่ /service-worker.js
-    assert rows["static/app.js"][2] == "legacy"                    # ถูกพูดถึงแค่ในคอมเมนต์ของ app.py
-    assert rows["static/main.js"][2] == "legacy"
+    assert rows["static/warp_intro.js"][2] == "site"              # ยังใช้ในแกลเลอรี — เก็บไว้
