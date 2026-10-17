@@ -132,13 +132,22 @@
     };
     img.src = base + 'earth/' + file;
   }
-  var can4k = gl.getParameter(gl.MAX_TEXTURE_SIZE) >= 4096 && !(navigator.connection && navigator.connection.saveData);
+  var conn = navigator.connection || {};
+  var can4k = gl.getParameter(gl.MAX_TEXTURE_SIZE) >= 4096 && !conn.saveData;
+  // มือถือ/เครื่องแรมน้อย/เน็ตช้า: ภาพ 4K (ราว 2.6 MB) ยังไม่โหลดจนกว่าจะซูมเข้าไปดูจริง — ทั้งโลกภาพ 2K ก็คมพอบนจอเล็ก
+  var light = Math.min(screen.width, screen.height) < 700 || (navigator.deviceMemory || 8) <= 4 || /2g|3g/.test(conn.effectiveType || '');
+  var got4k = false, firstIn = false;
+  function maybe4k() {
+    if (got4k || !firstIn || !can4k || (light && S.tmag < 2)) return;
+    got4k = true;
+    load(0, 'lights_4k.jpg'); load(1, 'day_4k.jpg'); load(2, 'clouds_4k.jpg');      // 4K หลังภาพแรกขึ้นแล้ว — เน็ตช้าไม่ต้องรอ
+  }
   function firstDone() {
     if (--pending > 0) return;
     wrap.classList.add('lit');
     load(3, 'water.png', function () { hasW = 1; });
-    if (!can4k) return;
-    load(0, 'lights_4k.jpg'); load(1, 'day_4k.jpg'); load(2, 'clouds_4k.jpg');      // 4K หลังภาพแรกขึ้นแล้ว — เน็ตช้าไม่ต้องรอ
+    firstIn = true;
+    maybe4k();
   }
   load(0, 'lights.jpg', firstDone); load(1, 'day.jpg', firstDone); load(2, 'clouds.jpg', firstDone);
 
@@ -171,6 +180,7 @@
     for (var k in o) S['t' + k] = o[k];
     if (calm()) { S.lon = S.tlon; S.lat = S.tlat; S.zoom = S.tzoom; S.mag = S.tmag; }
     idleUntil = performance.now() + 8000;
+    maybe4k();
     kick();
   }
   window.KD_earth = {
@@ -193,6 +203,8 @@
   function frame(now) {
     raf = 0;
     if (document.hidden || !visible) { last = 0; return; }
+    // เครื่องเบา: ตอนลอยเองไม่มีใครแตะ วาด ~30 ภาพ/วินาทีพอ — ประหยัดแบตและไม่ร้อน
+    if (light && !drag && last && now - last < 30) { kick(); return; }
     var dt = last ? Math.min(.05, (now - last) / 1000) : .016; last = now;
     var still = calm();
     if (!still) tsec += dt;
