@@ -74,3 +74,9 @@ def test_long_repeated_spam_is_fast_and_still_urgent():
     assert time.time() - s < 0.5
     assert a["text_risk"] >= 50
     assert assess("ขำ 5555555555555555555555 " + "x" * 300)["text_risk"] < 35
+
+
+def test_lone_surrogate_does_not_crash():
+    """JSON '\\ud800' (อักขระครึ่งตัว) เคยทำให้ /api/kernel/preview ตอบ 500"""
+    from core.kernel_voice import compose
+    assert compose("hi \ud800 x") and assess("แม่หายใจไม่ได้ \udfff")["text_risk"] >= 50
