@@ -1092,10 +1092,16 @@ async def google_callback(request: Request):
         return RedirectResponse("/static/login.html?error=oauth_error")
 
 
+def _safe_name(v) -> str:
+    """ชื่อที่แสดง — เป็นข้อความธรรมดา ≤ 80 ตัว ไม่มีอักขระ HTML/ควบคุม (เดิมส่งคืนจากคุกกี้ตามที่ได้มา เช่น "<script>")"""
+    v = str(v or "")
+    return re.sub(r"[<>\"'`\x00-\x1f\x7f]", "", v).strip()[:80]
+
+
 @app.get("/me")
 async def me(request: Request):
     email = _session_email(request)
-    name  = unquote(request.cookies.get("kd_name")  or "")
+    name  = _safe_name(unquote(request.cookies.get("kd_name")  or ""))
     if not email:
         q = _quota_status("", request)
         return {"logged_in": False, "free_left": q["free_left"], "free_limit": q["free_limit"]}
@@ -1165,7 +1171,7 @@ async def login_email(request: Request, data: dict):
     if ensure_user: ensure_user(email)
     credits = get_credits(email) if get_credits else 0
     r = JSONResponse({"status": "ok", "email": email, "credits": credits})
-    _set_auth_cookies(r, email, (str(data.get("name") or "").strip() or email)[:80])
+    _set_auth_cookies(r, email, _safe_name(data.get("name")) or email[:80])
     return r
 
 
@@ -1420,7 +1426,7 @@ def run_kernel(request: Request, data: dict):
     if not isinstance(user_input, str):
         user_input = str(user_input)
     if not user_input.strip():
-        return {"error": "พิมพ์ข้อความก่อนนะคะ"}
+        return JSONResponse({"error": "พิมพ์ข้อความก่อนนะคะ"}, status_code=400)   # เดิม 200 — ไม่ตรงกับ endpoint อื่น
     # เดิมไม่จำกัดความยาว — ข้อความ 1MB ถูกส่งเข้า LLM (ค่าใช้จ่าย) และเก็บลง log ทั้งก้อน
     if len(user_input) > _MAX_INPUT_CHARS:
         return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร — ลองสรุปให้สั้นลงนะคะ"},
@@ -2194,13 +2200,16 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
 # ── SIMULATE ──────────────────────────────────────────────────────
 @app.post("/simulate")
 def run_simulate(request: Request, data: dict):
-    user_input = str(data.get("input") or "").strip()
+    raw        = data.get("input")
+    if raw is not None and not isinstance(raw, str):        # เดิม 123 ถูกแปลงเป็นข้อความ "123" แล้วตอบไปจริงจัง
+        return JSONResponse({"error": "ข้อความต้องเป็นตัวอักษรนะคะ"}, status_code=400)
+    user_input = (raw or "").strip()
     paths      = data.get("paths") or []
-    # ทางเลือกสูงสุด 7 ทาง ทางละ ≤ 300 ตัวอักษร — เดิมไม่จำกัดทั้งจำนวนและความยาว (ส่งเข้า LLM ทั้งหมด)
-    paths      = [str(p)[:300] for p in (paths if isinstance(paths, list) else [])][:7]
+    # ทางเลือกสูงสุด 7 ทาง ทางละ ≤ 300 ตัวอักษร · รับเฉพาะข้อความ (เดิม {"a":1} ถูกพิมพ์เป็น repr ของ Python ในคำตอบ)
+    paths      = [p.strip()[:300] for p in (paths if isinstance(paths, list) else []) if isinstance(p, str) and p.strip()][:7]
     email      = _session_email(request, "anonymous")
     if not user_input:
-        return {"simulation": "พิมพ์สถานการณ์ก่อนนะคะ"}
+        return JSONResponse({"simulation": "พิมพ์สถานการณ์ก่อนนะคะ", "error": "พิมพ์สถานการณ์ก่อนนะคะ"}, status_code=400)
     if len(user_input) > _MAX_INPUT_CHARS:
         return JSONResponse({"error": f"ข้อความยาวเกิน {_MAX_INPUT_CHARS} ตัวอักษร ลองสรุปให้สั้นลงนะคะ"}, status_code=413)
     if not _rate_check(email if email != "anonymous" else _client_ip(request)):

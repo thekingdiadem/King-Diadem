@@ -6,12 +6,13 @@
 #   WATERLINE → TITAN (พื้นขั้นต่ำ) · HALT → PATICCA (เหตุปัจจัยซ้อนจนใกล้ล่ม) · FATE → LYLA (Choice(t))
 
 from __future__ import annotations
+from math import isfinite as _isfinite
 
 
 def _f(v, d: float) -> float:
     """แปลงเป็นตัวเลขแบบไม่ล้ม — None/ข้อความ → ค่าเริ่มต้น"""
     try:
-        return float(v)
+        return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
     except (TypeError, ValueError):
         return d
 

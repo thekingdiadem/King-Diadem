@@ -379,7 +379,10 @@ def _build_payload(data: dict) -> dict:
     for k in ("entropy", "resource", "stability"):
         if k in out:
             try:
-                out[k] = max(0.0, min(100.0, float(out[k])))
+                v = float(out[k])
+                if v != v or v in (float("inf"), float("-inf")):
+                    raise ValueError   # "nan" เคยผ่าน min/max กลายเป็น 100 → ข้อความธรรมดาถูกส่งไปทาง survival
+                out[k] = max(0.0, min(100.0, v))
             except (TypeError, ValueError):
                 out.pop(k)          # ค่าที่ไม่ใช่ตัวเลขจาก client เดิมทำให้ /run ล้ม (500)
 

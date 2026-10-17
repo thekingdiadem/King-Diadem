@@ -6,6 +6,7 @@ FATE™ Axiom 4: Downside before Upside
 """
 
 from __future__ import annotations
+from math import isfinite as _isfinite
 from typing import Optional
 
 
@@ -31,6 +32,15 @@ def survival_advisor(
     คำนวณ survival score จาก inputs จริง
     ไม่ใช้ hardcode score -= 20 แบบ flat
     """
+    # nan/None/ข้อความ เคยทำให้ผลเป็น "STABLE 100" (ทุกการเทียบกับ nan เป็นเท็จ) หรือล้มทั้งฟังก์ชัน
+    def _n(v, d):
+        try:
+            x = float(v)
+        except (TypeError, ValueError):
+            return d
+        return x if x == x and abs(x) != float("inf") else d
+    food, money, risk, energy = _n(food, 0.0), _n(money, 0.0), _n(risk, 50.0), _n(energy, 50.0)
+    network = int(_n(network, 1))
     score    = 100.0
     actions  = []
     warnings = []
@@ -165,7 +175,7 @@ def advise(pattern: dict) -> dict:
 
     def _f(v, d):
         try:
-            return float(v)
+            return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
         except (TypeError, ValueError):
             return d
 

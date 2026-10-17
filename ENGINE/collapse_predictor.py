@@ -1,3 +1,4 @@
+from math import isfinite as _isfinite
 # ENGINE/collapse_predictor.py
 # KING DIADEM Collapse Predictor
 #
@@ -10,7 +11,7 @@
 
 def _f(v, d):
     try:
-        return float(v)
+        return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
     except (TypeError, ValueError):
         return d
 

@@ -5,6 +5,7 @@ Orchestration layer — wire ทุก engine เข้าด้วยกัน
 Safe imports — ไม่ crash ถ้า module ยังไม่พร้อม
 """
 from __future__ import annotations
+from math import isfinite as _isfinite
 import time
 
 # ── Safe imports ──────────────────────────────────────────────────
@@ -105,7 +106,7 @@ def _guard_fallback(packet: dict) -> dict:
 # ── Normalize ─────────────────────────────────────────────────────
 def _f(v, d):
     try:
-        return float(v)
+        return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
     except (TypeError, ValueError):
         return d
 

@@ -15,11 +15,12 @@ ENGINE/bodhipakkhiya_engine.py — โพธิปักขิยธรรม 37
 """
 
 from __future__ import annotations
+from math import isfinite as _isfinite
 
 
 def _f(v, d: float) -> float:
     try:
-        return float(v)
+        return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
     except (TypeError, ValueError):
         return d
 

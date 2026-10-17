@@ -5,6 +5,7 @@ FATE™ Axiom E3: Stabilize before Optimize
 DriftZero: ห้ามขยายระบบขณะ waterline ยังไม่นิ่ง
 """
 from __future__ import annotations
+from math import isfinite as _isfinite
 from typing import Optional
 import time
 
@@ -18,7 +19,7 @@ def plan(
     pattern   = pattern if isinstance(pattern, dict) else {}
     def _f(v, d):
         try:
-            return float(v)
+            return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
         except (TypeError, ValueError):
             return d
     entropy   = _f(pattern.get("entropy"),   40)

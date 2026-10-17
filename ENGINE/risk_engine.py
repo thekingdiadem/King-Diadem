@@ -3,6 +3,7 @@
 # เพิ่ม assess(pattern) ให้ตรงกับที่ app.py และ engine_router เรียก
 # คง evaluate_risk(text) ไว้เพื่อ backward compat
 from __future__ import annotations
+from math import isfinite as _isfinite
 import re
 from core.thai_signals import (normalize_mixed, reported_clauses, NOT_WANT_TO_LIVE, NO_MONEY_ESSENTIAL, RECUR_AFTER, SELF_HARM_INDIRECT, SELF_HARM_WARNING, SELF_INJURY,
                                OVERDOSE, THIRD_PARTY_CRISIS, strip_third_party, strip_pet_poison, has as _has)
@@ -27,7 +28,7 @@ _URGENT    = ("ด่วน", "เดี๋ยวนี้", "ทันที", 
 
 def _f(v, d):
     try:
-        return float(v)
+        return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
     except (TypeError, ValueError):
         return d
 
@@ -93,9 +94,10 @@ def assess(pattern: dict) -> dict:
     """
     if not isinstance(pattern, dict):
         pattern = {}
-    entropy   = _f(pattern.get("entropy"),   40)
-    resource  = _f(pattern.get("resource"),  50)
-    stability = _f(pattern.get("stability"), 60)
+    clamp = lambda x: max(0.0, min(100.0, x))      # 1e9 เคยทำให้ risk_score ออกมา 500,000,025
+    entropy   = clamp(_f(pattern.get("entropy"),   40))
+    resource  = clamp(_f(pattern.get("resource"),  50))
+    stability = clamp(_f(pattern.get("stability"), 60))
     risk_score = entropy * 0.5 + (100.0 - resource) * 0.5
     if risk_score >= 75:
         level = "CRITICAL"

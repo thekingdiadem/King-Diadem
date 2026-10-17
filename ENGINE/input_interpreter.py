@@ -4,6 +4,7 @@
 # ไม่ใช่ if "น้อย" return 50
 
 from __future__ import annotations
+from math import isfinite as _isfinite
 import re
 
 
@@ -25,7 +26,7 @@ def _longest_first(d: dict) -> list:
 
 def _num(v, d: float) -> float:
     try:
-        return float(v)
+        return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
     except (TypeError, ValueError):
         m = re.search(r"-?\d+(?:\.\d+)?", str(v or "").replace(",", ""))
         return float(m.group(0)) if m else d

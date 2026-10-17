@@ -5,6 +5,7 @@
 # ไม่ใช่ศาสนา — คือ Causal Operating System
 # ============================================================
 
+from math import isfinite as _isfinite
 import re
 
 try:
@@ -96,7 +97,7 @@ _NO_SIGNAL = {"root": "ignorance", "feeling": "neutral", "intensity_weight": 0.5
 
 def _f(v, d):
     try:
-        return float(v)
+        return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
     except (TypeError, ValueError):
         return d
 
