@@ -7,3 +7,11 @@ __pycache__/
 
 # ไฟล์ส่วนตัวที่ไม่ขึ้น repo สาธารณะ (เช่นรูปโปรไฟล์ผู้สร้าง — ส่งผ่าน KD_PROFILE_IMAGE)
 private/
+
+# กุญแจและรหัสลับ — ห้ามขึ้น repo เด็ดขาด (ตั้งใน Render → Environment แทน)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+service-account*.json
