@@ -317,7 +317,7 @@ SCAM_SCRIPT_EN = re.compile(
     r"\b(?:asked|asking|wants?)\b[^\n]{0,12}?\bfor my (?:social security|ssn|bank (?:login|password)|card (?:number|pin)|cvv)\b|"
     r"\b(?:install|download)\b[^\n]{0,6}?\b(?:anydesk|teamviewer|remote access|ultraviewer)\b[^\n]{0,30}?\b(?:fix|refund|help|support|virus|computer|account)\b|"
     r"\b(?:from|is) (?:microsoft|apple|amazon|windows) (?:support|security|tech)?\b[^\n]{0,30}?\b(?:virus|hacked|refund|locked|problem)\b|"
-    r"\b(?:irs|tax office|fbi|social security administration|customs)\b[^\n]{0,30}?\b(?:pay|warrant|arrest|gift card|suspend)\b|"
+    r"\b(?:irs|tax office|fbi|social security administration|customs)\b[^\n]{0,30}?\b(?:pay|warrant|arrest|gift ?cards?|suspend)\b|"
     r"\bwarrant\b[^\n]{0,12}?\b(?:for )?my arrest\b[^\n]{0,24}?\b(?:unless|pay|fine)\b|"
     r"\b(?:bank )?account\b[^\n]{0,4}?\b(?:is|was|has been) (?:frozen|suspended|locked)\b[^\n]{0,40}?\b(?:click|link|verify)\b|"
     r"\b(?:won|winner of)\b[^\n]{0,20}?\b(?:lottery|prize|sweepstakes|jackpot)\b[^\n]{0,30}?\b(?:pay|fee|tax|send)\b|"
@@ -553,7 +553,7 @@ FIRST_AID = re.compile(
     r"ตา\S{0,4}?(?:โดน|เข้า)?\S{0,2}?(?:สารเคมี|น้ำยา|ปูน|โซดาไฟ|กรด|คลอรีน)|(?:สารเคมี|น้ำยา|ปูน|โซดาไฟ|กรด|คลอรีน)\S{0,10}?เข้าตา|"
     r"\b(?:snake ?bite|dog bite|electric shock|car crash)\b|\bburn(?:ed|t)? (?:my|his|her|their) (?:hand|arm|leg|face|finger|foot|feet|skin|back|chest|neck|body|lip|mouth)s?\b|"
     r"\bcut off (?:a |his |her |my |their )?(?:finger|toe|thumb|hand)s?\b|\b(?:finger|toe|thumb)s? (?:was |got )?(?:cut off|severed|chopped off)\b|"
-    r"\bhit (?:his|her|my|their) head\b|\bburn(?:ed|t) (?:with|by) (?:boiling|hot) (?:water|oil)\b|\bscald(?:ed|ing)?\b|\belectrocuted\b|"
+    r"\bhit (?:his|her|my|their) head\b(?![^\n]{0,40}?\b(?:small|tiny|little|minor|just a|slight)\b)|\bburn(?:ed|t) (?:with|by) (?:boiling|hot) (?:water|oil)\b|\bscald(?:ed|ing)?\b|\belectrocuted\b|"
     r"\b(?:chemicals?|bleach|acid|cleaner|lime) (?:in|into|splashed in(?:to)?) (?:his|her|my|their|the) eyes?\b|"
     r"\b(?:broke|broken|fractured) (?:my |his |her )?(?:arm|leg|wrist|ankle|bone|hip)\b|\bbitten by (?:a |my )?(?:dog|snake|cat|monkey)\b|\bhit by a car\b",
     re.I,

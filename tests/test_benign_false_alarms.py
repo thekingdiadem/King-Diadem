@@ -11,12 +11,16 @@ BENIGN = [
     "ทดลองระบบเตือนภัยสึนามิวันนี้",
     "earthquake drill at school tomorrow",
     "the movie had a shooting scene",
+    "มวยไทยโดนเตะล้มบนเวที",
+    "I'm going to the shooting range this weekend",
+    "I hit my head on the cupboard, small bump",
 ]
 REAL = [
     "พ่อโดนยิงที่ขา", "ยายตกตึก", "dad is having a heart attack",
     "ตัวละครในนิยายอยากตาย เหมือนฉันตอนนี้",
     "I am writing a novel but honestly I want to kill myself",
     "this is not a drill, earthquake now", "มีคนยิงกันหน้าบ้าน",
+    "โดนเตะที่ท้อง", "I hit my head and now I am vomiting", "there was a shooting at the mall",
 ]
 
 
@@ -43,3 +47,8 @@ def test_work_frame_opener_fits_the_request():
     from core.kernel_voice import compose
     assert compose("research paper on self-harm statistics").startswith("Happy to help with the work")
     assert compose("เขียนนิยาย ตัวละครฆ่าตัวตาย ช่วยเกลาให้หน่อย").startswith("เรื่องนี้หนักแม้จะเป็นงานเขียน")
+
+
+def test_irs_gift_cards_plural_is_scam():
+    """'gift cards' (พหูพจน์) เคยหลุด เพราะรูปแบบเดิมรู้จักแค่ 'gift card'"""
+    assert assess("someone called saying I owe the IRS and need gift cards")["scam"]
