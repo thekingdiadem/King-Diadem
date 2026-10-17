@@ -10,9 +10,9 @@
    ================================================================ */
 'use strict';
 
-var CACHE = 'kd-v4';
+var CACHE = 'kd-v5';   // v5: โลโก้มงกุฎใหม่ — เครื่องที่ติดตั้งแอปไว้จะได้ไอคอนใหม่
 var OFFLINE = '/static/offline.html';
-var PRECACHE = ['/', OFFLINE, '/static/manifest.json', '/static/icons/icon-192.png', '/static/i18n.js'];
+var PRECACHE = ['/', OFFLINE, '/static/manifest.json', '/static/icons/icon-192.png', '/static/logo.svg', '/static/i18n.js'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(
