@@ -457,7 +457,7 @@ html.kd-calm .hud,html.kd-calm .hud-deg{display:none}
     <div class="sim-note">⚠ ระบบนี้ไม่วาดเกินจริง — output คำนวณจากเจตนา + waterline + FATE™ axiom เท่านั้น มนุษย์ตัดสินใจเสมอ</div>
 
     <div class="intent-label">เจตนาของคุณคืออะไร — พิมพ์ตามตรง</div>
-    <textarea class="intent-input" id="intent-text" placeholder="เช่น: อยากเริ่มธุรกิจ / กำลังเป็นหนี้ / ต้องการเปลี่ยนงาน / ครอบครัวมีปัญหา / อยากหาทางออก..."></textarea>
+    <textarea class="intent-input" id="intent-text" aria-label="เล่าเรื่องที่กำลังตัดสินใจ" placeholder="เช่น: อยากเริ่มธุรกิจ / กำลังเป็นหนี้ / ต้องการเปลี่ยนงาน / ครอบครัวมีปัญหา / อยากหาทางออก..."></textarea>
 
     <div class="slider-group">
       <div class="slider-item">
@@ -707,8 +707,10 @@ function runLocalSimulation(){
   document.getElementById('rm-waterline').innerHTML = {above:'ABOVE',near:'NEAR',below:'BELOW'}[wl];
   document.getElementById('rm-urgency').innerHTML = URGENCY_LABELS[urgency]||urgency;
 
+  // ข้อความทางเลือกตอนนี้มาจากแม่แบบในหน้าเว็บ — escape ไว้ก่อน เผื่อวันหนึ่งดึงมาจากเซิร์ฟเวอร์/ผู้ใช้
+  var esc = function(v){ return String(v==null?'':v).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
   var pathsHtml = paths.map(function(p){
-    return '<div class="path-item"><div class="path-letter">'+p.letter+'</div><div><div class="path-text">'+p.text+'</div><div class="path-score">Viability: '+p.score+'/100 · domain: '+domain.toUpperCase()+'</div></div></div>';
+    return '<div class="path-item"><div class="path-letter">'+esc(p.letter)+'</div><div><div class="path-text">'+esc(p.text)+'</div><div class="path-score">Viability: '+p.score+'/100 · domain: '+domain.toUpperCase()+'</div></div></div>';
   }).join('');
   document.getElementById('result-paths').innerHTML = pathsHtml;
   document.getElementById('fate-note').textContent = fateNote;
