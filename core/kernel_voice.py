@@ -2052,10 +2052,35 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
 _STEP_LINE = re.compile(r"(?m)^\d+\)\s+\S")
 
 
+# "อยากตาย 555" / "I want to die 😂" — มักพูดเล่น แต่บางคนใช้หัวเราะกลบความจริง
+# จึงยังให้เบอร์ช่วยเหลือครบเหมือนเดิม เปลี่ยนแค่ประโยคเปิดให้ถามไถ่เบาๆ ไม่ตกใจใส่
+_JOKE_MARK = re.compile(r"5{3,}|ฮ่า{2,}|ขำ|😂|🤣|😆|😅|\b(?:lol|lmao|haha+|jk)\b", re.I)
+_SERIOUS_MARK = re.compile(r"เม็ด|เชือก|กระโดด|ตึก|มีด|กรีด|ปืน|จดหมาย|ลาก่อน|คืนนี้|วันนี้แหละ|"
+                           r"pills?|rope|jump|bridge|knife|cut|gun|goodbye|tonight|note|plan", re.I)
+_SOFT_OPEN = {
+    "ฉันได้ยินสิ่งที่คุณพูดนะคะ และดีใจที่คุณพิมพ์มา":
+        "อ่านแล้วเหมือนพูดขำๆ นะคะ แต่ขอถามจริงๆ สักนิด — ช่วงนี้เหนื่อยหรือหนักใจอยู่หรือเปล่า "
+        "ถ้าแค่ล้อเล่นก็ไม่เป็นไรเลย แต่ถ้ามีส่วนไหนที่จริงอยู่ เก็บข้อความนี้ไว้นะคะ",
+    "I hear you, and I'm glad you wrote to me.":
+        "That sounds like it might be a joke — and if it is, that's okay. But I want to check gently: "
+        "are things feeling heavy lately? If any part of it is real, please keep this:",
+}
+
+
+def _soften_joking_crisis(text, out):
+    if not isinstance(out, str) or not _JOKE_MARK.search(text or "") or _SERIOUS_MARK.search(text or ""):
+        return out
+    for hard, soft in _SOFT_OPEN.items():
+        if out.startswith(hard):
+            return soft + out[len(hard):]
+    return out
+
+
 def compose(text: str, *args, **kw) -> str:
     """คำตอบแบบไม่มี AI · ภาษาอื่นนอกจากไทย: Choice(t) ต้องเท่ากับจำนวนทางที่พิมพ์จริง
     (เดิม "My husband hits me" แสดง Choice(t) = 4 แต่มีแค่ 3 ข้อ เพราะตั้งค่าตายตัวไว้ก่อนเลือกชุดคำตอบ)"""
     out = _compose(text, *args, **kw)
+    out = _soften_joking_crisis(text, out)
     if isinstance(out, str) and detect_lang(text) != "th":
         n = len(_STEP_LINE.findall(out))
         if n:
