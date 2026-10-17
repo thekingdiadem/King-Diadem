@@ -933,11 +933,11 @@ def get_feedback_stats():
 @app.get("/dashboard")
 async def dashboard():
     try:    status   = planetary_status() if planetary_status else {}
-    except: status   = {}
+    except Exception: status   = {}
     try:    learning = get_learning()     if get_learning     else []
-    except: learning = []
+    except Exception: learning = []
     try:    nodes    = get_nodes()        if get_nodes        else []
-    except: nodes    = []
+    except Exception: nodes    = []
     return {
         "observer":  "KING DIADEM",
         "planetary": status,
@@ -1220,7 +1220,7 @@ async def get_chat_state(request: Request):
     if not raw:
         return {"state": None}
     try:    return {"state": json.loads(raw)}
-    except: return {"state": None}
+    except Exception: return {"state": None}
 
 
 @app.put("/api/chat-state")

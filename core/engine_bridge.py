@@ -627,8 +627,11 @@ def _disaster(text: str) -> dict | None:
 # ── 6. คิดเลขที่ผู้ใช้ถาม (ENGINE/tool_executor) ─────────────────────────
 # ต้องมีทั้งนิพจน์ (ตัวเลข เครื่องหมาย ตัวเลข) และคำถามหาผล — "24/7" "1-2 วัน" "50/50" ไม่ใช่โจทย์
 # ลบต้องมีช่องว่างทั้งสองข้าง ("25000 - 18000") — "1-2 วัน" เป็นช่วง ไม่ใช่โจทย์
-_CALC_EXPR = re.compile(r"(?<![\d/.])\d[\d,]*(?:\.\d+)?(?:(?:\s*[+×x*÷]\s*|\s+-\s+)\d[\d,]*(?:\.\d+)?)+(?![\d/])")
+_CALC_EXPR = re.compile(r"(?:(?<=\s)|^)-?(?<![\d/.])\d[\d,]*(?:\.\d+)?(?:(?:\s*[+×x*÷]\s*|\s+-\s+)\d[\d,]*(?:\.\d+)?)+(?![\d/])")
 _CALC_ASK = re.compile(r"เท่าไหร่|เท่าไร|เท่าใด|ได้เท่า|ทั้งหมดกี่|รวมกี่|คิดยังไง|ช่วยคิด|ช่วยคำนวณ|คำนวณ|=\s*\?|=\s*$|how much", re.I)
+
+
+_PCT_OF = re.compile(r"(\d+(?:\.\d+)?)\s*(?:%|เปอร์เซ็นต์|เปอร์เซ็น)\s*(?:ของ|จาก|of)\s*(\d[\d,]*(?:\.\d+)?)", re.I)
 
 
 def _fmt(v: float) -> str:
@@ -643,13 +646,24 @@ def _calc(text: str) -> dict | None:
     except Exception:  # pragma: no cover
         return None
     lines, results = [], []
+    # "ดอกเบี้ย 2.5% ของ 100,000 เท่าไหร่" — เปอร์เซ็นต์ของจำนวน (ส่วนลด ดอกเบี้ย ภาษี) เดิมไม่ได้คำตอบ
+    for m in list(_PCT_OF.finditer(text))[:2]:
+        pct, base = float(m.group(1)), float(m.group(2).replace(",", ""))
+        v = pct * base / 100
+        line = f"คิดเลข: {m.group(1)}% ของ {m.group(2)} = {_fmt(v)}"
+        if re.search(r"ลด|ส่วนลด|discount|off", text, re.I) and re.search(r"เหลือ|จ่าย|ราคา|left|pay", text, re.I):
+            line += f" → เหลือ {_fmt(base - v)}"                      # "ลด 20% จาก 1,500 เหลือเท่าไหร่"
+        lines.append(line)
+        results.append(v)
     for m in list(_CALC_EXPR.finditer(text))[:3]:
         raw = m.group(0)
         expr = raw.replace(",", "").replace("×", "*").replace("x", "*").replace("÷", "/")
         r = _safe_calc(expr)
         if "result" not in r:
+            if r.get("error") == "หารด้วยศูนย์":                     # "100 ÷ 0" เคยเงียบไปเฉยๆ
+                lines.append(f"คิดเลข: {raw.strip()} — หารด้วยศูนย์ไม่ได้ค่ะ")
             continue
-        shown = re.sub(r"\s*([+×x*÷-])\s*", lambda o: " " + {"x": "×", "*": "×", "÷": "÷"}.get(o.group(1), o.group(1)) + " ", raw)
+        shown = re.sub(r"(?<=\d)\s*([+×x*÷-])\s*", lambda o: " " + {"x": "×", "*": "×", "÷": "÷"}.get(o.group(1), o.group(1)) + " ", raw)
         lines.append(f"คิดเลข: {shown.strip()} = {_fmt(float(r['result']))}")
         results.append(r["result"])
     return {"lines": lines, "data": {"results": results}} if lines else None
