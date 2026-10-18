@@ -511,6 +511,7 @@ nav::after {
 @media(prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
+  a.tel{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px}
 </style>
 <link rel="stylesheet" href="/static/cinema.css">
 </head>
@@ -575,6 +576,9 @@ nav::after {
       document.getElementById('error-block').style.display = 'block';
     });
 
+  /* เบอร์สายด่วนในคำตอบ → แตะโทรได้ (รายการเดียวกับหน้าแชต static/index.html — test_tap_to_call เช็กว่าตรงกัน) */
+  var HOTLINES = /(^|[^\d\w.\/:-])(191|1669|1323|1300|1367|1784|1650|1599|1155|1111|1441|1213|1195|1387|1506|1330|1192|1567|1586|1543|1413|1165|1600|1663|1546|1694|1166|1167|1186|1205|1207|1362|1366|1570|199|911|988|112|999|016|101|102|103|108|109|110|113|115|116|119|124|142|155|158|166|188|190|192|194|1018|1122|1201|1480|1553|1813|1926|1990|3114|7333|9110)(?![\d.,]|\s*(?:บาท|฿|baht|ปี|คน|ครั้ง|%))/g;
+  function telify(html){ return html.replace(HOTLINES, '$1<a class="tel" href="tel:$2">$2</a>'); }
   function esc(s){
     return String(s||'')
       .replace(/&/g,'&amp;').replace(/</g,'&lt;')
@@ -712,7 +716,7 @@ nav::after {
         +'<div class="sec-title">AI RESPONSE</div>'
         +'<div class="card kd-rim"><div class="response-block">'
           +'<div class="persona-tag '+personaCls+'">'+esc(personaName)+' '+personaSym+'</div>'
-          +'<div class="response-text">'+esc(d.ai_response||'').replace(/\n/g,'<br>')+'</div>'
+          +'<div class="response-text">'+telify(esc(d.ai_response||'').replace(/\n/g,'<br>'))+'</div>'
         +'</div></div>'
       +'</div>'
 
