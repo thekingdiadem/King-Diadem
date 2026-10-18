@@ -693,7 +693,14 @@ def detect_crisis(text: str) -> bool:
     # ตัวตรวจกลางเดียวกับที่ใช้เลือกเส้นทางและ Risk — ไม่ให้ prompt กับ Risk ขัดกัน
     try:
         from ENGINE.risk_engine import evaluate_risk
-        return bool(evaluate_risk(text).get("self_harm"))
+        if evaluate_risk(text).get("self_harm"):
+            return True
+    except Exception:
+        pass
+    # ชั้นที่สองของ kernel (สแลง/แผนพร้อมวิธีภาษาอังกฤษ ฯลฯ) — ให้ AI ได้ prompt วิกฤตตรงกับที่ kernel เห็น
+    try:
+        from core.kernel_voice import assess
+        return bool(assess(text).get("crisis"))
     except Exception:
         return False
 

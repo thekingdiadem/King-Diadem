@@ -108,6 +108,11 @@ UPGRADES: list[tuple[re.Pattern, str]] = [
     # "I can't do this anymore" — มักแปลว่าหมดแรง แต่บางคนหมายถึงไม่อยากอยู่ → ถามไถ่เบาๆ พร้อมเบอร์ (ไม่ใช่โหมดวิกฤต)
     (re.compile(r"(?i)\bi\s+can'?t\s+(?:do|take|handle|keep doing)\s+(?:this|it)\s+any\s?more\b(?![^\n]{0,24}?\b(?:job|work|class|course|game|diet)\b)"), "soft_check"),
 ]
+from core.second_layer_en import EN_KNOWLEDGE, EN_PAST_OK, EN_UPGRADES  # noqa: E402
+UPGRADES += EN_UPGRADES
+_EN_SET = set(EN_UPGRADES)
+_THAI_RUN = re.compile(r"[\u0E00-\u0E7F]+")
+
 _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85, "sexual_abuse": 85,
             "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80}
 
@@ -134,12 +139,14 @@ DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
     (re.compile(r"หมากัด(?:รองเท้า|โซฟา|สายไฟ|ของ|ตุ๊กตา)|กินเผ็ดจน|น้ำมูก|เรื่องสอบ|ช่วยติว|ชาบู|หมูกระทะ"),
      ("health_emergency", "first_aid", "psychosis", "panic")),
 ]
+DOWNGRADES.append((EN_KNOWLEDGE, ("health_emergency", "first_aid", "overdose", "violence", "disaster")))
+DOWNGRADES.append((EN_PAST_OK, ("health_emergency", "first_aid", "disaster")))
 _MONEY_GONE = re.compile(r"เงินหาย|ดูดเงิน|โอนไปแล้ว|ถอน(?:เงิน)?ไม่ได้|(?i:\bmoney (?:is )?(?:gone|stolen)\b|\bdrained\b)")
 _TRAPPED = re.compile(r"ยึด(?:พาสปอร์ต|หนังสือเดินทาง|บัตร)|ห้ามออก|ออกไม่ได้|กักตัว|ขังไว้|ล่ามโซ่|ไม่ให้กลับ")
 _SEVERE = re.compile(r"昏迷|昏倒|晕倒|叫不醒|没有呼吸|沒有呼吸|流血不止|意識がない|息をしていない|起きない|倒れ|出血が止まらない|"
                      r"의식이\s*없|숨을\s*안|쓰러졌|안\s*깨어나|피가\s*안\s*멈|ไม่รู้สึกตัว|หมดสติ|ไม่หายใจ|ปลุกไม่ตื่น|เรียกไม่ตื่น|เลือดไม่หยุด|เลือดพุ่ง|ชักเกร็ง|ตัวเขียว|ปากเขียว|"
                      r"(?i:\bunconscious\b|\bnot breathing\b|\bwon'?t wake\b)")
-_NOW = re.compile(r"ตอนนี้\S{0,8}(?:หายใจ|ไม่|เลือด|ชัก)|เมื่อกี้|เดี๋ยวนี้|ช่วยด้วย|ด่วน|\b(?:now|right now|help)\b", re.I)
+_NOW = re.compile(r"ตอนนี้\S{0,8}(?:หายใจ|ไม่|เลือด|ชัก)|เมื่อกี้|เดี๋ยวนี้|ช่วยด้วย|ด่วน|\b(?:right now|rn|help|happening now|now he|now she|now i)\b", re.I)   # "fine now" ไม่ใช่เหตุตอนนี้
 
 
 def apply(text: str, a: dict) -> dict:
@@ -149,6 +156,12 @@ def apply(text: str, a: dict) -> dict:
     a = dict(a, topics=list(a.get("topics") or []))
     caught = a["crisis"] or a["text_risk"] >= 50 or bool(a.get("scam")) or bool(a.get("disaster"))
 
+    # "used to self harm, 5 years clean now" — ไม่ใช่วิกฤตตอนนี้ แต่ยังถามไถ่เบาๆ พร้อมเบอร์ (ไม่ปิดเงียบ)
+    if a["crisis"] and EN_PAST_OK.search(text) and not _NOW.search(text) and not _SEVERE.search(text):
+        a.update(crisis=False, text_risk=45, topics=a["topics"] + ["soft_check"])
+        a["risk"] = min(a.get("risk", 45), 45)
+        a["risk_shown"] = min(a.get("risk_shown", 45), 45)
+        return a
     calmed = False
     # อาการหนักตอนนี้ ("ไม่รู้สึกตัว" "ไม่หายใจ") ห้ามลดเด็ดขาด ไม่ว่าจะมีคำว่าหนังสือ ข่าว หรือ 555 ปน
     if not _NOW.search(text) and not _SEVERE.search(text):
@@ -185,8 +198,10 @@ def apply(text: str, a: dict) -> dict:
         a["topics"] = ["trafficking"] + [t for t in a["topics"] if t != "trafficking"]
         a["text_risk"] = max(a["text_risk"], 85)
     first_risk = _UP_RISK.get(a["topics"][0], 0) if a["topics"] else 0
+    # อังกฤษที่ลงท้ายด้วยคำไทย ("disappear foreverครับ") — \\b ไม่ตัดระหว่างอักษรอังกฤษกับไทย
+    en_text = _THAI_RUN.sub(" ", text)
     for rx, kind in UPGRADES:
-        if rx.search(text):
+        if rx.search(en_text if (rx, kind) in _EN_SET else text):
             # จับได้อยู่แล้ว: ยกขึ้นเฉพาะเมื่อเรื่องนี้ด่วนกว่าหัวข้อแรก (เบอร์ในคำตอบมาจากหัวข้อแรก)
             # "ขับรถชนเสาให้ตายๆไป" เคยได้ปฐมพยาบาลไม่มี 1323 · "เมาขับชนคน คนนอนนิ่ง" ได้ "อย่าขึ้นรถ"
             if caught and (a["crisis"] or (kind != "crisis" and (kind == (a["topics"] or [None])[0]
