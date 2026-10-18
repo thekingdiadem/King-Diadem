@@ -127,13 +127,17 @@ DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
     # เคยเกิดตอนเด็ก/ปีที่แล้ว และจบไปแล้ว
     (re.compile(r"(?:ตอนเด็ก|สมัยเด็ก|ปีที่แล้ว|เมื่อก่อน|หลายปีก่อน)[^\n]{0,40}?(?:ไม่เป็นไรแล้ว|เสร็จแล้ว|ครบแล้ว|หายแล้ว|ดีขึ้นแล้ว|ป้องกันยังไง|เล่าให้ฟัง)"),
      ("health_emergency", "first_aid", "disaster")),
+    # เกม / ซ้อม (จีน ญี่ปุ่น เกาหลี) — "游戏里被打死了" "今天地震演习" เคยนับเป็นเหตุจริง
+    (re.compile(r"游戏里|遊戲裡|游戏中|ゲーム(?:で|の中)|게임에서|게임\s*속|演习|演習|避難訓練|訓練|대피\s*훈련|훈련"),
+     ("violence", "disaster", "health_emergency")),
     # ของถูกกัด/มุกขำ/สอบ
     (re.compile(r"หมากัด(?:รองเท้า|โซฟา|สายไฟ|ของ|ตุ๊กตา)|กินเผ็ดจน|น้ำมูก|เรื่องสอบ|ช่วยติว|ชาบู|หมูกระทะ"),
      ("health_emergency", "first_aid", "psychosis", "panic")),
 ]
 _MONEY_GONE = re.compile(r"เงินหาย|ดูดเงิน|โอนไปแล้ว|ถอน(?:เงิน)?ไม่ได้|(?i:\bmoney (?:is )?(?:gone|stolen)\b|\bdrained\b)")
 _TRAPPED = re.compile(r"ยึด(?:พาสปอร์ต|หนังสือเดินทาง|บัตร)|ห้ามออก|ออกไม่ได้|กักตัว|ขังไว้|ล่ามโซ่|ไม่ให้กลับ")
-_SEVERE = re.compile(r"ไม่รู้สึกตัว|หมดสติ|ไม่หายใจ|ปลุกไม่ตื่น|เรียกไม่ตื่น|เลือดไม่หยุด|เลือดพุ่ง|ชักเกร็ง|ตัวเขียว|ปากเขียว|"
+_SEVERE = re.compile(r"昏迷|昏倒|晕倒|叫不醒|没有呼吸|沒有呼吸|流血不止|意識がない|息をしていない|起きない|倒れ|出血が止まらない|"
+                     r"의식이\s*없|숨을\s*안|쓰러졌|안\s*깨어나|피가\s*안\s*멈|ไม่รู้สึกตัว|หมดสติ|ไม่หายใจ|ปลุกไม่ตื่น|เรียกไม่ตื่น|เลือดไม่หยุด|เลือดพุ่ง|ชักเกร็ง|ตัวเขียว|ปากเขียว|"
                      r"(?i:\bunconscious\b|\bnot breathing\b|\bwon'?t wake\b)")
 _NOW = re.compile(r"ตอนนี้\S{0,8}(?:หายใจ|ไม่|เลือด|ชัก)|เมื่อกี้|เดี๋ยวนี้|ช่วยด้วย|ด่วน|\b(?:now|right now|help)\b", re.I)
 
@@ -157,6 +161,9 @@ def apply(text: str, a: dict) -> dict:
                     a["disaster"] = None
                     if not a["topics"] and not a["crisis"]:
                         a["text_risk"] = min(a["text_risk"], 20)
+                # ภาษาอื่น (zh ja ko …) ติดป้ายไว้ใน intl_urgent ด้วย — ลดพร้อมกัน
+                if a.get("intl_urgent"):
+                    a["intl_urgent"] = [k for k in a["intl_urgent"] if k not in kinds and not (k == "medical" and "health_emergency" in kinds)]
                 drop = [k for k in kinds if k not in ("crisis", "disaster")]
                 if drop and any(t in drop for t in a["topics"]):
                     a["topics"] = [t for t in a["topics"] if t not in drop]
@@ -166,7 +173,7 @@ def apply(text: str, a: dict) -> dict:
     # บริบทบอกชัดว่าไม่ใช่เหตุตอนนี้ (ถามความรู้ ข่าว อดีตที่จบแล้ว มุก) → ไม่ยกกลับขึ้นมาอีก
     # และคะแนนที่ค้างจากชั้นอื่น (เช่นคำว่า "ล่ม" ในข่าว) ลดลงด้วย ถ้าไม่เหลือหัวข้อที่อันตราย
     if calmed and not a["crisis"]:
-        if not a.get("disaster") and not a.get("scam") and not any(t in _UP_RISK for t in a["topics"]):
+        if not a.get("disaster") and not a.get("scam") and not a.get("intl_urgent") and not any(t in _UP_RISK for t in a["topics"]):
             a["text_risk"] = min(a["text_risk"], 20)
             a["risk"] = min(a.get("risk", 0), 20)
             a["risk_shown"] = min(a.get("risk_shown", 0), 20)
