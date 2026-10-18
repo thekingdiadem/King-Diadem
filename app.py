@@ -1027,16 +1027,24 @@ def _ip_key(key: str):
     head = key.split("|", 1)[0]
     return None if head in ("reg", "regok") else "ip|" + head
 
+def _email_key(key: str):
+    """key สมัคร (reg|ip) ไม่มีอีเมล — เดิมกลายเป็น "email|<ip>" ชนกับคนที่ล็อกอินด้วยอีเมล "1.2.3.4"
+    คนนอกจึงล็อกอินผิด 30 ครั้งเพื่อปิดการสมัครของ IP อื่นได้"""
+    head, _, rest = key.partition("|")
+    return None if head in ("reg", "regok") else "email|" + rest
+
 def _login_blocked(key: str) -> bool:
     now = time.time()
-    email_key = "email|" + key.split("|", 1)[-1]
+    email_key = _email_key(key)
     ip_key = _ip_key(key)
     with _login_lock:
         _prune(_login_fail, _LOGIN_WINDOW, now)
         hits = [t for t in _login_fail.get(key, []) if now - t < _LOGIN_WINDOW]
         _login_fail[key] = hits
-        ehits = [t for t in _login_fail.get(email_key, []) if now - t < _LOGIN_WINDOW]
-        _login_fail[email_key] = ehits
+        ehits = []
+        if email_key:
+            ehits = [t for t in _login_fail.get(email_key, []) if now - t < _LOGIN_WINDOW]
+            _login_fail[email_key] = ehits
         ihits = []
         if ip_key:
             ihits = [t for t in _login_fail.get(ip_key, []) if now - t < _LOGIN_WINDOW]
@@ -1047,7 +1055,9 @@ def _login_failed(key: str):
     with _login_lock:
         now = time.time()
         _login_fail.setdefault(key, []).append(now)
-        _login_fail.setdefault("email|" + key.split("|", 1)[-1], []).append(now)
+        email_key = _email_key(key)
+        if email_key:
+            _login_fail.setdefault(email_key, []).append(now)
         ip_key = _ip_key(key)
         if ip_key:
             _login_fail.setdefault(ip_key, []).append(now)
@@ -2476,10 +2486,9 @@ def _handle_stripe_event(event) -> None:
             return
         # ── SECURITY: credit ต้องผูกกับ price_id ที่ Stripe ยืนยันจริง
         # ห้ามคำนวณจาก quantity ที่ client ส่งมา เพราะแก้ค่านั้นได้ก่อนถึง checkout
-        _CREDITS_PER_PRICE = {
-            os.getenv("STRIPE_PRICE_ID"):         10,
-            os.getenv("STRIPE_PREMIUM_PRICE_ID"): 100,
-        }
+        # ไม่ตั้ง env ตัวไหน → ไม่ใส่ key None (line item ที่ไม่มี price id เคยได้เครดิตฟรี)
+        _CREDITS_PER_PRICE = {pid: n for pid, n in ((os.getenv("STRIPE_PRICE_ID"), 10),
+                                                    (os.getenv("STRIPE_PREMIUM_PRICE_ID"), 100)) if pid}
         total_credits = 0
         items = _plain(stripe.checkout.Session.list_line_items(obj["id"]))
         for i in items.get("data", []):

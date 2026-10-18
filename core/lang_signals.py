@@ -228,9 +228,9 @@ URGENT_INTL = (
     }),
     ("medical", "health_emergency", {
         "zh": r"晕倒|昏倒|昏迷|叫不醒|下药|下藥|流血不止|血流不止|吞了(?:电池|電池|纽扣|硬币)|困在电梯|困在電梯|(?:狗|猫)咬|狂犬|没有呼吸|沒有呼吸|不能呼吸|喘不过气|胸口(?:剧痛|很痛|疼)|心脏病发|中风|抽搐|大出血|吃了(?:很多|一整瓶|整瓶)?(?:药|安眠药)|喝了农药|溺水|吞了(?:一[个颗枚])?(?:纽扣)?(?:电池|電池|磁铁|磁鐵|硬币|硬幣)|喝了(?:漂白水|漂白剂|消毒水)",
-        "ja": r"倒れ(?:た|ている)|起きない|何か入れられ|出血が止まらない|電池を飲み込|閉じ込められ|犬に噛まれ|狂犬|意識がない|息をしていない|呼吸(?:が|できない)|胸が(?:痛|苦し)|心臓発作|脳卒中|けいれん|大量出血|薬を(?:たくさん|大量に)飲|溺れ|(?:ボタン)?電池を(?:飲み込|飲ん)|磁石を(?:飲み込|飲ん)|漂白剤を飲",
-        "ko": r"쓰러졌|안\s*깨어나|약\s*탄\s*술|피가\s*안\s*멈|건전지를?\s*삼켰|갇혔|개한테\s*물렸|광견병|의식이\s*없|숨을\s*안\s*쉬|숨을\s*못\s*쉬|숨이\s*안\s*쉬어|가슴이\s*(?:너무\s*)?아파|심장마비|뇌졸중|경련|피가\s*멈추지\s*않|약을\s*(?:많이|한\s*통)|물에\s*빠졌|(?:건전지|배터리|자석|동전)[을를]?\s*삼켰|락스[를을]?\s*마셨",
-        "es": r"se\s+desmay[óo]|inconsciente|no\s+respira|no\s+(?:se\s+)?despierta|no\s+reacciona|no\s+responde(?!\s+(?:el|los|mis|a\s+mis)\s+(?:mensajes?|correos?|llamadas?))|no\s+puedo\s+respirar|dolor\s+(?:fuerte\s+)?(?:en\s+el|de)\s+pecho|infarto|derrame\s+cerebral|convulsi|sangra\s+mucho|se\s+tom[óo]\s+(?:muchas|todas\s+las)\s+pastillas|se\s+est[áa]\s+ahogando|se\s+trag[óo]\s+(?:una?\s+)?(?:pila|bater[ií]a|im[áa]n|moneda)|(?:tom[óo]|bebi[óo])\s+(?:lej[íi]a|cloro)",
+        "ja": r"蛇に噛まれ|倒れ(?:た|ている)|起きない|何か入れられ|出血が止まらない|電池を飲み込|閉じ込められ|犬に噛まれ|狂犬|意識がない|息をしていない|呼吸(?:が|できない)|胸が(?:痛|苦し)|心臓発作|脳卒中|けいれん|大量出血|薬を(?:たくさん|大量に)飲|溺れ|(?:ボタン)?電池を(?:飲み込|飲ん)|磁石を(?:飲み込|飲ん)|漂白剤を飲",
+        "ko": r"뱀에\s*물렸|쓰러졌|안\s*깨어나|약\s*탄\s*술|피가\s*안\s*멈|건전지를?\s*삼켰|갇혔|개한테\s*물렸|광견병|의식이\s*없|숨을\s*안\s*쉬|숨을\s*못\s*쉬|숨이\s*안\s*쉬어|가슴이\s*(?:너무\s*)?아파|심장마비|뇌졸중|경련|피가\s*멈추지\s*않|약을\s*(?:많이|한\s*통)|물에\s*빠졌|(?:건전지|배터리|자석|동전)[을를]?\s*삼켰|락스[를을]?\s*마셨",
+        "es": r"est[áa]\s+sangrando|se\s+desmay[óo]|inconsciente|no\s+respira|no\s+(?:se\s+)?despierta|no\s+reacciona|no\s+responde(?!\s+(?:el|los|mis|a\s+mis)\s+(?:mensajes?|correos?|llamadas?))|no\s+puedo\s+respirar|dolor\s+(?:fuerte\s+)?(?:en\s+el|de)\s+pecho|infarto|derrame\s+cerebral|convulsi|sangra\s+mucho|se\s+tom[óo]\s+(?:muchas|todas\s+las)\s+pastillas|se\s+est[áa]\s+ahogando|se\s+trag[óo]\s+(?:una?\s+)?(?:pila|bater[ií]a|im[áa]n|moneda)|(?:tom[óo]|bebi[óo])\s+(?:lej[íi]a|cloro)",
     }),
     ("violence", "violence", {
         "zh": r"(?:被|挨)[^。！？\n]{0,4}?(?:打|殴打|家暴|强奸|性侵)|打(?:我|了我)?(?:妈|媽|妈妈|媽媽|爸|孩子)|要杀(?:了)?孩子|要殺(?:了)?孩子|扣(?:了)?(?:我的)?(?:护照|護照)|(?:护照|護照)被(?:扣|没收|沒收)|(?:老公|丈夫|老婆|男朋友|爸爸|妈妈)[^。！？\n]{0,3}?打我|家暴|"
@@ -390,7 +390,9 @@ def compose_urgent_intl(lang: str, kind: str, status: str, sign: str, footer: bo
 # ══════════════════════════════════════════════════════════════════
 WORLD_URGENT = {
     "crisis": (
-        r"muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|\b(?:aku|saya|gue|gw)\s+(?:ingin|mau|pengen|nak)\s+mati(?!\s+(?:lampu|listrik))|ingin\s+bunuh\s+diri|bunuh\s+diri|"
+        r"\btoi\s+muon\s+chet\b|\bmuon\s+tu\s+tu\b|\bkhong\s+muon\s+song\b|ich\s+bringe\s+mich\s+(?:\w+\s+)?um|покончу\s+с\s+собой|ຂ້າຕົວຕາຍ|"
+        r"想从楼上跳下去|今晚就结束|大家没有我会更好|没有我(?:大家)?会更好|首を吊ろう|首吊り|今夜で終わりに|뛰어내릴\s*거|오늘\s*밤\s*끝낼|그만\s*살고\s*싶|내가\s*없으면\s*더\s*행복|"
+        r"no\s+quiero\s+despertar|escrib[ií]\s+mi\s+carta|muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|\b(?:aku|saya|gue|gw)\s+(?:ingin|mau|pengen|nak)\s+mati(?!\s+(?:lampu|listrik))|ingin\s+bunuh\s+diri|bunuh\s+diri|"
         r"gusto\s+(?:ko\s+)?(?:nang\s+)?mamatay|magpakamatay|je\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|me\s+suicider|envie\s+de\s+mourir|"
         r"ich\s+will\s+(?:nicht\s+mehr\s+leben|sterben)|selbstmord|mich\s+umbringen|quero\s+morrer|me\s+matar|"
         r"voglio\s+morire|suicidarmi|ammazzarmi|ölmek\s+istiyorum|intihar|"
@@ -399,6 +401,7 @@ WORLD_URGENT = {
         r"मरना\s+चाहत|आत्महत्या|जीना\s+नहीं\s+चाहत|"
         r"သေချင်|မနေချင်တော့|ကိုယ့်ကိုယ်ကို\s*သတ်|ខ្ញុំចង់ស្លាប់|ចង់ស្លាប់|សម្លាប់ខ្លួន|ຢາກຕາຍ|ຂ້າໂຕຕາຍ|মরে\s*যেতে\s*চাই|আত্মহত্যা|বাঁচতে\s*চাই\s*না|मर्न\s*मन\s*लाग्छ|मर्न\s*चाहन्छु|مرنا\s*چاہت|خودکشی|جینا\s*نہیں\s*چاہت|சாக\s*வேண்டும்|சாகணும்|தற்கொலை|வாழ\s*விரும்பவில்லை|මැරෙන්න\s*ඕන|සියදිවි|می‌?\s*?خواهم\s*بمیرم|میخوام\s*بمیرم|chcę\s+umrzeć|zabić\s+się|samobójstw|ik\s+wil\s+(?:dood|sterven)|zelfmoord|хочу\s+померти|не\s+хочу\s+жити|самогубств|nataka\s+kufa|kujiua|sitaki\s+kuishi|ina\s+so\s+in\s+mutu|kashe\s+kaina|mo\s+fẹ́\s+kú|mo\s+fe\s+ku|pa\s+ara\s+mi|ngifuna\s+ukufa|ukuzibulala|ek\s+wil\s+doodgaan|selfmoord|waan\s+dhiman\s+rabaa|is\s+dil|መሞት\s*እፈልጋለሁ|ራሴን\s*ማጥፋት|θέλω\s+να\s+πεθάνω|αυτοκτον|vreau\s+să\s+mor|sinucid|jag\s+vill\s+dö|ta\s+livet\s+av\s+mig|självmord|אני\s+רוצה\s+למות|להתאבד|үхмээр\s+байна|амиа\s+хорлох|өлгім\s+келеді|өзімді\s+өлтір|o\'lmoqchiman|o\'zimni\s+o\'ldir|chci\s+umřít|sebevražd|chcem\s+zomrieť|samovražd|meg\s+akarok\s+halni|öngyilkos|haluan\s+kuolla|itsemurh|jeg\s+vil\s+dø|selvmord|želim\s+umrijeti|želim\s+da\s+umrem|samoubist|искам\s+да\s+умра|самоубийств|მინდა\s+მოვკვდე|თვითმკვლელ|ուզում\s+եմ\s+մեռնել|ինքնասպան"),
     "medical": (
+        r"zu\s+viele\s+tabletten|नींद\s+की\s+गोलियाँ\s+खा|"
         r"không\s+thở\s+được|ngừng\s+thở|bất\s+tỉnh|ngất\s+xỉu|đau\s+ngực|co\s+giật|chảy\s+máu\s+nhiều|đuối\s+nước|"
         r"tidak\s+(?:bisa|dapat)\s+bernapas|tak\s+(?:boleh|dapat)\s+bernafas|tidak\s+bernapas|pingsan|tidak\s+sadarkan\s+diri|sesak\s+napas|kejang|tenggelam|"
         r"hindi\s+makahinga|nawalan\s+ng\s+malay|hinimatay|nalulunod|"
@@ -427,6 +430,25 @@ WORLD_URGENT = {
     "help": (
         r"^\W*(?:cứu\s+(?:tôi\s+)?(?:với)?|tolong(?:\s+saya)?|tulong|au\s+secours|à\s+l['’]aide|hilfe|socorro|auxilio|ayuda|aiuto|imdat|"
         r"помогите|النجدة|ساعدوني|बचाओ|ကယ်ပါ|ជួយផង|ຊ່ວຍແດ່|ຊ່ວຍດ້ວຍ|বাঁচাও|pomoc|pomozte|pomôžte|segítség|apua|hjælp|hjelp|upomoć|помощ|დამეხმარეთ|օգնեցեք|βοήθεια|ajutor|hjälp|הצילו|туслаарай|көмектесіңіз|yordam\s+bering|pomocy|ratunku|help\s+mij|допоможіть|nisaidie|msaada|a\s+taimaka|ràn\s+mí\s+lọ́wọ́|ngisize|help\s+my|i\s+caawi|እርዱኝ|बचाउ|بچاؤ|காப்பாற்றுங்கள்|උදව්\s*කරන්න|බේරගන්න|کمک(?:\s*کنید)?|救命|助けて|살려\s*주세요|도와\s*주세요)\W*$"),
+    # รอบหาบั๊ก ML: บุกบ้าน ลักพาตัว เด็กหาย หลงทาง ภัยพิบัติ — เดิมได้ Risk 0 ในเกือบทุกภาษา
+    "danger": (
+        r"有人(?:闯|闖|进|進)(?:进|進)?(?:了)?我家|被绑架|被綁架|(?:孩子|儿子|女儿|小孩)[^。！？\n]{0,10}?(?:走丢|走失|不见了|失踪)|台风来了|颱風來了|屋顶被吹|"
+        r"家に侵入|誘拐され|(?:子ども|子供|息子|娘)が(?:いない|迷子|行方不明)|"
+        r"집에\s*들어왔|납치\s*당했|납치당했|아이를?\s*잃어버렸|아이가\s*없어졌|"
+        r"alguien\s+(?:entr[óo]|se\s+meti[óo])\s+(?:a|en)\s+mi\s+casa|me\s+secuestraron|estoy\s+perdid[oa]\s+en|"
+        r"quelqu['’]un\s+est\s+entré\s+chez\s+moi|j['’]ai\s+été\s+agressée?|inondation|(?:mon|ma)\s+(?:fils|fille|enfant)\s+a\s+disparu|"
+        r"jemand\s+ist\s+in\s+meiner\s+wohnung|einbrecher|überschwemmung|hochwasser|erdbeben|"
+        r"ломится\s+в\s+дверь|кто-?то\s+(?:залез|ворвался)|землетрясение|наводнение|"
+        r"اقتحم\s+منزلي|فيضان|زلزال|"
+        r"घर\s+में\s+घुस|बाढ़|भूकंप|"
+        r"ငလျင်|ရေကြီး|ကလေး[^\n]{0,6}?ပျောက်|មានគេចូលផ្ទះ|ទឹកជំនន់|រញ្ជួយដី|ບຸກເຂົ້າເຮືອນ|ນ້ຳຖ້ວມ|ລູກຫາຍ|ແຜ່ນດິນໄຫວ|"
+        r"đột\s+nhập|động\s+đất|lũ\s+lụt|nước\s+dâng|(?:con|bé)\s+(?:tôi\s+)?(?:bị\s+lạc|mất\s+tích)|bắt\s+cóc"),
+    "scam": (
+        r"中奖[^。！？\n]{0,10}?(?:手续费|付费|交钱)|(?:账户|帳戶)(?:被)?(?:冻结|凍結)[^。！？\n]{0,10}?(?:链接|連結)|(?:公开|公開)我的裸照|"
+        r"投資詐欺|毎週\s*\d+\s*[%％]|매주\s*\d+\s*[%％]|"
+        r"(?:angeblicher|falscher)\s+polizist|(?:banque|bank)[^\n]{0,40}?(?:mon|meinen|ваш|мой)\s+(?:code|код)|службы\s+безопасности\s+банка|"
+        r"يدعي\s+أنه\s+شرطي|पुलिस\s+बनकर|giả\s+công\s+an|lừa\s+đảo|ត្រូវគេបោក|បោកប្រាស់|"
+        r"(?:украли|сперли)\s+паспорт|سرقوا\s+جواز|me\s+robaron\s+el\s+pasaporte"),
 }
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 

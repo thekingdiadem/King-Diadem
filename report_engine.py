@@ -84,8 +84,9 @@ def _run_fate_audit(result: dict, user_input: str) -> dict:
     FATE™ Axiom Audit — ตรวจสอบผลลัพธ์ผ่าน 6 Axioms
     คืน dict พร้อม pass/warn/fail แต่ละ axiom
     """
-    route    = result.get("route", "general")
-    persona  = result.get("persona", "LYLA")
+    # ตัดความยาวเท่าคอลัมน์ — เดิมส่ง route ยาว 200KB มาแล้วถูกเก็บและเปิดให้ทุกคนดูได้
+    route    = str(result.get("route", "general"))[:40]
+    persona  = str(result.get("persona", "LYLA"))[:20]
     risk     = _f(result.get("risk_score", 0))
     response = str(result.get("ai_response", ""))
 

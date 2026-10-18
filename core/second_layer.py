@@ -109,6 +109,28 @@ UPGRADES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"(?i)\bi\s+can'?t\s+(?:do|take|handle|keep doing)\s+(?:this|it)\s+any\s?more\b(?![^\n]{0,24}?\b(?:job|work|class|course|game|diet)\b)"), "soft_check"),
 ]
 from core.second_layer_en import EN_KNOWLEDGE, EN_PAST_OK, EN_UPGRADES  # noqa: E402
+# ── รอบหาบั๊กไทย 3: พูดอ้อม สแลง ภาษาอีสาน แก๊งงานต่างประเทศ ─────────────────────────────────
+UPGRADES += [
+    (re.compile(r"(?:ดาดฟ้า|ตึก|ชั้น\s*\d+)[^\n]{0,24}?ลาก่อน|ผูกเชือก(?:ไว้)?(?:ที่|กับ)?(?:ขื่อ|คาน|พัดลม)|อยาก(?:โดด|กระโดด)(?:ลง)?(?:ราง|ตึก|สะพาน|น้ำ)|"
+                r"ตายไป(?:ซะ)?ดีกว่า|อยาก(?:หนีไป)?ตายๆ|เปิดแก๊ส(?:ใน|ทิ้งไว้)?(?:ห้อง|บ้าน)?แล้ว|(?:กิน|ทาน)ยา(?:ไป)?หมด(?:ขวด|แผง|กระปุก)|"
+                r"พรุ่งนี้(?:จะ)?ไม่มี(?:กู|ฉัน|เรา|ผม|หนู)(?:อยู่)?แล้ว|ไม่ต้องห่วง(?:เรา|กู|ฉัน|ผม|หนู)แล้ว|ไม่มีเหตุผล(?:ที่จะ|ให้)(?:อยู่|มีชีวิต)ต่อ|"
+                r"(?i:\bcut\b)\s*แขน|(?i:\bod\b)\s*ยา|ลาก่อน[^\n]{0,6}?ไม่ไหว|ไม่ไหว[^\n]{0,12}?ลาก่อน|จะไปตายแล้ว"), "crisis"),
+    (re.compile(r"ช็อก[^\n]{0,8}?(?:นอนไม่ขยับ|ไม่ขยับ|ไม่ตอบ)|สำลัก[^\n]{0,10}?ไอไม่ออก|ล้มบ่ฟื้น|บ่ฟื้น|หายใจรวยริน|"
+                r"ทารก[^\n]{0,12}?(?:ไม่ร้อง|ซึม)|(?:เห็ดป่า|เห็ดพิษ)[^\n]{0,20}?(?:อาเจียน|ท้องเสีย|ชัก)|ปลาปักเป้า[^\n]{0,16}?(?:ชา|หายใจ|อาเจียน)|"
+                r"(?:เด็ก|ลูก)[^\n]{0,10}?(?:ติด)?(?:ใน|อยู่ใน)รถ[^\n]{0,24}?(?:ล็อค|ล็อก|ร้อน)|ไข้เลือดออก[^\n]{0,20}?(?:เลือดออก|จุดแดง)|เลือดออกตามไรฟัน|"
+                r"ระเบิด[^\n]{0,16}?(?:บาดเจ็บ|เจ็บ|ตาย)|เผา(?:ด้วย)?น้ำมัน|ราดน้ำมัน"), "health_emergency"),
+    (re.compile(r"(?:ผัว|สามี|แฟน|พ่อ)[^\n]{0,16}?ซ้อม|ตีข่อย|ผัวจะฆ่า|(?:สามี|แฟน|พ่อ)จะฆ่า|พังประตู|หนีผัว|โดนผัวเผา"), "violence"),
+    (re.compile(r"บังคับ(?:ให้)?มีอะไร(?:ด้วย)?|ไม่งั้นไล่ออก[^\n]{0,0}"), "sexual_abuse"),
+    (re.compile(r"ถูกบังคับ(?:ให้)?หลอกคน|โดนช็อตไฟฟ้า|ยึดพาสปอร์ต[^\n]{0,12}?ไม่จ่าย|บังคับ(?:ให้)?ขาย(?:บริการ|ตัว)|ขายตัวที่|"
+                r"บังคับ(?:ให้)?ทำงานใช้หนี้|ขายเด็ก|โดนขังห้ามออก|ขังห้ามออก|เรือประมง[^\n]{0,10}?บังคับ|ไม่ได้ขึ้นฝั่ง|นายจ้างไม่ให้กลับ|"
+                r"ชวน(?:ไป)?ทำงาน(?:ที่)?คาสิโน|(?:นายหน้า|เอเจนซี่)[^\n]{0,20}?(?:ต่างประเทศ|เกาหลี|ญี่ปุ่น|ไต้หวัน|อิสราเอล)[^\n]{0,16}?(?:จ่าย|โอน)ก่อน"), "trafficking"),
+    (re.compile(r"(?:ไป)?เจอคน(?:ที่)?(?:คุย|รู้จัก)(?:ใน|จาก)(?:เกม|เน็ต|แอป|tiktok|ติ๊กต็อก|เฟส)[^\n]{0,16}?(?:ติดต่อไม่ได้|หายไป)|"
+                r"คนแปลกหน้าพา(?:ลูก|น้อง|หลาน)|(?:ลูก|น้อง)[^\n]{0,30}?(?:รู้จักใน|คุยใน)(?:เกม|tiktok|ติ๊กต็อก|เฟส|แอป)[^\n]{0,16}?(?:หายไป|ติดต่อไม่ได้)"), "missing"),
+    (re.compile(r"ภาษีศุลกากร|กล่องของขวัญ[^\n]{0,20}?(?:จ่าย|โอน)|ทหารอเมริกัน[^\n]{0,20}?(?:โอน|ค่า)|เติมเงินก่อนถอน|"
+                r"ให้มิจ|โดนมิจ|กดหมายเลข\s*1|เงินหายจากบัญชี|กดลิงก์[^\n]{0,10}?เงินหาย"), "scam"),
+    (re.compile(r"น้ำขึ้นเร็ว[^\n]{0,10}?(?:หนีไม่ทัน|ช่วย)|(?<!ข่าว)(?:ก๊าซ|แก๊ส)รั่ว(?:ใน|ที่)|ได้กลิ่นแก๊ส"), "help"),
+    (re.compile(r"(?:มีคน|เห็นคน)(?:จะ)?(?:โดด|กระโดด)(?:สะพาน|ตึก|น้ำ)|เพื่อน[^\n]{0,10}?โพสต์[^\n]{0,8}?กินยา(?:ไป)?(?:แล้ว|หมด)"), "help"),
+]
 UPGRADES += EN_UPGRADES
 _EN_SET = set(EN_UPGRADES)
 _THAI_RUN = re.compile(r"[\u0E00-\u0E7F]+")
@@ -141,6 +163,19 @@ DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
 ]
 DOWNGRADES.append((EN_KNOWLEDGE, ("health_emergency", "first_aid", "overdose", "violence", "disaster")))
 DOWNGRADES.append((EN_PAST_OK, ("health_emergency", "first_aid", "disaster")))
+# รอบหาบั๊กไทย 3: "ขำจนอยากตาย" "อร่อยจนอยากตาย" เป็นคำเน้น · ชื่อเพลง/ละคร · ถามวิธีป้องกัน/ข่าว/สารคดี
+DOWNGRADES.append((re.compile(r"(?:ขำ|อร่อย|ฟิน|สนุก|หิว|เขิน|ง่วง|มัน|ดี)จน(?:แทบ)?อยาก(?:จะ)?ตาย|เพลง\s*อยากตาย|(?:ใน|จาก)ละคร|ละครเมื่อคืน"), ("crisis",)))
+DOWNGRADES.append((re.compile(r"ซีรีส์|ละคร|นางเอก|พระเอก|สารคดี|อ่านข่าว|ถูกทลาย|วิธีป้องกัน|รู้ทัน|อยากเข้าใจ|อยากเรียนไว้|วิธีปฐมพยาบาล|"
+                              r"(?:ตอนเด็ก|เคย)[^\n]{0,16}?(?:ตอนนี้|โตแล้ว)[^\n]{0,10}?ไม่เป็นแล้ว|^ฝันว่า(?![^\n]*ตื่นมา[^\n]{0,6}?(?:เจ็บ|ปวด|เลือด|หายใจ|ชัก))|แมวกัดสาย|เชือกผูกรองเท้า"),
+                   ("health_emergency", "first_aid", "violence", "trafficking", "threat", "scam")))
+# รอบหาบั๊ก ML: ทำสีผม · ฉากในหนัง · ประวัติศาสตร์/เหตุในอดีต/เครื่องจำลอง — เคยขึ้นวิกฤตหรือภัยพิบัติที่กำลังเกิด
+DOWNGRADES.append((re.compile(r"\b(?:want|wanna|going) to die (?:my|her|his|your|our) hair\b", re.I), ("crisis",)))
+DOWNGRADES.append((re.compile(r"\b(?:scene|movie|film|episode)\b[^\n]{0,40}?\bmade me (?:cry|sad)\b|\bin (?:the )?(?:movie|film) titanic\b", re.I),
+                   ("health_emergency", "first_aid")))
+DOWNGRADES.append((re.compile(r"歴史|历史|歷史|역사|\bhistory\b|\bsimulator\b|\bmuseum\b|\blong time ago\b|\bwe survived the\b|"
+                              r"\b(?:19|20)\d\d\b[^\n]{0,24}?\b(?:tsunami|flood|earthquake)\b|\b(?:tsunami|flood|earthquake) of (?:19|20)\d\d\b|\bwriting a report\b", re.I),
+                   ("disaster",)))
+_PAST_DONE = re.compile(r"(?:ตอนเด็ก|เคย|ปีที่แล้ว)[^\n]{0,20}?(?:ตอนนี้|โตแล้ว)[^\n]{0,10}?(?:ไม่เป็นแล้ว|หายแล้ว|ได้เงินคืนแล้ว|ปกติแล้ว)")
 _MONEY_GONE = re.compile(r"เงินหาย|ดูดเงิน|โอนไปแล้ว|ถอน(?:เงิน)?ไม่ได้|(?i:\bmoney (?:is )?(?:gone|stolen)\b|\bdrained\b)")
 _TRAPPED = re.compile(r"ยึด(?:พาสปอร์ต|หนังสือเดินทาง|บัตร)|ห้ามออก|ออกไม่ได้|กักตัว|ขังไว้|ล่ามโซ่|ไม่ให้กลับ")
 _SEVERE = re.compile(r"昏迷|昏倒|晕倒|叫不醒|没有呼吸|沒有呼吸|流血不止|意識がない|息をしていない|起きない|倒れ|出血が止まらない|"
@@ -162,6 +197,13 @@ def apply(text: str, a: dict) -> dict:
         a["risk"] = min(a.get("risk", 45), 45)
         a["risk_shown"] = min(a.get("risk_shown", 45), 45)
         return a
+    # "ลูกเคยไข้ชักตอนเด็ก ตอนนี้โตแล้วไม่เป็นแล้ว" — คำว่าชักอยู่ในอดีตที่จบแล้ว (ด่านอาการหนักด้านล่างจะไม่ยอมลด)
+    if not a["crisis"] and _PAST_DONE.search(text):
+        a["topics"] = [t for t in a["topics"] if t not in ("health_emergency", "first_aid", "scam")]
+        a["scam"] = []
+        if not a["topics"]:
+            a.update(text_risk=min(a["text_risk"], 20), risk=min(a.get("risk", 0), 20), risk_shown=min(a.get("risk_shown", 0), 20))
+            return a
     calmed = False
     # อาการหนักตอนนี้ ("ไม่รู้สึกตัว" "ไม่หายใจ") ห้ามลดเด็ดขาด ไม่ว่าจะมีคำว่าหนังสือ ข่าว หรือ 555 ปน
     if not _NOW.search(text) and not _SEVERE.search(text):
@@ -205,7 +247,9 @@ def apply(text: str, a: dict) -> dict:
             # จับได้อยู่แล้ว: ยกขึ้นเฉพาะเมื่อเรื่องนี้ด่วนกว่าหัวข้อแรก (เบอร์ในคำตอบมาจากหัวข้อแรก)
             # "ขับรถชนเสาให้ตายๆไป" เคยได้ปฐมพยาบาลไม่มี 1323 · "เมาขับชนคน คนนอนนิ่ง" ได้ "อย่าขึ้นรถ"
             if caught and (a["crisis"] or (kind != "crisis" and (kind == (a["topics"] or [None])[0]
-                                                                  or _UP_RISK[kind] <= max(first_risk, 75 if a["topics"] else 0)))):
+                                                                  or _UP_RISK[kind] <= max(first_risk, 75 if a["topics"] else 0)))) \
+                    and not (kind == "scam" and (a["topics"] or [None])[0] in ("legal", "debt")):
+                # "อ้างเป็นตำรวจให้โอนเงิน" เคยได้คำตอบเรื่องกฎหมายทั่วไป ไม่มีเบอร์ 1441/191
                 continue
             if kind == "crisis":
                 a.update(crisis=True, text_risk=max(a["text_risk"], _UP_RISK[kind]))
@@ -217,5 +261,9 @@ def apply(text: str, a: dict) -> dict:
                 a["text_risk"] = max(a["text_risk"], _UP_RISK[kind])
             a["risk"] = max(a.get("risk", 0), a["text_risk"])
             a["risk_shown"] = max(a.get("risk_shown", 0), a["text_risk"])
+            # ถามไถ่เบาๆ ไม่ใช่คำตอบสุดท้าย — "i cant do this anymore, gonna end it tonite" ต้องหาต่อจนเจอวิกฤต
+            if kind == "soft_check":
+                caught = a["crisis"] or a["text_risk"] >= 50
+                continue
             break
     return a

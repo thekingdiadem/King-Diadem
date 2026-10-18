@@ -121,15 +121,15 @@ def simulate_payoff(debts: list, monthly_budget: float,
                                  "balance": round(d["balance"], 2)})
 
         # โปะหนี้เป้าหมาย (ก้อนแรกในลิสต์ที่ยังมียอด)
-        for d in active:
+        # จับคู่ด้วยลำดับ ไม่ใช่ชื่อ — หนี้บัตรเครดิตสองใบชื่อซ้ำกันเคยได้ยอดโปะทั้งคู่
+        for i, d in enumerate(active):
             if d["balance"] > 0 and budget_left > 0:
                 extra = min(budget_left, d["balance"])
                 d["balance"]   = max(0.0, d["balance"] - extra)
                 budget_left   -= extra
-                for r in row["debts"]:
-                    if r["name"] == d["name"]:
-                        r["payment"] = round(r["payment"] + extra, 2)
-                        r["balance"] = round(d["balance"], 2)
+                r = row["debts"][i]
+                r["payment"] = round(r["payment"] + extra, 2)
+                r["balance"] = round(d["balance"], 2)
                 break
 
         # เช็คหนี้ที่ปิดได้เดือนนี้
