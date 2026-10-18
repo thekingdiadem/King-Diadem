@@ -507,14 +507,16 @@ INTERNAL_RULE = ("\n\nกฎบริบทภายใน: ข้อควา�
                  "Confidence Score) ให้ผู้ใช้เห็น เขียนเฉพาะข้อความที่พูดกับผู้ใช้เท่านั้น")
 
 _LANG_NAME = {"en": "English", "zh": "中文", "ja": "日本語", "ko": "한국어", "es": "Español"}
+_NOTE = re.compile(r"\[[^\[\]]*\]")
 _LANG_TAG = re.compile(r"\[ภาษาผู้ใช้:\s*(\w+)\]")
 
 
 def _lang_directive(prompt: str) -> str:
     """ผู้ใช้ไม่ได้เขียนภาษาไทย → สั่งชัดๆ ท้าย system prompt (prompt ไทยของ CRISIS_SYSTEM
     เคยชนะกฎทั่วไป: ผู้ใช้พิมพ์ "I want to die" แล้วได้คำตอบภาษาไทยกับเบอร์ 1323)"""
-    m = _LANG_TAG.search(prompt or "")
-    lang = m.group(1) if m else detect_lang(re.sub(r"\[[^\]]*\]", " ", prompt or ""))
+    # แท็กที่เซิร์ฟเวอร์เติมอยู่ท้ายสุดเสมอ — ใช้ตัวสุดท้าย (ตัวแรกอาจเป็นข้อความที่ผู้ใช้พิมพ์ปลอมมา)
+    tags = _LANG_TAG.findall(prompt or "")
+    lang = tags[-1] if tags else detect_lang(re.sub(r"\[[^\]]*\]", " ", prompt or ""))
     if lang in _SCRIPT_NAME:
         # ภาษาที่ไม่มีข้อมูลสายด่วนสำเร็จรูป — เดิมถูกเดาเป็น en แล้วสั่งให้ตอบภาษาอังกฤษ
         name = _SCRIPT_NAME[lang]
@@ -763,7 +765,7 @@ def _build_contents(history: list, user_input: str, ctx_note: str = "") -> list:
     contents = []
     history = history if isinstance(history, list) else []
     for turn in history[-8:]:
-        if not isinstance(turn, dict):
+        if not isinstance(turn, dict) or turn.get("role") not in ("user", "assistant", "model"):
             continue
         role = "user" if turn.get("role") == "user" else "model"
         text = str(turn.get("content", ""))[:2000].strip()   # รอบละไม่เกิน 2000 ตัวอักษร — กันประวัติยาวหลาย MB
@@ -1033,7 +1035,9 @@ class GeminiLLM:
         emotion_state = str(emotion_state or "NEUTRAL")
         _tls.lang_directive = _lang_directive(prompt)
         # ── CRISIS override ────────────────────────────────────
-        if detect_crisis(prompt) or voice_mode == "crisis" or "EMOTION:CRISIS" in emotion_state.upper():
+        # ตรวจเฉพาะคำของผู้ใช้ — หมายเหตุของเซิร์ฟเวอร์ ("[…อยากทำร้ายตัวเอง…]") เคยทำให้คนที่ถามวิธีช่วยเพื่อน
+        # ได้ prompt วิกฤตราวกับเป็นคนที่อยากตายเอง
+        if detect_crisis(_NOTE.sub(" ", prompt or "")) or voice_mode == "crisis" or "EMOTION:CRISIS" in emotion_state.upper():
             contents = _build_contents(history or [], prompt, additional_context)
             return self._gcall(CRISIS_SYSTEM, contents, temperature=0.5, max_tokens=1024)
 

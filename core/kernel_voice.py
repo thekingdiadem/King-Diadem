@@ -2344,3 +2344,35 @@ def compose_council(text: str, footer: bool = True) -> str:
     return (f"LYLA ◈ — {lyla}\n\nVEGA ◆ — {vega}\n\nPATICCA ☸ — {paticca}\n\n"
             f"TITAN ▲ — ก้าวที่ทำได้ภายใน 24 ชั่วโมง: {titan}\n\nCOSMOS ✦ — {cosmos}\n\nCIVIL ⬡ — {civil}\n\n"
             f"มติสภา{agree}: {verdict}\nคุณเป็นคนตัดสินใจเสมอ\n\n— สภา KING DIADEM ✦" + tag)
+
+
+# ── ข้อความถัดไปหลังเล่าว่าอยากตาย (ไม่มี AI) ──────────────────────────────────────────
+# เดิมต่อข้อความเก่าเข้ากับข้อความใหม่แล้วตอบใหม่ — "ขอบคุณ" "ล้อเล่น" "how do I bake bread" ได้คำตอบวิกฤตครั้งแรกซ้ำคำต่อคำ
+# และถ้าเรื่องเดิมเป็นภาษาไทย คำถามภาษาอังกฤษก็ได้คำตอบภาษาไทย
+_FOLLOW = {
+    "th": ("ขอบคุณที่ยังคุยกันอยู่นะ{end} เมื่อกี้คุณเล่าเรื่องที่หนักมาก ขอถามสั้นๆ ว่าตอนนี้ปลอดภัยไหม{end}",
+           "ถ้าความรู้สึกนั้นกลับมาเมื่อไหร่ โทร 1323 (สายด่วนสุขภาพจิต 24 ชม.) ได้ทุกเวลา · ถ้าอันตรายตอนนี้ 1669",
+           "อยากเล่าต่อเรื่องไหนก็ได้ ฉันอยู่ตรงนี้{end}", "· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI"),
+    "en": ("Thank you for still talking with me. Earlier you shared something really heavy — are you safe right now?",
+           "If that feeling comes back, you can reach someone anytime: in Thailand 1323 (mental health, 24h) · 1669 if you're in "
+           "danger now · elsewhere findahelpline.com",
+           "We can talk about anything you like. I'm here.", "· Answered from the system's equations — no AI used"),
+}
+
+
+def compose_followup(text: str, voice_mode: str = "lyla", footer: bool = True) -> str:
+    """ข้อความต่อจากเรื่องอยากตายที่ตัวเองไม่มีความเสี่ยง: ถามว่าปลอดภัยไหม + เบอร์ 1323 สั้นๆ
+    ข้อความยาวที่เป็นเรื่องใหม่ได้คำตอบของเรื่องนั้น แล้วต่อท้ายด้วยเบอร์"""
+    text = _clip(text)
+    lang = "th" if detect_lang(text) == "th" else "en"
+    vega = voice_mode == "vega"
+    end = ("ครับ" if vega else "ค่ะ") if lang == "th" else ""
+    sign = "— VEGA ◆" if vega else "— LYLA ◈"
+    ask, line, close, tag = _FOLLOW[lang]
+    tag = "\n" + tag if footer else ""
+    if len(text.strip()) > 30:
+        body = compose(text, voice_mode=voice_mode, footer=False).rstrip()
+        if body.endswith(sign):
+            body = body[: -len(sign)].rstrip()
+        return f"{body}\n\n📞 {line}\n\n{sign}{tag}"
+    return f"{ask.format(end=end)}\n\n📞 {line}\n\n{close.format(end=end)}\n\n{sign}{tag}"
