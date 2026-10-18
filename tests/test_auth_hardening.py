@@ -84,3 +84,33 @@ def test_oauth_session_cookie_is_secure_and_short_lived(client, app_module):
     mw = [m for m in app_module.app.user_middleware if m.cls is SessionMiddleware][0]
     kw = getattr(mw, "kwargs", None) or getattr(mw, "options", {})
     assert kw.get("https_only") is True and kw.get("max_age") == 600
+
+
+def test_squatters_open_session_dies_when_owner_claims_with_google(client, app_module, monkeypatch):
+    """เดิม: ลบรหัสผ่านของคนที่สมัครแทนแล้ว แต่คุกกี้ที่เขาล็อกอินค้างไว้ยังใช้ได้ 30 วัน
+    (อ่าน/เขียนแชต ความจำ เครดิตของเจ้าของจริงได้)"""
+    victim = f"victim{uuid.uuid4().hex[:8]}@gmail.com"
+    squatter = TestClient(app_module.app, base_url="https://testserver", headers={"cf-connecting-ip": "10.251.0.2"})
+    assert squatter.post("/register", json={"email": victim, "password": "attackerpw1"}).status_code == 200
+    assert squatter.get("/me").json().get("email") == victim
+
+    owner = TestClient(app_module.app, base_url="https://testserver", headers={"cf-connecting-ip": "10.251.0.1"})
+    _google_login(owner, app_module, monkeypatch, victim)
+
+    assert squatter.get("/me").json().get("email") != victim
+    assert squatter.put("/api/chat-state", json={"state": {"x": 1}}).status_code == 401
+    assert owner.get("/me").json().get("email") == victim                 # เจ้าของจริงยังใช้งานได้
+
+
+def test_malformed_signed_stripe_event_is_acknowledged_not_retried(client, app_module, monkeypatch):
+    """อีเวนต์ที่ลายเซ็นถูกแต่ไม่มี type/data เคยได้ 500 → Stripe ส่งซ้ำไปเรื่อยๆ หลายวัน"""
+    import stripe
+    monkeypatch.setattr(app_module, "STRIPE_WEBHOOK_SECRET", "whsec_test", raising=False)
+    monkeypatch.setattr(stripe.Webhook, "construct_event", lambda payload, sig, secret: {"id": f"evt_{uuid.uuid4().hex[:8]}"})
+    r = client.post("/webhook/stripe", content=b"{}", headers={"stripe-signature": "t=1,v1=x"})
+    assert r.status_code == 200 and r.json()["status"] == "ignored"
+
+
+def test_report_create_rejects_non_text_input(client):
+    r = client.post("/api/report/create", json={"input": ["x"], "result": {"a": 1}})
+    assert r.status_code == 400

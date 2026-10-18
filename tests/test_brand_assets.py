@@ -24,3 +24,12 @@ def test_share_image_is_full_size_and_on_main_pages():
         s = open(f, encoding="utf-8").read()
         assert re.search(r'og:image" content="https://[^"]+/static/og\.jpg"', s), f
         assert 'twitter:card" content="summary_large_image"' in s
+
+
+def test_inputs_have_accessible_names():
+    """โปรแกรมอ่านหน้าจอเคยได้แค่ placeholder ซึ่งหายไปทันทีที่เริ่มพิมพ์"""
+    uni = open("static/king_diadem_universe.html", encoding="utf-8").read()
+    assert re.search(r'id="intent-text"[^>]*aria-label=|aria-label=[^>]*id="intent-text"', uni)
+    ask = open("static/ask.html", encoding="utf-8").read()
+    assert 'aria-label="ตัวเลือก A"' in ask and 'aria-label="ตัวเลือก B"' in ask
+    assert "esc(p.text)" in uni and "esc(p.letter)" in uni

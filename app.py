@@ -933,11 +933,11 @@ def get_feedback_stats():
 @app.get("/dashboard")
 async def dashboard():
     try:    status   = planetary_status() if planetary_status else {}
-    except: status   = {}
+    except Exception: status   = {}
     try:    learning = get_learning()     if get_learning     else []
-    except: learning = []
+    except Exception: learning = []
     try:    nodes    = get_nodes()        if get_nodes        else []
-    except: nodes    = []
+    except Exception: nodes    = []
     return {
         "observer":  "KING DIADEM",
         "planetary": status,
@@ -1101,6 +1101,13 @@ async def google_callback(request: Request):
         # Google พิสูจน์แล้วว่าเป็นเจ้าของอีเมลนี้ — รหัสผ่านที่มีคนตั้งไว้ก่อน (ยังไม่ได้ยืนยัน) ถูกลบ กันยึดบัญชี
         if claim_verified_email and claim_verified_email(email):
             print("🔐 google login: dropped unverified password for an account")
+            # ลบรหัสผ่านอย่างเดียวไม่พอ — คนที่สมัครแทนไว้ยังถือคุกกี้ที่ล็อกอินค้างไว้ได้อีก 30 วัน
+            # (อ่าน/เขียนแชต ความจำ เครดิตของเจ้าของ) → เลื่อนรุ่น session ให้คุกกี้เก่าทุกใบใช้ไม่ได้
+            try:
+                from DATABASE.db import bump_session_version
+                await run_in_threadpool(bump_session_version, email)
+            except Exception as e:
+                print(f"⚠ bump session after claim: {type(e).__name__}")
         try:
             sess = getattr(request, "session", None)
             if sess:
@@ -1220,7 +1227,7 @@ async def get_chat_state(request: Request):
     if not raw:
         return {"state": None}
     try:    return {"state": json.loads(raw)}
-    except: return {"state": None}
+    except Exception: return {"state": None}
 
 
 @app.put("/api/chat-state")
@@ -2563,6 +2570,13 @@ async def stripe_webhook(request: Request):
         await run_in_threadpool(_handle_stripe_event, event)
         if mark_stripe_event:
             mark_stripe_event(event_id, event.get("type", ""))
+    except (KeyError, TypeError, ValueError) as e:
+        # อีเวนต์ที่ลายเซ็นถูกแต่รูปร่างผิด (ไม่มี type/data, ยอดไม่ใช่ตัวเลข) ประมวลผลซ้ำกี่ครั้งก็ล้มเหมือนเดิม
+        # เดิมตอบ 500 → Stripe ส่งซ้ำไปหลายวัน · ตอบรับแล้วบันทึกไว้ให้ตรวจเอง
+        print(f"⚠ stripe webhook malformed {event_id}: {type(e).__name__}")
+        if mark_stripe_event and event_id:
+            mark_stripe_event(event_id, str(event.get("type", "") or "malformed"))
+        return {"status": "ignored"}
     except Exception as e:
         print(f"❌ stripe webhook {event.get('type')} {event_id}: {type(e).__name__}")
         return JSONResponse({"error": "processing failed"}, status_code=500)
@@ -2852,8 +2866,8 @@ async def create_report_manual(request: Request, data: dict):
         return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่แล้วลองใหม่ได้เลยนะคะ"}, status_code=429)
     user_input = data.get("input", "")
     result     = data.get("result", {})
-    if not user_input or not isinstance(result, dict) or not result:
-        return JSONResponse({"error": "input and result required"}, status_code=400)
+    if not isinstance(user_input, str) or not user_input.strip() or not isinstance(result, dict) or not result:
+        return JSONResponse({"error": "input and result required"}, status_code=400)   # list/object เคยถูกบันทึกเป็นรายงานสาธารณะ
     try:
         # เนื้อหามาจาก client → ติดป้าย user_submitted (ไม่ให้ดูเหมือนระบบตัดสิน)
         report_id = _create_report(user_email=email, user_input=user_input, result=result, source="user")

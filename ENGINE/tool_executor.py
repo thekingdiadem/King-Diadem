@@ -32,6 +32,8 @@ def _eval_node(n):
     if isinstance(n, ast.Expression):
         return _eval_node(n.body)
     if isinstance(n, ast.Constant) and isinstance(n.value, (int, float)) and not isinstance(n.value, bool):
+        if not math.isfinite(n.value) or abs(n.value) > _MAX_ABS:      # "1e400" เคยคืน inf
+            raise ValueError("ตัวเลขใหญ่เกินไป")
         return n.value
     if isinstance(n, ast.Name) and n.id in _SAFE_MATH and not callable(_SAFE_MATH[n.id]):
         return _SAFE_MATH[n.id]
@@ -68,6 +70,10 @@ def _safe_calc(expression: str) -> dict:
         return {"result": _eval_node(tree), "expression": expr}
     except ZeroDivisionError:
         return {"error": "หารด้วยศูนย์"}
+    except (ValueError, OverflowError) as e:
+        if "domain" in str(e) or isinstance(e, OverflowError):        # sqrt(-1) log(0) เคยได้ข้อความอังกฤษ
+            return {"error": "คำนวณค่านี้ไม่ได้ (เช่น รากของเลขติดลบ หรือ log ของศูนย์)"}
+        return {"error": str(e)}
     except Exception as e:
         return {"error": str(e) if isinstance(e, ValueError) else "นิพจน์ไม่ถูกต้อง"}
 

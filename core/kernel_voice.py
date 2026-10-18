@@ -1631,10 +1631,11 @@ def _clip(text) -> str:
 
 # เขียนนิยาย/ทำรายงาน/เป็นอาสาสายด่วน — คำว่า "ฆ่าตัวตาย" อยู่ในงาน ไม่ได้อยู่ในใจคนพิมพ์
 # ลดลงเฉพาะเมื่อไม่มีคำแทนตัวเองเลย ("ตัวละครอยากตาย เหมือนฉันตอนนี้" ยังเป็นวิกฤต)
-_WORK_FRAME = re.compile(r"นิยาย|ตัวละคร|บทละคร|เขียนบท|รายงานเรื่อง|ทำรายงาน|งานวิจัย|วิทยานิพนธ์|สถิติ|"
+_WORK_FRAME = re.compile(r"นิยาย|ตัวละคร|บทละคร|เขียนบท|รายงานเรื่อง|ทำรายงาน|งานวิจัย|วิทยานิพนธ์|สถิติ|ศึกษาเรื่อง|"
+                         r"ฉาก\S{0,6}(?:ฆ่า|ยิง|ตาย)|หนังเรื่อง|ซีรีส์เรื่อง|ภาพยนตร์|ทางแฟชั่น|"
                          r"ป้องกันการฆ่าตัวตาย|อาสาสมัคร|\b(?:research|paper|essay|thesis|statistics|novel|"
                          r"character|screenplay|suicide prevention|volunteer)\b", re.I)
-_SELF_REF = re.compile(r"ฉัน|หนู|ผม|เรา|กู|ตัวเอง|เค้า|เขาว่า|อยากตาย|ไม่ไหว|"
+_SELF_REF = re.compile(r"ฉัน|หนู|(?<!ตัด)(?<!สระ)(?<!ย้อม)(?<!ทรง)(?<!เส้น)(?<!ทำ)(?<!หวี)ผม|เรา|กู|ตัวเอง|เค้า|เขาว่า|อยากตาย|ไม่ไหว|"
                        r"\b(?:i|i'm|im|me|my|myself|mine)\b(?!\s+(?:volunteer|am (?:writing|researching)|write|study|research|work))", re.I)
 
 
@@ -1654,6 +1655,13 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     if a["crisis"] and isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text):
         a = dict(a, crisis=False, topics=a["topics"] + ["soft_check"], text_risk=45,
                  risk=min(a["risk"], 45), risk_shown=min(a["risk_shown"], 45))
+    elif isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text) \
+            and any(t in ("trafficking", "violence", "sexual_abuse") for t in a["topics"]):
+        # "ศึกษาเรื่องการค้ามนุษย์ทำรายงาน" เคยได้ Risk 80 ราวกับกำลังถูกค้ามนุษย์
+        a = dict(a, topics=[t for t in a["topics"] if t not in ("trafficking", "violence", "sexual_abuse")],
+                 text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20), risk_shown=min(a["risk_shown"], 20))
+    from core.second_layer import apply as _second_layer
+    a = _second_layer(text, a)
     return a
 
 
@@ -2104,6 +2112,9 @@ _SOFT_OPEN = {
 }
 
 
+_CANT_GO_ON = re.compile(r"\bi\s+can'?t\s+(?:do|take|handle|keep doing)\s+(?:this|it)\s+any\s?more\b", re.I)
+_CANT_OPEN = ("I hear how worn out you are — thank you for saying it. When you say you can't do this anymore, "
+              "I want to gently check: do you mean you're exhausted, or are thoughts of not wanting to be here part of it too?")
 _WORK_OPEN = {
     "ขอบคุณที่บอกให้ชัดนะ — เข้าใจแล้ว และดีใจที่เล่าให้ฟัง":
         "เรื่องนี้หนักแม้จะเป็นงานเขียนหรืองานค้นคว้า — ยินดีช่วยนะ และขอฝากไว้เผื่อระหว่างทำแล้วรู้สึกหนักใจเอง",
@@ -2113,6 +2124,9 @@ _WORK_OPEN = {
 
 
 def _soften_joking_crisis(text, out):
+    if isinstance(out, str) and isinstance(text, str) and _CANT_GO_ON.search(text) \
+            and out.startswith("Thanks for making that clear — got it, and I'm glad you told me."):
+        return _CANT_OPEN + out[len("Thanks for making that clear — got it, and I'm glad you told me."):]
     if isinstance(out, str) and isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text):
         for plain, work in _WORK_OPEN.items():
             if out.startswith(plain):

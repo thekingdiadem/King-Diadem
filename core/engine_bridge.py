@@ -627,8 +627,11 @@ def _disaster(text: str) -> dict | None:
 # ── 6. คิดเลขที่ผู้ใช้ถาม (ENGINE/tool_executor) ─────────────────────────
 # ต้องมีทั้งนิพจน์ (ตัวเลข เครื่องหมาย ตัวเลข) และคำถามหาผล — "24/7" "1-2 วัน" "50/50" ไม่ใช่โจทย์
 # ลบต้องมีช่องว่างทั้งสองข้าง ("25000 - 18000") — "1-2 วัน" เป็นช่วง ไม่ใช่โจทย์
-_CALC_EXPR = re.compile(r"(?<![\d/.])\d[\d,]*(?:\.\d+)?(?:(?:\s*[+×x*÷]\s*|\s+-\s+)\d[\d,]*(?:\.\d+)?)+(?![\d/])")
+_CALC_EXPR = re.compile(r"(?:(?<=\s)|^)-?(?<![\d/.])\d[\d,]*(?:\.\d+)?(?:(?:\s*[+×x*÷]\s*|\s+-\s+)\d[\d,]*(?:\.\d+)?)+(?![\d/])")
 _CALC_ASK = re.compile(r"เท่าไหร่|เท่าไร|เท่าใด|ได้เท่า|ทั้งหมดกี่|รวมกี่|คิดยังไง|ช่วยคิด|ช่วยคำนวณ|คำนวณ|=\s*\?|=\s*$|how much", re.I)
+
+
+_PCT_OF = re.compile(r"(\d+(?:\.\d+)?)\s*(?:%|เปอร์เซ็นต์|เปอร์เซ็น)\s*(?:ของ|จาก|of)\s*(\d[\d,]*(?:\.\d+)?)", re.I)
 
 
 def _fmt(v: float) -> str:
@@ -643,13 +646,24 @@ def _calc(text: str) -> dict | None:
     except Exception:  # pragma: no cover
         return None
     lines, results = [], []
+    # "ดอกเบี้ย 2.5% ของ 100,000 เท่าไหร่" — เปอร์เซ็นต์ของจำนวน (ส่วนลด ดอกเบี้ย ภาษี) เดิมไม่ได้คำตอบ
+    for m in list(_PCT_OF.finditer(text))[:2]:
+        pct, base = float(m.group(1)), float(m.group(2).replace(",", ""))
+        v = pct * base / 100
+        line = f"คิดเลข: {m.group(1)}% ของ {m.group(2)} = {_fmt(v)}"
+        if re.search(r"ลด|ส่วนลด|discount|off", text, re.I) and re.search(r"เหลือ|จ่าย|ราคา|left|pay", text, re.I):
+            line += f" → เหลือ {_fmt(base - v)}"                      # "ลด 20% จาก 1,500 เหลือเท่าไหร่"
+        lines.append(line)
+        results.append(v)
     for m in list(_CALC_EXPR.finditer(text))[:3]:
         raw = m.group(0)
         expr = raw.replace(",", "").replace("×", "*").replace("x", "*").replace("÷", "/")
         r = _safe_calc(expr)
         if "result" not in r:
+            if r.get("error") == "หารด้วยศูนย์":                     # "100 ÷ 0" เคยเงียบไปเฉยๆ
+                lines.append(f"คิดเลข: {raw.strip()} — หารด้วยศูนย์ไม่ได้ค่ะ")
             continue
-        shown = re.sub(r"\s*([+×x*÷-])\s*", lambda o: " " + {"x": "×", "*": "×", "÷": "÷"}.get(o.group(1), o.group(1)) + " ", raw)
+        shown = re.sub(r"(?<=\d)\s*([+×x*÷-])\s*", lambda o: " " + {"x": "×", "*": "×", "÷": "÷"}.get(o.group(1), o.group(1)) + " ", raw)
         lines.append(f"คิดเลข: {shown.strip()} = {_fmt(float(r['result']))}")
         results.append(r["result"])
     return {"lines": lines, "data": {"results": results}} if lines else None
@@ -813,7 +827,9 @@ _BIZ_UNIT = re.compile(r"(?:ชิ้น|อัน|แก้ว|จาน|กล
 
 def _pct(x: float) -> str:
     v = x * 100
-    return f"{v:.1f}%" if abs(v) < 10 else f"{v:.0f}%"
+    if abs(v) < 10 or (99.5 <= abs(v) < 100):            # "≈ 100% ของรายรับ" เคยขึ้นทั้งที่ยังมีรายจ่าย (99.67%)
+        return f"{v:.1f}%"
+    return f"{v:.0f}%"
 
 
 def _business(text: str) -> dict | None:
@@ -879,7 +895,7 @@ _NOT_MONEY = r"(?!\s*(?:%|เปอร์|มื้อ|วัน|ปี|ชม|�
 
 def _spend_items(text: str) -> list:
     out, seen = [], set()
-    for m in re.finditer(rf"({_SPEND_ITEM})\D{{0,10}}?(\d[\d,]*(?:\.\d+)?)\s*(พัน|หมื่น|แสน|k|K)?{_NOT_MONEY}", text):
+    for m in re.finditer(rf"({_SPEND_ITEM})\D{{0,10}}?(\d[\d,]*(?:\.\d+)?)\s*(พัน|หมื่น|แสน|ล้าน|k|K)?{_NOT_MONEY}", text):
         key = re.sub(r"(?:เดือนละ|ต่อเดือน|ประมาณ|ราวๆ|อีก)$", "", re.sub(r"\s", "", m.group(1)))
         if key in seen:
             continue
@@ -900,8 +916,15 @@ def _budget(text: str) -> dict | None:
     if not income or income < 1000:
         return None
     total = _after(text, _SPEND_TOTAL)
-    items = [] if total else _spend_items(text)
-    spend = total if total else sum(items)
+    items = _spend_items(text)
+    # "ใช้จ่าย 10,000 ค่าเช่า 5,000" — เดิมยอดรวมทับรายการ ค่าเช่าหายไปเงียบๆ
+    # ยอดรวมที่บอกมาน้อยกว่ารายการที่แจกแจง แปลว่ารายการเป็นของเพิ่ม → รวมทั้งคู่ · ไม่งั้นใช้ยอดรวม
+    if total and items and total < sum(items) + 1e-9 and max(items) != total:
+        spend = total + sum(i for i in items if i != total)
+    elif total:
+        spend, items = total, []
+    else:
+        spend = sum(items)
     if not spend:
         return None
     left = income - spend
@@ -939,15 +962,18 @@ def budget_en(text: str) -> dict | None:
         return None
     income = _en_num(m)
     tot = _EN_SPEND_TOTAL.search(text)
+    seen, vals = set(), []
+    for it in _EN_SPEND_ITEM.finditer(text):
+        k = it.group(1).lower()
+        if k not in seen:
+            seen.add(k)
+            vals.append(_en_num(it, 2))
     if tot:
         spend, n = _en_num(tot), 1
+        # "rent 3,500. I spend 200" — เดิมได้ "เหลือ 3,800" (ค่าเช่าหายไป) · ยอดรวมน้อยกว่ารายการ = รายการเป็นของเพิ่ม
+        if vals and spend < sum(vals):
+            spend, n = spend + sum(vals), len(vals) + 1
     else:
-        seen, vals = set(), []
-        for it in _EN_SPEND_ITEM.finditer(text):
-            k = it.group(1).lower()
-            if k not in seen:
-                seen.add(k)
-                vals.append(_en_num(it, 2))
         spend, n = sum(vals), len(vals)
     if income <= 0 or spend <= 0:
         return None

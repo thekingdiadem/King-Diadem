@@ -265,6 +265,7 @@ def strip_label(node: dict) -> dict:
     Remove all semantic decoration from a node.
     Return only structural physics.
     """
+    node = _dict(node)                # None เคยทำให้ AttributeError (ฟังก์ชันอื่นในไฟล์ใช้ _dict หมดแล้ว)
     return {
         "choice_count": node.get("choice_count", 1),
         "entropy": node.get("entropy", 0.0),
@@ -869,6 +870,8 @@ def classify_severity(dhd: float) -> dict:
     dhd: float between 0.0 and 1.0 representing daily harm fraction.
     """
     dhd = _num(dhd, 1.0)   # อ่านค่าไม่ได้ → ถือว่ารุนแรงสุด (ปลอดภัยไว้ก่อน)
+    if dhd < 0:
+        dhd = 0.0          # ค่าติดลบ (เช่น -0.001 จากการปัดเศษ) เคยตกไป S4 "หายนะ" — อันตรายติดลบ = ไม่มีอันตราย
     for level, spec in SEVERITY_SCALE.items():
         low, high = spec["dhd_range"]
         if low <= dhd < high:

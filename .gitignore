@@ -15,3 +15,8 @@ private/
 *.pem
 *.key
 service-account*.json
+
+# ผลวัด coverage (python -m coverage run ...) — สร้างใหม่ได้ทุกครั้ง
+.coverage
+.coverage.*
+htmlcov/
