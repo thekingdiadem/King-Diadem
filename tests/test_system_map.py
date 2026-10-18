@@ -90,3 +90,27 @@ def test_gallery_and_asset_files_are_classified_by_real_use():
     assert rows["static/hero.jpg"][2] == "web" and rows["static/icons/icon-192.png"][2] == "web"
     assert rows["static/service-worker.js"][2] == "web"           # เสิร์ฟโดย app.py ที่ /service-worker.js
     assert rows["static/warp_intro.js"][2] == "site"              # ยังใช้ในแกลเลอรี — เก็บไว้
+
+
+def test_earth_assets_loaded_by_js_are_web_not_config():
+    """ภาพโลก/ข้อมูลเมืองโหลดจาก cockpit_earth.js ด้วยชื่อที่ประกอบตอนรัน — เดิมขึ้นเป็นไฟล์ตั้งค่า"""
+    rows = {r[0]: r for r in _embedded()["files"]}
+    for f in ("static/earth/day_4k.jpg", "static/earth/cities_t3.json", "static/earth/capitals.json"):
+        assert rows[f][2] == "web", f
+
+
+def test_no_orphan_legacy_files_left():
+    """ธีม deepspace ไม่มีหน้าไหนโหลด — ลบแล้ว (พี่อนุญาตให้ตัดส่วนที่ไม่ใช้) และต้องไม่มีไฟล์ค้างหมวด legacy"""
+    rows = _embedded()["files"]
+    assert not [r[0] for r in rows if r[2] == "legacy"]
+    assert "static/kd_theme_deepspace.css" not in {r[0] for r in rows}
+
+
+def test_docs_do_not_link_to_deleted_files():
+    import os
+    readme = open("README.md", encoding="utf-8").read()
+    assert "legacy/README.md" not in readme
+    gallery = open("index.html", encoding="utf-8").read()
+    assert "kd_theme_deepspace" not in gallery
+    from core.emptiness_guard import CONNECTED_MODULES
+    assert all(os.path.exists(p) for p in CONNECTED_MODULES), [p for p in CONNECTED_MODULES if not os.path.exists(p)]
