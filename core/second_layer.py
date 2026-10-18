@@ -43,6 +43,12 @@ UPGRADES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"(?:แคป|แคปหน้าจอ|อัดคลิป|อัดหน้าจอ)[^\n]{0,20}?(?:เรียก(?:เงิน|ค่าไถ่)|ขู่)|เรียกค่าไถ่"), "sextortion"),
     (re.compile(r"แก๊งคอลเซ็นเตอร์|กู้หมวกกันน็อค|เงินกู้นอกระบบ[^\n]{0,30}?(?:ขู่|ทวงโหด|ทำร้าย)"), "threat"),
     (re.compile(r"ช่วยด้วย[^\n]{0,6}?ด่วน|ด่วน[^\n]{0,6}?ช่วยด้วย"), "help"),
+    # ── เด็กและผู้สูงอายุ / มิจฉาชีพรูปแบบใหม่ (รอบตรวจ 20 ข้อความ หลุด 4) ─────────────────
+    (re.compile(r"(?:ในเกม|ในแชท|ในไลน์|ในเน็ต|คนแปลกหน้า|ผู้ชาย|ผู้ใหญ่|เขา)[^\n]{0,20}?(?:รูป|คลิป|วิดีโอ)[^\n]{0,14}?(?:ตอนอาบน้ำ|อาบน้ำ|ในห้องน้ำ|โป๊|เปลือย|ไม่ใส่เสื้อ|ชุดชั้นใน)"), "online_grooming"),
+    (re.compile(r"(?:หนู|ผม|ลูก|น้อง|เด็ก|ยาย|ตา)\S{0,4}หลงทาง|หลงทาง[^\n]{0,14}?(?:กลับบ้านไม่ได้|ไม่รู้จะกลับ|หาบ้านไม่เจอ)"), "stranded"),
+    # กินยาผิดตัว/ซ้ำสองรอบ (ไม่ใช่ "กินยาผิดเวลา" ซึ่งมีคำตอบของตัวเอง และไม่ใช่คำถาม "...ไหม")
+    (re.compile(r"กินยา(?:ผิดตัว|ผิดชนิด|ผิดขวด|ของคนอื่น)|กินยา[^\n]{0,16}?(?:ไปสองรอบ|ไป\s*2\s*รอบ|ซ้ำสองรอบ|เบิ้ลไป|ไปสองเท่า)(?![^\n]{0,10}?(?:ไหม|มั้ย|หรือเปล่า|ได้หรือ|\?))"), "overdose"),
+    (re.compile(r"สแกน\s*(?:คิวอาร์|QR|qr)[^\n]{0,30}?(?:เงินหาย|ดูดเงิน|หมดบัญชี|เงินในบัญชีหาย)|(?:โดน|ถูก)ดูดเงิน|เงิน(?:ในบัญชี)?หาย(?:หมด|เกลี้ยง)(?:บัญชี)?"), "scam"),
     # ── ภาษาอังกฤษ: รอบตรวจ 30 ข้อความ หลุด 12 (รวม "i wanna die" และอาการหัวใจวาย) ──────────
     (re.compile(r"(?i)\bi\s*(?:wanna|want to|just want to|wish i could|'?d rather|would rather)\s+die\b(?!\s+(?:laughing|of (?:embarrassment|laughter|cringe)|happy|old|in my sleep at \d))|"
                 r"\b(?:want|need)\s+(?:it all|everything|all of (?:this|it))\s+to\s+(?:end|stop)(?=\s*(?:$|[.!?,…]|now\b|already\b|forever\b|tonight\b|please\b|for good\b))|"
@@ -60,7 +66,7 @@ UPGRADES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"(?i)\bi\s+can'?t\s+(?:do|take|handle|keep doing)\s+(?:this|it)\s+any\s?more\b(?![^\n]{0,24}?\b(?:job|work|class|course|game|diet)\b)"), "soft_check"),
 ]
 _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85, "sexual_abuse": 85,
-            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60}
+            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60}
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
@@ -71,6 +77,7 @@ DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
     (re.compile(r"ตีลูก[^\n]{0,8}?(?:แบด|ขนไก่|เทนนิส|กอล์ฟ|ปิงปอง|เบสบอล)|(?:ไม้แบด|ไม้เทนนิส|ไม้กอล์ฟ|ไม้ปิงปอง)"), ("violence",)),
     (re.compile(r"ไฟฟ้าสถิต"), ("first_aid", "health_emergency")),
 ]
+_MONEY_GONE = re.compile(r"เงินหาย|ดูดเงิน|โอนไปแล้ว|ถอน(?:เงิน)?ไม่ได้|(?i:\bmoney (?:is )?(?:gone|stolen)\b|\bdrained\b)")
 _TRAPPED = re.compile(r"ยึด(?:พาสปอร์ต|หนังสือเดินทาง|บัตร)|ห้ามออก|ออกไม่ได้|กักตัว|ขังไว้|ล่ามโซ่|ไม่ให้กลับ")
 _NOW = re.compile(r"ตอนนี้\S{0,8}(?:หายใจ|ไม่|เลือด|ชัก)|เมื่อกี้|เดี๋ยวนี้|ช่วยด้วย|ด่วน|\b(?:now|right now|help)\b", re.I)
 
@@ -111,6 +118,9 @@ def apply(text: str, a: dict) -> dict:
                 a.update(crisis=True, text_risk=max(a["text_risk"], _UP_RISK[kind]))
             else:
                 a["topics"] = [kind] + [t for t in a["topics"] if t != kind]
+                # เงินหายไปแล้ว (สแกน QR แล้วถูกดูดเงิน) — ต้องได้คำตอบ "รีบแจ้งธนาคารวันนี้" ไม่ใช่ "อย่าเพิ่งทำตาม"
+                if kind == "scam" and _MONEY_GONE.search(text):
+                    a["scam"] = ["lost"]
                 a["text_risk"] = max(a["text_risk"], _UP_RISK[kind])
             a["risk"] = max(a.get("risk", 0), a["text_risk"])
             a["risk_shown"] = max(a.get("risk_shown", 0), a["text_risk"])
