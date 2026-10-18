@@ -38,3 +38,16 @@ def test_every_short_number_in_the_54_language_replies_is_tappable():
                     if not _linked(f"โทร {n} ตอนนี้"):
                         missing.add(n)
     assert not missing, sorted(missing)
+
+
+def test_report_page_uses_the_same_hotline_list():
+    rep = open("static/report.html", encoding="utf-8").read()
+    assert re.search(r"var HOTLINES = /(.*)/g;", rep).group(1) == re.search(r"var HOTLINES = /(.*)/g;", HTML).group(1)
+    assert "telify(esc(d.ai_response" in rep
+
+
+def test_offline_page_numbers_are_tappable():
+    """หน้าออฟไลน์: ไม่มีเน็ตก็ยังโทรได้ — เดิมเบอร์เป็นตัวหนังสือธรรมดา"""
+    off = open("static/offline.html", encoding="utf-8").read()
+    for n in ("1669", "191", "1323", "1155"):
+        assert f'href="tel:{n}"' in off
