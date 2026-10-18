@@ -118,7 +118,7 @@ override ทุกครั้งต้องมีหลักฐาน ผู�
 ## เบื้องหลังทางเทคนิค
 
 **Stack:** FastAPI · Python · Google Gemini · SQLite · HTML / CSS / JS (canvas + WebGL) · Render
-**Scale:** 397 ไฟล์ · Python ที่ใช้งานจริง 192 ไฟล์ (+ โค้ดเก่าเก็บไว้ใน [`legacy/`](legacy/README.md)) · 1,900+ commits
+**Scale:** 358 ไฟล์ · Python ของระบบ 106 ไฟล์ (ไม่นับเทสต์และสคริปต์) · เทสต์ 2,700+ ข้อ · 1,900+ commits
 
 | โฟลเดอร์ | หน้าที่ |
 |---|---|

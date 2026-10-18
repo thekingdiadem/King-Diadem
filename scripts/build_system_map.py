@@ -167,7 +167,16 @@ def asset_refs(files: list[str]) -> set[str]:
                                  if isinstance(n, ast.Constant) and isinstance(n.value, str))
             text += src + "\n"
     text = _MAP_RE.sub("", text)
-    return {"static/" + m for m in re.findall(r"/?static/([\w./-]+\.\w+)", text)}
+    out = {"static/" + m for m in re.findall(r"/?static/([\w./-]+\.\w+)", text)}
+    # ภาพโลกและข้อมูลเมือง (static/earth/) โหลดจาก JS ที่หน้าเว็บใช้จริง ด้วยชื่อที่ประกอบตอนรัน
+    # ('earth/' + file, 'cities_t' + n + '.json') — เดิมขึ้นว่าเป็นไฟล์ตั้งค่า ทั้งที่หน้าโลกโหลดทุกครั้ง
+    live_js = static_refs(files)
+    for f in files:
+        if f.startswith("static/") and f.endswith(".js") and os.path.basename(f) in live_js:
+            src = open(os.path.join(ROOT, f), encoding="utf-8").read()
+            if "earth/" in src:
+                out |= {g for g in files if g.startswith("static/earth/") and not g.endswith(".md")}
+    return out
 
 
 def web_edges(files: list[str]) -> list[tuple[str, str]]:

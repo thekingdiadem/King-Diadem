@@ -793,7 +793,7 @@ CONNECTED_MODULES = {
     "core/king_diadem_core.py":   "DriftZero + Waterline standard",
     "core/silent_canon.py":       "TITAN silence protocol + anti-capture rules",
     "core/entropy_guard.py":      "entropy containment (sibling guard module)",
-    "ENGINE/brain.py":            "route-aware dispatch — kernel selection happens here",
+    "ENGINE/engine_router.py":    "route-aware dispatch — kernel selection happens here",   # เดิมชี้ ENGINE/brain.py ที่ไม่มีแล้ว
     "ENGINE/council_engine.py":   "multi-kernel council: LYLA + VEGA vote on decisions",
 }
 
