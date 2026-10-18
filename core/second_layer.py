@@ -43,11 +43,24 @@ UPGRADES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"(?:แคป|แคปหน้าจอ|อัดคลิป|อัดหน้าจอ)[^\n]{0,20}?(?:เรียก(?:เงิน|ค่าไถ่)|ขู่)|เรียกค่าไถ่"), "sextortion"),
     (re.compile(r"แก๊งคอลเซ็นเตอร์|กู้หมวกกันน็อค|เงินกู้นอกระบบ[^\n]{0,30}?(?:ขู่|ทวงโหด|ทำร้าย)"), "threat"),
     (re.compile(r"ช่วยด้วย[^\n]{0,6}?ด่วน|ด่วน[^\n]{0,6}?ช่วยด้วย"), "help"),
+    # ── ภาษาอังกฤษ: รอบตรวจ 30 ข้อความ หลุด 12 (รวม "i wanna die" และอาการหัวใจวาย) ──────────
+    (re.compile(r"(?i)\bi\s*(?:wanna|want to|just want to|wish i could|'?d rather|would rather)\s+die\b(?!\s+(?:laughing|of (?:embarrassment|laughter|cringe)|happy|old|in my sleep at \d))|"
+                r"\b(?:want|need)\s+(?:it all|everything|all of (?:this|it))\s+to\s+(?:end|stop)(?=\s*(?:$|[.!?,…]|now\b|already\b|forever\b|tonight\b|please\b|for good\b))|"
+                r"\brope\b[^.\n]{0,30}?\b(?:keep looking|keep staring|staring at|ready|tied (?:it|a noose))\b"), "crisis"),
+    (re.compile(r"(?i)\b(?:took|swallowed|taken|ate|downed)\b[^.\n]{0,24}?\b(?:bunch|handful|bottle|all|whole|lot|box)\b[^.\n]{0,16}?\b(?:pills|tablets|meds)\b|"
+                r"\bswallowed\b[^.\n]{0,20}?\b(?:sleeping|pain(?:killer)?|my (?:mom|dad|mum)'?s?)\b[^.\n]{0,10}?\b(?:pills|tablets|meds)\b"), "overdose"),
+    (re.compile(r"(?i)\bfell\b[^.\n]{0,16}?\bcan'?t get up\b|\bchest\s+(?:hurts|pain)\b[^.\n]{0,30}?\b(?:arm|jaw)\b[^.\n]{0,12}?\bnumb\b|"
+                r"\bleft arm (?:is |feels )?numb\b|\b(?:bit|bitten) by a (?:snake|cobra|viper)\b|"
+                r"\bsmoke everywhere\b|\bcan'?t get out\b[^.\n]{0,20}?\b(?:fire|smoke|flood|water)\b|\b(?:fire|smoke|flood(?:ing)?)\b[^.\n]{0,24}?\b(?:can'?t get out|trapped)\b"), "health_emergency"),
+    (re.compile(r"(?i)\bmy (?:dad|father|stepdad|husband|boyfriend|brother|uncle|mom|mother)\s+(?:hit|beat|punched|kicked|stabbed|choked)\s+(?:my|me|her|him)\b"), "violence"),
+    (re.compile(r"(?i)\b(?:from|say they'?re from|claims? to be (?:from )?)\s*(?:the )?bank\b[^.\n]{0,40}?\b(?:otp|one[- ]time (?:code|password)|verification code|pin|password)\b"), "scam"),
+    (re.compile(r"(?i)\b(?:standing|sitting)\s+on\s+(?:the|a)\s+(?:bridge|ledge|roof(?:top)?)\b(?![^.\n]{0,30}?\b(?:view|photo|beautiful|sunset|watching))"), "soft_check"),
+
     # "I can't do this anymore" — มักแปลว่าหมดแรง แต่บางคนหมายถึงไม่อยากอยู่ → ถามไถ่เบาๆ พร้อมเบอร์ (ไม่ใช่โหมดวิกฤต)
     (re.compile(r"(?i)\bi\s+can'?t\s+(?:do|take|handle|keep doing)\s+(?:this|it)\s+any\s?more\b(?![^\n]{0,24}?\b(?:job|work|class|course|game|diet)\b)"), "soft_check"),
 ]
 _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85, "sexual_abuse": 85,
-            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90}
+            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60}
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [

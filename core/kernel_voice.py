@@ -1634,9 +1634,9 @@ def _clip(text) -> str:
 _WORK_FRAME = re.compile(r"นิยาย|ตัวละคร|บทละคร|เขียนบท|รายงานเรื่อง|ทำรายงาน|งานวิจัย|วิทยานิพนธ์|สถิติ|ศึกษาเรื่อง|"
                          r"ฉาก\S{0,6}(?:ฆ่า|ยิง|ตาย)|หนังเรื่อง|ซีรีส์เรื่อง|ภาพยนตร์|ทางแฟชั่น|"
                          r"ป้องกันการฆ่าตัวตาย|อาสาสมัคร|\b(?:research|paper|essay|thesis|statistics|novel|"
-                         r"character|screenplay|suicide prevention|volunteer)\b", re.I)
+                         r"character|screenplay|suicide prevention|overdose prevention|volunteer|movie|film|scene|tv show|series|documentary)\b", re.I)
 _SELF_REF = re.compile(r"ฉัน|หนู|(?<!ตัด)(?<!สระ)(?<!ย้อม)(?<!ทรง)(?<!เส้น)(?<!ทำ)(?<!หวี)ผม|เรา|กู|ตัวเอง|เค้า|เขาว่า|อยากตาย|ไม่ไหว|"
-                       r"\b(?:i|i'm|im|me|my|myself|mine)\b(?!\s+(?:volunteer|am (?:writing|researching)|write|study|research|work))", re.I)
+                       r"\b(?:i'm|im|i(?!')|me|my|myself|mine)\b(?!\s+(?:volunteer|am (?:writing|researching)|writing|researching|write|study|studying|research|work))", re.I)
 
 
 # "ฝันว่าจมน้ำ/รถชน/ระเบิดลง" = เล่าความฝัน ไม่ใช่เหตุตอนนี้ — แต่ความคิดอยากตายยังนับเสมอ
@@ -1656,9 +1656,9 @@ def assess(text: str, pattern: dict | None = None) -> dict:
         a = dict(a, crisis=False, topics=a["topics"] + ["soft_check"], text_risk=45,
                  risk=min(a["risk"], 45), risk_shown=min(a["risk_shown"], 45))
     elif isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text) \
-            and any(t in ("trafficking", "violence", "sexual_abuse") for t in a["topics"]):
+            and any(t in ("trafficking", "violence", "sexual_abuse", "overdose") for t in a["topics"]):
         # "ศึกษาเรื่องการค้ามนุษย์ทำรายงาน" เคยได้ Risk 80 ราวกับกำลังถูกค้ามนุษย์
-        a = dict(a, topics=[t for t in a["topics"] if t not in ("trafficking", "violence", "sexual_abuse")],
+        a = dict(a, topics=[t for t in a["topics"] if t not in ("trafficking", "violence", "sexual_abuse", "overdose")],
                  text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20), risk_shown=min(a["risk_shown"], 20))
     from core.second_layer import apply as _second_layer
     a = _second_layer(text, a)
