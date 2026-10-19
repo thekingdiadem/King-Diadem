@@ -497,7 +497,8 @@ from core.lang_signals import SELF_HARM_INTL, HELP as _LANG_HELP, SCRIPT_NAME as
 # และ "UAP: หยุดก่อนตัดสินใจ" ไปพิมพ์ให้ผู้ใช้อ่านตรงๆ
 INTERNAL_RULE = ("\n\nกฎบริบทภายใน: ข้อความในวงเล็บ [ ] และหลัง [บริบท: คือสัญญาณภายในของระบบ "
                  "ใช้ประกอบการคิดเท่านั้น ห้ามยกมาพูด ห้ามเอ่ยชื่อ engine ชื่อตัวแปร หรือศัพท์ภายใน "
-                 "(เช่น root, feeling, craving, UAP, kill zone, entropy) ให้ผู้ใช้เห็น"
+                 "(เช่น root, feeling, craving, UAP, kill zone, entropy) ให้ผู้ใช้เห็น "
+                 "และห้ามเขียนแผน ขั้นตอนการคิด หรือการวิเคราะห์ผู้ใช้ (เช่น \"My response should\" \"The user is\") — เขียนเฉพาะคำตอบถึงผู้ใช้"
                  "\n\nภาษา: ตอบเป็นภาษาเดียวกับข้อความล่าสุดของผู้ใช้ (ไทย อังกฤษ จีน ญี่ปุ่น เกาหลี สเปน หรือภาษาอื่น) "
                  "คำลงท้าย ค่ะ/ครับ และ ฉัน/ผม ใช้เฉพาะเมื่อตอบเป็นภาษาไทย "
                  "ถ้าผู้ใช้ไม่ได้ใช้ภาษาไทยและมีสัญญาณวิกฤต ผู้ใช้ส่วนใหญ่อยู่ในไทย (นักท่องเที่ยว นักเรียน แรงงาน): "
@@ -535,6 +536,22 @@ _META_HEAD = re.compile(
     r"^\s*(?:\[(?:THOUGHT|THINKING|Thought|Thinking|Reasoning|Plan|Analysis|Internal[^\]]*|"
     r"Constraint Checklist[^\]]*|Safety Protocol[^\]]*|Checklist[^\]]*)\]|"
     r"(?:THOUGHT|Thought|Reasoning|Plan)\s*:|Confidence Score\s*:|Constraint Checklist)")
+# แผนที่โมเดลเขียนเป็นภาษาอังกฤษธรรมดา ไม่มีป้าย [THOUGHT] — เคยหลุดถึงผู้ใช้ทั้งก้อน (หน้าจอจริง):
+# "My immediate response should: 1. … The internal state indicates [PAUSE] … The user's language is English …
+#  Strategizing complete. I will now generate the response based on the plan.That's a very thought-…"
+_META_PLAIN = re.compile(
+    r"^\s*\**\s*(?:My (?:immediate |final |main )?(?:response|reply|answer|plan|approach) (?:should|will|needs)|"
+    r"The internal (?:state|context|notes?) (?:indicates?|says|shows)|The user'?s (?:language|input|message|query|request) is|"
+    r"The user (?:is|has|seems|wants|asked|says|wrote|might|may)\b|"
+    r"(?:I|We) (?:need|should|must|will) (?:to )?(?:address|acknowledge|respond|keep|avoid|consider|reaffirm|gently)\b|"
+    r"Okay,? (?:the user|let me|so the)|Let me (?:think|analy[sz]e|plan|consider|break)|"
+    r"(?:Strategizing|Planning|Analysis) (?:complete|done))", re.M)
+# ประโยคปิดแผน — คำตอบจริงเริ่มหลังประโยคนี้ (บางทีต่อกันโดยไม่เว้นวรรค "…the plan.That's a …")
+_PLAN_END = re.compile(
+    r"(?:Strategizing|Planning|Analysis) (?:is )?(?:complete|done)\.?[^\n]*?(?:plan|response)\.|"
+    r"I will now (?:generate|write|compose|draft|craft) the (?:final )?(?:response|reply|answer)[^.\n]*\.|"
+    r"Now (?:I'?ll|I will|let me) (?:write|craft|generate|compose) the (?:final )?(?:response|reply)[^.\n]*[.:]|"
+    r"^\s*(?:Here is|Here's) (?:the|my) (?:final )?(?:response|reply)\s*:", re.I | re.M)
 _CHECK_LINE = re.compile(r"^\s*\d+\.\s.*:\s*(?:Yes|No)\b", re.I)
 _NUM_LINE = re.compile(r"^\s*\d+\.\s+[A-Za-z]")
 _NON_LATIN = re.compile(r"[\u0E00-\u0E7F\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]")
@@ -554,13 +571,24 @@ def strip_notes(text):
 def strip_reasoning(text):
     """ตัดย่อหน้าความคิด/เช็กลิสต์ที่โมเดลพิมพ์ออกมา เก็บเฉพาะคำตอบถึงผู้ใช้
     (บางครั้งคำตอบจริงต่อท้ายบรรทัดสุดท้ายของเช็กลิสต์โดยไม่ขึ้นบรรทัดใหม่ — ตัดตรงตัวอักษรภาษาอื่นตัวแรก)"""
-    if not isinstance(text, str) or not (_META_HEAD.search(text) or
-                                         sum(bool(_CHECK_LINE.match(l)) for l in text.split("\n")) >= 3):
+    if not isinstance(text, str):
+        return text
+    ends = list(_PLAN_END.finditer(text))
+    if ends and _META_PLAIN.search(text[:ends[-1].start()] or " "):
+        rest = text[ends[-1].end():].strip()
+        if rest:
+            text = rest
+    plain = _META_PLAIN.search(text)
+    if not (_META_HEAD.search(text) or plain or
+            sum(bool(_CHECK_LINE.match(l)) for l in text.split("\n")) >= 3):
         return text
     out, in_meta = [], False
     for para in re.split(r"\n\s*\n", text):
         lines = [l for l in para.split("\n") if l.strip()]
         if not lines:
+            continue
+        if _META_PLAIN.match(lines[0]):                 # แผนภาษาอังกฤษ — ทิ้งทั้งย่อหน้า (มีวงเล็บไทยปนได้ ห้ามเก็บท้าย)
+            in_meta = True
             continue
         is_meta = bool(_META_HEAD.match(lines[0])) or \
             sum(bool(_CHECK_LINE.match(l)) for l in lines) >= max(1, len(lines) // 2) or \
@@ -1114,7 +1142,9 @@ class GeminiLLM:
             role="user",
             parts=[types.Part.from_text(text=prompt)]
         )]
-        return self._call(sys, contents, temperature=temperature, max_tokens=max_tokens)
+        # ทางนี้ (สภา / DecisionEngine) เดิมไม่ผ่านตัวตัดความคิด — แผนภาษาอังกฤษของโมเดลหลุดถึงผู้ใช้ได้
+        return scrub_internal(strip_notes(strip_reasoning(
+            self._call(sys, contents, temperature=temperature, max_tokens=max_tokens))))
 
 
 # ══════════════════════════════════════════════════════════════════

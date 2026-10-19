@@ -2800,6 +2800,11 @@ def _analyze_image_sync(data: bytes, mime: str) -> str:
     except Exception:
         parts = getattr(getattr(resp, "candidates", [None])[0], "content", None)
         text = " ".join(p.text for p in (getattr(parts, "parts", []) or []) if hasattr(p, "text"))
+    try:
+        from core.llm_gemini import strip_reasoning
+        text = strip_reasoning(text)
+    except Exception:
+        pass
     return text.strip() or _IMAGE_EMPTY
 
 
