@@ -84,6 +84,28 @@ EN_UPGRADES: list[tuple[re.Pattern, str]] = [
                 r"\bclick (?:the )?link to pay\b|\bwon an? (?:iphone|prize)\b[^.\n]{0,20}?\bpay\b|\b(?:grand palace|palace) (?:is )?closed\b|\bgem shop\b|"
                 r"\bcrypto (?:investment )?scam\b", _I),
      "scam"),
+    # ── รอบหาบั๊ก ML: แผน/เจตนาที่ไม่มีคำหลักตรงๆ · สะกดเลี่ยง ("k1ll" "sui cide") ──────────────────
+    (re.compile(r"\bk[1!|]ll\s+myself\b|\bsui\s+cide\b|\bhang(?:ing)? myself\b|\bpills lined up\b|\bi'?ll (?:just )?end it\b|"
+                r"\bgonna end it\b|\bend it (?:tonight|tonite|today)\b|\bon (?:the|a) (?:bridge|roof|ledge)\b[^.\n]{0,40}?\b(?:jump|gonna|going to)\b|"
+                r"\bdrive (?:my car )?into (?:a |the )?(?:wall|tree|truck)\b|\bstop eating until i die\b|\bcutting again\b", _I), "crisis"),
+    (re.compile(r"\bfell\b[^.\n]{0,30}?\b(?:can'?t|cannot) get up\b|\b(?:can'?t|cannot) breathe\b|\bsnake bit\b|\bbitten by a snake\b|"
+                r"\b(?:car|bus|motorbike) (?:accident|crash)\b[^.\n]{0,40}?\b(?:hurt|injured|bleeding|ambulance)\b|\bneed (?:an )?ambulance\b|"
+                r"\bhypothermia\b|\bheavy bleeding\b|\bblood won'?t stop\b|\bblood wont stop\b|\bhigh fever\b[^.\n]{0,20}?\bconfused\b", _I), "health_emergency"),
+    (re.compile(r"\b(?:man|guy|someone|somebody) (?:is )?following me\b|\blocked (?:the )?doors? and (?:won'?t|wont) let me out\b|"
+                r"\bim being held\b|\bi'?m being held\b|\bkidnapp?ed\b|\bthreatening (?:us|me) with (?:a )?(?:knife|gun|machete)\b|"
+                r"\bran away from him\b|\bscared he'?ll find me\b|\bbroke into my (?:house|room|home)\b|\bdriver ignoring me\b", _I), "violence"),
+    (re.compile(r"\bpay (?:the )?shipping fee\b|\b(?:in jail|arrested)\b[^.\n]{0,30}?\bneeds? money\b|\bmoney wired\b|"
+                r"\bsays? (?:he'?s|she'?s|they'?re|it'?s) (?:the )?police\b[^.\n]{0,40}?\btransfer\b|\bpromising \d+\s*% (?:per|a|every) (?:week|day|month)\b|\btook my atm card\b|\b(?:atm card|card) and (?:my )?pin\b", _I), "scam"),
+    # ── รอบหาบั๊ก 5 (อังกฤษ) ─────────────────────────────────────────────────────────────
+    (re.compile(r"\bi have (?:my (?:dad|mom|mum)'?s |the )?(?:pills|rope|gun)\b[^.\n]{0,30}?\b(?:in front of me|ready|tonight)\b|"
+                r"\bbetter off without me\b|\bdon'?t want to be here\b(?!\s+(?:today|at|for|in|with|right now because))|\bpills in front of me\b|\bi have the rope\b|\btonight is the night\b|\bplanning it for weeks\b", _I), "crisis"),
+    (re.compile(r"\bfell down the stairs\b|\bcan'?t move (?:her|his|my) (?:leg|legs|arm)\b|\bpulse is (?:like )?[2-4]\d\b|\bheart pills twice\b|"
+                r"\bhasn'?t answered the door\b[^.\n]{0,30}?\bsmell\b|\bweeks pregnant\b[^.\n]{0,30}?\b(?:headache|blurry|swelling|bleeding|pain)\b|"
+                r"\bbleeding from the head\b|\blying on the road\b|\bchlorpyrifos\b|\bpesticide\b[^.\n]{0,30}?\b(?:twitch|sweat|dizzy|vomit)|"
+                r"\bpupils are tiny\b|\btoo much yaba\b|\bheart is racing\b[^.\n]{0,30}?\bchest\b|\blocked (?:herself|himself) in\b[^.\n]{0,30}?\bknife\b", _I),
+     "health_emergency"),
+    (re.compile(r"\b(?:send|post|share) my (?:pics|photos|nudes|videos?)\b[^.\n]{0,40}?\b(?:if i don'?t|unless i) pay\b", _I), "sextortion"),
+    (re.compile(r"\bbeat me up with\b|\btrying to break into my\b|\bbreaking into my\b", _I), "violence"),
 ]
 
 # อดีตที่ผ่านไปแล้ว / ความรู้ / ข่าว — ภาษาอังกฤษ (ลดให้เป็นถามไถ่หรือปกติ)

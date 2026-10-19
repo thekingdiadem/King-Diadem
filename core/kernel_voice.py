@@ -797,6 +797,9 @@ TOPICS = [
     ("legal", [LEGAL], {
         "open": ["เรื่องกฎหมายดูน่ากลัว แต่มีขั้นตอนและมีคนช่วยฟรี"],
         "paths": [
+            # "อยู่เกาหลีผีน้อย โดนตำรวจจับ" เคยได้คำตอบที่ไม่มีเบอร์ไหนเลย
+            ([re.compile(r"ต่างประเทศ|เมืองนอก|ผีน้อย|เกาหลี|ญี่ปุ่น|ไต้หวัน|มาเลย์|ดูไบ|abroad", re.I)],
+             "อยู่ต่างประเทศ: ติดต่อสถานทูตหรือสถานกงสุลไทยที่ใกล้ที่สุด · ศูนย์ช่วยเหลือคนไทยในต่างประเทศ กรมการกงสุล 02-572-8442 (24 ชม.)"),
             ([re.compile(r"จับ|ตำรวจ|arrest", re.I)],
              "ถูกจับ: คุณมีสิทธิ์รู้ข้อกล่าวหา ขอพบและปรึกษาทนาย และแจ้งญาติ — ยังไม่ต้องให้การหรือเซ็นเอกสารจนกว่าจะเข้าใจหรือมีทนาย"),
             ([re.compile(r"หมาย|ฟ้อง|ศาล|sue|subpoena", re.I)],
@@ -1615,6 +1618,9 @@ _MAX_LEN = 8000
 
 _RUN = re.compile(r"(.)\1{12,}", re.S)
 _SURR = re.compile("[\ud800-\udfff]")
+_INVIS = re.compile("[\u200b-\u200d\u2060\ufeff\u00ad]")
+_FULLWIDTH = {c: c - 0xFEE0 for c in range(0xFF01, 0xFF5F)} | {0x3000: 0x20}
+_DECOR = re.compile("[\u0334-\u0338\u20d0-\u20ff]")   # เฉพาะขีดทับ — วรรณยุกต์ภาษาอื่น (โยรูบา "fẹ́") ต้องคงไว้
 
 
 def _clip(text) -> str:
@@ -1623,6 +1629,10 @@ def _clip(text) -> str:
     text = text if isinstance(text, str) else str(text or "")
     # อักขระครึ่งตัว (surrogate เดี่ยว เช่น "\ud800" จาก JSON) เข้ารหัส UTF-8 ไม่ได้ — เดิมทำให้ตอบ 500
     text = _SURR.sub("\ufffd", text)
+    # ตัวอักษรตกแต่งที่ทำให้ตรวจไม่เจอ: ช่องว่างล่องหน ("k\u200bill my\u200bself" "อ\u200bยากตาย"),
+    # ตัวเต็มความกว้าง ("ｉ ｗａｎｔ ｔｏ ｄｉｅ") และขีดฆ่า/ตกแต่งแบบ combining ("d̷i̷e̷")
+    text = _INVIS.sub("", text).translate(_FULLWIDTH)
+    text = _DECOR.sub("", text)
     # ตัวอักษรเดียวซ้ำยาวๆ ("กกกก…" หลายพันตัว) ทำให้ตรวจช้า 1–2 วินาทีต่อข้อความ — ย่อเหลือ 12 ตัว
     # (ยังพอให้ "55555" "ๆๆ" "!!!!" อ่านความหมายได้เหมือนเดิม)
     text = _RUN.sub(lambda m: m.group(1) * 12, text) if len(text) > 200 else text
@@ -1737,7 +1747,8 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
         if kind_w == "crisis":
             crisis = True
         else:
-            topic_w = {"medical": "health_emergency", "violence": "violence", "help": "help"}[kind_w]
+            topic_w = {"medical": "health_emergency", "violence": "violence", "help": "help",
+                       "danger": "help", "scam": "help"}[kind_w]
             if topic_w not in topics:
                 topics.append(topic_w)
     if tr.get("basic_needs") and "basic" not in topics:
@@ -2142,6 +2153,10 @@ def _soften_joking_crisis(text, out):
 def compose(text: str, *args, **kw) -> str:
     """คำตอบแบบไม่มี AI · ภาษาอื่นนอกจากไทย: Choice(t) ต้องเท่ากับจำนวนทางที่พิมพ์จริง
     (เดิม "My husband hits me" แสดง Choice(t) = 4 แต่มีแค่ 3 ข้อ เพราะตั้งค่าตายตัวไว้ก่อนเลือกชุดคำตอบ)"""
+    if isinstance(text, (bytes, bytearray)):        # compose(b"...") เคยล่มด้วย TypeError
+        text = bytes(text).decode("utf-8", "replace")
+    elif text is not None and not isinstance(text, str):
+        text = str(text)
     out = _compose(text, *args, **kw)
     out = _soften_joking_crisis(text, out)
     if isinstance(out, str) and detect_lang(text) != "th":
@@ -2329,3 +2344,35 @@ def compose_council(text: str, footer: bool = True) -> str:
     return (f"LYLA ◈ — {lyla}\n\nVEGA ◆ — {vega}\n\nPATICCA ☸ — {paticca}\n\n"
             f"TITAN ▲ — ก้าวที่ทำได้ภายใน 24 ชั่วโมง: {titan}\n\nCOSMOS ✦ — {cosmos}\n\nCIVIL ⬡ — {civil}\n\n"
             f"มติสภา{agree}: {verdict}\nคุณเป็นคนตัดสินใจเสมอ\n\n— สภา KING DIADEM ✦" + tag)
+
+
+# ── ข้อความถัดไปหลังเล่าว่าอยากตาย (ไม่มี AI) ──────────────────────────────────────────
+# เดิมต่อข้อความเก่าเข้ากับข้อความใหม่แล้วตอบใหม่ — "ขอบคุณ" "ล้อเล่น" "how do I bake bread" ได้คำตอบวิกฤตครั้งแรกซ้ำคำต่อคำ
+# และถ้าเรื่องเดิมเป็นภาษาไทย คำถามภาษาอังกฤษก็ได้คำตอบภาษาไทย
+_FOLLOW = {
+    "th": ("ขอบคุณที่ยังคุยกันอยู่นะ{end} เมื่อกี้คุณเล่าเรื่องที่หนักมาก ขอถามสั้นๆ ว่าตอนนี้ปลอดภัยไหม{end}",
+           "ถ้าความรู้สึกนั้นกลับมาเมื่อไหร่ โทร 1323 (สายด่วนสุขภาพจิต 24 ชม.) ได้ทุกเวลา · ถ้าอันตรายตอนนี้ 1669",
+           "อยากเล่าต่อเรื่องไหนก็ได้ ฉันอยู่ตรงนี้{end}", "· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI"),
+    "en": ("Thank you for still talking with me. Earlier you shared something really heavy — are you safe right now?",
+           "If that feeling comes back, you can reach someone anytime: in Thailand 1323 (mental health, 24h) · 1669 if you're in "
+           "danger now · elsewhere findahelpline.com",
+           "We can talk about anything you like. I'm here.", "· Answered from the system's equations — no AI used"),
+}
+
+
+def compose_followup(text: str, voice_mode: str = "lyla", footer: bool = True) -> str:
+    """ข้อความต่อจากเรื่องอยากตายที่ตัวเองไม่มีความเสี่ยง: ถามว่าปลอดภัยไหม + เบอร์ 1323 สั้นๆ
+    ข้อความยาวที่เป็นเรื่องใหม่ได้คำตอบของเรื่องนั้น แล้วต่อท้ายด้วยเบอร์"""
+    text = _clip(text)
+    lang = "th" if detect_lang(text) == "th" else "en"
+    vega = voice_mode == "vega"
+    end = ("ครับ" if vega else "ค่ะ") if lang == "th" else ""
+    sign = "— VEGA ◆" if vega else "— LYLA ◈"
+    ask, line, close, tag = _FOLLOW[lang]
+    tag = "\n" + tag if footer else ""
+    if len(text.strip()) > 30:
+        body = compose(text, voice_mode=voice_mode, footer=False).rstrip()
+        if body.endswith(sign):
+            body = body[: -len(sign)].rstrip()
+        return f"{body}\n\n📞 {line}\n\n{sign}{tag}"
+    return f"{ask.format(end=end)}\n\n📞 {line}\n\n{close.format(end=end)}\n\n{sign}{tag}"
