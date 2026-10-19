@@ -2203,8 +2203,8 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         violations = result.get("canon_violations", []) or []
         if result.get("canon_violation"):
             print(f"⚠ CANON VIOLATION: {violations}")
-            # ให้ user เห็นจริง ไม่ใช่แค่ log server-side
-            result["canon_notice"] = f"ตรวจพบความเบี่ยงเบนจาก canon: {violations}"
+            # ผู้ใช้เห็นแค่ประโยคธรรมดา — ชื่อกฎภายใน (['coercion_detected']) อยู่ใน log ด้านบนเท่านั้น
+            result["canon_notice"] = "คำตอบนี้ผ่านการตรวจหลักของระบบแล้ว และถูกปรับให้ปลอดภัยขึ้นค่ะ"
             severe = [v for v in violations if str(v).lower() in _CANON_HARD_BLOCK]
             if severe:
                 print(f"⛔ CANON HARD BLOCK: {severe}")
@@ -2261,6 +2261,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # ── รายงานที่แชร์ได้: สร้างเมื่อผู้ใช้กดแชร์เท่านั้น ─────────────────────
     # เดิมสร้างลิงก์สาธารณะทุกครั้งที่ถาม (ไม่มีวันหมดอายุ ลบไม่ได้) — เรื่องส่วนตัวค้างอยู่ในลิงก์ที่ใครมีก็อ่านได้
     # ตอนนี้แค่จำผลไว้ชั่วคราวกับ token · กด "แชร์" แล้วค่อยสร้างจริง (POST /api/report/share)
+    _strip_internal_fields(result)
     if _create_report:
         result["share_token"] = _remember_for_share(email, user_input, result)
 
@@ -2801,8 +2802,8 @@ def _analyze_image_sync(data: bytes, mime: str) -> str:
         parts = getattr(getattr(resp, "candidates", [None])[0], "content", None)
         text = " ".join(p.text for p in (getattr(parts, "parts", []) or []) if hasattr(p, "text"))
     try:
-        from core.llm_gemini import strip_reasoning
-        text = strip_reasoning(text)
+        from core.llm_gemini import strip_reasoning, strip_notes, scrub_internal
+        text = scrub_internal(strip_notes(strip_reasoning(text)))
     except Exception:
         pass
     return text.strip() or _IMAGE_EMPTY
@@ -2841,6 +2842,22 @@ def _with_gate_questions(reply: str, gates: list, lang: str = "th") -> str:
 _SHARE_TTL, _SHARE_MAX = 2 * 3600, 2000
 _share_lock = threading.Lock()
 _share_cache: dict = {}        # token → {"email", "input", "result", "t", "report"}
+
+
+# ส่วนที่เป็นคำสั่งถึง AI หรือผลดิบของ engine — ไม่ใช่สิ่งที่ผู้ใช้ต้องเห็น (เดิมส่งกลับใน JSON ทั้งก้อน
+# และ context_for_lyla ติดไปในรายงานที่แชร์สาธารณะได้)
+_INTERNAL_RESULT_KEYS = ("collapse_chain", "engine_result", "core_loop", "wisdom", "context_for_lyla", "canon_violations")
+
+
+def _strip_internal_fields(result: dict) -> None:
+    if not isinstance(result, dict):
+        return
+    for k in _INTERNAL_RESULT_KEYS:
+        result.pop(k, None)
+    for box in (result.get("human_engine"), result.get("pattern"),
+                (result.get("governance") or {}).get("human_state") if isinstance(result.get("governance"), dict) else None):
+        if isinstance(box, dict):
+            box.pop("context_for_lyla", None)
 
 
 def _remember_for_share(email: str, user_input: str, result: dict) -> str:
