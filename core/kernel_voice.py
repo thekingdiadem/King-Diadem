@@ -1655,6 +1655,23 @@ _DREAM = re.compile(r"^\s*(?:เมื่อคืน|คืนก่อน|เ�
 _WOKE_REAL = re.compile(r"ตื่น(?:มา|ขึ้นมา)|ตอนนี้|\b(?:woke up|now|right now)\b", re.I)
 
 
+def _crisis_outside_frame(text: str, pattern=None) -> bool:
+    """ตัดเฉพาะท่อนที่พูดถึงหนัง/งานเขียนออก แล้วดูว่าที่เหลือยังเป็นวิกฤตไหม
+    ("ดูหนังเรื่องสึนามิ อยากหลับไม่ตื่น" เคยถูกมองว่าเป็นเรื่องในหนังทั้งข้อความ — ทดสอบหนัก 1 ล้านครั้งเจอ 28 แบบ)"""
+    rest = text
+    for m in reversed(list(_WORK_FRAME.finditer(text))):
+        if re.search(r"[\u0E00-\u0E7F]", m.group()):        # ไทย: ท่อนคั่นด้วยช่องว่าง
+            lo = text.rfind(" ", 0, m.start()) + 1
+            hi = text.find(" ", m.end())
+        else:                                               # ภาษาอื่น: ท่อนคั่นด้วยจุด/ขึ้นบรรทัด
+            lo = max(text.rfind(c, 0, m.start()) for c in ".!?\n。") + 1
+            hi = min([i for i in (text.find(c, m.end()) for c in ".!?\n。") if i >= 0] or [-1])
+        hi = len(text) if hi < 0 else hi
+        rest = rest[:lo] + " " + rest[hi:]
+    rest = rest.strip()
+    return bool(rest) and rest != text.strip() and _assess_raw(rest, pattern)["crisis"]
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
     a = _assess_raw(text, pattern)
     if not a["crisis"] and a["text_risk"] >= 35 and isinstance(text, str) and _DREAM.search(text) \
@@ -1662,7 +1679,8 @@ def assess(text: str, pattern: dict | None = None) -> dict:
         return dict(a, text_risk=0, risk=min(a["risk"], 20), risk_shown=0, disaster=None,
                     topics=[t for t in a["topics"] if t in ("positive", "soft_check")])
     # ไม่ปิดเงียบ — ยังถามไถ่เบาๆ พร้อมเบอร์ 1323 เหมือนกรณี "ขอข้อมูลไปทำรายงาน" ที่มีอยู่แล้ว
-    if a["crisis"] and isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text):
+    if a["crisis"] and isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text) \
+            and not _crisis_outside_frame(text, pattern):
         a = dict(a, crisis=False, topics=a["topics"] + ["soft_check"], text_risk=45,
                  risk=min(a["risk"], 45), risk_shown=min(a["risk_shown"], 45))
     elif isinstance(text, str) and _WORK_FRAME.search(text) and not _SELF_REF.search(text) \

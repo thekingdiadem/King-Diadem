@@ -21,6 +21,7 @@ memory injection patch:
 LYLA = หญิง (ค่ะ/นะคะ) · VEGA = ชาย (ครับ/นะครับ) · CRISIS = วิกฤต
 """
 
+import json
 import os
 import re
 import time
@@ -535,7 +536,7 @@ def _lang_directive(prompt: str) -> str:
 _META_HEAD = re.compile(
     r"^\s*(?:\[(?:THOUGHT|THINKING|Thought|Thinking|Reasoning|Plan|Analysis|Internal[^\]]*|"
     r"Constraint Checklist[^\]]*|Safety Protocol[^\]]*|Checklist[^\]]*)\]|"
-    r"(?:THOUGHT|Thought|Reasoning|Plan)\s*:|Confidence Score\s*:|Constraint Checklist)")
+    r"\**(?:THOUGHT|Thought(?: process)?|Reasoning|Analysis|Internal (?:notes?|analysis))\**\s*:|Confidence Score\s*:|Constraint Checklist)")
 # แผนที่โมเดลเขียนเป็นภาษาอังกฤษธรรมดา ไม่มีป้าย [THOUGHT] — เคยหลุดถึงผู้ใช้ทั้งก้อน (หน้าจอจริง):
 # "My immediate response should: 1. … The internal state indicates [PAUSE] … The user's language is English …
 #  Strategizing complete. I will now generate the response based on the plan.That's a very thought-…"
@@ -543,9 +544,13 @@ _META_PLAIN = re.compile(
     r"^\s*\**\s*(?:My (?:immediate |final |main )?(?:response|reply|answer|plan|approach) (?:should|will|needs)|"
     r"The internal (?:state|context|notes?) (?:indicates?|says|shows)|The user'?s (?:language|input|message|query|request) is|"
     r"The user (?:is|has|seems|wants|asked|says|wrote|might|may)\b|"
-    r"(?:I|We) (?:need|should|must|will) (?:to )?(?:address|acknowledge|respond|keep|avoid|consider|reaffirm|gently)\b|"
-    r"Okay,? (?:the user|let me|so the)|Let me (?:think|analy[sz]e|plan|consider|break)|"
-    r"(?:Strategizing|Planning|Analysis) (?:complete|done))", re.M)
+    r"I (?:need|should|must) (?:to )?(?:address|acknowledge|reaffirm)\b[^\n]*\b(?:the user|user's|their (?:input|message))|"
+    r"Okay,? (?:the user|so the user)|Let me (?:analy[sz]e|break down) (?:the user|this request|the request)|"
+    r"(?:Strategizing|Planning) (?:complete|done)\b)", re.M)
+# ย่อหน้าที่มีเบอร์ช่วยเหลือ หรือพูดกับผู้ใช้โดยตรง ห้ามตัดทิ้งเด็ดขาด (เคยตัด "We need to keep you safe … call 1669")
+_KEEP_PARA = re.compile(r"(?<!\d)(?:1669|1323|191|1155|1300|1387|1367|1441|1599|911|988|112|999)(?!\d)|\byou\b|\byour\b|คุณ", re.I)
+_THINK_BLOCK = re.compile(r"<(think|thinking|reasoning|plan)>.*?</\1>\s*|```(?:thought|thinking|plan|reasoning)\b.*?```\s*", re.S | re.I)
+_FINAL_ANS = re.compile(r"^\s*\**(?:Final (?:answer|response|reply))\**\s*:\s*", re.I | re.M)
 # ประโยคปิดแผน — คำตอบจริงเริ่มหลังประโยคนี้ (บางทีต่อกันโดยไม่เว้นวรรค "…the plan.That's a …")
 _PLAN_END = re.compile(
     r"(?:Strategizing|Planning|Analysis) (?:is )?(?:complete|done)\.?[^\n]*?(?:plan|response)\.|"
@@ -559,7 +564,12 @@ _NON_LATIN = re.compile(r"[\u0E00-\u0E7F\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]
 
 # โน้ตกำกับที่โมเดลพิมพ์ต่อท้ายย่อหน้า ("…เหนื่อยล้าไปหมด [รับรู้อารมณ์: STRESSED, LOW_ENERGY]")
 # วงเล็บเหลี่ยมท้ายบรรทัดที่มีป้ายภาษาอังกฤษตัวใหญ่ หรือ ":" / "," แบบรายการ — LYLA ไม่ใช้วงเล็บแบบนี้คุยกับคน
-_TAIL_NOTE = re.compile(r"[ \t]*\[(?=[^\[\]\n]{2,90}\])(?=[^\]\n]*(?:[A-Z_]{3,}|[:,]))[^\[\]\n]{2,90}\][ \t]*(?=\n|$)")
+_TAIL_NOTE = re.compile(r"[ \t]*\[(?![\d,\s\-–·]+\])(?=[^\[\]\n]{2,90}\])(?=[^\]\n]*(?:[A-Z_]{3,}|[^\W\d]\s*[:,]))[^\[\]\n]{2,90}\][ \t]*(?=\n|$)")
+# หมายเหตุภายในที่รู้จักชื่อ — ลบตรงที่อยู่ ไม่ว่าจะอยู่กลางประโยคหรือต้นบรรทัด ("ฉันเห็นว่า [Risk: LOW] ตอนนี้…")
+_KNOWN_NOTE = re.compile(
+    r"[ \t]*\[(?:Risk|RISK|PAUSE|COLLAPSE|Collapse[^\]]*|MONDAY_RESET|LIVING_WATER|COSMIC_LATTE|ESCAPE_ROUTES|"
+    r"STRATEGY|RELATIONSHIP|SURVIVAL|VEGA[^\]]*|KING DIADEM[^\]]*|โพธิปักขิยธรรม|โยนิโสมนสิการ|เหตุ-ปัจจัย|UAP|ความมั่นใจ|"
+    r"ยังไม่ผ่าน|ผ่าน:|ทางหนี|สาเหตุ|ความเสี่ยง|โหมด|คุยต่อเนื่อง|ข้อความล่าสุดที่ต้องตอบ|บริบท|ภาษาผู้ใช้|MEMORY)[^\[\]\n]{0,300}\]")
 
 
 def strip_notes(text):
@@ -573,6 +583,20 @@ def strip_reasoning(text):
     (บางครั้งคำตอบจริงต่อท้ายบรรทัดสุดท้ายของเช็กลิสต์โดยไม่ขึ้นบรรทัดใหม่ — ตัดตรงตัวอักษรภาษาอื่นตัวแรก)"""
     if not isinstance(text, str):
         return text
+    text = _THINK_BLOCK.sub("", text)                      # <thinking>…</thinking> · ```thought … ```
+    fa = list(_FINAL_ANS.finditer(text))                   # "Draft: … Final answer: …" → เก็บหลัง Final answer
+    if fa and text[fa[-1].end():].strip():
+        text = text[fa[-1].end():].strip()
+    js = text.strip()
+    if js.startswith("{") and js.endswith("}"):             # {"analysis": "...", "reply": "..."}
+        try:
+            obj = json.loads(js)
+            for k in ("reply", "answer", "response", "message", "text"):
+                if isinstance(obj, dict) and isinstance(obj.get(k), str) and obj[k].strip():
+                    text = obj[k].strip()
+                    break
+        except Exception:
+            pass
     ends = list(_PLAN_END.finditer(text))
     if ends and _META_PLAIN.search(text[:ends[-1].start()] or " "):
         rest = text[ends[-1].end():].strip()
@@ -587,7 +611,8 @@ def strip_reasoning(text):
         lines = [l for l in para.split("\n") if l.strip()]
         if not lines:
             continue
-        if _META_PLAIN.match(lines[0]):                 # แผนภาษาอังกฤษ — ทิ้งทั้งย่อหน้า (มีวงเล็บไทยปนได้ ห้ามเก็บท้าย)
+        if _META_PLAIN.match(lines[0]) and not (_KEEP_PARA.search(para) and
+                                                not re.search(r"\bthe user\b|\buser's\b|ผู้ใช้", para, re.I)):                 # แผนภาษาอังกฤษ — ทิ้งทั้งย่อหน้า (มีวงเล็บไทยปนได้ ห้ามเก็บท้าย)
             in_meta = True
             continue
         is_meta = bool(_META_HEAD.match(lines[0])) or \
@@ -603,12 +628,17 @@ def strip_reasoning(text):
             continue
         in_meta = False
         out.append(para.strip())
-    return "\n\n".join(out).strip()
+    res = "\n\n".join(out).strip()
+    return res if res else text.strip()                     # ตัดจนว่าง = ตัดผิด — คืนข้อความเดิมดีกว่าคำตอบเปล่า
 _INTERNAL_TOKENS = re.compile(
     r"root\s*=\s*(?:craving|fear|aversion|clinging|ignorance|bias|misinformation|non_existence)|"
-    r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\b|Causal\s*:|"
+    r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\s*[:=]|Causal\s*:|"
     r"SURVIVOR ENGINE|Router action|\[โหมด:|Wise attention|nirvana_mode|risk_score|EMOTION(?:AL_CONTEXT)?:|"
-    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|เขาขอทางออกแล้ว|ผู้ใช้ถามถึงที่มาของระบบ|\[MEMORY|\[บทสนทนาล่าสุด\]|ข้อความมีลักษณะมิจฉาชีพ|ผู้ใช้ถูกโกงไปแล้ว|อาจกินยาเกินขนาด|สัญญาณเตือนเรื่องทำร้ายตัวเอง|เบอร์ที่ถูกต้องสำหรับเรื่องนี้|ผู้ใช้กำลังช่วยคนอื่น|ผู้ใช้อาจถูกล่วงละเมิด|ผู้ใช้ถูกขู่ปล่อยคลิป|เรื่องเร่งด่วนต่อชีวิต|ผู้ใช้อยากหยุดยาที่แพทย์สั่ง|context_for_lyla", re.I)
+    r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|\[ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|เขาขอทางออกแล้ว|ผู้ใช้ถามถึงที่มาของระบบ|\[MEMORY|\[บทสนทนาล่าสุด\]|ข้อความมีลักษณะมิจฉาชีพ|ผู้ใช้ถูกโกงไปแล้ว|อาจกินยาเกินขนาด|สัญญาณเตือนเรื่องทำร้ายตัวเอง|เบอร์ที่ถูกต้องสำหรับเรื่องนี้|ผู้ใช้กำลังช่วยคนอื่น|ผู้ใช้อาจถูกล่วงละเมิด|ผู้ใช้ถูกขู่ปล่อยคลิป|เรื่องเร่งด่วนต่อชีวิต|ผู้ใช้อยากหยุดยาที่แพทย์สั่ง|context_for_lyla|"
+    r"ยังไม่ผ่าน\s*:|โพธิปักขิยธรรม\s*:|โยนิโสมนสิการ\s*\d|voice_mode\s*=|entropy\s*=\s*\d|stability\s*=\s*\d|"
+    r"Priority\s*:\s*(?:HIGH|MEDIUM|LOW)|flags\s*=\s*\[|strategic analysis|The internal state|"
+    r"\bRisk\s*:\s*(?:LOW|MEDIUM|HIGH|CRITICAL)\b|\bCOLLAPSE\s*:|MONDAY_RESET|LIVING_WATER|COSMIC_LATTE|ESCAPE_ROUTES|"
+    r"VEGA (?:14 GATES|CRISIS)|ประตูที่ติด\s*:|จำลองอนาคต FATE|คุยต่อเนื่องในแชทเดิม|(?<![\w\[])PAUSE(?![\w\]])(?=[\s,.]|$)", re.I)
 
 
 _SENT_END = re.compile(r"(?:ค่ะ|คะ|ครับ|นะ|จ้ะ|[.!?。！？]|◈|◆|\n)\s*")
@@ -674,8 +704,12 @@ def _trim_hard(text: str) -> str:
 
 def scrub_internal(text):
     """ตัดบรรทัดที่ยกสัญญาณภายในของระบบมาพูด (ถ้าตัดหมด → "" ให้ kernel ตอบแทน)"""
-    if not isinstance(text, str) or not _INTERNAL_TOKENS.search(text):
+    if not isinstance(text, str):
         return text
+    if "[" in text:
+        text = _KNOWN_NOTE.sub("", text)
+    if not _INTERNAL_TOKENS.search(text):
+        return text.strip()
     kept = [ln for ln in text.split("\n") if not _INTERNAL_TOKENS.search(ln)]
     out = re.sub(r"\n{3,}", "\n\n", "\n".join(kept)).strip()
     return out if re.search(r"\w", out) else ""

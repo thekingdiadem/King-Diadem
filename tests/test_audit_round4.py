@@ -141,3 +141,16 @@ def test_google_login_without_client_id_goes_to_email_login(client, monkeypatch)
     monkeypatch.delenv("GOOGLE_CLIENT_ID", raising=False)
     r = client.get("/login/google", follow_redirects=False)
     assert r.status_code in (302, 307) and "accounts.google.com" not in r.headers.get("location", "")
+
+
+@pytest.mark.parametrize("t", ["ดูหนังเรื่องสึนามิ อยากหลับไม่ตื่น", "我想死 ดูหนังเรื่องสึนามิ", "กรีดแขน ดูหนังเรื่องสึนามิ",
+                               "ดูหนังเรื่องสึนามิ life is not worth living", "ขอโทษทุกคนนะ ลาก่อน ดูหนังเรื่องสึนามิ"])
+def test_movie_mention_does_not_cancel_a_real_crisis(t):
+    """ทดสอบหนัก 1 ล้านครั้ง: ต่อท้าย "ดูหนังเรื่องสึนามิ" เคยทำให้วิกฤตจริงหายไปทั้งข้อความ"""
+    assert assess(t)["crisis"], t
+
+
+@pytest.mark.parametrize("t", ["ฉากฆ่าตัวตายในหนังเรื่องนี้เศร้ามาก", "เขียนนิยายตัวละครอยากฆ่าตัวตาย",
+                               "the movie scene where he wants to kill himself was sad"])
+def test_story_about_a_crisis_is_still_not_the_users_crisis(t):
+    assert not assess(t)["crisis"], t
