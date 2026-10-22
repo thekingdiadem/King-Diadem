@@ -104,6 +104,14 @@ def record_drift(delta: float) -> None:
             _stats["drift_events"].pop(0)
 
 
+def drift_from_risk_score(risk_score) -> float:
+    """
+    แปลง risk_score ของคำตอบ (0–100) เป็น drift ของครั้งนั้น (0.0–1.0)
+    อ่านไม่ได้ → 0 · freedom_index() คูณ 0.01 อีกที ทำให้ D โตช้าตามจำนวนครั้ง
+    """
+    return max(0.0, min(1.0, _num(risk_score, 0.0) / 100.0))
+
+
 # ══════════════════════════════════════════════════════════════════
 # MASTER EQUATION: R = (D × T) / C
 # ══════════════════════════════════════════════════════════════════
