@@ -176,5 +176,5 @@ and ECONOMIC_MINIMUM_BROKEN == false
 
 ## โค้ดเทียบกับเอกสาร
 
-- `titan_zero_choice_condition(O, food_ok, water_ok, exit_blocked)` — ตรวจ ทางเลือก · อาหาร · น้ำ · ทางออก
-- **ยังไม่ได้ตรวจที่พัก (MIN_SHELTER)** — ค่าคงที่ข้อที่ 4 ของเอกสารนี้ยังไม่มีในโค้ด
+- `titan_zero_choice_condition(O, food_ok, water_ok, exit_blocked, shelter_ok=True)` — ตรวจ ทางเลือก · อาหาร · น้ำ · ที่พัก · ทางออก ครบตาม ECONOMIC FLOOR
+- `shelter_ok` มีค่าเริ่มต้นเป็น `True` เพื่อให้โค้ดที่เรียกแบบเดิม (4 ค่า) ยังทำงานเหมือนเดิม

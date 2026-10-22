@@ -1,0 +1,81 @@
+"""core/choice_dynamics — Choice(t+Δ) = Choice(t) − Drift(t) − Entropy(t) + Intervention(t) · Drift = Σ DHD · domain ของตัวแปรระบบ"""
+import pytest
+from core.choice_dynamics import (
+    accumulate_drift, choice_next, steps_to_collapse, validate_state, check_invariants,
+)
+
+
+def test_drift_is_sum_of_dhd_and_never_negative():
+    assert accumulate_drift([0.1, 0.2, 0.3]) == 0.6
+    assert accumulate_drift([0.5, -0.4, "x", None]) == 0.5   # DHD ติดลบ/อ่านไม่ได้ไม่ลด drift
+    assert accumulate_drift(None) == 0.0
+
+
+def test_choice_next_follows_equation_and_stays_natural():
+    r = choice_next(5, 1, 1, 0)
+    assert r["choice_next"] == 3 and r["status"] == "STABLE"
+    r = choice_next(3, 0.2, 0, 0)            # ทางเลือกที่ถูกกัดไปบางส่วนไม่นับ
+    assert r["choice_next"] == 2 and r["choice_next_raw"] == 2.8
+    r = choice_next(3, 0.1, 0.2, 0.3)        # ทศนิยมลอยตัวไม่ทำให้หายไป 1 ทาง
+    assert r["choice_next"] == 3
+
+
+def test_choice_next_warns_and_pauses():
+    w = choice_next(2, 1, 0, 0)
+    assert w["choice_next"] == 1 and w["early_warning"] and not w["system_pause"]
+    z = choice_next(1, 1, 1, 0)
+    assert z["choice_next"] == 0 and z["system_pause"] and z["status"] == "COLLAPSE"
+
+
+def test_intervention_greater_than_drift_is_stabilizing():
+    r = choice_next(2, 0.5, 0, 1)
+    assert r["stabilizing"] and r["choice_next"] >= 2
+
+
+def test_bad_input_is_treated_as_no_choice():
+    assert choice_next("?", 0, 0, 0)["system_pause"] is True
+    assert choice_next(3, -5, -5, -5)["choice_next"] == 3        # ค่าติดลบตัดเป็น 0
+
+
+@pytest.mark.parametrize("args, steps", [
+    ((5, 1, 0, 0), 5),
+    ((3, 0.5, 0, 0), 5),
+    ((3, 1, 0, 1), None),
+    ((0, 1, 0, 0), 0),
+])
+def test_steps_to_collapse(args, steps):
+    assert steps_to_collapse(*args) == steps
+
+
+def test_steps_to_collapse_matches_stepping():
+    c, d = 4, 0.7
+    for k in range(1, 20):
+        c = choice_next(c, d, 0, 0)["choice_next_raw"]
+        if c < 1:
+            break
+    assert steps_to_collapse(4, 0.7, 0, 0) == k
+
+
+def test_state_in_domain_is_valid():
+    s = {"Choice": 2, "Cycle": 0, "Seal": 1, "Motion": 1, "Authority": 0.0, "Force": 3.5,
+         "Existence": 9, "Decision": 1, "Silence": 1, "SYSTEM_PAUSE": 0}
+    r = validate_state(s)
+    assert r["valid"] and r["violations"] == [] and r["invariant_violations"] == []
+
+
+@pytest.mark.parametrize("key, bad", [
+    ("Choice", -1), ("Choice", 1.5), ("Choice", True),
+    ("Cycle", 2), ("Seal", 0.5), ("Motion", True), ("Decision", 0.7), ("Silence", -1), ("SYSTEM_PAUSE", "1"),
+    ("Authority", -0.1), ("Force", float("inf")), ("Force", float("nan")),
+    ("Existence", 9.01), ("Existence", -1), ("Existence", "5"),
+])
+def test_state_out_of_domain_is_rejected(key, bad):
+    r = validate_state({key: bad})
+    assert not r["valid"] and r["violations"][0].startswith(key)
+
+
+def test_invariants_from_existing_canon():
+    assert check_invariants({"Choice": 1, "Cycle": 1}) == ["|Choice| ≥ 1 ⇒ Cycle = 0"]
+    assert check_invariants({"Choice": 0, "SYSTEM_PAUSE": 0}) == ["Choice = 0 ⇒ SYSTEM_PAUSE = 1"]
+    assert check_invariants({"Choice": 2, "Silence": 0}) == []   # เงียบหรือไม่ขึ้นกับปัจจัยพื้นฐานด้วย
+    assert validate_state("x")["valid"] is False

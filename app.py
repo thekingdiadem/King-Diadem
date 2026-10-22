@@ -103,11 +103,11 @@ except Exception as e:
 
 try:
     from AI.intent_engine import analyze_intent
-    from AI.freedom_signal import record_question, freedom_index, record_choice, record_crisis
+    from AI.freedom_signal import record_question, freedom_index, record_choice, record_crisis, record_drift, drift_from_risk_score
 except Exception as e:
     print(f"⚠ AI MODULE: {e}")
     analyze_intent = record_question = freedom_index = None
-    record_choice  = record_crisis = None
+    record_choice  = record_crisis = record_drift = drift_from_risk_score = None
 
 # ── KING DIADEM CORE v2.0 — v4.9 ─────────────────────────────────
 try:
@@ -2236,9 +2236,12 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
 
     # ── Freedom signal: R = (D × T) / C ──────────────────────────
     # เดิมไม่มีใครเรียก record_choice/record_crisis → C = 0 ตลอด freedom_index() คืน 0 เสมอ
+    # record_drift ก็ไม่มีใครเรียก → D มาจากวิกฤตอย่างเดียว · ตอนนี้คำตอบที่ไม่ใช่วิกฤตส่ง risk_score (0–100) เป็น drift
     try:
         if record_crisis and result.get("route") in ("collapse", "crisis"):
             record_crisis()
+        elif record_drift:
+            record_drift(drift_from_risk_score(result.get("risk_score")))
         if record_choice and result.get("ai_response"):
             offered = (result.get("canon_check") or {}).get("choices_offered", 0) or 0
             record_choice(max(1, int(offered)))

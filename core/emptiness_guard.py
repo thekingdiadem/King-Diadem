@@ -1253,16 +1253,20 @@ def titan_choice_existence(options: list) -> dict:
     }
 
 
-def titan_zero_choice_condition(O: int, food_ok: bool, water_ok: bool, exit_blocked: bool) -> dict:
+def titan_zero_choice_condition(
+    O: int, food_ok: bool, water_ok: bool, exit_blocked: bool, shelter_ok: bool = True,
+) -> dict:
     """
     TITAN Section 3 — Zero Kelvin of Choice.
     Intent and explanation are meaningless here.
     Only outcomes matter.
+    Economic floor follows KERNEL/governance-core.md: food · water · shelter.
     """
     zero_choice = (
-        O == 0
+        O < 1
         or not food_ok
         or not water_ok
+        or not shelter_ok
         or exit_blocked
     )
 
@@ -1271,6 +1275,7 @@ def titan_zero_choice_condition(O: int, food_ok: bool, water_ok: bool, exit_bloc
         "O": O,
         "food_ok": food_ok,
         "water_ok": water_ok,
+        "shelter_ok": shelter_ok,
         "exit_blocked": exit_blocked,
         "titan_note": (
             "Intent has no meaning here. "
