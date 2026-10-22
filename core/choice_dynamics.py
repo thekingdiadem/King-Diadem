@@ -152,6 +152,8 @@ def check_invariants(state: dict) -> list:
     Silence ไม่ผูกกับ Choice อย่างเดียว — Governance_CORE ให้เงียบเมื่อปัจจัยพื้นฐานครบด้วย
     """
     out = []
+    if not isinstance(state, dict):
+        return out
     c = state.get("Choice")
     if not isinstance(c, int) or isinstance(c, bool):
         return out

@@ -24,3 +24,12 @@ def test_old_four_arg_call_still_works():
 
 def test_negative_choice_count_is_still_zero_choice():
     assert titan_zero_choice_condition(-1, True, True, False)["zero_choice"] is True
+
+
+def test_unreadable_choice_count_does_not_crash():
+    from core.emptiness_guard import titan_silence_protocol
+    from core.silent_canon import silent_canon
+    assert titan_zero_choice_condition(None, True, True, False)["zero_choice"] is True
+    assert titan_silence_protocol(None)["action"] != "SILENCE"
+    assert titan_silence_protocol(float("nan"))["action"] != "SILENCE"
+    assert silent_canon(float("inf"))["choice_count"] == 1      # เดิม OverflowError

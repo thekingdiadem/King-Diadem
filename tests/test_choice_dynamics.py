@@ -79,3 +79,6 @@ def test_invariants_from_existing_canon():
     assert check_invariants({"Choice": 0, "SYSTEM_PAUSE": 0}) == ["Choice = 0 ⇒ SYSTEM_PAUSE = 1"]
     assert check_invariants({"Choice": 2, "Silence": 0}) == []   # เงียบหรือไม่ขึ้นกับปัจจัยพื้นฐานด้วย
     assert validate_state("x")["valid"] is False
+
+def test_check_invariants_ignores_non_dict():
+    assert check_invariants(None) == [] and check_invariants("x") == []
