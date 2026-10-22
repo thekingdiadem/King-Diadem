@@ -94,3 +94,9 @@ collapse_at:    Choice(t) = 0  →  irreversible
 early_warn_at:  Choice(t+Δ) < Safe_Threshold
 fate_lock:      Fail less. Harm less. Restore more.
 ```
+
+---
+
+### โค้ดที่ทำงานจริง
+
+`core/choice_dynamics.py` — `accumulate_drift` (Σ DHD) · `choice_next` (Choice(t+Δ)) · `steps_to_collapse` (Time_to_Failure) · `validate_state` (domain ของตัวแปรระบบ)
