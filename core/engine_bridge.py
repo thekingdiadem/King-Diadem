@@ -97,6 +97,28 @@ _PCT_TH = re.compile(r"ร้อยละ\s*(\d+(?:\.\d+)?)")
 from core.thai_signals import LENT_OUT  # noqa: E402
 
 
+_REPAY = re.compile(rf"คืน\D{{0,8}}?({_NUM})")
+_PERIOD = re.compile(r"(\d+)\s*(วัน|อาทิตย์|สัปดาห์|เดือน|ปี)")
+_PERIOD_DAYS = {"วัน": 1, "อาทิตย์": 7, "สัปดาห์": 7, "เดือน": 30, "ปี": 365}
+
+
+def _implied_rate(seg: str, balance: float):
+    """ดอกที่ซ่อนอยู่ในยอดคืน: "ยืม 1,000 คืน 1,500 ภายใน 1 อาทิตย์" = ดอก 50% ต่ออาทิตย์"""
+    m = _REPAY.search(seg)
+    if not m or balance <= 0:
+        return None
+    vals = _amounts(m.group(1))
+    if not vals or vals[0] <= balance:
+        return None
+    extra = vals[0] - balance
+    pct = extra / balance * 100
+    p = _PERIOD.search(seg[m.end():]) or _PERIOD.search(seg)
+    days = int(p.group(1)) * _PERIOD_DAYS[p.group(2)] if p and int(p.group(1)) > 0 else None
+    return {"repay": vals[0], "extra": extra, "pct": pct,
+            "period": f"{p.group(1)} {p.group(2)}" if days else None,
+            "annual_rate": pct * 365 / days if days else pct}
+
+
 def parse_debts(text: str) -> list:
     text = _PCT_TH.sub(r"\1%", str(text or ""))          # "ดอกร้อยละ 20" = "ดอก 20%" (เดิมอ่านไม่ออก)
     debts = []
@@ -126,13 +148,15 @@ def parse_debts(text: str) -> list:
         if kind[0] in ("หนี้", "กู้") and pending:
             kind, pending = pending, None
         rate_m = re.search(r"(?<![\d.])(\d+(?:\.\d+)?)\s*(?:%|เปอร์เซ็นต์)", seg)
-        rate, assumed = None, False
+        rate, assumed, implied = None, False, None
         if rate_m:
             rate = float(rate_m.group(1))
             if re.search(r"(?:%|เปอร์เซ็นต์)\s*(?:ต่อเดือน|/เดือน|เดือนละ)", seg):
                 rate *= 12                                  # ดอกรายเดือน (มักเป็นหนี้นอกระบบ) → ต่อปี
             elif re.search(r"(?:%|เปอร์เซ็นต์)\s*(?:ต่อวัน|/วัน|วันละ)", seg):
                 rate *= 365                                 # ดอกรายวัน (เงินกู้รายวัน) — เดิมนับเป็นต่อปี
+        elif (implied := _implied_rate(seg, amts[0])) is not None:
+            rate = implied["annual_rate"]                   # "ยืม 1,000 คืน 1,500" — เดิมบอกว่าดอก 0%
         elif kind[1] is not None:
             rate, assumed = kind[1], True
         else:
@@ -140,12 +164,54 @@ def parse_debts(text: str) -> list:
         name = ("เงินยืม" if kind[0] == "ยืม" else
                 "หนี้" + kind[0] if kind[0] not in ("หนี้", "กู้") else "หนี้ก้อนที่ " + str(len(debts) + 1))
         debts.append({"name": name, "balance": amts[0], "annual_rate": rate, "assumed_rate": assumed})
+        if not rate_m and implied:
+            debts[-1]["implied"] = implied
     return debts[:8]
 
 
 _INFORMAL = re.compile(r"นอกระบบ|เงินกู้รายวัน|กู้รายวัน|เงินด่วน[^\n]{0,8}ไม่เช็ค\S{0,2}บูโร")
 _INFORMAL_LAW = ("หนี้นอกระบบ: กฎหมายให้ดอกเบี้ยเงินกู้ระหว่างบุคคลไม่เกิน 15% ต่อปี — "
                  "ปรึกษาหรือร้องเรียนได้ที่ศูนย์ดำรงธรรม 1567")
+
+
+_PAYMENT = re.compile(rf"(?:ผ่อน|(?<!ใช้)(?<!ราย)จ่าย|โปะ)(?:ได้|อยู่|ไหว)?\s*(?:{_PER_MONTH.pattern})\D{{0,6}}?({_NUM})"
+                      rf"|(?:ผ่อน|(?<!ใช้)(?<!ราย)จ่าย|โปะ)(?:ได้|อยู่|ไหว)?\D{{0,6}}?({_NUM})\s*(?:บาท)?\s*(?:ต่อเดือน|/เดือน|ต่องวด)")
+
+
+def _payment(text: str):
+    """ค่างวดต่อเดือนที่ผู้ใช้บอกเอง — ต้องมีคำว่า ผ่อน/จ่าย/โปะ คู่กับ "ต่อเดือน" เท่านั้น
+    ("ใช้จ่ายเดือนละ" / "รายจ่าย" เป็นค่าครองชีพ ไม่ใช่ค่างวด)"""
+    m = _PAYMENT.search(text)
+    if not m:
+        return None
+    raw = (m.group(1) or m.group(2)).strip()
+    num = re.match(r"(\d[\d,]*(?:\.\d+)?)\s*(พัน|หมื่น|แสน|ล้าน|k|K)?", raw)
+    try:
+        v = float(num.group(1).replace(",", "")) * _UNITS.get((num.group(2) or "").lower(), 1)
+    except (AttributeError, ValueError):
+        return None
+    return v if v >= 100 else None
+
+
+def _payoff_line(debt: dict, pay: float) -> str:
+    interest = debt["balance"] * debt["annual_rate"] / 100 / 12
+    if pay <= interest:
+        return (f"ผ่อนเดือนละ {pay:,.0f} บาท น้อยกว่าดอกเบี้ยเดือนละ ≈ {interest:,.0f} บาท — "
+                "ยอดหนี้จะไม่ลดเลย ต้องเพิ่มค่างวดหรือเจรจาลดดอก/ปรับโครงสร้างหนี้ก่อน")
+    try:
+        from ENGINE.debt_engine import simulate_payoff
+        r = simulate_payoff([{k: debt[k] for k in ("name", "balance", "annual_rate")}], pay)
+    except Exception as e:  # pragma: no cover
+        print(f"⚠ debt_engine: {type(e).__name__}")
+        return ""
+    if not r.get("paid_off"):
+        return (f"ผ่อนเดือนละ {pay:,.0f} บาท ใช้เวลาเกิน 30 ปียังไม่หมด — "
+                "ควรเพิ่มค่างวดหรือเจรจาลดดอก/ปรับโครงสร้างหนี้")
+    n = r["payoff_months"]
+    yrs = f" (≈ {n / 12:.1f} ปี)" if n >= 12 else ""
+    star = "*" if debt["assumed_rate"] else ""
+    return (f"ผ่อนเดือนละ {pay:,.0f} บาท: หมดใน {n} เดือน{yrs} · "
+            f"ดอกเบี้ยรวม ≈ {r['total_interest']:,.0f} บาท{star}")
 
 
 def _debt(text: str) -> dict | None:
@@ -164,18 +230,27 @@ def _debt(text: str) -> dict | None:
         lines.append(_INFORMAL_LAW)
         lines.append("บอกยอดหนี้ รายได้ และรายจ่ายต่อเดือนมาด้วย ระบบจะคำนวณให้ว่าปลดหนี้ได้ในกี่เดือน")
         return {"lines": lines, "data": {"debts": [], "informal": True}}
-    income = _after(text, r"เงินเดือน|รายได้|ได้เดือนละ|ทำได้เดือนละ|รับเดือนละ")
+    # "จ่ายได้เดือนละ 500" / "ผ่อนได้เดือนละ" คือค่างวด ไม่ใช่รายได้ — เดิมนับ 500 เป็นรายได้
+    income = _after(text, r"เงินเดือน|รายได้|(?<!จ่าย)(?<!ผ่อน)(?<!โปะ)ได้เดือนละ|ทำได้เดือนละ|รับเดือนละ")
     expense = _after(text, r"รายจ่าย|ค่าใช้จ่าย|ใช้จ่าย|ใช้เดือนละ|จ่ายเดือนละ")
     lines, data = [], {"debts": debts, "income": income, "expense": expense}
     total = sum(d["balance"] for d in debts)
     order = sorted(debts, key=lambda d: d["annual_rate"], reverse=True)
-    tag = lambda d: f"{d['name']} {d['balance']:,.0f} บาท ดอก {d['annual_rate']:g}%{'*' if d['assumed_rate'] else ''}"
+    pct = lambda r: f"{r:,.0f}" if r >= 100 else f"{r:g}"     # "2,607%" ไม่ใช่ "2607.14%"
+    tag = lambda d: f"{d['name']} {d['balance']:,.0f} บาท ดอก {pct(d['annual_rate'])}%{'*' if d['assumed_rate'] else ''}"
     if len(debts) == 1:
         lines.append("หนี้ที่คุณเล่ามา: " + tag(debts[0]))
     else:
         lines.append(f"หนี้ที่คุณเล่ามา {len(debts)} ก้อน รวม {total:,.0f} บาท — ดอกสูงก่อน: " +
-                     " → ".join(f"{d['name']} {d['annual_rate']:g}%{'*' if d['assumed_rate'] else ''}" for d in order))
-    if any("นอกระบบ" in d["name"] for d in debts) or _INFORMAL.search(text):
+                     " → ".join(f"{d['name']} {pct(d['annual_rate'])}%{'*' if d['assumed_rate'] else ''}" for d in order))
+    for d in debts:
+        imp = d.get("implied")
+        if imp:
+            per = f" ภายใน {imp['period']} ≈ {d['annual_rate']:,.0f}% ต่อปี" if imp["period"] else ""
+            lines.append(f"ยืม {d['balance']:,.0f} คืน {imp['repay']:,.0f} = ดอก {imp['extra']:,.0f} บาท "
+                         f"({imp['pct']:,.0f}%{per})")
+    if (any("นอกระบบ" in d["name"] for d in debts) or _INFORMAL.search(text)
+            or any(d.get("implied", {}).get("period") and d["annual_rate"] > 15 for d in debts)):
         lines.append(_INFORMAL_LAW)
     if any(d["assumed_rate"] for d in debts):
         lines.append("* ดอกเบี้ยที่ใช้เป็นค่าทั่วไปของหนี้ประเภทนั้น บอกดอกจริงมาจะคำนวณแม่นขึ้น")
@@ -192,6 +267,10 @@ def _debt(text: str) -> dict | None:
                 lines.append("แผนปลดหนี้: " + r["message"])
         except Exception as e:  # pragma: no cover
             print(f"⚠ debt_engine: {type(e).__name__}")
+    elif len(debts) == 1 and not debts[0].get("implied") and (pay := _payment(text)) is not None:
+        # ผู้ใช้บอกค่างวดมาแล้ว ("ผ่อนเดือนละ 2,000 กี่เดือนหมด") — เดิมไม่ใช้ แต่ถามรายได้/รายจ่ายแทน
+        lines.append(_payoff_line(debts[0], pay))
+        data["payment"] = pay
     else:
         # ถามเฉพาะที่ยังขาด — เดิมบอกรายได้มาแล้วก็ยังถามรายได้ซ้ำ
         miss = "รายได้และรายจ่าย" if income is None and expense is None else "รายได้" if income is None else "รายจ่าย"
