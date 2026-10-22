@@ -282,7 +282,7 @@ def canon_self_test() -> dict:
 def silent_canon(choice_count) -> dict:
     try:
         n = int(float(choice_count))
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):     # inf เคยหลุดเป็น OverflowError
         n = 1
     r = SilentCanon.evaluate(n)
     status = r.status.value if isinstance(r.status, CanonStatus) else str(r.status)

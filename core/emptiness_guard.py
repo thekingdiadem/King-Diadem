@@ -1263,7 +1263,7 @@ def titan_zero_choice_condition(
     Economic floor follows KERNEL/governance-core.md: food · water · shelter.
     """
     zero_choice = (
-        O < 1
+        _num(O, 0) < 1                   # อ่านไม่ได้ → ถือว่าไม่มีทางเลือก (ตรงกับ titan_check)
         or not food_ok
         or not water_ok
         or not shelter_ok
@@ -1339,7 +1339,7 @@ def titan_silence_protocol(choice_count: int) -> dict:
     TITAN Section 6 — Silence Protocol.
     Silence = success.
     """
-    if choice_count > 0:
+    if _num(choice_count, 0) > 0:        # None/NaN เคยทำให้ล้ม — อ่านไม่ได้ = ไม่เงียบ
         return {
             "action": "SILENCE",
             "success": True,
