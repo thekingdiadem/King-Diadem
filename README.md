@@ -1,8 +1,8 @@
 # KING DIADEM
 
-King Diadem is a decision-governance and crisis-detection system designed to monitor whether a situation is quietly collapsing toward zero usable choices, then surface safer, more viable options before the system fails.
+King Diadem is a decision-governance system designed to detect when a situation is quietly collapsing toward zero usable choices and intervene before the path becomes irreversible.
 
-It is built as a practical framework for human decision support across risk, survival, infrastructure, business, and public-governance contexts.
+It is not a generic chatbot. It is a practical decision layer built for real-world risk, crisis, survival, business, and governance situations where humans need a safer route forward.
 
 Live demo: https://king-diadem.onrender.com
 
@@ -14,158 +14,215 @@ Live demo: https://king-diadem.onrender.com
 
 ## What this project is
 
-KING DIADEM watches for the moment when a system begins losing real, survivable choices.
-
-The central idea is simple:
+KING DIADEM is built around one principle:
 
 ```python
 Risk = Drift × Exposure / Remaining Choice
 Choice(t) >= 1 -> collapse = False
 ```
 
-When a path has no real room to recover, the system does not pretend it is safe. It flags the risk early and keeps the user anchored to viable options.
+The framework tries to answer a simple question:
 
-This project is not a generic chatbot. It is a structured decision layer built to:
+> Is this system losing real options, and is the loss happening faster than people notice?
 
-- detect drift before it becomes irreversible
-- distinguish real choice from fake choice
-- separate survival minimums from aspirational goals
-- surface downside-first reasoning before upside-first optimism
-- keep human decision authority intact
+It is designed for situations where choices are shrinking silently:
 
----
+- financial stress and debt
+- employment and survival uncertainty
+- relationship and safety risk
+- business disruption
+- public or organizational decision collapse
+- crisis response under pressure
 
-## Current status
-
-This repository is a working decision-support application with:
-
-- FastAPI backend
-- Python logic engine
-- SQLite persistence and session memory
-- Multi-AI advisory council
-- web interface with PWA support
-- i18n support (Thai / English / 日本語)
-- Google OAuth and Stripe integration
-- report generation and shareable output
-- deployment targeting Render
-
-The repo is in a mature prototype / production-adjacent stage, with a substantial automated test suite covering safety, governance logic, language handling, app pages, and system behavior.
+The goal is not to make a perfect prediction. The goal is to keep actual, survivable options visible before the system reaches a hard failure point.
 
 ---
 
-## Core system behavior
+## What is already built
 
-KING DIADEM combines a deterministic decision kernel with a council of reasoning voices.
+This repository is not a blank prototype. It contains a working decision-support system with real engineering behind it.
 
-The flow is generally:
+### Core product capabilities
+
+- FastAPI web app and route layer
+- multi-layer decision pipeline
+- risk, collapse, survival, and route detection
+- crisis-aware responses for self-harm, violence, basic-needs shortages, scams, and disaster conditions
+- deterministic fallback logic when AI is unavailable or blocked
+- session memory and user-specific state tracking
+- multi-language handling for Thai, English, and Japanese
+- Google OAuth login and session management
+- Stripe billing, premium handling, and wallet-style credit flows
+- report generation and shareable decision reports
+- PWA support and web app behavior
+- architecture map and system overview pages
+
+### Decision system behavior
+
+The app pipeline is structured around a safety-first flow:
 
 ```text
-Human input
-  -> request validation and gating
-  -> signal detection (risk, collapse, survival, language, urgency)
-  -> context assembly and decision scoring
-  -> multi-perspective council analysis
-  -> choice-preservation checks and safe output constraints
-  -> human final decision
+User input
+  -> input validation and rate limiting
+  -> signal detection (risk, urgency, language, route)
+  -> human-state and context analysis
+  -> kernel + engine reasoning
+  -> council-style advisory review
+  -> canon and safety gate checks
+  -> final response with human authority preserved
 ```
 
-The framework is intentionally designed so that AI is advisory, not sovereign.
+This means the system appends governance around AI rather than letting AI decide without guardrails.
 
-### Safety principles
+---
+
+## The actual architecture in this repo
+
+The codebase is organized around real system layers rather than a toy app structure.
+
+```text
+app.py                  # FastAPI app, routes, auth, payments, safety middleware
+core/                   # core decision logic, language signals, route logic, kernel response generation
+ENGINE/                 # decision engine, risk engine, collapse predictor, survivor logic, bridge logic
+AI/                     # AI intent and advisory behavior
+AI_KERNEL/              # governance / enforcement / belief checks
+DATABASE/               # SQLite persistence, user accounts, memory, transactions
+DOMAINS/                # domain-specific reasoning and context engines
+WORLD_MODEL/            # broader world-state simulations and modeling
+SIMULATIONS/            # scenario simulation modules
+SECURITY/               # load protection, system resilience layers
+static/                 # frontend, pages, service worker, app assets
+tests/                  # automated regression and behavior tests
+scripts/                # utility / evaluation scripts
+```
+
+### Decision and governance layers
+
+The system includes several overlapping layers:
+
+- Kernel rules and safety gates
+- decision engine and route orchestration
+- human-state risk analysis
+- survival and collapse checks
+- council voices for decision review
+- belief and canon enforcement before response delivery
+- output sanitization and option limiting
+
+This is how the project differs from a basic chatbot: the flow is designed to keep humans safer and keep choices realistic.
+
+---
+
+## Main product surfaces
+
+The application includes pages and APIs with concrete functions:
+
+| Route | Purpose |
+|---|---|
+| `/` | main conversation and decision experience |
+| `/ask` | direct comparison / option analysis |
+| `/guide` | user guidance and instructions |
+| `/letter` | narrative / founder letter |
+| `/architecture` | architecture and repo map |
+| `/wallet` | credit, premium, account payment state |
+| `/report/<id>` | shareable generated reports |
+| `/health` | system health status |
+| `/login/google` | Google auth flow |
+| `/webhook/stripe` | Stripe payment event processing |
+
+It also includes API routes for:
+
+- `/run` and `/decision`
+- `/simulate`
+- `/api/chat-state`
+- `/api/history`
+- `/api/memory`
+- `/api/waterline`
+- `/api/feedback`
+- `/api/report/share`
+
+---
+
+## Key technical stack
+
+```text
+Backend:     FastAPI + Python
+AI:          Google Gemini + fallback deterministic logic
+Database:    SQLite
+Auth:        Google OAuth + signed session cookies
+Payments:    Stripe checkout + webhook validation
+Frontend:    Vanilla JS + HTML/CSS + Canvas/PWA
+Deploy:      Render
+```
+
+### Notable implementation details
+
+The codebase explicitly includes:
+
+- secret-key enforcement for sessions and auth
+- request-body limits and security headers
+- quota / credit / premium logic
+- fallback responses without AI for urgent use cases
+- user-safe handling for potentially dangerous situations
+- server-side validation of third-party payment events
+- report lifecycle and temporary share-token handling
+
+---
+
+## Current project status
+
+This repository is in a mature working state for a research-to-product decision-governance project.
+
+It already contains substantial implementation in:
+
+- risk detection and collapse awareness
+- multi-model decision framing
+- safety gating and crisis response
+- user authentication + payment
+- persistence and memory
+- app pages and deployed web experience
+- large automated tests covering pages, logic, safety, and language behavior
+
+The project is not “just a concept repo” anymore. It is a functioning decision-support application with operational layers and deployment-oriented engineering.
+
+---
+
+## Safety and governance principles
+
+The system is shaped around these principles:
 
 - Logic over persona
 - Rule over authority
 - Human retains final authority
 - Downside before upside
 - Explainability before confidence
-- A system that reduces human choice to zero is considered failed
+- A system that reduces a human to zero viable options is considered a failure
 
----
-
-## Council model
-
-The current architecture includes a multi-voice decision layer, such as:
-
-- LYLA — emotional awareness, user-side perspective, option recovery
-- VEGA — downside-first logic, risk framing
-- TITAN — minimum viable survival path
-- PATICCA — causal and pattern-based evaluation
-- COSMOS — long-horizon, system-level view
-- CIVIL — social and structural impact view
-
-These voices are not used to replace governance. They are used to test whether a decision remains viable, explainable, and safe.
-
----
-
-## Product surface
-
-The app includes a set of decision and information pages, including:
-
-- `/` — main conversational experience
-- `/ask` — direct decision comparison
-- `/guide` — guidance and usage notes
-- `/letter` — letter and narrative content
-- `/architecture` — architecture map and repo structure view
-- `/wallet` — account / premium / payment-related state
-- `/report/<id>` — generated reports with shareable links
-
-The project also includes a global architecture map generated from repo metadata and a PWA-friendly frontend.
-
----
-
-## Repository structure
-
-Key directories and modules include:
-
-```text
-app.py                  # FastAPI application and routes
-core/                   # core reasoning, signal detection, orchestration
-ENGINE/                 # decision, risk, collapse, routing logic
-AI/                     # advisory council and AI-oriented behavior
-AI_KERNEL/              # governance and rule enforcement layers
-DATABASE/               # persistence and state management
-DOMAINS/                # domain-specific engines and decision contexts
-WORLD_MODEL/            # broader world-state modeling
-SIMULATIONS/            # scenario modeling and stress simulation
-SECURITY/               # safety and load protections
-static/                 # frontend assets, PWA, pages, UI resources
-tests/                  # automated test suite
-scripts/                # repo utilities and evaluation scripts
-```
-
----
-
-## Security, privacy, and governance
-
-The system includes expected governance controls around:
-
-- no raw user text in server logs
-- session-based state handling
-- secret-key and credential protection
-- rate limiting and request guardrails
-- secure payment verification patterns
-- human-first override principles
-
-This project is explicitly designed to protect options and reduce harm, not to optimize for manipulation or opaque automation.
+This is not a productivity app pretending to be neutral. It is deliberately designed to keep choice alive.
 
 ---
 
 ## Local development
 
-Requirements:
+Install dependencies:
 
 ```bash
 pip install -r requirements-dev.txt
 ```
 
-Set environment variables:
+Set required environment variables:
 
 ```bash
 export SECRET_KEY=$(python -c "import secrets; print(secrets.token_hex(32))")
-export GEMINI_API_KEY=...   # optional; the system can still function with deterministic logic fallback
+export GEMINI_API_KEY=...
+export GOOGLE_CLIENT_ID=...
+export GOOGLE_CLIENT_SECRET=...
+export STRIPE_SECRET_KEY=...
+export STRIPE_WEBHOOK_SECRET=...
+export STRIPE_PRICE_ID=...
+export STRIPE_PREMIUM_PRICE_ID=...
 ```
 
-Run the app:
+Run locally:
 
 ```bash
 uvicorn app:app --reload
@@ -175,16 +232,16 @@ uvicorn app:app --reload
 
 ## Testing
 
-The repository includes a large automated test suite under `tests/` for:
+This repo has a large automated test suite under `tests/` covering behavior such as:
 
-- API and route behavior
-- governance and safety constraints
-- language and signal detection
-- UI and page usability
-- resilience and edge-case logic
-- decision quality evaluation
+- page rendering and route behavior
+- safety and governance constraints
+- language detection and multilingual behavior
+- risk and urgent-response logic
+- API contract checks
+- edge-case logic and fallback behavior
 
-Typical usage:
+Run tests with:
 
 ```bash
 pytest
@@ -194,17 +251,17 @@ pytest
 
 ## Roadmap alignment
 
-The current repo already contains substantial completed work in:
+The repo already includes completed work in:
 
-- decision architecture
-- rule-based safety automation
-- crisis and risk analysis
-- multi-language support
-- session memory
-- world-model integration concepts
-- deployment readiness
+- decision framework and governance kernel
+- multi-voice advisory system
+- survival and crisis logic
+- memory and personalization features
+- secure auth and billing
+- web deployment and app buildout
+- project-wide testing and governance layers
 
-Planned evolution continues around more advanced external-data integrations, deeper resilience work, and broader real-world scenario coverage.
+The remaining work is centered on deeper external-data integration, resilience scaling, and broader live-world scenario coverage.
 
 ---
 
@@ -219,7 +276,7 @@ See:
 
 ---
 
-## Contact
+## Support
 
 - Instagram: https://www.instagram.com/thekingdiadem
 - Fastwork: https://fastwork.co/byob/CtqOnVfzC7
