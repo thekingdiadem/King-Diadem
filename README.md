@@ -12,12 +12,6 @@
 [![Instagram](https://img.shields.io/badge/Instagram-@thekingdiadem-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/thekingdiadem)
 [![Fastwork](https://img.shields.io/badge/Fastwork-Hire%20Me-3B5BFE?style=for-the-badge&logoColor=white)](https://fastwork.co/byob/CtqOnVfzC7)
 
-<p>
-<a href="https://king-diadem.onrender.com"><img src="https://www.google.com/s2/favicons?domain=render.com&sz=64" width="28" height="28" alt="Website"/></a>&nbsp;&nbsp;
-<a href="https://www.instagram.com/thekingdiadem"><img src="https://www.google.com/s2/favicons?domain=instagram.com&sz=64" width="28" height="28" alt="Instagram"/></a>&nbsp;&nbsp;
-<a href="https://fastwork.co/byob/CtqOnVfzC7"><img src="https://www.google.com/s2/favicons?domain=fastwork.co&sz=64" width="28" height="28" alt="Fastwork"/></a>
-</p>
-
 ---
 
 ## หลักคิดเดียว
@@ -69,6 +63,8 @@ Choice(t) ≥ 1 → collapse = False
 | **COSMOS ✦** | ภาพใหญ่ระยะยาว | ปั่นป่วนสูง → มองยาวก่อนเร่ง |
 | **CIVIL ⬡** | แรงกระเพื่อม — เรื่องนี้ไปถึงใคร ใครช่วยแบกได้ | อยู่คนเดียว → หาแรงหนุนก่อน |
 
+ข้อห้ามร่วมทุกเสียง: ห้ามอ้างว่ามีชีวิตจริง · ห้ามอ้างอำนาจ · ห้ามสร้าง dependency
+
 ถ้าสภาเห็นไม่ตรงกัน ระบบไม่เดาและไม่เฉลี่ย — หยุดแล้วส่งให้คนตัดสินใจ
 
 FATE™ Axioms: Logic over Persona · Rule over Authority · Determinism (input เดิม = output เดิม) · Downside Before Upside · Explainability = 100% · **Human retains Final Authority**
@@ -77,23 +73,38 @@ FATE™ Axioms: Logic over Persona · Rule over Authority · Determinism (input 
 
 ## บนเว็บมีอะไร
 
+**ในหน้าแรก**
+
+| ฟีเจอร์ | ใช้ทำอะไร |
+|---|---|
+| ปรึกษา | คุยกับ LYLA / VEGA / สภา — เลือกโหมด AUTO หรือเลือกเสียงเองได้ |
+| จำลองทางเลือก | ใส่สถานการณ์และทางเลือกที่มี ระบบจำลอง 30 / 90 วัน โดยดูด้านเสียหายก่อน (Downside First) |
+| วิเคราะห์ภาพ | อัปโหลด jpeg / png / webp ไม่เกิน 10MB |
+| สถานะของฉัน | บอกพลังงาน การนอน เงินที่ใช้ได้ อาหาร และที่พัก ระบบนำไปคิดคำตอบให้ตรงกับสภาพจริง |
+| จักรวาล | แผนที่ภาพของการตัดสินใจที่เคยปรึกษา |
+| ความจำของ LYLA | เปิด/ปิด/ล้างได้ทุกเมื่อ (ดูหัวข้อความเป็นส่วนตัว) |
+
+**หน้าอื่น**
+
 | หน้า | ใช้ทำอะไร |
 |---|---|
-| [`/`](https://king-diadem.onrender.com) | คุยกับ LYLA / VEGA / สภา · จำลองทางเลือก · วิเคราะห์ภาพ · จักรวาลของการตัดสินใจ |
 | [`/ask`](https://king-diadem.onrender.com/ask) | ถามแบบมีตัวเลือก A / B ให้ชั่งตรงๆ |
 | [`/guide`](https://king-diadem.onrender.com/guide) | คู่มือใช้งานแบบอ่านง่าย |
 | [`/letter`](https://king-diadem.onrender.com/letter) | จดหมายจากผู้ก่อตั้ง — COSMIC LATTE CANON (ไทย / English) |
 | [`/architecture`](https://king-diadem.onrender.com/architecture) | สถาปัตยกรรมและแผนที่ไฟล์ทั้งระบบ |
 | `/report/<id>` | รายงานที่ผู้ใช้กดแชร์เอง — เปิดได้ 90 วัน เจ้าของลบได้ |
-| [`/wallet`](https://king-diadem.onrender.com/wallet) | เครดิต · Premium · จัดการสมาชิก |
+| [`/static/wallet.html`](https://king-diadem.onrender.com/static/wallet.html) | เครดิต · Premium · จัดการสมาชิก |
 
-ใช้ได้ทั้งภาษาไทย อังกฤษ และญี่ปุ่น · ตัวจับเรื่องเร่งด่วนอ่านได้อีกหลายภาษา · ติดตั้งเป็นแอป (PWA) และเปิดหน้าเบอร์ฉุกเฉินได้ตอนไม่มีเน็ต
+**แพ็กเกจ:** ใช้ฟรีมีโควตารายวัน · เติมเครดิตตามที่ใช้ · หรือสมัคร Premium (ไม่จำกัดข้อความ) · ชำระผ่าน Stripe รองรับ PromptPay · ราคาปัจจุบันดูที่หน้า Wallet
+
+**ภาษา:** หน้าเว็บมีไทย อังกฤษ ญี่ปุ่น · ตัวจับเรื่องด่วนอ่านได้หลายสิบภาษา · ติดตั้งเป็นแอป (PWA) และเปิดหน้าเบอร์ฉุกเฉินได้ตอนไม่มีเน็ต
 
 ---
 
 ## ความเป็นส่วนตัวและความปลอดภัย
 
-- ไม่ล็อกอิน = ไม่เก็บข้อความ · ล็อกอินแล้ว ประวัติเป็นของบัญชีนั้น ดาวน์โหลดหรือส่งเข้าอีเมลของตัวเองได้
+- ไม่ล็อกอิน = ไม่เก็บข้อความ · ล็อกอินด้วย Google แล้ว ประวัติเป็นของบัญชีนั้น ดาวน์โหลดหรือส่งเข้าอีเมลของตัวเองได้
+- LYLA จำเรื่องสำคัญข้ามแชทได้ต่อเมื่อคุณเปิดเอง · เรื่องเปราะบางจำแค่ว่าเคยผ่านช่วงหนัก ไม่เก็บข้อความ · ล้างได้ทุกเมื่อ
 - log ของเซิร์ฟเวอร์ไม่บันทึกข้อความผู้ใช้
 - cookie เซ็นด้วยกุญแจลับ · รหัสผ่านแฮช PBKDF2 · จำกัดการเดารหัสและการสมัครรัวๆ
 - เครดิตผูกกับยอดที่ Stripe เก็บจริง ตรวจลายเซ็น webhook และกันเติมซ้ำ
@@ -118,7 +129,7 @@ override ทุกครั้งต้องมีหลักฐาน ผู�
 ## เบื้องหลังทางเทคนิค
 
 **Stack:** FastAPI · Python · Google Gemini · SQLite · HTML / CSS / JS (canvas + WebGL) · Render
-**Scale:** 358 ไฟล์ · Python ของระบบ 106 ไฟล์ (ไม่นับเทสต์และสคริปต์) · เทสต์ 2,700+ ข้อ · 1,900+ commits
+**Scale:** 377 ไฟล์ · 78,888 บรรทัด · Python 274 ไฟล์ โดย 100 ไฟล์ต่อเข้าระบบที่รันจริง (ที่เหลือส่วนใหญ่คือไฟล์เทสต์ 160 ไฟล์ สคริปต์ และไฟล์ package) · เทสต์ 3,700+ ข้อ · 1,900+ commits
 
 | โฟลเดอร์ | หน้าที่ |
 |---|---|
@@ -130,6 +141,10 @@ override ทุกครั้งต้องมีหลักฐาน ผู�
 | `SECURITY/` `WORLD_MODEL/` `SIMULATIONS/` | ตัววัดโหลด · แบบจำลองคนและโลก · การจำลอง |
 | `static/` | หน้าเว็บทั้งหมด · service worker · ไอคอนแอป |
 | `tests/` | ชุดทดสอบ |
+
+### DriftZero
+
+สมการ `Drift(t) = Σ DHD` และ `Choice(t+Δ) = Choice(t) − Drift(t) − Entropy(t) + Intervention(t)` เขียนเป็นโค้ดแล้วใน `core/choice_dynamics.py` พร้อมเทสต์ ค่า drift สะสมถูกบันทึกในเส้นทางที่ใช้งานจริงแล้วผ่าน `record_drift()` โดยตอนนี้ค่าที่ป้อนมาจากคะแนนความเสี่ยง ÷ 100 (ยังไม่ใช่ Daily Harm Delta รายวันตามเอกสารออกแบบ) ส่วนโมดูลคำนวณ Choice(t+Δ) ยังไม่ต่อเข้า endpoint ที่ผู้ใช้เรียก
 
 ### รันบนเครื่อง
 
@@ -143,11 +158,13 @@ uvicorn app:app --reload
 ### ทดสอบ
 
 ```
-pytest                          # 2,500+ ข้อ — ไม่ใช้เน็ต ไม่เสียค่า AI (Gemini เป็นตัวปลอม)
+pytest                          # 3,700+ ข้อ — ไม่ใช้เน็ต ไม่เสียค่า AI (Gemini เป็นตัวปลอม)
 python scripts/eval_corpus.py   # วัดผลกับประโยคที่คนพิมพ์จริง 492 ประโยค
 ```
 
 `tests/corpus/messages.tsv` คือประโยคจริงพร้อมผลที่ควรได้ — เจอประโยคที่ระบบพลาด เพิ่มลงไฟล์นี้ก่อนแก้
+
+นอกจากประโยคจริง ยังทดสอบความทนด้วยข้อความสังเคราะห์ที่สร้างขึ้นเองในระดับหลักหมื่นถึงล้านข้อความ (ไม่ใช่ประโยคที่คนพิมพ์จริง ใช้ดูว่าระบบไม่ล่มและไม่จับพลาดซ้ำ)
 
 ---
 
