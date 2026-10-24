@@ -22,26 +22,24 @@
 
 ## Certifications
 
-ทุกใบออกผ่าน Coursera ตรวจสอบได้ที่ลิงก์ในคอลัมน์สุดท้าย
-
 **Google (via Coursera)**
 
-| ใบเซอร์ | วันที่ | ลิงก์ยืนยัน |
-|---|---|---|
-| Google Business Intelligence | Feb 22, 2026 | _ใส่ลิงก์_ |
-| Google AI Professional Certificate | Feb 23, 2026 | _ใส่ลิงก์_ |
-| Google AI Essentials | Mar 3, 2026 | _ใส่ลิงก์_ |
-| Google Cybersecurity | Mar 5, 2026 | _ใส่ลิงก์_ |
-| Google Prompting Essentials | Mar 24, 2026 | _ใส่ลิงก์_ |
+| ใบเซอร์ | วันที่ |
+|---|---|
+| Google Business Intelligence | Feb 22, 2026 |
+| Google AI Professional Certificate | Feb 23, 2026 |
+| Google AI Essentials | Mar 3, 2026 |
+| Google Cybersecurity | Mar 5, 2026 |
+| Google Prompting Essentials | Mar 24, 2026 |
 
 **Vanderbilt University (via Coursera)**
 
-| ใบเซอร์ | วันที่ | ลิงก์ยืนยัน |
-|---|---|---|
-| Generative AI Strategic Leader | Mar 7, 2026 | _ใส่ลิงก์_ |
-| Generative AI Software Engineering | Mar 4, 2026 | _ใส่ลิงก์_ |
-| AI Agents with Model Context Protocol | Mar 6, 2026 | _ใส่ลิงก์_ |
-| ChatGPT: Master Free AI Tools to Supercharge Productivity | Mar 7, 2026 | _ใส่ลิงก์_ |
+| ใบเซอร์ | วันที่ |
+|---|---|
+| Generative AI Strategic Leader | Mar 7, 2026 |
+| Generative AI Software Engineering | Mar 4, 2026 |
+| AI Agents with Model Context Protocol | Mar 6, 2026 |
+| ChatGPT: Master Free AI Tools to Supercharge Productivity | Mar 7, 2026 |
 
 ---
 
@@ -52,7 +50,7 @@ KING DIADEM คือระบบวิจัย AI Governance ที่สร�
 > **ระบบล่มสลายได้เสมอ — แต่ถ้ายังมีทางเลือกอยู่ มันยังไม่ล่ม**
 
 ไม่ใช่ AI ที่บอกว่าคุณต้องทำอะไร
-ไม่ใช่ผู้มีอำนาจ ไม่อ้างว่ามีชีวิตจริง
+ไม่ใช่ผู้มีอำนาจ ไม่ใช่ entity ไม่ใช่ persona
 
 เป็น Evidentiary / Governance / Logic Infrastructure
 ที่ตรวจจับว่า "ทางเลือกของคุณกำลังหายไป"
@@ -72,7 +70,7 @@ KING DIADEM คือระบบวิจัย AI Governance ที่สร�
 
 ## Architecture Stack
 
-หลักการของระบบแบ่งเป็น 4 ชั้นที่ซ้อนกัน:
+ระบบนี้รันอยู่บน 4 layer ที่ซ้อนกัน:
 
 ```
 FATE™ Kernel          — ตรรกะไม่พังซ้ำ · Deterministic · Explainable
@@ -82,8 +80,6 @@ LYLA Interface        — Soft Logic · ไม่บังคับ · อ่อ
 ```
 
 แต่ละชั้นทำงานแยกกัน และไม่มีชั้นไหน override อีกชั้นได้
-
-ผู้ใช้ไม่ได้เจอ 4 ชั้นนี้ตรงๆ — บนเว็บจะเจอสภา 6 เสียง (LYLA · VEGA · PATICCA · TITAN · COSMOS · CIVIL) โดย LYLA คือชั้น Interface ที่คุยกับผู้ใช้ ส่วนอีก 5 เสียงตรวจอยู่เบื้องหลัง รายละเอียดดูใน [README](README.md)
 
 ---
 
@@ -172,7 +168,7 @@ else:
 
 มันล่มสลายทีละนิด
 ทุกครั้งที่ทางเลือกหายไปหนึ่งทาง
-แล้วก็อีกทาง แล้วก็อีกทาง
+แล้วก็อีกทาง 
 
 จนวันนึงที่เหลืออยู่คือศูนย์
 
@@ -182,11 +178,9 @@ else:
 
 ## Project Status
 
-- Repository: King-Diadem (GitHub) · ใช้งานจริงที่ [king-diadem.onrender.com](https://king-diadem.onrender.com)
-- Stack: FastAPI · Python · Google Gemini · SQLite · Render
-- โมดูลหลัก: `core/` · ENGINE · DOMAINS · AI · AI_KERNEL · KERNEL · SIMULATIONS · WORLD_MODEL · DATABASE · SECURITY
-- ขนาด: 377 ไฟล์ · 78,888 บรรทัด · Python 274 ไฟล์ (100 ไฟล์ต่อเข้าระบบที่รันจริง ที่เหลือส่วนใหญ่คือเทสต์) · เทสต์ 3,700+ ข้อ
-- DriftZero Waterline Governance Kernel: แบบแปลนเป็นเอกสาร สมการหลักเขียนเป็นโค้ดแล้วใน `core/choice_dynamics.py` (ยังไม่ต่อเข้า endpoint)
+- Repository: King-Diadem (GitHub)
+- Stack: Python · Flask · AI Kernel · Multi-domain Engine
+- โมดูลหลัก: ENGINE · AI · KERNEL · DOMAINS · SIMULATIONS · WORLD\_MODEL
 - สถานะ: Active development — สร้างคนเดียว จากศูนย์
 
 ---
