@@ -1,171 +1,229 @@
 # KING DIADEM
 
-**ระบบช่วยตัดสินใจที่จับสัญญาณก่อนทางเลือกจะหมด — ตรรกะตรวจสอบได้เป็นแกน AI เป็นแค่เสียงพูด**
+King Diadem is a decision-governance and crisis-detection system designed to monitor whether a situation is quietly collapsing toward zero usable choices, then surface safer, more viable options before the system fails.
 
-> คนไม่ได้ล้มเพราะพังวันเดียว
-> คนล้มเพราะทางเลือกหายไปทีละนิด จนวันหนึ่งไม่เหลือทางไปต่อ
-> KING DIADEM สร้างมาเพื่อจับสัญญาณนั้น ก่อนที่มันจะสาย
+It is built as a practical framework for human decision support across risk, survival, infrastructure, business, and public-governance contexts.
 
-ลองใช้ได้ที่ [king-diadem.onrender.com](https://king-diadem.onrender.com) — ติดตั้งเป็นแอปบนมือถือได้ (ถ้าไม่มีคนใช้สักพัก ครั้งแรกอาจโหลดช้าราว 1 นาที)
+Live demo: https://king-diadem.onrender.com
 
 [![Website](https://img.shields.io/badge/Website-king--diadem.onrender.com-181717?style=for-the-badge&logo=render&logoColor=white)](https://king-diadem.onrender.com)
 [![Instagram](https://img.shields.io/badge/Instagram-@thekingdiadem-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/thekingdiadem)
 [![Fastwork](https://img.shields.io/badge/Fastwork-Hire%20Me-3B5BFE?style=for-the-badge&logoColor=white)](https://fastwork.co/byob/CtqOnVfzC7)
 
-<p>
-<a href="https://king-diadem.onrender.com"><img src="https://www.google.com/s2/favicons?domain=render.com&sz=64" width="28" height="28" alt="Website"/></a>&nbsp;&nbsp;
-<a href="https://www.instagram.com/thekingdiadem"><img src="https://www.google.com/s2/favicons?domain=instagram.com&sz=64" width="28" height="28" alt="Instagram"/></a>&nbsp;&nbsp;
-<a href="https://fastwork.co/byob/CtqOnVfzC7"><img src="https://www.google.com/s2/favicons?domain=fastwork.co&sz=64" width="28" height="28" alt="Fastwork"/></a>
-</p>
-
 ---
 
-## หลักคิดเดียว
+## What this project is
 
-```
-Choice(t) ≥ 1 → collapse = False
-```
+KING DIADEM watches for the moment when a system begins losing real, survivable choices.
 
-ลองนึกถึงเข็มวัดน้ำมันรถ มันเตือนก่อนน้ำมันหมด ไม่ใช่ตอนรถดับกลางทาง KING DIADEM ทำแบบเดียวกันกับทางเลือกในชีวิต ธุรกิจ หรือระบบ
+The central idea is simple:
 
-แต่ **"มีทางเดียว" ไม่เท่ากับ "มีทางเลือกจริง"** ระบบนับทางเลือกเฉพาะทางที่ผ่านครบ 3 ข้อ (`titan_choice_existence`):
-
-- **survivable** — เดินแล้วรอด ไม่ใช่แค่ยังไม่ตายตอนนี้
-- **escapable** — ออกจากทางนี้ได้ ไม่ใช่ทางที่ปิดตายไปเรื่อยๆ
-- **unpunished** — ออกแล้วไม่โดนลงโทษซ้ำ
-
-ขาดข้อใดข้อหนึ่ง ทางนั้นไม่ถูกนับ ต่อให้ตัวเลขดูเหมือนยังเหลือทาง ระบบก็ยังเตือนได้
-
----
-
-## ข้อความหนึ่งข้อความเดินทางอย่างไร
-
-ตรรกะอยู่ทั้งก่อนและหลัง AI — AI ทำหน้าที่เรียบเรียงคำพูดเท่านั้น ถ้า AI ล่มหรือไม่มี ระบบยังตอบได้จากสมการ
-
-```
-คนพิมพ์ → ตรวจโควตา · จับสัญญาณอันตราย (กฎตายตัว ไม่ใช่ AI) · อ่านความเสี่ยงและเส้นทาง
-       → สภา 6 เสียง + เครื่องยนต์ตัดสินใจ (เหตุปัจจัย · waterline · ตัวเลขจริง)
-       → Gemini เรียบเรียงคำตอบ หรือคำตอบจากสมการเมื่อไม่มี AI
-       → ประตู Canon: ทางเลือกไม่เกิน 3 · ตรวจคำตอบก่อนส่ง
-       → คนอ่าน แล้วเลือกเอง
+```python
+Risk = Drift × Exposure / Remaining Choice
+Choice(t) >= 1 -> collapse = False
 ```
 
-ผังเต็มพร้อมแผนที่ไฟล์ทั้งหมด (สร้างจาก repo อัตโนมัติ ไม่ได้วาดมือ) ดูได้ที่หน้า [/architecture](https://king-diadem.onrender.com/architecture)
+When a path has no real room to recover, the system does not pretend it is safe. It flags the risk early and keeps the user anchored to viable options.
 
-เมื่อข้อความมีสัญญาณอันตราย — อยากทำร้ายตัวเอง เจ็บป่วยฉุกเฉิน ภัยพิบัติ มิจฉาชีพ — ระบบจับด้วยกฎที่ตรวจสอบได้ก่อนถึง AI แล้วให้เบอร์ที่ตรงเรื่องทันที (1669 · 191 · 1323 ฯลฯ) ใช้ได้แม้ AI ล่ม และแม้ออฟไลน์
+This project is not a generic chatbot. It is a structured decision layer built to:
 
----
-
-## สภา 6 เสียง
-
-ไม่มีเสียงเดียวตัดสินแทนใคร LYLA เป็นเสียงที่คุยกับผู้ใช้ อีก 5 เสียงตรวจอยู่เบื้องหลัง (กดปุ่ม "สภา" บนเว็บเพื่อฟังครบ)
-
-| เสียง | มุมที่มอง | หน้าที่ตอนลงมติ |
-|---|---|---|
-| **LYLA ◈** | รับรู้ความรู้สึก อยู่เคียงข้าง เปิดทางเลือก | นับทางเลือกที่ยังเหลือ — Choice(t) ≥ 1 |
-| **VEGA ◆** | Downside-first ตรรกะ deterministic | ความเสี่ยงสูง → ตั้งรับก่อน |
-| **PATICCA ☸** | ปฏิจจสมุปบาท — ตามสายเหตุปัจจัยหาต้นเหตุ | เหตุซ้อนจนใกล้ล่ม → หยุดตัดสินใจใหญ่ |
-| **TITAN ▲** | เส้นทางขั้นต่ำที่ทำให้รอดวันนี้ | พื้นขั้นต่ำ: อาหาร ที่พัก waterline |
-| **COSMOS ✦** | ภาพใหญ่ระยะยาว | ปั่นป่วนสูง → มองยาวก่อนเร่ง |
-| **CIVIL ⬡** | แรงกระเพื่อม — เรื่องนี้ไปถึงใคร ใครช่วยแบกได้ | อยู่คนเดียว → หาแรงหนุนก่อน |
-
-ถ้าสภาเห็นไม่ตรงกัน ระบบไม่เดาและไม่เฉลี่ย — หยุดแล้วส่งให้คนตัดสินใจ
-
-FATE™ Axioms: Logic over Persona · Rule over Authority · Determinism (input เดิม = output เดิม) · Downside Before Upside · Explainability = 100% · **Human retains Final Authority**
+- detect drift before it becomes irreversible
+- distinguish real choice from fake choice
+- separate survival minimums from aspirational goals
+- surface downside-first reasoning before upside-first optimism
+- keep human decision authority intact
 
 ---
 
-## บนเว็บมีอะไร
+## Current status
 
-| หน้า | ใช้ทำอะไร |
-|---|---|
-| [`/`](https://king-diadem.onrender.com) | คุยกับ LYLA / VEGA / สภา · จำลองทางเลือก · วิเคราะห์ภาพ · จักรวาลของการตัดสินใจ |
-| [`/ask`](https://king-diadem.onrender.com/ask) | ถามแบบมีตัวเลือก A / B ให้ชั่งตรงๆ |
-| [`/guide`](https://king-diadem.onrender.com/guide) | คู่มือใช้งานแบบอ่านง่าย |
-| [`/letter`](https://king-diadem.onrender.com/letter) | จดหมายจากผู้ก่อตั้ง — COSMIC LATTE CANON (ไทย / English) |
-| [`/architecture`](https://king-diadem.onrender.com/architecture) | สถาปัตยกรรมและแผนที่ไฟล์ทั้งระบบ |
-| `/report/<id>` | รายงานที่ผู้ใช้กดแชร์เอง — เปิดได้ 90 วัน เจ้าของลบได้ |
-| [`/wallet`](https://king-diadem.onrender.com/wallet) | เครดิต · Premium · จัดการสมาชิก |
+This repository is a working decision-support application with:
 
-ใช้ได้ทั้งภาษาไทย อังกฤษ และญี่ปุ่น · ตัวจับเรื่องเร่งด่วนอ่านได้อีกหลายภาษา · ติดตั้งเป็นแอป (PWA) และเปิดหน้าเบอร์ฉุกเฉินได้ตอนไม่มีเน็ต
+- FastAPI backend
+- Python logic engine
+- SQLite persistence and session memory
+- Multi-AI advisory council
+- web interface with PWA support
+- i18n support (Thai / English / 日本語)
+- Google OAuth and Stripe integration
+- report generation and shareable output
+- deployment targeting Render
 
----
-
-## ความเป็นส่วนตัวและความปลอดภัย
-
-- ไม่ล็อกอิน = ไม่เก็บข้อความ · ล็อกอินแล้ว ประวัติเป็นของบัญชีนั้น ดาวน์โหลดหรือส่งเข้าอีเมลของตัวเองได้
-- log ของเซิร์ฟเวอร์ไม่บันทึกข้อความผู้ใช้
-- cookie เซ็นด้วยกุญแจลับ · รหัสผ่านแฮช PBKDF2 · จำกัดการเดารหัสและการสมัครรัวๆ
-- เครดิตผูกกับยอดที่ Stripe เก็บจริง ตรวจลายเซ็น webhook และกันเติมซ้ำ
-- จำกัดขนาดคำขอ กันคำขอก้อนเดียวทำเซิร์ฟเวอร์ล่ม
+The repo is in a mature prototype / production-adjacent stage, with a substantial automated test suite covering safety, governance logic, language handling, app pages, and system behavior.
 
 ---
 
-## กฎที่ใช้แม้แต่กับผู้สร้างเอง
+## Core system behavior
 
-1. **ดูของจริงก่อนสรุป** — ไม่เดา ต้องมีหลักฐาน
-2. **ใครก็หยุดระบบได้ ถ้าเห็นว่ากำลังจะพัง**
-3. **ซ่อมฐานให้แน่นก่อน ค่อยต่อเติม**
+KING DIADEM combines a deterministic decision kernel with a council of reasoning voices.
 
-override ทุกครั้งต้องมีหลักฐาน ผู้ลงนามจริง วันหมดอายุ และ audit ย้อนหลัง — ผู้สร้างเองก็ไม่มีสิทธิพิเศษ ถ้าเจ้าของขอ override ก็โดน flag ให้ถอนตัว (auto-recusal) เหมือนกัน
+The flow is generally:
 
-**"The system does not break. It refuses."**
-
-เมื่อคุณตัดสินใจแล้ว ระบบหยุดพูดและถอยออกไป — ทางเลือกสุดท้ายเป็นของคุณเสมอ
-
----
-
-## เบื้องหลังทางเทคนิค
-
-**Stack:** FastAPI · Python · Google Gemini · SQLite · HTML / CSS / JS (canvas + WebGL) · Render
-**Scale:** 358 ไฟล์ · Python ของระบบ 106 ไฟล์ (ไม่นับเทสต์และสคริปต์) · เทสต์ 2,700+ ข้อ · 1,900+ commits
-
-| โฟลเดอร์ | หน้าที่ |
-|---|---|
-| `app.py` | เว็บเซิร์ฟเวอร์และเส้นทางของ `/run` ทั้งหมด |
-| `core/` | แก่นตรรกะ — อ่านสัญญาณภาษา · คำตอบจากสมการ · สมอง AI · ประตู Canon |
-| `ENGINE/` `DOMAINS/` | เครื่องยนต์ตัดสินใจ · เหตุปัจจัย · หนี้ · ธุรกิจ |
-| `AI/` `AI_KERNEL/` | สภา 6 เสียง · หน่วยความจำการตัดสินใจ · Cosmic Latte |
-| `DATABASE/` | บัญชี · เครดิต · ประวัติ (SQLite) |
-| `SECURITY/` `WORLD_MODEL/` `SIMULATIONS/` | ตัววัดโหลด · แบบจำลองคนและโลก · การจำลอง |
-| `static/` | หน้าเว็บทั้งหมด · service worker · ไอคอนแอป |
-| `tests/` | ชุดทดสอบ |
-
-### รันบนเครื่อง
-
+```text
+Human input
+  -> request validation and gating
+  -> signal detection (risk, collapse, survival, language, urgency)
+  -> context assembly and decision scoring
+  -> multi-perspective council analysis
+  -> choice-preservation checks and safe output constraints
+  -> human final decision
 ```
+
+The framework is intentionally designed so that AI is advisory, not sovereign.
+
+### Safety principles
+
+- Logic over persona
+- Rule over authority
+- Human retains final authority
+- Downside before upside
+- Explainability before confidence
+- A system that reduces human choice to zero is considered failed
+
+---
+
+## Council model
+
+The current architecture includes a multi-voice decision layer, such as:
+
+- LYLA — emotional awareness, user-side perspective, option recovery
+- VEGA — downside-first logic, risk framing
+- TITAN — minimum viable survival path
+- PATICCA — causal and pattern-based evaluation
+- COSMOS — long-horizon, system-level view
+- CIVIL — social and structural impact view
+
+These voices are not used to replace governance. They are used to test whether a decision remains viable, explainable, and safe.
+
+---
+
+## Product surface
+
+The app includes a set of decision and information pages, including:
+
+- `/` — main conversational experience
+- `/ask` — direct decision comparison
+- `/guide` — guidance and usage notes
+- `/letter` — letter and narrative content
+- `/architecture` — architecture map and repo structure view
+- `/wallet` — account / premium / payment-related state
+- `/report/<id>` — generated reports with shareable links
+
+The project also includes a global architecture map generated from repo metadata and a PWA-friendly frontend.
+
+---
+
+## Repository structure
+
+Key directories and modules include:
+
+```text
+app.py                  # FastAPI application and routes
+core/                   # core reasoning, signal detection, orchestration
+ENGINE/                 # decision, risk, collapse, routing logic
+AI/                     # advisory council and AI-oriented behavior
+AI_KERNEL/              # governance and rule enforcement layers
+DATABASE/               # persistence and state management
+DOMAINS/                # domain-specific engines and decision contexts
+WORLD_MODEL/            # broader world-state modeling
+SIMULATIONS/            # scenario modeling and stress simulation
+SECURITY/               # safety and load protections
+static/                 # frontend assets, PWA, pages, UI resources
+tests/                  # automated test suite
+scripts/                # repo utilities and evaluation scripts
+```
+
+---
+
+## Security, privacy, and governance
+
+The system includes expected governance controls around:
+
+- no raw user text in server logs
+- session-based state handling
+- secret-key and credential protection
+- rate limiting and request guardrails
+- secure payment verification patterns
+- human-first override principles
+
+This project is explicitly designed to protect options and reduce harm, not to optimize for manipulation or opaque automation.
+
+---
+
+## Local development
+
+Requirements:
+
+```bash
 pip install -r requirements-dev.txt
+```
+
+Set environment variables:
+
+```bash
 export SECRET_KEY=$(python -c "import secrets; print(secrets.token_hex(32))")
-export GEMINI_API_KEY=...        # ไม่ใส่ก็ได้ — ระบบตอบจากสมการแทน
+export GEMINI_API_KEY=...   # optional; the system can still function with deterministic logic fallback
+```
+
+Run the app:
+
+```bash
 uvicorn app:app --reload
 ```
 
-### ทดสอบ
+---
 
-```
-pytest                          # 2,500+ ข้อ — ไม่ใช้เน็ต ไม่เสียค่า AI (Gemini เป็นตัวปลอม)
-python scripts/eval_corpus.py   # วัดผลกับประโยคที่คนพิมพ์จริง 492 ประโยค
-```
+## Testing
 
-`tests/corpus/messages.tsv` คือประโยคจริงพร้อมผลที่ควรได้ — เจอประโยคที่ระบบพลาด เพิ่มลงไฟล์นี้ก่อนแก้
+The repository includes a large automated test suite under `tests/` for:
+
+- API and route behavior
+- governance and safety constraints
+- language and signal detection
+- UI and page usability
+- resilience and edge-case logic
+- decision quality evaluation
+
+Typical usage:
+
+```bash
+pytest
+```
 
 ---
 
-## ไม่ได้สร้างมาเพื่อชนะ
+## Roadmap alignment
 
-สร้างมาเพื่อ **ไม่พังซ้ำ**
+The current repo already contains substantial completed work in:
 
-**Fail less. Harm less. Restore more.**
+- decision architecture
+- rule-based safety automation
+- crisis and risk analysis
+- multi-language support
+- session memory
+- world-model integration concepts
+- deployment readiness
+
+Planned evolution continues around more advanced external-data integrations, deeper resilience work, and broader real-world scenario coverage.
 
 ---
-
-## Support
-
-จ้างงานได้ที่ [Fastwork](https://fastwork.co/byob/CtqOnVfzC7) หรือทักผ่าน [Instagram](https://www.instagram.com/thekingdiadem) — รับสร้างระบบ AI / decision infrastructure แบบนี้โดยตรง
 
 ## License
 
-[GNU AGPL-3.0](LICENSE) — ใครเอาไปเปิดเป็นบริการ ต้องเปิดซอร์สโค้ดให้ผู้ใช้ด้วย
-ลิขสิทธิ์และเจตนารมณ์ของผู้สร้างอยู่ใน [NOTICE](NOTICE)
+This project is licensed under the GNU AGPL-3.0 license.
 
-Open governance framework. No proprietary claim. Not for profit. Use it to survive.
+See:
+
+- [LICENSE](LICENSE)
+- [NOTICE](NOTICE)
+
+---
+
+## Contact
+
+- Instagram: https://www.instagram.com/thekingdiadem
+- Fastwork: https://fastwork.co/byob/CtqOnVfzC7
+
+---
+
+Fail less. Harm less. Restore choice.
