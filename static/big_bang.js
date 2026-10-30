@@ -38,6 +38,9 @@
     { t: 11.4, time: '13,800 ล้านปี', temp: '2.7 K',    cap: 'และวันนี้ — เราทุกคนเป็นส่วนหนึ่งของจักรวาลเดียวกัน' }
   ];
   var END = 14.2, FADE = 1.4;
+  // เวลาในฉากเดินช้ากว่าเวลาจริง 1.7 เท่า — ทั้งฉากราว 24 วินาที
+  // (เจ้าของโปรเจกต์ดูบนมือถือแล้วบอกว่าเลื่อนไวไป ที่ 14 วินาทีอ่านคำบรรยายไม่ทัน)
+  var PACE = 1.7;
 
   var W = 0, H = 0, DPR = 1, N = 0, P = [], GAL = [], glow = null;
   var state = 'idle', t0 = 0, last = 0, raf = 0, phase = -1, waitTimer = 0, calmTimer = 0, prevFocus = null;
@@ -104,7 +107,7 @@
     raf = 0;
     if (state !== 'idle' && state !== 'run' && state !== 'fade') return;
     var dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
-    var t = state === 'idle' ? -1 : (now - t0) / 1000;
+    var t = state === 'idle' ? -1 : (now - t0) / 1000 / PACE;
     var cx = W / 2, cy = H / 2;
     if (GL) {
       if (GL.lost()) { close(); return; }
@@ -353,7 +356,7 @@
     if (state !== 'run') return;
     ptr.down = true; ptr.x = e.clientX; ptr.y = e.clientY; ptr.since = performance.now(); snd.tap();
     if (GL) { glWaves.push({ x: e.clientX / W * 2 - 1, y: 1 - e.clientY / H * 2, r: 0, a: 1 }); shake = Math.max(shake, 5); return; }
-    var l = local(e), zoom = 1 + Math.pow(Math.max(0, (performance.now() - t0) / 1000 - 11.4), 2) * .35;
+    var l = local(e), zoom = 1 + Math.pow(Math.max(0, (performance.now() - t0) / 1000 / PACE - 11.4), 2) * .35;
     waves.push({ x: l.x / zoom, y: l.y / zoom, r: 0, a: 1 }); shake = Math.max(shake, 5);
   });
   cv.addEventListener('pointermove', function (e) { if (ptr.down) { ptr.x = e.clientX; ptr.y = e.clientY; } });

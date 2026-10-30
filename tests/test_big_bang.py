@@ -69,3 +69,11 @@ def test_sound_is_off_until_the_viewer_turns_it_on():
 def test_script_parses():
     for f in ("big_bang.js", "big_bang_gl.js"):
         subprocess.run(["node", "--check", str(ROOT / "static" / f)], check=True)
+
+
+def test_scene_is_slow_enough_to_read():
+    """เจ้าของโปรเจกต์บอกว่าฉากเลื่อนไวไป — เวลาในฉากเดินช้ากว่าเวลาจริง ทั้งฉากต้องยาวราว 20 วินาทีขึ้นไป"""
+    pace = float(re.search(r"var PACE = ([\d.]+);", JS).group(1))
+    end = float(re.search(r"var END = ([\d.]+)", JS).group(1))
+    assert pace * end >= 20
+    assert JS.count("/ 1000 / PACE") == 2 and "(now - t0) / 1000;" not in JS
