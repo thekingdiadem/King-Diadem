@@ -16,6 +16,7 @@ core/engine_bridge.py — สะพานจากข้อความของ
 """
 from __future__ import annotations
 
+import math
 import re
 
 _UNITS = {"พัน": 1e3, "หมื่น": 1e4, "แสน": 1e5, "ล้าน": 1e6, "k": 1e3}
@@ -1063,6 +1064,86 @@ def budget_en(text: str) -> dict | None:
             f"{head} = short by {abs(left):,.0f} each month — costs are higher than income" if left < 0 else
             f"{head} = exactly 0 — nothing left over as a cushion")
     return {"line": line, "left": left, "income": income, "spend": spend}
+
+
+# หนี้ภาษาอังกฤษ: "I owe 5000 at 20% interest, paying 100 a month" — เดิมได้ "Write what happened in one sentence"
+_EN_DEBT_CTX = re.compile(r"\b(?:owe|owing|debts?|loans?|mortgage|credit cards?|borrowed|in the red)\b", re.I)
+_EN_DEBT_KIND = (("payday", None), ("credit card", 20.0), ("student", 6.0), ("car", 7.0), ("auto", 7.0),
+                 ("mortgage", 6.5), ("personal loan", 12.0))
+_EN_N = r"\$?\s*(\d[\d,]*(?:\.\d+)?)\s*(k)?\b(?:\s*(?:dollars?|usd|bucks|baht|thb|pounds?|euros?))?"
+_EN_PAY = re.compile(r"\b(?:pay(?:ing)?|repay(?:ing)?|put(?:ting)?(?: in)?|can afford|afford)\s+(?:about |around |only |back )?"
+                     + _EN_N + r"\s*(?:a|per|/|each|every)\s*month\b"
+                     r"|\bmonthly payments? (?:is |are |of |=\s*)?" + _EN_N, re.I)
+_EN_RATE = re.compile(r"(\d+(?:\.\d+)?)\s*%\s*(?:apr\b|interest\b)?\s*(a month|per month|monthly|/\s*month)?", re.I)
+_EN_NOT_AMOUNT = re.compile(r"^\s*(?:%|years?\b|yrs?\b|months?\b|mos?\b|weeks?\b|days?\b|times\b|cards?\b)", re.I)
+
+
+def _en_amount(m, i: int) -> float | None:
+    try:
+        return float(m.group(i).replace(",", "")) * (1000 if m.group(i + 1) else 1)
+    except (TypeError, ValueError):
+        return None
+
+
+def debt_en(text: str) -> dict | None:
+    """หนี้ก้อนเดียวในภาษาอังกฤษ — คืน {"lines", "data"} หรือ None (ไม่เดาตัวเลขที่ผู้ใช้ไม่ได้บอก)"""
+    text = str(text or "")
+    if not _EN_DEBT_CTX.search(text) or _EN_INCOME.search(text):
+        return None                       # มีรายได้ → เป็นเรื่องงบรายเดือน (budget_en) ไม่ใช่ยอดหนี้
+    rest, pay = text, None
+    pm = _EN_PAY.search(text)
+    if pm:
+        pay = _en_amount(pm, 1) if pm.group(1) else _en_amount(pm, 3)
+        rest = text[:pm.start()] + " " + text[pm.end():]
+    rate, monthly_rate = None, False
+    rm = _EN_RATE.search(rest)
+    if rm:
+        rate = float(rm.group(1)) * (12 if rm.group(2) else 1)
+        monthly_rate = bool(rm.group(2))
+        rest = rest[:rm.start()] + " " + rest[rm.end():]
+    amts = [v for m in re.finditer(_EN_N, rest, re.I)
+            if not _EN_NOT_AMOUNT.match(rest[m.end():]) and (v := _en_amount(m, 1)) and v >= 50]
+    if len(amts) != 1:
+        return None                       # หลายก้อนในประโยคเดียว — ไม่จับคู่ยอดกับดอกแบบเดา
+    balance = amts[0]
+    low = text.lower()
+    kind = next(((k, r) for k, r in _EN_DEBT_KIND if k in low), None)
+    assumed = False
+    if rate is None and kind and kind[1] is not None:
+        rate, assumed = kind[1], True
+    star = "*" if assumed else ""
+    lines = [f"Your debt: {balance:,.0f}" + (f" at {rate:,.4g}% a year{star}" if rate is not None else "")
+             + (f" ({rate / 12:g}% a month)" if monthly_rate else "")]
+    if assumed:
+        label = {"student": "student loan", "car": "car loan", "auto": "car loan"}.get(kind[0], kind[0])
+        lines.append(f"* {kind[1]:g}% is a typical {label} rate — tell me the real rate for an exact answer")
+    if (rate is not None and rate > 36) or (kind and kind[0] == "payday"):
+        lines.append("Above 36% a year is widely treated as predatory — a nonprofit credit counselor can help you "
+                     "check whether this loan is even legal where you live")
+    data = {"balance": balance, "annual_rate": rate, "assumed_rate": assumed, "payment": pay}
+    if pay is None:
+        lines.append("Tell me how much you can pay each month and I'll work out how many months it takes")
+    elif rate is None:
+        lines.append(f"Paying {pay:,.0f} a month: about {math.ceil(balance / pay)} months if there's no interest — "
+                     "tell me the interest rate for an exact answer")
+    else:
+        interest = balance * rate / 100 / 12
+        if pay <= interest:
+            lines.append(f"Paying {pay:,.0f} a month is less than the monthly interest (≈ {interest:,.0f}) — "
+                         "the balance will never go down; raise the payment or ask the lender for a lower rate first")
+        else:
+            from ENGINE.debt_engine import simulate_payoff
+            r = simulate_payoff([{"name": "debt", "balance": balance, "annual_rate": rate}], pay)
+            if not r.get("paid_off"):
+                lines.append(f"Paying {pay:,.0f} a month takes more than 30 years — raise the payment or "
+                             "ask the lender for a lower rate")
+            else:
+                n = r["payoff_months"]
+                yrs = f" (≈ {n / 12:.1f} years)" if n >= 12 else ""
+                lines.append(f"Paying {pay:,.0f} a month: paid off in {n} months{yrs} · "
+                             f"total interest ≈ {r['total_interest']:,.0f}{star}")
+                data["payoff_months"] = n
+    return {"lines": lines, "data": data}
 
 
 def analyze(text: str) -> dict:

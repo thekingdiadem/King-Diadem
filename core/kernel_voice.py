@@ -28,7 +28,7 @@ from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, 
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
                                CHILD_HOUSEHOLD, SLEEPLESS, NOT_BREATHING as _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY, TRAFFICKING)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl, world_urgent
-from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en
+from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en, debt_en
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
 HOTLINE_MENTAL = "1323"   # สายด่วนสุขภาพจิต กรมสุขภาพจิต 24 ชม.
@@ -1952,6 +1952,17 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             return SAFETY_EN.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
         if lang in ("zh", "ja", "ko", "es") and a.get("intl_urgent") and not a["crisis"]:
             return compose_urgent_intl(lang, a["intl_urgent"][0], status, sign, footer)
+        d = debt_en(text) if (lang == "en" and not a["crisis"] and not a["topics"]) else None
+        if d:
+            # ทางเลือกไม่เกิน 3 ข้อตาม canon — ยอดหนี้ · ผลของค่างวด · ขั้นถัดไป ส่วนหมายเหตุ (ดอกที่สมมติ/ดอกโหด) ไม่นับเป็นทาง
+            steps = [d["lines"][0], d["lines"][-1],
+                     "Call the lender before you miss a payment and ask about a hardship plan or a lower rate — "
+                     "you have more options before you fall behind."]
+            notes = "".join(f"\n· {n}" for n in d["lines"][1:-1])
+            return ("Debt is just numbers — it can be handled one piece at a time.\n\n" + status + "\n\n"
+                    + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(steps)) + notes
+                    + "\n\nIf you could only pay one bill this month, which one would hurt most to miss?\n\n" + sign
+                    + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         b = budget_en(text) if (lang == "en" and not a["crisis"] and not a["topics"]) else None
         if b:
             steps = ([b["line"],
