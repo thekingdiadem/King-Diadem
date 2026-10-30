@@ -935,6 +935,35 @@ def get_feedback_stats():
     return feedback_loop.stats() if feedback_loop else {"votes": 0, "signal": "NO_DATA"}
 
 
+# ── แผนผังระบบสด: นับจากไฟล์ที่เซิร์ฟเวอร์รันอยู่จริง ────────────────────────────────────────────
+# เดิมหน้า "ระบบ" อ่านแผนผังที่ฝังไว้ใน static/index.html ตอน commit — ตัวเลขค้างเท่าตอนรันสคริปต์ครั้งล่าสุด
+# ตอนนี้คำนวณใหม่ครั้งแรกที่มีคนขอหลังเปิดเซิร์ฟเวอร์ (= หลัง deploy ทุกครั้ง) แล้วเก็บไว้ใช้ตลอดอายุเซิร์ฟเวอร์
+# คำอธิบายไฟล์ยังมาจากแผนผังที่ฝังไว้ · ไฟล์ใหม่ที่ยังไม่มีคำอธิบายก็นับและจัดหมวดให้อัตโนมัติ
+_live_map = None
+_live_map_lock = threading.Lock()
+
+
+def _build_live_map():
+    global _live_map
+    with _live_map_lock:
+        if _live_map is None:
+            from scripts import build_system_map as _sm
+            m = _sm.build(_sm.embedded(), loaded=_BOOT_MODULES or None)
+            m["live"] = True
+            m["built_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            _live_map = m
+        return _live_map
+
+
+@app.get("/api/system_map")
+async def get_system_map():
+    try:
+        return JSONResponse(await run_in_threadpool(_build_live_map), headers={"Cache-Control": "no-cache"})
+    except Exception as e:
+        print(f"⚠ system_map: {type(e).__name__}")
+        return JSONResponse({"error": "คำนวณแผนผังสดไม่ได้ชั่วคราว"}, status_code=503)
+
+
 # ── DASHBOARD ─────────────────────────────────────────────────────
 @app.get("/dashboard")
 async def dashboard():
@@ -2968,3 +2997,8 @@ async def create_report_manual(request: Request, data: dict):
     except Exception as e:
         print(f"⚠ manual report failed: {type(e).__name__}")
         return JSONResponse({"error": "report_failed"}, status_code=500)
+
+
+# โมดูลที่โหลดตอนเปิดเซิร์ฟเวอร์ (ก่อนมีข้อความเข้ามา) — แผนผังสดใช้แยก "ทำงานตอนบูต" กับ "ทำงานตอนตอบ"
+import sys as _sys  # noqa: E402
+_BOOT_MODULES = set(_sys.modules)

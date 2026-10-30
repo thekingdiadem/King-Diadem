@@ -1,7 +1,7 @@
 """แผนผังระบบในหน้าเว็บ (#system-map) ต้องตรงกับ repo จริง
 
 เดิมแผนผังเขียนมือแล้วค้างอยู่ที่ commit เก่า 75 commit: ไฟล์ที่ต่อเข้าระบบแล้วยังขึ้นว่าเป็นวิสัยทัศน์
-และไฟล์ใหม่ไม่อยู่ในแผนผัง — ถ้าเทสต์นี้ล้ม ให้รัน  SECRET_KEY=x python scripts/build_system_map.py
+และไฟล์ใหม่ไม่อยู่ในแผนผัง — ตอนนี้หน้าเว็บอ่านแผนผังสดจาก /api/system_map ชุดที่ฝังไว้เป็นแค่สำรอง + คำอธิบายไฟล์
 """
 import json
 import re
@@ -14,12 +14,51 @@ def _embedded():
     return json.loads(sm._MAP_RE.search(html).group(2))
 
 
-def test_map_matches_repo():
-    old = _embedded()
-    new = sm.build(old)
-    # เทียบชื่อไฟล์กับหมวด (จำนวนบรรทัดเปลี่ยนทุกครั้งที่แก้ไฟล์ — ไม่นับ)
-    assert [(r[0], r[2]) for r in old["files"]] == [(r[0], r[2]) for r in new["files"]], \
-        "แผนผังไม่ตรงกับ repo — รัน SECRET_KEY=x python scripts/build_system_map.py"
+def test_live_map_covers_every_file_in_repo():
+    """หน้า "ระบบ" ใช้แผนผังสดจากเซิร์ฟเวอร์แล้ว — เพิ่ม/ลบไฟล์โดยไม่รันสคริปต์ก็ไม่ทำให้ตัวเลขค้างหรือเทสต์ล้มอีก
+    (เดิมเทสต์นี้บังคับให้ชุดที่ฝังไว้ตรงกับ repo เป๊ะ ลืมรันสคริปต์ทีไร CI แดงทันที)"""
+    new = sm.build(_embedded())
+    assert [r[0] for r in new["files"]] == sm.tracked()
+    assert all(isinstance(r[1], int) and r[2] for r in new["files"])        # ทุกไฟล์มีจำนวนบรรทัดและหมวด
+    old = {r[0]: r[3] for r in _embedded()["files"]}
+    kept = [r for r in new["files"] if r[0] in old]
+    assert kept and all(r[3] == old[r[0]] for r in kept)                    # คำอธิบายเดิมไม่หาย
+
+
+def test_tracked_files_without_git(monkeypatch):
+    """บนเซิร์ฟเวอร์ที่ไม่มี git ก็ยังนับไฟล์ได้ — เดินโฟลเดอร์เอง ตัดข้อมูลตอนรันและแคชทิ้ง"""
+    with_git = set(sm.tracked())
+
+    def no_git(*a, **k):
+        raise OSError("git not found")
+    monkeypatch.setattr(sm.subprocess, "check_output", no_git)
+    walked = sm.tracked()
+    assert with_git <= set(walked)
+    assert not [f for f in walked if "__pycache__" in f or f.startswith((".git/", "data/")) or f.endswith((".pyc", ".db"))]
+    assert sm.head_commit("abc1234") == "abc1234"                          # ไม่มี git ก็ไม่ล้ม
+
+
+def test_commit_comes_from_render_when_deployed(monkeypatch):
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "0123456789abcdef")
+    assert sm.head_commit("old") == "0123456"
+
+
+def test_live_endpoint_counts_running_files(client):
+    import app as app_module
+    app_module._live_map = None
+    d = client.get("/api/system_map").json()
+    assert d["live"] is True and d["built_at"]
+    assert [r[0] for r in d["files"]] == sm.tracked()
+    assert d["edges"] and d["commit"]
+    assert client.get("/api/system_map").json() is not None                 # ครั้งต่อไปใช้ของที่คำนวณไว้
+
+
+def test_system_page_prefers_live_map():
+    html = open(sm.INDEX, encoding="utf-8").read()
+    assert "fetch('/api/system_map'" in html and "MAP = d; mapLive = true;" in html
+    assert "' · สด' : ' · ชุดที่ฝังไว้'" in html                             # บอกให้รู้ว่าตัวเลขสดหรือไม่
+    arch = open(sm.INDEX.replace("index.html", "architecture.html"), encoding="utf-8").read()
+    assert "getJSON('/api/system_map').catch(function(){ return getJSON('/static/system_map.json'); })" in arch
 
 
 def test_edges_point_at_real_files():
@@ -79,7 +118,8 @@ def test_new_live_python_file_is_not_stuck_in_config():
     """ไฟล์ Python ใหม่ที่ app.py เรียกใช้ (core/history_export.py) เคยค้างหมวด "config" ทั้งที่ทำงานจริง"""
     rows = {r[0]: r for r in _embedded()["files"]}
     assert rows["core/history_export.py"][2] == "request"
-    assert rows["scripts/build_system_map.py"][2] == "config"     # สคริปต์ที่ไม่ได้อยู่ในเส้นทางของแอปยังเป็น config
+    assert rows["scripts/build_system_map.py"][2] == "request"    # app.py เรียกสร้างแผนผังสดตอนมีคนขอ (/api/system_map)
+    assert rows["scripts/stress_test.py"][2] == "tests"              # สคริปต์ที่ไม่ได้อยู่ในเส้นทางของแอปไม่ถูกนับว่าทำงาน
 
 
 def test_gallery_and_asset_files_are_classified_by_real_use():

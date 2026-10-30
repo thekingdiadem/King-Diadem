@@ -65,5 +65,5 @@ def test_route_and_links(client):
 def test_map_is_readable_without_the_canvas():
     """แผนที่วาดบน canvas — รายการไฟล์แบบข้อความ (โฟลเดอร์) ต้องมีให้คนที่ใช้โปรแกรมอ่านหน้าจอ/คีย์บอร์ด"""
     assert 'id="flds"' in PAGE and "el('details'" in PAGE
-    assert "cache: 'no-cache'" in PAGE and "fetch('/static/system_map.json'" in PAGE
+    assert "cache: 'no-cache'" in PAGE and "getJSON('/static/system_map.json')" in PAGE   # สำรองเมื่อแผนผังสดใช้ไม่ได้
     assert "textContent" in PAGE and ".innerHTML = ''" in PAGE and "innerHTML = '<" not in PAGE   # ข้อมูลไฟล์ใส่เป็นข้อความเท่านั้น
