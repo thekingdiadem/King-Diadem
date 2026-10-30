@@ -269,8 +269,8 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 .cockpit canvas{pointer-events:auto;touch-action:pan-y;cursor:grab}
 .cockpit canvas:active{cursor:grabbing}
 .cockpit #earth-labels{pointer-events:none;opacity:1}
-#hero>div:not(.cockpit):not(.earth-ctl){transition:opacity .6s ease}
-#hero.zoomed>div:not(.cockpit):not(.earth-ctl){opacity:.06}
+#hero>div:not(.cockpit):not(.earth-ctl){transition:opacity .2s linear;opacity:var(--hero-a,1)}
+#hero.zoomed>div:not(.cockpit):not(.earth-ctl){pointer-events:none}
 .earth-ctl .ec-z{width:30px;padding:7px 0;font-size:14px}
 html{scroll-behavior:smooth}
 html.kd-calm{scroll-behavior:auto}
@@ -302,7 +302,7 @@ html.kd-calm .hud,html.kd-calm .hud-deg{display:none}
     <button type="button" id="ec-calm" aria-pressed="false" onclick="KD_toggleCalm()">ลดการเคลื่อนไหว</button>
   </div>
   <div class="cockpit" aria-hidden="true">
-    <canvas id="cockpit-earth" role="img" aria-label="โลกตอนกลางคืนจากกล้องดาวเทียม ลากเพื่อหมุน ดับเบิลคลิกเพื่อซูมไปจุดนั้น"></canvas>
+    <canvas id="cockpit-earth" role="img" aria-label="โลกตอนกลางคืนจากอวกาศ ลากเพื่อเลื่อน ถ่างนิ้วหรือกดบวกลบเพื่อซูม แตะสองครั้งเพื่อบินไปจุดนั้น ใช้ลูกศรบนคีย์บอร์ดได้"></canvas>
     <canvas id="earth-labels" aria-hidden="true"></canvas>
     <div class="glass"></div>
   </div>

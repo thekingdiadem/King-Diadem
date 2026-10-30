@@ -97,5 +97,5 @@ def test_suggestion_buttons_bind_to_real_class():
 def test_phone_does_not_download_4k_until_zoom():
     """มือถือเคยโหลดภาพ 4K ทั้งสามภาพ (~2.6 MB) ทันทีที่เปิดหน้า แม้ไม่ได้ซูม"""
     js = open("static/cockpit_earth.js", encoding="utf-8").read()
-    assert "light && S.tmag < 2" in js and "maybe4k();" in js
+    assert "light && S.tL < 2" in js and "maybe4k();" in js           # tL ≥ 2 = ซูมลงใกล้กว่าวงโคจร 2 เท่า
     assert js.count("load(0, 'lights_4k.jpg')") == 1      # โหลดได้ที่เดียว ผ่าน maybe4k
