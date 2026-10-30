@@ -82,3 +82,17 @@ def test_invariants_from_existing_canon():
 
 def test_check_invariants_ignores_non_dict():
     assert check_invariants(None) == [] and check_invariants("x") == []
+
+
+def test_pause_blocks_decision_and_spec_covers_every_variable():
+    from core.choice_dynamics import STATE_SPEC, BINARY_VARS, NONNEG_VARS
+    assert check_invariants({"SYSTEM_PAUSE": 1, "Decision": 1}) == ["SYSTEM_PAUSE = 1 ⇒ Decision = 0"]
+    assert check_invariants({"SYSTEM_PAUSE": 1, "Decision": 0}) == []
+    assert set(STATE_SPEC) == {"Choice", "Existence", *BINARY_VARS, *NONNEG_VARS}
+
+
+def test_decision_quality_is_a_binary_gate():
+    from core.emptiness_guard import decision_quality
+    assert decision_quality(1.0, 1.0)["decision"] == 1          # 1.0 → VIABLE
+    assert decision_quality(0.3, 1.0)["decision"] == 0          # DEGRADED → ระงับ
+    assert decision_quality(0.1, 1.0)["decision"] == 0          # COLLAPSED

@@ -21,6 +21,20 @@ import math
 
 CHOICE_EARLY_WARNING = 1     # ตรงกับ AI/freedom_signal.py — Choice ≤ 1 → เตือนทันที
 
+# ความหมายของตัวแปร — ตามที่เจ้าของโปรเจกต์กำหนด
+STATE_SPEC = {
+    "Choice":       "จำนวนทางเลือกที่ยังปลอดภัย ณ เวลา t (ℕ) — Alive(t) ⟺ Choice(t) ≥ 1",
+    "Cycle":        "รอบการประมวลผลของระบบ: 0 = ปิด/ไม่ทำงาน · 1 = เปิด/ทำงาน",
+    "Seal":         "ล็อกข้อมูลสถานะ: 0 = แก้ไขได้ · 1 = ปิดผนึก แก้ไขไม่ได้",
+    "Motion":       "การเคลื่อนที่ของสถานะ: 0 = นิ่ง · 1 = กำลังเปลี่ยน",
+    "Authority":    "ระดับอำนาจควบคุมที่ใช้ (ℝ≥0)",
+    "Force":        "แรงที่ใช้ลงมือ (ℝ≥0)",
+    "Existence":    "ทางออก/ความอยู่รอดของระบบ: 0 = ล่มสลาย … 9 = มั่นคงเต็มที่",
+    "Decision":     "ประตูตัดสินใจ: 0 = ปฏิเสธ/ระงับ · 1 = อนุมัติ/ดำเนินการ",
+    "Silence":      "ความเงียบของระบบ: 0 = ทำงานปกติ · 1 = เงียบ",
+    "SYSTEM_PAUSE": "สวิตช์หยุดฉุกเฉิน (stop-the-line): 0 = เดินต่อ · 1 = หยุด",
+}
+
 BINARY_VARS = ("Cycle", "Seal", "Motion", "Decision", "Silence", "SYSTEM_PAUSE")
 NONNEG_VARS = ("Authority", "Force")
 EXISTENCE_RANGE = (0.0, 9.0)
@@ -149,11 +163,14 @@ def check_invariants(state: dict) -> list:
     กฎที่มีอยู่แล้วในระบบ (ใช้เฉพาะตัวแปรที่ส่งมา):
       |Choice| ≥ 1 ⇒ Cycle = 0          — WHITEPAPER (COSMIC LATTE)
       Choice = 0  ⇒ SYSTEM_PAUSE = 1    — emptiness_guard: system_pause_trigger
+      SYSTEM_PAUSE = 1 ⇒ Decision = 0   — หยุดฉุกเฉินอยู่ อนุมัติ/ดำเนินการไม่ได้
     Silence ไม่ผูกกับ Choice อย่างเดียว — Governance_CORE ให้เงียบเมื่อปัจจัยพื้นฐานครบด้วย
     """
     out = []
     if not isinstance(state, dict):
         return out
+    if state.get("SYSTEM_PAUSE") == 1 and state.get("Decision") == 1:
+        out.append("SYSTEM_PAUSE = 1 ⇒ Decision = 0")
     c = state.get("Choice")
     if not isinstance(c, int) or isinstance(c, bool):
         return out
