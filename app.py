@@ -350,10 +350,12 @@ _SECURITY_HEADERS = [
     # สคริปต์/การเชื่อมต่อได้เฉพาะจากเว็บเราเอง — ถ้ามีข้อความแปลกหลุดเข้าหน้าเว็บ ก็ส่งข้อมูลผู้ใช้ออกไปเว็บอื่นไม่ได้
     # ('unsafe-inline' ยังจำเป็นเพราะหน้าเว็บมีสคริปต์ในไฟล์ HTML · ฟอนต์จาก Google Fonts เท่านั้น)
     # tiles.openfreemap.org: ข้อมูลแผนที่เมืองตอนซูมลงลึกในหน้า Universe — อ่านอย่างเดียว ไม่ส่งข้อมูลผู้ใช้ออกไป
+    # s3.amazonaws.com: ข้อมูลความสูงภูมิประเทศ (AWS Terrain Tiles · ข้อมูลเปิด) ของแผนที่เดียวกัน — อ่านอย่างเดียว
     (b"content-security-policy",
      b"default-src 'self'; script-src 'self' 'unsafe-inline'; "
      b"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; "
-     b"img-src 'self' data: blob:; connect-src 'self' https://tiles.openfreemap.org; worker-src 'self'; manifest-src 'self'; "
+     b"img-src 'self' data: blob: https://s3.amazonaws.com; connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com; "
+     b"worker-src 'self'; manifest-src 'self'; "
      b"object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"),
 ]
 

@@ -18,7 +18,7 @@ def test_maplibre_is_self_hosted_csp_build_with_license():
 
 def test_csp_allows_only_openfreemap_for_tiles(client):
     csp = client.get("/").headers["content-security-policy"]
-    assert "connect-src 'self' https://tiles.openfreemap.org;" in csp
+    assert "connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com;" in csp
     assert "script-src 'self' 'unsafe-inline';" in csp                      # ไม่มีสคริปต์จากที่อื่นเพิ่ม
     assert "worker-src 'self'" in csp
 
@@ -52,3 +52,27 @@ def test_map_canvas_not_caught_by_globe_css():
     """กฎ .cockpit canvas (touch-action:pan-y, opacity 0) เคยจะไปโดน canvas ของแผนที่ด้วย — จำกัดเฉพาะลูกตรง"""
     assert ".cockpit>canvas{pointer-events:auto;touch-action:pan-y" in PAGE
     assert ".cockpit canvas{" not in PAGE and '<div id="city-map"' in PAGE
+
+
+def test_round2_feedback_from_real_phone():
+    """ปรับตามภาพจริงจากมือถือของเจ้าของโปรเจกต์"""
+    # ตึกเตี้ยเคยมืดจนกลืนพื้น — ตอนนี้ฐานสีอุ่นขึ้น ยอดสว่างกว่าฐาน
+    assert "0, '#4a3424'" in CITY and "'fill-extrusion-vertical-gradient': true" in CITY
+    # ในไทยชื่อไทยตาม OSM · ที่อื่นชื่อไทยถ้ามี ไม่มีก็อังกฤษ
+    assert "var NAME_TH = ['coalesce', ['get', 'name:th'], ['get', 'name']" in CITY
+    assert "var NAME_WORLD = ['coalesce', ['get', 'name:th'], ['get', 'name:en']" in CITY
+    assert "map.on('moveend', syncNames)" in CITY and "TH_BOX" in CITY
+    # ซอยจางเมื่อมองไกล
+    assert "['interpolate', ['linear'], ['zoom'], 11, 0, 13, .18, 15, .45, 17, .65]" in CITY
+    # เมืองเล็กขึ้นเมื่อซูมใกล้เท่านั้น
+    assert "id: 'place-town'" in CITY and "minzoom: 9.5" in CITY and "'text-padding': 14" in CITY
+    # เข็มทิศของโลกซ่อนเมื่ออยู่ในแผนที่ · มีเข็มทิศของแผนที่แทน
+    assert "classList.toggle('kd-city', v)" in CITY and "html.kd-city .hud,html.kd-city .hud-deg{display:none}" in PAGE
+    assert "NavigationControl({ showZoom: false, visualizePitch: true })" in CITY
+
+
+def test_terrain_is_free_open_data_and_optional_on_weak_phones():
+    assert "elevation-tiles-prod/terrarium" in CITY and "encoding: 'terrarium'" in CITY
+    assert "registry.opendata.aws/terrain-tiles" in CITY                    # เครดิตแหล่งข้อมูล
+    assert "type: 'hillshade'" in CITY and "source: 'demhs'" in CITY       # เงาภูเขาใช้แหล่งแยกจาก terrain
+    assert "if (!lightDevice) st.terrain" in CITY                          # เครื่องแรมน้อย: เงาอย่างเดียว ไม่ยกพื้น
