@@ -57,7 +57,20 @@
     'จักรวาลไม่เคยมอบมัน': ['the universe never granted it', '宇宙はそれを与えなかった'],
     'ระบบนี้ไม่อ้างความสมบูรณ์': ['This system does not claim perfection', 'このシステムは完全さを主張しない'],
     'ไม่สัญญาความถูกต้องสุดท้าย': ['promises no final correctness', '最終的な正しさを約束しない'],
-    'และไม่ปิดความเป็นไปได้ของการเรียนรู้': ['and never closes the possibility of learning', 'そして学ぶ可能性を決して閉ざさない']
+    'และไม่ปิดความเป็นไปได้ของการเรียนรู้': ['and never closes the possibility of learning', 'そして学ぶ可能性を決して閉ざさない'],
+    'ความเสี่ยงตอนนี้': ['Risk right now', '今のリスク'],
+    'ยังรับมือได้': ['Manageable', '対応できる'],
+    'ควรระวัง': ['Take care', '注意'],
+    'ต้องดูแลด่วน': ['Needs care now', 'すぐに対応を'],
+    'ยังมีทางไปต่อไหม': ['Is there still a way forward', 'まだ道はある？'],
+    'มี': ['Yes', 'ある'],
+    'ความเสี่ยง': ['Risk', 'リスク'],
+    'ดูที่มา': ['see why', '根拠を見る'],
+    'ใครตัดสินใจ': ['Who decides', '決めるのは'],
+    'ระบบชวนพักก่อน': ['Pause first', 'まず一息'],
+    'คุณเลือกเองเสมอ': ['Always you', 'いつもあなた'],
+    'ประเมินจากข้อความอย่างเดียว — บอกสถานะของคุณ (พลังงาน การนอน) จะแม่นขึ้น': ['Based on your message only — share your state (energy, sleep) for a better read', 'メッセージだけで判断しています — 状態（元気・睡眠）を教えるとより正確に'],
+    'ดูวิธีคำนวณ': ['How this is calculated', '計算のしかた'],
   };
   var LANGS = ['th', 'en', 'ja'], KEY = 'kd_lang', ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
   var REV = {};                                 // ข้อความที่แปลแล้ว → ไทย (สลับกลับได้โดยไม่ต้องโหลดหน้าใหม่)
