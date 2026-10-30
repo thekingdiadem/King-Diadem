@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<script>try{if(localStorage.getItem('kd-calm')==='1')document.documentElement.classList.add('kd-calm')}catch(e){}</script>
+<script>try{if(localStorage.getItem('kd-calm')==='1')document.documentElement.classList.add('kd-calm');if(localStorage.getItem('kd-day')==='1')document.documentElement.classList.add('kd-day')}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>KING DIADEM — The Universe That Restores Choice</title>
 <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
@@ -276,6 +276,10 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 #city-map .maplibregl-ctrl-group{background:rgba(8,13,26,.6);border:1px solid rgba(230,240,255,.18)}
 #city-map .maplibregl-ctrl-group button .maplibregl-ctrl-icon{filter:invert(1) brightness(.9)}
 html.kd-city .hud,html.kd-city .hud-deg{display:none}
+/* โหมดกลางวัน: พื้นหลังแผนที่ระหว่างรอไทล์ + เครดิตสีอ่อน */
+html.kd-day #city-map{background:#ece6da}
+html.kd-day #city-map .maplibregl-ctrl-attrib{background:rgba(255,255,255,.75);color:#333}
+html.kd-day #city-map .maplibregl-ctrl-attrib a{color:#222}
 .cockpit #earth-labels{pointer-events:none;opacity:1}
 #hero>div:not(.cockpit):not(.earth-ctl){transition:opacity .2s linear;opacity:var(--hero-a,1)}
 #hero.zoomed>div:not(.cockpit):not(.earth-ctl){pointer-events:none}
@@ -307,12 +311,13 @@ html.kd-calm .hud,html.kd-calm .hud-deg{display:none}
     <button type="button" onclick="KD_earth&&KD_earth.pole(false);KD_markGlobe(true)">ขั้วโลกใต้</button>
     <button type="button" class="ec-z" aria-label="ซูมเข้า" onclick="KD_earth&&KD_earth.zoomIn()">+</button>
     <button type="button" class="ec-z" aria-label="ซูมออก" onclick="KD_earth&&KD_earth.zoomOut()">−</button>
+    <button type="button" id="ec-day" aria-pressed="false" onclick="KD_toggleDay()">กลางวัน</button>
     <button type="button" id="ec-calm" aria-pressed="false" onclick="KD_toggleCalm()">ลดการเคลื่อนไหว</button>
   </div>
   <div class="cockpit" aria-hidden="true">
     <canvas id="cockpit-earth" role="img" aria-label="โลกตอนกลางคืนจากอวกาศ ลากเพื่อเลื่อน ถ่างนิ้วหรือกดบวกลบเพื่อซูม แตะสองครั้งเพื่อบินไปจุดนั้น ใช้ลูกศรบนคีย์บอร์ดได้"></canvas>
     <canvas id="earth-labels" aria-hidden="true"></canvas>
-    <div id="city-map" aria-hidden="true" aria-label="แผนที่เมืองกลางคืน ลากเพื่อเลื่อน ถ่างนิ้วเพื่อซูม สองนิ้วหมุนหรือเอียงได้ ซูมออกเพื่อกลับไปดูโลก"></div>
+    <div id="city-map" aria-hidden="true" aria-label="แผนที่เมือง 3 มิติ ลากเพื่อเลื่อน ถ่างนิ้วเพื่อซูม สองนิ้วหมุนหรือเอียงได้ ซูมออกเพื่อกลับไปดูโลก"></div>
     <div class="glass"></div>
   </div>
   <div>
@@ -786,6 +791,11 @@ function KD_toggleCalm(){var h=document.documentElement,on=!h.classList.contains
   try{localStorage.setItem('kd-calm',on?'1':'0')}catch(e){}
   document.getElementById('ec-calm').setAttribute('aria-pressed',on?'true':'false');window.dispatchEvent(new Event('kd-calm'));}
 (function(){var b=document.getElementById('ec-calm');if(b&&document.documentElement.classList.contains('kd-calm'))b.setAttribute('aria-pressed','true');})();
+/* กลางวัน/กลางคืน — ทั้งโลกและแผนที่เมือง (จำไว้ในเครื่อง) */
+function KD_toggleDay(){var h=document.documentElement,on=!h.classList.contains('kd-day');h.classList.toggle('kd-day',on);
+  try{localStorage.setItem('kd-day',on?'1':'0')}catch(e){}
+  document.getElementById('ec-day').setAttribute('aria-pressed',on?'true':'false');window.dispatchEvent(new Event('kd-theme'));}
+(function(){var b=document.getElementById('ec-day');if(b&&document.documentElement.classList.contains('kd-day'))b.setAttribute('aria-pressed','true');})();
 function tryText(t){var el=document.getElementById('intent-text');el.value=t;runSimulation();
   document.getElementById('simulator').scrollIntoView({behavior:'smooth',block:'start'});}
 
