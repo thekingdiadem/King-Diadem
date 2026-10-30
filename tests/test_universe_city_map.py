@@ -123,7 +123,7 @@ def test_buddha_model_is_sculpted_in_code_and_light_on_phones():
     assert "wk.postMessage(.5);" in BUDDHA                                   # ตารางละเอียด 0.5 ม. ใน worker — ผิวคม
     assert "done(build(.8))" in BUDDHA                                       # worker ใช้ไม่ได้ก็ยังมีองค์พระ (หยาบลง ไม่ค้าง)
     assert "if (meshCache) return cb(meshCache);" in BUDDHA
-    assert "map.getZoom() < 13" in BUDDHA                                    # ไกลๆ ไม่สร้าง ไม่วาด
+    assert "if (z < 13 || !mesh) return;" in BUDDHA                          # ไกลๆ ไม่วาด
     # เมทริกซ์รวมคิดด้วย float64 ก่อนส่งการ์ดจอ · ใช้พิกัดเมอร์เคเตอร์ 0–1 ของ MapLibre 5
     assert "args.defaultProjectionData.mainMatrix" in BUDDHA and "meterInMercatorCoordinateUnits()" in BUDDHA
     assert "queryTerrainElevation" in BUDDHA                                 # วางบนพื้นจริงเมื่อมีภูเขา 3 มิติ
@@ -142,3 +142,20 @@ def test_day_and_night_modes():
     assert "uniform1f(U.dayM, dayM)" in EARTH and "surf=mix(surf,dc,dayM)" in EARTH
     assert "window.addEventListener('kd-theme'" in EARTH
     assert "html.kd-day #city-map{background:#ece6da}" in PAGE
+
+
+def test_round4_feedback_day_mode_on_real_phone():
+    """ภาพจริงรอบ 4 (โหมดกลางวัน): เส้นจุดพาดลูกโลกที่เส้นแบ่งวัน · แดดสะท้อนทะเลเป็นเม็ด
+    · ลานขึ้นก่อนองค์พระ · ไม่เห็นป้ายยอดเขาตอนดูทั้งจังหวัด"""
+    # รอยต่อ 180°: มีพิกัดชุดที่สองที่รอยต่ออยู่ที่ 0° แล้วเลือกชุดที่เปลี่ยนช้ากว่า (ต้องเปิด OES_standard_derivatives)
+    assert "float tx2=fract(tc.x+.5)-.5;" in EARTH and "if(fwidth(tx2)<fwidth(tc.x))tc.x=tx2;" in EARTH
+    assert "gl.getExtension('OES_standard_derivatives')" in EARTH
+    assert "'#extension GL_OES_standard_derivatives : enable\\n#define DERIV 1\\n'" in EARTH
+    # แดดกลางวันใช้ผิวน้ำเรียบ ไม่ใช้คลื่นของกลางคืน
+    assert "float sg=pow(max(dot(reflect(rd,nl)," in EARTH and "glint*wm*.6" not in EARTH
+    # ป้ายยอดเขาขึ้นตั้งแต่ซูม 8 ยอดสำคัญได้ที่ก่อน
+    assert "id: 'peak-name', type: 'symbol', source: 'omt', 'source-layer': 'mountain_peak', minzoom: 8," in CITY
+    assert "'symbol-sort-key': ['coalesce', ['get', 'rank'], 99]" in CITY
+    # องค์พระเริ่มสร้างตั้งแต่ซูม 10 เมื่ออยู่ใกล้ แสดงที่ซูม 13
+    assert "if (!asked && z >= 10 && Math.abs(c.lat - at.lat) < .45 && Math.abs(c.lng - at.lon) < .45)" in BUDDHA
+    assert "if (z < 13 || !mesh) return;" in BUDDHA
