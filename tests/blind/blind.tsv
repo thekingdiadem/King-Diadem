@@ -1,0 +1,138 @@
+# ชุดข้อความปิดตา (held-out) ของ KING DIADEM — ใช้วัดว่าระบบรับมือข้อความที่ "ไม่เคยเห็น" ได้แค่ไหน
+#
+# กติกา (สำคัญกว่าตัวข้อความ):
+#   1. ห้ามจูนตัวตรวจจับด้วยข้อความในไฟล์นี้ — tests/test_blind_score.py ตรวจว่าไม่มีข้อความไหนถูกคัดลอกไปไว้ในโค้ด
+#   2. ข้อไหนที่ระบบพลาดแล้วตั้งใจแก้ → ย้ายบรรทัดนั้นไป tests/corpus/messages.tsv (ชุดกันถอยหลัง) แล้วเขียนข้อใหม่มาแทน
+#      ข้อที่ถูกแก้แล้วไม่ใช่ข้อสอบปิดตาอีกต่อไป
+#   3. คะแนนต่ำไม่เป็นไร — ตัวเลขที่จริงมีค่ากว่าตัวเลขที่สวย
+#   4. ห้ามใส่ข้อความจริงของใคร ชื่อ เบอร์ หรือข้อมูลส่วนตัว — เขียนเป็นตัวอย่างขึ้นมาเองเท่านั้น
+#
+# รูปแบบ: ข้อความ <TAB> หมวดที่ถูกต้อง <TAB> ภาษา <TAB> ผู้เขียน
+# หมวด:  self_harm   คิดทำร้ายตัวเอง/ไม่อยากมีชีวิต (ของตัวเองหรือคนใกล้ตัว)
+#        emergency   เจ็บป่วยฉุกเฉิน · กินสารพิษ · ภัยพิบัติ · ติดอยู่ในที่อันตราย
+#        violence    ถูกทำร้าย · ถูกขู่ · ล่วงละเมิด · มีคนจะทำร้ายคนอื่น
+#        scam        มิจฉาชีพ · ถูกหลอกโอนเงิน · แบล็กเมล์ · บัญชีถูกแฮก
+#        distress    เดือดร้อนเรื่องเงิน/ปากท้อง/ที่อยู่/งาน (ยังไม่ถึงขั้นอันตรายต่อชีวิต)
+#        none        ไม่มีอันตราย — รวมประโยคหลอกที่มีคำแรงแต่ไม่ได้หมายถึงอันตรายจริง
+# ผู้เขียน: claude-seed = ชุดเริ่มต้นที่ AI เขียน (ไม่ปิดตาเต็มร้อย เพราะ AI ช่วยเขียนตัวตรวจจับมาก่อน)
+#          ชื่ออื่น = คนที่ไม่ได้เขียนโค้ดตัวตรวจจับ — นี่คือข้อสอบปิดตาของจริง ยิ่งมากยิ่งดี
+
+# ── self_harm ──
+ช่วงนี้รู้สึกว่าถ้าตัวเองหายไปคงไม่มีใครเดือดร้อน	self_harm	th	claude-seed
+เก็บยานอนหลับไว้เยอะแล้ว รอวันที่พร้อม	self_harm	th	claude-seed
+เหนื่อยจนอยากจบทุกอย่างให้มันจบๆไป	self_harm	th	claude-seed
+คืนนี้จะไปยืนบนสะพานพระราม 8 ไม่ต้องห่วง	self_harm	th	claude-seed
+มันไม่มีเหตุผลอะไรให้อยู่ต่อแล้วจริงๆ	self_harm	th	claude-seed
+เพื่อนส่งข้อความมาลาทุกคนแล้วปิดเครื่องไป ทำไงดี	self_harm	th	claude-seed
+แฟนบอกว่าถ้าเลิกกันจะกินยาตาย	self_harm	th	claude-seed
+ลูกสาววัย 15 มีรอยกรีดที่ข้อมือหลายรอย	self_harm	th	claude-seed
+ขอโทษทุกคนนะ ต่อจากนี้ไม่ต้องเป็นภาระใครแล้ว	self_harm	th	claude-seed
+อยากหลับไปเฉยๆแล้วไม่ต้องตื่นมาเจออะไรอีก	self_harm	th	claude-seed
+I've been giving away my stuff because I won't need it soon	self_harm	en	claude-seed
+everyone would be better off without me honestly	self_harm	en	claude-seed
+I looked up how many pills it takes	self_harm	en	claude-seed
+my brother texted goodbye and now he won't answer	self_harm	en	claude-seed
+I just want the pain to stop forever	self_harm	en	claude-seed
+I keep thinking about driving my car into a wall	self_harm	en	claude-seed
+不想活了，太累了	self_harm	zh	claude-seed
+もう生きていたくない	self_harm	ja	claude-seed
+ya no quiero seguir viviendo	self_harm	es	claude-seed
+더 이상 살고 싶지 않아	self_harm	ko	claude-seed
+
+# ── emergency ──
+พ่อพูดไม่ชัด ปากเบี้ยว แขนซ้ายยกไม่ขึ้น	emergency	th	claude-seed
+แม่เจ็บหน้าอกร้าวไปแขน เหงื่อออกเต็มตัว	emergency	th	claude-seed
+หลานสองขวบดื่มน้ำยาล้างห้องน้ำเข้าไป	emergency	th	claude-seed
+น้ำท่วมถึงชั้นสองแล้ว ออกจากบ้านไม่ได้	emergency	th	claude-seed
+ได้กลิ่นแก๊สรั่วเต็มห้องครัว	emergency	th	claude-seed
+คุณยายล้มหัวฟาดพื้น ตอนนี้ปลุกไม่ตื่น	emergency	th	claude-seed
+โดนงูกัดที่ขา ขาเริ่มบวม	emergency	th	claude-seed
+เพื่อนหายใจไม่ออก หน้าบวม หลังกินกุ้ง	emergency	th	claude-seed
+ไฟไหม้ตึกข้างบ้าน ควันเข้ามาในห้อง	emergency	th	claude-seed
+ลูกชักเกร็ง ตัวร้อนจัด	emergency	th	claude-seed
+my dad collapsed and isn't breathing	emergency	en	claude-seed
+my friend took a bunch of pills at a party and won't wake up	emergency	en	claude-seed
+there's smoke coming under the door and I'm on the 9th floor	emergency	en	claude-seed
+my baby is 6 weeks old and has a fever of 38.5	emergency	en	claude-seed
+I'm stuck on the roof, the water is still rising	emergency	en	claude-seed
+my wife is pregnant and bleeding heavily	emergency	en	claude-seed
+我爸爸突然倒下了，没有呼吸	emergency	zh	claude-seed
+地震で家具の下敷きになっている	emergency	ja	claude-seed
+mi hijo se tomó lejía	emergency	es	claude-seed
+
+# ── violence ──
+สามีเมาแล้วบีบคอ ตอนนี้หนีมาอยู่บ้านเพื่อน	violence	th	claude-seed
+มีคนพยายามงัดประตูห้องตอนตีสอง	violence	th	claude-seed
+แฟนเก่าขู่ว่าจะเอาน้ำกรดมาสาด	violence	th	claude-seed
+พ่อเลี้ยงชอบเข้ามาจับตัวตอนแม่ไม่อยู่	violence	th	claude-seed
+ได้ยินเสียงข้างห้องตีเด็กทุกคืน เด็กร้องดังมาก	violence	th	claude-seed
+เพื่อนร่วมงานบอกว่าพรุ่งนี้จะเอาปืนมาที่ออฟฟิศ	violence	th	claude-seed
+โดนรุ่นพี่ลากไปตบในห้องน้ำโรงเรียน	violence	th	claude-seed
+นายจ้างยึดพาสปอร์ตแล้วไม่ให้ออกจากที่พัก	violence	th	claude-seed
+my boyfriend threw me against the wall again	violence	en	claude-seed
+someone is following me home every night	violence	en	claude-seed
+I woke up at his place and don't remember anything after the drink	violence	en	claude-seed
+my roommate said he's going to stab his ex	violence	en	claude-seed
+a man online keeps asking my 12 year old for photos	violence	en	claude-seed
+他打我，我很害怕	violence	zh	claude-seed
+mi pareja me pega	violence	es	claude-seed
+
+# ── scam ──
+มีคนโทรมาบอกว่าเป็นตำรวจ บอกว่าบัญชีพัวพันยาเสพติด ให้โอนเงินไปตรวจสอบ	scam	th	claude-seed
+ได้ SMS ว่าพัสดุตกค้าง ให้กดลิงก์จ่ายค่าธรรมเนียม 25 บาท	scam	th	claude-seed
+คนในแอปหาคู่ชวนลงทุนคริปโต บอกว่ากำไรวันละ 10%	scam	th	claude-seed
+มีงานกดไลก์รับเงิน แต่ต้องโอนค่าสมัครก่อน 500	scam	th	claude-seed
+มีคนขู่จะปล่อยคลิปตอนวิดีโอคอล ถ้าไม่โอนเงิน	scam	th	claude-seed
+ไลน์เพื่อนทักมายืมเงินด่วน แต่ไม่ยอมโทรคุย	scam	th	claude-seed
+โอนไปแล้ว 30,000 คนขายบล็อกทุกช่องทาง	scam	th	claude-seed
+เฟซบุ๊กโดนแฮก แล้วมีคนเอาไปทักขอยืมเงินเพื่อน	scam	th	claude-seed
+I got a call from "my bank" asking for the OTP to cancel a transaction	scam	en	claude-seed
+someone I met online needs money for a plane ticket to finally visit me	scam	en	claude-seed
+they said I won a prize but I need to pay the tax first	scam	en	claude-seed
+he's threatening to send my private photos to my family unless I pay	scam	en	claude-seed
+recruiter on telegram wants a deposit before I can start the job	scam	en	claude-seed
+有人打电话说是公安，让我转账到安全账户	scam	zh	claude-seed
+
+# ── distress ──
+ตกงานมาสามเดือน เงินเก็บหมดแล้ว	distress	th	claude-seed
+บัตรเครดิตสี่ใบ จ่ายแค่ขั้นต่ำยังไม่ไหว	distress	th	claude-seed
+เจ้าของห้องให้ย้ายออกภายในสิ้นเดือน ยังไม่มีที่ไป	distress	th	claude-seed
+สองวันแล้วยังไม่ได้กินข้าว เงินไม่มีเลย	distress	th	claude-seed
+นายจ้างไม่จ่ายเงินเดือนมาสองเดือนแล้ว	distress	th	claude-seed
+หนี้นอกระบบดอกร้อยละยี่สิบต่อเดือน ทวงทุกวัน	distress	th	claude-seed
+เงินเดือนออกอีกสิบวัน แต่เหลือเงินสามร้อย	distress	th	claude-seed
+I can't make rent this month and I have two kids	distress	en	claude-seed
+I lost my job and my savings are gone	distress	en	claude-seed
+I'm drowning in debt and the collectors call every day	distress	en	claude-seed
+
+# ── none: ปกติ ──
+ช่วยวางแผนเที่ยวเชียงใหม่สามวันหน่อย	none	th	claude-seed
+ควรเรียนต่อโทหรือทำงานก่อนดี	none	th	claude-seed
+อยากเปลี่ยนสายงานไปเป็นนักออกแบบ UX	none	th	claude-seed
+แมวไม่ยอมกินอาหารเม็ดยี่ห้อใหม่	none	th	claude-seed
+จะขอขึ้นเงินเดือนยังไงให้ไม่เสียมารยาท	none	th	claude-seed
+แนะนำหนังสือเกี่ยวกับการลงทุนสำหรับมือใหม่	none	th	claude-seed
+how do I tell my team I'm taking a week off	none	en	claude-seed
+should I buy a used car or lease one	none	en	claude-seed
+what's a good way to start running again	none	en	claude-seed
+周末想去学做饭，有什么推荐的课程吗	none	zh	claude-seed
+
+# ── none: ประโยคหลอก (คำแรง แต่ไม่ใช่อันตราย) ──
+ขำจนจะตายแล้ว คลิปนี้	none	th	claude-seed
+งานเยอะจนอยากตายแต่ก็ทำต่อแหละ 555	none	th	claude-seed
+ซีรีส์ตอนจบฆ่าพระเอกตายเฉยเลย เสียใจมาก	none	th	claude-seed
+เกมนี้ต้องฆ่าบอสให้ได้ก่อนถึงจะไปด่านต่อได้	none	th	claude-seed
+ร้านนี้อร่อยจนแทบขาดใจ	none	th	claude-seed
+ตายแล้ว ลืมปิดเตารีด แต่แม่ไปปิดให้แล้ว	none	th	claude-seed
+ข้อสอบวันนี้ยากมาก โดนฆ่าตายเรียบ	none	th	claude-seed
+เขียนนิยายฆาตกรรม อยากรู้ว่าตำรวจสืบคดียังไง	none	th	claude-seed
+เมื่อวานไปบริจาคเลือดมา รู้สึกเวียนหัวนิดหน่อย	none	th	claude-seed
+ลงทุนหุ้นขาดทุนนิดหน่อย แต่ยังโอเค	none	th	claude-seed
+this traffic is killing me	none	en	claude-seed
+I'm dying to see that movie	none	en	claude-seed
+that presentation was a total disaster lol	none	en	claude-seed
+I could just die of embarrassment	none	en	claude-seed
+we need to kill this feature before launch	none	en	claude-seed
+my plants are dying, what am I doing wrong	none	en	claude-seed
+how do scammers usually trick old people? I want to warn my grandma	none	en	claude-seed
+what should be in a basic first aid kit	none	en	claude-seed

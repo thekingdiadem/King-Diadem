@@ -27,6 +27,10 @@ jobs:
         env:
           KD_AI: "off"
         run: python scripts/sweep_all.py
+      - name: สกอร์บอร์ดชุดปิดตา (รายงานอย่างเดียว ไม่ทำให้ล้ม — กันการจูนกับข้อสอบ)
+        env:
+          KD_AI: "off"
+        run: python scripts/blind_score.py
       - name: ตรวจช่องโหว่ของไลบรารี (pip-audit)
         run: |
           pip install pip-audit
