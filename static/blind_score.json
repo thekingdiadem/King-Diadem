@@ -7,47 +7,47 @@
  "classes": {
   "self_harm": {
    "n": 20,
-   "tp": 10,
-   "fn": 10,
+   "tp": 11,
+   "fn": 9,
    "fp": 1,
-   "recall": 0.5,
-   "precision": 0.909
+   "recall": 0.55,
+   "precision": 0.917
   },
   "emergency": {
-   "n": 19,
-   "tp": 16,
+   "n": 21,
+   "tp": 18,
    "fn": 3,
    "fp": 0,
-   "recall": 0.842,
+   "recall": 0.857,
    "precision": 1.0
   },
   "violence": {
-   "n": 15,
-   "tp": 9,
-   "fn": 6,
+   "n": 13,
+   "tp": 12,
+   "fn": 1,
    "fp": 0,
-   "recall": 0.6,
+   "recall": 0.923,
    "precision": 1.0
   },
   "scam": {
    "n": 14,
-   "tp": 10,
-   "fn": 4,
+   "tp": 12,
+   "fn": 2,
    "fp": 0,
-   "recall": 0.714,
+   "recall": 0.857,
    "precision": 1.0
   },
   "distress": {
    "n": 10,
-   "tp": 4,
-   "fn": 6,
-   "fp": 1,
-   "recall": 0.4,
-   "precision": 0.8
+   "tp": 5,
+   "fn": 5,
+   "fp": 3,
+   "recall": 0.5,
+   "precision": 0.625
   }
  },
  "danger_missed": {
-  "n": 19,
+  "n": 13,
   "of": 54
  },
  "false_alarm": {
@@ -56,212 +56,164 @@
  },
  "by_lang": {
   "en": {
-   "hit": 12,
-   "n": 25
+   "hit": 16,
+   "n": 24
   },
   "es": {
    "hit": 1,
-   "n": 3
+   "n": 2
   },
   "ja": {
    "hit": 2,
-   "n": 2
+   "n": 3
   },
   "ko": {
    "hit": 1,
    "n": 1
   },
+  "pt": {
+   "hit": 0,
+   "n": 1
+  },
   "th": {
-   "hit": 30,
-   "n": 43
+   "hit": 35,
+   "n": 44
   },
   "zh": {
    "hit": 3,
-   "n": 4
+   "n": 3
   }
  },
  "misses": [
   {
-   "line": 21,
-   "text": "ช่วงนี้รู้สึกว่าถ้าตัวเองหายไปคงไม่มีใครเดือดร้อน",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 24,
-   "text": "คืนนี้จะไปยืนบนสะพานพระราม 8 ไม่ต้องห่วง",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 25,
-   "text": "มันไม่มีเหตุผลอะไรให้อยู่ต่อแล้วจริงๆ",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 26,
-   "text": "เพื่อนส่งข้อความมาลาทุกคนแล้วปิดเครื่องไป ทำไงดี",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 28,
-   "text": "ลูกสาววัย 15 มีรอยกรีดที่ข้อมือหลายรอย",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 29,
-   "text": "ขอโทษทุกคนนะ ต่อจากนี้ไม่ต้องเป็นภาระใครแล้ว",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 30,
-   "text": "อยากหลับไปเฉยๆแล้วไม่ต้องตื่นมาเจออะไรอีก",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 33,
-   "text": "I looked up how many pills it takes",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 36,
-   "text": "I keep thinking about driving my car into a wall",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 39,
-   "text": "ya no quiero seguir viviendo",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 55,
-   "text": "there's smoke coming under the door and I'm on the 9th floor",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 56,
-   "text": "my baby is 6 weeks old and has a fever of 38.5",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 57,
-   "text": "I'm stuck on the roof, the water is still rising",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 68,
-   "text": "ได้ยินเสียงข้างห้องตีเด็กทุกคืน เด็กร้องดังมาก",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 69,
-   "text": "เพื่อนร่วมงานบอกว่าพรุ่งนี้จะเอาปืนมาที่ออฟฟิศ",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 74,
-   "text": "I woke up at his place and don't remember anything after the drink",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 76,
-   "text": "a man online keeps asking my 12 year old for photos",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 77,
-   "text": "他打我，我很害怕",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 78,
-   "text": "mi pareja me pega",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 86,
-   "text": "ไลน์เพื่อนทักมายืมเงินด่วน แต่ไม่ยอมโทรคุย",
-   "label": "scam",
-   "got": []
-  },
-  {
-   "line": 89,
-   "text": "I got a call from \"my bank\" asking for the OTP to cancel a transaction",
-   "label": "scam",
-   "got": []
-  },
-  {
-   "line": 90,
-   "text": "someone I met online needs money for a plane ticket to finally visit me",
-   "label": "scam",
-   "got": []
-  },
-  {
    "line": 93,
-   "text": "recruiter on telegram wants a deposit before I can start the job",
-   "label": "scam",
-   "got": []
-  },
-  {
-   "line": 97,
-   "text": "ตกงานมาสามเดือน เงินเก็บหมดแล้ว",
-   "label": "distress",
-   "got": []
-  },
-  {
-   "line": 99,
-   "text": "เจ้าของห้องให้ย้ายออกภายในสิ้นเดือน ยังไม่มีที่ไป",
-   "label": "distress",
-   "got": []
-  },
-  {
-   "line": 103,
-   "text": "เงินเดือนออกอีกสิบวัน แต่เหลือเงินสามร้อย",
-   "label": "distress",
-   "got": []
-  },
-  {
-   "line": 104,
-   "text": "I can't make rent this month and I have two kids",
-   "label": "distress",
-   "got": []
-  },
-  {
-   "line": 105,
-   "text": "I lost my job and my savings are gone",
-   "label": "distress",
-   "got": []
-  },
-  {
-   "line": 106,
-   "text": "I'm drowning in debt and the collectors call every day",
-   "label": "distress",
-   "got": []
-  },
-  {
-   "line": 122,
    "text": "งานเยอะจนอยากตายแต่ก็ทำต่อแหละ 555",
    "label": "none",
    "got": [
     "self_harm"
    ]
+  },
+  {
+   "line": 112,
+   "text": "เขียนพินัยกรรมไว้แล้ว ฝากแมวให้พี่สาวเลี้ยงด้วย",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 113,
+   "text": "รู้สึกเหมือนตัวเองเป็นตัวปัญหาของทุกคนมาตลอด อยากให้มันจบที่ตัวเอง",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 114,
+   "text": "ไม่รู้ว่าจะทนได้อีกกี่วัน คิดถึงเรื่องตายทุกคืน",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 116,
+   "text": "ยืนอยู่ริมระเบียงมาครึ่งชั่วโมงแล้ว",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 117,
+   "text": "I wrote letters to everyone I love just in case",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 118,
+   "text": "I don't see myself being around next year",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 119,
+   "text": "my sister said she has a bottle of pills and nobody will miss her",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 120,
+   "text": "たまに全部終わりにしたくなる",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 121,
+   "text": "já não aguento mais viver assim",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 122,
+   "text": "ลูกกินยาพาราของผู้ใหญ่ไปเกือบหมดแผง",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 125,
+   "text": "my son got stung by a bee and his throat feels tight",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 126,
+   "text": "el agua ya está entrando a la casa y no podemos salir",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 128,
+   "text": "ลุงข้างบ้านชอบเรียกหลานไปนั่งตักแล้วบอกว่าห้ามบอกแม่",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 132,
+   "text": "แอปเงินกู้โอนเงินเข้ามาเองแล้วโทรทวงดอกเบี้ยแพงมาก",
+   "label": "scam",
+   "got": [
+    "distress"
+   ]
+  },
+  {
+   "line": 133,
+   "text": "someone on Instagram says they can double my money in a week with forex",
+   "label": "scam",
+   "got": []
+  },
+  {
+   "line": 135,
+   "text": "ค่าเทอมลูกต้องจ่ายอาทิตย์หน้า แต่ยังหาเงินไม่ได้เลย",
+   "label": "distress",
+   "got": []
+  },
+  {
+   "line": 137,
+   "text": "my hours got cut in half and I can't cover groceries",
+   "label": "distress",
+   "got": []
+  },
+  {
+   "line": 138,
+   "text": "ไม่มีเงินจ่ายค่าไฟ เขาจะมาตัดพรุ่งนี้",
+   "label": "distress",
+   "got": []
+  },
+  {
+   "line": 139,
+   "text": "we've been sleeping in the car for a week",
+   "label": "distress",
+   "got": []
+  },
+  {
+   "line": 140,
+   "text": "I owe my landlord three months and he's threatening to throw us out",
+   "label": "distress",
+   "got": []
   }
  ]
 }
