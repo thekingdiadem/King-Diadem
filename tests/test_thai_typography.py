@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 STATIC = ROOT / "static"
-LATIN_ONLY = ("DM Mono", "IBM Plex Mono", "Cinzel", "Cormorant Garamond")
+LATIN_ONLY = ("DM Mono", "IBM Plex Mono", "Cinzel", "Cormorant Garamond", "Orbitron")
 THAI = ("Noto Sans Thai Looped", "Noto Serif Thai")
 
 

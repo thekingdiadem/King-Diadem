@@ -166,7 +166,7 @@
       ctx.globalCompositeOperation = 'lighter';
       // แสงวาบตอนระเบิด
       if (t < 1.2) {
-        var f = Math.max(0, 1 - t / 1.2), fr = Math.max(W, H) * (.2 + t * 1.4);
+        var f = Math.max(0, 1 - t / 1.2) * Math.min(1, t / .25) * .6, fr = Math.max(W, H) * (.2 + t * 1.4);   // วาบนุ่ม ไม่ขาวเต็มจอ
         var gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, fr);
         gr.addColorStop(0, 'rgba(255,255,255,' + f + ')'); gr.addColorStop(.4, 'rgba(255,230,190,' + f * .5 + ')'); gr.addColorStop(1, 'rgba(255,200,150,0)');
         ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
@@ -286,7 +286,7 @@
       ctx.beginPath(); ctx.arc(ix, iy, R * ta * .55, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
       ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.exp(-ta * .5);
       var fs = R * (.2 + ta * .1); ctx.drawImage(glow, ix - fs, iy - fs, fs * 2, fs * 2);
-      ctx.globalAlpha = Math.exp(-ta * 2.5) * e; ctx.fillStyle = '#fff3dc'; ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = Math.exp(-ta * 1.8) * Math.min(1, ta / .18) * e * .35; ctx.fillStyle = '#fff3dc'; ctx.fillRect(0, 0, W, H);
     } else if (t > 12.6) {
       var k = Math.pow(Math.min(1, (t - 12.6) / (IMPACT - EARTH_SHIFT - 12.6)), 1.6), sx0 = cx + W * .55, sy0 = cy - H * .5;
       var ax = sx0 + (ix - sx0) * k, ay = sy0 + (iy - sy0) * k;

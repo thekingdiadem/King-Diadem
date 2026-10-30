@@ -248,15 +248,16 @@
     '  vec2 dv=uv-ap;float al=dot(dv,-dr),pp=length(dv+dr*al);',
     '  float tail=al>0.?exp(-pp*pp/(.00004+al*.0006))*exp(-al*4.)*(.6+1.4*k):0.;',
     '  c+=vec3(1.,.85,.6)*(.00022/(dot(dv,dv)+.00008)+tail*.8)+vec3(1.,.6,.3)*smoothstep(.85,1.,k)*.002/(dot(dv,dv)+.0003);}',
-    ' if(t>ti)c+=vec3(1.,.9,.75)*exp(-(t-ti)*2.5)*1.4*exp(-length(uv-ip)*1.5);',      // แสงวาบตอนชน
+    ' if(t>ti)c+=vec3(1.,.86,.66)*rs(0.,.18,t-ti)*exp(-(t-ti)*1.8)*.6*exp(-length(uv-ip)*2.2);',      // แสงวาบตอนชน (ค่อยๆ สว่าง ไม่จ้าเต็มจอ)
     ' return c;}',
     'void main(){',
     ' vec2 uv=(gl_FragCoord.xy-.5*uRes)/min(uRes.x,uRes.y);float d=length(uv),t=uT;vec3 c=vec3(0.);',
     ' if(t<0.){float p=1.+.35*sin(uNow*3.8);c=vec3(1.,.93,.8)*(.012*p/(d*d+.0004)+.05*p*exp(-d*14.));',
     '  gl_FragColor=vec4(c,1.);return;}',
     // แสงวาบตอนระเบิด
-    ' float fl=max(0.,1.-t/1.3);float fr=.15+t*1.6;c+=vec3(1.,.96,.9)*fl*exp(-d*d/(fr*fr))*1.6;',
-    ' c+=vec3(1.,.8,.6)*fl*fl*.6;',
+    // แสงวาบนุ่มลง: ค่อยๆ สว่างขึ้นใน 0.25 วินาทีแรก และไม่ขาวเต็มจอ (คนไวต่อแสงไม่แสบตา)
+    ' float fl=max(0.,1.-t/1.3)*smoothstep(0.,.25,t);float fr=.15+t*1.6;c+=vec3(1.,.93,.84)*fl*exp(-d*d/(fr*fr))*.85;',
+    ' c+=vec3(1.,.8,.6)*fl*fl*.22;',
     // ซุปพลาสมาร้อน (เดือดเป็นคลื่น)
     ' float pw=smoothstep(1.4,2.8,t)*(1.-smoothstep(4.7,6.3,t));',
     ' if(pw>0.){float q=fbm(uv*3.+vec2(t*.4,-t*.3));float q2=fbm(uv*7.-q*2.+t*.6);',

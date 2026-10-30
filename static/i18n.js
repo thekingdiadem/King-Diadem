@@ -60,6 +60,7 @@
     'และไม่ปิดความเป็นไปได้ของการเรียนรู้': ['and never closes the possibility of learning', 'そして学ぶ可能性を決して閉ざさない'],
     'ความเสี่ยงตอนนี้': ['Risk right now', '今のリスク'],
     'ยังรับมือได้': ['Manageable', '対応できる'],
+    'ลดการเคลื่อนไหว': ['Reduce motion', '動きを減らす'],
     'ควรระวัง': ['Take care', '注意'],
     'ต้องดูแลด่วน': ['Needs care now', 'すぐに対応を'],
     'ยังมีทางไปต่อไหม': ['Is there still a way forward', 'まだ道はある？'],

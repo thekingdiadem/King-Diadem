@@ -81,6 +81,7 @@ def test_depth_parallax_does_not_jump():
 
 
 def test_display_serif_is_looped_thai():
-    """ตัวพาดหัวไทยเป็นแบบมีหัว (Noto Serif Thai) — แบบไม่มีหัวทำให้ "ระบบ" อ่านเป็น "ระUU" บนมือถือ"""
-    assert "family=Noto+Serif+Thai:wght@500;600" in HTML
-    assert '--f-title:"Cinzel","Noto Serif Thai","Noto Sans Thai Looped",Georgia,serif;' in CSS
+    """หัวข้อละตินเป็น Orbitron (แนว "อนาคตลึกลับ" ที่เจ้าของโปรเจกต์เลือก) แต่ตัวไทยยังเป็นแบบมีหัว
+    — แบบไม่มีหัวทำให้ "ระบบ" อ่านเป็น "ระUU" บนมือถือ"""
+    assert "family=Orbitron:wght@500;600;700" in HTML and "Cinzel" not in HTML
+    assert '--f-title:"Orbitron","Noto Sans Thai Looped","Noto Serif Thai",system-ui,sans-serif;' in CSS
