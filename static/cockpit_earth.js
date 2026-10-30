@@ -2,6 +2,7 @@
  *
  * · กล้องจริงแบบมีมุมมอง (perspective): ยิ่งซูมลง กล้องยิ่งต่ำและเอียงเห็นขอบฟ้าโค้ง — ไม่ใช่ภาพแบนขยาย
  * · ระดับซูมต่อเนื่องค่าเดียว L: 0 = ทั้งโลก · 1 = วงโคจร · 2–4.4 = ลงใกล้ขึ้นทีละ 2 เท่า
+ *   ซูมเลย 4.4 → แผนที่เมืองกลางคืน 3 มิติ (static/city_map.js) รับช่วงต่อที่ตำแหน่งเดิม · ซูมออกกลับมาเป็นโลก
  * · นิ้ว: ลากเลื่อน (ปล่อยแล้วไหลต่อ) · ถ่าง/บีบซูมเข้าหาจุดที่นิ้วอยู่ · แตะสองครั้งบินไปจุดนั้น
  *   เมาส์: ลาก · ล้อเลื่อนซูมเมื่อซูมเข้าไปแล้ว (หรือกด Ctrl / ถ่างบนทัชแพด) · ดับเบิลคลิก · คีย์บอร์ด: ลูกศร + −
  * · ชื่อเมืองเป็นชั้นตามความสำคัญ: เมืองหลวง → ศูนย์กลางจังหวัด/รัฐ → เมืองใหญ่ไปเล็ก · จังหวัดไทยแสดงชื่อไทย
@@ -221,7 +222,25 @@
 
   // ── การควบคุม ─────────────────────────────────────────────────────────────────────────────
   var idleUntil = 0, pointers = {}, gest = null, lastTap = 0, hist = [];
-  function setL(L) { S.tL = clamp(L, 0, LMAX); sync(); maybe4k(); }
+  function setL(L) {
+    if (L > LMAX + .02 && toCity()) return;                          // ลึกกว่าภาพ NASA → แผนที่เมืองรับช่วงต่อ
+    S.tL = clamp(L, 0, LMAX); sync(); maybe4k();
+  }
+  // ── ส่งต่อให้แผนที่เมืองกลางคืน (static/city_map.js) ด้วยตำแหน่งและระยะเดียวกับกล้องตอนนี้ ──────────────
+  function toCity() {
+    var CM = window.KD_cityMap;
+    if (!CM || !CM.can() || S.city) return false;
+    var V = view(), cam = camera(LMAX, V.W / Math.max(1, V.H));
+    var mpp = cam.D * 6371000 / (F * V.H);                             // เมตรต่อพิกเซลกลางจอ
+    var lon = ((S.tlon % 360) + 540) % 360 - 180;
+    if (!CM.enter({ lon: lon, lat: S.tlat, zoom: Math.log(78271.517 * Math.cos(S.tlat * RAD) / mpp) / Math.LN2,
+                    pitch: cam.tilt / RAD })) return false;
+    S.city = true; pointers = {}; gest = null; S.vlon = S.vlat = 0;
+    S.tL = LMAX; sync();
+    if (lab) lab.style.opacity = '0';
+    if (hero) { hero.style.setProperty('--hero-a', '0'); hero.classList.add('zoomed'); }   // โลกหยุดวาดแล้ว — ต้องซ่อนหัวเรื่องเอง
+    return true;
+  }
   function settle() { if (calm()) { S.lon = S.tlon; S.lat = S.tlat; S.L = S.tL; sync(); } }
   function hold(ms) { idleUntil = performance.now() + ms; kick(); }
   function degPerPx(V) {                                             // ระยะบนพื้นต่อ 1 พิกเซล (องศา) ตรงกลางจอ
@@ -325,17 +344,30 @@
     flyTo(e.clientX - r.left, e.clientY - r.top);
   });
 
+  function leaveCity() { if (S.city && window.KD_cityMap) window.KD_cityMap.exit(); }
   function go(o) {
+    if (o.L > LMAX + .02 && toCity()) return;
     for (var k in o) S['t' + k] = o[k];
     S.tL = clamp(S.tL, 0, LMAX); S.vlon = S.vlat = 0;
     sync(); settle(); setTouchMode(); maybe4k();
     hold(8000);
   }
   window.KD_earth = {
-    globe: function (on) { go({ L: on ? 0 : 1, lat: on ? 20 : 40 }); },
-    pole: function (north) { go({ L: 0, lat: north ? 80 : -80 }); },
-    zoomIn: function () { go({ L: S.tL < 1 ? 1 : S.tL + 1 }); },
-    zoomOut: function () { go({ L: S.tL > 1 ? S.tL - 1 : 0, lat: S.tL > 1 ? S.tlat : clamp(S.tlat, -60, 60) }); },
+    globe: function (on) { leaveCity(); go({ L: on ? 0 : 1, lat: on ? 20 : 40 }); },
+    pole: function (north) { leaveCity(); go({ L: 0, lat: north ? 80 : -80 }); },
+    zoomIn: function () { if (S.city) window.KD_cityMap.zoom(1); else go({ L: S.tL < 1 ? 1 : S.tL + 1 }); },
+    zoomOut: function () {
+      if (S.city) { window.KD_cityMap.zoom(-1); return; }
+      go({ L: S.tL > 1 ? S.tL - 1 : 0, lat: S.tL > 1 ? S.tlat : clamp(S.tlat, -60, 60) });
+    },
+    // แผนที่เมืองเรียกตอนซูมออกพ้นระดับที่เข้ามา — กลับมาเป็นโลกที่จุดเดิม
+    fromCity: function (c) {
+      S.city = false;
+      S.lon = S.tlon = c.lon; S.lat = S.tlat = clamp(c.lat, -85, 85);
+      S.L = LMAX; S.tL = LMAX - .5; sync(); setTouchMode();
+      if (lab) lab.style.opacity = '';
+      labelsDirty = true; last = 0; hold(6000);
+    },
     state: S
   };
 
@@ -351,7 +383,7 @@
 
   function frame(now) {
     raf = 0;
-    if (document.hidden || !visible) { last = 0; return; }
+    if (document.hidden || !visible || S.city) { last = 0; return; }   // แผนที่เมืองเต็มจอ — โลกไม่ต้องวาด
     var busy = !!gest || Math.abs(S.vlon) + Math.abs(S.vlat) > .01;
     // เครื่องเบา: ตอนลอยเองไม่มีใครแตะ วาด ~30 ภาพ/วินาทีพอ — ประหยัดแบตและไม่ร้อน
     if (light && !busy && last && now - last < 30) { kick(); return; }
@@ -377,6 +409,7 @@
     S.lon += (S.tlon - S.lon) * k; S.lat += (S.tlat - S.lat) * k;
     S.L += (S.tL - S.L) * (still ? 1 : 1 - Math.exp(-dt * (gest ? 16 : 4)));
     sync();
+    if (S.tL > LMAX - 1 && window.KD_cityMap) window.KD_cityMap.prefetch();   // ใกล้ถึงระดับเมือง — โหลดแผนที่รอไว้
     if (ready < 1 && pending === 0) ready = still ? 1 : Math.min(1, ready + dt * 1.2);
     var cam = camera(S.L, canvas.width / Math.max(1, canvas.height));
     gl.uniform2f(U.res, canvas.width, canvas.height);
