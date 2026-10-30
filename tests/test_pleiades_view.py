@@ -28,8 +28,8 @@ def test_bright_stars_are_real_positions():
 def test_rendering_is_procedural_and_free():
     assert "gl.drawArrays(gl.POINTS, 0, stars.length);" in JS                # ดาวเป็น point sprite บวกแสงกัน
     assert "gl.blendFunc(gl.ONE, gl.ONE);" in JS
-    assert "NGC 1435" in JS and "float wisp=" in JS                           # หมอกสะท้อนแสงรอบ Merope เป็นเส้นใย
-    assert "vSz=2.*core/vSz;vSp=2.*spk/max(1.,gl_PointSize);" in JS          # ขนาดแกนดาวเทียบครึ่งกว้าง sprite (บั๊กเดิมเล็กไปครึ่ง)
+    assert "NGC 1435" in JS and "float silk=" in JS                           # หมอกสะท้อนแสงรอบ Merope เป็นเส้นใย
+    assert "vSz=2.*core/sz;vSp=2.*spk/sz;" in JS                              # ขนาดแกนดาวเทียบครึ่งกว้าง sprite (บั๊กเดิมเล็กไปครึ่ง)
     assert ".jpg" not in JS and ".png" not in JS                              # ไม่มีภาพถ่าย
 
 
@@ -39,3 +39,30 @@ def test_feels_like_the_city_map():
     assert "e.key === 'Escape'" in JS and "aria-label=\"กลับหน้าแรก\"" in JS
     assert "prefers-reduced-motion" in JS                                     # ลดการเคลื่อนไหว = ไปถึงทันที
     assert "#m45{position:fixed;inset:0;z-index:120;background:#020309" in PAGE
+
+
+def test_fly_in_never_runs_backwards():
+    # บั๊กเดิม: เฟรมแรกได้เวลาติดลบ กล้องเลยพุ่งออกไปไกลมาก แล้วกระจุกดาวไปค้างนอกกลางจอ
+    assert "Math.max(0, Math.min(1, (performance.now() - view.t0) / view.dur))" in JS
+    assert "(t - view.t0)" not in JS
+
+
+def test_nebula_follows_real_star_positions():
+    # หมอกต้องฟุ้งรอบดาวจริงแต่ละดวง ไม่ใช่ตำแหน่งที่เดาเอา
+    assert "uniform vec3 uS[9];uniform float uSig[9];" in JS
+    assert "gl.uniform3fv(gl.getUniformLocation(P.neb, 'uS'), P.nebS)" in JS
+    for name in ("Merope", "Alcyone", "Maia", "Electra", "Taygeta", "Atlas", "Celaeno", "Pleione", "Asterope"):
+        assert name + ": [" in JS.split("var NEB_W")[1].split("};")[0]
+
+
+def test_twinkle_is_gentle_and_respects_reduced_motion():
+    # ดาวกะพริบเบาๆ คนละจังหวะ แต่ถ้าผู้ใช้ตั้งลดการเคลื่อนไหวไว้ ภาพต้องนิ่ง
+    assert "uniform float uDpp,uDpr,uMaxPt,uT;" in JS
+    assert "view.calm ? 0 :" in JS
+    assert "if (view.anim || !view.calm) raf = requestAnimationFrame(frame);" in JS
+
+
+def test_nebula_is_cached_between_frames():
+    # หมอกคำนวณหนัก วาดเก็บไว้แล้ววาดใหม่เฉพาะตอนเลื่อน/ซูม ให้มือถือกะพริบดาวได้ไม่ร้อน
+    assert "if (key !== P.nebKey)" in JS
+    assert "gl.bindFramebuffer(gl.FRAMEBUFFER, P.fbo); nebula(dpp, W, H);" in JS

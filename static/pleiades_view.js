@@ -54,61 +54,76 @@
 
   // ── shader ────────────────────────────────────────────────────────────────────────────
   var VS_Q = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+  // หมอกสะท้อนแสง: ฟุ้งรอบดาวสว่างแต่ละดวง "ตามตำแหน่งจริง" (uS = x, y, ความหนา) + ริ้วละเอียดแบบเส้นไหม
+  // ความหนาตามภาพถ่ายจริง: Merope (NGC 1435) หนาสุด · Alcyone · Maia (NGC 1432) · Electra · Taygeta · Atlas …
+  var NEB_W = { Merope: [1, .2], Alcyone: [.85, .24], Maia: [.8, .19], Electra: [.6, .19], Taygeta: [.45, .15],
+                Atlas: [.4, .16], Celaeno: [.3, .12], Pleione: [.25, .12], Asterope: [.3, .12] };
   var FS_NEB = [
     'precision highp float;',
-    'uniform vec2 uRes,uC;uniform float uDpp,uT;',
+    'uniform vec2 uRes,uC;uniform float uDpp;uniform vec3 uS[9];uniform float uSig[9];',
     'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
     'float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+1.),f.x),f.y);}',
-    'float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<6;i++){v+=a*n(p);p=p*2.02+vec2(1.7,9.2);a*=.5;}return v;}',
-    'float g(vec2 q,vec2 c,float s){vec2 d=q-c;return exp(-dot(d,d)/(2.*s*s));}',
+    'float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p=p*2.02+vec2(1.7,9.2);a*=.5;}return v;}',
     'void main(){',
-    ' vec2 q=uC+(gl_FragCoord.xy-.5*uRes)*uDpp;',                       // องศาจากศูนย์กลาง
-    // ริ้วหมอกเอียงตามทิศจริงของภาพถ่าย (แนวจากตะวันออกเฉียงใต้ไปตะวันตกเฉียงเหนือ)
-    ' float a=-.55; vec2 r=vec2(q.x*cos(a)-q.y*sin(a),q.x*sin(a)+q.y*cos(a));',
-    ' vec2 wq=q+.08*vec2(fbm(q*4.+2.),fbm(q*4.+8.));',                  // บิดลายให้เป็นเส้นใยแบบหมอกจริง ไม่ใช่รอยพู่กัน
-    ' float streak=fbm(vec2(r.x*1.6,r.y*6.)+fbm(wq*3.)*1.5+3.);',
-    ' float wisp=fbm(vec2(r.x*4.,r.y*14.)+fbm(wq*8.)*2.+7.);',
-    // หมอกหนาตามดาวที่ส่องสว่าง: Merope (NGC 1435) หนาที่สุด · Maia · Electra · Alcyone · Taygeta
-    ' float d=g(q,vec2(.15,-.17),.28)*1.1+g(q,vec2(.27,.25),.24)*.95+g(q,vec2(.48,-.01),.22)*.75+g(q,vec2(-.11,0.),.28)*.85+g(q,vec2(.41,.35),.18)*.5+g(q,vec2(.1,.05),.85)*.3;',
-    ' float neb=d*pow(streak,1.6)*1.6*(.55+.7*wisp);',
-    ' vec3 col=mix(vec3(.07,.12,.42),vec3(.45,.62,1.),smoothstep(.15,.9,neb))*neb*.42;',
-    ' col+=vec3(.7,.82,1.)*pow(max(neb-.55,0.),2.)*.25;',               // แกนหมอกสว่างใกล้ Merope
-    // ฝุ่นมืดของเมฆโมเลกุลกลุ่มดาววัวรอบนอก (สีน้ำตาลอมแดงจางๆ แบบภาพถ่ายนานๆ)
-    ' float dust=smoothstep(.55,.8,fbm(q*.9+21.))*(1.-smoothstep(.0,1.6,length(q)));',
-    ' col+=vec3(.035,.022,.02)*fbm(q*2.3+4.)*(1.-dust*.5);',
-    ' col=col*(1.-dust*.35)+vec3(.006,.008,.018);',
-    ' col+=(h(gl_FragCoord.xy+fract(uT))-.5)*.012;',
+    ' vec2 px=gl_FragCoord.xy-.5*uRes, q=uC+px*uDpp;',                   // องศาจากศูนย์กลางกระจุก
+    ' float d=0.;',
+    ' for(int i=0;i<9;i++){vec2 v=q-uS[i].xy;float s=uSig[i];d+=uS[i].z*(exp(-dot(v,v)/(2.*s*s))+.16*exp(-dot(v,v)/(10.*s*s))+.05*exp(-dot(v,v)/(40.*s*s)));}',
+    // พัดหมอก NGC 1435 แผ่ลงใต้จาก Merope แบบภาพถ่ายจริง
+    ' vec2 fm=q-uS[4].xy-vec2(-.04,-.13); fm=vec2(fm.x*.9+fm.y*.42,-fm.x*.42+fm.y*.9);',
+    ' d+=.55*exp(-fm.x*fm.x/.006-fm.y*fm.y/.03);',
+    ' d+=.06*exp(-dot(q-vec2(.05,.05),q-vec2(.05,.05))/1.1);',           // ฟุ้งจางๆ ทั้งกระจุก
+    // ริ้วละเอียดเอียงตามภาพถ่ายจริง + บิดให้เป็นเส้นใย ไม่เป็นปื้นเดียว
+    ' float a=-.62; vec2 r=vec2(q.x*cos(a)-q.y*sin(a),q.x*sin(a)+q.y*cos(a));',
+    ' vec2 w=vec2(fbm(q*3.+2.),fbm(q*3.+8.))-.5;',
+    ' float silk=fbm(vec2(r.x*4.,r.y*20.)+vec2(w.x*3.,w.y*9.));',                 // เส้นใยโค้งตามกระแสฝุ่น ไม่ตรงเป็นแปรง
+    ' float clump=fbm(q*7.+4.);',
+    ' float neb=d*mix(.85,.45+.95*silk*silk,smoothstep(.2,.9,d))*(.6+.6*clump);',             // ริ้วชัดเฉพาะใกล้ดาวที่หมอกหนา ด้านนอกฟุ้งนุ่ม
+    ' vec3 deep=mix(vec3(.08,.08,.36),vec3(.05,.15,.4),clump);',                   // ขอบหมอกอมม่วงคราม ↔ ฟ้าน้ำทะเล
+    ' vec3 col=deep*neb*.42+vec3(.33,.52,1.)*pow(neb,1.8)*.36+vec3(.82,.9,1.)*pow(max(neb-.9,0.),2.)*.18;',
+    // ฝุ่นสีน้ำตาลของเมฆโมเลกุลกลุ่มดาววัวรอบนอก (ภาพถ่ายมุมกว้างเห็นเป็นเส้นจางๆ)
+    ' float ring=smoothstep(.5,1.8,length(q));',
+    ' float dust=pow(fbm(vec2(r.x*1.2,r.y*4.)+11.),2.2)*ring;',
+    ' col+=vec3(.11,.065,.045)*dust*.55;',
+    ' col+=vec3(.004,.006,.014);',
+    ' vec2 uv=px/uRes; col*=1.-.55*dot(uv,uv);',                         // ขอบภาพมืดลงนุ่มๆ แบบเลนส์
+    ' col=1.-exp(-col*1.25);',
+    ' col+=(h(gl_FragCoord.xy)-.5)*.008;',
     ' gl_FragColor=vec4(col,1.);',
     '}'].join('\n');
   var VS_S = [
     'attribute vec2 aP;attribute float aM;attribute vec3 aC;',
-    'uniform vec2 uRes,uC;uniform float uDpp,uDpr,uMaxPt;',
-    'varying vec3 vC;varying float vF,vSz,vSp;',
+    'uniform vec2 uRes,uC;uniform float uDpp,uDpr,uMaxPt,uT;',
+    'varying vec3 vC;varying float vF,vSz,vSp,vHl;',
     'void main(){',
     ' vec2 s=(aP-uC)/uDpp;',                                          // พิกเซลจากกลางจอ
     ' gl_Position=vec4(s/(.5*uRes),0.,1.);',
     ' float f=pow(10.,-.4*(aM-1.));',                                 // ความสว่างตามโชติมาตร
     ' float zoom=clamp(.012/uDpp,.7,2.2);',                           // ซูมใกล้ = ดาวใหญ่ขึ้นเล็กน้อย (ไม่ใหญ่ตามสเกลจริง)
-    ' float core=max(1.2,5.6*pow(f,.3)*zoom)*uDpr;',                  // ดาวสว่างเป็นดวงกลมขาวแบบภาพถ่ายนานๆ
-    ' float spk=aM<4.4?core*(2.2+2.6*pow(f,.3)):0.;',                 // แฉกแสงสั้นๆ เฉพาะดาวสว่าง
-    ' float halo=core*(aM<6.?9.:3.);',
-    ' vSz=min(uMaxPt,max(halo,spk)*2.+2.);gl_PointSize=vSz;',
-    ' vC=aC;vF=min(1.6,.3+1.2*pow(f,.3));vSz=2.*core/vSz;vSp=2.*spk/max(1.,gl_PointSize);',
+    ' float core=max(1.15,6.8*pow(f,.33)*zoom)*uDpr;',                // 7 ดาวหลักเป็นพระเอก: ดวงขาวใหญ่แบบภาพถ่ายนานๆ
+    ' float spk=aM<4.5?core*(4.+7.*pow(f,.4)):0.;',                   // แฉกแสงยาวชัดตามความสว่าง
+    ' float halo=core*(aM<4.5?11.:aM<6.5?5.:2.5);',
+    ' float sz=min(uMaxPt,max(halo,spk)*2.+2.);gl_PointSize=sz;',
+    ' float ph=fract(sin(dot(aP,vec2(12.9898,78.233)))*43758.5453)*6.2832;',
+    ' float tw=1.+(aM<4.5?.05:.16)*sin(uT*(.9+.5*fract(ph*7.))+ph);',          // กะพริบเบาๆ คนละจังหวะ ดาวจางกะพริบมากกว่า
+    ' vC=aC;vF=min(1.8,.28+1.35*pow(f,.3))*tw;vSz=2.*core/sz;vSp=2.*spk/sz;vHl=aM<4.5?1.:.45;',
     '}'].join('\n');
   var FS_S = [
     'precision mediump float;',
-    'varying vec3 vC;varying float vF,vSz,vSp;',
+    'varying vec3 vC;varying float vF,vSz,vSp,vHl;',
     'void main(){',
     ' vec2 d=(gl_PointCoord-.5)*2.;float r=length(d);',
-    ' float core=exp(-pow(r/vSz,2.)*1.3);',
-    ' float halo=(.24*vSz*vSz/(r*r+vSz*vSz*.5)+.13*exp(-r*r/(vSz*vSz*12.)))*smoothstep(1.,.2,r);',
+    ' float core=exp(-pow(r/vSz,2.)*1.2);',
+    ' float halo=(.26*vSz*vSz/(r*r+vSz*vSz*.45)+.2*vHl*exp(-r*r/(vSz*vSz*16.)))*smoothstep(1.,.15,r);',
     ' float sp=0.;',
-    ' if(vSp>0.){float w=vSz*.12;sp=(exp(-abs(d.y)/w)*pow(max(0.,1.-abs(d.x)/(vSp*2.)),2.)+exp(-abs(d.x)/w)*pow(max(0.,1.-abs(d.y)/(vSp*2.)),2.))*.45;}',
+    ' if(vSp>0.){float w=vSz*.09;float L=vSp;',
+    '  sp=(exp(-abs(d.y)/w)*pow(max(0.,1.-abs(d.x)/L),1.6)+exp(-abs(d.x)/w)*pow(max(0.,1.-abs(d.y)/L),1.6))*.6;}',
     ' float a=(core+halo+sp)*vF;',
-    ' vec3 hb=vec3(.55,.7,1.);',
-    ' vec3 c=mix(mix(hb,vC,.5),vec3(1.),smoothstep(.35,1.,core));',                 // ฟุ้งอมฟ้าแบบภาพถ่ายดาวลูกไก่                // แกนกลางขาวจ้าแบบกล้องถ่ายภาพ
+    ' vec3 hb=mix(vec3(.5,.66,1.),vC,.35);',                                         // แสงฟุ้งอมฟ้าแบบภาพถ่ายดาวลูกไก่
+    ' vec3 c=mix(hb,vec3(1.),smoothstep(.3,1.,core));',                               // แกนกลางขาวจ้า
     ' gl_FragColor=vec4(c*a,a);',
     '}'].join('\n');
+
+  var FS_BLIT = 'precision mediump float;uniform sampler2D uTex;uniform vec2 uRes;void main(){gl_FragColor=texture2D(uTex,gl_FragCoord.xy/uRes);}';
 
   function sh(t, src) { var o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o); return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null; }
   function prog(v, f) { var a = sh(gl.VERTEX_SHADER, v), b = sh(gl.FRAGMENT_SHADER, f); if (!a || !b) return null;
@@ -125,8 +140,9 @@
     cv = el.querySelector('.m45-gl'); lab = el.querySelector('.m45-lab'); lctx = lab.getContext('2d');
     gl = cv.getContext('webgl', { antialias: false, premultipliedAlpha: true, alpha: false });
     if (!gl) return false;
-    P.neb = prog(VS_Q, FS_NEB); P.star = prog(VS_S, FS_S);
-    if (!P.neb || !P.star) return false;
+    P.neb = prog(VS_Q, FS_NEB); P.star = prog(VS_S, FS_S); P.blit = prog(VS_Q, FS_BLIT);
+    if (!P.neb || !P.star || !P.blit) return false;
+    P.tex = gl.createTexture(); P.fbo = gl.createFramebuffer();
     P.quad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, P.quad);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
     P.maxPt = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1] || 64;
@@ -142,32 +158,57 @@
   }
   var DPR = 1;
   function size() {
-    DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+    DPR = Math.min(window.devicePixelRatio || 1, 1.25);                // หมอกเป็นภาพฟุ้ง ความละเอียดนี้พอ — มือถือจอคมไม่หน่วง
     cv.width = Math.round(innerWidth * DPR); cv.height = Math.round(innerHeight * DPR);
     lab.width = Math.round(innerWidth * DPR); lab.height = Math.round(innerHeight * DPR);
+    gl.bindTexture(gl.TEXTURE_2D, P.tex);                              // หมอกวาดเก็บไว้ในภาพนี้ วาดใหม่เฉพาะตอนเลื่อน/ซูม
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, cv.width, cv.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(function (k) { gl.texParameteri(gl.TEXTURE_2D, k, gl.NEAREST); });
+    [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(function (k) { gl.texParameteri(gl.TEXTURE_2D, k, gl.CLAMP_TO_EDGE); });
+    gl.bindFramebuffer(gl.FRAMEBUFFER, P.fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, P.tex, 0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); P.nebKey = '';
   }
 
   // ── กล้อง: ศูนย์กลาง (องศา) + องศาต่อพิกเซลจริงบนจอ ─────────────────────────────────────────
   function frame(now) {
     raf = 0; if (!view) return;
-    var k = view.anim ? Math.min(1, (now - view.t0) / view.dur) : 1, e = k < 1 ? 1 - Math.pow(1 - k, 3) : 1;
+    // เวลาของเฟรมอาจมาก่อนเวลาที่กดเปิด (ติดลบ) — เดิมกล้องเลยพุ่งไปไกลแล้วค่อยกลับ เครื่องช้าจบไม่ตรงกลาง
+    var k = view.anim ? Math.max(0, Math.min(1, (performance.now() - view.t0) / view.dur)) : 1, e = 1 - Math.pow(1 - k, 3);
     if (view.anim) {
       view.dpp = Math.exp(Math.log(view.from.dpp) + (Math.log(view.to.dpp) - Math.log(view.from.dpp)) * e);
       view.c = [view.from.c[0] + (view.to.c[0] - view.from.c[0]) * e, view.from.c[1] + (view.to.c[1] - view.from.c[1]) * e];
       if (k >= 1) view.anim = false;
     }
-    draw();
-    if (view.anim) raf = requestAnimationFrame(frame);
+    draw(now);
+    if (view.anim || !view.calm) raf = requestAnimationFrame(frame);   // ดาวกะพริบต่อเนื่อง (ปิดเมื่อผู้ใช้ขอลดการเคลื่อนไหว)
   }
   function kick() { if (!raf) raf = requestAnimationFrame(frame); }
-  function draw() {
+  function draw(now) {
     var W = cv.width, H = cv.height, dpp = view.dpp / DPR;
-    gl.viewport(0, 0, W, H); gl.disable(gl.BLEND);
-    gl.useProgram(P.neb); gl.bindBuffer(gl.ARRAY_BUFFER, P.quad);
+    gl.viewport(0, 0, W, H); gl.disable(gl.BLEND); gl.bindBuffer(gl.ARRAY_BUFFER, P.quad);
+    var key = [W, H, view.c[0], view.c[1], dpp].join();
+    if (key !== P.nebKey) { P.nebKey = key; gl.bindFramebuffer(gl.FRAMEBUFFER, P.fbo); nebula(dpp, W, H); gl.bindFramebuffer(gl.FRAMEBUFFER, null); }
+    gl.useProgram(P.blit); gl.uniform2f(gl.getUniformLocation(P.blit, 'uRes'), W, H);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, P.tex); gl.uniform1i(gl.getUniformLocation(P.blit, 'uTex'), 0);
+    var lb = gl.getAttribLocation(P.blit, 'p'); gl.enableVertexAttribArray(lb); gl.vertexAttribPointer(lb, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(lb);
+    starfield(dpp, W, H, now);
+    labels();
+  }
+  function nebula(dpp, W, H) {
+    gl.useProgram(P.neb);
     var lp = gl.getAttribLocation(P.neb, 'p'); gl.enableVertexAttribArray(lp); gl.vertexAttribPointer(lp, 2, gl.FLOAT, false, 0, 0);
     gl.uniform2f(gl.getUniformLocation(P.neb, 'uRes'), W, H); gl.uniform2f(gl.getUniformLocation(P.neb, 'uC'), view.c[0], view.c[1]);
-    gl.uniform1f(gl.getUniformLocation(P.neb, 'uDpp'), dpp); gl.uniform1f(gl.getUniformLocation(P.neb, 'uT'), 0);
+    gl.uniform1f(gl.getUniformLocation(P.neb, 'uDpp'), dpp);
+    if (!P.nebS) {                                                    // ตำแหน่งจริงของดาวที่ส่องหมอก (คำนวณครั้งเดียว)
+      P.nebS = []; P.nebSig = [];
+      NAMES.forEach(function (nm) { var g = gno(nm[1], nm[2]), w = NEB_W[nm[0]]; P.nebS.push(g[0], g[1], w[0]); P.nebSig.push(w[1]); });
+    }
+    gl.uniform3fv(gl.getUniformLocation(P.neb, 'uS'), P.nebS); gl.uniform1fv(gl.getUniformLocation(P.neb, 'uSig'), P.nebSig);
     gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(lp);
+  }
+  function starfield(dpp, W, H, now) {
     gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);                 // แสงดาวบวกกัน
     gl.useProgram(P.star); gl.bindBuffer(gl.ARRAY_BUFFER, P.sbuf);
     var aP = gl.getAttribLocation(P.star, 'aP'), aM = gl.getAttribLocation(P.star, 'aM'), aC = gl.getAttribLocation(P.star, 'aC');
@@ -177,9 +218,9 @@
     gl.uniform2f(gl.getUniformLocation(P.star, 'uRes'), W, H); gl.uniform2f(gl.getUniformLocation(P.star, 'uC'), view.c[0], view.c[1]);
     gl.uniform1f(gl.getUniformLocation(P.star, 'uDpp'), dpp); gl.uniform1f(gl.getUniformLocation(P.star, 'uDpr'), DPR);
     gl.uniform1f(gl.getUniformLocation(P.star, 'uMaxPt'), P.maxPt);
+    gl.uniform1f(gl.getUniformLocation(P.star, 'uT'), view.calm ? 0 : (now || performance.now()) / 1000);
     gl.drawArrays(gl.POINTS, 0, stars.length);
     gl.disableVertexAttribArray(aP); gl.disableVertexAttribArray(aM); gl.disableVertexAttribArray(aC);
-    labels();
   }
   function labels() {                                          // ชื่อดาว 9 ดวงหลัก — ขึ้นเมื่อซูมเห็นกระจุกเต็มจอ
     lctx.setTransform(DPR, 0, 0, DPR, 0, 0); lctx.clearRect(0, 0, innerWidth, innerHeight);
@@ -230,8 +271,8 @@
     var c0 = [(innerWidth / 2 - (o.x || innerWidth / 2)) * dpp0, -(innerHeight / 2 - (o.y || innerHeight / 2)) * dpp0];
     var fit = 2.3 / Math.min(innerWidth, innerHeight * .8);           // ทั้งกระจุก (~2.3°) พอดีจอ
     var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    view = { c: c0.slice(), dpp: dpp0, exit: dpp0 * 1.35, anim: !calm, t0: performance.now(), dur: 2200,
-             from: { c: c0, dpp: dpp0 }, to: { c: [.12, .1], dpp: fit } };
+    view = { c: c0.slice(), dpp: dpp0, exit: dpp0 * 1.35, anim: !calm, calm: calm, t0: performance.now(), dur: 2200,
+             from: { c: c0, dpp: dpp0 }, to: { c: [0, .12], dpp: fit } };
     if (calm) { view.c = view.to.c.slice(); view.dpp = fit; }
     kick();
     setTimeout(function () { var x = el.querySelector('.m45-x'); if (x) x.focus(); }, 50);
