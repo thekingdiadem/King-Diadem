@@ -94,8 +94,14 @@
 
   var VS_BG = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
   var FS_BG = [
+    // ต้องใช้ highp: บน iPhone mediump ทำให้ h() (sin × 43758) คืนค่าเกือบเท่ากันทุกจุด
+    // ลายสุ่มทั้งหมดหาย — โลกเป็นลูกบอลสีฟ้าเปล่า ไม่มีดาว ไม่มีต้นไม้ (เห็นจากหน้าจอจริงของเจ้าของโปรเจกต์)
+    '#ifdef GL_FRAGMENT_PRECISION_HIGH',
+    'precision highp float;',
+    '#else',
     'precision mediump float;',
-    'uniform vec2 uRes;uniform float uT,uNow;uniform vec3 uWell;',
+    '#endif',
+    'uniform vec2 uRes;uniform float uT,uNow,uTex;uniform vec3 uWell;uniform sampler2D uDay,uCld,uLit;',
     'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
     'float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);',
     ' return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}',
@@ -207,20 +213,37 @@
     ' vec3 c=vec3(0.);vec2 g=floor(uv*170.);c+=vec3(.8,.85,1.)*step(.996,h(g))*h(g+3.)*.9;',
     ' c+=stars7(uv,vec2(-.62,.32),.05,.8,14.);',                                   // ดาวลูกไก่ดวงเล็กบนฟ้าเบื้องหลังโลก
     ' float R=.3+.05*smoothstep(12.4,19.,t),ti=15.;vec2 ec=vec2(-.04,-.06),q=(uv-ec)/R;float r2=dot(q,q);',
-    ' vec3 L=normalize(vec3(-.55,.35,.75)),I=normalize(vec3(.32,.22,.92));vec2 ip=ec+I.xy*R;',
-    ' if(r2<1.){float z=sqrt(1.-r2);vec3 nr=vec3(q,z);float ro=t*.04;',
-    '  vec3 tn=vec3(cos(ro)*nr.x+sin(ro)*nr.z,nr.y,-sin(ro)*nr.x+cos(ro)*nr.z);vec2 sp=vec2(atan(tn.x,tn.z),asin(tn.y));',
-    '  float land=fbm(sp*vec2(1.6,2.2)+vec2(2.,5.))+.35*fbm(sp*5.);',
-    '  vec3 col=mix(mix(vec3(.02,.08,.22),vec3(.05,.2,.42),z),mix(vec3(.16,.32,.12),vec3(.45,.38,.22),fbm(sp*6.)),smoothstep(.62,.66,land));',
-    '  col=mix(col,vec3(.95),smoothstep(.55,.8,fbm(sp*vec2(3.,4.)+vec2(t*.03,0.)))*.7);',
-    '  float dif=max(dot(nr,L),0.);col*=.08+1.1*dif;',
+    // จุดชน = คาบสมุทรยูคาทาน (ละติจูด 21° เหนือ) หันเข้าหากล้อง · ดวงอาทิตย์ส่องจากซ้ายบน
+    ' vec3 L=normalize(vec3(-.55,.35,.75)),I=normalize(vec3(.31,.35,.885));vec2 ip=ec+I.xy*R;',
+    ' if(r2<1.){float z=sqrt(1.-r2);vec3 nr=vec3(q,z);',
+    '  float dif=max(dot(nr,L),0.),term=smoothstep(-.08,.22,dot(nr,L));vec3 col;',
+    '  if(uTex>.5){',
+    // ภาพโลกจริงของ NASA (Blue Marble) · หมุนช้าๆ ให้ยูคาทานมาอยู่ตรงจุดชนพอดีตอนชน
+    '   float lon=atan(nr.x,nr.z)-1.89+(t-15.)*.03,lat=asin(clamp(nr.y,-1.,1.));',
+    '   vec2 tc=vec2(fract(lon/6.2831853+.5),.5-lat/3.14159265);',
+    '   vec3 day=texture2D(uDay,tc).rgb;float cl=texture2D(uCld,tc+vec2((t-15.)*.002,0.)).r;',
+    '   float lit=texture2D(uLit,tc).r*smoothstep(19.6,20.4,t);',                     // แสงเมือง — มีแค่ตอน "วันนี้"
+    '   day=pow(day,vec3(1.1))*1.15;',
+    '   vec3 H=normalize(L+vec3(0.,0.,1.));float sea=step(day.b,day.g*1.05)<.5&&day.b>day.r*1.15?1.:0.;',
+    '   float spec=pow(max(dot(nr,H),0.),60.)*sea*(1.-cl)*.55;',                       // ประกายแดดบนทะเล
+    '   col=mix(day,vec3(1.),cl*.85)*(.03+1.05*term*(.25+.75*dif))+vec3(1.,.95,.85)*spec*term;',
+    '   col+=vec3(1.,.78,.45)*lit*(1.-term)*1.4;',
+    '  }else{',
+    '   float ro=t*.04;vec3 tn=vec3(cos(ro)*nr.x+sin(ro)*nr.z,nr.y,-sin(ro)*nr.x+cos(ro)*nr.z);vec2 sp=vec2(atan(tn.x,tn.z),asin(tn.y));',
+    '   float land=fbm(sp*vec2(1.6,2.2)+vec2(2.,5.))+.35*fbm(sp*5.);',
+    '   col=mix(mix(vec3(.02,.08,.22),vec3(.05,.2,.42),z),mix(vec3(.16,.32,.12),vec3(.45,.38,.22),fbm(sp*6.)),smoothstep(.62,.66,land));',
+    '   col=mix(col,vec3(.95),smoothstep(.55,.8,fbm(sp*vec2(3.,4.)+vec2(t*.03,0.)))*.7);col*=.08+1.1*dif;',
+    '  }',
+    // ชั้นบรรยากาศ: ขอบด้านกลางวันเรืองฟ้า ด้านกลางคืนจาง (แสงกระเจิงตามมุมมอง)
+    '  col+=vec3(.3,.55,1.)*pow(1.-z,3.)*(.15+.85*term)*.9;',
     '  float ta=t-ti;if(ta>0.){float an=acos(clamp(dot(nr,I),-1.,1.));',
     '   float fire=exp(-an*an/(.02+ta*.05))*exp(-ta*.5);',                         // ลูกไฟ
     '   float ring=exp(-pow((an-ta*.55)/.05,2.))*exp(-ta*.35);',                    // คลื่นกระแทกแผ่รอบโลก
     '   float dust=(1.-smoothstep(ta*.6-.2,ta*.6+.1,an))*smoothstep(0.,1.5,ta)*(1.-smoothstep(18.6,20.,t));',
     '   col=mix(col,vec3(.18,.12,.08)*(.25+.6*dif),dust*.85);col+=vec3(1.,.55,.2)*fire*3.+vec3(1.,.65,.35)*ring*1.4;}',
     '  c=col;}',
-    ' float rr=sqrt(r2);c+=vec3(.25,.5,1.)*exp(-pow((rr-1.)/.05,2.))*.6;',          // ชั้นบรรยากาศเรืองฟ้า
+    ' float rr=sqrt(r2);vec2 qd=normalize(q+.0001);float sl=max(dot(vec3(qd,0.),L),0.);',
+    ' c+=vec3(.3,.55,1.)*exp(-pow((rr-1.)/.035,2.))*(.15+.65*sl)+vec3(.25,.45,1.)*exp(-max(rr-1.,0.)*28.)*step(1.,rr)*(.1+.4*sl);',   // ขอบบรรยากาศบางๆ
     ' if(t>12.6&&t<ti+.05){float k=pow(clamp((t-12.6)/(ti-12.6),0.,1.),1.6);vec2 a0=vec2(.95,.75),ap=mix(a0,ip,k),dr=normalize(ip-a0);',
     '  vec2 dv=uv-ap;float al=dot(dv,-dr),pp=length(dv+dr*al);',
     '  float tail=al>0.?exp(-pp*pp/(.00004+al*.0006))*exp(-al*4.)*(.6+1.4*k):0.;',
@@ -286,7 +309,22 @@
     ['uT', 'uAsp', 'uCam', 'uYaw', 'uPitch', 'uDPR', 'uPx', 'uGain', 'uShake', 'uWell'].forEach(function (k) { U[k] = gl.getUniformLocation(P, k); });
     U.uGC = gl.getUniformLocation(P, 'uGC'); U.uGU = gl.getUniformLocation(P, 'uGU'); U.uGV = gl.getUniformLocation(P, 'uGV');
     U.uWave = gl.getUniformLocation(P, 'uWave');
-    ['uRes', 'uT', 'uNow', 'uWell'].forEach(function (k) { UB[k] = gl.getUniformLocation(B, k); });
+    ['uRes', 'uT', 'uNow', 'uWell', 'uTex', 'uDay', 'uCld', 'uLit'].forEach(function (k) { UB[k] = gl.getUniformLocation(B, k); });
+    // ภาพโลกจริง (NASA สาธารณสมบัติ · static/earth/README.md) — ไฟล์เดียวกับหน้า Universe จึงมักอยู่ในแคชแล้ว
+    // โหลดไม่สำเร็จก็ใช้โลกที่วาดจากโค้ดแทน
+    var TEX = [null, null, null], texN = 0;
+    ['day.jpg', 'clouds.jpg', 'lights.jpg'].forEach(function (f, i) {
+      var img = new Image();
+      img.onload = function () {
+        if (lost) return;
+        var tx = gl.createTexture(); gl.activeTexture(gl.TEXTURE1 + i); gl.bindTexture(gl.TEXTURE_2D, tx);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.activeTexture(gl.TEXTURE0); TEX[i] = tx; texN++;
+      };
+      img.src = '/static/earth/' + f;
+    });
     var aS = gl.getAttribLocation(P, 'aS'), aG = gl.getAttribLocation(P, 'aG'), aB = gl.getAttribLocation(B, 'a');
     buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
@@ -337,6 +375,10 @@
         gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.enableVertexAttribArray(aB); gl.vertexAttribPointer(aB, 2, gl.FLOAT, false, 0, 0);
         gl.uniform2f(UB.uRes, cv.width, cv.height); gl.uniform1f(UB.uT, t); gl.uniform1f(UB.uNow, o.now / 1000);
         gl.uniform3f(UB.uWell, o.well[0], o.well[1], o.well[2]);
+        gl.uniform1f(UB.uTex, texN === 3 ? 1 : 0);
+        for (var ti = 0; ti < 3; ti++) { gl.activeTexture(gl.TEXTURE1 + ti); gl.bindTexture(gl.TEXTURE_2D, TEX[ti]); }
+        gl.activeTexture(gl.TEXTURE0);
+        gl.uniform1i(UB.uDay, 1); gl.uniform1i(UB.uCld, 2); gl.uniform1i(UB.uLit, 3);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
         gl.disableVertexAttribArray(aB);
         if (t < 0 || !N) return;

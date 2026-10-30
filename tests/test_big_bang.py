@@ -125,3 +125,15 @@ def test_text_can_be_hidden_for_pure_visuals():
 def test_phone_buzzes_at_the_big_moments_only_when_motion_is_allowed():
     assert "function buzz(pat) { if (CALM()) return; try { if (navigator.vibrate) navigator.vibrate(pat); } catch (e) {} }" in JS
     assert JS.count("buzz([220, 60, 120, 60, 400])") == 2 and "buzz([60, 40, 160])" in JS
+
+
+def test_background_shader_uses_high_precision_and_real_earth():
+    """หน้าจอจริงบน iPhone: โลกเป็นลูกบอลสีฟ้าเปล่า ไม่มีทวีป ไม่มีดาว ไม่มีตอไม้ — mediump ทำให้ลายสุ่มหาย
+    และเจ้าของโปรเจกต์บอกว่าโลกไม่สมจริง → ใช้ภาพโลกของ NASA (สาธารณสมบัติ) ไฟล์เดียวกับหน้า Universe"""
+    bg = GLJS[GLJS.index("var FS_BG"):]
+    assert "#ifdef GL_FRAGMENT_PRECISION_HIGH" in bg and "precision highp float;" in bg
+    for f in ("day.jpg", "clouds.jpg", "lights.jpg"):
+        assert "'" + f + "'" in GLJS and (ROOT / "static" / "earth" / f).exists()
+    assert "img.src = '/static/earth/' + f;" in GLJS                 # ไฟล์ในเว็บเราเอง (CSP)
+    assert "if(uTex>.5){" in GLJS and "}else{" in GLJS               # โหลดภาพไม่ได้ก็ยังมีโลกจากโค้ด
+    assert "smoothstep(19.6,20.4,t)" in GLJS                         # แสงเมืองมีแค่ตอน "วันนี้" ไม่ใช่ 66 ล้านปีก่อน
