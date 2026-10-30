@@ -28,24 +28,45 @@
   var MQ = matchMedia('(prefers-reduced-motion: reduce)');
   function CALM() { return MQ.matches || document.documentElement.classList.contains('kd-calm'); }
 
+  // ยุคของจักรวาลตามเวลาในฉาก · ค่าเวลาและอุณหภูมิเป็นค่าโดยประมาณตามจักรวาลวิทยาปัจจุบัน
   var PHASES = [
-    { t: 0,    time: '0 วินาที',      temp: '—',        cap: 'บิ๊กแบง — ทุกอย่างเริ่มจากจุดเดียว' },
-    { t: 0.6,  time: '10⁻³⁶ วินาที',  temp: '10²⁸ K',   cap: 'อวกาศขยายตัวพรวดเดียว ใหญ่ขึ้นหลายล้านล้านเท่า' },
-    { t: 2.8,  time: '3 นาที',        temp: '10⁹ K',    cap: 'ซุปอนุภาคร้อนจัด ไฮโดรเจนกับฮีเลียมเริ่มก่อตัว' },
-    { t: 4.8,  time: '380,000 ปี',    temp: '3,000 K',  cap: 'หมอกจางลง แสงแรกเดินทางได้อิสระ' },
-    { t: 6.4,  time: '100 ล้านปี',    temp: '60 K',     cap: 'ดาวดวงแรกจุดประกาย' },
-    { t: 8.0,  time: '1,000 ล้านปี',  temp: '20 K',     cap: 'แรงโน้มถ่วงรวบดาวเป็นกาแล็กซีหมุนวน' },
-    { t: 11.2, time: '9,200 ล้านปี',  temp: '4 K',      cap: 'ดวงอาทิตย์และโลกถือกำเนิดในแขนหนึ่งของทางช้างเผือก' },
-    // บทโลก: ดาวเคราะห์น้อยชิกซูลุบ (กว้างราว 10 กม.) ชนคาบสมุทรยูคาทาน — ชน ณ เวลาในฉาก 15.0
-    { t: 12.8, time: '66 ล้านปีก่อน', temp: '—',        cap: 'ดาวเคราะห์น้อยกว้างราว 10 กิโลเมตร พุ่งเข้าหาโลกยุคไดโนเสาร์' },
-    { t: 15.0, time: '66 ล้านปีก่อน', temp: '—',        cap: 'ชนที่คาบสมุทรยูคาทาน คลื่นกระแทกแผ่ไปรอบโลก' },
-    { t: 16.8, time: '66 ล้านปีก่อน', temp: '—',        cap: 'ฝุ่นบังแสงอาทิตย์ ไดโนเสาร์ส่วนใหญ่สูญพันธุ์ แต่ชีวิตเล็กๆ ยังรอดและเริ่มต้นใหม่' },
-    { t: 19.0, time: '13,800 ล้านปี', temp: '2.7 K',    cap: 'และวันนี้ — เราทุกคนเป็นส่วนหนึ่งของจักรวาลเดียวกัน' }
+    { t: 0,    time: '0 วินาที',          temp: '—',        cap: 'บิ๊กแบง — ทุกอย่างเริ่มจากจุดเดียว' },
+    { t: 0.3,  time: '10⁻⁴³ วินาที',      temp: '10³² K',   cap: 'ยุคพลังค์ — แรงทั้งสี่ของธรรมชาติยังรวมเป็นหนึ่งเดียว' },
+    { t: 0.6,  time: '10⁻³⁶ วินาที',      temp: '10²⁸ K',   cap: 'อวกาศขยายตัวพรวดเดียว ใหญ่ขึ้นหลายล้านล้านเท่า' },
+    { t: 1.7,  time: '10⁻¹² วินาที',      temp: '10¹⁵ K',   cap: 'ซุปควาร์กและกลูออน — อนุภาคกับปฏิยานุภาคเกิดขึ้นแล้วดับไปไม่หยุด' },
+    { t: 2.4,  time: '10⁻⁶ วินาที',       temp: '10¹² K',   cap: 'ควาร์กจับกลุ่มกันเป็นโปรตอนและนิวตรอน' },
+    { t: 3.0,  time: '1 วินาที',          temp: '10¹⁰ K',   cap: 'สสารกับปฏิสสารชนกันหายไป เหลือสสารราว 1 ในพันล้าน — คือทุกสิ่งที่มีอยู่วันนี้' },
+    { t: 3.8,  time: '3 นาที',            temp: '10⁹ K',    cap: 'นิวเคลียสของไฮโดรเจนและฮีเลียมก่อตัว' },
+    { t: 4.8,  time: '380,000 ปี',        temp: '3,000 K',  cap: 'อะตอมแรกเกิดขึ้น หมอกจางลง แสงแรกเดินทางได้อิสระ' },
+    { t: 5.8,  time: '10 ล้านปี',         temp: '400 K',    cap: 'ยุคมืด — ยังไม่มีดาวสักดวง มีแต่ก๊าซที่ค่อยๆ รวมตัว' },
+    { t: 6.4,  time: '100 ล้านปี',        temp: '60 K',     cap: 'ดาวดวงแรกจุดประกาย' },
+    { t: 7.2,  time: '500 ล้านปี',        temp: '30 K',     cap: 'แสงจากดาวรุ่นแรกทำให้ก๊าซทั่วจักรวาลแตกตัวอีกครั้ง ฟ้าเริ่มโปร่ง' },
+    { t: 8.0,  time: '1,000 ล้านปี',      temp: '20 K',     cap: 'แรงโน้มถ่วงรวบดาวเป็นกาแล็กซีหมุนวน' },
+    { t: 9.8,  time: '5,000 ล้านปี',      temp: '6 K',      cap: 'ทางช้างเผือกค่อยๆ เป็นจานเกลียวอย่างที่เห็นวันนี้' },
+    { t: 11.2, time: '9,200 ล้านปี',      temp: '4 K',      cap: 'ดวงอาทิตย์และโลกถือกำเนิดในแขนหนึ่งของทางช้างเผือก' },
+    // ดาวลูกไก่ (กระจุกดาวเปิด M45) เกิดราว 100 ล้านปีก่อน — ก่อนไดโนเสาร์สูญพันธุ์
+    { t: 12.2, time: '100 ล้านปีก่อน',    temp: '—',        cap: 'เมฆก๊าซในทางช้างเผือกยุบตัว ดาวใหม่เกิดขึ้นพร้อมกันเป็นกระจุก' },
+    { t: 13.0, time: '100 ล้านปีก่อน',    temp: '—',        cap: 'ดาวลูกไก่ — ดาวสีฟ้าร้อนจัด ห่างจากเราราว 440 ปีแสง' },
+    // บทโลก: ดาวเคราะห์น้อยชิกซูลุบ (กว้างราว 10 กม.) ชนคาบสมุทรยูคาทาน
+    { t: 14.4, time: '66 ล้านปีก่อน',     temp: '—',        cap: 'ดาวเคราะห์น้อยกว้างราว 10 กิโลเมตร พุ่งเข้าหาโลกยุคไดโนเสาร์' },
+    { t: 16.6, time: '66 ล้านปีก่อน',     temp: '—',        cap: 'ชนที่คาบสมุทรยูคาทาน คลื่นกระแทกแผ่ไปรอบโลก' },
+    { t: 18.4, time: '66 ล้านปีก่อน',     temp: '—',        cap: 'ฝุ่นบังแสงอาทิตย์ ไดโนเสาร์ส่วนใหญ่สูญพันธุ์ แต่ชีวิตเล็กๆ ยังรอดและเริ่มต้นใหม่' },
+    { t: 20.6, time: '13,800 ล้านปี',     temp: '2.7 K',    cap: 'และวันนี้ — ดาวลูกไก่ยังส่องอยู่บนฟ้า และเราทุกคนเป็นส่วนหนึ่งของจักรวาลเดียวกัน' }
   ];
-  var END = 21.2, FADE = 1.4, IMPACT = 15.0;
-  // เวลาในฉากเดินช้ากว่าเวลาจริง 1.7 เท่า — บทจักรวาลราว 20 วินาที บทโลกราว 15 วินาที
-  // (เจ้าของโปรเจกต์ดูบนมือถือแล้วบอกว่าเลื่อนไวไป ที่ 14 วินาทีอ่านคำบรรยายไม่ทัน)
-  var PACE = 1.7;
+  // บทโลกเลื่อนไปหลังบทดาวลูกไก่ 1.6 (เวลาในฉาก) — shader บทโลกเขียนไว้ที่ชน 15.0
+  var EARTH_SHIFT = 1.6, IMPACT = 15.0 + EARTH_SHIFT, END = 22.8, FADE = 1.4;
+  // เวลาจริง (วินาที) → เวลาในฉาก: ยุคแรกๆ ที่เกิดเร็วมากได้เวลาดูนานขึ้น ทั้งฉากราว 63 วินาที
+  // (เจ้าของโปรเจกต์อยากเห็นละเอียดตั้งแต่อนุภาคเกิดดับแรกๆ จนถึงวันนี้ ราว 60 วินาที)
+  var CLOCK = [[0, 0], [1.5, .3], [3, .6], [6, 1.7], [10, 2.4], [14, 3], [18, 3.8], [22, 4.8], [25, 5.8], [28, 6.4],
+               [31, 7.2], [35, 8], [39, 9.8], [42.5, 11.2], [45.5, 12.2], [48, 13], [50.5, 14.4], [54, 16.6], [57, 18.4],
+               [60.5, 20.6], [63, 22.8]];
+  function sceneTime(sec) {
+    for (var i = 1; i < CLOCK.length; i++) {
+      var A = CLOCK[i - 1], B = CLOCK[i];
+      if (sec <= B[0]) return A[1] + (B[1] - A[1]) * (sec - A[0]) / (B[0] - A[0]);
+    }
+    var L = CLOCK[CLOCK.length - 1]; return L[1] + (sec - L[0]) * .6;
+  }
 
   var W = 0, H = 0, DPR = 1, N = 0, P = [], GAL = [], glow = null;
   var state = 'idle', t0 = 0, last = 0, raf = 0, phase = -1, waitTimer = 0, calmTimer = 0, prevFocus = null;
@@ -112,7 +133,7 @@
     raf = 0;
     if (state !== 'idle' && state !== 'run' && state !== 'fade') return;
     var dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
-    var t = state === 'idle' ? -1 : (now - t0) / 1000 / PACE;
+    var t = state === 'idle' ? -1 : sceneTime((now - t0) / 1000);
     var cx = W / 2, cy = H / 2;
     if (GL) {
       if (GL.lost()) { close(); return; }
@@ -193,7 +214,8 @@
         var wv = waves[v]; ctx.strokeStyle = 'rgba(255,230,190,' + wv.a * .5 + ')'; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(cx + wv.x * zoom, cy + wv.y * zoom, wv.r * zoom, 0, Math.PI * 2); ctx.stroke();
       }
-      if (t > 12) earth2D(t, cx, cy);
+      if (t > 12.2 && t < 14.6) pleiades2D(t, cx, cy);
+      if (t > 12 + EARTH_SHIFT) earth2D(t - EARTH_SHIFT, cx, cy);
       if (t > IMPACT && !hit) { hit = true; shake = 18; }
       for (var pi = PHASES.length - 1; pi >= 0; pi--) if (t >= PHASES[pi].t) { setPhase(pi); break; }
       if (t > END && state === 'run') finish();
@@ -208,10 +230,23 @@
   }
   var fadeAt = 0;
 
+  // ดาวลูกไก่ 7 ดวงหลัก ตำแหน่งโดยประมาณบนฟ้า (หน่วยสัมพัทธ์ รอบดาวอัลไซโอนี)
+  var M45 = [[0, 0], [-.62, .05], [-.62, .18], [.62, .12], [.36, -.22], [.42, .32], [.62, .45]];
+  function pleiades2D(t, cx, cy) {
+    var e = Math.min(1, (t - 12.2) / .6) * (1 - Math.max(0, Math.min(1, (t - 14) / .6))), S = Math.min(W, H) * .32;
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = e; ctx.fillStyle = '#02030a'; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+    M45.forEach(function (m, i) {
+      var on = Math.max(0, Math.min(1, (t - 12.9 - i * .07) / .25)), sz = S * (i === 0 ? .2 : .14) * on;
+      ctx.globalAlpha = e * on; ctx.drawImage(glow, cx + m[0] * S - sz, cy - m[1] * S - sz, sz * 2, sz * 2);
+    });
+    ctx.globalAlpha = 1;
+  }
+
   // บทโลกแบบ Canvas 2D (เครื่องที่ไม่มี WebGL): โลก · ดาวเคราะห์น้อย · แสงวาบ · คลื่นกระแทก · ฝุ่น
   function earth2D(t, cx, cy) {
     var e = Math.min(1, (t - 12) / .9), R = Math.min(W, H) * (.3 + .05 * Math.min(1, (t - 12.4) / 6.6));
-    var ex = cx - R * .13, ey = cy - R * .12, ix = ex + R * .32, iy = ey - R * .22, ta = t - IMPACT;
+    var ex = cx - R * .13, ey = cy - R * .12, ix = ex + R * .32, iy = ey - R * .22, ta = t - (IMPACT - EARTH_SHIFT);
     ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = e; ctx.fillStyle = '#02030a'; ctx.fillRect(0, 0, W, H);
     var g = ctx.createRadialGradient(ex - R * .35, ey - R * .35, R * .1, ex, ey, R);
@@ -228,7 +263,7 @@
       var fs = R * (.2 + ta * .1); ctx.drawImage(glow, ix - fs, iy - fs, fs * 2, fs * 2);
       ctx.globalAlpha = Math.exp(-ta * 2.5) * e; ctx.fillStyle = '#fff3dc'; ctx.fillRect(0, 0, W, H);
     } else if (t > 12.6) {
-      var k = Math.pow(Math.min(1, (t - 12.6) / (IMPACT - 12.6)), 1.6), sx0 = cx + W * .55, sy0 = cy - H * .5;
+      var k = Math.pow(Math.min(1, (t - 12.6) / (IMPACT - EARTH_SHIFT - 12.6)), 1.6), sx0 = cx + W * .55, sy0 = cy - H * .5;
       var ax = sx0 + (ix - sx0) * k, ay = sy0 + (iy - sy0) * k;
       ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = e;
       ctx.strokeStyle = 'rgba(255,200,140,.6)'; ctx.lineWidth = 2 + k * 3;
@@ -254,7 +289,7 @@
     if (t < 0) return;
     if (t > IMPACT && !hit) { hit = true; shake = 22; }                // ชนโลก: จอสั่น
     for (var pi = PHASES.length - 1; pi >= 0; pi--) if (t >= PHASES[pi].t) { setPhase(pi); break; }
-    if (tipEl) tipEl.hidden = !(t > 1.6 && t < 7);
+    if (tipEl) tipEl.hidden = !(t > 1.6 && t < 5.8);
     snd.update(t, hold);
     if (t > END && state === 'run') finish();
   }
@@ -333,8 +368,9 @@
         wellG.gain.setTargetAtTime(hold ? .18 : 0, A.currentTime, .25);
         if (t > 6.4 && !done.ping) { done.ping = 1; pings(); }
         if (t > 11.2 && !done.wh) { done.wh = 1; whoosh(); }
-        if (t > 13.4 && !done.wh2) { done.wh2 = 1; whoosh(); }             // ดาวเคราะห์น้อยพุ่งเข้ามา
-        if (t > 15 && !done.imp) { done.imp = 1; boom(); }                // ชนโลก
+        if (t > 13 && !done.m45) { done.m45 = 1; pings(); }               // ดาวลูกไก่จุดประกาย
+        if (t > 15 && !done.wh2) { done.wh2 = 1; whoosh(); }               // ดาวเคราะห์น้อยพุ่งเข้ามา
+        if (t > IMPACT && !done.imp) { done.imp = 1; boom(); }            // ชนโลก
       },
       stop: stop
     };
@@ -396,7 +432,7 @@
     if (state !== 'run') return;
     ptr.down = true; ptr.x = e.clientX; ptr.y = e.clientY; ptr.since = performance.now(); snd.tap();
     if (GL) { glWaves.push({ x: e.clientX / W * 2 - 1, y: 1 - e.clientY / H * 2, r: 0, a: 1 }); shake = Math.max(shake, 5); return; }
-    var l = local(e), zoom = 1 + Math.pow(Math.max(0, (performance.now() - t0) / 1000 / PACE - 11.4), 2) * .35;
+    var l = local(e), zoom = 1 + Math.pow(Math.max(0, sceneTime((performance.now() - t0) / 1000) - 11.4), 2) * .35;
     waves.push({ x: l.x / zoom, y: l.y / zoom, r: 0, a: 1 }); shake = Math.max(shake, 5);
   });
   cv.addEventListener('pointermove', function (e) { if (ptr.down) { ptr.x = e.clientX; ptr.y = e.clientY; } });

@@ -28,8 +28,9 @@ def test_cosmic_timeline_is_in_order():
     """ยุคของจักรวาลเรียงตามเวลาจริง: ระเบิด → ขยายตัว → นิวเคลียส → แสงแรก → ดาวดวงแรก → กาแล็กซี → วันนี้"""
     block = JS[JS.index("var PHASES = ["):JS.index("];", JS.index("var PHASES = ["))]
     times = [float(x) for x in re.findall(r"\{ t: ([\d.]+),", block)]
-    assert times == sorted(times) and len(times) == 11
-    for need in ("10⁻³⁶ วินาที", "380,000 ปี", "9,200 ล้านปี", "66 ล้านปีก่อน", "13,800 ล้านปี", "2.7 K"):
+    assert times == sorted(times) and len(times) == 20
+    for need in ("10⁻⁴³ วินาที", "10⁻³⁶ วินาที", "10⁻¹² วินาที", "1 ในพันล้าน", "380,000 ปี", "9,200 ล้านปี",
+                 "100 ล้านปีก่อน", "66 ล้านปีก่อน", "13,800 ล้านปี", "2.7 K"):
         assert need in JS
 
 
@@ -72,18 +73,30 @@ def test_script_parses():
 
 
 def test_scene_is_slow_enough_to_read():
-    """เจ้าของโปรเจกต์บอกว่าฉากเลื่อนไวไป — เวลาในฉากเดินช้ากว่าเวลาจริง ทั้งฉากต้องยาวราว 20 วินาทีขึ้นไป"""
-    pace = float(re.search(r"var PACE = ([\d.]+);", JS).group(1))
-    end = float(re.search(r"var END = ([\d.]+)", JS).group(1))
-    assert pace * end >= 20
-    assert JS.count("/ 1000 / PACE") == 2 and "(now - t0) / 1000;" not in JS
+    """เจ้าของโปรเจกต์บอกว่าฉากเลื่อนไวไป แล้วอยากได้ละเอียดราว 60 วินาที
+    นาฬิกาของฉาก (เวลาจริง → เวลาในฉาก) ต้องเดินไปข้างหน้าเสมอ และยาวราว 60 วินาที"""
+    knots = [tuple(map(float, k)) for k in re.findall(r"\[([\d.]+), ([\d.]+)\]", JS[JS.index("var CLOCK"):JS.index("function sceneTime")])]
+    assert all(b[0] > a[0] and b[1] > a[1] for a, b in zip(knots, knots[1:]))
+    end = float(re.search(r"END = ([\d.]+)", JS).group(1))
+    assert knots[-1][1] == end and 55 <= knots[-1][0] <= 70
+    assert JS.count("sceneTime((") == 2 and "(now - t0) / 1000;" not in JS
 
 
 def test_asteroid_impact_chapter():
     """เจ้าของโปรเจกต์อยากได้ฉากอุกกาบาตตกเมื่อ 66 ล้านปีก่อน — ชนยูคาทาน คลื่นกระแทก ฝุ่น แล้วชีวิตเริ่มใหม่
     มีทั้งในตัววาดการ์ดจอและตัววาดสำรอง และจังหวะชนตรงกัน (เวลาในฉาก 15.0)"""
-    assert "IMPACT = 15.0" in JS and "{ t: 15.0, time: '66 ล้านปีก่อน'" in JS
+    assert "IMPACT = 15.0 + EARTH_SHIFT" in JS and "{ t: 16.6, time: '66 ล้านปีก่อน'" in JS
     assert "ยูคาทาน" in JS and "10 กิโลเมตร" in JS
     assert "vec3 earth(vec2 uv,float t){" in GLJS and "ti=15.;" in GLJS
-    assert "function earth2D(t, cx, cy)" in JS and "if (t > 12) earth2D(t, cx, cy);" in JS
-    assert "if (t > 15 && !done.imp) { done.imp = 1; boom(); }" in JS        # เสียงชนก็ตรงจังหวะ
+    assert "function earth2D(t, cx, cy)" in JS and "earth2D(t - EARTH_SHIFT, cx, cy);" in JS
+    assert "c=mix(c,earth(uv,t-1.6),eb);" in GLJS and "EARTH_SHIFT = 1.6" in JS             # ภาพกับเสียงเลื่อนเท่ากัน
+    assert "if (t > IMPACT && !done.imp) { done.imp = 1; boom(); }" in JS
+
+
+def test_pleiades_and_particle_pairs():
+    """ดาวลูกไก่ 7 ดวงเกิดจากเมฆก๊าซ (และยังอยู่บนฟ้าตอนจบ) · ยุคแรกมีอนุภาคกับปฏิยานุภาคเกิดดับเป็นคู่"""
+    assert "ดาวลูกไก่" in JS and "440 ปีแสง" in JS
+    assert "vec3 pleiades(vec2 uv,float t){" in GLJS and "for(int i=0;i<7;i++)" in GLJS
+    assert "c+=stars7(uv,vec2(-.62,.32),.05,.8,14.);" in GLJS
+    assert len(re.findall(r"\[-?[\d.]+, -?[\d.]+\]", JS[JS.index("var M45"):JS.index("function pleiades2D")])) == 7
+    assert "float pe=smoothstep(1.6,1.9,t)" in GLJS and "pf=exp(" in GLJS

@@ -3,6 +3,8 @@
  * ตำแหน่งของอนุภาคทุกจุดคำนวณใน vertex shader จากเวลาโดยตรง (ไม่มีสถานะเก็บในเครื่อง)
  * จึงวาดได้หลักแสนจุดแม้บนมือถือ · อวกาศเป็น 3 มิติ กล้องค่อยๆ บินเข้าไปทะลุกาแล็กซีหลักตอนท้าย
  *  · พื้นหลัง: แสงวาบ · ซุปพลาสมาร้อน · ลายแสงแรก (แสงพื้นหลังของจักรวาล) · เนบิวลาจางๆ รอบกาแล็กซี
+ *  · ยุคแรก: อนุภาคกับปฏิยานุภาคเกิดขึ้นเป็นคู่แล้วชนกันดับเป็นแสงวาบ (สีอุ่น = สสาร สีเย็น = ปฏิสสาร)
+ *  · ดาวลูกไก่: เมฆก๊าซยุบตัว ดาวสีฟ้า 7 ดวงจุดประกาย พร้อมเนบิวลาสะท้อนแสงสีฟ้า (100 ล้านปีก่อน)
  *  · บทโลก: ดาวเคราะห์น้อยกว้างราว 10 กม. ชนคาบสมุทรยูคาทานเมื่อ 66 ล้านปีก่อน — ลูกไฟ คลื่นกระแทก ฝุ่นปกคลุมโลก
  *  · ลูกเล่น: กดค้าง = หลุมแรงโน้มถ่วงดูดและหมุนวนอนุภาครอบนิ้ว · แตะ = คลื่นกระแทกแผ่เป็นวง
  * ใช้ WebGL 1 · ไม่มีไฟล์ภาพหรือไลบรารีภายนอก · เครื่องที่ไม่รองรับ big_bang.js ใช้ตัววาด Canvas 2D เดิม */
@@ -28,6 +30,11 @@
     // ซุปพลาสมา: สั่นไหวร้อนจัด
     ' float pl=smoothstep(2.2,2.9,t)*(1.-smoothstep(4.6,5.4,t));',
     ' p+=vec3(sin(t*7.1+aS.x*61.),sin(t*6.3+aS.y*47.),sin(t*5.7+aS.z*53.))*.028*pl;',
+    // อนุภาค-ปฏิยานุภาคเกิดเป็นคู่ แยกออก แล้ววิ่งกลับมาชนกันดับ (ช่วง 1.7–3.6)
+    ' float pe=smoothstep(1.6,1.9,t)*(1.-smoothstep(3.2,3.7,t)),pc=0.,pf=0.;',
+    ' if(aS.w<.45&&pe>0.){float ph2=fract(t*2.3+aS.x*17.3);pc=sin(3.14159*ph2);',
+    '  vec3 pd=normalize(vec3(sin(aS.y*40.),cos(aS.z*33.),sin(aS.x*29.)));p+=pd*pc*.035*(aS.y>.5?1.:-1.)*pe;',
+    '  pf=exp(-pow((ph2-.97)/.025,2.))*pe;}',
     // ยุคมืด: แรงโน้มถ่วงเริ่มรวบเป็นใยบางๆ
     ' float cl=smoothstep(4.8,8.,t);',
     ' p*=1.-.18*cl*(1.-aS.w);',
@@ -64,13 +71,16 @@
     ' vec3 core=vec3(1.,.83,.55),arm=mix(vec3(.62,.75,1.),vec3(.95,.97,1.),hue);',
     ' vec3 c3=aG.x<0.?vec3(.85,.88,1.):(aG.y<.22?core:arm);',
     ' if(aS.w>.16&&aS.w<.2&&aG.x>=0.&&aG.y>.3)c3=vec3(1.,.45,.7);',      // กลุ่มก๊าซสีชมพูที่ดาวเกิดใหม่
-    ' vec3 c=mix(c0,c1,smoothstep(2.4,3.,t));c=mix(c,c2,smoothstep(4.6,5.6,t));c=mix(c,c3,smoothstep(7.6,9.2,t));',
+    ' if(pe>0.&&aS.w<.45)c1=mix(c1,aS.y>.5?vec3(1.,.55,.25):vec3(.45,.65,1.),pe);',
+    ' vec3 c=mix(c0,c1,smoothstep(1.7,2.2,t));c=mix(c,c2,smoothstep(4.6,5.6,t));c=mix(c,c3,smoothstep(7.6,9.2,t));',
     ' float al=mix(.9,.5,smoothstep(2.4,3.,t));al=mix(al,.28,smoothstep(4.8,6.,t));al=mix(al,aG.x<0.?.7:.42,smoothstep(7.6,9.,t));',
     // ดาวดวงแรกวาบขึ้น
     ' float ig=6.3+fract(aS.w*37.)*1.7,fl=aS.w<.05?exp(-pow((t-ig)/.22,2.))*3.:0.;',
     ' float sz=(.8+aS.y*1.1)*(1.+fl)*(t<1.?2.2:1.)*(aG.x>=0.&&aG.y<.2?1.3:1.)*(1.+glow*1.5);',
     ' gl_PointSize=clamp(sz*uPx*uDPR*1.7/max(w,.25),1.,40.);',
-    ' vC=c*(1.+fl*1.6+glow);vA=al*uGain*clamp(1.6/w,0.,1.3)*(aS.x<.012?3.:1.)*(1.+3.*(1.-smoothstep(1.8,3.,t)))*(1.-smoothstep(11.9,12.7,t));',
+    ' if(aS.w<.45)al*=mix(1.,pc*.9+.05,pe);sz*=1.+pf*3.;',
+    ' gl_PointSize=clamp(sz*uPx*uDPR*1.7/max(w,.25),1.,40.);',
+    ' vC=c*(1.+fl*1.6+glow+pf*5.);vA=al*uGain*clamp(1.6/w,0.,1.3)*(aS.x<.012?3.:1.)*(1.+3.*(1.-smoothstep(1.8,3.,t)))*(1.-smoothstep(11.9,12.7,t));',
     '}'
   ].join('\n');
 
@@ -89,8 +99,23 @@
     ' return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}',
     'float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return s;}',
     // ── บทโลก 66 ล้านปีก่อน: ดาวเคราะห์น้อยชนยูคาทาน (ชน ณ เวลาในฉาก 15.0) ──
+    // ── ดาวลูกไก่ (M45): 7 ดวงหลักรอบอัลไซโอนี · เมฆยุบตัว → ดาวจุดประกายทีละดวง → เนบิวลาสะท้อนแสงสีฟ้า ──
+    'vec2 m45(int i){if(i==0)return vec2(0.);if(i==1)return vec2(-.62,.05);if(i==2)return vec2(-.62,.18);',
+    ' if(i==3)return vec2(.62,.12);if(i==4)return vec2(.36,-.22);if(i==5)return vec2(.42,.32);return vec2(.62,.45);}',
+    'vec3 stars7(vec2 uv,vec2 o,float s,float on,float t){vec3 c=vec3(0.);',
+    ' for(int i=0;i<7;i++){float k=clamp((t-12.9-float(i)*.07)/.25,0.,1.)*on;vec2 d=(uv-o-m45(i)*s)/s;float r=length(d)+.0005;',
+    '  float b=(i==0?1.3:1.)*k;c+=vec3(.75,.85,1.)*b*(.0009/(r*r+.0002)+.04*exp(-r*9.));',
+    '  c+=vec3(.6,.75,1.)*b*.5*(exp(-abs(d.x)*90.)*exp(-abs(d.y)*5.)+exp(-abs(d.y)*90.)*exp(-abs(d.x)*5.))*step(.1,k);}',   // แฉกแสง
+    ' return c;}',
+    'vec3 pleiades(vec2 uv,float t){vec3 c=vec3(0.);vec2 g=floor(uv*170.);c+=vec3(.8,.85,1.)*step(.996,h(g))*h(g+3.)*.7;',
+    ' float col=smoothstep(12.2,13.,t),S=.3;vec2 o=vec2(.02,-.03);',
+    ' float cl=fbm((uv-o)*mix(2.2,4.5,col)+vec2(t*.05,0.))*exp(-length(uv-o)*mix(1.6,3.,col));',      // เมฆก๊าซยุบตัว
+    ' c+=mix(vec3(.35,.2,.4),vec3(.2,.4,.95),col)*cl*1.1;',
+    ' float neb=fbm((uv-o)*6.+3.)*smoothstep(12.9,13.6,t);c+=vec3(.25,.45,1.)*neb*neb*exp(-length(uv-o)*2.4)*.9;',   // เนบิวลาสะท้อนแสง
+    ' c+=stars7(uv,o,S,1.,t);return c;}',
     'vec3 earth(vec2 uv,float t){',
     ' vec3 c=vec3(0.);vec2 g=floor(uv*170.);c+=vec3(.8,.85,1.)*step(.996,h(g))*h(g+3.)*.9;',
+    ' c+=stars7(uv,vec2(-.62,.32),.05,.8,14.);',                                   // ดาวลูกไก่ดวงเล็กบนฟ้าเบื้องหลังโลก
     ' float R=.3+.05*smoothstep(12.4,19.,t),ti=15.;vec2 ec=vec2(-.04,-.06),q=(uv-ec)/R;float r2=dot(q,q);',
     ' vec3 L=normalize(vec3(-.55,.35,.75)),I=normalize(vec3(.32,.22,.92));vec2 ip=ec+I.xy*R;',
     ' if(r2<1.){float z=sqrt(1.-r2);vec3 nr=vec3(q,z);float ro=t*.04;',
@@ -130,7 +155,8 @@
     ' float nw=smoothstep(8.,10.5,t);',
     ' if(nw>0.){vec2 u2=uv*1.6+vec2(t*.02,0.);float a=fbm(u2*2.),b=fbm(u2*3.3+a*1.5+4.);',
     '  c+=(vec3(.16,.22,.5)*a*a+vec3(.42,.1,.32)*b*b*b)*nw*.55;}',
-    ' float eb=smoothstep(12.,12.9,t);if(eb>0.)c=mix(c,earth(uv,t),eb);',
+    ' float pb=smoothstep(12.,12.6,t)*(1.-smoothstep(13.6,14.5,t));if(pb>0.)c=mix(c,pleiades(uv,t),pb);',
+    ' float eb=smoothstep(13.6,14.5,t);if(eb>0.)c=mix(c,earth(uv,t-1.6),eb);',          // บทโลกเลื่อนหลังดาวลูกไก่ 1.6
     ' c*=1.-.35*smoothstep(.5,1.2,d);',
     // หลุมดำใต้นิ้ว: แกนมืด + วงแสงของจานรอบหลุมดำ
     ' if(uWell.z>0.){vec2 wp=uWell.xy*.5*uRes/min(uRes.x,uRes.y);float wd=length(uv-wp);',
