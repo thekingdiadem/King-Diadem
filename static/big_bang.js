@@ -35,10 +35,15 @@
     { t: 4.8,  time: '380,000 ปี',    temp: '3,000 K',  cap: 'หมอกจางลง แสงแรกเดินทางได้อิสระ' },
     { t: 6.4,  time: '100 ล้านปี',    temp: '60 K',     cap: 'ดาวดวงแรกจุดประกาย' },
     { t: 8.0,  time: '1,000 ล้านปี',  temp: '20 K',     cap: 'แรงโน้มถ่วงรวบดาวเป็นกาแล็กซีหมุนวน' },
-    { t: 11.4, time: '13,800 ล้านปี', temp: '2.7 K',    cap: 'และวันนี้ — เราทุกคนเป็นส่วนหนึ่งของจักรวาลเดียวกัน' }
+    { t: 11.2, time: '9,200 ล้านปี',  temp: '4 K',      cap: 'ดวงอาทิตย์และโลกถือกำเนิดในแขนหนึ่งของทางช้างเผือก' },
+    // บทโลก: ดาวเคราะห์น้อยชิกซูลุบ (กว้างราว 10 กม.) ชนคาบสมุทรยูคาทาน — ชน ณ เวลาในฉาก 15.0
+    { t: 12.8, time: '66 ล้านปีก่อน', temp: '—',        cap: 'ดาวเคราะห์น้อยกว้างราว 10 กิโลเมตร พุ่งเข้าหาโลกยุคไดโนเสาร์' },
+    { t: 15.0, time: '66 ล้านปีก่อน', temp: '—',        cap: 'ชนที่คาบสมุทรยูคาทาน คลื่นกระแทกแผ่ไปรอบโลก' },
+    { t: 16.8, time: '66 ล้านปีก่อน', temp: '—',        cap: 'ฝุ่นบังแสงอาทิตย์ ไดโนเสาร์ส่วนใหญ่สูญพันธุ์ แต่ชีวิตเล็กๆ ยังรอดและเริ่มต้นใหม่' },
+    { t: 19.0, time: '13,800 ล้านปี', temp: '2.7 K',    cap: 'และวันนี้ — เราทุกคนเป็นส่วนหนึ่งของจักรวาลเดียวกัน' }
   ];
-  var END = 14.2, FADE = 1.4;
-  // เวลาในฉากเดินช้ากว่าเวลาจริง 1.7 เท่า — ทั้งฉากราว 24 วินาที
+  var END = 21.2, FADE = 1.4, IMPACT = 15.0;
+  // เวลาในฉากเดินช้ากว่าเวลาจริง 1.7 เท่า — บทจักรวาลราว 20 วินาที บทโลกราว 15 วินาที
   // (เจ้าของโปรเจกต์ดูบนมือถือแล้วบอกว่าเลื่อนไวไป ที่ 14 วินาทีอ่านคำบรรยายไม่ทัน)
   var PACE = 1.7;
 
@@ -188,6 +193,8 @@
         var wv = waves[v]; ctx.strokeStyle = 'rgba(255,230,190,' + wv.a * .5 + ')'; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(cx + wv.x * zoom, cy + wv.y * zoom, wv.r * zoom, 0, Math.PI * 2); ctx.stroke();
       }
+      if (t > 12) earth2D(t, cx, cy);
+      if (t > IMPACT && !hit) { hit = true; shake = 18; }
       for (var pi = PHASES.length - 1; pi >= 0; pi--) if (t >= PHASES[pi].t) { setPhase(pi); break; }
       if (t > END && state === 'run') finish();
     }
@@ -201,8 +208,38 @@
   }
   var fadeAt = 0;
 
+  // บทโลกแบบ Canvas 2D (เครื่องที่ไม่มี WebGL): โลก · ดาวเคราะห์น้อย · แสงวาบ · คลื่นกระแทก · ฝุ่น
+  function earth2D(t, cx, cy) {
+    var e = Math.min(1, (t - 12) / .9), R = Math.min(W, H) * (.3 + .05 * Math.min(1, (t - 12.4) / 6.6));
+    var ex = cx - R * .13, ey = cy - R * .12, ix = ex + R * .32, iy = ey - R * .22, ta = t - IMPACT;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = e; ctx.fillStyle = '#02030a'; ctx.fillRect(0, 0, W, H);
+    var g = ctx.createRadialGradient(ex - R * .35, ey - R * .35, R * .1, ex, ey, R);
+    g.addColorStop(0, '#3f7fc0'); g.addColorStop(.55, '#1b4f86'); g.addColorStop(1, '#06142c');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ex, ey, R, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(90,150,255,.5)'; ctx.lineWidth = 4; ctx.stroke();
+    if (ta > 0) {
+      var dust = Math.min(1, ta / 1.5) * (1 - Math.max(0, Math.min(1, (t - 18.6) / 1.4)));
+      ctx.save(); ctx.beginPath(); ctx.arc(ex, ey, R, 0, Math.PI * 2); ctx.clip();
+      ctx.fillStyle = 'rgba(46,30,20,' + .8 * dust + ')'; ctx.beginPath(); ctx.arc(ix, iy, R * Math.min(2, ta * .6 + .1), 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,170,90,' + Math.exp(-ta * .35) + ')'; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.arc(ix, iy, R * ta * .55, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.exp(-ta * .5);
+      var fs = R * (.2 + ta * .1); ctx.drawImage(glow, ix - fs, iy - fs, fs * 2, fs * 2);
+      ctx.globalAlpha = Math.exp(-ta * 2.5) * e; ctx.fillStyle = '#fff3dc'; ctx.fillRect(0, 0, W, H);
+    } else if (t > 12.6) {
+      var k = Math.pow(Math.min(1, (t - 12.6) / (IMPACT - 12.6)), 1.6), sx0 = cx + W * .55, sy0 = cy - H * .5;
+      var ax = sx0 + (ix - sx0) * k, ay = sy0 + (iy - sy0) * k;
+      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = e;
+      ctx.strokeStyle = 'rgba(255,200,140,.6)'; ctx.lineWidth = 2 + k * 3;
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax + (sx0 - ix) * .12, ay + (sy0 - iy) * .12); ctx.stroke();
+      ctx.drawImage(glow, ax - 10 - k * 14, ay - 10 - k * 14, 20 + k * 28, 20 + k * 28);
+    }
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'lighter';
+  }
+
   // ── ตัววาดการ์ดจอ: คลื่นกระแทกและหลุมแรงโน้มถ่วงส่งเป็นพิกัดบนจอ (-1..1) ──
-  var WV = new Float32Array(16);
+  var WV = new Float32Array(16), hit = false;
   function stepGL(now, t, dt) {
     var sh = [0, 0];
     if (shake > 0) { sh = [(Math.random() - .5) * shake, (Math.random() - .5) * shake]; shake *= Math.exp(-dt * 6); if (shake < .3) shake = 0; }
@@ -215,6 +252,7 @@
     GL.draw({ t: t, now: now, shake: sh, waves: WV, yaw: 0, pitch: 0,
               well: [ptr.x / W * 2 - 1, 1 - ptr.y / H * 2, wellAmt * .9] });
     if (t < 0) return;
+    if (t > IMPACT && !hit) { hit = true; shake = 22; }                // ชนโลก: จอสั่น
     for (var pi = PHASES.length - 1; pi >= 0; pi--) if (t >= PHASES[pi].t) { setPhase(pi); break; }
     if (tipEl) tipEl.hidden = !(t > 1.6 && t < 7);
     snd.update(t, hold);
@@ -295,6 +333,8 @@
         wellG.gain.setTargetAtTime(hold ? .18 : 0, A.currentTime, .25);
         if (t > 6.4 && !done.ping) { done.ping = 1; pings(); }
         if (t > 11.2 && !done.wh) { done.wh = 1; whoosh(); }
+        if (t > 13.4 && !done.wh2) { done.wh2 = 1; whoosh(); }             // ดาวเคราะห์น้อยพุ่งเข้ามา
+        if (t > 15 && !done.imp) { done.imp = 1; boom(); }                // ชนโลก
       },
       stop: stop
     };
@@ -311,7 +351,7 @@
     if (state !== 'off') return;
     prevFocus = document.activeElement;
     resize(); if (GL) GL.seed(GL.count(W, H)); else seed();
-    phase = -1; waves = []; glWaves = []; wellAmt = 0;
+    phase = -1; waves = []; glWaves = []; wellAmt = 0; hit = false;
     root.hidden = false; root.style.opacity = 1; root.classList.remove('lit', 'still');
     document.documentElement.classList.add('bb-on');
     capEl.textContent = 'ก่อนเวลาจะเริ่ม ทุกอย่างอยู่ในจุดเดียว'; timeEl.textContent = '—'; tempEl.textContent = '—';

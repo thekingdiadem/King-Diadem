@@ -3,6 +3,7 @@
  * ตำแหน่งของอนุภาคทุกจุดคำนวณใน vertex shader จากเวลาโดยตรง (ไม่มีสถานะเก็บในเครื่อง)
  * จึงวาดได้หลักแสนจุดแม้บนมือถือ · อวกาศเป็น 3 มิติ กล้องค่อยๆ บินเข้าไปทะลุกาแล็กซีหลักตอนท้าย
  *  · พื้นหลัง: แสงวาบ · ซุปพลาสมาร้อน · ลายแสงแรก (แสงพื้นหลังของจักรวาล) · เนบิวลาจางๆ รอบกาแล็กซี
+ *  · บทโลก: ดาวเคราะห์น้อยกว้างราว 10 กม. ชนคาบสมุทรยูคาทานเมื่อ 66 ล้านปีก่อน — ลูกไฟ คลื่นกระแทก ฝุ่นปกคลุมโลก
  *  · ลูกเล่น: กดค้าง = หลุมแรงโน้มถ่วงดูดและหมุนวนอนุภาครอบนิ้ว · แตะ = คลื่นกระแทกแผ่เป็นวง
  * ใช้ WebGL 1 · ไม่มีไฟล์ภาพหรือไลบรารีภายนอก · เครื่องที่ไม่รองรับ big_bang.js ใช้ตัววาด Canvas 2D เดิม */
 (function () {
@@ -69,7 +70,7 @@
     ' float ig=6.3+fract(aS.w*37.)*1.7,fl=aS.w<.05?exp(-pow((t-ig)/.22,2.))*3.:0.;',
     ' float sz=(.8+aS.y*1.1)*(1.+fl)*(t<1.?2.2:1.)*(aG.x>=0.&&aG.y<.2?1.3:1.)*(1.+glow*1.5);',
     ' gl_PointSize=clamp(sz*uPx*uDPR*1.7/max(w,.25),1.,40.);',
-    ' vC=c*(1.+fl*1.6+glow);vA=al*uGain*clamp(1.6/w,0.,1.3)*(aS.x<.012?3.:1.)*(1.+3.*(1.-smoothstep(1.8,3.,t)));',
+    ' vC=c*(1.+fl*1.6+glow);vA=al*uGain*clamp(1.6/w,0.,1.3)*(aS.x<.012?3.:1.)*(1.+3.*(1.-smoothstep(1.8,3.,t)))*(1.-smoothstep(11.9,12.7,t));',
     '}'
   ].join('\n');
 
@@ -87,6 +88,30 @@
     'float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);',
     ' return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}',
     'float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return s;}',
+    // ── บทโลก 66 ล้านปีก่อน: ดาวเคราะห์น้อยชนยูคาทาน (ชน ณ เวลาในฉาก 15.0) ──
+    'vec3 earth(vec2 uv,float t){',
+    ' vec3 c=vec3(0.);vec2 g=floor(uv*170.);c+=vec3(.8,.85,1.)*step(.996,h(g))*h(g+3.)*.9;',
+    ' float R=.3+.05*smoothstep(12.4,19.,t),ti=15.;vec2 ec=vec2(-.04,-.06),q=(uv-ec)/R;float r2=dot(q,q);',
+    ' vec3 L=normalize(vec3(-.55,.35,.75)),I=normalize(vec3(.32,.22,.92));vec2 ip=ec+I.xy*R;',
+    ' if(r2<1.){float z=sqrt(1.-r2);vec3 nr=vec3(q,z);float ro=t*.04;',
+    '  vec3 tn=vec3(cos(ro)*nr.x+sin(ro)*nr.z,nr.y,-sin(ro)*nr.x+cos(ro)*nr.z);vec2 sp=vec2(atan(tn.x,tn.z),asin(tn.y));',
+    '  float land=fbm(sp*vec2(1.6,2.2)+vec2(2.,5.))+.35*fbm(sp*5.);',
+    '  vec3 col=mix(mix(vec3(.02,.08,.22),vec3(.05,.2,.42),z),mix(vec3(.16,.32,.12),vec3(.45,.38,.22),fbm(sp*6.)),smoothstep(.62,.66,land));',
+    '  col=mix(col,vec3(.95),smoothstep(.55,.8,fbm(sp*vec2(3.,4.)+vec2(t*.03,0.)))*.7);',
+    '  float dif=max(dot(nr,L),0.);col*=.08+1.1*dif;',
+    '  float ta=t-ti;if(ta>0.){float an=acos(clamp(dot(nr,I),-1.,1.));',
+    '   float fire=exp(-an*an/(.02+ta*.05))*exp(-ta*.5);',                         // ลูกไฟ
+    '   float ring=exp(-pow((an-ta*.55)/.05,2.))*exp(-ta*.35);',                    // คลื่นกระแทกแผ่รอบโลก
+    '   float dust=(1.-smoothstep(ta*.6-.2,ta*.6+.1,an))*smoothstep(0.,1.5,ta)*(1.-smoothstep(18.6,20.,t));',
+    '   col=mix(col,vec3(.18,.12,.08)*(.25+.6*dif),dust*.85);col+=vec3(1.,.55,.2)*fire*3.+vec3(1.,.65,.35)*ring*1.4;}',
+    '  c=col;}',
+    ' float rr=sqrt(r2);c+=vec3(.25,.5,1.)*exp(-pow((rr-1.)/.05,2.))*.6;',          // ชั้นบรรยากาศเรืองฟ้า
+    ' if(t>12.6&&t<ti+.05){float k=pow(clamp((t-12.6)/(ti-12.6),0.,1.),1.6);vec2 a0=vec2(.95,.75),ap=mix(a0,ip,k),dr=normalize(ip-a0);',
+    '  vec2 dv=uv-ap;float al=dot(dv,-dr),pp=length(dv+dr*al);',
+    '  float tail=al>0.?exp(-pp*pp/(.00004+al*.0006))*exp(-al*4.)*(.6+1.4*k):0.;',
+    '  c+=vec3(1.,.85,.6)*(.00022/(dot(dv,dv)+.00008)+tail*.8)+vec3(1.,.6,.3)*smoothstep(.85,1.,k)*.002/(dot(dv,dv)+.0003);}',
+    ' if(t>ti)c+=vec3(1.,.9,.75)*exp(-(t-ti)*2.5)*1.4*exp(-length(uv-ip)*1.5);',      // แสงวาบตอนชน
+    ' return c;}',
     'void main(){',
     ' vec2 uv=(gl_FragCoord.xy-.5*uRes)/min(uRes.x,uRes.y);float d=length(uv),t=uT;vec3 c=vec3(0.);',
     ' if(t<0.){float p=1.+.35*sin(uNow*3.8);c=vec3(1.,.93,.8)*(.012*p/(d*d+.0004)+.05*p*exp(-d*14.));',
@@ -105,6 +130,7 @@
     ' float nw=smoothstep(8.,10.5,t);',
     ' if(nw>0.){vec2 u2=uv*1.6+vec2(t*.02,0.);float a=fbm(u2*2.),b=fbm(u2*3.3+a*1.5+4.);',
     '  c+=(vec3(.16,.22,.5)*a*a+vec3(.42,.1,.32)*b*b*b)*nw*.55;}',
+    ' float eb=smoothstep(12.,12.9,t);if(eb>0.)c=mix(c,earth(uv,t),eb);',
     ' c*=1.-.35*smoothstep(.5,1.2,d);',
     // หลุมดำใต้นิ้ว: แกนมืด + วงแสงของจานรอบหลุมดำ
     ' if(uWell.z>0.){vec2 wp=uWell.xy*.5*uRes/min(uRes.x,uRes.y);float wd=length(uv-wp);',

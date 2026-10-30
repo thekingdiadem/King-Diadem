@@ -28,8 +28,8 @@ def test_cosmic_timeline_is_in_order():
     """ยุคของจักรวาลเรียงตามเวลาจริง: ระเบิด → ขยายตัว → นิวเคลียส → แสงแรก → ดาวดวงแรก → กาแล็กซี → วันนี้"""
     block = JS[JS.index("var PHASES = ["):JS.index("];", JS.index("var PHASES = ["))]
     times = [float(x) for x in re.findall(r"\{ t: ([\d.]+),", block)]
-    assert times == sorted(times) and len(times) == 7
-    for need in ("10⁻³⁶ วินาที", "380,000 ปี", "13,800 ล้านปี", "2.7 K"):
+    assert times == sorted(times) and len(times) == 11
+    for need in ("10⁻³⁶ วินาที", "380,000 ปี", "9,200 ล้านปี", "66 ล้านปีก่อน", "13,800 ล้านปี", "2.7 K"):
         assert need in JS
 
 
@@ -77,3 +77,13 @@ def test_scene_is_slow_enough_to_read():
     end = float(re.search(r"var END = ([\d.]+)", JS).group(1))
     assert pace * end >= 20
     assert JS.count("/ 1000 / PACE") == 2 and "(now - t0) / 1000;" not in JS
+
+
+def test_asteroid_impact_chapter():
+    """เจ้าของโปรเจกต์อยากได้ฉากอุกกาบาตตกเมื่อ 66 ล้านปีก่อน — ชนยูคาทาน คลื่นกระแทก ฝุ่น แล้วชีวิตเริ่มใหม่
+    มีทั้งในตัววาดการ์ดจอและตัววาดสำรอง และจังหวะชนตรงกัน (เวลาในฉาก 15.0)"""
+    assert "IMPACT = 15.0" in JS and "{ t: 15.0, time: '66 ล้านปีก่อน'" in JS
+    assert "ยูคาทาน" in JS and "10 กิโลเมตร" in JS
+    assert "vec3 earth(vec2 uv,float t){" in GLJS and "ti=15.;" in GLJS
+    assert "function earth2D(t, cx, cy)" in JS and "if (t > 12) earth2D(t, cx, cy);" in JS
+    assert "if (t > 15 && !done.imp) { done.imp = 1; boom(); }" in JS        # เสียงชนก็ตรงจังหวะ
