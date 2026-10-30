@@ -394,7 +394,8 @@ _HAZARDS = (
                 r"ปลั๊ก\S{0,6}(?:ไหม้|มีควัน)|สายไฟ\S{0,6}(?:ไหม้|มีควัน)|ไฟฟ้าลัดวงจร|"
                 r"\bwildfire\b|\b(?:house|building|room|kitchen|car) (?:is )?on fire\b|"
                 # ควันเข้ามาทางประตู/ใต้ประตู = ไฟไหม้ในอาคาร แม้ไม่มีคำว่า fire (ชุดปิดตารอบ 1)
-                r"\bsmoke (?:is )?(?:coming|pouring|getting|seeping|leaking) (?:in |into |under |through )(?:the |my |our )?(?:door|room|window|vents?|hallway|apartment|flat)?|"
+                r"\bsmoke (?:is )?(?:coming|pouring|getting|seeping|leaking) (?:in(?:to)?|under|through) (?:the |my |our )?(?:door|room|window|vents?|hallway|apartment|flat|house|bedroom)\b|"
+                r"\bsmoke (?:is )?(?:coming|pouring) in\b(?! (?:my|your|his|her|our) (?:eyes|face|nose))|"
                 r"\b(?:a )?fire in (?:my|the|our) (?:house|home|kitchen|building|room|apartment|flat|condo)\b|\b(?:house|building|apartment) fire\b", re.I),
      ["ออกจากอาคารทันที ไม่ย้อนกลับไปเอาของ — ไม่ใช้ลิฟต์",
       "ควันเยอะ: ก้มต่ำ ใช้ผ้าชุบน้ำปิดจมูก ก่อนเปิดประตูให้ใช้หลังมือแตะลูกบิด ถ้าร้อนอย่าเปิด",

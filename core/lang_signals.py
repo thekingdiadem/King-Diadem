@@ -93,7 +93,7 @@ SELF_HARM_INTL = (
     re.compile(r"死にたい|消えたい|自殺|遺書|飛び降り(?:たい|る)|(?:睡眠薬|薬)を?(?:全部|たくさん|大量に)飲ん|リストカット|手首を切|生きていたくない|生きたくない|死のう|命を絶"),
     re.compile(r"죽고\s*싶|살기\s*싫|자살|유서|뛰어내리(?:고\s*싶|려고|겠)|(?:수면제|약)(?:을|를)?\s*(?:다|전부|많이)\s*먹었|손목을?\s*(?:그었|그어)|살고\s*싶지\s*않|사라지고\s*싶|죽어\s*버리고\s*싶|극단적\s*선택|목숨을\s*끊"),
     re.compile(r"\b(?:me\s+)?quiero\s+morir|\bsuicid|\bquitarme\s+la\s+vida|\bno\s+quiero\s+vivir|"
-               r"\bacabar\s+con\s+mi\s+vida|\bmatarme\b|\bhacerme\s+daño|\bno\s+quiero\s+seguir\s+(?:viviendo|con\s+vida|aqu[ií])", re.I),
+               r"\bacabar\s+con\s+mi\s+vida|\bmatarme\b|\bhacerme\s+daño|\bno\s+quiero\s+seguir\s+(?:viviendo|con\s+vida|aqu[ií]\s*(?:$|[.!?…]))", re.I),
     # รัสเซีย · อาหรับ · ฮินดี — เดิมไม่มีเลย "я хочу умереть" ได้ความเสี่ยงต่ำ
     re.compile(r"хочу\s+умереть|не\s+хочу\s+жить|покончить\s+с\s+собой|суицид|убить\s+себя|"
                r"лучше\s+бы\s+я\s+умер|нет\s+смысла\s+жить", re.I),
