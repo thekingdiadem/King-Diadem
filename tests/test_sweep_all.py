@@ -23,6 +23,6 @@ def test_followup_suite_has_no_slips(client, monkeypatch):
         d = client.post("/run", json={"input": f, "history": hist(prior)},
                         headers={"cf-connecting-ip": f"10.8.0.{i}"}).json()
         out = str(d.get("ai_response", ""))
-        if need not in out or "Risk 0" in out:
+        if need not in out or sweep_all.shown_risk(out) == 0:
             bad.append(f"{prior} → {f}")
     assert not bad, bad

@@ -5,6 +5,8 @@
 """
 import pytest
 
+from core.kernel_voice import shown_risk
+
 
 @pytest.fixture
 def no_ai(monkeypatch):
@@ -18,7 +20,7 @@ def _run(client, text, prior, **kw):
 
 def test_offline_followup_after_self_harm_keeps_hotline(client, no_ai):
     d = _run(client, "ไม่เป็นไรแล้ว", "อยากตาย ไม่ไหวแล้ว")
-    assert "1323" in d["ai_response"] and "Risk 0" not in d["ai_response"]
+    assert "1323" in d["ai_response"] and shown_risk(d["ai_response"]) != 0
 
 
 def test_offline_followup_after_no_food_keeps_1300(client, no_ai):
@@ -39,11 +41,9 @@ def test_normal_followup_unchanged(client, no_ai):
 @pytest.mark.parametrize("hist,text", [("กินยาไป 30 เม็ด", "ไม่มีแล้ว"), ("I took 30 pills", "ok")])
 def test_followup_risk_in_reply_matches_details(client, monkeypatch, hist, text):
     """เดิมคำตอบเขียน "Risk 85" (คิดจากเรื่องเดิม) แต่รายละเอียดคำตอบแสดง 64 (ลดตามเวลา 0.75×)"""
-    import re
     monkeypatch.setenv("KD_AI", "off")
     d = client.post("/run", json={"input": text, "history": [{"role": "user", "content": hist}]}).json()
-    shown = re.search(r"Risk (\d+)", d["ai_response"])
-    assert shown and int(shown.group(1)) == round(d["risk_score"])
+    assert shown_risk(d["ai_response"]) == round(d["risk_score"])
 
 
 @pytest.mark.parametrize("prior,reply,need", [
@@ -54,4 +54,4 @@ def test_followup_risk_in_reply_matches_details(client, monkeypatch, hist, text)
 ])
 def test_offline_short_reply_keeps_the_urgent_topic(client, no_ai, prior, reply, need):
     d = _run(client, reply, prior)
-    assert need in d["ai_response"] and "Risk 0" not in d["ai_response"]
+    assert need in d["ai_response"] and shown_risk(d["ai_response"]) != 0

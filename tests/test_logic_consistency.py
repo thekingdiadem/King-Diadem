@@ -42,10 +42,13 @@ def test_reply_numbers_match_footer_without_user_state(client):
         d = client.post("/run", json={"input": "โดนวิ่งราว มือถือหาย"}).json()
     finally:
         FAKE_LLM["mode"] = "ok"
-    m = re.search(r"W (\S+) · Risk (\d+)", d["ai_response"])
-    assert m and m.group(1) == "—" and int(m.group(2)) == round(d["risk_score"])
+    from core.kernel_voice import shown_risk
+    assert shown_risk(d["ai_response"]) == round(d["risk_score"])
+    assert "W " not in d["ai_response"] and "Choice(t)" not in d["ai_response"]
 
 
 def test_reply_shows_real_numbers_when_state_given():
     text = compose("เครียดเรื่องงาน", pattern={"entropy": 70, "resource": 30, "stability": 40})
-    assert re.search(r"W \d+ · Risk \d+", text)
+    # สถานะที่ผู้ใช้บอกยกความเสี่ยงขึ้น (จากข้อความล้วนได้ 0) — บอกเป็นภาษาคน ไม่ใช่สูตร W · Risk
+    from core.kernel_voice import shown_risk
+    assert shown_risk(text) > 0 and "ควรระวัง" in text and "W " not in text

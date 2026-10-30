@@ -49,9 +49,9 @@ def test_idioms_are_not_crisis(text):
     assert not self_harm_intl(text)
 
 
-def test_non_thai_general_reply_keeps_equation_line():
+def test_non_thai_general_reply_keeps_status_line():
     r = compose("I can't decide whether to change jobs")
-    assert r.startswith("Let's lay this out") and "Risk" in r and "Choice(t)" in r
+    assert r.startswith("Let's lay this out") and "Risk right now: manageable" in r and "Choice(t)" not in r
 
 
 def test_thai_reply_unchanged():

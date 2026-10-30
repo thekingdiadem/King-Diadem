@@ -25,7 +25,7 @@ import random
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.kernel_voice import assess, compose  # noqa: E402
+from core.kernel_voice import assess, compose, shown_risk  # noqa: E402
 
 GENERIC = ("เขียนสิ่งที่เกิดขึ้นเป็นประโยคเดียว", "ถ้าอาการแย่ลงเร็ว มีไข้สูงไม่ลด", "ให้เวลาตัวเอง 24–72 ชั่วโมง",
            "Write what happened in one sentence")
@@ -348,7 +348,7 @@ def followup(n=0):
         hist = [{"role": "user", "content": prior}, {"role": "assistant", "content": "..."}]
         r = c.post("/run", json={"input": f, "history": hist}, headers={"cf-connecting-ip": f"10.9.{i // 250}.{i % 250}"})
         out = str(r.json().get("ai_response", "")) if r.status_code == 200 else f"HTTP {r.status_code}"
-        if need not in out or "Risk 0" in out:
+        if need not in out or shown_risk(out) == 0:
             bad.append(f"{prior} → {f}")
     return len(pairs), bad
 

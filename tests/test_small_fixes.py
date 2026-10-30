@@ -23,12 +23,10 @@ def test_simulate_answers_in_english():
 
 @pytest.mark.parametrize("text", ["My husband hits me, I'm hiding in the bathroom", "I feel stuck at work", "I want to die"])
 def test_english_choice_count_matches_printed_steps(text, monkeypatch):
+    """เดิมบรรทัดสูตรบอก Choice(t) = 4 แต่มีแค่ 3 ข้อ — ตอนนี้ไม่บอกจำนวนแล้ว ให้รายการข้อบอกเอง"""
     monkeypatch.setenv("KD_AI", "off")
     r = compose(text)
-    m = re.search(r"Choice\(t\) = (\d+)", r)
-    steps = len(re.findall(r"(?m)^\d+\)\s", r))
-    if m and steps:
-        assert int(m.group(1)) == steps
+    assert "Choice(t)" not in r and re.search(r"(?m)^\d+\)\s", r)
 
 
 def test_ui_council_keyword_and_path_cap():

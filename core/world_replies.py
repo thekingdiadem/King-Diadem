@@ -512,7 +512,8 @@ def compose_world(lang: str, kind: str, status: str, sign: str, footer: bool = T
     opener, steps, ask = r
     body = "\n".join(f"{i + 1}) {s}" for i, s in enumerate(steps))
     tag = "\n· Answered from the system's equations — no AI used" if footer else ""
-    return f"{opener}\n\n{status}\n\n{body}\n\n{ask}\n\n{sign}" + tag
+    head = f"{opener}\n\n{status}" if status else opener     # ภาษาที่ไม่มีคำแปลบรรทัดสถานะ → ไม่ใส่
+    return f"{head}\n\n{body}\n\n{ask}\n\n{sign}" + tag
 
 
 # ══════════════════════════════════════════════════════════════════
