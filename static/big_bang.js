@@ -9,16 +9,22 @@
  *  · กดค้างแล้วลาก = หลุมแรงโน้มถ่วงดึงอนุภาคเข้าหานิ้ว
  *  · ปุ่ม "ข้าม" หรือ Esc = ข้ามทันที · ปุ่ม "บิ๊กแบง" ในหน้า = เล่นอีกครั้ง
  * เล่นเองครั้งแรกที่เปิดหน้าในแต่ละรอบเท่านั้น · ลดการเคลื่อนไหว = ไม่เล่นเอง และถ้ากดเล่นจะเป็นภาพนิ่งทีละช่วง
- * Canvas 2D ชั้นเดียว · จำกัดความละเอียด 1.5 เท่า · หยุดวาดเมื่อซ่อนแท็บ */
+ * วาดด้วยการ์ดจอ (static/big_bang_gl.js) ได้หลักแสนอนุภาค · เครื่องที่ไม่มี WebGL ใช้ Canvas 2D ในไฟล์นี้
+ * เสียงสร้างจากโค้ด (Web Audio) ปิดไว้ก่อน ผู้ใช้กดเปิดเอง · จำกัดความละเอียด · หยุดวาดเมื่อซ่อนแท็บ */
 (function () {
   'use strict';
   var root = document.getElementById('big-bang');
   if (!root) return;
-  var cv = root.querySelector('canvas'), ctx = cv.getContext && cv.getContext('2d');
-  if (!ctx) { root.remove(); return; }
+  var cv = root.querySelector('canvas');
+  // การ์ดจอก่อน — canvas ใบเดียวขอได้แค่บริบทเดียว จึงต้องลอง WebGL ก่อน 2D
+  var GL = null;
+  try { GL = window.KD_BigBangGL ? window.KD_BigBangGL(cv) : null; } catch (e) { GL = null; }
+  var ctx = GL ? null : (cv.getContext && cv.getContext('2d'));
+  if (!GL && !ctx) { root.remove(); return; }
   var capEl = document.getElementById('bb-cap'), timeEl = document.getElementById('bb-time'),
       tempEl = document.getElementById('bb-temp'), hintEl = document.getElementById('bb-hint'),
-      skipEl = document.getElementById('bb-skip');
+      skipEl = document.getElementById('bb-skip'), sndEl = document.getElementById('bb-snd'),
+      tipEl = document.getElementById('bb-tip');
   var MQ = matchMedia('(prefers-reduced-motion: reduce)');
   function CALM() { return MQ.matches || document.documentElement.classList.contains('kd-calm'); }
 
@@ -35,11 +41,12 @@
 
   var W = 0, H = 0, DPR = 1, N = 0, P = [], GAL = [], glow = null;
   var state = 'idle', t0 = 0, last = 0, raf = 0, phase = -1, waitTimer = 0, calmTimer = 0, prevFocus = null;
-  var ptr = { down: false, x: 0, y: 0, since: 0 }, waves = [], shake = 0;
+  var ptr = { down: false, x: 0, y: 0, since: 0 }, waves = [], shake = 0, glWaves = [], wellAmt = 0;
 
   function resize() {
-    DPR = Math.min(1.5, window.devicePixelRatio || 1);
     W = window.innerWidth; H = window.innerHeight;
+    if (GL) { DPR = Math.min(1.25, window.devicePixelRatio || 1); GL.resize(W, H, DPR); return; }
+    DPR = Math.min(1.5, window.devicePixelRatio || 1);
     cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
     cv.style.width = W + 'px'; cv.style.height = H + 'px';
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -99,6 +106,10 @@
     var dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
     var t = state === 'idle' ? -1 : (now - t0) / 1000;
     var cx = W / 2, cy = H / 2;
+    if (GL) {
+      if (GL.lost()) { close(); return; }
+      stepGL(now, t, dt);
+    } else {
     ctx.globalCompositeOperation = 'source-over';
     // ทิ้งรอยแสงไว้นิดหน่อยตอนระเบิด แล้วค่อยๆ ใสขึ้น
     ctx.fillStyle = t < 0 ? '#000' : 'rgba(2,3,10,' + (t < 2.8 ? .22 : t < 8 ? .3 : .38) + ')';
@@ -177,6 +188,7 @@
       for (var pi = PHASES.length - 1; pi >= 0; pi--) if (t >= PHASES[pi].t) { setPhase(pi); break; }
       if (t > END && state === 'run') finish();
     }
+    }
     if (state === 'fade') {
       var o = Math.max(0, 1 - (now - fadeAt) / (FADE * 1000));
       root.style.opacity = o;
@@ -186,17 +198,117 @@
   }
   var fadeAt = 0;
 
+  // ── ตัววาดการ์ดจอ: คลื่นกระแทกและหลุมแรงโน้มถ่วงส่งเป็นพิกัดบนจอ (-1..1) ──
+  var WV = new Float32Array(16);
+  function stepGL(now, t, dt) {
+    var sh = [0, 0];
+    if (shake > 0) { sh = [(Math.random() - .5) * shake, (Math.random() - .5) * shake]; shake *= Math.exp(-dt * 6); if (shake < .3) shake = 0; }
+    for (var i = 0; i < glWaves.length; i++) { glWaves[i].r += dt * 1.25; glWaves[i].a -= dt * 1.1; }
+    glWaves = glWaves.filter(function (w) { return w.a > 0; }).slice(-4);
+    WV.fill(0);
+    glWaves.forEach(function (w, k) { WV.set([w.x, w.y, w.r, w.a], k * 4); });
+    var hold = ptr.down && now - ptr.since > 140;
+    wellAmt = hold ? Math.min(1, wellAmt + dt * 1.6) : Math.max(0, wellAmt - dt * 2.2);
+    GL.draw({ t: t, now: now, shake: sh, waves: WV, yaw: 0, pitch: 0,
+              well: [ptr.x / W * 2 - 1, 1 - ptr.y / H * 2, wellAmt * .9] });
+    if (t < 0) return;
+    for (var pi = PHASES.length - 1; pi >= 0; pi--) if (t >= PHASES[pi].t) { setPhase(pi); break; }
+    if (tipEl) tipEl.hidden = !(t > 1.6 && t < 7);
+    snd.update(t, hold);
+    if (t > END && state === 'run') finish();
+  }
+
+  // ── เสียง (Web Audio): ระเบิดครืน · เสียงฮัมของอวกาศ · ดาวดวงแรกดังกริ๊ง · ลมตอนบินทะลุ ──
+  // ปิดไว้ก่อนเสมอ เปิดได้ด้วยปุ่ม "เสียง" — จำค่าไว้ในเครื่อง
+  var snd = (function () {
+    var A = null, M = null, drone = null, on = false, done = {}, wellG = null;
+    try { on = localStorage.getItem('kd-bang-sound') === '1'; } catch (e) {}
+    function ctxOk() {
+      if (A) { if (A.state === 'suspended') A.resume(); return true; }
+      var C = window.AudioContext || window.webkitAudioContext; if (!C) return false;
+      try { A = new C(); M = A.createGain(); M.gain.value = .8; M.connect(A.destination); } catch (e) { A = null; return false; }
+      return true;
+    }
+    function noise(sec) {
+      var b = A.createBuffer(1, Math.round(A.sampleRate * sec), A.sampleRate), d = b.getChannelData(0);
+      for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      var s = A.createBufferSource(); s.buffer = b; return s;
+    }
+    function env(g, t, peak, a, r) { g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + r); }
+    function boom() {
+      var t = A.currentTime, n = noise(3), f = A.createBiquadFilter(), g = A.createGain();
+      f.type = 'lowpass'; f.frequency.setValueAtTime(9000, t); f.frequency.exponentialRampToValueAtTime(90, t + 2.4);
+      env(g, t, .9, .01, 2.8); n.connect(f); f.connect(g); g.connect(M); n.start(t); n.stop(t + 3);
+      var o = A.createOscillator(), og = A.createGain(); o.type = 'sine';
+      o.frequency.setValueAtTime(70, t); o.frequency.exponentialRampToValueAtTime(26, t + 3);
+      env(og, t, .9, .02, 3.2); o.connect(og); og.connect(M); o.start(t); o.stop(t + 3.4);
+    }
+    function startDrone() {
+      if (drone) return;
+      var t = A.currentTime, f = A.createBiquadFilter(), g = A.createGain(), o1 = A.createOscillator(), o2 = A.createOscillator();
+      o1.type = o2.type = 'sawtooth'; o1.frequency.value = 55; o2.frequency.value = 55.6;
+      f.type = 'lowpass'; f.frequency.value = 260; f.Q.value = 4;
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.07, t + 2.5);
+      o1.connect(f); o2.connect(f); f.connect(g); g.connect(M); o1.start(t); o2.start(t);
+      wellG = A.createGain(); wellG.gain.value = 0; var wo = A.createOscillator(); wo.type = 'sine'; wo.frequency.value = 38;
+      wo.connect(wellG); wellG.connect(M); wo.start(t);
+      drone = { f: f, g: g, o: [o1, o2, wo] };
+    }
+    function pings() {
+      var t = A.currentTime;
+      for (var i = 0; i < 9; i++) {
+        var o = A.createOscillator(), g = A.createGain(), at = t + i * .17 + Math.random() * .12;
+        o.type = 'sine'; o.frequency.value = [880, 1175, 1318, 1568, 1760][Math.floor(Math.random() * 5)];
+        env(g, at, .05, .01, 1.4); o.connect(g); g.connect(M); o.start(at); o.stop(at + 1.6);
+      }
+    }
+    function whoosh() {
+      var t = A.currentTime, n = noise(3), f = A.createBiquadFilter(), g = A.createGain();
+      f.type = 'bandpass'; f.Q.value = 1.4; f.frequency.setValueAtTime(250, t); f.frequency.exponentialRampToValueAtTime(3200, t + 2.6);
+      env(g, t, .28, 1.6, 1.2); n.connect(f); f.connect(g); g.connect(M); n.start(t); n.stop(t + 3);
+    }
+    function stop() {
+      if (!drone || !A) return; var t = A.currentTime, d = drone; drone = null;
+      d.g.gain.cancelScheduledValues(t); d.g.gain.setValueAtTime(Math.max(.0001, d.g.gain.value), t); d.g.gain.exponentialRampToValueAtTime(.0001, t + 1.2);
+      d.o.forEach(function (o) { try { o.stop(t + 1.3); } catch (e) {} });
+    }
+    return {
+      on: function () { return on; },
+      set: function (v) {
+        on = v; try { localStorage.setItem('kd-bang-sound', v ? '1' : '0'); } catch (e) {}
+        if (v && ctxOk() && state === 'run') { startDrone(); } else if (!v) { stop(); }
+      },
+      ignite: function () { done = {}; if (on && ctxOk()) { boom(); startDrone(); done.boom = 1; } },
+      tap: function () {
+        if (!on || !ctxOk()) return;
+        var t = A.currentTime, o = A.createOscillator(), g = A.createGain(); o.type = 'sine';
+        o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(40, t + .4);
+        env(g, t, .35, .005, .5); o.connect(g); g.connect(M); o.start(t); o.stop(t + .6);
+      },
+      update: function (t, hold) {
+        if (!on || !A || !drone) return;
+        var ft = t < 2.8 ? 700 : t < 4.8 ? 520 : t < 8 ? 170 : 300 + 80 * Math.sin(t * 1.3);
+        drone.f.frequency.setTargetAtTime(ft, A.currentTime, .6);
+        wellG.gain.setTargetAtTime(hold ? .18 : 0, A.currentTime, .25);
+        if (t > 6.4 && !done.ping) { done.ping = 1; pings(); }
+        if (t > 11.2 && !done.wh) { done.wh = 1; whoosh(); }
+      },
+      stop: stop
+    };
+  })();
+
   function ignite() {
     if (state !== 'idle') return;
     clearTimeout(waitTimer);
-    state = 'run'; t0 = performance.now(); shake = 14;
+    state = 'run'; t0 = performance.now(); shake = 14; snd.ignite();
     hintEl.hidden = true; root.classList.add('lit');
   }
 
   function open(auto) {
     if (state !== 'off') return;
     prevFocus = document.activeElement;
-    resize(); seed(); phase = -1; waves = [];
+    resize(); if (GL) GL.seed(GL.count(W, H)); else seed();
+    phase = -1; waves = []; glWaves = []; wellAmt = 0;
     root.hidden = false; root.style.opacity = 1; root.classList.remove('lit', 'still');
     document.documentElement.classList.add('bb-on');
     capEl.textContent = 'ก่อนเวลาจะเริ่ม ทุกอย่างอยู่ในจุดเดียว'; timeEl.textContent = '—'; tempEl.textContent = '—';
@@ -210,9 +322,13 @@
   // ลดการเคลื่อนไหว: ไม่มีอนุภาคพุ่ง — ข้อความทีละช่วงบนพื้นนิ่ง
   function stillShow() {
     state = 'still'; root.classList.add('still', 'lit'); hintEl.hidden = true;
+    if (GL) {                                          // ภาพนิ่งของกาแล็กซีที่ก่อตัวแล้ว วาดครั้งเดียว ไม่ขยับ
+      GL.draw({ t: 10.4, now: 0, shake: [0, 0], waves: new Float32Array(16), well: [0, 0, 0], yaw: 0, pitch: 0 });
+    } else {
     ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#02030a'; ctx.fillRect(0, 0, W, H);
     ctx.globalCompositeOperation = 'lighter';
     for (var i = 0; i < 260; i++) { var s = Math.random() * 1.6 + .4; ctx.fillStyle = 'rgba(220,230,255,' + (.25 + Math.random() * .6) + ')'; ctx.fillRect(Math.random() * W, Math.random() * H, s, s); }
+    }
     var i2 = 0; (function next() {
       if (state !== 'still') return;
       if (i2 >= PHASES.length) { close(); return; }
@@ -224,7 +340,7 @@
   function close() {
     clearTimeout(waitTimer); clearTimeout(calmTimer);
     if (raf) cancelAnimationFrame(raf); raf = 0;
-    state = 'off'; root.hidden = true; ptr.down = false;
+    state = 'off'; root.hidden = true; ptr.down = false; snd.stop(); if (tipEl) tipEl.hidden = true;
     document.documentElement.classList.remove('bb-on');
     if (prevFocus && prevFocus.focus && prevFocus !== document.body) { try { prevFocus.focus({ preventScroll: true }); } catch (e) {} }
     window.dispatchEvent(new Event('kd-bang-done'));
@@ -235,24 +351,29 @@
   cv.addEventListener('pointerdown', function (e) {
     if (state === 'idle') { ignite(); return; }
     if (state !== 'run') return;
-    ptr.down = true; ptr.x = e.clientX; ptr.y = e.clientY; ptr.since = performance.now();
+    ptr.down = true; ptr.x = e.clientX; ptr.y = e.clientY; ptr.since = performance.now(); snd.tap();
+    if (GL) { glWaves.push({ x: e.clientX / W * 2 - 1, y: 1 - e.clientY / H * 2, r: 0, a: 1 }); shake = Math.max(shake, 5); return; }
     var l = local(e), zoom = 1 + Math.pow(Math.max(0, (performance.now() - t0) / 1000 - 11.4), 2) * .35;
     waves.push({ x: l.x / zoom, y: l.y / zoom, r: 0, a: 1 }); shake = Math.max(shake, 5);
   });
   cv.addEventListener('pointermove', function (e) { if (ptr.down) { ptr.x = e.clientX; ptr.y = e.clientY; } });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (n) { cv.addEventListener(n, function () { ptr.down = false; }); });
   skipEl.addEventListener('click', skip);
+  function sndLabel() { sndEl.textContent = snd.on() ? 'เสียง: เปิด' : 'เสียง: ปิด'; sndEl.setAttribute('aria-pressed', snd.on() ? 'true' : 'false'); }
+  if (sndEl) { sndLabel(); sndEl.addEventListener('click', function () { snd.set(!snd.on()); sndLabel(); }); }
   root.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { e.preventDefault(); skip(); }
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'idle' && document.activeElement !== skipEl) { e.preventDefault(); ignite(); }
-    else if (e.key === 'Tab') { e.preventDefault(); skipEl.focus(); }          // โฟกัสอยู่ในฉากจนกว่าจะปิด
+    else if (e.key === 'Tab') {                                                // โฟกัสอยู่ในฉากจนกว่าจะปิด
+      e.preventDefault(); (document.activeElement === skipEl && sndEl ? sndEl : skipEl).focus();
+    }
   });
   window.addEventListener('resize', function () { if (state !== 'off') resize(); });
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden && state !== 'off' && state !== 'still' && !raf) { last = performance.now(); raf = requestAnimationFrame(step); }
   });
 
-  glow = sprite();
+  if (!GL) glow = sprite();
   state = 'off';
   window.KD_bigBang = function () { open(false); };
   // เล่นเองครั้งแรกในแต่ละรอบที่เปิดเว็บ · ลดการเคลื่อนไหวไม่เล่นเอง (กดปุ่ม "บิ๊กแบง" ได้)
