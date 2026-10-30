@@ -53,3 +53,16 @@ def test_nebula_follows_real_star_positions():
     assert "gl.uniform3fv(gl.getUniformLocation(P.neb, 'uS'), P.nebS)" in JS
     for name in ("Merope", "Alcyone", "Maia", "Electra", "Taygeta", "Atlas", "Celaeno", "Pleione", "Asterope"):
         assert name + ": [" in JS.split("var NEB_W")[1].split("};")[0]
+
+
+def test_twinkle_is_gentle_and_respects_reduced_motion():
+    # ดาวกะพริบเบาๆ คนละจังหวะ แต่ถ้าผู้ใช้ตั้งลดการเคลื่อนไหวไว้ ภาพต้องนิ่ง
+    assert "uniform float uDpp,uDpr,uMaxPt,uT;" in JS
+    assert "view.calm ? 0 :" in JS
+    assert "if (view.anim || !view.calm) raf = requestAnimationFrame(frame);" in JS
+
+
+def test_nebula_is_cached_between_frames():
+    # หมอกคำนวณหนัก วาดเก็บไว้แล้ววาดใหม่เฉพาะตอนเลื่อน/ซูม ให้มือถือกะพริบดาวได้ไม่ร้อน
+    assert "if (key !== P.nebKey)" in JS
+    assert "gl.bindFramebuffer(gl.FRAMEBUFFER, P.fbo); nebula(dpp, W, H);" in JS
