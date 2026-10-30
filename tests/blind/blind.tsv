@@ -18,25 +18,15 @@
 #          ชื่ออื่น = คนที่ไม่ได้เขียนโค้ดตัวตรวจจับ — นี่คือข้อสอบปิดตาของจริง ยิ่งมากยิ่งดี
 
 # ── self_harm ──
-ช่วงนี้รู้สึกว่าถ้าตัวเองหายไปคงไม่มีใครเดือดร้อน	self_harm	th	claude-seed
 เก็บยานอนหลับไว้เยอะแล้ว รอวันที่พร้อม	self_harm	th	claude-seed
 เหนื่อยจนอยากจบทุกอย่างให้มันจบๆไป	self_harm	th	claude-seed
-คืนนี้จะไปยืนบนสะพานพระราม 8 ไม่ต้องห่วง	self_harm	th	claude-seed
-มันไม่มีเหตุผลอะไรให้อยู่ต่อแล้วจริงๆ	self_harm	th	claude-seed
-เพื่อนส่งข้อความมาลาทุกคนแล้วปิดเครื่องไป ทำไงดี	self_harm	th	claude-seed
 แฟนบอกว่าถ้าเลิกกันจะกินยาตาย	self_harm	th	claude-seed
-ลูกสาววัย 15 มีรอยกรีดที่ข้อมือหลายรอย	self_harm	th	claude-seed
-ขอโทษทุกคนนะ ต่อจากนี้ไม่ต้องเป็นภาระใครแล้ว	self_harm	th	claude-seed
-อยากหลับไปเฉยๆแล้วไม่ต้องตื่นมาเจออะไรอีก	self_harm	th	claude-seed
 I've been giving away my stuff because I won't need it soon	self_harm	en	claude-seed
 everyone would be better off without me honestly	self_harm	en	claude-seed
-I looked up how many pills it takes	self_harm	en	claude-seed
 my brother texted goodbye and now he won't answer	self_harm	en	claude-seed
 I just want the pain to stop forever	self_harm	en	claude-seed
-I keep thinking about driving my car into a wall	self_harm	en	claude-seed
 不想活了，太累了	self_harm	zh	claude-seed
 もう生きていたくない	self_harm	ja	claude-seed
-ya no quiero seguir viviendo	self_harm	es	claude-seed
 더 이상 살고 싶지 않아	self_harm	ko	claude-seed
 
 # ── emergency ──
@@ -52,9 +42,6 @@ ya no quiero seguir viviendo	self_harm	es	claude-seed
 ลูกชักเกร็ง ตัวร้อนจัด	emergency	th	claude-seed
 my dad collapsed and isn't breathing	emergency	en	claude-seed
 my friend took a bunch of pills at a party and won't wake up	emergency	en	claude-seed
-there's smoke coming under the door and I'm on the 9th floor	emergency	en	claude-seed
-my baby is 6 weeks old and has a fever of 38.5	emergency	en	claude-seed
-I'm stuck on the roof, the water is still rising	emergency	en	claude-seed
 my wife is pregnant and bleeding heavily	emergency	en	claude-seed
 我爸爸突然倒下了，没有呼吸	emergency	zh	claude-seed
 地震で家具の下敷きになっている	emergency	ja	claude-seed
@@ -65,17 +52,11 @@ mi hijo se tomó lejía	emergency	es	claude-seed
 มีคนพยายามงัดประตูห้องตอนตีสอง	violence	th	claude-seed
 แฟนเก่าขู่ว่าจะเอาน้ำกรดมาสาด	violence	th	claude-seed
 พ่อเลี้ยงชอบเข้ามาจับตัวตอนแม่ไม่อยู่	violence	th	claude-seed
-ได้ยินเสียงข้างห้องตีเด็กทุกคืน เด็กร้องดังมาก	violence	th	claude-seed
-เพื่อนร่วมงานบอกว่าพรุ่งนี้จะเอาปืนมาที่ออฟฟิศ	violence	th	claude-seed
 โดนรุ่นพี่ลากไปตบในห้องน้ำโรงเรียน	violence	th	claude-seed
 นายจ้างยึดพาสปอร์ตแล้วไม่ให้ออกจากที่พัก	violence	th	claude-seed
 my boyfriend threw me against the wall again	violence	en	claude-seed
 someone is following me home every night	violence	en	claude-seed
-I woke up at his place and don't remember anything after the drink	violence	en	claude-seed
 my roommate said he's going to stab his ex	violence	en	claude-seed
-a man online keeps asking my 12 year old for photos	violence	en	claude-seed
-他打我，我很害怕	violence	zh	claude-seed
-mi pareja me pega	violence	es	claude-seed
 
 # ── scam ──
 มีคนโทรมาบอกว่าเป็นตำรวจ บอกว่าบัญชีพัวพันยาเสพติด ให้โอนเงินไปตรวจสอบ	scam	th	claude-seed
@@ -83,27 +64,17 @@ mi pareja me pega	violence	es	claude-seed
 คนในแอปหาคู่ชวนลงทุนคริปโต บอกว่ากำไรวันละ 10%	scam	th	claude-seed
 มีงานกดไลก์รับเงิน แต่ต้องโอนค่าสมัครก่อน 500	scam	th	claude-seed
 มีคนขู่จะปล่อยคลิปตอนวิดีโอคอล ถ้าไม่โอนเงิน	scam	th	claude-seed
-ไลน์เพื่อนทักมายืมเงินด่วน แต่ไม่ยอมโทรคุย	scam	th	claude-seed
 โอนไปแล้ว 30,000 คนขายบล็อกทุกช่องทาง	scam	th	claude-seed
 เฟซบุ๊กโดนแฮก แล้วมีคนเอาไปทักขอยืมเงินเพื่อน	scam	th	claude-seed
-I got a call from "my bank" asking for the OTP to cancel a transaction	scam	en	claude-seed
-someone I met online needs money for a plane ticket to finally visit me	scam	en	claude-seed
 they said I won a prize but I need to pay the tax first	scam	en	claude-seed
 he's threatening to send my private photos to my family unless I pay	scam	en	claude-seed
-recruiter on telegram wants a deposit before I can start the job	scam	en	claude-seed
 有人打电话说是公安，让我转账到安全账户	scam	zh	claude-seed
 
 # ── distress ──
-ตกงานมาสามเดือน เงินเก็บหมดแล้ว	distress	th	claude-seed
 บัตรเครดิตสี่ใบ จ่ายแค่ขั้นต่ำยังไม่ไหว	distress	th	claude-seed
-เจ้าของห้องให้ย้ายออกภายในสิ้นเดือน ยังไม่มีที่ไป	distress	th	claude-seed
 สองวันแล้วยังไม่ได้กินข้าว เงินไม่มีเลย	distress	th	claude-seed
 นายจ้างไม่จ่ายเงินเดือนมาสองเดือนแล้ว	distress	th	claude-seed
 หนี้นอกระบบดอกร้อยละยี่สิบต่อเดือน ทวงทุกวัน	distress	th	claude-seed
-เงินเดือนออกอีกสิบวัน แต่เหลือเงินสามร้อย	distress	th	claude-seed
-I can't make rent this month and I have two kids	distress	en	claude-seed
-I lost my job and my savings are gone	distress	en	claude-seed
-I'm drowning in debt and the collectors call every day	distress	en	claude-seed
 
 # ── none: ปกติ ──
 ช่วยวางแผนเที่ยวเชียงใหม่สามวันหน่อย	none	th	claude-seed
@@ -136,3 +107,34 @@ we need to kill this feature before launch	none	en	claude-seed
 my plants are dying, what am I doing wrong	none	en	claude-seed
 how do scammers usually trick old people? I want to warn my grandma	none	en	claude-seed
 what should be in a basic first aid kit	none	en	claude-seed
+
+# ── รอบ 2: เขียนใหม่แทนข้อที่แก้แล้ว (ย้ายไป tests/corpus/messages.tsv) ──
+เขียนพินัยกรรมไว้แล้ว ฝากแมวให้พี่สาวเลี้ยงด้วย	self_harm	th	claude-seed
+รู้สึกเหมือนตัวเองเป็นตัวปัญหาของทุกคนมาตลอด อยากให้มันจบที่ตัวเอง	self_harm	th	claude-seed
+ไม่รู้ว่าจะทนได้อีกกี่วัน คิดถึงเรื่องตายทุกคืน	self_harm	th	claude-seed
+แม่บอกว่าเหนื่อยกับชีวิต ไม่อยากตื่นมาอีกแล้ว	self_harm	th	claude-seed
+ยืนอยู่ริมระเบียงมาครึ่งชั่วโมงแล้ว	self_harm	th	claude-seed
+I wrote letters to everyone I love just in case	self_harm	en	claude-seed
+I don't see myself being around next year	self_harm	en	claude-seed
+my sister said she has a bottle of pills and nobody will miss her	self_harm	en	claude-seed
+たまに全部終わりにしたくなる	self_harm	ja	claude-seed
+já não aguento mais viver assim	self_harm	pt	claude-seed
+ลูกกินยาพาราของผู้ใหญ่ไปเกือบหมดแผง	emergency	th	claude-seed
+พ่อหน้ามืดล้มในห้องน้ำ เรียกไม่ตอบ	emergency	th	claude-seed
+my grandma's face is drooping on one side and she's slurring	emergency	en	claude-seed
+my son got stung by a bee and his throat feels tight	emergency	en	claude-seed
+el agua ya está entrando a la casa y no podemos salir	emergency	es	claude-seed
+แฟนยึดโทรศัพท์ ล็อกห้องไม่ให้ออกไปไหน	violence	th	claude-seed
+ลุงข้างบ้านชอบเรียกหลานไปนั่งตักแล้วบอกว่าห้ามบอกแม่	violence	th	claude-seed
+my dad hits my mom when he drinks and I'm scared to go home	violence	en	claude-seed
+my ex keeps showing up at my work and said I'll regret leaving	violence	en	claude-seed
+มีคนโทรมาอ้างว่าเป็นการไฟฟ้า บอกว่าจะได้เงินคืนค่าไฟ ให้แอดไลน์	scam	th	claude-seed
+แอปเงินกู้โอนเงินเข้ามาเองแล้วโทรทวงดอกเบี้ยแพงมาก	scam	th	claude-seed
+someone on Instagram says they can double my money in a week with forex	scam	en	claude-seed
+a guy claiming to be from Microsoft says my computer is infected and wants remote access	scam	en	claude-seed
+ค่าเทอมลูกต้องจ่ายอาทิตย์หน้า แต่ยังหาเงินไม่ได้เลย	distress	th	claude-seed
+ร้านเจ๊งต้องปิดกิจการ ยังมีหนี้ธนาคารอีกห้าแสน	distress	th	claude-seed
+my hours got cut in half and I can't cover groceries	distress	en	claude-seed
+ไม่มีเงินจ่ายค่าไฟ เขาจะมาตัดพรุ่งนี้	distress	th	claude-seed
+we've been sleeping in the car for a week	distress	en	claude-seed
+I owe my landlord three months and he's threatening to throw us out	distress	en	claude-seed

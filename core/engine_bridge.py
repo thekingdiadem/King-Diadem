@@ -376,7 +376,7 @@ def _relationship(text: str) -> dict | None:
 _HAZARDS = (
     ("flood", "climate_disaster", "น้ำท่วม",
      re.compile(r"น้ำท่วม(?!ขัง|ปาก|ทุ่ง)|น้ำเข้าบ้าน|น้ำป่า|น้ำขึ้นถึง|น้ำทะลัก|เขื่อนแตก|คันกั้นน้ำแตก|"
-                r"น้ำเข้ารถ|รถจมน้ำ|รถ\S{0,6}ลอย(?:น้ำ)?|\bflood|(?i:\bwater (?:is )?(?:rising|coming in)\b|\b(?:river|canal|dam) (?:is )?(?:overflowing|burst)\b)"),
+                r"น้ำเข้ารถ|รถจมน้ำ|รถ\S{0,6}ลอย(?:น้ำ)?|\bflood|(?i:\bwater (?:is )?(?:still |keeps? )?(?:rising|coming in)\b|\b(?:river|canal|dam) (?:is )?(?:overflowing|burst)\b)"),
      ["ตัดไฟที่เบรกเกอร์ถ้ามือและเท้าแห้งและน้ำยังไม่ถึงปลั๊ก — ถ้าน้ำถึงแล้ว อย่าแตะสวิตช์ อย่าลงน้ำที่อาจมีไฟรั่ว",
       "ขึ้นที่สูงหรือชั้นบนพร้อมคนในบ้าน เอายาประจำตัว เอกสาร โทรศัพท์กับพาวเวอร์แบงก์ไปด้วย",
       "อย่าเดินหรือขับรถลุยน้ำไหล — น้ำสูงแค่เข่าก็พัดคนล้มได้"]),
@@ -393,6 +393,8 @@ _HAZARDS = (
                 r"(?:น้ำมัน|กระทะ|รถ|บ้าน|ผ้าม่าน|ที่นอน)\S{0,4}ติดไฟ(?!แดง|เขียว)|"
                 r"ปลั๊ก\S{0,6}(?:ไหม้|มีควัน)|สายไฟ\S{0,6}(?:ไหม้|มีควัน)|ไฟฟ้าลัดวงจร|"
                 r"\bwildfire\b|\b(?:house|building|room|kitchen|car) (?:is )?on fire\b|"
+                # ควันเข้ามาทางประตู/ใต้ประตู = ไฟไหม้ในอาคาร แม้ไม่มีคำว่า fire (ชุดปิดตารอบ 1)
+                r"\bsmoke (?:is )?(?:coming|pouring|getting|seeping|leaking) (?:in |into |under |through )(?:the |my |our )?(?:door|room|window|vents?|hallway|apartment|flat)?|"
                 r"\b(?:a )?fire in (?:my|the|our) (?:house|home|kitchen|building|room|apartment|flat|condo)\b|\b(?:house|building|apartment) fire\b", re.I),
      ["ออกจากอาคารทันที ไม่ย้อนกลับไปเอาของ — ไม่ใช้ลิฟต์",
       "ควันเยอะ: ก้มต่ำ ใช้ผ้าชุบน้ำปิดจมูก ก่อนเปิดประตูให้ใช้หลังมือแตะลูกบิด ถ้าร้อนอย่าเปิด",

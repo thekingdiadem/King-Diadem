@@ -338,6 +338,45 @@ SCAM_SCRIPT_EN = re.compile(
     r"\b(?:paid|sent (?:the )?money)\b[^\n]{0,30}?\b(?:never (?:delivered|shipped|arrived|came)|blocked me)\b|\bnever delivered after i paid\b", re.I)
 
 
+# ── ชุดข้อความปิดตา รอบ 1 (tests/blind/blind.tsv): ประโยคอ้อมที่ตัวตรวจจับเคยไม่เห็นเลย ──────────────
+# เพิ่มเป็น "รูปประโยค" ทั้งกลุ่ม ไม่ใช่ประโยคตรงตัว — ข้อที่แก้แล้วย้ายไปชุดกันถอยหลัง tests/corpus/messages.tsv
+# ทุกรูปต้องมีบริบทยืนยัน (คำลา · ไม่ต้องห่วง · ไม่มีใครเดือดร้อน) ไม่ใช่แค่คำเดียว เพื่อไม่ให้เตือนเกิน
+SELF_HARM_VEILED = re.compile(
+    # ถ้าตัวเองหายไป ก็ไม่มีใครเดือดร้อน/สนใจ (ไม่นับหายไปเที่ยว/พักร้อนสักพัก)
+    r"(?:ฉัน|หนู|ผม|เรา|กู|ตัวเอง)\S{0,6}?หายไป(?!\S{0,3}(?:เที่ยว|พักร้อน|ต่างจังหวัด|ทำงาน|เรียน|สัก|ซัก|\s*\d))(?:จากโลก(?:นี้)?)?"
+    r"[^\n]{0,14}?ไม่มีใคร\S{0,6}?(?:เดือดร้อน|สนใจ|เสียใจ|คิดถึง|รู้สึกอะไร|สังเกต)|"
+    # ขอโทษ/ขอบคุณทุกคน + จะไม่เป็นภาระใครอีก (ต้องมีคำลา — "ได้งานแล้ว จะไม่เป็นภาระพ่อแม่" ไม่นับ)
+    r"(?:ขอโทษ|ขอบคุณ)(?:ทุกคน|ทุกอย่าง|ที่ผ่านมา)[^\n]{0,40}?ไม่(?:ต้อง)?(?:เป็นภาระ|เป็นตัวถ่วง|ทำให้ใคร\S{0,6}?(?:ลำบาก|เดือดร้อน))|"
+    r"ไม่(?:ต้อง)?เป็นภาระ(?:ของ)?(?:ใคร|ทุกคน)(?:อีก)?(?:แล้ว|ต่อไป)[^\n]{0,20}?(?:ลาก่อน|ขอโทษ|ขอบคุณทุกคน)|"
+    # ไม่มีเหตุผลให้อยู่ต่อ (ไม่นับอยู่ต่อที่บริษัท/ทีม/ที่นี่)
+    r"ไม่มี(?:เหตุผล|อะไร)(?:อะไร)?(?:เหลือ)?(?:ให้|ที่จะ|ที่ต้อง)(?:อยู่|มีชีวิต)(?:ต่อ)?(?!\S{0,6}?(?:ที่|ใน|กับ|บริษัท|ทีม|งาน|ตรงนี้|หอ|บ้าน|เมือง))|"
+    # ไปยืนบนสะพาน/ดาดฟ้า + ไม่ต้องห่วง/ลาก่อน
+    r"ไป(?:ยืน|นั่ง|ปีน|ขึ้น)\S{0,6}?(?:บน)?(?:สะพาน|ดาดฟ้า|หลังคาตึก|ขอบตึก|ระเบียงชั้น)[^\n]{0,40}?(?:ไม่ต้องห่วง|ลาก่อน|ครั้งสุดท้าย|ขอโทษ|ไม่ต้องตามหา|ไม่ต้องหา)|"
+    # คนใกล้ตัวส่งข้อความบอกลาแล้วติดต่อไม่ได้ (ไม่ใช่ลาออก/ลาพัก)
+    r"(?:บอกลา|ลา(?:ทุกคน|ครอบครัว|ทุกๆคน))[^\n]{0,30}?(?:ปิด(?:เครื่อง|มือถือ|โทรศัพท์)|ติดต่อไม่ได้|ไม่รับสาย|ไม่ตอบ|หายไป)|"
+    # รอยกรีดที่ข้อมือ/แขน (ของตัวเองหรือลูก)
+    r"รอย(?:กรีด|แผลกรีด|มีดกรีด|ใบมีด)\S{0,10}?(?:ที่)?(?:ข้อมือ|แขน|ต้นขา|ขา)|"
+    r"อยากหลับ(?:ไป)?(?:เฉยๆ|ยาวๆ|ไปเลย)?(?:แล้ว)?ไม่(?:ต้อง)?ตื่น(?:ขึ้น)?มา(?:เจอ|อีก)|"
+    # อังกฤษ: แจกของเพราะจะไม่ต้องใช้แล้ว · ค้นว่ายากี่เม็ดถึงพอ · คิดจะขับรถพุ่งชน
+    r"(?i:\bgiv(?:e|ing|en) away (?:all )?(?:of )?my (?:stuff|things|belongings|possessions)\b[^\n]{0,50}?\b(?:won'?t|will not|not going to|don'?t) (?:need|be needing)\b|"
+    r"\bhow (?:many|much) (?:pills|tablets|of (?:my|these|the) (?:meds|pills))\b[^\n]{0,12}?\b(?:it takes|does it take|would it take|to die|to overdose|is lethal|would kill)\b(?! to (?:work|kick in|fall asleep|sleep|feel))|"
+    r"\b(?:thinking|think|thought) (?:about|of) (?:driving|crashing|steering|swerving) (?:my car |the car )?(?:into|off) (?:a |the )?(?:wall|tree|bridge|cliff|truck|pole|river|oncoming))"
+)
+# มิจฉาชีพที่เคยหลุด: บัญชีเพื่อนทักยืมเงินแต่ไม่ยอมโทร · ขอ OTP · คนรู้จักออนไลน์ขอเงินค่าตั๋ว · งานที่ขอมัดจำก่อน
+SCAM_VEILED_ROMANCE = re.compile(
+    r"(?:ไลน์|เฟซ|เฟส|แชท|ข้อความ|อินบ็อกซ์|ig|ไอจี)\S{0,10}?(?:เพื่อน|ญาติ|พี่|น้อง|แม่|พ่อ|หัวหน้า|ลูก)\S{0,10}?(?:ทัก|ส่ง)\S{0,6}?(?:มา)?(?:ขอ)?ยืมเงิน"
+    r"[^\n]{0,30}?(?:ไม่(?:ยอม)?(?:โทร|คุยสาย|รับสาย|วิดีโอคอล|เปิดกล้อง))|"
+    r"(?i:\b(?:met|talking to|dating|chatting with)\b[^\n]{0,24}?\bonline\b[^\n]{0,50}?\b(?:needs?|asked (?:me )?for|wants?) (?:some )?money\b|"
+    r"\bmoney for (?:a |the |his |her )?(?:plane|flight|airline) ticket\b)", re.I)
+SCAM_VEILED_STORY = re.compile(
+    r"\b(?:ask(?:ed|ing|s)?|wants?|wanted) (?:me )?(?:for |to (?:give|read|share|tell|send) (?:them )?)?(?:the |my |an? )?"
+    r"(?:otp|one[- ]time (?:code|password|pin)|verification code|security code|sms code)\b|"
+    r"\b(?:otp|verification code)\b[^\n]{0,30}?\bto (?:cancel|stop|reverse|block|verify) (?:a |the |my )?(?:transaction|payment|transfer|charge)\b", re.I)
+SCAM_VEILED_JOB = re.compile(
+    r"\b(?:recruiter|hr|hiring manager|employer|job offer|company)\b[^\n]{0,50}?\b(?:wants?|asked (?:me )?for|asks? for|requires?|needs?) "
+    r"(?:a |an )?(?:deposit|fee|payment|upfront payment)\b(?![^\n]{0,20}?\b(?:back|refund)\b)", re.I)
+
+
 def scam_flags(text) -> list:
     """โครงสร้างของมิจฉาชีพ: แอบอ้าง + ติดต่อมา + ขอให้โอน/กดลิงก์/ให้ข้อมูล หรือเรื่องหลอก + ขอสิ่งเดียวกัน"""
     t = str(text or "")
@@ -355,6 +394,12 @@ def scam_flags(text) -> list:
         flags.append("job")
     if SCAM_ROMANCE.search(t):          # หลอกให้รัก/แอบอ้างเป็นเพื่อน
         flags.append("romance")
+    if SCAM_VEILED_ROMANCE.search(t) and "romance" not in flags:
+        flags.append("romance")
+    if SCAM_VEILED_STORY.search(t) and "story" not in flags:
+        flags.append("story")
+    if SCAM_VEILED_JOB.search(t) and "job" not in flags:
+        flags.append("job")
     return flags
 
 

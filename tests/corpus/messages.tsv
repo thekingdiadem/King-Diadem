@@ -541,3 +541,34 @@ hola, ¿cómo estás?	none	ภาษาอื่น:ทั่วไป
 โดนหนูกัดนิ้ว	topic:first_aid	ปฐมพยาบาล
 หนูกัดเล็บจนเลือดออก	!topic:first_aid	ไม่ใช่ภัย
 ฉันไม่ได้นอนมาสามวันแล้ว รู้สึกแปลกๆ	topic:sleepless	เครียด
+
+# ── ย้ายมาจากชุดปิดตา รอบ 1 (tests/blind) — ประโยคอ้อมที่เคยพลาด แก้แล้วจึงไม่ใช่ข้อสอบปิดตาอีก ──
+ช่วงนี้รู้สึกว่าถ้าตัวเองหายไปคงไม่มีใครเดือดร้อน	crisis	วิกฤต
+คืนนี้จะไปยืนบนสะพานพระราม 8 ไม่ต้องห่วง	crisis	วิกฤต
+มันไม่มีเหตุผลอะไรให้อยู่ต่อแล้วจริงๆ	crisis	วิกฤต
+เพื่อนส่งข้อความมาลาทุกคนแล้วปิดเครื่องไป ทำไงดี	crisis	วิกฤต
+ลูกสาววัย 15 มีรอยกรีดที่ข้อมือหลายรอย	crisis	วิกฤต
+ขอโทษทุกคนนะ ต่อจากนี้ไม่ต้องเป็นภาระใครแล้ว	crisis	วิกฤต
+อยากหลับไปเฉยๆแล้วไม่ต้องตื่นมาเจออะไรอีก	crisis	วิกฤต
+I looked up how many pills it takes	crisis	วิกฤต
+I keep thinking about driving my car into a wall	crisis	วิกฤต
+ya no quiero seguir viviendo	crisis	ภาษาอื่น:วิกฤต
+there's smoke coming under the door and I'm on the 9th floor	disaster:fire	ฉุกเฉิน
+my baby is 6 weeks old and has a fever of 38.5	topic:en_infant_fever	ฉุกเฉิน
+I'm stuck on the roof, the water is still rising	disaster:flood	ฉุกเฉิน
+ได้ยินเสียงข้างห้องตีเด็กทุกคืน เด็กร้องดังมาก	topic:witness	รุนแรง
+เพื่อนร่วมงานบอกว่าพรุ่งนี้จะเอาปืนมาที่ออฟฟิศ	topic:threat	รุนแรง
+I woke up at his place and don't remember anything after the drink	topic:en_spiked	รุนแรง
+a man online keeps asking my 12 year old for photos	topic:online_grooming	รุนแรง
+他打我，我很害怕	topic:violence	ภาษาอื่น:รุนแรง
+mi pareja me pega	topic:violence	ภาษาอื่น:รุนแรง
+ไลน์เพื่อนทักมายืมเงินด่วน แต่ไม่ยอมโทรคุย	scam:romance	มิจฉาชีพ
+I got a call from "my bank" asking for the OTP to cancel a transaction	scam:story	มิจฉาชีพ
+someone I met online needs money for a plane ticket to finally visit me	scam:romance	มิจฉาชีพ
+recruiter on telegram wants a deposit before I can start the job	scam:job	มิจฉาชีพ
+ตกงานมาสามเดือน เงินเก็บหมดแล้ว	topic:basic	เงิน
+เจ้าของห้องให้ย้ายออกภายในสิ้นเดือน ยังไม่มีที่ไป	topic:housing	เงิน
+I can't make rent this month and I have two kids	topic:housing	เงิน
+I lost my job and my savings are gone	topic:basic	เงิน
+I'm drowning in debt and the collectors call every day	topic:debt	เงิน
+เงินเดือนออกอีกสิบวัน แต่เหลือเงินสามร้อย	topic:money	เงิน

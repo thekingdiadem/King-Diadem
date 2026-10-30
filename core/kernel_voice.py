@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT,
+from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT, SELF_HARM_VEILED,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
@@ -976,7 +976,25 @@ TOPICS = [(n, ph + [re.compile(_EN_TRIGGERS[n], re.I)] if n in _EN_TRIGGERS else
 TOPICS = [(n, ph + [re.compile(r"(?:เหลือเงิน|มีเงิน|เงินเหลือ)[^\n]{0,20}?(?:อีก\s*\d+\s*วัน|\d+\s*วัน(?:กว่า)?(?:จะ|ถึงจะ)(?:ได้เงิน|เงินเดือนออก|เงินออก))")]
            if n == "money" else ph, d) for n, ph, d in TOPICS]
 
-CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไม่อยากมีชีวิต", NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, "จบชีวิต", "ทำร้ายตัวเอง", SELF_INJURY,
+# ── ชุดข้อความปิดตา รอบ 1: หัวข้อที่ประโยคอ้อมเคยไม่เข้าเลย (รูปประโยคทั้งกลุ่ม ไม่ใช่ประโยคตรงตัว) ──
+_VEILED = {
+    "witness": r"(?:ได้ยิน|เห็น)\S{0,10}?(?:ข้างห้อง|ห้องข้างๆ|ข้างบ้าน|บ้านข้างๆ|เพื่อนบ้าน|ห้องตรงข้าม)\S{0,6}?(?:ตี|ทุบ|ทำร้าย|ซ้อม|ตบ|เตะ)\S{0,4}?(?:เด็ก|ลูก|เมีย|ภรรยา|แฟน|ผู้หญิง|คนแก่)",
+    "threat": r"(?:จะ|ว่าจะ|ขู่(?:ว่า)?จะ)\S{0,6}?(?:เอา|พก|ถือ)(?:ปืน|มีด|ระเบิด)\S{0,4}?(?:มา|ไป)\S{0,4}?(?:ที่)?(?:ออฟฟิศ|ที่ทำงาน|บริษัท|โรงเรียน|มหาลัย|มหาวิทยาลัย|ห้าง)",
+    "en_spiked": r"\b(?:don'?t|can'?t|do not|cannot) remember (?:anything|what happened|how i got)\b[^\n]{0,40}?\b(?:after|since) (?:the|that|my|one|a|his|her) (?:drink|drinks|shot|cocktail)\b|"
+                 r"\bwoke up (?:at|in) (?:his|her|their|a stranger'?s|some guy'?s) (?:place|house|bed|room|apartment)\b[^\n]{0,60}?\b(?:don'?t|can'?t) remember\b",
+    "online_grooming": r"\b(?:man|guy|adult|stranger|someone)\b[^\n]{0,40}?\b(?:asking|asks|asked|wants|pressuring)\b[^\n]{0,8}?\b(?:my|our) (?:\d{1,2}[- ]?(?:year|yr)[- ]?old|son|daughter|kid|child|niece|nephew)\b[^\n]{0,20}?\b(?:photos?|pics?|pictures|selfies|videos?|nudes)\b",
+    "en_infant_fever": r"\b(?:baby|newborn|infant)\b[^\n]{0,24}?\b(?:[1-9]|1[0-2]|one|two|three|four|five|six|seven|eight|nine|ten) ?(?:weeks?|wks?)(?: old)?\b[^\n]{0,30}?\b(?:fever|temperature|temp)\b",
+    "housing": r"(?:ให้|ไล่|บอกให้)\S{0,6}?ย้ายออก[^\n]{0,30}?(?:ไม่มีที่ไป|ยังไม่มีที่|ไม่รู้จะไปไหน)|"
+               r"\b(?:can'?t|cannot|won'?t be able to) (?:make|pay|afford|cover) (?:the |my |this month'?s )?rent\b|\b(?:getting|being|got) evicted\b|\beviction notice\b",
+    "basic": r"(?:ตกงาน|ไม่มีงาน|โดนเลิกจ้าง|ถูกเลิกจ้าง)[^\n]{0,24}?(?:เงินเก็บ|เงินออม|เงินสำรอง)\S{0,4}?(?:หมด|ไม่เหลือ)|"
+             r"\b(?:lost|lose) my job\b[^\n]{0,30}?\b(?:savings?|money) (?:is |are )?(?:gone|used up|running out|all gone)\b",
+    "debt": r"\b(?:drowning|buried|sinking) in debt\b|\b(?:debt )?collectors? (?:call|calling|keep calling|harass)",
+    # "อีกสิบวันเงินเดือนออก เหลือเงินสามร้อย" — เดิมจับได้เฉพาะตัวเลขอารบิก
+    "money": r"(?:อีก|เหลืออีก)\s*(?:\d+|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า|สิบ\S{0,3}?)\s*วัน[^\n]{0,24}?(?:เหลือ(?:เงิน)?|มีเงิน)(?:อยู่)?\s*(?:\d+|ร้อย|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า)",
+}
+TOPICS = [(n, ph + [re.compile(_VEILED[n], re.I)] if n in _VEILED else ph, d) for n, ph, d in TOPICS]
+
+CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไม่อยากมีชีวิต", NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, SELF_HARM_VEILED, "จบชีวิต", "ทำร้ายตัวเอง", SELF_INJURY,
                   "กรีดข้อมือ", "suicide", "kill myself", *SELF_HARM_INTL]
 GREETINGS = ["สวัสดี", "หวัดดี", "hello", "hi", "hey"]
 
