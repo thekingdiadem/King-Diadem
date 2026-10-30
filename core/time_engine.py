@@ -91,6 +91,7 @@ def compute_time_to_failure(state: dict) -> dict:
     """
     คำนวณ time-to-failure score (0–100)
     100 = ปลอดภัยมาก / 0 = collapse
+    หมายเหตุ: นี่คือคะแนน ไม่ใช่จำนวนวัน — ถ้าต้องการเวลาจริงใช้ core.choice_dynamics.time_windows()
 
     สูตร: risk = drift×0.4 + entropy×0.3 + resource_deficit×0.3
     TTF  = 100 - risk  (bounded 0–100)

@@ -45,6 +45,9 @@ if Decision_Window → 0:
     EARLY_WARNING triggered
 ```
 
+โค้ดที่นับเป็นวันจริง: `core/choice_dynamics.py` → `time_windows()`
+(drift ทบต้น 0.1% ต่อวัน · `compounded_drift(365)` ≈ 0.44)
+
 ---
 
 ### DHD Tracking (Daily Harm Delta)

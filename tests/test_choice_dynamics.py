@@ -96,3 +96,38 @@ def test_decision_quality_is_a_binary_gate():
     assert decision_quality(1.0, 1.0)["decision"] == 1          # 1.0 → VIABLE
     assert decision_quality(0.3, 1.0)["decision"] == 0          # DEGRADED → ระงับ
     assert decision_quality(0.1, 1.0)["decision"] == 0          # COLLAPSED
+
+
+def test_compounded_drift_one_year():
+    from core.choice_dynamics import compounded_drift
+    assert compounded_drift(365) == pytest.approx(0.44, abs=0.001)      # (1.001)^365 − 1
+    assert compounded_drift(0) == 0 and compounded_drift(None) == 0
+
+
+def test_time_windows_in_real_days():
+    from core.choice_dynamics import time_windows
+    r = time_windows(5, 0.1, compound=0)            # ไม่ทบต้น: 5 − 0.1k
+    assert r["time_to_intervention_days"] == 31      # วันแรกที่เหลือ ≤ 1 ทาง (5 − 3.1 = 1.9)
+    assert r["time_to_failure_days"] == 41           # วันแรกที่เหลือ 0 ทาง
+    assert r["decision_window_days"] == 31
+    c = time_windows(5, 0.1)                        # ทบต้น 0.1%/วัน ต้องพังเร็วกว่า
+    assert c["time_to_failure_days"] < 41 and c["time_to_intervention_days"] < 31
+
+
+def test_time_windows_matches_choice_next_stepping():
+    from core.choice_dynamics import time_windows
+    c, k = 4.0, 0
+    while choice_next(c, 0.3, 0.05, 0.1)["choice_next"] > 0:
+        c = choice_next(c, 0.3, 0.05, 0.1)["choice_next_raw"]; k += 1
+    assert time_windows(4, 0.3, 0.05, 0.1, compound=0)["time_to_failure_days"] == k + 1
+
+
+def test_time_windows_edges():
+    from core.choice_dynamics import time_windows
+    assert time_windows(0, 0)["status"] == "COLLAPSE"
+    assert time_windows(1, 0.1)["time_to_intervention_days"] == 0       # เหลือทางเดียวอยู่แล้ว
+    s = time_windows(5, 0.1, 0, 0.5, compound=0)                       # intervention > drift
+    assert s["time_to_failure_days"] is None and s["status"] == "STABLE"
+    assert time_windows("?", 0.1)["status"] == "COLLAPSE"              # อ่านไม่ได้ → ไม่มีทางเลือก
+    # intervention ชดเชยได้ตอนนี้ แต่ drift ทบต้นจนแซงในที่สุด — ระบบต้องเห็น
+    assert time_windows(5, 0.1, 0, 0.2)["time_to_failure_days"] is not None
