@@ -4,6 +4,13 @@
 **Bound to:** app.py v4.7 / core/lyla_kernel.py / ENGINE/*  
 **Lock:** Fail less. Harm less. Restore more.
 
+> **ไม่ขึ้นกับศาสนา (Non-religious)** — กฎทุกข้อของ kernel นี้ทำงานได้ด้วยตรรกะและหลักฐานล้วนๆ
+> ไม่ต้องนับถือศาสนาใดก็ใช้ได้ คำทางธรรมในไฟล์นี้ (มรรค · ศีล ฯลฯ) เป็นเพียงการเทียบเคียง
+> ว่ากฎแต่ละข้อตรงกับหลักธรรมข้อไหน เพื่อให้คนที่คุ้นเคยเข้าใจง่ายขึ้น ไม่ใช่เงื่อนไขของการใช้งาน
+>
+> *Every rule here runs on logic and evidence alone. Dharma terms are a cross-reference for readers
+> who know them — not a requirement for using the kernel.*
+
 ---
 
 ## 1. System Purpose

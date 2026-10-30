@@ -6,6 +6,7 @@ KING DIADEM™ — Choice Dynamics (Choice Collapse Model เป็นโค้�
   Choice(t+Δ)  = Choice(t) − Drift(t) − Entropy(t) + Intervention(t)
   Intervention(t) > Drift(t)  →  Choice(t) ไม่ลดลง (stabilizing)
   Choice(t+Δ) ≤ 1  →  EARLY_WARNING  ·  Choice(t+Δ) = 0  →  SYSTEM_PAUSE
+  Time_to_Failure · Time_to_Intervention · Decision_Window นับเป็นวันจริง (drift ทบต้น 0.1%/วัน)
 
 State space (domain ของตัวแปรระบบ):
   Choice(t) ∈ ℕ
@@ -117,6 +118,78 @@ def steps_to_collapse(choice, drift, entropy, intervention):
         return None
     # หา k ที่เล็กสุดซึ่ง c − k·loss < 1
     return int(math.floor((c - 1) / loss + 1e-9)) + 1
+
+
+# ═══════════════════════════════════════════════════════════════
+# เวลาจริง (วัน) — Time_to_Failure · Time_to_Intervention · Decision_Window
+# Collapse = 0.1% daily drift compounding: drift วันที่ k = drift × (1 + 0.001)^k
+# ═══════════════════════════════════════════════════════════════
+
+DRIFT_COMPOUND_DAILY = 0.001     # 0.1% ต่อวัน — ตรงกับ DRIFT_MAX_DAILY ใน AI/freedom_signal.py
+HORIZON_DAYS = 36500             # มองไกลสุด 100 ปี — เกินนี้ถือว่าไม่พังในกรอบที่วัดได้
+
+
+def compounded_drift(days, rate=DRIFT_COMPOUND_DAILY) -> float:
+    """drift ทบต้นรายวันสะสมเป็นสัดส่วน: 0.1% × 365 วัน ≈ 0.44 (เสื่อมราว 44% ใน 1 ปี)"""
+    n = max(0.0, _num(days, 0.0))
+    r = max(0.0, _num(rate, DRIFT_COMPOUND_DAILY))
+    return round((1 + r) ** n - 1, 6)
+
+
+def time_windows(choice, drift_per_day, entropy_per_day=0.0, intervention_per_day=0.0,
+                 compound=DRIFT_COMPOUND_DAILY) -> dict:
+    """
+    นับเป็นวันจริง โดยเดิน Choice(t+1) = Choice(t) − Drift(t) − Entropy + Intervention ทีละวัน
+    และให้ Drift(t) โตแบบทบต้น compound ต่อวัน
+
+      Time_to_Failure      = วันแรกที่ทางเลือกเหลือ 0
+      Time_to_Intervention = วันแรกที่ทางเลือกเหลือ ≤ 1 (ต้องแทรกแซงก่อนวันนี้)
+      Decision_Window      = จำนวนวันที่ยังมีทางเลือกมากกว่า 1 ทาง (นับจากวันนี้ถึงจุดแทรกแซง)
+    status: ≤ 7 วัน → EARLY_WARNING · ≤ 30 วัน → WATCH · ที่เหลือ → STABLE
+    None = ไม่ถึงจุดนั้นภายใน 100 ปี
+    """
+    c = max(0.0, _num(choice, 0.0))                    # อ่านไม่ได้ → ถือว่าไม่มีทางเลือก
+    d = max(0.0, _num(drift_per_day, 0.0))
+    e = max(0.0, _num(entropy_per_day, 0.0))
+    i = max(0.0, _num(intervention_per_day, 0.0))
+    g = max(0.0, _num(compound, DRIFT_COMPOUND_DAILY))
+
+    def count(x):                                      # Choice ∈ ℕ — ปัดลงแบบเดียวกับ choice_next
+        return max(0, math.floor(x + 1e-9))
+
+    ttf = tti = 0 if count(c) <= 0 else None
+    if tti is None and count(c) <= CHOICE_EARLY_WARNING:
+        tti = 0
+    raw, day = c, 0
+    while ttf is None and day < HORIZON_DAYS:
+        if (g == 0 or d == 0) and d + e <= i:
+            break                                      # drift ไม่โต และไม่มีวันลดลง — ไม่ต้องเดินต่อ
+        raw = raw - d * (1 + g) ** day - e + i
+        day += 1
+        n = count(raw)
+        if tti is None and n <= CHOICE_EARLY_WARNING:
+            tti = day
+        if n <= 0:
+            ttf = day
+
+    window = tti if tti is not None else None
+    if tti == 0:
+        status = "COLLAPSE" if ttf == 0 else "EARLY_WARNING"
+    elif tti is None:
+        status = "STABLE"
+    else:
+        status = "EARLY_WARNING" if tti <= 7 else "WATCH" if tti <= 30 else "STABLE"
+
+    return {
+        "time_to_failure_days": ttf,
+        "time_to_intervention_days": tti,
+        "decision_window_days": window,
+        "status": status,
+        "early_warning": tti is not None and tti <= 7,
+        "inputs": {"choice": c, "drift_per_day": d, "entropy_per_day": e,
+                   "intervention_per_day": i, "compound_daily": g},
+        "rule": "Choice(t + Δ) ≤ 1 → แจ้งเตือน · Choice(t + Δ) = 0 → Collapse",
+    }
 
 
 # ═══════════════════════════════════════════════════════════════
