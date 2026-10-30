@@ -55,6 +55,18 @@ code, .mono { font-family: var(--f-mono); font-size: .88em; }
 .stat b { display: block; font: 500 22px/1.2 var(--f-mono); color: var(--latte); }
 .stat span { font-size: 12px; color: var(--tx-lo); }
 
+/* สกอร์บอร์ดชุดปิดตา */
+.score { margin-top: 22px; padding: 6px 4px 10px; border-radius: 18px; overflow-x: auto; }
+.score table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 460px; }
+.score th, .score td { padding: 9px 12px; text-align: right; border-bottom: 1px solid rgba(255,248,231,.07); }
+.score th:first-child, .score td:first-child { text-align: left; }
+.score th { font: 500 11px/1.4 var(--f-mono); letter-spacing: .08em; color: var(--tx-lo); }
+.score td { font-family: var(--f-mono); color: var(--tx-hi); }
+.score td.low { color: var(--peach); }
+.misses { margin-top: 14px; font-size: 13px; color: var(--tx-mid); }
+.misses li { margin: 6px 0 0 18px; }
+.misses code { color: var(--sky-hi); }
+
 /* รูปแบบสถาปัตยกรรม */
 .traits { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 26px; }
 .trait { padding: 20px 20px 18px; border-radius: 18px; }
@@ -152,7 +164,7 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
 <canvas id="sky" data-density="3600" aria-hidden="true"></canvas>
 <header class="bar">
   <a href="/">← หน้าหลัก</a>
-  <nav aria-label="ในหน้านี้"><a href="#style">รูปแบบ</a><a href="#flow">เส้นทางข้อความ</a><a href="#map-sec">แผนที่ไฟล์</a><a href="#folders">โฟลเดอร์</a></nav>
+  <nav aria-label="ในหน้านี้"><a href="#style">รูปแบบ</a><a href="#flow">เส้นทางข้อความ</a><a href="#map-sec">แผนที่ไฟล์</a><a href="#folders">โฟลเดอร์</a><a href="#score">คะแนนจริง</a></nav>
 </header>
 
 <main>
@@ -267,6 +279,20 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
     <div class="folders" id="flds"><p class="sub">กำลังโหลดแผนผัง…</p></div>
   </section>
 
+  <section id="score" aria-labelledby="h-score">
+    <p class="eyebrow">05 · Blind test</p>
+    <h2 id="h-score">คะแนนจริงจากข้อความที่ระบบไม่เคยเห็น</h2>
+    <p class="sub">ชุดเทสต์ปกติผ่าน 100% เสมอ เพราะทุกข้อถูกเพิ่มพร้อมการแก้โค้ด จึงบอกไม่ได้ว่าระบบเก่งแค่ไหนกับข้อความใหม่ —
+      ตัวเลขนี้มาจาก <strong>ชุดข้อความปิดตา</strong> (<code>tests/blind/blind.tsv</code>) ที่ห้ามใช้จูนระบบ คำนวณอัตโนมัติด้วย <code>scripts/blind_score.py</code>
+      และเทสต์จะล้มถ้าตัวเลขบนหน้านี้ไม่ตรงกับผลจริง</p>
+    <p class="sub">วัดเฉพาะ<strong>ตัวตรวจจับที่ไม่ใช้ AI</strong> ซึ่งเป็นตาข่ายนิรภัยชั้นแรก — คำตอบจริงยังผ่าน AI อีกชั้น
+      แต่ถ้า AI ล่มหรือพลาด ตัวตรวจจับคือสิ่งที่เหลืออยู่ · <strong>พลาด</strong> = มีเรื่องจริงแต่ระบบไม่เห็น · <strong>เกิน</strong> = เตือนทั้งที่ไม่ใช่</p>
+    <div class="stats" id="score-stats" aria-live="polite"></div>
+    <div class="score kd-rim" id="score-table"><p class="sub">กำลังโหลดคะแนน…</p></div>
+    <details class="misses"><summary>ข้อที่ระบบพลาด</summary><ul id="score-miss"></ul></details>
+    <p class="sub" id="score-who"></p>
+  </section>
+
   <p class="foot">ระบบที่ดีที่สุด คือระบบที่เงียบ เมื่อมนุษย์ยังเลือกได้ · <a href="/guide">คู่มือ</a> · <a href="/">กลับไปใช้งาน →</a></p>
 </main>
 
@@ -326,6 +352,34 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
 
   // แผนผังสดจากเซิร์ฟเวอร์ (นับจากไฟล์ที่รันอยู่จริง) — ใช้ไม่ได้ค่อยใช้ไฟล์ที่สร้างไว้ตอน commit
   function getJSON(u){ return fetch(u, { cache: 'no-cache' }).then(function(r){ if(!r.ok) throw r.status; return r.json(); }); }
+  var CLS = { self_harm: 'ทำร้ายตัวเอง', emergency: 'ฉุกเฉิน · ภัย', violence: 'ความรุนแรง', scam: 'มิจฉาชีพ', distress: 'เดือดร้อนเงิน/ปากท้อง', none: 'ไม่มีอันตราย' };
+  getJSON('/static/blind_score.json').then(function(s){                 // สกอร์บอร์ดชุดปิดตา
+    function pct(x){ return x == null ? '–' : Math.round(x * 100) + '%'; }
+    var st = document.getElementById('score-stats');
+    [[s.danger_missed.n + '/' + s.danger_missed.of, 'เรื่องอันตรายถึงชีวิตที่ระบบไม่เห็นเลย'], [s.false_alarm.n + '/' + s.false_alarm.of, 'ข้อความปกติที่ถูกเตือนเกิน'], [s.total, 'ข้อความในชุดปิดตา']].forEach(function(v){
+      var b = el('div', 'stat kd-rim'); b.appendChild(el('b', null, String(v[0]))); b.appendChild(el('span', null, v[1])); st.appendChild(b);
+    });
+    var t = el('table'), h = el('tr');
+    ['หมวด', 'จำนวน', 'เจอ (recall)', 'แม่น (precision)', 'พลาด', 'เกิน'].forEach(function(x){ h.appendChild(el('th', null, x)); });
+    t.appendChild(h);
+    Object.keys(s.classes).forEach(function(c){
+      var v = s.classes[c], r = el('tr');
+      r.appendChild(el('td', null, CLS[c] || c)); r.appendChild(el('td', null, String(v.n)));
+      r.appendChild(el('td', v.recall != null && v.recall < .8 ? 'low' : null, pct(v.recall)));
+      r.appendChild(el('td', v.precision != null && v.precision < .8 ? 'low' : null, pct(v.precision)));
+      r.appendChild(el('td', v.fn ? 'low' : null, String(v.fn))); r.appendChild(el('td', v.fp ? 'low' : null, String(v.fp)));
+      t.appendChild(r);
+    });
+    var box = document.getElementById('score-table'); box.textContent = ''; box.appendChild(t);
+    var ul = document.getElementById('score-miss');
+    s.misses.forEach(function(m){
+      var li = el('li'); li.appendChild(el('code', null, CLS[m.label] || m.label)); li.appendChild(document.createTextNode(' ' + m.text + (m.got.length ? ' → ระบบเห็นเป็น ' + m.got.map(function(g){ return CLS[g] || g; }).join(', ') : ' → ระบบไม่เห็นอะไรเลย')));
+      ul.appendChild(li);
+    });
+    document.getElementById('score-who').textContent = s.blind_by_people
+      ? 'ในจำนวนนี้ ' + s.blind_by_people + ' ข้อเขียนโดยคนที่ไม่ได้เขียนโค้ดตัวตรวจจับ'
+      : 'ชุดเริ่มต้นนี้ AI เป็นคนเขียน จึงยังไม่ปิดตาเต็มร้อย — ข้อสอบปิดตาของจริงต้องมาจากคนที่ไม่ได้เขียนโค้ดตัวตรวจจับ';
+  }).catch(function(){ var b = document.getElementById('score-table'); if(b){ b.textContent = ''; b.appendChild(el('p', 'sub', 'โหลดคะแนนไม่สำเร็จ')); } });
   getJSON('/api/system_map').catch(function(){ return getJSON('/static/system_map.json'); }).then(init).catch(function(){
     document.getElementById('flds').innerHTML = '';
     document.getElementById('flds').appendChild(el('p', 'sub', 'โหลดแผนผังไม่สำเร็จ — ลองรีเฟรชอีกครั้ง'));
