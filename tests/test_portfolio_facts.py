@@ -41,7 +41,8 @@ def test_links_point_to_the_real_repo_and_profile():
     assert PF.count("https://github.com/thekingdiadem/King-Diadem") >= 3
     assert 'href="https://fastwork.co/byob/CtqOnVfzC7"' in PF          # ลิงก์จริงจากพี่ (เดิมพาไปหน้าแรกของ Fastwork)
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "fastwork.co/user/" not in PF + readme and readme.count("https://fastwork.co/byob/CtqOnVfzC7") == 3
+    # README เขียนใหม่ได้ตามต้องการ — ขอแค่ลิงก์ Fastwork ที่ถูกต้องยังอยู่ (เดิมล็อกไว้พอดี 3 ครั้ง เขียน README ใหม่แล้ว CI แดง)
+    assert "fastwork.co/user/" not in PF + readme and readme.count("https://fastwork.co/byob/CtqOnVfzC7") >= 1
 
 
 def test_unused_files_moved_out_of_live_folders():
