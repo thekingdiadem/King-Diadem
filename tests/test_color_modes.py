@@ -32,7 +32,7 @@ def test_picker_has_four_modes_and_custom_color():
 def test_space_scene_turns_into_paper():
     assert "uniform vec3 uPaper;uniform float uLight;" in PAGE
     assert "' vec3 bg=mix(vec3(.006,.008,.016),uPaper,uLight);'" in PAGE
-    assert "' stars*=1.-uLight;'," in PAGE and "' nm*=1.-uLight;'," in PAGE    # พื้นสว่างไม่มีดาว/ฝุ่น
+    assert "' stars*=(1.-uLight)*.6;'," in PAGE and "' nm*=1.-uLight;'," in PAGE   # พื้นสว่างไม่มีดาว/ฝุ่น
     assert "gl.uniform1f(u.uLight, tv ? 1 : 0);" in PAGE
     assert "window.KD_kick = kick;" in PAGE                                      # เปลี่ยนโหมดแล้ววาดใหม่ทันที
     assert "THEME.dark ? '#3d3558' : '#eef1f8'" in PAGE                         # ป้ายดาวเคราะห์อ่านได้บนพื้นสว่าง

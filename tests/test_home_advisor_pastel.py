@@ -35,14 +35,21 @@ def test_pastel_layer():
     assert ".tw-card.warn{" in PAGE and ".tw-card.bad{" in PAGE
 
 
-def test_pleiades_from_real_sky_positions():
-    block = PAGE[PAGE.index("var PLEIADES = ["):PAGE.index("function drawPleiades")]
-    stars = re.findall(r"\['(\w+)', (-?[\d.]+), (-?[\d.]+), ([\d.]+)\]", block)
-    names = [s[0] for s in stars]
-    assert names[0] == "Alcyone" and len(stars) == 9                         # 7 ธิดา + Atlas, Pleione
-    for n in ("Atlas", "Electra", "Maia", "Merope", "Taygeta", "Pleione", "Celaeno", "Asterope"):
-        assert n in names
-    mags = {s[0]: float(s[3]) for s in stars}
-    assert min(mags, key=mags.get) == "Alcyone"                              # ดวงที่สว่างที่สุดในกลุ่ม
-    assert all(abs(float(s[1])) <= 40 and abs(float(s[2])) <= 30 for s in stars)   # กว้างราว 1 องศา
-    assert "ctx.fillText('ดาวลูกไก่'," in PAGE and "if(drew) drawPleiades(" in PAGE
+def test_real_sky_from_hipparcos_catalog():
+    """ดาวบนหน้าแรกเป็นดาวจริงแบบ Stellarium: ตำแหน่ง ความสว่าง สีจริง (เดิมเป็นจุดสุ่ม + ดาวลูกไก่วาดเอง)"""
+    import json
+    sky = json.loads((ROOT / "static" / "earth" / "sky_taurus.json").read_text(encoding="utf-8"))
+    assert "Hipparcos" in sky["source"] and "BSD-3-Clause" in sky["source"]
+    stars = sky["stars"]
+    assert len(stars) > 4000 and all(len(r) == 4 for r in stars)
+    m45 = [r for r in stars if abs(r[0] - 56.75) < 1.2 and abs(r[1] - 24.12) < 1 and r[2] < 4.5]
+    assert len(m45) >= 6                                                    # ดาวลูกไก่ 6 ดวงที่ตาเปล่าเห็น
+    alde = [r for r in stars if abs(r[0] - 68.98) < .05 and abs(r[1] - 16.51) < .05]
+    assert alde and alde[0][2] < 1 and alde[0][3] > 1.4                      # ดาวโรหิณีสว่างและสีส้ม (B−V ~1.5)
+    assert "fetch('/static/earth/sky_taurus.json')" in PAGE and "function bvRGB(b)" in PAGE
+    assert "ctx.globalCompositeOperation = 'destination-out'" in PAGE      # โลก/ดาวเคราะห์บังดาว
+    assert "['ดาวลูกไก่', 56.75, 24.12" in PAGE and "['ดาวไถ', 84.05, -1.2" in PAGE
+    assert "if(paper && !inM45) return;" in PAGE                            # พื้นสว่างเหลือแค่ดาวลูกไก่
+    assert "drawPleiades" not in PAGE and "*(.55+.45*sin(t*.8+hc*40.))*0.;" in PAGE   # จุดสี่เหลี่ยมแบบพิกเซลปิดแล้ว
+    readme = (ROOT / "static" / "earth" / "README.md").read_text(encoding="utf-8")
+    assert "Olaf Frohn" in readme and "Hipparcos" in readme
