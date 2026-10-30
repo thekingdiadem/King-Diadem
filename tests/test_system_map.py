@@ -158,3 +158,30 @@ def test_docs_do_not_link_to_deleted_files():
     assert "kd_theme_deepspace" not in gallery
     from core.emptiness_guard import CONNECTED_MODULES
     assert all(os.path.exists(p) for p in CONNECTED_MODULES), [p for p in CONNECTED_MODULES if not os.path.exists(p)]
+
+
+def _edges(m):
+    names = [r[0] for r in m["files"]]
+    return {(names[a], names[b], k) for a, b, k in m["edges"]}
+
+
+def test_files_are_connected_by_real_references():
+    """เดิมนับเส้นแค่ import จาก app.py กับหน้าเว็บโหลด JS/CSS — 268 จาก 397 ไฟล์ลอยเดี่ยวในแผนที่
+    ทั้งที่มีเทสต์ทดสอบ สคริปต์สร้าง หรือหน้าเว็บโหลดอยู่จริง ตอนนี้เหลือแค่เอกสารที่ไม่มีใครอ้างถึงจริงๆ"""
+    m = sm.build(_embedded())
+    e = _edges(m)
+    linked = {a for a, _, _ in e} | {b for _, b, _ in e}
+    alone = [r[0] for r in m["files"] if r[0] not in linked]
+    assert all(f.endswith((".md", ".txt")) for f in alone), alone
+    assert len(alone) < 20
+    assert ("tests/test_pleiades_view.py", "static/pleiades_view.js", 2) in e      # เทสต์อ่านไฟล์ด้วย ROOT / "static" / ...
+    assert ("static/index.html", "static/pleiades_view.js", 1) in e                # หน้าแรกโหลดตอนแตะดาวลูกไก่
+    assert ("scripts/build_sky_stars.py", "static/earth/sky_taurus.json", 2) in e  # สคริปต์สร้างไฟล์ข้อมูลฟ้า
+    assert ("tests/test_pleiades_view.py", "tests/conftest.py", 2) in e
+
+
+def test_reference_edges_do_not_double_count():
+    """คู่ไฟล์เดียวกันมีเส้นเดียว — import (0) และหน้าเว็บโหลด (1) ชนะเส้นอ้างถึง (2)"""
+    m = sm.build(_embedded())
+    pairs = [(a, b) for a, b, _ in m["edges"]]
+    assert len(pairs) == len(set(pairs))

@@ -246,6 +246,65 @@ def web_edges(files: list[str]) -> list[tuple[str, str]]:
     return out
 
 
+# สตริงที่ต่อ path เป็นท่อน: ROOT / "static" / "x.js" · os.path.join(ROOT, "static", "x.html") → "static/x.js"
+_JOIN_RE = re.compile(r"""['"]\s*(?:/|,)\s*['"]""")
+_TEXT_EXT = (".py", ".js", ".html", ".css", ".md", ".yml", ".yaml", ".ini", ".toml", ".txt", ".cfg", ".sh")
+_GENERIC = {"README.md", "__init__.py", "index.html", "LICENSE.txt", "manifest.json"}
+
+
+def _web(f: str) -> bool:
+    return f.endswith((".html", ".js", ".css")) or f.endswith("manifest.json")
+
+
+def ref_edges(files: list[str], mods: dict[str, str], live: set[str]) -> set[tuple[str, str, int]]:
+    """เส้นจากการอ้างถึงกันจริงในเนื้อไฟล์ — เดิมแผนผังนับแค่ import จาก app.py กับหน้าเว็บโหลด JS/CSS
+    ไฟล์กว่าสองในสามจึงลอยเดี่ยวไม่มีเส้นต่อ ทั้งที่เทสต์ทดสอบมัน สคริปต์สร้างมัน หรือหน้าเว็บโหลดมันอยู่
+
+    kind: 0 = import ของ Python · 1 = หน้าเว็บโหลด/ส่ง · 2 = ทดสอบ / สร้าง / ตั้งค่า / เอกสารอ้างถึง"""
+    fs = set(files)
+    base_n: dict[str, int] = {}
+    for f in files:
+        base_n[os.path.basename(f)] = base_n.get(os.path.basename(f), 0) + 1
+    out: set[tuple[str, str, int]] = set()
+    for src in files:
+        if src.endswith(".py") and src not in live:      # import จากเทสต์ = "ทดสอบ" (2) · สคริปต์ = import (0) — ไฟล์ที่ app.py ถึงนับไว้แล้ว
+            out |= {(src, g, 2 if src.startswith("tests/") else 0) for g in imports_of(src, mods)}
+        if not (src.endswith(_TEXT_EXT) or src.endswith("manifest.json")) or src.startswith(("static/vendor/", "static/earth/")):
+            continue
+        try:
+            txt = open(os.path.join(ROOT, src), encoding="utf-8").read()
+        except (OSError, UnicodeDecodeError):
+            continue
+        txt = _JOIN_RE.sub("/", _MAP_RE.sub("", txt))       # ไม่นับชื่อไฟล์ในข้อมูลแผนผังเอง
+        web = _web(src) or (src in live and src.endswith(".py"))
+        for tgt in files:
+            if tgt == src:
+                continue
+            b = os.path.basename(tgt)
+            hit = tgt in txt and re.search(r"(?<![\w-])" + re.escape(tgt) + r"(?![\w-])", txt)
+            if not hit and base_n[b] == 1 and b not in _GENERIC and b in txt:
+                hit = re.search(r"(?<![\w.-])" + re.escape(b) + r"(?![\w-])", txt)
+            if hit:
+                kind = 1 if web and (tgt.startswith("static/") or _web(tgt)) and not src.endswith(".md") else 2
+                out.add((src, tgt, kind))
+        if src.startswith("static/") and src.endswith(".js"):
+            # ชื่อที่ประกอบตอนรัน: 'earth/' + name + '.jpg', 'cities_t' + n + '.json' (ลูกโลก/แผนที่เมือง)
+            if "earth/" in txt:
+                for g in fs:
+                    if g.startswith("static/earth/") and not g.endswith(".md"):
+                        stem = re.sub(r"(_4k|\d+)$", "", os.path.splitext(os.path.basename(g))[0])
+                        if re.search(r"['\"/]" + re.escape(stem), txt):
+                            out.add((src, g, 1))
+            for d in re.findall(r"/static/(vendor/[\w.-]+/)", txt):
+                out |= {(src, g, 1) for g in fs if g.startswith("static/" + d) and not g.endswith((".md", ".txt"))}
+    # pytest โหลด tests/conftest.py ให้ทุกเทสต์เอง (fixture autouse) และ pytest.ini ชี้ให้ pytest มาที่ tests/
+    if "tests/conftest.py" in fs:
+        out |= {(f, "tests/conftest.py", 2) for f in fs if f.startswith("tests/test_") and f.endswith(".py")}
+        if "pytest.ini" in fs:
+            out.add(("pytest.ini", "tests/conftest.py", 2))
+    return out
+
+
 def build(old: dict, loaded=None) -> dict:
     files = tracked()
     mods = module_map(files)
@@ -308,6 +367,11 @@ def build(old: dict, loaded=None) -> dict:
     index = {r[0]: i for i, r in enumerate(rows)}
     edge_rows = {(index[a], index[b], 0) for a, b in edges if a in index and b in index}
     edge_rows |= {(index[a], index[b], 1) for a, b in web_edges(files) if a in index and b in index}   # 1 = ส่ง/โหลดฝั่งเว็บ
+    known = {(a, b) for a, b, _ in edge_rows}
+    for a, b, k in sorted(ref_edges(files, mods, live), key=lambda e: e[2]):   # คู่เดียวกันเหลือเส้นเดียว (import ชนะ)
+        if a in index and b in index and (index[a], index[b]) not in known:
+            known.add((index[a], index[b]))
+            edge_rows.add((index[a], index[b], k))
     edge_rows = sorted(edge_rows)
     return {"commit": head_commit(old.get("commit", "")), "files": rows, "edges": [list(e) for e in edge_rows]}
 

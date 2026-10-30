@@ -119,6 +119,7 @@ code, .mono { font-family: var(--f-mono); font-size: .88em; }
 .legend { display: flex; flex-wrap: wrap; gap: 14px; padding: 10px 14px 14px; font-size: 12px; color: var(--tx-lo); }
 .legend span::before { content: ""; display: inline-block; width: 22px; height: 0; margin-right: 6px; vertical-align: middle; border-top: 1.5px solid rgba(255,198,161,.8); }
 .legend span.web::before { border-top: 1.5px dashed rgba(169,188,255,.9); }
+.legend span.ref::before { border-top: 1.5px dotted rgba(200,182,240,.9); }
 .hint { font-size: 12.5px; color: var(--tx-lo); padding: 0 14px 12px; }
 
 /* โฟลเดอร์ */
@@ -247,14 +248,14 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
   <section id="map-sec" aria-labelledby="h-map">
     <p class="eyebrow">03 · Every file</p>
     <h2 id="h-map">แผนที่ไฟล์ทั้งหมด</h2>
-    <p class="sub">ทุกไฟล์ใน repo เป็นดาวหนึ่งดวง จัดเป็นกลุ่มตามโฟลเดอร์ เส้นคือการเชื่อมจริง: <strong>import ในโค้ด</strong> และ<strong>หน้าเว็บที่โหลดไฟล์</strong> —
+    <p class="sub">ทุกไฟล์ใน repo เป็นดาวหนึ่งดวง จัดเป็นกลุ่มตามโฟลเดอร์ เส้นคือการเชื่อมจริง: <strong>import ในโค้ด</strong> · <strong>หน้าเว็บที่โหลดไฟล์</strong> · <strong>เทสต์ สคริปต์ ไฟล์ตั้งค่า และเอกสารที่อ้างถึงไฟล์</strong> —
       ข้อมูลสร้างจาก repo ด้วย <code>scripts/build_system_map.py</code> ทุกครั้งที่ไฟล์เปลี่ยน ไม่ได้วาดมือ</p>
     <div class="map-wrap kd-rim">
       <div class="tools"><input id="q" type="search" placeholder="ค้นหาไฟล์ เช่น canon, gemini, wallet" aria-label="ค้นหาไฟล์" autocomplete="off"></div>
       <div class="cats" id="cats" role="group" aria-label="กรองตามหมวด"></div>
       <p class="hint" id="hint">แตะดาวเพื่อดูว่าไฟล์นั้นทำอะไร และเชื่อมกับไฟล์ไหน</p>
       <canvas id="map" aria-label="แผนที่ไฟล์และการเชื่อมต่อ — รายการแบบข้อความอยู่ในส่วนโฟลเดอร์ด้านล่าง"></canvas>
-      <div class="legend"><span>import ในโค้ด</span><span class="web">หน้าเว็บส่ง/โหลดไฟล์</span></div>
+      <div class="legend"><span>import ในโค้ด</span><span class="web">หน้าเว็บส่ง/โหลดไฟล์</span><span class="ref">ทดสอบ · สร้าง · อ้างถึง</span></div>
       <div class="info kd-rim" id="info" role="dialog" aria-live="polite"></div>
     </div>
   </section>
@@ -444,8 +445,11 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
       if(hot && !lit) return;
       var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 - Math.min(60, Math.hypot(b.x - a.x, b.y - a.y) * .18);
       cx.beginPath(); cx.moveTo(a.x, a.y); cx.quadraticCurveTo(mx, my, b.x, b.y);
-      cx.setLineDash(e.k === 1 ? [4, 4] : []);
-      cx.strokeStyle = e.k === 1 ? (lit ? 'rgba(190,210,255,.95)' : 'rgba(169,188,255,.28)') : (lit ? 'rgba(255,206,150,.9)' : 'rgba(255,198,161,.2)');
+      cx.setLineDash(e.k === 1 ? [4, 4] : e.k === 2 ? [1.5, 3] : []);
+      // เส้นอ้างถึง (เทสต์/สคริปต์/เอกสาร) มีมากที่สุด — จางไว้ตอนดูภาพรวม ชัดเมื่อแตะไฟล์
+      cx.strokeStyle = e.k === 1 ? (lit ? 'rgba(190,210,255,.95)' : 'rgba(169,188,255,.28)')
+        : e.k === 2 ? (lit ? 'rgba(214,198,255,.9)' : 'rgba(200,182,240,.07)')
+        : (lit ? 'rgba(255,206,150,.9)' : 'rgba(255,198,161,.2)');
       cx.lineWidth = lit ? 1.4 : .8; cx.stroke();
     });
     cx.setLineDash([]);
@@ -494,9 +498,8 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
     box.appendChild(el('div', 'p', f.p));
     box.appendChild(el('div', 'm', (CAT[f.c] ? CAT[f.c][0] : f.c) + (f.n ? ' · ' + f.n.toLocaleString() + ' บรรทัด' : '')));
     if(f.d) box.appendChild(el('div', 'd', f.d));
-    var outImp = OUT[i].filter(function(j){ return E.some(function(e){ return e.a === i && e.b === j && e.k === 0; }); });
-    var outWeb = OUT[i].filter(function(j){ return outImp.indexOf(j) < 0; });
-    list('เรียกใช้ (import)', outImp, box); list('ส่ง / โหลด', outWeb, box); list('ถูกใช้โดย', IN[i], box);
+    function out(k){ return OUT[i].filter(function(j){ return E.some(function(e){ return e.a === i && e.b === j && e.k === k; }); }); }
+    list('เรียกใช้ (import)', out(0), box); list('ส่ง / โหลด', out(1), box); list('ทดสอบ / สร้าง / อ้างถึง', out(2), box); list('ถูกใช้โดย', IN[i], box);
     if(!OUT[i].length && !IN[i].length) box.appendChild(el('div', 'm', 'ไม่มีไฟล์ไหนเชื่อมกับไฟล์นี้ในโค้ด'));
     box.classList.add('on');
     try{ history.replaceState(null, '', '#f=' + encodeURIComponent(f.p)); }catch(_){}
