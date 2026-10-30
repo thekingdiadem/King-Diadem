@@ -176,6 +176,9 @@ def asset_refs(files: list[str]) -> set[str]:
             src = open(os.path.join(ROOT, f), encoding="utf-8").read()
             if "earth/" in src:
                 out |= {g for g in files if g.startswith("static/earth/") and not g.endswith(".md")}
+            # ไลบรารีที่เก็บไว้ใน static/vendor/ โหลดด้วย BASE + ชื่อไฟล์ (เช่น MapLibre ใน city_map.js)
+            for d in re.findall(r"/static/(vendor/[\w.-]+/)", src):
+                out |= {g for g in files if g.startswith("static/" + d) and not g.endswith((".md", ".txt"))}
     return out
 
 
