@@ -553,6 +553,8 @@ def decision_quality(relevant: float, entropy: float) -> dict:
         "status": status,
         "action": action,
         "kernel_flag": kernel_flag,
+        # Decision(t) ∈ {0,1}: 1 = อนุมัติ/ดำเนินการ เฉพาะเมื่อ DECISION_VIABLE · 0 = ปฏิเสธ/ระงับ
+        "decision": 1 if status == "DECISION_VIABLE" else 0,
         "formula": f"Decision(t) = {relevant} / {entropy} = {round(score, 4)}",
     }
 

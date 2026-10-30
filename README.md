@@ -17,7 +17,7 @@ Live demo: https://king-diadem.onrender.com
 KING DIADEM is built around one principle:
 
 ```python
-Risk = Drift × Exposure / Remaining Choice
+Risk = Drift × Exposure × Time / Remaining Choice
 Choice(t) >= 1 -> collapse = False
 ```
 

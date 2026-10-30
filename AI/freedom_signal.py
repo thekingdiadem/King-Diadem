@@ -3,9 +3,10 @@ AI/freedom_signal.py — KING DIADEM™
 Freedom Signal Monitor — Master Equation Engine
 
 KING DIADEM Master Equation:
-  R = (D × T) / C
+  R = (D × E × T) / C        Risk = Drift × Exposure × Time / Remaining Choice
   R = Collapse Risk
   D = Drift (การเสื่อมสะสม)
+  E = Exposure (ส่วนของชีวิตที่โดน drift อยู่จริง 0–1 · ไม่รู้ = 1 → เท่ากับ R = (D × T) / C เดิม)
   T = Time (เวลา)
   C = Choice (จำนวนทางเลือกที่เหลือ)
 
@@ -113,20 +114,22 @@ def drift_from_risk_score(risk_score) -> float:
 
 
 # ══════════════════════════════════════════════════════════════════
-# MASTER EQUATION: R = (D × T) / C
+# MASTER EQUATION: R = (D × E × T) / C
 # ══════════════════════════════════════════════════════════════════
 
 def compute_collapse_risk(
     drift:    float,
     time_elapsed: float,
     choices:  float,
+    exposure: float = 1.0,
 ) -> dict:
     """
-    R = (D × T) / C — KING DIADEM Master Equation
+    R = (D × E × T) / C — KING DIADEM Master Equation
 
     drift         : D — accumulated drift (0.0–1.0)
     time_elapsed  : T — เวลาผ่านไป (วัน)
     choices       : C — จำนวนทางเลือกที่เหลือ
+    exposure      : E — ส่วนที่โดน drift อยู่จริง (0.0–1.0) · ไม่ได้ส่ง/อ่านไม่ได้ = 1 (ถือว่าโดนเต็มที่ไว้ก่อน)
 
     ถ้า C → 0 : R → ∞ (collapse แน่นอน)
     ถ้า C >= 1 : collapse = False (ยังฟื้นได้)
@@ -134,6 +137,7 @@ def compute_collapse_risk(
     drift    = max(0.0, _num(drift, 0.0))
     time_e   = max(0.0, _num(time_elapsed, 0.0))
     choices  = max(0.0, _num(choices, 0.0))
+    exposure = min(1.0, max(0.0, _num(exposure, 1.0)))
 
     # prevent division by zero — C=0 → R = ∞ (collapse) — ส่งเป็น R_CAP เพราะ JSON ไม่รองรับ inf
     if choices <= 0:
@@ -147,11 +151,12 @@ def compute_collapse_risk(
             "action":        "SYSTEM_PAUSE — Choice = 0 → collapse แน่นอน",
             "axiom":         "Choice(t) >= 1 → collapse = False",
             "D":             drift,
+            "E":             exposure,
             "T":             time_e,
             "C":             choices,
         }
 
-    R = (drift * time_e) / choices
+    R = (drift * exposure * time_e) / choices
     R = round(R, 6)
 
     # early warning
@@ -184,8 +189,10 @@ def compute_collapse_risk(
         "action":        action,
         "axiom":         "Choice(t) >= 1 → collapse = False",
         "D":             drift,
+        "E":             exposure,
         "T":             time_e,
         "C":             choices,
+        "equation":      f"R = ({drift:g} × {exposure:g} × {time_e:g}) / {choices:g} = {R:g}",
     }
 
 
@@ -198,7 +205,7 @@ def freedom_index(choices_available: Optional[int] = None) -> int:
     Freedom Index (0–100) จาก Master Equation
 
     เดิม: (choices - crisis) / questions × 50 + 50
-    ใหม่: inverse ของ R = (D × T) / C
+    ใหม่: inverse ของ R = (D × E × T) / C (E = 1 — ยังไม่วัด exposure ต่อผู้ใช้)
 
     100 = ไม่มี drift ทางเลือกมาก
     0   = drift สูง ทางเลือกน้อย = collapse territory
@@ -267,7 +274,7 @@ def freedom_snapshot() -> dict:
             "drift_total": round(D, 4),
             "time_days":   round(T, 4),
         },
-        "master_equation": "R = (D × T) / C",
+        "master_equation": "R = (D × E × T) / C",
         "invariant":       "Choice(t) >= 1 → collapse = False",
         "seal":            "Fail less. Harm less. Restore more.",
     }
@@ -351,7 +358,7 @@ def _self_test() -> dict:
     snap = freedom_snapshot()
     assert "freedom_index" in snap
     assert "master_equation" in snap
-    assert snap["master_equation"] == "R = (D × T) / C"
+    assert snap["master_equation"] == "R = (D × E × T) / C"
 
     return {"status": "OK", "module": "freedom_signal"}
 

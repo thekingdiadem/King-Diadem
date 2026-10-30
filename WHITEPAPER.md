@@ -21,7 +21,7 @@ KING DIADEM สร้างมาเพื่อตรวจจับช่ว�
 ## สูตรกลาง
 
 ```
-Risk = Drift × Exposure / Remaining Choice
+Risk = Drift × Exposure × Time / Remaining Choice
 
 Choice(t) ≥ 1 → collapse = False
 ```

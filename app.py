@@ -2234,7 +2234,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     except Exception as _cv:
         print(f"⚠ canon_validate error: {_cv}")
 
-    # ── Freedom signal: R = (D × T) / C ──────────────────────────
+    # ── Freedom signal: R = (D × E × T) / C ──────────────────────────
     # เดิมไม่มีใครเรียก record_choice/record_crisis → C = 0 ตลอด freedom_index() คืน 0 เสมอ
     # record_drift ก็ไม่มีใครเรียก → D มาจากวิกฤตอย่างเดียว · ตอนนี้คำตอบที่ไม่ใช่วิกฤตส่ง risk_score (0–100) เป็น drift
     try:
