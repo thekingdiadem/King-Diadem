@@ -24,7 +24,7 @@
   var capEl = document.getElementById('bb-cap'), timeEl = document.getElementById('bb-time'),
       tempEl = document.getElementById('bb-temp'), hintEl = document.getElementById('bb-hint'),
       skipEl = document.getElementById('bb-skip'), sndEl = document.getElementById('bb-snd'),
-      tipEl = document.getElementById('bb-tip');
+      tipEl = document.getElementById('bb-tip'), txtEl = document.getElementById('bb-txt');
   var MQ = matchMedia('(prefers-reduced-motion: reduce)');
   function CALM() { return MQ.matches || document.documentElement.classList.contains('kd-calm'); }
 
@@ -47,19 +47,30 @@
     // ดาวลูกไก่ (กระจุกดาวเปิด M45) เกิดราว 100 ล้านปีก่อน — ก่อนไดโนเสาร์สูญพันธุ์
     { t: 12.2, time: '100 ล้านปีก่อน',    temp: '—',        cap: 'เมฆก๊าซในทางช้างเผือกยุบตัว ดาวใหม่เกิดขึ้นพร้อมกันเป็นกระจุก' },
     { t: 13.0, time: '100 ล้านปีก่อน',    temp: '—',        cap: 'ดาวลูกไก่ — ดาวสีฟ้าร้อนจัด ห่างจากเราราว 440 ปีแสง' },
-    // บทโลก: ดาวเคราะห์น้อยชิกซูลุบ (กว้างราว 10 กม.) ชนคาบสมุทรยูคาทาน
-    { t: 14.4, time: '66 ล้านปีก่อน',     temp: '—',        cap: 'ดาวเคราะห์น้อยกว้างราว 10 กิโลเมตร พุ่งเข้าหาโลกยุคไดโนเสาร์' },
-    { t: 16.6, time: '66 ล้านปีก่อน',     temp: '—',        cap: 'ชนที่คาบสมุทรยูคาทาน คลื่นกระแทกแผ่ไปรอบโลก' },
-    { t: 18.4, time: '66 ล้านปีก่อน',     temp: '—',        cap: 'ฝุ่นบังแสงอาทิตย์ ไดโนเสาร์ส่วนใหญ่สูญพันธุ์ แต่ชีวิตเล็กๆ ยังรอดและเริ่มต้นใหม่' },
-    { t: 20.6, time: '13,800 ล้านปี',     temp: '2.7 K',    cap: 'และวันนี้ — ดาวลูกไก่ยังส่องอยู่บนฟ้า และเราทุกคนเป็นส่วนหนึ่งของจักรวาลเดียวกัน' }
+    // ยุคครีเทเชียส (145–66 ล้านปีก่อน) บนพื้นโลก
+    { t: 14.0, time: '68 ล้านปีก่อน',     temp: '—',        cap: 'ยุคครีเทเชียส — โลกร้อนชื้น ลมร้อนพัดผ่านป่าสนและเฟิร์น' },
+    { t: 15.4, time: '68 ล้านปีก่อน',     temp: '—',        cap: 'ไดโนเสาร์คอยาวเดินเป็นฝูง เทอโรซอร์ร่อนอยู่เหนือฟ้า และนกยุคแรกก็บินอยู่ร่วมกับพวกมัน' },
+    { t: 16.8, time: '68 ล้านปีก่อน',     temp: '—',        cap: 'สัตว์เลี้ยงลูกด้วยนมตัวเล็กแอบอยู่ในโพรง — พวกมันมีมาแล้วกว่าร้อยล้านปี แต่ยังต้องหลบซ่อน' },
+    { t: 17.8, time: '66 ล้านปีก่อน',     temp: '—',        cap: 'จุดแสงดวงใหม่บนฟ้า สว่างขึ้นทุกคืน' },
+    // มองจากอวกาศ: ดาวเคราะห์น้อยชิกซูลุบ (กว้างราว 10 กม.) ชนคาบสมุทรยูคาทาน
+    { t: 19.2, time: '66 ล้านปีก่อน',     temp: '—',        cap: 'ดาวเคราะห์น้อยกว้างราว 10 กิโลเมตร พุ่งเข้าหาโลก' },
+    { t: 21.6, time: '66 ล้านปีก่อน',     temp: '—',        cap: 'ชนที่คาบสมุทรยูคาทาน คลื่นกระแทกแผ่ไปรอบโลก' },
+    { t: 23.0, time: '66 ล้านปีก่อน',     temp: '—',        cap: 'ฝนลูกไฟตกทั่วโลก ฝุ่นและเขม่าบังแสงอาทิตย์อยู่นานหลายปี' },
+    // หลังภัยพิบัติบนพื้นโลก
+    { t: 25.0, time: '66 ล้านปีก่อน',     temp: '—',        cap: 'ไดโนเสาร์ที่บินไม่ได้สูญพันธุ์ พร้อมสิ่งมีชีวิตราว 3 ใน 4' },
+    { t: 26.2, time: '66 ล้านปีก่อน',     temp: '—',        cap: 'แต่สัตว์ตัวเล็กที่ขุดโพรงและกินได้หลายอย่าง รอดมาได้' },
+    { t: 27.4, time: '60 ล้านปีก่อน',     temp: '—',        cap: 'เฟิร์นงอกกลับก่อน ป่าค่อยๆ ฟื้น สัตว์เลี้ยงลูกด้วยนมแตกแขนงออกเป็นหลายร้อยชนิด' },
+    { t: 28.8, time: '50 ล้านปีก่อน',     temp: '—',        cap: 'นกบางสายรอดมาได้ แล้วแตกแขนงเป็นนกเกือบทุกชนิดที่เห็นวันนี้ — พวกมันคือลูกหลานไดโนเสาร์' },
+    { t: 30.0, time: '13,800 ล้านปี',     temp: '2.7 K',    cap: 'และวันนี้ — ดาวลูกไก่ยังส่องอยู่บนฟ้า และเราทุกคนเป็นส่วนหนึ่งของจักรวาลเดียวกัน' }
   ];
-  // บทโลกเลื่อนไปหลังบทดาวลูกไก่ 1.6 (เวลาในฉาก) — shader บทโลกเขียนไว้ที่ชน 15.0
-  var EARTH_SHIFT = 1.6, IMPACT = 15.0 + EARTH_SHIFT, END = 22.8, FADE = 1.4;
-  // เวลาจริง (วินาที) → เวลาในฉาก: ยุคแรกๆ ที่เกิดเร็วมากได้เวลาดูนานขึ้น ทั้งฉากราว 63 วินาที
-  // (เจ้าของโปรเจกต์อยากเห็นละเอียดตั้งแต่อนุภาคเกิดดับแรกๆ จนถึงวันนี้ ราว 60 วินาที)
+  // บทโลกจากอวกาศ: shader เขียนไว้ที่ชน 15.0 แล้วเลื่อนไป 6.6 (หลังบทดาวลูกไก่และยุคครีเทเชียส)
+  var EARTH_SHIFT = 6.6, IMPACT = 15.0 + EARTH_SHIFT, END = 31.6, FADE = 1.4;
+  // เวลาจริง (วินาที) → เวลาในฉาก: ยุคแรกๆ ที่เกิดเร็วมากได้เวลาดูนานขึ้น ทั้งฉากราว 93 วินาที
+  // (เจ้าของโปรเจกต์อยากได้ละเอียด เล่าเป็นเรื่องราวตั้งแต่อนุภาคเกิดดับจนถึงวันนี้ — ใครไม่ดูกดข้ามได้)
   var CLOCK = [[0, 0], [1.5, .3], [3, .6], [6, 1.7], [10, 2.4], [14, 3], [18, 3.8], [22, 4.8], [25, 5.8], [28, 6.4],
-               [31, 7.2], [35, 8], [39, 9.8], [42.5, 11.2], [45.5, 12.2], [48, 13], [50.5, 14.4], [54, 16.6], [57, 18.4],
-               [60.5, 20.6], [63, 22.8]];
+               [31, 7.2], [35, 8], [39, 9.8], [42.5, 11.2], [45.5, 12.2], [48, 13], [50.5, 14], [54, 15.4], [57.5, 16.8],
+               [60.5, 17.8], [63.5, 19.2], [68.5, 21.6], [72, 23], [75.5, 25], [79, 26.2], [82.5, 27.4], [86.5, 28.8],
+               [90, 30], [93, 31.6]];
   function sceneTime(sec) {
     for (var i = 1; i < CLOCK.length; i++) {
       var A = CLOCK[i - 1], B = CLOCK[i];
@@ -215,8 +226,10 @@
         ctx.beginPath(); ctx.arc(cx + wv.x * zoom, cy + wv.y * zoom, wv.r * zoom, 0, Math.PI * 2); ctx.stroke();
       }
       if (t > 12.2 && t < 14.6) pleiades2D(t, cx, cy);
-      if (t > 12 + EARTH_SHIFT) earth2D(t - EARTH_SHIFT, cx, cy);
-      if (t > IMPACT && !hit) { hit = true; shake = 18; }
+      if (t > 14 && t < 19) land2D(t - 14, 0, cx, cy);
+      if (t > 18.4 && t < 25.3) earth2D(t - EARTH_SHIFT, cx, cy);
+      if (t > 25) land2D(t - 25, 1, cx, cy);
+      if (t > IMPACT && !hit) { hit = true; shake = 18; buzz([220, 60, 120, 60, 400]); }
       for (var pi = PHASES.length - 1; pi >= 0; pi--) if (t >= PHASES[pi].t) { setPhase(pi); break; }
       if (t > END && state === 'run') finish();
     }
@@ -240,6 +253,18 @@
       var on = Math.max(0, Math.min(1, (t - 12.9 - i * .07) / .25)), sz = S * (i === 0 ? .2 : .14) * on;
       ctx.globalAlpha = e * on; ctx.drawImage(glow, cx + m[0] * S - sz, cy - m[1] * S - sz, sz * 2, sz * 2);
     });
+    ctx.globalAlpha = 1;
+  }
+
+  // บทพื้นโลกแบบ Canvas 2D: ฟ้า ดวงอาทิตย์ เนินเขา (ก่อนชน = แดดเย็นสีส้ม · หลังชน = มืดแล้วค่อยฟ้าใส)
+  function land2D(lc, af, cx, cy) {
+    var e = Math.min(1, lc / .7), gr = af ? Math.max(0, Math.min(1, (lc - 1.8) / 2.4)) : 0, gy = cy + Math.min(W, H) * .24;
+    var g = ctx.createLinearGradient(0, 0, 0, gy);
+    g.addColorStop(0, af ? (gr > .5 ? '#4d80d9' : '#140808') : '#3f2e73'); g.addColorStop(1, af ? (gr > .5 ? '#d9bf99' : '#381410') : '#f28c4d');
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = e; ctx.fillStyle = g; ctx.fillRect(0, 0, W, gy);
+    ctx.fillStyle = af && gr < .5 ? '#1c1714' : '#140f12'; ctx.fillRect(0, gy, W, H - gy);
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = e * (af ? gr : 1);
+    var sr = Math.min(W, H) * .12; ctx.drawImage(glow, cx - Math.min(W, H) * .35 - sr, gy - Math.min(W, H) * .2 - sr, sr * 2, sr * 2);
     ctx.globalAlpha = 1;
   }
 
@@ -287,7 +312,7 @@
     GL.draw({ t: t, now: now, shake: sh, waves: WV, yaw: 0, pitch: 0,
               well: [ptr.x / W * 2 - 1, 1 - ptr.y / H * 2, wellAmt * .9] });
     if (t < 0) return;
-    if (t > IMPACT && !hit) { hit = true; shake = 22; }                // ชนโลก: จอสั่น
+    if (t > IMPACT && !hit) { hit = true; shake = 22; buzz([220, 60, 120, 60, 400]); }   // ชนโลก: จอสั่น มือถือสั่น
     for (var pi = PHASES.length - 1; pi >= 0; pi--) if (t >= PHASES[pi].t) { setPhase(pi); break; }
     if (tipEl) tipEl.hidden = !(t > 1.6 && t < 5.8);
     snd.update(t, hold);
@@ -343,6 +368,21 @@
       f.type = 'bandpass'; f.Q.value = 1.4; f.frequency.setValueAtTime(250, t); f.frequency.exponentialRampToValueAtTime(3200, t + 2.6);
       env(g, t, .28, 1.6, 1.2); n.connect(f); f.connect(g); g.connect(M); n.start(t); n.stop(t + 3);
     }
+    function wind() {                                  // ลมร้อนพัดผ่านป่า: เสียงซ่าที่ขึ้นลงช้าๆ ราว 8 วินาที
+      var t = A.currentTime, n = noise(9), f = A.createBiquadFilter(), g = A.createGain();
+      f.type = 'bandpass'; f.Q.value = .7; f.frequency.setValueAtTime(400, t);
+      for (var i = 1; i < 9; i++) f.frequency.linearRampToValueAtTime(300 + Math.random() * 600, t + i);
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.12, t + 2); g.gain.setValueAtTime(.12, t + 6.5);
+      g.gain.exponentialRampToValueAtTime(.0001, t + 8.8); n.connect(f); f.connect(g); g.connect(M); n.start(t); n.stop(t + 9);
+    }
+    function birds() {                                 // นกร้องสั้นๆ: เสียงหวีดที่ไล่ขึ้นเร็ว
+      var t = A.currentTime;
+      for (var i = 0; i < 7; i++) {
+        var o = A.createOscillator(), g = A.createGain(), at = t + i * .32 + Math.random() * .2, f0 = 2200 + Math.random() * 1400;
+        o.type = 'sine'; o.frequency.setValueAtTime(f0, at); o.frequency.exponentialRampToValueAtTime(f0 * 1.5, at + .09);
+        env(g, at, .04, .01, .14); o.connect(g); g.connect(M); o.start(at); o.stop(at + .2);
+      }
+    }
     function stop() {
       if (!drone || !A) return; var t = A.currentTime, d = drone; drone = null;
       d.g.gain.cancelScheduledValues(t); d.g.gain.setValueAtTime(Math.max(.0001, d.g.gain.value), t); d.g.gain.exponentialRampToValueAtTime(.0001, t + 1.2);
@@ -369,17 +409,22 @@
         if (t > 6.4 && !done.ping) { done.ping = 1; pings(); }
         if (t > 11.2 && !done.wh) { done.wh = 1; whoosh(); }
         if (t > 13 && !done.m45) { done.m45 = 1; pings(); }               // ดาวลูกไก่จุดประกาย
-        if (t > 15 && !done.wh2) { done.wh2 = 1; whoosh(); }               // ดาวเคราะห์น้อยพุ่งเข้ามา
+        if (t > 14 && !done.wind) { done.wind = 1; wind(); }              // ลมร้อนยุคครีเทเชียส
+        if (t > 20.4 && !done.wh2) { done.wh2 = 1; whoosh(); }             // ดาวเคราะห์น้อยพุ่งเข้ามา
+        if (t > 28.8 && !done.bird) { done.bird = 1; birds(); }           // นกร้อง
         if (t > IMPACT && !done.imp) { done.imp = 1; boom(); }            // ชนโลก
       },
       stop: stop
     };
   })();
 
+  // สั่นมือถือตอนระเบิดและตอนชน (เหมือนเก้าอี้สั่นในโรงหนัง 4D) — เครื่องที่ไม่รองรับก็ข้ามไปเฉยๆ · ลดการเคลื่อนไหวไม่สั่น
+  function buzz(pat) { if (CALM()) return; try { if (navigator.vibrate) navigator.vibrate(pat); } catch (e) {} }
+
   function ignite() {
     if (state !== 'idle') return;
     clearTimeout(waitTimer);
-    state = 'run'; t0 = performance.now(); shake = 14; snd.ignite();
+    state = 'run'; t0 = performance.now(); shake = 14; snd.ignite(); buzz([60, 40, 160]);
     hintEl.hidden = true; root.classList.add('lit');
   }
 
@@ -440,11 +485,24 @@
   skipEl.addEventListener('click', skip);
   function sndLabel() { sndEl.textContent = snd.on() ? 'เสียง: เปิด' : 'เสียง: ปิด'; sndEl.setAttribute('aria-pressed', snd.on() ? 'true' : 'false'); }
   if (sndEl) { sndLabel(); sndEl.addEventListener('click', function () { snd.set(!snd.on()); sndLabel(); }); }
+  // ดูภาพล้วนๆ: ซ่อนคำบรรยาย เวลา และคำแนะนำ — จำค่าไว้ในเครื่อง
+  var showText = true;
+  try { showText = localStorage.getItem('kd-bang-text') !== '0'; } catch (e) {}
+  function txtLabel() {
+    root.classList.toggle('notext', !showText);
+    txtEl.textContent = showText ? 'ข้อความ: เปิด' : 'ข้อความ: ปิด'; txtEl.setAttribute('aria-pressed', showText ? 'true' : 'false');
+  }
+  if (txtEl) {
+    txtLabel();
+    txtEl.addEventListener('click', function () { showText = !showText; try { localStorage.setItem('kd-bang-text', showText ? '1' : '0'); } catch (e) {} txtLabel(); });
+  }
   root.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { e.preventDefault(); skip(); }
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'idle' && document.activeElement !== skipEl) { e.preventDefault(); ignite(); }
     else if (e.key === 'Tab') {                                                // โฟกัสอยู่ในฉากจนกว่าจะปิด
-      e.preventDefault(); (document.activeElement === skipEl && sndEl ? sndEl : skipEl).focus();
+      e.preventDefault();
+      var btns = [skipEl, sndEl, txtEl].filter(Boolean), k = btns.indexOf(document.activeElement);
+      btns[(k + (e.shiftKey ? btns.length - 1 : 1)) % btns.length].focus();
     }
   });
   window.addEventListener('resize', function () { if (state !== 'off') resize(); });

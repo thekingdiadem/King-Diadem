@@ -303,12 +303,15 @@ html.bb-on,html.bb-on body{overflow:hidden}
 #big-bang.still .bb-cap,html.kd-calm .bb-cap{opacity:1;transform:none}
 .bb-hint{position:absolute;left:0;right:0;top:calc(50% + 46px);text-align:center;font:400 13px/1.6 var(--f-body);color:#d6e0ff;pointer-events:none;animation:bbHint 2.4s ease-in-out infinite}
 @keyframes bbHint{50%{opacity:.45}}
-.bb-skip{position:absolute;top:max(14px,env(safe-area-inset-top));right:16px;min-height:44px;padding:0 18px;border-radius:99px;border:1px solid rgba(255,248,231,.32);background:rgba(8,10,24,.6);color:#fff8e7;font:500 13px/1 var(--f-body);cursor:pointer}
-.bb-snd{position:absolute;top:max(14px,env(safe-area-inset-top));right:104px;min-height:44px;padding:0 16px;border-radius:99px;border:1px solid rgba(255,248,231,.22);background:rgba(8,10,24,.6);color:#fff8e7;font:500 13px/1 var(--f-body);cursor:pointer}
+.bb-skip{min-height:44px;padding:0 18px;border-radius:99px;border:1px solid rgba(255,248,231,.32);background:rgba(8,10,24,.6);color:#fff8e7;font:500 13px/1 var(--f-body);cursor:pointer}
+.bb-snd,.bb-txt{min-height:44px;padding:0 16px;border-radius:99px;border:1px solid rgba(255,248,231,.22);background:rgba(8,10,24,.6);color:#fff8e7;font:500 13px/1 var(--f-body);cursor:pointer}
 .bb-snd[aria-pressed="true"]{border-color:#ffd99a;color:#ffe2b8}
+.bb-btns{position:absolute;top:max(14px,env(safe-area-inset-top));right:16px;display:flex;gap:8px}
+#big-bang.notext .bb-cap,#big-bang.notext .bb-hud,#big-bang.notext .bb-tip,#big-bang.notext .bb-hint{display:none}
+@media (max-width:520px){.bb-hud{top:calc(max(14px,env(safe-area-inset-top)) + 56px)}.bb-btns .bb-snd,.bb-btns .bb-txt,.bb-btns .bb-skip{padding:0 12px}}
 .bb-tip{position:absolute;left:16px;right:16px;bottom:max(5vh,calc(env(safe-area-inset-bottom) + 20px));text-align:center;font:400 12px/1.6 var(--f-body);color:#c9d2f0;pointer-events:none;text-shadow:0 0 10px #000}
 .bb-tip[hidden]{display:none}
-.bb-snd:hover,.bb-snd:focus-visible,.bb-skip:hover,.bb-skip:focus-visible{background:rgba(255,248,231,.14);outline:2px solid #ffd99a;outline-offset:2px}
+.bb-snd:hover,.bb-snd:focus-visible,.bb-txt:hover,.bb-txt:focus-visible,.bb-skip:hover,.bb-skip:focus-visible{background:rgba(255,248,231,.14);outline:2px solid #ffd99a;outline-offset:2px}
 .lang-more summary{cursor:pointer;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:rgba(118,152,215,.9);margin:6px 0 10px}
 </style>
 </head>
@@ -321,8 +324,11 @@ html.bb-on,html.bb-on body{overflow:hidden}
   <p class="bb-hint" id="bb-hint">แตะเพื่อให้กำเนิดจักรวาล</p>
   <p class="bb-cap" id="bb-cap" aria-live="polite"></p>
   <p class="bb-tip" id="bb-tip" hidden>แตะ = คลื่นกระแทก · กดค้าง = หลุมแรงโน้มถ่วง</p>
-  <button type="button" class="bb-snd" id="bb-snd" aria-pressed="false">เสียง: ปิด</button>
-  <button type="button" class="bb-skip" id="bb-skip">ข้าม ›</button>
+  <div class="bb-btns">
+    <button type="button" class="bb-txt" id="bb-txt" aria-pressed="true">ข้อความ: เปิด</button>
+    <button type="button" class="bb-snd" id="bb-snd" aria-pressed="false">เสียง: ปิด</button>
+    <button type="button" class="bb-skip" id="bb-skip">ข้าม ›</button>
+  </div>
 </div>
 
 <!-- GALAXY CANVAS -->
