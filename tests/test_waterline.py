@@ -20,7 +20,8 @@ def test_waterline_is_tracked_per_user_with_trend(user):
 def test_default_state_is_not_recorded(user):
     """ทักทายเฉยๆ ไม่มี context — ไม่ใช่สภาพจริงของผู้ใช้ ห้ามบันทึก"""
     user.post("/run", json={"input": "สวัสดี"})
-    assert _wl(user) == {"points": [], "latest": None, "trend": "unknown"}
+    assert _wl(user) == {"points": [], "latest": None, "trend": "unknown",
+                         "time_windows": {"status": "NOT_ENOUGH_DATA", "points": 0}}
 
 
 def test_waterline_needs_login(client):

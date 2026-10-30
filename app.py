@@ -919,7 +919,9 @@ def get_my_waterline(request: Request):
         return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
     try:
         from DATABASE.db import waterline_history
-        return waterline_history(email)
+        from core.choice_dynamics import waterline_windows
+        h = waterline_history(email)
+        return {**h, "time_windows": waterline_windows(h["points"])}
     except Exception as e:
         print(f"⚠ waterline: {type(e).__name__}")
         return JSONResponse({"error": "ดูระดับน้ำไม่ได้ชั่วคราว ลองใหม่อีกครั้งนะคะ"}, status_code=503)
@@ -963,7 +965,25 @@ async def dashboard():
         ],
         "freedom_index":   freedom_index() if freedom_index else 50,
         "civilization":    (node_summary() if node_summary else {}),
+        # จำนวนผู้ใช้ตามช่วงตัดสินใจ (Decision_Window เป็นวันจริง) — นับอย่างเดียว ไม่มีข้อมูลรายคน
+        "decision_windows": _decision_window_counts(),
     }
+
+
+_dw_cache = {"t": 0.0, "v": {}}
+
+
+def _decision_window_counts() -> dict:
+    # /dashboard เปิดสาธารณะ และการนับอ่านประวัติทีละคน — จำผลไว้ 60 วินาที กันการเรียกถี่ทำเซิร์ฟเวอร์ช้า
+    now = time.time()
+    if now - _dw_cache["t"] < 60:
+        return _dw_cache["v"]
+    try:
+        from DATABASE.db import waterline_window_counts
+        _dw_cache.update(t=now, v=waterline_window_counts())
+    except Exception as e:
+        print(f"⚠ decision_windows: {type(e).__name__}")
+    return _dw_cache["v"]
 
 
 # ── GOOGLE OAUTH ──────────────────────────────────────────────────
@@ -2247,6 +2267,19 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             record_choice(max(1, int(offered)))
     except Exception:
         pass
+
+    # ── ช่วงตัดสินใจเป็นวันจริง จากประวัติ waterline ของผู้ใช้เอง (ล็อกอิน + เปิดความจำ เท่านั้น) ──
+    if email and email != "anonymous":
+        try:
+            from DATABASE.db import waterline_history
+            from core.choice_dynamics import waterline_windows
+            tw = waterline_windows(waterline_history(email)["points"])
+            if tw["status"] != "NOT_ENOUGH_DATA":
+                result["time_windows"] = {k: tw.get(k) for k in (
+                    "status", "time_to_intervention_days", "time_to_failure_days",
+                    "decision_window_days", "waterline_now", "waterline_per_day")}
+        except Exception as _tw:
+            print(f"⚠ time_windows: {type(_tw).__name__}")
 
     if log_decision:
         try:
