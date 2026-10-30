@@ -987,7 +987,7 @@ _VEILED = {
     "housing": r"(?:ให้|ไล่|บอกให้)\S{0,6}?ย้ายออก[^\n]{0,30}?(?:ไม่มีที่ไป|ยังไม่มีที่|ไม่รู้จะไปไหน)|"
                r"\b(?:can'?t|cannot|won'?t be able to) (?:make|pay|afford|cover) (?:the |my |this month'?s )?rent\b|\b(?:getting|being|got) evicted\b|\beviction notice\b",
     "basic": r"(?:ตกงาน|ไม่มีงาน|โดนเลิกจ้าง|ถูกเลิกจ้าง)[^\n]{0,24}?(?:เงินเก็บ|เงินออม|เงินสำรอง)\S{0,4}?(?:หมด|ไม่เหลือ)|"
-             r"\b(?:lost|lose) my job\b[^\n]{0,30}?\b(?:savings?|money) (?:is |are )?(?:gone|used up|running out|all gone)\b",
+             r"\b(?:lost|lose) my job\b[^\n]{0,30}?\b(?:savings?|money) (?:is |are )?(?:gone|used up|all gone)\b",
     "debt": r"\b(?:drowning|buried|sinking) in debt\b|\b(?:debt )?collectors? (?:call|calling|keep calling|harass)",
     # "อีกสิบวันเงินเดือนออก เหลือเงินสามร้อย" — เดิมจับได้เฉพาะตัวเลขอารบิก
     "money": r"(?:อีก|เหลืออีก)\s*(?:\d+|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า|สิบ\S{0,3}?)\s*วัน[^\n]{0,24}?(?:เหลือ(?:เงิน)?|มีเงิน)(?:อยู่)?\s*(?:\d+|ร้อย|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า)",
