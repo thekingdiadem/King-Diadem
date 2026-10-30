@@ -44,7 +44,7 @@ def test_web_edges_show_what_pages_load():
     assert ("app.py", "static/notfound.html") in web            # ส่งด้วย os.path.join(..., "static", "notfound.html")
     assert ("static/architecture.html", "static/cinema.css") in web
     assert ("static/login.html", "static/portal.css") in web
-    assert all(k in (0, 1) for _, _, k in MAP["edges"]) and idx
+    assert all(k in (0, 1, 2) for _, _, k in MAP["edges"]) and idx          # 2 = ทดสอบ/สร้าง/อ้างถึง
 
 
 def test_new_html_pages_are_web_not_config():
