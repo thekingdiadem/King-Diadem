@@ -1488,6 +1488,7 @@ function traceOf(d, mode, sentState){
     canon: d.status === 'CANON_BLOCKED' ? 'blocked' : (d.canon_notice ? 'notice' : ''),
     canonV: d.canon_violations || [],
     consensus: typeof d.consensus === 'string' ? d.consensus : (d.consensus && (d.consensus.final_action || d.consensus.consensus)) || '',
+    tw: d.time_windows && typeof d.time_windows === 'object' ? d.time_windows : null,
     report: d.report_id || '', share: d.share_token || '', gates: Array.isArray(d.vega_gates) ? d.vega_gates.slice(0, 3) : [], warn: d.governance_warning || '', sentState: !!inp, inp: inp
   };
 }
@@ -1502,6 +1503,15 @@ function traceHTML(t){
   if(t.wl != null){
     var c = lvlClass(t.wl);
     row('Waterline', '<span class="mono">' + Math.round(t.wl) + '/100</span> · ' + esc(t.hs || '') + '<div class="bar ' + (c==='ok'?'':c) + '"><i style="width:' + Math.max(0, Math.min(100, t.wl)) + '%"></i></div>' + (t.pri ? '<div class="muted" style="font-size:12px;margin-top:4px">' + esc(t.pri) + '</div>' : ''));
+  }
+  /* ช่วงตัดสินใจเป็นวันจริง — จากประวัติ waterline ของผู้ใช้เอง (core/choice_dynamics.py) */
+  if(t.tw && t.tw.status){
+    var tw = t.tw, twc = tw.status === 'STABLE' ? 'ok' : tw.status === 'WATCH' ? 'warn' : 'bad';
+    var days = function(n){ return n == null ? '—' : (n === 0 ? 'วันนี้' : 'อีก ' + n + ' วัน'); };
+    row('ช่วงตัดสินใจ', '<span class="badge ' + twc + '">' + esc(tw.status) + '</span> '
+      + (tw.time_to_intervention_days == null ? '<span class="muted">waterline ไม่ได้ลดลง — ยังไม่มีวันที่ต้องรีบ</span>'
+        : '<span class="mono">เหลือทางเดียว ' + esc(days(tw.time_to_intervention_days)) + ' · ถึงศูนย์ ' + esc(days(tw.time_to_failure_days)) + '</span>')
+      + (tw.waterline_per_day != null ? '<div class="muted" style="font-size:12px">waterline ' + esc(String(tw.waterline_per_day)) + ' ต่อวัน</div>' : ''));
   }
   if(t.risk != null) row('ความเสี่ยง', '<span class="badge ' + lvlClass(t.risk, true) + '">' + Math.round(t.risk) + ' / 100</span>');
   if(flags.length) row('Flags', flags.map(function(f){ return '<span class="badge warn">' + esc(f) + '</span>'; }).join(''));
@@ -1531,7 +1541,8 @@ var EQ = [
   ['C',    'Choice(t) = max(1, ⌊(100 − Risk) / 20⌋)', 'ENGINE/risk_engine.py · core/emptiness_guard.py'],
   ['P',    'Risk > 80 → high · > 60 → moderate · else low', 'ENGINE/collapse_predictor.py'],
   ['B-1',  'Choice(t) ≥ 1 → collapse = False', 'AI_KERNEL/belief_core.py'],
-  ['R',    'R = (D × E × T) / C', 'AI/freedom_signal.py']
+  ['R',    'R = (D × E × T) / C', 'AI/freedom_signal.py'],
+  ['T',    'Choice ≈ W ÷ 20 · Drift(t) = Drift(0)·1.001ᵗ · ช่วงตัดสินใจ = วันแรกที่ Choice ≤ 1', 'core/choice_dynamics.py']
 ];
 function eqRow(sym, expr, val, sub, cls){
   return '<div class="r' + (cls ? ' ' + cls : '') + '"><span class="s">' + esc(sym) + '</span><span class="x">' + expr + '</span><span class="v">' + (val == null ? '' : val) + '</span>' +

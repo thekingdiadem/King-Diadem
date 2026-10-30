@@ -548,6 +548,23 @@ def waterline_history(user_email: str, limit: int = 20) -> dict:
     return {"points": points, "latest": points[0]["waterline"] if points else None, "trend": trend}
 
 
+def waterline_window_counts(days: int = 30, limit: int = 500) -> dict:
+    """ภาพรวมสาธารณะ: มีกี่คนที่ช่วงตัดสินใจกำลังแคบลง — นับจำนวนเท่านั้น ไม่มีอีเมลหรือค่ารายคน"""
+    from core.choice_dynamics import waterline_windows
+    conn = get_conn()
+    try:
+        rows = conn.execute("SELECT DISTINCT user_email FROM waterline_log "
+                            "WHERE created_at >= datetime('now', ?) LIMIT ?",
+                            (f"-{max(1, int(days))} days", max(1, int(limit)))).fetchall()
+    finally:
+        conn.close()
+    counts = {"EARLY_WARNING": 0, "WATCH": 0, "STABLE": 0, "COLLAPSE": 0, "NOT_ENOUGH_DATA": 0}
+    for r in rows:
+        st = waterline_windows(waterline_history(r["user_email"])["points"])["status"]
+        counts[st] = counts.get(st, 0) + 1
+    return counts
+
+
 def build_memory_context(user_email: str) -> str:
     """
     สร้าง memory context string ให้ inject เข้า prompt

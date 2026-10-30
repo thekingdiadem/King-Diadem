@@ -192,6 +192,39 @@ def time_windows(choice, drift_per_day, entropy_per_day=0.0, intervention_per_da
     }
 
 
+def waterline_windows(points) -> dict:
+    """
+    เวลาจริงของผู้ใช้หนึ่งคน จากประวัติ waterline (0–100, ใหม่สุดก่อน · {"waterline", "at"})
+      Choice ≈ Waterline ÷ 20     — สูตรเดียวกับระบบ: Risk = 100 − W · Choice = ⌊(100 − Risk) ÷ 20⌋
+      Drift/วัน = ความชันขาลงของ waterline (least squares) ÷ 20
+    ต้องมีอย่างน้อย 2 จุดที่ห่างกัน ≥ 1 วัน — น้อยกว่านี้ความชันเป็นแค่สัญญาณรบกวน
+    """
+    from datetime import datetime
+    pts = []
+    for p in points if isinstance(points, (list, tuple)) else []:
+        if not isinstance(p, dict):
+            continue
+        w = _num(p.get("waterline"), float("nan"))
+        try:
+            t = datetime.fromisoformat(str(p.get("at"))).timestamp() / 86400
+        except ValueError:
+            continue
+        if w == w:
+            pts.append((t, max(0.0, min(100.0, w))))
+    if len(pts) < 2 or max(t for t, _ in pts) - min(t for t, _ in pts) < 1:
+        return {"status": "NOT_ENOUGH_DATA", "points": len(pts)}
+    pts.sort()
+    n = len(pts)
+    mt = sum(t for t, _ in pts) / n
+    mw = sum(w for _, w in pts) / n
+    slope = sum((t - mt) * (w - mw) for t, w in pts) / sum((t - mt) ** 2 for t, _ in pts)
+    now = pts[-1][1]
+    r = time_windows(now / 20, max(0.0, -slope) / 20)
+    r.update({"waterline_now": round(now, 1), "waterline_per_day": round(slope, 3), "points": n,
+              "basis": "Choice ≈ Waterline ÷ 20 · Drift/วัน = ความชันขาลงของ Waterline ÷ 20"})
+    return r
+
+
 # ═══════════════════════════════════════════════════════════════
 # STATE SPACE — domain ของตัวแปรระบบ
 # ═══════════════════════════════════════════════════════════════
