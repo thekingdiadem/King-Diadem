@@ -34,3 +34,20 @@ def test_no_state_shows_only_text_risk():
     assert "0.5·" not in no_state and "E, R" not in no_state       # ไม่มีสูตรที่ได้ 0 จากค่าเริ่มต้น
     assert "Risk*" not in no_state and "<b>55</b>" in no_state       # เหลือแถวเดียวคือความเสี่ยงจากข้อความ
     assert "0.5·" in with_state and "Risk*" in with_state            # ระบุสถานะแล้ว ยังเห็นสูตรครบเหมือนเดิม
+
+
+@pytest.mark.skipif(not shutil.which("node"), reason="ต้องใช้ node")
+def test_panel_speaks_plain_language_first():
+    """เจ้าของโปรเจกต์: สูตร W · E, R · ⌊⌋ ทำให้คนทั่วไปเข้าถึงยาก → สรุปเป็นคำก่อน สูตรพับไว้ใน "ดูวิธีคำนวณ" """
+    js = "\n".join(_fn(n) for n in ("esc", "num", "r1", "eqRow", "eqHTML", "riskWord", "plainHTML", "eqStrip"))
+    js = "var EQ=[];function eqCatalog(){return ''};\n" + js + """
+    var t = {inp: null, wl: 100, risk: 55, sentState: false};
+    console.log(JSON.stringify([plainHTML(t), eqStrip(t), plainHTML({inp: null, wl: 100, risk: 90, sentState: false})]));"""
+    out = subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout
+    panel, strip, high = json.loads(out)
+    head, more = panel.split('<details class="eq-more">')
+    assert "ความเสี่ยงตอนนี้" in head and "ยังรับมือได้" in head and "คุณเลือกเองเสมอ" in head
+    assert "W" not in head.replace("width", "") and "0.5" not in head and "max(" not in head   # ไม่มีสูตรก่อนกดดู
+    assert "ดูวิธีคำนวณ" in more and "max(1" in more                                         # สูตรเต็มยังอยู่ครบ
+    assert "W " not in strip and "Risk " not in strip and "ยังรับมือได้" in strip
+    assert "ต้องดูแลด่วน" in high
