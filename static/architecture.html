@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=DM+Mono:wght@400;500&family=Noto+Sans+Thai+Looped:wght@400;500;600&family=Noto+Serif+Thai:wght@500;600&display=swap">
 <style>
 /* ARCHITECTURE — อธิบายระบบให้คนที่สงสัย: รูปแบบสถาปัตยกรรม · เส้นทางของหนึ่งข้อความ · แผนที่ไฟล์ทั้งหมด
-   ข้อมูลไฟล์/เส้นเชื่อมโหลดจาก /static/system_map.json (สร้างจาก repo จริงด้วย scripts/build_system_map.py) */
+   ข้อมูลไฟล์/เส้นเชื่อมโหลดสดจาก /api/system_map (สำรอง: /static/system_map.json สร้างจาก repo จริงด้วย scripts/build_system_map.py) */
 :root {
   --void: #020309; --latte: #fff8e7; --tx-hi: rgba(242,246,255,.96); --tx: rgba(208,216,240,.84); --tx-mid: rgba(176,188,226,.72); --tx-lo: rgba(160,172,215,.52);
   --gold: #e8b864; --gold-hi: #ffd98f; --sun: #ffb35c; --peach: #ffc6a1; --sky: #a9bcff; --sky-hi: #d6e0ff; --lilac: #c8b6f0; --ok: #8ef0b4;
@@ -323,7 +323,9 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
   var F = [], E = [], OUT = [], IN = [], byPath = {}, groups = [], on = {}, sel = -1, query = '';
   var cv = document.getElementById('map'), cx = cv.getContext('2d'), W = 0, H = 0, S = 1, OX = 0, OY = 0, dpr = 1;
 
-  fetch('/static/system_map.json', { cache: 'no-cache' }).then(function(r){ return r.json(); }).then(init).catch(function(){
+  // แผนผังสดจากเซิร์ฟเวอร์ (นับจากไฟล์ที่รันอยู่จริง) — ใช้ไม่ได้ค่อยใช้ไฟล์ที่สร้างไว้ตอน commit
+  function getJSON(u){ return fetch(u, { cache: 'no-cache' }).then(function(r){ if(!r.ok) throw r.status; return r.json(); }); }
+  getJSON('/api/system_map').catch(function(){ return getJSON('/static/system_map.json'); }).then(init).catch(function(){
     document.getElementById('flds').innerHTML = '';
     document.getElementById('flds').appendChild(el('p', 'sub', 'โหลดแผนผังไม่สำเร็จ — ลองรีเฟรชอีกครั้ง'));
   });

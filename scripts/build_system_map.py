@@ -46,9 +46,46 @@ NEW = {
 _LIVE_FROM = ("vision", "legacy", "dormant", "broken")
 
 
+# ไฟล์/โฟลเดอร์ที่ไม่ใช่โค้ดของ repo — ใช้ตอนเครื่องไม่มี git (เช่นบนเซิร์ฟเวอร์ที่ deploy แล้ว)
+_SKIP_DIRS = {".git", "__pycache__", "data", "node_modules", ".venv", "venv", ".pytest_cache", ".mypy_cache"}
+_SKIP_EXT = (".pyc", ".db", ".sqlite", ".sqlite3", ".log")
+
+
 def tracked() -> list[str]:
-    out = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).split("\n")
-    return [f for f in out if f and "__pycache__" not in f]
+    try:
+        out = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL).split("\n")
+        files = [f for f in out if f and "__pycache__" not in f]
+        if files:
+            return files
+    except (OSError, subprocess.CalledProcessError):
+        pass
+    # ไม่มี git: เดินโฟลเดอร์เอง ตัดข้อมูลตอนรัน/แคชทิ้ง — เรียงแบบเดียวกับ git ls-files
+    files = []
+    for d, dirs, names in os.walk(ROOT):
+        dirs[:] = [x for x in dirs if x not in _SKIP_DIRS]
+        for n in names:
+            if not n.endswith(_SKIP_EXT):
+                files.append(os.path.relpath(os.path.join(d, n), ROOT).replace(os.sep, "/"))
+    return sorted(files, key=lambda f: f.encode("utf-8"))
+
+
+def head_commit(fallback: str = "") -> str:
+    """commit ที่กำลังรันอยู่: Render บอกผ่าน RENDER_GIT_COMMIT · เครื่องที่มี git ถาม git · ไม่มีทั้งคู่ใช้ค่าเดิม"""
+    env = os.environ.get("RENDER_GIT_COMMIT", "").strip()
+    if env:
+        return env[:7]
+    try:
+        return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, text=True,
+                                       stderr=subprocess.DEVNULL).strip() or fallback
+    except (OSError, subprocess.CalledProcessError):
+        return fallback
+
+
+def embedded() -> dict:
+    """แผนผังที่ฝังอยู่ใน static/index.html (คำอธิบายไฟล์ทั้งหมดเก็บไว้ที่นี่)"""
+    with open(INDEX, encoding="utf-8") as f:
+        m = _MAP_RE.search(f.read())
+    return json.loads(m.group(2)) if m else {"commit": "", "files": [], "edges": []}
 
 
 def line_count(path: str) -> int:
@@ -111,8 +148,11 @@ def reachable(start: str, mods: dict[str, str]) -> tuple[set[str], list[tuple[st
     return seen, edges
 
 
-def boot_modules(mods: dict[str, str]) -> set[str]:
-    """ไฟล์ที่ถูกโหลดทันทีตอน import app (เปิดเซิร์ฟเวอร์)"""
+def boot_modules(mods: dict[str, str], loaded=None) -> set[str]:
+    """ไฟล์ที่ถูกโหลดทันทีตอน import app (เปิดเซิร์ฟเวอร์)
+    loaded = ชื่อโมดูลที่โหลดแล้ว — เซิร์ฟเวอร์ส่ง sys.modules ของตัวเองมาได้เลย ไม่ต้องเปิดแอปอีกตัว (ประหยัดแรม)"""
+    if loaded is not None:
+        return {mods[m] for m in loaded if m in mods}
     code = ("import sys, json; sys.path.insert(0, %r); import app; "
             "print(json.dumps(sorted(m for m in sys.modules)))") % ROOT
     env = {**os.environ, "SECRET_KEY": os.environ.get("SECRET_KEY") or "x" * 40,
@@ -206,11 +246,11 @@ def web_edges(files: list[str]) -> list[tuple[str, str]]:
     return out
 
 
-def build(old: dict) -> dict:
+def build(old: dict, loaded=None) -> dict:
     files = tracked()
     mods = module_map(files)
     live, edges = reachable("app.py", mods)
-    boot = boot_modules(mods)
+    boot = boot_modules(mods, loaded)
     prev = {row[0]: row for row in old.get("files", [])}
     web_refs = static_refs(files)
     g_refs = gallery_refs()
@@ -269,8 +309,7 @@ def build(old: dict) -> dict:
     edge_rows = {(index[a], index[b], 0) for a, b in edges if a in index and b in index}
     edge_rows |= {(index[a], index[b], 1) for a, b in web_edges(files) if a in index and b in index}   # 1 = ส่ง/โหลดฝั่งเว็บ
     edge_rows = sorted(edge_rows)
-    commit = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, text=True).strip()
-    return {"commit": commit, "files": rows, "edges": [list(e) for e in edge_rows]}
+    return {"commit": head_commit(old.get("commit", "")), "files": rows, "edges": [list(e) for e in edge_rows]}
 
 
 def main() -> int:
