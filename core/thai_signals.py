@@ -360,10 +360,23 @@ SELF_HARM_VEILED = re.compile(
     # รอยกรีดที่ข้อมือ/แขน (ของตัวเองหรือลูก)
     r"รอย(?:กรีด|แผลกรีด|มีดกรีด|ใบมีด)\S{0,10}?(?:ที่)?(?:ข้อมือ|แขน|ต้นขา|ขา)|"
     r"อยากหลับ(?:ไป)?(?:เฉยๆ|ยาวๆ|ไปเลย)?(?:แล้ว)?ไม่(?:ต้อง)?ตื่น(?:ขึ้น)?มา(?:เจอ|อีก)|"
+    # ชุดปิดตารอบ 2: เตรียมตัวจากไป · อยากให้จบที่ตัวเอง · คิดเรื่องตายทุกคืน · ยืนริมที่สูงนานๆ
+    # เขียนพินัยกรรมเองแล้ว + ฝากคนหรือสัตว์เลี้ยงให้คนอื่นดูแล
+    # (ไม่นับถามวิธีเขียน · "พ่อเขียนพินัยกรรมไว้แล้ว ฝากบ้านให้พี่ดูแล" = เรื่องมรดก)
+    r"(?:^|ฉัน|หนู|ผม|เรา|กู|\s)(?:เขียน|ทำ)พินัยกรรม(?:ไว้)?(?:เสร็จ)?แล้ว[^\n]{0,30}?ฝาก(?:แมว|หมา|น้องหมา|น้องแมว|สัตว์|นก|ปลา|กระต่าย|ลูก)\S{0,16}?(?:เลี้ยง|ดูแล)|"
+    r"(?:อยาก|ขอ)ให้(?:มัน|ทุกอย่าง|เรื่องนี้)?จบ(?:ลง)?ที่(?:ตัวเอง|ฉัน|ผม|หนู|เรา|กู)|"
+    r"คิด(?:ถึง)?(?:แต่)?เรื่อง(?:การ)?(?:ตาย|ฆ่าตัวตาย|จบชีวิต)(?:ทุก(?:คืน|วัน|เช้า|ครั้ง)|บ่อย|ตลอด|อยู่เรื่อย|ซ้ำๆ)|"
+    # (ไม่นับเมื่อบอกว่ารอ/ดู/ถ่ายรูป/คุยโทรศัพท์อยู่)
+    r"(?:ยืน|นั่ง)(?:อยู่)?(?:ที่)?(?:ริม|ขอบ)(?:ระเบียง|ตึก|ดาดฟ้า|สะพาน|หน้าผา)\S{0,6}?มา(?:ครึ่ง|หลาย|เป็น|สัก|\d|หนึ่ง|สอง|สาม)\S{0,12}?(?:แล้ว|นาน)"
+    r"(?![^\n]{0,16}?(?:รอ|ดู|ถ่าย|คุยโทรศัพท์|สูบ|ตากผ้า|รดน้ำ))|"
     # อังกฤษ: แจกของเพราะจะไม่ต้องใช้แล้ว · ค้นว่ายากี่เม็ดถึงพอ · คิดจะขับรถพุ่งชน
     r"(?i:\bgiv(?:e|ing|en) away (?:all )?(?:of )?my (?:stuff|things|belongings|possessions)\b[^\n]{0,50}?\b(?:won'?t|will not|not going to|don'?t) (?:need|be needing)\b|"
     r"\bhow (?:many|much) (?:pills|tablets|of (?:my|these|the) (?:meds|pills))\b[^\n]{0,12}?\b(?:it takes|does it take|would it take|to die|to overdose|is lethal|would kill)\b(?! to (?:work|kick in|fall asleep|sleep|feel))|"
-    r"\b(?:thinking|think|thought) (?:about|of) (?:driving|crashing|steering|swerving) (?:my car |the car )?(?:into|off) (?:a |the )?(?:wall|tree|bridge|cliff|truck|pole|river|oncoming))"
+    r"\b(?:thinking|think|thought) (?:about|of) (?:driving|crashing|steering|swerving) (?:my car |the car )?(?:into|off) (?:a |the )?(?:wall|tree|bridge|cliff|truck|pole|river|oncoming)|"
+    # จดหมายลาถึงทุกคน "เผื่อไว้" · มองไม่เห็นตัวเองอยู่ถึงปีหน้า (ไม่นับอยู่ที่บริษัท/เมืองนี้)
+    r"\b(?:wrote|written|writing|left|leaving) (?:goodbye |farewell |final )?(?:letters?|notes?) (?:to|for) (?:everyone|everybody|all|my (?:family|kids|parents|friends))\b[^\n]{0,24}?(?:\bjust in case\b(?! (?:i|you|we|they|it|the|my|something)\b)|\bfor (?:when|after) i'?m gone\b)|"
+    r"\b(?:wrote|written|writing|left) (?:a |my )?(?:goodbye|farewell|suicide) (?:letters?|notes?)\b|"
+    r"\b(?:don'?t|do not|can'?t|cannot) (?:see|picture|imagine) (?:myself|me) (?:being |still )?(?:around|alive)\b(?! (?:at|in|on|with|for|here|there|this|that|the) )[^\n]{0,8}?\b(?:next|by|in|much|for)\b)"
 )
 # มิจฉาชีพที่เคยหลุด: บัญชีเพื่อนทักยืมเงินแต่ไม่ยอมโทร · ขอ OTP · คนรู้จักออนไลน์ขอเงินค่าตั๋ว · งานที่ขอมัดจำก่อน
 SCAM_VEILED_ROMANCE = re.compile(
@@ -630,6 +643,9 @@ THIRD_PARTY_CRISIS = re.compile(
     r"(?:เพื่อน|แฟน|พี่|น้อง|ลูก|แม่|พ่อ|สามี|ภรรยา)[^\n]{0,16}?(?:บอกลา|ลาก่อน|ขอบคุณสำหรับทุกอย่าง|ฝากดูแล)[^\n]{0,30}?"
     r"(?:ปิดเครื่อง|ปิดมือถือ|ติดต่อไม่ได้|ไม่ตอบ|หายไป|ไม่รับสาย)|"
     r"(?i:\b(?:my )?(?:friend|sister|brother|son|daughter|partner|girlfriend|boyfriend|mom|dad)\b[^\n]{0,20}?\b(?:texted|messaged|posted|sent)\b[^\n]{0,12}?\bgoodbye\b)|"
+    # คนใกล้ตัวมียาเก็บไว้ + บอกว่าไม่มีใครคิดถึง/อยากจบ (ชุดปิดตารอบ 2)
+    r"(?i:\bmy (?:friend|sister|brother|son|daughter|partner|girlfriend|boyfriend|mom|dad|mother|father|wife|husband)\b[^\n]{0,24}?\b(?:has|have|got|is holding|keeps?) (?:a |an )?(?:bottle|bunch|stash|handful|box|pile) of (?:pills|meds|tablets|sleeping pills)\b"
+    r"[^\n]{0,40}?\b(?:no ?one|nobody) (?:will|would|is going to) (?:even )?(?:miss|notice|care)\b)|"
     r"(?i:\b(?:she|he|they|my (?:friend|sister|brother|son|daughter|partner|girlfriend|boyfriend|mom|dad|mother|father|wife|husband))\b[^\n]{0,16}?\b(?:(?:is|are|keeps|has been) cutting (?:herself|himself|themselves)|(?:has|have|made) a plan to (?:end (?:her|his|their) life|kill (?:herself|himself|themselves)))\b)|" +
     # "ลูกมีรอยกรีดที่ข้อมือ" — รอยกรีดของคนอื่น (เดิมตกไปเป็นวิกฤตของผู้ใช้เอง)
     _OTHERS + r"[^\n]{0,16}?(?:มี|เจอ|เห็น)?รอย(?:กรีด|แผลกรีด|มีดกรีด|ใบมีด)\S{0,10}?(?:ที่)?(?:ข้อมือ|แขน|ต้นขา|ขา)\S{0,8}|" +
