@@ -90,7 +90,9 @@ SELF_HARM_INTL = (
                r"\bself[- ]harm", re.I),
     re.compile(r"想死(?!你|您|他|她|它|我了|了你)|不想活|不想再醒|写好遗书|寫好遺書|遗书|遺書|(?:天台|楼顶|樓頂)[^。！？\n]{0,8}?(?:跳|跳下)|想跳(?:楼|樓|下去)|(?:安眠药|安眠藥|药|藥)[^。！？\n]{0,4}?(?:都|全)?吃(?:了|光|完)|吃了[^。！？\n]{0,4}?(?:安眠药|整瓶)|割腕|活不下去|自杀|自殺|轻生|輕生|结束(?:自己的)?生命|結束(?:自己的)?生命|"
                r"死了算了|不如死了"),
-    re.compile(r"死にたい|消えたい|自殺|遺書|飛び降り(?:たい|る)|(?:睡眠薬|薬)を?(?:全部|たくさん|大量に)飲ん|リストカット|手首を切|生きていたくない|生きたくない|死のう|命を絶"),
+    re.compile(r"死にたい|消えたい|自殺|遺書|飛び降り(?:たい|る)|(?:睡眠薬|薬)を?(?:全部|たくさん|大量に)飲ん|リストカット|手首を切|生きていたくない|生きたくない|死のう|命を絶|"
+               # "全部終わりにしたい" — ไม่นับเมื่อเป็นงาน/การบ้าน/ความสัมพันธ์ ("仕事を全部終わりにしたい")
+               r"(?<!仕事を)(?<!宿題を)(?<!関係を)(?:全部|すべて|全て|何もかも)(?:を)?終わりに(?:したい|したくなる|したくて|しよう)"),
     re.compile(r"죽고\s*싶|살기\s*싫|자살|유서|뛰어내리(?:고\s*싶|려고|겠)|(?:수면제|약)(?:을|를)?\s*(?:다|전부|많이)\s*먹었|손목을?\s*(?:그었|그어)|살고\s*싶지\s*않|사라지고\s*싶|죽어\s*버리고\s*싶|극단적\s*선택|목숨을\s*끊"),
     re.compile(r"\b(?:me\s+)?quiero\s+morir|\bsuicid|\bquitarme\s+la\s+vida|\bno\s+quiero\s+vivir|"
                r"\bacabar\s+con\s+mi\s+vida|\bmatarme\b|\bhacerme\s+daño|\bno\s+quiero\s+seguir\s+(?:viviendo|con\s+vida|aqu[ií]\s*(?:$|[.!?…]))", re.I),
@@ -103,7 +105,7 @@ SELF_HARM_INTL = (
     # เวียดนาม · เยอรมัน · ฝรั่งเศส · โปรตุเกส/อินโด (แรงงานและนักท่องเที่ยวในไทย)
     re.compile(r"muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|"
                r"\b(?:ich\s+)?will\s+(?:nicht\s+mehr\s+leben|sterben)\b|\bselbstmord|\bmich\s+umbringen|"
-               r"\bje\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|\bme\s+suicider|\bquero\s+morrer|\bingin\s+mati\b|\bbunuh\s+diri", re.I),
+               r"\bje\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|\bme\s+suicider|\bquero\s+morrer|\bn[ãa]o\s+(?:aguento|quero|consigo)\s+mais\s+viver|\bn[ãa]o\s+quero\s+(?:mais\s+)?viver|\bvou\s+me\s+matar|\bme\s+matar\b|\bingin\s+mati\b|\bbunuh\s+diri", re.I),
 )
 
 
@@ -243,7 +245,9 @@ URGENT_INTL = (
         "zh": r"地震了|地震|着火了|著火了|失火|火灾|火災|发大水|洪水|海啸|海嘯|煤气泄漏|瓦斯外洩|燃气泄漏|山体滑坡|泥石流",
         "ja": r"地震|火事|火災|洪水|浸水|津波|ガス漏れ|土砂崩れ",
         "ko": r"지진|불이\s*났|화재|홍수|침수|쓰나미|해일|가스\s*(?:가\s*)?새|산사태",
-        "es": r"terremoto|sismo|incendio|se\s+est[áa]\s+quemando|inundaci[óo]n|tsunami|fuga\s+de\s+gas|huele\s+a\s+gas|deslizamiento",
+        "es": r"terremoto|sismo|incendio|se\s+est[áa]\s+quemando|inundaci[óo]n|tsunami|fuga\s+de\s+gas|huele\s+a\s+gas|deslizamiento|"
+              # น้ำกำลังเข้าบ้าน/ขึ้นสูง + ออกไม่ได้ (ไม่นับน้ำรั่วจากก๊อก)
+              r"(?:el\s+)?agua\b[^.!?\n]{0,20}?(?:entrando|entra|sube|subiendo|lleg[aó]|meti[ée]ndose)[^.!?\n]{0,20}?(?:casa|cuarto|habitaci[óo]n|edificio|carro|coche|calle)[^.!?\n]{0,20}?no\s+(?:podemos|puedo|pueden)\s+salir",
     }),
     # ไม่มีอาหาร — "三天没吃饭" "三日間何も食べていない" เคยได้ Risk 0 ทั้งสี่ภาษา
     ("basic", "basic", {

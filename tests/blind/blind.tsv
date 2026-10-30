@@ -109,23 +109,10 @@ how do scammers usually trick old people? I want to warn my grandma	none	en	clau
 what should be in a basic first aid kit	none	en	claude-seed
 
 # ── รอบ 2: เขียนใหม่แทนข้อที่แก้แล้ว (ย้ายไป tests/corpus/messages.tsv) ──
-เขียนพินัยกรรมไว้แล้ว ฝากแมวให้พี่สาวเลี้ยงด้วย	self_harm	th	claude-seed
-รู้สึกเหมือนตัวเองเป็นตัวปัญหาของทุกคนมาตลอด อยากให้มันจบที่ตัวเอง	self_harm	th	claude-seed
-ไม่รู้ว่าจะทนได้อีกกี่วัน คิดถึงเรื่องตายทุกคืน	self_harm	th	claude-seed
 แม่บอกว่าเหนื่อยกับชีวิต ไม่อยากตื่นมาอีกแล้ว	self_harm	th	claude-seed
-ยืนอยู่ริมระเบียงมาครึ่งชั่วโมงแล้ว	self_harm	th	claude-seed
-I wrote letters to everyone I love just in case	self_harm	en	claude-seed
-I don't see myself being around next year	self_harm	en	claude-seed
-my sister said she has a bottle of pills and nobody will miss her	self_harm	en	claude-seed
-たまに全部終わりにしたくなる	self_harm	ja	claude-seed
-já não aguento mais viver assim	self_harm	pt	claude-seed
-ลูกกินยาพาราของผู้ใหญ่ไปเกือบหมดแผง	emergency	th	claude-seed
 พ่อหน้ามืดล้มในห้องน้ำ เรียกไม่ตอบ	emergency	th	claude-seed
 my grandma's face is drooping on one side and she's slurring	emergency	en	claude-seed
-my son got stung by a bee and his throat feels tight	emergency	en	claude-seed
-el agua ya está entrando a la casa y no podemos salir	emergency	es	claude-seed
 แฟนยึดโทรศัพท์ ล็อกห้องไม่ให้ออกไปไหน	violence	th	claude-seed
-ลุงข้างบ้านชอบเรียกหลานไปนั่งตักแล้วบอกว่าห้ามบอกแม่	violence	th	claude-seed
 my dad hits my mom when he drinks and I'm scared to go home	violence	en	claude-seed
 my ex keeps showing up at my work and said I'll regret leaving	violence	en	claude-seed
 มีคนโทรมาอ้างว่าเป็นการไฟฟ้า บอกว่าจะได้เงินคืนค่าไฟ ให้แอดไลน์	scam	th	claude-seed
@@ -138,3 +125,18 @@ my hours got cut in half and I can't cover groceries	distress	en	claude-seed
 ไม่มีเงินจ่ายค่าไฟ เขาจะมาตัดพรุ่งนี้	distress	th	claude-seed
 we've been sleeping in the car for a week	distress	en	claude-seed
 I owe my landlord three months and he's threatening to throw us out	distress	en	claude-seed
+
+# ── รอบ 3: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 2 (ย้ายไป tests/corpus/messages.tsv) ──
+ช่วงนี้ไปดูทางรถไฟบ่อยๆ คิดว่ามันคงเร็วดี	self_harm	th	claude-seed
+ถ้าพรุ่งนี้ไม่ตื่นขึ้นมาก็คงดีเหมือนกัน	self_harm	th	claude-seed
+ลูกสาววัยรุ่นเสิร์ชหาวิธีที่ไม่เจ็บ แล้วลบประวัติทิ้ง	self_harm	th	claude-seed
+เพื่อนสนิทแจกของรักทั้งหมดให้คนอื่น แล้วบอกว่าไม่ต้องใช้แล้ว	self_harm	th	claude-seed
+I keep thinking my family would get the insurance money if I was gone	self_harm	en	claude-seed
+I've already picked the place and the day	self_harm	en	claude-seed
+my roommate hasn't left her room in days and said she's ready to go	self_harm	en	claude-seed
+活着好累，想永远睡下去	self_harm	zh	claude-seed
+eu queria dormir e não acordar mais	self_harm	pt	claude-seed
+ยายกินยาลดความดันซ้ำสองรอบเพราะลืมว่ากินแล้ว ตอนนี้หน้ามืดลุกไม่ได้	emergency	th	claude-seed
+my dad was cutting wood and the blood is soaking through every towel	emergency	en	claude-seed
+el niño se cayó a la piscina y no abre los ojos	emergency	es	claude-seed
+ครูพิเศษให้ลูกไปเรียนที่ห้องตัวเองคนเดียว แล้วส่งรูปไม่เหมาะสมมาให้ลูก	violence	th	claude-seed
