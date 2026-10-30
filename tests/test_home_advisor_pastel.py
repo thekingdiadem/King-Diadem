@@ -30,7 +30,7 @@ def test_decision_window_shows_in_days_under_reply():
 
 def test_pastel_layer():
     assert "--mint:#bff0e0; --rose:#ffc8dd; --lav:#d9ccff;" in PAGE
-    assert "#view-chat::before{" in PAGE and "#view-chat>*{position:relative;z-index:1}" in PAGE
+    assert "#view-chat::before{" not in PAGE            # หมอกพาสเทลบนอวกาศดูเลอะ (เจ้าของโปรเจกต์) — เอาออก ใช้โหมดสีแทน
     assert "#send{background:var(--pastel);" in PAGE
     assert ".tw-card.warn{" in PAGE and ".tw-card.bad{" in PAGE
 
