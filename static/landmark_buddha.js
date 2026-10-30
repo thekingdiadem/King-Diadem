@@ -181,11 +181,14 @@
       id: 'landmark-buddha', type: 'custom', renderingMode: '3d',
       onAdd: function (m) { map = m; },
       render: function (gl, args) {
-        if (!map || map.getZoom() < 13) return;                            // ไกลกว่านี้องค์พระเล็กกว่าจุดเดียว
-        if (!mesh) {                                                       // ผิวสร้างครั้งเดียวต่อการเปิดหน้า สลับกลางวัน/คืนใช้ของเดิม
-          if (!asked) { asked = true; getMesh(function (m) { mesh = m; map.triggerRepaint(); }); }
-          return;
+        if (!map) return;
+        var z = map.getZoom(), c = map.getCenter();
+        // เริ่มสร้างองค์พระไว้ก่อนตั้งแต่ซูมเข้ามาใกล้ (ระดับอำเภอ ห่างไม่เกิน ~50 กม.) — เดิมเริ่มตอนจะแสดงพอดี
+        // มือถือเลยเห็นแต่ลานเปล่าอยู่พักหนึ่ง · ผิวสร้างครั้งเดียวต่อการเปิดหน้า สลับกลางวัน/คืนใช้ของเดิม
+        if (!asked && z >= 10 && Math.abs(c.lat - at.lat) < .45 && Math.abs(c.lng - at.lon) < .45) {
+          asked = true; getMesh(function (m) { mesh = m; map.triggerRepaint(); });
         }
+        if (z < 13 || !mesh) return;                                       // ไกลกว่านี้องค์พระเล็กกว่าจุดเดียว
         if (!prog) {
           if (prog === null) return;
           setup(gl);

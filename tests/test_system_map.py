@@ -56,7 +56,11 @@ def test_live_endpoint_counts_running_files(client):
 def test_system_page_prefers_live_map():
     html = open(sm.INDEX, encoding="utf-8").read()
     assert "fetch('/api/system_map'" in html and "MAP = d; mapLive = true;" in html
-    assert "' · สด' : ' · ชุดที่ฝังไว้'" in html                             # บอกให้รู้ว่าตัวเลขสดหรือไม่
+    # ป้ายเด่นใต้ Σ บอกว่าตัวเลขสดไหม (เดิมเป็นคำเล็กๆ ท้าย commit เจ้าของโปรเจกต์หาไม่เจอ)
+    assert '<div id="sys-live" class="live-pill wait" role="status"' in html
+    assert "'สด · นับจากโค้ดที่รันอยู่จริง'" in html and "'ชุดที่ฝังไว้ · ยังโหลดตัวเลขสดไม่ได้'" in html
+    assert "pill.className = 'live-pill ' + (mapLive ? 'on' : mapLoading ? 'wait' : 'old');" in html
+    assert html.index("loadLiveMap();                                   // ขอตัวเลขสดก่อน") < html.index("  sysStats();\n  $('#sys-eq')")
     arch = open(sm.INDEX.replace("index.html", "architecture.html"), encoding="utf-8").read()
     assert "getJSON('/api/system_map').catch(function(){ return getJSON('/static/system_map.json'); })" in arch
 

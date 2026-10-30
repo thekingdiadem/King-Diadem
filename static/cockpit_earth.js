@@ -76,6 +76,12 @@
     '    vec3 n=ry(radians(lon))*rx(-radians(lat))*nl;',
     '    float la=asin(clamp(n.y,-1.,1.)),lo=atan(n.x,n.z);',
     '    vec2 tc=vec2(lo/(2.*PI)+.5,.5-la/PI);',
+    // รอยต่อเส้นแบ่งวัน (180°): พิกัดภาพกระโดดจาก 1 → 0 การ์ดจอเลยเลือกภาพความละเอียดต่ำสุดเป็นเส้นจุดพาดลูกโลก
+    // (กลางวันเห็นชัด) — ใช้พิกัดอีกชุดที่รอยต่ออยู่ที่ 0° แล้วเลือกชุดที่เปลี่ยนช้ากว่าในแต่ละจุด (ภาพวนรอบ จึงได้ภาพเดียวกัน)
+    '#ifdef DERIV',
+    '    float tx2=fract(tc.x+.5)-.5;',
+    '    if(fwidth(tx2)<fwidth(tc.x))tc.x=tx2;',
+    '#endif',
     '    float zz=max(dot(nl,-rd),0.);',
     '    vec2 px=vec2(1./4096.,1./2048.);',
     '    float L=texture2D(lights,tc).r;',
@@ -101,7 +107,9 @@
     '    vec3 surf=baseC+city*ready+vec3(.55,.62,.85)*pow(cl,1.4)*.16;',
     '    surf+=vec3(.18,.35,1.)*pow(1.-zz,2.6)*.35+vec3(.35,.55,1.)*pow(1.-zz,9.)*.6;', // ฟ้าหลัวตามความหนาของบรรยากาศที่มองผ่าน
     '    if(dayM>0.){',                                                                // กลางวัน: สีจริงจากดาวเทียม เมฆขาว แดดสะท้อนทะเล
-    '      vec3 dc=pow(land,vec3(1.15))*1.25+vec3(.55,.65,.8)*glint*wm*.6*(1.-cl);',
+    // แดดสะท้อนทะเลกลางวัน: ใช้ผิวน้ำเรียบ (ไม่ใช้คลื่นแบบกลางคืน ซึ่งกลางวันดูเป็นเม็ดหยาบ)
+    '      float sg=pow(max(dot(reflect(rd,nl),normalize(.38*rt+.55*up-.74*fw)),0.),36.);',
+    '      vec3 dc=pow(land,vec3(1.15))*1.25+vec3(1.,.96,.88)*sg*wm*.35*(1.-cl);',
     '      dc=mix(dc,vec3(.95,.97,1.),smoothstep(.15,.85,cl)*.85);',
     '      dc+=vec3(.25,.45,1.)*pow(1.-zz,2.2)*.55+vec3(.5,.7,1.)*pow(1.-zz,8.)*.5;',
     '      surf=mix(surf,dc,dayM);',
@@ -124,7 +132,9 @@
   try {
     prog = gl.createProgram();
     gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS));
-    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+    // เครื่องที่รองรับ fwidth (มือถือแทบทุกรุ่น) แก้รอยต่อเส้นแบ่งวันได้ · ไม่รองรับก็ยังวาดได้เหมือนเดิม
+    var deriv = gl.getExtension('OES_standard_derivatives');
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, (deriv ? '#extension GL_OES_standard_derivatives : enable\n#define DERIV 1\n' : '') + FS));
     gl.linkProgram(prog);
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
   } catch (e) { wrap.classList.add('no-webgl'); return; }

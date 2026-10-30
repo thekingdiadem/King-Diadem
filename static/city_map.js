@@ -192,9 +192,11 @@
         { id: 'peak-dot', type: 'circle', source: 'omt', 'source-layer': 'mountain_peak', minzoom: 10,
           filter: ['has', 'name'],
           paint: { 'circle-radius': 2.6, 'circle-color': C.peak_dot, 'circle-stroke-color': C.halo, 'circle-stroke-width': 1 } },
-        { id: 'peak-name', type: 'symbol', source: 'omt', 'source-layer': 'mountain_peak', minzoom: 10,
+        // ชื่อยอดเขาขึ้นตั้งแต่ซูม 8 (เห็นทั้งจังหวัด) — ยอดสำคัญในแต่ละแผ่นได้ที่ก่อน (rank น้อย = สำคัญ) ชนกันก็หลบเอง
+        { id: 'peak-name', type: 'symbol', source: 'omt', 'source-layer': 'mountain_peak', minzoom: 8,
           filter: ['has', 'name'],
           layout: { 'text-field': peakText(NAME_WORLD), 'text-font': ['Noto Sans Italic'], 'text-size': 11,
+                    'symbol-sort-key': ['coalesce', ['get', 'rank'], 99],
                     'text-anchor': 'top', 'text-offset': [0, .5], 'text-max-width': 8, 'text-padding': 6 },
           paint: paint({ 'text-color': C.peak_t }) },
         { id: 'water-name', type: 'symbol', source: 'omt', 'source-layer': 'water_name',

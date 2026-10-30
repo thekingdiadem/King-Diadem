@@ -790,6 +790,14 @@ dialog.axis[open]{animation:kd-fade .8s ease both}
 .radio-row label{transition:border-color .35s var(--ease),background .35s var(--ease),box-shadow .35s var(--ease)}
 .radio-row label:has(input:checked){border-color:rgba(255,198,161,.5);background:linear-gradient(135deg,rgba(255,198,161,.1),rgba(255,179,92,.03));box-shadow:0 0 30px -12px rgba(255,179,92,.5)}
 .out{background:rgba(3,4,12,.45)}
+/* ป้ายบอกว่าตัวเลขในหน้านี้สดจากเซิร์ฟเวอร์ไหม — เดิมเป็นคำเล็กๆ ท้าย commit หาไม่เจอ */
+.live-pill{display:inline-flex;align-items:center;gap:7px;margin:0 0 12px;padding:5px 12px 5px 10px;border-radius:999px;
+  font:600 12.5px/1.2 var(--f-body);color:#2bcfb4;background:rgba(43,207,180,.12);border:1px solid rgba(43,207,180,.45)}
+.live-pill i{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 0 0 rgba(43,207,180,.6);animation:livePulse 1.8s ease-out infinite}
+.live-pill small{font:500 11px/1 var(--f-mono);opacity:.75}
+.live-pill.old,.live-pill.wait{color:var(--ink-3);background:rgba(255,255,255,.05);border-color:var(--line)}
+.live-pill.old i,.live-pill.wait i{animation:none;box-shadow:none}
+@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(43,207,180,.55)}70%{box-shadow:0 0 0 8px rgba(43,207,180,0)}100%{box-shadow:0 0 0 0 rgba(43,207,180,0)}}
 .sys-hero h1{font:600 46px/1 var(--f-mono);background:linear-gradient(180deg,#fff8ea,#ffd39a 50%,#c8b6f0);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 26px rgba(255,190,120,.3))}
 .stats{gap:8px;border:0;border-radius:0;background:none;overflow:visible}
 .stats div{border-radius:14px;background:linear-gradient(180deg,rgba(16,19,42,.62),rgba(6,8,20,.74));box-shadow:inset 0 1px 0 rgba(255,255,255,.05),inset 0 0 0 1px rgba(255,255,255,.05)}
@@ -979,6 +987,7 @@ html:lang(th) :is(.acc-link, #view-title, .chip, .seg button, .u-title b, .u-epi
       <div class="scroll" id="sys-scroll"><div class="pad" id="sys-root">
         <div class="sys-hero">
           <h1>Σ</h1>
+          <div id="sys-live" class="live-pill wait" role="status" aria-live="polite"><i></i><span>กำลังโหลดตัวเลขสด…</span></div>
           <p class="mono"><a href="#" data-axis>THE PURE AXIS</a> · <span id="sys-commit">—</span> · <a href="#" id="to-sys-universe">จักรวาล →</a> · <a href="/architecture">สถาปัตยกรรม →</a></p>
         </div>
         <div class="card glass"><div class="card-b"><div class="eq" id="sys-eq"></div></div></div>
@@ -3187,6 +3196,7 @@ CATS.forEach(function(c){ catOn[c[0]] = true; });
 function catColor(c){ return 'var(--c-' + c + ')'; }
 function buildSystem(){
   if(sysBuilt) return; sysBuilt = true;
+  loadLiveMap();                                   // ขอตัวเลขสดก่อน ป้ายจะได้ขึ้นว่า "กำลังโหลด" ไม่ใช่ "ชุดที่ฝังไว้"
   sysStats();
   $('#sys-eq').outerHTML = eqCatalog();
   $('#sys-pipe').innerHTML = PIPE.map(function(p){
@@ -3194,7 +3204,6 @@ function buildSystem(){
   }).join('');
   renderHealth(); renderFiles();
   $('#fx-q').addEventListener('input', renderFiles);
-  loadLiveMap();
 }
 /* แผนผังสด: เซิร์ฟเวอร์นับจากไฟล์ที่รันอยู่จริงหลัง deploy ล่าสุด (/api/system_map)
    เดิมตัวเลขมาจากชุดที่ฝังไว้ในหน้านี้ตอน commit — ลืมรันสคริปต์ทีไรตัวเลขก็ค้าง · โหลดไม่ได้ก็ใช้ชุดเดิมต่อ */
@@ -3207,13 +3216,19 @@ function loadLiveMap(){
     MAP = d; mapLive = true;
     sysStats(); renderFiles();
     if($('#nav-files')) $('#nav-files').textContent = MAP.files.length;
-  }).catch(function(){}).then(function(){ mapLoading = false; });
+  }).catch(function(){}).then(function(){ mapLoading = false; if(!mapLive) sysStats(); });
 }
 function sysStats(){
   var F = MAP.files || [], counts = {}, lines = 0, py = 0;
   var fixed = 0;
   F.forEach(function(f){ counts[f[2]] = (counts[f[2]] || 0) + 1; lines += f[1]; if(/\.py$/.test(f[0])) py++; if(f[5] === 'fixed' || f[5] === 'new') fixed++; });
-  $('#sys-commit').textContent = (MAP.commit || '—') + (mapLive ? ' · สด' : ' · ชุดที่ฝังไว้');
+  $('#sys-commit').textContent = MAP.commit || '—';
+  var pill = $('#sys-live');
+  if(pill){
+    pill.className = 'live-pill ' + (mapLive ? 'on' : mapLoading ? 'wait' : 'old');
+    pill.innerHTML = '<i></i><span>' + (mapLive ? 'สด · นับจากโค้ดที่รันอยู่จริง' : mapLoading ? 'กำลังโหลดตัวเลขสด…' : 'ชุดที่ฝังไว้ · ยังโหลดตัวเลขสดไม่ได้') + '</span>' +
+      (MAP.commit ? ' <small>' + esc(MAP.commit) + '</small>' : '');
+  }
   $('#sys-commit').title = mapLive ? 'นับจากไฟล์ที่เซิร์ฟเวอร์รันอยู่จริง' + (MAP.built_at ? ' · ' + MAP.built_at : '') : 'ยังโหลดแผนผังสดไม่ได้ — แสดงชุดที่ฝังไว้ตอน commit';
   var live = (counts.boot || 0) + (counts.request || 0);
   $('#sys-stats').innerHTML =
