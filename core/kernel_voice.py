@@ -1886,6 +1886,51 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     }
 
 
+# ── บรรทัดสถานะในคำตอบ: ภาษาคนแทนสูตร ──────────────────────────────
+# เดิมคำตอบขึ้นต้นด้วย "W — · Risk 55 · Choice(t) = 3" ซึ่งคนทั่วไปอ่านไม่ออก (แผงขวาเปลี่ยนเป็นภาษาคนแล้ว)
+# เกณฑ์เดียวกับ riskWord ใน static/index.html: เกิน 80 ต้องดูแลด่วน · เกิน 60 ควรระวัง
+# ไม่บอกจำนวนทาง — รายการข้อด้านล่างบอกเองอยู่แล้ว · ภาษาที่ไม่มีคำแปลไม่ใส่บรรทัดนี้
+_STATUS_WORDS = {
+    "th": ("ความเสี่ยงตอนนี้", ("ยังรับมือได้", "ควรระวัง", "ต้องดูแลด่วน")),
+    "en": ("Risk right now", ("manageable", "take care", "needs care now")),
+    "zh": ("目前的风险", ("还能应对", "需要注意", "需要马上处理")),
+    "ja": ("今のリスク", ("対応できる", "注意", "すぐに対応を")),
+    "ko": ("지금 위험도", ("감당할 수 있어요", "조심해야 해요", "지금 바로 도움이 필요해요")),
+    "es": ("Riesgo ahora", ("manejable", "con cuidado", "necesita atención ya")),
+}
+_SHOWN_RISK = re.compile(r"\((\d+)/100\)")
+
+
+def risk_phrase(a: dict, lang: str = "th") -> str:
+    """"ควรระวัง (65/100)" — ตัวเลขเดียวกับ risk_score ที่แผงขวาใช้"""
+    risk = round(a.get("risk_shown", a["risk"]))
+    words = _STATUS_WORDS.get(lang, _STATUS_WORDS["en"])[1]
+    return f"{words[2 if risk > 80 else 1 if risk > 60 else 0]} ({risk}/100)"
+
+
+def status_line(a: dict, lang: str = "th") -> str:
+    if lang not in _STATUS_WORDS:
+        return ""
+    return f"{_STATUS_WORDS[lang][0]}: {risk_phrase(a, lang)}"
+
+
+_PHRASE = re.compile("(" + "|".join(re.escape(w) for _, ws in _STATUS_WORDS.values() for w in ws) + r") \(\d+/100\)")
+
+
+def restate_risk(reply: str, risk: float) -> str:
+    """เปลี่ยนตัวเลขความเสี่ยงในคำตอบ (ครั้งแรก) พร้อมคำที่ตรงกับตัวเลขใหม่ ในภาษาเดิมของคำตอบ"""
+    def put(m):
+        lang = next(lg for lg, (_, ws) in _STATUS_WORDS.items() if m.group(1) in ws)
+        return risk_phrase({"risk": risk}, lang)
+    return _PHRASE.sub(put, str(reply), count=1)
+
+
+def shown_risk(reply: str) -> int | None:
+    """ตัวเลขความเสี่ยงที่คำตอบบอกผู้ใช้ — ไม่มีคืน None"""
+    m = _SHOWN_RISK.search(str(reply or ""))
+    return int(m.group(1)) if m else None
+
+
 def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             pattern: dict | None = None, footer: bool = True) -> str:
     """คำตอบเต็มจากสมการ — ไม่มี AI · input เดิม → คำตอบเดิม"""
@@ -1909,12 +1954,12 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             from core.world_replies import help_main
             hm = help_main(detect_lang(text))
             if hm:
-                st = f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = 3"
+                st = status_line(a, detect_lang(text))
                 body = "\n".join(f"{i + 1}) {x}" for i, x in enumerate(hm[1]))
-                return (f"{hm[0]}\n\n{st}\n\n{body}\n\n{hm[2]}\n\n{sign}"
+                return (f"{hm[0]}\n\n" + (f"{st}\n\n" if st else "") + f"{body}\n\n{hm[2]}\n\n{sign}"
                         + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         if al and kind:
-            st = f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = 3"
+            st = status_line(a, al)
             out = compose_asia(al, kind, st, sign, footer)
             if out:
                 return out
@@ -1922,7 +1967,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     # ── ภาษาอื่น: สมการเดียวกัน (W · Risk · Choice) แต่ใช้คำตอบของภาษานั้น ──
     lang = detect_lang(text)
     if lang != "th":
-        status = f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = {4 if a['relationship'] else 3}"
+        status = status_line(a, lang)
         if lang == "en" and not a["crisis"] and not a["relationship"]:
             try:
                 from core.creator_story import detect_creator_question, CREATOR_STORY_EN
@@ -2147,21 +2192,17 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
 
     # Canon มาตรา 11: Options ≤ 3 — เดิม [:4] เส้นทาง survival/collapse จึงเสนอ 4 ทาง · Choice(t) ≥ 1 เสมอ
     paths = paths[:3] or GENERAL["paths"][:1]
-    n = len(paths) + (len(opts) if len(opts) >= 2 else 0)
     body = "\n".join(f"{i + 1}) {p}" for i, p in enumerate(paths))
     opener = _pick(main["open"], text, "open")
     if a["offer_flags"]:
         opener = ("ข้อเสนอนี้มีสัญญาณที่พบบ่อยในการหลอกลงทุน/แชร์ลูกโซ่: "
                   + " · ".join(OFFER_FLAG_TH[f] for f in a["offer_flags"])
                   + f" — ความตื่นเต้นเป็นเรื่องปกติ{end} แต่ข้อเสนอแบบนี้ต้องชะลอก่อนตอบ")
-    status = f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = {n}"
+    status = status_line(a)
 
     return (f"{opener}\n\n{status}\n\n{body}{calc_block}{opt_block}{money_line}\n\n"
             f"คำถามเดียวที่ควรถามตัวเองตอนนี้: {main['ask']}\n\n{sign}" + tag)
 
-
-
-_STEP_LINE = re.compile(r"(?m)^\d+\)\s+\S")
 
 
 # "อยากตาย 555" / "I want to die 😂" — มักพูดเล่น แต่บางคนใช้หัวเราะกลบความจริง
@@ -2207,19 +2248,13 @@ def _soften_joking_crisis(text, out):
 
 
 def compose(text: str, *args, **kw) -> str:
-    """คำตอบแบบไม่มี AI · ภาษาอื่นนอกจากไทย: Choice(t) ต้องเท่ากับจำนวนทางที่พิมพ์จริง
-    (เดิม "My husband hits me" แสดง Choice(t) = 4 แต่มีแค่ 3 ข้อ เพราะตั้งค่าตายตัวไว้ก่อนเลือกชุดคำตอบ)"""
+    """คำตอบแบบไม่มี AI"""
     if isinstance(text, (bytes, bytearray)):        # compose(b"...") เคยล่มด้วย TypeError
         text = bytes(text).decode("utf-8", "replace")
     elif text is not None and not isinstance(text, str):
         text = str(text)
     out = _compose(text, *args, **kw)
-    out = _soften_joking_crisis(text, out)
-    if isinstance(out, str) and detect_lang(text) != "th":
-        n = len(_STEP_LINE.findall(out))
-        if n:
-            out = re.sub(r"Choice\(t\) = \d+", f"Choice(t) = {n}", out, count=1)
-    return out
+    return _soften_joking_crisis(text, out)
 
 def simulate(text: str, paths: list) -> str:
     """จำลองทางเลือกแบบไม่มี AI — Downside ก่อน · วัดด้วยการย้อนกลับได้"""
@@ -2256,13 +2291,13 @@ def simulate(text: str, paths: list) -> str:
         why = ("the most reversible path — keep the others for later (higher Choice(t+1))" if not hard[pick] else
                ("every path here is hard to reverse" if all(hard) else "hard to reverse, but it ranks safest") +
                " — secure savings and a way back before you start")
-        return (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = {len(paths)}\n\n" + "\n\n".join(lines) +
+        return (status_line(a, "en" if en else "th") + "\n\n" + "\n\n".join(lines) +
                 f"\n\nStart with {L} — {why}"
                 "\n\n— VEGA ◆\n· Simulated from the system's equations — no AI used")
     why = ("ทางที่ย้อนกลับได้ เก็บทางอื่นไว้ใช้ทีหลัง (Choice(t+1) สูงกว่า)" if not hard[pick] else
            ("ทุกทางในนี้ย้อนกลับยาก ทางนี้ปลอดภัยที่สุดในกลุ่ม" if all(hard) else "ทางนี้ย้อนกลับยาก แต่คะแนนรอดสูงสุด") +
            " — เตรียมเงินสำรองและทางถอยไว้ก่อนเริ่ม")
-    return (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} · Choice(t) = {len(paths)}\n\n" + "\n\n".join(lines) +
+    return (status_line(a, "en" if en else "th") + "\n\n" + "\n\n".join(lines) +
             f"\n\nแนะนำเริ่มจาก {L} — {why}"
             "\n\n— VEGA ◆\n· จำลองจากสมการของระบบ — ไม่ได้ใช้ AI")
 
@@ -2348,15 +2383,15 @@ def compose_council(text: str, footer: bool = True) -> str:
     if len(opts) >= 2:
         ranked = rank_options(opts, waterline=a["W"])
         irr = [r["action"][:40] for r in ranked if not r["reversible"]]
-        vega = (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} — ทางที่รอดที่สุดคือ \"{ranked[0]['action'][:50]}\""
+        vega = ("ความเสี่ยง " + risk_phrase(a) + f" — ทางที่รอดที่สุดคือ \"{ranked[0]['action'][:50]}\""
                 + (f" · \"{irr[0]}\" ย้อนกลับยาก ต้องมีเงินสำรองก่อน" if irr else ""))
         reversible_first = ranked[0]["reversible"]
     else:
-        vega = (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} — ถามก่อนว่าถ้าพลาดจะเสียอะไร และถอยกลับได้ไหม "
+        vega = ("ความเสี่ยง " + risk_phrase(a) + f" — ถามก่อนว่าถ้าพลาดจะเสียอะไร และถอยกลับได้ไหม "
                 "ทางที่ย้อนกลับได้ชนะ ถ้าผลพอๆ กัน")
         reversible_first = True
     if a["offer_flags"]:
-        vega = (f"W {a.get('W_shown', a['W'])} · Risk {a.get('risk_shown', a['risk'])} — ข้อเสนอนี้มีสัญญาณของการหลอก: "
+        vega = ("ความเสี่ยง " + risk_phrase(a) + f" — ข้อเสนอนี้มีสัญญาณของการหลอก: "
                 + " · ".join(OFFER_FLAG_TH[f] for f in a["offer_flags"]) + " — ลงเงินแล้วอาจถอยไม่ได้")
 
     # PATICCA — ต้นเหตุจากข้อความ (ENGINE/paticcasamuppada_engine)

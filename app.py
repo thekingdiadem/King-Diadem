@@ -2153,12 +2153,12 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         engine_risk = 0.0
     if k_assess.get("text_risk", 0) > engine_risk:
         result["risk_score"] = float(k_assess["text_risk"])
-    # ข้อความสั้นที่ตอบต่อจากเรื่องฉุกเฉิน: คำตอบแบบไม่มี AI คิดจากเรื่องเดิม+ข้อความนี้ (เดิมขึ้น "Risk 85")
-    # แต่รายละเอียดใช้ Risk ที่ลดตามเวลา 0.75× (64) — ตัวเลขสองที่ต้องตรงกัน
+    # ข้อความสั้นที่ตอบต่อจากเรื่องฉุกเฉิน: คำตอบแบบไม่มี AI คิดจากเรื่องเดิม+ข้อความนี้ (เดิมขึ้น 85)
+    # แต่รายละเอียดใช้ Risk ที่ลดตามเวลา 0.75× (64) — ตัวเลขสองที่ต้องตรงกัน คำบอกระดับก็ต้องเปลี่ยนตาม
     if prior_kind and result.get("answer_source") == "kernel" and isinstance(result.get("ai_response"), str):
         try:
-            result["ai_response"] = re.sub(r"Risk \d+", f"Risk {float(result.get('risk_score') or 0):.0f}",
-                                           result["ai_response"], count=1)
+            from core.kernel_voice import restate_risk
+            result["ai_response"] = restate_risk(result["ai_response"], float(result.get("risk_score") or 0))
         except (TypeError, ValueError):
             pass
     if offer_flags:

@@ -33,4 +33,4 @@ def test_real_state_is_logged(user, monkeypatch):
 def test_offline_reply_shows_unknown_w_without_state(client, monkeypatch):
     monkeypatch.setenv("KD_AI", "off")
     d = client.post("/run", json={"input": "ไม่มีข้าวกิน 3 วันแล้ว", "context": UI_CTX}).json()
-    assert "W 100" not in d["ai_response"]
+    assert "W 100" not in d["ai_response"] and "W " not in d["ai_response"]
