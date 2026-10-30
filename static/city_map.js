@@ -51,26 +51,38 @@
     return ['case', ['has', 'ele'], ['concat', name, '\n', ['to-string', ['get', 'ele']], ' ม.'], name];
   }
 
-  // ── สถานที่สำคัญที่ใส่เอง: OSM มีแค่จุด/รั้ววัด ไม่มีรูปทรงองค์พระ — วาดเป็นทรงองค์พระแบบเรียบง่ายสีทอง ──────
+  // ── สถานที่สำคัญที่ใส่เอง: OSM มีแค่จุด/รั้ววัด ไม่มีรูปทรงองค์พระ ─────────────────────────────────────────
+  // ลานและบันไดเป็นกล่องยกสูงธรรมดา · องค์พระปั้นด้วยโค้ดเป็นผิวโค้งเนียนใน static/landmark_buddha.js
   // พระพุทธมหานวมินทร์ศากยมุนีศรีวิเศษชัยชาญ วัดม่วง อ.วิเศษชัยชาญ จ.อ่างทอง — พระพุทธรูปองค์ใหญ่ที่สุดในไทย
-  // พิกัด 14.5932, 100.3778 · สูงราว 92 ม. · หน้าตัก ~63 ม. (Wikipedia: Great Buddha of Thailand)
-  // ชั้น = [กว้าง ม., ลึก ม., ฐาน ม., ยอด ม.] ซ้อนจากฐานบัวขึ้นไปถึงพระเกศ
+  // พิกัด 14.5932, 100.3778 · สูงราว 92 ม. · หน้าตักกว้าง ~63 ม. (Wikipedia: Great Buddha of Thailand)
+  // สัดส่วนดูจากภาพถ่ายที่เผยแพร่ทั่วไป (ปางมารวิชัย นั่งบนลานสีขาว บันไดขึ้นด้านหน้า) — ไม่ได้ใช้ภาพมาวาง
+  // ชิ้น = [รูป (r=สี่เหลี่ยม e=วงรี), กว้าง, ลึก, เลื่อนซ้ายขวา, เลื่อนหน้าหลัง, ฐาน, ยอด, สี] หน่วยเมตร · หน้าองค์พระ = +y
   var LANDMARKS = [
     { name: 'หลวงพ่อใหญ่ วัดม่วง', sub: 'พระพุทธรูปองค์ใหญ่ที่สุดในไทย · สูง ~92 ม.', lat: 14.5932, lon: 100.3778,
-      tiers: [[70, 50, 0, 12], [63, 42, 12, 32], [40, 28, 32, 62], [22, 20, 62, 78], [14, 14, 78, 86], [6, 6, 86, 92]] }
+      facing: 90, base: 12,                                             // ทิศที่องค์พระหัน (องศาจากเหนือ ยังไม่ได้ยืนยันกับที่ตั้งจริง) · องค์พระนั่งบนลานสูง 12 ม.
+      parts: [
+        ['r', 110, 96, 0, 6, 0, 12, 'stone'],                            // ลานสีขาวใต้องค์พระ
+        ['r', 9, 26, -9, 62, 0, 4, 'stair'], ['r', 9, 16, -9, 57, 4, 8, 'stair'], ['r', 9, 8, -9, 53, 8, 12, 'stair'],
+        ['r', 9, 26, 9, 62, 0, 4, 'stair'], ['r', 9, 16, 9, 57, 4, 8, 'stair'], ['r', 9, 8, 9, 53, 8, 12, 'stair'],
+      ] }
   ];
   function landmarkData() {
     var shapes = [], points = [];
     LANDMARKS.forEach(function (m) {
       var dy = 1 / 111320, dx = dy / Math.cos(m.lat * Math.PI / 180);
-      m.tiers.forEach(function (t) {
-        var w = t[0] / 2 * dx, d = t[1] / 2 * dy;
-        shapes.push({ type: 'Feature', properties: { base: t[2], top: t[3] },
-          geometry: { type: 'Polygon', coordinates: [[[m.lon - w, m.lat - d], [m.lon + w, m.lat - d], [m.lon + w, m.lat + d],
-                                                       [m.lon - w, m.lat + d], [m.lon - w, m.lat - d]]] } });
+      var a = m.facing * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+      function at(x, y) {                                               // เมตรรอบองค์พระ (หน้า = +y) → lon/lat ตามทิศที่หัน
+        return [m.lon + (x * ca + y * sa) * dx, m.lat + (-x * sa + y * ca) * dy];
+      }
+      m.parts.forEach(function (p) {
+        var w = p[1] / 2, d = p[2] / 2, ring = [];
+        if (p[0] === 'e') for (var k = 0; k <= 24; k++) { var t = k / 24 * 2 * Math.PI; ring.push(at(p[3] + w * Math.cos(t), p[4] + d * Math.sin(t))); }
+        else ring = [at(p[3] - w, p[4] - d), at(p[3] + w, p[4] - d), at(p[3] + w, p[4] + d), at(p[3] - w, p[4] + d), at(p[3] - w, p[4] - d)];
+        shapes.push({ type: 'Feature', properties: { base: p[5], top: p[6], part: p[7] },
+                      geometry: { type: 'Polygon', coordinates: [ring] } });
       });
       points.push({ type: 'Feature', properties: { name: m.name, sub: m.sub },
-                    geometry: { type: 'Point', coordinates: [m.lon, m.lat] } });
+                    geometry: { type: 'Point', coordinates: at(0, 50) } });
     });
     return { shapes: { type: 'FeatureCollection', features: shapes }, points: { type: 'FeatureCollection', features: points } };
   }
@@ -84,7 +96,7 @@
     glow: ['#ff8a1f', .32], minor: '#9a5a26', mid: '#e08a35', major: '#ffc46e', rail: '#4b5c88',
     // ตึก: ภาพจริงจากมือถือ หลังคาสีส้มสดเกินไปตอนมองจากข้างบน — ลดความสดลง ยังสว่างตามความสูงเหมือนเดิม
     bld: [0, '#3b2d24', 10, '#56412f', 40, '#7a5c3c', 120, '#a8834f', 250, '#d8b47a', 350, '#ecd3a6'],
-    gold: '#f0b941', goldGlow: 'rgba(255,190,80,.35)',
+    gold: '#f0b941', goldGlow: 'rgba(255,190,80,.35)', stone: '#8a8478', stair: '#6e3a3a',
     halo: 'rgba(0,0,0,.85)', water_t: '#7c9bd6', road_t: '#e7c493', small_t: '#e6edf8', town_t: '#ecd4a0', city_t: '#f2d48a',
     peak_t: '#c9d6ee', peak_dot: '#8fa6d8'
   };
@@ -94,7 +106,7 @@
     urban: '#e2dbcf', industrial: '#ddd5ca', park: '#c6dfb1', water: '#8fc1ea', waterway: '#7ab2e0',
     glow: ['#ffffff', 0], minor: '#ffffff', mid: '#fff3c4', major: '#ffd27a', rail: '#9a9aa6',
     bld: [0, '#d9d2c6', 40, '#cfc6b8', 120, '#c4bcb0', 350, '#b8b4ad'],
-    gold: '#e2a92e', goldGlow: 'rgba(226,169,46,.25)',
+    gold: '#e2a92e', goldGlow: 'rgba(226,169,46,.25)', stone: '#f2efe8', stair: '#9a4a48',
     halo: 'rgba(255,255,255,.92)', water_t: '#2d5d93', road_t: '#5b4a33', small_t: '#3b4252', town_t: '#3a3020', city_t: '#22201c',
     peak_t: '#4a3b26', peak_dot: '#8a6a3a'
   };
@@ -173,9 +185,10 @@
           paint: { 'circle-color': C.goldGlow, 'circle-blur': 1, 'circle-pitch-alignment': 'map',
                    'circle-radius': ['interpolate', ['exponential', 2], ['zoom'], 11, 6, 18, 520] } },
         { id: 'landmark', type: 'fill-extrusion', source: 'lmshape', minzoom: 12,
-          paint: { 'fill-extrusion-color': C.gold, 'fill-extrusion-opacity': .97, 'fill-extrusion-vertical-gradient': true,
+          paint: { 'fill-extrusion-color': ['match', ['get', 'part'], 'gold', C.gold, 'stair', C.stair, C.stone],
+                   'fill-extrusion-opacity': 1, 'fill-extrusion-vertical-gradient': true,
                    'fill-extrusion-base': ['get', 'base'],
-                   'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 12, ['get', 'base'], 13.5, ['get', 'top']] } },
+                   'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 12, ['get', 'base'], 13, ['get', 'top']] } },
         { id: 'peak-dot', type: 'circle', source: 'omt', 'source-layer': 'mountain_peak', minzoom: 10,
           filter: ['has', 'name'],
           paint: { 'circle-radius': 2.6, 'circle-color': C.peak_dot, 'circle-stroke-color': C.halo, 'circle-stroke-width': 1 } },
@@ -226,6 +239,11 @@
     if (map.getLayer('peak-name')) map.setLayoutProperty('peak-name', 'text-field', peakText(name));
   }
   // สลับกลางวัน/กลางคืน: เปลี่ยนทั้งสไตล์ (ไทล์ที่โหลดแล้วใช้ต่อ ไม่ต้องโหลดใหม่) แล้วตั้งชื่อตามที่กำลังดูอีกรอบ
+  // องค์พระ 3 มิติ: ใส่ใต้ชั้นชื่อ (ชื่อจึงอยู่บนสุด) · setStyle ลบ custom layer ทิ้ง เลยใส่ใหม่ทุกครั้งที่สไตล์โหลดเสร็จ
+  function addModels() {
+    if (!window.KD_buddhaLayer || !map || map.getLayer('landmark-buddha')) return;
+    LANDMARKS.forEach(function (m) { map.addLayer(window.KD_buddhaLayer(lib, m), 'water-name'); });
+  }
   window.addEventListener('kd-theme', function () {
     if (!map) return;
     map.setStyle(style());
@@ -267,6 +285,7 @@
         map.on('sourcedata', function (e) { if (e.sourceId === 'omt' && e.tile) loaded = true; });
         closeAttrib();
         map.on('moveend', syncNames);
+        map.on('style.load', addModels);
         setTimeout(function () { if (!loaded) { failed = true; exit(); } }, 15000);   // เน็ตล่ม/โดนบล็อก — กลับไปโลก
         map.on('zoom', function () { if (on && !entering && map.getZoom() < exitZ) exit(); });
       } else {
