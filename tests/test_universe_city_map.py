@@ -37,7 +37,7 @@ def test_handoff_both_ways_at_same_place():
 
 def test_falls_back_to_globe_when_map_cannot_run():
     assert "getContext('webgl2')" in CITY                                  # MapLibre 5 ต้องใช้ WebGL2
-    assert "failed = true; exit();" in CITY and "12000" in CITY            # โหลดไม่ขึ้น 12 วินาที → กลับไปโลก
+    assert "failed = true; exit();" in CITY and "15000" in CITY            # ไม่มีไทล์เมืองมาเลย 15 วินาที → กลับไปโลก
     assert "s.onerror" in CITY
 
 
@@ -57,7 +57,7 @@ def test_map_canvas_not_caught_by_globe_css():
 def test_round2_feedback_from_real_phone():
     """ปรับตามภาพจริงจากมือถือของเจ้าของโปรเจกต์"""
     # ตึกเตี้ยเคยมืดจนกลืนพื้น — ตอนนี้ฐานสีอุ่นขึ้น ยอดสว่างกว่าฐาน
-    assert "0, '#4a3424'" in CITY and "'fill-extrusion-vertical-gradient': true" in CITY
+    assert "0, '#3b2d24'" in CITY and "'fill-extrusion-vertical-gradient': true" in CITY
     # ในไทยชื่อไทยตาม OSM · ที่อื่นชื่อไทยถ้ามี ไม่มีก็อังกฤษ
     assert "var NAME_TH = ['coalesce', ['get', 'name:th'], ['get', 'name']" in CITY
     assert "var NAME_WORLD = ['coalesce', ['get', 'name:th'], ['get', 'name:en']" in CITY
@@ -76,3 +76,69 @@ def test_terrain_is_free_open_data_and_optional_on_weak_phones():
     assert "registry.opendata.aws/terrain-tiles" in CITY                    # เครดิตแหล่งข้อมูล
     assert "type: 'hillshade'" in CITY and "source: 'demhs'" in CITY       # เงาภูเขาใช้แหล่งแยกจาก terrain
     assert "if (!lightDevice) st.terrain" in CITY                          # เครื่องแรมน้อย: เงาอย่างเดียว ไม่ยกพื้น
+
+
+def test_round3_feedback_from_real_phone():
+    """ภาพจริงรอบ 3: เขาสามมุขไม่มีป้าย · รูดำสี่เหลี่ยม · หลังคาส้มจ้า · เครดิตเปิดค้างบังแผนที่ · เน็ตช้าโดนเด้งกลับโลก"""
+    assert "'source-layer': 'mountain_peak'" in CITY and "id: 'peak-name'" in CITY
+    assert "['to-string', ['get', 'ele']], ' ม.'" in CITY                  # ชื่อเขา + ความสูง
+    assert "map.setLayoutProperty('peak-name', 'text-field', peakText(name))" in CITY
+    assert "exaggeration: 1.5" in CITY                                     # เขาเตี้ยริมทะเลยังเห็นเป็นเนิน
+    assert "encoding: 'terrarium', tileSize: 256, maxzoom: 12" in CITY     # ไทล์ภูเขาน้อยลง โหลดทัน
+    assert "350, '#ffe9bf'" not in CITY                                    # หลังคาไม่ส้มจ้าแล้ว
+    assert "a.classList.remove('maplibregl-compact-show')" in CITY
+    # มีไทล์เมืองมาแผ่นเดียวก็ถือว่าเน็ตใช้ได้ — ไม่ต้องรอภูเขาโหลดครบ
+    assert "map.on('sourcedata', function (e) { if (e.sourceId === 'omt' && e.tile) loaded = true; });" in CITY
+
+
+BUDDHA = (ROOT / "static" / "landmark_buddha.js").read_text(encoding="utf-8")
+
+
+def test_ang_thong_great_buddha_landmark():
+    """พระพุทธรูปองค์ใหญ่ วัดม่วง อ่างทอง — พิกัดจริง ลาน 12 ม. + องค์พระปั้นด้วยโค้ด (ไม่มีไฟล์โมเดล ไม่มีรูปภาพ)"""
+    import re
+    m = re.search(r"lat: (\d+\.\d+), lon: (\d+\.\d+),", CITY)
+    assert m, "ไม่พบ LANDMARKS"
+    assert abs(float(m.group(1)) - 14.5932) < 1e-3 and abs(float(m.group(2)) - 100.3778) < 1e-3
+    assert "facing: 90, base: 12," in CITY
+    parts = re.findall(r"\['([er])', ([\d.]+), ([\d.]+), (-?[\d.]+), (-?[\d.]+), ([\d.]+), ([\d.]+), '(\w+)'\]", CITY)
+    stone = [p for p in parts if p[7] == "stone"]
+    assert stone and float(stone[0][6]) == 12                                # ลานสูงเท่าฐานองค์พระ ไม่ลอย ไม่จม
+    assert all(float(p[5]) < float(p[6]) for p in parts)
+    assert "map.addLayer(window.KD_buddhaLayer(lib, m), 'water-name')" in CITY  # ใต้ชั้นชื่อ
+    assert "map.on('style.load', addModels)" in CITY                         # สลับกลางวัน/คืนแล้วองค์พระยังอยู่
+    assert '<script src="/static/landmark_buddha.js" defer></script>' in PAGE
+    assert "id: 'landmark-name'" in CITY and "'text-allow-overlap': true" in CITY
+
+
+def test_buddha_model_is_sculpted_in_code_and_light_on_phones():
+    """ผิวโค้งจาก signed distance + surface nets — สร้างใน worker ครั้งเดียว ใช้ซ้ำตอนสลับโหมด"""
+    for part in ("หน้าตัก", "พระหัตถ์ขวาคว่ำบนเข่า", "นิ้วพระหัตถ์ชี้ลงแตะธรณี", "พระหัตถ์ซ้ายหงายบนตัก", "ผ้าสังฆาฏิ",
+                 "พระเศียร", "พระกรรณ", "พระนาสิก", "คิ้วโก่ง เปลือกตาหลุบต่ำ ริมฝีปาก", "พระเกตุมาลา", "พระรัศมีเปลว ปลายแหลม"):
+        assert part in BUDDHA, part
+    assert "function smin(" in BUDDHA and "surface nets" in BUDDHA
+    assert "cap(x, y, z, 0, 69, -5, 0, 80, -5," in BUDDHA                    # ยอดพระรัศมี 80 ม. เหนือลาน 12 ม. = ~92 ม.
+    assert "ell(x, y, z, 0, 7, -1, 31," in BUDDHA                            # หน้าตักกว้าง ~62–63 ม.
+    assert "new Worker(SRC)" in BUDDHA and "self.postMessage(m, [m.pos.buffer" in BUDDHA
+    assert "wk.postMessage(.5);" in BUDDHA                                   # ตารางละเอียด 0.5 ม. ใน worker — ผิวคม
+    assert "done(build(.8))" in BUDDHA                                       # worker ใช้ไม่ได้ก็ยังมีองค์พระ (หยาบลง ไม่ค้าง)
+    assert "if (meshCache) return cb(meshCache);" in BUDDHA
+    assert "map.getZoom() < 13" in BUDDHA                                    # ไกลๆ ไม่สร้าง ไม่วาด
+    # เมทริกซ์รวมคิดด้วย float64 ก่อนส่งการ์ดจอ · ใช้พิกัดเมอร์เคเตอร์ 0–1 ของ MapLibre 5
+    assert "args.defaultProjectionData.mainMatrix" in BUDDHA and "meterInMercatorCoordinateUnits()" in BUDDHA
+    assert "queryTerrainElevation" in BUDDHA                                 # วางบนพื้นจริงเมื่อมีภูเขา 3 มิติ
+    assert "uniform float day" in BUDDHA and "kd-day" in BUDDHA
+
+
+def test_day_and_night_modes():
+    """กลางคืนอย่างเดียวน่าเบื่อ — มีปุ่มกลางวัน ใช้ทั้งโลกและแผนที่เมือง จำไว้ในเครื่อง"""
+    assert 'id="ec-day"' in PAGE and "function KD_toggleDay()" in PAGE
+    assert "localStorage.getItem('kd-day')==='1'" in PAGE                  # ตั้งก่อนวาด ไม่กระพริบ
+    assert "localStorage.setItem('kd-day',on?'1':'0')" in PAGE and "new Event('kd-theme')" in PAGE
+    assert "var C = isDay() ? DAY : NIGHT" in CITY
+    for key in ("bg:", "water:", "park:", "bld:", "halo:", "gold:", "stone:"):
+        assert CITY.count(key) >= 2, key                                   # ทั้งสองชุดสีมีครบ
+    assert "window.addEventListener('kd-theme'" in CITY and "map.setStyle(style())" in CITY
+    assert "uniform1f(U.dayM, dayM)" in EARTH and "surf=mix(surf,dc,dayM)" in EARTH
+    assert "window.addEventListener('kd-theme'" in EARTH
+    assert "html.kd-day #city-map{background:#ece6da}" in PAGE

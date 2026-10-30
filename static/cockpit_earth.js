@@ -9,6 +9,7 @@
  * · ภาพ NASA 2K โหลดก่อน แล้วสลับเป็น 4K เมื่อเครื่องรองรับ (ไม่โหลด 4K ถ้าเปิดโหมดประหยัดเน็ต) — scripts/build_earth_textures.py
  * · ลื่นบนมือถือ: ปรับความละเอียดการวาดตามความเร็วเครื่อง · คลื่นทะเลคำนวณเฉพาะจุดที่เป็นน้ำ · ชื่อเมืองวาดใหม่เมื่อกล้องขยับเท่านั้น
  * · ลดการเคลื่อนไหว (ตั้งในเครื่อง หรือปุ่มในหน้า → html.kd-calm): โลกหยุด ดาวไม่กะพริบ ไม่ไหลต่อ เปลี่ยนมุมทันที
+ * · โหมดกลางวัน (ปุ่ม "กลางวัน" → html.kd-day): ภาพดาวเทียม NASA สีจริง เมฆขาว แดดสะท้อนทะเล — ค่อยๆ เปลี่ยนจากกลางคืน
  * วาดด้วย WebGL ไม่มีไลบรารีเพิ่ม · ไม่มี WebGL = พื้นหลังไล่สีแทน
  */
 (function () {
@@ -49,7 +50,7 @@
   var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
   var FS = [
     'precision highp float;',
-    'uniform vec2 res;uniform float t,ready,lon,lat,D,tilt,F,hasW;uniform sampler2D lights,day,clouds,water;',
+    'uniform vec2 res;uniform float t,ready,lon,lat,D,tilt,F,hasW,dayM;uniform sampler2D lights,day,clouds,water;',
     'const float PI=3.14159265;',
     'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
     'float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+1.),f.x),f.y);}',
@@ -69,7 +70,7 @@
     '  if(s>.9975){float tw=.6+.4*sin(t*2.+s*90.);col+=vec3(.75,.8,1.)*tw*(s-.9975)*90.;}',
     '  float dmin=sqrt(max(dot(P,P)-b*b,0.));',
     '  if(b<0.){float o=max(dmin-1.,0.);',                          // บรรยากาศเหนือขอบฟ้า + airglow สีเขียวแบบภาพจาก ISS
-    '    col+=vec3(.15,.35,1.)*exp(-o*26.)*.45+vec3(.35,.6,1.)*exp(-o*150.)*.55+vec3(.20,.85,.42)*exp(-abs(o-.007)*480.)*.5;}',
+    '    col+=vec3(.15,.35,1.)*exp(-o*26.)*(.45+.5*dayM)+vec3(.35,.6,1.)*exp(-o*150.)*.55+vec3(.20,.85,.42)*exp(-abs(o-.007)*480.)*.5;}',
     '  if(disc>0.&&-b-sqrt(disc)>0.){',
     '    vec3 nl=P+rd*(-b-sqrt(disc));',
     '    vec3 n=ry(radians(lon))*rx(-radians(lat))*nl;',
@@ -83,13 +84,14 @@
     '    vec3 land=texture2D(day,tc).rgb;',
     '    float wm=hasW>.5?texture2D(water,tc).r:0.;',
     '    vec3 baseC=land*vec3(.018,.026,.05)+vec3(.002,.005,.014);',
+    '    float glint=0.;',
     '    baseC+=vec3(.10,.12,.17)*smoothstep(.55,.8,dot(land,vec3(.33)))*(1.-wm);',   // น้ำแข็งขั้วโลก/ภูเขาหิมะต้องแสงจันทร์
     '    if(wm>.01){',                                                                  // ทะเล — คำนวณเฉพาะจุดที่เป็นน้ำ
     '      vec2 wv=vec2(fbm(tc*vec2(900.,450.)+t*.05),fbm(tc*vec2(900.,450.)+17.-t*.04))-.5;',
     '      vec3 wn=normalize(nl+(rt*wv.x+up*wv.y)*.10);',
     '      vec3 Ld=normalize(.38*rt+.55*up-.74*fw);',
     '      vec3 rf=reflect(rd,wn);',
-    '      float glint=pow(max(dot(rf,Ld),0.),90.)*1.4+pow(max(dot(rf,Ld),0.),12.)*.10;',
+    '      glint=pow(max(dot(rf,Ld),0.),90.)*1.4+pow(max(dot(rf,Ld),0.),12.)*.10;',
     '      float fres=.02+.98*pow(1.-max(dot(wn,-rd),0.),5.);',
     '      vec3 sea=vec3(.004,.014,.034)+vec3(.30,.38,.55)*fres*.22+vec3(.75,.82,1.)*glint*(1.-cl);',
     '      baseC=mix(baseC,sea,wm);',
@@ -98,6 +100,12 @@
     '    city*=(1.-.55*cl)*(1.-.85*wm);',                                              // ไฟเรือ/แท่นเจาะยังเห็นจางๆ
     '    vec3 surf=baseC+city*ready+vec3(.55,.62,.85)*pow(cl,1.4)*.16;',
     '    surf+=vec3(.18,.35,1.)*pow(1.-zz,2.6)*.35+vec3(.35,.55,1.)*pow(1.-zz,9.)*.6;', // ฟ้าหลัวตามความหนาของบรรยากาศที่มองผ่าน
+    '    if(dayM>0.){',                                                                // กลางวัน: สีจริงจากดาวเทียม เมฆขาว แดดสะท้อนทะเล
+    '      vec3 dc=pow(land,vec3(1.15))*1.25+vec3(.55,.65,.8)*glint*wm*.6*(1.-cl);',
+    '      dc=mix(dc,vec3(.95,.97,1.),smoothstep(.15,.85,cl)*.85);',
+    '      dc+=vec3(.25,.45,1.)*pow(1.-zz,2.2)*.55+vec3(.5,.7,1.)*pow(1.-zz,8.)*.5;',
+    '      surf=mix(surf,dc,dayM);',
+    '    }',
     '    col=mix(col,surf,smoothstep(0.,3.*sqrt(c2)*pix,disc));',
     '  }',
     '  col*=1.-.35*pow(length(uv*vec2(.9,1.1)),2.2);',
@@ -129,7 +137,7 @@
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
   var U = {};
-  ['res', 't', 'ready', 'lon', 'lat', 'D', 'tilt', 'F', 'hasW', 'lights', 'day', 'clouds', 'water']
+  ['res', 't', 'ready', 'lon', 'lat', 'D', 'tilt', 'F', 'hasW', 'dayM', 'lights', 'day', 'clouds', 'water']
     .forEach(function (k) { U[k] = gl.getUniformLocation(prog, k); });
 
   var base = (document.currentScript && document.currentScript.src || '/static/cockpit_earth.js').replace(/cockpit_earth\.js.*$/, '');
@@ -379,6 +387,10 @@
   }
   function kick() { if (!raf) raf = requestAnimationFrame(frame); }
   window.addEventListener('kd-calm', kick);
+  // กลางวัน/กลางคืน: dayM ไหลจาก 0 ↔ 1 ราว 1 วินาที (โหมดลดการเคลื่อนไหว = เปลี่ยนทันที)
+  function dayOn() { return document.documentElement.classList.contains('kd-day') ? 1 : 0; }
+  var dayM = dayOn();
+  window.addEventListener('kd-theme', function () { labelsDirty = true; kick(); });
   document.addEventListener('visibilitychange', kick);
 
   function frame(now) {
@@ -410,13 +422,15 @@
     S.L += (S.tL - S.L) * (still ? 1 : 1 - Math.exp(-dt * (gest ? 16 : 4)));
     sync();
     if (S.tL > LMAX - 1 && window.KD_cityMap) window.KD_cityMap.prefetch();   // ใกล้ถึงระดับเมือง — โหลดแผนที่รอไว้
+    var dayT = dayOn();
+    if (dayM !== dayT) dayM = still ? dayT : dayT > dayM ? Math.min(1, dayM + dt * 1.1) : Math.max(0, dayM - dt * 1.1);
     if (ready < 1 && pending === 0) ready = still ? 1 : Math.min(1, ready + dt * 1.2);
     var cam = camera(S.L, canvas.width / Math.max(1, canvas.height));
     gl.uniform2f(U.res, canvas.width, canvas.height);
     gl.uniform1f(U.t, tsec); gl.uniform1f(U.ready, ready);
     gl.uniform1f(U.lon, S.lon); gl.uniform1f(U.lat, S.lat);
     gl.uniform1f(U.D, cam.D); gl.uniform1f(U.tilt, cam.tilt); gl.uniform1f(U.F, F);
-    gl.uniform1f(U.hasW, hasW);
+    gl.uniform1f(U.hasW, hasW); gl.uniform1f(U.dayM, dayM);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     if (hudPos && now - lastHud > 250) {
       lastHud = now;
@@ -426,7 +440,7 @@
       if (hudAlt) hudAlt.textContent = S.L < .3 ? 'FULL DISK' : 'ALT ' + Math.round(alt).toLocaleString('en-US') + ' km';
     }
     labels();
-    if (!still || ready < 1) kick();                                    // คลื่น/ดาว/เมฆขยับตลอด — โหมดลดการเคลื่อนไหวหยุดวาดเมื่อนิ่ง
+    if (!still || ready < 1 || dayM !== dayT) kick();                                    // คลื่น/ดาว/เมฆขยับตลอด — โหมดลดการเคลื่อนไหวหยุดวาดเมื่อนิ่ง
   }
 
   // ── ชื่อเมือง — ชั้นตามความสำคัญ โหลดเมื่อซูมถึง (มองทั้งโลกไม่โหลดอะไรเลย) ───────────────────────
