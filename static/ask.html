@@ -208,21 +208,21 @@ select option{background:#04060f;color:var(--tx-hi);}
       <input type="text" placeholder="ตัวเลือก A…" aria-label="ตัวเลือก A" value="">
       <input type="text" placeholder="ตัวเลือก B…" aria-label="ตัวเลือก B" value="">
     </div>
-    <button type="button" class="add-btn" onclick="addPath()">+ เพิ่มตัวเลือก</button>
+    <button type="button" class="add-btn" id="add-path">+ เพิ่มตัวเลือก</button>
 
     <label>เส้นทางการวิเคราะห์</label>
     <div class="route-row" role="group" aria-label="เส้นทางการวิเคราะห์">
-      <button type="button" class="rpill active" data-r="general" aria-pressed="true" onclick="setR(this)">ทั่วไป</button>
-      <button type="button" class="rpill" data-r="risk" aria-pressed="false" onclick="setR(this)">ความเสี่ยง</button>
-      <button type="button" class="rpill" data-r="survival" aria-pressed="false" onclick="setR(this)">รอดชีวิต</button>
-      <button type="button" class="rpill" data-r="collapse" aria-pressed="false" onclick="setR(this)">วิกฤต</button>
-      <button type="button" class="rpill" data-r="civil" aria-pressed="false" onclick="setR(this)">สังคม</button>
-      <button type="button" class="rpill" data-r="vega" aria-pressed="false" onclick="setR(this)">VEGA</button>
+      <button type="button" class="rpill active" data-r="general" aria-pressed="true">ทั่วไป</button>
+      <button type="button" class="rpill" data-r="risk" aria-pressed="false">ความเสี่ยง</button>
+      <button type="button" class="rpill" data-r="survival" aria-pressed="false">รอดชีวิต</button>
+      <button type="button" class="rpill" data-r="collapse" aria-pressed="false">วิกฤต</button>
+      <button type="button" class="rpill" data-r="civil" aria-pressed="false">สังคม</button>
+      <button type="button" class="rpill" data-r="vega" aria-pressed="false">VEGA</button>
     </div>
   </div>
 
   <!-- SUBMIT -->
-  <button type="button" class="btn kd-cta" id="ask-btn" onclick="askLyla()">
+  <button type="button" class="btn kd-cta" id="ask-btn">
     <span class="btn-icon">◈</span>
     <span id="btn-label">ถาม LYLA</span>
   </button>
@@ -321,6 +321,10 @@ async function askLyla(){
 document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)) askLyla();
 });
+/* ผูกปุ่มด้วย addEventListener — CSP ไม่อนุญาต handler ที่เขียนในแท็ก HTML แล้ว (กันสคริปต์แปลกปลอม) */
+document.getElementById('add-path').addEventListener('click', addPath);
+document.querySelectorAll('.rpill').forEach(function(b){ b.addEventListener('click', function(){ setR(b); }); });
+document.getElementById('ask-btn').addEventListener('click', askLyla);
 </script>
 <script src="/static/cinema_sky.js" defer></script>
 </body>

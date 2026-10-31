@@ -341,6 +341,31 @@ _BODY_LIMITS = {
     "/api/chat-state":   3 * 1024 * 1024,   # สถานะแชตจำกัด 2MB หลัง serialize
     "/webhook/stripe":   1024 * 1024,
 }
+# ── CSP: hash ของสคริปต์ในไฟล์ HTML ────────────────────────────────
+# เดิม script-src มี 'unsafe-inline' — ถ้ามีจุดไหนหลุดให้ข้อความกลายเป็น <script> หรือ onerror="..."
+# เบราว์เซอร์จะรันทันที · ตอนนี้คำนวณ sha256 ของสคริปต์ทุกตัวที่เราเขียนไว้ในไฟล์ตอนเปิดเซิร์ฟเวอร์
+# แก้ไฟล์แล้ว deploy ใหม่ hash ก็คำนวณใหม่เอง (ไม่ต้องแก้มือ) · <script type="application/json"> ไม่ใช่โค้ด ไม่ต้องใส่
+_INLINE_SCRIPT = re.compile(r"<script\b(?![^>]*\bsrc\s*=)([^>]*)>(.*?)</script\s*>", re.S | re.I)
+_JS_TYPES = ("", "text/javascript", "application/javascript", "module")
+
+def _inline_script_hashes(root: str = os.path.dirname(os.path.abspath(__file__))) -> list:
+    import base64, glob, hashlib
+    out = set()
+    for path in sorted(set(glob.glob(os.path.join(root, "*.html")) + glob.glob(os.path.join(root, "static", "**", "*.html"), recursive=True))):
+        try:
+            text = open(path, encoding="utf-8").read()
+        except OSError:
+            continue
+        for m in _INLINE_SCRIPT.finditer(text):
+            t = re.search(r"\btype\s*=\s*[\"']?([^\"'\s>]+)", m.group(1), re.I)
+            if (t.group(1).lower() if t else "") not in _JS_TYPES:
+                continue
+            digest = hashlib.sha256(m.group(2).encode("utf-8")).digest()
+            out.add("'sha256-" + base64.b64encode(digest).decode() + "'")
+    return sorted(out)
+
+_CSP_SCRIPT = ("script-src 'self' " + " ".join(_inline_script_hashes())).strip().encode()
+
 _SECURITY_HEADERS = [
     (b"x-content-type-options", b"nosniff"),
     (b"referrer-policy", b"strict-origin-when-cross-origin"),
@@ -350,11 +375,12 @@ _SECURITY_HEADERS = [
     # ไม่มีหน้าไหนใช้กล้อง ไมค์ ตำแหน่ง หรือการชำระเงินในเบราว์เซอร์ (Stripe เปิดหน้าของ Stripe เอง)
     (b"permissions-policy", b"camera=(), microphone=(), geolocation=(), payment=(), usb=()"),
     # สคริปต์/การเชื่อมต่อได้เฉพาะจากเว็บเราเอง — ถ้ามีข้อความแปลกหลุดเข้าหน้าเว็บ ก็ส่งข้อมูลผู้ใช้ออกไปเว็บอื่นไม่ได้
-    # ('unsafe-inline' ยังจำเป็นเพราะหน้าเว็บมีสคริปต์ในไฟล์ HTML · ฟอนต์จาก Google Fonts เท่านั้น)
+    # สคริปต์ในไฟล์ HTML ทำงานได้เฉพาะตัวที่ hash ตรง (_CSP_SCRIPT) — ไม่มี 'unsafe-inline' แล้ว
+    # สคริปต์ที่ถูกแทรกเข้ามาทีหลัง (XSS) และ handler ที่เขียนในแท็ก จึงไม่ทำงาน · ฟอนต์จาก Google Fonts เท่านั้น
     # tiles.openfreemap.org: ข้อมูลแผนที่เมืองตอนซูมลงลึกในหน้า Universe — อ่านอย่างเดียว ไม่ส่งข้อมูลผู้ใช้ออกไป
     # s3.amazonaws.com: ข้อมูลความสูงภูมิประเทศ (AWS Terrain Tiles · ข้อมูลเปิด) ของแผนที่เดียวกัน — อ่านอย่างเดียว
     (b"content-security-policy",
-     b"default-src 'self'; script-src 'self' 'unsafe-inline'; "
+     b"default-src 'self'; " + _CSP_SCRIPT + b"; "
      b"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; "
      b"img-src 'self' data: blob: https://s3.amazonaws.com; connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com; "
      b"worker-src 'self'; manifest-src 'self'; "

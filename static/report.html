@@ -729,7 +729,7 @@ nav::after {
         +'<div class="card kd-rim"><div class="share-card">'
           +'<div class="share-url-text">'+esc(shareUrl)+'</div>'
           +'<div class="share-btns">'
-            +'<button class="share-btn share-btn-gold" id="copyBtn" data-url="'+esc(shareUrl)+'" onclick="doCopy(this.dataset.url)">คัดลอกลิงก์</button>'
+            +'<button class="share-btn share-btn-gold" id="copyBtn" data-url="'+esc(shareUrl)+'">คัดลอกลิงก์</button>'
             +'<a href="/" class="share-btn share-btn-blue">เปิดระบบ</a>'
           +'</div>'
         +'</div></div>'
@@ -760,6 +760,8 @@ nav::after {
     });
   };
 })();
+/* ผูกปุ่มด้วย addEventListener — CSP ไม่อนุญาต handler ที่เขียนในแท็ก HTML แล้ว (กันสคริปต์แปลกปลอม) */
+document.addEventListener('click', function(e){ var b = e.target.closest('#copyBtn'); if(b) doCopy(b.dataset.url); });
 </script>
 <script src="/static/cinema_sky.js" defer></script>
 </body>

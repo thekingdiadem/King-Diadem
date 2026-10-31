@@ -230,18 +230,18 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
 
   <!-- Quick amounts -->
   <div class="quick-amounts" style="--i:4">
-    <button type="button" class="quick-btn" data-v="50" onclick="setAmount(50)">฿50</button>
-    <button type="button" class="quick-btn" data-v="100" onclick="setAmount(100)">฿100</button>
-    <button type="button" class="quick-btn" data-v="200" onclick="setAmount(200)">฿200</button>
-    <button type="button" class="quick-btn" data-v="500" onclick="setAmount(500)">฿500</button>
+    <button type="button" class="quick-btn" data-v="50">฿50</button>
+    <button type="button" class="quick-btn" data-v="100">฿100</button>
+    <button type="button" class="quick-btn" data-v="200">฿200</button>
+    <button type="button" class="quick-btn" data-v="500">฿500</button>
   </div>
 
-  <button class="btn-topup" id="topup-btn" onclick="topup()" style="--i:5">
+  <button class="btn-topup" id="topup-btn" style="--i:5">
     เติมเครดิต
   </button>
 
   <p class="pay-note" style="--i:6">จ่ายได้ทั้งบัตรและ PromptPay (สแกน QR) — PromptPay ยอดเข้าหลังโอนสำเร็จ</p>
-  <button type="button" class="btn-topup btn-ghost" id="portal-btn" style="--i:6;margin-top:10px" onclick="portal()">จัดการสมาชิก · ยกเลิก · ใบเสร็จ</button>
+  <button type="button" class="btn-topup btn-ghost" id="portal-btn" style="--i:6;margin-top:10px">จัดการสมาชิก · ยกเลิก · ใบเสร็จ</button>
 
   <div class="status-box" id="status-box" role="status"></div>
 
@@ -353,6 +353,10 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
     })();
   });
 })();
+/* ผูกปุ่มด้วย addEventListener — CSP ไม่อนุญาต handler ที่เขียนในแท็ก HTML แล้ว (กันสคริปต์แปลกปลอม) */
+document.querySelectorAll('.quick-btn[data-v]').forEach(function(b){ b.addEventListener('click', function(){ setAmount(Number(b.dataset.v)); }); });
+document.getElementById('topup-btn').addEventListener('click', function(){ topup(); });
+document.getElementById('portal-btn').addEventListener('click', function(){ portal(); });
 </script>
 <script src="/static/cinema_sky.js" defer></script>
 </body>

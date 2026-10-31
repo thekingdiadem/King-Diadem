@@ -1,4 +1,5 @@
 """ซูมลงลึกบนหน้า Universe → แผนที่เมืองกลางคืน 3 มิติจาก OpenStreetMap (OpenFreeMap — ฟรี ใช้เชิงพาณิชย์ได้)"""
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -19,7 +20,8 @@ def test_maplibre_is_self_hosted_csp_build_with_license():
 def test_csp_allows_only_openfreemap_for_tiles(client):
     csp = client.get("/").headers["content-security-policy"]
     assert "connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com;" in csp
-    assert "script-src 'self' 'unsafe-inline';" in csp                      # ไม่มีสคริปต์จากที่อื่นเพิ่ม
+    script = re.search(r"script-src ([^;]*);", csp).group(1).split()
+    assert script[0] == "'self'" and all(s.startswith("'sha256-") for s in script[1:])   # ไม่มีสคริปต์จากที่อื่น ไม่มี unsafe-inline
     assert "worker-src 'self'" in csp
 
 
