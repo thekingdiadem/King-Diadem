@@ -38,11 +38,28 @@ def test_every_inline_script_is_allowed_by_hash(client):
     assert n >= 15
 
 
+HOW_TO_FIX = """
+ห้ามเขียน onclick="..." (หรือ oninput / onchange / onerror ฯลฯ) ลงในแท็ก HTML
+เว็บนี้ปิด 'unsafe-inline' ใน CSP แล้ว ปุ่มแบบนั้นจะกดไม่ติดแบบเงียบๆ
+
+วิธีแก้ (ทำแบบเดียวกันทุกครั้ง):
+  1) ในแท็ก: เปลี่ยน onclick="ทำอะไรสักอย่าง()" เป็น id="ชื่อปุ่ม"
+       เดิม:  <button onclick="save()">บันทึก</button>
+       ใหม่:  <button id="save-btn">บันทึก</button>
+  2) ใน <script> ของหน้าเดียวกัน (ท้ายไฟล์) เพิ่ม:
+       document.getElementById('save-btn').addEventListener('click', save);
+  3) รัน python -m pytest อีกครั้ง — hash ของสคริปต์ CSP คำนวณใหม่เอง ไม่ต้องแก้ app.py
+"""
+
+
 def test_no_handlers_written_in_html_tags():
     for f in HTML_FILES:
-        text = f.read_text(encoding="utf-8")
-        text = re.sub(r"<script\b[^>]*>.*?</script>", "", text, flags=re.S | re.I)   # โค้ดในสคริปต์ไม่ใช่แท็ก
-        assert not TAG_HANDLER.search(text), f.name
+        raw = f.read_text(encoding="utf-8")
+        text = re.sub(r"<script\b[^>]*>.*?</script>", lambda m: "\n" * m.group(0).count("\n"), raw, flags=re.S | re.I)
+        m = TAG_HANDLER.search(text)                                          # โค้ดในสคริปต์ไม่ใช่แท็ก
+        if m:
+            line = text.count("\n", 0, m.start()) + 1
+            raise AssertionError(f"{f.relative_to(ROOT)} บรรทัด {line}: {text[m.start():m.end() + 30].strip()}\n{HOW_TO_FIX}")
 
 
 def test_json_data_blocks_are_not_hashed(client):
