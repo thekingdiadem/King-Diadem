@@ -10,5 +10,6 @@ python-multipart==0.0.32
 authlib==1.9.1
 httpx==0.28.1
 itsdangerous==2.2.0
+qrcode==8.2               # QR ของ 2FA (สแกนจากจอคอม) — ไม่มี dependency อื่น
 # เอาออก: numpy, pandas, scikit-learn, Pillow, requests, jinja2 — ไม่มีไฟล์ไหน import
 # (build บน Render free tier ช้าลงหลายนาทีและกินดิสก์ ~200MB โดยไม่ได้ใช้)

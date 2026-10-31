@@ -1413,7 +1413,8 @@ async def twofa_setup(request: Request):
     secret = _totp.new_secret()
     if not twofa_set_pending(email, _totp.seal(secret, _SECRET_KEY)):
         return JSONResponse({"error": "เปิดการยืนยันสองชั้นไว้แล้วค่ะ"}, status_code=409)
-    return {"secret": secret, "uri": _totp.otpauth_uri(secret, email)}
+    uri = _totp.otpauth_uri(secret, email)
+    return {"secret": secret, "uri": uri, "qr": _totp.qr_svg(uri)}
 
 
 @app.post("/api/2fa/enable")

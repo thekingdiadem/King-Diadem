@@ -129,3 +129,29 @@ def test_tools_card_has_regenerate_button():
     src = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
     assert "id', 'tfa-regen'" in src or "'tfa-regen'" in src
     assert "/api/2fa/recovery" in src
+
+
+def test_setup_gives_a_scannable_qr_for_desktop(client):
+    """เปิด 2FA บนคอม: มี QR ให้มือถือสแกนจากจอ ไม่ต้องพิมพ์กุญแจ 32 ตัวเอง (เจ้าของโปรเจกต์เคยต้องพิมพ์เอง)"""
+    _new_user(client)
+    s = client.post("/api/2fa/setup").json()
+    qr = s["qr"]
+    assert qr.startswith("<svg") and "<script" not in qr.lower() and " on" not in qr.lower()
+    # ภาพตรงกับข้อมูลจริง: วาดช่องดำตาม path แล้วเทียบกับเมทริกซ์ของลิงก์ otpauth เดียวกัน
+    import re
+    import qrcode
+    q = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_M, border=4)
+    q.add_data(s["uri"])
+    q.make(fit=True)
+    want = q.get_matrix()
+    n = len(want)
+    got = [[False] * n for _ in range(n)]
+    for x, y, w in re.findall(r"M(\d+) (\d+)h(\d+)", qr):
+        for i in range(int(w)):
+            got[int(y)][int(x) + i] = True
+    assert got == want
+
+
+def test_qr_is_inserted_only_when_it_is_plain_svg():
+    src = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+    assert "/^<svg[\\s>]/.test(d.qr)" in src and "<script|\\son\\w+=|href=" in src
