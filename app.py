@@ -838,6 +838,14 @@ async def ask_page():
 
 
 # ── HEALTH ────────────────────────────────────────────────────────
+def _db_cloud():
+    try:
+        from DATABASE.db import using_cloud
+        return using_cloud()
+    except Exception:
+        return False
+
+
 def _backup_hours():
     try:
         from DATABASE.backup import last_backup_age
@@ -869,6 +877,7 @@ def health():
         "stripe_webhook":     bool(os.getenv("STRIPE_WEBHOOK_SECRET")),
         "freedom_score":      freedom_index() if freedom_index else 0,
         "db_initialized":     init_db is not None,
+        "db_cloud":           _db_cloud(),          # True = ข้อมูลอยู่บน Turso ไม่หายตอน deploy/เซิร์ฟเวอร์หลับ
         "db_backup_hours":    _backup_hours(),     # ชั่วโมงนับจากสำรองล่าสุด (None = ยังไม่เคย) — เกิน ~24 แปลว่ามีปัญหา
         "feedback":           feedback_loop.stats() if feedback_loop else None,
         "load":               get_survival_stats() if get_survival_stats else None,
