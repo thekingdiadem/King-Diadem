@@ -206,20 +206,20 @@ DHD accumulates daily      →   freedom_index drops
 
 | Module | ศัตรู | Binding ในโค้ด |
 |--------|------|---------------|
-| K1 Reality Root | ปฏิเสธความจริง | ประตู K1 · อคติ denial (`yonisomanasikara`) · มรรค "ปัญญา" |
+| K1 Reality Root | ปฏิเสธความจริง | ประตู K1 · อคติ denial (`yonisomanasikara`) · มรรค "สัมมาทิฏฐิ" |
 | K2 Downside-First Gate | ติดด้านดี | ประตู K2 · `offer_red_flags()` · สัมมัปปธาน "สังวรปธาน" |
 | K3 Simplicity Cut | ซับซ้อนเพราะอัตตา | ประตู K3 · อิทธิบาท "จิตตะ" · `_friendly_error()` |
 | K4 Floor Before Growth | ปรับให้ดีขณะเลือดไหล | ประตู K4 · route survival · `_budget()` / runway |
 | K5 Exit Must Exist | ระบบที่ติดกับ | ประตู K5 · `engine_bridge.irreversible()` · สัมมัปปธาน "อนุรักขนาปธาน" |
 | K6 Repair Protocol | ชินกับความเสียหาย | ประตู K6 · `record_crisis()` + `log_decision()` |
 | K7 Patience Shell | ใจร้อน โกรธ | ประตู K7 · อินทรีย์ "วิริยะ–สมาธิ" · `/simulate` |
-| K8 Equanimity Mirror | อารมณ์บิดภาพ | ประตู K8 · มรรค "สมาธิ" · Ego OFF ใน prompt |
+| K8 Equanimity Mirror | อารมณ์บิดภาพ | ประตู K8 · มรรค "สัมมาสมาธิ" · Ego OFF ใน prompt |
 | K9 Generosity Flow | กักตุน | ประตู K9 · โควตาฟรีรายวัน + เรื่องฉุกเฉินตอบฟรีเสมอ |
-| K10 Integrity Rail | ผลประโยชน์ส่วนตัว | ประตู K10 · มรรค "ศีล" · FATE™ Axiom Audit ในรายงาน |
+| K10 Integrity Rail | ผลประโยชน์ส่วนตัว | ประตู K10 · มรรค "สัมมาอาชีวะ" · FATE™ Axiom Audit ในรายงาน |
 | K11 Stability First | ทำอะไรสักอย่างเพราะทนนิ่งไม่ได้ | ประตู K11 · อิทธิบาท "วิริยะ" |
 | K12 Evidence Insight | ยึดความเห็นผิด | ประตู K12 · อิทธิบาท "วิมังสา" · `paticcasamuppada` |
 | K13 Stop-the-Line Authority | ความเสียหายกำลังเคลื่อน | ประตู K13 · สัมมัปปธาน "ปหานปธาน" · canon hard block |
-| K14 Humble Operator Stance | ต้องชนะให้ได้ | ประตู K14 · มรรค "ศีล" · "Not built to win. Built to reduce collapse." |
+| K14 Humble Operator Stance | ต้องชนะให้ได้ | ประตู K14 · มรรค "สัมมาสังกัปปะ" · "Not built to win. Built to reduce collapse." |
 
 ---
 
@@ -403,9 +403,9 @@ guardian_check(context, pattern)
 | 4a | อินทรีย์ 5 | CAPABILITY_LAYER → LYLA | สัทธา–ปัญญา สมดุล (ไม่มีข้อเสนอการันตี / K2 / K12) · วิริยะ–สมาธิ สมดุล (ไม่ติด K7/K11) · สติ = ไม่พบอคติ |
 | 4b | พละ 5 | FORCE_LAYER → VEGA | ประตู VEGA ติด ≤ 1 · structure ≥ 0.35 (ต่ำกว่า = critical) |
 | 5 | โพชฌงค์ 7 | ENLIGHTENMENT_LOOP | สติ → ธัมมวิจยะ (ไม่ใช่วิกฤต) → วิริยะ → ปีติ (ไม่ใช่เรื่องฉุกเฉิน) → ปัสสัทธิ (สงบพอ) → สมาธิ → อุเบกขา (ไม่เอียงด้วยอคติ/ความหวัง) — หยุดที่ขั้นแรกที่ยังไม่ผ่าน |
-| 6 | มรรคมีองค์ 8 | FULL_STACK | ศีล = ไม่เบียดเบียน (K10 · K14 · ทำร้าย/ติดสินบน) · สมาธิ = entropy ≤ 65 และไม่ติด K8 · ปัญญา = ไม่มีอคติ ไม่ติด K1/K12 |
+| 6 | มรรคมีองค์ 8 | FULL_STACK | **ปัญญา**: สัมมาทิฏฐิ = ไม่มีอคติ ไม่ติด K1/K12 · สัมมาสังกัปปะ = ไม่มีเจตนาแก้แค้น/เอาคืน ไม่ติด K14 · **ศีล**: สัมมาวาจา = ไม่โกหก/ใส่ร้าย/รีวิวปลอม · สัมมากัมมันตะ = ไม่ทำร้ายผู้อื่น · สัมมาอาชีวะ = ไม่หาเงินทุจริต (สินบน · ฟอกเงิน · หนีภาษี · บัญชีม้า) ไม่ติด K10 · **สมาธิ**: สัมมาวายามะ = ไม่ติด K2/K11 · สัมมาสติ = ไม่มีรูปแบบการหลอก · สัมมาสมาธิ = entropy ≤ 65 ไม่ติด K8 ไม่ตัดสินตอนอารมณ์ร้อน — **ข้อใดไม่ผ่าน = ไม่ PEACE** |
 
-`peace = ไม่มีข้อ critical ∧ โพชฌงค์ครบ 7 ∧ health ≥ 0.8` · `recommend_route = survival` เมื่อ structure < 0.35 หรือขาดปัจจัยพื้นฐาน
+`peace = ไม่มีข้อ critical ∧ โพชฌงค์ครบ 7 ∧ health ≥ 0.8 ∧ มรรค 8 ผ่านครบ` · `recommend_route = survival` เมื่อ structure < 0.35 หรือขาดปัจจัยพื้นฐาน
 
 **PEACE ROUTER — หลักการ:**
 

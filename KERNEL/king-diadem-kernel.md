@@ -199,20 +199,20 @@ DHD accumulates daily      →   freedom_index drops
 
 | Module | ศัตรู | Binding ในโค้ด |
 |--------|------|---------------|
-| K1 Reality Root | ปฏิเสธความจริง | ประตู K1 · อคติ denial (`yonisomanasikara`) · มรรค "ปัญญา" |
+| K1 Reality Root | ปฏิเสธความจริง | ประตู K1 · อคติ denial (`yonisomanasikara`) · มรรค "สัมมาทิฏฐิ" |
 | K2 Downside-First Gate | ติดด้านดี | ประตู K2 · `offer_red_flags()` · สัมมัปปธาน "สังวรปธาน" |
 | K3 Simplicity Cut | ซับซ้อนเพราะอัตตา | ประตู K3 · อิทธิบาท "จิตตะ" · `_friendly_error()` |
 | K4 Floor Before Growth | ปรับให้ดีขณะเลือดไหล | ประตู K4 · route survival · `_budget()` / runway |
 | K5 Exit Must Exist | ระบบที่ติดกับ | ประตู K5 · `engine_bridge.irreversible()` · สัมมัปปธาน "อนุรักขนาปธาน" |
 | K6 Repair Protocol | ชินกับความเสียหาย | ประตู K6 · `record_crisis()` + `log_decision()` |
 | K7 Patience Shell | ใจร้อน โกรธ | ประตู K7 · อินทรีย์ "วิริยะ–สมาธิ" · `/simulate` |
-| K8 Equanimity Mirror | อารมณ์บิดภาพ | ประตู K8 · มรรค "สมาธิ" · Ego OFF ใน prompt |
+| K8 Equanimity Mirror | อารมณ์บิดภาพ | ประตู K8 · มรรค "สัมมาสมาธิ" · Ego OFF ใน prompt |
 | K9 Generosity Flow | กักตุน | ประตู K9 · โควตาฟรีรายวัน + เรื่องฉุกเฉินตอบฟรีเสมอ |
-| K10 Integrity Rail | ผลประโยชน์ส่วนตัว | ประตู K10 · มรรค "ศีล" · FATE™ Axiom Audit ในรายงาน |
+| K10 Integrity Rail | ผลประโยชน์ส่วนตัว | ประตู K10 · มรรค "สัมมาอาชีวะ" · FATE™ Axiom Audit ในรายงาน |
 | K11 Stability First | ทำอะไรสักอย่างเพราะทนนิ่งไม่ได้ | ประตู K11 · อิทธิบาท "วิริยะ" |
 | K12 Evidence Insight | ยึดความเห็นผิด | ประตู K12 · อิทธิบาท "วิมังสา" · `paticcasamuppada` |
 | K13 Stop-the-Line Authority | ความเสียหายกำลังเคลื่อน | ประตู K13 · สัมมัปปธาน "ปหานปธาน" · canon hard block |
-| K14 Humble Operator Stance | ต้องชนะให้ได้ | ประตู K14 · มรรค "ศีล" · "Not built to win. Built to reduce collapse." |
+| K14 Humble Operator Stance | ต้องชนะให้ได้ | ประตู K14 · มรรค "สัมมาสังกัปปะ" · "Not built to win. Built to reduce collapse." |
 
 ---
 

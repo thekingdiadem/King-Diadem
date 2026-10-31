@@ -33,12 +33,34 @@ def structure_score(pattern: dict) -> float:
     return round(((100.0 - e) + r + s) / 300.0, 3)
 
 
+# ── สัญญาณของมรรคแต่ละองค์ (ข้อความของผู้ใช้เอง — เดิมมรรคมีแค่ 3 ข้อ "โกหกลูกค้า" "โกรธจนจะลาออกเดี๋ยวนี้" ผ่านหมด)
+import re as _re
+
+FALSE_SPEECH = _re.compile(   # สัมมาวาจา — ตั้งใจพูดเท็จ ใส่ร้าย บิดข้อมูล
+    r"(จะ|อยาก|ควร|ต้อง|ขอ|ช่วย)\s*(โกหก|ปั้นเรื่อง|แต่งเรื่อง|ใส่ร้าย|ใส่ความ|ปล่อยข่าว|ปิดบัง|บิดเบือน|ปลอมเอกสาร)"
+    r"|รีวิวปลอม|ปลอมรีวิว|เขียนรีวิวเอง|หลอกลูกค้า|โกหกลูกค้า|โกหกแฟน|โกหกพ่อแม่|โกหกหัวหน้า|โกหกเจ้านาย"
+    r"|\b(lie to|lying to|fake reviews?|make up a story|spread (a )?rumou?r|cover (it )?up)\b", _re.I)
+ILL_WILL = _re.compile(       # สัมมาสังกัปปะ — เจตนามุ่งร้าย อยากเอาคืน
+    r"แก้แค้น|เอาคืน|ล้างแค้น|ให้มันโดน|ให้มันพัง|ให้มันเจ็บ|ให้มันรู้สำนึก|สะใจ|เอาให้หมดอนาคต|ทำให้มันอับอาย|ประจาน"
+    r"|\b(revenge|get back at|make (him|her|them) pay|ruin (him|her|them|their))\b", _re.I)
+WRONG_LIVING = _re.compile(   # สัมมาอาชีวะ — หาเงินทางทุจริต
+    r"(จะ|อยาก|ควร|ช่วย)\S{0,6}(โกงลูกค้า|โกงเงิน|หลอกขาย|ขายของปลอม|ขายของก็อป|เลี่ยงภาษี|หนีภาษี|ฟอกเงิน|ปั่นหุ้น|ยักยอก|ขายบัญชีม้า|รับเปิดบัญชีม้า)"
+    r"|เงินใต้โต๊ะ|ค่าน้ำร้อนน้ำชา|รับสินบน|ให้สินบน|บัญชีม้า"
+    r"|\b(evade tax(es)?|launder|embezzle|sell (fake|counterfeit)|pump and dump)\b", _re.I)
+AGITATED = _re.compile(       # สัมมาสมาธิ — ตัดสินใจตอนอารมณ์ร้อน/เร่ง
+    r"โกรธมาก|โมโหมาก|หัวร้อน|ของขึ้น|ทนไม่ไหวแล้ว|ไม่สนอะไรแล้ว|ไม่สนแล้ว|เดี๋ยวนี้เลย|ตอนนี้เลย|คืนนี้เลย|ประชด"
+    r"|\b(so angry|furious|right now|tonight|i don'?t care anymore)\b", _re.I)
+
+
 # ── สัญญาณจากข้อความ (ใช้ตัวตรวจกลางของระบบ — ไม่สร้างกฎซ้ำ) ─────────────────
 def _signals(text: str) -> dict:
     sig = {"risk": 0, "crisis": False, "urgent": False, "basic": False, "offer": False, "scam": [],
-           "harm_others": False, "gates": [], "bias": False}
+           "harm_others": False, "gates": [], "bias": False,
+           "false_speech": False, "ill_will": False, "wrong_living": False, "agitated": False}
     if not text.strip():
         return sig
+    sig.update(false_speech=bool(FALSE_SPEECH.search(text)), ill_will=bool(ILL_WILL.search(text)),
+               wrong_living=bool(WRONG_LIVING.search(text)), agitated=bool(AGITATED.search(text)))
     try:
         from core.kernel_voice import assess, council_unsuitable
         a = assess(text)
@@ -46,7 +68,9 @@ def _signals(text: str) -> dict:
         sig.update(risk=int(a.get("text_risk") or 0), crisis=bool(a.get("crisis")),
                    urgent=bool(council_unsuitable(a)), basic="basic" in topics,
                    offer=bool(a.get("offer_flags")), scam=list(a.get("scam") or []),
-                   harm_others=any(t in topics for t in ("harm_others", "bribery")))
+                   harm_others="harm_others" in topics)
+        if "bribery" in topics:
+            sig["wrong_living"] = True
     except Exception:
         pass
     try:
@@ -127,16 +151,33 @@ def structural_check(text: str, pattern: dict, sig: dict | None = None) -> list[
             _item("โครงสร้าง", st >= 0.35, f"structure {st:.2f} ≥ 0.35" if st >= 0.35
                   else f"structure {st:.2f} < 0.35 — ประคองก่อนตัดสินใจใหญ่", critical=st < 0.35),
         ]),
-        # 6 มรรค 8 — FULL_STACK: ศีล (Security) · สมาธิ (Stability) · ปัญญา (Intelligence)
+        # 6 มรรค 8 — FULL_STACK · ครบ 8 องค์ จัดเป็น 3 หมวด: ปัญญา (Intelligence) · ศีล (Security) · สมาธิ (Stability)
         ("มรรคมีองค์ 8", "FULL_STACK", [
-            _item("ศีล", not (sig["harm_others"] or "K10" in g or "K14" in g),
-                  "ไม่เบียดเบียนผู้อื่น" if not (sig["harm_others"] or "K10" in g or "K14" in g)
-                  else "เสี่ยงเบียดเบียนหรือได้ประโยชน์ส่วนตัว — สัมมาวาจา/กัมมันตะ/อาชีวะ"),
-            _item("สมาธิ", e <= 65 and "K8" not in g, "ใจตั้งมั่นพอ" if e <= 65 and "K8" not in g
-                  else "อารมณ์กำลังบิดภาพ — สงบก่อนตัดสิน"),
-            _item("ปัญญา", not (sig["bias"] or "K1" in g or "K12" in g),
+            # ปัญญา
+            _item("สัมมาทิฏฐิ", not (sig["bias"] or "K1" in g or "K12" in g),
                   "เห็นตามจริง" if not (sig["bias"] or "K1" in g or "K12" in g)
-                  else "ยังไม่เห็นตามจริง — ความจริงก่อน (สัมมาทิฏฐิ)"),
+                  else "ยังไม่เห็นตามจริง — ความจริงก่อน"),
+            _item("สัมมาสังกัปปะ", not (sig["ill_will"] or "K14" in g),
+                  "เจตนาไม่มุ่งร้าย" if not (sig["ill_will"] or "K14" in g)
+                  else "เจตนามีความอยากเอาคืน/ต้องชนะ — ถามว่าอยากให้เรื่องจบแบบไหน"),
+            # ศีล
+            _item("สัมมาวาจา", not sig["false_speech"], "คำพูดตรงความจริง" if not sig["false_speech"]
+                  else "มีการโกหก/ใส่ร้าย/บิดข้อมูล — ทางที่พูดความจริงได้มีไหม"),
+            _item("สัมมากัมมันตะ", not sig["harm_others"], "การกระทำไม่เบียดเบียนผู้อื่น" if not sig["harm_others"]
+                  else "การกระทำนี้เบียดเบียนผู้อื่น — หยุดก่อนลงมือ"),
+            _item("สัมมาอาชีวะ", not (sig["wrong_living"] or "K10" in g),
+                  "ทางหาเลี้ยงชีพสุจริต" if not (sig["wrong_living"] or "K10" in g)
+                  else "รายได้/ผลประโยชน์ทางนี้ไม่สุจริต — เสี่ยงทั้งกฎหมายและความไว้ใจ"),
+            # สมาธิ
+            _item("สัมมาวายามะ", not ("K11" in g or "K2" in g),
+                  "ความเพียรไปทางที่ไม่ทำให้พัง" if not ("K11" in g or "K2" in g)
+                  else "แรงทุ่มไปทางเสี่ยงหมดตัว/ทำทุกอย่างพร้อมกัน — เพียรให้ถูกทาง"),
+            _item("สัมมาสติ", not (sig["scam"] or sig["offer"]),
+                  "รู้ทันสถานการณ์" if not (sig["scam"] or sig["offer"])
+                  else "มีรูปแบบของการหลอก — ตั้งสติ ตรวจกับช่องทางทางการก่อนทำตาม"),
+            _item("สัมมาสมาธิ", e <= 65 and "K8" not in g and not sig["agitated"],
+                  "ใจตั้งมั่นพอ" if e <= 65 and "K8" not in g and not sig["agitated"]
+                  else "อารมณ์ร้อน/เร่งรีบกำลังบิดภาพ — สงบก่อนตัดสิน"),
         ]),
     ]
     out = []
@@ -159,7 +200,7 @@ def bojjhanga_loop(text: str, pattern: dict, layers: list[dict], sig: dict) -> d
         ("วิริยะ", by["วิริยะ"]["ok"]),
         ("ปีติ", not sig["urgent"]),                                          # ยังมีพื้นให้ใจเบาได้
         ("ปัสสัทธิ", e <= 65 and sig["risk"] < 60 and by["วิริยะ–สมาธิ"]["ok"]),  # สงบพอจะตัดสิน
-        ("สมาธิ", by["สมาธิ"]["ok"]),
+        ("สมาธิ", by["สัมมาสมาธิ"]["ok"]),
         ("อุเบกขา", by["สติ"]["ok"] and by["สัทธา–ปัญญา"]["ok"]),           # วางใจเป็นกลาง ไม่เอียงด้วยอคติ/ความหวัง
     )
     reached = 0
@@ -184,7 +225,8 @@ def guardian_check(context, pattern=None) -> dict:
     health = round(sum(x["ok"] for x in items) / len(items), 3)
     st = structure_score(pattern)
 
-    peace = not critical and loop["complete"] and health >= 0.8
+    magga_ok = layers[-1]["ok"]          # มรรค 8 = Final Governance Lock: ข้อใดไม่ผ่าน ไม่ให้ PEACE (เดิม "จะโกหกลูกค้า" ได้ PEACE)
+    peace = not critical and loop["complete"] and health >= 0.8 and magga_ok
     # สงบ > ทำลาย: ยกไป survival เฉพาะเมื่อพื้นรอดพังจริง (โครงสร้างต่ำ หรือขาดปัจจัยพื้นฐาน)
     recommend_route = "survival" if (st < 0.35 or sig["basic"]) else None
     if peace:
@@ -204,6 +246,7 @@ def guardian_check(context, pattern=None) -> dict:
         "layers": layers,
         "bojjhanga": loop,
         "failed": [{"name": x["name"], "note": x["note"]} for x in failed],
+        "magga": {x["name"]: x["ok"] for x in layers[-1]["items"]},
     }
 
 
