@@ -113,7 +113,7 @@ def test_front_page_routes_orbit_the_earth():
     body = HTML[HTML.index("function drawRoutes("):HTML.index("function drawBodyLabels(")]
     assert "function hidden(q)" in body and "ORB[i] === cur" in body and "สถานีอวกาศ" in body
     assert "var clash = boxes.some(" in body
-    assert "drawRoutes(cx, cy, r, tsec, DAWN.show * (CINEMA.on ? .55 : 1), top, bottom);" in HTML     # โหมดภาพยนตร์หรี่วงโคจรลง
+    assert "drawRoutes(cx, cy, r, tsec, CINEMA.on ? 0 : DAWN.show, top, bottom);" in HTML     # โหมดภาพยนตร์ไม่มีเส้นวงโคจร (คลีน)
 
 
 def test_front_page_matches_founders_reference():

@@ -14,11 +14,22 @@ def _fn(start):
 
 
 def test_dhamma_wheel_has_eight_spokes_and_rests_when_calm():
+    assert "i < 8" in _fn("function wheelSprite(")
     w = _fn("function drawWheel(")
-    assert "i < 8" in w
     assert "if(!REDUCED) WHEEL.a +=" in w and "REDUCED ? .85" in w      # ลดการเคลื่อนไหว = นิ่ง ไม่หายใจ
     assert "6.4" in w                                                     # จังหวะหายใจแบบสวด
-    assert "drawWheel(cx, cy, r, tsec, dt, DAWN.show);" in SRC
+    assert "drawWheel(cx, cy, r, tsec, dt, DAWN.show" in SRC
+
+
+def test_grand_but_light_cached_sprites_not_rebuilt_each_frame():
+    """อลังการขึ้นแต่ไม่แลค: วงล้อและแสงอาทิตย์วาดเก็บเป็นภาพครั้งเดียว ทุกเฟรมแค่ drawImage"""
+    w = _fn("function drawWheel(")
+    assert "createLinearGradient" not in w and "createRadialGradient" not in w and "drawImage(cv" in w
+    assert "if(WHEEL.key === k) return WHEEL.cv;" in SRC
+    sr = _fn("function drawSunrise(")
+    assert "createRadialGradient" not in sr and "flareSprite()" in sr
+    assert "if(FLARE) return FLARE;" in SRC
+    assert "if(CINEMA.on && !REDUCED) drawSunrise(" in SRC                # ลดการเคลื่อนไหว = ไม่มีประกายวาบ
 
 
 def test_both_chosen_passages_are_chanted_in_pali():
