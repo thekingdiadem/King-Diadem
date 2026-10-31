@@ -8,190 +8,22 @@ DB_PATH = os.getenv("DB_PATH", "data/king_diadem.db")
 # ── ฐานข้อมูลบนคลาวด์ (Turso · SQLite บนคลาวด์) ─────────────────────────────────
 # Render แพ็กเกจฟรีไม่มีดิสก์ถาวร — ไฟล์ SQLite ในเครื่องหายทุกครั้งที่ deploy หรือเซิร์ฟเวอร์หลับแล้วตื่น
 # ตั้ง TURSO_URL (libsql://...) + TURSO_TOKEN ใน Render แล้วข้อมูลไปอยู่ที่ Turso แทน ไม่หายอีก
-# ไม่ตั้ง = ใช้ไฟล์ในเครื่องเหมือนเดิม · KD_DB_DRIVER=libsql ใช้ไดรเวอร์ libsql กับไฟล์ในเครื่อง (เทสต์ใช้ตรวจความเข้ากันได้)
+# ไม่ตั้ง = ใช้ไฟล์ในเครื่องเหมือนเดิม · ต่อด้วย Python ล้วนผ่าน HTTPS (DATABASE/turso.py) — เดิมใช้ libsql แล้ว segfault
 TURSO_URL = os.getenv("TURSO_URL", "").strip()
 TURSO_TOKEN = os.getenv("TURSO_TOKEN", "").strip()
-
-
-def _use_libsql() -> bool:
-    return bool(TURSO_URL) or os.getenv("KD_DB_DRIVER", "") == "libsql"
 
 
 def using_cloud() -> bool:
     return bool(TURSO_URL)
 
 
-class _Row(tuple):
-    """แถวแบบ sqlite3.Row: r[0] · r["email"] · dict(r) · r.keys()"""
-    __slots__ = ()
-    _names = ()
-    _index = {}
-
-    def __getitem__(self, k):
-        if isinstance(k, str):
-            try:
-                return tuple.__getitem__(self, self._index[k])
-            except KeyError:
-                lk = k.lower()
-                for i, c in enumerate(self._names):
-                    if c.lower() == lk:
-                        return tuple.__getitem__(self, i)
-                raise IndexError(f"No item with that key: {k}")
-        return tuple.__getitem__(self, k)
-
-    def keys(self):
-        return list(self._names)
-
-
-def _row_class(names):
-    names = tuple(names)
-    return type("Row", (_Row,), {"__slots__": (), "_names": names, "_index": {n: i for i, n in enumerate(names)}})
-
-
-def _map_error(e):
-    """ข้อผิดพลาดของ libsql → ชนิดเดียวกับ sqlite3 (โค้ดเดิมจับ sqlite3.IntegrityError / DatabaseError อยู่)"""
-    if isinstance(e, sqlite3.Error):
-        return e
-    msg = str(e)
-    if "constraint" in msg.lower() or "UNIQUE" in msg:
-        return sqlite3.IntegrityError(msg)
-    if "locked" in msg.lower() or "busy" in msg.lower():
-        return sqlite3.OperationalError(msg)
-    return sqlite3.DatabaseError(msg)
-
-
-class _Cursor:
-    def __init__(self, cur):
-        self._cur = cur
-        d = cur.description
-        self._Row = _row_class([c[0] for c in d]) if d else None
-
-    def _wrap(self, t):
-        return None if t is None else (self._Row(t) if self._Row else t)
-
-    def fetchone(self):
-        return self._wrap(self._cur.fetchone())
-
-    def fetchall(self):
-        return [self._wrap(t) for t in self._cur.fetchall()]
-
-    def __iter__(self):
-        return iter(self.fetchall())
-
-    @property
-    def rowcount(self):
-        return self._cur.rowcount
-
-    @property
-    def lastrowid(self):
-        return self._cur.lastrowid
-
-    @property
-    def description(self):
-        return self._cur.description
-
-
-class _Conn:
-    """ครอบ connection ของ libsql ให้ใช้เหมือน sqlite3 (row_factory = Row, ชนิด error เดียวกัน)"""
-
-    def __init__(self, raw):
-        self._raw = raw
-        self.row_factory = None
-
-    def execute(self, sql, params=()):
-        if TURSO_URL and sql.lstrip().upper().startswith("PRAGMA"):
-            raise sqlite3.DatabaseError("PRAGMA is not supported on the cloud database")   # โค้ดเดิมจับไว้แล้ว
-        try:
-            return _Cursor(self._raw.execute(sql, tuple(params)))
-        except Exception as e:
-            raise _map_error(e) from e
-
-    def executemany(self, sql, seq):
-        try:
-            return _Cursor(self._raw.executemany(sql, [tuple(p) for p in seq]))
-        except Exception as e:
-            raise _map_error(e) from e
-
-    def executescript(self, script):
-        try:
-            return self._raw.executescript(script)
-        except Exception as e:
-            raise _map_error(e) from e
-
-    def commit(self):
-        try:
-            self._raw.commit()
-        except Exception as e:
-            raise _map_error(e) from e
-
-    def rollback(self):
-        try:
-            self._raw.rollback()
-        except Exception:
-            pass
-
-    def close(self):
-        try:
-            self._raw.close()
-        except Exception:
-            pass
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, et, ev, tb):
-        if et is None:
-            self.commit()
-        else:
-            self.rollback()
-        return False
-
-
-import threading as _threading
-_TLS = _threading.local()
-
-
-class _SharedConn(_Conn):
-    """การเชื่อมต่อไป Turso ใช้ซ้ำต่อเธรด (เปิดใหม่ทุกคำสั่ง = จับมือ TLS ข้ามทวีปทุกครั้ง แอปช้า)
-    close() แค่ปิด transaction ที่ค้าง ไม่ตัดสาย · สายหลุดเมื่อไรเปิดใหม่เองครั้งถัดไป"""
-
-    def close(self):
-        try:
-            if getattr(self._raw, "in_transaction", False):
-                self._raw.rollback()
-        except Exception:
-            _TLS.conn = None
-
-
-def _libsql_conn():
-    import libsql
-    if TURSO_URL:
-        import time as _time
-        c = getattr(_TLS, "conn", None)
-        if c is not None:
-            if _time.time() - c._used < 60:          # เพิ่งใช้ — สายยังดี ไม่ต้องเช็ก (ประหยัดหนึ่งรอบเน็ต)
-                c._used = _time.time()
-                return c
-            try:                                      # ว่างนาน — เช็กก่อน เซิร์ฟเวอร์อาจตัดสายไปแล้ว
-                c._raw.execute("SELECT 1").fetchone()
-                c._used = _time.time()
-                return c
-            except Exception:
-                _TLS.conn = None
-        c = _SharedConn(libsql.connect(TURSO_URL, auth_token=TURSO_TOKEN))
-        c._used = _time.time()
-        _TLS.conn = c
-        return c
-    return _Conn(libsql.connect(DB_PATH))
-
-
 def get_conn():
-    if _use_libsql():
-        if not TURSO_URL:
-            d = os.path.dirname(DB_PATH)
-            if d:
-                os.makedirs(d, exist_ok=True)
-        return _libsql_conn()
+    if TURSO_URL:
+        from DATABASE.turso import Connection
+        return Connection(TURSO_URL, TURSO_TOKEN)
+    if os.getenv("KD_DB_DRIVER") == "hrana-fake":          # เทสต์: เซิร์ฟเวอร์ Turso จำลอง (tests/_fake_hrana.py)
+        from DATABASE.turso import Connection
+        return Connection("http://fake-turso", "test")
     d = os.path.dirname(DB_PATH)
     if d:
         os.makedirs(d, exist_ok=True)
