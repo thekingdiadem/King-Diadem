@@ -97,3 +97,35 @@ def test_google_login_also_asks_for_the_code():
     assert "if _twofa_on(email):" in cb and 'RedirectResponse("/static/login.html?step=2fa")' in cb
     login = (ROOT / "static" / "login.html").read_text(encoding="utf-8")
     assert "get('step') === '2fa'" in login and 'autocomplete="one-time-code"' in login
+
+
+def test_new_recovery_codes_replace_old_set(client):
+    """รหัสกู้คืนหลุด (เช่นติดไปในภาพหน้าจอ) → สร้างชุดใหม่ได้ ชุดเก่าใช้ไม่ได้ทันที"""
+    email = _new_user(client)
+    secret, st, old = _enable(client)
+    # ต้องใช้รหัสจากแอปเท่านั้น — รหัสกู้คืนที่หลุดไปเอามาสร้างชุดใหม่ไม่ได้
+    assert client.post("/api/2fa/recovery", json={"code": old[0]}).status_code == 400
+    assert client.post("/api/2fa/recovery", json={"code": totp.code_at(secret, st)}).status_code == 400   # ใช้ซ้ำไม่ได้
+    r = client.post("/api/2fa/recovery", json={"code": totp.code_at(secret, st + 1)})
+    assert r.status_code == 200, r.text
+    new = r.json()["recovery_codes"]
+    assert len(new) == 8 and not set(new) & set(old)
+    assert client.get("/api/2fa").json()["recovery_left"] == 8
+
+    client.post("/logout")
+    client.post("/login", json={"email": email, "password": PW})
+    assert client.post("/login/2fa", json={"code": old[1]}).status_code == 401
+    assert client.post("/login/2fa", json={"code": new[0]}).status_code == 200
+
+
+def test_new_recovery_codes_need_login_and_2fa_on(client):
+    client.cookies.clear()
+    assert client.post("/api/2fa/recovery", json={"code": "123456"}).status_code == 401
+    _new_user(client)
+    assert client.post("/api/2fa/recovery", json={"code": "123456"}).status_code == 400
+
+
+def test_tools_card_has_regenerate_button():
+    src = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+    assert "id', 'tfa-regen'" in src or "'tfa-regen'" in src
+    assert "/api/2fa/recovery" in src
