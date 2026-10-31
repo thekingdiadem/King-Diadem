@@ -2,10 +2,11 @@
 import json
 import math
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 JS = (ROOT / "static" / "pleiades_view.js").read_text(encoding="utf-8")
-PAGE = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+PAGE = front_page()
 
 
 def test_loads_only_when_tapped():

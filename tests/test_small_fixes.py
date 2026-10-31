@@ -6,8 +6,9 @@ import pytest
 
 from core.engine_bridge import analyze
 from core.kernel_voice import compose, simulate
+from tests._front import front_page  # noqa: E402
 
-HTML = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+HTML = front_page()
 
 
 def test_simulate_does_not_call_irreversible_path_reversible():

@@ -55,12 +55,13 @@ def test_live_endpoint_counts_running_files(client):
 
 def test_system_page_prefers_live_map():
     html = open(sm.INDEX, encoding="utf-8").read()
-    assert "fetch('/api/system_map'" in html and "MAP = d; mapLive = true;" in html
+    js = open(sm.INDEX.replace("index.html", "app.js"), encoding="utf-8").read()     # สคริปต์หน้าแรกอยู่ static/app.js
+    assert "fetch('/api/system_map'" in js and "MAP = d; mapLive = true;" in js
     # ป้ายเด่นใต้ Σ บอกว่าตัวเลขสดไหม (เดิมเป็นคำเล็กๆ ท้าย commit เจ้าของโปรเจกต์หาไม่เจอ)
     assert '<div id="sys-live" class="live-pill wait" role="status"' in html
-    assert "'สด · นับจากโค้ดที่รันอยู่จริง'" in html and "'ชุดที่ฝังไว้ · ยังโหลดตัวเลขสดไม่ได้'" in html
-    assert "pill.className = 'live-pill ' + (mapLive ? 'on' : mapLoading ? 'wait' : 'old');" in html
-    assert html.index("loadLiveMap();                                   // ขอตัวเลขสดก่อน") < html.index("  sysStats();\n  $('#sys-eq')")
+    assert "'สด · นับจากโค้ดที่รันอยู่จริง'" in js and "'ชุดที่ฝังไว้ · ยังโหลดตัวเลขสดไม่ได้'" in js
+    assert "pill.className = 'live-pill ' + (mapLive ? 'on' : mapLoading ? 'wait' : 'old');" in js
+    assert js.index("loadLiveMap();                                   // ขอตัวเลขสดก่อน") < js.index("  sysStats();\n  $('#sys-eq')")
     arch = open(sm.INDEX.replace("index.html", "architecture.html"), encoding="utf-8").read()
     assert "getJSON('/api/system_map').catch(function(){ return getJSON('/static/system_map.json'); })" in arch
 
@@ -91,8 +92,10 @@ def test_web_assets_follow_what_pages_load():
     assert rows["static/universe_sky.js"][2] == "web"
     assert "static/galaxy_scene.js" not in rows
     assert rows["static/i18n.js"][2] == "web"
-    for gone in ("ai_brain.js", "galaxy_scene_api.js", "main.js", "app.js", "decision.js", "ai_thinking.js"):
+    for gone in ("ai_brain.js", "galaxy_scene_api.js", "main.js", "decision.js", "ai_thinking.js"):
         assert f"static/{gone}" not in rows                 # ไม่มีหน้าไหนหรือแกลเลอรีโหลด — ลบแล้ว (พี่อนุญาต)
+    # app.js เก่า (ไม่มีใครโหลด) ลบไปแล้ว · ชื่อนี้กลับมาเป็นสคริปต์หลักของหน้าแรกที่แยกออกจาก index.html
+    assert rows["static/app.js"][2] == "web" and rows["static/app.css"][2] == "web"
 
 
 def test_script_loaded_from_js_counts_as_used():
@@ -175,7 +178,8 @@ def test_files_are_connected_by_real_references():
     assert all(f.endswith((".md", ".txt")) for f in alone), alone
     assert len(alone) < 20
     assert ("tests/test_pleiades_view.py", "static/pleiades_view.js", 2) in e      # เทสต์อ่านไฟล์ด้วย ROOT / "static" / ...
-    assert ("static/index.html", "static/pleiades_view.js", 1) in e                # หน้าแรกโหลดตอนแตะดาวลูกไก่
+    assert ("static/app.js", "static/pleiades_view.js", 1) in e                    # หน้าแรกโหลดตอนแตะดาวลูกไก่
+    assert ("static/index.html", "static/app.js", 1) in e and ("static/index.html", "static/app.css", 1) in e
     assert ("scripts/build_sky_stars.py", "static/earth/sky_taurus.json", 2) in e  # สคริปต์สร้างไฟล์ข้อมูลฟ้า
     assert ("tests/test_pleiades_view.py", "tests/conftest.py", 2) in e
 

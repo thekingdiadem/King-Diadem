@@ -68,3 +68,17 @@ def test_json_data_blocks_are_not_hashed(client):
     m = re.search(r'<script type="application/json" id="system-map">(.*?)</script>', page, re.S)
     h = "'sha256-" + base64.b64encode(hashlib.sha256(m.group(1).encode()).digest()).decode() + "'"
     assert h not in _script_src(client)
+
+
+def test_front_page_script_builds_no_inline_handlers():
+    """สคริปต์หน้าแรกย้ายไป static/app.js — HTML ที่มันประกอบเอง (innerHTML) ก็ห้ามมี onclick="..." เหมือนกัน"""
+    js = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
+    m = re.search(r"<[a-zA-Z][^<>'\n]*\son[a-z]+\s*=", js)
+    assert not m, js[m.start():m.end() + 40] + "\n" + HOW_TO_FIX if m else ""
+
+
+def test_split_front_page_files_are_revalidated(client):
+    """index.html + app.css + app.js ต้องเป็นรุ่นเดียวกันเสมอ — ไฟล์ static ให้เบราว์เซอร์เช็กใหม่ทุกครั้ง"""
+    for p in ("/static/app.js", "/static/app.css"):
+        r = client.get(p)
+        assert r.status_code == 200 and r.headers.get("cache-control") == "no-cache", p

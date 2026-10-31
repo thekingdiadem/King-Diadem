@@ -5,6 +5,7 @@ import pytest
 from core.engine_bridge import analyze
 from core.kernel_voice import assess, compose
 from tests.conftest import FAKE_LLM
+from tests._front import front_page  # noqa: E402
 
 
 # ── ภัยที่กำลังเจอ ───────────────────────────────────────────────────
@@ -120,7 +121,7 @@ def test_location_never_sent_to_server():
 
 def test_help_card_only_trusts_google_maps_links():
     import pathlib
-    page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
+    page = front_page()
     assert "function helpCard" in page and "l.url.indexOf('https://www.google.com/maps/') === 0" in page
     assert "l: d.help_links" in page
     assert "l: Array.isArray(m.l)" in page          # เปิดแชทใหม่อีกครั้งแล้วปุ่มยังอยู่

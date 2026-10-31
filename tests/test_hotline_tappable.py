@@ -11,7 +11,7 @@ def _read(p):
 
 
 def test_every_hotline_in_answers_is_tappable():
-    m = re.search(r"var HOTLINES = /\(\^\|\[\^[^\]]*\]\)\(([\d|]+)\)", _read("static/index.html"))
+    m = re.search(r"var HOTLINES = /\(\^\|\[\^[^\]]*\]\)\(([\d|]+)\)", _read("static/app.js"))      # สคริปต์หน้าแรกย้ายไป static/app.js
     assert m, "ไม่พบรายการเบอร์ที่แตะโทรได้"
     listed = set(m.group(1).split("|"))
     src = "".join(_read(p) for p in ("core/kernel_voice.py", "core/engine_bridge.py", "core/lang_signals.py"))

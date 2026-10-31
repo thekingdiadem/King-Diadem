@@ -2,8 +2,9 @@
 ทุกอย่างต้องไม่กินแบต ไม่บังการใช้งาน และหยุดทั้งหมดเมื่อผู้ใช้ขอลดการเคลื่อนไหว"""
 import re
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
-HTML = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+HTML = front_page()
 HEAD = HTML[:HTML.index("</head>")]
 CSS = HTML[HTML.index("<style>"):HTML.index("</style>")]
 

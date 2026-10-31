@@ -9,8 +9,9 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from tests._front import front_page  # noqa: E402
 
-HTML = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+HTML = front_page()
 
 
 def _fn(name):

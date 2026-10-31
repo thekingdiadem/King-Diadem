@@ -4,9 +4,10 @@ import math
 import random
 import re
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-HTML = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+HTML = front_page()
 I18N = (ROOT / "static" / "i18n.js").read_text(encoding="utf-8")
 
 

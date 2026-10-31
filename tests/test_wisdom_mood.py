@@ -4,8 +4,9 @@
 และเลือกสองท่อน: ธรรมจักรที่ไม่มีใครหมุนกลับได้ · ญาณทัสสนะในอริยสัจ ๔ ที่บริสุทธิ์
 """
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
-SRC = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+SRC = front_page()
 
 
 def _fn(start):
@@ -52,3 +53,14 @@ def test_new_answer_unfolds_line_by_line_but_not_when_calm():
     assert "@keyframes kd-chant" in SRC
     assert "m.ts === CHANT_TS && !REDUCED" in SRC
     assert "if(born) CHANT_TS = born.ts;" in SRC
+
+
+def test_top_level_code_does_not_call_cosmos_private_helpers():
+    """บั๊กจริง: renderMsgs (ระดับบนสุดของสคริปต์) เรียก clamp() ซึ่งมีแค่ข้างใน Cosmos
+    ได้คำตอบใหม่ทีไรหน้าแชทวาดข้อความไม่สำเร็จ (ReferenceError) — ตรวจทุกฟังก์ชันระดับบนสุด"""
+    import re
+    js = (Path(__file__).resolve().parent.parent / "static" / "app.js").read_text(encoding="utf-8")
+    private = [n for n in ("clamp", "ease", "hash", "kick") if not re.search(r"^(?:function " + n + r"\b|var " + n + r"\b)", js, re.M)]
+    for m in re.finditer(r"^function (\w+)\([^)]*\)\{\n(.*?)^\}", js, re.M | re.S):
+        for n in private:
+            assert not re.search(r"(?<![\w.])" + n + r"\(", m.group(2)), f"{m.group(1)}() เรียก {n}() ที่ไม่มีในระดับบนสุด"

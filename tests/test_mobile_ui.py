@@ -1,8 +1,9 @@
 """หน้าเว็บบนมือถือ: ฟอนต์ไทยอ่านออก · ปุ่มใหญ่พอ · เบอร์สายด่วนกดโทรได้"""
 import pathlib
 import re
+from tests._front import front_page  # noqa: E402
 
-PAGE = (pathlib.Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+PAGE = front_page()
 
 
 def test_thai_font_is_looped():

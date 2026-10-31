@@ -412,8 +412,13 @@ class BodyLimitMiddleware:
             if message["type"] == "http.response.start":
                 started = True
                 have = {k.lower() for k, _ in message.get("headers", [])}
-                message = {**message, "headers": list(message.get("headers", [])) +
-                           [(k, v) for k, v in _SECURITY_HEADERS if k not in have]}
+                extra = [(k, v) for k, v in _SECURITY_HEADERS if k not in have]
+                # หน้าแรกแยกเป็น index.html + app.css + app.js — ให้เบราว์เซอร์เช็กเวอร์ชันทุกครั้ง (ได้ 304 ถ้าไม่เปลี่ยน)
+                # กัน deploy ใหม่แล้วได้ index.html ใหม่คู่ app.js เก่าที่ค้างในแคช
+                path = scope.get("path", "")
+                if path.startswith("/static/") and path.endswith((".js", ".css", ".html")) and b"cache-control" not in have:
+                    extra.append((b"cache-control", b"no-cache"))
+                message = {**message, "headers": list(message.get("headers", [])) + extra}
             await send(message)
 
         limit = _body_limit(scope.get("path", ""))

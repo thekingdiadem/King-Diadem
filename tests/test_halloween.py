@@ -3,9 +3,10 @@
 แอปนี้มีคนเข้ามาคุยตอนเจอเรื่องหนัก — ธีมต้องน่ารัก ไม่หลอน เปิดเองเท่านั้น
 ไม่ขยับเมื่อตั้งลดการเคลื่อนไหว และซ่อนทั้งหมดตอนกำลังคุยเรื่องด่วน/วิกฤต"""
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-HTML = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+HTML = front_page()
 
 
 def test_opt_in_toggle_and_remembered():

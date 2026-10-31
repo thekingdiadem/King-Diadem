@@ -1,8 +1,9 @@
 """โหมดสีหน้าแรก: กลางคืน · กลางวัน · คอสมิกลาเต้ · สีที่ผู้ใช้เลือกเอง (จำไว้ในเครื่อง)"""
 import re
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
-PAGE = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+PAGE = front_page()
 
 
 def test_mode_is_applied_before_first_paint():

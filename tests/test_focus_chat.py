@@ -4,8 +4,9 @@
 เดิมแผงสูตร (W · E, R · Risk · C · P) ขึ้นเต็มขวาตั้งแต่ยังไม่ได้คุยสักคำ
 """
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
-SRC = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+SRC = front_page()
 
 
 def test_app_starts_without_trace_panel():

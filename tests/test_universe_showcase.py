@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 import pytest
+from tests._front import front_page  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 PAGE = (ROOT / "static" / "king_diadem_universe.html").read_text(encoding="utf-8")
@@ -90,7 +91,7 @@ def test_language_list_is_folded_away():
 
 def test_suggestion_buttons_bind_to_real_class():
     """index.html เคยผูกปุ่มคำแนะนำกับ #sugg ซึ่งไม่มีในหน้า (ใช้ class .sugg) — ปุ่มที่เพิ่มทีหลังจะกดไม่ติด"""
-    idx = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+    idx = front_page()
     assert "$$('#sugg button')" not in idx and "$$('.sugg button')" in idx
 
 

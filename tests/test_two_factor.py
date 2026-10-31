@@ -6,6 +6,7 @@ import uuid
 from pathlib import Path
 
 from core import totp
+from tests._front import front_page  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 PW = "correct-horse-9"
@@ -126,7 +127,7 @@ def test_new_recovery_codes_need_login_and_2fa_on(client):
 
 
 def test_tools_card_has_regenerate_button():
-    src = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+    src = front_page()
     assert "id', 'tfa-regen'" in src or "'tfa-regen'" in src
     assert "/api/2fa/recovery" in src
 
@@ -153,5 +154,5 @@ def test_setup_gives_a_scannable_qr_for_desktop(client):
 
 
 def test_qr_is_inserted_only_when_it_is_plain_svg():
-    src = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+    src = front_page()
     assert "/^<svg[\\s>]/.test(d.qr)" in src and "<script|\\son\\w+=|href=" in src

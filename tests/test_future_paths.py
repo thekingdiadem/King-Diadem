@@ -2,6 +2,7 @@
 import pathlib
 
 from core.future_paths import project
+from tests._front import front_page  # noqa: E402
 
 TEXT = "ลังเลว่าจะลาออกไปเปิดร้านกาแฟดีไหม"
 PATHS = ["ลาออกไปเปิดร้านกาแฟ", "ทำงานเดิมแล้วขายกาแฟวันหยุด", "ขอลดเวลางานแล้วลองขายออนไลน์"]
@@ -45,7 +46,7 @@ def test_simulate_returns_future(client):
 
 
 def test_page_draws_future_chart():
-    page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
+    page = front_page()
     assert 'id="sim-future"' in page and "drawFuture(d.future)" in page and "ไม่ใช่คำทำนาย" in page
 
 

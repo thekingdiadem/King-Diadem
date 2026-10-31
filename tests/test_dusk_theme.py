@@ -4,8 +4,9 @@ import re
 from pathlib import Path
 
 from AI.council_engine import COUNCIL_SIZE
+from tests._front import front_page  # noqa: E402
 
-HTML = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+HTML = front_page()
 
 
 def test_thinking_label_matches_council_size():
