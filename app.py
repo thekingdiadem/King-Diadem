@@ -586,23 +586,56 @@ def _urgent_text(text: str) -> bool:
         return False
 
 
+# ── ตัวเลขธุรกิจ (แดชบอร์ดเจ้าของ: ADMIN_EMAILS) ────────────────────────────────
+# นับเฉพาะจำนวนต่อวัน · ไม่เก็บข้อความ/อีเมล/IP ตรงๆ — ตัวนับไม่ซ้ำใช้ HMAC ผูกกับวัน (ข้ามวันโยงคนเดิมไม่ได้)
+# นับพลาด = ข้ามเงียบๆ ห้ามทำให้แชท/การจ่ายเงินล้ม
+_ADMIN_EMAILS = {e.strip().lower() for e in os.getenv("ADMIN_EMAILS", "").split(",") if e.strip()}
+
+def _is_admin(email) -> bool:
+    return bool(email) and str(email).lower() in _ADMIN_EMAILS
+
+def _mkey(*parts) -> str:
+    import hashlib, hmac as _h
+    return _h.new((_SECRET_KEY or "kd").encode(), "|".join(map(str, parts)).encode(), hashlib.sha256).hexdigest()[:20]
+
+def _metric(name: str, key=None, amount: float = 0):
+    try:
+        from DATABASE.db import metric_inc, metric_once
+        day = _today()
+        if key is None:
+            metric_inc(day, name)
+        else:
+            metric_once(day, name, _mkey(name, key, day), amount)
+    except Exception:
+        pass
+
+def _count_chat(who: str):
+    _metric("chat")
+    _metric("chatter", who)
+
+
 def _charge(email: str, request: Request, what: str):
     """คืน (ticket, None) ถ้าใช้ได้ หรือ (None, JSONResponse 402) ถ้าโควตา/เครดิตหมด"""
     email = "" if email == "anonymous" else (email or "")
     if take_free_run is None:                       # DB ใช้ไม่ได้ → ไม่คิดเงิน
         return {"mode": "unmetered"}, None
     if _is_premium(email):
+        _count_chat(email)
         return {"mode": "premium"}, None
     _reclaim_stale()
     ident, day = _quota_identity(email, request), _today()
     if take_free_run(ident, day, FREE_DAILY_RUNS):
+        _count_chat(ident)
         return _open({"mode": "free", "identity": ident, "day": day}), None
     if email and spend_credit and spend_credit(email, RUN_COST, what):
+        _count_chat(email)
         return _open({"mode": "credit", "email": email, "what": what}), None
     msg = (f"วันนี้คุยครบ {FREE_DAILY_RUNS} ข้อความฟรีแล้วค่ะ พรุ่งนี้กลับมาคุยกันได้อีกนะคะ "
            + ("หรือถ้าอยากคุยต่อตอนนี้ เติมเครดิตหรือสมัคร Premium ได้เลยค่ะ" if email
               else "หรือถ้าอยากคุยต่อตอนนี้ เข้าสู่ระบบแล้วเติมเครดิต หรือสมัคร Premium ได้เลยค่ะ"))
     body = {"error": msg, "code": "quota_exhausted", "quota": _quota_status(email, request)}
+    _metric("paywall")
+    _metric("paywalled", ident)                     # คนที่ใช้ฟรีหมด = คนที่สนใจพอจะจ่าย
     return None, JSONResponse(body, status_code=402)
 
 def _open(ticket: dict) -> dict:
@@ -766,7 +799,10 @@ def galaxy_state_debug():
 # ── PAGES ─────────────────────────────────────────────────────────
 @app.get("/")
 @app.head("/")
-def root():
+def root(request: Request):
+    if request.method == "GET":
+        _metric("visit")
+        _metric("visitor", _client_ip(request))
     return FileResponse("static/index.html")
 
 # service worker ต้องเสิร์ฟจากรากเว็บถึงจะดูแลทั้งแอปได้ (อยู่ใต้ /static/ = ดูแลได้แค่ /static/)
@@ -1262,6 +1298,8 @@ async def google_callback(request: Request):
         name  = str(user.get("name") or email)[:80]
         # ensure_user ให้ 10 เครดิตครั้งแรกครั้งเดียว — เดิมเติม 10 ทุกครั้งที่ login ตอนเครดิตเป็น 0
         # (login ซ้ำ = เครดิตฟรีไม่จำกัด)
+        if user_exists and not user_exists(email):
+            _metric("signup", email)
         if ensure_user: ensure_user(email)
         # Google พิสูจน์แล้วว่าเป็นเจ้าของอีเมลนี้ — รหัสผ่านที่มีคนตั้งไว้ก่อน (ยังไม่ได้ยืนยัน) ถูกลบ กันยึดบัญชี
         if claim_verified_email and claim_verified_email(email):
@@ -1314,7 +1352,7 @@ async def me(request: Request):
     return {"logged_in": True, "email": email, "name": name, "credits": credits,
             "premium": until > time.time(), "premium_until": int(until) if until else None,
             "free_left": q["free_left"], "free_limit": q["free_limit"], "run_cost": RUN_COST,
-            "twofa": _twofa_on(email)}
+            "twofa": _twofa_on(email), "admin": _is_admin(email)}
 
 
 @app.post("/logout")
@@ -1361,6 +1399,7 @@ async def register(request: Request, data: dict):
             status_code=409,
         )
     _reg_succeeded(ip)
+    _metric("signup", email)
     if ensure_user: ensure_user(email)
     credits = get_credits(email) if get_credits else 0
     r = JSONResponse({"status": "ok", "email": email, "credits": credits})
@@ -1410,6 +1449,26 @@ async def login_twofa(request: Request, data: dict):
     r.delete_cookie("kd_2fa", secure=True, httponly=True, samesite="lax")
     _set_auth_cookies(r, email, _safe_name(t.get("n")) or email[:80])
     return r
+
+
+@app.get("/api/admin/metrics")
+async def admin_metrics(request: Request, days: int = 30):
+    """ตัวเลขธุรกิจย้อนหลัง (เฉพาะอีเมลใน ADMIN_EMAILS) — คนเข้า → คนคุย → ชนเพดานฟรี → กดจ่าย → จ่ายจริง"""
+    email = _session_email(request)
+    if not _is_admin(email):
+        return JSONResponse({"error": "not found"}, status_code=404)      # ไม่บอกว่ามีหน้านี้อยู่
+    from datetime import date, timedelta
+    from DATABASE.db import metric_report
+    days = max(1, min(int(days or 30), 120))
+    today = date.fromisoformat(_today())
+    since = (today - timedelta(days=days - 1)).isoformat()
+    rows = await run_in_threadpool(metric_report, since, (today - timedelta(days=90)).isoformat())
+    keys = ("visit", "u:visitor", "chat", "u:chatter", "u:signup", "u:paywalled", "checkout", "u:purchase", "baht:purchase", "u:renewal", "baht:renewal")
+    series = [{"day": (today - timedelta(days=i)).isoformat(), **{k: rows.get((today - timedelta(days=i)).isoformat(), {}).get(k, 0) for k in keys}}
+              for i in range(days)]
+    total = {k: sum(d[k] for d in series) for k in keys}
+    total["baht"] = total["baht:purchase"] + total["baht:renewal"]
+    return {"days": days, "series": series, "total": total, "free_daily": FREE_DAILY_RUNS}
 
 
 @app.get("/api/2fa")
@@ -2740,6 +2799,7 @@ async def create_checkout(request: Request, data: dict):
             cancel_url=_public_url("/?payment=cancel"),
             client_reference_id=email or None,
         )
+        _metric("checkout")
         return {"url": session.url}
     except Exception as e:
         # ข้อความ error ของ Stripe อาจมีบางส่วนของ key/request id — log ฝั่ง server เท่านั้น
@@ -2766,6 +2826,7 @@ async def create_subscription(request: Request):
             cancel_url=_public_url("/?payment=cancel"),
             client_reference_id=email or None,
         )
+        _metric("checkout")
         return {"url": session.url}
     except Exception as e:
         # ข้อความ error ของ Stripe อาจมีบางส่วนของ key/request id — log ฝั่ง server เท่านั้น
@@ -2815,6 +2876,7 @@ def _handle_stripe_event(event) -> None:
             print(f"⚠ stripe checkout without email: {obj.get('id')}")
             return
         meta = obj.get("metadata") or {}
+        _metric("purchase", obj.get("id") or email, int(obj.get("amount_total") or 0) / 100)   # event ซ้ำไม่นับซ้ำ
         if meta.get("kind") == "wallet_topup":
             # จำนวนเครดิตคิดจากยอดที่ Stripe เก็บเงินจริง (amount_total) ไม่ใช่ค่าที่ client ส่ง
             if str(obj.get("currency", "")).lower() != "thb":
@@ -2856,6 +2918,8 @@ def _handle_stripe_event(event) -> None:
 
     elif etype == "invoice.paid":
         customer = obj.get("customer")
+        if obj.get("billing_reason") == "subscription_cycle":      # ต่ออายุรอบใหม่ (รอบแรกนับตอน checkout แล้ว)
+            _metric("renewal", obj.get("id"), int(obj.get("amount_paid") or 0) / 100)
         # ใช้การจับคู่ customer → บัญชีที่บันทึกไว้ตอนสมัครก่อน (ตรงตัว) แล้วค่อย customer_email
         email = ((email_for_stripe_customer(customer) if email_for_stripe_customer else None)
                  or str(obj.get("customer_email") or "").strip().lower() or None)
@@ -2983,6 +3047,7 @@ async def wallet_topup(request: Request, data: dict):
             success_url=_public_url("/static/wallet.html?topup=success"),
             cancel_url=_public_url("/static/wallet.html?topup=cancel"),
         ))
+        _metric("checkout")
         return {"url": session.url, "credits": credits, "amount": baht}
     except Exception as e:
         print(f"⚠ wallet topup error: {e}")

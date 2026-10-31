@@ -435,6 +435,22 @@
     'อ่านจดหมายจากผู้ก่อตั้ง · COSMIC LATTE CANON →': ['Read the letter from the founder · COSMIC LATTE CANON →', '創設者からの手紙を読む · COSMIC LATTE CANON →'],
     'สแกน QR นี้ด้วยแอป Authenticator ในมือถือ': ['Scan this QR code with the Authenticator app on your phone', 'スマホのAuthenticatorアプリでこのQRコードをスキャン'],
     'ถ้ากำลังใช้มือถือเครื่องเดียวกัน แตะปุ่มนี้แทน': ['Using this same phone? Tap this button instead', 'このスマホで操作中なら、代わりにこのボタンをタップ'],
+    'ตัวเลขธุรกิจ': ['Business numbers', 'ビジネス指標'],
+    '30 วัน · เห็นเฉพาะเจ้าของ': ['30 days · owner only', '30日間 · オーナーのみ'],
+    'คนเข้าเว็บ': ['Visitors', '訪問者'],
+    'คนที่ลองคุย': ['Tried chatting', '相談した人'],
+    'ใช้ฟรีหมดวัน': ['Used up free', '無料を使い切った'],
+    'กดไปหน้าจ่าย': ['Went to checkout', '支払いへ進んだ'],
+    'จ่ายจริง': ['Paid', '支払った'],
+    'รายได้ 30 วัน ฿{b} · สมัครใหม่ {s} คน · ข้อความทั้งหมด {m}': ['Revenue (30 days) ฿{b} · {s} new sign-ups · {m} messages', '30日の収益 ฿{b} · 新規登録 {s}人 · メッセージ {m}件'],
+    'ดูรายวัน': ['By day', '日別'],
+    'วัน': ['Day', '日'],
+    'เข้า': ['Visits', '訪問'],
+    'คุย': ['Chats', '相談'],
+    'ฟรีหมด': ['Out of free', '無料終了'],
+    'จ่าย': ['Paid', '支払い'],
+    'นับเฉพาะจำนวน ไม่เก็บข้อความ อีเมล หรือ IP · เริ่มนับตั้งแต่ติดตั้งระบบนี้': ['Counts only — no messages, emails or IPs stored · counting started when this was installed', '件数のみ集計 — メッセージ・メール・IPは保存しません · この機能の導入時から集計'],
+    'ดูตัวเลขไม่ได้ชั่วคราว': ['Numbers are temporarily unavailable', '一時的に数値を表示できません'],
   };
   var LANGS = ['th', 'en', 'ja'], KEY = 'kd_lang', ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
   var REV = {};                                 // ข้อความที่แปลแล้ว → ไทย (สลับกลับได้โดยไม่ต้องโหลดหน้าใหม่)

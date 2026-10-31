@@ -109,7 +109,7 @@ async function refreshMe(){
   try{
     var d = await readJson(await fetch('/me', {credentials:'same-origin'}));
     Auth.loggedIn = !!d.logged_in; Auth.email = d.logged_in ? (d.email || d.name || '') : '';
-    Auth.premium = !!d.premium; Auth.credits = d.logged_in ? num(d.credits, 0) : null;
+    Auth.premium = !!d.premium; Auth.admin = !!d.admin; Auth.credits = d.logged_in ? num(d.credits, 0) : null;
     Limit.set(d);
   }catch(_){ Auth.loggedIn = false; Auth.email = ''; Auth.credits = null; }
   $('#acc-guest').classList.toggle('hide', Auth.loggedIn);
@@ -119,10 +119,44 @@ async function refreshMe(){
   var pe = $('#pay-email'); if(pe && !pe.value && Auth.email.indexOf('@') > 0) pe.value = Auth.email;
   Limit.ui();
   $('#card-2fa').classList.toggle('hide', !Auth.loggedIn);
+  $('#card-biz').classList.toggle('hide', !Auth.admin); if(Auth.admin) Biz.load();
   if(Auth.loggedIn) TFA.load();
   return was !== Auth.email;
 }
 /* ── การยืนยันสองชั้น (/api/2fa) — ปิดอยู่ → ตั้งค่า (เปิดแอป/คัดลอกกุญแจ → กรอกรหัสแรก) → รหัสกู้คืน → เปิดอยู่ ── */
+/* ── ตัวเลขธุรกิจ (เฉพาะเจ้าของ · ADMIN_EMAILS) — เส้นทางจากคนเข้าเว็บจนถึงคนจ่ายเงิน ──
+   ดูว่าคนหลุดที่ขั้นไหน: เข้าแล้วไม่คุย = หน้าแรกยังไม่ชวน · คุยแต่ไม่ถึงเพดาน = ฟรีพอใช้ · ถึงเพดานแต่ไม่จ่าย = ราคา/คุณค่ายังไม่ชัด */
+var Biz = (function(){
+  var body = $('#biz-body');
+  function pct(a, b){ return b ? Math.round(a / b * 1000) / 10 + '%' : '—'; }
+  function n(v){ return Number(v || 0).toLocaleString(); }
+  function render(d){
+    var t = d.total, paid = t['u:purchase'] + t['u:renewal'];
+    var steps = [
+      [_t('คนเข้าเว็บ'), t['u:visitor'], ''],
+      [_t('คนที่ลองคุย'), t['u:chatter'], pct(t['u:chatter'], t['u:visitor'])],
+      [_t('ใช้ฟรีหมดวัน'), t['u:paywalled'], pct(t['u:paywalled'], t['u:chatter'])],
+      [_t('กดไปหน้าจ่าย'), t.checkout, pct(t.checkout, t['u:paywalled'])],
+      [_t('จ่ายจริง'), paid, pct(paid, t.checkout)]
+    ], top = Math.max(1, steps[0][1]);
+    var h = '<div class="biz-funnel">' + steps.map(function(s){
+      return '<div class="bf-row"><span class="bf-k">' + esc(s[0]) + '</span><span class="bf-bar"><i style="width:' + Math.max(1.5, s[1] / top * 100) + '%"></i></span>' +
+        '<b>' + n(s[1]) + '</b><span class="bf-p">' + s[2] + '</span></div>';
+    }).join('') + '</div>' +
+      '<p class="biz-sum">' + _t('รายได้ 30 วัน ฿{b} · สมัครใหม่ {s} คน · ข้อความทั้งหมด {m}', {b: n(t.baht), s: n(t['u:signup']), m: n(t.chat)}) + '</p>' +
+      '<details class="biz-days"><summary>' + _t('ดูรายวัน') + '</summary><table><tr><th>' + _t('วัน') + '</th><th>' + _t('เข้า') + '</th><th>' + _t('คุย') + '</th><th>' + _t('ฟรีหมด') + '</th><th>' + _t('จ่าย') + '</th><th>฿</th></tr>' +
+      d.series.slice(0, 14).map(function(r){
+        return '<tr><td>' + esc(r.day.slice(5)) + '</td><td>' + n(r['u:visitor']) + '</td><td>' + n(r['u:chatter']) + '</td><td>' + n(r['u:paywalled']) + '</td><td>' + n(r['u:purchase'] + r['u:renewal']) + '</td><td>' + n(r['baht:purchase'] + r['baht:renewal']) + '</td></tr>';
+      }).join('') + '</table></details>' +
+      '<p class="muted biz-note">' + _t('นับเฉพาะจำนวน ไม่เก็บข้อความ อีเมล หรือ IP · เริ่มนับตั้งแต่ติดตั้งระบบนี้') + '</p>';
+    body.innerHTML = h;
+  }
+  function load(){
+    fetch('/api/admin/metrics?days=30', {credentials:'same-origin', cache:'no-store'}).then(readJson).then(render)
+      .catch(function(){ body.innerHTML = '<p class="muted">' + _t('ดูตัวเลขไม่ได้ชั่วคราว') + '</p>'; });
+  }
+  return { load: load };
+})();
 var TFA = (function(){
   var body = $('#tfa-body');
   function post(url, data){ return fetch(url, {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data || {})}).then(readJson); }

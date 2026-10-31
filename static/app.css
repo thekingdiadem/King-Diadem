@@ -868,6 +868,18 @@ html:lang(th) :is(.acc-link, #view-title, .chip, .seg button, .u-title b, .u-epi
 #tfa-body .tfa-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 #tfa-body .tfa-qr{width:200px;max-width:70vw;padding:10px;margin:4px 0 12px;border-radius:14px;background:#fff;box-shadow:0 10px 30px -14px rgba(0,0,0,.7)}
 #tfa-body .tfa-qr svg{display:block;width:100%;height:auto}
+/* ตัวเลขธุรกิจ (เฉพาะเจ้าของ) */
+#biz-body .bf-row{display:grid;grid-template-columns:7.5em 1fr 4.5em 3.6em;align-items:center;gap:10px;padding:5px 0;font-size:13.5px}
+#biz-body .bf-k{color:var(--ink-2)}
+#biz-body .bf-bar{height:8px;border-radius:99px;background:rgba(241,237,228,.06);overflow:hidden}
+#biz-body .bf-bar i{display:block;height:100%;border-radius:inherit;background:var(--champ)}
+#biz-body b{font:600 14px var(--f-mono);text-align:right;color:var(--ink)}
+#biz-body .bf-p{font:500 11.5px var(--f-mono);color:var(--gold-hi);text-align:right}
+#biz-body .biz-sum{margin:12px 0 8px;color:var(--ink)}
+#biz-body table{width:100%;border-collapse:collapse;font:500 12.5px var(--f-mono);margin-top:8px}
+#biz-body th,#biz-body td{padding:4px 6px;text-align:right;border-bottom:1px solid var(--line)}
+#biz-body th:first-child,#biz-body td:first-child{text-align:left}
+#biz-body .biz-note{font-size:12px;margin:10px 0 0}
 #tfa-body .tfa-row .inp{max-width:170px;letter-spacing:.25em;text-align:center}
 #tfa-body .ok{color:var(--ok)} #tfa-body .bad{color:var(--bad)}
 /* ── ธีมฮาโลวีน (เปิดเองจากเมนูสี) — น่ารัก ไม่หลอน: สีเน้นส้มฟักทอง/ม่วง · ค้างคาวบินช้าๆ · ฟักทองข้างชื่อแอป
