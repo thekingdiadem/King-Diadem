@@ -1222,6 +1222,18 @@ SCAM_ROMANCE_D = {
     "ask": "เคยเห็นหน้าหรือคุยเสียงกับเขาแบบสดๆ บ้างไหม?",
 }
 
+# หลอกซ้ำ: "ช่วยตามเงินคืนได้ แต่ต้องจ่ายก่อน" — ไม่มีหน่วยงานจริงไหนเรียกเงินก่อนเพื่อตามเงินคืน
+SCAM_RECOVERY_D = {
+    "open": ["หยุดก่อนนะ — คนที่บอกว่าช่วยตามเงินที่โดนโกงคืนได้ แล้วขอเงินก่อน คือมิจฉาชีพรอบสอง แทบทุกครั้ง"],
+    "paths": [
+        "ไม่จ่ายค่าดำเนินการ ค่าธรรมเนียม ค่าทนาย หรือ \"ค่าปลดล็อก\" ใดๆ — ตำรวจ ธนาคาร และทนายจริงไม่เรียกเงินก่อนเพื่อตามเงินคืน "
+        "และไม่มีแฮกเกอร์คนไหนดึงเงินกลับมาได้",
+        f"ช่องทางจริงมีแค่: ธนาคารของคุณ · {HOTLINE_SCAM} (ศูนย์ AOC 24 ชม.) · แจ้งความที่ thaipoliceonline.go.th หรือสถานีตำรวจ — ฟรีทั้งหมด",
+        "เก็บแชต เบอร์ และชื่อเพจของคนที่เสนอตามเงินคืนไว้เป็นหลักฐานด้วย · ถ้าเผลอจ่ายไปแล้ว โทรธนาคารให้ระงับทันที",
+    ],
+    "ask": "เขาขอให้จ่ายเท่าไหร่ และคุณได้โอนไปแล้วหรือยัง?",
+}
+
 # ถูกโกงไปแล้ว — ต่างจากกำลังจะถูกหลอก: เวลาสำคัญที่สุดคือชั่วโมงแรกๆ
 SCAM_LOST = {
     "open": ["เสียใจด้วยที่เจอแบบนี้ — ไม่ใช่ความผิดของคุณ รีบทำตามนี้ภายในวันนี้ จะมีโอกาสได้เงินคืนมากขึ้น"],
@@ -1412,6 +1424,12 @@ EN_TOPIC = {
         "Call your bank now and ask them to freeze the receiving account (in Thailand also call 1441, 24h; in the US report at reportfraud.ftc.gov).",
         "Keep the evidence: transfer slips, account numbers, chats, links and phone numbers — screenshot before you block or delete anything, then report it to the police."],
         "Have you already sent money, or are they still asking you to?"),
+    # หลอกซ้ำ: "recovery agent" เสนอตามเงินคืนแลกค่าธรรมเนียม
+    "scam_recovery": ("Stop here — anyone who offers to get scammed money back for a fee is almost always the second wave of the same scam.", [
+        "Don't pay any \"processing\", legal, tax or \"unlock\" fee. Real police, banks and lawyers don't charge upfront to recover scam money, and no hacker can pull it back.",
+        "The real routes are free: your bank, the police (in Thailand also 1441, 24h; in the US reportfraud.ftc.gov / ic3.gov).",
+        "Keep the chats, numbers and page names of whoever offered the \"recovery\" as evidence. If you already paid them, call your bank to freeze it now."],
+        "How much are they asking for, and have you sent anything yet?"),
     "overdose": ("This is an emergency — please do this first.", [
         "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe, 000 in Australia), even if you feel okay — some pills act slowly.",
         "While waiting, call poison control (1367 in Thailand, 24h) and say what you took, how much and when. Keep the packets.",
@@ -2004,6 +2022,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
                     break
         if en_key == "overdose" and "swallowed" in a["topics"]:
             en_key = "swallowed"    # "my child swallowed a battery" เคยได้ "some pills act slowly"
+        if "recovery" in (a.get("scam") or []):
+            en_key = "scam_recovery"
         en = EN_TOPIC.get(en_key) if (lang == "en" and a["topics"] and not a["crisis"]) else None
         if en:
             return (en[0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(en[1]))
@@ -2115,6 +2135,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         second = None
     if a["offer_flags"]:                 # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
         main, second = OFFER, None
+    elif "recovery" in (a["scam"] or []):  # หลอกซ้ำ: เสนอตามเงินคืนแลกค่าธรรมเนียม — มาก่อน "โดนโกงแล้ว"
+        main, second = SCAM_RECOVERY_D, None
     elif a["scam"] == ["lost"]:          # ถูกโกงไปแล้ว: ตามเงินคืนก่อน
         main, second = SCAM_LOST, None
     elif a["scam"] and set(a["scam"]) <= {"job", "lost"}:    # งานหลอก/ค้ามนุษย์
@@ -2378,6 +2400,8 @@ def compose_council(text: str, footer: bool = True) -> str:
     main = lib.get(a["topics"][0]) if a["topics"] else GENERAL
     if a["offer_flags"]:
         main = OFFER
+    elif "recovery" in (a.get("scam") or []):
+        main = SCAM_RECOVERY_D
     elif a.get("scam") == ["lost"]:
         main = SCAM_LOST
     elif a.get("scam") and set(a["scam"]) <= {"job", "lost"}:
