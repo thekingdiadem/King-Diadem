@@ -53,7 +53,8 @@ def test_decisions_universe_has_no_center():
 def test_universe_sky_has_a_fallback():
     """ท้องฟ้าวาดด้วย WebGL — เครื่องที่ไม่มี WebGL ยังเห็นแถบทางช้างเผือกแบบ 2D ในทิศเดียวกัน และดาวครบทุกดวง"""
     assert "var GLX = (function(){" in HTML and "c.id = 'cosmos-gl'" in HTML
-    assert "if(useGL){ ctx.clearRect(0, 0, W, H); GLX.pace(dt); GLX.sky(s, tsec, 1); }" in HTML
+    # กลุ่มดาวของฉัน: ฟ้านิ่ง (เวลา 0 · มุมมองนิ่ง) — เดิมฟ้าลอยไหวตลอด เจ้าของโปรเจกต์บอกว่าเวียนหัว
+    assert "if(useGL){ ctx.clearRect(0, 0, W, H); GLX.pace(dt); GLX.sky(s, 0, .85); }" in HTML
     assert "else ctx.drawImage(bgCv, 0, 0, W, H);" in HTML
     assert "ไม่มี WebGL: แถบทางช้างเผือกแบบ 2D" in HTML
     # เครื่องที่วาดไม่ทันลดความละเอียดชั้นภาพนุ่มเอง
