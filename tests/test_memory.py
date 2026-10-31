@@ -1,6 +1,7 @@
 """ความจำข้ามแชทของ LYLA — เฉพาะผู้ที่เข้าสู่ระบบ · เรื่องเปราะบางไม่เก็บข้อความ · ผู้ใช้ดู/ปิด/ล้างเองได้"""
 from DATABASE.db import auto_extract_memory, build_memory_context, list_memory
 from tests.conftest import FAKE_LLM
+from tests._front import front_page  # noqa: E402
 
 
 def _contents(email):
@@ -69,7 +70,7 @@ def test_topics_are_saved_in_thai(user):
 def test_mobile_menu_is_not_closed_by_every_click():
     """<body data-view> เคยทำให้ทุกคลิกปิดเมนู — ปุ่ม ☰ บนมือถือเปิดไม่ได้"""
     import pathlib
-    page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
+    page = front_page()
     assert "e.target.closest('button[data-view], a[data-view]')" in page
     assert "e.target.closest('[data-view]')" not in page
 

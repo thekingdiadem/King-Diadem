@@ -6,6 +6,7 @@
 import sqlite3
 
 from fastapi.testclient import TestClient
+from tests._front import front_page  # noqa: E402
 
 
 def _count(app_module):
@@ -102,6 +103,6 @@ def _conn(path):
 
 def test_chat_ui_has_share_button_not_auto_link():
     from pathlib import Path
-    html = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+    html = front_page()
     assert "share: d.share_token || ''" in html and 'data-act="share"' in html
     assert "fetch('/api/report/share'" in html

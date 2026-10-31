@@ -8,9 +8,10 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from tests._front import front_page  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-HTML = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+HTML = front_page()
 
 
 def test_row_still_scrolls_on_phones():

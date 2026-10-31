@@ -1,8 +1,9 @@
 """สมการในหน้า "ระบบ" มีชื่อเต็มทั้งไทยและอังกฤษ — คนที่ไม่รู้สัญลักษณ์ก็อ่านออก"""
 import re
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
-HTML = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+HTML = front_page()
 
 
 def _eq_rows():

@@ -141,6 +141,14 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_throttle_kind_t ON throttle_events (kind, t);
         -- การยืนยันสองชั้น (TOTP) — secret เข้ารหัสแล้ว (core/totp.seal) · recovery เก็บเป็น hash (JSON list)
         -- enabled = 0 คือกำลังตั้งค่า (สแกนแล้วแต่ยังไม่ได้กรอกรหัสยืนยัน) · last_step กันใช้รหัสเดิมซ้ำ
+        CREATE TABLE IF NOT EXISTS metric_counts (
+            day TEXT NOT NULL, name TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (day, name)
+        );
+        CREATE TABLE IF NOT EXISTS metric_keys (
+            day TEXT NOT NULL, name TEXT NOT NULL, key TEXT NOT NULL, amount REAL NOT NULL DEFAULT 0,
+            PRIMARY KEY (day, name, key)
+        );
         CREATE TABLE IF NOT EXISTS user_2fa (
             email TEXT PRIMARY KEY,
             secret TEXT NOT NULL,
@@ -209,6 +217,55 @@ def throttle_load(kind: str, since: float) -> list:
         conn.close()
 
 # ── การยืนยันสองชั้น (2FA) ───────────────────────────────────────
+# ── ตัวเลขธุรกิจ (แดชบอร์ดของเจ้าของ) ─────────────────────────────────────────
+# เก็บแค่ "นับ" ต่อวัน ไม่เก็บข้อความ ไม่เก็บอีเมล/IP ตรงๆ — ตัวที่ต้องนับไม่ซ้ำเก็บเป็น HMAC ที่ย้อนกลับไม่ได้
+def metric_inc(day: str, name: str, n: int = 1) -> None:
+    conn = get_conn()
+    try:
+        conn.execute("INSERT INTO metric_counts (day, name, n) VALUES (?, ?, ?) "
+                     "ON CONFLICT(day, name) DO UPDATE SET n = n + excluded.n", (day, name, n))
+        conn.commit()
+    finally:
+        conn.close()
+
+def metric_once(day: str, name: str, key: str, amount: float = 0) -> bool:
+    """นับครั้งเดียวต่อ (วัน, ชื่อ, key) — คนเดิมเข้าซ้ำ / Stripe ส่ง event ซ้ำ ไม่นับเพิ่ม · คืน True ถ้าเป็นครั้งแรก"""
+    conn = get_conn()
+    try:
+        cur = conn.execute("INSERT OR IGNORE INTO metric_keys (day, name, key, amount) VALUES (?, ?, ?, ?)",
+                           (day, name, key[:64], float(amount or 0)))
+        conn.commit()
+        return cur.rowcount == 1
+    finally:
+        conn.close()
+
+def metric_report(since_day: str, forget_before: str = None) -> dict:
+    """{day: {name: n}} — ตัวนับไม่ซ้ำ = จำนวน key · รายได้ = ผลรวม amount (ชื่อขึ้นต้น purchase/renewal)
+    forget_before: ลบ key (HMAC) ที่เก่ากว่านี้ทิ้ง เหลือแค่ตัวเลขรวม"""
+    conn = get_conn()
+    try:
+        if forget_before:
+            rows = conn.execute("SELECT day, name, COUNT(*) AS n, SUM(amount) AS amt FROM metric_keys WHERE day < ? "
+                                "GROUP BY day, name", (forget_before,)).fetchall()
+            for r in rows:      # เก่าแล้ว: แปลงเป็นตัวเลขรวม แล้วลบ key ทิ้ง
+                conn.execute("INSERT OR REPLACE INTO metric_counts (day, name, n) VALUES (?, ?, ?)", (r["day"], "u:" + r["name"], r["n"]))
+                if r["amt"]:
+                    conn.execute("INSERT OR REPLACE INTO metric_counts (day, name, n) VALUES (?, ?, ?)", (r["day"], "baht:" + r["name"], int(round(r["amt"]))))
+            conn.execute("DELETE FROM metric_keys WHERE day < ?", (forget_before,))
+            conn.commit()
+        out = {}
+        for r in conn.execute("SELECT day, name, n FROM metric_counts WHERE day >= ?", (since_day,)):
+            out.setdefault(r["day"], {})[r["name"]] = r["n"]
+        for r in conn.execute("SELECT day, name, COUNT(*) AS n, SUM(amount) AS amt FROM metric_keys WHERE day >= ? "
+                              "GROUP BY day, name", (since_day,)):
+            d = out.setdefault(r["day"], {})
+            d["u:" + r["name"]] = r["n"]
+            if r["amt"]:
+                d["baht:" + r["name"]] = int(round(r["amt"]))
+        return out
+    finally:
+        conn.close()
+
 def twofa_get(email: str):
     conn = get_conn()
     try:

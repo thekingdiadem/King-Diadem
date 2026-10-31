@@ -3,6 +3,7 @@
 import json
 import re
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 PAGE = (ROOT / "static" / "architecture.html").read_text(encoding="utf-8")
@@ -11,7 +12,7 @@ ROWS = {r[0]: r for r in MAP["files"]}
 
 
 def _embedded():
-    html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+    html = front_page()
     return json.loads(re.search(r'id="system-map">(.*?)</script>', html, re.S).group(1))
 
 
@@ -58,7 +59,7 @@ def test_route_and_links(client):
     assert r.status_code == 200 and "KING DIADEM ทำงานอย่างไร" in r.text
     assert client.get("/static/system_map.json").status_code == 200
     assert 'href="/architecture"' in (ROOT / "static" / "guide.html").read_text(encoding="utf-8")
-    assert 'href="/architecture"' in (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+    assert 'href="/architecture"' in front_page()
     assert "`/architecture`" in (ROOT / "SYSTEM_ARCHITECTURE.md").read_text(encoding="utf-8")
 
 

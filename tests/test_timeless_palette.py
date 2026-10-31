@@ -5,8 +5,9 @@
 """
 import re
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
-SRC = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+SRC = front_page()
 BLOCK = SRC[SRC.index("TIMELESS · เฉดสีชุดเดียว"):SRC.index("ดาวลูกไก่ใกล้ๆ (static/pleiades_view.js)")]
 
 

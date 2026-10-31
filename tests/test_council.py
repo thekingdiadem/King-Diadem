@@ -5,6 +5,7 @@ import pytest
 
 from core.kernel_voice import compose, compose_council
 from tests.conftest import FAKE_LLM
+from tests._front import front_page  # noqa: E402
 
 MEMBERS = ("LYLA ◈", "VEGA ◆", "PATICCA ☸", "TITAN ▲", "COSMOS ✦", "CIVIL ⬡", "มติสภา")
 
@@ -49,7 +50,7 @@ def test_council_without_ai_uses_kernel(client):
 
 
 def test_page_has_council_button():
-    page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
+    page = front_page()
     assert 'data-p="council"' in page and "function councilFmt" in page and "COUNCIL:['สภา 6 เสียง'" in page
 
 

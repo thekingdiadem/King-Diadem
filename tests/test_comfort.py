@@ -2,9 +2,10 @@
 import math
 import re
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-HTML = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+HTML = front_page()
 BB = (ROOT / "static" / "big_bang.js").read_text(encoding="utf-8")
 GL = (ROOT / "static" / "big_bang_gl.js").read_text(encoding="utf-8")
 

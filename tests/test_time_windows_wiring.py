@@ -2,6 +2,7 @@
 Choice ≈ Waterline ÷ 20 · Drift/วัน = ความชันขาลงของ waterline ÷ 20"""
 from core.choice_dynamics import waterline_windows
 from tests.conftest import FAKE_LLM
+from tests._front import front_page  # noqa: E402
 
 
 def _pts(*pairs):
@@ -74,5 +75,5 @@ def test_dashboard_counts_only(client, app_module):
 
 def test_chat_page_renders_the_row():
     from pathlib import Path
-    html = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+    html = front_page()
     assert "d.time_windows" in html and "ช่วงตัดสินใจ" in html and "core/choice_dynamics.py" in html

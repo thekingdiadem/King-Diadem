@@ -5,6 +5,7 @@
 """
 import re
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 NAME = re.compile(r"nithikorn|bunsrang|boonsang|นิธิกร|บุญสร้าง|ニティコーン|ブンサーン", re.I)
@@ -27,5 +28,5 @@ def test_owner_name_is_not_on_any_web_page():
 def test_pure_axis_line_still_translated():
     """บรรทัดใน THE PURE AXIS ที่เคยมีชื่อ ยังมีคำแปลอังกฤษ/ญี่ปุ่นตรงกับข้อความไทยใหม่"""
     line = "ไม่ต้องมีใครคนใดคนหนึ่งจึงจะใช้งานได้"
-    assert f"<p>{line}</p>" in (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+    assert f"<p>{line}</p>" in front_page()
     assert f"'{line}': [" in (ROOT / "static" / "i18n.js").read_text(encoding="utf-8")

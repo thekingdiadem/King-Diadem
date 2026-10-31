@@ -1,6 +1,7 @@
 """รอบแก้ของค้าง: ติดเพลง · ภัยภาษาอังกฤษในบ้าน · W เริ่มต้น · ครู/เพื่อนด่า"""
 import pathlib
 from core.kernel_voice import assess
+from tests._front import front_page  # noqa: E402
 
 
 def test_addicted_to_song_is_not_addiction():
@@ -23,5 +24,5 @@ def test_verbal_abuse_outside_family_is_detected():
 
 
 def test_sigma_panel_does_not_show_default_w_as_100():
-    page = (pathlib.Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+    page = front_page()
     assert "ใช้ 100 ชั่วคราว" in page

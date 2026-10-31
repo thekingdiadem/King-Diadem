@@ -3,9 +3,10 @@
 เจ้าของโปรเจกต์: หน้าจักรวาลเดิมฟ้าไหวตลอดและดาวเล็กจนมองไม่เห็น "ดูเวียนหัว" → ฟ้านิ่ง ดาวใหญ่พอแตะได้
 คุย 1 ครั้งได้ดาว 1 ดวง ต่อเส้นตามลำดับเวลา และตอนได้คำตอบมีดาวลอยจากคำตอบไปที่ปุ่ม "จักรวาล\""""
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-HTML = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+HTML = front_page()
 
 
 def _frame():

@@ -3,6 +3,7 @@ import pytest
 from SIMULATIONS.black_swan_detector import detect_black_swan
 from SIMULATIONS.montecarlo_engine import run_montecarlo
 from core.future_paths import project
+from tests._front import front_page  # noqa: E402
 
 
 @pytest.mark.parametrize("text, event", [
@@ -48,5 +49,5 @@ def test_future_paths_show_black_swan_tail():
 
 def test_page_mentions_black_swan():
     import pathlib
-    page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
+    page = front_page()
     assert "f.black_swan" in page and "tail_worst" in page

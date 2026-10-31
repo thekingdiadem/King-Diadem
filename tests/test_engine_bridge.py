@@ -4,6 +4,7 @@ import pytest
 from core.engine_bridge import analyze, parse_debts, rank_options
 from core.kernel_voice import assess, compose, simulate
 from tests.conftest import FAKE_LLM
+from tests._front import front_page  # noqa: E402
 
 DEBTS = "หนี้บัตรเครดิต 50,000 ดอก 16% และสินเชื่อบุคคล 1.2 แสน ดอก 25% เงินเดือน 18,000 รายจ่าย 12,000"
 
@@ -229,7 +230,7 @@ def test_calling_persona_by_name(app_module, text, voice):
 
 def test_page_knows_thai_persona_names():
     import pathlib
-    page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
+    page = front_page()
     assert "เวก้า|เวกา|วีก้า" in page
 
 
@@ -271,5 +272,5 @@ def test_no_money_gets_practical_guidance():
 
 def test_page_formula_counts_money():
     import pathlib
-    page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
+    page = front_page()
     assert "w -= this.moneyCut(s);" in page and "s.money <= 0 ? 20 : s.money < 1000 ? 10 : 0" in page

@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from PIL import Image
+from tests._front import front_page  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 S = ROOT / "static"
@@ -19,7 +20,7 @@ def test_service_worker_is_served_from_the_root_and_always_rechecked(client):
 
 
 def test_app_registers_it():
-    page = (S / "index.html").read_text(encoding="utf-8")
+    page = front_page()
     assert "navigator.serviceWorker.register('/service-worker.js', {scope:'/'})" in page
     assert '<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">' in page
 
@@ -53,7 +54,7 @@ def test_manifest_icons_have_the_sizes_they_claim():
 
 
 def test_manifest_matches_the_app():
-    page = (S / "index.html").read_text(encoding="utf-8")
+    page = front_page()
     assert f'<meta name="theme-color" content="{MAN["theme_color"]}">' in page
     assert MAN["start_url"] == "/" and MAN["scope"] == "/" and MAN["display"] == "standalone"
     assert {s["url"] for s in MAN["shortcuts"]} == {"/?new=1", "/?tab=tools"}

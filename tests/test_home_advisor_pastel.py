@@ -1,9 +1,10 @@
 """หน้าแรก: บอกว่าที่นี่ช่วยอะไร + ตัวอย่างคำถาม · ช่วงตัดสินใจเป็นวันใต้คำตอบ · โทนพาสเทล · ดาวลูกไก่"""
 import re
 from pathlib import Path
+from tests._front import front_page  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-PAGE = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+PAGE = front_page()
 I18N = (ROOT / "static" / "i18n.js").read_text(encoding="utf-8")
 
 

@@ -2,9 +2,10 @@
 import pathlib
 import re
 from html.parser import HTMLParser
+from tests._front import front_page  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-PAGE = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+PAGE = front_page()
 JS = (ROOT / "static" / "i18n.js").read_text(encoding="utf-8")
 TH = re.compile("[ก-ฺเ-๙]")                  # ไม่นับ ฿ (สัญลักษณ์เงิน ใช้ได้ทุกภาษา)
 ENTRY = re.compile(r"'([^']*[ก-๙][^']*)':\s*\[\s*'([^']*)',\s*'([^']*)'\s*\]")

@@ -6,6 +6,7 @@
 import pytest
 
 from core.vega_kernels import KERNELS, evaluate, llm_hint, offline_lines
+from tests._front import front_page  # noqa: E402
 
 
 def test_all_fourteen_kernels_exist_with_rule_and_question():
@@ -75,7 +76,7 @@ def test_vega_prompt_and_ui_know_the_gates():
     from pathlib import Path
     import core.llm_gemini as L
     assert "K13 Stop-the-Line" in L.VEGA_SYSTEM and "Human SOP" in L.VEGA_SYSTEM
-    html = (Path(__file__).resolve().parent.parent / "static" / "index.html").read_text(encoding="utf-8")
+    html = front_page()
     assert "row('VEGA gates'" in html
 
 

@@ -3,11 +3,12 @@ import re
 import sys
 
 import pytest
+from tests._front import front_page  # noqa: E402
 
 sys.path.insert(0, ".")
 from scripts.build_translation_review import numbers, table  # noqa: E402
 
-HTML = open("static/index.html", encoding="utf-8").read()
+HTML = front_page()
 HOT = re.compile(re.search(r"var HOTLINES = /(.*)/g;", HTML).group(1).replace("\\/", "/"))
 
 

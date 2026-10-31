@@ -4,6 +4,7 @@ import pathlib
 import pytest
 
 from core import feedback_loop
+from tests._front import front_page  # noqa: E402
 
 
 def test_vote_is_saved_and_counted(client):
@@ -46,7 +47,7 @@ def test_health_shows_feedback(client):
 
 
 def test_page_sends_no_message_text():
-    page = pathlib.Path(__file__).resolve().parent.parent.joinpath("static", "index.html").read_text(encoding="utf-8")
+    page = front_page()
     body = page[page.index("function vote(m, v, el)"):][:700]
     assert "fetch('/api/feedback'" in body
     assert "JSON.stringify({ vote:v, route:t.route || 'general', risk:num(t.risk, 0) })" in body

@@ -58,7 +58,7 @@ def test_universe_slider_labels_keep_layout_and_thai_run():
 
 def test_home_page_tightens_spacing_only_in_thai():
     """หน้าหลักสลับภาษาได้ (i18n.js ตั้ง <html lang>) — ภาษาอังกฤษยังถ่างตัวอักษรแบบเดิม"""
-    html = _read("index.html")
+    html = _read("app.css")      # หน้าตาหน้าแรกย้ายไป static/app.css
     m = re.search(r"html:lang\(th\) :is\(([^)]*)\)\{letter-spacing:\.01em\}", html)
     assert m
     for sel in (".acc-link", "#view-title", ".chip", ".seg button", ".card-h h2", ".dlg-h h2"):
