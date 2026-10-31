@@ -35,6 +35,10 @@ def _contrast(rgba, bg):
 
 
 def _rgba(text):
+    h = re.fullmatch(r"#([0-9a-fA-F]{6})", text.strip())
+    if h:                                    # สีทึบ (ชุดสี TIMELESS ใช้ hex แทน rgba จาง)
+        v = h.group(1)
+        return float(int(v[0:2], 16)), float(int(v[2:4], 16)), float(int(v[4:6], 16)), 1.0
     r, g, b, a = re.search(r"rgba\(([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)\)", text).groups()
     return float(r), float(g), float(b), float(a)
 
@@ -75,12 +79,12 @@ def test_universe_small_text_meets_aa_contrast(selector):
 
 def test_report_and_architecture_small_text_use_readable_tone():
     report = _page("report.html")
-    mid = _rgba(re.search(r"--tx-mid:\s*(rgba\([^)]*\))", report).group(1))
+    mid = _rgba(re.search(r"--tx-mid:\s*(rgba\([^)]*\)|#[0-9a-fA-F]{6})", report).group(1))
     assert _contrast(mid, REPORT_BG) >= 4.5
     assert "var(--tx-mid)" in _rule(report, ".aud-label")
     assert "var(--tx-mid)" in _rule(report, ".report-footer")
 
     arch = _page("architecture.html")
-    mid = _rgba(re.search(r"--tx-mid:\s*(rgba\([^)]*\))", arch).group(1))
+    mid = _rgba(re.search(r"--tx-mid:\s*(rgba\([^)]*\)|#[0-9a-fA-F]{6})", arch).group(1))
     assert _contrast(mid, ARCH_BG) >= 4.5
     assert "var(--tx-mid)" in _rule(arch, ".foot")

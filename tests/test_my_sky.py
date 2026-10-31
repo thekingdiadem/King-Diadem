@@ -31,7 +31,7 @@ def test_stars_are_tappable_and_colour_blind_friendly():
 
 
 def test_count_line_speaks_plainly():
-    assert "' ดวง · คุย 1 ครั้งได้ดาว 1 ดวง · แตะดาวเพื่อดูเรื่องที่คุย'" in HTML
+    assert "'{n} ดวง · คุย 1 ครั้งได้ดาว 1 ดวง · แตะดาวเพื่อดูเรื่องที่คุย'" in HTML     # แปลได้ 3 ภาษา (static/i18n.js)
     assert "ยังไม่ระบุ waterline" not in HTML
 
 

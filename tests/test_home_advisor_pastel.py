@@ -22,7 +22,7 @@ def test_first_visit_explains_and_offers_examples():
 
 def test_decision_window_shows_in_days_under_reply():
     assert "twCard(t) + helpCard(m.l)" in PAGE
-    assert "'⏳ เหลือเวลาตัดสินใจราว ' + n + ' วัน'" in PAGE
+    assert "_t('⏳ เหลือเวลาตัดสินใจราว {n} วัน', {n: n})" in PAGE     # แปลได้ 3 ภาษา (static/i18n.js)
     assert "'🌿 ยังมีเวลา ไม่ต้องรีบตัดสินใจ'" in PAGE and "'⏳ ควรเริ่มวันนี้'" in PAGE
     assert "if(!tw || !tw.status) return '';" in PAGE                    # ไม่มีข้อมูลจริงก็ไม่แสดง ไม่เดา
     assert "cls = n <= 7 ? 'bad' : n <= 30 ? 'warn' : 'ok';" in PAGE       # เกณฑ์เดียวกับ core/choice_dynamics.py

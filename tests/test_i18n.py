@@ -62,3 +62,33 @@ def test_chat_messages_are_never_translated():
 def test_storage_failure_does_not_break_page():
     uses = JS.count("localStorage.")
     assert uses == 2 and len(re.findall(r"try \{[^}]*localStorage\.", JS)) == uses
+
+
+def _t_keys():
+    """ข้อความไทยทุกตัวที่ส่งเข้า _t() ในหน้าแรก (รวมแบบ เงื่อนไข ? 'ก' : 'ข')"""
+    keys = set()
+    for call in re.finditer(r"_t\(((?:[^()]|\([^()]*\))*)\)", PAGE):
+        for lit in re.findall(r"'((?:[^'\\]|\\.)*)'", call.group(1)):
+            if TH.search(lit):
+                keys.add(lit.strip())
+    return keys
+
+
+def test_every_scripted_thai_text_has_translations():
+    """ข้อความที่สคริปต์ประกอบเอง (ตัวเลขแทรก · ป๊อปอัปยืนยัน · ข้อความในกล่องแชท) ต้องมีคำแปลด้วย
+    ไม่งั้นคนที่เลือก English/日本語 จะเจอไทยโผล่กลางจอ"""
+    have = {th for th, _, _ in ENTRY.findall(JS)}
+    missing = _t_keys() - have
+    assert not missing, f"ยังไม่มีคำแปล: {sorted(missing)}"
+
+
+def test_templates_keep_their_placeholders():
+    """คำแปลของข้อความที่มี {n} {t} ต้องมีช่องเดียวกันครบ ไม่งั้นตัวเลขหายไปจากประโยค"""
+    for th, en, ja in ENTRY.findall(JS):
+        want = sorted(re.findall(r"\{\w+\}", th))
+        assert sorted(re.findall(r"\{\w+\}", en)) == want, th
+        assert sorted(re.findall(r"\{\w+\}", ja)) == want, th
+
+
+def test_language_switch_redraws_scripted_text():
+    assert "kd:lang" in JS and "addEventListener('kd:lang'" in PAGE

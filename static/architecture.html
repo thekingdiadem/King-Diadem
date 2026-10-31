@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#020309">
+<meta name="theme-color" content="#06070c">
 <title>สถาปัตยกรรมระบบ · KING DIADEM</title>
 <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
 <link rel="alternate icon" href="/static/logo.png" type="image/png">
@@ -22,8 +22,8 @@
 /* ARCHITECTURE — อธิบายระบบให้คนที่สงสัย: รูปแบบสถาปัตยกรรม · เส้นทางของหนึ่งข้อความ · แผนที่ไฟล์ทั้งหมด
    ข้อมูลไฟล์/เส้นเชื่อมโหลดสดจาก /api/system_map (สำรอง: /static/system_map.json สร้างจาก repo จริงด้วย scripts/build_system_map.py) */
 :root {
-  --void: #020309; --latte: #fff8e7; --tx-hi: rgba(242,246,255,.96); --tx: rgba(208,216,240,.84); --tx-mid: rgba(176,188,226,.72); --tx-lo: rgba(160,172,215,.52);
-  --gold: #e8b864; --gold-hi: #ffd98f; --sun: #ffb35c; --peach: #ffc6a1; --sky: #a9bcff; --sky-hi: #d6e0ff; --lilac: #c8b6f0; --ok: #8ef0b4;
+  --void: #06070c; --latte: #fff8e7; --tx-hi: #f1ede4; --tx: #c4beb2; --tx-mid: #b4aea2; --tx-lo: #a39d92;
+  --gold: #e8b864; --gold-hi: #ecd6a6; --sun: #d8b878; --peach: #e6cf9e; --sky: #c3cbdb; --sky-hi: #e3e7ef; --lilac: #c3cbdb; --ok: #93c4a4;
   --f-title: 'Cinzel', 'Noto Serif Thai', serif; --f-serif: 'Noto Serif Thai', serif;
   --f-body: 'Noto Sans Thai Looped', system-ui, sans-serif; --f-mono: 'DM Mono', 'Noto Sans Thai Looped', ui-monospace, monospace;
   --ease: cubic-bezier(.16,1,.3,1);
@@ -40,7 +40,7 @@ a { color: var(--gold-hi); }
 .bar nav { display: flex; gap: 16px; flex-wrap: wrap; justify-content: flex-end; }
 main { position: relative; z-index: 2; max-width: 1080px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px) 120px; }
 section { margin-top: 96px; }
-.eyebrow { font: 400 10px/1.6 var(--f-mono); letter-spacing: .3em; text-transform: uppercase; color: rgba(214,224,255,.62); }
+.eyebrow { font: 400 10px/1.6 var(--f-mono); letter-spacing: .3em; text-transform: uppercase; color: rgba(195,203,219,.62); }
 .eyebrow .th { font: 500 12.5px/1.6 var(--f-body); letter-spacing: .03em; }   /* ไทยไม่ยืดระยะ — สระไม่หลุด */
 h1 { font: 600 clamp(30px, 6vw, 52px)/1.25 var(--f-serif); color: var(--latte); margin-top: 14px; text-shadow: 0 0 40px rgba(255,248,231,.18); }
 h2 { font: 600 clamp(22px, 3.4vw, 30px)/1.35 var(--f-serif); color: var(--latte); margin-top: 8px; }
@@ -79,8 +79,8 @@ code, .mono { font-family: var(--f-mono); font-size: .88em; }
 .layer { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; padding: 14px 18px; border-radius: 14px; }
 .layer .tag { font: 500 10.5px/1.4 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--tx-lo); }
 .layer p { font-size: 14px; }
-.layer.kernel { background: linear-gradient(90deg, rgba(169,188,255,.10), rgba(169,188,255,.03)); border: 1px solid rgba(169,188,255,.22); }
-.layer.ai { background: linear-gradient(90deg, rgba(255,179,92,.14), rgba(255,179,92,.04)); border: 1px dashed rgba(255,198,161,.45); }
+.layer.kernel { background: linear-gradient(90deg, rgba(195,203,219,.10), rgba(195,203,219,.03)); border: 1px solid rgba(195,203,219,.22); }
+.layer.ai { background: linear-gradient(90deg, rgba(216,184,120,.14), rgba(216,184,120,.04)); border: 1px dashed rgba(216,184,120,.45); }
 .layer.human { background: rgba(255,248,231,.05); border: 1px solid rgba(255,248,231,.2); }
 .layer.ai .tag { color: var(--peach); } .layer.kernel .tag { color: var(--sky); } .layer.human .tag { color: var(--latte); }
 
@@ -90,16 +90,16 @@ code, .mono { font-family: var(--f-mono); font-size: .88em; }
 .step { position: relative; padding: 0 0 26px 58px; counter-increment: s; }
 .step::before { content: counter(s, decimal-leading-zero); position: absolute; left: 0; top: 0; width: 39px; height: 39px; border-radius: 50%;
   display: grid; place-items: center; font: 500 11px/1 var(--f-mono); color: var(--latte); background: #0a0c1c; border: 1px solid rgba(255,248,231,.22); }
-.step.ai::before { border-color: rgba(255,198,161,.6); color: var(--peach); box-shadow: 0 0 18px rgba(255,179,92,.3); }
-.step.gate::before { border-color: rgba(169,188,255,.6); color: var(--sky-hi); }
+.step.ai::before { border-color: rgba(216,184,120,.6); color: var(--peach); box-shadow: 0 0 18px rgba(216,184,120,.3); }
+.step.gate::before { border-color: rgba(195,203,219,.6); color: var(--sky-hi); }
 .step h3 { padding-top: 7px; }
 .step h3 small { font: 400 11px/1 var(--f-mono); letter-spacing: .12em; color: var(--tx-lo); margin-left: 8px; text-transform: uppercase; }
 .step p { margin-top: 4px; font-size: 14px; color: var(--tx); max-width: 50em; }
 .files { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.chip { font: 400 11.5px/1 var(--f-mono); padding: 6px 10px; border-radius: 99px; border: 1px solid rgba(169,188,255,.22); background: rgba(169,188,255,.06);
+.chip { font: 400 11.5px/1 var(--f-mono); padding: 6px 10px; border-radius: 99px; border: 1px solid rgba(195,203,219,.22); background: rgba(195,203,219,.06);
   color: var(--sky-hi); cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
-.chip:hover, .chip:focus-visible { background: rgba(255,198,161,.12); border-color: rgba(255,198,161,.5); color: var(--gold-hi); outline: none; }
-.chip.ai { border-color: rgba(255,198,161,.38); color: var(--peach); background: rgba(255,179,92,.07); }
+.chip:hover, .chip:focus-visible { background: rgba(216,184,120,.12); border-color: rgba(216,184,120,.5); color: var(--gold-hi); outline: none; }
+.chip.ai { border-color: rgba(216,184,120,.38); color: var(--peach); background: rgba(216,184,120,.07); }
 
 .side { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 26px; }
 .side .box { padding: 18px; border-radius: 16px; }
@@ -109,9 +109,9 @@ code, .mono { font-family: var(--f-mono); font-size: .88em; }
 /* แผนที่ไฟล์ทั้งหมด */
 .map-wrap { margin-top: 24px; border-radius: 20px; overflow: hidden; position: relative; }
 .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 14px 14px 10px; }
-.tools input { flex: 1 1 200px; min-width: 0; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(169,188,255,.2); background: rgba(2,3,10,.6);
+.tools input { flex: 1 1 200px; min-width: 0; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(195,203,219,.2); background: rgba(2,3,10,.6);
   color: var(--tx-hi); font: 400 14px/1.3 var(--f-body); outline: none; }
-.tools input:focus { border-color: rgba(255,198,161,.5); }
+.tools input:focus { border-color: rgba(216,184,120,.5); }
 .cats { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 12px; }
 .cat { font-family: var(--f-body); display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 99px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03);
   font-size: 12px; color: var(--tx); cursor: pointer; }
@@ -129,9 +129,9 @@ code, .mono { font-family: var(--f-mono); font-size: .88em; }
 .info li button { font: 400 11px/1 var(--f-mono); padding: 5px 8px; border-radius: 99px; border: 1px solid rgba(255,255,255,.12); background: none; color: var(--sky-hi); cursor: pointer; }
 .info .x { position: absolute; top: 8px; right: 10px; background: none; border: 0; color: var(--tx-lo); font-size: 18px; cursor: pointer; }
 .legend { display: flex; flex-wrap: wrap; gap: 14px; padding: 10px 14px 14px; font-size: 12px; color: var(--tx-lo); }
-.legend span::before { content: ""; display: inline-block; width: 22px; height: 0; margin-right: 6px; vertical-align: middle; border-top: 1.5px solid rgba(255,198,161,.8); }
-.legend span.web::before { border-top: 1.5px dashed rgba(169,188,255,.9); }
-.legend span.ref::before { border-top: 1.5px dotted rgba(200,182,240,.9); }
+.legend span::before { content: ""; display: inline-block; width: 22px; height: 0; margin-right: 6px; vertical-align: middle; border-top: 1.5px solid rgba(216,184,120,.8); }
+.legend span.web::before { border-top: 1.5px dashed rgba(195,203,219,.9); }
+.legend span.ref::before { border-top: 1.5px dotted rgba(195,203,219,.9); }
 .hint { font-size: 12.5px; color: var(--tx-lo); padding: 0 14px 12px; }
 
 /* โฟลเดอร์ */
@@ -302,11 +302,11 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
   var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   // หมวดของไฟล์ (จาก scripts/build_system_map.py) → ชื่อไทย + สี · ลำดับ = ลำดับปุ่มกรอง
   var CAT = {
-    boot:    ['ทำงานตั้งแต่เปิดเซิร์ฟเวอร์', '#ffd98f'],
+    boot:    ['ทำงานตั้งแต่เปิดเซิร์ฟเวอร์', '#ecd6a6'],
     request: ['ทำงานเมื่อมีข้อความเข้า', '#ffb07a'],
     web:     ['หน้าเว็บ / ไฟล์ที่หน้าเว็บโหลด', '#a9c4ff'],
     site:    ['หน้านอกแอป (GitHub Pages)', '#8fb0e8'],
-    tests:   ['เทสต์', '#c8b6f0'],
+    tests:   ['เทสต์', '#c3cbdb'],
     docs:    ['เอกสาร', '#e9e2d0'],
     config:  ['ตั้งค่า / สคริปต์', '#9aa6c8'],
     pkg:     ['ไฟล์ package', '#7d88a8'],
@@ -490,7 +490,7 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
     groups.forEach(function(g){
       cx.beginPath(); cx.arc(g.sx, OY + g.cy * S, g.sr, 0, 6.283); cx.strokeStyle = 'rgba(255,248,231,.05)'; cx.lineWidth = 1; cx.stroke();
       cx.font = '500 ' + Math.max(10, 11 * Math.min(1.2, S + .2)) + 'px "DM Mono", monospace'; cx.textAlign = 'center';
-      cx.fillStyle = 'rgba(214,224,255,.62)'; cx.fillText(g.name === '(root)' ? '/' : g.name + '/', g.sx, Math.max(12, g.sy));
+      cx.fillStyle = 'rgba(195,203,219,.62)'; cx.fillText(g.name === '(root)' ? '/' : g.name + '/', g.sx, Math.max(12, g.sy));
     });
     // เส้น
     E.forEach(function(e){
@@ -501,9 +501,9 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
       cx.beginPath(); cx.moveTo(a.x, a.y); cx.quadraticCurveTo(mx, my, b.x, b.y);
       cx.setLineDash(e.k === 1 ? [4, 4] : e.k === 2 ? [1.5, 3] : []);
       // เส้นอ้างถึง (เทสต์/สคริปต์/เอกสาร) มีมากที่สุด — จางไว้ตอนดูภาพรวม ชัดเมื่อแตะไฟล์
-      cx.strokeStyle = e.k === 1 ? (lit ? 'rgba(190,210,255,.95)' : 'rgba(169,188,255,.28)')
-        : e.k === 2 ? (lit ? 'rgba(214,198,255,.9)' : 'rgba(200,182,240,.07)')
-        : (lit ? 'rgba(255,206,150,.9)' : 'rgba(255,198,161,.2)');
+      cx.strokeStyle = e.k === 1 ? (lit ? 'rgba(190,210,255,.95)' : 'rgba(195,203,219,.28)')
+        : e.k === 2 ? (lit ? 'rgba(214,198,255,.9)' : 'rgba(195,203,219,.07)')
+        : (lit ? 'rgba(255,206,150,.9)' : 'rgba(216,184,120,.2)');
       cx.lineWidth = lit ? 1.4 : .8; cx.stroke();
     });
     cx.setLineDash([]);
@@ -525,7 +525,7 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
       hot.forEach(function(i){ var f = F[i]; if(!visible(f)) return; var t = f.p.split('/').pop();
         if(t === '__init__.py' && i !== sel) return;          // ไฟล์ package ไม่ต้องติดป้าย — ป้ายซ้อนกันจนอ่านไม่ออก
         cx.fillStyle = 'rgba(2,3,9,.75)'; var w = cx.measureText(t).width; cx.fillRect(f.x + 7, f.y - 8, w + 6, 15);
-        cx.fillStyle = i === sel ? '#fff8e7' : 'rgba(214,224,255,.9)'; cx.fillText(t, f.x + 10, f.y + 3); });
+        cx.fillStyle = i === sel ? '#fff8e7' : 'rgba(195,203,219,.9)'; cx.fillText(t, f.x + 10, f.y + 3); });
     }
   }
 

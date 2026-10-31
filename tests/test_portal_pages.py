@@ -37,7 +37,7 @@ def test_same_visual_language_as_the_app():
         assert "Noto+Sans+Thai+Looped" in page and "Orbitron" not in page
         assert '<canvas id="sky"' in page and '<script src="/static/cinema_sky.js" defer></script>' in page
         assert 'id="particles"' not in page
-    assert "--rim: linear-gradient(135deg, rgba(214,224,255,.48)" in CSS
+    assert "--rim: linear-gradient(160deg, rgba(241,237,228,.24)" in CSS     # ขอบแสงชุดเดียวกับหน้าแรก (TIMELESS)
     assert ".card-inner > * { animation: kd-rack .9s var(--ease) backwards; }" in CSS   # ปุ่ม disabled ยังจางตามจริง
     for f in ("ask.html", "guide.html", "report.html"):
         t = (S / f).read_text(encoding="utf-8")

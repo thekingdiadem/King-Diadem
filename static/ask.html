@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#010206">
+<meta name="theme-color" content="#06070c">
 <title>ASK — KING DIADEM</title>
 <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
 <link rel="alternate icon" href="/static/logo.png" type="image/png">
@@ -19,11 +19,11 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=DM+Mono:wght@300;400;500&family=Noto+Sans+Thai+Looped:wght@300;400;500&display=swap">
 <style>
 :root{
-  --void:#010206;--gold:#c8a440;--gold-hi:#edcc62;--gold-lo:rgba(200,164,64,0.09);
-  --gold-line:rgba(200,164,64,0.20);--blue:#3a86f5;--blue-hi:#76aeff;
-  --blue-lo:rgba(58,134,245,0.09);--blue-line:rgba(58,134,245,0.17);
-  --tx-hi:rgba(246,250,255,0.97);--tx:rgba(198,216,248,0.82);
-  --tx-mid:rgba(170,185,225,0.70);--tx-lo:rgba(160,172,215,0.50);
+  --void:#06070c;--gold:#d8b878;--gold-hi:#ecd6a6;--gold-lo:rgba(216,184,120,0.09);
+  --gold-line:rgba(216,184,120,0.20);--blue:#c3cbdb;--blue-hi:#d3d9e6;
+  --blue-lo:rgba(195,203,219,0.09);--blue-line:rgba(195,203,219,0.17);
+  --tx-hi:#f1ede4;--tx:#c4beb2;
+  --tx-mid:#b4aea2;--tx-lo:#a39d92;
   --r:12px;--r-l:18px;--r-xl:28px;
   --f-display:'Cinzel','Noto Sans Thai Looped',serif;--f-mono:'DM Mono','Noto Sans Thai Looped',monospace;
   --f-body:'Noto Sans Thai Looped',system-ui,sans-serif;
@@ -61,14 +61,14 @@ body::before{
 
 /* header */
 .header{text-align:center;margin-bottom:40px;width:100%;}
-.eyebrow{font-family:var(--f-mono);font-size:9px;letter-spacing:.28em;color:rgba(169,188,255,0.62);text-transform:uppercase;margin-bottom:12px;}
+.eyebrow{font-family:var(--f-mono);font-size:9px;letter-spacing:.28em;color:rgba(195,203,219,0.62);text-transform:uppercase;margin-bottom:12px;}
 .title{
   font-family:var(--f-display);font-size:clamp(22px,7vw,38px);font-weight:600;margin-top:0;letter-spacing:.18em;
-  background:linear-gradient(135deg,#76aeff 0%,#d6eaff 32%,#edcc62 64%,#c8a440 100%);
+  background:linear-gradient(135deg,#d3d9e6 0%,#d6eaff 32%,#ecd6a6 64%,#d8b878 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   margin-bottom:8px;
 }
-.rule{width:160px;height:1px;margin:0 auto;background:linear-gradient(90deg,transparent,rgba(200,164,64,.30),rgba(58,134,245,.22),transparent);}
+.rule{width:160px;height:1px;margin:0 auto;background:linear-gradient(90deg,transparent,rgba(216,184,120,.30),rgba(195,203,219,.22),transparent);}
 
 /* card */
 .card{
@@ -102,8 +102,8 @@ textarea,input[type="text"],input[type="number"],select{
 }
 textarea{resize:none;min-height:90px;}
 textarea:focus,input:focus,select:focus{
-  border-color:rgba(200,164,64,0.44);
-  box-shadow:0 0 0 3px rgba(200,164,64,0.08);
+  border-color:rgba(216,184,120,0.44);
+  box-shadow:0 0 0 3px rgba(216,184,120,0.08);
 }
 textarea::placeholder,input::placeholder{color:var(--tx-lo);}
 select option{background:#04060f;color:var(--tx-hi);}
@@ -118,38 +118,38 @@ select option{background:#04060f;color:var(--tx-hi);}
   transition:all .20s cubic-bezier(0.4,0,0.2,1);
   min-height:34px;display:inline-flex;align-items:center;
 }
-.rpill:hover{border-color:rgba(200,164,64,.30);background:rgba(200,164,64,.07);color:var(--gold-hi);}
-.rpill.active{border-color:rgba(200,164,64,.46);background:rgba(200,164,64,.10);color:var(--gold-hi);box-shadow:0 0 14px rgba(200,164,64,.12);}
+.rpill:hover{border-color:rgba(216,184,120,.30);background:rgba(216,184,120,.07);color:var(--gold-hi);}
+.rpill.active{border-color:rgba(216,184,120,.46);background:rgba(216,184,120,.10);color:var(--gold-hi);box-shadow:0 0 14px rgba(216,184,120,.12);}
 
 /* btn */
 .btn{
   width:100%;padding:15px;
   border-radius:var(--r-xl);
-  border:1px solid rgba(200,164,64,0.30);
-  background:linear-gradient(148deg,rgba(200,164,64,0.22) 0%,rgba(180,140,50,0.12) 100%);
+  border:1px solid rgba(216,184,120,0.30);
+  background:linear-gradient(148deg,rgba(216,184,120,0.22) 0%,rgba(216,184,120,0.12) 100%);
   color:var(--gold-hi);font-family:var(--f-body);font-size:15px;font-weight:500;
   cursor:pointer;margin-top:6px;
   transition:all .22s cubic-bezier(0.4,0,0.2,1);
   display:flex;align-items:center;justify-content:center;gap:10px;
-  box-shadow:0 0 22px rgba(200,164,64,0.18);
+  box-shadow:0 0 22px rgba(216,184,120,0.18);
   min-height:52px;
 }
 .btn:hover:not(:disabled){
-  background:linear-gradient(148deg,rgba(200,164,64,0.36) 0%,rgba(180,140,50,0.22) 100%);
-  border-color:rgba(200,164,64,0.62);
-  box-shadow:0 0 40px rgba(200,164,64,0.34);transform:translateY(-2px);
+  background:linear-gradient(148deg,rgba(216,184,120,0.36) 0%,rgba(216,184,120,0.22) 100%);
+  border-color:rgba(216,184,120,0.62);
+  box-shadow:0 0 40px rgba(216,184,120,0.34);transform:translateY(-2px);
 }
 .btn:disabled{opacity:.45;cursor:progress;}
-.add-btn{background:transparent;border:1px solid var(--blue-line);border-radius:99px;color:#d6e0ff;font-family:var(--f-body);font-size:12.5px;
+.add-btn{background:transparent;border:1px solid var(--blue-line);border-radius:99px;color:#e3e7ef;font-family:var(--f-body);font-size:12.5px;
   padding:6px 16px;cursor:pointer;margin-bottom:16px;transition:border-color .18s,color .18s,background .18s;}
-.add-btn:hover{border-color:rgba(255,198,161,.42);color:#ffd98f;background:rgba(255,198,161,.06);}
+.add-btn:hover{border-color:rgba(216,184,120,.42);color:#ecd6a6;background:rgba(216,184,120,.06);}
 .btn-icon{font-size:16px;}
 
 /* result */
 #result-card{display:none;width:100%;margin-top:16px;}
 .result-head{
   font-family:var(--f-mono);font-size:8px;letter-spacing:.20em;
-  color:rgba(200,164,64,0.55);text-transform:uppercase;margin-bottom:14px;
+  color:rgba(216,184,120,0.55);text-transform:uppercase;margin-bottom:14px;
   display:flex;align-items:center;gap:10px;
 }
 .result-head::before{content:'◈';font-size:10px;color:var(--gold);}
@@ -164,7 +164,7 @@ select option{background:#04060f;color:var(--tx-hi);}
   display:flex;gap:14px;flex-wrap:wrap;
 }
 .spinner{
-  width:18px;height:18px;border:2px solid rgba(200,164,64,0.20);
+  width:18px;height:18px;border:2px solid rgba(216,184,120,0.20);
   border-top-color:var(--gold);border-radius:50%;
   animation:spin .8s linear infinite;
 }
