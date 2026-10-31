@@ -1,12 +1,14 @@
+# ทุกตัวล็อกเวอร์ชัน (==) — ไลบรารีเปลี่ยนเวอร์ชันเองตอน deploy ไม่ได้ ทั้งพังเงียบและช่องโหว่ใหม่
+# อัปเกรด: แก้เลขที่นี่ รันเทสต์ แล้ว CI จะตรวจด้วย pip-audit ให้
 fastapi==0.143.3
-starlette>=1.3.1          # 0.37.2 (มากับ fastapi 0.111) มีช่องโหว่ที่รู้แล้ว 7 รายการ — ตรวจด้วย pip-audit
+starlette==1.7.0          # 0.37.2 (มากับ fastapi 0.111) มีช่องโหว่ที่รู้แล้ว 7 รายการ — ตรวจด้วย pip-audit
 uvicorn==0.30.1
 gunicorn==22.0.0
-google-genai
+google-genai==2.34.0
 stripe==16.0.0
-python-multipart
-authlib
-httpx
-itsdangerous
+python-multipart==0.0.32
+authlib==1.9.1
+httpx==0.28.1
+itsdangerous==2.2.0
 # เอาออก: numpy, pandas, scikit-learn, Pillow, requests, jinja2 — ไม่มีไฟล์ไหน import
 # (build บน Render free tier ช้าลงหลายนาทีและกินดิสก์ ~200MB โดยไม่ได้ใช้)
