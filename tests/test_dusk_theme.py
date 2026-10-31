@@ -113,7 +113,7 @@ def test_front_page_routes_orbit_the_earth():
     body = HTML[HTML.index("function drawRoutes("):HTML.index("function drawBodyLabels(")]
     assert "function hidden(q)" in body and "ORB[i] === cur" in body and "สถานีอวกาศ" in body
     assert "var clash = boxes.some(" in body
-    assert "drawRoutes(cx, cy, r, tsec, DAWN.show, top, bottom);" in HTML
+    assert "drawRoutes(cx, cy, r, tsec, CINEMA.on ? 0 : DAWN.show, top, bottom);" in HTML     # โหมดภาพยนตร์ไม่มีเส้นวงโคจร (คลีน)
 
 
 def test_front_page_matches_founders_reference():
@@ -135,7 +135,7 @@ def test_front_page_is_clean_and_fades_when_chatting():
     empty = HTML[HTML.index('<div id="empty">'):HTML.index('<div id="msgs"')]
     assert "<h1>" not in empty and "data-axis" not in empty and "koan" not in empty
     assert "data-axis" in HTML                                 # THE PURE AXIS ยังเปิดได้จากหน้าระบบ
-    assert "var want = emptyOn && !(inp && inp.value.trim()) ? 1 : 0;" in HTML
+    assert "var want = CINEMA.on || (emptyOn && !(inp && inp.value.trim())) ? 1 : 0;" in HTML     # โหมดภาพยนตร์โชว์โลกเต็มเสมอ
     assert "if(!REDUCED && (DAWN.show > 0 || want > 0)) kick();" in HTML     # พื้นหลังเรียบไม่วาดซ้ำ ประหยัดแบต
 
 

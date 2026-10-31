@@ -108,6 +108,8 @@
 </main>
 
 <script>
+/* แปลข้อความ (static/i18n.js) — ไม่มีคำแปลก็คืนภาษาไทย */
+function _t(s){ return window.KD_I18N && s ? KD_I18N.t(s) : s; }
 /* ── Register ── */
 async function register() {
   var email    = document.getElementById('email').value.trim();
@@ -180,7 +182,7 @@ async function register() {
   } else {
     msg.className = 'msg error';
     var m = data.message || data.error || (typeof data.detail === 'string' ? data.detail : '');
-    msg.textContent = '⚠ ' + (m || (res.status >= 502 ? 'เซิร์ฟเวอร์กำลังตื่น — รอสัก 30 วินาทีแล้วลองใหม่' : 'เกิดข้อผิดพลาด กรุณาลองใหม่'));
+    msg.textContent = '⚠ ' + _t(m || (res.status >= 502 ? 'เซิร์ฟเวอร์กำลังตื่น — รอสัก 30 วินาทีแล้วลองใหม่' : 'เกิดข้อผิดพลาด กรุณาลองใหม่'));
   }
 }
 
@@ -197,5 +199,6 @@ document.addEventListener('keydown', function(e){
 document.getElementById('register-btn').addEventListener('click', function(){ register(); });
 </script>
 <script src="/static/cinema_sky.js" defer></script>
+<script src="/static/i18n.js" defer></script>
 </body>
 </html>

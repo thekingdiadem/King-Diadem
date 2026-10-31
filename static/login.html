@@ -100,6 +100,8 @@
 </main>
 
 <script>
+/* แปลข้อความ (static/i18n.js) — ไม่มีคำแปลก็คืนภาษาไทย */
+function _t(s){ return window.KD_I18N && s ? KD_I18N.t(s) : s; }
 /* ── Email + password login (POST /login) ── */
 (function(){
   var form = document.getElementById('email'), msg = document.getElementById('login-msg');
@@ -116,7 +118,7 @@
       var data = {}; try{ data = await res.json(); }catch(_){}
       if(res.ok && data.status === '2fa_required'){ show2fa(); btn.disabled = false; return; }
       if(res.ok){ msg.className = 'email-msg ok'; msg.textContent = '✓ เข้าสู่ระบบแล้ว'; location.href = '/'; return; }
-      msg.textContent = '⚠ ' + (data.message || 'เข้าสู่ระบบไม่สำเร็จ');
+      msg.textContent = '⚠ ' + _t(data.message || 'เข้าสู่ระบบไม่สำเร็จ');
     }catch(_){ msg.textContent = '⚠ เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง'; }
     btn.disabled = false;
   });
@@ -143,7 +145,7 @@ function show2fa(){
         msg.textContent = data.used_recovery ? '✓ เข้าแล้ว — ใช้รหัสกู้คืนไป 1 ชุด ตั้งค่า 2FA ใหม่ในแอปได้ที่เมนูเครื่องมือ' : '✓ เข้าสู่ระบบแล้ว';
         setTimeout(function(){ location.href = '/'; }, data.used_recovery ? 2200 : 300); return;
       }
-      msg.textContent = '⚠ ' + (data.message || 'ยืนยันไม่สำเร็จ');
+      msg.textContent = '⚠ ' + _t(data.message || 'ยืนยันไม่สำเร็จ');
     }catch(_){ msg.textContent = '⚠ เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง'; }
     btn.disabled = false;
   });
@@ -155,5 +157,6 @@ document.querySelector('.google-btn')?.addEventListener('touchend', function(e){
 },{passive:false});
 </script>
 <script src="/static/cinema_sky.js" defer></script>
+<script src="/static/i18n.js" defer></script>
 </body>
 </html>
