@@ -27,6 +27,9 @@ os.environ.update({
 })
 os.environ.pop("KD_AI", None)
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if os.environ.get("KD_DB_DRIVER") == "hrana-fake":   # รันทั้งชุดผ่านตัวต่อ Turso (Python ล้วน) กับเซิร์ฟเวอร์จำลอง
+    from tests._fake_hrana import install as _install_fake_turso
+    _install_fake_turso()
 
 import pytest  # noqa: E402
 import core.llm_gemini as L  # noqa: E402
