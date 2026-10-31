@@ -131,6 +131,14 @@ def init_db():
             email TEXT PRIMARY KEY,
             ver INTEGER NOT NULL DEFAULT 0
         );
+        -- ตัวนับกันเดารหัสผ่าน / สมัครถี่ / rate limit — เดิมอยู่ในหน่วยความจำอย่างเดียว รีสตาร์ทแล้วกลับเป็นศูนย์
+        -- เก็บแค่ 1 วันล่าสุด (throttle_add ลบของเก่าเอง)
+        CREATE TABLE IF NOT EXISTS throttle_events (
+            kind TEXT NOT NULL,
+            k TEXT NOT NULL,
+            t REAL NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_throttle_kind_t ON throttle_events (kind, t);
     """)
     conn.commit()
     try:
@@ -161,9 +169,39 @@ def purge_unowned_history(conn=None) -> int:
         if own:
             conn.close()
 
+# ── THROTTLE (กันเดารหัส / สมัครถี่ / rate limit) ──────────────────
+_THROTTLE_KEEP = 86400          # หน้าต่างยาวสุดที่ใช้ (สมัครสำเร็จต่อวัน)
+_throttle_writes = 0
+
+def throttle_add(kind: str, keys, t: float):
+    """บันทึกเหตุการณ์ (หนึ่งแถวต่อ key) · ทุก 200 ครั้งลบแถวเก่ากว่า 1 วัน"""
+    global _throttle_writes
+    keys = [k for k in keys if k]
+    if not keys:
+        return
+    conn = get_conn()
+    try:
+        conn.executemany("INSERT INTO throttle_events (kind, k, t) VALUES (?, ?, ?)", [(kind, k, t) for k in keys])
+        _throttle_writes += 1
+        if _throttle_writes % 200 == 1:
+            conn.execute("DELETE FROM throttle_events WHERE t < ?", (t - _THROTTLE_KEEP,))
+        conn.commit()
+    finally:
+        conn.close()
+
+def throttle_load(kind: str, since: float) -> list:
+    """เหตุการณ์ที่ยังอยู่ในหน้าต่างเวลา — ใช้ตอนเปิดเซิร์ฟเวอร์ใหม่ [(key, t), ...]"""
+    conn = get_conn()
+    try:
+        rows = conn.execute("SELECT k, t FROM throttle_events WHERE kind = ? AND t >= ? ORDER BY t", (kind, since)).fetchall()
+        return [(r["k"], r["t"]) for r in rows]
+    finally:
+        conn.close()
+
 # ── PASSWORD (email login) ─────────────────────────────────────
 # PBKDF2-HMAC-SHA256 จาก standard library — ไม่ต้องเพิ่ม dependency
-_PBKDF2_ROUNDS = 200_000
+# 600,000 รอบตามคำแนะนำของ OWASP (2023) — เดิม 200,000 · รหัสที่แฮชไว้แบบเก่าจะถูกแฮชใหม่เองตอนล็อกอินสำเร็จ
+_PBKDF2_ROUNDS = 600_000
 
 def _hash_password(password: str, salt: str = None) -> str:
     salt = salt or secrets.token_hex(16)
@@ -204,9 +242,23 @@ def verify_password(user_email: str, password: str) -> bool:
     try:
         _, rounds, salt, want = row["password_hash"].split("$")
         got = hashlib.pbkdf2_hmac("sha256", (password or "").encode(), salt.encode(), int(rounds)).hex()
-        return hmac.compare_digest(got, want)
+        ok = hmac.compare_digest(got, want)
     except Exception:
         return False
+    if ok and int(rounds) < _PBKDF2_ROUNDS:
+        _rehash_password(user_email, password)
+    return ok
+
+def _rehash_password(user_email: str, password: str):
+    """อัปเกรดแฮชรุ่นเก่า (รอบน้อยกว่า) ตอนรู้รหัสจริงแล้วเท่านั้น — ผู้ใช้ไม่ต้องทำอะไร · พลาดก็ไม่กระทบการล็อกอิน"""
+    conn = get_conn()
+    try:
+        conn.execute("UPDATE user_passwords SET password_hash = ? WHERE user_email = ?", (_hash_password(password), user_email))
+        conn.commit()
+    except sqlite3.DatabaseError:
+        pass
+    finally:
+        conn.close()
 
 def session_version(user_email: str) -> int:
     """เลขรุ่นของการล็อกอิน — คุกกี้ที่เซ็นด้วยเลขเก่ากว่านี้ถือว่าออกจากระบบแล้ว"""

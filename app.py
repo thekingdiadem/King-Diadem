@@ -202,6 +202,7 @@ try:
         set_premium_until, get_premium_until, email_for_stripe_customer, customer_for_email,
         spend_credit, credit_history, take_free_run, give_back_free_run, free_runs_used,
         open_charge, close_charge, reclaim_stale_charges,
+        throttle_add, throttle_load,
     )
     init_db()
     print("✅ Database initialized")
@@ -212,6 +213,7 @@ except Exception as e:
     set_password = verify_password = user_exists = email_verified = claim_verified_email = None
     stripe_event_done = mark_stripe_event = add_credits_once = premium_subscription = None
     set_premium_until = get_premium_until = email_for_stripe_customer = customer_for_email = None
+    throttle_add = throttle_load = None
     spend_credit = credit_history = take_free_run = give_back_free_run = free_runs_used = None
     open_charge = close_charge = reclaim_stale_charges = None
 
@@ -1104,6 +1106,15 @@ def _login_blocked(key: str) -> bool:
             _login_fail[ip_key] = ihits
         return len(hits) >= _LOGIN_MAX or len(ehits) >= _LOGIN_MAX_PER_EMAIL or len(ihits) >= _LOGIN_MAX_PER_IP
 
+def _persist(kind: str, keys, t: float):
+    """เขียนตัวนับลง SQLite ด้วย — เดิมอยู่ในหน่วยความจำอย่างเดียว เซิร์ฟเวอร์รีสตาร์ท (deploy / Render พักเครื่อง)
+    แล้วนับใหม่จากศูนย์ บอทเดารหัสจึงรอจังหวะรีสตาร์ทแล้วเดาต่อได้ · ฐานข้อมูลพังก็ยังกันได้จากหน่วยความจำ"""
+    if throttle_add:
+        try:
+            throttle_add(kind, keys, t)
+        except Exception as e:
+            print(f"⚠ throttle persist: {e}")
+
 def _login_failed(key: str):
     with _login_lock:
         now = time.time()
@@ -1114,6 +1125,7 @@ def _login_failed(key: str):
         ip_key = _ip_key(key)
         if ip_key:
             _login_fail.setdefault(ip_key, []).append(now)
+    _persist("login", [key, email_key, ip_key], now)
 
 # สมัครสำเร็จได้ไม่เกิน 5 บัญชี / IP / วัน — เดิมนับเฉพาะที่สมัครไม่สำเร็จ สคริปต์สร้างบัญชีได้ไม่จำกัด
 # (แต่ละบัญชีได้เครดิตต้อนรับ 10 + โควตาฟรีรายวันของตัวเอง = ใช้ AI ฟรีไม่จำกัด)
@@ -1129,8 +1141,10 @@ def _reg_quota_left(ip: str) -> bool:
         return len(hits) < _REG_OK_MAX
 
 def _reg_succeeded(ip: str):
+    now = time.time()
     with _login_lock:
-        _reg_ok.setdefault(ip, []).append(time.time())
+        _reg_ok.setdefault(ip, []).append(now)
+    _persist("reg", [ip], now)
 
 _EMAIL_RE = __import__("re").compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -1482,7 +1496,24 @@ def _rate_check(identity: str) -> bool:
             return False
         hits.append(now)
         _rate_bucket[identity] = hits
-        return True
+    _persist("rate", [identity], now)
+    return True
+
+
+def _restore_throttles():
+    """ตอนเปิดเซิร์ฟเวอร์: โหลดเหตุการณ์ที่ยังอยู่ในหน้าต่างเวลากลับเข้าหน่วยความจำ"""
+    if not throttle_load:
+        return
+    now = time.time()
+    for kind, store, window in (("login", _login_fail, _LOGIN_WINDOW), ("reg", _reg_ok, _REG_OK_WINDOW),
+                                ("rate", _rate_bucket, _RATE_LIMIT_WINDOW)):
+        try:
+            for k, t in throttle_load(kind, now - window):
+                store.setdefault(k, []).append(t)
+        except Exception as e:
+            print(f"⚠ throttle restore ({kind}): {e}")
+
+_restore_throttles()
 
 
 # ══════════════════════════════════════════════════════════════════
