@@ -1442,6 +1442,34 @@ async def twofa_enable_route(request: Request, data: dict):
     return r
 
 
+@app.post("/api/2fa/recovery")
+async def twofa_new_recovery(request: Request, data: dict):
+    """สร้างรหัสกู้คืนชุดใหม่ (ชุดเก่าใช้ไม่ได้ทันที) — ต้องใช้รหัสจากแอปเท่านั้น
+    ไม่รับรหัสกู้คืน: คนที่ได้รหัสกู้คืนที่หลุดไปจะเอามาสร้างชุดใหม่ยึดบัญชีไม่ได้"""
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    key = f"{_client_ip(request)}|{email}"
+    if _login_blocked(key):
+        return JSONResponse({"error": "ลองหลายครั้งแล้ว พักสัก 10 นาทีนะคะ"}, status_code=429)
+    from DATABASE.db import twofa_get, twofa_mark_step, twofa_replace_recovery
+
+    def _ok():
+        d = twofa_get(email)
+        if not d or not d["enabled"]:
+            return False
+        secret = _totp.unseal(d["secret"], _SECRET_KEY)
+        st = _totp.verify(secret, str(data.get("code") or ""), d["last_step"]) if secret else None
+        return st is not None and twofa_mark_step(email, st)
+    if not await run_in_threadpool(_ok):
+        _login_failed(key)
+        return JSONResponse({"error": "รหัสยังไม่ตรงค่ะ ใช้รหัส 6 หลักล่าสุดจากแอปนะคะ (รหัสกู้คืนใช้ตรงนี้ไม่ได้)"}, status_code=400)
+    codes = _totp.new_recovery_codes()
+    if not twofa_replace_recovery(email, [_totp.hash_recovery(c) for c in codes]):
+        return JSONResponse({"error": "ยังไม่ได้เปิดการยืนยันสองชั้นค่ะ"}, status_code=409)
+    return {"recovery_codes": codes}
+
+
 @app.post("/api/2fa/disable")
 async def twofa_disable_route(request: Request, data: dict):
     """ปิด 2FA ต้องกรอกรหัสจากแอปหรือรหัสกู้คืน — คนที่แค่ยืมเครื่องที่ล็อกอินค้างไว้ปิดไม่ได้"""

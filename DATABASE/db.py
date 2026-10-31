@@ -247,6 +247,17 @@ def twofa_enable(email: str, recovery_hashes: list, step: int) -> bool:
     finally:
         conn.close()
 
+def twofa_replace_recovery(email: str, recovery_hashes: list) -> bool:
+    """แทนรหัสกู้คืนทั้งชุด — ชุดเก่าใช้ไม่ได้ทันที (เฉพาะบัญชีที่เปิด 2FA อยู่)"""
+    conn = get_conn()
+    try:
+        cur = conn.execute("UPDATE user_2fa SET recovery = ?, updated_at = CURRENT_TIMESTAMP WHERE email = ? AND enabled = 1",
+                           (json.dumps(recovery_hashes), email))
+        conn.commit()
+        return cur.rowcount == 1
+    finally:
+        conn.close()
+
 def twofa_mark_step(email: str, step: int) -> bool:
     """บันทึกว่ารหัสช่วงนี้ใช้แล้ว — คืน False ถ้ามีคนใช้ช่วงนี้ (หรือใหม่กว่า) ไปก่อน กันใช้รหัสซ้ำแม้ยิงพร้อมกัน"""
     conn = get_conn()
