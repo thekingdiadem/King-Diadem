@@ -342,14 +342,14 @@ html.bb-on,html.bb-on body{overflow:hidden}
 <!-- HERO -->
 <section id="hero">
   <div class="earth-ctl" role="group" aria-label="มุมมองโลก">
-    <button type="button" id="ec-globe" aria-pressed="false" onclick="KD_toggleGlobe()">ทั้งโลก</button>
-    <button type="button" onclick="KD_earth&&KD_earth.pole(true);KD_markGlobe(true)">ขั้วโลกเหนือ</button>
-    <button type="button" onclick="KD_earth&&KD_earth.pole(false);KD_markGlobe(true)">ขั้วโลกใต้</button>
-    <button type="button" class="ec-z" aria-label="ซูมเข้า" onclick="KD_earth&&KD_earth.zoomIn()">+</button>
-    <button type="button" class="ec-z" aria-label="ซูมออก" onclick="KD_earth&&KD_earth.zoomOut()">−</button>
-    <button type="button" id="ec-day" aria-pressed="false" onclick="KD_toggleDay()">กลางวัน</button>
-    <button type="button" id="ec-calm" aria-pressed="false" onclick="KD_toggleCalm()">ลดการเคลื่อนไหว</button>
-    <button type="button" id="ec-bang" onclick="window.KD_bigBang&&KD_bigBang()">บิ๊กแบง</button>
+    <button type="button" id="ec-globe" aria-pressed="false" data-act="globe">ทั้งโลก</button>
+    <button type="button" data-act="north">ขั้วโลกเหนือ</button>
+    <button type="button" data-act="south">ขั้วโลกใต้</button>
+    <button type="button" class="ec-z" aria-label="ซูมเข้า" data-act="zin">+</button>
+    <button type="button" class="ec-z" aria-label="ซูมออก" data-act="zout">−</button>
+    <button type="button" id="ec-day" aria-pressed="false" data-act="day">กลางวัน</button>
+    <button type="button" id="ec-calm" aria-pressed="false" data-act="calm">ลดการเคลื่อนไหว</button>
+    <button type="button" id="ec-bang" data-act="bang">บิ๊กแบง</button>
   </div>
   <div class="cockpit" aria-hidden="true">
     <canvas id="cockpit-earth" role="img" aria-label="โลกตอนกลางคืนจากอวกาศ ลากเพื่อเลื่อน ถ่างนิ้วหรือกดบวกลบเพื่อซูม แตะสองครั้งเพื่อบินไปจุดนั้น ใช้ลูกศรบนคีย์บอร์ดได้"></canvas>
@@ -365,7 +365,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
       <span>Choice(t) ≥ 1</span> → collapse = False
     </div>
     <p class="hero-desc">ตราบใดที่ยังมีทางเลือกอย่างน้อย 1 ทาง ระบบจะยังไม่ถือว่า "พัง"</p>
-    <div class="scroll-hint" onclick="document.getElementById('content').scrollIntoView({behavior:'smooth'})">↓ เลื่อนลง ↓</div>
+    <div class="scroll-hint" data-act="scroll">↓ เลื่อนลง ↓</div>
   </div>
 </section>
 
@@ -513,31 +513,31 @@ html.bb-on,html.bb-on body{overflow:hidden}
     <div class="slider-group">
       <div class="slider-item">
         <label for="sl-entropy"><span class="sl-name">ENTROPY (<span class="th-run">ความวุ่นวาย</span>)</span> <span id="e-val">50</span></label>
-        <input type="range" id="sl-entropy" min="0" max="100" value="50" oninput="document.getElementById('e-val').textContent=this.value">
+        <input type="range" id="sl-entropy" min="0" max="100" value="50" data-out="e-val">
       </div>
       <div class="slider-item">
         <label for="sl-resource"><span class="sl-name">RESOURCE (<span class="th-run">ทรัพยากรที่มี</span>)</span> <span id="r-val">50</span></label>
-        <input type="range" id="sl-resource" min="0" max="100" value="50" oninput="document.getElementById('r-val').textContent=this.value">
+        <input type="range" id="sl-resource" min="0" max="100" value="50" data-out="r-val">
       </div>
       <div class="slider-item">
         <label for="sl-time"><span class="sl-name">TIME PRESSURE (<span class="th-run">แรงกดดันเวลา</span>)</span> <span id="t-val">30</span></label>
-        <input type="range" id="sl-time" min="0" max="100" value="30" oninput="document.getElementById('t-val').textContent=this.value">
+        <input type="range" id="sl-time" min="0" max="100" value="30" data-out="t-val">
       </div>
       <div class="slider-item">
         <label for="sl-network"><span class="sl-name">NETWORK (<span class="th-run">คนที่ช่วยได้</span>)</span> <span id="n-val">3</span></label>
-        <input type="range" id="sl-network" min="0" max="10" value="3" oninput="document.getElementById('n-val').textContent=this.value">
+        <input type="range" id="sl-network" min="0" max="10" value="3" data-out="n-val">
       </div>
     </div>
 
     <div class="try-row">
-      <button type="button" class="try-chip" onclick="tryText('แม่หายใจบ่ได้')">แม่หายใจบ่ได้ <small>อีสาน</small></button>
-      <button type="button" class="try-chip" onclick="tryText('มีคนโทรมาบอกว่าเป็นตำรวจ ให้โอนเงินเข้าบัญชีปลอดภัย')">ตำรวจให้โอนเงิน <small>มิจฉาชีพ</small></button>
-      <button type="button" class="try-chip" onclick="tryText('ไม่อยากตายค่ะ แค่เหนื่อย')">ไม่อยากตาย แค่เหนื่อย</button>
-      <button type="button" class="try-chip" onclick="tryText('အမေ အသက်မရှူနိုင်ဘူး')">အမေ အသက်မရှူ <small>พม่า</small></button>
-      <button type="button" class="try-chip" onclick="tryText('mẹ tôi không thở được')">mẹ tôi không thở <small>เวียดนาม</small></button>
-      <button type="button" class="try-chip" onclick="tryText('อยากเปลี่ยนงานแต่กลัวไม่มีเงินเก็บ')">อยากเปลี่ยนงาน</button>
+      <button type="button" class="try-chip" data-try="แม่หายใจบ่ได้">แม่หายใจบ่ได้ <small>อีสาน</small></button>
+      <button type="button" class="try-chip" data-try="มีคนโทรมาบอกว่าเป็นตำรวจ ให้โอนเงินเข้าบัญชีปลอดภัย">ตำรวจให้โอนเงิน <small>มิจฉาชีพ</small></button>
+      <button type="button" class="try-chip" data-try="ไม่อยากตายค่ะ แค่เหนื่อย">ไม่อยากตาย แค่เหนื่อย</button>
+      <button type="button" class="try-chip" data-try="အမေ အသက်မရှူနိုင်ဘူး">အမေ အသက်မရှူ <small>พม่า</small></button>
+      <button type="button" class="try-chip" data-try="mẹ tôi không thở được">mẹ tôi không thở <small>เวียดนาม</small></button>
+      <button type="button" class="try-chip" data-try="อยากเปลี่ยนงานแต่กลัวไม่มีเงินเก็บ">อยากเปลี่ยนงาน</button>
     </div>
-    <button class="sim-btn" id="sim-btn" onclick="runSimulation()">◈ วิเคราะห์เจตนาและสร้าง Path</button>
+    <button class="sim-btn" id="sim-btn" data-act="sim">◈ วิเคราะห์เจตนาและสร้าง Path</button>
 
     <div id="sim-result">
       <div class="live-tag" id="live-tag" aria-live="polite"></div>
@@ -836,6 +836,27 @@ function KD_toggleDay(){var h=document.documentElement,on=!h.classList.contains(
   try{localStorage.setItem('kd-day',on?'1':'0')}catch(e){}
   document.getElementById('ec-day').setAttribute('aria-pressed',on?'true':'false');window.dispatchEvent(new Event('kd-theme'));}
 (function(){var b=document.getElementById('ec-day');if(b&&document.documentElement.classList.contains('kd-day'))b.setAttribute('aria-pressed','true');})();
+/* ปุ่มและแถบเลื่อนผูกด้วย addEventListener — CSP ไม่อนุญาต handler ที่เขียนในแท็ก HTML แล้ว
+   (กันสคริปต์แปลกปลอมที่อาจหลุดเข้ามาในหน้า) */
+(function(){
+  var E = function(){ return window.KD_earth; }, ACT = {
+    globe: function(){ KD_toggleGlobe(); },
+    north: function(){ if(E()) E().pole(true); KD_markGlobe(true); },
+    south: function(){ if(E()) E().pole(false); KD_markGlobe(true); },
+    zin: function(){ if(E()) E().zoomIn(); }, zout: function(){ if(E()) E().zoomOut(); },
+    day: function(){ KD_toggleDay(); }, calm: function(){ KD_toggleCalm(); },
+    bang: function(){ if(window.KD_bigBang) KD_bigBang(); },
+    scroll: function(){ document.getElementById('content').scrollIntoView({behavior:'smooth'}); },
+    sim: function(){ runSimulation(); }
+  };
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('[data-act]'); if(a && ACT[a.dataset.act]) { ACT[a.dataset.act](); return; }
+    var t = e.target.closest('[data-try]'); if(t) tryText(t.dataset.try);
+  });
+  document.querySelectorAll('input[type=range][data-out]').forEach(function(r){
+    r.addEventListener('input', function(){ document.getElementById(r.dataset.out).textContent = r.value; });
+  });
+})();
 function tryText(t){var el=document.getElementById('intent-text');el.value=t;runSimulation();
   document.getElementById('simulator').scrollIntoView({behavior:'smooth',block:'start'});}
 

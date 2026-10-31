@@ -87,7 +87,7 @@
         <input id="confirm" type="password" placeholder="••••••••" autocomplete="new-password">
       </div>
 
-      <button class="submit-btn" onclick="register()">
+      <button class="submit-btn" id="register-btn">
         <span class="btn-text">INITIALIZE ACCESS</span>
       </button>
 
@@ -193,6 +193,8 @@ document.querySelector('.google-btn')?.addEventListener('touchend', function(e){
 document.addEventListener('keydown', function(e){
   if(e.key === 'Enter') register();
 });
+/* ผูกปุ่มด้วย addEventListener — CSP ไม่อนุญาต handler ที่เขียนในแท็ก HTML แล้ว (กันสคริปต์แปลกปลอม) */
+document.getElementById('register-btn').addEventListener('click', function(){ register(); });
 </script>
 <script src="/static/cinema_sky.js" defer></script>
 </body>

@@ -20,7 +20,8 @@ def test_page_has_overlay_skip_and_replay():
     assert '<script src="/static/big_bang_gl.js"></script>\n<script src="/static/big_bang.js"></script>' in PAGE
     assert 'id="big-bang" role="dialog" aria-modal="true"' in PAGE and "hidden>" in PAGE
     assert 'id="bb-skip">ข้าม ›</button>' in PAGE
-    assert 'id="ec-bang" onclick="window.KD_bigBang&&KD_bigBang()">บิ๊กแบง</button>' in PAGE
+    assert 'id="ec-bang" data-act="bang">บิ๊กแบง</button>' in PAGE
+    assert "bang: function(){ if(window.KD_bigBang) KD_bigBang(); }" in PAGE
     assert 'id="bb-cap" aria-live="polite"' in PAGE
 
 
