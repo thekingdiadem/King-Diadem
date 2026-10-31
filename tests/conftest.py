@@ -23,6 +23,7 @@ os.environ.update({
     "STRIPE_WEBHOOK_SECRET": "whsec_test",
     "STRIPE_PRICE_ID": "price_basic",
     "STRIPE_PREMIUM_PRICE_ID": "price_prem",
+    "KD_BACKUP": "0",                # ไม่เปิดเธรดสำรองฐานข้อมูลระหว่างเทสต์ (tests/test_db_backup.py ทดสอบเอง)
 })
 os.environ.pop("KD_AI", None)
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
