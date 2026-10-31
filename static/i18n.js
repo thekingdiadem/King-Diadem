@@ -433,6 +433,8 @@
     'จักรวาลไม่ได้หมุนรอบใคร แต่ทุกคนร่วมกันเป็นส่วนหนึ่งของทั้งจักรวาล': ['The universe revolves around no one, yet all of us together are part of the whole universe', '宇宙は誰の周りも回っていない。けれど私たちは皆、宇宙全体の一部'],
     '— ผู้ก่อตั้ง KING DIADEM': ['— Founder of KING DIADEM', '— KING DIADEM 創設者'],
     'อ่านจดหมายจากผู้ก่อตั้ง · COSMIC LATTE CANON →': ['Read the letter from the founder · COSMIC LATTE CANON →', '創設者からの手紙を読む · COSMIC LATTE CANON →'],
+    'สแกน QR นี้ด้วยแอป Authenticator ในมือถือ': ['Scan this QR code with the Authenticator app on your phone', 'スマホのAuthenticatorアプリでこのQRコードをスキャン'],
+    'ถ้ากำลังใช้มือถือเครื่องเดียวกัน แตะปุ่มนี้แทน': ['Using this same phone? Tap this button instead', 'このスマホで操作中なら、代わりにこのボタンをタップ'],
   };
   var LANGS = ['th', 'en', 'ja'], KEY = 'kd_lang', ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
   var REV = {};                                 // ข้อความที่แปลแล้ว → ไทย (สลับกลับได้โดยไม่ต้องโหลดหน้าใหม่)

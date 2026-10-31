@@ -59,6 +59,34 @@ def otpauth_uri(secret_b32: str, account: str) -> str:
     return f"otpauth://totp/{label}?secret={secret_b32}&issuer={quote(ISSUER)}&digits={DIGITS}&period={STEP}"
 
 
+def qr_svg(text: str):
+    """QR code เป็น SVG ล้วน (ไม่มีสคริปต์ ไม่มีรูปภายนอก) ให้สแกนจากจอคอมด้วยมือถือได้เลย
+    ใช้ไลบรารี qrcode (ไม่มี dependency อื่น) · ไม่มีไลบรารีก็คืน None แล้วหน้าเว็บใช้ลิงก์/กุญแจแทน"""
+    try:
+        import qrcode
+    except ImportError:
+        return None
+    q = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_M, border=4)
+    q.add_data(text)
+    q.make(fit=True)
+    m = q.get_matrix()
+    n = len(m)
+    runs = []
+    for y, row in enumerate(m):
+        x = 0
+        while x < n:
+            if row[x]:
+                s = x
+                while x < n and row[x]:
+                    x += 1
+                runs.append(f"M{s} {y}h{x - s}v1h-{x - s}z")
+            else:
+                x += 1
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {n} {n}" shape-rendering="crispEdges" '
+            f'role="img" aria-label="QR"><rect width="{n}" height="{n}" fill="#fff"/>'
+            f'<path fill="#111" d="{"".join(runs)}"/></svg>')
+
+
 # ── รหัสกู้คืน ────────────────────────────────────────────────────
 _ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"     # ไม่มี 0/O/1/I ที่อ่านสับสน
 

@@ -206,6 +206,10 @@ try:
     )
     init_db()
     print("✅ Database initialized")
+    # สำรองฐานข้อมูลวันละครั้ง (DATABASE/backup.py) — ปิดได้ด้วย KD_BACKUP=0 (เทสต์ปิดไว้)
+    if os.getenv("KD_BACKUP", "1") != "0":
+        from DATABASE.backup import start_scheduler as _backup_start
+        _backup_start()
 except Exception as e:
     print(f"⚠ DB: {e}")
     init_db = log_decision = get_credits = add_credits = None
@@ -793,6 +797,15 @@ async def ask_page():
 
 
 # ── HEALTH ────────────────────────────────────────────────────────
+def _backup_hours():
+    try:
+        from DATABASE.backup import last_backup_age
+        a = last_backup_age()
+        return None if a is None else round(a / 3600, 1)
+    except Exception:
+        return None
+
+
 @app.get("/health")
 def health():
     return {
@@ -815,6 +828,7 @@ def health():
         "stripe_webhook":     bool(os.getenv("STRIPE_WEBHOOK_SECRET")),
         "freedom_score":      freedom_index() if freedom_index else 0,
         "db_initialized":     init_db is not None,
+        "db_backup_hours":    _backup_hours(),     # ชั่วโมงนับจากสำรองล่าสุด (None = ยังไม่เคย) — เกิน ~24 แปลว่ามีปัญหา
         "feedback":           feedback_loop.stats() if feedback_loop else None,
         "load":               get_survival_stats() if get_survival_stats else None,
     }
@@ -1413,7 +1427,8 @@ async def twofa_setup(request: Request):
     secret = _totp.new_secret()
     if not twofa_set_pending(email, _totp.seal(secret, _SECRET_KEY)):
         return JSONResponse({"error": "เปิดการยืนยันสองชั้นไว้แล้วค่ะ"}, status_code=409)
-    return {"secret": secret, "uri": _totp.otpauth_uri(secret, email)}
+    uri = _totp.otpauth_uri(secret, email)
+    return {"secret": secret, "uri": uri, "qr": _totp.qr_svg(uri)}
 
 
 @app.post("/api/2fa/enable")
