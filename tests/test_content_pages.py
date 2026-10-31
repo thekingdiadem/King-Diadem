@@ -50,7 +50,7 @@ def test_small_text_is_readable():
     และหัวข้อภาษาไทยถูกยืดระยะตัวอักษรแบบภาษาอังกฤษ"""
     for page in (ASK, REPORT):
         assert "rgba(60,95,170,0.26)" not in page
-    assert "--tx-lo:  rgba(160,172,215,0.52);" in REPORT
+    assert "--tx-lo:  #a39d92;" in REPORT          # ชุดสี TIMELESS: สีทึบ คมกว่าพื้น ≥ 7:1
     assert ".kd-th { font-family: 'Noto Sans Thai Looped'" in CINEMA
     assert "font-family:var(--f-body);font-size:13px;letter-spacing:.01em;" in ASK      # label ของฟอร์ม
     assert "'<div class=\"sec-title kd-th\">แชร์ REPORT นี้</div>'" in REPORT
