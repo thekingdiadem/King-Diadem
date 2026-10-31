@@ -23,6 +23,10 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - name: pytest
         run: python -m pytest -q -p no:warnings
+      - name: pytest ผ่านไดรเวอร์ libsql (ตัวเดียวกับที่ต่อ Turso บนเว็บจริง — กันโค้ดใหม่ใช้ได้แค่กับ sqlite3)
+        env:
+          KD_DB_DRIVER: libsql
+        run: python -m pytest -q -p no:warnings -x
       - name: ชุดกวาดข้อความ (sweep_all — หลุดแม้ข้อเดียวก็ล้ม)
         env:
           KD_AI: "off"

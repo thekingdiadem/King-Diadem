@@ -7,6 +7,12 @@ import sqlite3, os, json, math, secrets
 DB_PATH = os.getenv("DB_PATH", "data/king_diadem.db")
 
 def get_conn():
+    """ใช้การเชื่อมต่อเดียวกับระบบหลัก (DATABASE/db.py) — ต่อ Turso บนคลาวด์เมื่อตั้ง TURSO_URL"""
+    try:
+        from DATABASE.db import get_conn as _db_conn
+        return _db_conn()
+    except ImportError:
+        pass
     d = os.path.dirname(DB_PATH)
     if d:
         os.makedirs(d, exist_ok=True)
