@@ -80,6 +80,15 @@
         <a href="/static/register.html">ยังไม่มีบัญชี? สมัครด้วยอีเมล</a>
       </form>
 
+      <!-- ขั้นที่สอง: รหัสจากแอป Authenticator (บัญชีที่เปิด 2FA) -->
+      <form class="email-form" id="twofa" autocomplete="off">
+        <p class="twofa-hint">ยืนยันสองชั้น · เปิดแอป Authenticator แล้วกรอกรหัส 6 หลัก</p>
+        <input id="twofa-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="11" aria-label="รหัส 6 หลักจากแอป Authenticator" placeholder="123456" required>
+        <div class="email-msg" id="twofa-msg" role="status"></div>
+        <button type="submit" id="twofa-btn">ยืนยัน</button>
+        <p class="twofa-hint small">ทำมือถือหาย? ใส่รหัสกู้คืน (เช่น ABCDE-FGH23) แทนได้ ใช้ได้ชุดละครั้ง</p>
+      </form>
+
       <!-- footer -->
       <div class="footer">
         <div class="footer-text">DRIFTZERO © 2026–3026</div>
@@ -105,8 +114,36 @@
       var res = await fetch('/login', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ email: document.getElementById('login-email').value.trim(), password: document.getElementById('login-password').value }) });
       var data = {}; try{ data = await res.json(); }catch(_){}
+      if(res.ok && data.status === '2fa_required'){ show2fa(); btn.disabled = false; return; }
       if(res.ok){ msg.className = 'email-msg ok'; msg.textContent = '✓ เข้าสู่ระบบแล้ว'; location.href = '/'; return; }
       msg.textContent = '⚠ ' + (data.message || 'เข้าสู่ระบบไม่สำเร็จ');
+    }catch(_){ msg.textContent = '⚠ เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง'; }
+    btn.disabled = false;
+  });
+})();
+
+/* ── ขั้นที่สอง (2FA): หลังรหัสผ่านถูก หรือกลับมาจาก Google (?step=2fa) ── */
+function show2fa(){
+  document.getElementById('email').classList.remove('on');
+  var f = document.getElementById('twofa'); f.classList.add('on');
+  document.getElementById('twofa-code').focus();
+}
+(function(){
+  var f = document.getElementById('twofa'), msg = document.getElementById('twofa-msg');
+  if(new URLSearchParams(location.search).get('step') === '2fa') show2fa();
+  f.addEventListener('submit', async function(e){
+    e.preventDefault();
+    var btn = document.getElementById('twofa-btn'); btn.disabled = true; msg.className = 'email-msg'; msg.textContent = '';
+    try{
+      var res = await fetch('/login/2fa', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ code: document.getElementById('twofa-code').value.trim() }) });
+      var data = {}; try{ data = await res.json(); }catch(_){}
+      if(res.ok){
+        msg.className = 'email-msg ok';
+        msg.textContent = data.used_recovery ? '✓ เข้าแล้ว — ใช้รหัสกู้คืนไป 1 ชุด ตั้งค่า 2FA ใหม่ในแอปได้ที่เมนูเครื่องมือ' : '✓ เข้าสู่ระบบแล้ว';
+        setTimeout(function(){ location.href = '/'; }, data.used_recovery ? 2200 : 300); return;
+      }
+      msg.textContent = '⚠ ' + (data.message || 'ยืนยันไม่สำเร็จ');
     }catch(_){ msg.textContent = '⚠ เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง'; }
     btn.disabled = false;
   });

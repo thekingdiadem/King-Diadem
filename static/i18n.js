@@ -62,6 +62,7 @@
     'ยังรับมือได้': ['Manageable', '対応できる'],
     'ลดการเคลื่อนไหว': ['Reduce motion', '動きを減らす'],
     'ฮาโลวีน': ['Halloween', 'ハロウィン'],
+    'การยืนยันสองชั้น': ['Two-step verification', '2段階認証'],
     'ควรระวัง': ['Take care', '注意'],
     'ต้องดูแลด่วน': ['Needs care now', 'すぐに対応を'],
     'ยังมีทางไปต่อไหม': ['Is there still a way forward', 'まだ道はある？'],

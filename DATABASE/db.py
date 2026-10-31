@@ -139,6 +139,16 @@ def init_db():
             t REAL NOT NULL
         );
         CREATE INDEX IF NOT EXISTS idx_throttle_kind_t ON throttle_events (kind, t);
+        -- การยืนยันสองชั้น (TOTP) — secret เข้ารหัสแล้ว (core/totp.seal) · recovery เก็บเป็น hash (JSON list)
+        -- enabled = 0 คือกำลังตั้งค่า (สแกนแล้วแต่ยังไม่ได้กรอกรหัสยืนยัน) · last_step กันใช้รหัสเดิมซ้ำ
+        CREATE TABLE IF NOT EXISTS user_2fa (
+            email TEXT PRIMARY KEY,
+            secret TEXT NOT NULL,
+            enabled INTEGER NOT NULL DEFAULT 0,
+            last_step INTEGER NOT NULL DEFAULT -1,
+            recovery TEXT NOT NULL DEFAULT '[]',
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
     """)
     conn.commit()
     try:
@@ -195,6 +205,80 @@ def throttle_load(kind: str, since: float) -> list:
     try:
         rows = conn.execute("SELECT k, t FROM throttle_events WHERE kind = ? AND t >= ? ORDER BY t", (kind, since)).fetchall()
         return [(r["k"], r["t"]) for r in rows]
+    finally:
+        conn.close()
+
+# ── การยืนยันสองชั้น (2FA) ───────────────────────────────────────
+def twofa_get(email: str):
+    conn = get_conn()
+    try:
+        r = conn.execute("SELECT secret, enabled, last_step, recovery FROM user_2fa WHERE email = ?", (email,)).fetchone()
+        if not r:
+            return None
+        return {"secret": r["secret"], "enabled": bool(r["enabled"]), "last_step": int(r["last_step"]),
+                "recovery": json.loads(r["recovery"] or "[]")}
+    finally:
+        conn.close()
+
+def twofa_enabled(email: str) -> bool:
+    d = twofa_get(email)
+    return bool(d and d["enabled"])
+
+def twofa_set_pending(email: str, sealed_secret: str) -> bool:
+    """เริ่มตั้งค่าใหม่ — ทับของที่ยังไม่ได้เปิดใช้ได้ แต่ไม่ทับของที่เปิดใช้อยู่แล้ว"""
+    conn = get_conn()
+    try:
+        cur = conn.execute(
+            "INSERT INTO user_2fa (email, secret, enabled) VALUES (?, ?, 0) "
+            "ON CONFLICT(email) DO UPDATE SET secret = excluded.secret, last_step = -1, recovery = '[]', "
+            "updated_at = CURRENT_TIMESTAMP WHERE user_2fa.enabled = 0", (email, sealed_secret))
+        conn.commit()
+        return cur.rowcount == 1
+    finally:
+        conn.close()
+
+def twofa_enable(email: str, recovery_hashes: list, step: int) -> bool:
+    conn = get_conn()
+    try:
+        cur = conn.execute("UPDATE user_2fa SET enabled = 1, last_step = ?, recovery = ?, updated_at = CURRENT_TIMESTAMP "
+                           "WHERE email = ? AND enabled = 0", (step, json.dumps(recovery_hashes), email))
+        conn.commit()
+        return cur.rowcount == 1
+    finally:
+        conn.close()
+
+def twofa_mark_step(email: str, step: int) -> bool:
+    """บันทึกว่ารหัสช่วงนี้ใช้แล้ว — คืน False ถ้ามีคนใช้ช่วงนี้ (หรือใหม่กว่า) ไปก่อน กันใช้รหัสซ้ำแม้ยิงพร้อมกัน"""
+    conn = get_conn()
+    try:
+        cur = conn.execute("UPDATE user_2fa SET last_step = ? WHERE email = ? AND last_step < ?", (step, email, step))
+        conn.commit()
+        return cur.rowcount == 1
+    finally:
+        conn.close()
+
+def twofa_use_recovery(email: str, code_hash: str) -> bool:
+    """ใช้รหัสกู้คืนหนึ่งชุด (ลบออกทันที ใช้ได้ครั้งเดียว)"""
+    conn = get_conn()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        r = conn.execute("SELECT recovery FROM user_2fa WHERE email = ? AND enabled = 1", (email,)).fetchone()
+        codes = json.loads(r["recovery"] or "[]") if r else []
+        if code_hash not in codes:
+            conn.rollback()
+            return False
+        codes.remove(code_hash)
+        conn.execute("UPDATE user_2fa SET recovery = ? WHERE email = ?", (json.dumps(codes), email))
+        conn.commit()
+        return True
+    finally:
+        conn.close()
+
+def twofa_disable(email: str):
+    conn = get_conn()
+    try:
+        conn.execute("DELETE FROM user_2fa WHERE email = ?", (email,))
+        conn.commit()
     finally:
         conn.close()
 
