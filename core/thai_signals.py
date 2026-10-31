@@ -392,6 +392,21 @@ SCAM_VEILED_JOB = re.compile(
     r"(?:a |an )?(?:deposit|fee|payment|upfront payment)\b(?![^\n]{0,20}?\b(?:back|refund)\b)", re.I)
 
 
+# หลอกซ้ำ (recovery scam): คนที่เพิ่งโดนโกงถูกทักว่า "ช่วยตามเงินคืนได้" แล้วเรียกเงินก่อน
+# เดิม "ทนายติดต่อมาจะช่วยเอาเงินคืน ขอค่าธรรมเนียมก่อน" ได้ Risk 0 — เป็นการหลอก 100% (ไลล่า: One-Line Audit Truth)
+_RECOVER = (r"(?:ตาม|เอา|กู้|ดึง|เรียก|ทวง)(?:เงิน)?(?:ที่\S{0,12})?คืน|ได้(?:เงิน)?คืน\s*100|คืน(?:เงิน)?\s*100\s*%|"
+            r"(?i:\b(?:recover(?:y)?|get (?:back|my \S+ back)|retrieve|reclaim)\b[^\n]{0,30}?\b(?:money|funds|crypto|bitcoin|usdt|savings|scammed|lost)\b|"
+            r"\b(?:fund|funds|asset|crypto) recovery\b|\brecovery (?:agent|service|expert|company|team|hacker)\b)")
+_RECOVER_WHO = (r"แฮ(?:ก|็ก)เกอร์|ทนาย|เพจ|ทีม|บริษัท|หน่วยงาน|เจ้าหน้าที่|ผู้เชี่ยวชาญ|สำนักงาน|มูลนิธิ|ศูนย์|"
+                r"(?i:\b(?:hacker|lawyer|agent|agency|company|expert|team|firm|service|someone)\b)")
+_RECOVER_FEE = (r"ค่า(?:ดำเนินการ|ธรรมเนียม|มัดจำ|ทนาย|เอกสาร|ภาษี|ปลดล็อก|ยืนยัน)|จ่าย(?:เงิน)?ก่อน|โอน(?:เงิน)?ก่อน|มัดจำ|"
+                r"(?i:\b(?:fee|upfront|deposit|advance|pay first|payment first|retainer)\b)")
+SCAM_RECOVERY = re.compile(
+    r"(?=[\s\S]*(?:" + _RECOVER + r"))(?=[\s\S]*(?:" + _RECOVER_WHO + r"|" + _RECOVER_FEE + r"))", re.I)
+_RECOVER_FEE_RE = re.compile(_RECOVER_FEE, re.I)
+_RECOVER_WHO_RE = re.compile(_RECOVER_WHO, re.I)
+
+
 def scam_flags(text) -> list:
     """โครงสร้างของมิจฉาชีพ: แอบอ้าง + ติดต่อมา + ขอให้โอน/กดลิงก์/ให้ข้อมูล หรือเรื่องหลอก + ขอสิ่งเดียวกัน"""
     t = str(text or "")
@@ -405,6 +420,9 @@ def scam_flags(text) -> list:
         flags.append("story")
     if SCAM_LOST.search(t):
         flags.append("lost")
+    # มีคนเสนอตามเงินคืน + (อ้างตัว หรือเรียกค่าใช้จ่าย) — ต้องมีฝ่ายที่สาม/ค่าธรรมเนียม ไม่ใช่แค่ "อยากได้เงินคืน"
+    if SCAM_RECOVERY.match(t) and (_RECOVER_FEE_RE.search(t) or re.search(r"ติดต่อมา|ทักมา|โทรมา|บอกว่า|อ้าง|เสนอ|รับ(?:ตาม|ประกัน)|(?i:\b(?:contacted|messaged|reached out|offer(?:ed|s)?|claims?|says?)\b)", t)):
+        flags.append("recovery")
     if SCAM_JOB.search(t):              # งานหลอก/ค้ามนุษย์ (นิยามไว้ท้ายไฟล์)
         flags.append("job")
     if SCAM_ROMANCE.search(t):          # หลอกให้รัก/แอบอ้างเป็นเพื่อน
