@@ -38,7 +38,7 @@ def test_decorative_motion_does_not_drain_battery():
 
 def test_messages_focus_in_once():
     """ข้อความใหม่ดึงโฟกัสจากเบลอเป็นคม แต่ข้อความเก่าไม่ขยับซ้ำทุกครั้งที่วาดใหม่ (ตอนส่ง/ได้คำตอบ)"""
-    assert "var SEEN = Object.create(null);" in HTML
+    assert "var SEEN = Object.create(null), CHANT_TS = 0;" in HTML
     assert "if(!SEEN[k]){ SEEN[k] = 1;" in HTML
     assert ".m.enter{animation:kd-focus" in CSS
     assert "@keyframes kd-focus{from{opacity:0;transform:translateY(12px);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}" in CSS

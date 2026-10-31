@@ -92,3 +92,52 @@ def test_templates_keep_their_placeholders():
 
 def test_language_switch_redraws_scripted_text():
     assert "kd:lang" in JS and "addEventListener('kd:lang'" in PAGE
+
+
+def _page_thai(name):
+    html = (ROOT / "static" / name).read_text(encoding="utf-8")
+    found = set()
+
+    class P(HTMLParser):
+        skip = False
+
+        def handle_starttag(self, tag, attrs):
+            self.skip = tag in ("style", "script")
+            for k, v in attrs:
+                if k in ("title", "placeholder", "aria-label", "alt") and v and TH.search(v):
+                    found.add(v.strip())
+
+        def handle_endtag(self, tag):
+            self.skip = False
+
+        def handle_data(self, d):
+            if not self.skip and d.strip() and TH.search(d):
+                found.add(d.strip())
+
+    P().feed(html)
+    return html, found
+
+
+import pytest  # noqa: E402
+
+
+@pytest.mark.parametrize("name", ["login.html", "register.html", "wallet.html", "guide.html"])
+def test_other_pages_are_translated_too(name):
+    """หน้าเข้าสู่ระบบ · สมัคร · กระเป๋าเงิน · คู่มือ ต้องโหลดตัวแปลและมีคำแปลครบ
+    (ภาษาเลือกครั้งเดียวที่หน้าแรก จำไว้ในเครื่อง หน้าอื่นใช้ตาม)"""
+    html, found = _page_thai(name)
+    assert '<script src="/static/i18n.js" defer></script>' in html
+    missing = found - {th for th, _, _ in ENTRY.findall(JS)}
+    assert not missing, f"{name} ยังไม่มีคำแปล: {sorted(missing)}"
+
+
+@pytest.mark.parametrize("name", ["login.html", "register.html", "wallet.html"])
+def test_scripted_messages_on_other_pages_have_translations(name):
+    html = (ROOT / "static" / name).read_text(encoding="utf-8")
+    have = {th for th, _, _ in ENTRY.findall(JS)}
+    keys = set()
+    for call in re.finditer(r"_t\(((?:[^()]|\([^()]*\))*)\)", html):
+        for lit in re.findall(r"'((?:[^'\\]|\\.)*)'", call.group(1)):
+            if TH.search(lit):
+                keys.add(lit.strip())
+    assert not keys - have, sorted(keys - have)

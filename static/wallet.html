@@ -258,6 +258,8 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
 <script>
 (function(){
   var W = { min: 20, max: 10000, rate: 1 };
+  /* แปลข้อความที่ประกอบเอง (static/i18n.js) — ไม่มีคำแปลก็คืนภาษาไทย */
+  function _t(s, v){ var o = window.KD_I18N ? KD_I18N.t(s) : s; return v ? o.replace(/\{(\w+)\}/g, function(m, k){ return v[k] != null ? v[k] : m; }) : o; }
   var REASON = { run:'ใช้ตอบแชท', simulate:'จำลองอนาคต', analyze_image:'วิเคราะห์ภาพ', refund:'คืนเครดิต',
                  topup:'เติมเครดิต', stripe_plan:'แพ็กเกจ', grant:'เครดิตเริ่มต้น' };
   function $(id){ return document.getElementById(id); }
@@ -269,7 +271,7 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
   function setLoading(on, label){ var btn = $('topup-btn'); btn.disabled = on; btn.classList.toggle('busy', on); btn.textContent = on ? (label || 'กำลังดำเนินการ...') : 'เติมเครดิต'; }
   function preview(){
     var n = Number($('wallet-amount').value) || 0;
-    $('amount-label').textContent = 'จำนวนเงิน (บาท)' + (n >= W.min ? ' → ได้ ' + Math.floor(n / W.rate + 1e-9).toLocaleString() + ' เครดิต' : '');
+    $('amount-label').textContent = _t('จำนวนเงิน (บาท)') + (n >= W.min ? ' ' + _t('→ ได้ {n} เครดิต', {n: Math.floor(n / W.rate + 1e-9).toLocaleString()}) : '');
     document.querySelectorAll('.quick-btn').forEach(function(b){ b.classList.toggle('on', Number(b.dataset.v) === n); });
   }
 
@@ -297,7 +299,7 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
     try{
       var res = await fetch('/wallet/balance', { credentials: 'same-origin' });
       if(res.status === 401){
-        $('wallet-account').innerHTML = 'ยังไม่ได้เข้าสู่ระบบ — <a href="/static/login.html" style="color:var(--gold-hi)">เข้าสู่ระบบ</a> เพื่อเติมเครดิต';
+        $('wallet-account').innerHTML = _t('ยังไม่ได้เข้าสู่ระบบ — <a href="/static/login.html" style="color:var(--gold-hi)">เข้าสู่ระบบ</a> เพื่อเติมเครดิต');
         $('balance-sub').textContent = 'ฟรีวันละ 20 ข้อความโดยไม่ต้องเติม';
         $('topup-btn').disabled = true; return null;
       }
@@ -305,8 +307,8 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
       W.min = d.topup_min || W.min; W.max = d.topup_max || W.max; W.rate = d.thb_per_credit || W.rate;
       $('wallet-amount').min = W.min; $('wallet-amount').max = W.max;
       setBalance(Number(d.credits || 0));
-      $('wallet-account').textContent = d.email + (d.premium ? ' · PREMIUM (ไม่จำกัด)' : '');
-      $('balance-sub').textContent = 'ฟรีวันนี้เหลือ ' + d.free_left + '/' + d.free_limit + ' ข้อความ · เกินจากนั้นใช้ ' + (d.run_cost || 1) + ' เครดิต/ข้อความ · 1 เครดิต = ฿' + W.rate;
+      $('wallet-account').textContent = d.email + (d.premium ? ' · ' + _t('PREMIUM (ไม่จำกัด)') : '');
+      $('balance-sub').textContent = _t('ฟรีวันนี้เหลือ {a}/{b} ข้อความ · เกินจากนั้นใช้ {c} เครดิต/ข้อความ · 1 เครดิต = ฿{d}', {a: d.free_left, b: d.free_limit, c: d.run_cost || 1, d: W.rate});
       renderHistory(d.history);
       return d;
     } catch(_){ $('balance-sub').textContent = 'โหลดยอดไม่สำเร็จ — ลองรีเฟรช'; return null; }
@@ -315,16 +317,16 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
   window.topup = async function(){
     clearStatus();
     var amount = Math.floor(Number($('wallet-amount').value));
-    if(!amount || amount < W.min){ showStatus('⚠ ขั้นต่ำ ฿' + W.min, 'error'); return; }
-    if(amount > W.max){ showStatus('⚠ สูงสุดต่อครั้ง ฿' + W.max.toLocaleString(), 'error'); return; }
+    if(!amount || amount < W.min){ showStatus(_t('⚠ ขั้นต่ำ ฿{n}', {n: W.min}), 'error'); return; }
+    if(amount > W.max){ showStatus(_t('⚠ สูงสุดต่อครั้ง ฿{n}', {n: W.max.toLocaleString()}), 'error'); return; }
     setLoading(true);
     try{
       var res = await fetch('/wallet/topup', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ amount: amount }), credentials:'same-origin' });
       var d = {}; try{ d = await res.json(); }catch(_){}
-      if(!res.ok || !d.url) throw new Error(d.error || ('เติมเครดิตไม่สำเร็จ HTTP ' + res.status));
+      if(!res.ok || !d.url) throw new Error(d.error || _t('เติมเครดิตไม่สำเร็จ HTTP {n}', {n: res.status}));
       setLoading(true, 'กำลังไปหน้าชำระเงิน...');
       location.href = d.url;   // เครดิตเข้าเมื่อ Stripe ยืนยันการจ่ายเงิน (webhook)
-    } catch(e){ showStatus('⚠ ' + e.message, 'error'); setLoading(false); }
+    } catch(e){ showStatus('⚠ ' + _t(e.message), 'error'); setLoading(false); }
   };
 
   $('wallet-amount').addEventListener('input', preview);
@@ -338,6 +340,7 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
     }catch(e){ showStatus('เชื่อมต่อไม่ได้ ลองใหม่อีกครั้งนะคะ', 'error'); }
   };
   var flag = new URLSearchParams(location.search).get('topup');
+  document.addEventListener('kd:lang', function(){ load(); preview(); });     /* เปลี่ยนภาษาแล้ววาดข้อความที่มีตัวเลขใหม่ */
   load().then(function(d){
     if(flag === 'cancel') showStatus('ยกเลิกการชำระเงินแล้ว — ยังไม่มีการตัดเงิน', 'error');
     if(flag !== 'success' || !d) return;
@@ -347,7 +350,7 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
     (function poll(){
       setTimeout(async function(){
         var n = await load(); tries++;
-        if(n && n.credits !== start){ showStatus('✓ เติมเครดิตสำเร็จ · คงเหลือ ' + Number(n.credits).toLocaleString() + ' เครดิต', 'ok'); history.replaceState(null, '', location.pathname); }
+        if(n && n.credits !== start){ showStatus(_t('✓ เติมเครดิตสำเร็จ · คงเหลือ {n} เครดิต', {n: Number(n.credits).toLocaleString()}), 'ok'); history.replaceState(null, '', location.pathname); }
         else if(tries < 10) poll();
         else showStatus('ชำระเงินแล้ว แต่ยอดยังไม่อัปเดต — รีเฟรชอีกครั้งใน 1–2 นาที', 'error');
       }, 2000);
@@ -360,5 +363,6 @@ document.getElementById('topup-btn').addEventListener('click', function(){ topup
 document.getElementById('portal-btn').addEventListener('click', function(){ portal(); });
 </script>
 <script src="/static/cinema_sky.js" defer></script>
+<script src="/static/i18n.js" defer></script>
 </body>
 </html>
