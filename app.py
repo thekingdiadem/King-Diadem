@@ -1089,6 +1089,51 @@ def _session_email(request: Request, default: str = "") -> str:
         return default                      # ออกจากระบบไปแล้ว — คุกกี้ใบนี้หมดสิทธิ์
     return email
 
+
+# ── การยืนยันสองชั้น (2FA · TOTP) ─────────────────────────────────
+# ใส่รหัสผ่านถูก (หรือ Google ยืนยันแล้ว) แต่บัญชีเปิด 2FA → ยังไม่ให้คุกกี้ล็อกอิน ให้ "ตั๋ว" อายุ 5 นาทีแทน
+# ตั๋วอยู่ในคุกกี้ httponly สคริปต์ในหน้าอ่านไม่ได้ · กรอกรหัส 6 หลักถูกแล้วจึงได้คุกกี้จริง
+# เดารหัสนับรวมกับตัวกันเดารหัสผ่าน (8 ครั้ง/10 นาทีต่อ IP+อีเมล, 30 ครั้งต่ออีเมล) — 6 หลักจึงเดาไม่ทัน
+from core import totp as _totp
+_twofa_signer = URLSafeTimedSerializer(_SECRET_KEY, salt="kd-2fa-ticket-v1")
+_TWOFA_TICKET_AGE = 300
+
+def _twofa_on(email: str) -> bool:
+    try:
+        from DATABASE.db import twofa_enabled
+        return twofa_enabled(email)
+    except Exception as e:
+        print(f"⚠ 2fa lookup: {type(e).__name__}")
+        return False
+
+def _twofa_ticket(response, email: str, name: str):
+    t = _twofa_signer.dumps({"e": email, "n": name, "v": _sess_ver(email)})
+    response.set_cookie("kd_2fa", t, max_age=_TWOFA_TICKET_AGE, **_COOKIE_KW)
+
+def _twofa_ticket_read(request: Request):
+    try:
+        d = _twofa_signer.loads(request.cookies.get("kd_2fa") or "", max_age=_TWOFA_TICKET_AGE)
+    except BadSignature:
+        return None
+    if not isinstance(d, dict) or not d.get("e") or d.get("v") != _sess_ver(d["e"]):
+        return None
+    return d
+
+def _twofa_check(email: str, code: str):
+    """รหัสจากแอป (ใช้ได้ครั้งเดียว) หรือรหัสกู้คืน → "totp" / "recovery" / None"""
+    from DATABASE.db import twofa_get, twofa_mark_step, twofa_use_recovery
+    d = twofa_get(email)
+    if not d or not d["enabled"]:
+        return None
+    secret = _totp.unseal(d["secret"], _SECRET_KEY)
+    if secret:
+        st = _totp.verify(secret, code, d["last_step"])
+        if st is not None and twofa_mark_step(email, st):
+            return "totp"
+    if _totp.norm_recovery(code) and twofa_use_recovery(email, _totp.hash_recovery(code)):
+        return "recovery"
+    return None
+
 # จำกัดการเดารหัสผ่าน: 8 ครั้ง / 10 นาที ต่อ (IP, อีเมล)
 _login_lock = threading.Lock()
 _login_fail: dict = {}
@@ -1219,6 +1264,10 @@ async def google_callback(request: Request):
                         sess.pop(k, None)
         except Exception:
             pass
+        if _twofa_on(email):                                   # เปิด 2FA ไว้ → ต้องกรอกรหัสจากแอปก่อน
+            response = RedirectResponse("/static/login.html?step=2fa")
+            _twofa_ticket(response, email, name)
+            return response
         response = RedirectResponse("/")
         _set_auth_cookies(response, email, name)
         return response
@@ -1245,7 +1294,8 @@ async def me(request: Request):
     q       = _quota_status(email, request)
     return {"logged_in": True, "email": email, "name": name, "credits": credits,
             "premium": until > time.time(), "premium_until": int(until) if until else None,
-            "free_left": q["free_left"], "free_limit": q["free_limit"], "run_cost": RUN_COST}
+            "free_left": q["free_left"], "free_limit": q["free_limit"], "run_cost": RUN_COST,
+            "twofa": _twofa_on(email)}
 
 
 @app.post("/logout")
@@ -1258,7 +1308,7 @@ async def logout(request: Request):
         except Exception as e:
             print(f"⚠ logout: {type(e).__name__}")
     r = JSONResponse({"status": "ok"})
-    for k in ("kd_email", "kd_name"):          # ลบด้วยค่าเดียวกับตอนตั้ง (secure/samesite) — บางเบราว์เซอร์ไม่ลบถ้าไม่ตรง
+    for k in ("kd_email", "kd_name", "kd_2fa"):  # ลบด้วยค่าเดียวกับตอนตั้ง (secure/samesite) — บางเบราว์เซอร์ไม่ลบถ้าไม่ตรง
         r.delete_cookie(k, secure=True, httponly=True, samesite="lax")
     return r
 
@@ -1310,11 +1360,103 @@ async def login_email(request: Request, data: dict):
     if not email or not password or not verify_password or not await run_in_threadpool(verify_password, email, password):
         _login_failed(key)
         return JSONResponse({"status": "error", "message": "อีเมลหรือรหัสผ่านยังไม่ตรงค่ะ ลองอีกครั้งนะคะ"}, status_code=401)
+    name = _safe_name(data.get("name")) or email[:80]
+    if _twofa_on(email):
+        r = JSONResponse({"status": "2fa_required", "message": "กรอกรหัส 6 หลักจากแอป Authenticator ค่ะ"})
+        _twofa_ticket(r, email, name)
+        return r
     if ensure_user: ensure_user(email)
     credits = get_credits(email) if get_credits else 0
     r = JSONResponse({"status": "ok", "email": email, "credits": credits})
-    _set_auth_cookies(r, email, _safe_name(data.get("name")) or email[:80])
+    _set_auth_cookies(r, email, name)
     return r
+
+
+@app.post("/login/2fa")
+async def login_twofa(request: Request, data: dict):
+    """ขั้นที่สอง: รหัสจากแอป หรือรหัสกู้คืน (ใช้ตั๋วจาก /login หรือ Google)"""
+    t = _twofa_ticket_read(request)
+    if not t:
+        return JSONResponse({"status": "error", "message": "หมดเวลายืนยันแล้ว เข้าสู่ระบบใหม่อีกครั้งนะคะ"}, status_code=401)
+    email = t["e"]
+    key = f"{_client_ip(request)}|{email}"
+    if _login_blocked(key):
+        return JSONResponse({"status": "error", "message": "ลองหลายครั้งแล้ว พักสัก 10 นาทีแล้วค่อยลองใหม่นะคะ"}, status_code=429)
+    how = await run_in_threadpool(_twofa_check, email, str(data.get("code") or ""))
+    if not how:
+        _login_failed(key)
+        return JSONResponse({"status": "error", "message": "รหัสยังไม่ตรงค่ะ ดูรหัสล่าสุดในแอปแล้วลองอีกครั้งนะคะ"}, status_code=401)
+    if ensure_user: ensure_user(email)
+    r = JSONResponse({"status": "ok", "email": email, "used_recovery": how == "recovery"})
+    r.delete_cookie("kd_2fa", secure=True, httponly=True, samesite="lax")
+    _set_auth_cookies(r, email, _safe_name(t.get("n")) or email[:80])
+    return r
+
+
+@app.get("/api/2fa")
+async def twofa_status(request: Request):
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    from DATABASE.db import twofa_get
+    d = twofa_get(email)
+    return {"enabled": bool(d and d["enabled"]), "recovery_left": len(d["recovery"]) if d and d["enabled"] else 0}
+
+
+@app.post("/api/2fa/setup")
+async def twofa_setup(request: Request):
+    """เริ่มเปิด 2FA: สร้างกุญแจลับใหม่ (ยังไม่มีผลจนกว่าจะกรอกรหัสยืนยัน)"""
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    from DATABASE.db import twofa_set_pending
+    secret = _totp.new_secret()
+    if not twofa_set_pending(email, _totp.seal(secret, _SECRET_KEY)):
+        return JSONResponse({"error": "เปิดการยืนยันสองชั้นไว้แล้วค่ะ"}, status_code=409)
+    return {"secret": secret, "uri": _totp.otpauth_uri(secret, email)}
+
+
+@app.post("/api/2fa/enable")
+async def twofa_enable_route(request: Request, data: dict):
+    """กรอกรหัสแรกจากแอปเพื่อยืนยันว่าตั้งค่าถูก → เปิดใช้ + ได้รหัสกู้คืน 8 ชุด (แสดงครั้งเดียว)"""
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    key = f"{_client_ip(request)}|{email}"
+    if _login_blocked(key):
+        return JSONResponse({"error": "ลองหลายครั้งแล้ว พักสัก 10 นาทีนะคะ"}, status_code=429)
+    from DATABASE.db import twofa_get, twofa_enable, bump_session_version
+    d = twofa_get(email)
+    secret = _totp.unseal(d["secret"], _SECRET_KEY) if d and not d["enabled"] else None
+    st = _totp.verify(secret, str(data.get("code") or "")) if secret else None
+    if st is None:
+        _login_failed(key)
+        return JSONResponse({"error": "รหัสยังไม่ตรงค่ะ ตรวจว่าเวลาในมือถือตรง แล้วลองรหัสล่าสุดนะคะ"}, status_code=400)
+    codes = _totp.new_recovery_codes()
+    if not twofa_enable(email, [_totp.hash_recovery(c) for c in codes], st):
+        return JSONResponse({"error": "เปิดการยืนยันสองชั้นไว้แล้วค่ะ"}, status_code=409)
+    # ออกจากระบบทุกเครื่องอื่น (คุกกี้เก่าที่อาจถูกขโมยไปใช้ไม่ได้อีก) แต่เครื่องนี้ยังอยู่ต่อ
+    await run_in_threadpool(bump_session_version, email)
+    r = JSONResponse({"enabled": True, "recovery_codes": codes})
+    _set_auth_cookies(r, email, _safe_name(unquote(request.cookies.get("kd_name") or "")) or email[:80])
+    return r
+
+
+@app.post("/api/2fa/disable")
+async def twofa_disable_route(request: Request, data: dict):
+    """ปิด 2FA ต้องกรอกรหัสจากแอปหรือรหัสกู้คืน — คนที่แค่ยืมเครื่องที่ล็อกอินค้างไว้ปิดไม่ได้"""
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    key = f"{_client_ip(request)}|{email}"
+    if _login_blocked(key):
+        return JSONResponse({"error": "ลองหลายครั้งแล้ว พักสัก 10 นาทีนะคะ"}, status_code=429)
+    if not await run_in_threadpool(_twofa_check, email, str(data.get("code") or "")):
+        _login_failed(key)
+        return JSONResponse({"error": "รหัสยังไม่ตรงค่ะ"}, status_code=400)
+    from DATABASE.db import twofa_disable
+    twofa_disable(email)
+    return {"enabled": False}
 
 
 # ── CHAT STATE ────────────────────────────────────────────────────

@@ -147,3 +147,8 @@ body::after { content: ""; position: fixed; inset: -120px; z-index: 3; pointer-e
   .tagline { font-size: 13.5px; margin-bottom: 22px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ── ขั้นที่สอง (2FA) ในหน้าเข้าสู่ระบบ ── */
+.twofa-hint { margin: 0 0 4px; font-size: 13px; line-height: 1.6; color: rgba(214,224,255,.82); text-align: center; }
+.twofa-hint.small { margin-top: 6px; font-size: 12px; color: rgba(214,224,255,.6); }
+#twofa-code { letter-spacing: .3em; text-align: center; font-size: 20px; }
