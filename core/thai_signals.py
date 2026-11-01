@@ -407,6 +407,26 @@ _RECOVER_FEE_RE = re.compile(_RECOVER_FEE, re.I)
 _RECOVER_WHO_RE = re.compile(_RECOVER_WHO, re.I)
 
 
+# ภาษาที่หน้าเว็บรองรับ (เวียดนาม จีน ญี่ปุ่น เกาหลี สเปน) — เดิม "Công an gọi bảo chuyển tiền vào tài khoản an toàn"
+# (ตำรวจโทรมาให้โอนเงินเข้าบัญชีปลอดภัย) ได้ Risk 0 ไม่มีสัญญาณมิจฉาชีพเลย · ใช้โครงสร้างเดียวกับไทย: แอบอ้าง + ขอให้โอน/ให้รหัส
+_W_WHO = (r"công an|cảnh sát|viện kiểm sát|tòa án|ngân hàng|nhân viên ngân hàng|bưu điện|thuế|hải quan|"
+          r"警察|公安|检察|法院|银行|客服|快递|海关|税务|検察|裁判所|銀行|税務署|경찰|검찰|금융감독원|은행|법원|택배|"
+          r"polic[ií]a|guardia civil|fiscal[ií]a|juzgado|(?:del|el|mi) banco|hacienda|aduana")
+_W_ASK = (r"chuyển (?:tiền|khoản)|tài khoản an toàn|mã otp|\botp\b|bấm (?:vào )?link|nhấn (?:vào )?link|cài (?:đặt )?ứng dụng|cung cấp (?:mật khẩu|số tài khoản|cccd)|"
+          r"转账|汇款|安全账户|验证码|点击链接|下载\S{0,4}(?:APP|app|软件)|振り込|振込|安全な口座|認証コード|暗証番号|リンクをクリック|"
+          r"송금|이체|안전계좌|인증번호|링크를 눌|앱을 설치|"
+          r"transfi[ea]r|cuenta segura|c[oó]digo (?:de verificaci[oó]n|otp|sms)|haz clic en el enlace|instalar (?:una )?app")
+_W_STORY = (r"(?:trúng thưởng|trúng giải|中奖|当選|당첨|ganaste|has ganado|premio)[^\n]{0,40}?"
+            r"(?:phí|đóng tiền|nộp tiền|手续费|先付|税金|手数料|수수료|세금|pagar (?:una )?(?:tasa|comisi[oó]n|impuesto)|cuota)|"
+            r"(?:việc nhẹ lương cao|làm nhiệm vụ|刷单|高收入轻松|簡単に高収入|고수익 알바|trabajo f[aá]cil)[^\n]{0,40}?"
+            r"(?:đóng|nạp|chuyển|押金|先交|振り込|입금|pagar)")
+# ต้องมี "ติดต่อมา/บอกว่า" ด้วย — "chuyển tiền qua ngân hàng cho mẹ" (โอนเงินผ่านธนาคารให้แม่) ไม่ใช่การหลอก
+_W_CONTACT = (r"gọi|nhắn|tin nhắn|nói|bảo|tự xưng|xưng là|liên hệ|打电话|来电|短信|说|自称|让我|要我|電話|名乗|言われ|メッセージ|"
+              r"전화|문자|라며|라고|하래|llam[oó]|me escribi[oó]|mensaje|dice|dijo|me pide|me pidi[oó]")
+SCAM_WORLD_IMPERSONATE = re.compile(r"(?=[\s\S]*(?:" + _W_WHO + r"))(?=[\s\S]*(?:" + _W_ASK + r"))(?=[\s\S]*(?:" + _W_CONTACT + r"))", re.I)
+SCAM_WORLD_STORY = re.compile(_W_STORY, re.I)
+
+
 def scam_flags(text) -> list:
     """โครงสร้างของมิจฉาชีพ: แอบอ้าง + ติดต่อมา + ขอให้โอน/กดลิงก์/ให้ข้อมูล หรือเรื่องหลอก + ขอสิ่งเดียวกัน"""
     t = str(text or "")
@@ -417,6 +437,10 @@ def scam_flags(text) -> list:
     if (asks and SCAM_STORY.search(t)) or SCAM_PHISH.search(t):
         flags.append("story")
     if (SCAM_SCRIPT.search(t) or SCAM_SCRIPT_EN.search(t)) and "story" not in flags:
+        flags.append("story")
+    if SCAM_WORLD_IMPERSONATE.match(t) and "impersonation" not in flags:
+        flags.append("impersonation")
+    if SCAM_WORLD_STORY.search(t) and "story" not in flags:
         flags.append("story")
     if SCAM_LOST.search(t):
         flags.append("lost")
