@@ -13,7 +13,7 @@
 var CACHE = 'kd-v7';   // v7: โลโก้ใหม่ (ดาวในวงแหวน) — เครื่องที่ติดตั้งแอปไว้จะได้ไอคอนใหม่
 //   // v6: หน้าแรกแยกเป็น index.html + app.css + app.js   // v5: โลโก้มงกุฎใหม่ — เครื่องที่ติดตั้งแอปไว้จะได้ไอคอนใหม่
 var OFFLINE = '/static/offline.html';
-var PRECACHE = ['/', OFFLINE, '/static/manifest.json', '/static/icons/icon-192.png', '/static/icons/favicon-48.png', '/static/i18n.js', '/static/app.css', '/static/app.js'];
+var PRECACHE = ['/', OFFLINE, '/static/manifest.json', '/static/icons/icon-192.png', '/static/logo.svg', '/static/i18n.js', '/static/app.css', '/static/app.js'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(

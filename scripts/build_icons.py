@@ -1,13 +1,12 @@
-"""สร้างไอคอนแอปทุกขนาด + favicon + logo.png จากโลโก้ต้นฉบับ static/brand/logo-master.png
+"""สร้างไอคอนแอปทุกขนาด + favicon + logo.png จากโลโก้เวกเตอร์ static/logo.svg (ดาวในวงแหวน — คมทุกขนาด)
 และภาพแชร์ลิงก์ static/og.jpg จากภาพแบนเนอร์ (ถ้าให้มา)
 
 ใช้:  python scripts/build_icons.py [ภาพแบนเนอร์สำหรับ og.jpg]
-
-โลโก้ปัจจุบัน (ดาวในวงแหวน ฟ้า–ส้ม) เป็นภาพ ไม่ใช่เวกเตอร์ — ต้นฉบับเก็บไว้ 1024px โปร่งใส
-ส่วนสีขาว (ดาว ลูกศร) ทึบแล้ว: ไฟล์ PNG ที่ลบพื้นขาวทิ้งมักลบสีขาวในโลโก้ไปด้วยจนเป็นรู
+ต้องมี Pillow + Playwright/Chromium (เรนเดอร์ SVG ให้ตรงกับที่เบราว์เซอร์เห็น) · ระบุตัว Chromium ได้ด้วย CHROMIUM=/path
 ทุกไฟล์ที่สร้างเล็กกว่า 1MB (GitHub ไม่รับภาพเกิน 1MB ผ่านหน้าเว็บ)
-ต้องมีแค่ Pillow
 """
+import asyncio
+import io
 import os
 import sys
 
@@ -15,7 +14,7 @@ from PIL import Image, ImageFilter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC = os.path.join(ROOT, "static")
-MASTER = os.path.join(STATIC, "brand", "logo-master.png")
+SVG = os.path.join(STATIC, "logo.svg")
 BG_IN, BG_OUT = (20, 26, 64), (4, 5, 13)      # พื้นอวกาศ: กลางน้ำเงินลึก → ขอบดำเดียวกับธีมเว็บ
 # (ขนาด, สัดส่วนโลโก้ต่อกรอบ) · maskable: Android ตัดเป็นวงกลม/สี่เหลี่ยมมน ต้องอยู่ในวง 80% กลาง
 SIZES = {"icons/icon-512.png": (512, .92), "icons/icon-192.png": (192, .92),
@@ -30,28 +29,31 @@ def space(n):
     return Image.composite(Image.new("RGB", (n, n), BG_OUT), Image.new("RGB", (n, n), BG_IN), g).convert("RGBA")
 
 
-def fitted(logo, n, scale):
-    w = int(n * scale)
-    h = int(w * logo.height / logo.width)
-    small = logo.resize((w, h), Image.LANCZOS)
-    # ดาวคม: unsharp ตามขนาด แล้วคืน alpha เดิม (ไม่ให้ขอบโปร่งเป็นเส้นแข็ง)
-    sharp = small.convert("RGB").filter(ImageFilter.UnsharpMask(radius=max(.6, n / 512), percent=70, threshold=2)).convert("RGBA")
-    sharp.putalpha(small.getchannel("A"))
-    return sharp
+async def _render(sizes):
+    """เรนเดอร์ logo.svg แบบโปร่งใสตามขนาด → {px: Image}"""
+    from playwright.async_api import async_playwright
+    svg = open(SVG, encoding="utf-8").read().replace("<svg ", '<svg width="100%" height="100%" ', 1)
+    out = {}
+    async with async_playwright() as p:
+        b = await p.chromium.launch(executable_path=os.environ.get("CHROMIUM") or None)
+        for px in sorted(set(sizes)):
+            pg = await b.new_page(viewport={"width": px, "height": px})
+            await pg.set_content(f"<html><body style='margin:0;background:transparent'><div style='width:{px}px;height:{px}px'>{svg}</div></body></html>")
+            out[px] = Image.open(io.BytesIO(await pg.screenshot(omit_background=True))).convert("RGBA")
+            await pg.close()
+        await b.close()
+    return out
 
 
 def build():
-    logo = Image.open(MASTER).convert("RGBA")
-    for out, (n, scale) in SIZES.items():
+    inner = {out: int(n * scale) for out, (n, scale) in SIZES.items()}
+    art = asyncio.run(_render(list(inner.values()) + [256]))
+    for out, (n, _) in SIZES.items():
         im = space(n)
-        l = fitted(logo, n, scale)
+        l = art[inner[out]]
         im.alpha_composite(l, ((n - l.width) // 2, (n - l.height) // 2))
         im.convert("RGB").save(os.path.join(STATIC, out), optimize=True)
-    l = fitted(logo, 256, 1.0)
-    l.thumbnail((256, 256), Image.LANCZOS)
-    c = Image.new("RGBA", (256, 256))
-    c.alpha_composite(l, ((256 - l.width) // 2, (256 - l.height) // 2))
-    c.save(os.path.join(STATIC, "logo.png"), optimize=True)
+    art[256].save(os.path.join(STATIC, "logo.png"), optimize=True)
 
 
 def og(src):
@@ -69,6 +71,6 @@ if __name__ == "__main__":
     build()
     if len(sys.argv) > 1:
         og(sys.argv[1])
-    for f in list(SIZES) + ["logo.png", "og.jpg", "brand/logo-master.png"]:
+    for f in list(SIZES) + ["logo.png", "og.jpg", "logo.svg"]:
         path = os.path.join(STATIC, f)
-        print(f, Image.open(path).size, os.path.getsize(path) // 1024, "KB")
+        print(f, "" if f.endswith(".svg") else Image.open(path).size, os.path.getsize(path) // 1024, "KB")
