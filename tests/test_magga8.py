@@ -73,3 +73,11 @@ def test_trace_panel_shows_magga_and_every_text_translates():
     texts |= {x["name"] for x in g["layers"][-1]["items"]}
     missing = [t for t in texts if f"'{t}':" not in i18n]
     assert not missing, missing
+
+
+def test_tired_is_not_called_angry():
+    """เจ้าของโปรเจกต์ส่งภาพมา: "นอนไม่หลับมาหลายวันแล้ว ทำยังไงดี" ขึ้น ✗ สัมมาสมาธิ "อารมณ์ร้อน/เร่งรีบ" ซึ่งไม่ตรง"""
+    tired = {x["name"]: x for x in guardian_check("นอนไม่หลับมาหลายวันแล้ว ทำยังไงดี", HS)["layers"][-1]["items"]}["สัมมาสมาธิ"]
+    assert not tired["ok"] and "เหนื่อย" in tired["note"] and "อารมณ์ร้อน" not in tired["note"]
+    angry = {x["name"]: x for x in guardian_check("โกรธมาก จะลาออกเดี๋ยวนี้เลย", HS)["layers"][-1]["items"]}["สัมมาสมาธิ"]
+    assert "อารมณ์ร้อน" in angry["note"]

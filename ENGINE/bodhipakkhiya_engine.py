@@ -175,9 +175,11 @@ def structural_check(text: str, pattern: dict, sig: dict | None = None) -> list[
             _item("สัมมาสติ", not (sig["scam"] or sig["offer"]),
                   "รู้ทันสถานการณ์" if not (sig["scam"] or sig["offer"])
                   else "มีรูปแบบของการหลอก — ตั้งสติ ตรวจกับช่องทางทางการก่อนทำตาม"),
+            # เหตุต่างกัน คำบอกต้องต่างกัน — เดิมคนที่นอนไม่หลับหลายวันได้คำว่าอารมณ์ร้อน ทั้งที่แค่เหนื่อย
             _item("สัมมาสมาธิ", e <= 65 and "K8" not in g and not sig["agitated"],
                   "ใจตั้งมั่นพอ" if e <= 65 and "K8" not in g and not sig["agitated"]
-                  else "อารมณ์ร้อน/เร่งรีบกำลังบิดภาพ — สงบก่อนตัดสิน"),
+                  else "อารมณ์ร้อน/เร่งรีบกำลังบิดภาพ — สงบก่อนตัดสิน" if sig["agitated"]
+                  else "ใจยังเหนื่อยและไม่นิ่ง — พักให้ใจสงบก่อนตัดสินเรื่องใหญ่"),
         ]),
     ]
     out = []
