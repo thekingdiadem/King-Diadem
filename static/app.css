@@ -1099,3 +1099,6 @@ code,pre,.files code,.files td.f,.pipe code,.dir summary .n,.eq,#u-card .sym,#tf
    ตอนนี้เปิดตัวด้วยการจาง/โฟกัสอย่างเดียว ไม่ยืดตัวอักษร */
 #view-title.cut{animation-name:kd-title-calm}
 @keyframes kd-title-calm{from{opacity:0;filter:blur(6px)}to{opacity:1;filter:none}}
+.legal-links{padding:8px 4px 2px;font:400 12px/1.5 var(--f-sans);color:var(--ink-3)}
+.legal-links a{color:var(--ink-3);text-decoration:none}
+.legal-links a:hover{color:var(--ink-2);text-decoration:underline}
