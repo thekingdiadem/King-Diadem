@@ -16,7 +16,7 @@ def _pack(lang):
     return json.loads(src[src.index("= {") + 2: src.rindex("}") + 1])
 
 
-@pytest.mark.parametrize("lang", ["zh", "ko", "es"])
+@pytest.mark.parametrize("lang", ["zh", "ko", "es", "vi"])
 def test_pack_covers_every_page_text(lang):
     p = _pack(lang)
     missing = [k for k in KEYS if k not in p]
@@ -25,7 +25,7 @@ def test_pack_covers_every_page_text(lang):
     assert not [k for k, v in p.items() if th.search(v)]                      # ไม่มีไทยหลงในคำแปล
 
 
-@pytest.mark.parametrize("lang", ["zh", "ko", "es"])
+@pytest.mark.parametrize("lang", ["zh", "ko", "es", "vi"])
 def test_placeholders_and_markup_survive(lang):
     en = dict(re.findall(r"'([^']*[ก-๙][^']*)':\s*\['([^']*)'", I18N))
     ph = lambda s: sorted(re.findall(r"\{\w+\}|<[^>]+>", s))
@@ -33,9 +33,9 @@ def test_placeholders_and_markup_survive(lang):
     assert not bad, bad[:5]
 
 
-def test_runtime_lazy_loads_packs_and_picker_lists_six():
-    assert "var LANGS = ['th', 'en', 'ja', 'zh', 'ko', 'es']" in I18N
+def test_runtime_lazy_loads_packs_and_picker_lists_seven():
+    assert "var LANGS = ['th', 'en', 'ja', 'zh', 'ko', 'es', 'vi']" in I18N
     assert "'i18n/' + lang + '.js'" in I18N and "(PACK[lang] && PACK[lang][th]) || D[th][0]" in I18N   # ขาดคำแปล → อังกฤษ
     page = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-    for v, name in (("zh", "中文"), ("ko", "한국어"), ("es", "Español")):
+    for v, name in (("zh", "中文"), ("ko", "한국어"), ("es", "Español"), ("vi", "Tiếng Việt")):
         assert f'<option value="{v}">{name}</option>' in page
