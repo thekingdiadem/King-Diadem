@@ -6,8 +6,7 @@
 #
 # PATCH v4.9
 # - king_diadem_core v2.0 wired: quick_assess() แทน _paticcasamuppada_context()
-# - bodhipakkhiya channel ก่อน LLM ทุกครั้ง (อยู่ใน core/king_diadem_core.quick_assess —
-#   ไฟล์ ENGINE/bodhipakkhiya_engine.py ไม่มีอยู่จริง)
+# - bodhipakkhiya channel ก่อน LLM ทุกครั้ง (core/king_diadem_core.quick_assess → ENGINE/bodhipakkhiya_engine.guardian_check)
 # - cosmic_latte_canon: validate_output() gate ก่อน return
 # - wise_ctx inject เข้า LLM prompt
 # - LYLA tone: น่ารัก เข้าอกเข้าใจ ไม่เทศ
@@ -1477,7 +1476,12 @@ async def admin_metrics(request: Request, days: int = 30):
               for i in range(days)]
     total = {k: sum(d[k] for d in series) for k in keys}
     total["baht"] = total["baht:purchase"] + total["baht:renewal"]
-    return {"days": days, "series": series, "total": total, "free_daily": FREE_DAILY_RUNS}
+    try:
+        from ENGINE.self_learning import analyze_patterns
+        learning = await run_in_threadpool(analyze_patterns)
+    except Exception:
+        learning = None
+    return {"days": days, "series": series, "total": total, "free_daily": FREE_DAILY_RUNS, "learning": learning}
 
 
 @app.get("/api/2fa")
@@ -2644,6 +2648,13 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 persona=result.get("persona", "LYLA"),
             )
         except Exception: pass
+
+    # วงจรเรียนรู้ภาพรวม (ENGINE/self_learning): ตัวเลข + เส้นทางเท่านั้น ไม่มีอีเมล/ข้อความ · เขียนนอกเส้นทางตอบ
+    try:
+        from ENGINE.self_learning import record_async
+        record_async(result, _has_user_state(data.get("context")))
+    except Exception:
+        pass
 
     if vega_gates and result.get("route") not in ("crisis", "collapse", "survival"):
         result["vega_gates"] = [{"id": g["id"], "name": g["name"], "ask": g["ask"]} for g in vega_gates]

@@ -130,6 +130,15 @@ var Biz = (function(){
   var body = $('#biz-body');
   function pct(a, b){ return b ? Math.round(a / b * 1000) / 10 + '%' : '—'; }
   function n(v){ return Number(v || 0).toLocaleString(); }
+  /* ภาพรวมคำถามทั้งระบบ (ENGINE/self_learning) — ความเสี่ยงเฉลี่ยกำลังดีขึ้นหรือแย่ลง */
+  function learnHTML(L){
+    if(!L) return '';
+    if(L.status !== 'active') return '<p class="muted biz-note">' + _t('ภาพรวมคำถาม: ยังเก็บข้อมูลอยู่ ({n}/3)', {n: Number(L.records) || 0}) + '</p>';
+    var tr = {improving: _t('ดีขึ้น'), degrading: _t('แย่ลง'), stable: _t('ทรงตัว')}[L.trend] || L.trend;
+    return '<p class="biz-sum">' + _t('ภาพรวม {n} คำถามล่าสุด · แนวโน้ม{t} · เรื่องเสี่ยงสูง {h}%', {n: n(L.records), t: esc(tr), h: Math.round((Number(L.high_risk_ratio) || 0) * 100)}) +
+      (L.avg_waterline != null ? ' · ' + _t('waterline เฉลี่ย {w} (จาก {k} คนที่กรอกสถานะ)', {w: Math.round(L.avg_waterline), k: n(L.with_state)}) : '') + '</p>' +
+      (L.drift_detected ? '<p class="warn biz-note">' + _t('entropy เพิ่มต่อเนื่อง 5 รอบ — ผู้ใช้ช่วงนี้กำลังเครียดขึ้น') + '</p>' : '');
+  }
   function render(d){
     var t = d.total, paid = t['u:purchase'] + t['u:renewal'];
     var steps = [
@@ -144,6 +153,7 @@ var Biz = (function(){
         '<b>' + n(s[1]) + '</b><span class="bf-p">' + s[2] + '</span></div>';
     }).join('') + '</div>' +
       '<p class="biz-sum">' + _t('รายได้ 30 วัน ฿{b} · สมัครใหม่ {s} คน · ข้อความทั้งหมด {m}', {b: n(t.baht), s: n(t['u:signup']), m: n(t.chat)}) + '</p>' +
+      learnHTML(d.learning) +
       '<details class="biz-days"><summary>' + _t('ดูรายวัน') + '</summary><table><tr><th>' + _t('วัน') + '</th><th>' + _t('เข้า') + '</th><th>' + _t('คุย') + '</th><th>' + _t('ฟรีหมด') + '</th><th>' + _t('จ่าย') + '</th><th>฿</th></tr>' +
       d.series.slice(0, 14).map(function(r){
         return '<tr><td>' + esc(r.day.slice(5)) + '</td><td>' + n(r['u:visitor']) + '</td><td>' + n(r['u:chatter']) + '</td><td>' + n(r['u:paywalled']) + '</td><td>' + n(r['u:purchase'] + r['u:renewal']) + '</td><td>' + n(r['baht:purchase'] + r['baht:renewal']) + '</td></tr>';
