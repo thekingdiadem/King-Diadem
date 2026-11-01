@@ -1102,3 +1102,7 @@ code,pre,.files code,.files td.f,.pipe code,.dir summary .n,.eq,#u-card .sym,#tf
 .legal-links{padding:8px 4px 2px;font:400 12px/1.5 var(--f-sans);color:var(--ink-3)}
 .legal-links a{color:var(--ink-3);text-decoration:none}
 .legal-links a:hover{color:var(--ink-2);text-decoration:underline}
+.del-sum{cursor:pointer;color:#ff9aa4;font-weight:600;margin:6px 0}
+#del-body .field{display:block;margin:10px 0}
+.btn.danger{background:rgba(255,93,108,.14);border:1px solid rgba(255,93,108,.5);color:#ffb3ba}
+.btn.danger:hover{background:rgba(255,93,108,.24)}
