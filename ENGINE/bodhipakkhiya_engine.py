@@ -257,7 +257,7 @@ def guardian_check(context, pattern=None) -> dict:
         "bojjhanga": loop,
         "failed": [{"name": x["name"], "note": x["note"]} for x in failed],
         "magga": {x["name"]: x["ok"] for x in layers[-1]["items"]},
-        "ariya": {k: sig["truths"].get(k) for k in ("dukkha", "samudaya", "nirodha", "magga", "clear")} if sig["truths"] else None,
+        "ariya": {k: sig["truths"].get(k) for k in ("dukkha", "samudaya", "nirodha", "magga", "clear", "own")} if sig["truths"] else None,
     }
 
 
@@ -268,7 +268,7 @@ def llm_hint(result: dict) -> str:
     try:
         from ENGINE.ariya_sacca import llm_hint as _ah
         a = (result or {}).get("ariya")
-        ar = _ah(a) if a and a.get("dukkha") != "ยังไม่ชัด" else ""
+        ar = _ah(a) if a else ""
     except Exception:
         pass
     if not f:

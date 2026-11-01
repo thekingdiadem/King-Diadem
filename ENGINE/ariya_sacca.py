@@ -69,6 +69,28 @@ ROOT_TH = {"craving": "ความอยากได้ (ตัณหา)", "fe
 _BECAUSE = re.compile(r"(?:เพราะ(?:ว่า)?|เนื่องจาก|สาเหตุคือ|\bbecause\b)\s*([^\n.?!,]{3,60})", re.I)
 
 
+# คำภาษาอังกฤษ (และภาษาที่พิมพ์ด้วยอักษรละติน) — assess จับหัวข้อภาษาอังกฤษได้น้อย
+# เดิม "I cannot pay my credit card debt" "my cat is missing" ได้ทุกข์ = ยังไม่ชัด
+_EN_KEYS = [
+    ("lost_pet", r"\b(?:cat|dog|puppy|kitten|pet|parrot|rabbit)\b[^.?!\n]{0,24}\b(?:missing|lost|ran away|escaped|gone)\b|\blost (?:my )?(?:cat|dog|pet)\b"),
+    ("lost_item", r"\blost (?:my )?(?:wallet|phone|purse|passport|id card|bank card|credit card)\b|\b(?:wallet|phone|passport)\b[^.?!\n]{0,16}\b(?:lost|stolen|missing)\b"),
+    ("war_prep", r"\bwar\b(?! movie| game)|\bconflict at the border\b|\bmissile"),
+    ("power_out", r"\bpower (?:cut|outage)\b|\bblackout\b|\bno electricity\b"),
+    ("heat", r"\bheat ?stroke\b|\bheatwave\b[^.?!\n]{0,30}\b(?:dizzy|faint|sick)\b"),
+    ("economy_fear", r"\brecession\b|\beconomy\b[^.?!\n]{0,20}\b(?:crash|collapse)\b|\bmarket crash\b"),
+    ("outbreak", r"\b(?:pandemic|outbreak|new virus)\b"),
+    ("ai_jobs", r"\bAI\b[^.?!\n]{0,20}\b(?:take|replace|steal)\b[^.?!\n]{0,10}\bjobs?\b"),
+    ("sleepless", r"\b(?:can'?t|cannot|couldn'?t) sleep\b|\binsomnia\b|\bhaven'?t slept\b"),
+    ("debt", r"\bdebt\b|\bloan\b[^.?!\n]{0,16}\b(?:can'?t|cannot) (?:pay|afford)\b|\bcan'?t (?:pay|afford) (?:my|the) (?:credit|loan|rent|bills)\b"),
+    ("job", r"\b(?:lost|losing) my job\b|\b(?:fired|laid off|quit my job|my boss)\b"),
+    ("grief", r"\b(?:passed away|died|death of)\b"),
+    ("lonely", r"\b(?:lonely|alone|no friends)\b"),
+    ("relationship", r"\b(?:boyfriend|girlfriend|husband|wife|partner|broke up|breakup|divorce)\b"),
+    ("stress", r"\b(?:stressed|overwhelmed|burn(?:ed|t)? ?out|anxious)\b"),
+]
+_EN_RX = [(k, re.compile(p, re.I)) for k, p in _EN_KEYS]
+
+
 def _topic_key(text: str, a: dict) -> str | None:
     try:
         from core.kernel_voice import CODE_REQ, EVERYDAY, _magga_topic
@@ -86,6 +108,9 @@ def _topic_key(text: str, a: dict) -> str | None:
             return key
     if re.search(r"นอนไม่หลับ|หลับไม่ลง|นอนไม่ค่อยหลับ|insomnia|can'?t sleep", text, re.I):
         return "sleepless"                     # assess มักให้ "stress" มาก่อน แต่ทุกข์ที่เล่าคือการนอน
+    for k, rx in _EN_RX:
+        if rx.search(text):
+            return k
     for t in a.get("topics") or []:
         if t in TRUTHS:
             return t
@@ -120,7 +145,7 @@ def four_truths(text: str) -> dict:
 
     own = _BECAUSE.search(text)
     if own:
-        samudaya = "ตามที่เล่า: " + own.group(1).strip()
+        samudaya = own.group(1).strip()          # คำของผู้ใช้เอง (ภาษาไหนก็ได้) — หน้าเว็บเติม "ตามที่เล่า:" ตามภาษาหน้า
     elif cause:
         samudaya = cause
     else:
@@ -135,13 +160,17 @@ def four_truths(text: str) -> dict:
     clear = dukkha != UNCLEAR and samudaya != UNCLEAR
     return {"dukkha": dukkha, "samudaya": samudaya, "nirodha": nirodha,
             "magga": _first_step(text) if text.strip() else UNCLEAR, "clear": clear,
-            "seen": dukkha != UNCLEAR, "key": key}
+            "seen": dukkha != UNCLEAR, "own": bool(own), "key": key}
 
 
 def llm_hint(t: dict) -> str:
-    """บริบทภายในให้ LLM — ให้คำตอบยืนบนอริยสัจ 4 ของเรื่องนี้ (ห้ามยกศัพท์ไปพูดกับผู้ใช้)"""
+    """บริบทภายในให้ LLM — ให้คำตอบยืนบนอริยสัจ 4 ของเรื่องนี้ (ห้ามยกศัพท์ไปพูดกับผู้ใช้)
+    ระบบอ่านทุกข์ไม่ออก (ภาษาที่กฎยังไม่ครอบคลุม) → สั่งให้ AI เห็นอริยสัจ 4 เองก่อนตอบ ในภาษาของผู้ใช้"""
     if not t:
         return ""
+    if t.get("dukkha") == UNCLEAR:
+        return ("[ก่อนตอบ: เห็นอริยสัจ 4 ของเรื่องนี้ก่อน — ทุกข์จริงคืออะไร เกิดจากอะไร ปลายทางที่วัดได้ ก้าวแรก"
+                " · ถ้ายังไม่เห็นเหตุ ถามกลับ 1 คำถาม · ตอบในภาษาเดียวกับผู้ใช้ · ห้ามยกศัพท์ธรรมะไปตีตราผู้ใช้]")
     # หฤทัยสูตร: "ไม่มีทุกข์ สมุทัย นิโรธ มรรค" — อริยสัจ 4 เองก็ว่างจากตัวตน เป็นเครื่องมือข้ามฟาก ไม่ใช่สิ่งที่ต้องยึด
     # ระบบจึงใช้เป็นป้ายชั่วคราวจากที่ผู้ใช้เล่า ไม่ใช่คำตัดสินชีวิตใคร และเปลี่ยนได้เมื่อเล่าเพิ่ม
     h = f"[อริยสัจ 4 ของเรื่องนี้ (อ่านจากที่เล่า เปลี่ยนได้ — ใช้นำทาง ห้ามตีตราผู้ใช้): ทุกข์={t['dukkha']} · สมุทัย={t['samudaya']} · นิโรธ={t['nirodha']}"

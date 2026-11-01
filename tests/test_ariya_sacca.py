@@ -28,7 +28,7 @@ def test_not_one_template_for_everything():
 
 def test_users_own_because_is_the_cause_first():
     t = four_truths("อยากลาออกเพราะหัวหน้าด่าทุกวัน")
-    assert t["samudaya"] == "ตามที่เล่า: หัวหน้าด่าทุกวัน" and t["clear"]
+    assert t["samudaya"] == "หัวหน้าด่าทุกวัน" and t["own"] and t["clear"]
 
 
 def test_unknown_is_said_not_guessed():
@@ -90,3 +90,32 @@ def test_truths_are_a_guide_not_a_verdict():
     assert "ห้ามตีตราผู้ใช้" in llm_hint(four_truths("หนี้บัตรเครดิต 50000 ผ่อนไม่ไหว"))
     from tests._front import front_page
     assert "ไม่ใช่คำตัดสิน" in front_page()
+
+
+# ── ทุกภาษา (เจ้าของโปรเจกต์: "งานอริยสัจสี่ต้องครอบคลุมทุกภาษานะ") ──
+@pytest.mark.parametrize("text,dukkha", [
+    ("I cannot pay my credit card debt", "หนี้"), ("my cat is missing since yesterday", "สัตว์เลี้ยงหาย"),
+    ("I can't sleep for days", "นอนไม่หลับ"), ("Thinking about the war, should we prepare?", "สงคราม"),
+])
+def test_english_messages_are_seen_too(text, dukkha):
+    assert dukkha in four_truths(text)["dukkha"]
+
+
+def test_own_words_kept_in_any_language():
+    t = four_truths("I want to quit because my boss yells every day")
+    assert t["own"] and t["samudaya"] == "my boss yells every day"
+
+
+def test_unseen_story_asks_the_ai_to_see_the_truths_in_the_users_language():
+    from ENGINE.ariya_sacca import llm_hint
+    h = llm_hint(four_truths("Ich weiß nicht, was ich tun soll"))
+    assert "เห็นอริยสัจ 4 ของเรื่องนี้ก่อน" in h and "ตอบในภาษาเดียวกับผู้ใช้" in h
+
+
+def test_every_truth_label_is_translated():
+    import pathlib
+    from ENGINE.ariya_sacca import ROOT_TH, TRUTHS
+    i18n = (pathlib.Path(__file__).resolve().parent.parent / "static" / "i18n.js").read_text(encoding="utf-8")
+    texts = {x for v in TRUTHS.values() for x in v if x} | set(ROOT_TH.values()) | {"ตามที่เล่า", "ยังไม่ชัด"}
+    missing = [x for x in texts if f"'{x}':" not in i18n]
+    assert not missing, missing

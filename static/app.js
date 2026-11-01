@@ -695,7 +695,8 @@ function ariyaHTML(t){
   if(!A || !A.dukkha) return '';
   var row = function(k, v){ return '<div class="ar-r"><span class="ar-k">' + _t(k) + '</span><span class="ar-v' + (v === 'ยังไม่ชัด' ? ' ar-un' : '') + '">' + esc(_t(String(v || ''))) + '</span></div>'; };
   return '<div class="ariya"><div class="mg-h">' + _t('อริยสัจ 4') + '</div>' +
-    row('ทุกข์', A.dukkha) + row('สมุทัย', A.samudaya) + row('นิโรธ', A.nirodha) + row('มรรค', A.magga) +
+    row('ทุกข์', A.dukkha) + (A.own ? '<div class="ar-r"><span class="ar-k">' + _t('สมุทัย') + '</span><span class="ar-v">' + _t('ตามที่เล่า') + ': ' + esc(A.samudaya) + '</span></div>' : row('สมุทัย', A.samudaya)) +
+    row('นิโรธ', A.nirodha) + row('มรรค', A.magga) +
     (A.clear ? '' : '<p class="mg-n">' + _t('ยังเห็นไม่ครบ — เล่าเพิ่มอีกนิด ทางจะตรงขึ้น') + '</p>') +
     /* หฤทัยสูตร: อริยสัจ 4 ก็ว่างจากตัวตน — เครื่องมือข้ามฟาก ไม่ใช่คำตัดสิน */
     '<p class="mg-n ar-note">' + _t('อ่านจากที่เล่า เปลี่ยนได้เมื่อเล่าเพิ่ม — เป็นเครื่องมือนำทาง ไม่ใช่คำตัดสิน') + '</p></div>';
