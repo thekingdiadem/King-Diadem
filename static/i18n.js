@@ -205,6 +205,7 @@
     'รหัสยืนยันสองชั้น': ['2FA code', '2段階認証コード'], 'อีเมลเพื่อยืนยันการลบบัญชี': ['Email to confirm account deletion', 'アカウント削除確認用のメール'],
     'ใจยังเหนื่อยและไม่นิ่ง — พักให้ใจสงบก่อนตัดสินเรื่องใหญ่': ['Your mind is tired and unsettled — rest before any big decision', '心が疲れて落ち着いていません — 大きな決断の前に休みましょう'],
     'อริยสัจ 4': ['Four Noble Truths', '四諦'], 'ทุกข์': ['Suffering', '苦'], 'สมุทัย': ['Cause', '集'], 'นิโรธ': ['Cessation', '滅'], 'มรรค': ['Path', '道'], 'ยังไม่ชัด': ['Not clear yet', 'まだ不明'], 'ยังเห็นไม่ครบ — เล่าเพิ่มอีกนิด ทางจะตรงขึ้น': ['Not fully seen yet — tell a bit more and the path gets clearer', 'まだ全体が見えていません — もう少し教えてください'], 'เห็นทุกข์และเหตุชัด': ['Suffering and its cause are clear', '苦とその原因が明確'], 'เห็นทุกข์แล้ว แต่เหตุยังไม่ชัด — ถามหาต้นเหตุก่อน': ['The problem is seen, but its cause isn’t yet — ask for the cause first', '問題は見えたが原因はまだ — まず原因を尋ねる'],
+    'อ่านจากที่เล่า เปลี่ยนได้เมื่อเล่าเพิ่ม — เป็นเครื่องมือนำทาง ไม่ใช่คำตัดสิน': ['Read from what you shared — it changes as you tell more. A guide, not a verdict.', '話された内容から読み取ったもの — 話すほど変わります。判断ではなく道しるべです。'],
     'ช่วงตัดสินใจ': ['Decision window', '決断の期間'],
     'waterline ไม่ได้ลดลง — ยังไม่มีวันที่ต้องรีบ': ['waterline is not falling — no deadline yet', '水位は下がっていません — 急ぐ日はまだありません'],
     'ตัดสินใจใหญ่': ['Big decisions', '大きな決断'],

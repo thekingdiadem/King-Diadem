@@ -49,7 +49,7 @@ def test_right_view_stands_on_the_truths():
 
 def test_truths_reach_the_ai_and_the_panel(client, monkeypatch):
     from core.king_diadem_core import quick_assess
-    assert "[อริยสัจ 4 ของเรื่องนี้: ทุกข์=หนี้มากกว่ากำลังผ่อน" in quick_assess("หนี้บัตรเครดิต 50000 ผ่อนไม่ไหว", HS)["wise_ctx"]
+    assert "ทุกข์=หนี้มากกว่ากำลังผ่อน" in quick_assess("หนี้บัตรเครดิต 50000 ผ่อนไม่ไหว", HS)["wise_ctx"]
     monkeypatch.setenv("KD_AI", "off")
     d = client.post("/run", json={"input": "หนี้บัตรเครดิต 50000 ผ่อนไม่ไหว"}).json()
     assert d["ariya"]["dukkha"] == "หนี้มากกว่ากำลังผ่อน"
@@ -67,3 +67,26 @@ def test_dharma_questions_answered_without_ai(q, want):
 
 def test_sleepless_many_days_gets_the_sleep_answer():
     assert compose("นอนไม่หลับมาหลายวันแล้ว ทำยังไงดี").startswith("ไม่ได้นอนหลายวัน")
+
+
+# ── ปรัชญาปารมิตาหฤทัยสูตร (เจ้าของโปรเจกต์มอบฉบับที่ตรวจกับต้นฉบับสันสกฤตแล้ว) ──
+@pytest.mark.parametrize("q,want", [
+    ("คะเต คะเต แปลว่าอะไร", "ไปถึงฝั่งแล้ว"), ("ความว่างคืออะไร", "ไม่ได้แปลว่าไม่มีอะไรเลย"),
+    ("ขันธ์ 5 คืออะไร", "เวทนา"), ("หฤทัยสูตรคืออะไร", "ไม่หวาดกลัว"),
+])
+def test_heart_sutra_terms(q, want):
+    assert want in compose(q).split("\n")[0]
+
+
+def test_mantra_uses_the_corrected_reading():
+    """ใช้ "โพธิ สวาหา" ตามสันสกฤต (bodhi svāhā) ไม่ใช่ "โบดิซัวฮา" ของบทที่ถอดผ่านสำเนียงจีน"""
+    out = compose("คะเต คะเต แปลว่าอะไร")
+    assert "ปาระสังคะเต โพธิ สวาหา" in out and "โบดิซัวฮา" not in out
+
+
+def test_truths_are_a_guide_not_a_verdict():
+    """หฤทัยสูตร: "ไม่มีทุกข์ สมุทัย นิโรธ มรรค" — อริยสัจ 4 ก็ว่าง ใช้ข้ามฟาก ไม่ใช่สิ่งที่ยึด"""
+    from ENGINE.ariya_sacca import llm_hint
+    assert "ห้ามตีตราผู้ใช้" in llm_hint(four_truths("หนี้บัตรเครดิต 50000 ผ่อนไม่ไหว"))
+    from tests._front import front_page
+    assert "ไม่ใช่คำตัดสิน" in front_page()
