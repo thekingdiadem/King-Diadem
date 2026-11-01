@@ -82,7 +82,18 @@ def test_depth_parallax_does_not_jump():
 
 
 def test_display_serif_is_looped_thai():
-    """หัวข้อละตินเป็น Orbitron (แนว "อนาคตลึกลับ" ที่เจ้าของโปรเจกต์เลือก) แต่ตัวไทยยังเป็นแบบมีหัว
+    """Orbitron เหลือแค่โลโก้ (เจ้าของโปรเจกต์: ฟอนต์ปนกันหลายแบบดูแปลก/คล้ายเว็บอื่น) · ตัวไทยเป็นแบบมีหัว
     — แบบไม่มีหัวทำให้ "ระบบ" อ่านเป็น "ระUU" บนมือถือ"""
     assert "family=Orbitron:wght@500;600;700" in HTML and "Cinzel" not in HTML
-    assert '--f-title:"Orbitron","Noto Sans Thai Looped","Noto Serif Thai",system-ui,sans-serif;' in CSS
+    tail = CSS[CSS.index("ONE FAMILY"):]
+    assert '--f-brand:"Orbitron","Noto Sans Thai Looped"' in tail
+    assert '--f-title:"Noto Sans Thai Looped"' in tail and '--f-mono:"Noto Sans Thai Looped"' in tail
+    assert ".brand b,#empty h1{font-family:var(--f-brand)}" in tail
+
+
+def test_view_title_is_not_letter_spaced_by_its_animation():
+    """หัว "ปรึกษา" เคยขึ้นเป็น "ป ร ึ ก ษ า" (เจ้าของโปรเจกต์ส่งภาพมา) — keyframes เดิมค้าง letter-spacing .24em"""
+    tail = CSS[CSS.index("ONE FAMILY"):]
+    assert "#view-title.cut{animation-name:kd-title-calm}" in tail
+    calm = tail[tail.index("@keyframes kd-title-calm"):]
+    assert "letter-spacing" not in calm.split("}}")[0]

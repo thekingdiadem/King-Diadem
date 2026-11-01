@@ -563,13 +563,6 @@ function traceHTML(t){
   if(t.consensus) row('Consensus', '<span class="mono">' + esc(t.consensus) + '</span>');
   /* VEGA 14 Gates — ประตูที่ติดจากข้อความ พร้อมคำถามของแต่ละประตู */
   if(Array.isArray(t.gates) && t.gates.length) row('VEGA gates', t.gates.map(function(g){ return '<div><span class="badge warn">' + esc(g.id) + '</span> <b>' + esc(g.name) + '</b> — ' + esc(g.ask) + '</div>'; }).join(''));
-  /* มรรคมีองค์ 8 — ผ่านครบ = แถบเดียวสั้นๆ · ข้อไหนไม่ผ่านบอกชื่อพร้อมเหตุ (ENGINE/bodhipakkhiya_engine) */
-  if(Array.isArray(t.magga) && t.magga.length){
-    var mf = t.magga.filter(function(m){ return !m.ok; });
-    row('มรรค 8', '<div class="magga">' + t.magga.map(function(m){ return '<span class="badge ' + (m.ok ? 'ok' : 'warn') + '" title="' + esc(_t(m.note)) + '">' + (m.ok ? '✓ ' : '✗ ') + esc(_t(m.name)) + '</span>'; }).join('') + '</div>'
-      + (mf.length ? mf.map(function(m){ return '<div class="muted" style="font-size:12px">' + esc(_t(m.name)) + ' — ' + esc(_t(m.note)) + '</div>'; }).join('')
-                   : '<div class="muted" style="font-size:12px">' + _t('ผ่านครบ 8 องค์') + '</div>'));
-  }
   /* ลิงก์รายงานสร้างเมื่อกดแชร์เท่านั้น — ไม่มีลิงก์สาธารณะเกิดเองทุกครั้งที่ถาม */
   if(t.report) row('รายงาน', '<a href="/report/' + encodeURIComponent(t.report) + '" target="_blank" rel="noopener" class="mono">/report/' + esc(t.report) + '</a>');
   else if(t.share) row('รายงาน', '<button type="button" class="btn ghost" data-act="share" data-token="' + esc(t.share) + '">สร้างลิงก์แชร์</button> <span class="muted">เปิดได้ 90 วัน · ใครมีลิงก์ก็อ่านได้</span>');
@@ -675,7 +668,17 @@ function plainHTML(t){
     '<div class="pr"><span class="pk">ใครตัดสินใจ</span><span class="pv">' + (n.paused ? 'ระบบชวนพักก่อน' : 'คุณเลือกเองเสมอ') + '</span></div>' +
     (n.noState ? '<p class="pn">ประเมินจากข้อความอย่างเดียว — บอกสถานะของคุณ (พลังงาน การนอน) จะแม่นขึ้น</p>' : '') +
     '</div>';
-  return h + '<details class="eq-more"><summary>ดูวิธีคำนวณ</summary>' + eq + '</details>';
+  return h + maggaHTML(t) + '<details class="eq-more"><summary>ดูวิธีคำนวณ</summary>' + eq + '</details>';
+}
+/* มรรคมีองค์ 8 ของข้อความนี้ (ENGINE/bodhipakkhiya_engine) — ป้าย ✓/✗ ครบ 8 องค์ · ข้อไหนไม่ผ่านบอกเหตุใต้ป้าย */
+function maggaHTML(t){
+  var M = t && Array.isArray(t.magga) ? t.magga : [];
+  if(!M.length) return '';
+  var bad = M.filter(function(m){ return !m.ok; });
+  return '<div class="magga"><div class="mg-h">' + _t('มรรค 8') + '</div><div class="mg-b">' +
+    M.map(function(m){ return '<span class="badge ' + (m.ok ? 'ok' : 'warn') + '">' + (m.ok ? '✓ ' : '✗ ') + esc(_t(m.name)) + '</span>'; }).join('') + '</div>' +
+    (bad.length ? bad.map(function(m){ return '<p class="mg-n"><b>' + esc(_t(m.name)) + '</b> — ' + esc(_t(m.note)) + '</p>'; }).join('')
+                : '<p class="mg-n">' + _t('ผ่านครบ 8 องค์') + '</p>') + '</div>';
 }
 function eqStrip(t){
   if(!t) return '';

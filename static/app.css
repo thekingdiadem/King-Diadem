@@ -1070,3 +1070,32 @@ html.kd-cinema :is(#sidebar,#topbar,#composer,#tabbar,#trace-panel,#toast,#chat-
 #m45 .m45-info b span{font:500 11px/1 var(--f-mono);letter-spacing:.12em;color:#9fb4ff;margin-left:6px}
 #m45 .m45-info p{margin:5px 0 4px;font-size:12.5px;line-height:1.55;color:#c3cdec}
 #m45 .m45-info small{font-size:11px;color:#8d9bc6}
+
+/* ════════════════════════════════════════════════════════════════
+   ONE FAMILY — ทั้งหน้าใช้ฟอนต์ครอบครัวเดียว (เจ้าของโปรเจกต์ขอ: ดูคล้ายเว็บอื่น/แปลกๆ)
+   เดิมหน้าเดียวมี 4 แบบปนกัน: Orbitron (ไซไฟ ใช้กันทั่วไปในเว็บคริปโต/เกม) · ไทยหัวกลม · Serif · Mono
+   แถบเดียวกัน "VEGA" เป็นตัวเหลี่ยม แต่ "สภา" ข้างๆ เป็นตัวกลม ตาเลยไม่รู้สึกว่าเป็นครอบครัวเดียว
+   ตอนนี้: Orbitron เหลือที่โลโก้ KING DIADEM ที่เดียว (ลายเซ็นแบรนด์) · ปุ่ม ป้าย หัวการ์ด = ไทยหัวกลม
+   ตัวเลขเรียงตรงหลัก (tabular) · ตัวอักษรเครื่อง (รหัส กุญแจ 2FA ชื่อไฟล์) ยังเป็น Mono ให้อ่านทีละตัวได้
+   คำตอบของ LYLA ยังเป็นตัวมีเชิง — อารมณ์บทสวดที่เจ้าของเลือกไว้
+   ════════════════════════════════════════════════════════════════ */
+:root{
+  --f-brand:"Orbitron","Noto Sans Thai Looped",system-ui,sans-serif;
+  --f-title:"Noto Sans Thai Looped",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"Noto Sans Thai Looped",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-code:"IBM Plex Mono","Noto Sans Thai Looped",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+body{font-variant-numeric:tabular-nums}
+.brand b,#empty h1{font-family:var(--f-brand)}
+code,pre,.files code,.files td.f,.pipe code,.dir summary .n,.eq,#u-card .sym,#tfa-body .tfa-key,#tfa-body .tfa-codes{font-family:var(--f-code)}
+/* ไทยไม่ถ่างตัวอักษร — "ป ร ึ ก ษ า" สระลอยห่างจากพยัญชนะ */
+#view-title,.card-h h2,.dlg-h h2:not(.mono),.u-title b,.sb-label,.tp-h,.tr-row .k,#empty .sub,.u-title{letter-spacing:.02em}
+#persona-seg button,.who > span:not(.tag):not(.star){letter-spacing:.06em}
+.magga{margin:14px 0 4px;padding-top:12px;border-top:1px solid var(--line)}
+.magga .mg-h{font:600 12.5px/1 var(--f-sans);color:var(--ink-2);margin-bottom:8px}
+.magga .badge{font-family:var(--f-sans);font-weight:500;letter-spacing:0}
+.magga .mg-n{margin:6px 0 0;font-size:13px;line-height:1.55;color:var(--ink-2)}
+/* หัวหน้า "ปรึกษา" เคยถ่างเป็น "ป ร ึ ก ษ า" — แอนิเมชันเดิมค้างระยะ .24em ไว้ (fill both) ทับทุกกฎ
+   ตอนนี้เปิดตัวด้วยการจาง/โฟกัสอย่างเดียว ไม่ยืดตัวอักษร */
+#view-title.cut{animation-name:kd-title-calm}
+@keyframes kd-title-calm{from{opacity:0;filter:blur(6px)}to{opacity:1;filter:none}}
