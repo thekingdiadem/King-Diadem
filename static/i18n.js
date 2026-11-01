@@ -555,20 +555,36 @@
     'นับเฉพาะจำนวน ไม่เก็บข้อความ อีเมล หรือ IP · เริ่มนับตั้งแต่ติดตั้งระบบนี้': ['Counts only — no messages, emails or IPs stored · counting started when this was installed', '件数のみ集計 — メッセージ・メール・IPは保存しません · この機能の導入時から集計'],
     'ดูตัวเลขไม่ได้ชั่วคราว': ['Numbers are temporarily unavailable', '一時的に数値を表示できません'],
   };
-  var LANGS = ['th', 'en', 'ja'], KEY = 'kd_lang', ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
+  // ภาษาเพิ่ม (จีน เกาหลี สเปน) อยู่ใน static/i18n/<lang>.js — โหลดเฉพาะตอนเลือก คนที่ไม่ได้เลือกไม่ต้องโหลดเพิ่ม
+  // ตรงกับ 6 ภาษาที่ระบบตอบได้เต็มตอนไม่มี AI (ไทย อังกฤษ จีน ญี่ปุ่น เกาหลี สเปน) · ข้อความไหนยังไม่มีในชุดภาษา ใช้อังกฤษแทน
+  var LANGS = ['th', 'en', 'ja', 'zh', 'ko', 'es'], PACKS_LANGS = ['zh', 'ko', 'es'], KEY = 'kd_lang', ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
+  var PACK = window.KD_I18N_PACKS = window.KD_I18N_PACKS || {};
   var REV = {};                                 // ข้อความที่แปลแล้ว → ไทย (สลับกลับได้โดยไม่ต้องโหลดหน้าใหม่)
   Object.keys(D).forEach(function (th) { REV[D[th][0]] = th; REV[D[th][1]] = th; });
+  function learn(lang) { var P = PACK[lang] || {}; Object.keys(P).forEach(function (th) { if (D[th]) REV[P[th]] = th; }); }
 
   function pick() {
     try { var s = localStorage.getItem(KEY); if (LANGS.indexOf(s) >= 0) return s; } catch (e) {}
     var n = String((navigator.languages && navigator.languages[0]) || navigator.language || 'th').toLowerCase();
-    return n.indexOf('th') === 0 ? 'th' : n.indexOf('ja') === 0 ? 'ja' : 'en';
+    for (var i = 0; i < LANGS.length; i++) if (n.indexOf(LANGS[i]) === 0) return LANGS[i];
+    return 'en';
   }
   function tr(s, lang) {
     var key = s.trim(), th = D[key] ? key : REV[key];
     if (!th) return null;
-    var out = lang === 'th' ? th : D[th][lang === 'en' ? 0 : 1];
+    var out = lang === 'th' ? th : lang === 'ja' ? D[th][1] : (PACK[lang] && PACK[lang][th]) || D[th][0];
     return out === key ? null : s.replace(key, out);
+  }
+  var loading = {};
+  function load(lang, done) {
+    if (PACKS_LANGS.indexOf(lang) < 0 || PACK[lang]) { done(); return; }
+    if (loading[lang]) { loading[lang].push(done); return; }
+    loading[lang] = [done];
+    var sc = document.createElement('script');
+    var base = SRC || '/static/i18n.js';
+    sc.src = base.replace(/i18n\.js.*$/, 'i18n/' + lang + '.js');
+    sc.onload = sc.onerror = function () { learn(lang); var q = loading[lang]; loading[lang] = null; q.forEach(function (f) { f(); }); };
+    document.head.appendChild(sc);
   }
   function apply(root, lang) {
     if (!root || root.nodeType !== 1) return;
@@ -586,9 +602,10 @@
       ATTRS.forEach(function (a) { if (el.hasAttribute && el.hasAttribute(a)) { var v = tr(el.getAttribute(a), lang); if (v !== null) el.setAttribute(a, v); } });
     });
   }
-  var current = pick(), drawn = 'th';
+  var current = pick(), drawn = 'th', SRC = document.currentScript && document.currentScript.src;
   function set(lang) {
     if (LANGS.indexOf(lang) < 0) return;
+    if (PACKS_LANGS.indexOf(lang) >= 0 && !PACK[lang]) { load(lang, function () { set(lang); }); return; }
     current = lang;
     try { localStorage.setItem(KEY, lang); } catch (e) {}
     document.documentElement.lang = lang;
