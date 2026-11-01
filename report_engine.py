@@ -86,86 +86,9 @@ def init_report_table():
     _TABLE_READY = True
 
 def _run_fate_audit(result: dict, user_input: str) -> dict:
-    """
-    FATE™ Axiom Audit — ตรวจสอบผลลัพธ์ผ่าน 6 Axioms
-    คืน dict พร้อม pass/warn/fail แต่ละ axiom
-    """
-    # ตัดความยาวเท่าคอลัมน์ — เดิมส่ง route ยาว 200KB มาแล้วถูกเก็บและเปิดให้ทุกคนดูได้
-    route    = str(result.get("route", "general"))[:40]
-    persona  = str(result.get("persona", "LYLA"))[:20]
-    risk     = _f(result.get("risk_score", 0))
-    response = str(result.get("ai_response", ""))
-
-    checks = []
-
-    # A1 — Logic Over Persona
-    checks.append({
-        "code": "A1",
-        "name": "Logic Over Persona",
-        "status": "PASS",
-        "note": f"Route: {route} | Persona: {persona} — ยึดตามกฎ ไม่ยึดตัวบุคคล"
-    })
-
-    # A2 — Rule Over Authority
-    checks.append({
-        "code": "A2",
-        "name": "Rule Over Authority",
-        "status": "PASS",
-        "note": "Human Final Authority ยังคงอยู่ — ระบบไม่มีอำนาจบังคับ"
-    })
-
-    # A3 — Determinism
-    has_response = len(response) > 10
-    checks.append({
-        "code": "A3",
-        "name": "Determinism",
-        "status": "PASS" if has_response else "WARN",
-        "note": "Output traceable from input + ruleset" if has_response else "Response empty — trace incomplete"
-    })
-
-    # A4 — Downside Before Upside
-    risk_status = "PASS" if risk < 50 else ("WARN" if risk < 75 else "FAIL")
-    risk_label  = f"Risk score: {risk:.0f}/100"
-    checks.append({
-        "code": "A4",
-        "name": "Downside Before Upside",
-        "status": risk_status,
-        "note": risk_label + (" — Low risk" if risk < 50 else " — High risk detected" if risk >= 75 else " — Moderate risk")
-    })
-
-    # A5 — Explainability
-    explainable = len(response) > 50
-    checks.append({
-        "code": "A5",
-        "name": "Explainability = Usability",
-        "status": "PASS" if explainable else "WARN",
-        "note": "Response explainable to general user" if explainable else "Response too short to verify explainability"
-    })
-
-    # A6 — Human Final Authority
-    checks.append({
-        "code": "A6",
-        "name": "Human Final Authority",
-        "status": "PASS",
-        "note": "ระบบแนะนำเท่านั้น — มนุษย์ตัดสินใจขั้นสุดท้ายเสมอ"
-    })
-
-    # Overall verdict
-    statuses = [c["status"] for c in checks]
-    if "FAIL" in statuses:
-        verdict = "REJECTED"
-    elif statuses.count("WARN") >= 2:
-        verdict = "DEFERRED"
-    else:
-        verdict = "APPROVED"
-
-    return {
-        "checks": checks,
-        "verdict": verdict,
-        "axiom_pass": statuses.count("PASS"),
-        "axiom_warn": statuses.count("WARN"),
-        "axiom_fail": statuses.count("FAIL"),
-    }
+    """FATE™ Axiom Audit ของรายงาน — ตัวจริงอยู่ที่ core/fate_core.axiom_audit (ที่เดียวทั้งระบบ)"""
+    from core.fate_core import axiom_audit
+    return axiom_audit(result)
 
 
 def create_report(

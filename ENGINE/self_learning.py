@@ -1,66 +1,90 @@
 # ENGINE/self_learning.py
 """
 KING DIADEM — Self Learning Engine
-บันทึก + วิเคราะห์ pattern จาก decision history จริง
-atomic write + trend detection
+บันทึก + วิเคราะห์ pattern จากคำถามจริง (ทั้งระบบ ไม่ผูกกับคน)
+/run → record_async() · แดชบอร์ดเจ้าของ (/api/admin/metrics) → analyze_patterns()
 """
 from __future__ import annotations
 from math import isfinite as _isfinite
-import json
-import os
+import threading
 import time
-from typing import Optional
-from core.paths import data_path
 
-MEMORY_FILE = data_path("decision_history.json")   # ดู core/paths.py
 MAX_RECORDS = 500
+_lock = threading.Lock()
+
+# เดิมเก็บใน data/decision_history.json และไม่มีโค้ดไหนเรียก record_decision เลย → วงจรนี้ไม่เคยได้ข้อมูล
+# ตอนนี้เก็บในฐานข้อมูลหลัก (Turso บนเว็บจริง — ไม่หายตอน deploy) · ไม่มีอีเมล ไม่มีข้อความ มีแค่ตัวเลขกับเส้นทาง
+_DDL = """CREATE TABLE IF NOT EXISTS learning_samples (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL NOT NULL, route TEXT NOT NULL,
+    risk_level TEXT NOT NULL, risk REAL, waterline REAL, entropy REAL, resource REAL)"""
 
 
-# ── Atomic I/O ────────────────────────────────────────────────────
+def _conn():
+    from DATABASE.db import get_conn
+    c = get_conn()
+    c.execute(_DDL)
+    return c
+
+
+# ── I/O ───────────────────────────────────────────────────────────
 def load_history() -> list:
-    if not os.path.exists(MEMORY_FILE):
-        return []
+    """แถวล่าสุด ≤ 500 เรียงเก่า → ใหม่ · ฐานข้อมูลล่ม = [] (ไม่ทำให้แชทล้ม)"""
     try:
-        with open(MEMORY_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        # ไฟล์เสีย/รูปแบบผิด → เดิมล้มทั้ง analyze (KeyError) ตอนนี้ข้ามแถวที่ใช้ไม่ได้
-        return [h for h in data if isinstance(h, dict)] if isinstance(data, list) else []
+        c = _conn()
+        try:
+            rows = c.execute("SELECT ts, route, risk_level, risk, waterline, entropy, resource FROM learning_samples "
+                             "ORDER BY id DESC LIMIT ?", (MAX_RECORDS,)).fetchall()
+        finally:
+            c.close()
     except Exception:
         return []
+    out = []
+    for r in reversed(rows):
+        out.append({"timestamp": r[0], "strategy": r[1], "risk_level": r[2], "risk": r[3],
+                    "waterline": r[4], "entropy": r[5], "resource": r[6],
+                    "survival_score": r[4]})
+    return out
 
-def save_history(history: list) -> bool:
+
+# ── Record ────────────────────────────────────────────────────────
+def _risk_level(r: float) -> str:
+    return "CRITICAL" if r >= 85 else "HIGH" if r >= 65 else "MEDIUM" if r >= 35 else "LOW"
+
+
+def record_decision(result: dict, has_state: bool = False) -> bool:
+    """บันทึก 1 แถวต่อคำถาม · waterline/entropy/resource เก็บเฉพาะเมื่อผู้ใช้กรอกสถานะเอง
+    (ค่าเริ่มต้นของ backend ไม่ใช่สภาพจริงของใคร — เก็บไปจะทำให้ค่าเฉลี่ยโกหก)"""
+    result = result if isinstance(result, dict) else {}
+
+    def _f(v):
+        try:
+            v = float(v)
+            return v if _isfinite(v) else None
+        except (TypeError, ValueError):
+            return None
+    p = result.get("pattern") if isinstance(result.get("pattern"), dict) else {}
+    risk = _f(result.get("risk_score")) or 0.0
+    wl, en, rs = ((_f(p.get(k)) if has_state else None) for k in ("waterline", "entropy", "resource"))
     try:
-        os.makedirs(os.path.dirname(MEMORY_FILE) or ".", exist_ok=True)
-        tmp = MEMORY_FILE + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(history[-MAX_RECORDS:], f, indent=2, ensure_ascii=False)
-        os.replace(tmp, MEMORY_FILE)
+        with _lock:
+            c = _conn()
+            try:
+                c.execute("INSERT INTO learning_samples (ts, route, risk_level, risk, waterline, entropy, resource) "
+                          "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                          (time.time(), str(result.get("route") or "general")[:20], _risk_level(risk), risk, wl, en, rs))
+                c.execute("DELETE FROM learning_samples WHERE id <= (SELECT MAX(id) FROM learning_samples) - ?",
+                          (MAX_RECORDS * 4,))
+                c.commit()
+            finally:
+                c.close()
         return True
     except Exception:
         return False
 
 
-# ── Record ────────────────────────────────────────────────────────
-def record_decision(result: dict) -> bool:
-    result = result if isinstance(result, dict) else {}
-
-    def _f(v, d):
-        try:
-            return float(v) if _isfinite(float(v)) else d   # nan/inf เคยหลุดผ่าน
-        except (TypeError, ValueError):
-            return d
-    history = load_history()
-    history.append({
-        "survival_score": _f(result.get("survival_score"), 0),
-        "strategy":       str(result.get("strategy",        "unknown")),
-        "location":       str(result.get("location",        "unknown")),
-        "risk_level":     str(result.get("risk_level",      "low")),
-        "waterline":      _f(result.get("waterline"),      50),
-        "entropy":        _f(result.get("entropy"),        40),
-        "resource":       _f(result.get("resource"),       50),
-        "timestamp":      time.time(),
-    })
-    return save_history(history)
+def record_async(result: dict, has_state: bool = False) -> None:
+    """เขียนนอกเส้นทางตอบ — ผู้ใช้ไม่ต้องรอฐานข้อมูลบนคลาวด์"""
+    threading.Thread(target=record_decision, args=(dict(result), has_state), daemon=True).start()
 
 
 # ── Analyze ───────────────────────────────────────────────────────
@@ -75,13 +99,15 @@ def analyze_patterns() -> dict:
             "required": 3,
         }
 
-    scores     = [float(h.get("survival_score", 0) or 0) for h in history]
-    waterlines = [h.get("waterline", 50) for h in history]
-    entropies  = [h.get("entropy",   40) for h in history]
+    # ความเสี่ยงมีทุกแถว · waterline/entropy มีเฉพาะคนที่กรอกสถานะเอง (ไม่เอาค่าเริ่มต้นมาเฉลี่ย)
+    risks      = [float(h.get("risk") or 0) for h in history]
+    waterlines = [h["waterline"] for h in history if h.get("waterline") is not None]
+    entropies  = [h["entropy"]   for h in history if h.get("entropy")   is not None]
+    scores     = [100.0 - r for r in risks]          # คะแนนรอด = 100 − ความเสี่ยงของคำถาม
 
     avg_score = sum(scores) / n
-    avg_wl    = sum(waterlines) / n
-    avg_ent   = sum(entropies)  / n
+    avg_wl    = sum(waterlines) / len(waterlines) if waterlines else None
+    avg_ent   = sum(entropies) / len(entropies) if entropies else None
 
     # Trend — เทียบ 20% แรก vs 20% หลัง
     split = max(1, n // 5)
@@ -106,16 +132,17 @@ def analyze_patterns() -> dict:
 
     # Drift detection — entropy เพิ่มต่อเนื่อง 5 records
     drift_detected = False
-    if n >= 5:
-        last5_ent = [h.get("entropy", 40) for h in history[-5:]]
+    if len(entropies) >= 5:
+        last5_ent = entropies[-5:]
         drift_detected = all(last5_ent[i] < last5_ent[i+1] for i in range(4))
 
     return {
         "status":           "active",
         "records":          n,
         "avg_survival":     round(avg_score, 2),
-        "avg_waterline":    round(avg_wl,    2),
-        "avg_entropy":      round(avg_ent,   2),
+        "avg_waterline":    round(avg_wl, 2) if avg_wl is not None else None,
+        "avg_entropy":      round(avg_ent, 2) if avg_ent is not None else None,
+        "with_state":       len(waterlines),
         "trend":            trend,
         "top_strategy":     top_strategy,
         "high_risk_ratio":  high_risk_ratio,
@@ -126,8 +153,5 @@ def analyze_patterns() -> dict:
 
 
 # ── Query helpers ─────────────────────────────────────────────────
-def get_location_history(location: str) -> list:
-    return [h for h in load_history() if h.get("location") == location]
-
 def get_recent(n: int = 10) -> list:
     return load_history()[-n:]

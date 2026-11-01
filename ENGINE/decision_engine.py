@@ -476,11 +476,8 @@ def run_decision(data) -> dict:
         "stability": float(merged.get("stability", 60)),
     })
 
-    try:
-        from ENGINE.self_learning import analyze_patterns
-        merged["_learning_patterns"] = analyze_patterns()
-    except Exception:
-        merged["_learning_patterns"] = None
+    # (เดิมอ่านประวัติการเรียนรู้ทุกคำถามใส่ _learning_patterns แต่ไม่มีโค้ดไหนใช้ค่านั้น — อ่านฟรีทุกครั้ง)
+    # วงจรเรียนรู้ตอนนี้: /run บันทึก → ENGINE/self_learning → ดูภาพรวมที่การ์ดตัวเลขธุรกิจ
 
     return _engine().run(merged)
 

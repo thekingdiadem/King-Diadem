@@ -130,6 +130,15 @@ var Biz = (function(){
   var body = $('#biz-body');
   function pct(a, b){ return b ? Math.round(a / b * 1000) / 10 + '%' : '—'; }
   function n(v){ return Number(v || 0).toLocaleString(); }
+  /* ภาพรวมคำถามทั้งระบบ (ENGINE/self_learning) — ความเสี่ยงเฉลี่ยกำลังดีขึ้นหรือแย่ลง */
+  function learnHTML(L){
+    if(!L) return '';
+    if(L.status !== 'active') return '<p class="muted biz-note">' + _t('ภาพรวมคำถาม: ยังเก็บข้อมูลอยู่ ({n}/3)', {n: Number(L.records) || 0}) + '</p>';
+    var tr = {improving: _t('ดีขึ้น'), degrading: _t('แย่ลง'), stable: _t('ทรงตัว')}[L.trend] || L.trend;
+    return '<p class="biz-sum">' + _t('ภาพรวม {n} คำถามล่าสุด · แนวโน้ม{t} · เรื่องเสี่ยงสูง {h}%', {n: n(L.records), t: esc(tr), h: Math.round((Number(L.high_risk_ratio) || 0) * 100)}) +
+      (L.avg_waterline != null ? ' · ' + _t('waterline เฉลี่ย {w} (จาก {k} คนที่กรอกสถานะ)', {w: Math.round(L.avg_waterline), k: n(L.with_state)}) : '') + '</p>' +
+      (L.drift_detected ? '<p class="warn biz-note">' + _t('entropy เพิ่มต่อเนื่อง 5 รอบ — ผู้ใช้ช่วงนี้กำลังเครียดขึ้น') + '</p>' : '');
+  }
   function render(d){
     var t = d.total, paid = t['u:purchase'] + t['u:renewal'];
     var steps = [
@@ -144,6 +153,7 @@ var Biz = (function(){
         '<b>' + n(s[1]) + '</b><span class="bf-p">' + s[2] + '</span></div>';
     }).join('') + '</div>' +
       '<p class="biz-sum">' + _t('รายได้ 30 วัน ฿{b} · สมัครใหม่ {s} คน · ข้อความทั้งหมด {m}', {b: n(t.baht), s: n(t['u:signup']), m: n(t.chat)}) + '</p>' +
+      learnHTML(d.learning) +
       '<details class="biz-days"><summary>' + _t('ดูรายวัน') + '</summary><table><tr><th>' + _t('วัน') + '</th><th>' + _t('เข้า') + '</th><th>' + _t('คุย') + '</th><th>' + _t('ฟรีหมด') + '</th><th>' + _t('จ่าย') + '</th><th>฿</th></tr>' +
       d.series.slice(0, 14).map(function(r){
         return '<tr><td>' + esc(r.day.slice(5)) + '</td><td>' + n(r['u:visitor']) + '</td><td>' + n(r['u:chatter']) + '</td><td>' + n(r['u:paywalled']) + '</td><td>' + n(r['u:purchase'] + r['u:renewal']) + '</td><td>' + n(r['baht:purchase'] + r['baht:renewal']) + '</td></tr>';
@@ -521,7 +531,7 @@ function traceOf(d, mode, sentState){
     canonV: d.canon_violations || [],
     consensus: typeof d.consensus === 'string' ? d.consensus : (d.consensus && (d.consensus.final_action || d.consensus.consensus)) || '',
     tw: d.time_windows && typeof d.time_windows === 'object' ? d.time_windows : null,
-    report: d.report_id || '', share: d.share_token || '', gates: Array.isArray(d.vega_gates) ? d.vega_gates.slice(0, 3) : [], warn: d.governance_warning || '', sentState: !!inp, inp: inp
+    magga: Array.isArray(d.magga) ? d.magga.slice(0, 8) : [], report: d.report_id || '', share: d.share_token || '', gates: Array.isArray(d.vega_gates) ? d.vega_gates.slice(0, 3) : [], warn: d.governance_warning || '', sentState: !!inp, inp: inp
   };
 }
 function lvlClass(v, invert){ if(v == null) return ''; if(invert) return v >= 75 ? 'bad' : v >= 45 ? 'warn' : 'ok'; return v < 35 ? 'bad' : v < 65 ? 'warn' : 'ok'; }
@@ -658,7 +668,17 @@ function plainHTML(t){
     '<div class="pr"><span class="pk">ใครตัดสินใจ</span><span class="pv">' + (n.paused ? 'ระบบชวนพักก่อน' : 'คุณเลือกเองเสมอ') + '</span></div>' +
     (n.noState ? '<p class="pn">ประเมินจากข้อความอย่างเดียว — บอกสถานะของคุณ (พลังงาน การนอน) จะแม่นขึ้น</p>' : '') +
     '</div>';
-  return h + '<details class="eq-more"><summary>ดูวิธีคำนวณ</summary>' + eq + '</details>';
+  return h + maggaHTML(t) + '<details class="eq-more"><summary>ดูวิธีคำนวณ</summary>' + eq + '</details>';
+}
+/* มรรคมีองค์ 8 ของข้อความนี้ (ENGINE/bodhipakkhiya_engine) — ป้าย ✓/✗ ครบ 8 องค์ · ข้อไหนไม่ผ่านบอกเหตุใต้ป้าย */
+function maggaHTML(t){
+  var M = t && Array.isArray(t.magga) ? t.magga : [];
+  if(!M.length) return '';
+  var bad = M.filter(function(m){ return !m.ok; });
+  return '<div class="magga"><div class="mg-h">' + _t('มรรค 8') + '</div><div class="mg-b">' +
+    M.map(function(m){ return '<span class="badge ' + (m.ok ? 'ok' : 'warn') + '">' + (m.ok ? '✓ ' : '✗ ') + esc(_t(m.name)) + '</span>'; }).join('') + '</div>' +
+    (bad.length ? bad.map(function(m){ return '<p class="mg-n"><b>' + esc(_t(m.name)) + '</b> — ' + esc(_t(m.note)) + '</p>'; }).join('')
+                : '<p class="mg-n">' + _t('ผ่านครบ 8 องค์') + '</p>') + '</div>';
 }
 function eqStrip(t){
   if(!t) return '';
