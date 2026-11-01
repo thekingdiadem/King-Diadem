@@ -1234,6 +1234,54 @@ SCAM_RECOVERY_D = {
     "ask": "เขาขอให้จ่ายเท่าไหร่ และคุณได้โอนไปแล้วหรือยัง?",
 }
 
+# มรรค 8 ในคำตอบตอนไม่มี AI — เดิม "จะโกหกลูกค้าเพื่อปิดการขาย" ได้คำตอบธุรกิจทั่วไป (กระแสเงินสด จุดคุ้มทุน)
+# เคอร์เนลจับได้แล้ว (สัมมาวาจา ✗) แต่คำตอบไม่ทักเลย · ไม่ตัดสินคน — ชี้ราคาที่ต้องจ่าย แล้วคืนทางที่ตรงกว่า
+MAGGA_SPEECH_D = {   # สัมมาวาจา
+    "open": ["ขอพูดตรงๆ นะ — การโกหกอาจได้ผลวันนี้ แต่ราคาที่ต้องจ่ายมักแพงกว่าที่ได้มา: ความเชื่อใจที่เสียแล้วซื้อคืนยากมาก"],
+    "paths": [
+        "ลองหาสิ่งที่พูดได้จริงแทน — จุดแข็งจริงของสิ่งที่คุณมี หรือบอกข้อจำกัดตรงๆ พร้อมทางชดเชย (รับประกัน คืนเงิน ลดราคา)",
+        "ถ้าความจริงทำให้ปิดการขายไม่ได้ นั่นคือข้อมูลสำคัญ: สินค้า ราคา หรือกลุ่มลูกค้าอาจยังไม่ตรงกัน — แก้ตรงนั้นยั่งยืนกว่า",
+        "ถ้าเรื่องนี้เกี่ยวกับคุณภาพสินค้าหรือเงินของคนอื่น การบอกไม่ตรงอาจผิดกฎหมายคุ้มครองผู้บริโภคด้วย — เสี่ยงทั้งคดีและรีวิวเสีย",
+    ],
+    "ask": "ถ้าพูดความจริงทั้งหมด สิ่งที่คุณกลัวว่าจะเกิดคืออะไร?",
+}
+MAGGA_LIVING_D = {   # สัมมาอาชีวะ
+    "open": ["ทางนี้ได้เงินเร็ว แต่เป็นทางที่พังง่ายที่สุด — ถ้าถูกตรวจเจอ เสียทั้งเงิน อาชีพ และอาจมีคดีติดตัว"],
+    "paths": [
+        "เขียนออกมาว่าถ้าถูกจับได้ จะเสียอะไรบ้าง (ค่าปรับ คดี ใบอนุญาต ความเชื่อใจ) เทียบกับเงินที่ได้ — ส่วนใหญ่ไม่คุ้ม",
+        "ถ้ามีคนมาจ้างให้เปิดบัญชีหรือรับโอนเงินแทน นั่นคือบัญชีม้า มีโทษจำคุก — ปฏิเสธ และแจ้ง 1441 ได้",
+        "ถ้าเหตุผลจริงคือเงินไม่พอ ลองบอกตัวเลขที่ขาดกับเวลาที่มี — มีทางสุจริตที่เร็วพอ (งานด่วน ขายของที่มี เจรจาเลื่อนหนี้) ให้เลือกได้",
+    ],
+    "ask": "เงินที่ต้องการจากทางนี้ เอาไปใช้แก้เรื่องอะไร?",
+}
+MAGGA_INTENT_D = {   # สัมมาสังกัปปะ
+    "open": ["ความรู้สึกอยากเอาคืนแปลว่ามีเรื่องที่เจ็บจริง — ขอบคุณที่พูดออกมาก่อนลงมือ"],
+    "paths": [
+        "ถามตัวเองว่าอยากให้เรื่องนี้จบแบบไหน — ถ้าคำตอบคือ \"ให้เขาเจ็บ\" ส่วนใหญ่เรื่องจะไม่จบ แต่ยืดยาวและย้อนมาหาเรา",
+        "ถ้ามีเรื่องที่ไม่เป็นธรรมจริง เก็บหลักฐานแล้วไปทางที่มีผล: หัวหน้า ฝ่ายบุคคล หน่วยงานที่ดูแล หรือทนาย — แรงกว่าการแก้แค้นเอง",
+        "ก่อนทำอะไร รอ 24 ชั่วโมง — ถ้าพรุ่งนี้ยังอยากทำ ค่อยคิดต่อ อารมณ์ที่ลดลงจะเห็นทางที่ดีกว่า",
+    ],
+    "ask": "เขาทำอะไรที่ทำให้คุณเจ็บขนาดนี้?",
+}
+
+
+def _magga_topic(text: str):
+    """องค์มรรคที่ข้อความนี้ชนตรงๆ — ใช้ตัวตรวจเดียวกับ ENGINE/bodhipakkhiya_engine (ไม่สร้างกฎซ้ำ)"""
+    try:
+        from ENGINE.bodhipakkhiya_engine import FALSE_SPEECH, ILL_WILL, WRONG_LIVING
+    except Exception:
+        return None
+    if WRONG_LIVING.search(text):
+        return "living"
+    if FALSE_SPEECH.search(text):
+        return "speech"
+    if ILL_WILL.search(text):
+        return "intent"
+    return None
+
+
+_MAGGA_D = {"speech": MAGGA_SPEECH_D, "living": MAGGA_LIVING_D, "intent": MAGGA_INTENT_D}
+
 # ถูกโกงไปแล้ว — ต่างจากกำลังจะถูกหลอก: เวลาสำคัญที่สุดคือชั่วโมงแรกๆ
 SCAM_LOST = {
     "open": ["เสียใจด้วยที่เจอแบบนี้ — ไม่ใช่ความผิดของคุณ รีบทำตามนี้ภายในวันนี้ จะมีโอกาสได้เงินคืนมากขึ้น"],
@@ -1424,6 +1472,22 @@ EN_TOPIC = {
         "Call your bank now and ask them to freeze the receiving account (in Thailand also call 1441, 24h; in the US report at reportfraud.ftc.gov).",
         "Keep the evidence: transfer slips, account numbers, chats, links and phone numbers — screenshot before you block or delete anything, then report it to the police."],
         "Have you already sent money, or are they still asking you to?"),
+    # มรรค 8 ตอนไม่มี AI (ดู MAGGA_*_D ภาษาไทย)
+    "magga_speech": ("Straight talk: a lie might work today, but trust that's lost is very hard to buy back — the cost is usually higher than the gain.", [
+        "Find what you can say truthfully instead — real strengths, or the limitation stated plainly with a remedy (warranty, refund, discount).",
+        "If the truth can't close the deal, that's important information: the product, price or customer may not fit yet — fix that instead.",
+        "When it's about product quality or other people's money, misleading claims can also break consumer law — risking both a case and your reviews."],
+        "If you told the whole truth, what are you afraid would happen?"),
+    "magga_living": ("This road pays fast but breaks easiest — if it's found out, you can lose the money, your work, and end up with a case.", [
+        "Write down what you'd lose if caught (fines, charges, licence, trust) next to what you'd gain — it rarely adds up.",
+        "If someone pays you to open an account or receive transfers for them, that's a money-mule account and it's a crime — say no and report it.",
+        "If the real reason is a cash gap, tell me the amount and the deadline — there are honest options fast enough to compare."],
+        "What would the money from this fix for you?"),
+    "magga_intent": ("Wanting payback means something really hurt — thank you for saying it before acting.", [
+        "Ask how you want this to end. If the answer is \"so they hurt\", it usually doesn't end — it drags on and comes back to you.",
+        "If something unfair really happened, keep evidence and use routes that work: a manager, HR, the right agency or a lawyer.",
+        "Wait 24 hours before doing anything. If you still want to tomorrow, think again then — calmer eyes see better options."],
+        "What did they do that hurt this much?"),
     # หลอกซ้ำ: "recovery agent" เสนอตามเงินคืนแลกค่าธรรมเนียม
     "scam_recovery": ("Stop here — anyone who offers to get scammed money back for a fee is almost always the second wave of the same scam.", [
         "Don't pay any \"processing\", legal, tax or \"unlock\" fee. Real police, banks and lawyers don't charge upfront to recover scam money, and no hacker can pull it back.",
@@ -2024,7 +2088,9 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             en_key = "swallowed"    # "my child swallowed a battery" เคยได้ "some pills act slowly"
         if "recovery" in (a.get("scam") or []):
             en_key = "scam_recovery"
-        en = EN_TOPIC.get(en_key) if (lang == "en" and a["topics"] and not a["crisis"]) else None
+        elif not a["crisis"] and _magga_topic(t) and not (a.get("scam") or a.get("offer_flags")):
+            en_key = "magga_" + _magga_topic(t)
+        en = EN_TOPIC.get(en_key) if (lang == "en" and (a["topics"] or str(en_key).startswith("magga_")) and not a["crisis"]) else None
         if en:
             return (en[0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(en[1]))
                     + f"\n\n{en[2]}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
@@ -2143,6 +2209,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = SCAM_JOB_D, None
     elif a["scam"] and set(a["scam"]) <= {"romance", "lost"}:  # หลอกให้รัก/แอบอ้างเป็นเพื่อน
         main, second = SCAM_ROMANCE_D, None
+    elif _magga_topic(text) and not set(a["topics"]) & {"harm_others"}:
+        main, second = _MAGGA_D[_magga_topic(text)], None    # มรรค 8: โกหก/ทุจริต/อยากเอาคืน — ทักตรงๆ ก่อนคำตอบทั่วไป
     elif re.search(r"(?:เด็ก|คน|ป้า|ลุง|ผู้หญิง|ยาย)ข้างบ้าน[^\n]{0,12}?(?:โดน|ถูก)\S{0,6}?(?:ตี|ทำร้าย|ทุบ|ตบ|ทิ้ง|ขัง)", text):
         main, second = lib["witness"], None    # เดิมได้ "ความปลอดภัยของคุณมาก่อน" — ผู้ใช้เป็นคนได้ยิน ไม่ใช่ผู้ถูกทำร้าย
     elif _OTHER_HARM.search(text):
@@ -2408,6 +2476,8 @@ def compose_council(text: str, footer: bool = True) -> str:
         main = SCAM_JOB_D
     elif a.get("scam") and set(a["scam"]) <= {"romance", "lost"}:
         main = SCAM_ROMANCE_D
+    elif _magga_topic(text) and "harm_others" not in a["topics"]:
+        main = _MAGGA_D[_magga_topic(text)]
     elif a["relationship"] in ("collapse_risk", "critical"):
         main = SAFETY
     paths = _paths(main, t) or GENERAL["paths"]

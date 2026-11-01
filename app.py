@@ -28,7 +28,7 @@
 # =========================
 
 from fastapi import FastAPI, Request, File, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
@@ -826,6 +826,27 @@ async def guide_page():
 @app.get("/architecture")
 async def architecture_page():
     return FileResponse("static/architecture.html")
+
+# ── นโยบายความเป็นส่วนตัว / ข้อกำหนดการใช้งาน (PDPA · Play Store ต้องมี) ─────────────
+# อีเมลติดต่อตั้งใน Render ได้ (SUPPORT_EMAIL) — เปลี่ยนเป็น support@โดเมน ทีหลังได้โดยไม่ต้องแก้โค้ด
+SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "thekingdiadem@gmail.com").strip()
+OPERATOR_NAME = os.getenv("OPERATOR_NAME", "นิธิกร บุญสร้าง").strip()
+OPERATOR_NAME_EN = os.getenv("OPERATOR_NAME_EN", "").strip() or OPERATOR_NAME
+
+def _legal_page(name: str) -> HTMLResponse:
+    from html import escape
+    html = open(f"static/{name}.html", encoding="utf-8").read()
+    for k, v in (("{{SUPPORT_EMAIL}}", SUPPORT_EMAIL), ("{{OPERATOR_EN}}", OPERATOR_NAME_EN), ("{{OPERATOR}}", OPERATOR_NAME)):
+        html = html.replace(k, escape(v))
+    return HTMLResponse(html)
+
+@app.get("/privacy")
+async def privacy_page():
+    return _legal_page("privacy")
+
+@app.get("/terms")
+async def terms_page():
+    return _legal_page("terms")
 
 @app.get("/letter")
 async def letter_page():
