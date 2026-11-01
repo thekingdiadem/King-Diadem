@@ -557,7 +557,7 @@
   };
   // ภาษาเพิ่ม (จีน เกาหลี สเปน) อยู่ใน static/i18n/<lang>.js — โหลดเฉพาะตอนเลือก คนที่ไม่ได้เลือกไม่ต้องโหลดเพิ่ม
   // ตรงกับ 6 ภาษาที่ระบบตอบได้เต็มตอนไม่มี AI (ไทย อังกฤษ จีน ญี่ปุ่น เกาหลี สเปน) · ข้อความไหนยังไม่มีในชุดภาษา ใช้อังกฤษแทน
-  var LANGS = ['th', 'en', 'ja', 'zh', 'ko', 'es'], PACKS_LANGS = ['zh', 'ko', 'es'], KEY = 'kd_lang', ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
+  var LANGS = ['th', 'en', 'ja', 'zh', 'ko', 'es', 'vi'], PACKS_LANGS = ['zh', 'ko', 'es', 'vi'], KEY = 'kd_lang', ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
   var PACK = window.KD_I18N_PACKS = window.KD_I18N_PACKS || {};
   var REV = {};                                 // ข้อความที่แปลแล้ว → ไทย (สลับกลับได้โดยไม่ต้องโหลดหน้าใหม่)
   Object.keys(D).forEach(function (th) { REV[D[th][0]] = th; REV[D[th][1]] = th; });

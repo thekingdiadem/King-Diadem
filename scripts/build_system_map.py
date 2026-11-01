@@ -216,6 +216,9 @@ def asset_refs(files: list[str]) -> set[str]:
             src = open(os.path.join(ROOT, f), encoding="utf-8").read()
             if "earth/" in src:
                 out |= {g for g in files if g.startswith("static/earth/") and not g.endswith(".md")}
+            # ชุดภาษาหน้าเว็บ (static/i18n/zh.js …) i18n.js โหลดเมื่อผู้ใช้เลือกภาษา ด้วย 'i18n/' + lang + '.js'
+            if "'i18n/'" in src:
+                out |= {g for g in files if g.startswith("static/i18n/") and g.endswith(".js")}
             # ไลบรารีที่เก็บไว้ใน static/vendor/ โหลดด้วย BASE + ชื่อไฟล์ (เช่น MapLibre ใน city_map.js)
             for d in re.findall(r"/static/(vendor/[\w.-]+/)", src):
                 out |= {g for g in files if g.startswith("static/" + d) and not g.endswith((".md", ".txt"))}
@@ -295,6 +298,8 @@ def ref_edges(files: list[str], mods: dict[str, str], live: set[str]) -> set[tup
                         stem = re.sub(r"(_4k|\d+)$", "", os.path.splitext(os.path.basename(g))[0])
                         if re.search(r"['\"/]" + re.escape(stem), txt):
                             out.add((src, g, 1))
+            if "'i18n/'" in txt:
+                out |= {(src, g, 1) for g in fs if g.startswith("static/i18n/") and g.endswith(".js")}
             for d in re.findall(r"/static/(vendor/[\w.-]+/)", txt):
                 out |= {(src, g, 1) for g in fs if g.startswith("static/" + d) and not g.endswith((".md", ".txt"))}
     # pytest โหลด tests/conftest.py ให้ทุกเทสต์เอง (fixture autouse) และ pytest.ini ชี้ให้ pytest มาที่ tests/

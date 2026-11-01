@@ -90,6 +90,23 @@ _EN_KEYS = [
 ]
 _EN_RX = [(k, re.compile(p, re.I)) for k, p in _EN_KEYS]
 
+# ภาษาที่หน้าเว็บรองรับ (จีน ญี่ปุ่น เกาหลี สเปน เวียดนาม) — เดิมเห็นทุกข์ได้แค่ไทยกับอังกฤษ
+# "失眠好几天了" "No puedo dormir" "Tôi mất ngủ" เลยได้ "ยังไม่ชัด" ทั้งที่เล่าทุกข์ชัดเจน
+_WORLD_KEYS = [
+    ("sleepless", r"失眠|睡不着|眠れない|不眠|잠을 못|잠이 안|불면|no puedo dormir|insomnio|mất ngủ|không ngủ được"),
+    ("debt", r"债|欠款|还不起|借金|返せない|빚|대출|deuda|no puedo pagar|nợ|trả không nổi"),
+    ("lost_pet", r"[猫狗][^。？！\n]{0,4}(?:丢|不见|走失)|(?:猫|犬)[^。？！\n]{0,4}(?:いなくな|迷子)|(?:고양이|강아지)[^.?!\n]{0,6}(?:잃어|없어|사라)"
+                 r"|(?:perd[ií]|se perdi[oó]|se escap[oó])[^.?!\n]{0,12}(?:gato|perro|mascota)|(?:gato|perro|mascota)[^.?!\n]{0,12}(?:perdid|se escap)"
+                 r"|(?:mèo|chó|thú cưng)[^.?!\n]{0,12}(?:bị lạc|mất tích|đi lạc|biến mất)"),
+    ("grief", r"去世|过世|亡くな|돌아가|세상을 떠|falleci|murió|qua đời"),
+    ("lonely", r"孤独|寂寞|寂しい|외로|soledad|me siento solo|cô đơn"),
+    ("relationship", r"分手|离婚|男朋友|女朋友|別れ|離婚|彼氏|彼女|이별|헤어|이혼|ruptura|divorcio|mi novi[oa]|chia tay|ly hôn|người yêu"),
+    ("job", r"失业|被裁|辞职|クビ|失業|退職|해고|실직|퇴사|me despidieron|perdí (?:mi|el) trabajo|mất việc|nghỉ việc|bị sa thải"),
+    ("war_prep", r"战争|戦争|전쟁|guerra|chiến tranh"),
+    ("stress", r"压力|焦虑|ストレス|不安|스트레스|불안|estrés|ansiedad|căng thẳng|áp lực|lo âu"),
+]
+_WORLD_RX = [(k, re.compile(p, re.I)) for k, p in _WORLD_KEYS]
+
 
 def _topic_key(text: str, a: dict) -> str | None:
     try:
@@ -108,7 +125,7 @@ def _topic_key(text: str, a: dict) -> str | None:
             return key
     if re.search(r"นอนไม่หลับ|หลับไม่ลง|นอนไม่ค่อยหลับ|insomnia|can'?t sleep", text, re.I):
         return "sleepless"                     # assess มักให้ "stress" มาก่อน แต่ทุกข์ที่เล่าคือการนอน
-    for k, rx in _EN_RX:
+    for k, rx in _EN_RX + _WORLD_RX:
         if rx.search(text):
             return k
     for t in a.get("topics") or []:

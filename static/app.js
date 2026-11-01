@@ -692,7 +692,7 @@ function plainHTML(t){
    เนื้อความมาจากเซิร์ฟเวอร์เป็นภาษาไทย · หัวข้อแปลได้ */
 function ariyaHTML(t){
   var A = t && t.ariya;
-  if(!A || !A.dukkha) return '';
+  if(!A || !A.dukkha || A.dukkha === 'ยังไม่ชัด') return '';   /* ไม่มีทุกข์ให้ดู (ถามธรรมะ ขอบทสวด ทักทาย) — ไม่ต้องโชว์ช่องว่าง */
   var row = function(k, v){ return '<div class="ar-r"><span class="ar-k">' + _t(k) + '</span><span class="ar-v' + (v === 'ยังไม่ชัด' ? ' ar-un' : '') + '">' + esc(_t(String(v || ''))) + '</span></div>'; };
   return '<div class="ariya"><div class="mg-h">' + _t('อริยสัจ 4') + '</div>' +
     row('ทุกข์', A.dukkha) + (A.own ? '<div class="ar-r"><span class="ar-k">' + _t('สมุทัย') + '</span><span class="ar-v">' + _t('ตามที่เล่า') + ': ' + esc(A.samudaya) + '</span></div>' : row('สมุทัย', A.samudaya)) +

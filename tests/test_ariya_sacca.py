@@ -119,3 +119,15 @@ def test_every_truth_label_is_translated():
     texts = {x for v in TRUTHS.values() for x in v if x} | set(ROOT_TH.values()) | {"ตามที่เล่า", "ยังไม่ชัด"}
     missing = [x for x in texts if f"'{x}':" not in i18n]
     assert not missing, missing
+
+
+@pytest.mark.parametrize("text,dukkha", [
+    ("失眠好几天了", "นอนไม่หลับ"), ("眠れない日が続いています", "นอนไม่หลับ"),
+    ("No puedo dormir desde hace días", "นอนไม่หลับ"), ("Tôi mất ngủ nhiều ngày rồi", "นอนไม่หลับ"),
+    ("빚을 못 갚아요", "หนี้"), ("Nợ thẻ tín dụng trả không nổi", "หนี้"),
+    ("我的猫丢了", "สัตว์เลี้ยงหาย"), ("perdí mi perro", "สัตว์เลี้ยงหาย"), ("Con mèo bị lạc 2 ngày rồi", "สัตว์เลี้ยงหาย"),
+    ("Tôi vừa chia tay người yêu", "ความสัมพันธ์"),
+])
+def test_suffering_is_seen_in_every_ui_language(text, dukkha):
+    """หน้าเว็บมีจีน ญี่ปุ่น เกาหลี สเปน เวียดนาม — เดิมเห็นทุกข์ได้แค่ไทย/อังกฤษ ที่เหลือได้ "ยังไม่ชัด" หมด"""
+    assert dukkha in four_truths(text)["dukkha"]
