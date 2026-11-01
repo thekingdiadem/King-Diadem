@@ -5,13 +5,15 @@ import re
 from PIL import Image
 
 
-def test_logo_is_vector_and_icons_are_built_from_it():
-    """โลโก้ดาวในวงแหวนวาดเป็นเวกเตอร์ (static/logo.svg) — ดาวคมทุกขนาด · ไอคอนทุกขนาดสร้างจากไฟล์นี้
+def test_icons_are_built_from_the_master_logo():
+    """โลโก้ใหม่ (ดาวในวงแหวน) เป็นภาพ — ต้นฉบับ static/brand/logo-master.png สร้างทุกขนาดด้วย scripts/build_icons.py
     ทุกไฟล์ < 1MB (GitHub ไม่รับภาพเกิน 1MB) · ไอคอนแอปทึบ (iOS ทำขอบโปร่งเป็นสีดำ)"""
     import os
-    svg = open("static/logo.svg", encoding="utf-8").read()
-    assert svg.startswith("<svg") and 'viewBox="0 0 512 512"' in svg and "<image" not in svg   # เวกเตอร์ล้วน ไม่ฝังภาพ
-    assert os.path.getsize("static/logo.svg") < 20_000
+    m = Image.open("static/brand/logo-master.png")
+    assert m.mode == "RGBA" and max(m.size) == 1024
+    # ดาวกลางโลโก้ต้องทึบ — ไฟล์ที่ลบพื้นขาวทิ้งเคยลบดาวสีขาวไปด้วยจนเป็นรู
+    w, h = m.size
+    assert m.getpixel((w // 2, int(h * .30)))[3] == 255     # จุดนี้ในไฟล์ที่ลบพื้นขาวเคยโปร่ง 100%
     for f, size in (("static/icons/icon-512.png", 512), ("static/icons/icon-192.png", 192),
                     ("static/icons/maskable-512.png", 512), ("static/icons/apple-touch-icon.png", 180),
                     ("static/icons/favicon-48.png", 48), ("static/logo.png", 256)):
@@ -20,12 +22,14 @@ def test_logo_is_vector_and_icons_are_built_from_it():
         assert os.path.getsize(f) < 1_000_000, f
         if "icons/" in f:
             assert im.mode == "RGB", f
+    assert os.path.getsize("static/brand/logo-master.png") < 1_000_000
 
 
 def test_every_page_uses_the_same_icon():
     for f in glob.glob("static/*.html"):
         s = open(f, encoding="utf-8").read()
-        assert '<link rel="icon" href="/static/logo.svg"' in s, f
+        assert '<link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">' in s, f
+        assert 'href="/static/logo.svg"' not in s, f
 
 
 def test_share_image_is_full_size_and_on_main_pages():
