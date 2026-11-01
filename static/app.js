@@ -9,7 +9,7 @@ function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(
 function fmt(t){ return esc(t).replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); }
 /* เบอร์สายด่วนในคำตอบ → แตะโทรได้ทันทีบนมือถือ (ไม่แตะจำนวนเงิน เช่น "1300 บาท")
    รวมเบอร์ในคำตอบ 54 ภาษา (110 จีน · 119 ญี่ปุ่น · 109 เกาหลี · 3114 ฝรั่งเศส ฯลฯ) — เดิมแตะโทรได้แค่เบอร์ไทยกับ 911/988/112/999 */
-var HOTLINES = /(^|[^\d\w.\/:-])(191|1669|1323|1300|1367|1784|1650|1599|1155|1111|1441|1213|1195|1387|1506|1330|1192|1567|1586|1543|1413|1165|1600|1663|1546|1694|1166|1167|1186|1205|1207|1362|1366|1570|199|911|988|112|999|016|101|102|103|108|109|110|113|115|116|119|124|142|155|158|166|188|190|192|194|1018|1122|1201|1480|1553|1813|1926|1990|3114|7333|9110)(?![\d.,]|\s*(?:บาท|฿|baht|ปี|คน|ครั้ง|%))/g;
+var HOTLINES = /(^|[^\d\w.\/:-])(191|1669|1323|1300|1367|1784|1650|1599|1155|1111|1441|1213|1195|1387|1506|1330|1192|1567|1586|1543|1413|1165|1600|1663|1546|1694|1129|1130|1422|1584|1166|1167|1186|1205|1207|1362|1366|1570|199|911|988|112|999|016|101|102|103|108|109|110|113|115|116|119|124|142|155|158|166|188|190|192|194|1018|1122|1201|1480|1553|1813|1926|1990|3114|7333|9110)(?![\d.,]|\s*(?:บาท|฿|baht|ปี|คน|ครั้ง|%))/g;
 function telify(html){ return html.replace(HOTLINES, '$1<a class="tel" href="tel:$2">$2</a>'); }
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } }
 /* แปลข้อความที่สคริปต์ประกอบเอง (มีตัวเลข/ชื่อแทรก หรืออยู่ในกล่องแชทที่ตัวแปลอัตโนมัติไม่แตะ)
@@ -1030,12 +1030,14 @@ var Cosmos = (function(){
       '   vec3 tx=texture2D(uDay,uv).rgb; vec3 alb=pow(tx,vec3(2.2));',
       '   float cl=smoothstep(.15,.9,texture2D(uClouds,vec2(lonU(lon+t*.008),uv.y)).r);',
       '   float li=texture2D(uLights,uv).r;',
+      '   float lg=texture2D(uLights,uv,2.).r;',                  /* ไฟเมืองเรืองแสง: อ่าน mip ที่เบลอกว่าเป็นรัศมีรอบเมือง (bloom ราคาถูก ไม่ต้องเรนเดอร์ซ้ำ) */
       '   float water=smoothstep(.03,.12,tx.b-max(tx.r,tx.g)*.9);',
       '   ec=alb*lit+water*vec3(.002,.010,.032)*(.7+sunF);',
       '   vec3 hv=normalize(L+vec3(0.,0.,1.)); ec+=vec3(.5,.72,1.)*pow(max(dot(nv,hv),0.),24.)*water*(1.-cl)*.16;',
       '   ec=mix(ec,vec3(.78,.82,.92)*(.025+sunF*.6),cl*.3);',
       '   float ck=1.-.6*smoothstep(.35,.9,sunF);',
-      '   ec+=mix(vec3(1.,.55,.2),vec3(1.,.88,.62),li*li)*li*li*3.*ck*(1.-cl*.45)*pulse*(1.-uLight*.75);',
+      '   float lc=smoothstep(.02,.62,li);',
+      '   ec+=(mix(vec3(1.,.58,.22),vec3(1.,.84,.54),lc)*lc*lc*3.1+vec3(1.,.6,.24)*lg*lg*1.6)*ck*(1.-cl*.4)*pulse*(1.-uLight*.75);',
       '  } else {',
       '   vec2 uv=vec2(lon,lat);',
       '   float land=smoothstep(.555,.6,fbm(uv*vec2(1.5,2.1)+7.)); float ice=smoothstep(1.1,1.3,abs(lat));',
@@ -1054,7 +1056,7 @@ var Cosmos = (function(){
       ' if(r>=.97){',
       '  float hg=r-1.; float side=.5+.5*dot(normalize(vec2(d.x,-d.y)+1e-5),sdir);',
       '  vec3 warm=mix(vec3(1.,.70,.36),vec3(1.,.40,.30),uRisk);',
-      '  float atm=hg<0.?smoothstep(.97,1.,r)*(.10+.25*side):exp(-hg/.011)*(.22+.5*side)+exp(-hg/.06)*(.05+.10*side);',
+      '  float atm=hg<0.?smoothstep(.97,1.,r)*(.14+.25*side):exp(-hg/.012)*(.30+.5*side)+exp(-hg/.07)*(.07+.10*side);',
       '  col+=mix(vec3(.35,.55,1.),warm,.45+.55*side)*atm;',
       ' }',
       /* แฟลร์เลนส์อนามอร์ฟิกแบบกล้องหนังจอกว้าง: เส้นแสงแนวนอนบางๆ ผ่านดวงอาทิตย์ อุ่นตรงกลาง เย็นที่ปลาย */
@@ -1097,6 +1099,28 @@ var Cosmos = (function(){
           gl.generateMipmap(gl.TEXTURE_2D); return tx;
         });
         gl.activeTexture(gl.TEXTURE0); kick();
+        setTimeout(loadHi, 1500);
+      }
+      /* 4K ทีหลัง (เมื่อภาพแรกขึ้นแล้ว): พื้นโลกคมขึ้น เมฆไม่เป็นบล็อกตอนโลกใหญ่เต็มจอ (โหมดหนัง/บทสวด)
+         เฉพาะเครื่องที่ไหว — GPU รับ 4096 · ไม่ได้เปิดประหยัดเน็ต · RAM ≥ 4GB (ถ้าเบราว์เซอร์บอก) · โลกบนจอใหญ่พอจะเห็นต่าง */
+      function loadHi(){
+        try{
+          var conn = navigator.connection || {}, mem = navigator.deviceMemory || 8;
+          var px = Math.min(innerWidth, innerHeight) * Math.min(devicePixelRatio || 1, 2);
+          if(!gl || gl.getParameter(gl.MAX_TEXTURE_SIZE) < 4096 || conn.saveData || /2g/.test(conn.effectiveType || '') || mem < 4 || px < 640) return;
+        }catch(_){ return; }
+        /* ไฟเมืองคงไฟล์ 2K: ไฟล์ 4K เป็นจุดเล็กกว่ามาก พอย่อลงเป็นลูกโลกทั้งใบไฟจะจางหาย (ลองแล้ว) */
+        ['/static/earth/day_4k.jpg', null, '/static/earth/clouds_4k.jpg'].forEach(function(src, i){
+          if(!src) return;
+          var im = new Image(); im.decoding = 'async';
+          im.onload = function(){
+            if(!gl || !Array.isArray(EARTH_TEX)) return;
+            gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, EARTH_TEX[i]);
+            gl.texImage2D(gl.TEXTURE_2D, 0, fmt[i], fmt[i], gl.UNSIGNED_BYTE, im); gl.generateMipmap(gl.TEXTURE_2D);
+            gl.activeTexture(gl.TEXTURE0); kick();
+          };
+          im.src = src;
+        });
       }
     }
     if(!SKYP){ c.remove(); return null; }
