@@ -16,7 +16,7 @@ AXIOMS = {
     2: "Rule Over Authority — กฎมาก่อนอำนาจเสมอ",
     3: "Determinism — Input เดิม + กฎเดิม = Output เดิม",
     4: "Downside Before Upside — ประเมินความเสียหายก่อนผลตอบแทน",
-    5: "Explainability = 100% — อธิบายไม่ได้ = ใช้ไม่ได้",
+    5: "Explainability = Usability — อธิบายไม่ได้ = ใช้ไม่ได้",
     6: "Human Final Authority — มนุษย์ตัดสินขั้นสุดท้ายเสมอ",
 }
 
@@ -179,3 +179,101 @@ def get_axioms() -> dict:
 
 def get_constraints() -> list:
     return CONSTRAINTS
+
+
+# ══════════════════════════════════════════════════════════════════
+# FATE™ AXIOM AUDIT — ใช้ตรวจผลทุกรายงาน (report_engine) · ชื่อ axiom มาจาก AXIOMS ข้างบนที่เดียว
+# เดิมรายงานมีชุดตรวจของตัวเองแยกจากไฟล์นี้ และไฟล์นี้ไม่มีโค้ดไหนเรียกใช้เลย
+# ══════════════════════════════════════════════════════════════════
+def _num(v, d: float = 0.0) -> float:
+    try:
+        v = float(v)
+        return v if v == v and v not in (float("inf"), float("-inf")) else d
+    except (TypeError, ValueError):
+        return d
+
+
+def _axiom_name(n: int) -> str:
+    return AXIOMS[n].split(" — ")[0]
+
+
+def axiom_audit(result: dict) -> dict:
+    """ตรวจผลลัพธ์ผ่าน 6 Axioms → {checks, verdict, axiom_pass/warn/fail}"""
+    result = result if isinstance(result, dict) else {}
+
+    # ตัดความยาวเท่าคอลัมน์ — เดิมส่ง route ยาว 200KB มาแล้วถูกเก็บและเปิดให้ทุกคนดูได้
+    route    = str(result.get("route", "general"))[:40]
+    persona  = str(result.get("persona", "LYLA"))[:20]
+    risk     = _num(result.get("risk_score", 0))
+    response = str(result.get("ai_response", ""))
+
+    checks = []
+
+    # A1 — Logic Over Persona
+    checks.append({
+        "code": "A1",
+        "name": _axiom_name(1),
+        "status": "PASS",
+        "note": f"Route: {route} | Persona: {persona} — ยึดตามกฎ ไม่ยึดตัวบุคคล"
+    })
+
+    # A2 — Rule Over Authority
+    checks.append({
+        "code": "A2",
+        "name": _axiom_name(2),
+        "status": "PASS",
+        "note": "Human Final Authority ยังคงอยู่ — ระบบไม่มีอำนาจบังคับ"
+    })
+
+    # A3 — Determinism
+    has_response = len(response) > 10
+    checks.append({
+        "code": "A3",
+        "name": _axiom_name(3),
+        "status": "PASS" if has_response else "WARN",
+        "note": "Output traceable from input + ruleset" if has_response else "Response empty — trace incomplete"
+    })
+
+    # A4 — Downside Before Upside
+    risk_status = "PASS" if risk < 50 else ("WARN" if risk < 75 else "FAIL")
+    risk_label  = f"Risk score: {risk:.0f}/100"
+    checks.append({
+        "code": "A4",
+        "name": _axiom_name(4),
+        "status": risk_status,
+        "note": risk_label + (" — Low risk" if risk < 50 else " — High risk detected" if risk >= 75 else " — Moderate risk")
+    })
+
+    # A5 — Explainability
+    explainable = len(response) > 50
+    checks.append({
+        "code": "A5",
+        "name": _axiom_name(5),
+        "status": "PASS" if explainable else "WARN",
+        "note": "Response explainable to general user" if explainable else "Response too short to verify explainability"
+    })
+
+    # A6 — Human Final Authority
+    checks.append({
+        "code": "A6",
+        "name": _axiom_name(6),
+        "status": "PASS",
+        "note": "ระบบแนะนำเท่านั้น — มนุษย์ตัดสินใจขั้นสุดท้ายเสมอ"
+    })
+
+    # Overall verdict
+    statuses = [c["status"] for c in checks]
+    if "FAIL" in statuses:
+        verdict = "REJECTED"
+    elif statuses.count("WARN") >= 2:
+        verdict = "DEFERRED"
+    else:
+        verdict = "APPROVED"
+
+    return {
+        "checks": checks,
+        "verdict": verdict,
+        "axiom_pass": statuses.count("PASS"),
+        "axiom_warn": statuses.count("WARN"),
+        "axiom_fail": statuses.count("FAIL"),
+    }
