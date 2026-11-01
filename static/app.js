@@ -521,7 +521,7 @@ function traceOf(d, mode, sentState){
     canonV: d.canon_violations || [],
     consensus: typeof d.consensus === 'string' ? d.consensus : (d.consensus && (d.consensus.final_action || d.consensus.consensus)) || '',
     tw: d.time_windows && typeof d.time_windows === 'object' ? d.time_windows : null,
-    report: d.report_id || '', share: d.share_token || '', gates: Array.isArray(d.vega_gates) ? d.vega_gates.slice(0, 3) : [], warn: d.governance_warning || '', sentState: !!inp, inp: inp
+    magga: Array.isArray(d.magga) ? d.magga.slice(0, 8) : [], report: d.report_id || '', share: d.share_token || '', gates: Array.isArray(d.vega_gates) ? d.vega_gates.slice(0, 3) : [], warn: d.governance_warning || '', sentState: !!inp, inp: inp
   };
 }
 function lvlClass(v, invert){ if(v == null) return ''; if(invert) return v >= 75 ? 'bad' : v >= 45 ? 'warn' : 'ok'; return v < 35 ? 'bad' : v < 65 ? 'warn' : 'ok'; }
@@ -553,6 +553,13 @@ function traceHTML(t){
   if(t.consensus) row('Consensus', '<span class="mono">' + esc(t.consensus) + '</span>');
   /* VEGA 14 Gates — ประตูที่ติดจากข้อความ พร้อมคำถามของแต่ละประตู */
   if(Array.isArray(t.gates) && t.gates.length) row('VEGA gates', t.gates.map(function(g){ return '<div><span class="badge warn">' + esc(g.id) + '</span> <b>' + esc(g.name) + '</b> — ' + esc(g.ask) + '</div>'; }).join(''));
+  /* มรรคมีองค์ 8 — ผ่านครบ = แถบเดียวสั้นๆ · ข้อไหนไม่ผ่านบอกชื่อพร้อมเหตุ (ENGINE/bodhipakkhiya_engine) */
+  if(Array.isArray(t.magga) && t.magga.length){
+    var mf = t.magga.filter(function(m){ return !m.ok; });
+    row('มรรค 8', '<div class="magga">' + t.magga.map(function(m){ return '<span class="badge ' + (m.ok ? 'ok' : 'warn') + '" title="' + esc(_t(m.note)) + '">' + (m.ok ? '✓ ' : '✗ ') + esc(_t(m.name)) + '</span>'; }).join('') + '</div>'
+      + (mf.length ? mf.map(function(m){ return '<div class="muted" style="font-size:12px">' + esc(_t(m.name)) + ' — ' + esc(_t(m.note)) + '</div>'; }).join('')
+                   : '<div class="muted" style="font-size:12px">' + _t('ผ่านครบ 8 องค์') + '</div>'));
+  }
   /* ลิงก์รายงานสร้างเมื่อกดแชร์เท่านั้น — ไม่มีลิงก์สาธารณะเกิดเองทุกครั้งที่ถาม */
   if(t.report) row('รายงาน', '<a href="/report/' + encodeURIComponent(t.report) + '" target="_blank" rel="noopener" class="mono">/report/' + esc(t.report) + '</a>');
   else if(t.share) row('รายงาน', '<button type="button" class="btn ghost" data-act="share" data-token="' + esc(t.share) + '">สร้างลิงก์แชร์</button> <span class="muted">เปิดได้ 90 วัน · ใครมีลิงก์ก็อ่านได้</span>');

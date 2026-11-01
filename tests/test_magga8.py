@@ -42,3 +42,34 @@ def test_each_missed_case_now_fails_the_right_factor_and_is_not_peace(text, fact
 def test_ordinary_questions_pass_all_eight(text):
     g = guardian_check(text, HS)
     assert all(g["magga"].values()), g["failed"]
+
+
+# ── ให้ผู้ใช้เห็นได้จริง: เดิมคิดแล้วไม่เคยแสดง (app.js ไม่มีคำว่ามรรคเลย) ─────────────────
+def test_run_returns_the_eight_factors(client, monkeypatch):
+    monkeypatch.setenv("KD_AI", "off")
+    d = client.post("/run", json={"input": "จะโกหกลูกค้าเรื่องคุณภาพสินค้าเพื่อปิดการขาย"}).json()
+    m = {x["name"]: x for x in d["magga"]}
+    assert list(m) == EIGHT and m["สัมมาวาจา"]["ok"] is False and m["สัมมาวาจา"]["note"]
+
+
+def test_crisis_answers_skip_the_panel(client, monkeypatch):
+    monkeypatch.setenv("KD_AI", "off")
+    assert "magga" not in client.post("/run", json={"input": "อยากตาย"}).json()
+
+
+def test_trace_panel_shows_magga_and_every_text_translates():
+    import pathlib
+    import re
+    from tests._front import front_page
+    page = front_page()
+    assert "row('มรรค 8'" in page and "d.magga" in page
+    root = pathlib.Path(__file__).resolve().parent.parent
+    i18n = (root / "static" / "i18n.js").read_text(encoding="utf-8")
+    g = guardian_check("วันนี้อากาศดี", HS)
+    texts = {"มรรค 8", "ผ่านครบ 8 องค์"}
+    src = (root / "ENGINE" / "bodhipakkhiya_engine.py").read_text(encoding="utf-8")
+    block = src[src.index("# 6 มรรค 8"):src.index("    ]\n    out = []")]
+    texts |= set(re.findall(r'"([^"\n]*[ก-๙][^"\n]*)"', block)) - {"มรรคมีองค์ 8"}
+    texts |= {x["name"] for x in g["layers"][-1]["items"]}
+    missing = [t for t in texts if f"'{t}':" not in i18n]
+    assert not missing, missing

@@ -2648,6 +2648,15 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     if vega_gates and result.get("route") not in ("crisis", "collapse", "survival"):
         result["vega_gates"] = [{"id": g["id"], "name": g["name"], "ask": g["ask"]} for g in vega_gates]
 
+    # มรรค 8 ของข้อความนี้ — ให้ผู้ใช้เห็นในแผง "ดูที่มา" ว่าเคอร์เนลตรวจอะไร (เดิมคิดแล้วไม่เคยแสดง)
+    if result.get("route") not in ("crisis", "collapse"):
+        try:
+            _L = ((core_result.get("bodhi_detail") or {}).get("layers") or [])[-1]
+            if _L.get("dhamma") == "มรรคมีองค์ 8":
+                result["magga"] = [{"name": x["name"], "ok": x["ok"], "note": x["note"]} for x in _L["items"]]
+        except Exception:
+            pass
+
     # ── รายงานที่แชร์ได้: สร้างเมื่อผู้ใช้กดแชร์เท่านั้น ─────────────────────
     # เดิมสร้างลิงก์สาธารณะทุกครั้งที่ถาม (ไม่มีวันหมดอายุ ลบไม่ได้) — เรื่องส่วนตัวค้างอยู่ในลิงก์ที่ใครมีก็อ่านได้
     # ตอนนี้แค่จำผลไว้ชั่วคราวกับ token · กด "แชร์" แล้วค่อยสร้างจริง (POST /api/report/share)
