@@ -1106,3 +1106,9 @@ code,pre,.files code,.files td.f,.pipe code,.dir summary .n,.eq,#u-card .sym,#tf
 #del-body .field{display:block;margin:10px 0}
 .btn.danger{background:rgba(255,93,108,.14);border:1px solid rgba(255,93,108,.5);color:#ffb3ba}
 .btn.danger:hover{background:rgba(255,93,108,.24)}
+.ariya{margin:14px 0 4px;padding-top:12px;border-top:1px solid var(--line)}
+.ariya .ar-r{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:5px 0;font-size:13.5px;line-height:1.55}
+.ariya .ar-k{color:var(--gold-hi,#ffd28f);font-weight:600}
+.ariya .ar-v{color:var(--ink-2)}
+.ariya .ar-un{color:var(--ink-3);font-style:italic}
+.ariya .ar-note{font-size:12px;color:var(--ink-3)}

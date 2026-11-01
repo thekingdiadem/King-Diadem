@@ -40,7 +40,7 @@ def test_no_state_shows_only_text_risk():
 @pytest.mark.skipif(not shutil.which("node"), reason="ต้องใช้ node")
 def test_panel_speaks_plain_language_first():
     """เจ้าของโปรเจกต์: สูตร W · E, R · ⌊⌋ ทำให้คนทั่วไปเข้าถึงยาก → สรุปเป็นคำก่อน สูตรพับไว้ใน "ดูวิธีคำนวณ" """
-    js = "\n".join(_fn(n) for n in ("esc", "num", "r1", "eqRow", "eqHTML", "riskWord", "maggaHTML", "plainHTML", "eqStrip"))
+    js = "\n".join(_fn(n) for n in ("esc", "num", "r1", "eqRow", "eqHTML", "riskWord", "ariyaHTML", "maggaHTML", "plainHTML", "eqStrip"))
     js = "var EQ=[];function eqCatalog(){return ''};function _t(s,v){return v?s.replace(/\\{(\\w+)\\}/g,function(m,k){return v[k];}):s;};\n" + js + """
     var t = {inp: null, wl: 100, risk: 55, sentState: false};
     console.log(JSON.stringify([plainHTML(t), eqStrip(t), plainHTML({inp: null, wl: 100, risk: 90, sentState: false})]));"""

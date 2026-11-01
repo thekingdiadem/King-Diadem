@@ -203,6 +203,103 @@
     'การสมัครหรือเข้าสู่ระบบถือว่ายอมรับ': ['By signing up or signing in you agree to the', '登録・ログインすると次に同意したことになります:'], 'ข้อกำหนดการใช้งาน': ['Terms of Use', '利用規約'], 'นโยบายความเป็นส่วนตัว': ['Privacy Policy', 'プライバシーポリシー'], 'และ': ['and', 'と'],
     'ลบบัญชี': ['Delete account', 'アカウント削除'], 'ลบถาวร · ย้อนกลับไม่ได้': ['Permanent · cannot be undone', '完全削除・元に戻せません'], 'ลบบัญชี ประวัติแชท ความจำ เครดิต และการยืนยันสองชั้นทั้งหมด · แพ็กเกจรายรอบบิลจะถูกยกเลิกให้ก่อน · หลักฐานการชำระเงินเก็บไว้ตามกฎหมายภาษี': ['Deletes your account, chat history, memory, credits and 2FA. Any billing plan is cancelled first. Payment records are kept as tax law requires.', 'アカウント・チャット履歴・メモリー・クレジット・2段階認証をすべて削除します。定期プランは先に解約されます。支払い記録は税法に従い保管します。'], 'อยากเก็บประวัติไว้ ส่งออกก่อนได้ที่เมนูความจำ': ['Want to keep your history? Export it first from the Memory menu.', '履歴を残したい場合は、先にメモリーメニューから書き出してください。'], 'ลบบัญชีของฉัน': ['Delete my account', 'アカウントを削除する'], 'พิมพ์อีเมลของบัญชีนี้เพื่อยืนยัน': ['Type this account’s email to confirm', '確認のためこのアカウントのメールを入力'], 'รหัสยืนยันสองชั้น (หรือรหัสกู้คืน)': ['2FA code (or a recovery code)', '2段階認証コード（またはリカバリーコード）'], 'ลบถาวร': ['Delete permanently', '完全に削除'], 'พิมพ์อีเมลของบัญชีนี้ให้ตรงก่อนนะคะ': ['Please type this account’s email exactly first.', 'まずこのアカウントのメールを正確に入力してください。'], 'ลบบัญชีถาวร ย้อนกลับไม่ได้ — แน่ใจไหมคะ?': ['Delete your account permanently? This cannot be undone.', 'アカウントを完全に削除しますか？元に戻せません。'], 'ลบบัญชีเรียบร้อยแล้ว ขอบคุณที่เคยใช้ KING DIADEM นะคะ': ['Your account has been deleted. Thank you for using KING DIADEM.', 'アカウントを削除しました。KING DIADEMをご利用いただきありがとうございました。'], 'ลบบัญชีไม่สำเร็จ ลองใหม่อีกครั้งนะคะ': ['Couldn’t delete the account. Please try again.', '削除できませんでした。もう一度お試しください。'],
     'รหัสยืนยันสองชั้น': ['2FA code', '2段階認証コード'], 'อีเมลเพื่อยืนยันการลบบัญชี': ['Email to confirm account deletion', 'アカウント削除確認用のメール'],
+    'ใจยังเหนื่อยและไม่นิ่ง — พักให้ใจสงบก่อนตัดสินเรื่องใหญ่': ['Your mind is tired and unsettled — rest before any big decision', '心が疲れて落ち着いていません — 大きな決断の前に休みましょう'],
+    'อริยสัจ 4': ['Four Noble Truths', '四諦'], 'ทุกข์': ['Suffering', '苦'], 'สมุทัย': ['Cause', '集'], 'นิโรธ': ['Cessation', '滅'], 'มรรค': ['Path', '道'], 'ยังไม่ชัด': ['Not clear yet', 'まだ不明'], 'ยังเห็นไม่ครบ — เล่าเพิ่มอีกนิด ทางจะตรงขึ้น': ['Not fully seen yet — tell a bit more and the path gets clearer', 'まだ全体が見えていません — もう少し教えてください'], 'เห็นทุกข์และเหตุชัด': ['Suffering and its cause are clear', '苦とその原因が明確'], 'เห็นทุกข์แล้ว แต่เหตุยังไม่ชัด — ถามหาต้นเหตุก่อน': ['The problem is seen, but its cause isn’t yet — ask for the cause first', '問題は見えたが原因はまだ — まず原因を尋ねる'],
+    'อ่านจากที่เล่า เปลี่ยนได้เมื่อเล่าเพิ่ม — เป็นเครื่องมือนำทาง ไม่ใช่คำตัดสิน': ['Read from what you shared — it changes as you tell more. A guide, not a verdict.', '話された内容から読み取ったもの — 話すほど変わります。判断ではなく道しるべです。'],
+    'ตามที่เล่า': ['As you said', 'あなたの言葉では'],
+    'กลัว AI แย่งงาน': ['Afraid AI will take your job', 'AIに仕事を奪われる不安'],
+    'กลัวภัยสงครามจะกระทบครอบครัว': ['Afraid war will reach your family', '戦争が家族に及ぶ不安'],
+    'กลัวเศรษฐกิจพังแล้วตัวเองไปไม่รอด': ['Afraid the economy will collapse and you won’t make it', '経済が崩れて生き残れない不安'],
+    'กังวลโรคระบาด': ['Worried about an outbreak', '感染症への不安'],
+    'การสูญเสียคนหรือสิ่งที่รัก': ['Losing someone or something you love', '大切な人やものを失ったこと'],
+    'กำลังจะพูดไม่จริงเพื่อให้ได้สิ่งที่ต้องการ': ['About to say something untrue to get what you want', '望むものを得るために嘘をつこうとしている'],
+    'กำลังพิจารณาทางหาเงินที่ไม่สุจริต': ['Considering a dishonest way to make money', '不正な稼ぎ方を考えている'],
+    'กำลังเสี่ยงเสียเงินให้มิจฉาชีพ': ['At risk of losing money to scammers', '詐欺でお金を失う危険'],
+    'ของสำคัญหาย เสี่ยงถูกเอาไปใช้': ['Something important is lost and could be misused', '大事なものを失くし、悪用される恐れ'],
+    'ของหรือเงินถูกขโมย': ['Things or money were stolen', '物やお金を盗まれた'],
+    'ข่าวที่ไม่แน่นอน': ['Uncertain news', '不確かな情報'],
+    'ข่าวที่ไม่แน่นอน และยังไม่ได้เตรียมพร้อม': ['Uncertain news, and not prepared yet', '不確かな情報と、まだ備えがないこと'],
+    'ข้อมูลผิดหรือไม่ครบ': ['Wrong or incomplete information', '誤った、または不十分な情報'],
+    'ครอบครัวมีแผนและของจำเป็นพร้อม ใจนิ่งพอ': ['The family has a plan and essentials ready, and feels steady', '家族に計画と必需品があり、心が落ち着いている'],
+    'ความกลัว': ['Fear', '恐れ'],
+    'ความต้องการเงินเร่งกว่าการชั่งความเสี่ยง': ['The need for money is outrunning the weighing of risk', 'お金の必要がリスクの見極めより先走っている'],
+    'ความผูกพันที่ยังไม่ได้มีที่วาง': ['A bond that hasn’t found a place to rest yet', 'まだ置き場のない絆'],
+    'ความยึดติด': ['Clinging', '執着'],
+    'ความสัมพันธ์ทำให้เจ็บหรือสับสน': ['A relationship is hurting or confusing you', '関係に傷ついている、または混乱している'],
+    'ความอยากได้ (ตัณหา)': ['Craving', '渇愛（欲しい気持ち）'],
+    'ความเจ็บที่ยังไม่ได้รับการยอมรับ': ['Hurt that hasn’t been acknowledged', 'まだ認められていない痛み'],
+    'ความไม่ชอบ/อยากหนี': ['Aversion / wanting to escape', '嫌悪・逃げたい気持ち'],
+    'คุยกันได้โดยไม่ทะเลาะ และมีขอบเขตที่ชัด': ['Able to talk without fighting, with clear boundaries', 'けんかせずに話せて、境界がはっきりしている'],
+    'งานบางส่วนทำซ้ำได้โดยเครื่อง': ['Parts of the work can be repeated by machines', '仕事の一部は機械で繰り返せる'],
+    'ดอกเบี้ยและรายจ่ายโตเร็วกว่ารายได้': ['Interest and spending grow faster than income', '利息と支出が収入より速く増えている'],
+    'ติดปัญหาเรื่องโค้ด': ['Stuck on a coding problem', 'コードの問題で行き詰まっている'],
+    'ติดสิ่งที่ทำร้ายตัวเอง': ['Hooked on something that harms you', '自分を傷つけるものに依存している'],
+    'ต้องเลือกแต่ยังเลือกไม่ได้': ['You have to choose but can’t yet', '選ばなければならないが、まだ選べない'],
+    'ถูกกดขี่หรือกลั่นแกล้งซ้ำๆ': ['Being bullied or pressured again and again', '繰り返しいじめや圧力を受けている'],
+    'ถูกเอาเปรียบเรื่องงาน': ['Being exploited at work', '職場で不当に扱われている'],
+    'ที่อยู่อาศัยไม่มั่นคง': ['Housing is unstable', '住まいが不安定'],
+    'ธุรกิจยังไม่ได้ผลอย่างที่หวัง': ['The business isn’t working out as hoped', '事業が期待どおりにいっていない'],
+    'นอนได้ ใจเบาพอจะคิดทีละเรื่องได้': ['Sleeping, and light enough to think one thing at a time', '眠れて、一つずつ考えられるほど心が軽い'],
+    'นอนไม่หลับ ร่างกายและใจไม่ได้พัก': ['Can’t sleep — body and mind get no rest', '眠れず、体も心も休めていない'],
+    'นายจ้างไม่ทำตามสิทธิ์แรงงาน': ['The employer isn’t respecting labor rights', '雇用主が労働者の権利を守っていない'],
+    'ปลอดภัย และมีคนรู้เรื่องที่ช่วยได้': ['Safe, and someone who can help knows', '安全で、助けられる人が事情を知っている'],
+    'ปลอดภัยแล้ว และมีคนอยู่ด้วย': ['Safe now, with someone beside you', '安全になり、誰かがそばにいる'],
+    'มีคนสร้างความกลัวหรือความโลภ เร่งให้โอนหรือบอกข้อมูล': ['Someone is using fear or greed to rush you into paying or sharing data', '誰かが恐怖や欲を利用し、送金や情報提供を急がせている'],
+    'มีคนอย่างน้อยหนึ่งคนที่คุยได้จริง': ['At least one person you can truly talk to', '本当に話せる人が少なくとも一人いる'],
+    'มีงานหรือรายได้ที่มั่นคงพอ และใจไม่พังไปกับมัน': ['Stable enough work or income, without breaking yourself', '十分に安定した仕事や収入があり、心がすり減っていない'],
+    'มีชุดฉุกเฉินพอ 3 วัน': ['An emergency kit for 3 days', '3日分の非常用セットがある'],
+    'มีทักษะที่ AI ช่วยเสริม ไม่ใช่มาแทน': ['Skills that AI enhances rather than replaces', 'AIに置き換えられず、AIで伸びる技能がある'],
+    'มีที่อยู่ปลอดภัยต่อเนื่อง': ['A safe place to live, ongoing', '安全な住まいが続いている'],
+    'มีปัญหาข้อกฎหมาย': ['A legal problem', '法的な問題がある'],
+    'มีรายได้ทางที่ไม่ต้องกลัวถูกตรวจ': ['Income you don’t have to hide', '隠す必要のない収入がある'],
+    'มีเงินสำรองและหนี้น้อยพอจะรอดได้ไม่ว่าเศรษฐกิจเป็นยังไง': ['Enough savings and little enough debt to get through any economy', 'どんな経済でも乗り切れる貯えと少ない借金'],
+    'ยอดผ่อนต่อเดือนอยู่ในกำลัง และหนี้ลดลงทุกเดือน': ['Monthly payments are affordable and the debt shrinks every month', '毎月の返済が無理なくでき、借金が毎月減っている'],
+    'ยังไม่พร้อมรับภัย': ['Not ready for a disaster yet', 'まだ災害への備えがない'],
+    'ยังไม่เห็นด้านเสียของแต่ละทางชัด': ['The downside of each option isn’t clear yet', 'それぞれの選択肢のマイナス面がまだ見えていない'],
+    'ยังไม่เห็นตามจริง (อวิชชา)': ['Not yet seeing things as they are (ignorance)', 'まだありのままに見えていない（無明）'],
+    'รายรับพอรายจ่าย และมีเงินสำรองเริ่มต้น': ['Income covers spending, with a first bit of savings', '収入で支出がまかなえ、少し貯えもある'],
+    'รู้ข้อมูลจริง และคนในบ้านปลอดภัย': ['Knowing the real facts, with everyone at home safe', '正確な情報を知り、家族が安全'],
+    'รู้ตัวเลขจริง และเห็นทางที่ไม่ขาดทุน': ['Knowing the real numbers and a way not to lose money', '実際の数字を知り、赤字にならない道が見えている'],
+    'รู้ว่าจะเรียนอะไรต่อ และแบ่งงานให้ทำได้ทีละส่วน': ['Knowing what to study next, in parts you can manage', '次に何を学ぶか分かり、少しずつ進められる'],
+    'รู้ว่าตัวเองต้องการอะไร และอยู่ในความสัมพันธ์ที่ปลอดภัย': ['Knowing what you want, in a relationship that is safe', '自分の望みが分かり、安全な関係にいる'],
+    'รู้สาเหตุจากผู้รู้ และอาการดีขึ้น': ['Knowing the cause from a professional, and feeling better', '専門家から原因を知り、症状がよくなる'],
+    'รู้สิทธิ์ของตัวเอง และมีผู้รู้ช่วย': ['Knowing your rights, with an expert helping', '自分の権利を知り、専門家の助けがある'],
+    'รู้สึกโดดเดี่ยว ไม่มีใครให้พึ่ง': ['Feeling alone, with no one to lean on', '孤独で、頼れる人がいない'],
+    'ร่างกายมีอาการที่กังวล': ['A worrying symptom in the body', '気になる体の症状がある'],
+    'ร่างกายเย็นลง และไม่มีอาการอันตราย': ['The body has cooled down with no danger signs', '体が冷えて、危険な症状がない'],
+    'ร้อนจัดจนร่างกายเสี่ยง': ['Heat so intense the body is at risk', '猛暑で体が危険な状態'],
+    'ลดลงได้ทีละน้อย โดยมีคนช่วย': ['Cutting down little by little, with help', '助けを得ながら少しずつ減らせている'],
+    'ลืมของไว้ในรถ': ['Left something in a vehicle', '乗り物に忘れ物をした'],
+    'สัตว์เลี้ยงหาย': ['A pet is missing', 'ペットがいなくなった'],
+    'หนี้มากกว่ากำลังผ่อน': ['Debt beyond what you can repay', '返せる以上の借金'],
+    'หลับได้ต่อเนื่องหลายคืนติดกัน': ['Sleeping through several nights in a row', '数晩続けてぐっすり眠れる'],
+    'อคติ': ['Bias', '偏見'],
+    'อนาคตไม่แน่นอน และยังไม่มีเกราะสำรอง': ['An uncertain future, with no safety net yet', '先が見えず、まだ備えがない'],
+    'อยากได้ผลเร็วจนยอมแลกด้วยความไม่จริง': ['Wanting quick results enough to trade away the truth', '早く結果がほしくて真実を手放そうとしている'],
+    'อยู่กับความคิดถึงได้ โดยชีวิตประจำวันยังเดินต่อ': ['Living with the missing while daily life goes on', '恋しさを抱えながらも日々の生活が続いている'],
+    'อายัดทัน และทำเอกสาร/บัตรใหม่ได้': ['Blocked in time, with new documents or cards issued', '間に合って停止でき、書類やカードを再発行できた'],
+    'อายัดทัน และได้คืนหรือป้องกันความเสียหายต่อ': ['Blocked in time, recovered or protected from further loss', '間に合って停止し、取り戻すか被害の拡大を防げた'],
+    'อีกฝ่ายใช้อำนาจเหนือกว่า': ['The other side is using greater power', '相手が力の差を利用している'],
+    'เงินและข้อมูลยังอยู่กับเรา': ['Your money and information stay with you', 'お金と情報が自分の手元に残っている'],
+    'เงินไม่พอกับสิ่งที่ต้องจ่าย': ['Not enough money for what must be paid', '支払うべきものにお金が足りない'],
+    'เรื่องงานกดดันหรือไม่มั่นคง': ['Work is pressuring or unstable', '仕事が苦しい、または不安定'],
+    'เรื่องจบอย่างเป็นธรรม โดยเราไม่ต้องทำร้ายใคร': ['A fair ending, without hurting anyone', '誰も傷つけずに公正に終わる'],
+    'เรื่องเรียนกดดัน': ['Pressure from studying', '勉強のプレッシャー'],
+    'เรื่องเร่งด่วนที่ต้องได้รับความช่วยเหลือทันที': ['An urgent situation that needs help right now', '今すぐ助けが必要な緊急事態'],
+    'เรื่องในครอบครัวทำให้หนักใจ': ['Family matters weigh on you', '家族のことで心が重い'],
+    'เลือกได้ โดยยังมีทางถอยถ้าพลาด': ['Choosing, while keeping a way back if it fails', '失敗しても引き返せる道を残して選べる'],
+    'เล่าเพิ่มอีกนิด — ทางที่ตรงจะชัดขึ้น': ['Tell a bit more — the right path will get clearer', 'もう少し教えてください — 合った道が見えてきます'],
+    'โค้ดทำงานได้ หรือรู้ว่าจะไปถามที่ไหน': ['The code works, or you know where to ask', 'コードが動く、またはどこで聞けばいいか分かる'],
+    'ใจกำลังอยากเอาคืน': ['Your heart wants payback', '仕返ししたい気持ちになっている'],
+    'ใจล้าและตึงจนคิดอะไรไม่ออก': ['Mind so tired and tense you can’t think', '心が疲れて張りつめ、考えられない'],
+    'ใช้สิ่งนั้นหนีความรู้สึกที่หนัก': ['Using it to escape heavy feelings', '重い気持ちから逃げるために使っている'],
+    'ได้ของคืน': ['Getting it back', '物が戻ってくる'],
+    'ได้น้องกลับบ้าน': ['Your pet comes home', 'ペットが家に帰ってくる'],
+    'ได้ผลด้วยทางที่พูดความจริงได้': ['Getting results in a way you can speak truthfully about', '本当のことを言える方法で結果を出す'],
+    'ได้สิทธิ์ตามกฎหมายครบ': ['Receiving all your legal rights', '法律上の権利をすべて得られる'],
+    'ไฟกลับมา หรือมีพลังงานสำรองพอ': ['Power is back, or there’s enough backup', '電気が戻るか、十分な予備電源がある'],
+    'ไฟดับนาน กระทบความปลอดภัยและอาหาร': ['A long power cut affecting safety and food', '長い停電が安全と食べ物に影響している'],
+    'ไม่ใช่เวลาสืบหาเหตุ — ปลอดภัยก่อน': ['Not the time to look for causes — safety first', '原因を探すときではない — まず安全を'],
     'ช่วงตัดสินใจ': ['Decision window', '決断の期間'],
     'waterline ไม่ได้ลดลง — ยังไม่มีวันที่ต้องรีบ': ['waterline is not falling — no deadline yet', '水位は下がっていません — 急ぐ日はまだありません'],
     'ตัดสินใจใหญ่': ['Big decisions', '大きな決断'],
@@ -458,20 +555,36 @@
     'นับเฉพาะจำนวน ไม่เก็บข้อความ อีเมล หรือ IP · เริ่มนับตั้งแต่ติดตั้งระบบนี้': ['Counts only — no messages, emails or IPs stored · counting started when this was installed', '件数のみ集計 — メッセージ・メール・IPは保存しません · この機能の導入時から集計'],
     'ดูตัวเลขไม่ได้ชั่วคราว': ['Numbers are temporarily unavailable', '一時的に数値を表示できません'],
   };
-  var LANGS = ['th', 'en', 'ja'], KEY = 'kd_lang', ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
+  // ภาษาเพิ่ม (จีน เกาหลี สเปน) อยู่ใน static/i18n/<lang>.js — โหลดเฉพาะตอนเลือก คนที่ไม่ได้เลือกไม่ต้องโหลดเพิ่ม
+  // ตรงกับ 6 ภาษาที่ระบบตอบได้เต็มตอนไม่มี AI (ไทย อังกฤษ จีน ญี่ปุ่น เกาหลี สเปน) · ข้อความไหนยังไม่มีในชุดภาษา ใช้อังกฤษแทน
+  var LANGS = ['th', 'en', 'ja', 'zh', 'ko', 'es'], PACKS_LANGS = ['zh', 'ko', 'es'], KEY = 'kd_lang', ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
+  var PACK = window.KD_I18N_PACKS = window.KD_I18N_PACKS || {};
   var REV = {};                                 // ข้อความที่แปลแล้ว → ไทย (สลับกลับได้โดยไม่ต้องโหลดหน้าใหม่)
   Object.keys(D).forEach(function (th) { REV[D[th][0]] = th; REV[D[th][1]] = th; });
+  function learn(lang) { var P = PACK[lang] || {}; Object.keys(P).forEach(function (th) { if (D[th]) REV[P[th]] = th; }); }
 
   function pick() {
     try { var s = localStorage.getItem(KEY); if (LANGS.indexOf(s) >= 0) return s; } catch (e) {}
     var n = String((navigator.languages && navigator.languages[0]) || navigator.language || 'th').toLowerCase();
-    return n.indexOf('th') === 0 ? 'th' : n.indexOf('ja') === 0 ? 'ja' : 'en';
+    for (var i = 0; i < LANGS.length; i++) if (n.indexOf(LANGS[i]) === 0) return LANGS[i];
+    return 'en';
   }
   function tr(s, lang) {
     var key = s.trim(), th = D[key] ? key : REV[key];
     if (!th) return null;
-    var out = lang === 'th' ? th : D[th][lang === 'en' ? 0 : 1];
+    var out = lang === 'th' ? th : lang === 'ja' ? D[th][1] : (PACK[lang] && PACK[lang][th]) || D[th][0];
     return out === key ? null : s.replace(key, out);
+  }
+  var loading = {};
+  function load(lang, done) {
+    if (PACKS_LANGS.indexOf(lang) < 0 || PACK[lang]) { done(); return; }
+    if (loading[lang]) { loading[lang].push(done); return; }
+    loading[lang] = [done];
+    var sc = document.createElement('script');
+    var base = SRC || '/static/i18n.js';
+    sc.src = base.replace(/i18n\.js.*$/, 'i18n/' + lang + '.js');
+    sc.onload = sc.onerror = function () { learn(lang); var q = loading[lang]; loading[lang] = null; q.forEach(function (f) { f(); }); };
+    document.head.appendChild(sc);
   }
   function apply(root, lang) {
     if (!root || root.nodeType !== 1) return;
@@ -489,9 +602,10 @@
       ATTRS.forEach(function (a) { if (el.hasAttribute && el.hasAttribute(a)) { var v = tr(el.getAttribute(a), lang); if (v !== null) el.setAttribute(a, v); } });
     });
   }
-  var current = pick(), drawn = 'th';
+  var current = pick(), drawn = 'th', SRC = document.currentScript && document.currentScript.src;
   function set(lang) {
     if (LANGS.indexOf(lang) < 0) return;
+    if (PACKS_LANGS.indexOf(lang) >= 0 && !PACK[lang]) { load(lang, function () { set(lang); }); return; }
     current = lang;
     try { localStorage.setItem(KEY, lang); } catch (e) {}
     document.documentElement.lang = lang;

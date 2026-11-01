@@ -56,7 +56,7 @@ AGITATED = _re.compile(       # สัมมาสมาธิ — ตัดส�
 def _signals(text: str) -> dict:
     sig = {"risk": 0, "crisis": False, "urgent": False, "basic": False, "offer": False, "scam": [],
            "harm_others": False, "gates": [], "bias": False,
-           "false_speech": False, "ill_will": False, "wrong_living": False, "agitated": False}
+           "false_speech": False, "ill_will": False, "wrong_living": False, "agitated": False, "truths": {}}
     if not text.strip():
         return sig
     sig.update(false_speech=bool(FALSE_SPEECH.search(text)), ill_will=bool(ILL_WILL.search(text)),
@@ -71,6 +71,11 @@ def _signals(text: str) -> dict:
                    harm_others="harm_others" in topics)
         if "bribery" in topics:
             sig["wrong_living"] = True
+    except Exception:
+        pass
+    try:
+        from ENGINE.ariya_sacca import four_truths
+        sig["truths"] = four_truths(text)
     except Exception:
         pass
     try:
@@ -154,9 +159,12 @@ def structural_check(text: str, pattern: dict, sig: dict | None = None) -> list[
         # 6 มรรค 8 — FULL_STACK · ครบ 8 องค์ จัดเป็น 3 หมวด: ปัญญา (Intelligence) · ศีล (Security) · สมาธิ (Stability)
         ("มรรคมีองค์ 8", "FULL_STACK", [
             # ปัญญา
+            # สัมมาทิฏฐิยืนบนอริยสัจ 4 ของเรื่องนี้ (ENGINE/ariya_sacca) — เห็นทุกข์และเหตุก่อน มรรคข้ออื่นจึงตรง
             _item("สัมมาทิฏฐิ", not (sig["bias"] or "K1" in g or "K12" in g),
-                  "เห็นตามจริง" if not (sig["bias"] or "K1" in g or "K12" in g)
-                  else "ยังไม่เห็นตามจริง — ความจริงก่อน"),
+                  "ยังไม่เห็นตามจริง — ความจริงก่อน" if (sig["bias"] or "K1" in g or "K12" in g)
+                  else "เห็นทุกข์และเหตุชัด" if sig["truths"].get("clear")
+                  else "เห็นทุกข์แล้ว แต่เหตุยังไม่ชัด — ถามหาต้นเหตุก่อน" if sig["truths"].get("seen")
+                  else "เห็นตามจริง"),
             _item("สัมมาสังกัปปะ", not (sig["ill_will"] or "K14" in g),
                   "เจตนาไม่มุ่งร้าย" if not (sig["ill_will"] or "K14" in g)
                   else "เจตนามีความอยากเอาคืน/ต้องชนะ — ถามว่าอยากให้เรื่องจบแบบไหน"),
@@ -175,9 +183,11 @@ def structural_check(text: str, pattern: dict, sig: dict | None = None) -> list[
             _item("สัมมาสติ", not (sig["scam"] or sig["offer"]),
                   "รู้ทันสถานการณ์" if not (sig["scam"] or sig["offer"])
                   else "มีรูปแบบของการหลอก — ตั้งสติ ตรวจกับช่องทางทางการก่อนทำตาม"),
+            # เหตุต่างกัน คำบอกต้องต่างกัน — เดิมคนที่นอนไม่หลับหลายวันได้คำว่าอารมณ์ร้อน ทั้งที่แค่เหนื่อย
             _item("สัมมาสมาธิ", e <= 65 and "K8" not in g and not sig["agitated"],
                   "ใจตั้งมั่นพอ" if e <= 65 and "K8" not in g and not sig["agitated"]
-                  else "อารมณ์ร้อน/เร่งรีบกำลังบิดภาพ — สงบก่อนตัดสิน"),
+                  else "อารมณ์ร้อน/เร่งรีบกำลังบิดภาพ — สงบก่อนตัดสิน" if sig["agitated"]
+                  else "ใจยังเหนื่อยและไม่นิ่ง — พักให้ใจสงบก่อนตัดสินเรื่องใหญ่"),
         ]),
     ]
     out = []
@@ -247,13 +257,21 @@ def guardian_check(context, pattern=None) -> dict:
         "bojjhanga": loop,
         "failed": [{"name": x["name"], "note": x["note"]} for x in failed],
         "magga": {x["name"]: x["ok"] for x in layers[-1]["items"]},
+        "ariya": {k: sig["truths"].get(k) for k in ("dukkha", "samudaya", "nirodha", "magga", "clear", "own")} if sig["truths"] else None,
     }
 
 
 def llm_hint(result: dict) -> str:
     """บริบทแนบให้ LLM — เฉพาะเมื่อมีธรรมข้อที่ยังไม่ผ่าน (ไม่ให้ยกศัพท์ไปพูดกับผู้ใช้)"""
     f = (result or {}).get("failed") or []
+    ar = ""
+    try:
+        from ENGINE.ariya_sacca import llm_hint as _ah
+        a = (result or {}).get("ariya")
+        ar = _ah(a) if a else ""
+    except Exception:
+        pass
     if not f:
-        return ""
-    return ("[โพธิปักขิยธรรม: " + (result.get("final_verdict") or "") + " · ยังไม่ผ่าน: "
+        return ar
+    return ((ar + " ") if ar else "") + ("[โพธิปักขิยธรรม: " + (result.get("final_verdict") or "") + " · ยังไม่ผ่าน: "
             + "; ".join(f"{x['name']} — {x['note']}" for x in f[:4]) + "]")

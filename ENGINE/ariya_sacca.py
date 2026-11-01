@@ -1,0 +1,179 @@
+"""
+ENGINE/ariya_sacca.py — อริยสัจ 4 ของแต่ละเรื่อง (ทุกข์ · สมุทัย · นิโรธ · มรรค)
+
+เจ้าของโปรเจกต์: "อันดับแรกต้องรู้เห็นความเป็นจริงอย่างอริยสัจสี่แจ่มแจ้งก่อน ไม่งั้นมรรค 8 ไม่ตรง"
+เดิมขั้น "อริยสัจ 4" ใน yonisomanasikara.four_ways เป็นแม่แบบเดียวกันทุกข้อความ
+("ทุกข์ = ปัญหาจริงในประโยคเดียว · สมุทัย = ต้นตอที่คุมได้ …") — ระบบไม่ได้เห็นทุกข์จริงของเรื่องไหนเลย
+
+ตอนนี้อ่านจากข้อความจริง:
+  ทุกข์   = ปัญหาของเรื่องนี้ (จากหัวข้อที่ระบบจับได้)
+  สมุทัย  = ต้นเหตุ — ใช้คำของผู้ใช้เองก่อน ("…เพราะ X") แล้วค่อยสัญญาณที่ระบบเห็น · ไม่รู้ = บอกว่ายังไม่ชัด (ไม่เดา)
+  นิโรธ  = ปลายทางที่วัดได้
+  มรรค   = ก้าวแรกของคำตอบจริงที่ระบบจะให้ (ขั้นที่ 1 ของคำตอบ)
+clear = เห็นทั้งทุกข์และเหตุ → มรรค 8 (ENGINE/bodhipakkhiya_engine) ยืนบนความจริงข้อนี้
+
+ดีเทอร์มินิสติก — ไม่ใช้ AI · input เดิม = ผลเดิม
+"""
+from __future__ import annotations
+
+import re
+
+UNCLEAR = "ยังไม่ชัด"
+
+# หัวข้อ → (ทุกข์, สมุทัยที่พบบ่อย, นิโรธที่วัดได้)
+TRUTHS = {
+    "stress":       ("ใจล้าและตึงจนคิดอะไรไม่ออก", None, "นอนได้ ใจเบาพอจะคิดทีละเรื่องได้"),
+    "sleepless":    ("นอนไม่หลับ ร่างกายและใจไม่ได้พัก", None, "หลับได้ต่อเนื่องหลายคืนติดกัน"),
+    "debt":         ("หนี้มากกว่ากำลังผ่อน", "ดอกเบี้ยและรายจ่ายโตเร็วกว่ารายได้", "ยอดผ่อนต่อเดือนอยู่ในกำลัง และหนี้ลดลงทุกเดือน"),
+    "money":        ("เงินไม่พอกับสิ่งที่ต้องจ่าย", None, "รายรับพอรายจ่าย และมีเงินสำรองเริ่มต้น"),
+    "job":          ("เรื่องงานกดดันหรือไม่มั่นคง", None, "มีงานหรือรายได้ที่มั่นคงพอ และใจไม่พังไปกับมัน"),
+    "business":     ("ธุรกิจยังไม่ได้ผลอย่างที่หวัง", None, "รู้ตัวเลขจริง และเห็นทางที่ไม่ขาดทุน"),
+    "relationship": ("ความสัมพันธ์ทำให้เจ็บหรือสับสน", None, "รู้ว่าตัวเองต้องการอะไร และอยู่ในความสัมพันธ์ที่ปลอดภัย"),
+    "family":       ("เรื่องในครอบครัวทำให้หนักใจ", None, "คุยกันได้โดยไม่ทะเลาะ และมีขอบเขตที่ชัด"),
+    "lonely":       ("รู้สึกโดดเดี่ยว ไม่มีใครให้พึ่ง", None, "มีคนอย่างน้อยหนึ่งคนที่คุยได้จริง"),
+    "study":        ("เรื่องเรียนกดดัน", None, "รู้ว่าจะเรียนอะไรต่อ และแบ่งงานให้ทำได้ทีละส่วน"),
+    "grief":        ("การสูญเสียคนหรือสิ่งที่รัก", "ความผูกพันที่ยังไม่ได้มีที่วาง", "อยู่กับความคิดถึงได้ โดยชีวิตประจำวันยังเดินต่อ"),
+    "bullying":     ("ถูกกดขี่หรือกลั่นแกล้งซ้ำๆ", "อีกฝ่ายใช้อำนาจเหนือกว่า", "ปลอดภัย และมีคนรู้เรื่องที่ช่วยได้"),
+    "health":       ("ร่างกายมีอาการที่กังวล", None, "รู้สาเหตุจากผู้รู้ และอาการดีขึ้น"),
+    "decision":     ("ต้องเลือกแต่ยังเลือกไม่ได้", "ยังไม่เห็นด้านเสียของแต่ละทางชัด", "เลือกได้ โดยยังมีทางถอยถ้าพลาด"),
+    "scam":         ("กำลังเสี่ยงเสียเงินให้มิจฉาชีพ", "มีคนสร้างความกลัวหรือความโลภ เร่งให้โอนหรือบอกข้อมูล", "เงินและข้อมูลยังอยู่กับเรา"),
+    "theft":        ("ของหรือเงินถูกขโมย", None, "อายัดทัน และได้คืนหรือป้องกันความเสียหายต่อ"),
+    "legal":        ("มีปัญหาข้อกฎหมาย", None, "รู้สิทธิ์ของตัวเอง และมีผู้รู้ช่วย"),
+    "housing":      ("ที่อยู่อาศัยไม่มั่นคง", None, "มีที่อยู่ปลอดภัยต่อเนื่อง"),
+    "labor":        ("ถูกเอาเปรียบเรื่องงาน", "นายจ้างไม่ทำตามสิทธิ์แรงงาน", "ได้สิทธิ์ตามกฎหมายครบ"),
+    "addiction":    ("ติดสิ่งที่ทำร้ายตัวเอง", "ใช้สิ่งนั้นหนีความรู้สึกที่หนัก", "ลดลงได้ทีละน้อย โดยมีคนช่วย"),
+    # หมวดเรื่องบ้านๆ (core/kernel_voice.EVERYDAY)
+    "lost_pet":     ("สัตว์เลี้ยงหาย", None, "ได้น้องกลับบ้าน"),
+    "lost_item":    ("ของสำคัญหาย เสี่ยงถูกเอาไปใช้", None, "อายัดทัน และทำเอกสาร/บัตรใหม่ได้"),
+    "left_in_ride": ("ลืมของไว้ในรถ", None, "ได้ของคืน"),
+    "war_prep":     ("กลัวภัยสงครามจะกระทบครอบครัว", "ข่าวที่ไม่แน่นอน และยังไม่ได้เตรียมพร้อม", "ครอบครัวมีแผนและของจำเป็นพร้อม ใจนิ่งพอ"),
+    "disaster_kit": ("ยังไม่พร้อมรับภัย", None, "มีชุดฉุกเฉินพอ 3 วัน"),
+    "power_out":    ("ไฟดับนาน กระทบความปลอดภัยและอาหาร", None, "ไฟกลับมา หรือมีพลังงานสำรองพอ"),
+    "heat":         ("ร้อนจัดจนร่างกายเสี่ยง", None, "ร่างกายเย็นลง และไม่มีอาการอันตราย"),
+    "economy_fear": ("กลัวเศรษฐกิจพังแล้วตัวเองไปไม่รอด", "อนาคตไม่แน่นอน และยังไม่มีเกราะสำรอง", "มีเงินสำรองและหนี้น้อยพอจะรอดได้ไม่ว่าเศรษฐกิจเป็นยังไง"),
+    "outbreak":     ("กังวลโรคระบาด", "ข่าวที่ไม่แน่นอน", "รู้ข้อมูลจริง และคนในบ้านปลอดภัย"),
+    "ai_jobs":      ("กลัว AI แย่งงาน", "งานบางส่วนทำซ้ำได้โดยเครื่อง", "มีทักษะที่ AI ช่วยเสริม ไม่ใช่มาแทน"),
+    # มรรค 8 (เจตนาของผู้ใช้เอง)
+    "speech":       ("กำลังจะพูดไม่จริงเพื่อให้ได้สิ่งที่ต้องการ", "อยากได้ผลเร็วจนยอมแลกด้วยความไม่จริง", "ได้ผลด้วยทางที่พูดความจริงได้"),
+    "living":       ("กำลังพิจารณาทางหาเงินที่ไม่สุจริต", "ความต้องการเงินเร่งกว่าการชั่งความเสี่ยง", "มีรายได้ทางที่ไม่ต้องกลัวถูกตรวจ"),
+    "intent":       ("ใจกำลังอยากเอาคืน", "ความเจ็บที่ยังไม่ได้รับการยอมรับ", "เรื่องจบอย่างเป็นธรรม โดยเราไม่ต้องทำร้ายใคร"),
+    "code":         ("ติดปัญหาเรื่องโค้ด", None, "โค้ดทำงานได้ หรือรู้ว่าจะไปถามที่ไหน"),
+}
+
+# สัญญาณจาก paticcasamuppada (ต้นเหตุทางใจ)
+ROOT_TH = {"craving": "ความอยากได้ (ตัณหา)", "fear": "ความกลัว", "aversion": "ความไม่ชอบ/อยากหนี",
+           "clinging": "ความยึดติด", "misinformation": "ข้อมูลผิดหรือไม่ครบ", "bias": "อคติ",
+           "ignorance": "ยังไม่เห็นตามจริง (อวิชชา)"}
+
+# "…เพราะ X" — ต้นเหตุตามคำผู้ใช้เอง สำคัญกว่าที่ระบบเดา
+_BECAUSE = re.compile(r"(?:เพราะ(?:ว่า)?|เนื่องจาก|สาเหตุคือ|\bbecause\b)\s*([^\n.?!,]{3,60})", re.I)
+
+
+# คำภาษาอังกฤษ (และภาษาที่พิมพ์ด้วยอักษรละติน) — assess จับหัวข้อภาษาอังกฤษได้น้อย
+# เดิม "I cannot pay my credit card debt" "my cat is missing" ได้ทุกข์ = ยังไม่ชัด
+_EN_KEYS = [
+    ("lost_pet", r"\b(?:cat|dog|puppy|kitten|pet|parrot|rabbit)\b[^.?!\n]{0,24}\b(?:missing|lost|ran away|escaped|gone)\b|\blost (?:my )?(?:cat|dog|pet)\b"),
+    ("lost_item", r"\blost (?:my )?(?:wallet|phone|purse|passport|id card|bank card|credit card)\b|\b(?:wallet|phone|passport)\b[^.?!\n]{0,16}\b(?:lost|stolen|missing)\b"),
+    ("war_prep", r"\bwar\b(?! movie| game)|\bconflict at the border\b|\bmissile"),
+    ("power_out", r"\bpower (?:cut|outage)\b|\bblackout\b|\bno electricity\b"),
+    ("heat", r"\bheat ?stroke\b|\bheatwave\b[^.?!\n]{0,30}\b(?:dizzy|faint|sick)\b"),
+    ("economy_fear", r"\brecession\b|\beconomy\b[^.?!\n]{0,20}\b(?:crash|collapse)\b|\bmarket crash\b"),
+    ("outbreak", r"\b(?:pandemic|outbreak|new virus)\b"),
+    ("ai_jobs", r"\bAI\b[^.?!\n]{0,20}\b(?:take|replace|steal)\b[^.?!\n]{0,10}\bjobs?\b"),
+    ("sleepless", r"\b(?:can'?t|cannot|couldn'?t) sleep\b|\binsomnia\b|\bhaven'?t slept\b"),
+    ("debt", r"\bdebt\b|\bloan\b[^.?!\n]{0,16}\b(?:can'?t|cannot) (?:pay|afford)\b|\bcan'?t (?:pay|afford) (?:my|the) (?:credit|loan|rent|bills)\b"),
+    ("job", r"\b(?:lost|losing) my job\b|\b(?:fired|laid off|quit my job|my boss)\b"),
+    ("grief", r"\b(?:passed away|died|death of)\b"),
+    ("lonely", r"\b(?:lonely|alone|no friends)\b"),
+    ("relationship", r"\b(?:boyfriend|girlfriend|husband|wife|partner|broke up|breakup|divorce)\b"),
+    ("stress", r"\b(?:stressed|overwhelmed|burn(?:ed|t)? ?out|anxious)\b"),
+]
+_EN_RX = [(k, re.compile(p, re.I)) for k, p in _EN_KEYS]
+
+
+def _topic_key(text: str, a: dict) -> str | None:
+    try:
+        from core.kernel_voice import CODE_REQ, EVERYDAY, _magga_topic
+    except Exception:
+        return None
+    if a.get("scam") or a.get("offer_flags"):
+        return "scam"
+    m = _magga_topic(text)
+    if m:
+        return m
+    if CODE_REQ.search(text):
+        return "code"
+    for key, rx, _ in EVERYDAY:
+        if rx.search(text):
+            return key
+    if re.search(r"นอนไม่หลับ|หลับไม่ลง|นอนไม่ค่อยหลับ|insomnia|can'?t sleep", text, re.I):
+        return "sleepless"                     # assess มักให้ "stress" มาก่อน แต่ทุกข์ที่เล่าคือการนอน
+    for k, rx in _EN_RX:
+        if rx.search(text):
+            return k
+    for t in a.get("topics") or []:
+        if t in TRUTHS:
+            return t
+    return None
+
+
+def _first_step(text: str) -> str:
+    try:
+        from core.kernel_voice import compose
+        for line in compose(text).split("\n"):
+            m = re.match(r"\s*1\)\s*(.+)", line)
+            if m:
+                return m.group(1).strip()
+    except Exception:
+        pass
+    return "เล่าเพิ่มอีกนิด — ทางที่ตรงจะชัดขึ้น"
+
+
+def four_truths(text: str) -> dict:
+    """{dukkha, samudaya, nirodha, magga, clear, key} — ไม่รู้ = "ยังไม่ชัด" (ไม่เดา)"""
+    text = str(text or "")[:4000]
+    try:
+        from core.kernel_voice import assess
+        a = assess(text) if text.strip() else {}
+    except Exception:
+        a = {}
+    if a.get("crisis"):
+        return {"dukkha": "เรื่องเร่งด่วนที่ต้องได้รับความช่วยเหลือทันที", "samudaya": "ไม่ใช่เวลาสืบหาเหตุ — ปลอดภัยก่อน",
+                "nirodha": "ปลอดภัยแล้ว และมีคนอยู่ด้วย", "magga": _first_step(text), "clear": True, "key": "crisis"}
+    key = _topic_key(text, a)
+    dukkha, cause, nirodha = TRUTHS.get(key, (UNCLEAR, None, UNCLEAR))
+
+    own = _BECAUSE.search(text)
+    if own:
+        samudaya = own.group(1).strip()          # คำของผู้ใช้เอง (ภาษาไหนก็ได้) — หน้าเว็บเติม "ตามที่เล่า:" ตามภาษาหน้า
+    elif cause:
+        samudaya = cause
+    else:
+        samudaya = UNCLEAR
+        try:
+            from ENGINE.paticcasamuppada_engine import detect_root_cause
+            ri = detect_root_cause(text)
+            if ri.get("score") and ri.get("root") in ROOT_TH:
+                samudaya = ROOT_TH[ri["root"]]
+        except Exception:
+            pass
+    clear = dukkha != UNCLEAR and samudaya != UNCLEAR
+    return {"dukkha": dukkha, "samudaya": samudaya, "nirodha": nirodha,
+            "magga": _first_step(text) if text.strip() else UNCLEAR, "clear": clear,
+            "seen": dukkha != UNCLEAR, "own": bool(own), "key": key}
+
+
+def llm_hint(t: dict) -> str:
+    """บริบทภายในให้ LLM — ให้คำตอบยืนบนอริยสัจ 4 ของเรื่องนี้ (ห้ามยกศัพท์ไปพูดกับผู้ใช้)
+    ระบบอ่านทุกข์ไม่ออก (ภาษาที่กฎยังไม่ครอบคลุม) → สั่งให้ AI เห็นอริยสัจ 4 เองก่อนตอบ ในภาษาของผู้ใช้"""
+    if not t:
+        return ""
+    if t.get("dukkha") == UNCLEAR:
+        return ("[ก่อนตอบ: เห็นอริยสัจ 4 ของเรื่องนี้ก่อน — ทุกข์จริงคืออะไร เกิดจากอะไร ปลายทางที่วัดได้ ก้าวแรก"
+                " · ถ้ายังไม่เห็นเหตุ ถามกลับ 1 คำถาม · ตอบในภาษาเดียวกับผู้ใช้ · ห้ามยกศัพท์ธรรมะไปตีตราผู้ใช้]")
+    # หฤทัยสูตร: "ไม่มีทุกข์ สมุทัย นิโรธ มรรค" — อริยสัจ 4 เองก็ว่างจากตัวตน เป็นเครื่องมือข้ามฟาก ไม่ใช่สิ่งที่ต้องยึด
+    # ระบบจึงใช้เป็นป้ายชั่วคราวจากที่ผู้ใช้เล่า ไม่ใช่คำตัดสินชีวิตใคร และเปลี่ยนได้เมื่อเล่าเพิ่ม
+    h = f"[อริยสัจ 4 ของเรื่องนี้ (อ่านจากที่เล่า เปลี่ยนได้ — ใช้นำทาง ห้ามตีตราผู้ใช้): ทุกข์={t['dukkha']} · สมุทัย={t['samudaya']} · นิโรธ={t['nirodha']}"
+    if not t["clear"]:
+        h += " · ยังเห็นเหตุไม่ชัด — ถามหาต้นเหตุ 1 คำถามก่อนเสนอทางใหญ่"
+    return h + "]"
