@@ -368,6 +368,41 @@ def twofa_disable(email: str):
     finally:
         conn.close()
 
+# ── ลบบัญชี (ผู้ใช้กดเอง — PDPA สิทธิ์ขอลบ · Play Store ต้องมีในแอป) ──────────────
+# ลบทุกอย่างที่ผูกกับอีเมล ยกเว้น payments + credit_ledger (หลักฐานทางบัญชี/ภาษี ตามที่นโยบายบอกไว้)
+# และ session_versions (ถ้าลบ เลขรุ่นกลับเป็น 0 → cookie เก่าที่ถูกเพิกถอนแล้วจะกลับมาใช้ได้)
+_ACCOUNT_TABLES = (("users", "email"), ("credits", "user_email"), ("decision_log", "user_email"),
+                   ("user_chat_state", "user_email"), ("chat_memory", "user_email"), ("waterline_log", "user_email"),
+                   ("pending_charges", "email"), ("usage_daily", "identity"), ("premium", "user_email"),
+                   ("user_passwords", "user_email"), ("verified_emails", "email"), ("user_2fa", "email"),
+                   ("decision_reports", "user_email"))
+
+
+def delete_account(email: str) -> dict:
+    """ลบข้อมูลบัญชีทั้งหมดในธุรกรรมเดียว → {ตาราง: จำนวนแถวที่ลบ} · ตารางที่ยังไม่มี (เช่น ยังไม่เคยสร้างรายงาน) ข้ามได้"""
+    email = (email or "").strip().lower()
+    if not email:
+        return {}
+    conn = get_conn()
+    out = {}
+    try:
+        # ดูก่อนว่ามีตารางไหน — คำสั่งที่ error กลางธุรกรรมบน Turso จะยกเลิกทั้งธุรกรรม
+        have = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+        conn.execute("BEGIN IMMEDIATE")
+        for table, col in _ACCOUNT_TABLES:
+            if table in have:
+                out[table] = conn.execute(f"DELETE FROM {table} WHERE lower({col}) = ?", (email,)).rowcount   # nosec B608 — ชื่อจากค่าคงที่ข้างบน
+        conn.execute("INSERT INTO session_versions (email, ver) VALUES (?, 1) "
+                     "ON CONFLICT(email) DO UPDATE SET ver = ver + 1", (email,))
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+    return out
+
+
 # ── PASSWORD (email login) ─────────────────────────────────────
 # PBKDF2-HMAC-SHA256 จาก standard library — ไม่ต้องเพิ่ม dependency
 # 600,000 รอบตามคำแนะนำของ OWASP (2023) — เดิม 200,000 · รหัสที่แฮชไว้แบบเก่าจะถูกแฮชใหม่เองตอนล็อกอินสำเร็จ

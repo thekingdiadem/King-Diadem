@@ -1583,6 +1583,55 @@ async def twofa_new_recovery(request: Request, data: dict):
     return {"recovery_codes": codes}
 
 
+@app.post("/api/account/delete")
+async def account_delete(request: Request, data: dict):
+    """ลบบัญชีด้วยตัวเอง (PDPA · Play Store) — พิมพ์อีเมลตัวเองยืนยัน · ถ้าเปิด 2FA ต้องกรอกรหัสด้วย
+    คนที่แค่ยืมเครื่องที่ล็อกอินค้างไว้ลบบัญชีคนอื่นไม่ได้ · ยกเลิกแพ็กเกจ Stripe ก่อน ไม่ให้ถูกตัดเงินหลังลบ"""
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
+    data = data if isinstance(data, dict) else {}
+    if str(data.get("confirm") or "").strip().lower() != email.lower():
+        return JSONResponse({"error": "พิมพ์อีเมลของบัญชีนี้ให้ตรงก่อนนะคะ"}, status_code=400)
+    key = f"{_client_ip(request)}|{email}"
+    if _login_blocked(key):
+        return JSONResponse({"error": "ลองหลายครั้งแล้ว พักสัก 10 นาทีนะคะ"}, status_code=429)
+    from DATABASE.db import delete_account, twofa_get
+    tf = await run_in_threadpool(twofa_get, email)
+    if tf and tf["enabled"] and not await run_in_threadpool(_twofa_check, email, str(data.get("code") or "")):
+        _login_failed(key)
+        return JSONResponse({"error": "รหัสยืนยันสองชั้นยังไม่ตรงค่ะ", "need_code": True}, status_code=400)
+    sub = None
+    try:
+        from DATABASE.db import get_conn
+        c = get_conn()
+        try:
+            r = c.execute("SELECT stripe_subscription FROM premium WHERE lower(user_email) = ?", (email.lower(),)).fetchone()
+            sub = r[0] if r else None
+        finally:
+            c.close()
+    except Exception:
+        sub = None
+    if sub:
+        try:
+            cancel = getattr(stripe.Subscription, "cancel", None) or stripe.Subscription.delete
+            await run_in_threadpool(cancel, sub)
+        except Exception as e:
+            if "No such subscription" not in str(e) and "canceled" not in str(e):
+                print(f"⚠ account_delete stripe: {type(e).__name__}")
+                return JSONResponse({"error": "ยกเลิกแพ็กเกจรายรอบบิลไม่สำเร็จ จึงยังไม่ลบบัญชี (กันถูกตัดเงินต่อ) ลองใหม่อีกครั้ง หรือส่งอีเมลหาเรานะคะ"},
+                                    status_code=502)
+    try:
+        await run_in_threadpool(delete_account, email)
+    except Exception as e:
+        print(f"⚠ account_delete: {type(e).__name__}")
+        return JSONResponse({"error": "ลบบัญชีไม่สำเร็จชั่วคราว ลองใหม่อีกครั้งนะคะ"}, status_code=503)
+    r = JSONResponse({"deleted": True})
+    for k in ("kd_email", "kd_name", "kd_2fa"):
+        r.delete_cookie(k, secure=True, httponly=True, samesite="lax")   # ค่าเดียวกับตอนตั้ง (เหมือน /logout)
+    return r
+
+
 @app.post("/api/2fa/disable")
 async def twofa_disable_route(request: Request, data: dict):
     """ปิด 2FA ต้องกรอกรหัสจากแอปหรือรหัสกู้คืน — คนที่แค่ยืมเครื่องที่ล็อกอินค้างไว้ปิดไม่ได้"""

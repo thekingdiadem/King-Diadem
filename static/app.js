@@ -120,9 +120,27 @@ async function refreshMe(){
   Limit.ui();
   $('#card-2fa').classList.toggle('hide', !Auth.loggedIn);
   $('#card-biz').classList.toggle('hide', !Auth.admin); if(Auth.admin) Biz.load();
+  $('#card-del').classList.toggle('hide', !Auth.loggedIn);
   if(Auth.loggedIn) TFA.load();
   return was !== Auth.email;
 }
+/* ── ลบบัญชี (/api/account/delete) — พิมพ์อีเมลยืนยัน · เปิด 2FA อยู่ต้องกรอกรหัส · สำเร็จแล้วล้างแชทในเครื่องและกลับหน้าแรก ── */
+$('#del-go').addEventListener('click', function(){
+  var msg = $('#del-msg'), body = {confirm: $('#del-confirm').value.trim(), code: $('#del-code').value.trim()};
+  if(body.confirm.toLowerCase() !== String(Auth.email || '').toLowerCase()){ msg.className = 'bad'; msg.textContent = _t('พิมพ์อีเมลของบัญชีนี้ให้ตรงก่อนนะคะ'); return; }
+  if(!confirm(_t('ลบบัญชีถาวร ย้อนกลับไม่ได้ — แน่ใจไหมคะ?'))) return;
+  fetch('/api/account/delete', {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)})
+    .then(function(r){ return r.json().then(function(d){ return {ok: r.ok, d: d}; }); })
+    .then(function(x){
+      if(x.ok && x.d.deleted){
+        try{ Object.keys(localStorage).forEach(function(k){ if(/^kd/i.test(k)) localStorage.removeItem(k); }); }catch(_){}
+        msg.className = 'ok'; msg.textContent = _t('ลบบัญชีเรียบร้อยแล้ว ขอบคุณที่เคยใช้ KING DIADEM นะคะ');
+        setTimeout(function(){ location.href = '/'; }, 1600); return;
+      }
+      if(x.d && x.d.need_code) $('#del-code-row').classList.remove('hide');
+      msg.className = 'bad'; msg.textContent = (x.d && x.d.error) || _t('ลบบัญชีไม่สำเร็จ ลองใหม่อีกครั้งนะคะ');
+    }).catch(function(){ msg.className = 'bad'; msg.textContent = _t('ลบบัญชีไม่สำเร็จ ลองใหม่อีกครั้งนะคะ'); });
+});
 /* ── การยืนยันสองชั้น (/api/2fa) — ปิดอยู่ → ตั้งค่า (เปิดแอป/คัดลอกกุญแจ → กรอกรหัสแรก) → รหัสกู้คืน → เปิดอยู่ ── */
 /* ── ตัวเลขธุรกิจ (เฉพาะเจ้าของ · ADMIN_EMAILS) — เส้นทางจากคนเข้าเว็บจนถึงคนจ่ายเงิน ──
    ดูว่าคนหลุดที่ขั้นไหน: เข้าแล้วไม่คุย = หน้าแรกยังไม่ชวน · คุยแต่ไม่ถึงเพดาน = ฟรีพอใช้ · ถึงเพดานแต่ไม่จ่าย = ราคา/คุณค่ายังไม่ชัด */

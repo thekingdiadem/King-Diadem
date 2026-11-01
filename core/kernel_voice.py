@@ -1280,6 +1280,29 @@ def _magga_topic(text: str):
     return None
 
 
+# ขอให้เขียน/แก้โค้ด — เดิมได้ "เขียนสิ่งที่เกิดขึ้นเป็นประโยคเดียว · แยกสิ่งที่ควบคุมได้…" ซึ่งไม่ตอบอะไรเลย
+# KING DIADEM เป็นที่ปรึกษาตัดสินใจ ไม่ใช่ผู้ช่วยเขียนโค้ด → บอกตรงๆ แล้วชวนกลับมาที่การตัดสินใจที่ช่วยได้จริง
+# ไม่จับคำถามเชิงตัดสินใจ ("ควรเรียนเขียนโค้ดไหม" "จะลาออกไปเป็นโปรแกรมเมอร์ดีไหม")
+_LANGS = r"(?:python|ไพธอน|javascript|js|typescript|java|php|sql|html|css|c\+\+|c#|golang|rust|kotlin|swift|react|regex|excel ?vba)"
+CODE_REQ = re.compile(
+    r"(?:ช่วย|ขอ|อยากได้)\S{0,6}(?:เขียน|แก้|ดู|ตรวจ)\S{0,4}(?:โค้ด|code|สคริปต์|ฟังก์ชัน|โปรแกรม)"
+    r"|เขียน(?:โค้ด|โปรแกรม|สคริปต์|ฟังก์ชัน)\S{0,12}" + _LANGS +
+    r"|" + _LANGS + r"\S{0,4}\s?(?:error|เออเร่อ|เออร์เรอร์|บั๊ก|bug)"
+    r"|(?:ขอ|อยากได้)\s?(?:โค้ด|สคริปต์|code)\s?" + _LANGS +
+    r"|แก้บั๊ก|ดีบั๊ก|\bdebug\b"
+    r"|\b(?:write|fix|debug|refactor)\b[^.?!\n]{0,24}\b(?:code|function|script|program|query|regex|python|javascript|sql)\b"
+    r"|\btraceback \(most recent call last\)|^\s*(?:def |class |import |function |const |SELECT )",
+    re.I | re.M)
+CODE_D = {
+    "open": ["บอกตรงๆ นะ — เรื่องเขียนหรือแก้โค้ด KING DIADEM ไม่ใช่ผู้เชี่ยวชาญ ถ้าตอบไปอาจผิดและทำให้เสียเวลา"],
+    "paths": [
+        "งานโค้ดใช้ผู้ช่วยที่ทำมาเพื่อเขียนโค้ดโดยตรงจะคมกว่ามาก — ส่งข้อความ error เต็มๆ กับโค้ดส่วนที่เกี่ยวไปด้วย",
+        "ถ้าติดนานเกิน 1 ชั่วโมง ลองย่อปัญหาให้เหลือตัวอย่างสั้นที่สุดที่ยังพังอยู่ — ครึ่งหนึ่งมักเจอคำตอบเองตอนนั้น",
+        "ส่วนที่ช่วยได้เต็มที่คือการตัดสินใจรอบๆ งานนี้: จะเลือกเครื่องมือไหน จะรับงานนี้ไหม ตั้งราคาเท่าไหร่ จะเปลี่ยนสายอาชีพไหม",
+    ],
+    "ask": "โค้ดนี้เป็นส่วนหนึ่งของการตัดสินใจเรื่องไหนอยู่ เล่าให้ฟังได้นะ",
+}
+
 _MAGGA_D = {"speech": MAGGA_SPEECH_D, "living": MAGGA_LIVING_D, "intent": MAGGA_INTENT_D}
 
 # ถูกโกงไปแล้ว — ต่างจากกำลังจะถูกหลอก: เวลาสำคัญที่สุดคือชั่วโมงแรกๆ
@@ -1472,6 +1495,11 @@ EN_TOPIC = {
         "Call your bank now and ask them to freeze the receiving account (in Thailand also call 1441, 24h; in the US report at reportfraud.ftc.gov).",
         "Keep the evidence: transfer slips, account numbers, chats, links and phone numbers — screenshot before you block or delete anything, then report it to the police."],
         "Have you already sent money, or are they still asking you to?"),
+    "code_help": ("Straight answer: writing or fixing code isn't what KING DIADEM is built for — a guess here could cost you time.", [
+        "For code, a dedicated coding assistant will be far sharper — paste the full error and the relevant snippet.",
+        "Stuck for over an hour? Shrink it to the smallest example that still breaks — half the time the answer shows up there.",
+        "Where I can help fully is the decision around it: which tool, whether to take the job, how to price it, whether to switch careers."],
+        "What decision is this code part of? Tell me about it."),
     # มรรค 8 ตอนไม่มี AI (ดู MAGGA_*_D ภาษาไทย)
     "magga_speech": ("Straight talk: a lie might work today, but trust that's lost is very hard to buy back — the cost is usually higher than the gain.", [
         "Find what you can say truthfully instead — real strengths, or the limitation stated plainly with a remedy (warranty, refund, discount).",
@@ -2090,7 +2118,9 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             en_key = "scam_recovery"
         elif not a["crisis"] and _magga_topic(t) and not (a.get("scam") or a.get("offer_flags")):
             en_key = "magga_" + _magga_topic(t)
-        en = EN_TOPIC.get(en_key) if (lang == "en" and (a["topics"] or str(en_key).startswith("magga_")) and not a["crisis"]) else None
+        elif not a["crisis"] and CODE_REQ.search(t) and not (a.get("scam") or a.get("offer_flags")):
+            en_key = "code_help"
+        en = EN_TOPIC.get(en_key) if (lang == "en" and (a["topics"] or str(en_key).startswith("magga_") or en_key == "code_help") and not a["crisis"]) else None
         if en:
             return (en[0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(en[1]))
                     + f"\n\n{en[2]}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
@@ -2211,6 +2241,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = SCAM_ROMANCE_D, None
     elif _magga_topic(text) and not set(a["topics"]) & {"harm_others"}:
         main, second = _MAGGA_D[_magga_topic(text)], None    # มรรค 8: โกหก/ทุจริต/อยากเอาคืน — ทักตรงๆ ก่อนคำตอบทั่วไป
+    elif CODE_REQ.search(text) and a["text_risk"] < 60:
+        main, second = CODE_D, None                           # ขอให้เขียน/แก้โค้ด — บอกตรงๆ ว่าไม่ใช่งานถนัด แล้วชวนกลับมาที่การตัดสินใจ
     elif re.search(r"(?:เด็ก|คน|ป้า|ลุง|ผู้หญิง|ยาย)ข้างบ้าน[^\n]{0,12}?(?:โดน|ถูก)\S{0,6}?(?:ตี|ทำร้าย|ทุบ|ตบ|ทิ้ง|ขัง)", text):
         main, second = lib["witness"], None    # เดิมได้ "ความปลอดภัยของคุณมาก่อน" — ผู้ใช้เป็นคนได้ยิน ไม่ใช่ผู้ถูกทำร้าย
     elif _OTHER_HARM.search(text):
@@ -2478,6 +2510,8 @@ def compose_council(text: str, footer: bool = True) -> str:
         main = SCAM_ROMANCE_D
     elif _magga_topic(text) and "harm_others" not in a["topics"]:
         main = _MAGGA_D[_magga_topic(text)]
+    elif CODE_REQ.search(text) and a["text_risk"] < 60:
+        main = CODE_D
     elif a["relationship"] in ("collapse_risk", "critical"):
         main = SAFETY
     paths = _paths(main, t) or GENERAL["paths"]
