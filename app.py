@@ -2735,6 +2735,9 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             _L = ((core_result.get("bodhi_detail") or {}).get("layers") or [])[-1]
             if _L.get("dhamma") == "มรรคมีองค์ 8":
                 result["magga"] = [{"name": x["name"], "ok": x["ok"], "note": x["note"]} for x in _L["items"]]
+            _A = (core_result.get("bodhi_detail") or {}).get("ariya")
+            if _A:                                    # อริยสัจ 4 ของเรื่องนี้ — แผง Σ แสดงก่อนมรรค 8 (เห็นทุกข์ก่อน แล้วค่อยเดินมรรค)
+                result["ariya"] = {k: _A.get(k) for k in ("dukkha", "samudaya", "nirodha", "magga", "clear")}
         except Exception:
             pass
 

@@ -549,7 +549,7 @@ function traceOf(d, mode, sentState){
     canonV: d.canon_violations || [],
     consensus: typeof d.consensus === 'string' ? d.consensus : (d.consensus && (d.consensus.final_action || d.consensus.consensus)) || '',
     tw: d.time_windows && typeof d.time_windows === 'object' ? d.time_windows : null,
-    magga: Array.isArray(d.magga) ? d.magga.slice(0, 8) : [], report: d.report_id || '', share: d.share_token || '', gates: Array.isArray(d.vega_gates) ? d.vega_gates.slice(0, 3) : [], warn: d.governance_warning || '', sentState: !!inp, inp: inp
+    magga: Array.isArray(d.magga) ? d.magga.slice(0, 8) : [], ariya: d.ariya && typeof d.ariya === 'object' ? d.ariya : null, report: d.report_id || '', share: d.share_token || '', gates: Array.isArray(d.vega_gates) ? d.vega_gates.slice(0, 3) : [], warn: d.governance_warning || '', sentState: !!inp, inp: inp
   };
 }
 function lvlClass(v, invert){ if(v == null) return ''; if(invert) return v >= 75 ? 'bad' : v >= 45 ? 'warn' : 'ok'; return v < 35 ? 'bad' : v < 65 ? 'warn' : 'ok'; }
@@ -686,7 +686,17 @@ function plainHTML(t){
     '<div class="pr"><span class="pk">ใครตัดสินใจ</span><span class="pv">' + (n.paused ? 'ระบบชวนพักก่อน' : 'คุณเลือกเองเสมอ') + '</span></div>' +
     (n.noState ? '<p class="pn">ประเมินจากข้อความอย่างเดียว — บอกสถานะของคุณ (พลังงาน การนอน) จะแม่นขึ้น</p>' : '') +
     '</div>';
-  return h + maggaHTML(t) + '<details class="eq-more"><summary>ดูวิธีคำนวณ</summary>' + eq + '</details>';
+  return h + ariyaHTML(t) + maggaHTML(t) + '<details class="eq-more"><summary>ดูวิธีคำนวณ</summary>' + eq + '</details>';
+}
+/* อริยสัจ 4 ของข้อความนี้ (ENGINE/ariya_sacca) — เห็นทุกข์และเหตุก่อน มรรค 8 ข้างล่างจึงตรง
+   เนื้อความมาจากเซิร์ฟเวอร์เป็นภาษาไทย · หัวข้อแปลได้ */
+function ariyaHTML(t){
+  var A = t && t.ariya;
+  if(!A || !A.dukkha) return '';
+  var row = function(k, v){ return '<div class="ar-r"><span class="ar-k">' + _t(k) + '</span><span class="ar-v' + (v === 'ยังไม่ชัด' ? ' ar-un' : '') + '">' + esc(_t(String(v || ''))) + '</span></div>'; };
+  return '<div class="ariya"><div class="mg-h">' + _t('อริยสัจ 4') + '</div>' +
+    row('ทุกข์', A.dukkha) + row('สมุทัย', A.samudaya) + row('นิโรธ', A.nirodha) + row('มรรค', A.magga) +
+    (A.clear ? '' : '<p class="mg-n">' + _t('ยังเห็นไม่ครบ — เล่าเพิ่มอีกนิด ทางจะตรงขึ้น') + '</p>') + '</div>';
 }
 /* มรรคมีองค์ 8 ของข้อความนี้ (ENGINE/bodhipakkhiya_engine) — ป้าย ✓/✗ ครบ 8 องค์ · ข้อไหนไม่ผ่านบอกเหตุใต้ป้าย */
 function maggaHTML(t){

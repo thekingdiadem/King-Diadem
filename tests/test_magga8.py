@@ -62,7 +62,7 @@ def test_trace_panel_shows_magga_and_every_text_translates():
     import re
     from tests._front import front_page
     page = front_page()
-    assert "d.magga" in page and "h + maggaHTML(t) +" in page      # อยู่ในแผงที่เปิดจริง (plainHTML) ไม่ใช่ traceHTML ที่ไม่มีใครเรียก
+    assert "d.magga" in page and "ariyaHTML(t) + maggaHTML(t) +" in page      # อยู่ในแผงที่เปิดจริง (plainHTML) ไม่ใช่ traceHTML ที่ไม่มีใครเรียก
     root = pathlib.Path(__file__).resolve().parent.parent
     i18n = (root / "static" / "i18n.js").read_text(encoding="utf-8")
     g = guardian_check("วันนี้อากาศดี", HS)
