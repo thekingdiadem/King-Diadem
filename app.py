@@ -3312,8 +3312,8 @@ def _analyze_image_sync(data: bytes, mime: str) -> str:
         parts = getattr(getattr(resp, "candidates", [None])[0], "content", None)
         text = " ".join(p.text for p in (getattr(parts, "parts", []) or []) if hasattr(p, "text"))
     try:
-        from core.llm_gemini import strip_reasoning, strip_notes, scrub_internal
-        text = scrub_internal(strip_notes(strip_reasoning(text)))
+        from core.llm_gemini import strip_reasoning, strip_notes, scrub_internal, salvage_answer
+        text = scrub_internal(strip_notes(salvage_answer(strip_reasoning(text))))
     except Exception:
         pass
     return text.strip() or _IMAGE_EMPTY

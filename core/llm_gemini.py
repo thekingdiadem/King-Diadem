@@ -574,7 +574,7 @@ _TAIL_NOTE = re.compile(r"[ \t]*\[(?![\d,\s\-–·]+\])(?=[^\[\]\n]{2,90}\])(?=[
 # หมายเหตุภายในที่รู้จักชื่อ — ลบตรงที่อยู่ ไม่ว่าจะอยู่กลางประโยคหรือต้นบรรทัด ("ฉันเห็นว่า [Risk: LOW] ตอนนี้…")
 _KNOWN_NOTE = re.compile(
     r"[ \t]*\[(?:Risk|RISK|PAUSE|COLLAPSE|Collapse[^\]]*|MONDAY_RESET|LIVING_WATER|COSMIC_LATTE|ESCAPE_ROUTES|"
-    r"STRATEGY|RELATIONSHIP|SURVIVAL|VEGA[^\]]*|KING DIADEM[^\]]*|โพธิปักขิยธรรม|โยนิโสมนสิการ|เหตุ-ปัจจัย|UAP|ความมั่นใจ|"
+    r"STRATEGY|RELATIONSHIP|SURVIVAL|ก่อนตอบ|VEGA[^\]]*|KING DIADEM[^\]]*|โพธิปักขิยธรรม|โยนิโสมนสิการ|เหตุ-ปัจจัย|UAP|ความมั่นใจ|"
     r"ยังไม่ผ่าน|ผ่าน:|ทางหนี|สาเหตุ|ความเสี่ยง|โหมด|คุยต่อเนื่อง|ข้อความล่าสุดที่ต้องตอบ|บริบท|ภาษาผู้ใช้|MEMORY)[^\[\]\n]{0,300}\]")
 
 
@@ -636,13 +636,57 @@ def strip_reasoning(text):
         out.append(para.strip())
     res = "\n\n".join(out).strip()
     return res if res else text.strip()                     # ตัดจนว่าง = ตัดผิด — คืนข้อความเดิมดีกว่าคำตอบเปล่า
+
+
+# ความคิดที่โมเดลเขียนเป็นภาษาอังกฤษธรรมดา ไม่ขึ้นต้นด้วยประโยคที่รู้จัก — หลุดถึงผู้ใช้ทั้งก้อน (หน้าจอจริง พ.ย. 2569):
+# "My task is to assess the risk… According to the LYLA persona and the "Risk" route guidelines… The `[ก่อนตอบ: …]`
+#  is an internal instruction… This directly answers the question… (calm, no emojis, empathetic but direct).ความเสี่ยงจะ…"
+# แทนที่จะไล่ดักประโยคทีละแบบ นับ "สัญญาณว่ากำลังคิดถึงงานของตัวเอง" — คำตอบถึงผู้ใช้จริงไม่พูดแบบนี้
+_META_SIGNS = re.compile(
+    r"\bthe user(?:'s)?\b|\bLYLA(?:'s)? (?:persona|tone|core|voice)\b|\bpersona\b|\broute guidelines?\b|"
+    r"\binternal (?:instruction|score|note|context|state|rule)s?\b|\bclarifying question\b|\bMy task is\b|"
+    r"\bI (?:should|need to|must|will) (?:ask|respond|reply|answer|focus|ignore|not use|keep|maintain|acknowledge|address)\b|"
+    r"\b(?:The|A good) (?:question|response|reply|answer) (?:should|would) be\b|\bThis (?:question|response|reply) (?:allows|maintains|directly)\b|"
+    r"\bThis directly answers\b|\bno emojis\b|\bconversation history\b|\bcurrent message is\b", re.I)
+_GLUED = re.compile(r"([A-Za-z0-9][.!?)\"'\]`]+)(?=[฀-๿぀-ヿ一-鿿가-힯])")
+_LETTER = re.compile(r"[^\W\d_]")
+
+
+def _non_latin_share(line: str) -> float:
+    letters = _LETTER.findall(line)
+    return (sum(bool(_NON_LATIN.match(c)) for c in letters) / len(letters)) if letters else 0.0
+
+
+def salvage_answer(text):
+    """ข้อความที่มีความคิดของโมเดลปนอยู่มาก (≥ 3 สัญญาณ) → เก็บเฉพาะคำตอบถึงผู้ใช้
+    · ผู้ใช้ภาษาไทย/จีน/ญี่ปุ่น/เกาหลี: คำตอบจริงคือช่วงท้ายที่เป็นภาษานั้นต่อกันหลังประโยคความคิดสุดท้าย
+    · ภาษาอักษรละติน: ตัดบรรทัดที่เป็นความคิดทิ้ง ถ้ายังเหลือความคิดอยู่มาก → "" ให้ระบบตอบจากสมการแทน
+      (คำตอบจากสมการดีกว่าให้คนอ่านความคิดของ AI)"""
+    if not isinstance(text, str) or len(_META_SIGNS.findall(text)) < 3:
+        return text
+    lines = _GLUED.sub(r"\1\n", text).split("\n")
+    tail = []
+    for ln in reversed(lines):
+        s = ln.strip()
+        if not s:
+            tail.append("")
+            continue
+        if _non_latin_share(s) < 0.5 or _META_SIGNS.search(s) or s[0] in "\"“'`":
+            break
+        tail.append(s)
+    ans = re.sub(r"\n{3,}", "\n\n", "\n".join(reversed(tail))).strip()
+    if len(_NON_LATIN.findall(ans)) >= 15:
+        return ans
+    kept = [ln for ln in lines if not _META_SIGNS.search(ln)]
+    rest = re.sub(r"\n{3,}", "\n\n", "\n".join(kept)).strip()
+    return rest if rest and len(_META_SIGNS.findall(rest)) == 0 and len(rest) >= 20 else ""
 _INTERNAL_TOKENS = re.compile(
     r"root\s*=\s*(?:craving|fear|aversion|clinging|ignorance|bias|misinformation|non_existence)|"
     r"feeling\s*=\s*(?:pleasant|unpleasant|neutral)|decay_suffering|kill[_ ]zone|chain_(?:full|partial|cut)|\bUAP\s*[:=]|Causal\s*:|"
     r"SURVIVOR ENGINE|Router action|\[โหมด:|Wise attention|nirvana_mode|risk_score|EMOTION(?:AL_CONTEXT)?:|"
     r"\[บริบท|บริบทภายใน|เหตุ-ปัจจัย \(|ข้อเสนอมีสัญญาณเสี่ยง:|ภาษาผู้ใช้:|ตัวเลขที่ระบบคำนวณจาก|ผู้ใช้เล่าว่าถูกทำร้าย|\[ผู้ใช้กำลังเจอ|ก่อนหน้านี้ในแชทนี้|ข้อความล่าสุดที่ต้องตอบ|เขาขอทางออกแล้ว|ผู้ใช้ถามถึงที่มาของระบบ|\[MEMORY|\[บทสนทนาล่าสุด\]|ข้อความมีลักษณะมิจฉาชีพ|ผู้ใช้ถูกโกงไปแล้ว|อาจกินยาเกินขนาด|สัญญาณเตือนเรื่องทำร้ายตัวเอง|เบอร์ที่ถูกต้องสำหรับเรื่องนี้|ผู้ใช้กำลังช่วยคนอื่น|ผู้ใช้อาจถูกล่วงละเมิด|ผู้ใช้ถูกขู่ปล่อยคลิป|เรื่องเร่งด่วนต่อชีวิต|ผู้ใช้อยากหยุดยาที่แพทย์สั่ง|context_for_lyla|"
     r"ยังไม่ผ่าน\s*:|โพธิปักขิยธรรม\s*:|โยนิโสมนสิการ\s*\d|voice_mode\s*=|entropy\s*=\s*\d|stability\s*=\s*\d|"
-    r"Priority\s*:\s*(?:HIGH|MEDIUM|LOW)|flags\s*=\s*\[|strategic analysis|The internal state|"
+    r"\[ก่อนตอบ\s*:|Priority\s*:\s*(?:HIGH|MEDIUM|LOW)|flags\s*=\s*\[|strategic analysis|The internal state|"
     r"\bRisk\s*:\s*(?:LOW|MEDIUM|HIGH|CRITICAL)\b|\bCOLLAPSE\s*:|MONDAY_RESET|LIVING_WATER|COSMIC_LATTE|ESCAPE_ROUTES|"
     r"VEGA (?:14 GATES|CRISIS)|ประตูที่ติด\s*:|จำลองอนาคต FATE|คุยต่อเนื่องในแชทเดิม|(?<![\w\[])PAUSE(?![\w\]])(?=[\s,.]|$)", re.I)
 
@@ -1090,7 +1134,7 @@ class GeminiLLM:
     def _gcall(self, system: str, contents: list, **kw) -> str:
         """เรียก LLM พร้อมกฎบริบทภายใน + ภาษาของผู้ใช้ แล้วตัดความคิดและบริบทภายในที่หลุดออกมา"""
         extra = getattr(_tls, "lang_directive", "")
-        return scrub_internal(strip_notes(strip_reasoning(self._call(system + INTERNAL_RULE + extra, contents, **kw))))
+        return scrub_internal(strip_notes(salvage_answer(strip_reasoning(self._call(system + INTERNAL_RULE + extra, contents, **kw)))))
 
     def generate_with_governance(
         self,
@@ -1183,8 +1227,8 @@ class GeminiLLM:
         sys = system_prompt or LYLA_SYSTEM
         contents = [_msg("user", prompt)]
         # ทางนี้ (สภา / DecisionEngine) เดิมไม่ผ่านตัวตัดความคิด — แผนภาษาอังกฤษของโมเดลหลุดถึงผู้ใช้ได้
-        return scrub_internal(strip_notes(strip_reasoning(
-            self._call(sys, contents, temperature=temperature, max_tokens=max_tokens))))
+        return scrub_internal(strip_notes(salvage_answer(strip_reasoning(
+            self._call(sys, contents, temperature=temperature, max_tokens=max_tokens)))))
 
 
 # ══════════════════════════════════════════════════════════════════
