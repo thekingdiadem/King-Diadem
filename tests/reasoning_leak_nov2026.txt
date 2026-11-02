@@ -1,0 +1,30 @@
+The user's current message is "สูงไหมความเสี่ยง" ("Is the risk high?"). The conversation history shows a previous message about a personal problem ("คนเก่าอีกแล้วอีกแล้วทำไงดี คนที่15(ปัญหาของน้อง)") and a general query ("ทำไรอยู่"). This indicates the user is likely linking the "คนเก่า" problem to a potential risk.
+
+My task is to assess the risk level based on the current information. However, the information provided is very vague ("คนเก่าอีกแล้วอีกแล้วทำไงดี คนที่15(ปัญหาของน้อง)"). I cannot assign a specific risk score or definitively say if the risk is "high" or "low" without more details.
+
+According to the LYLA persona and the "Risk" route guidelines:
+- Tone: Not excited, no emojis, no laughter, no teasing.
+- Action: Point out risk signals and offer an exit.
+- Crucial point: If I don't see the cause, ask one clarifying question.
+
+The current information does not allow me to see the "cause" or the "true suffering" (อริยสัจ 4) clearly enough to assess risk. Therefore, I need to ask a clarifying question.
+
+The question should be:
+1. Gentle and understanding (LYLA's core).
+2. Aimed at understanding what "คนเก่า" means in this context and what the "problem" is.
+3. Not judgmental.
+
+Considering "คนเก่าอีกแล้วอีกแล้ว" and "คนที่15(ปัญหาของน้อง)", it implies a pattern and potentially involves a younger person.
+
+A good clarifying question would be: "LYLA เข้าใจค่ะว่าคุณกังวลเรื่องความเสี่ยง แต่ LYLA ยังไม่แน่ใจว่า 'คนเก่า' ที่คุณหมายถึงคือใคร และปัญหาที่เกิดขึ้นกับน้องคือเรื่องอะไรคะ LYLA จะได้ช่วยมองภาพรวมได้ชัดเจนขึ้นค่ะ"
+
+This question allows me to gather more information to assess the risk, maintains the LYLA tone, and aligns with the "ask one clarifying question if the cause is not clear" rule. I will not use emojis as per the risk route guidelines.
+
+The `` is an internal score, not for the user. I should ignore it in the response.
+The `[ก่อนตอบ: เห็นอริยสัจ 4 ของเรื่องนี้ก่อน — ทุกข์จริงคืออะไร เกิดจากอะไร ปลายทางที่วัดได้ ก้าวแรก · ถ้ายังไม่เห็นเหตุ ถามกลับ 1 คำถาม · ตอบในภาษาเดียวกับผู้ใช้ · ห้ามยกศัพท์ธรรมะไปตีตราผู้ใช้]` is an internal instruction.
+The user's previous message "ทำไรอยู่" was responded to, so I should focus on "สูงไหมความเสี่ยง" and the context of "คนเก่าอีกแล้วอีกแล้วทำไงดี คนที่15(ปัญหาของน้อง)".
+
+"ความเสี่ยงจะสูงหรือไม่นั้น ขึ้นอยู่กับรายละเอียดของสถานการณ์เลยค่ะ LYLA ยังไม่แน่ใจว่า 'คนเก่า' ที่คุณหมายถึงคือใคร และปัญหาที่เกิดขึ้นกับน้องนั้นเป็นเรื่องอะไรคะ ถ้าเล่าให้ LYLA ฟังเพิ่มอีกหน่อย LYLA จะช่วยมองภาพรวมและประเมินให้ได้ชัดเจนขึ้นค่ะ"
+This directly answers the question (it depends), then asks for clarification. It maintains the LYLA tone for a risk scenario (calm, no emojis, empathetic but direct).ความเสี่ยงจะสูงหรือไม่นั้น ขึ้นอยู่กับรายละเอียดของสถานการณ์เลยค่ะ
+
+LYLA ยังไม่แน่ใจว่า 'คนเก่า' ที่คุณหมายถึงคือใคร และปัญหาที่เกิดขึ้นกับน้องนั้นเป็นเรื่องอะไรคะ ถ้าเล่าให้ LYLA ฟังเพิ่มอีกหน่อย LYLA จะช่วยมองภาพรวมและประเมินให้ได้ชัดเจนขึ้นค่ะ
