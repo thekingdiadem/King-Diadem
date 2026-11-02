@@ -848,6 +848,27 @@ async def privacy_page():
 async def terms_page():
     return _legal_page("terms")
 
+@app.get("/refund")
+async def refund_page():
+    return _legal_page("refund")
+
+@app.get("/support")
+async def support_page():
+    return _legal_page("support")
+
+# ── แอป Android แบบ TWA (Trusted Web Activity) ─────────────────────────────────
+# Play Store ห่อเว็บนี้เป็นแอปได้ ถ้าโดเมนยืนยันว่าแอปนั้นเป็นของเรา (Digital Asset Links)
+# ตั้งใน Render: TWA_PACKAGE (เช่น com.kingdiadem.app) + TWA_SHA256 (ลายนิ้วมือใบรับรองเซ็นแอป คั่นหลายอันด้วย ,)
+# ไม่ได้ตั้ง = รายการว่าง (ยังไม่ผูกแอปไหน) — ลายนิ้วมือเป็นข้อมูลสาธารณะ ไม่ใช่ความลับ
+@app.get("/.well-known/assetlinks.json")
+async def asset_links():
+    pkg = os.getenv("TWA_PACKAGE", "").strip()
+    fps = [f.strip().upper() for f in os.getenv("TWA_SHA256", "").split(",") if f.strip()]
+    if not pkg or not fps:
+        return JSONResponse([])
+    return JSONResponse([{"relation": ["delegate_permission/common.handle_all_urls"],
+                          "target": {"namespace": "android_app", "package_name": pkg, "sha256_cert_fingerprints": fps}}])
+
 @app.get("/letter")
 async def letter_page():
     return FileResponse("static/letter.html")
