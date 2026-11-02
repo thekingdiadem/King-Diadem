@@ -149,7 +149,9 @@ _TOOLS = {
 }
 
 # ── Main ──────────────────────────────────────────────────────────
-def execute_tool(decision: dict) -> dict:
+def execute_tool(decision: dict, *, approval: Optional[str] = None) -> dict:
+    """approval = ใบอนุญาตจาก core.human_gate.mint() ที่มนุษย์ออกให้
+    ส่งแยกเป็น keyword เท่านั้น — ค่าใดๆ ที่อยู่ใน decision (ซึ่งอาจมาจาก LLM) ไม่นับเป็นใบอนุญาต"""
     decision = decision if isinstance(decision, dict) else {"action": str(decision or "")}
     action = str(decision.get("action", "")).strip()
     if not action:
@@ -163,6 +165,14 @@ def execute_tool(decision: dict) -> dict:
             "action":    action,
             "available": list(_TOOLS.keys()),
         }
+
+    # FATE™ Human Final Authority — action ที่มีผลออกนอกระบบต้องมีใบอนุญาตจากมนุษย์
+    from core import human_gate
+    if human_gate.requires_gate(action):
+        params = {k: v for k, v in decision.items() if k not in ("action", "approval")}
+        ok, why = human_gate.verify(approval, action, params)
+        if not ok:
+            return {"tool": action, "status": "needs_human_approval", "reason": why}
 
     try:
         return handler(decision)
