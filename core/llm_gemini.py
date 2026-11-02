@@ -829,6 +829,15 @@ def _cache_set(key: str, value: str):
 # ══════════════════════════════════════════════════════════════════
 # HISTORY BUILDER
 # ══════════════════════════════════════════════════════════════════
+def _msg(role: str, text: str):
+    """ข้อความหนึ่งรอบ — ใช้ชนิดของ google-genai ถ้ามี ไม่มีก็ใช้โครงเดียวกันแบบธรรมดา
+    (.role / .parts[0].text) เพื่อให้ผู้ให้บริการรายอื่นใช้ governance ชุดเดียวกันได้โดยไม่ต้องลงไลบรารี Gemini"""
+    if types is not None:
+        return types.Content(role=role, parts=[types.Part.from_text(text=text)])
+    from types import SimpleNamespace
+    return SimpleNamespace(role=role, parts=[SimpleNamespace(text=text)])
+
+
 def _build_contents(history: list, user_input: str, ctx_note: str = "") -> list:
     contents = []
     history = history if isinstance(history, list) else []
@@ -838,15 +847,9 @@ def _build_contents(history: list, user_input: str, ctx_note: str = "") -> list:
         role = "user" if turn.get("role") == "user" else "model"
         text = str(turn.get("content", ""))[:2000].strip()   # รอบละไม่เกิน 2000 ตัวอักษร — กันประวัติยาวหลาย MB
         if text:
-            contents.append(types.Content(
-                role=role,
-                parts=[types.Part.from_text(text=text)]
-            ))
+            contents.append(_msg(role, text))
     final = f"{user_input}\n\n[บริบท: {ctx_note}]" if ctx_note else user_input
-    contents.append(types.Content(
-        role="user",
-        parts=[types.Part.from_text(text=final)]
-    ))
+    contents.append(_msg("user", final))
     return contents
 
 # ══════════════════════════════════════════════════════════════════
@@ -1178,10 +1181,7 @@ class GeminiLLM:
     def generate(self, prompt: str, system_prompt: Optional[str] = None,
                  temperature: float = 0.65, max_tokens: int = 1024) -> str:
         sys = system_prompt or LYLA_SYSTEM
-        contents = [types.Content(
-            role="user",
-            parts=[types.Part.from_text(text=prompt)]
-        )]
+        contents = [_msg("user", prompt)]
         # ทางนี้ (สภา / DecisionEngine) เดิมไม่ผ่านตัวตัดความคิด — แผนภาษาอังกฤษของโมเดลหลุดถึงผู้ใช้ได้
         return scrub_internal(strip_notes(strip_reasoning(
             self._call(sys, contents, temperature=temperature, max_tokens=max_tokens))))
@@ -1190,6 +1190,19 @@ class GeminiLLM:
 # ══════════════════════════════════════════════════════════════════
 # SINGLETON
 # ══════════════════════════════════════════════════════════════════
+def _provider_class():
+    """เลือกผู้ให้บริการด้วย LLM_PROVIDER — ทุกเจ้าใช้ governance ชุดเดียวกัน (สืบทอดจาก GeminiLLM)
+    gemini (ค่าเริ่มต้น) · openai_compat (OpenAI / DeepSeek / Qwen / OpenRouter — ดู core/llm_openai_compat.py)
+    ชื่อที่ไม่รู้จัก → ไม่เดา: สร้างไม่ได้ ระบบจะใช้คำตอบจากสมการแทน"""
+    name = os.getenv("LLM_PROVIDER", "gemini").strip().lower() or "gemini"
+    if name == "gemini":
+        return GeminiLLM
+    if name in ("openai_compat", "openai", "deepseek", "qwen", "openrouter"):
+        from core.llm_openai_compat import OpenAICompatLLM
+        return OpenAICompatLLM
+    raise ValueError(f"ไม่รู้จัก LLM_PROVIDER={name!r}")
+
+
 _instance: Optional[GeminiLLM] = None
 _instances: dict = {}
 _instance_lock = __import__("threading").Lock()
@@ -1204,7 +1217,7 @@ def get_llm(model: str = "") -> GeminiLLM:
             return _instance
         inst = _instances.get(model)
         if inst is None:
-            inst = _instances[model] = GeminiLLM(model=model)
+            inst = _instances[model] = _provider_class()(model=model)
         if not model or _instance is None:
             _instance = inst
         return inst
