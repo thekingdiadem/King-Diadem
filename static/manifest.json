@@ -1,7 +1,7 @@
 {
   "name": "KING DIADEM — DriftZero OS",
   "short_name": "KING DIADEM",
-  "description": "Decision Infrastructure — ระบบตัดสินใจในวิกฤต",
+  "description": "ระบบช่วยคิดเวลาตัดสินใจยาก — เห็นทางเลือกที่ยังเหลือ และความเสี่ยงก่อนเลือก · คุณเป็นคนตัดสินใจเสมอ",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -61,7 +61,22 @@
       ]
     }
   ],
-  "screenshots": [],
+  "screenshots": [
+    {
+      "src": "/static/screenshots/narrow.jpg",
+      "sizes": "824x1830",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "ปรึกษา LYLA บนมือถือ"
+    },
+    {
+      "src": "/static/screenshots/wide.jpg",
+      "sizes": "1920x1080",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "KING DIADEM บนคอมพิวเตอร์"
+    }
+  ],
   "prefer_related_applications": false,
   "id": "/"
 }

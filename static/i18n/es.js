@@ -663,5 +663,10 @@
 "ฟรีหมด": "Sin gratis",
 "จ่าย": "Pagado",
 "นับเฉพาะจำนวน ไม่เก็บข้อความ อีเมล หรือ IP · เริ่มนับตั้งแต่ติดตั้งระบบนี้": "Solo se cuentan cifras — no se guardan mensajes, correos ni IP · se empezó a contar al instalarlo",
-"ดูตัวเลขไม่ได้ชั่วคราว": "Las cifras no están disponibles por ahora"
+"ดูตัวเลขไม่ได้ชั่วคราว": "Las cifras no están disponibles por ahora",
+"ช่วยเหลือ": "Ayuda",
+"ติดตั้งแอป": "Instalar app",
+"บน iPhone: แตะปุ่มแชร์ แล้วเลือก “เพิ่มไปยังหน้าจอโฮม”": "En iPhone: toca Compartir y luego “Añadir a pantalla de inicio”",
+"ติดตั้งแล้ว — เปิดจากหน้าจอโฮมได้เลย": "Instalada — ábrela desde tu pantalla de inicio",
+"การยกเลิกและคืนเงิน": "Cancelación y reembolsos"
 };

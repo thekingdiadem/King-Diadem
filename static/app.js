@@ -2863,3 +2863,20 @@ addEventListener('keydown', function(e){ if(e.key === 'Escape') closeDrawer(); }
   await Cloud.pull();
   if(qs.get('new') === '1') Chat.create();
 })();
+
+/* ติดตั้งเป็นแอป (PWA) — Android/Chrome ส่ง beforeinstallprompt มาให้เก็บไว้แล้วกดเองได้ · iPhone ไม่มี ต้องบอกทางเอง
+   เดิมคนไม่รู้ว่าติดตั้งได้ ต้องไปหาในเมนูเบราว์เซอร์เอง · ติดตั้งแล้ว (เปิดแบบ standalone) ไม่ต้องโชว์ปุ่ม */
+(function(){
+  var btn = document.getElementById('pwa-install'); if(!btn) return;
+  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  if(standalone) return;
+  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var deferred = null;
+  addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferred = e; btn.classList.remove('hide'); });
+  addEventListener('appinstalled', function(){ deferred = null; btn.classList.add('hide'); toast(_t('ติดตั้งแล้ว — เปิดจากหน้าจอโฮมได้เลย')); });
+  if(ios) btn.classList.remove('hide');
+  btn.addEventListener('click', function(){
+    if(deferred){ var d = deferred; deferred = null; d.prompt(); if(d.userChoice) d.userChoice.then(function(r){ if(r && r.outcome === 'accepted') btn.classList.add('hide'); }); return; }
+    if(ios) toast(_t('บน iPhone: แตะปุ่มแชร์ แล้วเลือก “เพิ่มไปยังหน้าจอโฮม”'), false, 7000);
+  });
+})();
