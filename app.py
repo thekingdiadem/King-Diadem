@@ -28,7 +28,7 @@
 # =========================
 
 from fastapi import FastAPI, Request, File, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
@@ -796,13 +796,51 @@ def galaxy_state_debug():
 
 
 # ── PAGES ─────────────────────────────────────────────────────────
+# ยืนยันเจ้าของเว็บกับ Google Search Console: ตั้ง GOOGLE_SITE_VERIFICATION ใน Render
+# (ค่า content จาก <meta name="google-site-verification" content="…"> ที่ Search Console ให้มา) — ไม่ต้องแก้โค้ด
+_GSV = re.sub(r"[^A-Za-z0-9_\-]", "", os.getenv("GOOGLE_SITE_VERIFICATION", ""))
+_INDEX_HTML = None
+
+def _index_html() -> str:
+    global _INDEX_HTML
+    if _INDEX_HTML is None:
+        html = open("static/index.html", encoding="utf-8").read()
+        if _GSV:
+            html = html.replace("<head>", f'<head>\n<meta name="google-site-verification" content="{_GSV}">', 1)
+        _INDEX_HTML = html
+    return _INDEX_HTML
+
 @app.get("/")
 @app.head("/")
 def root(request: Request):
     if request.method == "GET":
         _metric("visit")
         _metric("visitor", _client_ip(request))
-    return FileResponse("static/index.html")
+    if not _GSV:
+        return FileResponse("static/index.html")
+    return HTMLResponse(_index_html())
+
+# ── ให้ Google เจอหน้าเว็บ (SEO) ─────────────────────────────────────────
+# robots.txt บอกว่าหน้าไหนให้เก็บ · หน้าส่วนตัว (API บัญชี รายงานที่แชร์) ห้ามเก็บ
+# sitemap.xml บอก Google ว่ามีหน้าสาธารณะอะไรบ้าง — เดิมไม่มีทั้งสองไฟล์
+SITEMAP_PAGES = [("/", "1.0", "daily"), ("/guide", "0.8", "weekly"), ("/ask", "0.7", "weekly"),
+                 ("/architecture", "0.6", "weekly"), ("/letter", "0.6", "monthly"), ("/support", "0.5", "monthly"),
+                 ("/privacy", "0.3", "yearly"), ("/terms", "0.3", "yearly"), ("/refund", "0.3", "yearly")]
+_ROBOTS_BLOCK = ["/api/", "/report/", "/auth/", "/login", "/me", "/dashboard", "/wallet", "/credits", "/static/login.html",
+                 "/static/register.html", "/static/report.html"]
+
+@app.get("/robots.txt")
+def robots_txt():
+    lines = ["User-agent: *", "Allow: /"] + [f"Disallow: {p}" for p in _ROBOTS_BLOCK] + ["", f"Sitemap: {_public_url('/sitemap.xml')}", ""]
+    return PlainTextResponse("\n".join(lines))
+
+@app.get("/sitemap.xml")
+def sitemap_xml():
+    urls = "".join(f"<url><loc>{_public_url(p)}</loc><changefreq>{f}</changefreq><priority>{pr}</priority></url>"
+                   for p, pr, f in SITEMAP_PAGES)
+    xml = ('<?xml version="1.0" encoding="UTF-8"?>'
+           f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')
+    return Response(xml, media_type="application/xml")
 
 # service worker ต้องเสิร์ฟจากรากเว็บถึงจะดูแลทั้งแอปได้ (อยู่ใต้ /static/ = ดูแลได้แค่ /static/)
 # no-cache: เบราว์เซอร์เช็กเวอร์ชันใหม่ทุกครั้ง — deploy แล้วผู้ใช้ไม่ค้างตัวเก่า
