@@ -10,6 +10,18 @@ Live demo: https://king-diadem.onrender.com
 [![Instagram](https://img.shields.io/badge/Instagram-@thekingdiadem-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/thekingdiadem)
 [![Fastwork](https://img.shields.io/badge/Fastwork-Hire%20Me-3B5BFE?style=for-the-badge&logoColor=white)](https://fastwork.co/byob/CtqOnVfzC7)
 
+### ภาษาไทย
+
+**KING DIADEM (คิงไดอาเด็ม)** คือระบบช่วยคิดเวลาตัดสินใจยาก — เล่าเรื่องที่ค้างใจ แล้ว LYLA ช่วยหาทางเลือกที่ยังเหลืออยู่
+และบอกความเสี่ยงก่อนตัดสินใจ ตั้งแต่เรื่องในบ้าน (แมวหาย นอนไม่หลับ หนี้บัตร ทะเลาะกับแฟน) ไปจนถึงเรื่องงาน ธุรกิจ และวิกฤต
+
+- ใช้ฟรีวันละ 20 ข้อความ ไม่ต้องสมัคร · ตอบได้แม้ AI ภายนอกล่ม (ตอบจากสมการของระบบ)
+- เห็น **อริยสัจ 4** ของเรื่องก่อน แล้วตรวจทางที่เลือกด้วย **มรรค 8** · จับมิจฉาชีพและเหตุฉุกเฉิน พร้อมเบอร์ 1669 · 191 · 1323 · 1441
+- หน้าเว็บ 7 ภาษา: ไทย · English · 日本語 · 中文 · 한국어 · Español · Tiếng Việt
+- ระบบไม่ตัดสินใจแทนคน — **คุณเป็นคนตัดสินใจเสมอ**
+
+ลองใช้: https://king-diadem.onrender.com
+
 ---
 
 ## What this project is
