@@ -619,3 +619,11 @@ el agua sube y no podemos salir a jugar	none	ไม่ใช่ภัย
 eu queria dormir e não acordar mais	crisis	วิกฤต
 my dad was cutting wood and the blood is soaking through every towel	topic:health_emergency;risk>=80	ฉุกเฉิน
 el niño se cayó a la piscina y no abre los ojos	topic:health_emergency;intl:medical;risk>=80	ฉุกเฉิน
+# ย้ายมาจากชุดปิดตา รอบ 3 หลังแก้ทั้งกลุ่ม: คิดวนเรื่องวิธี · ถ้าไม่ตื่นก็คงดี · เงินประกัน · สัญญาณจากคนใกล้ตัว · ผู้ใหญ่ล่อลวงเด็ก (tests/test_veiled_signs_r3.py)
+ช่วงนี้ไปดูทางรถไฟบ่อยๆ คิดว่ามันคงเร็วดี	crisis	วิกฤต
+ถ้าพรุ่งนี้ไม่ตื่นขึ้นมาก็คงดีเหมือนกัน	crisis	วิกฤต
+ลูกสาววัยรุ่นเสิร์ชหาวิธีที่ไม่เจ็บ แล้วลบประวัติทิ้ง	topic:someone	คนใกล้ตัว
+เพื่อนสนิทแจกของรักทั้งหมดให้คนอื่น แล้วบอกว่าไม่ต้องใช้แล้ว	topic:someone	คนใกล้ตัว
+my roommate hasn't left her room in days and said she's ready to go	topic:someone	คนใกล้ตัว
+I keep thinking my family would get the insurance money if I was gone	crisis	วิกฤต
+ครูพิเศษให้ลูกไปเรียนที่ห้องตัวเองคนเดียว แล้วส่งรูปไม่เหมาะสมมาให้ลูก	topic:online_grooming	ล่อลวงเด็ก

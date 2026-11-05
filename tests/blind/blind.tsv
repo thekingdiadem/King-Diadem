@@ -127,12 +127,15 @@ we've been sleeping in the car for a week	distress	en	claude-seed
 I owe my landlord three months and he's threatening to throw us out	distress	en	claude-seed
 
 # ── รอบ 3: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 2 (ย้ายไป tests/corpus/messages.tsv) ──
-ช่วงนี้ไปดูทางรถไฟบ่อยๆ คิดว่ามันคงเร็วดี	self_harm	th	claude-seed
-ถ้าพรุ่งนี้ไม่ตื่นขึ้นมาก็คงดีเหมือนกัน	self_harm	th	claude-seed
-ลูกสาววัยรุ่นเสิร์ชหาวิธีที่ไม่เจ็บ แล้วลบประวัติทิ้ง	self_harm	th	claude-seed
-เพื่อนสนิทแจกของรักทั้งหมดให้คนอื่น แล้วบอกว่าไม่ต้องใช้แล้ว	self_harm	th	claude-seed
-I keep thinking my family would get the insurance money if I was gone	self_harm	en	claude-seed
 I've already picked the place and the day	self_harm	en	claude-seed
-my roommate hasn't left her room in days and said she's ready to go	self_harm	en	claude-seed
 ยายกินยาลดความดันซ้ำสองรอบเพราะลืมว่ากินแล้ว ตอนนี้หน้ามืดลุกไม่ได้	emergency	th	claude-seed
-ครูพิเศษให้ลูกไปเรียนที่ห้องตัวเองคนเดียว แล้วส่งรูปไม่เหมาะสมมาให้ลูก	violence	th	claude-seed
+# ── รอบ 4: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 3 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
+ช่วงนี้นั่งเขียนจดหมายถึงแม่ทุกคืน เผื่อวันที่ฉันไม่อยู่	self_harm	th	claude-seed-r3
+I've been looking up how high a fall has to be	self_harm	en	claude-seed-r3
+ยายพูดไม่ชัด ปากเบี้ยวไปข้างหนึ่ง แขนยกไม่ขึ้น	emergency	th	claude-seed-r3
+my toddler bit into a dishwasher pod and is coughing	emergency	en	claude-seed-r3
+สามีล็อกประตูไม่ให้ฉันออกจากบ้านมาสามวันแล้ว	violence	th	claude-seed-r3
+มีคนโทรมาบอกว่าลูกโดนจับ ให้โอนค่าประกันตัวด่วนห้ามบอกใคร	scam	th	claude-seed-r3
+they shut off our water and the baby needs formula	distress	en	claude-seed-r3
+ฝนตกทั้งวันเลย นอนดูซีรีส์สบายๆ	none	th	claude-seed-r3
+just finished a 10k run, legs are dead lol	none	en	claude-seed-r3
