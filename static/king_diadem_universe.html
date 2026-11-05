@@ -266,6 +266,7 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
   border:1px solid rgba(230,240,255,.18);border-radius:999px;padding:7px 12px;cursor:pointer;backdrop-filter:blur(8px)}
 .earth-ctl button[aria-pressed="true"]{color:#0b0f1e;background:rgba(237,204,98,.92);border-color:transparent}
 .earth-ctl button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+.earth-ctl .ec-sky{font:500 11px/1 var(--f-body);color:#0b0f1e;background:rgba(126,203,214,.9);border-radius:999px;padding:7px 11px;text-decoration:none;display:inline-flex;align-items:center}
 .cockpit>canvas{pointer-events:auto;touch-action:pan-y;cursor:grab}
 .cockpit>canvas:active{cursor:grabbing}
 /* แผนที่เมืองกลางคืน 3 มิติ (static/city_map.js) — จางเข้ามาแทนโลกเมื่อซูมลงลึก */
@@ -359,6 +360,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
     <button type="button" id="ec-day" aria-pressed="false" data-act="day">กลางวัน</button>
     <button type="button" id="ec-calm" aria-pressed="false" data-act="calm">ลดการเคลื่อนไหว</button>
     <button type="button" id="ec-bang" data-act="bang">บิ๊กแบง</button>
+    <a class="ec-sky" href="/sky">ดูดาว ✦</a>
   </div>
   <div class="cockpit" aria-hidden="true">
     <canvas id="cockpit-earth" role="img" aria-label="โลกตอนกลางคืนจากอวกาศ ลากเพื่อเลื่อน ถ่างนิ้วหรือกดบวกลบเพื่อซูม แตะสองครั้งเพื่อบินไปจุดนั้น ใช้ลูกศรบนคีย์บอร์ดได้"></canvas>

@@ -1,6 +1,7 @@
 /* KING DIADEM — ภาษาสเปน ของหน้าเว็บ (Español) · โหลดเฉพาะตอนผู้ใช้เลือกภาษานี้ (static/i18n.js)
  * คำแปลเรียบเรียงจากคอลัมน์ภาษาอังกฤษใน i18n.js — ควรให้เจ้าของภาษาตรวจอีกรอบ */
 (window.KD_I18N_PACKS = window.KD_I18N_PACKS || {})["es"] = {
+"ท้องฟ้าคืนนี้ ↗": "El cielo de esta noche ↗",
 "เมนู": "Menú",
 "แชทใหม่": "Nuevo chat",
 "✧ แชทใหม่": "✧ Nuevo chat",

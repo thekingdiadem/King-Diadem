@@ -3494,6 +3494,13 @@ async def learn_page():
 _SURVIVAL_HTML: dict = {}
 
 
+@app.get("/sky")
+async def sky_page():
+    """ท้องฟ้าจริง ณ ตำแหน่งและเวลาของผู้ใช้ (static/sky.html · static/sky_view.js) — คำนวณในเครื่องผู้ใช้ทั้งหมด"""
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse("/static/sky.html", status_code=307)
+
+
 @app.get("/survival")
 async def survival_page(lang: str = "th"):
     from fastapi.responses import HTMLResponse

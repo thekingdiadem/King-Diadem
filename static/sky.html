@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#04060e">
+<title>ท้องฟ้าคืนนี้ · KING DIADEM</title>
+<meta name="description" content="ดาว ดาวเคราะห์ ดวงจันทร์ และกลุ่มดาว ตามตำแหน่งจริงบนฟ้าจากที่ที่คุณยืนอยู่ ณ ตอนนี้">
+<link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="alternate icon" href="/static/logo.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai+Looped:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#e8eefc;--ink-2:rgba(232,238,252,.72);--ink-3:rgba(232,238,252,.5);--panel:rgba(14,18,30,.86);--line:rgba(232,238,252,.12);
+  --accent:#7ecbd6;--warm:#e0645c;--f:"Noto Sans Thai Looped","Noto Sans Thai",system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#04060e;color:var(--ink);font:400 15px/1.5 var(--f);overflow:hidden;-webkit-tap-highlight-color:transparent}
+#sky{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab;opacity:0;transition:opacity .8s ease}
+html.sky-ready #sky{opacity:1}
+#sky:active{cursor:grabbing}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+.ic{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.bar-btn{position:fixed;z-index:5;display:grid;place-items:center;width:48px;height:48px;border-radius:14px;color:var(--ink-2)}
+.bar-btn:hover,.bar-btn:focus-visible{color:var(--ink);background:rgba(255,255,255,.06);outline:none}
+#sky-home{top:calc(14px + env(safe-area-inset-top));left:14px}
+#sky-find{top:calc(14px + env(safe-area-inset-top));right:14px}
+#sky-layers{bottom:calc(16px + env(safe-area-inset-bottom));left:14px}
+#sky-rose-btn{bottom:calc(14px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:56px;height:56px}
+#sky-rose{width:48px;height:48px;transition:transform .15s linear}
+#sky-rose text{font:700 9px var(--f);fill:var(--ink-3)}
+#sky-time{position:fixed;z-index:4;right:18px;bottom:calc(20px + env(safe-area-inset-bottom));font:600 30px/1 var(--f);color:var(--ink-2);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+#sky-time.shifted{color:#ffd28f}
+#sky-fov{position:fixed;z-index:4;left:50%;transform:translateX(-50%);bottom:calc(78px + env(safe-area-inset-bottom));font-size:12.5px;color:var(--ink-3);pointer-events:none}
+#sky-loc{position:fixed;z-index:4;right:18px;bottom:calc(58px + env(safe-area-inset-bottom));font-size:12px;color:var(--ink-3);pointer-events:none}
+.sheet{position:fixed;z-index:6;left:12px;bottom:calc(76px + env(safe-area-inset-bottom));width:min(380px,calc(100vw - 24px));max-height:calc(100vh - 110px);overflow:auto;
+  padding:14px;border-radius:22px;background:var(--panel);border:1px solid var(--line);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+  box-shadow:0 20px 60px -20px rgba(0,0,0,.8)}
+.hide{display:none!important}
+.sheet h2{margin:10px 6px 8px;font:600 12px var(--f);letter-spacing:.08em;color:var(--ink-3)}
+.sheet h2:first-child{margin-top:2px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px;border-radius:14px;color:var(--ink-3);font-size:12.5px;text-align:center;text-decoration:none}
+.tile .ic{width:30px;height:30px}
+.tile:hover,.tile:focus-visible{background:rgba(255,255,255,.05);outline:none}
+.tile[aria-pressed="true"]{color:var(--ink)}
+.tile[aria-pressed="true"] .ic{stroke:var(--accent)}
+.tile[aria-busy="true"]{opacity:.5}
+.row{display:flex;gap:6px}
+.row button{flex:1;padding:10px 0;border-radius:12px;border:1px solid var(--line);color:var(--ink-2);font-size:13.5px}
+.row button:hover{background:rgba(255,255,255,.05)}
+.note{margin:12px 6px 2px;font-size:11px;line-height:1.5;color:var(--ink-3)}
+.note a{color:var(--ink-3)}
+#sky-search{top:calc(70px + env(safe-area-inset-top));bottom:auto;left:auto;right:12px}
+#sky-search input{width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--ink);font:inherit;outline:none}
+#sky-search input:focus{border-color:rgba(126,203,214,.5)}
+#sky-results{display:flex;flex-direction:column;margin-top:6px}
+#sky-results button{text-align:left;padding:10px 12px;border-radius:10px;color:var(--ink-2)}
+#sky-results button:hover{background:rgba(255,255,255,.05);color:var(--ink)}
+#sky-info{position:fixed;z-index:6;left:50%;transform:translateX(-50%);top:calc(74px + env(safe-area-inset-top));min-width:220px;max-width:calc(100vw - 32px);
+  padding:12px 16px;border-radius:16px;background:var(--panel);border:1px solid var(--line);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  display:flex;flex-direction:column;gap:2px;text-align:center}
+#sky-info b{font-size:17px;font-weight:600}
+#sky-info i{font-style:normal;color:var(--ink-3);font-size:12.5px}
+#sky-info span{color:var(--ink-2);font-size:13px}
+html.sky-red{--ink:#ff8a7a;--ink-2:rgba(255,120,100,.8);--ink-3:rgba(255,120,100,.55);--accent:#ff6a5a;--line:rgba(255,100,80,.2)}
+@media (prefers-reduced-motion:reduce){#sky{transition:none}#sky-rose{transition:none}}
+</style>
+</head>
+<body>
+<canvas id="sky" aria-label="ท้องฟ้าจำลองตามเวลาและตำแหน่งจริง"></canvas>
+
+<a id="sky-home" class="bar-btn" href="/" aria-label="กลับหน้าแรก">
+  <svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+</a>
+<button id="sky-find" class="bar-btn" type="button" aria-label="ค้นหาดาว">
+  <svg class="ic" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>
+</button>
+<button id="sky-layers" class="bar-btn" type="button" aria-label="ชั้นข้อมูลและเครื่องมือ" aria-controls="sky-sheet">
+  <svg class="ic" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
+</button>
+<button id="sky-rose-btn" class="bar-btn" type="button" aria-label="หันไปทิศเหนือ">
+  <svg id="sky-rose" viewBox="-24 -24 48 48" aria-hidden="true">
+    <path d="M0 -13 L4 0 L0 13 L-4 0 Z" fill="rgba(232,238,252,.18)" stroke="rgba(232,238,252,.55)" stroke-width="1"/>
+    <path d="M0 -13 L4 0 L-4 0 Z" fill="#e0645c"/>
+    <text x="0" y="-16" text-anchor="middle">N</text><text x="18" y="3" text-anchor="middle">E</text>
+    <text x="0" y="22" text-anchor="middle">S</text><text x="-18" y="3" text-anchor="middle">W</text>
+  </svg>
+</button>
+<div id="sky-fov" aria-hidden="true"></div>
+<div id="sky-loc" aria-hidden="true"></div>
+<div id="sky-time" aria-live="off"></div>
+
+<div id="sky-info" class="hide" role="status" aria-live="polite"></div>
+
+<div id="sky-search" class="sheet hide" role="dialog" aria-label="ค้นหา">
+  <input id="sky-search-in" type="search" placeholder="ดาวเสาร์ · ซิริอัส · นายพราน" autocomplete="off">
+  <div id="sky-results"></div>
+</div>
+
+<div id="sky-sheet" class="sheet hide" role="dialog" aria-label="ชั้นข้อมูลและเครื่องมือ">
+  <h2>บนฟ้า</h2>
+  <div class="grid">
+    <button class="tile" type="button" data-layer="lines"><svg class="ic" viewBox="0 0 24 24"><circle cx="5" cy="18" r="1.6"/><circle cx="12" cy="5" r="1.6"/><circle cx="19" cy="16" r="1.6"/><path d="M6.2 16.8L11 6.4M13.2 6.3l4.8 8.4M6.6 17.8l10.8-1.6"/></svg>กลุ่มดาว</button>
+    <button class="tile" type="button" data-layer="names"><svg class="ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="9" rx="2"/><path d="M8 11l1.6-4 1.6 4M8.6 9.8h2M14 7h2.2a1 1 0 010 2H14V7zm0 2h2.5a1 1 0 010 2H14V9z"/><circle cx="12" cy="18.5" r="1.6"/></svg>ป้ายชื่อ</button>
+    <button class="tile" type="button" data-layer="grid"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c-3 3-3 14 0 17M12 3.5c3 3 3 14 0 17"/></svg>เส้นทิศ</button>
+    <button class="tile" type="button" data-layer="milky"><svg class="ic" viewBox="0 0 24 24"><path d="M3 17c5-1 7-6 18-10"/><path d="M4 13c4 0 6-3 9-5" opacity=".6"/><circle cx="8" cy="6" r=".8"/><circle cx="18" cy="14" r=".8"/><circle cx="15" cy="19" r=".8"/></svg>ทางช้างเผือก</button>
+    <button class="tile" type="button" data-layer="ground"><svg class="ic" viewBox="0 0 24 24"><path d="M3 18l5-6 4 4 3-3 6 5"/><path d="M3 21h18"/><circle cx="17" cy="6" r="2"/></svg>พื้นดิน</button>
+    <button class="tile" type="button" data-layer="red"><svg class="ic" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>ถนอมสายตา</button>
+  </div>
+  <h2>ทิศและตำแหน่ง</h2>
+  <div class="grid">
+    <button class="tile" type="button" id="sky-aim" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M12 6.5v3M10.5 8L12 6.5 13.5 8"/></svg>ชี้มือถือขึ้นฟ้า</button>
+    <button class="tile" type="button" id="sky-here"><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0113 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>ตำแหน่งของฉัน</button>
+  </div>
+  <h2>เวลา</h2>
+  <div class="row">
+    <button type="button" data-time="-60">− 1 ชม.</button>
+    <button type="button" data-time="now">ตอนนี้</button>
+    <button type="button" data-time="60">+ 1 ชม.</button>
+  </div>
+  <h2>เครื่องมือ</h2>
+  <div class="grid">
+    <a class="tile" href="/static/king_diadem_universe.html#hero"><svg class="ic" viewBox="0 0 24 24"><path d="M2.5 13h3l2-5 3 10 3-13 2.5 8h5.5"/></svg>ภัยพิบัติ</a>
+    <a class="tile" href="/static/king_diadem_universe.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4M5.3 5.3l2.8 2.8M15.9 15.9l2.8 2.8M18.7 5.3l-2.8 2.8M8.1 15.9l-2.8 2.8"/></svg>บิ๊กแบง</a>
+    <a class="tile" href="/survival"><svg class="ic" viewBox="0 0 24 24"><path d="M5 4.5h9a3 3 0 013 3v12H8a3 3 0 01-3-3v-12z"/><path d="M17 19.5h2V7.5M9 9h4M9 12.5h4"/></svg>คู่มือเอาชีวิตรอด</a>
+  </div>
+  <p class="note">ตำแหน่งดาวจาก Hipparcos/HYG ผ่าน <a href="https://github.com/ofrohn/d3-celestial" target="_blank" rel="noopener">d3-celestial</a> (BSD-3) · ดาวเคราะห์จากธาตุวงโคจรของ JPL · คำนวณในเครื่องนี้ ไม่ส่งตำแหน่งของคุณออกไปไหน</p>
+</div>
+
+<script src="/static/sky_view.js" defer></script>
+</body>
+</html>
