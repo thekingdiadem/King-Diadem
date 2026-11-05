@@ -545,6 +545,28 @@ RUN_COST        = max(1, int(os.getenv("RUN_COST", "1")))
 IMAGE_COST          = max(1, int(os.getenv("IMAGE_COST", "5")))
 IMAGE_FREE_DAILY    = max(0, int(os.getenv("IMAGE_FREE_DAILY", "0")))
 IMAGE_PREMIUM_DAILY = max(0, int(os.getenv("IMAGE_PREMIUM_DAILY", "10")))
+
+
+def _policy_sync():
+    """ทะเบียนการเปลี่ยนค่าที่กระทบผู้ใช้ (FATE™ หลักการ 4) — เทียบค่าตอนเปิดเซิร์ฟเวอร์กับค่าล่าสุดที่บันทึกไว้
+    เปลี่ยน = บันทึก เดิม → ใหม่ + เหตุผลจาก POLICY_CHANGE_REASON · ไม่ใส่เหตุผลก็บันทึก แต่ติดธง"""
+    from core import policy_registry as pr
+    from DATABASE.db import policy_last, policy_record
+    current = {"FREE_DAILY_RUNS": FREE_DAILY_RUNS, "RUN_COST": RUN_COST, "IMAGE_COST": IMAGE_COST,
+               "IMAGE_FREE_DAILY": IMAGE_FREE_DAILY, "IMAGE_PREMIUM_DAILY": IMAGE_PREMIUM_DAILY,
+               "STRIPE_PRICE_ID": os.getenv("STRIPE_PRICE_ID", ""), "STRIPE_PREMIUM_PRICE_ID": os.getenv("STRIPE_PREMIUM_PRICE_ID", "")}
+    changes = pr.diff(current, policy_last())
+    if changes:
+        reason = pr.clean_reason(os.getenv("POLICY_CHANGE_REASON"))
+        policy_record(changes, reason, time.time())
+        print(f"📜 policy: บันทึกการเปลี่ยน {len(changes)} ค่า — {reason}")
+    return changes
+
+
+try:
+    _policy_sync()
+except Exception as e:      # ทะเบียนพังต้องไม่ทำให้เว็บล่ม — แต่ต้องเห็นใน log
+    print(f"⚠ policy registry: {type(e).__name__}: {e}")
 THB_PER_CREDIT  = max(0.01, float(os.getenv("THB_PER_CREDIT", "1")))
 _BKK = timezone(timedelta(hours=7))
 
@@ -1546,6 +1568,17 @@ async def login_twofa(request: Request, data: dict):
     return r
 
 
+@app.get("/api/policy")
+async def policy_public(limit: int = 50):
+    """ราคาและโควตาตอนนี้ + ประวัติการเปลี่ยนพร้อมเหตุผล — เปิดให้ทุกคนดู (FATE™: เหตุผลต้องมองเห็นได้แม้เวลาผ่านไป)"""
+    from core import policy_registry as pr
+    from DATABASE.db import policy_history
+    rows = await run_in_threadpool(policy_history, limit)
+    current = {"FREE_DAILY_RUNS": FREE_DAILY_RUNS, "RUN_COST": RUN_COST, "IMAGE_COST": IMAGE_COST,
+               "IMAGE_FREE_DAILY": IMAGE_FREE_DAILY, "IMAGE_PREMIUM_DAILY": IMAGE_PREMIUM_DAILY}
+    return {"current": current, "history": [pr.public_row(r) for r in rows]}
+
+
 @app.get("/api/admin/metrics")
 async def admin_metrics(request: Request, days: int = 30):
     """ตัวเลขธุรกิจย้อนหลัง (เฉพาะอีเมลใน ADMIN_EMAILS) — คนเข้า → คนคุย → ชนเพดานฟรี → กดจ่าย → จ่ายจริง"""
@@ -1570,7 +1603,12 @@ async def admin_metrics(request: Request, days: int = 30):
         learning = None
     from core import image_gen
     image = {"model": image_gen.IMAGE_GEN_MODEL, "fallbacks": image_gen.IMAGE_GEN_FALLBACKS, "last_error": _IMAGE_LAST_ERROR or None}
-    return {"days": days, "series": series, "total": total, "free_daily": FREE_DAILY_RUNS, "learning": learning, "image": image}
+    from core.policy_registry import NO_REASON
+    from DATABASE.db import policy_history
+    unexplained = [r for r in await run_in_threadpool(policy_history, 200) if r["reason"] == NO_REASON and r["old"]]
+    policy = {"unexplained_changes": len(unexplained), "latest_unexplained": unexplained[:5]}
+    return {"days": days, "series": series, "total": total, "free_daily": FREE_DAILY_RUNS, "learning": learning,
+            "image": image, "policy": policy}
 
 
 @app.get("/api/2fa")

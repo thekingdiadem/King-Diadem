@@ -175,6 +175,12 @@ def init_db():
             recovery TEXT NOT NULL DEFAULT '[]',
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
+        -- ทะเบียนการเปลี่ยนค่าที่กระทบผู้ใช้ (core/policy_registry.py) — เพิ่มอย่างเดียว ไม่แก้ ไม่ลบ
+        CREATE TABLE IF NOT EXISTS policy_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ts REAL NOT NULL, key TEXT NOT NULL, old TEXT NOT NULL DEFAULT '', new TEXT NOT NULL DEFAULT '',
+            reason TEXT NOT NULL
+        );
     """)
     conn.commit()
     try:
@@ -283,6 +289,47 @@ def metric_report(since_day: str, forget_before: str = None) -> dict:
         return out
     finally:
         conn.close()
+
+def policy_last() -> dict:
+    """{key: ค่าล่าสุดในทะเบียน}"""
+    conn = get_conn()
+    try:
+        rows = conn.execute("SELECT key, new FROM policy_log WHERE id IN (SELECT MAX(id) FROM policy_log GROUP BY key)").fetchall()
+        return {r["key"]: r["new"] for r in rows}
+    finally:
+        conn.close()
+
+
+def policy_record(changes: list, reason: str, ts: float) -> int:
+    """บันทึก [(key, เดิม, ใหม่)] ด้วยเหตุผลเดียวกัน · คืนจำนวนแถวที่บันทึกจริง
+    เช็กและเขียนในคำสั่งเดียว: gunicorn หลาย worker เปิดพร้อมกัน การเปลี่ยนครั้งเดียวจึงไม่ถูกบันทึกซ้ำ"""
+    if not changes:
+        return 0
+    conn = get_conn()
+    try:
+        n = 0
+        for key, old, new in changes:
+            cur = conn.execute(
+                "INSERT INTO policy_log (ts, key, old, new, reason) SELECT ?, ?, ?, ?, ? "
+                "WHERE COALESCE((SELECT new FROM policy_log WHERE key = ? ORDER BY id DESC LIMIT 1), char(0)) != ?",
+                (float(ts), key, old, new, reason, key, new))
+            n += max(cur.rowcount, 0)
+        conn.commit()
+        return n
+    finally:
+        conn.close()
+
+
+def policy_history(limit: int = 50) -> list:
+    """ใหม่สุดก่อน"""
+    conn = get_conn()
+    try:
+        rows = conn.execute("SELECT ts, key, old, new, reason FROM policy_log ORDER BY id DESC LIMIT ?",
+                            (max(1, min(int(limit), 200)),)).fetchall()
+        return [{"ts": r["ts"], "key": r["key"], "old": r["old"], "new": r["new"], "reason": r["reason"]} for r in rows]
+    finally:
+        conn.close()
+
 
 def twofa_get(email: str):
     conn = get_conn()
