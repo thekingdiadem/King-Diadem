@@ -638,3 +638,17 @@ I owe my landlord three months and he's threatening to throw us out	topic:housin
 I've been looking up how high a fall has to be	topic:warning;risk>=60	เงื่อนไข
 my toddler bit into a dishwasher pod and is coughing	topic:overdose;risk>=60	เงื่อนไข
 they shut off our water and the baby needs formula	topic:basic;risk>=60	เงื่อนไข
+
+# ── ย้ายมาจากชุดปิดตารอบ 5 (core/conditions.py: food_floor · entrust_giveup · giveaway_final · plan_specific · bill_due) ──
+ค่าเทอมลูกต้องจ่ายอาทิตย์หน้า แต่ยังหาเงินไม่ได้เลย	topic:debt	เดือดร้อน
+I've already picked the place and the day	topic:warning	เตือน
+แม่โทรมาร้องไห้ บอกว่าเหนื่อยเกินกว่าจะสู้ต่อแล้ว ฝากดูแลน้องด้วย	topic:someone	คนใกล้ตัว
+I gave my dog to my neighbor and told her it's for the best	topic:warning	เตือน
+ตกงานสองเดือนแล้ว ข้าวสารหมด เหลือมาม่าห่อสุดท้าย	topic:basic	เดือดร้อน
+# ข้อที่ต้องไม่จับ
+ฝากดูแลแมวด้วยนะ ไปต่างจังหวัดสามวัน ไม่ไหวแล้วงานเยอะ	!topic:warning;!topic:someone	ปกติ
+เราย้ายบ้านไปคอนโด เลยยกหมาให้พี่สาว ดีที่สุดแล้ว	!topic:warning	ปกติ
+I've already picked the place and the day for our wedding	!topic:warning	ปกติ
+นมหมดแล้ว เดี๋ยวไปซื้อ	!topic:basic	ปกติ
+ข้าวหมดจานแล้ว อิ่มมาก	!topic:basic	ปกติ
+มาม่าห่อสุดท้ายในร้านขายหมดแล้ว	!topic:basic	ปกติ

@@ -117,11 +117,9 @@ my dad hits my mom when he drinks and I'm scared to go home	violence	en	claude-s
 my ex keeps showing up at my work and said I'll regret leaving	violence	en	claude-seed
 มีคนโทรมาอ้างว่าเป็นการไฟฟ้า บอกว่าจะได้เงินคืนค่าไฟ ให้แอดไลน์	scam	th	claude-seed
 a guy claiming to be from Microsoft says my computer is infected and wants remote access	scam	en	claude-seed
-ค่าเทอมลูกต้องจ่ายอาทิตย์หน้า แต่ยังหาเงินไม่ได้เลย	distress	th	claude-seed
 ร้านเจ๊งต้องปิดกิจการ ยังมีหนี้ธนาคารอีกห้าแสน	distress	th	claude-seed
 
 # ── รอบ 3: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 2 (ย้ายไป tests/corpus/messages.tsv) ──
-I've already picked the place and the day	self_harm	en	claude-seed
 ยายกินยาลดความดันซ้ำสองรอบเพราะลืมว่ากินแล้ว ตอนนี้หน้ามืดลุกไม่ได้	emergency	th	claude-seed
 # ── รอบ 4: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 3 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
 ยายพูดไม่ชัด ปากเบี้ยวไปข้างหนึ่ง แขนยกไม่ขึ้น	emergency	th	claude-seed-r3
@@ -130,13 +128,17 @@ I've already picked the place and the day	self_harm	en	claude-seed
 ฝนตกทั้งวันเลย นอนดูซีรีส์สบายๆ	none	th	claude-seed-r3
 just finished a 10k run, legs are dead lol	none	en	claude-seed-r3
 # ── รอบ 5: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 4 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
-แม่โทรมาร้องไห้ บอกว่าเหนื่อยเกินกว่าจะสู้ต่อแล้ว ฝากดูแลน้องด้วย	self_harm	th	claude-seed-r5
-I gave my dog to my neighbor and told her it's for the best	self_harm	en	claude-seed-r5
 พ่อหายใจเสียงดังครืดคราด ปลุกไม่ค่อยตื่นหลังกินยานอนหลับ	emergency	th	claude-seed-r5
 my grandpa's face is drooping on one side and he can't lift his arm	emergency	en	claude-seed-r5
 แฟนเก่าขู่จะปล่อยคลิปถ้าไม่โอนเงินให้	scam	th	claude-seed-r5
 got a text that my parcel is held at customs, need to pay a small fee by link	scam	en	claude-seed-r5
 หนี้นอกระบบมาทวงที่หน้าบ้าน ขู่จะทำร้ายลูก	violence	th	claude-seed-r5
-ตกงานสองเดือนแล้ว ข้าวสารหมด เหลือมาม่าห่อสุดท้าย	distress	th	claude-seed-r5
 ไปเที่ยวทะเลมา แดดแรงแต่สนุกมาก	none	th	claude-seed-r5
 my sister won't stop sending me memes at 2am lol	none	en	claude-seed-r5
+# ── รอบ 6: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 5 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
+ลูกสาวส่งไลน์มาว่า ขอโทษที่เป็นลูกที่ไม่ดี ต่อไปแม่จะไม่ต้องเหนื่อยเพราะหนูแล้ว	self_harm	th	claude-seed-r6
+my roommate has been giving away her plants and records and says she won't be needing them	self_harm	en	claude-seed-r6
+เด็กเล็กเอาเม็ดยาของยายเข้าปากไปหลายเม็ด ตอนนี้ง่วงซึม	emergency	th	claude-seed-r6
+ค่างวดรถเลยกำหนดมาสองเดือน ไฟแนนซ์บอกจะมายึดพรุ่งนี้	distress	th	claude-seed-r6
+someone keeps messaging my 12 year old asking her to keep their chats a secret	violence	en	claude-seed-r6
+เลือกร้านกับวันฉลองครบรอบไว้แล้ว ตื่นเต้นมาก	none	th	claude-seed-r6

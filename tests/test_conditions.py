@@ -56,3 +56,40 @@ def test_conditions_never_downgrade_a_crisis():
 def test_child_ingestion_answer_gives_poison_center_and_ems():
     out = compose("ลูกสามขวบกัดก้อนซักผ้าแตก")
     assert "1367" in out or "1669" in out
+
+
+# ── รอบ 6: พื้นอาหาร · ฝากคนที่ต้องดูแล · ยกของรัก · แผนเฉพาะเจาะจง · ค่าใช้จ่ายใกล้ครบกำหนด ──
+@pytest.mark.parametrize("text,rule", [
+    ("ข้าวสารหมดบ้านแล้ว ลูกยังไม่ได้กินอะไรเลย", "food_floor"),
+    ("เหลือไข่ฟองสุดท้ายในตู้", "food_floor"),
+    ("we ran out of rice and the kids are hungry", "food_floor"),
+    ("พ่อส่งข้อความมาว่าไม่ไหวแล้ว ฝากดูแลแม่ด้วย", "entrust_giveup"),
+    ("please look after my cat, i can't go on anymore", "entrust_giveup"),
+    ("แจกเสื้อผ้าไปหมดแล้ว ไม่ต้องใช้อีกแล้ว", "giveaway_final"),
+    ("gave away my guitar, i won't need it", "giveaway_final"),
+    ("i have already chosen the spot and the night", "plan_specific"),
+    ("ค่ารักษาแม่ครบกำหนดพรุ่งนี้ แต่ยังไม่มีเงิน", "bill_due"),
+])
+def test_round6_conditions_catch(text, rule):
+    from core.conditions import check
+    assert rule in [h.rule for h in check(text)]
+
+
+@pytest.mark.parametrize("text", [
+    "ลูกเอาเงินบำนาญแม่ไปหมด ไม่ให้กินข้าว",          # เรื่องเงิน ไม่ใช่ข้าวหมด
+    "ไข่หมดตู้แล้ว ต้องไปซื้อ",
+    "ลดน้ำหนักอยู่ มื้อสุดท้ายของวันคือสลัด",
+    "ฝากดูแลหมาด้วยนะ ไปเที่ยวทะเล ไม่ไหวแล้วร้อนมาก",
+    "ย้ายหอใหม่ห้ามเลี้ยง เลยยกแมวให้น้า ดีที่สุดแล้ว",
+    "เลือกที่กับวันจัดงานวันเกิดไว้แล้ว",
+    "ค่าเทอมจ่ายพรุ่งนี้ เตรียมเงินไว้แล้ว",
+])
+def test_round6_conditions_do_not_overfire(text):
+    from core.conditions import check
+    assert not [h for h in check(text) if h.rule in ("food_floor", "entrust_giveup", "giveaway_final", "plan_specific", "bill_due")]
+
+
+def test_third_party_speaker_gets_someone_topic():
+    from core.kernel_voice import assess
+    assert assess("พ่อส่งข้อความมาว่าไม่ไหวแล้ว ฝากดูแลแม่ด้วย")["topics"][0] == "someone"
+    assert assess("ไม่ไหวแล้ว ฝากดูแลลูกด้วยนะ")["topics"][0] == "warning"

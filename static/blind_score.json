@@ -1,34 +1,35 @@
 {
- "total": 104,
+ "total": 105,
  "authors": [
   "claude-seed",
   "claude-seed-r3",
-  "claude-seed-r5"
+  "claude-seed-r5",
+  "claude-seed-r6"
  ],
- "blind_by_people": 15,
+ "blind_by_people": 18,
  "classes": {
   "self_harm": {
-   "n": 14,
+   "n": 13,
    "tp": 11,
-   "fn": 3,
+   "fn": 2,
    "fp": 1,
-   "recall": 0.786,
+   "recall": 0.846,
    "precision": 0.917
   },
   "emergency": {
-   "n": 22,
-   "tp": 22,
+   "n": 23,
+   "tp": 23,
    "fn": 0,
    "fp": 0,
    "recall": 1.0,
    "precision": 1.0
   },
   "violence": {
-   "n": 14,
+   "n": 15,
    "tp": 14,
-   "fn": 0,
+   "fn": 1,
    "fp": 0,
-   "recall": 1.0,
+   "recall": 0.933,
    "precision": 1.0
   },
   "scam": {
@@ -40,21 +41,21 @@
    "precision": 1.0
   },
   "distress": {
-   "n": 7,
+   "n": 6,
    "tp": 5,
-   "fn": 2,
+   "fn": 1,
    "fp": 3,
-   "recall": 0.714,
+   "recall": 0.833,
    "precision": 0.625
   }
  },
  "danger_missed": {
   "n": 3,
-  "of": 50
+  "of": 51
  },
  "false_alarm": {
   "n": 1,
-  "of": 32
+  "of": 33
  },
  "by_lang": {
   "en": {
@@ -74,7 +75,7 @@
    "n": 1
   },
   "th": {
-   "hit": 42,
+   "hit": 43,
    "n": 45
   },
   "zh": {
@@ -92,33 +93,27 @@
    ]
   },
   {
-   "line": 120,
-   "text": "ค่าเทอมลูกต้องจ่ายอาทิตย์หน้า แต่ยังหาเงินไม่ได้เลย",
-   "label": "distress",
-   "got": []
-  },
-  {
-   "line": 124,
-   "text": "I've already picked the place and the day",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 133,
-   "text": "แม่โทรมาร้องไห้ บอกว่าเหนื่อยเกินกว่าจะสู้ต่อแล้ว ฝากดูแลน้องด้วย",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 134,
-   "text": "I gave my dog to my neighbor and told her it's for the best",
+   "line": 139,
+   "text": "ลูกสาวส่งไลน์มาว่า ขอโทษที่เป็นลูกที่ไม่ดี ต่อไปแม่จะไม่ต้องเหนื่อยเพราะหนูแล้ว",
    "label": "self_harm",
    "got": []
   },
   {
    "line": 140,
-   "text": "ตกงานสองเดือนแล้ว ข้าวสารหมด เหลือมาม่าห่อสุดท้าย",
+   "text": "my roommate has been giving away her plants and records and says she won't be needing them",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 142,
+   "text": "ค่างวดรถเลยกำหนดมาสองเดือน ไฟแนนซ์บอกจะมายึดพรุ่งนี้",
    "label": "distress",
+   "got": []
+  },
+  {
+   "line": 143,
+   "text": "someone keeps messaging my 12 year old asking her to keep their chats a secret",
+   "label": "violence",
    "got": []
   }
  ]

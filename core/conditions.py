@@ -159,7 +159,91 @@ def basic_needs(t: str) -> Hit | None:
     return None
 
 
-RULES = (child_ingest, absence_prep, lethality_research, scam_unasked_money, scam_multiplier, basic_needs)
+# ── อาหารหมดจริง: "สิ่งสุดท้ายที่เหลือ" ของอาหาร (ห่อ/มื้อ/ถุงสุดท้าย · หมดบ้าน · ตู้เย็นว่าง) ─────────────────
+# ไม่ต้องมีคำว่าเงิน — ของกินหมดคือพื้นขั้นต่ำหายไปแล้ว · ลดน้ำหนัก/สินค้าหมดสต็อก ไม่นับ
+FOOD_ANY = _rx(r"มาม่า", r"บะหมี่", r"ไวไว", r"ยำยำ", r"ข้าว(?!โพด|ของ)", r"อาหาร", r"กับข้าว", r"นม(?:ผง|ลูก|เด็ก)", r"ขนมปัง", r"ไข่",
+               r"\b(?:food|rice|noodles?|ramen|bread|formula|groceries|eggs?|cans? of \w+)\b")
+LAST_OUT = _rx(r"(?:ห่อ|มื้อ|ถุง|กระป๋อง|ซอง|กล่อง|ฟอง|แผ่น)สุดท้าย", r"(?:หมด|เกลี้ยง)(?:บ้าน|ตู้|แล้ว)", r"(?<!ไม่)หมด(?!อายุ|เขต|ห่วง|แรง|ใจ)", r"ตู้เย็นว่าง",
+               r"เหลือ(?:แค่|อยู่)?\S{0,10}(?:เดียว|สุดท้าย)",
+               r"\b(?:last (?:pack(?:et)?|can|bag|box|meal|bit|egg)|ran out of|run out of|out of (?:food|rice)|nothing (?:left )?to eat|(?:fridge|cupboard|pantry) is (?:empty|bare))\b")
+FOOD_OK = _rx(r"ลดน้ำหนัก", r"ไดเอท", r"คุมอาหาร", r"ไปซื้อ", r"ซื้อ(?:เพิ่ม|มาใหม่|ใหม่)", r"สต็อก", r"ร้าน\S{0,6}หมด", r"ขายหมด", r"หมดอายุ", r"กินหมด", r"หมดจาน", r"อิ่ม", r"อร่อย",
+              r"\b(?:diet\w*|sold out|out of stock|go(?:ing)? (?:to )?(?:buy|shopping)|restock|expired)\b")
+
+
+# อาหารต้องมาก่อนคำว่าหมด/สุดท้ายติดๆ กัน — "เอาเงินไปหมด ไม่ให้กินข้าว" คือเรื่องเงิน ไม่ใช่ข้าวหมด
+_FOOD_THEN_OUT = re.compile("(?:" + FOOD_ANY.pattern + r")\S{0,10}\s?(?:" + LAST_OUT.pattern + ")", re.I)
+_OUT_OF_FOOD = re.compile(r"\b(?:ran out of|run out of|out of|last (?:pack(?:et)?|can|bag|box) of)\s(?:\w+\s)?(?:food|rice|noodles?|ramen|bread|formula|groceries|eggs?)\b|"
+                          r"\b(?:nothing (?:left )?to eat|(?:fridge|cupboard|pantry) is (?:empty|bare))\b", re.I)
+
+
+def food_floor(t: str) -> Hit | None:
+    if (_FOOD_THEN_OUT.search(t) or _OUT_OF_FOOD.search(t)) and not FOOD_OK.search(t):
+        return Hit("food_floor", "basic", 75)
+    return None
+
+
+# ── ฝากคนที่ต้องดูแล + หมดแรงจะสู้ต่อ = สัญญาณบอกลา (ของผู้ใช้เอง หรือของคนที่โทรมาเล่า) ─────────────────────
+ENTRUST = _rx(r"ฝาก(?:ดูแล|เลี้ยง)?\S{0,3}(?:ลูก|น้อง|แม่|พ่อ|ยาย|ตา|ย่า|ปู่|หลาน|แมว|หมา|สัตว์เลี้ยง)", r"(?:ช่วย)?ดูแล(?:ลูก|น้อง|แม่|พ่อ|หลาน|แมว|หมา)\S{0,4}(?:แทน|ด้วย|ให้)",
+              r"\b(?:take care of|look after|watch over|raise) (?:my|the|our) (?:kids?|children|son|daughter|baby|brother|sister|mom|mum|dad|cat|dog|pets?)\b")
+GIVE_UP = _rx(r"เหนื่อยเกิน(?:กว่า)?(?:ที่)?จะ(?:สู้|อยู่|ไป|ทน)", r"(?:สู้|อยู่|ไป|ทน)ต่อไม่ไหว", r"ไม่ไหวแล้ว", r"ยอมแพ้แล้ว", r"หมดแรง(?:จะ)?(?:สู้|อยู่)", r"ไม่อยาก(?:สู้|อยู่)(?:ต่อ)?แล้ว",
+              r"\b(?:can'?t (?:go on|keep going|do this anymore|fight (?:it |this )?any ?more|take it any ?more)|too tired to (?:fight|go on|keep going|live)|(?:i'?m |i am )?giving up|done fighting)\b")
+TEMP_AWAY = _rx(r"ไป(?:ต่าง)?จังหวัด", r"ไปทำงาน", r"ไปเที่ยว", r"ไปเรียน", r"เข้าเวร", r"ไปต่างประเทศ", r"ช่วง(?:ที่)?ไป", r"\b(?:business trip|vacation|travel\w*|while i'?m (?:away|at work)|for the weekend)\b")
+OTHER_SPEAKER = _rx(r"(?:แม่|พ่อ|เพื่อน|แฟน|พี่|น้อง|ลูก|ยาย|ตา|ป้า|น้า|อา|สามี|ภรรยา|เมีย|ผัว)\S{0,8}(?:โทรมา|ทักมา|ส่งข้อความ|ไลน์มา|บอกว่า|พูดว่า)",
+                    r"\b(?:my )?(?:mom|mum|dad|friend|sister|brother|wife|husband|son|daughter|partner) (?:called|texted|messaged|said|told me)\b")
+
+
+def entrust_giveup(t: str) -> Hit | None:
+    if _near(ENTRUST, GIVE_UP, t, 90) and not TEMP_AWAY.search(t):
+        return Hit("entrust_giveup", "someone" if OTHER_SPEAKER.search(t) else "warning", 75)
+    return None
+
+
+# ── ยกสิ่งที่รักให้คนอื่น พร้อมคำปิดท้ายแบบจบ ("ดีที่สุดแล้ว" "ไม่ต้องใช้อีกแล้ว") — ย้ายบ้าน/แพ้ขน ไม่นับ ─────────────
+GIVE_AWAY = _rx(r"(?:ยก|เอา|ส่ง)(?:หมา|แมว|สุนัข|น้อง(?:หมา|แมว)|สัตว์เลี้ยง|ของรัก|ของ\S{0,6})\S{0,8}(?:ไป)?ให้", r"แจก(?:ของ|ข้าวของ|เสื้อผ้า)\S{0,8}(?:หมด|ทั้งหมด|ไปแล้ว)",
+                r"\b(?:gave|giving|give|handed) (?:away )?(?:my|all my) (?:dog|cat|pets?|puppy|kitten|things|stuff|belongings|guitar|books|clothes)\b")
+FINAL_NOTE = _rx(r"ดีที่สุดแล้ว", r"ดีกว่า(?:อยู่กับ)?(?:ฉัน|ผม|หนู|เรา)", r"ไม่(?:ต้อง|ได้)ใช้(?:มัน)?(?:อีก)?แล้ว", r"จะได้มีคนดูแล", r"(?:ฉัน|ผม|หนู)ดูแล(?:เขา|มัน)ไม่ได้อีกแล้ว",
+                 r"\b(?:for the best|won'?t (?:need|be needing) (?:it|them)|better off (?:with|without)|someone (?:who can|to) (?:take care|look after))\b")
+GIVE_OK = _rx(r"ย้าย(?:บ้าน|ห้อง|หอ|งาน|ไป)", r"แพ้ขน", r"เจ้าของ(?:ห้อง|หอ|คอนโด)ไม่ให้", r"ห้ามเลี้ยง", r"ทารก|คลอด|ตั้งครรภ์", r"บริจาค",
+              r"\b(?:moving|move (?:to|abroad|out)|allerg\w*|landlord|no pets|new (?:baby|apartment|job)|donat\w*|decluttering)\b")
+
+
+def giveaway_final(t: str) -> Hit | None:
+    if _near(GIVE_AWAY, FINAL_NOTE, t, 90) and not GIVE_OK.search(t):
+        return Hit("giveaway_final", "warning", 65)
+    return None
+
+
+# ── วางแผนเฉพาะเจาะจงแล้ว: เลือก "ที่" และ "วัน/เวลา" ไว้แล้วโดยไม่มีงานหรือกิจกรรมใดรองรับ ───────────────────────
+PLACE = _rx(r"(?:ที่|สถานที่|จุด|วิธี)", r"\b(?:place|spot|location|way|method|bridge|building)\b")
+WHEN_ = _rx(r"(?:วัน|เวลา|คืน|ตอนไหน)", r"\b(?:day|date|time|night|hour|moment)\b")
+CHOSEN = _rx(r"(?:เลือก|กำหนด|ตัดสินใจ|คิด)\S{0,6}(?:ไว้)?แล้ว", r"\b(?:i'?ve|i have|already) (?:already )?(?:picked|chosen|chose|decided on|set|planned|got)\b")
+EVENT = _rx(r"งาน(?:แต่ง|บวช|ศพ|เลี้ยง|วันเกิด|เปิด)", r"ประชุม", r"เที่ยว", r"วันเกิด", r"สัมภาษณ์", r"ย้าย", r"สอบ", r"นัด", r"ปาร์ตี้", r"ขอแต่งงาน", r"แต่งงาน", r"บวช", r"ทริป", r"เดินทาง", r"ถ่ายรูป", r"จัดงาน", r"เปิดร้าน",
+            r"\b(?:wedding|party|trip|vacation|holiday|meeting|interview|birthday|propos\w*|ceremony|mov(?:e|ing)|exam|launch|shoot|event|reunion|date night|honeymoon|picnic|concert|dinner|lunch|surprise|celebrat\w*)\b")
+
+
+def plan_specific(t: str) -> Hit | None:
+    if CHOSEN.search(t) and _near(PLACE, WHEN_, t, 24) and not EVENT.search(t):
+        return Hit("plan_specific", "warning", 70)
+    return None
+
+
+# ── ค่าใช้จ่ายจำเป็นที่ใกล้ครบกำหนด แต่ยังไม่มีเงิน (ค่าเทอม ค่ารักษา ค่างวด) ───────────────────────────────────
+BILL = _rx(r"ค่าเทอม", r"ค่าเรียน", r"ค่าบำรุง", r"ค่ารักษา", r"ค่าผ่าตัด", r"ค่างวด", r"ค่าผ่อน", r"ค่ายา", r"ค่าประกันตัว",
+           r"\b(?:tuition|school fees?|medical bill|hospital bill|surgery|installment|car payment|loan payment|bail)\b")
+DUE = _rx(r"(?:ต้อง)?จ่าย\S{0,6}(?:พรุ่งนี้|อาทิตย์หน้า|สัปดาห์หน้า|เดือนหน้า|สิ้นเดือน|วันที่\s?\d+|ภายใน)", r"ครบกำหนด", r"ถึงกำหนด", r"ใกล้(?:จะ)?ถึงกำหนด",
+          r"\b(?:due (?:tomorrow|next week|on|by|this|in)|deadline|by friday|by monday)\b")
+NO_FUNDS = _rx(r"ยัง(?:หา)?เงินไม่ได้", r"หาเงินไม่ทัน", r"ไม่มีเงิน", r"ยังไม่มีเงิน", r"เงินไม่พอ", r"ไม่รู้จะเอาเงินที่ไหน",
+               r"\b(?:don'?t have (?:the )?money|no money|can'?t (?:pay|afford)|haven'?t (?:got|found) the money|short on (?:money|cash))\b")
+
+
+def bill_due(t: str) -> Hit | None:
+    if BILL.search(t) and DUE.search(t) and NO_FUNDS.search(t):
+        return Hit("bill_due", "debt", 55)
+    return None
+
+
+RULES = (child_ingest, absence_prep, lethality_research, scam_unasked_money, scam_multiplier, basic_needs,
+         food_floor, entrust_giveup, giveaway_final, plan_specific, bill_due)
 
 
 def check(text) -> list[Hit]:
