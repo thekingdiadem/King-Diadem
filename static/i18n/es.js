@@ -713,5 +713,18 @@
 "ปลายทาง": "Meta",
 "ทางไป": "Camino",
 "ข้อควรระวัง": "Cuidado",
-"ตัวเลือกเพิ่มเติม": "Más opciones"
+"ตัวเลือกเพิ่มเติม": "Más opciones",
+"คู่มือเอาชีวิตรอดฉบับเต็ม — ก่อน ระหว่าง หลังเกิดภัย": "Guía completa de supervivencia — antes, durante y después",
+"ตอนนี้ดึงข้อมูลภัยพิบัติจริงไม่ได้ — ติดตามกรมอุตุฯ และ ปภ.": "Ahora no hay datos reales de desastres — sigue al Departamento Meteorológico de Tailandia y al DDPM",
+"ภัยพิบัติจริงตอนนี้ (GDACS)": "Desastres reales ahora (GDACS)",
+"ไม่มีประกาศเตือนภัยในรัศมี {r} กม. จาก{home} และไม่มีระดับส้ม/แดงที่อื่น": "Sin alertas a {r} km de {home} ni alertas naranja/rojas en otros lugares",
+"พายุหมุนเขตร้อน": "Ciclón tropical",
+"ภูเขาไฟ": "Volcán",
+"ภัยแล้ง": "Sequía",
+"ไฟป่า": "Incendio forestal",
+"ระดับเขียว": "Alerta verde",
+"ระดับส้ม": "Alerta naranja",
+"ระดับแดง": "Alerta roja",
+"ข้อมูลจาก": "Datos de",
+"ในไทยติดตามกรมอุตุฯ และ ปภ. 1784": "en Tailandia sigue al Departamento Meteorológico y al DDPM 1784"
 };

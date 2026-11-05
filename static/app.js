@@ -318,7 +318,7 @@ function normalize(s){
   var items = s.items.slice(0, 200).map(function(it){
     it = it || {};
     var msgs = Array.isArray(it.msgs) ? it.msgs.filter(function(m){ return m && typeof m.t === 'string'; }).map(function(m){
-      return { r: (m.r==='u' || m.r==='e') ? m.r : 'a', t: m.t, p: typeof m.p === 'string' ? m.p : '', tr: cleanTrace(m.tr), l: Array.isArray(m.l) ? cleanTrace(m.l.slice(0, 3)) : undefined, v: (m.v === 'up' || m.v === 'down') ? m.v : undefined, c: (m.c && typeof m.c.th === 'string') ? { th: m.c.th.slice(0, 400), en: String(m.c.en || '').slice(0, 400) } : undefined, ts: num(m.ts, 0) };
+      return { r: (m.r==='u' || m.r==='e') ? m.r : 'a', t: m.t, p: typeof m.p === 'string' ? m.p : '', tr: cleanTrace(m.tr), l: Array.isArray(m.l) ? cleanTrace(m.l.slice(0, 3)) : undefined, v: (m.v === 'up' || m.v === 'down') ? m.v : undefined, s: (typeof m.s === 'string' && /^[a-z]{2,12}$/.test(m.s)) ? m.s : undefined, c: (m.c && typeof m.c.th === 'string') ? { th: m.c.th.slice(0, 400), en: String(m.c.en || '').slice(0, 400) } : undefined, ts: num(m.ts, 0) };
     }) : htmlToMsgs(it.html);
     return { id: String(it.id || newId()), title: String(it.title || 'แชท').slice(0, 60), msgs: msgs.slice(-400) };
   });
@@ -2315,7 +2315,7 @@ function msgEl(m){
   var crisis = t.mode === 'crisis' || /1323|1669/.test(m.t);
   var star = m.tr ? '<span class="star" style="color:' + riskColor(t.risk) + '" title="' + _t('ดาวของการตัดสินใจนี้') + '"></span>' : '';
   el.innerHTML = '<div class="who">' + star + '<span class="' + pn[1] + '">' + _t(pn[0]) + '</span><span class="tag">' + esc(tags.join(' · ')) + '</span></div>' +
-    '<div class="bubble">' + telify(key === 'COUNCIL' ? councilFmt(m.t) : fmt(m.t)) + '</div>' + (m.dz ? dzCard(m.dz) : '') + (m.img ? imgCard(m) : '') + (m.q ? quakeCard(m.q) : '') + (crisis ? crisisCard() : '') + twCard(t) + helpCard(m.l) + companionCard(m.c) +
+    '<div class="bubble">' + telify(key === 'COUNCIL' ? councilFmt(m.t) : fmt(m.t)) + '</div>' + (m.dz ? dzCard(m.dz) : '') + (m.img ? imgCard(m) : '') + (m.q ? quakeCard(m.q) : '') + (m.hz ? hazardCard(m.hz) : '') + (crisis ? crisisCard() : '') + twCard(t) + helpCard(m.l) + survivalCard(m.s) + companionCard(m.c) +
     (m.tr && eqStrip(t) ? '<button type="button" class="eqs">' + eqStrip(t) + '</button>' : '') +
     (m.tr ? voteRow(m) : '');
   var eb = el.querySelector('.eqs'); if(eb) eb.addEventListener('click', function(){ showEq(m); });
@@ -2505,7 +2505,7 @@ async function send(textArg){
     if(d.error){ target.msgs.push({ r:'e', t:String(d.error), ts:Date.now() }); toast(String(d.error), true); }
     else{
       var reply = String(d.ai_response || d.pause_reason || d.message || '').replace(/\s*[—–-]+\s*(LYLA\s*[◈✦✧]?|VEGA\s*[◆◇]?|HALT\s*[⬡]?|สภา\s*KING\s*DIADEM\s*✦?)\s*$/gi, '').trim();
-      born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : mode==='council' ? 'COUNCIL' : 'LYLA'), tr: traceOf(d, mode, sentState ? state : null), l: d.help_links, q: d.quakes, c: d.companion, ts:Date.now() };
+      born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : mode==='council' ? 'COUNCIL' : 'LYLA'), tr: traceOf(d, mode, sentState ? state : null), l: d.help_links, q: d.quakes, hz: d.hazards, c: d.companion, s: d.survival, ts:Date.now() };
       target.msgs.push(born);
     }
     Chat.persist(); refreshMe();
@@ -2556,6 +2556,13 @@ window.addEventListener('resize', fitRows, {passive:true});
 document.addEventListener('kd:lang', fitRows);
 $('#opts-btn').addEventListener('click', fitRows);
 fitRows();
+/* ปุ่มคู่มือเอาชีวิตรอดฉบับเต็ม (/survival) — แชทให้ 3 ขั้นแรก คู่มือมีครบ ก่อน ระหว่าง หลัง ความเชื่อผิด */
+function survivalCard(k){
+  if(typeof k !== 'string' || !/^[a-z]{2,12}$/.test(k)) return '';
+  var en = window.KD_I18N && KD_I18N.get() !== 'th';
+  return '<a class="surv" href="/survival' + (en ? '?lang=en' : '') + '#' + k + '" target="_blank" rel="noopener">📘 ' +
+    esc(_t('คู่มือเอาชีวิตรอดฉบับเต็ม — ก่อน ระหว่าง หลังเกิดภัย')) + '</a>';
+}
 /* ชวนให้มีคนจริงข้างๆ (core/companion.py) — ขึ้นเมื่อคุยเรื่องหนักใจเรื่องเดิมถี่ผิดปกติ วันละครั้ง */
 function companionCard(c){
   if(!c || !c.th) return '';
@@ -2577,6 +2584,23 @@ function quakeCard(r){
       (q.url && /^https:\/\/earthquake\.usgs\.gov\//.test(q.url) ? '<a href="' + esc(q.url) + '" target="_blank" rel="noopener">USGS</a>' : '') + '</div>';
   });
   return h + '<p class="qk-f">' + esc(_t('ข้อมูลจาก USGS · ในไทยดูเพิ่มที่')) + ' ' + tmd + '</p></div>';
+}
+/* ภัยจริงทั่วโลกจาก GDACS (core/hazards.py): พายุ น้ำท่วม ภูเขาไฟ ภัยแล้ง ไฟป่า — ใกล้ไทยทุกระดับ ที่อื่นเฉพาะส้ม/แดง */
+var HZ_KIND = { TC: ['พายุหมุนเขตร้อน', '🌀'], FL: ['น้ำท่วม', '🌧️'], VO: ['ภูเขาไฟ', '🌋'], DR: ['ภัยแล้ง', '🏜️'], WF: ['ไฟป่า', '🔥'] };
+var HZ_LEVEL = { green: 'ระดับเขียว', orange: 'ระดับส้ม', red: 'ระดับแดง' };
+function hazardCard(r){
+  var src = '<a href="https://www.gdacs.org" target="_blank" rel="noopener">GDACS</a>';
+  if(!r || !r.ok) return '<div class="qk"><p>' + esc(_t('ตอนนี้ดึงข้อมูลภัยพิบัติจริงไม่ได้ — ติดตามกรมอุตุฯ และ ปภ.')) + '</p></div>';
+  var rows = (r.near || []).concat(r.world || []), home = L2(r.home);
+  var h = '<div class="qk"><b>' + esc(_t('ภัยพิบัติจริงตอนนี้ (GDACS)')) + '</b>';
+  if(!rows.length) h += '<p>' + esc(_t('ไม่มีประกาศเตือนภัยในรัศมี {r} กม. จาก{home} และไม่มีระดับส้ม/แดงที่อื่น', { r: Number(r.radius_km).toLocaleString(), home: home })) + '</p>';
+  rows.forEach(function(x){
+    var k = HZ_KIND[x.kind] || [x.kind, '•'];
+    h += '<div class="qk-r' + (x.level === 'red' ? ' big' : '') + '"><span class="qk-m">' + k[1] + '</span><span>' + esc(_t(k[0])) + ' · ' + esc(x.name || x.country) +
+      '<br><i>' + esc(_t(HZ_LEVEL[x.level] || '')) + ' · ' + esc(_t('ห่าง{home} {km} กม.', { home: home, km: Number(x.km).toLocaleString() })) + '</i></span>' +
+      (x.url && /^https:\/\/www\.gdacs\.org\//.test(x.url) ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">GDACS</a>' : '') + '</div>';
+  });
+  return h + '<p class="qk-f">' + esc(_t('ข้อมูลจาก')) + ' ' + src + ' (UN OCHA · EU) · ' + esc(_t('ในไทยติดตามกรมอุตุฯ และ ปภ. 1784')) + '</p></div>';
 }
 /* Waterline: เส้นวัดจม/รอด · Drift Zero reference · L0 — ต่ำกว่าเส้นไม่ได้เด็ดขาด */
 function wlGauge(w){

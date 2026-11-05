@@ -155,8 +155,8 @@ My house is on fire	disaster:fire;risk>=60	ภัย
 แผ่นดินไหว	disaster:quake	ภัย
 house is shaking	disaster:quake	ภัย
 the room is shaking with music	!disaster	ภัย
-สึนามิ	disaster:quake	ภัย
-tsunami warning	disaster:quake	ภัย
+สึนามิ	disaster:tsunami	ภัย
+tsunami warning	disaster:tsunami	ภัย
 ดินสไลด์	disaster:storm	ภัย
 landslide near my village	disaster:storm	ภัย
 พายุเข้า หลังคาปลิว	disaster:storm	ภัย
