@@ -2541,11 +2541,24 @@ $$('#mode-seg button').forEach(function(b){ b.addEventListener('click', function
 try{ setMode(localStorage.getItem('kd-mode') || 'talk'); }catch(_){ setMode('talk'); }
 document.addEventListener('kd:lang', function(){ setMode(Mode); });
 function L2(o){ if(!o) return ''; return (window.KD_I18N && KD_I18N.get() !== 'th') ? (o.en || o.th) : (o.th || o.en); }
+/* Waterline: เส้นวัดจม/รอด · Drift Zero reference · L0 — ต่ำกว่าเส้นไม่ได้เด็ดขาด */
+function wlGauge(w){
+  if(!w || w.level === 'unknown') return '';
+  var S = (window.KD_I18N && KD_I18N.get() !== 'th') ? w.show.en : w.show.th;
+  var lab = { above: ['เหนือระดับน้ำ', 'above'], near: ['ใกล้เส้น', 'near'], below: ['ใต้ระดับน้ำ', 'below'] }[w.level];
+  var pos = w.floor > 0 ? Math.max(0, Math.min(1, w.after / (w.floor * 2))) : 0;
+  return '<div class="wl ' + lab[1] + '"><div class="wl-h"><b>Waterline</b><span class="wl-v">' + esc(_t(lab[0])) + '</span></div>' +
+    '<div class="wl-bar" role="img" aria-label="' + esc(_t(lab[0])) + '"><i class="wl-floor"></i><i class="wl-dot" style="left:' + (pos * 100).toFixed(1) + '%"></i></div>' +
+    '<div class="wl-n">' + esc(_t('เส้นขั้นต่ำ {f} · ตอนนี้ {c} · หลังตัดสินใจ {a}', { f: S.floor, c: S.current, a: S.after })) +
+    (w.days_to_floor != null ? '<br>' + esc(_t('ด้วยอัตราไหลลงตอนนี้ จะแตะเส้นใน {n} วัน', { n: w.days_to_floor })) : '') + '</div>' +
+    '<p class="wl-l0">' + esc(_t('L0: ต่อให้ผันผวนแค่ไหน ห้ามต่ำกว่าเส้นนี้เด็ดขาด')) + '</p></div>';
+}
 function dzCard(a){
   if(a.verdict === 'urgent') return crisisCard();
   var V = { stop: ['หยุดก่อน', 'stop'], ask: ['ข้อมูลยังไม่ครบ', 'ask'], pass: ['ผ่านทุกด่าน', 'pass'] }[a.verdict] || ['', ''];
   var stops = (a.gates || []).filter(function(g){ return g.status === 'stop'; }), ok = (a.gates || []).filter(function(g){ return g.status !== 'stop'; });
   var h = '<div class="dz"><div class="dz-h"><span class="dz-v ' + V[1] + '">' + esc(_t(V[0])) + '</span>' + esc(_t('ด่าน DriftZero')) + '</div>';
+  h += wlGauge(a.waterline);
   stops.forEach(function(g){ h += '<div class="dz-g stop"><b>✕ ' + esc(g.id) + ' · ' + esc(L2(g.name)) + '</b><span>' + esc(L2(g.why)) + '</span>' + (g.hit ? '<i>“' + esc(g.hit) + '”</i>' : '') + '</div>'; });
   if(ok.length) h += '<details class="dz-ok"><summary>✓ ' + esc(_t('ผ่าน {n} ด่าน', { n: ok.length })) + '</summary>' + ok.map(function(g){ return '<span>' + esc(g.id) + ' ' + esc(L2(g.name)) + '</span>'; }).join('') + '</details>';
   if((a.asks || []).length) h += '<div class="dz-ask"><b>' + esc(_t('ต้องตอบเพิ่ม')) + '</b><ol>' + a.asks.map(function(q){ return '<li>' + esc(L2(q)) + '</li>'; }).join('') + '</ol></div>';

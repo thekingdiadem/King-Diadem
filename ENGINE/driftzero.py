@@ -112,6 +112,24 @@ SOP = [
 ]
 
 
+def _money(v) -> str:
+    if v is None:
+        return "-"
+    for unit, d in (("พันล้าน", 1e9), ("ล้าน", 1e6)):
+        if abs(v) >= d:
+            return f"{v / d:,.2f}".rstrip("0").rstrip(".") + " " + unit
+    return f"{v:,.0f}"
+
+
+def _money_en(v) -> str:
+    if v is None:
+        return "-"
+    for unit, d in (("B", 1e9), ("M", 1e6)):
+        if abs(v) >= d:
+            return f"{v / d:,.2f}".rstrip("0").rstrip(".") + unit
+    return f"{v:,.0f}"
+
+
 def _danger(text: str) -> tuple[bool, bool]:
     """(วิกฤตของคน, เหตุอันตรายตอนนี้)
     วิกฤตของคน (คิดทำร้ายตัวเอง) = ไม่ใช่เวลาตรวจด่าน ส่งไปหาความช่วยเหลือ
@@ -135,11 +153,27 @@ def audit(text: str) -> dict:
                                   "(1669 เจ็บป่วยฉุกเฉิน · 191 ตำรวจ · 1323 สุขภาพจิต) แล้วค่อยกลับมาที่โหมดปรึกษานะคะ",
                             "en": "This is about someone's safety — please contact help now (in Thailand 1669 medical · 191 police · "
                                   "1323 mental health), then come back in Talk mode."}}
+    from ENGINE.waterline_gauge import gauge
+    wl = gauge(t)
     gates = []
     for gid, th, en, rx, why_th, why_en in GATES:
         m = rx.search(t)
-        gates.append({"id": gid, "name": {"th": th, "en": en}, "status": STOP if m else PASS,
-                      "hit": m.group(0) if m else "", "why": {"th": why_th, "en": why_en} if m else None})
+        g = {"id": gid, "name": {"th": th, "en": en}, "status": STOP if m else PASS,
+             "hit": m.group(0) if m else "", "why": {"th": why_th, "en": why_en} if m else None}
+        if gid == "E2":
+            if wl["level"] == "below":                      # L0: ต่ำกว่าเส้นไม่ได้เด็ดขาด
+                g.update(status=STOP, hit=g["hit"] or f"{_money(wl['after'])} < {_money(wl['floor'])}",
+                         why={"th": f"ใต้ระดับน้ำ (Below Water) — หลังตัดสินใจเหลือ {_money(wl['after'])} ต่ำกว่าเส้น {_money(wl['floor'])} "
+                                    "· Stop-the-Line: ต่ำกว่าเส้นนี้ความเสียหายย้อนกลับไม่ได้ ลดขนาดหรือแบ่งเป็นช่วงก่อน",
+                              "en": f"Below water — after this decision {_money_en(wl['after'])} is under the floor {_money_en(wl['floor'])} "
+                                    "· Stop the line: below this the damage can't be undone; shrink it or phase it first"})
+            elif wl["days_to_floor"] is not None and wl["days_to_floor"] <= 30:
+                g.update(status=STOP, hit=g["hit"] or f"{wl['days_to_floor']} days",
+                         why={"th": f"จะแตะเส้นขั้นต่ำในอีก {wl['days_to_floor']} วันด้วยอัตราไหลลงตอนนี้ "
+                                    "· Stop-the-Line: ดึงความเสี่ยงกลับก่อนถึงเส้น",
+                              "en": f"At the current drift you reach the floor in {wl['days_to_floor']} days "
+                                    "· Stop the line: pull the risk back before you reach it"})
+        gates.append(g)
     stops = [g for g in gates if g["status"] == STOP]
 
     asks = []
@@ -152,7 +186,10 @@ def audit(text: str) -> dict:
     if not (_DRIFT.search(t) and _NUM.search(t)):
         asks.append({"sop": 3, "th": "DHD: ถ้าทำต่อไปเรื่อยๆ อะไรจะแย่ลงทีละนิดทุกวัน — วัดเป็นตัวเลขอะไรได้บ้าง (เช่น ของเสียกี่ลิตร/วัน · คนได้รับผลกี่คน/เดือน)",
                      "en": "DHD: if this continues, what gets a little worse every day — what number can measure it (e.g. litres of waste/day, people affected/month)?"})
-    if not (_FLOOR.search(t) and _NUM.search(t)):
+    if wl["floor"] is not None and wl["current"] is None:
+        asks.append({"sop": 2, "th": "Waterline: ตอนนี้มีเท่าไหร่ (เช่น เงินสดคงเหลือ) — จะได้วัดว่าหลังตัดสินใจยังอยู่เหนือเส้นไหม",
+                     "en": "Waterline: how much do you have now (e.g. cash on hand) — so we can see if you stay above the floor"})
+    if wl["floor"] is None:
         asks.append({"sop": 2, "th": "Waterline: เส้นขั้นต่ำของเรื่องนี้คืออะไร — ตัวเลขที่ห้ามต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้ "
                                     "(เช่น เงินสดสำรองไม่ต่ำกว่า 6 เดือนของค่าใช้จ่าย · ทีมหลักไม่ต่ำกว่า 5 คน)",
                      "en": "Waterline: what is the floor here — the number you must not go below, or the damage can't be undone "
@@ -184,5 +221,7 @@ def audit(text: str) -> dict:
     if not _ORG.search(t):
         note = {"th": "ดูเหมือนเป็นเรื่องส่วนตัว — โหมดปรึกษาน่าจะช่วยได้ตรงกว่านะคะ",
                 "en": "This looks personal — Talk mode will probably help more."}
-    return {"verdict": verdict, "gates": gates, "asks": asks, "sop": sop, "note": note, "emergency": emergency,
+    return {"verdict": verdict, "gates": gates, "asks": asks, "sop": sop, "note": note, "emergency": emergency, "waterline": dict(wl, show={
+                "th": {k: _money(wl[k]) for k in ("floor", "current", "after")},
+                "en": {k: _money_en(wl[k]) for k in ("floor", "current", "after")}}),
             "summary": {"th": sm_th, "en": sm_en}}
