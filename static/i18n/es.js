@@ -688,5 +688,11 @@
 "ดาวน์โหลดภาพ": "Descargar imagen",
 "สร้างภาพต้องเข้าสู่ระบบก่อนนะคะ": "Inicia sesión para crear imágenes",
 "กำลังตรวจ…": "Revisando…",
-"กำลังสร้างภาพ…": "Creando imagen…"
+"กำลังสร้างภาพ…": "Creando imagen…",
+"เหนือระดับน้ำ": "Sobre el agua",
+"ใกล้เส้น": "Cerca de la línea",
+"ใต้ระดับน้ำ": "Bajo el agua",
+"เส้นขั้นต่ำ {f} · ตอนนี้ {c} · หลังตัดสินใจ {a}": "Mínimo {f} · ahora {c} · tras la decisión {a}",
+"ด้วยอัตราไหลลงตอนนี้ จะแตะเส้นใน {n} วัน": "Al ritmo actual llegas al mínimo en {n} días",
+"L0: ต่อให้ผันผวนแค่ไหน ห้ามต่ำกว่าเส้นนี้เด็ดขาด": "L0: por mucha volatilidad que haya, nunca bajes de esta línea"
 };

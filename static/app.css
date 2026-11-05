@@ -1139,3 +1139,13 @@ body.mode-dz .comp-row1,body.mode-img .comp-row1,body.mode-dz #starters,body.mod
 .gen-img{margin:10px 0 0}.gen-img img{display:block;max-width:100%;border-radius:14px;border:1px solid var(--line-2)}
 .gen-img figcaption{margin-top:6px;font-size:13px}.gen-img a{color:var(--gold-hi,#ffd28f);cursor:pointer}
 .gen-gone{color:var(--ink-3);font-size:13px;margin:8px 0 0}
+
+/* Waterline gauge: จุด = หลังตัดสินใจ · เส้นกลาง = เส้นขั้นต่ำ (L0) */
+.wl{margin:8px 0 10px;padding:10px 12px;border-radius:12px;background:rgba(80,150,255,.08);border:1px solid rgba(120,170,255,.22)}
+.wl-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}.wl-h b{color:var(--ink)}
+.wl-v{border-radius:999px;padding:1px 9px;font-size:12px}
+.wl.above .wl-v{background:rgba(120,220,170,.16);color:#a8f0c8}.wl.near .wl-v{background:rgba(255,206,120,.16);color:#ffd99a}.wl.below .wl-v{background:rgba(255,107,107,.18);color:#ffb3b3}
+.wl-bar{position:relative;height:10px;border-radius:999px;background:linear-gradient(90deg,rgba(255,107,107,.45) 0 50%,rgba(120,200,255,.35) 50% 100%)}
+.wl-floor{position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;background:#fff;opacity:.85}
+.wl-dot{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.35)}
+.wl-n{margin-top:8px;color:var(--ink-2);font-size:13px}.wl-l0{margin:6px 0 0;color:var(--ink-3);font-size:12px}
