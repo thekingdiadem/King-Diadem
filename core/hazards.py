@@ -15,7 +15,9 @@ import time
 
 from core.quakes import HOME, km
 
-FEED = os.getenv("GDACS_FEED", "https://www.gdacs.org/gdacsapi/api/events/geteventlist/MAP")
+# เดิมใช้ .../geteventlist/MAP ซึ่ง GDACS ตอบ 400 "Eventtype is required" ทุกครั้ง (เว็บจริงไม่เคยได้ข้อมูลภัยเลย)
+# SEARCH คืนเหตุการณ์ปัจจุบัน (iscurrent) เป็น GeoJSON รูปแบบเดียวกัน — ทดสอบกับฟีดจริงแล้ว 2026-11
+FEED = os.getenv("GDACS_FEED", "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH?eventlist=TC;FL;VO;DR;WF&alertlevel=Green;Orange;Red")
 TTL, FAIL_TTL, TIMEOUT = 600, 180, 5.0
 RADIUS_KM = 2500           # ไทย + อาเซียน + ทะเลจีนใต้ (พายุที่เข้าไทยมักก่อตัวที่นี่) + อ่าวเบงกอล
 KINDS = {"TC": ("พายุหมุนเขตร้อน", "Tropical cyclone"), "FL": ("น้ำท่วม", "Flood"), "VO": ("ภูเขาไฟ", "Volcano"),
