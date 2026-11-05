@@ -1265,13 +1265,17 @@ MAGGA_INTENT_D = {   # สัมมาสังกัปปะ
 }
 
 
+_MAGGA_VICTIM = re.compile(r"(?:ถูก|โดน)\S{0,12}?(?:เรียก(?:เงิน|รับ|สินบน)?|รีดไถ|ขอเงิน|บังคับให้จ่าย)")
+
+
 def _magga_topic(text: str):
     """องค์มรรคที่ข้อความนี้ชนตรงๆ — ใช้ตัวตรวจเดียวกับ ENGINE/bodhipakkhiya_engine (ไม่สร้างกฎซ้ำ)"""
     try:
         from ENGINE.bodhipakkhiya_engine import FALSE_SPEECH, ILL_WILL, WRONG_LIVING
     except Exception:
         return None
-    if WRONG_LIVING.search(text):
+    # ผู้ใช้เป็นคนถูกเรียกเงิน ("ถูกตำรวจเรียกเงินใต้โต๊ะ") ไม่ใช่คนหาเงินไม่สุจริต — เดิมได้คำเตือนสัมมาอาชีวะใส่ผู้ถูกกระทำ
+    if WRONG_LIVING.search(text) and not _MAGGA_VICTIM.search(text):
         return "living"
     if FALSE_SPEECH.search(text):
         return "speech"
@@ -1400,8 +1404,20 @@ EVERYDAY = [
 ]
 
 
-def _everyday(text: str):
-    for _, rx, d in EVERYDAY:
+# การเรียน (ทุกระดับ ในไทยและต่างประเทศ) · กฎหมายไทย · ธุรกิจ — core/knowledge_th.py
+# อยู่หลังรายการเดิม: เรื่องบ้านๆ ที่ตอบได้ดีอยู่แล้วยังได้คำตอบเดิม
+from core.knowledge_th import KNOWLEDGE  # noqa: E402
+EVERYDAY += KNOWLEDGE
+_KNOWLEDGE_KEYS = {k for k, _, _ in KNOWLEDGE}
+# หัวข้อหมวดใหญ่ที่คำตอบยังกว้าง — ความรู้เฉพาะเรื่องแทนได้ · หัวข้อเฉพาะ (legal bribery labor consumer traffic_ticket …)
+# มีคำตอบที่ดีอยู่แล้ว (ช่องทางร้องเรียน เว็บ ptm) ห้ามทับ
+_GENERIC_TOPICS = {"money", "job", "business", "relationship", "family", "study", "stress", "decision", "positive", "lonely", "health"}
+
+
+def _everyday(text: str, topics=None):
+    for key, rx, d in EVERYDAY:
+        if key in _KNOWLEDGE_KEYS and topics and topics[0] not in _GENERIC_TOPICS:
+            continue
         if rx.search(text):
             return d
     return None
@@ -2448,8 +2464,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = _MAGGA_D[_magga_topic(text)], None    # มรรค 8: โกหก/ทุจริต/อยากเอาคืน — ทักตรงๆ ก่อนคำตอบทั่วไป
     elif CODE_REQ.search(text) and a["text_risk"] < 60:
         main, second = CODE_D, None                           # ขอให้เขียน/แก้โค้ด — บอกตรงๆ ว่าไม่ใช่งานถนัด แล้วชวนกลับมาที่การตัดสินใจ
-    elif _everyday(text) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS):
-        main, second = _everyday(text), None                  # เรื่องบ้านๆ–ระดับโลกที่เคยได้คำตอบกลาง (EVERYDAY)
+    elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS):
+        main, second = _everyday(text, a["topics"]), None                  # เรื่องบ้านๆ–ระดับโลกที่เคยได้คำตอบกลาง (EVERYDAY)
     elif _dharma_answer(text) and a["text_risk"] < 60:
         main, second = _dharma_answer(text), None             # ถามความหมายธรรมะ (DHARMA)
     elif re.search(r"(?:เด็ก|คน|ป้า|ลุง|ผู้หญิง|ยาย)ข้างบ้าน[^\n]{0,12}?(?:โดน|ถูก)\S{0,6}?(?:ตี|ทำร้าย|ทุบ|ตบ|ทิ้ง|ขัง)", text):
@@ -2739,8 +2755,8 @@ def compose_council(text: str, footer: bool = True) -> str:
         main = _MAGGA_D[_magga_topic(text)]
     elif CODE_REQ.search(text) and a["text_risk"] < 60:
         main = CODE_D
-    elif _everyday(text) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS):
-        main = _everyday(text)
+    elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS):
+        main = _everyday(text, a["topics"])
     elif _dharma_answer(text) and a["text_risk"] < 60:
         main = _dharma_answer(text)
     elif a["relationship"] in ("collapse_risk", "critical"):
