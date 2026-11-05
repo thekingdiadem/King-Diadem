@@ -78,7 +78,7 @@
     var day = Math.floor(J);
     if (day === prepDay && STARS) return;
     prepDay = day; PM = precess((J - 2451545) / 36525);
-    STARS = CAT.stars.map(function (s) { var v = mul(PM, eqv(s[0], s[1])); return { v: v, mag: s[2], col: bvColor(s[3]) }; });
+    STARS = CAT.stars.map(function (s) { var v = mul(PM, eqv(s[0], s[1])); return { v: v, mag: s[2], col: bvColor(s[3]), bv: s[3] }; });
     CAT.named.forEach(function (n) { STARS[n[0]].name = THAI && n[2] ? n[2] : n[1]; STARS[n[0]].en = n[1]; });
     LINES = Object.keys(CAT.lines).map(function (id) {
       return CAT.lines[id].map(function (seg) { return seg.map(function (p) { return mul(PM, eqv(p[0], p[1])); }); });
@@ -87,12 +87,26 @@
     [DEEP, DEEP2].forEach(function (DD) {                       // ดาวจาง 6–8 แล้ว 8–10 ต่อท้าย (ไฟล์เรียงตามความสว่างอยู่แล้ว)
       if (!DD || (DD === DEEP2 && !DEEP)) return;
       var D = DD.stars, k = DD.scale;
-      for (var i = 0; i < D.length; i += 4) STARS.push({ v: mul(PM, eqv(D[i] / k[0], D[i + 1] / k[1])), mag: D[i + 2] / k[2], col: bvColor(D[i + 3] / k[3]), deep: true });
+      for (var i = 0; i < D.length; i += 4) STARS.push({ v: mul(PM, eqv(D[i] / k[0], D[i + 1] / k[1])), mag: D[i + 2] / k[2], col: bvColor(D[i + 3] / k[3]), bv: D[i + 3] / k[3], deep: true });
     });
     MWL = MWRAW ? MWRAW.levels.map(function (lv) { return lv.map(function (ring) { return ring.map(function (p) { return mul(PM, eqv(p[0], p[1])); }); }); }) : null;
   }
   var DEEP = null, DEEP2 = null, deep2Asked = false, MWRAW = null, MWL = null, mwc = null, mwx = null;
   var LINES = [], CONS = [];
+  // ภาพดาวสำเร็จรูป 9 สี (ร้อนฟ้า → เย็นแดง) — วาดครั้งเดียว แล้วประทับซ้ำ เร็วกว่าไล่สีทุกดวงหลายเท่า
+  var SPR = {};
+  function starSprite(bv) {
+    var k = Math.round(clamp((bv + .4) / 2.4, 0, 1) * 8);
+    if (SPR[k]) return SPR[k];
+    var n = 64, c = document.createElement('canvas'); c.width = c.height = n;
+    var g = c.getContext('2d'), col = bvColor(-.4 + k * .3).replace('rgb(', '').replace(')', ''), h = n / 2;
+    var gr = g.createRadialGradient(h, h, 0, h, h, h);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.08, 'rgba(255,255,255,.95)');
+    gr.addColorStop(.18, 'rgba(' + col + ',.8)'); gr.addColorStop(.4, 'rgba(' + col + ',.22)');
+    gr.addColorStop(.7, 'rgba(' + col + ',.05)'); gr.addColorStop(1, 'rgba(' + col + ',0)');
+    g.fillStyle = gr; g.fillRect(0, 0, n, n);
+    return (SPR[k] = c);
+  }
   function bvColor(bv) {                                      // สีดาวตามอุณหภูมิ (B−V) แบบประมาณ — ฟ้าอมขาว → ขาว → เหลือง → ส้ม
     bv = clamp(bv, -.4, 2);
     var r = bv < .4 ? 175 + 80 * (bv + .4) / .8 : 255, g = bv < 0 ? 200 + 40 * (bv + .4) / .4 : bv < .6 ? 240 - 10 * bv : 234 - 60 * (bv - .6),
@@ -202,6 +216,7 @@
       });
     }
     // ดาว
+    cx.save(); cx.globalCompositeOperation = 'lighter';
     // ตาเปล่าที่ฟ้ามืดเห็นถึงโชติมาตร ~6 · ซูมเข้า = เหมือนส่องกล้อง เห็นจางลงได้ถึง 8 (ดาวจางโหลดตามหลัง)
     var zoomS = 70 / V.fov, limit = Math.min(DEEP2 && DEEP ? 10 : DEEP ? 8 : 6.05, 5.6 + Math.log(Math.max(1, zoomS)) / Math.LN2 * .85) - (1 - sc.starA) * 3;
     if (V.fov < 25 && DEEP && !deep2Asked) { deep2Asked = true; loadLater('deep2.json', function (x) { DEEP2 = x; }); }   // ซูมลึกครั้งแรก = โหลดชั้นที่ 3
@@ -214,19 +229,19 @@
       if (l0[0] * F.f[0] + l0[1] * F.f[1] + l0[2] * F.f[2] < zmin) continue;      // นอกมุมมอง — ไม่ต้องคำนวณต่อ
       var l = l0[2] > .5 ? l0 : refract(l0); if (behindHill(l)) continue;
       var p = proj(l); if (!onScreen(p, 4)) continue;
-      var rad = Math.max(.62, (limit + 1.1 - st.mag) * .34) * Math.pow(Math.min(zoomK, 6), .3), a = clamp((limit + 1.2 - st.mag) / 2.6, .36, 1) * sc.starA;
-      if (a < .03) continue;
-      cx.globalAlpha = a; cx.fillStyle = st.col;
-      if (st.mag < 1.6) {
-        var gr2 = cx.createRadialGradient(p[0], p[1], 0, p[0], p[1], rad * 3.2);
-        gr2.addColorStop(0, st.col); gr2.addColorStop(.3, st.col.replace('rgb', 'rgba').replace(')', ',.35)')); gr2.addColorStop(1, 'rgba(0,0,0,0)');
-        cx.fillStyle = gr2; cx.fillRect(p[0] - rad * 3.2, p[1] - rad * 3.2, rad * 6.4, rad * 6.4); cx.fillStyle = st.col;
-      }
-      cx.beginPath(); cx.arc(p[0], p[1], rad, 0, 6.283); cx.fill();
+      // ดาวแบบแสงจริง (PSF): แกนขาวคม ฟุ้งเป็นสีของดาว · ขนาดตามแสงจริง 10^(−0.4m) · วาดแบบแสงบวกกัน
+      // ใกล้ขอบฟ้าแสงผ่านอากาศหนากว่า (airmass) → จางลงและอมแดง แบบที่ตาเห็นจริง
+      var sh = Math.max(.02, l[2]), X = 1 / (sh + .025 * Math.exp(-11 * sh)), ext = LAY.ground ? .22 * (X - 1) : 0;
+      var m = st.mag + ext, rel = Math.pow(10, -.15 * (m - limit)), core = clamp(.55 * rel, .5, 7) * Math.pow(Math.min(zoomK, 6), .22);
+      var a = clamp((limit + 1.2 - m) / 2.4, .3, 1) * sc.starA;
+      if (a < .03 || m > limit + .4) continue;
+      var R = core * (m < 2.2 ? 5.5 : 3.2), spr = starSprite(st.bv + Math.min(.9, (X - 1) * .05));
+      cx.globalAlpha = a; cx.drawImage(spr, p[0] - R, p[1] - R, R * 2, R * 2);
+      var rad = core;
       hits.push({ x: p[0], y: p[1], o: st, l: l, kind: 'star' });
       if (st.name && LAY.names && st.mag < Math.min(limit, 6.05) - 3.3) labels.push({ x: p[0] + rad + 5, y: p[1], t: st.name, c: 'rgba(214,226,255,.86)', f: '500 12px ', pri: st.mag });
     }
-    cx.globalAlpha = 1;
+    cx.restore(); cx.globalAlpha = 1;
     if (LAY.mine) drawMine(labels);
     // ดาวเคราะห์ ดวงจันทร์ ดวงอาทิตย์
     F.bodies.forEach(function (b) {

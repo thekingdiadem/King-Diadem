@@ -166,3 +166,11 @@ def test_waterline_horizon_follows_latest_topic():
     for use in ("if (behindHill(l)) continue;", "behindHill(q.l)", "b.id !== 'sun' && behindHill(l)"):
         assert use in src, use                                                      # ของที่อยู่หลังขอบฟ้าที่ยกขึ้นถูกซ่อนทั้งดาวและชื่อ
     assert 'id="sky-wl"' in HTML
+
+
+def test_stars_drawn_as_light_sprites_with_atmosphere():
+    src = JS.read_text(encoding="utf-8")
+    assert "function starSprite(bv)" in src and "cx.drawImage(spr," in src               # แกนขาว + ฟุ้งเป็นสีดาว ประทับซ้ำ (เร็ว)
+    assert "X = 1 / (sh + .025 * Math.exp(-11 * sh))" in src                            # airmass: ใกล้ขอบฟ้าจางและอมแดง
+    i = src.index("    // ดาว\n"); j = src.index("cx.restore(); cx.globalAlpha = 1;", i)
+    assert "globalCompositeOperation = 'lighter'" in src[i:i + 120] and j > i             # แสงบวกกันแบบแสงจริง แล้วคืนค่า
