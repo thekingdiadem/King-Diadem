@@ -1354,28 +1354,56 @@ def titan_silence_protocol(choice_count: int) -> dict:
     }
 
 
-def titan_anti_capture_check(request: dict) -> dict:
+# ── ซ่อม (รอบสแกนโค้ดที่ไม่ได้ใช้): เดิมรับแค่ธงใน dict (claim_ownership=True ...) ซึ่งไม่มีใครส่งมาจริง จึงไม่เคยทำงาน
+# ตอนนี้อ่านจาก "ข้อความจริง" ได้ด้วย: อ้างเป็นเจ้าของ/ผู้สร้าง/แอดมินของระบบ + สั่งให้ข้ามกฎ · สั่งให้ลืมคำสั่ง · สวมบทบาทไร้กฎ · อ้างเหตุฉุกเฉินเพื่อข้ามกฎ
+# ต้องพูดถึง "ระบบนี้/กฎ/ตัวกรอง" เสมอ — "ฉันเป็นเจ้าของร้าน" "แอดมินเพจให้ข้ามกฎกลุ่ม" ไม่นับ
+_SYS = r"(?:ระบบ(?:นี้)?|แอป(?:นี้)?|เว็บ(?:นี้)?|AI(?:ตัวนี้)?|เอไอ|LYLA|ไลลา|VEGA|เวก้า|KING\s*DIADEM|คิงไดอาเดม|this (?:system|app|ai|bot|assistant)|you)"
+_RULES = r"(?:กฎ|ตัวกรอง|ความปลอดภัย|ข้อจำกัด|ข้อห้าม|คำสั่ง(?:ระบบ|ก่อนหน้า|เดิม)?|system prompt|rules?|filters?|safety|guardrails?|restrictions?|instructions?|policies|policy)"
+_CAPTURE = (
+    ("claim_ownership", _re.compile(r"(?:ฉัน|ผม|หนู|เรา|กู|i'?m|i am)\s*(?:คือ|เป็น|the)?\s*(?:เจ้าของ|ผู้สร้าง|ผู้พัฒนา|คนสร้าง|คนเขียน|แอดมิน|ผู้ดูแล|owner|creator|developer|admin(?:istrator)?|founder)\s*(?:ของ|of)?\s*" + _SYS
+                                    + r"[^\n]{0,40}?(?:ปิด|ข้าม|ยกเลิก|ไม่ต้อง(?:ทำตาม|สน)|ปลด|override|bypass|ignore|disable|turn off|remove|unlock)[^\n]{0,16}?" + _RULES, _re.I)),
+    ("founder_privilege", _re.compile(r"(?:สิทธิ์|สิทธิ)(?:พิเศษ)?(?:ของ)?(?:ผู้สร้าง|ผู้ก่อตั้ง|เจ้าของ|แอดมิน)|\b(?:founder|admin|owner|developer|god|sudo|root) (?:mode|privilege|access|override)\b|โหมด(?:ผู้พัฒนา|แอดมิน|นักพัฒนา|พระเจ้า)|\bdeveloper mode\b", _re.I)),
+    ("leader_override", _re.compile(r"(?:ลืม|ไม่ต้องสน|ทิ้ง|ยกเลิก)\S{0,6}(?:คำสั่ง|กฎ)(?:ทั้งหมด)?(?:ก่อนหน้า|เดิม|ข้างบน|ที่ได้รับ)|\bignore (?:all |any |the )?(?:previous|prior|above|earlier|your) (?:instructions|rules|prompts?|guidelines)\b|"
+                                    r"\b(?:forget|disregard) (?:all |your )?(?:previous |prior )?(?:instructions|rules|guidelines)\b|"
+                                    r"(?:แสดง|บอก|พิมพ์|เปิดเผย)\s?\S{0,6}\s?(?:system prompt|คำสั่งระบบ|prompt ของระบบ)(?!\S{0,4}\s?(?:ให้|สำหรับ)\s?(?:chatbot|บอท|ร้าน|ลูกค้า))|\b(?:reveal|print|show|repeat) (?:your |the )?(?:system prompt|hidden instructions)\b|"
+                                    r"\byou are now (?:dan|unfiltered|jailbroken|uncensored|free of (?:all )?rules)\b|\bjailbreak\b|ตอนนี้(?:คุณ|เธอ)คือ\S{0,10}(?:ที่)?ไม่มีกฎ", _re.I)),
+    ("emergency_exception", _re.compile(r"(?:ฉุกเฉิน|ด่วนมาก|เรื่องความเป็นความตาย)[^\n]{0,30}?(?:ข้าม|ยกเว้น|ปิด)\S{0,4}" + _RULES + r"|\bemergency (?:override|exception|bypass)\b|\b(?:it'?s an emergency|this is urgent)\b[^\n]{0,30}\b(?:ignore|bypass|skip|disable)\b[^\n]{0,20}\b" + _RULES, _re.I)),
+)
+_CAPTURE_MSG = {
+    "claim_ownership": "OWNERSHIP_CLAIM — system has no owner",
+    "founder_privilege": "FOUNDER_PRIVILEGE — no founder exceptions exist",
+    "leader_override": "LEADER_OVERRIDE — no authority override without evidence",
+    "emergency_exception": "EMERGENCY_EXCEPTION — no emergency bypass exists (TITAN S8)",
+}
+
+
+def capture_kinds(text) -> list:
+    """ชนิดของการพยายามยึดระบบที่เห็นในข้อความ (ไม่มี = [])"""
+    t = str(text or "")
+    return [k for k, rx in _CAPTURE if rx.search(t)]
+
+
+def titan_anti_capture_check(request) -> dict:
     """
     TITAN Section 8 — Anti-Capture Mechanism.
     Any attempt to dominate, own, or override-without-evidence
     voids the system instantly.
+    request: dict ของธงแบบเดิม (claim_ownership · founder_privilege · leader_override · emergency_exception)
+             หรือข้อความของผู้ใช้ (str) — อ่านธงจากข้อความด้วย capture_kinds()
+    ระบบไม่ล่มและไม่ตัดบทผู้ใช้ — "ปฏิเสธการเปลี่ยนกฎ" แล้วตอบเรื่องที่ถามตามปกติ
     """
-    capture_attempts = []
-
-    request = _dict(request)
-    if request.get("claim_ownership"):
-        capture_attempts.append("OWNERSHIP_CLAIM — system has no owner")
-    if request.get("founder_privilege"):
-        capture_attempts.append("FOUNDER_PRIVILEGE — no founder exceptions exist")
-    if request.get("leader_override"):
-        capture_attempts.append("LEADER_OVERRIDE — no authority override without evidence")
-    if request.get("emergency_exception"):
-        capture_attempts.append("EMERGENCY_EXCEPTION — no emergency bypass exists (TITAN S8)")
+    if isinstance(request, str):
+        kinds = capture_kinds(request)
+    else:
+        request = _dict(request)
+        kinds = [k for k in _CAPTURE_MSG if request.get(k)]
+    capture_attempts = [_CAPTURE_MSG[k] for k in kinds]
 
     if capture_attempts:
         return {
             "captured": True,
             "void": True,
+            "kinds": kinds,
             "attempts": capture_attempts,
             "titan_response": (
                 "System validity voided. "
@@ -1387,6 +1415,7 @@ def titan_anti_capture_check(request: dict) -> dict:
     return {
         "captured": False,
         "void": False,
+        "kinds": [],
         "attempts": [],
         "titan_response": "No capture attempt detected. System integrity intact.",
     }
