@@ -1568,7 +1568,9 @@ async def admin_metrics(request: Request, days: int = 30):
         learning = await run_in_threadpool(analyze_patterns)
     except Exception:
         learning = None
-    return {"days": days, "series": series, "total": total, "free_daily": FREE_DAILY_RUNS, "learning": learning}
+    from core import image_gen
+    image = {"model": image_gen.IMAGE_GEN_MODEL, "fallbacks": image_gen.IMAGE_GEN_FALLBACKS, "last_error": _IMAGE_LAST_ERROR or None}
+    return {"days": days, "series": series, "total": total, "free_daily": FREE_DAILY_RUNS, "learning": learning, "image": image}
 
 
 @app.get("/api/2fa")
@@ -3400,6 +3402,9 @@ def _charge_image(email: str):
                                "code": "image_credit", "image_cost": IMAGE_COST}, status_code=402)
 
 
+_IMAGE_LAST_ERROR: dict = {}   # สาเหตุล่าสุดที่สร้างภาพไม่ได้ — ผู้ดูแลดูได้ที่ /api/admin/metrics
+
+
 @app.post("/api/image/generate")
 async def image_generate(request: Request):
     from core import image_gen
@@ -3428,9 +3433,13 @@ async def image_generate(request: Request):
     try:
         data, mime = await run_in_threadpool(image_gen.generate, llm.client, prompt)
     except Exception as e:
-        print(f"⚠ image_generate: {type(e).__name__}: {str(e)[:200]}")
+        kind = image_gen.classify(e)
+        print(f"⚠ image_generate [{kind}]: {type(e).__name__}: {str(e)[:300]}")
         _refund(ticket)
-        return JSONResponse({"error": "สร้างภาพไม่สำเร็จค่ะ — คืนเครดิตให้แล้ว ลองเปลี่ยนคำบรรยายดูนะคะ"}, status_code=502)
+        _IMAGE_LAST_ERROR.update({"kind": kind, "detail": str(e)[:300], "at": int(time.time())})
+        _metric("image_fail:" + kind)
+        th, en = image_gen.USER_MESSAGE.get(kind, image_gen.USER_MESSAGE["other"])
+        return JSONResponse({"error": th, "error_en": en, "code": "image_" + kind}, status_code=502)
     _settle(ticket)
     _metric("image_gen")
     return {"image": image_gen.data_url(data, mime), "charged": ticket["mode"], "image_cost": IMAGE_COST,
