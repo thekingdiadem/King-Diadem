@@ -673,7 +673,7 @@
 "💬 ปรึกษา": "💬 Hablar",
 "🎨 สร้างภาพ": "🎨 Crear imagen",
 "ตรวจการตัดสินใจขององค์กร/โครงการตามเฟรมเวิร์ค DriftZero": "Revisa una decisión de organización o proyecto con el marco DriftZero",
-"เล่าการตัดสินใจขององค์กรหรือโครงการ เช่น จะย้ายโรงงานไปริมแม่น้ำเพื่อลดต้นทุน": "Describe una decisión de organización o proyecto, p. ej. mudar la fábrica junto a un río para ahorrar",
+"เล่าการตัดสินใจขององค์กรหรือโครงการ เช่น จะใช้เงินสำรองทั้งหมดขยาย 10 สาขาในปีนี้": "Describe una decisión de organización o proyecto, p. ej. usar todas las reservas para abrir 10 sucursales este año",
 "บอกภาพที่อยากได้ เช่น แมวส้มนั่งดูดาวบนหลังคา สไตล์สีน้ำ": "Describe la imagen que quieres, p. ej. un gato naranja mirando estrellas en un tejado, acuarela",
 "สร้างภาพ": "Crear imagen",
 "หยุดก่อน": "Detente primero",

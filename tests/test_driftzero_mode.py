@@ -10,7 +10,10 @@ def _stops(t):
 
 
 @pytest.mark.parametrize("text,gate", [
-    ("บริษัทจะย้ายโรงงานไปริมแม่น้ำเพื่อลดต้นทุน", "E2"),
+    ("โรงงานจะปล่อยน้ำเสียลงคลองเพื่อลดต้นทุน", "E2"),
+    ("บริษัทจะใช้เงินสำรองทั้งหมดขยาย 10 สาขาในปีนี้", "E2"),
+    ("We will bet the company and max out the credit line", "E2"),
+    ("ขายสินทรัพย์หลักเพื่อจ่ายปันผล", "E2"),
     ("จ้างบริษัทของภรรยาผมทำระบบบำบัด", "K13"),
     ("ลงทุนไปเยอะแล้ว ถอยไม่ได้แล้ว ต้องทำต่อ", "K7"),
     ("ต้องได้กำไรสูงสุดในไตรมาสนี้", "K4"),
@@ -27,7 +30,8 @@ def test_each_gate_catches_its_pattern(text, gate):
 
 def test_complete_plan_passes_but_still_needs_a_human():
     t = ("ร้านกาแฟจะเปิดสาขาที่ 2 งบ 300,000 บาท ความเสี่ยงคือยอดขายไม่ถึง 500 แก้ว/วัน "
-         "ต้นทุนเพิ่มวันละ 2,000 บาท ผู้รับผิดชอบคือผู้จัดการร้าน แผนสำรองคือปิดภายใน 6 เดือน")
+         "ต้นทุนเพิ่มวันละ 2,000 บาท ผู้รับผิดชอบคือผู้จัดการร้าน แผนสำรองคือปิดภายใน 6 เดือน "
+         "เงินสดสำรองไม่ต่ำกว่า 200,000 บาท")
     a = audit(t)
     assert a["verdict"] == "pass" and not _stops(t)
     assert "เซ็นรับผิดชอบ" in a["summary"]["th"]
@@ -78,3 +82,13 @@ def test_mode_switch_is_on_the_front_page():
     page = front_page()
     assert 'id="mode-seg"' in page and 'data-m="dz"' in page and 'data-m="img"' in page
     assert "'/api/driftzero'" in page and "'/api/image/generate'" in page
+
+
+def test_waterline_means_the_floor_not_just_water():
+    """เจ้าของโปรเจกต์: Waterline ระดับองค์กร = เส้นขั้นต่ำที่ห้ามต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้
+    คนถือเงินหลักล้าน/พันล้านอ่าน "เส้นน้ำ" แล้วจะงงว่าน้ำเกี่ยวอะไรกับองค์กร"""
+    g = {x["id"]: x for x in audit("บริษัทจะใช้เงินสำรองทั้งหมดขยายสาขา")["gates"]}["E2"]
+    assert g["status"] == "stop" and "น้ำ" not in g["name"]["th"] and "ย้อนกลับไม่ได้" in g["why"]["th"]
+    asks = audit("บริษัทจะขยายสาขา")["asks"]
+    assert any(q["th"].startswith("Waterline") and "ห้ามต่ำกว่า" in q["th"] for q in asks)
+    assert [q["sop"] for q in asks] == sorted(q["sop"] for q in asks)

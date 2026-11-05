@@ -558,7 +558,7 @@
     '💬 ปรึกษา': ['💬 Talk', '💬 相談'],
     '🎨 สร้างภาพ': ['🎨 Create image', '🎨 画像を作る'],
     'ตรวจการตัดสินใจขององค์กร/โครงการตามเฟรมเวิร์ค DriftZero': ['Check an organization or project decision with the DriftZero framework', 'DriftZeroフレームワークで組織・プロジェクトの意思決定を点検'],
-    'เล่าการตัดสินใจขององค์กรหรือโครงการ เช่น จะย้ายโรงงานไปริมแม่น้ำเพื่อลดต้นทุน': ['Describe an organization or project decision, e.g. moving the factory next to a river to cut costs', '組織やプロジェクトの決定を書いてください 例：コスト削減のため工場を川沿いへ移す'],
+    'เล่าการตัดสินใจขององค์กรหรือโครงการ เช่น จะใช้เงินสำรองทั้งหมดขยาย 10 สาขาในปีนี้': ['Describe an organization or project decision, e.g. using all cash reserves to open 10 branches this year', '組織やプロジェクトの決定を書いてください 例：今年、手元資金をすべて使って10店舗に拡大する'],
     'บอกภาพที่อยากได้ เช่น แมวส้มนั่งดูดาวบนหลังคา สไตล์สีน้ำ': ['Describe the image you want, e.g. an orange cat watching the stars on a roof, watercolor', '欲しい画像を書いてください 例：屋根の上で星を見る茶トラ猫、水彩風'],
     'สร้างภาพ': ['Create image', '画像を作る'],
     'หยุดก่อน': ['Stop first', 'まず止める'],

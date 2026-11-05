@@ -673,7 +673,7 @@
 "💬 ปรึกษา": "💬 Trò chuyện",
 "🎨 สร้างภาพ": "🎨 Tạo ảnh",
 "ตรวจการตัดสินใจขององค์กร/โครงการตามเฟรมเวิร์ค DriftZero": "Kiểm tra quyết định của tổ chức/dự án theo khung DriftZero",
-"เล่าการตัดสินใจขององค์กรหรือโครงการ เช่น จะย้ายโรงงานไปริมแม่น้ำเพื่อลดต้นทุน": "Mô tả quyết định của tổ chức/dự án, VD: dời nhà máy ra bờ sông để giảm chi phí",
+"เล่าการตัดสินใจขององค์กรหรือโครงการ เช่น จะใช้เงินสำรองทั้งหมดขยาย 10 สาขาในปีนี้": "Mô tả quyết định của tổ chức/dự án, VD: dùng toàn bộ tiền dự trữ để mở 10 chi nhánh trong năm nay",
 "บอกภาพที่อยากได้ เช่น แมวส้มนั่งดูดาวบนหลังคา สไตล์สีน้ำ": "Mô tả ảnh bạn muốn, VD: mèo cam ngắm sao trên mái nhà, phong cách màu nước",
 "สร้างภาพ": "Tạo ảnh",
 "หยุดก่อน": "Dừng lại trước",

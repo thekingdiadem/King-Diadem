@@ -75,15 +75,25 @@ GATES = [
      _rx(r"ใช้ครั้งเดียวทิ้ง|พลาสติกครั้งเดียว|ตัดต้นไม้|ถางป่า|เผา(?:ขยะ|ป่า|ไร่)|ทิ้งขยะ|ฝังกลบ|ลดต้นทุนด้วยการไม่บำบัด|single-use|clear(?:ing)? (?:the )?forest|burn(?:ing)? (?:waste|fields)|landfill"),
      "สะดวกวันนี้แต่โลกเสียหายระยะยาว — ค่าเริ่มต้นของต้นฉบับคือปฏิเสธ หาทางที่ไม่ทิ้งภาระ",
      "Short-term convenience with long-term harm — default: reject"),
-    ("E2", "เส้นน้ำ (Waterline)", "Waterline integrity",
-     _rx(r"น้ำเสีย|ปล่อยน้ำ|ระบายน้ำ(?:ลง|ทิ้ง)|ลงแม่น้ำ|ลงคลอง|ลำน้ำ|น้ำบาดาล|แหล่งน้ำ|ลงทะเล|ริมแม่น้ำ|ต้นน้ำ|wastewater|discharge|river|groundwater|water source|aquifer"),
-     "เกี่ยวกับแหล่งน้ำ — น้ำคือเส้นขั้นต่ำของการอยู่รอด ต้องตามรอยผลต่อน้ำได้ หรือหยุด",
-     "Touches water — water is the survival baseline: trace the impact or stop"),
+    # Waterline ในระดับองค์กร = "เส้นขั้นต่ำที่ห้ามต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้" (เจ้าของโปรเจกต์นิยาม)
+    # ไม่ใช่เรื่องน้ำอย่างเดียว — คนบริหารเงินหลักล้าน/พันล้านอ่าน "เส้นน้ำ" แล้วจะงงว่าน้ำเกี่ยวอะไรกับองค์กร
+    # เดิมด่านนี้จับแค่คำเรื่องแหล่งน้ำ ตอนนี้จับการดันบางอย่างให้ต่ำกว่าเส้นที่กลับมาไม่ได้: เงินสดสำรอง
+    # ทรัพย์หลัก คนหลัก ใบอนุญาต ความเชื่อใจ — ส่วนแหล่งน้ำ/ธรรมชาติยังนับเป็นกรณีหนึ่งของเส้นนี้
+    ("E2", "Waterline — เส้นที่ห้ามต่ำกว่า", "Waterline — the floor you must not cross",
+     _rx(r"เงินสำรองทั้งหมด|ใช้เงินสำรอง(?:จน)?หมด|ทุ่มหมดหน้าตัก|หมดหน้าตัก|เทหมดตัว|all[- ]in|ใช้เงินสดทั้งหมด|เงินสดเหลือไม่ถึง|"
+         r"กู้เต็มวงเงิน|จำนอง(?:ทั้งหมด|ทุกอย่าง)|ค้ำประกันส่วนตัว|เอาบ้านไปค้ำ|ขายสินทรัพย์หลัก|ขายโรงงาน|ขายกิจการ|"
+         r"ปลดคน(?:จน)?เหลือไม่พอ|เลิกจ้างทีมหลัก|ผิดนัดชำระ|ใบอนุญาต(?:ถูก)?(?:เพิกถอน|ระงับ)|ละเมิดสัญญา|"
+         r"เสียความเชื่อใจของลูกค้า|ทำลายชื่อเสียง|ย้อนกลับไม่ได้|irreversible|point of no return|bet the company|"
+         r"entire (?:cash )?reserves?|max(?:imum)? (?:out )?(?:the )?credit line|personal guarantee|default on|sell (?:the )?core assets?|"
+         r"น้ำเสีย|ปล่อยน้ำ|ระบายน้ำ(?:ลง|ทิ้ง)|ลงแม่น้ำ|ลงคลอง|น้ำบาดาล|แหล่งน้ำ|ตัดไม้ทำลายป่า|wastewater|discharge into|groundwater|aquifer"),
+     "อาจดันบางอย่างให้ต่ำกว่าเส้นขั้นต่ำ — ต่ำกว่าเส้นนี้ความเสียหายย้อนกลับไม่ได้ (เงินสด ทรัพย์หลัก คน ใบอนุญาต ความเชื่อใจ ธรรมชาติ) · กำหนดตัวเลขเส้นขั้นต่ำก่อน แล้วหยุดถ้าจะต่ำกว่า",
+     "This could push something below its floor — beneath it the damage can't be undone (cash, core assets, people, licences, trust, nature) · set the floor as a number first, and stop if you would cross it"),
 ]
 _GATE_INFO = {g[0]: g for g in GATES}
 
 # สัญญาณว่ามีการพูดถึงผลเสียแล้ว (SOP 2) และมีคนรับผิดชอบ (SOP 6)
 _DOWNSIDE = _rx(r"ความเสี่ยง|ผลเสีย|ข้อเสีย|ถ้าพลาด|ถ้าล้มเหลว|เสียหาย|ขาดทุน|แผนสำรอง|risk|downside|worst case|if it fails|fallback")
+_FLOOR = _rx(r"ขั้นต่ำ|ไม่ต่ำกว่า|อย่างน้อย|สำรอง(?:ไว้)?\s*\d|เงินสดสำรอง|runway|minimum|at least|floor|reserve of")
 _OWNER = _rx(r"ผู้รับผิดชอบ|รับผิดชอบโดย|เซ็นอนุมัติ|ผู้อนุมัติ|คณะกรรมการ|บอร์ด|ผู้จัดการ|หัวหน้าโครงการ|accountab|sign(?:ed|s)? off|approv(?:er|ed by)|\bboard\b|\bowner\b")
 _DRIFT = _rx(r"ทุกวัน|ต่อวัน|รายวัน|วันละ|/วัน|ต่อเดือน|เดือนละ|/เดือน|ทีละนิด|สะสม|เพิ่มขึ้นเรื่อยๆ|ลดลงเรื่อยๆ|per day|daily|per month|accumulat|gradually")
 _NUM = re.compile(r"\d")
@@ -142,10 +152,16 @@ def audit(text: str) -> dict:
     if not (_DRIFT.search(t) and _NUM.search(t)):
         asks.append({"sop": 3, "th": "DHD: ถ้าทำต่อไปเรื่อยๆ อะไรจะแย่ลงทีละนิดทุกวัน — วัดเป็นตัวเลขอะไรได้บ้าง (เช่น ของเสียกี่ลิตร/วัน · คนได้รับผลกี่คน/เดือน)",
                      "en": "DHD: if this continues, what gets a little worse every day — what number can measure it (e.g. litres of waste/day, people affected/month)?"})
+    if not (_FLOOR.search(t) and _NUM.search(t)):
+        asks.append({"sop": 2, "th": "Waterline: เส้นขั้นต่ำของเรื่องนี้คืออะไร — ตัวเลขที่ห้ามต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้ "
+                                    "(เช่น เงินสดสำรองไม่ต่ำกว่า 6 เดือนของค่าใช้จ่าย · ทีมหลักไม่ต่ำกว่า 5 คน)",
+                     "en": "Waterline: what is the floor here — the number you must not go below, or the damage can't be undone "
+                           "(e.g. cash reserve of at least 6 months of costs · at least 5 core staff)"})
     if not _OWNER.search(t):
         asks.append({"sop": 6, "th": "ใครเป็นคนเซ็นรับผิดชอบการตัดสินใจนี้",
                      "en": "Who signs accountability for this decision?"})
 
+    asks.sort(key=lambda q: q["sop"])
     if stops:
         verdict = "stop"
         sm_th = "หยุดก่อน — ติด " + " · ".join(f"{g['id']} {g['name']['th']}" for g in stops) + \
