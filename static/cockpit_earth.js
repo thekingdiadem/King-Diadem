@@ -376,6 +376,18 @@
   }
   window.KD_earth = {
     globe: function (on) { leaveCity(); go({ L: on ? 0 : 1, lat: on ? 20 : 40 }); },
+    // บินไปจุดภัย แล้วเปิดกล้องรายละเอียดเมื่อถึง (ใช้กับรายการภัยในแผงเครื่องมือ)
+    flyHazard: function (i) {
+      var h = HZ.list[i]; if (!h) return;
+      leaveCity(); go({ lat: clamp(h.lat, -85, 85), lon: h.lon + 360 * Math.round((S.tlon - h.lon) / 360), L: 2.2 });
+      var tries = 0;                                              // รอจนโลกบินถึงแล้วจุดขึ้นจอ (เครื่องช้าก็รอได้ ไม่เกิน ~5 วินาที)
+      (function wait() {
+        var m = HZ.shown.filter(function (x) { return x.h === h; })[0], V = view();
+        if (m && Math.hypot(m.x - V.W / 2, m.y - V.H / 2) < Math.min(V.W, V.H) * .3) { showHazard(m); return; }
+        if (++tries < 14) setTimeout(wait, 350);
+      })();
+    },
+    hazards: function () { return HZ.list; },
     pole: function (north) { leaveCity(); go({ L: 0, lat: north ? 80 : -80 }); },
     zoomIn: function () { if (S.city) window.KD_cityMap.zoom(1); else go({ L: S.tL < 1 ? 1 : S.tL + 1 }); },
     zoomOut: function () {
@@ -493,11 +505,20 @@
     HZ.at = Date.now();
     var get = function (u) { return fetch(u).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); };
     var keep = function (r) { return r && r.ok ? (r.near || []).concat(r.world || []) : []; };
-    Promise.all([get('/api/quakes'), get('/api/hazards')]).then(function (res) {
-      var q = keep(res[0]).map(function (x) {
+    Promise.all([get('/api/quakes?scope=map'), get('/api/hazards')]).then(function (res) {
+      var qs = res[0] && res[0].ok ? (res[0].points || keep(res[0])) : [];     // 7 วัน · ใกล้ไทย M3.5+ · ทั่วโลก M5.5+
+      var q = qs.map(function (x) {
         return { lat: x.lat, lon: x.lon, kind: 'EQ', level: x.mag >= 6.5 ? 'red' : x.mag >= 5 ? 'orange' : 'green',
-                 name: 'M' + x.mag + ' · ' + (x.place || ''), km: x.km, url: x.url };
+                 name: 'M' + x.mag + ' · ' + (x.place || ''), km: x.km, url: x.url, hours: x.hours };
       });
+      // บอกสถานะข้อมูลในแผงเครื่องมือ — คนดูจะรู้ว่า "ไม่มีจุด" เพราะไม่มีเหตุ หรือเพราะดึงข้อมูลไม่ได้
+      var st = document.getElementById('ec-hz-status');
+      if (st) {
+        var nq = q.length, nh = keep(res[1]).length, okq = !!(res[0] && res[0].ok), okh = !!(res[1] && res[1].ok);
+        st.textContent = !okq && !okh ? (THAI ? 'ตอนนี้ดึงข้อมูลภัยจาก USGS/GDACS ไม่ได้ — ลองใหม่ภายหลัง' : 'Hazard data from USGS/GDACS is unavailable right now')
+          : (THAI ? 'ตอนนี้บนโลก: แผ่นดินไหว 7 วัน ' + (okq ? nq + ' จุด' : '(ดึงไม่ได้)') + ' · ภัยอื่น ' + (okh ? nh + ' จุด' : '(ดึงไม่ได้)')
+                  : 'Now: quakes (7 days) ' + (okq ? nq : 'n/a') + ' · other hazards ' + (okh ? nh : 'n/a'));
+      }
       var h = keep(res[1]).map(function (x) { return { lat: x.lat, lon: x.lon, kind: x.kind, level: x.level, name: x.name || x.country, km: x.km, url: x.url }; });
       HZ.list = q.concat(h).filter(function (x) { return isFinite(x.lat) && isFinite(x.lon) && HZ_STYLE[x.kind]; }).slice(0, 40);
       HZ.list.forEach(function (x) {
@@ -520,6 +541,8 @@
     function line(t, tag) { d.appendChild(document.createElement('br')); var e = document.createElement(tag || 'span'); e.textContent = t; d.appendChild(e); return e; }
     if (h.name) line(h.name);
     if (h.km != null) line((en ? '{km} km from Bangkok' : 'ห่างกรุงเทพฯ {km} กม.').replace('{km}', Number(h.km).toLocaleString()), 'i');
+    if (h.hours != null) line(h.hours < 1 ? (en ? 'within the last hour' : 'ไม่ถึงชั่วโมงที่แล้ว') : h.hours < 48 ? (en ? Math.round(h.hours) + ' h ago' : Math.round(h.hours) + ' ชม.ที่แล้ว')
+                                 : (en ? Math.round(h.hours / 24) + ' days ago' : Math.round(h.hours / 24) + ' วันที่แล้ว'), 'i');
     d.appendChild(document.createElement('br'));
     var st = HZ_STYLE[h.kind], g = document.createElement('a');
     g.href = '/survival' + (en ? '?lang=en' : '') + '#' + (st ? st[1] : '');
@@ -616,5 +639,14 @@
     lctx.shadowBlur = 0;
     lctx.globalAlpha = 1;
   }
+  // ปุ่ม "ดูดาว": เปิดฟ้าเหนือจุดกลางจอ (ดูอเมริกาอยู่ = ฟ้าอเมริกา) พร้อมชื่อเมืองใกล้สุดที่โหลดไว้แล้ว
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="/sky"]');
+    if (!a) return;
+    var la = clamp(S.tlat, -89, 89), lo = ((S.tlon % 360) + 540) % 360 - 180, r = RAD;
+    var w = [Math.cos(la * r) * Math.sin(lo * r), Math.sin(la * r), Math.cos(la * r) * Math.cos(lo * r)], best = '', bd = Math.cos(2.5 * r);
+    TIERS.forEach(function (T) { (T.data || []).forEach(function (c) { var d = c[1] * w[0] + c[2] * w[1] + c[3] * w[2]; if (d > bd) { bd = d; best = c[0]; } }); });
+    a.href = '/sky?lat=' + la.toFixed(2) + '&lon=' + lo.toFixed(2) + (best ? '&name=' + encodeURIComponent(best) : '');
+  }, true);
   sync(); setTouchMode(); size();
 })();

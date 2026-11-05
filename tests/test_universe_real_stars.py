@@ -61,3 +61,12 @@ def test_universe_tools_live_in_bottom_left_sheet():
         assert act in sheet, act
     assert 'data-act="zin"' in page[:i] and 'data-act="menu"' in page[:i]          # ซูมกับปุ่มเปิดแผงอยู่นอกแผง กดได้ทันที
     assert "menu: function(){" in page and "แตะนอกแผง = ปิดแผงเครื่องมือ" in page
+
+
+def test_hazard_list_button_flies_to_each_hazard():
+    page = (ROOT / "static" / "king_diadem_universe.html").read_text(encoding="utf-8")
+    earth = (ROOT / "static" / "cockpit_earth.js").read_text(encoding="utf-8")
+    sheet = page[page.index('id="ec-sheet"'):page.index('<div class="cockpit"')]
+    assert 'data-act="hzlist"' in sheet and ">ภัยพิบัติ</button>" in sheet and 'id="ec-hzlist"' in sheet
+    assert "hzlist: function(){" in page and "E2.flyHazard(i)" in page and "textContent" in page[page.index("hzlist: function(){"):page.index("menu: function(){")]
+    assert "flyHazard: function (i)" in earth and "hazards: function () { return HZ.list; }" in earth

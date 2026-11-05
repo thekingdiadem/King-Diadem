@@ -9,7 +9,7 @@ function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(
 function fmt(t){ return esc(t).replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); }
 /* เบอร์สายด่วนในคำตอบ → แตะโทรได้ทันทีบนมือถือ (ไม่แตะจำนวนเงิน เช่น "1300 บาท")
    รวมเบอร์ในคำตอบ 54 ภาษา (110 จีน · 119 ญี่ปุ่น · 109 เกาหลี · 3114 ฝรั่งเศส ฯลฯ) — เดิมแตะโทรได้แค่เบอร์ไทยกับ 911/988/112/999 */
-var HOTLINES = /(^|[^\d\w.\/:-])(191|1669|1125|1662|1479|1323|1300|1367|1784|1650|1599|1155|1111|1441|1213|1195|1387|1506|1330|1192|1567|1586|1543|1413|1165|1600|1663|1546|1694|1129|1130|1422|1584|1166|1167|1186|1205|1207|1362|1366|1570|199|911|988|112|999|016|101|102|103|108|109|110|113|115|116|119|124|142|155|158|166|188|190|192|194|1018|1122|1201|1480|1553|1813|1926|1990|3114|7333|9110)(?![\d.,]|\s*(?:บาท|฿|baht|ปี|คน|ครั้ง|%))/g;
+var HOTLINES = /(^|[^\d\w.\/:-])(191|1669|1125|1662|1479|1323|1300|1367|1784|1650|1599|1155|1111|1441|1443|1213|1195|1387|1506|1330|1192|1567|1586|1543|1413|1165|1600|1663|1546|1694|1129|1130|1422|1584|1166|1167|1186|1205|1207|1362|1366|1570|199|911|988|112|999|016|101|102|103|108|109|110|113|115|116|119|124|142|155|158|166|188|190|192|194|1018|1122|1201|1480|1553|1813|1926|1990|3114|7333|9110)(?![\d.,]|\s*(?:บาท|฿|baht|ปี|คน|ครั้ง|%))/g;
 function telify(html){ return html.replace(HOTLINES, '$1<a class="tel" href="tel:$2">$2</a>'); }
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } }
 /* แปลข้อความที่สคริปต์ประกอบเอง (มีตัวเลข/ชื่อแทรก หรืออยู่ในกล่องแชทที่ตัวแปลอัตโนมัติไม่แตะ)
@@ -1925,11 +1925,12 @@ var Cosmos = (function(){
   function loadHazards(){
     HZ.at = Date.now();
     var keep = function(r){ return r && r.ok ? (r.near || []).concat(r.world || []) : []; };
-    Promise.all([fetch('/api/quakes').then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }),
+    Promise.all([fetch('/api/quakes?scope=map').then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }),
                  fetch('/api/hazards').then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; })])
       .then(function(res){
-        var q = keep(res[0]).map(function(x){ return { lat: x.lat, lon: x.lon, kind: 'EQ', level: x.mag >= 6.5 ? 'red' : x.mag >= 5 ? 'orange' : 'green',
-                                                      name: 'M' + x.mag + ' · ' + (x.place || ''), km: x.km, url: x.url }; });
+        var qs = res[0] && res[0].ok ? (res[0].points || keep(res[0])) : [];      /* scope=map: 7 วัน ใกล้ไทย M3.5+ ทั่วโลก M5.5+ */
+        var q = qs.map(function(x){ return { lat: x.lat, lon: x.lon, kind: 'EQ', level: x.mag >= 6.5 ? 'red' : x.mag >= 5 ? 'orange' : 'green',
+                                             name: 'M' + x.mag + ' · ' + (x.place || ''), km: x.km, url: x.url, hours: x.hours }; });
         var h = keep(res[1]).map(function(x){ return { lat: x.lat, lon: x.lon, kind: x.kind, level: x.level, name: x.name || x.country, km: x.km, url: x.url }; });
         HZ.list = q.concat(h).filter(function(x){ return isFinite(x.lat) && isFinite(x.lon) && HZ_STYLE[x.kind]; }).slice(0, 24);
         kick();
@@ -1970,6 +1971,7 @@ var Cosmos = (function(){
     var lvl = { green: 'ระดับเขียว', orange: 'ระดับส้ม', red: 'ระดับแดง' }[h.level] || '';
     pop.innerHTML = '<b>' + esc(_t(kindTh)) + '</b> · ' + esc(_t(lvl)) + '<br>' + esc(h.name || '') +
       (h.km != null ? '<br><i>' + esc(_t('ห่างกรุงเทพฯ {km} กม.', { km: Number(h.km).toLocaleString() })) + '</i>' : '') +
+      (h.hours != null ? '<br><i>' + esc(h.hours < 48 ? _t('{h} ชม.ที่แล้ว', { h: Math.max(1, Math.round(h.hours)) }) : _t('{d} วันที่แล้ว', { d: Math.round(h.hours / 24) })) + '</i>' : '') +
       '<br><a href="/survival' + (en ? '?lang=en' : '') + '#' + st[1] + '" target="_blank" rel="noopener">📘 ' + esc(_t('คู่มือเอาชีวิตรอด')) + '</a>' +
       (h.url && /^https:\/\/(?:earthquake\.usgs\.gov|www\.gdacs\.org)\//.test(h.url) ? ' · <a href="' + esc(h.url) + '" target="_blank" rel="noopener">' + (h.kind === 'EQ' ? 'USGS' : 'GDACS') + '</a>' : '');
     pop.style.left = Math.round(clamp(m.x + 14, 8, innerWidth - 240)) + 'px'; pop.style.top = Math.round(clamp(m.y - 10, 60, innerHeight - 160)) + 'px';
@@ -3098,3 +3100,18 @@ addEventListener('keydown', function(e){ if(e.key === 'Escape') closeDrawer(); }
     if(ios) toast(_t('บน iPhone: แตะปุ่มแชร์ แล้วเลือก “เพิ่มไปยังหน้าจอโฮม”'), false, 7000);
   });
 })();
+
+/* ── กลุ่มดาวการตัดสินใจของฉัน (หน้าดูดาว /sky) ──────────────────────────────────────────
+   ทุกคำตอบ = ดาวหนึ่งดวง ณ จุดเหนือศีรษะ ตอนนั้น · เก็บในเครื่องนี้เท่านั้น: เวลา เส้นทาง ความเสี่ยง ตำแหน่งคร่าวๆ
+   ไม่มีข้อความที่คุย ไม่ส่งไปไหน · สูงสุด 300 ดวง (เก่าสุดหลุดก่อน) */
+window.addEventListener('KD:response', function(e){
+  try {
+    var d = e.detail || {}, loc = null;
+    try { loc = JSON.parse(localStorage.getItem('kd-sky-loc') || 'null'); } catch(x) {}
+    var lat = loc && isFinite(loc.lat) ? +loc.lat : 13.76, lon = loc && isFinite(loc.lon) ? +loc.lon : 100.5;
+    var L = JSON.parse(localStorage.getItem('kd-my-stars') || '[]');
+    if(!Array.isArray(L)) L = [];
+    L.push({ t: Date.now(), r: String(d.route || 'general').slice(0, 12), k: Math.round(Number(d.risk_score) || 0), la: +lat.toFixed(1), lo: +lon.toFixed(1) });
+    localStorage.setItem('kd-my-stars', JSON.stringify(L.slice(-300)));
+  } catch(x) {}
+});

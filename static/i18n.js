@@ -585,6 +585,7 @@
     'สุขภาพระบบ': ['System health', 'システムの状態'],
     'คู่มือเอาชีวิตรอด': ['Survival guide', 'サバイバルガイド'],
     'ห่างกรุงเทพฯ {km} กม.': ['{km} km from Bangkok', 'バンコクから{km}km'],
+    '{h} ชม.ที่แล้ว': ['{h} h ago', '{h}時間前'], '{d} วันที่แล้ว': ['{d} days ago', '{d}日前'],
     'แผ่นดินไหว': ['Earthquake', '地震'],
     'น้ำท่วม': ['Flood', '洪水'],
     'ตอนนี้ดึงข้อมูลภัยพิบัติจริงไม่ได้ — ติดตามกรมอุตุฯ และ ปภ.': ['Live disaster data is unavailable right now — follow the Thai Meteorological Department and DDPM', '現在、災害の実データを取得できません — タイ気象局とDDPMの情報を確認してください'],

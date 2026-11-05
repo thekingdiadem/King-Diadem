@@ -7,6 +7,10 @@
 <title>KING DIADEM — The Universe That Restores Choice</title>
 <link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
 <link rel="alternate icon" href="/static/logo.png" type="image/png">
+<meta name="description" content="ลูกโลกกลางคืน 3 มิติพร้อมแผ่นดินไหว พายุ น้ำท่วม ไฟป่าจริงทั่วโลก (USGS · GDACS) ดาวจริงบนฟ้า และระบบช่วยตัดสินใจ KING DIADEM — Choice(t) ≥ 1">
+<link rel="canonical" href="https://king-diadem.onrender.com/universe">
+<meta property="og:url" content="https://king-diadem.onrender.com/universe">
+<meta property="og:description" content="ลูกโลก 3 มิติ ภัยพิบัติจริงทั่วโลก ดาวจริง และจักรวาลที่คืนทางเลือกให้มนุษย์">
 <meta property="og:title" content="KING DIADEM — The Universe That Restores Choice">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="KING DIADEM">
@@ -40,7 +44,7 @@ html,body{width:100%;min-height:100%;background:var(--void);color:var(--tx);font
   background:linear-gradient(to bottom,transparent 0%,transparent 55%,rgba(8,13,26,0.70) 78%,rgba(8,13,26,0.95) 100%)}
 
 /* ── HERO ── */
-#hero{position:relative;z-index:10;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:80px;text-align:center;pointer-events:none}
+#hero{position:relative;z-index:10;height:100vh;height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:80px;text-align:center;pointer-events:none}
 .hero-badge{font-family:var(--f-mono);font-size:8px;letter-spacing:.22em;color:rgba(74,158,255,0.50);border:1px solid rgba(74,158,255,0.16);border-radius:999px;padding:4px 14px;margin-bottom:18px;display:inline-block}
 .hero-title{font-family:var(--f-display);font-size:clamp(28px,7vw,58px);font-weight:600;letter-spacing:.18em;background:linear-gradient(138deg,#76aeff 0%,#d6eaff 28%,#fff 46%,#f0d070 64%,#c8a440 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15;margin-bottom:14px}
 .hero-sub{font-family:var(--f-mono);font-size:9px;letter-spacing:.26em;color:rgba(200,164,64,0.42);margin-bottom:24px}
@@ -274,7 +278,7 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 .earth-ctl .ec-menu[aria-expanded="true"]{color:#0b0f1e;background:rgba(126,203,214,.92);border-color:transparent}
 .earth-ctl .ec-zoom{position:absolute;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);display:flex;flex-direction:column;gap:6px}
 .earth-ctl .ec-zoom .ec-z{width:40px;height:40px;padding:0;font-size:18px;border-radius:12px}
-.ec-sheet{position:absolute;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);width:min(360px,calc(100vw - 24px));max-height:min(70vh,560px);overflow:auto;
+.ec-sheet{position:absolute;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);width:min(360px,calc(100vw - 24px));max-height:min(70vh,560px);max-height:min(calc(100svh - 150px),560px);overflow:auto;
   padding:12px;border-radius:20px;background:rgba(10,14,26,.88);border:1px solid rgba(230,240,255,.14);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
   box-shadow:0 20px 60px -20px rgba(0,0,0,.8);color:rgba(232,238,252,.9)}
 .ec-sheet.hide{display:none}
@@ -287,6 +291,22 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 .earth-ctl .ec-tile[aria-pressed="true"]{color:#fff;background:rgba(237,204,98,.16)}
 .ec-tile[aria-pressed="true"] svg{stroke:#edcc62}
 .ec-note{margin:10px 6px 2px;font:400 11px/1.5 var(--f-body);color:rgba(232,238,252,.5)}
+.ec-hzlist{display:flex;flex-direction:column;gap:2px;margin-top:6px}.ec-hzlist.hide{display:none}
+.earth-ctl .ec-hzlist button{display:flex;gap:8px;align-items:center;text-align:left;width:100%;padding:9px 10px;border-radius:10px;border:0;background:rgba(255,255,255,.04);color:rgba(232,238,252,.85);font:500 12.5px/1.35 var(--f-body);backdrop-filter:none}
+.ec-hzlist button i{flex:none;width:9px;height:9px;border-radius:50%}
+/* จอเตี้ย (มือถือจอสั้น · แนวนอน · มีแถบเบราว์เซอร์): ย่อหัวเรื่องและปุ่ม ให้ปุ่มล่างอยู่ในจอเสมอ ไม่ทับข้อความ */
+@media (max-height:700px){
+  #hero{padding-bottom:64px}
+  .earth-ctl .ec-menu{width:42px;height:42px}
+  .earth-ctl .ec-zoom{flex-direction:row}
+  .earth-ctl .ec-zoom .ec-z{width:38px;height:38px}
+  .ec-grid{grid-template-columns:repeat(4,1fr)}
+  .ec-tile{padding:8px 2px;font-size:11px}
+}
+@media (max-height:560px){
+  #hero h1,#hero .hero-title{font-size:clamp(22px,6vh,40px)!important;line-height:1.05}
+  .ec-sheet{bottom:calc(env(safe-area-inset-bottom,0px) + 62px)}
+}
 .earth-ctl button{font:500 11px/1 var(--f-body);color:rgba(230,240,255,.85);background:rgba(8,13,26,.55);
   border:1px solid rgba(230,240,255,.18);border-radius:999px;padding:7px 12px;cursor:pointer;backdrop-filter:blur(8px)}
 .earth-ctl button[aria-pressed="true"]{color:#0b0f1e;background:rgba(237,204,98,.92);border-color:transparent}
@@ -397,9 +417,12 @@ html.bb-on,html.bb-on body{overflow:hidden}
       <div class="ec-grid">
         <a class="ec-tile" href="/sky"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.6 4.9.4-3.7 3.2 1.1 4.8L12 13.5 7.8 16l1.1-4.8L5.2 8l4.9-.4z"/><path d="M4 21h16" opacity=".6"/></svg>ดูดาว</a>
         <button type="button" class="ec-tile" id="ec-bang" data-act="bang"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4M5.3 5.3l2.8 2.8M15.9 15.9l2.8 2.8M18.7 5.3l-2.8 2.8M8.1 15.9l-2.8 2.8"/></svg>บิ๊กแบง</button>
+        <button type="button" class="ec-tile" data-act="hzlist" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M2.5 13h3l2-5 3 10 3-13 2.5 8h5.5"/></svg>ภัยพิบัติ</button>
         <a class="ec-tile" href="/survival"><svg viewBox="0 0 24 24"><path d="M5 4.5h9a3 3 0 013 3v12H8a3 3 0 01-3-3v-12z"/><path d="M17 19.5h2V7.5M9 9h4M9 12.5h4"/></svg>คู่มือเอาชีวิตรอด</a>
       </div>
       <p class="ec-note">จุดสีบนโลก = แผ่นดินไหว (USGS) · พายุ น้ำท่วม ภูเขาไฟ ไฟป่า ภัยแล้ง (GDACS) — แตะจุดเพื่อดูรายละเอียด</p>
+      <p class="ec-note" id="ec-hz-status" aria-live="polite">กำลังโหลดข้อมูลภัย…</p>
+      <div class="ec-hzlist hide" id="ec-hzlist"></div>
     </div>
   </div>
   <div class="cockpit" aria-hidden="true">
@@ -899,6 +922,21 @@ function KD_toggleDay(){var h=document.documentElement,on=!h.classList.contains(
     bang: function(){ if(window.KD_bigBang) KD_bigBang(); },
     scroll: function(){ document.getElementById('content').scrollIntoView({behavior:'smooth'}); },
     sim: function(){ runSimulation(); },
+    hzlist: function(){
+      var box = document.getElementById('ec-hzlist'), E2 = window.KD_earth, L = E2 && E2.hazards ? E2.hazards() : [];
+      if(!box.classList.contains('hide')){ box.classList.add('hide'); return; }
+      box.textContent = '';
+      var KIND = { EQ: 'แผ่นดินไหว', TC: 'พายุ', FL: 'น้ำท่วม', VO: 'ภูเขาไฟ', WF: 'ไฟป่า', DR: 'ภัยแล้ง' };
+      if(!L.length){ var p = document.createElement('p'); p.className = 'ec-note'; p.textContent = 'ตอนนี้ยังไม่มีจุดภัยให้แสดง (ดูสถานะข้อมูลด้านบน)'; box.appendChild(p); }
+      L.forEach(function(h, i){
+        var b = document.createElement('button'), dot = document.createElement('i'), t = document.createElement('span');
+        b.type = 'button'; dot.style.background = h.color; t.textContent = (KIND[h.kind] || '') + ' · ' + (h.name || '');
+        b.appendChild(dot); b.appendChild(t);
+        b.addEventListener('click', function(){ document.getElementById('ec-sheet').classList.add('hide'); document.getElementById('ec-menu').setAttribute('aria-expanded','false'); E2.flyHazard(i); });
+        box.appendChild(b);
+      });
+      box.classList.remove('hide');
+    },
     menu: function(){ var sh = document.getElementById('ec-sheet'), b = document.getElementById('ec-menu'), open = sh.classList.toggle('hide') === false;
                       b.setAttribute('aria-expanded', open ? 'true' : 'false'); }
   };

@@ -20,6 +20,7 @@ FEED = _geo((6.1, "Mandalay, Myanmar", 21.9, 96.1, 35, 0),        # ~950 กม.
             (4.2, "Andaman Sea", 9.5, 96.0, 200, 0),
             (7.4, "Kamchatka, Russia", 53.0, 159.0, 90, 1),          # ไกล แต่ใหญ่มาก → บอก
             (5.0, "Chile", -33.0, -71.0, 60, 0),                     # ไกลและไม่ใหญ่พอ → ไม่บอก
+            (5.8, "Tonga", -21.0, -175.0, 120, 0),                   # ไกล แต่ถึง 5.5 (ทำตึกเสียหายได้) → บอก
             (6.0, "Myanmar old", 21.0, 96.0, 60 * 30, 0))            # เกิน 24 ชม. → ไม่บอก
 
 
@@ -31,7 +32,8 @@ def _fresh_cache(monkeypatch):
 def test_near_and_big_quakes_are_picked_correctly():
     r = quakes.recent(get=lambda url: FEED, now_ms=NOW)
     assert r["ok"] and [q["place"] for q in r["near"]] == ["Mandalay, Myanmar", "Andaman Sea"]
-    assert [q["place"] for q in r["world"]] == ["Kamchatka, Russia"]
+    assert [q["place"] for q in r["world"]] == ["Kamchatka, Russia", "Tonga"]
+    assert quakes.MIN_MAG_WORLD == 5.5
     assert 850 < r["near"][0]["km"] < 1050
 
 
@@ -98,3 +100,38 @@ def test_card_shows_in_chat_and_links_only_to_usgs():
     page = front_page()
     assert "function quakeCard(r)" in page and "q: d.quakes" in page
     assert "/^https:\\/\\/earthquake\\.usgs\\.gov\\//.test(q.url)" in page
+
+
+# ── จุดบนลูกโลก (scope=map): 7 วัน · ใกล้ไทย M3.5+ · ทั่วโลก M5.5+ · ไม่ซ้ำ · สูงสุด 40 จุด ──
+WEEK = _geo((5.9, "Fiji", -18.0, 178.0, 60 * 24 * 3, 0),            # 3 วันก่อน ทั่วโลก ≥5.5 → ขึ้นบนลูกโลก
+            (4.8, "Peru", -12.0, -77.0, 60 * 24 * 2, 0),              # ไกลและเล็ก → ไม่ขึ้น
+            (4.6, "Myanmar", 20.0, 96.0, 60 * 24 * 5, 0),             # ใกล้ไทย 5 วันก่อน → ขึ้น
+            (6.2, "Old", 0.0, 0.0, 60 * 24 * 9, 0))                   # เกิน 7 วัน → ไม่ขึ้น
+for _f in WEEK["features"]:
+    _f["id"] = "w" + _f["id"]                                           # คนละเหตุการณ์กับฟีด 24 ชม. (USGS ใช้ id เดียวกันข้ามฟีด)
+
+
+def test_map_points_cover_a_week_without_duplicates():
+    feeds = {quakes.FEED: FEED, quakes.WEEK_FEED: WEEK}
+    r = quakes.map_points(get=lambda url: feeds[url], now_ms=NOW)
+    places = [q["place"] for q in r["points"]]
+    assert r["ok"] and r["days"] == 7 and r["updated"]
+    assert "Kamchatka, Russia" == places[0]                              # M7.4 ใหญ่มากขึ้นก่อน
+    assert {"Mandalay, Myanmar", "Andaman Sea", "Fiji", "Myanmar", "Myanmar old"} <= set(places)   # Myanmar old (30 ชม.) อยู่ใน 7 วัน
+    assert not {"Peru", "Old", "Chiang Rai, Thailand", "Chile"} & set(places)
+    assert len(places) == len(set(places)) and all("hours" in q for q in r["points"])
+
+
+def test_map_points_survive_one_feed_down():
+    def get(url):
+        if url == quakes.WEEK_FEED:
+            raise OSError("down")
+        return FEED
+    r = quakes.map_points(get=get, now_ms=NOW)
+    assert r["ok"] and r["points"]
+
+
+def test_api_quakes_map_scope(app_module):
+    from fastapi.testclient import TestClient
+    r = TestClient(app_module.app).get("/api/quakes?scope=map")
+    assert r.status_code == 200 and r.json()["ok"] is False and r.json()["points"] == []   # เทสต์ไม่ยิงเน็ตจริง = ไม่เดาจุด

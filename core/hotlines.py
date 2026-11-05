@@ -56,6 +56,9 @@ REGISTRY: dict[str, list[Line]] = {
         Line("1584", "กรมการขนส่งทางบก", "Land Transport Department", "info", "dlt.go.th"),
         Line("1586", "กรมทางหลวง", "Highways Department", "info", "doh.go.th"),
         Line("1362", "กรมอุทยานแห่งชาติฯ (สัตว์ป่า)", "National parks / wildlife", "info", "dnp.go.th"),
+        # หนี้ — ปรึกษาฟรี ไม่ต้องจ่ายใครให้ "ช่วยแก้หนี้"
+        Line("1213", "ศูนย์คุ้มครองผู้ใช้บริการทางการเงิน (ธปท.)", "Bank of Thailand financial consumer protection", "debt", "bot.or.th"),
+        Line("1443", "สายด่วนชนะหนี้ · คลินิกแก้หนี้ (บสส./SAM)", "Debt Clinic hotline (SAM)", "debt", "debtclinicbysam.com"),
         # น้ำ ไฟ — ขอผ่อนผันก่อนวันตัด
         Line("1130", "การไฟฟ้านครหลวง (กทม. นนทบุรี สมุทรปราการ)", "Metropolitan Electricity Authority", "utility", "mea.or.th"),
         Line("1129", "การไฟฟ้าส่วนภูมิภาค (ต่างจังหวัด)", "Provincial Electricity Authority", "utility", "pea.co.th"),

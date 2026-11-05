@@ -102,6 +102,46 @@ def build(src: Path) -> dict:
             "stars": out_stars, "named": named, "lines": out_lines, "cons": out_cons, "planets": out_planets}
 
 
+def build_deep(src: Path, fname: str = "stars.8.json", lo: float = 6, hi: float = 8) -> dict:
+    """ดาวจาง 6 < โชติมาตร ≤ 8 (~36,000 ดวง) — หน้าดูดาวโหลดตามหลัง ขึ้นเมื่อซูมเข้า (เหมือนส่องกล้อง ภาพไม่แตก)
+    ย่อเป็นจำนวนเต็มแถวเดียว: ra×100, dec×100, mag×10, bv×20 (แม่น 0.01° เกินความละเอียดจอ)"""
+    stars = json.loads((src / fname).read_text())["features"]
+    flat = []
+    for f in sorted(stars, key=lambda f: f["properties"]["mag"]):
+        m = f["properties"]["mag"]
+        if m <= lo or m > hi:
+            continue
+        lon, lat = f["geometry"]["coordinates"]
+        try:
+            bv = float(f["properties"].get("bv"))
+        except (TypeError, ValueError):
+            bv = .6
+        flat += [round((lon % 360) * 100), round(lat * 100), round(m * 10), round(max(-.4, min(2, bv)) * 20)]
+    return {"source": f"d3-celestial 0.7.35 {fname} (BSD-3) · XHIP/Hipparcos/Tycho via HYG", "scale": [100, 100, 10, 20], "stars": flat}
+
+
+def build_milkyway(src: Path, step_deg: float = .6) -> dict:
+    """ขอบทางช้างเผือกจริง 5 ระดับความสว่าง (d3-celestial mw.json) — ตัดจุดที่ห่างกันไม่ถึง step_deg ออก ให้ไฟล์เล็ก"""
+    import math
+    mw = json.loads((src / "mw.json").read_text())["features"]
+    levels = []
+    for f in mw:
+        polys = []
+        for poly in f["geometry"]["coordinates"]:
+            for ring in poly:
+                out, last = [], None
+                for lon, lat in ring:
+                    if last is not None:
+                        dl = (lon - last[0] + 540) % 360 - 180
+                        if math.hypot(dl * math.cos(math.radians(lat)), lat - last[1]) < step_deg:
+                            continue
+                    out.append([round(lon % 360, 2), round(lat, 2)]); last = (lon, lat)
+                if len(out) >= 4:
+                    polys.append(out)
+        levels.append(polys)
+    return {"source": "d3-celestial 0.7.35 mw.json (BSD-3)", "levels": levels}
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", required=True, type=Path)
@@ -110,3 +150,9 @@ if __name__ == "__main__":
     out = ROOT / "static" / "sky" / "catalog.json"
     out.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(out, out.stat().st_size, len(data["stars"]), "stars", len(data["named"]), "named")
+    # ชั้นที่ 3 (โชติมาตร 8–10 ~66,800 ดวง) โหลดเมื่อซูมเข้าเกิน 25° เท่านั้น — ซูมลึกเหมือนเปลี่ยนเป็นกล้องที่ใหญ่ขึ้น
+    for name, obj in (("deep.json", build_deep(a.src)), ("deep2.json", build_deep(a.src, "stars.14.json", 8, 10)),
+                      ("milkyway.json", build_milkyway(a.src))):
+        o = ROOT / "static" / "sky" / name
+        o.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        print(o, o.stat().st_size)
