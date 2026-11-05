@@ -877,6 +877,7 @@ def root(request: Request):
 # robots.txt บอกว่าหน้าไหนให้เก็บ · หน้าส่วนตัว (API บัญชี รายงานที่แชร์) ห้ามเก็บ
 # sitemap.xml บอก Google ว่ามีหน้าสาธารณะอะไรบ้าง — เดิมไม่มีทั้งสองไฟล์
 SITEMAP_PAGES = [("/", "1.0", "daily"), ("/guide", "0.8", "weekly"), ("/learn", "0.8", "weekly"), ("/survival", "0.9", "weekly"), ("/ask", "0.7", "weekly"),
+                 ("/sky", "0.9", "daily"), ("/universe", "0.8", "weekly"),
                  ("/architecture", "0.6", "weekly"), ("/letter", "0.6", "monthly"), ("/support", "0.5", "monthly"),
                  ("/privacy", "0.3", "yearly"), ("/terms", "0.3", "yearly"), ("/refund", "0.3", "yearly")]
 _ROBOTS_BLOCK = ["/api/", "/report/", "/auth/", "/login", "/me", "/dashboard", "/wallet", "/credits", "/static/login.html",
@@ -3496,9 +3497,15 @@ _SURVIVAL_HTML: dict = {}
 
 @app.get("/sky")
 async def sky_page():
-    """ท้องฟ้าจริง ณ ตำแหน่งและเวลาของผู้ใช้ (static/sky.html · static/sky_view.js) — คำนวณในเครื่องผู้ใช้ทั้งหมด"""
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse("/static/sky.html", status_code=307)
+    """ท้องฟ้าจริง ณ ตำแหน่งและเวลาของผู้ใช้ (static/sky.html · static/sky_view.js) — คำนวณในเครื่องผู้ใช้ทั้งหมด
+    เสิร์ฟตรงที่ /sky (เดิม redirect ไป /static/sky.html) — Google เก็บ URL สั้นเป็นหน้าหลักได้"""
+    return FileResponse("static/sky.html")
+
+
+@app.get("/universe")
+async def universe_page():
+    """หน้า The Universe (ลูกโลก ภัยพิบัติจริง ดาวจริง) ที่ URL สั้น — ลิงก์เดิม /static/king_diadem_universe.html ยังใช้ได้"""
+    return FileResponse("static/king_diadem_universe.html")
 
 
 @app.get("/survival")

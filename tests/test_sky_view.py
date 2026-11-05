@@ -143,3 +143,15 @@ def test_my_decision_constellation_is_local_and_textless():
     src = JS.read_text(encoding="utf-8")
     assert "store('kd-my-stars')" in src and "function drawMine" in src and "if (LAY.mine) drawMine(labels);" in src
     assert 'data-layer="mine"' in HTML and 'id="sky-mine-n"' in HTML
+
+
+def test_sky_and_universe_are_findable(app_module):
+    from fastapi.testclient import TestClient
+    c = TestClient(app_module.app)
+    sm = c.get("/sitemap.xml").text
+    assert "/sky</loc>" in sm and "/universe</loc>" in sm
+    r = c.get("/sky", follow_redirects=False)
+    assert r.status_code == 200 and 'rel="canonical" href="https://king-diadem.onrender.com/sky"' in r.text   # URL สั้นเป็นหน้าหลัก ไม่ redirect
+    u = c.get("/universe")
+    assert u.status_code == 200 and 'rel="canonical" href="https://king-diadem.onrender.com/universe"' in u.text and 'name="description"' in u.text
+    assert '"@type":"WebApplication"' in r.text
