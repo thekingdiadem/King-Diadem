@@ -175,6 +175,12 @@ def init_db():
             recovery TEXT NOT NULL DEFAULT '[]',
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
+        -- สัญญาณการพึ่งพา (core/companion.py): นับหัวข้อหนักใจต่อวัน — who = HMAC ไม่ใช่อีเมล · ไม่มีข้อความ · เก็บ 14 วัน
+        CREATE TABLE IF NOT EXISTS topic_days (
+            day TEXT NOT NULL, who TEXT NOT NULL, topic TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (day, who, topic)
+        );
+        CREATE INDEX IF NOT EXISTS idx_topic_days_who ON topic_days (who, day);
         -- ทะเบียนการเปลี่ยนค่าที่กระทบผู้ใช้ (core/policy_registry.py) — เพิ่มอย่างเดียว ไม่แก้ ไม่ลบ
         CREATE TABLE IF NOT EXISTS policy_log (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -289,6 +295,34 @@ def metric_report(since_day: str, forget_before: str = None) -> dict:
         return out
     finally:
         conn.close()
+
+def topic_days_add(day: str, who: str, topics: list, forget_before: str) -> dict:
+    """นับหัวข้อของวันนี้ แล้วคืนประวัติของคนนี้ {day: {topic: n}} ตั้งแต่ forget_before · ลบของเก่ากว่านั้นทิ้ง"""
+    conn = get_conn()
+    try:
+        for t in topics:
+            conn.execute("INSERT INTO topic_days (day, who, topic, n) VALUES (?, ?, ?, 1) "
+                         "ON CONFLICT(day, who, topic) DO UPDATE SET n = n + 1", (day, who, t))
+        conn.execute("DELETE FROM topic_days WHERE day < ?", (forget_before,))
+        conn.commit()
+        out = {}
+        for r in conn.execute("SELECT day, topic, n FROM topic_days WHERE who = ? AND day >= ?", (who, forget_before)):
+            out.setdefault(r["day"], {})[r["topic"]] = r["n"]
+        return out
+    finally:
+        conn.close()
+
+
+def topic_days_mark(day: str, who: str, topic: str) -> bool:
+    """ทำเครื่องหมายว่าวันนี้ชวนไปแล้ว · คืน True ถ้าเป็นครั้งแรกของวัน (worker อื่นยังไม่ได้ชวน)"""
+    conn = get_conn()
+    try:
+        cur = conn.execute("INSERT OR IGNORE INTO topic_days (day, who, topic, n) VALUES (?, ?, ?, 1)", (day, who, topic))
+        conn.commit()
+        return cur.rowcount == 1
+    finally:
+        conn.close()
+
 
 def policy_last() -> dict:
     """{key: ค่าล่าสุดในทะเบียน}"""

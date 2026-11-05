@@ -318,7 +318,7 @@ function normalize(s){
   var items = s.items.slice(0, 200).map(function(it){
     it = it || {};
     var msgs = Array.isArray(it.msgs) ? it.msgs.filter(function(m){ return m && typeof m.t === 'string'; }).map(function(m){
-      return { r: (m.r==='u' || m.r==='e') ? m.r : 'a', t: m.t, p: typeof m.p === 'string' ? m.p : '', tr: cleanTrace(m.tr), l: Array.isArray(m.l) ? cleanTrace(m.l.slice(0, 3)) : undefined, v: (m.v === 'up' || m.v === 'down') ? m.v : undefined, ts: num(m.ts, 0) };
+      return { r: (m.r==='u' || m.r==='e') ? m.r : 'a', t: m.t, p: typeof m.p === 'string' ? m.p : '', tr: cleanTrace(m.tr), l: Array.isArray(m.l) ? cleanTrace(m.l.slice(0, 3)) : undefined, v: (m.v === 'up' || m.v === 'down') ? m.v : undefined, c: (m.c && typeof m.c.th === 'string') ? { th: m.c.th.slice(0, 400), en: String(m.c.en || '').slice(0, 400) } : undefined, ts: num(m.ts, 0) };
     }) : htmlToMsgs(it.html);
     return { id: String(it.id || newId()), title: String(it.title || 'แชท').slice(0, 60), msgs: msgs.slice(-400) };
   });
@@ -2315,7 +2315,7 @@ function msgEl(m){
   var crisis = t.mode === 'crisis' || /1323|1669/.test(m.t);
   var star = m.tr ? '<span class="star" style="color:' + riskColor(t.risk) + '" title="' + _t('ดาวของการตัดสินใจนี้') + '"></span>' : '';
   el.innerHTML = '<div class="who">' + star + '<span class="' + pn[1] + '">' + _t(pn[0]) + '</span><span class="tag">' + esc(tags.join(' · ')) + '</span></div>' +
-    '<div class="bubble">' + telify(key === 'COUNCIL' ? councilFmt(m.t) : fmt(m.t)) + '</div>' + (m.dz ? dzCard(m.dz) : '') + (m.img ? imgCard(m) : '') + (m.q ? quakeCard(m.q) : '') + (crisis ? crisisCard() : '') + twCard(t) + helpCard(m.l) +
+    '<div class="bubble">' + telify(key === 'COUNCIL' ? councilFmt(m.t) : fmt(m.t)) + '</div>' + (m.dz ? dzCard(m.dz) : '') + (m.img ? imgCard(m) : '') + (m.q ? quakeCard(m.q) : '') + (crisis ? crisisCard() : '') + twCard(t) + helpCard(m.l) + companionCard(m.c) +
     (m.tr && eqStrip(t) ? '<button type="button" class="eqs">' + eqStrip(t) + '</button>' : '') +
     (m.tr ? voteRow(m) : '');
   var eb = el.querySelector('.eqs'); if(eb) eb.addEventListener('click', function(){ showEq(m); });
@@ -2505,7 +2505,7 @@ async function send(textArg){
     if(d.error){ target.msgs.push({ r:'e', t:String(d.error), ts:Date.now() }); toast(String(d.error), true); }
     else{
       var reply = String(d.ai_response || d.pause_reason || d.message || '').replace(/\s*[—–-]+\s*(LYLA\s*[◈✦✧]?|VEGA\s*[◆◇]?|HALT\s*[⬡]?|สภา\s*KING\s*DIADEM\s*✦?)\s*$/gi, '').trim();
-      born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : mode==='council' ? 'COUNCIL' : 'LYLA'), tr: traceOf(d, mode, sentState ? state : null), l: d.help_links, q: d.quakes, ts:Date.now() };
+      born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : mode==='council' ? 'COUNCIL' : 'LYLA'), tr: traceOf(d, mode, sentState ? state : null), l: d.help_links, q: d.quakes, c: d.companion, ts:Date.now() };
       target.msgs.push(born);
     }
     Chat.persist(); refreshMe();
@@ -2556,6 +2556,11 @@ window.addEventListener('resize', fitRows, {passive:true});
 document.addEventListener('kd:lang', fitRows);
 $('#opts-btn').addEventListener('click', fitRows);
 fitRows();
+/* ชวนให้มีคนจริงข้างๆ (core/companion.py) — ขึ้นเมื่อคุยเรื่องหนักใจเรื่องเดิมถี่ผิดปกติ วันละครั้ง */
+function companionCard(c){
+  if(!c || !c.th) return '';
+  return '<div class="companion" role="note"><span aria-hidden="true">🤝</span><p>' + telify(esc(L2(c))) + '</p></div>';
+}
 function L2(o){ if(!o) return ''; return (window.KD_I18N && KD_I18N.get() !== 'th') ? (o.en || o.th) : (o.th || o.en); }
 /* แผ่นดินไหวจริงจาก USGS (core/quakes.py) — ขึ้นเมื่อผู้ใช้พูดถึงแผ่นดินไหว: เกิดจริงไหม ขนาด ห่างแค่ไหน */
 function quakeAgo(ms){ var m = Math.max(0, Math.round((Date.now() - ms) / 60000)); return m < 120 ? _t('{n} นาทีก่อน', { n: m }) : _t('{n} ชม.ก่อน', { n: Math.round(m / 60) }); }

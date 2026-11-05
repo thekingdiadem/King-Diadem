@@ -1217,3 +1217,8 @@ body.mode-dz .comp-row1,body.mode-img .comp-row1,body.mode-dz #starters,body.mod
 
 /* แผงขวา "อ่านเรื่องนี้": คอลัมน์ป้ายกว้างพอดีคำ ไม่ตัดบรรทัด */
 .ariya .ar-r{grid-template-columns:max-content 1fr;column-gap:14px}
+
+/* ชวนหาคนจริงข้างๆ — นุ่ม ไม่ตกใจ ไม่ใช่คำเตือน */
+.companion{display:flex;gap:10px;align-items:flex-start;margin:10px 0 0;padding:12px 14px;border-radius:var(--r-tile,16px);
+  background:color-mix(in srgb,var(--ink) 6%,transparent);border:1px solid var(--line-2);font-size:14px;line-height:1.6;color:var(--ink-2)}
+.companion p{margin:0}.companion span{font-size:18px;line-height:1.4}

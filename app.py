@@ -625,6 +625,30 @@ def _mkey(*parts) -> str:
     import hashlib, hmac as _h
     return _h.new((_SECRET_KEY or "kd").encode(), "|".join(map(str, parts)).encode(), hashlib.sha256).hexdigest()[:20]
 
+def _companion_check(identity: str, topics) -> dict | None:
+    """นับหัวข้อหนักใจ (ไม่เก็บข้อความ · who = HMAC) แล้วดูว่าควรชวนหาคนจริงไหม — พังเงียบ ไม่กระทบคำตอบ"""
+    try:
+        from datetime import date, timedelta
+        from core import companion as cp
+        from DATABASE.db import topic_days_add, topic_days_mark
+        heavy = cp.heavy_topics(topics)
+        if not heavy:
+            return None
+        today = _today()
+        since = (date.fromisoformat(today) - timedelta(days=cp.WINDOW_DAYS - 1)).isoformat()
+        forget = (date.fromisoformat(today) - timedelta(days=cp.KEEP_DAYS - 1)).isoformat()
+        who = _mkey("companion", identity)
+        hist = {d: c for d, c in topic_days_add(today, who, heavy, forget).items() if d >= since}
+        sig = cp.signal(hist, today)
+        if not sig or not topic_days_mark(today, who, cp.SHOWN):
+            return None
+        _metric("companion:" + sig["kind"])
+        return cp.message(sig)
+    except Exception as e:
+        print(f"⚠ companion: {type(e).__name__}: {str(e)[:120]}")
+        return None
+
+
 def _metric(name: str, key=None, amount: float = 0):
     try:
         from DATABASE.db import metric_inc, metric_once
@@ -2693,6 +2717,12 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         vm = "vega"
     result["persona"]    = _PERSONA.get(vm, "LYLA")
     result["voice_mode"] = vm
+
+    # สัญญาณการพึ่งพา (core/companion.py): คุยเรื่องหนักใจเรื่องเดิมถี่ผิดปกติ → ชวนให้มีคนจริงข้างๆ วันละครั้ง
+    if not k_assess.get("crisis"):
+        nudge = _companion_check(data["session_id"], k_topics)   # ตัวตนจากเซิร์ฟเวอร์ (_quota_identity) ไม่ใช่จาก client
+        if nudge:
+            result["companion"] = nudge
 
     result = _enrich_with_universal(result, payload)
 
