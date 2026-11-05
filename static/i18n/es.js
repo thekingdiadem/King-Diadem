@@ -1,6 +1,7 @@
 /* KING DIADEM — ภาษาสเปน ของหน้าเว็บ (Español) · โหลดเฉพาะตอนผู้ใช้เลือกภาษานี้ (static/i18n.js)
  * คำแปลเรียบเรียงจากคอลัมน์ภาษาอังกฤษใน i18n.js — ควรให้เจ้าของภาษาตรวจอีกรอบ */
 (window.KD_I18N_PACKS = window.KD_I18N_PACKS || {})["es"] = {
+"ท้องฟ้าคืนนี้ ↗": "El cielo de esta noche ↗",
 "เมนู": "Menú",
 "แชทใหม่": "Nuevo chat",
 "✧ แชทใหม่": "✧ Nuevo chat",
@@ -726,5 +727,13 @@
 "ระดับส้ม": "Alerta naranja",
 "ระดับแดง": "Alerta roja",
 "ข้อมูลจาก": "Datos de",
-"ในไทยติดตามกรมอุตุฯ และ ปภ. 1784": "en Tailandia sigue al Departamento Meteorológico y al DDPM 1784"
+"ในไทยติดตามกรมอุตุฯ และ ปภ. 1784": "en Tailandia sigue al Departamento Meteorológico y al DDPM 1784",
+"คู่มือเอาชีวิตรอด": "Guía de supervivencia",
+"ห่างกรุงเทพฯ {km} กม.": "a {km} km de Bangkok",
+"แผ่นดินไหว": "Terremoto",
+"น้ำท่วม": "Inundación",
+"คำตอบที่ช่วยได้ 👍 {u} · 👎 {d} ({r}%)": "Respuestas útiles 👍 {u} · 👎 {d} ({r}%)",
+"สร้างภาพไม่สำเร็จครั้งล่าสุด: {k}": "Último fallo de imagen: {k}",
+"ราคา/โควตาเปลี่ยนโดยไม่ใส่เหตุผล {n} ครั้ง — ใส่ POLICY_CHANGE_REASON ใน Render": "Precio/cuota cambiados sin motivo {n} veces — define POLICY_CHANGE_REASON en Render",
+"สุขภาพระบบ": "Salud del sistema"
 };

@@ -253,7 +253,7 @@
     var lon = ((S.tlon % 360) + 540) % 360 - 180;
     if (!CM.enter({ lon: lon, lat: S.tlat, zoom: Math.log(78271.517 * Math.cos(S.tlat * RAD) / mpp) / Math.LN2,
                     pitch: cam.tilt / RAD })) return false;
-    S.city = true; pointers = {}; gest = null; S.vlon = S.vlat = 0;
+    S.city = true; pointers = {}; gest = null; S.vlon = S.vlat = 0; hideHazard();
     S.tL = LMAX; sync();
     if (lab) lab.style.opacity = '0';
     if (hero) { hero.style.setProperty('--hero-a', '0'); hero.classList.add('zoomed'); }   // โลกหยุดวาดแล้ว — ต้องซ่อนหัวเรื่องเอง
@@ -287,6 +287,7 @@
     } else {
       gest = { pinch: false, x: e.clientX, y: e.clientY, touch: e.pointerType === 'touch', moved: 0 };
     }
+    if (ids.length === 2) hideHazard();
     hold(6000);
   });
   window.addEventListener('pointermove', function (e) {
@@ -301,6 +302,7 @@
       panBy(mx - gest.mx, my - gest.my, V); gest.mx = mx; gest.my = my;
       zoomAt(gest.L0 + Math.log(Math.hypot(a.x - b.x, a.y - b.y) / gest.d0) / Math.LN2, mx - r.left, my - r.top);
     } else {
+      if (gest.moved > 8) hideHazard();
       // นิ้วเดียวตอนมองทั้งโลก/วงโคจร: หมุนแนวนอนเท่านั้น (ลากแนวตั้งยังเลื่อนหน้าได้) · ซูมเข้าไปแล้วเลื่อนได้ทุกทิศ
       gest.moved += Math.abs(dx) + Math.abs(dy);
       var free = !gest.touch || S.tL > 1.02;
@@ -318,6 +320,8 @@
     if (!gest.pinch && p) {
       var now = performance.now();
       if (gest.moved < 8) {                                             // แตะ (ไม่ใช่ลาก) — แตะสองครั้ง = บินไปจุดนั้น
+        var rr = canvas.getBoundingClientRect(), hz = hazardAt(e.clientX - rr.left, e.clientY - rr.top);
+        if (hz) showHazard(hz); else hideHazard();
         if (now - lastTap < 320) { var r = canvas.getBoundingClientRect(); flyTo(e.clientX - r.left, e.clientY - r.top); lastTap = 0; }
         else lastTap = now;
       } else if (!calm() && hist.length > 1) {                          // ปล่อยนิ้ว = โลกไหลต่ออีกนิดแล้วหยุดเอง
@@ -477,6 +481,93 @@
       labelsDirty = true; kick();
     }).catch(function () { T.busy = false; });
   }
+  // ── ภัยจริงบนลูกโลก: แผ่นดินไหว (USGS) + พายุ น้ำท่วม ภูเขาไฟ ไฟป่า ภัยแล้ง (GDACS) ─────────────────────
+  // ฉายด้วย toScreen() เดียวกับชื่อเมือง จุดจึงอยู่ตรงพิกัดจริงทุกระดับซูม · ดึงใหม่ทุก 10 นาที · ดึงไม่ได้ = ไม่วาด (ไม่เดา)
+  // แชร์ให้แผนที่เมือง (city_map.js) ผ่าน window.KD_hazards — ซูมลงถึงระดับถนนก็ยังเห็นจุดเดิม
+  var HZ = { list: [], shown: [], at: 0 };
+  var HZ_STYLE = { EQ: ['#ffb066', 'quake'], TC: ['#7fe3ff', 'storm'], FL: ['#6fa8ff', 'flood'], VO: ['#ff6b5a', 'volcano'], WF: ['#ffcf5a', 'wildfire'], DR: ['#d9b98a', 'drought'] };
+  var HZ_TH = { EQ: 'แผ่นดินไหว', TC: 'พายุหมุนเขตร้อน', FL: 'น้ำท่วม', VO: 'ภูเขาไฟ', WF: 'ไฟป่า', DR: 'ภัยแล้ง' };
+  var HZ_EN = { EQ: 'Earthquake', TC: 'Tropical cyclone', FL: 'Flood', VO: 'Volcano', WF: 'Wildfire', DR: 'Drought' };
+  var HZ_LV = { green: ['ระดับเขียว', 'Green alert'], orange: ['ระดับส้ม', 'Orange alert'], red: ['ระดับแดง', 'Red alert'] };
+  function loadHazards() {
+    HZ.at = Date.now();
+    var get = function (u) { return fetch(u).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); };
+    var keep = function (r) { return r && r.ok ? (r.near || []).concat(r.world || []) : []; };
+    Promise.all([get('/api/quakes'), get('/api/hazards')]).then(function (res) {
+      var q = keep(res[0]).map(function (x) {
+        return { lat: x.lat, lon: x.lon, kind: 'EQ', level: x.mag >= 6.5 ? 'red' : x.mag >= 5 ? 'orange' : 'green',
+                 name: 'M' + x.mag + ' · ' + (x.place || ''), km: x.km, url: x.url };
+      });
+      var h = keep(res[1]).map(function (x) { return { lat: x.lat, lon: x.lon, kind: x.kind, level: x.level, name: x.name || x.country, km: x.km, url: x.url }; });
+      HZ.list = q.concat(h).filter(function (x) { return isFinite(x.lat) && isFinite(x.lon) && HZ_STYLE[x.kind]; }).slice(0, 40);
+      HZ.list.forEach(function (x) {
+        var la = x.lat * RAD, lo = x.lon * RAD;
+        x.w = [Math.cos(la) * Math.sin(lo), Math.sin(la), Math.cos(la) * Math.cos(lo)];
+        x.color = HZ_STYLE[x.kind][0];
+      });
+      window.KD_hazards = HZ.list;
+      try { window.dispatchEvent(new Event('kd-hazards')); } catch (e) {}
+      labelsDirty = true; kick();
+    });
+  }
+  // กล่องรายละเอียด (DOM ล้วน ไม่ต่อสตริง HTML) — แผนที่เมืองเรียกใช้ตัวเดียวกัน
+  window.KD_hazardCard = function (h) {
+    var d = document.createElement('div'), en = !THAI, b = document.createElement('b');
+    b.textContent = (en ? HZ_EN : HZ_TH)[h.kind] || '';
+    d.appendChild(b);
+    var lv = HZ_LV[h.level];
+    if (lv) d.appendChild(document.createTextNode(' · ' + lv[en ? 1 : 0]));
+    function line(t, tag) { d.appendChild(document.createElement('br')); var e = document.createElement(tag || 'span'); e.textContent = t; d.appendChild(e); return e; }
+    if (h.name) line(h.name);
+    if (h.km != null) line((en ? '{km} km from Bangkok' : 'ห่างกรุงเทพฯ {km} กม.').replace('{km}', Number(h.km).toLocaleString()), 'i');
+    d.appendChild(document.createElement('br'));
+    var st = HZ_STYLE[h.kind], g = document.createElement('a');
+    g.href = '/survival' + (en ? '?lang=en' : '') + '#' + (st ? st[1] : '');
+    g.target = '_blank'; g.rel = 'noopener'; g.textContent = '📘 ' + (en ? 'Survival guide' : 'คู่มือเอาชีวิตรอด');
+    d.appendChild(g);
+    if (h.url && /^https:\/\/(?:earthquake\.usgs\.gov|www\.gdacs\.org)\//.test(h.url)) {   // ลิงก์ไปแหล่งทางการเท่านั้น
+      var o = document.createElement('a');
+      o.href = h.url; o.target = '_blank'; o.rel = 'noopener'; o.textContent = h.kind === 'EQ' ? 'USGS' : 'GDACS';
+      d.appendChild(document.createTextNode(' · ')); d.appendChild(o);
+    }
+    return d;
+  };
+  var hzPop = document.createElement('div');
+  hzPop.className = 'hz-pop hide'; hzPop.setAttribute('role', 'status'); hzPop.setAttribute('aria-live', 'polite');
+  wrap.appendChild(hzPop);
+  function hideHazard() { hzPop.classList.add('hide'); }
+  function hazardAt(px, py) {
+    var best = null, bd = 1e9;
+    HZ.shown.forEach(function (m) { var d = Math.hypot(px - m.x, py - m.y); if (d < Math.max(22, m.k * 3) && d < bd) { bd = d; best = m; } });
+    return best;
+  }
+  function showHazard(m) {
+    hzPop.textContent = ''; hzPop.appendChild(window.KD_hazardCard(m.h));
+    var Wc = canvas.clientWidth, Hc = canvas.clientHeight;
+    hzPop.style.left = Math.round(clamp(m.x + 14, 8, Math.max(8, Wc - 240))) + 'px';
+    hzPop.style.top = Math.round(clamp(m.y - 10, 8, Math.max(8, Hc - 150))) + 'px';
+    hzPop.classList.remove('hide');
+  }
+  function drawHazards(V, Wc, Hc, boxes) {
+    HZ.shown = [];
+    if (Date.now() - HZ.at > 6e5) loadHazards();
+    if (!HZ.list.length) return;
+    var k0 = 2.6 + clamp(S.L, 0, 3) * .6;                               // ซูมลงใกล้ จุดใหญ่ขึ้นนิดหน่อย
+    lctx.save();
+    HZ.list.forEach(function (h) {
+      var p = toScreen(V, h.w);
+      if (!p || p[0] < -10 || p[0] > Wc + 10 || p[1] < -10 || p[1] > Hc + 10) return;
+      var far = clamp(2.4 - p[2] / (V.cam.D * 1.7), .35, 1);
+      var big = h.level === 'red' ? 1.6 : h.level === 'orange' ? 1.25 : 1, k = k0 * big;
+      lctx.globalAlpha = .55 * far; lctx.strokeStyle = h.color; lctx.lineWidth = 1.5;
+      lctx.beginPath(); lctx.arc(p[0], p[1], k * 2.2, 0, 6.283); lctx.stroke();
+      lctx.globalAlpha = far; lctx.fillStyle = h.color;
+      lctx.beginPath(); lctx.arc(p[0], p[1], k * .8, 0, 6.283); lctx.fill();
+      HZ.shown.push({ x: p[0], y: p[1], k: k, h: h });
+      boxes.push([p[0] - k * 2.4, p[1] - k * 2.4, p[0] + k * 2.4, p[1] + k * 2.4]);   // ชื่อเมืองหลบจุดภัย
+    });
+    lctx.restore();
+  }
   function labels() {
     // หัวเว็บค่อยๆ จางเมื่อซูมลง จนหายไปเมื่อเลยวงโคจร — แผนที่จะได้โล่ง
     var heroA = 1 - smooth((S.L - 1.08) / .55);
@@ -489,9 +580,11 @@
     if (lab.width !== Math.round(Wc * dpr)) { lab.width = Math.round(Wc * dpr); lab.height = Math.round(Hc * dpr); }
     lctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     lctx.clearRect(0, 0, Wc, Hc);
+    var V = view(), boxes = [];
+    drawHazards(V, Wc, Hc, boxes);
     var show = smooth((S.L - 1.5) / .4);
     if (show <= 0) return;
-    var V = view(), limit = Math.min(Math.round(26 + 14 * S.mag), Math.round(Wc * Hc / 6500)), boxes = [], drawn = 0;
+    var limit = Math.min(Math.round(26 + 14 * S.mag), Math.round(Wc * Hc / 6500)), drawn = 0;
     lctx.textBaseline = 'middle';
     lctx.shadowColor = 'rgba(0,0,0,.9)';
     for (var ti = 0; ti < TIERS.length && drawn < limit; ti++) {

@@ -1,6 +1,7 @@
 /* KING DIADEM — ภาษาเวียดนาม ของหน้าเว็บ (Tiếng Việt) · โหลดเฉพาะตอนผู้ใช้เลือกภาษานี้ (static/i18n.js)
  * คำแปลเรียบเรียงจากคอลัมน์ภาษาอังกฤษใน i18n.js — ควรให้เจ้าของภาษาตรวจอีกรอบ */
 (window.KD_I18N_PACKS = window.KD_I18N_PACKS || {})["vi"] = {
+"ท้องฟ้าคืนนี้ ↗": "Bầu trời đêm nay ↗",
 "เมนู": "Menu",
 "แชทใหม่": "Cuộc trò chuyện mới",
 "✧ แชทใหม่": "✧ Cuộc trò chuyện mới",
@@ -726,5 +727,13 @@
 "ระดับส้ม": "Cảnh báo cam",
 "ระดับแดง": "Cảnh báo đỏ",
 "ข้อมูลจาก": "Dữ liệu từ",
-"ในไทยติดตามกรมอุตุฯ และ ปภ. 1784": "tại Thái Lan theo dõi Cục Khí tượng và DDPM 1784"
+"ในไทยติดตามกรมอุตุฯ และ ปภ. 1784": "tại Thái Lan theo dõi Cục Khí tượng và DDPM 1784",
+"คู่มือเอาชีวิตรอด": "Hướng dẫn sinh tồn",
+"ห่างกรุงเทพฯ {km} กม.": "cách Bangkok {km} km",
+"แผ่นดินไหว": "Động đất",
+"น้ำท่วม": "Lũ lụt",
+"คำตอบที่ช่วยได้ 👍 {u} · 👎 {d} ({r}%)": "Câu trả lời hữu ích 👍 {u} · 👎 {d} ({r}%)",
+"สร้างภาพไม่สำเร็จครั้งล่าสุด: {k}": "Lần tạo ảnh lỗi gần nhất: {k}",
+"ราคา/โควตาเปลี่ยนโดยไม่ใส่เหตุผล {n} ครั้ง — ใส่ POLICY_CHANGE_REASON ใน Render": "Giá/hạn mức đổi không lý do {n} lần — đặt POLICY_CHANGE_REASON trong Render",
+"สุขภาพระบบ": "Sức khỏe hệ thống"
 };

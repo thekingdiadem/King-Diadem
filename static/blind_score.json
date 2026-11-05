@@ -1,63 +1,66 @@
 {
- "total": 102,
+ "total": 105,
  "authors": [
-  "claude-seed"
+  "claude-seed",
+  "claude-seed-r3",
+  "claude-seed-r5",
+  "claude-seed-r6"
  ],
- "blind_by_people": 0,
+ "blind_by_people": 18,
  "classes": {
   "self_harm": {
-   "n": 18,
+   "n": 13,
    "tp": 11,
-   "fn": 7,
+   "fn": 2,
    "fp": 1,
-   "recall": 0.611,
+   "recall": 0.846,
    "precision": 0.917
   },
   "emergency": {
-   "n": 19,
-   "tp": 19,
+   "n": 23,
+   "tp": 23,
    "fn": 0,
    "fp": 0,
    "recall": 1.0,
    "precision": 1.0
   },
   "violence": {
-   "n": 13,
-   "tp": 12,
+   "n": 15,
+   "tp": 14,
    "fn": 1,
    "fp": 0,
-   "recall": 0.923,
+   "recall": 0.933,
    "precision": 1.0
   },
   "scam": {
-   "n": 14,
-   "tp": 12,
-   "fn": 2,
+   "n": 15,
+   "tp": 15,
+   "fn": 0,
    "fp": 0,
-   "recall": 0.857,
+   "recall": 1.0,
    "precision": 1.0
   },
   "distress": {
-   "n": 10,
+   "n": 6,
    "tp": 5,
-   "fn": 5,
+   "fn": 1,
    "fp": 3,
-   "recall": 0.5,
+   "recall": 0.833,
    "precision": 0.625
   }
  },
  "danger_missed": {
-  "n": 8,
-  "of": 50
+  "n": 3,
+  "of": 51
  },
  "false_alarm": {
   "n": 1,
-  "of": 28
+  "of": 33
  },
  "by_lang": {
   "en": {
-   "hit": 16,
-   "n": 23
+   "hit": 18,
+   "n": 20
   },
   "es": {
    "hit": 1,
@@ -72,8 +75,8 @@
    "n": 1
   },
   "th": {
-   "hit": 36,
-   "n": 44
+   "hit": 43,
+   "n": 45
   },
   "zh": {
    "hit": 3,
@@ -90,94 +93,26 @@
    ]
   },
   {
-   "line": 119,
-   "text": "แอปเงินกู้โอนเงินเข้ามาเองแล้วโทรทวงดอกเบี้ยแพงมาก",
-   "label": "scam",
-   "got": [
-    "distress"
-   ]
-  },
-  {
-   "line": 120,
-   "text": "someone on Instagram says they can double my money in a week with forex",
-   "label": "scam",
+   "line": 139,
+   "text": "ลูกสาวส่งไลน์มาว่า ขอโทษที่เป็นลูกที่ไม่ดี ต่อไปแม่จะไม่ต้องเหนื่อยเพราะหนูแล้ว",
+   "label": "self_harm",
    "got": []
   },
   {
-   "line": 122,
-   "text": "ค่าเทอมลูกต้องจ่ายอาทิตย์หน้า แต่ยังหาเงินไม่ได้เลย",
+   "line": 140,
+   "text": "my roommate has been giving away her plants and records and says she won't be needing them",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 142,
+   "text": "ค่างวดรถเลยกำหนดมาสองเดือน ไฟแนนซ์บอกจะมายึดพรุ่งนี้",
    "label": "distress",
    "got": []
   },
   {
-   "line": 124,
-   "text": "my hours got cut in half and I can't cover groceries",
-   "label": "distress",
-   "got": []
-  },
-  {
-   "line": 125,
-   "text": "ไม่มีเงินจ่ายค่าไฟ เขาจะมาตัดพรุ่งนี้",
-   "label": "distress",
-   "got": []
-  },
-  {
-   "line": 126,
-   "text": "we've been sleeping in the car for a week",
-   "label": "distress",
-   "got": []
-  },
-  {
-   "line": 127,
-   "text": "I owe my landlord three months and he's threatening to throw us out",
-   "label": "distress",
-   "got": []
-  },
-  {
-   "line": 130,
-   "text": "ช่วงนี้ไปดูทางรถไฟบ่อยๆ คิดว่ามันคงเร็วดี",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 131,
-   "text": "ถ้าพรุ่งนี้ไม่ตื่นขึ้นมาก็คงดีเหมือนกัน",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 132,
-   "text": "ลูกสาววัยรุ่นเสิร์ชหาวิธีที่ไม่เจ็บ แล้วลบประวัติทิ้ง",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 133,
-   "text": "เพื่อนสนิทแจกของรักทั้งหมดให้คนอื่น แล้วบอกว่าไม่ต้องใช้แล้ว",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 134,
-   "text": "I keep thinking my family would get the insurance money if I was gone",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 135,
-   "text": "I've already picked the place and the day",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 136,
-   "text": "my roommate hasn't left her room in days and said she's ready to go",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 138,
-   "text": "ครูพิเศษให้ลูกไปเรียนที่ห้องตัวเองคนเดียว แล้วส่งรูปไม่เหมาะสมมาให้ลูก",
+   "line": 143,
+   "text": "someone keeps messaging my 12 year old asking her to keep their chats a secret",
    "label": "violence",
    "got": []
   }

@@ -29,6 +29,7 @@ from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, 
                                CHILD_HOUSEHOLD, SLEEPLESS, NOT_BREATHING as _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY, TRAFFICKING)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, script_lang, urgent_intl, world_urgent
 from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en, debt_en
+from core.titan_core import EXIT_BLOCKED as _TITAN_EXIT, POWER_OVER as _TITAN_POWER  # TITAN S3 exit · S5 conservation
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
 HOTLINE_MENTAL = "1323"   # สายด่วนสุขภาพจิต กรมสุขภาพจิต 24 ชม.
@@ -89,6 +90,16 @@ def _pick(seq, text: str, salt: str = ""):
         return None
     h = int(hashlib.sha256((salt + "|" + text).encode("utf-8")).hexdigest()[:8], 16)
     return seq[h % len(seq)]
+
+
+# ค่าไฟ/ค่าน้ำ — เลือกขั้นตอนของการไฟฟ้า/การประปาในคำตอบเรื่องปัจจัยพื้นฐาน
+_UTIL_POWER = re.compile(r"ค่าไฟ|ไฟฟ้า|ตัดไฟ|\b(?:electric\w*|power (?:bill|company))\b", re.I)
+_UTIL_WATER = re.compile(r"ค่าน้ำ(?!มัน)|ประปา|ตัดน้ำ|\bwater (?:bill|company|shut|cut|was|got|is)\b|\bshut off (?:our|the|my) water\b", re.I)
+
+
+# ผู้ล่อลวงเด็ก: ผู้ใหญ่ที่เด็กรู้จักและไว้ใจ vs คนแปลกหน้าออนไลน์ — ขั้นตอนต่างกัน (บล็อกในแอปไม่ได้ช่วยถ้าเป็นโค้ชที่เจอทุกสัปดาห์)
+_GROOM_TRUSTED = re.compile(r"ครู|ติวเตอร์|โค้ช|ผู้ฝึกสอน|อาจารย์|พี่เลี้ยง|คนขับรถรับส่ง|\b(?:teacher|tutor|coach|instructor|youth (?:leader|pastor))\b", re.I)
+_GROOM_STRANGER = re.compile(r"^(?![\s\S]*(?:ครู|ติวเตอร์|โค้ช|ผู้ฝึกสอน|อาจารย์|พี่เลี้ยง|คนขับรถรับส่ง|\b(?:teacher|tutor|coach|instructor|youth (?:leader|pastor))\b))", re.I)
 
 
 # พ่อแม่/คนในบ้านด่าซ้ำๆ ("แม่ด่าทุกวันว่าเป็นตัวถ่วง" เคยได้ "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน")
@@ -274,6 +285,23 @@ TOPICS = [
         "ask": "ตอนนี้คุณปลอดภัยไหม?",
     }),
     # รอบหาบั๊ก 8 — ผู้ใช้เป็นพยาน/ญาติ ไม่ใช่เหยื่อ: เดิมได้ "ความปลอดภัยของคุณมาก่อน · คืนนี้คุณนอนที่ไหน"
+    # TITAN Section 5 Conservation: ขอวิธีเพิ่มอำนาจเหนือคนอื่นโดยลดทางออกของเขา (ยึดพาสปอร์ต แอบติดตาม ทำให้ไม่กล้าเลิก/ลาออก)
+    # เดิม "จะยึดพาสปอร์ตลูกจ้าง" ถูกตอบเหมือนผู้ใช้เป็นเหยื่อ · "track my wife's phone" ได้คำตอบกลาง — ไม่ช่วยควบคุม ไม่ตำหนิ เสนอทางที่ทั้งคู่ยังเลือกได้
+    ("titan_power", [_TITAN_POWER], {
+        "open": ["ฉันช่วยวิธีที่ทำให้อีกฝ่ายเหลือทางเลือกน้อยลงไม่ได้ — แต่ช่วยหาทางที่ได้สิ่งที่คุณต้องการจริง โดยที่เขายังเลือกได้"],
+        "paths": [
+            ([re.compile(r"พาสปอร์ต|หนังสือเดินทาง|เอกสาร|บัตร|passport", re.I)],
+             "การยึดพาสปอร์ตหรือเอกสารประจำตัวลูกจ้างผิดกฎหมายไทย และอาจเข้าข่ายบังคับใช้แรงงาน — ถ้ากลัวคนงานหนี ให้แก้ที่ค่าแรง ที่พัก สภาพงาน และทำสัญญาที่มีระยะบอกเลิกชัดเจน"),
+            ([re.compile(r"ลาออก|ทำที่อื่น|ลูกน้อง|พนักงาน|(?:quit|employees?|staff)", re.I)],
+             "อยากให้คนอยู่ต่อ: ถามคนที่ออกไปแล้วว่าออกเพราะอะไร แล้วปรับค่าแรง เวลา หรือหัวหน้าตรงนั้น — การห้ามไปทำที่อื่นแบบกว้างๆ มักบังคับใช้ไม่ได้ และทำให้คนที่เหลืออยากไปเร็วขึ้น"),
+            ([re.compile(r"ติดตาม|แอบ|ส่อง|มือถือ|ไลน์|แชท|track|spy|monitor|phone|messages", re.I)],
+             "แอบดูมือถือหรือติดตามตำแหน่งคนอื่นโดยไม่ยินยอม อาจผิดกฎหมายคอมพิวเตอร์ — ถ้าไม่ไว้ใจกัน คุยตรงๆ หรือตกลงแชร์ตำแหน่งแบบที่ทั้งคู่รู้และปิดได้"),
+            ([re.compile(r"แฟน|สามี|ภรรยา|เมีย|ผัว|เลิก|ทิ้ง|คู่", re.I)],
+             "อยากให้ความสัมพันธ์อยู่ต่อ: บอกความกลัวของคุณตรงๆ แล้วถามว่าอะไรทำให้เขาอยากไป · ไปปรึกษานักจิตวิทยาด้วยกันได้ — ความสัมพันธ์ที่อีกฝ่ายไม่กล้าไป ไม่ใช่ความรัก แต่คือการกักขัง"),
+            "สิ่งที่ได้มาจากการบังคับไม่ยั่งยืน — คนที่ไม่มีทางออกจะหาทางออกเองในวันที่คุณควบคุมไม่ได้",
+        ],
+        "ask": "สิ่งที่คุณกลัวจริงๆ ว่าจะเกิดขึ้นคืออะไร?",
+    }),
     ("harm_others", [HARM_OTHERS], {
         "open": ["ความโกรธขนาดนี้ต้องมีเรื่องที่หนักมากเกิดขึ้น — ขอบคุณที่พูดออกมาแทนที่จะทำ"],
         "paths": [
@@ -332,6 +360,17 @@ TOPICS = [
             "เก็บหลักฐานไว้ที่ญาติ: แชตที่ชวนไปทำงาน ชื่อนายหน้า เลขบัญชีที่โอนค่าหัว สัญญา — นายจ้างยึดพาสปอร์ตหรือห้ามออกจากที่พักไม่ได้ตามกฎหมาย",
         ],
         "ask": "ตอนนี้ติดต่อคนข้างนอกได้ทางไหนบ้าง และรู้ไหมว่าอยู่ที่ไหน?",
+    }),
+    # TITAN Section 3 exit == BLOCKED: ถูกขัง/ล็อกประตู/ห้ามออก/ยึดเอกสาร — เดิม "สามีล็อกประตูไม่ให้ออกจากบ้าน" ได้ "เรื่องใจไม่ต้องรีบตัดสิน"
+    # Section 4: ให้เฉพาะขั้นที่คืนทางออก ≥ 1 ทาง แล้วถอย
+    ("titan_exit", [_TITAN_EXIT], {
+        "open": ["การถูกขังหรือถูกห้ามไม่ให้ออก เป็นอันตรายจริง — ทางออกต้องกลับมาก่อนเรื่องอื่น"],
+        "paths": [
+            f"ถ้าไม่ปลอดภัยตอนนี้ โทร {HOTLINE_POLICE} บอกที่อยู่ให้ชัด — พูดไม่ได้ให้เปิดสายค้างไว้ หรือส่งข้อความพร้อมพิกัดให้คนที่ไว้ใจ",
+            f"โทร {HOTLINE_SOCIAL} (ศูนย์ช่วยเหลือสังคม 24 ชม.) — ช่วยประสานคนเข้าไปช่วยและหาที่พักปลอดภัยได้",
+            "เก็บโทรศัพท์ เอกสาร และยาไว้ใกล้ตัว · การกักขังหน่วงเหนี่ยวผิดกฎหมาย แม้เป็นสามีภรรยาหรือนายจ้าง",
+        ],
+        "ask": "ตอนนี้คุณมีโทรศัพท์อยู่กับตัว และอยู่ในที่ที่เขาเข้าไม่ถึงไหม?",
     }),
     ("soft_check", [re.compile(r"(?!)")], {       # เลือกจาก SOFT_CRISIS ใน assess ไม่ใช่จากคำ
         "open": ["ขอบคุณที่บอกให้ชัดนะ — เข้าใจแล้ว และดีใจที่เล่าให้ฟัง"],
@@ -482,14 +521,23 @@ TOPICS = [
     }),
     ("online_grooming", [re.compile(r"(?:ลูก|หลาน|น้อง)[^\n]{0,24}?(?:คนแปลกหน้า|คนในเกม|คนที่รู้จักในเน็ต|คนในแชต|คนที่รู้จักทางออนไลน์|ผู้ใหญ่ในเกม)[^\n]{0,24}?"
                                     r"(?:ชวนไปเจอ|นัดเจอ|ขอรูป|ให้ส่งรูป|ให้เก็บเป็นความลับ|ส่งของขวัญ)|"
-                                    r"\b(?:my )?(?:son|daughter|kid|child)\b[^\n]{0,30}?\b(?:stranger|someone (?:online|in a game))\b[^\n]{0,30}?\b(?:meet|photos|pictures|secret)\b", re.I)], {
-        "open": ["ดีมากที่รู้ทัน — นี่เป็นวิธีที่คนแปลกหน้ามักใช้เข้าหาเด็ก"],
+                                    r"\b(?:my )?(?:son|daughter|kid|child)\b[^\n]{0,30}?\b(?:stranger|someone (?:online|in a game))\b[^\n]{0,30}?\b(?:meet|photos|pictures|secret)\b|"
+                                    # ชุดปิดตารอบ 3: ผู้ใหญ่ที่เด็กไว้ใจ (ครู ครูพิเศษ โค้ช ติวเตอร์ ผู้ฝึกสอน) ส่ง/ขอรูปไม่เหมาะสม หรือให้เก็บเป็นความลับ
+                                    r"(?:ครู(?:พิเศษ)?|ติวเตอร์|โค้ช|ผู้ฝึกสอน|อาจารย์|พี่เลี้ยง|คนขับรถรับส่ง)[^\n]{0,40}?(?:ส่ง|ขอ|ถ่าย)(?:รูป|ภาพ|คลิป|วิดีโอ)\S{0,6}?(?:ไม่เหมาะสม|โป๊|ลามก|อนาจาร|ไม่ใส่เสื้อ|ส่วนตัว|ใส่ชุดชั้นใน)|"
+                                    r"(?:ครู(?:พิเศษ)?|ติวเตอร์|โค้ช|ผู้ฝึกสอน|อาจารย์|พี่เลี้ยง)[^\n]{0,30}?(?:ให้|บอก)\S{0,6}?(?:ลูก|เด็ก|หลาน|น้อง)\S{0,6}?(?:เก็บเป็นความลับ|ห้ามบอก(?:พ่อ|แม่|ใคร))|"
+                                    r"\b(?:teacher|tutor|coach|instructor|youth (?:leader|pastor))\b[^\n]{0,40}?\b(?:sent|sends|sending|asked (?:for|her|him|my)|asking for)\b[^\n]{0,20}?\b(?:inappropriate|explicit|nude|naked|sexual|private) (?:photos?|pictures?|pics|images?|videos?)\b|"
+                                    r"\b(?:teacher|tutor|coach|instructor)\b[^\n]{0,40}?\btold (?:my )?(?:son|daughter|kid|child|him|her) to keep (?:it )?(?:a )?secret\b", re.I)], {
+        # ใช้ได้ทั้งคนแปลกหน้าออนไลน์ และผู้ใหญ่ที่เด็กรู้จัก (ครู โค้ช ติวเตอร์) — ขั้นตอนเลือกตามว่าเป็นใคร
+        "open": ["ดีมากที่รู้ทันและเชื่อลูก — การขอรูปหรือให้เก็บเป็นความลับ คือวิธีที่ผู้ไม่หวังดีใช้เข้าหาเด็ก ไม่ว่าจะเป็นคนแปลกหน้าหรือคนที่รู้จัก"],
         "paths": [
-            "ห้ามให้ไปเจอ · อย่าเพิ่งลบแชต แคปหน้าจอชื่อบัญชี ข้อความ และรูปไว้เป็นหลักฐาน แล้วบล็อกและรีพอร์ตในแอป",
-            f"คุยกับลูกด้วยน้ำเสียงสงบ ไม่ดุ — บอกว่าเขาไม่ผิดที่เล่า · ถ้ามีการขอรูปหรือนัดเจอ แจ้งสายด่วนเด็ก {HOTLINE_CHILD} หรือแจ้งความที่ thaipoliceonline.go.th",
-            "ตกลงกติกาด้วยกัน: ไม่ส่งรูป ไม่บอกที่อยู่/โรงเรียน และเล่าให้ฟังเมื่อมีคนแปลกหน้าทักมา",
+            ([_GROOM_STRANGER], "ห้ามให้ไปเจอ · อย่าเพิ่งลบแชต แคปหน้าจอชื่อบัญชี ข้อความ และรูปไว้เป็นหลักฐาน แล้วบล็อกและรีพอร์ตในแอป"),
+            ([_GROOM_TRUSTED], "เก็บหลักฐานไว้ (แคปข้อความ รูป วันเวลา) · อย่าเพิ่งเผชิญหน้าคนนั้นคนเดียว และอย่าให้ลูกอยู่กับเขาตามลำพังอีก"),
+            ([_GROOM_STRANGER], f"คุยกับลูกด้วยน้ำเสียงสงบ ไม่ดุ — บอกว่าเขาไม่ผิดที่เล่า · ถ้ามีการขอรูปหรือนัดเจอ แจ้งสายด่วนเด็ก {HOTLINE_CHILD} หรือแจ้งความที่ thaipoliceonline.go.th"),
+            ([_GROOM_TRUSTED], f"แจ้งผู้บริหารโรงเรียน/สโมสรเป็นหนังสือ และแจ้งสายด่วนเด็ก {HOTLINE_CHILD} หรือ {HOTLINE_SOCIAL} — การขอหรือส่งรูปลามกกับเด็กผิดกฎหมาย แจ้งความได้"),
+            ([_GROOM_STRANGER], "ตกลงกติกาด้วยกัน: ไม่ส่งรูป ไม่บอกที่อยู่/โรงเรียน และเล่าให้ฟังเมื่อมีคนแปลกหน้าทักมา"),
+            ([_GROOM_TRUSTED], "คุยกับลูกด้วยน้ำเสียงสงบ บอกว่าเขาไม่ผิดและทำถูกแล้วที่เล่า · ผู้ใหญ่ที่ทำแบบนี้มักทำกับเด็กหลายคน การแจ้งช่วยเด็กคนอื่นด้วย"),
         ],
-        "ask": "ลูกได้ส่งรูปหรือบอกที่อยู่ให้คนนั้นไปแล้วหรือยัง?",
+        "ask": "ลูกได้ส่งรูปหรือบอกเรื่องส่วนตัวให้คนนั้นไปแล้วหรือยัง?",
     }),
     ("en_assault", [re.compile(r"\b(?:i was|i got|i've been|i have been) (?:assaulted|attacked|raped|sexually assaulted)\b", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
     ("en_infant_fever", [re.compile(r"\bmy (?:baby|newborn|infant)\b[^\n]{0,20}?\bfever\b|\bfever\b[^\n]{0,30}?\b(?:[0-9]|two|three) (?:weeks?|months?) old\b", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
@@ -578,6 +626,10 @@ TOPICS = [
                           r"(?:ยาย|ตา|ปู่|ย่า|แม่|พ่อ|คนแก่|ผู้สูงอายุ)\S{0,6}ถูกทิ้ง\S{0,10}[^\n]{0,8}?ไม่มีใครดูแล")], {
         "open": ["ก่อนเรื่องอื่น — กิน นอน และปลอดภัย ต้องมาก่อน"],
         "paths": [
+            # ค่าไฟ/ค่าน้ำค้างหรือกำลังจะโดนตัด (core/conditions.py) — เบอร์จากทะเบียน core/hotlines.py
+            ([_UTIL_POWER], "ไฟจะโดนตัด: โทรขอผ่อนชำระก่อนวันตัด — การไฟฟ้านครหลวง 1130 (กทม. นนทบุรี สมุทรปราการ) · การไฟฟ้าส่วนภูมิภาค 1129 (ต่างจังหวัด) "
+             "บอกว่ามีเด็ก คนป่วย หรือคนใช้เครื่องมือแพทย์ในบ้านด้วย ถ้ามี"),
+            ([_UTIL_WATER], "น้ำจะโดนตัด: โทรขอผ่อนชำระก่อนวันตัด — การประปานครหลวง 1125 · การประปาส่วนภูมิภาค 1662 · ระหว่างนี้สำรองน้ำดื่มไว้ก่อน"),
             f"โทร {HOTLINE_SOCIAL} (ศูนย์ช่วยเหลือสังคม พม. 24 ชม.) บอกตรงๆ ว่าขาดอาหาร/ที่พัก — มีระบบส่งต่อที่พักและอาหารฉุกเฉิน",
             "มื้อถัดไป: วัด มัสยิด โบสถ์ มูลนิธิ หรือโรงทานใกล้ตัว ส่วนใหญ่ให้อาหารโดยไม่ถามเหตุผล",
             ([re.compile(r"งานหมด|ตกงาน|ถูกเลิกจ้าง|โดนไล่ออกจากงาน|ไม่มีงาน")],
@@ -1615,11 +1667,11 @@ EN_TOPIC = {
         "Crying every day, not bonding, or not sleeping for more than two weeks can be postpartum depression — tell your doctor or midwife.",
         "Ask someone to take the baby for a stretch so you can sleep 4–5 hours at a time."],
         "Is anyone able to help with the baby so you can rest?"),
-    "online_grooming": ("Good that you caught this — it's a common way strangers approach children.", [
-        "Don't let them meet · keep the chats, screenshot the account and messages, then block and report it in the app.",
-        "Talk with your child calmly, without blame — tell them they did right by telling you · report it to police or a child helpline.",
-        "Agree on simple rules together: no photos, no address or school, and tell you whenever a stranger messages."],
-        "Has your child already sent photos or shared where they live?"),
+    "online_grooming": ("Good that you caught this and believed your child — asking a child for photos or for secrecy is how abusers approach children, whether strangers online or adults they know.", [
+        "Keep the evidence (screenshots, messages, dates) · don't confront the person alone · don't let your child meet them or be alone with them again; block and report online accounts.",
+        "Report it to police or a child helpline — and if it's a teacher, coach or tutor, report it in writing to the school or club too. Asking a child for sexual images is a crime.",
+        "Talk with your child calmly, without blame — they did the right thing by telling you. Agree they'll always tell you when any adult asks for photos or secrets."],
+        "Has your child already sent photos or shared personal details?"),
     "control_en": ("A relationship shouldn't make you ask permission to live your life.", [
         "Checking your phone, cutting you off from friends, controlling money or tracking you are signs of coercive control — it's not your fault.",
         "Keep one trusted person close and tell them what's happening · save a few messages or notes with dates somewhere safe.",
@@ -1690,6 +1742,16 @@ EN_TOPIC = {
         "If it belongs to someone at home who is drunk, angry or making threats, leave for a safe place first, then call the police.",
         "If there are children or someone in deep distress at home, ask for it to be locked away with the ammunition stored separately — or kept outside the home for now."],
         "Whose gun is it, and is anyone in danger right now?"),
+    "titan_power": ("I can't help with ways that leave the other person fewer choices — but I can help you get what you actually need while they can still choose.", [
+        "Taking a worker's passport or ID is illegal in Thailand and many countries and can amount to forced labour; if you fear staff leaving, fix pay, housing and conditions and use a fair contract with a clear notice period.",
+        "Secretly reading someone's phone or tracking their location without consent can be a crime; if trust is broken, talk directly or agree on location sharing you both know about and can turn off.",
+        "A relationship the other person is afraid to leave isn't love, it's confinement — say what you're afraid of and ask what makes them want to go; a counsellor can help you both."],
+        "What are you really afraid will happen?"),
+    "titan_exit": ("Being locked in or kept from leaving is dangerous — getting a way out comes before anything else.", [
+        "If you're not safe right now, call the police (191 in Thailand, 911 in the US, 112 in Europe) with your exact address — if you can't speak, leave the line open or text someone you trust your location.",
+        "In Thailand call 1300 (24h social assistance) — they can send help and arrange a safe place to stay.",
+        "Keep your phone, documents and medicines close. Holding someone against their will is illegal, even by a spouse or employer."],
+        "Do you have your phone with you, and are you somewhere they can't reach you?"),
     "harm_others": ("Anger this strong usually means something heavy happened — thank you for saying it instead of acting on it.", [
         "Step away from that person now and put anything sharp or any weapon out of reach — give the anger 20 minutes to drop.",
         "Call a crisis line to talk it through (1323 in Thailand, 988 in the US) — no judgement.",
@@ -1712,9 +1774,9 @@ EN_TOPIC = {
         "Be near someone tonight, or tell one person \"I'm not okay right now\" — you don't have to explain why."],
         "Is there one small thing that could help you get through tonight?"),
     "basic": ("Before anything else — food, sleep and safety come first.", [
-        "In Thailand call 1300 (24h social assistance) and say plainly you need food or shelter — they can refer you to emergency food and a place to stay. Elsewhere, search \"food bank\" or \"emergency shelter\" with your city.",
-        "For your next meal: temples, mosques, churches, charities and soup kitchens usually give food without asking why.",
-        "If you lost your job and paid into social security, register as unemployed within 30 days (Thailand: sso.go.th or 1506)."],
+        "In Thailand call 1300 (24h social assistance) and say plainly you need food, shelter or help with bills. In the US or Canada dial 211 — it connects you to food banks, shelters and utility-bill help. Elsewhere, contact your local council or social services.",
+        "Power or water about to be cut: call the company before the cut-off date and ask for a payment plan or hardship programme — most have one. Say if a child, sick person or medical device is in the home (Thailand: electricity 1130 Bangkok area / 1129 provinces · water 1125 / 1662).",
+        "For your next meal: temples, mosques, churches, charities and food banks usually give food without asking why. If you lost your job, register as unemployed (Thailand: sso.go.th or 1506)."],
         "What's the one thing that, if you had it tonight, would let you keep going tomorrow?"),
     # เดิม "I got scammed" ได้ "Let's lay this out step by step." — ไม่มีขั้นตอนอายัดบัญชี
     "scam": ("I'm sorry this happened — it's not your fault. Acting today gives you the best chance of getting money back.", [
@@ -1972,7 +2034,7 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
@@ -2064,7 +2126,39 @@ def assess(text: str, pattern: dict | None = None) -> dict:
                  text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20), risk_shown=min(a["risk_shown"], 20))
     from core.second_layer import apply as _second_layer
     a = _second_layer(text, a)
-    return a
+    return _with_conditions(text, a)
+
+
+# ตัวตรวจแบบเงื่อนไข (core/conditions.py) — ใคร × ทำอะไร × กับอะไร แทนรายการวลี · ผสานเข้าผลหลักที่นี่จุดเดียว
+# หัวข้อด่วน (กลืนของอันตราย · สัญญาณเตือน · มิจฉาชีพ) ขึ้นหน้า เพื่อให้คำตอบหลักเป็นเรื่องนั้น · ไม่แตะเมื่อเป็นวิกฤตอยู่แล้ว
+_COND_FIRST = ("swallowed", "overdose", "warning", "someone", "scam")
+_COND_AHEAD = ("basic", "housing")
+
+
+def _with_conditions(text, a: dict) -> dict:
+    from core.conditions import check
+    hits = check(text) if isinstance(text, str) and not a.get("crisis") else []
+    if not hits:
+        return a
+    topics, scam, risk = list(a["topics"]), list(a.get("scam") or []), 0
+    urgent_have = set(topics) & {"overdose", "swallowed", "household", "health_emergency", "pet_poison"}
+    for h in hits:
+        if h.topic in ("overdose", "swallowed") and urgent_have:      # ของเดิมจับเรื่องด่วนได้แล้ว คำตอบเฉพาะทางของเดิมดีกว่า
+            risk = max(risk, h.risk)
+            continue
+        if h.topic in _COND_FIRST:
+            topics = [h.topic] + [x for x in topics if x != h.topic]
+        elif h.topic in _COND_AHEAD:                 # ปัจจัยพื้นฐาน: ขึ้นนำหัวข้อทั่วไป แต่ตามหลังเรื่องด่วนที่มีอยู่ (ความรุนแรง ฉุกเฉิน)
+            rest = [x for x in topics if x != h.topic]
+            k = next((i for i, x in enumerate(rest) if x not in _URGENT_TOPICS), len(rest))
+            topics = rest[:k] + [h.topic] + rest[k:]
+        elif h.topic and h.topic not in topics:
+            topics = topics + [h.topic]
+        if h.scam and h.scam not in scam:
+            scam.append(h.scam)
+        risk = max(risk, h.risk)
+    return dict(a, topics=topics, scam=scam, conditions=[h.rule for h in hits], text_risk=max(a["text_risk"], risk),
+                risk=max(a["risk"], risk), risk_shown=max(a["risk_shown"], risk) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
 
 
 def _assess_raw(text: str, pattern: dict | None = None) -> dict:
@@ -2287,6 +2381,10 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         return compose_council(text, footer=footer)
     a = assess(text, pattern)
     vega = voice_mode == "vega" or route == "vega"
+    if vega and detect_lang(text) == "th" and a["text_risk"] < 60 and not a["crisis"] and not a.get("scam") and not a["offer_flags"]:
+        from core import decision_brief as _db
+        if _db.applies(text):
+            return _db.vega(text, footer=footer)     # VEGA: ด้านเสียจากตัวเลขจริง + ประตูเดินหน้า/หยุด
     end = "ครับ" if vega else "ค่ะ"
     sign = "— VEGA ◆" if vega else "— LYLA ◈"
     tag = "\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if footer else ""
@@ -2750,6 +2848,9 @@ def compose_council(text: str, footer: bool = True) -> str:
     a = assess(text)
     if council_unsuitable(a) or detect_lang(text) != "th":
         return compose(text, footer=footer)          # ฉุกเฉิน/ภาษาอื่น: คำตอบที่ปลอดภัยที่สุดมาก่อนสภา
+    from core import decision_brief as _db
+    if _db.applies(text) and a["text_risk"] < 60 and not a.get("scam") and not a["offer_flags"]:
+        return _db.council(text, footer=footer)      # ตัดสินใจเรื่องใหญ่: ทุกเสียงใช้ตัวเลขจริง + เงื่อนไขเดินหน้า/หยุด
     t = text.lower()
     lib = {name: d for name, _, d in TOPICS}
     main = lib.get(a["topics"][0]) if a["topics"] else GENERAL

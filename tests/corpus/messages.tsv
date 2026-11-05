@@ -619,3 +619,36 @@ el agua sube y no podemos salir a jugar	none	ไม่ใช่ภัย
 eu queria dormir e não acordar mais	crisis	วิกฤต
 my dad was cutting wood and the blood is soaking through every towel	topic:health_emergency;risk>=80	ฉุกเฉิน
 el niño se cayó a la piscina y no abre los ojos	topic:health_emergency;intl:medical;risk>=80	ฉุกเฉิน
+# ย้ายมาจากชุดปิดตา รอบ 3 หลังแก้ทั้งกลุ่ม: คิดวนเรื่องวิธี · ถ้าไม่ตื่นก็คงดี · เงินประกัน · สัญญาณจากคนใกล้ตัว · ผู้ใหญ่ล่อลวงเด็ก (tests/test_veiled_signs_r3.py)
+ช่วงนี้ไปดูทางรถไฟบ่อยๆ คิดว่ามันคงเร็วดี	crisis	วิกฤต
+ถ้าพรุ่งนี้ไม่ตื่นขึ้นมาก็คงดีเหมือนกัน	crisis	วิกฤต
+ลูกสาววัยรุ่นเสิร์ชหาวิธีที่ไม่เจ็บ แล้วลบประวัติทิ้ง	topic:someone	คนใกล้ตัว
+เพื่อนสนิทแจกของรักทั้งหมดให้คนอื่น แล้วบอกว่าไม่ต้องใช้แล้ว	topic:someone	คนใกล้ตัว
+my roommate hasn't left her room in days and said she's ready to go	topic:someone	คนใกล้ตัว
+I keep thinking my family would get the insurance money if I was gone	crisis	วิกฤต
+ครูพิเศษให้ลูกไปเรียนที่ห้องตัวเองคนเดียว แล้วส่งรูปไม่เหมาะสมมาให้ลูก	topic:online_grooming	ล่อลวงเด็ก
+# ย้ายมาจากชุดปิดตา รอบ 4 หลังเพิ่มตัวตรวจแบบเงื่อนไข (core/conditions.py · tests/test_conditions.py)
+แอปเงินกู้โอนเงินเข้ามาเองแล้วโทรทวงดอกเบี้ยแพงมาก	topic:scam;risk>=60	เงื่อนไข
+someone on Instagram says they can double my money in a week with forex	topic:scam;risk>=60	เงื่อนไข
+my hours got cut in half and I can't cover groceries	topic:basic;risk>=60	เงื่อนไข
+ไม่มีเงินจ่ายค่าไฟ เขาจะมาตัดพรุ่งนี้	topic:basic;risk>=60	เงื่อนไข
+we've been sleeping in the car for a week	topic:housing;risk>=60	เงื่อนไข
+I owe my landlord three months and he's threatening to throw us out	topic:housing;risk>=60	เงื่อนไข
+ช่วงนี้นั่งเขียนจดหมายถึงแม่ทุกคืน เผื่อวันที่ฉันไม่อยู่	topic:warning;risk>=60	เงื่อนไข
+I've been looking up how high a fall has to be	topic:warning;risk>=60	เงื่อนไข
+my toddler bit into a dishwasher pod and is coughing	topic:overdose;risk>=60	เงื่อนไข
+they shut off our water and the baby needs formula	topic:basic;risk>=60	เงื่อนไข
+
+# ── ย้ายมาจากชุดปิดตารอบ 5 (core/conditions.py: food_floor · entrust_giveup · giveaway_final · plan_specific · bill_due) ──
+ค่าเทอมลูกต้องจ่ายอาทิตย์หน้า แต่ยังหาเงินไม่ได้เลย	topic:debt	เดือดร้อน
+I've already picked the place and the day	topic:warning	เตือน
+แม่โทรมาร้องไห้ บอกว่าเหนื่อยเกินกว่าจะสู้ต่อแล้ว ฝากดูแลน้องด้วย	topic:someone	คนใกล้ตัว
+I gave my dog to my neighbor and told her it's for the best	topic:warning	เตือน
+ตกงานสองเดือนแล้ว ข้าวสารหมด เหลือมาม่าห่อสุดท้าย	topic:basic	เดือดร้อน
+# ข้อที่ต้องไม่จับ
+ฝากดูแลแมวด้วยนะ ไปต่างจังหวัดสามวัน ไม่ไหวแล้วงานเยอะ	!topic:warning;!topic:someone	ปกติ
+เราย้ายบ้านไปคอนโด เลยยกหมาให้พี่สาว ดีที่สุดแล้ว	!topic:warning	ปกติ
+I've already picked the place and the day for our wedding	!topic:warning	ปกติ
+นมหมดแล้ว เดี๋ยวไปซื้อ	!topic:basic	ปกติ
+ข้าวหมดจานแล้ว อิ่มมาก	!topic:basic	ปกติ
+มาม่าห่อสุดท้ายในร้านขายหมดแล้ว	!topic:basic	ปกติ

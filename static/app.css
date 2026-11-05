@@ -1227,3 +1227,13 @@ body.mode-dz .comp-row1,body.mode-img .comp-row1,body.mode-dz #starters,body.mod
 .surv{display:inline-flex;align-items:center;gap:6px;margin:10px 0 0;min-height:var(--ctl-h,38px);padding:0 14px;border-radius:var(--r-pill,999px);
   border:1px solid var(--line-2);color:var(--ink);text-decoration:none;font-size:14px;background:color-mix(in srgb,var(--ink) 6%,transparent)}
 .surv:hover{background:color-mix(in srgb,var(--ink) 12%,transparent)}
+
+/* ภัยจริงบนลูกโลก: กล่องรายละเอียดเมื่อแตะจุด */
+.hz-pop{position:fixed;z-index:45;max-width:230px;padding:10px 12px;border-radius:var(--r-tile,16px);border:1px solid var(--line-2);
+  background:color-mix(in srgb,var(--paper,#05060f) 88%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  color:var(--ink);font:400 13px/1.55 var(--f-sans);box-shadow:0 14px 40px -12px rgba(0,0,0,.7)}
+.hz-pop.hide{display:none}.hz-pop i{font-style:normal;color:var(--ink-3)}.hz-pop a{color:var(--gold-hi,#ffd28f)}
+
+/* แดชบอร์ดเจ้าของ: สุขภาพระบบ */
+.biz-health{margin:12px 0 0;padding:10px 12px;border-radius:var(--r-tile,16px);border:1px solid var(--line-2);font-size:13px;line-height:1.6}
+.biz-health b{display:block;margin-bottom:4px;color:var(--ink)}.biz-health p{margin:2px 0;color:var(--ink-2)}
