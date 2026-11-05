@@ -96,9 +96,39 @@ def test_location_only_on_user_tap_and_never_sent():
     src = JS.read_text(encoding="utf-8")
     i = src.index("getCurrentPosition")
     assert src.rfind("$('sky-here').addEventListener('click'", 0, i) > 0      # ขอตำแหน่งเมื่อกดเท่านั้น
-    assert "fetch(" in src and src.count("fetch(") == 1                        # fetch เดียวคือแค็ตตาล็อก
+    # ทุก fetch อ่านแค่ไฟล์ข้อมูลดาวของเราเอง (catalog / milkyway / deep) — ไม่มีการส่งตำแหน่งออกไปไหน
+    import re as _re
+    calls = _re.findall(r"fetch\(([^)]*)\)", src)
+    assert calls and all("'/static/sky/" in c for c in calls), calls
+    assert "loc.lat" not in "".join(calls) and "store('kd-sky-loc'" in src
 
 
 def test_full_circle_arc_for_ground():
     # arc(0, 6.283, true) ทวนเข็มได้แค่เสี้ยวเดียว → พื้นทับทั้งจอ (บั๊กที่เคยเจอ)
     assert "6.283, true" not in JS.read_text(encoding="utf-8")
+
+
+
+def test_globe_link_opens_sky_above_viewed_spot():
+    earth = (ROOT / "static" / "cockpit_earth.js").read_text(encoding="utf-8")
+    assert "a.href = '/sky?lat=' + la.toFixed(2) + '&lon=' + lo.toFixed(2)" in earth
+    src = JS.read_text(encoding="utf-8")
+    assert "q.get('lat')" in src and "away: true" in src
+    i = src.index("away: true")
+    assert "store('kd-sky-loc'" not in src[i - 400:i + 200]          # ตำแหน่งจากลูกโลกใช้รอบเดียว ไม่จำทับของผู้ใช้
+
+
+def test_deep_stars_and_real_milky_way_files():
+    deep = json.loads((ROOT / "static" / "sky" / "deep.json").read_text(encoding="utf-8"))
+    mw = json.loads((ROOT / "static" / "sky" / "milkyway.json").read_text(encoding="utf-8"))
+    n = len(deep["stars"]) // 4
+    assert 30000 < n < 40000 and deep["stars"][2] >= 60                 # จางกว่าโชติมาตร 6 (6.01 ปัดเป็น 60)
+    mags = deep["stars"][2::4]
+    assert mags == sorted(mags) and max(mags) <= 80                     # เรียงสว่าง→จาง ถึง 8
+    assert len(mw["levels"]) == 5 and all(mw["levels"])
+    assert "d3-celestial" in deep["source"] and "d3-celestial" in mw["source"]
+
+
+def test_aim_button_is_on_the_bar():
+    i = HTML.index('id="sky-aim"')
+    assert 'class="bar-btn"' in HTML[i - 10:i + 80] and HTML.index('id="sky-sheet"') > i

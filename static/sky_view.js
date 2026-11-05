@@ -20,6 +20,13 @@
   // ── สถานะ ──────────────────────────────────────────────────────────────────────────────
   var loc = { lat: 13.7563, lon: 100.5018, name: T('กรุงเทพฯ', 'Bangkok') };
   try { var sv = JSON.parse(store('kd-sky-loc') || 'null'); if (sv && isFinite(sv.lat) && isFinite(sv.lon)) loc = sv; } catch (e) {}
+  // มาจากลูกโลก (กด "ดูดาว" ตอนดูอเมริกาอยู่) = ฟ้าเหนือจุดนั้น · ใช้รอบนี้รอบเดียว ไม่จำทับตำแหน่งของผู้ใช้
+  (function () {
+    var q = new URLSearchParams(location.search), la = parseFloat(q.get('lat')), lo = parseFloat(q.get('lon'));
+    if (isFinite(la) && isFinite(lo) && Math.abs(la) <= 90) {
+      loc = { lat: clamp(la, -89.9, 89.9), lon: ((lo % 360) + 540) % 360 - 180, name: (q.get('name') || '').replace(/[<>]/g, '').slice(0, 40), away: true };
+    }
+  })();
   var V = { az: 90, alt: 35, fov: 70 };                      // หันทิศตะวันออก มองขึ้น 35° · มุมมองกว้าง 70°
   var tgt = null;                                           // บินไปหาเป้าหมาย {az, alt, fov}
   var LAY = { lines: true, names: true, grid: false, milky: true, ground: true, red: false };
@@ -77,8 +84,14 @@
       return CAT.lines[id].map(function (seg) { return seg.map(function (p) { return mul(PM, eqv(p[0], p[1])); }); });
     });
     CONS = CAT.cons.map(function (c) { return { v: mul(PM, eqv(c.at[0], c.at[1])), name: THAI && c.th ? c.th : c.en, en: c.en, rank: c.rank }; });
-    if (!MW) MW = milkyWay();
+    [DEEP, DEEP2].forEach(function (DD) {                       // ดาวจาง 6–8 แล้ว 8–10 ต่อท้าย (ไฟล์เรียงตามความสว่างอยู่แล้ว)
+      if (!DD || (DD === DEEP2 && !DEEP)) return;
+      var D = DD.stars, k = DD.scale;
+      for (var i = 0; i < D.length; i += 4) STARS.push({ v: mul(PM, eqv(D[i] / k[0], D[i + 1] / k[1])), mag: D[i + 2] / k[2], col: bvColor(D[i + 3] / k[3]), deep: true });
+    });
+    MWL = MWRAW ? MWRAW.levels.map(function (lv) { return lv.map(function (ring) { return ring.map(function (p) { return mul(PM, eqv(p[0], p[1])); }); }); }) : null;
   }
+  var DEEP = null, DEEP2 = null, deep2Asked = false, MWRAW = null, MWL = null, mwc = null, mwx = null;
   var LINES = [], CONS = [];
   function bvColor(bv) {                                      // สีดาวตามอุณหภูมิ (B−V) แบบประมาณ — ฟ้าอมขาว → ขาว → เหลือง → ส้ม
     bv = clamp(bv, -.4, 2);
@@ -86,20 +99,7 @@
         b = bv < 0 ? 255 : bv < .4 ? 255 - 50 * bv / .4 : 205 - 90 * (bv - .4) / 1.6;
     return 'rgb(' + Math.round(r) + ',' + Math.round(clamp(g, 120, 255)) + ',' + Math.round(clamp(b, 70, 255)) + ')';
   }
-  function milkyWay() {                                       // ทางช้างเผือกตามระนาบกาแล็กซีจริง (กาแล็กติก → ศูนย์สูตร J2000) · สุ่มแบบตายตัว
-    var G = [[-.0548755604, .4941094279, -.8676661490], [-.8734370902, -.4448296300, -.1980763734], [-.4838350155, .7469822445, .4559837762]];
-    var out = [], seed = 7;
-    function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
-    for (var n = 0; n < 1400; n++) {
-      var l = rnd() * 360, core = Math.exp(-Math.pow(((l + 180) % 360 - 180) / 60, 2));
-      var gauss = (rnd() + rnd() + rnd() - 1.5) * 2, b = gauss * (3.5 + 6 * core);
-      if (rnd() > .35 + .65 * core && rnd() < .5) continue;
-      var lr = l * D2R, br = b * D2R, g = [Math.cos(br) * Math.cos(lr), Math.cos(br) * Math.sin(lr), Math.sin(br)];
-      var e = [G[0][0] * g[0] + G[0][1] * g[1] + G[0][2] * g[2], G[1][0] * g[0] + G[1][1] * g[1] + G[1][2] * g[2], G[2][0] * g[0] + G[2][1] * g[1] + G[2][2] * g[2]];   // ศูนย์กลางกาแล็กซี → RA 266.4° Dec −28.9°
-      out.push({ v: mul(PM, e), a: (.25 + .75 * core) * (.4 + .6 * rnd()), r: 2.2 + 3.5 * rnd() + 3 * core, dark: Math.abs(b) < 1.2 && core > .3 && rnd() < .35 });
-    }
-    return out;
-  }
+
 
   // ── จากศูนย์สูตร (ของวันนี้) → ขอบฟ้าของผู้ดู → จอ ─────────────────────────────────────────────
   var F = null;   // ค่าของเฟรมนี้
@@ -161,7 +161,7 @@
   // ── วาด ─────────────────────────────────────────────────────────────────────────────────
   var hits = [];
   function size() {
-    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    var dpr = Math.min(3, window.devicePixelRatio || 1);
     cv.width = Math.round(cv.clientWidth * dpr); cv.height = Math.round(cv.clientHeight * dpr);
     cx.setTransform(dpr, 0, 0, dpr, 0, 0); dirty = true; kick();
   }
@@ -182,18 +182,8 @@
     g.addColorStop(0, 'rgb(' + sc.top + ')'); g.addColorStop(1, 'rgb(' + sc.low + ')');
     cx.fillStyle = g; cx.fillRect(0, 0, W, H);
     var zoomK = clamp(70 / V.fov, .6, 6);
-    // ทางช้างเผือก
-    if (LAY.milky && sc.starA > .2) {
-      cx.save(); cx.globalCompositeOperation = 'lighter';
-      MW.forEach(function (m) {
-        var p = proj(refract(local(m.v)));
-        if (!onScreen(p, 60) || m.dark) return;
-        var r = m.r * D2R * F.s * 1.6, gr = cx.createRadialGradient(p[0], p[1], 0, p[0], p[1], r);   // ขนาดเป็นองศาบนฟ้า — ซูมแล้วโตตามจริง
-        gr.addColorStop(0, 'rgba(170,180,215,' + (.016 * m.a * sc.starA).toFixed(4) + ')'); gr.addColorStop(1, 'rgba(170,180,215,0)');
-        cx.fillStyle = gr; cx.fillRect(p[0] - r, p[1] - r, r * 2, r * 2);
-      });
-      cx.restore();
-    }
+    // ทางช้างเผือก: ขอบจริง 5 ระดับความสว่าง (d3-celestial) วาดบนผืนผ้าใบเล็ก 1/4 แล้วขยาย = ฟุ้งนุ่ม เบาเครื่อง
+    if (LAY.milky && MWL && sc.starA > .2) drawMilky(sc);
     // เส้นกริด (มุมเงย/ทิศ)
     if (LAY.grid) {
       cx.strokeStyle = 'rgba(120,170,220,.22)'; cx.lineWidth = 1;
@@ -212,14 +202,19 @@
       });
     }
     // ดาว
-    var limit = Math.min(6.05, 5.5 + Math.log(zoomK) / Math.LN2 * .7) - (1 - sc.starA) * 3;   // มืดสนิทเห็นถึงโชติมาตร ~6 เหมือนตาเปล่าที่ฟ้ามืด
+    // ตาเปล่าที่ฟ้ามืดเห็นถึงโชติมาตร ~6 · ซูมเข้า = เหมือนส่องกล้อง เห็นจางลงได้ถึง 8 (ดาวจางโหลดตามหลัง)
+    var zoomS = 70 / V.fov, limit = Math.min(DEEP2 && DEEP ? 10 : DEEP ? 8 : 6.05, 5.6 + Math.log(Math.max(1, zoomS)) / Math.LN2 * .85) - (1 - sc.starA) * 3;
+    if (V.fov < 25 && DEEP && !deep2Asked) { deep2Asked = true; loadLater('deep2.json', function (x) { DEEP2 = x; }); }   // ซูมลึกครั้งแรก = โหลดชั้นที่ 3
+    var half = Math.atan(Math.hypot(W, H) / H * Math.tan(V.fov * D2R / 2)), zmin = Math.cos(Math.min(2.6, half * 1.08 + .02));
     var labels = [];
     for (var i = 0; i < STARS.length; i++) {
       var st = STARS[i];
       if (st.mag > limit) break;                              // เรียงจากสว่างไปจาง
-      var l = refract(local(st.v)); if (LAY.ground && l[2] < -.01) continue;
+      var l0 = local(st.v);
+      if (l0[0] * F.f[0] + l0[1] * F.f[1] + l0[2] * F.f[2] < zmin) continue;      // นอกมุมมอง — ไม่ต้องคำนวณต่อ
+      var l = l0[2] > .5 ? l0 : refract(l0); if (LAY.ground && l[2] < -.01) continue;
       var p = proj(l); if (!onScreen(p, 4)) continue;
-      var rad = Math.max(.55, (6.6 - st.mag) * .36) * Math.pow(zoomK, .35), a = clamp((limit + .9 - st.mag) / 2.6, .28, 1) * sc.starA;
+      var rad = Math.max(.62, (limit + 1.1 - st.mag) * .34) * Math.pow(Math.min(zoomK, 6), .3), a = clamp((limit + 1.2 - st.mag) / 2.6, .36, 1) * sc.starA;
       if (a < .03) continue;
       cx.globalAlpha = a; cx.fillStyle = st.col;
       if (st.mag < 1.6) {
@@ -229,7 +224,7 @@
       }
       cx.beginPath(); cx.arc(p[0], p[1], rad, 0, 6.283); cx.fill();
       hits.push({ x: p[0], y: p[1], o: st, l: l, kind: 'star' });
-      if (st.name && LAY.names && st.mag < limit - 3.3) labels.push({ x: p[0] + rad + 5, y: p[1], t: st.name, c: 'rgba(214,226,255,.86)', f: '500 12px ', pri: st.mag });
+      if (st.name && LAY.names && st.mag < Math.min(limit, 6.05) - 3.3) labels.push({ x: p[0] + rad + 5, y: p[1], t: st.name, c: 'rgba(214,226,255,.86)', f: '500 12px ', pri: st.mag });
     }
     cx.globalAlpha = 1;
     // ดาวเคราะห์ ดวงจันทร์ ดวงอาทิตย์
@@ -261,6 +256,32 @@
     drawLabels(labels);
     if (LAY.red) { cx.save(); cx.globalCompositeOperation = 'multiply'; cx.fillStyle = '#ff2a1a'; cx.fillRect(0, 0, W, H); cx.restore(); }
     hud();
+  }
+  function projMW(l) {                                        // เหมือน proj แต่ยอมจุดค่อนไปข้างหลังมากกว่า (รูปหลายเหลี่ยมไม่ขาด)
+    var x = l[0] * F.r[0] + l[1] * F.r[1] + l[2] * F.r[2], y = l[0] * F.u[0] + l[1] * F.u[1] + l[2] * F.u[2], z = l[0] * F.f[0] + l[1] * F.f[1] + l[2] * F.f[2];
+    if (z < -.96) return null;
+    var k = 2 / (1 + z) * F.s;
+    return [F.W / 2 + x * k, F.H / 2 - y * k];
+  }
+  var MW_TINT = ['168,182,228', '182,192,232', '204,206,230', '226,214,214', '246,224,200'];   // ขอบนอกอมฟ้า → ใจกลางอุ่น
+  function drawMilky(sc) {
+    var q = .25, w = Math.max(1, Math.ceil(F.W * q)), h = Math.max(1, Math.ceil(F.H * q));
+    if (!mwc) { mwc = document.createElement('canvas'); mwx = mwc.getContext('2d'); }
+    if (mwc.width !== w || mwc.height !== h) { mwc.width = w; mwc.height = h; }
+    mwx.setTransform(q, 0, 0, q, 0, 0); mwx.clearRect(0, 0, F.W, F.H);
+    if ('filter' in mwx) mwx.filter = 'blur(1.6px)';
+    mwx.globalCompositeOperation = 'lighter';
+    MWL.forEach(function (level, li) {
+      mwx.fillStyle = 'rgba(' + MW_TINT[li] + ',' + ((.055 + li * .012) * sc.starA).toFixed(3) + ')';
+      level.forEach(function (ring) {
+        mwx.beginPath(); var n = 0;
+        for (var i = 0; i < ring.length; i++) { var p = projMW(local(ring[i])); if (!p) continue; if (n++) mwx.lineTo(p[0], p[1]); else mwx.moveTo(p[0], p[1]); }
+        if (n > 2) { mwx.closePath(); mwx.fill(); }
+      });
+    });
+    if ('filter' in mwx) mwx.filter = 'none';
+    cx.save(); cx.globalCompositeOperation = 'lighter'; cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high';
+    cx.drawImage(mwc, 0, 0, F.W, F.H); cx.restore();
   }
   function path(fn, n) {
     cx.beginPath(); var pen = false;
@@ -336,6 +357,7 @@
   function cardinals() {
     for (var i = 0; i < 8; i++) {
       var p = proj(fromAltAz(i * 45, -2.2)); if (!onScreen(p, 0) || p[2] < 0) continue;
+      p = [p[0], Math.min(p[1], F.H - 132)];                     // ไม่ทับแถบปุ่มด้านล่าง (จอเตี้ยก็อ่านได้)
       var big = i % 2 === 0;
       cx.fillStyle = big ? '#e0645c' : 'rgba(224,100,92,.7)'; cx.textAlign = 'center'; cx.textBaseline = 'top';
       cx.font = (big ? '700 22px ' : '500 13px ') + FONT;
@@ -369,7 +391,13 @@
     $('sky-time').classList.toggle('shifted', offsetMin !== 0);
     $('sky-fov').textContent = 'FOV ' + V.fov.toFixed(1) + '°';
     $('sky-rose').style.transform = 'rotate(' + (-V.az).toFixed(1) + 'deg)';
-    $('sky-loc').textContent = loc.name || (loc.lat.toFixed(2) + '°, ' + loc.lon.toFixed(2) + '°');
+    var place = loc.name || (Math.abs(loc.lat).toFixed(1) + '°' + (loc.lat < 0 ? 'S' : 'N') + ' ' + Math.abs(loc.lon).toFixed(1) + '°' + (loc.lon < 0 ? 'W' : 'E'));
+    var offH = loc.lon / 15 + d.getTimezoneOffset() / 60;                   // ต่างจากเวลาเครื่องกี่ชั่วโมง (ประมาณจากลองจิจูด)
+    if (Math.abs(offH) >= 1.5) {
+      var t2 = new Date(d.getTime() + Math.round(offH) * 3600000);
+      place += T(' · เวลาที่นั่น ≈ ', ' · local ≈ ') + ('0' + t2.getHours()).slice(-2) + ':' + ('0' + t2.getMinutes()).slice(-2);
+    }
+    $('sky-loc').textContent = place;
   }
 
   // ── วงจรวาด ─────────────────────────────────────────────────────────────────────────────
@@ -531,8 +559,14 @@
   fetch('/static/sky/catalog.json').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
     if (!d || !d.stars) return;
     CAT = d; dirty = true; document.documentElement.classList.add('sky-ready'); kick();
+    var later = loadLater;
+    later('milkyway.json', function (x) { MWRAW = x; });
+    (window.requestIdleCallback || function (f) { setTimeout(f, 1500); })(function () { later('deep.json', function (x) { DEEP = x; }); });
   }).catch(function () {});
-  window.KD_sky = { view: V, loc: function () { return loc; }, setTime: function (m) { offsetMin = m; prepDay = -1; dirty = true; kick(); },
+  function loadLater(f, set) {
+    fetch('/static/sky/' + f).then(function (r) { return r.ok ? r.json() : null; }).then(function (x) { if (x) { set(x); prepDay = -1; dirty = true; kick(); } }).catch(function () {});
+  }
+  window.KD_sky = { stars: function () { return STARS ? STARS.length : 0; }, drawn: function () { return hits.length; }, view: V, loc: function () { return loc; }, setTime: function (m) { offsetMin = m; prepDay = -1; dirty = true; kick(); },
                     _test: { jd: jd, gmst: gmst, kepler: kepler, moon: moon, precess: precess, bodies: function () { frameSetup(); return F.bodies.map(function (b) { return { id: b.id, altaz: altaz(bodyLocal(b)) }; }); },
                              load: function (d) { CAT = d; prepDay = -1; }, at: function (ms) { offsetMin = (ms - Date.now()) / 60000; prepDay = -1; },
                              starAltAz: function (i) { frameSetup(); return altaz(refract(local(STARS[i].v))); }, setLoc: function (l) { loc = l; dirty = true; } } };

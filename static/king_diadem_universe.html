@@ -40,7 +40,7 @@ html,body{width:100%;min-height:100%;background:var(--void);color:var(--tx);font
   background:linear-gradient(to bottom,transparent 0%,transparent 55%,rgba(8,13,26,0.70) 78%,rgba(8,13,26,0.95) 100%)}
 
 /* ── HERO ── */
-#hero{position:relative;z-index:10;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:80px;text-align:center;pointer-events:none}
+#hero{position:relative;z-index:10;height:100vh;height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:80px;text-align:center;pointer-events:none}
 .hero-badge{font-family:var(--f-mono);font-size:8px;letter-spacing:.22em;color:rgba(74,158,255,0.50);border:1px solid rgba(74,158,255,0.16);border-radius:999px;padding:4px 14px;margin-bottom:18px;display:inline-block}
 .hero-title{font-family:var(--f-display);font-size:clamp(28px,7vw,58px);font-weight:600;letter-spacing:.18em;background:linear-gradient(138deg,#76aeff 0%,#d6eaff 28%,#fff 46%,#f0d070 64%,#c8a440 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15;margin-bottom:14px}
 .hero-sub{font-family:var(--f-mono);font-size:9px;letter-spacing:.26em;color:rgba(200,164,64,0.42);margin-bottom:24px}
@@ -274,7 +274,7 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 .earth-ctl .ec-menu[aria-expanded="true"]{color:#0b0f1e;background:rgba(126,203,214,.92);border-color:transparent}
 .earth-ctl .ec-zoom{position:absolute;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);display:flex;flex-direction:column;gap:6px}
 .earth-ctl .ec-zoom .ec-z{width:40px;height:40px;padding:0;font-size:18px;border-radius:12px}
-.ec-sheet{position:absolute;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);width:min(360px,calc(100vw - 24px));max-height:min(70vh,560px);overflow:auto;
+.ec-sheet{position:absolute;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);width:min(360px,calc(100vw - 24px));max-height:min(70vh,560px);max-height:min(calc(100svh - 150px),560px);overflow:auto;
   padding:12px;border-radius:20px;background:rgba(10,14,26,.88);border:1px solid rgba(230,240,255,.14);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
   box-shadow:0 20px 60px -20px rgba(0,0,0,.8);color:rgba(232,238,252,.9)}
 .ec-sheet.hide{display:none}
@@ -287,6 +287,19 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 .earth-ctl .ec-tile[aria-pressed="true"]{color:#fff;background:rgba(237,204,98,.16)}
 .ec-tile[aria-pressed="true"] svg{stroke:#edcc62}
 .ec-note{margin:10px 6px 2px;font:400 11px/1.5 var(--f-body);color:rgba(232,238,252,.5)}
+/* จอเตี้ย (มือถือจอสั้น · แนวนอน · มีแถบเบราว์เซอร์): ย่อหัวเรื่องและปุ่ม ให้ปุ่มล่างอยู่ในจอเสมอ ไม่ทับข้อความ */
+@media (max-height:700px){
+  #hero{padding-bottom:64px}
+  .earth-ctl .ec-menu{width:42px;height:42px}
+  .earth-ctl .ec-zoom{flex-direction:row}
+  .earth-ctl .ec-zoom .ec-z{width:38px;height:38px}
+  .ec-grid{grid-template-columns:repeat(4,1fr)}
+  .ec-tile{padding:8px 2px;font-size:11px}
+}
+@media (max-height:560px){
+  #hero h1,#hero .hero-title{font-size:clamp(22px,6vh,40px)!important;line-height:1.05}
+  .ec-sheet{bottom:calc(env(safe-area-inset-bottom,0px) + 62px)}
+}
 .earth-ctl button{font:500 11px/1 var(--f-body);color:rgba(230,240,255,.85);background:rgba(8,13,26,.55);
   border:1px solid rgba(230,240,255,.18);border-radius:999px;padding:7px 12px;cursor:pointer;backdrop-filter:blur(8px)}
 .earth-ctl button[aria-pressed="true"]{color:#0b0f1e;background:rgba(237,204,98,.92);border-color:transparent}

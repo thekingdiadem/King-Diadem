@@ -627,5 +627,14 @@
     lctx.shadowBlur = 0;
     lctx.globalAlpha = 1;
   }
+  // ปุ่ม "ดูดาว": เปิดฟ้าเหนือจุดกลางจอ (ดูอเมริกาอยู่ = ฟ้าอเมริกา) พร้อมชื่อเมืองใกล้สุดที่โหลดไว้แล้ว
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="/sky"]');
+    if (!a) return;
+    var la = clamp(S.tlat, -89, 89), lo = ((S.tlon % 360) + 540) % 360 - 180, r = RAD;
+    var w = [Math.cos(la * r) * Math.sin(lo * r), Math.sin(la * r), Math.cos(la * r) * Math.cos(lo * r)], best = '', bd = Math.cos(2.5 * r);
+    TIERS.forEach(function (T) { (T.data || []).forEach(function (c) { var d = c[1] * w[0] + c[2] * w[1] + c[3] * w[2]; if (d > bd) { bd = d; best = c[0]; } }); });
+    a.href = '/sky?lat=' + la.toFixed(2) + '&lon=' + lo.toFixed(2) + (best ? '&name=' + encodeURIComponent(best) : '');
+  }, true);
   sync(); setTouchMode(); size();
 })();

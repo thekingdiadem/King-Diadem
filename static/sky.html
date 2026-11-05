@@ -25,6 +25,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 #sky-home{top:calc(14px + env(safe-area-inset-top));left:14px}
 #sky-find{top:calc(14px + env(safe-area-inset-top));right:14px}
 #sky-layers{bottom:calc(16px + env(safe-area-inset-bottom));left:14px}
+#sky-aim{bottom:calc(16px + env(safe-area-inset-bottom));left:70px}
+#sky-aim[aria-pressed="true"]{color:#0b0f1e;background:rgba(126,203,214,.92)}
 #sky-rose-btn{bottom:calc(14px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:56px;height:56px}
 #sky-rose{width:48px;height:48px;transition:transform .15s linear}
 #sky-rose text{font:700 9px var(--f);fill:var(--ink-3)}
@@ -32,7 +34,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 #sky-time.shifted{color:#ffd28f}
 #sky-fov{position:fixed;z-index:4;left:50%;transform:translateX(-50%);bottom:calc(78px + env(safe-area-inset-bottom));font-size:12.5px;color:var(--ink-3);pointer-events:none}
 #sky-loc{position:fixed;z-index:4;right:18px;bottom:calc(58px + env(safe-area-inset-bottom));font-size:12px;color:var(--ink-3);pointer-events:none}
-.sheet{position:fixed;z-index:6;left:12px;bottom:calc(76px + env(safe-area-inset-bottom));width:min(380px,calc(100vw - 24px));max-height:calc(100vh - 110px);overflow:auto;
+.sheet{position:fixed;z-index:6;left:12px;bottom:calc(76px + env(safe-area-inset-bottom));width:min(380px,calc(100vw - 24px));max-height:calc(100vh - 110px);max-height:calc(100svh - 110px);overflow:auto;
   padding:14px;border-radius:22px;background:var(--panel);border:1px solid var(--line);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
   box-shadow:0 20px 60px -20px rgba(0,0,0,.8)}
 .hide{display:none!important}
@@ -64,6 +66,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 #sky-info span{color:var(--ink-2);font-size:13px}
 html.sky-red{--ink:#ff8a7a;--ink-2:rgba(255,120,100,.8);--ink-3:rgba(255,120,100,.55);--accent:#ff6a5a;--line:rgba(255,100,80,.2)}
 @media (prefers-reduced-motion:reduce){#sky{transition:none}#sky-rose{transition:none}}
+/* จอเตี้ย: แผงเป็น 4 คอลัมน์ ปุ่มเล็กลง เวลาเล็กลง — ทุกอย่างอยู่ในจอ */
+@media (max-height:640px){.grid{grid-template-columns:repeat(4,1fr)}.tile{padding:8px 2px;font-size:11.5px}.tile .ic{width:24px;height:24px}
+  #sky-time{font-size:22px}#sky-loc{bottom:calc(46px + env(safe-area-inset-bottom))}#sky-fov{bottom:calc(66px + env(safe-area-inset-bottom))}}
 </style>
 </head>
 <body>
@@ -77,6 +82,9 @@ html.sky-red{--ink:#ff8a7a;--ink-2:rgba(255,120,100,.8);--ink-3:rgba(255,120,100
 </button>
 <button id="sky-layers" class="bar-btn" type="button" aria-label="ชั้นข้อมูลและเครื่องมือ" aria-controls="sky-sheet">
   <svg class="ic" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
+</button>
+<button id="sky-aim" class="bar-btn" type="button" aria-pressed="false" aria-label="ชี้มือถือขึ้นฟ้า — ภาพหมุนตามทิศจริงของเครื่อง">
+  <svg class="ic" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M12 6.5v3M10.5 8L12 6.5 13.5 8"/></svg>
 </button>
 <button id="sky-rose-btn" class="bar-btn" type="button" aria-label="หันไปทิศเหนือ">
   <svg id="sky-rose" viewBox="-24 -24 48 48" aria-hidden="true">
@@ -109,7 +117,6 @@ html.sky-red{--ink:#ff8a7a;--ink-2:rgba(255,120,100,.8);--ink-3:rgba(255,120,100
   </div>
   <h2>ทิศและตำแหน่ง</h2>
   <div class="grid">
-    <button class="tile" type="button" id="sky-aim" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M12 6.5v3M10.5 8L12 6.5 13.5 8"/></svg>ชี้มือถือขึ้นฟ้า</button>
     <button class="tile" type="button" id="sky-here"><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0113 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>ตำแหน่งของฉัน</button>
   </div>
   <h2>เวลา</h2>
