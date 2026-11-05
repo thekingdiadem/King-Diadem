@@ -2342,6 +2342,10 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         return compose_council(text, footer=footer)
     a = assess(text, pattern)
     vega = voice_mode == "vega" or route == "vega"
+    if vega and detect_lang(text) == "th" and a["text_risk"] < 60 and not a["crisis"] and not a.get("scam") and not a["offer_flags"]:
+        from core import decision_brief as _db
+        if _db.applies(text):
+            return _db.vega(text, footer=footer)     # VEGA: ด้านเสียจากตัวเลขจริง + ประตูเดินหน้า/หยุด
     end = "ครับ" if vega else "ค่ะ"
     sign = "— VEGA ◆" if vega else "— LYLA ◈"
     tag = "\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if footer else ""
@@ -2805,6 +2809,9 @@ def compose_council(text: str, footer: bool = True) -> str:
     a = assess(text)
     if council_unsuitable(a) or detect_lang(text) != "th":
         return compose(text, footer=footer)          # ฉุกเฉิน/ภาษาอื่น: คำตอบที่ปลอดภัยที่สุดมาก่อนสภา
+    from core import decision_brief as _db
+    if _db.applies(text) and a["text_risk"] < 60 and not a.get("scam") and not a["offer_flags"]:
+        return _db.council(text, footer=footer)      # ตัดสินใจเรื่องใหญ่: ทุกเสียงใช้ตัวเลขจริง + เงื่อนไขเดินหน้า/หยุด
     t = text.lower()
     lib = {name: d for name, _, d in TOPICS}
     main = lib.get(a["topics"][0]) if a["topics"] else GENERAL
