@@ -71,6 +71,14 @@ def _b(v: float) -> str:
     return f"{v:,.0f}"
 
 
+def _world(text: str):
+    try:
+        from WORLD_MODEL import observe
+        return observe(text)
+    except Exception:  # pragma: no cover — แบบจำลองโลกพังต้องไม่ทำให้คำตอบหาย
+        return None
+
+
 def analyze(text: str) -> dict:
     f = extract(text)
     n = f["nums"]
@@ -84,6 +92,7 @@ def analyze(text: str) -> dict:
         if n.get("invest"):
             out["runway_after"] = max(0.0, n["savings"] - n["invest"]) / monthly
     out["go_if"], out["stop_if"] = _gates(out)
+    out["world"] = _world(text)
     return out
 
 
@@ -121,7 +130,8 @@ def facts_line(a: dict) -> str:
         bits.append(f"หลังลงทุนเหลืออยู่ได้≈{a['runway_after']:.1f} เดือน")
     return ("[DECISION BRIEF: " + " · ".join(bits + [f"ชนิด={','.join(a['kinds'])}"]) +
             (" · เดินหน้าเมื่อ: " + " / ".join(a["go_if"]) if a["go_if"] else "") +
-            (" · หยุดเมื่อ: " + " / ".join(a["stop_if"]) if a["stop_if"] else "") + "]")
+            (" · หยุดเมื่อ: " + " / ".join(a["stop_if"]) if a["stop_if"] else "") + "]"
+            + (" " + a["world"].note() if a.get("world") and not a["world"].empty() else ""))
 
 
 # ── คำตอบไม่มี AI ─────────────────────────────────────────────────────────────
@@ -160,12 +170,22 @@ def council(text: str, footer: bool = True) -> str:
         paticca = "ผลตอบแทนมาจากอะไรจริงๆ (ดอกเบี้ย ปันผล กำไรจากการขาย) — ถ้าอธิบายไม่ได้ใน 2 นาที แปลว่ายังไม่เข้าใจความเสี่ยงพอจะลงเงิน"
     else:
         paticca = "ข้อสมมติที่ใหญ่ที่สุดของทางนี้คืออะไร — เขียนออกมา 1 ข้อ แล้วหาวิธีพิสูจน์ด้วยเงินหรือเวลาน้อยที่สุด"
+    w = a.get("world")
+    if w and w.biases:                       # WORLD_MODEL/human_bias: กับดักความคิดที่เห็นในเรื่องนี้ มาก่อนสมการ
+        paticca = f"ระวัง \"{w.biases[0].th}\" — {w.biases[0].question} · " + paticca
+    if w and (w.locks or w.concentration):   # WORLD_MODEL/reversibility · concentration: ส่วนที่ล็อก + วิธีทำให้ถอยได้
+        fix = [lk.soften for lk in w.locks[:2]] + [c.hedge for c in w.concentration[:1]]
+        vega += " · ทำให้ถอยได้: " + " / ".join(dict.fromkeys(fix))
     titan = (a["go_if"][0] if a["go_if"] else "เขียนการตัดสินใจเป็น 1 ประโยค พร้อมตัวเลขที่ยอมเสียได้สูงสุด")
     cosmos = ("มองไป 12 เดือน: ทางที่ดีที่สุดคือทางที่ถ้าผิด คุณยังกลับมาได้โดยไม่เสียพื้น — "
               + ("งานประจำหาใหม่ได้ แต่เงินสำรองที่หมดไปสร้างคืนนาน " if "quit_job" in k else "")
               + "ถ้าพิสูจน์แล้วได้ผล การเปลี่ยนเต็มตัวทีหลังก็ยังทำได้")
     civil = ("คนที่ได้รับผลด้วย (ครอบครัว คนที่พึ่งรายได้คุณ) ควรเห็นตัวเลขเดียวกันกับคุณก่อนตัดสินใจ" if a["dependents"]
              else "ใครจะได้รับผลถ้าพลาด — และมีใครสักคนที่เคยทำเรื่องนี้จริงที่คุณถามได้ก่อนลงมือไหม")
+    if w and w.ripples:                      # WORLD_MODEL/consequences: ผลลำดับสอง — ถามเรื่องคนที่ได้รับผลจริงในเรื่องนี้
+        civil = " · ".join(r.ask for r in w.ripples[:2])
+    if w:                                    # WORLD_MODEL/time_horizon: ชวนมองอีกระยะที่ยังไม่ได้มอง
+        cosmos = w.horizon_prompt + " — " + cosmos
     go = "\n".join(f"  ✓ {g}" for g in a["go_if"]) or "  ✓ มีหลักฐานจริงว่าข้อสมมติหลักเป็นจริง"
     stop = "\n".join(f"  ✕ {s}" for s in a["stop_if"]) or "  ✕ ความเสียหายเริ่มเกินที่ตั้งไว้"
     verdict = "ยังไม่ควรกระโดดเต็มตัวตอนนี้ — ทดลองแบบเล็กที่ย้อนกลับได้ก่อน" if irreversible or a["runway"] is not None and a["runway"] < 12 else \
@@ -184,6 +204,11 @@ def vega(text: str, footer: bool = True) -> str:
         lines.append("เดินหน้าเมื่อ: " + " · ".join(a["go_if"]))
     if a["stop_if"]:
         lines.append("หยุดทันทีเมื่อ: " + " · ".join(a["stop_if"]))
+    w = a.get("world")
+    if w and w.biases:
+        lines.append(f"กับดักที่เห็น: {w.biases[0].th} — {w.biases[0].question}")
+    if w and (w.locks or w.concentration):
+        lines.append("ทำให้ถอยได้: " + " / ".join(dict.fromkeys([lk.soften for lk in w.locks[:2]] + [c.hedge for c in w.concentration[:1]])))
     ask = ("ถ้าทดลองขายจริง 4 สัปดาห์ ยอดต่อวันต้องได้เท่าไหร่ถึงจะคุ้มค่าเช่าและค่าแรง — คุณรู้ตัวเลขนี้หรือยัง?" if "start_business" in k
            else "ถ้าทางนี้ผิด คุณจะรู้ได้เร็วที่สุดจากสัญญาณอะไร?")
     tag = "\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if footer else ""
