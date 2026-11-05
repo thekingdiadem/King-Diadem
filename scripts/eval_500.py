@@ -22,7 +22,12 @@ def all_cases():
 
 
 def check(q, want):
-    out = compose(q)
+    return judge(compose(q), want)
+
+
+def judge(out, want):
+    """ให้คะแนนคำตอบ 1 ข้อ — ใช้ทั้งคำตอบของระบบเอง (check) และคำตอบ AI (scripts/eval_ai.py)"""
+    out = str(out or "")
     head = out.split("\n", 1)[0]
     if any(head.startswith(g) for g in GENERIC):
         return False, "ตอบกลาง: " + head
