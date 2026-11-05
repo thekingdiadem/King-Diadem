@@ -71,6 +71,18 @@ GATES = [
      _rx(r"ไม่รู้ที่มา|ไม่ทราบที่มา|ไม่รู้แหล่ง|ไม่ได้ตรวจซัพพลายเออร์|ซัพพลายเออร์ไม่เปิดเผย|ไม่มีใบรับรอง|ของหนีภาษี|ราคาถูกผิดปกติ|unknown (?:source|supplier|origin)|untraceable|no certificat|opaque supply"),
      "ตรวจที่มาไม่ได้ — ต้นฉบับ: ตามรอยได้ หรือปฏิเสธ",
      "Opaque supply chain — trace it or reject it"),
+    # จาก SYSTEM CORE 64 (CORE64.md) — ใช้เฉพาะในโหมดนี้ (ระดับองค์กร) ไม่ไปเทศนาคนที่มาปรึกษาเรื่องส่วนตัว
+    ("C26", "ไม่บีบใครจนไร้ที่อยู่", "No one squeezed out of a home",
+     _rx(r"ไล่ที่|ขับไล่(?:ผู้|ชาว|คน)|ไล่ผู้เช่า|รื้อชุมชน|รื้อบ้าน(?:เรือน)?|เวนคืนโดยไม่|ย้ายชุมชนออก|ไล่ชาวบ้าน|"
+         r"evict|demolish (?:the )?(?:homes|community|houses)|forced relocation"),
+     "ทำให้คนไม่มีที่อยู่ — ปัจจัยพื้นฐานคือสิทธิ ไม่ใช่รางวัล (Core 26, 27) · ต้องมีที่อยู่รองรับและการชดเชยที่เป็นธรรมก่อน",
+     "Leaves people without a home — basic needs are rights, not rewards (Core 26, 27) · secure housing and fair compensation first"),
+    ("C61", "ชีวิตสัตว์ไม่ใช่ราคาของความสะดวก", "Animal lives are not the price of convenience",
+     _rx(r"วางยาเบื่อ|ฆ่าทิ้ง|กำจัด(?:หมา|สุนัข|แมว)(?:จรจัด)?|ทิ้งสัตว์|ปล่อยสัตว์(?:ให้)?ตาย|ทารุณ(?:กรรม)?สัตว์|ทดลอง(?:กับ|ใน)สัตว์|"
+         r"ทำลายที่อยู่(?:อาศัย)?ของสัตว์|ถมป่าชายเลน|ล่าสัตว์|ช็อตสัตว์|"
+         r"cull(?:ing)?|animal testing|poison(?:ing)? (?:the )?(?:stray|dogs|cats|birds)|destroy (?:the )?habitat|abandon (?:the )?animals"),
+     "ชีวิตสัตว์ต้องไม่ตายเพราะความสะดวกของมนุษย์ (Core 61, 62) · หาทางที่ไม่ต้องแลกชีวิตสัตว์ก่อน เช่น ย้าย ทำหมัน กันพื้นที่",
+     "Animals must not die for human convenience (Core 61, 62) · find a way that costs no animal lives first, e.g. relocate, sterilise, fence"),
     ("E1", "แลกความสะดวกกับความเสียหายระยะยาว", "Convenience trade-off",
      _rx(r"ใช้ครั้งเดียวทิ้ง|พลาสติกครั้งเดียว|ตัดต้นไม้|ถางป่า|เผา(?:ขยะ|ป่า|ไร่)|ทิ้งขยะ|ฝังกลบ|ลดต้นทุนด้วยการไม่บำบัด|single-use|clear(?:ing)? (?:the )?forest|burn(?:ing)? (?:waste|fields)|landfill"),
      "สะดวกวันนี้แต่โลกเสียหายระยะยาว — ค่าเริ่มต้นของต้นฉบับคือปฏิเสธ หาทางที่ไม่ทิ้งภาระ",
