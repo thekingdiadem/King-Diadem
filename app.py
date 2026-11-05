@@ -830,7 +830,7 @@ def root(request: Request):
 # ── ให้ Google เจอหน้าเว็บ (SEO) ─────────────────────────────────────────
 # robots.txt บอกว่าหน้าไหนให้เก็บ · หน้าส่วนตัว (API บัญชี รายงานที่แชร์) ห้ามเก็บ
 # sitemap.xml บอก Google ว่ามีหน้าสาธารณะอะไรบ้าง — เดิมไม่มีทั้งสองไฟล์
-SITEMAP_PAGES = [("/", "1.0", "daily"), ("/guide", "0.8", "weekly"), ("/ask", "0.7", "weekly"),
+SITEMAP_PAGES = [("/", "1.0", "daily"), ("/guide", "0.8", "weekly"), ("/learn", "0.8", "weekly"), ("/ask", "0.7", "weekly"),
                  ("/architecture", "0.6", "weekly"), ("/letter", "0.6", "monthly"), ("/support", "0.5", "monthly"),
                  ("/privacy", "0.3", "yearly"), ("/terms", "0.3", "yearly"), ("/refund", "0.3", "yearly")]
 _ROBOTS_BLOCK = ["/api/", "/report/", "/auth/", "/login", "/me", "/dashboard", "/wallet", "/credits", "/static/login.html",
@@ -3327,6 +3327,35 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
         _settle(ticket)
     return {"analysis": analysis_text, "filename": file.filename,
             "quota": {**_quota_status(email, request), "charged": ticket["mode"]}}
+
+
+# ── โหมดฝึก: จำลองวิกฤตทีละวัน (ENGINE/practice_sim.py) — สมการเดียวกับระบบ ไม่ใช้ AI ไม่หักโควตา
+# stateless: ส่งลำดับทางเลือกมา เซิร์ฟเวอร์เล่นซ้ำจากจุดเริ่มทุกครั้ง → ผลเดิมเสมอ แก้ตัวเลขฝั่งผู้เล่นไม่ได้
+@app.get("/api/practice")
+async def practice_list():
+    from ENGINE.practice_sim import SCENARIOS, public
+    return {"scenarios": [public(k) for k in SCENARIOS]}
+
+
+@app.post("/api/practice")
+async def practice_step(request: Request):
+    from ENGINE.practice_sim import SCENARIOS, public, run
+    if not _rate_check(_session_email(request) or _client_ip(request)):
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่แล้วลองใหม่ได้เลยนะคะ"}, status_code=429)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    sid = str((body or {}).get("scenario") or "")
+    choices = (body or {}).get("choices") or []
+    if sid not in SCENARIOS or not isinstance(choices, list):
+        return JSONResponse({"error": "ไม่รู้จักสถานการณ์นี้ค่ะ"}, status_code=400)
+    return {"scenario": public(sid), "result": run(sid, choices[:10])}
+
+
+@app.get("/learn")
+async def learn_page():
+    return FileResponse("static/learn.html")
 
 
 # ── แผ่นดินไหวล่าสุด (USGS) — สาธารณะ แคช 5 นาที ใช้กับลูกโลก/การ์ดในแชทได้

@@ -703,5 +703,8 @@
 "ไม่พบแผ่นดินไหวขนาด 3.5 ขึ้นไป ในรัศมี {r} กม. จาก{home}": "No hay sismos de magnitud 3.5+ a menos de {r} km de {home}",
 "ห่าง{home} {km} กม.": "a {km} km de {home}",
 "แจ้งเตือนสึนามิ": "Alerta de tsunami",
-"ข้อมูลจาก USGS · ในไทยดูเพิ่มที่": "Datos de USGS · en Tailandia consulta también"
+"ข้อมูลจาก USGS · ในไทยดูเพิ่มที่": "Datos de USGS · en Tailandia consulta también",
+"เรียนรู้และฝึก": "Aprender y practicar",
+"เรียนรู้ระบบ 8 บทพร้อมแบบทดสอบ แล้วลองตัดสินใจในวิกฤตจำลอง (โรคระบาด · ตกงานมีหนี้ · ร้านใกล้เส้นเงินสด) ด้วยสมการจริงของระบบ": "Aprende el sistema en 8 lecciones con cuestionarios y practica decisiones en crisis simuladas (pandemia · desempleo con deudas · tienda cerca de su mínimo de caja) con las ecuaciones reales",
+"เริ่มเรียน →": "Empezar →"
 };

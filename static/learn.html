@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#04050d">
+<title>เรียนรู้ระบบ · ฝึกจำลองวิกฤต · KING DIADEM</title>
+<link rel="canonical" href="https://king-diadem.onrender.com/learn">
+<link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
+<meta name="description" content="เรียนรู้ KING DIADEM ทีละบท (Choice(t) · Waterline · FATE · Ethical Kernel · สภา 6 เสียง) แล้วฝึกตัดสินใจในวิกฤตจำลองด้วยสมการจริงของระบบ">
+<meta property="og:title" content="เรียนรู้ระบบ · ฝึกจำลองวิกฤต · KING DIADEM">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://king-diadem.onrender.com/static/og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai+Looped:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#04050d;--ink:#eef1fa;--ink-2:#c4cbe0;--ink-3:#8e97b5;--line:rgba(160,180,255,.16);--gold:#ffd28f;--ok:#a8f0c8;--warn:#ffd99a;--bad:#ffb3b3;
+  --f:"Noto Sans Thai Looped",system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html{background:var(--bg);color:var(--ink)}
+body{margin:0;font:400 16px/1.7 var(--f);background:radial-gradient(1200px 600px at 50% -10%,#141a44 0%,var(--bg) 60%)}
+main{max-width:780px;margin:0 auto;padding:24px 16px 80px}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:18px}.top img{width:40px;height:40px}
+.top a{color:var(--ink-2);text-decoration:none;font-weight:600}
+h1{font-size:26px;line-height:1.35;margin:0 0 4px}.meta{color:var(--ink-3);font-size:14.5px;margin:0 0 18px}
+.tabs{display:flex;gap:8px;margin:0 0 18px}
+.tabs button{flex:1;border:1px solid var(--line);background:rgba(20,26,64,.35);color:var(--ink-2);border-radius:999px;padding:10px 12px;font:600 15px var(--f);cursor:pointer}
+.tabs button.on{background:var(--gold);color:#1a1630;border-color:transparent}
+.card{border:1px solid var(--line);border-radius:16px;padding:16px 18px;background:rgba(20,26,64,.35);margin:0 0 14px}
+.card h2{font-size:20px;margin:0 0 8px;color:var(--gold)}.card p,.card li{color:var(--ink-2)}
+.eq{font:600 17px/1.5 ui-monospace,Menlo,monospace;color:var(--ink);background:rgba(0,0,0,.3);border-radius:10px;padding:10px 12px;margin:10px 0;overflow-x:auto}
+.prog{height:6px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin:6px 0 14px}.prog i{display:block;height:100%;background:var(--gold);width:0;transition:width .3s}
+.quiz b{display:block;color:var(--ink);margin:12px 0 6px}
+.quiz button{display:block;width:100%;text-align:left;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink-2);border-radius:10px;padding:9px 12px;margin:6px 0;font:400 15px var(--f);cursor:pointer}
+.quiz button.right{border-color:#5fd39a;color:var(--ok)}.quiz button.wrong{border-color:#ff8c8c;color:var(--bad)}
+.fb{margin-top:8px;font-size:14.5px}.fb.right{color:var(--ok)}.fb.wrong{color:var(--warn)}
+.nav{display:flex;justify-content:space-between;gap:10px}
+.nav button,.btn{border:1px solid var(--line);background:rgba(20,26,64,.6);color:var(--ink);border-radius:12px;padding:10px 16px;font:600 15px var(--f);cursor:pointer}
+.nav button:disabled{opacity:.4;cursor:default}
+.btn.gold{background:var(--gold);color:#1a1630;border-color:transparent}
+.scn{display:grid;gap:10px}.scn button{text-align:left;width:100%}
+.scn small{display:block;color:var(--ink-3);font-weight:400;margin-top:4px}
+.gauges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.g{background:rgba(0,0,0,.25);border-radius:10px;padding:8px 10px;font-size:13px;color:var(--ink-3)}.g b{display:block;font-size:20px;color:var(--ink)}
+.wl{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,rgba(255,107,107,.45) 0 25%,rgba(120,200,255,.35) 25% 100%);margin:12px 0 4px}
+.wl .floor{position:absolute;left:25%;top:-4px;bottom:-4px;width:2px;background:#fff}.wl .dot{position:absolute;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.4);transition:left .4s}
+.wlrow{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-3)}
+.ev{border-left:3px solid var(--warn);padding:4px 0 4px 10px;margin:12px 0;color:var(--ink-2)}
+.opt{display:block;width:100%;text-align:left;margin:8px 0}.opt[disabled]{opacity:.35;cursor:default}
+.tag{display:inline-block;font-size:12px;border-radius:999px;padding:1px 8px;margin:4px 6px 0 0;background:rgba(255,255,255,.08);color:var(--ink-3)}
+.tag.irr{background:rgba(255,206,120,.16);color:var(--warn)}.tag.dig{background:rgba(255,107,107,.18);color:var(--bad)}
+.log{margin-top:10px}.log div{font-size:14px;color:var(--ink-2);border-top:1px solid var(--line);padding:8px 0}.log i{color:var(--ink-3);font-style:normal}
+.sum li{margin:6px 0}.hide{display:none!important}
+nav.legal{margin-top:36px;font-size:14px;color:var(--ink-3)}nav.legal a{color:#9cc4ff;margin-right:14px}
+</style>
+</head>
+<body>
+<main>
+<div class="top"><img src="/static/logo.png" alt=""><a href="/">KING DIADEM</a></div>
+<h1 id="h1">เรียนรู้ระบบ</h1>
+<p class="meta" id="sub">8 บทสั้นๆ แล้วลองตัดสินใจในวิกฤตจำลอง — ตัวเลขคำนวณด้วยสมการเดียวกับระบบจริง</p>
+<div class="tabs" role="tablist"><button type="button" id="tab-learn" class="on" role="tab">📖</button><button type="button" id="tab-sim" role="tab">🎮</button></div>
+
+<section id="pane-learn">
+  <div class="prog"><i id="prog"></i></div>
+  <div class="card" id="lesson"></div>
+  <div class="nav"><button type="button" id="prev"></button><button type="button" id="next"></button></div>
+</section>
+
+<section id="pane-sim" class="hide">
+  <div id="pick" class="scn"></div>
+  <div id="game" class="hide">
+    <div class="card">
+      <h2 id="g-title"></h2><p id="g-intro"></p>
+      <div class="gauges"><div class="g">Entropy<b id="gE"></b></div><div class="g">Stability<b id="gS"></b></div><div class="g">Resources<b id="gR"></b></div></div>
+      <div class="wl"><i class="floor"></i><i class="dot" id="wdot"></i></div>
+      <div class="wlrow"><span id="wfloor"></span><span id="wnow"></span><span id="wchoice"></span></div>
+      <div class="ev" id="g-event"></div>
+      <div id="opts"></div>
+      <div id="g-sum" class="hide"></div>
+      <div class="log" id="g-log"></div>
+    </div>
+    <button type="button" class="btn" id="g-back"></button>
+  </div>
+</section>
+
+<nav class="legal"><a href="/guide">Guide</a><a href="/">KING DIADEM</a><a href="/support">ช่วยเหลือ</a></nav>
+</main>
+<script>
+(function(){
+  var lang = 'th';
+  try{ var s = localStorage.getItem('kd_lang'); if(s) lang = s; else if(!/^th/i.test(navigator.language || 'th')) lang = 'en'; }catch(_){}
+  var TH = lang === 'th';
+  function L(o){ return o == null ? '' : typeof o === 'string' ? o : (TH ? o.th : (o.en || o.th)); }
+  function $(id){ return document.getElementById(id); }
+  function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  if(!TH) document.documentElement.lang = 'en';
+
+  var UI = {
+    h1: {th:'เรียนรู้ระบบ', en:'Learn the system'},
+    sub: {th:'8 บทสั้นๆ แล้วลองตัดสินใจในวิกฤตจำลอง — ตัวเลขคำนวณด้วยสมการเดียวกับระบบจริง', en:'8 short lessons, then practise deciding in a simulated crisis — computed with the real system equations'},
+    learn: {th:'📖 บทเรียน', en:'📖 Lessons'}, sim: {th:'🎮 ฝึกจำลองวิกฤต', en:'🎮 Crisis practice'},
+    prev: {th:'← ก่อนหน้า', en:'← Back'}, next: {th:'ต่อไป →', en:'Next →'}, done: {th:'🎮 ไปลองฝึกจำลอง', en:'🎮 Try the practice'},
+    lesson: {th:'บทที่', en:'Lesson'}, right: {th:'✓ ถูกต้อง', en:'✓ Correct'}, wrong: {th:'ยังไม่ใช่ — ', en:'Not quite — '},
+    pick: {th:'เลือกสถานการณ์ — ทุกวันมีเหตุการณ์ใหม่ เลือกทางวันละ 1 ทาง 5 วัน', en:'Pick a situation — each day brings an event; choose one path per day for 5 days'},
+    floor: {th:'เส้นขั้นต่ำ', en:'floor'}, now: {th:'ระดับน้ำ W', en:'Waterline W'}, day: {th:'วันที่', en:'Day'},
+    irr: {th:'ย้อนกลับไม่ได้', en:'irreversible'}, dig: {th:'ไม่ผ่าน Dignity', en:'fails Dignity'},
+    back: {th:'← เลือกสถานการณ์อื่น', en:'← Choose another situation'}, again: {th:'เล่นใหม่', en:'Play again'},
+    end: {th:'สรุปสิ่งที่เกิดขึ้น', en:'What happened'}, repeat: {th:'(ทางเดิมซ้ำ ได้ผลน้อยลง)', en:'(repeated — less effect)'},
+    closed: {th:'ปิดไปแล้ว', en:'closed'}
+  };
+  $('h1').textContent = L(UI.h1); $('sub').textContent = L(UI.sub);
+  $('tab-learn').textContent = L(UI.learn); $('tab-sim').textContent = L(UI.sim);
+
+  /* ── 8 บท (ปรับจาก Interactive Tutorial ของเจ้าของโปรเจกต์ ให้ตรงกับระบบปัจจุบัน) ── */
+  var LESSONS = [
+    { t:{th:'🎯 KING DIADEM คืออะไร', en:'🎯 What is KING DIADEM?'},
+      b:{th:'<p>ระบบช่วยคิดเวลาตัดสินใจยาก — ไม่ได้สร้างมาเพื่อให้ชนะมากขึ้น แต่เพื่อ<b>ลดความเสียหายที่ป้องกันได้</b></p><ul><li>เห็นความเสี่ยงก่อนเกิดจริง</li><li>เลือกทางที่ไม่ทำร้ายใคร</li><li>ทำให้ยังมีทางเลือกเหลือเสมอ</li><li>คุณเป็นคนตัดสินใจเสมอ</li></ul>',
+         en:'<p>A thinking partner for hard decisions — built not to win more, but to <b>reduce preventable harm</b>.</p><ul><li>See risks before they happen</li><li>Choose paths that harm no one</li><li>Always keep at least one option open</li><li>You always decide</li></ul>'},
+      q:{th:'จุดประสงค์หลักของ KING DIADEM คืออะไร', en:'What is KING DIADEM mainly for?'},
+      a:[{th:'ให้คนชนะทุกครั้ง', en:'Make people win every time'},{th:'ลดความเสียหายที่ป้องกันได้', en:'Reduce preventable harm'},{th:'บังคับให้ทุกคนทำตาม', en:'Make everyone obey'},{th:'ทำให้ระบบสมบูรณ์แบบ', en:'Make the system perfect'}], ok:1,
+      x:{th:'ระบบไม่สัญญาว่าจะชนะ แต่สัญญาว่าจะไม่ทำให้ใครพัง', en:'It doesn’t promise winning — it promises not to break anyone'} },
+    { t:{th:'🌌 ทฤษฎีทางเลือก (Choice Theorem)', en:'🌌 The Choice Theorem'},
+      b:{th:'<div class="eq">Choice(t) ≥ 1 → collapse = False</div><p>ณ เวลา t ถ้ายังมีทางเลือกอย่างน้อย 1 ทาง ระบบยังไม่ถือว่าพัง · ยิ่งทางเลือกน้อยลง ความเสี่ยงยิ่งสูง</p><div class="eq">Risk = Drift × Exposure × Time ÷ Choice</div><p>การตัดสินใจที่ปิดทุกทาง คือความรุนแรงเชิงระบบ — ระบบจึงไม่ปล่อยคำตอบที่เหลือทางเลือกเป็นศูนย์</p>',
+         en:'<div class="eq">Choice(t) ≥ 1 → collapse = False</div><p>At time t, as long as at least one option remains, the system has not collapsed. Fewer options means higher risk.</p><div class="eq">Risk = Drift × Exposure × Time ÷ Choice</div><p>A decision that closes every door is systemic violence — so the system never gives an answer that leaves zero options.</p>'},
+      q:{th:'ถ้า Choice(t) = 0 จะเกิดอะไร', en:'What happens if Choice(t) = 0?'},
+      a:[{th:'ระบบดีขึ้น', en:'The system improves'},{th:'ไม่มีอะไรเกิดขึ้น', en:'Nothing'},{th:'ระบบพัง (collapse)', en:'The system collapses'},{th:'เรียนจบ', en:'You graduate'}], ok:2,
+      x:{th:'ไม่เหลือทางให้เลือก = พัง', en:'No option left = collapse'} },
+    { t:{th:'🌊 Waterline — เส้นที่ห้ามต่ำกว่า', en:'🌊 Waterline — the floor you must not cross'},
+      b:{th:'<p>Waterline คือ<b>เส้นขั้นต่ำที่ห้ามให้ต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้</b> ใช้ได้ 3 แบบ:</p><ul><li><b>เส้นวัดจม/รอด</b> — ยังเหนือน้ำ หรือกำลังจม</li><li><b>เส้นอ้างอิง Drift Zero</b> — ต้องดึงความเสี่ยงกลับก่อนถึงตรงไหน (Stop-the-Line)</li><li><b>เกราะ L0</b> — ต่อให้ผันผวนแค่ไหน ห้ามต่ำกว่าเส้นนี้เด็ดขาด</li></ul><div class="eq">W = ((100 − Entropy) + Resources + Stability) ÷ 3</div><p>ตัวอย่าง: Entropy 78 · Stability 28 · Resources 35 → W = 28 ใกล้เส้นขั้นต่ำ 25 แล้ว</p>',
+         en:'<p>The Waterline is <b>the floor you must not go below — beneath it, damage can’t be undone</b>. Three uses:</p><ul><li><b>Survivability level</b> — above water, or sinking</li><li><b>Drift Zero reference</b> — where to pull risk back before it spreads (stop the line)</li><li><b>L0 shield</b> — however volatile things get, never go below it</li></ul><div class="eq">W = ((100 − Entropy) + Resources + Stability) ÷ 3</div><p>Example: Entropy 78 · Stability 28 · Resources 35 → W = 28, close to the floor of 25.</p>'},
+      q:{th:'Entropy 90 · Stability 10 · Resources 5 → W เท่าไหร่ และหมายความว่าอะไร', en:'Entropy 90 · Stability 10 · Resources 5 → what is W, and what does it mean?'},
+      a:[{th:'W = 70 ปลอดภัย', en:'W = 70, safe'},{th:'W ≈ 8 ใต้ระดับน้ำ', en:'W ≈ 8, below water'},{th:'W = 50 ใกล้เส้น', en:'W = 50, near the line'},{th:'ไม่มีผลอะไร', en:'No effect'}], ok:1,
+      x:{th:'(10 + 5 + 10) ÷ 3 ≈ 8 — ต่ำกว่าเส้นขั้นต่ำมาก', en:'(10 + 5 + 10) ÷ 3 ≈ 8 — far below the floor'} },
+    { t:{th:'⚖️ 6 สัจธรรมของ FATE™', en:'⚖️ The six FATE™ axioms'},
+      b:{th:'<ol><li><b>ตรรกะเหนือบุคลิก</b> — ตัดสินจากเหตุผล ไม่ใช่ความชอบหรือชื่อเสียง</li><li><b>กฎเหนืออำนาจ</b> — ไม่มีใครอยู่เหนือกฎ</li><li><b>กำหนดได้</b> — input เดิม ได้ output เดิม ตรวจย้อนได้</li><li><b>ผลเสียก่อนผลดี</b> — ดู Downside ก่อนเสมอ</li><li><b>อธิบายได้ = ใช้ได้</b> — อธิบายไม่ได้ภายใน 2 นาที ห้ามใช้</li><li><b>มนุษย์ตัดสินขั้นสุดท้าย</b> — ระบบแนะนำ คนเป็นผู้ตัดสินใจเสมอ</li></ol>',
+         en:'<ol><li><b>Logic over persona</b> — decide by reason, not liking or reputation</li><li><b>Rule over authority</b> — no one is above the rules</li><li><b>Determinism</b> — same input, same output, traceable</li><li><b>Downside before upside</b> — always look at the downside first</li><li><b>Explainable = usable</b> — if it can’t be explained in 2 minutes, don’t use it</li><li><b>Human final authority</b> — the system advises, a human decides</li></ol>'},
+      q:{th:'ข้อไหนสำคัญที่สุด', en:'Which axiom matters most?'},
+      a:[{th:'ข้อ 1', en:'Axiom 1'},{th:'ข้อ 3', en:'Axiom 3'},{th:'สำคัญเท่ากันทั้ง 6 — ขาดข้อเดียวระบบเสีย', en:'All six equally — lose one and the system breaks'},{th:'ข้อ 5', en:'Axiom 5'}], ok:2,
+      x:{th:'ทั้ง 6 ข้อค้ำกันอยู่', en:'The six hold each other up'} },
+    { t:{th:'❤️ Ethical Kernel — ชั้นที่กันไม่ให้ทำร้าย', en:'❤️ The Ethical Kernel'},
+      b:{th:'<ol><li>ชีวิต > ประสิทธิภาพ</li><li>ลดทุกข์ > เพิ่มผล</li><li>มีเมตตา > ถูกแต่เย็นชา</li><li>เลือกทางที่ทำร้ายน้อยที่สุด</li><li>ไม่มีทางเลือก = ความรุนแรง</li><li>เงียบ > คำตอบที่ทำร้าย</li><li>ผู้เปราะบางต้องได้รับการคุ้มครองก่อน</li></ol><p>ตัวอย่าง ❌ ให้สัตว์ตายเพราะสะดวก · ✅ หาทางที่ไม่ต้องแลกชีวิต (SYSTEM CORE 61)</p>',
+         en:'<ol><li>Life > efficiency</li><li>Less suffering > more output</li><li>Compassion > correct but cold</li><li>Choose the least harmful path</li><li>No choice = violence</li><li>Silence > a harmful answer</li><li>The vulnerable are protected first</li></ol><p>Example ❌ letting animals die for convenience · ✅ find a way that costs no lives (SYSTEM CORE 61)</p>'},
+      q:{th:'Ethical Kernel มีไว้เพื่ออะไร', en:'What is the Ethical Kernel for?'},
+      a:[{th:'สร้างกฎเข้มงวด', en:'Strict rules'},{th:'ป้องกันไม่ให้ระบบทำร้ายชีวิต', en:'Stop the system from harming life'},{th:'บังคับให้ทุกคนเหมือนกัน', en:'Make everyone the same'},{th:'เพิ่มความเร็ว', en:'Speed'}], ok:1,
+      x:{th:'ตัวเลขดีแค่ไหน ถ้าทิ้งคน ถือว่าล้มเหลว', en:'However good the numbers, leaving people behind is failure'} },
+    { t:{th:'🗣️ สภา 6 เสียง', en:'🗣️ The council of six'},
+      b:{th:'<p>ไม่มีคำตอบเดียวที่ถูกสำหรับทุกคน แต่มีคำตอบที่สมดุล — 6 มุมเห็นภาพชัดกว่า</p><ul><li><b>◈ LYLA</b> หัวใจ — ความรู้สึก ผู้เปราะบาง</li><li><b>◆ VEGA</b> ความเสี่ยง — ลดความเสียหาย</li><li><b>☸ PATICCA</b> ต้นเหตุ — ตัดที่ราก</li><li><b>▲ TITAN</b> ทางรอดวันนี้ — ขั้นต่ำที่ทำได้ทันที</li><li><b>✦ COSMOS</b> ภาพยาว — ความยืดหยุ่นในอนาคต</li><li><b>⬡ CIVIL</b> แรงกระเพื่อม — ผลต่อคนรอบข้างและสังคม</li></ul>',
+         en:'<p>No single answer is right for everyone, but some are balanced — six views see more clearly.</p><ul><li><b>◈ LYLA</b> heart — feelings, the vulnerable</li><li><b>◆ VEGA</b> risk — reduce damage</li><li><b>☸ PATICCA</b> cause — cut the root</li><li><b>▲ TITAN</b> survival today — the minimum you can do now</li><li><b>✦ COSMOS</b> long view — future resilience</li><li><b>⬡ CIVIL</b> ripple — effects on others and society</li></ul>'},
+      q:{th:'LYLA กับ VEGA ต่างกันยังไง', en:'How do LYLA and VEGA differ?'},
+      a:[{th:'ไม่ต่างกัน', en:'No difference'},{th:'LYLA ดูใจ VEGA ดูความเสี่ยง', en:'LYLA looks at the heart, VEGA at the risk'},{th:'LYLA ดีกว่า', en:'LYLA is better'},{th:'VEGA ไม่ได้อยู่ในสภา', en:'VEGA isn’t in the council'}], ok:1,
+      x:{th:'สองมุมนี้ต้องมาด้วยกัน', en:'The two views belong together'} },
+    { t:{th:'↩️ Downside ก่อน และทางที่ย้อนกลับไม่ได้', en:'↩️ Downside first, and irreversible moves'},
+      b:{th:'<p>ทางที่ได้ผลเร็วที่สุดในวันแรก มักมีราคาซ่อนอยู่ในวันถัดไป — ดอกเบี้ย ความไว้ใจที่หายไป หรือทางอื่นที่ถูกปิด</p><ul><li>ถามก่อนเสมอ: <b>ถ้าพลาด อะไรเสียหายที่สุด</b></li><li>ทางที่<b>ย้อนกลับได้</b>และทดลองเล็กได้ มาก่อนทางที่ย้อนกลับไม่ได้</li><li>ใช้หลายทางร่วมกัน ดีกว่าพึ่งทางเดียว</li></ul><p>ไปลองในแท็บ 🎮 ได้เลย — ระบบจะให้เห็นราคาจริงของแต่ละทาง</p>',
+         en:'<p>The path that pays off fastest on day one often hides a price the next day — interest, lost trust, or other doors closing.</p><ul><li>Always ask first: <b>if this fails, what is the worst damage?</b></li><li><b>Reversible</b>, small experiments come before irreversible moves</li><li>Combining paths beats relying on one</li></ul><p>Try it in the 🎮 tab — you’ll see the real price of each path.</p>'},
+      q:{th:'ก่อนตัดสินใจเรื่องใหญ่ ควรดูอะไรก่อน', en:'Before a big decision, what should you look at first?'},
+      a:[{th:'กำไรสูงสุดที่เป็นไปได้', en:'The biggest possible gain'},{th:'ผลเสียที่แย่ที่สุด และย้อนกลับได้ไหม', en:'The worst downside, and whether it’s reversible'},{th:'คนอื่นทำอะไร', en:'What others do'},{th:'ทำให้เร็วที่สุด', en:'Doing it as fast as possible'}], ok:1,
+      x:{th:'FATE ข้อ 4: Downside ก่อน Upside', en:'FATE axiom 4: downside before upside'} },
+    { t:{th:'🎓 สรุป: Fail Less, Harm Less, Restore Choice', en:'🎓 Summary: Fail less, harm less, restore choice'},
+      b:{th:'<ul><li>Choice(t) ≥ 1 เสมอ = ยังไม่พัง</li><li>Waterline = เส้นที่ห้ามต่ำกว่า</li><li>6 สัจธรรม FATE = หลักที่ไม่เปลี่ยน</li><li>Ethical Kernel = ไม่ทำร้ายชีวิต</li><li>สภา 6 เสียง = เห็นภาพครบ</li><li>คนเป็นผู้ตัดสินใจ — เสมอ</li></ul><p>ไม่มีระบบไหนสมบูรณ์ KING DIADEM ไม่สัญญาว่าจะทำให้ชนะ แต่สัญญาว่าจะไม่ทำให้ใครพัง</p>',
+         en:'<ul><li>Choice(t) ≥ 1 always = not collapsed</li><li>Waterline = the floor you must not cross</li><li>Six FATE axioms = rules that don’t change</li><li>Ethical Kernel = no harm to life</li><li>Council of six = the full picture</li><li>A human decides — always</li></ul><p>No system is perfect. KING DIADEM doesn’t promise you’ll win — it promises not to break anyone.</p>'},
+      q:{th:'ข้อสรุปสำคัญที่สุดคืออะไร', en:'What is the key takeaway?'},
+      a:[{th:'ชนะทุกครั้ง', en:'Win every time'},{th:'ลดความเสียหาย และรักษาทางเลือกไว้เสมอ', en:'Reduce harm and always keep options'},{th:'ทำให้ระบบสมบูรณ์', en:'Make the system perfect'},{th:'คนควรทำตามระบบ', en:'People should obey the system'}], ok:1,
+      x:{th:'ระบบเป็นกระจก ไม่ใช่เจ้านาย', en:'The system is a mirror, not a master'} }
+  ];
+  var cur = 0;
+  function showLesson(i){
+    cur = Math.max(0, Math.min(LESSONS.length - 1, i));
+    var x = LESSONS[cur];
+    var h = '<p class="meta">' + esc(L(UI.lesson)) + ' ' + (cur + 1) + ' / ' + LESSONS.length + '</p><h2>' + esc(L(x.t)) + '</h2>' + L(x.b) +
+      '<div class="quiz"><b>❓ ' + esc(L(x.q)) + '</b>' + x.a.map(function(a, k){ return '<button type="button" data-k="' + k + '">' + 'ABCD'[k] + ') ' + esc(L(a)) + '</button>'; }).join('') + '<div class="fb" id="fb"></div></div>';
+    $('lesson').innerHTML = h;
+    Array.prototype.forEach.call($('lesson').querySelectorAll('.quiz button'), function(b){
+      b.addEventListener('click', function(){
+        var k = +b.getAttribute('data-k'), ok = k === x.ok, fb = $('fb');
+        Array.prototype.forEach.call($('lesson').querySelectorAll('.quiz button'), function(o){ o.classList.remove('right', 'wrong'); });
+        b.classList.add(ok ? 'right' : 'wrong');
+        fb.className = 'fb ' + (ok ? 'right' : 'wrong');
+        fb.textContent = (ok ? L(UI.right) + ' — ' : L(UI.wrong)) + L(x.x);
+      });
+    });
+    $('prog').style.width = ((cur + 1) / LESSONS.length * 100) + '%';
+    $('prev').textContent = L(UI.prev); $('prev').disabled = cur === 0;
+    $('next').textContent = cur === LESSONS.length - 1 ? L(UI.done) : L(UI.next);
+    window.scrollTo(0, 0);
+  }
+  $('prev').addEventListener('click', function(){ showLesson(cur - 1); });
+  $('next').addEventListener('click', function(){ if(cur === LESSONS.length - 1) tab('sim'); else showLesson(cur + 1); });
+
+  function tab(t){
+    $('tab-learn').classList.toggle('on', t === 'learn'); $('tab-sim').classList.toggle('on', t === 'sim');
+    $('pane-learn').classList.toggle('hide', t !== 'learn'); $('pane-sim').classList.toggle('hide', t !== 'sim');
+    if(t === 'sim' && !SC) loadScenarios();
+  }
+  $('tab-learn').addEventListener('click', function(){ tab('learn'); });
+  $('tab-sim').addEventListener('click', function(){ tab('sim'); });
+
+  /* ── ฝึกจำลอง: POST /api/practice ส่งลำดับทางเลือก เซิร์ฟเวอร์เล่นซ้ำด้วยสมการจริง ── */
+  var SC = null, game = null, picks = [];
+  function api(body){
+    return fetch('/api/practice', { method: body ? 'POST' : 'GET', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: body ? JSON.stringify(body) : undefined })
+      .then(function(r){ return r.json(); });
+  }
+  function loadScenarios(){
+    api(null).then(function(d){
+      SC = d.scenarios;
+      $('pick').innerHTML = '<p class="meta">' + esc(L(UI.pick)) + '</p>' + SC.map(function(s){
+        return '<button type="button" class="btn" data-s="' + esc(s.id) + '">' + esc(L(s.title)) + '<small>' + esc(L(s.intro)) + '</small></button>'; }).join('');
+      Array.prototype.forEach.call($('pick').querySelectorAll('button'), function(b){ b.addEventListener('click', function(){ start(b.getAttribute('data-s')); }); });
+    });
+  }
+  function start(id){ picks = []; game = id; $('pick').classList.add('hide'); $('game').classList.remove('hide'); step(); }
+  function step(){
+    api({ scenario: game, choices: picks }).then(function(d){ render(d.scenario, d.result); });
+  }
+  function render(s, r){
+    $('g-title').textContent = L(s.title); $('g-intro').textContent = L(s.intro);
+    $('gE').textContent = r.state.E; $('gS').textContent = r.state.S; $('gR').textContent = r.state.R;
+    $('wdot').style.left = Math.max(0, Math.min(100, r.W)) + '%';
+    $('wfloor').textContent = L(UI.floor) + ' ' + s.waterline;
+    $('wnow').textContent = L(UI.now) + ' ' + r.W;
+    $('wchoice').textContent = 'Choice(t) = ' + r.choice_t;
+    $('g-event').textContent = r.next_event ? L(UI.day) + ' ' + (r.day + 1) + '/' + s.days + ' · ' + L(r.next_event) : '';
+    $('g-event').classList.toggle('hide', !r.next_event);
+    var opts = $('opts'); opts.innerHTML = '';
+    if(!r.done){
+      s.options.forEach(function(o){
+        var open = r.available.indexOf(o.id) >= 0;
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'btn opt'; b.disabled = !open;
+        b.innerHTML = esc(L(o)) + '<br><span class="tag">' + esc(o.voice) + '</span>' + (!o.reversible ? '<span class="tag irr">' + esc(L(UI.irr)) + '</span>' : '') +
+          (!o.dignity ? '<span class="tag dig">' + esc(L(UI.dig)) + '</span>' : '') + (open ? '' : '<span class="tag">' + esc(L(UI.closed)) + '</span>');
+        if(open) b.addEventListener('click', function(){ picks.push(o.id); step(); });
+        opts.appendChild(b);
+      });
+    }
+    var sum = $('g-sum');
+    if(r.done && r.summary){
+      sum.innerHTML = '<h2>' + esc(L(UI.end)) + '</h2><ul class="sum">' + (TH ? r.summary.th : r.summary.en).map(function(l){ return '<li>' + esc(l) + '</li>'; }).join('') + '</ul><button type="button" class="btn gold" id="again">' + esc(L(UI.again)) + '</button>';
+      sum.classList.remove('hide'); $('again').addEventListener('click', function(){ start(game); });
+    }else sum.classList.add('hide');
+    var byId = {}; s.options.forEach(function(o){ byId[o.id] = o; });
+    $('g-log').innerHTML = r.log.slice().reverse().map(function(e){
+      return '<div><b>' + esc(L(UI.day)) + ' ' + e.day + '</b> · ' + esc(L(byId[e.choice])) + ' ' + (e.repeat ? '<i>' + esc(L(UI.repeat)) + '</i>' : '') +
+        '<br><i>' + esc(L(e.why)) + '</i><br><i>' + esc(L(e.event)) + ' → W ' + e.W + '</i></div>'; }).join('');
+  }
+  $('g-back').textContent = L(UI.back);
+  $('g-back').addEventListener('click', function(){ $('game').classList.add('hide'); $('pick').classList.remove('hide'); });
+
+  showLesson(0);
+  if(location.hash === '#sim') tab('sim');
+})();
+</script>
+</body>
+</html>
