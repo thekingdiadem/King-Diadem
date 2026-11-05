@@ -136,6 +136,127 @@
   var ROUTE_YAW = { general: -.6, risk: .5, civil: -1.2, survival: 1.1, collapse: 1.7, vega: -1.8 }, routeYaw = 0;
   window.KD_setRoute = function (r) { if (ROUTE_YAW[r] == null) return; routeYaw = ROUTE_YAW[r]; setTimeout(function () { ripple(W / 2, H * .45); }, 600); kick(); };
 
+  /* ── ดาวจริงบนฟ้าจักรวาล: ดาวฤกษ์สว่าง (เวกา อัลดิบาแรน ซิริอัส …) + ดาวเคราะห์ ณ วันนี้ ───────────────────
+     วางตามพิกัดกาแล็กซีจริง เทียบกับแถบทางช้างเผือกของ shader (uN = ขั้วกาแล็กซี · uG = ใจกลาง) ดาวจึงอยู่ถูกฝั่งของแถบ
+     วาดในเฟรมเดียวกับ shader (จำกัด 90 เฟรมเหมือนกัน) · โหลดหลังหน้าเว็บนิ่ง · แตะดาว = ชื่อ ชนิด ระยะ */
+  var RS = { list: null, cv: null, cx: null, shown: [], pop: null };
+  var THAI = !/^en/i.test(document.documentElement.lang || 'th');
+  var GAL = [[-.0548755604, -.8734370902, -.4838350155], [.4941094279, -.4448296300, .7469822445], [-.8676661490, -.1980763734, .4559837762]];
+  function eqv(ra, dec) { var a = ra * Math.PI / 180, d = dec * Math.PI / 180; return [Math.cos(d) * Math.cos(a), Math.cos(d) * Math.sin(a), Math.sin(d)]; }
+  function toWorld(e) {                                       // ศูนย์สูตร J2000 → กาแล็กซี → โลกของ shader
+    var g = [0, 1, 2].map(function (i) { return GAL[i][0] * e[0] + GAL[i][1] * e[1] + GAL[i][2] * e[2]; }), E = crs(GN, GG);
+    return [g[0] * GG[0] + g[1] * E[0] + g[2] * GN[0], g[0] * GG[1] + g[1] * E[1] + g[2] * GN[1], g[0] * GG[2] + g[1] * E[2] + g[2] * GN[2]];
+  }
+  function bvRGB(bv) {
+    bv = Math.max(-.4, Math.min(2, bv));
+    var r = bv < .4 ? 175 + 200 * (bv + .4) : 255, g = bv < 0 ? 200 + 100 * (bv + .4) : bv < .6 ? 240 - 10 * bv : 234 - 60 * (bv - .6), b = bv < 0 ? 255 : bv < .4 ? 255 - 125 * bv : 205 - 56 * (bv - .4);
+    return [Math.min(255, r) | 0, Math.max(120, Math.min(255, g)) | 0, Math.max(70, Math.min(255, b)) | 0];
+  }
+  function tempK(bv) { return Math.round(4600 * (1 / (.92 * bv + 1.7) + 1 / (.92 * bv + .62)) / 100) * 100; }   // สูตร Ballesteros
+  function buildRealSky(cat) {
+    var named = {}; cat.named.forEach(function (n) { named[n[0]] = n; });
+    var L = [];
+    cat.stars.forEach(function (st, i) {
+      if (st[2] > 3.4) return;
+      var n = named[i], c = bvRGB(st[3]);
+      L.push({ e: eqv(st[0], st[1]), mag: st[2], bv: st[3], rgb: c, name: n ? (THAI && n[2] ? n[2] : n[1]) : '', en: n ? n[1] : '',
+               ly: n && n[3], kind: n ? (THAI ? n[4] : n[5]) : '', planet: false });
+    });
+    if (window.KD_astro) KD_astro.planets(new Date(), cat.planets).forEach(function (p) {
+      var mag = { mer: -.5, ven: -4.2, mar: .6, jup: -2.3, sat: .7, ura: 5.7, nep: 7.8 }[p.id];
+      L.push({ e: p.v, mag: mag, rgb: { mer: [216, 207, 196], ven: [255, 246, 220], mar: [255, 154, 106], jup: [243, 220, 180], sat: [234, 217, 166], ura: [191, 233, 240], nep: [143, 178, 255] }[p.id],
+               name: THAI ? p.th : p.en, en: p.en, kind: THAI ? p.kind : p.kind_en, au: p.au, planet: p.id });
+    });
+    L.sort(function (a, b) { return a.mag - b.mag; });
+    RS.list = L;
+    RS.cv = document.createElement('canvas'); RS.cv.id = 'real-stars';
+    RS.cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
+    cv.parentNode.appendChild(RS.cv); RS.cx = RS.cv.getContext('2d');
+    kick();
+  }
+  function loadRealSky() {
+    var go = function () {
+      fetch('/static/sky/catalog.json').then(function (r) { return r.ok ? r.json() : null; }).then(function (cat) {
+        if (!cat || !cat.stars) return;
+        var sc = document.createElement('script'); sc.src = '/static/sky_astro.js';
+        sc.onload = sc.onerror = function () { buildRealSky(cat); };
+        document.head.appendChild(sc);
+      }).catch(function () {});
+    };
+    if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 2500 }); else setTimeout(go, 1200);
+  }
+  function drawRealSky(yaw, pitch, f) {
+    if (!RS.cx) return;
+    var dpr = Math.min(2, window.devicePixelRatio || 1), cx2 = RS.cx;
+    if (RS.cv.width !== Math.round(W * dpr)) { RS.cv.width = Math.round(W * dpr); RS.cv.height = Math.round(H * dpr); }
+    cx2.setTransform(dpr, 0, 0, dpr, 0, 0); cx2.clearRect(0, 0, W, H);
+    if (RS.gn !== GN) { RS.list.forEach(function (o) { o.w = toWorld(o.e); }); RS.gn = GN; }   // จอหมุน = กรอบทางช้างเผือกเปลี่ยน
+    var cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), boxes = [], shown = [];
+    var day = document.documentElement.classList.contains('kd-day') ? .55 : 1;
+    cx2.textBaseline = 'middle'; cx2.font = '500 11.5px "Noto Sans Thai Looped",system-ui,sans-serif';
+    for (var i = 0; i < RS.list.length; i++) {
+      var o = RS.list[i], d = o.w;
+      var v0 = d[0] * cy + d[2] * sy, v2a = -d[0] * sy + d[2] * cy, v1 = d[1] * cp + v2a * sp, v2 = -d[1] * sp + v2a * cp;
+      if (v2 > -.05) continue;                                 // อยู่ด้านหลังกล้อง
+      var x = W / 2 + f * v0 / -v2, y = H / 2 - f * v1 / -v2;
+      if (x < -20 || x > W + 20 || y < -20 || y > H + 20) continue;
+      var m = o.mag, rad = Math.max(.9, 3.1 - m * .62) * (o.planet ? 1.2 : 1), c = o.rgb, a = Math.min(1, .55 + (3.6 - m) * .22) * day;
+      if (m < 2.3) {                                           // ดาวสว่าง: แสงฟุ้ง + แฉกบางๆ แบบเลนส์กล้อง
+        var gr = cx2.createRadialGradient(x, y, 0, x, y, rad * 8);
+        gr.addColorStop(0, 'rgba(' + c + ',' + (.6 * a).toFixed(3) + ')'); gr.addColorStop(.22, 'rgba(' + c + ',' + (.2 * a).toFixed(3) + ')'); gr.addColorStop(1, 'rgba(' + c + ',0)');
+        cx2.fillStyle = gr; cx2.fillRect(x - rad * 8, y - rad * 8, rad * 16, rad * 16);
+        if (!o.planet) {
+          cx2.strokeStyle = 'rgba(' + c + ',' + (.22 * a).toFixed(3) + ')'; cx2.lineWidth = .8;
+          cx2.beginPath(); cx2.moveTo(x - rad * 7, y); cx2.lineTo(x + rad * 7, y); cx2.moveTo(x, y - rad * 7); cx2.lineTo(x, y + rad * 7); cx2.stroke();
+        }
+      }
+      cx2.globalAlpha = a; cx2.fillStyle = 'rgb(' + c + ')';
+      cx2.beginPath(); cx2.arc(x, y, rad, 0, 6.2832); cx2.fill();
+      if (o.planet === 'sat') { cx2.strokeStyle = 'rgba(234,217,166,.75)'; cx2.lineWidth = 1; cx2.beginPath(); cx2.ellipse(x, y, rad * 2.6, rad * .85, -.4, 0, 6.2832); cx2.stroke(); }
+      cx2.globalAlpha = 1;
+      shown.push({ x: x, y: y, o: o });
+      // ชื่อ: ดาวเคราะห์ทุกดวงที่ตาเปล่าเห็น + ดาวฤกษ์ที่สว่างมาก · ไม่ทับกัน
+      if (o.name && (o.planet ? m < 2 : m < 1.6)) {
+        var tw = cx2.measureText(o.name).width, bx = [x + rad + 4, y - 8, x + rad + 10 + tw, y + 8], hit = false;
+        for (var j = 0; j < boxes.length; j++) { var b = boxes[j]; if (bx[0] < b[2] && bx[2] > b[0] && bx[1] < b[3] && bx[3] > b[1]) { hit = true; break; } }
+        if (!hit) {
+          boxes.push(bx); cx2.shadowColor = 'rgba(0,0,0,.85)'; cx2.shadowBlur = 4;
+          cx2.fillStyle = o.planet ? 'rgba(255,236,200,' + (.9 * day) + ')' : 'rgba(220,230,255,' + (.72 * day) + ')';
+          cx2.fillText(o.name, x + rad + 6, y); cx2.shadowBlur = 0;
+        }
+      }
+    }
+    RS.shown = shown;
+  }
+  function realStarAt(px, py) {
+    var best = null, bd = 1e9;
+    RS.shown.forEach(function (s) { var d = Math.hypot(s.x - px, s.y - py); if (d < 20 && d + s.o.mag * 2 < bd) { bd = d + s.o.mag * 2; best = s; } });
+    return best;
+  }
+  function showRealStar(s) {
+    if (!RS.pop) {
+      RS.pop = document.createElement('div'); RS.pop.className = 'star-pop'; RS.pop.setAttribute('role', 'status'); RS.pop.setAttribute('aria-live', 'polite');
+      document.body.appendChild(RS.pop);
+    }
+    var o = s.o, p = RS.pop, en = !THAI; p.textContent = '';
+    function line(tag, txt) { var e = document.createElement(tag); e.textContent = txt; p.appendChild(e); }
+    line('b', o.name || (en ? 'Star' : 'ดาวฤกษ์'));
+    if (o.en && o.en !== o.name) line('i', o.en);
+    line('span', o.kind || (o.planet ? '' : (en ? 'Star · about ' : 'ดาวฤกษ์ · ผิวร้อนราว ') + tempK(o.bv).toLocaleString() + ' K'));
+    if (o.ly) line('span', (en ? 'About ' : 'ห่างจากเราราว ') + o.ly.toLocaleString() + (en ? ' light-years away' : ' ปีแสง'));
+    if (o.au) line('span', (en ? 'Now ' : 'ตอนนี้ห่างโลก ') + o.au.toFixed(2) + ' AU' + (en ? ' (' : ' (แสงเดินทาง ') + Math.round(o.au * 8.317) + (en ? ' light-minutes)' : ' นาที)'));
+    var a = document.createElement('a'); a.href = '/sky'; a.textContent = en ? 'See it in tonight’s sky ›' : 'ดูในท้องฟ้าคืนนี้ ›'; p.appendChild(a);
+    p.style.left = Math.round(Math.max(8, Math.min(W - 248, s.x + 14))) + 'px'; p.style.top = Math.round(Math.max(60, Math.min(H - 150, s.y - 12))) + 'px';
+    p.classList.remove('hide');
+  }
+  addEventListener('click', function (e) {
+    if (!RS.list || e.target.closest('a,button,input,textarea,label,.sim-box,.star-pop')) return;
+    var s = realStarAt(e.clientX, e.clientY);
+    if (s) showRealStar(s); else if (RS.pop) RS.pop.classList.add('hide');
+  });
+  addEventListener('scroll', function () { if (RS.pop) RS.pop.classList.add('hide'); }, { passive: true });
+  loadRealSky();
+
   function draw(now) {
     raf = 0; if (document.hidden) return;
     var gap = last ? (now - last) / 1000 : 0; last = now; acc = Math.min(acc + gap, 2 / 90);
@@ -158,6 +279,7 @@
     gl.uniform1f(U.uGal, cam.gal); gl.uniform1f(U.uDim, 1); gl.uniform3f(U.uN, GN[0], GN[1], GN[2]); gl.uniform3f(U.uG, GG[0], GG[1], GG[2]);
     gl.uniform4f(U.uRip, rips[0].x || 0, rips[0].y || 0, rips[0].z || -1, rips[0].w); gl.uniform4f(U.uRip2, rips[1].x || 0, rips[1].y || 0, rips[1].z || -1, rips[1].w);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    drawRealSky(cam.yaw, pitch, f);
     if (hud) { var deg = ((cam.yaw * 180 / Math.PI) % 360 + 360) % 360; hud.style.transform = 'translateX(' + (-deg * 2 - 120) + 'px)'; if (hudDeg) hudDeg.textContent = Math.round(deg) + '°'; }
     var moving = !calm || Math.abs(yaw - cam.yaw) > 1e-4 || dolly >= 0 || rips[0].w >= 0 || rips[1].w >= 0 || Math.abs(look.tx - look.x) > 1e-3;
     if (moving) kick();
