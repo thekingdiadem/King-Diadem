@@ -43,3 +43,12 @@ def test_someone_elses_risk_is_not_answered_as_the_users_own_crisis():
 ])
 def test_similar_ordinary_sentences_are_not_alarms(text):
     assert not detected(assess(text)) & {"self_harm", "violence"}, text
+
+
+def test_trusted_adult_gets_report_to_school_not_block_in_app():
+    """โค้ช/ครูที่เด็กเจอทุกสัปดาห์ บล็อกในแอปไม่ช่วย — ต้องเก็บหลักฐาน ไม่ให้อยู่ลำพัง แจ้งผู้บริหารและสายด่วน"""
+    from core.kernel_voice import compose
+    coach = compose("โค้ชฟุตบอลขอรูปไม่ใส่เสื้อจากลูกชาย")
+    assert "ผู้บริหารโรงเรียน" in coach and "ตามลำพัง" in coach and "1387" in coach and "บล็อก" not in coach
+    stranger = compose("ลูกคุยกับคนแปลกหน้าในเกม เขาขอรูป")
+    assert "บล็อก" in stranger and "ผู้บริหารโรงเรียน" not in stranger

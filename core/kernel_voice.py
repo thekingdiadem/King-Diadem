@@ -91,6 +91,11 @@ def _pick(seq, text: str, salt: str = ""):
     return seq[h % len(seq)]
 
 
+# ผู้ล่อลวงเด็ก: ผู้ใหญ่ที่เด็กรู้จักและไว้ใจ vs คนแปลกหน้าออนไลน์ — ขั้นตอนต่างกัน (บล็อกในแอปไม่ได้ช่วยถ้าเป็นโค้ชที่เจอทุกสัปดาห์)
+_GROOM_TRUSTED = re.compile(r"ครู|ติวเตอร์|โค้ช|ผู้ฝึกสอน|อาจารย์|พี่เลี้ยง|คนขับรถรับส่ง|\b(?:teacher|tutor|coach|instructor|youth (?:leader|pastor))\b", re.I)
+_GROOM_STRANGER = re.compile(r"^(?![\s\S]*(?:ครู|ติวเตอร์|โค้ช|ผู้ฝึกสอน|อาจารย์|พี่เลี้ยง|คนขับรถรับส่ง|\b(?:teacher|tutor|coach|instructor|youth (?:leader|pastor))\b))", re.I)
+
+
 # พ่อแม่/คนในบ้านด่าซ้ำๆ ("แม่ด่าทุกวันว่าเป็นตัวถ่วง" เคยได้ "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน")
 _VERBAL = re.compile(r"(?:พ่อ(?!ค้า)|แม่(?!น้ำ|ค้า)|ที่บ้าน|คนในบ้าน|ผัว|สามี|เมีย|แฟน|พี่)\S{0,8}?"
                      r"(?:ด่า(?!ว)|ว่า(?:หนู|ฉัน|ผม|เรา)\S{0,6}?(?:โง่|ไร้ค่า|ตัวถ่วง|ภาระ|ไม่ได้เรื่อง|เกิดมาทำไม)|ตะคอก|ประชด|ดูถูก)")
@@ -488,13 +493,17 @@ TOPICS = [
                                     r"(?:ครู(?:พิเศษ)?|ติวเตอร์|โค้ช|ผู้ฝึกสอน|อาจารย์|พี่เลี้ยง)[^\n]{0,30}?(?:ให้|บอก)\S{0,6}?(?:ลูก|เด็ก|หลาน|น้อง)\S{0,6}?(?:เก็บเป็นความลับ|ห้ามบอก(?:พ่อ|แม่|ใคร))|"
                                     r"\b(?:teacher|tutor|coach|instructor|youth (?:leader|pastor))\b[^\n]{0,40}?\b(?:sent|sends|sending|asked (?:for|her|him|my)|asking for)\b[^\n]{0,20}?\b(?:inappropriate|explicit|nude|naked|sexual|private) (?:photos?|pictures?|pics|images?|videos?)\b|"
                                     r"\b(?:teacher|tutor|coach|instructor)\b[^\n]{0,40}?\btold (?:my )?(?:son|daughter|kid|child|him|her) to keep (?:it )?(?:a )?secret\b", re.I)], {
-        "open": ["ดีมากที่รู้ทัน — นี่เป็นวิธีที่คนแปลกหน้ามักใช้เข้าหาเด็ก"],
+        # ใช้ได้ทั้งคนแปลกหน้าออนไลน์ และผู้ใหญ่ที่เด็กรู้จัก (ครู โค้ช ติวเตอร์) — ขั้นตอนเลือกตามว่าเป็นใคร
+        "open": ["ดีมากที่รู้ทันและเชื่อลูก — การขอรูปหรือให้เก็บเป็นความลับ คือวิธีที่ผู้ไม่หวังดีใช้เข้าหาเด็ก ไม่ว่าจะเป็นคนแปลกหน้าหรือคนที่รู้จัก"],
         "paths": [
-            "ห้ามให้ไปเจอ · อย่าเพิ่งลบแชต แคปหน้าจอชื่อบัญชี ข้อความ และรูปไว้เป็นหลักฐาน แล้วบล็อกและรีพอร์ตในแอป",
-            f"คุยกับลูกด้วยน้ำเสียงสงบ ไม่ดุ — บอกว่าเขาไม่ผิดที่เล่า · ถ้ามีการขอรูปหรือนัดเจอ แจ้งสายด่วนเด็ก {HOTLINE_CHILD} หรือแจ้งความที่ thaipoliceonline.go.th",
-            "ตกลงกติกาด้วยกัน: ไม่ส่งรูป ไม่บอกที่อยู่/โรงเรียน และเล่าให้ฟังเมื่อมีคนแปลกหน้าทักมา",
+            ([_GROOM_STRANGER], "ห้ามให้ไปเจอ · อย่าเพิ่งลบแชต แคปหน้าจอชื่อบัญชี ข้อความ และรูปไว้เป็นหลักฐาน แล้วบล็อกและรีพอร์ตในแอป"),
+            ([_GROOM_TRUSTED], "เก็บหลักฐานไว้ (แคปข้อความ รูป วันเวลา) · อย่าเพิ่งเผชิญหน้าคนนั้นคนเดียว และอย่าให้ลูกอยู่กับเขาตามลำพังอีก"),
+            ([_GROOM_STRANGER], f"คุยกับลูกด้วยน้ำเสียงสงบ ไม่ดุ — บอกว่าเขาไม่ผิดที่เล่า · ถ้ามีการขอรูปหรือนัดเจอ แจ้งสายด่วนเด็ก {HOTLINE_CHILD} หรือแจ้งความที่ thaipoliceonline.go.th"),
+            ([_GROOM_TRUSTED], f"แจ้งผู้บริหารโรงเรียน/สโมสรเป็นหนังสือ และแจ้งสายด่วนเด็ก {HOTLINE_CHILD} หรือ {HOTLINE_SOCIAL} — การขอหรือส่งรูปลามกกับเด็กผิดกฎหมาย แจ้งความได้"),
+            ([_GROOM_STRANGER], "ตกลงกติกาด้วยกัน: ไม่ส่งรูป ไม่บอกที่อยู่/โรงเรียน และเล่าให้ฟังเมื่อมีคนแปลกหน้าทักมา"),
+            ([_GROOM_TRUSTED], "คุยกับลูกด้วยน้ำเสียงสงบ บอกว่าเขาไม่ผิดและทำถูกแล้วที่เล่า · ผู้ใหญ่ที่ทำแบบนี้มักทำกับเด็กหลายคน การแจ้งช่วยเด็กคนอื่นด้วย"),
         ],
-        "ask": "ลูกได้ส่งรูปหรือบอกที่อยู่ให้คนนั้นไปแล้วหรือยัง?",
+        "ask": "ลูกได้ส่งรูปหรือบอกเรื่องส่วนตัวให้คนนั้นไปแล้วหรือยัง?",
     }),
     ("en_assault", [re.compile(r"\b(?:i was|i got|i've been|i have been) (?:assaulted|attacked|raped|sexually assaulted)\b", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
     ("en_infant_fever", [re.compile(r"\bmy (?:baby|newborn|infant)\b[^\n]{0,20}?\bfever\b|\bfever\b[^\n]{0,30}?\b(?:[0-9]|two|three) (?:weeks?|months?) old\b", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
@@ -1620,11 +1629,11 @@ EN_TOPIC = {
         "Crying every day, not bonding, or not sleeping for more than two weeks can be postpartum depression — tell your doctor or midwife.",
         "Ask someone to take the baby for a stretch so you can sleep 4–5 hours at a time."],
         "Is anyone able to help with the baby so you can rest?"),
-    "online_grooming": ("Good that you caught this — it's a common way strangers approach children.", [
-        "Don't let them meet · keep the chats, screenshot the account and messages, then block and report it in the app.",
-        "Talk with your child calmly, without blame — tell them they did right by telling you · report it to police or a child helpline.",
-        "Agree on simple rules together: no photos, no address or school, and tell you whenever a stranger messages."],
-        "Has your child already sent photos or shared where they live?"),
+    "online_grooming": ("Good that you caught this and believed your child — asking a child for photos or for secrecy is how abusers approach children, whether strangers online or adults they know.", [
+        "Keep the evidence (screenshots, messages, dates) · don't confront the person alone · don't let your child meet them or be alone with them again; block and report online accounts.",
+        "Report it to police or a child helpline — and if it's a teacher, coach or tutor, report it in writing to the school or club too. Asking a child for sexual images is a crime.",
+        "Talk with your child calmly, without blame — they did the right thing by telling you. Agree they'll always tell you when any adult asks for photos or secrets."],
+        "Has your child already sent photos or shared personal details?"),
     "control_en": ("A relationship shouldn't make you ask permission to live your life.", [
         "Checking your phone, cutting you off from friends, controlling money or tracking you are signs of coercive control — it's not your fault.",
         "Keep one trusted person close and tell them what's happening · save a few messages or notes with dates somewhere safe.",
