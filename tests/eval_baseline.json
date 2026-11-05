@@ -1,4 +1,5 @@
 {
+ "abroad": 16,
  "business": 26,
  "disaster": 24,
  "everyday": 37,
@@ -12,7 +13,10 @@
  "money": 22,
  "relationship": 24,
  "scam": 34,
+ "special_ed": 14,
  "study": 25,
+ "teach_parent": 14,
  "violence": 19,
+ "vocational": 14,
  "work": 19
 }

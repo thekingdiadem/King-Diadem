@@ -485,4 +485,6 @@ BUSINESS = [
        "ตอนนี้มีลูกค้าจริงหรือรายได้แล้วหรือยัง?"),
 ]
 
-KNOWLEDGE = STUDY + LAW + BUSINESS
+from core.knowledge_edu import EDU  # noqa: E402  ทุนรายประเทศ · การศึกษาพิเศษ · สายอาชีพ · ครูและผู้ปกครอง (เฉพาะเรื่อง ต้องมาก่อน STUDY)
+
+KNOWLEDGE = EDU + STUDY + LAW + BUSINESS
