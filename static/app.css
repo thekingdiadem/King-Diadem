@@ -1114,3 +1114,28 @@ code,pre,.files code,.files td.f,.pipe code,.dir summary .n,.eq,#u-card .sym,#tf
 .ariya .ar-note{font-size:12px;color:var(--ink-3)}
 .ariya .mg-h{font:600 12.5px/1 var(--f-sans);color:var(--ink-2);margin-bottom:8px}
 .ariya .mg-n{margin:6px 0 0;font-size:13px;line-height:1.55;color:var(--ink-2)}
+
+/* ── โหมดการใช้งาน: ปรึกษา · DriftZero · สร้างภาพ ─────────────────────────── */
+.mode-seg{display:flex;width:max-content;max-width:100%;margin:0 0 8px;overflow-x:auto;scrollbar-width:none}
+.mode-seg::-webkit-scrollbar{display:none}
+.mode-seg button{height:30px;padding:0 13px;font:500 12.5px var(--f-sans);letter-spacing:.02em;white-space:nowrap}
+.mode-seg button.on{background:var(--warm,#ffe3b8);color:#1a1630;font-weight:600}
+body.mode-dz .comp-row1,body.mode-img .comp-row1,body.mode-dz #starters,body.mode-img #starters{display:none}
+.who .dz{color:#9fd6c8}.who .img{color:#f4b8e4}
+.dz{margin-top:10px;border:1px solid var(--line-2);border-radius:14px;padding:12px 14px;background:rgba(9,12,30,.45);font:400 13.5px/1.6 var(--f-sans)}
+.dz-h{display:flex;align-items:center;gap:10px;font-weight:600;color:var(--ink-2);margin-bottom:8px}
+.dz-v{border-radius:999px;padding:2px 10px;font-size:12px}
+.dz-v.stop{background:rgba(255,107,107,.18);color:#ffb3b3}.dz-v.ask{background:rgba(255,206,120,.16);color:#ffd99a}.dz-v.pass{background:rgba(120,220,170,.16);color:#a8f0c8}
+.dz-g{border-left:3px solid #ff8c8c;padding:4px 0 4px 10px;margin:8px 0}
+.dz-g b{display:block;color:var(--ink)}.dz-g span{display:block;color:var(--ink-2)}.dz-g i{display:block;color:var(--ink-3);font-size:12px}
+.dz-ok{margin:8px 0;color:var(--ink-3)}.dz-ok summary{cursor:pointer;color:#a8f0c8}
+.dz-ok span{display:inline-block;margin:4px 10px 0 0;font-size:12px}
+.dz-ask b{color:#ffd99a}.dz-ask ol{margin:4px 0 0;padding-left:20px;color:var(--ink-2)}
+.dz-sop{display:flex;align-items:center;gap:6px;margin-top:10px}
+.dz-sop span{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;border:1px solid var(--line-2);color:var(--ink-3)}
+.dz-sop span.done{background:rgba(120,220,170,.2);border-color:transparent;color:#a8f0c8}
+.dz-sop em{font-style:normal;font-size:12px;color:var(--ink-3);margin-left:4px}
+.dz-note{color:#ffd99a;margin:8px 0 0}.dz-foot{color:var(--ink-3);font-size:12px;margin:10px 0 0}
+.gen-img{margin:10px 0 0}.gen-img img{display:block;max-width:100%;border-radius:14px;border:1px solid var(--line-2)}
+.gen-img figcaption{margin-top:6px;font-size:13px}.gen-img a{color:var(--gold-hi,#ffd28f);cursor:pointer}
+.gen-gone{color:var(--ink-3);font-size:13px;margin:8px 0 0}

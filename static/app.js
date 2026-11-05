@@ -2249,7 +2249,7 @@ var Cosmos = (function(){
 /* ════════════════════════════════════════════════════════════════
    RENDER CHAT
    ════════════════════════════════════════════════════════════════ */
-var PNAME = { LYLA:['LYLA','lyla'], VEGA:['VEGA','vega'], COUNCIL:['สภา 6 เสียง','council'], CRISIS:['HALT · ช่วยเหลือฉุกเฉิน','crisis'] };
+var PNAME = { LYLA:['LYLA','lyla'], VEGA:['VEGA','vega'], COUNCIL:['สภา 6 เสียง','council'], CRISIS:['HALT · ช่วยเหลือฉุกเฉิน','crisis'], DRIFTZERO:['DriftZero','dz'], IMAGE:['สร้างภาพ','img'] };
 function crisisCard(){
   return '<div class="crisis-card"><b>' + _t('ถ้ากำลังอยู่ในอันตราย หรือคิดทำร้ายตัวเอง') + '</b> ' + _t('โทรหาคนที่ช่วยได้ทันที') + '<br>' +
     '<a href="tel:1323">1323</a>' + _t('สายด่วนสุขภาพจิต 24 ชม.') + '<br><a href="tel:1669">1669</a>' + _t('เจ็บป่วยฉุกเฉิน') + ' <a href="tel:191">191</a>' + _t('ตำรวจ') + '</div>';
@@ -2317,10 +2317,12 @@ function msgEl(m){
   var crisis = t.mode === 'crisis' || /1323|1669/.test(m.t);
   var star = m.tr ? '<span class="star" style="color:' + riskColor(t.risk) + '" title="' + _t('ดาวของการตัดสินใจนี้') + '"></span>' : '';
   el.innerHTML = '<div class="who">' + star + '<span class="' + pn[1] + '">' + _t(pn[0]) + '</span><span class="tag">' + esc(tags.join(' · ')) + '</span></div>' +
-    '<div class="bubble">' + telify(key === 'COUNCIL' ? councilFmt(m.t) : fmt(m.t)) + '</div>' + (crisis ? crisisCard() : '') + twCard(t) + helpCard(m.l) +
+    '<div class="bubble">' + telify(key === 'COUNCIL' ? councilFmt(m.t) : fmt(m.t)) + '</div>' + (m.dz ? dzCard(m.dz) : '') + (m.img ? imgCard(m) : '') + (crisis ? crisisCard() : '') + twCard(t) + helpCard(m.l) +
     (m.tr && eqStrip(t) ? '<button type="button" class="eqs">' + eqStrip(t) + '</button>' : '') +
     (m.tr ? voteRow(m) : '');
   var eb = el.querySelector('.eqs'); if(eb) eb.addEventListener('click', function(){ showEq(m); });
+  var gi = el.querySelector('.gen-img img'), ga = el.querySelector('.gen-img a');
+  if(gi && IMGS[m.ts]){ gi.src = IMGS[m.ts]; ga.href = IMGS[m.ts]; ga.setAttribute('download', 'king-diadem-' + m.ts + '.png'); }
   $$('.fb button', el).forEach(function(b){ b.addEventListener('click', function(){ vote(m, b.getAttribute('data-v'), el); }); });
   return el;
 }
@@ -2484,6 +2486,7 @@ async function send(textArg){
   var inp = $('#input'), text = String(textArg != null ? textArg : inp.value).trim();
   if(!text || busy) return;
   if(navigator.vibrate) try{ navigator.vibrate(6); }catch(_){}
+  if(Mode === 'dz' || Mode === 'img') return sendMode(text, Mode);
   var mode = detectMode(text), sessId = Chat.s.active;
   var history = Chat.cur().msgs.filter(function(m){ return m.r !== 'e'; }).slice(-8).map(function(m){ return { role: m.r === 'u' ? 'user' : 'assistant', content: m.t }; });
   var state = MyState.payload(), sentState = Object.keys(state).length > 0;
@@ -2517,6 +2520,72 @@ async function send(textArg){
     window.dispatchEvent(new CustomEvent('KD:thinking', { detail:{ on:false } }));
     if(window.KD_galaxy) KD_galaxy.refocus();
     if(born) Cosmos.birth(born.ts);
+  }
+}
+/* ════════════════════════════════════════════════════════════════
+   โหมดการใช้งาน: 💬 ปรึกษา · ◎ DriftZero · 🎨 สร้างภาพ — แยกกัน ไม่ปนกับการปรึกษา
+   DriftZero = ตรวจการตัดสินใจขององค์กร/โครงการด้วยกฎ (POST /api/driftzero · ไม่ใช้ AI ไม่หักโควตา)
+   สร้างภาพ = POST /api/image/generate (ต้องล็อกอิน · หักเครดิตตาม IMAGE_COST) · ภาพเก็บในหน่วยความจำเท่านั้น
+   (ไม่ลง localStorage/คลาวด์ — ภาพละหลายร้อย KB จะทำให้ที่เก็บแชทเต็ม) ผู้ใช้ดาวน์โหลดเก็บเองได้
+   ════════════════════════════════════════════════════════════════ */
+var Mode = 'talk', IMGS = {};
+var MODE_PH = { talk: 'เล่ามาได้เลย', dz: 'เล่าการตัดสินใจขององค์กรหรือโครงการ เช่น จะย้ายโรงงานไปริมแม่น้ำเพื่อลดต้นทุน', img: 'บอกภาพที่อยากได้ เช่น แมวส้มนั่งดูดาวบนหลังคา สไตล์สีน้ำ' };
+function setMode(m){
+  Mode = MODE_PH[m] ? m : 'talk';
+  $$('#mode-seg button').forEach(function(b){ var on = b.getAttribute('data-m') === Mode; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  document.body.classList.toggle('mode-dz', Mode === 'dz'); document.body.classList.toggle('mode-img', Mode === 'img');
+  $('#input').setAttribute('placeholder', _t(MODE_PH[Mode]));
+  try{ localStorage.setItem('kd-mode', Mode); }catch(_){}
+}
+$$('#mode-seg button').forEach(function(b){ b.addEventListener('click', function(){ setMode(b.getAttribute('data-m')); $('#input').focus(); }); });
+try{ setMode(localStorage.getItem('kd-mode') || 'talk'); }catch(_){ setMode('talk'); }
+document.addEventListener('kd:lang', function(){ setMode(Mode); });
+function L2(o){ if(!o) return ''; return (window.KD_I18N && KD_I18N.get() !== 'th') ? (o.en || o.th) : (o.th || o.en); }
+function dzCard(a){
+  if(a.verdict === 'urgent') return crisisCard();
+  var V = { stop: ['หยุดก่อน', 'stop'], ask: ['ข้อมูลยังไม่ครบ', 'ask'], pass: ['ผ่านทุกด่าน', 'pass'] }[a.verdict] || ['', ''];
+  var stops = (a.gates || []).filter(function(g){ return g.status === 'stop'; }), ok = (a.gates || []).filter(function(g){ return g.status !== 'stop'; });
+  var h = '<div class="dz"><div class="dz-h"><span class="dz-v ' + V[1] + '">' + esc(_t(V[0])) + '</span>' + esc(_t('ด่าน DriftZero')) + '</div>';
+  stops.forEach(function(g){ h += '<div class="dz-g stop"><b>✕ ' + esc(g.id) + ' · ' + esc(L2(g.name)) + '</b><span>' + esc(L2(g.why)) + '</span>' + (g.hit ? '<i>“' + esc(g.hit) + '”</i>' : '') + '</div>'; });
+  if(ok.length) h += '<details class="dz-ok"><summary>✓ ' + esc(_t('ผ่าน {n} ด่าน', { n: ok.length })) + '</summary>' + ok.map(function(g){ return '<span>' + esc(g.id) + ' ' + esc(L2(g.name)) + '</span>'; }).join('') + '</details>';
+  if((a.asks || []).length) h += '<div class="dz-ask"><b>' + esc(_t('ต้องตอบเพิ่ม')) + '</b><ol>' + a.asks.map(function(q){ return '<li>' + esc(L2(q)) + '</li>'; }).join('') + '</ol></div>';
+  if((a.sop || []).length) h += '<div class="dz-sop">' + a.sop.map(function(x){ return '<span class="' + (x.done ? 'done' : '') + '" title="' + esc(L2(x)) + '">' + x.n + '</span>'; }).join('') + '<em>' + esc(_t('ขั้นตอน SOP')) + '</em></div>';
+  if(a.note) h += '<p class="dz-note">' + esc(L2(a.note)) + '</p>';
+  if(a.emergency) h += crisisCard();
+  return h + '<p class="dz-foot">' + esc(_t('ตรวจด้วยกฎ ไม่ใช้ AI — ข้อความเดิมได้ผลเดิมเสมอ · คนเป็นผู้ตัดสินใจและเซ็นรับผิดชอบ')) + '</p></div>';
+}
+function imgCard(m){
+  if(!IMGS[m.ts]) return '<p class="gen-gone">' + esc(_t('ภาพนี้ไม่ได้เก็บไว้ในเครื่อง — ดาวน์โหลดเก็บไว้หลังสร้างนะคะ')) + '</p>';
+  return '<figure class="gen-img"><img alt="' + esc(m.t) + '"><figcaption><a>' + esc(_t('ดาวน์โหลดภาพ')) + '</a></figcaption></figure>';
+}
+async function sendMode(text, mode){
+  if(mode === 'img' && !Auth.loggedIn){ toast(_t('สร้างภาพต้องเข้าสู่ระบบก่อนนะคะ'), true, 5000); return; }
+  var sessId = Chat.s.active, inp = $('#input');
+  Chat.push({ r:'u', t:text }); Chat.rename(text);
+  inp.value = ''; autosize(); renderAll();
+  busy = true; $('#send').disabled = true;
+  var th = document.createElement('div'); th.className = 'm a';
+  th.innerHTML = '<div class="who"><span class="' + (mode === 'dz' ? 'dz' : 'img') + '">' + esc(_t(mode === 'dz' ? 'DriftZero' : 'สร้างภาพ')) + '</span><span class="tag">' + esc(_t(mode === 'dz' ? 'กำลังตรวจ…' : 'กำลังสร้างภาพ…')) + '</span></div><div class="thinking"><i></i><i></i><i></i></div>';
+  $('#msgs').appendChild(th); scrollBottom();
+  function target(){ return Chat.s.items.find(function(x){ return x.id === sessId; }) || Chat.cur(); }
+  try{
+    if(mode === 'dz'){
+      var d = await readJson(await fetchRetry('/api/driftzero', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ input:text }) }, 3));
+      target().msgs.push({ r:'a', p:'DRIFTZERO', t: L2(d.audit.summary), dz: d.audit, ts: Date.now() });
+    }else{
+      var g = await readJson(await fetch('/api/image/generate', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt:text }) }));
+      var ts = Date.now(); IMGS[ts] = g.image;
+      target().msgs.push({ r:'a', p:'IMAGE', t: text, img: 1, ts: ts });
+      if(g.quota) Limit.set(g.quota);
+      refreshMe();
+    }
+    Chat.persist();
+  }catch(e){
+    var msg = (e.data && e.data.error && L2({ th: e.data.error, en: e.data.error_en })) || e.message;
+    target().msgs.push({ r:'e', t: msg, ts: Date.now() }); Chat.persist(); toast(msg, true, 6000);
+    if(e.status === 402) openUpgrade();
+  }finally{
+    busy = false; $('#send').disabled = false; th.parentNode && th.parentNode.removeChild(th); renderAll();
   }
 }
 function autosize(){ var t = $('#input'); t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 160) + 'px'; }

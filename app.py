@@ -539,6 +539,12 @@ except Exception:
 
 FREE_DAILY_RUNS = max(0, int(os.getenv("FREE_DAILY_RUNS", "20")))
 RUN_COST        = max(1, int(os.getenv("RUN_COST", "1")))
+# สร้างภาพ (โหมด 🎨) มีค่า API ต่อภาพสูงกว่าข้อความหลายเท่า — ตั้งราคาใน Render ได้ ไม่ต้องแก้โค้ด
+#   IMAGE_COST = เครดิตต่อภาพ · IMAGE_FREE_DAILY = ภาพฟรีต่อวันของคนที่ล็อกอิน (เริ่มที่ 0)
+#   IMAGE_PREMIUM_DAILY = ภาพต่อวันของ Premium ที่ไม่หักเครดิต (Premium ไม่จำกัดข้อความ แต่ภาพต้องมีเพดาน)
+IMAGE_COST          = max(1, int(os.getenv("IMAGE_COST", "5")))
+IMAGE_FREE_DAILY    = max(0, int(os.getenv("IMAGE_FREE_DAILY", "0")))
+IMAGE_PREMIUM_DAILY = max(0, int(os.getenv("IMAGE_PREMIUM_DAILY", "10")))
 THB_PER_CREDIT  = max(0.01, float(os.getenv("THB_PER_CREDIT", "1")))
 _BKK = timezone(timedelta(hours=7))
 
@@ -683,7 +689,8 @@ def _refund(ticket):
         if ticket["mode"] == "free" and give_back_free_run:
             give_back_free_run(ticket["identity"], ticket["day"])
         elif ticket["mode"] == "credit" and add_credits:
-            add_credits(ticket["email"], RUN_COST, "refund", ticket.get("what"))
+            amount = IMAGE_COST if ticket.get("what") == "image_gen" else RUN_COST   # ภาพแพงกว่าข้อความ — คืนเท่าที่หักจริง
+            add_credits(ticket["email"], amount, "refund", ticket.get("what"))
     except Exception as e:
         print(f"⚠ refund failed: {e}")
 
@@ -3309,6 +3316,78 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
         _settle(ticket)
     return {"analysis": analysis_text, "filename": file.filename,
             "quota": {**_quota_status(email, request), "charged": ticket["mode"]}}
+
+
+# ── โหมด DriftZero: ตรวจการตัดสินใจขององค์กร/โครงการตามเฟรมเวิร์ค DriftZero (ENGINE/driftzero.py)
+# ตรวจจากข้อความล้วน ไม่ใช้ AI → ไม่มีต้นทุน ไม่หักโควตา (เหมือนคำตอบจากสมการ)
+@app.post("/api/driftzero")
+async def driftzero_audit(request: Request):
+    email = _session_email(request)
+    if not _rate_check(email or _client_ip(request)):
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่แล้วลองใหม่ได้เลยนะคะ"}, status_code=429)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    text = str((body or {}).get("input") or "").strip()[:4000]
+    if not text:
+        return JSONResponse({"error": "เล่าการตัดสินใจที่อยากให้ตรวจก่อนนะคะ"}, status_code=400)
+    from ENGINE.driftzero import audit
+    return {"audit": audit(text)}
+
+
+# ── โหมดสร้างภาพ (core/image_gen.py) ─────────────────────────────────────────
+def _charge_image(email: str):
+    """หักค่าสร้างภาพ — คืน (ticket, None) หรือ (None, JSONResponse)
+    Premium: ฟรีวันละ IMAGE_PREMIUM_DAILY ภาพ · ทุกคน: ฟรีวันละ IMAGE_FREE_DAILY ภาพ · เกินนั้นหัก IMAGE_COST เครดิต"""
+    if take_free_run is None or spend_credit is None:
+        return None, JSONResponse({"error": "ระบบนับเครดิตขอพักสักครู่ค่ะ ลองใหม่อีกทีนะคะ"}, status_code=503)
+    day = _today()
+    free = IMAGE_PREMIUM_DAILY if _is_premium(email) else IMAGE_FREE_DAILY
+    if free and take_free_run("img:" + email, day, free):
+        return _open({"mode": "free", "identity": "img:" + email, "day": day, "what": "image_gen"}), None
+    if spend_credit(email, IMAGE_COST, "image_gen"):
+        return _open({"mode": "credit", "email": email, "what": "image_gen"}), None
+    _metric("paywall")
+    return None, JSONResponse({"error": f"สร้างภาพใช้ {IMAGE_COST} เครดิตต่อภาพค่ะ — เครดิตไม่พอ เติมเครดิตได้ที่กระเป๋าเครดิตนะคะ",
+                               "code": "image_credit", "image_cost": IMAGE_COST}, status_code=402)
+
+
+@app.post("/api/image/generate")
+async def image_generate(request: Request):
+    from core import image_gen
+    if not llm or ai_disabled() or not getattr(llm, "client", None) or not hasattr(llm.client, "models"):
+        return JSONResponse({"error": "ตอนนี้สร้างภาพไม่ได้ค่ะ (ระบบ AI สร้างภาพยังไม่พร้อม) — ลองใหม่ภายหลังนะคะ"}, status_code=503)
+    email = _session_email(request)
+    if not email:
+        return JSONResponse({"error": "สร้างภาพต้องเข้าสู่ระบบก่อนนะคะ", "code": "login_required"}, status_code=401)
+    if not _rate_check(email):
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่แล้วลองใหม่ได้เลยนะคะ"}, status_code=429)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    prompt = str((body or {}).get("prompt") or "").strip()
+    if len(prompt) < 3:
+        return JSONResponse({"error": "บอกภาพที่อยากได้ก่อนนะคะ เช่น แมวส้มนั่งดูดาวบนหลังคา สไตล์สีน้ำ"}, status_code=400)
+    if len(prompt) > image_gen.MAX_PROMPT:
+        return JSONResponse({"error": f"คำบรรยายภาพยาวไปนิดค่ะ ขอไม่เกิน {image_gen.MAX_PROMPT} ตัวอักษรนะคะ"}, status_code=400)
+    why = image_gen.blocked(prompt)                 # ตรวจก่อนหักเงิน — คำขอที่ไม่อนุญาตไม่เสียเครดิต
+    if why:
+        return JSONResponse({"error": why["th"], "error_en": why["en"], "code": "image_blocked"}, status_code=422)
+    ticket, denied = _charge_image(email)
+    if denied:
+        return denied
+    try:
+        data, mime = await run_in_threadpool(image_gen.generate, llm.client, prompt)
+    except Exception as e:
+        print(f"⚠ image_generate: {type(e).__name__}: {str(e)[:200]}")
+        _refund(ticket)
+        return JSONResponse({"error": "สร้างภาพไม่สำเร็จค่ะ — คืนเครดิตให้แล้ว ลองเปลี่ยนคำบรรยายดูนะคะ"}, status_code=502)
+    _settle(ticket)
+    _metric("image_gen")
+    return {"image": image_gen.data_url(data, mime), "charged": ticket["mode"], "image_cost": IMAGE_COST,
+            "quota": _quota_status(email, request)}
 
 
 _IMAGE_EMPTY = "LYLA วิเคราะห์ภาพไม่ได้ค่ะ — อาจถูก Gemini safety block หรือภาพไม่ชัด"
