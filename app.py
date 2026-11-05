@@ -2311,6 +2311,15 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             sig_ctx.append(_tn)
     except Exception:
         pass
+    # จุดพักก่อนลงมือ (WORLD_MODEL/pause_point.py): ความรู้สึกแรง + อยากทำทันที + กำลังจะลงมือ → ชวนพักตามเวลาที่วัดได้
+    try:
+        from WORLD_MODEL.pause_point import read as _pause_read
+        _pn = _pause_read(user_input).note()
+        if _pn:
+            sig_ctx.append(_pn)
+            _metric("pause_point")
+    except Exception:
+        pass
     k_topics = k_assess.get("topics") or []
     scam = k_assess.get("scam") or []
     if scam:
