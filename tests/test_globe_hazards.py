@@ -37,3 +37,13 @@ def test_tap_does_not_steal_buttons_or_chat_and_popup_is_announced():
     assert "e.target.closest('a,button,input,textarea,.m')" in PAGE and "DAWN.show < .5" in PAGE
     assert 'id="hz-pop"' in PAGE and 'aria-live="polite"' in PAGE[PAGE.index('id="hz-pop"') - 80:PAGE.index('id="hz-pop"') + 120]
     assert "drawHazards(cx, cy, r, tsec, DAWN.show)" in PAGE and "!CINEMA.on" in PAGE
+
+
+def test_owner_dashboard_shows_system_health(user, app_module, monkeypatch):
+    """ข้อมูลที่ /api/admin/metrics มีอยู่แล้วแต่ไม่เคยแสดง: คำตอบช่วยได้ไหม · สร้างภาพพังเพราะอะไร · ราคาที่เปลี่ยนโดยไม่มีเหตุผล"""
+    monkeypatch.setattr(app_module, "_ADMIN_EMAILS", {user.email.lower()})
+    d = user.get("/api/admin/metrics").json()
+    assert "feedback" in d and "image" in d and "policy" in d
+    h = _fn("healthHTML")
+    assert "d.feedback" in h and "im.last_error" in h and "po.unexplained_changes" in h and "esc(" in h
+    assert "healthHTML(d)" in PAGE

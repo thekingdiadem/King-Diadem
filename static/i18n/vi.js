@@ -730,5 +730,9 @@
 "คู่มือเอาชีวิตรอด": "Hướng dẫn sinh tồn",
 "ห่างกรุงเทพฯ {km} กม.": "cách Bangkok {km} km",
 "แผ่นดินไหว": "Động đất",
-"น้ำท่วม": "Lũ lụt"
+"น้ำท่วม": "Lũ lụt",
+"คำตอบที่ช่วยได้ 👍 {u} · 👎 {d} ({r}%)": "Câu trả lời hữu ích 👍 {u} · 👎 {d} ({r}%)",
+"สร้างภาพไม่สำเร็จครั้งล่าสุด: {k}": "Lần tạo ảnh lỗi gần nhất: {k}",
+"ราคา/โควตาเปลี่ยนโดยไม่ใส่เหตุผล {n} ครั้ง — ใส่ POLICY_CHANGE_REASON ใน Render": "Giá/hạn mức đổi không lý do {n} lần — đặt POLICY_CHANGE_REASON trong Render",
+"สุขภาพระบบ": "Sức khỏe hệ thống"
 };

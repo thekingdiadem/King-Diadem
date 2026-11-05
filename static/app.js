@@ -157,6 +157,14 @@ var Biz = (function(){
       (L.avg_waterline != null ? ' · ' + _t('waterline เฉลี่ย {w} (จาก {k} คนที่กรอกสถานะ)', {w: Math.round(L.avg_waterline), k: n(L.with_state)}) : '') + '</p>' +
       (L.drift_detected ? '<p class="warn biz-note">' + _t('entropy เพิ่มต่อเนื่อง 5 รอบ — ผู้ใช้ช่วงนี้กำลังเครียดขึ้น') + '</p>' : '');
   }
+  /* สุขภาพระบบ (ข้อมูลที่ /api/admin/metrics มีอยู่แล้วแต่ไม่เคยแสดง): คำตอบช่วยได้ไหม · สร้างภาพพังเพราะอะไร · ราคา/โควตาที่เปลี่ยนโดยไม่มีเหตุผล */
+  function healthHTML(d){
+    var rows = [], f = d.feedback, im = d.image, po = d.policy;
+    if(f && (f.recent_up || f.recent_down)) rows.push(esc(_t('คำตอบที่ช่วยได้ 👍 {u} · 👎 {d} ({r}%)', { u: n(f.recent_up), d: n(f.recent_down), r: Math.round((f.helpful_rate || 0) * 100) })));
+    if(im && im.last_error) rows.push(esc(_t('สร้างภาพไม่สำเร็จครั้งล่าสุด: {k}', { k: im.last_error.kind }) + ' · ' + im.model));
+    if(po && po.unexplained_changes) rows.push('<span class="warn">' + _t('ราคา/โควตาเปลี่ยนโดยไม่ใส่เหตุผล {n} ครั้ง — ใส่ POLICY_CHANGE_REASON ใน Render', { n: n(po.unexplained_changes) }) + '</span>');
+    return rows.length ? '<div class="biz-health"><b>' + _t('สุขภาพระบบ') + '</b>' + rows.map(function(r){ return '<p>' + r + '</p>'; }).join('') + '</div>' : '';
+  }
   function render(d){
     var t = d.total, paid = t['u:purchase'] + t['u:renewal'];
     var steps = [
@@ -171,7 +179,7 @@ var Biz = (function(){
         '<b>' + n(s[1]) + '</b><span class="bf-p">' + s[2] + '</span></div>';
     }).join('') + '</div>' +
       '<p class="biz-sum">' + _t('รายได้ 30 วัน ฿{b} · สมัครใหม่ {s} คน · ข้อความทั้งหมด {m}', {b: n(t.baht), s: n(t['u:signup']), m: n(t.chat)}) + '</p>' +
-      learnHTML(d.learning) +
+      learnHTML(d.learning) + healthHTML(d) +
       '<details class="biz-days"><summary>' + _t('ดูรายวัน') + '</summary><table><tr><th>' + _t('วัน') + '</th><th>' + _t('เข้า') + '</th><th>' + _t('คุย') + '</th><th>' + _t('ฟรีหมด') + '</th><th>' + _t('จ่าย') + '</th><th>฿</th></tr>' +
       d.series.slice(0, 14).map(function(r){
         return '<tr><td>' + esc(r.day.slice(5)) + '</td><td>' + n(r['u:visitor']) + '</td><td>' + n(r['u:chatter']) + '</td><td>' + n(r['u:paywalled']) + '</td><td>' + n(r['u:purchase'] + r['u:renewal']) + '</td><td>' + n(r['baht:purchase'] + r['baht:renewal']) + '</td></tr>';

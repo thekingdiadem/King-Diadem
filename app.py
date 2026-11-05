@@ -1631,8 +1631,12 @@ async def admin_metrics(request: Request, days: int = 30):
     from DATABASE.db import policy_history
     unexplained = [r for r in await run_in_threadpool(policy_history, 200) if r["reason"] == NO_REASON and r["old"]]
     policy = {"unexplained_changes": len(unexplained), "latest_unexplained": unexplained[:5]}
+    try:
+        feedback = feedback_loop.stats() if feedback_loop else None
+    except Exception:
+        feedback = None
     return {"days": days, "series": series, "total": total, "free_daily": FREE_DAILY_RUNS, "learning": learning,
-            "image": image, "policy": policy}
+            "image": image, "policy": policy, "feedback": feedback}
 
 
 @app.get("/api/2fa")
