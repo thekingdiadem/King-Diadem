@@ -93,3 +93,39 @@ def test_third_party_speaker_gets_someone_topic():
     from core.kernel_voice import assess
     assert assess("พ่อส่งข้อความมาว่าไม่ไหวแล้ว ฝากดูแลแม่ด้วย")["topics"][0] == "someone"
     assert assess("ไม่ไหวแล้ว ฝากดูแลลูกด้วยนะ")["topics"][0] == "warning"
+
+
+# ── มิจฉาชีพแบบโครงสร้าง 8 แบบ (จ่ายก่อนถึงจะได้ · รู้จักแค่ออนไลน์ · ลิงก์อ้างหน่วยงาน · บัตรของขวัญ
+#    ญาติเดือดร้อนห้ามบอกใคร · โอนแล้วหาย · งานกดไลค์ต้องเติมเงิน · เจ้าหน้าที่สั่งอยู่ในสาย) ──
+@pytest.mark.parametrize("text,rule,flag", [
+    ("สินเชื่อผ่านแล้วค่ะ รบกวนชำระค่าดำเนินการก่อนเงินเข้า", "pay_first", "story"),
+    ("you've won a prize, just pay a small fee to release it", "pay_first", "story"),
+    ("คุยกับหนุ่มในติ๊กต็อกมาเดือนนึง ไม่เคยเจอตัว เขาให้ช่วยโอนค่าตั๋วเครื่องบิน", "online_only_money", "romance"),
+    ("we never met in person but she wants me to try her crypto platform", "online_only_money", "romance"),
+    ("ได้ข้อความจากไปรษณีย์ว่าพัสดุติด ให้คลิกลิงก์ชำระค่าธรรมเนียม", "link_pressure", "story"),
+    ("got an email from paypal saying my account is suspended, click the link to verify", "link_pressure", "story"),
+    ("สรรพากรโทรมาให้จ่ายค่าปรับด้วยบัตรเติมเงิน", "gift_card", "impersonation"),
+    ("the irs said to pay the fine with google play cards", "gift_card", "impersonation"),
+    ("มีคนโทรมาบอกว่าเป็นหลาน ชนคนอยู่โรงพยาบาล ขอให้โอนด่วนอย่าบอกพ่อแม่", "family_emergency", "impersonation"),
+    ("โอนค่าบัตรคอนเสิร์ตไปแล้ว คนขายปิดเพจหนี", "paid_vanished", "lost"),
+    ("paid for a puppy online and the seller blocked me", "paid_vanished", "lost"),
+    ("งานพาร์ทไทม์ทำภารกิจรีวิวร้าน ได้ค่าคอม แต่ต้องวางเงินก่อน", "task_job", "job"),
+    ("ตำรวจไซเบอร์โทรมา สั่งห้ามวางสายและให้ไปเปิดห้องอยู่คนเดียว", "isolate_official", "impersonation"),
+])
+def test_structural_scams_caught(text, rule, flag):
+    from core.conditions import check
+    from core.kernel_voice import assess
+    assert rule in [h.rule for h in check(text)]
+    a = assess(text)
+    assert a["topics"][0] == "scam" and flag in a["scam"]
+
+
+@pytest.mark.parametrize("text", [
+    "ค่าไฟเดือนนี้แพงมาก จะประหยัดยังไงดี", "ซื้อบัตรของขวัญให้แม่วันเกิด", "หลานประสบอุบัติเหตุ ตอนนี้อยู่โรงพยาบาล ต้องไปเยี่ยม",
+    "โอนค่าห้องให้เจ้าของหอแล้ว", "ลูกค้าต้องโอนมัดจำก่อนถึงจะทำของให้ ร้านเราควรตั้งกี่เปอร์เซ็นต์", "ธนาคารส่ง SMS แจ้งยอดโอนเข้า",
+    "แฟนที่รู้จักกันในเฟซตอนนี้แต่งงานกันแล้ว 5 ปี", "ได้รับรางวัลพนักงานดีเด่น", "ร้านรีวิวอาหารอร่อยมาก", "วิดีโอคอลกับแม่ทุกคืน",
+    "รีวิวโรงแรมให้หน่อย เติมเงินในแอปจองยังไง", "เจ้าหน้าที่ธนาคารบอกว่าเป็นความลับของลูกค้า ไม่เปิดเผยให้ใคร", "ตำรวจมาตรวจที่หมู่บ้าน",
+])
+def test_structural_scams_do_not_overfire(text):
+    from core.conditions import check
+    assert not [h for h in check(text) if h.topic == "scam"]

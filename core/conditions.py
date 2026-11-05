@@ -242,8 +242,126 @@ def bill_due(t: str) -> Hit | None:
     return None
 
 
+# ── มิจฉาชีพแบบโครงสร้าง (ไม่ผูกกับชื่อแอป/ชื่อหน่วยงาน — วิธีใหม่ที่โครงเดิมก็จับได้) ─────────────────────────
+# A. จ่ายก่อนถึงจะได้: เงินกู้อนุมัติ/รางวัล/ถอนเงิน/ปลดล็อกยอด แต่ต้องจ่ายค่าธรรมเนียม ภาษี มัดจำก่อน
+RECEIVE = _rx(r"อนุมัติ", r"สินเชื่อ\S{0,4}(?:ผ่าน|อนุมัติ)", r"กู้ผ่าน", r"ก่อนเงินเข้า", r"ถูกรางวัล", r"ได้รับรางวัล", r"ได้รางวัล", r"ถอน(?:เงิน)?(?:ได้|ออก)?", r"ปลดล็อก", r"รับเงิน", r"เงินคืน", r"ยอดค้าง(?:ถอน|รับ)", r"พัสดุ",
+              r"\b(?:loan (?:is )?approved|approved for|you(?:'ve)? won|won (?:a|the)|prize|lottery|withdraw\w*|unlock|release (?:the |my )?funds|refund|inheritance|parcel|package)\b")
+PAY_FIRST = _rx(r"(?:ต้อง|ให้)(?:โอน|จ่าย|เติม|วาง|ชำระ)\S{0,20}ก่อน", r"ค่าธรรมเนียม", r"ค่าดำเนินการ", r"ค่าค้ำประกัน", r"ค่า(?:ภาษี|ประกัน)\S{0,6}ก่อน", r"จ่ายภาษีก่อน",
+                r"วางมัดจำ", r"มัดจำเพิ่ม", r"เติมเงินก่อน",
+                r"\b(?:pay (?:a |the )?(?:small )?(?:fee|tax|deposit|charge)|upfront (?:fee|payment)|processing fee|release fee|clearance fee|(?:need|have) to (?:deposit|pay) \S+ (?:first|before)|deposit (?:crypto|usdt|money|funds)? ?first)\b")
+PAY_FIRST_OK = _rx(r"ธนาคาร(?:ออมสิน|กรุงไทย|กสิกร|ไทยพาณิชย์|กรุงเทพ|กรุงศรี|ทหารไทย|ธกส)\S{0,10}(?:สาขา|ที่สาขา)", r"สัญญาเช่า", r"เช่า(?:ห้อง|บ้าน|คอนโด)", r"ร้าน(?:อาหาร|ค้า)ของเรา", r"ลูกค้า(?:ต้อง|ให้)",
+                   r"\b(?:security deposit for (?:the|my) apartment|landlord|our customers)\b")
+
+
+def scam_pay_first(t: str) -> Hit | None:
+    if _near(RECEIVE, PAY_FIRST, t, 70) and not PAY_FIRST_OK.search(t):
+        return Hit("pay_first", "scam", 75, "story")
+    return None
+
+
+# B. รู้จักกันแค่ออนไลน์ ไม่เคยเจอตัว แต่ชวนลงทุน/ขอเงิน (หลอกให้รัก · ชวนลงทุนแพลตฟอร์ม)
+MET_ONLINE = _rx(r"แอปหาคู่", r"รู้จัก(?:กัน)?(?:ทาง|ใน|จาก)(?:เฟซ|เฟส|ไลน์|ไอจี|ติ๊กต็อก|tiktok|แอป|เน็ต|เกม|ออนไลน์|โซเชียล|เทเลแกรม)", r"ไม่เคยเจอ(?:ตัว|กัน|หน้า)",
+                 r"ยังไม่เคย(?:เจอ|เห็นหน้า)", r"คุยกันแต่ในแชท", r"ทักมา(?:ทาง|ใน)?(?:เฟซ|ไลน์|ไอจี|แชท)",
+                 r"\b(?:met (?:him|her|them|this (?:guy|girl|man|woman))? ?on (?:instagram|facebook|tinder|bumble|hinge|a dating app|telegram|whatsapp|wechat|line|tiktok|discord|online|a game)|never met (?:in person|face to face)?|online (?:boyfriend|girlfriend|partner))\b")
+ASK_MONEY = _rx(r"ลงทุน", r"แพลตฟอร์ม", r"คริปโต", r"เทรด", r"(?:ขอ)?ยืมเงิน", r"(?:ให้)?(?:โอน|ส่ง)เงิน", r"ค่าตั๋ว", r"ภาษีศุลกากร", r"ค่าส่งของขวัญ", r"ค่ารักษา\S{0,6}(?:เขา|แม่เขา)",
+                r"\b(?:invest\w*|platform|crypto|trading|send (?:him|her|them)? ?money|needs? (?:money|cash|help paying)|wire|flight|plane ticket|customs fee|gift ?cards?|hospital bills?)\b")
+
+
+def scam_online_only(t: str) -> Hit | None:
+    if MET_ONLINE.search(t) and ASK_MONEY.search(t):
+        return Hit("online_only_money", "scam", 75, "romance")
+    return None
+
+
+# C. ข้อความอ้างหน่วยงาน + ลิงก์/แอป + เร่งจ่าย/ยืนยัน (ค่าไฟค้าง · พัสดุติด · บัญชีถูกระงับ)
+AUTH_ORG = _rx(r"การไฟฟ้า", r"ไฟฟ้า(?:ส่วนภูมิภาค|นครหลวง)?", r"การประปา", r"ประปา", r"ธนาคาร", r"สรรพากร", r"ไปรษณีย์", r"ขนส่ง", r"ศุลกากร", r"ตำรวจ", r"กรม\S{2,12}",
+               r"\b(?:bank|irs|hmrc|post office|postal|usps|dhl|fedex|ups|customs|courier|toll|dmv|tax office|utility company|amazon|apple|microsoft|paypal|netflix)\b")
+MSG_LINK = _rx(r"sms", r"เอสเอ็มเอส", r"ข้อความ", r"ลิงก์", r"ลิ้ง", r"กดลิงก์", r"คลิก", r"แอด(?:ไลน์)?", r"\.apk", r"โหลดแอป", r"สแกน\s?qr",
+               r"\b(?:text(?:ed)?|sms|email(?:ed)?|link|click|tap here|qr code|download (?:the |an )?app|\.apk)\b")
+PRESSURE = _rx(r"ค้าง(?:ชำระ|จ่าย)?", r"ภายใน(?:วันนี้|\d+\s?ชั่วโมง)", r"ไม่งั้น", r"มิฉะนั้น", r"ระงับ", r"(?:ถูก|จะ)ตัด", r"ยืนยันตัวตน", r"อัปเดตข้อมูล", r"ชำระ(?:ค่า)?", r"ค่าธรรมเนียม",
+               r"\b(?:unpaid|overdue|suspend\w*|locked|verify|confirm your|update your|within 24|today or|or (?:your|we)|pay (?:now|the)|fee|penalty)\b")
+
+
+def scam_link_pressure(t: str) -> Hit | None:
+    if AUTH_ORG.search(t) and _near(MSG_LINK, PRESSURE, t, 80):
+        return Hit("link_pressure", "scam", 75, "story")
+    return None
+
+
+# D. ให้จ่ายด้วยบัตรของขวัญ/บัตรเติมเงิน — หน่วยงานจริงไม่เคยรับเงินแบบนี้
+GIFT_CARD = _rx(r"บัตรของขวัญ", r"บัตรเติมเงิน", r"บัตร(?:ทรู|เติม)มันนี่", r"กิฟต์การ์ด", r"\b(?:gift ?cards?|itunes cards?|google play cards?|steam cards?|apple cards?|prepaid cards?)\b")
+GIFT_PAY = _rx(r"จ่าย", r"ชำระ", r"ซื้อ\S{0,6}(?:แล้ว)?(?:ส่ง|บอก)(?:รหัส|เลข)", r"ค่าปรับ", r"ภาษี", r"แก้(?:บัญชี|ปัญหา)",
+               r"\b(?:pay|buy|purchase|read (?:me )?the (?:numbers|codes?)|send (?:a )?(?:photo|picture) of|fix (?:my|the) account|fine|tax|support|warrant)\b")
+
+
+DEMANDED = _rx(r"(?:ให้|สั่งให้|บอกให้|ขอให้)(?:ไป)?(?:ซื้อ|จ่าย|ชำระ)", r"\b(?:asked|told|said|wants?|want(?:ed)?|demand\w*|instructed|insist\w*) (?:me |us )?(?:to )?(?:buy|pay|purchase|get)\b")
+
+
+def scam_gift_card(t: str) -> Hit | None:
+    # "ซื้อบัตรของขวัญให้แม่" "can I pay with a gift card at target" ไม่นับ — ต้องมีคนสั่งให้จ่ายด้วยบัตร
+    if _near(GIFT_CARD, GIFT_PAY, t, 70) and (DEMANDED.search(t) or AUTH_ORG.search(t)) and not re.search(r"\bat (?:target|walmart|the store)\b|ที่ร้าน", t, re.I):
+        return Hit("gift_card", "scam", 75, "impersonation")
+    return None
+
+
+# E. ญาติเดือดร้อนด่วน + ขอเงิน + ห้ามบอกใคร (หลานโดนจับ · ลูกเกิดอุบัติเหตุ) — ให้วางสายแล้วโทรหาเจ้าตัวเอง
+RELATIVE = _rx(r"หลาน", r"ลูก(?:ชาย|สาว)?", r"น้อง", r"\b(?:grand(?:son|daughter|child|kid)|nephew|niece|son|daughter)\b")
+TROUBLE = _rx(r"ติดคุก", r"โดนจับ", r"ถูกจับ", r"ประกันตัว", r"อุบัติเหตุ", r"ชนคน", r"(?:อยู่|เข้า)โรงพยาบาล", r"\b(?:jail|bail|arrest\w*|accident|hospital|in trouble|police station)\b")
+SECRET_MONEY = _rx(r"(?:ห้าม|อย่า)บอก", r"เป็นความลับ", r"โอน(?:เงิน)?(?:ด่วน|ให้)", r"ค่าประกันตัว", r"\b(?:don'?t tell|keep (?:it|this) (?:a )?secret|bail money|send (?:the )?money|wire|gift cards?)\b")
+
+
+def scam_family_emergency(t: str) -> Hit | None:
+    if RELATIVE.search(t) and _near(TROUBLE, SECRET_MONEY, t, 90):
+        return Hit("family_emergency", "scam", 80, "impersonation")
+    return None
+
+
+# F. โอนไปแล้วอีกฝ่ายหาย (บล็อก/ไม่ส่งของ/ติดต่อไม่ได้) — ถูกโกงไปแล้ว: ทางตามเงินคืนมาก่อน
+PAID = _rx(r"โอน(?:เงิน|มัดจำ|ค่า\S{0,8})?(?:ไป|ให้)?(?:แล้ว)?", r"จ่าย(?:เงิน|มัดจำ)?(?:ไป)?แล้ว", r"\b(?:paid|sent (?:the )?money|transferred|wired|deposit(?:ed)?)\b")
+VANISHED = _rx(r"(?:บล็อก|บล๊อก)(?:เรา|ฉัน|ผม)?", r"ติดต่อไม่ได้", r"หาย(?:เงียบ|ไปเลย)", r"ไม่ส่งของ", r"ไม่ได้ของ", r"ปิด(?:เพจ|ร้าน|เฟซ)หนี", r"ลบแชท",
+               r"\b(?:blocked me|never (?:shipped|arrived|sent)|disappeared|ghosted|stopped (?:answering|replying)|deleted (?:the|their) (?:page|account)|can'?t reach)\b")
+
+
+def scam_paid_vanished(t: str) -> Hit | None:
+    if _near(PAID, VANISHED, t, 70):
+        return Hit("paid_vanished", "scam", 70, "lost")
+    return None
+
+
+# G. งานง่ายรายได้สูง (กดไลค์ รีวิว ทำภารกิจ) แต่ต้องเติมเงิน/วางเงินก่อน
+TASK_JOB = _rx(r"กด(?:ไลค์|ไลก์|หัวใจ|ติดตาม|แชร์)", r"รีวิว(?:สินค้า|ร้าน|โรงแรม)?", r"ทำภารกิจ", r"ภารกิจ", r"ทำยอด", r"สั่งซื้อ(?:สินค้า)?ทำยอด",
+               r"\b(?:lik(?:e|ing) (?:\w+ )?(?:videos?|posts?)|rat(?:e|ing) (?:products?|hotels?|apps?)|review(?:ing)? (?:products?|hotels?)|tasks?|optimi[sz]ing (?:products|orders)|boost(?:ing)? (?:orders|ratings))\b")
+TOP_UP = _rx(r"เติมเงิน", r"วางเงิน", r"วางมัดจำ", r"โอน(?:เงิน)?(?:เข้า)?(?:ระบบ|ก่อน)", r"ทุนสำรอง",
+             r"\b(?:deposit\w*|top[- ]?up|recharge|pay (?:in|to start)|prepay\w*|send (?:usdt|crypto))\b")
+
+
+EARN = _rx(r"ค่าคอม", r"คอมมิชชั่น", r"คอมมิชชัน", r"รายได้", r"ได้เงิน", r"ถอน", r"ค่าตอบแทน", r"งาน(?:เสริม|ออนไลน์|พาร์ทไทม์)?", r"วันละ\s?\d",
+           r"\b(?:commission|earn\w*|income|job|recruit\w*|per (?:day|task)|/day|a day|paying \$?\d|salary|withdraw\w*)\b")
+
+
+def scam_task_job(t: str) -> Hit | None:
+    if _near(TASK_JOB, TOP_UP, t, 90) and EARN.search(t):
+        return Hit("task_job", "scam", 75, "job")
+    return None
+
+
+# H. เจ้าหน้าที่ (อ้าง) สั่งให้อยู่ในสาย/เปิดกล้องตลอด และห้ามบอกใคร — ตัดผู้ใช้ออกจากคนรอบตัว
+OFFICIAL = _rx(r"ตำรวจ", r"ดีเอสไอ", r"\bdsi\b", r"ปปง", r"ปปส", r"เจ้าหน้าที่", r"ศาล", r"อัยการ", r"สรรพากร", r"ศุลกากร",
+               r"\b(?:police|officer|agent|fbi|irs|customs|court|prosecutor|detective|government)\b")
+ISOLATE = _rx(r"วิดีโอคอล", r"เปิดกล้อง(?:ไว้)?(?:ตลอด)?", r"ห้ามวางสาย", r"อยู่ในสาย(?:ตลอด)?", r"(?:ห้าม|อย่า)บอก(?:ใคร|ครอบครัว|ญาติ|ที่บ้าน)", r"ให้เก็บเป็นความลับ", r"ไปเปิดห้อง",
+              r"\b(?:video call|stay on (?:the )?(?:line|call|camera)|keep (?:the )?camera on|don'?t (?:tell|hang up)|keep (?:this|it) (?:confidential|secret)|check into a hotel|go somewhere alone)\b")
+
+
+def scam_isolate_official(t: str) -> Hit | None:
+    if _near(OFFICIAL, ISOLATE, t, 80):
+        return Hit("isolate_official", "scam", 80, "impersonation")
+    return None
+
+
 RULES = (child_ingest, absence_prep, lethality_research, scam_unasked_money, scam_multiplier, basic_needs,
-         food_floor, entrust_giveup, giveaway_final, plan_specific, bill_due)
+         food_floor, entrust_giveup, giveaway_final, plan_specific, bill_due,
+         scam_pay_first, scam_online_only, scam_link_pressure, scam_gift_card, scam_family_emergency, scam_paid_vanished,
+         scam_task_job, scam_isolate_official)
 
 
 def check(text) -> list[Hit]:
