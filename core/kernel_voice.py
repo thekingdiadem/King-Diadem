@@ -2078,7 +2078,34 @@ def assess(text: str, pattern: dict | None = None) -> dict:
                  text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20), risk_shown=min(a["risk_shown"], 20))
     from core.second_layer import apply as _second_layer
     a = _second_layer(text, a)
-    return a
+    return _with_conditions(text, a)
+
+
+# ตัวตรวจแบบเงื่อนไข (core/conditions.py) — ใคร × ทำอะไร × กับอะไร แทนรายการวลี · ผสานเข้าผลหลักที่นี่จุดเดียว
+# หัวข้อด่วน (กลืนของอันตราย · สัญญาณเตือน · มิจฉาชีพ) ขึ้นหน้า เพื่อให้คำตอบหลักเป็นเรื่องนั้น · ไม่แตะเมื่อเป็นวิกฤตอยู่แล้ว
+_COND_FIRST = ("swallowed", "overdose", "warning", "scam")
+
+
+def _with_conditions(text, a: dict) -> dict:
+    from core.conditions import check
+    hits = check(text) if isinstance(text, str) and not a.get("crisis") else []
+    if not hits:
+        return a
+    topics, scam, risk = list(a["topics"]), list(a.get("scam") or []), 0
+    urgent_have = set(topics) & {"overdose", "swallowed", "household", "health_emergency", "pet_poison"}
+    for h in hits:
+        if h.topic in ("overdose", "swallowed") and urgent_have:      # ของเดิมจับเรื่องด่วนได้แล้ว คำตอบเฉพาะทางของเดิมดีกว่า
+            risk = max(risk, h.risk)
+            continue
+        if h.topic and h.topic not in topics:
+            topics = [h.topic] + topics if h.topic in _COND_FIRST else topics + [h.topic]
+        elif h.topic in _COND_FIRST:
+            topics = [h.topic] + [x for x in topics if x != h.topic]
+        if h.scam and h.scam not in scam:
+            scam.append(h.scam)
+        risk = max(risk, h.risk)
+    return dict(a, topics=topics, scam=scam, conditions=[h.rule for h in hits], text_risk=max(a["text_risk"], risk),
+                risk=max(a["risk"], risk), risk_shown=max(a["risk_shown"], risk) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
 
 
 def _assess_raw(text: str, pattern: dict | None = None) -> dict:

@@ -627,3 +627,14 @@ el niño se cayó a la piscina y no abre los ojos	topic:health_emergency;intl:me
 my roommate hasn't left her room in days and said she's ready to go	topic:someone	คนใกล้ตัว
 I keep thinking my family would get the insurance money if I was gone	crisis	วิกฤต
 ครูพิเศษให้ลูกไปเรียนที่ห้องตัวเองคนเดียว แล้วส่งรูปไม่เหมาะสมมาให้ลูก	topic:online_grooming	ล่อลวงเด็ก
+# ย้ายมาจากชุดปิดตา รอบ 4 หลังเพิ่มตัวตรวจแบบเงื่อนไข (core/conditions.py · tests/test_conditions.py)
+แอปเงินกู้โอนเงินเข้ามาเองแล้วโทรทวงดอกเบี้ยแพงมาก	topic:scam;risk>=60	เงื่อนไข
+someone on Instagram says they can double my money in a week with forex	topic:scam;risk>=60	เงื่อนไข
+my hours got cut in half and I can't cover groceries	topic:basic;risk>=60	เงื่อนไข
+ไม่มีเงินจ่ายค่าไฟ เขาจะมาตัดพรุ่งนี้	topic:basic;risk>=60	เงื่อนไข
+we've been sleeping in the car for a week	topic:housing;risk>=60	เงื่อนไข
+I owe my landlord three months and he's threatening to throw us out	topic:housing;risk>=60	เงื่อนไข
+ช่วงนี้นั่งเขียนจดหมายถึงแม่ทุกคืน เผื่อวันที่ฉันไม่อยู่	topic:warning;risk>=60	เงื่อนไข
+I've been looking up how high a fall has to be	topic:warning;risk>=60	เงื่อนไข
+my toddler bit into a dishwasher pod and is coughing	topic:overdose;risk>=60	เงื่อนไข
+they shut off our water and the baby needs formula	topic:basic;risk>=60	เงื่อนไข
