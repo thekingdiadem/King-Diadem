@@ -3100,3 +3100,18 @@ addEventListener('keydown', function(e){ if(e.key === 'Escape') closeDrawer(); }
     if(ios) toast(_t('บน iPhone: แตะปุ่มแชร์ แล้วเลือก “เพิ่มไปยังหน้าจอโฮม”'), false, 7000);
   });
 })();
+
+/* ── กลุ่มดาวการตัดสินใจของฉัน (หน้าดูดาว /sky) ──────────────────────────────────────────
+   ทุกคำตอบ = ดาวหนึ่งดวง ณ จุดเหนือศีรษะ ตอนนั้น · เก็บในเครื่องนี้เท่านั้น: เวลา เส้นทาง ความเสี่ยง ตำแหน่งคร่าวๆ
+   ไม่มีข้อความที่คุย ไม่ส่งไปไหน · สูงสุด 300 ดวง (เก่าสุดหลุดก่อน) */
+window.addEventListener('KD:response', function(e){
+  try {
+    var d = e.detail || {}, loc = null;
+    try { loc = JSON.parse(localStorage.getItem('kd-sky-loc') || 'null'); } catch(x) {}
+    var lat = loc && isFinite(loc.lat) ? +loc.lat : 13.76, lon = loc && isFinite(loc.lon) ? +loc.lon : 100.5;
+    var L = JSON.parse(localStorage.getItem('kd-my-stars') || '[]');
+    if(!Array.isArray(L)) L = [];
+    L.push({ t: Date.now(), r: String(d.route || 'general').slice(0, 12), k: Math.round(Number(d.risk_score) || 0), la: +lat.toFixed(1), lo: +lon.toFixed(1) });
+    localStorage.setItem('kd-my-stars', JSON.stringify(L.slice(-300)));
+  } catch(x) {}
+});

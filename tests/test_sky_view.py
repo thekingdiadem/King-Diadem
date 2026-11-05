@@ -132,3 +132,14 @@ def test_deep_stars_and_real_milky_way_files():
 def test_aim_button_is_on_the_bar():
     i = HTML.index('id="sky-aim"')
     assert 'class="bar-btn"' in HTML[i - 10:i + 80] and HTML.index('id="sky-sheet"') > i
+
+
+def test_my_decision_constellation_is_local_and_textless():
+    app = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
+    i = app.index("window.addEventListener('KD:response'")
+    rec = app[i:app.index("\n});", i)]
+    assert "localStorage.setItem('kd-my-stars'" in rec and "slice(-300)" in rec
+    assert "fetch(" not in rec and "text" not in rec.lower().replace("textcontent", "")   # ไม่เก็บข้อความ ไม่ส่งไปไหน
+    src = JS.read_text(encoding="utf-8")
+    assert "store('kd-my-stars')" in src and "function drawMine" in src and "if (LAY.mine) drawMine(labels);" in src
+    assert 'data-layer="mine"' in HTML and 'id="sky-mine-n"' in HTML

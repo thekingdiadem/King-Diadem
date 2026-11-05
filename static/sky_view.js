@@ -29,7 +29,7 @@
   })();
   var V = { az: 90, alt: 35, fov: 70 };                      // หันทิศตะวันออก มองขึ้น 35° · มุมมองกว้าง 70°
   var tgt = null;                                           // บินไปหาเป้าหมาย {az, alt, fov}
-  var LAY = { lines: true, names: true, grid: false, milky: true, ground: true, red: false };
+  var LAY = { lines: true, names: true, grid: false, milky: true, ground: true, red: false, mine: true };
   try { var sl = JSON.parse(store('kd-sky-layers') || 'null'); if (sl) for (var k in LAY) if (k in sl) LAY[k] = !!sl[k]; } catch (e) {}
   var offsetMin = 0;                                        // เลื่อนเวลา (นาที) — 0 = ตอนนี้
   var CAT = null, STARS = null, MW = null, sensor = null, dirty = true, raf = 0, lastDraw = 0;
@@ -227,6 +227,7 @@
       if (st.name && LAY.names && st.mag < Math.min(limit, 6.05) - 3.3) labels.push({ x: p[0] + rad + 5, y: p[1], t: st.name, c: 'rgba(214,226,255,.86)', f: '500 12px ', pri: st.mag });
     }
     cx.globalAlpha = 1;
+    if (LAY.mine) drawMine(labels);
     // ดาวเคราะห์ ดวงจันทร์ ดวงอาทิตย์
     F.bodies.forEach(function (b) {
       var l = bodyLocal(b); if (LAY.ground && l[2] < -.01 && b.id !== 'sun') return;
@@ -282,6 +283,39 @@
     if ('filter' in mwx) mwx.filter = 'none';
     cx.save(); cx.globalCompositeOperation = 'lighter'; cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high';
     cx.drawImage(mwc, 0, 0, F.W, F.H); cx.restore();
+  }
+  // ── กลุ่มดาวการตัดสินใจของฉัน: ทุกครั้งที่คุยกับ LYLA แล้วได้คำตอบ = ดาวหนึ่งดวง ณ จุดเหนือศีรษะตอนนั้น ─────────
+  // ตำแหน่งบนฟ้าคงที่ตลอดไป (เหมือนดาวจริง) จึงขึ้นตก หมุนไปกับฟ้า · ต่อเส้นตามลำดับเวลา = กลุ่มดาวที่ไม่มีใครเหมือน
+  // ข้อมูลอยู่ในเครื่องนี้เท่านั้น (static/app.js เขียน kd-my-stars: เวลา เส้นทาง ความเสี่ยง ตำแหน่งคร่าวๆ — ไม่มีข้อความ)
+  var MINE = null, ROUTE_TH = { general: 'ชีวิตทั่วไป', risk: 'ประเมินความเสี่ยง', civil: 'สังคม/งาน', survival: 'ความอยู่รอด', collapse: 'ช่วงวิกฤต', crisis: 'ช่วงวิกฤต', vega: 'วิเคราะห์ระยะยาว' };
+  function loadMine() {
+    try { var L = JSON.parse(store('kd-my-stars') || '[]'); if (!Array.isArray(L)) L = []; } catch (e) { L = []; }
+    MINE = L.filter(function (m) { return m && isFinite(m.t) && isFinite(m.la) && isFinite(m.lo); }).sort(function (a, b) { return a.t - b.t; }).map(function (m) {
+      var ra = (gmst(jd(new Date(m.t))) + m.lo + 360) % 360;              // จุดเหนือศีรษะ = RA เท่ากับเวลาดาราคติท้องถิ่น · Dec = ละติจูด
+      return { v: eqv(ra, m.la), t: m.t, r: m.r, k: m.k };
+    });
+    var n = $('sky-mine-n'); if (n) n.textContent = MINE.length ? T('ดาวของฉัน ' + MINE.length + ' ดวง — เกิดจากทุกครั้งที่ปรึกษา LYLA แล้วได้ทางไปต่อ', 'My stars: ' + MINE.length) : T('ยังไม่มีดาวของฉัน — ปรึกษา LYLA สักเรื่อง แล้วดาวดวงแรกจะเกิดบนฟ้าตรงเหนือหัวคุณ', 'No stars yet — talk to LYLA and your first star appears overhead');
+  }
+  function drawMine(labels) {
+    if (!MINE || !MINE.length) return;
+    var pts = MINE.map(function (m) { var l = refract(local(m.v)); return { m: m, l: l, p: proj(l) }; });
+    cx.save();
+    cx.strokeStyle = 'rgba(237,204,98,.5)'; cx.lineWidth = 1.2; cx.setLineDash([4, 5]);
+    cx.beginPath(); var pen = false;
+    pts.forEach(function (q) { if (!q.p || (LAY.ground && q.l[2] < -.01)) { pen = false; return; } if (pen) cx.lineTo(q.p[0], q.p[1]); else cx.moveTo(q.p[0], q.p[1]); pen = true; });
+    cx.stroke(); cx.setLineDash([]);
+    pts.forEach(function (q, i) {
+      if (!onScreen(q.p, 10) || (LAY.ground && q.l[2] < -.01)) return;
+      var x = q.p[0], y = q.p[1], last = i === pts.length - 1, r = last ? 7 : 5;
+      var g = cx.createRadialGradient(x, y, 0, x, y, r * 3.2);
+      g.addColorStop(0, 'rgba(255,226,150,.85)'); g.addColorStop(1, 'rgba(255,210,120,0)');
+      cx.fillStyle = g; cx.fillRect(x - r * 3.2, y - r * 3.2, r * 6.4, r * 6.4);
+      cx.fillStyle = '#ffe7a6'; cx.beginPath();                   // ดาวสี่แฉกสีทอง — แยกออกจากดาวจริงได้ทันที
+      cx.moveTo(x, y - r); cx.quadraticCurveTo(x, y, x + r, y); cx.quadraticCurveTo(x, y, x, y + r); cx.quadraticCurveTo(x, y, x - r, y); cx.quadraticCurveTo(x, y, x, y - r); cx.fill();
+      hits.push({ x: x, y: y, o: { mine: q.m, mag: -30 }, l: q.l, kind: 'body' });
+      if (last && LAY.names) labels.push({ x: x + 10, y: y - 10, t: T('ดาวล่าสุดของฉัน', 'My latest star'), c: '#ffe7a6', f: '600 12.5px ', pri: -40 });
+    });
+    cx.restore();
   }
   function path(fn, n) {
     cx.beginPath(); var pen = false;
@@ -471,6 +505,14 @@
   }
   function info(h) {
     var aa = altaz(h.l), o = h.o, box = $('sky-info'), lines = [];
+    if (o.mine) {
+      var dt = new Date(o.mine.t);
+      box.textContent = '';
+      [['b', T('ดาวของฉัน', 'My star')], ['span', dt.toLocaleDateString(THAI ? 'th-TH' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) + ' · ' + ('0' + dt.getHours()).slice(-2) + ':' + ('0' + dt.getMinutes()).slice(-2)],
+       ['span', T('เรื่อง: ', 'Topic: ') + (ROUTE_TH[o.mine.r] || o.mine.r)], ['i', T('คืนนั้นดาวดวงนี้อยู่ตรงเหนือหัวคุณพอดี — คุณผ่านมันมาแล้ว', 'That night this point was right above you — and you came through it')]]
+        .forEach(function (ln) { var e = document.createElement(ln[0]); e.textContent = ln[1]; box.appendChild(e); });
+      box.classList.remove('hide'); return;
+    }
     var nm = o.name || T('ดาวไม่มีชื่อเรียก', 'Unnamed star');
     lines.push(['b', nm]);
     if (o.en && o.en !== nm) lines.push(['i', o.en]);
@@ -490,6 +532,7 @@
     F.bodies.forEach(function (b) { if ((b.name + ' ' + b.id).toLowerCase().indexOf(q) >= 0) out.push({ t: b.name, go: function () { lookAt(bodyLocal(b), 30); info({ o: b, l: bodyLocal(b) }); } }); });
     STARS.forEach(function (s) { if (s.name && (s.name + ' ' + s.en).toLowerCase().indexOf(q) >= 0) out.push({ t: s.name, go: function () { var l = refract(local(s.v)); lookAt(l, 30); info({ o: s, l: l }); } }); });
     CONS.forEach(function (c) { if ((c.name + ' ' + c.en).toLowerCase().indexOf(q) >= 0) out.push({ t: c.name + ' · ' + T('กลุ่มดาว', 'constellation'), go: function () { lookAt(refract(local(c.v)), 45); } }); });
+    if (MINE && MINE.length && /ของฉัน|ของผม|mine|my/i.test(q)) out.unshift({ t: T('ดาวของฉัน (ล่าสุด)', 'My latest star'), go: function () { lookAt(refract(local(MINE[MINE.length - 1].v)), 60); } });
     return out.slice(0, 8);
   }
   $('sky-search-in').addEventListener('input', function () {
@@ -555,7 +598,8 @@
   });
 
   // ── เริ่ม ────────────────────────────────────────────────────────────────────────────────
-  syncLayers(); size();
+  syncLayers(); size(); loadMine();
+  window.addEventListener('storage', function (e) { if (e.key === 'kd-my-stars') { loadMine(); dirty = true; kick(); } });
   fetch('/static/sky/catalog.json').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
     if (!d || !d.stars) return;
     CAT = d; dirty = true; document.documentElement.classList.add('sky-ready'); kick();
