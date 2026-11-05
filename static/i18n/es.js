@@ -4,6 +4,8 @@
 "ท้องฟ้าคืนนี้ ↗": "El cielo de esta noche ↗",
 "{h} ชม.ที่แล้ว": "hace {h} h",
 "{d} วันที่แล้ว": "hace {d} días",
+"ฉันอยู่ใกล้{k} {n} ตอนนี้ต้องทำอะไรก่อน": "Estoy cerca de {k} {n}, ¿qué hago primero?",
+"ฉันอยู่แถวนี้ · ถาม LYLA": "Estoy cerca · preguntar a LYLA",
 "เมนู": "Menú",
 "แชทใหม่": "Nuevo chat",
 "✧ แชทใหม่": "✧ Nuevo chat",
