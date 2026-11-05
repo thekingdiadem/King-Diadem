@@ -2131,7 +2131,7 @@ def assess(text: str, pattern: dict | None = None) -> dict:
 
 # ตัวตรวจแบบเงื่อนไข (core/conditions.py) — ใคร × ทำอะไร × กับอะไร แทนรายการวลี · ผสานเข้าผลหลักที่นี่จุดเดียว
 # หัวข้อด่วน (กลืนของอันตราย · สัญญาณเตือน · มิจฉาชีพ) ขึ้นหน้า เพื่อให้คำตอบหลักเป็นเรื่องนั้น · ไม่แตะเมื่อเป็นวิกฤตอยู่แล้ว
-_COND_FIRST = ("swallowed", "overdose", "warning", "someone", "scam")
+_COND_FIRST = ("swallowed", "overdose", "warning", "someone", "online_grooming", "scam")
 _COND_AHEAD = ("basic", "housing")
 
 

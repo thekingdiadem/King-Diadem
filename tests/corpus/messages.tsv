@@ -652,3 +652,14 @@ I've already picked the place and the day for our wedding	!topic:warning	ปก�
 นมหมดแล้ว เดี๋ยวไปซื้อ	!topic:basic	ปกติ
 ข้าวหมดจานแล้ว อิ่มมาก	!topic:basic	ปกติ
 มาม่าห่อสุดท้ายในร้านขายหมดแล้ว	!topic:basic	ปกติ
+
+# ── ย้ายมาจากชุดปิดตารอบ 6 (core/conditions.py: farewell_apology · giveaway_final คนอื่นเล่า · repossession · secret_chat_minor) ──
+ลูกสาวส่งไลน์มาว่า ขอโทษที่เป็นลูกที่ไม่ดี ต่อไปแม่จะไม่ต้องเหนื่อยเพราะหนูแล้ว	topic:someone	คนใกล้ตัว
+my roommate has been giving away her plants and records and says she won't be needing them	topic:someone	คนใกล้ตัว
+ค่างวดรถเลยกำหนดมาสองเดือน ไฟแนนซ์บอกจะมายึดพรุ่งนี้	topic:debt	เดือดร้อน
+someone keeps messaging my 12 year old asking her to keep their chats a secret	topic:online_grooming	ล่อลวงเด็ก
+# ข้อที่ต้องไม่จับ
+ต่อไปแม่จะไม่ต้องเหนื่อยเพราะหนูได้งานแล้ว	!topic:warning;!topic:someone	ปกติ
+ขอโทษที่ทำให้เหนื่อย ต่อไปจะตั้งใจเรียน	!topic:warning	ปกติ
+ลูกกับเพื่อนแชทกันเป็นความลับเรื่องเซอร์ไพรส์วันเกิดแม่	!topic:online_grooming	ปกติ
+I'm giving away my old books to the library	!topic:warning;!topic:someone	ปกติ

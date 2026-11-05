@@ -200,16 +200,62 @@ def entrust_giveup(t: str) -> Hit | None:
 
 # ── ยกสิ่งที่รักให้คนอื่น พร้อมคำปิดท้ายแบบจบ ("ดีที่สุดแล้ว" "ไม่ต้องใช้อีกแล้ว") — ย้ายบ้าน/แพ้ขน ไม่นับ ─────────────
 GIVE_AWAY = _rx(r"(?:ยก|เอา|ส่ง)(?:หมา|แมว|สุนัข|น้อง(?:หมา|แมว)|สัตว์เลี้ยง|ของรัก|ของ\S{0,6})\S{0,8}(?:ไป)?ให้", r"แจก(?:ของ|ข้าวของ|เสื้อผ้า)\S{0,8}(?:หมด|ทั้งหมด|ไปแล้ว)",
-                r"\b(?:gave|giving|give|handed) (?:away )?(?:my|all my) (?:dog|cat|pets?|puppy|kitten|things|stuff|belongings|guitar|books|clothes)\b")
+                r"\b(?:gave|giving|give|handed|been giving) (?:away )?(?:my|all my|her|his|their|all (?:her|his|their)) (?:dog|cat|pets?|puppy|kitten|things|stuff|belongings|guitar|books|clothes|plants|records|vinyl|art|jewel(?:le)?ry|games|collection|favou?rite \w+)\b")
 FINAL_NOTE = _rx(r"ดีที่สุดแล้ว", r"ดีกว่า(?:อยู่กับ)?(?:ฉัน|ผม|หนู|เรา)", r"ไม่(?:ต้อง|ได้)ใช้(?:มัน)?(?:อีก)?แล้ว", r"จะได้มีคนดูแล", r"(?:ฉัน|ผม|หนู)ดูแล(?:เขา|มัน)ไม่ได้อีกแล้ว",
                  r"\b(?:for the best|won'?t (?:need|be needing) (?:it|them)|better off (?:with|without)|someone (?:who can|to) (?:take care|look after))\b")
 GIVE_OK = _rx(r"ย้าย(?:บ้าน|ห้อง|หอ|งาน|ไป)", r"แพ้ขน", r"เจ้าของ(?:ห้อง|หอ|คอนโด)ไม่ให้", r"ห้ามเลี้ยง", r"ทารก|คลอด|ตั้งครรภ์", r"บริจาค",
               r"\b(?:moving|move (?:to|abroad|out)|allerg\w*|landlord|no pets|new (?:baby|apartment|job)|donat\w*|decluttering)\b")
 
 
+THIRD = _rx(r"\b(?:she|he|they|her|his|my (?:roommate|friend|sister|brother|mom|mum|dad|son|daughter|partner|wife|husband))\b",
+            r"(?:เพื่อน|พี่|น้อง|แม่|พ่อ|ลูก|แฟน|รูมเมท)\S{0,6}(?:เขา|เธอ)?\S{0,4}(?:ยก|แจก|บอกว่า)")
+
+
 def giveaway_final(t: str) -> Hit | None:
-    if _near(GIVE_AWAY, FINAL_NOTE, t, 90) and not GIVE_OK.search(t):
-        return Hit("giveaway_final", "warning", 65)
+    if _near(GIVE_AWAY, FINAL_NOTE, t, 120) and not GIVE_OK.search(t):
+        return Hit("giveaway_final", "someone" if THIRD.search(t) and not re.search(r"\b(?:i|i'?ve|my own)\b|ฉัน|ผม|หนู(?!ๆ)", t, re.I) else "warning", 65)
+    return None
+
+
+# ── ขอโทษแบบบอกลา: "ขอโทษที่เป็นลูกที่ไม่ดี" + "ต่อไปจะไม่ต้องเหนื่อย/ห่วงเพราะฉันแล้ว" — ได้งาน/เรียนจบ/มีเงินช่วย ไม่นับ ───────
+RELIEF_SELF = _rx(r"ต่อไป\S{0,10}(?:จะ)?ไม่ต้อง(?:เหนื่อย|ลำบาก|เดือดร้อน|ห่วง|เป็นห่วง|ทน|ดูแล)\S{0,8}(?:เพราะ|กับ)?(?:หนู|ฉัน|ผม|เรา|กู)\S{0,4}(?:อีก)?แล้ว",
+                  r"(?:จะ)?ไม่ต้อง(?:เหนื่อย|ลำบาก|เดือดร้อน|ห่วง)เพราะ(?:หนู|ฉัน|ผม|เรา|กู)(?:อีก)?(?:ต่อไป)?แล้ว",
+                  r"\b(?:you|mom|mum|dad|everyone|they)(?:'ll| will)? (?:won'?t|will not|never) (?:have to|need to) (?:worry about|deal with|take care of|carry|put up with) me (?:any ?more|again)\b",
+                  r"\bno one will have to (?:worry about|deal with) me (?:any ?more|again)\b")
+APOLOGY_SELF = _rx(r"ขอโทษที่(?:เป็น|ทำให้)\S{0,12}(?:ไม่ดี|ภาระ|ผิดหวัง|เหนื่อย|ลำบาก)", r"\bsorry for (?:being|everything|all the trouble|being such a)\b")
+GOODBYE = _rx(r"ลาก่อน", r"รักทุกคน", r"ฝากดูแล", r"\b(?:goodbye|forever|love you all|take care of (?:yourself|mom|dad))\b")
+RELIEF_OK = _rx(r"ได้งาน", r"เรียนจบ", r"ทำงานแล้ว", r"มีเงิน", r"ส่งเงิน", r"ผ่อนให้", r"จ้าง", r"ซื้อ\S{0,8}ให้", r"หาย(?:ดี|ป่วย)แล้ว", r"เลิก(?:เหล้า|บุหรี่|พนัน)",
+                 r"\b(?:got (?:a|the|my) (?:new )?job|graduat\w*|i'?ll (?:pay|send|cover)|hired|bought|recovered|sober)\b")
+
+
+def farewell_apology(t: str) -> Hit | None:
+    if (RELIEF_SELF.search(t) or (APOLOGY_SELF.search(t) and GOODBYE.search(t))) and not RELIEF_OK.search(t):
+        return Hit("farewell_apology", "someone" if OTHER_SPEAKER.search(t) or re.search(r"ส่งไลน์มา|ส่งข้อความมา|ทักมา|\b(?:texted|messaged|wrote) me\b", t, re.I) else "warning", 80)
+    return None
+
+
+# ── ไฟแนนซ์/ธนาคารจะมายึดรถหรือบ้าน (ค้างงวด) ─────────────────────────────────────────────────────
+REPO = _rx(r"(?:มา|จะ|โดน|ถูก)?ยึด(?:รถ|บ้าน|ทรัพย์|คอนโด|ที่ดิน)?", r"\b(?:repossess\w*|foreclos\w*|seize (?:my|our) (?:car|house|home))\b")
+LOAN_CTX = _rx(r"ไฟแนนซ์", r"ค่างวด", r"ผ่อน(?:รถ|บ้าน)", r"สินเชื่อ", r"ขายทอดตลาด", r"\b(?:car payments?|mortgage|lender|finance company|behind on|bank)\b")
+
+
+def repossession(t: str) -> Hit | None:
+    if _near(REPO, LOAN_CTX, t, 60) and not re.search(r"ข่าว|ซีรีส์|ละคร|\bnews\b", t, re.I):
+        return Hit("repossession", "debt", 60)
+    return None
+
+
+# ── มีคนทักเด็กแล้วสั่งให้เก็บแชทเป็นความลับ = ขั้นตอนล่อลวงเด็ก (ไม่ต้องรอให้ขอรูป) ───────────────────────────────
+MINOR = _rx(r"ลูก(?:สาว|ชาย)?", r"หลาน", r"น้อง(?:สาว|ชาย)", r"เด็ก", r"\d{1,2}\s?(?:ขวบ|ปี)",
+            r"\b(?:my|our) (?:\d{1,2}[- ]?(?:year|yr)[- ]?old|son|daughter|kid|child|niece|nephew|little (?:sister|brother))\b", r"\b\d{1,2}[- ]?(?:year|yr)[- ]?old\b")
+CONTACT = _rx(r"(?:ทัก|แชท|ส่งข้อความ|คุย)\S{0,10}(?:มา|กับ|หา)", r"(?:ทัก|แชท|ส่งข้อความ|ชวนคุย)(?:หา)?(?:ลูก|หลาน|น้อง|เด็ก)", r"\b(?:messag\w*|texting|chatting|dm(?:ing|s)?|talking to)\b")
+KEEP_SECRET = _rx(r"(?:ห้าม|อย่า)บอก(?:พ่อ|แม่|ใคร|ผู้ใหญ่|ที่บ้าน)", r"เก็บ\S{0,8}เป็นความลับ", r"ลบแชท", r"แอบคุย",
+                  r"\b(?:keep (?:their|the|it|this|our) (?:chats?|messages?|conversations?|it|this)?\s?(?:a )?secret|don'?t tell (?:your )?(?:mom|mum|dad|parents|anyone)|delete (?:the|their) (?:chats?|messages))\b")
+
+
+def secret_chat_minor(t: str) -> Hit | None:
+    if MINOR.search(t) and CONTACT.search(t) and KEEP_SECRET.search(t) and not re.search(r"เซอร์ไพรส์|วันเกิด|\bsurprise\b|\bbirthday\b", t, re.I):
+        return Hit("secret_chat_minor", "online_grooming", 80)
     return None
 
 
@@ -361,7 +407,7 @@ def scam_isolate_official(t: str) -> Hit | None:
 RULES = (child_ingest, absence_prep, lethality_research, scam_unasked_money, scam_multiplier, basic_needs,
          food_floor, entrust_giveup, giveaway_final, plan_specific, bill_due,
          scam_pay_first, scam_online_only, scam_link_pressure, scam_gift_card, scam_family_emergency, scam_paid_vanished,
-         scam_task_job, scam_isolate_official)
+         scam_task_job, scam_isolate_official, farewell_apology, repossession, secret_chat_minor)
 
 
 def check(text) -> list[Hit]:

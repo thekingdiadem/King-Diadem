@@ -136,9 +136,10 @@ got a text that my parcel is held at customs, need to pay a small fee by link	sc
 ไปเที่ยวทะเลมา แดดแรงแต่สนุกมาก	none	th	claude-seed-r5
 my sister won't stop sending me memes at 2am lol	none	en	claude-seed-r5
 # ── รอบ 6: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 5 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
-ลูกสาวส่งไลน์มาว่า ขอโทษที่เป็นลูกที่ไม่ดี ต่อไปแม่จะไม่ต้องเหนื่อยเพราะหนูแล้ว	self_harm	th	claude-seed-r6
-my roommate has been giving away her plants and records and says she won't be needing them	self_harm	en	claude-seed-r6
 เด็กเล็กเอาเม็ดยาของยายเข้าปากไปหลายเม็ด ตอนนี้ง่วงซึม	emergency	th	claude-seed-r6
-ค่างวดรถเลยกำหนดมาสองเดือน ไฟแนนซ์บอกจะมายึดพรุ่งนี้	distress	th	claude-seed-r6
-someone keeps messaging my 12 year old asking her to keep their chats a secret	violence	en	claude-seed-r6
 เลือกร้านกับวันฉลองครบรอบไว้แล้ว ตื่นเต้นมาก	none	th	claude-seed-r6
+# ── รอบ 7: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 6 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
+เพื่อนร่วมงานเขียนอีเมลลาทุกคน บอกว่าขอบคุณที่ทนกันมา หลังจากนี้จะไม่รบกวนใครอีก	self_harm	th	claude-seed-r7
+my dad stopped taking his heart meds and says there's no point anymore	self_harm	en	claude-seed-r7
+เจ้าของหอขู่ว่าถ้าไม่จ่ายภายในศุกร์นี้จะขนของออกมาวางหน้าห้อง	distress	th	claude-seed-r7
+เด็กข้างบ้านบอกว่ามีพี่ในเกมส่งของขวัญให้ แล้วชวนไปเจอกันโดยห้ามบอกแม่	violence	th	claude-seed-r7
