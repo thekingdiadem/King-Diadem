@@ -713,5 +713,18 @@
 "ปลายทาง": "Đích đến",
 "ทางไป": "Con đường",
 "ข้อควรระวัง": "Điều cần lưu ý",
-"ตัวเลือกเพิ่มเติม": "Tùy chọn khác"
+"ตัวเลือกเพิ่มเติม": "Tùy chọn khác",
+"คู่มือเอาชีวิตรอดฉบับเต็ม — ก่อน ระหว่าง หลังเกิดภัย": "Hướng dẫn sinh tồn đầy đủ — trước, trong và sau thảm họa",
+"ตอนนี้ดึงข้อมูลภัยพิบัติจริงไม่ได้ — ติดตามกรมอุตุฯ และ ปภ.": "Hiện không lấy được dữ liệu thiên tai thực — hãy theo dõi Cục Khí tượng Thái Lan và DDPM",
+"ภัยพิบัติจริงตอนนี้ (GDACS)": "Thiên tai thực lúc này (GDACS)",
+"ไม่มีประกาศเตือนภัยในรัศมี {r} กม. จาก{home} และไม่มีระดับส้ม/แดงที่อื่น": "Không có cảnh báo trong bán kính {r} km từ {home}, và không có cảnh báo cam/đỏ ở nơi khác",
+"พายุหมุนเขตร้อน": "Bão nhiệt đới",
+"ภูเขาไฟ": "Núi lửa",
+"ภัยแล้ง": "Hạn hán",
+"ไฟป่า": "Cháy rừng",
+"ระดับเขียว": "Cảnh báo xanh",
+"ระดับส้ม": "Cảnh báo cam",
+"ระดับแดง": "Cảnh báo đỏ",
+"ข้อมูลจาก": "Dữ liệu từ",
+"ในไทยติดตามกรมอุตุฯ และ ปภ. 1784": "tại Thái Lan theo dõi Cục Khí tượng và DDPM 1784"
 };

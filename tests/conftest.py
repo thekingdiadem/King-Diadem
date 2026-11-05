@@ -63,13 +63,14 @@ def _reset_fake_llm():
 
 @pytest.fixture(autouse=True)
 def _no_real_usgs(monkeypatch):
-    """เทสต์ไม่ยิง USGS จริง (ผลจะเปลี่ยนทุกครั้ง และ CI ไม่ควรพึ่งเน็ตภายนอก) — เทสต์ไหนอยากได้ข้อมูลก็แทน _http_get เอง"""
-    from core import quakes
+    """เทสต์ไม่ยิง USGS / GDACS จริง (ผลจะเปลี่ยนทุกครั้ง และ CI ไม่ควรพึ่งเน็ตภายนอก) — เทสต์ไหนอยากได้ข้อมูลก็แทน _http_get เอง"""
+    from core import hazards, quakes
 
     def _offline(url):
-        raise OSError("tests do not call USGS")
-    monkeypatch.setattr(quakes, "_http_get", _offline)
-    monkeypatch.setattr(quakes, "_cache", {"at": 0.0, "ok": False, "items": []})
+        raise OSError("tests do not call USGS or GDACS")
+    for mod in (quakes, hazards):
+        monkeypatch.setattr(mod, "_http_get", _offline)
+        monkeypatch.setattr(mod, "_cache", {"at": 0.0, "ok": False, "items": []})
     yield
 
 

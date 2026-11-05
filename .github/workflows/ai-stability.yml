@@ -1,0 +1,55 @@
+# วัดความคงที่ของคำตอบ AI ทุกสัปดาห์ (scripts/eval_ai.py) — FATE™ สัจธรรม 3 ชั้น AI
+# ใช้ GEMINI_API_KEY จริง (ตั้งใน Settings → Secrets → Actions) · ไม่มี key = ข้ามโดยไม่ล้ม
+# รายงานรอบก่อนเก็บใน cache แล้วเทียบ: ข้อไหนเคยผ่านแล้วตก · ล้มเมื่อเรื่องชีวิตต่ำกว่า 80% หรือแย่ลงเกิน 3 ข้อ
+name: ai-stability
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"          # ทุกวันจันทร์ 10:17 น. เวลาไทย
+  workflow_dispatch:
+    inputs:
+      n:
+        description: "จำนวนคำถาม (เรียก AI จริง มีค่าใช้จ่าย)"
+        default: "60"
+
+concurrency:
+  group: ai-stability
+  cancel-in-progress: false
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - name: รายงานรอบก่อน
+        uses: actions/cache/restore@v4
+        with:
+          path: ai-stability.json
+          key: ai-stability-${{ github.run_id }}
+          restore-keys: ai-stability-
+      - name: วัดคำตอบ AI
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          [ -f ai-stability.json ] && mv ai-stability.json prev.json || true
+          python scripts/eval_ai.py --n "${{ github.event.inputs.n || '60' }}" --prev prev.json --out ai-stability.json --strict
+      - name: เก็บรายงานไว้เทียบรอบหน้า
+        if: always() && hashFiles('ai-stability.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: ai-stability.json
+          key: ai-stability-${{ github.run_id }}
+      - name: แนบรายงาน
+        if: always() && hashFiles('ai-stability.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-stability
+          path: ai-stability.json
+          retention-days: 90

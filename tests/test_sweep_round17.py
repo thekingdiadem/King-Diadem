@@ -20,7 +20,8 @@ def test_english_first_aid(t):
     assert "first_aid" in assess(t)["topics"]
 
 
-@pytest.mark.parametrize("t,kind", [("house is shaking", "quake"), ("tsunami warning", "quake"), ("สึนามิ", "quake"),
+# สึนามิแยกเป็นภัยของตัวเองแล้ว (ขั้นแรก = ขึ้นที่สูง ไม่ใช่หมอบใต้โต๊ะของแผ่นดินไหว)
+@pytest.mark.parametrize("t,kind", [("house is shaking", "quake"), ("tsunami warning", "tsunami"), ("สึนามิ", "tsunami"),
                                     ("landslide near my village", "storm")])
 def test_disasters(t, kind):
     assert (assess(t)["disaster"] or {}).get("kind") == kind

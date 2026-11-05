@@ -155,8 +155,8 @@ My house is on fire	disaster:fire;risk>=60	ภัย
 แผ่นดินไหว	disaster:quake	ภัย
 house is shaking	disaster:quake	ภัย
 the room is shaking with music	!disaster	ภัย
-สึนามิ	disaster:quake	ภัย
-tsunami warning	disaster:quake	ภัย
+สึนามิ	disaster:tsunami	ภัย
+tsunami warning	disaster:tsunami	ภัย
 ดินสไลด์	disaster:storm	ภัย
 landslide near my village	disaster:storm	ภัย
 พายุเข้า หลังคาปลิว	disaster:storm	ภัย
@@ -614,3 +614,8 @@ el agua sube y no podemos salir a jugar	none	ไม่ใช่ภัย
 ลูกกินยาแก้ไข้ไปครึ่งเม็ดตามหมอสั่ง	!topic:overdose	ไม่ใช่ภัย
 ยายให้หลานนั่งตักดูทีวี	!topic:sexual_abuse	ไม่ใช่ภัย
 อย่าบอกแม่นะว่าเราซื้อเค้กเซอร์ไพรส์	!topic:sexual_abuse	ไม่ใช่ภัย
+# ย้ายมาจากชุดปิดตา (tests/blind) หลังแก้ทั้งกลุ่ม: อยากตายแบบอ้อมหลายภาษา · จมน้ำ · เลือดซึมผ้า (tests/test_passive_ideation_intl.py)
+活着好累，想永远睡下去	crisis	วิกฤต
+eu queria dormir e não acordar mais	crisis	วิกฤต
+my dad was cutting wood and the blood is soaking through every towel	topic:health_emergency;risk>=80	ฉุกเฉิน
+el niño se cayó a la piscina y no abre los ojos	topic:health_emergency;intl:medical;risk>=80	ฉุกเฉิน

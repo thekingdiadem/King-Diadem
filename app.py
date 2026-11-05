@@ -545,6 +545,28 @@ RUN_COST        = max(1, int(os.getenv("RUN_COST", "1")))
 IMAGE_COST          = max(1, int(os.getenv("IMAGE_COST", "5")))
 IMAGE_FREE_DAILY    = max(0, int(os.getenv("IMAGE_FREE_DAILY", "0")))
 IMAGE_PREMIUM_DAILY = max(0, int(os.getenv("IMAGE_PREMIUM_DAILY", "10")))
+
+
+def _policy_sync():
+    """ทะเบียนการเปลี่ยนค่าที่กระทบผู้ใช้ (FATE™ หลักการ 4) — เทียบค่าตอนเปิดเซิร์ฟเวอร์กับค่าล่าสุดที่บันทึกไว้
+    เปลี่ยน = บันทึก เดิม → ใหม่ + เหตุผลจาก POLICY_CHANGE_REASON · ไม่ใส่เหตุผลก็บันทึก แต่ติดธง"""
+    from core import policy_registry as pr
+    from DATABASE.db import policy_last, policy_record
+    current = {"FREE_DAILY_RUNS": FREE_DAILY_RUNS, "RUN_COST": RUN_COST, "IMAGE_COST": IMAGE_COST,
+               "IMAGE_FREE_DAILY": IMAGE_FREE_DAILY, "IMAGE_PREMIUM_DAILY": IMAGE_PREMIUM_DAILY,
+               "STRIPE_PRICE_ID": os.getenv("STRIPE_PRICE_ID", ""), "STRIPE_PREMIUM_PRICE_ID": os.getenv("STRIPE_PREMIUM_PRICE_ID", "")}
+    changes = pr.diff(current, policy_last())
+    if changes:
+        reason = pr.clean_reason(os.getenv("POLICY_CHANGE_REASON"))
+        policy_record(changes, reason, time.time())
+        print(f"📜 policy: บันทึกการเปลี่ยน {len(changes)} ค่า — {reason}")
+    return changes
+
+
+try:
+    _policy_sync()
+except Exception as e:      # ทะเบียนพังต้องไม่ทำให้เว็บล่ม — แต่ต้องเห็นใน log
+    print(f"⚠ policy registry: {type(e).__name__}: {e}")
 THB_PER_CREDIT  = max(0.01, float(os.getenv("THB_PER_CREDIT", "1")))
 _BKK = timezone(timedelta(hours=7))
 
@@ -602,6 +624,30 @@ def _is_admin(email) -> bool:
 def _mkey(*parts) -> str:
     import hashlib, hmac as _h
     return _h.new((_SECRET_KEY or "kd").encode(), "|".join(map(str, parts)).encode(), hashlib.sha256).hexdigest()[:20]
+
+def _companion_check(identity: str, topics) -> dict | None:
+    """นับหัวข้อหนักใจ (ไม่เก็บข้อความ · who = HMAC) แล้วดูว่าควรชวนหาคนจริงไหม — พังเงียบ ไม่กระทบคำตอบ"""
+    try:
+        from datetime import date, timedelta
+        from core import companion as cp
+        from DATABASE.db import topic_days_add, topic_days_mark
+        heavy = cp.heavy_topics(topics)
+        if not heavy:
+            return None
+        today = _today()
+        since = (date.fromisoformat(today) - timedelta(days=cp.WINDOW_DAYS - 1)).isoformat()
+        forget = (date.fromisoformat(today) - timedelta(days=cp.KEEP_DAYS - 1)).isoformat()
+        who = _mkey("companion", identity)
+        hist = {d: c for d, c in topic_days_add(today, who, heavy, forget).items() if d >= since}
+        sig = cp.signal(hist, today)
+        if not sig or not topic_days_mark(today, who, cp.SHOWN):
+            return None
+        _metric("companion:" + sig["kind"])
+        return cp.message(sig)
+    except Exception as e:
+        print(f"⚠ companion: {type(e).__name__}: {str(e)[:120]}")
+        return None
+
 
 def _metric(name: str, key=None, amount: float = 0):
     try:
@@ -830,7 +876,7 @@ def root(request: Request):
 # ── ให้ Google เจอหน้าเว็บ (SEO) ─────────────────────────────────────────
 # robots.txt บอกว่าหน้าไหนให้เก็บ · หน้าส่วนตัว (API บัญชี รายงานที่แชร์) ห้ามเก็บ
 # sitemap.xml บอก Google ว่ามีหน้าสาธารณะอะไรบ้าง — เดิมไม่มีทั้งสองไฟล์
-SITEMAP_PAGES = [("/", "1.0", "daily"), ("/guide", "0.8", "weekly"), ("/learn", "0.8", "weekly"), ("/ask", "0.7", "weekly"),
+SITEMAP_PAGES = [("/", "1.0", "daily"), ("/guide", "0.8", "weekly"), ("/learn", "0.8", "weekly"), ("/survival", "0.9", "weekly"), ("/ask", "0.7", "weekly"),
                  ("/architecture", "0.6", "weekly"), ("/letter", "0.6", "monthly"), ("/support", "0.5", "monthly"),
                  ("/privacy", "0.3", "yearly"), ("/terms", "0.3", "yearly"), ("/refund", "0.3", "yearly")]
 _ROBOTS_BLOCK = ["/api/", "/report/", "/auth/", "/login", "/me", "/dashboard", "/wallet", "/credits", "/static/login.html",
@@ -1546,6 +1592,17 @@ async def login_twofa(request: Request, data: dict):
     return r
 
 
+@app.get("/api/policy")
+async def policy_public(limit: int = 50):
+    """ราคาและโควตาตอนนี้ + ประวัติการเปลี่ยนพร้อมเหตุผล — เปิดให้ทุกคนดู (FATE™: เหตุผลต้องมองเห็นได้แม้เวลาผ่านไป)"""
+    from core import policy_registry as pr
+    from DATABASE.db import policy_history
+    rows = await run_in_threadpool(policy_history, limit)
+    current = {"FREE_DAILY_RUNS": FREE_DAILY_RUNS, "RUN_COST": RUN_COST, "IMAGE_COST": IMAGE_COST,
+               "IMAGE_FREE_DAILY": IMAGE_FREE_DAILY, "IMAGE_PREMIUM_DAILY": IMAGE_PREMIUM_DAILY}
+    return {"current": current, "history": [pr.public_row(r) for r in rows]}
+
+
 @app.get("/api/admin/metrics")
 async def admin_metrics(request: Request, days: int = 30):
     """ตัวเลขธุรกิจย้อนหลัง (เฉพาะอีเมลใน ADMIN_EMAILS) — คนเข้า → คนคุย → ชนเพดานฟรี → กดจ่าย → จ่ายจริง"""
@@ -1570,7 +1627,12 @@ async def admin_metrics(request: Request, days: int = 30):
         learning = None
     from core import image_gen
     image = {"model": image_gen.IMAGE_GEN_MODEL, "fallbacks": image_gen.IMAGE_GEN_FALLBACKS, "last_error": _IMAGE_LAST_ERROR or None}
-    return {"days": days, "series": series, "total": total, "free_daily": FREE_DAILY_RUNS, "learning": learning, "image": image}
+    from core.policy_registry import NO_REASON
+    from DATABASE.db import policy_history
+    unexplained = [r for r in await run_in_threadpool(policy_history, 200) if r["reason"] == NO_REASON and r["old"]]
+    policy = {"unexplained_changes": len(unexplained), "latest_unexplained": unexplained[:5]}
+    return {"days": days, "series": series, "total": total, "free_daily": FREE_DAILY_RUNS, "learning": learning,
+            "image": image, "policy": policy}
 
 
 @app.get("/api/2fa")
@@ -1981,6 +2043,15 @@ def kernel_preview(request: Request, data: dict):
             "lang": world_lang(text, 1) or detect_lang(text), "choices": len(steps), "reply": reply}
 
 
+# ภัยจาก core/engine_bridge (ชนิดที่ผู้ใช้กำลังเจอ) → ชนิดของ GDACS · ไฟไหม้ทั่วไปอาจเป็นไฟป่า
+_HAZARD_GDACS = {"storm": ["TC"], "flood": ["FL"], "drought": ["DR"], "fire": ["WF"], "volcano": ["VO"]}
+# ถามข้อมูลภัยตอนนี้ (ไม่ได้กำลังเจอเอง): "ตอนนี้มีพายุไหม" "ภัยพิบัติทั่วโลก" "ภูเขาไฟระเบิดที่ไหน"
+_HAZARD_ASK = re.compile(r"ภัยพิบัติ\S{0,12}(?:ตอนนี้|ล่าสุด|ทั่วโลก|ที่ไหน|วันนี้)|(?:ตอนนี้|ล่าสุด|วันนี้)\S{0,10}(?:มี)?(?:พายุ|ไต้ฝุ่น|ภูเขาไฟ|ไฟป่า|น้ำท่วมใหญ่)"
+                         r"|(?:พายุ|ไต้ฝุ่น|ดีเปรสชัน)\S{0,10}(?:เข้าไทย|จะเข้า|กำลังเข้า|ลูกใหม่)|ภูเขาไฟ\S{0,8}(?:ระเบิด|ปะทุ)"
+                         r"|\b(?:typhoon|cyclone|hurricane|volcan\w*|wildfire)s?\b.{0,30}\b(?:now|today|latest|current|where)\b"
+                         r"|\b(?:current|latest|today'?s|active)\b.{0,20}\b(?:disasters?|typhoons?|cyclones?|eruptions?|wildfires?)\b", re.I)
+
+
 @app.post("/run")
 @app.post("/decision")
 def run_kernel(request: Request, data: dict):
@@ -2350,7 +2421,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     sig_ctx = " ".join(sig_ctx)
     # กำลังเจอภัย (น้ำท่วม แผ่นดินไหว ไฟไหม้ ...) → เส้นทางความอยู่รอด ขั้นแรกของภัยนั้นมาก่อน
     dis_ctx = ""
-    quake_info = None
+    quake_info = hazard_info = None
     dis = k_assess.get("disaster")
     if dis:
         if route not in ("vega",):
@@ -2370,6 +2441,15 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 dis_ctx += " " + _quakes.llm_note(quake_info)
             except Exception as e:
                 print(f"⚠ quakes: {type(e).__name__}")
+    # พายุ น้ำท่วม ไฟป่า ภัยแล้ง ภูเขาไฟ: ข้อมูลจริงทั่วโลกจาก GDACS (core/hazards.py) — ทั้งตอนกำลังเจอ และตอนถามว่าตอนนี้มีภัยที่ไหน
+    _hk = _HAZARD_GDACS.get((dis or {}).get("kind")) if dis else None
+    if _hk or _HAZARD_ASK.search(user_input):
+        try:
+            from core import hazards as _hazards
+            hazard_info = _hazards.recent(_hk)
+            dis_ctx += " " + _hazards.llm_note(hazard_info)
+        except Exception as e:
+            print(f"⚠ hazards: {type(e).__name__}")
     # เขาขอทางออกเองแล้ว ("หาทางออกที" "ทำยังไงดี") — เดิม LYLA ยังแค่รับฟังแล้วถามกลับ
     # ข้อความสั้นๆ ต่อจากที่เพิ่งขอ ("หาทางออกที" → "เวก้า") ก็ยังเป็นคำขอเดิม
     last_user = next((str(h.get("content") or "") for h in reversed(history if isinstance(history, list) else [])
@@ -2631,6 +2711,16 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         result["offer_flags"] = offer_flags
     if quake_info and isinstance(result, dict):
         result["quakes"] = quake_info
+    if hazard_info and isinstance(result, dict):
+        result["hazards"] = hazard_info
+    # ภัยที่ผู้ใช้กำลังเจอหรือถามถึง → ปุ่มคู่มือฉบับเต็ม /survival#ภัยนั้น (แชทให้แค่ 3 ขั้นตาม canon)
+    _dk = (k_assess.get("disaster") or {}).get("kind") if isinstance(k_assess.get("disaster"), dict) else None
+    if isinstance(result, dict):
+        from core.survival_guide import ALIAS as _SURV
+        _hz = (hazard_info or {}).get("near") or (hazard_info or {}).get("world") or []
+        _sk = _SURV.get(_dk or "") or ("quake" if quake_info else None) or (_SURV.get(_hz[0]["kind"]) if _hz else None)
+        if _sk:
+            result["survival"] = _sk
     # ปุ่มหาความช่วยเหลือใกล้ตัว (โรงพยาบาล ศูนย์พักพิง ตำรวจ) — แผนที่ในมือถือใช้ตำแหน่งของผู้ใช้เอง
     if bridge_nearby and isinstance(result, dict):
         try:
@@ -2655,6 +2745,12 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         vm = "vega"
     result["persona"]    = _PERSONA.get(vm, "LYLA")
     result["voice_mode"] = vm
+
+    # สัญญาณการพึ่งพา (core/companion.py): คุยเรื่องหนักใจเรื่องเดิมถี่ผิดปกติ → ชวนให้มีคนจริงข้างๆ วันละครั้ง
+    if not k_assess.get("crisis"):
+        nudge = _companion_check(data["session_id"], k_topics)   # ตัวตนจากเซิร์ฟเวอร์ (_quota_identity) ไม่ใช่จาก client
+        if nudge:
+            result["companion"] = nudge
 
     result = _enrich_with_universal(result, payload)
 
@@ -3360,7 +3456,34 @@ async def learn_page():
     return FileResponse("static/learn.html")
 
 
+# ── คู่มือเอาชีวิตรอดฉบับเต็ม (core/survival_guide.py) — HTML จากเซิร์ฟเวอร์ ไม่มีสคริปต์ เปิดได้แม้เน็ตช้า
+_SURVIVAL_HTML: dict = {}
+
+
+@app.get("/survival")
+async def survival_page(lang: str = "th"):
+    from fastapi.responses import HTMLResponse
+    from core.survival_page import render
+    lang = "en" if lang == "en" else "th"
+    if lang not in _SURVIVAL_HTML:
+        _SURVIVAL_HTML[lang] = render(lang)
+    return HTMLResponse(_SURVIVAL_HTML[lang], headers={"Cache-Control": "public, max-age=3600"})
+
+
+@app.get("/api/survival")
+async def survival_api(lang: str = "th"):
+    from core.survival_guide import public
+    return public("en" if lang == "en" else "th")
+
+
 # ── แผ่นดินไหวล่าสุด (USGS) — สาธารณะ แคช 5 นาที ใช้กับลูกโลก/การ์ดในแชทได้
+@app.get("/api/hazards")
+async def hazards_recent():
+    """พายุ น้ำท่วม ภูเขาไฟ ภัยแล้ง ไฟป่า ทั่วโลก (GDACS) — สาธารณะ แคช 10 นาที"""
+    from core import hazards
+    return await run_in_threadpool(hazards.recent)
+
+
 @app.get("/api/quakes")
 async def quakes_recent():
     from core import quakes
