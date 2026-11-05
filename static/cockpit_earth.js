@@ -376,6 +376,18 @@
   }
   window.KD_earth = {
     globe: function (on) { leaveCity(); go({ L: on ? 0 : 1, lat: on ? 20 : 40 }); },
+    // บินไปจุดภัย แล้วเปิดกล้องรายละเอียดเมื่อถึง (ใช้กับรายการภัยในแผงเครื่องมือ)
+    flyHazard: function (i) {
+      var h = HZ.list[i]; if (!h) return;
+      leaveCity(); go({ lat: clamp(h.lat, -85, 85), lon: h.lon + 360 * Math.round((S.tlon - h.lon) / 360), L: 2.2 });
+      var tries = 0;                                              // รอจนโลกบินถึงแล้วจุดขึ้นจอ (เครื่องช้าก็รอได้ ไม่เกิน ~5 วินาที)
+      (function wait() {
+        var m = HZ.shown.filter(function (x) { return x.h === h; })[0], V = view();
+        if (m && Math.hypot(m.x - V.W / 2, m.y - V.H / 2) < Math.min(V.W, V.H) * .3) { showHazard(m); return; }
+        if (++tries < 14) setTimeout(wait, 350);
+      })();
+    },
+    hazards: function () { return HZ.list; },
     pole: function (north) { leaveCity(); go({ L: 0, lat: north ? 80 : -80 }); },
     zoomIn: function () { if (S.city) window.KD_cityMap.zoom(1); else go({ L: S.tL < 1 ? 1 : S.tL + 1 }); },
     zoomOut: function () {
