@@ -20,14 +20,14 @@ import re
 
 from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT, SELF_HARM_VEILED,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
-                               BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, SEXTORTION, MEDICAL_EMERGENCY,
+                               BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, VIOLENCE_HABIT, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
                                MISSING_PERSON, LABOR_RIGHTS, RESIGN_BLOCKED, SWALLOWED_OBJECT, LENT_OUT, CONSUMER, HACKED, HOUSING, EVICT_TONIGHT, SCAM_JOB, DEBT_HARASS,
                                STOP_MEDS, STOP_MEDS_CTX, small_talk, SELF_INJURY, EATING, PSYCHOSIS, CAREGIVER,
                                HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE,
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
                                CHILD_HOUSEHOLD, SLEEPLESS, NOT_BREATHING as _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY, TRAFFICKING)
-from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl, world_urgent
+from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, script_lang, urgent_intl, world_urgent
 from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en, debt_en
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
@@ -314,7 +314,7 @@ TOPICS = [
     ("violence", [re.compile(r"(?<!มวย)(?<!มวยไทย)(?<!ต่อยมวย)(?<!นักมวย)(?<!ซ้อมมวย)(?<!เทควันโด)(?<!คาราเต้)(?<!ยูโด)(?!\S*?(?:บนเวที|ในสนาม|ตอนแข่ง|ตอนซ้อม|ในเกม))(ถูก|โดน)\S{0,12}?(ทำร้าย(?!ตัวเอง)|ตบ|(?<!ผึ้ง)(?<!แตน)(?<!ต่อ)(?<!มด)(?<!แมลง)(?<!หัวเสือ)(?<!แมงป่อง)(?<!ตะขาบ)(?<!แมงกะพรุน)(?<!ตัว)ต่อย|เตะ|ทุบ|ตี(?!ความ|กลับ|ราคา))"),
                   "ถูกขู่", "โดนขู่", "รู้สึกไม่ปลอดภัย", "อยู่บ้านไม่ปลอดภัย", "ข่มขืน", "ความรุนแรงในบ้าน",
                   "สะกดรอย", "ถูกกักขัง",
-                  re.compile(r"(?:ถูก|โดน)\S{0,6}ขัง(?:ไว้|อยู่)?\s*(?:ใน|ไว้)(?!เกม)"), VIOLENCE_BY], {
+                  re.compile(r"(?:ถูก|โดน)\S{0,6}ขัง(?:ไว้|อยู่)?\s*(?:ใน|ไว้)(?!เกม)"), VIOLENCE_BY, VIOLENCE_HABIT], {
         "open": ["ความปลอดภัยของคุณมาก่อนทุกเรื่อง"],
         "paths": [
             f"ถ้ากำลังอยู่ในอันตรายตอนนี้ — ออกไปอยู่ในที่ที่มีคนอื่น แล้วโทร {HOTLINE_POLICE}",
@@ -2216,6 +2216,7 @@ _STATUS_WORDS = {
     "ja": ("今のリスク", ("対応できる", "注意", "すぐに対応を")),
     "ko": ("지금 위험도", ("감당할 수 있어요", "조심해야 해요", "지금 바로 도움이 필요해요")),
     "es": ("Riesgo ahora", ("manejable", "con cuidado", "necesita atención ya")),
+    "vi": ("Rủi ro lúc này", ("kiểm soát được", "cần cẩn thận", "cần chăm sóc ngay")),
 }
 _SHOWN_RISK = re.compile(r"\((\d+)/100\)")
 
@@ -2287,6 +2288,11 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     lang = detect_lang(text)
     if lang != "th":
         status = status_line(a, lang)
+        # มิจฉาชีพที่ตัวจับหลายภาษาเจอ (core/thai_signals) — เดิม "警察から電話で安全な口座に振り込め"
+        # "Me llamó la policía… cuenta segura" ได้คำตอบทั่วไป และภาษาเวียดนามได้คำตอบภาษาอังกฤษ
+        scam_lang = "vi" if script_lang(text) == "vi" else lang
+        if a.get("scam") and not a["crisis"] and "recovery" not in a["scam"] and scam_lang in ("zh", "ja", "ko", "es", "vi"):
+            return compose_urgent_intl(scam_lang, "scam", status_line(a, scam_lang), sign, footer)
         if lang == "en" and not a["crisis"] and not a["relationship"]:
             try:
                 from core.creator_story import detect_creator_question, CREATOR_STORY_EN
@@ -2368,7 +2374,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             from core.world_replies import world_lang, compose_world
             wl = world_lang(text)
             if wl and (lang == "en" or wl != "es"):
-                out = compose_world(wl, "general", status, sign, footer)
+                out = compose_world(wl, "general", status_line(a, wl) or status, sign, footer)
                 if out:
                     return out
         return compose_intl(lang, a["crisis"], status, sign, footer)
@@ -2591,7 +2597,23 @@ def compose(text: str, *args, **kw) -> str:
     if text and _RECITE.search(text) and assess(text).get("text_risk", 0) < 60:
         return heart_sutra_recital()                 # ขอให้ท่อง = ให้ตัวบท ไม่ใช่คำอธิบาย
     out = _compose(text, *args, **kw)
-    return _soften_joking_crisis(text, out)
+    return _distress_line(text, _soften_joking_crisis(text, out))
+
+
+# ทุกข์ใจหนักต่อเนื่อง (ยังไม่ถึงขั้นพูดว่าอยากตาย) — ชุดวัดผล 500 ข้อพบว่า "หมดหวังกับทุกอย่าง" "รู้สึกไร้ค่ามาก"
+# "ร้องไห้ทุกคืน" "ยืนอยู่บนดาดฟ้า" ได้คำตอบทั่วไปที่ไม่มีสายด่วนสุขภาพจิตเลย — เติมบรรทัด 1323 ก่อนลายเซ็น
+_DISTRESS = re.compile(r"ซึมเศร้า|หมดหวัง|สิ้นหวัง|ไร้ค่า|ไม่มีค่า(?:อะไร)?|ร้องไห้ทุก(?:คืน|วัน)|ทนไม่ไหวแล้ว|ว่างเปล่าไปหมด|"
+                       r"ไม่มีแรง(?:จะ)?ทำอะไร|ฝันร้ายทุกคืน|เศร้าหลังคลอด|ยืนอยู่บน(?:ดาดฟ้า|ตึก|สะพาน|ระเบียง|ราวสะพาน)|"
+                       r"เป็นภาระ(?:ของ)?(?:คนอื่น|ครอบครัว|ทุกคน)|ไม่อยากตื่น|อยากหายไป")
+_DISTRESS_LINE = "📞 ถ้าความรู้สึกนี้หนักจนรับไม่ไหว คุยกับคนที่ช่วยได้ตอนนี้เลยที่ 1323 (สายด่วนสุขภาพจิต 24 ชม.) — ไม่ต้องรอให้แย่กว่านี้"
+
+
+def _distress_line(text: str, out: str) -> str:
+    if not text or not out or "1323" in out or not _DISTRESS.search(text) or detect_lang(text) != "th":
+        return out
+    lines = out.split("\n")
+    at = next((i for i in range(len(lines) - 1, -1, -1) if lines[i].startswith("— ")), len(lines))
+    return "\n".join(lines[:at] + [_DISTRESS_LINE, ""] + lines[at:]).replace("\n\n\n", "\n\n")
 
 def simulate(text: str, paths: list) -> str:
     """จำลองทางเลือกแบบไม่มี AI — Downside ก่อน · วัดด้วยการย้อนกลับได้"""

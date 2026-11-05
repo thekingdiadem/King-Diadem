@@ -31,9 +31,10 @@ def test_each_gate_catches_its_pattern(text, gate):
 def test_complete_plan_passes_but_still_needs_a_human():
     t = ("ร้านกาแฟจะเปิดสาขาที่ 2 งบ 300,000 บาท ความเสี่ยงคือยอดขายไม่ถึง 500 แก้ว/วัน "
          "ต้นทุนเพิ่มวันละ 2,000 บาท ผู้รับผิดชอบคือผู้จัดการร้าน แผนสำรองคือปิดภายใน 6 เดือน "
-         "เงินสดสำรองไม่ต่ำกว่า 200,000 บาท")
+         "ตอนนี้มีเงินสด 800,000 บาท เงินสดสำรองไม่ต่ำกว่า 200,000 บาท")
     a = audit(t)
     assert a["verdict"] == "pass" and not _stops(t)
+    assert a["waterline"]["level"] == "above" and a["waterline"]["after"] == 500_000
     assert "เซ็นรับผิดชอบ" in a["summary"]["th"]
     assert not a["sop"][6]["done"]                       # SOP 7 ตรวจหลังทำ — ระบบทำแทนคนไม่ได้
 
@@ -92,3 +93,46 @@ def test_waterline_means_the_floor_not_just_water():
     asks = audit("บริษัทจะขยายสาขา")["asks"]
     assert any(q["th"].startswith("Waterline") and "ห้ามต่ำกว่า" in q["th"] for q in asks)
     assert [q["sop"] for q in asks] == sorted(q["sop"] for q in asks)
+
+
+# ── Waterline gauge: เส้นวัดจม/รอด · Drift Zero reference · L0 ───────────────────
+from ENGINE.waterline_gauge import gauge  # noqa: E402
+
+
+@pytest.mark.parametrize("text,level", [
+    ("บริษัทมีเงินสด 30 ล้าน จะใช้ 25 ล้านขยาย 10 สาขา เงินสดสำรองขั้นต่ำ 10 ล้าน", "below"),
+    ("มีเงิน 1.2 พันล้าน ทุ่ม 800 ล้าน ห้ามต่ำกว่า 500 ล้าน", "below"),
+    ("เงินสดคงเหลือ 5 ล้าน ลงทุน 1 ล้าน ไม่ต่ำกว่า 3.5 ล้าน", "near"),
+    ("We have $2M cash, will invest 500k, floor 1M", "above"),
+])
+def test_gauge_says_above_near_or_below_water(text, level):
+    assert gauge(text)["level"] == level
+
+
+def test_below_water_is_stop_the_line_even_without_keywords():
+    a = audit("บริษัทมีเงินสด 30 ล้าน จะใช้ 25 ล้านเปิดโรงงานใหม่ เงินสดสำรองขั้นต่ำ 10 ล้าน ผู้อนุมัติคือบอร์ด")
+    e2 = {g["id"]: g for g in a["gates"]}["E2"]
+    assert a["verdict"] == "stop" and e2["status"] == "stop"
+    assert "ใต้ระดับน้ำ" in e2["why"]["th"] and "5 ล้าน" in e2["why"]["th"] and "10 ล้าน" in e2["why"]["th"]
+
+
+def test_drift_rate_tells_days_until_the_floor():
+    g = gauge("เงินสดคงเหลือ 5 ล้าน ไม่ต่ำกว่า 3.5 ล้าน ขาดทุนเดือนละ 300,000 บาท")
+    assert g["burn_per_day"] == 10_000 and g["days_to_floor"] == 150
+    a = audit("เงินสดคงเหลือ 5 ล้าน ลงทุน 1 ล้าน ไม่ต่ำกว่า 3.5 ล้าน ขาดทุนวันละ 100,000 บาท")
+    assert {g["id"]: g for g in a["gates"]}["E2"]["status"] == "stop"      # อีก 5 วันจะแตะเส้น
+
+
+def test_no_rate_unit_no_guess():
+    assert gauge("เงินสด 5 ล้าน ขั้นต่ำ 2 ล้าน ขาดทุน 100,000")["burn_per_day"] is None
+
+
+def test_floor_without_current_asks_how_much_now():
+    asks = audit("บริษัทจะขยายสาขา ขั้นต่ำ 2 ล้าน")["asks"]
+    assert any("ตอนนี้มีเท่าไหร่" in q["th"] for q in asks)
+
+
+def test_gauge_is_drawn_in_the_check_sheet():
+    from tests._front import front_page
+    page = front_page()
+    assert "function wlGauge(w)" in page and "h += wlGauge(a.waterline)" in page

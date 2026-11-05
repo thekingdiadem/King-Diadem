@@ -1,0 +1,18 @@
+{
+ "business": 7,
+ "disaster": 24,
+ "everyday": 37,
+ "general": 10,
+ "health": 12,
+ "intl": 26,
+ "law": 8,
+ "lost": 15,
+ "medical": 27,
+ "mental": 26,
+ "money": 21,
+ "relationship": 24,
+ "scam": 34,
+ "study": 7,
+ "violence": 19,
+ "work": 19
+}

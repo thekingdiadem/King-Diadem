@@ -53,7 +53,9 @@ def test_every_reply_language_has_a_status_line(lang):
 
 
 def test_language_without_translation_gets_no_line():
-    assert status_line({"risk": 90}, "vi") == ""
+    assert status_line({"risk": 90}, "de") == ""
+    # เวียดนามมีคำแปลแล้ว (หน้าเว็บมีภาษาเวียดนาม) — ต้องขึ้นเป็นภาษาเวียดนาม ไม่ใช่อังกฤษ
+    assert status_line({"risk": 90}, "vi").startswith("Rủi ro lúc này")
     assert shown_risk("ไม่มีตัวเลข") is None
 
 

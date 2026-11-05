@@ -184,10 +184,12 @@ GENERAL = {
 
 ASK_LABEL = {"en": "One question to ask yourself now:", "zh": "现在可以问自己一个问题：",
              "ja": "今、自分に一つだけ問いかけてみてください：", "ko": "지금 스스로에게 물어볼 질문 하나:",
-             "es": "Una pregunta para hacerte ahora:"}
+             "es": "Una pregunta para hacerte ahora:",
+             "vi": "Một câu hỏi để tự hỏi mình lúc này:"}
 FOOTER = {"en": "· Answered from the system's equations — no AI used", "zh": "· 由系统公式回答 — 未使用 AI",
           "ja": "· システムの数式による回答 — AI は使っていません", "ko": "· 시스템 공식으로 답했어요 — AI를 사용하지 않았어요",
-          "es": "· Respondido con las ecuaciones del sistema — sin usar IA"}
+          "es": "· Respondido con las ecuaciones del sistema — sin usar IA",
+          "vi": "· Trả lời từ các phương trình của hệ thống — không dùng AI"}
 
 
 
@@ -199,6 +201,7 @@ TH_NUMBERS = {
     "ja": "タイにいる場合：救急 1669・警察 191・心の相談 1323（24時間）・観光警察 1155（英語可）。",
     "ko": "태국에 있다면: 응급 1669 · 경찰 191 · 정신건강 상담 1323(24시간) · 관광경찰 1155(영어 가능).",
     "es": "En Tailandia: 1669 (emergencias médicas) · 191 (policía) · 1323 (salud mental, 24 h) · 1155 (policía turística, habla inglés).",
+    "vi": "Ở Thái Lan: 1669 (cấp cứu) · 191 (cảnh sát) · 1441 (lừa đảo trực tuyến) · 1155 (cảnh sát du lịch, nói tiếng Anh).",
 }
 for _lg, _line in TH_NUMBERS.items():
     if _lg in HELP and "1323" not in HELP[_lg]:
@@ -372,6 +375,12 @@ URGENT_REPLY = {
         "es": ("Esto tiene señales de estafa — no transfieras nada todavía.", ["La policía o tu banco nunca te pedirán transferir dinero a una \"cuenta segura\" ni tus códigos.",
                "Cuelga y llama tú al número oficial para comprobarlo.", "Si ya transferiste, llama a tu banco para bloquearlo y denuncia a la policía (112 / 911)."],
                "¿Ya enviaste dinero o diste algún código?"),
+        # เวียดนาม — หน้าเว็บมีภาษาเวียดนามแล้ว แต่คำตอบเรื่องมิจฉาชีพตอนไม่มี AI เคยเป็นภาษาอังกฤษ
+        "vi": ("Đây rất giống lừa đảo — dừng lại, đừng chuyển tiền.",
+               ["Công an, tòa án hay ngân hàng thật không bao giờ bảo bạn chuyển tiền vào \"tài khoản an toàn\", hỏi mã OTP hay bắt đóng phí trước để nhận thưởng.",
+                "Cúp máy, tự tìm số điện thoại chính thức rồi gọi lại để xác minh — đừng dùng số hay đường link họ gửi.",
+                "Nếu đã chuyển tiền, gọi ngay ngân hàng để yêu cầu phong tỏa, rồi báo cảnh sát (Thái Lan 1441 · 191 · Việt Nam 113)."],
+               "Bạn đã chuyển tiền hoặc đưa mã OTP cho họ chưa?"),
     },
 }
 
