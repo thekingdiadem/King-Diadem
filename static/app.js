@@ -1893,6 +1893,14 @@ var Cosmos = (function(){
     el.addEventListener('pointerdown', function(e){ if(DAWN.show > .5) DAWN.drag = e.clientX; DAWN.down = [e.clientX, e.clientY]; });
     /* แตะดาวลูกไก่ (ไม่ใช่ปัดหมุนโลก) → โหลด static/pleiades_view.js ครั้งแรกแล้วบินเข้าไป */
     el.addEventListener('click', function(e){
+      var d0 = DAWN.down, pop = $('#hz-pop');
+      if(DAWN.show < .5 || e.target.closest('a,button,input,textarea,.m')) return;   /* โลกต้องแสดงอยู่ และไม่แย่งปุ่ม/ข้อความแชท */
+      if(d0 && Math.hypot(e.clientX - d0[0], e.clientY - d0[1]) > 8) return;
+      var hz = hazardAt(e.clientX, e.clientY);
+      if(hz){ showHazard(hz); return; }
+      if(pop) pop.classList.add('hide');
+    });
+    el.addEventListener('click', function(e){
       var h = SKY.hit, d = DAWN.down; if(!h || !SKY.data) return;
       if(d && Math.hypot(e.clientX - d[0], e.clientY - d[1]) > 8) return;
       if(Math.hypot(e.clientX - h.x, e.clientY - h.y) > Math.max(30, h.k * 1.8)) return;
@@ -1901,6 +1909,64 @@ var Cosmos = (function(){
     addEventListener('pointerup', function(){ DAWN.drag = null; });
     el.addEventListener('pointermove', function(e){ if(DAWN.drag == null) return; DAWN.spinOff -= (e.clientX - DAWN.drag) * .008; DAWN.drag = e.clientX; kick(); });
   })();
+  /* ── ภัยจริงบนลูกโลก: แผ่นดินไหว (USGS) + พายุ น้ำท่วม ภูเขาไฟ ไฟป่า ภัยแล้ง (GDACS) ────────────────
+     ใช้สมการเดียวกับ shader ของโลก (lon จริง + เอียง 10° + หมุนตาม uSpin) ย้อนกลับเป็นจุดบนจอ — จุดหมุนไปกับโลกพอดี
+     ดึงข้อมูลครั้งแรกตอนเปิด แล้วทุก 10 นาที · ดึงไม่ได้ = ไม่วาด (ไม่เดา) · แตะจุด = รายละเอียด + คู่มือเอาชีวิตรอด */
+  var HZ = { list: [], shown: [], at: 0 };
+  var HZ_STYLE = { EQ: ['#ffb066', 'quake'], TC: ['#7fe3ff', 'storm'], FL: ['#6fa8ff', 'flood'], VO: ['#ff6b5a', 'volcano'], WF: ['#ffcf5a', 'wildfire'], DR: ['#d9b98a', 'drought'] };
+  function loadHazards(){
+    HZ.at = Date.now();
+    var keep = function(r){ return r && r.ok ? (r.near || []).concat(r.world || []) : []; };
+    Promise.all([fetch('/api/quakes').then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }),
+                 fetch('/api/hazards').then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; })])
+      .then(function(res){
+        var q = keep(res[0]).map(function(x){ return { lat: x.lat, lon: x.lon, kind: 'EQ', level: x.mag >= 6.5 ? 'red' : x.mag >= 5 ? 'orange' : 'green',
+                                                      name: 'M' + x.mag + ' · ' + (x.place || ''), km: x.km, url: x.url }; });
+        var h = keep(res[1]).map(function(x){ return { lat: x.lat, lon: x.lon, kind: x.kind, level: x.level, name: x.name || x.country, km: x.km, url: x.url }; });
+        HZ.list = q.concat(h).filter(function(x){ return isFinite(x.lat) && isFinite(x.lon) && HZ_STYLE[x.kind]; }).slice(0, 24);
+        kick();
+      });
+  }
+  function drawHazards(cx, cy, R, tsec, A){
+    HZ.shown = [];
+    if(A < .05) return;
+    if(Date.now() - HZ.at > 6e5) loadHazards();          /* ครั้งแรก (at = 0) และทุก 10 นาที */
+    if(!HZ.list.length) return;
+    var S = 1.885 + DAWN.spinOff - (REDUCED ? 0 : tsec * .025), ct = .985, st = .174, rad = Math.PI / 180;
+    ctx.save();
+    HZ.list.forEach(function(h){
+      var phi = h.lat * rad, a = h.lon * rad - S;
+      var gx = Math.cos(phi) * Math.sin(a), gy = Math.sin(phi), gz = Math.cos(phi) * Math.cos(a);
+      var ny = gy * ct - gz * st, nz = gy * st + gz * ct;          /* ย้อนการเอียงแกนใน shader */
+      if(nz < .08) return;                                          /* อยู่ด้านหลังโลก */
+      var x = cx + gx * R, y = cy - ny * R, edge = clamp((nz - .08) / .35, 0, 1);
+      var col = HZ_STYLE[h.kind][0], big = h.level === 'red' ? 1.6 : h.level === 'orange' ? 1.25 : 1;
+      var k = Math.max(3, R * .018) * big, pulse = REDUCED ? .5 : .5 + .5 * Math.sin(tsec * 2.4 + h.lon);
+      ctx.globalAlpha = A * edge * (.25 + .35 * (1 - pulse)); ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x, y, k * (1.6 + pulse * 1.4), 0, Math.PI * 2); ctx.stroke();
+      ctx.globalAlpha = A * edge; ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(x, y, k * .7, 0, Math.PI * 2); ctx.fill();
+      HZ.shown.push({ x: x, y: y, k: k, h: h });
+    });
+    ctx.restore();
+  }
+  function hazardAt(px, py){
+    var best = null, bd = 1e9;
+    HZ.shown.forEach(function(m){ var d = Math.hypot(px - m.x, py - m.y); if(d < Math.max(22, m.k * 3) && d < bd){ bd = d; best = m; } });
+    return best;
+  }
+  function showHazard(m){
+    var pop = $('#hz-pop'); if(!pop) return;
+    var h = m.h, st = HZ_STYLE[h.kind], en = window.KD_I18N && KD_I18N.get() !== 'th';
+    var kindTh = { EQ: 'แผ่นดินไหว', TC: 'พายุหมุนเขตร้อน', FL: 'น้ำท่วม', VO: 'ภูเขาไฟ', WF: 'ไฟป่า', DR: 'ภัยแล้ง' }[h.kind];
+    var lvl = { green: 'ระดับเขียว', orange: 'ระดับส้ม', red: 'ระดับแดง' }[h.level] || '';
+    pop.innerHTML = '<b>' + esc(_t(kindTh)) + '</b> · ' + esc(_t(lvl)) + '<br>' + esc(h.name || '') +
+      (h.km != null ? '<br><i>' + esc(_t('ห่างกรุงเทพฯ {km} กม.', { km: Number(h.km).toLocaleString() })) + '</i>' : '') +
+      '<br><a href="/survival' + (en ? '?lang=en' : '') + '#' + st[1] + '" target="_blank" rel="noopener">📘 ' + esc(_t('คู่มือเอาชีวิตรอด')) + '</a>' +
+      (h.url && /^https:\/\/(?:earthquake\.usgs\.gov|www\.gdacs\.org)\//.test(h.url) ? ' · <a href="' + esc(h.url) + '" target="_blank" rel="noopener">' + (h.kind === 'EQ' ? 'USGS' : 'GDACS') + '</a>' : '');
+    pop.style.left = Math.round(clamp(m.x + 14, 8, innerWidth - 240)) + 'px'; pop.style.top = Math.round(clamp(m.y - 10, 60, innerHeight - 160)) + 'px';
+    pop.classList.remove('hide');
+  }
   function backdrop(now, dt){
     var tsec = (now - t0) / 1000, m = $('#main').getBoundingClientRect(), ct = CINEMA.on ? (now - CINEMA.t0) / 1000 : 0;
     if(CINEMA.on) m = { left: 0, top: -40, width: W, height: H + 40, bottom: H };
@@ -1958,6 +2024,7 @@ var Cosmos = (function(){
     if(CINEMA.on && !REDUCED) drawSunrise(BOD.sun, r, sk, ct);
     drawWheel(cx, cy, r, tsec, dt, DAWN.show * (CINEMA.on ? .45 + .75 * sk : 1));
     drawRoutes(cx, cy, r, tsec, CINEMA.on ? 0 : DAWN.show, top, bottom);
+    if(drew && !CINEMA.on) drawHazards(cx, cy, r, tsec, DAWN.show);
     if(drew && !CINEMA.on) drawBodyLabels(BOD, r, DAWN.show, top);
     /* ดาวลูกไก่ลอยอยู่ฟ้าด้านบนระหว่างดวงอาทิตย์กับขอบจอ — เลื่อนตามกล้องนิดหน่อยให้รู้ว่าอยู่ไกลกว่าดาวเคราะห์ */
 

@@ -726,5 +726,9 @@
 "ระดับส้ม": "Alerta naranja",
 "ระดับแดง": "Alerta roja",
 "ข้อมูลจาก": "Datos de",
-"ในไทยติดตามกรมอุตุฯ และ ปภ. 1784": "en Tailandia sigue al Departamento Meteorológico y al DDPM 1784"
+"ในไทยติดตามกรมอุตุฯ และ ปภ. 1784": "en Tailandia sigue al Departamento Meteorológico y al DDPM 1784",
+"คู่มือเอาชีวิตรอด": "Guía de supervivencia",
+"ห่างกรุงเทพฯ {km} กม.": "a {km} km de Bangkok",
+"แผ่นดินไหว": "Terremoto",
+"น้ำท่วม": "Inundación"
 };
