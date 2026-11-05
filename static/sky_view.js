@@ -212,7 +212,7 @@
       if (st.mag > limit) break;                              // เรียงจากสว่างไปจาง
       var l0 = local(st.v);
       if (l0[0] * F.f[0] + l0[1] * F.f[1] + l0[2] * F.f[2] < zmin) continue;      // นอกมุมมอง — ไม่ต้องคำนวณต่อ
-      var l = l0[2] > .5 ? l0 : refract(l0); if (LAY.ground && l[2] < -.01) continue;
+      var l = l0[2] > .5 ? l0 : refract(l0); if (behindHill(l)) continue;
       var p = proj(l); if (!onScreen(p, 4)) continue;
       var rad = Math.max(.62, (limit + 1.1 - st.mag) * .34) * Math.pow(Math.min(zoomK, 6), .3), a = clamp((limit + 1.2 - st.mag) / 2.6, .36, 1) * sc.starA;
       if (a < .03) continue;
@@ -230,7 +230,7 @@
     if (LAY.mine) drawMine(labels);
     // ดาวเคราะห์ ดวงจันทร์ ดวงอาทิตย์
     F.bodies.forEach(function (b) {
-      var l = bodyLocal(b); if (LAY.ground && l[2] < -.01 && b.id !== 'sun') return;
+      var l = bodyLocal(b); if (b.id !== 'sun' && behindHill(l)) return;
       var p = proj(l); if (!onScreen(p, 30)) return;
       if (b.id === 'sun') { if (l[2] < -.02) return; drawSun(p); }
       else if (b.id === 'moon') drawMoon(p, l, sunL);
@@ -247,7 +247,7 @@
     // ชื่อกลุ่มดาว
     if (LAY.lines && LAY.names && sc.starA > .3) CONS.forEach(function (c) {
       if (c.rank > (zoomK > 1.4 ? 3 : 2) && !/[ก-๙]/.test(c.name)) return;
-      var l = refract(local(c.v)); if (LAY.ground && l[2] < 0) return;
+      var l = refract(local(c.v)); if (behindHill(l)) return;
       var p = proj(l); if (!onScreen(p, 0)) return;
       labels.push({ x: p[0], y: p[1], t: c.name, c: 'rgba(126,206,214,.78)', f: '400 13px ', pri: 10, center: true, spaced: true });
     });
@@ -287,13 +287,15 @@
   // ── กลุ่มดาวการตัดสินใจของฉัน: ทุกครั้งที่คุยกับ LYLA แล้วได้คำตอบ = ดาวหนึ่งดวง ณ จุดเหนือศีรษะตอนนั้น ─────────
   // ตำแหน่งบนฟ้าคงที่ตลอดไป (เหมือนดาวจริง) จึงขึ้นตก หมุนไปกับฟ้า · ต่อเส้นตามลำดับเวลา = กลุ่มดาวที่ไม่มีใครเหมือน
   // ข้อมูลอยู่ในเครื่องนี้เท่านั้น (static/app.js เขียน kd-my-stars: เวลา เส้นทาง ความเสี่ยง ตำแหน่งคร่าวๆ — ไม่มีข้อความ)
-  var MINE = null, ROUTE_TH = { general: 'ชีวิตทั่วไป', risk: 'ประเมินความเสี่ยง', civil: 'สังคม/งาน', survival: 'ความอยู่รอด', collapse: 'ช่วงวิกฤต', crisis: 'ช่วงวิกฤต', vega: 'วิเคราะห์ระยะยาว' };
+  var WL = 0, MINE = null, ROUTE_TH = { general: 'ชีวิตทั่วไป', risk: 'ประเมินความเสี่ยง', civil: 'สังคม/งาน', survival: 'ความอยู่รอด', collapse: 'ช่วงวิกฤต', crisis: 'ช่วงวิกฤต', vega: 'วิเคราะห์ระยะยาว' };
   function loadMine() {
     try { var L = JSON.parse(store('kd-my-stars') || '[]'); if (!Array.isArray(L)) L = []; } catch (e) { L = []; }
     MINE = L.filter(function (m) { return m && isFinite(m.t) && isFinite(m.la) && isFinite(m.lo); }).sort(function (a, b) { return a.t - b.t; }).map(function (m) {
       var ra = (gmst(jd(new Date(m.t))) + m.lo + 360) % 360;              // จุดเหนือศีรษะ = RA เท่ากับเวลาดาราคติท้องถิ่น · Dec = ละติจูด
       return { v: eqv(ra, m.la), t: m.t, r: m.r, k: m.k };
     });
+    WL = waterline();
+    var w = $('sky-wl'); if (w) w.textContent = WL > .5 ? T('ขอบฟ้าตอนนี้สูงขึ้น ' + WL.toFixed(1) + '° ตามความหนักของเรื่องล่าสุด — จะค่อยๆ ลดลงเอง และลดทันทีเมื่อเจอทางไปต่อ', 'Horizon raised ' + WL.toFixed(1) + '° by your latest heavy topic — it lowers as you find a way forward') : '';
     var n = $('sky-mine-n'); if (n) n.textContent = MINE.length ? T('ดาวของฉัน ' + MINE.length + ' ดวง — เกิดจากทุกครั้งที่ปรึกษา LYLA แล้วได้ทางไปต่อ', 'My stars: ' + MINE.length) : T('ยังไม่มีดาวของฉัน — ปรึกษา LYLA สักเรื่อง แล้วดาวดวงแรกจะเกิดบนฟ้าตรงเหนือหัวคุณ', 'No stars yet — talk to LYLA and your first star appears overhead');
   }
   function drawMine(labels) {
@@ -305,7 +307,7 @@
     pts.forEach(function (q) { if (!q.p || (LAY.ground && q.l[2] < -.01)) { pen = false; return; } if (pen) cx.lineTo(q.p[0], q.p[1]); else cx.moveTo(q.p[0], q.p[1]); pen = true; });
     cx.stroke(); cx.setLineDash([]);
     pts.forEach(function (q, i) {
-      if (!onScreen(q.p, 10) || (LAY.ground && q.l[2] < -.01)) return;
+      if (!onScreen(q.p, 10) || behindHill(q.l)) return;
       var x = q.p[0], y = q.p[1], last = i === pts.length - 1, r = last ? 7 : 5;
       var g = cx.createRadialGradient(x, y, 0, x, y, r * 3.2);
       g.addColorStop(0, 'rgba(255,226,150,.85)'); g.addColorStop(1, 'rgba(255,210,120,0)');
@@ -341,9 +343,22 @@
     cx.ellipse(0, 0, Math.abs(r * (1 - 2 * k)), r, 0, Math.PI / 2, -Math.PI / 2, k < .5);
     cx.fill(); cx.restore();
   }
+  // ขอบฟ้า = เส้น Waterline: เรื่องล่าสุดที่ปรึกษายิ่งหนัก (ความเสี่ยงสูง ทางเลือกน้อย) ขอบฟ้ายิ่งสูง ดาวถูกบังมากขึ้น
+  // ค่อยๆ ลดกลับเองใน ~3 วัน · ปรึกษาเรื่องใหม่แล้วเบาลง = ขอบฟ้าลดทันที ดาวกลับมาเต็มฟ้า (Choice(t) ≥ 1 ที่มองเห็นได้)
+  function waterline() {
+    if (!MINE || !MINE.length) return 0;
+    var m = MINE[MINE.length - 1], age = (Date.now() - m.t) / 86400000;
+    return clamp((m.k - 30) / 70, 0, 1) * 9 * Math.exp(-Math.max(0, age) / 3);
+  }
+  function behindHill(l) {                                    // อยู่หลังแนวเขา/ขอบฟ้าที่ยกขึ้นไหม (เช็กเฉพาะใกล้ขอบฟ้า — เร็ว)
+    if (!LAY.ground) return false;
+    if (l[2] < -.01) return true;
+    if (l[2] > .2 + WL * .018) return false;
+    var aa = altaz(l); return aa[1] < hill(aa[0]) - .2;
+  }
   function hill(az) {                                         // แนวเขาไกลๆ แบบตายตัว (องศา) — ไม่ใช่ภาพจริงของที่ไหน
     var a = az * D2R;
-    return Math.max(0, .9 + .55 * Math.sin(a * 3 + 1.3) + .35 * Math.sin(a * 7 + .4) + .25 * Math.sin(a * 13 + 2.2) + .12 * Math.sin(a * 29));
+    return WL + Math.max(0, .9 + .55 * Math.sin(a * 3 + 1.3) + .35 * Math.sin(a * 7 + .4) + .25 * Math.sin(a * 13 + 2.2) + .12 * Math.sin(a * 29));
   }
   function ground(sc) {
     // พื้นทั้งแผ่น = วงกลมขอบฟ้าบนจอ (stereographic ส่งวงกลมเป็นวงกลม) · จุดกลางจอคือฟ้าเสมอเมื่อมองเหนือขอบฟ้า
