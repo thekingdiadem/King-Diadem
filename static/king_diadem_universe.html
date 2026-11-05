@@ -266,13 +266,31 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 .fate-note{white-space:pre-wrap}
 
 /* ปุ่มมุมมองโลก + โหมดลดการเคลื่อนไหว */
-.earth-ctl{position:absolute;z-index:3;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);
-  display:flex;gap:6px;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100% - 24px);pointer-events:auto}
+.earth-ctl{position:absolute;z-index:3;inset:auto 0 0 0;height:0;pointer-events:none}
+.earth-ctl>*{pointer-events:auto}
+/* ปุ่มชั้นข้อมูล (ซ้ายล่าง) + ซูม (ขวาล่าง): กระจกเข้มขอบสว่าง เห็นชัดทั้งกลางคืนและบนโลกกลางวัน */
+.earth-ctl .ec-menu{position:absolute;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:46px;height:46px;padding:0;display:grid;place-items:center;border-radius:14px}
+.earth-ctl .ec-menu svg,.ec-tile svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.earth-ctl .ec-menu[aria-expanded="true"]{color:#0b0f1e;background:rgba(126,203,214,.92);border-color:transparent}
+.earth-ctl .ec-zoom{position:absolute;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);display:flex;flex-direction:column;gap:6px}
+.earth-ctl .ec-zoom .ec-z{width:40px;height:40px;padding:0;font-size:18px;border-radius:12px}
+.ec-sheet{position:absolute;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);width:min(360px,calc(100vw - 24px));max-height:min(70vh,560px);overflow:auto;
+  padding:12px;border-radius:20px;background:rgba(10,14,26,.88);border:1px solid rgba(230,240,255,.14);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  box-shadow:0 20px 60px -20px rgba(0,0,0,.8);color:rgba(232,238,252,.9)}
+.ec-sheet.hide{display:none}
+.ec-sheet h3{margin:8px 6px 6px;font:600 11.5px var(--f-body);letter-spacing:.08em;color:rgba(232,238,252,.55)}
+.ec-sheet h3:first-child{margin-top:2px}
+.ec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.earth-ctl .ec-tile,.ec-tile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:11px 4px;border-radius:14px;border:0;background:none;
+  color:rgba(232,238,252,.72);font:500 12px/1.3 var(--f-body);text-align:center;text-decoration:none;cursor:pointer;backdrop-filter:none}
+.ec-tile:hover,.ec-tile:focus-visible{background:rgba(255,255,255,.06);color:#fff;outline:none}
+.earth-ctl .ec-tile[aria-pressed="true"]{color:#fff;background:rgba(237,204,98,.16)}
+.ec-tile[aria-pressed="true"] svg{stroke:#edcc62}
+.ec-note{margin:10px 6px 2px;font:400 11px/1.5 var(--f-body);color:rgba(232,238,252,.5)}
 .earth-ctl button{font:500 11px/1 var(--f-body);color:rgba(230,240,255,.85);background:rgba(8,13,26,.55);
   border:1px solid rgba(230,240,255,.18);border-radius:999px;padding:7px 12px;cursor:pointer;backdrop-filter:blur(8px)}
 .earth-ctl button[aria-pressed="true"]{color:#0b0f1e;background:rgba(237,204,98,.92);border-color:transparent}
 .earth-ctl button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
-.earth-ctl .ec-sky{font:500 11px/1 var(--f-body);color:#0b0f1e;background:rgba(126,203,214,.9);border-radius:999px;padding:7px 11px;text-decoration:none;display:inline-flex;align-items:center}
 .cockpit>canvas{pointer-events:auto;touch-action:pan-y;cursor:grab}
 .cockpit>canvas:active{cursor:grabbing}
 /* แผนที่เมืองกลางคืน 3 มิติ (static/city_map.js) — จางเข้ามาแทนโลกเมื่อซูมลงลึก */
@@ -299,7 +317,7 @@ html.kd-day #city-map .maplibregl-ctrl-attrib a{color:#222}
 #city-map .maplibregl-popup-close-button{color:#e6edf8}
 #hero>div:not(.cockpit):not(.earth-ctl){transition:opacity .2s linear;opacity:var(--hero-a,1)}
 #hero.zoomed>div:not(.cockpit):not(.earth-ctl){pointer-events:none}
-.earth-ctl .ec-z{width:30px;padding:7px 0;font-size:14px}
+
 html{scroll-behavior:smooth}
 html.kd-calm{scroll-behavior:auto}
 html.kd-calm *,html.kd-calm *::before,html.kd-calm *::after{animation:none!important;transition:none!important}
@@ -358,15 +376,31 @@ html.bb-on,html.bb-on body{overflow:hidden}
 <!-- HERO -->
 <section id="hero">
   <div class="earth-ctl" role="group" aria-label="มุมมองโลก">
-    <button type="button" id="ec-globe" aria-pressed="false" data-act="globe">ทั้งโลก</button>
-    <button type="button" data-act="north">ขั้วโลกเหนือ</button>
-    <button type="button" data-act="south">ขั้วโลกใต้</button>
-    <button type="button" class="ec-z" aria-label="ซูมเข้า" data-act="zin">+</button>
-    <button type="button" class="ec-z" aria-label="ซูมออก" data-act="zout">−</button>
-    <button type="button" id="ec-day" aria-pressed="false" data-act="day">กลางวัน</button>
-    <button type="button" id="ec-calm" aria-pressed="false" data-act="calm">ลดการเคลื่อนไหว</button>
-    <button type="button" id="ec-bang" data-act="bang">บิ๊กแบง</button>
-    <a class="ec-sky" href="/sky">ดูดาว ✦</a>
+    <!-- เครื่องมือทั้งหมดอยู่ในปุ่มชั้นข้อมูลมุมซ้ายล่าง (แบบเดียวกับหน้าดูดาว /sky) · ซูมอยู่นอกแผงให้กดได้ทันที -->
+    <button type="button" class="ec-menu" id="ec-menu" data-act="menu" aria-label="เครื่องมือและมุมมอง" aria-expanded="false" aria-controls="ec-sheet">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
+    </button>
+    <div class="ec-zoom" role="group" aria-label="ซูม">
+      <button type="button" class="ec-z" aria-label="ซูมเข้า" data-act="zin">+</button>
+      <button type="button" class="ec-z" aria-label="ซูมออก" data-act="zout">−</button>
+    </div>
+    <div class="ec-sheet hide" id="ec-sheet" role="dialog" aria-label="เครื่องมือและมุมมอง">
+      <h3>มุมมองโลก</h3>
+      <div class="ec-grid">
+        <button type="button" class="ec-tile" id="ec-globe" aria-pressed="false" data-act="globe"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5a13 13 0 010 17M12 3.5a13 13 0 000 17"/></svg>ทั้งโลก</button>
+        <button type="button" class="ec-tile" data-act="north"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v5M9.5 6L12 3.5 14.5 6"/><circle cx="12" cy="12" r="2"/></svg>ขั้วโลกเหนือ</button>
+        <button type="button" class="ec-tile" data-act="south"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 20.5v-5M9.5 18l2.5 2.5 2.5-2.5"/><circle cx="12" cy="12" r="2"/></svg>ขั้วโลกใต้</button>
+        <button type="button" class="ec-tile" id="ec-day" aria-pressed="false" data-act="day"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></svg>กลางวัน</button>
+        <button type="button" class="ec-tile" id="ec-calm" aria-pressed="false" data-act="calm"><svg viewBox="0 0 24 24"><path d="M4 9h16M4 15h16" /><circle cx="9" cy="9" r="2"/><circle cx="15" cy="15" r="2"/></svg>ลดการเคลื่อนไหว</button>
+      </div>
+      <h3>เครื่องมือ</h3>
+      <div class="ec-grid">
+        <a class="ec-tile" href="/sky"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.6 4.9.4-3.7 3.2 1.1 4.8L12 13.5 7.8 16l1.1-4.8L5.2 8l4.9-.4z"/><path d="M4 21h16" opacity=".6"/></svg>ดูดาว</a>
+        <button type="button" class="ec-tile" id="ec-bang" data-act="bang"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4M5.3 5.3l2.8 2.8M15.9 15.9l2.8 2.8M18.7 5.3l-2.8 2.8M8.1 15.9l-2.8 2.8"/></svg>บิ๊กแบง</button>
+        <a class="ec-tile" href="/survival"><svg viewBox="0 0 24 24"><path d="M5 4.5h9a3 3 0 013 3v12H8a3 3 0 01-3-3v-12z"/><path d="M17 19.5h2V7.5M9 9h4M9 12.5h4"/></svg>คู่มือเอาชีวิตรอด</a>
+      </div>
+      <p class="ec-note">จุดสีบนโลก = แผ่นดินไหว (USGS) · พายุ น้ำท่วม ภูเขาไฟ ไฟป่า ภัยแล้ง (GDACS) — แตะจุดเพื่อดูรายละเอียด</p>
+    </div>
   </div>
   <div class="cockpit" aria-hidden="true">
     <canvas id="cockpit-earth" role="img" aria-label="โลกตอนกลางคืนจากอวกาศ ลากเพื่อเลื่อน ถ่างนิ้วหรือกดบวกลบเพื่อซูม แตะสองครั้งเพื่อบินไปจุดนั้น ใช้ลูกศรบนคีย์บอร์ดได้"></canvas>
@@ -864,10 +898,14 @@ function KD_toggleDay(){var h=document.documentElement,on=!h.classList.contains(
     day: function(){ KD_toggleDay(); }, calm: function(){ KD_toggleCalm(); },
     bang: function(){ if(window.KD_bigBang) KD_bigBang(); },
     scroll: function(){ document.getElementById('content').scrollIntoView({behavior:'smooth'}); },
-    sim: function(){ runSimulation(); }
+    sim: function(){ runSimulation(); },
+    menu: function(){ var sh = document.getElementById('ec-sheet'), b = document.getElementById('ec-menu'), open = sh.classList.toggle('hide') === false;
+                      b.setAttribute('aria-expanded', open ? 'true' : 'false'); }
   };
   document.addEventListener('click', function(e){
     var a = e.target.closest('[data-act]'); if(a && ACT[a.dataset.act]) { ACT[a.dataset.act](); return; }
+    var sh = document.getElementById('ec-sheet');                       // แตะนอกแผง = ปิดแผงเครื่องมือ
+    if(sh && !sh.classList.contains('hide') && !e.target.closest('#ec-sheet')){ sh.classList.add('hide'); document.getElementById('ec-menu').setAttribute('aria-expanded','false'); }
     var t = e.target.closest('[data-try]'); if(t) tryText(t.dataset.try);
   });
   document.querySelectorAll('input[type=range][data-out]').forEach(function(r){

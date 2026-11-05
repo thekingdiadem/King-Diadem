@@ -51,3 +51,13 @@ def test_astro_module_matches_sky_page_formula():
     sky = (ROOT / "static" / "sky_view.js").read_text(encoding="utf-8")
     for frag in ("el.a + el.da * t", "E -= (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E))", "a * Math.sqrt(1 - e * e) * Math.sin(E)"):
         assert frag in ASTRO and frag in sky
+
+
+def test_universe_tools_live_in_bottom_left_sheet():
+    page = (ROOT / "static" / "king_diadem_universe.html").read_text(encoding="utf-8")
+    i, j = page.index('id="ec-sheet"'), page.index('<div class="cockpit"')
+    sheet = page[i:j]
+    for act in ('data-act="globe"', 'data-act="north"', 'data-act="south"', 'data-act="day"', 'data-act="calm"', 'data-act="bang"', 'href="/sky"', 'href="/survival"'):
+        assert act in sheet, act
+    assert 'data-act="zin"' in page[:i] and 'data-act="menu"' in page[:i]          # ซูมกับปุ่มเปิดแผงอยู่นอกแผง กดได้ทันที
+    assert "menu: function(){" in page and "แตะนอกแผง = ปิดแผงเครื่องมือ" in page
