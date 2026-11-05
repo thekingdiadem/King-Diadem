@@ -91,6 +91,11 @@ def _pick(seq, text: str, salt: str = ""):
     return seq[h % len(seq)]
 
 
+# ค่าไฟ/ค่าน้ำ — เลือกขั้นตอนของการไฟฟ้า/การประปาในคำตอบเรื่องปัจจัยพื้นฐาน
+_UTIL_POWER = re.compile(r"ค่าไฟ|ไฟฟ้า|ตัดไฟ|\b(?:electric\w*|power (?:bill|company))\b", re.I)
+_UTIL_WATER = re.compile(r"ค่าน้ำ(?!มัน)|ประปา|ตัดน้ำ|\bwater (?:bill|company|shut|cut|was|got|is)\b|\bshut off (?:our|the|my) water\b", re.I)
+
+
 # ผู้ล่อลวงเด็ก: ผู้ใหญ่ที่เด็กรู้จักและไว้ใจ vs คนแปลกหน้าออนไลน์ — ขั้นตอนต่างกัน (บล็อกในแอปไม่ได้ช่วยถ้าเป็นโค้ชที่เจอทุกสัปดาห์)
 _GROOM_TRUSTED = re.compile(r"ครู|ติวเตอร์|โค้ช|ผู้ฝึกสอน|อาจารย์|พี่เลี้ยง|คนขับรถรับส่ง|\b(?:teacher|tutor|coach|instructor|youth (?:leader|pastor))\b", re.I)
 _GROOM_STRANGER = re.compile(r"^(?![\s\S]*(?:ครู|ติวเตอร์|โค้ช|ผู้ฝึกสอน|อาจารย์|พี่เลี้ยง|คนขับรถรับส่ง|\b(?:teacher|tutor|coach|instructor|youth (?:leader|pastor))\b))", re.I)
@@ -592,6 +597,10 @@ TOPICS = [
                           r"(?:ยาย|ตา|ปู่|ย่า|แม่|พ่อ|คนแก่|ผู้สูงอายุ)\S{0,6}ถูกทิ้ง\S{0,10}[^\n]{0,8}?ไม่มีใครดูแล")], {
         "open": ["ก่อนเรื่องอื่น — กิน นอน และปลอดภัย ต้องมาก่อน"],
         "paths": [
+            # ค่าไฟ/ค่าน้ำค้างหรือกำลังจะโดนตัด (core/conditions.py) — เบอร์จากทะเบียน core/hotlines.py
+            ([_UTIL_POWER], "ไฟจะโดนตัด: โทรขอผ่อนชำระก่อนวันตัด — การไฟฟ้านครหลวง 1130 (กทม. นนทบุรี สมุทรปราการ) · การไฟฟ้าส่วนภูมิภาค 1129 (ต่างจังหวัด) "
+             "บอกว่ามีเด็ก คนป่วย หรือคนใช้เครื่องมือแพทย์ในบ้านด้วย ถ้ามี"),
+            ([_UTIL_WATER], "น้ำจะโดนตัด: โทรขอผ่อนชำระก่อนวันตัด — การประปานครหลวง 1125 · การประปาส่วนภูมิภาค 1662 · ระหว่างนี้สำรองน้ำดื่มไว้ก่อน"),
             f"โทร {HOTLINE_SOCIAL} (ศูนย์ช่วยเหลือสังคม พม. 24 ชม.) บอกตรงๆ ว่าขาดอาหาร/ที่พัก — มีระบบส่งต่อที่พักและอาหารฉุกเฉิน",
             "มื้อถัดไป: วัด มัสยิด โบสถ์ มูลนิธิ หรือโรงทานใกล้ตัว ส่วนใหญ่ให้อาหารโดยไม่ถามเหตุผล",
             ([re.compile(r"งานหมด|ตกงาน|ถูกเลิกจ้าง|โดนไล่ออกจากงาน|ไม่มีงาน")],
@@ -1726,9 +1735,9 @@ EN_TOPIC = {
         "Be near someone tonight, or tell one person \"I'm not okay right now\" — you don't have to explain why."],
         "Is there one small thing that could help you get through tonight?"),
     "basic": ("Before anything else — food, sleep and safety come first.", [
-        "In Thailand call 1300 (24h social assistance) and say plainly you need food or shelter — they can refer you to emergency food and a place to stay. Elsewhere, search \"food bank\" or \"emergency shelter\" with your city.",
-        "For your next meal: temples, mosques, churches, charities and soup kitchens usually give food without asking why.",
-        "If you lost your job and paid into social security, register as unemployed within 30 days (Thailand: sso.go.th or 1506)."],
+        "In Thailand call 1300 (24h social assistance) and say plainly you need food, shelter or help with bills. In the US or Canada dial 211 — it connects you to food banks, shelters and utility-bill help. Elsewhere, contact your local council or social services.",
+        "Power or water about to be cut: call the company before the cut-off date and ask for a payment plan or hardship programme — most have one. Say if a child, sick person or medical device is in the home (Thailand: electricity 1130 Bangkok area / 1129 provinces · water 1125 / 1662).",
+        "For your next meal: temples, mosques, churches, charities and food banks usually give food without asking why. If you lost your job, register as unemployed (Thailand: sso.go.th or 1506)."],
         "What's the one thing that, if you had it tonight, would let you keep going tomorrow?"),
     # เดิม "I got scammed" ได้ "Let's lay this out step by step." — ไม่มีขั้นตอนอายัดบัญชี
     "scam": ("I'm sorry this happened — it's not your fault. Acting today gives you the best chance of getting money back.", [
@@ -2084,6 +2093,7 @@ def assess(text: str, pattern: dict | None = None) -> dict:
 # ตัวตรวจแบบเงื่อนไข (core/conditions.py) — ใคร × ทำอะไร × กับอะไร แทนรายการวลี · ผสานเข้าผลหลักที่นี่จุดเดียว
 # หัวข้อด่วน (กลืนของอันตราย · สัญญาณเตือน · มิจฉาชีพ) ขึ้นหน้า เพื่อให้คำตอบหลักเป็นเรื่องนั้น · ไม่แตะเมื่อเป็นวิกฤตอยู่แล้ว
 _COND_FIRST = ("swallowed", "overdose", "warning", "scam")
+_COND_AHEAD = ("basic", "housing")
 
 
 def _with_conditions(text, a: dict) -> dict:
@@ -2097,10 +2107,14 @@ def _with_conditions(text, a: dict) -> dict:
         if h.topic in ("overdose", "swallowed") and urgent_have:      # ของเดิมจับเรื่องด่วนได้แล้ว คำตอบเฉพาะทางของเดิมดีกว่า
             risk = max(risk, h.risk)
             continue
-        if h.topic and h.topic not in topics:
-            topics = [h.topic] + topics if h.topic in _COND_FIRST else topics + [h.topic]
-        elif h.topic in _COND_FIRST:
+        if h.topic in _COND_FIRST:
             topics = [h.topic] + [x for x in topics if x != h.topic]
+        elif h.topic in _COND_AHEAD:                 # ปัจจัยพื้นฐาน: ขึ้นนำหัวข้อทั่วไป แต่ตามหลังเรื่องด่วนที่มีอยู่ (ความรุนแรง ฉุกเฉิน)
+            rest = [x for x in topics if x != h.topic]
+            k = next((i for i, x in enumerate(rest) if x not in _URGENT_TOPICS), len(rest))
+            topics = rest[:k] + [h.topic] + rest[k:]
+        elif h.topic and h.topic not in topics:
+            topics = topics + [h.topic]
         if h.scam and h.scam not in scam:
             scam.append(h.scam)
         risk = max(risk, h.risk)
