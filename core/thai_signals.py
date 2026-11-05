@@ -645,7 +645,7 @@ URGENT_BODY = re.compile(
     r"(?i:\bcan'?t (?:speak|talk) (?:properly|clearly|right)\b|\bslurr(?:ed|ing) (?:speech|words|her words|his words)\b|\bface (?:is )?droop|\bhaving a stroke\b|\bsudden(?:ly)? (?:very )?confused\b|"
     # รอบตารางภาษาอังกฤษ: เลือดไม่หยุด ตกสระ แพ้รุนแรง ลมแดด เมาปลุกไม่ตื่น ไข้คอแข็ง หน้าเบี้ยว — เคยได้ Risk 0
     r"\b(?:fell|fallen) in(?:to)? (?:the |a )?(?:pool|river|lake|water|canal|sea|pond)\b|\bbleeding (?:a lot|heavily|badly|so much)\b|\bwon'?t stop bleeding\b|"
-    r"\bcan'?t stop the bleeding\b|\blots? of blood\b|\bstung by an? (?:bee|wasp|hornet)\b[^\n]{0,40}?\b(?:swell|can'?t breathe|trouble breathing)|"
+    r"\bcan'?t stop the bleeding\b|\blots? of blood\b|\bblood\b[^\n]{0,30}?\b(?:soak(?:ing|ed|s)? (?:through|into)|pouring|spurting|gushing|won'?t stop)\b|\bsoak(?:ing|ed) through\b[^\n]{0,30}?\b(?:towels?|bandages?|cloths?|shirts?|gauze)\b|\bstung by an? (?:bee|wasp|hornet)\b[^\n]{0,40}?\b(?:swell|can'?t breathe|trouble breathing)|"
     r"\b(?:face|lips|tongue|throat) (?:is |are )?(?:swelling|swollen)\b[^\n]{0,30}?\b(?:breath|after eating|ate)|\bheat ?stroke\b|"
     r"\b(?:very )?drunk\b[^\n]{0,20}?\b(?:won'?t|can'?t|doesn'?t) wake\b|\bwon'?t wake up\b|\bpassed out drunk\b|"
     r"\bfever\b[^\n]{0,30}?\bstiff neck\b|\bstiff neck\b[^\n]{0,30}?\bfever\b|\bdrooping face\b|\bconfused suddenly\b|"

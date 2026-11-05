@@ -109,6 +109,30 @@ SELF_HARM_INTL = (
 )
 
 
+# อยากตายแบบอ้อม ("หลับแล้วไม่ต้องตื่น" "อยากหลับไปตลอดกาล" "มีชีวิตอยู่เหนื่อยเหลือเกิน") — เดิมจับได้แค่ภาษาไทย
+# ชุดปิดตา (tests/blind) เจอว่ารูปนี้ในภาษาจีนและโปรตุเกสได้ความเสี่ยงต่ำ — ข้อที่แก้ย้ายไป tests/corpus/messages.tsv แล้ว
+# ไม่นับเรื่องตื่นนอนธรรมดา: "don't want to wake up early" "no quiero despertarme temprano" "起きたくない"
+SELF_HARM_PASSIVE = (
+    re.compile(r"\bsleep and (?:never|not) wake(?: up)?\b|\b(?:never|not) wake up again\b|\bwish i (?:was|were) dead\b|"
+               r"\bwish i (?:wasn'?t|weren'?t) (?:alive|here|born)\b|\bwish i (?:had )?never (?:been born|woken up)\b|"
+               r"\bdon'?t want to wake up\b(?!\s+(?:early|at|for|so|this|tomorrow|before|on))|\bwant to (?:sleep|disappear) forever\b|"
+               r"\b(?:tired|exhausted|sick) of (?:living|being alive|life itself)\b(?!\s+(?:in|with|at|here|there|like|on|under|out|paycheck|alone|together))|\bwhat'?s the point of (?:living|being alive)\b", re.I),
+    re.compile(r"(?:想|要)?永远(?:地)?睡(?:下去|着|过去)|睡(?:着|过去)了?就?(?:不|别)(?:要|想)?(?:再)?醒|不想(?:再)?醒(?:来|过来)|"
+               r"活着(?:好|太|真|很)?(?:累|没意思|没有意义|没意义)|不想(?:再)?活着|消失就好了"),
+    re.compile(r"永遠に眠りたい|ずっと眠っていたい|目が覚めなければ(?:いい|いいのに)|二度と目覚めたくない|生きるのが(?:疲れ|つらい|辛い|しんどい)"),
+    re.compile(r"영원히\s*(?:잠들고|자고)\s*싶|다시는\s*깨어나고\s*싶지\s*않|깨어나지\s*않았으면|사는\s*게\s*(?:너무\s*)?(?:지쳐|지친다|의미\s*없)"),
+    re.compile(r"\bdormir\s+y\s+no\s+(?:volver\s+a\s+)?despertar|\bno\s+(?:quiero|quisiera)\s+(?:volver\s+a\s+)?despertar(?:me)?\b(?!\s+(?:temprano|a\s+las|ma[ñn]ana|tan|para))|"
+               r"\bojal[áa]\s+no\s+despertara|\bquisiera\s+(?:estar\s+muert|desaparecer)|\bcansad[oa]\s+de\s+vivir\b(?!\s+(?:en|aqu[ií]|con|as[ií]|sol[oa]))", re.I),
+    re.compile(r"\bdormir\s+e\s+n[ãa]o\s+acordar|\bn[ãa]o\s+(?:quero|queria)\s+(?:mais\s+)?acordar\b(?!\s+(?:cedo|[àa]s|amanh[ãa]))|\bqueria\s+(?:estar\s+mort|sumir|desaparecer)|\bcansad[oa]\s+de\s+viver\b(?!\s+(?:em|aqui|com|assim|nest[ae]|n[ao]|sozinh[oa]))", re.I),
+    re.compile(r"ngủ\s+(?:mãi|luôn|một\s+giấc)\s+không\s+(?:dậy|tỉnh)|không\s+muốn\s+tỉnh\s+dậy\s+nữa|mệt\s+mỏi\s+(?:với\s+)?(?:cuộc\s+sống|việc\s+sống)|"
+               r"\bdormir\s+et\s+ne\s+(?:plus\s+)?jamais\s+(?:me\s+)?r[ée]veiller|\bne\s+plus\s+(?:jamais\s+)?me\s+r[ée]veiller|\bfatigu[ée]e?\s+de\s+vivre\b(?!\s+(?:ici|à|a|en|dans|avec|comme|seule?))|"
+               r"\bnicht\s+mehr\s+aufwachen|\bm[üu]de\s+zu\s+leben\b(?!\s+(?:in|hier|mit|so|allein))|\btidur\s+dan\s+tidak\s+bangun\s+lagi|\blelah\s+hidup\b(?!\s+(?:di|dengan|seperti|sendiri))", re.I),
+)
+
+
+SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_PASSIVE   # ผู้ใช้ทุกที่ (kernel_voice วิกฤต · llm_gemini ความปลอดภัย) ได้แบบอ้อมด้วย
+
+
 def self_harm_intl(text) -> bool:
     t = str(text or "")
     return any(p.search(t) for p in SELF_HARM_INTL)
@@ -232,10 +256,10 @@ URGENT_INTL = (
         "es": r"\bmi\s+(?:amig[oa]|mamá|madre|papá|padre|herman[oa]|hij[oa]|novi[oa]|espos[oa]|pareja)\s+(?:dice\s+que\s+)?(?:quiere\s+(?:morir|suicidarse|matarse)|se\s+quiere\s+(?:morir|matar)|habla\s+de\s+suicid)",
     }),
     ("medical", "health_emergency", {
-        "zh": r"晕倒|昏倒|昏迷|叫不醒|下药|下藥|流血不止|血流不止|吞了(?:电池|電池|纽扣|硬币)|困在电梯|困在電梯|(?:狗|猫)咬|狂犬|没有呼吸|沒有呼吸|不能呼吸|喘不过气|胸口(?:剧痛|很痛|疼)|心脏病发|中风|抽搐|大出血|吃了(?:很多|一整瓶|整瓶)?(?:药|安眠药)|喝了农药|溺水|吞了(?:一[个颗枚])?(?:纽扣)?(?:电池|電池|磁铁|磁鐵|硬币|硬幣)|喝了(?:漂白水|漂白剂|消毒水)",
-        "ja": r"蛇に噛まれ|倒れ(?:た|ている)|起きない|何か入れられ|出血が止まらない|電池を飲み込|閉じ込められ|犬に噛まれ|狂犬|意識がない|息をしていない|呼吸(?:が|できない)|胸が(?:痛|苦し)|心臓発作|脳卒中|けいれん|大量出血|薬を(?:たくさん|大量に)飲|溺れ|(?:ボタン)?電池を(?:飲み込|飲ん)|磁石を(?:飲み込|飲ん)|漂白剤を飲",
-        "ko": r"뱀에\s*물렸|쓰러졌|안\s*깨어나|약\s*탄\s*술|피가\s*안\s*멈|건전지를?\s*삼켰|갇혔|개한테\s*물렸|광견병|의식이\s*없|숨을\s*안\s*쉬|숨을\s*못\s*쉬|숨이\s*안\s*쉬어|가슴이\s*(?:너무\s*)?아파|심장마비|뇌졸중|경련|피가\s*멈추지\s*않|약을\s*(?:많이|한\s*통)|물에\s*빠졌|(?:건전지|배터리|자석|동전)[을를]?\s*삼켰|락스[를을]?\s*마셨",
-        "es": r"est[áa]\s+sangrando|se\s+desmay[óo]|inconsciente|no\s+respira|no\s+(?:se\s+)?despierta|no\s+reacciona|no\s+responde(?!\s+(?:el|los|mis|a\s+mis)\s+(?:mensajes?|correos?|llamadas?))|no\s+puedo\s+respirar|dolor\s+(?:fuerte\s+)?(?:en\s+el|de)\s+pecho|infarto|derrame\s+cerebral|convulsi|sangra\s+mucho|se\s+tom[óo]\s+(?:muchas|todas\s+las)\s+pastillas|se\s+est[áa]\s+ahogando|se\s+trag[óo]\s+(?:una?\s+)?(?:pila|bater[ií]a|im[áa]n|moneda)|(?:tom[óo]|bebi[óo])\s+(?:lej[íi]a|cloro)",
+        "zh": r"晕倒|昏倒|昏迷|叫不醒|下药|下藥|流血不止|血流不止|吞了(?:电池|電池|纽扣|硬币)|困在电梯|困在電梯|(?:狗|猫)咬|狂犬|没有呼吸|沒有呼吸|不能呼吸|喘不过气|胸口(?:剧痛|很痛|疼)|心脏病发|中风|抽搐|大出血|吃了(?:很多|一整瓶|整瓶)?(?:药|安眠药)|喝了农药|溺水|吞了(?:一[个颗枚])?(?:纽扣)?(?:电池|電池|磁铁|磁鐵|硬币|硬幣)|喝了(?:漂白水|漂白剂|消毒水)|溺水|(?:掉|落|摔)(?:进|到|入)(?:了)?(?:水|河|湖|海|泳池|游泳池|水池)",
+        "ja": r"蛇に噛まれ|倒れ(?:た|ている)|起きない|何か入れられ|出血が止まらない|電池を飲み込|閉じ込められ|犬に噛まれ|狂犬|意識がない|息をしていない|呼吸(?:が|できない)|胸が(?:痛|苦し)|心臓発作|脳卒中|けいれん|大量出血|薬を(?:たくさん|大量に)飲|溺れ|(?:ボタン)?電池を(?:飲み込|飲ん)|磁石を(?:飲み込|飲ん)|漂白剤を飲|溺れ(?:た|ている|そう)|(?:プール|川|海|池)に落ち",
+        "ko": r"뱀에\s*물렸|쓰러졌|안\s*깨어나|약\s*탄\s*술|피가\s*안\s*멈|건전지를?\s*삼켰|갇혔|개한테\s*물렸|광견병|의식이\s*없|숨을\s*안\s*쉬|숨을\s*못\s*쉬|숨이\s*안\s*쉬어|가슴이\s*(?:너무\s*)?아파|심장마비|뇌졸중|경련|피가\s*멈추지\s*않|약을\s*(?:많이|한\s*통)|물에\s*빠졌|(?:건전지|배터리|자석|동전)[을를]?\s*삼켰|락스[를을]?\s*마셨|물에\s*빠졌|익사|수영장에\s*빠졌",
+        "es": r"est[áa]\s+sangrando|se\s+desmay[óo]|inconsciente|no\s+respira|no\s+(?:se\s+)?despierta|no\s+reacciona|no\s+responde(?!\s+(?:el|los|mis|a\s+mis)\s+(?:mensajes?|correos?|llamadas?))|no\s+puedo\s+respirar|dolor\s+(?:fuerte\s+)?(?:en\s+el|de)\s+pecho|infarto|derrame\s+cerebral|convulsi|sangra\s+mucho|se\s+tom[óo]\s+(?:muchas|todas\s+las)\s+pastillas|se\s+est[áa]\s+ahogando|se\s+trag[óo]\s+(?:una?\s+)?(?:pila|bater[ií]a|im[áa]n|moneda)|(?:tom[óo]|bebi[óo])\s+(?:lej[íi]a|cloro)|se\s+(?:cay[óo]|ha\s+ca[ií]do)\s+(?:a|en)\s+(?:la\s+|el\s+)?(?:piscina|alberca|pileta|r[ií]o|agua|mar|lago|canal)|se\s+ahog[óo]|no\s+abre\s+los\s+ojos",
     }),
     ("violence", "violence", {
         "zh": r"(?:被|挨)[^。！？\n]{0,4}?(?:打|殴打|家暴|强奸|性侵)|[他她](?:又|一直|总是|老是|经常|天天)?(?:打|揍)(?:了)?我(?!电话|電話|手机|手機|的电话|微信|一下电话)|打(?:我|了我)?(?:妈|媽|妈妈|媽媽|爸|孩子)|要杀(?:了)?孩子|要殺(?:了)?孩子|扣(?:了)?(?:我的)?(?:护照|護照)|(?:护照|護照)被(?:扣|没收|沒收)|(?:老公|丈夫|老婆|男朋友|爸爸|妈妈)[^。！？\n]{0,3}?打我|家暴|"
@@ -405,7 +429,7 @@ WORLD_URGENT = {
     "crisis": (
         r"\btoi\s+muon\s+chet\b|\bmuon\s+tu\s+tu\b|\bkhong\s+muon\s+song\b|ich\s+bringe\s+mich\s+(?:\w+\s+)?um|покончу\s+с\s+собой|ຂ້າຕົວຕາຍ|"
         r"想从楼上跳下去|今晚就结束|大家没有我会更好|没有我(?:大家)?会更好|首を吊ろう|首吊り|今夜で終わりに|뛰어내릴\s*거|오늘\s*밤\s*끝낼|그만\s*살고\s*싶|내가\s*없으면\s*더\s*행복|"
-        r"no\s+quiero\s+despertar|escrib[ií]\s+mi\s+carta|muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|\b(?:aku|saya|gue|gw)\s+(?:ingin|mau|pengen|nak)\s+mati(?!\s+(?:lampu|listrik))|ingin\s+bunuh\s+diri|bunuh\s+diri|"
+        r"no\s+quiero\s+despertar(?:me)?\b(?!\s+(?:temprano|a\s+las|ma[ñn]ana|tan|para))|escrib[ií]\s+mi\s+carta|muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|\b(?:aku|saya|gue|gw)\s+(?:ingin|mau|pengen|nak)\s+mati(?!\s+(?:lampu|listrik))|ingin\s+bunuh\s+diri|bunuh\s+diri|"
         r"gusto\s+(?:ko\s+)?(?:nang\s+)?mamatay|magpakamatay|je\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|me\s+suicider|envie\s+de\s+mourir|"
         r"ich\s+will\s+(?:nicht\s+mehr\s+leben|sterben)|selbstmord|mich\s+umbringen|quero\s+morrer|me\s+matar|"
         r"voglio\s+morire|suicidarmi|ammazzarmi|ölmek\s+istiyorum|intihar|"

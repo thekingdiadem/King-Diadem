@@ -1046,7 +1046,7 @@ _RED_FLAG = re.compile(r"หมดสติ|ไม่รู้สึกตัว
 _EN_FIRST_STEP = [(re.compile(rx, re.I), k) for rx, k in (
     (r"\b(?:was|got|been) (?:stabbed|shot)\b", "en_stab"),
     (r"\bcut off\b|\bsevered\b|\bchopped off\b", "en_amputation"),
-    (r"\b(?:bleeding (?:a lot|heavily|badly|so much)|won'?t stop bleeding|can'?t stop the bleeding|lots? of blood)\b", "en_bleed"),
+    (r"\b(?:bleeding (?:a lot|heavily|badly|so much)|won'?t stop bleeding|can'?t stop the bleeding|lots? of blood)\b|\bblood\b[^\n]{0,30}?\b(?:soak\w* (?:through|into)|pouring|spurting|gushing)\b|\bsoak(?:ing|ed) through\b", "en_bleed"),
     (r"\bburn(?:ed|t)\b|\bscald", "en_burn"),
     (r"\b(?:chemicals?|bleach|acid|cleaner|lime)\b[^\n]{0,20}\beyes?\b", "en_eye"),
     (r"\belectrocuted\b|\belectric shock\b", "en_electric"),

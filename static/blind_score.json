@@ -1,24 +1,24 @@
 {
- "total": 106,
+ "total": 102,
  "authors": [
   "claude-seed"
  ],
  "blind_by_people": 0,
  "classes": {
   "self_harm": {
-   "n": 20,
+   "n": 18,
    "tp": 11,
-   "fn": 9,
+   "fn": 7,
    "fp": 1,
-   "recall": 0.55,
+   "recall": 0.611,
    "precision": 0.917
   },
   "emergency": {
-   "n": 21,
+   "n": 19,
    "tp": 19,
-   "fn": 2,
+   "fn": 0,
    "fp": 0,
-   "recall": 0.905,
+   "recall": 1.0,
    "precision": 1.0
   },
   "violence": {
@@ -47,8 +47,8 @@
   }
  },
  "danger_missed": {
-  "n": 12,
-  "of": 54
+  "n": 8,
+  "of": 50
  },
  "false_alarm": {
   "n": 1,
@@ -57,11 +57,11 @@
  "by_lang": {
   "en": {
    "hit": 16,
-   "n": 24
+   "n": 23
   },
   "es": {
    "hit": 1,
-   "n": 2
+   "n": 1
   },
   "ja": {
    "hit": 2,
@@ -71,17 +71,13 @@
    "hit": 1,
    "n": 1
   },
-  "pt": {
-   "hit": 0,
-   "n": 1
-  },
   "th": {
    "hit": 36,
    "n": 44
   },
   "zh": {
    "hit": 3,
-   "n": 4
+   "n": 3
   }
  },
  "misses": [
@@ -180,31 +176,7 @@
    "got": []
   },
   {
-   "line": 137,
-   "text": "活着好累，想永远睡下去",
-   "label": "self_harm",
-   "got": []
-  },
-  {
    "line": 138,
-   "text": "eu queria dormir e não acordar mais",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 140,
-   "text": "my dad was cutting wood and the blood is soaking through every towel",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 141,
-   "text": "el niño se cayó a la piscina y no abre los ojos",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 142,
    "text": "ครูพิเศษให้ลูกไปเรียนที่ห้องตัวเองคนเดียว แล้วส่งรูปไม่เหมาะสมมาให้ลูก",
    "label": "violence",
    "got": []
