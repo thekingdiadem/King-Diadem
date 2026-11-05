@@ -3526,8 +3526,11 @@ async def hazards_recent():
 
 
 @app.get("/api/quakes")
-async def quakes_recent():
+async def quakes_recent(scope: str = ""):
+    """scope=map → จุดบนลูกโลก 7 วัน (ใกล้ไทย M3.5+ · ทั่วโลก M5.5+) · ค่าเริ่ม = สรุป 24 ชม. แบบที่แชทใช้"""
     from core import quakes
+    if scope == "map":
+        return await run_in_threadpool(quakes.map_points)
     return await run_in_threadpool(quakes.recent)
 
 

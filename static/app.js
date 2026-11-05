@@ -1925,11 +1925,12 @@ var Cosmos = (function(){
   function loadHazards(){
     HZ.at = Date.now();
     var keep = function(r){ return r && r.ok ? (r.near || []).concat(r.world || []) : []; };
-    Promise.all([fetch('/api/quakes').then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }),
+    Promise.all([fetch('/api/quakes?scope=map').then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }),
                  fetch('/api/hazards').then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; })])
       .then(function(res){
-        var q = keep(res[0]).map(function(x){ return { lat: x.lat, lon: x.lon, kind: 'EQ', level: x.mag >= 6.5 ? 'red' : x.mag >= 5 ? 'orange' : 'green',
-                                                      name: 'M' + x.mag + ' · ' + (x.place || ''), km: x.km, url: x.url }; });
+        var qs = res[0] && res[0].ok ? (res[0].points || keep(res[0])) : [];      /* scope=map: 7 วัน ใกล้ไทย M3.5+ ทั่วโลก M5.5+ */
+        var q = qs.map(function(x){ return { lat: x.lat, lon: x.lon, kind: 'EQ', level: x.mag >= 6.5 ? 'red' : x.mag >= 5 ? 'orange' : 'green',
+                                             name: 'M' + x.mag + ' · ' + (x.place || ''), km: x.km, url: x.url, hours: x.hours }; });
         var h = keep(res[1]).map(function(x){ return { lat: x.lat, lon: x.lon, kind: x.kind, level: x.level, name: x.name || x.country, km: x.km, url: x.url }; });
         HZ.list = q.concat(h).filter(function(x){ return isFinite(x.lat) && isFinite(x.lon) && HZ_STYLE[x.kind]; }).slice(0, 24);
         kick();
@@ -1970,6 +1971,7 @@ var Cosmos = (function(){
     var lvl = { green: 'ระดับเขียว', orange: 'ระดับส้ม', red: 'ระดับแดง' }[h.level] || '';
     pop.innerHTML = '<b>' + esc(_t(kindTh)) + '</b> · ' + esc(_t(lvl)) + '<br>' + esc(h.name || '') +
       (h.km != null ? '<br><i>' + esc(_t('ห่างกรุงเทพฯ {km} กม.', { km: Number(h.km).toLocaleString() })) + '</i>' : '') +
+      (h.hours != null ? '<br><i>' + esc(h.hours < 48 ? _t('{h} ชม.ที่แล้ว', { h: Math.max(1, Math.round(h.hours)) }) : _t('{d} วันที่แล้ว', { d: Math.round(h.hours / 24) })) + '</i>' : '') +
       '<br><a href="/survival' + (en ? '?lang=en' : '') + '#' + st[1] + '" target="_blank" rel="noopener">📘 ' + esc(_t('คู่มือเอาชีวิตรอด')) + '</a>' +
       (h.url && /^https:\/\/(?:earthquake\.usgs\.gov|www\.gdacs\.org)\//.test(h.url) ? ' · <a href="' + esc(h.url) + '" target="_blank" rel="noopener">' + (h.kind === 'EQ' ? 'USGS' : 'GDACS') + '</a>' : '');
     pop.style.left = Math.round(clamp(m.x + 14, 8, innerWidth - 240)) + 'px'; pop.style.top = Math.round(clamp(m.y - 10, 60, innerHeight - 160)) + 'px';

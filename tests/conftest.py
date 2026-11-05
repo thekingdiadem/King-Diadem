@@ -71,6 +71,7 @@ def _no_real_usgs(monkeypatch):
     for mod in (quakes, hazards):
         monkeypatch.setattr(mod, "_http_get", _offline)
         monkeypatch.setattr(mod, "_cache", {"at": 0.0, "ok": False, "items": []})
+    monkeypatch.setattr(quakes, "_wcache", {"at": 0.0, "ok": False, "items": []})
     yield
 
 

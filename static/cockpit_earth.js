@@ -493,11 +493,20 @@
     HZ.at = Date.now();
     var get = function (u) { return fetch(u).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); };
     var keep = function (r) { return r && r.ok ? (r.near || []).concat(r.world || []) : []; };
-    Promise.all([get('/api/quakes'), get('/api/hazards')]).then(function (res) {
-      var q = keep(res[0]).map(function (x) {
+    Promise.all([get('/api/quakes?scope=map'), get('/api/hazards')]).then(function (res) {
+      var qs = res[0] && res[0].ok ? (res[0].points || keep(res[0])) : [];     // 7 วัน · ใกล้ไทย M3.5+ · ทั่วโลก M5.5+
+      var q = qs.map(function (x) {
         return { lat: x.lat, lon: x.lon, kind: 'EQ', level: x.mag >= 6.5 ? 'red' : x.mag >= 5 ? 'orange' : 'green',
-                 name: 'M' + x.mag + ' · ' + (x.place || ''), km: x.km, url: x.url };
+                 name: 'M' + x.mag + ' · ' + (x.place || ''), km: x.km, url: x.url, hours: x.hours };
       });
+      // บอกสถานะข้อมูลในแผงเครื่องมือ — คนดูจะรู้ว่า "ไม่มีจุด" เพราะไม่มีเหตุ หรือเพราะดึงข้อมูลไม่ได้
+      var st = document.getElementById('ec-hz-status');
+      if (st) {
+        var nq = q.length, nh = keep(res[1]).length, okq = !!(res[0] && res[0].ok), okh = !!(res[1] && res[1].ok);
+        st.textContent = !okq && !okh ? (THAI ? 'ตอนนี้ดึงข้อมูลภัยจาก USGS/GDACS ไม่ได้ — ลองใหม่ภายหลัง' : 'Hazard data from USGS/GDACS is unavailable right now')
+          : (THAI ? 'ตอนนี้บนโลก: แผ่นดินไหว 7 วัน ' + (okq ? nq + ' จุด' : '(ดึงไม่ได้)') + ' · ภัยอื่น ' + (okh ? nh + ' จุด' : '(ดึงไม่ได้)')
+                  : 'Now: quakes (7 days) ' + (okq ? nq : 'n/a') + ' · other hazards ' + (okh ? nh : 'n/a'));
+      }
       var h = keep(res[1]).map(function (x) { return { lat: x.lat, lon: x.lon, kind: x.kind, level: x.level, name: x.name || x.country, km: x.km, url: x.url }; });
       HZ.list = q.concat(h).filter(function (x) { return isFinite(x.lat) && isFinite(x.lon) && HZ_STYLE[x.kind]; }).slice(0, 40);
       HZ.list.forEach(function (x) {
@@ -520,6 +529,8 @@
     function line(t, tag) { d.appendChild(document.createElement('br')); var e = document.createElement(tag || 'span'); e.textContent = t; d.appendChild(e); return e; }
     if (h.name) line(h.name);
     if (h.km != null) line((en ? '{km} km from Bangkok' : 'ห่างกรุงเทพฯ {km} กม.').replace('{km}', Number(h.km).toLocaleString()), 'i');
+    if (h.hours != null) line(h.hours < 1 ? (en ? 'within the last hour' : 'ไม่ถึงชั่วโมงที่แล้ว') : h.hours < 48 ? (en ? Math.round(h.hours) + ' h ago' : Math.round(h.hours) + ' ชม.ที่แล้ว')
+                                 : (en ? Math.round(h.hours / 24) + ' days ago' : Math.round(h.hours / 24) + ' วันที่แล้ว'), 'i');
     d.appendChild(document.createElement('br'));
     var st = HZ_STYLE[h.kind], g = document.createElement('a');
     g.href = '/survival' + (en ? '?lang=en' : '') + '#' + (st ? st[1] : '');

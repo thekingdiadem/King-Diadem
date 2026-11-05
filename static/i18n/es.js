@@ -2,6 +2,8 @@
  * คำแปลเรียบเรียงจากคอลัมน์ภาษาอังกฤษใน i18n.js — ควรให้เจ้าของภาษาตรวจอีกรอบ */
 (window.KD_I18N_PACKS = window.KD_I18N_PACKS || {})["es"] = {
 "ท้องฟ้าคืนนี้ ↗": "El cielo de esta noche ↗",
+"{h} ชม.ที่แล้ว": "hace {h} h",
+"{d} วันที่แล้ว": "hace {d} días",
 "เมนู": "Menú",
 "แชทใหม่": "Nuevo chat",
 "✧ แชทใหม่": "✧ Nuevo chat",

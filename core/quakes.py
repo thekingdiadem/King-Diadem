@@ -22,7 +22,12 @@ RADIUS_KM = 2000          # ไทย เมียนมา ลาว กัม�
 MIN_MAG_NEAR = 3.5
 MIN_MAG_WORLD = 5.5       # ที่อื่นในโลก: ขนาดที่ทำให้ตึกเสียหายได้ (~1–5 ครั้ง/วันทั่วโลก) — เดิม 6.5 เห็นน้อยเกินไป · ไฟล์ที่ดึงเป็นไฟล์เดิม ไม่เพิ่มงบ
 
+# ลูกโลกใช้ฟีด 7 วัน (M4.5+ ทั่วโลก) เพิ่ม — แผ่นดินไหวใหญ่ไม่ได้เกิดทุกวัน 24 ชม. อย่างเดียวลูกโลกมักว่าง
+WEEK_FEED = os.getenv("QUAKE_WEEK_FEED", "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson")
+MAP_DAYS, MAP_MAX = 7, 40
+
 _cache = {"at": 0.0, "ok": False, "items": []}
+_wcache = {"at": 0.0, "ok": False, "items": []}
 _lock = threading.Lock()
 
 
@@ -53,24 +58,49 @@ def parse(geo: dict) -> list:
     return out
 
 
-def fetch(get=None) -> tuple[bool, list]:
-    """(ใช้ได้ไหม, รายการทั้งหมด) — แคชไว้ ไม่ยิงซ้ำถี่ๆ"""
+def _fetch(url: str, cache: dict, get=None) -> tuple[bool, list]:
     now = time.time()
     with _lock:
-        age = now - _cache["at"]
-        if _cache["at"] and age < (TTL if _cache["ok"] else FAIL_TTL):
-            return _cache["ok"], list(_cache["items"])
+        age = now - cache["at"]
+        if cache["at"] and age < (TTL if cache["ok"] else FAIL_TTL):
+            return cache["ok"], list(cache["items"])
     try:
-        items, ok = parse((get or _http_get)(FEED)), True
+        items, ok = parse((get or _http_get)(url)), True
     except Exception as e:
         print(f"⚠ quakes: {type(e).__name__}")
         items, ok = [], False
     with _lock:
-        if ok or not _cache["ok"]:                   # ล้มเหลวครั้งเดียว ไม่ทิ้งข้อมูลดีที่มีอยู่
-            _cache.update(at=now, ok=ok, items=items)
+        if ok or not cache["ok"]:                    # ล้มเหลวครั้งเดียว ไม่ทิ้งข้อมูลดีที่มีอยู่
+            cache.update(at=now, ok=ok, items=items)
         else:
-            _cache["at"] = now - TTL + FAIL_TTL
-        return _cache["ok"], list(_cache["items"])
+            cache["at"] = now - TTL + FAIL_TTL
+        return cache["ok"], list(cache["items"])
+
+
+def fetch(get=None) -> tuple[bool, list]:
+    """(ใช้ได้ไหม, รายการทั้งหมด) ฟีด 24 ชม. — แคชไว้ ไม่ยิงซ้ำถี่ๆ"""
+    return _fetch(FEED, _cache, get)
+
+
+def map_points(lat: float = HOME[0], lon: float = HOME[1], get=None, now_ms: int | None = None) -> dict:
+    """จุดบนลูกโลก: ใกล้ไทย M ≥ 3.5 + ทั่วโลก M ≥ MIN_MAG_WORLD ย้อนหลัง MAP_DAYS วัน (ใหม่ก่อน) — ไม่เกิน MAP_MAX จุด
+    ok = ดึงได้อย่างน้อยหนึ่งฟีด · updated = เวลาที่ดึงล่าสุด (ให้หน้าเว็บบอกได้ว่าข้อมูลสดแค่ไหน)"""
+    ok1, day = fetch(get)
+    ok2, week = _fetch(WEEK_FEED, _wcache, get)
+    now_ms = now_ms or int(time.time() * 1000)
+    since = now_ms - MAP_DAYS * 86400 * 1000
+    seen, pts = set(), []
+    for q in day + week:
+        if q["id"] in seen or q["time"] < since:
+            continue
+        seen.add(q["id"])
+        d = round(km(lat, lon, q["lat"], q["lon"]))
+        if (d <= RADIUS_KM and q["mag"] >= MIN_MAG_NEAR) or q["mag"] >= MIN_MAG_WORLD:
+            pts.append(dict(q, km=d, hours=round((now_ms - q["time"]) / 3600000, 1)))
+    pts.sort(key=lambda q: (-(q["mag"] >= 6.5), -q["time"]))          # ใหญ่มากขึ้นก่อนเสมอ แล้วเรียงใหม่ไปเก่า
+    updated = max(_cache["at"], _wcache["at"]) or None
+    return {"ok": ok1 or ok2, "source": "USGS", "days": MAP_DAYS, "radius_km": RADIUS_KM, "min_near": MIN_MAG_NEAR,
+            "min_world": MIN_MAG_WORLD, "updated": int(updated * 1000) if updated else None, "points": pts[:MAP_MAX]}
 
 
 def recent(hours: float = 24, lat: float = HOME[0], lon: float = HOME[1], get=None, now_ms: int | None = None) -> dict:
