@@ -20,6 +20,7 @@ FEED = _geo((6.1, "Mandalay, Myanmar", 21.9, 96.1, 35, 0),        # ~950 กม.
             (4.2, "Andaman Sea", 9.5, 96.0, 200, 0),
             (7.4, "Kamchatka, Russia", 53.0, 159.0, 90, 1),          # ไกล แต่ใหญ่มาก → บอก
             (5.0, "Chile", -33.0, -71.0, 60, 0),                     # ไกลและไม่ใหญ่พอ → ไม่บอก
+            (5.8, "Tonga", -21.0, -175.0, 120, 0),                   # ไกล แต่ถึง 5.5 (ทำตึกเสียหายได้) → บอก
             (6.0, "Myanmar old", 21.0, 96.0, 60 * 30, 0))            # เกิน 24 ชม. → ไม่บอก
 
 
@@ -31,7 +32,8 @@ def _fresh_cache(monkeypatch):
 def test_near_and_big_quakes_are_picked_correctly():
     r = quakes.recent(get=lambda url: FEED, now_ms=NOW)
     assert r["ok"] and [q["place"] for q in r["near"]] == ["Mandalay, Myanmar", "Andaman Sea"]
-    assert [q["place"] for q in r["world"]] == ["Kamchatka, Russia"]
+    assert [q["place"] for q in r["world"]] == ["Kamchatka, Russia", "Tonga"]
+    assert quakes.MIN_MAG_WORLD == 5.5
     assert 850 < r["near"][0]["km"] < 1050
 
 

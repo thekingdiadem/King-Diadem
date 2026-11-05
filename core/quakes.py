@@ -20,7 +20,7 @@ TTL, FAIL_TTL, TIMEOUT = 300, 120, 4.0
 HOME = (13.7563, 100.5018, "กรุงเทพฯ", "Bangkok")
 RADIUS_KM = 2000          # ไทย เมียนมา ลาว กัมพูชา มาเลเซีย สุมาตราตอนเหนือ ทะเลอันดามัน
 MIN_MAG_NEAR = 3.5
-MIN_MAG_WORLD = 6.5       # ที่อื่นในโลก แสดงเฉพาะที่ใหญ่มาก
+MIN_MAG_WORLD = 5.5       # ที่อื่นในโลก: ขนาดที่ทำให้ตึกเสียหายได้ (~1–5 ครั้ง/วันทั่วโลก) — เดิม 6.5 เห็นน้อยเกินไป · ไฟล์ที่ดึงเป็นไฟล์เดิม ไม่เพิ่มงบ
 
 _cache = {"at": 0.0, "ok": False, "items": []}
 _lock = threading.Lock()
@@ -74,7 +74,7 @@ def fetch(get=None) -> tuple[bool, list]:
 
 
 def recent(hours: float = 24, lat: float = HOME[0], lon: float = HOME[1], get=None, now_ms: int | None = None) -> dict:
-    """แผ่นดินไหวที่ควรบอกผู้ใช้: ใกล้ (รัศมี RADIUS_KM, M ≥ 3.5) + ใหญ่มากที่ไหนก็ได้ในโลก (M ≥ 6.5)"""
+    """แผ่นดินไหวที่ควรบอกผู้ใช้: ใกล้ (รัศมี RADIUS_KM, M ≥ 3.5) + ใหญ่ที่ไหนก็ได้ในโลก (M ≥ MIN_MAG_WORLD = 5.5)"""
     ok, items = fetch(get)
     now_ms = now_ms or int(time.time() * 1000)
     since = now_ms - int(hours * 3600 * 1000)
