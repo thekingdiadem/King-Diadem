@@ -156,12 +156,7 @@ window.KD_themeVars = function(t, c){
               <button type="button" class="st-chip" data-q="ทะเลาะกับแฟนบ่อยมาก ไม่รู้จะไปต่อยังไง">💗 ทะเลาะกับแฟนบ่อย</button>
             </div>
           </div>
-          <div class="seg mode-seg" id="mode-seg" role="group" aria-label="โหมดการใช้งาน">
-            <button type="button" data-m="talk" class="on">💬 ปรึกษา</button>
-            <button type="button" data-m="dz" title="ตรวจการตัดสินใจขององค์กร/โครงการตามเฟรมเวิร์ค DriftZero">◎ DriftZero</button>
-            <button type="button" data-m="img">🎨 สร้างภาพ</button>
-          </div>
-          <div class="comp-row1">
+          <div class="comp-row1" id="comp-opts">
             <button type="button" class="chip state" id="state-chip" title="สถานะของฉัน → Waterline">W —</button>
             <div class="menu-wrap">
               <button type="button" class="chip" id="route-pill" aria-haspopup="true" aria-expanded="false">ทั่วไป</button>
@@ -174,9 +169,18 @@ window.KD_themeVars = function(t, c){
               <button type="button" data-p="council" title="สภา 6 เสียง: LYLA · VEGA · PATICCA · TITAN · COSMOS · CIVIL">สภา</button>
             </div>
           </div>
+          <!-- การ์ดพิมพ์ใบเดียวแบบแอปแชท: ช่องพิมพ์อยู่บน · โหมด ตัวเลือก และปุ่มส่งอยู่แถวล่าง -->
           <div class="inrow">
             <textarea id="input" rows="1" placeholder="เล่ามาได้เลย" aria-label="ข้อความ"></textarea>
-            <button type="button" id="send" aria-label="ส่ง">➤</button>
+            <div class="comp-bar">
+              <div class="seg mode-seg" id="mode-seg" role="group" aria-label="โหมดการใช้งาน">
+                <button type="button" data-m="talk" class="on">💬 ปรึกษา</button>
+                <button type="button" data-m="dz" title="ตรวจการตัดสินใจขององค์กร/โครงการตามเฟรมเวิร์ค DriftZero">◎ DriftZero</button>
+                <button type="button" data-m="img">🎨 สร้างภาพ</button>
+              </div>
+              <button type="button" class="opts-btn" id="opts-btn" aria-controls="comp-opts" aria-expanded="false" aria-label="ตัวเลือกเพิ่มเติม" title="ตัวเลือกเพิ่มเติม"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/><circle cx="16" cy="7" r="2" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="10" cy="17" r="2" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></button>
+              <button type="button" id="send" aria-label="ส่ง"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button>
+            </div>
           </div>
         </div>
       </div>

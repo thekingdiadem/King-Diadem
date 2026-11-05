@@ -1158,3 +1158,62 @@ body.mode-dz .comp-row1,body.mode-img .comp-row1,body.mode-dz #starters,body.mod
 .qk-m{flex:0 0 auto!important;min-width:46px;text-align:center;border-radius:8px;padding:2px 6px;background:rgba(255,206,120,.16);color:#ffd99a;font-weight:700}
 .qk-r.big .qk-m{background:rgba(255,107,107,.2);color:#ffb3b3}
 .qk-r em{font-style:normal;color:#ffb3b3;font-size:12px}.qk a{color:#9cc4ff}.qk-f{font-size:12px;color:var(--ink-3)!important}
+
+/* ══ CLEAN CHAT ═══════════════════════════════════════════════════
+   หน้าตาแบบแอปแชท (พื้นหลังจักรวาลเดิม): ช่องพิมพ์เป็นการ์ดใบเดียว — ข้อความอยู่บน · โหมด ตัวเลือก ส่ง อยู่แถวล่าง
+   ตัวเลือกเพิ่มเติม (W · เส้นทาง · ผู้ตอบ) ซ่อนหลังปุ่ม #opts-btn · ใช้ตัวแปรสีเดิม จึงใช้ได้ทุกธีม
+   ═══════════════════════════════════════════════════════════════ */
+/* มิติชุดเดียวทั้งหน้า: ความสูงปุ่ม · ความโค้ง · ตัวอักษร · ระยะห่าง — ปุ่มทุกตัวในส่วนพิมพ์ใช้ค่าเดียวกัน */
+:root{ --hover:color-mix(in srgb,var(--ink) 9%,transparent); --hover-2:color-mix(in srgb,var(--ink) 14%,transparent);
+  --ctl-h:34px; --ctl-fs:13px; --gap:6px; --r-pill:999px; --r-card:24px; --r-tile:16px }
+@media (max-width:899px){ :root{ --ctl-h:38px } }
+
+/* การ์ดพิมพ์ */
+#composer .inrow{flex-direction:column;align-items:stretch;gap:2px;padding:10px 8px 8px 16px;border-radius:var(--r-card)}
+#composer #input{width:100%;padding:6px 8px 6px 2px;font-size:16px;line-height:1.55;min-height:28px}
+.comp-bar{display:flex;align-items:center;gap:var(--gap);min-width:0;margin-left:-8px}
+#composer .comp-bar .mode-seg{flex:0 1 auto;min-width:0;margin:0;padding:0;gap:2px;border:0;background:none!important;box-shadow:none}
+/* แถวที่ยาวเกินจอ (จอเล็กมาก): เงาจางที่ขอบขวาบอกว่าเลื่อนดูต่อได้ — ขึ้นเฉพาะตอนล้นจริง (.scrolls จาก fitRows) */
+#composer :is(.mode-seg,.comp-row1).scrolls{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent)}
+#composer .comp-bar .mode-seg::before{display:none}
+#composer .comp-bar .mode-seg button{height:var(--ctl-h);padding:0 12px;border:0;border-radius:var(--r-pill);background:none!important;color:var(--ink-2);font:500 var(--ctl-fs)/1 var(--f-sans);letter-spacing:0;box-shadow:none}
+#composer .comp-bar .mode-seg button:hover{background:var(--hover)!important;color:var(--ink)}
+#composer .comp-bar .mode-seg button.on{background:var(--hover-2)!important;color:var(--ink);font-weight:600}
+.opts-btn{flex-shrink:0;width:var(--ctl-h);height:var(--ctl-h);display:grid;place-items:center;border:0;border-radius:var(--r-pill);background:none;color:var(--ink-2);cursor:pointer;transition:background .2s,color .2s}
+.opts-btn:hover,#composer.opts-open .opts-btn{background:var(--hover-2);color:var(--ink)}
+#composer #send{width:calc(var(--ctl-h) + 4px);height:calc(var(--ctl-h) + 4px);margin-left:auto;display:grid;place-items:center;font-size:0;flex-shrink:0}
+
+/* ตัวเลือกเพิ่มเติม: แถวเหนือการ์ด แสดงเมื่อเปิด */
+#composer:not(.opts-open) .comp-row1{display:none}
+#composer .comp-row1{margin:0 6px 8px;gap:var(--gap)}
+#composer .comp-row1 .chip,#composer #persona-seg button{height:var(--ctl-h);padding:0 14px;border-radius:var(--r-pill);font-size:var(--ctl-fs);display:inline-flex;align-items:center}
+#composer #persona-seg{height:var(--ctl-h);padding:0;border-radius:var(--r-pill);align-items:stretch}
+#composer #persona-seg button{height:100%;padding:0 12px}
+
+/* ตัวอย่างคำถามบนจอแคบ: ตาราง 2 คอลัมน์ เห็นครบทุกข้อ ไม่ล้นจอ */
+@media (max-width:520px){
+  .st-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow:visible;padding:0}
+  .st-chip{min-height:44px;padding:10px 12px;border-radius:var(--r-tile);white-space:normal;text-align:left;font-size:13px;line-height:1.35}
+  .st-hi{font-size:14px;line-height:1.5;margin-bottom:10px}
+}
+
+/* แถบเมนูล่างบนมือถือ: เบาลง ไม่แย่งสายตาจากบทสนทนา */
+@media (max-width:899px){
+  #composer .comp-bar .mode-seg button{padding:0 10px}
+  .opts-btn{width:calc(var(--ctl-h) - 4px)}
+  #composer #send{width:var(--ctl-h);height:var(--ctl-h)}
+  #tabbar button.on .i{animation:none;box-shadow:none}
+  #composer{padding-left:12px;padding-right:12px}
+}
+
+/* อ่านง่าย: ระยะบรรทัดคำตอบ · บับเบิลผู้ใช้กระชับ */
+.m.a .body,.m.a .txt{line-height:1.75}
+.m.u .bubble{max-width:min(86%,560px)}
+
+/* เข้าถึงง่าย: ใช้คีย์บอร์ดเห็นตำแหน่งชัด · ไม่ใช้เมาส์ก็กดได้ทุกปุ่ม */
+:is(#composer,#tabbar,.nav,#topbar,.starters) :is(button,textarea,[role="button"]):focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+#composer #input:focus-visible{outline:0}
+@media (prefers-reduced-motion:reduce){ #composer .inrow::after,#tabbar button .i{animation:none!important} }
+
+/* แผงขวา "อ่านเรื่องนี้": คอลัมน์ป้ายกว้างพอดีคำ ไม่ตัดบรรทัด */
+.ariya .ar-r{grid-template-columns:max-content 1fr;column-gap:14px}
