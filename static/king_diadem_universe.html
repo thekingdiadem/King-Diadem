@@ -281,6 +281,15 @@ html.kd-day #city-map{background:#ece6da}
 html.kd-day #city-map .maplibregl-ctrl-attrib{background:rgba(255,255,255,.75);color:#333}
 html.kd-day #city-map .maplibregl-ctrl-attrib a{color:#222}
 .cockpit #earth-labels{pointer-events:none;opacity:1}
+/* ภัยจริงบนลูกโลก: กล่องรายละเอียดเมื่อแตะจุด (สร้างใน cockpit_earth.js) — ใช้ใน MapLibre popup ด้วย */
+.cockpit .hz-pop{position:absolute;z-index:3;max-width:230px;padding:10px 12px;border-radius:14px;border:1px solid rgba(230,240,255,.18);
+  background:rgba(6,9,20,.86);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#e6edf8;font:400 13px/1.55 system-ui,sans-serif;
+  box-shadow:0 14px 40px -12px rgba(0,0,0,.7)}
+.cockpit .hz-pop.hide{display:none}
+.hz-pop i,.hz-card i{font-style:normal;opacity:.7}.hz-pop a,.hz-card a{color:#ffd28f}
+#city-map .maplibregl-popup-content{background:rgba(6,9,20,.9);color:#e6edf8;font:400 13px/1.55 system-ui,sans-serif;border-radius:12px;padding:10px 12px}
+#city-map .maplibregl-popup-tip{border-top-color:rgba(6,9,20,.9);border-bottom-color:rgba(6,9,20,.9)}
+#city-map .maplibregl-popup-close-button{color:#e6edf8}
 #hero>div:not(.cockpit):not(.earth-ctl){transition:opacity .2s linear;opacity:var(--hero-a,1)}
 #hero.zoomed>div:not(.cockpit):not(.earth-ctl){pointer-events:none}
 .earth-ctl .ec-z{width:30px;padding:7px 0;font-size:14px}

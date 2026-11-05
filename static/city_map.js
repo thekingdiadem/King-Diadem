@@ -246,6 +246,26 @@
     if (!window.KD_buddhaLayer || !map || map.getLayer('landmark-buddha')) return;
     LANDMARKS.forEach(function (m) { map.addLayer(window.KD_buddhaLayer(lib, m), 'water-name'); });
   }
+  // ภัยจริง (ข้อมูลชุดเดียวกับลูกโลก — window.KD_hazards จาก cockpit_earth.js) · setStyle ลบชั้นทิ้ง เลยใส่ใหม่ทุกครั้งที่สไตล์โหลด
+  function hazardGeo() {
+    return { type: 'FeatureCollection', features: (window.KD_hazards || []).map(function (h, i) {
+      return { type: 'Feature', geometry: { type: 'Point', coordinates: [h.lon, h.lat] },
+               properties: { i: i, color: h.color || '#ffb066', big: h.level === 'red' ? 1.6 : h.level === 'orange' ? 1.25 : 1 } };
+    }) };
+  }
+  function addHazards() {
+    if (!map || !map.isStyleLoaded()) return;
+    var src = map.getSource('hz');
+    if (src) { src.setData(hazardGeo()); return; }
+    map.addSource('hz', { type: 'geojson', data: hazardGeo() });
+    map.addLayer({ id: 'hz-ring', type: 'circle', source: 'hz',
+                   paint: { 'circle-radius': ['*', ['get', 'big'], 14], 'circle-color': 'rgba(0,0,0,0)',
+                            'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 1.5, 'circle-stroke-opacity': .6 } });
+    map.addLayer({ id: 'hz-dot', type: 'circle', source: 'hz',
+                   paint: { 'circle-radius': ['*', ['get', 'big'], 5], 'circle-color': ['get', 'color'],
+                            'circle-stroke-color': 'rgba(0,0,0,.6)', 'circle-stroke-width': 1 } });
+  }
+  window.addEventListener('kd-hazards', addHazards);
   window.addEventListener('kd-theme', function () {
     if (!map) return;
     map.setStyle(style());
@@ -288,6 +308,15 @@
         closeAttrib();
         map.on('moveend', syncNames);
         map.on('style.load', addModels);
+        map.on('style.load', addHazards);
+        map.on('click', 'hz-dot', function (e) {
+          var f = e.features && e.features[0], h = f && (window.KD_hazards || [])[f.properties.i];
+          if (!h || !window.KD_hazardCard) return;
+          var c = window.KD_hazardCard(h); c.className = 'hz-card';
+          new lib.Popup({ maxWidth: '240px' }).setLngLat([h.lon, h.lat]).setDOMContent(c).addTo(map);
+        });
+        map.on('mouseenter', 'hz-dot', function () { map.getCanvas().style.cursor = 'pointer'; });
+        map.on('mouseleave', 'hz-dot', function () { map.getCanvas().style.cursor = ''; });
         setTimeout(function () { if (!loaded) { failed = true; exit(); } }, 15000);   // เน็ตล่ม/โดนบล็อก — กลับไปโลก
         map.on('zoom', function () { if (on && !entering && map.getZoom() < exitZ) exit(); });
       } else {
