@@ -29,6 +29,7 @@ from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, 
                                CHILD_HOUSEHOLD, SLEEPLESS, NOT_BREATHING as _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY, TRAFFICKING)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, script_lang, urgent_intl, world_urgent
 from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en, debt_en
+from core.titan_core import EXIT_BLOCKED as _TITAN_EXIT, POWER_OVER as _TITAN_POWER  # TITAN S3 exit · S5 conservation
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
 HOTLINE_MENTAL = "1323"   # สายด่วนสุขภาพจิต กรมสุขภาพจิต 24 ชม.
@@ -284,6 +285,23 @@ TOPICS = [
         "ask": "ตอนนี้คุณปลอดภัยไหม?",
     }),
     # รอบหาบั๊ก 8 — ผู้ใช้เป็นพยาน/ญาติ ไม่ใช่เหยื่อ: เดิมได้ "ความปลอดภัยของคุณมาก่อน · คืนนี้คุณนอนที่ไหน"
+    # TITAN Section 5 Conservation: ขอวิธีเพิ่มอำนาจเหนือคนอื่นโดยลดทางออกของเขา (ยึดพาสปอร์ต แอบติดตาม ทำให้ไม่กล้าเลิก/ลาออก)
+    # เดิม "จะยึดพาสปอร์ตลูกจ้าง" ถูกตอบเหมือนผู้ใช้เป็นเหยื่อ · "track my wife's phone" ได้คำตอบกลาง — ไม่ช่วยควบคุม ไม่ตำหนิ เสนอทางที่ทั้งคู่ยังเลือกได้
+    ("titan_power", [_TITAN_POWER], {
+        "open": ["ฉันช่วยวิธีที่ทำให้อีกฝ่ายเหลือทางเลือกน้อยลงไม่ได้ — แต่ช่วยหาทางที่ได้สิ่งที่คุณต้องการจริง โดยที่เขายังเลือกได้"],
+        "paths": [
+            ([re.compile(r"พาสปอร์ต|หนังสือเดินทาง|เอกสาร|บัตร|passport", re.I)],
+             "การยึดพาสปอร์ตหรือเอกสารประจำตัวลูกจ้างผิดกฎหมายไทย และอาจเข้าข่ายบังคับใช้แรงงาน — ถ้ากลัวคนงานหนี ให้แก้ที่ค่าแรง ที่พัก สภาพงาน และทำสัญญาที่มีระยะบอกเลิกชัดเจน"),
+            ([re.compile(r"ลาออก|ทำที่อื่น|ลูกน้อง|พนักงาน|(?:quit|employees?|staff)", re.I)],
+             "อยากให้คนอยู่ต่อ: ถามคนที่ออกไปแล้วว่าออกเพราะอะไร แล้วปรับค่าแรง เวลา หรือหัวหน้าตรงนั้น — การห้ามไปทำที่อื่นแบบกว้างๆ มักบังคับใช้ไม่ได้ และทำให้คนที่เหลืออยากไปเร็วขึ้น"),
+            ([re.compile(r"ติดตาม|แอบ|ส่อง|มือถือ|ไลน์|แชท|track|spy|monitor|phone|messages", re.I)],
+             "แอบดูมือถือหรือติดตามตำแหน่งคนอื่นโดยไม่ยินยอม อาจผิดกฎหมายคอมพิวเตอร์ — ถ้าไม่ไว้ใจกัน คุยตรงๆ หรือตกลงแชร์ตำแหน่งแบบที่ทั้งคู่รู้และปิดได้"),
+            ([re.compile(r"แฟน|สามี|ภรรยา|เมีย|ผัว|เลิก|ทิ้ง|คู่", re.I)],
+             "อยากให้ความสัมพันธ์อยู่ต่อ: บอกความกลัวของคุณตรงๆ แล้วถามว่าอะไรทำให้เขาอยากไป · ไปปรึกษานักจิตวิทยาด้วยกันได้ — ความสัมพันธ์ที่อีกฝ่ายไม่กล้าไป ไม่ใช่ความรัก แต่คือการกักขัง"),
+            "สิ่งที่ได้มาจากการบังคับไม่ยั่งยืน — คนที่ไม่มีทางออกจะหาทางออกเองในวันที่คุณควบคุมไม่ได้",
+        ],
+        "ask": "สิ่งที่คุณกลัวจริงๆ ว่าจะเกิดขึ้นคืออะไร?",
+    }),
     ("harm_others", [HARM_OTHERS], {
         "open": ["ความโกรธขนาดนี้ต้องมีเรื่องที่หนักมากเกิดขึ้น — ขอบคุณที่พูดออกมาแทนที่จะทำ"],
         "paths": [
@@ -342,6 +360,17 @@ TOPICS = [
             "เก็บหลักฐานไว้ที่ญาติ: แชตที่ชวนไปทำงาน ชื่อนายหน้า เลขบัญชีที่โอนค่าหัว สัญญา — นายจ้างยึดพาสปอร์ตหรือห้ามออกจากที่พักไม่ได้ตามกฎหมาย",
         ],
         "ask": "ตอนนี้ติดต่อคนข้างนอกได้ทางไหนบ้าง และรู้ไหมว่าอยู่ที่ไหน?",
+    }),
+    # TITAN Section 3 exit == BLOCKED: ถูกขัง/ล็อกประตู/ห้ามออก/ยึดเอกสาร — เดิม "สามีล็อกประตูไม่ให้ออกจากบ้าน" ได้ "เรื่องใจไม่ต้องรีบตัดสิน"
+    # Section 4: ให้เฉพาะขั้นที่คืนทางออก ≥ 1 ทาง แล้วถอย
+    ("titan_exit", [_TITAN_EXIT], {
+        "open": ["การถูกขังหรือถูกห้ามไม่ให้ออก เป็นอันตรายจริง — ทางออกต้องกลับมาก่อนเรื่องอื่น"],
+        "paths": [
+            f"ถ้าไม่ปลอดภัยตอนนี้ โทร {HOTLINE_POLICE} บอกที่อยู่ให้ชัด — พูดไม่ได้ให้เปิดสายค้างไว้ หรือส่งข้อความพร้อมพิกัดให้คนที่ไว้ใจ",
+            f"โทร {HOTLINE_SOCIAL} (ศูนย์ช่วยเหลือสังคม 24 ชม.) — ช่วยประสานคนเข้าไปช่วยและหาที่พักปลอดภัยได้",
+            "เก็บโทรศัพท์ เอกสาร และยาไว้ใกล้ตัว · การกักขังหน่วงเหนี่ยวผิดกฎหมาย แม้เป็นสามีภรรยาหรือนายจ้าง",
+        ],
+        "ask": "ตอนนี้คุณมีโทรศัพท์อยู่กับตัว และอยู่ในที่ที่เขาเข้าไม่ถึงไหม?",
     }),
     ("soft_check", [re.compile(r"(?!)")], {       # เลือกจาก SOFT_CRISIS ใน assess ไม่ใช่จากคำ
         "open": ["ขอบคุณที่บอกให้ชัดนะ — เข้าใจแล้ว และดีใจที่เล่าให้ฟัง"],
@@ -1713,6 +1742,16 @@ EN_TOPIC = {
         "If it belongs to someone at home who is drunk, angry or making threats, leave for a safe place first, then call the police.",
         "If there are children or someone in deep distress at home, ask for it to be locked away with the ammunition stored separately — or kept outside the home for now."],
         "Whose gun is it, and is anyone in danger right now?"),
+    "titan_power": ("I can't help with ways that leave the other person fewer choices — but I can help you get what you actually need while they can still choose.", [
+        "Taking a worker's passport or ID is illegal in Thailand and many countries and can amount to forced labour; if you fear staff leaving, fix pay, housing and conditions and use a fair contract with a clear notice period.",
+        "Secretly reading someone's phone or tracking their location without consent can be a crime; if trust is broken, talk directly or agree on location sharing you both know about and can turn off.",
+        "A relationship the other person is afraid to leave isn't love, it's confinement — say what you're afraid of and ask what makes them want to go; a counsellor can help you both."],
+        "What are you really afraid will happen?"),
+    "titan_exit": ("Being locked in or kept from leaving is dangerous — getting a way out comes before anything else.", [
+        "If you're not safe right now, call the police (191 in Thailand, 911 in the US, 112 in Europe) with your exact address — if you can't speak, leave the line open or text someone you trust your location.",
+        "In Thailand call 1300 (24h social assistance) — they can send help and arrange a safe place to stay.",
+        "Keep your phone, documents and medicines close. Holding someone against their will is illegal, even by a spouse or employer."],
+        "Do you have your phone with you, and are you somewhere they can't reach you?"),
     "harm_others": ("Anger this strong usually means something heavy happened — thank you for saying it instead of acting on it.", [
         "Step away from that person now and put anything sharp or any weapon out of reach — give the anger 20 minutes to drop.",
         "Call a crisis line to talk it through (1323 in Thailand, 988 in the US) — no judgement.",
@@ -1995,7 +2034,7 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")

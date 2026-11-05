@@ -2302,6 +2302,15 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 _metric("capture:" + _k)
     except Exception:
         pass
+    # TITAN Decision Core (core/titan_core.py): CHOICE = 0 → ตอบเฉพาะขั้นที่คืนทางเลือก แล้วถอย · ขอเพิ่มอำนาจเหนือคนอื่น → ไม่ช่วยควบคุม
+    # CHOICE > 0 → Silence: ไม่ส่งอะไรเพิ่ม
+    try:
+        from core.titan_core import read as _titan_read
+        _tn = _titan_read(user_input).note()
+        if _tn:
+            sig_ctx.append(_tn)
+    except Exception:
+        pass
     k_topics = k_assess.get("topics") or []
     scam = k_assess.get("scam") or []
     if scam:

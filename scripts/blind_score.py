@@ -32,7 +32,7 @@ _TOPIC_CLASS = {
     "emergency": {"overdose", "swallowed", "household", "pet_poison", "health_emergency", "first_aid", "stranded",
                   "en_infant_fever", "en_preg_bleed", "needlestick", "missing", "drunk_drive", "panic", "psychosis"},
     "violence": {"violence", "sexual_abuse", "en_assault", "en_spiked", "harm_others", "weapon", "witness", "elder_abuse",
-                 "trafficking", "threat", "online_grooming", "control_en", "bullying"},
+                 "trafficking", "threat", "online_grooming", "control_en", "bullying", "titan_exit", "titan_power"},
     "scam": {"scam", "sextortion", "hacked"},
     "distress": {"debt", "basic", "housing", "labor"},
 }
