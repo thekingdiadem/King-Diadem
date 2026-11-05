@@ -703,5 +703,8 @@
 "ไม่พบแผ่นดินไหวขนาด 3.5 ขึ้นไป ในรัศมี {r} กม. จาก{home}": "Không có động đất từ 3.5 độ trong bán kính {r} km quanh {home}",
 "ห่าง{home} {km} กม.": "cách {home} {km} km",
 "แจ้งเตือนสึนามิ": "Cảnh báo sóng thần",
-"ข้อมูลจาก USGS · ในไทยดูเพิ่มที่": "Dữ liệu từ USGS · tại Thái Lan xem thêm"
+"ข้อมูลจาก USGS · ในไทยดูเพิ่มที่": "Dữ liệu từ USGS · tại Thái Lan xem thêm",
+"เรียนรู้และฝึก": "Học và luyện tập",
+"เรียนรู้ระบบ 8 บทพร้อมแบบทดสอบ แล้วลองตัดสินใจในวิกฤตจำลอง (โรคระบาด · ตกงานมีหนี้ · ร้านใกล้เส้นเงินสด) ด้วยสมการจริงของระบบ": "Học hệ thống qua 8 bài có câu hỏi, rồi luyện ra quyết định trong khủng hoảng mô phỏng (dịch bệnh · mất việc có nợ · cửa hàng gần mức tiền tối thiểu) bằng phương trình thật",
+"เริ่มเรียน →": "Bắt đầu học →"
 };
