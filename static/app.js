@@ -688,28 +688,26 @@ function plainHTML(t){
     '</div>';
   return h + ariyaHTML(t) + maggaHTML(t) + '<details class="eq-more"><summary>ดูวิธีคำนวณ</summary>' + eq + '</details>';
 }
-/* อริยสัจ 4 ของข้อความนี้ (ENGINE/ariya_sacca) — เห็นทุกข์และเหตุก่อน มรรค 8 ข้างล่างจึงตรง
-   เนื้อความมาจากเซิร์ฟเวอร์เป็นภาษาไทย · หัวข้อแปลได้ */
+/* อ่านเรื่องนี้ (ENGINE/ariya_sacca — อริยสัจ 4) — แสดงด้วยคำสากล: ปัญหา · สาเหตุ · ปลายทาง · ทางไป
+   หลักคิดเดิมทำงานครบที่เซิร์ฟเวอร์ แค่ไม่ใช้ศัพท์ทางศาสนาบนหน้าจอ ให้ทุกคนอ่านเข้าใจ · เนื้อความจากเซิร์ฟเวอร์ แปลได้ */
 function ariyaHTML(t){
   var A = t && t.ariya;
-  if(!A || !A.dukkha || A.dukkha === 'ยังไม่ชัด') return '';   /* ไม่มีทุกข์ให้ดู (ถามธรรมะ ขอบทสวด ทักทาย) — ไม่ต้องโชว์ช่องว่าง */
+  if(!A || !A.dukkha || A.dukkha === 'ยังไม่ชัด') return '';   /* ไม่มีปัญหาให้ดู (ทักทาย ถามความรู้) — ไม่ต้องโชว์ */
   var row = function(k, v){ return '<div class="ar-r"><span class="ar-k">' + _t(k) + '</span><span class="ar-v' + (v === 'ยังไม่ชัด' ? ' ar-un' : '') + '">' + esc(_t(String(v || ''))) + '</span></div>'; };
-  return '<div class="ariya"><div class="mg-h">' + _t('อริยสัจ 4') + '</div>' +
-    row('ทุกข์', A.dukkha) + (A.own ? '<div class="ar-r"><span class="ar-k">' + _t('สมุทัย') + '</span><span class="ar-v">' + _t('ตามที่เล่า') + ': ' + esc(A.samudaya) + '</span></div>' : row('สมุทัย', A.samudaya)) +
-    row('นิโรธ', A.nirodha) + row('มรรค', A.magga) +
+  return '<div class="ariya"><div class="mg-h">' + _t('อ่านเรื่องนี้') + '</div>' +
+    row('ปัญหา', A.dukkha) + (A.own ? '<div class="ar-r"><span class="ar-k">' + _t('สาเหตุ') + '</span><span class="ar-v">' + _t('ตามที่เล่า') + ': ' + esc(A.samudaya) + '</span></div>' : row('สาเหตุ', A.samudaya)) +
+    row('ปลายทาง', A.nirodha) + row('ทางไป', A.magga) +
     (A.clear ? '' : '<p class="mg-n">' + _t('ยังเห็นไม่ครบ — เล่าเพิ่มอีกนิด ทางจะตรงขึ้น') + '</p>') +
-    /* หฤทัยสูตร: อริยสัจ 4 ก็ว่างจากตัวตน — เครื่องมือข้ามฟาก ไม่ใช่คำตัดสิน */
     '<p class="mg-n ar-note">' + _t('อ่านจากที่เล่า เปลี่ยนได้เมื่อเล่าเพิ่ม — เป็นเครื่องมือนำทาง ไม่ใช่คำตัดสิน') + '</p></div>';
 }
-/* มรรคมีองค์ 8 ของข้อความนี้ (ENGINE/bodhipakkhiya_engine) — ป้าย ✓/✗ ครบ 8 องค์ · ข้อไหนไม่ผ่านบอกเหตุใต้ป้าย */
+/* ข้อควรระวัง (ENGINE/bodhipakkhiya_engine — มรรค 8) — ไม่โชว์ป้ายรายข้อ ขึ้นเฉพาะเมื่อมีข้อที่ไม่ผ่าน
+   บอกแค่เหตุ (เช่น โกหกลูกค้า) ไม่ใช้ชื่อหลักธรรม */
 function maggaHTML(t){
   var M = t && Array.isArray(t.magga) ? t.magga : [];
-  if(!M.length) return '';
-  var bad = M.filter(function(m){ return !m.ok; });
-  return '<div class="magga"><div class="mg-h">' + _t('มรรค 8') + '</div><div class="mg-b">' +
-    M.map(function(m){ return '<span class="badge ' + (m.ok ? 'ok' : 'warn') + '">' + (m.ok ? '✓ ' : '✗ ') + esc(_t(m.name)) + '</span>'; }).join('') + '</div>' +
-    (bad.length ? bad.map(function(m){ return '<p class="mg-n"><b>' + esc(_t(m.name)) + '</b> — ' + esc(_t(m.note)) + '</p>'; }).join('')
-                : '<p class="mg-n">' + _t('ผ่านครบ 8 องค์') + '</p>') + '</div>';
+  var bad = M.filter(function(m){ return !m.ok && m.note; });
+  if(!bad.length) return '';
+  return '<div class="magga"><div class="mg-h">' + _t('ข้อควรระวัง') + '</div>' +
+    bad.map(function(m){ return '<p class="mg-n">' + esc(_t(m.note)) + '</p>'; }).join('') + '</div>';
 }
 function eqStrip(t){
   if(!t) return '';
@@ -2540,6 +2538,24 @@ function setMode(m){
 $$('#mode-seg button').forEach(function(b){ b.addEventListener('click', function(){ setMode(b.getAttribute('data-m')); $('#input').focus(); }); });
 try{ setMode(localStorage.getItem('kd-mode') || 'talk'); }catch(_){ setMode('talk'); }
 document.addEventListener('kd:lang', function(){ setMode(Mode); });
+/* ตัวเลือกเพิ่มเติม (W · เส้นทาง · ผู้ตอบ) — ซ่อนหลังปุ่มเดียวให้ช่องพิมพ์โล่งแบบแอปแชท
+   ค่าเริ่มต้น: คอมพิวเตอร์เปิด · มือถือปิด · ผู้ใช้กดแล้วจำค่าไว้ */
+function setOpts(open, save){
+  $('#composer').classList.toggle('opts-open', open);
+  $('#opts-btn').setAttribute('aria-expanded', open);
+  if(save){ try{ localStorage.setItem('kd-opts', open ? '1' : '0'); }catch(_){} }
+}
+$('#opts-btn').addEventListener('click', function(){ setOpts(!$('#composer').classList.contains('opts-open'), true); });
+(function(){ var v = null; try{ v = localStorage.getItem('kd-opts'); }catch(_){}
+  setOpts(v === null ? window.matchMedia('(min-width:900px)').matches : v === '1', false); })();
+/* แถวปุ่มที่เลื่อนแนวนอนได้: ใส่ .scrolls เฉพาะตอนเนื้อหาล้นจริง (CSS ใช้แสดงเงาจางที่ขอบ) */
+function fitRows(){
+  $$('#mode-seg, #comp-opts').forEach(function(el){ el.classList.toggle('scrolls', el.scrollWidth > el.clientWidth + 1); });
+}
+window.addEventListener('resize', fitRows, {passive:true});
+document.addEventListener('kd:lang', fitRows);
+$('#opts-btn').addEventListener('click', fitRows);
+fitRows();
 function L2(o){ if(!o) return ''; return (window.KD_I18N && KD_I18N.get() !== 'th') ? (o.en || o.th) : (o.th || o.en); }
 /* แผ่นดินไหวจริงจาก USGS (core/quakes.py) — ขึ้นเมื่อผู้ใช้พูดถึงแผ่นดินไหว: เกิดจริงไหม ขนาด ห่างแค่ไหน */
 function quakeAgo(ms){ var m = Math.max(0, Math.round((Date.now() - ms) / 60000)); return m < 120 ? _t('{n} นาทีก่อน', { n: m }) : _t('{n} ชม.ก่อน', { n: Math.round(m / 60) }); }

@@ -706,5 +706,12 @@
 "ข้อมูลจาก USGS · ในไทยดูเพิ่มที่": "Datos de USGS · en Tailandia consulta también",
 "เรียนรู้และฝึก": "Aprender y practicar",
 "เรียนรู้ระบบ 8 บทพร้อมแบบทดสอบ แล้วลองตัดสินใจในวิกฤตจำลอง (โรคระบาด · ตกงานมีหนี้ · ร้านใกล้เส้นเงินสด) ด้วยสมการจริงของระบบ": "Aprende el sistema en 8 lecciones con cuestionarios y practica decisiones en crisis simuladas (pandemia · desempleo con deudas · tienda cerca de su mínimo de caja) con las ecuaciones reales",
-"เริ่มเรียน →": "Empezar →"
+"เริ่มเรียน →": "Empezar →",
+"อ่านเรื่องนี้": "Lectura de la situación",
+"ปัญหา": "Problema",
+"สาเหตุ": "Causa",
+"ปลายทาง": "Meta",
+"ทางไป": "Camino",
+"ข้อควรระวัง": "Cuidado",
+"ตัวเลือกเพิ่มเติม": "Más opciones"
 };
