@@ -1,0 +1,111 @@
+"""แผ่นดินไหวจริงจาก USGS (ข้อมูลสาธารณะ ไม่ต้องใช้ key) — เชื่อมไว้ตั้งแต่ ROADMAP แรกๆ แต่ยังไม่เคยต่อจริง
+
+ใช้ตอนผู้ใช้พูดถึงแผ่นดินไหว: บอกว่าเมื่อกี้มีแผ่นดินไหวจริงไหม ขนาดเท่าไหร่ ที่ไหน ห่างแค่ไหน
+เดิมระบบรู้แค่ว่า "ผู้ใช้พูดถึงแผ่นดินไหว" แต่ไม่รู้ว่ามีเกิดขึ้นจริงหรือเปล่า
+
+หลัก:
+  · แคช 5 นาที — USGS อัปเดตทุก ~1 นาที แต่ไม่ต้องยิงทุกข้อความ
+  · หมดเวลา 4 วินาที / ใช้ไม่ได้ → คืนค่าว่าง แชทไม่ช้าและไม่ล่มเพราะ USGS
+  · อ้างอิงกรุงเทพเป็นค่าเริ่มต้น (ผู้ใช้ส่วนใหญ่อยู่ในไทย) — แผ่นดินไหวเมียนมา มี.ค. 2568 รู้สึกถึงกรุงเทพ ~1,000 กม.
+"""
+from __future__ import annotations
+
+import math
+import os
+import threading
+import time
+
+FEED = os.getenv("QUAKE_FEED", "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson")
+TTL, FAIL_TTL, TIMEOUT = 300, 120, 4.0
+HOME = (13.7563, 100.5018, "กรุงเทพฯ", "Bangkok")
+RADIUS_KM = 2000          # ไทย เมียนมา ลาว กัมพูชา มาเลเซีย สุมาตราตอนเหนือ ทะเลอันดามัน
+MIN_MAG_NEAR = 3.5
+MIN_MAG_WORLD = 6.5       # ที่อื่นในโลก แสดงเฉพาะที่ใหญ่มาก
+
+_cache = {"at": 0.0, "ok": False, "items": []}
+_lock = threading.Lock()
+
+
+def _http_get(url: str) -> dict:
+    import httpx
+    r = httpx.get(url, timeout=TIMEOUT, headers={"User-Agent": "KING-DIADEM/1.0"})
+    r.raise_for_status()
+    return r.json()
+
+
+def km(lat1, lon1, lat2, lon2) -> float:
+    p = math.pi / 180
+    a = (math.sin((lat2 - lat1) * p / 2) ** 2 +
+         math.cos(lat1 * p) * math.cos(lat2 * p) * math.sin((lon2 - lon1) * p / 2) ** 2)
+    return 12742 * math.asin(math.sqrt(a))
+
+
+def parse(geo: dict) -> list:
+    out = []
+    for f in (geo or {}).get("features") or []:
+        p, g = f.get("properties") or {}, (f.get("geometry") or {}).get("coordinates") or []
+        if p.get("mag") is None or len(g) < 2:
+            continue
+        out.append({"id": f.get("id"), "mag": round(float(p["mag"]), 1), "place": p.get("place") or "",
+                    "time": int(p.get("time") or 0), "lon": float(g[0]), "lat": float(g[1]),
+                    "depth": float(g[2]) if len(g) > 2 and g[2] is not None else None,
+                    "tsunami": bool(p.get("tsunami")), "alert": p.get("alert"), "url": p.get("url") or ""})
+    return out
+
+
+def fetch(get=None) -> tuple[bool, list]:
+    """(ใช้ได้ไหม, รายการทั้งหมด) — แคชไว้ ไม่ยิงซ้ำถี่ๆ"""
+    now = time.time()
+    with _lock:
+        age = now - _cache["at"]
+        if _cache["at"] and age < (TTL if _cache["ok"] else FAIL_TTL):
+            return _cache["ok"], list(_cache["items"])
+    try:
+        items, ok = parse((get or _http_get)(FEED)), True
+    except Exception as e:
+        print(f"⚠ quakes: {type(e).__name__}")
+        items, ok = [], False
+    with _lock:
+        if ok or not _cache["ok"]:                   # ล้มเหลวครั้งเดียว ไม่ทิ้งข้อมูลดีที่มีอยู่
+            _cache.update(at=now, ok=ok, items=items)
+        else:
+            _cache["at"] = now - TTL + FAIL_TTL
+        return _cache["ok"], list(_cache["items"])
+
+
+def recent(hours: float = 24, lat: float = HOME[0], lon: float = HOME[1], get=None, now_ms: int | None = None) -> dict:
+    """แผ่นดินไหวที่ควรบอกผู้ใช้: ใกล้ (รัศมี RADIUS_KM, M ≥ 3.5) + ใหญ่มากที่ไหนก็ได้ในโลก (M ≥ 6.5)"""
+    ok, items = fetch(get)
+    now_ms = now_ms or int(time.time() * 1000)
+    since = now_ms - int(hours * 3600 * 1000)
+    near, world = [], []
+    for q in items:
+        if q["time"] < since:
+            continue
+        d = round(km(lat, lon, q["lat"], q["lon"]))
+        row = dict(q, km=d)
+        if d <= RADIUS_KM and q["mag"] >= MIN_MAG_NEAR:
+            near.append(row)
+        elif q["mag"] >= MIN_MAG_WORLD:
+            world.append(row)
+    near.sort(key=lambda q: (-q["mag"], -q["time"]))
+    world.sort(key=lambda q: (-q["mag"], -q["time"]))
+    return {"ok": ok, "source": "USGS", "hours": hours, "home": {"th": HOME[2], "en": HOME[3]},
+            "radius_km": RADIUS_KM, "near": near[:5], "world": world[:3]}
+
+
+def llm_note(r: dict, now_ms: int | None = None) -> str:
+    """บริบทสั้นๆ ให้ AI — ข้อมูลจริง ห้ามเดาเกินนี้"""
+    if not r or not r.get("ok"):
+        return "[ข้อมูลแผ่นดินไหวจริงตอนนี้ดึงไม่ได้: ห้ามเดาว่ามีหรือไม่มี — แนะนำให้ดูกรมอุตุนิยมวิทยา earthquake.tmd.go.th]"
+    now_ms = now_ms or int(time.time() * 1000)
+    rows = r["near"] + r["world"]
+    if not rows:
+        return (f"[ข้อมูลจริงจาก USGS: ไม่พบแผ่นดินไหวขนาด {MIN_MAG_NEAR}+ ในรัศมี {RADIUS_KM:,} กม. จาก{HOME[2]} "
+                f"ใน {int(r['hours'])} ชม.ที่ผ่านมา — ถ้าผู้ใช้รู้สึกสั่น อาจเป็นแรงสั่นอื่น หรือเหตุที่ยังไม่เข้าระบบ ให้ดูกรมอุตุฯ ด้วย]")
+    parts = []
+    for q in rows[:3]:
+        mins = max(0, (now_ms - q["time"]) // 60000)
+        ago = f"{mins} นาทีก่อน" if mins < 120 else f"{mins // 60} ชม.ก่อน"
+        parts.append(f"M{q['mag']} {q['place']} ห่าง{HOME[2]} {q['km']:,} กม. เมื่อ {ago}" + (" (USGS แจ้งเตือนสึนามิ)" if q["tsunami"] else ""))
+    return "[ข้อมูลจริงจาก USGS: " + " · ".join(parts) + " — ใช้ตัวเลขนี้เท่านั้น ห้ามเพิ่มตัวเลขอื่น]"

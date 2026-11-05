@@ -27,7 +27,7 @@ from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, 
                                HEALTH_RIGHTS, DIAGNOSIS, LEGAL, GAMBLING_LOSS, BRIBERY, NO_MONEY_LEFT, ELDER_ABUSE, WITNESS_VIOLENCE,
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
                                CHILD_HOUSEHOLD, SLEEPLESS, NOT_BREATHING as _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY, TRAFFICKING)
-from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, urgent_intl, world_urgent
+from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, script_lang, urgent_intl, world_urgent
 from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en, debt_en
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
@@ -2216,6 +2216,7 @@ _STATUS_WORDS = {
     "ja": ("今のリスク", ("対応できる", "注意", "すぐに対応を")),
     "ko": ("지금 위험도", ("감당할 수 있어요", "조심해야 해요", "지금 바로 도움이 필요해요")),
     "es": ("Riesgo ahora", ("manejable", "con cuidado", "necesita atención ya")),
+    "vi": ("Rủi ro lúc này", ("kiểm soát được", "cần cẩn thận", "cần chăm sóc ngay")),
 }
 _SHOWN_RISK = re.compile(r"\((\d+)/100\)")
 
@@ -2287,6 +2288,11 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     lang = detect_lang(text)
     if lang != "th":
         status = status_line(a, lang)
+        # มิจฉาชีพที่ตัวจับหลายภาษาเจอ (core/thai_signals) — เดิม "警察から電話で安全な口座に振り込め"
+        # "Me llamó la policía… cuenta segura" ได้คำตอบทั่วไป และภาษาเวียดนามได้คำตอบภาษาอังกฤษ
+        scam_lang = "vi" if script_lang(text) == "vi" else lang
+        if a.get("scam") and not a["crisis"] and "recovery" not in a["scam"] and scam_lang in ("zh", "ja", "ko", "es", "vi"):
+            return compose_urgent_intl(scam_lang, "scam", status_line(a, scam_lang), sign, footer)
         if lang == "en" and not a["crisis"] and not a["relationship"]:
             try:
                 from core.creator_story import detect_creator_question, CREATOR_STORY_EN
@@ -2368,7 +2374,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             from core.world_replies import world_lang, compose_world
             wl = world_lang(text)
             if wl and (lang == "en" or wl != "es"):
-                out = compose_world(wl, "general", status, sign, footer)
+                out = compose_world(wl, "general", status_line(a, wl) or status, sign, footer)
                 if out:
                     return out
         return compose_intl(lang, a["crisis"], status, sign, footer)

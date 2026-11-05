@@ -2348,6 +2348,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     sig_ctx = " ".join(sig_ctx)
     # กำลังเจอภัย (น้ำท่วม แผ่นดินไหว ไฟไหม้ ...) → เส้นทางความอยู่รอด ขั้นแรกของภัยนั้นมาก่อน
     dis_ctx = ""
+    quake_info = None
     dis = k_assess.get("disaster")
     if dis:
         if route not in ("vega",):
@@ -2359,6 +2360,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                    + " / ".join(str(x) for x in (dis.get("steps") or [])[:3]) + " — "
                    "เรียงตามลำดับ ยังไม่ถามเรื่องอื่นหรือวิเคราะห์ยาว ถามว่าตอนนี้เขากับคนที่อยู่ด้วยปลอดภัยไหม "
                    "ปิดท้ายด้วยเบอร์ 1784 / 1669 และบอกว่าพิมพ์มาได้ตลอด]")
+        # แผ่นดินไหว: บอกข้อมูลจริงจาก USGS ว่าเกิดจริงไหม ขนาดเท่าไหร่ ห่างแค่ไหน (core/quakes.py)
+        if dis.get("kind") == "quake":
+            try:
+                from core import quakes as _quakes
+                quake_info = _quakes.recent()
+                dis_ctx += " " + _quakes.llm_note(quake_info)
+            except Exception as e:
+                print(f"⚠ quakes: {type(e).__name__}")
     # เขาขอทางออกเองแล้ว ("หาทางออกที" "ทำยังไงดี") — เดิม LYLA ยังแค่รับฟังแล้วถามกลับ
     # ข้อความสั้นๆ ต่อจากที่เพิ่งขอ ("หาทางออกที" → "เวก้า") ก็ยังเป็นคำขอเดิม
     last_user = next((str(h.get("content") or "") for h in reversed(history if isinstance(history, list) else [])
@@ -2618,6 +2627,8 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             pass
     if offer_flags:
         result["offer_flags"] = offer_flags
+    if quake_info and isinstance(result, dict):
+        result["quakes"] = quake_info
     # ปุ่มหาความช่วยเหลือใกล้ตัว (โรงพยาบาล ศูนย์พักพิง ตำรวจ) — แผนที่ในมือถือใช้ตำแหน่งของผู้ใช้เอง
     if bridge_nearby and isinstance(result, dict):
         try:
@@ -3316,6 +3327,13 @@ async def analyze_image(request: Request, file: UploadFile = File(...)):
         _settle(ticket)
     return {"analysis": analysis_text, "filename": file.filename,
             "quota": {**_quota_status(email, request), "charged": ticket["mode"]}}
+
+
+# ── แผ่นดินไหวล่าสุด (USGS) — สาธารณะ แคช 5 นาที ใช้กับลูกโลก/การ์ดในแชทได้
+@app.get("/api/quakes")
+async def quakes_recent():
+    from core import quakes
+    return await run_in_threadpool(quakes.recent)
 
 
 # ── โหมด DriftZero: ตรวจการตัดสินใจขององค์กร/โครงการตามเฟรมเวิร์ค DriftZero (ENGINE/driftzero.py)

@@ -2317,7 +2317,7 @@ function msgEl(m){
   var crisis = t.mode === 'crisis' || /1323|1669/.test(m.t);
   var star = m.tr ? '<span class="star" style="color:' + riskColor(t.risk) + '" title="' + _t('ดาวของการตัดสินใจนี้') + '"></span>' : '';
   el.innerHTML = '<div class="who">' + star + '<span class="' + pn[1] + '">' + _t(pn[0]) + '</span><span class="tag">' + esc(tags.join(' · ')) + '</span></div>' +
-    '<div class="bubble">' + telify(key === 'COUNCIL' ? councilFmt(m.t) : fmt(m.t)) + '</div>' + (m.dz ? dzCard(m.dz) : '') + (m.img ? imgCard(m) : '') + (crisis ? crisisCard() : '') + twCard(t) + helpCard(m.l) +
+    '<div class="bubble">' + telify(key === 'COUNCIL' ? councilFmt(m.t) : fmt(m.t)) + '</div>' + (m.dz ? dzCard(m.dz) : '') + (m.img ? imgCard(m) : '') + (m.q ? quakeCard(m.q) : '') + (crisis ? crisisCard() : '') + twCard(t) + helpCard(m.l) +
     (m.tr && eqStrip(t) ? '<button type="button" class="eqs">' + eqStrip(t) + '</button>' : '') +
     (m.tr ? voteRow(m) : '');
   var eb = el.querySelector('.eqs'); if(eb) eb.addEventListener('click', function(){ showEq(m); });
@@ -2507,7 +2507,7 @@ async function send(textArg){
     if(d.error){ target.msgs.push({ r:'e', t:String(d.error), ts:Date.now() }); toast(String(d.error), true); }
     else{
       var reply = String(d.ai_response || d.pause_reason || d.message || '').replace(/\s*[—–-]+\s*(LYLA\s*[◈✦✧]?|VEGA\s*[◆◇]?|HALT\s*[⬡]?|สภา\s*KING\s*DIADEM\s*✦?)\s*$/gi, '').trim();
-      born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : mode==='council' ? 'COUNCIL' : 'LYLA'), tr: traceOf(d, mode, sentState ? state : null), l: d.help_links, ts:Date.now() };
+      born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : mode==='council' ? 'COUNCIL' : 'LYLA'), tr: traceOf(d, mode, sentState ? state : null), l: d.help_links, q: d.quakes, ts:Date.now() };
       target.msgs.push(born);
     }
     Chat.persist(); refreshMe();
@@ -2541,6 +2541,22 @@ $$('#mode-seg button').forEach(function(b){ b.addEventListener('click', function
 try{ setMode(localStorage.getItem('kd-mode') || 'talk'); }catch(_){ setMode('talk'); }
 document.addEventListener('kd:lang', function(){ setMode(Mode); });
 function L2(o){ if(!o) return ''; return (window.KD_I18N && KD_I18N.get() !== 'th') ? (o.en || o.th) : (o.th || o.en); }
+/* แผ่นดินไหวจริงจาก USGS (core/quakes.py) — ขึ้นเมื่อผู้ใช้พูดถึงแผ่นดินไหว: เกิดจริงไหม ขนาด ห่างแค่ไหน */
+function quakeAgo(ms){ var m = Math.max(0, Math.round((Date.now() - ms) / 60000)); return m < 120 ? _t('{n} นาทีก่อน', { n: m }) : _t('{n} ชม.ก่อน', { n: Math.round(m / 60) }); }
+function quakeCard(r){
+  var tmd = '<a href="https://earthquake.tmd.go.th" target="_blank" rel="noopener">' + esc(_t('กรมอุตุนิยมวิทยา')) + '</a>';
+  if(!r || !r.ok) return '<div class="qk"><p>' + esc(_t('ตอนนี้ดึงข้อมูลแผ่นดินไหวจริงไม่ได้ — ดูข้อมูลล่าสุดที่')) + ' ' + tmd + '</p></div>';
+  var home = L2(r.home), rows = (r.near || []).concat(r.world || []);
+  var h = '<div class="qk"><b>' + esc(_t('แผ่นดินไหวจริงล่าสุด (USGS · {h} ชม.)', { h: r.hours })) + '</b>';
+  if(!rows.length) h += '<p>' + esc(_t('ไม่พบแผ่นดินไหวขนาด 3.5 ขึ้นไป ในรัศมี {r} กม. จาก{home}', { r: Number(r.radius_km).toLocaleString(), home: home })) + '</p>';
+  rows.forEach(function(q){
+    h += '<div class="qk-r' + (q.mag >= 6 ? ' big' : '') + '"><span class="qk-m">M' + esc(q.mag) + '</span><span>' + esc(q.place) + '<br><i>' +
+      esc(_t('ห่าง{home} {km} กม.', { home: home, km: Number(q.km).toLocaleString() })) + ' · ' + esc(quakeAgo(q.time)) + '</i>' +
+      (q.tsunami ? ' <em>' + esc(_t('แจ้งเตือนสึนามิ')) + '</em>' : '') + '</span>' +
+      (q.url && /^https:\/\/earthquake\.usgs\.gov\//.test(q.url) ? '<a href="' + esc(q.url) + '" target="_blank" rel="noopener">USGS</a>' : '') + '</div>';
+  });
+  return h + '<p class="qk-f">' + esc(_t('ข้อมูลจาก USGS · ในไทยดูเพิ่มที่')) + ' ' + tmd + '</p></div>';
+}
 /* Waterline: เส้นวัดจม/รอด · Drift Zero reference · L0 — ต่ำกว่าเส้นไม่ได้เด็ดขาด */
 function wlGauge(w){
   if(!w || w.level === 'unknown') return '';

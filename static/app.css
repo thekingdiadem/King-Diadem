@@ -1149,3 +1149,12 @@ body.mode-dz .comp-row1,body.mode-img .comp-row1,body.mode-dz #starters,body.mod
 .wl-floor{position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;background:#fff;opacity:.85}
 .wl-dot{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.35)}
 .wl-n{margin-top:8px;color:var(--ink-2);font-size:13px}.wl-l0{margin:6px 0 0;color:var(--ink-3);font-size:12px}
+
+/* แผ่นดินไหวจริง (USGS) */
+.qk{margin-top:10px;border:1px solid var(--line-2);border-radius:14px;padding:12px 14px;background:rgba(9,12,30,.45);font:400 13.5px/1.55 var(--f-sans)}
+.qk > b{display:block;color:var(--ink);margin-bottom:6px}.qk p{margin:4px 0;color:var(--ink-2)}
+.qk-r{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--line)}
+.qk-r span{flex:1;color:var(--ink-2)}.qk-r i{font-style:normal;color:var(--ink-3);font-size:12px}
+.qk-m{flex:0 0 auto!important;min-width:46px;text-align:center;border-radius:8px;padding:2px 6px;background:rgba(255,206,120,.16);color:#ffd99a;font-weight:700}
+.qk-r.big .qk-m{background:rgba(255,107,107,.2);color:#ffb3b3}
+.qk-r em{font-style:normal;color:#ffb3b3;font-size:12px}.qk a{color:#9cc4ff}.qk-f{font-size:12px;color:var(--ink-3)!important}

@@ -694,5 +694,14 @@
 "ใต้ระดับน้ำ": "Dưới mực nước",
 "เส้นขั้นต่ำ {f} · ตอนนี้ {c} · หลังตัดสินใจ {a}": "Vạch tối thiểu {f} · hiện tại {c} · sau quyết định {a}",
 "ด้วยอัตราไหลลงตอนนี้ จะแตะเส้นใน {n} วัน": "Với tốc độ hiện tại sẽ chạm vạch sau {n} ngày",
-"L0: ต่อให้ผันผวนแค่ไหน ห้ามต่ำกว่าเส้นนี้เด็ดขาด": "L0: dù biến động thế nào, tuyệt đối không xuống dưới vạch này"
+"L0: ต่อให้ผันผวนแค่ไหน ห้ามต่ำกว่าเส้นนี้เด็ดขาด": "L0: dù biến động thế nào, tuyệt đối không xuống dưới vạch này",
+"{n} นาทีก่อน": "{n} phút trước",
+"{n} ชม.ก่อน": "{n} giờ trước",
+"กรมอุตุนิยมวิทยา": "Cục Khí tượng Thái Lan",
+"ตอนนี้ดึงข้อมูลแผ่นดินไหวจริงไม่ได้ — ดูข้อมูลล่าสุดที่": "Hiện chưa lấy được dữ liệu động đất — xem mới nhất tại",
+"แผ่นดินไหวจริงล่าสุด (USGS · {h} ชม.)": "Động đất thực gần đây (USGS · {h} giờ)",
+"ไม่พบแผ่นดินไหวขนาด 3.5 ขึ้นไป ในรัศมี {r} กม. จาก{home}": "Không có động đất từ 3.5 độ trong bán kính {r} km quanh {home}",
+"ห่าง{home} {km} กม.": "cách {home} {km} km",
+"แจ้งเตือนสึนามิ": "Cảnh báo sóng thần",
+"ข้อมูลจาก USGS · ในไทยดูเพิ่มที่": "Dữ liệu từ USGS · tại Thái Lan xem thêm"
 };

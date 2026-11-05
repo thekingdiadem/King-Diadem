@@ -694,5 +694,14 @@
 "ใต้ระดับน้ำ": "Bajo el agua",
 "เส้นขั้นต่ำ {f} · ตอนนี้ {c} · หลังตัดสินใจ {a}": "Mínimo {f} · ahora {c} · tras la decisión {a}",
 "ด้วยอัตราไหลลงตอนนี้ จะแตะเส้นใน {n} วัน": "Al ritmo actual llegas al mínimo en {n} días",
-"L0: ต่อให้ผันผวนแค่ไหน ห้ามต่ำกว่าเส้นนี้เด็ดขาด": "L0: por mucha volatilidad que haya, nunca bajes de esta línea"
+"L0: ต่อให้ผันผวนแค่ไหน ห้ามต่ำกว่าเส้นนี้เด็ดขาด": "L0: por mucha volatilidad que haya, nunca bajes de esta línea",
+"{n} นาทีก่อน": "hace {n} min",
+"{n} ชม.ก่อน": "hace {n} h",
+"กรมอุตุนิยมวิทยา": "Departamento Meteorológico de Tailandia",
+"ตอนนี้ดึงข้อมูลแผ่นดินไหวจริงไม่ได้ — ดูข้อมูลล่าสุดที่": "Ahora no hay datos de sismos en vivo — consulta lo último en",
+"แผ่นดินไหวจริงล่าสุด (USGS · {h} ชม.)": "Sismos reales recientes (USGS · {h} h)",
+"ไม่พบแผ่นดินไหวขนาด 3.5 ขึ้นไป ในรัศมี {r} กม. จาก{home}": "No hay sismos de magnitud 3.5+ a menos de {r} km de {home}",
+"ห่าง{home} {km} กม.": "a {km} km de {home}",
+"แจ้งเตือนสึนามิ": "Alerta de tsunami",
+"ข้อมูลจาก USGS · ในไทยดูเพิ่มที่": "Datos de USGS · en Tailandia consulta también"
 };

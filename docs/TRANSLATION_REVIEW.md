@@ -27,7 +27,7 @@
 | Suomi (`fi`) | 5 | 080 005 · 09 2525 0111 · 100 · 112 · 120 · 1323 · 1669 · 191 |
 | Svenska (`sv`) | 5 | 020-50 50 · 100 · 112 · 120 · 1323 · 1669 · 191 · 90101 |
 | Tagalog (`tl`) | 4 | 100 · 120 · 1300 · 1323 · 1553 · 1669 · 191 · 911 |
-| Tiếng Việt (`vi`) | 4 | 100 · 113 · 115 · 120 · 1300 · 1323 · 1669 · 191 |
+| Tiếng Việt (`vi`) | 5 | 100 · 113 · 115 · 120 · 1300 · 1323 · 1441 · 1669 · 191 |
 | Türkçe (`tr`) | 4 | 100 · 112 · 120 · 1300 · 1323 · 1669 · 191 |
 | Yorùbá (`yo`) | 5 | 100 · 112 · 120 · 1323 · 1669 · 191 |
 | isiZulu (`zu`) | 5 | 0800 428 · 0800 567 567 · 100 · 10111 · 10177 · 120 · 1323 · 1669 · 191 |
@@ -830,6 +830,12 @@
 ## Tiếng Việt (`vi`)
 
 - [ ] ผู้ตรวจ: ______  วันที่: ______
+
+**scam**
+
+```text
+('Đây rất giống lừa đảo — dừng lại, đừng chuyển tiền.', ['Công an, tòa án hay ngân hàng thật không bao giờ bảo bạn chuyển tiền vào "tài khoản an toàn", hỏi mã OTP hay bắt đóng phí trước để nhận thưởng.', 'Cúp máy, tự tìm số điện thoại chính thức rồi gọi lại để xác minh — đừng dùng số hay đường link họ gửi.', 'Nếu đã chuyển tiền, gọi ngay ngân hàng để yêu cầu phong tỏa, rồi báo cảnh sát (Thái Lan 1441 · 191 · Việt Nam 113).'], 'Bạn đã chuyển tiền hoặc đưa mã OTP cho họ chưa?')
+```
 
 **crisis**
 
