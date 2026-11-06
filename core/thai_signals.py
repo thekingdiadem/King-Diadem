@@ -618,6 +618,8 @@ TRAFFICKING = re.compile(
     r"(?:หลอก|ถูกพา|โดนพา|ถูกส่ง|ถูกขาย)\S{0,6}?ไป(?:ทำงาน)?\S{0,10}?(?:ต่างประเทศ|เมียนมา|พม่า|กัมพูชา|ลาว|ดูไบ|มาเลเซีย|ชายแดน|เมียวดี|ปอยเปต)"
     r"[^\n]{0,30}?(?:ยึด|ขัง|กักตัว|ไม่ให้กลับ|บังคับ|ทำร้าย|ค่าไถ่|แก๊งคอล|คอลเซ็นเตอร์|หนีไม่ได้)|"
     r"(?:ถูก|โดน)(?:หลอก|พา|ส่ง|บังคับ)\S{0,8}?ไป(?:ทำงาน)?(?:ใน)?(?:แก๊ง)?คอลเซ็นเตอร์|(?:ถูก|โดน)(?:บังคับ)?(?:ให้)?ทำงาน(?:ใน)?(?:แก๊ง)?คอลเซ็นเตอร์|ค้ามนุษย์|"
+    # "ถูกหลอกมาทำงาน ไม่ให้ออกไปไหน" เคยได้ขั้นตอนเงินคืนของมิจฉาชีพ
+    r"(?:หลอก|ถูกหลอก|โดนหลอก)\S{0,6}มาทำงาน[^\n]{0,30}?(?:บังคับ|ไม่ให้(?:ออก|ไป|กลับ)|ขัง|กักตัว|ยึด)|บังคับ(?:ให้)?ทำงาน[^\n]{0,20}?ไม่ให้(?:ออก|ไป|กลับ)|"
     r"(?i:\btraffick(?:ed|ing)\b|\b(?:took|taken|confiscated|kept|has) (?:my|her|his|their) passport\b|\bpassport (?:was |got |has been )?(?:taken|confiscated)\b)",
 )
 # คนไม่หายใจ/หัวใจหยุด — "มีคนหมดสติไม่หายใจ" เคยได้ "นั่งในท่าที่หายใจสบาย" แทนการกดหน้าอก
@@ -767,6 +769,8 @@ MISSING_PERSON = re.compile(
     r"(?:อัลไซเมอร์|สมองเสื่อม|หลงลืม)[^\n.!?]{0,30}?(?:หายไป|หาไม่เจอ|ออกจากบ้าน\S{0,6}?หาย|ไม่กลับบ้าน)|"
     r"(?:ลูก|หลาน|น้อง|น้องสาว|น้องชาย|ลูกสาว|ลูกชาย)\S{0,6}หายไปกับ(?:คน|ผู้ชาย|ผู้หญิง|แฟน)|(?:คนแก่|ผู้สูงอายุ|ยาย|ตา|ปู่|ย่า)\S{0,4}หลงทาง|"
     r"\bmy (?:child|son|daughter|kid|mom|dad|mother|father|wife|husband|sister|brother|friend|grandma|grandpa|girlfriend|boyfriend|baby|toddler|grandmother|grandfather|niece|nephew) (?:is|has gone|went|has been) missing\b|\b(?:a|the) (?:kid|child|toddler|little (?:boy|girl)) is missing\b|"
+    # "my dad with dementia wandered off" เคยได้คำตอบผู้ดูแลเหนื่อย ไม่ใช่การแจ้งคนหาย
+    r"\b(?:dementia|alzheimer'?s)\b[^\n.]{0,30}?\b(?:wandered (?:off|away)|went missing|is missing|can'?t (?:be )?f(?:i|ou)nd)\b|"
     r"(?:แจ้ง|ตามหา)คนหาย|\bmissing (?:child|person|son|daughter|mom|dad)\b",
     re.I,
 )
@@ -846,7 +850,9 @@ ELDER_ABUSE = re.compile(
     # "ยายโดนหลานด่าทุกวัน" "ป้าโดนลูกตี" — ลำดับคำกลับกัน เคยไม่เข้าหัวข้อนี้
     r"(?:ยาย|ตา(?!ย|ม|ก|ส|ร)|ปู่|ย่า|ป้า|ลุง|คนแก่|ผู้สูงอายุ|แม่แก่|พ่อแก่)\S{0,4}(?:โดน|ถูก)(?:ลูก|หลาน)\S{0,6}(?:ทำร้าย|ตบ|ตี(?!ความ)|ทุบ|ด่า|ขังไว้|ทิ้ง)|"
     r"\bmy (?:grand(?:ma|pa|mother|father)|elderly (?:mother|father|mom|dad)) is being (?:hit|beaten|abused)\b|"
-    r"\b(?:took|is taking|steals?|stole) (?:my |her |his )?(?:grand(?:ma|pa|mother|father)|elderly (?:mother|father|parent)|(?:mom|dad|mother|father)'s) (?:pension|money)\b"
+    r"\b(?:took|is taking|steals?|stole) (?:my |her |his )?(?:grand(?:ma|pa|mother|father)|elderly (?:mother|father|parent)|(?:mom|dad|mother|father)'s) (?:pension|money)\b|"
+    # "someone is taking my grandfather's pension and neglecting him" เคยได้ Risk 0
+    r"\b(?:taking|took|stealing|stole|spending|spent|using)\b[^\n]{0,20}?\b(?:grand(?:ma|pa|mother|father)|elderly (?:mother|father|parent|mom|dad))'s (?:pension|savings|money|social security|benefits)\b"
 )
 
 # เห็น/ได้ยินคนอื่นถูกทำร้าย — ผู้ใช้เป็นพยาน ไม่ใช่เหยื่อ

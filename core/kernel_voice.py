@@ -217,6 +217,9 @@ TOPICS = [
         "ask": "มีเรื่องไหนของเขาที่อยากเล่าให้ฟังไหม?",
     }),
     ("child_gaming", [re.compile(r"(?:ลูก|หลาน)[^\n]{0,8}?ติด(?:เกม|มือถือ|โทรศัพท์|ไอแพด|แท็บเล็ต|ยูทูบ|ติ๊กต็อก|tiktok)|"
+                                 # "ลูกเล่นเกมทั้งวัน ไม่ยอมนอน" ไม่มีคำว่า "ติด" เลยเคยได้คำตอบกลาง
+                                 r"(?:ลูก|หลาน)[^\n]{0,8}?เล่น(?:เกม|มือถือ|ไอแพด|แท็บเล็ต)\S{0,10}(?:ทั้งวัน|ทั้งคืน|ไม่ยอมนอน|ไม่ยอมเลิก|ไม่ยอมไปโรงเรียน|จนดึก|จนเช้า)|"
+                                 r"\bmy (?:son|daughter|kid|child)\b[^\n]{0,20}?\b(?:games?|gaming|plays? (?:games|video games)) all (?:day|night)\b|"
                                  r"\bmy (?:son|daughter|kid|child)\b[^\n]{0,20}?\b(?:addicted to|won'?t stop) (?:games|gaming|his phone|her phone|the phone)\b", re.I)], {
         "open": ["เด็กติดจอมักเพราะในจอมีสิ่งที่เขาหาไม่ได้ข้างนอก — เริ่มจากเข้าใจ ไม่ใช่ยึด"],
         "paths": [
@@ -2400,6 +2403,10 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     scam = scam_flags(text)
     if scam:
         topics = ["scam"] + [x for x in topics if x != "scam"]
+        # "ถูกหลอกมาทำงาน บังคับไม่ให้ออก" — คำว่า "ถูกหลอก" ทำให้ได้ขั้นตอนขอเงินคืน ทั้งที่เป็นการบังคับใช้แรงงาน
+        if "trafficking" in topics and set(scam) <= {"lost"}:
+            topics = ["trafficking"] + [x for x in topics if x != "trafficking" and x != "scam"]
+            scam = []
         text_risk = max(text_risk, 75 if set(scam) & {"impersonation", "story", "job", "romance"} else 60)
     if "warning" in topics and not crisis:
         text_risk = max(text_risk, 65)

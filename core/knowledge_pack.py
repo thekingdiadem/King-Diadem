@@ -522,11 +522,174 @@ PACK = [
        "If the person who hurt you may still be around children, you can report it at any time — there's often no time limit."],
       "Do you have anyone you can talk to about this, even a little?")),
 
+    # ── รอบ 3: ผู้สูงอายุ · แรงงานข้ามชาติ · เด็ก ─────────────────────────────────────────────────────
+    ("kp_child_in_car",
+     r"(?:ลูก|เด็ก|ทารก|หลาน|น้อง)[^\n]{0,20}?(?:ถูก|โดน)?(?:ลืม|ติด|ขัง|ล็อก|ทิ้ง)(?:อยู่|ไว้)?\s?(?:ใน|บน)รถ|(?:ลืม|ทิ้ง|ล็อก)(?:ลูก|เด็ก|หลาน|ทารก)\S{0,6}(?:ไว้)?(?:ใน|บน)รถ"
+     r"|\b(?:child|kid|baby|toddler|son|daughter)\b[^\n]{0,20}?\b(?:left|locked|stuck|trapped|forgotten)\b[^\n]{0,10}?\bin (?:a|the|my|his|her|their) (?:hot )?car\b"
+     r"|\b(?:left|forgot) (?:my|the|a|our) (?:baby|child|kid|toddler|son|daughter) in the car\b",
+     85, True,
+     ("เด็กติดอยู่ในรถ อุณหภูมิในรถขึ้นเร็วมาก — เอาเด็กออกมาก่อนเป็นอันดับแรก",
+      ["ถ้าล็อกและไม่มีกุญแจ โทร 191 หรือ 1669 ทันที แล้วทุบกระจกบานที่อยู่ไกลตัวเด็กที่สุด — ไม่ต้องรอเจ้าของรถถ้าเด็กซึมหรือไม่ตอบสนอง",
+       "เอาออกมาแล้วพาเข้าที่ร่มหรือห้องแอร์ ถอดเสื้อผ้าหนา เช็ดตัวด้วยน้ำเย็นแล้วพัดลม · ถ้ายังตื่นดีให้จิบน้ำทีละน้อย",
+       "ถ้าไม่หายใจหรือไม่รู้สึกตัว โทร 1669 แล้วเริ่มกดหน้าอก · แม้เด็กดูปกติ ก็ให้แพทย์ตรวจวันนี้"],
+      "ตอนนี้เด็กยังอยู่ในรถไหม และยังตอบสนองอยู่หรือเปล่า?"),
+     ("A child in a car heats up very fast — getting them out comes first.",
+      [f"If it's locked and there's no key, {_EMS_EN}, and break the window farthest from the child — don't wait for the owner if the child is drowsy or not responding.",
+       "Once out, move them into shade or air conditioning, remove heavy clothing, sponge with cool water and fan them; small sips of water only if fully awake.",
+       "If they're not breathing or not responding, start CPR while help comes; even if they seem fine, a doctor should check them today."],
+      "Is the child still in the car, and are they responding?")),
+
+    ("kp_near_drowning",
+     r"(?:จมน้ำ|ตกน้ำ|ตกสระ|สำลักน้ำ)[^\n]{0,30}?(?:ช่วย(?:ขึ้นมา|ไว้|ทัน)|ขึ้นมาแล้ว|ฟื้น|ไอ|หายใจ(?:เร็ว|หอบ|ลำบาก)|ซึม|อาเจียน)"
+     r"|\b(?:almost|nearly) drown(?:ed|ing)?\b|\bdrown\w*\b[^\n]{0,30}?\b(?:coughing|cough|breathing (?:fast|hard)|vomit\w*|drowsy|sleepy)\b"
+     r"|\bpulled (?:him|her|them|my \w+) out of the (?:water|pool|river|sea)\b",
+     85, True,
+     ("เด็กหรือผู้ใหญ่ที่เกือบจมน้ำ แม้ช่วยขึ้นมาแล้วและดูดีขึ้น ปอดยังแย่ลงได้ในอีกหลายชั่วโมง",
+      ["ถ้าไม่หายใจ โทร 1669 แล้วเป่าปาก 5 ครั้งก่อน ตามด้วยกดหน้าอก — คนจมน้ำขาดออกซิเจนก่อน ห้ามจับห้อยหัวหรือกดท้องเอาน้ำออก",
+       "ถ้าหายใจแต่ยังไอไม่หยุด หายใจเร็วหรือหอบ อาเจียน ซึม หรือสับสน พาไปโรงพยาบาลเดี๋ยวนี้ · ถ้าอาเจียน จับนอนตะแคง",
+       "ถอดเสื้อผ้าเปียก ห่มผ้าให้อุ่น · แม้ดูปกติแล้ว ให้มีคนเฝ้าใกล้ชิดอย่างน้อย 8 ชั่วโมง ถ้าอาการใดข้างบนกลับมา ไปโรงพยาบาลทันที"],
+      "ตอนนี้ยังไออยู่ หรือหายใจเร็วกว่าปกติไหม?"),
+     ("After nearly drowning, the lungs can get worse over the next several hours, even if they seem better now.",
+      [f"If they're not breathing, {_EMS_EN} and give 5 rescue breaths before chest compressions — don't hold them upside down or press the belly to get water out.",
+       "If they're breathing but keep coughing, breathe fast or hard, vomit, or are drowsy or confused, go to the ER now; lay them on their side if vomiting.",
+       "Remove wet clothes and keep them warm. Even if they seem fine, keep someone close for at least 8 hours and go in at once if any of those signs appear."],
+      "Are they still coughing, or breathing faster than usual?")),
+
+    ("kp_febrile_seizure",
+     r"(?:ลูก|เด็ก|หลาน|ทารก|น้อง)[^\n]{0,24}?(?:ชัก(?!ชวน|จูง|นำ|ช้า|ธง|ว่าว|ใย|สีหน้า|ไม่อยาก)|ตัวเกร็ง\S{0,6}ตาค้าง|ตาเหลือก)|ชักจากไข้|ไข้\S{0,6}ชัก(?!ชวน|จูง|นำ)"
+     r"|\bfebrile (?:seizure|convulsion)s?\b|\b(?:child|kid|son|daughter|toddler|boy|girl|baby|infant)\b[^\n]{0,30}?\b(?:seizure|fitting|convuls\w*|had a fit)\b",
+     85, True,
+     ("ลูกชัก น่ากลัวมาก แต่ทำตามนี้ได้เลย — ส่วนใหญ่หยุดเองในไม่กี่นาที",
+      ["ระหว่างชัก: วางลงบนพื้นนอนตะแคง เอาของแข็งออกรอบตัว ห้ามงัดปาก ห้ามเอาอะไรใส่ปาก ห้ามป้อนยาหรือน้ำ ห้ามกดตัวไว้ — ดูเวลาไว้",
+       "โทร 1669 ถ้าชักนานเกิน 5 นาที ชักซ้ำ หายใจลำบากหรือปากเขียว หลังชักไม่ตื่น อายุน้อยกว่า 6 เดือน หรือมีคอแข็ง ผื่นจุดเลือด",
+       "หยุดชักแล้วก็ต้องพบแพทย์วันนี้ เพื่อหาสาเหตุของไข้ — เมื่อตื่นดีแล้วค่อยให้ยาลดไข้ตามน้ำหนักตัว และเช็ดตัวด้วยน้ำอุ่น"],
+      "ตอนนี้ยังชักอยู่ไหม และชักมากี่นาทีแล้ว?"),
+     ("A seizure in your child is terrifying, but here is what to do — most stop on their own within a few minutes.",
+      ["During it: lay them on their side on the floor, move hard things away, put nothing in their mouth, don't give medicine or water, don't hold them down — and time it.",
+       f"If it lasts over 5 minutes, happens again, they struggle to breathe or turn blue, don't wake up afterwards, are under 6 months, or have a stiff neck or rash, {_EMS_EN}.",
+       "Even once it stops, see a doctor today to find the cause of the fever; give fever medicine by weight only once they're fully awake."],
+      "Is it still happening, and how many minutes has it been?")),
+
+    ("kp_child_dehydration",
+     r"(?:ลูก|เด็ก|ทารก|หลาน|น้อง)[^\n]{0,30}?(?:ท้องเสีย|ถ่ายเหลว|ถ่ายเป็นน้ำ|อาเจียน|อ้วก)[^\n]{0,30}?(?:ไม่ฉี่|ไม่ปัสสาวะ|ฉี่น้อย|ไม่มีฉี่|ปากแห้ง|ร้องไม่มีน้ำตา|ตาโหล|กระหม่อมบุ๋ม|ซึม|ปลุกไม่ค่อยตื่น)"
+     r"|\b(?:baby|child|kid|toddler|son|daughter|infant)\b[^\n]{0,30}?\b(?:diarrh\w*|vomit\w*|throwing up)\b[^\n]{0,40}?\b(?:no wet diapers?|not peeing|hasn'?t peed|no pee|no tears|very sleepy|sunken|dry mouth|floppy)\b",
+     80, True,
+     ("ท้องเสียหรืออาเจียนร่วมกับไม่ฉี่ ปากแห้ง หรือซึม เป็นสัญญาณขาดน้ำในเด็ก — ต้องให้แพทย์ดูวันนี้",
+      ["ไปโรงพยาบาลเดี๋ยวนี้ (หรือโทร 1669) ถ้าไม่ฉี่เกิน 6–8 ชั่วโมง ซึมหรือปลุกยาก ตาโหลหรือกระหม่อมบุ๋ม ดื่มอะไรก็อาเจียนออกหมด หรือถ่ายเป็นเลือด",
+       "ระหว่างนี้ให้ผงเกลือแร่ ORS (ไม่ใช่เกลือแร่ของนักกีฬา น้ำอัดลม หรือน้ำผลไม้) ทีละ 1 ช้อนชาทุก 1–2 นาที · ลูกที่กินนมแม่ให้กินต่อได้",
+       "ห้ามให้ยาหยุดถ่ายในเด็ก · จดว่าฉี่ครั้งล่าสุดกี่โมง ถ่ายกี่ครั้ง ไว้บอกแพทย์"],
+      "ลูกอายุเท่าไร และฉี่ครั้งล่าสุดเมื่อไร?"),
+     ("Diarrhoea or vomiting with no pee, a dry mouth or drowsiness are signs of dehydration in a child — they need a doctor today.",
+      ["Go to the ER now if there's been no pee or wet nappy for 6–8 hours, they're drowsy or hard to wake, have sunken eyes or soft spot, can't keep any fluid down, or there's blood in the stool.",
+       "Meanwhile give oral rehydration solution (ORS — not sports drinks, soda or juice), one teaspoon every 1–2 minutes; keep breastfeeding if you are.",
+       "Don't give anti-diarrhoea medicine to children; note the time of the last pee and how many stools, for the doctor."],
+      "How old is your child, and when did they last pee?")),
+
+    ("kp_delirium",
+     r"(?:ยาย|ตา(?!ย|ม|ก|ส|ร)|ปู่|ย่า|พ่อ|แม่|ผู้สูงอายุ|คนแก่|อายุ\s?[6-9]\d)[^\n]{0,30}?(?:จู่ๆ|กะทันหัน|ทันที|ปุบปับ|ตั้งแต่เมื่อวาน|ตั้งแต่เมื่อคืน|เมื่อคืน|วันนี้)[^\n]{0,10}?(?:สับสน|เพ้อ|พูดไม่รู้เรื่อง|จำคนไม่ได้|ซึมลง|ไม่รู้ตัว|เห็นภาพหลอน)"
+     r"|(?:ยาย|ตา(?!ย|ม|ก|ส|ร)|ปู่|ย่า|พ่อ|แม่|ผู้สูงอายุ|คนแก่)[^\n]{0,20}?(?:สับสน|เพ้อ|พูดไม่รู้เรื่อง)[^\n]{0,10}?(?:กะทันหัน|ทันที|ปุบปับ|ตั้งแต่เมื่อวาน|เมื่อคืน)",
+     80, True,
+     ("ผู้สูงอายุที่สับสนขึ้นมากะทันหัน ไม่ใช่ 'แก่แล้วเป็นธรรมดา' — มักมีสาเหตุที่รักษาได้ ต้องให้แพทย์ดูวันนี้",
+      ["เช็คก่อน: หน้าเบี้ยว แขนขาอ่อนแรงข้างเดียว พูดไม่ชัด หรือปลุกไม่ตื่น อาจเป็นสโตรก โทร 1669 ตอนนี้",
+       "สาเหตุที่พบบ่อยคือติดเชื้อ (ทางเดินปัสสาวะ ปอด) ขาดน้ำ น้ำตาลต่ำ หรือยาใหม่ — ถ้าเป็นเบาหวานและมีเครื่องตรวจ เจาะน้ำตาลเลย",
+       "พาไปโรงพยาบาลวันนี้ พร้อมยาทุกตัวที่กินอยู่ และบอกแพทย์ว่าปกติเขาเป็นอย่างไร เริ่มเปลี่ยนตั้งแต่เมื่อไร"],
+      "มีหน้าเบี้ยว แขนขาอ่อนแรง หรือไข้ร่วมด้วยไหม?"),
+     ("Sudden confusion in an older person isn't just 'getting old' — it usually has a treatable cause and needs a doctor today.",
+      [f"First check for a drooping face, weakness on one side, slurred speech, or being hard to wake — that may be a stroke: {_EMS_EN}.",
+       "Common causes are infection (urine, chest), dehydration, low blood sugar, or a new medicine — if they're diabetic and you have a meter, check their sugar.",
+       "Take them in today with all their medicines, and tell the doctor what they're normally like and when the change began."],
+      "Is there any facial droop, weakness, or fever with it?")),
+
+    ("kp_double_dose",
+     r"กินยา\S{0,12}(?:ซ้ำ(?!ๆ)|สองรอบ|2\s?รอบ|สองเท่า|เบิ้ล)|ลืมว่ากิน(?:ยา)?ไปแล้ว|กินยา\S{0,10}ไปแล้วกินอีก"
+     r"|\b(?:took|taken|gave (?:him|her|them))\b[^\n]{0,30}?\b(?:pills?|medicine|medication|dose|tablets?|meds)\b[^\n]{0,20}?\b(?:twice|two times|again by mistake)\b|\b(?:double|extra) dose\b|\bdoubled (?:up )?(?:on )?(?:my|her|his) (?:pills|meds|dose)\b",
+     60, False,
+     ("กินยาซ้ำโดยไม่ตั้งใจเกิดบ่อย ส่วนใหญ่ไม่อันตราย แต่ยาบางกลุ่มต้องโทรถามเดี๋ยวนี้",
+      ["โทรศูนย์พิษวิทยารามาธิบดี 1367 (24 ชม.) หรือเภสัชกร บอกชื่อยา ขนาด จำนวนที่กินเกิน และเวลา — ยาความดัน ยาเบาหวาน ยาละลายลิ่มเลือด ยาหัวใจ ยานอนหลับ ต้องถามทันที",
+       "ถ้ามีหน้ามืด เป็นลม ใจสั่นหรือเต้นช้ามาก เหงื่อแตกตัวเย็น สับสน หรือซึม โทร 1669",
+       "ห้ามกินยามื้อถัดไปจนกว่าจะได้คำแนะนำ · กันพลาดครั้งหน้า: ใช้กล่องยาแบ่งวัน/มื้อ หรือติ๊กในปฏิทินทุกครั้งที่กิน"],
+      "ยาตัวไหน กินเกินไปกี่เม็ด และนานแค่ไหนแล้ว?"),
+     ("Taking a dose twice by mistake is common and usually not dangerous, but some medicines need a call right now.",
+      ["Call poison control or a pharmacist with the medicine name, strength, how much extra and when (US 1-800-222-1222; Thailand 1367) — blood pressure, diabetes, blood thinner, heart and sleeping pills especially.",
+       f"If they're faint, dizzy, sweaty, confused, very drowsy, or their heart is racing or very slow, {_EMS_EN}.",
+       "Skip the next dose until you've been advised; a weekly pill organiser helps stop it happening again."],
+      "Which medicine was it, how much extra, and how long ago?")),
+
+    ("kp_elder_allowance",
+     r"(?:เบี้ย(?:ยังชีพ)?(?:ผู้สูงอายุ|คนชรา|คนแก่))[^\n]{0,20}?(?:สมัคร|ลงทะเบียน|ยื่น|เท่าไร|เท่าไหร่|กี่บาท|ขอ|ต้องใช้|เอกสาร|ยังไง|อย่างไร|ได้กี่|เริ่มได้|ย้าย)"
+     r"|(?:สมัคร|ลงทะเบียน|ยื่นขอ|ขอรับ)\S{0,6}เบี้ย(?:ยังชีพ)?(?:ผู้สูงอายุ|คนชรา)",
+     5, False,
+     ("เบี้ยยังชีพผู้สูงอายุ ลงทะเบียนเองได้ที่ท้องถิ่นตามทะเบียนบ้าน",
+      ["ใครได้: สัญชาติไทย อายุ 60 ปีขึ้นไป มีชื่อในทะเบียนบ้านในพื้นที่ และไม่ได้รับบำนาญหรือสวัสดิการประจำจากรัฐอยู่แล้ว · ลงทะเบียนล่วงหน้าได้ก่อนอายุครบ 60 ปี",
+       "ไปที่ อบต. เทศบาล หรือสำนักงานเขต (กทม.) พร้อมบัตรประชาชน ทะเบียนบ้าน และสมุดบัญชีธนาคาร (หรือพร้อมเพย์ที่ผูกบัตรประชาชน) · ย้ายบ้านต้องไปลงทะเบียนใหม่ที่ใหม่",
+       "อัตราแบบขั้นบันได: 60–69 ปี 600 บาท · 70–79 ปี 700 · 80–89 ปี 800 · 90 ปีขึ้นไป 1,000 บาทต่อเดือน — สอบถามเพิ่ม/เงินไม่เข้า ติดต่อท้องถิ่นนั้น หรือ พม. 1300"],
+      "ตอนนี้อายุเท่าไร และมีชื่อในทะเบียนบ้านที่ไหน?"),
+     ("Thailand's old-age allowance is registered for at your local administration office.",
+      ["Thai nationals aged 60+ registered at that address who don't already get a state pension qualify; you can register shortly before turning 60.",
+       "Go to the local SAO, municipality or district office (Bangkok) with your ID card, house registration and a bank book or PromptPay linked to your ID.",
+       "Monthly amounts rise with age: 600 baht (60–69), 700 (70–79), 800 (80–89), 1,000 (90+); for problems, ask that office or call 1300."],
+      "How old are you, and where is your house registration?")),
+
+    ("kp_work_injury",
+     r"(?:บาดเจ็บ|เจ็บตัว|ประสบอันตราย|อุบัติเหตุ|เครื่องจักร\S{0,6}(?:หนีบ|ตัด|ทับ)|ตกจาก(?:นั่งร้าน|ที่สูง)|นิ้วขาด)[^\n]{0,20}?(?:จากงาน|จากการทำงาน|ขณะทำงาน|ตอนทำงาน|ในที่ทำงาน|ในโรงงาน|ไซต์งาน|ที่ไซต์)"
+     r"|(?:เจ็บ|บาดเจ็บ)จาก(?:การ)?(?:ทำ)?งาน|กองทุนเงินทดแทน|นายจ้าง\S{0,6}ไม่(?:พา|ส่ง)(?:ไป)?(?:หาหมอ|โรงพยาบาล|รักษา)"
+     r"|\b(?:injured|hurt) (?:at|on the) (?:work|job)\b|\b(?:work|workplace|on-the-job) (?:injury|accident)\b|\bworkers'? comp(?:ensation)?\b",
+     45, False,
+     ("บาดเจ็บจากงาน นายจ้างต้องพาไปรักษาและรับผิดชอบค่ารักษา — ใช้ได้กับแรงงานข้ามชาติด้วย",
+      ["ถ้าเจ็บหนัก เลือดออกมาก หรือกระดูกหัก โทร 1669 ก่อน ไม่ต้องรอนายจ้าง · บอกโรงพยาบาลว่าเจ็บจากการทำงาน",
+       "ลูกจ้างได้รับความคุ้มครองจากกองทุนเงินทดแทน: ค่ารักษา และค่าทดแทน 70% ของค่าจ้างระหว่างหยุดงาน · แจ้งนายจ้างและยื่นแบบ กท.16 ที่สำนักงานประกันสังคม ภายใน 180 วัน (สายด่วน 1506)",
+       "เก็บใบรับรองแพทย์ ใบเสร็จ รูปที่เกิดเหตุ และชื่อพยาน · ถ้านายจ้างไม่ยอม หรือถูกขู่ไล่ออก แจ้งกรมสวัสดิการและคุ้มครองแรงงาน 1546"],
+      "ตอนนี้ได้รับการรักษาแล้วหรือยัง และนายจ้างรู้เรื่องไหม?"),
+     ("If you were hurt at work, your employer is responsible for getting you treated — this usually includes migrant workers too.",
+      [f"If it's serious — heavy bleeding, a broken bone, a head injury — {_EMS_EN} first and tell the hospital it happened at work.",
+       "Report it to your employer in writing and ask about workers' compensation; in Thailand the Workmen's Compensation Fund pays treatment and 70% of wages while off (claim within 180 days, Social Security 1506).",
+       "Keep the medical certificate, receipts, photos and witness names; if the employer refuses or threatens you, contact the labour department (Thailand 1546)."],
+      "Have you been treated yet, and does your employer know?")),
+
+    ("kp_migrant_wages_en",
+     r"\b(?:migrant|foreign|domestic) worker\b[^\n]{0,40}?\b(?:not (?:been )?paid|haven'?t been paid|hasn'?t paid|unpaid|no salary|wages? (?:withheld|stolen))\b"
+     r"|\b(?:not (?:been )?paid|haven'?t been paid|unpaid)\b[^\n]{0,40}?\b(?:migrant|foreign|domestic) worker\b",
+     45, False,
+     ("", [], ""),
+     ("Unpaid wages are owed to you whatever your nationality or visa — in most countries, including Thailand, migrant workers have the same wage rights.",
+      ["Write down the dates you worked, the agreed pay, and what you received; keep photos of payslips, messages and your workplace.",
+       "In Thailand you can file a free wage claim at the labour protection office or call 1546; elsewhere, the labour department or your embassy's labour attaché can help, and migrant-worker NGOs can go with you.",
+       "If your employer keeps your passport, won't let you leave, or threatens you, that's a sign of forced labour — tell the authorities or an NGO that too."],
+      "Does your employer have your passport or work permit right now?")),
+
+    ("kp_grooming_th",
+     r"(?:คนแปลกหน้า|ผู้ใหญ่|ผู้ชาย|ผู้หญิง|ใครไม่รู้|คนในเกม|คนในเน็ต|คนในแชท|คนในเฟส|คนในติ๊กต็อก)[^\n]{0,30}?(?:ลูก|หลาน|น้อง|เด็ก)[^\n]{0,24}?(?:ขอรูป|ขอคลิป|ขอดูตัว|ให้ส่งรูป|ส่งรูปโป๊|นัดเจอ|นัดออกไป|ให้เก็บเป็นความลับ|ห้ามบอก)"
+     r"|(?:ลูก|หลาน|เด็ก)[^\n]{0,30}?(?:คนแปลกหน้า|ผู้ใหญ่|คนในเกม|คนในเน็ต|คนในแชท)[^\n]{0,24}?(?:ขอรูป|ขอคลิป|ขอดูตัว|ให้ส่งรูป|นัดเจอ|ให้เก็บเป็นความลับ)",
+     75, True,
+     ("ดีแล้วที่สังเกตเห็น — ผู้ใหญ่แปลกหน้าที่ขอรูปหรือนัดเจอเด็ก คือวิธีที่คนล่วงละเมิดเริ่มเข้าหา และไม่ใช่ความผิดของเด็ก",
+      ["อย่าดุหรือยึดมือถือทันที ให้ลูกรู้ว่าบอกแล้วปลอดภัย · ถ้ามีนัดเจอหรือมีคนรู้ที่อยู่ โทร 191 ตอนนี้",
+       "เก็บหลักฐานก่อน: แคปโปรไฟล์ ชื่อผู้ใช้ ลิงก์ และแชททั้งหมด — อย่าลบ อย่าเตือนหรือด่าคนนั้น แล้วค่อยบล็อกและรีพอร์ตในแอป",
+       "แจ้งความได้ที่สถานีตำรวจหรือ thaipoliceonline.go.th · ปรึกษา พม. 1300 (24 ชม.) · ถ้าลูกส่งรูปไปแล้ว ไม่ใช่ความผิดของลูก ขอให้แพลตฟอร์มลบได้"],
+      "ลูกส่งรูปไปแล้ว หรือมีนัดเจอกันหรือยัง?"),
+     ("Good that you noticed — a stranger asking a child for photos or to meet is how abusers start, and it's never the child's fault.",
+      [f"Stay calm with your child so they know telling you was safe; if a meeting is planned or the person knows where they are, {_EMS_EN}.",
+       "Save evidence first — profile, username, links, all the chats — don't delete them or confront the person, then block and report in the app.",
+       "Report to police (US: CyberTipline.org; UK: CEOP); if photos were already sent, platforms can help remove them."],
+      "Has your child sent any photos, or agreed to meet?")),
+
+    ("kp_child_abuse_report_en",
+     r"\b(?:think|worried|suspect|afraid|scared|pretty sure)\b[^\n]{0,30}?\b(?:kid|child|boy|girl|children|kids|baby)\b[^\n]{0,20}?\b(?:is|are|gets?|getting)? ?being (?:abused|beaten|hit|neglected|hurt|starved)\b"
+     r"|\b(?:neighbou?r'?s?|niece|nephew|student)\b[^\n]{0,20}?\b(?:is|are) being (?:abused|beaten|neglected)\b",
+     75, True,
+     ("", [], ""),
+     ("It's right to take this seriously — you don't need proof to report a worry about a child.",
+      [f"If the child is in danger right now — you can hear it happening — {_EMS_EN} (police 191 in Thailand).",
+       "Otherwise report to child protection: US Childhelp 1-800-422-4453, UK NSPCC 0808 800 5000, Thailand 1300. They decide what to do; you can often stay anonymous.",
+       "Write down what you saw or heard with dates and times; don't confront the parents, which can put the child at more risk."],
+      "Is the child in danger right now, or is this something you've noticed over time?")),
+
 ]
 
 # ถามเพื่อความรู้ ไม่ใช่เกิดกับใครตอนนี้ — "อธิบายลมแดดให้หน่อย จะทำรายงาน"
 EDU = r"อธิบาย|ทำรายงาน|การบ้าน|คืออะไร|หมายถึงอะไร|ถามเฉยๆ|ผิดกฎหมายไหม|\b(?:explain|essay|homework|school project|for (?:a|my) (?:report|class))\b"
 NEG = {
+    # เล่าประวัติเก่า — "ลูกเคยไข้ชักตอนเด็ก ตอนนี้โตแล้วไม่เป็นแล้ว"
+    "kp_febrile_seizure": r"[\s\S]*(?:เคย|ตอนเด็ก|ไม่เป็นแล้ว|ไม่ชักแล้ว|\bused to\b|\byears ago\b|\bas a (?:baby|toddler)\b)",
     # ธาตุเหล็กทำให้อุจจาระดำได้ — ไม่นับถ้าไม่มีอาการร่วม
     "kp_gi_bleed": r"^(?=[\s\S]*(?:ยาบำรุงเลือด|ธาตุเหล็ก|\biron\b))(?![\s\S]*(?:เวียน|หน้ามืด|ใจสั่น|อ่อนเพลีย|อาเจียน|\bdizz|\bfaint|\bvomit))",
 }
