@@ -240,6 +240,42 @@ TOPICS = [
     }),
     # ตั้งครรภ์ + สัญญาณอันตราย (core/pregnancy_guide.py) — เดิม "ท้อง 30 สัปดาห์ อยู่คนเดียว น้ำเดิน" ได้คำตอบเรื่องท้องไม่พร้อม
     # และ "ลูกดิ้นน้อยลง" ได้คำตอบกลาง ทั้งที่ต้องไปโรงพยาบาลเดี๋ยวนี้
+    # หลังคลอด: ความคิดทำร้ายลูก — เดิม "I just had a baby and I feel like I could hurt her" ได้คำตอบกลาง ความเสี่ยง 0
+    ("post_harm", [_PG.POST_HARM_RX], {
+        "open": ["ขอบคุณที่บอกออกมา — ความคิดแบบนี้เกิดกับแม่หลังคลอดได้ และเป็นอาการที่รักษาได้ ไม่ได้แปลว่าคุณเป็นคนเลว"],
+        "paths": [
+            "ตอนนี้วางลูกนอนหงายในเปลหรือที่ปลอดภัย แล้วออกไปอีกห้องสักครู่ หรือให้คนอื่นมาอยู่กับลูกก่อน",
+            f"โทร 1323 (สุขภาพจิต 24 ชม.) ตอนนี้ — ถ้ารู้สึกว่าจะทำจริงหรือทำร้ายตัวเอง โทร {HOTLINE_EMS}",
+            "บอกพยาบาลหรือแพทย์ที่ดูแลหลังคลอดตรงๆ ว่ามีความคิดนี้ — เขาเจอบ่อยและช่วยได้ ไม่ใช่เรื่องที่ต้องอาย",
+        ],
+        "ask": "ตอนนี้ลูกอยู่ในที่ปลอดภัยแล้วหรือยัง และมีใครมาอยู่ด้วยได้บ้าง?",
+    }),
+    # หลังคลอด: ตกเลือด ลิ่มเลือด ครรภ์เป็นพิษหลังคลอด ติดเชื้อ (core/pregnancy_guide.py)
+    ("post_danger", [_PG.POST_RX], {
+        "open": ["อาการนี้ในช่วงหลังคลอดต้องให้แพทย์ดูเดี๋ยวนี้ ไม่ควรรอถึงวันนัด"],
+        "paths": [
+            ([_PG.POST_RE["bleeding"]], _PG.POST_DANGER["bleeding"][1]),
+            ([_PG.POST_RE["clot"]], _PG.POST_DANGER["clot"][1]),
+            ([_PG.POST_RE["preeclampsia"]], _PG.POST_DANGER["preeclampsia"][1]),
+            ([_PG.POST_RE["infection"]], _PG.POST_DANGER["infection"][1]),
+            f"อยู่คนเดียวหรือไปเองไม่ไหว โทร {HOTLINE_EMS} — บอกว่าคลอดมากี่วัน คลอดเองหรือผ่าคลอด",
+        ],
+        "ask": "คลอดมากี่วันแล้ว และตอนนี้มีใครอยู่ด้วยไหม?",
+    }),
+    # ทารกแรกเกิด–3 เดือน — เดิม "ลูกอายุ 1 เดือน ไข้ 38.2" และ "ลูกแรกเกิดตัวเหลือง ไม่ดูดนม" ได้คำตอบกลาง ความเสี่ยง 0
+    ("newborn_danger", [_PG.NB_RX], {
+        "open": ["ทารกอายุน้อยป่วยแล้วแย่ลงเร็ว อาการนี้ต้องให้แพทย์ดูวันนี้"],
+        "paths": [
+            ([_PG.NB_RE["breathing"]], _PG.NB_DANGER["breathing"][1]),
+            ([_PG.NB_RE["seizure"]], _PG.NB_DANGER["seizure"][1]),
+            ([_PG.NB_RE["fever"]], _PG.NB_DANGER["fever"][1]),
+            ([_PG.NB_RE["feeding"]], _PG.NB_DANGER["feeding"][1]),
+            ([_PG.NB_RE["jaundice"]], _PG.NB_DANGER["jaundice"][1]),
+            ([_PG.NB_RE["cord"]], _PG.NB_DANGER["cord"][1]),
+            f"ไปเองไม่ไหวหรืออาการหนัก โทร {HOTLINE_EMS} — เอาสมุดสีชมพูของลูกไปด้วย",
+        ],
+        "ask": "ลูกอายุกี่วันหรือกี่สัปดาห์ และตอนนี้ยังหายใจและตอบสนองปกติไหม?",
+    }),
     ("preg_danger", [_PG.DANGER_RX], {
         "open": ["อาการนี้ตอนตั้งครรภ์ต้องให้แพทย์ดูเดี๋ยวนี้ ไม่ควรรอดูอาการ"],
         "paths": [
@@ -2032,6 +2068,21 @@ EN_TOPIC = {
         "If you're thinking about hurting yourself, call a crisis line (1323 in Thailand, 24h; findahelpline.com elsewhere).",
         "If it isn't urgent, just type a few words about what's going on — we'll go step by step."],
         "Are you safe right now?"),
+    "post_harm": ("Thank you for saying it — thoughts like this can happen after birth, they are treatable, and they don't make you a bad person.", [
+        "Right now, put the baby down on their back in the cot or another safe place and step into another room, or ask someone to be with the baby.",
+        "Call a crisis line or your doctor now (1323 in Thailand, 988 in the US, 116 123 in the UK) — if you feel you might act on it or hurt yourself, call emergency services (1669, 911, 112, 999).",
+        "Tell your midwife or doctor exactly what you told me — they hear this often and can help."],
+        "Is the baby somewhere safe right now, and can someone come to be with you?"),
+    "post_danger": ("After giving birth, this needs a doctor now — please don't wait for your check-up.", [
+        "Soaking a pad in an hour or passing clots bigger than an egg, chest pain or breathlessness, a swollen painful calf, a severe headache with blurred vision, or a seizure — call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe).",
+        "Fever, chills, a red or weeping wound, smelly discharge, or a hot red breast can be an infection — see a doctor today.",
+        "If you're alone, call the ambulance rather than drive, and say how many days ago you gave birth and whether it was a caesarean."],
+        "How many days ago did you give birth, and is anyone with you?"),
+    "newborn_danger": ("A young baby can get worse quickly — this needs a doctor today.", [
+        "Breathing fast or with effort, blue lips, a seizure or going floppy — call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe).",
+        "A temperature of 38°C (100.4°F) or more in a baby under 3 months needs a doctor today even if they seem well — don't give fever medicine before they're seen.",
+        "Not feeding, very sleepy or hard to wake, fewer than 6 wet nappies a day, green vomit, yellow skin spreading to the arms and legs, or a red, smelly cord — see a doctor today."],
+        "How old is your baby, and are they breathing and responding normally right now?"),
     "preg_danger": ("This needs a doctor now — please don't wait and see.", [
         "Go to the labour ward or emergency room now. Bleeding during pregnancy, your waters breaking, the baby moving less, a severe headache with blurred vision, or regular contractions before 37 weeks all need checking today.",
         "If you can't get there yourself or you're alone, call an ambulance (1669 in Thailand, 911 in the US, 112 in Europe) and say how many weeks pregnant you are.",
@@ -2087,12 +2138,12 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"preg_danger": 85, "preg_alone": 45, "control_en": 60, "minor_adult": 70, "soft_check": 45, "trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"post_harm": 85, "post_danger": 85, "newborn_danger": 85, "preg_danger": 85, "preg_alone": 45, "control_en": 60, "minor_adult": 70, "soft_check": 45, "trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
@@ -2179,7 +2230,23 @@ def assess(text: str, pattern: dict | None = None) -> dict:
                  text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20), risk_shown=min(a["risk_shown"], 20))
     from core.second_layer import apply as _second_layer
     a = _second_layer(text, a)
-    return _with_conditions(text, a)
+    return _mother_baby_first(text, _with_conditions(text, a))
+
+
+_UNCONSCIOUS = re.compile(r"หมดสติ|ไม่ตอบสนอง|\b(?:unconscious|unresponsive)\b", re.I)
+
+
+def _mother_baby_first(text, a: dict) -> dict:
+    """หลังคลอด/ทารก: ขั้นตอนเฉพาะ (ตกเลือดหลังคลอด ไข้ทารก) มาก่อนคำตอบฉุกเฉินทั่วไป
+    เดิม "คลอดได้ 5 วัน เลือดชุ่มผ้าอนามัย" ได้แค่ "นั่งในท่าที่หายใจสบาย" — ยกเว้นหมดสติ ที่ต้องได้ CPR ก่อน"""
+    tp = list(a.get("topics") or [])
+    if not tp or tp[0] not in ("health_emergency", "first_aid", "health") or _UNCONSCIOUS.search(str(text or "")):
+        return a
+    for t_mn in ("newborn_danger", "post_danger", "post_harm"):
+        if t_mn in tp:
+            tp.insert(0, tp.pop(tp.index(t_mn)))
+            return dict(a, topics=tp)
+    return a
 
 
 # ตัวตรวจแบบเงื่อนไข (core/conditions.py) — ใคร × ทำอะไร × กับอะไร แทนรายการวลี · ผสานเข้าผลหลักที่นี่จุดเดียว

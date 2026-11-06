@@ -143,6 +143,6 @@ my sister won't stop sending me memes at 2am lol	none	en	claude-seed-r5
 เงินเดือนไม่ออกมาสามเดือน นายจ้างบอกให้รอไปก่อน ตอนนี้ไม่มีค่ารถไปทำงานแล้ว	distress	th	claude-seed-r8
 # ── รอบ 9: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 8 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
 # ── รอบ 10: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 9 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
-แฟนส่งรูปเชือกกับเก้าอี้มาให้ แล้วปิดเครื่องไปเลย	self_harm	th	claude-seed-r10
-my mom keeps saying the family would be better off with the insurance money	self_harm	en	claude-seed-r10
-ลุงข้างบ้านให้เงินหลานฉันทุกครั้งที่ไปบ้านเขา แต่ห้ามบอกใครว่าไปทำอะไร	violence	th	claude-seed-r10
+พี่สาวโพสต์สตอรี่ว่าขอบคุณทุกคนที่ผ่านมา แล้วลบรูปโปรไฟล์ทิ้งหมด	self_harm	th	claude-seed-r11
+my dad has started sleeping in his car with the engine running and the garage door shut	self_harm	en	claude-seed-r11
+โค้ชฟุตบอลชวนลูกชายไปค้างที่บ้านเขาคนเดียว บอกว่าเป็นรางวัลพิเศษ ไม่ต้องบอกพ่อแม่	violence	th	claude-seed-r11
