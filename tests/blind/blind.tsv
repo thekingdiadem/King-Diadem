@@ -142,6 +142,7 @@ my sister won't stop sending me memes at 2am lol	none	en	claude-seed-r5
 # ── รอบ 8: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 7 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
 เงินเดือนไม่ออกมาสามเดือน นายจ้างบอกให้รอไปก่อน ตอนนี้ไม่มีค่ารถไปทำงานแล้ว	distress	th	claude-seed-r8
 # ── รอบ 9: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 8 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
-น้องชายเอาเงินเก็บทั้งหมดไปให้แม่ แล้วบอกว่าไม่ต้องห่วงเขาแล้วนะ เขาจะไปไกลๆ	self_harm	th	claude-seed-r9
-my teen has been researching how many sleeping pills it takes and hides the tabs	self_harm	en	claude-seed-r9
-ครูพละสั่งให้นักเรียนหญิงไปเปลี่ยนชุดในห้องครูคนเดียว แล้วถ่ายรูปไว้	violence	th	claude-seed-r9
+# ── รอบ 10: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 9 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
+แฟนส่งรูปเชือกกับเก้าอี้มาให้ แล้วปิดเครื่องไปเลย	self_harm	th	claude-seed-r10
+my mom keeps saying the family would be better off with the insurance money	self_harm	en	claude-seed-r10
+ลุงข้างบ้านให้เงินหลานฉันทุกครั้งที่ไปบ้านเขา แต่ห้ามบอกใครว่าไปทำอะไร	violence	th	claude-seed-r10

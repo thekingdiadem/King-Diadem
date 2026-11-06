@@ -683,3 +683,12 @@ he's been saying goodbye to people at school like he won't see them again	topic:
 ยายไม่อยากไปฟอกไตวันนี้เพราะฝนตก เลื่อนไปพรุ่งนี้	!topic:warning;!topic:someone	ปกติ
 ลูกบอกลาเพื่อนทุกคนเพราะย้ายโรงเรียน คงไม่ได้เจอกันอีกนาน	!topic:warning;!topic:someone	ปกติ
 แชร์รูปลูกในชุดว่ายน้ำให้ยายในกลุ่มครอบครัวดู	!topic:online_grooming	ปกติ
+
+# ── ย้ายมาจากชุดปิดตารอบ 9 (core/conditions.py: giveaway_final เงินเก็บ · lethality_research คนอื่นเล่า · adult_isolates_child) ──
+น้องชายเอาเงินเก็บทั้งหมดไปให้แม่ แล้วบอกว่าไม่ต้องห่วงเขาแล้วนะ เขาจะไปไกลๆ	topic:someone	คนใกล้ตัว
+my teen has been researching how many sleeping pills it takes and hides the tabs	topic:someone	คนใกล้ตัว
+ครูพละสั่งให้นักเรียนหญิงไปเปลี่ยนชุดในห้องครูคนเดียว แล้วถ่ายรูปไว้	topic:sexual_abuse	ล่วงละเมิด
+# ข้อที่ต้องไม่จับ
+ยกเงินเก็บให้แม่ไปเที่ยวญี่ปุ่น ไม่ต้องห่วงฉันแล้วนะ ฉันได้งานใหม่	!topic:warning;!topic:someone	ปกติ
+how many vitamin c tablets per day is safe for kids	!topic:warning;!topic:someone	ปกติ
+ครูให้นักเรียนเปลี่ยนชุดพละในห้องน้ำ แล้วถ่ายรูปกิจกรรมลงเพจโรงเรียน	!topic:sexual_abuse	ปกติ
