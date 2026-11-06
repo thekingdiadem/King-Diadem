@@ -239,6 +239,9 @@ except Exception as e:
     planetary_status = get_learning = get_nodes = None
     record_learning  = add_node = node_summary = None
 
+# ── DECISION AUDIT TRAIL: เขียนต่อท้าย + ร้อยด้วย hash (core/audit_log.py) ──
+from core import audit_log as _audit
+
 # ── BELIEF CORE — v4.8 ────────────────────────────────────────────
 try:
     from AI_KERNEL.belief_core import (
@@ -877,7 +880,7 @@ def root(request: Request):
 # robots.txt บอกว่าหน้าไหนให้เก็บ · หน้าส่วนตัว (API บัญชี รายงานที่แชร์) ห้ามเก็บ
 # sitemap.xml บอก Google ว่ามีหน้าสาธารณะอะไรบ้าง — เดิมไม่มีทั้งสองไฟล์
 SITEMAP_PAGES = [("/", "1.0", "daily"), ("/guide", "0.8", "weekly"), ("/learn", "0.8", "weekly"), ("/survival", "0.9", "weekly"), ("/ask", "0.7", "weekly"),
-                 ("/sky", "0.9", "daily"), ("/universe", "0.8", "weekly"),
+                 ("/sky", "0.9", "daily"), ("/pregnancy", "0.8", "monthly"), ("/universe", "0.8", "weekly"),
                  ("/architecture", "0.6", "weekly"), ("/letter", "0.6", "monthly"), ("/support", "0.5", "monthly"),
                  ("/privacy", "0.3", "yearly"), ("/terms", "0.3", "yearly"), ("/refund", "0.3", "yearly")]
 _ROBOTS_BLOCK = ["/api/", "/report/", "/auth/", "/login", "/me", "/dashboard", "/wallet", "/credits", "/static/login.html",
@@ -986,6 +989,12 @@ def _backup_hours():
         return None if a is None else round(a / 3600, 1)
     except Exception:
         return None
+
+
+@app.get("/api/audit/status")
+def audit_status():
+    """ผู้ตรวจดูได้ว่าโซ่ hash ของบันทึกการตัดสินใจครบไหม — ไม่คืนเนื้อหาบันทึก"""
+    return _audit.status()
 
 
 @app.get("/health")
@@ -2810,6 +2819,12 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                       "W": k.get("W"), "risk": k.get("risk"), "topics": (k.get("topics") or [])[:3]})
         except Exception as e:
             print(f"⚠ civilization node: {type(e).__name__}")
+    try:   # บันทึกตรวจสอบย้อนหลัง — ไม่มีข้อความผู้ใช้ มีแค่เส้นทาง แหล่งคำตอบ ความเสี่ยง หัวข้อ
+        _audit.record({"kind": "decision", "route": result.get("route"), "source": result.get("answer_source"),
+                       "W": (k_assess or {}).get("W"), "risk": (k_assess or {}).get("risk"),
+                       "topics": ((k_assess or {}).get("topics") or [])[:3]})
+    except Exception as e:
+        print(f"⚠ audit log: {type(e).__name__}")
 
     # ── BELIEF ENFORCE — v4.8 (v4.9.1: safe-default guard) ────────
     # ถ้า belief_audit fail ก่อนหน้านี้ belief_report จะเป็น None
@@ -3516,6 +3531,19 @@ async def survival_page(lang: str = "th"):
     if lang not in _SURVIVAL_HTML:
         _SURVIVAL_HTML[lang] = render(lang)
     return HTMLResponse(_SURVIVAL_HTML[lang], headers={"Cache-Control": "public, max-age=3600"})
+
+
+_PREGNANCY_HTML: dict = {}
+
+
+@app.get("/pregnancy")
+async def pregnancy_page():
+    """คู่มือคุณแม่ตั้งครรภ์ (core/pregnancy_page.py) — HTML ล้วน ไม่มีสคริปต์ เปิดได้แม้เน็ตช้า"""
+    from fastapi.responses import HTMLResponse
+    from core.pregnancy_page import render
+    if "th" not in _PREGNANCY_HTML:
+        _PREGNANCY_HTML["th"] = render()
+    return HTMLResponse(_PREGNANCY_HTML["th"], headers={"Cache-Control": "public, max-age=3600"})
 
 
 @app.get("/api/survival")

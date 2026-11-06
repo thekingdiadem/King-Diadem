@@ -29,6 +29,7 @@ from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, 
                                CHILD_HOUSEHOLD, SLEEPLESS, NOT_BREATHING as _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY, TRAFFICKING)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, script_lang, urgent_intl, world_urgent
 from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en, debt_en
+from core import pregnancy_guide as _PG  # คู่มือคุณแม่ตั้งครรภ์ · สัญญาณอันตราย · อยู่คนเดียว
 from core.titan_core import EXIT_BLOCKED as _TITAN_EXIT, POWER_OVER as _TITAN_POWER  # TITAN S3 exit · S5 conservation
 
 # ── สายด่วน (ประเทศไทย) ─────────────────────────────────────────
@@ -236,6 +237,43 @@ TOPICS = [
             "ถ้ามีหนี้จากการพนัน — หยุดกู้ก้อนใหม่มาเล่นต่อ แล้วเขียนหนี้ทุกก้อนออกมาก่อน",
         ],
         "ask": "ถ้าลดลงได้เพียงครึ่งเดียวในเดือนนี้ อะไรในชีวิตจะดีขึ้นก่อน?",
+    }),
+    # ตั้งครรภ์ + สัญญาณอันตราย (core/pregnancy_guide.py) — เดิม "ท้อง 30 สัปดาห์ อยู่คนเดียว น้ำเดิน" ได้คำตอบเรื่องท้องไม่พร้อม
+    # และ "ลูกดิ้นน้อยลง" ได้คำตอบกลาง ทั้งที่ต้องไปโรงพยาบาลเดี๋ยวนี้
+    ("preg_danger", [_PG.DANGER_RX], {
+        "open": ["อาการนี้ตอนตั้งครรภ์ต้องให้แพทย์ดูเดี๋ยวนี้ ไม่ควรรอดูอาการ"],
+        "paths": [
+            ([_PG.DANGER_RE["bleeding"]], _PG.DANGER["bleeding"][1]),
+            ([_PG.DANGER_RE["water"]], _PG.DANGER["water"][1]),
+            ([_PG.DANGER_RE["movement"]], _PG.DANGER["movement"][1]),
+            ([_PG.DANGER_RE["preeclampsia"]], _PG.DANGER["preeclampsia"][1]),
+            ([_PG.DANGER_RE["seizure"]], _PG.DANGER["seizure"][1]),
+            ([_PG.DANGER_RE["labor"]], _PG.DANGER["labor"][1]),
+            ([_PG.DANGER_RE["pain_fever"]], _PG.DANGER["pain_fever"][1]),
+            f"ไปเองไม่ไหวหรืออยู่คนเดียว โทร {HOTLINE_EMS} ได้เลย — บอกว่าตั้งครรภ์กี่สัปดาห์ แล้วเอาสมุดฝากครรภ์ (สมุดสีชมพู) กับบัตรประชาชนไปด้วย",
+        ],
+        "ask": "ตอนนี้ตั้งครรภ์กี่สัปดาห์ และมีใครอยู่ด้วยหรือเปล่า?",
+    }),
+    # คำถามทั่วไปของคนท้อง (กินอะไร ยา วัคซีน ฝากครรภ์ ออกกำลัง) — เดิมได้คำตอบกลาง "เขียนสิ่งที่เกิดขึ้นเป็นประโยคเดียว"
+    ("preg_care", [_PG.CARE_RX], {
+        "open": ["ดีมากที่ถามไว้ก่อน — เรื่องพื้นฐานไม่กี่ข้อนี้ช่วยทั้งแม่และลูกได้มาก"],
+        "paths": [
+            ([re.compile(r"กิน|อาหาร|ยา|วิตามิน|กาแฟ|\b(?:eat|food|diet|vitamin|medicine|coffee|caffeine)\b", re.I)],
+             "กินยาบำรุงที่โรงพยาบาลให้ทุกวัน (โฟลิก ธาตุเหล็ก ไอโอดีน) · เลี่ยงของดิบหรือไม่สุก เหล้า บุหรี่ · กาแฟไม่เกินวันละ 1–2 แก้ว · ยาทุกชนิดรวมสมุนไพร ถามแพทย์หรือเภสัชกรก่อน"),
+            "ฝากครรภ์ให้เร็วที่สุด (ดีที่สุดก่อน 12 สัปดาห์) และไปตามนัดทุกครั้ง — บัตรทอง 1330 ครอบคลุมการฝากครรภ์และการคลอด",
+            "จำสัญญาณที่ต้องไปโรงพยาบาลทันทีไว้: เลือดออก น้ำเดิน ลูกดิ้นน้อยลง ปวดหัวรุนแรงตาพร่า หรือเจ็บท้องถี่ก่อน 37 สัปดาห์ — คู่มือเต็มที่ /pregnancy",
+        ],
+        "ask": "ตอนนี้ตั้งครรภ์กี่สัปดาห์ และฝากครรภ์แล้วหรือยัง?",
+    }),
+    # ตั้งครรภ์และอยู่คนเดียว — เดิม "pregnant and alone" ถูกนับเป็นท้องไม่พร้อม · "ท้อง 7 เดือน อยู่คนเดียว" ได้คำตอบเรื่องความเหงา
+    ("preg_alone", [_PG.ALONE_RX], {
+        "open": ["อยู่คนเดียวไม่ได้แปลว่าต้องรับมือคนเดียว — วางแผนไว้ก่อนวันที่ต้องใช้ จะปลอดภัยขึ้นมาก"],
+        "paths": [
+            "ฝากครรภ์และไปตามนัดทุกครั้ง (บัตรทอง 1330 ครอบคลุมฝากครรภ์และคลอด) — บอกพยาบาลว่าอยู่คนเดียว โรงพยาบาลช่วยวางแผนคลอดให้ได้",
+            f"ตั้งเบอร์ {HOTLINE_EMS} กับเบอร์ห้องคลอดไว้หน้าจอ ตกลงกับคนใกล้ตัว 1 คนให้โทรหาได้ตอนกลางคืน และเตรียมกระเป๋าคลอดตั้งแต่ 34–36 สัปดาห์",
+            "ต้องการที่พักหรือความช่วยเหลือ โทร 1300 (พม. 24 ชม.) · ทำงานในระบบโทร 1506 เรื่องค่าคลอดและเงินลาคลอด · เครียดหรือเศร้ามาก โทร 1323 — คู่มือเต็มอยู่ที่ /pregnancy",
+        ],
+        "ask": "ตอนนี้ตั้งครรภ์กี่สัปดาห์ และฝากครรภ์ที่ไหนแล้วหรือยัง?",
     }),
     ("pregnancy", [UNPLANNED_PREGNANCY], {
         "open": ["เรื่องนี้ตัดสินใจได้ ไม่ต้องรีบและไม่ต้องคนเดียว"],
@@ -1994,6 +2032,21 @@ EN_TOPIC = {
         "If you're thinking about hurting yourself, call a crisis line (1323 in Thailand, 24h; findahelpline.com elsewhere).",
         "If it isn't urgent, just type a few words about what's going on — we'll go step by step."],
         "Are you safe right now?"),
+    "preg_danger": ("This needs a doctor now — please don't wait and see.", [
+        "Go to the labour ward or emergency room now. Bleeding during pregnancy, your waters breaking, the baby moving less, a severe headache with blurred vision, or regular contractions before 37 weeks all need checking today.",
+        "If you can't get there yourself or you're alone, call an ambulance (1669 in Thailand, 911 in the US, 112 in Europe) and say how many weeks pregnant you are.",
+        "Take your pregnancy record book and ID. Lie on your left side while you wait."],
+        "How many weeks pregnant are you, and is anyone with you?"),
+    "preg_care": ("Good that you're asking early — a few basics protect you and the baby a lot.", [
+        "Take the prenatal vitamins your clinic gives you every day (folic acid, iron, iodine); avoid raw or undercooked food, alcohol and smoking; keep coffee to 1–2 cups; check every medicine, including herbal ones, with a doctor or pharmacist.",
+        "Start antenatal care as early as you can (ideally before 12 weeks) and keep every appointment.",
+        "Know the signs that mean go to hospital now: bleeding, waters breaking, the baby moving less, a severe headache with blurred vision, or regular contractions before 37 weeks."],
+        "How many weeks pregnant are you, and have you started antenatal care?"),
+    "preg_alone": ("Being alone doesn't mean you have to handle it alone — a plan made early makes it much safer.", [
+        "Keep every antenatal appointment and tell the midwife you live alone; the hospital can help plan the birth and visits after.",
+        "Save the ambulance number and the labour ward number on your home screen, agree with one nearby person that you can call them at night, and pack your hospital bag by 34–36 weeks.",
+        "In Thailand, 1300 helps with safe housing and support, 1506 with maternity pay if you're employed, and 1323 if you feel overwhelmed — the full guide is at /pregnancy."],
+        "How many weeks pregnant are you, and where are you getting antenatal care?"),
     "pregnancy": ("You don't have to decide this today, or alone.", [
         "Confirm with a pharmacy test or at a clinic or hospital.",
         "In Thailand, 1663 gives free, confidential advice on every option without judgement.",
@@ -2034,12 +2087,12 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"control_en": 60, "minor_adult": 70, "soft_check": 45, "trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"preg_danger": 85, "preg_alone": 45, "control_en": 60, "minor_adult": 70, "soft_check": 45, "trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _DEBT_HARASS_RISK = 55
@@ -2558,7 +2611,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง
     # (เดิม "กินยาเกินขนาด" เสียขั้นที่ 3 ให้ "ใช้สิทธิ์บัตรทอง")
     if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "child_gaming", "consumer", "pet_hurt", "stranded", "teen_leave", "housing", "legal", "diagnosis",
-                                                           "caregiver", "health_rights"):
+                                                           "caregiver", "health_rights", "preg_alone", "preg_care"):
         second = None
     if a["offer_flags"]:                 # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
         main, second = OFFER, None
