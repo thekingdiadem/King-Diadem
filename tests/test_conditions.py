@@ -156,3 +156,29 @@ def test_round7_conditions(text, rule, topic):
 def test_round7_no_overfire(text):
     from core.conditions import check
     assert not [h for h in check(text) if h.rule in ("farewell_apology", "repossession", "secret_chat_minor", "giveaway_final")]
+
+
+# ── รอบ 8: ลาทุกคน+ไม่รบกวนอีก · หยุดยา+ไม่มีประโยชน์ · เจ้าของหอขู่ขนของออก · คนในเกมชวนเด็กไปเจอ/ส่งของแล้วห้ามบอก ──
+@pytest.mark.parametrize("text,rule,topic", [
+    ("โพสต์ลาก่อนนะทุกคน ต่อไปจะไม่เป็นภาระใครอีกแล้ว", "farewell_no_burden", "warning"),
+    ("my friend sent a goodbye message saying she won't bother anyone again", "farewell_no_burden", "someone"),
+    ("แม่ไม่ยอมกินยาความดันมาสัปดาห์นึง บอกว่าอยู่ไปก็เท่านั้น", "stop_care_hopeless", "someone"),
+    ("i stopped taking my insulin, what's the point", "stop_care_hopeless", "warning"),
+    ("landlord said he'll change the locks if we don't pay by friday", "landlord_threat", "housing"),
+    ("คนในเกมเติมเพชรให้ลูกชาย แล้วนัดเจอหน้าโรงเรียน บอกว่าอย่าบอกพ่อแม่", "secret_chat_minor", "online_grooming"),
+])
+def test_round8_conditions(text, rule, topic):
+    from core.conditions import check
+    from core.kernel_voice import assess
+    assert rule in [h.rule for h in check(text)]
+    assert assess(text)["topics"][0] == topic
+
+
+@pytest.mark.parametrize("text", [
+    "เขียนอีเมลลาออกถึงทุกคน ขอบคุณที่ทนกันมา วันสุดท้ายของการทำงานคือศุกร์นี้", "หมอให้หยุดกินยาเพราะแพ้ยา ไม่มีประโยชน์ที่จะฝืน",
+    "เจ้าของหอให้ขนของออกตอนย้ายห้องใหม่ไปชั้นสอง", "ลูกกับเพื่อนชวนไปเจอกันที่สวน แอบไปซื้อของขวัญวันเกิดแม่ ห้ามบอกแม่นะ",
+    "I stopped taking vitamins, no point really they taste bad",
+])
+def test_round8_no_overfire(text):
+    from core.conditions import check
+    assert not [h for h in check(text) if h.rule in ("farewell_no_burden", "stop_care_hopeless", "landlord_threat", "secret_chat_minor")]

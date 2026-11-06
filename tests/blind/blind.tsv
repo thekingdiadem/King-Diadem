@@ -139,7 +139,8 @@ my sister won't stop sending me memes at 2am lol	none	en	claude-seed-r5
 เด็กเล็กเอาเม็ดยาของยายเข้าปากไปหลายเม็ด ตอนนี้ง่วงซึม	emergency	th	claude-seed-r6
 เลือกร้านกับวันฉลองครบรอบไว้แล้ว ตื่นเต้นมาก	none	th	claude-seed-r6
 # ── รอบ 7: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 6 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
-เพื่อนร่วมงานเขียนอีเมลลาทุกคน บอกว่าขอบคุณที่ทนกันมา หลังจากนี้จะไม่รบกวนใครอีก	self_harm	th	claude-seed-r7
-my dad stopped taking his heart meds and says there's no point anymore	self_harm	en	claude-seed-r7
-เจ้าของหอขู่ว่าถ้าไม่จ่ายภายในศุกร์นี้จะขนของออกมาวางหน้าห้อง	distress	th	claude-seed-r7
-เด็กข้างบ้านบอกว่ามีพี่ในเกมส่งของขวัญให้ แล้วชวนไปเจอกันโดยห้ามบอกแม่	violence	th	claude-seed-r7
+# ── รอบ 8: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 7 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
+ยายบอกว่าไม่อยากไปฟอกไตแล้ว อยากให้ทุกอย่างจบๆ ไป	self_harm	th	claude-seed-r8
+he's been saying goodbye to people at school like he won't see them again	self_harm	en	claude-seed-r8
+เงินเดือนไม่ออกมาสามเดือน นายจ้างบอกให้รอไปก่อน ตอนนี้ไม่มีค่ารถไปทำงานแล้ว	distress	th	claude-seed-r8
+เพื่อนส่งรูปลูกสาวฉันในชุดว่ายน้ำไปให้คนแปลกหน้าในกลุ่มไลน์	violence	th	claude-seed-r8

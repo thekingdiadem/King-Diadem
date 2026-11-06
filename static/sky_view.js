@@ -91,7 +91,7 @@
     });
     MWL = MWRAW ? MWRAW.levels.map(function (lv) { return lv.map(function (ring) { return ring.map(function (p) { return mul(PM, eqv(p[0], p[1])); }); }); }) : null;
   }
-  var DEEP = null, DEEP2 = null, deep2Asked = false, MWRAW = null, MWL = null, mwc = null, mwx = null;
+  var GAIA = { meta: null, asked: false, tiles: {}, order: [] }, DEEP = null, DEEP2 = null, deep2Asked = false, MWRAW = null, MWL = null, mwc = null, mwx = null;
   var LINES = [], CONS = [];
   // ภาพดาวสำเร็จรูป 9 สี (ร้อนฟ้า → เย็นแดง) — วาดครั้งเดียว แล้วประทับซ้ำ เร็วกว่าไล่สีทุกดวงหลายเท่า
   var SPR = {};
@@ -218,8 +218,9 @@
     // ดาว
     cx.save(); cx.globalCompositeOperation = 'lighter';
     // ตาเปล่าที่ฟ้ามืดเห็นถึงโชติมาตร ~6 · ซูมเข้า = เหมือนส่องกล้อง เห็นจางลงได้ถึง 8 (ดาวจางโหลดตามหลัง)
-    var zoomS = 70 / V.fov, limit = Math.min(DEEP2 && DEEP ? 10 : DEEP ? 8 : 6.05, 5.6 + Math.log(Math.max(1, zoomS)) / Math.LN2 * .85) - (1 - sc.starA) * 3;
+    var zoomS = 70 / V.fov, limit = Math.min(GAIA.meta && DEEP2 ? 11 : DEEP2 && DEEP ? 10 : DEEP ? 8 : 6.05, 5.6 + Math.log(Math.max(1, zoomS)) / Math.LN2 * 1.15) - (1 - sc.starA) * 3;   // FOV 20° ≈ 7.7 · 6° ≈ 9.7 · 2.5° ≈ 11
     if (V.fov < 25 && DEEP && !deep2Asked) { deep2Asked = true; loadLater('deep2.json', function (x) { DEEP2 = x; }); }   // ซูมลึกครั้งแรก = โหลดชั้นที่ 3
+    if (V.fov < 15 && DEEP2 && !GAIA.asked) { GAIA.asked = true; loadLater('gaia/index.json', function (x) { GAIA.meta = x; }); }   // ซูมลึกกว่านั้น = แผ่นฟ้า Gaia
     var half = Math.atan(Math.hypot(W, H) / H * Math.tan(V.fov * D2R / 2)), zmin = Math.cos(Math.min(2.6, half * 1.08 + .02));
     var labels = [];
     for (var i = 0; i < STARS.length; i++) {
@@ -241,6 +242,7 @@
       hits.push({ x: p[0], y: p[1], o: st, l: l, kind: 'star' });
       if (st.name && LAY.names && st.mag < Math.min(limit, 6.05) - 3.3) labels.push({ x: p[0] + rad + 5, y: p[1], t: st.name, c: 'rgba(214,226,255,.86)', f: '500 12px ', pri: st.mag });
     }
+    if (GAIA.meta && V.fov < 15 && limit > 10) drawGaia(limit, zmin, zoomK, sc);
     cx.restore(); cx.globalAlpha = 1;
     if (LAY.mine) drawMine(labels);
     // ดาวเคราะห์ ดวงจันทร์ ดวงอาทิตย์
@@ -285,10 +287,11 @@
     if (!mwc) { mwc = document.createElement('canvas'); mwx = mwc.getContext('2d'); }
     if (mwc.width !== w || mwc.height !== h) { mwc.width = w; mwc.height = h; }
     mwx.setTransform(q, 0, 0, q, 0, 0); mwx.clearRect(0, 0, F.W, F.H);
-    if ('filter' in mwx) mwx.filter = 'blur(1.6px)';
+    var zm = Math.max(1, 70 / V.fov);                                     // ซูมลึก = ขอบรูปหลายเหลี่ยมใหญ่ขึ้น ต้องฟุ้งมากขึ้นตาม (ทางช้างเผือกจริงเป็นหมอก)
+    if ('filter' in mwx) mwx.filter = 'blur(' + Math.min(14, 1.6 * Math.sqrt(zm)).toFixed(1) + 'px)';
     mwx.globalCompositeOperation = 'lighter';
     MWL.forEach(function (level, li) {
-      mwx.fillStyle = 'rgba(' + MW_TINT[li] + ',' + ((.055 + li * .012) * sc.starA).toFixed(3) + ')';
+      mwx.fillStyle = 'rgba(' + MW_TINT[li] + ',' + ((.055 + li * .012) * sc.starA / Math.pow(zm, .25)).toFixed(3) + ')';
       level.forEach(function (ring) {
         mwx.beginPath(); var n = 0;
         for (var i = 0; i < ring.length; i++) { var p = projMW(local(ring[i])); if (!p) continue; if (n++) mwx.lineTo(p[0], p[1]); else mwx.moveTo(p[0], p[1]); }
@@ -333,6 +336,52 @@
       if (last && LAY.names) labels.push({ x: x + 10, y: y - 10, t: T('ดาวล่าสุดของฉัน', 'My latest star'), c: '#ffe7a6', f: '600 12.5px ', pri: -40 });
     });
     cx.restore();
+  }
+  // ── แผ่นฟ้า Gaia DR3 (10 < G ≤ 11 · ~765,000 ดวง) — โหลดเฉพาะแผ่น 10°×10° ที่อยู่ในมุมมอง ตอนซูมลึก ──────────────
+  // ไฟล์จาก scripts/build_gaia_tiles.py · ดาวละ 6 ไบต์ · จำไว้ไม่เกิน 60 แผ่น (เกินนั้นทิ้งแผ่นที่ไม่ได้ดูนานสุด)
+  var GCEN = null;
+  function gaiaCenters() {
+    GCEN = Object.keys(GAIA.meta.tiles).map(function (k) {
+      var i = +k, ix = i % 36, iy = Math.floor(i / 36);
+      return { k: k, ra0: ix * 10, de0: iy * 10 - 90, v: mul(PM, eqv(ix * 10 + 5, iy * 10 - 85)) };
+    });
+  }
+  function gaiaTile(t) {
+    if (GAIA.tiles[t.k] || GAIA.tiles[t.k] === 0) return GAIA.tiles[t.k] || null;
+    GAIA.tiles[t.k] = 0;                                         // กำลังโหลด
+    fetch('/static/sky/gaia/t' + t.k + '.bin').then(function (r) { return r.ok ? r.arrayBuffer() : null; }).then(function (b) {
+      if (!b) { delete GAIA.tiles[t.k]; return; }
+      var d = new DataView(b), n = b.byteLength / 6, out = new Array(n);
+      for (var i = 0; i < n; i++) {
+        var o = i * 6, ra = t.ra0 + d.getUint16(o, true) / 65535 * 10, de = t.de0 + d.getUint16(o + 2, true) / 65535 * 10;
+        var bv = clamp(d.getUint8(o + 5) / 50 - .5, -.4, 3) * .98 - .2;          // Gaia BP−RP → B−V โดยประมาณ (สีดาว)
+        out[i] = { v: mul(PM, eqv(ra, de)), mag: 10 + d.getUint8(o + 4) / 25, bv: bv };
+      }
+      GAIA.tiles[t.k] = out; GAIA.order.push(t.k);
+      while (GAIA.order.length > 60) delete GAIA.tiles[GAIA.order.shift()];
+      dirty = true; kick();
+    }).catch(function () { delete GAIA.tiles[t.k]; });
+    return null;
+  }
+  function drawGaia(limit, zmin, zoomK, sc) {
+    if (!GCEN) gaiaCenters();
+    var zt = Math.cos(Math.acos(clamp(zmin, -1, 1)) + 8 * D2R);       // ขอบมุมมอง + ครึ่งแนวทแยงของแผ่น
+    GCEN.forEach(function (t) {
+      var lc = local(t.v);
+      if (lc[0] * F.f[0] + lc[1] * F.f[1] + lc[2] * F.f[2] < zt) return;
+      var L = gaiaTile(t); if (!L) return;
+      for (var i = 0; i < L.length; i++) {
+        var st = L[i]; if (st.mag > limit) break;
+        var l = local(st.v); if (l[0] * F.f[0] + l[1] * F.f[1] + l[2] * F.f[2] < zmin) continue;
+        if (l[2] < .5) l = refract(l);
+        if (behindHill(l)) continue;
+        var p = proj(l); if (!onScreen(p, 4)) continue;
+        var core = clamp(.55 * Math.pow(10, -.15 * (st.mag - limit)), .5, 3) * Math.pow(Math.min(zoomK, 6), .22), R = core * 3.2;
+        cx.globalAlpha = clamp((limit + 1.2 - st.mag) / 2.4, .3, 1) * sc.starA;
+        cx.drawImage(starSprite(st.bv), p[0] - R, p[1] - R, R * 2, R * 2);
+        hits.push({ x: p[0], y: p[1], o: { mag: st.mag, en: 'Gaia DR3' }, l: l, kind: 'star' });
+      }
+    });
   }
   function path(fn, n) {
     cx.beginPath(); var pen = false;
