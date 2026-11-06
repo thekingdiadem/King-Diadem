@@ -1972,6 +1972,7 @@ var Cosmos = (function(){
     pop.innerHTML = '<b>' + esc(_t(kindTh)) + '</b> · ' + esc(_t(lvl)) + '<br>' + esc(h.name || '') +
       (h.km != null ? '<br><i>' + esc(_t('ห่างกรุงเทพฯ {km} กม.', { km: Number(h.km).toLocaleString() })) + '</i>' : '') +
       (h.hours != null ? '<br><i>' + esc(h.hours < 48 ? _t('{h} ชม.ที่แล้ว', { h: Math.max(1, Math.round(h.hours)) }) : _t('{d} วันที่แล้ว', { d: Math.round(h.hours / 24) })) + '</i>' : '') +
+      '<br><a href="/?ask=' + encodeURIComponent(_t('ฉันอยู่ใกล้{k} {n} ตอนนี้ต้องทำอะไรก่อน', { k: en ? { EQ: 'earthquake', TC: 'typhoon', FL: 'flood', VO: 'volcano eruption', WF: 'wildfire', DR: 'drought' }[h.kind] : kindTh, n: h.name || '' })) + '">🆘 ' + esc(_t('ฉันอยู่แถวนี้ · ถาม LYLA')) + '</a>' +
       '<br><a href="/survival' + (en ? '?lang=en' : '') + '#' + st[1] + '" target="_blank" rel="noopener">📘 ' + esc(_t('คู่มือเอาชีวิตรอด')) + '</a>' +
       (h.url && /^https:\/\/(?:earthquake\.usgs\.gov|www\.gdacs\.org)\//.test(h.url) ? ' · <a href="' + esc(h.url) + '" target="_blank" rel="noopener">' + (h.kind === 'EQ' ? 'USGS' : 'GDACS') + '</a>' : '');
     pop.style.left = Math.round(clamp(m.x + 14, 8, innerWidth - 240)) + 'px'; pop.style.top = Math.round(clamp(m.y - 10, 60, innerHeight - 160)) + 'px';
@@ -3075,7 +3076,9 @@ addEventListener('keydown', function(e){ if(e.key === 'Escape') closeDrawer(); }
   setView(VIEW_TITLE[tab] ? tab : 'chat');
   if(qs.get('payment') === 'success') toast('ชำระเงินสำเร็จ — เครดิตจะเข้าหลัง Stripe ยืนยันรายการ', false, 7000);
   if(qs.get('payment') === 'cancel') toast('ยกเลิกการชำระเงินแล้ว', false, 5000);
-  if(qs.has('payment') || qs.has('tab') || qs.has('new')) history.replaceState(null, '', location.pathname);
+  // ?ask= (จากจุดภัยบนลูกโลก "ฉันอยู่แถวนี้"): เติมข้อความไว้ให้ในช่องพิมพ์ — ผู้ใช้กดส่งเอง ระบบไม่ส่งแทน
+  if(qs.get('ask')){ var inp0 = document.getElementById('input'); if(inp0){ inp0.value = String(qs.get('ask')).slice(0, 300); inp0.dispatchEvent(new Event('input')); inp0.focus(); } }
+  if(qs.has('payment') || qs.has('tab') || qs.has('new') || qs.has('ask')) history.replaceState(null, '', location.pathname);
   checkHealth(); setInterval(checkHealth, 60000);
   document.addEventListener('visibilitychange', function(){ if(!document.hidden && Date.now() - Health.at > 60000) checkHealth(); });
   var changed = await refreshMe();

@@ -155,3 +155,22 @@ def test_sky_and_universe_are_findable(app_module):
     u = c.get("/universe")
     assert u.status_code == 200 and 'rel="canonical" href="https://king-diadem.onrender.com/universe"' in u.text and 'name="description"' in u.text
     assert '"@type":"WebApplication"' in r.text
+
+
+def test_waterline_horizon_follows_latest_topic():
+    src = JS.read_text(encoding="utf-8")
+    i = src.index("function waterline()")
+    body = src[i:src.index("\n  }\n", i)]
+    assert "(m.k - 30) / 70" in body and "Math.exp(-Math.max(0, age) / 3)" in body     # หนักขึ้น = สูงขึ้น · ลดเองใน ~3 วัน
+    assert "return WL + Math.max(0," in src and "function behindHill(l)" in src
+    for use in ("if (behindHill(l)) continue;", "behindHill(q.l)", "b.id !== 'sun' && behindHill(l)"):
+        assert use in src, use                                                      # ของที่อยู่หลังขอบฟ้าที่ยกขึ้นถูกซ่อนทั้งดาวและชื่อ
+    assert 'id="sky-wl"' in HTML
+
+
+def test_stars_drawn_as_light_sprites_with_atmosphere():
+    src = JS.read_text(encoding="utf-8")
+    assert "function starSprite(bv)" in src and "cx.drawImage(spr," in src               # แกนขาว + ฟุ้งเป็นสีดาว ประทับซ้ำ (เร็ว)
+    assert "X = 1 / (sh + .025 * Math.exp(-11 * sh))" in src                            # airmass: ใกล้ขอบฟ้าจางและอมแดง
+    i = src.index("    // ดาว\n"); j = src.index("cx.restore(); cx.globalAlpha = 1;", i)
+    assert "globalCompositeOperation = 'lighter'" in src[i:i + 120] and j > i             # แสงบวกกันแบบแสงจริง แล้วคืนค่า

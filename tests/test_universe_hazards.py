@@ -58,3 +58,20 @@ def test_city_map_layer_readded_after_style_change():
 
 def test_popup_style_present():
     assert ".cockpit .hz-pop{" in PAGE and ".cockpit .hz-pop.hide{display:none}" in PAGE
+
+
+def test_hazard_card_offers_ask_lyla_prefill_not_autosend():
+    app = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
+    assert "/?ask=' + encodeURIComponent(" in EARTH and "/?ask=' + encodeURIComponent(" in app
+    i = app.index("if(qs.get('ask'))")
+    block = app[i:i + 300]
+    assert "inp0.value" in block and "send" not in block.lower()          # เติมข้อความให้ ผู้ใช้กดส่งเอง
+
+
+def test_prefilled_hazard_messages_reach_survival_steps():
+    from core.kernel_voice import assess
+    for t, kind in (("ฉันอยู่ใกล้แผ่นดินไหว M6.1 · Fiji region ตอนนี้ต้องทำอะไรก่อน", "quake"),
+                    ("ฉันอยู่ใกล้ไฟป่า Forest fires in Indonesia ตอนนี้ต้องทำอะไรก่อน", "fire"),
+                    ("I am near the typhoon (IN-FA-26) — what should I do first?", "storm"),
+                    ("I am near the flood (Flood Thailand) — what should I do first?", "flood")):
+        assert (assess(t).get("disaster") or {}).get("kind") == kind, t

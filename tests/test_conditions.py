@@ -129,3 +129,30 @@ def test_structural_scams_caught(text, rule, flag):
 def test_structural_scams_do_not_overfire(text):
     from core.conditions import check
     assert not [h for h in check(text) if h.topic == "scam"]
+
+
+# ── รอบ 7: ขอโทษแบบบอกลา · ยกของ (คนอื่นเล่า) · ไฟแนนซ์จะยึด · คนแปลกหน้าให้เด็กเก็บแชทเป็นความลับ ──
+@pytest.mark.parametrize("text,rule,topic", [
+    ("พ่อส่งข้อความมาว่า ขอโทษที่เป็นภาระมาตลอด ลาก่อนนะ", "farewell_apology", "someone"),
+    ("ต่อไปทุกคนจะไม่ต้องเป็นห่วงฉันอีกแล้ว", "farewell_apology", "warning"),
+    ("mom, you won't have to worry about me anymore", "farewell_apology", "warning"),
+    ("my brother has been giving away his games and says he won't need them", "giveaway_final", "someone"),
+    ("ผ่อนบ้านไม่ไหว ธนาคารจะยึดบ้านเดือนหน้า", "repossession", "debt"),
+    ("the finance company is going to repossess my car on friday", "repossession", "debt"),
+    ("มีผู้ใหญ่ในเกมทักลูกสาว 10 ขวบ บอกว่าห้ามบอกแม่", "secret_chat_minor", "online_grooming"),
+])
+def test_round7_conditions(text, rule, topic):
+    from core.conditions import check
+    from core.kernel_voice import assess
+    assert rule in [h.rule for h in check(text)]
+    assert assess(text)["topics"][0] == topic
+
+
+@pytest.mark.parametrize("text", [
+    "ต่อไปแม่จะไม่ต้องเหนื่อยเพราะหนูได้งานแล้ว", "ขอโทษที่ทำให้เหนื่อย ต่อไปจะตั้งใจเรียน",
+    "my friend said you won't have to worry about me anymore, I got the job!", "ดูข่าวไฟแนนซ์ยึดรถดารา",
+    "ลูกกับเพื่อนแชทกันเป็นความลับเรื่องเซอร์ไพรส์วันเกิดแม่", "I'm giving away my old books to the library",
+])
+def test_round7_no_overfire(text):
+    from core.conditions import check
+    assert not [h for h in check(text) if h.rule in ("farewell_apology", "repossession", "secret_chat_minor", "giveaway_final")]

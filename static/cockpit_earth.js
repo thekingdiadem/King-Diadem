@@ -548,6 +548,10 @@
     g.href = '/survival' + (en ? '?lang=en' : '') + '#' + (st ? st[1] : '');
     g.target = '_blank'; g.rel = 'noopener'; g.textContent = '📘 ' + (en ? 'Survival guide' : 'คู่มือเอาชีวิตรอด');
     d.appendChild(g);
+    var ask = document.createElement('a'), kn = (en ? { EQ: 'earthquake', TC: 'typhoon', FL: 'flood', VO: 'volcano eruption', WF: 'wildfire', DR: 'drought' } : HZ_TH)[h.kind] || '';   // คำที่ตัวตรวจภัยรู้จัก
+    ask.href = '/?ask=' + encodeURIComponent(en ? 'I am near the ' + kn + ' ' + (h.name || '') + ' — what should I do first?' : 'ฉันอยู่ใกล้' + kn + ' ' + (h.name || '') + ' ตอนนี้ต้องทำอะไรก่อน');
+    ask.textContent = '🆘 ' + (en ? 'I am near here · ask LYLA' : 'ฉันอยู่แถวนี้ · ถาม LYLA');
+    d.appendChild(document.createElement('br')); d.appendChild(ask);
     if (h.url && /^https:\/\/(?:earthquake\.usgs\.gov|www\.gdacs\.org)\//.test(h.url)) {   // ลิงก์ไปแหล่งทางการเท่านั้น
       var o = document.createElement('a');
       o.href = h.url; o.target = '_blank'; o.rel = 'noopener'; o.textContent = h.kind === 'EQ' ? 'USGS' : 'GDACS';
