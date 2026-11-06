@@ -174,3 +174,22 @@ def test_stars_drawn_as_light_sprites_with_atmosphere():
     assert "X = 1 / (sh + .025 * Math.exp(-11 * sh))" in src                            # airmass: ใกล้ขอบฟ้าจางและอมแดง
     i = src.index("    // ดาว\n"); j = src.index("cx.restore(); cx.globalAlpha = 1;", i)
     assert "globalCompositeOperation = 'lighter'" in src[i:i + 120] and j > i             # แสงบวกกันแบบแสงจริง แล้วคืนค่า
+
+
+def test_gaia_tiles_cover_the_sky_and_decode():
+    import struct
+    meta = json.loads((ROOT / "static" / "sky" / "gaia" / "index.json").read_text(encoding="utf-8"))
+    assert meta["total"] == 765134 and meta["g_min"] == 10 and meta["g_max"] == 11 and "Gaia DR3" in meta["source"]
+    assert len(meta["tiles"]) == 648                                              # ทุกช่อง 10°×10° ของฟ้า
+    files = sorted((ROOT / "static" / "sky" / "gaia").glob("t*.bin"))
+    assert len(files) == 648 and sum(f.stat().st_size for f in files) == meta["total"] * 6
+    b = (ROOT / "static" / "sky" / "gaia" / "t243.bin").read_bytes()
+    mags = [10 + struct.unpack_from("<HHBB", b, i)[2] / 25 for i in range(0, len(b), 6)]
+    assert mags == sorted(mags) and 10 <= mags[0] and mags[-1] <= 11.01           # เรียงสว่าง→จาง ให้หยุดวาดได้เร็ว
+    assert "Gaia DR3" in HTML and "CC BY-SA 3.0 IGO" in HTML                       # ให้เครดิตตามเงื่อนไขของ ESA
+
+
+def test_gaia_loads_only_visible_tiles_on_deep_zoom():
+    src = JS.read_text(encoding="utf-8")
+    assert "V.fov < 15 && DEEP2 && !GAIA.asked" in src and "while (GAIA.order.length > 60)" in src
+    assert "fetch('/static/sky/gaia/t' + t.k + '.bin')" in src
