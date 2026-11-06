@@ -423,9 +423,9 @@ def farewell_no_burden(t: str) -> Hit | None:
 
 
 # ── หยุดยา/หยุดรักษาเอง + "ไม่มีประโยชน์แล้ว" (ไม่ใช่หมอสั่งให้หยุด) ─────────────────────────────────────
-STOP_CARE = _rx(r"(?:หยุด|เลิก|ไม่ยอม|ไม่)(?:กิน)?ยา", r"ทิ้งยา", r"ไม่(?:ยอม)?(?:ไป)?(?:หาหมอ|รักษา|ฟอกไต|ให้คีโม|ฉีดอินซูลิน)", r"ขอ(?:หยุด|เลิก)รักษา",
+STOP_CARE = _rx(r"(?:หยุด|เลิก|ไม่ยอม|ไม่)(?:กิน)?ยา", r"ทิ้งยา", r"ไม่(?:อยาก|ยอม)?(?:ไป)?(?:หาหมอ|รักษา|ฟอกไต|ให้คีโม|ฉีดอินซูลิน|ผ่าตัด|กินยา)(?:แล้ว|อีก)?", r"ขอ(?:หยุด|เลิก)รักษา",
                 r"\b(?:stopped (?:taking|using) (?:his|her|my|their)? ?(?:\w+ )?(?:meds|medications?|medicine|pills|insulin|inhaler)|refus\w* (?:his|her|my)? ?(?:meds|treatment|dialysis|chemo|insulin)|quit (?:his|her|my) (?:meds|treatment|dialysis))\b")
-HOPELESS = _rx(r"ไม่มีประโยชน์", r"ไม่มีความหมาย", r"อยู่ไปก็เท่านั้น", r"อยู่ไปทำไม", r"ไม่อยาก(?:อยู่|รักษา)แล้ว", r"ปล่อยให้มันเป็นไป",
+HOPELESS = _rx(r"ไม่มีประโยชน์", r"ไม่มีความหมาย", r"อยู่ไปก็เท่านั้น", r"อยู่ไปทำไม", r"ไม่อยาก(?:อยู่|รักษา)แล้ว", r"ปล่อยให้มันเป็นไป", r"อยากให้(?:ทุกอย่าง|มัน)\S{0,4}จบ", r"จบ\s?ๆ\s?ไป", r"พอแล้ว(?:กับ)?(?:ชีวิต)?",
                r"\b(?:no point|what'?s the point|pointless|nothing to live for|tired of living|let (?:it|nature) take|ready to go|done with (?:it|life|all this))\b")
 DOCTOR_OK = _rx(r"หมอ\S{0,6}(?:สั่ง|ให้|บอก)\S{0,4}(?:หยุด|เลิก|เปลี่ยน)", r"แพ้ยา", r"เปลี่ยนยา", r"\b(?:doctor (?:said|told|switched|stopped)|side effects|allergic)\b")
 
@@ -451,11 +451,40 @@ def landlord_threat(t: str) -> Hit | None:
     return None
 
 
+# ── บอกลาเหมือนจะไม่ได้เจออีก (ไม่ใช่ย้ายโรงเรียน/เรียนจบ/ย้ายบ้าน/ไปเที่ยว) ──────────────────────────────
+NEVER_AGAIN = _rx(r"(?:คง|จะ)?ไม่ได้เจอ(?:กัน|ใคร)?อีก", r"เจอกันครั้งสุดท้าย", r"ครั้งสุดท้ายที่จะได้เจอ",
+                  r"\b(?:won'?t (?:see|be seeing) (?:them|you|anyone|us|her|him) again|never (?:see|be seeing) (?:them|you|anyone) again|last time (?:you'?ll|we'?ll|they'?ll) see)\b")
+BYE = _rx(r"บอกลา", r"ลา(?:ทุกคน|เพื่อน|ครู)", r"กอดลา", r"\b(?:saying goodbye|said goodbye|says goodbye|bye to everyone|hugging everyone goodbye)\b")
+LEAVING_OK = _rx(r"ย้าย(?:โรงเรียน|บ้าน|ไป|ประเทศ|จังหวัด)", r"เรียนจบ", r"จบการศึกษา", r"ไปเรียนต่อ", r"ไปเที่ยว", r"ลาออก", r"ปิดเทอม",
+                 r"\b(?:mov(?:e|ing)|transfer\w*|graduat\w*|new school|vacation|exchange|study abroad|last day of school|summer)\b")
+
+
+def goodbye_never_again(t: str) -> Hit | None:
+    if BYE.search(t) and NEVER_AGAIN.search(t) and not LEAVING_OK.search(t):
+        third = re.search(r"\b(?:he|she|they|my (?:son|daughter|friend|brother|sister|kid))\b|(?:ลูก|เพื่อน|น้อง|พี่|หลาน)", t, re.I)
+        return Hit("goodbye_never_again", "someone" if third else "warning", 80)
+    return None
+
+
+# ── รูป/คลิปเด็กในชุดว่ายน้ำ ชุดนอน หรือไม่ใส่เสื้อผ้า ถูกส่งหรือโพสต์ให้คนแปลกหน้า = การแสวงประโยชน์ทางเพศจากเด็ก ──────────
+CHILD_IMG = _rx(r"(?:รูป|ภาพ|คลิป|วิดีโอ)\S{0,8}(?:ลูก|หลาน|เด็ก|น้อง)", r"\b(?:photos?|pics?|pictures?|videos?|images?) of (?:my|our|a|his|her) (?:\d{1,2}[- ]?year[- ]?old|daughter|son|kid|child|niece|nephew|little)\b")
+EXPOSED = _rx(r"ชุดว่ายน้ำ", r"ชุดนอน", r"ชุดชั้นใน", r"กางเกงใน", r"ไม่ใส่เสื้อ", r"เปลือย", r"โป๊", r"ตอนอาบน้ำ", r"แก้ผ้า",
+              r"\b(?:swimsuit|bikini|underwear|pajamas|naked|nude|bath(?:ing)?|undressed|in the shower)\b")
+TO_STRANGERS = _rx(r"(?:ส่ง|โพสต์|แชร์|ขาย)\S{0,20}(?:คนแปลกหน้า|คนที่ไม่รู้จัก|กลุ่ม|ชาวต่างชาติ|ผู้ชาย)", r"คนแปลกหน้า", r"กลุ่ม(?:ไลน์|ลับ|เทเลแกรม|เฟซ)",
+                   r"\b(?:sent|sending|shared|sharing|posted|posting|sold|selling)\b[^\n]{0,70}\b(?:strangers?|a group|online|men|someone (?:she|he) met)\b")
+
+
+def child_image_shared(t: str) -> Hit | None:
+    if CHILD_IMG.search(t) and EXPOSED.search(t) and TO_STRANGERS.search(t):
+        return Hit("child_image_shared", "online_grooming", 85)
+    return None
+
+
 RULES = (child_ingest, absence_prep, lethality_research, scam_unasked_money, scam_multiplier, basic_needs,
          food_floor, entrust_giveup, giveaway_final, plan_specific, bill_due,
          scam_pay_first, scam_online_only, scam_link_pressure, scam_gift_card, scam_family_emergency, scam_paid_vanished,
          scam_task_job, scam_isolate_official, farewell_apology, repossession, secret_chat_minor,
-         farewell_no_burden, stop_care_hopeless, landlord_threat)
+         farewell_no_burden, stop_care_hopeless, landlord_threat, goodbye_never_again, child_image_shared)
 
 
 def check(text) -> list[Hit]:

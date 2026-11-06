@@ -674,3 +674,12 @@ my dad stopped taking his heart meds and says there's no point anymore	topic:som
 หมอให้หยุดกินยาเพราะแพ้ยา ไม่มีประโยชน์ที่จะฝืน	!topic:warning;!topic:someone	ปกติ
 เจ้าของหอให้ขนของออกตอนย้ายห้องใหม่ไปชั้นสอง	!topic:housing	ปกติ
 ลูกกับเพื่อนชวนไปเจอกันที่สวน แอบไปซื้อของขวัญวันเกิดแม่ ห้ามบอกแม่นะ	!topic:online_grooming	ปกติ
+
+# ── ย้ายมาจากชุดปิดตารอบ 8 (core/conditions.py: stop_care_hopeless ขยาย · goodbye_never_again · child_image_shared) ──
+ยายบอกว่าไม่อยากไปฟอกไตแล้ว อยากให้ทุกอย่างจบๆ ไป	topic:someone	คนใกล้ตัว
+he's been saying goodbye to people at school like he won't see them again	topic:someone	คนใกล้ตัว
+เพื่อนส่งรูปลูกสาวฉันในชุดว่ายน้ำไปให้คนแปลกหน้าในกลุ่มไลน์	topic:online_grooming	ล่อลวงเด็ก
+# ข้อที่ต้องไม่จับ
+ยายไม่อยากไปฟอกไตวันนี้เพราะฝนตก เลื่อนไปพรุ่งนี้	!topic:warning;!topic:someone	ปกติ
+ลูกบอกลาเพื่อนทุกคนเพราะย้ายโรงเรียน คงไม่ได้เจอกันอีกนาน	!topic:warning;!topic:someone	ปกติ
+แชร์รูปลูกในชุดว่ายน้ำให้ยายในกลุ่มครอบครัวดู	!topic:online_grooming	ปกติ

@@ -140,7 +140,8 @@ my sister won't stop sending me memes at 2am lol	none	en	claude-seed-r5
 เลือกร้านกับวันฉลองครบรอบไว้แล้ว ตื่นเต้นมาก	none	th	claude-seed-r6
 # ── รอบ 7: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 6 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
 # ── รอบ 8: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 7 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
-ยายบอกว่าไม่อยากไปฟอกไตแล้ว อยากให้ทุกอย่างจบๆ ไป	self_harm	th	claude-seed-r8
-he's been saying goodbye to people at school like he won't see them again	self_harm	en	claude-seed-r8
 เงินเดือนไม่ออกมาสามเดือน นายจ้างบอกให้รอไปก่อน ตอนนี้ไม่มีค่ารถไปทำงานแล้ว	distress	th	claude-seed-r8
-เพื่อนส่งรูปลูกสาวฉันในชุดว่ายน้ำไปให้คนแปลกหน้าในกลุ่มไลน์	violence	th	claude-seed-r8
+# ── รอบ 9: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 8 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
+น้องชายเอาเงินเก็บทั้งหมดไปให้แม่ แล้วบอกว่าไม่ต้องห่วงเขาแล้วนะ เขาจะไปไกลๆ	self_harm	th	claude-seed-r9
+my teen has been researching how many sleeping pills it takes and hides the tabs	self_harm	en	claude-seed-r9
+ครูพละสั่งให้นักเรียนหญิงไปเปลี่ยนชุดในห้องครูคนเดียว แล้วถ่ายรูปไว้	violence	th	claude-seed-r9

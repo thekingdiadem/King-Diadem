@@ -182,3 +182,26 @@ def test_round8_conditions(text, rule, topic):
 def test_round8_no_overfire(text):
     from core.conditions import check
     assert not [h for h in check(text) if h.rule in ("farewell_no_burden", "stop_care_hopeless", "landlord_threat", "secret_chat_minor")]
+
+
+# ── รอบ 9: ไม่อยากรักษาแล้ว+อยากให้จบ · บอกลาเหมือนไม่ได้เจออีก · ส่งรูปเด็กที่ไม่เหมาะให้คนแปลกหน้า ──
+@pytest.mark.parametrize("text,rule,topic", [
+    ("พ่อไม่อยากไปผ่าตัดแล้ว บอกว่าพอแล้วกับชีวิต", "stop_care_hopeless", "someone"),
+    ("ลูกไปกอดลาครูทุกคน บอกว่าคงไม่ได้เจอกันอีกแล้ว", "goodbye_never_again", "someone"),
+    ("my daughter said goodbye to her friends like she'll never see them again", "goodbye_never_again", "someone"),
+    ("someone is sharing photos of my 9 year old in her swimsuit with strangers online", "child_image_shared", "online_grooming"),
+])
+def test_round9_conditions(text, rule, topic):
+    from core.conditions import check
+    from core.kernel_voice import assess
+    assert rule in [h.rule for h in check(text)]
+    assert assess(text)["topics"][0] == topic
+
+
+@pytest.mark.parametrize("text", [
+    "ยายไม่อยากไปฟอกไตวันนี้เพราะฝนตก เลื่อนไปพรุ่งนี้", "ลูกบอกลาเพื่อนทุกคนเพราะย้ายโรงเรียน คงไม่ได้เจอกันอีกนาน",
+    "แชร์รูปลูกในชุดว่ายน้ำให้ยายในกลุ่มครอบครัวดู", "she said goodbye at the airport, we won't see her again until christmas vacation",
+])
+def test_round9_no_overfire(text):
+    from core.conditions import check
+    assert not [h for h in check(text) if h.rule in ("stop_care_hopeless", "goodbye_never_again", "child_image_shared")]
