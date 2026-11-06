@@ -31,12 +31,13 @@ _TOPIC_CLASS = {
     "self_harm": {"warning", "someone"},
     "emergency": {"overdose", "swallowed", "household", "pet_poison", "health_emergency", "first_aid", "stranded",
                   "en_infant_fever", "en_preg_bleed", "preg_danger", "post_danger", "newborn_danger", "post_harm", "needlestick", "missing", "drunk_drive", "panic", "psychosis",
-                  "kp_heatstroke", "kp_methanol", "kp_fever_rash", "kp_gi_bleed", "kp_bp_crisis", "kp_child_breath", "kp_sudden_vision"},
+                  "kp_heatstroke", "kp_methanol", "kp_fever_rash", "kp_gi_bleed", "kp_bp_crisis", "kp_child_breath", "kp_sudden_vision",
+                  "kp_low_oxygen", "kp_diabetic_foot", "kp_sedative_alcohol", "kp_fire_en", "kp_jellyfish", "kp_elevator"},
     "violence": {"violence", "sexual_abuse", "en_assault", "en_spiked", "harm_others", "weapon", "witness", "elder_abuse",
                  "trafficking", "threat", "online_grooming", "control_en", "bullying", "titan_exit", "titan_power",
                  "kp_minor_adult_parent", "kp_coercive_control"},
-    "scam": {"scam", "sextortion", "hacked"},
-    "distress": {"debt", "basic", "housing", "labor", "kp_overtime", "kp_deposit", "kp_gambling"},
+    "scam": {"scam", "sextortion", "hacked", "kp_parcel_sms_en"},
+    "distress": {"debt", "basic", "housing", "labor", "kp_overtime", "kp_deposit", "kp_gambling", "kp_lgbt_family"},
 }
 _INTL_CLASS = {"medical": "emergency", "disaster": "emergency", "violence": "violence", "scam": "scam",
                "basic": "distress", "someone": "self_harm"}

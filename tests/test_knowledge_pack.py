@@ -39,6 +39,28 @@ CASES = [
     ("i relapsed on meth", "kp_relapse", "tolerance is lower"),
     ("i've been gambling away my salary", "kp_gambling", "1-800-GAMBLER"),
     ("my period is 3 weeks late and the test is negative", "kp_late_period", "first-morning"),
+    # รอบ 2
+    ("คนในบ้านมีอาการไข้ ไอ หายใจเหนื่อย ออกซิเจนปลายนิ้ว 90", "kp_low_oxygen", "นอนคว่ำ"),
+    ("my oxygen saturation is 89 percent", "kp_low_oxygen", "under 90%"),
+    ("ผู้ป่วยเบาหวานแผลที่เท้าดำ มีกลิ่น", "kp_diabetic_foot", "น้ำเกลือ"),
+    ("my diabetic foot wound is turning black", "kp_diabetic_foot", "amputation"),
+    ("กินยานอนหลับกับเหล้า", "kp_sedative_alcohol", "1367"),
+    ("i took sleeping pills with alcohol", "kp_sedative_alcohol", "Don't sleep alone"),
+    ("i drink every day and get the shakes when i stop", "kp_alcohol_withdrawal_en", "supervised"),
+    ("ถูกแมงกะพรุนต่อยที่ทะเล", "kp_jellyfish", "น้ำส้มสายชู"),
+    ("ติดอยู่ในลิฟต์", "kp_elevator", "199"),
+    ("i'm stuck in an elevator", "kp_elevator", "don't fall"),
+    ("the house next door is on fire", "kp_fire_en", "never the lift"),
+    ("ฉันเป็นเกย์ ที่บ้านจะไล่ออก", "kp_lgbt_family", "1300"),
+    ("ลูกบอกว่าเป็นทรานส์ ทำไงดี", "kp_child_came_out", "ขอบคุณที่บอก"),
+    ("พ่อเสียที่บ้าน ต้องทำอะไรบ้าง", "kp_death_at_home", "24 ชั่วโมง"),
+    ("แจ้งตายต้องใช้อะไร", "kp_death_at_home", "ทะเบียนบ้าน"),
+    ("my mother died at home, what do i do now", "kp_death_at_home", "medical certificate"),
+    ("i want to write a will", "kp_will", "witnesses"),
+    ("หย่าแล้วอีกฝ่ายไม่ให้เจอลูก", "kp_custody", "ศาลเยาวชนและครอบครัว"),
+    ("my ex won't let me see the kids since the divorce", "kp_custody", "family court"),
+    ("someone texted me about a missed parcel with a link", "kp_parcel_sms_en", "official app"),
+    ("i was abused as a child and still have nightmares", "kp_abuse_past_en", "not your fault"),
 ]
 
 
@@ -53,6 +75,8 @@ def test_pack_gives_specific_answer(text, topic, must):
     "ความดัน 120/80 ปกติดี", "แมวกินเก่งมาก อ้วนขึ้น", "ประจำเดือนมาปกติทุกเดือน", "ซื้อเหล้าขาวยี่ห้อดังไปงานบวช",
     "my cat is eating well", "ลูกสาว 14 มีเพื่อนอายุ 15", "แฟนส่งรูปมือถือเครื่องใหม่มาให้ดู", "ทำงานวันละ 8 ชั่วโมง มีโอทีครบ",
     "ลูกหายใจปกติ นอนหลับสบาย", "the passport office opens at 9",
+    "ออกซิเจนปลายนิ้ว 98 ปกติ", "ไปเที่ยวทะเลดูแมงกะพรุนที่พิพิธภัณฑ์สัตว์น้ำ", "ลิฟต์ที่คอนโดเสีย ต้องเดินขึ้นบันได",
+    "เพื่อนเป็นเกย์ เขามีแฟนแล้ว", "หย่าแล้วแต่เลี้ยงลูกด้วยกันดี",
 ])
 def test_pack_does_not_overfire(text):
     assert not set(kp.match(text)) & set(assess(text)["topics"])
@@ -61,8 +85,10 @@ def test_pack_does_not_overfire(text):
 def test_every_entry_is_complete():
     for n, _rx, risk, urgent, th, en in kp.PACK:
         assert n.startswith("kp_") and 0 < risk <= 85
-        assert len(th[1]) <= 3 and len(en[1]) <= 3 and th[2].endswith("?") and en[2].endswith("?")
-        if urgent:   # เรื่องด่วนต้องมีเบอร์ฉุกเฉินในคำตอบไทย
+        assert len(th[1]) <= 3 and len(en[1]) == 3 and en[2].endswith("?")
+        if th[0]:
+            assert len(th[1]) == 3 and th[2].endswith("?")
+        if urgent and th[0]:   # เรื่องด่วนต้องมีเบอร์ฉุกเฉินในคำตอบไทย
             assert any(x in " ".join(th[1]) for x in ("1669", "191", "1300", "1367"))
     # อังกฤษต้องไม่ถูก .capitalize() ทำให้ชื่อประเทศเป็นตัวเล็ก
     assert not any("in thailand" in p for *_x, en in kp.PACK for p in en[1])

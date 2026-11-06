@@ -331,6 +331,197 @@ PACK = [
        "Other common causes: stress, poor sleep, fast weight change, hard exercise, PCOS or thyroid problems — see a doctor if you miss 3 periods.",
        "Severe one-sided lower belly pain, bleeding or fainting needs the ER now (it can be an ectopic pregnancy)."],
       "How many days late is it, and when did you test?")),
+
+    # ── รอบ 2 ─────────────────────────────────────────────────────────────────────────────────────
+    ("kp_low_oxygen",
+     r"(?:ออกซิเจน|ออกซิเจนปลายนิ้ว|ค่าออกซิเจน|spo2|ซีพีโอทู)\S{0,8}\s?(?:[5-8]\d|9[0-3])(?!\d)|\b(?:oxygen (?:saturation|level|sat)s?|spo2|o2 sat\w*)\b[^\n]{0,12}?\b(?:[5-8]\d|9[0-3])\b",
+     80, True,
+     ("ค่าออกซิเจนปลายนิ้วต่ำกว่า 94% ถือว่าต่ำ และต่ำกว่า 90% ต้องได้ออกซิเจนเดี๋ยวนี้",
+      ["วัดซ้ำที่นิ้วอื่น มืออุ่น ล้างยาทาเล็บออก นั่งนิ่ง 1 นาที — ถ้ายังต่ำกว่า 90% หรือหอบ ปากเขียว พูดไม่เป็นประโยค สับสน โทร 1669 ตอนนี้",
+       "92–94% ร่วมกับไข้ ไอ หรือเหนื่อยง่าย ให้ไปโรงพยาบาลวันนี้ อย่ารอถึงพรุ่งนี้ — ระหว่างรอให้นอนคว่ำหรือนั่งเอนไปข้างหน้า หายใจช้าๆ",
+       "คนที่มีโรคปอดเรื้อรังอาจมีค่าปกติต่ำกว่าคนอื่น — ถามหมอที่ดูแลว่าค่าเป้าหมายของเขาเท่าไร"],
+      "วัดซ้ำแล้วได้เท่าไร และหอบหรือพูดเป็นประโยคยากไหม?"),
+     ("An oxygen saturation under 94% is low, and under 90% needs oxygen now.",
+      [f"Recheck on another finger with warm hands and no nail polish, sitting still for a minute. If it's still under 90%, or there's breathlessness, blue lips, trouble speaking in sentences or confusion, {_EMS_EN}.",
+       "92–94% with fever, cough or getting breathless easily means go to hospital today; meanwhile lie on your front or sit leaning forward and breathe slowly.",
+       "People with chronic lung disease may run lower — ask their doctor what their target is."],
+      "What did the second reading show, and is it hard to speak in full sentences?")),
+
+    ("kp_diabetic_foot",
+     r"(?:เบาหวาน)[^\n]{0,30}?(?:แผล|นิ้วเท้า|เท้า)[^\n]{0,20}?(?:ดำ|เหม็น|หนอง|บวมแดง|ลาม|ไม่หาย)|(?:แผล|นิ้วเท้า|เท้า)[^\n]{0,20}?(?:ดำ|เหม็น|หนอง)[^\n]{0,30}?เบาหวาน"
+     r"|\bdiabet\w*\b[^\n]{0,30}?\b(?:foot|toe|wound|ulcer)\b[^\n]{0,30}?\b(?:black|smell\w*|pus|red|spreading|won'?t heal|turning)\b",
+     75, True,
+     ("แผลที่เท้าของคนเป็นเบาหวานที่ดำ มีกลิ่น หรือมีหนอง ลุกลามเร็วและเสี่ยงถูกตัดเท้า — ต้องให้แพทย์ดูวันนี้",
+      ["ไปโรงพยาบาลวันนี้ ถ้ามีไข้ หนาวสั่น แดงลามขึ้นขา หรือน้ำตาลสูงคุมไม่ได้ ไปห้องฉุกเฉินเลย — ไปเองไม่ไหวโทร 1669",
+       "ระหว่างนี้ห้ามเดินลงน้ำหนักเท้านั้น ห้ามแช่น้ำร้อน ห้ามทายาสมุนไพรหรือยาสีฟัน — ล้างด้วยน้ำเกลือแล้วปิดผ้าก๊อซสะอาด",
+       "ป้องกันแผลใหม่: ดูเท้าทุกวัน (ใช้กระจกส่องฝ่าเท้า) ใส่รองเท้าตลอดแม้ในบ้าน และตรวจเท้ากับคลินิกเบาหวานปีละครั้ง"],
+      "มีไข้หรือแดงลามขึ้นขาไหม?"),
+     ("A black, smelly or pus-filled wound on a diabetic foot can spread fast and risk amputation — it needs a doctor today.",
+      ["Go in today; with fever, chills, redness spreading up the leg or very high sugars, go to the ER.",
+       "Until then keep weight off that foot, no hot soaks or home remedies; clean with saline and cover with clean gauze.",
+       "To prevent new ones: check feet daily (a mirror for the soles), always wear shoes, and get a yearly diabetic foot check."],
+      "Is there a fever or redness spreading up the leg?")),
+
+    ("kp_sedative_alcohol",
+     r"(?:ยานอนหลับ|ยากล่อมประสาท|ยาคลายเครียด|ยาคลายกังวล|ยาแก้ปวดแรง|ทรามาดอล|ยาแก้แพ้)\S{0,12}(?:กับ|ร่วมกับ|แล้ว(?:ก็)?(?:ดื่ม|กิน))\S{0,4}(?:เหล้า|แอลกอฮอล์|เบียร์|ไวน์)"
+     r"|(?:เหล้า|เบียร์|แอลกอฮอล์)\S{0,10}(?:แล้ว)?(?:กิน|ทาน)\S{0,4}(?:ยานอนหลับ|ยากล่อมประสาท|ยาคลายเครียด|ทรามาดอล)"
+     r"|\b(?:sleeping pills?|benzos?|xanax|valium|ativan|klonopin|ambien|oxy\w*|opioids?|tramadol|codeine)\b[^\n]{0,24}?\b(?:with|and|after|on top of)\b[^\n]{0,8}?\b(?:alcohol|drinking|drinks|beer|wine|vodka|whiskey)\b",
+     85, True,
+     ("ยานอนหลับหรือยากล่อมประสาทกับเหล้า ทำให้หายใจช้าลงจนหยุดได้ — ต้องมีคนเฝ้าและพร้อมโทร 1669",
+      ["ถ้าปลุกไม่ค่อยตื่น หายใจช้ากว่า 10 ครั้งต่อนาที หายใจกรน ปากเขียว โทร 1669 ตอนนี้ แล้วจับนอนตะแคง",
+       "อย่าปล่อยให้นอนคนเดียวคืนนี้ ห้ามกินยาหรือดื่มเพิ่ม และห้ามทำให้อาเจียน · โทรถามศูนย์พิษวิทยา 1367 ได้ 24 ชม. บอกชื่อยา จำนวน และเวลาที่กิน",
+       "ถ้าตั้งใจกินเพื่อทำร้ายตัวเอง บอกเจ้าหน้าที่ตรงๆ แล้วโทร 1323 คุยได้ตลอด — คุณไม่ต้องผ่านคืนนี้คนเดียว"],
+      "กินยาอะไร กี่เม็ด ดื่มไปเท่าไร และตอนนี้มีใครอยู่ด้วย?"),
+     ("Sleeping pills or sedatives with alcohol can slow breathing until it stops — someone needs to stay with you, ready to call for help.",
+      [f"If it's hard to wake, breathing is slower than 10 a minute, there's snoring-like breathing or blue lips, {_EMS_EN} and put them on their side.",
+       "Don't sleep alone tonight, take nothing more, and don't make yourself sick; poison control can advise (US 1-800-222-1222).",
+       "If you took them to hurt yourself, say so to the responders — and you can call or text 988 (US) or 116 123 (UK) right now."],
+      "What did you take, how many, how much did you drink, and is anyone with you?")),
+
+    ("kp_alcohol_withdrawal_en",
+     r"\b(?:shakes|shaking|tremors?|seeing things|hallucinat\w*|sweats|seizures?)\b[^\n]{0,30}?\b(?:when|after|if) (?:i|he|she|they) (?:stop|stops|stopped|quit|quits)(?: drinking)?\b"
+     r"|\b(?:alcohol|drinking) withdrawal\b|\bdetox(?:ing)? from (?:alcohol|drinking)\b",
+     65, False,
+     ("", [], ""),
+     ("After heavy daily drinking, stopping suddenly can be dangerous — withdrawal can cause seizures.",
+      ["Don't quit cold turkey on your own; see a doctor today about a supervised (medical) detox — medicines make it much safer.",
+       f"Confusion, seeing or hearing things, a seizure, a racing heart or high fever during withdrawal means {_EMS_EN}.",
+       "Free confidential help: US SAMHSA 1-800-662-4357, UK Drinkline 0300 123 1110."],
+      "How much do you usually drink a day, and when was your last drink?")),
+
+    ("kp_jellyfish",
+     r"(?:โดน|ถูก)แมงกะพรุน|แมงกะพรุน\S{0,12}(?:ต่อย|ช็อต|แทง|ไหม้|ปวด|แสบ|โดน)|\b(?:jelly ?fish|box jelly|man o'? ?war)\b[^\n]{0,12}?\bst(?:ing|ung)\b|\bstung by (?:a )?(?:jelly ?fish|box jelly|man o'? ?war)\b",
+     70, False,
+     ("โดนแมงกะพรุนให้ราดน้ำส้มสายชูก่อน — ห้ามขยี้และห้ามล้างด้วยน้ำจืด",
+      ["ขึ้นจากน้ำ แล้วราดน้ำส้มสายชูบนแผลต่อเนื่องอย่างน้อย 30 วินาที (ชายหาดในไทยหลายแห่งมีขวดน้ำส้มสายชูตั้งไว้) แล้วค่อยใช้ถุงมือหรือไม้คีบหนวดออก",
+       "ห้ามขยี้ ห้ามราดน้ำจืด ห้ามใช้ปัสสาวะหรือแอลกอฮอล์ — ทำให้เข็มพิษปล่อยพิษเพิ่ม",
+       "หายใจลำบาก เจ็บหน้าอก หมดสติ สับสน หรือแผลกว้าง (โดยเฉพาะแมงกะพรุนกล่อง) โทร 1669 ทันที — เตรียม CPR ถ้าหยุดหายใจ"],
+      "ตอนนี้หายใจปกติไหม และแผลกว้างแค่ไหน?"),
+     ("For a jellyfish sting, pour vinegar first — don't rub it and don't rinse with fresh water.",
+      ["Get out of the water and pour vinegar over the sting for at least 30 seconds, then lift off tentacles with gloves or tweezers.",
+       "No rubbing, fresh water, urine or alcohol — they make the stingers fire more venom.",
+       f"Trouble breathing, chest pain, confusion, collapse or a large sting (especially box jellyfish): {_EMS_EN} and be ready to start CPR."],
+      "Is breathing normal right now, and how big is the sting?")),
+
+    ("kp_elevator",
+     r"ติด(?:อยู่)?(?:ใน)?ลิฟต์|ลิฟต์(?:ค้าง|ติด|เสีย)\S{0,10}(?:อยู่ข้างใน|ข้างใน|ออกไม่ได้|ติดอยู่)|\b(?:stuck|trapped) in (?:an?|the) (?:elevator|lift)\b|\b(?:elevator|lift) (?:is )?stuck\b",
+     50, False,
+     ("ติดลิฟต์น่ากลัวแต่ส่วนใหญ่ปลอดภัย — ลิฟต์ไม่ตกเพราะมีเบรกฉุกเฉินหลายชั้น",
+      ["กดปุ่มกริ่ง/อินเตอร์คอมในลิฟต์ แล้วโทรหา รปภ. หรือนิติบุคคลของอาคาร บอกชื่ออาคาร หมายเลขลิฟต์ และชั้น · ถ้าไม่มีใครตอบ โทร 199",
+       "ห้ามงัดประตูหรือปีนออกทางเพดานเอง — อันตรายกว่าการรอ · นั่งลงหายใจช้าๆ อากาศในลิฟต์มีพอ",
+       "ถ้ามีคนเป็นลม หายใจลำบาก หรือมีโรคประจำตัว บอกตอนโทรให้ชัด หรือโทร 1669"],
+      "แจ้ง รปภ. หรือกดกริ่งได้แล้วหรือยัง?"),
+     ("Being stuck in a lift is frightening but usually safe — lifts have several emergency brakes and don't fall.",
+      ["Press the alarm or intercom and call building security, giving the building, lift number and floor; if nobody answers, call the fire service (199 in Thailand, 911, 112, 999).",
+       "Don't force the doors or climb out through the ceiling — that's more dangerous than waiting. Sit down and breathe slowly; there is enough air.",
+       "If anyone faints, can't breathe well or has a medical condition, say so clearly when you call."],
+      "Have you been able to reach security or press the alarm?")),
+
+    ("kp_fire_en",
+     r"\b(?:the |a )?(?:house|building|apartment|flat|room|unit|place) (?:next door|nearby|across the (?:street|hall)|downstairs|upstairs) is on fire\b|\bneighbou?rs?'? (?:house|apartment|flat|place) is on fire\b|\b(?:fire|smoke) in (?:the|our) (?:hallway|stairwell|corridor)\b",
+     85, True,
+     ("", [], ""),
+     ("Get out and stay out — smoke is the main danger, not the flames.",
+      ["Call the fire service now (199 in Thailand, 911 in the US, 112 in Europe, 999 in the UK) and give the exact address.",
+       "If the hallway is clear, leave by the stairs (never the lift), shutting doors behind you; if it's full of smoke, stay in your room, block the gap under the door with wet towels and signal from a window.",
+       "Stay low where the air is cleaner, warn neighbours as you go, and don't go back in for anything."],
+      "Is the way out of your building clear of smoke right now?")),
+
+    ("kp_lgbt_family",
+     r"(?:เกย์|เลสเบี้ยน|เลส|ทรานส์|ข้ามเพศ|ไบ|LGBT\w*|เพศทางเลือก|กะเทย|ทอม)[^\n]{0,24}?(?:ไล่(?:ออก)?(?:จากบ้าน)?|ไม่ยอมรับ|ตัดขาด|ด่า|ตี|บังคับ(?:แต่ง|ให้เปลี่ยน|รักษา))"
+     r"|(?:ไล่(?:ออก)?(?:จากบ้าน)?|ไม่ยอมรับ|ตัดขาด)[^\n]{0,24}?(?:เพราะ)?(?:เป็น)?(?:เกย์|เลสเบี้ยน|ทรานส์|ข้ามเพศ|LGBT\w*|เพศทางเลือก)"
+     r"|\b(?:kick(?:ed|ing)? me out|disown\w*|throw me out|conversion therapy)\b[^\n]{0,30}?\b(?:gay|lesbian|bi(?:sexual)?|trans\w*|queer|lgbt\w*)\b",
+     60, False,
+     ("ตัวตนของคุณไม่ใช่ความผิด — ตอนนี้เรื่องแรกคือมีที่อยู่ที่ปลอดภัย",
+      ["ถ้ากำลังจะถูกไล่ออกหรือไม่ปลอดภัยในบ้าน โทร 1300 (พม. 24 ชม.) ขอที่พักฉุกเฉินได้ · เก็บบัตรประชาชน ยาประจำตัว ที่ชาร์จ และเงินติดตัวไว้",
+       "\"การบำบัดเปลี่ยนเพศวิถี\" ไม่ได้ผลและทำร้ายจิตใจ — ไม่ต้องยอมไป ถ้าถูกบังคับหรือถูกทำร้าย แจ้ง 191 ได้",
+       "เครียดหรือคิดทำร้ายตัวเอง โทร 1323 ได้ตลอด — หาเพื่อนหรือกลุ่มที่ยอมรับคุณสักคน การมีคนเข้าใจแม้คนเดียวช่วยได้มาก"],
+      "คืนนี้คุณมีที่ที่ปลอดภัยไว้นอนไหม?"),
+     ("Who you are isn't something you did wrong — the first thing right now is a safe place to stay.",
+      ["If you're being kicked out or aren't safe at home, contact a youth or LGBTQ+ housing service (US: The Trevor Project 1-866-488-7386 or text START to 678-678; UK: akt.org.uk). Keep your ID, medicines, charger and some money with you.",
+       "\"Conversion therapy\" doesn't work and causes harm — you don't have to go. If you're forced or hurt, call the police.",
+       "If you feel overwhelmed or think about hurting yourself, call or text 988 (US) or 116 123 (UK) any time."],
+      "Do you have somewhere safe to sleep tonight?")),
+
+    ("kp_child_came_out",
+     r"ลูก\S{0,8}(?:บอกว่า|เพิ่งบอกว่า|ยอมรับว่า|เปิดตัวว่า)?\S{0,4}(?:เป็น|ชอบ)\S{0,2}(?:เกย์|เลสเบี้ยน|ทรานส์|ข้ามเพศ|ไบ|LGBT\w*|ผู้ชายด้วยกัน|ผู้หญิงด้วยกัน)"
+     r"|\bmy (?:son|daughter|kid|child|teen)\b[^\n]{0,24}?\b(?:came out|told (?:me|us) (?:he|she|they)(?:'s| is| are)|is) (?:as )?(?:gay|lesbian|bi(?:sexual)?|trans\w*|queer|non-?binary)\b",
+     25, False,
+     ("ลูกเลือกบอกคุณ แปลว่าลูกไว้ใจคุณมาก — คุณไม่จำเป็นต้องมีคำตอบทุกข้อในวันนี้",
+      ["ประโยคแรกสำคัญที่สุด: \"ขอบคุณที่บอกนะ พ่อ/แม่ยังรักลูกเหมือนเดิม\" — ถ้ายังสับสน บอกได้ว่าขอเวลาทำความเข้าใจ แต่ไม่โกรธลูก",
+       "เด็กที่ครอบครัวยอมรับ มีความเสี่ยงซึมเศร้าและทำร้ายตัวเองต่ำกว่ามาก · หลีกเลี่ยง \"การบำบัดเปลี่ยนเพศวิถี\" เพราะไม่ได้ผลและทำร้ายลูก",
+       "ถ้าคุณเองเครียดหรือไม่รู้จะเริ่มยังไง ปรึกษา 1323 ได้ — สำหรับพ่อแม่ก็ได้ ไม่ใช่เฉพาะลูก"],
+      "ตอนนี้สิ่งที่คุณกังวลที่สุดคือเรื่องอะไร?"),
+     ("Your child chose to tell you — that means they trust you a lot. You don't need every answer today.",
+      ["The first words matter most: \"Thank you for telling me, I love you just the same.\" If you're unsure, it's fine to say you need time to understand — just not that you're angry.",
+       "Young people whose families accept them have much lower rates of depression and self-harm; avoid \"conversion therapy\", which doesn't work and causes harm.",
+       "Support for parents exists too (PFLAG in the US, FFLAG in the UK)."],
+      "What worries you most right now?")),
+
+    ("kp_death_at_home",
+     r"(?:พ่อ|แม่|ยาย|ตา|ปู่|ย่า|สามี|ภรรยา|ลูก|ญาติ|ผู้ป่วย|คนในบ้าน)\S{0,6}(?:เสีย(?:ชีวิต)?|ตาย|สิ้นใจ)\S{0,4}(?:ที่บ้าน|ในบ้าน)|แจ้ง(?:การ)?ตาย|(?:ใบ)?มรณบัตร|หนังสือรับรองการตาย"
+     r"|\b(?:died|passed away|has died) (?:at home|in (?:his|her|their) sleep)\b|\bdeath certificate\b|\bwhat (?:do i|to) do (?:now )?(?:when|after) (?:someone|my \w+) dies\b",
+     30, False,
+     ("ขอแสดงความเสียใจด้วยนะ — ไม่ต้องรีบทำทุกอย่างพร้อมกัน ทำตามลำดับนี้ทีละขั้นก็พอ",
+      ["ถ้าเสียชีวิตกะทันหันหรือไม่แน่ใจว่าเสียแล้ว โทร 1669 ก่อน · ถ้าไม่ใช่การเสียจากโรคที่รักษาอยู่ (เช่น อุบัติเหตุ) แจ้งตำรวจ 191 และอย่าเคลื่อนย้ายร่าง",
+       "เสียที่บ้าน ต้องแจ้งตายที่สำนักทะเบียน (อำเภอ/เขต/เทศบาล) ภายใน 24 ชั่วโมง — เตรียมบัตรประชาชนและทะเบียนบ้านของผู้เสียชีวิตกับของผู้แจ้ง และหนังสือรับรองการตายจากแพทย์ หรือ รพ.สต. ถ้ามี",
+       "หลังได้มรณบัตร ค่อยติดต่อวัด ธนาคาร ประกันสังคม (ค่าทำศพ/เงินสงเคราะห์) และประกันชีวิต — ให้ญาติช่วยแบ่งงานกันได้"],
+      "ตอนนี้มีใครอยู่ด้วยไหม?"),
+     ("I'm so sorry. You don't have to do everything at once — just take these one at a time.",
+      [f"If the death was sudden or you're not sure they've died, {_EMS_EN}. If it wasn't from a known illness, the police also need to be told; don't move them.",
+       "If it was expected (an illness they were being treated for), call their doctor or hospice to confirm the death and get the medical certificate, then register the death with the local registry office within the time your country requires.",
+       "After that come the funeral home, bank, pension or social security and insurance — let family share the tasks."],
+      "Is anyone with you right now?")),
+
+    ("kp_will",
+     r"\b(?:write|make|making|writing) (?:a|my) will\b|\blast will\b",  # ไทยมีคำตอบเดิมใน kernel อยู่แล้ว
+     10, False,
+     ("ทำพินัยกรรมเองได้ ไม่จำเป็นต้องจ้างทนายเสมอไป — แค่ต้องทำให้ถูกแบบ",
+      ["แบบที่ทำง่าย: เขียนหรือพิมพ์ ลงวันที่ ลงชื่อต่อหน้าพยานอย่างน้อย 2 คนพร้อมกัน แล้วพยานลงชื่อด้วย · พยานต้องไม่ใช่คนที่ได้รับมรดกตามพินัยกรรมนั้น (และคู่สมรสของเขา)",
+       "หรือเขียนด้วยลายมือตัวเองทั้งฉบับ ลงวันที่และลายมือชื่อ ก็ใช้ได้ · อยากให้มั่นใจที่สุด ทำพินัยกรรมเอกสารฝ่ายเมืองที่อำเภอหรือเขต",
+       "ระบุทรัพย์ให้ชัด (เลขโฉนด เลขบัญชี) และตั้งผู้จัดการมรดก · ปรึกษาทนายฟรีที่สภาทนายความ 1167"],
+      "อยากแบ่งทรัพย์สินแบบไหน และมีใครที่อาจโต้แย้งไหม?"),
+     ("You can make a will yourself — it just has to follow the right form.",
+      ["Rules differ by country, but most require it in writing, dated, signed in front of witnesses who also sign, and witnesses shouldn't be people who inherit under it.",
+       "Name your executor and describe assets precisely (account numbers, property titles).",
+       "For anything complex — property abroad, a business, children from different relationships — a lawyer or legal aid clinic is worth it."],
+      "How do you want things divided, and is anyone likely to dispute it?")),
+
+    ("kp_custody",
+     r"(?:หย่า|เลิกกัน|แยกทาง)[^\n]{0,24}?(?:ไม่ให้(?:ฉัน|ผม)?(?:เจอ|เห็น|พบ)ลูก|ไม่ให้ลูก(?:มา)?(?:เจอ|หา)|แย่งลูก|พาลูกหนี|อำนาจปกครอง|สิทธิ์เลี้ยงลูก)|อำนาจปกครองบุตร"
+     r"|\b(?:won'?t let me see (?:the|my) (?:kids?|children|son|daughter)|custody (?:battle|dispute|of (?:my|our|the) (?:kids?|children))|took (?:the|my) kids? (?:and left|away))\b",
+     30, False,
+     ("การได้เจอลูกหลังหย่าเป็นสิทธิ์ที่ขอศาลได้ — และเป็นสิทธิ์ของลูกด้วย",
+      ["ในไทย ถ้าไม่ได้จดทะเบียนสมรส พ่อยังไม่มีอำนาจปกครองโดยอัตโนมัติ ต้องจดทะเบียนรับรองบุตรก่อน · ถ้าหย่าแล้ว ดูว่าในบันทึกการหย่าหรือคำพิพากษาตกลงเรื่องลูกไว้อย่างไร",
+       "ยื่นคำร้องขอใช้อำนาจปกครองหรือขอติดต่อลูกที่ศาลเยาวชนและครอบครัวได้ — ศาลดูประโยชน์ของเด็กเป็นหลัก · ปรึกษาฟรีที่สภาทนายความ 1167",
+       "จดวันที่ขอเจอแล้วถูกปฏิเสธ เก็บแชท และจ่ายค่าเลี้ยงดูต่อเนื่อง · อย่าพาลูกไปโดยพลการ เพราะจะเสียเปรียบในศาล"],
+      "ตอนหย่าได้ตกลงเรื่องลูกไว้เป็นลายลักษณ์อักษรไหม?"),
+     ("Seeing your children after a divorce is something you can ask a court to protect — it's your children's right too.",
+      ["Check what your divorce agreement or court order says about the children; if there's none, you can apply to the family court for contact or custody.",
+       "Keep a record of each refused visit and the messages, and keep paying child support — it all counts.",
+       "Don't take the children without agreement; get advice from legal aid or a family lawyer first."],
+      "Was there a written agreement about the children when you separated?")),
+
+    ("kp_parcel_sms_en",
+     r"\b(?:missed|undelivered|held|pending|failed) (?:parcel|package|delivery|shipment)\b[^\n]{0,40}?\b(?:link|click|text|sms|message|fee|pay)\b|\b(?:text|sms|message)\b[^\n]{0,30}?\b(?:parcel|package|delivery)\b[^\n]{0,30}?\b(?:link|fee)\b",
+     55, False,
+     ("", [], ""),
+     ("Texts about a missed parcel with a link are one of the most common scams — don't click it.",
+      ["Check delivery status only in the courier's official app or by typing their website yourself; real couriers rarely ask for a fee by text.",
+       "If you already clicked and entered card or bank details, call your bank now to block the card, and change any password you typed.",
+       "Report it (US: forward to 7726; UK: forward to 7726) and delete the message."],
+      "Did you click the link or enter any details?")),
+
+    ("kp_abuse_past_en",
+     r"\b(?:i was|i got|i've been) (?:sexually )?(?:abused|molested|assaulted) (?:as a (?:child|kid|teen)|when i was (?:a )?(?:child|kid|young|little|\d{1,2}))\b|\bchildhood (?:sexual )?abuse\b",
+     50, False,
+     ("", [], ""),
+     ("What happened to you as a child was not your fault — and the nightmares are your mind still trying to protect you.",
+      ["Trauma-focused therapy (such as TF-CBT or EMDR) helps a lot, even many years later; you can ask a GP or counsellor for a referral.",
+       "Support lines for adult survivors: US RAINN 1-800-656-4673, UK NAPAC 0808 801 0331.",
+       "If the person who hurt you may still be around children, you can report it at any time — there's often no time limit."],
+      "Do you have anyone you can talk to about this, even a little?")),
+
 ]
 
 # ถามเพื่อความรู้ ไม่ใช่เกิดกับใครตอนนี้ — "อธิบายลมแดดให้หน่อย จะทำรายงาน"
@@ -348,7 +539,9 @@ RX = {n: re.compile(r"^(?![\s\S]*(?:" + EDU + r"))" + (r"(?!" + NEG[n] + r")" if
 
 def th_topics() -> list:
     """รูปแบบเดียวกับ TOPICS ใน kernel_voice: (ชื่อ, [regex], {open, paths, ask})"""
-    return [(n, [RX[n]], {"open": [th[0]], "paths": list(th[1]), "ask": th[2]}) for n, _rx, _r, _u, th, _en in PACK]
+    # เรื่องที่มีแต่ฉบับอังกฤษ (regex อังกฤษล้วน) ใช้คำตอบอังกฤษเป็นค่าสำรอง
+    return [(n, [RX[n]], {"open": [(th if th[0] else en)[0]], "paths": list((th if th[0] else en)[1]), "ask": (th if th[0] else en)[2]})
+            for n, _rx, _r, _u, th, en in PACK]
 
 
 def en_topics() -> dict:
