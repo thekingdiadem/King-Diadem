@@ -253,8 +253,12 @@ KEEP_SECRET = _rx(r"(?:ห้าม|อย่า)บอก(?:พ่อ|แม่
                   r"\b(?:keep (?:their|the|it|this|our) (?:chats?|messages?|conversations?|it|this)?\s?(?:a )?secret|don'?t tell (?:your )?(?:mom|mum|dad|parents|anyone)|delete (?:the|their) (?:chats?|messages))\b")
 
 
+MEET_GIFT = _rx(r"ชวน\S{0,6}(?:ไป)?(?:เจอ|หา|ค้าง)", r"นัด(?:เจอ|ไปเจอ)", r"ออกไปเจอ", r"มารับ", r"ส่งของ(?:ขวัญ)?\S{0,4}ให้", r"เติม(?:เกม|เพชร|เงินเกม)ให้", r"ให้(?:โรบัค|เพชร|สกิน)",
+                r"\b(?:meet (?:up|in person|him|her|them)|come over|pick (?:her|him) up|sent (?:her|him) (?:gifts?|money|robux|v-?bucks|skins)|buys? (?:her|him) (?:gifts?|robux|skins))\b")
+
+
 def secret_chat_minor(t: str) -> Hit | None:
-    if MINOR.search(t) and CONTACT.search(t) and KEEP_SECRET.search(t) and not re.search(r"เซอร์ไพรส์|วันเกิด|\bsurprise\b|\bbirthday\b", t, re.I):
+    if MINOR.search(t) and (CONTACT.search(t) or MEET_GIFT.search(t)) and KEEP_SECRET.search(t) and not re.search(r"เซอร์ไพรส์|วันเกิด|\bsurprise\b|\bbirthday\b", t, re.I):
         return Hit("secret_chat_minor", "online_grooming", 80)
     return None
 
@@ -404,10 +408,54 @@ def scam_isolate_official(t: str) -> Hit | None:
     return None
 
 
+# ── ข้อความลาทุกคน + "จะไม่รบกวนใครอีก" (ไม่ใช่อีเมลลาออก/ย้ายงาน/เกษียณ) ─────────────────────────────────
+NO_BURDEN = _rx(r"(?:จะ)?ไม่(?:รบกวน|เป็นภาระ|ทำให้ใคร\S{0,6}ลำบาก)(?:ใคร|ทุกคน)?(?:อีก(?:แล้ว|ต่อไป)?)", r"ขอบคุณที่(?:ทน|อดทน)(?:กับ)?(?:ฉัน|ผม|หนู|กัน)?(?:มา|ได้)",
+                r"\b(?:won'?t (?:bother|burden|trouble) (?:anyone|you(?: all)?|any of you) (?:again|any ?more)|thanks? (?:you )?for putting up with me|no longer be a burden)\b")
+FAREWELL = _rx(r"(?:อีเมล|ข้อความ|จดหมาย|โพสต์|แชท)\S{0,4}ลา", r"บอกลา", r"ลาทุกคน", r"ลาก่อน", r"\b(?:goodbye|farewell|saying bye to everyone)\b")
+JOB_MOVE = _rx(r"ลาออก", r"ย้าย(?:งาน|บริษัท|แผนก|ไป)", r"เกษียณ", r"วันสุดท้ายของการทำงาน", r"งานใหม่", r"ไปเรียนต่อ", r"ไปทำงานที่",
+               r"\b(?:resign\w*|last day (?:at|of)|new job|retir\w+|moving to|transferr\w+|starting at)\b")
+
+
+def farewell_no_burden(t: str) -> Hit | None:
+    if NO_BURDEN.search(t) and FAREWELL.search(t) and not JOB_MOVE.search(t):
+        return Hit("farewell_no_burden", "someone" if OTHER_SPEAKER.search(t) or re.search(r"เพื่อน|เขา|เธอ|\b(?:she|he|they|my (?:friend|coworker|colleague))\b", t, re.I) else "warning", 80)
+    return None
+
+
+# ── หยุดยา/หยุดรักษาเอง + "ไม่มีประโยชน์แล้ว" (ไม่ใช่หมอสั่งให้หยุด) ─────────────────────────────────────
+STOP_CARE = _rx(r"(?:หยุด|เลิก|ไม่ยอม|ไม่)(?:กิน)?ยา", r"ทิ้งยา", r"ไม่(?:ยอม)?(?:ไป)?(?:หาหมอ|รักษา|ฟอกไต|ให้คีโม|ฉีดอินซูลิน)", r"ขอ(?:หยุด|เลิก)รักษา",
+                r"\b(?:stopped (?:taking|using) (?:his|her|my|their)? ?(?:\w+ )?(?:meds|medications?|medicine|pills|insulin|inhaler)|refus\w* (?:his|her|my)? ?(?:meds|treatment|dialysis|chemo|insulin)|quit (?:his|her|my) (?:meds|treatment|dialysis))\b")
+HOPELESS = _rx(r"ไม่มีประโยชน์", r"ไม่มีความหมาย", r"อยู่ไปก็เท่านั้น", r"อยู่ไปทำไม", r"ไม่อยาก(?:อยู่|รักษา)แล้ว", r"ปล่อยให้มันเป็นไป",
+               r"\b(?:no point|what'?s the point|pointless|nothing to live for|tired of living|let (?:it|nature) take|ready to go|done with (?:it|life|all this))\b")
+DOCTOR_OK = _rx(r"หมอ\S{0,6}(?:สั่ง|ให้|บอก)\S{0,4}(?:หยุด|เลิก|เปลี่ยน)", r"แพ้ยา", r"เปลี่ยนยา", r"\b(?:doctor (?:said|told|switched|stopped)|side effects|allergic)\b")
+
+
+def stop_care_hopeless(t: str) -> Hit | None:
+    if STOP_CARE.search(t) and HOPELESS.search(t) and not DOCTOR_OK.search(t):
+        third = re.search(r"(?:พ่อ|แม่|ยาย|ตา|ปู่|ย่า|สามี|ภรรยา|เพื่อน|ลูก)|\b(?:my (?:dad|mom|mum|father|mother|grand\w+|husband|wife|friend|son|daughter|brother|sister)|he|she)\b", t, re.I)
+        return Hit("stop_care_hopeless", "someone" if third else "warning", 80)
+    return None
+
+
+# ── เจ้าของหอ/บ้านขู่จะขนของออก ล็อกห้อง เปลี่ยนกุญแจ (การไล่ที่เอง ผิดกฎหมาย) ───────────────────────────────
+EVICT_ACT = _rx(r"ขนของ\S{0,6}ออก", r"โยนของ", r"เอาของ\S{0,6}(?:ออก|ไปวาง)", r"(?:ล็อก|ล๊อก|ปิด)ห้อง", r"เปลี่ยน(?:กุญแจ|แม่กุญแจ)", r"ตัด(?:ไฟ|น้ำ)ห้อง", r"ไล่(?:ออก)?(?:จากห้อง|จากหอ)?",
+                r"\b(?:throw (?:my|our) (?:stuff|things|belongings) out|change (?:the )?locks|lock (?:me|us) out|kick (?:me|us) out|put (?:my|our) (?:stuff|things) (?:outside|on the street))\b")
+
+
+EVICT_THREAT = _rx(r"ขู่", r"ถ้าไม่(?:จ่าย|โอน)", r"ไม่งั้น", r"ค้าง", r"ภายใน", r"\b(?:threat\w*|if (?:i|we) don'?t pay|unless|behind on|overdue|by (?:friday|monday|tomorrow))\b")
+
+
+def landlord_threat(t: str) -> Hit | None:
+    if _near(RENT, EVICT_ACT, t, 80) and EVICT_THREAT.search(t) and not re.search(r"ย้ายห้อง|ย้ายไปห้อง|\bmoving rooms?\b", t, re.I):
+        return Hit("landlord_threat", "housing", 70)
+    return None
+
+
 RULES = (child_ingest, absence_prep, lethality_research, scam_unasked_money, scam_multiplier, basic_needs,
          food_floor, entrust_giveup, giveaway_final, plan_specific, bill_due,
          scam_pay_first, scam_online_only, scam_link_pressure, scam_gift_card, scam_family_emergency, scam_paid_vanished,
-         scam_task_job, scam_isolate_official, farewell_apology, repossession, secret_chat_minor)
+         scam_task_job, scam_isolate_official, farewell_apology, repossession, secret_chat_minor,
+         farewell_no_burden, stop_care_hopeless, landlord_threat)
 
 
 def check(text) -> list[Hit]:

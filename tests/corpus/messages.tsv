@@ -663,3 +663,14 @@ someone keeps messaging my 12 year old asking her to keep their chats a secret	t
 ขอโทษที่ทำให้เหนื่อย ต่อไปจะตั้งใจเรียน	!topic:warning	ปกติ
 ลูกกับเพื่อนแชทกันเป็นความลับเรื่องเซอร์ไพรส์วันเกิดแม่	!topic:online_grooming	ปกติ
 I'm giving away my old books to the library	!topic:warning;!topic:someone	ปกติ
+
+# ── ย้ายมาจากชุดปิดตารอบ 7 (core/conditions.py: farewell_no_burden · stop_care_hopeless · landlord_threat · secret_chat_minor ชวนเจอ/ส่งของ) ──
+เพื่อนร่วมงานเขียนอีเมลลาทุกคน บอกว่าขอบคุณที่ทนกันมา หลังจากนี้จะไม่รบกวนใครอีก	topic:someone	คนใกล้ตัว
+my dad stopped taking his heart meds and says there's no point anymore	topic:someone	คนใกล้ตัว
+เจ้าของหอขู่ว่าถ้าไม่จ่ายภายในศุกร์นี้จะขนของออกมาวางหน้าห้อง	topic:housing	เดือดร้อน
+เด็กข้างบ้านบอกว่ามีพี่ในเกมส่งของขวัญให้ แล้วชวนไปเจอกันโดยห้ามบอกแม่	topic:online_grooming	ล่อลวงเด็ก
+# ข้อที่ต้องไม่จับ
+เขียนอีเมลลาออกถึงทุกคน ขอบคุณที่ทนกันมา วันสุดท้ายของการทำงานคือศุกร์นี้	!topic:warning;!topic:someone	ปกติ
+หมอให้หยุดกินยาเพราะแพ้ยา ไม่มีประโยชน์ที่จะฝืน	!topic:warning;!topic:someone	ปกติ
+เจ้าของหอให้ขนของออกตอนย้ายห้องใหม่ไปชั้นสอง	!topic:housing	ปกติ
+ลูกกับเพื่อนชวนไปเจอกันที่สวน แอบไปซื้อของขวัญวันเกิดแม่ ห้ามบอกแม่นะ	!topic:online_grooming	ปกติ
