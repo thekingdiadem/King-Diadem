@@ -1237,3 +1237,6 @@ body.mode-dz .comp-row1,body.mode-img .comp-row1,body.mode-dz #starters,body.mod
 /* แดชบอร์ดเจ้าของ: สุขภาพระบบ */
 .biz-health{margin:12px 0 0;padding:10px 12px;border-radius:var(--r-tile,16px);border:1px solid var(--line-2);font-size:13px;line-height:1.6}
 .biz-health b{display:block;margin-bottom:4px;color:var(--ink)}.biz-health p{margin:2px 0;color:var(--ink-2)}
+
+/* บอกผู้ใช้ตรงๆ ว่าคุยกับ AI (EU AI Act Art. 50) — ตัวเล็กแต่ต้องอ่านออก ไม่จางจนมองไม่เห็น */
+.ai-note{margin:8px 4px 0;font-size:12px;line-height:1.5;opacity:.78;text-align:center}

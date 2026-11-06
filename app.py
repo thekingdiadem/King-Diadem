@@ -239,6 +239,9 @@ except Exception as e:
     planetary_status = get_learning = get_nodes = None
     record_learning  = add_node = node_summary = None
 
+# ── DECISION AUDIT TRAIL: เขียนต่อท้าย + ร้อยด้วย hash (core/audit_log.py) ──
+from core import audit_log as _audit
+
 # ── BELIEF CORE — v4.8 ────────────────────────────────────────────
 try:
     from AI_KERNEL.belief_core import (
@@ -986,6 +989,12 @@ def _backup_hours():
         return None if a is None else round(a / 3600, 1)
     except Exception:
         return None
+
+
+@app.get("/api/audit/status")
+def audit_status():
+    """ผู้ตรวจดูได้ว่าโซ่ hash ของบันทึกการตัดสินใจครบไหม — ไม่คืนเนื้อหาบันทึก"""
+    return _audit.status()
 
 
 @app.get("/health")
@@ -2810,6 +2819,12 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                       "W": k.get("W"), "risk": k.get("risk"), "topics": (k.get("topics") or [])[:3]})
         except Exception as e:
             print(f"⚠ civilization node: {type(e).__name__}")
+    try:   # บันทึกตรวจสอบย้อนหลัง — ไม่มีข้อความผู้ใช้ มีแค่เส้นทาง แหล่งคำตอบ ความเสี่ยง หัวข้อ
+        _audit.record({"kind": "decision", "route": result.get("route"), "source": result.get("answer_source"),
+                       "W": (k_assess or {}).get("W"), "risk": (k_assess or {}).get("risk"),
+                       "topics": ((k_assess or {}).get("topics") or [])[:3]})
+    except Exception as e:
+        print(f"⚠ audit log: {type(e).__name__}")
 
     # ── BELIEF ENFORCE — v4.8 (v4.9.1: safe-default guard) ────────
     # ถ้า belief_audit fail ก่อนหน้านี้ belief_report จะเป็น None
