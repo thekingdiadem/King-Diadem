@@ -205,3 +205,26 @@ def test_round9_conditions(text, rule, topic):
 def test_round9_no_overfire(text):
     from core.conditions import check
     assert not [h for h in check(text) if h.rule in ("stop_care_hopeless", "goodbye_never_again", "child_image_shared")]
+
+
+# ── รอบ 10: ยกเงินเก็บ+ไม่ต้องห่วงแล้ว · คนใกล้ตัวค้นขนาดยา · ผู้ใหญ่ที่มีอำนาจแยกเด็กไปลำพังแล้วให้ถอด/ถ่ายรูป ──
+@pytest.mark.parametrize("text,rule,topic", [
+    ("พี่สาวโอนเงินออมทั้งหมดให้พ่อ บอกว่าไม่ต้องเป็นห่วงเธออีกแล้ว", "giveaway_final", "someone"),
+    ("my son looked up how many tylenol tablets it takes", "lethality_research", "someone"),
+    ("โค้ชเรียกลูกชายไปห้องเก็บของคนเดียวแล้วให้ถอดเสื้อ", "adult_isolates_child", "sexual_abuse"),
+    ("the tutor keeps my daughter alone behind a closed door and took photos", "adult_isolates_child", "sexual_abuse"),
+])
+def test_round10_conditions(text, rule, topic):
+    from core.conditions import check
+    from core.kernel_voice import assess
+    assert rule in [h.rule for h in check(text)]
+    assert assess(text)["topics"][0] == topic
+
+
+@pytest.mark.parametrize("text", [
+    "ยกเงินเก็บให้แม่ไปเที่ยวญี่ปุ่น ไม่ต้องห่วงฉันแล้วนะ ฉันได้งานใหม่", "how many vitamin c tablets per day is safe for kids",
+    "ครูให้นักเรียนเปลี่ยนชุดพละในห้องน้ำ แล้วถ่ายรูปกิจกรรมลงเพจโรงเรียน", "the coach took photos of the whole team after the game",
+])
+def test_round10_no_overfire(text):
+    from core.conditions import check
+    assert not [h for h in check(text) if h.rule in ("giveaway_final", "lethality_research", "adult_isolates_child")]

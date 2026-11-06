@@ -93,7 +93,7 @@ RESEARCH = _rx(r"ค้นหา", r"เสิร์ช", r"เสิช", r"ห
                r"\b(?:look(?:ed|ing)? up|googl\w*|search\w*|research\w*|reading (?:up )?about|wonder\w*|figur\w* out|trying to find out)\b")
 # ไทย: ต้องมีคำบอกผลลัพธ์ ("ถึงจะตาย/ไม่รอด/ไม่ตื่น") — "ตึกนี้สูงกี่ชั้น" เป็นคำถามทั่วไป
 THRESHOLD = _rx(r"(?:สูง(?:แค่ไหน|เท่าไหร่|กี่เมตร)|กี่ชั้น|กี่เม็ด|กี่แผง|ปริมาณ(?:เท่าไหร่|เท่าไร|แค่ไหน)|เท่าไหร่|แค่ไหน)\S{0,4}ถึง(?:จะ)?(?:ตาย|ไม่รอด|หลับไม่ตื่น|ไม่ตื่น|อันตรายถึงชีวิต)",
-                r"\bhow (?:high|far|tall|long) (?:a |the )?(?:fall|drop|jump|building|bridge|floor)\b", r"\bhow many (?:pills|tablets|floors|stories|storeys)\b",
+                r"\bhow (?:high|far|tall|long) (?:a |the )?(?:fall|drop|jump|building|bridge|floor)\b", r"\bhow many (?:\w+ )?(?:pills|tablets|floors|stories|storeys)\b(?:[^\n]{0,12}\b(?:it takes|does it take|would it take|to)\b)?",
                 r"\bhow much (?:\w+ )?(?:insulin|medication|medicine|pills|of (?:my|these|the) (?:meds|pills))\b", r"\b(?:lethal|fatal|deadly) (?:dose|amount|height)\b", r"\bhas to be\b(?=[^\n]{0,20}\b(?:fall|drop|high)\b)|\b(?:fall|drop)\b[^\n]{0,20}\bhas to be\b")
 NOT_SELF = _rx(r"โทรศัพท์", r"มือถือ", r"ไข่", r"แก้ว", r"แมว", r"หมา", r"สุนัข", r"การบ้าน", r"ฟิสิกส์", r"นิยาย", r"เกม", r"รายงาน", r"สัตว์",
                r"\b(?:phone|egg|glass|cat|dog|pet|homework|physics|engineering|class|novel|story|game|parachute|bungee|skydiv\w*|drone|package|data)\b")
@@ -103,7 +103,8 @@ def lethality_research(t: str) -> Hit | None:
     if NOT_SELF.search(t):
         return None
     if _near(RESEARCH, THRESHOLD, t, 50):
-        return Hit("lethality_research", "warning", 70)
+        third = re.search(r"\b(?:my (?:teen|son|daughter|kid|child|friend|brother|sister|partner|wife|husband|mom|dad)|he|she)\b|(?:ลูก|เพื่อน|น้อง|แฟน)\S{0,6}(?:ค้น|เสิร์ช|หาข้อมูล)", t, re.I)
+        return Hit("lethality_research", "someone" if third else "warning", 75)
     return None
 
 
@@ -200,15 +201,17 @@ def entrust_giveup(t: str) -> Hit | None:
 
 # ── ยกสิ่งที่รักให้คนอื่น พร้อมคำปิดท้ายแบบจบ ("ดีที่สุดแล้ว" "ไม่ต้องใช้อีกแล้ว") — ย้ายบ้าน/แพ้ขน ไม่นับ ─────────────
 GIVE_AWAY = _rx(r"(?:ยก|เอา|ส่ง)(?:หมา|แมว|สุนัข|น้อง(?:หมา|แมว)|สัตว์เลี้ยง|ของรัก|ของ\S{0,6})\S{0,8}(?:ไป)?ให้", r"แจก(?:ของ|ข้าวของ|เสื้อผ้า)\S{0,8}(?:หมด|ทั้งหมด|ไปแล้ว)",
+                r"(?:เอา|ยก|โอน|ให้)(?:เงินเก็บ|เงินทั้งหมด|เงินออม|ทรัพย์สิน|ทอง|บ้าน|รถ)\S{0,10}(?:ไป)?ให้",
+                r"\b(?:gave|giving|transferred|left) (?:all )?(?:my|his|her|their) (?:savings|money|bank account|car|house)\b",
                 r"\b(?:gave|giving|give|handed|been giving) (?:away )?(?:my|all my|her|his|their|all (?:her|his|their)) (?:dog|cat|pets?|puppy|kitten|things|stuff|belongings|guitar|books|clothes|plants|records|vinyl|art|jewel(?:le)?ry|games|collection|favou?rite \w+)\b")
-FINAL_NOTE = _rx(r"ดีที่สุดแล้ว", r"ดีกว่า(?:อยู่กับ)?(?:ฉัน|ผม|หนู|เรา)", r"ไม่(?:ต้อง|ได้)ใช้(?:มัน)?(?:อีก)?แล้ว", r"จะได้มีคนดูแล", r"(?:ฉัน|ผม|หนู)ดูแล(?:เขา|มัน)ไม่ได้อีกแล้ว",
-                 r"\b(?:for the best|won'?t (?:need|be needing) (?:it|them)|better off (?:with|without)|someone (?:who can|to) (?:take care|look after))\b")
-GIVE_OK = _rx(r"ย้าย(?:บ้าน|ห้อง|หอ|งาน|ไป)", r"แพ้ขน", r"เจ้าของ(?:ห้อง|หอ|คอนโด)ไม่ให้", r"ห้ามเลี้ยง", r"ทารก|คลอด|ตั้งครรภ์", r"บริจาค",
+FINAL_NOTE = _rx(r"ดีที่สุดแล้ว", r"ดีกว่า(?:อยู่กับ)?(?:ฉัน|ผม|หนู|เรา)", r"ไม่(?:ต้อง|ได้)ใช้(?:มัน)?(?:อีก)?แล้ว", r"จะได้มีคนดูแล", r"(?:ฉัน|ผม|หนู)ดูแล(?:เขา|มัน)ไม่ได้อีกแล้ว", r"ไม่ต้อง(?:เป็น)?ห่วง(?:เขา|เธอ|ฉัน|ผม|หนู|เรา|ใคร)?(?:อีก)?แล้ว", r"จะไปไกล\s?ๆ", r"จะไปที่ที่ดีกว่า",
+                 r"\b(?:don'?t worry about (?:me|him|her) any ?more|going (?:somewhere )?far away|for the best|won'?t (?:need|be needing) (?:it|them)|better off (?:with|without)|someone (?:who can|to) (?:take care|look after))\b")
+GIVE_OK = _rx(r"ย้าย(?:บ้าน|ห้อง|หอ|งาน|ไป)", r"ไปเที่ยว", r"ได้งาน", r"ของขวัญ", r"วันเกิด", r"ผ่อน(?:บ้าน|รถ)ให้", r"ค่าเทอม", r"\b(?:trip|vacation|gift|birthday|got (?:a|the|my) (?:new )?job|tuition)\b", r"แพ้ขน", r"เจ้าของ(?:ห้อง|หอ|คอนโด)ไม่ให้", r"ห้ามเลี้ยง", r"ทารก|คลอด|ตั้งครรภ์", r"บริจาค",
               r"\b(?:moving|move (?:to|abroad|out)|allerg\w*|landlord|no pets|new (?:baby|apartment|job)|donat\w*|decluttering)\b")
 
 
 THIRD = _rx(r"\b(?:she|he|they|her|his|my (?:roommate|friend|sister|brother|mom|mum|dad|son|daughter|partner|wife|husband))\b",
-            r"(?:เพื่อน|พี่|น้อง|แม่|พ่อ|ลูก|แฟน|รูมเมท)\S{0,6}(?:เขา|เธอ)?\S{0,4}(?:ยก|แจก|บอกว่า)")
+            r"(?:เพื่อน|พี่|น้อง|แม่|พ่อ|ลูก|แฟน|รูมเมท)\S{0,6}(?:เขา|เธอ)?\S{0,4}(?:ยก|แจก|บอกว่า|เอา|โอน)")
 
 
 def giveaway_final(t: str) -> Hit | None:
@@ -480,11 +483,26 @@ def child_image_shared(t: str) -> Hit | None:
     return None
 
 
+AUTH_ADULT = _rx(r"ครู", r"โค้ช", r"อาจารย์", r"ติวเตอร์", r"พี่เลี้ยง", r"หมอ(?!ฟัน)", r"พระ", r"ลุง", r"น้า", r"อา(?!หาร|การ|ทิตย์)", r"พ่อเลี้ยง", r"ผู้ดูแล",
+                 r"\b(?:teacher|coach|tutor|instructor|priest|pastor|uncle|stepdad|stepfather|caretaker|babysitter|scout leader)\b")
+STUDENT = _rx(r"นักเรียน", r"ลูก(?:สาว|ชาย)?", r"เด็ก", r"หลาน", r"\b(?:student|girls?|boys?|my (?:son|daughter|kid|child)|kids?|children)\b")
+ALONE = _rx(r"คนเดียว", r"ตามลำพัง", r"สองต่อสอง", r"ปิดประตู", r"ห้องลับ", r"\b(?:alone|by (?:her|him)self|one[- ]on[- ]one|behind (?:a )?closed doors?|locked the door)\b")
+BODY_ACT = _rx(r"เปลี่ยนชุด", r"ถอด(?:เสื้อ|กางเกง|ชุด)?", r"ถ่าย(?:รูป|คลิป|วิดีโอ)", r"จับ(?:ตัว|ตรงนั้น)", r"แตะ(?:ตัว)?", r"ลูบ", r"ตรวจร่างกาย",
+               r"\b(?:undress\w*|change (?:her|his|their) clothes|take (?:off )?(?:her|his) clothes|took (?:photos|pictures|videos)|touch\w*|filmed)\b")
+AUTH_OK = _rx(r"ห้องพยาบาล\S{0,10}(?:ผู้ปกครอง|พ่อแม่)อยู่", r"มีครูผู้หญิง\S{0,6}อยู่ด้วย", r"\b(?:with (?:a )?parent present|school nurse with)\b")
+
+
+def adult_isolates_child(t: str) -> Hit | None:
+    if AUTH_ADULT.search(t) and STUDENT.search(t) and ALONE.search(t) and BODY_ACT.search(t) and not AUTH_OK.search(t):
+        return Hit("adult_isolates_child", "sexual_abuse", 85)
+    return None
+
+
 RULES = (child_ingest, absence_prep, lethality_research, scam_unasked_money, scam_multiplier, basic_needs,
          food_floor, entrust_giveup, giveaway_final, plan_specific, bill_due,
          scam_pay_first, scam_online_only, scam_link_pressure, scam_gift_card, scam_family_emergency, scam_paid_vanished,
          scam_task_job, scam_isolate_official, farewell_apology, repossession, secret_chat_minor,
-         farewell_no_burden, stop_care_hopeless, landlord_threat, goodbye_never_again, child_image_shared)
+         farewell_no_burden, stop_care_hopeless, landlord_threat, goodbye_never_again, child_image_shared, adult_isolates_child)
 
 
 def check(text) -> list[Hit]:
