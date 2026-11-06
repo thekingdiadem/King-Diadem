@@ -692,3 +692,12 @@ my teen has been researching how many sleeping pills it takes and hides the tabs
 ยกเงินเก็บให้แม่ไปเที่ยวญี่ปุ่น ไม่ต้องห่วงฉันแล้วนะ ฉันได้งานใหม่	!topic:warning;!topic:someone	ปกติ
 how many vitamin c tablets per day is safe for kids	!topic:warning;!topic:someone	ปกติ
 ครูให้นักเรียนเปลี่ยนชุดพละในห้องน้ำ แล้วถ่ายรูปกิจกรรมลงเพจโรงเรียน	!topic:sexual_abuse	ปกติ
+
+# ── ย้ายมาจากชุดปิดตารอบ 10 (core/conditions.py: means_photo_silent · insurance_worth · gift_secret_child) ──
+แฟนส่งรูปเชือกกับเก้าอี้มาให้ แล้วปิดเครื่องไปเลย	topic:someone	คนใกล้ตัว
+my mom keeps saying the family would be better off with the insurance money	topic:someone	คนใกล้ตัว
+ลุงข้างบ้านให้เงินหลานฉันทุกครั้งที่ไปบ้านเขา แต่ห้ามบอกใครว่าไปทำอะไร	topic:sexual_abuse	ล่วงละเมิด
+# ข้อที่ต้องไม่จับ
+ส่งรูปเชือกผูกเรือให้ดู แล้วแบตหมดเลยปิดเครื่อง	!topic:someone;!topic:warning	ปกติ
+เรากำลังคิดจะซื้อประกันชีวิต ให้ครอบครัวได้เงินประกันถ้าเป็นอะไรไป	!topic:someone;!topic:warning	ปกติ
+ลุงให้เงินหลาน ห้ามบอกแม่ว่าไปกินไอติม	!topic:sexual_abuse	ปกติ

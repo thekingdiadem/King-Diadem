@@ -228,3 +228,28 @@ def test_round10_conditions(text, rule, topic):
 def test_round10_no_overfire(text):
     from core.conditions import check
     assert not [h for h in check(text) if h.rule in ("giveaway_final", "lethality_research", "adult_isolates_child")]
+
+
+# ── รอบ 11: ส่งรูปอุปกรณ์แล้วเงียบหาย · มองชีวิตตัวเองเท่าเงินประกัน · ผู้ใหญ่ให้เงินเด็กแล้วสั่งห้ามบอก ──
+@pytest.mark.parametrize("text,rule,topic", [
+    ("my brother sent a photo of a rope and now his phone is off", "means_photo_silent", "someone"),
+    ("เพื่อนส่งรูปยาทั้งแผงมา แล้วโทรไม่ติดเลย", "means_photo_silent", "someone"),
+    ("สามีบอกว่าถ้าเขาตายไปครอบครัวจะได้เงินประกันใช้หนี้หมด", "insurance_worth", "someone"),
+    ("sometimes i think i'm worth more dead", "insurance_worth", "warning"),
+    ("the tutor buys my son gifts and says it's our little secret", "gift_secret_child", "sexual_abuse"),
+])
+def test_round11_conditions(text, rule, topic):
+    from core.conditions import check
+    from core.kernel_voice import assess
+    assert rule in [h.rule for h in check(text)]
+    assert assess(text)["topics"][0] == topic
+
+
+@pytest.mark.parametrize("text", [
+    "ส่งรูปเชือกผูกเรือให้ดู แล้วแบตหมดเลยปิดเครื่อง", "sent me a pic of the climbing rope then went silent on the flight",
+    "เรากำลังคิดจะซื้อประกันชีวิต ให้ครอบครัวได้เงินประกันถ้าเป็นอะไรไป", "ยายให้ขนมหลาน บอกว่าห้ามบอกแม่นะ",
+    "ลุงให้เงินหลาน ห้ามบอกแม่ว่าไปกินไอติม",
+])
+def test_round11_no_overfire(text):
+    from core.conditions import check
+    assert not [h for h in check(text) if h.rule in ("means_photo_silent", "insurance_worth", "gift_secret_child")]

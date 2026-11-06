@@ -498,11 +498,55 @@ def adult_isolates_child(t: str) -> Hit | None:
     return None
 
 
+# ── ส่งรูปอุปกรณ์ทำร้ายตัวเอง แล้วเงียบหาย/ปิดเครื่อง = สัญญาณเตือนของคนใกล้ตัว ──────────────────────────────
+MEANS_IMG = _rx(r"(?:รูป|ภาพ|คลิป)\S{0,12}(?:เชือก|บ่วง|ยา(?:เป็นกำ|หลายแผง|ทั้งแผง)|ใบมีด|มีดโกน|ปืน|ดาดฟ้า|ขอบ(?:สะพาน|ระเบียง)|ถ่าน(?:ในห้อง)?)",
+                r"\b(?:photo|pic(?:ture)?|image|video|snap)s? of (?:a |the |some )?(?:rope|noose|pills|blades?|razors?|gun|bridge|rooftop|ledge)\b")
+WENT_SILENT = _rx(r"ปิด(?:เครื่อง|มือถือ|โทรศัพท์)", r"ติดต่อไม่ได้", r"โทรไม่ติด", r"เงียบ(?:หาย)?ไป", r"อ่านแล้วไม่ตอบ", r"ไม่รับสาย",
+                  r"\b(?:phone (?:is )?(?:off|switched off|dead)|turned (?:off )?(?:his|her|their) phone|not answering|stopped (?:replying|answering)|can'?t reach|went silent|no reply)\b")
+
+
+# ปิดเครื่องเพราะแบตหมด/ขึ้นเครื่องบิน · เชือกที่ใช้ผูกของ/ตั้งแคมป์/ขายของ — ไม่ใช่สัญญาณ
+MEANS_OK = _rx(r"แบต(?:หมด|ตาย)", r"ไม่มีสัญญาณ", r"ขึ้นเครื่อง(?:บิน)?", r"เชือก(?:ผูก(?:เรือ|ของ|กล่อง|เต็นท์)|กระโดด|ตากผ้า)", r"(?:ขาย|สั่ง|ซื้อ)(?:เชือก|ยา)", r"ตั้งแคมป์",
+               r"\b(?:battery (?:died|dead|ran out)|no signal|on (?:a|the) (?:plane|flight)|camping|climbing|jump rope|for sale|selling)\b")
+
+
+def means_photo_silent(t: str) -> Hit | None:
+    if MEANS_IMG.search(t) and WENT_SILENT.search(t) and not MEANS_OK.search(t):
+        return Hit("means_photo_silent", "someone", 85)
+    return None
+
+
+# ── "ครอบครัวจะดีกว่าถ้าได้เงินประกัน" = มองว่าตัวเองเป็นภาระ + ค่าของชีวิตเท่ากับเงินชดเชย ──────────────────
+INSURANCE_WORTH = _rx(r"(?:ได้|มี)?เงินประกัน(?:ชีวิต)?\S{0,16}(?:ดีกว่า|สบาย|คุ้ม|พอใช้หนี้|ใช้หนี้หมด)", r"(?:ตาย|ไม่อยู่)\S{0,12}(?:ได้|มี)เงินประกัน",
+                      r"\b(?:better off with (?:the|my|his|her|our)? ?(?:life )?insurance|worth more dead|(?:life )?insurance (?:money|payout|would pay)\b[^\n]{0,30}\b(?:better|debts?|off)|if i (?:die|was gone)[^\n]{0,30}\binsurance\b)")
+INSURANCE_OK = _rx(r"ซื้อประกัน", r"ทำประกัน", r"เบี้ยประกัน", r"ตัวแทนประกัน", r"\b(?:buy(?:ing)?|premium|quote|agent|policy options)\b")
+
+
+def insurance_worth(t: str) -> Hit | None:
+    if INSURANCE_WORTH.search(t) and not INSURANCE_OK.search(t):
+        third = re.search(r"\b(?:my (?:mom|mum|dad|mother|father|husband|wife|son|daughter|brother|sister|friend|partner)|he|she)\b|(?:แม่|พ่อ|สามี|ภรรยา|ลูก|พี่|น้อง|เพื่อน|แฟน)", t, re.I)
+        return Hit("insurance_worth", "someone" if third else "warning", 80)
+    return None
+
+
+# ── ผู้ใหญ่ให้เงิน/ของเด็กเป็นประจำ + สั่งห้ามบอกว่าไปทำอะไร = รูปแบบการกรูมมิ่ง ────────────────────────────
+GIFT_CHILD = _rx(r"(?:ให้|แจก|ซื้อ)(?:เงิน|ของ|ขนม|ของเล่น|โทรศัพท์|ค่าขนม)", r"\b(?:gives?|gave|giving|buys?|bought) (?:her|him|them|my \w+)? ?(?:money|cash|gifts?|presents?|candy|sweets|a phone)\b")
+SECRET_WHAT = _rx(r"(?:ห้าม|อย่า)บอก(?:ใคร|พ่อ|แม่|ผู้ปกครอง)\S{0,12}(?:ว่า)?(?:ไป)?(?:ทำอะไร|ไปไหน|เรื่องที่|ที่ทำ|ไปบ้าน)", r"(?:เป็น)?ความลับ(?:ของเรา|ระหว่างเรา|สองคน)",
+                  r"\b(?:don'?t tell (?:anyone|your (?:mom|mum|dad|parents)) (?:what|where|about what)|our (?:little )?secret|keep (?:it|this) (?:a )?secret between)\b")
+
+
+def gift_secret_child(t: str) -> Hit | None:
+    if AUTH_ADULT.search(t) and STUDENT.search(t) and GIFT_CHILD.search(t) and SECRET_WHAT.search(t):
+        return Hit("gift_secret_child", "sexual_abuse", 80)
+    return None
+
+
 RULES = (child_ingest, absence_prep, lethality_research, scam_unasked_money, scam_multiplier, basic_needs,
          food_floor, entrust_giveup, giveaway_final, plan_specific, bill_due,
          scam_pay_first, scam_online_only, scam_link_pressure, scam_gift_card, scam_family_emergency, scam_paid_vanished,
          scam_task_job, scam_isolate_official, farewell_apology, repossession, secret_chat_minor,
-         farewell_no_burden, stop_care_hopeless, landlord_threat, goodbye_never_again, child_image_shared, adult_isolates_child)
+         farewell_no_burden, stop_care_hopeless, landlord_threat, goodbye_never_again, child_image_shared, adult_isolates_child,
+         means_photo_silent, insurance_worth, gift_secret_child)
 
 
 def check(text) -> list[Hit]:

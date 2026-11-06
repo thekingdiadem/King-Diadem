@@ -60,4 +60,32 @@ def test_guide_page_and_sitemap(app_module):
 
 def test_guide_never_quotes_a_book():
     # เขียนเองจากแนวทางสาธารณะ — อ้างอิงเป็นหน่วยงาน ไม่ใช่หนังสือที่มีลิขสิทธิ์
-    assert all(any(k in s for k in ("WHO", "กรมอนามัย", "ACOG")) for s in pg.SOURCES)
+    assert all(any(k in s for k in ("WHO", "กรมอนามัย", "ACOG", "AAP")) for s in pg.SOURCES)
+
+
+# ── หลังคลอดและทารกแรกเกิด ── เดิม "ลูกอายุ 1 เดือน ไข้ 38.2" "ลูกแรกเกิดตัวเหลือง ไม่ดูดนม" และ
+#    "I just had a baby and I feel like I could hurt her" ได้คำตอบกลาง ความเสี่ยง 0/100
+@pytest.mark.parametrize("text,topic,must", [
+    ("คลอดได้ 5 วัน เลือดออกเยอะมาก ชุ่มผ้าอนามัยทุกชั่วโมง", "post_danger", "ตกเลือดหลังคลอด"),
+    ("หลังผ่าคลอด เจ็บหน้าอก หายใจไม่อิ่ม", "post_danger", "ลิ่มเลือด"),
+    ("gave birth last week, heavy bleeding and fever", "post_danger", "Soaking a pad"),
+    ("ลูกอายุ 1 เดือน ไข้ 38.2", "newborn_danger", "อย่าให้ยาลดไข้เอง"),
+    ("ลูกแรกเกิด 4 วัน ตัวเหลืองมาก ไม่ค่อยดูดนม", "newborn_danger", "ฝ่ามือฝ่าเท้า"),
+    ("my 3 week old has a fever", "newborn_danger", "under 3 months"),
+    ("I just had a baby and I feel like I could hurt her", "post_harm", "safe place"),
+    ("หลังคลอด กลัวจะเขย่าลูก ร้องไม่หยุดเลย", "post_harm", "1323"),
+])
+def test_after_birth_and_newborn_dangers(text, topic, must):
+    a = assess(text)
+    assert a["topics"][0] == topic and a["text_risk"] >= 85
+    assert must in compose(text)
+
+
+@pytest.mark.parametrize("text", ["เด็กมีไข้ 3 วันแล้ว", "ลูก 5 ขวบ มีไข้", "ลูกสาว 12 เดือน ไข้"])
+def test_older_child_fever_is_not_newborn(text):
+    """ "3 วัน" ที่หมายถึงป่วยมา 3 วัน ไม่ใช่อายุ 3 วัน"""
+    assert not pg.newborn_dangers(text) and "newborn_danger" not in assess(text)["topics"]
+
+
+def test_postnatal_low_mood_keeps_its_answer():
+    assert assess("หลังคลอดร้องไห้ทุกวัน ไม่อยากอุ้มลูก")["topics"][0] == "postpartum"
