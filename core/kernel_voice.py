@@ -1130,6 +1130,12 @@ _VEILED.update({
 })
 TOPICS = [(n, ph + [re.compile(_VEILED[n], re.I)] if n in _VEILED else ph, d) for n, ph, d in TOPICS]
 
+# ชุดความรู้ที่ระบบเคยไม่รู้ (core/knowledge_pack.py) — ลมแดด พิษเมทานอล ไข้+ผื่นกดไม่จาง ฯลฯ
+# วางไว้ก่อน health_emergency: คำตอบเฉพาะเรื่อง (ทำให้ตัวเย็น · เอาขวดเหล้าไปด้วย) ดีกว่าคำตอบฉุกเฉินทั่วไป
+from core import knowledge_pack as _KP  # noqa: E402
+_kp_at = next(i for i, (n, _p, _d) in enumerate(TOPICS) if n == "health_emergency")
+TOPICS[_kp_at:_kp_at] = _KP.th_topics()
+
 CRISIS_PHRASES = ["อยากตาย", "ฆ่าตัวตาย", "ไม่อยากมีชีวิต", NOT_WANT_TO_LIVE, SELF_HARM_INDIRECT, SELF_HARM_VEILED, "จบชีวิต", "ทำร้ายตัวเอง", SELF_INJURY,
                   "กรีดข้อมือ", "suicide", "kill myself", *SELF_HARM_INTL]
 GREETINGS = ["สวัสดี", "หวัดดี", "hello", "hi", "hey"]
@@ -2119,6 +2125,7 @@ EN_TOPIC = {
         "Locking you out or taking your things to force you out may be illegal — keep evidence and ask a legal aid service."],
         "When do you have to leave, and do you have somewhere to stay meanwhile?"),
 }
+EN_TOPIC.update(_KP.en_topics())  # ชุดความรู้ core/knowledge_pack.py — ฉบับอังกฤษ
 
 # ภัยที่กำลังเจอ — ขั้นของแต่ละภัยอยู่ใน core/engine_bridge._HAZARDS
 DISASTER_OPEN = "ตอนนี้ความปลอดภัยของร่างกายมาก่อน ของเสียหายซ่อมหรือหาใหม่ได้"
@@ -2146,6 +2153,8 @@ _OWN_ONLY = ("warning", "grief")
 _TOPIC_RISK = {"post_harm": 85, "post_danger": 85, "newborn_danger": 85, "preg_danger": 85, "preg_alone": 45, "control_en": 60, "minor_adult": 70, "soft_check": 45, "trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
+_TOPIC_RISK.update(_KP.RISK)
+_URGENT_TOPICS = _URGENT_TOPICS + _KP.URGENT
 _DEBT_HARASS_RISK = 55
 _WITHDRAWAL = re.compile(r"(?:เลิก|หยุด|ขาด)(?:เหล้า|สุรา|ดื่ม)[^\n]{0,24}?(?:ลงแดง|มือสั่น|ตัวสั่น|ชัก|เห็นภาพหลอน|ประสาทหลอน|เหงื่อแตก)|"
                          r"(?:ลงแดง|มือสั่น|ตัวสั่น)[^\n]{0,16}?(?:เลิก|หยุด|ขาด)(?:เหล้า|สุรา|ดื่ม)|ลงแดงเหล้า|"
@@ -2242,7 +2251,7 @@ def _mother_baby_first(text, a: dict) -> dict:
     tp = list(a.get("topics") or [])
     if not tp or tp[0] not in ("health_emergency", "first_aid", "health") or _UNCONSCIOUS.search(str(text or "")):
         return a
-    for t_mn in ("newborn_danger", "post_danger", "post_harm"):
+    for t_mn in ("newborn_danger", "post_danger", "post_harm") + _KP.URGENT:
         if t_mn in tp:
             tp.insert(0, tp.pop(tp.index(t_mn)))
             return dict(a, topics=tp)
@@ -2678,7 +2687,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง
     # (เดิม "กินยาเกินขนาด" เสียขั้นที่ 3 ให้ "ใช้สิทธิ์บัตรทอง")
     if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "child_gaming", "consumer", "pet_hurt", "stranded", "teen_leave", "housing", "legal", "diagnosis",
-                                                           "caregiver", "health_rights", "preg_alone", "preg_care"):
+                                                           "caregiver", "health_rights", "preg_alone", "preg_care") + _KP.NAMES:
         second = None
     if a["offer_flags"]:                 # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
         main, second = OFFER, None
@@ -2694,7 +2703,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = _MAGGA_D[_magga_topic(text)], None    # มรรค 8: โกหก/ทุจริต/อยากเอาคืน — ทักตรงๆ ก่อนคำตอบทั่วไป
     elif CODE_REQ.search(text) and a["text_risk"] < 60:
         main, second = CODE_D, None                           # ขอให้เขียน/แก้โค้ด — บอกตรงๆ ว่าไม่ใช่งานถนัด แล้วชวนกลับมาที่การตัดสินใจ
-    elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS):
+    elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS) \
+            and not (a["topics"] and a["topics"][0] in _KP.NAMES):
         main, second = _everyday(text, a["topics"]), None                  # เรื่องบ้านๆ–ระดับโลกที่เคยได้คำตอบกลาง (EVERYDAY)
     elif _dharma_answer(text) and a["text_risk"] < 60:
         main, second = _dharma_answer(text), None             # ถามความหมายธรรมะ (DHARMA)
@@ -2988,7 +2998,8 @@ def compose_council(text: str, footer: bool = True) -> str:
         main = _MAGGA_D[_magga_topic(text)]
     elif CODE_REQ.search(text) and a["text_risk"] < 60:
         main = CODE_D
-    elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS):
+    elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS) \
+            and not (a["topics"] and a["topics"][0] in _KP.NAMES):
         main = _everyday(text, a["topics"])
     elif _dharma_answer(text) and a["text_risk"] < 60:
         main = _dharma_answer(text)
