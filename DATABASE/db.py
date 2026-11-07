@@ -673,6 +673,59 @@ def add_credits_once(user_email: str, amount: int, reason: str, ref: str) -> boo
     finally:
         conn.close()
 
+def granted_for_ref(ref: str) -> tuple:
+    """(อีเมล, เครดิตที่ให้ไปแล้วรวม) จากการซื้อครั้งนั้น — ใช้ตอนคืนเงิน/ถูก chargeback"""
+    if not ref:
+        return None, 0
+    conn = get_conn()
+    try:
+        row = conn.execute(
+            "SELECT user_email, COALESCE(SUM(delta), 0) FROM credit_ledger "
+            "WHERE ref = ? AND delta > 0 AND reason IN ('topup', 'stripe_plan', 'stripe_renewal') "
+            "GROUP BY user_email ORDER BY SUM(delta) DESC LIMIT 1", (ref,)).fetchone()
+        return (row[0], int(row[1])) if row else (None, 0)
+    finally:
+        conn.close()
+
+
+def reverse_credits(user_email: str, ref: str, target_total: int, reason: str = "stripe_reversal") -> int:
+    """ดึงเครดิตคืนจากการซื้อ ref ให้ "รวมทั้งหมด" เท่ากับ target_total — คืนจำนวนที่หักรอบนี้
+
+    ทำซ้ำได้ปลอดภัย: event ซ้ำไม่หักซ้ำ · คืนเงินบางส่วนหลายรอบ หักเพิ่มเฉพาะส่วนต่าง
+    ยอดติดลบได้ ถ้าใช้เครดิตไปก่อนคืนเงิน — ใช้ต่อไม่ได้จนกว่าจะเติม (กันคืนเงินแล้วได้ของฟรี)
+    """
+    try:
+        target_total = int(target_total)
+    except (TypeError, ValueError):
+        return 0
+    if not user_email or not ref or target_total <= 0:
+        return 0
+    conn = get_conn()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        done = -int(conn.execute("SELECT COALESCE(SUM(delta), 0) FROM credit_ledger WHERE reason = ? AND ref = ?",
+                                 (reason, ref)).fetchone()[0])
+        take = target_total - done
+        if take <= 0:
+            conn.rollback()
+            return 0
+        conn.execute(
+            """INSERT INTO credits (user_email, amount) VALUES (?, ?)
+               ON CONFLICT(user_email) DO UPDATE SET
+                 amount = amount + excluded.amount,
+                 updated_at = CURRENT_TIMESTAMP""",
+            (user_email, -take))
+        conn.execute("INSERT INTO credit_ledger (user_email, delta, reason, ref) VALUES (?, ?, ?, ?)",
+                     (user_email, -take, reason, ref))
+        conn.commit()
+        return take
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
 def release_stripe_event(event_id: str):
     """ยกเลิกการ claim เมื่อประมวลผลล้มเหลว เพื่อให้ Stripe retry ได้"""
     conn = get_conn()
