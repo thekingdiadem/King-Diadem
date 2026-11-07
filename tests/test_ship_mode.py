@@ -198,3 +198,13 @@ def test_decision_planets_are_tappable():
     cards = re.findall(r'<button type="button" class="planet-card" data-try="([^"]+)">', PAGE)
     assert len(cards) == 6 and "เลือกไม่ถูกว่าจะเรียนต่อหรือทำงานดี" in cards
     assert "var t = e.target.closest('[data-try]'); if(t) tryText(t.dataset.try);" in PAGE
+
+
+def test_window_is_empty_yet_not_empty():
+    """พี่คิง: "ว่างไม่ว่างในเวลาเดียวกัน ดูสงบ" — ไม่เพิ่มข้อความ แต่ปล่อยหน้าต่างว่างให้โลก
+    การ์ดอ่าน 8 วินาทีแล้วจาง · แผงและปุ่มจางเมื่อไม่มีใครแตะ 5 วินาที แตะ/ขยับแล้วกลับมา · ลดการเคลื่อนไหว = ไม่ซ่อนอะไรเอง"""
+    assert "shipFadeT = setTimeout(function(){ box.classList.add('fade'); }, 8000);" in PAGE
+    assert "h.classList.add('kd-ship-still'); }, 5000);" in PAGE
+    assert "html.kd-ship-still .ship-ctl{pointer-events:none}" in PAGE
+    assert "['pointermove', 'pointerdown', 'keydown', 'focusin']" in PAGE
+    assert "!h.classList.contains('kd-calm')) shipIdleT" in PAGE

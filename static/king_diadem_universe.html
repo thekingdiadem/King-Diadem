@@ -278,7 +278,7 @@ html.kd-ship .ship{opacity:1;visibility:visible;transition:opacity 1.2s ease}
 .ship-panel b{display:block;color:var(--violet);font-weight:600;letter-spacing:.2em;font-size:10px}
 .ship-note{position:absolute;top:10.5vh;left:50%;transform:translateX(-50%);width:min(560px,76vw);padding:12px 16px;border-radius:16px;
   background:rgba(6,10,32,.5);color:#eef4ff;font-size:14px;line-height:1.6;text-align:center;
-  box-shadow:inset 0 0 0 1px rgba(150,190,255,.22),0 0 24px rgba(90,110,255,.10);transition:opacity .8s ease}
+  box-shadow:inset 0 0 0 1px rgba(150,190,255,.22),0 0 24px rgba(90,110,255,.10);transition:opacity 1.8s ease}
 .ship-note.fade{opacity:0}
 .ship-note small{display:block;margin-top:4px;color:#a8b6ff;font-size:11px;letter-spacing:.08em}
 .ship-ctl{position:absolute;bottom:8.5vh;right:5vw;display:flex;gap:8px;pointer-events:auto}
@@ -297,6 +297,9 @@ html.kd-ship .cockpit .glass,html.kd-ship .hud,html.kd-ship .hud-deg{opacity:0}
   .ship-panel{bottom:14vh;left:4vw;max-width:60vw}.ship-ctl{bottom:4vh;right:4vw;left:4vw;justify-content:flex-end;flex-wrap:wrap}
   .ship-note{font-size:13px}
 }
+.ship-panel,.ship-ctl,.ship-led{transition:opacity .5s ease}
+html.kd-ship-still .ship-panel,html.kd-ship-still .ship-ctl,html.kd-ship-still .ship-led{opacity:.1;transition:opacity 2.4s ease}
+html.kd-ship-still .ship-ctl{pointer-events:none}
 html.kd-calm .ship,html.kd-calm .ship-note{transition:none}
 
 
@@ -1006,11 +1009,22 @@ function KD_shipNote(){
   var box = document.getElementById('ship-note'), L = SHIP_NOTES[KD_shipLang()], n = L[shipNoteI % L.length];
   box.textContent = n[0]; var sm = document.createElement('small'); sm.textContent = n[1]; box.appendChild(sm);
 }
+/* ว่างแต่ไม่ว่าง: การ์ดขึ้นมาให้อ่าน 8 วินาที แล้วจางหาย ปล่อยหน้าต่างว่างให้โลกเต็มตา จนใบถัดไปขึ้นมาเอง
+   แผงตัวเลขและปุ่มก็จางลงเมื่อไม่มีใครแตะ 5 วินาที — ยังอยู่ตรงนั้น แตะหรือขยับเมื่อไหร่ก็กลับมา */
+var shipFadeT = 0, shipIdleT = 0;
+function KD_shipShow(){
+  var box = document.getElementById('ship-note'); KD_shipNote(); box.classList.remove('fade');
+  clearTimeout(shipFadeT); if(!document.documentElement.classList.contains('kd-calm')) shipFadeT = setTimeout(function(){ box.classList.add('fade'); }, 8000);
+}
 function KD_shipNext(){
   if(!document.documentElement.classList.contains('kd-ship')) return;
-  var box = document.getElementById('ship-note'); box.classList.add('fade');
-  setTimeout(function(){ shipNoteI++; KD_shipNote(); box.classList.remove('fade'); }, 800);
+  shipNoteI++; KD_shipShow();
 }
+function KD_shipWake(){
+  var h = document.documentElement; h.classList.remove('kd-ship-still'); clearTimeout(shipIdleT);
+  if(h.classList.contains('kd-ship') && !h.classList.contains('kd-calm')) shipIdleT = setTimeout(function(){ h.classList.add('kd-ship-still'); }, 5000);
+}
+['pointermove', 'pointerdown', 'keydown', 'focusin'].forEach(function(ev){ document.addEventListener(ev, function(){ if(document.documentElement.classList.contains('kd-ship')) KD_shipWake(); }, { passive: true }); });
 function KD_toggleShip(on){
   var h = document.documentElement, E = window.KD_earth;
   if(on === undefined) on = !h.classList.contains('kd-ship');
@@ -1019,8 +1033,8 @@ function KD_toggleShip(on){
   h.classList.toggle('kd-ship', on);
   document.getElementById('ec-ship').setAttribute('aria-pressed', on ? 'true' : 'false');
   var sh = document.getElementById('ec-sheet'); if(on && sh){ sh.classList.add('hide'); var mb = document.getElementById('ec-menu'); if(mb) mb.setAttribute('aria-expanded','false'); }
-  clearInterval(shipNoteT);
-  if(on){ shipNoteI = 0; KD_shipNote(); if(!h.classList.contains('kd-calm')) shipNoteT = setInterval(KD_shipNext, 14000);
+  clearInterval(shipNoteT); clearTimeout(shipFadeT); KD_shipWake();
+  if(on){ shipNoteI = 0; KD_shipShow(); if(!h.classList.contains('kd-calm')) shipNoteT = setInterval(KD_shipNext, 14000);
           document.getElementById('hero').scrollIntoView({behavior: h.classList.contains('kd-calm') ? 'auto' : 'smooth'}); }
 }
 document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && document.documentElement.classList.contains('kd-ship')) KD_toggleShip(false); });
