@@ -113,3 +113,57 @@ def test_single_failure_does_not_trip_breaker(monkeypatch):
     call(make([RuntimeError("503")] * 4, chain=("gemini-2.0-flash-lite",)))
     assert not L.ai_disabled()
     L._fail_times.clear()
+
+
+# ── เพดานค่าโทเคน — พี่: "ค่าโทเคนต้องเท่าเดิม ห้ามให้ AI ยิงมั่ว" ──────────────────────────
+CHAIN4 = ("gemini-2.0-flash-lite", "gemini-2.0-flash", "gemini-2.5-flash-lite", "gemini-2.5-flash")
+
+
+def test_worst_case_truncation_is_billed_at_most_twice(monkeypatch):
+    """เดิม: ตอบไม่จบทุกครั้ง → ขอใหม่ 2 เท่า แล้วไล่อีก 3 รุ่น = คิดเงินได้ถึง 8 ครั้งต่อข้อความเดียว"""
+    monkeypatch.delenv("LLM_MAX_BILLED_PER_CALL", raising=False)
+    llm = make([(CUT, "FinishReason.MAX_TOKENS")] * 8, chain=CHAIN4)
+    call(llm)
+    assert len(llm.client.models.models) == 2
+
+
+def test_billed_cap_can_be_tightened_to_one(monkeypatch):
+    monkeypatch.setenv("LLM_MAX_BILLED_PER_CALL", "1")
+    llm = make([(CUT, "FinishReason.MAX_TOKENS")] * 8, chain=CHAIN4)
+    call(llm)
+    assert len(llm.client.models.models) == 1
+
+
+def test_errors_that_are_not_billed_can_still_retry(monkeypatch):
+    """429/500 ไม่ถูกคิดเงิน — ลองใหม่ได้เหมือนเดิม ความเสถียรไม่ลดลง"""
+    monkeypatch.setattr(L.time, "sleep", lambda s: None)
+    monkeypatch.setattr(L, "_ai_down_until", 0.0)
+    llm = make([Exception("429 resource exhausted"), Exception("500 internal"), (FULL, "FinishReason.STOP")])
+    assert call(llm) == FULL
+
+
+def test_daily_cap_answers_from_equations_without_calling_the_model(monkeypatch):
+    monkeypatch.setenv("LLM_DAILY_CAP", "1")
+    monkeypatch.setattr(L, "_billed", {"day": "", "n": 0})
+    monkeypatch.setattr(L, "_ai_down_until", 0.0)          # เทสต์ก่อนหน้าอาจเปิดวงจรพัก AI ค้างไว้
+    first = make([(FULL, "FinishReason.STOP")])
+    assert call(first) == FULL and L.billed_today() == 1
+    second = make([(FULL, "FinishReason.STOP")])
+    call(second)
+    assert second.client.models.models == [] and L._tls.fallback is True
+
+
+def test_daily_cap_is_off_by_default(monkeypatch):
+    """ไม่ตั้งค่า = พฤติกรรมเดิม (ไม่จำกัด) — ไม่มีใครถูกตัด AI กะทันหันหลังอัปเดต"""
+    monkeypatch.delenv("LLM_DAILY_CAP", raising=False)
+    monkeypatch.setattr(L, "_billed", {"day": L._today_th(), "n": 10_000})
+    assert not L.daily_cap_reached()
+
+
+def test_hitting_the_billed_cap_does_not_pause_ai_for_everyone(monkeypatch):
+    """ครบเพดานคิดเงินต่อข้อความ ≠ Gemini ล่ม — สองข้อความแบบนี้ติดกันต้องไม่ทำให้ทุกคนโดนพัก AI 60 วินาที"""
+    monkeypatch.setattr(L, "_ai_down_until", 0.0)
+    monkeypatch.setattr(L, "_fail_times", [])
+    for _ in range(2):
+        call(make([(CUT, "FinishReason.MAX_TOKENS")] * 8, chain=CHAIN4))
+    assert not L.ai_disabled()

@@ -201,7 +201,7 @@ try:
         set_premium_until, get_premium_until, email_for_stripe_customer, customer_for_email,
         spend_credit, credit_history, take_free_run, give_back_free_run, free_runs_used,
         open_charge, close_charge, reclaim_stale_charges,
-        throttle_add, throttle_load,
+        throttle_add, throttle_load, granted_for_ref, reverse_credits,
     )
     init_db()
     print("✅ Database initialized")
@@ -215,6 +215,7 @@ except Exception as e:
     ensure_user = save_chat_state = load_chat_state = None
     set_password = verify_password = user_exists = email_verified = claim_verified_email = None
     stripe_event_done = mark_stripe_event = add_credits_once = premium_subscription = None
+    granted_for_ref = reverse_credits = None
     set_premium_until = get_premium_until = email_for_stripe_customer = customer_for_email = None
     throttle_add = throttle_load = None
     spend_credit = credit_history = take_free_run = give_back_free_run = free_runs_used = None
@@ -3185,6 +3186,34 @@ def _plain(o):
     return o
 
 
+def _purchase_ref_for_charge(charge: dict):
+    """charge ที่ถูกคืนเงิน/โต้แย้ง → ref ที่ใช้ตอนให้เครดิต (checkout session id หรือ invoice id)"""
+    if charge.get("invoice"):
+        return charge["invoice"]
+    pi = charge.get("payment_intent")
+    if not pi:
+        return None
+    sessions = _plain(stripe.checkout.Session.list(payment_intent=pi, limit=1))   # ล้ม → 500 → Stripe ส่งใหม่
+    data = sessions.get("data") or []
+    return data[0].get("id") if data else None
+
+
+def _reverse_for_charge(charge: dict, refunded: int, total: int, reason: str) -> None:
+    """ดึงเครดิตคืนตามสัดส่วนเงินที่คืน — คืน 30% ดึง 30% · ถูก chargeback ทั้งก้อน ดึงทั้งหมด"""
+    if not granted_for_ref or not reverse_credits:
+        raise RuntimeError("database unavailable")
+    if total <= 0 or refunded <= 0:
+        return
+    ref = _purchase_ref_for_charge(charge)
+    email, granted = granted_for_ref(ref) if ref else (None, 0)
+    if not email or granted <= 0:
+        return                                         # ซื้อ Premium อย่างเดียว/ไม่เคยให้เครดิต — ไม่มีอะไรต้องดึง
+    target = granted if refunded >= total else int(granted * refunded / total)
+    took = reverse_credits(email, ref, target, reason)
+    if took:
+        print(f"↩ {reason}: ดึงเครดิตคืน {took} จากการซื้อ {ref}")
+
+
 def _handle_stripe_event(event) -> None:
     etype = event["type"]
     obj   = event["data"]["object"]
@@ -3242,6 +3271,16 @@ def _handle_stripe_event(event) -> None:
             # เก็บ customer/subscription ทุกแพ็กเกจ — แพ็กเกจพื้นฐานจะได้เปิดหน้ายกเลิกและจับคู่รอบบิลถัดไปได้
             until = now + 32 * 86400 + _PREMIUM_GRACE if prem else ((get_premium_until(email) if get_premium_until else 0) or 0)
             set_premium_until(email, until, obj.get("customer"), obj.get("subscription"))
+
+    # คืนเงิน/chargeback — เดิมไม่มีเลย: เติมเครดิตแล้วขอคืนเงิน เครดิตยังอยู่ครบ
+    elif etype == "charge.refunded":
+        _reverse_for_charge(obj, int(obj.get("amount_refunded") or 0), int(obj.get("amount") or 0), "stripe_refund")
+
+    elif etype == "charge.dispute.created":
+        ch = obj.get("charge")
+        charge = _plain(stripe.Charge.retrieve(ch)) if isinstance(ch, str) else (ch or {})
+        amount = int(charge.get("amount") or obj.get("amount") or 0)
+        _reverse_for_charge(charge, amount, amount, "stripe_dispute")
 
     elif etype == "invoice.paid":
         customer = obj.get("customer")

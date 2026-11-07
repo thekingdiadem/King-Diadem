@@ -163,3 +163,61 @@ def test_subscription_and_topup_inputs(client):
     assert client.post("/create-subscription").status_code == 401
     r = client.post("/wallet/topup", content=b'{"amount": 1e999}', headers={"Content-Type": "application/json"})
     assert r.status_code in (400, 401)          # เดิม 1e999 → OverflowError → 500
+
+
+# ── คืนเงิน / chargeback — เดิมไม่มี: เติมเครดิตแล้วขอคืนเงิน เครดิตยังอยู่ครบ ─────────────────────
+def _charge_event(evt, etype, pi, amount, refunded):
+    return {"id": evt, "type": etype, "data": {"object": {
+        "id": "ch_" + evt, "payment_intent": pi, "amount": amount, "amount_refunded": refunded, "currency": "thb"}}}
+
+
+@pytest.fixture
+def paid_topup(hook, monkeypatch):
+    """เติม ฿50 สำเร็จ แล้วผูก payment_intent → checkout session ให้ Stripe mock หาเจอ"""
+    email, cs = f"r{uuid.uuid4().hex[:8]}@x.co", "cs_" + uuid.uuid4().hex[:8]
+    pi = "pi_" + cs
+    monkeypatch.setattr(stripe.checkout.Session, "list",
+                        lambda payment_intent, limit: {"data": [{"id": cs}] if payment_intent == pi else []})
+    from DATABASE.db import ensure_user
+    ensure_user(email)                                  # เครดิตฟรีตอนสมัคร 10 ไม่นับเป็นของที่ซื้อ
+    before = get_credits(email)
+    assert hook(_topup(email, cs))[0] == 200
+    granted = get_credits(email) - before
+    assert granted > 0
+    return email, cs, pi, granted
+
+
+def test_full_refund_takes_back_the_credits(hook, paid_topup):
+    email, cs, pi, granted = paid_topup
+    start = get_credits(email)
+    assert hook(_charge_event("evt_rf_" + cs, "charge.refunded", pi, 5000, 5000))[0] == 200
+    assert get_credits(email) == start - granted
+
+
+def test_partial_refunds_take_back_only_the_refunded_share(hook, paid_topup):
+    email, cs, pi, granted = paid_topup
+    start = get_credits(email)
+    hook(_charge_event("evt_p1_" + cs, "charge.refunded", pi, 5000, 2500))     # คืนครึ่ง
+    assert get_credits(email) == start - granted // 2
+    hook(_charge_event("evt_p2_" + cs, "charge.refunded", pi, 5000, 5000))     # คืนส่วนที่เหลือ (ยอดสะสม)
+    assert get_credits(email) == start - granted
+    hook(_charge_event("evt_p3_" + cs, "charge.refunded", pi, 5000, 5000))     # event ซ้ำ id ใหม่ ไม่หักเกิน
+    assert get_credits(email) == start - granted
+
+
+def test_chargeback_takes_back_everything_even_if_already_spent(hook, paid_topup, monkeypatch):
+    email, cs, pi, granted = paid_topup
+    from DATABASE.db import spend_credit
+    start = get_credits(email)
+    spend_credit(email, start)                                                  # ใช้หมดก่อนแล้วค่อยโต้แย้งกับธนาคาร
+    monkeypatch.setattr(stripe.Charge, "retrieve",
+                        lambda cid: {"id": cid, "payment_intent": pi, "amount": 5000})
+    ev = {"id": "evt_dp_" + cs, "type": "charge.dispute.created",
+          "data": {"object": {"id": "dp_" + cs, "charge": "ch_" + cs, "amount": 5000}}}
+    assert hook(ev)[0] == 200
+    assert get_credits(email) == -granted                                       # ติดลบ — ใช้ต่อไม่ได้จนกว่าจะเติม
+
+
+def test_refund_of_a_purchase_that_gave_no_credits_is_ignored(hook, monkeypatch):
+    monkeypatch.setattr(stripe.checkout.Session, "list", lambda payment_intent, limit: {"data": []})
+    assert hook(_charge_event("evt_none_" + uuid.uuid4().hex[:6], "charge.refunded", "pi_x", 5000, 5000))[0] == 200
