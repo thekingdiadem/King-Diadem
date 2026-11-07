@@ -534,12 +534,24 @@ def _is_premium(email: str) -> bool:
 # ══════════════════════════════════════════════════════════════════
 from datetime import datetime, timezone, timedelta
 try:
-    from core.llm_gemini import reset_fallback_flag, used_fallback, request_no_ai, ai_disabled
+    from core.llm_gemini import reset_fallback_flag, used_fallback, request_no_ai, ai_disabled, ai_status
 except Exception:
     reset_fallback_flag = lambda: None
     used_fallback = lambda: False
     request_no_ai = lambda on=True: None
     ai_disabled = lambda: True
+    ai_status = lambda: {"available": False, "reason": "module_error"}
+
+
+def _ai_health() -> dict:
+    """ส่วน ai ของ /health — ตอบได้ว่าทำไมผู้ใช้ได้ "ตอบจากสมการ — ไม่ได้ใช้ AI" (ไม่มี key ในผลลัพธ์)"""
+    if llm is None:
+        return {"available": False, "reason": "no_llm"}
+    keys = len(getattr(llm, "_keys", None) or ())
+    st = ai_status()
+    if not keys and st.get("available"):
+        st = {**st, "available": False, "reason": "no_api_key"}
+    return {**st, "model": getattr(llm, "model", None), "api_keys": keys}
 
 FREE_DAILY_RUNS = max(0, int(os.getenv("FREE_DAILY_RUNS", "20")))
 RUN_COST        = max(1, int(os.getenv("RUN_COST", "1")))
@@ -1004,6 +1016,7 @@ def health():
         "status":             "alive 👑",
         "version":            "5.0",
         "llm_loaded":         llm is not None,
+        "ai":                 _ai_health(),         # ใช้ AI ได้จริงไหม · ถ้าไม่ได้ เพราะอะไร (quota/auth/errors/daily_cap/no_api_key)
         "engine_loaded":      engine is not None,
         "lyla_loaded":        lyla is not None,
         "universal_engine":   _universal_run is not None,

@@ -75,11 +75,32 @@ def _note_total_failure():
         _mark_ai_down(float(os.getenv("AI_ERROR_COOLDOWN_S", "60")))
 
 
-def _mark_ai_down(seconds: float):
-    global _ai_down_until
+_ai_down_reason = ""
+
+
+def _mark_ai_down(seconds: float, reason: str = "errors"):
+    """พัก AI ชั่วคราว · reason: quota (เงิน/โควตาหมด) · auth (key ผิด/หมดอายุ) · errors (Gemini ล่มติดกัน)"""
+    global _ai_down_until, _ai_down_reason
     with _ai_down_lock:
         _ai_down_until = max(_ai_down_until, time.time() + seconds)
-    print(f"⏸ AI paused {int(seconds)}s — ใช้คำตอบจากสมการ (kernel_voice) ระหว่างนี้")
+        _ai_down_reason = reason
+    print(f"⏸ AI paused {int(seconds)}s ({reason}) — ใช้คำตอบจากสมการ (kernel_voice) ระหว่างนี้")
+
+
+def ai_status() -> dict:
+    """สถานะ AI จริงสำหรับ /health — เดิมบอกแค่ llm_loaded จึงไม่รู้ว่าทำไมคำตอบขึ้น "ไม่ได้ใช้ AI"
+    ไม่มี key หรือข้อมูลลับในผลลัพธ์"""
+    forced = os.getenv("KD_AI", "on").strip().lower() in ("off", "0", "false", "no")
+    left = max(0, int(_ai_down_until - time.time()))
+    try:
+        cap = int(os.getenv("LLM_DAILY_CAP", "0") or 0)
+    except ValueError:
+        cap = 0
+    capped = cap > 0 and billed_today() >= cap
+    reason = ("forced_off" if forced else _ai_down_reason if left else "daily_cap" if capped else None)
+    return {"available": not (forced or left or capped), "reason": reason, "paused_for_s": left,
+            "billed_today": billed_today(), "daily_cap": cap or None,
+            "max_billed_per_message": _max_billed_per_call()}
 
 
 # ── เพดานค่าโทเคน — พี่: "ค่าโทเคนต้องเท่าเดิม ห้ามให้ AI ยิงมั่ว" ─────────────────────────────
@@ -1107,7 +1128,7 @@ class GeminiLLM:
                     elif any(k in err for k in [
                         "permission_denied", "unauthenticated", "api_key_invalid"
                     ]) or ("api key not valid" in err):
-                        _mark_ai_down(float(os.getenv("AI_AUTH_COOLDOWN_S", "3600")))
+                        _mark_ai_down(float(os.getenv("AI_AUTH_COOLDOWN_S", "3600")), "auth")
                         raise ValueError(f"Auth Error: {e}")
 
                     else:
@@ -1121,7 +1142,7 @@ class GeminiLLM:
         print(f"❌ ทุกโมเดลและทุก attempt ล้มเหลว: {last_error}")
         if quota_hits:
             # เงิน/โควตาหมด: หยุดเรียก AI ชั่วคราว ข้อความถัดไปได้คำตอบจากสมการทันที
-            _mark_ai_down(float(os.getenv("AI_QUOTA_COOLDOWN_S", "900")))
+            _mark_ai_down(float(os.getenv("AI_QUOTA_COOLDOWN_S", "900")), "quota")
         elif not spent:
             # หยุดเพราะครบเพดานคิดเงิน ≠ Gemini ล่ม — ไม่นับเข้าวงจรพัก AI (ไม่งั้นคนอื่นโดนพัก 60 วินาทีไปด้วย)
             _note_total_failure()
