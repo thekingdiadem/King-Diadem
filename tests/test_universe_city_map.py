@@ -142,7 +142,7 @@ def test_day_and_night_modes():
         assert CITY.count(key) >= 2, key                                   # ทั้งสองชุดสีมีครบ
     assert "window.addEventListener('kd-theme'" in CITY and "map.setStyle(style())" in CITY
     assert "uniform1f(U.dayM, dayM)" in EARTH and "surf=mix(surf,dc,dl)" in EARTH
-    assert "dl=max(dayM,sunM*" in EARTH                                    # นอกโหมดยาน sunM = 0 → ปุ่มกลางวันคุมทั้งโลกเหมือนเดิม
+    assert "dl=max(dayM,sunM*" in EARTH                                    # ดวงอาทิตย์จริงทุกมุม · เลือก "กลางวัน" = สว่างทั้งโลก (sunM = 0)
     assert "window.addEventListener('kd-theme'" in EARTH
     assert "html.kd-day #city-map{background:#ece6da}" in PAGE
 

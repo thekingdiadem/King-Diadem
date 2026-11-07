@@ -50,7 +50,7 @@
   var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
   var FS = [
     'precision highp float;',
-    'uniform vec2 res;uniform float t,ready,lon,lat,D,tilt,F,hasW,dayM,sunM;uniform vec3 sun;uniform sampler2D lights,day,clouds,water;',
+    'uniform vec2 res;uniform float t,ready,lon,lat,D,tilt,F,hasW,dayM,sunM,near;uniform vec3 sun;uniform sampler2D lights,day,clouds,water;',
     'const float PI=3.14159265;',
     'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
     'float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+1.),f.x),f.y);}',
@@ -63,20 +63,20 @@
     '  vec3 fw=vec3(0.,st,-ct),up=vec3(0.,ct,st),rt=vec3(1.,0.,0.);',
     '  vec3 P=vec3(0.,0.,1.)+D*vec3(0.,-st,ct);',                 // กล้องอยู่เหนือจุดกลางจอ ถอยไปทางใต้ตามมุมเอียง
     '  vec3 rd=normalize(fw*F+uv.x*rt+uv.y*up);',
-    '  mat3 M=ry(radians(lon))*rx(-radians(lat));vec3 sl=sun*M;',  // ทิศดวงอาทิตย์ในกรอบของกล้อง (ใช้เฉพาะในยาน: sunM > 0)
+    '  mat3 M=ry(radians(lon))*rx(-radians(lat));vec3 sl=sun*M;',  // ทิศดวงอาทิตย์จริงในกรอบของกล้อง (sunM = 1 เว้นแต่เลือกกลางวันทั้งโลก)
     '  float b=dot(P,rd),c2=dot(P,P)-1.,disc=b*b-c2,pix=1./(F*res.y);',
     // ดาว — เลื่อนตามกล้องนิดหน่อยให้มีมิติ
     '  vec3 col=vec3(.004,.005,.012);',
     '  vec2 g=floor((gl_FragCoord.xy+vec2(lon,-lat)*res.y*.003)/2.);float s=h(g);',
-    '  if(s>.9975){float tw=.6+.4*sin(t*2.+s*90.);col+=vec3(.75,.8,1.)*tw*(s-.9975)*90.;}',
+    '  if(s>.9975){float tw=.6+.4*sin(t*2.+s*90.);col+=vec3(.75,.8,1.)*tw*(s-.9975)*90.*(1.+1.3*near);}',   // ในยาน ห้องมืด ตาเห็นดาวชัดขึ้น
     '  float dmin=sqrt(max(dot(P,P)-b*b,0.));',
     '  if(b<0.){float o=max(dmin-1.,0.);',                          // บรรยากาศเหนือขอบฟ้า + airglow สีเขียวแบบภาพจาก ISS
-    // ในยาน (sunM): ขอบฟ้าสว่างเฉพาะด้านที่โดนแดด · มองใกล้แล้วชั้นอากาศบางตามจริง · airglow ที่ราว 94 กม. เห็นชัดด้านกลางคืน
-    // · แถบส้มตรงเส้นแบ่งกลางวันกลางคืน = พระอาทิตย์ขึ้น/ตกที่เห็นจากวงโคจร · นอกยาน (sunM = 0) ได้ภาพเดิมทุกอย่าง
+    // ดวงอาทิตย์จริง (sunM): ขอบฟ้าสว่างเฉพาะด้านที่โดนแดด · แถบส้มตรงเส้นแบ่งกลางวันกลางคืน = พระอาทิตย์ขึ้น/ตกจากวงโคจร
+    // มองใกล้ในยาน (near): ชั้นอากาศบางตามจริง · airglow ที่ราว 94 กม. จางแบบที่ตาเห็น
     '    float sd=dot(normalize(P-b*rd),sl),ls=sunM*smoothstep(-.12,.08,sd),tw=sunM*max(0.,1.-abs(sd)*5.);',
-    '    float k1=mix(26.,130.,sunM),k2=mix(150.,700.,sunM);',
+    '    float k1=mix(26.,130.,near),k2=mix(150.,700.,near);',
     '    col+=vec3(.15,.35,1.)*exp(-o*k1)*mix(.45+.5*dayM,.05+.95*ls,sunM)+vec3(.35,.6,1.)*exp(-o*k2)*.55*mix(1.,.12+.88*ls,sunM)',
-    '      +vec3(.20,.85,.42)*exp(-abs(o-mix(.007,.0147,sunM))*480.)*mix(.5,.26,sunM)*(1.-ls)+vec3(1.,.42,.12)*exp(-o*320.)*tw*.8;}',
+    '      +vec3(.20,.85,.42)*exp(-abs(o-mix(.007,.0147,near))*480.)*mix(.5,.26,near)*(1.-ls)+vec3(1.,.42,.12)*exp(-o*320.)*tw*.8;}',
     '  if(disc>0.&&-b-sqrt(disc)>0.){',
     '    vec3 nl=P+rd*(-b-sqrt(disc));',
     '    vec3 n=M*nl;float sz=dot(nl,sl),dl=max(dayM,sunM*smoothstep(-.08,.06,sz));',   // dl = ส่วนที่เป็นกลางวัน ณ จุดนี้
@@ -93,7 +93,7 @@
     '    float L=texture2D(lights,tc).r;',
     '    float B=(texture2D(lights,tc+px*vec2(5.,0.)).r+texture2D(lights,tc-px*vec2(5.,0.)).r+texture2D(lights,tc+px*vec2(0.,4.)).r+texture2D(lights,tc-px*vec2(0.,4.)).r)*.25;',
     '    float cl=texture2D(clouds,tc+vec2(t*.0004,0.)).r;',
-    '    cl=mix(cl,smoothstep(.08,.85,cl),sunM*.55);',                 // ในยาน: ขอบเมฆคมขึ้น (ภาพถูกขยายมากตอนมองใกล้)
+    '    cl=mix(cl,smoothstep(.08,.85,cl),near*.55);',                 // ในยาน: ขอบเมฆคมขึ้น (ภาพถูกขยายมากตอนมองใกล้)
     '    vec3 land=texture2D(day,tc).rgb;',
     '    float wm=hasW>.5?texture2D(water,tc).r:0.;',
     '    vec3 baseC=land*vec3(.018,.026,.05)+vec3(.002,.005,.014);',
@@ -157,7 +157,7 @@
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
   var U = {};
-  ['res', 't', 'ready', 'lon', 'lat', 'D', 'tilt', 'F', 'hasW', 'dayM', 'sunM', 'sun', 'lights', 'day', 'clouds', 'water']
+  ['res', 't', 'ready', 'lon', 'lat', 'D', 'tilt', 'F', 'hasW', 'dayM', 'sunM', 'near', 'sun', 'lights', 'day', 'clouds', 'water']
     .forEach(function (k) { U[k] = gl.getUniformLocation(prog, k); });
 
   var base = (document.currentScript && document.currentScript.src || '/static/cockpit_earth.js').replace(/cockpit_earth\.js.*$/, '');
@@ -377,6 +377,7 @@
     flyTo(e.clientX - r.left, e.clientY - r.top);
   });
 
+  function sunVec(ms) { var OB = window.KD_orbit; if (!OB) return [0, 0, 1]; var su = OB.sun(ms); return OB.vec(su.lat, su.lon); }
   function leaveCity() { if (S.city && window.KD_cityMap) window.KD_cityMap.exit(); }
   function go(o) {
     if (SHIP.on && o.L > LMAX) return;                          // อยู่ในยาน: ถ่างนิ้วลึกไม่สลับไปแผนที่เมือง (ยานจะค้างอยู่ข้างหลัง)
@@ -388,13 +389,16 @@
   }
   // โหมดยานอวกาศ — เริ่มวงโคจรเหนือจุดที่กำลังดูอยู่ · ออกจากโหมดกลับมาที่วงโคจรเดิม
   var SHIP = { on: false, fast: false, k: 0, st: { u: 0, node: 0 }, clock: 0 }, shipHud = document.getElementById('ship-hud'), lastShipHud = 0;
+  // วงโคจรที่ผ่านจุด lat/lon ตอนนี้ (ช่วงขาขึ้น มุ่งตะวันออกเฉียงเหนือ) — ละติจูดเกินความเอียงของวงโคจรใช้ขอบวงโคจรแทน
+  function orbitOver(OB, lat, lon) {
+    var i = OB.INC_DEG * RAD, la = clamp(lat, -OB.INC_DEG + .5, OB.INC_DEG - .5);
+    var u = Math.asin(Math.sin(la * RAD) / Math.sin(i));             // มุมในวงโคจรที่ผ่านละติจูดนี้
+    return { u: u, node: lon - Math.atan2(Math.cos(i) * Math.sin(u), Math.cos(u)) / RAD };
+  }
   function shipStart() {
     var OB = window.KD_orbit; if (!OB) return false;
     if (SHIP.k > 0) { SHIP.on = true; maybe4k(); shipRes(true); return true; }      // กดกลับเข้ายานระหว่างกำลังออก = โคจรต่อจากเดิม (ไม่กระโดด)
-    var i = OB.INC_DEG * RAD, la = clamp(S.lat, -OB.INC_DEG + .5, OB.INC_DEG - .5);
-    var u = Math.asin(Math.sin(la * RAD) / Math.sin(i));             // มุมในวงโคจรที่ผ่านละติจูดนี้
-    var node = S.lon - Math.atan2(Math.cos(i) * Math.sin(u), Math.cos(u)) / RAD;
-    SHIP.st = { u: u, node: node }; SHIP.clock = Date.now(); SHIP.on = true; leaveCity(); go({ L: 1 }); maybe4k(); shipRes(true); return true;
+    SHIP.st = orbitOver(OB, S.lat, S.lon); SHIP.clock = Date.now(); SHIP.on = true; leaveCity(); go({ L: 1 }); maybe4k(); shipRes(true); return true;
   }
   // ในยาน: วาดที่ความละเอียดจอจริง (สูงสุด 2×) ให้คมที่สุด — ตัวลดความละเอียดอัตโนมัติยังลดให้เองถ้าเครื่องช้า
   function shipRes(on) { DPR_MAX = on ? Math.max(DPR_BASE, Math.min(window.devicePixelRatio || 1, 2)) : DPR_BASE; scale = Math.min(DPR_MAX, on ? DPR_MAX : scale); size(); }
@@ -403,6 +407,12 @@
     ship: function (on) { if (on) { if (!shipStart()) return false; } else leaveShip(); kick(); return SHIP.on; },
     shipFast: function () { SHIP.fast = !SHIP.fast; kick(); return SHIP.fast; },
     shipOn: function () { return SHIP.on; },
+    // บินไปให้เห็นบ้านเรา: วางยานทางใต้ของกรุงเทพฯ เท่าระยะที่หน้าต่างมองไปข้างหน้า — กรุงเทพฯ อยู่กลางหน้าต่างพอดี แล้วโคจรต่อตามจริง
+    shipHome: function () {
+      var OB = window.KD_orbit; if (!OB || !SHIP.on) return false;
+      var asp = canvas.width / Math.max(1, canvas.height), VW = asp < 1 ? OB.VIEW_TALL : OB.VIEW;
+      SHIP.st = orbitOver(OB, 13.75 - VW.ahead, 100.5); kick(); return true;
+    },
     globe: function (on) { leaveShip(); leaveCity(); go({ L: on ? 0 : 1, lat: on ? 20 : 40 }); },
     // บินไปจุดภัย แล้วเปิดกล้องรายละเอียดเมื่อถึง (ใช้กับรายการภัยในแผงเครื่องมือ)
     flyHazard: function (i) {
@@ -495,7 +505,7 @@
     var dayT = dayOn();
     if (dayM !== dayT) dayM = still ? dayT : dayT > dayM ? Math.min(1, dayM + dt * 1.1) : Math.max(0, dayM - dt * 1.1);
     if (ready < 1 && pending === 0) ready = still ? 1 : Math.min(1, ready + dt * 1.2);
-    var cam = camera(S.L, canvas.width / Math.max(1, canvas.height)), sunM = 0, Fv = F;
+    var cam = camera(S.L, canvas.width / Math.max(1, canvas.height)), near = 0, Fv = F, clock = Date.now();
     var OB = window.KD_orbit;
     if (OB && (SHIP.on || SHIP.k > 0)) {
       if (SHIP.on && !still) { var kx = SHIP.fast ? 60 : 1; SHIP.st = OB.step(SHIP.st, dt, kx); SHIP.clock += dt * 1000 * kx; }
@@ -505,8 +515,8 @@
       // กล้องหันไปทางเหนือ: จุดกลางจออยู่เหนือจุดใต้ยาน VW.ahead องศา — ตัวกล้องจึงอยู่ตรงเหนือจุดใต้ยานที่ 408 กม. พอดี
       S.lon = S.tlon = gp.lon + 360 * Math.round((S.lon - gp.lon) / 360); S.lat = S.tlat = gp.lat + VW.ahead * e; S.vlon = S.vlat = 0;
       cam = { D: Math.exp(Math.log(cam.D) + (Math.log(VW.D) - Math.log(cam.D)) * e), tilt: cam.tilt + (VW.tilt - cam.tilt) * e };
-      var su = OB.sun(SHIP.clock), sv = OB.vec(su.lat, su.lon);       // ดวงอาทิตย์จริง ณ เวลาในยาน
-      gl.uniform3f(U.sun, sv[0], sv[1], sv[2]); sunM = e * (1 - dayM);  // เลือก "กลางวัน" ไว้ = สว่างทั้งโลกเหมือนเดิม
+      near = e; clock = SHIP.clock;                                     // เวลาในยาน (เร่ง ×60 ได้)
+      var sv = sunVec(clock);
       if (asp < 1) Fv = F + (Math.min(F, .5 * asp / Math.tan(22 * RAD)) - F) * e;   // จอแนวตั้ง: มุมกว้าง ~44° ให้เห็นขอบโลกโค้ง
       if (shipHud && now - lastShipHud > 500) {
         lastShipHud = now;
@@ -515,7 +525,10 @@
           + ' ' + Math.abs(gp.lon).toFixed(1) + '°' + (gp.lon < 0 ? 'W' : 'E') + (lit ? ' · ☀ DAY' : ' · ☾ NIGHT') + (SHIP.fast ? ' · ×60' : '');
       }
     }
-    gl.uniform1f(U.sunM, sunM);
+    // โลกใบเดียวกันทุกมุม: ทั้งลูกโลกและหน้าต่างยานใช้ดวงอาทิตย์จริงชุดเดียวกัน (เดิมลูกโลกเป็นกลางคืนทั้งใบ แต่ในยานมีกลางวัน)
+    // เลือก "กลางวัน" ไว้ = สว่างทั้งโลกเหมือนเดิม
+    var svv = sunVec(clock); gl.uniform3f(U.sun, svv[0], svv[1], svv[2]);
+    gl.uniform1f(U.sunM, OB ? 1 - dayM : 0); gl.uniform1f(U.near, near);
     gl.uniform2f(U.res, canvas.width, canvas.height);
     gl.uniform1f(U.t, tsec); gl.uniform1f(U.ready, ready);
     gl.uniform1f(U.lon, S.lon); gl.uniform1f(U.lat, S.lat);

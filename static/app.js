@@ -2519,52 +2519,19 @@ function renderSessions(){
   });
 }
 function renderAll(){ renderSessions(); renderMsgs(); Cosmos.rebuild(); }
-/* ── โหมดภาพยนตร์: สำหรับอัดคลิป — ซ่อน UI เหลือโลก ธรรมจักร และบาลีจากธัมมจักกัปปวัตตนสูตรที่ค่อยๆ ปรากฏทีละวรรค
-   สองท่อนที่เจ้าของโปรเจกต์เลือก: ธรรมจักรที่ไม่มีใครหมุนกลับได้ · ญาณทัสสนะในอริยสัจ ๔ ที่บริสุทธิ์ (= ปัญญา)
-   บาลีเป็นพระสูตรต้นฉบับ · ความหมายเรียบเรียงใหม่สั้นๆ · ภาษาอื่นแสดงบาลีอักษรโรมัน
-   ออก: แตะจอ · Esc · ออกจากเต็มจอ */
-var CHANT = [
-  { th: ['เอตัมภะคะวะตา พาราณะสิยัง อิสิปะตะเน มิคะทาเย', 'อะนุตตะรัง ธัมมะจักกัง ปะวัตติตัง', 'อัปปะฏิวัตติยัง สะมะเณนะ วา พราหมะเณนะ วา', 'เทเวนะ วา มาเรนะ วา พรัหมุนา วา เกนะจิ วา โลกัสมินติ'],
-    ro: ['Etaṃ bhagavatā bārāṇasiyaṃ isipatane migadāye', 'anuttaraṃ dhammacakkaṃ pavattitaṃ', 'appaṭivattiyaṃ samaṇena vā brāhmaṇena vā', 'devena vā mārena vā brahmunā vā kenaci vā lokasmiṃ'],
-    mean: 'วงล้อแห่งธรรมอันยอดเยี่ยมหมุนไปแล้ว — ไม่มีผู้ใดในโลกหมุนกลับได้' },
-  { th: ['ยะโต จะ โข เม ภิกขะเว', 'อิเมสุ จะตูสุ อะริยะสัจเจสุ', 'เอวันติปะริวัฏฏัง ทวาทะสาการัง', 'ยะถาภูตัง ญาณะทัสสะนัง สุวิสุทธัง อะโหสิ'],
-    ro: ['Yato ca kho me, bhikkhave,', 'imesu catūsu ariyasaccesu', 'evaṃ tiparivaṭṭaṃ dvādasākāraṃ', 'yathābhūtaṃ ñāṇadassanaṃ suvisuddhaṃ ahosi'],
-    mean: 'เมื่อปัญญาที่รู้เห็นตามจริงในอริยสัจทั้งสี่ บริสุทธิ์ดีแล้ว' }
-];
+/* ── โหมดภาพยนตร์: สำหรับอัดคลิป — ซ่อน UI เหลือโลกกับพระอาทิตย์ขึ้น
+   ไม่แสดงบทสวด (เจ้าของโปรเจกต์: เราใช้สัจธรรมของธรรมะเป็นเคอร์เนล ไม่ใช่การสวด) · ออก: แตะจอ · Esc · ออกจากเต็มจอ */
 var Cine = (function(){
-  var on = false, timer = 0, fs = false, P = $('#cn-pali'), M = $('#cn-mean'), H = $('#cn-hint');
-  function seq(){
-    var key = (window.KD_I18N && KD_I18N.get() !== 'th') ? 'ro' : 'th', out = [];
-    CHANT.forEach(function(c){ c[key].forEach(function(l, i){ out.push({ l: l, m: i === 0 ? _t(c.mean) : null, end: i === c[key].length - 1 }); }); out.push(null); });
-    return out;
-  }
-  function play(){
-    var S = seq(), i = 0;
-    function step(){
-      if(!on) return;
-      var it = S[i++ % S.length];
-      P.classList.remove('on');
-      if(!it){ M.classList.remove('on'); timer = setTimeout(step, 5000); return; }
-      timer = setTimeout(function(){
-        if(!on) return;
-        P.textContent = it.l; P.classList.add('on');
-        if(it.m != null){ M.textContent = it.m; M.classList.add('on'); }
-        timer = setTimeout(function(){ if(it.end) M.classList.remove('on'); step(); }, REDUCED ? 5200 : 4600);
-      }, REDUCED ? 200 : 1800);
-    }
-    timer = setTimeout(step, REDUCED ? 600 : 5200);          /* รอดวงอาทิตย์เริ่มขึ้นก่อน */
-  }
+  var on = false, fs = false, H = $('#cn-hint');
   function enter(){
     if(on) return; on = true;
     if(document.body.dataset.view !== 'chat') setView('chat');
     document.documentElement.classList.add('kd-cinema'); Cosmos.cinema(true);
     H.textContent = _t('แตะหรือกด Esc เพื่อออก'); H.classList.remove('off'); setTimeout(function(){ H.classList.add('off'); }, 3200);
     try{ var r = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); if(r && r.then) r.then(function(){ fs = true; }, function(){}); }catch(_){}
-    play();
   }
   function exit(){
-    if(!on) return; on = false; clearTimeout(timer); fs = false;
-    P.classList.remove('on'); M.classList.remove('on');
+    if(!on) return; on = false; fs = false;
     document.documentElement.classList.remove('kd-cinema'); Cosmos.cinema(false);
     try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(_){}
   }

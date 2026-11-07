@@ -141,9 +141,9 @@ def test_ship_mode_engine_guards():
     assert "if (SHIP.k > 0) { SHIP.on = true; maybe4k(); shipRes(true); return true; }" in EARTH
     # ชื่อเมืองไม่บังวิวหน้าต่าง · ดวงอาทิตย์จริงเฉพาะในยาน (นอกยาน sunM = 0 → ภาพโลกเดิมทุกอย่าง)
     assert "if (SHIP.k > 0) { if (lab) lab.style.opacity = '0'; }" in EARTH
-    assert "uniform vec3 sun;" in EARTH and "'sunM', 'sun'" in EARTH and "sunM = e * (1 - dayM)" in EARTH
-    for keep in ("mix(26.,130.,sunM)", "mix(150.,700.,sunM)", "mix(.45+.5*dayM,", "mix(.007,.0147,sunM)", "dl=max(dayM,"):
-        assert keep in EARTH                                           # ค่าแรกของ mix = ค่าเดิมก่อนมีโหมดยาน
+    assert "uniform vec3 sun;" in EARTH and "'sunM', 'near', 'sun'" in EARTH and "gl.uniform1f(U.sunM, OB ? 1 - dayM : 0); gl.uniform1f(U.near, near);" in EARTH
+    for keep in ("mix(26.,130.,near)", "mix(150.,700.,near)", "mix(.45+.5*dayM,", "mix(.007,.0147,near)", "dl=max(dayM,"):
+        assert keep in EARTH                                           # ค่าแรกของ mix = ค่าเดิม (นอกยาน near = 0)
 
 
 @pytest.mark.parametrize("cap", [30, 60, 90, 120, 144])
@@ -177,9 +177,24 @@ def test_frame_rate_choice_reaches_universe_page():
 def test_ship_looks_like_the_naked_eye_and_keeps_phones_cool():
     """พี่คิงขอ "สวยแบบของจริง เหมือนมองจากอวกาศจริงๆ" และเครื่องไม่ร้อน
     · airglow ในยานจางลง (ที่เห็นเข้มๆ ในภาพ NASA มักเป็นภาพเปิดหน้ากล้องนาน) · กลางคืนพื้นโลกมืด เหลือไฟเมืองเท่าเดิม
-    · มือถือในยานที่ไม่ได้ตั้งเฟรมเรตเองวาดไม่เกิน 60 · นอกยาน (sunM = 0) ภาพและเฟรมเรตเหมือนเดิม"""
-    assert "*mix(.5,.26,sunM)*(1.-ls)" in EARTH
+    · ในยานใครไม่ได้ตั้งเฟรมเรตเองวาดไม่เกิน 60 · ปรับมองใกล้ (near) มีผลเฉพาะในยาน"""
+    assert "*mix(.5,.26,near)*(1.-ls)" in EARTH
     assert "*mix(1.,.42,sunM)+city*ready;" in EARTH
     assert "var capNow = SHIP.on && !capUser ? Math.min(cap, 60) : cap;" in EARTH      # ใครไม่ได้ตั้งเอง = 60
-    assert "cl=mix(cl,smoothstep(.08,.85,cl),sunM*.55);" in EARTH                       # ขอบเมฆคมขึ้นเฉพาะในยาน
+    assert "cl=mix(cl,smoothstep(.08,.85,cl),near*.55);" in EARTH                       # ขอบเมฆคมขึ้นเฉพาะในยาน
     assert "Math.min(window.devicePixelRatio || 1, 2)" in EARTH and "shipRes(false)" in EARTH   # ในยานวาดละเอียดเต็มจอ ออกแล้วกลับค่าเดิม
+
+
+def test_ship_can_fly_over_thailand_and_shows_stars():
+    """มองบ้านเรา: ปุ่ม "เหนือประเทศไทย" วางยานทางใต้ของกรุงเทพฯ เท่าระยะที่หน้าต่างมองไปข้างหน้า แล้วโคจรต่อตามจริง
+    · ในยาน ห้องมืด ตาเห็นดาวชัดขึ้น (นอกยาน near = 0 ดาวเท่าเดิม)"""
+    assert 'data-act="shiphome"' in PAGE and "shiphome: function(){ if(E() && E().shipOn()) E().shipHome(); }" in PAGE
+    assert "SHIP.st = orbitOver(OB, 13.75 - VW.ahead, 100.5);" in EARTH and "function orbitOver(OB, lat, lon)" in EARTH
+    assert "*(1.+1.3*near);}'" in EARTH
+
+
+def test_decision_planets_are_tappable():
+    """กลุ่มดาวแห่งการตัดสินใจ: แตะดาวแล้วส่งคำถามของดาวนั้นเข้าเครื่องจำลอง (แบบหน้า FATE แต่ใช้ชื่อของเรา)"""
+    cards = re.findall(r'<button type="button" class="planet-card" data-try="([^"]+)">', PAGE)
+    assert len(cards) == 6 and "เลือกไม่ถูกว่าจะเรียนต่อหรือทำงานดี" in cards
+    assert "var t = e.target.closest('[data-try]'); if(t) tryText(t.dataset.try);" in PAGE
