@@ -703,9 +703,10 @@ html.opening #view-title.cut{animation-delay:1.95s}
 .m.a .bubble::first-line{font-family:"Noto Serif Thai","Noto Sans Thai Looped",Georgia,serif;font-size:1.08em;color:#fff6e8;letter-spacing:.01em}
 .m.a .bubble strong{text-shadow:0 0 18px rgba(255,200,120,.28)}
 .m.a .who,.m.e .who{margin-bottom:10px}
-.who .star{box-shadow:0 0 12px currentColor,0 0 2px #fff}
-.fly-star{position:fixed;z-index:60;width:12px;height:12px;border-radius:50%;background:currentColor;pointer-events:none;
-  box-shadow:0 0 14px 4px currentColor,0 0 3px #fff}
+/* ดาวหลังตอบเสร็จ — เดิมเรือง 14px และขยาย 1.6 เท่าเต็มความสว่าง แสบตาโดยเฉพาะตอนกลางคืน */
+.who .star{box-shadow:0 0 5px currentColor}
+.fly-star{position:fixed;z-index:60;width:8px;height:8px;border-radius:50%;background:currentColor;pointer-events:none;
+  box-shadow:0 0 6px 1px currentColor}
 .star-pop{animation:kd-star-pop .6s var(--ease)}
 @keyframes kd-star-pop{40%{transform:scale(1.18)}}
 .eqs,.m.a>.fb{margin-left:18px}
@@ -861,6 +862,13 @@ html:lang(th) :is(.acc-link, #view-title, .chip, .seg button, .u-title b, .u-epi
 .theme-menu{top:34px;bottom:auto;left:auto;right:0;min-width:200px;display:flex;flex-direction:column;gap:2px}
 .theme-menu.hide{display:none}
 .theme-menu #calm-btn.on{color:var(--gold-hi)}
+/* เฟรมเรต 30 · 60 · 90 · 120 — ตัวที่เกินจอทำจาง ยังกดได้ */
+.theme-menu .tm-fps{padding:8px 10px 6px;display:flex;flex-direction:column;gap:6px}
+.theme-menu .tm-fps-h{font-size:.86em;opacity:.85}
+.theme-menu .tm-fps-h small{opacity:.7;margin-left:4px}
+.theme-menu .tm-fps-b{display:flex;gap:4px}
+.theme-menu .tm-fps-b button{flex:1;justify-content:center;padding:6px 0;border-radius:8px;font-variant-numeric:tabular-nums;box-shadow:inset 0 0 0 1px rgba(150,140,200,.35)}
+.theme-menu .tm-fps-b button.na{opacity:.45}
 /* ── การ์ดการยืนยันสองชั้น (2FA) ── */
 #tfa-body p{margin:0 0 10px;line-height:1.65}
 #tfa-body .tfa-key{font:600 15px/1.6 var(--f-mono);letter-spacing:.12em;word-break:break-all;padding:10px 12px;border-radius:12px;background:rgba(120,140,255,.08);margin:6px 0 10px;user-select:all}

@@ -1473,7 +1473,8 @@ EVERYDAY = [
         ],
         "ask": "เรียกรถผ่านแอปหรือโบกริมถนนคะ?",
     }),
-    ("war_prep", re.compile(r"(?<!หนัง)(?<!เกม)สงคราม(?!การค้า|ราคา|น้ำลาย|โลกครั้งที่)|ปะทะ\S{0,8}ชายแดน|สู้รบ|ยิงข้ามแดน|อพยพ\S{0,8}ชายแดน|\bwar\b", re.I), {
+    # "สงครามโลกครั้งที่ 2 เกิดเพราะอะไร" = ประวัติศาสตร์ ไม่เข้า · "ถ้าเกิดสงครามโลกครั้งที่ 3" = เตรียมตัว เข้า
+    ("war_prep", re.compile(r"(?<!หนัง)(?<!เกม)สงคราม(?!การค้า|ราคา|น้ำลาย|โลกครั้งที่\s?(?:1|2|หนึ่ง|สอง|แรก))|ปะทะ\S{0,8}ชายแดน|สู้รบ|ยิงข้ามแดน|อพยพ\S{0,8}ชายแดน|\bwar\b", re.I), {
         "open": ["ความกลัวแบบนี้เข้าใจได้ — การเตรียมพร้อมเล็กๆ ที่ทำได้วันนี้ ช่วยให้ใจนิ่งกว่าการไล่ตามข่าว"],
         "paths": [
             "ตามข่าวจากแหล่งทางการเท่านั้น (ประกาศอำเภอ/จังหวัด กองทัพ ปภ. 1784) วันละ 1–2 ครั้งพอ — ข่าวลือในแชตทำให้ตื่นตระหนกเกินจริง",
@@ -1482,7 +1483,8 @@ EVERYDAY = [
         ],
         "ask": "บ้านอยู่ใกล้พื้นที่ที่มีข่าวไหม หรือกังวลจากข่าวทั่วไป?",
     }),
-    ("disaster_kit", re.compile(r"(?:เตรียม|ซื้อ|ตุน)\S{0,20}(?:ภัยพิบัติ|ฉุกเฉิน|น้ำท่วม|แผ่นดินไหว|พายุ)|ถุงยังชีพ|กระเป๋าฉุกเฉิน|ชุดฉุกเฉิน"), {
+    # "ถ้าน้ำท่วมต้องเตรียมอะไร" (ภัยมาก่อนคำว่าเตรียม) เคยได้คำตอบกลาง
+    ("disaster_kit", re.compile(r"(?:เตรียม|ซื้อ|ตุน)\S{0,20}(?:ภัยพิบัติ|ฉุกเฉิน|น้ำท่วม|แผ่นดินไหว|พายุ)|(?:ภัยพิบัติ|น้ำท่วม|แผ่นดินไหว|พายุ|สึนามิ)\S{0,16}?(?:ต้อง|ควร)?เตรียม|ถุงยังชีพ|กระเป๋าฉุกเฉิน|ชุดฉุกเฉิน"), {
         "open": ["ชุดพร้อมรับภัยที่ดีไม่ต้องแพง — ขอแค่ใช้ได้จริง 3 วันแรก"],
         "paths": [
             "ต่อคน: น้ำดื่ม 3 ลิตร/วัน × 3 วัน · อาหารไม่ต้องหุง (ปลากระป๋อง ขนมปังกรอบ) · ยาประจำตัว 1 สัปดาห์ · ชุดปฐมพยาบาล",
@@ -1680,6 +1682,16 @@ _EN_LOCAL = "In Thailand: {th}. Elsewhere, call your local emergency number or f
 # ภัยที่กำลังเจอ ภาษาอังกฤษ — เดิม "there's a fire in my kitchen" "someone is breaking into my house"
 # ได้ "Let's lay this out step by step." แทนขั้นตอนหนีภัย (core/engine_bridge._HAZARDS มีแต่ภาษาไทย)
 EN_HAZARD = {
+    # สงคราม/ความขัดแย้ง — แนวทางป้องกันภัยพลเรือน (Ready.gov · Red Cross)
+    "airraid": ["Get to a shelter or the most inner room of a building — basement or ground floor, at least two walls between you and outside, away from windows. If outdoors, lie flat in a ditch or low ground and protect your head.",
+                "Stay sheltered until officials say it's safe — attacks often come in waves. Don't go out to look or film, and never touch unexploded objects.",
+                "For heavy bleeding, press hard on the wound without stopping; on an arm or leg that won't stop, tie a tourniquet above it. Follow official announcements, not social media rumours."],
+    "nuclear": ["Get inside a brick or concrete building now and go to the basement or the middle of the building, away from outer walls and the roof. If you see a flash, don't look — get down behind cover.",
+                "Stay inside for at least 24 hours unless officials tell you to evacuate. Turn off fans and air conditioning that pull in outside air, and follow official radio or phone alerts.",
+                "If you were outside when dust fell, remove your outer clothing and seal it in a bag, then wash with soap and shampoo (no conditioner). Food and water in sealed containers are safe. Don't take potassium iodide unless officials say to."],
+    "conflict": ["Follow official evacuation orders immediately and use the announced routes — take ID, medicines, water, dry food, cash, a charger and documents in a waterproof bag.",
+                 "Agree two meeting points with your family and one contact person outside the area; if you're separated, register your name at the evacuation centre or with the Red Cross.",
+                 "Rumours spread fast — rely on official announcements. Keep your phone charged and save battery for calls. If you're abroad, contact your embassy."],
     "flood": ["Switch off power at the breaker only if your hands and feet are dry and water hasn't reached the sockets.",
               "Move to higher ground or an upper floor with everyone; take medicine, documents and your phone.",
               "Don't walk or drive through moving water — knee-deep water can knock a person over."],
@@ -2152,9 +2164,34 @@ _URGENT_TOPICS = ("post_harm", "post_danger", "newborn_danger", "preg_danger", "
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
+# คนที่ไม่หายใจ หรือเด็กหายใจไม่ออก มาก่อนภัยรอบตัว — "ยายเป็นลมแดด หมดสติ ไม่หายใจ" เคยได้คำแนะนำคลื่นความร้อน ไม่มี CPR
+_PERSON_OVER_HAZARD = {"health_emergency", "kp_child_breath", "kp_near_drowning", "kp_febrile_seizure", "kp_alcohol_poisoning", "kp_child_in_car"}
+
+
+def _person_first(text: str, a: dict) -> bool:
+    top = (a.get("topics") or [None])[0]
+    return bool(_NOT_BREATHING.search(str(text or ""))) or (top in _PERSON_OVER_HAZARD and top != "health_emergency")
+
+
+# หัวข้อที่ตั้งใจตอบแบบไม่เร่ง (บอกเองว่าเมื่อไรต้องโทร 1669) — แทนหัวข้อกว้างแล้วให้คะแนนตามหัวข้อนี้
+_CALIBRATED = {"kp_double_dose", "kp_elevator"}
+# หัวข้อกว้างที่ตอบผิดเรื่องจนต้องตัดทิ้ง — ที่เหลือแค่เลื่อนไปไว้หลังหัวข้อเฉพาะ (ยังนับว่าเป็นเรื่องติดพนัน/ฉุกเฉินอยู่)
+_WRONG_FRAME = {"someone", "violence", "grief", "diagnosis"}
+# มีอาการอันตรายร่วม = ไม่ลดคะแนน ("กินยาความดันไปสองรอบ ตอนนี้หน้ามืดจะเป็นลม" ยังต้องด่วน)
+_DANGER_SIGNS = re.compile(r"หน้ามืด|เป็นลม|หมดสติ|ใจสั่น|เหงื่อแตก|สับสน|ซึม|ปลุกไม่ตื่น|หายใจ(?:ไม่ออก|ลำบาก|ไม่ทัน)|เจ็บหน้าอก|แน่นหน้าอก|ชัก|ตัวเย็น"
+                           r"|\b(?:faint\w*|dizz\w*|confused|drowsy|passed out|unconscious|can'?t breathe|chest pain|seizure|racing heart)\b", re.I)
+
 # (หัวข้อเฉพาะ, หัวข้อกว้างที่มันมาแทน)
 _SPECIFIC_FIRST = (
     ("kp_meltdown", {"someone", "violence"}),
+    # ไม่ใช่ยาเกินขนาดทั่วไป — เหล้าเถื่อนต้องบอกคนที่ดื่มขวดเดียวกัน · กินยาซ้ำโดยไม่ตั้งใจไม่ต้องรีบไปห้องฉุกเฉินถ้ายังไม่มีอาการ
+    ("kp_methanol", {"overdose"}),
+    ("kp_alcohol_poisoning", {"overdose", "health_emergency"}),
+    ("kp_double_dose", {"overdose"}),
+    ("kp_gambling", {"addiction"}),
+    # "ติดลิฟต์ อากาศอึดอัด" เคยได้ "ต้องให้แพทย์ดู" · แมงกะพรุนต่อยเคยได้คำตอบฉุกเฉินทั่วไป ไม่มีน้ำส้มสายชู
+    ("kp_elevator", {"health_emergency"}),
+    ("kp_jellyfish", {"health_emergency"}),
     ("kp_end_of_life", {"grief", "diagnosis"}),
     ("kp_palliative_pain", {"grief", "diagnosis", "kp_end_of_life"}),
 )
@@ -2248,7 +2285,31 @@ def assess(text: str, pattern: dict | None = None) -> dict:
                  text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20), risk_shown=min(a["risk_shown"], 20))
     from core.second_layer import apply as _second_layer
     a = _second_layer(text, a)
-    return _mother_baby_first(text, _with_conditions(text, a))
+    return _specific_first(text, _mother_baby_first(text, _with_conditions(text, a)))
+
+
+def _specific_first(text, a: dict) -> dict:
+    """ลำดับสุดท้ายของหัวข้อ — ทำหลังทุกชั้น เพราะชั้นก่อนหน้าอาจแทรก overdose/health_emergency กลับมาไว้หน้า
+    1) คนไม่หายใจมาก่อนทุกเรื่อง (ยกเว้นวิกฤตที่มีคำตอบ 1669/CPR ของตัวเองอยู่แล้ว)
+    2) หัวข้อเฉพาะมาก่อนหัวข้อกว้างที่ตอบผิดเรื่อง (_SPECIFIC_FIRST)"""
+    topics = list(a.get("topics") or [])
+    if not topics:
+        return a
+    calm = None
+    for first, over in _SPECIFIC_FIRST:
+        if first in topics and set(topics) & over:
+            topics = [first] + [x for x in topics if x != first and not (x in over and x in _WRONG_FRAME)]
+            calm = first if first in _CALIBRATED else calm
+    if _NOT_BREATHING.search(str(text or "")) and not a.get("crisis") and topics[0] != "health_emergency":
+        topics, calm = ["health_emergency"] + [x for x in topics if x != "health_emergency"], None
+    if topics == a["topics"] and not calm:
+        return a
+    out = dict(a, topics=topics)
+    # คำตอบบอก "ส่วนใหญ่ไม่อันตราย" แต่หัวคำตอบยังขึ้น 85/100 จากหัวข้อยาเกินขนาดที่ถูกแทน — ให้คะแนนตามหัวข้อที่ตอบจริง
+    if calm and topics[0] == calm and not a.get("crisis") and not _DANGER_SIGNS.search(str(text or "")):
+        r = _KP.RISK[calm]
+        out.update(text_risk=r, risk=min(a.get("risk", r), max(r, 0)), risk_shown=min(a.get("risk_shown", r), r))
+    return out
 
 
 _UNCONSCIOUS = re.compile(r"หมดสติ|ไม่ตอบสนอง|\b(?:unconscious|unresponsive)\b", re.I)
@@ -2409,7 +2470,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     # "แม่ใกล้เสียแล้ว" (ยังไม่เสีย) เคยได้ "เสียใจด้วย การสูญเสีย…" · ลูกออทิสติกอาละวาดเคยได้ "ถามตรงๆ ว่าคิดจะทำร้ายตัวเองไหม"
     for _first, _over in _SPECIFIC_FIRST:
         if _first in topics and set(topics) & _over:
-            topics = [_first] + [x for x in topics if x != _first and x not in _over]
+            topics = [_first] + [x for x in topics if x != _first and not (x in _over and x in _WRONG_FRAME)]
     # มิจฉาชีพ (แอบอ้าง/ลิงก์/โอนเงิน) — เลือกจากโครงสร้าง ไม่ใช่คำเดี่ยว
     scam = scam_flags(text)
     if scam:
@@ -2577,7 +2638,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
                     return CREATOR_STORY_EN.strip() + f"\n\n{sign}"
             except Exception:
                 pass
-        haz = EN_HAZARD.get((a.get("disaster") or {}).get("kind")) if (lang == "en" and not a["crisis"]) else None
+        haz = EN_HAZARD.get((a.get("disaster") or {}).get("kind")) if (lang == "en" and not a["crisis"] and not _person_first(t, a)) else None
         if haz:
             return ("Your safety comes first right now — things can be replaced.\n\n" + status + "\n\n"
                     + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(haz))
@@ -2743,7 +2804,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = TEACHER_HARM, None
     elif a["relationship"] in ("collapse_risk", "critical"):   # ถูกทำร้าย/ควบคุม: ความปลอดภัยมาก่อน
         main, second = SAFETY, None
-    elif a["disaster"]:                  # กำลังเจอภัย: ขั้นแรกของภัยนั้นมาก่อนทุกอย่าง
+    elif a["disaster"] and not _person_first(text, a):   # กำลังเจอภัย: ขั้นแรกของภัยนั้นมาก่อน — ยกเว้นมีคนไม่หายใจ/เด็กหายใจไม่ออก
         main, second = {"open": [DISASTER_OPEN], "paths": a["disaster"]["steps"],
                         "ask": a["disaster"].get("ask") or DISASTER_ASK}, None
     elif set(a["topics"]) <= {"decision", "health", "family"}:

@@ -22,6 +22,10 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
 /* ลดการเคลื่อนไหว: ตั้งในมือถือ หรือกดปุ่มในเมนูสี (ค่าเดียวกับหน้า Universe และฉากบิ๊กแบง · kd-calm) */
 var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 try{ if(localStorage.getItem('kd-calm') === '1'){ REDUCED = true; document.documentElement.classList.add('kd-calm'); } }catch(_){}
+/* เฟรมเรตสูงสุดของฉากจักรวาล — เลือกได้ในเมนูโหมดสี · 30 เครื่องเย็น/ประหยัดแบต · 90 ค่าเดิมที่พี่เลือก
+   เลือกเกินที่จอรองรับก็วาดได้เท่าที่จอได้ (requestAnimationFrame ไม่เร็วกว่าจอ) */
+var FPS_CAPS = [30, 60, 90, 120], FPS_CAP = 90;
+try{ var _fps = +localStorage.getItem('kd-fps'); if(FPS_CAPS.indexOf(_fps) >= 0) FPS_CAP = _fps; }catch(_){}
 /* โหมดสี: night (อวกาศเดิม) · day · latte (คอสมิกลาเต้ #FFF8E7 — สีเฉลี่ยของจักรวาล) · custom (สีที่ผู้ใช้เลือก)
    THEME.v = สีพื้น (null = กลางคืน) · THEME.dark = ตัวหนังสือเข้มบนพื้นสว่าง — ฉากอวกาศและตัวหนังสือบนผืนผ้าใช้ค่านี้ */
 var THEME = { t: 'night', c: '#e8dcff', v: null, dark: false };
@@ -1628,11 +1632,11 @@ var Cosmos = (function(){
   function frame(now){
     raf = 0;
     if(document.hidden || !W) return;
-    /* จำกัดไว้ 90 เฟรม/วินาที: จอ 120/144/240 Hz วาดเฉลี่ย 90 (สะสมเวลา) · จอ 60 Hz วาดทุกเฟรม */
+    /* จำกัดเฟรมตาม FPS_CAP (ค่าเริ่ม 90): จอที่เร็วกว่าวาดเฉลี่ยเท่า FPS_CAP (สะสมเวลา) · จอที่ช้ากว่าวาดทุกเฟรม */
     var gap = (now - (dtLast || now)) / 1000;
-    fpsAcc = Math.min(fpsAcc + gap, 2 / 90);
-    if(dtLast && fpsAcc + 1e-4 < 1 / 90){ dtLast = now; raf = requestAnimationFrame(frame); return; }
-    fpsAcc = Math.max(0, fpsAcc - 1 / 90);
+    fpsAcc = Math.min(fpsAcc + gap, 2 / FPS_CAP);
+    if(dtLast && fpsAcc + 1e-4 < 1 / FPS_CAP){ dtLast = now; raf = requestAnimationFrame(frame); return; }
+    fpsAcc = Math.max(0, fpsAcc - 1 / FPS_CAP);
     var dt = clamp((now - (fpsT || now)) / 1000, 0, .05); fpsT = now; dtLast = now; lastPaint = now;
     if(view !== 'universe'){ backdrop(now, dt); return; }
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalAlpha = 1;
@@ -2302,6 +2306,31 @@ var Cosmos = (function(){
     if(window.KD_kick) KD_kick();
   });
   calmUI();
+  /* เฟรมเรต: วัดรอบจอจริงตอนเปิดเมนู (24 เฟรม) — ตัวเลือกที่สูงกว่าจอบอกไว้ว่าจอนี้แสดงได้แค่ไหน */
+  function fpsL(s){ return window.KD_I18N ? KD_I18N.t(s) : s; }
+  function fpsUI(hz){
+    [].slice.call(document.querySelectorAll('#fps-row button[data-fps]')).forEach(function(b){
+      var v = +b.getAttribute('data-fps'), over = hz && v > hz * 1.1;
+      b.setAttribute('aria-pressed', v === FPS_CAP ? 'true' : 'false'); b.classList.toggle('on', v === FPS_CAP); b.classList.toggle('na', !!over);
+      b.title = over ? '> ~' + Math.round(hz) + ' Hz' : v === 30 ? fpsL('เครื่องเย็นและประหยัดแบตที่สุด') : '';
+    });
+    var n = document.getElementById('fps-hz'); if(n && hz) n.textContent = '· ~' + Math.round(hz) + ' Hz';   /* ตัวเลขล้วน ไม่ต้องแปล */
+  }
+  var screenHz = 0;
+  function measureHz(){
+    if(screenHz) return fpsUI(screenHz);
+    var t = [], k = function(now){ t.push(now); if(t.length < 24) return requestAnimationFrame(k);
+      var d = []; for(var i = 1; i < t.length; i++) d.push(t[i] - t[i - 1]); d.sort(function(x, y){ return x - y; });
+      var med = d[d.length >> 1]; screenHz = med > 0 ? Math.min(240, 1000 / med) : 0; fpsUI(screenHz); };
+    requestAnimationFrame(k);
+  }
+  [].slice.call(document.querySelectorAll('#fps-row button[data-fps]')).forEach(function(b){ b.addEventListener('click', function(){
+    FPS_CAP = +b.getAttribute('data-fps'); lsSet('kd-fps', String(FPS_CAP)); fpsUI(screenHz);
+    toast(fpsL('เฟรมเรตสูงสุด') + ' ' + FPS_CAP + (screenHz && FPS_CAP > screenHz * 1.1 ? ' · ~' + Math.round(screenHz) + ' Hz' : ''));
+    if(window.KD_kick) KD_kick();
+  }); });
+  document.getElementById('theme-btn').addEventListener('click', measureHz);
+  fpsUI(0);
   /* ธีมฮาโลวีน: เปิด/ปิดเองจากเมนูสี และจำค่าไว้ · ช่วง 24 ต.ค.–1 พ.ย. ชวนลองวันละครั้ง (ไม่เปิดให้เอง) */
   var hw = false; try{ hw = localStorage.getItem('kd-halloween') === '1'; }catch(_){}
   function hwUI(){ document.documentElement.classList.toggle('kd-halloween', hw); var b = $('#halloween-btn'); b.setAttribute('aria-pressed', hw ? 'true' : 'false'); b.classList.toggle('on', hw); }
@@ -2377,10 +2406,10 @@ function flyStar(){
   var dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 3 - (a.top + a.height / 2);
   /* โค้งขึ้นก่อนแล้วค่อยลงไปที่ปุ่ม เหมือนดาวถูกโยนขึ้นฟ้า */
   var an = el.animate([
-    { transform: 'translate(0,0) scale(1)', opacity: 1 },
-    { transform: 'translate(' + dx * .45 + 'px,' + (Math.min(dy, 0) - 90) + 'px) scale(1.6)', opacity: 1, offset: .45 },
-    { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.6)', opacity: .2 }
-  ], { duration: 1300, easing: 'cubic-bezier(.3,.7,.2,1)' });
+    { transform: 'translate(0,0) scale(1)', opacity: .7 },
+    { transform: 'translate(' + dx * .45 + 'px,' + (Math.min(dy, 0) - 60) + 'px) scale(1.15)', opacity: .7, offset: .45 },
+    { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.6)', opacity: .15 }
+  ], { duration: 1100, easing: 'cubic-bezier(.3,.7,.2,1)' });
   an.onfinish = function(){ el.remove(); pop(); };
 }
 function msgEl(m){
