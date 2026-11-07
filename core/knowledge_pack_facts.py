@@ -76,6 +76,8 @@ FACTS: list[Fact] = [
          "ชักเกิน 5 นาทีโทรฉุกเฉิน · อายุต่ำกว่า 6 เดือนไม่ใช่ไข้ชักทั่วไป", "NHS febrile seizures · AAP", "medical"),
     Fact("kp_child_dehydration", ("6–8 ชั่วโมง", "6–8 hours", "1–2 นาที", "1–2 minutes"),
          "ไม่ฉี่ 6–8 ชม. = ขาดน้ำ · ให้ ORS 1 ช้อนชาทุก 1–2 นาที", "WHO ORS guidance · NHS dehydration in children", "medical"),
+    Fact("kp_prep_en", ("3 days",), "ชุดพร้อมรับภัยพอสำหรับ 3 วันแรก · น้ำราว 3 ลิตร/คน/วัน · ยาประจำตัว 1 สัปดาห์",
+         "Ready.gov Build a Kit · ปภ.", "practical"),
     # ── คำแนะนำทั่วไป ──────────────────────────────────────────────────────────────────────────────
     Fact("*", _24H, "หน่วยงานที่ระบุว่า 24 ชม. (1300, 1367) เปิดตลอดจริง", "core/hotlines.py", "practical"),
 ]

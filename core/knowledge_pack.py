@@ -865,6 +865,17 @@ PACK = [
        "Already did? Call your bank now to freeze the account and change passwords, then report it to police yourself with the chat where you were recruited.",
        "Don't move any money that arrives; if you're contacted by police or the account is frozen, get free legal advice."],
       "Have you already handed over the account or details, or were you only asked?")),
+    # ── เตรียมพร้อมรับภัย/สงคราม (อังกฤษ) — ไทยมีคำตอบเดิม (war_prep · disaster_kit) · "how do i prepare for world war 3" เคยได้คำตอบกลาง
+    ("kp_prep_en",
+     r"\b(?:prepare|prepar\w+|prep|get ready|be ready|prepping|stock up)\b[^\n]{0,30}?\b(?:war|world war (?:3|iii|three)|nuclear (?:war|attack)|earthquakes?|floods?|hurricanes?|typhoons?|tsunamis?|disasters?|emergenc\w*|blackouts?|power outages?)\b"
+     r"|\b(?:go[- ]bag|bug[- ]out bag|emergency kit|disaster kit|72[- ]hour kit)\b",
+     10, False,
+     ("", [], ""),
+     ("Being ready doesn't take much money — it's a small kit and a family plan you can make today.",
+      ["Per person, a bag for the first 3 days: water (about 3 litres a day), food that needs no cooking, a week of regular medicines, a first-aid kit, torch, power bank, battery radio, whistle, some cash, and copies of ID in a waterproof bag.",
+       "Family plan: two meeting places (near home and outside the area), one contact person who lives elsewhere, and key numbers written on paper in case phones die.",
+       "For war or nuclear risk, also know your nearest shelter or basement and the inner room you'd use at home; follow official news once or twice a day instead of rumours."],
+      "Which risk worries you most where you live?")),
 ]
 
 # ถามเพื่อความรู้ ไม่ใช่เกิดกับใครตอนนี้ — "อธิบายลมแดดให้หน่อย จะทำรายงาน"

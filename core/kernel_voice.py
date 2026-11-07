@@ -1473,7 +1473,8 @@ EVERYDAY = [
         ],
         "ask": "เรียกรถผ่านแอปหรือโบกริมถนนคะ?",
     }),
-    ("war_prep", re.compile(r"(?<!หนัง)(?<!เกม)สงคราม(?!การค้า|ราคา|น้ำลาย|โลกครั้งที่)|ปะทะ\S{0,8}ชายแดน|สู้รบ|ยิงข้ามแดน|อพยพ\S{0,8}ชายแดน|\bwar\b", re.I), {
+    # "สงครามโลกครั้งที่ 2 เกิดเพราะอะไร" = ประวัติศาสตร์ ไม่เข้า · "ถ้าเกิดสงครามโลกครั้งที่ 3" = เตรียมตัว เข้า
+    ("war_prep", re.compile(r"(?<!หนัง)(?<!เกม)สงคราม(?!การค้า|ราคา|น้ำลาย|โลกครั้งที่\s?(?:1|2|หนึ่ง|สอง|แรก))|ปะทะ\S{0,8}ชายแดน|สู้รบ|ยิงข้ามแดน|อพยพ\S{0,8}ชายแดน|\bwar\b", re.I), {
         "open": ["ความกลัวแบบนี้เข้าใจได้ — การเตรียมพร้อมเล็กๆ ที่ทำได้วันนี้ ช่วยให้ใจนิ่งกว่าการไล่ตามข่าว"],
         "paths": [
             "ตามข่าวจากแหล่งทางการเท่านั้น (ประกาศอำเภอ/จังหวัด กองทัพ ปภ. 1784) วันละ 1–2 ครั้งพอ — ข่าวลือในแชตทำให้ตื่นตระหนกเกินจริง",
@@ -1482,7 +1483,8 @@ EVERYDAY = [
         ],
         "ask": "บ้านอยู่ใกล้พื้นที่ที่มีข่าวไหม หรือกังวลจากข่าวทั่วไป?",
     }),
-    ("disaster_kit", re.compile(r"(?:เตรียม|ซื้อ|ตุน)\S{0,20}(?:ภัยพิบัติ|ฉุกเฉิน|น้ำท่วม|แผ่นดินไหว|พายุ)|ถุงยังชีพ|กระเป๋าฉุกเฉิน|ชุดฉุกเฉิน"), {
+    # "ถ้าน้ำท่วมต้องเตรียมอะไร" (ภัยมาก่อนคำว่าเตรียม) เคยได้คำตอบกลาง
+    ("disaster_kit", re.compile(r"(?:เตรียม|ซื้อ|ตุน)\S{0,20}(?:ภัยพิบัติ|ฉุกเฉิน|น้ำท่วม|แผ่นดินไหว|พายุ)|(?:ภัยพิบัติ|น้ำท่วม|แผ่นดินไหว|พายุ|สึนามิ)\S{0,16}?(?:ต้อง|ควร)?เตรียม|ถุงยังชีพ|กระเป๋าฉุกเฉิน|ชุดฉุกเฉิน"), {
         "open": ["ชุดพร้อมรับภัยที่ดีไม่ต้องแพง — ขอแค่ใช้ได้จริง 3 วันแรก"],
         "paths": [
             "ต่อคน: น้ำดื่ม 3 ลิตร/วัน × 3 วัน · อาหารไม่ต้องหุง (ปลากระป๋อง ขนมปังกรอบ) · ยาประจำตัว 1 สัปดาห์ · ชุดปฐมพยาบาล",
@@ -1680,6 +1682,16 @@ _EN_LOCAL = "In Thailand: {th}. Elsewhere, call your local emergency number or f
 # ภัยที่กำลังเจอ ภาษาอังกฤษ — เดิม "there's a fire in my kitchen" "someone is breaking into my house"
 # ได้ "Let's lay this out step by step." แทนขั้นตอนหนีภัย (core/engine_bridge._HAZARDS มีแต่ภาษาไทย)
 EN_HAZARD = {
+    # สงคราม/ความขัดแย้ง — แนวทางป้องกันภัยพลเรือน (Ready.gov · Red Cross)
+    "airraid": ["Get to a shelter or the most inner room of a building — basement or ground floor, at least two walls between you and outside, away from windows. If outdoors, lie flat in a ditch or low ground and protect your head.",
+                "Stay sheltered until officials say it's safe — attacks often come in waves. Don't go out to look or film, and never touch unexploded objects.",
+                "For heavy bleeding, press hard on the wound without stopping; on an arm or leg that won't stop, tie a tourniquet above it. Follow official announcements, not social media rumours."],
+    "nuclear": ["Get inside a brick or concrete building now and go to the basement or the middle of the building, away from outer walls and the roof. If you see a flash, don't look — get down behind cover.",
+                "Stay inside for at least 24 hours unless officials tell you to evacuate. Turn off fans and air conditioning that pull in outside air, and follow official radio or phone alerts.",
+                "If you were outside when dust fell, remove your outer clothing and seal it in a bag, then wash with soap and shampoo (no conditioner). Food and water in sealed containers are safe. Don't take potassium iodide unless officials say to."],
+    "conflict": ["Follow official evacuation orders immediately and use the announced routes — take ID, medicines, water, dry food, cash, a charger and documents in a waterproof bag.",
+                 "Agree two meeting points with your family and one contact person outside the area; if you're separated, register your name at the evacuation centre or with the Red Cross.",
+                 "Rumours spread fast — rely on official announcements. Keep your phone charged and save battery for calls. If you're abroad, contact your embassy."],
     "flood": ["Switch off power at the breaker only if your hands and feet are dry and water hasn't reached the sockets.",
               "Move to higher ground or an upper floor with everyone; take medicine, documents and your phone.",
               "Don't walk or drive through moving water — knee-deep water can knock a person over."],
