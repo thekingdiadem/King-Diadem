@@ -1694,6 +1694,9 @@ SAFETY_EN = ("Your safety comes first.\n\n{status}\n\n"
 _EN_LOCAL = "In Thailand: {th}. Elsewhere, call your local emergency number or find help at findahelpline.com"
 # ภัยที่กำลังเจอ ภาษาอังกฤษ — เดิม "there's a fire in my kitchen" "someone is breaking into my house"
 # ได้ "Let's lay this out step by step." แทนขั้นตอนหนีภัย (core/engine_bridge._HAZARDS มีแต่ภาษาไทย)
+EN_FOLLOWED = ["Don't go home or into quiet side streets (they'd learn where you live) — go somewhere bright and busy: a convenience store, petrol station, hospital or police station, and tell the staff someone is following you.",
+               "Call the police (191 in Thailand) and give a clear location — shop name, street, landmark. If you can't talk, leave the line open. Call someone you trust, stay on the line and share your location.",
+               "If you're in a car: lock the doors, don't stop to talk, drive to a police station or a staffed petrol station. Note their appearance or plate number only if it's safe."]
 EN_HAZARD = {
     # สงคราม/ความขัดแย้ง — แนวทางป้องกันภัยพลเรือน (Ready.gov · Red Cross)
     "airraid": ["Get to a shelter or the most inner room of a building — basement or ground floor, at least two walls between you and outside, away from windows. If outdoors, lie flat in a ditch or low ground and protect your head.",
@@ -2653,6 +2656,9 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             except Exception:
                 pass
         haz = EN_HAZARD.get((a.get("disaster") or {}).get("kind")) if (lang == "en" and not a["crisis"] and not _person_first(t, a)) else None
+        if haz is EN_HAZARD["intruder"] and re.search(r"\bfollow(?:ing|ed)? me\b|\bbeing followed\b|\bstalking me\b", t, re.I) \
+                and not re.search(r"\b(?:house|home|room|apartment|door|window)\b", t, re.I):
+            haz = EN_FOLLOWED                            # ถูกตามข้างนอก ≠ ถูกบุกบ้าน (เดิมข้อแรกให้ล็อกตัวเองในห้อง)
         if haz:
             return ("Your safety comes first right now — things can be replaced.\n\n" + status + "\n\n"
                     + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(haz))

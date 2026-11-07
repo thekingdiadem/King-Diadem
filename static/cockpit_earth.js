@@ -332,7 +332,9 @@
       var now = performance.now();
       if (gest.moved < 8) {                                             // แตะ (ไม่ใช่ลาก) — แตะสองครั้ง = บินไปจุดนั้น
         var rr = canvas.getBoundingClientRect(), hz = hazardAt(e.clientX - rr.left, e.clientY - rr.top);
+        var pl = hz ? null : placeAt(e.clientX - rr.left, e.clientY - rr.top);
         if (hz) showHazard(hz); else hideHazard();
+        if (pl) showPlace(pl); else hidePlace();
         if (now - lastTap < 320) { var r = canvas.getBoundingClientRect(); flyTo(e.clientX - r.left, e.clientY - r.top); lastTap = 0; }
         else lastTap = now;
       } else if (!calm() && hist.length > 1) {                          // ปล่อยนิ้ว = โลกไหลต่ออีกนิดแล้วหยุดเอง
@@ -672,6 +674,85 @@
     });
     lctx.restore();
   }
+  // ── สถานที่ท่องเที่ยวจริง (Wikidata CC0 — scripts/build_earth_places.py): มรดกโลกทุกแห่ง + ที่เที่ยวสำคัญในไทย ──────────
+  // วาดเป็นจุดแสงเล็กๆ ที่เรืองนุ่ม ไม่ใช่หมุด — แสงที่ชี้ทาง ไม่แย่งความสนใจจากโลก · โหลดเมื่อเริ่มซูมลง (ทั้งโลกไม่โหลด)
+  // ระดับ 1 (คนรู้จักทั่วโลก) ขึ้นก่อน · ระดับ 2–3 ขึ้นเมื่อมองใกล้ · แถว [อังกฤษ, ไทย, lat, lon, ระดับ, คำอธิบาย, Q-id, มรดกโลก]
+  var PL = { data: null, busy: false, shown: [] }, PL_AT = [0, 1.3, 2.3, 3.1];
+  function loadPlaces() {
+    PL.busy = true;
+    fetch(base + 'earth/places.json').then(function (r) { return r.json(); }).then(function (d) {
+      PL.data = d.places.map(function (r) { var la = r[2] * RAD, lo = r[3] * RAD;
+        return { en: r[0], th: r[1], lat: r[2], lon: r[3], tier: r[4], desc: r[5], q: r[6], whs: r[7], w: [Math.cos(la) * Math.sin(lo), Math.sin(la), Math.cos(la) * Math.cos(lo)] }; });
+      labelsDirty = true; kick();
+    }).catch(function () { PL.busy = false; });
+  }
+  var plGlow = null;
+  function glowSprite() {                                             // แสงนุ่มวาดครั้งเดียว แล้ววางซ้ำ — ไม่สร้าง gradient ทุกเฟรม
+    if (plGlow) return plGlow;
+    var c = document.createElement('canvas'); c.width = c.height = 32; var g = c.getContext('2d'), gr = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gr.addColorStop(0, 'rgba(255,248,226,1)'); gr.addColorStop(.18, 'rgba(255,236,190,.75)'); gr.addColorStop(.45, 'rgba(214,200,255,.22)'); gr.addColorStop(1, 'rgba(160,170,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 32, 32); return (plGlow = c);
+  }
+  function drawPlaces(V, Wc, Hc, boxes) {
+    PL.shown = [];
+    if (S.tL < PL_AT[1] - .15) return;
+    if (!PL.data) { if (!PL.busy) loadPlaces(); return; }
+    var spr = glowSprite(), n = 0, max = Math.min(60, Math.round(Wc * Hc / 9000));
+    lctx.save(); lctx.textBaseline = 'middle'; lctx.font = 'italic 500 11px ' + FONT;
+    for (var i = 0; i < PL.data.length && n < max; i++) {
+      var P = PL.data[i], ta = smooth((S.L - PL_AT[P.tier]) / .4);
+      if (ta <= .02) continue;
+      var p = toScreen(V, P.w);
+      if (!p || p[0] < -10 || p[0] > Wc + 10 || p[1] < 6 || p[1] > Hc - 6) continue;
+      var far = clamp(2.4 - p[2] / (V.cam.D * 1.7), 0, 1); if (far <= .05) continue;
+      var a = ta * far, r = P.tier === 1 ? 9 : 7;
+      lctx.globalAlpha = a * .9; lctx.drawImage(spr, p[0] - r, p[1] - r, r * 2, r * 2);
+      PL.shown.push({ x: p[0], y: p[1], P: P }); n++;
+      var name = THAI && P.th ? P.th : P.en, show = S.L > PL_AT[P.tier] + .55;
+      if (!show) { boxes.push([p[0] - 6, p[1] - 6, p[0] + 6, p[1] + 6]); continue; }
+      var tw = lctx.measureText(name).width + 10, bx = [p[0] - 8, p[1] - 10, p[0] + tw + 8, p[1] + 10], hit = false;
+      for (var j = 0; j < boxes.length; j++) { var o = boxes[j]; if (bx[0] < o[2] && bx[2] > o[0] && bx[1] < o[3] && bx[3] > o[1]) { hit = true; break; } }
+      if (hit) { boxes.push([p[0] - 6, p[1] - 6, p[0] + 6, p[1] + 6]); continue; }
+      boxes.push(bx);
+      lctx.globalAlpha = a * .92; lctx.shadowColor = 'rgba(0,0,0,.85)'; lctx.shadowBlur = 4; lctx.fillStyle = '#fff1d2';
+      lctx.fillText(name, p[0] + 8, p[1]); lctx.shadowBlur = 0;
+    }
+    lctx.restore();
+  }
+  function placeAt(px, py) {
+    var best = null, bd = 18;
+    PL.shown.forEach(function (m) { var d = Math.hypot(px - m.x, py - m.y); if (d < bd) { bd = d; best = m; } });
+    return best;
+  }
+  // ลิงก์ Google Maps แบบทางการ (Maps URLs) — ไม่ต้องมีคีย์ ไม่มีค่าใช้จ่าย ไม่ได้ดึงข้อมูลของ Google มาวางบนแผนที่เรา
+  function gmaps(lat, lon, name) {
+    return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(name ? name : lat.toFixed(5) + ',' + lon.toFixed(5));
+  }
+  window.KD_gmaps = gmaps;
+  var plPop = document.createElement('div');
+  plPop.className = 'pl-pop hide'; plPop.setAttribute('role', 'dialog'); plPop.setAttribute('aria-live', 'polite');
+  wrap.appendChild(plPop);
+  function hidePlace() { plPop.classList.add('hide'); }
+  function showPlace(m) {
+    var P = m.P, en = !THAI, d = document.createDocumentFragment();
+    function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; d.appendChild(e); return e; }
+    plPop.textContent = '';
+    el('i', 'pl-line');
+    if (P.whs) el('span', 'pl-tag', en ? 'UNESCO World Heritage' : 'มรดกโลก UNESCO');
+    el('b', 'pl-name', !en && P.th ? P.th : P.en);
+    if (!en && P.th && P.th !== P.en) el('span', 'pl-sub', P.en);
+    if (P.desc) el('p', 'pl-desc', P.desc);
+    var row = el('div', 'pl-row');
+    var g = document.createElement('a'); g.href = gmaps(P.lat, P.lon, P.en); g.target = '_blank'; g.rel = 'noopener'; g.textContent = en ? 'Open in Google Maps' : 'เปิดใน Google Maps'; row.appendChild(g);
+    var f = document.createElement('button'); f.type = 'button'; f.textContent = en ? 'Fly closer' : 'บินเข้าไปดู';
+    f.addEventListener('click', function () { hidePlace(); go({ lat: P.lat, lon: P.lon + 360 * Math.round((S.tlon - P.lon) / 360), L: Math.max(S.tL, 3.6) }); }); row.appendChild(f);
+    var w = document.createElement('a'); w.href = 'https://www.wikidata.org/wiki/' + P.q; w.target = '_blank'; w.rel = 'noopener'; w.className = 'pl-src'; w.textContent = 'Wikidata'; row.appendChild(w);
+    plPop.appendChild(d);
+    var Wc = canvas.clientWidth, Hc = canvas.clientHeight;
+    plPop.style.left = Math.round(clamp(m.x + 16, 8, Math.max(8, Wc - 290))) + 'px';
+    plPop.style.top = Math.round(clamp(m.y - 20, 8, Math.max(8, Hc - 210))) + 'px';
+    plPop.classList.remove('hide'); plPop.classList.remove('lit'); void plPop.offsetWidth; plPop.classList.add('lit');
+  }
   function labels() {
     // หัวเว็บค่อยๆ จางเมื่อซูมลง จนหายไปเมื่อเลยวงโคจร — แผนที่จะได้โล่ง
     var heroA = 1 - smooth((S.L - 1.08) / .55);
@@ -686,6 +767,7 @@
     lctx.clearRect(0, 0, Wc, Hc);
     var V = view(), boxes = [];
     drawHazards(V, Wc, Hc, boxes);
+    drawPlaces(V, Wc, Hc, boxes);                                     // สถานที่วางก่อนชื่อเมือง — ชื่อเมืองหลบแสง
     var show = smooth((S.L - 1.5) / .4);
     if (show <= 0) return;
     var limit = Math.min(Math.round(26 + 14 * S.mag), Math.round(Wc * Hc / 6500)), drawn = 0;
@@ -721,6 +803,11 @@
     lctx.globalAlpha = 1;
   }
   // ปุ่ม "ดูดาว": เปิดฟ้าเหนือจุดกลางจอ (ดูอเมริกาอยู่ = ฟ้าอเมริกา) พร้อมชื่อเมืองใกล้สุดที่โหลดไว้แล้ว
+  // ปุ่ม Google Maps ในแผงเครื่องมือ: เปิดตรงจุดกลางจอที่กำลังดูอยู่ (ลิงก์ทางการ ไม่มีค่าใช้จ่าย)
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('#ec-gmaps'); if (!a) return;
+    var la = clamp(S.tlat, -85, 85), lo = ((S.tlon % 360) + 540) % 360 - 180; a.href = gmaps(la, lo);
+  }, true);
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="/sky"]');
     if (!a) return;

@@ -391,6 +391,28 @@ html.kd-day #city-map .maplibregl-ctrl-attrib a{color:#222}
   background:rgba(6,9,20,.86);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#e6edf8;font:400 13px/1.55 system-ui,sans-serif;
   box-shadow:0 14px 40px -12px rgba(0,0,0,.7)}
 .cockpit .hz-pop.hide{display:none}
+/* การ์ดสถานที่ — แสงค่อยๆ สว่างขึ้นจากความมืด: เส้นแสงอุ่นบางๆ คลี่จากกลางออกไป ชื่อเรืองนุ่ม ไม่จ้า
+   ที่ว่างรอบตัวอักษรมากพอให้ใจได้พัก · ข้อมูลจริงจาก Wikidata · ลดการเคลื่อนไหว = ขึ้นทันทีไม่มีแอนิเมชัน */
+.cockpit .pl-pop{position:absolute;z-index:3;width:min(280px,calc(100vw - 32px));padding:18px 18px 14px;border-radius:18px;pointer-events:auto;
+  background:linear-gradient(180deg,rgba(14,18,40,.9),rgba(6,8,22,.92));color:rgba(236,240,255,.86);text-align:left;
+  box-shadow:inset 0 0 0 1px rgba(255,236,196,.14),0 24px 70px -24px rgba(0,0,0,.9),0 0 46px -12px rgba(255,226,170,.22);font:400 12.5px/1.6 var(--f-body)}
+.cockpit .pl-pop.hide{display:none}
+.pl-pop .pl-line{position:absolute;left:18px;right:18px;top:0;height:1px;background:linear-gradient(90deg,rgba(255,232,186,0),rgba(255,238,204,.95),rgba(255,232,186,0));
+  box-shadow:0 0 12px 1px rgba(255,226,170,.45);transform:scaleX(1)}
+.pl-pop.lit .pl-line{animation:pl-dawn 1.6s cubic-bezier(.2,.7,.2,1) both}
+.pl-pop.lit .pl-name,.pl-pop.lit .pl-desc,.pl-pop.lit .pl-row{animation:pl-in 1.4s ease .25s both}
+@keyframes pl-dawn{from{transform:scaleX(0);opacity:0}to{transform:scaleX(1);opacity:1}}
+@keyframes pl-in{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
+.pl-pop .pl-tag{display:block;margin-bottom:6px;font:600 9.5px/1 var(--f-mono);letter-spacing:.2em;color:rgba(255,226,170,.7);text-transform:uppercase}
+.pl-pop .pl-name{display:block;font:500 17px/1.35 var(--f-body);color:#fff6e4;text-shadow:0 0 18px rgba(255,226,170,.35)}
+.pl-pop .pl-sub{display:block;font-size:11px;color:rgba(220,226,255,.5);margin-top:2px}
+.pl-pop .pl-desc{margin:10px 0 0;color:rgba(226,232,252,.72)}
+.pl-pop .pl-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.pl-pop .pl-row a,.pl-pop .pl-row button{font:500 11.5px var(--f-body);color:#fff1d6;background:rgba(255,236,200,.07);border:0;border-radius:999px;padding:7px 12px;cursor:pointer;text-decoration:none;
+  box-shadow:inset 0 0 0 1px rgba(255,232,190,.24)}
+.pl-pop .pl-row a:hover,.pl-pop .pl-row button:hover{background:rgba(255,236,200,.14)}
+.pl-pop .pl-row .pl-src{background:none;box-shadow:none;padding:7px 2px;color:rgba(220,226,255,.45)}
+html.kd-calm .pl-pop .pl-line,html.kd-calm .pl-pop *{animation:none!important}
 .hz-pop i,.hz-card i{font-style:normal;opacity:.7}.hz-pop a,.hz-card a{color:#ffd28f}
 #city-map .maplibregl-popup-content{background:rgba(6,9,20,.9);color:#e6edf8;font:400 13px/1.55 system-ui,sans-serif;border-radius:12px;padding:10px 12px}
 #city-map .maplibregl-popup-tip{border-top-color:rgba(6,9,20,.9);border-bottom-color:rgba(6,9,20,.9)}
@@ -481,6 +503,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
         <a class="ec-tile" href="/sky"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.6 4.9.4-3.7 3.2 1.1 4.8L12 13.5 7.8 16l1.1-4.8L5.2 8l4.9-.4z"/><path d="M4 21h16" opacity=".6"/></svg>ดูดาว</a>
         <button type="button" class="ec-tile" id="ec-bang" data-act="bang"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4M5.3 5.3l2.8 2.8M15.9 15.9l2.8 2.8M18.7 5.3l-2.8 2.8M8.1 15.9l-2.8 2.8"/></svg>บิ๊กแบง</button>
         <button type="button" class="ec-tile" data-act="hzlist" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M2.5 13h3l2-5 3 10 3-13 2.5 8h5.5"/></svg>ภัยพิบัติ</button>
+        <a class="ec-tile" id="ec-gmaps" href="https://www.google.com/maps" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0113 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Google Maps</a>
         <a class="ec-tile" href="/survival"><svg viewBox="0 0 24 24"><path d="M5 4.5h9a3 3 0 013 3v12H8a3 3 0 01-3-3v-12z"/><path d="M17 19.5h2V7.5M9 9h4M9 12.5h4"/></svg>คู่มือเอาชีวิตรอด</a>
       </div>
       <p class="ec-note">จุดสีบนโลก = แผ่นดินไหว (USGS) · พายุ น้ำท่วม ภูเขาไฟ ไฟป่า ภัยแล้ง (GDACS) — แตะจุดเพื่อดูรายละเอียด</p>
