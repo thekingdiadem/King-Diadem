@@ -203,8 +203,11 @@ def entrust_giveup(t: str) -> Hit | None:
 GIVE_AWAY = _rx(r"(?:ยก|เอา|ส่ง)(?:หมา|แมว|สุนัข|น้อง(?:หมา|แมว)|สัตว์เลี้ยง|ของรัก|ของ\S{0,6})\S{0,8}(?:ไป)?ให้", r"แจก(?:ของ|ข้าวของ|เสื้อผ้า)\S{0,8}(?:หมด|ทั้งหมด|ไปแล้ว)",
                 r"(?:เอา|ยก|โอน|ให้)(?:เงินเก็บ|เงินทั้งหมด|เงินออม|ทรัพย์สิน|ทอง|บ้าน|รถ)\S{0,10}(?:ไป)?ให้",
                 r"\b(?:gave|giving|transferred|left) (?:all )?(?:my|his|her|their) (?:savings|money|bank account|car|house)\b",
+                r"\b(?:gave|transferred|left|handed|sent) (?:me|us|him|her|them) (?:all )?(?:of )?(?:my|his|her|their) (?:savings|money|bank account|car|house|jewel(?:le)?ry|gold)\b",
                 r"\b(?:gave|giving|give|handed|been giving) (?:away )?(?:my|all my|her|his|their|all (?:her|his|their)) (?:dog|cat|pets?|puppy|kitten|things|stuff|belongings|guitar|books|clothes|plants|records|vinyl|art|jewel(?:le)?ry|games|collection|favou?rite \w+)\b")
 FINAL_NOTE = _rx(r"ดีที่สุดแล้ว", r"ดีกว่า(?:อยู่กับ)?(?:ฉัน|ผม|หนู|เรา)", r"ไม่(?:ต้อง|ได้)ใช้(?:มัน)?(?:อีก)?แล้ว", r"จะได้มีคนดูแล", r"(?:ฉัน|ผม|หนู)ดูแล(?:เขา|มัน)ไม่ได้อีกแล้ว", r"ไม่ต้อง(?:เป็น)?ห่วง(?:เขา|เธอ|ฉัน|ผม|หนู|เรา|ใคร)?(?:อีก)?แล้ว", r"จะไปไกล\s?ๆ", r"จะไปที่ที่ดีกว่า",
+                 # "บอกว่าต่อไปไม่ต้องห่วงแม่แล้ว" (ชุดปิดตารอบ 12) — ภาษาอังกฤษมี "don't worry about me anymore" อยู่แล้ว
+                 r"(?:ต่อไป)?ไม่ต้อง(?:ห่วง|เป็นห่วง)(?:แม่|พ่อ|ฉัน|ผม|เรา|ยาย|ตา|ปู่|ย่า|พี่|น้อง|เขา|เธอ)?(?:อีก)?(?:แล้ว|ต่อไป)",
                  r"\b(?:don'?t worry about (?:me|him|her) any ?more|going (?:somewhere )?far away|for the best|won'?t (?:need|be needing) (?:it|them)|better off (?:with|without)|someone (?:who can|to) (?:take care|look after))\b")
 GIVE_OK = _rx(r"ย้าย(?:บ้าน|ห้อง|หอ|งาน|ไป)", r"ไปเที่ยว", r"ได้งาน", r"ของขวัญ", r"วันเกิด", r"ผ่อน(?:บ้าน|รถ)ให้", r"ค่าเทอม", r"\b(?:trip|vacation|gift|birthday|got (?:a|the|my) (?:new )?job|tuition)\b", r"แพ้ขน", r"เจ้าของ(?:ห้อง|หอ|คอนโด)ไม่ให้", r"ห้ามเลี้ยง", r"ทารก|คลอด|ตั้งครรภ์", r"บริจาค",
               r"\b(?:moving|move (?:to|abroad|out)|allerg\w*|landlord|no pets|new (?:baby|apartment|job)|donat\w*|decluttering)\b")
@@ -214,9 +217,16 @@ THIRD = _rx(r"\b(?:she|he|they|her|his|my (?:roommate|friend|sister|brother|mom|
             r"(?:เพื่อน|พี่|น้อง|แม่|พ่อ|ลูก|แฟน|รูมเมท)\S{0,6}(?:เขา|เธอ)?\S{0,4}(?:ยก|แจก|บอกว่า|เอา|โอน)")
 
 
+# ผู้ใช้เป็นคนยกของเอง — "หนู" ที่เป็นผู้รับ ("แม่โอนเงินให้หนู") ไม่นับ เดิมทำให้ได้คำตอบวิกฤตของผู้ใช้แทนคำตอบสำหรับคนที่ห่วงแม่
+_SELF_GIVER = re.compile(r"\bi(?:'ve| have| am|'m)? (?:gave|give|giving|transferred|transfer|left|handed|sold)\b|\bmy own\b|"
+                         r"(?:ฉัน|ผม|หนู|เรา)(?!ๆ)\S{0,6}(?:ยก|แจก|โอน|เอา\S{0,8}ไปให้|ให้\S{0,4}(?:หมา|แมว|ของ|เงิน))", re.I)
+_RECEIVER = re.compile(r"\b(?:gave|transferred|left|handed) (?:me|us)\b|ให้(?:หนู|ฉัน|ผม|เรา)(?!ๆ)", re.I)
+
+
 def giveaway_final(t: str) -> Hit | None:
     if _near(GIVE_AWAY, FINAL_NOTE, t, 120) and not GIVE_OK.search(t):
-        return Hit("giveaway_final", "someone" if THIRD.search(t) and not re.search(r"\b(?:i|i'?ve|my own)\b|ฉัน|ผม|หนู(?!ๆ)", t, re.I) else "warning", 65)
+        other = THIRD.search(t) and (_RECEIVER.search(t) or not _SELF_GIVER.search(t))
+        return Hit("giveaway_final", "someone" if other else "warning", 65)
     return None
 
 

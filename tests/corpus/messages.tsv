@@ -709,3 +709,12 @@ my dad has started sleeping in his car with the engine running and the garage do
 พี่สาวโพสต์ขอบคุณทุกคนที่มาวันเกิด	!topic:someone	ปกติ
 my dad sits in the car with the engine running to warm it up in winter	!topic:someone	ปกติ
 โค้ชชวนลูกชายไปบ้านเขา กินข้าวกับครอบครัวเขา บอกพ่อแม่แล้ว	!topic:adult_invite	ปกติ
+
+# ── ย้ายมาจากชุดปิดตารอบ 12 (thai_signals: สโตรกคำธรรมดา lopsided/jumbled · conditions: "ไม่ต้องห่วงแม่แล้ว" + ผู้ใช้เป็นผู้รับ) ──
+my grandpa's face looks lopsided and his words have been coming out jumbled since lunch	topic:health_emergency	ฉุกเฉิน
+แม่โอนเงินเก็บทั้งหมดให้หนู บอกว่าต่อไปไม่ต้องห่วงแม่แล้ว ตั้งแต่เมื่อคืนก็ไม่รับสายอีกเลย	topic:someone;!crisis	วิกฤตคนใกล้ตัว
+my mom gave me all her savings and said don't worry about her anymore, she won't pick up	topic:someone;!crisis	วิกฤตคนใกล้ตัว
+my words come out jumbled when i'm nervous in interviews	!topic:health_emergency	ปกติ
+the painting looks lopsided on the wall	!topic:health_emergency	ปกติ
+แม่โอนเงินค่าเทอมให้หนู บอกว่าไม่ต้องห่วงแล้ว ตั้งใจเรียนนะ	!topic:someone;!crisis	ปกติ
+my grandma gave me her old car because she got a new one	!topic:someone	ปกติ

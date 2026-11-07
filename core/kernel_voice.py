@@ -2649,7 +2649,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         if en_key == "health_emergency":
             en_key = ("en_drowning" if re.search(r"\bdrown", t, re.I)
                       else "en_cpr" if _NOT_BREATHING.search(t) or re.search(r"\bunconscious\b", t, re.I)
-                      else "en_stroke" if re.search(r"\bstroke\b|\bcan'?t (?:speak|talk)|\bslurr|\bface (?:is )?droop|\bconfused\b", t, re.I) else en_key)
+                      else "en_stroke" if re.search(r"\bstroke\b|\bcan'?t (?:speak|talk)|\bslurr|\bface (?:is )?droop|\bconfused\b|\blopsided\b|\bcrooked (?:face|smile)\b|\bjumbled\b|\bgarbled\b", t, re.I) else en_key)
         if en_key in ("health_emergency", "first_aid", "violence", "swallowed", "overdose"):
             for rx, k in _EN_FIRST_STEP:
                 if rx.search(t) and (k != "en_swallowed_adult" or not re.search(r"\b(?:child|son|daughter|kid|baby|toddler)\b", t, re.I)):

@@ -658,6 +658,12 @@ URGENT_BODY = re.compile(
     r"เมา\S{0,4}?(?:จน)?(?:ปลุกไม่ตื่น|ไม่รู้สึกตัว|หมดสติ)|ไข้\S{0,6}?คอแข็ง|อาเจียนทุกครั้งที่(?:กิน|ดื่ม)|อาเจียนไม่หยุด|"
     r"(?i:\b(?:vomiting|throwing up|coughing up|coughing) blood\b|\bblood in (?:my|her|his|their) (?:vomit|stool|poop)\b)|"
     r"(?i:\bcan'?t (?:speak|talk) (?:properly|clearly|right)\b|\bslurr(?:ed|ing) (?:speech|words|her words|his words)\b|\bface (?:is )?droop|\bhaving a stroke\b|\bsudden(?:ly)? (?:very )?confused\b|"
+    # สโตรกที่เล่าด้วยคำธรรมดา — "face looks lopsided, words coming out jumbled" (ชุดปิดตารอบ 12) เคยได้ Risk 0
+    r"\bface (?:looks |is |went |has gone |seems )?(?:lopsided|crooked|uneven|twisted)\b|\b(?:lopsided|crooked) (?:face|smile)\b|"
+    r"\bone side of (?:his|her|their|my) (?:face|mouth)\b[^\n]{0,24}?\b(?:droop\w*|sag\w*|numb|not moving|fell|dropped)\b|"
+    # คำพูดสับสนต้องเป็นของคนอื่น หรือเกิดขึ้นกะทันหัน — "my words come out jumbled when i'm nervous" ไม่ใช่สโตรก
+    r"\b(?:his|her|their|grandpa'?s|grandma'?s|dad'?s|mom'?s|mum'?s)\b[^\n]{0,6}?\b(?:words|speech)\b[^\n]{0,20}?\b(?:jumbled|garbled|all mixed up|scrambled|not making (?:any )?sense|coming out wrong)\b|"
+    r"\b(?:words|speech)\b[^\n]{0,20}?\b(?:jumbled|garbled|all mixed up|scrambled)\b[^\n]{0,24}?\b(?:since|suddenly|all of a sudden|this morning|an hour ago|minutes ago)\b|"
     # รอบตารางภาษาอังกฤษ: เลือดไม่หยุด ตกสระ แพ้รุนแรง ลมแดด เมาปลุกไม่ตื่น ไข้คอแข็ง หน้าเบี้ยว — เคยได้ Risk 0
     r"\b(?:fell|fallen) in(?:to)? (?:the |a )?(?:pool|river|lake|water|canal|sea|pond)\b|\bbleeding (?:a lot|heavily|badly|so much)\b|\bwon'?t stop bleeding\b|"
     r"\bcan'?t stop the bleeding\b|\blots? of blood\b|\bblood\b[^\n]{0,30}?\b(?:soak(?:ing|ed|s)? (?:through|into)|pouring|spurting|gushing|won'?t stop)\b|\bsoak(?:ing|ed) through\b[^\n]{0,30}?\b(?:towels?|bandages?|cloths?|shirts?|gauze)\b|\bstung by an? (?:bee|wasp|hornet)\b[^\n]{0,40}?\b(?:swell|can'?t breathe|trouble breathing)|"
