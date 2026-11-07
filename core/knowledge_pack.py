@@ -876,11 +876,29 @@ PACK = [
        "Family plan: two meeting places (near home and outside the area), one contact person who lives elsewhere, and key numbers written on paper in case phones die.",
        "For war or nuclear risk, also know your nearest shelter or basement and the inner room you'd use at home; follow official news once or twice a day instead of rumours."],
       "Which risk worries you most where you live?")),
+    # ── ขนาดยาพาราเซตามอล — "กินพาราเกิน 8 เม็ดต่อวันอันตรายไหม" เคยได้คำตอบกลาง ทั้งที่เกินขนาดทำลายตับโดยไม่มีอาการวันแรก
+    # ถามขนาดยาเท่านั้น — "กินไปแล้ว 20 เม็ด" ให้หัวข้อยาเกินขนาด (overdose) ตอบ (NEG ด้านล่าง)
+    ("kp_paracetamol",
+     r"(?:พารา(?:เซตามอล)?|ไทลินอล|ซาร่า|tylenol)[^\n]{0,30}?(?:เกิน|กี่เม็ด|ได้กี่|สูงสุด|ทั้งแผง|หลายเม็ด|\d+\s*เม็ด|อันตราย|ห่างกันกี่|วันละกี่)"
+     r"|\b(?:paracetamol|acetaminophen|tylenol|panadol)\b[^\n]{0,40}?\b(?:how many|max(?:imum)?|too many|safe dose|dose|\d+ (?:pills|tablets)|per day|a day)\b",
+     45, False,
+     ("พาราเซตามอลปลอดภัยถ้าไม่เกินขนาด แต่ถ้าเกิน ทำลายตับได้โดยไม่มีอาการในวันแรก",
+      ["ผู้ใหญ่: ครั้งละ 1–2 เม็ด (500 มก.) ห่างกันอย่างน้อย 4–6 ชั่วโมง รวมไม่เกิน 8 เม็ด (4,000 มก.) ต่อวัน — ดื่มเหล้าประจำ เป็นโรคตับ หรือตัวเล็ก ควรน้อยกว่านี้ ถามเภสัชกร · เด็กคิดตามน้ำหนักตัว ดูฉลากหรือถามเภสัชกร",
+       "ระวังกินซ้ำซ้อน: ยาแก้หวัดและยาแก้ปวดหลายยี่ห้อมีพาราผสมอยู่ ต้องนับรวมด้วย",
+       "ถ้ากินเกินไปแล้ว แม้ยังรู้สึกปกติ ไปโรงพยาบาลหรือโทรศูนย์พิษวิทยา 1367 ทันที — ยาแก้พิษได้ผลดีที่สุดถ้าได้ภายใน 8 ชั่วโมง"],
+      "ถามสำหรับผู้ใหญ่หรือเด็ก และน้ำหนักตัวประมาณเท่าไร?"),
+     ("Paracetamol (acetaminophen) is safe at the right dose, but too much can damage the liver with no symptoms on the first day.",
+      ["Adults: 500–1,000 mg at a time, at least 4–6 hours apart, no more than 4,000 mg in 24 hours — less if you drink regularly, have liver disease or weigh little; children are dosed by weight, so check the label or a pharmacist.",
+       "Watch for doubling up: many cold and pain remedies already contain paracetamol, so count them too.",
+       "If too much has already been taken, go to hospital or call poison control now even if you feel fine (US 1-800-222-1222; Thailand 1367) — the antidote works best within 8 hours."],
+      "Is this for an adult or a child, and roughly what weight?")),
 ]
 
 # ถามเพื่อความรู้ ไม่ใช่เกิดกับใครตอนนี้ — "อธิบายลมแดดให้หน่อย จะทำรายงาน"
 EDU = r"อธิบาย|ทำรายงาน|การบ้าน|คืออะไร|หมายถึงอะไร|ถามเฉยๆ|ผิดกฎหมายไหม|\b(?:explain|essay|homework|school project|for (?:a|my) (?:report|class))\b"
 NEG = {
+    # กินไปแล้ว = ยาเกินขนาด (overdose) ไม่ใช่คำถามเรื่องขนาดยา
+    "kp_paracetamol": r"[\s\S]*(?:กิน\S{0,14}?(?:ไป|แล้ว)|กลืน|\btook\b|\bhave taken\b|\bswallowed\b)",
     # เมาค้างเล่าย้อนหลัง — "เมื่อคืนเมาจนหลับไม่รู้สึกตัว ตื่นมาปวดหัว"
     "kp_alcohol_poisoning": r"[\s\S]*(?:ตื่นมา|ตื่นขึ้นมา|แฮงค์|แฮงก์|เมาค้าง|\bwoke up\b|\bhangover\b|\bhungover\b)",
     # เล่าประวัติเก่า — "ลูกเคยไข้ชักตอนเด็ก ตอนนี้โตแล้วไม่เป็นแล้ว"

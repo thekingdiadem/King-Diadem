@@ -10,7 +10,7 @@ from core import hotlines as hl
 ROOT = Path(__file__).resolve().parent.parent
 ANSWER_FILES = ["core/kernel_voice.py", "core/knowledge_th.py", "core/knowledge_edu.py", "core/lang_signals.py",
                 "core/world_replies.py", "core/engine_bridge.py", "core/survival_guide.py", "core/companion.py",
-                "core/knowledge_pack.py"]
+                "core/knowledge_pack.py", "core/intent.py"]
 # เบอร์ที่ตามหลังคำบอกให้โทร — ไม่นับตัวเลขอื่น (ปี ราคา ระยะทาง)
 CALL = re.compile(r"(?:โทร|สายด่วน|\bcall\b|\bdial\b|\bhotline\b|Lifeline|Samaritans|Poison Control)\D{0,30}?"
                   r"((?<![\d.,])(?:1-800-\d{3}-\d{4}|13 ?11 ?14|116 ?123|1\d{3}|[1-9]\d{2}|000)(?![\d.,%]))", re.I)

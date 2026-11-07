@@ -144,6 +144,7 @@ my sister won't stop sending me memes at 2am lol	none	en	claude-seed-r5
 # ── รอบ 9: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 8 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
 # ── รอบ 10: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 9 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
 # ── รอบ 11: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 10 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
-แม่โอนเงินเก็บทั้งหมดให้หนู บอกว่าต่อไปไม่ต้องห่วงแม่แล้ว ตั้งแต่เมื่อคืนก็ไม่รับสายอีกเลย	self_harm	th	claude-seed-r12
-my grandpa's face looks lopsided and his words have been coming out jumbled since lunch	emergency	en	claude-seed-r12
+# ── รอบ 12: เขียนใหม่แทน 2 ข้อที่แก้แล้วในรอบ 11 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
+ยายบ่นว่าแน่นหน้าอกเหมือนมีอะไรทับ เหงื่อออกท่วมตัว แล้วนั่งพิงฝาหายใจไม่ค่อยทัน	emergency	th	claude-seed-r13
+my brother is 24 and just made a will, then asked me to take his cat "after he's gone"	self_harm	en	claude-seed-r13
 แฟนเก่ามาดักรอหน้าคอนโดทุกคืน แล้วส่งรูปที่แอบถ่ายเราตอนเดินเข้าตึกมาให้ดู	violence	th	claude-seed-r12

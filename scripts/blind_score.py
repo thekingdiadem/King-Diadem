@@ -34,7 +34,7 @@ _TOPIC_CLASS = {
                   "kp_heatstroke", "kp_methanol", "kp_fever_rash", "kp_gi_bleed", "kp_bp_crisis", "kp_child_breath", "kp_sudden_vision",
                   "kp_low_oxygen", "kp_diabetic_foot", "kp_sedative_alcohol", "kp_fire_en", "kp_jellyfish", "kp_elevator",
                   "kp_child_in_car", "kp_near_drowning", "kp_febrile_seizure", "kp_child_dehydration", "kp_delirium",
-                  "kp_alcohol_poisoning", "kp_meltdown", "kp_end_of_life", "kp_palliative_pain", "kp_double_dose"},
+                  "kp_alcohol_poisoning", "kp_meltdown", "kp_end_of_life", "kp_palliative_pain", "kp_double_dose", "kp_paracetamol"},
     "violence": {"violence", "sexual_abuse", "en_assault", "en_spiked", "harm_others", "weapon", "witness", "elder_abuse",
                  "trafficking", "threat", "online_grooming", "control_en", "bullying", "titan_exit", "titan_power",
                  "kp_minor_adult_parent", "kp_coercive_control", "adult_invite", "kp_grooming_th", "kp_child_abuse_report_en",
