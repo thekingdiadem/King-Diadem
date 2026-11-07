@@ -81,6 +81,49 @@ def _mark_ai_down(seconds: float):
         _ai_down_until = max(_ai_down_until, time.time() + seconds)
     print(f"⏸ AI paused {int(seconds)}s — ใช้คำตอบจากสมการ (kernel_voice) ระหว่างนี้")
 
+
+# ── เพดานค่าโทเคน — พี่: "ค่าโทเคนต้องเท่าเดิม ห้ามให้ AI ยิงมั่ว" ─────────────────────────────
+# 1) ต่อข้อความ: คำตอบที่ได้กลับมาแล้ว (ถูกคิดเงินแล้ว) ไม่เกิน LLM_MAX_BILLED_PER_CALL ครั้ง (ค่าเริ่ม 2)
+#    เดิม: ตอบไม่จบ → ขอใหม่ด้วยโควตา 2 เท่า → ลองรุ่นถัดไปอีก 3 รุ่น = คิดเงินได้ถึง 8 ครั้งต่อข้อความ
+#    error 429/404/500 ไม่ถูกคิดเงิน จึงไม่นับ — ลองใหม่ได้เหมือนเดิม
+# 2) ต่อวัน: LLM_DAILY_CAP (0 = ไม่จำกัด ค่าเดิม) ครบแล้วตอบจากสมการจนเที่ยงคืนเวลาไทย · cache ไม่นับ
+#    นับแยกต่อ process (gunicorn หลาย worker = เพดาน × จำนวน worker)
+_billed_lock = threading.Lock()
+_billed = {"day": "", "n": 0}
+
+
+def _today_th() -> str:
+    return time.strftime("%Y-%m-%d", time.gmtime(time.time() + 7 * 3600))
+
+
+def billed_today() -> int:
+    """จำนวนคำตอบจาก LLM ที่ถูกคิดเงินวันนี้ (process นี้)"""
+    with _billed_lock:
+        return _billed["n"] if _billed["day"] == _today_th() else 0
+
+
+def _note_billed():
+    with _billed_lock:
+        d = _today_th()
+        if _billed["day"] != d:
+            _billed.update(day=d, n=0)
+        _billed["n"] += 1
+
+
+def daily_cap_reached() -> bool:
+    try:
+        cap = int(os.getenv("LLM_DAILY_CAP", "0") or 0)
+    except ValueError:
+        cap = 0
+    return cap > 0 and billed_today() >= cap
+
+
+def _max_billed_per_call() -> int:
+    try:
+        return max(1, int(os.getenv("LLM_MAX_BILLED_PER_CALL", "2") or 2))
+    except ValueError:
+        return 2
+
 # ── MEMORY INJECTION ──────────────────────────────────────────────
 try:
     from DATABASE.db import build_memory_context
@@ -970,6 +1013,10 @@ class GeminiLLM:
         if cached:
             print("💾 Cache hit")
             return cached
+        if daily_cap_reached():                  # ครบเพดานต่อวัน — ไม่ยิง LLM เลย
+            print("⏸ ครบ LLM_DAILY_CAP วันนี้ — ตอบจากสมการ")
+            _tls.fallback = True
+            return self._fallback_response(system, prompt_text)
 
         cfg = types.GenerateContentConfig(
             system_instruction=system,
@@ -985,6 +1032,7 @@ class GeminiLLM:
 
         last_error = None
         quota_hits = 0
+        billed, max_billed, spent = 0, _max_billed_per_call(), False   # คำตอบที่ถูกคิดเงินแล้วในข้อความนี้
         # เพดานเวลารวมต่อ 1 การเรียก — ต้องจบก่อน gunicorn --timeout 120
         deadline = time.time() + float(os.getenv("LLM_CALL_BUDGET_S", "45"))
 
@@ -995,7 +1043,7 @@ class GeminiLLM:
             return True
 
         for model_name in models_to_try:
-            if time.time() > deadline:
+            if time.time() > deadline or spent:
                 break
             use = _no_thinking(cfg, model_name) if _thinks(model_name) else cfg
             grown = False
@@ -1008,6 +1056,16 @@ class GeminiLLM:
                     )
                     result = (resp.text or "").strip()
                     fr = _finish(resp)
+                    billed += 1
+                    _note_billed()
+                    if fr and "STOP" not in fr and billed >= max_billed:
+                        # ครบเพดานคิดเงินต่อข้อความ — ไม่ขอเพิ่ม ไม่ลองรุ่นถัดไป ใช้ส่วนที่จบประโยคหรือคำตอบจากสมการ
+                        print(f"⏸ ครบ LLM_MAX_BILLED_PER_CALL={max_billed} — หยุดลองใหม่ (finish={fr})")
+                        cut = _trim_hard(result) if result else ""
+                        if len(cut) > len(partial):
+                            partial = cut
+                        spent = True
+                        break
                     if fr and "STOP" not in fr:
                         # ตอบไม่จบ (ครบโควตาคำ / ตัวกรองตัด) — เคยส่งถึงผู้ใช้ทั้งที่จบกลางประโยค
                         print(f"⚠ คำตอบไม่จบ (model={model_name}, finish={fr}, {len(result)} ตัวอักษร)")
@@ -1064,7 +1122,8 @@ class GeminiLLM:
         if quota_hits:
             # เงิน/โควตาหมด: หยุดเรียก AI ชั่วคราว ข้อความถัดไปได้คำตอบจากสมการทันที
             _mark_ai_down(float(os.getenv("AI_QUOTA_COOLDOWN_S", "900")))
-        else:
+        elif not spent:
+            # หยุดเพราะครบเพดานคิดเงิน ≠ Gemini ล่ม — ไม่นับเข้าวงจรพัก AI (ไม่งั้นคนอื่นโดนพัก 60 วินาทีไปด้วย)
             _note_total_failure()
         _tls.fallback = True
         return self._fallback_response(system, prompt_text)
