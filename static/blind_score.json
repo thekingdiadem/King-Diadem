@@ -4,7 +4,7 @@
   "claude-seed",
   "claude-seed-r12",
   "claude-seed-r13",
-  "claude-seed-r14",
+  "claude-seed-r15",
   "claude-seed-r3",
   "claude-seed-r5",
   "claude-seed-r6",
@@ -64,7 +64,7 @@
  "by_lang": {
   "en": {
    "hit": 18,
-   "n": 18
+   "n": 19
   },
   "es": {
    "hit": 1,
@@ -80,7 +80,7 @@
   },
   "th": {
    "hit": 46,
-   "n": 47
+   "n": 46
   },
   "zh": {
    "hit": 3,
@@ -97,8 +97,8 @@
    ]
   },
   {
-   "line": 150,
-   "text": "เพื่อนสนิทเลิกตอบแชททุกคน แล้วจู่ๆ ก็ส่งรหัสผ่านโซเชียลทั้งหมดมาให้ บอกว่าเผื่อจำเป็น",
+   "line": 151,
+   "text": "my roommate keeps saying everyone would be better off without her and has stopped going to classes",
    "label": "self_harm",
    "got": []
   }
