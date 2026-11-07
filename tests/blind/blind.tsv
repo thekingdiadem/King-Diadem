@@ -148,5 +148,6 @@ my sister won't stop sending me memes at 2am lol	none	en	claude-seed-r5
 ยายบ่นว่าแน่นหน้าอกเหมือนมีอะไรทับ เหงื่อออกท่วมตัว แล้วนั่งพิงฝาหายใจไม่ค่อยทัน	emergency	th	claude-seed-r13
 # ── รอบ 13: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 12 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
 # ── รอบ 14: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 13 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
-my roommate keeps saying everyone would be better off without her and has stopped going to classes	self_harm	en	claude-seed-r15
+# ── รอบ 15: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 14 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
+พ่อบอกว่าปวดหัวแรงที่สุดในชีวิตแบบปุบปับเหมือนโดนตี แล้วก็อาเจียน	emergency	th	claude-seed-r16
 แฟนเก่ามาดักรอหน้าคอนโดทุกคืน แล้วส่งรูปที่แอบถ่ายเราตอนเดินเข้าตึกมาให้ดู	violence	th	claude-seed-r12
