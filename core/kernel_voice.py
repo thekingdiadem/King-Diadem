@@ -2489,7 +2489,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     if "help" in topics:
         text_risk = max(text_risk, 50)
     # ผู้ใหญ่ชวนไปที่ลับตาแล้วขอให้เก็บเป็นความลับ — สัญญาณล่อลวงที่ชัดกว่าการชวนเฉยๆ
-    if "adult_invite" in topics and re.search(r"(?:ห้าม|อย่า|ไม่ให้)บอก|เป็นความลับ|\bdon'?t tell\b|\bsecret\b", t):
+    if "adult_invite" in topics and re.search(r"(?:ห้าม|อย่า|ไม่ให้|ไม่ต้อง)บอก|เป็นความลับ|รางวัลพิเศษ|\bdon'?t tell\b|\bsecret\b", t):
         text_risk = max(text_risk, 65)
     if "basic" in topics:
         text_risk = max(text_risk, 75)
