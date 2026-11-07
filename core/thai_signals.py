@@ -734,6 +734,13 @@ PANIC = re.compile(r"แพนิค|แพนิก|panic attack|หัวใ�
 # ("ฉันได้ยินสิ่งที่คุณพูด… โทร 1323") และ GRIEF ตรงคำ "เพื่อน…ตาย"
 _OTHERS = r"(?:เพื่อน|แม่|พ่อ|แฟน|พี่|น้อง|ลูก|สามี|ภรรยา|ผัว|เมีย|ยาย|ตา|ปู่|ย่า|หลาน|ญาติ|คนรู้จัก|เด็กคนหนึ่ง|เขา|เค้า|คุณ\S{0,6}?)"
 THIRD_PARTY_CRISIS = re.compile(
+    # ส่งรหัสผ่าน/บัญชีทั้งหมดมาให้ "เผื่อจำเป็น" + เงียบหาย/เลิกตอบ (ชุดปิดตารอบ 14) — การจัดการเรื่องค้างก่อนจากไป
+    # ต้องมีสัญญาณถอนตัวด้วย — "แม่ส่งรหัสธนาคารมาเผื่อจ่ายค่าไฟแทน" เป็นเรื่องปกติ
+    r"^(?=[\s\S]*(?:เลิกตอบ|เงียบ|ไม่ตอบ|ไม่รับสาย|หายไป|ปิดเครื่อง|ไม่ต้องห่วง|ฝากดูแล|(?i:stopped (?:replying|answering|talking)|not (?:answering|replying)|went quiet|disappeared|don'?t worry about (?:me|her|him))))"
+    r"[\s\S]*?(?:เพื่อน|แฟน|พี่|น้อง|ลูก|แม่|พ่อ|สามี|ภรรยา)[^\n]{0,40}?(?:ส่ง|ให้|บอก)\S{0,6}(?:รหัส(?:ผ่าน)?|พาสเวิร์ด|password)(?!\S{0,4}(?:ไวไฟ|wifi|เน็ต|ประตู|netflix))\S{0,20}(?:ทั้งหมด|ทุก(?:บัญชี|แอป|อย่าง)|โซเชียล|บัญชี|เฟส|ไอจี|ธนาคาร)"
+    r"[^\n]{0,40}?(?:เผื่อ|ถ้า(?:เขา|เธอ)?ไม่อยู่|ไม่ต้องห่วง|ฝากดูแล)|"
+    r"(?i:^(?=[\s\S]*\b(?:stopped (?:replying|answering|talking)|not (?:answering|replying)|went quiet|disappeared|don'?t worry about (?:me|her|him))\b)"
+    r"[\s\S]*?\bmy (?:friend|best friend|brother|sister|partner|boyfriend|girlfriend|son|daughter)\b[^\n]{0,40}?\b(?:sent|gave|texted) me (?:all )?(?:his|her|their) (?:passwords|logins|account details)\b[^\n]{0,40}?\b(?:just in case|in case|if anything happens)\b)|"
     # คนอายุน้อยทำพินัยกรรม + ฝากสัตว์เลี้ยง/ลูก "หลังจากไม่อยู่" (ชุดปิดตารอบ 13) — ผู้สูงอายุวางแผนมรดกเป็นเรื่องปกติ ไม่นับ
     r"^(?![\s\S]*(?:พ่อ|แม่|ยาย|ตา(?!ย|ม|ก)|ปู่|ย่า|คนแก่|ผู้สูงอายุ|(?:อายุ\s?)?[6-9]\d\s*(?:ปี|ขวบ)|\bgrand\w*|\b(?:dad|mom|mum|father|mother)\b|\b[6-9]\d(?:[- ]year[- ]old| years? old)?\b))"
     r"[\s\S]*?(?:ทำพินัยกรรม|เขียนพินัยกรรม|(?i:\b(?:made|wrote|writing|updated|making) (?:a|his|her|their) will\b))"

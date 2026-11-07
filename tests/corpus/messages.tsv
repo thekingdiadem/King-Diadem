@@ -724,3 +724,10 @@ my brother is 24 and just made a will, then asked me to take his cat "after he's
 น้องชายอายุ 20 เพิ่งทำพินัยกรรม แล้วฝากแมวให้ดูแลถ้าเขาไม่อยู่แล้ว	topic:someone	วิกฤตคนใกล้ตัว
 my grandma made a will and asked me to take her cat after she's gone	!topic:someone	ปกติ
 ยายทำพินัยกรรม ฝากแมวให้ดูแลถ้ายายไม่อยู่	!topic:someone	ปกติ
+
+# ── ย้ายมาจากชุดปิดตารอบ 14 (thai_signals: ส่งรหัสผ่านทั้งหมด "เผื่อ" + เงียบหาย) ──
+เพื่อนสนิทเลิกตอบแชททุกคน แล้วจู่ๆ ก็ส่งรหัสผ่านโซเชียลทั้งหมดมาให้ บอกว่าเผื่อจำเป็น	topic:someone	วิกฤตคนใกล้ตัว
+my best friend sent me all her passwords just in case, and stopped replying to everyone	topic:someone	วิกฤตคนใกล้ตัว
+แฟนส่งรหัสไวไฟมาให้ เผื่อมาบ้านแล้วจะได้ต่อเน็ต	!topic:someone	ปกติ
+แม่ส่งรหัสบัญชีธนาคารมาให้ เผื่อหนูต้องจ่ายค่าไฟแทน	!topic:someone	ปกติ
+my sister gave me her passwords in case she loses her phone	!topic:someone	ปกติ
