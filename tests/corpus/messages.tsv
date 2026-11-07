@@ -718,3 +718,9 @@ my words come out jumbled when i'm nervous in interviews	!topic:health_emergency
 the painting looks lopsided on the wall	!topic:health_emergency	ปกติ
 แม่โอนเงินค่าเทอมให้หนู บอกว่าไม่ต้องห่วงแล้ว ตั้งใจเรียนนะ	!topic:someone;!crisis	ปกติ
 my grandma gave me her old car because she got a new one	!topic:someone	ปกติ
+
+# ── ย้ายมาจากชุดปิดตารอบ 13 (thai_signals: คนอายุน้อยทำพินัยกรรม + ฝากสัตว์เลี้ยง "หลังจากไม่อยู่") ──
+my brother is 24 and just made a will, then asked me to take his cat "after he's gone"	topic:someone	วิกฤตคนใกล้ตัว
+น้องชายอายุ 20 เพิ่งทำพินัยกรรม แล้วฝากแมวให้ดูแลถ้าเขาไม่อยู่แล้ว	topic:someone	วิกฤตคนใกล้ตัว
+my grandma made a will and asked me to take her cat after she's gone	!topic:someone	ปกติ
+ยายทำพินัยกรรม ฝากแมวให้ดูแลถ้ายายไม่อยู่	!topic:someone	ปกติ
