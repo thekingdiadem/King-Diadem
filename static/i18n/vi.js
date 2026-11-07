@@ -546,8 +546,6 @@
 "โพธิปักขิยธรรม (core v2.1)": "Pháp Bồ-đề phần (lõi v2.1)",
 "โหมดภาพยนตร์": "Chế độ điện ảnh",
 "แตะหรือกด Esc เพื่อออก": "Chạm hoặc nhấn Esc để thoát",
-"วงล้อแห่งธรรมอันยอดเยี่ยมหมุนไปแล้ว — ไม่มีผู้ใดในโลกหมุนกลับได้": "Bánh xe Pháp vô thượng đã được chuyển vận — không ai trên thế gian có thể xoay ngược lại",
-"เมื่อปัญญาที่รู้เห็นตามจริงในอริยสัจทั้งสี่ บริสุทธิ์ดีแล้ว": "Khi tri kiến về Tứ Diệu Đế, đúng như thật, đã hoàn toàn thanh tịnh",
 "ระบบที่ทำให้": "Một hệ thống giữ cho",
 "ทางเลือกของมนุษย์": "lựa chọn của con người",
 "ไม่หายไป": "không biến mất",

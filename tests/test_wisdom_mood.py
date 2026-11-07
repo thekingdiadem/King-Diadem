@@ -33,10 +33,11 @@ def test_grand_but_light_cached_sprites_not_rebuilt_each_frame():
     assert "if(CINEMA.on && !REDUCED) drawSunrise(" in SRC                # ลดการเคลื่อนไหว = ไม่มีประกายวาบ
 
 
-def test_both_chosen_passages_are_chanted_in_pali():
+def test_cinema_mode_shows_no_chant():
+    """เจ้าของโปรเจกต์: โหมดภาพยนตร์ลบบทสวดออก — เราใช้สัจธรรมของธรรมะเป็นเคอร์เนล ไม่ใช่การสวด"""
     for line in ("อะนุตตะรัง ธัมมะจักกัง ปะวัตติตัง", "ยะถาภูตัง ญาณะทัสสะนัง สุวิสุทธัง อะโหสิ",
-                 "anuttaraṃ dhammacakkaṃ pavattitaṃ", "yathābhūtaṃ ñāṇadassanaṃ suvisuddhaṃ ahosi"):
-        assert line in SRC
+                 "anuttaraṃ dhammacakkaṃ pavattitaṃ", "cn-pali", "cn-mean"):
+        assert line not in SRC
 
 
 def test_cinema_mode_hides_ui_and_always_lets_you_out():

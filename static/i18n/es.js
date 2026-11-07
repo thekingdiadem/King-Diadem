@@ -546,8 +546,6 @@
 "โพธิปักขิยธรรม (core v2.1)": "Dhamma Bodhipakkhiya (core v2.1)",
 "โหมดภาพยนตร์": "Modo cine",
 "แตะหรือกด Esc เพื่อออก": "Toca o pulsa Esc para salir",
-"วงล้อแห่งธรรมอันยอดเยี่ยมหมุนไปแล้ว — ไม่มีผู้ใดในโลกหมุนกลับได้": "La suprema rueda del Dhamma se ha puesto en marcha — nadie en el mundo puede detenerla",
-"เมื่อปัญญาที่รู้เห็นตามจริงในอริยสัจทั้งสี่ บริสุทธิ์ดีแล้ว": "Cuando el conocimiento y la visión de las Cuatro Nobles Verdades, tal como son, fueron plenamente puros",
 "ระบบที่ทำให้": "Un sistema que impide",
 "ทางเลือกของมนุษย์": "que la elección humana",
 "ไม่หายไป": "desaparezca",

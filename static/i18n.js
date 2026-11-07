@@ -434,8 +434,6 @@
     'โพธิปักขิยธรรม (core v2.1)': ['Bodhipakkhiya dhamma (core v2.1)', '菩提分法 (core v2.1)'],
     'โหมดภาพยนตร์': ['Cinema mode', 'シネマモード'],
     'แตะหรือกด Esc เพื่อออก': ['Tap or press Esc to exit', 'タップまたは Esc で終了'],
-    'วงล้อแห่งธรรมอันยอดเยี่ยมหมุนไปแล้ว — ไม่มีผู้ใดในโลกหมุนกลับได้': ['The supreme wheel of Dhamma has been set rolling — no one in the world can turn it back', '比類なき法の輪は回された — 世界の誰もそれを逆に回すことはできない'],
-    'เมื่อปัญญาที่รู้เห็นตามจริงในอริยสัจทั้งสี่ บริสุทธิ์ดีแล้ว': ['When the knowledge and vision of the Four Noble Truths, as they truly are, became fully pure', '四つの聖なる真理をありのままに知り見る智慧が、完全に清らかになったとき'],
     /* ── หน้าเข้าสู่ระบบ · สมัคร · กระเป๋าเงิน · คู่มือ (และข้อความจากเซิร์ฟเวอร์ที่โชว์ในหน้าเหล่านั้น) ── */
     'ระบบที่ทำให้': ['A system that keeps', '人間の'],
     'ทางเลือกของมนุษย์': ['human choice', '選択肢を'],

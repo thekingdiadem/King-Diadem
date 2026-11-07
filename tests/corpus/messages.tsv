@@ -738,3 +738,10 @@ my roommate keeps saying everyone would be better off without her and has stoppe
 my friend says we'd be better off without the new manager	!topic:someone	ปกติ
 the team would be better off without the old server	!topic:someone	ปกติ
 เพื่อนบอกว่าทุกคนคงสบายขึ้นถ้าไม่มีการบ้าน	!topic:someone	ปกติ
+# ── เรียนต่อหรือทำงาน = เลือกทางชีวิต (เดิมได้คำตอบแบ่งเวลาอ่านหนังสือ) ──
+เลือกไม่ถูกว่าจะเรียนต่อหรือทำงานดี	topic:study_or_work;!crisis	ทั่วไป
+หางานทำหรือเรียนต่อโทดี	topic:study_or_work	ทั่วไป
+จะเรียนต่อดีไหม	topic:study_or_work	ทั่วไป
+ใกล้สอบแล้วอ่านไม่ทัน	topic:study;!topic:study_or_work	ทั่วไป
+ลูกจะเรียนต่อมหาลัยค่าเทอมไม่พอ	!topic:study_or_work	ทั่วไป
+ตกงานแล้วหางานไม่ได้	!topic:study_or_work	ทั่วไป

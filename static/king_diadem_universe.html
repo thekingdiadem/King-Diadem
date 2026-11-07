@@ -87,6 +87,10 @@ html,body{width:100%;min-height:100%;background:var(--void);color:var(--tx);font
 .planet-emoji{font-size:20px;margin-bottom:6px}
 .planet-name{font-family:var(--f-mono);font-size:8px;letter-spacing:.14em;color:var(--gold-hi);margin-bottom:4px}
 .planet-desc{font-size:11px;color:var(--tx-mid);line-height:1.5}
+.planet-card{font:inherit;color:inherit;width:100%;cursor:pointer}
+.planet-card:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+.planet-q{margin-top:8px;font-size:10.5px;line-height:1.45;color:rgba(170,190,255,.8)}
+.planet-hint{font-size:12px;color:var(--tx-mid)}
 
 /* waterline */
 .waterline-meters{display:flex;flex-direction:column;gap:12px;margin-top:18px}
@@ -290,7 +294,7 @@ html.kd-ship .cockpit .glass,html.kd-ship .hud,html.kd-ship .hud-deg{opacity:0}
 @media (max-width:640px){
   .ship-window,.ship-glare{left:4vw;right:4vw;top:7vh;bottom:27vh;border-radius:18% 18% 8% 8%/14% 14% 6% 6%}
   .ship-console{height:24vh}.ship-led.c{display:none}
-  .ship-panel{bottom:14vh;left:4vw;max-width:60vw}.ship-ctl{bottom:5vh;right:4vw;left:4vw;justify-content:flex-end}
+  .ship-panel{bottom:14vh;left:4vw;max-width:60vw}.ship-ctl{bottom:4vh;right:4vw;left:4vw;justify-content:flex-end;flex-wrap:wrap}
   .ship-note{font-size:13px}
 }
 html.kd-calm .ship,html.kd-calm .ship-note{transition:none}
@@ -495,6 +499,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
     <div class="ship-note" id="ship-note" aria-live="polite"></div>
     <div class="ship-panel"><b>ORBIT · KING DIADEM</b><span id="ship-hud">ALT 408 km</span></div>
     <div class="ship-ctl">
+      <button type="button" data-act="shiphome">เหนือประเทศไทย</button>
       <button type="button" id="ship-fast" data-act="shipfast" aria-pressed="false">เร่งเวลา ×60</button>
       <button type="button" data-act="ship">ออกจากยาน</button>
     </div>
@@ -562,14 +567,14 @@ html.bb-on,html.bb-on body{overflow:hidden}
   <div class="section">
     <div class="sec-eyebrow">Constellations</div>
     <h2 class="sec-title">กลุ่มดาวแห่งการตัดสินใจ</h2>
-    <div class="sec-body"><p>แต่ละดาวคือ domain ของการตัดสินใจ — ไม่ใช่ category แต่คือ <strong>ทิศทางที่มนุษย์กำลังเผชิญ</strong></p></div>
+    <div class="sec-body"><p>แต่ละดาวคือ domain ของการตัดสินใจ — ไม่ใช่ category แต่คือ <strong>ทิศทางที่มนุษย์กำลังเผชิญ</strong></p><p class="planet-hint">แตะดาวเพื่อส่งคำถามของดาวนั้นเข้าเครื่องจำลองด้านล่าง — ตอบจากสมองจริงของระบบ ไม่ใช้ AI</p></div>
     <div class="planet-map">
-      <div class="planet-card"><div class="planet-emoji">☿</div><div class="planet-name">GENERAL</div><div class="planet-desc">ชีวิตทั่วไป ตัดสินใจรายวัน ทิศทางที่ไม่แน่ชัด</div></div>
-      <div class="planet-card"><div class="planet-emoji">♀</div><div class="planet-name">RISK</div><div class="planet-desc">ประเมินความเสี่ยง ผลกระทบ ต้นทุน-โอกาส</div></div>
-      <div class="planet-card"><div class="planet-emoji">🌍</div><div class="planet-name">SURVIVAL</div><div class="planet-desc">ความอยู่รอดพื้นฐาน อาหาร ที่พัก ความปลอดภัย</div></div>
-      <div class="planet-card"><div class="planet-emoji">♂</div><div class="planet-name">COLLAPSE</div><div class="planet-desc">วิกฤต ลูกโซ่ความเสียหาย แรงกดดันสะสม</div></div>
-      <div class="planet-card"><div class="planet-emoji">♃</div><div class="planet-name">CIVIL</div><div class="planet-desc">สังคม งาน พลเมือง ความรับผิดชอบร่วม</div></div>
-      <div class="planet-card"><div class="planet-emoji">◆</div><div class="planet-name">VEGA</div><div class="planet-desc">strategic analysis ระยะยาว logic mirror deterministic</div></div>
+      <button type="button" class="planet-card" data-try="เลือกไม่ถูกว่าจะเรียนต่อหรือทำงานดี"><div class="planet-emoji">☿</div><div class="planet-name">GENERAL</div><div class="planet-desc">ชีวิตทั่วไป ตัดสินใจรายวัน ทิศทางที่ไม่แน่ชัด</div><div class="planet-q">“เลือกไม่ถูกว่าจะเรียนต่อหรือทำงานดี”</div></button>
+      <button type="button" class="planet-card" data-try="จะลงทุนเปิดร้านกาแฟดีไหม เงินเก็บมีแค่แสนเดียว"><div class="planet-emoji">♀</div><div class="planet-name">RISK</div><div class="planet-desc">ประเมินความเสี่ยง ผลกระทบ ต้นทุน-โอกาส</div><div class="planet-q">“จะลงทุนเปิดร้านกาแฟดีไหม เงินเก็บมีแค่แสนเดียว”</div></button>
+      <button type="button" class="planet-card" data-try="เงินหมด ไม่มีข้าวกินพรุ่งนี้"><div class="planet-emoji">🌍</div><div class="planet-name">SURVIVAL</div><div class="planet-desc">ความอยู่รอดพื้นฐาน อาหาร ที่พัก ความปลอดภัย</div><div class="planet-q">“เงินหมด ไม่มีข้าวกินพรุ่งนี้”</div></button>
+      <button type="button" class="planet-card" data-try="หนี้ท่วม ทุกอย่างพังพร้อมกัน ไม่รู้จะเริ่มแก้ตรงไหน"><div class="planet-emoji">♂</div><div class="planet-name">COLLAPSE</div><div class="planet-desc">วิกฤต ลูกโซ่ความเสียหาย แรงกดดันสะสม</div><div class="planet-q">“หนี้ท่วม ทุกอย่างพังพร้อมกัน ไม่รู้จะเริ่มแก้ตรงไหน”</div></button>
+      <button type="button" class="planet-card" data-try="โดนนายจ้างไม่จ่ายเงินเดือนสองเดือน"><div class="planet-emoji">♃</div><div class="planet-name">CIVIL</div><div class="planet-desc">สังคม งาน พลเมือง ความรับผิดชอบร่วม</div><div class="planet-q">“โดนนายจ้างไม่จ่ายเงินเดือนสองเดือน”</div></button>
+      <button type="button" class="planet-card" data-try="วางแผนชีวิต 5 ปีข้างหน้ายังไงดี"><div class="planet-emoji">◆</div><div class="planet-name">VEGA</div><div class="planet-desc">strategic analysis ระยะยาว logic mirror deterministic</div><div class="planet-q">“วางแผนชีวิต 5 ปีข้างหน้ายังไงดี”</div></button>
     </div>
   </div>
 
@@ -1050,6 +1055,7 @@ function KD_toggleDay(){var h=document.documentElement,on=!h.classList.contains(
 (function(){
   var E = function(){ return window.KD_earth; }, ACT = {
     ship: function(){ KD_toggleShip(); },
+    shiphome: function(){ if(E() && E().shipOn()) E().shipHome(); },
     shipfast: function(){ if(E() && E().shipOn()){ var f = E().shipFast(); document.getElementById('ship-fast').setAttribute('aria-pressed', f ? 'true' : 'false'); } },
     globe: function(){ KD_toggleGlobe(); },
     north: function(){ if(E()) E().pole(true); KD_markGlobe(true); },

@@ -1058,10 +1058,7 @@ html[data-ink="dark"] body:not([data-view="universe"]) .st-chip{background:rgba(
 #cinema{display:none;position:fixed;inset:0;z-index:95;cursor:none}
 html.kd-cinema #cinema{display:block}
 html.kd-cinema :is(#sidebar,#topbar,#composer,#tabbar,#trace-panel,#toast,#chat-scroll,#halloween,#veil){opacity:0!important;pointer-events:none!important;transition:opacity 1.6s var(--ease)}
-#cinema .cn-pali,#cinema .cn-mean{position:absolute;left:50%;transform:translate(-50%,10px);width:min(92vw,980px);margin:0;text-align:center;opacity:0;transition:opacity 2.2s ease,transform 3.2s var(--ease);will-change:opacity,transform}
 #cinema .on{transform:translate(-50%,0)}
-#cinema .cn-pali{bottom:calc(5vh + 34px);font:500 clamp(17px,2.3vw,30px)/1.5 "Noto Serif Thai",Georgia,serif;letter-spacing:.04em;color:#f6ecd8;text-shadow:0 0 22px rgba(216,184,120,.45),0 2px 14px rgba(0,0,0,.9)}
-#cinema .cn-mean{bottom:5vh;font:400 clamp(12px,1.25vw,16px)/1.5 "Noto Sans Thai Looped",system-ui,sans-serif;letter-spacing:.06em;color:#c4beb2;text-shadow:0 2px 10px rgba(0,0,0,.9)}
 #cinema .on{opacity:1}
 #cinema .cn-hint{position:absolute;top:calc(14px + var(--sat));left:50%;transform:translateX(-50%);font:500 11px var(--f-mono);letter-spacing:.14em;color:rgba(241,237,228,.6);transition:opacity 1.2s ease}
 #cinema .cn-hint.off{opacity:0}
