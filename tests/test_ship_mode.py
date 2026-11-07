@@ -138,7 +138,7 @@ def test_ship_mode_engine_guards():
     # มือถือโหลดภาพ 4K เมื่ออยู่ในยานด้วย — หน้าต่างยานมองใกล้ ภาพ 2K เบลอ
     assert "(light && S.tL < 2 && !SHIP.on)" in EARTH
     # กดกลับเข้ายานระหว่างกำลังออก = โคจรต่อจากเดิม ไม่กระโดด
-    assert "if (SHIP.k > 0) { SHIP.on = true; maybe4k(); return true; }" in EARTH
+    assert "if (SHIP.k > 0) { SHIP.on = true; maybe4k(); shipRes(true); return true; }" in EARTH
     # ชื่อเมืองไม่บังวิวหน้าต่าง · ดวงอาทิตย์จริงเฉพาะในยาน (นอกยาน sunM = 0 → ภาพโลกเดิมทุกอย่าง)
     assert "if (SHIP.k > 0) { if (lab) lab.style.opacity = '0'; }" in EARTH
     assert "uniform vec3 sun;" in EARTH and "'sunM', 'sun'" in EARTH and "sunM = e * (1 - dayM)" in EARTH
@@ -149,7 +149,7 @@ def test_ship_mode_engine_guards():
 @pytest.mark.parametrize("cap", [30, 60, 90, 120, 144])
 def test_auto_resolution_does_not_punish_low_frame_rate_choice(cap):
     """เลือก 30 เฟรมเอง ภาพห่างกัน 33 ms — ตัวลดความละเอียดอัตโนมัติเคยนับว่า "เครื่องช้า" แล้วลดความคมชัดลงเรื่อยๆ"""
-    assert "var slack = Math.max(0, 1000 / cap - 16.7);" in EARTH
+    assert "var slack = Math.max(0, 1000 / capNow - 16.7);" in EARTH
     assert "ftAvg > 26 + slack * 1.5" in EARTH and "ftAvg < 17 + slack" in EARTH
     slack = max(0, 1000 / cap - 16.7)
     interval = max(1000 / cap, 1000 / 144)                             # เครื่องที่ทันทุกเฟรมตามค่าที่เลือก
@@ -161,7 +161,7 @@ def test_auto_resolution_does_not_punish_low_frame_rate_choice(cap):
 def test_frame_rate_choice_reaches_universe_page():
     """เฟรมเรตที่เลือกในหน้าแชต (kd-fps) ใช้กับโลกและท้องฟ้าหน้า /universe — เดิมโลกวาดเต็มความเร็วจอ ท้องฟ้าล็อก 90"""
     assert "var FPS_OK = [30, 60, 90, 120, 144]" in EARTH and "localStorage.getItem('kd-fps')" in EARTH
-    assert "capAcc + 1e-4 < 1 / cap" in EARTH
+    assert "capAcc + 1e-4 < 1 / capNow" in EARTH
     assert "[30, 60, 90, 120, 144].indexOf(v) >= 0 ? v : 90" in SKY and "acc + 1e-4 < 1 / cap" in SKY
     assert "1 / 90" not in SKY
     # ท้องฟ้าใช้เวลาจริงตั้งแต่ภาพก่อน (เดิมใช้ช่วงรอบจอ — ข้ามเฟรมแล้วฟ้าเคลื่อนช้ากว่าจริง)
@@ -172,3 +172,14 @@ def test_frame_rate_choice_reaches_universe_page():
     assert "addEventListener('kd-fps'" in EARTH and "addEventListener('kd-fps'" in SKY
     # เครื่องเบาที่ผู้ใช้ไม่ได้เลือกเอง ยังวาด ~30 ตอนลอยเองเพื่อประหยัดแบต · เลือกเอง/อยู่ในยาน = ใช้ค่าที่เลือก
     assert "if (light && !busy && !SHIP.on && !capUser && last && now - last < 30)" in EARTH
+
+
+def test_ship_looks_like_the_naked_eye_and_keeps_phones_cool():
+    """พี่คิงขอ "สวยแบบของจริง เหมือนมองจากอวกาศจริงๆ" และเครื่องไม่ร้อน
+    · airglow ในยานจางลง (ที่เห็นเข้มๆ ในภาพ NASA มักเป็นภาพเปิดหน้ากล้องนาน) · กลางคืนพื้นโลกมืด เหลือไฟเมืองเท่าเดิม
+    · มือถือในยานที่ไม่ได้ตั้งเฟรมเรตเองวาดไม่เกิน 60 · นอกยาน (sunM = 0) ภาพและเฟรมเรตเหมือนเดิม"""
+    assert "*mix(.5,.26,sunM)*(1.-ls)" in EARTH
+    assert "*mix(1.,.42,sunM)+city*ready;" in EARTH
+    assert "var capNow = SHIP.on && !capUser ? Math.min(cap, 60) : cap;" in EARTH      # ใครไม่ได้ตั้งเอง = 60
+    assert "cl=mix(cl,smoothstep(.08,.85,cl),sunM*.55);" in EARTH                       # ขอบเมฆคมขึ้นเฉพาะในยาน
+    assert "Math.min(window.devicePixelRatio || 1, 2)" in EARTH and "shipRes(false)" in EARTH   # ในยานวาดละเอียดเต็มจอ ออกแล้วกลับค่าเดิม

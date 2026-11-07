@@ -76,7 +76,7 @@
     '    float sd=dot(normalize(P-b*rd),sl),ls=sunM*smoothstep(-.12,.08,sd),tw=sunM*max(0.,1.-abs(sd)*5.);',
     '    float k1=mix(26.,130.,sunM),k2=mix(150.,700.,sunM);',
     '    col+=vec3(.15,.35,1.)*exp(-o*k1)*mix(.45+.5*dayM,.05+.95*ls,sunM)+vec3(.35,.6,1.)*exp(-o*k2)*.55*mix(1.,.12+.88*ls,sunM)',
-    '      +vec3(.20,.85,.42)*exp(-abs(o-mix(.007,.0147,sunM))*480.)*.5*(1.-ls)+vec3(1.,.42,.12)*exp(-o*320.)*tw*.8;}',
+    '      +vec3(.20,.85,.42)*exp(-abs(o-mix(.007,.0147,sunM))*480.)*mix(.5,.26,sunM)*(1.-ls)+vec3(1.,.42,.12)*exp(-o*320.)*tw*.8;}',
     '  if(disc>0.&&-b-sqrt(disc)>0.){',
     '    vec3 nl=P+rd*(-b-sqrt(disc));',
     '    vec3 n=M*nl;float sz=dot(nl,sl),dl=max(dayM,sunM*smoothstep(-.08,.06,sz));',   // dl = ส่วนที่เป็นกลางวัน ณ จุดนี้
@@ -93,6 +93,7 @@
     '    float L=texture2D(lights,tc).r;',
     '    float B=(texture2D(lights,tc+px*vec2(5.,0.)).r+texture2D(lights,tc-px*vec2(5.,0.)).r+texture2D(lights,tc+px*vec2(0.,4.)).r+texture2D(lights,tc-px*vec2(0.,4.)).r)*.25;',
     '    float cl=texture2D(clouds,tc+vec2(t*.0004,0.)).r;',
+    '    cl=mix(cl,smoothstep(.08,.85,cl),sunM*.55);',                 // ในยาน: ขอบเมฆคมขึ้น (ภาพถูกขยายมากตอนมองใกล้)
     '    vec3 land=texture2D(day,tc).rgb;',
     '    float wm=hasW>.5?texture2D(water,tc).r:0.;',
     '    vec3 baseC=land*vec3(.018,.026,.05)+vec3(.002,.005,.014);',
@@ -110,7 +111,7 @@
     '    }',
     '    vec3 city=vec3(1.,.48,.10)*pow(L,1.35)*2.4+vec3(1.,.78,.42)*pow(L,4.)*1.4+vec3(1.,.42,.1)*pow(B,1.5)*.45;',
     '    city*=(1.-.55*cl)*(1.-.85*wm);',                                              // ไฟเรือ/แท่นเจาะยังเห็นจางๆ
-    '    vec3 surf=baseC+city*ready+vec3(.55,.62,.85)*pow(cl,1.4)*.16;',
+    '    vec3 surf=(baseC+vec3(.55,.62,.85)*pow(cl,1.4)*.16)*mix(1.,.42,sunM)+city*ready;',   // ในยาน: กลางคืนมืดตามจริง ไฟเมืองเท่าเดิม
     '    surf+=(vec3(.18,.35,1.)*pow(1.-zz,2.6)*.35+vec3(.35,.55,1.)*pow(1.-zz,9.)*.6)*(1.-.85*sunM);', // ฟ้าหลัวตามความหนาของบรรยากาศที่มองผ่าน (ในยาน: กลางคืนไม่มีฟ้าหลัวสีฟ้า)
     '    if(dl>0.){',                                                                  // กลางวัน: สีจริงจากดาวเทียม เมฆขาว แดดสะท้อนทะเล
     // แดดสะท้อนทะเลกลางวัน: ใช้ผิวน้ำเรียบ (ไม่ใช้คลื่นแบบกลางคืน ซึ่งกลางวันดูเป็นเม็ดหยาบ) · ในยานใช้ทิศดวงอาทิตย์จริง
@@ -206,7 +207,7 @@
   load(0, 'lights.jpg', firstDone); load(1, 'day.jpg', firstDone); load(2, 'clouds.jpg', firstDone);
 
   // ── ความละเอียดการวาดปรับตามเครื่อง: เฟรมช้า → ลดลงทีละขั้น · เร็วพอ → เพิ่มกลับ ─────────────────────
-  var DPR_MAX = Math.min(window.devicePixelRatio || 1, light ? 1.25 : 1.5), scale = DPR_MAX, ftAvg = 16, ftCheck = 0;
+  var DPR_BASE = Math.min(window.devicePixelRatio || 1, light ? 1.25 : 1.5), DPR_MAX = DPR_BASE, scale = DPR_MAX, ftAvg = 16, ftCheck = 0;
   function size() {
     canvas.width = Math.max(1, Math.round(canvas.clientWidth * scale));
     canvas.height = Math.max(1, Math.round(canvas.clientHeight * scale));
@@ -389,13 +390,15 @@
   var SHIP = { on: false, fast: false, k: 0, st: { u: 0, node: 0 }, clock: 0 }, shipHud = document.getElementById('ship-hud'), lastShipHud = 0;
   function shipStart() {
     var OB = window.KD_orbit; if (!OB) return false;
-    if (SHIP.k > 0) { SHIP.on = true; maybe4k(); return true; }      // กดกลับเข้ายานระหว่างกำลังออก = โคจรต่อจากเดิม (ไม่กระโดด)
+    if (SHIP.k > 0) { SHIP.on = true; maybe4k(); shipRes(true); return true; }      // กดกลับเข้ายานระหว่างกำลังออก = โคจรต่อจากเดิม (ไม่กระโดด)
     var i = OB.INC_DEG * RAD, la = clamp(S.lat, -OB.INC_DEG + .5, OB.INC_DEG - .5);
     var u = Math.asin(Math.sin(la * RAD) / Math.sin(i));             // มุมในวงโคจรที่ผ่านละติจูดนี้
     var node = S.lon - Math.atan2(Math.cos(i) * Math.sin(u), Math.cos(u)) / RAD;
-    SHIP.st = { u: u, node: node }; SHIP.clock = Date.now(); SHIP.on = true; leaveCity(); go({ L: 1 }); maybe4k(); return true;
+    SHIP.st = { u: u, node: node }; SHIP.clock = Date.now(); SHIP.on = true; leaveCity(); go({ L: 1 }); maybe4k(); shipRes(true); return true;
   }
-  function leaveShip() { if (SHIP.on) { SHIP.on = false; document.documentElement.classList.remove('kd-ship'); kick(); } }
+  // ในยาน: วาดที่ความละเอียดจอจริง (สูงสุด 2×) ให้คมที่สุด — ตัวลดความละเอียดอัตโนมัติยังลดให้เองถ้าเครื่องช้า
+  function shipRes(on) { DPR_MAX = on ? Math.max(DPR_BASE, Math.min(window.devicePixelRatio || 1, 2)) : DPR_BASE; scale = Math.min(DPR_MAX, on ? DPR_MAX : scale); size(); }
+  function leaveShip() { if (SHIP.on) { SHIP.on = false; shipRes(false); document.documentElement.classList.remove('kd-ship'); kick(); } }
   window.KD_earth = {
     ship: function (on) { if (on) { if (!shipStart()) return false; } else leaveShip(); kick(); return SHIP.on; },
     shipFast: function () { SHIP.fast = !SHIP.fast; kick(); return SHIP.fast; },
@@ -456,9 +459,11 @@
     raf = 0;
     if (document.hidden || !visible || S.city) { last = 0; return; }   // แผนที่เมืองเต็มจอ — โลกไม่ต้องวาด
     var gap = (now - (capLast || now)) / 1000;
-    capAcc = Math.min(capAcc + gap, 2 / cap);
-    if (capLast && capAcc + 1e-4 < 1 / cap) { capLast = now; kick(); return; }
-    capAcc = Math.max(0, capAcc - 1 / cap); capLast = now;
+    // ในยาน ใครไม่ได้ตั้งเฟรมเรตเองใช้ 60 — วิวเคลื่อนตลอดและวาดเต็มจอที่ความละเอียดสูง 60 ลื่นและเครื่องไม่ร้อน
+    var capNow = SHIP.on && !capUser ? Math.min(cap, 60) : cap;
+    capAcc = Math.min(capAcc + gap, 2 / capNow);
+    if (capLast && capAcc + 1e-4 < 1 / capNow) { capLast = now; kick(); return; }
+    capAcc = Math.max(0, capAcc - 1 / capNow); capLast = now;
     var busy = !!gest || Math.abs(S.vlon) + Math.abs(S.vlat) > .01;
     // เครื่องเบา: ตอนลอยเองไม่มีใครแตะ วาด ~30 ภาพ/วินาทีพอ — ประหยัดแบตและไม่ร้อน
     // (ยกเว้นผู้ใช้เลือกเฟรมเรตเอง หรืออยู่ในยาน ซึ่งวิวเคลื่อนตลอด — ใช้ค่าที่เลือกแทน)
@@ -468,7 +473,7 @@
       ftAvg = ftAvg * .9 + (now - last) * .1;
       if (now - ftCheck > 900) {
         ftCheck = now;
-        var slack = Math.max(0, 1000 / cap - 16.7);                    // เลือก 30 เฟรมเอง: ภาพห่าง 33 ms ไม่ได้แปลว่าเครื่องช้า
+        var slack = Math.max(0, 1000 / capNow - 16.7);                    // เลือก 30 เฟรมเอง: ภาพห่าง 33 ms ไม่ได้แปลว่าเครื่องช้า
         if (ftAvg > 26 + slack * 1.5 && scale > .55) { scale = Math.max(.55, scale * .82); size(); }
         else if (ftAvg < 17 + slack && scale < DPR_MAX) { scale = Math.min(DPR_MAX, scale * 1.12); size(); }
       }
