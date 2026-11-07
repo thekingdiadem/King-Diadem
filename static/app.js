@@ -24,7 +24,7 @@ var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 try{ if(localStorage.getItem('kd-calm') === '1'){ REDUCED = true; document.documentElement.classList.add('kd-calm'); } }catch(_){}
 /* เฟรมเรตสูงสุดของฉากจักรวาล — เลือกได้ในเมนูโหมดสี · 30 เครื่องเย็น/ประหยัดแบต · 90 ค่าเดิมที่พี่เลือก
    เลือกเกินที่จอรองรับก็วาดได้เท่าที่จอได้ (requestAnimationFrame ไม่เร็วกว่าจอ) */
-var FPS_CAPS = [30, 60, 90, 120], FPS_CAP = 90;
+var FPS_CAPS = [30, 60, 90, 120, 144], FPS_CAP = 90;
 try{ var _fps = +localStorage.getItem('kd-fps'); if(FPS_CAPS.indexOf(_fps) >= 0) FPS_CAP = _fps; }catch(_){}
 /* โหมดสี: night (อวกาศเดิม) · day · latte (คอสมิกลาเต้ #FFF8E7 — สีเฉลี่ยของจักรวาล) · custom (สีที่ผู้ใช้เลือก)
    THEME.v = สีพื้น (null = กลางคืน) · THEME.dark = ตัวหนังสือเข้มบนพื้นสว่าง — ฉากอวกาศและตัวหนังสือบนผืนผ้าใช้ค่านี้ */

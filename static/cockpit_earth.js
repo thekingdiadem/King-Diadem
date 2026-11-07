@@ -50,7 +50,7 @@
   var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
   var FS = [
     'precision highp float;',
-    'uniform vec2 res;uniform float t,ready,lon,lat,D,tilt,F,hasW,dayM;uniform sampler2D lights,day,clouds,water;',
+    'uniform vec2 res;uniform float t,ready,lon,lat,D,tilt,F,hasW,dayM,sunM;uniform vec3 sun;uniform sampler2D lights,day,clouds,water;',
     'const float PI=3.14159265;',
     'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
     'float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+1.),f.x),f.y);}',
@@ -63,6 +63,7 @@
     '  vec3 fw=vec3(0.,st,-ct),up=vec3(0.,ct,st),rt=vec3(1.,0.,0.);',
     '  vec3 P=vec3(0.,0.,1.)+D*vec3(0.,-st,ct);',                 // กล้องอยู่เหนือจุดกลางจอ ถอยไปทางใต้ตามมุมเอียง
     '  vec3 rd=normalize(fw*F+uv.x*rt+uv.y*up);',
+    '  mat3 M=ry(radians(lon))*rx(-radians(lat));vec3 sl=sun*M;',  // ทิศดวงอาทิตย์ในกรอบของกล้อง (ใช้เฉพาะในยาน: sunM > 0)
     '  float b=dot(P,rd),c2=dot(P,P)-1.,disc=b*b-c2,pix=1./(F*res.y);',
     // ดาว — เลื่อนตามกล้องนิดหน่อยให้มีมิติ
     '  vec3 col=vec3(.004,.005,.012);',
@@ -70,10 +71,15 @@
     '  if(s>.9975){float tw=.6+.4*sin(t*2.+s*90.);col+=vec3(.75,.8,1.)*tw*(s-.9975)*90.;}',
     '  float dmin=sqrt(max(dot(P,P)-b*b,0.));',
     '  if(b<0.){float o=max(dmin-1.,0.);',                          // บรรยากาศเหนือขอบฟ้า + airglow สีเขียวแบบภาพจาก ISS
-    '    col+=vec3(.15,.35,1.)*exp(-o*26.)*(.45+.5*dayM)+vec3(.35,.6,1.)*exp(-o*150.)*.55+vec3(.20,.85,.42)*exp(-abs(o-.007)*480.)*.5;}',
+    // ในยาน (sunM): ขอบฟ้าสว่างเฉพาะด้านที่โดนแดด · มองใกล้แล้วชั้นอากาศบางตามจริง · airglow ที่ราว 94 กม. เห็นชัดด้านกลางคืน
+    // · แถบส้มตรงเส้นแบ่งกลางวันกลางคืน = พระอาทิตย์ขึ้น/ตกที่เห็นจากวงโคจร · นอกยาน (sunM = 0) ได้ภาพเดิมทุกอย่าง
+    '    float sd=dot(normalize(P-b*rd),sl),ls=sunM*smoothstep(-.12,.08,sd),tw=sunM*max(0.,1.-abs(sd)*5.);',
+    '    float k1=mix(26.,130.,sunM),k2=mix(150.,700.,sunM);',
+    '    col+=vec3(.15,.35,1.)*exp(-o*k1)*mix(.45+.5*dayM,.05+.95*ls,sunM)+vec3(.35,.6,1.)*exp(-o*k2)*.55*mix(1.,.12+.88*ls,sunM)',
+    '      +vec3(.20,.85,.42)*exp(-abs(o-mix(.007,.0147,sunM))*480.)*.5*(1.-ls)+vec3(1.,.42,.12)*exp(-o*320.)*tw*.8;}',
     '  if(disc>0.&&-b-sqrt(disc)>0.){',
     '    vec3 nl=P+rd*(-b-sqrt(disc));',
-    '    vec3 n=ry(radians(lon))*rx(-radians(lat))*nl;',
+    '    vec3 n=M*nl;float sz=dot(nl,sl),dl=max(dayM,sunM*smoothstep(-.08,.06,sz));',   // dl = ส่วนที่เป็นกลางวัน ณ จุดนี้
     '    float la=asin(clamp(n.y,-1.,1.)),lo=atan(n.x,n.z);',
     '    vec2 tc=vec2(lo/(2.*PI)+.5,.5-la/PI);',
     // รอยต่อเส้นแบ่งวัน (180°): พิกัดภาพกระโดดจาก 1 → 0 การ์ดจอเลยเลือกภาพความละเอียดต่ำสุดเป็นเส้นจุดพาดลูกโลก
@@ -95,7 +101,7 @@
     '    if(wm>.01){',                                                                  // ทะเล — คำนวณเฉพาะจุดที่เป็นน้ำ
     '      vec2 wv=vec2(fbm(tc*vec2(900.,450.)+t*.05),fbm(tc*vec2(900.,450.)+17.-t*.04))-.5;',
     '      vec3 wn=normalize(nl+(rt*wv.x+up*wv.y)*.10);',
-    '      vec3 Ld=normalize(.38*rt+.55*up-.74*fw);',
+    '      vec3 Ld=sunM>.5?sl:normalize(.38*rt+.55*up-.74*fw);',
     '      vec3 rf=reflect(rd,wn);',
     '      glint=pow(max(dot(rf,Ld),0.),90.)*1.4+pow(max(dot(rf,Ld),0.),12.)*.10;',
     '      float fres=.02+.98*pow(1.-max(dot(wn,-rd),0.),5.);',
@@ -105,14 +111,17 @@
     '    vec3 city=vec3(1.,.48,.10)*pow(L,1.35)*2.4+vec3(1.,.78,.42)*pow(L,4.)*1.4+vec3(1.,.42,.1)*pow(B,1.5)*.45;',
     '    city*=(1.-.55*cl)*(1.-.85*wm);',                                              // ไฟเรือ/แท่นเจาะยังเห็นจางๆ
     '    vec3 surf=baseC+city*ready+vec3(.55,.62,.85)*pow(cl,1.4)*.16;',
-    '    surf+=vec3(.18,.35,1.)*pow(1.-zz,2.6)*.35+vec3(.35,.55,1.)*pow(1.-zz,9.)*.6;', // ฟ้าหลัวตามความหนาของบรรยากาศที่มองผ่าน
-    '    if(dayM>0.){',                                                                // กลางวัน: สีจริงจากดาวเทียม เมฆขาว แดดสะท้อนทะเล
-    // แดดสะท้อนทะเลกลางวัน: ใช้ผิวน้ำเรียบ (ไม่ใช้คลื่นแบบกลางคืน ซึ่งกลางวันดูเป็นเม็ดหยาบ)
-    '      float sg=pow(max(dot(reflect(rd,nl),normalize(.38*rt+.55*up-.74*fw)),0.),36.);',
+    '    surf+=(vec3(.18,.35,1.)*pow(1.-zz,2.6)*.35+vec3(.35,.55,1.)*pow(1.-zz,9.)*.6)*(1.-.85*sunM);', // ฟ้าหลัวตามความหนาของบรรยากาศที่มองผ่าน (ในยาน: กลางคืนไม่มีฟ้าหลัวสีฟ้า)
+    '    if(dl>0.){',                                                                  // กลางวัน: สีจริงจากดาวเทียม เมฆขาว แดดสะท้อนทะเล
+    // แดดสะท้อนทะเลกลางวัน: ใช้ผิวน้ำเรียบ (ไม่ใช้คลื่นแบบกลางคืน ซึ่งกลางวันดูเป็นเม็ดหยาบ) · ในยานใช้ทิศดวงอาทิตย์จริง
+    '      vec3 Lg=sunM>.5?sl:normalize(.38*rt+.55*up-.74*fw);',
+    '      float sg=pow(max(dot(reflect(rd,nl),Lg),0.),36.);',
     '      vec3 dc=pow(land,vec3(1.15))*1.25+vec3(1.,.96,.88)*sg*wm*.35*(1.-cl);',
     '      dc=mix(dc,vec3(.95,.97,1.),smoothstep(.15,.85,cl)*.85);',
     '      dc+=vec3(.25,.45,1.)*pow(1.-zz,2.2)*.55+vec3(.5,.7,1.)*pow(1.-zz,8.)*.5;',
-    '      surf=mix(surf,dc,dayM);',
+    '      dc*=mix(1.,.45+.55*smoothstep(0.,.5,sz),sunM);',                       // แดดเฉียงใกล้เส้นแบ่งวัน = สลัวลง
+    '      dc*=mix(vec3(1.),vec3(1.,.66,.42),sunM*(1.-smoothstep(0.,.16,sz))*.7);',  // แสงเช้า/เย็นอมส้ม
+    '      surf=mix(surf,dc,dl);',
     '    }',
     '    col=mix(col,surf,smoothstep(0.,3.*sqrt(c2)*pix,disc));',
     '  }',
@@ -147,7 +156,7 @@
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
   var U = {};
-  ['res', 't', 'ready', 'lon', 'lat', 'D', 'tilt', 'F', 'hasW', 'dayM', 'lights', 'day', 'clouds', 'water']
+  ['res', 't', 'ready', 'lon', 'lat', 'D', 'tilt', 'F', 'hasW', 'dayM', 'sunM', 'sun', 'lights', 'day', 'clouds', 'water']
     .forEach(function (k) { U[k] = gl.getUniformLocation(prog, k); });
 
   var base = (document.currentScript && document.currentScript.src || '/static/cockpit_earth.js').replace(/cockpit_earth\.js.*$/, '');
@@ -183,7 +192,7 @@
   var light = Math.min(screen.width, screen.height) < 700 || (navigator.deviceMemory || 8) <= 4 || /2g|3g/.test(conn.effectiveType || '');
   var got4k = false, firstIn = false;
   function maybe4k() {
-    if (got4k || !firstIn || !can4k || (light && S.tL < 2)) return;
+    if (got4k || !firstIn || !can4k || (light && S.tL < 2 && !SHIP.on)) return;
     got4k = true;
     load(0, 'lights_4k.jpg'); load(1, 'day_4k.jpg'); load(2, 'clouds_4k.jpg');      // 4K หลังภาพแรกขึ้นแล้ว — เน็ตช้าไม่ต้องรอ
   }
@@ -241,6 +250,7 @@
   // ── การควบคุม ─────────────────────────────────────────────────────────────────────────────
   var idleUntil = 0, pointers = {}, gest = null, lastTap = 0, hist = [];
   function setL(L) {
+    if (SHIP.on && L > LMAX) L = LMAX;                               // อยู่ในยาน: ล้อเมาส์/ถ่างนิ้วลึกไม่สลับไปแผนที่เมือง
     if (L > LMAX + .02 && toCity()) return;                          // ลึกกว่าภาพ NASA → แผนที่เมืองรับช่วงต่อ
     S.tL = clamp(L, 0, LMAX); sync(); maybe4k();
   }
@@ -368,18 +378,33 @@
 
   function leaveCity() { if (S.city && window.KD_cityMap) window.KD_cityMap.exit(); }
   function go(o) {
+    if (SHIP.on && o.L > LMAX) return;                          // อยู่ในยาน: ถ่างนิ้วลึกไม่สลับไปแผนที่เมือง (ยานจะค้างอยู่ข้างหลัง)
     if (o.L > LMAX + .02 && toCity()) return;
     for (var k in o) S['t' + k] = o[k];
     S.tL = clamp(S.tL, 0, LMAX); S.vlon = S.vlat = 0;
     sync(); settle(); setTouchMode(); maybe4k();
     hold(8000);
   }
+  // โหมดยานอวกาศ — เริ่มวงโคจรเหนือจุดที่กำลังดูอยู่ · ออกจากโหมดกลับมาที่วงโคจรเดิม
+  var SHIP = { on: false, fast: false, k: 0, st: { u: 0, node: 0 }, clock: 0 }, shipHud = document.getElementById('ship-hud'), lastShipHud = 0;
+  function shipStart() {
+    var OB = window.KD_orbit; if (!OB) return false;
+    if (SHIP.k > 0) { SHIP.on = true; maybe4k(); return true; }      // กดกลับเข้ายานระหว่างกำลังออก = โคจรต่อจากเดิม (ไม่กระโดด)
+    var i = OB.INC_DEG * RAD, la = clamp(S.lat, -OB.INC_DEG + .5, OB.INC_DEG - .5);
+    var u = Math.asin(Math.sin(la * RAD) / Math.sin(i));             // มุมในวงโคจรที่ผ่านละติจูดนี้
+    var node = S.lon - Math.atan2(Math.cos(i) * Math.sin(u), Math.cos(u)) / RAD;
+    SHIP.st = { u: u, node: node }; SHIP.clock = Date.now(); SHIP.on = true; leaveCity(); go({ L: 1 }); maybe4k(); return true;
+  }
+  function leaveShip() { if (SHIP.on) { SHIP.on = false; document.documentElement.classList.remove('kd-ship'); kick(); } }
   window.KD_earth = {
-    globe: function (on) { leaveCity(); go({ L: on ? 0 : 1, lat: on ? 20 : 40 }); },
+    ship: function (on) { if (on) { if (!shipStart()) return false; } else leaveShip(); kick(); return SHIP.on; },
+    shipFast: function () { SHIP.fast = !SHIP.fast; kick(); return SHIP.fast; },
+    shipOn: function () { return SHIP.on; },
+    globe: function (on) { leaveShip(); leaveCity(); go({ L: on ? 0 : 1, lat: on ? 20 : 40 }); },
     // บินไปจุดภัย แล้วเปิดกล้องรายละเอียดเมื่อถึง (ใช้กับรายการภัยในแผงเครื่องมือ)
     flyHazard: function (i) {
       var h = HZ.list[i]; if (!h) return;
-      leaveCity(); go({ lat: clamp(h.lat, -85, 85), lon: h.lon + 360 * Math.round((S.tlon - h.lon) / 360), L: 2.2 });
+      leaveShip(); leaveCity(); go({ lat: clamp(h.lat, -85, 85), lon: h.lon + 360 * Math.round((S.tlon - h.lon) / 360), L: 2.2 });
       var tries = 0;                                              // รอจนโลกบินถึงแล้วจุดขึ้นจอ (เครื่องช้าก็รอได้ ไม่เกิน ~5 วินาที)
       (function wait() {
         var m = HZ.shown.filter(function (x) { return x.h === h; })[0], V = view();
@@ -388,9 +413,10 @@
       })();
     },
     hazards: function () { return HZ.list; },
-    pole: function (north) { leaveCity(); go({ L: 0, lat: north ? 80 : -80 }); },
-    zoomIn: function () { if (S.city) window.KD_cityMap.zoom(1); else go({ L: S.tL < 1 ? 1 : S.tL + 1 }); },
+    pole: function (north) { leaveShip(); leaveCity(); go({ L: 0, lat: north ? 80 : -80 }); },
+    zoomIn: function () { leaveShip(); if (S.city) window.KD_cityMap.zoom(1); else go({ L: S.tL < 1 ? 1 : S.tL + 1 }); },
     zoomOut: function () {
+      leaveShip();
       if (S.city) { window.KD_cityMap.zoom(-1); return; }
       go({ L: S.tL > 1 ? S.tL - 1 : 0, lat: S.tL > 1 ? S.tlat : clamp(S.tlat, -60, 60) });
     },
@@ -412,6 +438,13 @@
     new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible) kick(); }).observe(canvas);
   }
   function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+  // เฟรมเรตสูงสุดตามที่ผู้ใช้เลือกในหน้าแชต (localStorage kd-fps: 30 · 60 · 90 · 120 · 144) — ใช้ค่าเดียวกันทั้งเว็บ
+  // เดิมโลกวาดเต็มความเร็วจอเสมอ (จอ 120/144 Hz วาดทุกเฟรม เครื่องร้อน) · สะสมเวลา วาดเฉลี่ยเท่าค่าที่เลือก
+  var FPS_OK = [30, 60, 90, 120, 144], cap = 90, capUser = false, capAcc = 0, capLast = 0;
+  function fpsCap() { var v = 0; try { v = +localStorage.getItem('kd-fps'); } catch (e) {} capUser = FPS_OK.indexOf(v) >= 0; cap = capUser ? v : 90; }
+  fpsCap();
+  window.addEventListener('storage', function (e) { if (e.key === 'kd-fps') fpsCap(); });
+  window.addEventListener('kd-fps', function () { fpsCap(); kick(); });          // เมนูเฟรมเรตในหน้านี้เอง
   window.addEventListener('kd-calm', kick);
   // กลางวัน/กลางคืน: dayM ไหลจาก 0 ↔ 1 ราว 1 วินาที (โหมดลดการเคลื่อนไหว = เปลี่ยนทันที)
   function dayOn() { return document.documentElement.classList.contains('kd-day') ? 1 : 0; }
@@ -422,16 +455,22 @@
   function frame(now) {
     raf = 0;
     if (document.hidden || !visible || S.city) { last = 0; return; }   // แผนที่เมืองเต็มจอ — โลกไม่ต้องวาด
+    var gap = (now - (capLast || now)) / 1000;
+    capAcc = Math.min(capAcc + gap, 2 / cap);
+    if (capLast && capAcc + 1e-4 < 1 / cap) { capLast = now; kick(); return; }
+    capAcc = Math.max(0, capAcc - 1 / cap); capLast = now;
     var busy = !!gest || Math.abs(S.vlon) + Math.abs(S.vlat) > .01;
     // เครื่องเบา: ตอนลอยเองไม่มีใครแตะ วาด ~30 ภาพ/วินาทีพอ — ประหยัดแบตและไม่ร้อน
-    if (light && !busy && last && now - last < 30) { kick(); return; }
+    // (ยกเว้นผู้ใช้เลือกเฟรมเรตเอง หรืออยู่ในยาน ซึ่งวิวเคลื่อนตลอด — ใช้ค่าที่เลือกแทน)
+    if (light && !busy && !SHIP.on && !capUser && last && now - last < 30) { kick(); return; }
     var dt = last ? Math.min(.05, (now - last) / 1000) : .016;
-    if (last && busy) {                                                 // วัดความลื่นเฉพาะตอนมีคนเล่นอยู่
+    if (last && (busy || SHIP.on)) {                                    // วัดความลื่นเฉพาะตอนมีคนเล่นอยู่ หรืออยู่ในยาน
       ftAvg = ftAvg * .9 + (now - last) * .1;
       if (now - ftCheck > 900) {
         ftCheck = now;
-        if (ftAvg > 26 && scale > .55) { scale = Math.max(.55, scale * .82); size(); }
-        else if (ftAvg < 17 && scale < DPR_MAX) { scale = Math.min(DPR_MAX, scale * 1.12); size(); }
+        var slack = Math.max(0, 1000 / cap - 16.7);                    // เลือก 30 เฟรมเอง: ภาพห่าง 33 ms ไม่ได้แปลว่าเครื่องช้า
+        if (ftAvg > 26 + slack * 1.5 && scale > .55) { scale = Math.max(.55, scale * .82); size(); }
+        else if (ftAvg < 17 + slack && scale < DPR_MAX) { scale = Math.min(DPR_MAX, scale * 1.12); size(); }
       }
     }
     last = now;
@@ -451,11 +490,31 @@
     var dayT = dayOn();
     if (dayM !== dayT) dayM = still ? dayT : dayT > dayM ? Math.min(1, dayM + dt * 1.1) : Math.max(0, dayM - dt * 1.1);
     if (ready < 1 && pending === 0) ready = still ? 1 : Math.min(1, ready + dt * 1.2);
-    var cam = camera(S.L, canvas.width / Math.max(1, canvas.height));
+    var cam = camera(S.L, canvas.width / Math.max(1, canvas.height)), sunM = 0, Fv = F;
+    var OB = window.KD_orbit;
+    if (OB && (SHIP.on || SHIP.k > 0)) {
+      if (SHIP.on && !still) { var kx = SHIP.fast ? 60 : 1; SHIP.st = OB.step(SHIP.st, dt, kx); SHIP.clock += dt * 1000 * kx; }
+      var asp = canvas.width / Math.max(1, canvas.height), gp = OB.ground(SHIP.st.u, SHIP.st.node), VW = asp < 1 ? OB.VIEW_TALL : OB.VIEW;
+      SHIP.k = still ? (SHIP.on ? 1 : 0) : clamp(SHIP.k + (SHIP.on ? dt : -dt) / 1.6, 0, 1);
+      var e = smooth(SHIP.k);                                         // บินลงจากวงโคจรสูงสู่ความสูงยานแบบนุ่มๆ
+      // กล้องหันไปทางเหนือ: จุดกลางจออยู่เหนือจุดใต้ยาน VW.ahead องศา — ตัวกล้องจึงอยู่ตรงเหนือจุดใต้ยานที่ 408 กม. พอดี
+      S.lon = S.tlon = gp.lon + 360 * Math.round((S.lon - gp.lon) / 360); S.lat = S.tlat = gp.lat + VW.ahead * e; S.vlon = S.vlat = 0;
+      cam = { D: Math.exp(Math.log(cam.D) + (Math.log(VW.D) - Math.log(cam.D)) * e), tilt: cam.tilt + (VW.tilt - cam.tilt) * e };
+      var su = OB.sun(SHIP.clock), sv = OB.vec(su.lat, su.lon);       // ดวงอาทิตย์จริง ณ เวลาในยาน
+      gl.uniform3f(U.sun, sv[0], sv[1], sv[2]); sunM = e * (1 - dayM);  // เลือก "กลางวัน" ไว้ = สว่างทั้งโลกเหมือนเดิม
+      if (asp < 1) Fv = F + (Math.min(F, .5 * asp / Math.tan(22 * RAD)) - F) * e;   // จอแนวตั้ง: มุมกว้าง ~44° ให้เห็นขอบโลกโค้ง
+      if (shipHud && now - lastShipHud > 500) {
+        lastShipHud = now;
+        var nv = OB.vec(gp.lat, gp.lon), lit = nv[0] * sv[0] + nv[1] * sv[1] + nv[2] * sv[2] > 0;
+        shipHud.textContent = 'ALT ' + OB.ALT_KM + ' km · ' + OB.SPEED_KMS + ' km/s · ' + Math.abs(gp.lat).toFixed(1) + '°' + (gp.lat < 0 ? 'S' : 'N')
+          + ' ' + Math.abs(gp.lon).toFixed(1) + '°' + (gp.lon < 0 ? 'W' : 'E') + (lit ? ' · ☀ DAY' : ' · ☾ NIGHT') + (SHIP.fast ? ' · ×60' : '');
+      }
+    }
+    gl.uniform1f(U.sunM, sunM);
     gl.uniform2f(U.res, canvas.width, canvas.height);
     gl.uniform1f(U.t, tsec); gl.uniform1f(U.ready, ready);
     gl.uniform1f(U.lon, S.lon); gl.uniform1f(U.lat, S.lat);
-    gl.uniform1f(U.D, cam.D); gl.uniform1f(U.tilt, cam.tilt); gl.uniform1f(U.F, F);
+    gl.uniform1f(U.D, cam.D); gl.uniform1f(U.tilt, cam.tilt); gl.uniform1f(U.F, Fv);
     gl.uniform1f(U.hasW, hasW); gl.uniform1f(U.dayM, dayM);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     if (hudPos && now - lastHud > 250) {
@@ -465,8 +524,8 @@
       if (hudUtc) hudUtc.textContent = 'UTC ' + new Date().toISOString().slice(11, 19);
       if (hudAlt) hudAlt.textContent = S.L < .3 ? 'FULL DISK' : 'ALT ' + Math.round(alt).toLocaleString('en-US') + ' km';
     }
-    labels();
-    if (!still || ready < 1 || dayM !== dayT) kick();                                    // คลื่น/ดาว/เมฆขยับตลอด — โหมดลดการเคลื่อนไหวหยุดวาดเมื่อนิ่ง
+    if (SHIP.k > 0) { if (lab) lab.style.opacity = '0'; } else { if (lab && lab.style.opacity === '0') lab.style.opacity = ''; labels(); }   // หน้าต่างยาน: ไม่มีชื่อเมืองบังวิว
+    if (!still || ready < 1 || dayM !== dayT || (SHIP.on && SHIP.k < 1)) kick();                                    // คลื่น/ดาว/เมฆขยับตลอด — โหมดลดการเคลื่อนไหวหยุดวาดเมื่อนิ่ง
   }
 
   // ── ชื่อเมือง — ชั้นตามความสำคัญ โหลดเมื่อซูมถึง (มองทั้งโลกไม่โหลดอะไรเลย) ───────────────────────
