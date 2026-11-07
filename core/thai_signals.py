@@ -210,7 +210,10 @@ OVERDOSE = re.compile(
     r"(?:กิน|ดื่ม|กลืน)(?:ยาฆ่าแมลง|ยาเบื่อ|น้ำยา(?:ล้าง|ซัก|ฟอก)|สารพิษ|ยาพิษ|น้ำมัน|ผงซักฟอก|เม็ดซักผ้า|ไฮเตอร์|ทินเนอร์|น้ำยาถูพื้น)|เด็ก\S{0,8}?กลืน|\boverdos(?!\w*\s+(?:of|on)\s+(?:coffee|caffeine|sugar|cuteness|memes|love|anime|tiktok|carbs|chocolate|work))|"
     # เด็กกินของใช้ในบ้าน (รอบหาบั๊ก 21): "น้องกินแชมพูเข้าไป" เคยไม่ติด
     r"(?:เด็ก|ลูก|หลาน|น้อง|ทารก)\S{0,8}?(?:กิน|ดื่ม|กลืน|เลีย|อม)\S{0,6}?(?:น้ำยาบ้วนปาก|ยากันยุง|ลูกเหม็น|การบูร|น้ำมันก๊าด|เบนซิน|น้ำมันรถ|น้ำยาล้างเล็บ|ยาทาเล็บ|น้ำหอม|แอลกอฮอล์|เจลล้างมือ)|"
-    r"\btook (?:too many|a lot of|all (?:my|of my|the)|\d+) (?:pills|tablets|meds|sleeping pills)",
+    r"\btook (?:too many|a lot of|all (?:my|of my|the)|\d+) (?:pills|tablets|meds|sleeping pills)|"
+    # ระบุชื่อยา — "i took 30 paracetamol" เคยได้ Risk 0 · ตั้งแต่ 5 เม็ดขึ้นไป ("took 2 tylenol" กินตามปกติ ไม่นับ)
+    r"\b(?:took|have taken|'ve taken|swallowed|downed)\s+(?:like\s+|about\s+|maybe\s+)?(?:[5-9]|[1-9]\d+)\s+(?:of (?:my|the|her|his) )?"
+    r"(?:paracetamol|acetaminophen|tylenol|panadol|ibuprofen|advil|motrin|aspirin|xanax|valium|benadryl|melatonin|antidepressants?|painkillers?|sleeping pills?)\b",
     re.I,
 )
 

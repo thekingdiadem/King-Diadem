@@ -34,7 +34,7 @@ def test_registry_has_no_stale_entries():
 
 def test_extractor_reads_every_phone_format():
     t = ("US 1-800-GAMBLER, UK GamCare 0808 8020 133 · text START to 678-678 · 88709 · โทร 1669 · ความดัน 180/120 · 600 บาท · 1,000 baht"
-         " · กฎหมายแก้ไขปี 2566 · the 2023 amendment")
+         " · กฎหมายแก้ไขปี 2566 · the 2023 amendment · ครั้งละ 1–2 เม็ด (500 มก.) · 250 mg")
     assert kf.phones(t) == {"1-800-GAMBLER", "0808 8020 133", "678-678", "88709", "1669"}
 
 
