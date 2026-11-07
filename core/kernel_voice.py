@@ -2152,9 +2152,34 @@ _URGENT_TOPICS = ("post_harm", "post_danger", "newborn_danger", "preg_danger", "
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
+# คนที่ไม่หายใจ หรือเด็กหายใจไม่ออก มาก่อนภัยรอบตัว — "ยายเป็นลมแดด หมดสติ ไม่หายใจ" เคยได้คำแนะนำคลื่นความร้อน ไม่มี CPR
+_PERSON_OVER_HAZARD = {"health_emergency", "kp_child_breath", "kp_near_drowning", "kp_febrile_seizure", "kp_alcohol_poisoning", "kp_child_in_car"}
+
+
+def _person_first(text: str, a: dict) -> bool:
+    top = (a.get("topics") or [None])[0]
+    return bool(_NOT_BREATHING.search(str(text or ""))) or (top in _PERSON_OVER_HAZARD and top != "health_emergency")
+
+
+# หัวข้อที่ตั้งใจตอบแบบไม่เร่ง (บอกเองว่าเมื่อไรต้องโทร 1669) — แทนหัวข้อกว้างแล้วให้คะแนนตามหัวข้อนี้
+_CALIBRATED = {"kp_double_dose", "kp_elevator"}
+# หัวข้อกว้างที่ตอบผิดเรื่องจนต้องตัดทิ้ง — ที่เหลือแค่เลื่อนไปไว้หลังหัวข้อเฉพาะ (ยังนับว่าเป็นเรื่องติดพนัน/ฉุกเฉินอยู่)
+_WRONG_FRAME = {"someone", "violence", "grief", "diagnosis"}
+# มีอาการอันตรายร่วม = ไม่ลดคะแนน ("กินยาความดันไปสองรอบ ตอนนี้หน้ามืดจะเป็นลม" ยังต้องด่วน)
+_DANGER_SIGNS = re.compile(r"หน้ามืด|เป็นลม|หมดสติ|ใจสั่น|เหงื่อแตก|สับสน|ซึม|ปลุกไม่ตื่น|หายใจ(?:ไม่ออก|ลำบาก|ไม่ทัน)|เจ็บหน้าอก|แน่นหน้าอก|ชัก|ตัวเย็น"
+                           r"|\b(?:faint\w*|dizz\w*|confused|drowsy|passed out|unconscious|can'?t breathe|chest pain|seizure|racing heart)\b", re.I)
+
 # (หัวข้อเฉพาะ, หัวข้อกว้างที่มันมาแทน)
 _SPECIFIC_FIRST = (
     ("kp_meltdown", {"someone", "violence"}),
+    # ไม่ใช่ยาเกินขนาดทั่วไป — เหล้าเถื่อนต้องบอกคนที่ดื่มขวดเดียวกัน · กินยาซ้ำโดยไม่ตั้งใจไม่ต้องรีบไปห้องฉุกเฉินถ้ายังไม่มีอาการ
+    ("kp_methanol", {"overdose"}),
+    ("kp_alcohol_poisoning", {"overdose", "health_emergency"}),
+    ("kp_double_dose", {"overdose"}),
+    ("kp_gambling", {"addiction"}),
+    # "ติดลิฟต์ อากาศอึดอัด" เคยได้ "ต้องให้แพทย์ดู" · แมงกะพรุนต่อยเคยได้คำตอบฉุกเฉินทั่วไป ไม่มีน้ำส้มสายชู
+    ("kp_elevator", {"health_emergency"}),
+    ("kp_jellyfish", {"health_emergency"}),
     ("kp_end_of_life", {"grief", "diagnosis"}),
     ("kp_palliative_pain", {"grief", "diagnosis", "kp_end_of_life"}),
 )
@@ -2248,7 +2273,31 @@ def assess(text: str, pattern: dict | None = None) -> dict:
                  text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20), risk_shown=min(a["risk_shown"], 20))
     from core.second_layer import apply as _second_layer
     a = _second_layer(text, a)
-    return _mother_baby_first(text, _with_conditions(text, a))
+    return _specific_first(text, _mother_baby_first(text, _with_conditions(text, a)))
+
+
+def _specific_first(text, a: dict) -> dict:
+    """ลำดับสุดท้ายของหัวข้อ — ทำหลังทุกชั้น เพราะชั้นก่อนหน้าอาจแทรก overdose/health_emergency กลับมาไว้หน้า
+    1) คนไม่หายใจมาก่อนทุกเรื่อง (ยกเว้นวิกฤตที่มีคำตอบ 1669/CPR ของตัวเองอยู่แล้ว)
+    2) หัวข้อเฉพาะมาก่อนหัวข้อกว้างที่ตอบผิดเรื่อง (_SPECIFIC_FIRST)"""
+    topics = list(a.get("topics") or [])
+    if not topics:
+        return a
+    calm = None
+    for first, over in _SPECIFIC_FIRST:
+        if first in topics and set(topics) & over:
+            topics = [first] + [x for x in topics if x != first and not (x in over and x in _WRONG_FRAME)]
+            calm = first if first in _CALIBRATED else calm
+    if _NOT_BREATHING.search(str(text or "")) and not a.get("crisis") and topics[0] != "health_emergency":
+        topics, calm = ["health_emergency"] + [x for x in topics if x != "health_emergency"], None
+    if topics == a["topics"] and not calm:
+        return a
+    out = dict(a, topics=topics)
+    # คำตอบบอก "ส่วนใหญ่ไม่อันตราย" แต่หัวคำตอบยังขึ้น 85/100 จากหัวข้อยาเกินขนาดที่ถูกแทน — ให้คะแนนตามหัวข้อที่ตอบจริง
+    if calm and topics[0] == calm and not a.get("crisis") and not _DANGER_SIGNS.search(str(text or "")):
+        r = _KP.RISK[calm]
+        out.update(text_risk=r, risk=min(a.get("risk", r), max(r, 0)), risk_shown=min(a.get("risk_shown", r), r))
+    return out
 
 
 _UNCONSCIOUS = re.compile(r"หมดสติ|ไม่ตอบสนอง|\b(?:unconscious|unresponsive)\b", re.I)
@@ -2409,7 +2458,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     # "แม่ใกล้เสียแล้ว" (ยังไม่เสีย) เคยได้ "เสียใจด้วย การสูญเสีย…" · ลูกออทิสติกอาละวาดเคยได้ "ถามตรงๆ ว่าคิดจะทำร้ายตัวเองไหม"
     for _first, _over in _SPECIFIC_FIRST:
         if _first in topics and set(topics) & _over:
-            topics = [_first] + [x for x in topics if x != _first and x not in _over]
+            topics = [_first] + [x for x in topics if x != _first and not (x in _over and x in _WRONG_FRAME)]
     # มิจฉาชีพ (แอบอ้าง/ลิงก์/โอนเงิน) — เลือกจากโครงสร้าง ไม่ใช่คำเดี่ยว
     scam = scam_flags(text)
     if scam:
@@ -2577,7 +2626,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
                     return CREATOR_STORY_EN.strip() + f"\n\n{sign}"
             except Exception:
                 pass
-        haz = EN_HAZARD.get((a.get("disaster") or {}).get("kind")) if (lang == "en" and not a["crisis"]) else None
+        haz = EN_HAZARD.get((a.get("disaster") or {}).get("kind")) if (lang == "en" and not a["crisis"] and not _person_first(t, a)) else None
         if haz:
             return ("Your safety comes first right now — things can be replaced.\n\n" + status + "\n\n"
                     + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(haz))
@@ -2743,7 +2792,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = TEACHER_HARM, None
     elif a["relationship"] in ("collapse_risk", "critical"):   # ถูกทำร้าย/ควบคุม: ความปลอดภัยมาก่อน
         main, second = SAFETY, None
-    elif a["disaster"]:                  # กำลังเจอภัย: ขั้นแรกของภัยนั้นมาก่อนทุกอย่าง
+    elif a["disaster"] and not _person_first(text, a):   # กำลังเจอภัย: ขั้นแรกของภัยนั้นมาก่อน — ยกเว้นมีคนไม่หายใจ/เด็กหายใจไม่ออก
         main, second = {"open": [DISASTER_OPEN], "paths": a["disaster"]["steps"],
                         "ask": a["disaster"].get("ask") or DISASTER_ASK}, None
     elif set(a["topics"]) <= {"decision", "health", "family"}:
