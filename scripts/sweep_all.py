@@ -486,7 +486,10 @@ def world(n=0):
             bad.append(f"(เรื่องทั่วไปไม่ได้ตอบเป็นภาษา {lg}) {x}")
     from core.world_replies import HELP_MAIN
     bad += [f"(ช่วยด้วย {lg}) {x}" for x, lg in WORLD_HELP_MAIN.items() if compose(x).split("\n")[0] != HELP_MAIN[lg][0]]
-    bad += [f"(ภาษาอังกฤษ/สเปนถูกเดาผิด) {t}" for t in WORLD_EN_CALM if compose(t).split("\n")[0] not in ("Let's lay this out step by step.", "Vamos a ordenarlo paso a paso.")]
+    # ต้องตอบเป็นภาษาอังกฤษ/สเปน (ไม่ถูกเดาเป็นภาษาอื่น) — รวมคำเปิดของเจตนาภาษาอังกฤษ (core/intent.py) เช่น "my mom is not ok"
+    from core import intent as _intent
+    en_ok = {"Let's lay this out step by step.", "Vamos a ordenarlo paso a paso."} | {v[0] for v in _intent.STEPS["en"].values()} | set(_intent.SHORT["en"].values())
+    bad += [f"(ภาษาอังกฤษ/สเปนถูกเดาผิด) {t}" for t in WORLD_EN_CALM if compose(t).split("\n")[0] not in en_ok]
     bad += [f"(ธรรมดา) {t}" for t in WORLD_CALM if assess(t)["text_risk"] >= 50]
     return len(cases) + len(WORLD_CALM) + len(WORLD_GENERAL) + len(WORLD_EN_CALM), bad
 

@@ -28,6 +28,7 @@ from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, 
                                PET_POISON, strip_pet_poison, ADULT_INVITE,
                                CHILD_HOUSEHOLD, SLEEPLESS, NOT_BREATHING as _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY, TRAFFICKING)
 from core.lang_signals import SELF_HARM_INTL, compose_intl, compose_urgent_intl, detect_lang, script_lang, urgent_intl, world_urgent
+from core import intent as _intent  # noqa: E402  เจตนาของข้อความที่ไม่เข้าหัวข้อ (core/intent.py)
 from core.engine_bridge import analyze as bridge_analyze, rank_options, _after as _amount_after, budget_en, debt_en
 from core import pregnancy_guide as _PG  # คู่มือคุณแม่ตั้งครรภ์ · สัญญาณอันตราย · อยู่คนเดียว
 from core.titan_core import EXIT_BLOCKED as _TITAN_EXIT, POWER_OVER as _TITAN_POWER  # TITAN S3 exit · S5 conservation
@@ -2715,6 +2716,14 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
                 out = compose_world(wl, "general", status_line(a, wl) or status, sign, footer)
                 if out:
                     return out
+        # ไม่เข้าหัวข้อใด — ดูเจตนาก่อนให้คำตอบกลาง ("goodnight" "my mom is not ok" "i want to wake up early")
+        it = _intent.detect(text) if (lang == "en" and not a["crisis"] and not a["topics"] and a["text_risk"] < 35) else None
+        if it in _intent.SHORT["en"]:
+            return f"{_intent.SHORT['en'][it]}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else "")
+        if it in _intent.STEPS["en"]:
+            o, ps, q = _intent.STEPS["en"][it]
+            return (o + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(ps))
+                    + f"\n\n{q}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         return compose_intl(lang, a["crisis"], status, sign, footer)
 
     # ── ถามถึงที่มาของระบบ (core/creator_story — ไม่มีชื่อหรือวันเกิดของผู้สร้าง) ──
@@ -2758,9 +2767,18 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         }[chat]
         return f"{say}\n\n{sign}" + tag
 
+    # ── 2.6 ไม่เข้าหัวข้อใด: ดูเจตนาก่อนให้คำตอบกลาง (core/intent.py) ─────────────
+    it = _intent.detect(text) if (not a["topics"] and a["text_risk"] < 35) else None
+    if it in _intent.SHORT["th"]:
+        return _intent.SHORT["th"][it].format(end=end) + f"\n\n{sign}" + tag
+
     # ── 3. หัวข้อ → ทาง (หลัก 2–3 ทาง + หัวข้อรอง 1 ทาง) ───────────
     lib = {name: d for name, _, d in TOPICS}
-    main = lib.get(a["topics"][0]) if a["topics"] else GENERAL
+    if it in _intent.STEPS["th"]:
+        _o, _ps, _q = _intent.STEPS["th"][it]
+        main = {"open": [_o], "paths": list(_ps), "ask": _q}
+    else:
+        main = lib.get(a["topics"][0]) if a["topics"] else GENERAL
     if a["topics"] and a["topics"][0] == "money" and "job" in a["topics"] and not MONEY_SHORT.search(text) \
             and not re.search(r"ซื้อ|ผ่อน|เก็บเงิน|ออม|โบนัส|เงินก้อน", text):
         main = lib["job"]                      # "อยากเปลี่ยนงาน แต่กลัวเงินเดือนลด" เป็นเรื่องงาน ไม่ใช่แผนเก็บเงิน
