@@ -103,6 +103,11 @@
   /* ── กล้อง: เลื่อนหน้า = หันรอบตัว · เมาส์/นิ้ว = เหลือบมอง · บทต่างๆ ตั้งเป้าให้ (ค่อยๆ ไหลเข้าหา) ── */
   var cam = { yaw: 0, pitch: 0, zoom: 1, gal: 1, sway: 1 }, tgt = { pitch: 0, gal: 1, sway: 1 }, look = { x: 0, y: 0, tx: 0, ty: 0 };
   var dolly = -1, rips = [{ w: -1 }, { w: -1 }], ripN = 0, t0 = performance.now(), last = 0, acc = 0, raf = 0, tsec = 0;
+  // เฟรมเรตสูงสุดตามที่ผู้ใช้เลือก (kd-fps: 30 · 60 · 90 · 120 · 144 · ค่าเริ่ม 90) — ค่าเดียวกับหน้าแชตและโลก
+  function fpsCap() { try { var v = +localStorage.getItem('kd-fps'); return [30, 60, 90, 120, 144].indexOf(v) >= 0 ? v : 90; } catch (e) { return 90; } }
+  var cap = fpsCap(), lastDraw = 0;
+  addEventListener('storage', function (e) { if (e.key === 'kd-fps') cap = fpsCap(); });
+  addEventListener('kd-fps', function () { cap = fpsCap(); kick(); });
   addEventListener('pointermove', function (e) { look.tx = e.clientX / W - .5; look.ty = e.clientY / H - .5; kick(); }, { passive: true });
 
   /* ทิศบนฟ้าที่อยู่ใต้จุด (x, y) บนจอ ตามกล้องตอนนี้ */
@@ -259,11 +264,13 @@
 
   function draw(now) {
     raf = 0; if (document.hidden) return;
-    var gap = last ? (now - last) / 1000 : 0; last = now; acc = Math.min(acc + gap, 2 / 90);
-    if (gap && acc + 1e-4 < 1 / 90) { raf = requestAnimationFrame(draw); return; }      // ไม่เกิน 90 เฟรม/วินาที
-    acc = Math.max(0, acc - 1 / 90);
-    var dt = Math.min(.05, gap || .016); if (!CALM()) tsec += dt;
-    if (dt > 1 / 40) { slow += dt; if (slow > 1.2 && qs > .55) { qs *= .8; slow = 0; size(); } } else slow = Math.max(0, slow - dt * .5);
+    var gap = last ? (now - last) / 1000 : 0; last = now; acc = Math.min(acc + gap, 2 / cap);
+    if (gap && acc + 1e-4 < 1 / cap) { raf = requestAnimationFrame(draw); return; }    // ไม่เกินเฟรมเรตที่เลือก
+    acc = Math.max(0, acc - 1 / cap);
+    // dt = เวลาจริงตั้งแต่ภาพก่อน (เดิมใช้ช่วงรอบจอ — ข้ามเฟรมแล้วฟ้าเคลื่อนช้ากว่าจริง)
+    var dt = Math.min(.05, (gap && lastDraw ? (now - lastDraw) / 1000 : 0) || .016); lastDraw = now; if (!CALM()) tsec += dt;
+    // เกณฑ์ "เครื่องช้า" ขยับตามเฟรมเรตที่เลือก — เลือก 30 เองไม่ได้แปลว่าเครื่องช้า ไม่ลดความคมชัด
+    if (dt > Math.max(1 / 40, 1.3 / cap)) { slow += dt; if (slow > 1.2 && qs > .55) { qs *= .8; slow = 0; size(); } } else slow = Math.max(0, slow - dt * .5);
     var sc = scrollY / Math.max(1, document.documentElement.scrollHeight - H), k = Math.min(1, dt * 2.2);
     look.x += (look.tx - look.x) * k; look.y += (look.ty - look.y) * k;
     cam.pitch += (tgt.pitch - cam.pitch) * Math.min(1, dt * 1.2); cam.gal += (tgt.gal - cam.gal) * Math.min(1, dt * 1.5); cam.sway += (tgt.sway - cam.sway) * Math.min(1, dt);

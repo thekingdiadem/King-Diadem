@@ -30,8 +30,9 @@ def test_scrolling_turns_the_viewer_not_the_sky():
 
 
 def test_sky_is_battery_friendly_and_has_fallback():
-    """ไม่เกิน 90 เฟรม · หยุดเมื่อซ่อนแท็บ · เครื่องช้าลดความละเอียดเอง · ไม่มี WebGL ยังมีพื้นหลังจาก CSS"""
-    assert "acc + 1e-4 < 1 / 90" in SKY and "if (document.hidden) return;" in SKY
+    """ไม่เกินเฟรมเรตที่เลือก (ค่าเริ่ม 90) · หยุดเมื่อซ่อนแท็บ · เครื่องช้าลดความละเอียดเอง · ไม่มี WebGL ยังมีพื้นหลังจาก CSS"""
+    assert "acc + 1e-4 < 1 / cap" in SKY and "if (document.hidden) return;" in SKY
+    assert "localStorage.getItem('kd-fps')" in SKY and "? v : 90;" in SKY
     assert "qs *= .8" in SKY
     assert "document.documentElement.classList.add('no-sky')" in SKY and "html.no-sky body{" in PAGE
 

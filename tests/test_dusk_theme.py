@@ -160,7 +160,7 @@ def _simulate_frame_cap(hz, seconds=10, cap=90):
 
 def test_frame_rate_is_capped_at_90_by_default():
     """พี่ขอให้ลดเหลือ 90 เฟรม: จอ 120/144/240 Hz วาดเฉลี่ย 90 · จอ 60 Hz ยังวาดเต็ม 60"""
-    assert "var FPS_CAPS = [30, 60, 90, 120], FPS_CAP = 90;" in HTML
+    assert "var FPS_CAPS = [30, 60, 90, 120, 144], FPS_CAP = 90;" in HTML
     assert "fpsAcc = Math.min(fpsAcc + gap, 2 / FPS_CAP);" in HTML
     assert "if(dtLast && fpsAcc + 1e-4 < 1 / FPS_CAP)" in HTML
     for hz in (120, 144, 240):
@@ -168,12 +168,12 @@ def test_frame_rate_is_capped_at_90_by_default():
     assert abs(_simulate_frame_cap(60) - 60) < 0.5
 
 
-@pytest.mark.parametrize("cap", [30, 60, 90, 120])
-def test_frame_rate_setting_30_60_90_120(cap):
-    """พี่ขอให้ปรับเฟรมเรตได้ 60-90-120 ตามที่มือถือรองรับ (+30 ไว้ให้เครื่องเย็น)
+@pytest.mark.parametrize("cap", [30, 60, 90, 120, 144])
+def test_frame_rate_setting_30_60_90_120_144(cap):
+    """พี่ขอให้ปรับเฟรมเรตได้ 60-90-120-144 ตามที่มือถือรองรับ (+30 ไว้ให้เครื่องเย็น)
     จอเร็วกว่าค่าที่เลือก → วาดเท่าค่าที่เลือก · จอช้ากว่า → วาดเท่าจอ (ไม่ฝืน)"""
     assert f'data-fps="{cap}"' in HTML
-    for hz in (60, 90, 120, 144):
+    for hz in (60, 90, 120, 144, 165, 240):
         assert abs(_simulate_frame_cap(hz, cap=cap) - min(hz, cap)) < 0.6, (hz, cap)
 
 

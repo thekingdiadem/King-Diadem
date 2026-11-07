@@ -244,6 +244,57 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
              linear-gradient(to bottom,transparent 55%,rgba(8,10,26,.55) 74%,rgba(8,13,26,.96) 100%)}
 #hero .hero-title{text-shadow:0 0 40px rgba(58,134,245,.25)}
 
+/* ════════════════════════════════════════════════════════════════
+   โหมดยานอวกาศ — มองโลกผ่านหน้าต่างห้องโดยสาร ยานโคจรแบบ ISS (static/ship_orbit.js)
+   ผนังห้อง = เงากล่องคงที่รอบหน้าต่าง (วาดครั้งเดียว ไม่กินแรงเครื่อง) · โลกจริงจาก cockpit_earth.js อยู่ข้างหลังกระจก
+   โทนน้ำเงินจักรวาล: ผนังน้ำเงินเข้ม · ขอบฟ้าเข้ม/ฟ้าอ่อน · ออร่าม่วงจางๆ (ไม่แสบตา) · กระจกพาโนรามาโค้งแบบยานยุคใหม่
+   ไม่ใช้ backdrop-filter ทับโลกที่ขยับทุกเฟรม — มือถือต้องเบลอใหม่ทุกภาพ เครื่องร้อน
+   ════════════════════════════════════════════════════════════════ */
+.ship{--sky-hi:#d7e8ff;--violet:#a99bff;--navy:#070b22;
+  position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;visibility:hidden;transition:opacity 1.2s ease,visibility 0s 1.2s}
+html.kd-ship .ship{opacity:1;visibility:visible;transition:opacity 1.2s ease}
+/* มุมบนโค้งกว้างเหมือนหลังคากระจก มุมล่างโค้งน้อย — ขอบบาง: เส้นฟ้าอ่อน · กรอบน้ำเงินเข้ม · เส้นม่วง · ออร่าม่วง/ฟ้าแผ่บนผนัง */
+.ship-window,.ship-glare{position:absolute;left:5vw;right:5vw;top:7vh;bottom:21vh;border-radius:14% 14% 6% 6%/22% 22% 9% 9%}
+.ship-window{box-shadow:0 0 0 1.5px rgba(176,214,255,.55),0 0 0 6px rgba(13,20,52,.94),0 0 0 7px rgba(150,130,255,.34),
+  0 0 28px 9px rgba(112,98,255,.24),0 0 90px 30px rgba(56,120,255,.14),0 0 0 100vmax var(--navy),
+  inset 0 0 0 1px rgba(205,228,255,.22),inset 0 0 70px 14px rgba(28,48,140,.30)}
+.ship-glare{background:linear-gradient(115deg,rgba(185,215,255,.09),rgba(185,215,255,0) 30%,rgba(185,215,255,0) 70%,rgba(150,130,255,.06))}
+/* แผงหน้าเรียบยาวทั้งแถบ + ไฟเส้นบางไล่ฟ้า→ม่วง */
+.ship-console{position:absolute;left:0;right:0;bottom:0;height:17vh;background:linear-gradient(#0f1638,#0a0f2a 50%,#060918);
+  box-shadow:0 -1px 0 rgba(150,190,255,.16),0 -24px 60px rgba(70,90,220,.10)}
+.ship-console::before{content:"";position:absolute;left:10%;right:10%;top:-1px;height:2px;border-radius:2px;opacity:.72;
+  background:linear-gradient(90deg,rgba(110,200,255,0),rgba(110,200,255,.85) 28%,rgba(160,130,255,.85) 72%,rgba(160,130,255,0));
+  box-shadow:0 0 14px 2px rgba(120,140,255,.32)}
+.ship-led{position:absolute;width:5px;height:5px;border-radius:50%;background:#7fd4ff;box-shadow:0 0 8px 2px rgba(127,212,255,.5)}
+.ship-led.a{top:3.4vh;left:8vw}.ship-led.b{top:3.4vh;right:8vw;background:var(--violet);box-shadow:0 0 8px 2px rgba(169,155,255,.5)}
+.ship-led.c{bottom:10.6vh;left:2.4vw;background:#6ee7ff;box-shadow:0 0 8px 2px rgba(110,231,255,.42)}
+.ship-panel{position:absolute;bottom:8.5vh;left:5vw;max-width:46vw;padding:9px 14px;border-radius:14px;
+  background:linear-gradient(rgba(26,38,92,.72),rgba(14,20,56,.72));color:var(--sky-hi);font:600 11px/1.5 var(--f-mono,ui-monospace,monospace);letter-spacing:.06em;
+  box-shadow:inset 0 0 0 1px rgba(150,195,255,.26),0 0 22px rgba(100,110,255,.16)}
+.ship-panel b{display:block;color:var(--violet);font-weight:600;letter-spacing:.2em;font-size:10px}
+.ship-note{position:absolute;top:10.5vh;left:50%;transform:translateX(-50%);width:min(560px,76vw);padding:12px 16px;border-radius:16px;
+  background:rgba(6,10,32,.5);color:#eef4ff;font-size:14px;line-height:1.6;text-align:center;
+  box-shadow:inset 0 0 0 1px rgba(150,190,255,.22),0 0 24px rgba(90,110,255,.10);transition:opacity .8s ease}
+.ship-note.fade{opacity:0}
+.ship-note small{display:block;margin-top:4px;color:#a8b6ff;font-size:11px;letter-spacing:.08em}
+.ship-ctl{position:absolute;bottom:8.5vh;right:5vw;display:flex;gap:8px;pointer-events:auto}
+.ship-ctl button{border:0;border-radius:999px;padding:9px 15px;font:600 12px var(--f-body,inherit);cursor:pointer;color:#dbe9ff;
+  background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(160,200,255,.32),0 0 16px rgba(90,120,255,.12)}
+.ship-ctl button:hover{background:rgba(255,255,255,.1)}
+.ship-ctl button[aria-pressed="true"]{color:#fff;background:linear-gradient(90deg,rgba(80,150,255,.42),rgba(140,110,255,.42));
+  box-shadow:inset 0 0 0 1px rgba(190,210,255,.5),0 0 18px rgba(120,120,255,.28)}
+.ship-ctl button:focus-visible{outline:2px solid #8fd0ff;outline-offset:2px}
+html.kd-ship .hero-badge,html.kd-ship .hero-title,html.kd-ship .hero-sub,html.kd-ship .hero-rule,html.kd-ship .hero-desc,
+html.kd-ship .scroll-hint,html.kd-ship .earth-ctl{opacity:0!important;pointer-events:none!important}
+html.kd-ship .cockpit .glass,html.kd-ship .hud,html.kd-ship .hud-deg{opacity:0}
+@media (max-width:640px){
+  .ship-window,.ship-glare{left:4vw;right:4vw;top:7vh;bottom:27vh;border-radius:18% 18% 8% 8%/14% 14% 6% 6%}
+  .ship-console{height:24vh}.ship-led.c{display:none}
+  .ship-panel{bottom:14vh;left:4vw;max-width:60vw}.ship-ctl{bottom:5vh;right:4vw;left:4vw;justify-content:flex-end}
+  .ship-note{font-size:13px}
+}
+html.kd-calm .ship,html.kd-calm .ship-note{transition:none}
+
 
 /* SHOWCASE + LIVE KERNEL */
 #showcase{position:relative;z-index:10;max-width:820px;margin:0 auto 60px;padding:0 20px}
@@ -291,6 +342,8 @@ body::after{content:"";position:fixed;inset:-120px;z-index:90;pointer-events:non
 .earth-ctl .ec-tile[aria-pressed="true"]{color:#fff;background:rgba(237,204,98,.16)}
 .ec-tile[aria-pressed="true"] svg{stroke:#edcc62}
 .ec-note{margin:10px 6px 2px;font:400 11px/1.5 var(--f-body);color:rgba(232,238,252,.5)}
+.ec-fps{display:flex;gap:4px;margin:0 4px}
+.earth-ctl .ec-fps button{flex:1;padding:8px 0;border-radius:10px;font:600 12px/1 var(--f-mono);font-variant-numeric:tabular-nums;backdrop-filter:none}
 .ec-hzlist{display:flex;flex-direction:column;gap:2px;margin-top:6px}.ec-hzlist.hide{display:none}
 .earth-ctl .ec-hzlist button{display:flex;gap:8px;align-items:center;text-align:left;width:100%;padding:9px 10px;border-radius:10px;border:0;background:rgba(255,255,255,.04);color:rgba(232,238,252,.85);font:500 12.5px/1.35 var(--f-body);backdrop-filter:none}
 .ec-hzlist button i{flex:none;width:9px;height:9px;border-radius:50%}
@@ -407,12 +460,15 @@ html.bb-on,html.bb-on body{overflow:hidden}
     <div class="ec-sheet hide" id="ec-sheet" role="dialog" aria-label="เครื่องมือและมุมมอง">
       <h3>มุมมองโลก</h3>
       <div class="ec-grid">
+        <button type="button" class="ec-tile" id="ec-ship" aria-pressed="false" data-act="ship"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="5"/><path d="M6.5 15.5c3-2.4 8-2.4 11 0"/><circle cx="16" cy="9" r="1.3"/></svg>ยานอวกาศ</button>
         <button type="button" class="ec-tile" id="ec-globe" aria-pressed="false" data-act="globe"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5a13 13 0 010 17M12 3.5a13 13 0 000 17"/></svg>ทั้งโลก</button>
         <button type="button" class="ec-tile" data-act="north"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v5M9.5 6L12 3.5 14.5 6"/><circle cx="12" cy="12" r="2"/></svg>ขั้วโลกเหนือ</button>
         <button type="button" class="ec-tile" data-act="south"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 20.5v-5M9.5 18l2.5 2.5 2.5-2.5"/><circle cx="12" cy="12" r="2"/></svg>ขั้วโลกใต้</button>
         <button type="button" class="ec-tile" id="ec-day" aria-pressed="false" data-act="day"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></svg>กลางวัน</button>
         <button type="button" class="ec-tile" id="ec-calm" aria-pressed="false" data-act="calm"><svg viewBox="0 0 24 24"><path d="M4 9h16M4 15h16" /><circle cx="9" cy="9" r="2"/><circle cx="15" cy="15" r="2"/></svg>ลดการเคลื่อนไหว</button>
       </div>
+      <h3>เฟรมเรตสูงสุด <small id="ec-hz"></small></h3>
+      <div class="ec-fps" id="ec-fps" role="group" aria-label="เฟรมเรตสูงสุด"><button type="button" data-fps="30" aria-pressed="false">30</button><button type="button" data-fps="60" aria-pressed="false">60</button><button type="button" data-fps="90" aria-pressed="true">90</button><button type="button" data-fps="120" aria-pressed="false">120</button><button type="button" data-fps="144" aria-pressed="false">144</button></div>
       <h3>เครื่องมือ</h3>
       <div class="ec-grid">
         <a class="ec-tile" href="/sky"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.6 4.9.4-3.7 3.2 1.1 4.8L12 13.5 7.8 16l1.1-4.8L5.2 8l4.9-.4z"/><path d="M4 21h16" opacity=".6"/></svg>ดูดาว</a>
@@ -430,6 +486,18 @@ html.bb-on,html.bb-on body{overflow:hidden}
     <canvas id="earth-labels" aria-hidden="true"></canvas>
     <div id="city-map" aria-hidden="true" aria-label="แผนที่เมือง 3 มิติ ลากเพื่อเลื่อน ถ่างนิ้วเพื่อซูม สองนิ้วหมุนหรือเอียงได้ ซูมออกเพื่อกลับไปดูโลก"></div>
     <div class="glass"></div>
+  </div>
+  <div class="ship" id="ship">
+    <div class="ship-window" aria-hidden="true"></div>
+    <div class="ship-glare" aria-hidden="true"></div>
+    <div class="ship-console" aria-hidden="true"></div>
+    <i class="ship-led a" aria-hidden="true"></i><i class="ship-led b" aria-hidden="true"></i><i class="ship-led c" aria-hidden="true"></i>
+    <div class="ship-note" id="ship-note" aria-live="polite"></div>
+    <div class="ship-panel"><b>ORBIT · KING DIADEM</b><span id="ship-hud">ALT 408 km</span></div>
+    <div class="ship-ctl">
+      <button type="button" id="ship-fast" data-act="shipfast" aria-pressed="false">เร่งเวลา ×60</button>
+      <button type="button" data-act="ship">ออกจากยาน</button>
+    </div>
   </div>
   <div>
     <div class="hero-badge">KING DIADEM™ · DRIFTZERO · MILKY SCOPE</div>
@@ -681,6 +749,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
 <script src="/static/big_bang.js"></script>
 <script src="/static/landmark_buddha.js" defer></script>
 <script src="/static/city_map.js" defer></script>
+<script src="/static/ship_orbit.js" defer></script>
 <script src="/static/cockpit_earth.js" defer></script>
 
 <!-- INTENT SIMULATOR LOGIC -->
@@ -905,6 +974,72 @@ function KD_toggleCalm(){var h=document.documentElement,on=!h.classList.contains
   try{localStorage.setItem('kd-calm',on?'1':'0')}catch(e){}
   document.getElementById('ec-calm').setAttribute('aria-pressed',on?'true':'false');window.dispatchEvent(new Event('kd-calm'));}
 (function(){var b=document.getElementById('ec-calm');if(b&&document.documentElement.classList.contains('kd-calm'))b.setAttribute('aria-pressed','true');})();
+/* โหมดยานอวกาศ — การ์ดหน้าต่าง: ข้อเท็จจริงที่ตรวจได้ (ISS · NASA · ฟิสิกส์) สลับกับมุมมองปรัชญา ไม่ใช้ AI ไม่มีค่าโทเคน */
+var SHIP_NOTES = {
+  th: [["ยานลอยอยู่สูงราว 408 กม. วนรอบโลกทุกราว 93 นาที — เห็นพระอาทิตย์ขึ้นราว 16 ครั้งต่อวัน", "วงโคจรแบบสถานีอวกาศนานาชาติ"],
+       ["ความเร็วราว 7.66 กม./วินาที — ข้ามประเทศไทยจากเหนือจรดใต้ได้ในราว 4 นาที", "ฟิสิกส์ของวงโคจร"],
+       ["แสงสีเขียวบางๆ เหนือขอบฟ้าคือ airglow — ออกซิเจนที่สูงราว 90–100 กม. เรืองแสงเองตอนกลางคืน", "วิทยาศาสตร์บรรยากาศ"],
+       ["เส้นขอบอวกาศอยู่สูงเพียง 100 กม. — ถ้าโลกเท่าแอปเปิ้ล อากาศที่ทุกชีวิตใช้หายใจบางพอๆ กับเปลือก", "เส้นคาร์มาน"],
+       ["แสงอาทิตย์ที่ส่องหน้าต่างนี้ ออกเดินทางมาแล้วราว 8 นาที 20 วินาที", "ความเร็วแสง"],
+       ["ไฟเมืองข้างล่างคือภาพจากดาวเทียมจริงของ NASA (Black Marble) ไม่ใช่ภาพวาด", "เทคโนโลยีดาวเทียม"],
+       ["นักบินอวกาศหลายคนเล่าว่าพอเห็นโลกจากตรงนี้ เส้นพรมแดนก็หายไป — Frank White เรียกความรู้สึกนี้ว่า Overview Effect", "ปรัชญา × ประสบการณ์จริง"],
+       ["อนิจจัง — เมฆ แสงไฟ กลางวันกลางคืนข้างล่างเปลี่ยนตลอดเวลา เรื่องที่หนักใจวันนี้ก็เช่นกัน", "ธรรมะ"],
+       ["Choice(t) ≥ 1 — จากหน้าต่างนี้ไม่เห็นเส้นแบ่งประเทศ เห็นแต่แสงไฟของผู้คนที่ยังมีทางเลือก", "FATE™"]],
+  en: [["The ship flies about 408 km up and circles Earth every ~93 minutes — around 16 sunrises a day", "An ISS-like orbit"],
+       ["About 7.66 km per second — fast enough to cross Thailand north to south in roughly 4 minutes", "Orbital physics"],
+       ["The faint green glow above the horizon is airglow — oxygen 90–100 km up shining on its own at night", "Atmospheric science"],
+       ["Space begins just 100 km up — if Earth were an apple, the air every living thing breathes would be about as thin as its skin", "The Kármán line"],
+       ["The sunlight on this window left the Sun about 8 minutes 20 seconds ago", "The speed of light"],
+       ["The city lights below are real NASA satellite imagery (Black Marble), not a painting", "Satellite technology"],
+       ["Many astronauts say borders disappear when they see Earth from here — Frank White called it the Overview Effect", "Philosophy × lived experience"],
+       ["Impermanence — the clouds, the lights, day and night below never stand still; neither does what weighs on you today", "Dharma"],
+       ["Choice(t) ≥ 1 — from this window you can't see borders, only the lights of people who still have choices", "FATE™"]]
+};
+var shipNoteI = 0, shipNoteT = 0;
+function KD_shipLang(){ var l = (window.KD_I18N && KD_I18N.get && KD_I18N.get()) || document.documentElement.lang || 'th'; return /^th/.test(l) ? 'th' : 'en'; }
+function KD_shipNote(){
+  var box = document.getElementById('ship-note'), L = SHIP_NOTES[KD_shipLang()], n = L[shipNoteI % L.length];
+  box.textContent = n[0]; var sm = document.createElement('small'); sm.textContent = n[1]; box.appendChild(sm);
+}
+function KD_shipNext(){
+  if(!document.documentElement.classList.contains('kd-ship')) return;
+  var box = document.getElementById('ship-note'); box.classList.add('fade');
+  setTimeout(function(){ shipNoteI++; KD_shipNote(); box.classList.remove('fade'); }, 800);
+}
+function KD_toggleShip(on){
+  var h = document.documentElement, E = window.KD_earth;
+  if(on === undefined) on = !h.classList.contains('kd-ship');
+  if(on && !(E && E.ship(true))) return;
+  if(!on && E) E.ship(false);
+  h.classList.toggle('kd-ship', on);
+  document.getElementById('ec-ship').setAttribute('aria-pressed', on ? 'true' : 'false');
+  var sh = document.getElementById('ec-sheet'); if(on && sh){ sh.classList.add('hide'); var mb = document.getElementById('ec-menu'); if(mb) mb.setAttribute('aria-expanded','false'); }
+  clearInterval(shipNoteT);
+  if(on){ shipNoteI = 0; KD_shipNote(); if(!h.classList.contains('kd-calm')) shipNoteT = setInterval(KD_shipNext, 14000);
+          document.getElementById('hero').scrollIntoView({behavior: h.classList.contains('kd-calm') ? 'auto' : 'smooth'}); }
+}
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && document.documentElement.classList.contains('kd-ship')) KD_toggleShip(false); });
+/* เฟรมเรตสูงสุด — ค่าเดียวกับเมนูสีหน้าแชต (localStorage kd-fps) · โลกและท้องฟ้าฟังเหตุการณ์ kd-fps แล้วปรับทันที */
+(function(){
+  var OK = [30, 60, 90, 120, 144], row = document.getElementById('ec-fps'); if(!row) return;
+  function cur(){ try{ var v = +localStorage.getItem('kd-fps'); return OK.indexOf(v) >= 0 ? v : 90; }catch(e){ return 90; } }
+  function ui(){ var c = cur(); [].slice.call(row.querySelectorAll('button[data-fps]')).forEach(function(b){ b.setAttribute('aria-pressed', +b.dataset.fps === c ? 'true' : 'false'); }); }
+  row.addEventListener('click', function(e){
+    var b = e.target.closest('button[data-fps]'); if(!b) return;
+    try{ localStorage.setItem('kd-fps', b.dataset.fps); }catch(_){}
+    ui(); window.dispatchEvent(new Event('kd-fps'));
+  });
+  ui();
+  // วัดรอบจอจริงครั้งแรกที่เปิดแผง — บอกว่าจอนี้แสดงได้ราวกี่ Hz (เลือกสูงกว่านั้นได้ แต่จอแสดงได้เท่าที่มัน)
+  var hzDone = false;
+  document.getElementById('ec-menu').addEventListener('click', function(){
+    if(hzDone) return; hzDone = true;
+    var t = [], k = function(now){ t.push(now); if(t.length < 24) return requestAnimationFrame(k);
+      var d = []; for(var i = 1; i < t.length; i++) d.push(t[i] - t[i - 1]); d.sort(function(x, y){ return x - y; });
+      var med = d[d.length >> 1], n = document.getElementById('ec-hz'); if(n && med > 0) n.textContent = '· จอ ~' + Math.round(Math.min(240, 1000 / med)) + ' Hz'; };
+    requestAnimationFrame(k);
+  });
+})();
 /* กลางวัน/กลางคืน — ทั้งโลกและแผนที่เมือง (จำไว้ในเครื่อง) */
 function KD_toggleDay(){var h=document.documentElement,on=!h.classList.contains('kd-day');h.classList.toggle('kd-day',on);
   try{localStorage.setItem('kd-day',on?'1':'0')}catch(e){}
@@ -914,6 +1049,8 @@ function KD_toggleDay(){var h=document.documentElement,on=!h.classList.contains(
    (กันสคริปต์แปลกปลอมที่อาจหลุดเข้ามาในหน้า) */
 (function(){
   var E = function(){ return window.KD_earth; }, ACT = {
+    ship: function(){ KD_toggleShip(); },
+    shipfast: function(){ if(E() && E().shipOn()){ var f = E().shipFast(); document.getElementById('ship-fast').setAttribute('aria-pressed', f ? 'true' : 'false'); } },
     globe: function(){ KD_toggleGlobe(); },
     north: function(){ if(E()) E().pole(true); KD_markGlobe(true); },
     south: function(){ if(E()) E().pole(false); KD_markGlobe(true); },
