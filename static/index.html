@@ -127,6 +127,10 @@ window.KD_themeVars = function(t, c){
             <button type="button" id="halloween-btn" aria-pressed="false"><i class="sw hw-sw" aria-hidden="true">🎃</i>ฮาโลวีน</button>
             <button type="button" id="cinema-btn"><i class="sw calm-sw" aria-hidden="true">☸</i>โหมดภาพยนตร์</button>
             <button type="button" id="calm-btn" aria-pressed="false"><i class="sw calm-sw" aria-hidden="true">◌</i>ลดการเคลื่อนไหว</button>
+            <div class="tm-fps" id="fps-row" role="group" aria-label="เฟรมเรตสูงสุด">
+              <span class="tm-fps-h">เฟรมเรต <small id="fps-hz"></small></span>
+              <div class="tm-fps-b"><button type="button" data-fps="30" aria-pressed="false">30</button><button type="button" data-fps="60" aria-pressed="false">60</button><button type="button" data-fps="90" aria-pressed="true">90</button><button type="button" data-fps="120" aria-pressed="false">120</button></div>
+            </div>
             <label class="tm-custom" data-theme-pick="custom"><i class="sw" id="theme-custom-sw"></i>สีที่เลือกเอง<input type="color" id="theme-color" value="#e8dcff" aria-label="เลือกสีพื้นหลัง"></label>
           </div>
         </div>

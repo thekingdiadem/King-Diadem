@@ -3,6 +3,8 @@ import math
 import re
 from pathlib import Path
 
+import pytest
+
 from AI.council_engine import COUNCIL_SIZE
 from tests._front import front_page  # noqa: E402
 
@@ -140,29 +142,56 @@ def test_front_page_is_clean_and_fades_when_chatting():
     assert "if(!REDUCED && (DAWN.show > 0 || want > 0)) kick();" in HTML     # พื้นหลังเรียบไม่วาดซ้ำ ประหยัดแบต
 
 
-def _simulate_frame_cap(hz, seconds=10):
-    """ตรรกะเดียวกับต้น frame() — สะสมเวลา วาดเมื่อครบ 1/90 วินาที"""
+def _simulate_frame_cap(hz, seconds=10, cap=90):
+    """ตรรกะเดียวกับต้น frame() — สะสมเวลา วาดเมื่อครบ 1/FPS_CAP วินาที"""
     dt_last, acc, drawn, now = 0.0, 0.0, 0, 0.0
     for _ in range(hz * seconds):
         now += 1000 / hz
         gap = (now - (dt_last or now)) / 1000
-        acc = min(acc + gap, 2 / 90)
-        if dt_last and acc + 1e-4 < 1 / 90:
+        acc = min(acc + gap, 2 / cap)
+        if dt_last and acc + 1e-4 < 1 / cap:
             dt_last = now
             continue
-        acc = max(0.0, acc - 1 / 90)
+        acc = max(0.0, acc - 1 / cap)
         dt_last = now
         drawn += 1
     return drawn / seconds
 
 
-def test_frame_rate_is_capped_at_90():
+def test_frame_rate_is_capped_at_90_by_default():
     """พี่ขอให้ลดเหลือ 90 เฟรม: จอ 120/144/240 Hz วาดเฉลี่ย 90 · จอ 60 Hz ยังวาดเต็ม 60"""
-    assert "fpsAcc = Math.min(fpsAcc + gap, 2 / 90);" in HTML
-    assert "if(dtLast && fpsAcc + 1e-4 < 1 / 90)" in HTML
+    assert "var FPS_CAPS = [30, 60, 90, 120], FPS_CAP = 90;" in HTML
+    assert "fpsAcc = Math.min(fpsAcc + gap, 2 / FPS_CAP);" in HTML
+    assert "if(dtLast && fpsAcc + 1e-4 < 1 / FPS_CAP)" in HTML
     for hz in (120, 144, 240):
         assert abs(_simulate_frame_cap(hz) - 90) < 0.5
     assert abs(_simulate_frame_cap(60) - 60) < 0.5
+
+
+@pytest.mark.parametrize("cap", [30, 60, 90, 120])
+def test_frame_rate_setting_30_60_90_120(cap):
+    """พี่ขอให้ปรับเฟรมเรตได้ 60-90-120 ตามที่มือถือรองรับ (+30 ไว้ให้เครื่องเย็น)
+    จอเร็วกว่าค่าที่เลือก → วาดเท่าค่าที่เลือก · จอช้ากว่า → วาดเท่าจอ (ไม่ฝืน)"""
+    assert f'data-fps="{cap}"' in HTML
+    for hz in (60, 90, 120, 144):
+        assert abs(_simulate_frame_cap(hz, cap=cap) - min(hz, cap)) < 0.6, (hz, cap)
+
+
+def test_frame_rate_choice_is_remembered_and_screen_rate_is_shown():
+    assert "lsSet('kd-fps', String(FPS_CAP))" in HTML and "localStorage.getItem('kd-fps')" in HTML
+    assert "FPS_CAPS.indexOf(_fps) >= 0" in HTML                 # ค่าแปลกๆ ใน localStorage ไม่ถูกใช้
+    assert "function measureHz()" in HTML and "'· ~' + Math.round(hz) + ' Hz'" in HTML
+
+
+def test_frame_rate_menu_is_translated():
+    i18n = (Path(__file__).resolve().parent.parent / "static" / "i18n.js").read_text(encoding="utf-8")
+    assert "'เฟรมเรต': ['Frame rate'" in i18n and "'เฟรมเรตสูงสุด': ['Maximum frame rate'" in i18n
+
+
+def test_reply_star_is_soft_not_glaring():
+    """พี่บอกแสงดาวหลังตอบเสร็จแสบตา — เดิมเรือง 14px ขยาย 1.6 เท่า ความสว่างเต็ม"""
+    assert ".fly-star{position:fixed" in HTML and "box-shadow:0 0 6px 1px currentColor}" in HTML
+    assert "scale(1.6)" not in HTML and "scale(1.15)', opacity: .7" in HTML
 
 
 def test_front_page_earth_spins_and_planets_orbit():
