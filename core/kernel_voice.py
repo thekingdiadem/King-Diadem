@@ -2152,6 +2152,12 @@ _URGENT_TOPICS = ("post_harm", "post_danger", "newborn_danger", "preg_danger", "
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
+# (หัวข้อเฉพาะ, หัวข้อกว้างที่มันมาแทน)
+_SPECIFIC_FIRST = (
+    ("kp_meltdown", {"someone", "violence"}),
+    ("kp_end_of_life", {"grief", "diagnosis"}),
+    ("kp_palliative_pain", {"grief", "diagnosis", "kp_end_of_life"}),
+)
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
 _TOPIC_RISK = {"post_harm": 85, "post_danger": 85, "newborn_danger": 85, "preg_danger": 85, "preg_alone": 45, "control_en": 60, "minor_adult": 70, "soft_check": 45, "trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
@@ -2399,6 +2405,11 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
             topics.append("addiction")
     if DEBT_HARASS.search(t):                  # ทวงหนี้ขู่/ประจาน — ผิดกฎหมายและกดดันหนัก
         text_risk = max(text_risk, _DEBT_HARASS_RISK)
+    # หัวข้อเฉพาะที่ต้องมาก่อนหัวข้อกว้าง — คำตอบกว้างตอบผิดเรื่อง
+    # "แม่ใกล้เสียแล้ว" (ยังไม่เสีย) เคยได้ "เสียใจด้วย การสูญเสีย…" · ลูกออทิสติกอาละวาดเคยได้ "ถามตรงๆ ว่าคิดจะทำร้ายตัวเองไหม"
+    for _first, _over in _SPECIFIC_FIRST:
+        if _first in topics and set(topics) & _over:
+            topics = [_first] + [x for x in topics if x != _first and x not in _over]
     # มิจฉาชีพ (แอบอ้าง/ลิงก์/โอนเงิน) — เลือกจากโครงสร้าง ไม่ใช่คำเดี่ยว
     scam = scam_flags(text)
     if scam:
@@ -2406,6 +2417,10 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
         # "ถูกหลอกมาทำงาน บังคับไม่ให้ออก" — คำว่า "ถูกหลอก" ทำให้ได้ขั้นตอนขอเงินคืน ทั้งที่เป็นการบังคับใช้แรงงาน
         if "trafficking" in topics and set(scam) <= {"lost"}:
             topics = ["trafficking"] + [x for x in topics if x != "trafficking" and x != "scam"]
+            scam = []
+        # "ถูกหลอกเปิดบัญชีม้า" — คนพิมพ์คือคนที่อาจถูกดำเนินคดี ไม่ใช่คนที่โอนเงินไป ขั้นตอนขอเงินคืนช่วยเขาไม่ได้
+        elif "kp_money_mule" in topics and set(scam) <= {"lost", "job"}:
+            topics = ["kp_money_mule"] + [x for x in topics if x not in ("kp_money_mule", "scam")]
             scam = []
         text_risk = max(text_risk, 75 if set(scam) & {"impersonation", "story", "job", "romance"} else 60)
     if "warning" in topics and not crisis:
@@ -2706,7 +2721,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = SCAM_JOB_D, None
     elif a["scam"] and set(a["scam"]) <= {"romance", "lost"}:  # หลอกให้รัก/แอบอ้างเป็นเพื่อน
         main, second = SCAM_ROMANCE_D, None
-    elif _magga_topic(text) and not set(a["topics"]) & {"harm_others"}:
+    # ถูกหลอกเปิดบัญชีม้า: ผู้ใช้ต้องรีบระงับบัญชีและแจ้งความ ไม่ใช่ถูกเตือนเรื่องหาเงินไม่สุจริต
+    elif _magga_topic(text) and not set(a["topics"]) & {"harm_others", "kp_money_mule"}:
         main, second = _MAGGA_D[_magga_topic(text)], None    # มรรค 8: โกหก/ทุจริต/อยากเอาคืน — ทักตรงๆ ก่อนคำตอบทั่วไป
     elif CODE_REQ.search(text) and a["text_risk"] < 60:
         main, second = CODE_D, None                           # ขอให้เขียน/แก้โค้ด — บอกตรงๆ ว่าไม่ใช่งานถนัด แล้วชวนกลับมาที่การตัดสินใจ
@@ -3001,7 +3017,7 @@ def compose_council(text: str, footer: bool = True) -> str:
         main = SCAM_JOB_D
     elif a.get("scam") and set(a["scam"]) <= {"romance", "lost"}:
         main = SCAM_ROMANCE_D
-    elif _magga_topic(text) and "harm_others" not in a["topics"]:
+    elif _magga_topic(text) and not set(a["topics"]) & {"harm_others", "kp_money_mule"}:
         main = _MAGGA_D[_magga_topic(text)]
     elif CODE_REQ.search(text) and a["text_risk"] < 60:
         main = CODE_D
