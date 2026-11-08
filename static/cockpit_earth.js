@@ -203,6 +203,22 @@
     load(3, 'water.png', function () { hasW = 1; });
     firstIn = true;
     maybe4k();
+    safeArrive();
+  }
+  // มาจากหน้าฉุกเฉิน (/safe) พร้อมตำแหน่ง: /universe#safe=lat,lon → บินลงแผนที่เมืองตรงนั้น เห็นจุดตำรวจ/โรงพยาบาล/ร้านที่มีคน
+  // ตำแหน่งอยู่ใน hash (#) จึงไม่ถูกส่งไปเซิร์ฟเวอร์เลย
+  function safeArrive() {
+    var m = /^#safe=(-?\d{1,2}(?:\.\d+)?),(-?\d{1,3}(?:\.\d+)?)$/.exec(location.hash || '');
+    if (!m) return;
+    var la = clamp(+m[1], -85, 85), lo = +m[2];
+    if (!(Math.abs(lo) <= 180)) return;
+    S.lat = S.tlat = la; S.lon = S.tlon = lo; S.L = S.tL = LMAX; sync();
+    go({ lat: la, lon: lo, L: LMAX + .5 });                          // ลึกกว่าภาพ NASA → แผนที่เมืองรับช่วง
+    var tries = 0;
+    (function deeper() {                                              // ซูมต่อจนเห็นจุดที่ขอความช่วยเหลือได้ (ซูม ~15)
+      if (S.city && window.KD_cityMap) { window.KD_cityMap.zoom(2.5); setTimeout(function () { window.KD_cityMap.zoom(1); }, 700); return; }
+      if (++tries < 20) setTimeout(deeper, 400);
+    })();
   }
   load(0, 'lights.jpg', firstDone); load(1, 'day.jpg', firstDone); load(2, 'clouds.jpg', firstDone);
 

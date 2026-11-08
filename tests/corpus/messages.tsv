@@ -749,3 +749,23 @@ the team would be better off without the old server	!topic:someone	ปกติ
 มีคนเดินตามมา กลัวมาก จะหนีไปไหนดี	disaster:intruder;!crisis	ภัย
 มีคนขับรถตามมาตั้งแต่ออกจากที่ทำงาน	disaster:intruder	ภัย
 มีคนพยายามงัดประตูบ้าน	disaster:intruder	ภัย
+
+# ── ย้ายจากชุดปิดตารอบ 17 (แก้แล้ว) + ประโยคหน้าตาคล้ายที่ต้องไม่ติด ──
+ฝากดูแลแมวด้วยนะ ต่อไปคงไม่ได้เจอกันแล้ว	risk>=60	วิกฤต
+ฝากดูแลแมวด้วยนะ ไปทำงานต่างประเทศสองปี	!crisis	ทั่วไป
+ย้ายไปอยู่ต่างจังหวัด คงไม่ได้เจอกันอีกนาน	!crisis	ทั่วไป
+I wrote letters to everyone and put them in my desk drawer	crisis	วิกฤต
+I wrote letters to everyone for christmas and put them in the mailbox	!crisis	ทั่วไป
+มีผู้ชายขับรถตามตั้งแต่ปากซอยจนถึงหน้าคอนโด	disaster:intruder	ภัย
+ผู้ชายในหนังขับรถตามคนร้าย	!disaster	ทั่วไป
+สามีขู่ว่าถ้าแจ้งความจะฆ่าทั้งแม่ทั้งลูก	topic:threat	ภัย
+# ── ย้ายจากชุดปิดตารอบ 18 (แก้แล้ว) + ประโยคหน้าตาคล้ายที่ต้องไม่ติด ──
+เขียนพินัยกรรมเสร็จแล้ว คืนนี้คงหลับยาว	crisis	วิกฤต
+วันหยุดนี้ขอหลับยาวๆ	!crisis;none	ทั่วไป
+เขียนพินัยกรรมเสร็จแล้ว สบายใจขึ้นเยอะ	!crisis	ทั่วไป
+my mom says she's done fighting and stopped taking her insulin on purpose	topic:someone;risk>=80	วิกฤต
+my mom stopped taking her insulin because the pharmacy ran out	!crisis	ทั่วไป
+เพื่อนบ้านตะโกนว่าจะเผาบ้านเราให้วอดทั้งหลัง	topic:threat	ภัย
+ในเกมเพื่อนบอกว่าจะเผาบ้านเรา	!topic:threat	ทั่วไป
+มีมอไซค์สองคันขี่ประกบรถเรามาตลอดทาง เคาะกระจกด้วย	disaster:intruder	ภัย
+ขี่มอไซค์ประกบเพื่อนไปส่งที่บ้าน	!disaster	ทั่วไป

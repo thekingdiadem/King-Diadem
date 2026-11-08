@@ -1,70 +1,71 @@
 {
- "total": 105,
+ "total": 121,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
   "claude-seed-r13",
   "claude-seed-r16",
+  "claude-seed-r17",
   "claude-seed-r3",
   "claude-seed-r5",
   "claude-seed-r6",
   "claude-seed-r8"
  ],
- "blind_by_people": 18,
+ "blind_by_people": 34,
  "classes": {
   "self_harm": {
-   "n": 11,
-   "tp": 11,
+   "n": 12,
+   "tp": 12,
    "fn": 0,
    "fp": 1,
    "recall": 1.0,
-   "precision": 0.917
+   "precision": 0.923
   },
   "emergency": {
-   "n": 25,
-   "tp": 25,
+   "n": 29,
+   "tp": 29,
    "fn": 0,
    "fp": 0,
    "recall": 1.0,
    "precision": 1.0
   },
   "violence": {
-   "n": 15,
-   "tp": 15,
+   "n": 16,
+   "tp": 16,
    "fn": 0,
    "fp": 1,
    "recall": 1.0,
-   "precision": 0.938
+   "precision": 0.941
   },
   "scam": {
-   "n": 15,
-   "tp": 15,
+   "n": 18,
+   "tp": 18,
    "fn": 0,
    "fp": 1,
    "recall": 1.0,
-   "precision": 0.938
+   "precision": 0.947
   },
   "distress": {
-   "n": 6,
-   "tp": 6,
-   "fn": 0,
+   "n": 8,
+   "tp": 7,
+   "fn": 1,
    "fp": 3,
-   "recall": 1.0,
-   "precision": 0.667
+   "recall": 0.875,
+   "precision": 0.7
   }
  },
  "danger_missed": {
   "n": 0,
-  "of": 51
+  "of": 57
  },
  "false_alarm": {
   "n": 1,
-  "of": 33
+  "of": 38
  },
  "by_lang": {
   "en": {
-   "hit": 18,
-   "n": 18
+   "hit": 21,
+   "n": 21
   },
   "es": {
    "hit": 1,
@@ -79,8 +80,8 @@
    "n": 1
   },
   "th": {
-   "hit": 47,
-   "n": 47
+   "hit": 54,
+   "n": 55
   },
   "zh": {
    "hit": 3,
@@ -95,6 +96,12 @@
    "got": [
     "self_harm"
    ]
+  },
+  {
+   "line": 166,
+   "text": "ตกงานมาครึ่งปี เงินเก็บเหลือพันกว่าบาท",
+   "label": "distress",
+   "got": []
   }
  ]
 }

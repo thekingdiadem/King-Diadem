@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b1c">
+<title>ไม่ปลอดภัยตอนนี้ · KING DIADEM</title>
+<meta name="description" content="หน้าฉุกเฉินแตะเดียว: โทร 191 · 1669 · ส่งตำแหน่งให้คนที่ไว้ใจ · หาสถานีตำรวจ ร้านสะดวกซื้อ ปั๊มน้ำมัน โรงพยาบาลใกล้ตัว — ตำแหน่งไม่ถูกส่งเข้าเซิร์ฟเวอร์">
+<link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="canonical" href="https://king-diadem.onrender.com/safe">
+<!-- หน้านี้ต้องขึ้นเร็วที่สุดบนเน็ตแย่ๆ: ไม่โหลดฟอนต์ ไม่มีภาพ ไม่มีไลบรารี · ปุ่มใหญ่ กดได้ด้วยนิ้วสั่น -->
+<style>
+:root{--bg:#070b1c;--ink:#eef3ff;--ink2:rgba(238,243,255,.72);--line:rgba(160,200,255,.22);--sky:#9fd0ff;--vio:#a99bff;--warm:#ffd9a8}
+*{box-sizing:border-box}
+html,body{margin:0;background:radial-gradient(120% 80% at 50% 0%,#101a42 0%,var(--bg) 60%);color:var(--ink);
+  font:400 16px/1.5 "Noto Sans Thai Looped","Noto Sans Thai",system-ui,-apple-system,sans-serif;min-height:100%}
+main{max-width:520px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom))}
+h1{font-size:22px;font-weight:600;margin:6px 0 4px}
+.lead{color:var(--ink2);margin:0 0 16px;font-size:14.5px}
+.call{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+a.btn,button.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:64px;padding:12px 14px;border-radius:18px;border:0;
+  font:600 17px/1.2 inherit;color:var(--ink);text-decoration:none;cursor:pointer;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px var(--line)}
+a.btn small,button.btn small{display:block;font-weight:400;font-size:12px;color:var(--ink2)}
+a.btn .t{display:flex;flex-direction:column;align-items:flex-start}
+a.btn.big{grid-column:1/-1;min-height:76px;font-size:21px;background:linear-gradient(90deg,rgba(80,150,255,.38),rgba(140,110,255,.38));
+  box-shadow:inset 0 0 0 1px rgba(190,210,255,.5),0 10px 40px -12px rgba(110,110,255,.55)}
+button.btn.share{width:100%;margin-top:10px;background:rgba(255,217,168,.1);box-shadow:inset 0 0 0 1px rgba(255,217,168,.35);color:var(--warm)}
+#loc{min-height:20px;margin:8px 2px 0;font-size:13.5px;color:var(--ink2)}
+#loc a{color:var(--sky)}
+h2{font-size:15px;font-weight:600;margin:22px 2px 8px;color:var(--ink2)}
+.near{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.near a{display:block;padding:13px 12px;border-radius:14px;color:var(--ink);text-decoration:none;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px var(--line);font-size:14.5px}
+.near a small{display:block;color:var(--ink2);font-size:12px;margin-top:2px}
+ol{margin:4px 0 0;padding-left:22px;color:var(--ink)}ol li{margin:6px 0;font-size:14.5px}
+.map{display:block;margin-top:16px;text-align:center;color:var(--vio);font-size:14px}
+.note{margin-top:22px;font-size:12px;color:var(--ink2);text-align:center}
+a:focus-visible,button:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
+</style>
+</head>
+<body>
+<main>
+  <h1 data-en="Not safe right now?">ไม่ปลอดภัยตอนนี้?</h1>
+  <p class="lead" data-en="One tap is enough. Nothing you do here is sent to our server.">แตะครั้งเดียวพอ — ทุกอย่างในหน้านี้ไม่ถูกส่งเข้าเซิร์ฟเวอร์ของเรา</p>
+
+  <div class="call">
+    <a class="btn big" href="tel:191"><span class="t">191<small data-en="Police (Thailand) · if you can't talk, keep the line open">ตำรวจ · พูดไม่ได้ให้เปิดสายค้างไว้</small></span></a>
+    <a class="btn" href="tel:1669"><span class="t">1669<small data-en="Medical emergency">เจ็บป่วยฉุกเฉิน</small></span></a>
+    <a class="btn" href="tel:1300"><span class="t">1300<small data-en="Social help 24h">ศูนย์ช่วยเหลือสังคม 24 ชม.</small></span></a>
+  </div>
+
+  <button type="button" class="btn share" id="share" data-en="📍 Send my location to someone I trust">📍 ส่งตำแหน่งของฉันให้คนที่ไว้ใจ</button>
+  <p id="loc" aria-live="polite"></p>
+
+  <h2 data-en="Places with people, near you">ที่ที่มีคน ใกล้ตัวคุณ</h2>
+  <div class="near" id="near">
+    <a data-q="สถานีตำรวจ" data-qen="police station" data-name-en="Police station" target="_blank" rel="noopener noreferrer">สถานีตำรวจ<small data-en="Nearest">ใกล้ที่สุด</small></a>
+    <a data-q="ร้านสะดวกซื้อ" data-qen="convenience store" data-name-en="Convenience store" target="_blank" rel="noopener noreferrer">ร้านสะดวกซื้อ<small data-en="Staff · lights · cameras">มีพนักงาน ไฟสว่าง กล้อง</small></a>
+    <a data-q="ปั๊มน้ำมัน" data-qen="petrol station" data-name-en="Petrol station" target="_blank" rel="noopener noreferrer">ปั๊มน้ำมัน<small data-en="Open late, staffed">เปิดดึก มีคน</small></a>
+    <a data-q="โรงพยาบาล" data-qen="hospital" data-name-en="Hospital" target="_blank" rel="noopener noreferrer">โรงพยาบาล<small data-en="Security 24h">มี รปภ. 24 ชม.</small></a>
+  </div>
+
+  <h2 data-en="If someone is following you">ถ้ามีคนตามอยู่</h2>
+  <ol>
+    <li data-en="Don't go home or into a quiet side street — they'd learn where you live.">อย่ากลับบ้านและอย่าเข้าซอยเปลี่ยว — เขาจะรู้ที่อยู่</li>
+    <li data-en="Walk into a bright, busy place and tell the staff someone is following you.">เดินเข้าที่ที่มีคนและไฟสว่าง แล้วบอกพนักงานตรงๆ ว่ามีคนตาม</li>
+    <li data-en="Call 191, or call someone you trust and stay on the line.">โทร 191 หรือโทรหาคนที่ไว้ใจแล้วเปิดสายคุยไว้</li>
+  </ol>
+
+  <a class="map" id="map" href="/universe" data-en="See safe places on the KING DIADEM map ›">ดูจุดที่ขอความช่วยเหลือได้บนแผนที่ KING DIADEM ›</a>
+  <p class="note" data-en="Your location stays on your phone — it only goes to the map app or the person you choose to send it to.">ตำแหน่งอยู่ในเครื่องของคุณ — ไปถึงแค่แอปแผนที่ หรือคนที่คุณเลือกส่งให้เท่านั้น</p>
+</main>
+<script>
+(function(){
+  var en = /[?&]lang=en\b/.test(location.search) || (!/^th/i.test(navigator.language || 'th') && !/[?&]lang=th\b/.test(location.search));
+  if(en){
+    document.documentElement.lang = 'en'; document.title = 'Not safe right now? · KING DIADEM';
+    [].forEach.call(document.querySelectorAll('[data-en]'), function(e){
+      if(e.tagName === 'SMALL' || !e.querySelector('small')) e.textContent = e.getAttribute('data-en');
+    });
+    [].forEach.call(document.querySelectorAll('.near a'), function(a){ a.firstChild.textContent = a.getAttribute('data-name-en'); });
+  }
+  var pos = null;
+  function nearLinks(){
+    [].forEach.call(document.querySelectorAll('.near a'), function(a){
+      var q = en ? a.getAttribute('data-qen') : a.getAttribute('data-q');
+      a.href = pos ? 'https://www.google.com/maps/search/' + encodeURIComponent(q) + '/@' + pos[0].toFixed(5) + ',' + pos[1].toFixed(5) + ',16z'
+                   : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q + (en ? ' near me' : ' ใกล้ฉัน'));
+    });
+    document.getElementById('map').href = pos ? '/universe#safe=' + pos[0].toFixed(5) + ',' + pos[1].toFixed(5) : '/universe';
+  }
+  nearLinks();
+  var loc = document.getElementById('loc');
+  function getPos(done){
+    if(!navigator.geolocation){ loc.textContent = en ? 'This phone cannot share location — tell them the street or a landmark.' : 'เครื่องนี้ส่งตำแหน่งไม่ได้ — บอกชื่อถนนหรือจุดสังเกตแทน'; return; }
+    loc.textContent = en ? 'Finding your location…' : 'กำลังหาตำแหน่ง…';
+    navigator.geolocation.getCurrentPosition(function(p){
+      pos = [p.coords.latitude, p.coords.longitude]; nearLinks(); done();
+    }, function(){
+      loc.textContent = en ? 'Location is off — allow it in settings, or tell them the street or a landmark.' : 'ตำแหน่งปิดอยู่ — เปิดในตั้งค่า หรือบอกชื่อถนน/จุดสังเกตแทน';
+    }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });
+  }
+  document.getElementById('share').addEventListener('click', function(){
+    getPos(function(){
+      var url = 'https://www.google.com/maps/search/?api=1&query=' + pos[0].toFixed(6) + ',' + pos[1].toFixed(6);
+      var msg = (en ? 'I don’t feel safe. I’m here: ' : 'ไม่ปลอดภัย อยู่ตรงนี้: ') + url;
+      loc.textContent = '';
+      var a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = (en ? 'Your location' : 'ตำแหน่งของคุณ') + ' ↗';
+      loc.appendChild(a);
+      if(navigator.share){ navigator.share({ text: msg }).catch(function(){}); return; }
+      var sms = document.createElement('a'); sms.href = 'sms:?&body=' + encodeURIComponent(msg); sms.textContent = (en ? ' · Send by SMS' : ' · ส่งทาง SMS');
+      loc.appendChild(sms);
+      if(navigator.clipboard) navigator.clipboard.writeText(msg).then(function(){ loc.appendChild(document.createTextNode(en ? ' · copied' : ' · คัดลอกแล้ว')); }, function(){});   // บอกว่าคัดลอกแล้วเมื่อคัดลอกได้จริงเท่านั้น
+    });
+  });
+})();
+</script>
+</body>
+</html>

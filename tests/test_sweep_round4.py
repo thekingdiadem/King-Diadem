@@ -89,7 +89,8 @@ def test_ordinary_text_is_not_intruder(text):
 
 def test_intruder_button_is_police():
     from core.engine_bridge import nearby
-    assert [l["label"] for l in nearby("", {"kind": "intruder", "active": True})] == ["สถานีตำรวจ"]
+    # หน้าฉุกเฉิน /safe (โทรด่วน + ส่งตำแหน่ง) มาก่อน แล้วสถานีตำรวจ — ถูกบุกบ้านไม่ชวนออกไปร้าน
+    assert [l["label"] for l in nearby("", {"kind": "intruder", "active": True})] == ["โทรด่วน · ส่งตำแหน่งให้คนที่ไว้ใจ", "สถานีตำรวจ"]
 
 
 @pytest.mark.parametrize("text, must", [("there's a fire in my kitchen", "Get out now"),

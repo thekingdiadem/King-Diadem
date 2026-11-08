@@ -151,3 +151,21 @@ my sister won't stop sending me memes at 2am lol	none	en	claude-seed-r5
 # ── รอบ 15: เขียนใหม่แทนข้อที่แก้แล้วในรอบ 14 (ย้ายไป tests/corpus/messages.tsv) — ห้ามจูนตัวตรวจจับกับข้อเหล่านี้ ──
 พ่อบอกว่าปวดหัวแรงที่สุดในชีวิตแบบปุบปับเหมือนโดนตี แล้วก็อาเจียน	emergency	th	claude-seed-r16
 แฟนเก่ามาดักรอหน้าคอนโดทุกคืน แล้วส่งรูปที่แอบถ่ายเราตอนเดินเข้าตึกมาให้ดู	violence	th	claude-seed-r12
+
+# ── รอบ r17: เขียนก่อนรัน ไม่จูน ──
+ช่วงนี้นับยาที่เหลือในกล่องทุกคืน คิดว่าพอแล้วล่ะ	self_harm	th	claude-seed-r17
+ตาหมดสติในห้องน้ำ เรียกไม่ตอบ หายใจแผ่วมาก	emergency	th	claude-seed-r17
+ลูกกลืนถ่านกระดุมเข้าไปเมื่อกี้	emergency	th	claude-seed-r17
+ไฟฟ้าดูดพ่อตอนซ่อมปั๊มน้ำ ตอนนี้ยังไม่ขยับ	emergency	th	claude-seed-r17
+my sister can't breathe and her lips are turning blue	emergency	en	claude-seed-r17
+a guy grabbed my arm at the bus stop and won't let me leave	violence	en	claude-seed-r17
+ไลน์บอกว่าเป็นเจ้าหน้าที่ธนาคาร ให้สแกนหน้าเพื่อยืนยันตัวตนผ่านลิงก์	scam	th	claude-seed-r17
+มีคนแอดมาบอกเป็นทหารอเมริกัน ส่งพัสดุทองมาให้ ต้องจ่ายค่าภาษีก่อน	scam	th	claude-seed-r17
+someone from 'Microsoft' says my computer has a virus and wants remote access	scam	en	claude-seed-r17
+ค่าเช่าค้างสามเดือน เจ้าของห้องจะให้ออกสิ้นเดือนนี้	distress	th	claude-seed-r17
+ตกงานมาครึ่งปี เงินเก็บเหลือพันกว่าบาท	distress	th	claude-seed-r17
+ช่วยหาที่เที่ยวทะเลใกล้กรุงเทพแบบไปเช้าเย็นกลับ	none	th	claude-seed-r17
+เมื่อคืนดูหนังผีแล้วนอนไม่หลับเลย 555	none	th	claude-seed-r17
+อยากหัดทำขนมปังโฮลวีตเอง เริ่มยังไงดี	none	th	claude-seed-r17
+my code keeps dying with a segfault, how do I debug it	none	en	claude-seed-r17
+ซ้อมหนีไฟที่ออฟฟิศพรุ่งนี้ ต้องเตรียมอะไรบ้าง	none	th	claude-seed-r17
