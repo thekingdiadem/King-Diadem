@@ -33,7 +33,7 @@ EN_UPGRADES: list[tuple[re.Pattern, str]] = [
                 r"\bswallowed all\b|\bslit(?:ting)? (?:my )?wrists?\b|\bloading\b[^.\n]{0,16}?\bgun\b|"
                 r"\b(?:at|on) the edge of the (?:roof|building|cliff|bridge|balcony)\b|\bbought a gun\b[^\n]{0,24}?\b(?:over|end|soon|done)\b|"
                 r"\b(?:jump|jumping)\s+off\b[^.\n]{0,30}?\b(?:balcony|building|roof|bridge|floor|cliff)\b|"
-                r"\bwalk(?:ing)? into the (?:sea|ocean|river|water)\b|\bi'?ve decided\b[^\n]{0,30}?\b(?:bridge|roof|tonight|\d\s*am)\b|"
+                r"\bwalk(?:ing)? into the (?:sea|ocean|river|water)\b|\bi'?ve decided\b(?![^\n]{0,60}\b(?:route|traffic|commute|drive|driving|road|detour|toll)\b)[^\n]{0,30}?\b(?:bridge|roof|tonight|\d\s*am)\b|"
                 r"\b(?:od|overdose)\s+on\b|\btake all (?:my|my moms?'?s?|the)\b[^.\n]{0,12}?\b(?:pills|meds|tablets)\b|"
                 r"\bstopped taking my\b[^.\n]{0,24}?\b(?:pills|meds)\b[^.\n]{0,24}?\b(?:so i can go|to die|end it|be done)\b|"
                 r"\bdrown myself\b|\bhow many\b[^.\n]{0,20}?\b(?:tylenol|paracetamol|panadol|pills|sleeping pills)\b[^.\n]{0,30}?\b(?:lethal|to die|not wake|kill|fatal)\b|"

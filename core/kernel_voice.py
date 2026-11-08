@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT, SELF_HARM_VEILED,
+from core.thai_signals import (SAFETY_NET_SELF, SAFETY_NET_OTHER, NET_CONFINE, NET_GROOM, NET_MAIM, normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT, SELF_HARM_VEILED,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, VIOLENCE_HABIT, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
@@ -168,7 +168,7 @@ TOPICS = [
         ],
         "ask": "ตอนนี้ได้โอนเงินหรือให้ข้อมูลอะไรไปแล้วหรือยัง?",
     }),
-    ("someone", [THIRD_PARTY_CRISIS], {
+    ("someone", [THIRD_PARTY_CRISIS, SAFETY_NET_OTHER], {
         "open": ["ขอบคุณที่ใส่ใจเขานะ การที่คุณอยู่ตรงนั้นช่วยได้มากกว่าที่คิด"],
         "paths": [
             ([re.compile(r"กระโดด|ผูกคอ|กำลัง|ยืน")],
@@ -180,7 +180,7 @@ TOPICS = [
         ],
         "ask": "ตอนนี้เขาอยู่ที่ไหน และมีใครอยู่กับเขาบ้าง?",
     }),
-    ("warning", [SELF_HARM_WARNING], {
+    ("warning", [SELF_HARM_WARNING, SAFETY_NET_SELF], {
         "open": ["ขอบคุณที่บอกนะ ฟังดูเหนื่อยและหนักมากจริงๆ"],
         "paths": [
             "ขอถามตรงๆ นะ: ตอนนี้มีความคิดอยากทำร้ายตัวเองหรือไม่อยากมีชีวิตอยู่ไหม — ตอบตามจริงได้ ฉันไม่ตัดสิน",
@@ -189,7 +189,7 @@ TOPICS = [
         ],
         "ask": "คืนนี้ มีอะไรสักอย่างที่ช่วยให้ผ่านไปได้บ้างไหม?",
     }),
-    ("sexual_abuse", [SEXUAL_ABUSE], {
+    ("sexual_abuse", [SEXUAL_ABUSE, NET_GROOM], {
         "open": ["ขอบคุณที่กล้าบอกนะ สิ่งที่เกิดขึ้นไม่ใช่ความผิดของคุณเลย"],
         "paths": [
             "ไปอยู่ในที่ที่เขาเข้าไม่ถึง หรืออยู่ใกล้คนที่ไว้ใจได้ไว้ก่อน แล้วบอกผู้ใหญ่/คนที่ไว้ใจ 1 คน — ถ้าคนแรกไม่เชื่อ บอกคนต่อไป",
@@ -910,7 +910,7 @@ TOPICS = [
         ],
         "ask": "ถ้าเดือนนี้จ่ายได้แค่ก้อนเดียว ก้อนไหนที่ถ้าไม่จ่ายจะเสียหายมากที่สุด?",
     }),
-    ("threat", [THREAT], {
+    ("threat", [THREAT, NET_MAIM, NET_CONFINE], {
         "open": ["การถูกขู่ทำให้ไม่ปลอดภัยแม้ยังไม่เกิดอะไร — ความกลัวนั้นสมเหตุสมผล"],
         "paths": [
             "เก็บหลักฐานทุกอย่าง: แคปข้อความ บันทึกเสียงโทร จดวันเวลาและเบอร์ — อย่าลบแม้จะไม่อยากเห็น",
@@ -2205,7 +2205,8 @@ _SPECIFIC_FIRST = (
     ("kp_alcohol_poisoning", {"overdose", "health_emergency"}),
     ("kp_double_dose", {"overdose"}),
     ("kp_gambling", {"addiction"}),
-    ("study_or_work", {"job", "study", "decision", "money"}),            # เรียนต่อหรือทำงาน = เลือกทางชีวิต ไม่ใช่หางาน/อ่านหนังสือ
+    ("study_or_work", {"job", "study", "decision", "money"}),
+    ("threat", {"debt", "money"}),                                       # เจ้าหนี้ขู่ทำร้ายร่างกาย = ความปลอดภัยก่อนเรื่องหนี้            # เรียนต่อหรือทำงาน = เลือกทางชีวิต ไม่ใช่หางาน/อ่านหนังสือ
     # "ติดลิฟต์ อากาศอึดอัด" เคยได้ "ต้องให้แพทย์ดู" · แมงกะพรุนต่อยเคยได้คำตอบฉุกเฉินทั่วไป ไม่มีน้ำส้มสายชู
     ("kp_elevator", {"health_emergency"}),
     ("kp_jellyfish", {"health_emergency"}),
