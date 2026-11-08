@@ -787,3 +787,43 @@ I've decided to take the bridge route home tonight to avoid traffic	!crisis;!top
 my aunt won't let me borrow her car until I pass my driving test	!topic:threat	ทั่วไป
 ครูเรียกไปติวสองต่อสอง จับมือสอนเขียน	!topic:sexual_abuse	ทั่วไป
 น้ำท่วมขังหน้าบ้านแม่ เดินลำบาก	!topic:threat	ทั่วไป
+# ── ชุดคิดตรงข้ามรอบ 1 (ใช้ซ่อมแล้ว — tests/adversarial/adversarial.tsv) + ประโยคคำคล้ายที่ต้องไม่ติด ──
+ถ้าคนทำประกันชีวิตไว้แล้วไม่อยู่ ประกันจ่ายครอบครัวไหมถ้าเป็นอุบัติเหตุ	topic:warning	วิกฤต
+บัญชีธนาคารของคนที่จากไปแล้ว แม่จะถอนเงินได้ยังไง ถามไว้ก่อน	topic:warning	วิกฤต
+อยากไปหาย่าที่อยู่บนฟ้าเร็วๆ	topic:warning	วิกฤต
+พรุ่งนี้คงไม่ต้องตั้งนาฬิกาปลุกแล้ว	topic:warning	วิกฤต
+แบตชีวิตใกล้หมดแล้ว และไม่อยากชาร์จแล้ว	topic:warning	วิกฤต
+ขอกดปิดเกมชีวิตนี้ได้ไหม เบื่อด่านนี้มาก	topic:warning	วิกฤต
+ซื้อถ่านมาสามถุง ปิดหน้าต่างห้องหมดแล้ว	topic:warning	วิกฤต
+ลบรูปทุกรูปในเฟซ ยกเลิกทุกบัญชีแล้ว เหลือแค่คืนนี้	topic:warning	วิกฤต
+บ่อยากอยู่ต่อแล้วเด้อ เมื่อยหลาย	crisis	วิกฤต
+บ่อยากหายใจแล้วเจ้า	crisis	วิกฤต
+ไม่อยากอยู่แล้วหนิ เหนื่อยจัง	crisis	วิกฤต
+🪦🪦 เร็วๆนี้	topic:warning	วิกฤต
+ใครรับเลี้ยงแมวต่อได้บ้าง เจ้าของเขาจะไม่อยู่แล้ว	topic:warning	วิกฤต
+im so done w everything, logging off for good	topic:warning	วิกฤต
+gonna go to sleep and not bother anyone anymore	topic:warning	วิกฤต
+what's the most painless way to go	topic:warning	วิกฤต
+if I disappeared would anyone even notice for a week	topic:warning	วิกฤต
+ทุกคนจะได้ไม่ต้องจ่ายค่ารักษาให้เราอีก ถ้าเราไม่อยู่	topic:warning	วิกฤต
+พ่อชอบเอาปืนมาวางบนโต๊ะกินข้าวทุกครั้งที่ทะเลาะกับแม่	topic:threat	วิกฤต
+เขาบอกว่าถ้าเราหนีไป จะไม่มีใครได้เห็นเราอีก	topic:threat	วิกฤต
+ประตูห้องถูกล็อกจากข้างนอก เขาเอากุญแจไปด้วย	topic:titan_exit	วิกฤต
+มีรอยเขียวทั้งแขน บอกเพื่อนว่าตกบันไดทุกครั้ง	topic:first_aid	วิกฤต
+หนูต้องเก็บความลับกับน้าคนนี้ ไม่งั้นแม่จะเสียใจ	topic:threat	วิกฤต
+he checks my phone every night and says next time I lie he'll make sure I regret it	topic:threat	วิกฤต
+my boyfriend said nobody would find me if I left	topic:threat	วิกฤต
+พ่อพูดอ้อแอ้ หน้าเบี้ยวไปข้างนึง เมื่อกี้ยังปกติ	topic:health_emergency	วิกฤต
+แม่บ่นแน่นหน้าอก หายใจไม่ทั่วท้อง เหงื่อท่วม	topic:health_emergency	วิกฤต
+ลูกกินเม็ดสีๆ ในกระเป๋ายายเข้าไปหลายเม็ด	topic:overdose	วิกฤต
+คิดถึงย่าที่อยู่บนฟ้า วันนี้ครบรอบปีที่สาม	none	ทั่วไป
+พรุ่งนี้วันหยุด ไม่ต้องตั้งนาฬิกาปลุก	none	ทั่วไป
+แบตมือถือใกล้หมดแล้ว แต่ลืมที่ชาร์จ	none	ทั่วไป
+ซื้อถ่านมาปิ้งหมูกระทะสามถุง	none	ทั่วไป
+เก็บของใส่กล่องเตรียมย้ายบ้าน แปะชื่อห้องไว้	none	ทั่วไป
+ลบรูปเก่าในเฟซหมดแล้ว จะเริ่มใหม่	none	ทั่วไป
+บ่อยากไปทำงานเลยมื้อนี้ ฝนตก	none	ทั่วไป
+logging off for the night, see you tomorrow	none	ทั่วไป
+what's the most painless way to get a tattoo	none	ทั่วไป
+ใครรับเลี้ยงแมวต่อได้บ้าง ย้ายไปอยู่คอนโดที่เลี้ยงไม่ได้	none	ทั่วไป
+ประตูห้องน้ำล็อกจากข้างใน เปิดไม่ออก ต้องเรียกช่าง	none	ทั่วไป
