@@ -769,3 +769,21 @@ my mom stopped taking her insulin because the pharmacy ran out	!crisis	ทั่
 ในเกมเพื่อนบอกว่าจะเผาบ้านเรา	!topic:threat	ทั่วไป
 มีมอไซค์สองคันขี่ประกบรถเรามาตลอดทาง เคาะกระจกด้วย	disaster:intruder	ภัย
 ขี่มอไซค์ประกบเพื่อนไปส่งที่บ้าน	!disaster	ทั่วไป
+# ── ตาข่ายชั้นสอง (หลายสัญญาณประกอบกัน) — ย้ายจากชุดปิดตารอบ 19–20 + ประโยคที่มีสัญญาณเดียวต้องไม่ติด ──
+ตั้งใจแล้วว่าวันเกิดปีนี้จะเป็นวันสุดท้าย	topic:warning	วิกฤต
+ไปยืนบนดาดฟ้ามาสามคืนแล้ว คืนนี้คงไม่ลงมา	topic:warning	วิกฤต
+โอนเงินเก็บทั้งหมดให้น้องแล้ว บอกน้องว่าดูแลแม่ด้วย	topic:warning	วิกฤต
+my best friend posted 'see you on the other side' and turned off her phone	topic:someone	วิกฤต
+เจ้าหนี้มาดักรอหน้าบ้าน บอกว่าถ้าไม่จ่ายพรุ่งนี้จะหักขา	topic:threat	วิกฤต
+my stepdad locks me in my room and won't give me food	topic:threat	วิกฤต
+ครูพละชอบเรียกไปอยู่สองต่อสองแล้วจับตัว	topic:sexual_abuse	วิกฤต
+เตรียมยานอนไว้ครบแล้ว รอให้ทุกคนหลับก่อน	topic:warning	วิกฤต
+ยกคอมกับกีตาร์ให้เพื่อนหมดแล้ว ฝากเลี้ยงหมาด้วย	topic:warning	วิกฤต
+I've decided to take the bridge route home tonight to avoid traffic	!crisis;!topic:warning	ทั่วไป
+วันนี้เป็นวันสุดท้ายที่ทำงานที่นี่ ตัดสินใจแล้วว่าจะย้าย	!topic:warning;!crisis	ทั่วไป
+ขึ้นดาดฟ้าไปถ่ายรูปคืนนี้ คงไม่ลงมากินข้าว	!topic:warning	ทั่วไป
+โอนเงินเก็บทั้งหมดไปบัญชีใหม่แล้ว ดอกเบี้ยดีกว่า	!topic:warning	ทั่วไป
+ในเกมตัวละครยืนบนดาดฟ้าแล้วบอกว่าคืนนี้คงไม่ลงมา	!topic:warning	ทั่วไป
+my aunt won't let me borrow her car until I pass my driving test	!topic:threat	ทั่วไป
+ครูเรียกไปติวสองต่อสอง จับมือสอนเขียน	!topic:sexual_abuse	ทั่วไป
+น้ำท่วมขังหน้าบ้านแม่ เดินลำบาก	!topic:threat	ทั่วไป

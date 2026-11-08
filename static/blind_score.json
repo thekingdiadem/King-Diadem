@@ -1,41 +1,43 @@
 {
- "total": 121,
+ "total": 147,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
   "claude-seed-r13",
   "claude-seed-r16",
   "claude-seed-r17",
+  "claude-seed-r19",
+  "claude-seed-r20",
   "claude-seed-r3",
   "claude-seed-r5",
   "claude-seed-r6",
   "claude-seed-r8"
  ],
- "blind_by_people": 34,
+ "blind_by_people": 60,
  "classes": {
   "self_harm": {
-   "n": 12,
-   "tp": 12,
+   "n": 15,
+   "tp": 15,
    "fn": 0,
-   "fp": 1,
+   "fp": 3,
    "recall": 1.0,
-   "precision": 0.923
+   "precision": 0.833
   },
   "emergency": {
-   "n": 29,
-   "tp": 29,
-   "fn": 0,
+   "n": 32,
+   "tp": 31,
+   "fn": 1,
    "fp": 0,
-   "recall": 1.0,
+   "recall": 0.969,
    "precision": 1.0
   },
   "violence": {
-   "n": 16,
-   "tp": 16,
+   "n": 21,
+   "tp": 21,
    "fn": 0,
-   "fp": 1,
+   "fp": 2,
    "recall": 1.0,
-   "precision": 0.941
+   "precision": 0.913
   },
   "scam": {
    "n": 18,
@@ -49,23 +51,23 @@
    "n": 8,
    "tp": 7,
    "fn": 1,
-   "fp": 3,
+   "fp": 5,
    "recall": 0.875,
-   "precision": 0.7
+   "precision": 0.583
   }
  },
  "danger_missed": {
   "n": 0,
-  "of": 57
+  "of": 68
  },
  "false_alarm": {
-  "n": 1,
-  "of": 38
+  "n": 3,
+  "of": 53
  },
  "by_lang": {
   "en": {
-   "hit": 21,
-   "n": 21
+   "hit": 25,
+   "n": 25
   },
   "es": {
    "hit": 1,
@@ -80,8 +82,8 @@
    "n": 1
   },
   "th": {
-   "hit": 54,
-   "n": 55
+   "hit": 60,
+   "n": 62
   },
   "zh": {
    "hit": 3,
@@ -102,6 +104,30 @@
    "text": "ตกงานมาครึ่งปี เงินเก็บเหลือพันกว่าบาท",
    "label": "distress",
    "got": []
+  },
+  {
+   "line": 175,
+   "text": "ลูกเอาหัวโขกกำแพงจนเลือดออก หยุดไม่ได้",
+   "label": "emergency",
+   "got": [
+    "self_harm"
+   ]
+  },
+  {
+   "line": 199,
+   "text": "หัวหน้าเรียกเข้าห้องคนเดียวเพื่อคุยเรื่องโบนัส",
+   "label": "none",
+   "got": [
+    "violence"
+   ]
+  },
+  {
+   "line": 200,
+   "text": "ช่างบอกว่าถ้าไม่เปลี่ยนสายพานจะตัดไฟทั้งตึก",
+   "label": "none",
+   "got": [
+    "distress"
+   ]
   }
  ]
 }
