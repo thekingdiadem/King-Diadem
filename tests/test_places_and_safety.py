@@ -65,3 +65,13 @@ def test_being_followed_outside_is_not_answered_like_a_break_in():
     assert "ล็อกตัวเองในห้อง" in home[home.index("1)"):].split("\n")[0]
     en = compose("someone is following me at night")
     assert "Don't go home" in en[en.index("1)"):].split("\n")[0]
+
+
+def test_places_and_city_names_can_be_hidden():
+    """พี่คิง: "ทำปุ่มซ่อนด้วย เผื่อบางคนตาลาย" — ปุ่มสถานที่/ชื่อเมืองในแผงเครื่องมือ จำไว้ในเครื่อง"""
+    assert 'id="ec-places" aria-pressed="true" data-act="places"' in PAGE and 'id="ec-names" aria-pressed="true" data-act="names"' in PAGE
+    assert "places: function(){ KD_layer('places'); }, names: function(){ KD_layer('names'); }," in PAGE
+    assert "if (!LAYER.places) return;" in EARTH
+    assert "if (!LAYER.names) return;" in EARTH
+    assert "localStorage.setItem(k === 'places' ? 'kd-places' : 'kd-names'" in EARTH
+    assert "if (k === 'places' && !LAYER.places) hidePlace();" in EARTH

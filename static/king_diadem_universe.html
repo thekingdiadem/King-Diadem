@@ -494,6 +494,8 @@ html.bb-on,html.bb-on body{overflow:hidden}
         <button type="button" class="ec-tile" data-act="north"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v5M9.5 6L12 3.5 14.5 6"/><circle cx="12" cy="12" r="2"/></svg>ขั้วโลกเหนือ</button>
         <button type="button" class="ec-tile" data-act="south"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 20.5v-5M9.5 18l2.5 2.5 2.5-2.5"/><circle cx="12" cy="12" r="2"/></svg>ขั้วโลกใต้</button>
         <button type="button" class="ec-tile" id="ec-day" aria-pressed="false" data-act="day"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></svg>กลางวัน</button>
+        <button type="button" class="ec-tile" id="ec-places" aria-pressed="true" data-act="places"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><circle cx="12" cy="12" r="6.5" opacity=".45"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2" opacity=".6"/></svg>สถานที่</button>
+        <button type="button" class="ec-tile" id="ec-names" aria-pressed="true" data-act="names"><svg viewBox="0 0 24 24"><path d="M5 7h14M8 12h8M10 17h4"/></svg>ชื่อเมือง</button>
         <button type="button" class="ec-tile" id="ec-calm" aria-pressed="false" data-act="calm"><svg viewBox="0 0 24 24"><path d="M4 9h16M4 15h16" /><circle cx="9" cy="9" r="2"/><circle cx="15" cy="15" r="2"/></svg>ลดการเคลื่อนไหว</button>
       </div>
       <h3>เฟรมเรตสูงสุด <small id="ec-hz"></small></h3>
@@ -1061,6 +1063,11 @@ function KD_toggleShip(on){
           document.getElementById('hero').scrollIntoView({behavior: h.classList.contains('kd-calm') ? 'auto' : 'smooth'}); }
 }
 document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && document.documentElement.classList.contains('kd-ship')) KD_toggleShip(false); });
+/* ซ่อน/แสดง สถานที่ และ ชื่อเมือง — สำหรับคนที่ตาลายเมื่อของบนโลกเยอะ (จำไว้ในเครื่อง) */
+function KD_layerUI(){ var E = window.KD_earth; if(!E || !E.layerOn) return;
+  ['places', 'names'].forEach(function(k){ var b = document.getElementById('ec-' + k); if(b) b.setAttribute('aria-pressed', E.layerOn(k) ? 'true' : 'false'); }); }
+function KD_layer(k){ if(window.KD_earth && KD_earth.layer){ KD_earth.layer(k); KD_layerUI(); } }
+document.addEventListener('DOMContentLoaded', KD_layerUI); window.addEventListener('load', KD_layerUI);
 /* เฟรมเรตสูงสุด — ค่าเดียวกับเมนูสีหน้าแชต (localStorage kd-fps) · โลกและท้องฟ้าฟังเหตุการณ์ kd-fps แล้วปรับทันที */
 (function(){
   var OK = [30, 60, 90, 120, 144], row = document.getElementById('ec-fps'); if(!row) return;
@@ -1092,6 +1099,7 @@ function KD_toggleDay(){var h=document.documentElement,on=!h.classList.contains(
 (function(){
   var E = function(){ return window.KD_earth; }, ACT = {
     ship: function(){ KD_toggleShip(); },
+    places: function(){ KD_layer('places'); }, names: function(){ KD_layer('names'); },
     shiphome: function(){ if(E() && E().shipOn()) E().shipHome(); },
     shipfast: function(){ if(E() && E().shipOn()){ var f = E().shipFast(); document.getElementById('ship-fast').setAttribute('aria-pressed', f ? 'true' : 'false'); } },
     globe: function(){ KD_toggleGlobe(); },

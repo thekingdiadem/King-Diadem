@@ -409,6 +409,14 @@
     ship: function (on) { if (on) { if (!shipStart()) return false; } else leaveShip(); kick(); return SHIP.on; },
     shipFast: function () { SHIP.fast = !SHIP.fast; kick(); return SHIP.fast; },
     shipOn: function () { return SHIP.on; },
+    layer: function (k, on) {
+      if (!(k in LAYER)) return false;
+      LAYER[k] = on == null ? !LAYER[k] : !!on;
+      try { localStorage.setItem(k === 'places' ? 'kd-places' : 'kd-names', LAYER[k] ? '1' : '0'); } catch (e) {}
+      if (k === 'places' && !LAYER.places) hidePlace();
+      labelsDirty = true; kick(); return LAYER[k];
+    },
+    layerOn: function (k) { return !!LAYER[k]; },
     // บินไปให้เห็นบ้านเรา: วางยานทางใต้ของกรุงเทพฯ เท่าระยะที่หน้าต่างมองไปข้างหน้า — กรุงเทพฯ อยู่กลางหน้าต่างพอดี แล้วโคจรต่อตามจริง
     shipHome: function () {
       var OB = window.KD_orbit; if (!OB || !SHIP.on) return false;
@@ -678,6 +686,9 @@
   // วาดเป็นจุดแสงเล็กๆ ที่เรืองนุ่ม ไม่ใช่หมุด — แสงที่ชี้ทาง ไม่แย่งความสนใจจากโลก · โหลดเมื่อเริ่มซูมลง (ทั้งโลกไม่โหลด)
   // ระดับ 1 (คนรู้จักทั่วโลก) ขึ้นก่อน · ระดับ 2–3 ขึ้นเมื่อมองใกล้ · แถว [อังกฤษ, ไทย, lat, lon, ระดับ, คำอธิบาย, Q-id, มรดกโลก]
   var PL = { data: null, busy: false, shown: [] }, PL_AT = [0, 1.3, 2.3, 3.1];
+  // ซ่อนได้: บางคนตาลายเมื่อจุดและชื่อเยอะ — ปุ่มในแผงเครื่องมือ จำไว้ในเครื่อง (kd-places / kd-names = '0' คือซ่อน)
+  function lsOn(k) { try { return localStorage.getItem(k) !== '0'; } catch (e) { return true; } }
+  var LAYER = { places: lsOn('kd-places'), names: lsOn('kd-names') };
   function loadPlaces() {
     PL.busy = true;
     fetch(base + 'earth/places.json').then(function (r) { return r.json(); }).then(function (d) {
@@ -695,6 +706,7 @@
   }
   function drawPlaces(V, Wc, Hc, boxes) {
     PL.shown = [];
+    if (!LAYER.places) return;                                        // ผู้ใช้ซ่อนไว้
     if (S.tL < PL_AT[1] - .15) return;
     if (!PL.data) { if (!PL.busy) loadPlaces(); return; }
     var spr = glowSprite(), n = 0, max = Math.min(60, Math.round(Wc * Hc / 9000));
@@ -770,6 +782,7 @@
     drawPlaces(V, Wc, Hc, boxes);                                     // สถานที่วางก่อนชื่อเมือง — ชื่อเมืองหลบแสง
     var show = smooth((S.L - 1.5) / .4);
     if (show <= 0) return;
+    if (!LAYER.names) return;                                         // ผู้ใช้ซ่อนชื่อเมืองไว้
     var limit = Math.min(Math.round(26 + 14 * S.mag), Math.round(Wc * Hc / 6500)), drawn = 0;
     lctx.textBaseline = 'middle';
     lctx.shadowColor = 'rgba(0,0,0,.9)';
