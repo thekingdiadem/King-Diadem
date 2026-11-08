@@ -1299,7 +1299,16 @@ class GeminiLLM:
             ctx_parts.append("EMOTIONAL_CONTEXT: รับรู้ก่อน แล้วค่อยวิเคราะห์")
 
         # ── MEMORY INJECTION ───────────────────────────────────
-        mem_ctx = build_memory_context(user_email) if user_email else ""
+        try:
+            from core.intent import is_bare_greeting
+            greet_only = is_bare_greeting(prompt)
+        except Exception:
+            greet_only = False
+        # ทักทายเฉยๆ: ไม่ใส่ความจำ — ทักกลับสั้นๆ อบอุ่น ไม่ขุดเรื่องเก่า (หน้าจอจริง: "สวัสดี" → สรุปหนี้จากแชทอื่น)
+        mem_ctx = build_memory_context(user_email) if user_email and not greet_only else ""
+        if greet_only:
+            ctx_parts.append("[ผู้ใช้แค่ทักทาย: ทักกลับอบอุ่นเป็นกันเอง 1–2 ประโยค แล้วชวนเล่าได้ตามสบาย "
+                             "ห้ามสรุปหรือพูดถึงเรื่องจากแชทก่อนๆ ห้ามถามเรื่องเงิน/ที่พัก/ปัญหา ไม่ต้องมีขั้นตอนหรือเบอร์โทร]")
         if mem_ctx:
             ctx_parts.append(mem_ctx)
 

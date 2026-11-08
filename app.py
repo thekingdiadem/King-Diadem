@@ -2176,7 +2176,9 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             r = assess_risk(human_state)
             if isinstance(r, dict) and r.get("level"):
                 risk_ctx = f"[Risk: {r['level']}]"
-                if r.get("level") in ("HIGH", "CRITICAL") and route not in ("vega",):
+                # ทักทายเฉยๆ ไม่ใช่เวลาลากเข้าโหมดลูกโซ่ความเสียหาย — คุยกันก่อน แล้วค่อยดูจากสิ่งที่เขาเล่า
+                from core.intent import is_bare_greeting as _bare
+                if r.get("level") in ("HIGH", "CRITICAL") and route not in ("vega",) and not _bare(user_input):
                     route = _escalate_route(route, "collapse")
         except Exception: pass
 

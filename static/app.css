@@ -1245,4 +1245,7 @@ body.mode-dz .comp-row1,body.mode-img .comp-row1,body.mode-dz #starters,body.mod
 .biz-health b{display:block;margin-bottom:4px;color:var(--ink)}.biz-health p{margin:2px 0;color:var(--ink-2)}
 
 /* บอกผู้ใช้ตรงๆ ว่าคุยกับ AI (EU AI Act Art. 50) — ตัวเล็กแต่ต้องอ่านออก ไม่จางจนมองไม่เห็น */
-.ai-note{margin:8px 4px 0;font-size:12px;line-height:1.5;opacity:.78;text-align:center}
+/* หน้าจอจริง: ข้อความยาว 4 บรรทัดค้างใต้ช่องพิมพ์ตลอด เกะกะตา — เหลือบรรทัดเดียวแบบแอปแชตทั่วไป (ยังบอกว่าเป็น AI ก่อนพิมพ์)
+   รายละเอียดอยู่หน้า /privacy#ai */
+.ai-note{margin:6px 4px 0;font-size:11px;line-height:1.5;opacity:.5;text-align:center}
+.ai-note a{color:inherit;text-decoration:underline;text-underline-offset:2px}

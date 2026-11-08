@@ -739,6 +739,8 @@
 "ราคา/โควตาเปลี่ยนโดยไม่ใส่เหตุผล {n} ครั้ง — ใส่ POLICY_CHANGE_REASON ใน Render": "Giá/hạn mức đổi không lý do {n} lần — đặt POLICY_CHANGE_REASON trong Render",
 "สุขภาพระบบ": "Sức khỏe hệ thống",
 "LYLA และ VEGA เป็นระบบ AI ไม่ใช่คน · คำตอบที่ลงท้ายว่า “ตอบจากสมการของระบบ” มาจากกฎที่เขียนไว้ตายตัว นอกนั้นมาจากโมเดลภาษา Gemini · เรื่องสุขภาพ กฎหมาย และเงิน ใช้ประกอบการตัดสินใจ ไม่แทนผู้เชี่ยวชาญ · ฉุกเฉินโทร 1669":"LYLA và VEGA là hệ thống AI, không phải con người · Câu trả lời ghi “trả lời từ phương trình của hệ thống” đến từ quy tắc cố định, phần còn lại từ mô hình ngôn ngữ Gemini · Về sức khỏe, pháp luật và tiền bạc, chỉ dùng để tham khảo khi quyết định, không thay thế chuyên gia · Khẩn cấp: 1669 (Thái Lan)",
+"LYLA และ VEGA เป็นระบบ AI ไม่ใช่คน":"LYLA và VEGA là hệ thống AI, không phải con người",
+"รายละเอียด":"Chi tiết",
   "เฟรมเรต": "Tốc độ khung hình",
   "เฟรมเรตสูงสุด": "Tốc độ khung hình tối đa",
   "เครื่องเย็นและประหยัดแบตที่สุด": "Máy mát nhất và tiết kiệm pin nhất"
