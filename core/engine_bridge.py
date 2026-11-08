@@ -504,7 +504,7 @@ _HAZARDS = (
     ("intruder", "war_conflict", "คนบุกรุก/ถูกตาม",
      re.compile(r"(?:มีคน|โจร|ขโมย|ผู้ชาย|ใครไม่รู้)\S{0,10}(?:งัด|ปีน|บุก|พัง|แอบเข้า)\S{0,6}(?:ประตู|หน้าต่าง|บ้าน|ห้อง|รั้ว|เข้า)|"
                 r"(?:โจร|ขโมย)ขึ้นบ้าน|มีคน(?:แอบ)?อยู่ในบ้าน\S{0,6}(?:ไม่รู้จัก|แปลกหน้า)|"
-                r"มีคน\S{0,10}(?:เดินตาม|ขับรถตาม|ขี่รถตาม|แอบตาม|ตามมาถึง|ตาม(?:ผม|ฉัน|หนู|เรา)(?:มา|กลับ)?)|(?:โดน|ถูก)\S{0,4}(?:สะกดรอยตาม|ตามมาถึงบ้าน)|"
+                r"(?:มีคน|มี(?:ผู้)?(?:ชาย|หญิง)|ผู้ชาย|ผู้หญิง|คนแปลกหน้า|ใคร(?:ก็)?ไม่รู้)\S{0,10}(?:เดินตาม|ขับรถตาม|ขี่รถตาม|ขี่มอไซค์ตาม|แอบตาม|ตามมาถึง|ตาม(?:ผม|ฉัน|หนู|เรา)(?:มา|กลับ)?)|(?:ขี่|ขับ)\S{0,6}ประกบรถ(?:เรา|ฉัน|หนู|ผม|ของ(?:เรา|ฉัน|หนู|ผม))|(?:โดน|ถูก)\S{0,4}(?:สะกดรอยตาม|ตามมาถึงบ้าน)|"
                 r"\bbreaking into my\b|\bintruder (?:in|inside|at)\b|\bthere'?s an intruder\b|\bsomeone (?:is )?(?:in|inside) my (?:house|home|room|apartment)\b|"
                 r"\b(?:i'?m|i am) being followed\b|\bsomeone (?:is )?following me\b|\bstalking me\b|"
                 r"มีคน(?:แปลกหน้า)?\S{0,6}(?:อยู่|ยืน|ป้วนเปี้ยน|ด้อมๆมองๆ)\S{0,2}(?:หน้า|รอบ)(?:บ้าน|ห้อง|ประตู)|"
@@ -691,7 +691,7 @@ VIOLENCE_ASK_PLACE = "ตอนนี้อยู่ที่ไหน — ใ�
 # ภัยที่ทำต่างกันตามที่อยู่: (รายการที่, คำถามเมื่อยังไม่รู้ว่าอยู่ที่ไหน)
 # ถูกตามอยู่ข้างนอก ≠ คนร้ายบุกบ้าน — เดิมคนที่ "มีคนเดินตามมา" ได้ข้อแรกว่า "ล็อกตัวเองในห้อง" ซึ่งทำไม่ได้กลางถนน
 _INTRUDER_PLACES = (
-    ("followed", "กำลังถูกตาม", re.compile(r"เดินตาม|ขับรถตาม|ขี่รถตาม|แอบตาม|สะกดรอย|ตาม(?:ผม|ฉัน|หนู|เรา|มา)|"
+    ("followed", "กำลังถูกตาม", re.compile(r"เดินตาม|ขับรถตาม|ขี่รถตาม|แอบตาม|สะกดรอย|ประกบ|ตาม(?:ผม|ฉัน|หนู|เรา|มา)|"
                                           r"\bfollow(?:ing|ed)? me\b|\bbeing followed\b|\bstalking me\b", re.I),
      ["อย่ากลับบ้านและอย่าเข้าซอยเปลี่ยว (เขาจะรู้ที่อยู่) — ไปที่มีคนเยอะและไฟสว่าง เช่น ร้านสะดวกซื้อ ปั๊มน้ำมัน โรงพยาบาล หรือสถานีตำรวจ แล้วบอกพนักงานตรงๆ ว่ามีคนตาม",
       "โทร 191 บอกตำแหน่งให้ชัด (ชื่อร้าน ถนน จุดสังเกต) — พูดไม่ได้ให้เปิดสายค้างไว้ · โทรหาคนที่ไว้ใจ เปิดสายคุยไว้ และแชร์ตำแหน่งให้เขา",
@@ -866,7 +866,15 @@ _PLACES = {
     "water":    ("ร้านสะดวกซื้อ (น้ำดื่ม)", "ร้านสะดวกซื้อ ใกล้ฉัน"),
     "fuel":     ("ปั๊มน้ำมัน", "ปั๊มน้ำมัน ใกล้ฉัน"),
     "mechanic": ("อู่ซ่อมรถ", "อู่ซ่อมรถ ใกล้ฉัน"),
+    "store":    ("ร้านสะดวกซื้อ (มีคน ไฟสว่าง)", "ร้านสะดวกซื้อ ใกล้ฉัน"),
 }
+_PLACES_EN = {"hospital": ("Hospital", "hospital near me"), "police": ("Police station", "police station near me"),
+              "shelter": ("Shelter", "emergency shelter near me"), "pharmacy": ("Pharmacy", "pharmacy near me"),
+              "water": ("Convenience store", "convenience store near me"), "fuel": ("Petrol station", "petrol station near me"),
+              "mechanic": ("Mechanic", "car repair near me"), "store": ("Convenience store (staff, bright)", "convenience store near me")}
+# หน้าฉุกเฉินแตะเดียว — โทรด่วน + ส่งตำแหน่งให้คนที่ไว้ใจ (static/safe.html)
+SAFE_PAGE = {"label": "โทรด่วน · ส่งตำแหน่งให้คนที่ไว้ใจ", "url": "/safe"}
+SAFE_PAGE_EN = {"label": "Call now · send my location", "url": "/safe?lang=en"}
 _NEAR_ASK = re.compile(r"ใกล้(?:ฉัน|หนู|ผม|เรา|ๆ|ที่สุด|บ้าน)|แถวนี้|อยู่ตรงไหน|ไปที่ไหนได้|หาที่ไหน")
 _PLACE_WORDS = (("hospital", r"โรงพยาบาล|โรงบาล|รพ\.|คลินิก|ห้องฉุกเฉิน"), ("police", r"สถานีตำรวจ|โรงพัก|แจ้งความ"),
                 ("shelter", r"ศูนย์อพยพ|ศูนย์พักพิง|ที่พักพิง|ที่หลบภัย"), ("pharmacy", r"ร้านขายยา|ซื้อยา"),
@@ -881,6 +889,9 @@ def nearby(text: str, disaster: dict | None = None, relationship: str | None = N
         # ร้อนจัด/ฝุ่น ต้องไปหาหมอ ไม่ใช่ศูนย์อพยพ · ภัยแล้งไม่มีที่ใกล้ตัวที่ช่วยได้ตรงๆ (ให้เบอร์ ปภ. แทน)
         want += {"heat": ["hospital"], "haze": ["hospital"], "drought": [], "intruder": ["police"], "gas": ["hospital"]}.get(disaster.get("kind"),
                                                                                  ["shelter", "hospital"])
+        # ถูกตามข้างนอก: ไปที่ที่มีคน (ตำรวจ ร้านสะดวกซื้อ ปั๊ม) — ถูกบุกบ้าน: อยู่ในห้องที่ล็อกได้ ปุ่มตำรวจพอ
+        if disaster.get("kind") == "intruder" and _INTRUDER_PLACES[0][2].search(text) and not _INTRUDER_PLACES[1][2].search(text):
+            want += ["store", "fuel"]
     if _HEALTH_NOW.search(text):
         want.append("hospital")
     if relationship in ("collapse_risk", "critical"):
@@ -891,12 +902,16 @@ def nearby(text: str, disaster: dict | None = None, relationship: str | None = N
         from ENGINE.map_bridge import near_me_link
     except Exception:  # pragma: no cover
         return []
+    en = bool(re.search(r"[a-z]", text or "", re.I)) and not re.search(r"[\u0e00-\u0e7f]", text or "")   # ข้อความว่าง = ไทย
+    names = _PLACES_EN if en else _PLACES
     out, seen = [], set()
+    if disaster and disaster.get("active") and disaster.get("kind") in ("intruder", "violence"):
+        out.append(SAFE_PAGE_EN if en else SAFE_PAGE)                  # โทรด่วน + ส่งตำแหน่ง มาก่อนทุกปุ่ม
     for k in want:
-        if k in _PLACES and k not in seen:
+        if k in names and k not in seen:
             seen.add(k)
-            out.append({"label": _PLACES[k][0], "url": near_me_link(_PLACES[k][1])})
-    return out[:3]
+            out.append({"label": names[k][0], "url": near_me_link(names[k][1])})
+    return out[:4]
 
 
 # ── 4. เรียงทางเลือก ────────────────────────────────────────────────────

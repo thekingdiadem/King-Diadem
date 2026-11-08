@@ -180,6 +180,7 @@ body[data-veil="1"] #veil{opacity:.78} body[data-veil="2"] #veil{opacity:1}
 .row-end{display:flex;justify-content:flex-end;margin-top:8px}
 .help-card{margin-top:10px;border:1px solid var(--line-2);border-radius:var(--r);padding:10px 12px;font-size:14px}
 .help-card a{display:inline-block;margin:6px 12px 0 0;font-weight:600;text-decoration:none;white-space:nowrap;color:var(--focus)}
+.help-card a.sos{padding:6px 12px;border-radius:999px;color:#fff;background:linear-gradient(90deg,rgba(80,150,255,.55),rgba(140,110,255,.55));box-shadow:inset 0 0 0 1px rgba(200,215,255,.5)}
 .crisis-card a{color:#ff8e98;font-weight:600;text-decoration:none;font-family:var(--f-mono);margin-right:12px;white-space:nowrap;
   display:inline-block;min-width:44px;min-height:44px;padding:12px 10px;line-height:20px;box-sizing:border-box;text-align:center}   /* นิ้วคนที่กำลังลำบากต้องแตะโดนง่าย (เดิม 34×18px) */
 

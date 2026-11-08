@@ -2365,10 +2365,11 @@ function councilFmt(t){
 }
 function helpCard(links){
   // ลิงก์มาจากเซิร์ฟเวอร์ — รับเฉพาะ Google Maps แบบ https เท่านั้น
-  var ok = (Array.isArray(links) ? links : []).filter(function(l){ return l && typeof l.url === 'string' && l.url.indexOf('https://www.google.com/maps/') === 0; }).slice(0, 3);
+  // + หน้าฉุกเฉินของเราเอง /safe (เปิดในแท็บเดิมไม่ได้ — คนกำลังกลัว ห้ามให้แชตหาย จึงเปิดแท็บใหม่เหมือนกัน)
+  var ok = (Array.isArray(links) ? links : []).filter(function(l){ return l && typeof l.url === 'string' && (l.url.indexOf('https://www.google.com/maps/') === 0 || /^\/safe(?:\?lang=en)?$/.test(l.url)); }).slice(0, 4);
   if(!ok.length) return '';
   return '<div class="help-card"><b>' + _t('หาความช่วยเหลือใกล้คุณ') + '</b> ' + _t('แผนที่จะใช้ตำแหน่งในเครื่องของคุณเอง') + '<br>' +
-    ok.map(function(l){ return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener noreferrer">' + esc(l.label) + ' ↗</a>'; }).join('') + '</div>';
+    ok.map(function(l){ return '<a' + (l.url.indexOf('/safe') === 0 ? ' class="sos"' : '') + ' href="' + esc(l.url) + '" target="_blank" rel="noopener noreferrer">' + esc(l.label) + ' ↗</a>'; }).join('') + '</div>';
 }
 /* ช่วงตัดสินใจ — บอกเป็นวันชัดๆ ใต้คำตอบ (เดิมอยู่ลึกในหน้าต่างรายละเอียด Σ คนแทบไม่เห็น)
    มาจากประวัติระดับน้ำของผู้ใช้เอง (ล็อกอิน + บันทึกสถานะอย่างน้อย 2 วัน) — ไม่มีข้อมูลก็ไม่แสดง ไม่เดา */

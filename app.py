@@ -379,8 +379,10 @@ _SECURITY_HEADERS = [
     (b"x-frame-options", b"DENY"),          # ไม่มีหน้าไหนต้องถูกฝังใน iframe — กัน clickjacking
     # บังคับ HTTPS หนึ่งปี — กันคนในเครือข่ายเดียวกัน (Wi-Fi สาธารณะ) ดักคุกกี้ตอนพิมพ์ http://
     (b"strict-transport-security", b"max-age=31536000; includeSubDomains"),
-    # ไม่มีหน้าไหนใช้กล้อง ไมค์ ตำแหน่ง หรือการชำระเงินในเบราว์เซอร์ (Stripe เปิดหน้าของ Stripe เอง)
-    (b"permissions-policy", b"camera=(), microphone=(), geolocation=(), payment=(), usb=()"),
+    # ไม่มีหน้าไหนใช้กล้อง ไมค์ หรือการชำระเงินในเบราว์เซอร์ (Stripe เปิดหน้าของ Stripe เอง)
+    # ตำแหน่ง: อนุญาตเฉพาะหน้าของเราเอง (self) — หน้าฉุกเฉิน /safe ต้องส่งตำแหน่งให้คนที่ไว้ใจ และ /sky ใช้หาฟ้าตรงที่ยืน
+    # (เดิม geolocation=() บล็อกทุกหน้า ปุ่มตำแหน่งของ /sky จึงใช้ไม่ได้มาตลอด) · เบราว์เซอร์ยังถามผู้ใช้ก่อนทุกครั้ง
+    (b"permissions-policy", b"camera=(), microphone=(), geolocation=(self), payment=(), usb=()"),
     # สคริปต์/การเชื่อมต่อได้เฉพาะจากเว็บเราเอง — ถ้ามีข้อความแปลกหลุดเข้าหน้าเว็บ ก็ส่งข้อมูลผู้ใช้ออกไปเว็บอื่นไม่ได้
     # สคริปต์ในไฟล์ HTML ทำงานได้เฉพาะตัวที่ hash ตรง (_CSP_SCRIPT) — ไม่มี 'unsafe-inline' แล้ว
     # สคริปต์ที่ถูกแทรกเข้ามาทีหลัง (XSS) และ handler ที่เขียนในแท็ก จึงไม่ทำงาน · ฟอนต์จาก Google Fonts เท่านั้น
@@ -892,7 +894,7 @@ def root(request: Request):
 # ── ให้ Google เจอหน้าเว็บ (SEO) ─────────────────────────────────────────
 # robots.txt บอกว่าหน้าไหนให้เก็บ · หน้าส่วนตัว (API บัญชี รายงานที่แชร์) ห้ามเก็บ
 # sitemap.xml บอก Google ว่ามีหน้าสาธารณะอะไรบ้าง — เดิมไม่มีทั้งสองไฟล์
-SITEMAP_PAGES = [("/", "1.0", "daily"), ("/guide", "0.8", "weekly"), ("/learn", "0.8", "weekly"), ("/survival", "0.9", "weekly"), ("/ask", "0.7", "weekly"),
+SITEMAP_PAGES = [("/", "1.0", "daily"), ("/safe", "0.9", "monthly"), ("/guide", "0.8", "weekly"), ("/learn", "0.8", "weekly"), ("/survival", "0.9", "weekly"), ("/ask", "0.7", "weekly"),
                  ("/sky", "0.9", "daily"), ("/pregnancy", "0.8", "monthly"), ("/universe", "0.8", "weekly"),
                  ("/architecture", "0.6", "weekly"), ("/letter", "0.6", "monthly"), ("/support", "0.5", "monthly"),
                  ("/privacy", "0.3", "yearly"), ("/terms", "0.3", "yearly"), ("/refund", "0.3", "yearly")]
@@ -3560,6 +3562,13 @@ async def learn_page():
 
 # ── คู่มือเอาชีวิตรอดฉบับเต็ม (core/survival_guide.py) — HTML จากเซิร์ฟเวอร์ ไม่มีสคริปต์ เปิดได้แม้เน็ตช้า
 _SURVIVAL_HTML: dict = {}
+
+
+@app.get("/safe")
+async def safe_page():
+    """หน้าฉุกเฉินแตะเดียว (static/safe.html): โทร 191/1669/1300 · ส่งตำแหน่งให้คนที่ไว้ใจ · ที่ที่มีคนใกล้ตัว
+    ตำแหน่งอยู่ในเครื่องผู้ใช้ ไปถึงแค่แอปแผนที่หรือคนที่ผู้ใช้เลือกส่ง — เซิร์ฟเวอร์ไม่รู้"""
+    return FileResponse("static/safe.html")
 
 
 @app.get("/sky")
