@@ -17,6 +17,8 @@
     'สภา 6 เสียง: LYLA · VEGA · PATICCA · TITAN · COSMOS · CIVIL': ['Council of 6: LYLA · VEGA · PATICCA · TITAN · COSMOS · CIVIL', '6人の評議会: LYLA · VEGA · PATICCA · TITAN · COSMOS · CIVIL'],
     'สภา': ['Council', '評議会'], 'เล่ามาได้เลย': ['Tell me what’s going on', '何でも話してください'],
     'LYLA และ VEGA เป็นระบบ AI ไม่ใช่คน · คำตอบที่ลงท้ายว่า “ตอบจากสมการของระบบ” มาจากกฎที่เขียนไว้ตายตัว นอกนั้นมาจากโมเดลภาษา Gemini · เรื่องสุขภาพ กฎหมาย และเงิน ใช้ประกอบการตัดสินใจ ไม่แทนผู้เชี่ยวชาญ · ฉุกเฉินโทร 1669': ['LYLA and VEGA are AI systems, not people · Answers marked “answered from the system’s equations” come from fixed rules; the rest come from the Gemini language model · For health, legal and money matters, use this to help you decide — it does not replace a professional · Emergency: 1669 (Thailand)', 'LYLAとVEGAはAIであり、人間ではありません · 「システムの方程式による回答」と表示された回答は固定ルールから、それ以外は言語モデルGeminiから生成されます · 健康・法律・お金の判断の参考であり、専門家の代わりではありません · 緊急時は1669(タイ)'],
+    'LYLA และ VEGA เป็นระบบ AI ไม่ใช่คน': ['LYLA and VEGA are AI systems, not people', 'LYLAとVEGAはAIであり、人間ではありません'],
+    'รายละเอียด': ['Details', '詳細'],
     'ข้อความ': ['Message', 'メッセージ'], 'ส่ง': ['Send', '送信'],
     'จักรวาลการตัดสินใจ': ['Decision universe', '意思決定の宇宙'], 'โหมดจักรวาล': ['Universe mode', '宇宙モード'],
     'จักรวาลไม่ได้หมุนรอบใคร': ['The universe revolves around no one', '宇宙は誰の周りも回っていない'],

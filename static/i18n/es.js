@@ -739,6 +739,8 @@
 "ราคา/โควตาเปลี่ยนโดยไม่ใส่เหตุผล {n} ครั้ง — ใส่ POLICY_CHANGE_REASON ใน Render": "Precio/cuota cambiados sin motivo {n} veces — define POLICY_CHANGE_REASON en Render",
 "สุขภาพระบบ": "Salud del sistema",
 "LYLA และ VEGA เป็นระบบ AI ไม่ใช่คน · คำตอบที่ลงท้ายว่า “ตอบจากสมการของระบบ” มาจากกฎที่เขียนไว้ตายตัว นอกนั้นมาจากโมเดลภาษา Gemini · เรื่องสุขภาพ กฎหมาย และเงิน ใช้ประกอบการตัดสินใจ ไม่แทนผู้เชี่ยวชาญ · ฉุกเฉินโทร 1669":"LYLA y VEGA son sistemas de IA, no personas · Las respuestas marcadas «respondido con las ecuaciones del sistema» salen de reglas fijas; el resto, del modelo de lenguaje Gemini · En salud, temas legales y dinero, úsalo para ayudarte a decidir: no sustituye a un profesional · Emergencias: 1669 (Tailandia)",
+"LYLA และ VEGA เป็นระบบ AI ไม่ใช่คน":"LYLA y VEGA son sistemas de IA, no personas",
+"รายละเอียด":"Detalles",
   "เฟรมเรต": "Tasa de fotogramas",
   "เฟรมเรตสูงสุด": "Tasa máxima de fotogramas",
   "เครื่องเย็นและประหยัดแบตที่สุด": "La más fresca y la que más batería ahorra"

@@ -48,6 +48,15 @@ _QUESTION = re.compile(r"\?|ไหม|มั้ย|ยังไง|อย่า�
                        r"(?i:\b(?:how|what|why|when|where|who|should|can i|do i|is it|does)\b)")
 
 
+# ทักทายเฉยๆ ("สวัสดี" "หวัดดีค่ะ" "hi") — หน้าจอจริง: ทักแล้วได้สรุปเรื่องหนี้จากแชทอื่น + โหมด COLLAPSE จากสถานะที่บันทึกไว้
+BARE_GREET = re.compile(r"^\s*(?:สวัสดี(?:ค่ะ|ครับ|จ้า|คะ)?|หวัดดี|ดีจ้า|ดีค่ะ|ดีครับ|ทักจ้า|อรุณสวัสดิ์|hello|hi|hey|yo|good (?:morning|evening|afternoon))"
+                        r"(?:\s*(?:ค่ะ|คะ|ครับ|คับ|ค้าบ|จ้า|จ้ะ|นะ|น้า|ทุกคน|lyla|ไลลา|vega|เวก้า|there|ๆ|[!.~😊🙂👋]))*\s*$", re.I)
+
+
+def is_bare_greeting(text: str) -> bool:
+    return bool(BARE_GREET.match(str(text or "")))
+
+
 def detect(text: str) -> str | None:
     """เจตนาของข้อความที่ไม่มีหัวข้อ: closing_night · closing_bye · worry_other · goal · safety_q · share_good"""
     t = str(text or "").strip()
