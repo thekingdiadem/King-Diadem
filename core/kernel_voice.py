@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from core.thai_signals import (SAFETY_NET_SELF, SAFETY_NET_OTHER, NET_CONFINE, NET_GROOM, NET_MAIM, normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT, SELF_HARM_VEILED,
+from core.thai_signals import (INDIRECT_SELF, INDIRECT_ADMIN, INDIRECT_HARM, SAFETY_NET_SELF, SAFETY_NET_OTHER, NET_CONFINE, NET_GROOM, NET_MAIM, normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT, SELF_HARM_VEILED,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
                                BULLYING, HELP_ONLY, SEXUAL_ABUSE, VIOLENCE_BY, VIOLENCE_HABIT, SEXTORTION, MEDICAL_EMERGENCY,
                                FIRST_AID, PANIC, THIRD_PARTY_CRISIS, strip_third_party, strip_own_past_harm, DRUNK_DRIVING,
@@ -180,7 +180,7 @@ TOPICS = [
         ],
         "ask": "ตอนนี้เขาอยู่ที่ไหน และมีใครอยู่กับเขาบ้าง?",
     }),
-    ("warning", [SELF_HARM_WARNING, SAFETY_NET_SELF], {
+    ("warning", [SELF_HARM_WARNING, SAFETY_NET_SELF, INDIRECT_SELF, INDIRECT_ADMIN], {
         "open": ["ขอบคุณที่บอกนะ ฟังดูเหนื่อยและหนักมากจริงๆ"],
         "paths": [
             "ขอถามตรงๆ นะ: ตอนนี้มีความคิดอยากทำร้ายตัวเองหรือไม่อยากมีชีวิตอยู่ไหม — ตอบตามจริงได้ ฉันไม่ตัดสิน",
@@ -910,7 +910,7 @@ TOPICS = [
         ],
         "ask": "ถ้าเดือนนี้จ่ายได้แค่ก้อนเดียว ก้อนไหนที่ถ้าไม่จ่ายจะเสียหายมากที่สุด?",
     }),
-    ("threat", [THREAT, NET_MAIM, NET_CONFINE], {
+    ("threat", [THREAT, NET_MAIM, NET_CONFINE, INDIRECT_HARM], {
         "open": ["การถูกขู่ทำให้ไม่ปลอดภัยแม้ยังไม่เกิดอะไร — ความกลัวนั้นสมเหตุสมผล"],
         "paths": [
             "เก็บหลักฐานทุกอย่าง: แคปข้อความ บันทึกเสียงโทร จดวันเวลาและเบอร์ — อย่าลบแม้จะไม่อยากเห็น",
@@ -2286,6 +2286,8 @@ def _crisis_outside_frame(text: str, pattern=None) -> bool:
 
 
 def assess(text: str, pattern: dict | None = None) -> dict:
+    from core.thai_signals import canon_text
+    text = canon_text(text)                     # เว้นวรรคซ้อน · ลากตัวอักษร — ทุกชั้นเห็นรูปเดียวกัน
     a = _assess_raw(text, pattern)
     if not a["crisis"] and a["text_risk"] >= 35 and isinstance(text, str) and _DREAM.search(text) \
             and not _WOKE_REAL.search(text):
@@ -2393,8 +2395,13 @@ def _assess_raw(text: str, pattern: dict | None = None) -> dict:
         b = _assess(alt, pattern)
         # ฉบับเติมวรรณยุกต์ใกล้กับที่ผู้ใช้ตั้งใจพิมพ์กว่า ("อานขาว…" = "อ่านข่าว…" ไม่ใช่เรื่องด่วน)
         # ยกเว้นฉบับเดิมเห็นวิกฤตแต่ฉบับเติมไม่เห็น — ไม่ยอมเสียสัญญาณวิกฤตเพราะเติมผิดคำ
+        if _TONE_RE_KV.search(plain):           # พิมพ์ใส่วรรณยุกต์บางคำ: ใช้ฉบับที่เห็นอันตรายมากกว่า (ฉบับเติมเป็นแค่ทางเลือก)
+            return b if (b["crisis"] and not a["crisis"]) or b["text_risk"] > a["text_risk"] else a
         return a if (a["crisis"] and not b["crisis"]) else b
     return a
+
+
+_TONE_RE_KV = re.compile("[\u0e48\u0e49\u0e4a\u0e4b]")
 
 
 def _assess(text: str, pattern: dict | None = None) -> dict:
