@@ -12,6 +12,9 @@
 (function () {
   var BASE = '/static/vendor/maplibre-gl-5.24.0/';
   var TILES = 'https://tiles.openfreemap.org';
+  var SAFE_L = /^th/i.test(document.documentElement.lang || '')
+    ? { police: 'ตำรวจ · ', hospital: 'โรงพยาบาล · ', fire: 'ดับเพลิง · ', fuel: 'ปั๊ม · ', shop: 'ร้านสะดวกซื้อ · ' }
+    : { police: 'Police · ', hospital: 'Hospital · ', fire: 'Fire station · ', fuel: 'Fuel · ', shop: 'Shop · ' };
   var box = document.getElementById('city-map');
   if (!box) return;
   var hasGL2 = !!document.createElement('canvas').getContext('webgl2');
@@ -189,6 +192,21 @@
                    'fill-extrusion-opacity': 1, 'fill-extrusion-vertical-gradient': true,
                    'fill-extrusion-base': ['get', 'base'],
                    'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 12, ['get', 'base'], 13, ['get', 'top']] } },
+        // ทางหนีทีไล่: จุดที่มีคนและขอความช่วยเหลือได้ (OpenStreetMap จริง) — สถานีตำรวจ โรงพยาบาล สถานีดับเพลิง
+        // ร้านสะดวกซื้อและปั๊มน้ำมัน (เปิดดึก มีพนักงาน มีกล้อง) · ถูกตามให้ไปที่แบบนี้ อย่ากลับบ้าน
+        { id: 'safe-dot', type: 'circle', source: 'omt', 'source-layer': 'poi', minzoom: 13,
+          filter: ['any', ['in', ['get', 'subclass'], ['literal', ['police', 'hospital', 'fire_station']]],
+                   ['all', ['>=', ['zoom'], 15], ['in', ['get', 'subclass'], ['literal', ['convenience', 'fuel']]]]],
+          paint: { 'circle-color': ['match', ['get', 'subclass'], 'police', '#7fb6ff', 'hospital', '#ff8fa3', 'fire_station', '#ffb070', '#9ff0c4'],
+                   'circle-radius': ['interpolate', ['linear'], ['zoom'], 13, 3.2, 17, 6.5],
+                   'circle-stroke-color': 'rgba(255,255,255,.85)', 'circle-stroke-width': 1.2, 'circle-blur': .15 } },
+        { id: 'safe-name', type: 'symbol', source: 'omt', 'source-layer': 'poi', minzoom: 14.5,
+          filter: ['in', ['get', 'subclass'], ['literal', ['police', 'hospital', 'fire_station', 'convenience', 'fuel']]],
+          layout: { 'text-field': ['concat', ['match', ['get', 'subclass'], 'police', SAFE_L.police, 'hospital', SAFE_L.hospital,
+                                              'fire_station', SAFE_L.fire, 'fuel', SAFE_L.fuel, SAFE_L.shop], ['coalesce', NAME_WORLD, '']],
+                    'text-font': ['Noto Sans Bold'], 'text-size': 10.5, 'text-anchor': 'top', 'text-offset': [0, .7], 'text-max-width': 9, 'text-padding': 4,
+                    'symbol-sort-key': ['match', ['get', 'subclass'], 'police', 0, 'hospital', 1, 'fire_station', 2, 3] },
+          paint: paint({ 'text-color': ['match', ['get', 'subclass'], 'police', '#bcd8ff', 'hospital', '#ffc2cd', 'fire_station', '#ffd3a8', '#c8f7dd'] }) },
         { id: 'peak-dot', type: 'circle', source: 'omt', 'source-layer': 'mountain_peak', minzoom: 10,
           filter: ['has', 'name'],
           paint: { 'circle-radius': 2.6, 'circle-color': C.peak_dot, 'circle-stroke-color': C.halo, 'circle-stroke-width': 1 } },

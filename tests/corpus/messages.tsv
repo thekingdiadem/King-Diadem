@@ -745,3 +745,7 @@ the team would be better off without the old server	!topic:someone	ปกติ
 ใกล้สอบแล้วอ่านไม่ทัน	topic:study;!topic:study_or_work	ทั่วไป
 ลูกจะเรียนต่อมหาลัยค่าเทอมไม่พอ	!topic:study_or_work	ทั่วไป
 ตกงานแล้วหางานไม่ได้	!topic:study_or_work	ทั่วไป
+# ── ถูกตามข้างนอก ≠ ถูกบุกบ้าน (เดิมคนถูกตามได้ข้อแรกให้ล็อกตัวเองในห้อง) ──
+มีคนเดินตามมา กลัวมาก จะหนีไปไหนดี	disaster:intruder;!crisis	ภัย
+มีคนขับรถตามมาตั้งแต่ออกจากที่ทำงาน	disaster:intruder	ภัย
+มีคนพยายามงัดประตูบ้าน	disaster:intruder	ภัย
