@@ -2587,6 +2587,10 @@ async function send(textArg){
   window.dispatchEvent(new CustomEvent('KD:thinking', { detail:{ on:true } }));
   var th = document.createElement('div'); th.className = 'm a' + (REDUCED ? '' : ' enter'); th.innerHTML = '<div class="who"><span class="' + (mode==='vega'?'vega':mode==='crisis'?'crisis':mode==='council'?'council':'lyla') + '">' + (mode==='vega'?'VEGA':mode==='crisis'?'HALT':mode==='council'?_t('สภา 6 เสียง'):'LYLA') + '</span><span class="tag">กำลังคิด…</span></div><div class="thinking"><i></i><i></i><i></i></div>';
   $('#msgs').appendChild(th); scrollBottom();
+  /* ตอบช้าก็รู้สึกเหมือนไม่ตอบ (โดยเฉพาะคนที่กำลังลำบาก): เกิน 6 วินาทีบอกว่ายังอยู่ · เกิน 20 วินาทีบอกเบอร์ที่โทรได้เลยไม่ต้องรอ
+     ตัวจับเวลาผูกกับกล่อง "กำลังคิด" — กล่องถูกลบเมื่อได้คำตอบ ข้อความพวกนี้จึงหายไปเอง */
+  [[6000, 'ยังอยู่ตรงนี้นะคะ กำลังคิดคำตอบให้ดีที่สุด'], [20000, 'ใช้เวลานานกว่าปกติ ขอโทษที่ให้รอนะคะ — ถ้าเป็นเรื่องด่วน โทรได้เลยไม่ต้องรอ: 1669 เจ็บป่วยฉุกเฉิน · 191 ตำรวจ · 1323 สุขภาพจิต']].forEach(function(w){
+    setTimeout(function(){ if(!th.parentNode) return; var p = document.createElement('p'); p.className = 'wait-note'; p.setAttribute('role', 'status'); p.textContent = _t(w[1]); th.appendChild(p); scrollBottom(); }, w[0]); });
   var body = { input:text, route:Route, voice_mode:mode, persona_ui:Persona, voice_hint:voiceHint(mode), history:history,
     context: Object.assign({ client_voice:mode, tone_notes:voiceHint(mode), route_ui:Route }, state) };
   var born = null;
@@ -2714,7 +2718,7 @@ function wlGauge(w){
 }
 function dzCard(a){
   if(a.verdict === 'urgent') return crisisCard();
-  var V = { stop: ['หยุดก่อน', 'stop'], ask: ['ข้อมูลยังไม่ครบ', 'ask'], pass: ['ผ่านทุกด่าน', 'pass'] }[a.verdict] || ['', ''];
+  var V = { stop: ['หยุดก่อน', 'stop'], ask: ['ข้อมูลยังไม่ครบ', 'ask'], pass: ['ผ่านทุกด่าน', 'pass'], about: ['วิธีใช้', 'ask'] }[a.verdict] || ['', ''];
   var stops = (a.gates || []).filter(function(g){ return g.status === 'stop'; }), ok = (a.gates || []).filter(function(g){ return g.status !== 'stop'; });
   var h = '<div class="dz"><div class="dz-h"><span class="dz-v ' + V[1] + '">' + esc(_t(V[0])) + '</span>' + esc(_t('ด่าน DriftZero')) + '</div>';
   h += wlGauge(a.waterline);

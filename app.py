@@ -466,6 +466,9 @@ async def _too_large(send):
 
 # บีบอัดข้อความก่อนส่ง (JSON/HTML/JS) — ข้อมูลเมืองทั่วโลกของหน้า Universe 1.4 MB เหลือราว 0.7 MB
 from fastapi.middleware.gzip import GZipMiddleware
+# เวลาตอบของแชท p50/p95/p99 (core/latency.py) — ดูได้ที่ /health · เก็บแค่ตัวเลขเวลา ไม่เก็บข้อความ
+from core.latency import ReplyTimer, summary as _reply_ms
+app.add_middleware(ReplyTimer)
 app.add_middleware(GZipMiddleware, minimum_size=2048)
 app.add_middleware(BodyLimitMiddleware)   # เพิ่มทีหลังสุด = ชั้นนอกสุด ตัดก่อนตัวอื่นแตะ body
 
@@ -1020,6 +1023,7 @@ def health():
         "status":             "alive 👑",
         "version":            "5.0",
         "llm_loaded":         llm is not None,
+        "reply_ms":           _reply_ms(),          # เวลาตอบของแชท 500 ข้อความล่าสุด: p50 / p95 / p99 (มิลลิวินาที)
         "ai":                 _ai_health(),         # ใช้ AI ได้จริงไหม · ถ้าไม่ได้ เพราะอะไร (quota/auth/errors/daily_cap/no_api_key)
         "engine_loaded":      engine is not None,
         "lyla_loaded":        lyla is not None,
