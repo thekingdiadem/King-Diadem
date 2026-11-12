@@ -188,3 +188,11 @@ def test_yesterday_layer_is_real_daily_nasa_imagery_and_off_by_default():
     assert "layout: { visibility: todayOn ? 'visible' : 'none' }" in CITY and "var todayOn = false;" in CITY
     page = (ROOT / "static/king_diadem_universe.html").read_text(encoding="utf-8") if "ROOT" in globals() else ""
     assert not page or ('id="ec-today"' in page and 'data-act="today"' in page)
+
+
+def test_day_map_is_not_darkened_by_the_title_scrim_or_hillshade():
+    """แผนที่โหมดกลางวัน "หม่นและเบลอ": เงาหลังหัวเรื่องหน้า Universe ค้างทับแผนที่ทั้งครึ่งล่าง (ค่า --hero-a ค้างที่ 1 ตอนเปิดแผนที่)
+    และเงาภูเขาสีเทาทับภาพดาวเทียมอีกชั้น"""
+    page = (ROOT / "static/king_diadem_universe.html").read_text(encoding="utf-8")
+    assert "html.kd-city .cockpit::after,html.kd-day .cockpit::after{display:none}" in page
+    assert "'hillshade-exaggeration': ['interpolate', ['linear'], ['zoom'], 12.6, 0, 14, C.hsEx]" in CITY

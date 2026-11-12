@@ -31,7 +31,11 @@ QKD (Quantum Key Distribution) ต้องส่งโฟตอนทีละ�
 
 - ตรวจว่าเว็บเราใช้อยู่ไหม: เปิดเว็บใน Chrome → DevTools → แท็บ Security (หรือ Privacy and security) → ดูบรรทัด Key exchange
   ถ้าเห็น `X25519MLKEM768` แปลว่าใช้แล้ว · เครื่องทดสอบของเรา (OpenSSL 3.0) ยังตรวจกลุ่มนี้ไม่ได้ จึง**ยังไม่ได้ยืนยัน**
-- ถ้ายังไม่ใช้: วาง Cloudflare (แผนฟรี) หน้าโดเมน — เปิด PQC hybrid ให้ผู้ใช้ทุกคนโดยไม่ต้องแก้โค้ด
+- ตรวจเมื่อ 2026-11-12: คำตอบจาก `king-diadem.onrender.com` มี `server: cloudflare` และ `cf-ray` — การเชื่อมต่อจากผู้ใช้ไปจบที่ Cloudflare ก่อน
+  แล้วค่อยต่อไปยังเซิร์ฟเวอร์ของ Render (`x-render-origin-server: uvicorn`) · Cloudflare เปิดการแลกกุญแจแบบผสม PQC ที่ขอบให้เบราว์เซอร์ที่รองรับเป็นค่าเริ่มต้น
+  แต่ **ช่วง Cloudflare → Render ยังไม่รู้** ว่าใช้ PQC หรือไม่ (Render ไม่ได้ระบุไว้) จึงยังพูดไม่ได้ว่าปลอดภัยแบบตลอดสาย
+- ถ้าอยากคุมทั้งสาย: ใช้โดเมนของตัวเองผ่าน Cloudflare (DNS-only ก่อนให้ Render ออกใบรับรอง แล้วค่อยเปิด Proxied · SSL/TLS = Full)
+  ตามคู่มือ Configure Cloudflare DNS ของ Render — ยังไม่ได้ทำ
 
 ## ข้อสังเกตจากการไล่ดูโค้ด
 

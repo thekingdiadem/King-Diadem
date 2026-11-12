@@ -441,6 +441,9 @@ html.kd-calm .cl-meter i{transition:none}
 /* หัวเรื่องอ่านออกแม้ลอยอยู่บนไฟเมืองสว่างๆ: เงามืดนุ่มๆ หลังตัวอักษร (จางตามหัวเรื่องตอนซูม) + เงาใต้ตัวหนังสือ */
 .cockpit::after{content:"";position:absolute;inset:30% 0 0 0;z-index:1;pointer-events:none;opacity:var(--hero-a,1);
   background:radial-gradient(110% 46% at 50% 56%,rgba(3,5,14,.74),rgba(3,5,14,.5) 48%,rgba(3,5,14,0) 100%)}   /* วงรีอยู่ในกรอบทั้งวง — ไม่มีเส้นขอบตัดกลางลูกโลก (เห็นชัดตอนกลางวัน) */
+/* แผนที่เมืองเปิดอยู่ (html.kd-city) หรือโหมดกลางวัน: ไม่ต้องมีเงาหลังหัวเรื่อง — เดิมเงานี้ค้างทับแผนที่ทั้งครึ่งล่างเต็มความเข้ม
+   (ตอนเปิดแผนที่ ลูกโลกหยุดวาด ค่า --hero-a จึงค้างที่ 1) ภาพดาวเทียมโหมดกลางวันเลยดูหม่นและมืด */
+html.kd-city .cockpit::after,html.kd-day .cockpit::after{display:none}
 #hero .hero-title{filter:drop-shadow(0 2px 16px rgba(0,0,0,.8))}
 .hero-rule,.hero-desc,.hero-sub,.scroll-hint{text-shadow:0 1px 14px rgba(0,0,0,.9),0 0 3px rgba(0,0,0,.6)}
 .hero-sub{color:rgba(232,200,120,.62)}
