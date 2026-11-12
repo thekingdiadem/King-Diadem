@@ -183,7 +183,10 @@
         // เงาภูเขาใต้แสงจันทร์ — สันเขาสว่างอมฟ้าจางๆ หุบเขามืด
         { id: 'hillshade', type: 'hillshade', source: 'demhs',
           paint: { 'hillshade-shadow-color': C.hsShadow, 'hillshade-highlight-color': C.hsHi,
-                   'hillshade-accent-color': C.hsAccent, 'hillshade-exaggeration': C.hsEx, 'hillshade-illumination-direction': 315 } },
+                   'hillshade-accent-color': C.hsAccent, 'hillshade-illumination-direction': 315,
+                   // ช่วงที่มีภาพดาวเทียมอยู่ข้างใต้ (ซูมไม่ถึง 12.6) ไม่ต้องลงเงาภูเขาซ้ำ — ภาพถ่ายมีแสงเงาภูมิประเทศจริงอยู่แล้ว
+                   // เดิมเงาภูเขาสีเทาทับภาพดาวเทียมทั้งแผ่น แผนที่โหมดกลางวันจึงดูหม่นและเบลอ · ค่อยๆ กลับมาเมื่อแผนที่ถนนรับช่วง
+                   'hillshade-exaggeration': ['interpolate', ['linear'], ['zoom'], 12.6, 0, 14, C.hsEx] } },
         { id: 'today', type: 'raster', source: 'today', maxzoom: 11, layout: { visibility: todayOn ? 'visible' : 'none' },
           paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 9, 1, 10.8, 0], 'raster-fade-duration': 300 } },
         { id: 'urban', type: 'fill', source: 'omt', 'source-layer': 'landuse',

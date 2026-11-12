@@ -1151,6 +1151,30 @@ body.kd-gentle #upgrade-pill,body.kd-gentle #starters,body.kd-gentle .quota,body
 html.kd-calm .crest i,html[data-ink="dark"] .crest i{animation:none;display:none}
 @media (prefers-reduced-motion:reduce){ .crest i{animation:none} }
 @media (max-width:379px){ .crest i{width:170px;height:170px;margin:-85px 0 0 -85px} }
+/* ── Eternal Drop: แกนแสงจากฟ้าลงมาที่ตรา แล้วหยดแสงที่ฐานกระจายเป็นวงคลื่น ──────────────────────────
+   จากภาพอ้างอิงของเจ้าของโปรเจกต์ (Cosmic Axis → Crown Kernel → ripple) และจังหวะที่เขาชอบในเกม: แสงลงจากฟ้าตรงร่างแล้วแปลงร่าง
+   เล่นครั้งเดียวทุกครั้งที่เปิดหน้า (หน้าซ่อนด้วย display:none → เปิดใหม่ = เล่นใหม่) ราว 2 วินาที แล้วเหลือเส้นแสงจางๆ นิ่งๆ
+   ขยับด้วย transform/opacity อย่างเดียว · ไม่มีเมื่อเลือกลดการเคลื่อนไหว หรือโหมดสว่าง
+   ตำแหน่งหยดแสง = กึ่งกลางตรา + 136/512 ของความสูงตรา (หยดอยู่ที่ y=392 ในไฟล์ 512) */
+.crest{--drop:calc(50% - 14px + 45px)}
+@media (max-width:379px){ .crest{--drop:calc(50% - 14px + 35px)} }
+.crest .axis{position:absolute;z-index:2;left:50%;top:-56px;width:2px;margin-left:-1px;height:calc(var(--drop) + 56px);transform-origin:50% 0;
+  background:linear-gradient(180deg,rgba(170,210,255,0),rgba(214,234,255,.95) 45%,#fff 88%,rgba(255,226,170,.9));
+  box-shadow:0 0 12px 2px rgba(150,200,255,.55);opacity:.18;animation:kd-axis 2.2s cubic-bezier(.2,.7,.2,1) .15s both}
+@keyframes kd-axis{0%{transform:scaleY(0);opacity:1}38%{transform:scaleY(1);opacity:1}70%{opacity:.85}100%{transform:scaleY(1);opacity:.18}}
+.crest .ripple{position:absolute;z-index:0;left:50%;top:var(--drop);width:0;height:0;text-decoration:none}
+.crest .ripple::before,.crest .ripple::after{content:"";position:absolute;left:-90px;top:-14px;width:180px;height:28px;border-radius:50%;
+  border:1px solid rgba(255,226,170,.8);box-shadow:0 0 10px rgba(255,200,130,.4);opacity:0;transform:scale(.1);animation:kd-ripple 1.8s ease-out .9s both}
+.crest .ripple::after{border-color:rgba(170,210,255,.7);box-shadow:0 0 10px rgba(130,180,255,.4);animation-delay:1.15s}
+@keyframes kd-ripple{0%{opacity:0;transform:scale(.1)}12%{opacity:1}100%{opacity:0;transform:scale(1.55)}}
+.crest img{animation:kd-crest-lit 2.2s ease .15s both}
+@keyframes kd-crest-lit{0%,30%{filter:drop-shadow(0 0 18px rgba(120,170,255,.35)) drop-shadow(0 10px 26px rgba(236,150,84,.28)) brightness(.85)}
+  45%{filter:drop-shadow(0 0 34px rgba(190,220,255,.9)) drop-shadow(0 10px 30px rgba(255,190,110,.6)) brightness(1.25)}
+  100%{filter:drop-shadow(0 0 18px rgba(120,170,255,.35)) drop-shadow(0 10px 26px rgba(236,150,84,.28)) brightness(1)}}
+html.kd-calm .crest .axis,html.kd-calm .crest .ripple,html.kd-calm .crest img{animation:none}
+html.kd-calm .crest .ripple,html[data-ink="dark"] .crest .ripple,html[data-ink="dark"] .crest .axis{display:none}
+html[data-ink="dark"] .crest img{animation:none}
+@media (prefers-reduced-motion:reduce){ .crest .axis,.crest .ripple::before,.crest .ripple::after,.crest img{animation:none} .crest .ripple{display:none} }
 /* หน้าภาษาอังกฤษ: บรรทัดอธิบายภาษาไทยของสมการถูกแปลเป็นอังกฤษ ซ้ำกับบรรทัดอังกฤษที่มีอยู่แล้ว — แสดงบรรทัดเดียวพอ */
 html[lang^="en"] .eq .nm[lang="th"]{display:none}
 /* ── ดาวลูกไก่ใกล้ๆ (static/pleiades_view.js) — เต็มจอ อวกาศมืดเสมอทุกโหมดสี ─────────────── */

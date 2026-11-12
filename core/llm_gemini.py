@@ -798,11 +798,34 @@ def _thinks(model_name) -> bool:
 
 
 def _thinking_config(model_name):
-    """คิดให้น้อยที่สุดที่รุ่นนั้นยอม: 2.5 flash/lite ปิดได้ · 2.5 pro ต่ำสุด 128 · รุ่น 3 ขึ้นไปใช้ระดับ low"""
+    """คิดให้น้อยที่สุดที่รุ่นนั้นยอม: 2.5 flash/lite ปิดได้ · 2.5 pro ต่ำสุด 128 · รุ่น 3 ขึ้นไปใช้ระดับ low
+    รุ่น 4 (เช่น gemini-4-hydrogen): มี 4 ระดับ low / medium / high / xhigh ค่าเริ่มต้นคือ high (ช้าที่สุดในงานทั่วไป)
+    และส่ง thinking_budget ไม่ได้ (ได้ 400) — ต้องส่ง thinking_level=low เองเสมอ
+    ระบบนี้ให้กฎตัดสินใจก่อน AI แค่เรียบเรียงคำตอบ จึงไม่ต้องคิดลึก คำตอบเร็วสำคัญกว่าสำหรับคนที่กำลังลำบาก"""
     m = str(model_name or "").lower()
     if "2.5" in m:
         return types.ThinkingConfig(thinking_budget=128 if "pro" in m else 0)
     return types.ThinkingConfig(thinking_level=types.ThinkingLevel.LOW)
+
+
+# รุ่นที่ตอบ 404 (ชื่อผิด/ถูกปลด/ยังไม่เปิดให้บัญชีนี้) — จำไว้ช่วงหนึ่ง ข้อความถัดไปไม่ต้องเสียเวลาลองซ้ำ
+# เดิมทุกข้อความลองรุ่นที่ไม่มีอยู่ก่อนเสมอ · ตั้ง GEMINI_MODEL เป็นรุ่นใหม่ที่ชื่อยังไม่แน่ชัด จึงเสียแค่ครั้งแรก
+_dead_models: dict = {}
+_dead_lock = threading.Lock()
+
+
+def _model_dead(name: str) -> bool:
+    with _dead_lock:
+        until = _dead_models.get(name)
+        if until and until > time.time():
+            return True
+        _dead_models.pop(name, None)
+        return False
+
+
+def _mark_model_dead(name: str):
+    with _dead_lock:
+        _dead_models[name] = time.time() + float(os.getenv("MODEL_DEAD_S", "21600"))
 
 
 def _no_thinking(cfg, model_name="gemini-2.5-flash"):
@@ -1063,13 +1086,15 @@ class GeminiLLM:
             time.sleep(sec)
             return True
 
-        for model_name in models_to_try:
+        alive = [m for m in models_to_try if not _model_dead(m)]
+        for model_name in (alive or models_to_try):
             if time.time() > deadline or spent:
                 break
             use = _no_thinking(cfg, model_name) if _thinks(model_name) else cfg
             grown = False
             for attempt in range(len(self._keys) * 2):
                 try:
+                    t_call = time.perf_counter()
                     resp = self.client.models.generate_content(
                         model=model_name,
                         contents=contents,
@@ -1098,6 +1123,11 @@ class GeminiLLM:
                             use = use.model_copy(update={"max_output_tokens": (use.max_output_tokens or 1024) * 2})
                             continue
                         break                                        # ลองรุ่นถัดไป
+                    try:                                             # เวลาของแต่ละรุ่น → /health (เทียบรุ่นด้วยตัวเลขจริง)
+                        from core.latency import record_model
+                        record_model(model_name, (time.perf_counter() - t_call) * 1000)
+                    except Exception:
+                        pass
                     if result:
                         _cache_set(ck, result)
                     if model_name != self.model:
@@ -1122,7 +1152,8 @@ class GeminiLLM:
                     elif any(k in err for k in [
                         "404", "not_found", "not found", "is not supported for"
                     ]):
-                        print(f"⚠ Model '{model_name}' ใช้ไม่ได้ ({e}) — ลองโมเดลถัดไปในลิสต์")
+                        print(f"⚠ Model '{model_name}' ใช้ไม่ได้ ({e}) — ลองโมเดลถัดไปในลิสต์ และข้ามรุ่นนี้ไปสักพัก")
+                        _mark_model_dead(model_name)
                         break
 
                     elif any(k in err for k in [
