@@ -3206,3 +3206,11 @@ window.addEventListener('KD:response', function(e){
     localStorage.setItem('kd-my-stars', JSON.stringify(L.slice(-300)));
   } catch(x) {}
 });
+
+/* ชั้นชะลอเชิงจริยธรรม (หลักของเจ้าของโปรเจกต์: "ความเร็วที่ไม่เห็นใจคือความเสี่ยง"):
+   คำตอบล่าสุดเป็นเรื่องวิกฤตหรือความเสี่ยงสูง → หน้าจอเงียบลง ไม่มีป้ายอัปเกรด ไม่มีตัวนับโควตา ไม่มีปุ่มเรื่องตัวอย่าง
+   คนที่กำลังกลัวไม่ควรเห็นอะไรที่เร่งหรือขาย · กลับเป็นปกติเมื่อคำตอบถัดไปความเสี่ยงต่ำกว่า 50 (การแทรกแซงจบเมื่อทางเลือกกลับมา) */
+window.addEventListener('KD:response', function(e){
+  var d = e.detail || {}, heavy = d.route === 'crisis' || num(d.risk_score, 0) >= 70, calm = d.route !== 'crisis' && num(d.risk_score, 0) < 50;
+  if(heavy) document.body.classList.add('kd-gentle'); else if(calm) document.body.classList.remove('kd-gentle');
+});
