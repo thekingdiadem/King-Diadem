@@ -1738,7 +1738,7 @@ var Cosmos = (function(){
           if(pen) ctx.lineTo(q.x, q.y); else { ctx.moveTo(q.x, q.y); pen = true; }
         }
         if(on){ ctx.strokeStyle = col; ctx.globalAlpha = A * (pass ? .9 : .16); ctx.lineWidth = pass ? 1 : 4; }
-        else { ctx.strokeStyle = THEME.dark ? 'rgba(70,60,110,1)' : 'rgba(226,232,246,1)'; ctx.globalAlpha = A * (THEME.dark ? .22 : .26); ctx.lineWidth = .8; }
+        else { ctx.strokeStyle = THEME.dark ? 'rgba(70,60,110,1)' : 'rgba(226,232,246,1)'; ctx.globalAlpha = A * (THEME.dark ? .22 : .26) * (QUIET ? .4 : 1); ctx.lineWidth = QUIET ? .6 : .8; }
         ctx.stroke();
       }
       /* ชื่อเส้นทางตามแนววง: ด้านหน้าล่าง สลับซ้าย/ขวา · ถ้าตกจอหรือชนช่องพิมพ์ ย้ายไปอีกฝั่ง */
@@ -1751,7 +1751,7 @@ var Cosmos = (function(){
         var clash = boxes.some(function(o){ return bx[0] < o[2] && bx[2] > o[0] && bx[1] < o[3] && bx[3] > o[1]; });
         if(!clash && lx - tw / 2 > 8 && lx + tw / 2 < W - 8 && ly > top + 10 && ly < bottom - 14){ spot = { q: q2, x: lx, y: ly }; boxes.push(bx); }
       }
-      if(spot && !CINEMA.on){
+      if(spot && !CINEMA.on && (on || !QUIET)){
         var tx = -Math.sin(spot.q.a) * spot.q.rr, ty = Math.cos(spot.q.a) * spot.q.rr * spot.q.k;
         var ang = Math.atan2(tx * spot.q.st + ty * spot.q.ct, tx * spot.q.ct - ty * spot.q.st);
         if(ang > Math.PI / 2) ang -= Math.PI; if(ang < -Math.PI / 2) ang += Math.PI;
@@ -1877,13 +1877,16 @@ var Cosmos = (function(){
       var x = q[0] + ox, y = q[1] + oy + l[3] * k;
       if(x < 24 || x > W - 24 || y < top + 6 || y > bottom - 24 || Math.hypot(x - B.cx, y - B.cy) < B.r * 1.1) return;
       if(THEME.dark && l[0] !== 'ดาวลูกไก่') return;
-      if(!CINEMA.on){ ctx.globalAlpha = A * .8; ctx.fillText(_t(l[0]), x, y); }
+      if(!CINEMA.on && !QUIET){ ctx.globalAlpha = A * .8; ctx.fillText(_t(l[0]), x, y); }
     });
     ctx.restore(); ctx.globalAlpha = 1;
   }
   var DAWN = { show: 1, think: 0, last: 0, spinOff: 0, drag: null };
   /* โหมดภาพยนตร์ (อัดคลิป): ซ่อน UI ทั้งหมด เหลือโลกเต็มจอ · กล้องดันเข้าช้าๆ · ดวงอาทิตย์ค่อยๆ ขึ้นจากขอบโลก */
   var CINEMA = { on: false, t0: 0 };
+  /* หน้าแรกเรียบ: เจ้าของโปรเจกต์บอกว่าหน้าแรก "ดูเลอะเทอะ" — ชื่อดาวเคราะห์ ชื่อดาวลูกไก่ ชื่อเส้นทาง 6 ป้าย และวงโคจร 6 วง แย่งสายตาจากโลก
+     ตอนนี้โลกเป็นจุดโฟกัสเดียว: ไม่มีป้ายชื่อวัตถุ · วงโคจรที่ไม่ได้เลือกจางลงมาก · ป้ายเหลือเฉพาะเส้นทางที่เลือกอยู่ */
+  var QUIET = true;
   /* ธรรมจักร: วงล้อ 8 ซี่จางๆ รอบโลก หมุนรอบละ 6 นาที · หายใจตามจังหวะสวด (6.4 วินาที) · ตอนคิดหมุนเร็วขึ้นเล็กน้อย
      ไม่ทับตัวโลก (ซี่เริ่มนอกขอบ) · ลดการเคลื่อนไหว = นิ่ง */
   var WHEEL = { a: 0, cv: null, key: '' };
@@ -2086,7 +2089,7 @@ var Cosmos = (function(){
     drawWheel(cx, cy, r, tsec, dt, DAWN.show * (CINEMA.on ? .45 + .75 * sk : 1));
     drawRoutes(cx, cy, r, tsec, CINEMA.on ? 0 : DAWN.show, top, bottom);
     if(drew && !CINEMA.on) drawHazards(cx, cy, r, tsec, DAWN.show);
-    if(drew && !CINEMA.on) drawBodyLabels(BOD, r, DAWN.show, top);
+    if(drew && !CINEMA.on && !QUIET) drawBodyLabels(BOD, r, DAWN.show, top);
     /* ดาวลูกไก่ลอยอยู่ฟ้าด้านบนระหว่างดวงอาทิตย์กับขอบจอ — เลื่อนตามกล้องนิดหน่อยให้รู้ว่าอยู่ไกลกว่าดาวเคราะห์ */
 
     /* ── ดาวหางผ่านมาเป็นระยะๆ ────────────────────────────────────────────
