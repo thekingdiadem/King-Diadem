@@ -180,3 +180,11 @@ def test_sentinel2_layer_is_the_commercially_usable_2016_release():
     assert "Contains modified Copernicus Sentinel data 2016" in CITY and "EOX" in CITY and "CC BY 4.0" in CITY
     assert "minzoom: 6, maxzoom: 13," in CITY                      # ภาพจริงละเอียดสุดที่ระดับ 13
     assert "['interpolate', ['linear'], ['zoom'], 12.6, 0, 14, v]" in CITY     # ลึกกว่านี้ภาพเบลอ ให้ถนนและตึกรับช่วง
+
+
+def test_yesterday_layer_is_real_daily_nasa_imagery_and_off_by_default():
+    assert "MODIS_Terra_CorrectedReflectance_TrueColor/default/' + todayDate() + '/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg" in CITY
+    assert "new Date(Date.now() - 864e5).toISOString().slice(0, 10)" in CITY      # เมื่อวานตาม UTC — ภาพวันนี้ยังไม่ครบทั้งโลก
+    assert "layout: { visibility: todayOn ? 'visible' : 'none' }" in CITY and "var todayOn = false;" in CITY
+    page = (ROOT / "static/king_diadem_universe.html").read_text(encoding="utf-8") if "ROOT" in globals() else ""
+    assert not page or ('id="ec-today"' in page and 'data-act="today"' in page)

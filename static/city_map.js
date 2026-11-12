@@ -140,6 +140,17 @@
   var S2 = { type: 'raster', tileSize: 256, minzoom: 6, maxzoom: 13,
              tiles: ['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/{z}/{y}/{x}.jpg'],
              attribution: '<a href="https://cloudless.eox.at" target="_blank" rel="noopener">Sentinel-2 cloudless</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2016) · CC BY 4.0' };
+  // "โลกเมื่อวาน": ภาพจริงรายวันจากดาวเทียม Terra ของ NASA (เครื่องวัด MODIS) — เห็นเมฆ พายุ ควันไฟป่าของเมื่อวานจริงๆ
+  // สาธารณสมบัติ · ละเอียด ~250 ม./พิกเซล · มีแถบว่างตามแนวโคจรบ้าง (ดาวเทียมยังไม่ผ่าน) · ปิดไว้ก่อน เปิดจากปุ่มในแผงเครื่องมือ
+  // ใช้วันเมื่อวานตามเวลา UTC เพราะภาพของวันนี้ยังถ่ายไม่ครบทั้งโลก
+  function todayDate() { return new Date(Date.now() - 864e5).toISOString().slice(0, 10); }
+  function todaySrc() {
+    return { type: 'raster', tileSize: 256, maxzoom: 9,
+             tiles: ['https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/' + todayDate() + '/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg'],
+             attribution: 'NASA GIBS · MODIS Terra ' + todayDate() };
+  }
+  var todayOn = false;
+  try { todayOn = localStorage.getItem('kd-today') === '1'; } catch (e) {}
   function fadeIn(v) { return ['interpolate', ['linear'], ['zoom'], 12.6, 0, 14, v]; }   // ชั้นสีของแผนที่ค่อยๆ ขึ้นแทนภาพดาวเทียม
   function buildStyle() {
     var C = isDay() ? DAY : NIGHT, LM = landmarkData(), day = isDay();
@@ -155,7 +166,7 @@
     return {
       version: 8,
       glyphs: TILES + '/fonts/{fontstack}/{range}.pbf',
-      sources: { omt: { type: 'vector', url: TILES + '/planet' }, sat: SAT, s2: S2, dem: DEM, demhs: DEM,
+      sources: { omt: { type: 'vector', url: TILES + '/planet' }, sat: SAT, s2: S2, today: todaySrc(), dem: DEM, demhs: DEM,
                  lmshape: { type: 'geojson', data: LM.shapes }, lmpoint: { type: 'geojson', data: LM.points } },
       sky: { 'sky-color': C.sky[0], 'horizon-color': C.sky[1], 'fog-color': C.sky[2],
              'sky-horizon-blend': .6, 'horizon-fog-blend': .8, 'fog-ground-blend': .35, 'atmosphere-blend': 0 },
@@ -173,6 +184,8 @@
         { id: 'hillshade', type: 'hillshade', source: 'demhs',
           paint: { 'hillshade-shadow-color': C.hsShadow, 'hillshade-highlight-color': C.hsHi,
                    'hillshade-accent-color': C.hsAccent, 'hillshade-exaggeration': C.hsEx, 'hillshade-illumination-direction': 315 } },
+        { id: 'today', type: 'raster', source: 'today', maxzoom: 11, layout: { visibility: todayOn ? 'visible' : 'none' },
+          paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 9, 1, 10.8, 0], 'raster-fade-duration': 300 } },
         { id: 'urban', type: 'fill', source: 'omt', 'source-layer': 'landuse',
           filter: ['in', ['get', 'class'], ['literal', ['residential', 'commercial', 'retail', 'industrial']]],
           paint: { 'fill-color': ['match', ['get', 'class'], 'industrial', C.industrial, C.urban], 'fill-opacity': fadeIn(.8) } },
@@ -384,6 +397,15 @@
     prefetch: function () { prefetch(); },
     enter: enter,
     exit: exit,
+    // เปิด/ปิดภาพรายวันของ NASA · คืนสถานะปัจจุบัน และวันที่ของภาพ (ให้ปุ่มบอกผู้ใช้ได้ว่าเป็นภาพของวันไหน)
+    today: function (v) {
+      if (v != null) {
+        todayOn = !!v;
+        try { localStorage.setItem('kd-today', todayOn ? '1' : '0'); } catch (e) {}
+        if (map && map.getLayer('today')) map.setLayoutProperty('today', 'visibility', todayOn ? 'visible' : 'none');
+      }
+      return { on: todayOn, date: todayDate() };
+    },
     zoom: function (d) { if (map && on) { if (map.getZoom() + d < exitZ) exit(); else map.zoomTo(map.getZoom() + d, { duration: calm() ? 0 : 500 }); } }
   };
 })();
