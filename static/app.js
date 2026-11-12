@@ -1040,7 +1040,7 @@ var Cosmos = (function(){
       ' P=planet(p,uJup,0.,t); col=mix(col,P.rgb,P.a);',
       ' P=planet(p,uUra,2.,t); col=mix(col,P.rgb,P.a);',
       /* โลก */
-      ' vec2 d=(p-uC)/uR; float r=length(d); vec3 L=sunDir(uC);',
+      ' vec2 d=(p-uC)/uR; float r=length(d); vec3 L=sunDir(uC); float aa=2./(uR*uQ);',   /* aa = ความกว้าง 2 จุดของภาพที่วาดจริง: เครื่องช้าที่ถูกลดความละเอียด ขอบโลกจะไม่แตกเป็นจุดๆ */
       ' vec2 sdir=normalize(L.xy+1e-5);',
       ' if(r<1.){',
       '  vec3 nv=vec3(d.x,-d.y,sqrt(1.-r*r)); float sunF=max(dot(nv,L),0.);',
@@ -1073,13 +1073,13 @@ var Cosmos = (function(){
       '  vec3 warm=mix(vec3(1.,.66,.32),vec3(1.,.38,.28),uRisk);',
       '  ec+=vec3(.10,.26,.75)*fr*.45+warm*fr*side*side*.4;',
       '  vec3 earth=pow(ec/(1.+ec*.18)*1.12,vec3(.4545));',
-      '  col=mix(col,earth,smoothstep(1.,.99,r));',
+      '  col=mix(col,earth,smoothstep(1.,1.-max(.01,aa),r));',
       ' }',
       /* ขอบบรรยากาศ: ทองฝั่งดวงอาทิตย์ จางรอบทั้งดวง */
       ' if(r>=.97){',
       '  float hg=r-1.; float side=.5+.5*dot(normalize(vec2(d.x,-d.y)+1e-5),sdir);',
       '  vec3 warm=mix(vec3(1.,.70,.36),vec3(1.,.40,.30),uRisk);',
-      '  float atm=hg<0.?smoothstep(.97,1.,r)*(.14+.25*side):exp(-hg/.012)*(.30+.5*side)+exp(-hg/.07)*(.07+.10*side);',
+      '  float atm=hg<0.?smoothstep(.97,1.,r)*(.14+.25*side):exp(-hg/max(.012,aa))*(.30+.5*side)+exp(-hg/.07)*(.07+.10*side);',
       '  col+=mix(vec3(.35,.55,1.),warm,.45+.55*side)*atm;',
       ' }',
       /* แฟลร์เลนส์อนามอร์ฟิกแบบกล้องหนังจอกว้าง: เส้นแสงแนวนอนบางๆ ผ่านดวงอาทิตย์ อุ่นตรงกลาง เย็นที่ปลาย */
@@ -2703,11 +2703,20 @@ function dzCard(a){
   stops.forEach(function(g){ h += '<div class="dz-g stop"><b>✕ ' + esc(g.id) + ' · ' + esc(L2(g.name)) + '</b><span>' + esc(L2(g.why)) + '</span>' + (g.hit ? '<i>“' + esc(g.hit) + '”</i>' : '') + '</div>'; });
   if(ok.length) h += '<details class="dz-ok"><summary>✓ ' + esc(_t('ผ่าน {n} ด่าน', { n: ok.length })) + '</summary>' + ok.map(function(g){ return '<span>' + esc(g.id) + ' ' + esc(L2(g.name)) + '</span>'; }).join('') + '</details>';
   if((a.asks || []).length) h += '<div class="dz-ask"><b>' + esc(_t('ต้องตอบเพิ่ม')) + '</b><ol>' + a.asks.map(function(q){ return '<li>' + esc(L2(q)) + '</li>'; }).join('') + '</ol></div>';
+  if(a.brief) h += dzBrief(a.brief);
   if((a.sop || []).length) h += '<div class="dz-sop">' + a.sop.map(function(x){ return '<span class="' + (x.done ? 'done' : '') + '" title="' + esc(L2(x)) + '">' + x.n + '</span>'; }).join('') + '<em>' + esc(_t('ขั้นตอน SOP')) + '</em></div>';
   if(a.note) h += '<p class="dz-note">' + esc(L2(a.note)) + '</p>';
   if(a.talk) h += '<button type="button" class="dz-talk" data-dz-talk="1">💬 ' + esc(_t('ไปคุยในโหมดปรึกษา')) + '</button>';
   if(a.emergency) h += crisisCard();
   return h + '<p class="dz-foot">' + esc(_t('ตรวจด้วยกฎ ไม่ใช้ AI — ข้อความเดิมได้ผลเดิมเสมอ · คนเป็นผู้ตัดสินใจและเซ็นรับผิดชอบ')) + '</p></div>';
+}
+/* ใบสรุปการตัดสินใจ: สิ่งที่ผู้ใช้ตอบมา + ตัวเลขที่คำนวณได้ + กติกาหยุด — คัดลอกไปแปะที่อื่นได้ */
+function dzBrief(b){
+  var rows = b.rows || [], plain = rows.map(function(r){ return L2(r) + ': ' + r.v; });
+  if(b.rule) plain.push(L2(b.rule)); if(b.next) plain.push(L2(b.next));
+  return '<div class="dz-brief"><b>' + esc(_t('ใบสรุปการตัดสินใจ')) + '</b><dl>' + rows.map(function(r){ return '<dt>' + esc(L2(r)) + '</dt><dd>' + esc(r.v) + '</dd>'; }).join('') + '</dl>' +
+    (b.rule ? '<p class="dz-rule">' + esc(L2(b.rule)) + '</p>' : '') + (b.next ? '<p class="dz-next">' + esc(L2(b.next)) + '</p>' : '') +
+    '<button type="button" class="dz-copy" data-dz-copy="' + esc(plain.join('\n')) + '">' + esc(_t('คัดลอกใบสรุป')) + '</button></div>';
 }
 function imgCard(m){
   if(!IMGS[m.ts]) return '<p class="gen-gone">' + esc(_t('ภาพนี้ไม่ได้เก็บไว้ในเครื่อง — ดาวน์โหลดเก็บไว้หลังสร้างนะคะ')) + '</p>';
@@ -2725,7 +2734,9 @@ function dzBody(text, prev){
 }
 document.addEventListener('click', function(e){
   var b = e.target.closest && e.target.closest('[data-dz-talk]');
-  if(b){ setMode('talk'); $('#input').focus(); }
+  if(b){ setMode('talk'); $('#input').focus(); return; }
+  var c = e.target.closest && e.target.closest('[data-dz-copy]');
+  if(c && navigator.clipboard) navigator.clipboard.writeText('DriftZero · KING DIADEM\n' + c.getAttribute('data-dz-copy')).then(function(){ c.textContent = _t('คัดลอกแล้ว'); }, function(){});
 });
 async function sendMode(text, mode){
   if(mode === 'img' && !Auth.loggedIn){ toast(_t('สร้างภาพต้องเข้าสู่ระบบก่อนนะคะ'), true, 5000); return; }

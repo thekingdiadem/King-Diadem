@@ -90,9 +90,17 @@
     '#endif',
     '    float zz=max(dot(nl,-rd),0.);',
     '    vec2 px=vec2(1./4096.,1./2048.);',
-    '    float L=texture2D(lights,tc).r;',
+    // มองใกล้ (หน้าแรกของหน้านี้บนมือถือ): ภาพ 2K ถูกขยาย 3–4 เท่า ไฟเมืองกับเมฆเลยเห็นเป็นบล็อกสี่เหลี่ยม
+    // mag = 1 เมื่อจุดบนจอเล็กกว่าจุดของภาพ → เกลี่ยขอบบล็อก 4 จุด แล้วเติมเม็ดละเอียดให้ไฟเป็นกลุ่มจุดเล็กๆ แบบภาพถ่ายจากวงโคจร
+    '    float mag=1.-smoothstep(.3,1.,(-b-sqrt(disc))*pix*326.);',
+    '    vec2 hp=px*1.3*mag;',
+    '    float L=(texture2D(lights,tc+hp).r+texture2D(lights,tc-hp).r+texture2D(lights,tc+hp*vec2(1.,-1.)).r+texture2D(lights,tc+hp*vec2(-1.,1.)).r)*.25;',
+    '    float gr=vn(tc*vec2(9000.,4500.))*vn(tc*vec2(3100.,1550.)+7.);',
+    '    L*=mix(1.,.5+1.9*gr,mag*.75);',
     '    float B=(texture2D(lights,tc+px*vec2(5.,0.)).r+texture2D(lights,tc-px*vec2(5.,0.)).r+texture2D(lights,tc+px*vec2(0.,4.)).r+texture2D(lights,tc-px*vec2(0.,4.)).r)*.25;',
-    '    float cl=texture2D(clouds,tc+vec2(t*.0004,0.)).r;',
+    '    vec2 cc=tc+vec2(t*.0004,0.);',
+    '    float cl=(texture2D(clouds,cc+hp).r+texture2D(clouds,cc-hp).r+texture2D(clouds,cc+hp*vec2(1.,-1.)).r+texture2D(clouds,cc+hp*vec2(-1.,1.)).r)*.25;',
+    '    cl=clamp(cl+(fbm(cc*vec2(1500.,750.))-.5)*.7*mag*smoothstep(.04,.45,cl)*(1.-cl),0.,1.);',   // ขอบเมฆเป็นริ้วละเอียด ไม่เป็นขั้นบันได
     '    cl=mix(cl,smoothstep(.08,.85,cl),near*.55);',                 // ในยาน: ขอบเมฆคมขึ้น (ภาพถูกขยายมากตอนมองใกล้)
     '    vec3 land=texture2D(day,tc).rgb;',
     '    float wm=hasW>.5?texture2D(water,tc).r:0.;',
@@ -665,7 +673,8 @@
   var hzPop = document.createElement('div');
   hzPop.className = 'hz-pop hide'; hzPop.setAttribute('role', 'status'); hzPop.setAttribute('aria-live', 'polite');
   wrap.appendChild(hzPop);
-  function hideHazard() { hzPop.classList.add('hide'); }
+  function popOpen() { if (hero) hero.classList.toggle('pop-open', !hzPop.classList.contains('hide') || !!(plPop && !plPop.classList.contains('hide'))); }
+  function hideHazard() { hzPop.classList.add('hide'); popOpen(); }
   function hazardAt(px, py) {
     var best = null, bd = 1e9;
     HZ.shown.forEach(function (m) { var d = Math.hypot(px - m.x, py - m.y); if (d < Math.max(22, m.k * 3) && d < bd) { bd = d; best = m; } });
@@ -676,7 +685,7 @@
     var Wc = canvas.clientWidth, Hc = canvas.clientHeight;
     hzPop.style.left = Math.round(clamp(m.x + 14, 8, Math.max(8, Wc - 240))) + 'px';
     hzPop.style.top = Math.round(clamp(m.y - 10, 8, Math.max(8, Hc - 150))) + 'px';
-    hzPop.classList.remove('hide');
+    hzPop.classList.remove('hide'); popOpen();
   }
   function drawHazards(V, Wc, Hc, boxes) {
     HZ.shown = [];
@@ -760,7 +769,7 @@
   var plPop = document.createElement('div');
   plPop.className = 'pl-pop hide'; plPop.setAttribute('role', 'dialog'); plPop.setAttribute('aria-live', 'polite');
   wrap.appendChild(plPop);
-  function hidePlace() { plPop.classList.add('hide'); }
+  function hidePlace() { plPop.classList.add('hide'); popOpen(); }
   function showPlace(m) {
     var P = m.P, en = !THAI, d = document.createDocumentFragment();
     function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; d.appendChild(e); return e; }
@@ -779,7 +788,7 @@
     var Wc = canvas.clientWidth, Hc = canvas.clientHeight;
     plPop.style.left = Math.round(clamp(m.x + 16, 8, Math.max(8, Wc - 290))) + 'px';
     plPop.style.top = Math.round(clamp(m.y - 20, 8, Math.max(8, Hc - 210))) + 'px';
-    plPop.classList.remove('hide'); plPop.classList.remove('lit'); void plPop.offsetWidth; plPop.classList.add('lit');
+    plPop.classList.remove('hide'); plPop.classList.remove('lit'); void plPop.offsetWidth; plPop.classList.add('lit'); popOpen();
   }
   function labels() {
     // หัวเว็บค่อยๆ จางเมื่อซูมลง จนหายไปเมื่อเลยวงโคจร — แผนที่จะได้โล่ง

@@ -112,7 +112,10 @@ _NUM = re.compile(r"\d")
 # เป็นเรื่องตัดสินใจขององค์กร/โครงการจริงไหม — ไม่ใช่ ให้แนะนำโหมดปรึกษา
 _ORG = _rx(r"บริษัท|องค์กร|โครงการ|โรงงาน|ธุรกิจ|ร้าน|สาขา|นโยบาย|ชุมชน|หน่วยงาน|ทีม|พนักงาน|ลูกค้า|ซัพพลายเออร์|งบประมาณ|ลงทุน|ผลิต|"
            r"company|organi[sz]ation|project|factory|business|policy|team|staff|budget|invest|supplier|community|plant|"
-           r"\bstores?\b|\bshops?\b|branch|employee|customer|startup|school|hospital|department|government|firm|launch|hire|hiring|layoff")
+           r"\bstores?\b|\bshops?\b|branch|employee|customer|startup|school|hospital|department|government|firm|launch|hire|hiring|layoff|"
+           # ผู้ใช้จริงคนแรกถามว่า "spend 10k on facebook ads" แล้วโดนบอกว่า "ดูเหมือนเป็นเรื่องส่วนตัว" — งานขาย/การตลาดก็คือการตัดสินใจของกิจการ
+           r"\bads?\b|advertis|marketing|campaign|revenue|\bsales\b|clients?\b|product|vendor|contract|pricing|\bbrand\b|"
+           r"โฆษณา|การตลาด|แคมเปญ|ยอดขาย|สินค้า|รายได้|กิจการ|แบรนด์|ยิงแอด|เปิดร้าน")
 
 SOP = [
     ("กำหนดเรื่องที่จะตัดสินใจให้ชัด", "Define input clearly"),
@@ -206,6 +209,54 @@ def distress(text: str) -> bool:
         return False
 
 
+# คำตอบแต่ละข้อถูกเก็บต่อท้ายเรื่องเดิมเป็นบรรทัดที่มีป้ายกำกับ — ตัววัด Waterline อ่านตัวเลขจากป้ายได้ทันที
+# ("floor: 1k" · "cash on hand: 3k") และใบสรุปอ่านคำตอบกลับออกมาได้โดยไม่ต้องให้หน้าเว็บจำอะไรเพิ่ม
+LABELS = {"detail": "detail", "downside": "worst case", "floor": "floor", "current": "cash on hand",
+          "dhd": "drift per day", "owner": "accountable"}
+_LABEL_LINE = re.compile(r"^(" + "|".join(re.escape(v) for v in LABELS.values()) + r"): (.+)$", re.M)
+_BRIEF_ROWS = (("downside", "ถ้าพลาด", "Worst case"), ("floor", "เส้นขั้นต่ำ", "Floor"), ("current", "ตอนนี้มี", "On hand now"),
+               ("dhd", "สิ่งที่ต้องเฝ้าดูทุกวัน", "Watch daily"), ("owner", "คนรับผิดชอบ", "Accountable"), ("detail", "รายละเอียด", "Details"))
+
+
+def brief(text: str, wl: dict) -> dict | None:
+    """ใบสรุปการตัดสินใจ — รวมสิ่งที่ผู้ใช้ตอบมา + ตัวเลขที่คำนวณได้ + กติกาหยุด เป็นแผ่นเดียวที่คัดลอกไปใช้ต่อได้
+    เดิมตอบครบแล้วได้แค่ "ผ่านทุกด่าน" คนที่อุตส่าห์ตอบไม่ได้อะไรกลับไปเลย"""
+    by_label = {v: k for k, v in LABELS.items()}
+    got = {}
+    for m in _LABEL_LINE.finditer(text):
+        got[by_label[m.group(1)]] = m.group(2).strip()
+    if not got:
+        return None
+    decision = _LABEL_LINE.split(text)[0].strip()
+    rows = [{"k": "decision", "th": "เรื่องที่จะตัดสินใจ", "en": "Decision", "v": decision[:400]}]
+    rows += [{"k": k, "th": th, "en": en, "v": got[k][:400]} for k, th, en in _BRIEF_ROWS if k in got]
+    fl, cur, sp, after = wl.get("floor"), wl.get("current"), wl.get("spend"), wl.get("after")
+    rule = None
+    if after is not None and wl.get("level") == "below":
+        room = cur - fl
+        if room > 0:
+            rule = {"th": f"ขนาดนี้ยังไม่ควรทำ: จะเหลือ {_money(after)} ต่ำกว่าเส้นขั้นต่ำ {_money(fl)} · ทำได้มากสุด {_money(room)} โดยไม่หลุดเส้น — ลดขนาดหรือแบ่งทำเป็นช่วง",
+                    "en": f"Not at this size: you would be left with {_money_en(after)}, under your floor of {_money_en(fl)}. "
+                          f"The most you can put in without crossing it is {_money_en(room)} — shrink it or do it in phases."}
+        else:
+            rule = {"th": f"ตอนนี้อยู่ที่เส้นขั้นต่ำ ({_money(fl)}) หรือต่ำกว่าแล้ว — ยังไม่ควรใช้เพิ่ม ทำให้กลับมาเหนือเส้นก่อน",
+                    "en": f"You are already at or under your floor ({_money_en(fl)}) — don't put more in; get back above it first."}
+    elif after is not None:
+        rule = {"th": f"หลังทำจะเหลือ {_money(after)} ยังเหนือเส้นขั้นต่ำ {_money(fl)} · กติกาหยุด: ถ้าลงมาแตะ {_money(fl)} ให้หยุดแล้วตรวจใหม่ทันที",
+                "en": f"After this you would have {_money_en(after)}, still above your floor of {_money_en(fl)}. "
+                      f"Stop rule: the moment it reaches {_money_en(fl)}, pause and re-check."}
+        d = wl.get("days_to_floor")
+        if d is not None:
+            rule["th"] += f" · ด้วยอัตราตอนนี้จะถึงเส้นในอีก {d} วัน"
+            rule["en"] += f" At the current pace you reach it in {d} days."
+    elif fl is not None:
+        rule = {"th": f"กติกาหยุด: ถ้าลงมาแตะ {_money(fl)} ให้หยุดแล้วตรวจใหม่ทันที",
+                "en": f"Stop rule: the moment you reach {_money_en(fl)}, pause and re-check."}
+    return {"rows": rows, "rule": rule,
+            "next": {"th": "ทำแล้วกลับมาตรวจอีกครั้งว่าเกิดอะไรขึ้นจริง (ตรวจหลังทำ) — คุณเป็นคนตัดสินใจเสมอ",
+                     "en": "After you act, come back and check what actually happened (post-audit) — the decision is always yours."}}
+
+
 def follow_up(prior_text: str, prior_keys, answer: str) -> dict:
     """ตรวจรอบต่อ: รวมเรื่องเดิมกับคำตอบ แล้วถามเฉพาะข้อที่ยังขาด — เดิมตรวจแค่ข้อความใหม่ เลยถามซ้ำครบทุกข้อ"""
     prior_text = str(prior_text or "").strip()[:4000]
@@ -213,7 +264,15 @@ def follow_up(prior_text: str, prior_keys, answer: str) -> dict:
     got = answered_keys(answer, prior_keys)
     parts = parse_numbered(answer)
     body = " ".join(parts.values()) if parts else answer
-    r = audit((prior_text + "\n" + body).strip(), answered=got)
+    keys = [k for k in (prior_keys or []) if k in ASK_KEYS]
+    if parts:
+        lines = [f"{LABELS[keys[n - 1]]}: {v}" for n, v in sorted(parts.items()) if 0 < n <= len(keys)]
+    elif len(keys) == 1 and answer:
+        lines = [f"{LABELS[keys[0]]}: {answer}"]
+    else:
+        lines = [answer]
+    lines = [" ".join(x.split()) for x in lines if x]              # หนึ่งคำตอบ = หนึ่งบรรทัด
+    r = audit((prior_text + "\n" + "\n".join(lines)).strip(), answered=got)
     r["answered"] = sorted(got)
     if r["verdict"] != "urgent" and distress(body):
         r["note"] = {"th": "ฟังดูเหมือนคุณเองกำลังลำบากเรื่องนี้อยู่ — DriftZero ตรวจการตัดสินใจขององค์กร "
@@ -222,6 +281,11 @@ def follow_up(prior_text: str, prior_keys, answer: str) -> dict:
                            "For your own money, housing or stress, Talk mode can help much more. You can tell LYLA there."}
         r["talk"] = True
     return r
+
+
+def _answered_before(text: str) -> set[str]:
+    by_label = {v: k for k, v in LABELS.items()}
+    return {by_label[m.group(1)] for m in _LABEL_LINE.finditer(text or "")}
 
 
 def audit(text: str, answered=()) -> dict:
@@ -265,20 +329,21 @@ def audit(text: str, answered=()) -> dict:
         asks.append({"key": "downside", "sop": 2, "th": "ถ้าพลาด อะไรเสียหายที่สุด และใครรับผลนั้น",
                      "en": "If this fails, what is the worst damage, and who bears it?"})
     if not (_DRIFT.search(t) and _NUM.search(t)):
-        asks.append({"key": "dhd", "sop": 3, "th": "DHD: ถ้าทำต่อไปเรื่อยๆ อะไรจะแย่ลงทีละนิดทุกวัน — วัดเป็นตัวเลขอะไรได้บ้าง (เช่น ของเสียกี่ลิตร/วัน · คนได้รับผลกี่คน/เดือน)",
-                     "en": "DHD: if this continues, what gets a little worse every day — what number can measure it (e.g. litres of waste/day, people affected/month)?"})
+        asks.append({"key": "dhd", "sop": 3, "th": "DHD: ถ้าทำต่อไปเรื่อยๆ อะไรจะแย่ลงทีละนิดทุกวัน — วัดเป็นตัวเลขอะไรได้บ้าง (เช่น เงินออกวันละเท่าไหร่ · ลูกค้าหายเดือนละกี่ราย · ของเสียกี่ลิตร/วัน)",
+                     "en": "DHD (daily drift): if this keeps going, what gets a little worse every day — and what number shows it? (e.g. money going out per day, customers lost per month)"})
     if wl["floor"] is not None and wl["current"] is None:
-        asks.append({"key": "current", "sop": 2, "th": "Waterline: ตอนนี้มีเท่าไหร่ (เช่น เงินสดคงเหลือ) — จะได้วัดว่าหลังตัดสินใจยังอยู่เหนือเส้นไหม",
-                     "en": "Waterline: how much do you have now (e.g. cash on hand) — so we can see if you stay above the floor"})
+        asks.append({"key": "current", "sop": 2, "th": "Waterline: ตอนนี้มีเท่าไหร่ (เช่น เงินสดคงเหลือ) — จะได้คำนวณว่าหลังตัดสินใจยังอยู่เหนือเส้นขั้นต่ำไหม",
+                     "en": "Waterline: how much do you have right now (e.g. cash on hand)? Then I can work out whether you stay above your floor"})
     if wl["floor"] is None:
-        asks.append({"key": "floor", "sop": 2, "th": "Waterline: เส้นขั้นต่ำของเรื่องนี้คืออะไร — ตัวเลขที่ห้ามต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้ "
-                                    "(เช่น เงินสดสำรองไม่ต่ำกว่า 6 เดือนของค่าใช้จ่าย · ทีมหลักไม่ต่ำกว่า 5 คน)",
-                     "en": "Waterline: what is the floor here — the number you must not go below, or the damage can't be undone "
-                           "(e.g. cash reserve of at least 6 months of costs · at least 5 core staff)"})
+        asks.append({"key": "floor", "sop": 2, "th": "Waterline: เส้นขั้นต่ำของเรื่องนี้คือเท่าไหร่ — ตัวเลขที่ห้ามต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้ "
+                                    "(เช่น ต้องเหลือเงินสดไม่ต่ำกว่า 50,000 · ทีมหลักไม่ต่ำกว่า 5 คน)",
+                     "en": "Waterline (your floor): what is the lowest you can safely go — the number you must not fall below, or the damage can't be undone? "
+                           "(e.g. keep at least 5k in cash · at least 5 core staff)"})
     if not _OWNER.search(t):
-        asks.append({"key": "owner", "sop": 6, "th": "ใครเป็นคนเซ็นรับผิดชอบการตัดสินใจนี้",
-                     "en": "Who signs accountability for this decision?"})
+        asks.append({"key": "owner", "sop": 6, "th": "ใครเป็นคนรับผิดชอบการตัดสินใจนี้ (ชื่อหรือตำแหน่ง)",
+                     "en": "Who is responsible for this decision? (a name or a role)"})
 
+    answered |= _answered_before(t)
     asks = [q for q in asks if q["key"] not in answered]
     asks.sort(key=lambda q: q["sop"])
     if stops:
@@ -304,7 +369,7 @@ def audit(text: str, answered=()) -> dict:
     if not _ORG.search(t):
         note = {"th": "ดูเหมือนเป็นเรื่องส่วนตัว — โหมดปรึกษาน่าจะช่วยได้ตรงกว่านะคะ",
                 "en": "This looks personal — Talk mode will probably help more."}
-    return {"text": t[:4000], "talk": bool(note), "verdict": verdict, "gates": gates, "asks": asks, "sop": sop, "note": note, "emergency": emergency, "waterline": dict(wl, show={
+    return {"text": t[:4000], "talk": bool(note), "verdict": verdict, "gates": gates, "asks": asks, "sop": sop, "note": note, "emergency": emergency, "brief": brief(t, wl), "waterline": dict(wl, show={
                 "th": {k: _money(wl[k]) for k in ("floor", "current", "after")},
                 "en": {k: _money_en(wl[k]) for k in ("floor", "current", "after")}}),
             "summary": {"th": sm_th, "en": sm_en}}

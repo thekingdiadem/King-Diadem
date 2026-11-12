@@ -34,7 +34,8 @@ def test_follow_up_asks_only_what_is_still_missing():
     r = follow_up(first["text"], keys, HAYDN)
     assert set(r["answered"]) == set(keys[:3])
     left = [q["key"] for q in r["asks"]]
-    assert left == keys[3:]
+    # ตอบเส้นขั้นต่ำเป็นตัวเลขแล้ว ("3 1k") ข้อถัดไปจึงถามว่าตอนนี้มีเท่าไหร่ เพื่อคำนวณว่าหลุดเส้นไหม
+    assert left == ["current"] + keys[3:]
     assert f"{len(left)} answer(s) are missing" in r["summary"]["en"]
     # รวมเรื่องเดิมไว้ ให้ตอบรอบต่อไปได้อีก
     assert "5 new stores" in r["text"] and "i do it" in r["text"]
