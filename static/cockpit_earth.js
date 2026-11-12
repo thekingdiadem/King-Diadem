@@ -126,6 +126,10 @@
     '      vec3 Lg=sunM>.5?sl:normalize(.38*rt+.55*up-.74*fw);',
     '      float sg=pow(max(dot(reflect(rd,nl),Lg),0.),36.);',
     '      vec3 dc=pow(land,vec3(1.15))*1.25+vec3(1.,.96,.88)*sg*wm*.35*(1.-cl);',
+    // เงาเมฆทอดลงพื้น: อ่านภาพเมฆเดิมอีกจุดหนึ่ง เลื่อนไปทางดวงอาทิตย์ — พื้นใต้เมฆหม่นลง เมฆจึงดูลอยอยู่เหนือพื้นแบบภาพจากวงโคจร
+    '      vec3 ea=normalize(vec3(n.z,0.,-n.x)+1e-5),tsn=sun-n*dot(sun,n);',
+    '      vec2 so=sunM>.5?vec2(dot(tsn,ea)/(2.*PI*max(cos(la),.2)),-dot(tsn,cross(n,ea))/PI)*.012:vec2(.003,-.002);',
+    '      dc*=1.-.4*smoothstep(.2,.8,texture2D(clouds,cc+so).r)*(1.-smoothstep(.15,.85,cl));',
     '      dc=mix(dc,vec3(.95,.97,1.),smoothstep(.15,.85,cl)*.85);',
     '      dc+=vec3(.25,.45,1.)*pow(1.-zz,2.2)*.55+vec3(.5,.7,1.)*pow(1.-zz,8.)*.5;',
     '      dc*=mix(1.,.45+.55*smoothstep(0.,.5,sz),sunM);',                       // แดดเฉียงใกล้เส้นแบ่งวัน = สลัวลง
@@ -620,7 +624,7 @@
       var qs = res[0] && res[0].ok ? (res[0].points || keep(res[0])) : [];     // 7 วัน · ใกล้ไทย M3.5+ · ทั่วโลก M5.5+
       var q = qs.map(function (x) {
         return { lat: x.lat, lon: x.lon, kind: 'EQ', level: x.mag >= 6.5 ? 'red' : x.mag >= 5 ? 'orange' : 'green',
-                 name: 'M' + x.mag + ' · ' + (x.place || ''), km: x.km, url: x.url, hours: x.hours };
+                 name: 'M' + x.mag + ' · ' + (x.place || ''), km: x.km, url: x.url, hours: x.hours, mag: x.mag, depth: x.depth };
       });
       // บอกสถานะข้อมูลในแผงเครื่องมือ — คนดูจะรู้ว่า "ไม่มีจุด" เพราะไม่มีเหตุ หรือเพราะดึงข้อมูลไม่ได้
       var st = document.getElementById('ec-hz-status');
@@ -651,9 +655,24 @@
     if (lv) d.appendChild(document.createTextNode(' · ' + lv[en ? 1 : 0]));
     function line(t, tag) { d.appendChild(document.createElement('br')); var e = document.createElement(tag || 'span'); e.textContent = t; d.appendChild(e); return e; }
     if (h.name) line(h.name);
+    // พิกัดจริงของเหตุ · แผ่นดินไหวบอกความลึกด้วย (ตื้นกว่า 70 กม. แรงสั่นถึงผิวดินมากกว่า)
+    if (isFinite(h.lat) && isFinite(h.lon)) line(Math.abs(h.lat).toFixed(2) + '°' + (h.lat < 0 ? 'S' : 'N') + ' ' + Math.abs(h.lon).toFixed(2) + '°' + (h.lon < 0 ? 'W' : 'E')
+      + (h.depth != null ? ' · ' + (en ? 'depth ' : 'ลึก ') + Math.round(h.depth) + (en ? ' km' : ' กม.') + (h.depth < 70 ? (en ? ' (shallow)' : ' (ตื้น)') : '') : ''), 'i');
     if (h.km != null) line((en ? '{km} km from Bangkok' : 'ห่างกรุงเทพฯ {km} กม.').replace('{km}', Number(h.km).toLocaleString()), 'i');
     if (h.hours != null) line(h.hours < 1 ? (en ? 'within the last hour' : 'ไม่ถึงชั่วโมงที่แล้ว') : h.hours < 48 ? (en ? Math.round(h.hours) + ' h ago' : Math.round(h.hours) + ' ชม.ที่แล้ว')
                                  : (en ? Math.round(h.hours / 24) + ' days ago' : Math.round(h.hours / 24) + ' วันที่แล้ว'), 'i');
+    // คำแนะนำตามระยะจากกรุงเทพฯ (จุดอ้างอิงเดียวที่ระบบรู้ — ไม่ขอตำแหน่งผู้ใช้) · ระยะที่รู้สึกได้ของแผ่นดินไหวประมาณจากขนาด
+    if (h.km != null) {
+      var feel = h.kind === 'EQ' && h.mag ? (h.mag >= 7 ? 1500 : h.mag >= 6 ? 800 : h.mag >= 5 ? 300 : 100) : 300;
+      var tip = h.km <= feel
+        ? (h.kind === 'EQ' ? (en ? 'Close enough to be felt in Thailand: if shaking starts, drop, cover and hold on; stay away from glass; expect aftershocks.'
+                                 : 'ใกล้พอที่ไทยอาจรู้สึกได้: ถ้าสั่น ให้หมอบ หาที่กำบัง จับให้มั่น อยู่ห่างกระจก และระวังอาฟเตอร์ช็อก')
+                           : (en ? 'Close to Thailand: follow official warnings and prepare water, medicine, a charged phone and a way out.'
+                                 : 'ใกล้ไทย: ติดตามประกาศทางการ เตรียมน้ำ ยา มือถือที่ชาร์จเต็ม และเส้นทางออก'))
+        : (en ? 'Far from Thailand — no action needed here. If you have family nearby, check on them.'
+              : 'ไกลจากไทย — ที่นี่ไม่ต้องทำอะไร ถ้ามีคนรู้จักอยู่แถวนั้น ลองทักถามข่าวกันนะคะ');
+      line(tip).className = 'hz-tip';
+    }
     d.appendChild(document.createElement('br'));
     var st = HZ_STYLE[h.kind], g = document.createElement('a');
     g.href = '/survival' + (en ? '?lang=en' : '') + '#' + (st ? st[1] : '');
@@ -683,8 +702,8 @@
   function showHazard(m) {
     hzPop.textContent = ''; hzPop.appendChild(window.KD_hazardCard(m.h));
     var Wc = canvas.clientWidth, Hc = canvas.clientHeight;
-    hzPop.style.left = Math.round(clamp(m.x + 14, 8, Math.max(8, Wc - 240))) + 'px';
-    hzPop.style.top = Math.round(clamp(m.y - 10, 8, Math.max(8, Hc - 150))) + 'px';
+    hzPop.style.left = Math.round(clamp(m.x + 14, 8, Math.max(8, Wc - 262))) + 'px';
+    hzPop.style.top = Math.round(clamp(m.y - 10, 8, Math.max(8, Hc - 270))) + 'px';
     hzPop.classList.remove('hide'); popOpen();
   }
   function drawHazards(V, Wc, Hc, boxes) {

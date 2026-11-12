@@ -19,7 +19,8 @@ def test_maplibre_is_self_hosted_csp_build_with_license():
 
 def test_csp_allows_only_openfreemap_for_tiles(client):
     csp = client.get("/").headers["content-security-policy"]
-    assert "connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com;" in csp
+    # อ่านอย่างเดียว 3 แหล่ง: แผนที่เมือง · ความสูงภูมิประเทศ · ภาพดาวเทียม NASA (สาธารณสมบัติ) — ไม่มีแหล่งอื่น
+    assert "connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com https://gibs.earthdata.nasa.gov;" in csp
     script = re.search(r"script-src ([^;]*);", csp).group(1).split()
     assert script[0] == "'self'" and all(s.startswith("'sha256-") for s in script[1:])   # ไม่มีสคริปต์จากที่อื่น ไม่มี unsafe-inline
     assert "worker-src 'self'" in csp
@@ -162,3 +163,10 @@ def test_round4_feedback_day_mode_on_real_phone():
     # องค์พระเริ่มสร้างตั้งแต่ซูม 10 เมื่ออยู่ใกล้ แสดงที่ซูม 13
     assert "if (!asked && z >= 10 && Math.abs(c.lat - at.lat) < .45 && Math.abs(c.lng - at.lon) < .45)" in BUDDHA
     assert "if (z < 13 || !mesh) return;" in BUDDHA
+
+
+def test_satellite_base_is_public_domain_nasa_and_hands_over_to_the_city_map():
+    assert "gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry" in CITY
+    assert "{z}/{y}/{x}.jpeg" in CITY and "maxzoom: 8" in CITY          # WMTS ของ NASA เรียงแถวก่อนคอลัมน์
+    assert "'raster-opacity': ['interpolate', ['linear'], ['zoom'], 8.5, 1, 10.8, 0]" in CITY
+    assert "NASA GIBS" in CITY                                            # ให้เครดิตแหล่งภาพ

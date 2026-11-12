@@ -418,16 +418,37 @@ html.kd-calm .pl-pop .pl-line,html.kd-calm .pl-pop *{animation:none!important}
 #city-map .maplibregl-popup-tip{border-top-color:rgba(6,9,20,.9);border-bottom-color:rgba(6,9,20,.9)}
 #city-map .maplibregl-popup-close-button{color:#e6edf8}
 #hero>div:not(.cockpit):not(.earth-ctl){transition:opacity .2s linear;opacity:var(--hero-a,1)}
+/* Choice Lab */
+#choice-lab{position:relative;z-index:10;padding:72px 16px 24px}
+.cl-box{max-width:560px;margin:0 auto;padding:26px 20px 20px;border-radius:22px;border:1px solid rgba(214,224,255,.12);background:rgba(8,10,24,.55);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);text-align:center}
+#cl-h{text-wrap:balance}
+.cl-sub{color:rgba(214,224,255,.7);font-size:14px;margin:0 0 18px}
+.cl-eq{font-family:var(--f-mono);font-size:clamp(13px,3.6vw,16px);color:var(--gold-hi);min-height:1.6em}
+.cl-meter{height:8px;border-radius:999px;background:rgba(214,224,255,.1);margin:14px 0 10px;overflow:hidden}
+.cl-meter i{display:block;height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#7fd8b0,#edcc62 55%,#ff8a6a);transition:width .7s var(--ease)}
+.cl-read{display:flex;gap:10px;align-items:baseline;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.cl-read b{font-family:var(--f-display);font-size:34px;color:#fff;font-weight:600}
+.cl-read span{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;padding:3px 10px;border-radius:999px;border:1px solid currentColor}
+.cl-read span.CRITICAL{color:#ff8a6a}.cl-read span.HIGH{color:#ffb070}.cl-read span.MEDIUM{color:#edcc62}.cl-read span.LOW{color:#7fd8b0}
+.cl-read em{font-style:normal;color:#7fd8b0;font-size:13px}
+.cl-acts{display:grid;gap:8px;text-align:left}
+.cl-acts button{display:flex;justify-content:space-between;gap:10px;align-items:center;width:100%;min-height:48px;padding:10px 14px;border-radius:14px;border:1px solid rgba(214,224,255,.16);background:rgba(214,224,255,.04);color:rgba(236,240,255,.9);font:inherit;font-size:14px;cursor:pointer;text-align:left}
+.cl-acts button small{flex:none;font-family:var(--f-mono);font-size:11px;color:rgba(214,224,255,.5)}
+.cl-acts button[aria-pressed="true"]{border-color:rgba(237,204,98,.7);background:rgba(237,204,98,.1);color:#fff6e0}
+.cl-acts button[aria-pressed="true"] small{color:var(--gold-hi)}
+.cl-note{color:rgba(214,224,255,.5);font-size:12px;margin:14px 0 0}
+html.kd-calm .cl-meter i{transition:none}
 /* หัวเรื่องอ่านออกแม้ลอยอยู่บนไฟเมืองสว่างๆ: เงามืดนุ่มๆ หลังตัวอักษร (จางตามหัวเรื่องตอนซูม) + เงาใต้ตัวหนังสือ */
-.cockpit::after{content:"";position:absolute;inset:38% 0 0 0;z-index:1;pointer-events:none;opacity:var(--hero-a,1);
-  background:radial-gradient(120% 62% at 50% 46%,rgba(3,5,14,.74),rgba(3,5,14,.5) 48%,rgba(3,5,14,0) 100%)}
+.cockpit::after{content:"";position:absolute;inset:30% 0 0 0;z-index:1;pointer-events:none;opacity:var(--hero-a,1);
+  background:radial-gradient(110% 46% at 50% 56%,rgba(3,5,14,.74),rgba(3,5,14,.5) 48%,rgba(3,5,14,0) 100%)}   /* วงรีอยู่ในกรอบทั้งวง — ไม่มีเส้นขอบตัดกลางลูกโลก (เห็นชัดตอนกลางวัน) */
 #hero .hero-title{filter:drop-shadow(0 2px 16px rgba(0,0,0,.8))}
 .hero-rule,.hero-desc,.hero-sub,.scroll-hint{text-shadow:0 1px 14px rgba(0,0,0,.9),0 0 3px rgba(0,0,0,.6)}
 .hero-sub{color:rgba(232,200,120,.62)}
 .hero-badge{background:rgba(6,8,20,.6)}
 /* เปิดกล่องรายละเอียดบนลูกโลก = หัวเรื่องหลบให้ ไม่ทับกล่อง */
 #hero.pop-open>div:not(.cockpit):not(.earth-ctl){opacity:calc(var(--hero-a,1)*.12)}
-.cockpit .hz-pop{text-align:left}
+.cockpit .hz-pop{text-align:left;max-width:250px}
+.hz-tip{display:inline-block;margin:6px 0 2px;padding-top:6px;border-top:1px solid rgba(230,240,255,.14);color:#cfe0ff}
 #hero.zoomed>div:not(.cockpit):not(.earth-ctl){pointer-events:none}
 
 html{scroll-behavior:smooth}
@@ -551,6 +572,20 @@ html.bb-on,html.bb-on body{overflow:hidden}
     </div>
     <p class="hero-desc">ตราบใดที่ยังมีทางเลือกอย่างน้อย 1 ทาง ระบบจะยังไม่ถือว่า "พัง"</p>
     <div class="scroll-hint" data-act="scroll">↓ เลื่อนลง ↓</div>
+  </div>
+</section>
+
+<!-- Choice Lab: กดเลือก "ทางออก" แล้วดูสมการ R = (D × E × T) / C ขยับ — ตัวเลขมาจาก /api/choice-lab (AI/freedom_signal.py ตัวจริง) หน้าเว็บไม่คำนวณเอง -->
+<section id="choice-lab" aria-labelledby="cl-h">
+  <div class="cl-box reveal">
+    <div class="sec-eyebrow" style="justify-content:center">Choice Lab</div>
+    <h2 class="sec-title" id="cl-h" style="text-align:center">ทางเลือกเพิ่มขึ้น ความเสี่ยงลดลงแค่ไหน</h2>
+    <p class="cl-sub">ลองกดทางออกด้านล่าง แล้วดูตัวเลขขยับ</p>
+    <div class="cl-eq" id="cl-eq" aria-live="polite">R = (D × E × T) / C</div>
+    <div class="cl-meter" role="img" aria-label="ระดับความเสี่ยง"><i id="cl-bar"></i></div>
+    <div class="cl-read"><b id="cl-r">–</b><span id="cl-level"></span><em id="cl-drop"></em></div>
+    <div class="cl-acts" id="cl-acts"></div>
+    <p class="cl-note" id="cl-note"></p>
   </div>
 </section>
 
@@ -788,6 +823,41 @@ html.bb-on,html.bb-on body{overflow:hidden}
 })();
 </script>
 
+<script>
+/* Choice Lab — ส่งชุดทางออกที่กดไว้ให้เซิร์ฟเวอร์คำนวณด้วยสมการจริง แล้วแสดงค่าที่ได้กลับมา (ไม่คำนวณในหน้าเว็บ) */
+(function(){
+  var acts = document.getElementById('cl-acts'); if(!acts) return;
+  var en = !/^th/i.test(document.documentElement.lang || ''), on = {}, built = false, seq = 0;
+  function L(o){ return o ? (en ? o.en : o.th) : ''; }
+  function show(d){
+    if(!built){ built = true;
+      d.actions.forEach(function(a){
+        var b = document.createElement('button'), t = document.createElement('span'), e = document.createElement('small');
+        b.type = 'button'; b.setAttribute('aria-pressed', 'false'); b.setAttribute('data-cl', a.id);
+        t.textContent = L(a); e.textContent = L(a.effect); b.appendChild(t); b.appendChild(e); acts.appendChild(b);
+      });
+    }
+    var n = d.now, base = d.baseline;
+    document.getElementById('cl-eq').textContent = n.equation;
+    document.getElementById('cl-r').textContent = 'R = ' + n.R;
+    var lv = document.getElementById('cl-level'); lv.textContent = n.risk_level; lv.className = n.risk_level;
+    document.getElementById('cl-drop').textContent = d.drop_pct > 0 ? (en ? 'risk down ' + d.drop_pct + '%' : 'ความเสี่ยงลดลง ' + d.drop_pct + '%') : '';
+    document.getElementById('cl-bar').style.width = Math.max(3, Math.min(100, n.R / base.R * 100)) + '%';
+    document.getElementById('cl-note').textContent = L(d.note);
+  }
+  function load(){
+    var my = ++seq, ids = Object.keys(on).filter(function(k){ return on[k]; });
+    fetch('/api/choice-lab?on=' + encodeURIComponent(ids.join(','))).then(function(r){ return r.json(); })
+      .then(function(d){ if(my === seq) show(d); })
+      .catch(function(){ document.getElementById('cl-note').textContent = en ? 'Could not reach the calculator — try again shortly.' : 'ตอนนี้ติดต่อตัวคำนวณไม่ได้ — ลองใหม่อีกครั้งนะคะ'; });
+  }
+  acts.addEventListener('click', function(e){
+    var b = e.target.closest('button[data-cl]'); if(!b) return;
+    var id = b.getAttribute('data-cl'); on[id] = !on[id]; b.setAttribute('aria-pressed', on[id] ? 'true' : 'false'); load();
+  });
+  load();
+})();
+</script>
 <script src="/static/big_bang_gl.js"></script>
 <script src="/static/big_bang.js"></script>
 <script src="/static/landmark_buddha.js" defer></script>
