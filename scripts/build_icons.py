@@ -15,7 +15,7 @@ from PIL import Image, ImageFilter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC = os.path.join(ROOT, "static")
-MASTER = os.path.join(STATIC, "brand", "logo-master.png")
+MASTER = os.path.join(STATIC, "brand", "crest-master.png")   # ตรารุ่นเวกเตอร์ (static/brand/crest.svg) เรนเดอร์ 1024px · ต้นฉบับเดิม logo-master.png ยังเก็บไว้
 BG_IN, BG_OUT = (20, 26, 64), (4, 5, 13)      # พื้นอวกาศ: กลางน้ำเงินลึก → ขอบดำเดียวกับธีมเว็บ
 # (ขนาด, สัดส่วนโลโก้ต่อกรอบ) · maskable: Android ตัดเป็นวงกลม/สี่เหลี่ยมมน ต้องอยู่ในวง 80% กลาง
 SIZES = {"icons/icon-512.png": (512, .92), "icons/icon-192.png": (192, .92),
