@@ -7,6 +7,34 @@ var $ = function(s, r){ return (r||document).querySelector(s); };
 var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
 function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function fmt(t){ return esc(t).replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); }
+/* คำตอบของ LYLA/VEGA เดิมเป็นข้อความก้อนเดียว อ่านยากบนมือถือ — จัดให้เห็นโครง โดยไม่แตะถ้อยคำ:
+   บรรทัด "1) … 2) …" ที่เรียงเลขต่อกัน = รายการขั้นตอนมีเลขสีทอง · ย่อหน้าสุดท้ายที่เป็นคำถาม = กล่องคำถามชวนคิด
+   บรรทัดลงชื่อ "— LYLA ◈" กับบรรทัดบอกที่มาที่ตามหลัง = ตัวเล็กจางท้ายคำตอบ · เว้นบรรทัด = ย่อหน้าใหม่
+   ทุกส่วนผ่าน fmt() (ซึ่ง esc ก่อนเสมอ) — ไม่มี HTML จากคำตอบหลุดเข้าหน้าเว็บ */
+function fmtReply(t){
+  var out = [], para = [], steps = [], want = 1;
+  function endPara(){ if(para.length){ out.push({ k: 'p', t: para.join('\n') }); para = []; } }
+  function endSteps(){ if(steps.length){ out.push(steps.length > 1 ? { k: 'ol', items: steps } : { k: 'p', t: '1) ' + steps[0] }); steps = []; want = 1; } }
+  String(t == null ? '' : t).split('\n').forEach(function(ln){
+    var m = /^\s*(\d{1,2})[).]\s+(\S.*)$/.exec(ln);
+    if(m && +m[1] === want){ endPara(); steps.push(m[2]); want++; return; }
+    endSteps();
+    if(!ln.trim()){ endPara(); return; }
+    if(/^\s*[—–-]{1,2}\s*(LYLA|VEGA|HALT)\b.{0,12}$/.test(ln)){ endPara(); out.push({ k: 'sig', t: ln.trim() }); return; }
+    if(/^\s*·\s/.test(ln) && !para.length && out.length && out[out.length - 1].k === 'sig'){ out.push({ k: 'src', t: ln.trim() }); return; }
+    para.push(ln);
+  });
+  endSteps(); endPara();
+  var last = -1; out.forEach(function(b, i){ if(b.k === 'p' || b.k === 'ol') last = i; });
+  if(last > 0 && out[last].k === 'p' && out[last].t.length <= 240 && /[?？]\s*$/.test(out[last].t)) out[last].k = 'ask';
+  return out.map(function(b){
+    if(b.k === 'ol') return '<ol class="steps">' + b.items.map(function(x){ return '<li>' + fmt(x) + '</li>'; }).join('') + '</ol>';
+    if(b.k === 'ask') return '<p class="ask">' + fmt(b.t) + '</p>';
+    if(b.k === 'sig') return '<span class="sig">' + fmt(b.t) + '</span>';
+    if(b.k === 'src') return '<span class="src">' + fmt(b.t) + '</span>';
+    return '<p>' + fmt(b.t) + '</p>';
+  }).join('');
+}
 /* เบอร์สายด่วนในคำตอบ → แตะโทรได้ทันทีบนมือถือ (ไม่แตะจำนวนเงิน เช่น "1300 บาท")
    รวมเบอร์ในคำตอบ 54 ภาษา (110 จีน · 119 ญี่ปุ่น · 109 เกาหลี · 3114 ฝรั่งเศส ฯลฯ) — เดิมแตะโทรได้แค่เบอร์ไทยกับ 911/988/112/999 */
 var HOTLINES = /(^|[^\d\w.\/:-])(191|1669|1125|1662|1479|1323|1300|1367|1784|1650|1599|1155|1111|1441|1443|1213|1195|1387|1506|1330|1192|1567|1586|1543|1413|1165|1600|1663|1546|1694|1129|1130|1422|1584|1166|1167|1186|1205|1207|1362|1366|1570|199|911|988|112|999|016|101|102|103|108|109|110|113|115|116|119|124|142|155|158|166|188|190|192|194|1018|1122|1201|1480|1553|1813|1926|1990|3114|7333|9110)(?![\d.,]|\s*(?:บาท|฿|baht|ปี|คน|ครั้ง|%))/g;
@@ -2441,7 +2469,7 @@ function msgEl(m){
   var crisis = t.mode === 'crisis' || /1323|1669/.test(m.t);
   var star = m.tr ? '<span class="star" style="color:' + riskColor(t.risk) + '" title="' + _t('ดาวของการตัดสินใจนี้') + '"></span>' : '';
   el.innerHTML = '<div class="who">' + star + '<span class="' + pn[1] + '">' + _t(pn[0]) + '</span><span class="tag">' + esc(tags.join(' · ')) + '</span></div>' +
-    '<div class="bubble">' + telify(key === 'COUNCIL' ? councilFmt(m.t) : fmt(m.t)) + '</div>' + (m.dz ? dzCard(m.dz) : '') + (m.img ? imgCard(m) : '') + (m.q ? quakeCard(m.q) : '') + (m.hz ? hazardCard(m.hz) : '') + (crisis ? crisisCard() : '') + twCard(t) + helpCard(m.l) + survivalCard(m.s) + companionCard(m.c) +
+    '<div class="bubble">' + telify(key === 'COUNCIL' ? councilFmt(m.t) : fmtReply(m.t)) + '</div>' + (m.dz ? dzCard(m.dz) : '') + (m.img ? imgCard(m) : '') + (m.q ? quakeCard(m.q) : '') + (m.hz ? hazardCard(m.hz) : '') + (crisis ? crisisCard() : '') + twCard(t) + helpCard(m.l) + survivalCard(m.s) + companionCard(m.c) +
     (m.tr && eqStrip(t) ? '<button type="button" class="eqs">' + eqStrip(t) + '</button>' : '') +
     (m.tr ? voteRow(m) : '');
   var eb = el.querySelector('.eqs'); if(eb) eb.addEventListener('click', function(){ showEq(m); });
@@ -2826,7 +2854,14 @@ function addPath(v){
   box.appendChild(row); relabel();
 }
 function relabel(){ $$('#sim-paths .path b').forEach(function(b, i){ b.textContent = String.fromCharCode(65 + i); }); }
-['เดินหน้าต่อแบบเดิม','หยุดและประเมินใหม่','หาพันธมิตรหรือทรัพยากรเพิ่ม'].forEach(function(v){ addPath(_t(v)); });
+var SIM_DEFAULTS = ['เดินหน้าต่อแบบเดิม','หยุดและประเมินใหม่','หาพันธมิตรหรือทรัพยากรเพิ่ม'];
+SIM_DEFAULTS.forEach(function(v){ addPath(_t(v)); });
+/* ตัวแปลโหลดทีหลังสคริปต์นี้ — ตัวเลือกตั้งต้นจึงค้างเป็นภาษาไทยในหน้าภาษาอื่น · เปลี่ยนภาษาแล้วแปลเฉพาะช่องที่ผู้ใช้ยังไม่ได้แก้ */
+document.addEventListener('kd:lang', function(){
+  $$('#sim-paths input').forEach(function(inp, i){ var th = SIM_DEFAULTS[i];
+    if(th && (inp.dataset.def === '1' || inp.value === th)){ inp.value = _t(th); inp.dataset.def = '1'; } });
+});
+$('#sim-paths').addEventListener('input', function(e){ if(e.target && e.target.dataset) e.target.dataset.def = '0'; });
 $('#sim-add').addEventListener('click', function(){ addPath(''); var ins = $$('#sim-paths input'); ins[ins.length-1].focus(); });
 $('#sim-run').addEventListener('click', async function(){
   var btn = this, out = $('#sim-out'), input = $('#sim-input').value.trim();
