@@ -687,6 +687,8 @@
 "ต้องตอบเพิ่ม": "Cần trả lời thêm",
 "ขั้นตอน SOP": "Các bước SOP",
 "ไปคุยในโหมดปรึกษา": "Trò chuyện ở chế độ Tư vấn",
+"ใบสรุปการตัดสินใจ": "Bản tóm tắt quyết định",
+"คัดลอกใบสรุป": "Sao chép bản tóm tắt",
 "DriftZero ตรวจการตัดสินใจขององค์กรหรือโครงการด้วยกฎ ไม่ใช่ AI — เรื่องส่วนตัวใช้โหมดปรึกษาจะช่วยได้ตรงกว่า": "DriftZero kiểm tra quyết định của tổ chức hoặc dự án bằng quy tắc, không phải AI — chuyện cá nhân thì chế độ Tư vấn giúp được nhiều hơn",
 "ตรวจด้วยกฎ ไม่ใช้ AI — ข้อความเดิมได้ผลเดิมเสมอ · คนเป็นผู้ตัดสินใจและเซ็นรับผิดชอบ": "Kiểm tra bằng quy tắc, không dùng AI — cùng nội dung luôn ra cùng kết quả · con người quyết định và ký chịu trách nhiệm",
 "ภาพนี้ไม่ได้เก็บไว้ในเครื่อง — ดาวน์โหลดเก็บไว้หลังสร้างนะคะ": "Ảnh này không được lưu trên máy — hãy tải về ngay sau khi tạo nhé",

@@ -620,6 +620,8 @@
     'ต้องตอบเพิ่ม': ['Still needed', 'まだ必要な情報'],
     'ขั้นตอน SOP': ['SOP steps', 'SOPの手順'],
     'ไปคุยในโหมดปรึกษา': ['Talk it through in Talk mode', '相談モードで話す'],
+    'ใบสรุปการตัดสินใจ': ['Decision brief', '意思決定サマリー'],
+    'คัดลอกใบสรุป': ['Copy brief', 'サマリーをコピー'],
     'DriftZero ตรวจการตัดสินใจขององค์กรหรือโครงการด้วยกฎ ไม่ใช่ AI — เรื่องส่วนตัวใช้โหมดปรึกษาจะช่วยได้ตรงกว่า': ['DriftZero checks decisions made by organisations or projects, using rules, not AI — for something personal, Talk mode helps more', 'DriftZeroは組織やプロジェクトの意思決定をAIではなくルールで点検します — 個人的なことは相談モードの方が役立ちます'],
     'ตรวจด้วยกฎ ไม่ใช้ AI — ข้อความเดิมได้ผลเดิมเสมอ · คนเป็นผู้ตัดสินใจและเซ็นรับผิดชอบ': ['Checked by rules, not AI — the same text always gives the same result · a human decides and signs off', 'AIではなくルールで点検 — 同じ文章なら結果は常に同じ · 決めて責任を負うのは人'],
     'ภาพนี้ไม่ได้เก็บไว้ในเครื่อง — ดาวน์โหลดเก็บไว้หลังสร้างนะคะ': ['This image wasn’t saved on this device — download images right after creating them', 'この画像は端末に保存されていません — 作成後すぐにダウンロードしてください'],
