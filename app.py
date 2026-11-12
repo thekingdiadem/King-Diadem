@@ -388,11 +388,12 @@ _SECURITY_HEADERS = [
     # สคริปต์ที่ถูกแทรกเข้ามาทีหลัง (XSS) และ handler ที่เขียนในแท็ก จึงไม่ทำงาน · ฟอนต์จาก Google Fonts เท่านั้น
     # tiles.openfreemap.org: ข้อมูลแผนที่เมืองตอนซูมลงลึกในหน้า Universe — อ่านอย่างเดียว ไม่ส่งข้อมูลผู้ใช้ออกไป
     # gibs.earthdata.nasa.gov: ภาพถ่ายดาวเทียม NASA Blue Marble (สาธารณสมบัติ) เป็นพื้นแผนที่ตอนมองไกล — อ่านอย่างเดียว
+    # tiles.maps.eox.at: ภาพดาวเทียม Sentinel-2 cloudless ปี 2016 (CC BY 4.0) ตอนซูมถึงระดับเมือง — อ่านอย่างเดียว
     # s3.amazonaws.com: ข้อมูลความสูงภูมิประเทศ (AWS Terrain Tiles · ข้อมูลเปิด) ของแผนที่เดียวกัน — อ่านอย่างเดียว
     (b"content-security-policy",
      b"default-src 'self'; " + _CSP_SCRIPT + b"; "
      b"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; "
-     b"img-src 'self' data: blob: https://s3.amazonaws.com; connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com https://gibs.earthdata.nasa.gov; "
+     b"img-src 'self' data: blob: https://s3.amazonaws.com; connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com https://gibs.earthdata.nasa.gov https://tiles.maps.eox.at; "
      b"worker-src 'self'; manifest-src 'self'; "
      b"object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"),
 ]
@@ -465,6 +466,9 @@ async def _too_large(send):
 
 # บีบอัดข้อความก่อนส่ง (JSON/HTML/JS) — ข้อมูลเมืองทั่วโลกของหน้า Universe 1.4 MB เหลือราว 0.7 MB
 from fastapi.middleware.gzip import GZipMiddleware
+# เวลาตอบของแชท p50/p95/p99 (core/latency.py) — ดูได้ที่ /health · เก็บแค่ตัวเลขเวลา ไม่เก็บข้อความ
+from core.latency import ReplyTimer, summary as _reply_ms
+app.add_middleware(ReplyTimer)
 app.add_middleware(GZipMiddleware, minimum_size=2048)
 app.add_middleware(BodyLimitMiddleware)   # เพิ่มทีหลังสุด = ชั้นนอกสุด ตัดก่อนตัวอื่นแตะ body
 
@@ -1019,6 +1023,7 @@ def health():
         "status":             "alive 👑",
         "version":            "5.0",
         "llm_loaded":         llm is not None,
+        "reply_ms":           _reply_ms(),          # เวลาตอบของแชท 500 ข้อความล่าสุด: p50 / p95 / p99 (มิลลิวินาที)
         "ai":                 _ai_health(),         # ใช้ AI ได้จริงไหม · ถ้าไม่ได้ เพราะอะไร (quota/auth/errors/daily_cap/no_api_key)
         "engine_loaded":      engine is not None,
         "lyla_loaded":        lyla is not None,

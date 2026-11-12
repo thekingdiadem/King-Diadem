@@ -257,10 +257,41 @@ def brief(text: str, wl: dict) -> dict | None:
                      "en": "After you act, come back and check what actually happened (post-audit) — the decision is always yours."}}
 
 
+# ผู้ใช้จริงคนแรกงงกับหน้าจอ แล้วพิมพ์ถามในโหมดนี้ว่า "what does drift zero do?" — เดิมระบบเอาคำถามนั้นไปตรวจด่านเหมือนเป็นการตัดสินใจ
+_ABOUT = _rx(r"what (?:does|is) (?:this|it|drift ?zero)\b|how (?:does|do) (?:this|it|drift ?zero|i use)\b|what (?:do|should) i (?:do|type|write)\b|"
+             r"^\s*(?:help|\?+|how to use)\s*\??\s*$|i(?:'m| am) confused|i don'?t (?:understand|get it)|"
+             r"drift ?zero (?:คืออะไร|ทำอะไร|ใช้ยังไง|ใช้อย่างไร)|(?:โหมดนี้|อันนี้|นี่)(?:คืออะไร|ทำอะไร|ใช้ยังไง)|ใช้ยังไง|ต้องพิมพ์อะไร|ไม่เข้าใจ|(?<!โร)งง(?!าน)")   # "งง" ต้องไม่ใช่ส่วนของคำว่า "โรงงาน"
+ABOUT_TEXT = {
+    "th": "DriftZero คือรายการตรวจก่อนตัดสินใจเรื่องใหญ่ เช่น \"ใช้เงิน 10,000 ยิงโฆษณา\" — ตรวจด้วยกฎ ไม่ใช้ AI ข้อความเดิมได้ผลเดิมเสมอ\n"
+          "วิธีใช้: 1) พิมพ์สิ่งที่กำลังจะตัดสินใจ  2) ตอบคำถามสั้นๆ ที่ระบบถามกลับ พิมพ์เป็นข้อ (1 … 2 …) ได้  "
+          "3) รับใบสรุป: ควรทำ รอ หรือหยุด พร้อมตัวเลขว่าทำได้มากสุดเท่าไหร่ — คุณเป็นคนตัดสินใจเสมอ\n"
+          "ถ้าอยากคุยเล่าเรื่องทั่วไป กดไปโหมดปรึกษาได้เลยค่ะ",
+    "en": "DriftZero is a pre-decision checklist for a big call like \"spend 10k on Facebook ads\". It runs on rules, not AI, so the same text always gives the same result.\n"
+          "How to use it: 1) type the decision you are about to make  2) answer the few short questions it asks back — numbered replies (1 … 2 …) are fine  "
+          "3) get a brief: go, wait or stop, with the most you can put in safely. The decision is always yours.\n"
+          "For an open conversation, switch to Talk mode.",
+}
+
+
+def is_about(text: str) -> bool:
+    t = str(text or "").strip()
+    return len(t) <= 80 and bool(_ABOUT.search(t)) and not parse_numbered(t)
+
+
+def about(prior: dict | None = None) -> dict:
+    """คำอธิบายโหมด — ถ้ากำลังตอบคำถามค้างอยู่ คำถามเดิมยังอยู่ครบ ตอบต่อได้เลย ไม่ต้องเริ่มใหม่"""
+    r = dict(prior) if prior else {"text": "", "talk": False, "gates": [], "asks": [], "sop": [], "note": None,
+                                   "emergency": False, "brief": None, "waterline": None}
+    r.update(verdict="about", about=True, summary=dict(ABOUT_TEXT), talk=True if not prior else r.get("talk", False))
+    return r
+
+
 def follow_up(prior_text: str, prior_keys, answer: str) -> dict:
     """ตรวจรอบต่อ: รวมเรื่องเดิมกับคำตอบ แล้วถามเฉพาะข้อที่ยังขาด — เดิมตรวจแค่ข้อความใหม่ เลยถามซ้ำครบทุกข้อ"""
     prior_text = str(prior_text or "").strip()[:4000]
     answer = str(answer or "").strip()[:4000]
+    if is_about(answer):
+        return about(audit(prior_text))
     got = answered_keys(answer, prior_keys)
     parts = parse_numbered(answer)
     body = " ".join(parts.values()) if parts else answer
@@ -291,6 +322,8 @@ def _answered_before(text: str) -> set[str]:
 def audit(text: str, answered=()) -> dict:
     t = str(text or "").strip()
     answered = set(answered or ())
+    if not answered and is_about(t):
+        return about()
     crisis, emergency = _danger(t)
     if crisis:
         return {"verdict": "urgent", "gates": [], "asks": [], "sop": [],

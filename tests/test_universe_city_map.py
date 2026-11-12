@@ -19,8 +19,8 @@ def test_maplibre_is_self_hosted_csp_build_with_license():
 
 def test_csp_allows_only_openfreemap_for_tiles(client):
     csp = client.get("/").headers["content-security-policy"]
-    # อ่านอย่างเดียว 3 แหล่ง: แผนที่เมือง · ความสูงภูมิประเทศ · ภาพดาวเทียม NASA (สาธารณสมบัติ) — ไม่มีแหล่งอื่น
-    assert "connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com https://gibs.earthdata.nasa.gov;" in csp
+    # อ่านอย่างเดียว 4 แหล่ง: แผนที่เมือง · ความสูงภูมิประเทศ · ภาพ NASA (สาธารณสมบัติ) · Sentinel-2 ปี 2016 (CC BY 4.0) — ไม่มีแหล่งอื่น
+    assert "connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com https://gibs.earthdata.nasa.gov https://tiles.maps.eox.at;" in csp
     script = re.search(r"script-src ([^;]*);", csp).group(1).split()
     assert script[0] == "'self'" and all(s.startswith("'sha256-") for s in script[1:])   # ไม่มีสคริปต์จากที่อื่น ไม่มี unsafe-inline
     assert "worker-src 'self'" in csp
@@ -170,3 +170,21 @@ def test_satellite_base_is_public_domain_nasa_and_hands_over_to_the_city_map():
     assert "{z}/{y}/{x}.jpeg" in CITY and "maxzoom: 8" in CITY          # WMTS ของ NASA เรียงแถวก่อนคอลัมน์
     assert "'raster-opacity': ['interpolate', ['linear'], ['zoom'], 8.5, 1, 10.8, 0]" in CITY
     assert "NASA GIBS" in CITY                                            # ให้เครดิตแหล่งภาพ
+
+
+def test_sentinel2_layer_is_the_commercially_usable_2016_release():
+    """ปี 2016 = CC BY 4.0 · ปี 2018 เป็นต้นไป = CC BY-NC-SA (ห้ามใช้เชิงพาณิชย์ — เว็บนี้มีระบบชำระเงิน) · ปี 2017 ภาพเหนือกรุงเทพฯ เป็นรู"""
+    import re as _re
+    assert "tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/{z}/{y}/{x}.jpg" in CITY
+    assert not _re.search(r"s2cloudless-20\d\d", CITY)
+    assert "Contains modified Copernicus Sentinel data 2016" in CITY and "EOX" in CITY and "CC BY 4.0" in CITY
+    assert "minzoom: 6, maxzoom: 13," in CITY                      # ภาพจริงละเอียดสุดที่ระดับ 13
+    assert "['interpolate', ['linear'], ['zoom'], 12.6, 0, 14, v]" in CITY     # ลึกกว่านี้ภาพเบลอ ให้ถนนและตึกรับช่วง
+
+
+def test_yesterday_layer_is_real_daily_nasa_imagery_and_off_by_default():
+    assert "MODIS_Terra_CorrectedReflectance_TrueColor/default/' + todayDate() + '/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg" in CITY
+    assert "new Date(Date.now() - 864e5).toISOString().slice(0, 10)" in CITY      # เมื่อวานตาม UTC — ภาพวันนี้ยังไม่ครบทั้งโลก
+    assert "layout: { visibility: todayOn ? 'visible' : 'none' }" in CITY and "var todayOn = false;" in CITY
+    page = (ROOT / "static/king_diadem_universe.html").read_text(encoding="utf-8") if "ROOT" in globals() else ""
+    assert not page or ('id="ec-today"' in page and 'data-act="today"' in page)

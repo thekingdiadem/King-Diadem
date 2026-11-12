@@ -133,7 +133,25 @@
   var SAT = { type: 'raster', tileSize: 256, maxzoom: 8,
               tiles: ['https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-08-01/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg'],
               attribution: '<a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a> · Blue Marble' };
-  function fadeIn(v) { return ['interpolate', ['linear'], ['zoom'], 8, 0, 10.5, v]; }   // ชั้นสีของแผนที่ค่อยๆ ขึ้นแทนภาพดาวเทียม
+  // ใกล้กว่านั้น (จังหวัด → ย่านในเมือง): Sentinel-2 cloudless ปี 2016 ของ EOX — ภาพจริงจากดาวเทียม Sentinel-2 ขององค์การอวกาศยุโรป
+  // ละเอียด ~10 ม./พิกเซล เห็นแม่น้ำ สะพาน ถนนใหญ่ แปลงนา · สัญญาอนุญาต CC BY 4.0 (ใช้เชิงพาณิชย์ได้ ต้องให้เครดิต)
+  // ใช้ได้เฉพาะปี 2016 (ปี 2017 ก็ CC BY แต่ภาพเหนือกรุงเทพฯ เป็นรู) — ปี 2018 เป็นต้นไปเป็น CC BY-NC-SA ห้ามใช้เชิงพาณิชย์ ห้ามเปลี่ยนเป็นปีใหม่กว่าโดยไม่ดูสัญญา
+  // ภาพจริงละเอียดสุดที่แผ่นระดับ 13 (= ซูมแผนที่ราว 12 เพราะแผ่นกว้าง 256 จุด) · ลึกกว่านั้นภาพเบลอ จึงจางให้ถนนและตึก (OpenStreetMap) รับช่วงที่ 12.6–14
+  var S2 = { type: 'raster', tileSize: 256, minzoom: 6, maxzoom: 13,
+             tiles: ['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/{z}/{y}/{x}.jpg'],
+             attribution: '<a href="https://cloudless.eox.at" target="_blank" rel="noopener">Sentinel-2 cloudless</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2016) · CC BY 4.0' };
+  // "โลกเมื่อวาน": ภาพจริงรายวันจากดาวเทียม Terra ของ NASA (เครื่องวัด MODIS) — เห็นเมฆ พายุ ควันไฟป่าของเมื่อวานจริงๆ
+  // สาธารณสมบัติ · ละเอียด ~250 ม./พิกเซล · มีแถบว่างตามแนวโคจรบ้าง (ดาวเทียมยังไม่ผ่าน) · ปิดไว้ก่อน เปิดจากปุ่มในแผงเครื่องมือ
+  // ใช้วันเมื่อวานตามเวลา UTC เพราะภาพของวันนี้ยังถ่ายไม่ครบทั้งโลก
+  function todayDate() { return new Date(Date.now() - 864e5).toISOString().slice(0, 10); }
+  function todaySrc() {
+    return { type: 'raster', tileSize: 256, maxzoom: 9,
+             tiles: ['https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/' + todayDate() + '/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg'],
+             attribution: 'NASA GIBS · MODIS Terra ' + todayDate() };
+  }
+  var todayOn = false;
+  try { todayOn = localStorage.getItem('kd-today') === '1'; } catch (e) {}
+  function fadeIn(v) { return ['interpolate', ['linear'], ['zoom'], 12.6, 0, 14, v]; }   // ชั้นสีของแผนที่ค่อยๆ ขึ้นแทนภาพดาวเทียม
   function buildStyle() {
     var C = isDay() ? DAY : NIGHT, LM = landmarkData(), day = isDay();
     function road(id, classes, color, w0, w1, op) {
@@ -148,20 +166,26 @@
     return {
       version: 8,
       glyphs: TILES + '/fonts/{fontstack}/{range}.pbf',
-      sources: { omt: { type: 'vector', url: TILES + '/planet' }, sat: SAT, dem: DEM, demhs: DEM,
+      sources: { omt: { type: 'vector', url: TILES + '/planet' }, sat: SAT, s2: S2, today: todaySrc(), dem: DEM, demhs: DEM,
                  lmshape: { type: 'geojson', data: LM.shapes }, lmpoint: { type: 'geojson', data: LM.points } },
       sky: { 'sky-color': C.sky[0], 'horizon-color': C.sky[1], 'fog-color': C.sky[2],
              'sky-horizon-blend': .6, 'horizon-fog-blend': .8, 'fog-ground-blend': .35, 'atmosphere-blend': 0 },
       light: { anchor: 'map', color: C.light[0], intensity: C.light[1], position: [1.2, 200, 35] },
       layers: [
         { id: 'bg', type: 'background', paint: { 'background-color': C.bg } },
+        // Blue Marble อยู่ใต้ Sentinel-2 ตลอดช่วงมองไกล — ถ้าเซิร์ฟเวอร์ Sentinel-2 ล่ม ยังมีภาพ NASA ให้เห็น ไม่เป็นพื้นดำ
         { id: 'sat', type: 'raster', source: 'sat', maxzoom: 11,
           paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 8.5, 1, 10.8, 0], 'raster-fade-duration': 300,
                    'raster-brightness-max': day ? 1 : .42, 'raster-saturation': day ? 0 : -.25, 'raster-contrast': day ? .05 : .1 } },
+        { id: 's2', type: 'raster', source: 's2', minzoom: 6, maxzoom: 14.2,
+          paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 6, 0, 7, 1, 12.6, 1, 14, 0], 'raster-fade-duration': 300,
+                   'raster-brightness-max': day ? 1 : .62, 'raster-saturation': day ? .05 : -.15, 'raster-contrast': day ? .08 : .18 } },
         // เงาภูเขาใต้แสงจันทร์ — สันเขาสว่างอมฟ้าจางๆ หุบเขามืด
         { id: 'hillshade', type: 'hillshade', source: 'demhs',
           paint: { 'hillshade-shadow-color': C.hsShadow, 'hillshade-highlight-color': C.hsHi,
                    'hillshade-accent-color': C.hsAccent, 'hillshade-exaggeration': C.hsEx, 'hillshade-illumination-direction': 315 } },
+        { id: 'today', type: 'raster', source: 'today', maxzoom: 11, layout: { visibility: todayOn ? 'visible' : 'none' },
+          paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 9, 1, 10.8, 0], 'raster-fade-duration': 300 } },
         { id: 'urban', type: 'fill', source: 'omt', 'source-layer': 'landuse',
           filter: ['in', ['get', 'class'], ['literal', ['residential', 'commercial', 'retail', 'industrial']]],
           paint: { 'fill-color': ['match', ['get', 'class'], 'industrial', C.industrial, C.urban], 'fill-opacity': fadeIn(.8) } },
@@ -324,7 +348,7 @@
                             maxPitch: 75, minZoom: 3, maxZoom: 18.5, attributionControl: false,
                             fadeDuration: calm() ? 0 : 300 });
         map.addControl(new lib.AttributionControl({ compact: true,
-          customAttribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> · © OpenStreetMap contributors · <a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a>' }),
+          customAttribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> · © OpenStreetMap contributors · <a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a> · <a href="https://cloudless.eox.at" target="_blank" rel="noopener">Sentinel-2 cloudless</a> by EOX (Copernicus Sentinel data 2016)' }),
           'top-right');                                                   // มุมล่างมีปุ่มควบคุมโลกอยู่แล้ว
         // เข็มทิศของแผนที่เอง: แตะเพื่อหันทิศเหนือขึ้นบน และเห็นมุมเอียงของกล้อง
         map.addControl(new lib.NavigationControl({ showZoom: false, visualizePitch: true }), 'top-right');
@@ -373,6 +397,15 @@
     prefetch: function () { prefetch(); },
     enter: enter,
     exit: exit,
+    // เปิด/ปิดภาพรายวันของ NASA · คืนสถานะปัจจุบัน และวันที่ของภาพ (ให้ปุ่มบอกผู้ใช้ได้ว่าเป็นภาพของวันไหน)
+    today: function (v) {
+      if (v != null) {
+        todayOn = !!v;
+        try { localStorage.setItem('kd-today', todayOn ? '1' : '0'); } catch (e) {}
+        if (map && map.getLayer('today')) map.setLayoutProperty('today', 'visibility', todayOn ? 'visible' : 'none');
+      }
+      return { on: todayOn, date: todayDate() };
+    },
     zoom: function (d) { if (map && on) { if (map.getZoom() + d < exitZ) exit(); else map.zoomTo(map.getZoom() + d, { duration: calm() ? 0 : 500 }); } }
   };
 })();

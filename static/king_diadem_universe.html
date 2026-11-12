@@ -527,6 +527,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
         <button type="button" class="ec-tile" id="ec-day" aria-pressed="false" data-act="day"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></svg>กลางวัน</button>
         <button type="button" class="ec-tile" id="ec-places" aria-pressed="true" data-act="places"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><circle cx="12" cy="12" r="6.5" opacity=".45"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2" opacity=".6"/></svg>สถานที่</button>
         <button type="button" class="ec-tile" id="ec-names" aria-pressed="true" data-act="names"><svg viewBox="0 0 24 24"><path d="M5 7h14M8 12h8M10 17h4"/></svg>ชื่อเมือง</button>
+        <button type="button" class="ec-tile" id="ec-today" aria-pressed="false" data-act="today"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M5 10c3-2 5 1 8-1s4-1 6 0M6 15c2-1 4 1 6 0s4-1 6 1"/></svg>โลกเมื่อวาน</button>
         <button type="button" class="ec-tile" id="ec-calm" aria-pressed="false" data-act="calm"><svg viewBox="0 0 24 24"><path d="M4 9h16M4 15h16" /><circle cx="9" cy="9" r="2"/><circle cx="15" cy="15" r="2"/></svg>ลดการเคลื่อนไหว</button>
       </div>
       <h3>เฟรมเรตสูงสุด <small id="ec-hz"></small></h3>
@@ -1180,6 +1181,10 @@ function KD_toggleDay(){var h=document.documentElement,on=!h.classList.contains(
   var E = function(){ return window.KD_earth; }, ACT = {
     ship: function(){ KD_toggleShip(); },
     places: function(){ KD_layer('places'); }, names: function(){ KD_layer('names'); },
+    /* ภาพจริงรายวันของ NASA บนแผนที่ (เห็นเมื่อซูมลงถึงระดับแผนที่) — บอกวันที่ของภาพให้รู้ว่าไม่ใช่ภาพสด */
+    today: function(){ if(!window.KD_cityMap || !KD_cityMap.today) return; var t = KD_cityMap.today(!KD_cityMap.today().on), b = document.getElementById('ec-today');
+      if(b) b.setAttribute('aria-pressed', t.on ? 'true' : 'false');
+      var st = document.getElementById('ec-hz-status'); if(st && t.on) st.textContent = (/^th/i.test(document.documentElement.lang || '') ? 'ภาพดาวเทียม NASA ของวันที่ ' + t.date + ' (UTC) — ซูมลงถึงระดับแผนที่เพื่อดู' : 'NASA satellite image of ' + t.date + ' (UTC) — zoom in to map level to see it'); },
     shiphome: function(){ if(E() && E().shipOn()) E().shipHome(); },
     shipfast: function(){ if(E() && E().shipOn()){ var f = E().shipFast(); document.getElementById('ship-fast').setAttribute('aria-pressed', f ? 'true' : 'false'); } },
     globe: function(){ KD_toggleGlobe(); },
@@ -1208,6 +1213,7 @@ function KD_toggleDay(){var h=document.documentElement,on=!h.classList.contains(
     menu: function(){ var sh = document.getElementById('ec-sheet'), b = document.getElementById('ec-menu'), open = sh.classList.toggle('hide') === false;
                       b.setAttribute('aria-expanded', open ? 'true' : 'false'); }
   };
+  window.addEventListener('load', function(){ var b = document.getElementById('ec-today'); if(b && window.KD_cityMap && KD_cityMap.today) b.setAttribute('aria-pressed', KD_cityMap.today().on ? 'true' : 'false'); });
   document.addEventListener('click', function(e){
     var a = e.target.closest('[data-act]'); if(a && ACT[a.dataset.act]) { ACT[a.dataset.act](); return; }
     var sh = document.getElementById('ec-sheet');                       // แตะนอกแผง = ปิดแผงเครื่องมือ
