@@ -38,3 +38,15 @@
 - ข้อมูลจากแคตตาล็อก Hipparcos (ESA) ผ่านแพ็กเกจ [d3-celestial](https://github.com/ofrohn/d3-celestial) 0.7.35
   — BSD-3-Clause · Copyright (c) 2015, Olaf Frohn
 - สร้างใหม่ได้ด้วย `scripts/build_sky_stars.py`
+
+## ภาพดาวเทียมตอนซูมแผนที่เมือง (หน้า Universe · `static/city_map.js`)
+
+ไม่ได้เก็บไฟล์ภาพไว้ใน repo — โหลดเป็นแผ่นเล็กๆ จากเซิร์ฟเวอร์ต้นทางตอนผู้ใช้ซูม
+
+| ช่วงซูม | แหล่ง | ความละเอียด | สัญญาอนุญาต |
+|---|---|---|---|
+| มองไกล (ถึงระดับ 8) | NASA Blue Marble ผ่าน GIBS (`gibs.earthdata.nasa.gov`) | ~500 ม./พิกเซล | สาธารณสมบัติ |
+| ระดับ 6–13 | Sentinel-2 cloudless **ปี 2016** โดย EOX IT Services GmbH (`tiles.maps.eox.at`) — Contains modified Copernicus Sentinel data 2016 | ~10 ม./พิกเซล | CC BY 4.0 (ต้องให้เครดิต) |
+
+ห้ามเปลี่ยน Sentinel-2 เป็นปี 2018 ขึ้นไป: เป็น CC BY-NC-SA 4.0 ห้ามใช้เชิงพาณิชย์ (เว็บนี้มีระบบชำระเงิน) · ปี 2017 เป็น CC BY 4.0 เหมือนกันแต่ภาพเหนือกรุงเทพฯ เป็นรู
+ข้อความสัญญาอนุญาตอ่านจาก `https://tiles.maps.eox.at/wmts/1.0.0/WMTSCapabilities.xml` (ช่อง Abstract ของแต่ละชั้น)

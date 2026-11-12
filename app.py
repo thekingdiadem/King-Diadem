@@ -388,11 +388,12 @@ _SECURITY_HEADERS = [
     # สคริปต์ที่ถูกแทรกเข้ามาทีหลัง (XSS) และ handler ที่เขียนในแท็ก จึงไม่ทำงาน · ฟอนต์จาก Google Fonts เท่านั้น
     # tiles.openfreemap.org: ข้อมูลแผนที่เมืองตอนซูมลงลึกในหน้า Universe — อ่านอย่างเดียว ไม่ส่งข้อมูลผู้ใช้ออกไป
     # gibs.earthdata.nasa.gov: ภาพถ่ายดาวเทียม NASA Blue Marble (สาธารณสมบัติ) เป็นพื้นแผนที่ตอนมองไกล — อ่านอย่างเดียว
+    # tiles.maps.eox.at: ภาพดาวเทียม Sentinel-2 cloudless ปี 2016 (CC BY 4.0) ตอนซูมถึงระดับเมือง — อ่านอย่างเดียว
     # s3.amazonaws.com: ข้อมูลความสูงภูมิประเทศ (AWS Terrain Tiles · ข้อมูลเปิด) ของแผนที่เดียวกัน — อ่านอย่างเดียว
     (b"content-security-policy",
      b"default-src 'self'; " + _CSP_SCRIPT + b"; "
      b"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; "
-     b"img-src 'self' data: blob: https://s3.amazonaws.com; connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com https://gibs.earthdata.nasa.gov; "
+     b"img-src 'self' data: blob: https://s3.amazonaws.com; connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com https://gibs.earthdata.nasa.gov https://tiles.maps.eox.at; "
      b"worker-src 'self'; manifest-src 'self'; "
      b"object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"),
 ]
