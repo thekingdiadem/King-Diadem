@@ -5,7 +5,7 @@
 <script>
 /* โหมดสีของหน้า (กลางคืน · กลางวัน · คอสมิกลาเต้ · สีที่เลือกเอง) — ตั้งก่อนวาดอะไร จะได้ไม่กะพริบเป็นสีเดิมก่อน */
 window.KD_themeVars = function(t, c){
-  var P = { day: '#eef4ff', latte: '#fff8e7' }, p = t === 'custom' ? c : P[t];
+  var P = { day: '#eef4ff', latte: '#fff8e7', pastel: '#1c1a2e' }, p = t === 'custom' ? c : P[t];
   if(!p || !/^#[0-9a-f]{6}$/i.test(p)) return null;
   var n = parseInt(p.slice(1), 16), r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
   return { p: p, rgb: [r, g, b], ink: .2126 * r + .7152 * g + .0722 * b > .45 ? 'dark' : 'light' };
@@ -124,6 +124,7 @@ window.KD_themeVars = function(t, c){
             <button type="button" data-theme-pick="night"><i class="sw" style="background:#0b0e22"></i>กลางคืน</button>
             <button type="button" data-theme-pick="day"><i class="sw" style="background:#eef4ff"></i>กลางวัน</button>
             <button type="button" data-theme-pick="latte"><i class="sw" style="background:#fff8e7"></i>คอสมิกลาเต้</button>
+            <button type="button" data-theme-pick="pastel"><i class="sw" style="background:linear-gradient(135deg,#cdbdf2,#f2bfd3 55%,#a8dcc4)"></i>พาสเทลมืด</button>
             <button type="button" id="halloween-btn" aria-pressed="false"><i class="sw hw-sw" aria-hidden="true">🎃</i>ฮาโลวีน</button>
             <button type="button" id="cinema-btn"><i class="sw calm-sw" aria-hidden="true">☸</i>โหมดภาพยนตร์</button>
             <button type="button" id="calm-btn" aria-pressed="false"><i class="sw calm-sw" aria-hidden="true">◌</i>ลดการเคลื่อนไหว</button>

@@ -1,23 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="KING DIADEM">
   <!-- ตรา KING DIADEM แบบพื้นโปร่ง — วาดเป็นเวกเตอร์ทั้งหมด ขยายเท่าไหร่ก็คม (รูปทรงมงกุฎชุดเดียวกับ static/logo.svg)
-       จุดโฟกัสกลางภาพ: ลำแสงแนวตั้งเรียวปลาย ตัดผ่านแกนกลาง แล้วหยดเป็นหยดแสงที่ฐาน — ฟ้าฝั่งซ้าย ทองฝั่งขวา -->
+       จุดโฟกัสกลางภาพ: ลำแสงแนวตั้งเรียวปลาย ตัดผ่านแกนกลาง แล้วหยดเป็นหยดแสงที่ฐาน — ฟ้าฝั่งซ้าย ทองฝั่งขวา
+       ความคม: ทุกชิ้นมีเส้นขอบเข้ม (keyline) รองอยู่ข้างหลัง จึงตัดกับพื้นได้ทั้งพื้นมืดและพื้นสว่าง · แสงฟุ้งอยู่เฉพาะวงแหวนกับลำแสง
+       ตัวมงกุฎไม่ผ่านตัวเบลอ · มิติ: แกนกลางเจียระไนสองหน้า (ซ้ายสว่าง ขวาเข้ม) ปีกและแขนมีเส้นสันแสง -->
   <defs>
     <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#fff6dc"/><stop offset=".45" stop-color="#ffc977"/><stop offset="1" stop-color="#e48a2e"/>
+      <stop offset="0" stop-color="#fff8e2"/><stop offset=".4" stop-color="#ffcf80"/><stop offset="1" stop-color="#d9791f"/>
     </linearGradient>
     <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f2f7ff"/><stop offset=".5" stop-color="#a9c3f2"/><stop offset="1" stop-color="#4f6fc4"/>
+      <stop offset="0" stop-color="#f6f9ff"/><stop offset=".5" stop-color="#a9c3f2"/><stop offset="1" stop-color="#3f5fb8"/>
     </linearGradient>
-    <linearGradient id="core" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#e4f4ff"/><stop offset=".5" stop-color="#5fb4ff"/><stop offset="1" stop-color="#1d4fd0"/>
+    <linearGradient id="coreL" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f1f9ff"/><stop offset=".5" stop-color="#7cc4ff"/><stop offset="1" stop-color="#2a63e0"/>
     </linearGradient>
-    <!-- วงแหวนรอบตรา: ฟ้าด้านซ้าย ไล่เป็นทองด้านขวา -->
+    <linearGradient id="coreR" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b9dcff"/><stop offset=".5" stop-color="#3f8fe8"/><stop offset="1" stop-color="#143a9e"/>
+    </linearGradient>
     <linearGradient id="halo" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#3f9bff"/><stop offset=".5" stop-color="#cfe0ff"/><stop offset="1" stop-color="#ffb04a"/>
+      <stop offset="0" stop-color="#3f9bff"/><stop offset=".5" stop-color="#dfe9ff"/><stop offset="1" stop-color="#ffb04a"/>
     </linearGradient>
     <linearGradient id="orbit" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#58aaff" stop-opacity=".35"/><stop offset=".45" stop-color="#ffd890"/>
-      <stop offset="1" stop-color="#ff8a2a" stop-opacity=".45"/>
+      <stop offset="0" stop-color="#58aaff" stop-opacity=".45"/><stop offset=".45" stop-color="#ffe0a0"/>
+      <stop offset="1" stop-color="#ff8a2a" stop-opacity=".55"/>
     </linearGradient>
     <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#9fd2ff" stop-opacity="0"/><stop offset=".3" stop-color="#cfe9ff" stop-opacity=".9"/>
@@ -33,40 +37,60 @@
       <stop offset="1" stop-color="#ff9a3a" stop-opacity="0"/>
     </radialGradient>
     <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feGaussianBlur stdDeviation="4" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
+    <!-- รูปทรงครึ่งขวา (ครึ่งซ้ายคือภาพสะท้อน) — ไม่กำหนดสีที่นี่ ให้ชั้นที่เรียกใช้เป็นคนกำหนด -->
+    <path id="wing" d="M262 378 C336 362 414 318 466 196 C468 284 424 344 344 372 C318 382 290 386 266 384 Z"/>
+    <path id="barb" d="M362 334 L418 248 L392 342 Z"/>
+    <path id="arm" d="M258 374 C292 336 300 268 290 214 C286 188 298 164 326 146 C312 176 314 208 320 246 C330 308 302 352 266 380 Z"/>
+    <path id="gem" d="M256 118 L284 252 L256 356 L228 252 Z"/>
+    <g id="half-key"><use href="#wing"/><use href="#barb"/><use href="#arm"/></g>
     <g id="half">
-      <path d="M262 378 C336 362 414 318 466 196 C468 284 424 344 344 372 C318 382 290 386 266 384 Z" fill="url(#silver)" stroke="#eef4ff" stroke-width="2"/>
-      <path d="M362 334 L418 248 L392 342 Z" fill="url(#silver)" stroke="#eef4ff" stroke-width="1.5"/>
-      <path d="M258 374 C292 336 300 268 290 214 C286 188 298 164 326 146 C312 176 314 208 320 246 C330 308 302 352 266 380 Z" fill="url(#gold)" stroke="#fff3d0" stroke-width="2"/>
+      <use href="#wing" fill="url(#silver)" stroke="#f4f8ff" stroke-width="1.6"/>
+      <use href="#barb" fill="url(#silver)" stroke="#f4f8ff" stroke-width="1.4"/>
+      <path d="M286 372 C352 356 420 312 458 226" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>
+      <use href="#arm" fill="url(#gold)" stroke="#fff5d6" stroke-width="1.6"/>
+      <path d="M272 366 C300 330 308 270 300 218 C297 196 304 176 318 160" fill="none" stroke="#fffdf2" stroke-width="1.8" stroke-linecap="round" opacity=".75"/>
     </g>
   </defs>
 
   <!-- วงแหวนรอบตรา + วงโคจรเอียง (ครึ่งหลัง) -->
-  <circle cx="256" cy="262" r="188" fill="none" stroke="url(#halo)" stroke-width="3.5" opacity=".85" filter="url(#glow)"/>
-  <circle cx="256" cy="262" r="204" fill="none" stroke="url(#halo)" stroke-width="1" opacity=".35"/>
+  <circle cx="256" cy="262" r="188" fill="none" stroke="#0a1030" stroke-width="7" opacity=".55"/>
+  <circle cx="256" cy="262" r="188" fill="none" stroke="url(#halo)" stroke-width="3.5" filter="url(#glow)"/>
+  <circle cx="256" cy="262" r="188" fill="none" stroke="#ffffff" stroke-width="1" opacity=".7"/>
+  <circle cx="256" cy="262" r="204" fill="none" stroke="url(#halo)" stroke-width="1" opacity=".4"/>
   <ellipse cx="256" cy="300" rx="236" ry="58" fill="none" stroke="url(#orbit)" stroke-width="6"
-           transform="rotate(-11 256 300)" filter="url(#glow)" opacity=".8"/>
+           transform="rotate(-11 256 300)" filter="url(#glow)" opacity=".85"/>
 
   <!-- ลำแสงกลาง: เรียวที่ปลายทั้งสอง สว่างสุดตรงใจกลางตรา -->
   <path d="M256 6 L260 262 L256 506 L252 262 Z" fill="url(#beam)" filter="url(#glow)"/>
+  <path d="M256 30 L257.4 262 L256 486 L254.6 262 Z" fill="#ffffff" opacity=".85"/>
 
-  <g filter="url(#glow)">
-    <use href="#half"/>
-    <use href="#half" transform="translate(512 0) scale(-1 1)"/>
-    <path d="M256 118 L284 252 L256 356 L228 252 Z" fill="url(#core)" stroke="url(#gold)" stroke-width="5" stroke-linejoin="round"/>
-    <path d="M256 160 L270 252 L256 320 L242 252 Z" fill="#eaf6ff" opacity=".6"/>
+  <!-- เส้นขอบเข้มรองหลังมงกุฎ → ขอบคม ตัดกับพื้นทุกสี -->
+  <g fill="#0a1030" stroke="#0a1030" stroke-width="9" stroke-linejoin="round">
+    <use href="#half-key"/><use href="#half-key" transform="translate(512 0) scale(-1 1)"/><use href="#gem"/>
   </g>
+  <use href="#half"/>
+  <use href="#half" transform="translate(512 0) scale(-1 1)"/>
+  <!-- แกนกลางเจียระไน: หน้าซ้ายรับแสง หน้าขวาอยู่ในเงา ขอบทอง สันกลางขาว -->
+  <path d="M256 118 L256 356 L228 252 Z" fill="url(#coreL)"/>
+  <path d="M256 118 L284 252 L256 356 Z" fill="url(#coreR)"/>
+  <path d="M228 252 L256 236 L284 252" fill="none" stroke="#eaf6ff" stroke-width="1.4" opacity=".8"/>
+  <use href="#gem" fill="none" stroke="url(#gold)" stroke-width="4.5" stroke-linejoin="round"/>
+  <path d="M256 124 L256 350" stroke="#ffffff" stroke-width="1.6" opacity=".9"/>
 
   <!-- วงโคจร (ครึ่งหน้า — ผ่านหน้ามงกุฎ) -->
+  <path d="M20 300 A236 58 0 0 0 492 300" fill="none" stroke="#0a1030" stroke-width="10" opacity=".45" transform="rotate(-11 256 300)"/>
   <path d="M20 300 A236 58 0 0 0 492 300" fill="none" stroke="url(#orbit)" stroke-width="6"
         transform="rotate(-11 256 300)" filter="url(#glow)"/>
+  <path d="M20 300 A236 58 0 0 0 492 300" fill="none" stroke="#fffaf0" stroke-width="1.2" opacity=".8" transform="rotate(-11 256 300)"/>
 
   <!-- ประกายบนยอด · หยดแสงที่ฐาน (จุดโฟกัส) -->
   <circle cx="256" cy="104" r="24" fill="url(#flare)"/>
-  <path d="M256 82 L260 100 L278 104 L260 108 L256 126 L252 108 L234 104 L252 100 Z" fill="#fff"/>
-  <circle cx="256" cy="384" r="40" fill="url(#drop)"/>
-  <path d="M256 352 C262 372 270 382 270 392 A14 14 0 0 1 242 392 C242 382 250 372 256 352 Z" fill="#fff" opacity=".95" filter="url(#glow)"/>
-  <ellipse cx="256" cy="262" rx="150" ry="1.2" fill="#fff" opacity=".55"/>
+  <path d="M256 78 L260 100 L282 104 L260 108 L256 130 L252 108 L230 104 L252 100 Z" fill="#fff" stroke="#0a1030" stroke-width=".8"/>
+  <circle cx="256" cy="384" r="42" fill="url(#drop)"/>
+  <path d="M256 350 C262 372 271 382 271 393 A15 15 0 0 1 241 393 C241 382 250 372 256 350 Z" fill="#fff" stroke="#c9792a" stroke-width="1.6"/>
+  <ellipse cx="251" cy="390" rx="3.2" ry="6" fill="#ffe6c0" opacity=".9"/>
+  <ellipse cx="256" cy="262" rx="150" ry="1.1" fill="#fff" opacity=".6"/>
 </svg>
