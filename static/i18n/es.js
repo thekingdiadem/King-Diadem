@@ -62,6 +62,7 @@
 "กลางคืน": "Noche",
 "กลางวัน": "Día",
 "คอสมิกลาเต้": "Cosmic latte",
+"พาสเทลมืด": "Pastel oscuro",
 "สีที่เลือกเอง": "Elegir mi color",
 "เลือกสีพื้นหลัง": "Elegir color de fondo",
 "ตัวอย่างคำถาม": "Preguntas de ejemplo",

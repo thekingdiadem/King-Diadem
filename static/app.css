@@ -1079,6 +1079,33 @@ html:not([data-ink="dark"]) .crest::before{content:"";position:absolute;inset:-1
   background:radial-gradient(46% 70% at 30% 50%,rgba(78,130,240,.26),rgba(78,130,240,0) 70%),radial-gradient(46% 70% at 70% 50%,rgba(240,150,70,.24),rgba(240,150,70,0) 70%)}
 .crest::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;
   background:linear-gradient(90deg,rgba(120,170,255,0),rgba(170,200,255,.55) 30%,rgba(255,255,255,.9) 50%,rgba(255,200,130,.55) 70%,rgba(255,170,90,0))}
+@media (min-width:380px){ .crest{height:204px} .crest img{width:168px;height:168px} }
+/* โหมดสว่าง: ตราต้องไม่จาง — เงาเข้มบางๆ แทนแสงฟุ้ง (ตัวตรามีเส้นขอบเข้มในไฟล์อยู่แล้ว) */
+html[data-ink="dark"] .crest img{filter:drop-shadow(0 2px 3px rgba(20,24,60,.35)) drop-shadow(0 12px 22px rgba(120,80,20,.18))}
+html[data-ink="dark"] .crest::after{background:linear-gradient(90deg,rgba(60,110,220,0),rgba(60,110,220,.5) 30%,rgba(40,40,70,.55) 50%,rgba(210,130,50,.55) 70%,rgba(210,130,50,0))}
+/* ── พาสเทลมืด (data-theme="pastel"): พื้นม่วงครามเข้ม สีเน้นเป็นลาเวนเดอร์ ชมพูกุหลาบ และมินต์ แทนแชมเปญ
+   ตัวอักษรยังเป็นงาช้างชุดเดิม (คมกว่าพื้น #1c1a2e เกิน 7:1) · สีเน้นทุกตัวเป็นโทนอ่อนบนพื้นเข้ม อ่านได้ทุกวัย */
+html[data-theme="pastel"]{
+  --ink-2:#cfc9de; --ink-3:#b8b2c8;   /* พื้นนี้สว่างกว่าเที่ยงคืน ตัวอักษรรองจึงต้องสว่างขึ้นให้ยังคมเกิน 7:1 */
+  --gold:#cdbdf2; --gold-hi:#e4daff; --focus:#e4daff; --lyla:#f2c9da; --vega:#bfe6d6;
+  --ok:#a8dcc4; --ok-bg:rgba(168,220,196,.12); --warn:#f2d6a8; --warn-bg:rgba(242,214,168,.12);
+  --line:rgba(228,218,255,.11); --line-2:rgba(228,218,255,.22);
+  --champ:linear-gradient(180deg,#efe6ff,#c9b6f0); --silver:linear-gradient(180deg,#e6fbf2,#a8dcc4);
+  --pane:linear-gradient(180deg,rgba(40,36,66,.72),rgba(24,22,42,.8));
+  --rim:linear-gradient(160deg,rgba(228,218,255,.3),rgba(228,218,255,.06) 45%,rgba(242,191,211,.28));
+}
+html[data-theme="pastel"]::before{background:
+    radial-gradient(120% 44% at 50% 112%,rgba(242,191,211,.20),rgba(242,191,211,0) 70%),
+    radial-gradient(80% 60% at -8% 30%,rgba(205,189,242,.22),rgba(205,189,242,0) 68%),
+    radial-gradient(80% 60% at 108% 34%,rgba(168,220,196,.16),rgba(168,220,196,0) 68%)}
+html[data-theme="pastel"] .card{background:linear-gradient(170deg,rgba(44,40,74,.66),rgba(26,24,46,.78));
+  box-shadow:inset 0 1px 0 rgba(228,218,255,.12),inset 0 0 0 1px rgba(228,218,255,.08),0 30px 70px -34px rgba(0,0,0,.8),0 0 60px -30px rgba(242,191,211,.3)}
+html[data-theme="pastel"] .card-h h2{background:linear-gradient(180deg,#f6f0ff,#cdbdf2);-webkit-background-clip:text;background-clip:text;color:transparent}
+html[data-theme="pastel"] .card-h::after{background:linear-gradient(90deg,rgba(205,189,242,.6),rgba(242,191,211,.25) 60%,rgba(168,220,196,0))}
+html[data-theme="pastel"] .btn.primary,html[data-theme="pastel"] #send{color:#1f1a33;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 10px 26px -14px rgba(205,189,242,.8)}
+html[data-theme="pastel"] .bubble .steps li::before{color:#1f1a33}
+html[data-theme="pastel"] .bubble .ask{background:rgba(242,191,211,.09);box-shadow:inset 0 0 0 1px rgba(242,191,211,.28)}
+html[data-theme="pastel"] #tabbar button.on .i,html[data-theme="pastel"] .nav button.on i{color:#1f1a33;box-shadow:0 0 14px rgba(205,189,242,.45)!important}
 /* ปุ่มหลัก: ขอบแสงบาง + กดแล้วยุบเล็กน้อย ให้รู้สึกว่าเป็นปุ่มจริง */
 .btn.primary,#send{transition:transform .12s ease,box-shadow .2s ease,filter .2s ease}
 .btn.primary:hover,#send:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 0 1px rgba(236,214,166,.35),0 14px 34px -14px rgba(216,184,120,.85)}
