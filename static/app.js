@@ -2610,7 +2610,12 @@ function setMode(m){
   $('#input').setAttribute('placeholder', _t(MODE_PH[Mode]));
   try{ localStorage.setItem('kd-mode', Mode); }catch(_){}
 }
-$$('#mode-seg button').forEach(function(b){ b.addEventListener('click', function(){ setMode(b.getAttribute('data-m')); $('#input').focus(); }); });
+$$('#mode-seg button').forEach(function(b){ b.addEventListener('click', function(){
+  var m = b.getAttribute('data-m'); setMode(m); $('#input').focus();
+  /* คนแรกที่กด DriftZero งงว่ามันคืออะไร — บอกสั้นๆ ก่อนใช้ ครั้งเดียวต่อการเปิดหน้า */
+  if(m === 'dz' && !setMode.dzTold){ setMode.dzTold = 1;
+    toast(_t('DriftZero ตรวจการตัดสินใจขององค์กรหรือโครงการด้วยกฎ ไม่ใช่ AI — เรื่องส่วนตัวใช้โหมดปรึกษาจะช่วยได้ตรงกว่า'), false, 7000); }
+}); });
 try{ setMode(localStorage.getItem('kd-mode') || 'talk'); }catch(_){ setMode('talk'); }
 document.addEventListener('kd:lang', function(){ setMode(Mode); });
 /* ตัวเลือกเพิ่มเติม (W · เส้นทาง · ผู้ตอบ) — ซ่อนหลังปุ่มเดียวให้ช่องพิมพ์โล่งแบบแอปแชท
@@ -2700,6 +2705,7 @@ function dzCard(a){
   if((a.asks || []).length) h += '<div class="dz-ask"><b>' + esc(_t('ต้องตอบเพิ่ม')) + '</b><ol>' + a.asks.map(function(q){ return '<li>' + esc(L2(q)) + '</li>'; }).join('') + '</ol></div>';
   if((a.sop || []).length) h += '<div class="dz-sop">' + a.sop.map(function(x){ return '<span class="' + (x.done ? 'done' : '') + '" title="' + esc(L2(x)) + '">' + x.n + '</span>'; }).join('') + '<em>' + esc(_t('ขั้นตอน SOP')) + '</em></div>';
   if(a.note) h += '<p class="dz-note">' + esc(L2(a.note)) + '</p>';
+  if(a.talk) h += '<button type="button" class="dz-talk" data-dz-talk="1">💬 ' + esc(_t('ไปคุยในโหมดปรึกษา')) + '</button>';
   if(a.emergency) h += crisisCard();
   return h + '<p class="dz-foot">' + esc(_t('ตรวจด้วยกฎ ไม่ใช้ AI — ข้อความเดิมได้ผลเดิมเสมอ · คนเป็นผู้ตัดสินใจและเซ็นรับผิดชอบ')) + '</p></div>';
 }
@@ -2707,9 +2713,23 @@ function imgCard(m){
   if(!IMGS[m.ts]) return '<p class="gen-gone">' + esc(_t('ภาพนี้ไม่ได้เก็บไว้ในเครื่อง — ดาวน์โหลดเก็บไว้หลังสร้างนะคะ')) + '</p>';
   return '<figure class="gen-img"><img alt="' + esc(m.t) + '"><figcaption><a>' + esc(_t('ดาวน์โหลดภาพ')) + '</a></figcaption></figure>';
 }
+/* ตอบคำถามด่านต่อจากรอบก่อน: ถ้าข้อความล่าสุดในแชทคือ DriftZero ที่ยังถามอยู่ ส่งเรื่องเดิม + ข้อที่ถามไปด้วย
+   เซิร์ฟเวอร์จะรวมกัน แล้วถามเฉพาะข้อที่ยังขาด — ตอบเป็นข้อ "1 … 2 …" ก็จับคู่ให้ตามลำดับ */
+function lastDzAsk(){
+  var ms = (Chat.cur() || {}).msgs || [], m = ms[ms.length - 1];
+  return (m && m.dz && m.dz.text && (m.dz.asks || []).length && m.dz.verdict !== 'urgent') ? m.dz : null;
+}
+function dzBody(text, prev){
+  if(!prev) return { input:text };
+  return { input:text, prior:{ text: prev.text, asks: prev.asks.map(function(q){ return q.key; }).filter(Boolean) } };
+}
+document.addEventListener('click', function(e){
+  var b = e.target.closest && e.target.closest('[data-dz-talk]');
+  if(b){ setMode('talk'); $('#input').focus(); }
+});
 async function sendMode(text, mode){
   if(mode === 'img' && !Auth.loggedIn){ toast(_t('สร้างภาพต้องเข้าสู่ระบบก่อนนะคะ'), true, 5000); return; }
-  var sessId = Chat.s.active, inp = $('#input');
+  var sessId = Chat.s.active, inp = $('#input'), prevDz = mode === 'dz' ? lastDzAsk() : null;
   Chat.push({ r:'u', t:text }); Chat.rename(text);
   inp.value = ''; autosize(); renderAll();
   busy = true; $('#send').disabled = true;
@@ -2719,7 +2739,7 @@ async function sendMode(text, mode){
   function target(){ return Chat.s.items.find(function(x){ return x.id === sessId; }) || Chat.cur(); }
   try{
     if(mode === 'dz'){
-      var d = await readJson(await fetchRetry('/api/driftzero', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ input:text }) }, 3));
+      var d = await readJson(await fetchRetry('/api/driftzero', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify(dzBody(text, prevDz)) }, 3));
       target().msgs.push({ r:'a', p:'DRIFTZERO', t: L2(d.audit.summary), dz: d.audit, ts: Date.now() });
     }else{
       var g = await readJson(await fetch('/api/image/generate', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt:text }) }));

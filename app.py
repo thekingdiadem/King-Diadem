@@ -3646,7 +3646,12 @@ async def driftzero_audit(request: Request):
     text = str((body or {}).get("input") or "").strip()[:4000]
     if not text:
         return JSONResponse({"error": "เล่าการตัดสินใจที่อยากให้ตรวจก่อนนะคะ"}, status_code=400)
-    from ENGINE.driftzero import audit
+    from ENGINE.driftzero import audit, follow_up
+    prior = (body or {}).get("prior")
+    if isinstance(prior, dict) and isinstance(prior.get("asks"), list) and prior.get("text"):
+        # ตอบคำถามด่านรอบก่อน — รวมกับเรื่องเดิมแล้วถามเฉพาะข้อที่ยังขาด (ผู้ใช้จริงตอบเป็นข้อแล้วโดนถามซ้ำครบทุกข้อ)
+        keys = [str(k)[:16] for k in prior["asks"][:8]]
+        return {"audit": follow_up(str(prior["text"])[:4000], keys, text)}
     return {"audit": audit(text)}
 
 

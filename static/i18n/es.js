@@ -686,6 +686,8 @@
 "ผ่าน {n} ด่าน": "{n} puertas superadas",
 "ต้องตอบเพิ่ม": "Falta responder",
 "ขั้นตอน SOP": "Pasos SOP",
+"ไปคุยในโหมดปรึกษา": "Hablarlo en el modo Charla",
+"DriftZero ตรวจการตัดสินใจขององค์กรหรือโครงการด้วยกฎ ไม่ใช่ AI — เรื่องส่วนตัวใช้โหมดปรึกษาจะช่วยได้ตรงกว่า": "DriftZero revisa decisiones de organizaciones o proyectos con reglas, no con IA — para algo personal, el modo Charla ayuda más",
 "ตรวจด้วยกฎ ไม่ใช้ AI — ข้อความเดิมได้ผลเดิมเสมอ · คนเป็นผู้ตัดสินใจและเซ็นรับผิดชอบ": "Revisado con reglas, no con IA — el mismo texto da siempre el mismo resultado · decide y firma una persona",
 "ภาพนี้ไม่ได้เก็บไว้ในเครื่อง — ดาวน์โหลดเก็บไว้หลังสร้างนะคะ": "Esta imagen no se guardó en el dispositivo — descárgala justo después de crearla",
 "ดาวน์โหลดภาพ": "Descargar imagen",
