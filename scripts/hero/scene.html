@@ -1,0 +1,42 @@
+<!doctype html>
+<!-- ฉากพื้นหลังหน้าเข้าสู่ระบบ — วาดด้วยโค้ดทั้งหมด (ไม่มีภาพจาก AI) จัดวางแบบภาพเดิมของเจ้าของโปรเจกต์:
+     เนบิวลาฟ้าฝั่งซ้าย ส้มทองฝั่งขวา · ตราอยู่กลาง · ชื่อ KING DIADEM ใต้ตรา · แสงขอบฟ้ากับวงคลื่นด้านล่าง
+     ดาวสุ่มด้วยเลขตั้งต้นคงที่ → เรนเดอร์กี่ครั้งก็ได้ภาพเดิม · สร้างไฟล์ด้วย scripts/hero/build.js -->
+<html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#03040b;overflow:hidden}
+#s{position:relative;width:2560px;height:1440px;overflow:hidden;background:radial-gradient(70% 60% at 50% 42%,#0b1030,#04050f 62%,#020208)}
+.neb{position:absolute;inset:0}
+#crest{position:absolute;left:50%;top:42%;width:1080px;height:1080px;transform:translate(-50%,-50%)}
+#word{position:absolute;left:0;right:0;top:76%;text-align:center;font:500 150px/1 "Cinzel","Noto Serif Thai",Georgia,serif;letter-spacing:.14em;padding-left:.14em;
+  background:linear-gradient(180deg,#fff8e4 8%,#f0cd82 46%,#a8782a 92%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 18px rgba(0,0,0,.8))}
+#word small{font-size:.78em;letter-spacing:.14em}
+#hz{position:absolute;left:0;right:0;bottom:0;height:300px}
+</style></head><body><div id="s">
+<svg class="neb" viewBox="0 0 2560 1440" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="cl" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".0042 .007" numOctaves="5" seed="7"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  2.6 0 0 0 -1.05"/><feGaussianBlur stdDeviation="6" result="n"/><feComposite in="SourceGraphic" in2="n" operator="in"/></filter>
+    <radialGradient id="b" cx="20%" cy="38%" r="52%"><stop offset="0" stop-color="#3f78ff" stop-opacity=".95"/><stop offset=".55" stop-color="#2238a8" stop-opacity=".5"/><stop offset="1" stop-color="#101a60" stop-opacity="0"/></radialGradient>
+    <radialGradient id="o" cx="82%" cy="34%" r="50%"><stop offset="0" stop-color="#ffa63c" stop-opacity=".95"/><stop offset=".55" stop-color="#b8521a" stop-opacity=".5"/><stop offset="1" stop-color="#4a1c08" stop-opacity="0"/></radialGradient>
+    <radialGradient id="v" cx="50%" cy="46%" r="70%"><stop offset=".5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".78"/></radialGradient>
+    <radialGradient id="hg" cx="50%" cy="100%" r="60%"><stop offset="0" stop-color="#ffe6b8" stop-opacity=".9"/><stop offset=".25" stop-color="#ffb056" stop-opacity=".35"/><stop offset="1" stop-color="#ff9a3a" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="2560" height="1440" fill="url(#b)" filter="url(#cl)"/>
+  <rect width="2560" height="1440" fill="url(#o)" filter="url(#cl)"/>
+  <g id="stars"></g>
+  <rect width="2560" height="1440" fill="url(#v)"/>
+  <rect y="1040" width="2560" height="400" fill="url(#hg)"/>
+  <g fill="none" stroke="#ffd9a0" stroke-opacity=".4" stroke-width="1.6">
+    <ellipse cx="1280" cy="1330" rx="330" ry="26"/><ellipse cx="1280" cy="1330" rx="620" ry="52"/><ellipse cx="1280" cy="1330" rx="980" ry="84" stroke-opacity=".22"/>
+  </g>
+  <path d="M1280 560 L1283 1330 L1277 1330 Z" fill="#fff" opacity=".35"/>
+</svg>
+<img id="crest" src="../../static/brand/crest.svg" alt="">
+<div id="word">K<small>ING</small> D<small>IADEM</small></div>
+<script>
+// ดาว: ตัวสุ่มแบบกำหนดเลขตั้งต้น (mulberry32) — ภาพเดิมทุกครั้งที่เรนเดอร์
+(function(){var a=20261112;function r(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}
+var g=document.getElementById('stars'),h='';for(var i=0;i<1500;i++){var x=r()*2560,y=r()*1300,m=Math.pow(r(),6),s=.5+m*3.2,warm=x>1280;
+h+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+s.toFixed(2)+'" fill="'+(warm?'#ffe2b8':'#d6e4ff')+'" opacity="'+(.35+r()*.6).toFixed(2)+'"/>';
+if(m>.9)h+='<path d="M'+x+' '+(y-s*7)+' L'+(x+s*.5)+' '+y+' L'+x+' '+(y+s*7)+' L'+(x-s*.5)+' '+y+' Z M'+(x-s*7)+' '+y+' L'+x+' '+(y+s*.5)+' L'+(x+s*7)+' '+y+' L'+x+' '+(y-s*.5)+' Z" fill="#fff" opacity=".8"/>';}
+g.innerHTML=h})();
+</script></div></body></html>

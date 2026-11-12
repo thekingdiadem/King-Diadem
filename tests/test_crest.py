@@ -14,7 +14,7 @@ def test_crest_is_pure_vector_and_safe():
     assert SVG.lstrip().startswith("<svg") and 'viewBox="0 0 512 512"' in SVG
     for bad in ("<script", "<image", "data:", "http://", "https://", "<animate", "onload"):
         assert bad not in SVG.replace('xmlns="http://www.w3.org/2000/svg"', ""), bad
-    assert len(SVG) < 8000                                     # เล็กพอจะโหลดทันทีบนเน็ตมือถือ
+    assert len(SVG) < 10000                                    # เล็กพอจะโหลดทันทีบนเน็ตมือถือ (เพิ่มจาก 8000 เมื่อใส่หนามปีกทรงเดิมกลับมา)
     ids = set(re.findall(r'id="(\w+)"', SVG))
     used = set(re.findall(r"url\(#(\w+)\)", SVG)) | set(re.findall(r'href="#(\w+)"', SVG))
     assert used <= ids, used - ids                              # ไม่มีการอ้างสี/รูปทรงที่ไม่ได้ประกาศ
