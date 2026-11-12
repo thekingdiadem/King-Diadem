@@ -60,3 +60,11 @@ def test_home_scene_is_quiet():
     assert "if(drew && !CINEMA.on && !QUIET) drawBodyLabels(" in PAGE
     assert "if(spot && !CINEMA.on && (on || !QUIET)){" in PAGE
     assert "if(!CINEMA.on && !QUIET){ ctx.globalAlpha = A * .8; ctx.fillText(_t(l[0]), x, y); }" in PAGE
+
+
+def test_eternal_drop_plays_once_and_respects_reduced_motion():
+    """แกนแสงลงจากฟ้าที่ตรา แล้วหยดแสงกระจายเป็นวงคลื่น — จากภาพอ้างอิงของเจ้าของโปรเจกต์ (Cosmic Axis → Crown Kernel)"""
+    assert PAGE.count('<b class="axis"></b><s class="ripple"></s>') == 2
+    assert "animation:kd-axis 2.2s" in PAGE and "infinite" not in PAGE[PAGE.index("Eternal Drop"):PAGE.index("kd-crest-lit{")]
+    assert "@media (prefers-reduced-motion:reduce){ .crest .axis,.crest .ripple::before,.crest .ripple::after,.crest img{animation:none}" in PAGE
+    assert "html.kd-calm .crest .axis,html.kd-calm .crest .ripple,html.kd-calm .crest img{animation:none}" in PAGE
