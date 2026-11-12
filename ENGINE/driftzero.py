@@ -83,6 +83,15 @@ GATES = [
          r"cull(?:ing)?|animal testing|poison(?:ing)? (?:the )?(?:stray|dogs|cats|birds)|destroy (?:the )?habitat|abandon (?:the )?animals"),
      "ชีวิตสัตว์ต้องไม่ตายเพราะความสะดวกของมนุษย์ (Core 61, 62) · หาทางที่ไม่ต้องแลกชีวิตสัตว์ก่อน เช่น ย้าย ทำหมัน กันพื้นที่",
      "Animals must not die for human convenience (Core 61, 62) · find a way that costs no animal lives first, e.g. relocate, sterilise, fence"),
+    # จากแกนคุ้มครองผู้ถือระบบ (Human Sustainability Kernel ของเจ้าของโปรเจกต์): "ระบบที่ปกป้องทุกชีวิตแต่ทำลายผู้ถือมัน ถือว่ายังไม่สมบูรณ์"
+    # จับการตัดสินใจที่เอาอาหาร ที่พัก การพักผ่อน หรือเงินก้อนสุดท้ายของคนทำเองไปแลก — ผู้ใช้จริงคนแรกตอบว่าถ้าพลาด "จ่ายค่าเช่าไม่ไหว"
+    ("H1", "คนทำต้องอยู่รอดด้วย", "The one who carries it must survive",
+     _rx(r"เงินเก็บทั้งหมด|เงินก้อนสุดท้าย|ไม่รับเงินเดือน|ทำ(?:งาน)?ฟรี(?:ไปก่อน)?|ไม่มีรายได้(?:เลย)?|ลาออกมาทำเต็มตัว|ทำงานไม่หยุด|ไม่ได้พัก|ไม่ได้นอน|อดนอน|"
+         r"ยอมอด|จ่ายค่าเช่าไม่ไหว|ค่าเช่าไม่พอ|ไม่มีเงินกินข้าว|หมดไฟ|"
+         r"(?:my|our) (?:life |entire |last )?savings|last of (?:my|our) (?:money|cash)|work(?:ing)? for free|no salary|without (?:a )?(?:salary|pay|income)|"
+         r"can'?t pay (?:my |the |our )?rent|can'?t afford (?:food|rent)|no sleep|burn(?:ed|t|ing)? ?out|quit my job to"),
+     "การตัดสินใจนี้เอาปัจจัยอยู่รอดของคนทำเองไปแลก (เงินก้อนสุดท้าย รายได้ ที่พัก การพักผ่อน) — กันส่วนที่ต้องใช้กินอยู่ไว้ก่อน แล้วทำเท่าที่เหลือ · ดีพอให้รอด สำคัญกว่าดีสุดจนพัง",
+     "This trades away the survival minimum of the person doing it (last savings, income, housing, rest) — set aside what you need to live on first, then act with what is left · good enough to survive beats best until you break"),
     ("E1", "แลกความสะดวกกับความเสียหายระยะยาว", "Convenience trade-off",
      _rx(r"ใช้ครั้งเดียวทิ้ง|พลาสติกครั้งเดียว|ตัดต้นไม้|ถางป่า|เผา(?:ขยะ|ป่า|ไร่)|ทิ้งขยะ|ฝังกลบ|ลดต้นทุนด้วยการไม่บำบัด|single-use|clear(?:ing)? (?:the )?forest|burn(?:ing)? (?:waste|fields)|landfill"),
      "สะดวกวันนี้แต่โลกเสียหายระยะยาว — ค่าเริ่มต้นของต้นฉบับคือปฏิเสธ หาทางที่ไม่ทิ้งภาระ",
@@ -314,6 +323,9 @@ def follow_up(prior_text: str, prior_keys, answer: str) -> dict:
     return r
 
 
+_WORST_LINE = re.compile(r"^worst case: .*$", re.M)
+
+
 def _answered_before(text: str) -> set[str]:
     by_label = {v: k for k, v in LABELS.items()}
     return {by_label[m.group(1)] for m in _LABEL_LINE.finditer(text or "")}
@@ -335,7 +347,9 @@ def audit(text: str, answered=()) -> dict:
     wl = gauge(t)
     gates = []
     for gid, th, en, rx, why_th, why_en in GATES:
-        m = rx.search(t)
+        # H1 ดูเฉพาะ "แผน" ไม่ดูคำตอบข้อ "ถ้าพลาดจะเสียอะไร" — ผลเสียที่เล่ามาเป็นเรื่องสมมติ ไม่ใช่สิ่งที่ตั้งใจจะทำ
+        # (ไม่งั้นคนที่มีเงินพอและตอบตรงๆ ว่าถ้าพลาดจะจ่ายค่าเช่าไม่ไหว จะโดนหยุดทั้งที่แผนยังอยู่เหนือเส้น)
+        m = rx.search(_WORST_LINE.sub("", t) if gid == "H1" else t)
         g = {"id": gid, "name": {"th": th, "en": en}, "status": STOP if m else PASS,
              "hit": m.group(0) if m else "", "why": {"th": why_th, "en": why_en} if m else None}
         if gid == "E2":

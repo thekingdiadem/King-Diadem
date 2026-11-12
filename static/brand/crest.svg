@@ -27,18 +27,44 @@
       <stop offset="0" stop-color="#ffffff"/><stop offset=".3" stop-color="#ffedd0" stop-opacity=".8"/>
       <stop offset="1" stop-color="#ff9a3a" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="shade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b2550" stop-opacity="0"/><stop offset="1" stop-color="#0a1030" stop-opacity=".72"/>
+    </linearGradient>
+    <linearGradient id="bezel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4f7ff"/><stop offset=".3" stop-color="#5b6c9c"/><stop offset=".55" stop-color="#e9d3a0"/>
+      <stop offset=".8" stop-color="#6b4f1c"/><stop offset="1" stop-color="#fff3d6"/>
+    </linearGradient>
     <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter>
     <path id="blade" d="M264 381 C340 368 420 324 470 188 C462 272 418 334 344 364 C316 375 288 380 264 381 Z"/>
     <path id="arm" d="M260 376 C290 338 298 270 290 214 C287 190 298 166 322 148 C311 176 312 208 316 246 C324 306 300 350 264 380 Z"/>
     <path id="gem" d="M256 104 L275 252 L256 372 L237 252 Z"/>
+    <!-- สัน (ridge): แบ่งใบมีดและแขนเป็นสองหน้า หน้าบนรับแสง หน้าล่างอยู่ในเงา → เห็นความหนา -->
+    <path id="bladeLo" d="M264 381 C342 372 421 330 470 188 C462 272 418 334 344 364 C316 375 288 380 264 381 Z"/>
+    <path id="armLo" d="M262 378 C296 340 306 272 298 216 C296 196 304 172 322 148 C311 176 312 208 316 246 C324 306 300 350 264 380 Z"/>
     <g id="half">
-      <use href="#blade" fill="url(#plat)"/><use href="#arm" fill="url(#gold)"/>
+      <use href="#blade" fill="url(#plat)"/><use href="#bladeLo" fill="url(#shade)"/>
+      <path d="M264 381 C342 372 421 330 470 188" fill="none" stroke="#fff" stroke-width="1.1" opacity=".9"/>
+      <use href="#arm" fill="url(#gold)"/><use href="#armLo" fill="url(#shade)" opacity=".75"/>
+      <path d="M262 378 C296 340 306 272 298 216 C296 196 304 172 322 148" fill="none" stroke="#fffaf0" stroke-width="1.1" opacity=".9"/>
+    </g>
+    <!-- ชั้นหลัง: ใบมีดเงาขนาดใหญ่กว่า อยู่ต่ำกว่าชั้นหน้า → เห็นความลึก -->
+    <g id="back" fill="#16224a" stroke="#7f93c8" stroke-width=".8" opacity=".85">
+      <use href="#blade" transform="translate(256 381) scale(1.13) rotate(-9) translate(-256 -381)"/>
+      <use href="#arm" transform="translate(256 381) scale(1.1) rotate(7) translate(-256 -381)"/>
     </g>
   </defs>
 
   <!-- ขอบหน้าปัด: วงเส้นผม + ขีดละเอียด 72 + ขีดหลัก 12 -->
   <circle cx="256" cy="262" r="190" fill="none" stroke="url(#halo)" stroke-width="5" opacity=".5" filter="url(#soft)"/>
-  <circle cx="256" cy="262" r="190" fill="none" stroke="url(#halo)" stroke-width="1.6"/>
+  <circle cx="256" cy="262" r="190" fill="none" stroke="#050818" stroke-width="8" opacity=".6"/>
+  <circle cx="256" cy="262" r="190" fill="none" stroke="url(#bezel)" stroke-width="5"/>
+  <circle cx="256" cy="262" r="187.5" fill="none" stroke="url(#halo)" stroke-width="1"/>
+  <circle cx="256" cy="262" r="192.5" fill="none" stroke="#fff" stroke-width=".6" opacity=".7"/>
+  <!-- รัศมีทแยง 4 ทิศ (45°) เรียวปลาย อยู่ชั้นล่างสุด -->
+  <g fill="url(#halo)" opacity=".5">
+    <path d="M256 262 L388 127 L391 130 Z"/><path d="M256 262 L124 127 L121 130 Z"/>
+    <path d="M256 262 L388 397 L391 394 Z"/><path d="M256 262 L124 397 L121 394 Z"/>
+  </g>
   <circle cx="256" cy="262" r="205" fill="none" stroke="url(#halo)" stroke-width="5" stroke-dasharray="1 16.889" opacity=".7"/>
   <circle cx="256" cy="262" r="205" fill="none" stroke="url(#halo)" stroke-width="10" stroke-dasharray="1.6 105.738"/>
   <circle cx="256" cy="262" r="214" fill="none" stroke="url(#halo)" stroke-width=".8" opacity=".5"/>
@@ -49,6 +75,11 @@
   <path d="M256 4 L259 262 L256 508 L253 262 Z" fill="url(#beam)" opacity=".5" filter="url(#soft)"/>
   <path d="M256 10 L257 262 L256 502 L255 262 Z" fill="url(#beam)"/>
 
+  <use href="#back"/><use href="#back" transform="translate(512 0) scale(-1 1)"/>
+  <!-- เงาตกใต้มงกุฎ (เลื่อนลงขวา) → มงกุฎลอยเหนือหน้าปัด -->
+  <g fill="#02040e" opacity=".55" transform="translate(5 9)" filter="url(#soft)">
+    <use href="#blade"/><use href="#arm"/><use href="#blade" transform="translate(512 0) scale(-1 1)"/><use href="#arm" transform="translate(512 0) scale(-1 1)"/><use href="#gem"/>
+  </g>
   <!-- มงกุฎ: เส้นขอบเข้มบางรองหลังให้ขอบคมบนทุกพื้น -->
   <g fill="#070b1f" stroke="#070b1f" stroke-width="3" stroke-linejoin="round">
     <use href="#blade"/><use href="#arm"/><use href="#blade" transform="translate(512 0) scale(-1 1)"/><use href="#arm" transform="translate(512 0) scale(-1 1)"/><use href="#gem"/>
@@ -56,6 +87,9 @@
   <use href="#half"/><use href="#half" transform="translate(512 0) scale(-1 1)"/>
   <path d="M256 104 L256 372 L237 252 Z" fill="url(#coreL)"/>
   <path d="M256 104 L275 252 L256 372 Z" fill="url(#coreR)"/>
+  <path d="M237 252 L256 240 L256 372 Z" fill="#0c1f66" opacity=".35"/>
+  <path d="M256 104 L275 252 L256 240 Z" fill="#fff" opacity=".16"/>
+  <path d="M256 104 L237 252 L256 240 Z" fill="#fff" opacity=".3"/>
   <use href="#gem" fill="none" stroke="url(#gold)" stroke-width="2" stroke-linejoin="round"/>
   <path d="M237 252 L256 240 L275 252 M256 110 L256 366" fill="none" stroke="#f4f9ff" stroke-width=".9" opacity=".85"/>
 
