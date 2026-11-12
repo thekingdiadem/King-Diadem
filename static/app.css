@@ -1079,7 +1079,15 @@ html:not([data-ink="dark"]) .crest::before{content:"";position:absolute;inset:-1
   background:radial-gradient(46% 70% at 30% 50%,rgba(78,130,240,.26),rgba(78,130,240,0) 70%),radial-gradient(46% 70% at 70% 50%,rgba(240,150,70,.24),rgba(240,150,70,0) 70%)}
 .crest::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;
   background:linear-gradient(90deg,rgba(120,170,255,0),rgba(170,200,255,.55) 30%,rgba(255,255,255,.9) 50%,rgba(255,200,130,.55) 70%,rgba(255,170,90,0))}
-@media (min-width:380px){ .crest{height:204px} .crest img{width:168px;height:168px} }
+@media (min-width:380px){ .crest{height:246px} .crest img{width:168px;height:168px} }
+/* ชื่อใต้ตรา: ตัวพิมพ์ใหญ่มีเชิง เว้นช่องไฟกว้างเท่ากันทุกตัว จัดกึ่งกลางบนแกนเดียวกับลำแสงของตรา
+   (padding-left เท่ากับ letter-spacing ชดเชยช่องไฟหลังตัวสุดท้าย ไม่งั้นคำจะเยื้องซ้ายครึ่งช่อง) */
+.crest{grid-template-rows:auto auto;align-content:center;row-gap:10px;height:210px}
+.crest-word{position:relative;z-index:1;font:500 12px/1 "Noto Serif Thai",Georgia,serif;letter-spacing:.56em;padding-left:.56em;color:var(--ink);white-space:nowrap}
+.crest-word::before,.crest-word::after{content:"";position:absolute;top:50%;width:34px;height:1px;background:linear-gradient(90deg,rgba(216,184,120,0),var(--gold))}
+.crest-word::before{right:100%;margin-right:10px}
+.crest-word::after{left:100%;margin-left:10px;transform:scaleX(-1)}
+.crest::after{top:calc(50% - 14px)}
 /* โหมดสว่าง: ตราต้องไม่จาง — เงาเข้มบางๆ แทนแสงฟุ้ง (ตัวตรามีเส้นขอบเข้มในไฟล์อยู่แล้ว) */
 html[data-ink="dark"] .crest img{filter:drop-shadow(0 2px 3px rgba(20,24,60,.35)) drop-shadow(0 12px 22px rgba(120,80,20,.18))}
 html[data-ink="dark"] .crest::after{background:linear-gradient(90deg,rgba(60,110,220,0),rgba(60,110,220,.5) 30%,rgba(40,40,70,.55) 50%,rgba(210,130,50,.55) 70%,rgba(210,130,50,0))}
