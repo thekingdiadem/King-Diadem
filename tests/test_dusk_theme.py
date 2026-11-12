@@ -161,8 +161,10 @@ def _simulate_frame_cap(hz, seconds=10, cap=90):
 def test_frame_rate_is_capped_at_90_by_default():
     """พี่ขอให้ลดเหลือ 90 เฟรม: จอ 120/144/240 Hz วาดเฉลี่ย 90 · จอ 60 Hz ยังวาดเต็ม 60"""
     assert "var FPS_CAPS = [30, 60, 90, 120, 144], FPS_CAP = 90;" in HTML
-    assert "fpsAcc = Math.min(fpsAcc + gap, 2 / FPS_CAP);" in HTML
-    assert "if(dtLast && fpsAcc + 1e-4 < 1 / FPS_CAP)" in HTML
+    # cap = FPS_CAP เว้นแต่มือถือที่ไม่มีใครแตะหรือแบตใกล้หมด (tests/test_render_budget.py) — สูตรสะสมเวลาเหมือนเดิม
+    assert "fpsAcc = Math.min(fpsAcc + gap, 2 / cap);" in HTML
+    assert "if(dtLast && fpsAcc + 1e-4 < 1 / cap)" in HTML
+    assert "Math.min(FPS_CAP, 30) : FPS_CAP; }" in HTML
     for hz in (120, 144, 240):
         assert abs(_simulate_frame_cap(hz) - 90) < 0.5
     assert abs(_simulate_frame_cap(60) - 60) < 0.5
