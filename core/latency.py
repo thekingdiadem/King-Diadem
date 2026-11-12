@@ -40,6 +40,23 @@ def summary() -> dict:
 def reset() -> None:
     with _lock:
         _ms.clear()
+        _by_model.clear()
+
+
+# เวลาของการเรียก AI แยกตามรุ่น (เฉพาะครั้งที่ได้คำตอบ) — ใช้เทียบรุ่นใหม่กับรุ่นเดิมด้วยตัวเลขจริง ไม่ใช่ตัวเลขโฆษณา
+_by_model: dict = {}
+
+
+def record_model(model: str, ms: float) -> None:
+    if ms >= 0 and model:
+        with _lock:
+            _by_model.setdefault(str(model)[:60], deque(maxlen=200)).append(float(ms))
+
+
+def by_model() -> dict:
+    with _lock:
+        snap = {k: sorted(v) for k, v in _by_model.items() if v}
+    return {k: {"n": len(v), "p50": _pct(v, 50), "p95": _pct(v, 95), "p99": _pct(v, 99)} for k, v in snap.items()}
 
 
 class ReplyTimer:
