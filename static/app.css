@@ -1369,3 +1369,35 @@ body.mode-dz .comp-row1,body.mode-img .comp-row1,body.mode-dz #starters,body.mod
    รายละเอียดอยู่หน้า /privacy#ai */
 .ai-note{margin:6px 4px 0;font-size:11px;line-height:1.5;opacity:.5;text-align:center}
 .ai-note a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+/* ── ฉากเปิดครั้งแรก (#kd-intro) ─────────────────────────────────────────────────────────────
+   จากภาพแนวคิดของเจ้าของโปรเจกต์: ตราลอยกลางฟ้า แกนแสงลงจากฟ้าผ่านตราลงถึงพื้น พื้นหินสะท้อนตรา หยดแสงกระจายเป็นวงคลื่น
+   ราว 3.4 วินาที เล่นครั้งเดียวในชีวิตของเครื่องนั้น (localStorage kd-intro) · ขยับด้วย transform/opacity อย่างเดียว
+   --S = ขนาดตรา · --fl = ระดับพื้น (ใต้ตรา) · หยดแสงของตราอยู่ที่ 136/512 ใต้กึ่งกลาง */
+#kd-intro{display:none}
+html.kd-intro #kd-intro{--S:min(64vw,300px);--cy:40vh;--fl:calc(var(--cy) + var(--S) * .56);display:block;position:fixed;inset:0;z-index:9999;overflow:hidden;cursor:pointer;
+  background:
+    radial-gradient(90% 50% at 50% 108%,rgba(240,160,90,.30),rgba(240,160,90,0) 70%),
+    radial-gradient(70% 60% at 0% 30%,rgba(60,110,235,.34),rgba(60,110,235,0) 70%),
+    radial-gradient(70% 60% at 100% 32%,rgba(236,140,60,.28),rgba(236,140,60,0) 70%),
+    #04050d;
+  animation:kd-intro-out .7s ease 2.7s both}
+@keyframes kd-intro-out{to{opacity:0;visibility:hidden}}
+#kd-intro .in-crest,#kd-intro .in-mirror{position:absolute;left:50%;width:var(--S);height:var(--S);margin-left:calc(var(--S) / -2)}
+#kd-intro .in-crest{top:calc(var(--cy) - var(--S) / 2);filter:drop-shadow(0 0 26px rgba(150,195,255,.5)) drop-shadow(0 14px 34px rgba(240,160,90,.4));animation:kd-intro-crest 1.5s ease .45s both}
+@keyframes kd-intro-crest{0%{opacity:0;transform:scale(.9)}55%{opacity:1;transform:scale(1.03);filter:drop-shadow(0 0 46px rgba(200,225,255,.95)) drop-shadow(0 14px 40px rgba(255,190,110,.7)) brightness(1.25)}100%{opacity:1;transform:scale(1)}}
+/* เงาสะท้อนบนพื้นหิน: ตรากลับหัวใต้ระดับพื้น จางลงตามระยะ */
+#kd-intro .in-mirror{top:calc(var(--fl) + var(--S) * .06);transform:scaleY(-1);opacity:0;-webkit-mask:linear-gradient(0deg,#000,transparent 62%);mask:linear-gradient(0deg,#000,transparent 62%);animation:kd-intro-mirror 1.4s ease .9s both}
+@keyframes kd-intro-mirror{to{opacity:.2}}
+#kd-intro .in-axis{position:absolute;left:50%;top:0;width:2px;margin-left:-1px;height:var(--fl);transform-origin:50% 0;
+  background:linear-gradient(180deg,rgba(170,210,255,.2),rgba(214,234,255,.95) 40%,#fff 86%,rgba(255,226,170,.95));box-shadow:0 0 16px 3px rgba(150,200,255,.6);
+  animation:kd-intro-axis 2.4s cubic-bezier(.2,.7,.2,1) both}
+@keyframes kd-intro-axis{0%{transform:scaleY(0);opacity:1}36%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:.25}}
+#kd-intro .in-ripple{position:absolute;left:50%;top:var(--fl);width:0;height:0}
+#kd-intro .in-ripple::before,#kd-intro .in-ripple::after{content:"";position:absolute;left:calc(var(--S) * -.75);top:calc(var(--S) * -.09);width:calc(var(--S) * 1.5);height:calc(var(--S) * .18);border-radius:50%;
+  border:1px solid rgba(255,226,170,.85);box-shadow:0 0 14px rgba(255,200,130,.45);opacity:0;animation:kd-intro-ripple 1.9s ease-out .85s both}
+#kd-intro .in-ripple::after{border-color:rgba(170,210,255,.75);box-shadow:0 0 14px rgba(130,180,255,.45);animation-delay:1.15s}
+@keyframes kd-intro-ripple{0%{opacity:0;transform:scale(.08)}14%{opacity:1}100%{opacity:0;transform:scale(1.3)}}
+#kd-intro .in-word{position:absolute;left:0;right:0;top:calc(var(--fl) + var(--S) * .72);text-align:center;font:500 clamp(15px,4.4vw,22px)/1 "Noto Serif Thai",Georgia,serif;letter-spacing:.5em;padding-left:.5em;
+  background:linear-gradient(180deg,#fff8e4,#e6c684 55%,#a8782a);-webkit-background-clip:text;background-clip:text;color:transparent;animation:kd-intro-word 1.2s ease 1.2s both}
+@keyframes kd-intro-word{from{opacity:0;letter-spacing:.8em}to{opacity:1;letter-spacing:.5em}}
+

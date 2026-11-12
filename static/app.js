@@ -3214,3 +3214,16 @@ window.addEventListener('KD:response', function(e){
   var d = e.detail || {}, heavy = d.route === 'crisis' || num(d.risk_score, 0) >= 70, calm = d.route !== 'crisis' && num(d.risk_score, 0) < 50;
   if(heavy) document.body.classList.add('kd-gentle'); else if(calm) document.body.classList.remove('kd-gentle');
 });
+/* ฉากเปิดครั้งแรก: จำไว้ว่าเห็นแล้ว · จบเองเมื่อจางเสร็จ · แตะหรือกดปุ่มใดก็ข้ามทันที (คนที่รีบต้องไม่ถูกบังคับให้ดู)
+   มีตัวจับเวลาสำรอง เผื่อเบราว์เซอร์ไม่ส่งสัญญาณจบแอนิเมชัน — ฉากต้องไม่ค้างบังหน้าเว็บ */
+(function(){
+  var h = document.documentElement, el = document.getElementById('kd-intro');
+  if(!el || !h.classList.contains('kd-intro')) return;
+  lsSet('kd-intro', '1');
+  function end(){ if(!el) return; h.classList.remove('kd-intro'); el.remove(); el = null;
+    window.removeEventListener('pointerdown', end, true); window.removeEventListener('keydown', end, true); if(window.KD_kick) KD_kick(); }
+  el.addEventListener('animationend', function(e){ if(e.target === el && e.animationName === 'kd-intro-out') end(); });
+  window.addEventListener('pointerdown', end, true); window.addEventListener('keydown', end, true);
+  setTimeout(end, 4500);
+})();
+

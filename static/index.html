@@ -16,6 +16,10 @@ window.KD_themeVars = function(t, c){
   var v = KD_themeVars(t, c);
   h.setAttribute('data-theme', v ? t : 'night');
   if(v){ h.setAttribute('data-ink', v.ink); h.style.setProperty('--paper', v.p); }
+  /* ฉากเปิด (ครั้งแรกที่เข้าเว็บเท่านั้น): ตั้งก่อนวาด หน้าแรกจะไม่โผล่แวบก่อนฉาก · ไม่เล่นถ้าเลือกลดการเคลื่อนไหว
+     หรือเข้ามาด้วยลิงก์ที่มีคำสั่ง (?ask= ฯลฯ — คนที่มาด้วยเรื่องด่วนต้องถึงช่องพิมพ์ทันที) */
+  try{ if(!localStorage.getItem('kd-intro') && localStorage.getItem('kd-calm') !== '1' && !location.search &&
+          !matchMedia('(prefers-reduced-motion: reduce)').matches) h.classList.add('kd-intro'); }catch(e){}
 })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -62,6 +66,14 @@ window.KD_themeVars = function(t, c){
 </script>
 </head>
 <body data-veil="0" data-view="chat">
+<!-- ฉากเปิด: ตราใหญ่กลางจอ แกนแสงลงจากฟ้า หยดแสงกระทบพื้นสะท้อนเป็นวงคลื่น แล้วจางเข้าหน้าแรก (ลูกโลกเป็นพระเอกของหน้าแรกตามเดิม)
+     แตะหรือกดปุ่มใดก็ข้ามได้ทันที · สไตล์อยู่ท้าย app.css · ตัวปิดอยู่ท้าย app.js -->
+<div id="kd-intro" aria-hidden="true">
+  <img class="in-crest" src="/static/brand/crest.svg" alt="" decoding="async">
+  <img class="in-mirror" src="/static/brand/crest.svg" alt="" decoding="async">
+  <b class="in-axis"></b><s class="in-ripple"></s>
+  <span class="in-word" data-i18n-skip>KING DIADEM</span>
+</div>
 <!-- พระจันทร์ขโมยไม่ได้: วงเอ็นโซหมึกล้อมความว่าง กับจันทร์เสี้ยวนวลที่ยังอยู่ตรงนั้นเสมอ -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
   <radialGradient id="ink-void" cx="44%" cy="42%" r="62%"><stop offset="0" stop-color="#3a3352" stop-opacity=".95"/><stop offset=".72" stop-color="#14111f" stop-opacity=".92"/><stop offset="1" stop-color="#14111f" stop-opacity="0"/></radialGradient>
