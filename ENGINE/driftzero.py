@@ -111,7 +111,8 @@ _DRIFT = _rx(r"ทุกวัน|ต่อวัน|รายวัน|วั�
 _NUM = re.compile(r"\d")
 # เป็นเรื่องตัดสินใจขององค์กร/โครงการจริงไหม — ไม่ใช่ ให้แนะนำโหมดปรึกษา
 _ORG = _rx(r"บริษัท|องค์กร|โครงการ|โรงงาน|ธุรกิจ|ร้าน|สาขา|นโยบาย|ชุมชน|หน่วยงาน|ทีม|พนักงาน|ลูกค้า|ซัพพลายเออร์|งบประมาณ|ลงทุน|ผลิต|"
-           r"company|organi[sz]ation|project|factory|business|policy|team|staff|budget|invest|supplier|community|plant")
+           r"company|organi[sz]ation|project|factory|business|policy|team|staff|budget|invest|supplier|community|plant|"
+           r"\bstores?\b|\bshops?\b|branch|employee|customer|startup|school|hospital|department|government|firm|launch|hire|hiring|layoff")
 
 SOP = [
     ("กำหนดเรื่องที่จะตัดสินใจให้ชัด", "Define input clearly"),
@@ -156,8 +157,76 @@ def _danger(text: str) -> tuple[bool, bool]:
         return False, False
 
 
-def audit(text: str) -> dict:
+ASK_KEYS = ("detail", "downside", "dhd", "current", "floor", "owner")
+# หัวข้อของตัวจับหลักที่แปลว่า "ผู้ใช้เองกำลังลำบาก" — เช่น Haydn ตอบคำถามด่านว่า "i can't pay rent"
+# เรื่องแบบนี้ไม่ใช่การตัดสินใจขององค์กร ชวนไปโหมดปรึกษาแทนการถามด่านต่อ
+_DISTRESS = {"housing", "money", "debt", "basic", "lent", "job", "labor", "stress", "lonely", "panic",
+             "grief", "eating", "sleepless", "family", "relationship", "health"}
+# เลขเปล่าๆ ตามด้วยหน่วย ("ขาดทุน 3 แสน" · "hire 3 people") คือจำนวน ไม่ใช่เลขข้อ — เลขข้อที่มีจุด/วงเล็บ ("3.") นับเสมอ
+_UNIT = (r"(?:แสน|ล้าน|พัน|หมื่น|บาท|คน|วัน|เดือน|ปี|สัปดาห์|ชั่วโมง|นาที|เท่า|แห่ง|สาขา|ครั้ง|ตัว|ชิ้น|กิโล|ลิตร|ตัน|%|"
+         r"people|persons?|staff|days?|weeks?|months?|years?|hours?|times|stores?|branches|units?|million|thousand|percent)")
+_MARK = re.compile(r"(?:^|(?<=\s))(?:ข้อ\s*)?(\d{1,2})(?:\s*[).:\-]\s*|\s+(?!" + _UNIT + r"(?![a-z])))")
+
+
+def parse_numbered(answer: str) -> dict[int, str]:
+    """แยกคำตอบแบบเป็นข้อ "1 i do it 2. i can't pay rent 3 1k" → {1: "i do it", 2: "i can't pay rent", 3: "1k"}
+    ต้องเริ่มที่ 1 และนับเรียงทีละข้อ — ตัวเลขอื่นในประโยค ("จ้าง 5 คน") ไม่ถูกนับเป็นเลขข้อ"""
+    a = str(answer or "").strip()
+    cuts, want = [], 1
+    for m in _MARK.finditer(a):
+        if int(m.group(1)) == want:
+            cuts.append((want, m.start(), m.end())); want += 1
+    if not cuts or cuts[0][1] != 0:
+        return {}
+    out = {}
+    for i, (n, _, end) in enumerate(cuts):
+        stop = cuts[i + 1][1] if i + 1 < len(cuts) else len(a)
+        part = a[end:stop].strip(" ,;\n")
+        if part:
+            out[n] = part
+    return out
+
+
+def answered_keys(answer: str, prior_keys) -> set[str]:
+    """คำถามรอบก่อนข้อไหนที่ผู้ใช้ตอบแล้ว — ตอบแบบเป็นข้อ จับคู่ตามลำดับ · ถามข้อเดียวแล้วตอบเฉยๆ = ตอบข้อนั้น"""
+    keys = [k for k in (prior_keys or []) if k in ASK_KEYS]
+    parts = parse_numbered(answer)
+    if parts:
+        return {keys[n - 1] for n in parts if 0 < n <= len(keys)}
+    if len(keys) == 1 and str(answer or "").strip():
+        return {keys[0]}
+    return set()
+
+
+def distress(text: str) -> bool:
+    try:
+        from core.kernel_voice import assess
+        return bool(_DISTRESS & set(assess(text).get("topics") or []))
+    except Exception:
+        return False
+
+
+def follow_up(prior_text: str, prior_keys, answer: str) -> dict:
+    """ตรวจรอบต่อ: รวมเรื่องเดิมกับคำตอบ แล้วถามเฉพาะข้อที่ยังขาด — เดิมตรวจแค่ข้อความใหม่ เลยถามซ้ำครบทุกข้อ"""
+    prior_text = str(prior_text or "").strip()[:4000]
+    answer = str(answer or "").strip()[:4000]
+    got = answered_keys(answer, prior_keys)
+    parts = parse_numbered(answer)
+    body = " ".join(parts.values()) if parts else answer
+    r = audit((prior_text + "\n" + body).strip(), answered=got)
+    r["answered"] = sorted(got)
+    if r["verdict"] != "urgent" and distress(body):
+        r["note"] = {"th": "ฟังดูเหมือนคุณเองกำลังลำบากเรื่องนี้อยู่ — DriftZero ตรวจการตัดสินใจขององค์กร "
+                           "ส่วนเรื่องเงิน ที่พัก หรือความเครียดของตัวเอง โหมดปรึกษาช่วยได้ตรงกว่า ลองเล่าที่นั่นได้เลยนะคะ",
+                     "en": "It sounds like you're going through this yourself — DriftZero checks decisions made by organisations. "
+                           "For your own money, housing or stress, Talk mode can help much more. You can tell LYLA there."}
+        r["talk"] = True
+    return r
+
+
+def audit(text: str, answered=()) -> dict:
     t = str(text or "").strip()
+    answered = set(answered or ())
     crisis, emergency = _danger(t)
     if crisis:
         return {"verdict": "urgent", "gates": [], "asks": [], "sop": [],
@@ -190,26 +259,27 @@ def audit(text: str) -> dict:
 
     asks = []
     if len(t) < 40:
-        asks.append({"sop": 1, "th": "เล่าเพิ่มอีกนิด: ใครทำอะไร ที่ไหน งบเท่าไหร่ ภายในเมื่อไหร่",
+        asks.append({"key": "detail", "sop": 1, "th": "เล่าเพิ่มอีกนิด: ใครทำอะไร ที่ไหน งบเท่าไหร่ ภายในเมื่อไหร่",
                      "en": "Say a bit more: who does what, where, with what budget, by when"})
     if not _DOWNSIDE.search(t):
-        asks.append({"sop": 2, "th": "ถ้าพลาด อะไรเสียหายที่สุด และใครรับผลนั้น",
+        asks.append({"key": "downside", "sop": 2, "th": "ถ้าพลาด อะไรเสียหายที่สุด และใครรับผลนั้น",
                      "en": "If this fails, what is the worst damage, and who bears it?"})
     if not (_DRIFT.search(t) and _NUM.search(t)):
-        asks.append({"sop": 3, "th": "DHD: ถ้าทำต่อไปเรื่อยๆ อะไรจะแย่ลงทีละนิดทุกวัน — วัดเป็นตัวเลขอะไรได้บ้าง (เช่น ของเสียกี่ลิตร/วัน · คนได้รับผลกี่คน/เดือน)",
+        asks.append({"key": "dhd", "sop": 3, "th": "DHD: ถ้าทำต่อไปเรื่อยๆ อะไรจะแย่ลงทีละนิดทุกวัน — วัดเป็นตัวเลขอะไรได้บ้าง (เช่น ของเสียกี่ลิตร/วัน · คนได้รับผลกี่คน/เดือน)",
                      "en": "DHD: if this continues, what gets a little worse every day — what number can measure it (e.g. litres of waste/day, people affected/month)?"})
     if wl["floor"] is not None and wl["current"] is None:
-        asks.append({"sop": 2, "th": "Waterline: ตอนนี้มีเท่าไหร่ (เช่น เงินสดคงเหลือ) — จะได้วัดว่าหลังตัดสินใจยังอยู่เหนือเส้นไหม",
+        asks.append({"key": "current", "sop": 2, "th": "Waterline: ตอนนี้มีเท่าไหร่ (เช่น เงินสดคงเหลือ) — จะได้วัดว่าหลังตัดสินใจยังอยู่เหนือเส้นไหม",
                      "en": "Waterline: how much do you have now (e.g. cash on hand) — so we can see if you stay above the floor"})
     if wl["floor"] is None:
-        asks.append({"sop": 2, "th": "Waterline: เส้นขั้นต่ำของเรื่องนี้คืออะไร — ตัวเลขที่ห้ามต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้ "
+        asks.append({"key": "floor", "sop": 2, "th": "Waterline: เส้นขั้นต่ำของเรื่องนี้คืออะไร — ตัวเลขที่ห้ามต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้ "
                                     "(เช่น เงินสดสำรองไม่ต่ำกว่า 6 เดือนของค่าใช้จ่าย · ทีมหลักไม่ต่ำกว่า 5 คน)",
                      "en": "Waterline: what is the floor here — the number you must not go below, or the damage can't be undone "
                            "(e.g. cash reserve of at least 6 months of costs · at least 5 core staff)"})
     if not _OWNER.search(t):
-        asks.append({"sop": 6, "th": "ใครเป็นคนเซ็นรับผิดชอบการตัดสินใจนี้",
+        asks.append({"key": "owner", "sop": 6, "th": "ใครเป็นคนเซ็นรับผิดชอบการตัดสินใจนี้",
                      "en": "Who signs accountability for this decision?"})
 
+    asks = [q for q in asks if q["key"] not in answered]
     asks.sort(key=lambda q: q["sop"])
     if stops:
         verdict = "stop"
@@ -219,21 +289,22 @@ def audit(text: str) -> dict:
                 " · resolve these gates, then re-check (stabilize before optimizing)"
     elif asks:
         verdict = "ask"
-        sm_th = f"ยังไม่เจอด่านที่ติด แต่ข้อมูลยังไม่ครบ {len(asks)} ข้อ — ตอบให้ครบแล้วตรวจอีกรอบ"
-        sm_en = f"No gate blocked yet, but {len(asks)} answer(s) are missing — fill them in and re-check"
+        sm_th = f"ยังไม่เจอด่านที่ติด แต่ข้อมูลยังไม่ครบ {len(asks)} ข้อ — ตอบในช่องพิมพ์ได้เลย จะพิมพ์เป็นข้อ (1 … 2 …) ก็ได้"
+        sm_en = f"No gate blocked yet, but {len(asks)} answer(s) are missing — reply below, numbered (1 … 2 …) is fine"
     else:
         verdict = "pass"
         sm_th = "ผ่านทุกด่านจากข้อมูลที่ให้มา — ยังต้องมีคนเซ็นรับผิดชอบ และตรวจหลังทำ (SOP 7)"
         sm_en = "Passes every gate on the information given — a human still signs off, and a post-audit closes the loop"
 
-    done = {1: len(t) >= 40, 2: bool(_DOWNSIDE.search(t)), 3: bool(_DRIFT.search(t) and _NUM.search(t)),
-            4: not stops, 5: True, 6: bool(_OWNER.search(t)), 7: False}
+    done = {1: len(t) >= 40 or "detail" in answered, 2: bool(_DOWNSIDE.search(t)) or "downside" in answered,
+            3: bool(_DRIFT.search(t) and _NUM.search(t)) or "dhd" in answered,
+            4: not stops, 5: True, 6: bool(_OWNER.search(t)) or "owner" in answered, 7: False}
     sop = [{"n": i + 1, "th": th, "en": en, "done": done[i + 1]} for i, (th, en) in enumerate(SOP)]
     note = None
     if not _ORG.search(t):
         note = {"th": "ดูเหมือนเป็นเรื่องส่วนตัว — โหมดปรึกษาน่าจะช่วยได้ตรงกว่านะคะ",
                 "en": "This looks personal — Talk mode will probably help more."}
-    return {"verdict": verdict, "gates": gates, "asks": asks, "sop": sop, "note": note, "emergency": emergency, "waterline": dict(wl, show={
+    return {"text": t[:4000], "talk": bool(note), "verdict": verdict, "gates": gates, "asks": asks, "sop": sop, "note": note, "emergency": emergency, "waterline": dict(wl, show={
                 "th": {k: _money(wl[k]) for k in ("floor", "current", "after")},
                 "en": {k: _money_en(wl[k]) for k in ("floor", "current", "after")}}),
             "summary": {"th": sm_th, "en": sm_en}}
