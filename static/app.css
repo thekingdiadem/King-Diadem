@@ -1139,6 +1139,18 @@ html:not([data-ink="dark"]) .card-h h2{background:linear-gradient(180deg,#fbf3df
 .bubble .sig{display:block;margin-top:.5em;color:var(--ink-3);font-size:13px;letter-spacing:.04em}
 .bubble .src{display:block;color:var(--ink-3);font-size:12px}
 html[data-ink="dark"] .bubble .steps li{background:rgba(0,0,0,.04);box-shadow:inset 0 0 0 1px rgba(0,0,0,.09)}
+/* ชั้นชะลอ: ซ่อนสิ่งที่เร่งหรือขายเมื่อผู้ใช้อยู่ในเรื่องหนัก (body.kd-gentle ตั้งใน app.js) */
+body.kd-gentle #upgrade-pill,body.kd-gentle #starters,body.kd-gentle .quota,body.kd-gentle #free-left{display:none!important}
+/* ตรามีชีวิต: วงแสงบางหมุนช้ามากรอบตรา (หนึ่งรอบ 90 วินาที) — ขยับด้วย transform อย่างเดียว การ์ดจอทำเอง ไม่วาดหน้าใหม่
+   หยุดเมื่อเลือกลดการเคลื่อนไหว (ในแอปหรือในเครื่อง) และไม่มีในโหมดสว่าง */
+.crest i{position:absolute;z-index:0;left:50%;top:calc(50% - 14px);width:212px;height:212px;margin:-106px 0 0 -106px;border-radius:50%;pointer-events:none;
+  background:conic-gradient(from 0deg,rgba(120,170,255,0) 0deg,rgba(150,195,255,.5) 40deg,rgba(120,170,255,0) 90deg,rgba(255,190,110,0) 180deg,rgba(255,200,130,.45) 220deg,rgba(255,190,110,0) 270deg,rgba(120,170,255,0) 360deg);
+  -webkit-mask:radial-gradient(circle closest-side,transparent 71%,#000 72%,#000 73.5%,transparent 74.5%);mask:radial-gradient(circle closest-side,transparent 71%,#000 72%,#000 73.5%,transparent 74.5%);
+  animation:kd-crest-turn 90s linear infinite;will-change:transform}
+@keyframes kd-crest-turn{to{transform:rotate(360deg)}}
+html.kd-calm .crest i,html[data-ink="dark"] .crest i{animation:none;display:none}
+@media (prefers-reduced-motion:reduce){ .crest i{animation:none} }
+@media (max-width:379px){ .crest i{width:170px;height:170px;margin:-85px 0 0 -85px} }
 /* หน้าภาษาอังกฤษ: บรรทัดอธิบายภาษาไทยของสมการถูกแปลเป็นอังกฤษ ซ้ำกับบรรทัดอังกฤษที่มีอยู่แล้ว — แสดงบรรทัดเดียวพอ */
 html[lang^="en"] .eq .nm[lang="th"]{display:none}
 /* ── ดาวลูกไก่ใกล้ๆ (static/pleiades_view.js) — เต็มจอ อวกาศมืดเสมอทุกโหมดสี ─────────────── */
