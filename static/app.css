@@ -1166,7 +1166,7 @@ html.kd-calm .crest i,html[data-ink="dark"] .crest i{animation:none;display:none
 .crest .ripple::before,.crest .ripple::after{content:"";position:absolute;left:-90px;top:-14px;width:180px;height:28px;border-radius:50%;
   border:1px solid rgba(255,226,170,.8);box-shadow:0 0 10px rgba(255,200,130,.4);opacity:0;transform:scale(.1);animation:kd-ripple 1.8s ease-out .9s both}
 .crest .ripple::after{border-color:rgba(170,210,255,.7);box-shadow:0 0 10px rgba(130,180,255,.4);animation-delay:1.15s}
-@keyframes kd-ripple{0%{opacity:0;transform:scale(.1)}12%{opacity:1}100%{opacity:0;transform:scale(1.6)}}
+@keyframes kd-ripple{0%{opacity:0;transform:scale(.1)}12%{opacity:1}100%{opacity:0;transform:scale(1.55)}}
 .crest img{animation:kd-crest-lit 2.2s ease .15s both}
 @keyframes kd-crest-lit{0%,30%{filter:drop-shadow(0 0 18px rgba(120,170,255,.35)) drop-shadow(0 10px 26px rgba(236,150,84,.28)) brightness(.85)}
   45%{filter:drop-shadow(0 0 34px rgba(190,220,255,.9)) drop-shadow(0 10px 30px rgba(255,190,110,.6)) brightness(1.25)}
