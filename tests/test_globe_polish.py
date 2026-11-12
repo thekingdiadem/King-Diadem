@@ -21,3 +21,18 @@ def test_hero_title_has_a_scrim_and_steps_aside_for_popups():
 def test_home_globe_edge_scales_with_render_resolution():
     assert "float aa=2./(uR*uQ);" in APP
     assert "smoothstep(1.,1.-max(.01,aa),r)" in APP and "exp(-hg/max(.012,aa))" in APP
+
+
+def test_scrim_ellipse_fits_inside_its_box():
+    """วงรีของเงาต้องอยู่ในกรอบทั้งวง — เดิมขอบบนถูกตัดเป็นเส้นตรงพาดกลางลูกโลก เห็นชัดในโหมดกลางวัน"""
+    assert "inset:30% 0 0 0" in UNIVERSE and "radial-gradient(110% 46% at 50% 56%" in UNIVERSE
+
+
+def test_cloud_shadows_reuse_the_cloud_texture():
+    assert "texture2D(clouds,cc+so).r" in EARTH and "cross(n,ea)" in EARTH
+
+
+def test_hazard_pin_shows_coordinates_depth_and_distance_advice():
+    assert "mag: x.mag, depth: x.depth" in EARTH
+    assert "(en ? 'depth ' : 'ลึก ')" in EARTH and "className = 'hz-tip'" in EARTH
+    assert "ไกลจากไทย — ที่นี่ไม่ต้องทำอะไร" in EARTH and "หมอบ หาที่กำบัง จับให้มั่น" in EARTH

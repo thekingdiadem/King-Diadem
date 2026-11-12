@@ -127,8 +127,15 @@
     if (!lightDevice) st.terrain = { source: 'dem', exaggeration: 1.5 };
     return st;
   }
+  // ภาพถ่ายดาวเทียมจริงเป็นพื้นแผนที่ช่วงมองไกล (ระดับประเทศ → จังหวัด): NASA Blue Marble ผ่านบริการ GIBS
+  // ภาพของ NASA เป็นสาธารณสมบัติ ใช้ได้ไม่ติดลิขสิทธิ์ · ละเอียด ~500 ม./พิกเซล (คมกว่าภาพลูกโลก 4K ราว 20 เท่า)
+  // ลึกกว่าระดับ 8 ภาพจะเบลอ จึงค่อยๆ จางให้แผนที่ถนนและตึก (OpenStreetMap) รับช่วงต่อ · กลางคืนหรี่ลงให้สงบตา
+  var SAT = { type: 'raster', tileSize: 256, maxzoom: 8,
+              tiles: ['https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-08-01/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg'],
+              attribution: '<a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a> · Blue Marble' };
+  function fadeIn(v) { return ['interpolate', ['linear'], ['zoom'], 8, 0, 10.5, v]; }   // ชั้นสีของแผนที่ค่อยๆ ขึ้นแทนภาพดาวเทียม
   function buildStyle() {
-    var C = isDay() ? DAY : NIGHT, LM = landmarkData();
+    var C = isDay() ? DAY : NIGHT, LM = landmarkData(), day = isDay();
     function road(id, classes, color, w0, w1, op) {
       return { id: id, type: 'line', source: 'omt', 'source-layer': 'transportation',
                filter: ['in', ['get', 'class'], ['literal', classes]],
@@ -141,22 +148,25 @@
     return {
       version: 8,
       glyphs: TILES + '/fonts/{fontstack}/{range}.pbf',
-      sources: { omt: { type: 'vector', url: TILES + '/planet' }, dem: DEM, demhs: DEM,
+      sources: { omt: { type: 'vector', url: TILES + '/planet' }, sat: SAT, dem: DEM, demhs: DEM,
                  lmshape: { type: 'geojson', data: LM.shapes }, lmpoint: { type: 'geojson', data: LM.points } },
       sky: { 'sky-color': C.sky[0], 'horizon-color': C.sky[1], 'fog-color': C.sky[2],
              'sky-horizon-blend': .6, 'horizon-fog-blend': .8, 'fog-ground-blend': .35, 'atmosphere-blend': 0 },
       light: { anchor: 'map', color: C.light[0], intensity: C.light[1], position: [1.2, 200, 35] },
       layers: [
         { id: 'bg', type: 'background', paint: { 'background-color': C.bg } },
+        { id: 'sat', type: 'raster', source: 'sat', maxzoom: 11,
+          paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 8.5, 1, 10.8, 0], 'raster-fade-duration': 300,
+                   'raster-brightness-max': day ? 1 : .42, 'raster-saturation': day ? 0 : -.25, 'raster-contrast': day ? .05 : .1 } },
         // เงาภูเขาใต้แสงจันทร์ — สันเขาสว่างอมฟ้าจางๆ หุบเขามืด
         { id: 'hillshade', type: 'hillshade', source: 'demhs',
           paint: { 'hillshade-shadow-color': C.hsShadow, 'hillshade-highlight-color': C.hsHi,
                    'hillshade-accent-color': C.hsAccent, 'hillshade-exaggeration': C.hsEx, 'hillshade-illumination-direction': 315 } },
         { id: 'urban', type: 'fill', source: 'omt', 'source-layer': 'landuse',
           filter: ['in', ['get', 'class'], ['literal', ['residential', 'commercial', 'retail', 'industrial']]],
-          paint: { 'fill-color': ['match', ['get', 'class'], 'industrial', C.industrial, C.urban], 'fill-opacity': .8 } },
-        { id: 'park', type: 'fill', source: 'omt', 'source-layer': 'park', paint: { 'fill-color': C.park, 'fill-opacity': .8 } },
-        { id: 'water', type: 'fill', source: 'omt', 'source-layer': 'water', paint: { 'fill-color': C.water } },
+          paint: { 'fill-color': ['match', ['get', 'class'], 'industrial', C.industrial, C.urban], 'fill-opacity': fadeIn(.8) } },
+        { id: 'park', type: 'fill', source: 'omt', 'source-layer': 'park', paint: { 'fill-color': C.park, 'fill-opacity': fadeIn(.8) } },
+        { id: 'water', type: 'fill', source: 'omt', 'source-layer': 'water', paint: { 'fill-color': C.water, 'fill-opacity': fadeIn(1) } },
         { id: 'waterway', type: 'line', source: 'omt', 'source-layer': 'waterway',
           paint: { 'line-color': C.waterway, 'line-width': ['interpolate', ['linear'], ['zoom'], 8, .5, 15, 3] } },
         // ถนนใหญ่มีแสงฟุ้งรอบเส้น เหมือนภาพถ่ายกลางคืนจากอวกาศ
@@ -314,7 +324,7 @@
                             maxPitch: 75, minZoom: 3, maxZoom: 18.5, attributionControl: false,
                             fadeDuration: calm() ? 0 : 300 });
         map.addControl(new lib.AttributionControl({ compact: true,
-          customAttribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> · © OpenStreetMap contributors' }),
+          customAttribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> · © OpenStreetMap contributors · <a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a>' }),
           'top-right');                                                   // มุมล่างมีปุ่มควบคุมโลกอยู่แล้ว
         // เข็มทิศของแผนที่เอง: แตะเพื่อหันทิศเหนือขึ้นบน และเห็นมุมเอียงของกล้อง
         map.addControl(new lib.NavigationControl({ showZoom: false, visualizePitch: true }), 'top-right');

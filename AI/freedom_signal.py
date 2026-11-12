@@ -197,6 +197,43 @@ def compute_collapse_risk(
 
 
 # ══════════════════════════════════════════════════════════════════
+# CHOICE LAB — ลองกด "ทางออก" แล้วดูสมการขยับ (หน้า Universe)
+# ══════════════════════════════════════════════════════════════════
+# สถานการณ์ตัวอย่างตายตัว + ทางออก 5 แบบ แต่ละแบบขยับตัวแปรของสมการตัวเดียว แล้วคำนวณด้วย compute_collapse_risk ตัวจริง
+# หน้าเว็บไม่คำนวณเอง — ตัวเลขที่เห็นคือค่าที่ kernel คืนมา (ชุดทางออกเดิม = ผลเดิมทุกครั้ง)
+CHOICE_LAB_BASE = {"drift": 0.6, "exposure": 1.0, "time_elapsed": 30.0, "choices": 1.0}
+CHOICE_LAB_ACTIONS = (
+    ("ask", "C", "ขอความช่วยเหลือจากคนที่ไว้ใจ", "Ask someone you trust for help", "ทางเลือก +1", "Choice +1"),
+    ("planb", "C", "เตรียมแผนสำรองไว้อีกทาง", "Prepare a second option (plan B)", "ทางเลือก +1", "Choice +1"),
+    ("shrink", "E", "ลดส่วนที่เอาไปเสี่ยงลงครึ่งหนึ่ง", "Put only half as much at stake", "ส่วนที่เสี่ยง ÷2", "Exposure ÷2"),
+    ("stop", "D", "หยุดสิ่งที่ทำให้แย่ลงทุกวัน", "Stop the thing that makes it worse each day", "การไหลลง ÷2", "Drift ÷2"),
+    ("early", "T", "ลงมือเร็วขึ้น ไม่ปล่อยค้าง", "Act sooner instead of letting it sit", "เวลาที่ปล่อยไว้ ÷2", "Time ÷2"),
+)
+
+
+def choice_lab(on=()) -> dict:
+    picked = [a[0] for a in CHOICE_LAB_ACTIONS if a[0] in set(on or ())]
+    v = dict(CHOICE_LAB_BASE)
+    for aid in picked:
+        if aid in ("ask", "planb"):
+            v["choices"] += 1
+        elif aid == "shrink":
+            v["exposure"] *= 0.5
+        elif aid == "stop":
+            v["drift"] *= 0.5
+        elif aid == "early":
+            v["time_elapsed"] *= 0.5
+    base, now = compute_collapse_risk(**CHOICE_LAB_BASE), compute_collapse_risk(**v)
+    keep = ("R", "risk_level", "D", "E", "T", "C", "equation", "choice_alive")
+    return {"baseline": {k: base[k] for k in keep}, "now": {k: now[k] for k in keep}, "on": picked,
+            "drop_pct": round((1 - now["R"] / base["R"]) * 100) if base["R"] else 0,
+            "actions": [{"id": a[0], "var": a[1], "th": a[2], "en": a[3], "effect": {"th": a[4], "en": a[5]}} for a in CHOICE_LAB_ACTIONS],
+            "master_equation": "R = (D × E × T) / C",
+            "note": {"th": "สถานการณ์ตัวอย่าง ไม่ใช่การประเมินชีวิตของคุณ — ตัวเลขคำนวณจากสมการจริงของระบบ",
+                     "en": "An example scenario, not an assessment of your life — the numbers come from the system's real equation."}}
+
+
+# ══════════════════════════════════════════════════════════════════
 # FREEDOM INDEX — ใช้ Master Equation
 # ══════════════════════════════════════════════════════════════════
 

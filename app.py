@@ -387,11 +387,12 @@ _SECURITY_HEADERS = [
     # สคริปต์ในไฟล์ HTML ทำงานได้เฉพาะตัวที่ hash ตรง (_CSP_SCRIPT) — ไม่มี 'unsafe-inline' แล้ว
     # สคริปต์ที่ถูกแทรกเข้ามาทีหลัง (XSS) และ handler ที่เขียนในแท็ก จึงไม่ทำงาน · ฟอนต์จาก Google Fonts เท่านั้น
     # tiles.openfreemap.org: ข้อมูลแผนที่เมืองตอนซูมลงลึกในหน้า Universe — อ่านอย่างเดียว ไม่ส่งข้อมูลผู้ใช้ออกไป
+    # gibs.earthdata.nasa.gov: ภาพถ่ายดาวเทียม NASA Blue Marble (สาธารณสมบัติ) เป็นพื้นแผนที่ตอนมองไกล — อ่านอย่างเดียว
     # s3.amazonaws.com: ข้อมูลความสูงภูมิประเทศ (AWS Terrain Tiles · ข้อมูลเปิด) ของแผนที่เดียวกัน — อ่านอย่างเดียว
     (b"content-security-policy",
      b"default-src 'self'; " + _CSP_SCRIPT + b"; "
      b"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; "
-     b"img-src 'self' data: blob: https://s3.amazonaws.com; connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com; "
+     b"img-src 'self' data: blob: https://s3.amazonaws.com; connect-src 'self' https://tiles.openfreemap.org https://s3.amazonaws.com https://gibs.earthdata.nasa.gov; "
      b"worker-src 'self'; manifest-src 'self'; "
      b"object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"),
 ]
@@ -3630,6 +3631,13 @@ async def quakes_recent(scope: str = ""):
     if scope == "map":
         return await run_in_threadpool(quakes.map_points)
     return await run_in_threadpool(quakes.recent)
+
+
+@app.get("/api/choice-lab")
+async def choice_lab_api(on: str = ""):
+    """ลองกดทางออกแล้วดู R = (D × E × T) / C ขยับ (หน้า Universe) — คำนวณด้วยสมการจริง ไม่ใช้ AI ไม่เก็บข้อมูล"""
+    from AI.freedom_signal import choice_lab
+    return choice_lab([x for x in on.split(",")[:8] if x])
 
 
 # ── โหมด DriftZero: ตรวจการตัดสินใจขององค์กร/โครงการตามเฟรมเวิร์ค DriftZero (ENGINE/driftzero.py)

@@ -25,7 +25,19 @@ try{ if(localStorage.getItem('kd-calm') === '1'){ REDUCED = true; document.docum
 /* เฟรมเรตสูงสุดของฉากจักรวาล — เลือกได้ในเมนูโหมดสี · 30 เครื่องเย็น/ประหยัดแบต · 90 ค่าเดิมที่พี่เลือก
    เลือกเกินที่จอรองรับก็วาดได้เท่าที่จอได้ (requestAnimationFrame ไม่เร็วกว่าจอ) */
 var FPS_CAPS = [30, 60, 90, 120, 144], FPS_CAP = 90;
-try{ var _fps = +localStorage.getItem('kd-fps'); if(FPS_CAPS.indexOf(_fps) >= 0) FPS_CAP = _fps; }catch(_){}
+var PERF = { light: false, user: false, low: false, input: 0, gap: 1 / 90, raw: 0, ups: 0 };
+try{ var _fps = +localStorage.getItem('kd-fps'); if(FPS_CAPS.indexOf(_fps) >= 0){ FPS_CAP = _fps; PERF.user = true; } }catch(_){}
+/* มือถือเครื่องร้อนและภาพแตกเพราะหน้าแรกวาดเต็มจอที่ 2 เท่าของจอ 90 ภาพ/วินาทีตลอดเวลา แม้ไม่มีใครแตะ (หน้า Universe ประหยัดอยู่แล้ว — ใช้หลักเดียวกัน)
+   PERF.light = มือถือ/แรมน้อย/เน็ตช้า: วาดละเอียด 1.5 เท่าพอ และตอนไม่มีใครแตะวาด 30 ภาพ/วินาที (ฉากเคลื่อนช้ามาก ตาแทบไม่เห็นต่าง)
+   PERF.low = แบตเหลือน้อยและไม่ได้ชาร์จ: 30 ภาพ/วินาทีเหมือนกันทุกเครื่อง · ใครเลือกเฟรมเรตเองในเมนู (PERF.user) ใช้ค่าที่เลือกเสมอ */
+try{ var _cn = navigator.connection || {};
+  PERF.light = Math.min(screen.width, screen.height) < 700 || (navigator.deviceMemory || 8) <= 4 || !!_cn.saveData || /2g|3g/.test(_cn.effectiveType || '');
+  if(navigator.getBattery) navigator.getBattery().then(function(b){ var f = function(){ PERF.low = !b.charging && b.level <= .2; }; f();
+    b.addEventListener('levelchange', f); b.addEventListener('chargingchange', f); }).catch(function(){});
+}catch(_){}
+function perfCap(now, idleOk){ return idleOk && !PERF.user && (PERF.low || (PERF.light && now - PERF.input > 1500)) ? Math.min(FPS_CAP, 30) : FPS_CAP; }
+['pointerdown', 'pointermove', 'touchmove', 'wheel', 'keydown'].forEach(function(ev){
+  window.addEventListener(ev, function(){ PERF.input = performance.now(); }, { passive: true, capture: true }); });
 /* โหมดสี: night (อวกาศเดิม) · day · latte (คอสมิกลาเต้ #FFF8E7 — สีเฉลี่ยของจักรวาล) · custom (สีที่ผู้ใช้เลือก)
    THEME.v = สีพื้น (null = กลางคืน) · THEME.dark = ตัวหนังสือเข้มบนพื้นสว่าง — ฉากอวกาศและตัวหนังสือบนผืนผ้าใช้ค่านี้ */
 var THEME = { t: 'night', c: '#e8dcff', v: null, dark: false };
@@ -889,7 +901,7 @@ var Cosmos = (function(){
   var GLX = (function(){
     var c = document.createElement('canvas'); c.id = 'cosmos-gl'; c.setAttribute('aria-hidden', 'true');
     cv.parentNode.insertBefore(c, cv);
-    var gl = null, U = {}, Q = 1, qs = 1, slow = 0, mode2 = 'sky';
+    var gl = null, U = {}, Q = 1, qs = 1, slow = 0, fast = 0, mode2 = 'sky';
     try{ gl = c.getContext('webgl', { alpha:false, antialias:false, depth:false, stencil:false, premultipliedAlpha:false }); }catch(_){ gl = null; }
     if(!gl){ c.remove(); return null; }
     var VS = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
@@ -1151,14 +1163,19 @@ var Cosmos = (function(){
     var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,3,-1,-1,3]), gl.STATIC_DRAW);
     c.addEventListener('webglcontextlost', function(e){ e.preventDefault(); gl = null; });
     return {
-      size: function(){ var dp = window.devicePixelRatio || 1; Q = (mode2 === 'earth' ? Math.min(2, dp) : Math.min(1.25, dp) * .7) * qs;
+      size: function(){ var dp = window.devicePixelRatio || 1; Q = (mode2 === 'earth' ? Math.min(PERF.light ? 1.5 : 2, dp) : Math.min(1.25, dp) * .7) * qs;
         c.width = Math.round(W * Q); c.height = Math.round(H * Q); if(gl) gl.viewport(0, 0, c.width, c.height); },
       want: function(m){ if(m !== mode2){ mode2 = m; qs = 1; slow = 0; this.size(); } },
       ok: function(){ return !!gl; },
       /* ชั้นนี้ภาพนุ่มอยู่แล้ว ลดความละเอียดได้โดยไม่เสียความคม (ดาว/เส้น/ป้ายอยู่ชั้น 2D) */
       pace: function(dt){
-        if(dt <= 0) return; slow = dt > 1 / 45 ? slow + dt : Math.max(0, slow - dt * .5);
-        if(slow > 1 && qs > .6){ qs *= .8; slow = 0; this.size(); }
+        /* ช้า = ภาพห่างกว่าที่ตั้งใจวาด (ตอนพัก 30 ภาพ/วินาที ภาพห่าง 33 ms ไม่ได้แปลว่าเครื่องช้า) · เว้นช่วงที่แท็บถูกพักไว้
+           เร็วพอต่อเนื่อง 6 วินาที = ลองคืนความละเอียดให้ (ไม่เกิน 2 ครั้ง กันภาพสลับคมสลับเบลอ) */
+        var raw = PERF.raw || dt; if(dt <= 0 || raw > .5) return;
+        var late = raw > Math.max(1 / 45, PERF.gap * 1.5);
+        slow = late ? slow + raw : Math.max(0, slow - raw * .5); fast = late ? 0 : fast + raw;
+        if(slow > 1 && qs > .6){ qs *= .8; slow = 0; fast = 0; this.size(); }
+        else if(fast > 6 && qs < 1 && PERF.ups < 2 && raw < PERF.gap * 1.2){ qs = Math.min(1, qs / .8); fast = 0; PERF.ups++; this.size(); }
       },
       /* ท้องฟ้าจากข้างใน: s = กล้องเดียวกับดาว 2D (ศูนย์กลางจอ · ระยะโฟกัส · yaw/pitch) · band = ความสว่างของแถบทางช้างเผือก */
       sky: function(s, tsec, band){
@@ -1633,10 +1650,11 @@ var Cosmos = (function(){
     raf = 0;
     if(document.hidden || !W) return;
     /* จำกัดเฟรมตาม FPS_CAP (ค่าเริ่ม 90): จอที่เร็วกว่าวาดเฉลี่ยเท่า FPS_CAP (สะสมเวลา) · จอที่ช้ากว่าวาดทุกเฟรม */
-    var gap = (now - (dtLast || now)) / 1000;
-    fpsAcc = Math.min(fpsAcc + gap, 2 / FPS_CAP);
-    if(dtLast && fpsAcc + 1e-4 < 1 / FPS_CAP){ dtLast = now; raf = requestAnimationFrame(frame); return; }
-    fpsAcc = Math.max(0, fpsAcc - 1 / FPS_CAP);
+    var gap = (now - (dtLast || now)) / 1000, cap = perfCap(now, view !== 'universe' && !CINEMA.on);
+    fpsAcc = Math.min(fpsAcc + gap, 2 / cap);
+    if(dtLast && fpsAcc + 1e-4 < 1 / cap){ dtLast = now; raf = requestAnimationFrame(frame); return; }
+    fpsAcc = Math.max(0, fpsAcc - 1 / cap);
+    PERF.gap = 1 / cap; PERF.raw = (now - (fpsT || now)) / 1000;
     var dt = clamp((now - (fpsT || now)) / 1000, 0, .05); fpsT = now; dtLast = now; lastPaint = now;
     if(view !== 'universe'){ backdrop(now, dt); return; }
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalAlpha = 1;
@@ -2325,7 +2343,7 @@ var Cosmos = (function(){
     requestAnimationFrame(k);
   }
   [].slice.call(document.querySelectorAll('#fps-row button[data-fps]')).forEach(function(b){ b.addEventListener('click', function(){
-    FPS_CAP = +b.getAttribute('data-fps'); lsSet('kd-fps', String(FPS_CAP)); fpsUI(screenHz);
+    FPS_CAP = +b.getAttribute('data-fps'); PERF.user = true; lsSet('kd-fps', String(FPS_CAP)); fpsUI(screenHz);
     toast(fpsL('เฟรมเรตสูงสุด') + ' ' + FPS_CAP + (screenHz && FPS_CAP > screenHz * 1.1 ? ' · ~' + Math.round(screenHz) + ' Hz' : ''));
     if(window.KD_kick) KD_kick();
   }); });
