@@ -474,7 +474,7 @@ TOPICS = [
                           re.compile(r"(?:ล้ม|หมด|ฟุบ|ช็อก|เรียก\S{0,6}?|(?:พ่อ|แม่|ลูก|เด็ก|หลาน|ยาย|ตา|ปู่|ย่า|สามี|ภรรยา|แฟน|เพื่อน|มีคน|คน)\S{0,6}?)ไม่รู้สึกตัว(?!\S{0,4}?ว่า)"),
                           re.compile(r"^(?![\s\S]*(?:ประจำเดือน|เมนส์|ไรฟัน|เลือดกำเดา\S{0,4}?นิดหน่อย))[\s\S]*?เลือด(?:ออก|ไหล)\S{0,4}?(?:มาก|เยอะ|ท่วม|ทะลัก|ไม่หยุด)"),
                           re.compile(r"(?:โดน|ถูก)(?:มีด|ดาบ|พร้า|ขวาน)\S{0,4}?(?:ฟัน|แทง)(?!ธง)"), "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
-                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious)\b|\bdrowning\b(?! in (?:homework|work|paperwork|debt|emails?|bills|tasks|assignments|love|tears|stress))", re.I),
+                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious)\b|\bdrowning\b(?! in (?:\w+ ){0,2}(?:homework|work|paperwork|debts?|loans?|payments?|mortgage|credit|emails?|bills|tasks|assignments|love|tears|stress|responsibilit\w+|deadlines?))", re.I),
                           _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
         "paths": [
@@ -2400,6 +2400,24 @@ def _with_conditions(text, a: dict) -> dict:
 _WITNESS_SOUND = re.compile(r"(?:ห้องข้างๆ|ห้องข้าง|ห้องบน|ห้องล่าง|บ้านข้างๆ|ข้างบ้าน|ห้องตรงข้าม|บ้านตรงข้าม)[^\n]{0,30}?"
                             r"(?:กรีดร้อง|ร้องให้ช่วย|ร้องขอความช่วยเหลือ|ช่วยด้วย|เสียงทุบตี|เสียงตบ|เสียงตี(?!ความ)|ร้องโหยหวน|ร้องไห้จ้า)")
 
+_EN_FAMILY_HARM = re.compile(r"\bmy (?:dad|father|step-?dad|mom|mum|mother|step-?mom|husband|brother|uncle|grandpa|boyfriend)\b[^\n]{0,50}?"
+                             r"\b(?:hit|hits|hitting|beat|beats|beating|punch\w*|kick(?:s|ed)?|slap\w*|chok\w*|strangl\w*|hurt(?:s|ing)?)\b[^\n]{0,10}?"
+                             r"\b(?:my|our) (?:mom|mum|mother|dad|father|sister|brother|siblings|little \w+|kids?|children|grandma|grandpa)\b", re.I)
+EN_FAMILY_HARM = ("What's happening at home is violence, not a family argument — everyone's safety comes first, including yours.\n\n{status}\n\n"
+                  "1) If it's happening now, call the police (191 in Thailand, 911 in the US, 112 in most of Europe) and give the address clearly. "
+                  "Don't step between them — go to a locked room or a neighbour's.\n"
+                  "2) If anyone is hurt, get medical care and ask for the injuries to be recorded — it matters later.\n"
+                  "3) The person being hurt can get a safe place and advice: in Thailand call 1300 (24 hours); elsewhere find local help at findahelpline.com\n\n"
+                  "Is anyone hurt right now, and are you somewhere safe?\n\n{sign}")
+_EN_THREAT = re.compile(r"\b(?:threaten\w*|said (?:he|she|they)(?:'?ll| will| would)|says? (?:he|she|they)(?:'?ll| will))\b[^\n]{0,10}?"
+                        r"\b(?:to )?(?:hurt|kill|break|beat|stab|shoot|come (?:after|for)|find)\b", re.I)
+EN_THREAT = ("Being threatened makes you unsafe even before anything happens — that fear is reasonable.\n\n{status}\n\n"
+             "1) If you're in immediate danger, call the police now (191 in Thailand, or your local emergency number).\n"
+             "2) Save every threat — messages, voice notes, call logs with times — and report it. Threats to hurt someone are a crime, "
+             "including from lenders or collectors.\n"
+             "3) Don't meet them alone. Tell someone you trust where you are, and vary your routine for now.\n\n"
+             "Do they know where you live or work?\n\n{sign}")
+
 _STRESS_TAIL = re.compile(r"[\s,]*(?:เครียด(?:มาก|จัง|สุดๆ|มากๆ)?|ไม่ไหวแล้ว|ไม่รู้จะทำไง)[\s!.~]*$")
 
 def _assess_raw(text: str, pattern: dict | None = None) -> dict:
@@ -2779,8 +2797,19 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             en_key = "magga_" + _magga_topic(t)
         elif not a["crisis"] and CODE_REQ.search(t) and not (a.get("scam") or a.get("offer_flags")):
             en_key = "code_help"
-        lz = _lens.find(t, "en", "vega" if vega else "lyla") if (lang == "en" and not a["crisis"] and a["text_risk"] < 60
-                                     and not set(a["topics"]) & set(_URGENT_TOPICS) and not a["relationship"]) else None
+        # ความรุนแรงในบ้านที่ผู้ใช้เห็น / การถูกขู่ทำร้าย — ภาษาไทยมีคำตอบ ภาษาอังกฤษเคยไม่มี
+        # ("my dad drinks every night and beat my mom tonight" ได้วิธีเลิกเหล้าของผู้ใช้เอง ·
+        #  "loan shark said he'll break my legs" ได้ "Let's lay this out step by step.")
+        if lang == "en" and not a["crisis"] and not a["relationship"] and _EN_FAMILY_HARM.search(t) \
+                and not re.search(r"\b(?:hit|hits|hitting|beat|beats|beating|hurt\w*|chok\w*|kick\w*|punch\w*)\b[^\n]{0,6}?\bme\b", t, re.I):
+            return EN_FAMILY_HARM.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
+        if lang == "en" and not a["crisis"] and not a["relationship"] and "violence" not in a["topics"] and _EN_THREAT.search(t):   # คู่ชีวิตขู่ → SAFETY_EN ที่ละเอียดกว่า
+            return EN_THREAT.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
+        lz = _lens.find(t, "en", "vega" if vega else "lyla") if (lang == "en" and not a["crisis"] and a["text_risk"] < 85
+                                     and not a["relationship"]) else None
+        if lz and not ((set(a["topics"]) & set(_URGENT_TOPICS)) <= set(lz.get("over") or ())
+                       and (a["text_risk"] < 75 or lz.get("over"))):
+            lz = None      # กติกาเดียวกับภาษาไทย: เรื่องด่วนรับแทนได้เฉพาะเลนส์ที่ประกาศ over
         if lz:      # เลนส์ปัญหา (core/problem_lens.py) — เดิม "comparing myself on Instagram" ได้ "Let's lay this out step by step."
             return (lz["open"][0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(lz["paths"]))
                     + f"\n\n{lz['ask']}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))

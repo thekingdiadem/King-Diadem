@@ -296,7 +296,7 @@ LENSES = [
         "th": _rx(r"(?:(?:ผ่อน|ค่างวด|งวด|ไฟแนนซ์|ส่ง)\S{0,2}(?:รถ|มอเตอร์ไซค์|มอไซค์|มอไซ))\S{0,12}(?:ไม่ไหว|ค้าง|ขาดส่ง|ผิดนัด|ไม่ได้จ่าย|จะโดนยึด|โดนยึด)"
                   r"|รถ\S{0,8}(?:จะโดนยึด|โดนยึด|ถูกยึด)|ยึดรถ"
                   r"|ค้าง(?:ค่า)?งวดรถ|ขาดส่งรถ"),
-        "en": _rx(r"\b(?:car|auto|vehicle|motorbike|motorcycle) (?:loan|payments?|finance)\b[^\n]{0,40}?\b(?:behind|missed|can'?t (?:pay|afford)|repossess)"),
+        "en": _rx(r"\b(?:car|auto|vehicle|motorbike|motorcycle) (?:loan|payments?|finance)\b[^\n]{0,40}?\b(?:behind|missed|can'?t (?:pay|afford)|repossess)|\bbehind on (?:my |the )?(?:car|auto|vehicle|motorbike) (?:loan|payments?|finance)"),
         "no": None,
         "th_d": {
             "vega": 'เส้นตายของเรื่องนี้คืองวดที่ 3 — ก่อนถึงจุดนั้นคุณยังต่อรองได้ หลังจากนั้นไฟแนนซ์เป็นฝ่ายกำหนด ทางที่เสียน้อยที่สุดคือเจรจาหรือขายเองก่อนถูกยึด',
@@ -463,7 +463,23 @@ LENSES = [
 from core.problem_lens_more import LENSES_MORE  # noqa: E402
 
 LENSES += LENSES_MORE
+
+# ภาษาอังกฤษของเลนส์ที่เดิมมีแต่ภาษาไทย (core/problem_lens_en.py) — คลังภาษาอังกฤษเคยได้แม่แบบกลาง 78%
+from core.problem_lens_en import LENSES_EN  # noqa: E402
+
+for _L in LENSES:
+    if _L.get("en") is None and _L["key"] in LENSES_EN:
+        _L.update(LENSES_EN[_L["key"]])
 _BY_KEY = {L["key"]: L for L in LENSES}
+
+
+# ด่านกลางของทุกเลนส์ ทั้งสองภาษา: มีการทำร้ายร่างกาย อาวุธ หรือการขู่ทำร้าย → ถอยให้คำตอบด้านความปลอดภัย
+# เดิมตัวกันอยู่ในเลนส์แต่ละตัวและเป็นภาษาไทยอย่างเดียว — "my dad drinks every night and beat my mom tonight"
+# ได้เลนส์ติดเหล้า และ "loan shark said he'll break my legs" ได้เลนส์หนี้นอกระบบ
+_DANGER_TH = re.compile(_PHYSICAL + r"|ขู่(?:จะ)?(?:ฆ่า|ทำร้าย|ตี|เอาชีวิต|ทุบ)|ขังไว้|ไม่ให้ออกจาก(?:ห้อง|บ้าน)")
+_DANGER_EN = re.compile(r"\b(?:hit|hits|hitting|beat|beats|beating|beaten|punch\w*|kick(?:s|ed|ing)?|slap\w*|chok\w*|strangl\w*|stab\w*|"
+                        r"knife|gun|kill(?:s|ed|ing)?|murder|hurt(?:s|ing)? (?:me|her|him|us|them|my)|bleeding|rape\w*|"
+                        r"break (?:my|your|his|her) (?:legs?|arms?|bones?|neck)|threaten\w* to (?:hurt|kill|break)|locked (?:me|us) (?:in|up))\b", re.I)
 
 
 def find(text: str, lang: str = "th", voice: str = "lyla"):
@@ -475,6 +491,8 @@ def find(text: str, lang: str = "th", voice: str = "lyla"):
     if not text:
         return None
     t = str(text)
+    if (_DANGER_EN if lang == "en" else _DANGER_TH).search(t):
+        return None
     for L in LENSES:
         rx = L.get("en" if lang == "en" else "th")
         if rx is None or not rx.search(t):

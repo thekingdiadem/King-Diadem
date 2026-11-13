@@ -258,3 +258,50 @@ def test_lost_pet_is_not_triggered_by_loan_words():
     from core.kernel_voice import compose
     assert "สัตว์เลี้ยง" not in compose("โดนแอปเงินกู้ทวงหนี้ โทรหาเพื่อนทุกคน")
     assert "สัตว์เลี้ยง" in compose("นกแก้วบินหนีไปจากบ้าน")
+
+
+# ── ภาษาอังกฤษ (core/problem_lens_en.py) — คลัง 164 เรื่องเคยได้ "Let's lay this out step by step." 78% ──
+EN_BANK = {
+    "caregiver_load": "my mom is bedridden and I had to quit my job to care for her, savings almost gone",
+    "loan_shark": "I borrowed from a loan shark and the interest is insane",
+    "deceased_debt": "my husband died and left debts, do I have to pay",
+    "kin_belittle": "my parents call me a failure all the time",
+    "car_arrears": "I'm two payments behind on my car loan",
+    "retire_savings": "I'm 60 and don't have enough saved to retire",
+    "child_dream": "my kid wants to drop out to be a youtuber",
+    "miscarriage": "I had a miscarriage last month and can't stop crying",
+    "kys_deduct": "I'm drowning in student loan payments",
+}
+
+
+@pytest.mark.parametrize("key,text", list(EN_BANK.items()))
+def test_english_problems_reach_their_lens(key, text):
+    from core.kernel_voice import compose
+    lz = L.find(text, "en")
+    assert lz and lz["key"] == key
+    assert compose(text).split("\n")[0] == lz["open"][0]
+
+
+@pytest.mark.parametrize("text,start", [
+    ("I'm drowning in student loan payments", "Student loan payments"),       # สำนวน ไม่ใช่คนจมน้ำ
+    ("my son is drowning in the pool", "Get help to them"),                     # จมน้ำจริง ยังต้องได้ขั้นตอนช่วยชีวิต
+    ("my dad drinks every night and beat my mom tonight", "What's happening at home is violence"),
+    ("I owe a loan shark and he said he'll break my legs", "Being threatened"),
+    ("my husband hits me", "Your safety comes first."),
+    ("my partner checks my phone and won't let me see friends", "A relationship shouldn't make you ask permission"),
+])
+def test_english_danger_never_goes_to_a_lens(text, start):
+    """ด่านกลาง: ทำร้ายร่างกาย อาวุธ หรือขู่ทำร้าย → ทุกเลนส์ถอย (เดิมตัวกันมีแต่ภาษาไทย)"""
+    from core.kernel_voice import compose
+    assert compose(text).startswith(start)
+
+
+def test_thai_danger_gate_covers_threats_too():
+    assert L.find("เจ้าหนี้นอกระบบขู่จะทำร้ายถ้าไม่จ่าย") is None
+    assert L.find("มีหนี้นอกระบบ ดอกวันละพัน")["key"] == "loan_shark"
+
+
+def test_english_passport_seizure_is_named_as_trafficking():
+    """มีคำตอบภาษาอังกฤษเดิมที่บอกตรงว่าอาจเป็นการค้ามนุษย์ — เลนส์ไม่ต้องแย่ง แต่ต้องไม่หลุดไปเรื่องอื่น"""
+    from core.kernel_voice import compose
+    assert "trafficking" in compose("my employer took my passport")
