@@ -153,10 +153,35 @@ UPGRADES += [
     (re.compile(r"(?:ไลฟ์|โพสต์)[^\n]{0,12}?กำลังกินยา|กินยา[^\n]{0,8}?บอกลา"), "help"),
 ]
 # อารมณ์หนักที่ไม่ได้บอกเหตุ — ใช้ทั้งยกระดับเป็น soft_check และให้ kernel_voice เปิดคำตอบด้วยการถามไถ่ (ไม่ใช่ "ขอบคุณที่บอกให้ชัด")
-HEAVY_MOOD = re.compile(r"(?<!หุ้น)(?<!ราคา)(?<!กราฟ)(?<!ตลาด)(?<!ทอง)(?<!เหรียญ)(?<!บิน)ดิ่ง(?:มาก|สุด|หนัก|อีกแล้ว|จัง)|ร้องไห้ไม่หยุด|โกรธจน(?:มือ|ตัว)สั่น|อยากทุบทุกอย่าง|อยากพังทุกอย่าง|"
+_HEAVY_CORE = re.compile(r"(?<!หุ้น)(?<!ราคา)(?<!กราฟ)(?<!ตลาด)(?<!ทอง)(?<!เหรียญ)(?<!บิน)ดิ่ง(?:มาก|สุด|หนัก|อีกแล้ว|จัง)|ร้องไห้ไม่หยุด|(?<!ไม่)(?<!ไม่ได้)(?<!ไม่ได้ )โกรธจน(?:มือ|ตัว)สั่น|อยากทุบทุกอย่าง|อยากพังทุกอย่าง|"
                 r"(?i:\b(?:i )?can'?t stop crying\b(?! (?:at|over|watching|from) (?:this|the|that|a|an) (?:movie|film|show|video|song|book|ending|scene|episode))|\bi feel (?:so |completely )?(?:empty|numb|hollow)\b|\bi have nothing left\b(?! (?:to (?:say|add|eat|do today)|in (?:the|my) (?:fridge|tank)))|"
                 r"\bi want to (?:smash|break|destroy) everything\b|\bgave away (?:all )?my (?:things|stuff|belongings)\b|"
                 r"\bi'?ve decided\b[^\n]{0,30}?\btonight is the night\b)")
+
+# โกรธจนร่างกายสั่น/อยากทุบพัง — แยกจากความเศร้า เพราะคนโกรธต้องการ "พักก่อนลงมือ" ไม่ใช่คำถามว่าเหนื่อยจากอะไร
+# รูปประโยค: [โกรธ/โมโห/หัวร้อน/แค้น] + [จน] + [มือ/ตัวสั่น · อยากทุบ/พัง/ต่อย/ขว้าง] · [อยากทุบ/พัง] + [ทุกอย่าง/ข้าวของ]
+# ไม่นับเกม/กีฬา/หนัง ("โกรธจนอยากทุบจอ เกมแพ้") — โกรธแบบนั้นเกิดแล้วก็ดับ ไม่ต้องถามไถ่
+ANGER_MOOD = re.compile(
+    r"(?<!ไม่)(?<!ไม่ได้)(?<!ไม่ได้ )(?<!ไม่ค่อย)(?:โกรธ|โมโห|แค้น|เดือด|ฉุน|หัวร้อน|ของขึ้น|เดือดดาล)(?:มาก|สุดๆ|จัด|ๆ|จริงๆ|\s)*(?:จน|จนแบบ|จนรู้สึก)\S{0,8}?"
+    r"(?:มือสั่น|ตัวสั่น|สั่นไปหมด|สั่นทั้งตัว|อยาก(?:ทุบ|พัง|ต่อย|ขว้าง|ชก|ทำลาย|ระเบิด))|"
+    r"อยาก(?:ทุบ|พัง|ขว้าง|ทำลาย)(?:ทุกอย่าง|ข้าวของ|ของ(?:ให้)?หมด|ให้หมด|ทั้งบ้าน)|"
+    r"(?i:\b(?:so |really |fucking |absolutely )?(?:angry|mad|furious|pissed(?: off)?|enraged|livid)\b[^\n]{0,24}?"
+    r"\b(?:(?:i'?m |i am )?(?:shaking|trembling)|my (?:hands|body) (?:are|is) shaking|i (?:want|wanna|need) to (?:smash|break|punch|destroy|wreck) (?:everything|something|things|the wall|stuff))\b|"
+    r"\bi (?:want|wanna) to (?:smash|break|destroy|wreck) everything\b|\bshaking with (?:anger|rage)\b)")
+# "โมโหมาก" มีตัวอักษร "หมา" ซ่อนอยู่ (โม-โห-มาก) — ต้องไม่ใช่ตัวต่อจาก โ และไม่ใช่ "หมาก"
+ANGER_NOT = re.compile(r"เกม|แข่ง|ฟุตบอล|บอลแพ้|หนัง(?!สือ)|ซีรีส์|ละคร|แมว|(?<!โ)หมา(?!ก)|(?i:\b(?:game|match|controller|movie|show|series|lost the|team)\b)")
+UPGRADES += [(re.compile(r"(?s)^(?!.*(?:" + ANGER_NOT.pattern + r"))(?=.*(?:" + ANGER_MOOD.pattern + r"))"), "soft_check")]
+# รอบ "คนแต่ละคนใช้คำไม่เหมือนกัน": รูปประโยคแทนประโยคตายตัว — "รู้สึกว่างเปล่า" "ไม่รู้สึกอะไรแล้ว"
+# "been crying for hours and can't stop" "i feel so numb" เคยหลุด เพราะจับได้แค่ "i feel empty" กับ "i can't stop crying" ตรงตัว
+_HEAVY_MORE = (r"ไม่รู้สึก(?:อะไร|อะไรเลย)(?:แล้ว|เลย|สักอย่าง)|ใจ(?:มัน)?ชาไปหมด|ใจด้าน|"
+               r"ร้องไห้(?:มา)?(?:ทั้งคืน|ทั้งวัน|หลายชั่วโมง|จนตาบวม)|น้ำตา(?:ไหล)?ไม่หยุด|"
+               r"(?i:\bcrying (?:for|all) (?:hours|days|ages|night|day)\b|\b(?:been )?crying\b[^\n]{0,24}?\bcan'?t stop\b|"
+               r"\bi (?:feel|am|'m) (?:so |really |just |completely |totally )?(?:empty|numb|hollow|dead inside)\b|\bi (?:don'?t|can'?t) feel anything (?:anymore|at all)\b)")
+# ร้องไห้เพราะหนัง/เพลง · ชาเพราะหมอฟัน/อากาศหนาว/มือเท้า — ไม่ใช่อารมณ์หนัก ไม่ว่าคำนั้นจะอยู่ตรงไหนของประโยค
+_HEAVY_NOT = (r"หนัง(?!สือ)|ซีรีส์|ละคร|เพลง|นิยาย|การ์ตูน|อนิเมะ|ฉากจบ|หมอฟัน|ทำฟัน|ยาชา|ชามือ|ชาเท้า|มือชา|เท้าชา|ขาชา|"
+              r"(?i:\b(?:movie|film|show|series|episode|song|book|novel|ending|scene|anime|dentist|novocaine|anesthe\w*|"
+              r"(?:my|the) (?:hands?|arms?|legs?|feet|foot|fingers?|toes?|face|lips?|mouth|jaw))\b|\bfrom the cold\b)")
+HEAVY_MOOD = re.compile(r"(?s)^(?!.*(?:" + _HEAVY_NOT + r"))(?=.*(?:" + _HEAVY_CORE.pattern + r"|" + _HEAVY_MORE + r"))")
 
 # ── รอบ "ห้ามประมาทมนุษย์" (ชุดประโยคตามอารมณ์ 49 ข้อ หลุด 16): ประโยคที่ดูธรรมดาแต่มาจากคนที่อาจอยู่ในอันตรายหรือกำลังดิ่ง
 # เดิมได้ Risk 0 และแผน 3 ขั้นทั่วไป · อารมณ์เกิดดับเร็ว — พลาดไปทางถามไถ่ ดีกว่าพลาดไปทางมองว่าปกติ
@@ -168,6 +193,12 @@ UPGRADES += [
                 r"(?i:\b(?:he|she|they|someone|somebody|my ex)(?:'s| is| are)? (?:right )?(?:outside|at) (?:my|the) (?:door|house|window|room|apartment)\b[^\n]{0,30}?\b(?:scared|afraid|terrified|frightened)\b|"
                 r"\bcan'?t (?:talk|type|text) (?:for )?(?:long|much)\b[^\n]{0,30}?\b(?:he|she|they)(?:'s|'ll| is| are| will)? (?:be )?(?:coming )?back\b|"
                 r"\bi (?:don'?t|do not) feel safe (?:at home|here|in my (?:house|home)|with (?:him|her|them|my (?:husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad))))"), "violence"),
+    # ภัยที่พูดด้วยคำอื่น: "อยู่บ้านไม่รู้สึกปลอดภัย" · "someone's been following me" · "a guy keeps following me"
+    (re.compile(r"(?:อยู่)?(?:ที่)?(?:บ้าน|ห้อง|หอ|ตรงนี้|ที่นี่)\S{0,6}?ไม่(?:ค่อย)?(?:รู้สึก)?ปลอดภัย|"
+                r"(?i:\b(?:someone|somebody|a (?:guy|man|stranger|car|van)|this (?:guy|man)|some (?:guy|man|creep))(?:'s| is| has| keeps| kept)?(?: been)? (?:following|stalking|tailing) me\b|"
+                r"\bi (?:don'?t|do not) feel safe\b(?! (?:with (?:the|this) (?:app|website|site|link|password|car|bridge|plan)|driving|investing|online)))"), "violence"),
+    # "ไม่มีเรา ทุกคนคงสบายกว่า" — รูปเดียวกับ "everyone would be better off without me"
+    (re.compile(r"ไม่มี(?:เรา|ฉัน|ผม|หนู|กู|เค้า|ตัวเอง)\S{0,14}?(?:คง|จะ|ก็)?(?:สบาย|ดี|มีความสุข|ง่าย)(?:ใจ)?(?:กว่า|ขึ้น)"), "crisis"),
     # อยากไม่ตื่น / ตัดสินใจ "จบทุกอย่าง" — แม้พูดด้วยน้ำเสียงสงบหรือมีความสุข (ความสงบหลังตัดสินใจเป็นสัญญาณเตือนที่รู้จักกัน)
     (re.compile(r"ตัดสินใจ(?:ได้)?แล้ว[^\n]{0,24}?จบทุกอย่าง|จะจบทุกอย่าง(?:คืนนี้|วันนี้|เอง)|"
                 r"(?i:\bwish i (?:wouldn'?t|would not|didn'?t|did not|could just not|could not) wake up\b)"), "crisis"),
