@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+from core import problem_lens as _lens
 
 from core.thai_signals import (INDIRECT_SELF, INDIRECT_ADMIN, INDIRECT_HARM, SAFETY_NET_SELF, SAFETY_NET_OTHER, NET_CONFINE, NET_GROOM, NET_MAIM, normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT, SELF_HARM_VEILED,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
@@ -2768,6 +2769,11 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             en_key = "magga_" + _magga_topic(t)
         elif not a["crisis"] and CODE_REQ.search(t) and not (a.get("scam") or a.get("offer_flags")):
             en_key = "code_help"
+        lz = _lens.find(t, "en", "vega" if vega else "lyla") if (lang == "en" and not a["crisis"] and a["text_risk"] < 60
+                                     and not set(a["topics"]) & set(_URGENT_TOPICS) and not a["relationship"]) else None
+        if lz:      # เลนส์ปัญหา (core/problem_lens.py) — เดิม "comparing myself on Instagram" ได้ "Let's lay this out step by step."
+            return (lz["open"][0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(lz["paths"]))
+                    + f"\n\n{lz['ask']}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         en = EN_TOPIC.get(en_key) if (lang == "en" and (a["topics"] or str(en_key).startswith("magga_") or en_key == "code_help") and not a["crisis"]) else None
         if en:
             return (en[0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(en[1]))
@@ -2915,6 +2921,11 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = _MAGGA_D[_magga_topic(text)], None    # มรรค 8: โกหก/ทุจริต/อยากเอาคืน — ทักตรงๆ ก่อนคำตอบทั่วไป
     elif CODE_REQ.search(text) and a["text_risk"] < 60:
         main, second = CODE_D, None                           # ขอให้เขียน/แก้โค้ด — บอกตรงๆ ว่าไม่ใช่งานถนัด แล้วชวนกลับมาที่การตัดสินใจ
+    elif a["text_risk"] < 60 and not a["crisis"] and not set(a["topics"]) & set(_URGENT_TOPICS) \
+            and not (a["topics"] and a["topics"][0] in _KP.NAMES) and _lens.find(text, "th", voice_mode):
+        # เลนส์ปัญหา (core/problem_lens.py): อ่านให้ถูกว่าเป็นปัญหาของใคร แก่นคืออะไร เพราะอะไร ก่อนให้ขั้นตอน
+        # เดิม "แม่ป่วยติดเตียง ต้องลาออกมาดูแล" ได้คำตอบเรื่องไข้สูง · "พ่อติดเหล้า เมาแล้วด่าแม่" ได้วิธีเลิกเหล้า
+        main, second = _lens.find(text, "th", voice_mode), None
     elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS) \
             and not (a["topics"] and a["topics"][0] in _KP.NAMES):
         main, second = _everyday(text, a["topics"]), None                  # เรื่องบ้านๆ–ระดับโลกที่เคยได้คำตอบกลาง (EVERYDAY)
@@ -3401,6 +3412,9 @@ def compose_council(text: str, footer: bool = True) -> str:
         main = _MAGGA_D[_magga_topic(text)]
     elif CODE_REQ.search(text) and a["text_risk"] < 60:
         main = CODE_D
+    elif a["text_risk"] < 60 and not a["crisis"] and not set(a["topics"]) & set(_URGENT_TOPICS) \
+            and not (a["topics"] and a["topics"][0] in _KP.NAMES) and _lens.find(text, "th"):
+        main = _lens.find(text, "th")        # สภาก็ต้องอ่านเรื่องให้ถูกก่อน — เดิม "พ่อติดเหล้า" TITAN ให้ผู้ใช้สังเกตการดื่มของตัวเอง
     elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS) \
             and not (a["topics"] and a["topics"][0] in _KP.NAMES):
         main = _everyday(text, a["topics"])
@@ -3422,6 +3436,8 @@ def compose_council(text: str, footer: bool = True) -> str:
         vega = ("ความเสี่ยง " + risk_phrase(a) + f" — ถามก่อนว่าถ้าพลาดจะเสียอะไร และถอยกลับได้ไหม "
                 "ทางที่ย้อนกลับได้ชนะ ถ้าผลพอๆ กัน")
         reversible_first = True
+    if main.get("vega") and len(opts) < 2:
+        vega = "ความเสี่ยง " + risk_phrase(a) + " — " + main["vega"]     # เลนส์ปัญหา: โครงสร้างของเรื่องนี้ แทนคำถามกลาง
     if a["offer_flags"]:
         vega = ("ความเสี่ยง " + risk_phrase(a) + f" — ข้อเสนอนี้มีสัญญาณของการหลอก: "
                 + " · ".join(OFFER_FLAG_TH[f] for f in a["offer_flags"]) + " — ลงเงินแล้วอาจถอยไม่ได้")
@@ -3463,6 +3479,9 @@ def compose_council(text: str, footer: bool = True) -> str:
     except Exception:
         pass
 
+    if main.get("verdict") and not risky:
+        # เลนส์ปัญหาที่เป็น "สถานการณ์" (พ่อเมาด่าแม่ · ถูกบอกเลิก) — เดิมได้มติ "เดินหน้าได้ แต่เริ่มแบบเล็ก" ซึ่งไม่มีอะไรให้เดินหน้า
+        verdict, agree = main["verdict"], ""
     tag = "\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if footer else ""
     return (f"LYLA ◈ — {lyla}\n\nVEGA ◆ — {vega}\n\nPATICCA ☸ — {paticca}\n\n"
             f"TITAN ▲ — ก้าวที่ทำได้ภายใน 24 ชั่วโมง: {titan}\n\nCOSMOS ✦ — {cosmos}\n\nCIVIL ⬡ — {civil}\n\n"
