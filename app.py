@@ -2312,6 +2312,25 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                        "(1300 ศูนย์ช่วยเหลือสังคม 24 ชม." + (" · 1323 สายด่วนสุขภาพจิต" if prior_kind in ("self_harm", "warning") else "") + ")]")
             # ความกังวลยังอยู่ แต่ลดลงตามเวลา — Risk = 0.75 × Risk ของสิ่งที่เล่าไว้
             k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, round(0.75 * prior_risk))
+    # ── ข้อความสั้นที่ตอบคำถามของเรื่องหนักในข้อความก่อนหน้า (core/followup) ──────────────
+    # "โอนไปห้าพันแล้ว" ต่อจากเรื่องมิจฉาชีพ · "ก็มีบ้าง" ต่อจากคำถามว่ามีความคิดไม่อยากอยู่ไหม — เดิมได้ Risk 0 แผนทั่วไป
+    # แยกจากตัวจำเรื่องเดิมด้านบน เพราะตัวนั้นทิ้งเรื่องเก่าเมื่อข้อความใหม่มีหัวข้อของตัวเอง ("โอนไปห้าพัน" มีคำว่าเงิน)
+    fu_prior, fu = "", None
+    if kernel_assess and not k_assess.get("crisis") and len(user_input.strip()) <= 60 and isinstance(history, list):
+        last_user = next((h for h in reversed(history[-4:]) if isinstance(h, dict) and h.get("role") == "user"), None)
+        if last_user:
+            try:
+                from core.followup import classify_next, CTX as _FU_CTX
+                fu = classify_next(str(last_user.get("content") or "")[:2000], user_input)
+            except Exception as e:
+                print(f"⚠ followup: {type(e).__name__}")
+            if fu:
+                fu_prior = str(last_user.get("content") or "")[:2000]
+                k_assess["text_risk"] = max(k_assess.get("text_risk", 0) or 0, fu[2])
+                k_assess["followup_kind"] = "crisis" if fu[1] == "yes" else "danger" if fu[1] == "door" else fu[0]
+                rel_ctx = (rel_ctx + " " if rel_ctx else "") + _FU_CTX[fu[1]]
+                if fu[2] >= 60 and route not in ("vega",):
+                    route = _escalate_route(route, "risk")
     # สภา 6 เสียงไม่เหมาะกับเรื่องฉุกเฉิน (กินยาเกินขนาด ถูกทำร้าย ภัยพิบัติ ฯลฯ) — ให้ LYLA ตอบขั้นช่วยเหลือทันที
     # รวมถึงข้อความที่ตอบต่อจากเรื่องฉุกเฉินก่อนหน้า ("ขอความเห็นสภา ควรลาออกไหม" ต่อจาก "อยากตาย" เคยได้ "มติ 6/6 เดินหน้าได้")
     if vm == "council" and prior_kind:
@@ -2736,6 +2755,13 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     if kernel_compose and (used_fallback() or result.get("error")
                            or not (isinstance(ai_text, str) and ai_text.strip())):
         k_route = result.get("route") if _ROUTE_SEVERITY.get(result.get("route"), -1) > _ROUTE_SEVERITY.get(route, 0) else route
+        _fu_reply = None
+        if fu:
+            try:
+                from core.followup import compose_next
+                _fu_reply = compose_next(fu_prior, user_input, voice_mode=vm if vm in ("lyla", "vega") else "lyla")
+            except Exception as e:
+                print(f"⚠ followup compose: {type(e).__name__}")
         if k_route in ("crisis", "collapse", "survival"):
             vega_gates = []          # engine ยกระดับเป็นเรื่องวิกฤต → ให้ทางช่วยก่อน ไม่ถามให้คิด
         result.pop("error", None)
@@ -2746,7 +2772,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             # สถานะร่างกายใช้เฉพาะเมื่อผู้ใช้ส่งมาจริง — context ว่างให้ค่า W 100/Risk 0 ที่ไม่จริง
             # ไม่มี AI: ข้อความสั้นที่ตอบต่อจากเรื่องฉุกเฉิน ต้องได้คำตอบของเรื่องนั้น (เบอร์ช่วยเหลือ)
             # — เดิม kernel เห็นแค่ "ไม่เป็นไรแล้ว" จึงตอบทั่วไป "W 100 · Risk 0" ไม่มี 1323
-            "ai_response":   kernel_followup(user_input, voice_mode=vm) if (
+            "ai_response":   _fu_reply if _fu_reply else kernel_followup(user_input, voice_mode=vm) if (
                                  prior_kind == "self_harm" and kernel_followup and not own_risk
                                  and vm != "council") else _with_gate_questions(
                                  kernel_compose((prior_text + "\n" + user_input) if prior_kind else user_input,

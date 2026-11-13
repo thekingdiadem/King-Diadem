@@ -3152,6 +3152,8 @@ def safety_kind(a: dict) -> str | None:
     if not isinstance(a, dict):
         return None
     topics = set(a.get("topics") or [])
+    if a.get("followup_kind") in ("crisis", "danger", "scam"):      # ข้อความสั้นที่ตอบต่อจากเรื่องหนัก (core/followup)
+        return a["followup_kind"]
     if a.get("crisis") or "someone" in topics:
         return "crisis"
     if topics & _DANGER_TOPICS:
@@ -3439,7 +3441,7 @@ def compose_council(text: str, footer: bool = True) -> str:
 # เดิมต่อข้อความเก่าเข้ากับข้อความใหม่แล้วตอบใหม่ — "ขอบคุณ" "ล้อเล่น" "how do I bake bread" ได้คำตอบวิกฤตครั้งแรกซ้ำคำต่อคำ
 # และถ้าเรื่องเดิมเป็นภาษาไทย คำถามภาษาอังกฤษก็ได้คำตอบภาษาไทย
 _FOLLOW = {
-    "th": ("ขอบคุณที่ยังคุยกันอยู่นะ{end} เมื่อกี้คุณเล่าเรื่องที่หนักมาก ขอถามสั้นๆ ว่าตอนนี้ปลอดภัยไหม{end}",
+    "th": ("ขอบคุณที่ยังคุยกันอยู่นะ{q} เมื่อกี้คุณเล่าเรื่องที่หนักมาก ขอถามสั้นๆ ว่าตอนนี้ปลอดภัยไหม{q}",
            "ถ้าความรู้สึกนั้นกลับมาเมื่อไหร่ โทร 1323 (สายด่วนสุขภาพจิต 24 ชม.) ได้ทุกเวลา · ถ้าอันตรายตอนนี้ 1669",
            "อยากเล่าต่อเรื่องไหนก็ได้ ฉันอยู่ตรงนี้{end}", "· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI"),
     "en": ("Thank you for still talking with me. Earlier you shared something really heavy — are you safe right now?",
@@ -3464,4 +3466,5 @@ def compose_followup(text: str, voice_mode: str = "lyla", footer: bool = True) -
         if body.endswith(sign):
             body = body[: -len(sign)].rstrip()
         return f"{body}\n\n📞 {line}\n\n{sign}{tag}"
-    return f"{ask.format(end=end)}\n\n📞 {line}\n\n{close.format(end=end)}\n\n{sign}{tag}"
+    q = ("ครับ" if vega else "คะ") if lang == "th" else ""     # คำถาม/นะ ใช้ "คะ" ไม่ใช่ "ค่ะ" ("นะค่ะ" "ไหมค่ะ" สะกดผิด)
+    return f"{ask.format(end=end, q=q)}\n\n📞 {line}\n\n{close.format(end=end)}\n\n{sign}{tag}"
