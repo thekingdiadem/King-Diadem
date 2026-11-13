@@ -34,8 +34,8 @@ def test_placeholders_and_markup_survive(lang):
 
 
 def test_runtime_lazy_loads_packs_and_picker_lists_seven():
-    assert "var LANGS = ['th', 'en', 'ja', 'zh', 'ko', 'es', 'vi']" in I18N
+    # เมนูแปลครบ 7 ภาษา (FULL) · ตัวเลือกมี 54 ภาษาตามที่แชทตอบได้ — ภาษาอื่นใช้เมนูอังกฤษ
+    assert "var FULL = ['th', 'en', 'ja', 'zh', 'ko', 'es', 'vi']" in I18N and "var LANGS = Object.keys(NAMES)" in I18N
     assert "'i18n/' + lang + '.js'" in I18N and "(PACK[lang] && PACK[lang][th]) || D[th][0]" in I18N   # ขาดคำแปล → อังกฤษ
-    page = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
     for v, name in (("zh", "中文"), ("ko", "한국어"), ("es", "Español"), ("vi", "Tiếng Việt")):
-        assert f'<option value="{v}">{name}</option>' in page
+        assert f'{v}: ["{name}"' in I18N

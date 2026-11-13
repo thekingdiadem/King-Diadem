@@ -1017,12 +1017,23 @@ def audit_status():
     return _audit.status()
 
 
+# ตรวจตอนเปิดเซิร์ฟเวอร์: ข้อความวิกฤต 7 ภาษายังได้เบอร์ไหม — พังหลังอัปเดตจะเห็นทันทีที่ /health และใน log
+# ไม่ต้องรอให้ผู้ใช้ที่กำลังลำบากเป็นคนเจอ (บทเรียนจาก Microsoft ล่มทั่วโลก พ.ย. 2569)
+try:
+    from core.last_resort import canary as _canary
+    _CANARY = _canary()
+except Exception as _e:
+    _CANARY = {"ok": False, "failed": ["canary:" + type(_e).__name__]}
+print(("✓" if _CANARY.get("ok") else "⚠⚠ CRISIS CANARY FAILED") + f" crisis canary: {_CANARY}")
+
+
 @app.get("/health")
 def health():
     return {
         "status":             "alive 👑",
         "version":            "5.0",
         "llm_loaded":         llm is not None,
+        "crisis_canary":      _CANARY,              # ข้อความวิกฤต 7 ภาษายังได้เบอร์ไหม (ตรวจตอนเปิดเซิร์ฟเวอร์ · core/last_resort)
         "reply_ms":           _reply_ms(),
         "model_ms":           _model_ms(),          # เวลาเรียก AI แยกตามรุ่น (200 ครั้งล่าสุดต่อรุ่น)          # เวลาตอบของแชท 500 ข้อความล่าสุด: p50 / p95 / p99 (มิลลิวินาที)
         "ai":                 _ai_health(),         # ใช้ AI ได้จริงไหม · ถ้าไม่ได้ เพราะอะไร (quota/auth/errors/daily_cap/no_api_key)
@@ -2092,6 +2103,19 @@ _HAZARD_ASK = re.compile(r"ภัยพิบัติ\S{0,12}(?:ตอนนี
 @app.post("/run")
 @app.post("/decision")
 def run_kernel(request: Request, data: dict):
+    try:
+        return _run_kernel(request, data)
+    except Exception as e:
+        # ชั้นสุดท้าย (core/last_resort.py): Microsoft ล่มทั่วโลกจากการตั้งค่าหลังอัปเดต — เหตุแบบเดียวกันเคยทำให้
+        # คนที่พิมพ์ "อยากตาย" ได้ error 500 ไม่มีเบอร์เลย ตอนนี้พังด้วยเหตุใดก็ยังได้เบอร์ฉุกเฉินในภาษาของตัวเอง
+        print(f"⚠ /run failed → last resort: {type(e).__name__}")
+        from core.last_resort import reply as _last
+        raw = (data or {}).get("input") or (data or {}).get("text") or "" if isinstance(data, dict) else ""
+        return {"observer": "KING DIADEM", "status": "SUCCESS", "route": "crisis", "answer_source": "last_resort",
+                "ai_response": _last(str(raw)[:2000]), "risk_score": 0, "persona": "LYLA"}
+
+
+def _run_kernel(request: Request, data: dict):
     # sync handler → FastAPI รันใน threadpool: การรอ Gemini (และ time.sleep ตอน retry)
     # จะไม่บล็อก event loop ของ worker เดียวที่ทุกคนใช้ร่วมกัน
     user_input = data.get("input") or data.get("text") or ""

@@ -334,6 +334,34 @@ html.kd-calm .ship,html.kd-calm .ship-note{transition:none}
 .earth-ctl .ec-menu{position:absolute;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:46px;height:46px;padding:0;display:grid;place-items:center;border-radius:14px}
 .earth-ctl .ec-menu svg,.ec-tile svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .earth-ctl .ec-menu[aria-expanded="true"]{color:#0b0f1e;background:rgba(126,203,214,.92);border-color:transparent}
+/* ค้นหาเมือง: แว่นขยายข้างปุ่มชั้นข้อมูล → กางเป็นช่องพิมพ์ · ผลลัพธ์ลอยเหนือช่อง */
+.earth-ctl .ec-find{position:absolute;left:68px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);display:flex;align-items:center;gap:6px}
+.earth-ctl .ec-fbtn{width:46px;height:46px;padding:0;display:grid;place-items:center;border-radius:14px}
+.earth-ctl .ec-fbtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.earth-ctl .ec-fbtn[aria-expanded="true"]{color:#0b0f1e;background:rgba(216,184,120,.92);border-color:transparent}
+#ec-fq{width:min(260px,calc(100vw - 190px));height:46px;padding:0 14px;border-radius:14px;border:1px solid rgba(230,240,255,.22);background:rgba(10,14,26,.86);
+  color:#eef2fb;font:500 15px var(--f-body);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);outline:none}
+#ec-fq:focus{border-color:rgba(216,184,120,.7)}
+#ec-fq.hide,#ec-fres.hide{display:none}
+#ec-fres{position:absolute;left:0;bottom:56px;width:min(320px,calc(100vw - 150px));max-height:min(46vh,340px);overflow:auto;margin:0;padding:6px;list-style:none;
+  border-radius:16px;background:rgba(10,14,26,.92);border:1px solid rgba(230,240,255,.14);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 20px 60px -20px rgba(0,0,0,.8)}
+#ec-fres li{padding:10px 12px;border-radius:10px;cursor:pointer;color:#eef2fb;font:500 14.5px var(--f-body);display:flex;justify-content:space-between;gap:10px}
+#ec-fres li small{color:rgba(232,238,252,.5);font-size:12px;white-space:nowrap}
+#ec-fres li[aria-selected="true"],#ec-fres li:hover{background:rgba(216,184,120,.16)}
+#ec-fres li.none{cursor:default;color:rgba(232,238,252,.6)}
+/* ให้เฟี้ยวแบบ King Diadem: ผลลัพธ์ไหลขึ้นทีละแถว · จุดทองนำหน้า · แว่นขยายมีวงแสงหายใจตอนเปิด · ป้ายชื่อเมืองทองระหว่างบิน */
+#ec-fres li{opacity:0;transform:translateY(8px);animation:ec-rise .32s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--i,0) * 38ms)}
+#ec-fres li span::before{content:"";display:inline-block;width:6px;height:6px;margin:0 9px 2px 0;border-radius:50%;background:#d8b878;box-shadow:0 0 8px 1px rgba(216,184,120,.8)}
+#ec-fres li.none span::before,#ec-fres li.none::before{display:none}
+@keyframes ec-rise{to{opacity:1;transform:none}}
+.earth-ctl .ec-fbtn[aria-expanded="true"]{animation:ec-breathe 2.4s ease-in-out infinite}
+@keyframes ec-breathe{0%,100%{box-shadow:0 0 0 0 rgba(216,184,120,.45)}50%{box-shadow:0 0 0 7px rgba(216,184,120,0)}}
+#ec-arrive{position:fixed;left:50%;top:22%;z-index:6;transform:translate(-50%,10px);opacity:0;pointer-events:none;text-align:center;
+  padding:12px 22px;border-radius:999px;background:rgba(10,14,26,.62);border:1px solid rgba(216,184,120,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis;color:#f3e2b6;font:600 16px var(--f-body);letter-spacing:.02em;text-shadow:0 0 18px rgba(216,184,120,.55);box-shadow:0 0 40px -10px rgba(216,184,120,.6);transition:opacity .5s,transform .7s cubic-bezier(.2,.7,.2,1)}
+#ec-arrive small{display:block;margin-top:3px;font:500 11px var(--f-mono);letter-spacing:.14em;color:rgba(232,238,252,.55)}
+#ec-arrive.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion: reduce){#ec-fres li{animation:none;opacity:1;transform:none}.earth-ctl .ec-fbtn[aria-expanded="true"]{animation:none}#ec-arrive{transition:none}}
 .earth-ctl .ec-zoom{position:absolute;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);display:flex;flex-direction:column;gap:6px}
 .earth-ctl .ec-zoom .ec-z{width:40px;height:40px;padding:0;font-size:18px;border-radius:12px}
 .ec-sheet{position:absolute;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);width:min(360px,calc(100vw - 24px));max-height:min(70vh,560px);max-height:min(calc(100svh - 150px),560px);overflow:auto;
@@ -516,6 +544,15 @@ html.bb-on,html.bb-on body{overflow:hidden}
     <button type="button" class="ec-menu" id="ec-menu" data-act="menu" aria-label="เครื่องมือและมุมมอง" aria-expanded="false" aria-controls="ec-sheet">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
     </button>
+    <!-- ค้นหาเมือง: ปุ่มเล็กข้างปุ่มชั้นข้อมูล แตะแล้วจึงกางช่องพิมพ์ (ไม่รกจอ) · ค้นในเครื่อง ไม่ส่งคำค้นไปที่ไหน -->
+    <div class="ec-find" id="ec-find">
+      <button type="button" class="ec-fbtn" id="ec-fbtn" aria-label="ค้นหาเมือง" aria-expanded="false" aria-controls="ec-fq">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>
+      </button>
+      <input id="ec-fq" class="hide" type="search" placeholder="ค้นหาเมือง เช่น เชียงใหม่ · Tokyo" autocomplete="off" enterkeyhint="go" aria-label="ค้นหาเมือง" role="combobox" aria-expanded="false" aria-controls="ec-fres">
+      <ul id="ec-fres" class="hide" role="listbox" aria-label="ผลการค้นหา"></ul>
+    </div>
+    <div id="ec-arrive" role="status" aria-live="polite"></div>
     <div class="ec-zoom" role="group" aria-label="ซูม">
       <button type="button" class="ec-z" aria-label="ซูมเข้า" data-act="zin">+</button>
       <button type="button" class="ec-z" aria-label="ซูมออก" data-act="zout">−</button>
@@ -1216,6 +1253,45 @@ function KD_toggleDay(){var h=document.documentElement,on=!h.classList.contains(
     menu: function(){ var sh = document.getElementById('ec-sheet'), b = document.getElementById('ec-menu'), open = sh.classList.toggle('hide') === false;
                       b.setAttribute('aria-expanded', open ? 'true' : 'false'); }
   };
+  /* ค้นหาเมือง (static/cockpit_earth.js · KD_earth.find / flyTo) */
+  (function(){
+    var btn = document.getElementById('ec-fbtn'), q = document.getElementById('ec-fq'), list = document.getElementById('ec-fres');
+    if(!btn || !q || !list) return;
+    var hits = [], sel = -1, tmr = 0, KIND = ['เมืองหลวง', 'จังหวัด/รัฐ', 'สถานที่', 'เมือง', 'เมือง', 'เมือง', 'เมือง'];
+    function open(on){ q.classList.toggle('hide', !on); btn.setAttribute('aria-expanded', on ? 'true' : 'false'); q.setAttribute('aria-expanded', on && hits.length ? 'true' : 'false');
+                       if(on){ q.focus(); } else { list.classList.add('hide'); q.value = ''; hits = []; } }
+    function pick(i){
+      var h = hits[i]; if(!h || !window.KD_earth) return; KD_earth.flyTo(h.lat, h.lon, h.tier); open(false);
+      var ar = document.getElementById('ec-arrive'); if(!ar) return;                 /* ป้ายชื่อเมืองทองระหว่างบิน แล้วจางเอง */
+      ar.textContent = '✦ ' + (h.th && h.th !== h.en ? h.th + ' · ' + h.en : h.en);
+      var c = document.createElement('small'); c.textContent = Math.abs(h.lat).toFixed(2) + '°' + (h.lat >= 0 ? 'N' : 'S') + '  ' + Math.abs(h.lon).toFixed(2) + '°' + (h.lon >= 0 ? 'E' : 'W');
+      ar.appendChild(c); ar.classList.add('on'); clearTimeout(pick.t); pick.t = setTimeout(function(){ ar.classList.remove('on'); }, 3200);
+    }
+    function draw(){
+      list.innerHTML = ''; sel = -1;
+      if(!q.value.trim()){ list.classList.add('hide'); return; }
+      if(!hits.length){ var n = document.createElement('li'); n.className = 'none'; n.textContent = 'ไม่พบเมืองนี้ — ลองพิมพ์ชื่อภาษาอังกฤษ'; list.appendChild(n); }
+      hits.forEach(function(h, i){
+        var li = document.createElement('li'); li.setAttribute('role', 'option'); li.id = 'ec-fr' + i; li.style.setProperty('--i', i);
+        var a = document.createElement('span'); a.textContent = h.th && h.th !== h.en ? h.th + ' · ' + h.en : h.en;
+        var b = document.createElement('small'); b.textContent = KIND[h.tier] || '';
+        li.appendChild(a); li.appendChild(b);
+        li.addEventListener('click', function(){ pick(i); });
+        list.appendChild(li);
+      });
+      list.classList.remove('hide'); q.setAttribute('aria-expanded', 'true');
+    }
+    btn.addEventListener('click', function(){ open(q.classList.contains('hide')); });
+    q.addEventListener('input', function(){ clearTimeout(tmr); tmr = setTimeout(function(){ if(window.KD_earth && KD_earth.find) KD_earth.find(q.value, function(r){ hits = r; draw(); }); }, 120); });
+    q.addEventListener('keydown', function(e){
+      var items = list.querySelectorAll('li[role=option]');
+      if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if(!items.length) return; sel = (sel + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+        items.forEach(function(x, i){ x.setAttribute('aria-selected', i === sel ? 'true' : 'false'); }); q.setAttribute('aria-activedescendant', 'ec-fr' + sel); }
+      else if(e.key === 'Enter'){ e.preventDefault(); pick(sel >= 0 ? sel : 0); }
+      else if(e.key === 'Escape'){ open(false); btn.focus(); }
+    });
+    document.addEventListener('click', function(e){ if(!q.classList.contains('hide') && !e.target.closest('#ec-find')) open(false); });
+  })();
   window.addEventListener('load', function(){ var b = document.getElementById('ec-today'); if(b && window.KD_cityMap && KD_cityMap.today) b.setAttribute('aria-pressed', KD_cityMap.today().on ? 'true' : 'false'); });
   document.addEventListener('click', function(e){
     var a = e.target.closest('[data-act]'); if(a && ACT[a.dataset.act]) { ACT[a.dataset.act](); return; }

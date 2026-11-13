@@ -627,6 +627,7 @@
     'อ่านคำตอบออกเสียง': ['Read replies aloud', '返信を読み上げる'],
     'วิธีใช้': ['How it works', '使い方'],
     'ยังอยู่ตรงนี้นะคะ กำลังคิดคำตอบให้ดีที่สุด': ['Still here with you — working out the best answer', 'ここにいます。いちばん良い答えを考えています'],
+    'ถ้าเป็นเรื่องด่วน โทรได้เลยไม่ต้องรอ: 1669 เจ็บป่วยฉุกเฉิน · 191 ตำรวจ · 1323 สุขภาพจิต': ['If it is urgent, call now, do not wait: in Thailand 1669 medical · 191 police · 1323 mental health · elsewhere your local emergency number (911 / 112)', '急ぎの場合は待たずに電話してください：タイ 1669 救急・191 警察・1323 こころの相談 ／ 日本 119・110'],
     'ใช้เวลานานกว่าปกติ ขอโทษที่ให้รอนะคะ — ถ้าเป็นเรื่องด่วน โทรได้เลยไม่ต้องรอ: 1669 เจ็บป่วยฉุกเฉิน · 191 ตำรวจ · 1323 สุขภาพจิต': ['This is taking longer than usual, sorry for the wait — if it is urgent, do not wait for me: call your local emergency number (in Thailand 1669 medical · 191 police · 1323 mental health)', 'いつもより時間がかかっています。お待たせしてすみません — 緊急の場合は待たずに地域の緊急番号へ（タイ：1669 救急・191 警察・1323 こころの相談）'],
     'ใบสรุปการตัดสินใจ': ['Decision brief', '意思決定サマリー'],
     'คัดลอกใบสรุป': ['Copy brief', 'サマリーをコピー'],
@@ -645,7 +646,14 @@
   };
   // ภาษาเพิ่ม (จีน เกาหลี สเปน) อยู่ใน static/i18n/<lang>.js — โหลดเฉพาะตอนเลือก คนที่ไม่ได้เลือกไม่ต้องโหลดเพิ่ม
   // ตรงกับ 6 ภาษาที่ระบบตอบได้เต็มตอนไม่มี AI (ไทย อังกฤษ จีน ญี่ปุ่น เกาหลี สเปน) · ข้อความไหนยังไม่มีในชุดภาษา ใช้อังกฤษแทน
-  var LANGS = ['th', 'en', 'ja', 'zh', 'ko', 'es', 'vi'], PACKS_LANGS = ['zh', 'ko', 'es', 'vi'], KEY = 'kd_lang', ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
+  // 54 ภาษาที่ระบบตอบแชทได้ (core/world_replies · asia_replies) — เมนูหน้าเว็บแปลครบ 7 ภาษา (FULL) ภาษาอื่นใช้เมนูอังกฤษ แต่แชทตอบเป็นภาษานั้น
+  var NAMES = {th: ["ไทย", "Thai"], en: ["English", "English"], ja: ["日本語", "Japanese"], zh: ["中文", "Chinese"], ko: ["한국어", "Korean"], es: ["Español", "Spanish"], vi: ["Tiếng Việt", "Vietnamese"], fr: ["Français", "French"], de: ["Deutsch", "German"], pt: ["Português", "Portuguese"], it: ["Italiano", "Italian"], nl: ["Nederlands", "Dutch"], ru: ["Русский", "Russian"], uk: ["Українська", "Ukrainian"], pl: ["Polski", "Polish"], tr: ["Türkçe", "Turkish"], ar: ["العربية", "Arabic"], he: ["עברית", "Hebrew"], fa: ["فارسی", "Persian"], ur: ["اردو", "Urdu"], hi: ["हिन्दी", "Hindi"], bn: ["বাংলা", "Bengali"], ne: ["नेपाली", "Nepali"], si: ["සිංහල", "Sinhala"], ta: ["தமிழ்", "Tamil"], my: ["မြန်မာ", "Burmese"], km: ["ខ្មែរ", "Khmer"], lo: ["ລາວ", "Lao"], id: ["Bahasa Indonesia", "Indonesian"], ms: ["Bahasa Melayu", "Malay"], tl: ["Filipino", "Filipino"], mn: ["Монгол", "Mongolian"], kk: ["Қазақша", "Kazakh"], uz: ["Oʻzbekcha", "Uzbek"], ka: ["ქართული", "Georgian"], hy: ["Հայերեն", "Armenian"], el: ["Ελληνικά", "Greek"], bg: ["Български", "Bulgarian"], sh: ["Srpskohrvatski", "Serbo-Croatian"], cs: ["Čeština", "Czech"], sk: ["Slovenčina", "Slovak"], hu: ["Magyar", "Hungarian"], ro: ["Română", "Romanian"], sv: ["Svenska", "Swedish"], no: ["Norsk", "Norwegian"], da: ["Dansk", "Danish"], fi: ["Suomi", "Finnish"], sw: ["Kiswahili", "Swahili"], am: ["አማርኛ", "Amharic"], ha: ["Hausa", "Hausa"], yo: ["Yorùbá", "Yoruba"], zu: ["isiZulu", "Zulu"], af: ["Afrikaans", "Afrikaans"], so: ["Soomaali", "Somali"]};
+  // ชื่อภาษาไทย (ใช้ค้นหา — คนไทยพิมพ์หรือพูดว่า "ญี่ปุ่น" ไม่ใช่ "Japanese")
+  var TH_NAME = {"th": "ไทย", "en": "อังกฤษ", "ja": "ญี่ปุ่น", "zh": "จีน", "ko": "เกาหลี", "es": "สเปน", "vi": "เวียดนาม", "fr": "ฝรั่งเศส", "de": "เยอรมัน", "pt": "โปรตุเกส", "it": "อิตาลี", "nl": "ดัตช์ ฮอลันดา", "ru": "รัสเซีย", "uk": "ยูเครน", "pl": "โปแลนด์", "tr": "ตุรกี", "ar": "อาหรับ", "he": "ฮีบรู อิสราเอล", "fa": "เปอร์เซีย อิหร่าน", "ur": "อูรดู ปากีสถาน", "hi": "ฮินดี อินเดีย", "bn": "เบงกาลี บังกลาเทศ", "ne": "เนปาล", "si": "สิงหล ศรีลังกา", "ta": "ทมิฬ", "my": "พม่า เมียนมา", "km": "เขมร กัมพูชา", "lo": "ลาว", "id": "อินโดนีเซีย", "ms": "มาเลย์ มาเลเซีย", "tl": "ฟิลิปปินส์ ตากาล็อก", "mn": "มองโกเลีย", "kk": "คาซัค", "uz": "อุซเบก", "ka": "จอร์เจีย", "hy": "อาร์เมเนีย", "el": "กรีก", "bg": "บัลแกเรีย", "sh": "เซอร์เบีย โครเอเชีย บอสเนีย", "cs": "เช็ก", "sk": "สโลวัก", "hu": "ฮังการี", "ro": "โรมาเนีย", "sv": "สวีเดน", "no": "นอร์เวย์", "da": "เดนมาร์ก", "fi": "ฟินแลนด์", "sw": "สวาฮีลี", "am": "อัมฮาริก เอธิโอเปีย", "ha": "เฮาซา", "yo": "โยรูบา", "zu": "ซูลู", "af": "แอฟริคานส์", "so": "โซมาลี"};
+  var FULL = ['th', 'en', 'ja', 'zh', 'ko', 'es', 'vi'];
+  // ชื่อภาษาจากเครื่องที่ต่างจากรหัสของเรา ("nb" นอร์เวย์ · "fil" ฟิลิปปินส์ · "sr/hr/bs" เซอร์โบ-โครเอเชีย · "iw" ฮีบรูรุ่นเก่า)
+  var ALIAS = { nb: 'no', nn: 'no', fil: 'tl', sr: 'sh', hr: 'sh', bs: 'sh', iw: 'he', 'in': 'id', zsm: 'ms' };
+  var LANGS = Object.keys(NAMES), PACKS_LANGS = ['zh', 'ko', 'es', 'vi'], KEY = 'kd_lang', ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
   var PACK = window.KD_I18N_PACKS = window.KD_I18N_PACKS || {};
   var REV = {};                                 // ข้อความที่แปลแล้ว → ไทย (สลับกลับได้โดยไม่ต้องโหลดหน้าใหม่)
   Object.keys(D).forEach(function (th) { REV[D[th][0]] = th; REV[D[th][1]] = th; });
@@ -653,8 +661,9 @@
 
   function pick() {
     try { var s = localStorage.getItem(KEY); if (LANGS.indexOf(s) >= 0) return s; } catch (e) {}
-    var n = String((navigator.languages && navigator.languages[0]) || navigator.language || 'th').toLowerCase();
-    for (var i = 0; i < LANGS.length; i++) if (n.indexOf(LANGS[i]) === 0) return LANGS[i];
+    var n = String((navigator.languages && navigator.languages[0]) || navigator.language || 'th').toLowerCase(), base = n.split(/[-_]/)[0];
+    if (ALIAS[base]) return ALIAS[base];
+    if (LANGS.indexOf(base) >= 0) return base;
     return 'en';
   }
   function tr(s, lang) {
@@ -699,15 +708,79 @@
     document.documentElement.lang = lang;
     apply(document.body, lang);
     var sel = document.getElementById('lang-pick');
-    if (sel) sel.value = lang;
+    if (sel) { if (sel.tagName === 'SELECT') sel.value = lang; else sel.textContent = '🌐 ' + (NAMES[lang] || [lang])[0]; }
     // หน้าเขียนเป็นไทยไว้ก่อน — ภาษาเปลี่ยนจากที่วาดไว้เมื่อไร บอกหน้าให้วาดส่วนที่สคริปต์ประกอบเองใหม่ (ตัวเลข ชื่อ ข้อความในแชท)
     if (lang !== drawn) { drawn = lang; try { document.dispatchEvent(new CustomEvent('kd:lang', { detail: lang })); } catch (e) {} }
   }
-  window.KD_I18N = { set: set, get: function () { return current; }, t: function (s) { return tr(s, current) || s; }, dict: D };
+  // ── ตัวเลือก 54 ภาษา: ปุ่มเดียว "🌐 ไทย" → แผ่นรายชื่อที่มีช่องค้นหา (เดิมเป็นกล่องเลือก 7 ภาษาที่เจ้าของโปรเจกต์ว่ารก) ──
+  var sheet = null;
+  function openSheet(btn) {
+    if (!sheet) {
+      sheet = document.createElement('div'); sheet.id = 'lang-sheet'; sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-label', 'Language');
+      sheet.setAttribute('data-i18n-skip', '');
+      var q = document.createElement('input'); q.type = 'search'; q.placeholder = 'ค้นหาภาษา · Search language'; q.setAttribute('aria-label', 'Search language');
+      var ul = document.createElement('ul'); ul.setAttribute('role', 'listbox');
+      var note = document.createElement('p'); note.className = 'lang-note';
+      note.textContent = '★ เมนูแปลครบ · ทุกภาษา LYLA ตอบเป็นภาษาของคุณ — ★ full menus · LYLA replies in every language';
+      LANGS.forEach(function (c) {
+        var li = document.createElement('li'); li.setAttribute('role', 'option'); li.dataset.lang = c;
+        li.dataset.q = (c + ' ' + NAMES[c][0] + ' ' + NAMES[c][1] + ' ' + (TH_NAME[c] || '')).toLowerCase();
+        var a = document.createElement('span'); a.textContent = NAMES[c][0]; a.setAttribute('lang', c);
+        var b = document.createElement('small'); b.textContent = (FULL.indexOf(c) >= 0 ? '★ ' : '') + NAMES[c][1];
+        li.appendChild(a); li.appendChild(b);
+        li.addEventListener('click', function () { set(c); close(); });
+        ul.appendChild(li);
+      });
+      q.addEventListener('input', function () {
+        var f = q.value.trim().toLowerCase();
+        [].forEach.call(ul.children, function (li) { li.hidden = !!f && li.dataset.q.indexOf(f) < 0; });
+      });
+      q.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') close();
+        if (e.key === 'Enter') { var first = [].filter.call(ul.children, function (li) { return !li.hidden; })[0]; if (first) first.click(); }
+      });
+      // พูดชื่อภาษาแทนการพิมพ์ ("ญี่ปุ่น" "Spanish") — เหลือภาษาเดียวเลือกให้เลย · เบราว์เซอร์ที่ไม่รองรับไม่เห็นปุ่ม
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition, row = document.createElement('div'); row.className = 'lang-row';
+      row.appendChild(q);
+      if (SR) {
+        var mic = document.createElement('button'); mic.type = 'button'; mic.className = 'lang-mic'; mic.textContent = '🎙';
+        mic.setAttribute('aria-label', 'พูดชื่อภาษา · Say a language');
+        mic.addEventListener('click', function () {
+          var r = new SR(); r.lang = current === 'th' ? 'th-TH' : (navigator.language || 'en-US'); r.interimResults = false; r.maxAlternatives = 3;
+          mic.classList.add('on'); q.placeholder = current === 'th' ? 'กำลังฟัง… พูดชื่อภาษาได้เลย' : 'Listening… say a language';
+          r.onresult = function (e) {
+            var alts = [].map.call(e.results[0], function (a) { return a.transcript.trim(); });
+            for (var i = 0; i < alts.length; i++) {
+              q.value = alts[i].replace(/^ภาษา\s*/, ''); q.dispatchEvent(new Event('input'));
+              var left = [].filter.call(ul.children, function (li) { return !li.hidden; });
+              if (left.length === 1) { left[0].click(); return; }
+              if (left.length) return;
+            }
+          };
+          r.onend = r.onerror = function () { mic.classList.remove('on'); q.placeholder = 'ค้นหาภาษา · Search language'; };
+          try { r.start(); } catch (e) { mic.classList.remove('on'); }
+        });
+        row.appendChild(mic);
+        mic.title = 'เบราว์เซอร์บางตัวส่งเสียงไปแปลงเป็นข้อความที่เซิร์ฟเวอร์ของผู้ผลิต · Some browsers send audio to their own servers';
+        note.textContent += ' · 🎙 เสียงอาจถูกส่งไปที่ผู้ผลิตเบราว์เซอร์';
+      }
+      sheet.appendChild(row); sheet.appendChild(ul); sheet.appendChild(note);
+      document.body.appendChild(sheet);
+      document.addEventListener('click', function (e) { if (sheet.classList.contains('on') && !e.target.closest('#lang-sheet,#lang-pick')) close(); });
+    }
+    [].forEach.call(sheet.querySelectorAll('li'), function (li) { li.setAttribute('aria-selected', li.dataset.lang === current ? 'true' : 'false'); li.hidden = false; });
+    sheet.querySelector('input').value = '';
+    sheet.classList.add('on'); btn.setAttribute('aria-expanded', 'true');
+    setTimeout(function () { sheet.querySelector('input').focus(); var cur = sheet.querySelector('[aria-selected=true]'); if (cur) cur.scrollIntoView({ block: 'center' }); }, 30);
+  }
+  function close() { if (!sheet) return; sheet.classList.remove('on'); var b = document.getElementById('lang-pick'); if (b) { b.setAttribute('aria-expanded', 'false'); b.focus(); } }
+
+  window.KD_I18N = { set: set, names: NAMES, get: function () { return current; }, t: function (s) { return tr(s, current) || s; }, dict: D };
 
   function boot() {
     var sel = document.getElementById('lang-pick');
-    if (sel) sel.addEventListener('change', function () { set(sel.value); });
+    if (sel && sel.tagName === 'SELECT') sel.addEventListener('change', function () { set(sel.value); });
+    else if (sel) sel.addEventListener('click', function () { if (sheet && sheet.classList.contains('on')) close(); else openSheet(sel); });
     // ส่วนที่สคริปต์เพิ่มทีหลัง (เมนู ป๊อปอัป) ก็แปลด้วย — ต้องเฝ้าก่อน set() เพราะ set() สั่งหน้าวาดใหม่ทันที
     if (window.MutationObserver) new MutationObserver(function (ms) {
       if (current === 'th') return;

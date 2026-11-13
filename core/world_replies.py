@@ -462,7 +462,7 @@ _WORDS = {
     "yo": r"mo|kò|mi|ni|lónìí|ṣùgbọ́n|ràn|lọ́wọ́|ọkọ|ìyá|kú|fẹ́",
     "zu": r"akaphefumuli|uyangishaya|ngisize|ukufa|ngi|angi|ngiya|umama|umyeni|namuhla|kakhulu|kodwa|ngisize|siza|ukufa|ngifuna",
     "af": r"doodgaan|asem|slaan|ek|nie|my|is|wil|met|baie|vandag|maar|help|asseblief|het|kan",
-    "so": r"garaacaa|neefsanayo|dhiman|caawi|waxaan|ma|aan|hooyo|ninkayga|maanta|aad|laakiin|i\s+caawi|caawimaad|dhiman|rabaa",
+    "so": r"garaacaa|neefsanayo|neefsaneyso|neefsan|hooyaday|hooyadey|aabahay|ninkayga|garaaca|dhiman|caawi|waxaan|ma|aan|hooyo|ninkayga|maanta|aad|laakiin|i\s+caawi|caawimaad|dhiman|rabaa",
 }
 _WORD_RX = {k: re.compile(r"(?<![\w'])(?:" + v + r")(?![\w'])", re.I) for k, v in _WORDS.items()}
 _EN_WORDS = re.compile(r"(?<![\w'])(?:i|the|and|my|is|am|not|to|you|it|what|how|with|for|but|today)(?![\w'])", re.I)
@@ -1042,8 +1042,8 @@ _SK_W = re.compile(r"\b(?:nedýcha|zomrieť|ma\s+bije|veľmi|neviem|pomôžte|so
 _CS_W = re.compile(r"\b(?:pomozte|nedýchá|umřít|mě\s+bije|nevím|jsem\s+dnes)\b", re.I)
 _KA = re.compile(r"[Ⴀ-ჿ]")
 _HY = re.compile(r"[԰-֏]")
-_NO_W = re.compile(r"\b(?:hjelp|puster|veldig|ikkje|meg|deg|slår\s+meg|kjempe)\b", re.I)
-_DA_W = re.compile(r"\b(?:hjælp|vejret|meget|træt|mand|mig)\b", re.I)   # ไม่ใช้ mig/dig — สวีเดนก็ใช้
+_NO_W = re.compile(r"\b(?:hjelp|puster|veldig|ikkje|meg|deg|slår\s+meg|kjempe|orker|lenger|å\s+leve|mer)\b", re.I)   # "jeg orker ikke å leve mer" เคยได้คำตอบภาษาอังกฤษ
+_DA_W = re.compile(r"\b(?:hjælp|vejret|meget|træt|mand|mig|længere|mere|at\s+leve)\b", re.I)   # ไม่ใช้ mig/dig — สวีเดนก็ใช้
 _WORD_RX.update({k: re.compile(r"(?<![\w'])(?:" + v + r")(?![\w'])", re.I) for k, v in {
     "cs": r"chci|umřít|nedýchá|manžel|mě|bije|pomoc|jsem|velmi|unavený|dnes|nevím|co|dělat",
     "sk": r"chcem|zomrieť|nedýcha|manžel|ma|bije|pomoc|som|veľmi|unavený|dnes|neviem|čo|robiť",
