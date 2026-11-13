@@ -2532,6 +2532,13 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
             topics = ["kp_money_mule"] + [x for x in topics if x not in ("kp_money_mule", "scam")]
             scam = []
         text_risk = max(text_risk, 75 if set(scam) & {"impersonation", "story", "job", "romance"} else 60)
+    # กลโกงไซเบอร์ที่ผู้ใช้กำลังเจอ (core/cyber_scam) — SMS ใบสั่ง · .apk · สิทธิ์ช่วยเหลือการเข้าถึง · คนมารับเงินที่บ้าน ฯลฯ
+    from core.cyber_scam import cyber_kind
+    cyber = cyber_kind(text) if not crisis else None
+    if cyber:
+        text_risk = max(text_risk, cyber[1])
+        if "scam" not in topics:
+            topics.insert(0, "scam")
     if "warning" in topics and not crisis:
         text_risk = max(text_risk, 65)
     if "help" in topics:
@@ -2572,7 +2579,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     if "disaster" in kinds_i or "scam" in kinds_i or "basic" in kinds_i:
         text_risk = max(text_risk, 70)
     return {
-        "intl_urgent": kinds_i, "mood_intl": mood,
+        "intl_urgent": kinds_i, "mood_intl": mood, "cyber": cyber[0] if cyber else None,
         "scam": scam,
         "W": round(W), "risk": round(max(risk, text_risk)),
         # ตัวเลขที่โชว์ในคำตอบ: ยังไม่รู้สถานะจริงของผู้ใช้ → W "—" และ Risk จากข้อความล้วน
@@ -3112,6 +3119,71 @@ CHANGE_OTHER_EN = ("You can't change someone for them — people change when the
                    "Do you want to tell me more about how this is affecting you?")
 
 
+# ── ด่านสุดท้ายของคำตอบจาก AI ─────────────────────────────────────────
+# เดิม /run ส่งคำตอบจาก AI ถึงผู้ใช้ตรงๆ มีแค่คำสั่งใน prompt ว่า "ให้แนะนำ 1323"
+# ทดสอบด้วย AI ที่ตอบเป็นแผนทั่วไป: "อยากตาย" "ผัวตีฉัน" "彼が家の前にいる、怖い" และอีก 195 ประโยค ไม่มีเบอร์เลยสักข้อ
+# และหน้าเว็บโชว์กล่องสายด่วนเฉพาะเมื่อคำตอบมี 1323/1669 อยู่แล้ว — AI ลืมครั้งเดียว คนที่ต้องการที่สุดก็ไม่เห็นเบอร์
+# ตอนนี้: ข้อความมีความเสี่ยง แต่คำตอบไม่มีเบอร์ช่วยเหลือ → เติมบรรทัดเบอร์ตามชนิดเรื่องและภาษาของผู้ใช้ (ไม่ลบคำตอบของ AI)
+_ANY_NUMBER = re.compile(r"(?<!\d)(?:1323|1669|191|1300|1155|1441|110|112|119|109|113|115|911|988|024|016|12356|1366|#8008|0570-783-556|800 911 2000)(?!\d)|findahelpline")
+SAFETY_LINE = {
+    "crisis": {
+        "th": "📞 ถ้าตอนนี้มีความคิดอยากทำร้ายตัวเอง โทร 1323 (สายด่วนสุขภาพจิต ฟรี 24 ชม.) ได้เลย — ถ้าเป็นเหตุฉุกเฉิน 1669",
+        "en": "📞 If you're thinking about ending your life, please call 1323 in Thailand (mental health, 24h) or 988 in the US — or find a line near you at findahelpline.com. Emergency: 1669.",
+    },
+    "danger": {
+        "th": "📞 ถ้าตอนนี้ไม่ปลอดภัย โทร 191 (ตำรวจ) ได้ทันที · 1300 (ศูนย์ช่วยเหลือสังคม 24 ชม.) · 1669 ถ้าบาดเจ็บ",
+        "en": "📞 If you're not safe right now, call 191 (police in Thailand) · 1300 (social help, 24h) · 1669 if anyone is hurt — or your local emergency number (911 / 112).",
+    },
+    "scam": {
+        "th": "📞 ถ้าโอนเงินหรือกรอกข้อมูลไปแล้ว โทรธนาคารให้ระงับทันที และโทร 1441 (ศูนย์ AOC ตำรวจไซเบอร์ 24 ชม.)",
+        "en": "📞 If you've already sent money or entered details, call your bank to freeze it now — in Thailand also 1441 (cyber police AOC, 24h).",
+    },
+    "soft": {
+        "th": "📞 ถ้าวันไหนหนักจนไม่ไหว โทร 1323 (สายด่วนสุขภาพจิต) คุยได้ตลอด 24 ชม. ไม่ต้องรอให้หนักกว่านี้",
+        "en": "📞 If it ever gets too heavy, a crisis line is there any time — 1323 in Thailand, 988 in the US, or findahelpline.com.",
+    },
+}
+_DANGER_TOPICS = {"violence", "harm_others", "health_emergency", "overdose", "sexual_abuse", "trafficking", "threat",
+                  "missing", "weapon", "first_aid", "swallowed", "household", "en_assault", "witness", "elder_abuse"}
+
+
+def safety_kind(a: dict) -> str | None:
+    """ชนิดบรรทัดเบอร์ที่คำตอบต้องมี — None = ข้อความนี้ไม่ต้องมี"""
+    if not isinstance(a, dict):
+        return None
+    topics = set(a.get("topics") or [])
+    if a.get("crisis") or "someone" in topics:
+        return "crisis"
+    if topics & _DANGER_TOPICS:
+        return "danger"
+    if a.get("cyber") or a.get("scam"):
+        return "scam"
+    if (a.get("mood_intl") or (None,))[0] in ("anger", "heavy") or "soft_check" in topics or (a.get("text_risk") or 0) >= 60:
+        return "soft"
+    return None
+
+
+def ensure_safety_line(text: str, reply: str, a: dict | None = None) -> str:
+    """คำตอบจาก AI ของข้อความที่มีความเสี่ยง ต้องมีเบอร์ช่วยเหลืออย่างน้อยหนึ่งเบอร์"""
+    if not isinstance(reply, str) or not reply.strip() or _ANY_NUMBER.search(reply):
+        return reply
+    a = a if isinstance(a, dict) else assess(text)
+    kind = safety_kind(a)
+    if not kind:
+        return reply
+    lg = script_lang(text) if script_lang(text) == "vi" else detect_lang(text)
+    if lg in ("th", "en"):
+        line = SAFETY_LINE[kind][lg]
+    else:
+        from core.lang_signals import TH_NUMBERS
+        line = "📞 " + TH_NUMBERS.get(lg, TH_NUMBERS["en"]) + " · 1323 (24h) · findahelpline.com"
+    # ใส่ก่อนลายเซ็น (— LYLA ◈ / — VEGA ◆) ถ้ามี
+    m = re.search(r"\n+(—\s*(?:LYLA|VEGA)[^\n]*)\s*$", reply)
+    if m:
+        return reply[:m.start()].rstrip() + "\n\n" + line + "\n\n" + m.group(1)
+    return reply.rstrip() + "\n\n" + line
+
+
 def compose(text: str, *args, **kw) -> str:
     """คำตอบแบบไม่มี AI"""
     if isinstance(text, (bytes, bytearray)):        # compose(b"...") เคยล่มด้วย TypeError
@@ -3120,8 +3192,37 @@ def compose(text: str, *args, **kw) -> str:
         text = str(text)
     if text and _RECITE.search(text) and assess(text).get("text_risk", 0) < 60:
         return heart_sutra_recital()                 # ขอให้ท่อง = ให้ตัวบท ไม่ใช่คำอธิบาย
+    cy = _compose_cyber(text, *args, **kw) if text else None
+    if cy:
+        return cy
     out = _compose(text, *args, **kw)
     return _distress_line(text, _soften_joking_crisis(text, out))
+
+
+def _compose_cyber(text, route="general", voice_mode="lyla", *args, footer=True, **kw):
+    """กลโกงไซเบอร์ (core/cyber_scam) — คำตอบเฉพาะเรื่อง ไทย/อังกฤษ · ภาษาอื่นใช้ทางเดิม"""
+    a = assess(text)
+    kind = a.get("cyber")
+    if not kind or a["crisis"]:
+        return None
+    lg = detect_lang(text)
+    if lg not in ("th", "en") or (lg == "en" and script_lang(text)):
+        return None
+    # ภาษาไทยที่ตัวจับมิจฉาชีพเดิม (scam_flags) รู้จักแล้ว ได้คำเตือนเดิมซึ่งมี 1441 และเรื่อง OTP อยู่แล้ว
+    # ภาษาอังกฤษไม่ใช้ทางเดิม — "got a text about an unpaid toll" เคยได้ "I'm sorry this happened" ทั้งที่ยังไม่ได้กดลิงก์
+    if lg == "th" and a.get("scam"):
+        return None
+    from core.cyber_scam import REPLY
+    opener, steps, ask = REPLY[kind][lg]
+    vega = str(voice_mode or kw.get("voice_mode") or "").lower() == "vega"
+    sign = "— VEGA ◆" if vega else "— LYLA ◈"
+    if vega and lg == "th":
+        opener, ask = opener.replace("ค่ะ", "ครับ").replace("นะคะ", "นะครับ"), ask.replace("คะ", "ครับ")
+    body = "\n".join(f"{i + 1}) {x}" for i, x in enumerate(steps))
+    label = "คำถามเดียวที่ควรถามตัวเองตอนนี้:" if lg == "th" else ""
+    tag = ("\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if lg == "th" else "\n· Answered from the system's equations — no AI used") if footer else ""
+    st = status_line(a, lg)
+    return f"{opener}\n\n{st}\n\n{body}\n\n" + (f"{label} {ask}" if label else ask) + f"\n\n{sign}" + tag
 
 
 # ทุกข์ใจหนักต่อเนื่อง (ยังไม่ถึงขั้นพูดว่าอยากตาย) — ชุดวัดผล 500 ข้อพบว่า "หมดหวังกับทุกอย่าง" "รู้สึกไร้ค่ามาก"
