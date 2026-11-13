@@ -589,6 +589,12 @@ VIOLENCE_BY = re.compile(
     # "สามีขังฉันไว้ในบ้าน" เคยได้แค่หัวข้อความสัมพันธ์ Risk 0 — ต้องมีคนถูกขัง ("แม่ขังหมาไว้ในบ้าน" ไม่ใช่)
     r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน|พ่อเลี้ยง|แม่เลี้ยง|พ่อ|แม่|นายจ้าง|เจ้านาย)\S{0,4}(?:กัก)?ขัง(?:(?:ฉัน|หนู|ผม|เรา|กู|ลูก)|(?:ไว้)?ใน(?:ห้อง|บ้าน))|"
     r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน)\S{0,4}ไม่ให้(?:ออกจากบ้าน|ไปไหน|เจอเพื่อน|เจอใคร)|ยึด(?:โทรศัพท์|มือถือ)(?:ของ)?(?:ฉัน|หนู|ผม|เรา)?|"
+    # รูปกริยา -ing และคำขู่ ภาษาอังกฤษ — เดิมจับได้แค่ "hits me": "he keeps hitting me" · "how do I make my bf stop hitting me"
+    # "she threatens to kill me" · "i'm scared of my husband" ได้ Risk 0 และแผน 3 ขั้นทั่วไป แทนคำตอบเรื่องความปลอดภัย
+    # ต้องมีคนเป็นผู้กระทำ ("this song keeps hitting me" ไม่เข้า) · "hitting me up" = ทักมา ไม่ใช่ทำร้าย
+    r"(?i:\b(?:he|she|they|husband|boyfriend|bf|wife|girlfriend|gf|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,24}?\b(?:hitting|beating|punching|kicking|slapping|choking|strangling|hurting|abusing) me\b(?!\s+(?:up|out|off|at\s+(?:chess|cards|games?|tennis)))|"
+    r"\b(?:he|she|they|husband|boyfriend|bf|wife|girlfriend|gf|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,24}?\bthreaten(?:s|ed|ing)? to (?:kill|hurt|beat|stab|shoot|burn) (?:me|my (?:kids?|child(?:ren)?|son|daughter|mom|mother|family))\b|"
+    r"\b(?:scared|afraid|terrified|frightened) of (?:my )?(?:husband|boyfriend|bf|wife|girlfriend|gf|partner|ex|dad|father|stepdad|stepfather|stepmom|stepmother)\b(?!'?s?\s+(?:finding|seeing|knowing|leaving|dying|getting|being|reaction|health|losing|judg)))|"
     r"(?<!it )(?<!that )(?<!this )\b(?:chokes|choked|strangles|strangled|beats|kicks) me\b(?!\s+(?:why|how|what|at\s+(?:chess|cards|games?|tennis|racing|everything)|in\s+(?:chess|cards|games?|tennis|racing)|out\b|off\b|up\b))|"
     r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน|พ่อ|แม่|ลูก)\S{0,8}(?:ติดยา|เมา)[^\n.]{0,4}?(?:อาละวาด|ทุบ|ทำร้าย)|"
     r"\bmy (?:husband|wife|boyfriend|girlfriend|partner|dad|father) (?:won'?t|doesn'?t|will not) let me (?:leave|go out|see|talk)\b|"

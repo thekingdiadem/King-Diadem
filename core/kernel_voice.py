@@ -2285,6 +2285,11 @@ def _crisis_outside_frame(text: str, pattern=None) -> bool:
     return bool(rest) and rest != text.strip() and _assess_raw(rest, pattern)["crisis"]
 
 
+_THREAT_BY_OTHER = re.compile(
+    r"\b(?:he|she|they|husband|boyfriend|bf|wife|girlfriend|gf|partner|dad|father|stepdad|stepfather|mom|mother|uncle|brother|sister|ex|boss|"
+    r"someone|somebody|man|guy|woman|neighbou?r|landlord)\b[^\n]{0,24}?\bthreaten(?:s|ed|ing)? to\b", re.I)
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
     from core.thai_signals import canon_text
     text = canon_text(text)                     # เว้นวรรคซ้อน · ลากตัวอักษร — ทุกชั้นเห็นรูปเดียวกัน
@@ -2305,6 +2310,9 @@ def assess(text: str, pattern: dict | None = None) -> dict:
                  text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20), risk_shown=min(a["risk_shown"], 20))
     from core.second_layer import apply as _second_layer
     a = _second_layer(text, a)
+    # ชั้นสองอาจเติม harm_others กลับมา — คนที่ถูกคนอื่นขู่ไม่ใช่คนที่อยากทำร้ายใคร (ดู _THREAT_BY_OTHER)
+    if isinstance(text, str) and "harm_others" in a["topics"] and "violence" in a["topics"] and _THREAT_BY_OTHER.search(text):
+        a = dict(a, topics=[x for x in a["topics"] if x != "harm_others"])
     return _specific_first(text, _mother_baby_first(text, _with_conditions(text, a)))
 
 
@@ -2429,6 +2437,10 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     # "พี่เคยทำร้ายเขา … ตอนนี้ไม่มีแล้ว" — ผู้ใช้สารภาพเรื่องเก่า ไม่ใช่คนที่กำลังถูกทำร้าย
     t_now, own = strip_own_past_harm(t), strip_own_past_harm(own)
     topics = [name for name, phrases, _ in TOPICS if _hit(own if name in _OWN_ONLY else t_now, phrases)]
+    # คนอื่นขู่จะทำร้ายผู้ใช้หรือลูก ("my ex threatened to hurt my kids") = ผู้ใช้เป็นฝ่ายถูกขู่ ไม่ใช่คนที่อยากทำร้ายใคร
+    # เดิมถูกจับเป็น harm_others แล้วตอบว่า "ความโกรธขนาดนี้…" กับคนที่กำลังกลัว
+    if "harm_others" in topics and "violence" in topics and _THREAT_BY_OTHER.search(t_now):
+        topics = [n for n in topics if n != "harm_others"]
     # สัตว์เลี้ยงกินของมีพิษ: ยาเกินขนาด/ปฐมพยาบาล/สุขภาพ ต้องเป็นเรื่องของคนในส่วนที่เหลือของข้อความ
     if "pet_poison" in topics:
         human = strip_pet_poison(t_now)
