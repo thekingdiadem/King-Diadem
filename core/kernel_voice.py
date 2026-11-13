@@ -2975,7 +2975,25 @@ _WORK_OPEN = {
 }
 
 
+# อารมณ์หนักที่ไม่ได้บอกเหตุ ("ดิ่งมาก" · "i can't stop crying" · "i feel empty") — เปิดด้วยการรับฟังและถามไถ่ ไม่ใช่ประโยคของคนที่มาชี้แจง
+_HEAVY_OPEN = {
+    "ขอบคุณที่บอกให้ชัดนะ — เข้าใจแล้ว และดีใจที่เล่าให้ฟัง":
+        "ฟังดูหนักมากเลยนะคะ ขอบคุณที่บอก — ขอถามเบาๆ สักนิด: ตอนนี้คือเหนื่อยและท่วมท้น หรือมีความคิดไม่อยากอยู่ปนมาด้วยไหมคะ ตอบแบบไหนก็ได้ ฉันอยู่ตรงนี้",
+    "Thanks for making that clear — got it, and I'm glad you told me.":
+        "That sounds really heavy — thank you for telling me. Can I check gently: is this exhaustion and overwhelm, "
+        "or are thoughts of not wanting to be here part of it too? Either answer is okay. I'm here.",
+}
+
+
 def _soften_joking_crisis(text, out):
+    try:
+        from core.second_layer import HEAVY_MOOD as _HM
+        if isinstance(out, str) and isinstance(text, str) and _HM.search(text):
+            for plain, heavy in _HEAVY_OPEN.items():
+                if out.startswith(plain):
+                    return heavy + out[len(plain):]
+    except Exception:
+        pass
     if isinstance(out, str) and isinstance(text, str) and _CANT_GO_ON.search(text) \
             and out.startswith("Thanks for making that clear — got it, and I'm glad you told me."):
         return _CANT_OPEN + out[len("Thanks for making that clear — got it, and I'm glad you told me."):]
