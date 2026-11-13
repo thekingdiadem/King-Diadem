@@ -18,6 +18,7 @@ from __future__ import annotations
 import hashlib
 import re
 from core import problem_lens as _lens
+from core import person_reading as _person
 
 from core.thai_signals import (INDIRECT_SELF, INDIRECT_ADMIN, INDIRECT_HARM, SAFETY_NET_SELF, SAFETY_NET_OTHER, NET_CONFINE, NET_GROOM, NET_MAIM, normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT, SELF_HARM_VEILED,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
@@ -2810,6 +2811,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         if lz and not ((set(a["topics"]) & set(_URGENT_TOPICS)) <= set(lz.get("over") or ())
                        and (a["text_risk"] < 75 or lz.get("over"))):
             lz = None      # กติกาเดียวกับภาษาไทย: เรื่องด่วนรับแทนได้เฉพาะเลนส์ที่ประกาศ over
+        if lz:
+            lz = _person.adapt_main(lz, _person.read(t), "en")
         if lz:      # เลนส์ปัญหา (core/problem_lens.py) — เดิม "comparing myself on Instagram" ได้ "Let's lay this out step by step."
             return (lz["open"][0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(lz["paths"]))
                     + f"\n\n{lz['ask']}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
@@ -3013,6 +3016,11 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             main, second = {"open": ["สัตว์ป่วยมักซ่อนอาการ — ดูแลเร็วดีที่สุด" if an.get("sick")
                                      else "แก้ปัญหาได้โดยไม่ต้องฆ่า — และปลอดภัยกับคนในบ้านกว่า"],
                             "paths": an["steps"], "ask": "ตอนนี้ปัญหาหลักคืออะไร — เข้าบ้าน กัดของ หรือเรื่องสุขภาพ?"}, None
+
+    # อ่านคน (core/person_reading.py · MBTI เป็นตำราเล่มแรก): ข้อความนี้ขอข้อมูลแบบไหน ใช้เหตุผลหรือใจ อยากได้ข้อสรุปไหม
+    # ปรับแค่ประโยคเปิดและคำถามปิด ขั้นตอนเหมือนเดิม · ไม่ปรับเรื่องด่วน/เสี่ยงสูง และไม่บอกผู้ใช้ว่าอ่านเขาแบบไหน
+    if not a["crisis"] and a["text_risk"] < 75 and not (set(a["topics"]) & set(_URGENT_TOPICS)) and voice_mode != "council":
+        main = _person.adapt_main(main, _person.read(text), "th")
 
     paths = _paths(main, t)[:3]
     if second:
