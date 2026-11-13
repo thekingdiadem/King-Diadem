@@ -417,7 +417,7 @@ def compose_urgent_intl(lang: str, kind: str, status: str, sign: str, footer: bo
     tag = "\n" + FOOTER[lang] if footer else ""
     body = "\n".join(f"{i + 1}) {s}" for i, s in enumerate(steps))
     # เบอร์ในไทยเป็นบรรทัดแยก ไม่นับเป็นทางเลือก (คำตอบมีทางเลือกได้ไม่เกิน 3 ตาม canon)
-    th = f"📞 {TH_NUMBERS[lang]}\n\n" if lang in TH_NUMBERS else ""
+    th = f"{TH_NUMBERS[lang]}\n\n" if lang in TH_NUMBERS else ""
     return f"{opener}\n\n{status}\n\n{th}{body}\n\n{ASK_LABEL[lang]} {ask}\n\n{sign}" + tag
 
 
