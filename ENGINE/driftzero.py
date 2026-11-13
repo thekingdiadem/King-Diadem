@@ -92,6 +92,76 @@ GATES = [
          r"can'?t pay (?:my |the |our )?rent|can'?t afford (?:food|rent)|no sleep|burn(?:ed|t|ing)? ?out|quit my job to"),
      "การตัดสินใจนี้เอาปัจจัยอยู่รอดของคนทำเองไปแลก (เงินก้อนสุดท้าย รายได้ ที่พัก การพักผ่อน) — กันส่วนที่ต้องใช้กินอยู่ไว้ก่อน แล้วทำเท่าที่เหลือ · ดีพอให้รอด สำคัญกว่าดีสุดจนพัง",
      "This trades away the survival minimum of the person doing it (last savings, income, housing, rest) — set aside what you need to live on first, then act with what is left · good enough to survive beats best until you break"),
+    # ── รอบ "ให้ครอบคลุมทุกอย่าง": เดิมการตัดสินใจ 26 แบบที่ทำร้ายคนจริง (รหัสโรงงาน 123456 · ขายข้อมูลลูกค้าไม่ขอยินยอม ·
+    # จ้างเด็ก 14 ทำกะดึก · จ่ายใต้โต๊ะ · ไม่เรียกคืนสินค้าเบรกเสีย · ไล่คนร้องเรียนเรื่องความปลอดภัย) ไม่ติดด่านไหนเลย
+    # ด่านเหล่านี้ดูเฉพาะตัวแผน (ไม่ดูคำตอบข้อ "ถ้าพลาด") และข้ามเมื่อมีคำปฏิเสธนำหน้า ("จะไม่ขายข้อมูลลูกค้า") — ดู _negated
+    # S1 จากโพสต์ตำรวจไซเบอร์ที่เจ้าของโปรเจกต์ส่งมา: ประตูที่คนร้ายใช้มักเป็นระบบเก่าที่ยังเปิดค้าง รหัสเริ่มต้น หรือคนนอกที่ได้สิทธิ์มากเกิน
+    ("S1", "ประตูไซเบอร์ที่เปิดค้าง", "Open cyber doors",
+     _rx(r"(?:ระบบ|เซิร์ฟเวอร์|บัญชี|บริการ|เว็บ|VPN)\s*เก่า[^\n]{0,24}?(?:เปิด(?:ไว้|ค้าง|ทิ้ง)|ทิ้งไว้|ค้างไว้|ยังไม่ปิด|ปล่อย(?:ไว้|ทิ้ง))|ปล่อย[^\n]{0,10}?(?:ระบบ|เซิร์ฟเวอร์|บัญชี)\s*เก่า[^\n]{0,10}?เปิด|"
+         r"(?:ไม่|ยังไม่|ไม่ต้อง|เลื่อน|งด)\s*(?:อัปเดต|อัพเดท|อัพเดต|อัปเดท|ลง|แก้)\s*(?:แพตช์|แพทช์|ระบบ|เฟิร์มแวร์|ซอฟต์แวร์|ช่องโหว่)|"
+         r"(?:ใช้|ยังใช้|คง)[^\n]{0,24}?รหัส(?:ผ่าน)?[^\n]{0,12}?(?:เดิม|ค่าเริ่มต้น|จากโรงงาน|123456|admin|password)|รหัส(?:ผ่าน)?[^\n]{0,12}?(?:เดิม|ค่าเริ่มต้น|จากโรงงาน|123456)[^\n]{0,20}?ไม่(?:ต้อง)?เปลี่ยน|"
+         r"(?:ใช้|แชร์)[^\n]{0,8}?รหัส(?:ผ่าน)?[^\n]{0,8}?(?:แอดมิน|admin)[^\n]{0,8}?ร่วมกัน|บัญชี(?:แอดมิน|admin)\s*(?:เดียวกัน|ร่วม)|"
+         r"ไม่(?:ต้อง)?(?:เปิด|ใช้)\s*(?:2FA|MFA|การยืนยัน(?:ตัวตน)?สองชั้น|ยืนยันสองชั้น)|"
+         r"(?:บริษัท|ผู้รับเหมา|เวนเดอร์|ผู้ให้บริการ|เอเจนซี่|เอเจนซี|ฟรีแลนซ์|คนนอก)[^\n]{0,10}?(?:ภายนอก|ข้างนอก)?[^\n]{0,40}?(?:สิทธิ์|เข้าถึง)[^\n]{0,16}?(?:ทั้งหมด|เต็ม|แอดมิน|ทุก)|"
+         r"(?:keep|leave)\s+(?:the\s+)?(?:old|legacy)\s+[\w-]+(?:\s+[\w-]+)?\s+(?:open|on|running|exposed)|legacy\s+[\w-]+\s+(?:stays?\s+)?(?:open|exposed)|"
+         r"\b(?:no|without)\s+(?:mfa|2fa|multi-?factor)\b|\bdefault\s+passwords?\b|\b(?:skip|delay|postpone)\s+(?:the\s+)?(?:security\s+)?(?:patch|update)s?\b|"
+         r"\bshared?\s+(?:the\s+)?admin\s+(?:password|account|login)s?\b|\b(?:vendor|contractor|third[- ]party)\b[^\n]{0,30}?\b(?:full|admin|unrestricted)\s+access\b"),
+     "เปิดประตูให้คนร้ายโดยไม่รู้ตัว — ช่องที่ถูกเจาะส่วนใหญ่คือระบบเก่าที่ลืมปิด รหัสค่าเริ่มต้น ระบบที่ไม่อัปเดต และคนนอกที่ได้สิทธิ์เกินจำเป็น "
+     "· ปิดสิ่งที่เลิกใช้ เปลี่ยนรหัสเริ่มต้น เปิดยืนยันสองชั้น และให้สิทธิ์เท่าที่งานต้องใช้ก่อน",
+     "This leaves a door open — most breaches come through old systems left running, default passwords, missing patches, or outsiders with too much access "
+     "· shut what you no longer use, change default passwords, turn on MFA, and grant only the access the job needs"),
+    ("S2", "ข้อมูลของคนอื่นไม่ใช่ของเรา", "Other people's data is not ours",
+     _rx(r"(?:ขาย|ส่ง|แชร์|ให้|ปล่อย)[^\n]{0,6}?ข้อมูล(?:ส่วนตัว|ส่วนบุคคล)?\s*(?:ของ)?\s*(?:ลูกค้า|ผู้ใช้|พนักงาน|สมาชิก|คนไข้|ผู้ป่วย|นักเรียน)[^\n]{0,40}?(?:ให้|แก่|ไปยัง|กับ)|"
+         r"(?:ข้อมูล|เบอร์(?:โทร)?|อีเมล|รายชื่อ|ที่อยู่|ประวัติ(?:การรักษา|การซื้อ)?)(?:ส่วนตัว)?\s*(?:ของ)?\s*(?:ลูกค้า|ผู้ใช้|พนักงาน|สมาชิก|คนไข้|ผู้ป่วย|นักเรียน)[^\n]{0,24}?(?:ส่งให้|ขายให้|แชร์ให้|ให้กับ|ให้แก่|ไปให้)|"
+         r"(?:โดย)?ไม่(?:ต้อง)?ขอ(?:ความ)?ยินยอม|แอบ(?:บันทึก|เก็บ|ติดตาม|อ่าน|ดู)(?:ข้อมูล|ข้อความ|แชท|ตำแหน่ง)?|"
+         r"ข้อมูล[^\n]{0,16}?(?:รั่ว|หลุด|ถูกขโมย|ถูกแฮ็ก)[^\n]{0,40}?(?:ไม่ต้องแจ้ง|ยังไม่(?:ต้อง)?แจ้ง|ไม่แจ้ง|ปิดเรื่อง|เงียบไว้)|"
+         r"\b(?:sell|share|give|hand over)\s+(?:our\s+|the\s+)?(?:customers?|users?|patients?|employees?|members?|students?)['’]?s?\s+(?:personal\s+)?(?:data|information|details)\b|"
+         r"\bwithout\s+(?:asking\s+(?:for\s+)?|their\s+)?consent\b|\bsecretly\s+(?:track|record|collect|monitor)\b|"
+         r"\bbreach\b[^\n]{0,50}?\b(?:not\s+(?:tell|notify|disclose|inform)|keep\s+(?:it\s+)?quiet|don'?t\s+(?:tell|notify))"),
+     "ใช้ข้อมูลของคนอื่นโดยเขาไม่รู้หรือไม่ยินยอม หรือปิดเรื่องข้อมูลรั่ว — ข้อมูลเป็นของเจ้าของ ไม่ใช่ของกิจการ (PDPA) · ขอความยินยอมก่อน และถ้ารั่วต้องแจ้งเจ้าของข้อมูลและหน่วยงานกำกับ",
+     "Uses people's data without their knowledge or consent, or hides a breach — the data belongs to them, not the business · get consent first; if it leaks, tell the people affected and the regulator"),
+    ("A1", "AI ตัดสินแทนคนไม่ได้", "AI must not decide alone",
+     _rx(r"(?:AI|เอไอ|ระบบอัตโนมัติ|อัลกอริทึม|อัลกอริธึม|บอท|โมเดล)[^\n]{0,24}?(?:ตัดสิน|อนุมัติ|ปฏิเสธ|คัด(?:ออก|เลือก|กรอง)|ไล่ออก|เลิกจ้าง|ประเมิน|ให้คะแนน)[^\n]{0,40}?(?:ไม่ต้องมีคน|ไม่มีคน|โดยไม่มีคน|เองทั้งหมด|อัตโนมัติทั้งหมด|ไม่ต้องตรวจ)|"
+         r"(?:ไม่ต้องมีคน|ไม่มีคน)(?:ตรวจ|ดู|ทบทวน|อนุมัติ)[^\n]{0,30}?(?:AI|เอไอ|ระบบอัตโนมัติ)|"
+         r"\b(?:ai|algorithm|model|bot|automated\s+system)\b[^\n]{0,50}?\b(?:auto-?(?:reject|approve|deny|fire|decide|score)\w*|decide\w*|reject\w*|approv\w*|fire\w*)\b[^\n]{0,40}?\b(?:no|without)\s+(?:any\s+)?human\b|"
+         r"\b(?:no|without)\s+human\s+(?:review|oversight|check|in\s+the\s+loop)\b"),
+     "ให้ AI หรือระบบอัตโนมัติตัดสินเรื่องที่กระทบชีวิตคน (งาน สินเชื่อ การรักษา) โดยไม่มีคนตรวจ — คนต้องดูและรับผิดชอบทุกการปฏิเสธ และผู้ถูกตัดสินต้องอุทธรณ์ถึงคนได้",
+     "Lets AI or automation decide things that change people's lives (jobs, credit, care) with no human check — a person must review and own every rejection, and people must be able to appeal to a human"),
+    ("L1", "สิทธิของคนทำงาน", "Workers' basic rights",
+     _rx(r"จ้าง[^\n]{0,8}?(?:เด็ก|เยาวชน)[^\n]{0,12}?(?:อายุ\s*)?(?:1[0-4]|[5-9])(?!\d)|เด็ก(?:อายุ)?\s*(?:1[0-4]|[5-9])\s*(?:ขวบ|ปี)?[^\n]{0,12}?(?:ทำงาน|กะ|เข้างาน)|ใช้แรงงานเด็ก|"
+         r"(?:ไม่จ่าย|ไม่ให้|ไม่มี)\s*(?:ค่า)?(?:โอที|ล่วงเวลา)|(?:โอที|ล่วงเวลา)[^\n]{0,24}?(?:ไม่จ่าย|ฟรี|ไม่มีค่า)|"
+         r"(?:ต่ำกว่า|ไม่ถึง)\s*(?:ค่าแรง|ค่าจ้าง)?\s*ขั้นต่ำ|ยึด\s*(?:พาสปอร์ต|หนังสือเดินทาง|บัตรประชาชน|บัตรแรงงาน|เอกสาร)|"
+         r"ไม่มีวันหยุด|ไม่ให้(?:ลา|หยุด|พัก)|ทำงานวันละ\s*1[3-9]|"
+         r"(?:ลด|ตัด|งด)\s*(?:งบ|อุปกรณ์|การอบรม)?\s*(?:ด้าน)?(?:ความปลอดภัย|ป้องกัน|กันตก|PPE)|"
+         r"\bchild\s+labou?r\b|\bhir(?:e|ing)\s+(?:kids|children|minors|\d{1,2}[- ]year[- ]olds)\b|\b(?:under|below)\s+(?:the\s+)?minimum\s+wage\b|\bunpaid\s+overtime\b|"
+         r"\b(?:not|don'?t|won'?t)\s+pay\s+(?:for\s+)?overtime\b|\b(?:hold|keep|confiscate|take)\s+(?:the\s+)?(?:their|workers['’]?|staff['’]?s?|employees['’]?)\s+passports?\b|"
+         r"\bcut\s+(?:the\s+)?(?:safety\s+(?:budget|equipment|gear|training)|ppe)\b|\bno\s+days\s+off\b"),
+     "ลดต้นทุนด้วยการเอาจากคนทำงาน (แรงงานเด็ก โอทีไม่จ่าย ต่ำกว่าค่าแรงขั้นต่ำ ยึดเอกสาร ตัดความปลอดภัย) — ผิดกฎหมายและทำร้ายคนที่ไม่มีทางเลือก · กำไรต้องไม่มาจากตรงนี้",
+     "Cuts cost by taking from workers (child labour, unpaid overtime, below minimum wage, held documents, cut safety) — illegal and harms people with no choice · profit must not come from here"),
+    ("L2", "ปฏิบัติต่อคนอย่างเป็นธรรม", "Treat people fairly",
+     _rx(r"ไม่รับ[^\n]{0,10}?(?:คน)?\s*(?:อายุ(?:เกิน|มากกว่า)|(?:คน)?ท้อง|ตั้งครรภ์|ผู้หญิง|ผู้ชาย|เพศ|LGBT|กะเทย|ศาสนา|มุสลิม|(?:คน)?พิการ|ผิวสี|ผิวดำ|ต่างด้าว|ชาว\S+)|"
+         r"เลือก(?:รับ|ปฏิบัติ|จ้าง)[^\n]{0,10}?(?:ตาม|จาก)?(?:เพศ|อายุ|ศาสนา|เชื้อชาติ|สีผิว)|"
+         r"(?:คุกคาม|ล่วงละเมิด)[^\n]{0,50}?(?:เก็บเรื่อง|ปิดเรื่อง|ไม่ต้องทำอะไร|เป็นคนเก่ง|ยอดขายดี|เงียบไว้)|(?:เก็บเรื่อง|ปิดเรื่อง|เงียบ)[^\n]{0,24}?(?:คุกคาม|ล่วงละเมิด)|"
+         r"(?:ไล่|เลิกจ้าง|ลงโทษ|ย้าย)[^\n]{0,8}?(?:คนที่)?\s*(?:ร้องเรียน|แจ้งเบาะแส|แฉ|ฟ้อง|ตั้งครรภ์|ท้อง)|"
+         r"\b(?:won'?t|will\s+not|don'?t|do\s+not|not\s+going\s+to)\s+hire\s+(?:any\s+)?(?:women|men|pregnant|muslims?|disabled|older|anyone\s+(?:over|above|older))|\bhire\s+only\s+(?:men|women|young)\b|"
+         r"\bfire\s+(?:the\s+)?(?:whistle-?blower|(?:person|employee|staff)\s+who\s+(?:complained|reported))|\b(?:cover|hush)\s+up\s+(?:the\s+)?(?:harassment|abuse|complaint)|"
+         r"\bharass\w*\b[^\n]{0,50}?\b(?:keep\s+(?:it\s+)?quiet|top\s+(?:performer|seller)|let\s+it\s+(?:go|slide))"),
+     "เลือกปฏิบัติ ปิดเรื่องคุกคาม หรือลงโทษคนที่ร้องเรียน — คนที่กล้าพูดคือสัญญาณเตือนที่มีค่าที่สุดขององค์กร · ตัดสินที่งาน ไม่ใช่ที่เพศ อายุ ศาสนา และคุ้มครองผู้แจ้ง",
+     "Discrimination, covering up harassment, or punishing people who speak up — those who speak up are the organisation's best warning signal · judge the work, not gender, age or religion, and protect reporters"),
+    ("G1", "ความซื่อตรงต่อลูกค้าและสาธารณะ", "Integrity with customers and the public",
+     _rx(r"ใต้โต๊ะ|สินบน|จ่ายพิเศษ[^\n]{0,12}?(?:เจ้าหน้าที่|ใบอนุญาต)|(?:เงิน|ค่า)พิเศษ\s*(?:ให้)?\s*เจ้าหน้าที่|บัญชี\s*(?:สอง|2)\s*ชุด|(?:เลี่ยง|หนี)ภาษี|ไม่ออกใบกำกับ|"
+         r"ปลอม(?:รีวิว|เอกสาร|ใบรับรอง|ลายเซ็น|ผลตรวจ|ผลแล็บ|ยอดขาย)|รีวิวปลอม|(?:อ้าง|เขียน|โฆษณา)(?:ว่า)?[^\n]{0,8}?รักษา(?:โรค|มะเร็ง|เบาหวาน|ความดัน)|รักษา(?:โรค|มะเร็ง|เบาหวาน)ได้|"
+         r"ซ่อนปุ่ม(?:ยกเลิก)?|(?:ทำให้|ตั้งให้)?ยกเลิก(?:สมาชิก|บริการ)?ยาก|ต่ออายุอัตโนมัติ(?:โดยไม่แจ้ง)|ค่าธรรมเนียมแอบแฝง|"
+         r"(?:ช่วง|ตอน)\s*(?:น้ำท่วม|ภัย(?:พิบัติ)?|โรคระบาด|วิกฤต|แผ่นดินไหว)[^\n]{0,24}?ขึ้นราคา|ขึ้นราคา[^\n]{0,24}?(?:ช่วง|ตอน)\s*(?:น้ำท่วม|ภัย(?:พิบัติ)?|โรคระบาด|วิกฤต)|"
+         r"เอาเงิน(?:ของ)?(?:ลูกค้า|สมาชิก|นักลงทุน)(?:ราย)?ใหม่(?:มา)?จ่าย|(?:ไม่|ยังไม่)(?:ต้อง)?เรียกคืน|ขาย(?:ให้)?หมด(?:ก่อน|ไปก่อน)[^\n]{0,20}?(?:ค่อย|แล้วค่อย)?|"
+         r"\bbrib\w*|\bunder\s+the\s+table\b|\bpay\s+(?:the\s+|an?\s+)?(?:inspector|official|officer|clerk)\b[^\n]{0,20}?\bextra\b|\btwo\s+sets\s+of\s+(?:books|accounts)\b|\b(?:tax\s+evasion|evade\s+(?:the\s+)?tax(?:es)?)\b|"
+         r"\bfake\s+(?:reviews?|testimonials?|certificates?|test\s+results?)\b|\bcures?\s+(?:cancer|diabetes|disease)\b|\bhide\s+(?:the\s+)?cancel\w*|\bhidden\s+fees?\b|"
+         r"\bprice\s+goug\w*|\b(?:double|triple)\s+(?:the\s+)?prices?\b[^\n]{0,30}?\b(?:flood|disaster|crisis|pandemic|storm)\b|"
+         r"\bnew\s+(?:investors?|customers?|members?)['’]?\s+money\s+to\s+pay\b|\b(?:don'?t|won'?t|skip|delay)\s+(?:the\s+)?recall\b|\bsell\s+(?:off\s+)?the\s+(?:rest|remaining\s+stock)\s+first\b"),
+     "ได้มาด้วยการหลอก ปิดบัง หรือเอาเปรียบช่วงคนเดือดร้อน (สินบน บัญชีสองชุด รีวิวปลอม อ้างรักษาโรค ขึ้นราคาช่วงภัย เอาเงินคนใหม่จ่ายคนเก่า ไม่เรียกคืนของอันตราย) "
+     "— ความเชื่อใจที่เสียไปเรียกคืนไม่ได้ · ทำแบบที่เปิดให้ทุกคนดูได้",
+     "Gains through deception, concealment or exploiting people in trouble (bribes, two sets of books, fake reviews, health claims, disaster price-hikes, paying old investors with new money, skipping a recall) "
+     "— lost trust can't be recalled · only do what you could show everyone"),
     ("E1", "แลกความสะดวกกับความเสียหายระยะยาว", "Convenience trade-off",
      _rx(r"ใช้ครั้งเดียวทิ้ง|พลาสติกครั้งเดียว|ตัดต้นไม้|ถางป่า|เผา(?:ขยะ|ป่า|ไร่)|ทิ้งขยะ|ฝังกลบ|ลดต้นทุนด้วยการไม่บำบัด|single-use|clear(?:ing)? (?:the )?forest|burn(?:ing)? (?:waste|fields)|landfill"),
      "สะดวกวันนี้แต่โลกเสียหายระยะยาว — ค่าเริ่มต้นของต้นฉบับคือปฏิเสธ หาทางที่ไม่ทิ้งภาระ",
@@ -331,6 +401,19 @@ def _answered_before(text: str) -> set[str]:
     return {by_label[m.group(1)] for m in _LABEL_LINE.finditer(text or "")}
 
 
+# ด่านที่ดูเฉพาะตัวแผน (ไม่ดูคำตอบข้อ "ถ้าพลาด") — คนที่ตอบตรงๆ ว่าอาจเสียอะไรต้องไม่โดนหยุดเพราะความซื่อสัตย์
+_PLAN_ONLY = {"H1", "S1", "S2", "A1", "L1", "L2", "G1"}
+# คำปฏิเสธนำหน้า: "จะไม่ขายข้อมูลลูกค้า" "ห้ามจ่ายใต้โต๊ะ" "we will never sell customer data" — เป็นนโยบายที่ดี ไม่ใช่สิ่งที่ต้องหยุด
+_NEG_BEFORE = re.compile(r"(?:ไม่|ห้าม|ไม่มีการ|ไม่ยอม|ปฏิเสธ|เลิก|หยุด|ต่อต้าน|ป้องกัน(?:การ)?)\s*(?:\S{0,6})?\s*$|"
+                         r"(?i:\b(?:not|never|no|won'?t|don'?t|do\s+not|will\s+not|refuse\s+to|stop|avoid|prevent|against|bans?|banned|forbids?|forbidden|prohibits?|prohibited|zero\s+tolerance\s+(?:for|on))\b[\w\s'-]{0,12}$)")
+
+
+def _negated(text: str, m) -> bool:
+    before = text[max(0, m.start() - 16):m.start()]
+    # คำปฏิเสธที่อยู่ในตัวรูปประโยคเอง ("ไม่จ่ายค่าโอที" "โดยไม่ขอความยินยอม") คือสิ่งที่ผิด ไม่ใช่การปฏิเสธการทำผิด
+    return bool(_NEG_BEFORE.search(before)) and not re.match(r"(?:ไม่|ยังไม่|โดยไม่|no\b|without\b|not\b)", m.group(0), re.I)
+
+
 def audit(text: str, answered=()) -> dict:
     t = str(text or "").strip()
     answered = set(answered or ())
@@ -349,7 +432,10 @@ def audit(text: str, answered=()) -> dict:
     for gid, th, en, rx, why_th, why_en in GATES:
         # H1 ดูเฉพาะ "แผน" ไม่ดูคำตอบข้อ "ถ้าพลาดจะเสียอะไร" — ผลเสียที่เล่ามาเป็นเรื่องสมมติ ไม่ใช่สิ่งที่ตั้งใจจะทำ
         # (ไม่งั้นคนที่มีเงินพอและตอบตรงๆ ว่าถ้าพลาดจะจ่ายค่าเช่าไม่ไหว จะโดนหยุดทั้งที่แผนยังอยู่เหนือเส้น)
-        m = rx.search(_WORST_LINE.sub("", t) if gid == "H1" else t)
+        plan = _WORST_LINE.sub("", t) if gid in _PLAN_ONLY else t
+        m = rx.search(plan)
+        if m and gid in _PLAN_ONLY and _negated(plan, m):
+            m = next((x for x in rx.finditer(plan) if not _negated(plan, x)), None)
         g = {"id": gid, "name": {"th": th, "en": en}, "status": STOP if m else PASS,
              "hit": m.group(0) if m else "", "why": {"th": why_th, "en": why_en} if m else None}
         if gid == "E2":
