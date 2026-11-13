@@ -511,6 +511,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
 .bb-tip[hidden]{display:none}
 .bb-snd:hover,.bb-snd:focus-visible,.bb-txt:hover,.bb-txt:focus-visible,.bb-skip:hover,.bb-skip:focus-visible{background:rgba(255,248,231,.14);outline:2px solid #ffd99a;outline-offset:2px}
 .lang-more summary{cursor:pointer;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:rgba(118,152,215,.9);margin:6px 0 10px}
+.kd-i{width:1.15em;height:1.15em;vertical-align:-.22em;flex:none}
 </style>
 </head>
 <body>
@@ -685,7 +686,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
     <div class="planet-map">
       <button type="button" class="planet-card" data-try="เลือกไม่ถูกว่าจะเรียนต่อหรือทำงานดี"><div class="planet-emoji">☿</div><div class="planet-name">GENERAL</div><div class="planet-desc">ชีวิตทั่วไป ตัดสินใจรายวัน ทิศทางที่ไม่แน่ชัด</div><div class="planet-q">“เลือกไม่ถูกว่าจะเรียนต่อหรือทำงานดี”</div></button>
       <button type="button" class="planet-card" data-try="จะลงทุนเปิดร้านกาแฟดีไหม เงินเก็บมีแค่แสนเดียว"><div class="planet-emoji">♀</div><div class="planet-name">RISK</div><div class="planet-desc">ประเมินความเสี่ยง ผลกระทบ ต้นทุน-โอกาส</div><div class="planet-q">“จะลงทุนเปิดร้านกาแฟดีไหม เงินเก็บมีแค่แสนเดียว”</div></button>
-      <button type="button" class="planet-card" data-try="เงินหมด ไม่มีข้าวกินพรุ่งนี้"><div class="planet-emoji">🌍</div><div class="planet-name">SURVIVAL</div><div class="planet-desc">ความอยู่รอดพื้นฐาน อาหาร ที่พัก ความปลอดภัย</div><div class="planet-q">“เงินหมด ไม่มีข้าวกินพรุ่งนี้”</div></button>
+      <button type="button" class="planet-card" data-try="เงินหมด ไม่มีข้าวกินพรุ่งนี้"><div class="planet-emoji">♁</div><div class="planet-name">SURVIVAL</div><div class="planet-desc">ความอยู่รอดพื้นฐาน อาหาร ที่พัก ความปลอดภัย</div><div class="planet-q">“เงินหมด ไม่มีข้าวกินพรุ่งนี้”</div></button>
       <button type="button" class="planet-card" data-try="หนี้ท่วม ทุกอย่างพังพร้อมกัน ไม่รู้จะเริ่มแก้ตรงไหน"><div class="planet-emoji">♂</div><div class="planet-name">COLLAPSE</div><div class="planet-desc">วิกฤต ลูกโซ่ความเสียหาย แรงกดดันสะสม</div><div class="planet-q">“หนี้ท่วม ทุกอย่างพังพร้อมกัน ไม่รู้จะเริ่มแก้ตรงไหน”</div></button>
       <button type="button" class="planet-card" data-try="โดนนายจ้างไม่จ่ายเงินเดือนสองเดือน"><div class="planet-emoji">♃</div><div class="planet-name">CIVIL</div><div class="planet-desc">สังคม งาน พลเมือง ความรับผิดชอบร่วม</div><div class="planet-q">“โดนนายจ้างไม่จ่ายเงินเดือนสองเดือน”</div></button>
       <button type="button" class="planet-card" data-try="วางแผนชีวิต 5 ปีข้างหน้ายังไงดี"><div class="planet-emoji">◆</div><div class="planet-name">VEGA</div><div class="planet-desc">strategic analysis ระยะยาว logic mirror deterministic</div><div class="planet-q">“วางแผนชีวิต 5 ปีข้างหน้ายังไงดี”</div></button>
@@ -740,12 +741,12 @@ html.bb-on,html.bb-on body{overflow:hidden}
     <h2 class="sec-title">กองยานในระบบ</h2>
     <div class="card-grid">
       <div class="card">
-        <div class="card-icon">🛸</div>
+        <div class="card-icon"><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#saucer"/></svg></div>
         <div class="card-title">KD-1 King Station</div>
         <div class="card-body">สถานีอวกาศที่โคจรรอบโลก มีลูกเรือ ศูนย์กลางของการ governance ในวงโคจรต่ำ</div>
       </div>
       <div class="card">
-        <div class="card-icon">🚀</div>
+        <div class="card-icon"><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#rocket"/></svg></div>
         <div class="card-title">LYLA-P / VEGA-P</div>
         <div class="card-body">ยานสำรวจ 2 ลำ โคจรคนละวงทิศทาง LYLA scan wide, VEGA verify deep</div>
       </div>
@@ -961,7 +962,7 @@ var PATH_TEMPLATES = {
   ],
 };
 
-var URGENCY_LABELS = {URGENT:'⚡ URGENT', HIGH:'⚠ HIGH', MEDIUM:'◈ MEDIUM', LOW:'○ LOW'};
+var URGENCY_LABELS = {URGENT:'▲ URGENT', HIGH:'⚠ HIGH', MEDIUM:'◈ MEDIUM', LOW:'○ LOW'};
 var WATERLINE_LABELS = {above:'ABOVE WATERLINE', near:'NEAR WATERLINE', below:'BELOW WATERLINE'};
 
 function detectIntent(text){
@@ -1051,7 +1052,7 @@ function runLocalSimulation(){
 
   // Render
   var badge = document.getElementById('result-badge');
-  badge.textContent = risk>=70?'⚡ CRITICAL':risk>=50?'⚠ WARNING':'✓ SAFE';
+  badge.textContent = risk>=70?'▲ CRITICAL':risk>=50?'⚠ WARNING':'✓ SAFE';
   badge.className = 'result-badge '+(risk>=70?'crit':risk>=50?'warn':'safe');
 
   document.getElementById('rm-choices').innerHTML = choices+'<span class="rm-unit"> paths</span>';
@@ -1102,11 +1103,11 @@ function runSimulation(){
       if(!x.ok||x.d.error){live.textContent='⚠ '+(x.d.error||'ระบบไม่ว่าง — แสดงผลจากเครื่องแทน');return;}
       var d=x.d, risk=Math.round(d.risk);
       var badge=document.getElementById('result-badge');
-      badge.textContent=d.crisis?'♡ CRISIS CARE':risk>=60?'⚡ URGENT':risk>=35?'⚠ CAREFUL':'✓ CALM';
+      badge.textContent=d.crisis?'♡ CRISIS CARE':risk>=60?'▲ URGENT':risk>=35?'⚠ CAREFUL':'✓ CALM';
       badge.className='result-badge '+(risk>=60||d.crisis?'crit':risk>=35?'warn':'safe');
       document.getElementById('rm-risk').innerHTML=risk+'<span class="rm-unit">/100</span>';
       document.getElementById('rm-choices').innerHTML=(d.choices||1)+'<span class="rm-unit"> paths</span>';
-      document.getElementById('rm-urgency').textContent=d.crisis?'♡ CARE':risk>=60?'⚡ NOW':risk>=35?'⚠ SOON':'○ CALM';
+      document.getElementById('rm-urgency').textContent=d.crisis?'♡ CARE':risk>=60?'▲ NOW':risk>=35?'⚠ SOON':'○ CALM';
       var box=document.getElementById('result-paths'); box.textContent='';
       d.reply.split('\n').filter(function(l){return /^\d\)\s/.test(l);}).forEach(function(l){
         var it=document.createElement('div'); it.className='path-item';

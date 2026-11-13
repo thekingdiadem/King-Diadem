@@ -894,7 +894,7 @@ html:lang(th) :is(.acc-link, #view-title, .chip, .seg button, .u-title b, .u-epi
 /* ── ธีมฮาโลวีน (เปิดเองจากเมนูสี) — น่ารัก ไม่หลอน: สีเน้นส้มฟักทอง/ม่วง · ค้างคาวบินช้าๆ · ฟักทองข้างชื่อแอป
    ใช้ได้กับทุกโหมดสี · ลดการเคลื่อนไหว = ค้างคาวหยุดนิ่ง · กำลังคุยเรื่องด่วน/วิกฤต (kd-hush) = ซ่อนของตกแต่งทั้งหมด */
 .theme-menu #halloween-btn.on{color:#ff9a3c}
-.hw-sw{display:inline-grid;place-items:center;font-style:normal;font-size:12px;background:none!important}
+.hw-sw{display:inline-grid;place-items:center;font-style:normal;font-size:13px;color:#ff9a3c;background:none!important}
 #halloween{display:none;position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 html.kd-halloween:not(.kd-hush) #halloween{display:block}
 #halloween i{position:absolute;font-style:normal;font-size:26px;opacity:.9;filter:brightness(1.6) drop-shadow(0 0 5px rgba(255,154,60,.9)) drop-shadow(0 0 12px rgba(190,140,255,.55));animation:kd-bat 38s linear infinite}
@@ -907,8 +907,8 @@ html.kd-halloween:not(.kd-hush) #halloween{display:block}
 html.kd-calm #halloween i,html.kd-halloween.kd-calm #halloween i{animation:none;left:calc(var(--hx,20) * 1%)}
 #halloween i:nth-child(1){--hx:8}#halloween i:nth-child(2){--hx:30}#halloween i:nth-child(3){--hx:52}#halloween i:nth-child(4){--hx:72}#halloween i:nth-child(5){--hx:90}
 html.kd-halloween:not(.kd-hush){--gold-hi:#ffad5c;--sky-hi:#d4b8ff}
-html.kd-halloween:not(.kd-hush) .brand b::after{content:" 🎃";-webkit-text-fill-color:initial}
-html.kd-halloween:not(.kd-hush) #view-title::after{content:" 🎃";letter-spacing:0}
+html.kd-halloween:not(.kd-hush) .brand b::after{content:"";display:inline-block;width:.8em;height:.8em;margin-left:.35em;vertical-align:-.08em;background:url(/static/icons/pumpkin.svg) center/contain no-repeat}
+html.kd-halloween:not(.kd-hush) #view-title::after{content:"";display:inline-block;width:.8em;height:.8em;margin-left:.35em;vertical-align:-.08em;background:url(/static/icons/pumpkin.svg) center/contain no-repeat}
 @media (prefers-reduced-motion:reduce){#halloween i{animation:none;left:calc(var(--hx,20) * 1%)}}
 /* ชื่อผู้ตอบและปุ่มเลือกผู้ตอบเป็นฟอนต์หัวข้อ (Orbitron) — ลุค "อนาคตลึกลับ" · ป้ายไทย ("สภา") ยังเป็นตัวมีหัว */
 .who > span:not(.tag):not(.star),#persona-seg button{font-family:var(--f-title);font-weight:600;letter-spacing:.14em}
@@ -1436,3 +1436,44 @@ html.kd-calm #mic.on{animation:none}
 #lang-sheet .lang-mic.on{background:rgba(216,184,120,.9);animation:ec-mic 1.4s ease-in-out infinite}
 @keyframes ec-mic{0%,100%{box-shadow:0 0 0 0 rgba(216,184,120,.5)}50%{box-shadow:0 0 0 8px rgba(216,184,120,0)}}
 @media (prefers-reduced-motion: reduce){#lang-sheet .lang-mic.on{animation:none}}
+
+/* ══ ไอคอนลายเส้น KING DIADEM (static/icons/kd.svg) — แทนอิโมจิทั้งหน้า ══ */
+.kd-i{width:1.15em;height:1.15em;vertical-align:-.22em;flex:none;overflow:visible}
+.fb button .kd-i{width:16px;height:16px;vertical-align:-3px}
+#halloween i .kd-i{color:#1b1026;width:1.4em;height:1.4em}
+#lang-sheet .lang-mic .kd-i{width:20px;height:20px}
+/* ── ปุ่มธงรายงานคำตอบ + กล่องรายงาน ── */
+.fb .rp{margin-left:auto;border-color:transparent;background:none;color:var(--ink-3);min-width:32px;min-height:32px;padding:0 8px}
+.fb .rp:not(:disabled):hover{color:var(--ink)}
+.fb .rp:disabled{opacity:.55}
+#dlg-rp .dlg-b>p:first-child{margin:0 0 12px}
+.rp-why{border:0;padding:0;margin:0 0 14px;display:grid;gap:2px}
+.rp-why legend{font-weight:600;margin-bottom:6px;padding:0}
+.rp-why label{display:flex;align-items:center;gap:10px;min-height:40px;cursor:pointer}
+.rp-why input{width:18px;height:18px;flex:none;accent-color:var(--focus)}
+#rp-note{display:block;width:100%;margin-top:6px;padding:10px 12px;border-radius:12px;border:1px solid var(--line-2);background:rgba(255,255,255,.04);resize:vertical}
+.rp-priv{font-size:13px;margin:10px 0 0}
+#rp-msg{margin:8px 0 0;min-height:1em}
+#rp-msg:empty{display:none}
+/* ══ ความคมชัด แสง เงา มิติ ระยะห่าง ของไอคอนและปุ่มที่มีไอคอน ══
+   แสงมาจากด้านบน: ขอบบนสว่างบางๆ (inset) เงาตกด้านล่าง ไอคอนสีทองอุ่นมีแสงเรืองเล็กน้อย */
+.kd-i{shape-rendering:geometricPrecision}
+.st-chip,.seg button,#tts,.dz-talk,.surv,#lang-pick{display:inline-flex;align-items:center;gap:8px}
+.st-chip .kd-i,.seg button .kd-i,#tts .kd-i,.surv .kd-i,.tw-card b .kd-i,.companion .kd-i,.hint .kd-i,#lang-pick .kd-i{vertical-align:0}
+.st-chip{box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -1px 0 rgba(0,0,0,.25),0 6px 16px -8px rgba(0,0,0,.75);transition:transform .2s var(--ease),box-shadow .25s var(--ease),border-color .25s var(--ease),background .25s var(--ease)}
+.st-chip:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 -1px 0 rgba(0,0,0,.25),0 10px 22px -10px rgba(0,0,0,.85)}
+.st-chip:active{transform:translateY(0) scale(.97);box-shadow:inset 0 2px 5px rgba(0,0,0,.4)}
+.st-chip .kd-i{width:1.35em;height:1.35em;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.55))}
+.seg button.on .kd-i{filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.fb{gap:8px;margin-top:10px}
+.fb button{display:inline-grid;place-items:center;min-width:38px;min-height:32px;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 10px -6px rgba(0,0,0,.8)}
+.fb button[aria-pressed="true"]{color:var(--gold-hi);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 0 14px -2px rgba(246,178,74,.45)}
+.fb .rp{box-shadow:none}
+.tw-card b{display:flex;align-items:center;gap:8px}
+.tw-card b .kd-i,.companion .kd-i,.hint .kd-i,.surv .kd-i{width:1.3em;height:1.3em;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.45))}
+.qk-m .kd-i{width:20px;height:20px;vertical-align:-4px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
+.companion span{display:inline-grid;place-items:center}
+#halloween i .kd-i{filter:none}
+html[data-ink="dark"] body:not([data-view="universe"]) .st-chip{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 6px 14px -8px rgba(60,48,30,.35)}
+html[data-ink="dark"] body:not([data-view="universe"]) .kd-i{filter:none}
+html[data-ink="dark"] body:not([data-view="universe"]) .fb button{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 8px -5px rgba(60,48,30,.35)}

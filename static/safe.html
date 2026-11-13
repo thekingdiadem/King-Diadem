@@ -35,6 +35,7 @@ ol{margin:4px 0 0;padding-left:22px;color:var(--ink)}ol li{margin:6px 0;font-siz
 .map{display:block;margin-top:16px;text-align:center;color:var(--vio);font-size:14px}
 .note{margin-top:22px;font-size:12px;color:var(--ink2);text-align:center}
 a:focus-visible,button:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
+.kd-i{width:1.15em;height:1.15em;vertical-align:-.22em;flex:none}
 </style>
 </head>
 <body>
@@ -48,7 +49,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--sky);outline-offset
     <a class="btn" href="tel:1300"><span class="t">1300<small data-en="Social help 24h">ศูนย์ช่วยเหลือสังคม 24 ชม.</small></span></a>
   </div>
 
-  <button type="button" class="btn share" id="share" data-en="📍 Send my location to someone I trust">📍 ส่งตำแหน่งของฉันให้คนที่ไว้ใจ</button>
+  <button type="button" class="btn share" id="share"><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#pin"/></svg> <span data-en="Send my location to someone I trust">ส่งตำแหน่งของฉันให้คนที่ไว้ใจ</span></button>
   <p id="loc" aria-live="polite"></p>
 
   <h2 data-en="Places with people, near you">ที่ที่มีคน ใกล้ตัวคุณ</h2>

@@ -28,6 +28,12 @@
   var S = { lon: -95, lat: 40, L: 1, tlon: -95, tlat: 40, tL: 1, vlon: 0, vlat: 0, zoom: 1, mag: 1, tzoom: 1, tmag: 1 };
   var DRIFT = 0.5;                                  // องศาต่อวินาที — รอบโลกราว 12 นาที
   window.KD_satLon = function () { return ((S.lon % 360) + 540) % 360 - 180; };
+  // ไอคอนลายเส้นของเราเอง (static/icons/kd.svg) แทนอิโมจิ
+  function kdIcon(n) {
+    var NS = 'http://www.w3.org/2000/svg', s = document.createElementNS(NS, 'svg'), u = document.createElementNS(NS, 'use');
+    s.setAttribute('class', 'kd-i'); s.setAttribute('width', '1.15em'); s.setAttribute('height', '1.15em'); s.setAttribute('aria-hidden', 'true');
+    u.setAttribute('href', '/static/icons/kd.svg#' + n); s.appendChild(u); return s;
+  }
   function clamp(x, a, b) { return x < a ? a : x > b ? b : x; }
   function smooth(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
   function sync() {
@@ -729,11 +735,11 @@
     d.appendChild(document.createElement('br'));
     var st = HZ_STYLE[h.kind], g = document.createElement('a');
     g.href = '/survival' + (en ? '?lang=en' : '') + '#' + (st ? st[1] : '');
-    g.target = '_blank'; g.rel = 'noopener'; g.textContent = '📘 ' + (en ? 'Survival guide' : 'คู่มือเอาชีวิตรอด');
+    g.target = '_blank'; g.rel = 'noopener'; g.appendChild(kdIcon('book')); g.appendChild(document.createTextNode(' ' + (en ? 'Survival guide' : 'คู่มือเอาชีวิตรอด')));
     d.appendChild(g);
     var ask = document.createElement('a'), kn = (en ? { EQ: 'earthquake', TC: 'typhoon', FL: 'flood', VO: 'volcano eruption', WF: 'wildfire', DR: 'drought' } : HZ_TH)[h.kind] || '';   // คำที่ตัวตรวจภัยรู้จัก
     ask.href = '/?ask=' + encodeURIComponent(en ? 'I am near the ' + kn + ' ' + (h.name || '') + ' — what should I do first?' : 'ฉันอยู่ใกล้' + kn + ' ' + (h.name || '') + ' ตอนนี้ต้องทำอะไรก่อน');
-    ask.textContent = '🆘 ' + (en ? 'I am near here · ask LYLA' : 'ฉันอยู่แถวนี้ · ถาม LYLA');
+    ask.appendChild(kdIcon('lifebuoy')); ask.appendChild(document.createTextNode(' ' + (en ? 'I am near here · ask LYLA' : 'ฉันอยู่แถวนี้ · ถาม LYLA')));
     d.appendChild(document.createElement('br')); d.appendChild(ask);
     if (h.url && /^https:\/\/(?:earthquake\.usgs\.gov|www\.gdacs\.org)\//.test(h.url)) {   // ลิงก์ไปแหล่งทางการเท่านั้น
       var o = document.createElement('a');

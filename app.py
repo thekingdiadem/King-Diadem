@@ -1072,6 +1072,33 @@ async def post_feedback(request: Request, data: dict):
     return r if r.get("ok") else JSONResponse(r, status_code=400)
 
 
+# ── ปุ่มธงใต้คำตอบ → รายงานคำตอบของ AI ที่ไม่เหมาะสม (core/answer_reports.py) ─────────
+# ร้านแอปกำหนดให้แอปที่ใช้ AI สร้างเนื้อหามีทางให้ผู้ใช้รายงานได้ในแอป · ส่งมาเฉพาะคำตอบของ AI ไม่มีข้อความที่ผู้ใช้ถาม
+@app.post("/api/report-answer")
+async def post_answer_report(request: Request, data: dict):
+    if not _rate_check("rp|" + _client_ip(request)):
+        return JSONResponse({"ok": False, "error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่นะคะ"}, status_code=429)
+    data = data if isinstance(data, dict) else {}
+    from core import answer_reports
+    try:
+        r = await run_in_threadpool(answer_reports.record, data.get("reason"), data.get("answer"),
+                                    data.get("note"), data.get("route"), data.get("risk"))
+    except Exception as e:
+        print(f"⚠ answer_reports: {type(e).__name__}")
+        return JSONResponse({"ok": False, "error": "ตอนนี้รับรายงานไม่ได้ค่ะ ลองใหม่อีกครั้งนะคะ"}, status_code=503)
+    return r if r.get("ok") else JSONResponse(r, status_code=400)
+
+
+@app.get("/api/admin/reports")
+async def admin_answer_reports(request: Request, limit: int = 50):
+    """รายงานคำตอบล่าสุด (เฉพาะอีเมลใน ADMIN_EMAILS)"""
+    if not _is_admin(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)      # ไม่บอกว่ามีหน้านี้อยู่
+    from core import answer_reports
+    rows = await run_in_threadpool(answer_reports.recent, limit)
+    return {"count": await run_in_threadpool(answer_reports.count), "reports": rows}
+
+
 # ── ความจำข้ามแชทของ LYLA (เฉพาะผู้ที่เข้าสู่ระบบ) — ผู้ใช้ดู ปิด หรือล้างเองได้ ─────────
 @app.get("/api/memory")
 def get_my_memory(request: Request):
@@ -1679,8 +1706,13 @@ async def admin_metrics(request: Request, days: int = 30):
         feedback = feedback_loop.stats() if feedback_loop else None
     except Exception:
         feedback = None
+    try:
+        from core import answer_reports
+        reports = {"count": await run_in_threadpool(answer_reports.count)}
+    except Exception:
+        reports = None
     return {"days": days, "series": series, "total": total, "free_daily": FREE_DAILY_RUNS, "learning": learning,
-            "image": image, "policy": policy, "feedback": feedback}
+            "image": image, "policy": policy, "feedback": feedback, "reports": reports}
 
 
 @app.get("/api/2fa")

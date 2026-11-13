@@ -255,7 +255,7 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
       <div class="box kd-rim"><p class="route">GET /report/&lt;id&gt;</p><h3>รายงานแชร์ได้</h3><p>สร้างเมื่อผู้ใช้กดแชร์ · เปิดได้ 90 วัน · เจ้าของลบได้ · ตรวจ FATE™ 6 ข้อของคำตอบ — <code>report_engine.py</code> → <code>static/report.html</code></p></div>
       <div class="box kd-rim"><p class="route">/api/history · /export · /email</p><h3>ประวัติในบัญชี</h3><p>เก็บไว้ในบัญชีของแต่ละคนเท่านั้น (ไม่ได้เข้าสู่ระบบ = ไม่เก็บข้อความ) · ดาวน์โหลดเป็นไฟล์ หรือส่งเข้าอีเมลของบัญชีนั้น — <code>core/history_export.py</code></p></div>
       <div class="box kd-rim"><p class="route">GET /health</p><h3>สุขภาพระบบ</h3><p>โมดูลไหนโหลดอยู่ และโหลดจริงตอนนี้: คำขอต่อนาที · พร้อมกัน · error · เวลาตอบ — วัดอย่างเดียว ไม่บล็อกใคร · <code>SECURITY/survival_mode.py</code></p></div>
-      <div class="box kd-rim"><p class="route">/api/feedback</p><h3>เรียนรู้จาก 👍/👎</h3><p>เก็บผลโหวตเป็นตัวเลข แล้วปรับน้ำหนักเส้นทาง — <code>core/feedback_loop.py</code></p></div>
+      <div class="box kd-rim"><p class="route">/api/feedback</p><h3>เรียนรู้จากปุ่มช่วยได้/ยังไม่ช่วย</h3><p>เก็บผลโหวตเป็นตัวเลข แล้วปรับน้ำหนักเส้นทาง — <code>core/feedback_loop.py</code></p></div>
     </div>
   </section>
 
@@ -322,7 +322,7 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
     'static': 'ทุกอย่างที่เบราว์เซอร์เห็น — แอปหลัก index.html · หน้ารอง · CSS/JS กลาง · ภาพ',
     'core': 'แก่นตรรกะ — อ่านสัญญาณภาษา · คำตอบจากสมการ · สมอง AI · ประตู Canon · สะพานไปเครื่องยนต์',
     'ENGINE': 'เครื่องยนต์ตัดสินใจ — decision_engine → engine_router → ปฏิจจสมุปบาท · ความเสี่ยง · สภา · จำลอง · กลยุทธ์',
-    'AI': 'สภา 6 เสียง · อ่านเจตนา · ดัชนีเสรีภาพ · เรียนรู้จาก 👍/👎 · กราฟอารยธรรม',
+    'AI': 'สภา 6 เสียง · อ่านเจตนา · ดัชนีเสรีภาพ · เรียนรู้จากปุ่มช่วยได้/ยังไม่ช่วย · กราฟอารยธรรม',
     'AI_KERNEL': 'Belief Core (หยุดระบบได้) · Cosmic Latte (บริบทความว่าง) · Living Water (สัญญาณวิกฤต + สายด่วน)',
     'DATABASE': 'SQLite: ผู้ใช้ · เครดิต · โควตารายวัน · ความจำแชท · ประวัติโหวต',
     'DOMAINS': 'ความรู้เฉพาะเรื่องภัยพิบัติและการรอดชีวิต',

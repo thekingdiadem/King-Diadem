@@ -71,7 +71,7 @@ def test_deadly_myths_only_appear_as_myths(key, bad):
     advice = _all(key, 0, ("signs", "before", "during", "after", "vulnerable")) + _all(key, 1, ("signs", "before", "during", "after", "vulnerable"))
     assert not re.search(bad, advice, re.I), (key, bad)
     myths = _all(key, 0, ("myths",)) + _all(key, 1, ("myths",))
-    assert re.search(bad, myths, re.I) and myths.count("❌") >= 2
+    assert re.search(bad, myths, re.I) and myths.count("✕") >= 2
 
 
 def test_first_during_step_is_the_life_saving_action():

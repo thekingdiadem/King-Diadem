@@ -203,8 +203,9 @@ var Biz = (function(){
   }
   /* สุขภาพระบบ (ข้อมูลที่ /api/admin/metrics มีอยู่แล้วแต่ไม่เคยแสดง): คำตอบช่วยได้ไหม · สร้างภาพพังเพราะอะไร · ราคา/โควตาที่เปลี่ยนโดยไม่มีเหตุผล */
   function healthHTML(d){
-    var rows = [], f = d.feedback, im = d.image, po = d.policy;
-    if(f && (f.recent_up || f.recent_down)) rows.push(esc(_t('คำตอบที่ช่วยได้ 👍 {u} · 👎 {d} ({r}%)', { u: n(f.recent_up), d: n(f.recent_down), r: Math.round((f.helpful_rate || 0) * 100) })));
+    var rows = [], f = d.feedback, im = d.image, po = d.policy, rp = d.reports;
+    if(f && (f.recent_up || f.recent_down)) rows.push(esc(_t('คำตอบที่ช่วยได้ ✓ {u} · ✕ {d} ({r}%)', { u: n(f.recent_up), d: n(f.recent_down), r: Math.round((f.helpful_rate || 0) * 100) })));
+    if(rp && rp.count) rows.push('<span class="warn">' + _t('มีคนรายงานคำตอบ {n} รายการ — อ่านได้ที่ /api/admin/reports', { n: n(rp.count) }) + '</span>');
     if(im && im.last_error) rows.push(esc(_t('สร้างภาพไม่สำเร็จครั้งล่าสุด: {k}', { k: im.last_error.kind }) + ' · ' + im.model));
     if(po && po.unexplained_changes) rows.push('<span class="warn">' + _t('ราคา/โควตาเปลี่ยนโดยไม่ใส่เหตุผล {n} ครั้ง — ใส่ POLICY_CHANGE_REASON ใน Render', { n: n(po.unexplained_changes) }) + '</span>');
     return rows.length ? '<div class="biz-health"><b>' + _t('สุขภาพระบบ') + '</b>' + rows.map(function(r){ return '<p>' + r + '</p>'; }).join('') + '</div>' : '';
@@ -370,7 +371,7 @@ function normalize(s){
   var items = s.items.slice(0, 200).map(function(it){
     it = it || {};
     var msgs = Array.isArray(it.msgs) ? it.msgs.filter(function(m){ return m && typeof m.t === 'string'; }).map(function(m){
-      return { r: (m.r==='u' || m.r==='e') ? m.r : 'a', t: m.t, p: typeof m.p === 'string' ? m.p : '', tr: cleanTrace(m.tr), l: Array.isArray(m.l) ? cleanTrace(m.l.slice(0, 3)) : undefined, v: (m.v === 'up' || m.v === 'down') ? m.v : undefined, s: (typeof m.s === 'string' && /^[a-z]{2,12}$/.test(m.s)) ? m.s : undefined, c: (m.c && typeof m.c.th === 'string') ? { th: m.c.th.slice(0, 400), en: String(m.c.en || '').slice(0, 400) } : undefined, ts: num(m.ts, 0) };
+      return { r: (m.r==='u' || m.r==='e') ? m.r : 'a', t: m.t, p: typeof m.p === 'string' ? m.p : '', tr: cleanTrace(m.tr), l: Array.isArray(m.l) ? cleanTrace(m.l.slice(0, 3)) : undefined, v: (m.v === 'up' || m.v === 'down') ? m.v : undefined, rp: m.rp ? 1 : undefined, s: (typeof m.s === 'string' && /^[a-z]{2,12}$/.test(m.s)) ? m.s : undefined, c: (m.c && typeof m.c.th === 'string') ? { th: m.c.th.slice(0, 400), en: String(m.c.en || '').slice(0, 400) } : undefined, ts: num(m.ts, 0) };
     }) : htmlToMsgs(it.html);
     return { id: String(it.id || newId()), title: String(it.title || 'แชท').slice(0, 60), msgs: msgs.slice(-400) };
   });
@@ -2025,8 +2026,8 @@ var Cosmos = (function(){
     pop.innerHTML = '<b>' + esc(_t(kindTh)) + '</b> · ' + esc(_t(lvl)) + '<br>' + esc(h.name || '') +
       (h.km != null ? '<br><i>' + esc(_t('ห่างกรุงเทพฯ {km} กม.', { km: Number(h.km).toLocaleString() })) + '</i>' : '') +
       (h.hours != null ? '<br><i>' + esc(h.hours < 48 ? _t('{h} ชม.ที่แล้ว', { h: Math.max(1, Math.round(h.hours)) }) : _t('{d} วันที่แล้ว', { d: Math.round(h.hours / 24) })) + '</i>' : '') +
-      '<br><a href="/?ask=' + encodeURIComponent(_t('ฉันอยู่ใกล้{k} {n} ตอนนี้ต้องทำอะไรก่อน', { k: en ? { EQ: 'earthquake', TC: 'typhoon', FL: 'flood', VO: 'volcano eruption', WF: 'wildfire', DR: 'drought' }[h.kind] : kindTh, n: h.name || '' })) + '">🆘 ' + esc(_t('ฉันอยู่แถวนี้ · ถาม LYLA')) + '</a>' +
-      '<br><a href="/survival' + (en ? '?lang=en' : '') + '#' + st[1] + '" target="_blank" rel="noopener">📘 ' + esc(_t('คู่มือเอาชีวิตรอด')) + '</a>' +
+      '<br><a href="/?ask=' + encodeURIComponent(_t('ฉันอยู่ใกล้{k} {n} ตอนนี้ต้องทำอะไรก่อน', { k: en ? { EQ: 'earthquake', TC: 'typhoon', FL: 'flood', VO: 'volcano eruption', WF: 'wildfire', DR: 'drought' }[h.kind] : kindTh, n: h.name || '' })) + '">' + kdIcon('lifebuoy') + ' ' + esc(_t('ฉันอยู่แถวนี้ · ถาม LYLA')) + '</a>' +
+      '<br><a href="/survival' + (en ? '?lang=en' : '') + '#' + st[1] + '" target="_blank" rel="noopener">' + kdIcon('book') + ' ' + esc(_t('คู่มือเอาชีวิตรอด')) + '</a>' +
       (h.url && /^https:\/\/(?:earthquake\.usgs\.gov|www\.gdacs\.org)\//.test(h.url) ? ' · <a href="' + esc(h.url) + '" target="_blank" rel="noopener">' + (h.kind === 'EQ' ? 'USGS' : 'GDACS') + '</a>' : '');
     pop.style.left = Math.round(clamp(m.x + 14, 8, innerWidth - 240)) + 'px'; pop.style.top = Math.round(clamp(m.y - 10, 60, innerHeight - 160)) + 'px';
     pop.classList.remove('hide');
@@ -2389,7 +2390,7 @@ var Cosmos = (function(){
     var d = new Date(), md = (d.getMonth() + 1) * 100 + d.getDate(), key = 'kd-hw-nudge-' + d.getFullYear() + md;
     if(hw || md < 1024 || md > 1101) return;
     try{ if(localStorage.getItem(key)) return; localStorage.setItem(key, '1'); }catch(_){ return; }
-    setTimeout(function(){ toast('ช่วงฮาโลวีน 🎃 เปิดธีมค้างคาวน่ารักๆ ได้ที่ปุ่มวงกลมมุมขวาบน', false, 6000); }, 2500);
+    setTimeout(function(){ toast('ช่วงฮาโลวีน เปิดธีมค้างคาวน่ารักๆ ได้ที่ปุ่มวงกลมมุมขวาบน', false, 6000); }, 2500);
   })();
   document.addEventListener('click', function(){ themeMenu(false); });
   applyTheme(THEME.t, THEME.c);
@@ -2425,20 +2426,20 @@ function helpCard(links){
 function twCard(t){
   var tw = t && t.tw;
   if(!tw || !tw.status) return '';
-  var n = tw.time_to_intervention_days, perDay = tw.waterline_per_day, cls, head, sub;
+  var n = tw.time_to_intervention_days, perDay = tw.waterline_per_day, cls, head, sub, ico = 'hourglass';
   if(n == null){
-    cls = 'ok'; head = _t('🌿 ยังมีเวลา ไม่ต้องรีบตัดสินใจ');
+    cls = 'ok'; ico = 'leaf'; head = _t('ยังมีเวลา ไม่ต้องรีบตัดสินใจ');
     sub = _t('ระดับน้ำของคุณไม่ได้ลดลงในช่วงที่ผ่านมา ค่อยๆ คิดได้');
   } else if(n === 0){
-    cls = 'bad'; head = _t('⏳ ควรเริ่มวันนี้');
+    cls = 'bad'; head = _t('ควรเริ่มวันนี้');
     sub = _t('ทางเลือกเหลือน้อยมากแล้ว เริ่มจากเรื่องเล็กที่สุดที่ทำได้วันนี้ก่อน');
   } else {
     cls = n <= 7 ? 'bad' : n <= 30 ? 'warn' : 'ok';
-    head = _t('⏳ เหลือเวลาตัดสินใจราว {n} วัน', {n: n});
+    head = _t('เหลือเวลาตัดสินใจราว {n} วัน', {n: n});
     sub = _t('ก่อนทางเลือกจะเหลือทางเดียว') + (tw.time_to_failure_days != null ? ' · ' + _t('ถ้าไม่มีอะไรเปลี่ยน อีก {n} วันจะไม่เหลือทางเลือก', {n: tw.time_to_failure_days}) : '');
   }
   if(perDay != null && perDay < 0) sub += ' ' + _t('(ระดับน้ำลดวันละ {n})', {n: Math.abs(perDay)});
-  return '<div class="tw-card ' + cls + '" role="note"><b>' + esc(head) + '</b><span>' + esc(sub) + '</span></div>';
+  return '<div class="tw-card ' + cls + '" role="note"><b>' + kdIcon(ico) + ' ' + esc(head) + '</b><span>' + esc(sub) + '</span></div>';
 }
 /* ดาวลอยจากคำตอบไปที่ปุ่ม "จักรวาล" — คุย 1 ครั้งได้ดาว 1 ดวงในกลุ่มดาวของฉัน
    ลดการเคลื่อนไหว: ไม่ลอย แค่ตัวเลขบนปุ่มเด้งเบาๆ */
@@ -2478,17 +2479,49 @@ function msgEl(m){
   var eb = el.querySelector('.eqs'); if(eb) eb.addEventListener('click', function(){ showEq(m); });
   var gi = el.querySelector('.gen-img img'), ga = el.querySelector('.gen-img a');
   if(gi && IMGS[m.ts]){ gi.src = IMGS[m.ts]; ga.href = IMGS[m.ts]; ga.setAttribute('download', 'king-diadem-' + m.ts + '.png'); }
-  $$('.fb button', el).forEach(function(b){ b.addEventListener('click', function(){ vote(m, b.getAttribute('data-v'), el); }); });
+  /* ฟังที่กล่องข้อความ ไม่ผูกที่ปุ่ม — แถวปุ่มถูกวาดใหม่หลังโหวต ปุ่มธงต้องยังกดได้ */
+  el.addEventListener('click', function(e){
+    var b = e.target.closest && e.target.closest('.fb button'); if(!b || b.disabled) return;
+    if(b.hasAttribute('data-rp')) openReport(m, el); else vote(m, b.getAttribute('data-v'), el);
+  });
   return el;
 }
-/* ── 👍/👎 → /api/feedback (ส่งแค่เส้นทาง · ความเสี่ยง · ผลโหวต ไม่ส่งข้อความ) ── */
+/* ไอคอนลายเส้นของเราเอง (static/icons/kd.svg) — ใช้แทนอิโมจิทั้งหน้า สีตามตัวอักษรรอบข้าง */
+function kdIcon(n){ return '<svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#' + n + '"/></svg>'; }
+/* ── ปุ่มช่วยได้/ยังไม่ช่วย → /api/feedback (ส่งแค่เส้นทาง · ความเสี่ยง · ผลโหวต ไม่ส่งข้อความ) ── */
 function voteRow(m){
   var done = m.v === 'up' || m.v === 'down';
   return '<div class="fb" role="group" aria-label="' + _t('คำตอบนี้ช่วยได้ไหม') + '">' +
-    '<button type="button" data-v="up" aria-pressed="' + (m.v === 'up') + '"' + (done ? ' disabled' : '') + ' aria-label="' + _t('ช่วยได้') + '">👍</button>' +
-    '<button type="button" data-v="down" aria-pressed="' + (m.v === 'down') + '"' + (done ? ' disabled' : '') + ' aria-label="' + _t('ยังไม่ช่วย') + '">👎</button>' +
-    '<span class="muted">' + _t(done ? 'ขอบคุณที่บอกนะคะ' : 'คำตอบนี้ช่วยได้ไหม') + '</span></div>';
+    '<button type="button" data-v="up" aria-pressed="' + (m.v === 'up') + '"' + (done ? ' disabled' : '') + ' aria-label="' + _t('ช่วยได้') + '">' + kdIcon('helped') + '</button>' +
+    '<button type="button" data-v="down" aria-pressed="' + (m.v === 'down') + '"' + (done ? ' disabled' : '') + ' aria-label="' + _t('ยังไม่ช่วย') + '">' + kdIcon('nothelped') + '</button>' +
+    '<span class="muted">' + _t(done ? 'ขอบคุณที่บอกนะคะ' : 'คำตอบนี้ช่วยได้ไหม') + '</span>' +
+    '<button type="button" class="rp" data-rp="1"' + (m.rp ? ' disabled' : '') + ' aria-label="' + _t(m.rp ? 'รายงานแล้ว ขอบคุณค่ะ' : 'รายงานคำตอบนี้') + '" title="' + _t(m.rp ? 'รายงานแล้ว ขอบคุณค่ะ' : 'รายงานคำตอบนี้') + '">' + kdIcon('flag') + '</button></div>';
 }
+/* ── ปุ่มธง → /api/report-answer · ส่งคำตอบของ LYLA ข้อนั้น + เหตุผล + ข้อความที่ผู้ใช้เขียนเพิ่มเอง ไม่ส่งข้อความที่ผู้ใช้ถาม ── */
+var rpMsg = null, rpEl = null;
+function openReport(m, el){
+  rpMsg = m; rpEl = el;
+  $('#rp-note').value = ''; $('#rp-msg').textContent = '';
+  var first = $('#dlg-rp input[name="rp-why"]'); if(first) first.checked = true;
+  $('#rp-send').disabled = false; $('#dlg-rp').showModal();
+}
+function sendReport(){
+  var m = rpMsg, el = rpEl, why = $('#dlg-rp input[name="rp-why"]:checked');
+  if(!m || !why) return;
+  var t = m.tr || {}; $('#rp-send').disabled = true;
+  fetch('/api/report-answer', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ reason: why.value, answer: String(m.t || '').slice(0, 4000), note: $('#rp-note').value.slice(0, 500), route: t.route || 'general', risk: num(t.risk, 0) }) })
+    .then(function(r){ return r.json().then(function(d){ if(!r.ok || !d.ok) throw new Error(d.error || ''); }); })
+    .then(function(){
+      m.rp = 1; Chat.persist(); $('#dlg-rp').close();
+      var row = el && el.querySelector('.fb'); if(row) row.outerHTML = voteRow(m);
+      toast(_t('ได้รับรายงานแล้ว ขอบคุณที่ช่วยดูแลกันนะคะ'));
+    })
+    .catch(function(e){ $('#rp-send').disabled = false; $('#rp-msg').textContent = e.message || _t('ส่งไม่สำเร็จ ลองใหม่อีกครั้งนะคะ'); });
+}
+$('#rp-send').addEventListener('click', sendReport);
+$('#rp-close').addEventListener('click', function(){ $('#dlg-rp').close(); });
+$('#rp-cancel').addEventListener('click', function(){ $('#dlg-rp').close(); });
 function vote(m, v, el){
   if(m.v || (v !== 'up' && v !== 'down')) return;
   m.v = v; Chat.persist();
@@ -2713,7 +2746,7 @@ async function send(textArg){
   }
 }
 /* ════════════════════════════════════════════════════════════════
-   โหมดการใช้งาน: 💬 ปรึกษา · ◎ DriftZero · 🎨 สร้างภาพ — แยกกัน ไม่ปนกับการปรึกษา
+   โหมดการใช้งาน: ปรึกษา · ◎ DriftZero · สร้างภาพ — แยกกัน ไม่ปนกับการปรึกษา
    DriftZero = ตรวจการตัดสินใจขององค์กร/โครงการด้วยกฎ (POST /api/driftzero · ไม่ใช้ AI ไม่หักโควตา)
    สร้างภาพ = POST /api/image/generate (ต้องล็อกอิน · หักเครดิตตาม IMAGE_COST) · ภาพเก็บในหน่วยความจำเท่านั้น
    (ไม่ลง localStorage/คลาวด์ — ภาพละหลายร้อย KB จะทำให้ที่เก็บแชทเต็ม) ผู้ใช้ดาวน์โหลดเก็บเองได้
@@ -2757,13 +2790,13 @@ fitRows();
 function survivalCard(k){
   if(typeof k !== 'string' || !/^[a-z]{2,12}$/.test(k)) return '';
   var en = window.KD_I18N && KD_I18N.get() !== 'th';
-  return '<a class="surv" href="/survival' + (en ? '?lang=en' : '') + '#' + k + '" target="_blank" rel="noopener">📘 ' +
+  return '<a class="surv" href="/survival' + (en ? '?lang=en' : '') + '#' + k + '" target="_blank" rel="noopener">' + kdIcon('book') + ' ' +
     esc(_t('คู่มือเอาชีวิตรอดฉบับเต็ม — ก่อน ระหว่าง หลังเกิดภัย')) + '</a>';
 }
 /* ชวนให้มีคนจริงข้างๆ (core/companion.py) — ขึ้นเมื่อคุยเรื่องหนักใจเรื่องเดิมถี่ผิดปกติ วันละครั้ง */
 function companionCard(c){
   if(!c || !c.th) return '';
-  return '<div class="companion" role="note"><span aria-hidden="true">🤝</span><p>' + telify(esc(L2(c))) + '</p></div>';
+  return '<div class="companion" role="note"><span aria-hidden="true">' + kdIcon('together') + '</span><p>' + telify(esc(L2(c))) + '</p></div>';
 }
 function L2(o){ if(!o) return ''; return (window.KD_I18N && KD_I18N.get() !== 'th') ? (o.en || o.th) : (o.th || o.en); }
 /* แผ่นดินไหวจริงจาก USGS (core/quakes.py) — ขึ้นเมื่อผู้ใช้พูดถึงแผ่นดินไหว: เกิดจริงไหม ขนาด ห่างแค่ไหน */
@@ -2783,7 +2816,7 @@ function quakeCard(r){
   return h + '<p class="qk-f">' + esc(_t('ข้อมูลจาก USGS · ในไทยดูเพิ่มที่')) + ' ' + tmd + '</p></div>';
 }
 /* ภัยจริงทั่วโลกจาก GDACS (core/hazards.py): พายุ น้ำท่วม ภูเขาไฟ ภัยแล้ง ไฟป่า — ใกล้ไทยทุกระดับ ที่อื่นเฉพาะส้ม/แดง */
-var HZ_KIND = { TC: ['พายุหมุนเขตร้อน', '🌀'], FL: ['น้ำท่วม', '🌧️'], VO: ['ภูเขาไฟ', '🌋'], DR: ['ภัยแล้ง', '🏜️'], WF: ['ไฟป่า', '🔥'] };
+var HZ_KIND = { TC: ['พายุหมุนเขตร้อน', 'cyclone'], FL: ['น้ำท่วม', 'rain'], VO: ['ภูเขาไฟ', 'volcano'], DR: ['ภัยแล้ง', 'sun'], WF: ['ไฟป่า', 'fire'] };
 var HZ_LEVEL = { green: 'ระดับเขียว', orange: 'ระดับส้ม', red: 'ระดับแดง' };
 function hazardCard(r){
   var src = '<a href="https://www.gdacs.org" target="_blank" rel="noopener">GDACS</a>';
@@ -2792,8 +2825,8 @@ function hazardCard(r){
   var h = '<div class="qk"><b>' + esc(_t('ภัยพิบัติจริงตอนนี้ (GDACS)')) + '</b>';
   if(!rows.length) h += '<p>' + esc(_t('ไม่มีประกาศเตือนภัยในรัศมี {r} กม. จาก{home} และไม่มีระดับส้ม/แดงที่อื่น', { r: Number(r.radius_km).toLocaleString(), home: home })) + '</p>';
   rows.forEach(function(x){
-    var k = HZ_KIND[x.kind] || [x.kind, '•'];
-    h += '<div class="qk-r' + (x.level === 'red' ? ' big' : '') + '"><span class="qk-m">' + k[1] + '</span><span>' + esc(_t(k[0])) + ' · ' + esc(x.name || x.country) +
+    var k = HZ_KIND[x.kind] || [x.kind, ''];
+    h += '<div class="qk-r' + (x.level === 'red' ? ' big' : '') + '"><span class="qk-m">' + (k[1] ? kdIcon(k[1]) : '•') + '</span><span>' + esc(_t(k[0])) + ' · ' + esc(x.name || x.country) +
       '<br><i>' + esc(_t(HZ_LEVEL[x.level] || '')) + ' · ' + esc(_t('ห่าง{home} {km} กม.', { home: home, km: Number(x.km).toLocaleString() })) + '</i></span>' +
       (x.url && /^https:\/\/www\.gdacs\.org\//.test(x.url) ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">GDACS</a>' : '') + '</div>';
   });
@@ -2823,7 +2856,7 @@ function dzCard(a){
   if(a.brief) h += dzBrief(a.brief);
   if((a.sop || []).length) h += '<div class="dz-sop">' + a.sop.map(function(x){ return '<span class="' + (x.done ? 'done' : '') + '" title="' + esc(L2(x)) + '">' + x.n + '</span>'; }).join('') + '<em>' + esc(_t('ขั้นตอน SOP')) + '</em></div>';
   if(a.note) h += '<p class="dz-note">' + esc(L2(a.note)) + '</p>';
-  if(a.talk) h += '<button type="button" class="dz-talk" data-dz-talk="1">💬 ' + esc(_t('ไปคุยในโหมดปรึกษา')) + '</button>';
+  if(a.talk) h += '<button type="button" class="dz-talk" data-dz-talk="1">' + kdIcon('chat') + ' ' + esc(_t('ไปคุยในโหมดปรึกษา')) + '</button>';
   if(a.emergency) h += crisisCard();
   return h + '<p class="dz-foot">' + esc(_t('ตรวจด้วยกฎ ไม่ใช้ AI — ข้อความเดิมได้ผลเดิมเสมอ · คนเป็นผู้ตัดสินใจและเซ็นรับผิดชอบ')) + '</p></div>';
 }
@@ -2973,7 +3006,7 @@ function drawFuture(f){
     (p.money && Array.isArray(p.money.notes) && p.money.notes.length ? '<div class="mn">' + esc(p.money.notes.join(' · ')) + '</div>' : '') + '</li>'; }).join('');
   var notes = P.filter(function(p){ return p.money && p.money.runs_out_month != null; }).map(function(p){ return '<p>⚠ ' + esc(p.label) + ': ' + _t('ตามตัวเลขที่บอก เงินเก็บจะหมดราวเดือนที่ {n} — ลองลดเงินก้อนแรก หรือหารายได้ช่วงเปลี่ยนผ่านก่อน', {n: num(p.money.runs_out_month, 0)}) + '</p>'; }).join('') +
     P.filter(function(p){ return p.below_floor_month != null; }).map(function(p){ return '<p>⚠ ' + esc(p.label) + ': ' + _t('กรณีแย่ลงไปต่ำกว่าเส้นอันตรายได้ตั้งแต่เดือนที่ {n} — เตรียมเงินสำรองหรือทางถอยไว้ก่อนเริ่ม', {n: p.below_floor_month}) + '</p>'; }).join('') +
-    (f.black_swan ? '<p>🦢 ' + _t('เรื่องที่เล่ามีโอกาสเกิดเหตุช็อกใหญ่ (ฟื้นตัวราว {n} วัน)', {n: num(f.black_swan.recovery_days, 0)}) + ' — ' + P.map(function(p){ return esc(p.label) + ' ' + _t('ถ้าโดนช็อก W อาจลงถึง {n}', {n: num(p.tail_worst, 0)}); }).join(' · ') + '. ' + esc(f.black_swan.recommendation || '') + '</p>' : '');
+    (f.black_swan ? '<p>' + kdIcon('spark') + ' ' + _t('เรื่องที่เล่ามีโอกาสเกิดเหตุช็อกใหญ่ (ฟื้นตัวราว {n} วัน)', {n: num(f.black_swan.recovery_days, 0)}) + ' — ' + P.map(function(p){ return esc(p.label) + ' ' + _t('ถ้าโดนช็อก W อาจลงถึง {n}', {n: num(p.tail_worst, 0)}); }).join(' · ') + '. ' + esc(f.black_swan.recommendation || '') + '</p>' : '');
   var mb = f.money_basis || {}, basisTxt = [['savings', 'เงินเก็บ'], ['income', 'รายได้/เดือน'], ['expense', 'รายจ่าย/เดือน']].filter(function(k){ return mb[k[0]] != null; }).map(function(k){ return _t(k[1]) + ' ' + Math.round(num(mb[k[0]], 0)).toLocaleString('th-TH'); }).join(' · ');
   var cols = [0, 3, 6, 9, 12].filter(function(t){ return t <= n; });
   var table = '<details><summary>ดูเป็นตาราง</summary><table><tr><th>ทาง</th>' + cols.map(function(t){ return '<th>' + (t ? _t('เดือน {n}', {n: t}) : _t('วันนี้')) + '</th>'; }).join('') + '</tr>' +
@@ -2982,7 +3015,7 @@ function drawFuture(f){
     '<div class="chart">' + svg + '<div class="tip hide"></div></div><ul class="lg">' + legend + '</ul>' + notes +
     (Array.isArray(f.hidden) && f.hidden.length ? '<p class="muted">' + _t('ไม่ได้วาด: {x}', {x: esc(f.hidden.join(' · '))}) + '</p>' : '') +
     (basisTxt ? '<p class="muted">' + _t('ตัวเลขที่ใช้คิด: {x}', {x: esc(basisTxt)}) + '</p>' : '') +
-    (f.money_hint ? '<p class="hint">💡 ' + esc(f.money_hint) + '</p>' : '') +
+    (f.money_hint ? '<p class="hint">' + kdIcon('bulb') + ' ' + esc(f.money_hint) + '</p>' : '') +
     '<p class="muted">เส้น = ค่ากลาง · แถบ = ช่วงที่เป็นไปได้ 80% · คำนวณจากสมการของระบบ (ย้อนกลับได้ไหม · สถานะตอนนี้ · ตัวเลขเงินที่คุณบอก) ไม่ใช่คำทำนาย</p>' + table;
   box.classList.remove('hide');
   var el = box.querySelector('svg'), xh = el.querySelector('.xh'), tip = box.querySelector('.tip');
@@ -3036,7 +3069,7 @@ var HEALTH_ROWS = [
   ['belief_core','Belief core','bool'], ['survivor_engine','Survivor engine','bool'], ['risk_engine','Risk engine','bool'],
   ['consensus_engine','Consensus engine','bool'], ['collapse_predictor','Collapse predictor','bool'], ['simulation_engine','Simulation engine','bool'],
   ['cosmic_latte_canon','Canon gate','bool'], ['king_diadem_core','KING DIADEM core','core'], ['stripe_loaded','Stripe','bool'],
-  ['db_initialized','Database','bool'], ['freedom_score','Freedom score','num'], ['feedback','เสียงจากผู้ใช้ 👍/👎','fb']
+  ['db_initialized','Database','bool'], ['freedom_score','Freedom score','num'], ['feedback','เสียงจากผู้ใช้','fb']
 ];
 var sysBuilt = false;
 async function checkHealth(){
@@ -3085,7 +3118,7 @@ var PIPE = [
   ['Canon gate', 'บล็อกคำตอบที่ทำให้ทางเลือกเป็นศูนย์หรือบังคับ identity · รู้จักคำปฏิเสธ (“ไม่ต้องทำ” ผ่าน) และไม่บล็อกคำตอบที่เสนอทางเลือกตั้งแต่ 2 ทาง', 'core/cosmic_latte_canon.py', 'ok', 'ทำงาน'],
   ['Freedom signal', 'นับวิกฤตและทางเลือกที่ยังเหลือต่อคน (ไม่มี inf ใน JSON) · เก็บข้าง DB_PATH บนดิสก์ถาวร', 'AI/freedom_signal.py', 'ok', 'ทำงาน'],
   ['บันทึก + รายงาน', 'บันทึกการตัดสินใจลง SQLite · กดแชร์แล้วได้รายงาน /report/<id> (เปิดได้ 90 วัน) — และหน้านี้เปลี่ยนคำตอบเป็นดาวในจักรวาล', 'DATABASE/db.py · report_engine.py', 'ok', 'ทำงาน'],
-  ['เรียนรู้จากเสียงผู้ใช้', '👍/👎 ใต้คำตอบ → เก็บแค่เส้นทาง · ความเสี่ยง · ผลโหวต (ไม่เก็บข้อความ) ลง SQLite → อัตราที่ช่วยได้ต่อเส้นทาง + แนวโน้ม + drift', 'core/feedback_loop.py', 'ok', 'ทำงาน'],
+  ['เรียนรู้จากเสียงผู้ใช้', 'ปุ่มช่วยได้/ยังไม่ช่วย ใต้คำตอบ → เก็บแค่เส้นทาง · ความเสี่ยง · ผลโหวต (ไม่เก็บข้อความ) ลง SQLite → อัตราที่ช่วยได้ต่อเส้นทาง + แนวโน้ม + drift', 'core/feedback_loop.py', 'ok', 'ทำงาน'],
 ];
 var catOn = {};
 CATS.forEach(function(c){ catOn[c[0]] = true; });
