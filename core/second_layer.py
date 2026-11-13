@@ -152,6 +152,32 @@ UPGRADES += [
     (re.compile(r"ติดหนี้ค่า(?:เดินทาง|นายหน้า)[^\n]{0,30}?(?:ทำงานฟรี|ห้ามออก)|ขู่[^\n]{0,40}?(?:จับ)?ส่งกลับ(?:พม่า|ประเทศ|ลาว|กัมพูชา)"), "trafficking"),
     (re.compile(r"(?:ไลฟ์|โพสต์)[^\n]{0,12}?กำลังกินยา|กินยา[^\n]{0,8}?บอกลา"), "help"),
 ]
+# อารมณ์หนักที่ไม่ได้บอกเหตุ — ใช้ทั้งยกระดับเป็น soft_check และให้ kernel_voice เปิดคำตอบด้วยการถามไถ่ (ไม่ใช่ "ขอบคุณที่บอกให้ชัด")
+HEAVY_MOOD = re.compile(r"(?<!หุ้น)(?<!ราคา)(?<!กราฟ)(?<!ตลาด)(?<!ทอง)(?<!เหรียญ)(?<!บิน)ดิ่ง(?:มาก|สุด|หนัก|อีกแล้ว|จัง)|ร้องไห้ไม่หยุด|โกรธจน(?:มือ|ตัว)สั่น|อยากทุบทุกอย่าง|อยากพังทุกอย่าง|"
+                r"(?i:\b(?:i )?can'?t stop crying\b(?! (?:at|over|watching|from) (?:this|the|that|a|an) (?:movie|film|show|video|song|book|ending|scene|episode))|\bi feel (?:so |completely )?(?:empty|numb|hollow)\b|\bi have nothing left\b(?! (?:to (?:say|add|eat|do today)|in (?:the|my) (?:fridge|tank)))|"
+                r"\bi want to (?:smash|break|destroy) everything\b|\bgave away (?:all )?my (?:things|stuff|belongings)\b|"
+                r"\bi'?ve decided\b[^\n]{0,30}?\btonight is the night\b)")
+
+# ── รอบ "ห้ามประมาทมนุษย์" (ชุดประโยคตามอารมณ์ 49 ข้อ หลุด 16): ประโยคที่ดูธรรมดาแต่มาจากคนที่อาจอยู่ในอันตรายหรือกำลังดิ่ง
+# เดิมได้ Risk 0 และแผน 3 ขั้นทั่วไป · อารมณ์เกิดดับเร็ว — พลาดไปทางถามไถ่ ดีกว่าพลาดไปทางมองว่าปกติ
+UPGRADES += [
+    # ภัยตอนนี้ พูดสั้น/อ้อม: คนอยู่หน้าบ้าน · พิมพ์ได้ไม่นานเพราะเขาจะกลับมา · ไม่ปลอดภัยที่บ้าน
+    (re.compile(r"(?:เขา|มัน|ผัว|สามี|แฟนเก่า|แฟน|คนนั้น|ใครไม่รู้|มีคน)\S{0,6}(?:อยู่|ยืน|มา)(?:ที่)?หน้า(?:บ้าน|ห้อง|ประตู)[^\n]{0,20}?กลัว|"
+                r"(?:พิมพ์|คุย|พูด)(?:ไม่ได้นาน|ได้ไม่นาน|นานไม่ได้)[^\n]{0,24}?(?:เขา|มัน|ผัว|สามี|แฟน)\S{0,4}(?:จะ)?กลับมา|"
+                r"^\s*ไม่ปลอดภัย(?:เลย|แล้ว)?\s*[.!…]*\s*$|" + _P + r"(?:รู้สึก)?ไม่ปลอดภัย|รู้สึกไม่ปลอดภัย(?:ที่บ้าน|เวลาอยู่กับ)|"
+                r"(?i:\b(?:he|she|they|someone|somebody|my ex)(?:'s| is| are)? (?:right )?(?:outside|at) (?:my|the) (?:door|house|window|room|apartment)\b[^\n]{0,30}?\b(?:scared|afraid|terrified|frightened)\b|"
+                r"\bcan'?t (?:talk|type|text) (?:for )?(?:long|much)\b[^\n]{0,30}?\b(?:he|she|they)(?:'s|'ll| is| are| will)? (?:be )?(?:coming )?back\b|"
+                r"\bi (?:don'?t|do not) feel safe (?:at home|here|in my (?:house|home)|with (?:him|her|them|my (?:husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad))))"), "violence"),
+    # อยากไม่ตื่น / ตัดสินใจ "จบทุกอย่าง" — แม้พูดด้วยน้ำเสียงสงบหรือมีความสุข (ความสงบหลังตัดสินใจเป็นสัญญาณเตือนที่รู้จักกัน)
+    (re.compile(r"ตัดสินใจ(?:ได้)?แล้ว[^\n]{0,24}?จบทุกอย่าง|จะจบทุกอย่าง(?:คืนนี้|วันนี้|เอง)|"
+                r"(?i:\bwish i (?:wouldn'?t|would not|didn'?t|did not|could just not|could not) wake up\b)"), "crisis"),
+    # โกรธจนคิดฆ่า — ชวนพักก่อนลงมือ (คำตอบ harm_others ขอบคุณที่พูดออกมาแทนที่จะทำ)
+    (re.compile(r"(?i:\bso (?:angry|mad|furious)\b[^\n]{0,12}?\bi could kill (?:him|her|them|someone)\b)"), "harm_others"),
+    # ร้องไห้ไม่หยุด · ว่างเปล่า · ไม่เหลืออะไร · ดิ่ง · โกรธจนอยากทุบทุกอย่าง · ยกของให้คนอื่นหมด → ถามไถ่เบาๆ พร้อมเบอร์
+    (HEAVY_MOOD, "soft_check"),
+    # "help me" โดดๆ
+    (re.compile(r"(?i:^\s*(?:please )?help me(?: please)?\s*[!.…]*\s*$|^\s*please help\s*[!.…]*\s*$)"), "help"),
+]
 UPGRADES += EN_UPGRADES
 _EN_SET = set(EN_UPGRADES)
 _THAI_RUN = re.compile(r"[\u0E00-\u0E7F]+")
