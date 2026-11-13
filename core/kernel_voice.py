@@ -2695,6 +2695,8 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         if en:
             return (en[0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(en[1]))
                     + f"\n\n{en[2]}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
+        if lang == "en" and not a["crisis"] and a["text_risk"] < 50 and CHANGE_OTHER.search(t) and not _HARM_OTHER.search(t) and not _TITAN_POWER.search(t) and not _TITAN_EXIT.search(t):
+            return CHANGE_OTHER_EN + f"\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else "")
         chat_en = small_talk(text) if (lang == "en" and not a["topics"] and not a["crisis"]) else None
         if chat_en:
             say = {"thanks": "You're welcome! Write any time you want to think something through.",
@@ -2778,6 +2780,10 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     if not a["topics"] and a["text_risk"] < 35 and len(t.strip()) <= 24 and _hit(t, GREETINGS):
         return (f"สวัสดี{end} เล่าเรื่องที่กำลังตัดสินใจ หรือสิ่งที่หนักใจอยู่มาได้เลย "
                 f"ระบบจะช่วยเรียงทางเลือกที่มีให้เห็นชัดขึ้น{end}\n\n{sign}" + tag)
+
+    # ── 2.4 อยากเปลี่ยนคนอื่น → กลับมาที่สิ่งที่ผู้ใช้ควบคุมได้ (ไม่ใช่วิกฤต · ความเสี่ยงต่ำ) ───────────────
+    if not a["crisis"] and a["text_risk"] < 50 and CHANGE_OTHER.search(t) and not _HARM_OTHER.search(t) and not _TITAN_POWER.search(t) and not _TITAN_EXIT.search(t):
+        return CHANGE_OTHER_TH + f"\n\n{sign}" + tag
 
     # ── 2.5 คุยเล่น/ขอบคุณ/ฝันดี — เดิมได้ "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน" ───────
     chat = small_talk(text) if a["topics"] in ([], ["positive"]) else None
@@ -2971,6 +2977,31 @@ def _soften_joking_crisis(text, out):
         if out.startswith(hard):
             return soft + out[len(hard):]
     return out
+
+
+# อยากเปลี่ยนคนอื่น ("ทำยังไงให้แฟนเลิกเล่นเกม" · "how do I make my husband stop drinking")
+# หลักของเจ้าของโปรเจกต์: "ห้ามแทรกแซงชีวิตใด หากเจ้าของปัญหายังไม่แสดงเจตจำนงอยากเปลี่ยน" — เปลี่ยนใครแทนเขาไม่ได้
+# จึงพากลับมาที่สิ่งที่ผู้ใช้ควบคุมได้: สิ่งที่ตัวเองพูด ขอบเขตที่ตั้งได้ และเส้นที่ต้องปกป้องตัวเอง (ไม่สอนวิธีบังคับหรือหลอกคนอื่น)
+_WHO_TH = r"(?:แฟน|สามี|ภรรยา|เมีย|ผัว|แม่|พ่อ|ลูก|พี่|น้อง|เพื่อน|หัวหน้า|เจ้านาย|ญาติ|ยาย|ย่า|ตา|ปู่|คนรัก|เขา|เธอ)"
+_WHO_EN = r"(?:my |our )?(?:partner|husband|wife|boyfriend|girlfriend|bf|gf|mom|mother|dad|father|parents?|son|daughter|kids?|brother|sister|friend|boss|manager|coworker|him|her|them)"
+CHANGE_OTHER = re.compile(
+    r"(?:ทำ(?:ยังไง|อย่างไร|ไง)(?:ดี)?ให้|อยากให้|จะให้|ทำให้|บังคับให้|เปลี่ยน)\s*" + _WHO_TH + r"\S{0,4}\s*(?:เลิก|หยุด|เปลี่ยน|ยอม|กลับมา|ฟัง|เข้าใจ|ดีขึ้น|ไม่)|"
+    r"(?:how (?:do|can|could|should) i|ways? to|help me) (?:make|get|force|change|convince|stop) " + _WHO_EN + r"\b|"
+    r"(?:change|fix) " + _WHO_EN + r"\b", re.I)
+# มีการทำร้าย/ข่มขู่ = เรื่องความปลอดภัย ไม่ใช่เรื่อง "เปลี่ยนเขาไม่ได้" — ห้ามเข้าทางนี้ (ปล่อยให้ทางความปลอดภัยตอบ)
+# เคยพบ: "how do I make my bf stop hitting me" ความเสี่ยงต่ำกว่า 50 จึงได้คำตอบเรื่องตั้งขอบเขต ทั้งที่ต้องได้เรื่องความปลอดภัย
+_HARM_OTHER = re.compile(r"ตบ|ตี|ต่อย|ทำร้าย|ข่มขู่|ขู่|ทุบ|บีบคอ|ลวนลาม|ข่มขืน|ทารุณ|"
+                         r"\b(?:hit|hits|hitting|beat|beats|beating|hurt|hurts|hurting|abuse|abuses|abusing|abusive|choke|choking|threaten|threatens|rape|kick|kicks|punch|punches|slap|slaps)\b", re.I)
+CHANGE_OTHER_TH = ("เปลี่ยนใครแทนเขาไม่ได้ — คนจะเปลี่ยนเมื่อเขาอยากเปลี่ยนเอง แต่คุณยังมีสิ่งที่ทำได้จริง:\n"
+                   "1) บอกความรู้สึกของคุณครั้งเดียวให้ชัด แบบไม่ตำหนิ: \"ฉันรู้สึก… เวลาที่… ฉันอยากให้…\"\n"
+                   "2) ตั้งขอบเขตของคุณเอง — สิ่งที่คุณจะทำ ถ้าเรื่องเดิมยังเกิดขึ้น (ไม่ใช่คำขู่ แต่เป็นการดูแลตัวเอง)\n"
+                   "3) ถ้าเรื่องนี้ทำให้คุณไม่ปลอดภัย หรือเงิน/สุขภาพของคุณเสียหาย ความปลอดภัยของคุณมาก่อนความสัมพันธ์เสมอ\n\n"
+                   "อยากเล่าเพิ่มไหมว่าเรื่องนี้กระทบตัวคุณยังไงบ้าง?")
+CHANGE_OTHER_EN = ("You can't change someone for them — people change when they want to. What you can do:\n"
+                   "1) Say how it affects you once, clearly and without blame: \"I feel… when… I'd like…\"\n"
+                   "2) Set your own boundary — what you will do if it keeps happening (not a threat, a way of looking after yourself).\n"
+                   "3) If it puts your safety, money or health at risk, your safety comes before the relationship.\n\n"
+                   "Do you want to tell me more about how this is affecting you?")
 
 
 def compose(text: str, *args, **kw) -> str:
