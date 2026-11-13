@@ -484,6 +484,7 @@ def find(text: str, lang: str = "th", voice: str = "lyla"):
         if ("en_d" if lang == "en" else "th_d") not in L:
             continue
         d = dict(L["en_d" if lang == "en" else "th_d"], key=L["key"])
+        d["over"] = tuple(L.get("over") or ())
         if L.get("verdict"):
             d["verdict"] = L["verdict"][1 if lang == "en" else 0]
         if voice == "vega" and d.get("vega"):

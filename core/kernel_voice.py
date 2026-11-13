@@ -1460,7 +1460,7 @@ CODE_D = {
 # วัดจาก tests/everyday_questions.py (scripts/eval_everyday.py) — เดิมผ่าน 13/26
 # "แมวหาย 2 วัน" "ถ้าเกิดสงครามครอบครัวควรเตรียมอะไร" "ไฟดับ 2 วัน" ได้ "เขียนสิ่งที่เกิดขึ้นเป็นประโยคเดียว"
 EVERYDAY = [
-    ("lost_pet", re.compile(r"(?:แมว|หมา|สุนัข|น้องหมา|น้องแมว|นก|กระต่าย|เต่า|สัตว์เลี้ยง)\S{0,12}?(?:หาย|หลุด|ไม่กลับ|หนี|ออกจากบ้าน)"), {
+    ("lost_pet", re.compile(r"(?:แมว|หมา|สุนัข|น้องหมา|น้องแมว|(?<!เงิ)(?<!ตั)นก(?![ู])|กระต่าย|เต่า|สัตว์เลี้ยง)\S{0,12}?(?:หาย|หลุด|ไม่กลับ|หนี|ออกจากบ้าน)"), {
         "open": ["สัตว์เลี้ยงส่วนใหญ่ที่หายมักอยู่ไม่ไกลจากบ้าน — 72 ชั่วโมงแรกสำคัญที่สุด"],
         "paths": [
             "เดินหารัศมี 300–500 เมตรรอบบ้านช่วงเช้ามืดหรือหัวค่ำที่เงียบ เขย่าถุงขนมหรือเรียกชื่อเบาๆ — แมวมักหลบนิ่งใต้รถ พุ่มไม้ ใต้บ้าน",
@@ -2916,7 +2916,15 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "child_gaming", "consumer", "pet_hurt", "stranded", "teen_leave", "housing", "legal", "diagnosis",
                                                            "caregiver", "health_rights", "preg_alone", "preg_care") + _KP.NAMES:
         second = None
-    if a["offer_flags"]:                 # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
+    # เลนส์ปัญหา (core/problem_lens.py) — ตัดสินครั้งเดียว: ไม่ใช่วิกฤต · ความเสี่ยงต่ำกว่า 75 (หนี้ที่ "กลัวโดนยึด" ได้ 60 เคยถูกกันออก)
+    # · หัวข้อด่วนต้องไม่มี เว้นแต่เลนส์ประกาศว่ารับแทนได้ (over) และ `no` ของเลนส์กันกรณีที่ด่วนจริงไว้แล้ว
+    _lz = _lens.find(text, "th", voice_mode) if (not a["crisis"] and a["text_risk"] < 85) else None
+    _urg = set(a["topics"]) & set(_URGENT_TOPICS)
+    _lz_ok = bool(_lz) and not (a["topics"] and a["topics"][0] in _KP.NAMES) and _urg <= set(_lz.get("over") or ()) \
+        and (a["text_risk"] < 75 or bool(_lz.get("over")))     # 75–84 เฉพาะเลนส์ที่ประกาศรับเรื่องด่วนแทน (รถชนเล็กน้อยได้ 75)
+    if _lz_ok and _urg:                  # เลนส์ที่รับเรื่องด่วนแทนได้ มาก่อนคำตอบด่วนแบบทั่วไป
+        main, second = _lz, None
+    elif a["offer_flags"]:               # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
         main, second = OFFER, None
     elif "recovery" in (a["scam"] or []):  # หลอกซ้ำ: เสนอตามเงินคืนแลกค่าธรรมเนียม — มาก่อน "โดนโกงแล้ว"
         main, second = SCAM_RECOVERY_D, None
@@ -2931,11 +2939,10 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = _MAGGA_D[_magga_topic(text)], None    # มรรค 8: โกหก/ทุจริต/อยากเอาคืน — ทักตรงๆ ก่อนคำตอบทั่วไป
     elif CODE_REQ.search(text) and a["text_risk"] < 60:
         main, second = CODE_D, None                           # ขอให้เขียน/แก้โค้ด — บอกตรงๆ ว่าไม่ใช่งานถนัด แล้วชวนกลับมาที่การตัดสินใจ
-    elif a["text_risk"] < 60 and not a["crisis"] and not set(a["topics"]) & set(_URGENT_TOPICS) \
-            and not (a["topics"] and a["topics"][0] in _KP.NAMES) and _lens.find(text, "th", voice_mode):
+    elif _lz_ok:
         # เลนส์ปัญหา (core/problem_lens.py): อ่านให้ถูกว่าเป็นปัญหาของใคร แก่นคืออะไร เพราะอะไร ก่อนให้ขั้นตอน
         # เดิม "แม่ป่วยติดเตียง ต้องลาออกมาดูแล" ได้คำตอบเรื่องไข้สูง · "พ่อติดเหล้า เมาแล้วด่าแม่" ได้วิธีเลิกเหล้า
-        main, second = _lens.find(text, "th", voice_mode), None
+        main, second = _lz, None
     elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS) \
             and not (a["topics"] and a["topics"][0] in _KP.NAMES):
         main, second = _everyday(text, a["topics"]), None                  # เรื่องบ้านๆ–ระดับโลกที่เคยได้คำตอบกลาง (EVERYDAY)

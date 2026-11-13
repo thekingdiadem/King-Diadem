@@ -199,3 +199,62 @@ def test_kys_deduction_is_not_called_illegal():
     from core.kernel_voice import compose
     r = compose("โดนหักเงินเดือนเพราะหนี้ กยศ. ทำยังไงดี")
     assert "ตามกฎหมาย" in r and "ทวงได้โดยไม่ต้องจ้างทนาย" not in r
+
+
+def test_agency_hotlines_are_the_right_ones():
+    """เลนส์ชุดสองเคยเขียน "กรมการจัดหางาน 1506" — 1506 คือประกันสังคม กรมการจัดหางานคือ 1694"""
+    import pathlib
+    src = "".join(p.read_text(encoding="utf-8") for p in pathlib.Path("core").glob("problem_lens*.py"))
+    assert "จัดหางาน 1506" not in src and "จัดหางาน (สายด่วน 1506" not in src
+    assert "กรมการจัดหางาน 1694" in src and "ประกันสังคม 1506" in src
+
+
+# ── ชุดที่ 3: คลังรอบสอง 225 เรื่อง (16 ด้านที่ยังไม่เคยลอง) ──────────────────────
+BANK2 = {
+    "passport_seized": "ทำงานที่ญี่ปุ่น นายจ้างยึดพาสปอร์ต",
+    "overseas_job_scam": "นายหน้าเก็บเงินไปทำงานเกาหลี แล้วหายไป",
+    "loan_shark": "มีหนี้นอกระบบ ดอกวันละพัน",
+    "debt_harass": "โดนแอปเงินกู้ทวงหนี้ โทรหาเพื่อนทุกคน",
+    "deceased_debt": "สามีเสีย มีหนี้ทิ้งไว้ ต้องจ่ายไหม",
+    "inheritance_dispute": "พ่อเสียไม่ได้ทำพินัยกรรม พี่น้องแย่งมรดก",
+    "funeral_cost": "ต้องจัดงานศพแต่ไม่มีเงิน",
+    "car_claim": "รถชนกันเล็กน้อย คู่กรณีไม่ยอมจ่าย",
+    "insurance_denied": "ประกันไม่ยอมจ่ายค่ารักษา",
+    "eviction": "เจ้าของบ้านให้ย้ายออกภายในสัปดาห์",
+    "home_arrears": "ผ่อนบ้านไม่ไหว กลัวโดนยึด",
+    "miscarriage": "แท้งลูกเมื่อเดือนก่อน ยังทำใจไม่ได้",
+    "lgbt_self": "เป็นเกย์ ไม่กล้าบอกที่บ้าน",
+    "child_came_out": "ลูกสาวบอกว่าชอบผู้หญิง ไม่รู้จะทำตัวยังไง",
+    "elder_wander": "ยายหลงลืมบ่อย ออกจากบ้านแล้วหลงทาง",
+    "online_harass": "มีคนเอารูปไปทำแอคปลอม",
+    "gig_income": "ขับไรเดอร์ รายได้ลดลงครึ่งหนึ่ง",
+    "farm_loss": "น้ำท่วมนาเสียหายหมด",
+    "karma_fortune": "หมอดูบอกว่าปีนี้ดวงตก ควรทำอะไร",
+}
+
+
+@pytest.mark.parametrize("key,text", list(BANK2.items()))
+def test_bank2_problems_reach_their_lens(key, text):
+    """ผ่านตัวประกอบคำตอบจริง ไม่ใช่แค่ตัวจับเลนส์ — เดิมหลายเรื่องถูกด่านอื่นแย่งไป"""
+    from core.kernel_voice import compose
+    lz = L.find(text)
+    assert lz and lz["key"] == key
+    assert compose(text).split("\n")[0] == lz["open"][0]
+
+
+@pytest.mark.parametrize("text,must,mustnt", [
+    ("รถชนกัน เลือดออกเยอะ คู่กรณีหนี", "แพทย์", "เรื่องหลักฐาน"),             # มีคนเจ็บ → การแพทย์ก่อน
+    ("โดนรถชนท้าย คอเคล็ด คู่กรณีไม่ยอมเคลม", "", "ถ้าทุกคนปลอดภัยแล้ว"),
+    ("โอนเงินให้คนขายของออนไลน์แล้วโดนบล็อก", "แจ้ง", "นายหน้า"),             # ถูกโกงจริง → ขั้นตอนตามเงินคืน
+])
+def test_declared_urgent_takeover_stays_narrow(text, must, mustnt):
+    from core.kernel_voice import compose
+    r = compose(text)
+    assert must in r and mustnt not in r
+
+
+def test_lost_pet_is_not_triggered_by_loan_words():
+    """"เงิ*นก*ู้" + "ทวง*หนี*้" เคยถูกอ่านเป็น "นกหนี" → ได้คำตอบสัตว์เลี้ยงหาย"""
+    from core.kernel_voice import compose
+    assert "สัตว์เลี้ยง" not in compose("โดนแอปเงินกู้ทวงหนี้ โทรหาเพื่อนทุกคน")
+    assert "สัตว์เลี้ยง" in compose("นกแก้วบินหนีไปจากบ้าน")
