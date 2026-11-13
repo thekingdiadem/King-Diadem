@@ -2396,6 +2396,12 @@ def _with_conditions(text, a: dict) -> dict:
                 risk=max(a["risk"], risk), risk_shown=max(a["risk_shown"], risk) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
 
 
+# ได้ยินเสียงคนถูกทำร้ายหรือร้องขอความช่วยเหลือจากห้อง/บ้านข้างๆ — ผู้ใช้เป็นพยาน ต้องได้ขั้นตอนโทร 191
+_WITNESS_SOUND = re.compile(r"(?:ห้องข้างๆ|ห้องข้าง|ห้องบน|ห้องล่าง|บ้านข้างๆ|ข้างบ้าน|ห้องตรงข้าม|บ้านตรงข้าม)[^\n]{0,30}?"
+                            r"(?:กรีดร้อง|ร้องให้ช่วย|ร้องขอความช่วยเหลือ|ช่วยด้วย|เสียงทุบตี|เสียงตบ|เสียงตี(?!ความ)|ร้องโหยหวน|ร้องไห้จ้า)")
+
+_STRESS_TAIL = re.compile(r"[\s,]*(?:เครียด(?:มาก|จัง|สุดๆ|มากๆ)?|ไม่ไหวแล้ว|ไม่รู้จะทำไง)[\s!.~]*$")
+
 def _assess_raw(text: str, pattern: dict | None = None) -> dict:
     """ประเมินข้อความ — ถ้าพิมพ์โดยไม่ใส่วรรณยุกต์ ("ลูกไมหายใจ") ลองฉบับที่เติมวรรณยุกต์ด้วย แล้วใช้ฉบับที่เห็นอันตรายมากกว่า"""
     text = _clip(text)
@@ -2456,6 +2462,10 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     # "พี่เคยทำร้ายเขา … ตอนนี้ไม่มีแล้ว" — ผู้ใช้สารภาพเรื่องเก่า ไม่ใช่คนที่กำลังถูกทำร้าย
     t_now, own = strip_own_past_harm(t), strip_own_past_harm(own)
     topics = [name for name, phrases, _ in TOPICS if _hit(own if name in _OWN_ONLY else t_now, phrases)]
+    # "ปวดหลังเรื้อรังมาหลายเดือน เครียดมาก" — คำว่าเครียดท้ายประโยคบอกความรู้สึก ไม่ใช่ตัวปัญหา
+    # เดิมหัวข้อ stress มาก่อนเรื่องจริง คำตอบจึงเปลี่ยนเป็น "ตอนนี้ไม่ต้องแก้ทุกอย่าง" (10 เรื่องในคลัง 394 ข้อ)
+    if "stress" in topics and len(topics) > 1 and not _hit(_STRESS_TAIL.sub("", t_now), next(ph for nm, ph, _ in TOPICS if nm == "stress")):
+        topics = [n for n in topics if n != "stress"] + ["stress"]
     # คนอื่นขู่จะทำร้ายผู้ใช้หรือลูก ("my ex threatened to hurt my kids") = ผู้ใช้เป็นฝ่ายถูกขู่ ไม่ใช่คนที่อยากทำร้ายใคร
     # เดิมถูกจับเป็น harm_others แล้วตอบว่า "ความโกรธขนาดนี้…" กับคนที่กำลังกลัว
     if "harm_others" in topics and "violence" in topics and _THREAT_BY_OTHER.search(t_now):
@@ -2931,7 +2941,9 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = _everyday(text, a["topics"]), None                  # เรื่องบ้านๆ–ระดับโลกที่เคยได้คำตอบกลาง (EVERYDAY)
     elif _dharma_answer(text) and a["text_risk"] < 60:
         main, second = _dharma_answer(text), None             # ถามความหมายธรรมะ (DHARMA)
-    elif re.search(r"(?:เด็ก|คน|ป้า|ลุง|ผู้หญิง|ยาย)ข้างบ้าน[^\n]{0,12}?(?:โดน|ถูก)\S{0,6}?(?:ตี|ทำร้าย|ทุบ|ตบ|ทิ้ง|ขัง)", text):
+    elif re.search(r"(?:เด็ก|คน|ป้า|ลุง|ผู้หญิง|ยาย)ข้างบ้าน[^\n]{0,12}?(?:โดน|ถูก)\S{0,6}?(?:ตี|ทำร้าย|ทุบ|ตบ|ทิ้ง|ขัง)", text) \
+            or _WITNESS_SOUND.search(text):
+        # "ห้องข้างๆ มีเสียงผู้หญิงกรีดร้องให้ช่วยด้วย" เคยได้ "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน" (คลังปัญหา รอบทดสอบประโยคใหม่)
         main, second = lib["witness"], None    # เดิมได้ "ความปลอดภัยของคุณมาก่อน" — ผู้ใช้เป็นคนได้ยิน ไม่ใช่ผู้ถูกทำร้าย
     elif _OTHER_HARM.search(text):
         main, second = OTHER_HARM, None        # "พี่สาวอยากฆ่าแฟน" เคยได้ "ขอบคุณที่พูดออกมาแทนที่จะทำ" เหมือนผู้ใช้เป็นคนโกรธเอง

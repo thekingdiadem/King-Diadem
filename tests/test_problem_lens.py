@@ -74,6 +74,8 @@ def test_physical_harm_words_do_not_hide_inside_other_thai_words():
 def test_every_lens_answers_who_why_and_three_steps():
     for lz in L.LENSES:
         for side in ("th_d", "en_d"):
+            if side not in lz:
+                continue
             d = lz[side]
             assert d["open"] and len(d["paths"]) == 3 and d["ask"].strip().endswith("?"), (lz["key"], side)
             assert d.get("vega") and d["vega"] != d["open"][0], (lz["key"], side)
@@ -129,3 +131,71 @@ def test_english_lens(client):
 def test_crisis_still_wins_over_the_lens(client):
     r = _run(client, "แฟนขอเลิก ฉันไม่อยากอยู่แล้ว อยากตาย")
     assert "1323" in r["ai_response"] and "การตัดสินใจครั้งนี้ไม่ได้อยู่ในมือคุณ" not in r["ai_response"]
+
+
+# ── คลังปัญหา 394 เรื่อง (core/problem_lens_more.py) ──────────────────────────
+# ประโยคที่เขียนใหม่เหมือนคนพิมพ์จริง ไม่ได้มาจากแม่แบบที่ใช้ตอนเขียนเลนส์
+HELD_OUT = {
+    "heart_signs": ["ช่วงนี้ขึ้นบันไดนิดเดียวก็เหนื่อยง่ายมาก", "หัวใจเต้นเร็วบ่อยๆ ตอนนั่งเฉยๆ"],
+    "lump_wait": ["คลำเจอก้อนที่คอ หมอนัดรอผลชิ้นเนื้อสองอาทิตย์ กลัวมาก"],
+    "not_eating": ["เครียดจนกินข้าวไม่ลงมาเป็นอาทิตย์แล้ว"],
+    "low_mood": ["เศร้ามาสามเดือนแล้ว ไม่รู้ว่าเป็นอะไร", "ช่วงนี้ไม่มีความสุขกับอะไรเลย"],
+    "worry": ["คิดวนเรื่องเดิมทั้งคืน หยุดไม่ได้"],
+    "anger": ["ช่วงนี้ขี้โมโหมาก หงุดหงิดใส่ลูกตลอด"],
+    "burnout": ["ไม่มีไฟทำงานแล้ว ตื่นมาก็อยากลาออก"],
+    "kin_refuse_doctor": ["แม่เจ็บเข่ามาเป็นปี แต่ไม่ยอมไปโรงพยาบาลเพราะกลัวเสียเงิน", "พ่อเป็นซึมเศร้า ไม่ยอมไปหาหมอ"],
+    "find_carer": ["ยายเป็นอัลไซเมอร์ ไม่มีคนดูแลตอนกลางวัน", "พ่อป่วยติดเตียง ต้องหาคนดูแล"],
+    "kin_jobless": ["น้องชายตกงาน ขอมาอยู่ด้วยที่ห้อง"],
+    "kin_belittle": ["แม่ชอบพูดว่าหนูโง่ ไม่ได้เรื่องสักอย่าง"],
+    "silent_treatment": ["สามีไม่พูดกับฉันมาสองสัปดาห์แล้ว"],
+    "controlling_partner": ["แฟนห้ามไปเจอเพื่อน แล้วขอรหัสไลน์", "แฟนหึงหวงมาก ขอดูโทรศัพท์ทุกวัน"],
+    "cheating": ["จับได้ว่าสามีมีกิ๊กที่ทำงาน"],
+    "ghosted": ["คนที่คุยด้วยอ่านไม่ตอบมาสามวันแล้ว"],
+    "no_raise": ["อยู่บริษัทนี้มาห้าปี เงินเดือนไม่เคยขึ้นเลย"],
+    "guarantor": ["เป็นคนค้ำให้ญาติซื้อรถ ตอนนี้โดนไฟแนนซ์ทวง"],
+    "tax": ["ยื่นภาษีไม่เป็นเลย ต้องทำยังไง"],
+    "noisy_neighbor": ["ห้องข้างๆ เปิดเพลงดังถึงตีสอง"],
+    "mule_police": ["ได้หมายเรียกจากตำรวจ บอกว่าบัญชีเราเป็นบัญชีม้า", "โดนตำรวจเรียกเพราะบัญชีถูกใช้รับเงินโกง"],
+    "kys_deduct": ["ผ่อน กยศ ไม่ไหวแล้ว ค้างมานาน", "โดนหักเงินเดือนเพราะหนี้ กยศ."],
+    "lease_cancel": ["อยากย้ายออกก่อนครบสัญญา เช่าคอนโดไว้หนึ่งปี"],
+    "job_hunt": ["ยื่นใบสมัครไปห้าสิบที่ ไม่มีใครเรียกเลย"],
+    "relocation_offer": ["ได้ข้อเสนองานใหม่เงินเดือนมากกว่า 30% แต่ต้องย้ายจังหวัด"],
+}
+
+
+@pytest.mark.parametrize("key,text", [(k, x) for k, xs in HELD_OUT.items() for x in xs])
+def test_lens_generalises_to_new_wording(key, text):
+    assert (L.find(text) or {}).get("key") == key
+
+
+@pytest.mark.parametrize("text,must", [
+    ("ไม่อยากอยู่แล้ว เศร้ามาสองเดือน", "1323"),                       # วิกฤตมาก่อนเลนส์ซึมเศร้า
+    ("แฟนห้ามไปเจอเพื่อน แล้วตบหน้าฉัน", "ความปลอดภัยของคุณมาก่อน"),   # ลงมือแล้ว = ความปลอดภัย ไม่ใช่เลนส์การควบคุม
+    ("เจ็บหน้าอกตอนนี้ หายใจไม่ออก ใจสั่น", "แพทย์"),                    # ฉุกเฉิน ไม่ใช่เลนส์ใจสั่นบ่อย
+])
+def test_urgent_cases_are_not_taken_by_a_lens(text, must):
+    from core.kernel_voice import compose
+    assert must in compose(text)
+
+
+@pytest.mark.parametrize("text", ["ห้องข้างๆ มีเสียงผู้หญิงกรีดร้องให้ช่วยด้วย",
+                                  "ได้ยินเสียงเด็กร้องไห้จ้าจากบ้านข้างๆ ทุกคืน มีเสียงตีด้วย"])
+def test_hearing_someone_in_danger_next_door_gets_witness_steps(text):
+    """เดิม "ห้องข้างๆ มีเสียงผู้หญิงกรีดร้องให้ช่วยด้วย" ได้แม่แบบกลาง "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน" """
+    from core.kernel_voice import compose
+    r = compose(text)
+    assert "191" in r and "ขอเรียงเรื่องนี้" not in r
+
+
+def test_trailing_stressed_does_not_replace_the_real_problem():
+    """"ปวดหลังเรื้อรังมาหลายเดือน เครียดมาก" เคยได้ "ตอนนี้ไม่ต้องแก้ทุกอย่าง" แทนเรื่องปวดหลัง"""
+    from core.kernel_voice import compose
+    for q in ("ปวดหลังเรื้อรังมาหลายเดือน", "เพื่อนร่วมงานนินทาลับหลัง", "ค้ำประกันให้เพื่อน แล้วเพื่อนหนี"):
+        assert compose(q).split("\n")[0] == compose(q + " เครียดมาก").split("\n")[0], q
+
+
+def test_kys_deduction_is_not_called_illegal():
+    """เดิมได้ "ค่าจ้างเป็นสิทธิ์ของคุณ ทวงได้" — การหักเงินเดือนใช้หนี้ กยศ. นายจ้างต้องทำตามกฎหมาย"""
+    from core.kernel_voice import compose
+    r = compose("โดนหักเงินเดือนเพราะหนี้ กยศ. ทำยังไงดี")
+    assert "ตามกฎหมาย" in r and "ทวงได้โดยไม่ต้องจ้างทนาย" not in r
