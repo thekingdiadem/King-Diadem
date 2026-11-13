@@ -2646,7 +2646,7 @@ def _compose_mood_intl(a: dict, mood, sign: str, footer: bool):
         return compose_intl(lg, True, st, sign, footer)
     opener, steps, ask = MOOD_REPLY[kind][lg]
     body = "\n".join(f"{i + 1}) {x}" for i, x in enumerate(steps))
-    th = f"📞 {TH_NUMBERS[lg]}\n\n" if lg in TH_NUMBERS and kind == "anger_kill" else ""
+    th = f"{TH_NUMBERS[lg]}\n\n" if lg in TH_NUMBERS and kind == "anger_kill" else ""
     tag = "\n" + FOOTER[lg] if footer else ""
     return f"{opener}\n\n{st}\n\n{th}{body}\n\n{ask}\n\n{sign}" + tag
 
@@ -2778,7 +2778,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         if chat_en:
             say = {"thanks": "You're welcome! Write any time you want to think something through.",
                    "night": "Good night — rest well. We can pick this up tomorrow.",
-                   "laugh": "Glad to hear you laugh 😊 Anything you want to talk about?",
+                   "laugh": "Glad to hear you laugh Anything you want to talk about?",
                    "who": (f"I'm {'VEGA' if vega else 'LYLA'}, KING DIADEM's assistant — an AI, not a person. I help you think "
                            "through what's weighing on you and lay out options you can still step back from. "
                            "I'm not a doctor or a lawyer; for urgent things I'll point you to real help."),
@@ -2868,7 +2868,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         say = {
             "thanks": f"ยินดีเลย{end} ถ้ามีเรื่องไหนอยากคิดต่อหรืออยากเล่าอีก พิมพ์มาได้ตลอดนะ",
             "night": f"ฝันดีนะ{end} พักให้เต็มที่ เรื่องที่ค้างอยู่ พรุ่งนี้ค่อยว่ากันต่อได้",
-            "laugh": f"ดีใจที่ได้ยินเสียงหัวเราะ{end} 😊 มีอะไรเล่าต่อไหม",
+            "laugh": f"ดีใจที่ได้ยินเสียงหัวเราะ{end} มีอะไรเล่าต่อไหม",
             "who": (f"{'ผม' if vega else 'ฉัน'}คือ {'VEGA' if vega else 'LYLA'} ผู้ช่วยของ KING DIADEM — เป็น AI ไม่ใช่คน{end} "
                     "ช่วยฟังเรื่องที่หนักใจ เรียงทางเลือก และบอกว่าทางไหนยังเหลือทางถอย "
                     f"แต่ไม่ใช่แพทย์หรือทนาย เรื่องด่วนจะบอกเบอร์ที่ช่วยได้จริงให้{end}"),
@@ -3147,20 +3147,20 @@ CHANGE_OTHER_EN = ("You can't change someone for them — people change when the
 _ANY_NUMBER = re.compile(r"(?<!\d)(?:1323|1669|191|1300|1155|1441|110|112|119|109|113|115|911|988|024|016|12356|1366|#8008|0570-783-556|800 911 2000)(?!\d)|findahelpline")
 SAFETY_LINE = {
     "crisis": {
-        "th": "📞 ถ้าตอนนี้มีความคิดอยากทำร้ายตัวเอง โทร 1323 (สายด่วนสุขภาพจิต ฟรี 24 ชม.) ได้เลย — ถ้าเป็นเหตุฉุกเฉิน 1669",
-        "en": "📞 If you're thinking about ending your life, please call 1323 in Thailand (mental health, 24h) or 988 in the US — or find a line near you at findahelpline.com. Emergency: 1669.",
+        "th": "ถ้าตอนนี้มีความคิดอยากทำร้ายตัวเอง โทร 1323 (สายด่วนสุขภาพจิต ฟรี 24 ชม.) ได้เลย — ถ้าเป็นเหตุฉุกเฉิน 1669",
+        "en": "If you're thinking about ending your life, please call 1323 in Thailand (mental health, 24h) or 988 in the US — or find a line near you at findahelpline.com. Emergency: 1669.",
     },
     "danger": {
-        "th": "📞 ถ้าตอนนี้ไม่ปลอดภัย โทร 191 (ตำรวจ) ได้ทันที · 1300 (ศูนย์ช่วยเหลือสังคม 24 ชม.) · 1669 ถ้าบาดเจ็บ",
-        "en": "📞 If you're not safe right now, call 191 (police in Thailand) · 1300 (social help, 24h) · 1669 if anyone is hurt — or your local emergency number (911 / 112).",
+        "th": "ถ้าตอนนี้ไม่ปลอดภัย โทร 191 (ตำรวจ) ได้ทันที · 1300 (ศูนย์ช่วยเหลือสังคม 24 ชม.) · 1669 ถ้าบาดเจ็บ",
+        "en": "If you're not safe right now, call 191 (police in Thailand) · 1300 (social help, 24h) · 1669 if anyone is hurt — or your local emergency number (911 / 112).",
     },
     "scam": {
-        "th": "📞 ถ้าโอนเงินหรือกรอกข้อมูลไปแล้ว โทรธนาคารให้ระงับทันที และโทร 1441 (ศูนย์ AOC ตำรวจไซเบอร์ 24 ชม.)",
-        "en": "📞 If you've already sent money or entered details, call your bank to freeze it now — in Thailand also 1441 (cyber police AOC, 24h).",
+        "th": "ถ้าโอนเงินหรือกรอกข้อมูลไปแล้ว โทรธนาคารให้ระงับทันที และโทร 1441 (ศูนย์ AOC ตำรวจไซเบอร์ 24 ชม.)",
+        "en": "If you've already sent money or entered details, call your bank to freeze it now — in Thailand also 1441 (cyber police AOC, 24h).",
     },
     "soft": {
-        "th": "📞 ถ้าวันไหนหนักจนไม่ไหว โทร 1323 (สายด่วนสุขภาพจิต) คุยได้ตลอด 24 ชม. ไม่ต้องรอให้หนักกว่านี้",
-        "en": "📞 If it ever gets too heavy, a crisis line is there any time — 1323 in Thailand, 988 in the US, or findahelpline.com.",
+        "th": "ถ้าวันไหนหนักจนไม่ไหว โทร 1323 (สายด่วนสุขภาพจิต) คุยได้ตลอด 24 ชม. ไม่ต้องรอให้หนักกว่านี้",
+        "en": "If it ever gets too heavy, a crisis line is there any time — 1323 in Thailand, 988 in the US, or findahelpline.com.",
     },
 }
 _DANGER_TOPICS = {"violence", "harm_others", "health_emergency", "overdose", "sexual_abuse", "trafficking", "threat",
@@ -3198,7 +3198,7 @@ def ensure_safety_line(text: str, reply: str, a: dict | None = None) -> str:
         line = SAFETY_LINE[kind][lg]
     else:
         from core.lang_signals import TH_NUMBERS
-        line = "📞 " + TH_NUMBERS.get(lg, TH_NUMBERS["en"]) + " · 1323 (24h) · findahelpline.com"
+        line = "" + TH_NUMBERS.get(lg, TH_NUMBERS["en"]) + " · 1323 (24h) · findahelpline.com"
     # ใส่ก่อนลายเซ็น (— LYLA ◈ / — VEGA ◆) ถ้ามี
     m = re.search(r"\n+(—\s*(?:LYLA|VEGA)[^\n]*)\s*$", reply)
     if m:
@@ -3238,7 +3238,7 @@ def _compose_cyber(text, route="general", voice_mode="lyla", *args, footer=True,
         sign = "— VEGA ◆" if str(voice_mode or kw.get("voice_mode") or "").lower() == "vega" else "— LYLA ◈"
         st = status_line(a, lg)
         body = "\n".join(f"{i + 1}) {x}" for i, x in enumerate(ss))
-        return (f"{o}\n\n" + (f"{st}\n\n" if st else "") + f"📞 {_THN[lg]}\n\n{body}\n\n{q}\n\n{sign}"
+        return (f"{o}\n\n" + (f"{st}\n\n" if st else "") + f"{_THN[lg]}\n\n{body}\n\n{q}\n\n{sign}"
                 + ("\n" + _FT[lg] if footer else ""))
     if lg not in ("th", "en") or (lg == "en" and script_lang(text)):
         return None
@@ -3264,7 +3264,7 @@ def _compose_cyber(text, route="general", voice_mode="lyla", *args, footer=True,
 _DISTRESS = re.compile(r"ซึมเศร้า|หมดหวัง|สิ้นหวัง|ไร้ค่า|ไม่มีค่า(?:อะไร)?|ร้องไห้ทุก(?:คืน|วัน)|ทนไม่ไหวแล้ว|ว่างเปล่าไปหมด|"
                        r"ไม่มีแรง(?:จะ)?ทำอะไร|ฝันร้ายทุกคืน|เศร้าหลังคลอด|ยืนอยู่บน(?:ดาดฟ้า|ตึก|สะพาน|ระเบียง|ราวสะพาน)|"
                        r"เป็นภาระ(?:ของ)?(?:คนอื่น|ครอบครัว|ทุกคน)|ไม่อยากตื่น|อยากหายไป")
-_DISTRESS_LINE = "📞 ถ้าความรู้สึกนี้หนักจนรับไม่ไหว คุยกับคนที่ช่วยได้ตอนนี้เลยที่ 1323 (สายด่วนสุขภาพจิต 24 ชม.) — ไม่ต้องรอให้แย่กว่านี้"
+_DISTRESS_LINE = "ถ้าความรู้สึกนี้หนักจนรับไม่ไหว คุยกับคนที่ช่วยได้ตอนนี้เลยที่ 1323 (สายด่วนสุขภาพจิต 24 ชม.) — ไม่ต้องรอให้แย่กว่านี้"
 
 
 def _distress_line(text: str, out: str) -> str:
@@ -3497,6 +3497,6 @@ def compose_followup(text: str, voice_mode: str = "lyla", footer: bool = True) -
         body = compose(text, voice_mode=voice_mode, footer=False).rstrip()
         if body.endswith(sign):
             body = body[: -len(sign)].rstrip()
-        return f"{body}\n\n📞 {line}\n\n{sign}{tag}"
+        return f"{body}\n\n{line}\n\n{sign}{tag}"
     q = ("ครับ" if vega else "คะ") if lang == "th" else ""     # คำถาม/นะ ใช้ "คะ" ไม่ใช่ "ค่ะ" ("นะค่ะ" "ไหมค่ะ" สะกดผิด)
-    return f"{ask.format(end=end, q=q)}\n\n📞 {line}\n\n{close.format(end=end)}\n\n{sign}{tag}"
+    return f"{ask.format(end=end, q=q)}\n\n{line}\n\n{close.format(end=end)}\n\n{sign}{tag}"

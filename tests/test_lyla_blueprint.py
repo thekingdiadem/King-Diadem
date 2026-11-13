@@ -21,7 +21,7 @@ def test_what_vega_already_has_is_not_duplicated_into_lyla():
     lyla_only = L.LYLA_SYSTEM[len(L.KD_DNA):]
     for dup in ("AXIS 2", "AXIS 3", "พื้นรอด:", "ทางออก:", "ไม่เร่งให้ตัดสินใจ", "ไม่ขายความหวัง"):
         assert dup not in lyla_only, dup
-    assert "VEGA" not in lyla_only.split("── LYLA BELIEF")[1].split("── EMOJI")[0]   # หมายเหตุผู้ดูแลอยู่ในคอมเมนต์ ไม่ใช่ใน prompt
+    assert "VEGA" not in lyla_only.split("── LYLA BELIEF")[1].split("── น้ำเสียงตามอารมณ์")[0]   # หมายเหตุผู้ดูแลอยู่ในคอมเมนต์ ไม่ใช่ใน prompt
 
 
 def test_no_overpraise_instruction_left():
