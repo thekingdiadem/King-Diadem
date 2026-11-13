@@ -2760,6 +2760,13 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         result.setdefault("bodhipakkhiya", core_result.get("bodhi_verdict", ""))
     else:
         result.setdefault("answer_source", "llm")
+        # ด่านสุดท้าย: ข้อความมีความเสี่ยงแต่ AI ไม่ได้ให้เบอร์ช่วยเหลือ → เติมบรรทัดเบอร์ (core/kernel_voice.ensure_safety_line)
+        try:
+            from core.kernel_voice import ensure_safety_line
+            if isinstance(result.get("ai_response"), str):
+                result["ai_response"] = ensure_safety_line(user_input, result["ai_response"], k_assess or None)
+        except Exception as e:
+            print(f"⚠ safety line: {type(e).__name__}")
 
     # risk ที่แสดง = max(สถานะ, สัญญาณในข้อความ) — สมการเดียวกับ kernel_voice.assess
     try:
