@@ -2290,6 +2290,13 @@ _THREAT_BY_OTHER = re.compile(
     r"someone|somebody|man|guy|woman|neighbou?r|landlord)\b[^\n]{0,24}?\bthreaten(?:s|ed|ing)? to\b", re.I)
 
 
+_FICT_MARK = re.compile(r"นิยาย|เรื่องที่(?:ฉัน|ผม|เรา|หนู)?(?:เขียน|แต่ง)|ซีรีส์|การ์ตูน|มังงะ|อนิเมะ|เกม|ละคร|หนัง(?!สือ)|แฟนตาซี|ไซไฟ|"
+                        r"(?i:\b(?:novel|story|stories|game|series|manga|anime|fanfic|fantasy|sci-?fi|screenplay|script|book)\b)")
+_FICT_SELF = re.compile(r"เหมือน(?:ฉัน|ผม|หนู|เรา|กู|ตัวเอง|เค้า)|(?:ฉัน|ผม|หนู|เรา|กู)ก็|(?i:\blike me\b|\bsame as me\b|\bi feel (?:the same|like (?:him|her|them))|\bme too\b)")
+_FICT_CHAR = re.compile(r"(?:ตัวละคร|พระเอก|นางเอก|ตัวเอก|ตัวร้าย|ตัวประกอบ)[^\s.!?,]*|"
+                        r"(?i:\b(?:my|the|a|this|our|his|her)\s+(?:main\s+)?(?:character|protagonist|hero|heroine|villain|npc)\b[^.!?,\n]*)")
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
     from core.thai_signals import canon_text
     text = canon_text(text)                     # เว้นวรรคซ้อน · ลากตัวอักษร — ทุกชั้นเห็นรูปเดียวกัน
@@ -2433,7 +2440,18 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     own = strip_third_party(t) if (THIRD_PARTY_CRISIS.search(t) or tr.get("third_party")) else t
     soft = bool(SOFT_CRISIS.search(own))
     own = strip_soft_crisis(own)
-    crisis = bool(tr.get("self_harm")) or _hit(own, CRISIS_PHRASES)
+    # ตัวละครในนิยาย/เกม/ซีรีส์ ("ตัวละครในนิยายแฟนตาซีอยากตาย" "my character wants to die in the novel") ไม่ใช่วิกฤตของผู้ใช้
+    # ตัดเฉพาะท่อนของตัวละคร — "ตัวละครอยากตาย เหมือนฉันเลย อยากตายเหมือนกัน" ส่วนของผู้ใช้ยังถูกจับ
+    # ไม่ตัดทิ้งเฉยๆ: เรื่องแต่งที่มีการตายลดจากวิกฤตเป็นการถามไถ่เบาๆ (คนเขียนเรื่องหนักก็ควรได้คำถามว่าตัวเองโอเคไหม)
+    # และ "เหมือนฉัน" "ฉันก็" = ผู้ใช้เทียบกับตัวเอง → วิกฤตเหมือนเดิม
+    fiction = bool(_FICT_MARK.search(t) and _FICT_CHAR.search(own) and not _FICT_SELF.search(t))
+    fiction_hit = False
+    if fiction:
+        fiction_hit = bool(tr.get("self_harm")) or _hit(own, CRISIS_PHRASES)
+        own = _FICT_CHAR.sub(" ", own)
+    crisis = (bool(tr.get("self_harm")) and not fiction) or _hit(own, CRISIS_PHRASES)
+    if fiction_hit and not crisis:
+        soft = True
     # "พี่เคยทำร้ายเขา … ตอนนี้ไม่มีแล้ว" — ผู้ใช้สารภาพเรื่องเก่า ไม่ใช่คนที่กำลังถูกทำร้าย
     t_now, own = strip_own_past_harm(t), strip_own_past_harm(own)
     topics = [name for name, phrases, _ in TOPICS if _hit(own if name in _OWN_ONLY else t_now, phrases)]
@@ -2489,6 +2507,8 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     elif "basic" in topics:                    # ขาดปัจจัยพื้นฐาน มาก่อนเรื่องเงินทั่วไป
         topics.insert(0, topics.pop(topics.index("basic")))
     text_risk = {"critical": 90, "high": 75, "medium": 55}.get(str(tr.get("level")), 0)
+    if fiction_hit and not crisis:            # ระดับนี้มาจากคำว่า "ตาย" ของตัวละคร ไม่ใช่ของผู้ใช้ — เหลือแค่การถามไถ่เบาๆ (45)
+        text_risk = 0
     if crisis:
         text_risk = max(text_risk, 95)
     if any(x in topics for x in ("violence", "health_emergency", "overdose", "sexual_abuse", "someone")):
