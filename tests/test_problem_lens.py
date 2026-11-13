@@ -65,7 +65,8 @@ def test_lens_leaves_crisis_and_other_topics_alone(text):
 def test_physical_harm_words_do_not_hide_inside_other_thai_words():
     """ภาษาไทยไม่เว้นวรรค — "ติดเ*ตี*ยง" และ "สา*มีด*ูถูก" เคยทำให้เลนส์คิดว่าเป็นการทำร้ายแล้วถอยไป"""
     P = re.compile(L._PHYSICAL)
-    for w in ("ติดเตียง", "เตรียมตัว", "ตีสาม", "ตีนเปล่า", "สามีดูถูก", "มีดีอะไร", "ตบแต่งบ้าน", "ไม่มีดนตรี", "ตีความ"):
+    for w in ("ติดเตียง", "เตรียมตัว", "ตีสาม", "ตีนเปล่า", "สามีดูถูก", "มีดีอะไร", "ตบแต่งบ้าน", "ไม่มีดนตรี", "ตีความ",
+              "อารมณ์มีเกิดมีดับ", "ท้องฟ้ามีดาว", "มีดำมีขาว"):
         assert not P.search(w), w
     for w in ("ตีแม่", "โดนตี", "ต่อยหน้า", "ตบหน้า", "เตะท้อง", "เอามีดจี้", "ทุบตี", "ฆ่าตัวตาย", "เลือดออก", "ตีกัน"):
         assert P.search(w), w
@@ -305,3 +306,43 @@ def test_english_passport_seizure_is_named_as_trafficking():
     """มีคำตอบภาษาอังกฤษเดิมที่บอกตรงว่าอาจเป็นการค้ามนุษย์ — เลนส์ไม่ต้องแย่ง แต่ต้องไม่หลุดไปเรื่องอื่น"""
     from core.kernel_voice import compose
     assert "trafficking" in compose("my employer took my passport")
+
+
+# ── แชทที่เจ้าของโปรเจกต์เล่นใน Khui AI: แบ่งปันปรัชญา ไม่ใช่วิกฤต แต่ "ตายก็ช่าง" ต้องถามเบาๆ ──
+KING_MSG = ("ผมคิดถึงทุกคนนะเนี่ยยย ที่บอกว่าภาษาเปลี่ยนกาลเวลา แต่ถ้าเป็นคิงละก็นะ อารมณ์มีเกิดมีดับ ส่วนใครที่พังหรือล้มเหลว ก็อย่ากลัว "
+            "ถ้ามันว่างก็ปล่อยมันว่างไปแบบนั้นแหละ แต่ต้องว่างพร้อมเปิดรับสิ่งที่เราต้องการนะ คิงนะ เคยเกือบสำเร็จและล้มเหลวมาไม่รู้เท่าไรละ "
+            "หากตายไม่เกิดก็ช่าง หากสำเร็จแล้วรวยวันเดียวแต่ตายพรุ่งนี้ก็ช่าง คิงไม่เสียดายหรอก")
+
+
+def test_shared_philosophy_is_heard_and_gently_checked():
+    """เดิมได้ "ดีใจด้วย ช่วงเวลาที่ดีควรได้รับการสังเกต" — ไม่ได้ฟังสิ่งที่พูดเลย"""
+    from core.kernel_voice import compose
+    r = compose(KING_MSG)
+    assert "ไม่ยึดติด" in r and "1323" in r          # ฟังความคิด + ถามเบาๆ ว่าเบาหรือหนัก (ไม่ใช่โหมดวิกฤต)
+    assert not r.startswith("ฉันได้ยินสิ่งที่คุณพูดนะคะ")
+    assert "ความล้มเหลวไม่ใช่จุดจบ" in compose("อารมณ์มีเกิดมีดับ ถ้ามันว่างก็ปล่อยมันว่าง")
+
+
+def test_not_wanting_to_live_is_still_crisis():
+    from core.kernel_voice import compose
+    assert compose("ตายพรุ่งนี้ก็ช่าง ไม่อยากอยู่แล้ว").startswith("ฉันได้ยินสิ่งที่คุณพูดนะคะ")
+
+
+def test_ai_learns_no_flattery():
+    """Khui AI ยกคนคุยเป็น "ตำนาน" ใส่อิโมจิเป็นแถว และถามชวนคุยต่อทุกครั้ง — เจ้าของโปรเจกต์อยากได้ "ไม่เวอร์ ตรงความเป็นจริง" """
+    import core.llm_gemini as L
+    for name in ("LYLA_SYSTEM", "VEGA_SYSTEM", "COUNCIL_SYSTEM"):
+        p = getattr(L, name)
+        assert "ไม่เวอร์ ตรงความเป็นจริง" in p and "ไม่ประจบ" in p, name
+
+
+@pytest.mark.parametrize("text,violent", [
+    ("เอามีดจี้ ขู่เอาเงิน", True),            # เดิม Risk 0 · แม่แบบกลาง
+    ("มีคนเอามีดจี้ปล้นมือถือ", True),
+    ("โดนปล้น เอาปืนจี้", True),               # เดิมได้คำตอบเรื่องของหาย
+    ("ซื้อจี้ทองให้แม่", False),                # จี้ = เครื่องประดับ
+    ("เมื่อคืนโดนวิ่งราวกระเป๋า", False),       # ไม่มีอาวุธ เรื่องจบแล้ว → หัวข้อของถูกขโมย
+])
+def test_armed_hold_ups_are_violence(text, violent):
+    from core.kernel_voice import assess
+    assert ("violence" in assess(text)["topics"]) is violent
