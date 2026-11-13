@@ -279,7 +279,7 @@ def test_english_problems_reach_their_lens(key, text):
     from core.kernel_voice import compose
     lz = L.find(text, "en")
     assert lz and lz["key"] == key
-    assert compose(text).split("\n")[0] == lz["open"][0]
+    assert lz["open"][0] in compose(text)      # อาจมีประโยครับความรู้สึกนำหน้า (core/person_reading.py)
 
 
 @pytest.mark.parametrize("text,start", [

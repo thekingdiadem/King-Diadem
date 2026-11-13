@@ -2734,6 +2734,15 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         vega_gates = vega_evaluate(user_input, lang="th" if g_lang == "th" else "en")
         if vega_gates:
             effective += "\n\n" + vega_llm_hint(vega_gates)
+    # อ่านคน (core/person_reading.py): บอก AI ว่าข้อความนี้ต้องการคำตอบแบบไหน — ไม่ใช่ไทป์ของผู้ใช้ · ไม่ใช้กับเรื่องด่วน/วิกฤต
+    if not g_urgent and route not in ("crisis", "collapse", "survival"):
+        try:
+            from core.person_reading import read as _p_read, llm_hint as _p_hint
+            _ph = _p_hint(_p_read(user_input))
+            if _ph:
+                effective += "\n\n" + _ph
+        except Exception:
+            pass
     # ภาษาของผู้ใช้ (ดูจากข้อความดิบ — prompt ที่ต่อแล้วมีบริบทภาษาไทยปน) ให้ LLM ตอบภาษาเดียวกัน
     if detect_lang:
         u_lang = prompt_lang(user_input) if prompt_lang else detect_lang(user_input)
