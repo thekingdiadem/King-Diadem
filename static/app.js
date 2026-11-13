@@ -2635,6 +2635,7 @@ async function send(textArg){
       var reply = String(d.ai_response || d.pause_reason || d.message || '').replace(/\s*[—–-]+\s*(LYLA\s*[◈✦✧]?|VEGA\s*[◆◇]?|HALT\s*[⬡]?|สภา\s*KING\s*DIADEM\s*✦?)\s*$/gi, '').trim();
       born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : mode==='council' ? 'COUNCIL' : 'LYLA'), tr: traceOf(d, mode, sentState ? state : null), l: d.help_links, q: d.quakes, hz: d.hazards, c: d.companion, s: d.survival, ts:Date.now() };
       target.msgs.push(born);
+      try{ window.dispatchEvent(new CustomEvent('KD:reply', { detail:{ t: born.t, p: born.p } })); }catch(_){}
     }
     Chat.persist(); refreshMe();
   }catch(e){
@@ -3225,5 +3226,73 @@ window.addEventListener('KD:response', function(e){
   el.addEventListener('animationend', function(e){ if(e.target === el && e.animationName === 'kd-intro-out') end(); });
   window.addEventListener('pointerdown', end, true); window.addEventListener('keydown', end, true);
   setTimeout(end, 4500);
+})();
+/* ── เสียง: พูดแทนพิมพ์ + อ่านคำตอบออกเสียง ─────────────────────────────────────────────────
+   เจ้าของโปรเจกต์: คนที่กำลังเครียด ร้องไห้ หรือเจอภัย อาจพิมพ์ไม่ไหว — ต้องเข้ามาแล้วพูดได้เลย เหมือนโทรคุยกับระบบ
+   · ไมค์: ใช้ตัวแปลงเสียงเป็นข้อความของเบราว์เซอร์ (SpeechRecognition) พูดจบส่งให้เอง · ไม่มีในเบราว์เซอร์นั้น = ไม่แสดงปุ่ม
+   · อ่านออกเสียง: ใช้เสียงสังเคราะห์ในเครื่อง (speechSynthesis) ไม่ส่งคำตอบไปที่ไหน · แต่ละผู้ตอบเสียงต่างกัน (ระดับเสียง/ความเร็ว
+     และเลือกเสียงคนละตัวถ้าเครื่องมีหลายเสียง) · สภา 6 เสียง = อ่านทีละท่อนตามผู้พูด ต่อเนื่องเป็นคำตอบเดียว
+   · พูดมา = คุยต่อเนื่องเหมือนโทร: ระบบอ่านคำตอบให้ฟัง อ่านจบแล้วเปิดไมค์รอฟังต่อเอง แตะไมค์อีกครั้งเพื่อวางสาย
+   ความจริงที่ต้องบอกผู้ใช้: เบราว์เซอร์บางตัว (เช่น Chrome) ส่งเสียงไปแปลงเป็นข้อความที่เซิร์ฟเวอร์ของผู้ผลิตเบราว์เซอร์ — บอกครั้งแรกที่กดไมค์ */
+(function(){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition, synth = window.speechSynthesis;
+  var mic = $('#mic'), chip = $('#speak-chip'), rec = null, listening = false, call = false, speakOn = lsGet('kd-speak') === '1';
+  var LANGS = { th: 'th-TH', en: 'en-US', ja: 'ja-JP', zh: 'zh-CN', ko: 'ko-KR', es: 'es-ES', vi: 'vi-VN' };
+  function lang(){ return LANGS[(window.KD_I18N && KD_I18N.get()) || 'th'] || 'th-TH'; }
+  /* เสียงของแต่ละผู้ตอบ: [ระดับเสียง, ความเร็ว, ลำดับเสียงในเครื่อง] — LYLA อ่อนโยน · VEGA ต่ำและนิ่ง · TITAN ต่ำสุด · COSMOS สูงและช้า */
+  var VOICE = { LYLA: [1.15, .98, 0], VEGA: [.8, .95, 1], PATICCA: [1, .9, 2], TITAN: [.62, .92, 3], COSMOS: [1.32, .88, 4], CIVIL: [.95, 1.04, 5],
+                COUNCIL: [1, .96, 0], DRIFTZERO: [.9, 1, 1], CRISIS: [1.05, .9, 0] };
+  function clean(t){ return String(t || '').replace(/^\s*[—–-]{1,2}\s*(LYLA|VEGA|HALT)\b.*$/gm, '').replace(/^\s*·\s.*$/gm, '')
+    .replace(/\*\*/g, '').replace(/[◈◆☸▲✦⬡]/g, '').replace(/\(\d+\/100\)/g, '').replace(/\n{2,}/g, '\n').trim(); }
+  /* แยกคำตอบของสภาเป็นท่อนตามผู้พูด ("LYLA ◈ — …") · คำตอบอื่นเป็นท่อนเดียวของผู้ตอบนั้น */
+  function parts(t, p){
+    var out = [], cur = null, re = /^(LYLA|VEGA|PATICCA|TITAN|COSMOS|CIVIL)\s*[◈◆☸▲✦⬡]?\s*[—–-]\s*/;
+    if(p !== 'COUNCIL') return [{ who: VOICE[p] ? p : 'LYLA', t: clean(t) }];
+    String(t || '').split('\n').forEach(function(ln){
+      var m = re.exec(ln.trim());
+      if(m){ cur = { who: m[1], t: ln.trim().slice(m[0].length) }; out.push(cur); }
+      else if(/^มติสภา|^Council/i.test(ln.trim())){ cur = { who: 'COUNCIL', t: ln }; out.push(cur); }
+      else if(cur) cur.t += '\n' + ln; else if(ln.trim()){ cur = { who: 'COUNCIL', t: ln }; out.push(cur); }
+    });
+    return out.map(function(x){ return { who: x.who, t: clean(x.t) }; }).filter(function(x){ return x.t; });
+  }
+  function speak(t, p){
+    if(!synth) return;
+    synth.cancel();
+    var L = lang(), vs = (synth.getVoices() || []).filter(function(v){ return v.lang && v.lang.slice(0, 2) === L.slice(0, 2); }), ps = parts(t, p);
+    ps.forEach(function(x, i){
+      var u = new SpeechSynthesisUtterance(x.t), V = VOICE[x.who] || VOICE.LYLA;
+      u.lang = L; u.pitch = V[0]; u.rate = V[1]; if(vs.length) u.voice = vs[V[2] % vs.length];
+      if(i === ps.length - 1) u.onend = function(){ if(call) listen(); };
+      synth.speak(u);
+    });
+  }
+  function setSpeak(on){ speakOn = on; lsSet('kd-speak', on ? '1' : '0'); chip.setAttribute('aria-pressed', on ? 'true' : 'false'); chip.classList.toggle('set', on); if(!on && synth) synth.cancel(); }
+  function stop(){ call = false; listening = false; if(synth) synth.cancel(); mic.setAttribute('aria-pressed', 'false'); mic.classList.remove('on'); try{ rec && rec.abort(); }catch(_){} }
+  function listen(){
+    if(!SR || listening) return;
+    if(synth) synth.cancel();
+    rec = new SR(); rec.lang = lang(); rec.interimResults = true; rec.continuous = false;
+    var inp = $('#input'), got = '';
+    rec.onresult = function(e){ got = ''; for(var i = 0; i < e.results.length; i++) got += e.results[i][0].transcript; inp.value = got; inp.dispatchEvent(new Event('input')); };
+    rec.onerror = function(e){ if(e.error === 'not-allowed' || e.error === 'service-not-allowed') toast(_t('ใช้ไมค์ไม่ได้ — อนุญาตไมโครโฟนให้เว็บนี้ก่อน หรือพิมพ์แทนได้เลยนะคะ'), true, 6000); call = false; };
+    rec.onend = function(){ listening = false; mic.setAttribute('aria-pressed', 'false'); mic.classList.remove('on');
+      if(got.trim()){ call = true; $('#send').click(); } else call = false; };
+    try{ rec.start(); listening = true; mic.setAttribute('aria-pressed', 'true'); mic.classList.add('on'); }catch(_){ listening = false; }
+  }
+  if(SR){ mic.classList.remove('hide');
+    mic.addEventListener('click', function(){
+      if(listening || call){ stop(); return; }
+      if(lsGet('kd-mic-told') !== '1'){ lsSet('kd-mic-told', '1'); toast(_t('เสียงของคุณถูกแปลงเป็นข้อความโดยเบราว์เซอร์ (บางเบราว์เซอร์ส่งเสียงไปที่เซิร์ฟเวอร์ของผู้ผลิต) ก่อนส่งข้อความมาที่เรา'), false, 8000); }
+      listen();
+    });
+  }
+  if(synth){ chip.classList.remove('hide'); setSpeak(speakOn);
+    chip.addEventListener('click', function(){ setSpeak(!speakOn); });
+    window.addEventListener('KD:reply', function(e){ if(speakOn || call) speak(e.detail.t, e.detail.p); });   /* พูดมา = ได้ฟังคำตอบเสมอ (เหมือนโทรคุย) · พิมพ์มา = อ่านเมื่อเปิดปุ่มในตัวเลือก */
+    $('#send').addEventListener('click', function(){ synth.cancel(); }, true);
+    window.addEventListener('pagehide', function(){ synth.cancel(); });
+  }
+  window.KD_voiceParts = parts;                                  /* ให้เทสต์/คอนโซลตรวจการแบ่งท่อนได้ */
 })();
 
