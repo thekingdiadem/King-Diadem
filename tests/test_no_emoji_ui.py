@@ -40,9 +40,19 @@ def test_every_icon_used_is_drawn():
 
 
 def test_icons_share_one_hand():
-    """ทุกไอคอนวาดบนตารางเดียวกัน เส้นหนาเท่ากัน ปลายมน สีตามตัวอักษร — ดูเป็นมือเดียวกันทั้งเว็บ"""
+    """ทุกไอคอนวาดบนตารางเดียวกัน เส้นหนาเท่ากัน ปลายมน เส้นสีตามตัวอักษร ข้างในระบายสีพาสเทล — ดูเป็นมือเดียวกันทั้งเว็บ"""
     symbols = re.findall(r"<symbol [^>]+>", _read(os.path.join(ROOT, "static", "icons", "kd.svg")))
     assert len(symbols) >= 40
     for s in symbols:
         for need in ('viewBox="0 0 24 24"', 'stroke="currentColor"', 'stroke-width="1.6"', 'stroke-linecap="round"'):
             assert need in s, s
+
+
+def test_icons_have_colour_but_stay_calm():
+    """เจ้าของโปรเจกต์: "เพิ่มสีสันและทำให้มันดูไม่รก" — ไอคอนส่วนใหญ่มีสีระบาย และไม่มีตัวไหนเส้นยุ่งเกินไป"""
+    svg = _read(os.path.join(ROOT, "static", "icons", "kd.svg"))
+    symbols = re.findall(r"<symbol .*?</symbol>", svg)
+    tinted = [s for s in symbols if re.search(r'(?:fill|stroke)="#[0-9a-f]{6}"', s)]
+    assert len(tinted) >= len(symbols) - 6, len(tinted)
+    for s in symbols:
+        assert len(re.findall(r"[Mm]", re.sub(r'<g [^>]*>.*?</g>', "", s))) <= 12, s[:60]   # เส้นแยกไม่เกิน 12 ชิ้นต่อไอคอน
