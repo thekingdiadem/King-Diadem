@@ -60,3 +60,14 @@ def test_same_problem_reads_differently_by_how_it_is_asked():
     assert "สรุปเชิงเหตุผล" in logic and "สรุปเชิงเหตุผล" not in plain
     assert feel.startswith("ฟังแล้วรู้สึกได้ว่าเรื่องนี้หนักกับใจคุณจริงๆ")
     assert not plain.startswith("ฟังแล้วรู้สึกได้")
+
+
+def test_every_ai_voice_learns_to_see_through_and_restore_choice():
+    """เจ้าของโปรเจกต์: "คำตอบที่ถูก ≠ คำตอบที่มนุษย์ได้ทางเลือก" — หลักนี้และหลักมองทะลุ (เลนส์ปัญหา)
+    อยู่ใน KD_DNA ที่ทุกเสียงใช้ร่วมกัน ไม่ใช่แค่ตอนไม่มี AI"""
+    import core.llm_gemini as L
+    for name in ("LYLA_SYSTEM", "VEGA_SYSTEM", "COUNCIL_SYSTEM", "CRISIS_SYSTEM"):
+        p = getattr(L, name)
+        assert "ปัญหานี้เป็นของใคร" in p and "คำตอบที่ถูก ≠ คำตอบที่มนุษย์ได้ทางเลือก" in p, name
+        assert "ห้ามตัดสินแทน ห้ามทำให้เหลือทางเดียว" in p, name
+        assert "ขั้นตอนปลอดภัยและเบอร์ช่วยเหลือมาก่อน" in p, name     # วิกฤตยังมาก่อนทางเลือก
