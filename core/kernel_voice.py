@@ -3284,6 +3284,16 @@ def compose(text: str, *args, **kw) -> str:
     cy = _compose_cyber(text, *args, **kw) if text else None
     if cy:
         return cy
+    # ปริศนาล้างรถ 100 เมตร (core/object_goal.py): "เอารถไปล้าง ควรเดินไหม" — รถต้องไปด้วย ไม่ใช่เรื่องระยะทาง
+    if text:
+        from core import object_goal as _og
+        og = _og.reply(text, footer=kw.get("footer", True)) if _og.check(text) else None
+        if og:
+            a0 = assess(text)
+            if not a0.get("crisis") and a0.get("text_risk", 0) < 60:
+                if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
+                    og = og.replace("— LYLA ◈", "— VEGA ◆")
+                return og
     out = _compose(text, *args, **kw)
     return _distress_line(text, _soften_joking_crisis(text, out))
 
