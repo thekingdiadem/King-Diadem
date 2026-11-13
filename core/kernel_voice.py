@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+from core import problem_lens as _lens
 
 from core.thai_signals import (INDIRECT_SELF, INDIRECT_ADMIN, INDIRECT_HARM, SAFETY_NET_SELF, SAFETY_NET_OTHER, NET_CONFINE, NET_GROOM, NET_MAIM, normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT, SELF_HARM_VEILED,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
@@ -473,7 +474,7 @@ TOPICS = [
                           re.compile(r"(?:ล้ม|หมด|ฟุบ|ช็อก|เรียก\S{0,6}?|(?:พ่อ|แม่|ลูก|เด็ก|หลาน|ยาย|ตา|ปู่|ย่า|สามี|ภรรยา|แฟน|เพื่อน|มีคน|คน)\S{0,6}?)ไม่รู้สึกตัว(?!\S{0,4}?ว่า)"),
                           re.compile(r"^(?![\s\S]*(?:ประจำเดือน|เมนส์|ไรฟัน|เลือดกำเดา\S{0,4}?นิดหน่อย))[\s\S]*?เลือด(?:ออก|ไหล)\S{0,4}?(?:มาก|เยอะ|ท่วม|ทะลัก|ไม่หยุด)"),
                           re.compile(r"(?:โดน|ถูก)(?:มีด|ดาบ|พร้า|ขวาน)\S{0,4}?(?:ฟัน|แทง)(?!ธง)"), "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
-                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious)\b|\bdrowning\b(?! in (?:homework|work|paperwork|debt|emails?|bills|tasks|assignments|love|tears|stress))", re.I),
+                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious)\b|\bdrowning\b(?! in (?:\w+ ){0,2}(?:homework|work|paperwork|debts?|loans?|payments?|mortgage|credit|emails?|bills|tasks|assignments|love|tears|stress|responsibilit\w+|deadlines?))", re.I),
                           _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
         "paths": [
@@ -1459,7 +1460,7 @@ CODE_D = {
 # วัดจาก tests/everyday_questions.py (scripts/eval_everyday.py) — เดิมผ่าน 13/26
 # "แมวหาย 2 วัน" "ถ้าเกิดสงครามครอบครัวควรเตรียมอะไร" "ไฟดับ 2 วัน" ได้ "เขียนสิ่งที่เกิดขึ้นเป็นประโยคเดียว"
 EVERYDAY = [
-    ("lost_pet", re.compile(r"(?:แมว|หมา|สุนัข|น้องหมา|น้องแมว|นก|กระต่าย|เต่า|สัตว์เลี้ยง)\S{0,12}?(?:หาย|หลุด|ไม่กลับ|หนี|ออกจากบ้าน)"), {
+    ("lost_pet", re.compile(r"(?:แมว|หมา|สุนัข|น้องหมา|น้องแมว|(?<!เงิ)(?<!ตั)นก(?![ู])|กระต่าย|เต่า|สัตว์เลี้ยง)\S{0,12}?(?:หาย|หลุด|ไม่กลับ|หนี|ออกจากบ้าน)"), {
         "open": ["สัตว์เลี้ยงส่วนใหญ่ที่หายมักอยู่ไม่ไกลจากบ้าน — 72 ชั่วโมงแรกสำคัญที่สุด"],
         "paths": [
             "เดินหารัศมี 300–500 เมตรรอบบ้านช่วงเช้ามืดหรือหัวค่ำที่เงียบ เขย่าถุงขนมหรือเรียกชื่อเบาๆ — แมวมักหลบนิ่งใต้รถ พุ่มไม้ ใต้บ้าน",
@@ -2395,6 +2396,30 @@ def _with_conditions(text, a: dict) -> dict:
                 risk=max(a["risk"], risk), risk_shown=max(a["risk_shown"], risk) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
 
 
+# ได้ยินเสียงคนถูกทำร้ายหรือร้องขอความช่วยเหลือจากห้อง/บ้านข้างๆ — ผู้ใช้เป็นพยาน ต้องได้ขั้นตอนโทร 191
+_WITNESS_SOUND = re.compile(r"(?:ห้องข้างๆ|ห้องข้าง|ห้องบน|ห้องล่าง|บ้านข้างๆ|ข้างบ้าน|ห้องตรงข้าม|บ้านตรงข้าม)[^\n]{0,30}?"
+                            r"(?:กรีดร้อง|ร้องให้ช่วย|ร้องขอความช่วยเหลือ|ช่วยด้วย|เสียงทุบตี|เสียงตบ|เสียงตี(?!ความ)|ร้องโหยหวน|ร้องไห้จ้า)")
+
+_EN_FAMILY_HARM = re.compile(r"\bmy (?:dad|father|step-?dad|mom|mum|mother|step-?mom|husband|brother|uncle|grandpa|boyfriend)\b[^\n]{0,50}?"
+                             r"\b(?:hit|hits|hitting|beat|beats|beating|punch\w*|kick(?:s|ed)?|slap\w*|chok\w*|strangl\w*|hurt(?:s|ing)?)\b[^\n]{0,10}?"
+                             r"\b(?:my|our) (?:mom|mum|mother|dad|father|sister|brother|siblings|little \w+|kids?|children|grandma|grandpa)\b", re.I)
+EN_FAMILY_HARM = ("What's happening at home is violence, not a family argument — everyone's safety comes first, including yours.\n\n{status}\n\n"
+                  "1) If it's happening now, call the police (191 in Thailand, 911 in the US, 112 in most of Europe) and give the address clearly. "
+                  "Don't step between them — go to a locked room or a neighbour's.\n"
+                  "2) If anyone is hurt, get medical care and ask for the injuries to be recorded — it matters later.\n"
+                  "3) The person being hurt can get a safe place and advice: in Thailand call 1300 (24 hours); elsewhere find local help at findahelpline.com\n\n"
+                  "Is anyone hurt right now, and are you somewhere safe?\n\n{sign}")
+_EN_THREAT = re.compile(r"\b(?:threaten\w*|said (?:he|she|they)(?:'?ll| will| would)|says? (?:he|she|they)(?:'?ll| will))\b[^\n]{0,10}?"
+                        r"\b(?:to )?(?:hurt|kill|break|beat|stab|shoot|come (?:after|for)|find)\b", re.I)
+EN_THREAT = ("Being threatened makes you unsafe even before anything happens — that fear is reasonable.\n\n{status}\n\n"
+             "1) If you're in immediate danger, call the police now (191 in Thailand, or your local emergency number).\n"
+             "2) Save every threat — messages, voice notes, call logs with times — and report it. Threats to hurt someone are a crime, "
+             "including from lenders or collectors.\n"
+             "3) Don't meet them alone. Tell someone you trust where you are, and vary your routine for now.\n\n"
+             "Do they know where you live or work?\n\n{sign}")
+
+_STRESS_TAIL = re.compile(r"[\s,]*(?:เครียด(?:มาก|จัง|สุดๆ|มากๆ)?|ไม่ไหวแล้ว|ไม่รู้จะทำไง)[\s!.~]*$")
+
 def _assess_raw(text: str, pattern: dict | None = None) -> dict:
     """ประเมินข้อความ — ถ้าพิมพ์โดยไม่ใส่วรรณยุกต์ ("ลูกไมหายใจ") ลองฉบับที่เติมวรรณยุกต์ด้วย แล้วใช้ฉบับที่เห็นอันตรายมากกว่า"""
     text = _clip(text)
@@ -2455,6 +2480,10 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     # "พี่เคยทำร้ายเขา … ตอนนี้ไม่มีแล้ว" — ผู้ใช้สารภาพเรื่องเก่า ไม่ใช่คนที่กำลังถูกทำร้าย
     t_now, own = strip_own_past_harm(t), strip_own_past_harm(own)
     topics = [name for name, phrases, _ in TOPICS if _hit(own if name in _OWN_ONLY else t_now, phrases)]
+    # "ปวดหลังเรื้อรังมาหลายเดือน เครียดมาก" — คำว่าเครียดท้ายประโยคบอกความรู้สึก ไม่ใช่ตัวปัญหา
+    # เดิมหัวข้อ stress มาก่อนเรื่องจริง คำตอบจึงเปลี่ยนเป็น "ตอนนี้ไม่ต้องแก้ทุกอย่าง" (10 เรื่องในคลัง 394 ข้อ)
+    if "stress" in topics and len(topics) > 1 and not _hit(_STRESS_TAIL.sub("", t_now), next(ph for nm, ph, _ in TOPICS if nm == "stress")):
+        topics = [n for n in topics if n != "stress"] + ["stress"]
     # คนอื่นขู่จะทำร้ายผู้ใช้หรือลูก ("my ex threatened to hurt my kids") = ผู้ใช้เป็นฝ่ายถูกขู่ ไม่ใช่คนที่อยากทำร้ายใคร
     # เดิมถูกจับเป็น harm_others แล้วตอบว่า "ความโกรธขนาดนี้…" กับคนที่กำลังกลัว
     if "harm_others" in topics and "violence" in topics and _THREAT_BY_OTHER.search(t_now):
@@ -2768,6 +2797,22 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             en_key = "magga_" + _magga_topic(t)
         elif not a["crisis"] and CODE_REQ.search(t) and not (a.get("scam") or a.get("offer_flags")):
             en_key = "code_help"
+        # ความรุนแรงในบ้านที่ผู้ใช้เห็น / การถูกขู่ทำร้าย — ภาษาไทยมีคำตอบ ภาษาอังกฤษเคยไม่มี
+        # ("my dad drinks every night and beat my mom tonight" ได้วิธีเลิกเหล้าของผู้ใช้เอง ·
+        #  "loan shark said he'll break my legs" ได้ "Let's lay this out step by step.")
+        if lang == "en" and not a["crisis"] and not a["relationship"] and _EN_FAMILY_HARM.search(t) \
+                and not re.search(r"\b(?:hit|hits|hitting|beat|beats|beating|hurt\w*|chok\w*|kick\w*|punch\w*)\b[^\n]{0,6}?\bme\b", t, re.I):
+            return EN_FAMILY_HARM.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
+        if lang == "en" and not a["crisis"] and not a["relationship"] and "violence" not in a["topics"] and _EN_THREAT.search(t):   # คู่ชีวิตขู่ → SAFETY_EN ที่ละเอียดกว่า
+            return EN_THREAT.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
+        lz = _lens.find(t, "en", "vega" if vega else "lyla") if (lang == "en" and not a["crisis"] and a["text_risk"] < 85
+                                     and not a["relationship"]) else None
+        if lz and not ((set(a["topics"]) & set(_URGENT_TOPICS)) <= set(lz.get("over") or ())
+                       and (a["text_risk"] < 75 or lz.get("over"))):
+            lz = None      # กติกาเดียวกับภาษาไทย: เรื่องด่วนรับแทนได้เฉพาะเลนส์ที่ประกาศ over
+        if lz:      # เลนส์ปัญหา (core/problem_lens.py) — เดิม "comparing myself on Instagram" ได้ "Let's lay this out step by step."
+            return (lz["open"][0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(lz["paths"]))
+                    + f"\n\n{lz['ask']}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         en = EN_TOPIC.get(en_key) if (lang == "en" and (a["topics"] or str(en_key).startswith("magga_") or en_key == "code_help") and not a["crisis"]) else None
         if en:
             return (en[0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(en[1]))
@@ -2900,7 +2945,15 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "child_gaming", "consumer", "pet_hurt", "stranded", "teen_leave", "housing", "legal", "diagnosis",
                                                            "caregiver", "health_rights", "preg_alone", "preg_care") + _KP.NAMES:
         second = None
-    if a["offer_flags"]:                 # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
+    # เลนส์ปัญหา (core/problem_lens.py) — ตัดสินครั้งเดียว: ไม่ใช่วิกฤต · ความเสี่ยงต่ำกว่า 75 (หนี้ที่ "กลัวโดนยึด" ได้ 60 เคยถูกกันออก)
+    # · หัวข้อด่วนต้องไม่มี เว้นแต่เลนส์ประกาศว่ารับแทนได้ (over) และ `no` ของเลนส์กันกรณีที่ด่วนจริงไว้แล้ว
+    _lz = _lens.find(text, "th", voice_mode) if (not a["crisis"] and a["text_risk"] < 85) else None
+    _urg = set(a["topics"]) & set(_URGENT_TOPICS)
+    _lz_ok = bool(_lz) and not (a["topics"] and a["topics"][0] in _KP.NAMES) and _urg <= set(_lz.get("over") or ()) \
+        and (a["text_risk"] < 75 or bool(_lz.get("over")))     # 75–84 เฉพาะเลนส์ที่ประกาศรับเรื่องด่วนแทน (รถชนเล็กน้อยได้ 75)
+    if _lz_ok and _urg:                  # เลนส์ที่รับเรื่องด่วนแทนได้ มาก่อนคำตอบด่วนแบบทั่วไป
+        main, second = _lz, None
+    elif a["offer_flags"]:               # ข้อเสนอที่มีโครงสร้างของการหลอก มาก่อนหัวข้ออื่น
         main, second = OFFER, None
     elif "recovery" in (a["scam"] or []):  # หลอกซ้ำ: เสนอตามเงินคืนแลกค่าธรรมเนียม — มาก่อน "โดนโกงแล้ว"
         main, second = SCAM_RECOVERY_D, None
@@ -2915,12 +2968,18 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         main, second = _MAGGA_D[_magga_topic(text)], None    # มรรค 8: โกหก/ทุจริต/อยากเอาคืน — ทักตรงๆ ก่อนคำตอบทั่วไป
     elif CODE_REQ.search(text) and a["text_risk"] < 60:
         main, second = CODE_D, None                           # ขอให้เขียน/แก้โค้ด — บอกตรงๆ ว่าไม่ใช่งานถนัด แล้วชวนกลับมาที่การตัดสินใจ
+    elif _lz_ok:
+        # เลนส์ปัญหา (core/problem_lens.py): อ่านให้ถูกว่าเป็นปัญหาของใคร แก่นคืออะไร เพราะอะไร ก่อนให้ขั้นตอน
+        # เดิม "แม่ป่วยติดเตียง ต้องลาออกมาดูแล" ได้คำตอบเรื่องไข้สูง · "พ่อติดเหล้า เมาแล้วด่าแม่" ได้วิธีเลิกเหล้า
+        main, second = _lz, None
     elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS) \
             and not (a["topics"] and a["topics"][0] in _KP.NAMES):
         main, second = _everyday(text, a["topics"]), None                  # เรื่องบ้านๆ–ระดับโลกที่เคยได้คำตอบกลาง (EVERYDAY)
     elif _dharma_answer(text) and a["text_risk"] < 60:
         main, second = _dharma_answer(text), None             # ถามความหมายธรรมะ (DHARMA)
-    elif re.search(r"(?:เด็ก|คน|ป้า|ลุง|ผู้หญิง|ยาย)ข้างบ้าน[^\n]{0,12}?(?:โดน|ถูก)\S{0,6}?(?:ตี|ทำร้าย|ทุบ|ตบ|ทิ้ง|ขัง)", text):
+    elif re.search(r"(?:เด็ก|คน|ป้า|ลุง|ผู้หญิง|ยาย)ข้างบ้าน[^\n]{0,12}?(?:โดน|ถูก)\S{0,6}?(?:ตี|ทำร้าย|ทุบ|ตบ|ทิ้ง|ขัง)", text) \
+            or _WITNESS_SOUND.search(text):
+        # "ห้องข้างๆ มีเสียงผู้หญิงกรีดร้องให้ช่วยด้วย" เคยได้ "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน" (คลังปัญหา รอบทดสอบประโยคใหม่)
         main, second = lib["witness"], None    # เดิมได้ "ความปลอดภัยของคุณมาก่อน" — ผู้ใช้เป็นคนได้ยิน ไม่ใช่ผู้ถูกทำร้าย
     elif _OTHER_HARM.search(text):
         main, second = OTHER_HARM, None        # "พี่สาวอยากฆ่าแฟน" เคยได้ "ขอบคุณที่พูดออกมาแทนที่จะทำ" เหมือนผู้ใช้เป็นคนโกรธเอง
@@ -3401,6 +3460,9 @@ def compose_council(text: str, footer: bool = True) -> str:
         main = _MAGGA_D[_magga_topic(text)]
     elif CODE_REQ.search(text) and a["text_risk"] < 60:
         main = CODE_D
+    elif a["text_risk"] < 60 and not a["crisis"] and not set(a["topics"]) & set(_URGENT_TOPICS) \
+            and not (a["topics"] and a["topics"][0] in _KP.NAMES) and _lens.find(text, "th"):
+        main = _lens.find(text, "th")        # สภาก็ต้องอ่านเรื่องให้ถูกก่อน — เดิม "พ่อติดเหล้า" TITAN ให้ผู้ใช้สังเกตการดื่มของตัวเอง
     elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS) \
             and not (a["topics"] and a["topics"][0] in _KP.NAMES):
         main = _everyday(text, a["topics"])
@@ -3422,6 +3484,8 @@ def compose_council(text: str, footer: bool = True) -> str:
         vega = ("ความเสี่ยง " + risk_phrase(a) + f" — ถามก่อนว่าถ้าพลาดจะเสียอะไร และถอยกลับได้ไหม "
                 "ทางที่ย้อนกลับได้ชนะ ถ้าผลพอๆ กัน")
         reversible_first = True
+    if main.get("vega") and len(opts) < 2:
+        vega = "ความเสี่ยง " + risk_phrase(a) + " — " + main["vega"]     # เลนส์ปัญหา: โครงสร้างของเรื่องนี้ แทนคำถามกลาง
     if a["offer_flags"]:
         vega = ("ความเสี่ยง " + risk_phrase(a) + f" — ข้อเสนอนี้มีสัญญาณของการหลอก: "
                 + " · ".join(OFFER_FLAG_TH[f] for f in a["offer_flags"]) + " — ลงเงินแล้วอาจถอยไม่ได้")
@@ -3463,6 +3527,9 @@ def compose_council(text: str, footer: bool = True) -> str:
     except Exception:
         pass
 
+    if main.get("verdict") and not risky:
+        # เลนส์ปัญหาที่เป็น "สถานการณ์" (พ่อเมาด่าแม่ · ถูกบอกเลิก) — เดิมได้มติ "เดินหน้าได้ แต่เริ่มแบบเล็ก" ซึ่งไม่มีอะไรให้เดินหน้า
+        verdict, agree = main["verdict"], ""
     tag = "\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if footer else ""
     return (f"LYLA ◈ — {lyla}\n\nVEGA ◆ — {vega}\n\nPATICCA ☸ — {paticca}\n\n"
             f"TITAN ▲ — ก้าวที่ทำได้ภายใน 24 ชั่วโมง: {titan}\n\nCOSMOS ✦ — {cosmos}\n\nCIVIL ⬡ — {civil}\n\n"
