@@ -100,7 +100,11 @@
     '    float B=(texture2D(lights,tc+px*vec2(5.,0.)).r+texture2D(lights,tc-px*vec2(5.,0.)).r+texture2D(lights,tc+px*vec2(0.,4.)).r+texture2D(lights,tc-px*vec2(0.,4.)).r)*.25;',
     '    vec2 cc=tc+vec2(t*.0004,0.);',
     '    float cl=(texture2D(clouds,cc+hp).r+texture2D(clouds,cc-hp).r+texture2D(clouds,cc+hp*vec2(1.,-1.)).r+texture2D(clouds,cc+hp*vec2(-1.,1.)).r)*.25;',
-    '    cl=clamp(cl+(fbm(cc*vec2(1500.,750.))-.5)*.7*mag*smoothstep(.04,.45,cl)*(1.-cl),0.,1.);',   // ขอบเมฆเป็นริ้วละเอียด ไม่เป็นขั้นบันได
+    // ขอบเมฆเป็นริ้วนุ่ม — เดิมใช้ลายสุ่มความถี่ 1500 ซึ่งละเอียดกว่าพิกเซลบนจอตอนซูมใกล้ เลยออกมาเป็นจุดกระจายเหมือนพิกเซลแตก
+    // ตอนนี้ใช้ความถี่ต่ำลงและบิดลายด้วยตัวมันเอง (domain warp) ได้ริ้วที่ตามองเห็นเป็นเส้นสาย ไม่ใช่เม็ด
+    '    vec2 wq=cc*vec2(260.,130.);',
+    '    float wisp=fbm(wq+vec2(fbm(wq*.5+3.1),fbm(wq*.5-1.7))*1.6);',
+    '    cl=clamp(cl+(wisp-.5)*.42*mag*smoothstep(.04,.45,cl)*(1.-cl),0.,1.);',
     '    cl=mix(cl,smoothstep(.08,.85,cl),near*.55);',                 // ในยาน: ขอบเมฆคมขึ้น (ภาพถูกขยายมากตอนมองใกล้)
     '    vec3 land=texture2D(day,tc).rgb;',
     '    float wm=hasW>.5?texture2D(water,tc).r:0.;',
@@ -235,6 +239,7 @@
   load(0, 'lights.jpg', firstDone); load(1, 'day.jpg', firstDone); load(2, 'clouds.jpg', firstDone);
 
   // ── ความละเอียดการวาดปรับตามเครื่อง: เฟรมช้า → ลดลงทีละขั้น · เร็วพอ → เพิ่มกลับ ─────────────────────
+  var quietSince = 0;
   var DPR_BASE = Math.min(window.devicePixelRatio || 1, light ? 1.25 : 1.5), DPR_MAX = DPR_BASE, scale = DPR_MAX, ftAvg = 16, ftCheck = 0;
   function size() {
     canvas.width = Math.max(1, Math.round(canvas.clientWidth * scale));
@@ -433,7 +438,51 @@
   // ในยาน: วาดที่ความละเอียดจอจริง (สูงสุด 2×) ให้คมที่สุด — ตัวลดความละเอียดอัตโนมัติยังลดให้เองถ้าเครื่องช้า
   function shipRes(on) { DPR_MAX = on ? Math.max(DPR_BASE, Math.min(window.devicePixelRatio || 1, 2)) : DPR_BASE; scale = Math.min(DPR_MAX, on ? DPR_MAX : scale); size(); }
   function leaveShip() { if (SHIP.on) { SHIP.on = false; shipRes(false); document.documentElement.classList.remove('kd-ship'); kick(); } }
+  // ── ค้นหาเมือง (เหมือนแผนที่ แต่ค้นในเครื่อง ไม่ส่งคำค้นไปที่ไหน) ────────────────────────────────
+  // ข้อมูลชุดเดียวกับป้ายชื่อบนลูกโลก: เมืองหลวง · จังหวัด/รัฐ (มีชื่อไทย) · สถานที่สำคัญ (มีชื่อไทย) · เมือง ~46,000 แห่ง
+  var FIND = { rows: null, wait: [] };
+  function fold(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim(); }
+  function findLoad(cb) {
+    if (FIND.rows) return cb(FIND.rows);
+    FIND.wait.push(cb); if (FIND.wait.length > 1) return;
+    var files = [['capitals.json', 0], ['admin1.json', 1], ['places.json', 2], ['cities_t2.json', 3], ['cities_t3.json', 4], ['cities_t4.json', 5], ['cities_t5.json', 6]];
+    Promise.all(files.map(function (f) {
+      return fetch(base + 'earth/' + f[0]).then(function (r) { return r.json(); }).then(function (d) {
+        var out = [];
+        if (f[0] === 'capitals.json') (d.capitals || []).forEach(function (r) { out.push([r[0], r[5] || '', r[2], r[3], 0, r[1]]); });
+        else if (f[0] === 'places.json') (d.places || []).forEach(function (r) { out.push([r[0], r[1] || '', r[2], r[3], 2, '']); });
+        else (Array.isArray(d) ? d : []).forEach(function (r) { out.push([r[0], r[3] || '', r[1], r[2], f[1], '']); });
+        return out;
+      }).catch(function () { return []; });
+    })).then(function (parts) {
+      var rows = [].concat.apply([], parts);
+      rows.forEach(function (r) { r.push(fold(r[0]), fold(r[1])); });
+      FIND.rows = rows; FIND.wait.splice(0).forEach(function (f) { f(rows); });
+    });
+  }
+  function findRank(rows, q) {
+    var f = fold(q); if (!f) return [];
+    var hit = [], seen = {};
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i], en = r[6], th = r[7], sc = -1;
+      if (en === f || th === f) sc = 0; else if (en.indexOf(f) === 0 || th.indexOf(f) === 0) sc = 1; else if (f.length > 2 && (en.indexOf(f) > 0 || th.indexOf(f) > 0)) sc = 2;
+      if (sc < 0) continue;
+      var key = en + '|' + Math.round(r[2]) + '|' + Math.round(r[3]);
+      if (seen[key] != null && hit[seen[key]].s <= sc * 10 + r[4]) continue;
+      seen[key] = hit.length; hit.push({ s: sc * 10 + r[4], en: r[0], th: r[1], lat: r[2], lon: r[3], tier: r[4], cc: r[5] });
+    }
+    return hit.sort(function (a, b) { return a.s - b.s; }).slice(0, 8);
+  }
+
   window.KD_earth = {
+    // ค้นหาเมือง → [{en, th, lat, lon, tier}] · บินไปพิกัดนั้นด้วย flyTo
+    find: function (q, cb) { findLoad(function (rows) { cb(findRank(rows, q)); }); },
+    flyTo: function (lat, lon, tier) {
+      leaveShip(); leaveCity();
+      go({ lat: clamp(lat, -85, 85), lon: lon + 360 * Math.round((S.tlon - lon) / 360), L: tier === 2 ? 3.2 : tier <= 1 ? 2.6 : 3.0 });
+      if (!LAYER.names) { LAYER.names = true; labelsDirty = true; }
+      kick();
+    },
     ship: function (on) { if (on) { if (!shipStart()) return false; } else leaveShip(); kick(); return SHIP.on; },
     shipFast: function () { SHIP.fast = !SHIP.fast; kick(); return SHIP.fast; },
     shipOn: function () { return SHIP.on; },
@@ -522,10 +571,14 @@
       if (now - ftCheck > 900) {
         ftCheck = now;
         var slack = Math.max(0, 1000 / capNow - 16.7);                    // เลือก 30 เฟรมเอง: ภาพห่าง 33 ms ไม่ได้แปลว่าเครื่องช้า
-        if (ftAvg > 26 + slack * 1.5 && scale > .55) { scale = Math.max(.55, scale * .82); size(); }
+        if (ftAvg > 26 + slack * 1.5 && scale > .8) { scale = Math.max(.8, scale * .82); size(); }
         else if (ftAvg < 17 + slack && scale < DPR_MAX) { scale = Math.min(DPR_MAX, scale * 1.12); size(); }
       }
     }
+    // หยุดมือแล้ว: คืนความละเอียดเต็มทันที — เดิมลดเหลือ 55% ตอนหมุนแล้วไม่เคยคืน ภาพนิ่งจึงค้างเป็นสี่เหลี่ยมใหญ่ (เหมือนพิกเซลแตก)
+    // ภาพนิ่งวาดครั้งเดียว ความละเอียดเต็มจึงไม่เปลืองแบต
+    if (busy || SHIP.on) quietSince = now;
+    else if (scale < DPR_MAX && now - quietSince > 500) { scale = DPR_MAX; size(); }
     last = now;
     var still = calm();
     if (!still) tsec += dt;
