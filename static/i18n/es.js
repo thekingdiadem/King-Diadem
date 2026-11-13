@@ -1,6 +1,7 @@
 /* KING DIADEM — ภาษาสเปน ของหน้าเว็บ (Español) · โหลดเฉพาะตอนผู้ใช้เลือกภาษานี้ (static/i18n.js)
  * คำแปลเรียบเรียงจากคอลัมน์ภาษาอังกฤษใน i18n.js — ควรให้เจ้าของภาษาตรวจอีกรอบ */
 (window.KD_I18N_PACKS = window.KD_I18N_PACKS || {})["es"] = {
+"ถ้าเป็นเรื่องด่วน โทรได้เลยไม่ต้องรอ: 1669 เจ็บป่วยฉุกเฉิน · 191 ตำรวจ · 1323 สุขภาพจิต": "Si es urgente, llama ya, no esperes: Tailandia 1669 emergencias · 191 policía · 1323 salud mental ／ 112 / 911",
 "ท้องฟ้าคืนนี้ ↗": "El cielo de esta noche ↗",
 "{h} ชม.ที่แล้ว": "hace {h} h",
 "{d} วันที่แล้ว": "hace {d} días",

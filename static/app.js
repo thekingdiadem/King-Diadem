@@ -2701,7 +2701,10 @@ async function send(textArg){
   }catch(e){
     var tg = Chat.s.items.find(function(x){ return x.id === sessId; }) || Chat.cur();
     if(e.status === 402){ Limit.set(e.data && e.data.quota); Limit.ui(); openUpgrade(); }
-    tg.msgs.push({ r:'e', t:e.message, ts:Date.now() }); Chat.persist(); if(e.status !== 402) toast(e.message, true, 6000);
+    /* เซิร์ฟเวอร์ล่มทั้งตัว (บทเรียนจาก Microsoft ล่มทั่วโลก): ข้อความ error ต้องมีเบอร์ฉุกเฉินเสมอ
+       คนที่พิมพ์เรื่องด่วนแล้วเจอแค่ "เชื่อมต่อไม่ได้" ต้องยังรู้ว่าโทรหาใครได้ทันที */
+    var sos = e.status === 402 ? '' : '\n\n' + _t('ถ้าเป็นเรื่องด่วน โทรได้เลยไม่ต้องรอ: 1669 เจ็บป่วยฉุกเฉิน · 191 ตำรวจ · 1323 สุขภาพจิต');
+    tg.msgs.push({ r:'e', t:e.message + sos, ts:Date.now() }); Chat.persist(); if(e.status !== 402) toast(e.message, true, 6000);
   }finally{
     busy = false; $('#send').disabled = false; th.remove(); Cosmos.thinking(false); if(born) CHANT_TS = born.ts; renderAll();
     window.dispatchEvent(new CustomEvent('KD:thinking', { detail:{ on:false } }));

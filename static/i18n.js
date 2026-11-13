@@ -627,6 +627,7 @@
     'อ่านคำตอบออกเสียง': ['Read replies aloud', '返信を読み上げる'],
     'วิธีใช้': ['How it works', '使い方'],
     'ยังอยู่ตรงนี้นะคะ กำลังคิดคำตอบให้ดีที่สุด': ['Still here with you — working out the best answer', 'ここにいます。いちばん良い答えを考えています'],
+    'ถ้าเป็นเรื่องด่วน โทรได้เลยไม่ต้องรอ: 1669 เจ็บป่วยฉุกเฉิน · 191 ตำรวจ · 1323 สุขภาพจิต': ['If it is urgent, call now, do not wait: in Thailand 1669 medical · 191 police · 1323 mental health · elsewhere your local emergency number (911 / 112)', '急ぎの場合は待たずに電話してください：タイ 1669 救急・191 警察・1323 こころの相談 ／ 日本 119・110'],
     'ใช้เวลานานกว่าปกติ ขอโทษที่ให้รอนะคะ — ถ้าเป็นเรื่องด่วน โทรได้เลยไม่ต้องรอ: 1669 เจ็บป่วยฉุกเฉิน · 191 ตำรวจ · 1323 สุขภาพจิต': ['This is taking longer than usual, sorry for the wait — if it is urgent, do not wait for me: call your local emergency number (in Thailand 1669 medical · 191 police · 1323 mental health)', 'いつもより時間がかかっています。お待たせしてすみません — 緊急の場合は待たずに地域の緊急番号へ（タイ：1669 救急・191 警察・1323 こころの相談）'],
     'ใบสรุปการตัดสินใจ': ['Decision brief', '意思決定サマリー'],
     'คัดลอกใบสรุป': ['Copy brief', 'サマリーをコピー'],
