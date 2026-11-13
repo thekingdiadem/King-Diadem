@@ -29,7 +29,10 @@ _ES_STRONG = {"quiero", "estoy", "tengo", "hola", "gracias", "ayuda", "morir", "
               "madre", "padre", "hijo", "hija", "hermano", "hermana", "abuelo", "abuela", "bebe", "nino", "nina",
               "respira", "respirar", "sangra", "sangre", "despierta", "responde", "ahogando", "desmayo",
               # "me amenazaron de muerte" "me estafaron" เคยถูกเดาเป็นอังกฤษ (ไม่มีสระมีเครื่องหมาย)
-              "amenazaron", "amenazó", "muerte", "matar", "matarme", "estafaron", "estafa", "encerrada", "encerrado", "comido", "pegaron", "violaron"}
+              "amenazaron", "amenazó", "muerte", "matar", "matarme", "estafaron", "estafa", "encerrada", "encerrado", "comido", "pegaron", "violaron",
+              # อารมณ์หนัก/ภัยที่พูดสั้น ("quisiera no despertar" "alguien me sigue") เคยถูกเดาเป็นอังกฤษ
+              "despertar", "quisiera", "broma", "llorar", "miedo", "siguiendo", "desaparecer", "segura", "seguro", "sola",
+              "rabia", "enojado", "enojada", "matarlo", "matarla", "vacía", "vacio", "vacío", "suelos", "afuera", "puerta", "llorando", "llevo", "decidí", "encabronado", "encabronada"}
 
 
 def detect_lang(text) -> str:

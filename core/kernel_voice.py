@@ -2473,6 +2473,17 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
                        "danger": "help", "scam": "help"}[kind_w]
             if topic_w not in topics:
                 topics.append(topic_w)
+    # อารมณ์หนัก/ภัยที่พูดสั้น ในภาษา ja zh ko es vi (core/mood_intl) — เดิมได้ Risk 0 และแผนสามขั้นทั่วไป
+    from core.mood_intl import mood_intl
+    mood = mood_intl(text)
+    if mood:
+        kind_m = mood[0]
+        if kind_m == "crisis":
+            crisis = True
+        else:
+            topic_m = {"danger": "violence", "anger_kill": "harm_others"}.get(kind_m, "soft_check")
+            if topic_m not in topics:
+                topics.insert(0, topic_m)
     if tr.get("basic_needs") and "basic" not in topics:
         topics.insert(0, "basic")
     elif "basic" in topics:                    # ขาดปัจจัยพื้นฐาน มาก่อนเรื่องเงินทั่วไป
@@ -2561,7 +2572,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     if "disaster" in kinds_i or "scam" in kinds_i or "basic" in kinds_i:
         text_risk = max(text_risk, 70)
     return {
-        "intl_urgent": kinds_i,
+        "intl_urgent": kinds_i, "mood_intl": mood,
         "scam": scam,
         "W": round(W), "risk": round(max(risk, text_risk)),
         # ตัวเลขที่โชว์ในคำตอบ: ยังไม่รู้สถานะจริงของผู้ใช้ → W "—" และ Risk จากข้อความล้วน
@@ -2590,6 +2601,27 @@ _STATUS_WORDS = {
     "vi": ("Rủi ro lúc này", ("kiểm soát được", "cần cẩn thận", "cần chăm sóc ngay")),
 }
 _SHOWN_RISK = re.compile(r"\((\d+)/100\)")
+
+
+def _compose_mood_intl(a: dict, mood, sign: str, footer: bool):
+    """ภัย → คำตอบเรื่องความปลอดภัย · วิกฤต → สายด่วน · โกรธ/อารมณ์หนัก → รับฟังและถามไถ่ ในภาษาของผู้ใช้"""
+    from core.mood_intl import MOOD_REPLY
+    from core.lang_signals import URGENT_REPLY, ASK_LABEL, FOOTER, TH_NUMBERS
+    kind, lg = mood
+    st = status_line(a, lg)
+    if a["crisis"] or kind in ("crisis", "danger"):
+        k = "crisis" if a["crisis"] else "violence"
+        if lg == "vi":
+            from core.world_replies import compose_world
+            return compose_world("vi", k, st, sign, footer)
+        if k == "violence":
+            return compose_urgent_intl(lg, "violence", st, sign, footer)
+        return compose_intl(lg, True, st, sign, footer)
+    opener, steps, ask = MOOD_REPLY[kind][lg]
+    body = "\n".join(f"{i + 1}) {x}" for i, x in enumerate(steps))
+    th = f"📞 {TH_NUMBERS[lg]}\n\n" if lg in TH_NUMBERS and kind == "anger_kill" else ""
+    tag = "\n" + FOOTER[lg] if footer else ""
+    return f"{opener}\n\n{st}\n\n{th}{body}\n\n{ask}\n\n{sign}" + tag
 
 
 def risk_phrase(a: dict, lang: str = "th") -> str:
@@ -2658,6 +2690,12 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             out = compose_asia(al, kind, st, sign, footer)
             if out:
                 return out
+
+    # ── อารมณ์หนัก/ภัยที่พูดสั้นในภาษา ja zh ko es vi (core/mood_intl) ──
+    if a.get("mood_intl"):
+        out = _compose_mood_intl(a, a["mood_intl"], sign, footer)
+        if out:
+            return out
 
     # ── ภาษาอื่น: สมการเดียวกัน (W · Risk · Choice) แต่ใช้คำตอบของภาษานั้น ──
     lang = detect_lang(text)
@@ -2985,7 +3023,47 @@ _HEAVY_OPEN = {
 }
 
 
+# โกรธจนตัวสั่น/อยากทุบพัง (core/second_layer.ANGER_MOOD) — คำตอบชวนพักก่อนลงมือ แทนคำถามว่าเหนื่อยจากอะไร
+_ANGER_REPLY = {
+    "th": ("ความโกรธแรงขนาดนี้ ร่างกายก็รับไว้เต็มๆ เลยนะคะ — ตอนนี้ยังไม่ต้องทำอะไร ขอพักสักครู่ก่อน",
+           ["ออกห่างจากคนหรือของที่ทำให้โกรธก่อน ไปอีกห้องหรือออกไปเดินข้างนอกสัก 10 นาที",
+            "กำมือแน่นแล้วคลาย ทำซ้ำสักสองสามครั้ง แล้วหายใจออกให้ยาวกว่าหายใจเข้า หัวใจจะค่อยๆ ช้าลง",
+            "รอให้ใจเย็นก่อนค่อยตัดสินใจว่าจะพูดหรือทำอะไร ถ้ารู้สึกว่าจะคุมตัวเองไม่อยู่ โทร 1323 คุยได้ตลอด 24 ชม."],
+           "ตอนนี้โกรธใครหรือเรื่องอะไรอยู่คะ แล้วมีใครอยู่ใกล้ๆ ที่อาจโดนลูกหลงไหม"),
+    "en": ("Anger this strong hits the whole body — you don't have to do anything right now. Let's pause first.",
+           ["Step away from the person or thing that set it off — another room or a walk outside for about 10 minutes.",
+            "Clench your fists hard and release a few times, then breathe out longer than you breathe in — your heart rate will come down.",
+            "Decide what to say or do only once you've cooled down. If you feel you might lose control, a crisis line can talk it through any time (1323 in Thailand, 988 in the US)."],
+           "Who or what are you angry at right now — and is anyone nearby who could get caught in it?"),
+}
+
+
+def _anger_reply(text, out):
+    from core.second_layer import ANGER_MOOD, ANGER_NOT
+    if not (ANGER_MOOD.search(text) and not ANGER_NOT.search(text)):
+        return None
+    parts = out.split("\n\n")
+    i = next((k for k, x in enumerate(parts) if x.startswith("1) ")), None)
+    if i is None or i + 1 >= len(parts):
+        return None
+    lang = "th" if re.search(r"[\u0E00-\u0E7F]", parts[0]) else "en"
+    opener, steps, ask = _ANGER_REPLY[lang]
+    label = parts[i + 1].split(": ", 1)[0] + ": " if ": " in parts[i + 1] else ""
+    parts[0] = opener
+    parts[i] = "\n".join(f"{n + 1}) {x}" for n, x in enumerate(steps))
+    parts[i + 1] = label + ask
+    return "\n\n".join(parts)
+
+
 def _soften_joking_crisis(text, out):
+    try:
+        if isinstance(out, str) and isinstance(text, str) and out.startswith(
+                tuple(_HEAVY_OPEN) + tuple(_HEAVY_OPEN.values())):
+            ang = _anger_reply(text, out)
+            if ang:
+                return ang
+    except Exception:
+        pass
     try:
         from core.second_layer import HEAVY_MOOD as _HM
         if isinstance(out, str) and isinstance(text, str) and _HM.search(text):
