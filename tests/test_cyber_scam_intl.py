@@ -34,3 +34,21 @@ def test_other_wordings_are_caught(lang, text):
 def test_everyday_parcels_gift_cards_and_family_chats_stay_light(lang, text):
     a = assess(text)
     assert not a["cyber"] and a["text_risk"] < 35, a
+
+
+# ── เช่าซิม · ข่าวลือธนาคาร · แชร์ลูกโซ่ (สามเรื่องที่เดิมมีแค่ไทย/อังกฤษ) ──
+MORE_KINDS = {'ja': [('アプリが1通10円でSMSを送ってくれたらお金をくれる', 'sim_rent'), ('銀行がハッキングされたらしい、全部引き出した方がいい？', 'bank_rumor'), ('友達を紹介すると紹介報酬がもらえる配当投資に誘われた', 'ponzi')], 'zh': [('有个APP给钱，只要用我的手机号发短信', 'sim_rent'), ('听说银行被黑了，要不要把钱全取出来', 'bank_rumor'), ('亲戚叫我投资，分红很高，拉人还有提成', 'ponzi')], 'ko': [('앱이 문자 보내주면 건당 100원 준대', 'sim_rent'), ('은행이 해킹당했다는데 돈 다 빼야 할까', 'bank_rumor'), ('투자하면 배당 주고 지인 소개하면 수당도 준대', 'ponzi')], 'es': [('una app me paga por enviar sms desde mi teléfono', 'sim_rent'), ('dicen que el banco fue hackeado, ¿debo retirar todo mi dinero?', 'bank_rumor'), ('me invitaron a invertir, si traes gente ganas comisión', 'ponzi')], 'vi': [('có app trả tiền để gửi tin nhắn bằng sim của mình', 'sim_rent'), ('nghe nói ngân hàng bị hack, có nên rút hết tiền không', 'bank_rumor'), ('được rủ đầu tư, rủ thêm người thì có hoa hồng', 'ponzi')]}
+MORE_LIGHT = {'ja': ['銀行でお金を下ろした', '友達を食事に誘った'], 'zh': ['去银行取钱', '给朋友发短信'], 'ko': ['은행에서 돈 찾았어', '친구한테 문자 보냈어'], 'es': ['fui al banco a sacar dinero', 'invité a mis amigos a cenar'], 'vi': ['ra ngân hàng rút tiền', 'nhắn tin cho bạn']}
+
+
+@pytest.mark.parametrize("lang,text,kind", [(lg, t, k) for lg, rows in MORE_KINDS.items() for t, k in rows])
+def test_sim_rent_bank_rumor_and_ponzi_in_every_language(lang, text, kind):
+    assert assess(text)["cyber"] == kind
+    r = compose(text)
+    assert "1441" in r and re.search(SCRIPT[lang], r.split("\n")[0], re.I), r[:80]
+
+
+@pytest.mark.parametrize("lang,text", [(lg, t) for lg, xs in MORE_LIGHT.items() for t in xs])
+def test_banking_and_inviting_friends_stay_light(lang, text):
+    a = assess(text)
+    assert not a["cyber"] and a["text_risk"] < 35
