@@ -91,6 +91,9 @@ def cyber_kind(text) -> tuple | None:
     t = str(text or "")
     if not t.strip() or _NOT_MINE.search(t) or _DEV.search(t):
         return None
+    intl = cyber_kind_intl(t)               # ภาษาอื่นตรวจด้วยรูปประโยคของภาษานั้นก่อน (ไทย/อังกฤษไม่เข้าเงื่อนไขนี้)
+    if intl:
+        return intl
     for kind, risk, rx in PATTERNS:
         if rx.search(t):
             return kind, risk
@@ -207,5 +210,186 @@ REPLY = {
                 "Don't recruit anyone — when it collapses, the people you brought in are your own family and friends.",
                 "If you want out, withdraw in steps and keep every transfer record. Report it to the regulator or police (Thailand: SEC 1207 · 1441)."],
                "How much have you put in, and have you invited anyone yet?"),
+    },
+}
+
+
+# ══════════════════════════════════════════════════════════════════
+# อีก 5 ภาษาของเว็บ (ja zh ko es vi) — แรงงานและนักท่องเที่ยวในไทยโดนหลอกแบบเดียวกัน
+# เดิมเกือบทุกสถานการณ์ได้ Risk 0 · "tải ứng dụng từ link, file apk" ได้ "I'm sorry this happened" เป็นภาษาอังกฤษ
+# หกสถานการณ์ที่เจอบ่อยที่สุด · ที่เหลือ (เช่าซิม ข่าวลือธนาคาร แชร์ลูกโซ่) ยังมีแค่ไทย/อังกฤษ
+# ══════════════════════════════════════════════════════════════════
+_I = r"[^\n]"
+INTL = {
+    "ja": (
+        ("accessibility", 85, r"ユーザー補助|アクセシビリティ(?:の)?(?:権限|設定|サービス)"),
+        ("courier_cash", 80, r"(?:警察|役所|銀行|検察|税務署|大使館)" + _I + r"{0,20}?(?:名乗|と言|から)" + _I + r"{0,40}?(?:現金|金を?買|ゴールド|ギフトカード|電子マネー|ビットコイン|取りに|受け取りに)|"
+                             r"(?:現金|金|ゴールド)" + _I + r"{0,20}?(?:取りに(?:行く|来る)|受け取りに来)|ギフトカード" + _I + r"{0,20}?(?:番号|払え|支払|買って)"),
+        ("apk", 70, r"(?<![A-Za-z])apk(?![A-Za-z])|リンクから" + _I + r"{0,10}?(?:アプリ|ファイル)" + _I + r"{0,10}?(?:インストール|ダウンロード)|(?:アプリ|ファイル)" + _I + r"{0,10}?(?:インストール|ダウンロード)" + _I + r"{0,12}?(?:リンク|SMS|メッセージ)"),
+        ("otp_page", 70, r"(?:ロボットではない|CAPTCHA|キャプチャ)" + _I + r"{0,40}?(?:OTP|認証コード|ワンタイム|パスワード|暗証番号)|(?:リンク|サイト|ページ)" + _I + r"{0,20}?(?:OTP|認証コード|ワンタイムパスワード)(?:を)?入力"),
+        ("sms_link", 65, r"(?:SMS|ショートメール|メッセージ|メール|LINE)" + _I + r"{0,40}?(?:罰金|反則金|未納|荷物|不在|還付|口座(?:が)?(?:凍結|停止)|ポイント)" + _I + r"{0,30}?(?:リンク|クリック|支払)|(?:罰金|未納|荷物|還付)" + _I + r"{0,20}?リンク"),
+        ("friend_account", 65, r"(?:友達|友人|知人|家族|母|父|上司)" + _I + r"{0,16}?(?:LINE|メール|メッセージ|DM)" + _I + r"{0,20}?(?:お金|貸して|振り込|送金)"),
+    ),
+    "zh": (
+        ("accessibility", 85, r"无障碍(?:权限|服务|功能)|無障礙(?:權限|服務)|辅助功能权限"),
+        ("courier_cash", 80, r"(?:自称|冒充|说是|說是)" + _I + r"{0,10}?(?:警察|公安|银行|法院|检察院|大使馆)" + _I + r"{0,40}?(?:取现|现金|买黄金|买金|礼品卡|比特币|上门取|派人)|"
+                             r"(?:现金|黄金|金条)" + _I + r"{0,20}?(?:上门取|派人(?:来)?取|来家里取)|礼品卡" + _I + r"{0,20}?(?:卡号|付款|买)"),
+        ("apk", 70, r"(?<![A-Za-z])apk(?![A-Za-z])|(?:点|通过)链接" + _I + r"{0,10}?(?:下载|安装)(?:一个)?(?:app|应用|软件|APP)|(?:下载|安装)" + _I + r"{0,10}?(?:链接|短信)里的"),
+        ("otp_page", 70, r"(?:我不是机器人|人机验证)" + _I + r"{0,30}?(?:验证码|密码|OTP)|(?:网页|链接|网站)" + _I + r"{0,16}?(?:输入|填)(?:验证码|OTP|密码)"),
+        ("sms_link", 65, r"(?:短信|信息|消息|邮件)" + _I + r"{0,30}?(?:罚单|罚款|欠费|包裹|快递|退税|账户(?:被)?冻结|积分)" + _I + r"{0,30}?(?:链接|点击|付款)|(?:罚单|罚款|包裹|退税)" + _I + r"{0,16}?链接"),
+        ("friend_account", 65, r"(?:朋友|亲戚|同学|妈妈|爸爸|老板|领导)" + _I + r"{0,12}?(?:微信|QQ|短信|邮件|LINE|私信)" + _I + r"{0,12}?(?:借钱|转账|汇款|要钱)"),
+    ),
+    "ko": (
+        ("accessibility", 85, r"접근성\s*(?:권한|서비스|설정)"),
+        ("courier_cash", 80, r"(?:경찰|검찰|금감원|은행|대사관)" + _I + r"{0,20}?(?:이라면서|이라며|사칭|이라고)" + _I + r"{0,40}?(?:현금|금을?\s*사|상품권|비트코인|가지러|찾아)|"
+                             r"(?:현금|금|골드바)" + _I + r"{0,20}?(?:가지러\s*온|받으러\s*온|수거)|상품권" + _I + r"{0,20}?(?:번호|사서|보내)"),
+        ("apk", 70, r"(?<![A-Za-z])apk(?![A-Za-z])|링크로" + _I + r"{0,10}?(?:앱|어플|파일)" + _I + r"{0,8}?(?:설치|다운)"),
+        ("otp_page", 70, r"(?:로봇이\s*아닙니다|캡차)" + _I + r"{0,30}?(?:인증번호|OTP|비밀번호)|(?:링크|사이트|페이지)" + _I + r"{0,16}?(?:인증번호|OTP)" + _I + r"{0,6}?입력"),
+        ("sms_link", 65, r"(?:문자|메시지|메일|카톡)" + _I + r"{0,30}?(?:벌금|과태료|미납|택배|환급|계좌\s*정지|포인트)" + _I + r"{0,30}?(?:링크|클릭|내래|납부)|(?:벌금|과태료|택배|환급)" + _I + r"{0,16}?링크"),
+        ("friend_account", 65, r"(?:친구|지인|가족|엄마|아빠|딸|아들|상사)" + _I + r"{0,10}?(?:카톡|문자|메시지|메일|DM)" + _I + r"{0,16}?(?:돈|빌려|송금|이체)"),
+    ),
+    "es": (
+        ("accessibility", 85, r"(?:permiso|servicio)s?\s+de\s+accesibilidad"),
+        ("courier_cash", 80, r"(?:supuesto|dice\s+ser|se\s+hace\s+pasar\s+por|dijo\s+ser)" + _I + r"{0,30}?(?:polic[ií]a|banco|fiscal|embajada)" + _I + r"{0,60}?(?:efectivo|oro|tarjetas?\s+de\s+regalo|bitcoin|recoger)|"
+                             r"(?:efectivo|oro|dinero)" + _I + r"{0,30}?(?:vendr[áa]n?\s+a\s+recoger|pasar[áa]n?\s+a\s+(?:buscar|recoger))|tarjetas?\s+de\s+regalo" + _I + r"{0,30}?(?:c[óo]digo|pagar|polic|multa)"),
+        ("apk", 70, r"(?<![A-Za-z])apk(?![A-Za-z])|instalar\s+(?:una\s+)?app\s+desde\s+(?:un|el)\s+enlace|enlace" + _I + r"{0,20}?(?:descargar|instalar)\s+(?:una\s+)?(?:app|aplicaci[óo]n)"),
+        ("otp_page", 70, r"no\s+soy\s+un\s+robot" + _I + r"{0,40}?(?:c[óo]digo|otp|contraseña)|(?:enlace|p[áa]gina|sitio)" + _I + r"{0,30}?(?:ped[ií]a|pide|meter|introducir|poner)\s+(?:el\s+)?(?:c[óo]digo|otp)"),
+        ("sms_link", 65, r"(?:sms|mensaje|correo|whatsapp)" + _I + r"{0,40}?(?:multa|peaje|paquete|env[ií]o|devoluci[óo]n|reembolso|cuenta\s+(?:bloqueada|suspendida)|puntos)" + _I + r"{0,40}?(?:enlace|link|pagar|clic)"),
+        ("friend_account", 65, r"(?:amig[oa]|familiar|prim[oa]|jefe|mam[áa]|pap[áa])" + _I + r"{0,20}?(?:whatsapp|mensaje|correo|escribi[óo]|dm)" + _I + r"{0,24}?(?:dinero|prestad|transfer)"),
+    ),
+    "vi": (
+        ("accessibility", 85, r"quyền\s+(?:trợ\s+năng|hỗ\s+trợ\s+tiếp\s+cận)"),
+        ("courier_cash", 80, r"(?:xưng\s+là|giả\s+danh|tự\s+nhận\s+là|mạo\s+danh)" + _I + r"{0,20}?(?:công\s+an|cảnh\s+sát|ngân\s+hàng|tòa\s+án|đại\s+sứ\s+quán)" + _I + r"{0,50}?(?:tiền\s+mặt|mua\s+vàng|thẻ\s+quà|bitcoin|đến\s+nhà\s+lấy|cho\s+người\s+đến)|"
+                             r"(?:tiền\s+mặt|vàng)" + _I + r"{0,20}?(?:đến\s+nhà\s+lấy|cho\s+người\s+(?:đến|tới)\s+lấy)"),
+        ("apk", 70, r"(?<![A-Za-z])apk(?![A-Za-z])|(?:tải|cài(?:\s+đặt)?)\s+(?:ứng\s+dụng|app|file)" + _I + r"{0,10}?(?:từ|qua)\s+(?:link|đường\s+link|tin\s+nhắn)"),
+        ("otp_page", 70, r"không\s+phải\s+(?:là\s+)?robot" + _I + r"{0,30}?(?:otp|mã)|(?:link|trang)" + _I + r"{0,20}?(?:nhập|điền)\s+(?:mã\s+)?otp"),
+        ("sms_link", 65, r"(?:tin\s+nhắn|sms|email|zalo)" + _I + r"{0,30}?(?:phạt\s+nguội|phạt|nộp\s+phạt|bưu\s+kiện|hoàn\s+thuế|tài\s+khoản\s+bị\s+khóa|điểm)" + _I + r"{0,30}?(?:link|bấm|nhấn|nộp)"),
+        ("friend_account", 65, r"(?:bạn|người\s+thân|anh|chị|em|mẹ|bố|sếp)" + _I + r"{0,12}?(?:nhắn|zalo|messenger|facebook|email)" + _I + r"{0,20}?(?:mượn\s+tiền|vay\s+tiền|chuyển\s+tiền)"),
+    ),
+}
+_INTL_RX = {lg: [(k, r, re.compile(p, re.I)) for k, r, p in rows] for lg, rows in INTL.items()}
+
+
+def cyber_kind_intl(text) -> tuple | None:
+    from core.mood_intl import mood_lang
+    t = str(text or "")
+    lg = mood_lang(t)
+    if lg not in _INTL_RX:
+        return None
+    for kind, risk, rx in _INTL_RX[lg]:
+        if rx.search(t):
+            return kind, risk
+    return None
+
+
+AOC_LINE = {
+    "ja": "タイ：1441（サイバー警察 AOC・24時間）",
+    "zh": "泰国：1441（网络警察 AOC，24小时）",
+    "ko": "태국: 1441 (사이버 경찰 AOC, 24시간)",
+    "es": "Tailandia: 1441 (policía cibernética AOC, 24 h)",
+    "vi": "Thái Lan: 1441 (cảnh sát mạng AOC, 24 giờ)",
+}
+REPLY_INTL = {
+    "accessibility": {
+        "ja": ("今すぐ対応が必要です — その権限があると、アプリは入力するすべて（銀行の暗証番号も）を見て、代わりに操作できます。",
+               ["すぐに機内モードにしてください（モバイルデータとWi-Fiを切る）。", "別の電話から、このスマホに入っている銀行すべてに連絡し、口座やアプリを止めてもらってください。" + AOC_LINE["ja"], "そのアプリを削除し（できなければ先にユーザー補助をオフ）、別の端末から銀行とメールのパスワードを変えてください。"],
+               "もうお金が引き出されていますか？"),
+        "zh": ("现在很紧急 — 有了这个权限，应用能看到你输入的一切（包括银行密码），还能替你操作。",
+               ["马上开飞行模式，断开数据和 Wi-Fi。", "用另一部手机打给手机里所有银行，冻结账户或应用。" + AOC_LINE["zh"], "删除那个应用（删不掉就先关掉无障碍权限），再用别的设备改银行和邮箱密码。"],
+               "钱已经被转走了吗？"),
+        "ko": ("지금 급해요 — 그 권한이 있으면 앱이 입력하는 모든 것(은행 비밀번호까지)을 보고 대신 조작할 수 있어요.",
+               ["바로 비행기 모드를 켜서 데이터와 와이파이를 끊으세요.", "다른 전화로 이 폰에 있는 모든 은행에 연락해 계좌나 앱을 정지해 달라고 하세요. " + AOC_LINE["ko"], "그 앱을 삭제하고(안 되면 접근성 권한부터 끄고), 다른 기기에서 은행·메일 비밀번호를 바꾸세요."],
+               "이미 돈이 빠져나갔나요?"),
+        "es": ("Es urgente — con ese permiso la app ve todo lo que escribes (también tus claves del banco) y puede actuar por ti.",
+               ["Activa ya el modo avión (sin datos ni Wi-Fi).", "Desde otro teléfono, llama a cada banco que tengas en este móvil y pide bloquear la cuenta o la app. " + AOC_LINE["es"], "Borra esa app (si no puedes, quita primero el permiso de accesibilidad) y cambia las contraseñas del banco y del correo desde otro dispositivo."],
+               "¿Ya ha salido dinero de tu cuenta?"),
+        "vi": ("Việc này rất gấp — với quyền đó, ứng dụng thấy mọi thứ bạn nhập (cả mật khẩu ngân hàng) và có thể thao tác thay bạn.",
+               ["Bật ngay chế độ máy bay (tắt dữ liệu và Wi-Fi).", "Dùng điện thoại khác gọi cho mọi ngân hàng có app trên máy này, yêu cầu khóa tài khoản hoặc app. " + AOC_LINE["vi"], "Xóa ứng dụng đó (nếu không xóa được, tắt quyền trợ năng trước), rồi đổi mật khẩu ngân hàng và email từ thiết bị khác."],
+               "Tiền đã bị chuyển đi chưa?"),
+    },
+    "courier_cash": {
+        "ja": ("これは詐欺の手口です — 本物の警察や役所は、現金を下ろして金やギフトカードを買えとは言いませんし、家に受け取りにも来ません。",
+               ["今は何も下ろさず、渡さず、「受け取りに来た」人にドアを開けないでください。", "電話を切り、公式の番号を自分で調べてかけ直してください。" + AOC_LINE["ja"] + " · 警察 191", "もう渡してしまったら、すぐに 1441 と警察へ。番号・メッセージ・送られてきた身分証の写真を残してください。"],
+               "もう現金や金、カード番号を渡しましたか？"),
+        "zh": ("这是诈骗手法 — 真正的警察或政府部门不会让你取现金买黄金、买礼品卡，也不会派人上门收钱。",
+               ["先停下，不要再取钱或交出任何东西，也不要给“上门取”的人开门。", "挂断电话，自己查官方号码再打回去核实。" + AOC_LINE["zh"] + " · 报警 191", "如果已经给了，马上打 1441 并报警，保留号码、聊天记录和对方发来的“证件”照片。"],
+               "你已经交出现金、黄金或卡号了吗？"),
+        "ko": ("이건 사기 수법이에요 — 진짜 경찰이나 기관은 현금을 찾아 금이나 상품권을 사라고 하지 않고, 집으로 받으러 오지도 않아요.",
+               ["지금은 아무것도 찾거나 건네지 말고, \"받으러 온\" 사람에게 문을 열지 마세요.", "전화를 끊고 공식 번호를 직접 찾아 다시 확인하세요. " + AOC_LINE["ko"] + " · 경찰 191", "이미 건넸다면 바로 1441과 경찰에 신고하고, 번호·메시지·받은 신분증 사진을 남겨 두세요."],
+               "이미 현금이나 금, 상품권 번호를 건넸나요?"),
+        "es": ("Es una estafa — la policía real nunca te pide sacar efectivo para comprar oro o tarjetas regalo, ni manda a nadie a recoger dinero a tu casa.",
+               ["Para: no saques ni entregues nada más, y no abras la puerta a quien venga a \"recoger\".", "Cuelga y llama tú al número oficial para comprobarlo. " + AOC_LINE["es"] + " · Policía 191", "Si ya entregaste algo, llama ya al 1441 y a la policía, y guarda números, mensajes y las fotos de \"credenciales\" que te enviaron."],
+               "¿Ya entregaste efectivo, oro o códigos de tarjetas?"),
+        "vi": ("Đây là chiêu lừa đảo — công an thật không bao giờ bảo rút tiền mặt mua vàng hay thẻ quà tặng, và không cho người đến nhà lấy tiền.",
+               ["Dừng lại: đừng rút hay giao thêm gì, và đừng mở cửa cho người \"đến lấy\".", "Cúp máy, tự tìm số chính thức rồi gọi lại để xác minh. " + AOC_LINE["vi"] + " · Cảnh sát 191", "Nếu đã giao, gọi ngay 1441 và báo cảnh sát, giữ lại số điện thoại, tin nhắn và ảnh \"giấy tờ\" họ gửi."],
+               "Bạn đã giao tiền mặt, vàng hay mã thẻ chưa?"),
+    },
+    "apk": {
+        "ja": ("インストールしないでください — リンクや .apk で送られてくるアプリは、銀行アプリからお金を盗む一番の手口です（Google Play そっくりでも）。",
+               ["そのページは閉じて、自分で開いた Play ストア / App Store からだけ入れてください。", "もう入れてしまったら：機内モードにして削除。「ユーザー補助」の許可は絶対にしないでください。", "入れた後に銀行アプリを開いたなら、銀行に確認を。" + AOC_LINE["ja"]],
+               "もうインストールしましたか？"),
+        "zh": ("不要安装 — 通过链接或 .apk 发来的应用，是盗取银行 App 里钱的主要手法（就算长得像 Google Play）。",
+               ["关掉那个页面，只从自己打开的应用商店安装。", "如果已经装了：开飞行模式、删除它，千万不要给它“无障碍”权限。", "装完后打开过银行 App 的话，请联系银行检查。" + AOC_LINE["zh"]],
+               "你已经安装了吗？"),
+        "ko": ("설치하지 마세요 — 링크나 .apk로 보내는 앱은 은행 앱에서 돈을 빼가는 대표적인 수법이에요(구글 플레이처럼 보여도요).",
+               ["그 페이지를 닫고, 직접 연 플레이 스토어/앱 스토어에서만 설치하세요.", "이미 설치했다면: 비행기 모드 → 삭제. \"접근성\" 권한은 절대 주지 마세요.", "설치 후 은행 앱을 열었다면 은행에 확인하세요. " + AOC_LINE["ko"]],
+               "이미 설치했나요?"),
+        "es": ("No la instales — las apps que llegan por enlace o como .apk son la forma principal de vaciar apps del banco, aunque parezcan Google Play.",
+               ["Cierra la página e instala solo desde la Play Store o App Store que abras tú.", "Si ya la instalaste: modo avión y bórrala. Nunca le des permiso de \"accesibilidad\".", "Si abriste el banco después de instalarla, llama al banco para revisar. " + AOC_LINE["es"]],
+               "¿Ya la instalaste?"),
+        "vi": ("Đừng cài đặt — ứng dụng gửi qua link hoặc file .apk là cách chính để rút sạch tiền trong app ngân hàng, dù trông giống Google Play.",
+               ["Đóng trang đó, chỉ cài từ Play Store / App Store do bạn tự mở.", "Nếu đã cài: bật chế độ máy bay và xóa ngay. Tuyệt đối không cấp quyền \"trợ năng\".", "Nếu đã mở app ngân hàng sau khi cài, hãy gọi ngân hàng kiểm tra. " + AOC_LINE["vi"]],
+               "Bạn đã cài chưa?"),
+    },
+    "otp_page": {
+        "ja": ("入力する前に止まってください —「ロボットではありません」の確認は本物のサイトの証明になりません。詐欺側が入れていて、打つ文字をリアルタイムで見ています。",
+               ["リンクから開いたページでは OTP やパスワードを入れないでください。閉じて、アプリや自分で入力したアドレスから開き直しましょう。", "もう入力したなら、本物のアプリからすぐパスワードを変え、お金の口座なら銀行へ。", "リンクは残して通報を。" + AOC_LINE["ja"]],
+               "もう何か入力しましたか？"),
+        "zh": ("先别输入 —“我不是机器人”验证不能证明网站是真的，骗子自己加上去的，你输入的每个字他们都能实时看到。",
+               ["不要在从链接打开的网页里输入验证码或密码，关掉后从官方 App 或自己输入网址进入。", "如果已经输入，马上用真的 App 改密码；是钱的账户就联系银行。", "保留链接去举报。" + AOC_LINE["zh"]],
+               "你已经输入了什么吗？"),
+        "ko": ("입력하기 전에 멈추세요 — \"로봇이 아닙니다\" 확인은 진짜 사이트라는 증거가 아니에요. 사기범이 넣어 둔 것이고, 입력하는 글자를 실시간으로 봐요.",
+               ["링크로 연 페이지에서는 인증번호나 비밀번호를 넣지 마세요. 닫고 앱이나 직접 입력한 주소로 다시 여세요.", "이미 입력했다면 진짜 앱에서 바로 비밀번호를 바꾸고, 돈 계좌라면 은행에 연락하세요.", "링크는 남겨서 신고하세요. " + AOC_LINE["ko"]],
+               "이미 뭔가 입력했나요?"),
+        "es": ("Para antes de escribir — un \"no soy un robot\" no prueba que el sitio sea real. Lo ponen los estafadores, y ven cada letra que escribes en directo.",
+               ["No metas un OTP ni contraseñas en una página abierta desde un enlace: ciérrala y entra por la app o escribiendo tú la dirección.", "Si ya lo pusiste, cambia la contraseña desde la app real y llama al banco si es una cuenta de dinero.", "Guarda el enlace para denunciarlo. " + AOC_LINE["es"]],
+               "¿Ya escribiste algo?"),
+        "vi": ("Dừng lại trước khi nhập — ô \"tôi không phải robot\" không chứng minh trang là thật. Kẻ lừa đảo tự gắn vào và thấy từng ký tự bạn gõ.",
+               ["Đừng nhập OTP hay mật khẩu ở trang mở từ link — đóng lại và vào bằng app hoặc tự gõ địa chỉ.", "Nếu đã nhập, đổi mật khẩu ngay từ app thật và gọi ngân hàng nếu là tài khoản tiền.", "Giữ lại link để báo cáo. " + AOC_LINE["vi"]],
+               "Bạn đã nhập gì chưa?"),
+    },
+    "sms_link": {
+        "ja": ("まだリンクを押さないでください — 罰金・荷物・還付・口座確認を急がせるメッセージは、詐欺の一番の入口です。",
+               ["リンクを押さず、書かれた番号にもかけ直さず、公式アプリや自分で調べたサイトで確認してください。", "本物の機関はアプリを入れさせるリンクを送らず、リンク先で OTP を求めません。", "もう押したり入力したりしたら、パスワードを変えて銀行に連絡を。" + AOC_LINE["ja"]],
+               "もうリンクを押したり、何か入力したりしましたか？"),
+        "zh": ("先别点链接 — 催你交罚款、领包裹、退税、核实账户的短信，是诈骗最主要的入口。",
+               ["不点链接，也不回拨短信里的号码，用官方 App 或自己查的网站核实。", "真的机构不会发链接让你装 App，也不会在链接页面要验证码。", "如果已经点了或输入了信息，改密码并联系银行。" + AOC_LINE["zh"]],
+               "你已经点链接或输入什么了吗？"),
+        "ko": ("아직 링크를 누르지 마세요 — 벌금·택배·환급·계좌 확인을 재촉하는 문자는 사기의 대표적인 입구예요.",
+               ["링크를 누르지 말고 문자 속 번호로도 전화하지 말고, 공식 앱이나 직접 찾은 사이트에서 확인하세요.", "진짜 기관은 앱 설치 링크를 보내지 않고, 링크 페이지에서 인증번호를 묻지 않아요.", "이미 눌렀거나 입력했다면 비밀번호를 바꾸고 은행에 연락하세요. " + AOC_LINE["ko"]],
+               "이미 링크를 눌렀거나 뭔가 입력했나요?"),
+        "es": ("No toques el enlace todavía — los mensajes que te apuran con multas, peajes, paquetes, reembolsos o revisar tu cuenta son la puerta principal de las estafas.",
+               ["No toques el enlace ni llames al número del mensaje: compruébalo en la app oficial o en un sitio que busques tú.", "Las entidades reales no mandan enlaces para instalar apps ni piden un OTP en una página enlazada.", "Si ya tocaste o escribiste datos, cambia contraseñas y llama al banco. " + AOC_LINE["es"]],
+               "¿Ya tocaste el enlace o escribiste algo?"),
+        "vi": ("Khoan bấm link — tin nhắn hối thúc nộp phạt, nhận bưu kiện, hoàn thuế hay xác minh tài khoản là cửa ngõ chính của lừa đảo.",
+               ["Đừng bấm link hay gọi lại số trong tin nhắn — kiểm tra qua app chính thức hoặc trang bạn tự tìm.", "Cơ quan thật không gửi link bắt cài app và không đòi OTP trên trang từ link.", "Nếu đã bấm hoặc nhập thông tin, đổi mật khẩu và gọi ngân hàng. " + AOC_LINE["vi"]],
+               "Bạn đã bấm link hay nhập gì chưa?"),
+    },
+    "friend_account": {
+        "ja": ("送る前に別の方法で確認してください — 友達のアカウントが乗っ取られていたら、同じチャットで「本当だよ」と返すのは詐欺師本人です。",
+               ["もともと知っている番号に電話して、二人しか知らないことを聞いてください。", "連絡がつくまで送らないで。本当に困っている人も数分は待てます。", "偽物なら友達と共通の知人に知らせて。もう送ったら銀行と 1441 へ。"],
+               "もう送金しましたか？"),
+        "zh": ("转账前先换个方式确认 — 如果朋友的账号被盗了，在同一个聊天里回“是真的”的就是骗子本人。",
+               ["打朋友原来的电话号码，问一件只有你们俩知道的事。", "联系上之前不要转。真有急事的人也能等几分钟。", "如果是假的，提醒朋友和共同好友。已经转了的话，马上联系银行和 1441。"],
+               "你已经转账了吗？"),
+        "ko": ("보내기 전에 다른 방법으로 확인하세요 — 친구 계정이 해킹됐다면, 같은 채팅에서 \"진짜야\"라고 답하는 건 사기범이에요.",
+               ["원래 알고 있던 번호로 전화해서 둘만 아는 걸 물어보세요.", "연락이 닿기 전엔 보내지 마세요. 정말 급한 사람도 몇 분은 기다릴 수 있어요.", "가짜라면 친구와 지인들에게 알리고, 이미 보냈다면 바로 은행과 1441에 연락하세요."],
+               "이미 돈을 보냈나요?"),
+        "es": ("Comprueba por otra vía antes de enviar — si le robaron la cuenta a tu amigo, quien responde \"sí, soy yo\" en ese mismo chat es el estafador.",
+               ["Llama a tu amigo al número que ya tenías y pregúntale algo que solo ustedes dos sepan.", "No envíes nada hasta hablar con él: una urgencia real puede esperar unos minutos.", "Si es falso, avisa a tu amigo y a conocidos en común. Si ya enviaste, llama al banco y al 1441."],
+               "¿Ya enviaste dinero?"),
+        "vi": ("Hãy kiểm tra bằng cách khác trước khi chuyển — nếu tài khoản của bạn bè bị chiếm, người trả lời \"đúng là mình\" trong cùng đoạn chat chính là kẻ lừa đảo.",
+               ["Gọi vào số cũ bạn vẫn có và hỏi một chuyện chỉ hai người biết.", "Chưa liên lạc được thì đừng chuyển — người gặp chuyện thật vẫn chờ được vài phút.", "Nếu là giả, báo cho bạn và người quen chung. Nếu đã chuyển, gọi ngay ngân hàng và 1441."],
+               "Bạn đã chuyển tiền chưa?"),
     },
 }

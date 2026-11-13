@@ -3207,7 +3207,19 @@ def _compose_cyber(text, route="general", voice_mode="lyla", *args, footer=True,
     kind = a.get("cyber")
     if not kind or a["crisis"]:
         return None
-    lg = detect_lang(text)
+    from core.mood_intl import mood_lang
+    lg = mood_lang(text) or detect_lang(text)
+    if lg in ("ja", "zh", "ko", "es", "vi"):
+        from core.cyber_scam import REPLY_INTL
+        from core.lang_signals import FOOTER as _FT, TH_NUMBERS as _THN
+        if kind not in REPLY_INTL:
+            return None
+        o, ss, q = REPLY_INTL[kind][lg]
+        sign = "— VEGA ◆" if str(voice_mode or kw.get("voice_mode") or "").lower() == "vega" else "— LYLA ◈"
+        st = status_line(a, lg)
+        body = "\n".join(f"{i + 1}) {x}" for i, x in enumerate(ss))
+        return (f"{o}\n\n" + (f"{st}\n\n" if st else "") + f"📞 {_THN[lg]}\n\n{body}\n\n{q}\n\n{sign}"
+                + ("\n" + _FT[lg] if footer else ""))
     if lg not in ("th", "en") or (lg == "en" and script_lang(text)):
         return None
     # ภาษาไทยที่ตัวจับมิจฉาชีพเดิม (scam_flags) รู้จักแล้ว ได้คำเตือนเดิมซึ่งมี 1441 และเรื่อง OTP อยู่แล้ว
