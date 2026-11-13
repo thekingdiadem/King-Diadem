@@ -34,7 +34,7 @@
     'วิเคราะห์ภาพนี้': ['Analyze this image', 'この画像を分析'], 'แพ็กเกจ': ['Plans', 'プラン'], 'เติมเครดิต →': ['Top up credits →', 'クレジットを追加 →'],
     'อีเมล': ['Email', 'メール'], 'พื้นฐาน': ['Basic', 'ベーシック'], '+10 เครดิตต่อรอบบิล': ['+10 credits per billing cycle', '請求ごとに +10 クレジット'],
     'อารยธรรม': ['Civilization', 'シビライゼーション'], '+100 เครดิตต่อรอบบิล': ['+100 credits per billing cycle', '請求ごとに +100 クレジット'],
-    'ไปหน้าชำระเงิน': ['Go to checkout', 'お支払いへ進む'], 'ระบบจริง': ['Live system', '稼働中のシステム'], 'โหมดสี': ['Color mode', 'カラーモード'], 'กลางคืน': ['Night', '夜'], 'กลางวัน': ['Day', '昼'], 'คอสมิกลาเต้': ['Cosmic latte', 'コズミックラテ'], 'พาสเทลมืด': ['Dark pastel', 'ダークパステル'], 'สีที่เลือกเอง': ['Pick my own color', '好きな色を選ぶ'], 'เลือกสีพื้นหลัง': ['Choose background color', '背景色を選ぶ'], 'ตัวอย่างคำถาม': ['Example questions', '質問の例'], 'ฟรี ไม่ต้องสมัคร': ['Free · no sign-up', '無料・登録不要'], 'เล่าเรื่องที่ค้างใจได้เลย · ช่วยหาทางเลือกที่ยังเหลืออยู่': ['Tell me what is on your mind · we find the choices you still have', '気になっていることを話してください · まだ残っている選択肢を一緒に探します'], '🌙 นอนไม่หลับมาหลายวัน': ['🌙 Can’t sleep for days', '🌙 何日も眠れない'], '🌿 ลังเลจะลาออกไหม': ['🌿 Should I quit my job?', '🌿 仕事を辞めるか迷っている'], '💗 ทะเลาะกับแฟนบ่อย': ['💗 We keep fighting', '💗 恋人とけんかばかり'], '💳 หนี้บัตรผ่อนไม่ไหว': ['💳 Can’t pay my card debt', '💳 カードの返済が苦しい'], 'กำลังโหลดตัวเลขสด…': ['Loading live numbers…', 'ライブの数値を読み込み中…'], 'สด · นับจากโค้ดที่รันอยู่จริง': ['Live · counted from the running code', 'ライブ · 稼働中のコードから集計'], 'ชุดที่ฝังไว้ · ยังโหลดตัวเลขสดไม่ได้': ['Built-in snapshot · live numbers unavailable', '埋め込みデータ · ライブの数値を取得できません'], 'จักรวาล →': ['Universe →', '宇宙 →'], 'สถาปัตยกรรม →': ['Architecture →', 'アーキテクチャ →'], 'ประวัติการปรึกษา': ['Consultation history', '相談履歴'], 'ดาวน์โหลด': ['Download', 'ダウンロード'], 'ส่งไปที่อีเมล': ['Send to my email', 'メールに送る'],
+    'ไปหน้าชำระเงิน': ['Go to checkout', 'お支払いへ進む'], 'ระบบจริง': ['Live system', '稼働中のシステム'], 'โหมดสี': ['Color mode', 'カラーモード'], 'กลางคืน': ['Night', '夜'], 'กลางวัน': ['Day', '昼'], 'คอสมิกลาเต้': ['Cosmic latte', 'コズミックラテ'], 'พาสเทลมืด': ['Dark pastel', 'ダークパステル'], 'สีที่เลือกเอง': ['Pick my own color', '好きな色を選ぶ'], 'เลือกสีพื้นหลัง': ['Choose background color', '背景色を選ぶ'], 'ตัวอย่างคำถาม': ['Example questions', '質問の例'], 'ฟรี ไม่ต้องสมัคร': ['Free · no sign-up', '無料・登録不要'], 'เล่าเรื่องที่ค้างใจได้เลย · ช่วยหาทางเลือกที่ยังเหลืออยู่': ['Tell me what is on your mind · we find the choices you still have', '気になっていることを話してください · まだ残っている選択肢を一緒に探します'], 'นอนไม่หลับมาหลายวัน': ['Can’t sleep for days', '何日も眠れない'], 'ลังเลจะลาออกไหม': ['Should I quit my job?', '仕事を辞めるか迷っている'], 'ทะเลาะกับแฟนบ่อย': ['We keep fighting', '恋人とけんかばかり'], 'หนี้บัตรผ่อนไม่ไหว': ['Can’t pay my card debt', 'カードの返済が苦しい'], 'กำลังโหลดตัวเลขสด…': ['Loading live numbers…', 'ライブの数値を読み込み中…'], 'สด · นับจากโค้ดที่รันอยู่จริง': ['Live · counted from the running code', 'ライブ · 稼働中のコードから集計'], 'ชุดที่ฝังไว้ · ยังโหลดตัวเลขสดไม่ได้': ['Built-in snapshot · live numbers unavailable', '埋め込みデータ · ライブの数値を取得できません'], 'จักรวาล →': ['Universe →', '宇宙 →'], 'สถาปัตยกรรม →': ['Architecture →', 'アーキテクチャ →'], 'ประวัติการปรึกษา': ['Consultation history', '相談履歴'], 'ดาวน์โหลด': ['Download', 'ダウンロード'], 'ส่งไปที่อีเมล': ['Send to my email', 'メールに送る'],
     'หนึ่งข้อความ': ['One message', '1つのメッセージ'], 'เซิร์ฟเวอร์': ['Server', 'サーバー'], 'กำลังโหลด…': ['Loading…', '読み込み中…'],
     'ไฟล์': ['Files', 'ファイル'], 'ค้นหา': ['Search', '検索'], 'ค้นหาไฟล์': ['Search files', 'ファイルを検索'],
     'สมการของคำตอบ': ['Equation behind the answer', '回答の数式'], 'แท็บ': ['Tabs', 'タブ'],
@@ -150,11 +150,11 @@
     'ไม่โหลด': ['not loaded', '未読み込み'],
     'ไม่ได้วาด: {x}': ['Not drawn: {x}', '描画していない: {x}'],
     '… อีก {n}': ['… {n} more', '… ほか{n}件'],
-    '⏳ ควรเริ่มวันนี้': ['⏳ Best to start today', '⏳ 今日始めるのがおすすめです'],
-    '⏳ เหลือเวลาตัดสินใจราว {n} วัน': ['⏳ About {n} days left to decide', '⏳ 決めるまで残り約{n}日'],
+    'ควรเริ่มวันนี้': ['Best to start today', '今日始めるのがおすすめです'],
+    'เหลือเวลาตัดสินใจราว {n} วัน': ['About {n} days left to decide', '決めるまで残り約{n}日'],
     '▲ ฟรีเหลือ {n}': ['▲ {n} free left', '▲ 無料 残り{n}'],
     '▲ เติม/อัปเกรด': ['▲ Top up / Upgrade', '▲ チャージ / アップグレード'],
-    '🌿 ยังมีเวลา ไม่ต้องรีบตัดสินใจ': ['🌿 There is still time — no need to rush', '🌿 まだ時間があります。急がなくて大丈夫'],
+    'ยังมีเวลา ไม่ต้องรีบตัดสินใจ': ['There is still time — no need to rush', 'まだ時間があります。急がなくて大丈夫'],
     'ดาวลูกไก่': ['Pleiades', 'すばる'],
     'ดาวโรหิณี': ['Aldebaran', 'アルデバラン'],
     'ดาวไถ': ['Orion’s Belt', 'オリオンのベルト'],
@@ -340,7 +340,7 @@
     'กลาง 45–74': ['Medium 45–74', '中 45–74'],
     'สูง ≥75': ['High ≥75', '高 ≥75'],
     'มือถือตั้งลดการเคลื่อนไหวไว้แล้ว — ปิดได้ที่การตั้งค่าของเครื่อง': ['Your device is set to reduce motion — you can change it in the device settings', '端末で「視差効果を減らす」が有効です — 端末の設定で変更できます'],
-    'ช่วงฮาโลวีน 🎃 เปิดธีมค้างคาวน่ารักๆ ได้ที่ปุ่มวงกลมมุมขวาบน': ['It’s Halloween 🎃 — turn on the cute bat theme from the round button at the top right', 'ハロウィンの季節 🎃 右上の丸いボタンからかわいいコウモリのテーマをオンにできます'],
+    'ช่วงฮาโลวีน เปิดธีมค้างคาวน่ารักๆ ได้ที่ปุ่มวงกลมมุมขวาบน': ['It’s Halloween — turn on the cute bat theme from the round button at the top right', 'ハロウィンの季節 右上の丸いボタンからかわいいコウモリのテーマをオンにできます'],
     'คัดลอกลิงก์รายงานแล้วค่ะ': ['Report link copied', 'レポートのリンクをコピーしました'],
     'สร้างลิงก์รายงานแล้วค่ะ': ['Report link created', 'レポートのリンクを作成しました'],
     'สร้างลิงก์ไม่สำเร็จ': ['Could not create the link', 'リンクを作成できませんでした'],
@@ -364,7 +364,7 @@
     'วิเคราะห์ภาพไม่ได้ — ลองภาพอื่น': ['Could not analyze the image — try another one', '画像を分析できません — 別の画像をお試しください'],
     'เข้าสู่ระบบก่อนนะคะ เครดิตจะได้เข้าบัญชีของคุณ': ['Please sign in first so the credits go to your account', 'クレジットをアカウントに入れるため、先にログインしてください'],
     'สร้าง Stripe checkout ไม่สำเร็จ': ['Could not create the Stripe checkout', 'Stripeの決済を作成できませんでした'],
-    'เสียงจากผู้ใช้ 👍/👎': ['User feedback 👍/👎', 'ユーザーの声 👍/👎'],
+    'เสียงจากผู้ใช้': ['User feedback', 'ユーザーの声'],
     'ออฟไลน์': ['Offline', 'オフライン'],
     'ติดต่อ /health ไม่ได้ — เซิร์ฟเวอร์อาจกำลังตื่น': ['Cannot reach /health — the server may be waking up', '/health に接続できません — サーバーが起動中かもしれません'],
     'โหลดแล้ว': ['loaded', '読み込み済み'],
@@ -432,7 +432,7 @@
     'บันทึก + รายงาน': ['Records + reports', '記録 + レポート'],
     'บันทึกการตัดสินใจลง SQLite · กดแชร์แล้วได้รายงาน /report/<id> (เปิดได้ 90 วัน) — และหน้านี้เปลี่ยนคำตอบเป็นดาวในจักรวาล': ['saves decisions to SQLite · sharing creates a /report/<id> page (open for 90 days) — and this page turns each answer into a star in the universe', '決断を SQLite に保存 · 共有すると /report/<id> レポートを作成 (90日間有効) — このページは回答を宇宙の星に変える'],
     'เรียนรู้จากเสียงผู้ใช้': ['Learn from user feedback', 'ユーザーの声から学ぶ'],
-    '👍/👎 ใต้คำตอบ → เก็บแค่เส้นทาง · ความเสี่ยง · ผลโหวต (ไม่เก็บข้อความ) ลง SQLite → อัตราที่ช่วยได้ต่อเส้นทาง + แนวโน้ม + drift': ['👍/👎 under each answer → stores only route · risk · vote (no message text) in SQLite → helpful rate per route + trend + drift', '回答の下の 👍/👎 → ルート · リスク · 投票だけを SQLite に保存 (本文は保存しない) → ルートごとの役立ち率 + 傾向 + drift'],
+    'ปุ่มช่วยได้/ยังไม่ช่วย ใต้คำตอบ → เก็บแค่เส้นทาง · ความเสี่ยง · ผลโหวต (ไม่เก็บข้อความ) ลง SQLite → อัตราที่ช่วยได้ต่อเส้นทาง + แนวโน้ม + drift': ['✓/✕ under each answer → stores only route · risk · vote (no message text) in SQLite → helpful rate per route + trend + drift', '回答の下の ✓/✕ → ルート · リスク · 投票だけを SQLite に保存 (本文は保存しない) → ルートごとの役立ち率 + 傾向 + drift'],
     'โพธิปักขิยธรรม (core v2.1)': ['Bodhipakkhiya dhamma (core v2.1)', '菩提分法 (core v2.1)'],
     'โหมดภาพยนตร์': ['Cinema mode', 'シネマモード'],
     'แตะหรือกด Esc เพื่อออก': ['Tap or press Esc to exit', 'タップまたは Esc で終了'],
@@ -577,13 +577,11 @@
     'ด้วยอัตราไหลลงตอนนี้ จะแตะเส้นใน {n} วัน': ['At the current drift you reach the floor in {n} days', '今の減り方だと {n} 日で下限に達します'],
     'L0: ต่อให้ผันผวนแค่ไหน ห้ามต่ำกว่าเส้นนี้เด็ดขาด': ['L0: however volatile things get, never go below this line', 'L0：どれほど変動しても、このラインを下回ってはならない'],
     'โหมดการใช้งาน': ['Mode', 'モード'],
-    '💬 ปรึกษา': ['💬 Talk', '💬 相談'],
-    '🎨 สร้างภาพ': ['🎨 Create image', '🎨 画像を作る'],
+    'สร้างภาพ': ['Create image', '画像を作る'],
     'ตรวจการตัดสินใจขององค์กร/โครงการตามเฟรมเวิร์ค DriftZero': ['Check an organization or project decision with the DriftZero framework', 'DriftZeroフレームワークで組織・プロジェクトの意思決定を点検'],
     'เล่าการตัดสินใจขององค์กรหรือโครงการ เช่น จะใช้เงินสำรองทั้งหมดขยาย 10 สาขาในปีนี้': ['Describe an organization or project decision, e.g. using all cash reserves to open 10 branches this year', '組織やプロジェクトの決定を書いてください 例：今年、手元資金をすべて使って10店舗に拡大する'],
     'บอกภาพที่อยากได้ เช่น แมวส้มนั่งดูดาวบนหลังคา สไตล์สีน้ำ': ['Describe the image you want, e.g. an orange cat watching the stars on a roof, watercolor', '欲しい画像を書いてください 例：屋根の上で星を見る茶トラ猫、水彩風'],
-    'สร้างภาพ': ['Create image', '画像を作る'],
-    'คำตอบที่ช่วยได้ 👍 {u} · 👎 {d} ({r}%)': ['Helpful answers 👍 {u} · 👎 {d} ({r}%)', '役立った回答 👍 {u} · 👎 {d} ({r}%)'],
+    'คำตอบที่ช่วยได้ ✓ {u} · ✕ {d} ({r}%)': ['Helpful answers ✓ {u} · ✕ {d} ({r}%)', '役立った回答 ✓ {u} · ✕ {d} ({r}%)'],
     'สร้างภาพไม่สำเร็จครั้งล่าสุด: {k}': ['Last image failure: {k}', '最後の画像生成失敗: {k}'],
     'ราคา/โควตาเปลี่ยนโดยไม่ใส่เหตุผล {n} ครั้ง — ใส่ POLICY_CHANGE_REASON ใน Render': ['Price/quota changed without a reason {n} times — set POLICY_CHANGE_REASON in Render', '理由なしの価格/枠の変更 {n} 回 — RenderでPOLICY_CHANGE_REASONを設定'],
     'สุขภาพระบบ': ['System health', 'システムの状態'],
@@ -622,7 +620,7 @@
     'ไปคุยในโหมดปรึกษา': ['Talk it through in Talk mode', '相談モードで話す'],
     'ใช้ไมค์ไม่ได้ — อนุญาตไมโครโฟนให้เว็บนี้ก่อน หรือพิมพ์แทนได้เลยนะคะ': ['Cannot use the microphone — allow it for this site first, or just type instead', 'マイクが使えません — このサイトにマイクを許可するか、入力してください'],
     'เสียงของคุณถูกแปลงเป็นข้อความโดยเบราว์เซอร์ (บางเบราว์เซอร์ส่งเสียงไปที่เซิร์ฟเวอร์ของผู้ผลิต) ก่อนส่งข้อความมาที่เรา': ['Your voice is turned into text by your browser (some browsers send the audio to their maker’s servers) before the text is sent to us', '音声はブラウザでテキストに変換されます（一部のブラウザは音声を提供元のサーバーに送信します）。その後テキストが送られます'],
-    '🔊 อ่านออกเสียง': ['🔊 Read aloud', '🔊 読み上げ'],
+    'อ่านออกเสียง': ['Read aloud', '読み上げ'],
     'พูดแทนพิมพ์': ['Speak instead of typing', '話して入力'],
     'อ่านคำตอบออกเสียง': ['Read replies aloud', '返信を読み上げる'],
     'วิธีใช้': ['How it works', '使い方'],
@@ -643,6 +641,21 @@
     'บน iPhone: แตะปุ่มแชร์ แล้วเลือก “เพิ่มไปยังหน้าจอโฮม”': ['On iPhone: tap Share, then “Add to Home Screen”', 'iPhoneでは：共有ボタン →「ホーム画面に追加」'],
     'ติดตั้งแล้ว — เปิดจากหน้าจอโฮมได้เลย': ['Installed — open it from your home screen', 'インストールしました — ホーム画面から開けます'],
     'การยกเลิกและคืนเงิน': ['Cancellation & refunds', '解約と返金'],
+    'ยกเลิก': ['Cancel', 'キャンセル'],
+    'รายงานคำตอบนี้': ['Report this answer', 'この回答を報告'],
+    'รายงานแล้ว ขอบคุณค่ะ': ['Reported — thank you', '報告済みです。ありがとうございます'],
+    'ถ้าคำตอบนี้ไม่เหมาะสม ผิด หรืออาจทำให้ใครเดือดร้อน บอกเราได้เลยค่ะ มีคนอ่านทุกรายงาน': ['If this answer is inappropriate, wrong, or could hurt someone, please tell us. A person reads every report.', 'この回答が不適切・誤り・誰かを傷つけるおそれがある場合は教えてください。すべての報告を人が読みます。'],
+    'คำตอบนี้เป็นแบบไหน': ['What is wrong with it?', 'どのような問題ですか'],
+    'อาจเป็นอันตรายหรือไม่ปลอดภัย': ['Could be harmful or unsafe', '危険・安全でないおそれがある'],
+    'หยาบคาย เหยียด หรือไม่ให้เกียรติ': ['Rude, hateful, or disrespectful', '乱暴・差別的・失礼'],
+    'ข้อมูลผิดหรือทำให้เข้าใจผิด': ['Wrong or misleading', '誤り・誤解を招く'],
+    'เรื่องอื่น': ['Something else', 'その他'],
+    'เล่าเพิ่มได้ถ้าอยากเล่า (ไม่บังคับ)': ['Tell us more if you like (optional)', 'よければ詳しく教えてください（任意）'],
+    'สิ่งที่ส่งไป: คำตอบของ LYLA ข้อนี้ เหตุผลที่เลือก และสิ่งที่คุณเขียนในช่องด้านบน · ไม่ส่งข้อความที่คุณพิมพ์ถาม ไม่ส่งชื่อหรืออีเมล': ['What is sent: this answer from LYLA, the reason you chose, and anything you wrote above · not your own messages, name, or email', '送信されるもの：このLYLAの回答、選んだ理由、上に書いた内容 · あなたのメッセージ・名前・メールは送信されません'],
+    'ส่งรายงาน': ['Send report', '報告を送る'],
+    'ได้รับรายงานแล้ว ขอบคุณที่ช่วยดูแลกันนะคะ': ['Report received — thank you for looking out for others', '報告を受け取りました。ご協力ありがとうございます'],
+    'ส่งไม่สำเร็จ ลองใหม่อีกครั้งนะคะ': ['Could not send — please try again', '送信できませんでした。もう一度お試しください'],
+    'มีคนรายงานคำตอบ {n} รายการ — อ่านได้ที่ /api/admin/reports': ['{n} answers reported — read them at /api/admin/reports', '回答の報告 {n} 件 — /api/admin/reports で確認'],
   };
   // ภาษาเพิ่ม (จีน เกาหลี สเปน) อยู่ใน static/i18n/<lang>.js — โหลดเฉพาะตอนเลือก คนที่ไม่ได้เลือกไม่ต้องโหลดเพิ่ม
   // ตรงกับ 6 ภาษาที่ระบบตอบได้เต็มตอนไม่มี AI (ไทย อังกฤษ จีน ญี่ปุ่น เกาหลี สเปน) · ข้อความไหนยังไม่มีในชุดภาษา ใช้อังกฤษแทน
@@ -708,11 +721,11 @@
     document.documentElement.lang = lang;
     apply(document.body, lang);
     var sel = document.getElementById('lang-pick');
-    if (sel) { if (sel.tagName === 'SELECT') sel.value = lang; else sel.textContent = '🌐 ' + (NAMES[lang] || [lang])[0]; }
+    if (sel) { if (sel.tagName === 'SELECT') sel.value = lang; else (sel.querySelector('#lang-name') || sel).textContent = (NAMES[lang] || [lang])[0]; }   // ไอคอนลูกโลกอยู่ใน HTML ของปุ่ม เปลี่ยนแค่ชื่อภาษา
     // หน้าเขียนเป็นไทยไว้ก่อน — ภาษาเปลี่ยนจากที่วาดไว้เมื่อไร บอกหน้าให้วาดส่วนที่สคริปต์ประกอบเองใหม่ (ตัวเลข ชื่อ ข้อความในแชท)
     if (lang !== drawn) { drawn = lang; try { document.dispatchEvent(new CustomEvent('kd:lang', { detail: lang })); } catch (e) {} }
   }
-  // ── ตัวเลือก 54 ภาษา: ปุ่มเดียว "🌐 ไทย" → แผ่นรายชื่อที่มีช่องค้นหา (เดิมเป็นกล่องเลือก 7 ภาษาที่เจ้าของโปรเจกต์ว่ารก) ──
+  // ── ตัวเลือก 54 ภาษา: ปุ่มเดียว "ไทย" → แผ่นรายชื่อที่มีช่องค้นหา (เดิมเป็นกล่องเลือก 7 ภาษาที่เจ้าของโปรเจกต์ว่ารก) ──
   var sheet = null;
   function openSheet(btn) {
     if (!sheet) {
@@ -743,7 +756,7 @@
       var SR = window.SpeechRecognition || window.webkitSpeechRecognition, row = document.createElement('div'); row.className = 'lang-row';
       row.appendChild(q);
       if (SR) {
-        var mic = document.createElement('button'); mic.type = 'button'; mic.className = 'lang-mic'; mic.textContent = '🎙';
+        var mic = document.createElement('button'); mic.type = 'button'; mic.className = 'lang-mic'; mic.innerHTML = '<svg class="kd-i" width="20" height="20" aria-hidden="true"><use href="/static/icons/kd.svg#mic"/></svg>';
         mic.setAttribute('aria-label', 'พูดชื่อภาษา · Say a language');
         mic.addEventListener('click', function () {
           var r = new SR(); r.lang = current === 'th' ? 'th-TH' : (navigator.language || 'en-US'); r.interimResults = false; r.maxAlternatives = 3;
@@ -762,7 +775,7 @@
         });
         row.appendChild(mic);
         mic.title = 'เบราว์เซอร์บางตัวส่งเสียงไปแปลงเป็นข้อความที่เซิร์ฟเวอร์ของผู้ผลิต · Some browsers send audio to their own servers';
-        note.textContent += ' · 🎙 เสียงอาจถูกส่งไปที่ผู้ผลิตเบราว์เซอร์';
+        note.textContent += ' · เมื่อใช้ไมค์ เสียงอาจถูกส่งไปที่ผู้ผลิตเบราว์เซอร์';
       }
       sheet.appendChild(row); sheet.appendChild(ul); sheet.appendChild(note);
       document.body.appendChild(sheet);

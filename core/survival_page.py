@@ -38,6 +38,7 @@ a{color:var(--gold)}.top{display:flex;justify-content:space-between;align-items:
 .card h2{font-size:22px;margin:0 0 6px}.card h3{font-size:15.5px;margin:14px 0 4px;color:var(--gold);letter-spacing:.01em}
 .card ul,.card ol{margin:0;padding-left:22px}.card li{color:var(--ink-2);margin:4px 0}
 .card ol.during li{color:var(--ink)}.card ol.during li:first-child{font-weight:600}
+.kd-i{width:1.15em;height:1.15em;vertical-align:-.22em;flex:none}
 .card .myths li{color:var(--bad);list-style:none;margin-left:-22px}.card .src{color:var(--ink-3);font-size:13.5px}
 .card .hot{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:8px 0 0;padding:0;list-style:none}
 .hot li{border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--ink-2)}.hot b{display:block;font-size:22px;color:var(--gold)}
@@ -47,12 +48,18 @@ a{color:var(--gold)}.top{display:flex;justify-content:space-between;align-items:
 """
 
 
+
+def _ic(name: str) -> str:
+    """ไอคอนลายเส้นจาก static/icons/kd.svg (แทนอิโมจิ) — ชื่อมาจาก core/survival_guide.py เท่านั้น ไม่ใช่จากผู้ใช้"""
+    name = name if name.isalnum() else "spark"
+    return f'<svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#{name}"/></svg>'
+
 def render(lang: str = "th") -> str:
     lang = "en" if lang == "en" else "th"
     t, g = _T[lang], public(lang)
     other = "en" if lang == "th" else "th"
     hot = "".join(f'<li><a href="tel:{e(h["n"])}"><b>{e(h["n"])}</b></a>{e(h["label"])}</li>' for h in g["hotlines"])
-    toc = "".join(f'<li><a href="#{e(h["key"])}"><span aria-hidden="true">{h["icon"]}</span>{e(h["name"])}</a></li>' for h in g["hazards"])
+    toc = "".join(f'<li><a href="#{e(h["key"])}">{_ic(h["icon"])} {e(h["name"])}</a></li>' for h in g["hazards"])
 
     def sec(key, rows, tag="ul", cls=""):
         if not rows:
@@ -62,7 +69,7 @@ def render(lang: str = "th") -> str:
 
     cards = "".join(
         f'<section class="card" id="{e(h["key"])}" aria-labelledby="h-{e(h["key"])}">'
-        f'<h2 id="h-{e(h["key"])}"><span aria-hidden="true">{h["icon"]}</span> {e(h["name"])}</h2>'
+        f'<h2 id="h-{e(h["key"])}">{_ic(h["icon"])} {e(h["name"])}</h2>'
         + sec("during", h["during"], "ol", "during") + sec("signs", h["signs"]) + sec("before", h["before"])
         + sec("after", h["after"]) + sec("vulnerable", h["vulnerable"]) + sec("myths", h["myths"], "ul", "myths")
         + f'<h3>{e(t["sources"])}</h3><p class="src">{e(" · ".join(h["sources"]))}</p></section>'
@@ -90,7 +97,7 @@ def render(lang: str = "th") -> str:
 <section class="card" aria-label="{e(t["hot"])}"><h2>{e(t["hot"])}</h2><ul class="hot">{hot}</ul></section>
 <nav aria-label="{e(t["title"])}"><ul class="toc">{toc}</ul></nav>
 {cards}
-<section class="card" id="kit"><h2>🎒 {e(t["kit"])}</h2><ul>{kit}</ul></section>
+<section class="card" id="kit"><h2>{_ic("bag")} {e(t["kit"])}</h2><ul>{kit}</ul></section>
 <p class="note">{e(t["note"])}</p>
 </main>
 </body>

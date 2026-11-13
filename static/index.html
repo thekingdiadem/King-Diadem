@@ -88,7 +88,7 @@ window.KD_themeVars = function(t, c){
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div id="veil"></div>
 <div id="cinema" aria-hidden="true"><span class="cn-hint" id="cn-hint">แตะหรือกด Esc เพื่อออก</span></div>
-<div id="halloween" aria-hidden="true"><i>🦇</i><i>🦇</i><i>🦇</i><i>🦇</i><i>🦇</i></div>
+<div id="halloween" aria-hidden="true"><i><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#bat"/></svg></i><i><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#bat"/></svg></i><i><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#bat"/></svg></i><i><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#bat"/></svg></i><i><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#bat"/></svg></i></div>
 <div id="lb" aria-hidden="true" data-i18n-skip><b>KING DIADEM</b></div>
 
 <div id="app">
@@ -110,7 +110,7 @@ window.KD_themeVars = function(t, c){
       <button type="button" data-view="system"><i>☼</i>ระบบ<span class="k" id="nav-files">272</span></button>
     </nav>
     <div class="account">
-      <button type="button" id="lang-pick" class="acc-link" aria-label="ภาษา / Language" aria-haspopup="dialog" aria-expanded="false" data-i18n-skip>🌐 ไทย</button>
+      <button type="button" id="lang-pick" class="acc-link" aria-label="ภาษา / Language" aria-haspopup="dialog" aria-expanded="false" data-i18n-skip><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#globe"/></svg> <span id="lang-name">ไทย</span></button>
       <div id="acc-guest"><a class="acc-link" href="/login/google">เข้าสู่ระบบ</a></div>
       <div id="acc-user" class="hide">
         <span class="who" id="acc-email"></span>
@@ -135,7 +135,7 @@ window.KD_themeVars = function(t, c){
             <button type="button" data-theme-pick="day"><i class="sw" style="background:#eef4ff"></i>กลางวัน</button>
             <button type="button" data-theme-pick="latte"><i class="sw" style="background:#fff8e7"></i>คอสมิกลาเต้</button>
             <button type="button" data-theme-pick="pastel"><i class="sw" style="background:linear-gradient(135deg,#cdbdf2,#f2bfd3 55%,#a8dcc4)"></i>พาสเทลมืด</button>
-            <button type="button" id="halloween-btn" aria-pressed="false"><i class="sw hw-sw" aria-hidden="true">🎃</i>ฮาโลวีน</button>
+            <button type="button" id="halloween-btn" aria-pressed="false"><i class="sw hw-sw" aria-hidden="true"><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#pumpkin"/></svg></i>ฮาโลวีน</button>
             <button type="button" id="cinema-btn"><i class="sw calm-sw" aria-hidden="true">☸</i>โหมดภาพยนตร์</button>
             <button type="button" id="calm-btn" aria-pressed="false"><i class="sw calm-sw" aria-hidden="true">◌</i>ลดการเคลื่อนไหว</button>
             <div class="tm-fps" id="fps-row" role="group" aria-label="เฟรมเรตสูงสุด">
@@ -165,14 +165,14 @@ window.KD_themeVars = function(t, c){
           <div class="starters" id="starters">
             <p class="st-hi">เล่าเรื่องที่ค้างใจได้เลย · ช่วยหาทางเลือกที่ยังเหลืออยู่ <span>ฟรี ไม่ต้องสมัคร</span></p>
             <div class="st-row" role="group" aria-label="ตัวอย่างคำถาม">
-              <button type="button" class="st-chip" data-q="นอนไม่หลับมาหลายวันแล้ว ทำยังไงดี">🌙 นอนไม่หลับมาหลายวัน</button>
-              <button type="button" class="st-chip" data-q="หนี้บัตรเครดิต 50000 บาท ผ่อนไม่ไหวแล้ว">💳 หนี้บัตรผ่อนไม่ไหว</button>
-              <button type="button" class="st-chip" data-q="ลังเลว่าจะลาออกจากงานดีไหม">🌿 ลังเลจะลาออกไหม</button>
-              <button type="button" class="st-chip" data-q="ทะเลาะกับแฟนบ่อยมาก ไม่รู้จะไปต่อยังไง">💗 ทะเลาะกับแฟนบ่อย</button>
+              <button type="button" class="st-chip" data-q="นอนไม่หลับมาหลายวันแล้ว ทำยังไงดี"><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#moon"/></svg> นอนไม่หลับมาหลายวัน</button>
+              <button type="button" class="st-chip" data-q="หนี้บัตรเครดิต 50000 บาท ผ่อนไม่ไหวแล้ว"><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#card"/></svg> หนี้บัตรผ่อนไม่ไหว</button>
+              <button type="button" class="st-chip" data-q="ลังเลว่าจะลาออกจากงานดีไหม"><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#leaf"/></svg> ลังเลจะลาออกไหม</button>
+              <button type="button" class="st-chip" data-q="ทะเลาะกับแฟนบ่อยมาก ไม่รู้จะไปต่อยังไง"><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#heart"/></svg> ทะเลาะกับแฟนบ่อย</button>
             </div>
           </div>
           <div class="comp-row1" id="comp-opts">
-            <button type="button" class="chip hide" id="speak-chip" aria-pressed="false" title="อ่านคำตอบออกเสียง">🔊 อ่านออกเสียง</button>
+            <button type="button" class="chip hide" id="speak-chip" aria-pressed="false" title="อ่านคำตอบออกเสียง"><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#speaker"/></svg> อ่านออกเสียง</button>
             <button type="button" class="chip state" id="state-chip" title="สถานะของฉัน → Waterline">W —</button>
             <div class="menu-wrap">
               <button type="button" class="chip" id="route-pill" aria-haspopup="true" aria-expanded="false">ทั่วไป</button>
@@ -190,9 +190,9 @@ window.KD_themeVars = function(t, c){
             <textarea id="input" rows="1" placeholder="เล่ามาได้เลย" aria-label="ข้อความ"></textarea>
             <div class="comp-bar">
               <div class="seg mode-seg" id="mode-seg" role="group" aria-label="โหมดการใช้งาน">
-                <button type="button" data-m="talk" class="on">💬 ปรึกษา</button>
+                <button type="button" data-m="talk" class="on"><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#chat"/></svg> ปรึกษา</button>
                 <button type="button" data-m="dz" title="ตรวจการตัดสินใจขององค์กร/โครงการตามเฟรมเวิร์ค DriftZero">◎ DriftZero</button>
-                <button type="button" data-m="img">🎨 สร้างภาพ</button>
+                <button type="button" data-m="img"><svg class="kd-i" width="1.15em" height="1.15em" aria-hidden="true"><use href="/static/icons/kd.svg#brush"/></svg> สร้างภาพ</button>
               </div>
               <button type="button" class="opts-btn" id="opts-btn" aria-controls="comp-opts" aria-expanded="false" aria-label="ตัวเลือกเพิ่มเติม" title="ตัวเลือกเพิ่มเติม"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/><circle cx="16" cy="7" r="2" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="10" cy="17" r="2" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></button>
               <button type="button" id="mic" class="hide" aria-label="พูดแทนพิมพ์" aria-pressed="false" title="พูดแทนพิมพ์"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
@@ -371,6 +371,25 @@ window.KD_themeVars = function(t, c){
       <button class="btn primary" value="save" id="st-save">ใช้</button>
     </div>
   </form>
+</dialog>
+
+<!-- ── รายงานคำตอบ (ปุ่มธงใต้คำตอบ) ───────────────────────── -->
+<dialog id="dlg-rp" aria-labelledby="dlg-rp-h">
+  <div class="dlg-h"><h2 id="dlg-rp-h">รายงานคำตอบนี้</h2><button type="button" class="icon-btn" id="rp-close" aria-label="ปิด">✕</button></div>
+  <div class="dlg-b">
+    <p>ถ้าคำตอบนี้ไม่เหมาะสม ผิด หรืออาจทำให้ใครเดือดร้อน บอกเราได้เลยค่ะ มีคนอ่านทุกรายงาน</p>
+    <fieldset class="rp-why"><legend>คำตอบนี้เป็นแบบไหน</legend>
+      <label><input type="radio" name="rp-why" value="harmful" checked> <span>อาจเป็นอันตรายหรือไม่ปลอดภัย</span></label>
+      <label><input type="radio" name="rp-why" value="offensive"> <span>หยาบคาย เหยียด หรือไม่ให้เกียรติ</span></label>
+      <label><input type="radio" name="rp-why" value="wrong"> <span>ข้อมูลผิดหรือทำให้เข้าใจผิด</span></label>
+      <label><input type="radio" name="rp-why" value="other"> <span>เรื่องอื่น</span></label>
+    </fieldset>
+    <label for="rp-note">เล่าเพิ่มได้ถ้าอยากเล่า (ไม่บังคับ)</label>
+    <textarea id="rp-note" maxlength="500" rows="3"></textarea>
+    <p class="muted rp-priv">สิ่งที่ส่งไป: คำตอบของ LYLA ข้อนี้ เหตุผลที่เลือก และสิ่งที่คุณเขียนในช่องด้านบน · ไม่ส่งข้อความที่คุณพิมพ์ถาม ไม่ส่งชื่อหรืออีเมล</p>
+    <p id="rp-msg" class="bad" role="alert"></p>
+  </div>
+  <div class="dlg-f"><button type="button" class="btn ghost" id="rp-cancel">ยกเลิก</button><button type="button" class="btn primary" id="rp-send">ส่งรายงาน</button></div>
 </dialog>
 
 <!-- ── UPGRADE DIALOG ────────────────────────────────────── -->

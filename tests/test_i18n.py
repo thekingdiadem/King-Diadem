@@ -20,7 +20,7 @@ def _static_thai():
 
         def handle_starttag(self, tag, attrs):
             a = dict(attrs)
-            self.skip = tag == "style" or a.get("id") == "lang-pick" or tag == "option"
+            self.skip = tag == "style" or a.get("id") in ("lang-pick", "lang-name") or tag == "option"
             if self.skip:
                 return
             for k, v in attrs:
@@ -50,7 +50,7 @@ def test_each_entry_has_english_and_japanese():
 
 
 def test_page_has_switcher_and_script():
-    # ปุ่มเดียว "🌐 ไทย" แทนกล่องเลือก — รายชื่อ 54 ภาษาอยู่ในแผ่นค้นหา (static/i18n.js · openSheet)
+    # ปุ่มเดียว (ไอคอนลูกโลก + ชื่อภาษา) แทนกล่องเลือก — รายชื่อ 54 ภาษาอยู่ในแผ่นค้นหา (static/i18n.js · openSheet)
     assert 'id="lang-pick"' in PAGE and "/static/i18n.js" in PAGE and 'aria-haspopup="dialog"' in PAGE
     for v in ("th", "en", "ja"):
         assert f'{v}: [' in JS

@@ -30,7 +30,7 @@ KIT = [
 
 HAZARDS = {
     "quake": {
-        "icon": "🌏", "name": ("แผ่นดินไหว", "Earthquake"),
+        "icon": "quake", "name": ("แผ่นดินไหว", "Earthquake"),
         "signs": [
             ("แผ่นดินไหวเกิดโดยไม่มีสัญญาณเตือนล่วงหน้าที่เชื่อถือได้ — ไม่มีใครทำนายวันเวลาได้ ข่าวลือ \"จะเกิดวันที่…\" เป็นข่าวปลอม",
              "Earthquakes give no reliable advance warning — no one can predict the date; \"it will hit on…\" rumours are false"),
@@ -76,16 +76,16 @@ HAZARDS = {
             ("เด็กเล็ก: อุ้มเข้าใต้โต๊ะด้วยกัน ซ้อมเป็นเกมบ่อยๆ ให้จำได้ตอนตกใจ", "Young children: take them under the table with you; practise it as a game so they remember in a panic"),
         ],
         "myths": [
-            ("❌ ยืนที่วงกบประตู — บ้านสมัยใหม่วงกบไม่ได้แข็งแรงกว่าส่วนอื่น และประตูอาจกระแทกใส่ · ให้มุดใต้โต๊ะแทน",
-             "❌ Stand in a doorway — in modern homes doorways are no stronger than other parts and the door can swing into you · get under a table instead"),
-            ("❌ \"สามเหลี่ยมชีวิต\" (นอนข้างเฟอร์นิเจอร์) — ไม่มีหลักฐานรองรับ หน่วยงานด้านแผ่นดินไหวยังแนะนำ หมอบ ป้อง เกาะ",
-             "❌ The \"triangle of life\" (lying beside furniture) — no evidence supports it; earthquake agencies still recommend Drop, Cover, Hold On"),
+            ("✕ ยืนที่วงกบประตู — บ้านสมัยใหม่วงกบไม่ได้แข็งแรงกว่าส่วนอื่น และประตูอาจกระแทกใส่ · ให้มุดใต้โต๊ะแทน",
+             "✕ Stand in a doorway — in modern homes doorways are no stronger than other parts and the door can swing into you · get under a table instead"),
+            ("✕ \"สามเหลี่ยมชีวิต\" (นอนข้างเฟอร์นิเจอร์) — ไม่มีหลักฐานรองรับ หน่วยงานด้านแผ่นดินไหวยังแนะนำ หมอบ ป้อง เกาะ",
+             "✕ The \"triangle of life\" (lying beside furniture) — no evidence supports it; earthquake agencies still recommend Drop, Cover, Hold On"),
         ],
         "sources": ["USGS · earthquake.usgs.gov", "Earthquake Country Alliance · earthquakecountry.org (Drop, Cover, Hold On)",
                     "FEMA · ready.gov/earthquakes", "กรมอุตุนิยมวิทยา · earthquake.tmd.go.th", "ปภ. · disaster.go.th"],
     },
     "tsunami": {
-        "icon": "🌊", "name": ("สึนามิ", "Tsunami"),
+        "icon": "wave", "name": ("สึนามิ", "Tsunami"),
         "signs": [
             ("สัญญาณจากธรรมชาติ (เชื่อได้มากกว่ารอประกาศ): แผ่นดินไหวแรงหรือนานริมทะเล · น้ำทะเลลดลงผิดปกติจนเห็นพื้นทะเล · เสียงคำรามดังจากทะเล",
              "Natural warnings (trust them more than waiting for an alert): strong or long shaking near the coast · the sea suddenly drawing back to expose the seabed · a loud roar from the ocean"),
@@ -112,14 +112,14 @@ HAZARDS = {
             ("คนเดินช้า ผู้สูงอายุ เด็ก: ออกก่อนทันทีที่สงสัย ไม่ต้องรอยืนยัน", "Slow walkers, elderly people, children: leave the moment you suspect — don't wait for confirmation"),
         ],
         "myths": [
-            ("❌ ลงไปดูหรือเก็บปลาตอนน้ำทะเลลด — นั่นคือสัญญาณว่าคลื่นกำลังมา มีคนเสียชีวิตแบบนี้จำนวนมากในปี 2547",
-             "❌ Walking out to look or collect fish when the sea recedes — that is the sign the wave is coming; many died this way in 2004"),
-            ("❌ คลื่นแรกผ่านไปแล้วกลับไปเก็บของได้ — คลื่นหลังอาจใหญ่กว่า", "❌ Going back for belongings after the first wave — later waves can be bigger"),
+            ("✕ ลงไปดูหรือเก็บปลาตอนน้ำทะเลลด — นั่นคือสัญญาณว่าคลื่นกำลังมา มีคนเสียชีวิตแบบนี้จำนวนมากในปี 2547",
+             "✕ Walking out to look or collect fish when the sea recedes — that is the sign the wave is coming; many died this way in 2004"),
+            ("✕ คลื่นแรกผ่านไปแล้วกลับไปเก็บของได้ — คลื่นหลังอาจใหญ่กว่า", "✕ Going back for belongings after the first wave — later waves can be bigger"),
         ],
         "sources": ["NOAA · tsunami.gov", "FEMA · ready.gov/tsunamis", "UNESCO IOC · ioc.unesco.org", "ปภ. · disaster.go.th"],
     },
     "flood": {
-        "icon": "🌧️", "name": ("น้ำท่วม · น้ำป่าไหลหลาก", "Flood · flash flood"),
+        "icon": "rain", "name": ("น้ำท่วม · น้ำป่าไหลหลาก", "Flood · flash flood"),
         "signs": [
             ("ฝนตกหนักต่อเนื่องบนภูเขาต้นน้ำ · น้ำในลำห้วยขุ่นข้นและเพิ่มเร็ว · มีเสียงดังจากต้นน้ำ = น้ำป่ากำลังมา",
              "Persistent heavy rain upstream · creek water turning muddy and rising fast · a roar from upstream = a flash flood is coming"),
@@ -152,13 +152,13 @@ HAZARDS = {
             ("เด็ก: ห้ามเล่นน้ำท่วม — จมน้ำได้ในน้ำตื้นและอาจถูกไฟดูด", "Children: never play in floodwater — they can drown in shallow water or be electrocuted"),
         ],
         "myths": [
-            ("❌ อยู่ในรถปลอดภัยกว่า — รถลอยและพลิกได้ในน้ำไม่ลึก การเสียชีวิตจากน้ำท่วมจำนวนมากเกิดในรถ",
-             "❌ You're safer in the car — cars float and roll in shallow water; many flood deaths happen in vehicles"),
+            ("✕ อยู่ในรถปลอดภัยกว่า — รถลอยและพลิกได้ในน้ำไม่ลึก การเสียชีวิตจากน้ำท่วมจำนวนมากเกิดในรถ",
+             "✕ You're safer in the car — cars float and roll in shallow water; many flood deaths happen in vehicles"),
         ],
         "sources": ["FEMA · ready.gov/floods", "WHO · who.int (Flooding)", "CDC · cdc.gov (Floods, Leptospirosis)", "ปภ. · disaster.go.th", "กรมอุตุนิยมวิทยา · tmd.go.th"],
     },
     "storm": {
-        "icon": "🌀", "name": ("พายุหมุน · พายุฤดูร้อน", "Tropical cyclone · severe storm"),
+        "icon": "cyclone", "name": ("พายุหมุน · พายุฤดูร้อน", "Tropical cyclone · severe storm"),
         "signs": [
             ("ติดตามเส้นทางพายุจากกรมอุตุนิยมวิทยา — พายุมีเวลาเตรียมตัวหลายวัน ใช้เวลานั้นให้เต็มที่",
              "Follow the storm track from the Meteorological Department — storms give days of warning; use them"),
@@ -180,13 +180,13 @@ HAZARDS = {
             ("คนที่ต้องใช้ไฟฟ้ากับเครื่องมือแพทย์: เตรียมแบตสำรอง หรือย้ายไปที่มีไฟก่อนพายุมา", "People on powered medical devices: prepare backup power or move somewhere with power before the storm"),
         ],
         "myths": [
-            ("❌ ติดเทปกากบาทที่กระจกกันแตก — ไม่ช่วยกันแตก และทำให้เศษชิ้นใหญ่ขึ้น · อยู่ห่างหน้าต่างแทน",
-             "❌ Taping an X on windows stops them breaking — it doesn't, and makes larger shards · stay away from windows instead"),
+            ("✕ ติดเทปกากบาทที่กระจกกันแตก — ไม่ช่วยกันแตก และทำให้เศษชิ้นใหญ่ขึ้น · อยู่ห่างหน้าต่างแทน",
+             "✕ Taping an X on windows stops them breaking — it doesn't, and makes larger shards · stay away from windows instead"),
         ],
         "sources": ["NOAA National Hurricane Center · nhc.noaa.gov", "FEMA · ready.gov/hurricanes", "WMO · wmo.int", "กรมอุตุนิยมวิทยา · tmd.go.th"],
     },
     "landslide": {
-        "icon": "⛰️", "name": ("ดินถล่ม · โคลนถล่ม", "Landslide · mudflow"),
+        "icon": "mountain", "name": ("ดินถล่ม · โคลนถล่ม", "Landslide · mudflow"),
         "signs": [
             ("ฝนตกหนักหลายวันในพื้นที่ลาดชัน · ดินหรือถนนแตกร้าวใหม่ · ต้นไม้ เสาไฟ รั้ว เอียง · ประตูหน้าต่างเริ่มฝืด",
              "Days of heavy rain on slopes · new cracks in ground or roads · trees, poles or fences tilting · doors and windows starting to stick"),
@@ -210,7 +210,7 @@ HAZARDS = {
         "sources": ["USGS Landslide Hazards · usgs.gov/programs/landslide-hazards", "กรมทรัพยากรธรณี · dmr.go.th", "ปภ. · disaster.go.th"],
     },
     "wildfire": {
-        "icon": "🔥", "name": ("ไฟป่า", "Wildfire"),
+        "icon": "fire", "name": ("ไฟป่า", "Wildfire"),
         "signs": [
             ("ควันหนาใกล้เข้ามา เถ้าตกลงมา ลมแรงพัดมาทางบ้าน — ไฟป่าเคลื่อนเร็วกว่าที่คนวิ่งได้บนเนิน", "Thick smoke approaching, ash falling, strong wind toward you — wildfire moves uphill faster than people can run"),
         ],
@@ -230,12 +230,12 @@ HAZARDS = {
             ("เด็ก ผู้สูงอายุ คนเป็นหอบหืด/โรคหัวใจ: เลี่ยงควันเด็ดขาด อยู่ในห้องที่มีเครื่องฟอกอากาศ", "Children, older adults, people with asthma or heart disease: avoid smoke completely; stay in a room with an air purifier"),
         ],
         "myths": [
-            ("❌ หน้ากากผ้าหรือหน้ากากอนามัยกันควันได้ — กันอนุภาคเล็กไม่ได้ ต้องเป็น N95 ที่แนบหน้า", "❌ Cloth or surgical masks protect from smoke — they don't stop fine particles; you need a well-fitted N95"),
+            ("✕ หน้ากากผ้าหรือหน้ากากอนามัยกันควันได้ — กันอนุภาคเล็กไม่ได้ ต้องเป็น N95 ที่แนบหน้า", "✕ Cloth or surgical masks protect from smoke — they don't stop fine particles; you need a well-fitted N95"),
         ],
         "sources": ["FEMA · ready.gov/wildfires", "CAL FIRE · readyforwildfire.org", "WHO · who.int (Wildfires)", "กรมอุทยานแห่งชาติฯ · dnp.go.th"],
     },
     "volcano": {
-        "icon": "🌋", "name": ("ภูเขาไฟ (เมื่อเดินทางไปต่างประเทศ)", "Volcano (when travelling abroad)"),
+        "icon": "volcano", "name": ("ภูเขาไฟ (เมื่อเดินทางไปต่างประเทศ)", "Volcano (when travelling abroad)"),
         "signs": [
             ("ไทยไม่มีภูเขาไฟที่ยังปะทุ — เรื่องนี้สำคัญเมื่อไปอินโดนีเซีย ฟิลิปปินส์ ญี่ปุ่น ไอซ์แลนด์ ฯลฯ · ดูระดับเตือนภัยของประเทศนั้น",
              "Thailand has no active volcanoes — this matters when travelling to Indonesia, the Philippines, Japan, Iceland etc. · follow that country's alert level"),
@@ -256,7 +256,7 @@ HAZARDS = {
         "sources": ["USGS Volcano Hazards · usgs.gov/programs/VHP", "IVHHN · ivhhn.org (ash health)", "WHO · who.int (Volcanic eruptions)"],
     },
     "heat": {
-        "icon": "☀️", "name": ("ความร้อนจัด · ลมแดด (ฮีตสโตรก)", "Extreme heat · heatstroke"),
+        "icon": "sun", "name": ("ความร้อนจัด · ลมแดด (ฮีตสโตรก)", "Extreme heat · heatstroke"),
         "signs": [
             ("ฮีตสโตรก (ฉุกเฉิน): ตัวร้อนจัดมาก สับสน พูดไม่รู้เรื่อง ชัก หรือหมดสติ — ผิวอาจแห้งหรือยังมีเหงื่อก็ได้",
              "Heatstroke (emergency): very high body temperature, confusion, slurred speech, seizure or collapse — skin may be dry or still sweating"),
@@ -279,14 +279,14 @@ HAZARDS = {
             ("ผู้สูงอายุ คนป่วยโรคหัวใจ/ไต/เบาหวาน คนกินยาขับปัสสาวะ: เสี่ยงสูง ต้องมีคนคอยดู", "Older adults, people with heart/kidney disease or diabetes, people on diuretics: high risk — someone should check on them"),
         ],
         "myths": [
-            ("❌ พัดลมอย่างเดียวพอเสมอ — เมื่ออากาศร้อนจัดมาก (ราว 35°C ขึ้นไป) พัดลมอย่างเดียวกันฮีตสโตรกไม่ได้ ต้องเปียกตัวหรือเข้าที่เย็น",
-             "❌ A fan is always enough — in extreme heat (around 35°C and above) a fan alone won't prevent heatstroke; wet the skin or get somewhere cool"),
-            ("❌ ดื่มเหล้าเบียร์คลายร้อน — แอลกอฮอล์ทำให้ขาดน้ำเร็วขึ้น", "❌ Beer or alcohol cools you down — alcohol dehydrates you faster"),
+            ("✕ พัดลมอย่างเดียวพอเสมอ — เมื่ออากาศร้อนจัดมาก (ราว 35°C ขึ้นไป) พัดลมอย่างเดียวกันฮีตสโตรกไม่ได้ ต้องเปียกตัวหรือเข้าที่เย็น",
+             "✕ A fan is always enough — in extreme heat (around 35°C and above) a fan alone won't prevent heatstroke; wet the skin or get somewhere cool"),
+            ("✕ ดื่มเหล้าเบียร์คลายร้อน — แอลกอฮอล์ทำให้ขาดน้ำเร็วขึ้น", "✕ Beer or alcohol cools you down — alcohol dehydrates you faster"),
         ],
         "sources": ["WHO · who.int (Heat and health)", "CDC · cdc.gov/heat-health", "กรมควบคุมโรค · ddc.moph.go.th"],
     },
     "haze": {
-        "icon": "😷", "name": ("ฝุ่น PM2.5 · หมอกควัน", "PM2.5 · haze"),
+        "icon": "haze", "name": ("ฝุ่น PM2.5 · หมอกควัน", "PM2.5 · haze"),
         "signs": [("ดูค่าฝุ่นจริงที่ Air4Thai (air4thai.pcd.go.th) หรือแอป Air4Thai — สีส้มขึ้นไปเริ่มมีผลต่อสุขภาพ", "Check live readings on Air4Thai (air4thai.pcd.go.th) — orange and above affects health")],
         "before": [
             ("เตรียมหน้ากาก N95/KN95 ขนาดพอดีหน้า · ห้องนอนที่ปิดสนิทพร้อมเครื่องฟอกอากาศแบบ HEPA", "Keep well-fitting N95/KN95 masks · a sealable bedroom with a HEPA air purifier"),
@@ -299,11 +299,11 @@ HAZARDS = {
         ],
         "after": [("เปลี่ยนแผ่นกรองเครื่องฟอกอากาศตามกำหนด ไส้กรองที่ตันไม่กรองอะไรแล้ว", "Replace purifier filters on schedule — a clogged filter stops working")],
         "vulnerable": [("เด็ก หญิงตั้งครรภ์ ผู้สูงอายุ คนเป็นโรคหัวใจ/ปอด: เริ่มป้องกันตั้งแต่ค่าฝุ่นสีเหลือง", "Children, pregnant women, older adults, people with heart/lung disease: protect yourself from yellow level")],
-        "myths": [("❌ หน้ากากอนามัยหรือหน้ากากผ้ากัน PM2.5 ได้ — กันได้น้อยมาก", "❌ Surgical or cloth masks stop PM2.5 — they barely do")],
+        "myths": [("✕ หน้ากากอนามัยหรือหน้ากากผ้ากัน PM2.5 ได้ — กันได้น้อยมาก", "✕ Surgical or cloth masks stop PM2.5 — they barely do")],
         "sources": ["กรมควบคุมมลพิษ · air4thai.pcd.go.th", "WHO · who.int (Air pollution)", "US EPA · airnow.gov"],
     },
     "lightning": {
-        "icon": "⚡", "name": ("ฟ้าผ่า · พายุฝนฟ้าคะนอง", "Lightning · thunderstorm"),
+        "icon": "bolt", "name": ("ฟ้าผ่า · พายุฝนฟ้าคะนอง", "Lightning · thunderstorm"),
         "signs": [("ได้ยินเสียงฟ้าร้อง = อยู่ใกล้พอที่ฟ้าจะผ่าได้", "If you can hear thunder, you are close enough to be struck")],
         "before": [("ดูพยากรณ์ก่อนไปกลางแจ้ง (ทุ่งนา สนามกอล์ฟ ชายหาด ภูเขา เรือ)", "Check the forecast before going out in the open (fields, golf courses, beaches, mountains, boats)")],
         "during": [
@@ -320,13 +320,13 @@ HAZARDS = {
         ],
         "vulnerable": [],
         "myths": [
-            ("❌ ยางรถกันฟ้าผ่า — ที่ปกป้องคือโครงเหล็กของรถ ไม่ใช่ยาง (รถเปิดประทุน มอเตอร์ไซค์ ไม่ปลอดภัย)", "❌ Rubber tyres protect you — it's the metal body that does (convertibles and motorbikes aren't safe)"),
-            ("❌ ฟ้าไม่ผ่าซ้ำที่เดิม — ผ่าซ้ำได้ โดยเฉพาะที่สูง", "❌ Lightning never strikes the same place twice — it does, especially tall objects"),
+            ("✕ ยางรถกันฟ้าผ่า — ที่ปกป้องคือโครงเหล็กของรถ ไม่ใช่ยาง (รถเปิดประทุน มอเตอร์ไซค์ ไม่ปลอดภัย)", "✕ Rubber tyres protect you — it's the metal body that does (convertibles and motorbikes aren't safe)"),
+            ("✕ ฟ้าไม่ผ่าซ้ำที่เดิม — ผ่าซ้ำได้ โดยเฉพาะที่สูง", "✕ Lightning never strikes the same place twice — it does, especially tall objects"),
         ],
         "sources": ["NOAA National Weather Service · weather.gov/safety/lightning", "CDC · cdc.gov (Lightning)", "กรมอุตุนิยมวิทยา · tmd.go.th"],
     },
     "cold": {
-        "icon": "❄️", "name": ("อากาศหนาวจัด", "Extreme cold"),
+        "icon": "snow", "name": ("อากาศหนาวจัด", "Extreme cold"),
         "signs": [("ภาวะตัวเย็นเกิน: สั่นมาก แล้วกลับหยุดสั่น สับสน พูดช้า ง่วงผิดปกติ — อันตรายแม้ไม่ถึงจุดเยือกแข็งถ้าตัวเปียกและลมแรง",
                    "Hypothermia: violent shivering that then stops, confusion, slow speech, unusual drowsiness — dangerous above freezing if wet and windy")],
         "before": [("เตรียมเสื้อผ้าหลายชั้น หมวก ถุงเท้า ผ้าห่ม · ดูแลผู้สูงอายุและคนไร้บ้านในชุมชน", "Prepare layers, hats, socks, blankets · look out for older people and homeless people nearby")],
@@ -338,12 +338,12 @@ HAZARDS = {
         "after": [("ปวดหัว เวียนหัว คลื่นไส้พร้อมกันหลายคนในห้องที่จุดเตา = อาจเป็นพิษคาร์บอนมอนอกไซด์ ออกไปที่อากาศถ่ายเทแล้วโทร 1669",
                    "Several people in a heated room with headache, dizziness, nausea = possible carbon-monoxide poisoning; get to fresh air and call 1669")],
         "vulnerable": [("ทารกและผู้สูงอายุเสียความร้อนเร็ว — ห่มให้อุ่นแต่ไม่คลุมหน้าทารก", "Babies and older adults lose heat fast — keep them warm but never cover a baby's face")],
-        "myths": [("❌ ดื่มเหล้าช่วยให้อุ่น — รู้สึกอุ่นแต่ร่างกายเสียความร้อนเร็วขึ้น", "❌ Alcohol warms you up — it feels warm but makes the body lose heat faster"),
-                  ("❌ ถูผิวที่เย็นจัดแรงๆ — ทำให้เนื้อเยื่อเสียหายมากขึ้น ให้ค่อยๆ อุ่นแทน", "❌ Rubbing frozen skin hard — it causes more damage; rewarm gently")],
+        "myths": [("✕ ดื่มเหล้าช่วยให้อุ่น — รู้สึกอุ่นแต่ร่างกายเสียความร้อนเร็วขึ้น", "✕ Alcohol warms you up — it feels warm but makes the body lose heat faster"),
+                  ("✕ ถูผิวที่เย็นจัดแรงๆ — ทำให้เนื้อเยื่อเสียหายมากขึ้น ให้ค่อยๆ อุ่นแทน", "✕ Rubbing frozen skin hard — it causes more damage; rewarm gently")],
         "sources": ["CDC · cdc.gov (Winter weather, Carbon monoxide)", "WHO · who.int", "กรมควบคุมโรค · ddc.moph.go.th"],
     },
     "drought": {
-        "icon": "🏜️", "name": ("ภัยแล้ง · น้ำดื่มขาดแคลน", "Drought · water shortage"),
+        "icon": "drop", "name": ("ภัยแล้ง · น้ำดื่มขาดแคลน", "Drought · water shortage"),
         "signs": [("ประปาไหลอ่อน/ไม่ไหล ประกาศงดจ่ายน้ำ น้ำบ่อแห้ง", "Weak or no tap water, supply cuts announced, wells drying up")],
         "before": [("สำรองน้ำดื่มคนละ 3–4 ลิตรต่อวัน อย่างน้อย 3 วัน ในภาชนะสะอาดมีฝาปิด", "Store 3–4 litres of drinking water per person per day for at least 3 days, in clean covered containers")],
         "during": [
@@ -359,7 +359,7 @@ HAZARDS = {
         "sources": ["WHO · who.int (Drinking-water)", "CDC · cdc.gov (Emergency water disinfection)", "US EPA · epa.gov (Emergency disinfection of drinking water)", "ปภ. · disaster.go.th"],
     },
     "fire": {
-        "icon": "🚒", "name": ("ไฟไหม้อาคาร", "Building fire"),
+        "icon": "building", "name": ("ไฟไหม้อาคาร", "Building fire"),
         "signs": [("ควันจากไฟไหม้ทำให้หมดสติได้ภายในไม่กี่นาที — คนส่วนใหญ่เสียชีวิตจากควัน ไม่ใช่เปลวไฟ", "Fire smoke can knock you unconscious in minutes — most fire deaths are from smoke, not flames")],
         "before": [("ติดเครื่องตรวจจับควัน · รู้ทางหนีไฟ 2 ทางจากทุกห้อง · ห้ามล็อกหรือวางของขวางประตูหนีไฟ", "Fit smoke alarms · know two ways out of every room · never lock or block fire exits")],
         "during": [
@@ -371,11 +371,11 @@ HAZARDS = {
         ],
         "after": [("แผลไฟไหม้: ราดน้ำสะอาดอุณหภูมิห้อง 20 นาที ห้ามทายาสีฟัน น้ำปลา หรือน้ำแข็ง", "Burns: cool under clean room-temperature running water for 20 minutes — no toothpaste, fish sauce or ice")],
         "vulnerable": [("คนที่ลงบันไดเองไม่ได้: บอกนิติ/ผู้จัดการอาคารไว้ล่วงหน้า และรอที่จุดรอความช่วยเหลือใกล้บันไดหนีไฟ", "People who can't use stairs: tell building management in advance and wait at the refuge point by the fire stairs")],
-        "myths": [("❌ ซ่อนในตู้หรือใต้เตียง — นักดับเพลิงหาเจอยาก ให้อยู่ใกล้หน้าต่างและส่งสัญญาณ", "❌ Hiding in a wardrobe or under a bed — firefighters can't find you; stay by a window and signal")],
+        "myths": [("✕ ซ่อนในตู้หรือใต้เตียง — นักดับเพลิงหาเจอยาก ให้อยู่ใกล้หน้าต่างและส่งสัญญาณ", "✕ Hiding in a wardrobe or under a bed — firefighters can't find you; stay by a window and signal")],
         "sources": ["NFPA · nfpa.org", "FEMA · ready.gov/home-fires", "British Red Cross / IFRC (burns first aid)", "กรมป้องกันและบรรเทาสาธารณภัย · disaster.go.th"],
     },
     "gas": {
-        "icon": "🧪", "name": ("แก๊สรั่ว · สารเคมีรั่วไหล", "Gas leak · chemical release"),
+        "icon": "flask", "name": ("แก๊สรั่ว · สารเคมีรั่วไหล", "Gas leak · chemical release"),
         "signs": [("กลิ่นแก๊สหุงต้ม (คล้ายไข่เน่า) · ประกาศโรงงาน/เจ้าหน้าที่เรื่องสารเคมีรั่ว · ควันหรือกลิ่นแปลกพร้อมแสบตาแสบจมูก",
                    "Cooking-gas smell (like rotten eggs) · factory/official alerts about a chemical release · strange smoke or smell with stinging eyes and nose")],
         "before": [("รู้ตำแหน่งวาล์วแก๊สและปิดหลังใช้ทุกครั้ง · บ้านใกล้นิคมอุตสาหกรรม: รู้เส้นทางอพยพของพื้นที่", "Know where the gas valve is and close it after use · near an industrial estate: know the area's evacuation route")],
