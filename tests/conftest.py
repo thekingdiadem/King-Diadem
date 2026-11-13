@@ -23,7 +23,10 @@ os.environ.update({
     "STRIPE_WEBHOOK_SECRET": "whsec_test",
     "STRIPE_PRICE_ID": "price_basic",
     "STRIPE_PREMIUM_PRICE_ID": "price_prem",
-    "KD_BACKUP": "0",                # ไม่เปิดเธรดสำรองฐานข้อมูลระหว่างเทสต์ (tests/test_db_backup.py ทดสอบเอง)
+    "KD_BACKUP": "0",
+    # ทางด่วนเรื่องวิกฤต (app.py · fast_path) เปิดอยู่ในเว็บจริง — เทสต์เดิมตรวจสิ่งที่ส่งให้ AI ในเรื่องวิกฤต
+    # จึงปิดไว้เป็นค่าเริ่มต้น เพื่อให้ทาง AI (ใช้เมื่อปิดทางด่วน) ยังถูกคุ้มครอง · tests/test_fast_path.py เปิดแล้วตรวจของจริง
+    "KD_FAST_PATH": "0",                # ไม่เปิดเธรดสำรองฐานข้อมูลระหว่างเทสต์ (tests/test_db_backup.py ทดสอบเอง)
 })
 os.environ.pop("KD_AI", None)
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

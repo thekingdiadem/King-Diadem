@@ -2704,8 +2704,25 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         "core_verdict":   core_result.get("bodhi_verdict", ""),
     }
 
+    # ── ทางด่วนของเรื่องวิกฤตและภัยตอนนี้: ไม่รอ AI ─────────────────────────
+    # CTO ที่ทำระบบแบบเดียวกันเตือนใต้โพสต์ LinkedIn ว่าเวลาตอบของ LLM ที่แกว่ง (p99) ทำลายความนิ่งที่คนในวิกฤตต้องการ
+    # วัดแล้ว: เดิม "อยากตาย" "ผัวตีฉัน" รอ AI เหมือนข้อความทั่วไป นานสุด 45 วินาที (LLM_CALL_BUDGET_S)
+    # ขณะที่สมการของระบบตอบเรื่องเดียวกันได้ใน 1–25 มิลลิวินาที พร้อมเบอร์ที่ตรวจสอบได้ และคำตอบเดิมทุกครั้ง
+    # ตอนนี้ข้อความที่เป็นวิกฤต/ภัยตอนนี้ (รวมคำตอบสั้น "ก็มีบ้าง" "เขามาถึงหน้าบ้านแล้ว") ข้าม AI ไปให้สมการตอบทันที
+    fast_path = False
+    try:
+        from core.kernel_voice import safety_kind as _sk
+        fast_path = bool(kernel_compose) and (
+            bool(k_assess.get("crisis")) or _sk(k_assess) in ("crisis", "danger")
+            or (k_assess.get("text_risk") or 0) >= 85 or prior_kind == "self_harm"
+            or (bool(fu) and fu[1] in ("yes", "door"))) and os.getenv("KD_FAST_PATH", "1") != "0"
+    except Exception as e:
+        print(f"⚠ fast path: {type(e).__name__}")
+
     # ── MAIN DECISION PIPELINE ────────────────────────────────────
-    if full_run_decision:
+    if fast_path:
+        result = {"route": route, "fast_path": True}
+    elif full_run_decision:
         result = full_run_decision(payload)
     elif engine:
         result = engine.run(payload)
