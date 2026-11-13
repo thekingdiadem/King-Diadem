@@ -51,9 +51,12 @@ def test_cinema_mode_hides_ui_and_always_lets_you_out():
 
 
 def test_new_answer_unfolds_line_by_line_but_not_when_calm():
-    assert "@keyframes kd-chant" in SRC
-    assert "m.ts === CHANT_TS && !REDUCED" in SRC
+    # เอฟเฟกต์ "ตกผลึก" (static/app.js · Crystal) แทนการเผยทีละบรรทัดแบบเดิม — เดิมจอเลื่อนไปท้ายคำตอบ
+    # ขณะที่ตัวอักษรเริ่มปรากฏจากบรรทัดบนสุดที่พ้นจอไปแล้ว ผู้ใช้จึงเห็นจอว่างอยู่พักหนึ่ง
+    assert "@keyframes kd-form" in SRC
+    assert "if(REDUCED || URGENT.test(text))" in SRC           # ลดการเคลื่อนไหว / มีเบอร์ฉุกเฉิน = ขึ้นทันที
     assert "if(born) CHANT_TS = born.ts;" in SRC
+    assert "Crystal.form(formEl)" in SRC
 
 
 def test_top_level_code_does_not_call_cosmos_private_helpers():

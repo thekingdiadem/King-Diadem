@@ -2543,18 +2543,78 @@ function renderMsgs(){
   /* กำลังคุยเรื่องด่วน/วิกฤต: ซ่อนของตกแต่งตามเทศกาล (ค้างคาว ฟักทอง) — ไม่ใช่เวลาเล่นสนุก */
   var la = c.msgs.slice().reverse().find(function(m){ return m.r === 'a' && m.tr; });
   document.documentElement.classList.toggle('kd-hush', !!(la && (la.tr.mode === 'crisis' || (la.tr.risk || 0) >= 75 || /1323|1669/.test(la.t))));
-  var base = document.documentElement.classList.contains('opening') ? 1800 : 0; box.innerHTML = '';
+  var base = document.documentElement.classList.contains('opening') ? 1800 : 0, formEl = null; box.innerHTML = '';
   c.msgs.forEach(function(m, i){
     var el = msgEl(m), k = c.id + '|' + m.r + (m.ts || 0) + '|' + i;
     if(!SEEN[k]){ SEEN[k] = 1; if(!REDUCED && i >= last - 6){ el.classList.add('enter'); el.style.setProperty('--d', (base + n++ * 90) + 'ms'); } }
-    if(CHANT_TS && m.r === 'a' && m.ts === CHANT_TS && !REDUCED){ CHANT_TS = 0; el.classList.add('chant'); el.style.setProperty('--chant', Math.min(7, Math.max(1.8, String(m.t || '').length / 45)).toFixed(1) + 's'); }
+    var forming = CHANT_TS && m.r === 'a' && m.ts === CHANT_TS;
+    if(forming) CHANT_TS = 0;
     box.appendChild(el);
+    if(forming) formEl = el;
   });
   $('#empty').classList.toggle('hide', c.msgs.length > 0);
   syncStarters();
   paintEq();
-  updateVeil(); scrollBottom();
+  updateVeil();
+  if(formEl) Crystal.form(formEl); else scrollBottom();
 }
+/* ════════════════════════════════════════════════════════════════
+   "ตกผลึก" — คำตอบที่เพิ่งมาถึงค่อยๆ ก่อตัวทีละคำ จากเบลอเป็นคม มีแสงทองวาบตอนแต่ละคำลงตัว
+   เดิม: พอคำตอบมาถึง จอเลื่อนไปท้ายคำตอบทันที แต่เอฟเฟกต์เผยตัวอักษรเริ่มจากบรรทัดบนสุดซึ่งพ้นจอไปแล้ว
+   ผู้ใช้เลยเห็นจอว่างอยู่พักหนึ่ง (คำตอบยาวรอได้ถึง 7 วินาที)
+   ตอนนี้: จอเริ่มที่คำถามของผู้ใช้และหัวคำตอบ แล้วเลื่อนตามคำที่กำลังก่อตัว · ผู้ใช้เลื่อนเองเมื่อไหร่ หยุดตามทันที
+   ยาวสุดราว 2.4 วินาที · คำตอบที่มีเบอร์ฉุกเฉินขึ้นทันทีทั้งก้อน (คนในวิกฤตต้องเห็นเบอร์ก่อนอย่างอื่น) · ลดการเคลื่อนไหว = ขึ้นทันที
+   ════════════════════════════════════════════════════════════════ */
+var Crystal = (function(){
+  var SEG = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter(undefined, { granularity: 'word' }) : null;
+  var URGENT = /(^|[^\d])(1323|1669|191|1300|1441|110|112|119|911|988)(?!\d)/;
+  function pieces(t){
+    if(SEG){ var out = []; for(var it = SEG.segment(t)[Symbol.iterator](), x = it.next(); !x.done; x = it.next()) out.push(x.value.segment); return out; }
+    return t.split(/(\s+)/);
+  }
+  function wrap(root){
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), nodes = [], n, words = [];
+    while((n = walker.nextNode())) if(n.nodeValue && n.nodeValue.trim()) nodes.push(n);
+    nodes.forEach(function(tn){
+      var frag = document.createDocumentFragment();
+      pieces(tn.nodeValue).forEach(function(p){
+        if(!p) return;
+        if(!p.trim()){ frag.appendChild(document.createTextNode(p)); return; }
+        var w = document.createElement('span'); w.className = 'kd-w'; w.textContent = p; frag.appendChild(w); words.push(w);
+      });
+      tn.parentNode.replaceChild(frag, tn);
+    });
+    return words;
+  }
+  function anchor(el){
+    /* ให้คำถามของผู้ใช้ (ข้อความก่อนหน้า) อยู่บนสุดของจอ — เห็นทั้งสิ่งที่ถาม และหัวคำตอบที่กำลังก่อตัว */
+    var s = $('#chat-scroll'), q = el.previousElementSibling, top = q && q.classList.contains('m') ? q : el;
+    var y = s.scrollTop + top.getBoundingClientRect().top - s.getBoundingClientRect().top - 12;
+    s.scrollTop = Math.max(0, Math.min(y, s.scrollHeight));
+  }
+  function form(el){
+    var s = $('#chat-scroll'), bubble = el.querySelector('.bubble') || el, text = bubble.textContent || '';
+    if(REDUCED || URGENT.test(text)){ requestAnimationFrame(function(){ anchor(el); }); return; }
+    var words = wrap(bubble);
+    if(!words.length){ anchor(el); return; }
+    var total = Math.min(2400, Math.max(600, text.length * 9)), step = total / words.length;
+    words.forEach(function(w, i){ w.style.setProperty('--wd', Math.round(i * step) + 'ms'); });
+    el.classList.add('forming');
+    var t0 = performance.now(), free = false;
+    function stop(){ free = true; }
+    ['wheel', 'touchstart', 'keydown'].forEach(function(ev){ s.addEventListener(ev, stop, { once: true, passive: true }); });
+    requestAnimationFrame(function(){ anchor(el); });
+    (function follow(){
+      var e = performance.now() - t0;
+      if(free || e > total + 500){ if(e > total + 500) el.classList.remove('forming'); return; }
+      var w = words[Math.min(words.length - 1, Math.floor(e / step))], r = w.getBoundingClientRect(), box = s.getBoundingClientRect();
+      if(r.bottom > box.bottom - 40) s.scrollTop += Math.min(24, r.bottom - box.bottom + 40);   /* ตามคำที่กำลังก่อตัว แบบนุ่มๆ */
+      requestAnimationFrame(follow);
+    })();
+    setTimeout(function(){ el.classList.remove('forming'); }, total + 600);
+  }
+  return { form: form };
+})();
 function scrollBottom(){ var s = $('#chat-scroll'), empty = !Chat.s || !Chat.cur().msgs.length; requestAnimationFrame(function(){ s.scrollTop = empty ? 0 : s.scrollHeight; }); }
 function renderSessions(){
   var box = $('#sessions'), q = ($('#chat-search').value || '').trim().toLowerCase(); box.innerHTML = '';

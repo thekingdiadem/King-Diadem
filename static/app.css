@@ -1053,6 +1053,10 @@ html[data-ink="dark"] body:not([data-view="universe"]) .st-chip{background:rgba(
 #tabbar button.on .i,.nav button.on i{animation-duration:6.4s}
 .st-hi{font-family:"Noto Serif Thai","Noto Sans Thai Looped",serif;font-size:14.5px;letter-spacing:.02em;color:var(--ink-2)}
 @property --kd-rv{syntax:"<length-percentage>";inherits:false;initial-value:100%}
+/* "ตกผลึก" — คำตอบก่อตัวทีละคำ: เบลอ → คม · แสงทองวาบตอนลงตัว (static/app.js · Crystal) */
+.m.a.forming .kd-w{opacity:0;filter:blur(5px);animation:kd-form .46s cubic-bezier(.2,.7,.2,1) var(--wd,0ms) forwards}
+@keyframes kd-form{0%{opacity:0;filter:blur(5px);text-shadow:0 0 14px var(--gold-hi)}55%{opacity:1;filter:blur(0);text-shadow:0 0 9px var(--gold)}100%{opacity:1;filter:none;text-shadow:none}}
+@media (prefers-reduced-motion: reduce){.m.a.forming .kd-w{animation:none;opacity:1;filter:none}}
 .m.a.chant .bubble{-webkit-mask-image:linear-gradient(180deg,#000 var(--kd-rv),transparent calc(var(--kd-rv) + 2.4em));mask-image:linear-gradient(180deg,#000 var(--kd-rv),transparent calc(var(--kd-rv) + 2.4em));animation:kd-chant var(--chant,3s) cubic-bezier(.4,0,.6,1) both}
 @keyframes kd-chant{from{--kd-rv:-2.4em}to{--kd-rv:100%}}
 /* ── โหมดภาพยนตร์ (อัดคลิป): ซ่อน UI ทุกชิ้น เหลือโลก ธรรมจักร และบาลีที่ค่อยๆ ปรากฏ ── */
