@@ -10,7 +10,7 @@
    ================================================================ */
 'use strict';
 
-var CACHE = 'kd-v8';   // v8: ตรามงกุฎรุ่นเวกเตอร์ — เครื่องที่ติดตั้งแอปไว้จะได้ไอคอนใหม่ (v7: ดาวในวงแหวน)
+var CACHE = 'kd-v9';   // v9: ล้างแคชทั้งหมดหลังอัปเดตใหญ่ (ฟ้าจริง Gaia · ระบบสุริยะ · ระบบดูแลตัวเอง) — เครื่องที่ติดตั้งแอปไว้ได้ไฟล์ใหม่ทันที (v8: ตรามงกุฎรุ่นเวกเตอร์)
 //   // v6: หน้าแรกแยกเป็น index.html + app.css + app.js   // v5: โลโก้มงกุฎใหม่ — เครื่องที่ติดตั้งแอปไว้จะได้ไอคอนใหม่
 var OFFLINE = '/static/offline.html';
 var PRECACHE = ['/', OFFLINE, '/static/manifest.json', '/static/icons/icon-192.png', '/static/icons/favicon-48.png', '/static/i18n.js', '/static/app.css', '/static/app.js'];
