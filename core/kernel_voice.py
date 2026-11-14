@@ -1072,7 +1072,7 @@ TOPICS = [
         ],
         "ask": "ถ้ามีเวลาแค่ 1 ชั่วโมงวันนี้ ส่วนไหนที่ทำแล้วได้คะแนนเพิ่มมากที่สุด?",
     }),
-    ("lonely", ["เหงา", re.compile(r"ไม่มีใคร(?!เจ็บ|บาดเจ็บ|อยู่บ้าน|รับสาย)"), "เพื่อนไม่ชวน", "ไม่มีใครชวน", "เข้ากับใครไม่ได้", "โดดเดี่ยว", "ไม่มีเพื่อน", "อยู่คนเดียว", "ไม่มีใครเข้าใจ",
+    ("lonely", ["เหงา", re.compile(r"ไม่มีใคร(?!เจ็บ|บาดเจ็บ|อยู่บ้าน|รับสาย|เห็น|ชม)"), "เพื่อนไม่ชวน", "ไม่มีใครชวน", "เข้ากับใครไม่ได้", "โดดเดี่ยว", "ไม่มีเพื่อน", "อยู่คนเดียว", "ไม่มีใครเข้าใจ",
                 re.compile(r"\b(?:i feel (?:so )?(?:lonely|alone)|i'?m (?:so )?lonely|i have no friends|nobody cares about me|no one cares about me)\b", re.I)], {
         "open": ["ความเหงาบอกว่าคุณยังต้องการคนอื่น — นั่นเป็นเรื่องปกติของมนุษย์"],
         "paths": [
@@ -2819,7 +2819,11 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
                        and (a["text_risk"] < 75 or lz.get("over"))):
             lz = None      # กติกาเดียวกับภาษาไทย: เรื่องด่วนรับแทนได้เฉพาะเลนส์ที่ประกาศ over
         if lz:
-            lz = _person.adapt_main(lz, _person.read(t), "en")
+            from core import human_needs as _needs
+            _rd = _person.read(t)
+            if _needs.acknowledge(t, "en"):
+                _rd = dict(_rd, decide=None if _rd.get("decide") == "F" else _rd.get("decide"))
+            lz = _needs.adapt_main(_person.adapt_main(lz, _rd, "en"), t, "en")
         if lz:      # เลนส์ปัญหา (core/problem_lens.py) — เดิม "comparing myself on Instagram" ได้ "Let's lay this out step by step."
             return (lz["open"][0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(lz["paths"]))
                     + f"\n\n{lz['ask']}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
@@ -3027,7 +3031,11 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     # อ่านคน (core/person_reading.py · MBTI เป็นตำราเล่มแรก): ข้อความนี้ขอข้อมูลแบบไหน ใช้เหตุผลหรือใจ อยากได้ข้อสรุปไหม
     # ปรับแค่ประโยคเปิดและคำถามปิด ขั้นตอนเหมือนเดิม · ไม่ปรับเรื่องด่วน/เสี่ยงสูง และไม่บอกผู้ใช้ว่าอ่านเขาแบบไหน
     if not a["crisis"] and a["text_risk"] < 75 and not (set(a["topics"]) & set(_URGENT_TOPICS)) and voice_mode != "council":
-        main = _person.adapt_main(main, _person.read(text), "th")
+        from core import human_needs as _needs
+        _rd = _person.read(text)
+        if _needs.acknowledge(text):          # รับรู้สิ่งที่ขาดเจาะจงกว่า "เรื่องนี้หนักกับใจ" — ไม่รับซ้อนสองชั้น
+            _rd = dict(_rd, decide=None if _rd.get("decide") == "F" else _rd.get("decide"))
+        main = _needs.adapt_main(_person.adapt_main(main, _rd, "th"), text, "th")
 
     paths = _paths(main, t)[:3]
     if second:
@@ -3280,6 +3288,11 @@ def ensure_safety_line(text: str, reply: str, a: dict | None = None) -> str:
     return reply.rstrip() + "\n\n" + line
 
 
+def _lab_lang(text: str) -> bool:
+    """อังกฤษล้วน (ไม่มีอักษรไทย) = ตอบภาษาอังกฤษ"""
+    return not re.search(r"[\u0E00-\u0E7F]", str(text or ""))
+
+
 def compose(text: str, *args, **kw) -> str:
     """คำตอบแบบไม่มี AI"""
     if isinstance(text, (bytes, bytearray)):        # compose(b"...") เคยล่มด้วย TypeError
@@ -3301,6 +3314,16 @@ def compose(text: str, *args, **kw) -> str:
                 if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
                     og = og.replace("— LYLA ◈", "— VEGA ◆")
                 return og
+    # ค่าเลือดจากผลตรวจ (core/lab_values.py): "LDL 190 น้ำตาล 130" → บอกความหมายของแต่ละค่า ค่าวิกฤตให้พบแพทย์วันนี้
+    if text:
+        from core import lab_values as _lab
+        if _lab.read(text) and not assess(text).get("crisis"):
+            _en = _lab_lang(text)
+            lab = _lab.reply(text, "en" if _en else "th", footer=kw.get("footer", True))
+            if lab:
+                if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
+                    lab = lab.replace("— LYLA ◈", "— VEGA ◆")
+                return lab
     out = _compose(text, *args, **kw)
     return _distress_line(text, _soften_joking_crisis(text, out))
 

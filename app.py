@@ -2743,6 +2743,18 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 effective += "\n\n" + _ph
         except Exception:
             pass
+        # ความต้องการใต้คำพูด + โทนภาษา (core/human_needs.py): ขาดอะไรลึกๆ และพูดด้วยภาษาแบบไหน
+        try:
+            from core.lab_values import llm_hint as _lab_hint
+            _lh = _lab_hint(user_input)
+            if _lh:
+                effective += "\n\n" + _lh
+            from core.human_needs import llm_hint as _n_hint
+            _nh = _n_hint(user_input)
+            if _nh:
+                effective += "\n\n" + _nh
+        except Exception:
+            pass
     # ภาษาของผู้ใช้ (ดูจากข้อความดิบ — prompt ที่ต่อแล้วมีบริบทภาษาไทยปน) ให้ LLM ตอบภาษาเดียวกัน
     if detect_lang:
         u_lang = prompt_lang(user_input) if prompt_lang else detect_lang(user_input)

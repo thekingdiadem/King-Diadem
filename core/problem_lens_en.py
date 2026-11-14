@@ -557,6 +557,15 @@ EN = {
         "Weight is an output — the upstream variables are sleep, food, medication and stress. Fix whichever changed most recently."),
 }
 
+EN["dna_result"] = (r"\b(?:dna|genetic|gene) (?:test|result|report)s?\b|\bbrca\s?[12]?\b|\bapoe\s?(?:e?4)?\b|\b23andme\b|\bcarrier (?:of|for)\b|\bthalass?emia trait\b",
+    "Most genetic results tell you about risk, not destiny — having a risk variant doesn't mean you'll get the disease, and not having it doesn't mean you won't. "
+    "The exception is a few high-impact genes like BRCA1/2, where prevention and screening genuinely work.",
+    ["Check where the result came from: consumer kits read only some positions and usually aren't for medical confirmation — anything important needs a clinical test.",
+     "Talk to a genetic counselor or clinical geneticist — they read the result together with your family history, which matters as much as the gene itself.",
+     "If it's a high-impact gene (like BRCA, or carrier status when planning children), it's information you can act on: earlier screening, and relatives may want testing too."],
+    "Was this from a consumer kit or a hospital test, and does anyone in your family have the condition?",
+    "Most genes shift probability, not outcome — what decides it is how strong the gene's effect is, family history, and what can be done to prevent it.")
+
 EN["ambition"] = (r"\b(?:ambitio\w*|want to (?:be (?:successful|rich|the best|number one)|get rich|build something (?:big|great)|start my own (?:business|company))|big dreams?)\b",
     "Ambition is a good force when it has a direction. The real question isn't \"is my dream big enough\" but \"what do I actually want, and what am I willing to pay for it.\" "
     "Honestly, most people don't fall short because they dream small — they fall short because the goal is too vague to tell them what to do today.",
