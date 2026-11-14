@@ -1057,6 +1057,28 @@ var Cosmos = (function(){
       '  vec2 c2=floor(np/3.); float hc=h(c2+7.);',
       '  col+=vec3(1.,.86,.64)*step(1.-.016*nm,hc)*(.55+.45*sin(t*.8+hc*40.))*0.;',            /* จุดสี่เหลี่ยมดูเป็นพิกเซล ไม่เหมือนดาวจริง — ปิด (ดาวจริงจากแคตตาล็อกแทน) */
       ' }',
+      /* ทางช้างเผือกพาดเฉียง (ซ้ายบน → ขวาล่าง) แบบภาพถ่ายฟ้ามืดจริง: แกนเรืองทอง · ขอบเย็นสีฟ้า
+         เมฆดาวเป็นก้อน · ร่องฝุ่นมืดคดเคี้ยวกลางแถบ · ดาวหนาแน่นขึ้นตามแนว · เลื่อนช้ากว่าเนบิวลา (อยู่ไกลกว่า) */
+      ' vec2 mp=(p+uPar*.6)/M; vec2 ma=normalize(vec2(1.,.52)); vec2 mn=vec2(-ma.y,ma.x);',
+      ' float mu=dot(mp-vec2(.5,.36),ma), mv=dot(mp-vec2(.5,.36),mn);',
+      ' mv+=.035*sin(mu*5.3+1.2)+.05*(fbm(vec2(mu*3.,1.7))-.5);',
+      ' float mw=.075+.05*exp(-mu*mu*6.), mg=exp(-mv*mv/(2.*mw*mw))*(1.-uLight);',
+      ' if(mg>.004){',
+      '  vec2 mq=vec2(mu,mv); float cl=fbm(mq*9.+vec2(2.1,7.3)), fine=fbm(mq*26.+3.), dk=fbm(mq*14.+vec2(9.,1.));',
+      '  float rift=exp(-pow((mv-.012*sin(mu*9.))/(.014+.012*exp(-mu*mu*8.)),2.))*smoothstep(.38,.66,dk);',
+      '  float I=mg*(.3+1.05*cl*cl)*(.7+.6*fine)*(1.-.92*rift)*(1.-.62*smoothstep(.5,.78,dk)*mg);',
+      '  float core=exp(-mu*mu*9.);',
+      /* โทนลึกลับมีอำนาจ: ขอบแถบครามม่วงลึก · แกนทองเข้มแบบโลหะ ไม่สว่างจ้า */
+      '  vec3 mc=mix(vec3(.26,.24,.68),vec3(.92,.66,.34),smoothstep(.2,.95,core*(.55+.45*cl)));',
+      '  float hot=smoothstep(.62,.82,fbm(mq*5.+8.))*mg;',
+      '  col+=mc*I*.34+vec3(.55,.2,.75)*hot*.07+vec3(1.,.8,.5)*exp(-mu*mu*30.-mv*mv*220.)*.1;',
+      /* ดาวในแถบ: จุดแสงกลมขนาดต่ำกว่าพิกเซล ตำแหน่งสุ่มในช่อง ความสว่างต่างกันมาก — ไม่ใช่สี่เหลี่ยมเท่ากัน */
+      '  vec2 sq=(p+uPar*.6)/3.; vec2 bc=floor(sq); float hb=h(bc+5.7);',
+      '  if(hb>1.-.17*mg*(1.-.85*rift)){ vec2 o=bc+.15+.7*vec2(h(bc+1.9),h(bc+6.3)); float dd=length(sq-o)*3.;',
+      '   float br=pow(h(bc+8.1),3.); col+=mix(vec3(.72,.82,1.),vec3(1.,.88,.7),h(bc+2.2))*exp(-dd*dd*(1.6-br))*(.18+.9*br)*(.85+.15*sin(t*(.6+hb*2.)+hb*50.)); }',
+      ' }',
+      /* ขอบภาพมืดลง (vignette) — ดึงสายตาเข้าหาโลกตรงกลาง ให้ฉากดูลึกและหนักแน่น */
+      ' { vec2 vq=(p-S*vec2(.5,.42))/S; col*=mix(1.,1.-.55*smoothstep(.25,.85,length(vq*vec2(1.,1.2))),1.-uLight); }',
       /* ดวงอาทิตย์ */
       ' vec2 sd=(p-uSun.xy)/uSun.z; float sr=length(sd);',
       ' col+=vec3(1.,.58,.22)*.16/(1.+sr*sr*.35);',
