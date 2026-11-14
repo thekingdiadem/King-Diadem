@@ -557,6 +557,49 @@ EN = {
         "Weight is an output — the upstream variables are sleep, food, medication and stress. Fix whichever changed most recently."),
 }
 
+EN["diabetes_care"] = (r"\bi (?:have|got|was diagnosed with) (?:type [12] )?diabetes\b|\bmanag\w* (?:my )?diabetes\b|\bcontrol (?:my )?(?:blood )?sugar\b|\binsulin injections?\b",
+    "Diabetes can be controlled, and people who control it well live close to normal lives — the damage comes not from having diabetes, but from blood sugar staying high for years without noticing.",
+    ["Know your numbers: HbA1c (target often below 7%) every 3–6 months; if you have a meter, log your fasting readings for your doctor.",
+     "Plate: half vegetables, a quarter protein, a quarter rice or starch (brown over white). Skip sugary drinks, bubble tea and juice. A 10–15 minute walk after meals lowers sugar noticeably.",
+     "Check for complications yearly: eyes, kidneys (kidney function and urine protein) and feet. Look at your feet daily — diabetes slows healing and can hide pain."],
+    "What was your latest HbA1c, and are you on tablets or insulin?",
+    "Diabetes is long-term number control — the variables are average sugar, blood pressure and catching complications early.")
+
+EN["hypertension_care"] = (r"^(?![^\n]*\b(?:twice|double(?:d)? (?:up|dose)|by mistake|extra dose|overdos\w*|too many|swallowed)\b)[^\n]*?(?:\b(?:i have |my )?high blood pressure\b|\bhypertension\b|\bblood pressure (?:pills|meds|medication)\b)",
+    "High blood pressure usually has no symptoms, which is why it's called a silent killer — it damages the heart, brain and kidneys while you feel fine. The good news: it's controllable, and controlling it cuts stroke risk substantially.",
+    ["If you forget doses: tie the pill to a daily habit (brushing your teeth), use a weekly pill box, or set a phone reminder. If you miss one, don't double up — take the next dose as usual unless your doctor said otherwise.",
+     "Measure at home morning and evening for a week before your appointment (sit 5 minutes first, no coffee) — home readings help your doctor adjust medicine more accurately.",
+     "Cutting salt works about as well as one medicine. Move 150 minutes a week, cut alcohol, and don't stop your pills when readings look normal — they're normal because of the pills."],
+    "What was your most recent reading, roughly?",
+    "High blood pressure is invisible accumulated risk — what you control is taking medicine consistently, salt, and measuring at home.")
+
+EN["sinusitis"] = (r"\bsinus(?:itis| infection| pain| pressure)?\b",
+    "Most sinusitis is viral after a cold and clears on its own in 7–10 days without antibiotics. "
+    "See a doctor if it lasts beyond 10 days, gets better then worse again, or comes with high fever, thick pus and severe facial pain.",
+    ["Rinse your nose with saline 2–3 times a day — it genuinely works. Use sterile saline or boiled water only, never straight tap water.",
+     "A steroid nasal spray reduces swelling (ask a pharmacist). Warm compresses, plenty of fluids, sleep propped up. Decongestant sprays: no more than 3–5 days.",
+     "If it keeps coming back or lasts over 12 weeks, see an ENT — allergies, a deviated septum or nasal polyps are often the cause. Swollen red eyes, double vision, or severe headache with a stiff neck: go to hospital now."],
+    "How many days has it been, and is there fever or thick green discharge?",
+    "Most sinusitis is a self-limiting virus — what decides antibiotics is duration, high fever, and getting worse after improving.")
+
+EN["ckd"] = (r"\b(?:chronic )?kidney disease\b|\bckd\b|\bkidney function (?:is )?(?:low|reduced|declining)\b|\bstage [1-5] kidney\b|\bkidneys? (?:are |is )?(?:failing|weak)\b",
+    "Most kidney disease can genuinely be slowed, especially stages 1–3 — lost function usually doesn't come back, but what you do from today keeps the rest working for many years. "
+    "Most people with early-stage disease never need dialysis.",
+    ["Control the two things that damage kidneys most: blood pressure (target often below 130/80) and blood sugar if you have diabetes — take medicines daily even when you feel fine.",
+     "Cut salt (fish sauce, soy sauce, instant noodles, processed food). Stages 1–2 don't need strict protein limits; from stage 3 protein, and sometimes potassium and phosphorus, often need limits based on your blood results — ask for a dietitian.",
+     "Protect your kidneys from medicines: avoid NSAID painkillers (ibuprofen, diclofenac, naproxen) and unknown herbal remedies, tell every clinic you have kidney disease, and keep up eGFR and urine-protein checks."],
+    "Has your doctor told you your stage or eGFR, and do you also have diabetes or high blood pressure?",
+    "Early kidney disease is slowable — the controllable variables are blood pressure, sugar, salt and kidney-harming medicines, not luck.")
+
+EN["dna_result"] = (r"\b(?:dna|genetic|gene) (?:test|result|report)s?\b|\bbrca\s?[12]?\b|\bapoe\s?(?:e?4)?\b|\b23andme\b|\bcarrier (?:of|for)\b|\bthalass?emia trait\b",
+    "Most genetic results tell you about risk, not destiny — having a risk variant doesn't mean you'll get the disease, and not having it doesn't mean you won't. "
+    "The exception is a few high-impact genes like BRCA1/2, where prevention and screening genuinely work.",
+    ["Check where the result came from: consumer kits read only some positions and usually aren't for medical confirmation — anything important needs a clinical test.",
+     "Talk to a genetic counselor or clinical geneticist — they read the result together with your family history, which matters as much as the gene itself.",
+     "If it's a high-impact gene (like BRCA, or carrier status when planning children), it's information you can act on: earlier screening, and relatives may want testing too."],
+    "Was this from a consumer kit or a hospital test, and does anyone in your family have the condition?",
+    "Most genes shift probability, not outcome — what decides it is how strong the gene's effect is, family history, and what can be done to prevent it.")
+
 EN["ambition"] = (r"\b(?:ambitio\w*|want to (?:be (?:successful|rich|the best|number one)|get rich|build something (?:big|great)|start my own (?:business|company))|big dreams?)\b",
     "Ambition is a good force when it has a direction. The real question isn't \"is my dream big enough\" but \"what do I actually want, and what am I willing to pay for it.\" "
     "Honestly, most people don't fall short because they dream small — they fall short because the goal is too vague to tell them what to do today.",
