@@ -557,6 +557,15 @@ EN = {
         "Weight is an output — the upstream variables are sleep, food, medication and stress. Fix whichever changed most recently."),
 }
 
+EN["ambition"] = (r"\b(?:ambitio\w*|want to (?:be (?:successful|rich|the best|number one)|get rich|build something (?:big|great)|start my own (?:business|company))|big dreams?)\b",
+    "Ambition is a good force when it has a direction. The real question isn't \"is my dream big enough\" but \"what do I actually want, and what am I willing to pay for it.\" "
+    "Honestly, most people don't fall short because they dream small — they fall short because the goal is too vague to tell them what to do today.",
+    ["Make the goal measurable: what does \"successful\" or \"rich\" look like for you — what number, by when?",
+     "Find the biggest gap between where you are and that goal — skill, capital, or people — and work on that first.",
+     "Choose consciously what you'll trade for it (time, sleep, relationships) and set the line you won't cross. If your base is shaky — rent, debt, no income — steady that first; ambition built on a stable base goes further."],
+    "If you reached it in five years, what would an ordinary weekday in your life look like?",
+    "Ambition = direction × consistency. A big dream without a measurable first step spends a lot of energy for little outcome.")
+
 EN["solitude_need"] = (r"\b(?:need (?:some )?(?:space|time alone|time to myself)|no time (?:to myself|alone)|never (?:get to be )?alone|want to be alone (?:sometimes|for a while)|people all (?:day|the time))\b",
     "Wanting time alone isn't a problem, and it doesn't mean you love the people around you any less — nobody has to be with others all the time. "
     "Time with yourself is where you recharge, and once you have, you're better with others.",
