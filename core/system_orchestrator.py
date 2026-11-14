@@ -107,12 +107,12 @@ class SystemOrchestrator:
         try:
             from ENGINE.realhuman_survivorengine import RealHumanSurvivorEngine, parse_state_from_context
             h_state  = parse_state_from_context(context or {})
-            survival = RealHumanSurvivorEngine().run(h_state)
+            survival = RealHumanSurvivorEngine().run_with_connection(h_state, text=user_input)   # อ่านมิติคนรอบตัวจากข้อความ
             result["waterline"]  = survival.waterline
             result["can_decide"] = survival.can_decide
             result["flags"]      = survival.flags
             # STABLE = ค่าเริ่มต้น (ไม่ได้บอกสถานะ) — ไม่ส่ง ไม่งั้น LLM คิดว่าผู้ใช้ส่งรายงานสถานะมา
-            if survival.context_for_lyla and survival.status != "STABLE":
+            if survival.context_for_lyla and (survival.status != "STABLE" or survival.connection):
                 ctx_parts.append(survival.context_for_lyla)
         except Exception:
             pass

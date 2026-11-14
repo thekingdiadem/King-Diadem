@@ -82,7 +82,7 @@ try:
 
     def survivor_analyze(text, context):
         state = parse_state_from_context(context or {})
-        out   = _survivor_engine.run(state)
+        out   = _survivor_engine.run_with_connection(state, text=text)
         return {
             "context":    out.context_for_lyla,
             "can_decide": out.can_decide,

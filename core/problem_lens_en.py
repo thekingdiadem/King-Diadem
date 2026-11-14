@@ -557,6 +557,15 @@ EN = {
         "Weight is an output — the upstream variables are sleep, food, medication and stress. Fix whichever changed most recently."),
 }
 
+EN["solitude_need"] = (r"\b(?:need (?:some )?(?:space|time alone|time to myself)|no time (?:to myself|alone)|never (?:get to be )?alone|want to be alone (?:sometimes|for a while)|people all (?:day|the time))\b",
+    "Wanting time alone isn't a problem, and it doesn't mean you love the people around you any less — nobody has to be with others all the time. "
+    "Time with yourself is where you recharge, and once you have, you're better with others.",
+    ["Find a short window that's truly yours every day, even 20–30 minutes — waking before others, a walk alone, sitting in the car before going in. Short and regular beats long and rare.",
+     "Tell the people close to you plainly what you need and why: \"I need half an hour of quiet after work — I'm not upset with anyone, I just need to recharge.\"",
+     "Notice your own rhythm: when time alone refreshes you, and when it starts to feel lonely. Everyone's balance is different, and it changes with life."],
+    "If you had half an hour of your own every day, what would you use it for?",
+    "Solitude is recharging, not retreating — what makes it happen is consistency and being clear with people around you, not the amount of time.")
+
 LENSES_EN = {k: {"en": re.compile(v[0], re.I),
                  "en_d": {"open": [v[1]], "paths": list(v[2]), "ask": v[3], "vega": v[4]}}
              for k, v in EN.items()}
