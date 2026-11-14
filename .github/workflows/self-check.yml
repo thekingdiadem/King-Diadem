@@ -1,0 +1,63 @@
+# ตรวจตัวเองทุกคืน แม้ไม่มีใคร push — เจออะไรพังจะเปิด issue แจ้งเอง (core/self_heal.py เป็นคู่กันฝั่งเซิร์ฟเวอร์)
+# บทเรียนจาก Microsoft ล่มทั่วโลก พ.ย. 2569: อย่ารอให้ผู้ใช้ที่กำลังลำบากเป็นคนแรกที่เจอว่าระบบพัง
+# ไม่แก้โค้ดเอง — การแก้ต้องผ่านเทสต์และคนอนุมัติเสมอ
+name: self-check
+
+on:
+  schedule:
+    - cron: "17 19 * * *"     # ทุกวัน 02:17 เวลาไทย
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - name: ข้อความวิกฤต 7 ภาษายังได้เบอร์ไหม + ทุกส่วนความรู้ตอบได้ไหม (core/self_heal.check_all)
+        env:
+          SECRET_KEY: self-check
+          KD_AI: "off"
+        run: |
+          python - <<'PY'
+          import json, sys
+          from core import self_heal
+          r = self_heal.check_all()
+          print(json.dumps(r, ensure_ascii=False, indent=2))
+          sys.exit(0 if r["ok"] else 1)
+          PY
+      - name: pytest
+        env:
+          KD_AI: "off"
+        run: python -m pytest -q -p no:warnings
+      - name: ชุดกวาดข้อความ
+        env:
+          KD_AI: "off"
+        run: python scripts/sweep_all.py
+      - name: ตรวจช่องโหว่ของไลบรารี (ช่องโหว่ใหม่ประกาศได้ทุกวัน แม้โค้ดเราไม่เปลี่ยน)
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt
+      - name: เปิด issue แจ้งเมื่อมีอะไรพัง
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `ตรวจตัวเองตอนกลางคืนไม่ผ่าน (${new Date().toISOString().slice(0, 10)})`;
+            const open = await github.rest.issues.listForRepo({owner: context.repo.owner, repo: context.repo.repo, state: "open", labels: "self-check"});
+            if (open.data.length) return;          // มี issue เปิดค้างอยู่แล้ว ไม่เปิดซ้ำ
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo, title, labels: ["self-check"],
+              body: `การตรวจตัวเองรอบกลางคืนไม่ผ่าน ดูรายละเอียดที่ ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n\n` +
+                    "ระบบที่รันอยู่ยังปลอดภัย: ส่วนที่พังถูกพักเองโดย core/self_heal.py และข้อความวิกฤตยังได้เบอร์จาก core/last_resort.py"
+            });
