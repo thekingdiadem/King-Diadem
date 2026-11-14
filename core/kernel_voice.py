@@ -19,6 +19,7 @@ import hashlib
 import re
 from core import problem_lens as _lens
 from core import person_reading as _person
+from core import self_heal as _heal
 
 from core.thai_signals import (INDIRECT_SELF, INDIRECT_ADMIN, INDIRECT_HARM, SAFETY_NET_SELF, SAFETY_NET_OTHER, NET_CONFINE, NET_GROOM, NET_MAIM, normalize_mixed, retone, dedialect, SOFT_CRISIS, strip_soft_crisis, THREAT, THEFT, HARM_OTHERS, WEAPON_AT_HOME, WEAPON_DANGER, NOT_WANT_TO_LIVE, OFFER_FLAG_TH, offer_red_flags, offer_risk, SELF_HARM_INDIRECT, SELF_HARM_VEILED,
                                SELF_HARM_WARNING, OVERDOSE, scam_flags, ADDICTION, UNPLANNED_PREGNANCY, GRIEF,
@@ -2833,7 +2834,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             return EN_FAMILY_HARM.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
         if lang == "en" and not a["crisis"] and not a["relationship"] and "violence" not in a["topics"] and _EN_THREAT.search(t):   # คู่ชีวิตขู่ → SAFETY_EN ที่ละเอียดกว่า
             return EN_THREAT.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
-        lz = _lens.find(t, "en", "vega" if vega else "lyla") if (lang == "en" and not a["crisis"] and a["text_risk"] < 85
+        lz = _heal.guard("problem_lens", _lens.find, t, "en", "vega" if vega else "lyla") if (lang == "en" and not a["crisis"] and a["text_risk"] < 85
                                      and not a["relationship"]) else None
         if lz and not ((set(a["topics"]) & set(_URGENT_TOPICS)) <= set(lz.get("over") or ())
                        and (a["text_risk"] < 75 or lz.get("over"))):
@@ -2841,9 +2842,10 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         if lz:
             from core import human_needs as _needs
             _rd = _person.read(t)
-            if _needs.acknowledge(t, "en"):
+            if _heal.guard("human_needs", _needs.acknowledge, t, "en"):
                 _rd = dict(_rd, decide=None if _rd.get("decide") == "F" else _rd.get("decide"))
-            lz = _needs.adapt_main(_person.adapt_main(lz, _rd, "en"), t, "en")
+            lz = _heal.guard("person_reading", _person.adapt_main, lz, _rd, "en") or lz
+            lz = _heal.guard("human_needs", _needs.adapt_main, lz, t, "en") or lz
         if lz:      # เลนส์ปัญหา (core/problem_lens.py) — เดิม "comparing myself on Instagram" ได้ "Let's lay this out step by step."
             return (lz["open"][0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(lz["paths"]))
                     + f"\n\n{lz['ask']}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
@@ -2981,7 +2983,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         second = None
     # เลนส์ปัญหา (core/problem_lens.py) — ตัดสินครั้งเดียว: ไม่ใช่วิกฤต · ความเสี่ยงต่ำกว่า 75 (หนี้ที่ "กลัวโดนยึด" ได้ 60 เคยถูกกันออก)
     # · หัวข้อด่วนต้องไม่มี เว้นแต่เลนส์ประกาศว่ารับแทนได้ (over) และ `no` ของเลนส์กันกรณีที่ด่วนจริงไว้แล้ว
-    _lz = _lens.find(text, "th", voice_mode) if (not a["crisis"] and a["text_risk"] < 85) else None
+    _lz = _heal.guard("problem_lens", _lens.find, text, "th", voice_mode) if (not a["crisis"] and a["text_risk"] < 85) else None
     _urg = set(a["topics"]) & set(_URGENT_TOPICS)
     _lz_ok = bool(_lz) and not (a["topics"] and a["topics"][0] in _KP.NAMES) and _urg <= set(_lz.get("over") or ()) \
         and (a["text_risk"] < 75 or bool(_lz.get("over")))     # 75–84 เฉพาะเลนส์ที่ประกาศรับเรื่องด่วนแทน (รถชนเล็กน้อยได้ 75)
@@ -3053,9 +3055,10 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     if not a["crisis"] and a["text_risk"] < 75 and not (set(a["topics"]) & set(_URGENT_TOPICS)) and voice_mode != "council":
         from core import human_needs as _needs
         _rd = _person.read(text)
-        if _needs.acknowledge(text):          # รับรู้สิ่งที่ขาดเจาะจงกว่า "เรื่องนี้หนักกับใจ" — ไม่รับซ้อนสองชั้น
+        if _heal.guard("human_needs", _needs.acknowledge, text):          # รับรู้สิ่งที่ขาดเจาะจงกว่า "เรื่องนี้หนักกับใจ" — ไม่รับซ้อนสองชั้น
             _rd = dict(_rd, decide=None if _rd.get("decide") == "F" else _rd.get("decide"))
-        main = _needs.adapt_main(_person.adapt_main(main, _rd, "th"), text, "th")
+        main = _heal.guard("person_reading", _person.adapt_main, main, _rd, "th") or main
+        main = _heal.guard("human_needs", _needs.adapt_main, main, text, "th") or main
 
     paths = _paths(main, t)[:3]
     if second:
@@ -3327,17 +3330,25 @@ def compose(text: str, *args, **kw) -> str:
     # ปริศนาล้างรถ 100 เมตร (core/object_goal.py): "เอารถไปล้าง ควรเดินไหม" — รถต้องไปด้วย ไม่ใช่เรื่องระยะทาง
     if text:
         from core import object_goal as _og
-        og = _og.reply(text, footer=kw.get("footer", True)) if _og.check(text) else None
+        og = _heal.guard("object_goal", lambda: _og.reply(text, footer=kw.get("footer", True)) if _og.check(text) else None)
         if og:
             a0 = assess(text)
             if not a0.get("crisis") and a0.get("text_risk", 0) < 60:
                 if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
                     og = og.replace("— LYLA ◈", "— VEGA ◆")
                 return og
+    # พันธุกรรมสัตว์ (WORLD_MODEL/bio_axiom.py · BIO-AXIOM): "แมวสามสีทำไมเป็นตัวเมีย" "ล่อทำไมเป็นหมัน"
+    if text:
+        from WORLD_MODEL import bio_axiom as _bio
+        bio = _heal.guard("bio_axiom", _bio.reply, text, "en" if _lab_lang(text) else "th", footer=kw.get("footer", True))
+        if bio and assess(text).get("text_risk", 0) < 60:
+            if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
+                bio = bio.replace("— LYLA ◈", "— VEGA ◆")
+            return bio
     # ยาตีกัน (core/drug_pairs.py): "กินวาร์ฟารินกับไอบูโพรเฟนได้ไหม" → แยกสาร แล้วบอกคู่ที่ต้องระวัง
     if text:
         from core import drug_pairs as _dp
-        dp = _dp.reply(text, "en" if _lab_lang(text) else "th", footer=kw.get("footer", True))
+        dp = _heal.guard("drug_pairs", _dp.reply, text, "en" if _lab_lang(text) else "th", footer=kw.get("footer", True))
         if dp and not assess(text).get("crisis"):
             if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
                 dp = dp.replace("— LYLA ◈", "— VEGA ◆")
@@ -3345,9 +3356,9 @@ def compose(text: str, *args, **kw) -> str:
     # ค่าเลือดจากผลตรวจ (core/lab_values.py): "LDL 190 น้ำตาล 130" → บอกความหมายของแต่ละค่า ค่าวิกฤตให้พบแพทย์วันนี้
     if text:
         from core import lab_values as _lab
-        if _lab.read(text) and not assess(text).get("crisis"):
+        if _heal.guard("lab_values", _lab.read, text) and not assess(text).get("crisis"):
             _en = _lab_lang(text)
-            lab = _lab.reply(text, "en" if _en else "th", footer=kw.get("footer", True))
+            lab = _heal.guard("lab_values", _lab.reply, text, "en" if _en else "th", footer=kw.get("footer", True))
             if lab:
                 if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
                     lab = lab.replace("— LYLA ◈", "— VEGA ◆")

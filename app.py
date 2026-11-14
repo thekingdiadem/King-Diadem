@@ -1026,6 +1026,17 @@ except Exception as _e:
     _CANARY = {"ok": False, "failed": ["canary:" + type(_e).__name__]}
 print(("✓" if _CANARY.get("ok") else "⚠⚠ CRISIS CANARY FAILED") + f" crisis canary: {_CANARY}")
 
+# ดูแลตัวเองเมื่อไม่มีใครเฝ้า (core/self_heal.py): ตรวจทุกส่วนตอนเปิด แล้วตรวจซ้ำทุก 10 นาทีในเบื้องหลัง
+# ส่วนที่พังถูกพักไว้ ส่วนที่หายแล้วถูกเปิดคืนเอง · ผลอยู่ที่ /health → self_heal
+try:
+    from core import self_heal as _self_heal
+    print("self_heal:", _self_heal.check_all().get("failed") or "ทุกส่วนปกติ")
+    if os.getenv("TESTING") != "1":
+        _self_heal.start_background()
+except Exception as _e:
+    _self_heal = None
+    print(f"⚠ self_heal ใช้ไม่ได้: {type(_e).__name__}: {_e}")
+
 
 @app.get("/health")
 def health():
@@ -1033,6 +1044,7 @@ def health():
         "status":             "alive 👑",
         "version":            "5.0",
         "llm_loaded":         llm is not None,
+        "self_heal":          _self_heal.status() if _self_heal else None,   # ส่วนไหนถูกพักไว้ · ตรวจรอบล่าสุดเมื่อไร (core/self_heal)
         "crisis_canary":      _CANARY,              # ข้อความวิกฤต 7 ภาษายังได้เบอร์ไหม (ตรวจตอนเปิดเซิร์ฟเวอร์ · core/last_resort)
         "reply_ms":           _reply_ms(),
         "model_ms":           _model_ms(),          # เวลาเรียก AI แยกตามรุ่น (200 ครั้งล่าสุดต่อรุ่น)          # เวลาตอบของแชท 500 ข้อความล่าสุด: p50 / p95 / p99 (มิลลิวินาที)
@@ -2745,6 +2757,10 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             pass
         # ความต้องการใต้คำพูด + โทนภาษา (core/human_needs.py): ขาดอะไรลึกๆ และพูดด้วยภาษาแบบไหน
         try:
+            from WORLD_MODEL.bio_axiom import llm_hint as _bio_hint
+            _bh = _bio_hint(user_input)
+            if _bh:
+                effective += "\n\n" + _bh
             from core.drug_pairs import llm_hint as _dp_hint
             _dh = _dp_hint(user_input)
             if _dh:
