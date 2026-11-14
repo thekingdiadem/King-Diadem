@@ -32,3 +32,17 @@ def test_ambition_on_shaky_base_stabilizes_first():
 
 def test_get_rich_scam_still_scam():
     assert "ความทะเยอทะยาน" not in compose("อยากรวยเร็ว มีคนชวนลงทุนแล้วได้ 10% ต่อวัน", footer=False)
+
+
+# ── คำในชีวิตประจำวันที่เคยถูกอ่านเป็นเหตุฉุกเฉิน ──
+@pytest.mark.parametrize("q", ["แมวข่วนโซฟาพัง", "หมากัดรองเท้าขาด", "รถชนกันเบาๆ ที่ลานจอด ไม่มีใครเจ็บ",
+                               "I almost had a heart attack when the team scored", "my cat bit the sofa"])
+def test_everyday_not_emergency(q):
+    a = assess(q)
+    assert a["risk"] < 75 and not {"first_aid", "health_emergency", "lonely"} & set(a["topics"])
+
+
+@pytest.mark.parametrize("q", ["โดนแมวข่วนแขนเลือดออก", "หมากัดลูก", "รถชนคนเลือดออกเยอะ",
+                               "I think I am having a heart attack", "my cat bit me and it is bleeding"])
+def test_real_injury_still_caught(q):
+    assert {"first_aid", "health_emergency"} & set(assess(q)["topics"])
