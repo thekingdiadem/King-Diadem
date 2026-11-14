@@ -470,6 +470,9 @@ from core.problem_lens_en import LENSES_EN  # noqa: E402
 for _L in LENSES:
     if _L.get("en") is None and _L["key"] in LENSES_EN:
         _L.update(LENSES_EN[_L["key"]])
+# เลนส์ที่มีแต่ภาษาอังกฤษ (ไม่มีคู่ภาษาไทยชื่อเดียวกัน) — เดิมถูกทิ้งเงียบๆ เช่น "my dog died yesterday"
+_known = {L["key"] for L in LENSES}
+LENSES += [dict(key=k, th=None, no=None, over=(), **v) for k, v in LENSES_EN.items() if k not in _known]
 _BY_KEY = {L["key"]: L for L in LENSES}
 
 
@@ -480,6 +483,10 @@ _DANGER_TH = re.compile(_PHYSICAL + r"|ขู่(?:จะ)?(?:ฆ่า|ทำ�
 _DANGER_EN = re.compile(r"\b(?:hit|hits|hitting|beat|beats|beating|beaten|punch\w*|kick(?:s|ed|ing)?|slap\w*|chok\w*|strangl\w*|stab\w*|"
                         r"knife|gun|kill(?:s|ed|ing)?|murder|hurt(?:s|ing)? (?:me|her|him|us|them|my)|bleeding|rape\w*|"
                         r"break (?:my|your|his|her) (?:legs?|arms?|bones?|neck)|threaten\w* to (?:hurt|kill|break)|locked (?:me|us) (?:in|up))\b", re.I)
+
+
+_BACKGROUND = {"ckd", "kidney_heat", "dialysis", "diabetes_care", "hypertension_care", "gout", "fatty_liver", "heart_disease", "asthma",
+               "thyroid", "epilepsy", "copd", "migraine", "statin_pain", "allergic_rhinitis", "sinusitis", "acne", "hair_loss", "weight_loss"}
 
 
 def find(text: str, lang: str = "th", voice: str = "lyla"):
@@ -493,7 +500,12 @@ def find(text: str, lang: str = "th", voice: str = "lyla"):
     t = str(text)
     if (_DANGER_EN if lang == "en" else _DANGER_TH).search(t):
         return None
-    for L in LENSES:
+    # เรื่องเล่ายาวมักมีหลายปัญหา — โรคประจำตัวที่ถูกพูดถึงผ่านๆ ("แม่ก็ป่วยเป็นเบาหวาน") ไม่ควรแย่งแก่นของเรื่อง
+    # (สาวโรงงานถูกแอปเงินกู้ทวงถึงที่ทำงาน เคยได้คำตอบเรื่องเบาหวานของแม่) → ลองเลนส์อื่นก่อน แล้วค่อยกลับมาที่โรค
+    order = LENSES
+    if len(t) > 160:
+        order = [L for L in LENSES if L["key"] not in _BACKGROUND] + [L for L in LENSES if L["key"] in _BACKGROUND]
+    for L in order:
         rx = L.get("en" if lang == "en" else "th")
         if rx is None or not rx.search(t):
             continue
