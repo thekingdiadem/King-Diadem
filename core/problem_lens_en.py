@@ -557,6 +557,15 @@ EN = {
         "Weight is an output — the upstream variables are sleep, food, medication and stress. Fix whichever changed most recently."),
 }
 
+EN["ckd"] = (r"\b(?:chronic )?kidney disease\b|\bckd\b|\bkidney function (?:is )?(?:low|reduced|declining)\b|\bstage [1-5] kidney\b|\bkidneys? (?:are |is )?(?:failing|weak)\b",
+    "Most kidney disease can genuinely be slowed, especially stages 1–3 — lost function usually doesn't come back, but what you do from today keeps the rest working for many years. "
+    "Most people with early-stage disease never need dialysis.",
+    ["Control the two things that damage kidneys most: blood pressure (target often below 130/80) and blood sugar if you have diabetes — take medicines daily even when you feel fine.",
+     "Cut salt (fish sauce, soy sauce, instant noodles, processed food). Stages 1–2 don't need strict protein limits; from stage 3 protein, and sometimes potassium and phosphorus, often need limits based on your blood results — ask for a dietitian.",
+     "Protect your kidneys from medicines: avoid NSAID painkillers (ibuprofen, diclofenac, naproxen) and unknown herbal remedies, tell every clinic you have kidney disease, and keep up eGFR and urine-protein checks."],
+    "Has your doctor told you your stage or eGFR, and do you also have diabetes or high blood pressure?",
+    "Early kidney disease is slowable — the controllable variables are blood pressure, sugar, salt and kidney-harming medicines, not luck.")
+
 EN["dna_result"] = (r"\b(?:dna|genetic|gene) (?:test|result|report)s?\b|\bbrca\s?[12]?\b|\bapoe\s?(?:e?4)?\b|\b23andme\b|\bcarrier (?:of|for)\b|\bthalass?emia trait\b",
     "Most genetic results tell you about risk, not destiny — having a risk variant doesn't mean you'll get the disease, and not having it doesn't mean you won't. "
     "The exception is a few high-impact genes like BRCA1/2, where prevention and screening genuinely work.",

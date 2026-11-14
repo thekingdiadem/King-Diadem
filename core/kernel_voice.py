@@ -2306,10 +2306,19 @@ _FICT_CHAR = re.compile(r"(?:ตัวละคร|พระเอก|นาง�
                         r"(?i:\b(?:my|the|a|this|our|his|her)\s+(?:main\s+)?(?:character|protagonist|hero|heroine|villain|npc)\b[^.!?,\n]*)")
 
 
+_HEAT_SYMPTOM = re.compile(r"(?:ร้อน(?:จัด|มาก)|อากาศร้อน|กลางแดด|ตากแดด|หน้างานร้อน|\d{2}\s?องศา|\bheat\b|\bin the sun\b)[^\n]{0,40}?"
+                           r"(?:เวียนหัว|คลื่นไส้|อาเจียน|หน้ามืด|อ่อนเพลีย|ใจสั่น|ตะคริว|ปวดหัว|\bdizzy\b|\bnause\w*|\bfaint\w*|\bcramps?\b|\bheadache\b)|"
+                           r"(?:เวียนหัว|คลื่นไส้|หน้ามืด|\bdizzy\b|\bfaint\w*)[^\n]{0,30}?(?:ร้อน(?:จัด|มาก)|กลางแดด|ตากแดด|\bheat\b|\bin the sun\b)", re.I)
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
     from core.thai_signals import canon_text
     text = canon_text(text)                     # เว้นวรรคซ้อน · ลากตัวอักษร — ทุกชั้นเห็นรูปเดียวกัน
     a = _assess_raw(text, pattern)
+    # ร้อนจัด + มีอาการ (เวียนหัว คลื่นไส้ หน้ามืด…) = เพลียแดด ซึ่งกลายเป็นฮีทสโตรกได้ — เดิมขึ้นความเสี่ยง 0/100
+    if isinstance(text, str) and not a["crisis"] and _HEAT_SYMPTOM.search(text) and not _DREAM.search(text):
+        a = dict(a, text_risk=max(a["text_risk"], 65), risk=max(a["risk"], 65),
+                 risk_shown=max(a["risk_shown"], 65) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     if not a["crisis"] and a["text_risk"] >= 35 and isinstance(text, str) and _DREAM.search(text) \
             and not _WOKE_REAL.search(text):
         return dict(a, text_risk=0, risk=min(a["risk"], 20), risk_shown=0, disaster=None,
@@ -2986,7 +2995,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         # เลนส์ปัญหา (core/problem_lens.py): อ่านให้ถูกว่าเป็นปัญหาของใคร แก่นคืออะไร เพราะอะไร ก่อนให้ขั้นตอน
         # เดิม "แม่ป่วยติดเตียง ต้องลาออกมาดูแล" ได้คำตอบเรื่องไข้สูง · "พ่อติดเหล้า เมาแล้วด่าแม่" ได้วิธีเลิกเหล้า
         main, second = _lz, None
-    elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS) \
+    elif _everyday(text, a["topics"]) and (a["text_risk"] < 60 or (_HEAT_SYMPTOM.search(text) and a["text_risk"] < 75)) and not set(a["topics"]) & set(_URGENT_TOPICS) \
             and not (a["topics"] and a["topics"][0] in _KP.NAMES):
         main, second = _everyday(text, a["topics"]), None                  # เรื่องบ้านๆ–ระดับโลกที่เคยได้คำตอบกลาง (EVERYDAY)
     elif _dharma_answer(text) and a["text_risk"] < 60:
@@ -3511,7 +3520,7 @@ def compose_council(text: str, footer: bool = True) -> str:
     elif a["text_risk"] < 60 and not a["crisis"] and not set(a["topics"]) & set(_URGENT_TOPICS) \
             and not (a["topics"] and a["topics"][0] in _KP.NAMES) and _lens.find(text, "th"):
         main = _lens.find(text, "th")        # สภาก็ต้องอ่านเรื่องให้ถูกก่อน — เดิม "พ่อติดเหล้า" TITAN ให้ผู้ใช้สังเกตการดื่มของตัวเอง
-    elif _everyday(text, a["topics"]) and a["text_risk"] < 60 and not set(a["topics"]) & set(_URGENT_TOPICS) \
+    elif _everyday(text, a["topics"]) and (a["text_risk"] < 60 or (_HEAT_SYMPTOM.search(text) and a["text_risk"] < 75)) and not set(a["topics"]) & set(_URGENT_TOPICS) \
             and not (a["topics"] and a["topics"][0] in _KP.NAMES):
         main = _everyday(text, a["topics"])
     elif _dharma_answer(text) and a["text_risk"] < 60:
