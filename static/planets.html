@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#030409">
+<title>ระบบสุริยะ · KING DIADEM</title>
+<meta name="description" content="ดวงอาทิตย์ ดาวเคราะห์ 8 ดวง พลูโต และซีรีส — เรนเดอร์สดบนฟ้าจริงจากดาวเทียม Gaia พร้อมข้อมูลที่ตรวจได้">
+<link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="canonical" href="https://king-diadem.onrender.com/static/planets.html">
+<meta property="og:title" content="ระบบสุริยะ · KING DIADEM">
+<meta property="og:description" content="ดาวเคราะห์ทุกดวงเรนเดอร์สด บนฟ้าจริงจาก Gaia DR3">
+<meta property="og:image" content="https://king-diadem.onrender.com/static/og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai+Looped:wght@400;500;600;700&family=Cinzel:wght@500;700&display=swap">
+<style>
+:root{--ink:#eef0fa;--ink-2:rgba(238,240,250,.74);--ink-3:rgba(238,240,250,.5);--line:rgba(238,240,250,.13);
+  --gold:#e8c27a;--f:"Noto Sans Thai Looped","Noto Sans Thai",system-ui,sans-serif;--d:"Cinzel",Georgia,serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#030409;color:var(--ink);font:400 15px/1.55 var(--f);overflow:hidden;-webkit-tap-highlight-color:transparent}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
+button,a{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;padding:0}
+.top{position:fixed;top:calc(16px + env(safe-area-inset-top));left:18px;right:18px;display:flex;justify-content:space-between;align-items:center;z-index:3}
+.brand{font:500 12px/1 var(--d);letter-spacing:.32em;color:var(--ink-2);text-decoration:none}
+.count{font:500 12px/1 var(--d);letter-spacing:.2em;color:var(--ink-3)}
+.panel{position:fixed;z-index:2;left:clamp(18px,6vw,84px);top:50%;transform:translateY(-50%);width:min(440px,42vw);
+  transition:opacity .45s ease,transform .45s ease}
+.panel.out{opacity:0;transform:translateY(calc(-50% + 14px))}
+.kicker{font:500 13px/1.3 var(--f);letter-spacing:.02em;color:var(--gold);opacity:.92}
+h1{margin:.45em 0 .1em;font:700 clamp(40px,6vw,76px)/1.02 var(--f);letter-spacing:-.01em;
+  background:linear-gradient(180deg,#fff7e4 0%,#e8c27a 55%,#9a6a2c 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 6px 30px rgba(232,194,122,.18))}
+.en{font:500 clamp(15px,1.6vw,19px)/1.2 var(--d);letter-spacing:.3em;color:var(--ink-2);text-transform:uppercase}
+.tag{margin:18px 0 22px;font-size:clamp(16px,1.5vw,19px);color:var(--ink);max-width:36ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.chip{padding:7px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink-2);background:rgba(10,12,22,.45);backdrop-filter:blur(6px)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;margin:0;padding:18px 0 0;border-top:1px solid var(--line);font-size:14px}
+dt{color:var(--ink-3)}
+dd{margin:0;color:var(--ink)}
+.note{margin-top:18px;font-size:13px;color:var(--ink-3);max-width:40ch}
+.nav{position:fixed;z-index:3;bottom:calc(22px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px}
+.arrow{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--ink-2);background:rgba(10,12,22,.5);backdrop-filter:blur(6px)}
+.arrow:hover,.arrow:focus-visible{color:#120d04;background:var(--gold);border-color:var(--gold);outline:none}
+.dots{display:flex;gap:7px}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(238,240,250,.25)}
+.dot[aria-current="true"]{background:var(--gold);box-shadow:0 0 10px rgba(232,194,122,.7);width:20px;border-radius:4px}
+.credit{position:fixed;z-index:2;right:16px;bottom:calc(10px + env(safe-area-inset-bottom));font-size:11px;color:var(--ink-3)}
+.credit a{color:var(--ink-3)}
+@media (max-width:760px){
+  .panel{left:18px;right:18px;width:auto;top:auto;bottom:calc(84px + env(safe-area-inset-bottom));transform:none;
+    background:linear-gradient(180deg,rgba(3,4,9,0) 0%,rgba(3,4,9,.86) 22%);padding-top:40px}
+  .panel.out{transform:translateY(14px)}
+  h1{font-size:44px}
+  dl{display:none}
+  .note{display:none}
+  .credit{display:none}
+}
+@media (prefers-reduced-motion:reduce){.panel{transition:none}}
+</style>
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="top">
+  <a class="brand" href="/">KING DIADEM</a>
+  <span class="count" id="count">01 / 12</span>
+</div>
+<section class="panel" id="panel" aria-live="polite">
+  <div class="kicker" id="kicker">THE SOLAR SYSTEM</div>
+  <h1 id="name">ดวงอาทิตย์</h1>
+  <div class="en" id="en">The Sun</div>
+  <p class="tag" id="tag"></p>
+  <div class="chips" id="chips"></div>
+  <dl id="facts"></dl>
+  <p class="note" id="note"></p>
+</section>
+<nav class="nav" aria-label="เลือกดวง">
+  <button class="arrow" id="prev" type="button" aria-label="ดวงก่อนหน้า"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></button>
+  <div class="dots" id="dots"></div>
+  <button class="arrow" id="next" type="button" aria-label="ดวงถัดไป"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+</nav>
+<div class="credit">ฟ้า: ESA/Gaia/DPAC (CC BY-SA 3.0 IGO) · โลก: NASA</div>
+<script>
+/* ระบบสุริยะ — ทุกดวงเรนเดอร์สดด้วย WebGL (ไม่ใช้ภาพของใคร) บนฟ้าจริงจาก Gaia DR3 (static/sky/allsky.jpg)
+   ตัวเลขเป็นค่าที่ยอมรับทั่วไปจาก NASA/JPL · จำนวนดวงจันทร์เปลี่ยนเมื่อมีการค้นพบใหม่ จึงเขียนเป็นช่วง */
+(function(){
+'use strict';
+var B = [
+ {k:0, th:'ดวงอาทิตย์', en:'The Sun', kick:'ดาวฤกษ์ · ใจกลางระบบ',
+  tag:'เตาปฏิกรณ์นิวเคลียร์ที่เผาไฮโดรเจน 600 ล้านตันทุกวินาที — ทุกแสงบนโลกเริ่มจากที่นี่',
+  chips:['มวล 99.8% ของทั้งระบบ','แสงถึงโลก ~8 นาที 20 วินาที','ผิว ~5,500°C'],
+  facts:[['เส้นผ่านศูนย์กลาง','~1,392,700 กม. (โลกเรียงได้ราว 109 ดวง)'],['อายุ','~4,600 ล้านปี'],['แกนกลาง','~15 ล้าน°C']],
+  note:'ห้ามมองดวงอาทิตย์ด้วยตาเปล่าหรือกล้องที่ไม่มีแผ่นกรองแสงเฉพาะทาง'},
+ {k:1, th:'ดาวพุธ', en:'Mercury', kick:'ดาวเคราะห์ดวงที่ 1',
+  tag:'เล็กที่สุดและเร็วที่สุด — กลางวันร้อนจนตะกั่วละลาย กลางคืนเย็นยิ่งกว่าขั้วโลก',
+  chips:['ไม่มีดวงจันทร์','ปีละ 88 วัน','−180 ถึง 430°C'],
+  facts:[['เส้นผ่านศูนย์กลาง','~4,880 กม.'],['ห่างดวงอาทิตย์','~58 ล้าน กม.'],['1 วัน (เช้าถึงเช้า)','~176 วันโลก']],
+  note:'หลุมอุกกาบาตที่ขั้วซึ่งแสงอาทิตย์ส่องไม่ถึง มีหลักฐานของน้ำแข็ง'},
+ {k:2, th:'ดาวศุกร์', en:'Venus', kick:'ดาวเคราะห์ดวงที่ 2',
+  tag:'ฝาแฝดของโลกที่กลายเป็นนรก — ภาวะเรือนกระจกที่ควบคุมไม่ได้ทำให้ร้อนกว่าดาวพุธ',
+  chips:['ร้อนที่สุด ~465°C','หมุนกลับทิศ','ความกดอากาศ ~92 เท่าของโลก'],
+  facts:[['เส้นผ่านศูนย์กลาง','~12,100 กม.'],['ห่างดวงอาทิตย์','~108 ล้าน กม.'],['หมุนรอบตัวเอง','~243 วันโลก (นานกว่า 1 ปีของมัน)']],
+  note:'เมฆกรดกำมะถันหนาทึบสะท้อนแสงได้ดี จึงสว่างที่สุดบนฟ้ารองจากดวงจันทร์'},
+ {k:3, th:'โลก', en:'Earth', kick:'ดาวเคราะห์ดวงที่ 3 · บ้าน',
+  tag:'ดวงเดียวที่รู้ว่ามีชีวิต — อยู่ในระยะที่น้ำเป็นของเหลวได้พอดี',
+  chips:['น้ำปกคลุม ~71%','ดวงจันทร์ 1 ดวง','N₂ 78% · O₂ 21%'],
+  facts:[['เส้นผ่านศูนย์กลาง','~12,742 กม.'],['ห่างดวงอาทิตย์','~150 ล้าน กม. (1 AU)'],['1 ปี','~365.25 วัน']],
+  note:'ภาพผิวโลกจากดาวเทียมจริงของ NASA'},
+ {k:4, th:'ดาวอังคาร', en:'Mars', kick:'ดาวเคราะห์ดวงที่ 4',
+  tag:'ดาวเคราะห์สีสนิม ที่เคยมีแม่น้ำไหล — เป้าหมายแรกของมนุษย์นอกโลก',
+  chips:['ภูเขาโอลิมปัส ~22 กม.','ดวงจันทร์ 2 ดวง','1 วัน 24 ชม. 37 นาที'],
+  facts:[['เส้นผ่านศูนย์กลาง','~6,780 กม.'],['ห่างดวงอาทิตย์','~228 ล้าน กม.'],['หุบเหว Valles Marineris','ยาว ~4,000 กม.']],
+  note:'สีแดงมาจากเหล็กออกไซด์ในฝุ่นและหินบนพื้นผิว'},
+ {k:5, th:'ดาวพฤหัสบดี', en:'Jupiter', kick:'ดาวเคราะห์ดวงที่ 5 · ราชา',
+  tag:'มวลมากกว่าดาวเคราะห์อื่นรวมกัน 2.5 เท่า — แรงโน้มถ่วงของมันคอยเบี่ยงดาวหางออกจากโลก',
+  chips:['จุดแดงใหญ่ — พายุกว่า 300 ปี','1 วัน ~10 ชม.','ดวงจันทร์ กว่า 90 ดวง'],
+  facts:[['เส้นผ่านศูนย์กลาง','~140,000 กม.'],['ห่างดวงอาทิตย์','~778 ล้าน กม.'],['1 ปี','~12 ปีโลก']],
+  note:'แกนีมีด ดวงจันทร์ของมัน ใหญ่กว่าดาวพุธ'},
+ {k:6, th:'ดาวเสาร์', en:'Saturn', kick:'ดาวเคราะห์ดวงที่ 6',
+  tag:'เจ้าแห่งวงแหวน — กว้างกว่า 270,000 กม. แต่หนาเพียงราวสิบถึงร้อยเมตร',
+  chips:['เบากว่าน้ำ','ดวงจันทร์มากที่สุดในระบบ','1 ปี ~29.5 ปีโลก'],
+  facts:[['เส้นผ่านศูนย์กลาง','~116,000 กม.'],['ห่างดวงอาทิตย์','~1,430 ล้าน กม.'],['ไททัน','ดวงจันทร์ที่มีบรรยากาศหนา']],
+  note:'วงแหวนคือก้อนน้ำแข็งและหินนับไม่ถ้วน ตั้งแต่เม็ดทรายถึงขนาดบ้าน'},
+ {k:7, th:'ดาวยูเรนัส', en:'Uranus', kick:'ดาวเคราะห์ดวงที่ 7',
+  tag:'ยักษ์น้ำแข็งที่นอนตะแคง — แกนเอียง 98° ขั้วหนึ่งได้แดดต่อเนื่อง 42 ปี',
+  chips:['แกนเอียง ~98°','เย็นถึง −224°C','1 ปี ~84 ปีโลก'],
+  facts:[['เส้นผ่านศูนย์กลาง','~50,700 กม.'],['ห่างดวงอาทิตย์','~2,870 ล้าน กม.'],['สีฟ้าอมเขียว','มีเทนดูดกลืนแสงสีแดง']],
+  note:'นักวิทยาศาสตร์เชื่อว่าการชนครั้งใหญ่ในอดีตทำให้มันล้มตะแคง'},
+ {k:8, th:'ดาวเนปจูน', en:'Neptune', kick:'ดาวเคราะห์ดวงที่ 8 · ไกลที่สุด',
+  tag:'ค้นพบด้วยคณิตศาสตร์ก่อนกล้อง — และมีลมแรงที่สุดในระบบสุริยะ',
+  chips:['ลม ~2,000 กม./ชม.','1 ปี ~165 ปีโลก','ไทรทันโคจรถอยหลัง'],
+  facts:[['เส้นผ่านศูนย์กลาง','~49,200 กม.'],['ห่างดวงอาทิตย์','~4,500 ล้าน กม.'],['ค้นพบ','ค.ศ. 1846 จากการคำนวณวงโคจรยูเรนัส']],
+  note:'แสงอาทิตย์ใช้เวลาราว 4 ชั่วโมงกว่าจะถึงดาวเนปจูน'},
+ {k:9, th:'ดาวพลูโต', en:'Pluto', kick:'ดาวเคราะห์แคระ',
+  tag:'โลกเล็กสุดขอบที่มีหัวใจ — ที่ราบน้ำแข็งไนโตรเจนที่ยังเคลื่อนไหว',
+  chips:['หัวใจ Tombaugh Regio','ดวงจันทร์ 5 ดวง','1 ปี ~248 ปีโลก'],
+  facts:[['เส้นผ่านศูนย์กลาง','~2,377 กม. (เล็กกว่าดวงจันทร์)'],['ค้นพบ','ค.ศ. 1930 โดย Clyde Tombaugh'],['คารอน','ใหญ่ราวครึ่งหนึ่งของพลูโต']],
+  note:'ยานนิวฮอไรซันส์ถ่ายภาพระยะใกล้ครั้งแรกในปี 2015'},
+ {k:10, th:'ซีรีส', en:'Ceres', kick:'ดาวเคราะห์แคระ · แถบดาวเคราะห์น้อย',
+  tag:'วัตถุใหญ่ที่สุดในแถบดาวเคราะห์น้อย — จุดสว่างลึกลับคือเกลือที่ซึมขึ้นมาจากใต้ผิว',
+  chips:['หลุม Occator','อยู่ระหว่างอังคารกับพฤหัส','1 ปี ~4.6 ปีโลก'],
+  facts:[['เส้นผ่านศูนย์กลาง','~940 กม.'],['ห่างดวงอาทิตย์','~414 ล้าน กม.'],['สำรวจ','ยาน Dawn ของ NASA (2015–2018)']],
+  note:'ใต้ผิวอาจมีชั้นน้ำเกลือหลงเหลืออยู่'},
+ {k:11, th:'ดวงจันทร์', en:'The Moon', kick:'บริวารของโลก',
+  tag:'เพื่อนร่วมทางที่หันหน้าเดียวเข้าหาเราเสมอ — และค่อยๆ ถอยห่างปีละ ~3.8 ซม.',
+  chips:['ห่างโลก ~384,400 กม.','มนุษย์เหยียบปี 1969','คุมน้ำขึ้นน้ำลง'],
+  facts:[['เส้นผ่านศูนย์กลาง','~3,474 กม.'],['แรงโน้มถ่วง','~1/6 ของโลก'],['ใหญ่เป็นอันดับ','5 ในบรรดาดวงจันทร์ของระบบสุริยะ']],
+  note:'ดวงจันทร์หมุนรอบตัวเองเท่ากับเวลาที่โคจรรอบโลก จึงเห็นแค่ด้านเดียว'}
+];
+
+var cv = document.getElementById('gl'), gl = null;
+try{ gl = cv.getContext('webgl', {antialias:false, alpha:false}); }catch(_){}
+var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var FS = [
+'precision highp float;',
+'uniform vec2 uRes;uniform float uT,uK,uMix,uSkyOn,uEarthOn,uMob;uniform sampler2D uSky,uEarth,uLights;',
+'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
+'float h3(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}',
+'float n3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);',
+' return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),',
+'  mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);}',
+'float fb(vec3 p){float a=.5,s=0.;for(int i=0;i<5;i++){s+=a*n3(p);p=p*2.03+vec3(1.7,9.2,4.1);a*=.5;}return s;}',
+/* รายละเอียดละเอียด 7 ชั้น: ซูมใกล้แค่ไหนผิวดาวก็ยังมีรายละเอียด */
+'float fb7(vec3 p){float a=.5,s=0.;for(int i=0;i<7;i++){s+=a*n3(p);p=p*2.07+vec3(1.7,9.2,4.1);a*=.5;}return s;}',
+/* เซลล์ (Worley) สำหรับเม็ดผิวดวงอาทิตย์ */
+'float cell(vec3 p){vec3 i=floor(p),f=fract(p);float m=9.;for(int z=-1;z<=1;z++)for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){vec3 o=vec3(x,y,z);vec3 c=o+vec3(h3(i+o),h3(i+o+7.),h3(i+o+13.))-f;m=min(m,dot(c,c));}return sqrt(m);}',
+/* หลุมอุกกาบาต: เซลล์สุ่มบนทรงกลม · ขอบนูน ก้นยุบ */
+'float crat(vec3 p,float sc){vec3 q=p*sc,i=floor(q),f=fract(q);float d=0.;',
+' for(int z=-1;z<=1;z++)for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){vec3 o=vec3(x,y,z);vec3 c=o+vec3(h3(i+o),h3(i+o+7.),h3(i+o+13.))-f;',
+'  float r=.18+.3*h3(i+o+3.),l=length(c)/r;if(h3(i+o+5.)<.55&&l<1.4)d+=(l<1.?(l*l-1.)*.6:0.)+exp(-pow((l-1.)*5.,2.))*.35;}',
+' return d;}',
+/* ฟ้าจริงจาก Gaia — มุมมองผู้สังเกต หมุนช้า */
+'vec3 sky(vec2 p){',
+' if(uSkyOn<.5)return vec3(.004,.005,.012);',
+' vec2 q=(p-.5*uRes)/max(uRes.x,uRes.y);float rl=-.5;q=vec2(q.x*cos(rl)-q.y*sin(rl),q.x*sin(rl)+q.y*cos(rl));',
+' vec3 cd=normalize(vec3(q*2.,1.));float L0=radians(30.-uT*.02),B0=radians(-6.);',
+' vec3 F=vec3(cos(B0)*cos(L0),cos(B0)*sin(L0),sin(B0)),R=normalize(cross(F,vec3(0,0,1))),U=cross(R,F);',
+' vec3 g=normalize(F*cd.z+R*cd.x+U*cd.y);vec2 uv=vec2(fract(.5-atan(g.y,g.x)/6.2831853),.5-asin(g.z)/3.1415927);',
+' return pow(texture2D(uSky,uv).rgb,vec3(1.5))*.5;}',
+/* พื้นผิวแต่ละดวง: n = normal ในพิกัดดวง · คืนสี albedo */
+'vec3 surf(float k,vec3 n,float t,out float em){',
+' em=0.;float lat=n.y;vec3 c;',
+' if(k<.5){em=1.;float gr=cell(n*16.+vec3(0,t*.02,0));float gr2=cell(n*38.-vec3(t*.015,0,0));',
+'  float sup=fb7(n*4.+vec3(t*.015,0,0));float spot=smoothstep(.7,.78,fb(n*3.1+vec3(9.,2.,t*.004)))*smoothstep(.55,.2,abs(n.y));',
+'  float I=.35+.4*(1.-smoothstep(.08,.62,gr))+.18*(1.-smoothstep(.1,.6,gr2))+.3*(sup-.5);I*=1.-.9*spot;',
+'  return mix(vec3(.6,.14,.01),vec3(1.,.76,.34),clamp(I,0.,1.))*.85;}',
+' if(k<1.5){float cr=crat(n,6.)+crat(n,15.)*.5+crat(n,38.)*.3;return vec3(.42,.4,.38)*(.72+.4*fb7(n*5.))+cr*.12;}',
+' if(k<2.5){float sw=fb(vec3(n.x*3.,n.y*9.,n.z*3.)+fb(n*4.+t*.01)*1.6);return mix(vec3(.72,.52,.26),vec3(1.,.9,.66),sw);}',
+' if(k<3.5){vec3 dn=vec3(.05,.1,.25);return dn;}',
+' if(k<4.5){float g=fb7(n*4.),dk=smoothstep(.5,.7,fb(n*2.3+4.));float cr=crat(n,9.)*.5+crat(n,23.)*.3;',
+'  vec3 c4=mix(vec3(.55,.22,.09),vec3(.9,.52,.28),g)*mix(1.,.55,dk)+cr*.06;',
+'  float lo=atan(n.x,n.z);float cany=smoothstep(.022,.0,abs(n.y+.1+.03*sin(lo*7.)+.02*fb(n*9.)))*smoothstep(.9,.3,abs(lo-.4));',
+'  c4=mix(c4,vec3(.3,.1,.05),cany*.85);',
+'  float om=exp(-pow(length(n-normalize(vec3(-.5,.3,.8)))/.07,2.));c4=mix(c4,vec3(.75,.42,.25),om*.6);',
+'  float cap=smoothstep(.84,.9,abs(n.y)+.06*(fb(n*8.)-.5));return mix(c4,vec3(.96,.94,.92),cap);}',
+' if(k<6.5){float big=k<5.5?1.:0.;float tb=fb(vec3(n.x*2.+t*.012,n.y*16.,n.z*2.));float b=sin(n.y*(big>.5?22.:16.)+tb*3.2);',
+'  c=big>.5?mix(vec3(.55,.36,.22),vec3(.97,.9,.8),.5+.5*b):mix(vec3(.78,.66,.44),vec3(.98,.92,.74),.5+.5*b);',
+'  if(big>.5){float ang=atan(n.x,n.z);float sp=exp(-pow((n.y+.38)/.07,2.)-pow((ang-.5)/.24,2.));c=mix(c,vec3(.8,.32,.18),sp*.85);}',
+'  return c;}',
+' if(k<7.5){return mix(vec3(.55,.8,.84),vec3(.78,.93,.95),.5+.5*sin(n.y*6.+fb(n*3.)));}',
+' if(k<8.5){float tb=fb(vec3(n.x*3.+t*.02,n.y*10.,n.z*3.));c=mix(vec3(.08,.22,.75),vec3(.25,.48,.98),tb);',
+'  c=mix(c,vec3(.85,.92,1.),smoothstep(.72,.8,fb(vec3(n.x*6.,n.y*30.,n.z*6.)))*.6);',
+'  float ds=exp(-pow((n.y+.2)/.06,2.)-pow(atan(n.x,n.z)/.2,2.));return mix(c,vec3(.02,.06,.25),ds*.8);}',
+' if(k<9.5){float g=fb(n*4.);c=mix(vec3(.55,.32,.2),vec3(.93,.85,.72),g);',
+/* หัวใจ Tombaugh Regio: สมการรูปหัวใจบนระนาบสัมผัส · ซีกซ้าย (Sputnik Planitia) มีลายเซลล์พาความร้อนของน้ำแข็งไนโตรเจน */
+'  vec3 hc=normalize(vec3(-.28,-.02,1.));vec3 ex=normalize(cross(vec3(0,1,0),hc)),ey=cross(hc,ex);',
+'  vec2 hq=vec2(dot(n,ex),dot(n,ey))/.46+.08*vec2(fb(n*7.),fb(n*7.+3.));float hx=hq.x*1.1,hy=hq.y*1.1+.3;',
+'  float hf=pow(hx*hx+hy*hy-1.,3.)-hx*hx*hy*hy*hy;float heart=smoothstep(.04,-.04,hf)*step(0.,dot(n,hc));',
+'  float sp=cell(n*26.);float lob=smoothstep(.1,-.2,hx);vec3 ice=mix(vec3(.97,.94,.9),vec3(.86,.83,.8),smoothstep(.0,.08,.32-sp)*lob*.0+smoothstep(.36,.42,sp)*lob*.6);',
+'  c=mix(c,ice,heart);c=mix(c,vec3(.42,.16,.1),smoothstep(.55,.85,fb(n*2.5+3.))*(1.-heart)*.7);return c;}',
+' if(k<10.5){float cr=crat(n,7.)+crat(n,18.)*.5;c=vec3(.33,.32,.31)*(.8+.3*fb(n*6.))+cr*.1;',
+'  vec3 oc=normalize(vec3(.05,.42,1.));float s=exp(-pow(length(n-oc)/.05,2.))+exp(-pow(length(n-normalize(oc+vec3(.08,-.03,0)))/.03,2.))*.8;',
+'  em=s*.9;return c+vec3(1.)*s;}',
+' float cr=crat(n,8.)+crat(n,20.)*.5;float mar=smoothstep(.45,.62,fb(n*2.2+5.));return mix(vec3(.7,.69,.67),vec3(.3,.3,.32),mar)+cr*.08;',
+'}',
+'void main(){',
+' vec2 p=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y);float t=uT,k=uK;',
+' vec3 col=sky(p);',
+/* ตำแหน่งและขนาดดวง: เดสก์ท็อปอยู่ขวา · มือถืออยู่บน */
+' float m=min(uRes.x,uRes.y);vec2 C=uMob>.5?vec2(.5*uRes.x,.36*uRes.y):vec2(.64*uRes.x,.5*uRes.y);',
+' float R=(uMob>.5?.36*uRes.x:.33*m)*(k<.5?1.15:1.);',
+' vec3 L=normalize(vec3(-.92,.28,.32));',
+' vec2 d=(p-C)/R;float r=length(d);',
+/* วงแหวน 3 มิติ: ระนาบเอียง (ฉายตั้งฉาก) · หน้า-หลังถูกต้อง · เงาดาวทอดบนวงแหวน */
+' float ringOn=(k>5.5&&k<7.5)?1.:0.;vec4 ring=vec4(0.);float rz=0.;',
+' vec3 RN=k<6.5?normalize(vec3(-.22,.93,.3)):normalize(vec3(.96,.12,.25));',
+' if(ringOn>.5){vec2 q=vec2(d.x,-d.y);rz=-(q.x*RN.x+q.y*RN.y)/RN.z;vec3 P=vec3(q,rz);float rr=length(P);',
+'  float inner=k<6.5?1.24:1.65,outer=k<6.5?2.25:1.95;',
+'  if(rr>inner&&rr<outer){',
+'   float bands=k<6.5?(.62+.38*sin(rr*41.)*(.6+.4*sin(rr*13.))):.55;',
+'   float gap=k<6.5?smoothstep(0.,.018,abs(rr-1.95)-.03)*(.55+.45*smoothstep(0.,.01,abs(rr-1.53)-.01)):1.;',
+'   float a=bands*gap*(k<6.5?.92:.3)*smoothstep(inner,inner+.04,rr)*smoothstep(outer,outer-.04,rr);',
+'   vec3 rc=k<6.5?mix(vec3(.55,.45,.31),vec3(1.,.92,.74),bands):vec3(.62,.78,.84);',
+/* เงาดาว: จุดบนวงแหวนที่แสงถูกดาวบัง */
+'   float tc=-dot(P,L);vec3 cl=P+L*max(tc,0.);float shd=tc>0.?smoothstep(.97,1.03,length(cl)):1.;',
+'   float lit=.25+.75*shd*(.6+.4*abs(dot(RN,L)));ring=vec4(rc*lit,a);}',
+' }',
+/* ส่วนหลังดวง: วาดก่อนดวง */
+' if(ringOn>.5&&ring.a>0.&&(rz<0.||r>1.))col=mix(col,ring.rgb,ring.a);',
+/* ดวง */
+' if(r<1.){',
+'  vec3 nv=vec3(d.x,-d.y,sqrt(1.-r*r));',
+'  float sp=k<.5?.02:k<1.5?.01:k<2.5?.003:k<3.5?.04:k<4.5?.035:k<6.5?.08:k<8.5?.05:.02;',
+'  float ang=t*sp;vec3 n=vec3(nv.x*cos(ang)+nv.z*sin(ang),nv.y,-nv.x*sin(ang)+nv.z*cos(ang));',
+'  if(k>6.5&&k<7.5)n=vec3(n.y,-n.x,n.z);',
+'  float em;vec3 al=surf(k,n,t,em);',
+'  if(k>2.5&&k<3.5&&uEarthOn>.5){float lon=atan(n.x,n.z),la=asin(clamp(n.y,-1.,1.));vec2 uv=vec2(fract(lon/6.2831853+.5+.32),.5-la/3.1415927);al=pow(texture2D(uEarth,uv).rgb,vec3(2.2))*1.3;em=texture2D(uLights,uv).r;}',
+'  float dif=max(dot(nv,L),0.);',
+'  vec3 c=k<.5?al*(1.25-.75*pow(r,2.2)):al*(dif*1.15+.02);',
+'  if(k>9.5&&k<10.5)c+=vec3(1.)*em*dif;',
+/* ไฟเมืองจริงฝั่งกลางคืนของโลก (NASA Black Marble) */
+'  if(k>2.5&&k<3.5&&uEarthOn>.5)c+=vec3(1.,.72,.38)*pow(em,1.4)*smoothstep(.15,-.05,dot(nv,L))*.9;',
+/* บรรยากาศ: ขอบเรืองฝั่งรับแสง */
+'  float rim=pow(1.-nv.z,3.);',
+'  vec3 atm=k<1.5?vec3(0.):k<2.5?vec3(1.,.8,.5):k<3.5?vec3(.35,.6,1.):k<4.5?vec3(.9,.5,.35):k<6.5?vec3(.9,.8,.6):k<8.5?vec3(.5,.8,1.):vec3(0.);',
+'  c+=atm*rim*(.35+1.2*max(dot(nv,L)+.25,0.))*.5;',
+/* เงาวงแหวนบนดาว: ลากจากจุดบนดาวไปทางแสง ตัดระนาบวงแหวนในช่วงรัศมีวง */
+'  if(ringOn>.5){float s=-dot(nv,RN)/dot(L,RN);if(s>0.){vec3 Q=nv+L*s;float qr=length(Q);float inn=k<6.5?1.24:1.65,out_=k<6.5?2.25:1.95;if(qr>inn&&qr<out_)c*=k<6.5?.42:.75;}}',
+'  col=mix(col,c,smoothstep(1.,1.-1.6/R,r));',
+' }',
+/* วงแหวนด้านหน้าดวง */
+' if(ringOn>.5&&ring.a>0.&&r<1.&&rz>sqrt(max(1.-r*r,0.)))col=mix(col,ring.rgb,ring.a);',
+/* แสงรอบดวง: ดวงอาทิตย์มีโคโรนา · ดวงอื่นมีหมอกบรรยากาศบางๆ */
+' if(k<.5){float g=exp(-max(r-1.,0.)*3.2)*(.55+.15*fb(vec3(normalize(d)*3.,t*.2)))+exp(-max(r-1.,0.)*14.)*.6;col+=vec3(1.,.55,.18)*g*smoothstep(1.-2./R,1.,r);}',
+' else if(r>1.){vec3 halo=k<2.5?vec3(1.,.75,.4):k<3.5?vec3(.3,.55,1.):k<4.5?vec3(.9,.45,.3):k<6.5?vec3(.9,.75,.5):k<8.5?vec3(.4,.75,1.):vec3(.6);',
+'  col+=halo*exp(-(r-1.)*22.)*.28*max(dot(normalize(vec3(d.x,-d.y,0.)),L)+.4,0.);}',
+/* คารอนข้างพลูโต · ดวงจันทร์ข้างโลก */
+' if(k>2.5&&k<3.5||k>8.5&&k<9.5){vec2 mc=C+R*vec2(1.55,-.55);float mr=R*(k<3.5?.27:.5);vec2 md=(p-mc)/mr;float mrr=length(md);',
+'  if(mrr<1.){vec3 mn=vec3(md.x,-md.y,sqrt(1.-mrr*mrr));float mdif=max(dot(mn,L),0.);float cr=crat(mn,8.);',
+'   vec3 mcol=(k<3.5?vec3(.62,.61,.6):vec3(.48,.46,.45))*(.8+.3*fb(mn*4.))+cr*.08;col=mix(col,mcol*(mdif*1.1+.015),smoothstep(1.,.97,mrr));}}',
+/* โทนภาพยนตร์: vignette · tonemap · ฟิล์มเกรน */
+' vec2 vq=(p-.5*uRes)/uRes;col*=1.-.55*smoothstep(.3,.9,length(vq*vec2(1.,1.15)));',
+' col=1.-exp(-col*1.25);col=pow(col,vec3(.95));',
+' col+=(h(p+fract(t))-.5)*.012;',
+' gl_FragColor=vec4(col*uMix,1.);',
+'}'].join('\n');
+
+var prog, U = {}, skyTex = null, earthTex = null, lightsTex = null, skyOn = 0, earthOn = 0;
+function sh(type, src){ var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){ console.error('shader', gl.getShaderInfoLog(s)); return null; } return s; }
+function tex(src, unit, done){
+  var im = new Image(); im.decoding = 'async';
+  im.onload = function(){ var t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, im);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    done(t); };
+  im.src = src;
+}
+if(gl){
+  var vs = sh(gl.VERTEX_SHADER, 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}'), fs = sh(gl.FRAGMENT_SHADER, FS);
+  if(vs && fs){
+    prog = gl.createProgram(); gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog); gl.useProgram(prog);
+    ['uRes','uT','uK','uMix','uSkyOn','uEarthOn','uMob','uSky','uEarth','uLights'].forEach(function(n){ U[n] = gl.getUniformLocation(prog, n); });
+    var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,3,-1,-1,3]), gl.STATIC_DRAW);
+    var al = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(al); gl.vertexAttribPointer(al, 2, gl.FLOAT, false, 0, 0);
+    tex('/static/sky/allsky.jpg', 0, function(t){ skyTex = t; skyOn = 1; });
+    tex('/static/earth/day.jpg', 1, function(t){ earthTex = t; tex('/static/earth/lights.jpg', 2, function(t2){ lightsTex = t2; earthOn = 1; }); });
+  } else gl = null;
+}
+
+var cur = 0, shown = 0, fade = 1, t0 = performance.now();
+var $ = function(id){ return document.getElementById(id); };
+var dots = $('dots');
+B.forEach(function(_, i){ var d = document.createElement('button'); d.className = 'dot'; d.type = 'button';
+  d.setAttribute('aria-label', B[i].th); d.addEventListener('click', function(){ go(i); }); dots.appendChild(d); });
+function fill(i){
+  var o = B[i];
+  $('kicker').textContent = o.kick; $('name').textContent = o.th; $('en').textContent = o.en; $('tag').textContent = o.tag;
+  $('chips').innerHTML = ''; o.chips.forEach(function(c){ var s = document.createElement('span'); s.className = 'chip'; s.textContent = c; $('chips').appendChild(s); });
+  $('facts').innerHTML = ''; o.facts.forEach(function(f){ var dt = document.createElement('dt'), dd = document.createElement('dd'); dt.textContent = f[0]; dd.textContent = f[1]; $('facts').appendChild(dt); $('facts').appendChild(dd); });
+  $('note').textContent = o.note; $('count').textContent = String(i + 1).padStart(2, '0') + ' / ' + B.length;
+  [].forEach.call(dots.children, function(d, j){ d.setAttribute('aria-current', j === i ? 'true' : 'false'); });
+  document.title = o.th + ' · ระบบสุริยะ · KING DIADEM';
+  try{ history.replaceState(null, '', '#' + o.en.toLowerCase().replace(/^the /, '').replace(/\s+/g, '-')); }catch(_){}
+}
+function go(i){
+  i = (i + B.length) % B.length; if(i === cur) return; cur = i;
+  var p = $('panel'); p.classList.add('out');
+  setTimeout(function(){ fill(cur); p.classList.remove('out'); }, REDUCED ? 0 : 320);
+}
+$('prev').addEventListener('click', function(){ go(cur - 1); });
+$('next').addEventListener('click', function(){ go(cur + 1); });
+addEventListener('keydown', function(e){ if(e.key === 'ArrowRight') go(cur + 1); else if(e.key === 'ArrowLeft') go(cur - 1); });
+var sx = null;
+cv.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; }, {passive:true});
+cv.addEventListener('touchend', function(e){ if(sx === null) return; var dx = e.changedTouches[0].clientX - sx; if(Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1)); sx = null; }, {passive:true});
+(function(){ var hsh = location.hash.slice(1); B.forEach(function(o, i){ if(o.en.toLowerCase().replace(/^the /, '').replace(/\s+/g, '-') === hsh) cur = shown = i; }); })();
+fill(cur);
+
+var QS = 1;
+function size(){ var q = Math.min(devicePixelRatio || 1, 2) * QS; cv.width = Math.round(innerWidth * q); cv.height = Math.round(innerHeight * q); if(gl) gl.viewport(0, 0, cv.width, cv.height); }
+addEventListener('resize', size); size();
+/* ลื่นทุกเครื่อง: วัดเวลาเฟรม ถ้าช้ากว่า ~45fps ต่อเนื่อง ลดความละเอียดลงทีละขั้น (ไม่ต่ำกว่า 55%) · เครื่องแรงคมเต็ม DPR 2 */
+var lastT = 0, slowN = 0, fastN = 0;
+function frame(now){
+  requestAnimationFrame(frame);
+  if(!gl || document.hidden) return;
+  var dt = lastT ? now - lastT : 16; lastT = now;
+  if(dt > 22) slowN++; else slowN = Math.max(0, slowN - 1);
+  if(dt < 14) fastN++; else fastN = 0;
+  if(slowN > 20 && QS > .55){ QS = Math.max(.55, QS * .85); slowN = 0; size(); }
+  else if(fastN > 240 && QS < 1){ QS = Math.min(1, QS * 1.1); fastN = 0; size(); }
+  var t = REDUCED ? 0 : (now - t0) / 1000;
+  /* เปลี่ยนดวง: มืดลงแล้วสว่างขึ้นเป็นดวงใหม่ */
+  if(shown !== cur){ fade = Math.max(0, fade - .08); if(fade === 0) shown = cur; } else fade = Math.min(1, fade + .05);
+  gl.uniform2f(U.uRes, cv.width, cv.height); gl.uniform1f(U.uT, t); gl.uniform1f(U.uK, shown);
+  gl.uniform1f(U.uMix, .35 + .65 * fade); gl.uniform1f(U.uSkyOn, skyOn); gl.uniform1f(U.uEarthOn, earthOn);
+  gl.uniform1f(U.uMob, innerWidth <= 760 ? 1 : 0);
+  if(skyTex){ gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, skyTex); } gl.uniform1i(U.uSky, 0);
+  if(earthTex){ gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, earthTex); } gl.uniform1i(U.uEarth, 1);
+  if(lightsTex){ gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, lightsTex); } gl.uniform1i(U.uLights, 2);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
