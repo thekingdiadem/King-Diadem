@@ -31,6 +31,10 @@ _SIGN = re.compile(r"\n\s*— (?:LYLA|VEGA|สภา KING DIADEM)[^\n]*(?:\n[^\n
 _NOT_A_PROBLEM = re.compile(r"^\s*(?:สวัสดี|หวัดดี|ขอบคุณ|ขอบใจ|ฝันดี|hi|hello|hey|thanks|thank you)\b", _I)
 
 
+# เลนส์ที่ไม่ใช่เรื่องตัดสินใจ: "i got the job!!" เคยถูกเติม "Options you still have:" ต่อท้ายคำยินดี
+_NOT_A_DECISION = {"good_news_en", "birthday", "anyone_there", "short_tired", "why_me", "pet_died"}
+
+
 def options_in(reply: str) -> int:
     """จำนวนทางเลือกที่เห็นในคำตอบ (ข้อรายการ + ทางเลือกที่เขียนในประโยค)"""
     t = str(reply or "")
@@ -62,6 +66,9 @@ def enforce(user_text: str, reply: str, lang: str = "th", urgent: bool = False):
         lz = None
     if not lz or not lz.get("paths"):
         return reply, a                       # ไม่เดา — ให้ผู้เรียกนับเป็นสถิติ
+    if lz.get("key") in _NOT_A_DECISION:     # ข่าวดี คำทัก ความรู้สึกสั้นๆ — ไม่ต้องยื่นทางเลือกให้
+        a["applies"] = False
+        return reply, a
     head = "Options you still have:" if lang == "en" else "ทางที่ยังเปิดอยู่:"
     tail = "The choice is yours." if lang == "en" else "คุณเป็นคนเลือกเสมอ"
     extra = f"\n\n{head}\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(lz["paths"][:3])) + f"\n{tail}"

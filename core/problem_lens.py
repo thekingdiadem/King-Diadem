@@ -470,6 +470,9 @@ from core.problem_lens_en import LENSES_EN  # noqa: E402
 for _L in LENSES:
     if _L.get("en") is None and _L["key"] in LENSES_EN:
         _L.update(LENSES_EN[_L["key"]])
+# เลนส์ที่มีแต่ภาษาอังกฤษ (ไม่มีคู่ภาษาไทยชื่อเดียวกัน) — เดิมถูกทิ้งเงียบๆ เช่น "my dog died yesterday"
+_known = {L["key"] for L in LENSES}
+LENSES += [dict(key=k, th=None, no=None, over=(), **v) for k, v in LENSES_EN.items() if k not in _known]
 _BY_KEY = {L["key"]: L for L in LENSES}
 
 

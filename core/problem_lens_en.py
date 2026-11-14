@@ -557,6 +557,94 @@ EN = {
         "Weight is an output — the upstream variables are sleep, food, medication and stress. Fix whichever changed most recently."),
 }
 
+EN["loneliness"] = (r"\b(?:i feel|i'?m|feeling) (?:so |really |very )?(?:lonely|alone|isolated)\b|\bno one to talk to\b|\bi have no friends\b",
+    "Loneliness is a signal that you need connection — a basic human need, not a weakness. It usually eases with small, regular contact rather than one big change.",
+    ["Message one person you used to feel comfortable with — no reason needed, just \"thinking of you, how are you?\"",
+     "Be around people even without talking: a café, library, gym class or park. Regular places make familiar faces.",
+     "Join one thing that meets weekly (a class, volunteering, a sport) — repetition is what turns strangers into friends."],
+    "Is it that there's no one around, or that the people around you don't feel close?",
+    "Loneliness is a gap between the connection you have and the connection you need — small regular contact closes it more reliably than waiting for one close friend.")
+
+EN["boss_yelling"] = (r"\bmy (?:boss|manager|supervisor) (?:yells|shouts|screams|keeps yelling)\b|\b(?:boss|manager) (?:humiliates|belittles) me\b",
+    "Being yelled at regularly at work isn't a normal part of a job, and it isn't a sign that you're bad at it — it's a way of managing that wears people down.",
+    ["Write down each incident: date, what was said, who saw it. Records turn \"he's harsh\" into evidence HR or a labour office can act on.",
+     "In a calm moment, say it once, plainly: \"I want to get this right — can we talk about problems without raising voices?\" Notice whether it changes.",
+     "If it continues, take your records to HR or your boss's manager. In Thailand, the Labour Protection hotline is 1546. Start quietly looking at other options too — you deserve a choice."],
+    "Is it only you, or does your boss do this to others too?",
+    "Repeated yelling is a management-behaviour problem, not a performance verdict — what you control is documentation, one clear boundary, and your exit options.")
+
+EN["quit_job"] = (r"\bshould i (?:quit|leave) my job\b|\bthinking (?:about|of) quitting\b|\bwant to quit my job\b",
+    "Whether to quit is less about courage and more about two things: what exactly you're leaving, and how long you can live without this income.",
+    ["Name the real reason in one sentence — the boss, the pay, the work itself, burnout. Some of these change with a transfer or a conversation; some only change by leaving.",
+     "Count your runway: how many months of essential costs can you cover? Under three months, line up the next job before resigning.",
+     "Start searching while still employed — interviews are easier from a job, and you can always resign once you have an offer."],
+    "If you had another job lined up tomorrow, would you leave without hesitation?",
+    "Quitting is a timing and runway decision — leave from a position of choice, not exhaustion, when you can.")
+
+EN["pet_died"] = (r"\bmy (?:dog|cat|pet|puppy|kitten|rabbit|bird|hamster) (?:died|passed away|was put down|had to be put down)\b|\blost my (?:dog|cat|pet)\b",
+    "I'm sorry. Losing a pet is losing a family member who was there every day — the grief is real, and it's normal for it to hit hard.",
+    ["Let yourself grieve without comparing it to anyone else's loss. Crying, missing the routines, expecting them at the door — all normal.",
+     "Do something to mark it: keep the collar, plant something, write down a favourite memory. Small rituals help the loss settle.",
+     "Talk to someone who knew them, or who has lost a pet too. If you feel guilty about the end, remember you made the best decision you could with what you knew."],
+    "What do you miss most about them?",
+    "Pet grief is real grief — the bond was daily and unconditional, so the loss is felt in every routine.")
+
+EN["save_money"] = (r"\bhow (?:do|can) i save (?:more )?money\b|\bcan'?t save (?:any )?money\b|\bwant to (?:start )?saving\b",
+    "Saving works best when it happens before spending, not from what's left at the end of the month — that's the single change that matters most.",
+    ["On payday, move a fixed amount (even 5–10%) into a separate account automatically, before you spend anything.",
+     "Track one month of spending, then cut the biggest leak first — often food delivery, subscriptions or impulse online shopping.",
+     "Build an emergency fund of 3–6 months of essential costs before investing. Pay off high-interest debt (credit cards) before saving beyond that."],
+    "Roughly how much is left — or not — at the end of a typical month?",
+    "Saving is a sequencing problem — pay yourself first, plug the biggest leak, emergency fund before investment.")
+
+EN["work_stress_en"] = (r"\b(?:so |really |super )?stressed (?:out )?(?:with|about|from|at) (?:work|my job)\b|\bwork is (?:killing|crushing|drowning) me\b",
+    "Work stress builds when demands keep coming faster than you can finish them — the fix is usually reducing the load and protecting recovery, not just pushing harder.",
+    ["Write everything on your plate, then mark the 2–3 that truly matter this week. Ask your manager which to drop or delay if they can't all be done.",
+     "Protect recovery: a real lunch break, a hard stop time most days, and sleep. Tired brains work slower, which feeds the loop.",
+     "If it's been months, or you dread every morning, talk to someone — HR, your doctor, or a counsellor. Chronic stress is a health issue, not a character flaw."],
+    "Is it the amount of work, the people, or not knowing what's expected?",
+    "Work stress is load exceeding capacity — the controllable variables are what you drop, what you protect, and who you tell.")
+
+EN["life_direction"] = (r"\bidk what to do with my life\b|\bdon'?t know what to do with my life\b|\bfeel(?:ing)? lost in life\b|\bno direction in life\b",
+    "Not knowing what to do with your life is extremely common, and it doesn't mean you're behind — direction usually comes from trying things, not from thinking until you're sure.",
+    ["List what you've enjoyed or been good at, even small things — and what drains you. Patterns show up on paper.",
+     "Pick one small experiment for the next month: a short course, volunteering, talking to someone in a job you're curious about.",
+     "Separate the next step from the whole life. You don't need a 10-year plan — you need the next good move."],
+    "What's one thing you've done that made time disappear?",
+    "Direction is discovered through small experiments, not decided in advance.")
+
+EN["broke"] = (r"\b(?:i'?m|im) (?:so |super |completely )?broke\b|\bbroke af\b|\bno money (?:left|at all)\b|\bcan'?t afford (?:rent|food)\b",
+    "Being broke is stressful in a very physical way — the first step is to cover the essentials this week, then find the leak or the gap.",
+    ["Cover the basics first: food, rent, transport to work. If food is the problem today, a community food bank, temple or local assistance can bridge the gap.",
+     "List every bill and its due date. Call anyone you can't pay before the due date — lenders and landlords often agree to a delay when asked early.",
+     "Look for the fastest income you can add (extra shifts, selling unused items, short gig work) — and avoid payday or app loans, which cost far more later."],
+    "Is this a one-off tight month, or has it been like this for a while?",
+    "Being broke is a cash-flow emergency first and a budgeting problem second — cover this week, then fix the pattern.")
+
+EN["parent_sick_en"] = (r"\bmy (?:mom|mum|mother|dad|father|parent)s? (?:is|are) (?:sick|ill|in (?:the )?hospital)\b",
+    "It's frightening when a parent is sick — the fear is love looking for something to do. A few concrete steps help with both the worry and the care.",
+    ["Find out clearly what the doctors know: the diagnosis, what happens next, and what to watch for. It's fine to write questions down and ask them again.",
+     "Share the load — siblings, relatives, friends. Give people specific tasks rather than general updates.",
+     "Look after yourself too: eat, sleep, step outside. Being scared and exhausted at the same time makes everything harder."],
+    "Do you know yet what's wrong, or are you still waiting for answers?",
+    "A parent's illness brings fear plus logistics — clear information and shared tasks reduce both.")
+
+EN["good_news_en"] = (r"\b(?:i )?(?:passed|aced|got) (?:my |the )?(?:exam|test|interview|job|promotion|offer)\b|\bgot (?:the|a) job\b|\bi got in\b",
+    "Congratulations — that's real, and you earned it. It's worth pausing to let it land before the next thing.",
+    ["Celebrate it in a way that feels like you — tell someone who'll be genuinely glad, or do something you enjoy.",
+     "Notice what got you here — the habits, the people, the effort. That's useful for the next challenge.",
+     "If there's a next step (paperwork, a start date, the next level), note it down so the good news doesn't turn into last-minute stress."],
+    "Who's the first person you want to tell?",
+    "Success is worth registering — it builds the confidence and the method for the next attempt.")
+
+EN["anyone_there"] = (r"^\s*(?:anyone|anybody|is anyone|hello\?|hi\?) ?(?:there|here|listening)?\s*\??\s*$",
+    "I'm here. You can tell me whatever's on your mind — big or small.",
+    ["Start with what's happening right now, in a sentence or two.",
+     "If it's hard to put into words, just say how you feel — I'll ask the rest.",
+     "If you're in danger or thinking of hurting yourself, call 1323 (Thailand mental health line) or your local emergency number."],
+    "What's going on?",
+    "Present and listening.")
+
 EN["diabetes_care"] = (r"\bi (?:have|got|was diagnosed with) (?:type [12] )?diabetes\b|\bmanag\w* (?:my )?diabetes\b|\bcontrol (?:my )?(?:blood )?sugar\b|\binsulin injections?\b",
     "Diabetes can be controlled, and people who control it well live close to normal lives — the damage comes not from having diabetes, but from blood sugar staying high for years without noticing.",
     ["Know your numbers: HbA1c (target often below 7%) every 3–6 months; if you have a meter, log your fasting readings for your doctor.",
