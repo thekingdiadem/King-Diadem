@@ -82,7 +82,7 @@ try:
 
     def survivor_analyze(text, context):
         state = parse_state_from_context(context or {})
-        out   = _survivor_engine.run(state)
+        out   = _survivor_engine.run_with_connection(state, text=text)
         return {
             "context":    out.context_for_lyla,
             "can_decide": out.can_decide,
@@ -3004,6 +3004,20 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             result["ai_response"] = _strip_play(txt) if float(result.get("risk_score") or 0) >= _NO_EMOJI_RISK else txt
     except (TypeError, ValueError):
         pass
+    # HUMAN PROTOCOL (ENFORCED) — core/human_protocol.py: คำตอบของ AI ต้องคืนทางเลือกอย่างน้อย 2 ทาง ไม่สรุปแทนผู้ใช้
+    # prompt สั่งไว้แล้ว แต่สั่งไม่เท่ากับบังคับใช้ · ไม่แตะเรื่องวิกฤต/ด่วน/เสี่ยงสูง และไม่แตะคำตอบจากสมการ (มีทางเลือกอยู่แล้ว)
+    try:
+        if result.get("answer_source") == "llm" and isinstance(result.get("ai_response"), str):
+            from core.human_protocol import enforce as _hp_enforce
+            _ka = k_assess or {}
+            _hp_urgent = bool(_ka.get("crisis")) or float(result.get("risk_score") or 0) >= 60 \
+                or result.get("route") in ("crisis", "collapse", "survival") or bool(prior_kind)
+            _hp_lang = (prompt_lang or detect_lang)(user_input) if detect_lang else "th"
+            result["ai_response"], _hp = _hp_enforce(user_input, result["ai_response"], "en" if _hp_lang == "en" else "th", _hp_urgent)
+            if _hp.get("applies"):
+                _metric("hp:ok" if _hp["ok"] else ("hp:patched" if _hp["patched"] else "hp:missing"))
+    except Exception as e:
+        print(f"⚠ human_protocol: {type(e).__name__}")
 
     # มาตรา 11: ทางเลือกไม่เกิน 3 — LLM เคยตอบ 5 กลยุทธ์ (ภาพหน้าเว็บจริง) ตัดก่อนตรวจ canon
     if result.get("ai_response"):

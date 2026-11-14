@@ -59,7 +59,7 @@ EN_UPGRADES: list[tuple[re.Pattern, str]] = [
                 r"\bstopped sweating\b|\bdeep\b[^.\n]{0,20}?\b(?:won'?t stop|wont stop|blood everywhere)\b|\bblood everywhere\b|"
                 r"\bwater broke\b|\bbaby is coming\b|\bhigh fever\b[^.\n]{0,30}?\blimp\b|\bthrowing up for \d+ days\b|"
                 r"\bcan'?t keep (?:water|anything) down\b|\bcant keep (?:water|anything) down\b|\bbleeding gums\b|"
-                r"\b(?:bit(?:ten)?|bite) by a (?:street |soi |stray )?(?:dog|monkey|cat)\b|\b(?:dog|monkey|cat) bit\b(?![^\n]{0,12}\bplayful)|\brabies\b|"
+                r"\b(?:bit(?:ten)?|bite) by a (?:street |soi |stray )?(?:dog|monkey|cat)\b|\b(?:dog|monkey|cat) bit(?!e?s? (?:the |my |a |our )?(?:sofa|couch|furniture|toy|shoe|cable|wire|chair|pillow|bed|curtain))\b(?![^\n]{0,12}\bplayful)|\brabies\b|"
                 r"\bjellyfish\b|\bscorpion\b|\bmotorbike accident\b|\bscooter (?:accident|crash)\b|\bcrashed my (?:scooter|motorbike|bike)\b", _I),
      "health_emergency"),
     # ── ภัยพิบัติ / หลงทาง ─────────────────────────────────────────────────────────────

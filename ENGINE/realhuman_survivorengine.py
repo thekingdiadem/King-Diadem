@@ -3,6 +3,7 @@
 # พี่เขียน logic หลักไว้ดีแล้ว — เพิ่ม wire เข้า emotion_state + input_interpreter + ai_council
 
 from __future__ import annotations
+import re
 from math import isfinite as _isfinite
 from dataclasses import dataclass, field
 
@@ -26,6 +27,39 @@ except ImportError:
     _COUNCIL_LOADED = False
 
 
+# ── อยู่คนเดียว ↔ อยู่กับคน (เจ้าของโปรเจกต์) ─────────────────────────────────────────
+# "สัจธรรมคือทุกคนไม่จำเป็นต้องอยู่คนเดียวตลอด และก็ไม่จำเป็นต้องอยู่กับผู้อื่นตลอดเช่นกัน"
+# ความไม่สมดุลมีสองทาง และต้องการคนละอย่าง:
+#   isolated  โดดเดี่ยวนานเกิน     → การเชื่อมต่อเล็กๆ กับคนหนึ่งคน ไม่ใช่ถูกผลักให้เข้าสังคม
+#   crowded   ไม่เคยได้อยู่คนเดียว → เวลาและพื้นที่ของตัวเอง ไม่ใช่ถูกบอกให้ไปหาคนเพิ่ม
+# เดิม engine ไม่มีมิติคนรอบตัวเลย (ส่ง relationships=50 ตายตัวให้สภาทุกครั้ง)
+_ISOLATED = re.compile(r"ไม่มีใคร(?:เลย|สักคน|ให้คุย|คุยด้วย)?|ไม่ได้คุยกับใคร|อยู่คนเดียวมา|อยู่คนเดียวตลอด|โดดเดี่ยว|เหงา(?:มาก|ทุกวัน|จัง)|"
+                       r"ไม่มีเพื่อน|ตัวคนเดียว|ไม่มีใครเข้าใจ|ถูกทิ้งไว้คนเดียว|"
+                       r"\b(?:so )?lonely\b|\bno one to talk to\b|\bhaven'?t (?:talked|spoken) to anyone\b|\bcompletely alone\b|\bisolated\b|\bno friends\b", re.I)
+_CROWDED = re.compile(r"ไม่มีเวลา(?:เป็น)?ของตัวเอง|ไม่มี(?:ที่|พื้นที่)ส่วนตัว|ไม่เคยได้อยู่คนเดียว|ไม่ได้อยู่คนเดียวเลย|อยู่กับคน(?:ตลอด|ทั้งวัน)|"
+                      r"ต้องเจอคนทั้งวัน|อยากอยู่คนเดียว(?:บ้าง)?|ขออยู่คนเดียว|หนีจากคน|เหนื่อยกับคน|คนเยอะจนอึดอัด|ไม่มีเวลาหายใจ(?:คนเดียว)?|"
+                      r"\bno time (?:to myself|alone)\b|\bnever (?:get to be )?alone\b|\bneed (?:some )?space\b|\bneed (?:some )?time alone\b|"
+                      r"\bpeople all (?:day|the time)\b|\bno privacy\b", re.I)
+
+
+def read_connection(text: str):
+    """อ่านความสมดุลจากข้อความ → "isolated" | "crowded" | None (ไม่ชัดหรือขัดกัน = ไม่เดา)"""
+    t = str(text or "")
+    iso, crowd = bool(_ISOLATED.search(t)), bool(_CROWDED.search(t))
+    if iso == crowd:
+        return None
+    return "isolated" if iso else "crowded"
+
+
+_CONNECTION_NOTE = {
+    "isolated": ("ISOLATED", "ผู้ใช้อยู่คนเดียวนานเกินไป — ชวนเชื่อมต่อแบบเล็กที่สุดกับคนหนึ่งคน (ข้อความสั้นถึงคนที่ไว้ใจ คนในชุมชน สายด่วน) "
+                             "ไม่ผลักให้เข้าสังคมใหญ่ ไม่ตำหนิที่อยู่คนเดียว · คนไม่จำเป็นต้องอยู่คนเดียวตลอด"),
+    "crowded": ("NO_SOLITUDE", "ผู้ใช้ไม่เคยได้อยู่กับตัวเอง — เคารพความต้องการอยู่คนเดียว ช่วยหาเวลาหรือพื้นที่ส่วนตัวสั้นๆ ที่ทำได้จริง "
+                               "ไม่บอกให้ไปหาคนเพิ่ม ไม่มองว่าการอยากอยู่คนเดียวเป็นปัญหา · คนไม่จำเป็นต้องอยู่กับผู้อื่นตลอด"),
+}
+_RELATIONSHIP_SCORE = {"isolated": 20, "crowded": 55, None: 50}
+
+
 def _money(v) -> str:
     return "ไม่ระบุ" if v is None else f"{v:.0f}"
 
@@ -42,6 +76,7 @@ class HumanState:
     time_available:  float = 8.0
     sleep_hours:     float = 6.0
     days_in_crisis:  int   = 0
+    connection:      str | None = None     # isolated / crowded / None = ไม่รู้ (อ่านจากข้อความถ้ามี)
 
 
 @dataclass
@@ -54,6 +89,7 @@ class SurvivalOutput:
     flags:            list = field(default_factory=list)
     council:          dict = field(default_factory=dict)   # ★ เพิ่ม
     emotion:          str  = "NEUTRAL"                     # ★ เพิ่ม
+    connection:       str | None = None                    # อยู่คนเดียว ↔ อยู่กับคน
 
 
 # ── Engine ────────────────────────────────────────────────────────
@@ -72,13 +108,17 @@ class RealHumanSurvivorEngine:
         text:       str = "",
     ) -> SurvivalOutput:
 
+        if state.connection not in ("isolated", "crowded"):
+            state.connection = read_connection(text) if text else None
         flags     = self._scan_flags(state)
         waterline = self._calc_waterline(state)
 
         # ── Emotion context ───────────────────────────────────────
+        # session "default" = ทุกคนที่ไม่ได้ระบุ session ใช้สถานะอารมณ์ร่วมกัน → อารมณ์ของคนหนึ่งปนไปอีกคน
+        # ใช้เฉพาะเมื่อผู้เรียกระบุ session จริง
         emotion_note = ""
         current_emotion = "NEUTRAL"
-        if _EMOTION_LOADED and text:
+        if _EMOTION_LOADED and text and session_id != "default":
             es = get_emotion_state(session_id)
             current_emotion = es.update(text)
             emotion_note    = es.context_note()
@@ -97,7 +137,7 @@ class RealHumanSurvivorEngine:
                         "waterline":  waterline,
                         "energy":     state.energy,
                         "safe_place": state.safe_place,
-                        "relationships": 50,
+                        "relationships": _RELATIONSHIP_SCORE.get(state.connection, 50),
                     },
                 )
             except Exception:
@@ -236,6 +276,15 @@ class RealHumanSurvivorEngine:
             emotion    = current_emotion,
         )
 
+    def run_with_connection(self, state: HumanState, session_id: str = "default", text: str = "") -> SurvivalOutput:
+        """run() แล้วเติมมิติคนรอบตัวลงใน context — ทุกสถานะ (อาหาร/ที่พัก/พลังงานยังมาก่อนเสมอ)"""
+        out = self.run(state, session_id, text)
+        out.connection = state.connection
+        note = _CONNECTION_NOTE.get(state.connection)
+        if note and note[1] not in out.context_for_lyla:
+            out.context_for_lyla += f" | [{note[0]}] {note[1]}"
+        return out
+
     # ── Helpers ───────────────────────────────────────────────────
 
     @staticmethod
@@ -262,6 +311,7 @@ class RealHumanSurvivorEngine:
         if not state.safe_place:                   flags.append("NO_SHELTER")
         if state.days_in_crisis >= self.CRISIS_LIMIT: flags.append("CHRONIC_CRISIS")
         if state.money is not None and state.money <= 0: flags.append("NO_MONEY")
+        if state.connection in _CONNECTION_NOTE:   flags.append(_CONNECTION_NOTE[state.connection][0])
         return flags
 
     def _calc_waterline(self, state: HumanState) -> float:
@@ -277,6 +327,8 @@ class RealHumanSurvivorEngine:
         if state.money is not None:
             if state.money <= 0:        score -= 20
             elif state.money < 1000:    score -= 10     # น้อยกว่าค่าใช้จ่ายจำเป็นราวหนึ่งสัปดาห์
+        if state.connection in ("isolated", "crowded"):
+            score -= 10                                 # ไม่สมดุลทางไหนก็กินแรง — โดดเดี่ยวหรือไม่เคยได้พัก
         return max(0.0, min(100.0, score))
 
 
@@ -320,6 +372,7 @@ def parse_state_from_context(context: dict) -> HumanState:
         time_available = _f(context.get("time_available"),  8.0),
         sleep_hours    = _f(context.get("sleep_hours"),     6.0),
         days_in_crisis = int(_f(context.get("days_in_crisis"), 0)),
+        connection     = context.get("connection") if context.get("connection") in ("isolated", "crowded") else None,
     )
 
 
