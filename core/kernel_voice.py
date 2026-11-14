@@ -2306,6 +2306,8 @@ _FICT_CHAR = re.compile(r"(?:ตัวละคร|พระเอก|นาง�
                         r"(?i:\b(?:my|the|a|this|our|his|her)\s+(?:main\s+)?(?:character|protagonist|hero|heroine|villain|npc)\b[^.!?,\n]*)")
 
 
+from core.problem_lens_more import _SINUS_DANGER as _SINUS_DANGER_SRC
+_SINUS_DANGER_RX = re.compile(_SINUS_DANGER_SRC)
 _HEAT_SYMPTOM = re.compile(r"(?:ร้อน(?:จัด|มาก)|อากาศร้อน|กลางแดด|ตากแดด|หน้างานร้อน|\d{2}\s?องศา|\bheat\b|\bin the sun\b)[^\n]{0,40}?"
                            r"(?:เวียนหัว|คลื่นไส้|อาเจียน|หน้ามืด|อ่อนเพลีย|ใจสั่น|ตะคริว|ปวดหัว|\bdizzy\b|\bnause\w*|\bfaint\w*|\bcramps?\b|\bheadache\b)|"
                            r"(?:เวียนหัว|คลื่นไส้|หน้ามืด|\bdizzy\b|\bfaint\w*)[^\n]{0,30}?(?:ร้อน(?:จัด|มาก)|กลางแดด|ตากแดด|\bheat\b|\bin the sun\b)", re.I)
@@ -2316,6 +2318,10 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     text = canon_text(text)                     # เว้นวรรคซ้อน · ลากตัวอักษร — ทุกชั้นเห็นรูปเดียวกัน
     a = _assess_raw(text, pattern)
     # ร้อนจัด + มีอาการ (เวียนหัว คลื่นไส้ หน้ามืด…) = เพลียแดด ซึ่งกลายเป็นฮีทสโตรกได้ — เดิมขึ้นความเสี่ยง 0/100
+    # ไซนัสอักเสบที่ลามเข้าตา/สมอง — ด่วน แต่ไม่ถึงระดับที่ปิดคำตอบเฉพาะ (เลนส์ sinus_danger บอกให้ไปโรงพยาบาลวันนี้)
+    if isinstance(text, str) and not a["crisis"] and _SINUS_DANGER_RX.search(text):
+        a = dict(a, text_risk=max(a["text_risk"], 70), risk=max(a["risk"], 70),
+                 risk_shown=max(a["risk_shown"], 70) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     if isinstance(text, str) and not a["crisis"] and _HEAT_SYMPTOM.search(text) and not _DREAM.search(text):
         a = dict(a, text_risk=max(a["text_risk"], 65), risk=max(a["risk"], 65),
                  risk_shown=max(a["risk_shown"], 65) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
@@ -3323,6 +3329,14 @@ def compose(text: str, *args, **kw) -> str:
                 if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
                     og = og.replace("— LYLA ◈", "— VEGA ◆")
                 return og
+    # ยาตีกัน (core/drug_pairs.py): "กินวาร์ฟารินกับไอบูโพรเฟนได้ไหม" → แยกสาร แล้วบอกคู่ที่ต้องระวัง
+    if text:
+        from core import drug_pairs as _dp
+        dp = _dp.reply(text, "en" if _lab_lang(text) else "th", footer=kw.get("footer", True))
+        if dp and not assess(text).get("crisis"):
+            if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
+                dp = dp.replace("— LYLA ◈", "— VEGA ◆")
+            return dp
     # ค่าเลือดจากผลตรวจ (core/lab_values.py): "LDL 190 น้ำตาล 130" → บอกความหมายของแต่ละค่า ค่าวิกฤตให้พบแพทย์วันนี้
     if text:
         from core import lab_values as _lab

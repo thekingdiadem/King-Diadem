@@ -2745,6 +2745,10 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
             pass
         # ความต้องการใต้คำพูด + โทนภาษา (core/human_needs.py): ขาดอะไรลึกๆ และพูดด้วยภาษาแบบไหน
         try:
+            from core.drug_pairs import llm_hint as _dp_hint
+            _dh = _dp_hint(user_input)
+            if _dh:
+                effective += "\n\n" + _dh
             from core.lab_values import llm_hint as _lab_hint
             _lh = _lab_hint(user_input)
             if _lh:
