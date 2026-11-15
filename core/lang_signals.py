@@ -810,6 +810,9 @@ WORLD_URGENT["medical"] += (
     r"|упал[аи]?[^.!?\n]{0,20}не\s+может\s+встать|диабетик[^.!?\n]{0,40}(?:спутанн|почти\s+не\s+отвечает|без\s+сознания)|деменци[ейя][^.!?\n]{0,30}(?:не\s+вернулся|не\s+вернулась|пропал)"
 )
 
+# รอบสุ่ม 56: ไฟดูดแล้วหมดสติ (id pt) — เดิมได้ 0
+WORLD_URGENT["medical"] += r"|(?:kesetrum|tersengat\s+listrik)[^.!?\n]{0,25}(?:tidak\s+sadar|pingsan|tidak\s+bernapas)|levou\s+um\s+choque(?:\s+el(?:é|e)trico)?[^.!?\n]{0,25}(?:desacordad|inconsciente|n(?:ã|a)o\s+respira)"
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
