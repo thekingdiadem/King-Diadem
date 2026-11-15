@@ -175,6 +175,59 @@ ANGER_MOOD = re.compile(
     r"\b(?:(?:i'?m |i am )?(?:shaking|trembling)|my (?:hands|body) (?:are|is) shaking|i (?:want|wanna|need) to (?:smash|break|punch|destroy|wreck) (?:everything|something|things|the wall|stuff))\b|"
     r"\bi (?:want|wanna) to (?:smash|break|destroy|wreck) everything\b|\bshaking with (?:anger|rage)\b)")
 # "โมโหมาก" มีตัวอักษร "หมา" ซ่อนอยู่ (โม-โห-มาก) — ต้องไม่ใช่ตัวต่อจาก โ และไม่ใช่ "หมาก"
+# รอบสุ่ม 18: สัญญาณค้ามนุษย์/บังคับใช้แรงงาน-ค้าประเวณี — เดิมได้ 0
+UPGRADES += [(re.compile(r"บังคับ(?:ให้)?\S{0,4}(?:ไป)?(?:ขายตัว|ขายบริการ|ค้าประเวณี|ทำงานบริการ)|"
+                         r"(?:ยึด|เก็บ)(?:บัตรประชาชน|บัตรประจำตัว|พาสปอร์ต|หนังสือเดินทาง|บัตร)\S{0,4}(?:ไว้)?[^\n]{0,24}?(?:ไม่จ่าย|ไม่ให้(?:ออก|กลับ|ไป)|ห้ามออก)|"
+                         r"(?:ไม่จ่าย(?:เงิน|ค่าแรง))[^\n]{0,24}?(?:ยึด|เก็บ)(?:บัตรประชาชน|พาสปอร์ต|หนังสือเดินทาง)|"
+                         r"(?i:\b(?:forc(?:es|ed|ing)|making)\s+me\s+(?:to\s+)?(?:sell\s+(?:my\s+body|sex)|prostitute|do\s+sex\s+work)\b|"
+                         r"\block(?:s|ed)?\s+us\s+in\b[^\n]{0,40}?\btak(?:e|es|en)\s+our\s+(?:phones|passports|ids)\b|"
+                         r"\btak(?:e|es|en)\s+our\s+(?:phones|passports)\b[^\n]{0,40}?\block(?:s|ed)?\s+us\s+in\b)"), "trafficking")]
+# รอบสุ่ม 19: คนเปราะบางหาย · น้ำตาลต่ำในคนเป็นเบาหวาน · คนดูแลทำร้ายผู้สูงอายุ
+UPGRADES += [
+    (re.compile(r"(?:ออทิสติก|สมาธิสั้น|ดาวน์|สมองเสื่อม|อัลไซเมอร์|ความจำเสื่อม|หลงลืม)[^\n]{0,16}?(?:หาย(?:ไป|ตัว)|เดินออกจากบ้าน|หาไม่เจอ|ออกจากบ้านไป)|"
+                r"(?i:\b(?:autistic|dementia|alzheimer'?s?|special[- ]needs|non-?verbal)\b[^\n]{0,30}?\b(?:wander(?:ed|s)?\s+off|went\s+missing|is\s+missing|can'?t\s+find)\b)"), "missing"),
+    (re.compile(r"(?i:\bdiabet(?:ic|es)\b[^\n]{0,40}?\b(?:confused|barely\s+respond|unresponsive|won'?t\s+wake|slurring|shaking\s+and\s+sweaty|passed\s+out)\b)"), "health_emergency"),
+    (re.compile(r"(?i:\b(?:caregiver|carer|nanny|aide|nurse|helper|maid)\b[^\n]{0,20}?\b(?:is\s+|was\s+|keeps\s+)?(?:hitting|beating|slapping|abusing|hurting|pushing)\s+(?:my\s+)?(?:grand(?:ma|mother|pa|father)|mom|mother|dad|father|baby|son|daughter|child|kid)\b)"), "violence"),
+]
+# รอบสุ่ม 20: พ่อแม่เล่าเรื่องลูก (อังกฤษ) — เดิมหลุดครบ 5/5
+_KID = r"(?:teen|son|daughter|kid|child|boy|girl|\d{1,2}[- ]year[- ]old)"
+UPGRADES += [
+    (re.compile(r"(?i:\b" + _KID + r"\b[^\n]{0,30}?\b(?:has\s+cuts\s+on|is\s+cutting|cuts\s+(?:her|him|them)sel(?:f|ves)|self[- ]harm(?:ing)?|burn\s+marks\s+on)\b|"
+                r"\b" + _KID + r"\b[^\n]{0,30}?\bposted\b[^\n]{0,30}?\b(?:last\s+night|goodbye|won'?t\s+be\s+here|last\s+post)\b)"), "crisis"),
+    (re.compile(r"(?i:\b(?:man|guy|adult|stranger|someone)\b[^\n]{0,30}?\b(?:asked|asking|wants?)\s+(?:for\s+)?(?:nudes?|nude\s+photos?|naked\s+(?:pics|photos))\b|"
+                r"\b" + _KID + r"\b[^\n]{0,30}?\bmeeting\s+(?:an?\s+)?(?:adult|older\s+(?:man|guy|woman)|stranger)\b[^\n]{0,20}?\bmet\s+online\b)"), "online_grooming"),
+    (re.compile(r"(?i:\bmaking\s+(?:my\s+)?" + _KID + r"\s+(?:send|pay)\s+money\b[^\n]{0,30}?\b(?:or|otherwise)\b[^\n]{0,20}?\b(?:share|post|leak|send)\b[^\n]{0,15}?\b(?:photos?|pics|videos?)\b)"), "sextortion"),
+]
+# รอบสุ่ม 21: สุขภาพจิตที่ต้องรีบดูแล (อดอาหารจนจะเป็นลม · หลังคลอดคิดทำร้ายลูก · แมเนีย · หลงผิด)
+UPGRADES += [
+    (re.compile(r"ไม่(?:ได้)?กิน(?:อะไร|ข้าว)?(?:เลย)?(?:มา)?\s?(?:\d+|สอง|สาม|สี่|ห้า|หก|เจ็ด|หลาย)\s?วัน[^\n]{0,30}?(?:กลัวอ้วน|เวียนหัว|จะเป็นลม|หน้ามืด|ใจสั่น)|"
+                r"(?i:\b(?:haven'?t|have\s+not|didn'?t)\s+eaten\s+in\s+\d+\s+days\b[^\n]{0,40}?\b(?:faint|dizzy|scared\s+of\s+gaining|heart\s+racing)\b)"), "eating"),
+    (re.compile(r"(?i:\b(?:had\s+a\s+baby|gave\s+birth|postpartum|new\s+mom)\b[^\n]{0,40}?\bthoughts?\s+of\s+(?:hurting|harming|killing)\s+(?:her|him|my\s+baby|the\s+baby)\b)"), "harm_others"),
+    (re.compile(r"ติด(?:กล้อง|ชิป|เครื่องดักฟัง)(?:ไว้)?ใน(?:หัว|สมอง|ฟัน)|(?i:\b(?:put|planted|implanted)\s+(?:a\s+)?(?:chip|camera|tracker)\s+in\s+(?:my|her|his|their)\s+(?:head|brain|teeth)\b)|"
+                r"(?i:\b(?:haven'?t|not)\s+slept\s+in\s+\d+\s+days\b[^\n]{0,40}?\b(?:i'?m\s+god|feel\s+like\s+(?:i'?m\s+)?god|chosen\s+one|spent\s+all)\b)"), "health_emergency"),
+]
+# รอบสุ่ม 26: ความปลอดภัยนอกบ้าน — ถูกตาม · แท็กซี่ล็อกประตู · ถูกใส่ยาในแก้ว · หายไปหลังเดทจากแอป · ถูกติด GPS
+# เดิมหลุด 8 จาก 10 ข้อ
+UPGRADES += [
+    (re.compile(r"(?:มีคน|ผู้ชาย|คนแปลกหน้า|ใครไม่รู้)\S{0,4}(?:เดิน|ขับรถ)?ตาม(?:หลัง)?มา[^\n]{0,30}?(?:ยัง|ตอนนี้|ตั้งแต่|ไม่ยอม)|"
+                r"(?:แท็กซี่|คนขับ|grab|แกร็บ|วิน)[^\n]{0,30}?(?:ล็อกประตู|ไม่ยอมให้ลง|ไม่ให้ลง|ไม่ยอมจอด)|"
+                r"(?:แฟนเก่า|สามีเก่า|ใครไม่รู้)?\S{0,4}(?:แอบ)?ติด\s?(?:GPS|จีพีเอส|เครื่องติดตาม|แท็ก)[^\n]{0,30}?(?:ตามมา|ตามไป|โผล่|มาดัก)|"
+                r"(?i:\b(?:taxi|driver|uber|cab)\b[^\n]{0,40}?\block(?:ed|s)?\s+the\s+doors?\b|\bwon'?t\s+let\s+me\s+(?:get\s+)?out\s+of\s+the\s+(?:car|taxi|cab)\b|"
+                r"\b(?:put|planted|hid)\s+a\s+(?:tracker|gps|airtag|tracking\s+device)\b[^\n]{0,40}?\b(?:showed\s+up|following|followed|waiting)\b)"), "violence"),
+    (re.compile(r"(?:ใส่|ผสม|หยอด)(?:อะไร|ยา|ผง)?\S{0,4}ใน(?:แก้ว|เครื่องดื่ม|น้ำ)[^\n]{0,30}?(?:มึน|เวียน|หน้ามืด|ง่วง|ไม่ค่อยรู้สึกตัว|ตัวอ่อน)|"
+                r"(?i:\b(?:put|slipped|dropped)\s+something\s+in(?:to)?\s+(?:my|her|his)\s+drink\b[^\n]{0,40}?\b(?:dizzy|drowsy|can'?t\s+stand|confused|blacking\s+out|weird)\b)"), "health_emergency"),
+    (re.compile(r"(?:ไปเดท|นัดเจอ|ไปเจอ)[^\n]{0,30}?(?:แอป|ออนไลน์|ทินเดอร์|tinder)[^\n]{0,30}?(?:ไม่ติดต่อ|ติดต่อไม่ได้|หายไป|ปิดเครื่อง)[^\n]{0,20}?(?:ชั่วโมง|วัน|คืน)|"
+                r"(?i:\b(?:dating\s+app|tinder|bumble|hinge|met\s+online)\b[^\n]{0,40}?\b(?:hasn'?t\s+(?:answered|replied|come\s+back)|not\s+answering|phone\s+is\s+off|missing)\b)"), "missing"),
+]
+# รอบสุ่ม 27: อุบัติเหตุในที่ทำงาน — ตกจากที่สูง · ของหนักล้มทับ · เครื่องจักรดูด
+UPGRADES += [
+    (re.compile(r"(?:เพื่อน|คนงาน|ลูกน้อง|พ่อ|ใคร)\S{0,6}(?:เพิ่ง)?ตก(?:ลง(?:ไป|มา))?(?:จาก(?:ที่สูง|นั่งร้าน|หลังคา|ตึก|ชั้น)|ใน(?:บ่อ|ถัง|ท่อ|ช่องลิฟต์))|(?:ไม่มี(?:เชือก|สายรัด|เข็มขัดนิรภัย))[^\n]{0,20}?เพิ่งตกลงไป|"
+                r"(?:ปั้นจั่น|เครน|นั่งร้าน|กำแพง|ตู้คอนเทนเนอร์|ของหนัก|ไม้แบบ)\S{0,6}(?:ล้ม|ถล่ม|หล่น)\S{0,4}ทับ(?:คน|เพื่อน|คนงาน)?|"
+                r"เครื่อง(?:จักร|บด|รีด|ปั่น)\S{0,4}(?:ดูด|หนีบ|ลาก|กิน)\S{0,4}(?:แขน|มือ|ขา|ผม|นิ้ว)|"
+                r"(?i:\b(?:crane|scaffold(?:ing)?|wall|beam|load|container)\s+(?:fell|collapsed)\s+on\s+(?:someone|a\s+worker|my\s+\w+|him|her)\b|"
+                r"\b(?:machine|press|grinder|conveyor|auger)\s+(?:pulled|caught|crushed|grabbed)\s+(?:my\s+)?(?:\w+'s\s+)?(?:arm|hand|leg|hair|fingers?)\b|"
+                r"\b(?:coworker|worker|colleague|he|she)\s+(?:just\s+)?fell\s+(?:from|off)\s+(?:the\s+)?(?:roof|scaffold|ladder|height|building)\b)"), "health_emergency"),
+]
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
 _WATCHING = re.compile(r"(?:ซ้อม|เล่น|แสดง|ถ่าย)\S{0,2}?ละคร(?:เวที)?\S{0,8}?(?:อยู่|กับ|ด้วยกัน)|(?:ดู|นั่งดู|เปิด|นอนดู)\S{0,4}?(?:ซีรีส์|ละคร|สารคดี|หนัง|ทีวี)\S{0,12}?(?:อยู่|กับ|ด้วยกัน|ไป)|อ่านข่าวอยู่|"
@@ -230,6 +283,10 @@ _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
+    # รอบสุ่ม 22: บอกชัดว่าเจ็บนิดเดียว/เสียแค่ของ — "ขับรถชนเสาเบาๆ กันชนบุบ" เคยได้ 75 · "just a scraped knee" เคยได้ 85
+    (re.compile(r"(?<!ไม่)(?:เบาๆ|นิดหน่อย|นิดเดียว)[^\n]{0,16}?(?:กันชน|บุบ|รอยขีด|ถลอก|แค่รอย)|(?:กันชน|ไฟท้าย)\S{0,4}(?:บุบ|แตก|ร้าว)(?![^\n]{0,30}(?:เจ็บ|เลือด|หมดสติ|ไม่หายใจ))|"
+                r"(?i:\b(?:just|only)\s+(?:a\s+)?(?:scraped|scratched|bruised|grazed|skinned)\s+(?:knee|elbow|arm|leg|hand)\b|\bjust\s+a\s+(?:scrape|scratch|bruise|graze)\b)"),
+     ("first_aid", "health_emergency")),
     (re.compile(r"อยาก(?:จะ)?ตาย(?:ตอน|เมื่อ)(?:แก่|อายุ\s*\d)|ตายอย่างสงบตอนแก่"), ("crisis",)),
     (re.compile(r"ทะเลแห่ง(?:ความ|รัก)|จมน้ำ(?:ตา|ในความ)"), ("health_emergency", "first_aid")),
     (re.compile(r"(?:ตอนเด็ก|เมื่อก่อน|สมัยก่อน|ปีที่แล้ว|หลายปีก่อน)[^\n]{0,10}?เคย[^\n]{0,24}?(?:ตอนนี้|แต่ตอนนี้)[^\n]{0,10}?(?:หาย|ดีขึ้น|ว่ายเป็น|ปกติ|ไม่เป็นไร)"),

@@ -2312,6 +2312,9 @@ _SINUS_DANGER_RX = re.compile(_SINUS_DANGER_SRC)
 from core.problem_lens_more import _SUDDEN_VISION as _SV_SRC
 _SUDDEN_VISION_RX = re.compile(_SV_SRC, re.I)
 from core.problem_lens_more import _CAT_URINARY as _CU_SRC
+# รอบสุ่ม 28: หมาท้องบวม + พยายามอ้วกแต่ไม่ออก = กระเพาะบิด (GDV) ตายได้ในไม่กี่ชั่วโมง — เดิมได้ 0
+_CU_SRC += (r"|(?:หมา|สุนัข|น้องหมา)\S{0,6}ท้อง(?:บวม|ป่อง|โต)[^\n]{0,30}?(?:อ้วก|อาเจียน|ขย้อน)(?:\S{0,6})?(?:ไม่(?:มีอะไร)?ออก|แต่ไม่ออก)"
+            r"|\bdog'?s?\b[^\n]{0,20}?\b(?:belly|stomach|abdomen)\s+(?:is\s+)?(?:swollen|bloated|distended)\b[^\n]{0,40}?\b(?:trying\s+to\s+(?:vomit|throw\s+up)|retching|dry\s+heav)")
 _CAT_URINARY_RX = re.compile(_CU_SRC, re.I)
 _HEAT_SYMPTOM = re.compile(r"(?:ร้อน(?:จัด|มาก)|อากาศร้อน|กลางแดด|ตากแดด|หน้างานร้อน|\d{2}\s?องศา|\bheat\b|\bin the sun\b)[^\n]{0,40}?"
                            r"(?:เวียนหัว|คลื่นไส้|อาเจียน|หน้ามืด|อ่อนเพลีย|ใจสั่น|ตะคริว|ปวดหัว|\bdizzy\b|\bnause\w*|\bfaint\w*|\bcramps?\b|\bheadache\b)|"
@@ -2325,7 +2328,8 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     # ร้อนจัด + มีอาการ (เวียนหัว คลื่นไส้ หน้ามืด…) = เพลียแดด ซึ่งกลายเป็นฮีทสโตรกได้ — เดิมขึ้นความเสี่ยง 0/100
     # ไซนัสอักเสบที่ลามเข้าตา/สมอง — ด่วน แต่ไม่ถึงระดับที่ปิดคำตอบเฉพาะ (เลนส์ sinus_danger บอกให้ไปโรงพยาบาลวันนี้)
     from core.lang_signals import WORLD_FIRE_RX
-    if isinstance(text, str) and not a["crisis"] and (WORLD_FIRE_RX.search(text) or WORLD_FIRE_RX.search(dedialect(text))):          # ไฟไหม้บ้าน (id fr de pt ru) = ฉุกเฉิน
+    if isinstance(text, str) and not a["crisis"] and (WORLD_FIRE_RX.search(text) or WORLD_FIRE_RX.search(dedialect(text))) \
+            and not re.search(r"ข่าว|(?i:\bnews\b|\bheadline)", text):        # "ข่าวแก๊สรั่ว" ไม่ใช่เหตุของผู้ใช้          # ไฟไหม้บ้าน (id fr de pt ru) = ฉุกเฉิน
         a = dict(a, text_risk=max(a["text_risk"], 80), risk=max(a["risk"], 80),
                  risk_shown=max(a["risk_shown"], 80) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     if isinstance(text, str) and not a["crisis"] and _SUDDEN_VISION_RX.search(text):      # ตามัวกะทันหัน = ฉุกเฉิน

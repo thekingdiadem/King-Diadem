@@ -688,6 +688,17 @@ URGENT_BODY = re.compile(
     r"\bcan'?t stop the bleeding\b|\blots? of blood\b|\bblood\b[^\n]{0,30}?\b(?:soak(?:ing|ed|s)? (?:through|into)|pouring|spurting|gushing|won'?t stop)\b|\bsoak(?:ing|ed) through\b[^\n]{0,30}?\b(?:towels?|bandages?|cloths?|shirts?|gauze)\b|\bstung by an? (?:bee|wasp|hornet)\b[^\n]{0,40}?\b(?:swell|can'?t breathe|trouble breathing)|"
     r"\b(?:face|lips|tongue|throat) (?:is |are )?(?:swelling|swollen)\b[^\n]{0,30}?\b(?:breath|after eating|ate)|\bheat ?stroke\b|"
     r"\b(?:very )?drunk\b[^\n]{0,20}?\b(?:won'?t|can'?t|doesn'?t) wake\b|\bwon'?t wake up\b|\bpassed out drunk\b|"
+    # รอบสุ่ม 24: ยาเกินขนาด/ยาตีกัน (อังกฤษ) — เด็กดื่มยาแก้ไอทั้งขวด · เหล้า+ยานอนหลับแล้วหายใจช้า · ยาความดันซ้ำ
+    r"\b(?:kid|child|son|daughter|toddler|baby)\b[^\n]{0,20}?\b(?:drank|swallowed|ate|took)\s+(?:a\s+|the\s+)?(?:whole|entire|full)\s+(?:bottle|pack|box|strip)\b|"
+    r"\b(?:drank|drinking|alcohol|beer|wine)\b[^\n]{0,30}?\b(?:sleeping\s+pills?|benzos?|xanax|valium|opioids?|oxy\w*)\b[^\n]{0,40}?\b(?:breathing\s+(?:really\s+|very\s+)?slow|won'?t\s+wake|blue\s+lips|passed\s+out)\b|"
+    r"\btook\s+(?:her|his|my|their)\s+[\w\s]{0,20}?pills?\s+twice\b[^\n]{0,40}?\b(?:dizzy|faint|slow\s+heart|chest|confused)\b|"
+    # รอบสุ่ม 22: อุบัติเหตุ (อังกฤษ) — ชนคนแล้วไม่ขยับ · ตกที่สูงแล้วขาไม่รู้สึก · นิ้วขาด
+    r"\bhit\s+(?:a|the|an?\s+old)\s+(?:pedestrian|person|man|woman|kid|child|cyclist|biker|motorcyclist)\b[^\n]{0,40}?\b(?:not\s+moving|unconscious|bleeding|not\s+breathing|won'?t\s+wake)\b|"
+    r"\b(?:fell|fallen)\s+(?:from|off)\b[^\n]{0,30}?\b(?:can'?t|cannot)\s+(?:feel|move)\s+(?:my|his|her)\s+(?:legs|arms|body|neck)\b|"
+    r"\bcut\s+(?:my|his|her)\s+(?:finger|thumb|hand|toe)s?\s+off\b|\b(?:finger|thumb|hand|toe)s?\s+(?:was\s+|got\s+)?(?:cut|chopped|severed|sliced)\s+off\b|"
+    # รอบสุ่ม 17: เด็กติดในรถร้อน · คาร์บอนมอนอกไซด์จากเครื่องปั่นไฟ/เตาในที่ปิด (อังกฤษ) — เดิมได้ 0
+    r"\b(?:left|forgot)\s+(?:my\s+|the\s+|a\s+)?(?:baby|toddler|kid|child|son|daughter|dog)\s+in\s+(?:the\s+|a\s+|my\s+)?(?:hot\s+)?car\b|"
+    r"\b(?:generator|grill|charcoal|bbq|space heater)\b[^\n]{0,40}?\b(?:garage|inside|indoors|closed room|tent|basement)\b[^\n]{0,50}?\b(?:headache|dizzy|nause|vomit|sleepy|passed out|confused)|"
     # รอบสุ่ม 9: เจ็บหน้าอก + เหงื่อแตก/ร้าวแขน/หายใจไม่ออก (อาการหัวใจขาดเลือด) — เดิมได้ 0
     r"\bchest\b[^\n]{0,12}?\b(?:hurts?|hurting|pain|pressure|tight(?:ness)?|crushing|squeezing)\b[^\n]{0,40}?\b(?:sweat(?:ing|y)?|left arm|jaw|short of breath|can'?t breathe|nause(?:a|ous)|dizzy|cold sweat)\b|"
     r"\b(?:sweat(?:ing|y)?|cold sweat|short of breath)\b[^\n]{0,30}?\bchest\b[^\n]{0,12}?\b(?:hurts?|hurting|pain|pressure|tight)\b|"
@@ -1404,6 +1415,13 @@ INDIRECT_SELF = re.compile(
     # ไม่นับวันหยุด/ลางาน ("พรุ่งนี้วันเสาร์ คงไม่ต้องตื่นเช้า")
     r"(?!.*(?:วันหยุด|เสาร์|อาทิตย์|ลางาน|ปิดเทอม|หยุดยาว|ไม่มีเรียน|ไม่ต้องไปทำงาน|ทำงานที่บ้าน|wfh))"
     r".*(?:คง|จะ|อาจ(?:จะ)?)\S{0,2}ไม่(?:ต้อง)?ตื่น(?:ขึ้นมา)?(?:อีก(?:แล้ว)?|แล้ว)(?!\S{0,6}(?:เช้า|ไปทำงาน|ไปเรียน|ตีห้า))|"
+    # รอบสุ่ม 29: สัญญาณหลังคำว่า "ไม่เป็นไร/โอเค/ขำๆ"
+    r".*(?:เรา|ฉัน|หนู|ผม|ก็)\S{0,4}หายไป(?:เอง)?[^\n]{0,10}?(?:ทุกคน|คนอื่น|ที่บ้าน)\S{0,4}(?:จะ)?(?:ได้)?สบาย(?!ใจ)|"
+    r"(?!.*(?:ลาออก|ขอบคุณ|อวยพร|วันแม่|วันเกิด|ปีใหม่|การ์ด))"
+    r".*เขียนจดหมาย(?:ถึง|ให้)\S{0,2}(?:แม่|พ่อ|ทุกคน|ครอบครัว|ลูก|แฟน)\S{0,4}ไว้(?:แล้ว|หมดแล้ว)|"
+    r"(?!.*(?:เที่ยว|ไม่มีสัญญาณ|ต่างจังหวัด|ต่างประเทศ|ค่าย|ปฏิบัติธรรม|บวช))"
+    r".*(?:ไม่เห็น(?:เรา|ฉัน|หนู|ผม)(?:ออนไลน์|ตอบ)|(?:เรา|ฉัน|หนู|ผม)ไม่ออนไลน์)[^\n]{0,20}?ไม่ต้อง(?:ตามหา|ตาม|ห่วง|ทัก)|"
+    r".*\beveryone\s+(?:would|will)\s+be\s+better\s+off\s+(?:soon|without\s+me|when\s+i'?m\s+gone)\b|"
     # รอบสุ่ม 8 (อังกฤษ): "won't need to set an alarm anymore after tonight" · "wrote letters to everyone and gave my dog away"
     r"(?!.*\b(?:saturday|sunday|weekend|holiday|vacation|day off|retired|quit my job|no class)\b)"
     r".*\bwon'?t (?:need|have) to (?:set an alarm|wake up) (?:anymore|ever again|again)\b|"
