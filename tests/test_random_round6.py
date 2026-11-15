@@ -14,3 +14,13 @@ def test_now_heard(q):
                                "อยากหลับยาวๆ วันเสาร์ ทำงานเหนื่อยทั้งอาทิตย์"])
 def test_everyday_stays_calm(q):
     assert assess(q)["risk_shown"] < 60
+
+
+@pytest.mark.parametrize("q", ["เกมนี้บอสขู่จะฆ่าเราหมด", "หนังเรื่องนี้พระเอกขู่จะฆ่าเรา", "หนังเรื่องนี้มีฉากลักพาตัว"])
+def test_violence_inside_games_and_movies_is_not_an_emergency(q):
+    assert assess(q)["risk_shown"] < 60
+
+
+@pytest.mark.parametrize("q", ["ดูหนังเรื่องนี้อยู่ แฟนขู่จะฆ่าฉัน", "ดูหนังกับแฟน แล้วแฟนขู่จะฆ่าฉันจริงๆ", "โดนลักพาตัว"])
+def test_real_threats_next_to_a_movie_are_still_heard(q):
+    assert assess(q)["risk_shown"] >= 65
