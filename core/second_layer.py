@@ -231,6 +231,8 @@ UPGRADES += [
 ]
 # รอบสุ่ม 37: กดลิงก์แล้วเงินในบัญชีหาย (อังกฤษ) — เดิมได้ 0
 UPGRADES += [(re.compile(r"(?i:\bclicked\s+(?:a|the|on\s+a|on\s+the)\s+(?:\w+\s+){0,3}link\b[^\n]{0,40}?\b(?:account|bank|wallet)\b[^\n]{0,20}?\b(?:is\s+)?(?:empty|drained|emptied|cleaned\s+out|money\s+(?:is\s+)?gone)\b)"), "scam")]
+# รอบสุ่ม 65: เจ้าหนี้ขู่จะเอาลูกไปขาย — เคยได้ 55
+UPGRADES += [(re.compile(r"(?:เจ้าหนี้|นายทุน|แก๊ง)[^\n]{0,20}?(?:ขู่|บอก)\S{0,4}(?:จะ)?(?:มา)?(?:เอา|จับ|ลัก)\S{0,4}(?:ลูก|เมีย|แม่|น้อง)\S{0,4}(?:ไป)?(?:ขาย|ขัง|เป็นตัวประกัน)"), "trafficking")]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
@@ -289,6 +291,9 @@ _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
     # รอบสุ่ม 42: ถามวิธีเตรียมตัว/ดูข่าวภัยพิบัติ (ja zh ko es vi) เคยได้ 70 จากคำว่า "แผ่นดินไหว" คำเดียว
     (re.compile(r"ニュース|(?:への)?備え|準備|怎么准备|怎麼準備|如何准备|新闻|新聞|대비|방법|뉴스|c[óo]mo\s+prepar|preparativos|noticias?|chuẩn\s+bị|tin\s+tức"), ("disaster", "help")),
+    # รอบสุ่ม 65: อุบัติเหตุที่จบแล้ว เคลมประกันแล้ว ("ขับรถชนเสาไฟฟ้าเมื่อวาน ประกันจ่ายแล้ว" เคยได้ 75)
+    (re.compile(r"(?:เมื่อวาน|เมื่อวันก่อน|อาทิตย์ที่แล้ว|เดือนที่แล้ว)[^\n]{0,30}?(?:ประกัน(?:จ่าย|เคลม)|เคลม(?:ประกัน)?)\S{0,4}(?:แล้ว|เรียบร้อย)"
+                r"(?![^\n]{0,40}(?:เจ็บ|เลือด|หมดสติ|ไม่หายใจ|โรงพยาบาล))"), ("first_aid", "health_emergency")),
     # รอบสุ่ม 22: บอกชัดว่าเจ็บนิดเดียว/เสียแค่ของ — "ขับรถชนเสาเบาๆ กันชนบุบ" เคยได้ 75 · "just a scraped knee" เคยได้ 85
     (re.compile(r"(?<!ไม่)(?:เบาๆ|นิดหน่อย|นิดเดียว)[^\n]{0,16}?(?:กันชน|บุบ|รอยขีด|ถลอก|แค่รอย)|(?:กันชน|ไฟท้าย)\S{0,4}(?:บุบ|แตก|ร้าว)(?![^\n]{0,30}(?:เจ็บ|เลือด|หมดสติ|ไม่หายใจ))|"
                 r"(?i:\b(?:just|only)\s+(?:a\s+)?(?:scraped|scratched|bruised|grazed|skinned)\s+(?:knee|elbow|arm|leg|hand)\b|\bjust\s+a\s+(?:scrape|scratch|bruise|graze)\b)"),
