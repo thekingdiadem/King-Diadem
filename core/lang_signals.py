@@ -363,6 +363,12 @@ _more("medical", "zh", r"(?:听到|聽到)[^。！？\n]{0,4}(?:声音|聲音)[^
 _more("medical", "ko", r"(?:해치라는|죽이라는)\s*(?:목소리|소리)가?\s*들려|(?:출산|아기\s*낳고)[가-힯\s]{0,10}아기를?\s*(?:해치|죽이)고\s*싶")
 _more("medical", "es", r"(?:escucho|oigo)\s+voces\s+que\s+me\s+(?:dicen|ordenan)\s+que\s+(?:lastime|mate|haga\s+daño)|(?:di\s+a\s+luz|tuve\s+al\s+beb[ée]|posparto)[^.!?\n]{0,30}(?:hacerle\s+daño|lastimar|matar)\s+(?:al|a\s+mi)\s+beb[ée]|(?:llevo\s+)?\d+\s+d[ií]as\s+sin\s+comer[^.!?\n]{0,40}(?:desmay|engordar|mareo)")
 _more("medical", "vi", r"giọng\s+nói\s+(?:bảo|bắt|xúi)\s+tôi\s+(?:làm\s+hại|giết)|(?:sinh\s+con|sau\s+sinh)[^.!?\n]{0,20}(?:làm\s+hại|giết)\s+(?:em\s+bé|con|bé)|\d+\s+ngày[^.!?\n]{0,12}không\s+ăn[^.!?\n]{0,30}(?:ngất|sợ\s+béo|chóng\s+mặt)")
+# รอบสุ่ม 34: ค้ามนุษย์ — ยึดพาสปอร์ต · ขังในหอ+ยึดโทรศัพท์ · บังคับค้าประเวณีใช้หนี้ (เดิมหลุด 12/15)
+_more("violence", "ja", r"パスポートを(?:取り上げ|奪わ|没収)[^。！？\n]{0,12}(?:帰らせ|帰れ|出られ)|(?:売春|売り)を(?:強要|させられ)")
+_more("violence", "zh", r"(?:锁|鎖|关|關)在(?:宿舍|房间|房間)[^。！？\n]{0,10}(?:收走|没收|沒收|拿走)(?:了)?(?:手机|手機)|(?:被逼|被迫|逼我)(?:卖淫|賣淫|卖身|賣身|接客)")
+_more("violence", "ko", r"여권을?\s*(?:뺏|빼앗|가져가)[가-힯\s]{0,10}(?:못\s*가|못\s*나가|안\s*보내)|(?:기숙사|방)에\s*가두고[가-힯\s]{0,10}(?:핸드폰|휴대폰|폰)을?\s*뺏|성매매를?\s*강요")
+_more("violence", "es", r"(?:me\s+)?quit[óo]\s+(?:el|mi)\s+pasaporte[^.!?\n]{0,30}no\s+me\s+deja|nos\s+encierran[^.!?\n]{0,40}(?:quitan|quitaron)\s+(?:los\s+)?(?:tel[ée]fonos|celulares|m[óo]viles)|me\s+obligan\s+a\s+prostituirme")
+_more("violence", "vi", r"nhốt\s+(?:chúng\s+tôi|tôi)[^.!?\n]{0,30}(?:lấy|thu)\s+(?:điện\s+thoại|hộ\s+chiếu)|bị\s+ép\s+(?:bán\s+dâm|tiếp\s+khách|làm\s+gái)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
