@@ -270,6 +270,12 @@ UPGRADES += [
     (re.compile(r"งานต่างประเทศ[^\n]{0,15}?(?:จาก|ใน|ทาง)(?:เฟซ|เฟสบุ๊ค|ไลน์|ติ๊กต็อก|โซเชียล)[^\n]{0,40}?(?:เก็บ|ยึด)(?:พาสปอร์ต|หนังสือเดินทาง)"), "trafficking"),
     (re.compile(r"(?:แม่|พ่อ|ยาย|ตา)\S{0,4}เชื่อ(?:คน)?ใน(?:ไลน์|แชท|เฟซ)\S{0,6}ว่าเป็น(?:ลูก|หลาน)[^\n]{0,20}?(?:โอน|ส่งเงิน)"), "scam"),
 ]
+# รอบสุ่ม 85: คนใกล้ตัวเตรียมยาไว้ "วันที่ไม่ไหว" · หายไปหลังงานศพพร้อมจดหมาย (EN เคยได้ 0 · ไทยได้ 55)
+UPGRADES += [
+    (re.compile(r"(?:เพื่อน|แฟน|น้อง|พี่|แม่|พ่อ)[^\n]{0,10}?(?:บอกว่า)?\S{0,4}(?:มี|เก็บ|ตุน)ยา(?:ไว้)?\S{0,6}[^\n]{0,10}?(?:ถ้า|วันไหน)[^\n]{0,15}?ไม่ไหว[^\n]{0,10}?(?:กิน|จะกิน)|"
+                r"(?i:\b(?:friend|sister|brother|mom|dad|boyfriend|girlfriend|wife|husband)\b[^\n]{0,20}?\b(?:has|keeps|is\s+keeping|saved)\s+(?:a\s+)?(?:stash\s+of\s+)?pills\b[^\n]{0,40}?\b(?:can'?t\s+take\s+it|the\s+day|when\s+(?:she|he)\s+(?:can'?t|is\s+done))\b|"
+                r"\b(?:dad|mom|father|mother|brother|sister|husband|wife)\s+disappeared\b[^\n]{0,40}?\bleft\s+a\s+(?:letter|note)\b)"), "someone"),
+]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
