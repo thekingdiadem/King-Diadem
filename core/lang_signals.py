@@ -862,6 +862,16 @@ WORLD_URGENT["medical"] += (
     r"|cakap\s+merepek[^.!?\n]{0,30}tak\s+boleh\s+angkat\s+tangan"
 )
 
+# รอบสุ่ม 62: ครรภ์เป็นพิษ · ทารกไม่กี่สัปดาห์มีไข้ ใน it tr ar hi tl ms (เดิมหลุด 12/12)
+WORLD_URGENT["medical"] += (
+    r"|incinta\s+di\s+\d+\s+mesi[^.!?\n]{0,40}(?:mal\s+di\s+testa|vista\s+offuscata|sangu)|bambin[oa]\s+di\s+\d+\s+(?:settimane|giorni)[^.!?\n]{0,15}febbre"
+    r"|\d+\s+ayl(?:ı|i)k\s+hamileyim[^.!?\n]{0,40}(?:ba(?:ş|s)\s+a(?:ğ|g)r(?:ı|i)s(?:ı|i)|bulan(?:ı|i)k|kanama)|\d+\s+haftal(?:ı|i)k\s+bebe(?:ğ|g)im[^.!?\n]{0,10}ate(?:ş|s)"
+    r"|حامل\s+في\s+الشهر[^.!?\n]{0,40}(?:صداع\s+شديد|رؤية\s+ضبابية|نزيف)|عمره\s+(?:أسبوعان|أسبوع|\d+\s+أيام)[^.!?\n]{0,15}حمى"
+    r"|गर्भवती[^।!?\n]{0,30}(?:तेज़\s+सिरदर्द|धुंधला|खून)|\d+\s+(?:हफ्ते|दिन)\s+का\s+बच्चा\s+बुखार"
+    r"|buntis[^.!?\n]{0,40}(?:matinding\s+sakit\s+ng\s+ulo|malabo\s+ang\s+paningin|dinudugo)|nilalagnat\s+ang\s+\d+\s+(?:linggong|araw\s+na)\s+sanggol"
+    r"|hamil\s+\d+\s+bulan[^.!?\n]{0,40}(?:sakit\s+kepala\s+teruk|penglihatan\s+kabur|berdarah)|bayi\s+saya\s+\d+\s+(?:minggu|hari)\s+demam"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
