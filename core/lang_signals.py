@@ -390,6 +390,12 @@ _more("medical", "vi", r"ngã[^.!?\n]{0,15}không\s+dậy\s+được|tiểu\s+đ
 _more("disaster", "zh", r"(?:水|洪水)[^。！？\n]{0,6}(?:淹到|到了)(?:胸口|脖子|腰)|被困在(?:楼上|屋顶|屋頂|二楼)")
 _more("disaster", "es", r"el\s+agua\s+(?:nos|me)\s+llega\s+(?:al|a\s+la)\s+(?:pecho|cuello|cintura)|atrapad[oa]s?\s+(?:arriba|en\s+el\s+techo|en\s+el\s+segundo\s+piso)|(?:deslave|derrumbe|alud)\s+(?:sepult[óo]|enterr[óo])")
 _more("disaster", "vi", r"nước\s+ngập\s+(?:tới|đến)\s+(?:ngực|cổ|bụng)|bị\s+kẹt\s+trên\s+(?:lầu|mái|tầng)|sạt\s+lở[^.!?\n]{0,20}(?:vùi|chôn|lấp)")
+# รอบสุ่ม 43: ชนคนแล้วไม่ขยับ · ตกแล้วขาไม่รู้สึก · นิ้วขาด (เดิมหลุด 15/15)
+_more("medical", "ja", r"(?:歩行者|人)を(?:はねた|轢いた|ひいた)|(?:足|脚)の感覚がない|指を切り(?:落と|落とし)|指が(?:ちぎれ|取れ)")
+_more("medical", "zh", r"撞(?:到|倒)(?:了)?(?:行人|人)[^。！？\n]{0,8}(?:一动不动|不动|昏迷|流血)|(?:腿|脚|下半身)没有知觉|(?:锯|切|剁)断(?:了)?(?:手指|指头)|手指(?:被)?(?:锯|切|剁)断")
+_more("medical", "ko", r"(?:보행자|사람)를?\s*쳤어[가-힯\s,]{0,8}(?:안\s*움직|의식)|다리에\s*감각이\s*없|손가락이\s*잘렸")
+_more("medical", "es", r"atropell[ée]\s+a\s+(?:un|una)\s+(?:peat[óo]n|persona)|no\s+siento\s+las\s+piernas|(?:me\s+)?cort[ée]\s+(?:un|el)\s+dedo[^.!?\n]{0,20}(?:desprendi|cay[óo]|separ)|dedo\s+amputado")
+_more("medical", "vi", r"tông\s+(?:phải\s+)?người\s+đi\s+bộ|không\s+cảm\s+(?:thấy|giác)\s+(?:được\s+)?chân|(?:cưa|chặt|cắt)\s+đứt\s+ngón\s+tay")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
