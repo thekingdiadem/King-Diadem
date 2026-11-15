@@ -320,7 +320,10 @@ def apply(text: str, a: dict) -> dict:
     # บริบทบอกชัดว่าไม่ใช่เหตุตอนนี้ (ถามความรู้ ข่าว อดีตที่จบแล้ว มุก) → ไม่ยกกลับขึ้นมาอีก
     # และคะแนนที่ค้างจากชั้นอื่น (เช่นคำว่า "ล่ม" ในข่าว) ลดลงด้วย ถ้าไม่เหลือหัวข้อที่อันตราย
     if calmed and not a["crisis"]:
-        if not a.get("disaster") and not a.get("scam") and not a.get("intl_urgent") and not any(t in _UP_RISK for t in a["topics"]):
+        # สัญญาณทำร้ายตัวเองแบบอ้อม ("warning") ไม่ถูกลดด้วยคำแวดล้อมอย่าง "ซีรีส์" — รอบสุ่ม 7:
+        # "ดูซีรีส์ไปสองตอน … พรุ่งนี้คงไม่ต้องตื่นแล้ว" เคยถูกลดจาก 65 เหลือ 20 (การจับเรื่องแต่งจริงทำที่ INDIRECT_SELF แล้ว)
+        if not a.get("disaster") and not a.get("scam") and not a.get("intl_urgent") and not any(t in _UP_RISK for t in a["topics"]) \
+                and "warning" not in a["topics"]:
             a["text_risk"] = min(a["text_risk"], 20)
             a["risk"] = min(a.get("risk", 0), 20)
             a["risk_shown"] = min(a.get("risk_shown", 0), 20)
