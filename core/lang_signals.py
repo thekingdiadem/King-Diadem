@@ -907,6 +907,12 @@ WORLD_URGENT["medical"] += (
 # รอบสุ่ม 72: "vai me matar" = คนอื่นจะฆ่าฉัน (ความรุนแรง ไม่ใช่ฆ่าตัวตาย) — ถ้ามี kkk/haha/rs = สำนวน
 WORLD_URGENT["violence"] += r"|(?:marido|namorado|ex|pai|padrasto|ele|eles)\s+(?:vai|v(?:ã|a)o)\s+me\s+matar(?![^.!?\n]{0,12}(?:\bk+\b|haha|rs\b))"   # canon_text ย่อ "kkkk" เหลือ "k"
 
+# รอบสุ่ม 75: เพื่อนโพสต์รูปยาเต็มมือ + คำบอกลา ใน 11 ภาษา (เดิมหลุด 11/11) — โทรฉุกเฉินทันที (medical)
+_PILLS = r"(?:obat|ubat|cachets|comprim(?:é|e)s|tabletten|comprimidos|таблетк|pillole|hap(?:lar)?|حبوب|गोलियों|gamot)"
+_BYE = r"(?:selamat\s+tinggal|adieu|lebewohl|adeus|прощайте|прощай|addio|elveda|وداع|अलविदा|paalam)"
+WORLD_URGENT["medical"] += r"|(?:foto|photo|fotoğraf|фото|صورة|फोटो|litrato|gambar)[^\n]{0,40}?" + _PILLS + r"[^\n]{0,50}?" + _BYE
+WORLD_URGENT["medical"] += r"|" + _PILLS + r"[^\n]{0,30}?(?:foto|photo|fotoğraf|фото|صورة|फोटो|litrato|gambar)[^\n]{0,40}?" + _BYE
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
