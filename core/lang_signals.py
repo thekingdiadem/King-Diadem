@@ -380,6 +380,12 @@ _more("violence", "zh", r"(?:陌生)?(?:大人|成年人)[^。！？\n]{0,10}(?:
 _more("violence", "ko", r"(?:모르는\s*)?어른이?\s*[가-힯\s]{0,10}(?:알몸|나체|야한)\s*사진을?\s*(?:달래|보내라|요구)|인터넷에서\s*만난\s*어른을?\s*[가-힯\s]{0,6}만난")
 _more("violence", "es", r"(?:un\s+)?adulto[^.!?\n]{0,30}(?:pidi[óo]|pide)\s+fotos\s+desnud|(?:va\s+a\s+ver|se\s+va\s+a\s+ver\s+con)[^.!?\n]{0,20}(?:un\s+)?adulto\s+que\s+conoci[óo]\s+en\s+internet")
 _more("violence", "vi", r"đòi\s+ảnh\s+(?:khỏa\s+thân|nóng|nude)|đi\s+gặp\s+người\s+lớn\s+quen\s+trên\s+mạng")
+# รอบสุ่ม 41: ผู้สูงอายุล้มลุกไม่ได้ · เบาหวานซึม · ผู้ป่วยสมองเสื่อมหาย (เดิมหลุด 14/15) — โทรขอความช่วยเหลือทันที
+_more("medical", "ja", r"倒れて起き上がれない|糖尿病[^。！？\n]{0,12}(?:汗|ぼんやり|意識|返事がない)|認知症の[^。！？\n]{0,6}(?:祖父|祖母|父|母|人)が[^。！？\n]{0,10}(?:帰ってこない|いなくなっ|行方不明)")
+_more("medical", "zh", r"摔倒(?:了)?起不来|摔倒(?:了)?起不來|糖尿病[^。！？\n]{0,10}(?:出汗|迷糊|叫不(?:太)?应|叫不醒)|(?:老年痴呆|失智|痴呆)[^。！？\n]{0,12}(?:没回来|沒回來|走丢|走失|不见了)")
+_more("medical", "ko", r"넘어져서?\s*못\s*일어나|당뇨[가-힯\s]{0,12}(?:땀|멍하|대답을?\s*(?:잘\s*)?안|의식)|치매[가-힯\s]{0,24}(?:안\s*돌아|없어졌|실종|길을\s*잃)")
+_more("medical", "es", r"se\s+cay[óo][^.!?\n]{0,20}no\s+puede\s+levantarse|con\s+demencia[^.!?\n]{0,30}(?:no\s+ha\s+vuelto|desapareci[óo]|se\s+perdi[óo])")
+_more("medical", "vi", r"ngã[^.!?\n]{0,15}không\s+dậy\s+được|tiểu\s+đường[^.!?\n]{0,20}(?:vã\s+mồ\s+hôi|lơ\s+mơ|không\s+trả\s+lời)|bị\s+lẫn[^.!?\n]{0,15}(?:chưa\s+về|mất\s+tích|đi\s+lạc)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
