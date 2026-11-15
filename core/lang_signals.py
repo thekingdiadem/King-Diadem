@@ -954,6 +954,9 @@ WORLD_URGENT["medical"] += (
     r"|गले\s+में\s+खाना\s+फंस|खांस\s+नहीं\s+पा"
 )
 
+# รอบสุ่ม 90: เล่าผลก่อนเหตุ ("dia tidak bergerak, saya menabrak pejalan kaki")
+WORLD_URGENT["medical"] += r"|tidak\s+bergerak[^.!?\n]{0,25}menabrak\s+(?:pejalan\s+kaki|orang)"
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 

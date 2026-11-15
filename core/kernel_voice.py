@@ -2320,6 +2320,7 @@ _CU_SRC += (r"|(?:犬|狗|강아지|개|perro|chó)[^\n]{0,30}?(?:チョコ|巧�
             r"|(?:猫|고양이|gato|mèo)[^\n]{0,20}?(?:ユリ|百合|백합|lirio|hoa\s+ly)[^\n]{0,6}?(?:をかじ|を食べ|をなめ|を噛|咬|吃|舔|을?\s*씹|을?\s*먹|del|cắn|ăn)"
             r"|(?:猫|고양이|gato|mèo)[^\n]{0,6}?(?:かじ|咬了|mordi[óo]|cắn)[^\n]{0,12}?(?:ユリ|百合|백합|lirio|hoa\s+ly)"
             r"|(?:犬|狗|강아지|개|perro|chó)[^\n]{0,12}?(?:お腹|肚子|배|panza|barriga|bụng)[^\n]{0,24}?(?:膨れ|胀|脹|부풀|빵빵|hinchad|căng|phồng)[^\n]{0,40}?(?:何も出ない|吐不出|안\s*나와|no\s+sale|không\s+ra)"
+            r"|(?:吐不出|想吐)[^\n]{0,20}?(?:狗|狗狗)[^\n]{0,6}?肚子(?:胀|脹)"   # รอบสุ่ม 90: เล่าผลก่อนเหตุ
             r"|(?:panza|barriga|est[óo]mago)\s+de\s+mi\s+perr[oa][^\n]{0,30}?hinchad[^\n]{0,40}?no\s+sale"
             r"|(?:bụng\s+chó)[^\n]{0,20}?(?:căng|phồng)[^\n]{0,30}?không\s+ra")
 _CAT_URINARY_RX = re.compile(_CU_SRC, re.I)

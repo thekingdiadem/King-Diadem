@@ -1,0 +1,13 @@
+"""รอบสุ่ม 90: สุ่มจากรอบ 17–89 แบบสลับลำดับประโยค (กันถอยหลัง)"""
+import pytest
+from core.kernel_voice import assess
+
+
+@pytest.mark.parametrize("q", ['o taxista trancou as portas e não me deixa sair!!', 'หลงป่าอยู่บนภู มืดแล้ว น้ำกะหมด!!', "lol jk but sometimes I really wish I wouldn't wake up...", 'मेरी 13 साल की बेटी आज रात ऑनलाइन मिले एक बड़े आदमी से मिलने जा रही है...', 'my daughter says someone from a chat wants to meet her at a hotel tonight and told her not to tell me...', 'ลูกคอแข็ง มีไข้สูง มีจุดแดงตามตัว กดไม่จาง  ', 'อยากรีสตาร์ทชีวิตแบบกดปิดไปเลย', '강아지 배가 빵빵하게 부풀고 토하려는데 아무것도 안 나와...', 'nhà bên có phụ nữ kêu cứu và tiếng đánh', 'meu bebê de 2 semanas está com febre...', 'tiramos mas não respira, meu filho se afogou na piscina  ', "grandma lives alone and hasn't answered her phone in 2 days?", '想吐又吐不出来, 狗肚子胀得很大', '사다리에서 떨어졌는데 다리에 감각이 없어  ', 'sento voci che mi dicono di fare del male alla mia famiglia', '子供が大人用の咳止めシロップを一本全部飲んだ?', 'em bé bị hóc!!!  ', 'a worker fell into the tank and the guy who went in after him passed out too  ', "un collega è caduto dall'impalcatura!!", '출산 후에 아기를 해치고 싶은 생각이 들어', 'ลูกกินยาแก้หวัดของผู้ใหญ่ไปทั้งขวด!!', '몇 마디밖에 못 해, 천식 발작인데 흡입기가 안 들어  ', "la voisine crie au secours et j'entends des coups?", 'ele não se mexe, atropelei um pedestre?', 'dia tidak bergerak, saya menabrak pejalan kaki?', 'il tassista ha chiuso le portiere e non mi fa scendere', 'เพื่อนจมน้ำ ดึงขึ้นมาไม่หายใจ ช่วยด้วยยยย  ', 'la corriente se llevó a mi hijo en el río...', 'mio figlio ha bevuto tutta la bottiglia di sciroppo per la tosse?', 'طفلي عمره أسبوعان وعنده حمى  ', 'con gái 13 tuổi tối nay đi gặp người lớn quen trên mạng', 'หลังคลอดเลือดออกชุ่มผ้าอนามัยทุกชั่วโมง', 'crane fell on someone at the construction site...', 'ถูกไฟฟ้าแรงสูงดูด ตอนนี้หมดสติ?', 'có người theo tôi từ lúc xuống xe buýt  ', "mom ล้มในห้องน้ำ can't get up", '全部大丈夫、母への手紙ももう書いた!!', 'dei todas as minhas coisas, não quero mais ser um peso', 'ガス臭い、部屋中!!', 'smell gas in my apartment!!!?'])
+def test_heard(q):
+    assert assess(q)["risk_shown"] >= 65
+
+
+@pytest.mark.parametrize("q", ['gülmekten öldüm', 'so tired วันนี้ but happy', 'the stock price fell on my birthday', 'ได้ยินเสียงเพลงจากบ้านข้างๆ ทั้งคืน', 'ลูกเล่นเกมทั้งคืน ไม่ยอมนอน', "cat sleeps next to the lily but didn't touch it", '忘了吃降压药', 'minha mãe vai me matar kkk', '孩子穿长袖因为冷', 'แฟนบอกว่าถ้าเลิกกันจะเสียใจมาก', 'ฝนตกหนัก รถติดมาก', 'แฟนบอกว่าจะไปกระโดดร่มพรุ่งนี้ ตื่นเต้น', 'แขวนเสื้อผ้าไว้หน้าบ้าน', 'पापा बहुत बात करते हैं', 'สามีช่วยจัดการเงินในบ้าน ดีมาก', 'asma leve, já passou', '商场打折', 'allergic to dust, sneezing a lot', 'factory work is hot, drinking lots of water', 'ทำประกันชีวิตไว้ให้แม่ เบี้ยปีละเท่าไรดี'])
+def test_everyday_calm(q):
+    assert assess(q)["risk_shown"] < 60
