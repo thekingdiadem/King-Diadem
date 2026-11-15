@@ -48,10 +48,12 @@ Never waits for step 4.
 ## 3. Core Equation (Implemented)
 
 ```python
-# In ENGINE/collapse_predictor.py
-if predict_collapse(risk_score)["probability"] > 0.6:
-    collapse_ctx = f"[Collapse probability: {prob:.0%}]"
-    # injected into LLM prompt before generation
+# ENGINE/collapse_predictor.predict_collapse(risk_score) คืนข้อความ:
+#   "low / moderate / high collapse probability"
+# app.py (/run) เติมบริบทให้ LLM เมื่อไม่ใช่ "low" (และรองรับรูปแบบ dict {"probability": p > 0.6} ด้วย)
+c = predict_collapse(risk_score)
+if isinstance(c, str) and not c.startswith("low"):
+    collapse_ctx = f"[Collapse: {c}]"            # injected into LLM prompt before generation
 ```
 
 ```

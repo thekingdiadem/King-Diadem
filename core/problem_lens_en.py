@@ -557,6 +557,15 @@ EN = {
         "Weight is an output — the upstream variables are sleep, food, medication and stress. Fix whichever changed most recently."),
 }
 
+EN["overtime_refusal"] = (r"\b(?:can'?t|cannot|not allowed to) refuse (?:overtime|extra hours|weekend work)\b|\b(?:refuse|say no to) overtime\b[^\n]{0,40}\bfired\b|\bforced (?:to work )?overtime\b",
+    "Under Thai labour law, overtime needs the employee's consent each time — refusing is a right, not insubordination, and firing someone for refusing may be an unfair dismissal. "
+    "Elsewhere the rules differ, but most countries also limit forced overtime.",
+    ["Decline politely, in writing where you can: \"I can't stay late today.\" No long explanation needed.",
+     "Keep evidence of the instruction or threat (chats, emails, voice notes) with dates — you'll need it if pay is docked or you're dismissed.",
+     "In Thailand, call the labour protection hotline 1546; elsewhere, your national labour office or a union. Some continuous or emergency work has exceptions they can check."],
+    "How often is overtime demanded, and has the threat been put in writing?",
+    "A workplace that removes your right to refuse through threats is overstepping its authority — the variables are per-occasion consent and evidence.")
+
 EN["loneliness"] = (r"\b(?:i feel|i'?m|feeling) (?:so |really |very )?(?:lonely|alone|isolated)\b|\bno one to talk to\b|\bi have no friends\b",
     "Loneliness is a signal that you need connection — a basic human need, not a weakness. It usually eases with small, regular contact rather than one big change.",
     ["Message one person you used to feel comfortable with — no reason needed, just \"thinking of you, how are you?\"",

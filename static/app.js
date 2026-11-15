@@ -1007,6 +1007,7 @@ var Cosmos = (function(){
       'uniform vec2 uRes,uC,uNeb;uniform float uQ,uT,uR,uShow,uThink,uRisk,uDim,uTex,uSpin;',
       'uniform vec3 uSun,uSat,uJup,uUra;',
       'uniform sampler2D uDay,uLights,uClouds;',
+      'uniform sampler2D uSky;uniform float uSkyOn;',
       'uniform vec2 uPar;',
       'uniform vec3 uPaper;uniform float uLight;',
       'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
@@ -1059,6 +1060,21 @@ var Cosmos = (function(){
       ' }',
       /* ทางช้างเผือกพาดเฉียง (ซ้ายบน → ขวาล่าง) แบบภาพถ่ายฟ้ามืดจริง: แกนเรืองทอง · ขอบเย็นสีฟ้า
          เมฆดาวเป็นก้อน · ร่องฝุ่นมืดคดเคี้ยวกลางแถบ · ดาวหนาแน่นขึ้นตามแนว · เลื่อนช้ากว่าเนบิวลา (อยู่ไกลกว่า) */
+      /* ฟ้าจริงแบบผู้สังเกต (static/sky/allsky.jpg จาก scripts/build_allsky.py): ทางช้างเผือกที่เห็นเกิดจากตำแหน่งจริงของดาว Gaia DR3
+         765,134 ดวง + ดาวสว่าง Hipparcos — ร่องฝุ่นคือเมฆฝุ่นจริง · กล้องมองไปทางใจกลางดาราจักร หมุนช้ามากเหมือนฟ้าเคลื่อน
+         แถบเอียงเฉียงแบบภาพถ่ายฟ้ามืด · ยังโหลดภาพไม่เสร็จ = ใช้แถบที่คำนวณแทนชั่วคราว */
+      ' if(uSkyOn>.5){',
+      '  vec2 sq=(p+uPar*.6-S*vec2(.5,.42))/M; float fo=1.05;',
+      '  float rl=-.42, cr=cos(rl), sr=sin(rl); sq=vec2(sq.x*cr-sq.y*sr, sq.x*sr+sq.y*cr);',
+      '  vec3 cd=normalize(vec3(sq.x*fo*2.3, -sq.y*fo*2.3, 1.));',
+      '  float L0=radians(18.-t*.035), B0=radians(-17.);',
+      '  vec3 F=vec3(cos(B0)*cos(L0),cos(B0)*sin(L0),sin(B0)); vec3 R=normalize(cross(F,vec3(0.,0.,1.))); vec3 Up=cross(R,F);',
+      '  vec3 g=normalize(F*cd.z+R*cd.x+Up*cd.y);',
+      '  float gla=atan(g.y,g.x), gb=asin(clamp(g.z,-1.,1.));',
+      '  vec2 suv=vec2(fract(.5-gla/6.2831853), .5-gb/3.1415927);',
+      '  vec3 sk=texture2D(uSky,suv).rgb; sk=pow(sk,vec3(1.45))*1.15;',
+      '  col+=sk*(1.-uLight)*(.62-.3*smoothstep(.55,.85,p.y/S.y));',
+      ' } else {',
       ' vec2 mp=(p+uPar*.6)/M; vec2 ma=normalize(vec2(1.,.52)); vec2 mn=vec2(-ma.y,ma.x);',
       ' float mu=dot(mp-vec2(.5,.36),ma), mv=dot(mp-vec2(.5,.36),mn);',
       ' mv+=.035*sin(mu*5.3+1.2)+.05*(fbm(vec2(mu*3.,1.7))-.5);',
@@ -1076,6 +1092,7 @@ var Cosmos = (function(){
       '  vec2 sq=(p+uPar*.6)/3.; vec2 bc=floor(sq); float hb=h(bc+5.7);',
       '  if(hb>1.-.17*mg*(1.-.85*rift)){ vec2 o=bc+.15+.7*vec2(h(bc+1.9),h(bc+6.3)); float dd=length(sq-o)*3.;',
       '   float br=pow(h(bc+8.1),3.); col+=mix(vec3(.72,.82,1.),vec3(1.,.88,.7),h(bc+2.2))*exp(-dd*dd*(1.6-br))*(.18+.9*br)*(.85+.15*sin(t*(.6+hb*2.)+hb*50.)); }',
+      ' }',
       ' }',
       /* ขอบภาพมืดลง (vignette) — ดึงสายตาเข้าหาโลกตรงกลาง ให้ฉากดูลึกและหนักแน่น */
       ' { vec2 vq=(p-S*vec2(.5,.42))/S; col*=mix(1.,1.-.55*smoothstep(.25,.85,length(vq*vec2(1.,1.2))),1.-uLight); }',
@@ -1163,9 +1180,25 @@ var Cosmos = (function(){
     function use(P){ if(cur === P) return; cur = P; gl.useProgram(P.pr); gl.enableVertexAttribArray(P.a); gl.vertexAttribPointer(P.a, 2, gl.FLOAT, false, 0, 0); }
     var SKYP = prog(SKY_FS, ['uRes','uQ','uT','uC','uF','uYaw','uPitch','uN','uG','uBand','uThink','uLow','uDim']);
     try{ gl.getExtension('OES_standard_derivatives'); }catch(_){}
-    var DAWN = prog(DAWN_FS, ['uRes','uQ','uT','uC','uR','uShow','uThink','uRisk','uDim','uTex','uSpin','uDay','uLights','uClouds','uSun','uSat','uJup','uUra','uNeb','uPar'].concat(['uPaper','uLight'])), cur = null;
+    var DAWN = prog(DAWN_FS, ['uRes','uQ','uT','uC','uR','uShow','uThink','uRisk','uDim','uTex','uSpin','uDay','uLights','uClouds','uSun','uSat','uJup','uUra','uNeb','uPar'].concat(['uPaper','uLight','uSky','uSkyOn'])), cur = null;
     /* ภาพโลกจริง: โหลดหลังหน้าเว็บขึ้นแล้ว (~790KB) · ระหว่างรอใช้โลก noise */
     var EARTH_TEX = null;
+    /* ฟ้าจริงทั้งท้องฟ้า (~600KB) — โหลดหลังภาพโลก ใช้ช่อง texture 3 */
+    var SKY_TEX = null;
+    function loadSkyTex(){
+      if(!DAWN || SKY_TEX) return; SKY_TEX = 'loading';
+      var im = new Image(); im.decoding = 'async';
+      im.onload = function(){
+        if(!gl) return;
+        var tx = gl.createTexture(); gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, tx);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, im);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.activeTexture(gl.TEXTURE0); SKY_TEX = tx; kick();
+      };
+      im.onerror = function(){ SKY_TEX = 'failed'; };
+      im.src = '/static/sky/allsky.jpg';
+    }
     function loadEarth(){
       if(!DAWN || EARTH_TEX) return; EARTH_TEX = 'loading';
       var srcs = ['/static/earth/day.jpg', '/static/earth/lights.jpg', '/static/earth/clouds.jpg'], fmt = [gl.RGB, gl.LUMINANCE, gl.LUMINANCE], imgs = [], left = srcs.length;
@@ -1255,6 +1288,10 @@ var Cosmos = (function(){
         gl.uniform1f(u.uTex, ok ? 1 : 0); gl.uniform1f(u.uSpin, 1.885 + (d.spin || 0) - (REDUCED ? 0 : tsec * .025));
         if(ok){ for(var i = 0; i < 3; i++){ gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, EARTH_TEX[i]); } gl.activeTexture(gl.TEXTURE0);
           gl.uniform1i(u.uDay, 0); gl.uniform1i(u.uLights, 1); gl.uniform1i(u.uClouds, 2); }
+        if(ok) loadSkyTex();
+        var sok = SKY_TEX && typeof SKY_TEX === 'object';
+        gl.uniform1f(u.uSkyOn, sok ? 1 : 0);
+        if(sok){ gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, SKY_TEX); gl.activeTexture(gl.TEXTURE0); gl.uniform1i(u.uSky, 3); }
         gl.drawArrays(gl.TRIANGLES, 0, 3);
         return true;
       }
