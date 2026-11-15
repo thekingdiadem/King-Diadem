@@ -440,6 +440,12 @@ _more("violence", "zh", r"邻居[^。！？\n]{0,8}(?:喊救命|呼救)[^。！�
 _more("violence", "ko", r"옆집에서\s*[가-힯\s]{0,10}살려\s*달라고[가-힯\s]{0,15}때리는\s*소리")
 _more("violence", "es", r"(?:la\s+vecina|el\s+vecino|los\s+vecinos)\s+grita[^.!?\n]{0,20}(?:ayuda|auxilio)[^.!?\n]{0,25}(?:golpes|pegando)")
 _more("violence", "vi", r"nhà\s+bên[^.!?\n]{0,20}kêu\s+cứu[^.!?\n]{0,20}(?:tiếng\s+đánh|đập)")
+# รอบสุ่ม 79: หลงในภูเขาตอนมืดไม่มีน้ำ · ลูกหายในที่คนเยอะ (เดิมหลุด 10/10) — โทรขอความช่วยเหลือทันที
+_more("medical", "ja", r"山で道に迷っ[^。！？\n]{0,20}(?:暗く|水も?ない|寒い)|(?:人混み|モール|駅|空港)[^。！？\n]{0,15}(?:子供|子ども|息子|娘)がいなくなっ")
+_more("medical", "zh", r"在山上迷路[^。！？\n]{0,15}(?:天黑|没水|沒水|很冷)|(?:商场|商場|人多|车站|機場|机场)[^。！？\n]{0,10}(?:孩子|儿子|女儿)走丢")
+_more("medical", "ko", r"산에서\s*길을\s*잃[가-힯\s,]{0,20}(?:어두워|물도\s*없|추워)|(?:쇼핑몰|사람\s*많은|역|공항)[가-힯\s]{0,12}아이를?\s*잃어버렸")
+_more("medical", "es", r"me\s+perd[íi]\s+en\s+la\s+monta[ñn]a[^.!?\n]{0,30}(?:oscureci|no\s+tengo\s+agua|fr[íi]o)|perd[íi]\s+a\s+mi\s+(?:hijo|hija|niñ[oa])\s+en\s+(?:un|el)\s+(?:centro\s+comercial|mercado|aeropuerto|parque)")
+_more("medical", "vi", r"bị\s+lạc\s+trên\s+núi[^.!?\n]{0,25}(?:trời\s+tối|hết\s+nước|lạnh)|con\s+(?:tôi\s+)?bị\s+lạc\s+(?:trong|ở)\s+(?:trung\s+tâm\s+thương\s+mại|chợ|sân\s+bay|công\s+viên)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
