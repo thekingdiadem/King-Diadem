@@ -2325,7 +2325,8 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     # ร้อนจัด + มีอาการ (เวียนหัว คลื่นไส้ หน้ามืด…) = เพลียแดด ซึ่งกลายเป็นฮีทสโตรกได้ — เดิมขึ้นความเสี่ยง 0/100
     # ไซนัสอักเสบที่ลามเข้าตา/สมอง — ด่วน แต่ไม่ถึงระดับที่ปิดคำตอบเฉพาะ (เลนส์ sinus_danger บอกให้ไปโรงพยาบาลวันนี้)
     from core.lang_signals import WORLD_FIRE_RX
-    if isinstance(text, str) and not a["crisis"] and (WORLD_FIRE_RX.search(text) or WORLD_FIRE_RX.search(dedialect(text))):          # ไฟไหม้บ้าน (id fr de pt ru) = ฉุกเฉิน
+    if isinstance(text, str) and not a["crisis"] and (WORLD_FIRE_RX.search(text) or WORLD_FIRE_RX.search(dedialect(text))) \
+            and not re.search(r"ข่าว|(?i:\bnews\b|\bheadline)", text):        # "ข่าวแก๊สรั่ว" ไม่ใช่เหตุของผู้ใช้          # ไฟไหม้บ้าน (id fr de pt ru) = ฉุกเฉิน
         a = dict(a, text_risk=max(a["text_risk"], 80), risk=max(a["risk"], 80),
                  risk_shown=max(a["risk_shown"], 80) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     if isinstance(text, str) and not a["crisis"] and _SUDDEN_VISION_RX.search(text):      # ตามัวกะทันหัน = ฉุกเฉิน

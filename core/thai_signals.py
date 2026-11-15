@@ -688,6 +688,10 @@ URGENT_BODY = re.compile(
     r"\bcan'?t stop the bleeding\b|\blots? of blood\b|\bblood\b[^\n]{0,30}?\b(?:soak(?:ing|ed|s)? (?:through|into)|pouring|spurting|gushing|won'?t stop)\b|\bsoak(?:ing|ed) through\b[^\n]{0,30}?\b(?:towels?|bandages?|cloths?|shirts?|gauze)\b|\bstung by an? (?:bee|wasp|hornet)\b[^\n]{0,40}?\b(?:swell|can'?t breathe|trouble breathing)|"
     r"\b(?:face|lips|tongue|throat) (?:is |are )?(?:swelling|swollen)\b[^\n]{0,30}?\b(?:breath|after eating|ate)|\bheat ?stroke\b|"
     r"\b(?:very )?drunk\b[^\n]{0,20}?\b(?:won'?t|can'?t|doesn'?t) wake\b|\bwon'?t wake up\b|\bpassed out drunk\b|"
+    # รอบสุ่ม 22: อุบัติเหตุ (อังกฤษ) — ชนคนแล้วไม่ขยับ · ตกที่สูงแล้วขาไม่รู้สึก · นิ้วขาด
+    r"\bhit\s+(?:a|the|an?\s+old)\s+(?:pedestrian|person|man|woman|kid|child|cyclist|biker|motorcyclist)\b[^\n]{0,40}?\b(?:not\s+moving|unconscious|bleeding|not\s+breathing|won'?t\s+wake)\b|"
+    r"\b(?:fell|fallen)\s+(?:from|off)\b[^\n]{0,30}?\b(?:can'?t|cannot)\s+(?:feel|move)\s+(?:my|his|her)\s+(?:legs|arms|body|neck)\b|"
+    r"\bcut\s+(?:my|his|her)\s+(?:finger|thumb|hand|toe)s?\s+off\b|\b(?:finger|thumb|hand|toe)s?\s+(?:was\s+|got\s+)?(?:cut|chopped|severed|sliced)\s+off\b|"
     # รอบสุ่ม 17: เด็กติดในรถร้อน · คาร์บอนมอนอกไซด์จากเครื่องปั่นไฟ/เตาในที่ปิด (อังกฤษ) — เดิมได้ 0
     r"\b(?:left|forgot)\s+(?:my\s+|the\s+|a\s+)?(?:baby|toddler|kid|child|son|daughter|dog)\s+in\s+(?:the\s+|a\s+|my\s+)?(?:hot\s+)?car\b|"
     r"\b(?:generator|grill|charcoal|bbq|space heater)\b[^\n]{0,40}?\b(?:garage|inside|indoors|closed room|tent|basement)\b[^\n]{0,50}?\b(?:headache|dizzy|nause|vomit|sleepy|passed out|confused)|"
