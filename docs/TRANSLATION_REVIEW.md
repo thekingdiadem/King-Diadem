@@ -12,10 +12,10 @@
 | Hausa (`ha`) | 5 | 100 · 112 · 120 · 1323 · 1669 · 191 |
 | Hrvatski / Srpski / Bosanski (`sh`) | 5 | 100 · 112 · 120 · 124 · 1323 · 1669 · 191 · 192 · 194 |
 | Indonesia (`id`) | 5 | 100 · 110 · 113 · 119 · 120 · 1300 · 1323 · 1669 · 191 · 199 |
-| Italiano (`it`) | 5 | 02 2327 2327 · 100 · 112 · 120 · 1323 · 1669 · 191 |
+| Italiano (`it`) | 6 | 02 2327 2327 · 100 · 112 · 115 · 120 · 1323 · 1669 · 191 · 199 |
 | Kiswahili (`sw`) | 5 | 100 · 112 · 1195 · 120 · 1323 · 1669 · 191 · 999 |
 | Magyar (`hu`) | 5 | 06 80 20 55 · 100 · 112 · 116 123 · 120 · 1323 · 1669 · 191 |
-| Melayu (`ms`) | 4 | 03-7627 2929 · 100 · 120 · 1300 · 1323 · 1669 · 191 · 999 |
+| Melayu (`ms`) | 5 | 03-7627 2929 · 100 · 120 · 1300 · 1323 · 1669 · 191 · 199 · 994 · 999 |
 | Nederlands (`nl`) | 5 | 0800 · 0800-0113 · 100 · 112 · 113 · 120 · 1323 · 1669 · 1813 · 191 |
 | Norsk (`no`) | 5 | 100 · 112 · 113 · 116 · 116 123 · 120 · 1323 · 1669 · 191 |
 | Oʻzbek (`uz`) | 5 | 100 · 102 · 103 · 120 · 1323 · 1669 · 191 |
@@ -26,9 +26,9 @@
 | Soomaali (`so`) | 5 | 100 · 120 · 1323 · 1669 · 191 |
 | Suomi (`fi`) | 5 | 080 005 · 09 2525 0111 · 100 · 112 · 120 · 1323 · 1669 · 191 |
 | Svenska (`sv`) | 5 | 020-50 50 · 100 · 112 · 120 · 1323 · 1669 · 191 · 90101 |
-| Tagalog (`tl`) | 4 | 100 · 120 · 1300 · 1323 · 1553 · 1669 · 191 · 911 |
+| Tagalog (`tl`) | 5 | 100 · 120 · 1300 · 1323 · 1553 · 1669 · 191 · 199 · 911 |
 | Tiếng Việt (`vi`) | 6 | 100 · 113 · 114 · 115 · 120 · 1300 · 1323 · 1441 · 1669 · 191 · 199 |
-| Türkçe (`tr`) | 4 | 100 · 112 · 120 · 1300 · 1323 · 1669 · 191 |
+| Türkçe (`tr`) | 5 | 100 · 112 · 120 · 1300 · 1323 · 1669 · 191 · 199 |
 | Yorùbá (`yo`) | 5 | 100 · 112 · 120 · 1323 · 1669 · 191 |
 | isiZulu (`zu`) | 5 | 0800 428 · 0800 567 567 · 100 · 10111 · 10177 · 120 · 1323 · 1669 · 191 |
 | Čeština (`cs`) | 5 | 100 · 112 · 116 · 116 123 · 1323 · 155 · 158 · 1669 · 191 |
@@ -41,10 +41,10 @@
 | Հայերեն (`hy`) | 5 | 100 · 112 · 120 · 1300 · 1323 · 1669 · 191 · 911 |
 | עברית (`he`) | 5 | 100 · 101 · 120 · 1201 · 1323 · 1669 · 191 |
 | اردو (`ur`) | 4 | 100 · 1122 · 120 · 1300 · 1323 · 1669 · 191 |
-| العربية (`ar`) | 4 | 100 · 120 · 1300 · 1323 · 1669 · 191 |
+| العربية (`ar`) | 5 | 100 · 112 · 120 · 1300 · 1323 · 1669 · 191 · 199 · 998 |
 | فارسی (`fa`) | 4 | 110 · 115 · 1300 · 1323 · 1480 · 1669 · 191 · ۱۰۰ · ۱۲۰ |
 | नेपाली (`ne`) | 4 | 100 · 102 · 1166 · 1300 · 1323 · 1669 · 191 · १०० · १२० |
-| हिन्दी (`hi`) | 4 | 100 · 112 · 120 · 1300 · 1323 · 14416 · 1669 · 191 |
+| हिन्दी (`hi`) | 5 | 100 · 101 · 112 · 120 · 1300 · 1323 · 14416 · 1669 · 191 · 199 |
 | বাংলা (`bn`) | 4 | 1300 · 1323 · 1669 · 191 · 999 · ১০০ · ১২০ |
 | தமிழ் (`ta`) | 4 | 100 · 108 · 112 · 120 · 1300 · 1323 · 14416 · 1669 · 191 |
 | සිංහල (`si`) | 4 | 100 · 119 · 120 · 1300 · 1323 · 1669 · 191 · 1926 · 1990 |
@@ -381,6 +381,12 @@
 ('Affrontiamolo un passo alla volta.', ['Scrivi in una frase cosa sta succedendo davvero.', 'Elenca cosa puoi fare oggi, anche una cosa piccola.', 'Scegli una sola azione per le prossime 24 ore.'], 'Cosa ti pesa di più in questo momento?')
 ```
 
+**disaster**
+
+```text
+('La tua vita conta più di tutto — le cose si possono sostituire.', ["Chiama il 199 (vigili del fuoco in Thailandia; in Italia: 115 o 112) e di' l'indirizzo chiaramente.", 'Fumo: stai il più in basso possibile, copri naso e bocca con un panno bagnato. Tocca la porta prima di aprire — se è calda, non aprirla.', 'Non puoi uscire: chiudi la porta, tappa la fessura con un panno bagnato, vai alla finestra e fai segnali con la torcia del telefono.'], "Dove sei adesso, e c'è qualcuno con te?")
+```
+
 ## Kiswahili (`sw`)
 
 - [ ] ผู้ตรวจ: ______  วันที่: ______
@@ -463,6 +469,12 @@
 
 ```text
 ('Ini kecemasan — telefon dahulu.', ['Telefon 1669 sekarang (di Malaysia: 999), beritahu alamat dan simptom.', 'Jika tidak bernafas atau tidak sedar: tekan kuat di tengah dada 100–120 kali seminit, ikut arahan pegawai di telefon.', 'Jangan beri minuman atau makanan. Simpan bungkusan ubat yang diambil untuk ditunjukkan kepada doktor.'], 'Adakah sesiapa bersama pesakit sekarang?')
+```
+
+**disaster**
+
+```text
+('Nyawa awak paling penting — barang boleh diganti.', ['Telefon 199 (bomba Thailand; di Malaysia: 994 atau 999), sebut alamat dengan jelas.', 'Ada asap: tunduk serendah mungkin, tutup hidung dengan kain basah. Sentuh pintu dulu — kalau panas, jangan buka.', 'Tak boleh keluar: tutup pintu, sumbat celah dengan kain basah, berdiri di tingkap dan lambai lampu suluh telefon.'], 'Awak di mana sekarang, dan ada sesiapa bersama awak?')
 ```
 
 **violence**
@@ -839,6 +851,12 @@
 ('Emergency ito — tumawag muna.', ['Tumawag sa 1669 ngayon (sa Pilipinas: 911), sabihin ang address at mga sintomas.', 'Kung hindi humihinga o hindi tumutugon: diinan nang malakas ang gitna ng dibdib, 100–120 beses kada minuto, sundin ang operator sa telepono.', 'Huwag painumin o pakainin. Itago ang lalagyan ng gamot na ininom para maipakita sa doktor.'], 'May kasama ba ang pasyente ngayon?')
 ```
 
+**disaster**
+
+```text
+('Mas mahalaga ang buhay mo — napapalitan ang mga gamit.', ['Tumawag sa 199 (bumbero sa Thailand; sa Pilipinas: 911), sabihin nang malinaw ang address.', 'May usok: yumuko nang pinakamababa, takpan ang ilong ng basang tela. Hawakan muna ang pinto — kung mainit, huwag buksan.', 'Hindi makalabas: isara ang pinto, takpan ang siwang ng basang tela, pumunta sa bintana at mag-senyas gamit ang flashlight ng telepono.'], 'Nasaan ka ngayon, at may kasama ka ba?')
+```
+
 **violence**
 
 ```text
@@ -905,6 +923,12 @@
 
 ```text
 ('Bu bir acil durum — önce ara.', ["Hemen 1669'u ara (Türkiye'de: 112), adresi ve belirtileri söyle.", 'Nefes almıyorsa veya tepki vermiyorsa: göğsün ortasına dakikada 100–120 kez güçlüce bastır, telefondaki görevlinin talimatlarını izle.', 'Su ya da yiyecek verme. İçtiği ilacın kutusunu doktora göstermek için sakla.'], 'Şu an hastanın yanında biri var mı?')
+```
+
+**disaster**
+
+```text
+('Senin hayatın her şeyden önemli — eşyalar yerine konur.', ["199'u ara (Tayland itfaiye; Türkiye'de: 112), adresi net söyle.", 'Duman varsa: olabildiğince yere eğil, burnunu ıslak bezle kapat. Açmadan önce kapıya dokun — sıcaksa açma.', 'Çıkamıyorsan: kapıyı kapat, aralığı ıslak bezle tıka, pencereye git ve telefon ışığıyla işaret ver.'], 'Şu an neredesin, yanında biri var mı?')
 ```
 
 **violence**
@@ -1343,6 +1367,12 @@
 ('هذه حالة طارئة — اتصل أولًا.', ['اتصل الآن بـ 1669 وأخبرهم بالعنوان والأعراض.', 'إذا كان لا يتنفس أو لا يستجيب: اضغط بقوة في وسط الصدر 100–120 مرة في الدقيقة، واتبع تعليمات الموظف على الهاتف.', 'لا تعطه ماءً أو طعامًا، واحتفظ بعلبة الدواء الذي تناوله لتريها للطبيب.'], 'هل يوجد أحد مع المريض الآن؟')
 ```
 
+**disaster**
+
+```text
+('حياتك أهم من كل شيء — الأشياء يمكن تعويضها.', ['اتصل بـ 199 (الإطفاء في تايلاند؛ أو رقم الطوارئ في بلدك مثل 112 أو 998) وقل العنوان بوضوح.', 'إذا كان هناك دخان: انخفض قريبًا من الأرض وغطِّ أنفك بقطعة قماش مبللة. المس الباب قبل فتحه — إن كان ساخنًا فلا تفتحه.', 'إذا لم تستطع الخروج: أغلق الباب، وسدّ الفتحة بقماش مبلل، وقف عند النافذة ولوّح بضوء الهاتف.'], 'أين أنت الآن، وهل معك أحد؟')
+```
+
 **violence**
 
 ```text
@@ -1425,6 +1455,12 @@
 
 ```text
 ('यह आपातकाल है — पहले कॉल करें।', ['अभी 1669 पर कॉल करें (भारत में: 112), पता और लक्षण बताएँ।', 'अगर साँस नहीं ले रहे या जवाब नहीं दे रहे: छाती के बीच में ज़ोर से दबाएँ, मिनट में 100–120 बार, फ़ोन पर दिए निर्देश मानें।', 'पानी या खाना न दें। जो दवा ली है उसका पैकेट डॉक्टर को दिखाने के लिए रखें।'], 'क्या अभी मरीज़ के पास कोई है?')
+```
+
+**disaster**
+
+```text
+('आपकी जान सबसे ज़रूरी है — सामान फिर मिल जाएगा।', ['199 पर कॉल करें (थाईलैंड फ़ायर ब्रिगेड; भारत में: 101 या 112), पता साफ़ बताएं।', 'धुआं हो तो: जितना हो सके नीचे झुकें, गीले कपड़े से नाक ढकें। दरवाज़ा खोलने से पहले छूकर देखें — गरम हो तो न खोलें।', 'बाहर न निकल पाएं तो: दरवाज़ा बंद करें, दरार को गीले कपड़े से बंद करें, खिड़की पर जाकर फ़ोन की टॉर्च से इशारा करें।'], 'आप अभी कहाँ हैं, और क्या कोई आपके साथ है?')
 ```
 
 **violence**

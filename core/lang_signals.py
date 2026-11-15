@@ -559,6 +559,35 @@ WORLD_FIRE = (
 WORLD_URGENT["help"] += "|" + WORLD_FIRE
 WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
 
+# รอบสุ่ม 14: ชุดเดียวกันใน it tr ar hi tl ms — เดิมหลุด 29 จาก 30 ข้อ (ควรให้เจ้าของภาษาตรวจ: docs/TRANSLATION_REVIEW.md)
+WORLD_URGENT["medical"] += (
+    r"|si\s+(?:è|e)\s+soffocat[oa]|sta\s+soffocando|(?:ha\s+)?(?:bevuto|ingoiato)\s+(?:la\s+|il\s+|della\s+|del\s+)?(?:candeggina|varechina|detersivo|veleno)|dolore\s+al\s+petto[^.!?\n]{0,25}(?:suda|sudore|braccio\s+sinistro|respira\s+male)"
+    r"|boğuluyor|(?:çamaşır\s+suyu|deterjan|zehir|ilaç)\S*\s+içti|göğs(?:ü|üm)\s+ağrıyor[^.!?\n]{0,25}(?:terl|ter\s+|sol\s+kol|nefes)"
+    r"|يختنق|تختنق|(?:شرب|شربت|ابتلع|ابتلعت)\s+(?:ال)?(?:كلور|مبيض|منظف|سم)|ألم\s+في\s+صدر[^.!?\n]{0,25}(?:يتعرق|تتعرق|عرق|ذراع)"
+    r"|घुट\s+रहा|घुट\s+रही|दम\s+घुट|(?:ब्लीच|फिनाइल|कीटनाशक|ज़हर|जहर)\s+(?:पी|खा|निगल)\s+(?:लिया|ली)|सीने\s+में\s+दर्द[^।!?\n]{0,30}(?:पसीना|बायां\s+हाथ|सांस)"
+    r"|nabulunan|nabilaukan|(?:uminom|ininom|nakainom)\s+ng\s+(?:zonrox|bleach|lason|muriatic)|masakit\s+ang\s+dibdib[^.!?\n]{0,30}(?:pinagpapawisan|pawis|kaliwang\s+braso|hirap\s+huminga)"
+    r"|tercekik|(?:minum|telan)\s+(?:peluntur|clorox|racun|cecair\s+pencuci)|sakit\s+dada[^.!?\n]{0,25}(?:berpeluh|peluh|sesak|lengan\s+kiri)"
+)
+WORLD_URGENT["violence"] += (
+    r"|(?:ha|hanno)\s+forzato\s+(?:la\s+)?porta|(?:è|e|sono)\s+entrat[oiae]\s+(?:con\s+la\s+forza\s+)?in\s+casa|ladr[oi]\s+in\s+casa"
+    r"|kapıyı\s+kırıp|evime\s+(?:zorla\s+)?girdi|eve\s+hırsız\s+girdi"
+    r"|كسر\s+(?:ال)?باب|(?:دخل|اقتحم)\s+(?:ال)?(?:بيت|منزل)ي?|لص\s+في\s+(?:ال)?بيت"
+    r"|दरवाज़ा\s+तोड़|दरवाजा\s+तोड़|घर\s+में\s+घुस\s+(?:गया|आया|गए|आए)|चोर\s+घुस"
+    r"|sumira\s+ng\s+pinto|pumasok\s+sa\s+bahay\s+namin\s+nang\s+sapilitan|(?:may\s+)?(?:magnanakaw|nakapasok)\s+sa\s+bahay"
+    r"|pecah\s+pintu|pecah\s+masuk\s+rumah|ada\s+(?:orang|pencuri)\s+masuk\s+rumah"
+)
+_FIRE_MORE = (
+    r"|(?:la\s+mia\s+)?casa\s+sta\s+bruciando|c'(?:è|e)\s+un\s+incendio\s+in\s+casa"
+    r"|evim\s+yanıyor|evde\s+yangın\s+var"
+    r"|بيتي\s+يحترق|منزلي\s+يحترق|حريق\s+في\s+(?:ال)?(?:بيت|منزل)"
+    r"|घर\s+में\s+आग\s+(?:लगी|लग\s+गई)"
+    r"|nasusunog\s+ang\s+bahay|may\s+sunog\s+sa\s+bahay"
+    r"|rumah\s+(?:saya\s+)?terbakar"
+)
+WORLD_FIRE += _FIRE_MORE
+WORLD_URGENT["help"] += _FIRE_MORE
+WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
