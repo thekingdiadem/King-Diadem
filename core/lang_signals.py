@@ -133,7 +133,24 @@ SELF_HARM_PASSIVE = (
 )
 
 
-SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_PASSIVE   # ผู้ใช้ทุกที่ (kernel_voice วิกฤต · llm_gemini ความปลอดภัย) ได้แบบอ้อมด้วย
+# สัญญาณเตือนแบบอ้อม (เทสต์สุ่มรอบ 5 · เดิมหลุดทั้ง 5 ภาษา): แจกของรัก · ไม่อยากเป็นภาระ · ไม่มีใครสังเกตถ้าไม่มีเรา ·
+# อยากไปหาคนที่เสียไป · ถือมีดแล้วไม่ไหว — แบบเดียวกับ INDIRECT_SELF ภาษาไทย
+SELF_HARM_INDIRECT = (
+    re.compile(r"大切な(?:もの|物)を?[^。！？\n]{0,12}(?:全部|みんな|すべて)?(?:あげた|譲った|手放した)|(?:もう)?誰の(?:迷惑|負担|重荷)にも?なりたくない|"
+               r"(?:いなくなっても|消えても|死んでも)[^。！？\n]{0,8}誰も(?:気づかない|気にしない|悲しまない)|(?:死んだ|亡くなった)(?:母|父|ママ|パパ|友達|彼氏|彼女|夫|妻|子)に会いに行きたい|"
+               r"(?:ナイフ|包丁|刃物)[^。！？\n]{0,6}持って[^。！？\n]{0,10}(?:無理|限界|もうだめ)"),
+    re.compile(r"把?(?:心爱|心愛|珍贵|珍貴|重要)的东?西?[^。！？\n]{0,10}(?:都|全)(?:送|给|給)|不想再?(?:成为|成為|当|當)?(?:别人|別人|任何人|大家|家人)的(?:负担|負擔|累赘)|"
+               r"(?:不在了?|消失了?|死了)[^。！？\n]{0,10}(?:没人|沒人|没有人|沒有人)(?:会|會)?(?:注意|发现|發現|在乎|难过)|想去(?:见|見|找)(?:去世|过世|過世|死去)的|"
+               r"拿着?刀[^。！？\n]{0,10}(?:受不了|撑不住|撐不住|不行了)"),
+    re.compile(r"아끼는\s*(?:물건|것)(?:을|들을)?[가-힯\s]{0,12}다\s*줬|(?:누구에게도|아무에게도|더\s*이상)[가-힯\s]{0,10}짐이\s*되고\s*싶지\s*않|"
+               r"(?:내가|제가)\s*없어도\s*아무도\s*(?:모를|모르|신경\s*안|슬퍼하지)|돌아가신\s*\S+\s*(?:보러|만나러|따라)\s*가고\s*싶|칼을?\s*들고[가-힯\s]{0,10}(?:못\s*하겠|힘들|끝)"),
+    re.compile(r"\bregal[ée]\s+(?:todas\s+)?mis\s+cosas|\bno\s+quiero\s+ser\s+(?:una\s+)?carga\b|\bsi\s+(?:mañana\s+)?no\s+estoy\b[^.!?\n]{0,25}\bnadie\s+(?:lo\s+)?(?:notar|se\s+dar)|"
+               r"\bquiero\s+(?:ir\s+con|ver\s+a)\s+mi\s+(?:madre|mam[áa]|padre|pap[áa]|herman[oa]|hij[oa])\s+que\s+(?:muri|falleci)|\btengo\s+un\s+cuchillo\b[^.!?\n]{0,20}\bno\s+(?:puedo|aguanto)", re.I),
+    re.compile(r"cho\s+(?:bạn\s+bè\s+|mọi\s+người\s+)?hết\s+(?:những\s+)?(?:thứ|đồ)|không\s+muốn\s+(?:làm|là)\s+gánh\s+nặng|không\s+còn\s+(?:nữa\s+)?thì[^.!?\n]{0,25}(?:chẳng|không)\s+ai\s+(?:để\s+ý|quan\s+tâm|nhận\s+ra)|"
+               r"muốn\s+(?:đi\s+)?gặp\s+(?:mẹ|bố|ba|má)\s+(?:đã\s+)?(?:mất|qua\s+đời)|cầm\s+dao[^.!?\n]{0,20}(?:không\s+chịu\s+nổi|hết\s+chịu)", re.I),
+)
+
+SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_PASSIVE + SELF_HARM_INDIRECT   # ผู้ใช้ทุกที่ (kernel_voice วิกฤต · llm_gemini ความปลอดภัย) ได้แบบอ้อมด้วย
 
 
 def self_harm_intl(text) -> bool:
@@ -261,15 +278,17 @@ URGENT_INTL = (
     ("medical", "health_emergency", {
         "zh": r"晕倒|昏倒|昏迷|叫不醒|下药|下藥|流血不止|血流不止|吞了(?:电池|電池|纽扣|硬币)|困在电梯|困在電梯|(?:狗|猫)咬|狂犬|没有呼吸|沒有呼吸|不能呼吸|喘不过气|胸口(?:剧痛|很痛|疼)|心脏病发|中风|抽搐|大出血|吃了(?:很多|一整瓶|整瓶)?(?:药|安眠药)|喝了农药|溺水|吞了(?:一[个颗枚])?(?:纽扣)?(?:电池|電池|磁铁|磁鐵|硬币|硬幣)|喝了(?:漂白水|漂白剂|消毒水)|溺水|(?:掉|落|摔)(?:进|到|入)(?:了)?(?:水|河|湖|海|泳池|游泳池|水池)",
         "ja": r"蛇に噛まれ|倒れ(?:た|ている)|起きない|何か入れられ|出血が止まらない|電池を飲み込|閉じ込められ|犬に噛まれ|狂犬|意識がない|息をしていない|呼吸(?:が|できない)|胸が(?:痛|苦し)|心臓発作|脳卒中|けいれん|大量出血|薬を(?:たくさん|大量に)飲|溺れ|(?:ボタン)?電池を(?:飲み込|飲ん)|磁石を(?:飲み込|飲ん)|漂白剤を飲|溺れ(?:た|ている|そう)|(?:プール|川|海|池)に落ち",
-        "ko": r"뱀에\s*물렸|쓰러졌|안\s*깨어나|약\s*탄\s*술|피가\s*안\s*멈|건전지를?\s*삼켰|갇혔|개한테\s*물렸|광견병|의식이\s*없|숨을\s*안\s*쉬|숨을\s*못\s*쉬|숨이\s*안\s*쉬어|가슴이\s*(?:너무\s*)?아파|심장마비|뇌졸중|경련|피가\s*멈추지\s*않|약을\s*(?:많이|한\s*통)|물에\s*빠졌|(?:건전지|배터리|자석|동전)[을를]?\s*삼켰|락스[를을]?\s*마셨|물에\s*빠졌|익사|수영장에\s*빠졌",
+        "ko": r"(?:술|만취)[가-힯\s]{0,12}깨워도\s*안\s*일어나|깨워도\s*(?:안|못)\s*일어나|뱀에\s*물렸|쓰러졌|안\s*깨어나|약\s*탄\s*술|피가\s*안\s*멈|건전지를?\s*삼켰|갇혔|개한테\s*물렸|광견병|의식이\s*없|숨을\s*안\s*쉬|숨을\s*못\s*쉬|숨이\s*안\s*쉬어|가슴이\s*(?:너무\s*)?아파|심장마비|뇌졸중|경련|피가\s*멈추지\s*않|약을\s*(?:많이|한\s*통)|물에\s*빠졌|(?:건전지|배터리|자석|동전)[을를]?\s*삼켰|락스[를을]?\s*마셨|물에\s*빠졌|익사|수영장에\s*빠졌",
+        "vi": r"(?:say|uống)[^.!?\n]{0,20}(?:gọi\s+(?:mãi\s+)?không\s+tỉnh|bất\s+tỉnh)|bất\s+tỉnh|không\s+thở|ngất\s+xỉu",
         "es": r"est[áa]\s+sangrando|se\s+desmay[óo]|inconsciente|no\s+respira|no\s+(?:se\s+)?despierta|no\s+reacciona|no\s+responde(?!\s+(?:el|los|mis|a\s+mis)\s+(?:mensajes?|correos?|llamadas?))|no\s+puedo\s+respirar|dolor\s+(?:fuerte\s+)?(?:en\s+el|de)\s+pecho|infarto|derrame\s+cerebral|convulsi|sangra\s+mucho|se\s+tom[óo]\s+(?:muchas|todas\s+las)\s+pastillas|se\s+est[áa]\s+ahogando|se\s+trag[óo]\s+(?:una?\s+)?(?:pila|bater[ií]a|im[áa]n|moneda)|(?:tom[óo]|bebi[óo])\s+(?:lej[íi]a|cloro)|se\s+(?:cay[óo]|ha\s+ca[ií]do)\s+(?:a|en)\s+(?:la\s+|el\s+)?(?:piscina|alberca|pileta|r[ií]o|agua|mar|lago|canal)|se\s+ahog[óo]|no\s+abre\s+los\s+ojos",
     }),
     ("violence", "violence", {
-        "zh": r"(?:被|挨)[^。！？\n]{0,4}?(?:打|殴打|家暴|强奸|性侵)|[他她](?:又|一直|总是|老是|经常|天天)?(?:打|揍)(?:了)?我(?!电话|電話|手机|手機|的电话|微信|一下电话)|打(?:我|了我)?(?:妈|媽|妈妈|媽媽|爸|孩子)|要杀(?:了)?孩子|要殺(?:了)?孩子|扣(?:了)?(?:我的)?(?:护照|護照)|(?:护照|護照)被(?:扣|没收|沒收)|(?:老公|丈夫|老婆|男朋友|爸爸|妈妈)[^。！？\n]{0,3}?打我|家暴|"
+        "zh": r"陌生人[^。！？\n]{0,8}(?:开|開|撬|拧|擰)(?:我的?)?门|(?:被|挨)[^。！？\n]{0,4}?(?:打|殴打|家暴|强奸|性侵)|[他她](?:又|一直|总是|老是|经常|天天)?(?:打|揍)(?:了)?我(?!电话|電話|手机|手機|的电话|微信|一下电话)|打(?:我|了我)?(?:妈|媽|妈妈|媽媽|爸|孩子)|要杀(?:了)?孩子|要殺(?:了)?孩子|扣(?:了)?(?:我的)?(?:护照|護照)|(?:护照|護照)被(?:扣|没收|沒收)|(?:老公|丈夫|老婆|男朋友|爸爸|妈妈)[^。！？\n]{0,3}?打我|家暴|"
               r"(?:要|说要|威胁要?|想)[^。！？\n]{0,3}?杀(?:了|死)?我|被[^。！？\n]{0,4}?(?:关|锁|囚禁)在|被威胁",
-        "ja": r"(?:に|から)(?:殴られ|叩かれ|蹴られ|暴力を振るわれ|襲われ)|(?:母|父|妻|子供)を殴|(?:子供|子ども)を殺す|DV|性的暴行|レイプ|殺す(?:ぞ)?と(?:脅|言われ)|殺される|閉じ込められ|監禁",
-        "ko": r"(?:한테|에게)\s*(?:맞았|맞고|폭행|성폭행)|(?:엄마|아빠|아내|애|아이)를\s*때려|아이를?\s*죽이겠|때려요|때렸어|가정폭력|성폭력|죽인다고|죽이겠다고|협박|갇혀\s*있|감금",
-        "es": r"me\s+(?:peg[óoa]|golpe[óoa]|golpea|maltrata|viol[óo])|violencia\s+(?:doméstica|domestica|de\s+género)|abus[óo]\s+de\s+m[ií]|amenaz[óa]ron\s+de\s+muerte|me\s+amenaz|me\s+quiere\s+matar|va\s+a\s+matarme|encerrad[oa]|me\s+tienen?\s+encerrad",
+        "ja": r"知らない(?:人|男|女)が[^。！？\n]{0,8}(?:ドア|扉|鍵)を?(?:開けよう|こじ開け|ガチャガチャ)|(?:に|から)(?:殴られ|叩かれ|蹴られ|暴力を振るわれ|襲われ)|(?:母|父|妻|子供)を殴|(?:子供|子ども)を殺す|DV|性的暴行|レイプ|殺す(?:ぞ)?と(?:脅|言われ)|殺される|閉じ込められ|監禁",
+        "ko": r"모르는\s*사람(?:이|가)?[가-힯\s]{0,12}문을?\s*(?:열려|따려|두드리)|(?:한테|에게)\s*(?:맞았|맞고|폭행|성폭행)|(?:엄마|아빠|아내|애|아이)를\s*때려|아이를?\s*죽이겠|때려요|때렸어|가정폭력|성폭력|죽인다고|죽이겠다고|협박|갇혀\s*있|감금",
+        "vi": r"(?:người\s+lạ|ai\s+đó)[^.!?\n]{0,15}(?:cố\s+)?(?:mở|phá|cạy)\s+cửa|(?:bị|đang\s+bị)\s+(?:đánh|đập|bạo\s+hành)",
+        "es": r"(?:alguien|un\s+desconocido|un\s+extraño)\s+(?:est[áa]\s+)?(?:intentando|tratando\s+de)\s+(?:abrir|forzar|entrar\s+por)\s+(?:mi\s+)?(?:la\s+)?puerta|me\s+(?:peg[óoa]|golpe[óoa]|golpea|maltrata|viol[óo])|violencia\s+(?:doméstica|domestica|de\s+género)|abus[óo]\s+de\s+m[ií]|amenaz[óa]ron\s+de\s+muerte|me\s+amenaz|me\s+quiere\s+matar|va\s+a\s+matarme|encerrad[oa]|me\s+tienen?\s+encerrad",
     }),
     ("disaster", "disaster", {
         "zh": r"地震了|地震|着火了|著火了|失火|火灾|火災|发大水|洪水|海啸|海嘯|煤气泄漏|瓦斯外洩|燃气泄漏|山体滑坡|泥石流",
@@ -490,6 +509,20 @@ WORLD_URGENT = {
         r"يدعي\s+أنه\s+شرطي|पुलिस\s+बनकर|giả\s+công\s+an|lừa\s+đảo|ត្រូវគេបោក|បោកប្រាស់|"
         r"(?:украли|сперли)\s+паспорт|سرقوا\s+جواز|me\s+robaron\s+el\s+pasaporte"),
 }
+# สัญญาณเตือนแบบอ้อม (เทสต์สุ่มรอบ 5) — แจกของรัก · ไม่อยากเป็นภาระ · ไม่มีใครสังเกตถ้าไม่มีเรา · อยากไปหาคนที่เสียไป
+# เฉพาะภาษาที่มั่นใจคำแปล (เวียดนาม อินโด/มาเลย์ ฝรั่งเศส เยอรมัน โปรตุเกส รัสเซีย) — ภาษาอื่นควรให้เจ้าของภาษาตรวจก่อนเพิ่ม
+WORLD_URGENT["crisis"] += (
+    r"|cho\s+(?:bạn\s+bè\s+|mọi\s+người\s+)?hết\s+(?:những\s+)?(?:thứ|đồ)|không\s+muốn\s+(?:làm|là)\s+gánh\s+nặng|không\s+còn\s+(?:nữa\s+)?thì[^.!?\n]{0,25}(?:chẳng|không)\s+ai\s+(?:để\s+ý|quan\s+tâm|nhận\s+ra)|"
+    r"muốn\s+(?:đi\s+)?gặp\s+(?:mẹ|bố|ba|má)\s+(?:đã\s+)?(?:mất|qua\s+đời)|cầm\s+dao[^.!?\n]{0,20}(?:không\s+chịu\s+nổi|hết\s+chịu)|"
+    r"tidak\s+mau\s+(?:jadi|menjadi)\s+beban|tak\s+mahu\s+(?:jadi|menjadi)\s+beban|kalau\s+aku\s+(?:tidak\s+ada|hilang)[^.!?\n]{0,20}tidak\s+ada\s+yang\s+(?:peduli|sadar)|"
+    r"je\s+ne\s+veux\s+plus\s+[êe]tre\s+un\s+fardeau|personne\s+ne\s+(?:remarquerait|verrait)\s+si\s+je\s+(?:disparaissais|n['’][ée]tais\s+plus\s+l[àa])|j['’]ai\s+donn[ée]\s+toutes\s+mes\s+affaires|"
+    r"ich\s+will\s+niemandem\s+mehr\s+zur\s+last\s+fallen|niemand\s+w[üu]rde\s+(?:es\s+)?merken,?\s+wenn\s+ich\s+(?:weg|nicht\s+mehr\s+da)\s+w[äa]re|"
+    r"n[ãa]o\s+quero\s+(?:mais\s+)?ser\s+um\s+fardo|ningu[ée]m\s+(?:ia|iria)\s+(?:perceber|notar)\s+se\s+eu\s+(?:sumisse|n[ãa]o\s+estivesse)|"
+    r"не\s+хочу\s+(?:больше\s+)?быть\s+обузой|никто\s+не\s+заметит,?\s+если\s+меня\s+не\s+станет|раздал[аи]?\s+(?:все\s+)?свои\s+вещи"
+)
+WORLD_URGENT["medical"] += r"|(?:say|uống)[^.!?\n]{0,20}gọi\s+(?:mãi\s+)?không\s+(?:tỉnh|dậy)|mabuk[^.!?\n]{0,20}tidak\s+bangun|ivre[^.!?\n]{0,20}ne\s+se\s+r[ée]veille\s+pas|betrunken[^.!?\n]{0,20}wacht\s+nicht\s+auf"
+WORLD_URGENT["violence"] += r"|(?:người\s+lạ|ai\s+đó)[^.!?\n]{0,15}(?:cố\s+)?(?:mở|phá|cạy)\s+cửa|(?:orang\s+asing|seseorang)[^.!?\n]{0,15}(?:mencoba|coba)\s+(?:membuka|buka)\s+pintu|quelqu['’]un\s+essaie\s+d['’]ouvrir\s+(?:ma\s+)?(?:la\s+)?porte|jemand\s+versucht,?\s+(?:meine\s+|die\s+)?t[üu]r\s+zu\s+[öo]ffnen"
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 

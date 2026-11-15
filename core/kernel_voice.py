@@ -2916,6 +2916,18 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             o, ps, q = _intent.STEPS["en"][it]
             return (o + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(ps))
                     + f"\n\n{q}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
+        # ภาษาโลก 48 ภาษาที่ตัวแยกภาษาหลักอ่านผิดเป็นอังกฤษ/สเปน ("hôm nay vui quá" เคยได้คำตอบภาษาสเปน)
+        # → คำตอบทั่วไปในภาษาของผู้ใช้เอง (core/world_replies)
+        if not a["crisis"]:
+            try:
+                from core.world_replies import world_lang as _wl, compose_world as _cw
+                wl = _wl(text) or ("vi" if script_lang(text) == "vi" else None)
+                if wl and wl not in ("en", "es", "zh", "ja", "ko", "th"):
+                    w = _cw(wl, "general", status_line(a, wl) if wl == "vi" else "", sign, footer)
+                    if w:
+                        return w
+            except Exception:
+                pass
         return compose_intl(lang, a["crisis"], status, sign, footer)
 
     # ── ถามถึงที่มาของระบบ (core/creator_story — ไม่มีชื่อหรือวันเกิดของผู้สร้าง) ──
