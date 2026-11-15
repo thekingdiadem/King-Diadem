@@ -688,6 +688,10 @@ URGENT_BODY = re.compile(
     r"\bcan'?t stop the bleeding\b|\blots? of blood\b|\bblood\b[^\n]{0,30}?\b(?:soak(?:ing|ed|s)? (?:through|into)|pouring|spurting|gushing|won'?t stop)\b|\bsoak(?:ing|ed) through\b[^\n]{0,30}?\b(?:towels?|bandages?|cloths?|shirts?|gauze)\b|\bstung by an? (?:bee|wasp|hornet)\b[^\n]{0,40}?\b(?:swell|can'?t breathe|trouble breathing)|"
     r"\b(?:face|lips|tongue|throat) (?:is |are )?(?:swelling|swollen)\b[^\n]{0,30}?\b(?:breath|after eating|ate)|\bheat ?stroke\b|"
     r"\b(?:very )?drunk\b[^\n]{0,20}?\b(?:won'?t|can'?t|doesn'?t) wake\b|\bwon'?t wake up\b|\bpassed out drunk\b|"
+    # รอบสุ่ม 24: ยาเกินขนาด/ยาตีกัน (อังกฤษ) — เด็กดื่มยาแก้ไอทั้งขวด · เหล้า+ยานอนหลับแล้วหายใจช้า · ยาความดันซ้ำ
+    r"\b(?:kid|child|son|daughter|toddler|baby)\b[^\n]{0,20}?\b(?:drank|swallowed|ate|took)\s+(?:a\s+|the\s+)?(?:whole|entire|full)\s+(?:bottle|pack|box|strip)\b|"
+    r"\b(?:drank|drinking|alcohol|beer|wine)\b[^\n]{0,30}?\b(?:sleeping\s+pills?|benzos?|xanax|valium|opioids?|oxy\w*)\b[^\n]{0,40}?\b(?:breathing\s+(?:really\s+|very\s+)?slow|won'?t\s+wake|blue\s+lips|passed\s+out)\b|"
+    r"\btook\s+(?:her|his|my|their)\s+[\w\s]{0,20}?pills?\s+twice\b[^\n]{0,40}?\b(?:dizzy|faint|slow\s+heart|chest|confused)\b|"
     # รอบสุ่ม 22: อุบัติเหตุ (อังกฤษ) — ชนคนแล้วไม่ขยับ · ตกที่สูงแล้วขาไม่รู้สึก · นิ้วขาด
     r"\bhit\s+(?:a|the|an?\s+old)\s+(?:pedestrian|person|man|woman|kid|child|cyclist|biker|motorcyclist)\b[^\n]{0,40}?\b(?:not\s+moving|unconscious|bleeding|not\s+breathing|won'?t\s+wake)\b|"
     r"\b(?:fell|fallen)\s+(?:from|off)\b[^\n]{0,30}?\b(?:can'?t|cannot)\s+(?:feel|move)\s+(?:my|his|her)\s+(?:legs|arms|body|neck)\b|"
