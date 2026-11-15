@@ -26,3 +26,14 @@ def test_vietnamese_emergency_answered_in_vietnamese(q, start):
 @pytest.mark.parametrize("q", ["洗剤を買いに行った", "喉に詰まらせないように小さく切った", "我喝了水", "목에 걸린 가시 빼는 법", "me atraganté de risa"])
 def test_everyday_stays_calm(q):
     assert assess(q)["risk_shown"] < 60
+
+
+@pytest.mark.parametrize("q", ["胸が痛いほど感動した", "Tôi đau ngực vì cười nhiều quá"])
+def test_chest_idioms_and_laughing_stay_calm(q):
+    # สำนวน "ซึ้งจนเจ็บหัวใจ" / เจ็บหน้าอกเพราะหัวเราะ — เคยได้ 85
+    assert assess(q)["risk_shown"] < 60
+
+
+@pytest.mark.parametrize("q", ["胸が痛い", "đau ngực dữ dội", "bố tôi đau ngực và vã mồ hôi"])
+def test_real_chest_pain_still_heard(q):
+    assert assess(q)["risk_shown"] >= 65
