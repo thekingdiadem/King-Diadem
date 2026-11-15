@@ -228,6 +228,8 @@ UPGRADES += [
                 r"\b(?:machine|press|grinder|conveyor|auger)\s+(?:pulled|caught|crushed|grabbed)\s+(?:my\s+)?(?:\w+'s\s+)?(?:arm|hand|leg|hair|fingers?)\b|"
                 r"\b(?:coworker|worker|colleague|he|she)\s+(?:just\s+)?fell\s+(?:from|off)\s+(?:the\s+)?(?:roof|scaffold|ladder|height|building)\b)"), "health_emergency"),
 ]
+# รอบสุ่ม 37: กดลิงก์แล้วเงินในบัญชีหาย (อังกฤษ) — เดิมได้ 0
+UPGRADES += [(re.compile(r"(?i:\bclicked\s+(?:a|the|on\s+a|on\s+the)\s+(?:\w+\s+){0,3}link\b[^\n]{0,40}?\b(?:account|bank|wallet)\b[^\n]{0,20}?\b(?:is\s+)?(?:empty|drained|emptied|cleaned\s+out|money\s+(?:is\s+)?gone)\b)"), "scam")]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
