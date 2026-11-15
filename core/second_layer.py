@@ -210,11 +210,12 @@ UPGRADES += [
 # เดิมหลุด 8 จาก 10 ข้อ
 UPGRADES += [
     (re.compile(r"(?:มีคน|ผู้ชาย|คนแปลกหน้า|ใครไม่รู้)\S{0,4}(?:เดิน|ขับรถ)?ตาม(?:หลัง)?มา[^\n]{0,30}?(?:ยัง|ตอนนี้|ตั้งแต่|ไม่ยอม)|"
-                r"(?:แท็กซี่|คนขับ|grab|แกร็บ|วิน)[^\n]{0,30}?(?:ล็อกประตู|ไม่ยอมให้ลง|ไม่ให้ลง|ไม่ยอมจอด)|"
+                r"(?i:แท็กซี่|คนขับ|grab|แกร็บ|วิน|taxi|driver|uber|bolt)[^\n]{0,30}?(?:ล็อกประตู|ไม่ยอมให้ลง|ไม่ให้ลง|ไม่ยอมจอด)|"
                 r"(?:แฟนเก่า|สามีเก่า|ใครไม่รู้)?\S{0,4}(?:แอบ)?ติด\s?(?:GPS|จีพีเอส|เครื่องติดตาม|แท็ก)[^\n]{0,30}?(?:ตามมา|ตามไป|โผล่|มาดัก)|"
                 r"(?i:\b(?:taxi|driver|uber|cab)\b[^\n]{0,40}?\block(?:ed|s)?\s+the\s+doors?\b|\bwon'?t\s+let\s+me\s+(?:get\s+)?out\s+of\s+the\s+(?:car|taxi|cab)\b|"
                 r"\b(?:put|planted|hid)\s+a\s+(?:tracker|gps|airtag|tracking\s+device)\b[^\n]{0,40}?\b(?:showed\s+up|following|followed|waiting)\b)"), "violence"),
     (re.compile(r"(?:ใส่|ผสม|หยอด)(?:อะไร|ยา|ผง)?\S{0,4}ใน(?:แก้ว|เครื่องดื่ม|น้ำ)[^\n]{0,30}?(?:มึน|เวียน|หน้ามืด|ง่วง|ไม่ค่อยรู้สึกตัว|ตัวอ่อน)|"
+                r"(?i:\b(?:put|slipped)\s+something\s*ใน(?:แก้ว|เครื่องดื่ม)[^\n]{0,30}?(?:dizzy|มึน|เวียน|weird))|"
                 r"(?i:\b(?:put|slipped|dropped)\s+something\s+in(?:to)?\s+(?:my|her|his)\s+drink\b[^\n]{0,40}?\b(?:dizzy|drowsy|can'?t\s+stand|confused|blacking\s+out|weird)\b)"), "health_emergency"),
     (re.compile(r"(?:ไปเดท|นัดเจอ|ไปเจอ)[^\n]{0,30}?(?:แอป|ออนไลน์|ทินเดอร์|tinder)[^\n]{0,30}?(?:ไม่ติดต่อ|ติดต่อไม่ได้|หายไป|ปิดเครื่อง)[^\n]{0,20}?(?:ชั่วโมง|วัน|คืน)|"
                 r"(?i:\b(?:dating\s+app|tinder|bumble|hinge|met\s+online)\b[^\n]{0,40}?\b(?:hasn'?t\s+(?:answered|replied|come\s+back)|not\s+answering|phone\s+is\s+off|missing)\b)"), "missing"),
