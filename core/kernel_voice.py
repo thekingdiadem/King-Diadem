@@ -2315,6 +2315,13 @@ from core.problem_lens_more import _CAT_URINARY as _CU_SRC
 # รอบสุ่ม 28: หมาท้องบวม + พยายามอ้วกแต่ไม่ออก = กระเพาะบิด (GDV) ตายได้ในไม่กี่ชั่วโมง — เดิมได้ 0
 _CU_SRC += (r"|(?:หมา|สุนัข|น้องหมา)\S{0,6}ท้อง(?:บวม|ป่อง|โต)[^\n]{0,30}?(?:อ้วก|อาเจียน|ขย้อน)(?:\S{0,6})?(?:ไม่(?:มีอะไร)?ออก|แต่ไม่ออก)"
             r"|\bdog'?s?\b[^\n]{0,20}?\b(?:belly|stomach|abdomen)\s+(?:is\s+)?(?:swollen|bloated|distended)\b[^\n]{0,40}?\b(?:trying\s+to\s+(?:vomit|throw\s+up)|retching|dry\s+heav)")
+# รอบสุ่ม 46: สัตว์เลี้ยงฉุกเฉิน (ja zh ko es vi) — ช็อกโกแลต+สั่น · แมวกัดลิลลี่ · หมาท้องบวมอ้วกไม่ออก (เดิมหลุด 14/15)
+_CU_SRC += (r"|(?:犬|狗|강아지|개|perro|chó)[^\n]{0,30}?(?:チョコ|巧克力|초콜릿|chocolate|sô\s*cô\s*la)[^\n]{0,20}?(?:震え|发抖|發抖|떨|tembland|run)"
+            r"|(?:猫|고양이|gato|mèo)[^\n]{0,20}?(?:ユリ|百合|백합|lirio|hoa\s+ly)[^\n]{0,6}?(?:をかじ|を食べ|をなめ|を噛|咬|吃|舔|을?\s*씹|을?\s*먹|del|cắn|ăn)"
+            r"|(?:猫|고양이|gato|mèo)[^\n]{0,6}?(?:かじ|咬了|mordi[óo]|cắn)[^\n]{0,12}?(?:ユリ|百合|백합|lirio|hoa\s+ly)"
+            r"|(?:犬|狗|강아지|개|perro|chó)[^\n]{0,12}?(?:お腹|肚子|배|panza|barriga|bụng)[^\n]{0,24}?(?:膨れ|胀|脹|부풀|빵빵|hinchad|căng|phồng)[^\n]{0,40}?(?:何も出ない|吐不出|안\s*나와|no\s+sale|không\s+ra)"
+            r"|(?:panza|barriga|est[óo]mago)\s+de\s+mi\s+perr[oa][^\n]{0,30}?hinchad[^\n]{0,40}?no\s+sale"
+            r"|(?:bụng\s+chó)[^\n]{0,20}?(?:căng|phồng)[^\n]{0,30}?không\s+ra")
 _CAT_URINARY_RX = re.compile(_CU_SRC, re.I)
 _HEAT_SYMPTOM = re.compile(r"(?:ร้อน(?:จัด|มาก)|อากาศร้อน|กลางแดด|ตากแดด|หน้างานร้อน|\d{2}\s?องศา|\bheat\b|\bin the sun\b)[^\n]{0,40}?"
                            r"(?:เวียนหัว|คลื่นไส้|อาเจียน|หน้ามืด|อ่อนเพลีย|ใจสั่น|ตะคริว|ปวดหัว|\bdizzy\b|\bnause\w*|\bfaint\w*|\bcramps?\b|\bheadache\b)|"
