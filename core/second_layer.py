@@ -240,6 +240,15 @@ UPGRADES += [
     (re.compile(r"(?:หายใจไม่อิ่ม|หอบ|เจ็บหน้าอก)[^\n]{0,20}?ขาบวมข้างเดียว|ขาบวมข้างเดียว[^\n]{0,30}?(?:หายใจไม่อิ่ม|หอบ|เจ็บหน้าอก)|"
                 r"(?i:\b(?:vomiting|throwing\s+up)\s+(?:black|coffee[- ]ground|blood)\b[^\n]{0,30}?\b(?:belly|stomach|abdomen)\b[^\n]{0,15}?\b(?:rigid|hard|swollen)\b)"), "health_emergency"),
 ]
+# รอบสุ่ม 73: คนใกล้ตัวส่งสัญญาณบอกลา — รูปยาเต็มมือ+ลาก่อน · ขอบคุณแล้วปิดเครื่อง · ขังตัวเองแล้วเงียบ (เดิมหลุด 7/7)
+UPGRADES += [(re.compile(
+    r"(?:โพสต์|ส่ง)(?:รูป)?\S{0,4}ยา(?:เต็มมือ|เป็นกำ|ทั้งแผง)[^\n]{0,20}?(?:ลาก่อน|บอกลา|ขอโทษ)|"
+    r"ขอบคุณที่(?:เป็นเพื่อน|อยู่ด้วย|ดีกับ)[^\n]{0,30}?(?:ปิดเครื่อง|ไม่ตอบ|หายไป|ติดต่อไม่ได้)|"
+    r"ขังตัวเอง(?:อยู่)?ใน(?:ห้อง|ห้องน้ำ)[^\n]{0,30}?(?:เงียบ|ไม่ตอบ|ไม่ออกมา)|"
+    r"(?:บอกว่า)?จะไป(?:กระโดด|ตาย|ฆ่าตัวตาย)[^\n]{0,20}?(?:ไม่รับสาย|ติดต่อไม่ได้|ปิดเครื่อง)|"
+    r"(?i:\bposted\s+a\s+(?:photo|pic|picture)\s+of\s+(?:pills|a\s+handful\s+of\s+pills)\b[^\n]{0,30}?\b(?:goodbye|bye|sorry)\b|"
+    r"\b(?:thanks|thank\s+you)\s+for\s+(?:being\s+my\s+friend|everything)\b[^\n]{0,30}?\b(?:turned\s+off|switched\s+off|not\s+answering|went\s+silent)\b|"
+    r"\blocked\s+(?:him|her|them)sel(?:f|ves)\s+in\b[^\n]{0,50}?\b(?:silent|quiet|not\s+answering|won'?t\s+answer)\b)"), "someone")]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
@@ -292,7 +301,7 @@ _EN_SET = set(EN_UPGRADES)
 _THAI_RUN = re.compile(r"[\u0E00-\u0E7F]+")
 
 _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85, "sexual_abuse": 85,
-            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80}
+            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85}
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
