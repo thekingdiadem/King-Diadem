@@ -751,6 +751,15 @@ WORLD_URGENT["crisis"] += (
     r"|(?:моя\s+дочь|мой\s+сын|мой\s+ребёнок|мой\s+ребенок)\s+(?:режет|ранит)\s+себе\s+(?:руки|запястья)"
 )
 
+# รอบสุ่ม 49: ครรภ์เป็นพิษ · ทารกไม่กี่สัปดาห์มีไข้ · ตกเลือดหลังคลอด ใน id fr de pt ru (เดิมหลุด 14/15)
+WORLD_URGENT["medical"] += (
+    r"|bayi[^.!?\n]{0,20}demam[^.!?\n]{0,20}(?:baru\s+)?\d+\s+(?:minggu|hari)|hamil\s+\d+\s+bulan[^.!?\n]{0,40}(?:sakit\s+kepala\s+hebat|pandangan\s+kabur|pendarahan)"
+    r"|b(?:é|e)b(?:é|e)\s+de\s+\d+\s+(?:semaines|jours)[^.!?\n]{0,20}fi(?:è|e)vre|enceinte\s+de\s+\d+\s+mois[^.!?\n]{0,40}(?:mal\s+de\s+t(?:ê|e)te|vision\s+floue|saign)|apr(?:è|e)s\s+l'accouchement[^.!?\n]{0,40}(?:serviette\s+chaque\s+heure|saigne\s+beaucoup)"
+    r"|\d+\s+wochen\s+alte[sn]?\s+baby[^.!?\n]{0,15}fieber|schwanger\s+im\s+\d+\.?\s+monat[^.!?\n]{0,40}(?:kopfschmerzen|verschwommen|blutung)|nach\s+der\s+geburt[^.!?\n]{0,40}(?:jede\s+stunde|stark\s+blut)"
+    r"|beb(?:ê|e)\s+de\s+\d+\s+(?:semanas|dias)[^.!?\n]{0,20}febre|gr(?:á|a)vida\s+de\s+\d+\s+meses[^.!?\n]{0,40}(?:dor\s+de\s+cabe(?:ç|c)a|vis(?:ã|a)o\s+emba(?:ç|c)ada|sangr)|depois\s+do\s+parto[^.!?\n]{0,40}(?:absorvente\s+por\s+hora|sangr)"
+    r"|реб(?:ё|е)нок\s+(?:двух|трёх|трех|\d+)\s+недел[^.!?\n]{0,20}температур|беременност[ьи]\s+\d+\s+месяц[^.!?\n]{0,50}(?:головная\s+боль|плыв|кровотеч)|после\s+родов[^.!?\n]{0,40}(?:каждый\s+час|сильное\s+кровотеч)"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
