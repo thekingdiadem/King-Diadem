@@ -1400,6 +1400,20 @@ _EN_HINT = re.compile(r"\b(?:the|and|my|is|are|to|you|me|it|i|so|but|dont|cant|w
 _NOT_EN = re.compile(r"\b(?:und|ist|nicht|ich|mein|meine|bin|der|die|das|sehr|ein|eine)\b", re.I)
 
 
+# รอบสุ่ม 95: คำผิดตอนตกใจ — ไทยไม่ใส่สระ/วรรณยุกต์ · คาราโอเกะ · อังกฤษสะกดผิด (เดิมหลุด 10/12)
+# เลือกเฉพาะกลุ่มคำที่ไม่กำกวม (หลายพยางค์ติดกัน) — ไม่แปลงทีละพยางค์ เพื่อไม่กระทบข้อความปกติ
+_PANIC_TYPO = [(re.compile(a, re.I), b) for a, b in [
+    (r"ไมหายใจ", "ไม่หายใจ"), (r"ชวยดวย", "ช่วยด้วย"), (r"ออกไมได", "ออกไม่ได้"), (r"บานไฟไหม(?!้)", "บ้านไฟไหม้"),
+    (r"กลนยา", "กลืนยา"), (r"ทงแผง", "ทั้งแผง"), (r"^ลก(?=กลืน|กลน|กิน|ตก|หาย)", "ลูก"), (r"สามตี(?=หน|ฉ|ผ)", "สามีตี"), (r"ตีหน(?=\s|$)", "ตีหนู"),
+    (r"\bchuay\s+d(?:uay|uai|ooay)\b", "ช่วยด้วย"), (r"\bmai\s+hai\s+jai\b", "ไม่หายใจ"), (r"\byak\s+(?:tai|thai)\b", "อยากตาย"),
+    (r"\bfai\s+mai(?=\s+(?:ok|chuay|ban|laew|yai|tid))|(?<=\bban\s)fai\s+mai\b", "ไฟไหม้"), (r"\bok\s+mai\s+dai\b", "ออกไม่ได้"), (r"\bban\s+(?=ไฟไหม้)", "บ้าน"),
+    (r"\bbreat(?:h)?ing\b", "breathing"), (r"\bbreating\b", "breathing"), (r"\bswal+owed\b", "swallowed"), (r"\bbleech\b", "bleach"),
+    (r"\bwnat\b", "want"), (r"\bwant\s+to\s+dye\b", "want to die"), (r"\bsomone\b", "someone"), (r"\bbreakin\b", "breaking"), (r"\bbreaking\s+in\s+(?=my|our|the)", "breaking into "),
+    (r"\bmy\s+hous\b", "my house"), (r"\bmy\s+sun\s+(?=swallow|drank|ate|fell|is\s+not)", "my son "), (r"\bsuicid\b", "suicide"),
+    (r"\bkil+\s+my\s*self\b", "kill myself"), (r"\bcant\s+breath\b", "can't breathe"), (r"\bunconsious\b", "unconscious"),
+]]
+
+
 def canon_text(text):
     if not isinstance(text, str):
         return text
@@ -1415,6 +1429,8 @@ def canon_text(text):
         t = t.lower()                            # พิมพ์ตัวใหญ่ทั้งประโยค "THERE IS A FLOOD IN MY HOUSE" เคยหลุด
     # ภาษาแชทอังกฤษ (u → you · im → i'm) — เฉพาะข้อความที่มีคำอังกฤษจริง
     # รอบสุ่ม 49: "schwanger im 8. Monat" (เยอรมัน "im" = ใน) เคยถูกแก้เป็น "i'm" จนประโยคพัง
+    for rx, fix in _PANIC_TYPO:
+        t = rx.sub(fix, t)
     if re.search(r"[A-Za-z]", t) and _EN_HINT.search(t) and not _NOT_EN.search(t):
         for rx, full in _CHAT_EN:
             t = rx.sub(full, t)
