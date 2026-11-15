@@ -631,6 +631,17 @@ TOPICS = [
     ("en_infant_fever", [re.compile(r"\bmy (?:baby|newborn|infant)\b[^\n]{0,20}?\bfever\b|\bfever\b[^\n]{0,30}?\b(?:[0-9]|two|three) (?:weeks?|months?) old\b", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
     ("en_preg_bleed", [re.compile(r"\bi'?m pregnant\b[^\n]{0,20}?\bbleeding\b|\bbleeding\b[^\n]{0,20}?\bpregnan", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
     ("en_spiked", [re.compile(r"\bdrink (?:was|got|has been) spiked\b|\bspiked my drink\b", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
+    # รอบสุ่ม 98: หมากระเพาะบิด (GDV) — เดิมได้คำตอบทั่วไป "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน" ไม่บอกให้รีบไปหาสัตวแพทย์
+    ("pet_bloat", [re.compile(r"(?:หมา|สุนัข|น้องหมา)\S{0,6}ท้อง(?:บวม|ป่อง|โต)[^\n]{0,30}?(?:อ้วก|อาเจียน|ขย้อน)|"
+                              r"\bdog'?s?\b[^\n]{0,20}?\b(?:belly|stomach|abdomen)\s+(?:is\s+)?(?:swollen|bloated|distended)\b", re.I)], {
+        "open": ["รีบพาไปโรงพยาบาลสัตว์ตอนนี้เลย — ท้องบวมแล้วอ้วกไม่ออกอาจเป็นกระเพาะบิด ซึ่งรอไม่ได้"],
+        "paths": [
+            "โทรบอกโรงพยาบาลสัตว์ที่เปิด 24 ชม. ว่ากำลังพาไป อาการ \"ท้องบวม อ้วกไม่ออก\" เขาจะเตรียมรับทันที",
+            "ห้ามให้กินน้ำหรืออาหาร ห้ามกดท้อง และอย่ารอดูอาการจนถึงพรุ่งนี้ — กระเพาะบิดแย่ลงเร็วมากในไม่กี่ชั่วโมง",
+            "ระหว่างทางให้นอนในท่าที่สบาย และสังเกตเหงือก: ถ้าซีดหรือม่วง หายใจหอบ หรือล้มลง บอกหมอทันทีที่ถึง",
+        ],
+        "ask": "ตอนนี้ใกล้โรงพยาบาลสัตว์ไหนที่สุด และน้องยังยืนได้ไหม?",
+    }),
     ("pet_hurt", [re.compile(r"(?:หมา|แมว|สุนัข|ลูกหมา|ลูกแมว)\S{0,6}?(?:โดนรถชน|ถูกรถชน|รถทับ|เลือดออก|เดินไม่ได้|ตกตึก)|"
                              r"\bmy (?:dog|cat|puppy|kitten)\b[^\n]{0,20}?\b(?:was hit by a car|got hit|is bleeding|can'?t walk|fell)\b", re.I)], {
         "open": ["รีบหน่อยนะ — สัตว์ที่เจ็บมักซ่อนอาการ"],
@@ -1803,6 +1814,11 @@ EN_TOPIC = {
         "Car broke down: pull over, hazard lights on, stay locked inside if outside isn't safe · lost outdoors: stop moving, stay in an open visible spot, don't walk at night.",
         "Call emergency services if you're unsafe or hurt (191/1669 in Thailand, 911 in the US, 000 in Australia) and describe landmarks around you."],
         "Does anyone know where you are right now?"),
+    "pet_bloat": ("Please take your dog to an emergency vet now — a swollen belly with unproductive retching can be bloat (GDV), which can't wait.", [
+        "Call a 24-hour animal hospital on the way and say \"swollen belly, trying to vomit but nothing comes out\" so they can prepare.",
+        "No food or water, don't press on the belly, and don't wait until morning — bloat gets worse within hours.",
+        "Watch the gums on the way: pale or purple gums, fast breathing or collapse — tell the vet the moment you arrive.",
+    ], "How far is the nearest emergency vet, and can your dog still stand?"),
     "pet_hurt": ("Please hurry — injured animals often hide how hurt they are.", [
         "Approach slowly — even your own pet may bite when in pain. Cover them with a towel or blanket before lifting.",
         "Move them as flat as possible (a board, box or blanket as a stretcher) and press a clean cloth on any bleeding.",
@@ -3073,7 +3089,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     second = lib.get(a["topics"][1]) if len(a["topics"]) > 1 else None
     # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง
     # (เดิม "กินยาเกินขนาด" เสียขั้นที่ 3 ให้ "ใช้สิทธิ์บัตรทอง")
-    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "child_gaming", "consumer", "pet_hurt", "stranded", "teen_leave", "housing", "legal", "diagnosis",
+    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "child_gaming", "consumer", "pet_hurt", "pet_bloat", "stranded", "teen_leave", "housing", "legal", "diagnosis",
                                                            "caregiver", "health_rights", "preg_alone", "preg_care") + _KP.NAMES:
         second = None
     # เลนส์ปัญหา (core/problem_lens.py) — ตัดสินครั้งเดียว: ไม่ใช่วิกฤต · ความเสี่ยงต่ำกว่า 75 (หนี้ที่ "กลัวโดนยึด" ได้ 60 เคยถูกกันออก)
