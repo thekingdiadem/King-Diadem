@@ -872,6 +872,22 @@ WORLD_URGENT["medical"] += (
     r"|hamil\s+\d+\s+bulan[^.!?\n]{0,40}(?:sakit\s+kepala\s+teruk|penglihatan\s+kabur|berdarah)|bayi\s+saya\s+\d+\s+(?:minggu|hari)\s+demam"
 )
 
+# รอบสุ่ม 63: ยึดพาสปอร์ต (violence) · น้ำท่วมถึงหน้าอกติดชั้นบน (fire/trapped) ใน it tr ar hi tl ms (เดิมหลุด 12/12)
+WORLD_URGENT["violence"] += (
+    r"|preso\s+il\s+mio\s+passaporto[^.!?\n]{0,30}non\s+mi\s+lascia|pasaportumu\s+ald(?:ı|i)[^.!?\n]{0,30}izin\s+vermiyor"
+    r"|أخذ\s+جواز\s+سفري[^.!?\n]{0,25}لا\s+يسمح|पासपोर्ट\s+रख\s+लिया[^।!?\n]{0,25}नहीं\s+जाने\s+देता"
+    r"|kinuha\s+ng\s+amo\s+ang\s+pasaporte|ambil\s+pasport\s+saya[^.!?\n]{0,20}tak\s+bagi\s+balik"
+)
+_TRAP = (r"|l'acqua\s+ci\s+arriva\s+al\s+petto|bloccati\s+al\s+piano\s+di\s+sopra"
+         r"|su\s+g(?:ö|o)(?:ğ|g)s(?:ü|u)m(?:ü|u)ze\s+kadar|(?:ü|u)st\s+katta\s+mahsur"
+         r"|الماء\s+وصل\s+إلى\s+صدور|محاصرون\s+في\s+الطابق"
+         r"|पानी\s+छाती\s+तक|ऊपर\s+फंसे"
+         r"|hanggang\s+dibdib\s+na\s+ang\s+tubig|naiipit\s+kami\s+sa\s+itaas"
+         r"|air\s+dah\s+paras\s+dada|terperangkap\s+di\s+tingkat\s+atas")
+WORLD_FIRE += _TRAP
+WORLD_URGENT["help"] += _TRAP
+WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
