@@ -688,6 +688,9 @@ URGENT_BODY = re.compile(
     r"\bcan'?t stop the bleeding\b|\blots? of blood\b|\bblood\b[^\n]{0,30}?\b(?:soak(?:ing|ed|s)? (?:through|into)|pouring|spurting|gushing|won'?t stop)\b|\bsoak(?:ing|ed) through\b[^\n]{0,30}?\b(?:towels?|bandages?|cloths?|shirts?|gauze)\b|\bstung by an? (?:bee|wasp|hornet)\b[^\n]{0,40}?\b(?:swell|can'?t breathe|trouble breathing)|"
     r"\b(?:face|lips|tongue|throat) (?:is |are )?(?:swelling|swollen)\b[^\n]{0,30}?\b(?:breath|after eating|ate)|\bheat ?stroke\b|"
     r"\b(?:very )?drunk\b[^\n]{0,20}?\b(?:won'?t|can'?t|doesn'?t) wake\b|\bwon'?t wake up\b|\bpassed out drunk\b|"
+    # รอบสุ่ม 9: เจ็บหน้าอก + เหงื่อแตก/ร้าวแขน/หายใจไม่ออก (อาการหัวใจขาดเลือด) — เดิมได้ 0
+    r"\bchest\b[^\n]{0,12}?\b(?:hurts?|hurting|pain|pressure|tight(?:ness)?|crushing|squeezing)\b[^\n]{0,40}?\b(?:sweat(?:ing|y)?|left arm|jaw|short of breath|can'?t breathe|nause(?:a|ous)|dizzy|cold sweat)\b|"
+    r"\b(?:sweat(?:ing|y)?|cold sweat|short of breath)\b[^\n]{0,30}?\bchest\b[^\n]{0,12}?\b(?:hurts?|hurting|pain|pressure|tight)\b|"
     r"\bfever\b[^\n]{0,30}?\bstiff neck\b|\bstiff neck\b[^\n]{0,30}?\bfever\b|\bdrooping face\b|\bconfused suddenly\b|"
     r"\btook (?:some )?(?:ecstasy|molly|mdma|meth|cocaine|drugs)\b[^\n]{0,30}?\b(?:overheating|seizure|seizing|unconscious|chest pain|won'?t wake)\b)",
 )
