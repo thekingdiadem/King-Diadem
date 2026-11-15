@@ -852,6 +852,16 @@ WORLD_URGENT["medical"] += (
     r"|suara\s+suruh\s+saya\s+(?:cederakan|bunuh)|jatuh[^.!?\n]{0,25}tak\s+boleh\s+bangun"
 )
 
+# รอบสุ่ม 61: สโตรก (พูดไม่รู้เรื่อง + ยกแขนไม่ขึ้น) ใน it tr ar hi tl ms — เดิมหลุด 6/6
+WORLD_URGENT["medical"] += (
+    r"|parla\s+in\s+modo\s+confuso[^.!?\n]{0,30}non\s+riesce\s+ad\s+alzare\s+il\s+braccio"
+    r"|anlams(?:ı|i)z\s+konu(?:ş|s)uyor[^.!?\n]{0,30}kolunu\s+kald(?:ı|i)ram(?:ı|i)yor"
+    r"|كلام(?:ًا|ا)?\s+غير\s+مفهوم[^.!?\n]{0,30}(?:لا\s+يستطيع|لا\s+تستطيع)\s+رفع\s+ذراع"
+    r"|उल्टा-?सीधा\s+बोल[^।!?\n]{0,30}हाथ\s+नहीं\s+उठा"
+    r"|hindi\s+maintindihan\s+magsalita[^.!?\n]{0,30}hindi\s+maiangat"
+    r"|cakap\s+merepek[^.!?\n]{0,30}tak\s+boleh\s+angkat\s+tangan"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
