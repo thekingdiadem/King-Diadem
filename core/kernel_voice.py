@@ -2546,7 +2546,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     if tr.get("third_party") and "someone" not in topics:      # "เพื่อนบอกว่ากรีดแขน" — คนอื่นกำลังวิกฤต
         topics.insert(0, "someone")
     # ภาษาอื่น (zh ja ko es): เรื่องด่วนเข้าหัวข้อเดียวกับภาษาไทย — "เพื่อนอยากตาย" ไม่ใช่วิกฤตของผู้ใช้เอง
-    intl = urgent_intl(text, "all") if detect_lang(text) != "en" else []
+    intl = urgent_intl(text, "all") if (detect_lang(text) != "en" or script_lang(text) == "vi") else []   # เวียดนามบางประโยคถูกเดาเป็น en (รอบสุ่ม 32)
     for kind_i, topic_i in intl:
         if kind_i == "someone":               # คนอื่นอยากตาย — ผู้ใช้วิกฤตเองเฉพาะเมื่อพูดถึงตัวเองด้วย
             from core.lang_signals import strip_someone_intl
@@ -2867,7 +2867,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         if lz:      # เลนส์ปัญหา (core/problem_lens.py) — เดิม "comparing myself on Instagram" ได้ "Let's lay this out step by step."
             return (lz["open"][0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(lz["paths"]))
                     + f"\n\n{lz['ask']}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
-        en = EN_TOPIC.get(en_key) if (lang == "en" and (a["topics"] or str(en_key).startswith("magga_") or en_key == "code_help") and not a["crisis"]) else None
+        en = EN_TOPIC.get(en_key) if (lang == "en" and script_lang(t) != "vi" and (a["topics"] or str(en_key).startswith("magga_") or en_key == "code_help") and not a["crisis"]) else None
         if en:
             return (en[0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(en[1]))
                     + f"\n\n{en[2]}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
@@ -2888,9 +2888,9 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
                     + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         if lang == "en" and not a["crisis"] and a["relationship"] in ("collapse_risk", "critical"):
             return SAFETY_EN.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
-        if lang in ("zh", "ja", "ko", "es") and a.get("intl_urgent") and not a["crisis"]:
-            # รอบสุ่ม 12: ภาษาเวียดนามถูกเดาเป็น es ("con tôi uống nước tẩy" เคยได้คำตอบด่วนเป็นภาษาสเปน)
-            if lang == "es" and script_lang(t) == "vi":
+        if (lang in ("zh", "ja", "ko", "es") or script_lang(t) == "vi") and a.get("intl_urgent") and not a["crisis"]:
+            # รอบสุ่ม 12/32: ภาษาเวียดนามถูกเดาเป็น es หรือ en — ต้องได้คำตอบด่วนเป็นภาษาเวียดนาม
+            if lang in ("es", "en") and script_lang(t) == "vi":
                 from core.world_replies import compose_world
                 k_vi = {"medical": "medical", "health_emergency": "medical", "violence": "violence", "disaster": "disaster"}.get(a["intl_urgent"][0], "help")
                 w = compose_world("vi", k_vi, status_line(a, "vi"), sign, footer)

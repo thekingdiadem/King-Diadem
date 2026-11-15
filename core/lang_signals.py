@@ -66,7 +66,10 @@ SCRIPT_NAME = {"ru": "Русский", "ar": "العربية", "hi": "हिन�
 # คำเวียดนามที่ใช้บ่อย — ประโยคสั้นอย่าง "hôm nay vui quá" ไม่มีตัวอักษรเฉพาะเวียดนามเลย (ô/á มีในภาษาอื่นด้วย)
 # เคยถูกเดาเป็นสเปนเพราะมี á · พยางค์เหล่านี้แทบไม่เป็นคำในสเปน/โปรตุเกส/ฝรั่งเศส
 _VI_WORDS = {"hôm", "nay", "quá", "không", "tôi", "mình", "bạn", "của", "và", "được", "người", "này", "rất",
-             "vui", "buồn", "mệt", "anh", "chị", "em", "lắm", "gì", "sao", "thế", "nào", "với", "cho", "ơi", "nhé", "ạ"}
+             "vui", "buồn", "mệt", "anh", "chị", "em", "lắm", "gì", "sao", "thế", "nào", "với", "cho", "ơi", "nhé", "ạ",
+             # รอบสุ่ม 32: ประโยคเหตุด่วนสั้นๆ ("tôi bỏ quên em bé trong xe nóng") มีคำที่รู้จักไม่ถึงครึ่ง
+             "con", "bị", "nước", "nhà", "có", "mùi", "rất", "đang", "đã", "trong", "xe", "nóng", "bé", "bỏ", "quên",
+             "mẹ", "bố", "ba", "má", "đau", "chết", "giúp", "cứu", "đi", "ở", "là", "mà", "thì", "ra", "vào", "được"}
 
 
 def script_lang(text) -> str | None:
@@ -343,6 +346,17 @@ _more("medical", "zh", r"(?:饮料|飲料|酒|杯子)里[^。！？\n]{0,6}(?:�
 _more("medical", "ko", r"(?:음료|술|잔)에\s*[가-힯\s]{0,6}(?:넣었|탔)[가-힯\s,]{0,16}(?:어지러|정신이|몸에\s*힘)")
 _more("medical", "es", r"(?:me\s+)?(?:puso|echó|echaron|pusieron)\s+algo\s+en\s+(?:la|mi)\s+(?:bebida|copa|trago)")
 _more("medical", "vi", r"bỏ\s+(?:gì\s+đó|thuốc|cái\s+gì)\s+vào\s+(?:đồ\s+uống|ly|cốc|nước)")
+# รอบสุ่ม 32: เด็กถูกน้ำพัด · กลิ่นแก๊สรั่ว · ลืมเด็กไว้ในรถร้อน (เดิมหลุด 15/15)
+_more("medical", "ja", r"(?:川|海|水)で?[^。！？\n]{0,6}(?:子供|子ども|息子|娘|人)が?流され|(?:赤ちゃん|子供|子ども)を(?:暑い)?車(?:の中)?に(?:置き忘れ|置いたまま|閉じ込め)")
+_more("medical", "zh", r"被(?:河水|海浪|洪水|水)冲走|被(?:河水|海浪|洪水|水)沖走|把(?:宝宝|孩子|婴儿|寶寶)(?:忘|留|锁|鎖)在车里")
+_more("medical", "ko", r"(?:강물|물|파도)에\s*떠내려|(?:아기|아이|애)를?\s*(?:더운\s*)?차\s*안에\s*(?:두고|놔두고|갇)")
+_more("medical", "es", r"(?:la\s+corriente|el\s+río|el\s+mar|una\s+ola)\s+se\s+llev[óo]\s+a|dej[ée]\s+(?:al|a\s+mi)\s+(?:beb[ée]|hijo|hija|niñ[oa])\s+en\s+el\s+(?:coche|carro|auto)")
+_more("medical", "vi", r"bị\s+nước\s+cuốn(?:\s+trôi)?|sóng\s+cuốn|bỏ\s+quên\s+(?:em\s+bé|con|bé)\s+trong\s+xe")
+_more("disaster", "ja", r"ガス(?:臭い|の臭い|漏れ)")
+_more("disaster", "zh", r"(?:很浓的|浓烈的|一股)?(?:煤气|燃气|瓦斯)(?:味|泄漏|洩漏)")
+_more("disaster", "ko", r"가스\s*(?:냄새|누출|새)")
+_more("disaster", "es", r"(?:huele|olor)\s+(?:mucho\s+)?a\s+gas|fuga\s+de\s+gas")
+_more("disaster", "vi", r"mùi\s+(?:khí\s+)?gas|rò\s+rỉ\s+gas|xì\s+gas")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
@@ -361,7 +375,9 @@ def urgent_intl(text, lang: str | None = None) -> list:
     t = str(text or "")
     if lang == "all":                        # ภาษาปนกัน ("我朋友说他想自杀ค่ะ") — รูปประโยคแต่ละภาษาใช้ตัวอักษรของมันเอง ตรวจทุกภาษาได้
         return [(k, topic) for k, topic, by in _URGENT_RX if any(rx.search(t) for rx in by.values())]
-    lang = lang or detect_lang(t)
+    if not lang:
+        # detect_lang ไม่มีค่า "vi" (เวียดนามถูกเดาเป็น es/en) — รูปแบบ vi ที่นี่เลยไม่เคยถูกใช้ (รอบสุ่ม 32)
+        lang = "vi" if script_lang(t) == "vi" else detect_lang(t)
     return [(k, topic) for k, topic, by in _URGENT_RX if lang in by and by[lang].search(t)]
 
 
