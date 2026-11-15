@@ -369,6 +369,17 @@ _more("violence", "zh", r"(?:锁|鎖|关|關)在(?:宿舍|房间|房間)[^。！
 _more("violence", "ko", r"여권을?\s*(?:뺏|빼앗|가져가)[가-힯\s]{0,10}(?:못\s*가|못\s*나가|안\s*보내)|(?:기숙사|방)에\s*가두고[가-힯\s]{0,10}(?:핸드폰|휴대폰|폰)을?\s*뺏|성매매를?\s*강요")
 _more("violence", "es", r"(?:me\s+)?quit[óo]\s+(?:el|mi)\s+pasaporte[^.!?\n]{0,30}no\s+me\s+deja|nos\s+encierran[^.!?\n]{0,40}(?:quitan|quitaron)\s+(?:los\s+)?(?:tel[ée]fonos|celulares|m[óo]viles)|me\s+obligan\s+a\s+prostituirme")
 _more("violence", "vi", r"nhốt\s+(?:chúng\s+tôi|tôi)[^.!?\n]{0,30}(?:lấy|thu)\s+(?:điện\s+thoại|hộ\s+chiếu)|bị\s+ép\s+(?:bán\s+dâm|tiếp\s+khách|làm\s+gái)")
+# รอบสุ่ม 35: พ่อแม่เล่าเรื่องลูก — ทำร้ายตัวเอง · ผู้ใหญ่ขอรูปโป๊ · นัดเจอผู้ใหญ่จากเน็ต (เดิมหลุด 15/15)
+_more("someone", "ja", r"(?:子供|子ども|娘|息子)が[^。！？\n]{0,6}(?:自分の)?(?:腕|手首)を切っ")
+_more("someone", "zh", r"(?:孩子|女儿|儿子|女兒|兒子)[^。！？\n]{0,6}(?:割伤|割傷|割)(?:自己|手臂|手腕)")
+_more("someone", "ko", r"(?:아이|애|딸|아들)가?\s*(?:팔|손목)에\s*(?:상처를\s*내|칼로\s*긋)")
+_more("someone", "es", r"mi\s+(?:hija|hijo)\s+se\s+(?:corta|está\s+cortando)\s+(?:los\s+)?(?:brazos|muñecas)")
+_more("someone", "vi", r"(?:con\s+(?:gái|trai)|con)\s+(?:tôi\s+)?tự\s+(?:rạch|cắt)\s+tay")
+_more("violence", "ja", r"(?:知らない)?大人が[^。！？\n]{0,10}裸の(?:写真|画像)を(?:求め|要求|送れ)|(?:\d{1,2}歳の)?(?:娘|息子)がネットで知り合った大人と[^。！？\n]{0,6}会う")
+_more("violence", "zh", r"(?:陌生)?(?:大人|成年人)[^。！？\n]{0,10}(?:要|索要)裸照|(?:\d{1,2}岁)?(?:女儿|儿子)[^。！？\n]{0,6}(?:要)?(?:见|見)网上认识的(?:成年人|大人)")
+_more("violence", "ko", r"(?:모르는\s*)?어른이?\s*[가-힯\s]{0,10}(?:알몸|나체|야한)\s*사진을?\s*(?:달래|보내라|요구)|인터넷에서\s*만난\s*어른을?\s*[가-힯\s]{0,6}만난")
+_more("violence", "es", r"(?:un\s+)?adulto[^.!?\n]{0,30}(?:pidi[óo]|pide)\s+fotos\s+desnud|(?:va\s+a\s+ver|se\s+va\s+a\s+ver\s+con)[^.!?\n]{0,20}(?:un\s+)?adulto\s+que\s+conoci[óo]\s+en\s+internet")
+_more("violence", "vi", r"đòi\s+ảnh\s+(?:khỏa\s+thân|nóng|nude)|đi\s+gặp\s+người\s+lớn\s+quen\s+trên\s+mạng")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
