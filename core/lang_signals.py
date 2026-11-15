@@ -428,6 +428,12 @@ _more("medical", "zh", r"(?:怀孕|懷孕)\s*\d+\s*(?:个月|個月|周|週)[^�
 _more("medical", "ko", r"임신\s*\d+\s*(?:개월|주)[가-힯\s,]{0,30}(?:두통|침침|출혈)|생후\s*\d+\s*(?:주|일)[가-힯\s]{0,12}열|출산\s*후[가-힯\s]{0,20}(?:흠뻑|출혈)")
 _more("medical", "es", r"\d+\s+(?:meses|semanas)\s+de\s+embarazo[^.!?\n]{0,40}(?:dolor\s+de\s+cabeza|visi[óo]n\s+borrosa|sangr)|beb[ée]\s+de\s+\d+\s+(?:semanas|d[ií]as)[^.!?\n]{0,20}fiebre|despu[ée]s\s+del\s+parto[^.!?\n]{0,30}(?:empap|sangr)")
 _more("medical", "vi", r"mang\s+thai\s+\d+\s+(?:tháng|tuần)[^.!?\n]{0,40}(?:đau\s+đầu|mờ\s+mắt|chảy\s+máu)|\d+\s+(?:tuần|ngày)\s+tuổi[^.!?\n]{0,20}sốt|sau\s+sinh[^.!?\n]{0,30}(?:thấm\s+đẫm|ra\s+máu\s+nhiều|băng\s+huyết)")
+# รอบสุ่ม 74: คนใกล้ตัวส่งสัญญาณบอกลา (รูปยาเต็มมือ+ลาก่อน · ขังตัวเองแล้วเงียบ) — เดิมหลุด 10/10
+_more("someone", "ja", r"薬を手にいっぱい[^。！？\n]{0,20}(?:さようなら|さよなら|バイバイ)|(?:部屋|トイレ)に閉じこも[^。！？\n]{0,20}(?:静かになった|返事がない|音がしない)")
+_more("someone", "zh", r"(?:满是药|一把药|满手的药)[^。！？\n]{0,12}(?:再见|再見|永别)|锁在房间里[^。！？\n]{0,20}(?:没声音|沒聲音|不回应|不回應)|鎖在房間裡[^。！？\n]{0,20}沒聲音")
+_more("someone", "ko", r"약을?\s*잔뜩[^.!?\n]{0,20}(?:안녕|잘\s*있어)|방에\s*(?:틀어박|갇혀|문\s*잠그)[가-힯\s,]{0,20}(?:조용해|대답이\s*없|소리가\s*안)")
+_more("someone", "es", r"(?:foto|imagen)\s+con\s+(?:pastillas|pastillas\s+en\s+la\s+mano)[^.!?\n]{0,20}adi[óo]s|se\s+encerr[óo]\s+en\s+su\s+(?:cuarto|ba[ñn]o)[^.!?\n]{0,40}(?:silencio|no\s+responde|no\s+contesta)")
+_more("someone", "vi", r"cầm\s+đầy\s+thuốc[^.!?\n]{0,15}tạm\s+biệt|tự\s+nhốt\s+mình\s+trong\s+phòng[^.!?\n]{0,30}(?:im\s+lặng|không\s+trả\s+lời)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
