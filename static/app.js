@@ -1007,7 +1007,7 @@ var Cosmos = (function(){
       'uniform vec2 uRes,uC,uNeb;uniform float uQ,uT,uR,uShow,uThink,uRisk,uDim,uTex,uSpin;',
       'uniform vec3 uSun,uSat,uJup,uUra;',
       'uniform sampler2D uDay,uLights,uClouds;',
-      'uniform sampler2D uSky;uniform float uSkyOn;',
+      'uniform sampler2D uSky;uniform float uSkyOn;uniform vec3 uSkyView;',
       'uniform vec2 uPar;',
       'uniform vec3 uPaper;uniform float uLight;',
       'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
@@ -1065,9 +1065,9 @@ var Cosmos = (function(){
          แถบเอียงเฉียงแบบภาพถ่ายฟ้ามืด · ยังโหลดภาพไม่เสร็จ = ใช้แถบที่คำนวณแทนชั่วคราว */
       ' if(uSkyOn>.5){',
       '  vec2 sq=(p+uPar*.6-S*vec2(.5,.42))/M; float fo=1.05;',
-      '  float rl=-.42, cr=cos(rl), sr=sin(rl); sq=vec2(sq.x*cr-sq.y*sr, sq.x*sr+sq.y*cr);',
+      '  float rl=uSkyView.z, cr=cos(rl), sr=sin(rl); sq=vec2(sq.x*cr-sq.y*sr, sq.x*sr+sq.y*cr);',
       '  vec3 cd=normalize(vec3(sq.x*fo*2.3, -sq.y*fo*2.3, 1.));',
-      '  float L0=radians(18.-t*.035), B0=radians(-17.);',
+      '  float L0=uSkyView.x-radians(t*.035), B0=uSkyView.y;',
       '  vec3 F=vec3(cos(B0)*cos(L0),cos(B0)*sin(L0),sin(B0)); vec3 R=normalize(cross(F,vec3(0.,0.,1.))); vec3 Up=cross(R,F);',
       '  vec3 g=normalize(F*cd.z+R*cd.x+Up*cd.y);',
       '  float gla=atan(g.y,g.x), gb=asin(clamp(g.z,-1.,1.));',
@@ -1180,11 +1180,16 @@ var Cosmos = (function(){
     function use(P){ if(cur === P) return; cur = P; gl.useProgram(P.pr); gl.enableVertexAttribArray(P.a); gl.vertexAttribPointer(P.a, 2, gl.FLOAT, false, 0, 0); }
     var SKYP = prog(SKY_FS, ['uRes','uQ','uT','uC','uF','uYaw','uPitch','uN','uG','uBand','uThink','uLow','uDim']);
     try{ gl.getExtension('OES_standard_derivatives'); }catch(_){}
-    var DAWN = prog(DAWN_FS, ['uRes','uQ','uT','uC','uR','uShow','uThink','uRisk','uDim','uTex','uSpin','uDay','uLights','uClouds','uSun','uSat','uJup','uUra','uNeb','uPar'].concat(['uPaper','uLight','uSky','uSkyOn'])), cur = null;
+    var DAWN = prog(DAWN_FS, ['uRes','uQ','uT','uC','uR','uShow','uThink','uRisk','uDim','uTex','uSpin','uDay','uLights','uClouds','uSun','uSat','uJup','uUra','uNeb','uPar'].concat(['uPaper','uLight','uSky','uSkyOn','uSkyView'])), cur = null;
     /* ภาพโลกจริง: โหลดหลังหน้าเว็บขึ้นแล้ว (~790KB) · ระหว่างรอใช้โลก noise */
     var EARTH_TEX = null;
     /* ฟ้าจริงทั้งท้องฟ้า (~600KB) — โหลดหลังภาพโลก ใช้ช่อง texture 3 */
     var SKY_TEX = null;
+    /* เปิดหน้าแรกแต่ละครั้งเห็นฟ้าคนละส่วนของทางช้างเผือกจริง — ไม่ซ้ำเดิมทุกครั้ง
+       (ลองจิจูด·ละติจูดดาราจักร · มุมเอียง) ทุกจุดให้แถบพาดอยู่หลังโลกและไม่ทับข้อความ */
+    var SKY_VIEWS = [[18,-17,-.42],[0,-15,-.55],[-60,-16,-.3],[80,-15,-.5],[-150,-18,-.35],[30,-14,-.7],[120,-16,-.25],[-100,-17,-.6]];
+    var SKY_VIEW = (function(){ var v = SKY_VIEWS[Math.floor(Math.random() * SKY_VIEWS.length)];
+      return [v[0] * Math.PI / 180, v[1] * Math.PI / 180, v[2] + (Math.random() - .5) * .2]; })();
     function loadSkyTex(){
       if(!DAWN || SKY_TEX) return; SKY_TEX = 'loading';
       var im = new Image(); im.decoding = 'async';
@@ -1290,7 +1295,7 @@ var Cosmos = (function(){
           gl.uniform1i(u.uDay, 0); gl.uniform1i(u.uLights, 1); gl.uniform1i(u.uClouds, 2); }
         if(ok) loadSkyTex();
         var sok = SKY_TEX && typeof SKY_TEX === 'object';
-        gl.uniform1f(u.uSkyOn, sok ? 1 : 0);
+        gl.uniform1f(u.uSkyOn, sok ? 1 : 0); gl.uniform3f(u.uSkyView, SKY_VIEW[0], SKY_VIEW[1], SKY_VIEW[2]);
         if(sok){ gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, SKY_TEX); gl.activeTexture(gl.TEXTURE0); gl.uniform1i(u.uSky, 3); }
         gl.drawArrays(gl.TRIANGLES, 0, 3);
         return true;

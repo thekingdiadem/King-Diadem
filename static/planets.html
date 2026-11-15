@@ -28,7 +28,7 @@ button{background:none;border:0;cursor:pointer;padding:0}
   transition:opacity .45s ease,transform .45s ease}
 .panel.out{opacity:0;transform:translateY(calc(-50% + 14px))}
 .kicker{font:500 13px/1.3 var(--f);letter-spacing:.02em;color:var(--gold);opacity:.92}
-h1{margin:.45em 0 .1em;font:700 clamp(40px,6vw,76px)/1.02 var(--f);letter-spacing:-.01em;
+h1{margin:.45em 0 0;padding:.08em 0 .22em;font:700 clamp(40px,6vw,76px)/1.18 var(--f);letter-spacing:-.01em;
   background:linear-gradient(180deg,#fff7e4 0%,#e8c27a 55%,#9a6a2c 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 6px 30px rgba(232,194,122,.18))}
 .en{font:500 clamp(15px,1.6vw,19px)/1.2 var(--d);letter-spacing:.3em;color:var(--ink-2);text-transform:uppercase}
@@ -154,7 +154,7 @@ var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 var FS = [
 'precision highp float;',
-'uniform vec2 uRes;uniform float uT,uK,uMix,uSkyOn,uEarthOn,uMob;uniform sampler2D uSky,uEarth,uLights;',
+'uniform vec2 uRes;uniform float uT,uK,uMix,uSkyOn,uEarthOn,uMob;uniform sampler2D uSky,uEarth,uLights;uniform vec3 uView,uTint;',
 'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
 'float h3(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}',
 'float n3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);',
@@ -173,8 +173,8 @@ var FS = [
 /* ฟ้าจริงจาก Gaia — มุมมองผู้สังเกต หมุนช้า */
 'vec3 sky(vec2 p){',
 ' if(uSkyOn<.5)return vec3(.004,.005,.012);',
-' vec2 q=(p-.5*uRes)/max(uRes.x,uRes.y);float rl=-.5;q=vec2(q.x*cos(rl)-q.y*sin(rl),q.x*sin(rl)+q.y*cos(rl));',
-' vec3 cd=normalize(vec3(q*2.,1.));float L0=radians(30.-uT*.02),B0=radians(-6.);',
+' vec2 q=(p-.5*uRes)/max(uRes.x,uRes.y);float rl=uView.z;q=vec2(q.x*cos(rl)-q.y*sin(rl),q.x*sin(rl)+q.y*cos(rl));',
+' vec3 cd=normalize(vec3(q*2.,1.));float L0=uView.x-radians(uT*.02),B0=uView.y;',
 ' vec3 F=vec3(cos(B0)*cos(L0),cos(B0)*sin(L0),sin(B0)),R=normalize(cross(F,vec3(0,0,1))),U=cross(R,F);',
 ' vec3 g=normalize(F*cd.z+R*cd.x+U*cd.y);vec2 uv=vec2(fract(.5-atan(g.y,g.x)/6.2831853),.5-asin(g.z)/3.1415927);',
 ' return pow(texture2D(uSky,uv).rgb,vec3(1.5))*.5;}',
@@ -217,6 +217,9 @@ var FS = [
 'void main(){',
 ' vec2 p=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y);float t=uT,k=uK;',
 ' vec3 col=sky(p);',
+/* แต่ละดวงมีแสงเรืองด้านหลังเป็นสีของตัวเอง (เนบิวลาจางๆ) — ฉากไม่ซ้ำกันสักดวง */
+' { vec2 gq=(p-(uMob>.5?vec2(.5*uRes.x,.36*uRes.y):vec2(.64*uRes.x,.5*uRes.y)))/min(uRes.x,uRes.y);',
+'   float gn=fb(vec3(gq*3.,uK*1.7+uT*.01));col+=uTint*exp(-dot(gq,gq)*2.6)*(.35+.65*gn)*.4; }',
 /* ตำแหน่งและขนาดดวง: เดสก์ท็อปอยู่ขวา · มือถืออยู่บน */
 ' float m=min(uRes.x,uRes.y);vec2 C=uMob>.5?vec2(.5*uRes.x,.36*uRes.y):vec2(.64*uRes.x,.5*uRes.y);',
 ' float R=(uMob>.5?.36*uRes.x:.33*m)*(k<.5?1.15:1.);',
@@ -292,7 +295,7 @@ if(gl){
   var vs = sh(gl.VERTEX_SHADER, 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}'), fs = sh(gl.FRAGMENT_SHADER, FS);
   if(vs && fs){
     prog = gl.createProgram(); gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog); gl.useProgram(prog);
-    ['uRes','uT','uK','uMix','uSkyOn','uEarthOn','uMob','uSky','uEarth','uLights'].forEach(function(n){ U[n] = gl.getUniformLocation(prog, n); });
+    ['uRes','uT','uK','uMix','uSkyOn','uEarthOn','uMob','uSky','uEarth','uLights','uView','uTint'].forEach(function(n){ U[n] = gl.getUniformLocation(prog, n); });
     var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,3,-1,-1,3]), gl.STATIC_DRAW);
     var al = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(al); gl.vertexAttribPointer(al, 2, gl.FLOAT, false, 0, 0);
     tex('/static/sky/allsky.jpg', 0, function(t){ skyTex = t; skyOn = 1; });
@@ -300,6 +303,23 @@ if(gl){
   } else gl = null;
 }
 
+/* ฟ้าของแต่ละดวง: มองคนละส่วนของทางช้างเผือก (ลองจิจูด·ละติจูดดาราจักร องศา · มุมเอียง) และสีแสงเรืองด้านหลัง */
+var VIEW = [
+  [5, -2, -.55, [1.0,.45,.12]],    // ดวงอาทิตย์ — ใจกลางทางช้างเผือก (ซาจิทาเรียส)
+  [-35, 18, .35, [.35,.33,.4]],    // พุธ — ฟ้าโล่งเหนือแถบ
+  [70, -8, -.2, [.8,.6,.3]],       // ศุกร์ — หงส์ (Cygnus)
+  [180, -4, .5, [.2,.45,1.0]],     // โลก — ทิศตรงข้ามใจกลาง (Auriga)
+  [-150, -18, -.4, [.9,.32,.18]],  // อังคาร — นายพราน (Orion)
+  [-60, 2, .25, [.85,.6,.35]],     // พฤหัส — กางเขนใต้ (Crux)
+  [25, 22, -.7, [.75,.6,.35]],     // เสาร์ — แบกงู (Ophiuchus) เมฆฝุ่นมืด
+  [120, 12, .9, [.4,.75,.85]],     // ยูเรนัส — แคสสิโอเปีย
+  [-100, -30, -.15, [.2,.35,1.0]], // เนปจูน — ใต้แถบ ฟ้าลึก
+  [150, 30, .6, [.7,.5,.4]],       // พลูโต — ไกลจากแถบ
+  [-15, 8, -.9, [.5,.48,.45]],     // ซีรีส
+  [-170, 40, .2, [.55,.55,.62]]    // ดวงจันทร์
+];
+var vw = VIEW[0].slice(0, 3), tint = VIEW[0][3].slice();
+function lerpAng(a, b, k){ var d = ((b - a + 540) % 360) - 180; return a + d * k; }
 var cur = 0, shown = 0, fade = 1, t0 = performance.now();
 var $ = function(id){ return document.getElementById(id); };
 var dots = $('dots');
@@ -327,7 +347,7 @@ var sx = null;
 cv.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; }, {passive:true});
 cv.addEventListener('touchend', function(e){ if(sx === null) return; var dx = e.changedTouches[0].clientX - sx; if(Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1)); sx = null; }, {passive:true});
 (function(){ var hsh = location.hash.slice(1); B.forEach(function(o, i){ if(o.en.toLowerCase().replace(/^the /, '').replace(/\s+/g, '-') === hsh) cur = shown = i; }); })();
-fill(cur);
+fill(cur); vw = VIEW[cur].slice(0, 3); tint = VIEW[cur][3].slice();
 
 var QS = 1;
 function size(){ var q = Math.min(devicePixelRatio || 1, 2) * QS; cv.width = Math.round(innerWidth * q); cv.height = Math.round(innerHeight * q); if(gl) gl.viewport(0, 0, cv.width, cv.height); }
@@ -345,6 +365,11 @@ function frame(now){
   var t = REDUCED ? 0 : (now - t0) / 1000;
   /* เปลี่ยนดวง: มืดลงแล้วสว่างขึ้นเป็นดวงใหม่ */
   if(shown !== cur){ fade = Math.max(0, fade - .08); if(fade === 0) shown = cur; } else fade = Math.min(1, fade + .05);
+  /* กล้องค่อยๆ แพนไปยังฟ้าของดวงใหม่ ระหว่างเปลี่ยนดวง */
+  var tv = VIEW[cur], k = REDUCED ? 1 : .035;
+  vw[0] = lerpAng(vw[0], tv[0], k); vw[1] += (tv[1] - vw[1]) * k; vw[2] += (tv[2] - vw[2]) * k;
+  for(var c3 = 0; c3 < 3; c3++) tint[c3] += (tv[3][c3] - tint[c3]) * k;
+  gl.uniform3f(U.uView, vw[0] * Math.PI / 180, vw[1] * Math.PI / 180, vw[2]); gl.uniform3f(U.uTint, tint[0], tint[1], tint[2]);
   gl.uniform2f(U.uRes, cv.width, cv.height); gl.uniform1f(U.uT, t); gl.uniform1f(U.uK, shown);
   gl.uniform1f(U.uMix, .35 + .65 * fade); gl.uniform1f(U.uSkyOn, skyOn); gl.uniform1f(U.uEarthOn, earthOn);
   gl.uniform1f(U.uMob, innerWidth <= 760 ? 1 : 0);

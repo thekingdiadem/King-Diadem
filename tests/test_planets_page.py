@@ -30,3 +30,21 @@ def test_smooth_on_slow_devices():
 
 def test_linked_from_universe_tab():
     assert 'href="/static/planets.html"' in (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+
+
+def test_every_body_has_its_own_sky_and_tint():
+    m = re.search(r"var VIEW = \[(.*?)\n\];", HTML, re.S)
+    rows = re.findall(r"\[(-?\d+), (-?\d+), (-?[\d.]+), \[", m.group(1))
+    assert len(rows) == 12 and len({(a, b) for a, b, _ in rows}) == 12     # ไม่มีดวงไหนใช้ฟ้าซ้ำกัน
+
+
+def test_thai_below_vowels_not_clipped_in_title():
+    """สระอู/อุ ใต้บรรทัด (ดาวพุธ ดาวพลูโต ดาวยูเรนัส ดาวเนปจูน) เคยถูกตัดเพราะ line-height 1.02 กับ background-clip:text"""
+    h1 = re.search(r"h1\{([^}]*)\}", HTML).group(1)
+    lh = float(re.search(r"/(\d*\.?\d+) var", h1).group(1))
+    assert lh >= 1.15 and "padding" in h1
+
+
+def test_front_page_sky_varies_per_visit():
+    js = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
+    assert "SKY_VIEWS" in js and "Math.random() * SKY_VIEWS.length" in js
