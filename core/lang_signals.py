@@ -422,6 +422,12 @@ _more("medical", "zh", r"从脚手架上?摔|從鷹架上?摔|(?:吊车|吊車|�
 _more("medical", "ko", r"비계에서\s*떨어|크레인이\s*[가-힯\s]{0,8}(?:넘어졌|쓰러졌|덮쳤)|기계에\s*[가-힯\s]{0,8}(?:팔|손|손가락)이?\s*말려")
 _more("medical", "es", r"se\s+cay[óo]\s+del\s+andamio|(?:la\s+)?gr[úu]a\s+(?:se\s+)?cay[óo]\s+(?:encima\s+de|sobre)|m[áa]quina\s+(?:atrap[óo]|agarr[óo]|jal[óo])\s+(?:el\s+)?(?:brazo|mano)")
 _more("medical", "vi", r"ngã\s+từ\s+giàn\s+giáo|cần\s+cẩu\s+đổ\s+đè|máy\s+cuốn\s+(?:tay|cánh\s+tay)")
+# รอบสุ่ม 48: ครรภ์เป็นพิษ · ทารกไม่กี่สัปดาห์มีไข้ · ตกเลือดหลังคลอด (เดิมหลุด 15/15)
+_more("medical", "ja", r"妊娠\s*\d+\s*(?:ヶ月|か月|カ月|週)[^。！？\n]{0,30}(?:ひどい頭痛|頭痛|目がかすむ|出血)|生後\s*\d+\s*(?:週間?|日|ヶ月)[^。！？\n]{0,20}(?:熱|発熱)|出産後[^。！？\n]{0,20}(?:びっしょり|大量出血|1時間ごと)")
+_more("medical", "zh", r"(?:怀孕|懷孕)\s*\d+\s*(?:个月|個月|周|週)[^。！？\n]{0,30}(?:头很痛|頭很痛|头痛|頭痛|模糊|出血)|(?:两|兩|\d+)(?:周|週)大的(?:宝宝|寶寶|婴儿|嬰兒)[^。！？\n]{0,8}(?:发烧|發燒)|(?:产后|產後)[^。！？\n]{0,20}(?:湿透|濕透|大出血)")
+_more("medical", "ko", r"임신\s*\d+\s*(?:개월|주)[가-힯\s,]{0,30}(?:두통|침침|출혈)|생후\s*\d+\s*(?:주|일)[가-힯\s]{0,12}열|출산\s*후[가-힯\s]{0,20}(?:흠뻑|출혈)")
+_more("medical", "es", r"\d+\s+(?:meses|semanas)\s+de\s+embarazo[^.!?\n]{0,40}(?:dolor\s+de\s+cabeza|visi[óo]n\s+borrosa|sangr)|beb[ée]\s+de\s+\d+\s+(?:semanas|d[ií]as)[^.!?\n]{0,20}fiebre|despu[ée]s\s+del\s+parto[^.!?\n]{0,30}(?:empap|sangr)")
+_more("medical", "vi", r"mang\s+thai\s+\d+\s+(?:tháng|tuần)[^.!?\n]{0,40}(?:đau\s+đầu|mờ\s+mắt|chảy\s+máu)|\d+\s+(?:tuần|ngày)\s+tuổi[^.!?\n]{0,20}sốt|sau\s+sinh[^.!?\n]{0,30}(?:thấm\s+đẫm|ra\s+máu\s+nhiều|băng\s+huyết)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
