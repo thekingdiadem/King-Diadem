@@ -651,6 +651,8 @@ WORLD_FIRE += (r"|(?:น้ำท่วม|น้ำป่า|น้ำหลา
                r"|(?i:\b(?:water|flood(?:ing)?)\b[^\n]{0,20}?\b(?:up\s+to\s+(?:my|our|his|her)\s+(?:chest|neck|waist)|stuck|trapped)\b"
                r"|\b(?:earthquake|landslide|mudslide|flash\s+flood|building\s+collapsed?)\b[^\n]{0,50}?\b(?:stuck|trapped|buried|under\s+(?:it|the\s+rubble)|cracked)\b"
                r"|\bswept\s+(?:out|away)\s+by\s+(?:a\s+|the\s+)?(?:wave|current|flood)\b)")
+# รอบสุ่ม 40: ไฟไหม้แล้วมีคนยังอยู่ข้างใน ("ไฟไหม้เฮือน ป้อยังอยู่ข้างใน" เคยได้ 53)
+WORLD_FIRE += r"|ไฟไหม้[^\n]{0,20}?(?:ยัง)?(?:อยู่|ติด)(?:อยู่)?(?:ข้างใน|ในบ้าน|ในห้อง|ชั้นบน)|(?i:\b(?:fire|burning)\b[^\n]{0,30}?\b(?:still\s+inside|trapped\s+inside|inside\s+the\s+house)\b)"
 # รอบสุ่ม 17: แก๊สรั่ว (ไทย/อังกฤษ) เคยได้แค่ 64 — ระเบิดหรือขาดอากาศได้ทันที
 WORLD_FIRE += r"|(?:กลิ่น)?แก๊ส(?:หุงต้ม)?\S{0,4}รั่ว|ได้กลิ่นแก๊ส|(?i:\b(?:smell|smells|smelling)\s+(?:of\s+)?gas\b|\bgas\s+leak\b)"
 # รอบสุ่ม 16: ไทย "บ้านไฟไหม้ ออกไม่ได้" เคยได้ 64 — ติดอยู่ในกองไฟต้องเป็นเหตุฉุกเฉินเต็มที่
