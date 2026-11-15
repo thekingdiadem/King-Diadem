@@ -1188,7 +1188,32 @@ var Cosmos = (function(){
     /* เปิดหน้าแรกแต่ละครั้งเห็นฟ้าคนละส่วนของทางช้างเผือกจริง — ไม่ซ้ำเดิมทุกครั้ง
        (ลองจิจูด·ละติจูดดาราจักร · มุมเอียง) ทุกจุดให้แถบพาดอยู่หลังโลกและไม่ทับข้อความ */
     var SKY_VIEWS = [[18,-17,-.42],[0,-15,-.55],[-60,-16,-.3],[80,-15,-.5],[-150,-18,-.35],[30,-14,-.7],[120,-16,-.25],[-100,-17,-.6]];
-    var SKY_VIEW = (function(){ var v = SKY_VIEWS[Math.floor(Math.random() * SKY_VIEWS.length)];
+    /* ฟ้าจริงเหนือหัวตอนนี้: ฟ้าผืนเดียวกับหน้าดาวเคราะห์ — หมุนตามเวลาจริง เข้าเว็บแต่ละครั้งจึงไม่ซ้ำเอง
+       หันไปทางส่วนของทางช้างเผือกที่อยู่สูงที่สุดบนฟ้าของผู้ใช้ตอนนี้ · ถ้าทางช้างเผือกตกขอบฟ้าหมด มองตรงขึ้นฟ้า
+       ตำแหน่งผู้ใช้: ไม่ขอ GPS (ความเป็นส่วนตัว) — ลองจิจูดเดาจากเขตเวลาของเครื่อง · ละติจูดใช้กรุงเทพฯ 13.7°
+       คำนวณพลาดเมื่อไร ใช้มุมสวยที่เลือกไว้ (SKY_VIEWS) แบบเดิม */
+    function nowSkyView(date){
+      var D = Math.PI / 180, d = (date.getTime() - Date.UTC(2000, 0, 1, 12)) / 864e5;
+      var lon = -date.getTimezoneOffset() / 60 * 15, lat = 13.7 * D;
+      var lst = ((280.46061837 + 360.98564736629 * d + lon) % 360) * D;
+      var G = [[-.0548755604,-.8734370902,-.4838350155],[.4941094279,-.4448296300,.7469822445],[-.8676661490,-.1980763734,.4559837762]];
+      function alt(l, b){
+        var g = [Math.cos(b) * Math.cos(l), Math.cos(b) * Math.sin(l), Math.sin(b)];
+        var x = G[0][0] * g[0] + G[1][0] * g[1] + G[2][0] * g[2], y = G[0][1] * g[0] + G[1][1] * g[1] + G[2][1] * g[2], z = G[0][2] * g[0] + G[1][2] * g[1] + G[2][2] * g[2];
+        var ra = Math.atan2(y, x), de = Math.asin(z);
+        return Math.asin(Math.sin(lat) * Math.sin(de) + Math.cos(lat) * Math.cos(de) * Math.cos(lst - ra));
+      }
+      var best = null, ba = -9;
+      for(var l = -180; l < 180; l += 10){ var a = alt(l * D, -15 * D); if(a > ba){ ba = a; best = l; } }
+      if(ba > 12 * D) return [best * D, -15 * D, -.45 + (Math.random() - .5) * .2];
+      // ทางช้างเผือกอยู่ใต้ขอบฟ้า: มองตรงเหนือหัว (จุดจอมฟ้า)
+      var zx = Math.cos(lat) * Math.cos(lst), zy = Math.cos(lat) * Math.sin(lst), zz = Math.sin(lat);
+      var gx = G[0][0] * zx + G[0][1] * zy + G[0][2] * zz, gy = G[1][0] * zx + G[1][1] * zy + G[1][2] * zz, gz = G[2][0] * zx + G[2][1] * zy + G[2][2] * zz;
+      return [Math.atan2(gy, gx), Math.asin(gz), (Math.random() - .5) * .4];
+    }
+    var SKY_VIEW = (function(){
+      try{ var r = nowSkyView(new Date()); if(r.every(isFinite)) return r; }catch(_){}
+      var v = SKY_VIEWS[Math.floor(Math.random() * SKY_VIEWS.length)];
       return [v[0] * Math.PI / 180, v[1] * Math.PI / 180, v[2] + (Math.random() - .5) * .2]; })();
     function loadSkyTex(){
       if(!DAWN || SKY_TEX) return; SKY_TEX = 'loading';
