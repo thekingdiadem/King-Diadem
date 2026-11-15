@@ -175,6 +175,8 @@ ANGER_MOOD = re.compile(
     r"\b(?:(?:i'?m |i am )?(?:shaking|trembling)|my (?:hands|body) (?:are|is) shaking|i (?:want|wanna|need) to (?:smash|break|punch|destroy|wreck) (?:everything|something|things|the wall|stuff))\b|"
     r"\bi (?:want|wanna) to (?:smash|break|destroy|wreck) everything\b|\bshaking with (?:anger|rage)\b)")
 # "โมโหมาก" มีตัวอักษร "หมา" ซ่อนอยู่ (โม-โห-มาก) — ต้องไม่ใช่ตัวต่อจาก โ และไม่ใช่ "หมาก"
+_FICTION_ONLY = re.compile(r"(?s)^(?=.*(?:ในเกม|เกมนี้|ในหนัง|หนังเรื่อง|ในละคร|ซีรีส์|นิยาย|การ์ตูน|\bin the (?:game|movie|film|book|show)\b))"
+                           r"(?!.*(?:จริงๆ|ในชีวิตจริง|ตอนนี้\S{0,6}(?:อยู่|ที่บ้าน)|\breal(?:ly| life)\b))", re.I)
 ANGER_NOT = re.compile(r"เกม|แข่ง|ฟุตบอล|บอลแพ้|หนัง(?!สือ)|ซีรีส์|ละคร|แมว|(?<!โ)หมา(?!ก)|(?i:\b(?:game|match|controller|movie|show|series|lost the|team)\b)")
 UPGRADES += [(re.compile(r"(?s)^(?!.*(?:" + ANGER_NOT.pattern + r"))(?=.*(?:" + ANGER_MOOD.pattern + r"))"), "soft_check")]
 # รอบ "คนแต่ละคนใช้คำไม่เหมือนกัน": รูปประโยคแทนประโยคตายตัว — "รู้สึกว่างเปล่า" "ไม่รู้สึกอะไรแล้ว"
@@ -340,6 +342,9 @@ def apply(text: str, a: dict) -> dict:
     en_text = _THAI_RUN.sub(" ", text)
     for rx, kind in UPGRADES:
         if rx.search(en_text if (rx, kind) in _EN_SET else text):
+            # ความรุนแรงที่เกิดในเกม/หนัง/นิยาย ("เกมนี้บอสขู่จะฆ่าเราหมด" เคยได้ Risk 85) — เว้นแต่บอกว่าเกิดจริง
+            if kind == "violence" and _FICTION_ONLY.search(text):
+                continue
             # จับได้อยู่แล้ว: ยกขึ้นเฉพาะเมื่อเรื่องนี้ด่วนกว่าหัวข้อแรก (เบอร์ในคำตอบมาจากหัวข้อแรก)
             # "ขับรถชนเสาให้ตายๆไป" เคยได้ปฐมพยาบาลไม่มี 1323 · "เมาขับชนคน คนนอนนิ่ง" ได้ "อย่าขึ้นรถ"
             if caught and (a["crisis"] or (kind != "crisis" and (kind == (a["topics"] or [None])[0]
