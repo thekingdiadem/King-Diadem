@@ -2591,15 +2591,27 @@ var rpMsg = null, rpEl = null;
 function openReport(m, el){
   rpMsg = m; rpEl = el;
   $('#rp-note').value = ''; $('#rp-msg').textContent = '';
+  $('#rp-incq').checked = false;                       /* แนบประโยคที่พิมพ์ — ผู้ใช้ต้องเลือกเองทุกครั้ง */
+  rpPriv();
   var first = $('#dlg-rp input[name="rp-why"]'); if(first) first.checked = true;
   $('#rp-send').disabled = false; $('#dlg-rp').showModal();
+}
+/* บรรทัด "สิ่งที่ส่งไป" ต้องตรงกับที่ส่งจริงเสมอ — เปลี่ยนตามช่องติ๊กแนบประโยค */
+function rpPriv(){ var on = $('#rp-incq').checked; $('#rp-priv').hidden = on; $('#rp-priv-q').hidden = !on; }
+$('#rp-incq').addEventListener('change', rpPriv);
+/* ข้อความที่ผู้ใช้พิมพ์ก่อนคำตอบข้อนี้ — ส่งเฉพาะเมื่อผู้ใช้ติ๊ก "แนบประโยค" เอง */
+function askedBefore(m){
+  var c = Chat.cur(), i = c.msgs.indexOf(m);
+  for(var j = i - 1; j >= 0; j--){ if(c.msgs[j].r === 'u') return String(c.msgs[j].t || ''); }
+  return '';
 }
 function sendReport(){
   var m = rpMsg, el = rpEl, why = $('#dlg-rp input[name="rp-why"]:checked');
   if(!m || !why) return;
   var t = m.tr || {}; $('#rp-send').disabled = true;
   fetch('/api/report-answer', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ reason: why.value, answer: String(m.t || '').slice(0, 4000), note: $('#rp-note').value.slice(0, 500), route: t.route || 'general', risk: num(t.risk, 0) }) })
+    body: JSON.stringify({ reason: why.value, answer: String(m.t || '').slice(0, 4000), note: $('#rp-note').value.slice(0, 500), route: t.route || 'general', risk: num(t.risk, 0),
+      include_question: $('#rp-incq').checked, question: $('#rp-incq').checked ? askedBefore(m).slice(0, 1000) : '' }) })
     .then(function(r){ return r.json().then(function(d){ if(!r.ok || !d.ok) throw new Error(d.error || ''); }); })
     .then(function(){
       m.rp = 1; Chat.persist(); $('#dlg-rp').close();

@@ -25,7 +25,8 @@ def test_report_is_stored_with_the_answer(client):
 def test_report_keeps_nothing_about_the_person(client):
     client.post("/api/report-answer", json={"reason": "wrong", "answer": "ก", "question": "ความลับของฉัน", "email": "a@b.c"})
     row = answer_reports.recent(1)[0]
-    assert set(row) == {"id", "ts", "reason", "route", "risk", "note", "answer"}
+    assert set(row) == {"id", "ts", "reason", "route", "risk", "note", "answer", "question"}
+    assert row["question"] == ""          # ไม่ได้ติ๊ก "แนบประโยค" = ไม่เก็บ แม้ส่งมาก็ตาม
     assert "ความลับ" not in str(row) and "a@b.c" not in str(row)
 
 
