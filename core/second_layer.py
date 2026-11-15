@@ -276,6 +276,8 @@ UPGRADES += [
                 r"(?i:\b(?:friend|sister|brother|mom|dad|boyfriend|girlfriend|wife|husband)\b[^\n]{0,20}?\b(?:has|keeps|is\s+keeping|saved)\s+(?:a\s+)?(?:stash\s+of\s+)?pills\b[^\n]{0,40}?\b(?:can'?t\s+take\s+it|the\s+day|when\s+(?:she|he)\s+(?:can'?t|is\s+done))\b|"
                 r"\b(?:dad|mom|father|mother|brother|sister|husband|wife)\s+disappeared\b[^\n]{0,40}?\bleft\s+a\s+(?:letter|note)\b)"), "someone"),
 ]
+# รอบสุ่ม 89: แรงงานประมงถูกบังคับบนเรือ (อังกฤษ) — เคยได้ 0
+UPGRADES += [(re.compile(r"(?i:\bforced\s+to\s+work\s+on\s+(?:the|a)\s+(?:boat|ship|vessel)\b|\bhaven'?t\s+been\s+(?:ashore|on\s+land)\s+in\s+\d+\s+(?:months|weeks)\b)"), "trafficking")]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
