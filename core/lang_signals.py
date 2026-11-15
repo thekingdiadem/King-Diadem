@@ -760,6 +760,15 @@ WORLD_URGENT["medical"] += (
     r"|реб(?:ё|е)нок\s+(?:двух|трёх|трех|\d+)\s+недел[^.!?\n]{0,20}температур|беременност[ьи]\s+\d+\s+месяц[^.!?\n]{0,50}(?:головная\s+боль|плыв|кровотеч)|после\s+родов[^.!?\n]{0,40}(?:каждый\s+час|сильное\s+кровотеч)"
 )
 
+# รอบสุ่ม 51: ชนคนแล้วไม่ขยับ · ตกแล้วขาไม่รู้สึก · นิ้วขาด ใน id fr de pt ru (เดิมหลุด 15/15)
+WORLD_URGENT["medical"] += (
+    r"|menabrak\s+(?:pejalan\s+kaki|orang)[^.!?\n]{0,20}(?:tidak\s+bergerak|pingsan|berdarah)|kaki\s+(?:saya\s+)?tidak\s+terasa|jari\s+(?:saya\s+)?putus"
+    r"|renvers(?:é|e)\s+un\s+pi(?:é|e)ton|je\s+ne\s+sens\s+plus\s+mes\s+jambes|coup(?:é|e)\s+le\s+doigt[^.!?\n]{0,25}(?:tomb|arrach|sectionn)"
+    r"|fu(?:ß|ss)g(?:ä|a)nger\s+angefahren|sp(?:ü|u)re\s+meine\s+beine\s+nicht|finger\s+abgeschnitten"
+    r"|atropelei\s+um\s+pedestre|n(?:ã|a)o\s+sinto\s+as\s+pernas|cortei\s+o\s+dedo\s+fora|dedo\s+decepado"
+    r"|сбил\s+пешехода|не\s+чувствую\s+ног|отрезал[аи]?\s+(?:себе\s+)?палец"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
