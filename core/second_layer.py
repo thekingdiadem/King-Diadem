@@ -258,9 +258,10 @@ UPGRADES += [
 ]
 # รอบสุ่ม 78: ติดค้างระหว่างเดินทาง (หลงป่า · เรือเครื่องดับ · รถเสียไม่มีสัญญาณ) · ลูกหายในที่คนเยอะ
 UPGRADES += [
-    (re.compile(r"หลง(?:ป่า|ทาง)[^\n]{0,15}?(?:บน)?(?:ดอย|เขา|ภูเขา|ภู|ป่า)|เรือ[^\n]{0,8}?(?:เครื่องดับ|เสีย|ล่ม)[^\n]{0,15}?(?:กลางทะเล|กลางน้ำ|ทะเล)|"
+    (re.compile(r"(?si)^(?!.*\b(?:found\s+(?:it|the\s+(?:trail|way|path))|great\s+view|for\s+\d+\s+min)).*?(?:"
+                r"หลง(?:ป่า|ทาง)[^\n]{0,15}?(?:บน)?(?:ดอย|เขา|ภูเขา|ภู|ป่า)|เรือ[^\n]{0,8}?(?:เครื่องดับ|เสีย|ล่ม)[^\n]{0,15}?(?:กลางทะเล|กลางน้ำ|ทะเล)|"
                 r"รถเสีย[^\n]{0,20}?ไม่มีสัญญาณ|"
-                r"(?i:(?!.*\b(?:found\s+(?:it|the\s+(?:trail|way|path))|great\s+view|for\s+\d+\s+min)\b)\blost\s+(?:on|in)\s+the\s+(?:mountain|woods|forest|jungle|desert)\b|\bboat\s+(?:engine\s+)?(?:died|broke\s+down|failed)\s+at\s+sea\b|\bcar\s+broke\s+down\b[^\n]{0,20}?\bno\s+(?:signal|service)\b)"), "stranded"),
+                r"(?i:\blost\s+(?:on|in)\s+the\s+(?:mountain|woods|forest|jungle|desert)\b|\bboat\s+(?:engine\s+)?(?:died|broke\s+down|failed)\s+at\s+sea\b|\bcar\s+broke\s+down\b[^\n]{0,20}?\bno\s+(?:signal|service)\b))"), "stranded"),
     (re.compile(r"ลูก(?:หาย|พลัดหลง)[^\n]{0,15}?(?:ห้าง|ตลาด|งาน|สนามบิน|สถานี|คนเยอะ)|(?i:\blost\s+my\s+(?:kid|child|son|daughter)\s+(?:in|at)\s+(?:a|the)\s+(?:\w+\s+)?(?:mall|market|crowd|airport|station|fair|festival)\b)"), "missing"),
 ]
 # รอบสุ่ม 80: คนในแชทนัดเด็กไปโรงแรม+ห้ามบอก · งานต่างประเทศจากเฟซ+นายหน้าเก็บพาสปอร์ต · แม่ถูกหลอกว่าเป็นลูก

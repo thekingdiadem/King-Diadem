@@ -2331,7 +2331,51 @@ _HEAT_SYMPTOM = re.compile(r"(?:ร้อน(?:จัด|มาก)|อากา
                            r"(?:เวียนหัว|คลื่นไส้|หน้ามืด|\bdizzy\b|\bfaint\w*)[^\n]{0,30}?(?:ร้อน(?:จัด|มาก)|กลางแดด|ตากแดด|\bheat\b|\bin the sun\b)", re.I)
 
 
+_CLAUSE_SPLIT = re.compile(r"\s*[,，、]\s*")
+_PAST_OR_NOT_NOW = re.compile(r"(?i)\bused\s+to\b|\byears?\s+ago\b|\bno\s+longer\b|\banymore\b|\bin\s+the\s+past\b|\bwhen\s+i\s+was\b|"
+                              r"เมื่อก่อน|สมัยก่อน|เคย[^\n]{0,20}?(?:แต่)?ตอนนี้|หลายปีก่อน|ไม่(?:ได้)?(?:คิด|ทำ)แล้ว|"
+                              r"以前|昔は|예전에|antes|hace\s+años|trước\s+đây|früher|autrefois|dulu|"
+                              # บอกเองว่าเล็กน้อย/หายแล้ว/ล้อเล่น — หมุนลำดับแล้วตัวบอกนี้ย้ายไปข้างหน้า กฎลดระดับจะมองไม่เห็น
+                              r"\b(?:small|minor|tiny|mild|slight|just\s+a|nothing\s+serious|fine\s+now|ok\s+now|okay\s+now|lol|lmao|haha|jk)\b|"
+                              r"เล็กน้อย|นิดหน่อย|นิดเดียว|ไม่เป็นไร(?:แล้ว)?|หายแล้ว|ไม่เจ็บ|ไม่ได้เป็นอะไร|555|ล้อเล่น|ขำๆ|"
+                              r"วันเสาร์|วันอาทิตย์|วันหยุด|เสาร์อาทิตย์|ประกันจ่าย|เคลม(?:ประกัน)?แล้ว|\bweekend\b|\bsaturday\b|\bsunday\b|"
+                              # บริบทชีวิตปกติที่ทำให้ "ยกของให้หมด" "ไม่อยู่แล้ว" ไม่น่ากังวล — หมุนลำดับแล้วกฎมองไม่เห็นบริบท
+                              r"ย้ายบ้าน|ย้ายห้อง|ย้ายออก|ย้ายไป|ลาออก|เกษียณ|บริจาค|ไปเที่ยว|ไปเรียนต่อ|ต่างประเทศ|"
+                              r"\bmov(?:ing|ed)\s+(?:house|out|abroad|to\s+a\s+new)\b|\bdonat|\bretir|\btrip\b|\bvacation\b|\bstudy\s+abroad\b")
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
+    """ประเมินข้อความ — ถ้าผลต่ำ และข้อความสั้นมีหลายท่อน ลองหมุนลำดับท่อนแล้วใช้ผลที่สูงสุด
+
+    รอบสุ่ม 91: คนตกใจมักเล่าผลก่อนเหตุ ("เขาไม่ขยับ ฉันชนคนเดินถนน" · "現在很晕，陌生人在我的饮料里放了东西")
+    กฎส่วนใหญ่เขียนตามลำดับ เหตุ → ผล จึงหลุด 72 จาก 232 ข้อเมื่อสลับลำดับ
+    แก้ที่โครงสร้างแทนการเขียนรูปแบบกลับด้านทีละข้อ · ข้อความปกติสลับแล้วก็ยังปกติ จึงไม่เตือนเกิน
+    """
+    a = _assess_one(text, pattern)
+    if not isinstance(text, str) or a.get("crisis") or (a.get("risk_shown") or 0) >= 60 or len(text) > 400:
+        return a
+    # เรื่องที่บอกชัดว่าผ่านไปแล้ว/ไม่ใช่ตอนนี้ — ห้ามหมุนลำดับจนกลายเป็นวิกฤต
+    # ("I used to be suicidal years ago, now I'm fine" หมุนแล้วเคยกลายเป็น 95)
+    if _PAST_OR_NOT_NOW.search(text):
+        return a
+    parts = [x for x in _CLAUSE_SPLIT.split(text.strip()) if x]
+    # ภาษาไทยแบ่งท่อนด้วยการเว้นวรรคไม่ชัดเท่าจุลภาค — รอบสุ่ม 92 ลองหมุนตามเว้นวรรคแล้ว
+    # "ซื้อเชือกไว้แล้ว ตากผ้า" "ยกของให้เพื่อนหมดแล้ว ตอนย้ายบ้าน" กลายเป็นวิกฤต จึงไม่ทำ (ยังเป็นช่องโหว่ที่รู้แล้ว)
+    if not (2 <= len(parts) <= 5):
+        return a
+    best = a
+    for i in range(1, len(parts)):
+        alt = ", ".join(parts[i:] + parts[:i])
+        b = _assess_one(alt, pattern)
+        # ใช้ผลที่หมุนแล้วเฉพาะเมื่อยกถึงระดับเตือนจริง — ไม่ให้เรื่องสวยๆ กลายเป็นการถามไถ่ ("standing on the bridge, the sunset view")
+        if b.get("crisis") or ((b.get("risk_shown") or 0) >= 60 and (b.get("risk_shown") or 0) > (best.get("risk_shown") or 0)):
+            best = b
+            if b.get("crisis") or (b.get("risk_shown") or 0) >= 80:
+                break
+    return best
+
+
+def _assess_one(text: str, pattern: dict | None = None) -> dict:
     from core.thai_signals import canon_text
     text = canon_text(text)                     # เว้นวรรคซ้อน · ลากตัวอักษร — ทุกชั้นเห็นรูปเดียวกัน
     a = _assess_raw(text, pattern)
