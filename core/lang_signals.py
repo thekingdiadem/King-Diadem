@@ -801,6 +801,15 @@ WORLD_URGENT["crisis"] += (
     r"|(?:написала|написал)[^.!?\n]{0,10}сегодня\s+(?:её|ее|его)\s+последняя\s+ночь"
 )
 
+# รอบสุ่ม 55: ผู้สูงอายุล้มลุกไม่ได้ · เบาหวานซึม · สมองเสื่อมหาย ใน id fr de pt ru (เดิมหลุด 15/15)
+WORLD_URGENT["medical"] += (
+    r"|jatuh[^.!?\n]{0,25}tidak\s+bisa\s+bangun|diabetes[^.!?\n]{0,30}(?:linglung|tidak\s+menjawab|pingsan)|pikun[^.!?\n]{0,30}(?:belum\s+pulang|hilang|tersesat)"
+    r"|tomb(?:é|e)e?[^.!?\n]{0,30}ne\s+peut\s+pas\s+se\s+relever|diab(?:é|e)tique[^.!?\n]{0,40}(?:confus|r(?:é|e)pond\s+(?:à|a)\s+peine|inconscient)|alzheimer[^.!?\n]{0,40}(?:pas\s+revenu|disparu|perdu)"
+    r"|gest(?:ü|u)rzt\s+und\s+kommt\s+nicht\s+(?:hoch|auf)|diabetiker[^.!?\n]{0,40}(?:verwirrt|reagiert\s+kaum|bewusstlos)|demenz[^.!?\n]{0,30}(?:weg|verschwunden|nicht\s+zur(?:ü|u)ck)"
+    r"|caiu[^.!?\n]{0,25}n(?:ã|a)o\s+consegue\s+(?:se\s+)?levantar|diab(?:é|e)tico[^.!?\n]{0,40}(?:confuso|quase\s+n(?:ã|a)o\s+responde|desmaiou)|dem(?:ê|e)ncia[^.!?\n]{0,30}(?:n(?:ã|a)o\s+voltou|sumiu|desapareceu)"
+    r"|упал[аи]?[^.!?\n]{0,20}не\s+может\s+встать|диабетик[^.!?\n]{0,40}(?:спутанн|почти\s+не\s+отвечает|без\s+сознания)|деменци[ейя][^.!?\n]{0,30}(?:не\s+вернулся|не\s+вернулась|пропал)"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
