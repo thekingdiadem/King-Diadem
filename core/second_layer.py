@@ -244,11 +244,11 @@ UPGRADES += [
 UPGRADES += [(re.compile(
     r"(?:โพสต์|ส่ง)(?:รูป)?\S{0,4}ยา(?:เต็มมือ|เป็นกำ|ทั้งแผง)[^\n]{0,20}?(?:ลาก่อน|บอกลา|ขอโทษ)|"
     r"ขอบคุณที่(?:เป็นเพื่อน|อยู่ด้วย|ดีกับ)[^\n]{0,30}?(?:ปิดเครื่อง|ไม่ตอบ|หายไป|ติดต่อไม่ได้)|"
-    r"ขังตัวเอง(?:อยู่)?ใน(?:ห้อง|ห้องน้ำ)[^\n]{0,30}?(?:เงียบ|ไม่ตอบ|ไม่ออกมา)|"
+    r"(?!.*(?:เล่นเกม|อ่านหนังสือ|ทำการบ้าน|ติวสอบ|ตั้งใจ))ขังตัวเอง(?:อยู่)?ใน(?:ห้อง|ห้องน้ำ)[^\n]{0,30}?(?:เสียง\S{0,8}ตก[^\n]{0,10}?เงียบ|เรียกไม่ตอบ|เคาะไม่ตอบ|ไม่ตอบ|ไม่ออกมา)|"
     r"(?:บอกว่า)?จะไป(?:กระโดด|ตาย|ฆ่าตัวตาย)[^\n]{0,20}?(?:ไม่รับสาย|ติดต่อไม่ได้|ปิดเครื่อง)|"
     r"(?i:\bposted\s+a\s+(?:photo|pic|picture)\s+of\s+(?:pills|a\s+handful\s+of\s+pills)\b[^\n]{0,30}?\b(?:goodbye|bye|sorry)\b|"
     r"\b(?:thanks|thank\s+you)\s+for\s+(?:being\s+my\s+friend|everything)\b[^\n]{0,30}?\b(?:turned\s+off|switched\s+off|not\s+answering|went\s+silent)\b|"
-    r"\blocked\s+(?:him|her|them)sel(?:f|ves)\s+in\b[^\n]{0,50}?\b(?:silent|quiet|not\s+answering|won'?t\s+answer)\b)"), "someone")]
+    r"(?!.*\b(?:study|studying|gaming|homework|lol|lmao)\b)\blocked\s+(?:him|her|them)sel(?:f|ves)\s+in\b[^\n]{0,50}?\b(?:heard\s+something[^\n]{0,30}?(?:silent|quiet)|not\s+answering|won'?t\s+answer)\b)"), "someone")]
 # รอบสุ่ม 76: คนข้างบ้านกำลังถูกทำร้าย · เด็กถูกทิ้งไว้คนเดียวหลายวัน (ผู้ใช้เป็นคนเห็นเหตุ)
 UPGRADES += [
     (re.compile(r"(?:ข้างห้อง|ข้างบ้าน|ห้องข้างๆ|บ้านข้างๆ)[^\n]{0,20}?(?:กรีดร้อง|ร้องให้ช่วย|ร้องขอความช่วยเหลือ)[^\n]{0,20}?(?:ตบ|ตี|ทุบ|เสียงของแตก|เสียงล้ม)|"
@@ -260,7 +260,7 @@ UPGRADES += [
 UPGRADES += [
     (re.compile(r"หลง(?:ป่า|ทาง)[^\n]{0,15}?(?:บน)?(?:ดอย|เขา|ภูเขา|ป่า)|เรือ[^\n]{0,8}?(?:เครื่องดับ|เสีย|ล่ม)[^\n]{0,15}?(?:กลางทะเล|กลางน้ำ|ทะเล)|"
                 r"รถเสีย[^\n]{0,20}?ไม่มีสัญญาณ|"
-                r"(?i:\blost\s+(?:on|in)\s+the\s+(?:mountain|woods|forest|jungle|desert)\b|\bboat\s+(?:engine\s+)?(?:died|broke\s+down|failed)\s+at\s+sea\b|\bcar\s+broke\s+down\b[^\n]{0,20}?\bno\s+(?:signal|service)\b)"), "stranded"),
+                r"(?i:(?!.*\b(?:found\s+(?:it|the\s+(?:trail|way|path))|great\s+view|for\s+\d+\s+min)\b)\blost\s+(?:on|in)\s+the\s+(?:mountain|woods|forest|jungle|desert)\b|\bboat\s+(?:engine\s+)?(?:died|broke\s+down|failed)\s+at\s+sea\b|\bcar\s+broke\s+down\b[^\n]{0,20}?\bno\s+(?:signal|service)\b)"), "stranded"),
     (re.compile(r"ลูก(?:หาย|พลัดหลง)[^\n]{0,15}?(?:ห้าง|ตลาด|งาน|สนามบิน|สถานี|คนเยอะ)|(?i:\blost\s+my\s+(?:kid|child|son|daughter)\s+(?:in|at)\s+(?:a|the)\s+(?:\w+\s+)?(?:mall|market|crowd|airport|station|fair|festival)\b)"), "missing"),
 ]
 # รอบสุ่ม 80: คนในแชทนัดเด็กไปโรงแรม+ห้ามบอก · งานต่างประเทศจากเฟซ+นายหน้าเก็บพาสปอร์ต · แม่ถูกหลอกว่าเป็นลูก
@@ -389,10 +389,17 @@ _SEVERE = re.compile(r"昏迷|昏倒|晕倒|叫不醒|没有呼吸|沒有呼吸|
 _NOW = re.compile(r"ตอนนี้\S{0,8}(?:หายใจ|ไม่|เลือด|ชัก)|เมื่อกี้|เดี๋ยวนี้|ช่วยด้วย|ด่วน|ยานอนหลับ[^\n]{0,12}?หมด(?:แผง|กระปุก|ขวด)|\b(?:right now|rn|(?<!how to )help|happening now|now he|now she|now i)\b", re.I)   # "fine now" ไม่ใช่เหตุตอนนี้
 
 
+_LONG = 4000
+
+
 def apply(text: str, a: dict) -> dict:
     """คืน assessment ที่ปรับแล้ว (ไม่แก้ dict เดิม)"""
     if not isinstance(text, str) or not text:
         return a
+    # ข้อความยาวมาก (เกิน 4,000 ตัว) ตรวจแค่ 2,000 ตัวแรก + 2,000 ตัวท้าย — กฎชั้นนี้มีหลายร้อยแบบแล้ว
+    # ข้อความตัวเลข 8,000 ตัวเคยใช้เกือบวินาทีต่อรอบ · สัญญาณอันตรายมักอยู่ต้นหรือท้ายเรื่อง (รอบสุ่ม 7/87)
+    if len(text) > _LONG:
+        text = text[:_LONG // 2] + "\n" + text[-_LONG // 2:]
     a = dict(a, topics=list(a.get("topics") or []))
     caught = a["crisis"] or a["text_risk"] >= 50 or bool(a.get("scam")) or bool(a.get("disaster"))
 
