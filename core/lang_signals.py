@@ -416,6 +416,12 @@ _more("medical", "zh", r"(?:一整瓶|整瓶|一瓶)[^。！？\n]{0,10}(?:糖�
 _more("medical", "ko", r"한\s*병\s*다\s*마셨|술\s*마시고\s*수면제[가-힯\s]{0,12}(?:숨을?\s*(?:너무\s*)?천천히|안\s*깨|의식)|혈압약을?\s*두\s*번[가-힯\s,]{0,12}(?:어지럽|맥박이?\s*느려)")
 _more("medical", "es", r"(?:se\s+)?(?:tom[óo]|bebi[óo])\s+todo\s+el\s+frasco|alcohol\s+y\s+(?:luego\s+)?pastillas\s+para\s+dormir[^.!?\n]{0,20}(?:respir|no\s+despiert)|(?:pastilla|medicina)\s+(?:de\s+la\s+presi[óo]n\s+)?dos\s+veces[^.!?\n]{0,30}(?:marea|pulso\s+lento|desmay)")
 _more("medical", "vi", r"uống\s+hết\s+cả\s+(?:chai|lọ|vỉ)|uống\s+rượu\s+rồi\s+uống\s+thuốc\s+ngủ|thuốc\s+huyết\s+áp\s+hai\s+lần[^.!?\n]{0,20}(?:chóng\s+mặt|mạch\s+chậm|ngất)")
+# รอบสุ่ม 47: อุบัติเหตุในที่ทำงาน — ตกนั่งร้าน · เครนล้มทับ · เครื่องจักรดูดแขน (เดิมหลุด 14/15)
+_more("medical", "ja", r"足場から落ち|(?:屋根|高所)から落ち|機械に[^。！？\n]{0,8}(?:腕|手|指|髪)が?巻き込まれ")
+_more("medical", "zh", r"从脚手架上?摔|從鷹架上?摔|(?:吊车|吊車|起重机|起重機)[^。！？\n]{0,6}(?:倒|塌)[^。！？\n]{0,6}压(?:到|住)?人|(?:机器|機器)[^。！？\n]{0,6}(?:手臂|手|胳膊)(?:卷|捲)进去")
+_more("medical", "ko", r"비계에서\s*떨어|크레인이\s*[가-힯\s]{0,8}(?:넘어졌|쓰러졌|덮쳤)|기계에\s*[가-힯\s]{0,8}(?:팔|손|손가락)이?\s*말려")
+_more("medical", "es", r"se\s+cay[óo]\s+del\s+andamio|(?:la\s+)?gr[úu]a\s+(?:se\s+)?cay[óo]\s+(?:encima\s+de|sobre)|m[áa]quina\s+(?:atrap[óo]|agarr[óo]|jal[óo])\s+(?:el\s+)?(?:brazo|mano)")
+_more("medical", "vi", r"ngã\s+từ\s+giàn\s+giáo|cần\s+cẩu\s+đổ\s+đè|máy\s+cuốn\s+(?:tay|cánh\s+tay)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
