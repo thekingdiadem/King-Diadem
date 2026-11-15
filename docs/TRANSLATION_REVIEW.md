@@ -27,7 +27,7 @@
 | Suomi (`fi`) | 5 | 080 005 · 09 2525 0111 · 100 · 112 · 120 · 1323 · 1669 · 191 |
 | Svenska (`sv`) | 5 | 020-50 50 · 100 · 112 · 120 · 1323 · 1669 · 191 · 90101 |
 | Tagalog (`tl`) | 4 | 100 · 120 · 1300 · 1323 · 1553 · 1669 · 191 · 911 |
-| Tiếng Việt (`vi`) | 5 | 100 · 113 · 115 · 120 · 1300 · 1323 · 1441 · 1669 · 191 |
+| Tiếng Việt (`vi`) | 6 | 100 · 113 · 114 · 115 · 120 · 1300 · 1323 · 1441 · 1669 · 191 · 199 |
 | Türkçe (`tr`) | 4 | 100 · 112 · 120 · 1300 · 1323 · 1669 · 191 |
 | Yorùbá (`yo`) | 5 | 100 · 112 · 120 · 1323 · 1669 · 191 |
 | isiZulu (`zu`) | 5 | 0800 428 · 0800 567 567 · 100 · 10111 · 10177 · 120 · 1323 · 1669 · 191 |
@@ -847,6 +847,12 @@
 
 ```text
 ('Đây là tình huống khẩn cấp — hãy gọi điện trước.', ['Gọi ngay 1669 (ở Việt Nam: 115), nói rõ địa chỉ và triệu chứng.', 'Nếu không thở hoặc gọi không tỉnh: ấn mạnh giữa ngực 100–120 lần/phút, làm theo hướng dẫn qua điện thoại.', 'Không cho uống nước hay ăn. Giữ lại vỏ thuốc đã uống để cho bác sĩ xem.'], 'Bây giờ có ai ở cạnh người bệnh không?')
+```
+
+**disaster**
+
+```text
+('Mạng sống của bạn quan trọng nhất — đồ đạc có thể lấy lại sau.', ['Gọi ngay 199 (cứu hỏa Thái Lan; ở Việt Nam: 114) hoặc 1669, nói rõ địa chỉ.', 'Có khói: cúi thấp sát sàn, che mũi bằng khăn ướt. Sờ cửa trước khi mở — nóng thì đừng mở.', 'Không ra được: đóng cửa, chặn khe cửa bằng khăn ướt, đứng ở cửa sổ và vẫy đèn điện thoại để người ngoài thấy.'], 'Bây giờ bạn đang ở đâu, có ai ở cùng không?')
 ```
 
 **violence**

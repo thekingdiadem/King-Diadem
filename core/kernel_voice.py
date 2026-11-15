@@ -2876,6 +2876,13 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         if lang == "en" and not a["crisis"] and a["relationship"] in ("collapse_risk", "critical"):
             return SAFETY_EN.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
         if lang in ("zh", "ja", "ko", "es") and a.get("intl_urgent") and not a["crisis"]:
+            # รอบสุ่ม 12: ภาษาเวียดนามถูกเดาเป็น es ("con tôi uống nước tẩy" เคยได้คำตอบด่วนเป็นภาษาสเปน)
+            if lang == "es" and script_lang(t) == "vi":
+                from core.world_replies import compose_world
+                k_vi = {"medical": "medical", "health_emergency": "medical", "violence": "violence", "disaster": "disaster"}.get(a["intl_urgent"][0], "help")
+                w = compose_world("vi", k_vi, status_line(a, "vi"), sign, footer)
+                if w:
+                    return w
             return compose_urgent_intl(lang, a["intl_urgent"][0], status, sign, footer)
         d = debt_en(text) if (lang == "en" and not a["crisis"] and not a["topics"]) else None
         if d:
