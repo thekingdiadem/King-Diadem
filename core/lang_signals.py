@@ -957,6 +957,11 @@ WORLD_URGENT["medical"] += (
 # รอบสุ่ม 90: เล่าผลก่อนเหตุ ("dia tidak bergerak, saya menabrak pejalan kaki")
 WORLD_URGENT["medical"] += r"|tidak\s+bergerak[^.!?\n]{0,25}menabrak\s+(?:pejalan\s+kaki|orang)"
 
+# รอบสุ่ม 97: ข้อความสั้นมาก — "SOS" "911" "cứu tôi" เคยได้ 0 · "ไฟไหม้" เดี่ยวๆ ได้แค่ 53
+WORLD_URGENT["help"] += r"|^\W*(?:sos|s\.o\.s|911|112|999|1669|191)\W*$|^\W*cứu(?:\s+(?:tôi|với|em|anh|chị|mình))?\W*$"
+WORLD_FIRE += r"|^\W*(?:ไฟไหม้|fire|火事|着火了|불이야|incendio|cháy)\W*!*\W*$"
+WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
