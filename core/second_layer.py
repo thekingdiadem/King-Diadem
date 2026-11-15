@@ -175,10 +175,10 @@ ANGER_MOOD = re.compile(
     r"\b(?:(?:i'?m |i am )?(?:shaking|trembling)|my (?:hands|body) (?:are|is) shaking|i (?:want|wanna|need) to (?:smash|break|punch|destroy|wreck) (?:everything|something|things|the wall|stuff))\b|"
     r"\bi (?:want|wanna) to (?:smash|break|destroy|wreck) everything\b|\bshaking with (?:anger|rage)\b)")
 # "โมโหมาก" มีตัวอักษร "หมา" ซ่อนอยู่ (โม-โห-มาก) — ต้องไม่ใช่ตัวต่อจาก โ และไม่ใช่ "หมาก"
-_WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv"}
+_WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
-_WATCHING = re.compile(r"(?:ดู|นั่งดู|เปิด|นอนดู)\S{0,4}?(?:ซีรีส์|ละคร|สารคดี|หนัง|ทีวี)\S{0,12}?(?:อยู่|กับ|ด้วยกัน|ไป)|อ่านข่าวอยู่|"
-                       r"(?i:\b(?:watching|were watching|was watching) (?:a |the |some )?(?:series|show|drama|documentary|movie|tv)\b)")
+_WATCHING = re.compile(r"(?:ซ้อม|เล่น|แสดง|ถ่าย)\S{0,2}?ละคร(?:เวที)?\S{0,8}?(?:อยู่|กับ|ด้วยกัน)|(?:ดู|นั่งดู|เปิด|นอนดู)\S{0,4}?(?:ซีรีส์|ละคร|สารคดี|หนัง|ทีวี)\S{0,12}?(?:อยู่|กับ|ด้วยกัน|ไป)|อ่านข่าวอยู่|"
+                       r"(?i:\b(?:watching|were watching|was watching) (?:a |the |some )?(?:series|show|drama|documentary|movie|tv)\b|\b(?:writing|working on|doing) (?:my |an |the )?(?:essay|report|homework|assignment|research)\b(?![^\n]{0,8}\b(?:about|on)\b))")
 _FICTION_ONLY = re.compile(r"(?s)^(?=.*(?:ในเกม|เกมนี้|ในหนัง|หนังเรื่อง|ในละคร|ซีรีส์|นิยาย|การ์ตูน|\bin the (?:game|movie|film|book|show)\b))"
                            r"(?!.*(?:จริงๆ|ในชีวิตจริง|ตอนนี้\S{0,6}(?:อยู่|ที่บ้าน)|\breal(?:ly| life)\b))", re.I)
 ANGER_NOT = re.compile(r"เกม|แข่ง|ฟุตบอล|บอลแพ้|หนัง(?!สือ)|ซีรีส์|ละคร|แมว|(?<!โ)หมา(?!ก)|(?i:\b(?:game|match|controller|movie|show|series|lost the|team)\b)")
