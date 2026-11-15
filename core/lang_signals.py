@@ -787,6 +787,20 @@ WORLD_URGENT["violence"] += (
     r"|забрал[аи]?\s+(?:мой\s+)?паспорт[^.!?\n]{0,30}не\s+отпуска|нас\s+запирают[^.!?\n]{0,30}(?:телефоны|мобильники)|заставляют\s+заниматься\s+проституцией"
 )
 
+# รอบสุ่ม 54: ลูกกับภัยออนไลน์ ใน id fr de pt ru — ขอรูปโป๊ · นัดเจอผู้ใหญ่ · โพสต์ว่าคืนสุดท้าย (เดิมหลุด 15/15)
+WORLD_URGENT["violence"] += (
+    r"|minta\s+foto\s+(?:telanjang|bugil)|ketemu\s+orang\s+dewasa\s+yang\s+dikenal\s+online"
+    r"|demand(?:é|e)\s+des\s+photos\s+nues|rencontrer[^.!?\n]{0,20}un\s+adulte\s+rencontr(?:é|e)\s+en\s+ligne"
+    r"|nach\s+nacktfotos\s+gefragt|trifft[^.!?\n]{0,20}einen\s+erwachsenen\s+aus\s+dem\s+internet"
+    r"|pediu\s+fotos\s+nuas|encontrar[^.!?\n]{0,15}um\s+adulto\s+que\s+conheceu\s+na\s+internet"
+    r"|попросил[аи]?[^.!?\n]{0,15}голые\s+фото|встречается\s+со\s+взрослым\s+из\s+интернета"
+)
+WORLD_URGENT["crisis"] += (
+    r"|posting\s+malam\s+ini\s+malam\s+terakhir|a\s+post(?:é|e)\s+que\s+ce\s+soir\s+est\s+sa\s+derni(?:è|e)re\s+nuit"
+    r"|gepostet,?\s+dass\s+heute\s+(?:ihre|seine)\s+letzte\s+nacht|postou\s+que\s+hoje\s+(?:é|e)\s+a\s+(?:ú|u)ltima\s+noite"
+    r"|(?:написала|написал)[^.!?\n]{0,10}сегодня\s+(?:её|ее|его)\s+последняя\s+ночь"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
