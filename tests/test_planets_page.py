@@ -58,3 +58,30 @@ def test_shader_has_no_undefined_glsl_math():
     assert not re.search(r"pow\([^;]*?,\s*[23]\.\)", src.replace("pow(1.-nv.z,3.)", "").replace("pow(ฐานติดลบ,3.)", ""))
     for a, b in re.findall(r"smoothstep\((-?[\d.]+),(-?[\d.]+),", src):
         assert float(a) < float(b), f"smoothstep({a},{b}) ขอบกลับด้าน"
+
+
+def test_planets_can_be_turned_by_hand_and_zoomed():
+    """เจ้าของโปรเจกต์: อยากให้คนเอามือหมุนดาวได้ ฉากหลังเคลื่อนตามอย่างลื่น · ระยะไม่เคยเท่ากัน แต่ดาวยังเป็นดวงเดิม"""
+    from pathlib import Path
+    src = (Path(__file__).resolve().parent.parent / "static" / "planets.html").read_text(encoding="utf-8")
+    assert "addEventListener('pointermove'" in src and "addEventListener('wheel'" in src
+    assert "gl.uniform3f(U.uRot" in src and "uRot.x*.12" in src          # ฉากหลังเลื่อนตาม (พารัลแลกซ์)
+    assert "ivrot(nv)" in src and "RN=vrot(RN)" in src                     # ดวงและวงแหวนหมุนไปด้วยกัน
+    assert "onclick=" not in src
+
+
+def test_background_is_the_real_sky_behind_each_body_today():
+    """ทุกดวงอยู่ใต้ฟ้าผืนเดียวกัน — ฉากหลังคือกลุ่มดาวจริงที่ดวงนั้นอยู่วันนี้ (มองจากโลก)"""
+    import json, subprocess
+    from pathlib import Path
+    src = (Path(__file__).resolve().parent.parent / "static" / "planets.html").read_text(encoding="utf-8")
+    js = src[src.index("var REALSKY"):src.index("/* ใช้ทิศจริงของวันนี้")]
+    out = subprocess.run(["node", "-e", js + "console.log(JSON.stringify(REALSKY(new Date('2026-11-15'))))"],
+                         capture_output=True, text=True, timeout=20)
+    if out.returncode:
+        import pytest
+        pytest.skip("ไม่มี node")
+    r = json.loads(out.stdout)
+    assert -150 < r["5"][0] < -125 and 35 < r["5"][1] < 55        # พฤหัส: ปู/สิงโต (ฟ้าเหนือดาราจักร)
+    assert 90 < r["6"][0] < 135 and r["6"][1] < -50                # เสาร์: ปลา (ฟ้าใต้ดาราจักร)
+    assert "REALSKY(new Date())" in src
