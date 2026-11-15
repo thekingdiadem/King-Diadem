@@ -130,7 +130,12 @@ def status() -> dict:
                      "last_error": v["last_error"] or None,
                      "retry_in_s": max(0, round(v["open_until"] - now)) if v["open_until"] > now else 0}
                  for k, v in _state.items()}
-    return {"last_check": dict(_last_check), "parts": parts}
+    try:
+        from core.housekeeping import status as _hk
+        hk = _hk()
+    except Exception:  # noqa: BLE001
+        hk = None
+    return {"last_check": dict(_last_check), "parts": parts, "housekeeping": hk}
 
 
 _started = False
@@ -151,6 +156,11 @@ def start_background(interval_s: float | None = None) -> bool:
                 check_all()
             except Exception as e:  # noqa: BLE001 — ตัวตรวจเองต้องไม่ทำให้เซิร์ฟเวอร์ล้ม
                 print(f"⚠ self_heal loop: {type(e).__name__}: {e}")
+            try:
+                from core import housekeeping        # ลอกท่อรอบดึก (ทำจริงวันละครั้ง ช่วงคนใช้น้อย)
+                housekeeping.run()
+            except Exception as e:  # noqa: BLE001
+                print(f"⚠ housekeeping: {type(e).__name__}: {e}")
 
     threading.Thread(target=_loop, name="self-heal", daemon=True).start()
     return True
