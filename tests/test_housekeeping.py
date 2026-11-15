@@ -52,3 +52,16 @@ def test_never_touches_important_tables():
     src = open(hk.__file__, encoding="utf-8").read()
     for t in ("users", "credits", "payments", "credit_ledger", "decision_history", "chat_memory", "audit", "backups"):
         assert f"DELETE FROM {t}" not in src
+
+
+def test_expired_reports_are_cleared_while_server_keeps_running():
+    from DATABASE.db import get_conn
+    c = get_conn()
+    c.execute("CREATE TABLE IF NOT EXISTS decision_reports (id TEXT, user_email TEXT, expires_at TEXT)")
+    c.execute("INSERT INTO decision_reports VALUES ('old','a','2020-01-01 00:00:00'), ('new','a','2999-01-01 00:00:00')")
+    c.commit(); c.close()
+    out = hk.run(datetime(2026, 11, 16, 3, 0, tzinfo=BKK), force=True)
+    assert out["done"]["expired_reports"] == 1
+    c = get_conn()
+    assert [r[0] for r in c.execute("SELECT id FROM decision_reports")] == ["new"]
+    c.close()
