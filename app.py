@@ -470,7 +470,20 @@ from fastapi.middleware.gzip import GZipMiddleware
 from core.latency import ReplyTimer, summary as _reply_ms, by_model as _model_ms
 app.add_middleware(ReplyTimer)
 app.add_middleware(GZipMiddleware, minimum_size=2048)
-app.add_middleware(BodyLimitMiddleware)   # เพิ่มทีหลังสุด = ชั้นนอกสุด ตัดก่อนตัวอื่นแตะ body
+app.add_middleware(BodyLimitMiddleware)   # ตัด body ใหญ่ก่อนตัวอื่นแตะ
+# โล่แบนเงื่อนไข (SECURITY/shield.py): รู้จักรูปร่างของตัวเอง · นอกรูปร่างได้คำตอบเดียวกันเสมอ · เคาะประตูมั่วซ้ำๆ = ช้าเหมือนเต่า
+# เป็นชั้นนอกสุด — คำขอที่ไม่ใช่ของเราไม่ต้องแตะอะไรข้างในเลย
+_SHIELD = None
+if os.getenv("SHIELD_OFF") != "1":
+    from SECURITY.shield import ShieldMiddleware as _Shield
+
+    class _ShieldHook(_Shield):
+        def __init__(self, inner):
+            global _SHIELD
+            super().__init__(inner, ip_of=lambda scope: _client_ip(Request(scope)), shape_from=lambda: app)
+            _SHIELD = self
+
+    app.add_middleware(_ShieldHook)
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -1069,6 +1082,7 @@ def health():
         "db_backup_hours":    _backup_hours(),     # ชั่วโมงนับจากสำรองล่าสุด (None = ยังไม่เคย) — เกิน ~24 แปลว่ามีปัญหา
         "feedback":           feedback_loop.stats() if feedback_loop else None,
         "load":               get_survival_stats() if get_survival_stats else None,
+        "shield":             _SHIELD.stats() if _SHIELD else None,
     }
 
 
