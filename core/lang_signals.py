@@ -937,6 +937,17 @@ WORLD_URGENT["violence"] += (r"|(?:la\s+voisine|le\s+voisin)\s+crie\s+au\s+secou
                              r"|(?:a\s+vizinha|o\s+vizinho)\s+est(?:á|a)\s+gritando\s+por\s+socorro[^.!?\n]{0,25}(?:tapas|pancadas|batendo)"
                              r"|(?:соседка|сосед)\s+кричит\s+о\s+помощи[^.!?\n]{0,25}удары")
 
+# รอบสุ่ม 84: หอบหืดที่ยาไม่ช่วย (id fr de pt ru) · อาหารติดคอ (it hi) — เดิมหลุด 7/11
+WORLD_URGENT["medical"] += (
+    r"|asma[^.!?\n]{0,20}inhaler\s+tidak\s+membantu|hanya\s+bisa\s+bicara\s+beberapa\s+kata"
+    r"|(?:asthme|ventoline)[^.!?\n]{0,25}ne\s+marche\s+pas|je\s+ne\s+peux\s+dire\s+que\s+quelques\s+mots"
+    r"|asthma(?:anfall)?[^.!?\n]{0,20}spray\s+hilft\s+nicht|nur\s+wenige\s+worte\s+sprechen"
+    r"|asma[^.!?\n]{0,20}bombinha\s+n(?:ã|a)o\s+funciona|s(?:ó|o)\s+consigo\s+falar\s+algumas\s+palavras"
+    r"|астм[^.!?\n]{0,15}ингалятор\s+не\s+помогает|могу\s+сказать\s+только\s+пару\s+слов"
+    r"|si\s+sta\s+strozzando|non\s+riesce\s+a\s+tossire"
+    r"|गले\s+में\s+खाना\s+फंस|खांस\s+नहीं\s+पा"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
