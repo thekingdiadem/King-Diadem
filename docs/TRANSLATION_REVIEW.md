@@ -6,12 +6,12 @@
 |---|---|---|
 | Afrikaans (`af`) | 5 | 0800 428 · 0800 567 567 · 100 · 10111 · 10177 · 120 · 1323 · 1669 · 191 |
 | Dansk (`da`) | 5 | 100 · 112 · 120 · 1323 · 1669 · 191 · 70 201 201 |
-| Deutsch (`de`) | 5 | 0800 111 0 111 · 0800 222 · 100 · 112 · 116 016 · 120 · 1323 · 142 · 1669 · 191 |
+| Deutsch (`de`) | 6 | 0800 111 0 111 · 0800 222 · 100 · 112 · 116 016 · 120 · 1323 · 142 · 1669 · 191 · 199 |
 | Español (`es`) | 6 | 016 · 112 · 911 |
-| Français (`fr`) | 5 | 100 · 112 · 120 · 1323 · 1669 · 191 · 3114 · 911 |
+| Français (`fr`) | 6 | 100 · 112 · 120 · 1323 · 1669 · 191 · 199 · 3114 · 911 |
 | Hausa (`ha`) | 5 | 100 · 112 · 120 · 1323 · 1669 · 191 |
 | Hrvatski / Srpski / Bosanski (`sh`) | 5 | 100 · 112 · 120 · 124 · 1323 · 1669 · 191 · 192 · 194 |
-| Indonesia (`id`) | 4 | 100 · 110 · 119 · 120 · 1300 · 1323 · 1669 · 191 |
+| Indonesia (`id`) | 5 | 100 · 110 · 113 · 119 · 120 · 1300 · 1323 · 1669 · 191 · 199 |
 | Italiano (`it`) | 5 | 02 2327 2327 · 100 · 112 · 120 · 1323 · 1669 · 191 |
 | Kiswahili (`sw`) | 5 | 100 · 112 · 1195 · 120 · 1323 · 1669 · 191 · 999 |
 | Magyar (`hu`) | 5 | 06 80 20 55 · 100 · 112 · 116 123 · 120 · 1323 · 1669 · 191 |
@@ -20,7 +20,7 @@
 | Norsk (`no`) | 5 | 100 · 112 · 113 · 116 · 116 123 · 120 · 1323 · 1669 · 191 |
 | Oʻzbek (`uz`) | 5 | 100 · 102 · 103 · 120 · 1323 · 1669 · 191 |
 | Polski (`pl`) | 5 | 100 · 112 · 116 123 · 120 · 1323 · 1669 · 191 · 800 120 |
-| Português (`pt`) | 5 | 100 · 112 · 120 · 1323 · 1669 · 188 · 190 · 191 · 192 |
+| Português (`pt`) | 6 | 100 · 112 · 120 · 1323 · 1669 · 188 · 190 · 191 · 192 · 193 · 199 |
 | Română (`ro`) | 5 | 0800 500 · 0800 801 200 · 100 · 112 · 120 · 1323 · 1669 · 191 |
 | Slovenčina (`sk`) | 5 | 0800 212 · 0800 500 333 · 100 · 112 · 120 · 1323 · 155 · 158 · 1669 · 191 |
 | Soomaali (`so`) | 5 | 100 · 120 · 1323 · 1669 · 191 |
@@ -35,7 +35,7 @@
 | Ελληνικά (`el`) | 5 | 100 · 1018 · 112 · 120 · 1323 · 166 · 1669 · 191 |
 | Български (`bg`) | 5 | 100 · 112 · 120 · 1323 · 1669 · 191 |
 | Монгол (`mn`) | 5 | 100 · 102 · 103 · 120 · 1323 · 1669 · 191 |
-| Русский (`ru`) | 5 | 100 · 112 · 120 · 1323 · 1669 · 191 · 8-800-2000-122 |
+| Русский (`ru`) | 6 | 100 · 101 · 112 · 120 · 1323 · 1669 · 191 · 199 · 8-800-2000-122 |
 | Українська (`uk`) | 5 | 100 · 102 · 103 · 112 · 120 · 1323 · 1669 · 191 · 7333 |
 | Қазақ (`kk`) | 5 | 100 · 102 · 103 · 112 · 120 · 1323 · 1669 · 191 |
 | Հայերեն (`hy`) | 5 | 100 · 112 · 120 · 1300 · 1323 · 1669 · 191 · 911 |
@@ -159,6 +159,12 @@
 ('Gehen wir das Schritt für Schritt an.', ['Schreiben Sie in einem Satz, worum es wirklich geht.', 'Notieren Sie, was Sie heute tun können – auch etwas Kleines.', 'Wählen Sie einen einzigen Schritt für die nächsten 24 Stunden.'], 'Was belastet Sie gerade am meisten?')
 ```
 
+**disaster**
+
+```text
+('Ihr Leben ist wichtiger als alles andere — Dinge kann man ersetzen.', ['Rufen Sie 199 (Feuerwehr in Thailand; in Deutschland/Europa: 112) und nennen Sie die Adresse deutlich.', 'Rauch: so tief wie möglich bleiben, Nase mit nassem Tuch bedecken. Tür vorher anfassen — ist sie heiß, nicht öffnen.', 'Kein Ausweg: Tür schließen, Spalt mit nassem Tuch abdichten, ans Fenster gehen und mit der Handylampe winken.'], 'Wo sind Sie gerade, und ist jemand bei Ihnen?')
+```
+
 ## Español (`es`)
 
 - [ ] ผู้ตรวจ: ______  วันที่: ______
@@ -231,6 +237,12 @@
 
 ```text
 ('Prenons les choses une étape à la fois.', ['Écrivez en une phrase ce qui se passe vraiment.', "Listez ce que vous pouvez faire aujourd'hui, même quelque chose de petit.", 'Choisissez une seule action pour les prochaines 24 heures.'], "Qu'est-ce qui vous pèse le plus en ce moment ?")
+```
+
+**disaster**
+
+```text
+('Votre vie compte plus que tout — les objets se remplacent.', ["Appelez le 199 (pompiers en Thaïlande ; en Europe : 112 / France : 18), donnez l'adresse clairement.", "Fumée : baissez-vous au ras du sol, couvrez le nez d'un linge mouillé. Touchez la porte avant d'ouvrir — chaude, ne l'ouvrez pas.", 'Bloqué·e : fermez la porte, calfeutrez avec un linge mouillé, allez à la fenêtre et faites signe avec la lampe du téléphone.'], "Où êtes-vous maintenant, et quelqu'un est-il avec vous ?")
 ```
 
 ## Hausa (`ha`)
@@ -315,6 +327,12 @@
 
 ```text
 ('Ini keadaan darurat — telepon dulu.', ['Telepon 1669 sekarang (di Indonesia: 119), sebutkan alamat dan gejalanya.', 'Jika tidak bernapas atau tidak merespons: tekan kuat di tengah dada 100–120 kali per menit, ikuti petunjuk petugas di telepon.', 'Jangan beri minum atau makan. Simpan kemasan obat yang diminum untuk ditunjukkan ke dokter.'], 'Apakah ada orang yang menemani pasien sekarang?')
+```
+
+**disaster**
+
+```text
+('Nyawamu paling penting — barang bisa diganti.', ['Telepon 199 (pemadam kebakaran Thailand; di Indonesia: 113) atau 1669, sebutkan alamat dengan jelas.', 'Ada asap: merunduk serendah mungkin, tutup hidung dengan kain basah. Raba pintu dulu — kalau panas, jangan dibuka.', 'Tidak bisa keluar: tutup pintu, sumbat celahnya dengan kain basah, berdiri di jendela dan lambaikan senter ponsel.'], 'Kamu di mana sekarang, dan apakah ada orang bersamamu?')
 ```
 
 **violence**
@@ -627,6 +645,12 @@
 
 ```text
 ('Vamos por partes, um passo de cada vez.', ['Escreva em uma frase o que está acontecendo de verdade.', 'Liste o que você pode fazer hoje, mesmo que seja algo pequeno.', 'Escolha uma única ação para as próximas 24 horas.'], 'O que mais está pesando para você agora?')
+```
+
+**disaster**
+
+```text
+('Sua vida vale mais que tudo — as coisas se substituem.', ['Ligue 199 (bombeiros na Tailândia; no Brasil: 193; em Portugal: 112) e diga o endereço com clareza.', 'Fumaça: fique o mais baixo possível, cubra o nariz com um pano molhado. Toque na porta antes de abrir — se estiver quente, não abra.', 'Sem saída: feche a porta, vede a fresta com pano molhado, vá até a janela e acene com a lanterna do celular.'], 'Onde você está agora, e tem alguém com você?')
 ```
 
 ## Română (`ro`)
@@ -1131,6 +1155,12 @@
 
 ```text
 ('Давайте разберёмся шаг за шагом.', ['Напишите одним предложением, что на самом деле происходит.', 'Перечислите, что можно сделать сегодня — даже что-то маленькое.', 'Выберите одно действие на ближайшие 24 часа.'], 'Что сейчас тяготит вас больше всего?')
+```
+
+**disaster**
+
+```text
+('Ваша жизнь важнее всего — вещи можно вернуть.', ['Звоните 199 (пожарные в Таиланде; в России: 101 или 112), чётко назовите адрес.', 'Дым: пригнитесь как можно ниже, закройте нос мокрой тканью. Потрогайте дверь — если горячая, не открывайте.', 'Выйти нельзя: закройте дверь, заткните щель мокрой тканью, встаньте у окна и подавайте сигнал фонариком телефона.'], 'Где вы сейчас и есть ли кто-то рядом?')
 ```
 
 ## Українська (`uk`)

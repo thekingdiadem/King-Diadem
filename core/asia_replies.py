@@ -22,7 +22,7 @@ _VI = re.compile(r"[ăđơưạảấầẩẫậắằẳẵặẹẻẽếề�
 _TR = re.compile(r"[ığşİ]|\b(?:[Aa]nnem|[Kk]ocam|[Bb]abam|beni|istiyorum|[Ii]mdat)\b")   # ไม่ใช้ re.I — "ı" จะไปตรงกับ "i"
 _TL = re.compile(r"\b(?:ang|ng|ako|nang|mga|hindi|sa|tulong|mamatay|makahinga|asawa|nanay|sinasaktan|binubugbog)\b", re.I)
 _MS = re.compile(r"\b(?:nak|tak|awak|bernafas|boleh|pukul\s+saya)\b", re.I)
-_ID = re.compile(r"\b(?:aku|tidak|bisa|bernapas|ingin|mau|suamiku|ibuku|istriku|tolong)\b", re.I)
+_ID = re.compile(r"\b(?:aku|tidak|bisa|bernapas|ingin|mau|suamiku|ibuku|istriku|tolong|saya|anak\s+saya|anakku|ayah|rumah|sakit|minum|ada\s+orang)\b", re.I)   # รอบ 13: "anak saya tersedak mainan" เคยถูกเดาเป็นอังกฤษ
 
 
 def asia_lang(text) -> str | None:
@@ -157,6 +157,11 @@ REPLY = {
                      "Jika tidak bernapas atau tidak merespons: tekan kuat di tengah dada 100–120 kali per menit, ikuti petunjuk petugas di telepon.",
                      "Jangan beri minum atau makan. Simpan kemasan obat yang diminum untuk ditunjukkan ke dokter."],
                     "Apakah ada orang yang menemani pasien sekarang?"),
+        "disaster": ("Nyawamu paling penting — barang bisa diganti.",
+                     ["Telepon 199 (pemadam kebakaran Thailand; di Indonesia: 113) atau 1669, sebutkan alamat dengan jelas.",
+                      "Ada asap: merunduk serendah mungkin, tutup hidung dengan kain basah. Raba pintu dulu — kalau panas, jangan dibuka.",
+                      "Tidak bisa keluar: tutup pintu, sumbat celahnya dengan kain basah, berdiri di jendela dan lambaikan senter ponsel."],
+                     "Kamu di mana sekarang, dan apakah ada orang bersamamu?"),
         "violence": ("Ini bukan salahmu. Kamu berhak untuk aman.",
                      ["Jika dalam bahaya sekarang, telepon 191 (polisi Thailand; di Indonesia: 110).",
                       "Pergi dulu ke tempat aman: tetangga, rumah teman, atau tempat ramai.",
