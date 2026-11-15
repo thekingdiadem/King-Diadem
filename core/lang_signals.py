@@ -813,6 +813,20 @@ WORLD_URGENT["medical"] += (
 # รอบสุ่ม 56: ไฟดูดแล้วหมดสติ (id pt) — เดิมได้ 0
 WORLD_URGENT["medical"] += r"|(?:kesetrum|tersengat\s+listrik)[^.!?\n]{0,25}(?:tidak\s+sadar|pingsan|tidak\s+bernapas)|levou\s+um\s+choque(?:\s+el(?:é|e)trico)?[^.!?\n]{0,25}(?:desacordad|inconsciente|n(?:ã|a)o\s+respira)"
 
+# รอบสุ่ม 57: แท็กซี่ล็อกประตู · ใส่ยาในเครื่องดื่ม ใน it tr ar hi tl ms (เดิมหลุด 12/12)
+WORLD_URGENT["violence"] += (
+    r"|(?:tassista|autista)[^.!?\n]{0,20}(?:chiuso|bloccato)\s+le\s+portiere|non\s+mi\s+fa\s+scendere"
+    r"|taksici\s+kap(?:ı|i)lar(?:ı|i)\s+kilitledi|inmeme\s+izin\s+vermiyor"
+    r"|(?:سائق|السائق)[^.!?\n]{0,15}أغلق\s+الأبواب|لا\s+يسمح\s+لي\s+بالنزول"
+    r"|(?:दरवाज़े|दरवाजे)\s+लॉक\s+कर\s+दिए|उतरने\s+नहीं\s+दे\s+रहा"
+    r"|ni-?lock\s+ng\s+(?:taxi\s+)?driver\s+ang\s+pinto|ayaw\s+akong\s+pababain"
+    r"|(?:pemandu|drebar)\s+teksi\s+kunci\s+pintu|tak\s+bagi\s+saya\s+turun"
+)
+WORLD_URGENT["medical"] += (
+    r"|messo\s+qualcosa\s+nel\s+(?:drink|bicchiere)|i(?:ç|c)kime\s+bir\s+(?:ş|s)ey\s+koydu|وضع\s+شيئ(?:ًا|ا)\s+في\s+مشروبي"
+    r"|ड्रिंक\s+में\s+कुछ\s+मिला\s+दिया|naglagay\s+ng\s+kung\s+ano\s+sa\s+inumin\s+ko|letak\s+sesuatu\s+dalam\s+minuman\s+saya"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
