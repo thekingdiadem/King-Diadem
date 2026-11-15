@@ -275,7 +275,7 @@ PACK = [
       "Is it you or someone at home who vapes, and for how long?")),
 
     ("kp_cat_not_eating",
-     r"แมว\S{0,8}(?:ไม่(?:ยอม)?กิน|ไม่กินข้าว|ซ่อนตัว|หลบ|ซึม|ฉี่ไม่ออก|เบ่งฉี่)|\bmy cat\b[^\n]{0,20}?\b(?:isn'?t eating|not eating|won'?t eat|stopped eating|hiding|can'?t pee|straining)\b",
+     r"แมว\S{0,8}(?:ไม่(?:ยอม)?กิน|ไม่กินข้าว|ซ่อนตัว|หลบ|ซึม)|\bmy cat\b[^\n]{0,20}?\b(?:isn'?t eating|not eating|won'?t eat|stopped eating|hiding|can'?t pee|straining)\b",
      45, False,
      ("แมวไม่กินอาหารเกิน 1–2 วันอันตรายกว่าที่คิด — ตับอาจเสียหายได้",
       ["แมวตัวผู้เบ่งฉี่แต่ไม่ออก ร้องตอนฉี่ หรือหายใจอ้าปาก ไปโรงพยาบาลสัตว์เดี๋ยวนี้ — ทางเดินปัสสาวะอุดตันถึงชีวิตได้ในวันเดียว",
