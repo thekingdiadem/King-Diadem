@@ -182,6 +182,13 @@ UPGRADES += [(re.compile(r"บังคับ(?:ให้)?\S{0,4}(?:ไป)?(?:
                          r"(?i:\b(?:forc(?:es|ed|ing)|making)\s+me\s+(?:to\s+)?(?:sell\s+(?:my\s+body|sex)|prostitute|do\s+sex\s+work)\b|"
                          r"\block(?:s|ed)?\s+us\s+in\b[^\n]{0,40}?\btak(?:e|es|en)\s+our\s+(?:phones|passports|ids)\b|"
                          r"\btak(?:e|es|en)\s+our\s+(?:phones|passports)\b[^\n]{0,40}?\block(?:s|ed)?\s+us\s+in\b)"), "trafficking")]
+# รอบสุ่ม 19: คนเปราะบางหาย · น้ำตาลต่ำในคนเป็นเบาหวาน · คนดูแลทำร้ายผู้สูงอายุ
+UPGRADES += [
+    (re.compile(r"(?:ออทิสติก|สมาธิสั้น|ดาวน์|สมองเสื่อม|อัลไซเมอร์|ความจำเสื่อม|หลงลืม)[^\n]{0,16}?(?:หาย(?:ไป|ตัว)|เดินออกจากบ้าน|หาไม่เจอ|ออกจากบ้านไป)|"
+                r"(?i:\b(?:autistic|dementia|alzheimer'?s?|special[- ]needs|non-?verbal)\b[^\n]{0,30}?\b(?:wander(?:ed|s)?\s+off|went\s+missing|is\s+missing|can'?t\s+find)\b)"), "missing"),
+    (re.compile(r"(?i:\bdiabet(?:ic|es)\b[^\n]{0,40}?\b(?:confused|barely\s+respond|unresponsive|won'?t\s+wake|slurring|shaking\s+and\s+sweaty|passed\s+out)\b)"), "health_emergency"),
+    (re.compile(r"(?i:\b(?:caregiver|carer|nanny|aide|nurse|helper|maid)\b[^\n]{0,20}?\b(?:is\s+|was\s+|keeps\s+)?(?:hitting|beating|slapping|abusing|hurting|pushing)\s+(?:my\s+)?(?:grand(?:ma|mother|pa|father)|mom|mother|dad|father|baby|son|daughter|child|kid)\b)"), "violence"),
+]
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
 _WATCHING = re.compile(r"(?:ซ้อม|เล่น|แสดง|ถ่าย)\S{0,2}?ละคร(?:เวที)?\S{0,8}?(?:อยู่|กับ|ด้วยกัน)|(?:ดู|นั่งดู|เปิด|นอนดู)\S{0,4}?(?:ซีรีส์|ละคร|สารคดี|หนัง|ทีวี)\S{0,12}?(?:อยู่|กับ|ด้วยกัน|ไป)|อ่านข่าวอยู่|"
