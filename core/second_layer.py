@@ -189,6 +189,15 @@ UPGRADES += [
     (re.compile(r"(?i:\bdiabet(?:ic|es)\b[^\n]{0,40}?\b(?:confused|barely\s+respond|unresponsive|won'?t\s+wake|slurring|shaking\s+and\s+sweaty|passed\s+out)\b)"), "health_emergency"),
     (re.compile(r"(?i:\b(?:caregiver|carer|nanny|aide|nurse|helper|maid)\b[^\n]{0,20}?\b(?:is\s+|was\s+|keeps\s+)?(?:hitting|beating|slapping|abusing|hurting|pushing)\s+(?:my\s+)?(?:grand(?:ma|mother|pa|father)|mom|mother|dad|father|baby|son|daughter|child|kid)\b)"), "violence"),
 ]
+# รอบสุ่ม 20: พ่อแม่เล่าเรื่องลูก (อังกฤษ) — เดิมหลุดครบ 5/5
+_KID = r"(?:teen|son|daughter|kid|child|boy|girl|\d{1,2}[- ]year[- ]old)"
+UPGRADES += [
+    (re.compile(r"(?i:\b" + _KID + r"\b[^\n]{0,30}?\b(?:has\s+cuts\s+on|is\s+cutting|cuts\s+(?:her|him|them)sel(?:f|ves)|self[- ]harm(?:ing)?|burn\s+marks\s+on)\b|"
+                r"\b" + _KID + r"\b[^\n]{0,30}?\bposted\b[^\n]{0,30}?\b(?:last\s+night|goodbye|won'?t\s+be\s+here|last\s+post)\b)"), "crisis"),
+    (re.compile(r"(?i:\b(?:man|guy|adult|stranger|someone)\b[^\n]{0,30}?\b(?:asked|asking|wants?)\s+(?:for\s+)?(?:nudes?|nude\s+photos?|naked\s+(?:pics|photos))\b|"
+                r"\b" + _KID + r"\b[^\n]{0,30}?\bmeeting\s+(?:an?\s+)?(?:adult|older\s+(?:man|guy|woman)|stranger)\b[^\n]{0,20}?\bmet\s+online\b)"), "online_grooming"),
+    (re.compile(r"(?i:\bmaking\s+(?:my\s+)?" + _KID + r"\s+(?:send|pay)\s+money\b[^\n]{0,30}?\b(?:or|otherwise)\b[^\n]{0,20}?\b(?:share|post|leak|send)\b[^\n]{0,15}?\b(?:photos?|pics|videos?)\b)"), "sextortion"),
+]
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
 _WATCHING = re.compile(r"(?:ซ้อม|เล่น|แสดง|ถ่าย)\S{0,2}?ละคร(?:เวที)?\S{0,8}?(?:อยู่|กับ|ด้วยกัน)|(?:ดู|นั่งดู|เปิด|นอนดู)\S{0,4}?(?:ซีรีส์|ละคร|สารคดี|หนัง|ทีวี)\S{0,12}?(?:อยู่|กับ|ด้วยกัน|ไป)|อ่านข่าวอยู่|"
