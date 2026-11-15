@@ -175,6 +175,13 @@ ANGER_MOOD = re.compile(
     r"\b(?:(?:i'?m |i am )?(?:shaking|trembling)|my (?:hands|body) (?:are|is) shaking|i (?:want|wanna|need) to (?:smash|break|punch|destroy|wreck) (?:everything|something|things|the wall|stuff))\b|"
     r"\bi (?:want|wanna) to (?:smash|break|destroy|wreck) everything\b|\bshaking with (?:anger|rage)\b)")
 # "โมโหมาก" มีตัวอักษร "หมา" ซ่อนอยู่ (โม-โห-มาก) — ต้องไม่ใช่ตัวต่อจาก โ และไม่ใช่ "หมาก"
+# รอบสุ่ม 18: สัญญาณค้ามนุษย์/บังคับใช้แรงงาน-ค้าประเวณี — เดิมได้ 0
+UPGRADES += [(re.compile(r"บังคับ(?:ให้)?\S{0,4}(?:ไป)?(?:ขายตัว|ขายบริการ|ค้าประเวณี|ทำงานบริการ)|"
+                         r"(?:ยึด|เก็บ)(?:บัตรประชาชน|บัตรประจำตัว|พาสปอร์ต|หนังสือเดินทาง|บัตร)\S{0,4}(?:ไว้)?[^\n]{0,24}?(?:ไม่จ่าย|ไม่ให้(?:ออก|กลับ|ไป)|ห้ามออก)|"
+                         r"(?:ไม่จ่าย(?:เงิน|ค่าแรง))[^\n]{0,24}?(?:ยึด|เก็บ)(?:บัตรประชาชน|พาสปอร์ต|หนังสือเดินทาง)|"
+                         r"(?i:\b(?:forc(?:es|ed|ing)|making)\s+me\s+(?:to\s+)?(?:sell\s+(?:my\s+body|sex)|prostitute|do\s+sex\s+work)\b|"
+                         r"\block(?:s|ed)?\s+us\s+in\b[^\n]{0,40}?\btak(?:e|es|en)\s+our\s+(?:phones|passports|ids)\b|"
+                         r"\btak(?:e|es|en)\s+our\s+(?:phones|passports)\b[^\n]{0,40}?\block(?:s|ed)?\s+us\s+in\b)"), "trafficking")]
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
 _WATCHING = re.compile(r"(?:ซ้อม|เล่น|แสดง|ถ่าย)\S{0,2}?ละคร(?:เวที)?\S{0,8}?(?:อยู่|กับ|ด้วยกัน)|(?:ดู|นั่งดู|เปิด|นอนดู)\S{0,4}?(?:ซีรีส์|ละคร|สารคดี|หนัง|ทีวี)\S{0,12}?(?:อยู่|กับ|ด้วยกัน|ไป)|อ่านข่าวอยู่|"
