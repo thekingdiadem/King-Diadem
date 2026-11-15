@@ -33,3 +33,14 @@ def test_vietnamese_gets_vietnamese_reply():
 @pytest.mark.parametrize("q", ["今日は疲れたけど楽しかった", "我今天很开心", "오늘 날씨 좋다", "hoy fue un buen día"])
 def test_everyday_stays_calm(q):
     assert assess(q)["risk_shown"] < 60
+
+
+@pytest.mark.parametrize("q", ["hôm nay vui quá", "chị ơi em mệt lắm"])
+def test_short_vietnamese_without_special_letters_gets_vietnamese(q):
+    # เคยได้คำตอบภาษาสเปน เพราะ "quá" มี á เหมือนสเปน
+    assert compose(q, footer=False).startswith("Mình cùng")
+
+
+@pytest.mark.parametrize("q,start", [("hoy fue un buen día", "Vamos"), ("mi mamá se desmayó", "Es una emergencia")])
+def test_spanish_still_spanish(q, start):
+    assert compose(q, footer=False).startswith(start)
