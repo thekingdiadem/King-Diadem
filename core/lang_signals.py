@@ -690,6 +690,17 @@ WORLD_FIRE += (r"|bau\s+gas\s+(?:sangat\s+)?(?:kuat|menyengat)|(?:ç|c)a\s+sent\
 WORLD_URGENT["help"] += r"|bau\s+gas\s+(?:sangat\s+)?(?:kuat|menyengat)|(?:ç|c)a\s+sent\s+(?:fort\s+)?le\s+gaz|riecht\s+(?:stark\s+)?nach\s+gas|cheiro\s+(?:forte\s+)?de\s+g(?:á|a)s|пахнет\s+газом|запах\s+газа"
 WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
 
+# รอบสุ่ม 39: เป็นภาระ+ยกของ (de pt) · ลูกทำร้ายตัวเอง (id fr de pt ru) — เดิมหลุด 7/10
+WORLD_URGENT["crisis"] += (
+    r"|will\s+niemandem\s+(?:mehr\s+)?zur\s+last\s+fallen|alle\s+meine\s+sachen\s+verschenkt"
+    r"|n(?:ã|a)o\s+quero\s+(?:mais\s+)?ser\s+um\s+peso|dei\s+todas\s+as\s+minhas\s+coisas"
+    r"|anak\s+saya\s+(?:menyayat|melukai|mengiris)\s+(?:tangan|lengan)"
+    r"|(?:ma\s+fille|mon\s+fils|mon\s+enfant)\s+se\s+(?:scarifie|coupe|mutile)"
+    r"|(?:meine\s+tochter|mein\s+sohn|mein\s+kind)\s+ritzt\s+sich"
+    r"|(?:minha\s+filha|meu\s+filho)\s+(?:est(?:á|a)\s+)?se\s+cortando"
+    r"|(?:моя\s+дочь|мой\s+сын|мой\s+ребёнок|мой\s+ребенок)\s+(?:режет|ранит)\s+себе\s+(?:руки|запястья)"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
