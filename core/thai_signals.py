@@ -688,6 +688,9 @@ URGENT_BODY = re.compile(
     r"\bcan'?t stop the bleeding\b|\blots? of blood\b|\bblood\b[^\n]{0,30}?\b(?:soak(?:ing|ed|s)? (?:through|into)|pouring|spurting|gushing|won'?t stop)\b|\bsoak(?:ing|ed) through\b[^\n]{0,30}?\b(?:towels?|bandages?|cloths?|shirts?|gauze)\b|\bstung by an? (?:bee|wasp|hornet)\b[^\n]{0,40}?\b(?:swell|can'?t breathe|trouble breathing)|"
     r"\b(?:face|lips|tongue|throat) (?:is |are )?(?:swelling|swollen)\b[^\n]{0,30}?\b(?:breath|after eating|ate)|\bheat ?stroke\b|"
     r"\b(?:very )?drunk\b[^\n]{0,20}?\b(?:won'?t|can'?t|doesn'?t) wake\b|\bwon'?t wake up\b|\bpassed out drunk\b|"
+    # รอบสุ่ม 82: หอบหืด/แพ้รุนแรง (อังกฤษ)
+    r"\b(?:asthma|wheez\w*)\b[^\n]{0,30}?\binhaler\s+(?:isn'?t|is\s+not|not)\s+(?:helping|working)\b|\bcan\s+only\s+(?:speak|say)\s+a\s+few\s+words\b|"
+    r"\b(?:allergic\s+reaction|hives)\b[^\n]{0,40}?\b(?:faint|dizzy|throat|can'?t\s+breathe|swelling)\b[^\n]{0,30}?\b(?:faint|dizzy|throat|breath)\w*|"
     # รอบสุ่ม 81: ความร้อน/ความเย็น (อังกฤษ) — ผู้สูงอายุร้อนจัดซึม · ตัวสั่นปากม่วงง่วงซึม · ติดในห้องเย็น
     r"\b(?:grandma|grandpa|elderly|old\s+(?:man|woman)|mom|dad)\b[^\n]{0,30}?\b(?:4\d|3[89])\s?(?:degrees|°c?)\b[^\n]{0,30}?\b(?:drowsy|confused|not\s+responding|very\s+sleepy|lethargic)\b|"
     r"\bshivering\b[^\n]{0,20}?\bblue\s+lips\b|\bblue\s+lips\b[^\n]{0,30}?\b(?:sleepy|drowsy|confused|shivering)\b|"
@@ -717,6 +720,9 @@ MEDICAL_EMERGENCY = re.compile(
     r"\b(?:can'?t|cannot) (?:lift|move|raise) (?:his|her|my|their) (?:left|right) (?:arm|leg)\b[^\n]{0,40}?\b(?:slurr|no sense|can'?t speak|drooping)|"
     r"\b(?:toddler|baby|kid|son|daughter|child)\b[^\n]{0,60}?\b(?:holding|has|got into|opened)\b[^\n]{0,20}?\b(?:bleach|drain cleaner|detergent pod|pesticide|antifreeze|lye)\b"
     r"[^\n]{0,50}?\b(?:mouth (?:is )?wet|in (?:his|her) mouth|licked|swallowed|drank|coughing|vomiting)\b)|"
+    # รอบสุ่ม 82: หอบหืดพ่นยาไม่ดีขึ้น · อาหารติดคอไอไม่ออก
+    r"หอบ(?:หืด)?[^\n]{0,15}?พ่นยา\S{0,4}(?:แล้ว)?\S{0,2}ไม่(?:ดีขึ้น|หาย|ช่วย)|พูดเป็นคำๆ|พูดได้ทีละคำ|"
+    r"(?:ติดคอ|สำลักอาหาร)[^\n]{0,15}?(?:ไอไม่ออก|หายใจไม่ได้|หน้าเขียว|ปากเขียว|พูดไม่ได้)|"
     # รอบสุ่ม 81: ติดอยู่ในห้องเย็น/ตู้แช่ (ไทย)
     r"(?:ติด|ขัง)(?:อยู่)?(?:ข้าง)?ใน(?:ห้องเย็น|ตู้แช่|ห้องแช่แข็ง)|(?:ห้องเย็น|ตู้แช่)[^\n]{0,20}?(?:ติดอยู่|ประตูเปิดไม่ได้|ออกไม่ได้)|"
     # รอบสุ่ม 7: สโตรกที่เล่าด้วยคำอื่น — "พูดไม่รู้เรื่อง มือซ้ายยกไม่ขึ้น" · เด็กถือน้ำยาเคมี ปากเปียก
