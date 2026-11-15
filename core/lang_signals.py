@@ -827,6 +827,21 @@ WORLD_URGENT["medical"] += (
     r"|ड्रिंक\s+में\s+कुछ\s+मिला\s+दिया|naglagay\s+ng\s+kung\s+ano\s+sa\s+inumin\s+ko|letak\s+sesuatu\s+dalam\s+minuman\s+saya"
 )
 
+# รอบสุ่ม 58: ลูกกับภัยออนไลน์/ทำร้ายตัวเอง ใน it tr ar hi tl ms (เดิมหลุด 18/18)
+WORLD_URGENT["violence"] += (
+    r"|chiesto\s+foto\s+nude|incontra\s+un\s+adulto\s+conosciuto\s+online"
+    r"|(?:ç|c)(?:ı|i)plak\s+foto(?:ğ|g)raf\s+istedi|internetten\s+tan(?:ı|i)(?:ş|s)t(?:ı|i)(?:ğ|g)(?:ı|i)\s+bir\s+yeti(?:ş|s)kinle\s+bulu(?:ş|s)"
+    r"|طلب\s+صور(?:ًا|ا)?\s+عارية|ستقابل[^.!?\n]{0,25}بالغ(?:ًا|ا)?\s+تعرفت\s+عليه\s+عبر\s+الإنترنت"
+    r"|नंगी\s+तस्वीरें\s+मांग|ऑनलाइन\s+मिले\s+एक\s+बड़े\s+आदमी\s+से\s+मिलने"
+    r"|humingi\s+ng\s+hubad\s+na\s+litrato|makikipagkita[^.!?\n]{0,25}adult\s+na\s+nakilala\s+online"
+    r"|minta\s+gambar\s+bogel|jumpa\s+orang\s+dewasa\s+yang\s+dikenali\s+online"
+)
+WORLD_URGENT["crisis"] += (
+    r"|(?:mia\s+figlia|mio\s+figlio)\s+si\s+taglia|k(?:ı|i)z(?:ı|i)m\s+kollar(?:ı|i)n(?:ı|i)\s+kesiyor|o(?:ğ|g)lum\s+kollar(?:ı|i)n(?:ı|i)\s+kesiyor"
+    r"|(?:ابنتي|ابني)\s+(?:تجرح|يجرح)\s+(?:ذراعيها|ذراعيه|نفسها|نفسه)|(?:बेटी|बेटा)\s+अपनी\s+बांहें\s+काट"
+    r"|naglalaslas\s+ng\s+(?:braso|pulso)\s+ang\s+anak|anak\s+saya\s+kelar\s+tangan"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
