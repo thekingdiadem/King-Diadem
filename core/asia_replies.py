@@ -129,6 +129,12 @@ REPLY = {
                      "Nếu không thở hoặc gọi không tỉnh: ấn mạnh giữa ngực 100–120 lần/phút, làm theo hướng dẫn qua điện thoại.",
                      "Không cho uống nước hay ăn. Giữ lại vỏ thuốc đã uống để cho bác sĩ xem."],
                     "Bây giờ có ai ở cạnh người bệnh không?"),
+        # รอบสุ่ม 12: ไฟไหม้/ภัยพิบัติ — เดิมได้คำตอบ "เล่าให้ฟังหน่อย" ซึ่งไม่พอสำหรับคนที่ติดอยู่ในกองไฟ
+        "disaster": ("Mạng sống của bạn quan trọng nhất — đồ đạc có thể lấy lại sau.",
+                     ["Gọi ngay 199 (cứu hỏa Thái Lan; ở Việt Nam: 114) hoặc 1669, nói rõ địa chỉ.",
+                      "Có khói: cúi thấp sát sàn, che mũi bằng khăn ướt. Sờ cửa trước khi mở — nóng thì đừng mở.",
+                      "Không ra được: đóng cửa, chặn khe cửa bằng khăn ướt, đứng ở cửa sổ và vẫy đèn điện thoại để người ngoài thấy."],
+                     "Bây giờ bạn đang ở đâu, có ai ở cùng không?"),
         "violence": ("Đây không phải lỗi của bạn. Bạn xứng đáng được an toàn.",
                      ["Nếu đang nguy hiểm, gọi ngay 191 (cảnh sát Thái Lan; ở Việt Nam: 113).",
                       "Đến nơi an toàn trước: hàng xóm, nhà bạn bè, hoặc nơi đông người.",

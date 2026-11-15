@@ -27,6 +27,7 @@ def test_asia_lang_detection(t, lang):
 
 def test_every_language_has_all_four_kinds():
     for lang, kinds in REPLY.items():
-        assert set(kinds) == {"crisis", "medical", "violence", "help"}, lang
+        # ทุกภาษาต้องมีครบสี่ชนิด · "disaster" (ไฟไหม้/ภัยพิบัติ) เพิ่มได้ทีละภาษา (รอบสุ่ม 12 เริ่มที่เวียดนาม)
+        assert {"crisis", "medical", "violence", "help"} <= set(kinds) <= {"crisis", "medical", "violence", "help", "disaster"}, lang
         for opener, steps, ask in kinds.values():
             assert opener and ask and len(steps) == 3
