@@ -263,6 +263,13 @@ UPGRADES += [
                 r"(?i:\blost\s+(?:on|in)\s+the\s+(?:mountain|woods|forest|jungle|desert)\b|\bboat\s+(?:engine\s+)?(?:died|broke\s+down|failed)\s+at\s+sea\b|\bcar\s+broke\s+down\b[^\n]{0,20}?\bno\s+(?:signal|service)\b)"), "stranded"),
     (re.compile(r"ลูก(?:หาย|พลัดหลง)[^\n]{0,15}?(?:ห้าง|ตลาด|งาน|สนามบิน|สถานี|คนเยอะ)|(?i:\blost\s+my\s+(?:kid|child|son|daughter)\s+(?:in|at)\s+(?:a|the)\s+(?:\w+\s+)?(?:mall|market|crowd|airport|station|fair|festival)\b)"), "missing"),
 ]
+# รอบสุ่ม 80: คนในแชทนัดเด็กไปโรงแรม+ห้ามบอก · งานต่างประเทศจากเฟซ+นายหน้าเก็บพาสปอร์ต · แม่ถูกหลอกว่าเป็นลูก
+UPGRADES += [
+    (re.compile(r"(?:คนใน(?:แชท|เกม|เน็ต)|คนแปลกหน้า)[^\n]{0,20}?(?:ให้ไป|นัด)\S{0,4}(?:เจอ|หา)[^\n]{0,15}?(?:โรงแรม|ห้อง|บ้าน)[^\n]{0,30}?(?:ห้ามบอก|อย่าบอก)|"
+                r"(?i:\bsomeone\s+(?:from|in)\s+(?:a|the)\s+(?:chat|game|app)\b[^\n]{0,30}?\bmeet\s+her\b[^\n]{0,20}?\bhotel\b[^\n]{0,40}?\bnot\s+to\s+tell\b)"), "online_grooming"),
+    (re.compile(r"งานต่างประเทศ[^\n]{0,15}?(?:จาก|ใน|ทาง)(?:เฟซ|เฟสบุ๊ค|ไลน์|ติ๊กต็อก|โซเชียล)[^\n]{0,40}?(?:เก็บ|ยึด)(?:พาสปอร์ต|หนังสือเดินทาง)"), "trafficking"),
+    (re.compile(r"(?:แม่|พ่อ|ยาย|ตา)\S{0,4}เชื่อ(?:คน)?ใน(?:ไลน์|แชท|เฟซ)\S{0,6}ว่าเป็น(?:ลูก|หลาน)[^\n]{0,20}?(?:โอน|ส่งเงิน)"), "scam"),
+]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
