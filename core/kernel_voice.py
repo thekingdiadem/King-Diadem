@@ -2311,6 +2311,8 @@ from core.problem_lens_more import _SINUS_DANGER as _SINUS_DANGER_SRC
 _SINUS_DANGER_RX = re.compile(_SINUS_DANGER_SRC)
 from core.problem_lens_more import _SUDDEN_VISION as _SV_SRC
 _SUDDEN_VISION_RX = re.compile(_SV_SRC, re.I)
+from core.problem_lens_more import _CAT_URINARY as _CU_SRC
+_CAT_URINARY_RX = re.compile(_CU_SRC, re.I)
 _HEAT_SYMPTOM = re.compile(r"(?:ร้อน(?:จัด|มาก)|อากาศร้อน|กลางแดด|ตากแดด|หน้างานร้อน|\d{2}\s?องศา|\bheat\b|\bin the sun\b)[^\n]{0,40}?"
                            r"(?:เวียนหัว|คลื่นไส้|อาเจียน|หน้ามืด|อ่อนเพลีย|ใจสั่น|ตะคริว|ปวดหัว|\bdizzy\b|\bnause\w*|\bfaint\w*|\bcramps?\b|\bheadache\b)|"
                            r"(?:เวียนหัว|คลื่นไส้|หน้ามืด|\bdizzy\b|\bfaint\w*)[^\n]{0,30}?(?:ร้อน(?:จัด|มาก)|กลางแดด|ตากแดด|\bheat\b|\bin the sun\b)", re.I)
@@ -2325,6 +2327,9 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     if isinstance(text, str) and not a["crisis"] and _SUDDEN_VISION_RX.search(text):      # ตามัวกะทันหัน = ฉุกเฉิน
         a = dict(a, text_risk=max(a["text_risk"], 80), risk=max(a["risk"], 80),
                  risk_shown=max(a["risk_shown"], 80) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
+    if isinstance(text, str) and not a["crisis"] and _CAT_URINARY_RX.search(text):      # แมวเบ่งฉี่ไม่ออก = ฉุกเฉินภายในวัน
+        a = dict(a, text_risk=max(a["text_risk"], 70), risk=max(a["risk"], 70),
+                 risk_shown=max(a["risk_shown"], 70) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     if isinstance(text, str) and not a["crisis"] and _SINUS_DANGER_RX.search(text):
         a = dict(a, text_risk=max(a["text_risk"], 70), risk=max(a["risk"], 70),
                  risk_shown=max(a["risk_shown"], 70) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))

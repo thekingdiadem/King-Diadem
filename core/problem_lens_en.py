@@ -557,6 +557,22 @@ EN = {
         "Weight is an output — the upstream variables are sleep, food, medication and stress. Fix whichever changed most recently."),
 }
 
+EN["teen_silent"] = (r"\bmy (?:teen|teenager|son|daughter|kid)\b[^\n]{0,20}\b(?:won'?t|doesn'?t|refuses to) (?:talk|speak|open up)\b",
+    "A teenager going quiet is common, and it usually isn't rejection — it's them pulling away to work out who they are. The door stays open through small, low-pressure contact more than big talks.",
+    ["Talk side by side rather than face to face — in the car, cooking, walking. Teens open up more when it doesn't feel like an interview.",
+     "Listen more than you fix. If they share something, respond with \"that sounds hard\" before any advice.",
+     "Watch for warning signs beyond quietness: dropping grades, not eating or sleeping, self-harm, talk of not wanting to live. If you see them, get professional help — in Thailand call 1323."],
+    "Has the silence come on suddenly, or gradually over months?",
+    "Teen withdrawal is normal development unless paired with warning signs — the variable is connection through low-pressure time.")
+
+EN["failure_by_age"] = (r"\b(?:i'?m|im) (?:\d{2}|thirty|forty)\b[^\n]{0,30}\b(?:failure|behind|nothing to show|wasted my life)\b|\bfeel like a failure\b",
+    "Feeling like a failure at your age usually comes from comparing your behind-the-scenes with other people's highlight reels — and from timelines nobody actually has to follow.",
+    ["Write down what you have actually done and survived in the last five years — most people undercount it badly.",
+     "Pick one area that matters most to you right now (money, work, health, relationships) and set one small, measurable step for the next month.",
+     "Notice who you're comparing yourself to and mute what makes you feel worse. If the feeling is constant and heavy for weeks, talk to someone — it may be low mood rather than reality."],
+    "Failure compared to what — or to whom?",
+    "Feeling behind is a comparison, not a measurement — the variable is your next step, not someone else's timeline.")
+
 EN["overtime_refusal"] = (r"\b(?:can'?t|cannot|not allowed to) refuse (?:overtime|extra hours|weekend work)\b|\b(?:refuse|say no to) overtime\b[^\n]{0,40}\bfired\b|\bforced (?:to work )?overtime\b",
     "Under Thai labour law, overtime needs the employee's consent each time — refusing is a right, not insubordination, and firing someone for refusing may be an unfair dismissal. "
     "Elsewhere the rules differ, but most countries also limit forced overtime.",
