@@ -48,3 +48,13 @@ def test_thai_below_vowels_not_clipped_in_title():
 def test_front_page_sky_varies_per_visit():
     js = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
     assert "SKY_VIEWS" in js and "Math.random() * SKY_VIEWS.length" in js
+
+
+def test_shader_has_no_undefined_glsl_math():
+    """หัวใจพลูโตเคยเหลือแค่สองแฉก: pow(ฐานติดลบ, n) และ smoothstep ขอบกลับด้าน ไม่นิยามใน GLSL"""
+    import re
+    from pathlib import Path
+    src = (Path(__file__).resolve().parent.parent / "static" / "planets.html").read_text(encoding="utf-8")
+    assert not re.search(r"pow\([^;]*?,\s*[23]\.\)", src.replace("pow(1.-nv.z,3.)", "").replace("pow(ฐานติดลบ,3.)", ""))
+    for a, b in re.findall(r"smoothstep\((-?[\d.]+),(-?[\d.]+),", src):
+        assert float(a) < float(b), f"smoothstep({a},{b}) ขอบกลับด้าน"
