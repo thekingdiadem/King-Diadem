@@ -533,6 +533,61 @@ WORLD_URGENT["crisis"] += (
 WORLD_URGENT["medical"] += r"|(?:say|uống)[^.!?\n]{0,20}gọi\s+(?:mãi\s+)?không\s+(?:tỉnh|dậy)|mabuk[^.!?\n]{0,20}tidak\s+bangun|ivre[^.!?\n]{0,20}ne\s+se\s+r[ée]veille\s+pas|betrunken[^.!?\n]{0,20}wacht\s+nicht\s+auf"
 WORLD_URGENT["violence"] += r"|(?:người\s+lạ|ai\s+đó)[^.!?\n]{0,15}(?:cố\s+)?(?:mở|phá|cạy)\s+cửa|(?:orang\s+asing|seseorang)[^.!?\n]{0,15}(?:mencoba|coba)\s+(?:membuka|buka)\s+pintu|quelqu['’]un\s+essaie\s+d['’]ouvrir\s+(?:ma\s+)?(?:la\s+)?porte|jemand\s+versucht,?\s+(?:meine\s+|die\s+)?t[üu]r\s+zu\s+[öo]ffnen"
 
+# รอบสุ่ม 13: เหตุฉุกเฉินในบ้าน (สำลัก · เด็กดื่มน้ำยา · เจ็บหน้าอก+เหงื่อ · บุกเข้าบ้าน) ใน id fr de pt ru — เดิมได้ 0 ทั้ง 25 ข้อ
+WORLD_URGENT["medical"] += (
+    r"|tersedak|(?:minum|menelan)\s+(?:pemutih|cairan\s+pembersih|deterjen|racun|bensin|obat\s+nyamuk)|sakit\s+dada[^.!?\n]{0,25}(?:keringat|sesak|lengan\s+kiri)"
+    r"|s'(?:é|e)touffe|(?:a\s+)?(?:bu|aval(?:é|e))\s+(?:de\s+l'|du\s+|de\s+la\s+)?(?:eau\s+de\s+javel|javel|d(?:é|e)tergent|produit\s+m(?:é|e)nager|poison)|mal\s+(?:à|a)\s+la\s+poitrine[^.!?\n]{0,25}(?:transpire|sueur|bras\s+gauche|respire\s+mal)"
+    r"|erstickt(?!\s+(?:vor|beim)\s+lachen)|(?:hat|haben)\s+(?:\w+\s+){0,2}(?:bleichmittel|chlorreiniger|putzmittel|waschmittel|gift)\s+(?:getrunken|geschluckt)|brustschmerzen[^.!?\n]{0,25}(?:schwitzt|schweiß|linken\s+arm|atemnot)"
+    r"|engasgad[oa]|engasgou|(?:bebeu|engoliu|tomou)\s+(?:água\s+sanitária|agua\s+sanitaria|cândida|candida|alvejante|detergente|veneno)|dor\s+no\s+peito[^.!?\n]{0,25}(?:suando|suor|braço\s+esquerdo|falta\s+de\s+ar)"
+    r"|подавил(?:ся|ась)(?!\s+(?:от\s+смеха|со\s+смеху))|(?:выпил|выпила|проглотил|проглотила)\s+(?:\w+\s+)?(?:отбеливатель|белизну|хлорку|моющее|яд|уксус)|бол(?:ь|ит)\s+в\s+груди[^.!?\n]{0,25}(?:пот|потеет|левую\s+руку|не\s+хватает\s+воздуха)"
+)
+WORLD_URGENT["violence"] += (
+    r"|mendobrak\s+pintu|(?:masuk|menerobos)\s+(?:ke\s+)?rumah\s+(?:saya|aku|kami)\s+(?:tanpa\s+izin|paksa)|ada\s+(?:orang|maling|pencuri)\s+masuk\s+rumah"
+    r"|(?:a|ont)\s+forc(?:é|e)\s+(?:la\s+)?porte|(?:est|sont)\s+entr(?:é|e)s?\s+(?:de\s+force\s+)?chez\s+moi|cambriol(?:eur|é)"
+    r"|t(?:ü|u)r\s+aufgebrochen|(?:ist|sind)\s+in\s+(?:meine|unsere)\s+(?:wohnung|haus)\s+eingedrungen|einbrecher\s+(?:ist|sind)\s+(?:im|in)"
+    r"|arromb(?:ou|aram)\s+(?:a\s+)?porta|(?:entrou|entraram)\s+(?:à\s+força\s+)?(?:na|em)\s+minha\s+casa|ladr(?:ão|oes|ões)\s+(?:entrou|entraram|na\s+minha\s+casa)"
+    r"|выломал[иа]?\s+дверь|(?:ворвал(?:ся|ась|ись)|вломил(?:ся|ись))\s+(?:ко\s+мне|в\s+(?:мою\s+)?(?:квартиру|дом))"
+)
+# ไฟไหม้หนีไม่ได้ → "help" (คำตอบรายภาษามีแค่สี่ชนิด) — ยังได้ความเสี่ยงสูงและเบอร์ฉุกเฉิน
+WORLD_FIRE = (
+    r"rumah\s+(?:saya\s+)?(?:ter)?bakar|kebakaran"
+    r"|(?:ma\s+)?maison\s+br(?:û|u)le|incendie\s+chez\s+moi|^\W*au\s+feu\W*$"
+    r"|(?:mein\s+)?haus\s+brennt|wohnung\s+brennt|es\s+brennt\s+bei\s+uns"
+    r"|casa\s+(?:est(?:á|a)\s+)?pegando\s+fogo|inc(?:ê|e)ndio\s+(?:na|em)\s+(?:minha\s+)?casa"
+    r"|(?:мой\s+)?дом\s+горит|квартира\s+горит|у\s+нас\s+пожар"
+)
+WORLD_URGENT["help"] += "|" + WORLD_FIRE
+WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
+
+# รอบสุ่ม 14: ชุดเดียวกันใน it tr ar hi tl ms — เดิมหลุด 29 จาก 30 ข้อ (ควรให้เจ้าของภาษาตรวจ: docs/TRANSLATION_REVIEW.md)
+WORLD_URGENT["medical"] += (
+    r"|si\s+(?:è|e)\s+soffocat[oa]|sta\s+soffocando|(?:ha\s+)?(?:bevuto|ingoiato)\s+(?:la\s+|il\s+|della\s+|del\s+)?(?:candeggina|varechina|detersivo|veleno)|dolore\s+al\s+petto[^.!?\n]{0,25}(?:suda|sudore|braccio\s+sinistro|respira\s+male)"
+    r"|boğuluyor|(?:çamaşır\s+suyu|deterjan|zehir|ilaç)\S*\s+içti|göğs(?:ü|üm)\s+ağrıyor[^.!?\n]{0,25}(?:terl|ter\s+|sol\s+kol|nefes)"
+    r"|يختنق|تختنق|(?:شرب|شربت|ابتلع|ابتلعت)\s+(?:ال)?(?:كلور|مبيض|منظف|سم)|ألم\s+في\s+صدر[^.!?\n]{0,25}(?:يتعرق|تتعرق|عرق|ذراع)"
+    r"|घुट\s+रहा|घुट\s+रही|दम\s+घुट|(?:ब्लीच|फिनाइल|कीटनाशक|ज़हर|जहर)\s+(?:पी|खा|निगल)\s+(?:लिया|ली)|सीने\s+में\s+दर्द[^।!?\n]{0,30}(?:पसीना|बायां\s+हाथ|सांस)"
+    r"|nabulunan|nabilaukan|(?:uminom|ininom|nakainom)\s+ng\s+(?:zonrox|bleach|lason|muriatic)|masakit\s+ang\s+dibdib[^.!?\n]{0,30}(?:pinagpapawisan|pawis|kaliwang\s+braso|hirap\s+huminga)"
+    r"|tercekik|(?:minum|telan)\s+(?:peluntur|clorox|racun|cecair\s+pencuci)|sakit\s+dada[^.!?\n]{0,25}(?:berpeluh|peluh|sesak|lengan\s+kiri)"
+)
+WORLD_URGENT["violence"] += (
+    r"|(?:ha|hanno)\s+forzato\s+(?:la\s+)?porta|(?:è|e|sono)\s+entrat[oiae]\s+(?:con\s+la\s+forza\s+)?in\s+casa|ladr[oi]\s+in\s+casa"
+    r"|kapıyı\s+kırıp|evime\s+(?:zorla\s+)?girdi|eve\s+hırsız\s+girdi"
+    r"|كسر\s+(?:ال)?باب|(?:دخل|اقتحم)\s+(?:ال)?(?:بيت|منزل)ي?|لص\s+في\s+(?:ال)?بيت"
+    r"|दरवाज़ा\s+तोड़|दरवाजा\s+तोड़|घर\s+में\s+घुस\s+(?:गया|आया|गए|आए)|चोर\s+घुस"
+    r"|sumira\s+ng\s+pinto|pumasok\s+sa\s+bahay\s+namin\s+nang\s+sapilitan|(?:may\s+)?(?:magnanakaw|nakapasok)\s+sa\s+bahay"
+    r"|pecah\s+pintu|pecah\s+masuk\s+rumah|ada\s+(?:orang|pencuri)\s+masuk\s+rumah"
+)
+_FIRE_MORE = (
+    r"|(?:la\s+mia\s+)?casa\s+sta\s+bruciando|c'(?:è|e)\s+un\s+incendio\s+in\s+casa"
+    r"|evim\s+yanıyor|evde\s+yangın\s+var"
+    r"|بيتي\s+يحترق|منزلي\s+يحترق|حريق\s+في\s+(?:ال)?(?:بيت|منزل)"
+    r"|घर\s+में\s+आग\s+(?:लगी|लग\s+गई)"
+    r"|nasusunog\s+ang\s+bahay|may\s+sunog\s+sa\s+bahay"
+    r"|rumah\s+(?:saya\s+)?terbakar"
+)
+WORLD_FIRE += _FIRE_MORE
+WORLD_URGENT["help"] += _FIRE_MORE
+WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 

@@ -38,7 +38,9 @@ def test_australia_number_in_english_emergency():
 
 def test_every_reply_is_complete():
     for lang, kinds in WORLD_REPLY.items():
-        assert set(kinds) == {"crisis", "medical", "violence", "help", "general"}, lang
+        # ครบห้าชนิดเสมอ · "disaster" (ไฟไหม้) เพิ่มได้ทีละภาษา (รอบสุ่ม 13: fr de pt ru)
+        base = {"crisis", "medical", "violence", "help", "general"}
+        assert base <= set(kinds) <= base | {"disaster"}, lang
     for opener, steps, ask in list(GENERAL_ASIA.values()) + [r for k in WORLD_REPLY.values() for r in k.values()]:
         assert opener and ask and len(steps) == 3
 

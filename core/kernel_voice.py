@@ -2324,6 +2324,10 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     a = _assess_raw(text, pattern)
     # ร้อนจัด + มีอาการ (เวียนหัว คลื่นไส้ หน้ามืด…) = เพลียแดด ซึ่งกลายเป็นฮีทสโตรกได้ — เดิมขึ้นความเสี่ยง 0/100
     # ไซนัสอักเสบที่ลามเข้าตา/สมอง — ด่วน แต่ไม่ถึงระดับที่ปิดคำตอบเฉพาะ (เลนส์ sinus_danger บอกให้ไปโรงพยาบาลวันนี้)
+    from core.lang_signals import WORLD_FIRE_RX
+    if isinstance(text, str) and not a["crisis"] and WORLD_FIRE_RX.search(text):          # ไฟไหม้บ้าน (id fr de pt ru) = ฉุกเฉิน
+        a = dict(a, text_risk=max(a["text_risk"], 80), risk=max(a["risk"], 80),
+                 risk_shown=max(a["risk_shown"], 80) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     if isinstance(text, str) and not a["crisis"] and _SUDDEN_VISION_RX.search(text):      # ตามัวกะทันหัน = ฉุกเฉิน
         a = dict(a, text_risk=max(a["text_risk"], 80), risk=max(a["risk"], 80),
                  risk_shown=max(a["risk_shown"], 80) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
@@ -2775,6 +2779,11 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
                 body = "\n".join(f"{i + 1}) {x}" for i, x in enumerate(hm[1]))
                 return (f"{hm[0]}\n\n" + (f"{st}\n\n" if st else "") + f"{body}\n\n{hm[2]}\n\n{sign}"
                         + ("\n· Answered from the system's equations — no AI used" if footer else ""))
+        # รอบสุ่ม 13: ไฟไหม้หนีไม่ได้ → คำแนะนำหนีไฟของภาษานั้น (ถ้ามี) แทนคำตอบ "เล่าให้ฟังหน่อย"
+        from core.lang_signals import WORLD_FIRE_RX
+        from core.world_replies import reply_for as _rf
+        if al and not a["crisis"] and WORLD_FIRE_RX.search(text) and _rf(al, "disaster"):
+            kind = "disaster"
         if al and kind:
             st = status_line(a, al)
             out = compose_asia(al, kind, st, sign, footer)
