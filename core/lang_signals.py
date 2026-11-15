@@ -162,7 +162,21 @@ SELF_HARM_INDIRECT = (
                r"muốn\s+(?:đi\s+)?gặp\s+(?:mẹ|bố|ba|má)\s+(?:đã\s+)?(?:mất|qua\s+đời)|cầm\s+dao[^.!?\n]{0,20}(?:không\s+chịu\s+nổi|hết\s+chịu)", re.I),
 )
 
-SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_PASSIVE + SELF_HARM_INDIRECT   # ผู้ใช้ทุกที่ (kernel_voice วิกฤต · llm_gemini ความปลอดภัย) ได้แบบอ้อมด้วย
+# รอบสุ่ม 45: สัญญาณหลังคำปลอบ "ไม่เป็นไร/ทุกอย่างโอเค" (ja zh ko es vi) — เดิมหลุด 15/15
+# ต้องมีคำปลอบ + (ทุกคนจะสบาย · จดหมายถึงแม่เขียนเสร็จแล้ว · ไม่ต้องตามหา) — จดหมายวันแม่หรือไปค่ายไม่มีสัญญาณไม่นับ
+_MASK = {
+    "ja": (r"大丈夫|全部大丈夫|平気", r"みんな楽になる|手紙(?:も)?もう書いた|(?:いなくても|いなかったら)[^。！？\n]{0,6}探さないで"),
+    "zh": (r"没事|沒事|一切都好|都挺好", r"大家就都轻松|大家都輕鬆|信已经写好|信已經寫好|(?:看不到我|不见我)[^。！？\n]{0,8}别找我"),
+    "ko": (r"괜찮아|다\s*괜찮", r"다들\s*편해질|편지(?:도)?\s*다\s*썼|(?:접속\s*안\s*해도|안\s*보여도)\s*찾지\s*마"),
+    "es": (r"estoy\s+bien|todo\s+bien|no\s+pasa\s+nada", r"todos\s+van\s+a\s+estar\s+mejor|ya\s+le\s+escrib[íi]\s+la\s+carta|no\s+me\s+busques"),
+    "vi": (r"không\s+sao|mọi\s+thứ\s+ổn|ổn\s+mà", r"mọi\s+người\s+cũng\s+sắp\s+nhẹ\s+nhõm|đã\s+viết\s+thư\s+cho\s+(?:mẹ|bố|mọi\s+người)\s+rồi|đừng\s+tìm"),
+}
+_MASK_NOT = r"(?!.*(?:母の日|旅行|圏外|露营|没信号|생신|campamento|sin\s+señal|ngày\s+của\s+mẹ|đi\s+cắm\s+trại|mất\s+sóng))"
+SELF_HARM_MASKED = tuple(re.compile(r"(?is)^" + _MASK_NOT + r"(?=.*(?:" + a_ + r")).*(?:" + b_ + r")") for a_, b_ in _MASK.values())
+# "พรุ่งนี้ไม่เห็นออนไลน์ ไม่ต้องตามหา" นับได้โดยไม่ต้องมีคำปลอบ ("ไม่ต้องหาในงานปาร์ตี้" ไม่นับ) · ไปเที่ยว/ไม่มีสัญญาณไม่นับ
+SELF_HARM_MASKED += (re.compile(r"(?is)^" + _MASK_NOT + r"(?=.*(?:明日|明天|내일|mañana|ngày\s+mai|\bmai\b))(?=.*(?:オンライン|在线|在線|접속|conectad|online))"
+                               r".*(?:探さないで|别找我|別找我|찾지\s*마|no\s+me\s+busques|đừng\s+tìm)"),)
+SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_PASSIVE + SELF_HARM_INDIRECT + SELF_HARM_MASKED   # ผู้ใช้ทุกที่ (kernel_voice วิกฤต · llm_gemini ความปลอดภัย) ได้แบบอ้อมด้วย
 
 
 def self_harm_intl(text) -> bool:
