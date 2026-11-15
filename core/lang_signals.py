@@ -434,6 +434,12 @@ _more("someone", "zh", r"(?:满是药|一把药|满手的药)[^。！？\n]{0,12
 _more("someone", "ko", r"약을?\s*잔뜩[^.!?\n]{0,20}(?:안녕|잘\s*있어)|방에\s*(?:틀어박|갇혀|문\s*잠그)[가-힯\s,]{0,20}(?:조용해|대답이\s*없|소리가\s*안)")
 _more("someone", "es", r"(?:foto|imagen)\s+con\s+(?:pastillas|pastillas\s+en\s+la\s+mano)[^.!?\n]{0,20}adi[óo]s|se\s+encerr[óo]\s+en\s+su\s+(?:cuarto|ba[ñn]o)[^.!?\n]{0,40}(?:silencio|no\s+responde|no\s+contesta)")
 _more("someone", "vi", r"cầm\s+đầy\s+thuốc[^.!?\n]{0,15}tạm\s+biệt|tự\s+nhốt\s+mình\s+trong\s+phòng[^.!?\n]{0,30}(?:im\s+lặng|không\s+trả\s+lời)")
+# รอบสุ่ม 77: ข้างบ้านกรีดร้องให้ช่วย + เสียงทำร้าย (ผู้ใช้เห็นเหตุ) — เดิมหลุด 9/9
+_more("violence", "ja", r"(?:隣|隣の部屋|隣の家)[^。！？\n]{0,12}助けてと叫[^。！？\n]{0,12}(?:叩く|殴る|物が割れる)音")
+_more("violence", "zh", r"邻居[^。！？\n]{0,8}(?:喊救命|呼救)[^。！？\n]{0,10}(?:打人|打|摔东西)的?声音|鄰居[^。！？\n]{0,8}(?:喊救命|呼救)")
+_more("violence", "ko", r"옆집에서\s*[가-힯\s]{0,10}살려\s*달라고[가-힯\s]{0,15}때리는\s*소리")
+_more("violence", "es", r"(?:la\s+vecina|el\s+vecino|los\s+vecinos)\s+grita[^.!?\n]{0,20}(?:ayuda|auxilio)[^.!?\n]{0,25}(?:golpes|pegando)")
+_more("violence", "vi", r"nhà\s+bên[^.!?\n]{0,20}kêu\s+cứu[^.!?\n]{0,20}(?:tiếng\s+đánh|đập)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
@@ -912,6 +918,12 @@ _PILLS = r"(?:obat|ubat|cachets|comprim(?:é|e)s|tabletten|comprimidos|табл�
 _BYE = r"(?:selamat\s+tinggal|adieu|lebewohl|adeus|прощайте|прощай|addio|elveda|وداع|अलविदा|paalam)"
 WORLD_URGENT["medical"] += r"|(?:foto|photo|fotoğraf|фото|صورة|फोटो|litrato|gambar)[^\n]{0,40}?" + _PILLS + r"[^\n]{0,50}?" + _BYE
 WORLD_URGENT["medical"] += r"|" + _PILLS + r"[^\n]{0,30}?(?:foto|photo|fotoğraf|фото|صورة|फोटो|litrato|gambar)[^\n]{0,40}?" + _BYE
+
+# รอบสุ่ม 77: ข้างบ้านกรีดร้องให้ช่วย + เสียงทำร้าย (fr de pt ru)
+WORLD_URGENT["violence"] += (r"|(?:la\s+voisine|le\s+voisin)\s+crie\s+au\s+secours[^.!?\n]{0,30}coups"
+                             r"|nebenan\s+schreit[^.!?\n]{0,20}um\s+hilfe[^.!?\n]{0,30}schl(?:ä|a)ge"
+                             r"|(?:a\s+vizinha|o\s+vizinho)\s+est(?:á|a)\s+gritando\s+por\s+socorro[^.!?\n]{0,25}(?:tapas|pancadas|batendo)"
+                             r"|(?:соседка|сосед)\s+кричит\s+о\s+помощи[^.!?\n]{0,25}удары")
 
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
