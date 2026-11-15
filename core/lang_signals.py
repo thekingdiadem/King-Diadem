@@ -322,6 +322,27 @@ URGENT_INTL = (
         "es": r"me\s+estafaron|fui\s+v[ií]ctima\s+de\s+(?:una\s+)?estafa|(?:dice|dijo|dicen)\s+(?:ser|que\s+es)\s+(?:de\s+la\s+)?(?:polic[ií]a|banco)[^.!?\n]{0,30}?(?:transfer|dinero|c[óo]digo)|me\s+pidieron\s+(?:transferir|depositar|enviar)\s+dinero|c[óo]digo\s+de\s+verificaci[óo]n|ganaste\s+un\s+premio",
     }),
 )
+
+
+def _more(kind: str, lang: str, rx: str) -> None:
+    """เพิ่มรูปแบบให้ URGENT_INTL (ja zh ko es vi) ทีละรอบสุ่ม — ต่อท้ายด้วย | ไม่แก้ของเดิม"""
+    for k, _topic, by in URGENT_INTL:
+        if k == kind:
+            by[lang] = (by[lang] + "|" + rx) if by.get(lang) else rx
+            return
+    raise KeyError(kind)
+
+
+# รอบสุ่ม 31: ภัยนอกบ้าน — แท็กซี่ล็อกประตู · ถูกใส่ยาในเครื่องดื่ม · ถูกตาม (เดิมหลุด 11/15)
+_more("violence", "ja", r"(?:タクシー|運転手)[^。！？\n]{0,12}(?:ドアを?ロック|降ろしてくれない|降ろさない)")
+_more("violence", "zh", r"(?:出租车|司机|網約車|网约车)[^。！？\n]{0,10}(?:把门锁|鎖門|锁门|不让我下车|不讓我下車)")
+_more("violence", "ko", r"(?:택시|기사)[가-힯\s]{0,12}(?:문을?\s*잠그|안\s*내려\s*줘|못\s*내리게)|(?:누가|누군가|모르는\s*사람이?)\s*[가-힯\s]{0,10}계속\s*따라")
+_more("violence", "es", r"(?:el\s+)?(?:taxi|taxista|conductor)\s+(?:cerr[óo]|bloque[óo])\s+(?:las\s+)?puertas|no\s+me\s+deja\s+(?:bajar|salir)\s+del\s+(?:taxi|coche|auto)")
+_more("violence", "vi", r"(?:tài\s+xế|taxi)[^.!?\n]{0,15}khóa\s+cửa|không\s+cho\s+tôi\s+xuống\s+xe|(?:có\s+người|người\s+lạ)\s+(?:đi\s+)?theo\s+tôi")
+_more("medical", "zh", r"(?:饮料|飲料|酒|杯子)里[^。！？\n]{0,6}(?:放了|下了|加了)[^。！？\n]{0,12}(?:晕|暈|迷糊|站不稳)")
+_more("medical", "ko", r"(?:음료|술|잔)에\s*[가-힯\s]{0,6}(?:넣었|탔)[가-힯\s,]{0,16}(?:어지러|정신이|몸에\s*힘)")
+_more("medical", "es", r"(?:me\s+)?(?:puso|echó|echaron|pusieron)\s+algo\s+en\s+(?:la|mi)\s+(?:bebida|copa|trago)")
+_more("medical", "vi", r"bỏ\s+(?:gì\s+đó|thuốc|cái\s+gì)\s+vào\s+(?:đồ\s+uống|ly|cốc|nước)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
