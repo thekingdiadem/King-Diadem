@@ -249,6 +249,13 @@ UPGRADES += [(re.compile(
     r"(?i:\bposted\s+a\s+(?:photo|pic|picture)\s+of\s+(?:pills|a\s+handful\s+of\s+pills)\b[^\n]{0,30}?\b(?:goodbye|bye|sorry)\b|"
     r"\b(?:thanks|thank\s+you)\s+for\s+(?:being\s+my\s+friend|everything)\b[^\n]{0,30}?\b(?:turned\s+off|switched\s+off|not\s+answering|went\s+silent)\b|"
     r"\blocked\s+(?:him|her|them)sel(?:f|ves)\s+in\b[^\n]{0,50}?\b(?:silent|quiet|not\s+answering|won'?t\s+answer)\b)"), "someone")]
+# รอบสุ่ม 76: คนข้างบ้านกำลังถูกทำร้าย · เด็กถูกทิ้งไว้คนเดียวหลายวัน (ผู้ใช้เป็นคนเห็นเหตุ)
+UPGRADES += [
+    (re.compile(r"(?:ข้างห้อง|ข้างบ้าน|ห้องข้างๆ|บ้านข้างๆ)[^\n]{0,20}?(?:กรีดร้อง|ร้องให้ช่วย|ร้องขอความช่วยเหลือ)[^\n]{0,20}?(?:ตบ|ตี|ทุบ|เสียงของแตก|เสียงล้ม)|"
+                r"(?i:\b(?:next\s+door|neighbou?r'?s?|upstairs|downstairs)\b[^\n]{0,30}?\bscreaming\s+for\s+help\b[^\n]{0,30}?\b(?:slap|hit|crash|thud|bang)\w*)"), "violence"),
+    (re.compile(r"เด็ก[^\n]{0,10}?(?:ข้างบ้าน|ข้างห้อง)[^\n]{0,20}?ร้องไห้[^\n]{0,20}?ไม่เห็น(?:พ่อแม่|ผู้ใหญ่|ใคร)[^\n]{0,10}?(?:สอง|สาม|หลาย|\d+)\s?วัน|"
+                r"(?i:\b(?:kid|child|baby|toddler)\s+next\s+door\b[^\n]{0,40}?\bcrying\b[^\n]{0,40}?\bhaven'?t\s+seen\s+(?:the\s+)?(?:parents|adults|anyone)\b)"), "missing"),
+]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
