@@ -452,6 +452,12 @@ _more("medical", "zh", r"哮喘[^。！？\n]{0,10}(?:喷了药|吸了药)?[^。
 _more("medical", "ko", r"천식[가-힯\s,]{0,12}흡입기가?\s*안\s*들|몇\s*마디밖에\s*못")
 _more("medical", "es", r"(?:ataque\s+de\s+)?asma[^.!?\n]{0,20}inhalador\s+no\s+(?:funciona|sirve|ayuda)|solo\s+puedo\s+decir\s+unas\s+palabras")
 _more("medical", "vi", r"(?:cơn\s+)?hen[^.!?\n]{0,15}xịt\s+thuốc\s+không\s+đỡ|chỉ\s+nói\s+được\s+vài\s+từ")
+# รอบสุ่ม 86: คนใกล้ตัวเก็บยาไว้ "วันที่ไม่ไหว" · แฟนเคยขู่ฆ่าตัวตายถ้าเลิก แล้วเพิ่งบอกเลิก (เดิมหลุด 8/10)
+_more("someone", "ja", r"薬を(?:たくさん)?(?:溜め|ためて|集め)[^。！？\n]{0,15}(?:限界|耐えられない|もう無理)|(?:限界|耐えられない)[^。！？\n]{0,15}薬を(?:たくさん)?(?:溜め|ため|集め)|別れたら死ぬ[^。！？\n]{0,20}(?:別れを告げ|別れた|振った)")
+_more("someone", "zh", r"存了(?:很多|好多)?药[^。！？\n]{0,15}(?:撑不下去|受不了|不想活)")
+_more("someone", "ko", r"(?:못\s*버틸|힘든)\s*날을?\s*위해\s*약을?\s*(?:모아|모았|쌓아)|헤어지면\s*죽겠다고[가-힯\s,]{0,25}헤어지자고")
+_more("someone", "es", r"guarda\s+pastillas\s+para\s+el\s+d[íi]a\s+que|(?:dijo|dec[íi]a)\s+que\s+se\s+matar[íi]a\s+si[^.!?\n]{0,40}(?:termin[ée]|lo\s+dej[ée]|la\s+dej[ée])")
+_more("someone", "vi", r"tích\s+(?:nhiều\s+)?thuốc[^.!?\n]{0,20}(?:không\s+chịu\s+nổi|không\s+muốn\s+sống)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
