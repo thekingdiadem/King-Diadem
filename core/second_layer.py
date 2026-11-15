@@ -219,6 +219,15 @@ UPGRADES += [
     (re.compile(r"(?:ไปเดท|นัดเจอ|ไปเจอ)[^\n]{0,30}?(?:แอป|ออนไลน์|ทินเดอร์|tinder)[^\n]{0,30}?(?:ไม่ติดต่อ|ติดต่อไม่ได้|หายไป|ปิดเครื่อง)[^\n]{0,20}?(?:ชั่วโมง|วัน|คืน)|"
                 r"(?i:\b(?:dating\s+app|tinder|bumble|hinge|met\s+online)\b[^\n]{0,40}?\b(?:hasn'?t\s+(?:answered|replied|come\s+back)|not\s+answering|phone\s+is\s+off|missing)\b)"), "missing"),
 ]
+# รอบสุ่ม 27: อุบัติเหตุในที่ทำงาน — ตกจากที่สูง · ของหนักล้มทับ · เครื่องจักรดูด
+UPGRADES += [
+    (re.compile(r"(?:เพื่อน|คนงาน|ลูกน้อง|พ่อ|ใคร)\S{0,6}(?:เพิ่ง)?ตก(?:ลง(?:ไป|มา))?(?:จาก(?:ที่สูง|นั่งร้าน|หลังคา|ตึก|ชั้น)|ใน(?:บ่อ|ถัง|ท่อ|ช่องลิฟต์))|(?:ไม่มี(?:เชือก|สายรัด|เข็มขัดนิรภัย))[^\n]{0,20}?เพิ่งตกลงไป|"
+                r"(?:ปั้นจั่น|เครน|นั่งร้าน|กำแพง|ตู้คอนเทนเนอร์|ของหนัก|ไม้แบบ)\S{0,6}(?:ล้ม|ถล่ม|หล่น)\S{0,4}ทับ(?:คน|เพื่อน|คนงาน)?|"
+                r"เครื่อง(?:จักร|บด|รีด|ปั่น)\S{0,4}(?:ดูด|หนีบ|ลาก|กิน)\S{0,4}(?:แขน|มือ|ขา|ผม|นิ้ว)|"
+                r"(?i:\b(?:crane|scaffold(?:ing)?|wall|beam|load|container)\s+(?:fell|collapsed)\s+on\s+(?:someone|a\s+worker|my\s+\w+|him|her)\b|"
+                r"\b(?:machine|press|grinder|conveyor|auger)\s+(?:pulled|caught|crushed|grabbed)\s+(?:my\s+)?(?:\w+'s\s+)?(?:arm|hand|leg|hair|fingers?)\b|"
+                r"\b(?:coworker|worker|colleague|he|she)\s+(?:just\s+)?fell\s+(?:from|off)\s+(?:the\s+)?(?:roof|scaffold|ladder|height|building)\b)"), "health_emergency"),
+]
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
 _WATCHING = re.compile(r"(?:ซ้อม|เล่น|แสดง|ถ่าย)\S{0,2}?ละคร(?:เวที)?\S{0,8}?(?:อยู่|กับ|ด้วยกัน)|(?:ดู|นั่งดู|เปิด|นอนดู)\S{0,4}?(?:ซีรีส์|ละคร|สารคดี|หนัง|ทีวี)\S{0,12}?(?:อยู่|กับ|ด้วยกัน|ไป)|อ่านข่าวอยู่|"
