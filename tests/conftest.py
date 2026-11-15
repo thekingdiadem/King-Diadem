@@ -14,6 +14,7 @@ import uuid
 
 _TMP = tempfile.mkdtemp(prefix="kd-tests-")
 os.environ.update({
+    "SHIELD_OFF": "1",   # โล่หน่วงเครื่องที่ยิงลิงก์มั่วถี่ๆ — ชุดเทสต์ทำแบบนั้นตั้งใจ · ตรวจโล่เองที่ tests/test_shield.py
     "SECRET_KEY": "test-secret",
     "DB_PATH": os.path.join(_TMP, "kd.db"),
     "KD_DATA_DIR": _TMP,
