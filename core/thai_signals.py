@@ -1377,6 +1377,10 @@ _CHAT_EN = [(re.compile(r"\bu\b", re.I), "you"), (re.compile(r"\bur\b", re.I), "
             (re.compile(r"\bpls\b|\bplz\b", re.I), "please"), (re.compile(r"\bthx\b", re.I), "thanks")]
 
 
+_EN_HINT = re.compile(r"\b(?:the|and|my|is|are|to|you|me|it|i|so|but|dont|cant|wanna|gonna|lol|pls|what|why|how|help|feel)\b", re.I)
+_NOT_EN = re.compile(r"\b(?:und|ist|nicht|ich|mein|meine|bin|der|die|das|sehr|ein|eine)\b", re.I)
+
+
 def canon_text(text):
     if not isinstance(text, str):
         return text
@@ -1390,7 +1394,9 @@ def canon_text(text):
     letters = [ch for ch in t if "A" <= ch <= "Z" or "a" <= ch <= "z"]
     if len(letters) >= 8 and sum(ch.isupper() for ch in letters) / len(letters) > .6:
         t = t.lower()                            # พิมพ์ตัวใหญ่ทั้งประโยค "THERE IS A FLOOD IN MY HOUSE" เคยหลุด
-    if re.search(r"[A-Za-z]", t):
+    # ภาษาแชทอังกฤษ (u → you · im → i'm) — เฉพาะข้อความที่มีคำอังกฤษจริง
+    # รอบสุ่ม 49: "schwanger im 8. Monat" (เยอรมัน "im" = ใน) เคยถูกแก้เป็น "i'm" จนประโยคพัง
+    if re.search(r"[A-Za-z]", t) and _EN_HINT.search(t) and not _NOT_EN.search(t):
         for rx, full in _CHAT_EN:
             t = rx.sub(full, t)
     return t

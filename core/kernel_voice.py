@@ -2315,6 +2315,13 @@ from core.problem_lens_more import _CAT_URINARY as _CU_SRC
 # รอบสุ่ม 28: หมาท้องบวม + พยายามอ้วกแต่ไม่ออก = กระเพาะบิด (GDV) ตายได้ในไม่กี่ชั่วโมง — เดิมได้ 0
 _CU_SRC += (r"|(?:หมา|สุนัข|น้องหมา)\S{0,6}ท้อง(?:บวม|ป่อง|โต)[^\n]{0,30}?(?:อ้วก|อาเจียน|ขย้อน)(?:\S{0,6})?(?:ไม่(?:มีอะไร)?ออก|แต่ไม่ออก)"
             r"|\bdog'?s?\b[^\n]{0,20}?\b(?:belly|stomach|abdomen)\s+(?:is\s+)?(?:swollen|bloated|distended)\b[^\n]{0,40}?\b(?:trying\s+to\s+(?:vomit|throw\s+up)|retching|dry\s+heav)")
+# รอบสุ่ม 46: สัตว์เลี้ยงฉุกเฉิน (ja zh ko es vi) — ช็อกโกแลต+สั่น · แมวกัดลิลลี่ · หมาท้องบวมอ้วกไม่ออก (เดิมหลุด 14/15)
+_CU_SRC += (r"|(?:犬|狗|강아지|개|perro|chó)[^\n]{0,30}?(?:チョコ|巧克力|초콜릿|chocolate|sô\s*cô\s*la)[^\n]{0,20}?(?:震え|发抖|發抖|떨|tembland|run)"
+            r"|(?:猫|고양이|gato|mèo)[^\n]{0,20}?(?:ユリ|百合|백합|lirio|hoa\s+ly)[^\n]{0,6}?(?:をかじ|を食べ|をなめ|を噛|咬|吃|舔|을?\s*씹|을?\s*먹|del|cắn|ăn)"
+            r"|(?:猫|고양이|gato|mèo)[^\n]{0,6}?(?:かじ|咬了|mordi[óo]|cắn)[^\n]{0,12}?(?:ユリ|百合|백합|lirio|hoa\s+ly)"
+            r"|(?:犬|狗|강아지|개|perro|chó)[^\n]{0,12}?(?:お腹|肚子|배|panza|barriga|bụng)[^\n]{0,24}?(?:膨れ|胀|脹|부풀|빵빵|hinchad|căng|phồng)[^\n]{0,40}?(?:何も出ない|吐不出|안\s*나와|no\s+sale|không\s+ra)"
+            r"|(?:panza|barriga|est[óo]mago)\s+de\s+mi\s+perr[oa][^\n]{0,30}?hinchad[^\n]{0,40}?no\s+sale"
+            r"|(?:bụng\s+chó)[^\n]{0,20}?(?:căng|phồng)[^\n]{0,30}?không\s+ra")
 _CAT_URINARY_RX = re.compile(_CU_SRC, re.I)
 _HEAT_SYMPTOM = re.compile(r"(?:ร้อน(?:จัด|มาก)|อากาศร้อน|กลางแดด|ตากแดด|หน้างานร้อน|\d{2}\s?องศา|\bheat\b|\bin the sun\b)[^\n]{0,40}?"
                            r"(?:เวียนหัว|คลื่นไส้|อาเจียน|หน้ามืด|อ่อนเพลีย|ใจสั่น|ตะคริว|ปวดหัว|\bdizzy\b|\bnause\w*|\bfaint\w*|\bcramps?\b|\bheadache\b)|"
@@ -2546,7 +2553,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     if tr.get("third_party") and "someone" not in topics:      # "เพื่อนบอกว่ากรีดแขน" — คนอื่นกำลังวิกฤต
         topics.insert(0, "someone")
     # ภาษาอื่น (zh ja ko es): เรื่องด่วนเข้าหัวข้อเดียวกับภาษาไทย — "เพื่อนอยากตาย" ไม่ใช่วิกฤตของผู้ใช้เอง
-    intl = urgent_intl(text, "all") if detect_lang(text) != "en" else []
+    intl = urgent_intl(text, "all") if (detect_lang(text) != "en" or script_lang(text) == "vi") else []   # เวียดนามบางประโยคถูกเดาเป็น en (รอบสุ่ม 32)
     for kind_i, topic_i in intl:
         if kind_i == "someone":               # คนอื่นอยากตาย — ผู้ใช้วิกฤตเองเฉพาะเมื่อพูดถึงตัวเองด้วย
             from core.lang_signals import strip_someone_intl
@@ -2867,7 +2874,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         if lz:      # เลนส์ปัญหา (core/problem_lens.py) — เดิม "comparing myself on Instagram" ได้ "Let's lay this out step by step."
             return (lz["open"][0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(lz["paths"]))
                     + f"\n\n{lz['ask']}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
-        en = EN_TOPIC.get(en_key) if (lang == "en" and (a["topics"] or str(en_key).startswith("magga_") or en_key == "code_help") and not a["crisis"]) else None
+        en = EN_TOPIC.get(en_key) if (lang == "en" and script_lang(t) != "vi" and (a["topics"] or str(en_key).startswith("magga_") or en_key == "code_help") and not a["crisis"]) else None
         if en:
             return (en[0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(en[1]))
                     + f"\n\n{en[2]}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
@@ -2888,9 +2895,9 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
                     + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         if lang == "en" and not a["crisis"] and a["relationship"] in ("collapse_risk", "critical"):
             return SAFETY_EN.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
-        if lang in ("zh", "ja", "ko", "es") and a.get("intl_urgent") and not a["crisis"]:
-            # รอบสุ่ม 12: ภาษาเวียดนามถูกเดาเป็น es ("con tôi uống nước tẩy" เคยได้คำตอบด่วนเป็นภาษาสเปน)
-            if lang == "es" and script_lang(t) == "vi":
+        if (lang in ("zh", "ja", "ko", "es") or script_lang(t) == "vi") and a.get("intl_urgent") and not a["crisis"]:
+            # รอบสุ่ม 12/32: ภาษาเวียดนามถูกเดาเป็น es หรือ en — ต้องได้คำตอบด่วนเป็นภาษาเวียดนาม
+            if lang in ("es", "en") and script_lang(t) == "vi":
                 from core.world_replies import compose_world
                 k_vi = {"medical": "medical", "health_emergency": "medical", "violence": "violence", "disaster": "disaster"}.get(a["intl_urgent"][0], "help")
                 w = compose_world("vi", k_vi, status_line(a, "vi"), sign, footer)

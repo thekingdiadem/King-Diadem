@@ -228,6 +228,9 @@ UPGRADES += [
                 r"\b(?:machine|press|grinder|conveyor|auger)\s+(?:pulled|caught|crushed|grabbed)\s+(?:my\s+)?(?:\w+'s\s+)?(?:arm|hand|leg|hair|fingers?)\b|"
                 r"\b(?:coworker|worker|colleague|he|she)\s+(?:just\s+)?fell\s+(?:from|off)\s+(?:the\s+)?(?:roof|scaffold|ladder|height|building)\b)"), "health_emergency"),
 ]
+# รอบสุ่ม 37: กดลิงก์แล้วเงินในบัญชีหาย (อังกฤษ) — เดิมได้ 0
+UPGRADES += [(re.compile(r"(?i:\bclicked\s+(?:a|the|on\s+a|on\s+the)\s+(?:\w+\s+){0,3}link\b[^\n]{0,40}?\b(?:account|bank|wallet)\b[^\n]{0,20}?\b(?:is\s+)?(?:empty|drained|emptied|cleaned\s+out|money\s+(?:is\s+)?gone)\b)"), "scam")]
+_GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
 _WATCHING = re.compile(r"(?:ซ้อม|เล่น|แสดง|ถ่าย)\S{0,2}?ละคร(?:เวที)?\S{0,8}?(?:อยู่|กับ|ด้วยกัน)|(?:ดู|นั่งดู|เปิด|นอนดู)\S{0,4}?(?:ซีรีส์|ละคร|สารคดี|หนัง|ทีวี)\S{0,12}?(?:อยู่|กับ|ด้วยกัน|ไป)|อ่านข่าวอยู่|"
@@ -283,6 +286,8 @@ _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
+    # รอบสุ่ม 42: ถามวิธีเตรียมตัว/ดูข่าวภัยพิบัติ (ja zh ko es vi) เคยได้ 70 จากคำว่า "แผ่นดินไหว" คำเดียว
+    (re.compile(r"ニュース|(?:への)?備え|準備|怎么准备|怎麼準備|如何准备|新闻|新聞|대비|방법|뉴스|c[óo]mo\s+prepar|preparativos|noticias?|chuẩn\s+bị|tin\s+tức"), ("disaster", "help")),
     # รอบสุ่ม 22: บอกชัดว่าเจ็บนิดเดียว/เสียแค่ของ — "ขับรถชนเสาเบาๆ กันชนบุบ" เคยได้ 75 · "just a scraped knee" เคยได้ 85
     (re.compile(r"(?<!ไม่)(?:เบาๆ|นิดหน่อย|นิดเดียว)[^\n]{0,16}?(?:กันชน|บุบ|รอยขีด|ถลอก|แค่รอย)|(?:กันชน|ไฟท้าย)\S{0,4}(?:บุบ|แตก|ร้าว)(?![^\n]{0,30}(?:เจ็บ|เลือด|หมดสติ|ไม่หายใจ))|"
                 r"(?i:\b(?:just|only)\s+(?:a\s+)?(?:scraped|scratched|bruised|grazed|skinned)\s+(?:knee|elbow|arm|leg|hand)\b|\bjust\s+a\s+(?:scrape|scratch|bruise|graze)\b)"),
@@ -364,6 +369,9 @@ def apply(text: str, a: dict) -> dict:
                 # รอบสุ่ม 9: "นั่งดูละครกับพ่อ พ่อเจ็บหน้าอก หายใจไม่ออก" เคยถูกลดเหลือ 20 เพราะคำว่า "ละคร"
                 # ถ้าคำที่ทำให้ลดคือชื่อกิจกรรมที่ผู้ใช้กำลังทำอยู่ (ดูละคร/ซีรีส์/สารคดี/อ่านข่าว) เหตุที่เล่าคือเรื่องจริง ไม่ลด
                 if m_dg.group(0).lower() in _WATCH_WORDS and _WATCHING.search(text) and not _CHARACTER.search(text):
+                    continue
+                # รอบสุ่ม 35: คนแปลกหน้าขอรูปโป๊เด็ก "ในเกม" คือการล่อลวงจริง — เกิดในเกมบ่อยที่สุด ห้ามลด
+                if _GROOM_ANY.search(text):
                     continue
                 calmed = True
                 if "crisis" in kinds and a["crisis"]:

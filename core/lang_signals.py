@@ -66,7 +66,10 @@ SCRIPT_NAME = {"ru": "Русский", "ar": "العربية", "hi": "हिन�
 # คำเวียดนามที่ใช้บ่อย — ประโยคสั้นอย่าง "hôm nay vui quá" ไม่มีตัวอักษรเฉพาะเวียดนามเลย (ô/á มีในภาษาอื่นด้วย)
 # เคยถูกเดาเป็นสเปนเพราะมี á · พยางค์เหล่านี้แทบไม่เป็นคำในสเปน/โปรตุเกส/ฝรั่งเศส
 _VI_WORDS = {"hôm", "nay", "quá", "không", "tôi", "mình", "bạn", "của", "và", "được", "người", "này", "rất",
-             "vui", "buồn", "mệt", "anh", "chị", "em", "lắm", "gì", "sao", "thế", "nào", "với", "cho", "ơi", "nhé", "ạ"}
+             "vui", "buồn", "mệt", "anh", "chị", "em", "lắm", "gì", "sao", "thế", "nào", "với", "cho", "ơi", "nhé", "ạ",
+             # รอบสุ่ม 32: ประโยคเหตุด่วนสั้นๆ ("tôi bỏ quên em bé trong xe nóng") มีคำที่รู้จักไม่ถึงครึ่ง
+             "con", "bị", "nước", "nhà", "có", "mùi", "rất", "đang", "đã", "trong", "xe", "nóng", "bé", "bỏ", "quên",
+             "mẹ", "bố", "ba", "má", "đau", "chết", "giúp", "cứu", "đi", "ở", "là", "mà", "thì", "ra", "vào", "được"}
 
 
 def script_lang(text) -> str | None:
@@ -159,7 +162,21 @@ SELF_HARM_INDIRECT = (
                r"muốn\s+(?:đi\s+)?gặp\s+(?:mẹ|bố|ba|má)\s+(?:đã\s+)?(?:mất|qua\s+đời)|cầm\s+dao[^.!?\n]{0,20}(?:không\s+chịu\s+nổi|hết\s+chịu)", re.I),
 )
 
-SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_PASSIVE + SELF_HARM_INDIRECT   # ผู้ใช้ทุกที่ (kernel_voice วิกฤต · llm_gemini ความปลอดภัย) ได้แบบอ้อมด้วย
+# รอบสุ่ม 45: สัญญาณหลังคำปลอบ "ไม่เป็นไร/ทุกอย่างโอเค" (ja zh ko es vi) — เดิมหลุด 15/15
+# ต้องมีคำปลอบ + (ทุกคนจะสบาย · จดหมายถึงแม่เขียนเสร็จแล้ว · ไม่ต้องตามหา) — จดหมายวันแม่หรือไปค่ายไม่มีสัญญาณไม่นับ
+_MASK = {
+    "ja": (r"大丈夫|全部大丈夫|平気", r"みんな楽になる|手紙(?:も)?もう書いた|(?:いなくても|いなかったら)[^。！？\n]{0,6}探さないで"),
+    "zh": (r"没事|沒事|一切都好|都挺好", r"大家就都轻松|大家都輕鬆|信已经写好|信已經寫好|(?:看不到我|不见我)[^。！？\n]{0,8}别找我"),
+    "ko": (r"괜찮아|다\s*괜찮", r"다들\s*편해질|편지(?:도)?\s*다\s*썼|(?:접속\s*안\s*해도|안\s*보여도)\s*찾지\s*마"),
+    "es": (r"estoy\s+bien|todo\s+bien|no\s+pasa\s+nada", r"todos\s+van\s+a\s+estar\s+mejor|ya\s+le\s+escrib[íi]\s+la\s+carta|no\s+me\s+busques"),
+    "vi": (r"không\s+sao|mọi\s+thứ\s+ổn|ổn\s+mà", r"mọi\s+người\s+cũng\s+sắp\s+nhẹ\s+nhõm|đã\s+viết\s+thư\s+cho\s+(?:mẹ|bố|mọi\s+người)\s+rồi|đừng\s+tìm"),
+}
+_MASK_NOT = r"(?!.*(?:母の日|旅行|圏外|露营|没信号|생신|campamento|sin\s+señal|ngày\s+của\s+mẹ|đi\s+cắm\s+trại|mất\s+sóng))"
+SELF_HARM_MASKED = tuple(re.compile(r"(?is)^" + _MASK_NOT + r"(?=.*(?:" + a_ + r")).*(?:" + b_ + r")") for a_, b_ in _MASK.values())
+# "พรุ่งนี้ไม่เห็นออนไลน์ ไม่ต้องตามหา" นับได้โดยไม่ต้องมีคำปลอบ ("ไม่ต้องหาในงานปาร์ตี้" ไม่นับ) · ไปเที่ยว/ไม่มีสัญญาณไม่นับ
+SELF_HARM_MASKED += (re.compile(r"(?is)^" + _MASK_NOT + r"(?=.*(?:明日|明天|내일|mañana|ngày\s+mai|\bmai\b))(?=.*(?:オンライン|在线|在線|접속|conectad|online))"
+                               r".*(?:探さないで|别找我|別找我|찾지\s*마|no\s+me\s+busques|đừng\s+tìm)"),)
+SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_PASSIVE + SELF_HARM_INDIRECT + SELF_HARM_MASKED   # ผู้ใช้ทุกที่ (kernel_voice วิกฤต · llm_gemini ความปลอดภัย) ได้แบบอ้อมด้วย
 
 
 def self_harm_intl(text) -> bool:
@@ -322,6 +339,95 @@ URGENT_INTL = (
         "es": r"me\s+estafaron|fui\s+v[ií]ctima\s+de\s+(?:una\s+)?estafa|(?:dice|dijo|dicen)\s+(?:ser|que\s+es)\s+(?:de\s+la\s+)?(?:polic[ií]a|banco)[^.!?\n]{0,30}?(?:transfer|dinero|c[óo]digo)|me\s+pidieron\s+(?:transferir|depositar|enviar)\s+dinero|c[óo]digo\s+de\s+verificaci[óo]n|ganaste\s+un\s+premio",
     }),
 )
+
+
+def _more(kind: str, lang: str, rx: str) -> None:
+    """เพิ่มรูปแบบให้ URGENT_INTL (ja zh ko es vi) ทีละรอบสุ่ม — ต่อท้ายด้วย | ไม่แก้ของเดิม"""
+    for k, _topic, by in URGENT_INTL:
+        if k == kind:
+            by[lang] = (by[lang] + "|" + rx) if by.get(lang) else rx
+            return
+    raise KeyError(kind)
+
+
+# รอบสุ่ม 31: ภัยนอกบ้าน — แท็กซี่ล็อกประตู · ถูกใส่ยาในเครื่องดื่ม · ถูกตาม (เดิมหลุด 11/15)
+_more("violence", "ja", r"(?:タクシー|運転手)[^。！？\n]{0,12}(?:ドアを?ロック|降ろしてくれない|降ろさない)")
+_more("violence", "zh", r"(?:出租车|司机|網約車|网约车)[^。！？\n]{0,10}(?:把门锁|鎖門|锁门|不让我下车|不讓我下車)")
+_more("violence", "ko", r"(?:택시|기사)[가-힯\s]{0,12}(?:문을?\s*(?:잠그|잠갔|잠궜)|안\s*내려\s*줘|못\s*내리게)|(?:누가|누군가|모르는\s*사람이?)\s*[가-힯\s]{0,10}계속\s*따라")
+_more("violence", "es", r"(?:el\s+)?(?:taxi|taxista|conductor)\s+(?:cerr[óo]|bloque[óo])\s+(?:las\s+)?puertas|no\s+me\s+deja\s+(?:bajar|salir)\s+del\s+(?:taxi|coche|auto)")
+_more("violence", "vi", r"(?:tài\s+xế|taxi)[^.!?\n]{0,15}khóa\s+cửa|không\s+cho\s+tôi\s+xuống\s+xe|(?:có\s+người|người\s+lạ)\s+(?:đi\s+)?theo\s+tôi")
+_more("medical", "zh", r"(?:饮料|飲料|酒|杯子)里[^。！？\n]{0,6}(?:放了|下了|加了)[^。！？\n]{0,12}(?:晕|暈|迷糊|站不稳)")
+_more("medical", "ko", r"(?:음료|술|잔)에\s*[가-힯\s]{0,6}(?:넣었|탔)[가-힯\s,]{0,16}(?:어지러|정신이|몸에\s*힘)")
+_more("medical", "es", r"(?:me\s+)?(?:puso|echó|echaron|pusieron)\s+algo\s+en\s+(?:la|mi)\s+(?:bebida|copa|trago)")
+_more("medical", "vi", r"bỏ\s+(?:gì\s+đó|thuốc|cái\s+gì)\s+vào\s+(?:đồ\s+uống|ly|cốc|nước)")
+# รอบสุ่ม 32: เด็กถูกน้ำพัด · กลิ่นแก๊สรั่ว · ลืมเด็กไว้ในรถร้อน (เดิมหลุด 15/15)
+_more("medical", "ja", r"(?:川|海|水)で?[^。！？\n]{0,6}(?:子供|子ども|息子|娘|人)が?流され|(?:赤ちゃん|子供|子ども)を(?:暑い)?車(?:の中)?に(?:置き忘れ|置いたまま|閉じ込め)")
+_more("medical", "zh", r"被(?:河水|海浪|洪水|水)冲走|被(?:河水|海浪|洪水|水)沖走|把(?:宝宝|孩子|婴儿|寶寶)(?:忘|留|锁|鎖)在车里")
+_more("medical", "ko", r"(?:강물|물|파도)에\s*떠내려|(?:아기|아이|애)를?\s*(?:더운\s*)?차\s*안에\s*(?:두고|놔두고|갇)")
+_more("medical", "es", r"(?:la\s+corriente|el\s+río|el\s+mar|una\s+ola)\s+se\s+llev[óo]\s+a|dej[ée]\s+(?:al|a\s+mi)\s+(?:beb[ée]|hijo|hija|niñ[oa])\s+en\s+el\s+(?:coche|carro|auto)")
+_more("medical", "vi", r"bị\s+nước\s+cuốn(?:\s+trôi)?|sóng\s+cuốn|bỏ\s+quên\s+(?:em\s+bé|con|bé)\s+trong\s+xe")
+_more("disaster", "ja", r"ガス(?:臭い|の臭い|漏れ)")
+_more("disaster", "zh", r"(?:很浓的|浓烈的|一股)?(?:煤气|燃气|瓦斯)(?:味|泄漏|洩漏)")
+_more("disaster", "ko", r"가스\s*(?:냄새|누출|새)")
+_more("disaster", "es", r"(?:huele|olor)\s+(?:mucho\s+)?a\s+gas|fuga\s+de\s+gas")
+_more("disaster", "vi", r"mùi\s+(?:khí\s+)?gas|rò\s+rỉ\s+gas|xì\s+gas")
+# รอบสุ่ม 33: เสียงสั่งให้ทำร้ายคนอื่น · หลังคลอดคิดทำร้ายลูก · อดอาหารจนจะเป็นลม (เดิมหลุด 12/15) — ต้องพบแพทย์ทันที
+_more("medical", "ja", r"(?:傷つけ|殺せ|殺し)[^。！？\n]{0,6}(?:という|って)?声が(?:聞こえ|する)|(?:出産|産んで)[^。！？\n]{0,10}(?:赤ちゃん|子供|子ども)を(?:傷つけ|殺し)たい")
+_more("medical", "zh", r"(?:听到|聽到)[^。！？\n]{0,4}(?:声音|聲音)[^。！？\n]{0,6}(?:叫|让|讓)我(?:伤害|傷害|杀|殺)|(?:生完孩子|产后|產後)[^。！？\n]{0,10}(?:伤害|傷害|掐死|杀)(?:宝宝|寶寶|孩子)")
+_more("medical", "ko", r"(?:해치라는|죽이라는)\s*(?:목소리|소리)가?\s*들려|(?:출산|아기\s*낳고)[가-힯\s]{0,10}아기를?\s*(?:해치|죽이)고\s*싶")
+_more("medical", "es", r"(?:escucho|oigo)\s+voces\s+que\s+me\s+(?:dicen|ordenan)\s+que\s+(?:lastime|mate|haga\s+daño)|(?:di\s+a\s+luz|tuve\s+al\s+beb[ée]|posparto)[^.!?\n]{0,30}(?:hacerle\s+daño|lastimar|matar)\s+(?:al|a\s+mi)\s+beb[ée]|(?:llevo\s+)?\d+\s+d[ií]as\s+sin\s+comer[^.!?\n]{0,40}(?:desmay|engordar|mareo)")
+_more("medical", "vi", r"giọng\s+nói\s+(?:bảo|bắt|xúi)\s+tôi\s+(?:làm\s+hại|giết)|(?:sinh\s+con|sau\s+sinh)[^.!?\n]{0,20}(?:làm\s+hại|giết)\s+(?:em\s+bé|con|bé)|\d+\s+ngày[^.!?\n]{0,12}không\s+ăn[^.!?\n]{0,30}(?:ngất|sợ\s+béo|chóng\s+mặt)")
+# รอบสุ่ม 34: ค้ามนุษย์ — ยึดพาสปอร์ต · ขังในหอ+ยึดโทรศัพท์ · บังคับค้าประเวณีใช้หนี้ (เดิมหลุด 12/15)
+_more("violence", "ja", r"パスポートを(?:取り上げ|奪わ|没収)[^。！？\n]{0,12}(?:帰らせ|帰れ|出られ)|(?:売春|売り)を(?:強要|させられ)")
+_more("violence", "zh", r"(?:锁|鎖|关|關)在(?:宿舍|房间|房間)[^。！？\n]{0,10}(?:收走|没收|沒收|拿走)(?:了)?(?:手机|手機)|(?:被逼|被迫|逼我)(?:卖淫|賣淫|卖身|賣身|接客)")
+_more("violence", "ko", r"여권을?\s*(?:뺏|빼앗|가져가)[가-힯\s]{0,10}(?:못\s*가|못\s*나가|안\s*보내)|(?:기숙사|방)에\s*가두고[가-힯\s]{0,10}(?:핸드폰|휴대폰|폰)을?\s*뺏|성매매를?\s*강요")
+_more("violence", "es", r"(?:me\s+)?quit[óo]\s+(?:el|mi)\s+pasaporte[^.!?\n]{0,30}no\s+me\s+deja|nos\s+encierran[^.!?\n]{0,40}(?:quitan|quitaron)\s+(?:los\s+)?(?:tel[ée]fonos|celulares|m[óo]viles)|me\s+obligan\s+a\s+prostituirme")
+_more("violence", "vi", r"nhốt\s+(?:chúng\s+tôi|tôi)[^.!?\n]{0,30}(?:lấy|thu)\s+(?:điện\s+thoại|hộ\s+chiếu)|bị\s+ép\s+(?:bán\s+dâm|tiếp\s+khách|làm\s+gái)")
+# รอบสุ่ม 35: พ่อแม่เล่าเรื่องลูก — ทำร้ายตัวเอง · ผู้ใหญ่ขอรูปโป๊ · นัดเจอผู้ใหญ่จากเน็ต (เดิมหลุด 15/15)
+_more("someone", "ja", r"(?:子供|子ども|娘|息子)が[^。！？\n]{0,6}(?:自分の)?(?:腕|手首)を切っ")
+_more("someone", "zh", r"(?:孩子|女儿|儿子|女兒|兒子)[^。！？\n]{0,6}(?:割伤|割傷|割)(?:自己|手臂|手腕)")
+_more("someone", "ko", r"(?:아이|애|딸|아들)가?\s*(?:팔|손목)에\s*(?:상처를\s*내|칼로\s*긋)")
+_more("someone", "es", r"mi\s+(?:hija|hijo)\s+se\s+(?:corta|está\s+cortando)\s+(?:los\s+)?(?:brazos|muñecas)")
+_more("someone", "vi", r"(?:con\s+(?:gái|trai)|con)\s+(?:tôi\s+)?tự\s+(?:rạch|cắt)\s+tay")
+_more("violence", "ja", r"(?:知らない)?大人が[^。！？\n]{0,10}裸の(?:写真|画像)を(?:求め|要求|送れ)|(?:\d{1,2}歳の)?(?:娘|息子)がネットで知り合った大人と[^。！？\n]{0,6}会う")
+_more("violence", "zh", r"(?:陌生)?(?:大人|成年人)[^。！？\n]{0,10}(?:要|索要)裸照|(?:\d{1,2}岁)?(?:女儿|儿子)[^。！？\n]{0,6}(?:要)?(?:见|見)网上认识的(?:成年人|大人)")
+_more("violence", "ko", r"(?:모르는\s*)?어른이?\s*[가-힯\s]{0,10}(?:알몸|나체|야한)\s*사진을?\s*(?:달래|보내라|요구)|인터넷에서\s*만난\s*어른을?\s*[가-힯\s]{0,6}만난")
+_more("violence", "es", r"(?:un\s+)?adulto[^.!?\n]{0,30}(?:pidi[óo]|pide)\s+fotos\s+desnud|(?:va\s+a\s+ver|se\s+va\s+a\s+ver\s+con)[^.!?\n]{0,20}(?:un\s+)?adulto\s+que\s+conoci[óo]\s+en\s+internet")
+_more("violence", "vi", r"đòi\s+ảnh\s+(?:khỏa\s+thân|nóng|nude)|đi\s+gặp\s+người\s+lớn\s+quen\s+trên\s+mạng")
+# รอบสุ่ม 41: ผู้สูงอายุล้มลุกไม่ได้ · เบาหวานซึม · ผู้ป่วยสมองเสื่อมหาย (เดิมหลุด 14/15) — โทรขอความช่วยเหลือทันที
+_more("medical", "ja", r"倒れて起き上がれない|糖尿病[^。！？\n]{0,12}(?:汗|ぼんやり|意識|返事がない)|認知症の[^。！？\n]{0,6}(?:祖父|祖母|父|母|人)が[^。！？\n]{0,10}(?:帰ってこない|いなくなっ|行方不明)")
+_more("medical", "zh", r"摔倒(?:了)?起不来|摔倒(?:了)?起不來|糖尿病[^。！？\n]{0,10}(?:出汗|迷糊|叫不(?:太)?应|叫不醒)|(?:老年痴呆|失智|痴呆)[^。！？\n]{0,12}(?:没回来|沒回來|走丢|走失|不见了)")
+_more("medical", "ko", r"넘어져서?\s*못\s*일어나|당뇨[가-힯\s]{0,12}(?:땀|멍하|대답을?\s*(?:잘\s*)?안|의식)|치매[가-힯\s]{0,24}(?:안\s*돌아|없어졌|실종|길을\s*잃)")
+_more("medical", "es", r"se\s+cay[óo][^.!?\n]{0,20}no\s+puede\s+levantarse|con\s+demencia[^.!?\n]{0,30}(?:no\s+ha\s+vuelto|desapareci[óo]|se\s+perdi[óo])")
+_more("medical", "vi", r"ngã[^.!?\n]{0,15}không\s+dậy\s+được|tiểu\s+đường[^.!?\n]{0,20}(?:vã\s+mồ\s+hôi|lơ\s+mơ|không\s+trả\s+lời)|bị\s+lẫn[^.!?\n]{0,15}(?:chưa\s+về|mất\s+tích|đi\s+lạc)")
+# รอบสุ่ม 42: ติดอยู่ในน้ำท่วม/ดินถล่ม (zh es vi)
+_more("disaster", "zh", r"(?:水|洪水)[^。！？\n]{0,6}(?:淹到|到了)(?:胸口|脖子|腰)|被困在(?:楼上|屋顶|屋頂|二楼)")
+_more("disaster", "es", r"el\s+agua\s+(?:nos|me)\s+llega\s+(?:al|a\s+la)\s+(?:pecho|cuello|cintura)|atrapad[oa]s?\s+(?:arriba|en\s+el\s+techo|en\s+el\s+segundo\s+piso)|(?:deslave|derrumbe|alud)\s+(?:sepult[óo]|enterr[óo])")
+_more("disaster", "vi", r"nước\s+ngập\s+(?:tới|đến)\s+(?:ngực|cổ|bụng)|bị\s+kẹt\s+trên\s+(?:lầu|mái|tầng)|sạt\s+lở[^.!?\n]{0,20}(?:vùi|chôn|lấp)")
+# รอบสุ่ม 43: ชนคนแล้วไม่ขยับ · ตกแล้วขาไม่รู้สึก · นิ้วขาด (เดิมหลุด 15/15)
+_more("medical", "ja", r"(?:歩行者|人)を(?:はねた|轢いた|ひいた)|(?:足|脚)の感覚がない|指を切り(?:落と|落とし)|指が(?:ちぎれ|取れ)")
+_more("medical", "zh", r"撞(?:到|倒)(?:了)?(?:行人|人)[^。！？\n]{0,8}(?:一动不动|不动|昏迷|流血)|(?:腿|脚|下半身)没有知觉|(?:锯|切|剁)断(?:了)?(?:手指|指头)|手指(?:被)?(?:锯|切|剁)断")
+_more("medical", "ko", r"(?:보행자|사람)를?\s*쳤어[가-힯\s,]{0,8}(?:안\s*움직|의식)|다리에\s*감각이\s*없|손가락이\s*잘렸")
+_more("medical", "es", r"atropell[ée]\s+a\s+(?:un|una)\s+(?:peat[óo]n|persona)|no\s+siento\s+las\s+piernas|(?:me\s+)?cort[ée]\s+(?:un|el)\s+dedo[^.!?\n]{0,20}(?:desprendi|cay[óo]|separ)|dedo\s+amputado")
+_more("medical", "vi", r"tông\s+(?:phải\s+)?người\s+đi\s+bộ|không\s+cảm\s+(?:thấy|giác)\s+(?:được\s+)?chân|(?:cưa|chặt|cắt)\s+đứt\s+ngón\s+tay")
+# รอบสุ่ม 44: ยาเกินขนาด/ยาซ้ำ — เด็กดื่มยาทั้งขวด · เหล้า+ยานอนหลับ · ยาความดันซ้ำ (เดิมหลุด 12/15)
+_more("medical", "ja", r"(?:一本|一瓶|まるごと)\s*全部飲んだ|(?:シロップ|薬)を[^。！？\n]{0,4}全部飲んだ|薬を二回飲んだ[^。！？\n]{0,12}(?:めまい|脈が遅|ふらふら)")
+_more("medical", "zh", r"(?:一整瓶|整瓶|一瓶)[^。！？\n]{0,10}(?:糖浆|糖漿|药|藥)(?:都)?喝了|把[^。！？\n]{0,4}一整瓶[^。！？\n]{0,10}喝了")
+_more("medical", "ko", r"한\s*병\s*다\s*마셨|술\s*마시고\s*수면제[가-힯\s]{0,12}(?:숨을?\s*(?:너무\s*)?천천히|안\s*깨|의식)|혈압약을?\s*두\s*번[가-힯\s,]{0,12}(?:어지럽|맥박이?\s*느려)")
+_more("medical", "es", r"(?:se\s+)?(?:tom[óo]|bebi[óo])\s+todo\s+el\s+frasco|alcohol\s+y\s+(?:luego\s+)?pastillas\s+para\s+dormir[^.!?\n]{0,20}(?:respir|no\s+despiert)|(?:pastilla|medicina)\s+(?:de\s+la\s+presi[óo]n\s+)?dos\s+veces[^.!?\n]{0,30}(?:marea|pulso\s+lento|desmay)")
+_more("medical", "vi", r"uống\s+hết\s+cả\s+(?:chai|lọ|vỉ)|uống\s+rượu\s+rồi\s+uống\s+thuốc\s+ngủ|thuốc\s+huyết\s+áp\s+hai\s+lần[^.!?\n]{0,20}(?:chóng\s+mặt|mạch\s+chậm|ngất)")
+# รอบสุ่ม 47: อุบัติเหตุในที่ทำงาน — ตกนั่งร้าน · เครนล้มทับ · เครื่องจักรดูดแขน (เดิมหลุด 14/15)
+_more("medical", "ja", r"足場から落ち|(?:屋根|高所)から落ち|機械に[^。！？\n]{0,8}(?:腕|手|指|髪)が?巻き込まれ")
+_more("medical", "zh", r"从脚手架上?摔|從鷹架上?摔|(?:吊车|吊車|起重机|起重機)[^。！？\n]{0,6}(?:倒|塌)[^。！？\n]{0,6}压(?:到|住)?人|(?:机器|機器)[^。！？\n]{0,6}(?:手臂|手|胳膊)(?:卷|捲)进去")
+_more("medical", "ko", r"비계에서\s*떨어|크레인이\s*[가-힯\s]{0,8}(?:넘어졌|쓰러졌|덮쳤)|기계에\s*[가-힯\s]{0,8}(?:팔|손|손가락)이?\s*말려")
+_more("medical", "es", r"se\s+cay[óo]\s+del\s+andamio|(?:la\s+)?gr[úu]a\s+(?:se\s+)?cay[óo]\s+(?:encima\s+de|sobre)|m[áa]quina\s+(?:atrap[óo]|agarr[óo]|jal[óo])\s+(?:el\s+)?(?:brazo|mano)")
+_more("medical", "vi", r"ngã\s+từ\s+giàn\s+giáo|cần\s+cẩu\s+đổ\s+đè|máy\s+cuốn\s+(?:tay|cánh\s+tay)")
+# รอบสุ่ม 48: ครรภ์เป็นพิษ · ทารกไม่กี่สัปดาห์มีไข้ · ตกเลือดหลังคลอด (เดิมหลุด 15/15)
+_more("medical", "ja", r"妊娠\s*\d+\s*(?:ヶ月|か月|カ月|週)[^。！？\n]{0,30}(?:ひどい頭痛|頭痛|目がかすむ|出血)|生後\s*\d+\s*(?:週間?|日|ヶ月)[^。！？\n]{0,20}(?:熱|発熱)|出産後[^。！？\n]{0,20}(?:びっしょり|大量出血|1時間ごと)")
+_more("medical", "zh", r"(?:怀孕|懷孕)\s*\d+\s*(?:个月|個月|周|週)[^。！？\n]{0,30}(?:头很痛|頭很痛|头痛|頭痛|模糊|出血)|(?:两|兩|\d+)(?:周|週)大的(?:宝宝|寶寶|婴儿|嬰兒)[^。！？\n]{0,8}(?:发烧|發燒)|(?:产后|產後)[^。！？\n]{0,20}(?:湿透|濕透|大出血)")
+_more("medical", "ko", r"임신\s*\d+\s*(?:개월|주)[가-힯\s,]{0,30}(?:두통|침침|출혈)|생후\s*\d+\s*(?:주|일)[가-힯\s]{0,12}열|출산\s*후[가-힯\s]{0,20}(?:흠뻑|출혈)")
+_more("medical", "es", r"\d+\s+(?:meses|semanas)\s+de\s+embarazo[^.!?\n]{0,40}(?:dolor\s+de\s+cabeza|visi[óo]n\s+borrosa|sangr)|beb[ée]\s+de\s+\d+\s+(?:semanas|d[ií]as)[^.!?\n]{0,20}fiebre|despu[ée]s\s+del\s+parto[^.!?\n]{0,30}(?:empap|sangr)")
+_more("medical", "vi", r"mang\s+thai\s+\d+\s+(?:tháng|tuần)[^.!?\n]{0,40}(?:đau\s+đầu|mờ\s+mắt|chảy\s+máu)|\d+\s+(?:tuần|ngày)\s+tuổi[^.!?\n]{0,20}sốt|sau\s+sinh[^.!?\n]{0,30}(?:thấm\s+đẫm|ra\s+máu\s+nhiều|băng\s+huyết)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
@@ -340,7 +446,9 @@ def urgent_intl(text, lang: str | None = None) -> list:
     t = str(text or "")
     if lang == "all":                        # ภาษาปนกัน ("我朋友说他想自杀ค่ะ") — รูปประโยคแต่ละภาษาใช้ตัวอักษรของมันเอง ตรวจทุกภาษาได้
         return [(k, topic) for k, topic, by in _URGENT_RX if any(rx.search(t) for rx in by.values())]
-    lang = lang or detect_lang(t)
+    if not lang:
+        # detect_lang ไม่มีค่า "vi" (เวียดนามถูกเดาเป็น es/en) — รูปแบบ vi ที่นี่เลยไม่เคยถูกใช้ (รอบสุ่ม 32)
+        lang = "vi" if script_lang(t) == "vi" else detect_lang(t)
     return [(k, topic) for k, topic, by in _URGENT_RX if lang in by and by[lang].search(t)]
 
 
@@ -591,6 +699,8 @@ WORLD_FIRE += (r"|(?:น้ำท่วม|น้ำป่า|น้ำหลา
                r"|(?i:\b(?:water|flood(?:ing)?)\b[^\n]{0,20}?\b(?:up\s+to\s+(?:my|our|his|her)\s+(?:chest|neck|waist)|stuck|trapped)\b"
                r"|\b(?:earthquake|landslide|mudslide|flash\s+flood|building\s+collapsed?)\b[^\n]{0,50}?\b(?:stuck|trapped|buried|under\s+(?:it|the\s+rubble)|cracked)\b"
                r"|\bswept\s+(?:out|away)\s+by\s+(?:a\s+|the\s+)?(?:wave|current|flood)\b)")
+# รอบสุ่ม 40: ไฟไหม้แล้วมีคนยังอยู่ข้างใน ("ไฟไหม้เฮือน ป้อยังอยู่ข้างใน" เคยได้ 53)
+WORLD_FIRE += r"|ไฟไหม้[^\n]{0,20}?(?:ยัง)?(?:อยู่|ติด)(?:อยู่)?(?:ข้างใน|ในบ้าน|ในห้อง|ชั้นบน)|(?i:\b(?:fire|burning)\b[^\n]{0,30}?\b(?:still\s+inside|trapped\s+inside|inside\s+the\s+house)\b)"
 # รอบสุ่ม 17: แก๊สรั่ว (ไทย/อังกฤษ) เคยได้แค่ 64 — ระเบิดหรือขาดอากาศได้ทันที
 WORLD_FIRE += r"|(?:กลิ่น)?แก๊ส(?:หุงต้ม)?\S{0,4}รั่ว|ได้กลิ่นแก๊ส|(?i:\b(?:smell|smells|smelling)\s+(?:of\s+)?gas\b|\bgas\s+leak\b)"
 # รอบสุ่ม 16: ไทย "บ้านไฟไหม้ ออกไม่ได้" เคยได้ 64 — ติดอยู่ในกองไฟต้องเป็นเหตุฉุกเฉินเต็มที่
@@ -608,6 +718,46 @@ WORLD_URGENT["crisis"] += (
     r"|बोझ\s+नहीं\s+बनना|(?:अगर\s+)?(?:कल\s+)?मैं\s+न\s+रहूं[^।!?\n]{0,25}(?:फर्क|पता)|सारी\s+चीज़ें[^।!?\n]{0,15}दे\s+दीं|सारी\s+चीजें[^।!?\n]{0,15}दे\s+दीं|मरी\s+हुई\s+माँ\s+के\s+पास\s+जाना|मरे\s+हुए\s+पापा\s+के\s+पास\s+जाना"
     r"|ayoko\s+nang\s+maging\s+pabigat|kung\s+mawala\s+ako[^.!?\n]{0,15}walang\s+(?:makakapansin|makakaalam)|ipinamigay\s+ko\s+na\s+lahat(?![^.!?\n]{0,40}(?:charity|donasyon|simbahan|evacuee))|sumunod\s+(?:kay|sa)\s+(?:nanay|tatay|mama|papa)[^.!?\n]{0,10}(?:pumanaw|namatay|patay)"
     r"|tak\s+(?:nak|mahu)\s+jadi\s+beban|kalau\s+saya\s+(?:hilang|mati)[^.!?\n]{0,20}tak\s+(?:ada\s+)?(?:siapa|sesiapa)\s+(?:perasan|sedar)|dah\s+bagi\s+semua\s+barang|jumpa\s+(?:mak|ayah|abah|emak)\s+yang\s+(?:dah\s+)?meninggal"
+)
+
+# รอบสุ่ม 38: แท็กซี่ล็อกประตู · ถูกใส่ยาในเครื่องดื่ม · กลิ่นแก๊ส ใน id fr de pt ru (เดิมหลุด 15/15)
+WORLD_URGENT["violence"] += (
+    r"|(?:sopir|supir)\s+taksi\s+mengunci\s+pintu|tidak\s+mau\s+menurunkan\s+saya"
+    r"|(?:chauffeur|taxi)[^.!?\n]{0,25}verrouill(?:é|e)\s+les\s+portes|ne\s+me\s+laisse\s+pas\s+(?:descendre|sortir)"
+    r"|(?:taxifahrer|fahrer)[^.!?\n]{0,25}t(?:ü|u)ren\s+verriegelt|l(?:ä|a)sst\s+mich\s+nicht\s+aussteigen"
+    r"|(?:taxista|motorista)\s+trancou\s+(?:as\s+)?portas|n(?:ã|a)o\s+me\s+deixa\s+sair\s+do\s+(?:carro|t(?:á|a)xi)|trancou\s+as\s+portas\s+e\s+n(?:ã|a)o\s+me\s+deixa"
+    r"|(?:таксист|водитель)\s+(?:заблокировал|закрыл)\s+двери|не\s+выпускает\s+меня"
+)
+WORLD_URGENT["medical"] += (
+    r"|memasukkan\s+sesuatu\s+ke\s+(?:minuman|gelas)"
+    r"|(?:a\s+)?mis\s+quelque\s+chose\s+dans\s+mon\s+(?:verre|boisson)"
+    r"|(?:hat\s+)?mir\s+etwas\s+ins\s+(?:getr(?:ä|a)nk|glas)\s+(?:getan|gemischt|gekippt)"
+    r"|colocou\s+(?:algo|alguma\s+coisa)\s+na\s+minha\s+bebida"
+    r"|подсыпал[аи]?\s+(?:что-то|что\s+то)\s+(?:мне\s+)?в\s+(?:мой\s+)?(?:напиток|стакан|бокал)"
+)
+WORLD_FIRE += (r"|bau\s+gas\s+(?:sangat\s+)?(?:kuat|menyengat)|(?:ç|c)a\s+sent\s+(?:fort\s+)?le\s+gaz|riecht\s+(?:stark\s+)?nach\s+gas"
+               r"|cheiro\s+(?:forte\s+)?de\s+g(?:á|a)s|пахнет\s+газом|запах\s+газа")
+WORLD_URGENT["help"] += r"|bau\s+gas\s+(?:sangat\s+)?(?:kuat|menyengat)|(?:ç|c)a\s+sent\s+(?:fort\s+)?le\s+gaz|riecht\s+(?:stark\s+)?nach\s+gas|cheiro\s+(?:forte\s+)?de\s+g(?:á|a)s|пахнет\s+газом|запах\s+газа"
+WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
+
+# รอบสุ่ม 39: เป็นภาระ+ยกของ (de pt) · ลูกทำร้ายตัวเอง (id fr de pt ru) — เดิมหลุด 7/10
+WORLD_URGENT["crisis"] += (
+    r"|will\s+niemandem\s+(?:mehr\s+)?zur\s+last\s+fallen|alle\s+meine\s+sachen\s+verschenkt"
+    r"|n(?:ã|a)o\s+quero\s+(?:mais\s+)?ser\s+um\s+peso|dei\s+todas\s+as\s+minhas\s+coisas"
+    r"|anak\s+saya\s+(?:menyayat|melukai|mengiris)\s+(?:tangan|lengan)"
+    r"|(?:ma\s+fille|mon\s+fils|mon\s+enfant)\s+se\s+(?:scarifie|coupe|mutile)"
+    r"|(?:meine\s+tochter|mein\s+sohn|mein\s+kind)\s+ritzt\s+sich"
+    r"|(?:minha\s+filha|meu\s+filho)\s+(?:est(?:á|a)\s+)?se\s+cortando"
+    r"|(?:моя\s+дочь|мой\s+сын|мой\s+ребёнок|мой\s+ребенок)\s+(?:режет|ранит)\s+себе\s+(?:руки|запястья)"
+)
+
+# รอบสุ่ม 49: ครรภ์เป็นพิษ · ทารกไม่กี่สัปดาห์มีไข้ · ตกเลือดหลังคลอด ใน id fr de pt ru (เดิมหลุด 14/15)
+WORLD_URGENT["medical"] += (
+    r"|bayi[^.!?\n]{0,20}demam[^.!?\n]{0,20}(?:baru\s+)?\d+\s+(?:minggu|hari)|hamil\s+\d+\s+bulan[^.!?\n]{0,40}(?:sakit\s+kepala\s+hebat|pandangan\s+kabur|pendarahan)"
+    r"|b(?:é|e)b(?:é|e)\s+de\s+\d+\s+(?:semaines|jours)[^.!?\n]{0,20}fi(?:è|e)vre|enceinte\s+de\s+\d+\s+mois[^.!?\n]{0,40}(?:mal\s+de\s+t(?:ê|e)te|vision\s+floue|saign)|apr(?:è|e)s\s+l'accouchement[^.!?\n]{0,40}(?:serviette\s+chaque\s+heure|saigne\s+beaucoup)"
+    r"|\d+\s+wochen\s+alte[sn]?\s+baby[^.!?\n]{0,15}fieber|schwanger\s+im\s+\d+\.?\s+monat[^.!?\n]{0,40}(?:kopfschmerzen|verschwommen|blutung)|nach\s+der\s+geburt[^.!?\n]{0,40}(?:jede\s+stunde|stark\s+blut)"
+    r"|beb(?:ê|e)\s+de\s+\d+\s+(?:semanas|dias)[^.!?\n]{0,20}febre|gr(?:á|a)vida\s+de\s+\d+\s+meses[^.!?\n]{0,40}(?:dor\s+de\s+cabe(?:ç|c)a|vis(?:ã|a)o\s+emba(?:ç|c)ada|sangr)|depois\s+do\s+parto[^.!?\n]{0,40}(?:absorvente\s+por\s+hora|sangr)"
+    r"|реб(?:ё|е)нок\s+(?:двух|трёх|трех|\d+)\s+недел[^.!?\n]{0,20}температур|беременност[ьи]\s+\d+\s+месяц[^.!?\n]{0,50}(?:головная\s+боль|плыв|кровотеч)|после\s+родов[^.!?\n]{0,40}(?:каждый\s+час|сильное\s+кровотеч)"
 )
 
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
