@@ -233,6 +233,13 @@ UPGRADES += [
 UPGRADES += [(re.compile(r"(?i:\bclicked\s+(?:a|the|on\s+a|on\s+the)\s+(?:\w+\s+){0,3}link\b[^\n]{0,40}?\b(?:account|bank|wallet)\b[^\n]{0,20}?\b(?:is\s+)?(?:empty|drained|emptied|cleaned\s+out|money\s+(?:is\s+)?gone)\b)"), "scam")]
 # รอบสุ่ม 65: เจ้าหนี้ขู่จะเอาลูกไปขาย — เคยได้ 55
 UPGRADES += [(re.compile(r"(?:เจ้าหนี้|นายทุน|แก๊ง)[^\n]{0,20}?(?:ขู่|บอก)\S{0,4}(?:จะ)?(?:มา)?(?:เอา|จับ|ลัก)\S{0,4}(?:ลูก|เมีย|แม่|น้อง)\S{0,4}(?:ไป)?(?:ขาย|ขัง|เป็นตัวประกัน)"), "trafficking")]
+# รอบสุ่ม 67: ผู้สูงอายุอยู่คนเดียวติดต่อไม่ได้หลายวัน · ลิ่มเลือดหลังนั่งเครื่องบิน · อาเจียนสีดำ+ท้องแข็ง (EN)
+UPGRADES += [
+    (re.compile(r"(?:ยาย|ตา|ปู่|ย่า|แม่|พ่อ|ป้า|ลุง)[^\n]{0,10}?อยู่คนเดียว[^\n]{0,20}?(?:โทร(?:ไป)?)?\S{0,4}(?:สอง|สาม|หลาย|\d+)\s?วัน\S{0,4}ไม่(?:รับสาย|ตอบ|ติดต่อ)|"
+                r"(?i:\b(?:grandma|grandpa|grandmother|grandfather|mom|dad|mother|father|aunt|uncle)\b[^\n]{0,15}?\blives\s+alone\b[^\n]{0,40}?\b(?:hasn'?t\s+(?:answered|picked\s+up)|not\s+answering|no\s+answer)\b[^\n]{0,20}?\b(?:\d+|two|three|several)\s+days\b)"), "missing"),
+    (re.compile(r"(?:หายใจไม่อิ่ม|หอบ|เจ็บหน้าอก)[^\n]{0,20}?ขาบวมข้างเดียว|ขาบวมข้างเดียว[^\n]{0,30}?(?:หายใจไม่อิ่ม|หอบ|เจ็บหน้าอก)|"
+                r"(?i:\b(?:vomiting|throwing\s+up)\s+(?:black|coffee[- ]ground|blood)\b[^\n]{0,30}?\b(?:belly|stomach|abdomen)\b[^\n]{0,15}?\b(?:rigid|hard|swollen)\b)"), "health_emergency"),
+]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
