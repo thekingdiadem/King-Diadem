@@ -1108,7 +1108,8 @@ async def post_answer_report(request: Request, data: dict):
     from core import answer_reports
     try:
         r = await run_in_threadpool(answer_reports.record, data.get("reason"), data.get("answer"),
-                                    data.get("note"), data.get("route"), data.get("risk"))
+                                    data.get("note"), data.get("route"), data.get("risk"),
+                                    data.get("question") if data.get("include_question") is True else None)
     except Exception as e:
         print(f"⚠ answer_reports: {type(e).__name__}")
         return JSONResponse({"ok": False, "error": "ตอนนี้รับรายงานไม่ได้ค่ะ ลองใหม่อีกครั้งนะคะ"}, status_code=503)

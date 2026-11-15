@@ -15,6 +15,7 @@ core/housekeeping.py — ลอกท่อรอบดึก: เก็บก�
 สิ่งที่ล้าง:
 - usage_daily: ตัวนับโควตาฟรีรายวัน ใช้แค่ของ "วันนี้" แต่เดิมเก็บทุกวันทุกคนไปตลอด → เก็บ 7 วันล่าสุด
 - หน่วยความจำ: บันทึกเวลาส่งเมลประวัติ (app._history_mail_last) ที่เกินช่วงกันส่งถี่แล้ว
+- ประโยคที่ผู้ใช้แนบมากับปุ่มรายงาน เมื่อครบ 90 วัน (core/answer_reports)
 - decision_reports ที่หมดอายุแล้ว (เดิมลบแค่ตอนเปิดเซิร์ฟเวอร์)
 - SQLite: PRAGMA optimize (สถิติให้ค้นเร็ว) + checkpoint WAL (ไฟล์ -wal ไม่บวมเรื่อยๆ)
 """
@@ -73,6 +74,12 @@ def _expired_reports(now: datetime) -> int:
         conn.close()
 
 
+def _report_questions(now: datetime) -> int:
+    """ประโยคที่ผู้ใช้แนบมากับรายงาน — ลบเมื่อครบ 90 วัน"""
+    from core.answer_reports import forget_old_questions
+    return forget_old_questions(now.timestamp())
+
+
 def _sqlite(now: datetime) -> str:
     from DATABASE.db import get_conn
     conn = get_conn()
@@ -84,7 +91,7 @@ def _sqlite(now: datetime) -> str:
         conn.close()
 
 
-STEPS = (("usage_daily", _usage_daily), ("mail_memory", _mail_memory), ("expired_reports", _expired_reports), ("sqlite", _sqlite))
+STEPS = (("usage_daily", _usage_daily), ("mail_memory", _mail_memory), ("expired_reports", _expired_reports), ("report_questions", _report_questions), ("sqlite", _sqlite))
 
 
 def due(now: datetime | None = None) -> bool:

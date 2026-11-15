@@ -381,13 +381,16 @@ window.KD_themeVars = function(t, c){
     <p>ถ้าคำตอบนี้ไม่เหมาะสม ผิด หรืออาจทำให้ใครเดือดร้อน บอกเราได้เลยค่ะ มีคนอ่านทุกรายงาน</p>
     <fieldset class="rp-why"><legend>คำตอบนี้เป็นแบบไหน</legend>
       <label><input type="radio" name="rp-why" value="harmful" checked> <span>อาจเป็นอันตรายหรือไม่ปลอดภัย</span></label>
+      <label><input type="radio" name="rp-why" value="missed"> <span>ระบบไม่เห็นว่าเรื่องนี้ด่วนหรืออันตราย</span></label>
       <label><input type="radio" name="rp-why" value="offensive"> <span>หยาบคาย เหยียด หรือไม่ให้เกียรติ</span></label>
       <label><input type="radio" name="rp-why" value="wrong"> <span>ข้อมูลผิดหรือทำให้เข้าใจผิด</span></label>
       <label><input type="radio" name="rp-why" value="other"> <span>เรื่องอื่น</span></label>
     </fieldset>
     <label for="rp-note">เล่าเพิ่มได้ถ้าอยากเล่า (ไม่บังคับ)</label>
     <textarea id="rp-note" maxlength="500" rows="3"></textarea>
-    <p class="muted rp-priv">สิ่งที่ส่งไป: คำตอบของ LYLA ข้อนี้ เหตุผลที่เลือก และสิ่งที่คุณเขียนในช่องด้านบน · ไม่ส่งข้อความที่คุณพิมพ์ถาม ไม่ส่งชื่อหรืออีเมล</p>
+    <label class="rp-incq"><input type="checkbox" id="rp-incq"> <span>แนบประโยคที่ฉันพิมพ์ไปด้วย เพื่อช่วยให้ระบบเข้าใจคนอื่นที่พิมพ์แบบนี้ (ลบเบอร์และอีเมลออกก่อนเก็บ · ไม่บอกว่าใครส่ง · ลบเองใน 90 วัน)</span></label>
+    <p class="muted rp-priv" id="rp-priv">สิ่งที่ส่งไป: คำตอบของ LYLA ข้อนี้ เหตุผลที่เลือก และสิ่งที่คุณเขียนในช่องด้านบน · ไม่ส่งข้อความที่คุณพิมพ์ถาม ไม่ส่งชื่อหรืออีเมล</p>
+    <p class="muted rp-priv" id="rp-priv-q" hidden>สิ่งที่ส่งไป: คำตอบของ LYLA ข้อนี้ เหตุผลที่เลือก สิ่งที่คุณเขียนด้านบน และประโยคที่คุณพิมพ์ก่อนคำตอบนี้ (ลบเบอร์และอีเมลออกแล้ว) · ไม่ส่งชื่อหรืออีเมลของคุณ</p>
     <p id="rp-msg" class="bad" role="alert"></p>
   </div>
   <div class="dlg-f"><button type="button" class="btn ghost" id="rp-cancel">ยกเลิก</button><button type="button" class="btn primary" id="rp-send">ส่งรายงาน</button></div>
