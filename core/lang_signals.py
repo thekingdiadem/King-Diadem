@@ -357,6 +357,12 @@ _more("disaster", "zh", r"(?:很浓的|浓烈的|一股)?(?:煤气|燃气|瓦斯
 _more("disaster", "ko", r"가스\s*(?:냄새|누출|새)")
 _more("disaster", "es", r"(?:huele|olor)\s+(?:mucho\s+)?a\s+gas|fuga\s+de\s+gas")
 _more("disaster", "vi", r"mùi\s+(?:khí\s+)?gas|rò\s+rỉ\s+gas|xì\s+gas")
+# รอบสุ่ม 33: เสียงสั่งให้ทำร้ายคนอื่น · หลังคลอดคิดทำร้ายลูก · อดอาหารจนจะเป็นลม (เดิมหลุด 12/15) — ต้องพบแพทย์ทันที
+_more("medical", "ja", r"(?:傷つけ|殺せ|殺し)[^。！？\n]{0,6}(?:という|って)?声が(?:聞こえ|する)|(?:出産|産んで)[^。！？\n]{0,10}(?:赤ちゃん|子供|子ども)を(?:傷つけ|殺し)たい")
+_more("medical", "zh", r"(?:听到|聽到)[^。！？\n]{0,4}(?:声音|聲音)[^。！？\n]{0,6}(?:叫|让|讓)我(?:伤害|傷害|杀|殺)|(?:生完孩子|产后|產後)[^。！？\n]{0,10}(?:伤害|傷害|掐死|杀)(?:宝宝|寶寶|孩子)")
+_more("medical", "ko", r"(?:해치라는|죽이라는)\s*(?:목소리|소리)가?\s*들려|(?:출산|아기\s*낳고)[가-힯\s]{0,10}아기를?\s*(?:해치|죽이)고\s*싶")
+_more("medical", "es", r"(?:escucho|oigo)\s+voces\s+que\s+me\s+(?:dicen|ordenan)\s+que\s+(?:lastime|mate|haga\s+daño)|(?:di\s+a\s+luz|tuve\s+al\s+beb[ée]|posparto)[^.!?\n]{0,30}(?:hacerle\s+daño|lastimar|matar)\s+(?:al|a\s+mi)\s+beb[ée]|(?:llevo\s+)?\d+\s+d[ií]as\s+sin\s+comer[^.!?\n]{0,40}(?:desmay|engordar|mareo)")
+_more("medical", "vi", r"giọng\s+nói\s+(?:bảo|bắt|xúi)\s+tôi\s+(?:làm\s+hại|giết)|(?:sinh\s+con|sau\s+sinh)[^.!?\n]{0,20}(?:làm\s+hại|giết)\s+(?:em\s+bé|con|bé)|\d+\s+ngày[^.!?\n]{0,12}không\s+ăn[^.!?\n]{0,30}(?:ngất|sợ\s+béo|chóng\s+mặt)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
