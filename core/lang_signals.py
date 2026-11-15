@@ -842,6 +842,16 @@ WORLD_URGENT["crisis"] += (
     r"|naglalaslas\s+ng\s+(?:braso|pulso)\s+ang\s+anak|anak\s+saya\s+kelar\s+tangan"
 )
 
+# รอบสุ่ม 59: เสียงสั่งให้ทำร้ายครอบครัว · ผู้สูงอายุล้มลุกไม่ได้ ใน it tr ar hi tl ms (เดิมหลุด 12/12)
+WORLD_URGENT["medical"] += (
+    r"|voci\s+che\s+mi\s+dicono\s+di\s+(?:fare\s+del\s+male|uccidere)|caduta?[^.!?\n]{0,20}non\s+riesce\s+ad\s+alzarsi"
+    r"|incitmemi\s+s(?:ö|o)yleyen\s+sesler|d(?:ü|u)(?:ş|s)t(?:ü|u)\s+ve\s+kalkam(?:ı|i)yor"
+    r"|أصوات(?:ًا|ا)?\s+تأمرني\s+ب(?:إيذاء|قتل)|سقط(?:ت)?\s+في\s+الحمام\s+ولا\s+(?:تستطيع|يستطيع)\s+النهوض"
+    r"|आवाज़ें\s+सुनाई\s+देती\s+हैं[^।!?\n]{0,30}नुकसान\s+पहुंचा|गिर\s+गई?ं?[^।!?\n]{0,10}उठ\s+नहीं\s+पा"
+    r"|boses\s+na\s+nag-?uutos\s+na\s+saktan|(?:nadulas|nahulog|natumba|bumagsak)[^.!?\n]{0,30}hindi\s+makatayo"
+    r"|suara\s+suruh\s+saya\s+(?:cederakan|bunuh)|jatuh[^.!?\n]{0,25}tak\s+boleh\s+bangun"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
