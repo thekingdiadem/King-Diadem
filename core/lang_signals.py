@@ -670,6 +670,26 @@ WORLD_URGENT["crisis"] += (
     r"|tak\s+(?:nak|mahu)\s+jadi\s+beban|kalau\s+saya\s+(?:hilang|mati)[^.!?\n]{0,20}tak\s+(?:ada\s+)?(?:siapa|sesiapa)\s+(?:perasan|sedar)|dah\s+bagi\s+semua\s+barang|jumpa\s+(?:mak|ayah|abah|emak)\s+yang\s+(?:dah\s+)?meninggal"
 )
 
+# รอบสุ่ม 38: แท็กซี่ล็อกประตู · ถูกใส่ยาในเครื่องดื่ม · กลิ่นแก๊ส ใน id fr de pt ru (เดิมหลุด 15/15)
+WORLD_URGENT["violence"] += (
+    r"|(?:sopir|supir)\s+taksi\s+mengunci\s+pintu|tidak\s+mau\s+menurunkan\s+saya"
+    r"|(?:chauffeur|taxi)[^.!?\n]{0,25}verrouill(?:é|e)\s+les\s+portes|ne\s+me\s+laisse\s+pas\s+(?:descendre|sortir)"
+    r"|(?:taxifahrer|fahrer)[^.!?\n]{0,25}t(?:ü|u)ren\s+verriegelt|l(?:ä|a)sst\s+mich\s+nicht\s+aussteigen"
+    r"|(?:taxista|motorista)\s+trancou\s+(?:as\s+)?portas|n(?:ã|a)o\s+me\s+deixa\s+sair\s+do\s+(?:carro|t(?:á|a)xi)|trancou\s+as\s+portas\s+e\s+n(?:ã|a)o\s+me\s+deixa"
+    r"|(?:таксист|водитель)\s+(?:заблокировал|закрыл)\s+двери|не\s+выпускает\s+меня"
+)
+WORLD_URGENT["medical"] += (
+    r"|memasukkan\s+sesuatu\s+ke\s+(?:minuman|gelas)"
+    r"|(?:a\s+)?mis\s+quelque\s+chose\s+dans\s+mon\s+(?:verre|boisson)"
+    r"|(?:hat\s+)?mir\s+etwas\s+ins\s+(?:getr(?:ä|a)nk|glas)\s+(?:getan|gemischt|gekippt)"
+    r"|colocou\s+(?:algo|alguma\s+coisa)\s+na\s+minha\s+bebida"
+    r"|подсыпал[аи]?\s+(?:что-то|что\s+то)\s+(?:мне\s+)?в\s+(?:мой\s+)?(?:напиток|стакан|бокал)"
+)
+WORLD_FIRE += (r"|bau\s+gas\s+(?:sangat\s+)?(?:kuat|menyengat)|(?:ç|c)a\s+sent\s+(?:fort\s+)?le\s+gaz|riecht\s+(?:stark\s+)?nach\s+gas"
+               r"|cheiro\s+(?:forte\s+)?de\s+g(?:á|a)s|пахнет\s+газом|запах\s+газа")
+WORLD_URGENT["help"] += r"|bau\s+gas\s+(?:sangat\s+)?(?:kuat|menyengat)|(?:ç|c)a\s+sent\s+(?:fort\s+)?le\s+gaz|riecht\s+(?:stark\s+)?nach\s+gas|cheiro\s+(?:forte\s+)?de\s+g(?:á|a)s|пахнет\s+газом|запах\s+газа"
+WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
