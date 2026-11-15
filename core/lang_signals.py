@@ -769,6 +769,15 @@ WORLD_URGENT["medical"] += (
     r"|сбил\s+пешехода|не\s+чувствую\s+ног|отрезал[аи]?\s+(?:себе\s+)?палец"
 )
 
+# รอบสุ่ม 52: เสียงสั่งให้ทำร้าย · หลังคลอดคิดทำร้ายลูก · อดอาหารจนจะเป็นลม ใน id fr de pt ru (เดิมหลุด 13/15)
+WORLD_URGENT["medical"] += (
+    r"|suara\s+yang\s+menyuruh\s+saya\s+(?:menyakiti|membunuh)|(?:sejak\s+)?melahirkan[^.!?\n]{0,30}(?:menyakiti|membunuh)\s+bayi"
+    r"|des\s+voix\s+qui\s+me\s+disent\s+de\s+(?:faire\s+du\s+mal|tuer)|(?:depuis\s+)?l'accouchement[^.!?\n]{0,30}faire\s+du\s+mal\s+au\s+b(?:é|e)b(?:é|e)|pas\s+mang(?:é|e)\s+depuis\s+\d+\s+jours[^.!?\n]{0,40}(?:(?:é|e)vanouir|grossir)"
+    r"|stimmen[^.!?\n]{0,50}(?:wehtun|umbringen|t(?:ö|o)ten)|seit\s+der\s+geburt[^.!?\n]{0,30}(?:baby|kind)\s+(?:wehzutun|zu\s+verletzen)"
+    r"|vozes\s+mandando\s+(?:eu\s+)?(?:machucar|matar)|desde\s+o\s+parto[^.!?\n]{0,30}machucar\s+o\s+beb(?:ê|e)|\d+\s+dias\s+sem\s+comer[^.!?\n]{0,40}(?:desmai|engordar)"
+    r"|голоса[^.!?\n]{0,20}(?:велят|приказывают)\s+(?:навредить|убить)|после\s+родов[^.!?\n]{0,30}(?:навредить|убить)\s+ребёнку|\d+\s+дней\s+не\s+ем[^.!?\n]{0,40}(?:сознание|поправиться)"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
