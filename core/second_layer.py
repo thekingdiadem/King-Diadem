@@ -175,6 +175,10 @@ ANGER_MOOD = re.compile(
     r"\b(?:(?:i'?m |i am )?(?:shaking|trembling)|my (?:hands|body) (?:are|is) shaking|i (?:want|wanna|need) to (?:smash|break|punch|destroy|wreck) (?:everything|something|things|the wall|stuff))\b|"
     r"\bi (?:want|wanna) to (?:smash|break|destroy|wreck) everything\b|\bshaking with (?:anger|rage)\b)")
 # "โมโหมาก" มีตัวอักษร "หมา" ซ่อนอยู่ (โม-โห-มาก) — ต้องไม่ใช่ตัวต่อจาก โ และไม่ใช่ "หมาก"
+_WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv"}
+_CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
+_WATCHING = re.compile(r"(?:ดู|นั่งดู|เปิด|นอนดู)\S{0,4}?(?:ซีรีส์|ละคร|สารคดี|หนัง|ทีวี)\S{0,12}?(?:อยู่|กับ|ด้วยกัน|ไป)|อ่านข่าวอยู่|"
+                       r"(?i:\b(?:watching|were watching|was watching) (?:a |the |some )?(?:series|show|drama|documentary|movie|tv)\b)")
 _FICTION_ONLY = re.compile(r"(?s)^(?=.*(?:ในเกม|เกมนี้|ในหนัง|หนังเรื่อง|ในละคร|ซีรีส์|นิยาย|การ์ตูน|\bin the (?:game|movie|film|book|show)\b))"
                            r"(?!.*(?:จริงๆ|ในชีวิตจริง|ตอนนี้\S{0,6}(?:อยู่|ที่บ้าน)|\breal(?:ly| life)\b))", re.I)
 ANGER_NOT = re.compile(r"เกม|แข่ง|ฟุตบอล|บอลแพ้|หนัง(?!สือ)|ซีรีส์|ละคร|แมว|(?<!โ)หมา(?!ก)|(?i:\b(?:game|match|controller|movie|show|series|lost the|team)\b)")
@@ -298,7 +302,12 @@ def apply(text: str, a: dict) -> dict:
     # อาการหนักตอนนี้ ("ไม่รู้สึกตัว" "ไม่หายใจ") ห้ามลดเด็ดขาด ไม่ว่าจะมีคำว่าหนังสือ ข่าว หรือ 555 ปน
     if not _NOW.search(text) and not _SEVERE.search(text):
         for rx, kinds in DOWNGRADES:
-            if rx.search(text):
+            m_dg = rx.search(text)
+            if m_dg:
+                # รอบสุ่ม 9: "นั่งดูละครกับพ่อ พ่อเจ็บหน้าอก หายใจไม่ออก" เคยถูกลดเหลือ 20 เพราะคำว่า "ละคร"
+                # ถ้าคำที่ทำให้ลดคือชื่อกิจกรรมที่ผู้ใช้กำลังทำอยู่ (ดูละคร/ซีรีส์/สารคดี/อ่านข่าว) เหตุที่เล่าคือเรื่องจริง ไม่ลด
+                if m_dg.group(0).lower() in _WATCH_WORDS and _WATCHING.search(text) and not _CHARACTER.search(text):
+                    continue
                 calmed = True
                 if "crisis" in kinds and a["crisis"]:
                     a.update(crisis=False, text_risk=min(a["text_risk"], 20))
