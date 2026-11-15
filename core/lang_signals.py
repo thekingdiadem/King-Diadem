@@ -63,12 +63,21 @@ _SCRIPTS = (("ru", re.compile(r"[Ѐ-ӿ]")), ("ar", re.compile(r"[؀-ۿݐ-ݿ]")),
 SCRIPT_NAME = {"ru": "Русский", "ar": "العربية", "hi": "हिन्दी", "he": "עברית", "el": "Ελληνικά", "vi": "Tiếng Việt"}
 
 
+# คำเวียดนามที่ใช้บ่อย — ประโยคสั้นอย่าง "hôm nay vui quá" ไม่มีตัวอักษรเฉพาะเวียดนามเลย (ô/á มีในภาษาอื่นด้วย)
+# เคยถูกเดาเป็นสเปนเพราะมี á · พยางค์เหล่านี้แทบไม่เป็นคำในสเปน/โปรตุเกส/ฝรั่งเศส
+_VI_WORDS = {"hôm", "nay", "quá", "không", "tôi", "mình", "bạn", "của", "và", "được", "người", "này", "rất",
+             "vui", "buồn", "mệt", "anh", "chị", "em", "lắm", "gì", "sao", "thế", "nào", "với", "cho", "ơi", "nhé", "ạ"}
+
+
 def script_lang(text) -> str | None:
     """ภาษาจากตัวอักษรเฉพาะ (ru/ar/hi/he/el/vi) — ต้องเป็นตัวอักษรส่วนใหญ่ของข้อความ ไม่ใช่แค่คำเดียวปน"""
     t = str(text or "")
     letters = _LETTER.findall(t)
     if not letters or _THAI.search(t):
         return None
+    toks = re.findall(r"[^\W\d_]+", t.lower())
+    if toks and sum(w in _VI_WORDS for w in toks) >= max(2, len(toks) * 0.5):
+        return "vi"
     for code, rx in _SCRIPTS:
         n = len(rx.findall(t))
         if code == "vi" and n >= 2:
