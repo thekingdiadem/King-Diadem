@@ -778,6 +778,15 @@ WORLD_URGENT["medical"] += (
     r"|голоса[^.!?\n]{0,20}(?:велят|приказывают)\s+(?:навредить|убить)|после\s+родов[^.!?\n]{0,30}(?:навредить|убить)\s+ребёнку|\d+\s+дней\s+не\s+ем[^.!?\n]{0,40}(?:сознание|поправиться)"
 )
 
+# รอบสุ่ม 53: ค้ามนุษย์ ใน id fr de pt ru — ยึดพาสปอร์ต · ขังในหอ+ยึดโทรศัพท์ · บังคับค้าประเวณี (เดิมหลุด 14/15)
+WORLD_URGENT["violence"] += (
+    r"|dikunci\s+di\s+(?:asrama|kamar|mess)[^.!?\n]{0,25}(?:hp|ponsel|handphone)\s+diambil|dipaksa\s+(?:melayani\s+tamu|melacur|jadi\s+pelacur)"
+    r"|confisqu(?:é|e)\s+mon\s+passeport|on\s+nous\s+enferme[^.!?\n]{0,40}(?:t(?:é|e)l(?:é|e)phones|portables)|(?:on\s+me\s+)?force\s+(?:à|a)\s+me\s+prostituer"
+    r"|(?:meinen\s+)?pass\s+(?:genommen|weggenommen|abgenommen)[^.!?\n]{0,30}(?:nicht\s+gehen|nicht\s+weg)|sperren\s+uns[^.!?\n]{0,30}ein[^.!?\n]{0,20}handys|gezwungen,?\s+mich\s+zu\s+prostituieren"
+    r"|pegou\s+(?:o\s+)?meu\s+passaporte[^.!?\n]{0,30}n(?:ã|a)o\s+me\s+deixa|nos\s+trancam[^.!?\n]{0,30}(?:celulares|telefones)|me\s+obrigam\s+a\s+me\s+prostituir"
+    r"|забрал[аи]?\s+(?:мой\s+)?паспорт[^.!?\n]{0,30}не\s+отпуска|нас\s+запирают[^.!?\n]{0,30}(?:телефоны|мобильники)|заставляют\s+заниматься\s+проституцией"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
