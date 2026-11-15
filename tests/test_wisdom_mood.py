@@ -68,3 +68,14 @@ def test_top_level_code_does_not_call_cosmos_private_helpers():
     for m in re.finditer(r"^function (\w+)\([^)]*\)\{\n(.*?)^\}", js, re.M | re.S):
         for n in private:
             assert not re.search(r"(?<![\w.])" + n + r"\(", m.group(2)), f"{m.group(1)}() เรียก {n}() ที่ไม่มีในระดับบนสุด"
+
+
+def test_typing_reveal_is_frame_cheap():
+    """เจ้าของโปรเจกต์: อยากให้ข้อความไหลทีละตัวอักษร ไม่หน่วง เฟรมนิ่งแม้ข้อความหนัก (เครื่องไม่แรง)
+    เดิม span ต่อคำ + filter:blur ทุกคำพร้อมกัน = เฟรมตกตอนคำตอบยาว"""
+    js = (Path(__file__).resolve().parent.parent / "static" / "app.js").read_text(encoding="utf-8")
+    css = (Path(__file__).resolve().parent.parent / "static" / "app.css").read_text(encoding="utf-8")
+    assert "granularity: 'grapheme'" in js                    # สระ/วรรณยุกต์ไทยไม่แยกจากพยัญชนะ
+    assert "kd-caret" in js and ".kd-caret{" in css
+    assert "setTimeout(finish" in js                            # ข้อความต้องครบเสมอ แม้ rAF หยุด
+    assert ".kd-w{" not in css                                  # ไม่กลับไปใช้ blur ทีละคำ

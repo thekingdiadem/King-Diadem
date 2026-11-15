@@ -2663,25 +2663,15 @@ function renderMsgs(){
    ยาวสุดราว 2.4 วินาที · คำตอบที่มีเบอร์ฉุกเฉินขึ้นทันทีทั้งก้อน (คนในวิกฤตต้องเห็นเบอร์ก่อนอย่างอื่น) · ลดการเคลื่อนไหว = ขึ้นทันที
    ════════════════════════════════════════════════════════════════ */
 var Crystal = (function(){
-  var SEG = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter(undefined, { granularity: 'word' }) : null;
+  /* พิมพ์ทีละตัวอักษร (ตามหน่วยที่ตาเห็น — สระ/วรรณยุกต์ไทยติดไปกับพยัญชนะเสมอ) แบบเฟรมนิ่ง
+     เดิมใช้ span ต่อคำ + blur ทุกคำพร้อมกัน — คำตอบยาวๆ บนเครื่องไม่แรงเฟรมตกหนัก (เหมือนทุกตัวเปิดสกิลพร้อมกัน)
+     ตอนนี้: แต่ละเฟรมแก้แค่ text node เดียว + ย้ายเคอร์เซอร์ 1 ตัว · ความเร็วผูกกับเวลา ไม่ผูกกับเฟรม
+     เครื่องช้าเฟรมหายบ้าง ตัวอักษรก็ยังมาตรงเวลา ไม่หน่วงสะสม · กล่องจองความสูงไว้ก่อน จอไม่กระตุกตอนขึ้นบรรทัดใหม่ */
+  var GSEG = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter(undefined, { granularity: 'grapheme' }) : null;
   var URGENT = /(^|[^\d])(1323|1669|191|1300|1441|110|112|119|911|988)(?!\d)/;
-  function pieces(t){
-    if(SEG){ var out = []; for(var it = SEG.segment(t)[Symbol.iterator](), x = it.next(); !x.done; x = it.next()) out.push(x.value.segment); return out; }
-    return t.split(/(\s+)/);
-  }
-  function wrap(root){
-    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), nodes = [], n, words = [];
-    while((n = walker.nextNode())) if(n.nodeValue && n.nodeValue.trim()) nodes.push(n);
-    nodes.forEach(function(tn){
-      var frag = document.createDocumentFragment();
-      pieces(tn.nodeValue).forEach(function(p){
-        if(!p) return;
-        if(!p.trim()){ frag.appendChild(document.createTextNode(p)); return; }
-        var w = document.createElement('span'); w.className = 'kd-w'; w.textContent = p; frag.appendChild(w); words.push(w);
-      });
-      tn.parentNode.replaceChild(frag, tn);
-    });
-    return words;
+  function graphemes(t){
+    if(GSEG){ var out = []; for(var it = GSEG.segment(t)[Symbol.iterator](), x = it.next(); !x.done; x = it.next()) out.push(x.value.segment); return out; }
+    return t.match(/[\s\S][̀-ͯัิ-ฺ็-๎]*/g) || [];
   }
   function anchor(el){
     /* ให้คำถามของผู้ใช้ (ข้อความก่อนหน้า) อยู่บนสุดของจอ — เห็นทั้งสิ่งที่ถาม และหัวคำตอบที่กำลังก่อตัว */
@@ -2692,23 +2682,45 @@ var Crystal = (function(){
   function form(el){
     var s = $('#chat-scroll'), bubble = el.querySelector('.bubble') || el, text = bubble.textContent || '';
     if(REDUCED || URGENT.test(text)){ requestAnimationFrame(function(){ anchor(el); }); return; }
-    var words = wrap(bubble);
-    if(!words.length){ anchor(el); return; }
-    var total = Math.min(2400, Math.max(600, text.length * 9)), step = total / words.length;
-    words.forEach(function(w, i){ w.style.setProperty('--wd', Math.round(i * step) + 'ms'); });
+    var walker = document.createTreeWalker(bubble, NodeFilter.SHOW_TEXT, null), nodes = [], n, total = 0;
+    while((n = walker.nextNode())) if(n.nodeValue){ var g = graphemes(n.nodeValue); nodes.push({ n: n, g: g, full: n.nodeValue }); total += g.length; }
+    if(!total){ anchor(el); return; }
+    bubble.style.minHeight = bubble.offsetHeight + 'px';
+    nodes.forEach(function(o){ o.n.nodeValue = ''; });
+    var caret = document.createElement('span'); caret.className = 'kd-caret'; caret.setAttribute('aria-hidden', 'true');
     el.classList.add('forming');
-    var t0 = performance.now(), free = false;
+    /* ~70 ตัว/วิ สำหรับข้อความสั้น · ยาวแค่ไหนก็จบภายใน ~2.6 วิ */
+    var dur = Math.min(2600, Math.max(350, total * 14)), t0 = performance.now(), free = false, shown = 0, ni = 0, ci = 0, done = false;
     function stop(){ free = true; }
     ['wheel', 'touchstart', 'keydown'].forEach(function(ev){ s.addEventListener(ev, stop, { once: true, passive: true }); });
+    function finish(){
+      if(done) return; done = true;
+      nodes.forEach(function(o){ o.n.nodeValue = o.full; });
+      if(caret.parentNode) caret.parentNode.removeChild(caret);
+      bubble.style.minHeight = ''; el.classList.remove('forming');
+    }
     requestAnimationFrame(function(){ anchor(el); });
-    (function follow(){
-      var e = performance.now() - t0;
-      if(free || e > total + 500){ if(e > total + 500) el.classList.remove('forming'); return; }
-      var w = words[Math.min(words.length - 1, Math.floor(e / step))], r = w.getBoundingClientRect(), box = s.getBoundingClientRect();
-      if(r.bottom > box.bottom - 40) s.scrollTop += Math.min(24, r.bottom - box.bottom + 40);   /* ตามคำที่กำลังก่อตัว แบบนุ่มๆ */
-      requestAnimationFrame(follow);
+    (function tick(now){
+      if(done) return;
+      var e = (now || performance.now()) - t0, p = Math.min(1, e / dur);
+      var want = Math.round(total * (1 - Math.pow(1 - p, 1.6) * (1 - p * .25)));   /* เริ่มไวนิด แล้วผ่อนลงตอนท้าย — ตาไม่ล้า */
+      if(p >= 1) want = total;
+      while(shown < want && ni < nodes.length){
+        var o = nodes[ni], take = Math.min(o.g.length - ci, want - shown);
+        ci += take; shown += take;
+        o.n.nodeValue = ci >= o.g.length ? o.full : o.g.slice(0, ci).join('');
+        if(ci >= o.g.length){ ni++; ci = 0; }
+      }
+      if(shown >= total){ finish(); return; }
+      var cur = nodes[Math.min(ni, nodes.length - 1)].n;
+      if(caret.previousSibling !== cur && cur.parentNode) cur.parentNode.insertBefore(caret, cur.nextSibling);
+      if(!free){
+        var r = caret.getBoundingClientRect(), box = s.getBoundingClientRect();
+        if(r.bottom > box.bottom - 40) s.scrollTop += Math.min(18, r.bottom - box.bottom + 40);   /* ตามตัวที่กำลังพิมพ์ แบบนุ่มๆ */
+      }
+      requestAnimationFrame(tick);
     })();
-    setTimeout(function(){ el.classList.remove('forming'); }, total + 600);
+    setTimeout(finish, dur + 1500);   /* กันแท็บพื้นหลังที่ rAF หยุด — ข้อความต้องครบเสมอ */
   }
   return { form: form };
 })();
