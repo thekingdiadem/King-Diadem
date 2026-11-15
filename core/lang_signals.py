@@ -396,6 +396,12 @@ _more("medical", "zh", r"撞(?:到|倒)(?:了)?(?:行人|人)[^。！？\n]{0,8}
 _more("medical", "ko", r"(?:보행자|사람)를?\s*쳤어[가-힯\s,]{0,8}(?:안\s*움직|의식)|다리에\s*감각이\s*없|손가락이\s*잘렸")
 _more("medical", "es", r"atropell[ée]\s+a\s+(?:un|una)\s+(?:peat[óo]n|persona)|no\s+siento\s+las\s+piernas|(?:me\s+)?cort[ée]\s+(?:un|el)\s+dedo[^.!?\n]{0,20}(?:desprendi|cay[óo]|separ)|dedo\s+amputado")
 _more("medical", "vi", r"tông\s+(?:phải\s+)?người\s+đi\s+bộ|không\s+cảm\s+(?:thấy|giác)\s+(?:được\s+)?chân|(?:cưa|chặt|cắt)\s+đứt\s+ngón\s+tay")
+# รอบสุ่ม 44: ยาเกินขนาด/ยาซ้ำ — เด็กดื่มยาทั้งขวด · เหล้า+ยานอนหลับ · ยาความดันซ้ำ (เดิมหลุด 12/15)
+_more("medical", "ja", r"(?:一本|一瓶|まるごと)\s*全部飲んだ|(?:シロップ|薬)を[^。！？\n]{0,4}全部飲んだ|薬を二回飲んだ[^。！？\n]{0,12}(?:めまい|脈が遅|ふらふら)")
+_more("medical", "zh", r"(?:一整瓶|整瓶|一瓶)[^。！？\n]{0,10}(?:糖浆|糖漿|药|藥)(?:都)?喝了|把[^。！？\n]{0,4}一整瓶[^。！？\n]{0,10}喝了")
+_more("medical", "ko", r"한\s*병\s*다\s*마셨|술\s*마시고\s*수면제[가-힯\s]{0,12}(?:숨을?\s*(?:너무\s*)?천천히|안\s*깨|의식)|혈압약을?\s*두\s*번[가-힯\s,]{0,12}(?:어지럽|맥박이?\s*느려)")
+_more("medical", "es", r"(?:se\s+)?(?:tom[óo]|bebi[óo])\s+todo\s+el\s+frasco|alcohol\s+y\s+(?:luego\s+)?pastillas\s+para\s+dormir[^.!?\n]{0,20}(?:respir|no\s+despiert)|(?:pastilla|medicina)\s+(?:de\s+la\s+presi[óo]n\s+)?dos\s+veces[^.!?\n]{0,30}(?:marea|pulso\s+lento|desmay)")
+_more("medical", "vi", r"uống\s+hết\s+cả\s+(?:chai|lọ|vỉ)|uống\s+rượu\s+rồi\s+uống\s+thuốc\s+ngủ|thuốc\s+huyết\s+áp\s+hai\s+lần[^.!?\n]{0,20}(?:chóng\s+mặt|mạch\s+chậm|ngất)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
