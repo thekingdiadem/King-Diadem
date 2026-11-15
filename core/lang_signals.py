@@ -118,7 +118,7 @@ SELF_HARM_INTL = (
                r"لا\s+اريد\s+ان\s+اعيش|أنهي\s+حياتي"),
     re.compile(r"मरना\s+चाहत|मर\s+जाना\s+चाहत|आत्महत्या|ख़ुदकुशी|खुदकुशी|जीना\s+नहीं\s+चाहत|खुद\s+को\s+मार"),
     # เวียดนาม · เยอรมัน · ฝรั่งเศส · โปรตุเกส/อินโด (แรงงานและนักท่องเที่ยวในไทย)
-    re.compile(r"muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|"
+    re.compile(r"(?<!mệt\s)(?<!đói\s)(?<!nóng\s)(?<!cười\s)(?<!ngủ\s)(?<!chán\s)muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|"
                r"\b(?:ich\s+)?will\s+(?:nicht\s+mehr\s+leben|sterben)\b|\bselbstmord|\bmich\s+umbringen|"
                r"\bje\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|\bme\s+suicider|\bquero\s+morrer|\bn[ãa]o\s+(?:aguento|quero|consigo)\s+mais\s+viver|\bn[ãa]o\s+quero\s+(?:mais\s+)?viver|\bvou\s+me\s+matar|\bme\s+matar\b|\bingin\s+mati\b|\bbunuh\s+diri", re.I),
 )
@@ -311,7 +311,7 @@ URGENT_INTL = (
     ("violence", "violence", {
         "zh": r"(?:有人|陌生人|小偷)[^。！？\n]{0,6}(?:撬开|撬開|砸开|砸開|踹开|踹開|破)(?:了)?(?:门|門|窗)|(?:闯|闖|潜|溜)进(?:了)?我家|(?:闯|闖|潜|溜)進(?:了)?我家|陌生人[^。！？\n]{0,8}(?:开|開|撬|拧|擰)(?:我的?)?门|(?:被|挨)[^。！？\n]{0,4}?(?:打|殴打|家暴|强奸|性侵)|[他她](?:又|一直|总是|老是|经常|天天)?(?:打|揍)(?:了)?我(?!电话|電話|手机|手機|的电话|微信|一下电话)|打(?:我|了我)?(?:妈|媽|妈妈|媽媽|爸|孩子)|要杀(?:了)?孩子|要殺(?:了)?孩子|扣(?:了)?(?:我的)?(?:护照|護照)|(?:护照|護照)被(?:扣|没收|沒收)|(?:老公|丈夫|老婆|男朋友|爸爸|妈妈)[^。！？\n]{0,3}?打我|家暴|"
               r"(?:要|说要|威胁要?|想)[^。！？\n]{0,3}?杀(?:了|死)?我|被[^。！？\n]{0,4}?(?:关|锁|囚禁)在|被威胁",
-        "ja": r"(?:誰か|知らない人|泥棒|不審者)が?[^。！？\n]{0,12}(?:ドア|窓|扉)を?(?:こじ開け|壊し|破っ|蹴破っ)て?(?:入って|侵入)|家に(?:誰か|泥棒|不審者)が(?:入って|侵入)|知らない(?:人|男|女)が[^。！？\n]{0,8}(?:ドア|扉|鍵)を?(?:開けよう|こじ開け|ガチャガチャ)|(?:に|から)(?:殴られ|叩かれ|蹴られ|暴力を振るわれ|襲われ)|(?:母|父|妻|子供)を殴|(?:子供|子ども)を殺す|DV|性的暴行|レイプ|殺す(?:ぞ)?と(?:脅|言われ)|殺される|閉じ込められ|監禁",
+        "ja": r"(?:誰か|知らない人|泥棒|不審者)が?[^。！？\n]{0,12}(?:ドア|窓|扉)を?(?:こじ開け|壊し|破っ|蹴破っ)て?(?:入って|侵入)|家に(?:誰か|泥棒|不審者)が(?:入って|侵入)|知らない(?:人|男|女)が[^。！？\n]{0,8}(?:ドア|扉|鍵)を?(?:開けよう|こじ開け|ガチャガチャ)|(?:に|から)(?:殴られ|叩かれ|蹴られ|暴力を振るわれ|襲われ)|(?:母|父|妻|子供)を殴|(?:子供|子ども)を殺す|DV|性的暴行|レイプ|殺す(?:ぞ)?と(?:脅|言われ)|殺される(?![笑ｗw（(])|閉じ込められ|監禁",
         "ko": r"(?:누가|누군가|모르는\s*사람이?|도둑이?)\s*[가-힯\s]{0,10}?문을?\s*(?:부수고|부시고|따고|뜯고)\s*들어|집에\s*(?:누가|누군가|도둑이?)\s*(?:들어왔|침입)|모르는\s*사람(?:이|가)?[가-힯\s]{0,12}문을?\s*(?:열려|따려|두드리)|(?:한테|에게)\s*(?:맞았|맞고|폭행|성폭행)|(?:엄마|아빠|아내|애|아이)를\s*때려|아이를?\s*죽이겠|때려요|때렸어|가정폭력|성폭력|죽인다고|죽이겠다고|협박|갇혀\s*있|감금",
         "vi": r"(?:người\s+lạ|ai\s+đó|có\s+người|kẻ\s+trộm|trộm)[^.!?\n]{0,15}(?:cố\s+)?(?:mở|phá|cạy)\s+cửa|xông\s+vào\s+nhà|đột\s+nhập\s+(?:vào\s+)?nhà|(?:bị|đang\s+bị)\s+(?:đánh|đập|bạo\s+hành)",
         "es": r"alguien\s+(?:entr[óo]|se\s+meti[óo])\s+a\s+la\s+fuerza|forz(?:[óo]|aron)\s+(?:la\s+)?puerta\s+(?:de\s+)?(?:mi\s+)?casa|entraron\s+a\s+(?:robar\s+(?:a|en)\s+)?mi\s+casa|(?:alguien|un\s+desconocido|un\s+extraño)\s+(?:est[áa]\s+)?(?:intentando|tratando\s+de)\s+(?:abrir|forzar|entrar\s+por)\s+(?:mi\s+)?(?:la\s+)?puerta|me\s+(?:peg[óoa]|golpe[óoa]|golpea|maltrata|viol[óo])|violencia\s+(?:doméstica|domestica|de\s+género)|abus[óo]\s+de\s+m[ií]|amenaz[óa]ron\s+de\s+muerte|me\s+amenaz|me\s+quiere\s+matar|va\s+a\s+matarme|encerrad[oa]|me\s+tienen?\s+encerrad",
@@ -569,7 +569,7 @@ WORLD_URGENT = {
     "crisis": (
         r"\btoi\s+muon\s+chet\b|\bmuon\s+tu\s+tu\b|\bkhong\s+muon\s+song\b|ich\s+bringe\s+mich\s+(?:\w+\s+)?um|покончу\s+с\s+собой|ຂ້າຕົວຕາຍ|"
         r"想从楼上跳下去|今晚就结束|大家没有我会更好|没有我(?:大家)?会更好|首を吊ろう|首吊り|今夜で終わりに|뛰어내릴\s*거|오늘\s*밤\s*끝낼|그만\s*살고\s*싶|내가\s*없으면\s*더\s*행복|"
-        r"no\s+quiero\s+despertar(?:me)?\b(?!\s+(?:temprano|a\s+las|ma[ñn]ana|tan|para))|escrib[ií]\s+mi\s+carta|muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|\b(?:aku|saya|gue|gw)\s+(?:ingin|mau|pengen|nak)\s+mati(?!\s+(?:lampu|listrik))|ingin\s+bunuh\s+diri|bunuh\s+diri|"
+        r"no\s+quiero\s+despertar(?:me)?\b(?!\s+(?:temprano|a\s+las|ma[ñn]ana|tan|para))|escrib[ií]\s+mi\s+carta|(?<!mệt\s)(?<!đói\s)(?<!nóng\s)(?<!cười\s)(?<!ngủ\s)(?<!chán\s)muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|\b(?:aku|saya|gue|gw)\s+(?:ingin|mau|pengen|nak)\s+mati(?!\s+(?:lampu|listrik))|ingin\s+bunuh\s+diri|bunuh\s+diri|"
         r"gusto\s+(?:ko\s+)?(?:nang\s+)?mamatay|magpakamatay|je\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|me\s+suicider|envie\s+de\s+mourir|"
         r"ich\s+will\s+(?:nicht\s+mehr\s+leben|sterben)|selbstmord|mich\s+umbringen|quero\s+morrer|me\s+matar|"
         r"voglio\s+morire|suicidarmi|ammazzarmi|ölmek\s+istiyorum|intihar|"
