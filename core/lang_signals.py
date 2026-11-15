@@ -888,6 +888,16 @@ WORLD_FIRE += _TRAP
 WORLD_URGENT["help"] += _TRAP
 WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
 
+# รอบสุ่ม 64: เด็กดื่มยาทั้งขวด · ตกจากนั่งร้าน ใน it tr ar hi tl ms (เดิมหลุด 12/12)
+WORLD_URGENT["medical"] += (
+    r"|bevuto\s+tutta\s+la\s+bottiglia|cadut[oa]\s+dall'impalcatura"
+    r"|b(?:ü|u)t(?:ü|u)n\s+[^.!?\n]{0,20}(?:ş|s)urubunu\s+i(?:ç|c)ti|iskeleden\s+d(?:ü|u)(?:ş|s)t(?:ü|u)"
+    r"|شرب\s+زجاجة[^.!?\n]{0,20}كلها|سقط\s+من\s+السقالة"
+    r"|पूरी\s+बोतल\s+पी\s+ली|मचान\s+से\s+गिर"
+    r"|ininom[^.!?\n]{0,15}ang\s+buong\s+bote|nahulog\s+sa\s+(?:scaffolding|plantsa)"
+    r"|minum\s+sebotol\s+penuh|jatuh\s+dari\s+perancah"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
