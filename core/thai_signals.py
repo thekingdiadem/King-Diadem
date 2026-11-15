@@ -1410,7 +1410,11 @@ _PANIC_TYPO = [(re.compile(a, re.I), b) for a, b in [
     (r"\bbreat(?:h)?ing\b", "breathing"), (r"\bbreating\b", "breathing"), (r"\bswal+owed\b", "swallowed"), (r"\bbleech\b", "bleach"),
     (r"\bwnat\b", "want"), (r"\bwant\s+to\s+dye\b", "want to die"), (r"\bsomone\b", "someone"), (r"\bbreakin\b", "breaking"), (r"\bbreaking\s+in\s+(?=my|our|the)", "breaking into "),
     (r"\bmy\s+hous\b", "my house"), (r"\bmy\s+sun\s+(?=swallow|drank|ate|fell|is\s+not)", "my son "), (r"\bsuicid\b", "suicide"),
-    (r"\bkil+\s+my\s*self\b", "kill myself"), (r"\bcant\s+breath\b", "can't breathe"), (r"\bunconsious\b", "unconscious"),
+    (r"\bkil+\s+my\s*self\b", "kill myself"),
+    # รอบสุ่ม 96: คาราโอเกะ/สะกดผิดเพิ่ม
+    (r"\bkin\s+ya\b[^\n]{0,20}?\b(?:sib|yee\s*sib|ha\s*sib|\d+)\s+med\b", "กินยาเกินขนาด"), (r"\bsami\s+tee\s+chan\b", "สามีตีฉัน"),
+    (r"\btuk\s+keun\b", "ทุกคืน"), (r"\bkon\s+ta\s+(?:mon|maun)\b", "คนตามมา"), (r"\bto+\s+many\s+pil+s\b", "too many pills"),
+    (r"\bfrend\b", "friend"), (r"\bcant\s+breath\b", "can't breathe"), (r"\bunconsious\b", "unconscious"),
 ]]
 
 
