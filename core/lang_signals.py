@@ -120,7 +120,7 @@ SELF_HARM_INTL = (
     # เวียดนาม · เยอรมัน · ฝรั่งเศส · โปรตุเกส/อินโด (แรงงานและนักท่องเที่ยวในไทย)
     re.compile(r"(?<!mệt\s)(?<!đói\s)(?<!nóng\s)(?<!cười\s)(?<!ngủ\s)(?<!chán\s)muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|"
                r"\b(?:ich\s+)?will\s+(?:nicht\s+mehr\s+leben|sterben)\b|\bselbstmord|\bmich\s+umbringen|"
-               r"\bje\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|\bme\s+suicider|\bquero\s+morrer|\bn[ãa]o\s+(?:aguento|quero|consigo)\s+mais\s+viver|\bn[ãa]o\s+quero\s+(?:mais\s+)?viver|\bvou\s+me\s+matar|\bme\s+matar\b|\bingin\s+mati\b|\bbunuh\s+diri", re.I),
+               r"\bje\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|\bme\s+suicider|\bquero\s+morrer|\bn[ãa]o\s+(?:aguento|quero|consigo)\s+mais\s+viver|\bn[ãa]o\s+quero\s+(?:mais\s+)?viver|\bvou\s+(?<!vai\s)(?<!v(?:ã|a)o\s)me\s+matar|\b(?<!vai\s)(?<!v(?:ã|a)o\s)me\s+matar\b|\bingin\s+mati\b|\bbunuh\s+diri", re.I),
 )
 
 
@@ -571,7 +571,7 @@ WORLD_URGENT = {
         r"想从楼上跳下去|今晚就结束|大家没有我会更好|没有我(?:大家)?会更好|首を吊ろう|首吊り|今夜で終わりに|뛰어내릴\s*거|오늘\s*밤\s*끝낼|그만\s*살고\s*싶|내가\s*없으면\s*더\s*행복|"
         r"no\s+quiero\s+despertar(?:me)?\b(?!\s+(?:temprano|a\s+las|ma[ñn]ana|tan|para))|escrib[ií]\s+mi\s+carta|(?<!mệt\s)(?<!đói\s)(?<!nóng\s)(?<!cười\s)(?<!ngủ\s)(?<!chán\s)muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|\b(?:aku|saya|gue|gw)\s+(?:ingin|mau|pengen|nak)\s+mati(?!\s+(?:lampu|listrik))|ingin\s+bunuh\s+diri|bunuh\s+diri|"
         r"gusto\s+(?:ko\s+)?(?:nang\s+)?mamatay|magpakamatay|je\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|me\s+suicider|envie\s+de\s+mourir|"
-        r"ich\s+will\s+(?:nicht\s+mehr\s+leben|sterben)|selbstmord|mich\s+umbringen|quero\s+morrer|me\s+matar|"
+        r"ich\s+will\s+(?:nicht\s+mehr\s+leben|sterben)|selbstmord|mich\s+umbringen|quero\s+morrer|(?<!vai\s)(?<!v(?:ã|a)o\s)me\s+matar|"
         r"voglio\s+morire|suicidarmi|ammazzarmi|ölmek\s+istiyorum|intihar|"
         r"хочу\s+умереть|не\s+хочу\s+жить|покончить\s+с\s+собой|суицид|"
         r"أريد\s+أن\s+أموت|اريد\s+ان\s+اموت|أنتحر|انتحر|الانتحار|"
@@ -897,6 +897,9 @@ WORLD_URGENT["medical"] += (
     r"|ininom[^.!?\n]{0,15}ang\s+buong\s+bote|nahulog\s+sa\s+(?:scaffolding|plantsa)"
     r"|minum\s+sebotol\s+penuh|jatuh\s+dari\s+perancah"
 )
+
+# รอบสุ่ม 72: "vai me matar" = คนอื่นจะฆ่าฉัน (ความรุนแรง ไม่ใช่ฆ่าตัวตาย) — ถ้ามี kkk/haha/rs = สำนวน
+WORLD_URGENT["violence"] += r"|(?:marido|namorado|ex|pai|padrasto|ele|eles)\s+(?:vai|v(?:ã|a)o)\s+me\s+matar(?![^.!?\n]{0,12}(?:\bk+\b|haha|rs\b))"   # canon_text ย่อ "kkkk" เหลือ "k"
 
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
