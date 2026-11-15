@@ -198,6 +198,14 @@ UPGRADES += [
                 r"\b" + _KID + r"\b[^\n]{0,30}?\bmeeting\s+(?:an?\s+)?(?:adult|older\s+(?:man|guy|woman)|stranger)\b[^\n]{0,20}?\bmet\s+online\b)"), "online_grooming"),
     (re.compile(r"(?i:\bmaking\s+(?:my\s+)?" + _KID + r"\s+(?:send|pay)\s+money\b[^\n]{0,30}?\b(?:or|otherwise)\b[^\n]{0,20}?\b(?:share|post|leak|send)\b[^\n]{0,15}?\b(?:photos?|pics|videos?)\b)"), "sextortion"),
 ]
+# รอบสุ่ม 21: สุขภาพจิตที่ต้องรีบดูแล (อดอาหารจนจะเป็นลม · หลังคลอดคิดทำร้ายลูก · แมเนีย · หลงผิด)
+UPGRADES += [
+    (re.compile(r"ไม่(?:ได้)?กิน(?:อะไร|ข้าว)?(?:เลย)?(?:มา)?\s?(?:\d+|สอง|สาม|สี่|ห้า|หก|เจ็ด|หลาย)\s?วัน[^\n]{0,30}?(?:กลัวอ้วน|เวียนหัว|จะเป็นลม|หน้ามืด|ใจสั่น)|"
+                r"(?i:\b(?:haven'?t|have\s+not|didn'?t)\s+eaten\s+in\s+\d+\s+days\b[^\n]{0,40}?\b(?:faint|dizzy|scared\s+of\s+gaining|heart\s+racing)\b)"), "eating"),
+    (re.compile(r"(?i:\b(?:had\s+a\s+baby|gave\s+birth|postpartum|new\s+mom)\b[^\n]{0,40}?\bthoughts?\s+of\s+(?:hurting|harming|killing)\s+(?:her|him|my\s+baby|the\s+baby)\b)"), "harm_others"),
+    (re.compile(r"ติด(?:กล้อง|ชิป|เครื่องดักฟัง)(?:ไว้)?ใน(?:หัว|สมอง|ฟัน)|(?i:\b(?:put|planted|implanted)\s+(?:a\s+)?(?:chip|camera|tracker)\s+in\s+(?:my|her|his|their)\s+(?:head|brain|teeth)\b)|"
+                r"(?i:\b(?:haven'?t|not)\s+slept\s+in\s+\d+\s+days\b[^\n]{0,40}?\b(?:i'?m\s+god|feel\s+like\s+(?:i'?m\s+)?god|chosen\s+one|spent\s+all)\b)"), "health_emergency"),
+]
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
 _WATCHING = re.compile(r"(?:ซ้อม|เล่น|แสดง|ถ่าย)\S{0,2}?ละคร(?:เวที)?\S{0,8}?(?:อยู่|กับ|ด้วยกัน)|(?:ดู|นั่งดู|เปิด|นอนดู)\S{0,4}?(?:ซีรีส์|ละคร|สารคดี|หนัง|ทีวี)\S{0,12}?(?:อยู่|กับ|ด้วยกัน|ไป)|อ่านข่าวอยู่|"
