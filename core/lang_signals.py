@@ -386,6 +386,10 @@ _more("medical", "zh", r"摔倒(?:了)?起不来|摔倒(?:了)?起不來|糖尿�
 _more("medical", "ko", r"넘어져서?\s*못\s*일어나|당뇨[가-힯\s]{0,12}(?:땀|멍하|대답을?\s*(?:잘\s*)?안|의식)|치매[가-힯\s]{0,24}(?:안\s*돌아|없어졌|실종|길을\s*잃)")
 _more("medical", "es", r"se\s+cay[óo][^.!?\n]{0,20}no\s+puede\s+levantarse|con\s+demencia[^.!?\n]{0,30}(?:no\s+ha\s+vuelto|desapareci[óo]|se\s+perdi[óo])")
 _more("medical", "vi", r"ngã[^.!?\n]{0,15}không\s+dậy\s+được|tiểu\s+đường[^.!?\n]{0,20}(?:vã\s+mồ\s+hôi|lơ\s+mơ|không\s+trả\s+lời)|bị\s+lẫn[^.!?\n]{0,15}(?:chưa\s+về|mất\s+tích|đi\s+lạc)")
+# รอบสุ่ม 42: ติดอยู่ในน้ำท่วม/ดินถล่ม (zh es vi)
+_more("disaster", "zh", r"(?:水|洪水)[^。！？\n]{0,6}(?:淹到|到了)(?:胸口|脖子|腰)|被困在(?:楼上|屋顶|屋頂|二楼)")
+_more("disaster", "es", r"el\s+agua\s+(?:nos|me)\s+llega\s+(?:al|a\s+la)\s+(?:pecho|cuello|cintura)|atrapad[oa]s?\s+(?:arriba|en\s+el\s+techo|en\s+el\s+segundo\s+piso)|(?:deslave|derrumbe|alud)\s+(?:sepult[óo]|enterr[óo])")
+_more("disaster", "vi", r"nước\s+ngập\s+(?:tới|đến)\s+(?:ngực|cổ|bụng)|bị\s+kẹt\s+trên\s+(?:lầu|mái|tầng)|sạt\s+lở[^.!?\n]{0,20}(?:vùi|chôn|lấp)")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 

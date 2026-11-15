@@ -286,6 +286,8 @@ _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
+    # รอบสุ่ม 42: ถามวิธีเตรียมตัว/ดูข่าวภัยพิบัติ (ja zh ko es vi) เคยได้ 70 จากคำว่า "แผ่นดินไหว" คำเดียว
+    (re.compile(r"ニュース|(?:への)?備え|準備|怎么准备|怎麼準備|如何准备|新闻|新聞|대비|방법|뉴스|c[óo]mo\s+prepar|preparativos|noticias?|chuẩn\s+bị|tin\s+tức"), ("disaster", "help")),
     # รอบสุ่ม 22: บอกชัดว่าเจ็บนิดเดียว/เสียแค่ของ — "ขับรถชนเสาเบาๆ กันชนบุบ" เคยได้ 75 · "just a scraped knee" เคยได้ 85
     (re.compile(r"(?<!ไม่)(?:เบาๆ|นิดหน่อย|นิดเดียว)[^\n]{0,16}?(?:กันชน|บุบ|รอยขีด|ถลอก|แค่รอย)|(?:กันชน|ไฟท้าย)\S{0,4}(?:บุบ|แตก|ร้าว)(?![^\n]{0,30}(?:เจ็บ|เลือด|หมดสติ|ไม่หายใจ))|"
                 r"(?i:\b(?:just|only)\s+(?:a\s+)?(?:scraped|scratched|bruised|grazed|skinned)\s+(?:knee|elbow|arm|leg|hand)\b|\bjust\s+a\s+(?:scrape|scratch|bruise|graze)\b)"),
