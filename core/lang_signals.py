@@ -588,6 +588,17 @@ WORLD_FIRE += _FIRE_MORE
 WORLD_URGENT["help"] += _FIRE_MORE
 WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
 
+# รอบสุ่ม 15: สัญญาณทำร้ายตัวเองแบบอ้อม (เป็นภาระ · หายไปไม่มีใครสังเกต · ยกของรักให้หมด · อยากไปหาคนที่จากไป)
+# ใน it tr ar hi tl ms — เดิมหลุดครบ 24/24 (ควรให้เจ้าของภาษาตรวจ)
+WORLD_URGENT["crisis"] += (
+    r"|non\s+voglio\s+(?:più\s+)?essere\s+un\s+peso|se\s+(?:domani\s+)?non\s+ci\s+fossi[^.!?\n]{0,25}nessuno|ho\s+regalato\s+tutte\s+le\s+mie\s+cose|voglio\s+andare\s+da(?:lla|l)\s+(?:mamma|papà|madre|padre)[^.!?\n]{0,15}mort[oa]"
+    r"|kimseye\s+yük\s+olmak\s+istemiyorum|(?:yarın\s+)?olmasam\s+kimse\s+fark\s+etmez|bütün\s+eşyalarımı[^.!?\n]{0,20}(?:dağıttım|verdim)|ölen\s+(?:annemin|babamın)\s+yanına\s+gitmek\s+istiyorum"
+    r"|لا\s+أريد\s+أن\s+أكون\s+عبئ|لو\s+(?:اختفيت|مت)[^.!?\n]{0,15}لن\s+يلاحظ|وزعت\s+كل\s+أغراضي|أذهب\s+إلى\s+(?:أمي|أبي)\s+(?:المتوفا|المتوفى|الراحل)"
+    r"|बोझ\s+नहीं\s+बनना|(?:अगर\s+)?(?:कल\s+)?मैं\s+न\s+रहूं[^।!?\n]{0,25}(?:फर्क|पता)|सारी\s+चीज़ें[^।!?\n]{0,15}दे\s+दीं|सारी\s+चीजें[^।!?\n]{0,15}दे\s+दीं|मरी\s+हुई\s+माँ\s+के\s+पास\s+जाना|मरे\s+हुए\s+पापा\s+के\s+पास\s+जाना"
+    r"|ayoko\s+nang\s+maging\s+pabigat|kung\s+mawala\s+ako[^.!?\n]{0,15}walang\s+(?:makakapansin|makakaalam)|ipinamigay\s+ko\s+na\s+lahat(?![^.!?\n]{0,40}(?:charity|donasyon|simbahan|evacuee))|sumunod\s+(?:kay|sa)\s+(?:nanay|tatay|mama|papa)[^.!?\n]{0,10}(?:pumanaw|namatay|patay)"
+    r"|tak\s+(?:nak|mahu)\s+jadi\s+beban|kalau\s+saya\s+(?:hilang|mati)[^.!?\n]{0,20}tak\s+(?:ada\s+)?(?:siapa|sesiapa)\s+(?:perasan|sedar)|dah\s+bagi\s+semua\s+barang|jumpa\s+(?:mak|ayah|abah|emak)\s+yang\s+(?:dah\s+)?meninggal"
+)
+
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
