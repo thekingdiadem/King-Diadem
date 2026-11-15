@@ -446,6 +446,12 @@ _more("medical", "zh", r"在山上迷路[^。！？\n]{0,15}(?:天黑|没水|沒
 _more("medical", "ko", r"산에서\s*길을\s*잃[가-힯\s,]{0,20}(?:어두워|물도\s*없|추워)|(?:쇼핑몰|사람\s*많은|역|공항)[가-힯\s]{0,12}아이를?\s*잃어버렸")
 _more("medical", "es", r"me\s+perd[íi]\s+en\s+la\s+monta[ñn]a[^.!?\n]{0,30}(?:oscureci|no\s+tengo\s+agua|fr[íi]o)|perd[íi]\s+a\s+mi\s+(?:hijo|hija|niñ[oa])\s+en\s+(?:un|el)\s+(?:centro\s+comercial|mercado|aeropuerto|parque)")
 _more("medical", "vi", r"bị\s+lạc\s+trên\s+núi[^.!?\n]{0,25}(?:trời\s+tối|hết\s+nước|lạnh)|con\s+(?:tôi\s+)?bị\s+lạc\s+(?:trong|ở)\s+(?:trung\s+tâm\s+thương\s+mại|chợ|sân\s+bay|công\s+viên)")
+# รอบสุ่ม 83: หอบหืดกำเริบที่ยาไม่ช่วย · อาหารติดคอ (zh) — เดิมหลุด 6/10
+_more("medical", "ja", r"(?:喘息|ぜんそく)[^。！？\n]{0,10}(?:吸入薬|薬)が効かない|数語しか話せない")
+_more("medical", "zh", r"哮喘[^。！？\n]{0,10}(?:喷了药|吸了药)?[^。！？\n]{0,6}(?:也)?没用|只能说几个字|噎住[^。！？\n]{0,10}(?:咳不出|脸发紫|臉發紫|喘不过气)")
+_more("medical", "ko", r"천식[가-힯\s,]{0,12}흡입기가?\s*안\s*들|몇\s*마디밖에\s*못")
+_more("medical", "es", r"(?:ataque\s+de\s+)?asma[^.!?\n]{0,20}inhalador\s+no\s+(?:funciona|sirve|ayuda)|solo\s+puedo\s+decir\s+unas\s+palabras")
+_more("medical", "vi", r"(?:cơn\s+)?hen[^.!?\n]{0,15}xịt\s+thuốc\s+không\s+đỡ|chỉ\s+nói\s+được\s+vài\s+từ")
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
