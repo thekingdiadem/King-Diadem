@@ -499,12 +499,18 @@ _SINKING = re.compile(r"กำลัง(?:จะ)?(?:ล้ม|พัง|เจ�
 
 
 _MONEY_TALK = re.compile(r"เงิน|หนี้|ขาดทุน|กู้|ยืม|ค่าเช่า|เจ๊ง|ร้าน|กิจการ|ธุรกิจ|"
-                         r"(?i:\b(?:money|debt|loan|lend|borrow|rent|dollars?|baht|cash|shop|business|bills?)\b)")
+                         r"[$฿€£]\s?\d|(?i:\b(?:money|debt|loan|lend|borrow|rent|dollars?|baht|cash|shop|store|restaurant|business|company|bills?|pay|wages?|salar(?:y|ies)|staff)\b)")
+_NO_MONEY = re.compile(r"เงินหมด|ไม่มีเงิน(?:เหลือ)?|ไม่เหลือเงิน|หมดตัว|(?i:\b(?:no\s+money\s+left|out\s+of\s+money|broke|nothing\s+left)\b)")
 _PER_DAY = re.compile(r"(?:วันละ|ต่อวัน|(?i:\b(?:per|a|each)\s+day\b))")
 
 
 def sinking(t: str) -> bool:
-    return bool(_SINKING.search(t or "")) and (distress(t) or bool(_MONEY_TALK.search(t or "")))
+    """คนที่กิจการ/การเงินกำลังจะล้ม — ต้องมีเรื่องเงินหรือกิจการด้วย ("ไม่ไหวแล้ว" เฉยๆ เป็นเรื่องใจ ให้ไปคุยกับ LYLA)"""
+    return bool(_SINKING.search(t or "")) and bool(_MONEY_TALK.search(t or ""))
+
+
+def only_heart(t: str) -> bool:
+    return bool(_SINKING.search(t or "")) and not _MONEY_TALK.search(t or "") and distress(t)
 
 
 def _daily_out(answer: str):
@@ -520,11 +526,22 @@ def _daily_out(answer: str):
     return None
 
 
+def heart(t: str) -> dict:
+    """"ไม่ไหวแล้ว" ที่ไม่ใช่เรื่องเงินหรือกิจการ — ไม่ใช่งานของ DriftZero ชวนไปคุยกับ LYLA แทนการให้คำแนะนำเรื่องหนี้"""
+    msg = {"th": "ฟังดูเหนื่อยมากเลยนะคะ เรื่องนี้ไม่ต้องผ่านด่านอะไรเลย — มาคุยกับ LYLA ในโหมดปรึกษาได้เลย "
+                 "ถ้าหนักจนเริ่มคิดว่าไม่อยากอยู่ โทร 1323 ได้ 24 ชม. ฟรีค่ะ",
+           "en": "That sounds exhausting. This doesn't need any gates — come and talk it through with LYLA in Talk mode. "
+                 "If it gets so heavy you start thinking you don't want to be here, call 1323 in Thailand (24h, free)."}
+    return {"text": t[:4000], "verdict": "steady", "talk": True, "gates": [], "sop": [], "asks": [], "steps": [],
+            "emergency": False, "brief": None, "waterline": None, "note": None, "summary": msg}
+
+
 def steady(t: str, wl: dict) -> dict:
     """ตั้งหลักก่อน: ใช้ตัวเลขที่เล่ามาแล้ว · บอกสิ่งที่ทำได้ทันที · ถามแค่ข้อเดียวด้วยภาษาธรรมดา"""
     cur = wl.get("current")
-    have_th = f"เงิน {_money(cur)} ที่เหลืออยู่" if cur is not None else "เงินที่เหลืออยู่"
-    have_en = f"the {_money_en(cur)} you have left" if cur is not None else "what you have left"
+    broke = cur is None and bool(_NO_MONEY.search(t or ""))
+    have_th = f"เงิน {_money(cur)} ที่เหลืออยู่" if cur is not None else ("เวลาและคนที่ช่วยได้" if broke else "เงินที่เหลืออยู่")
+    have_en = f"the {_money_en(cur)} you have left" if cur is not None else ("your time and the people who can help" if broke else "what you have left")
     steps = [
         {"th": "หยุดเลือดก่อน: งดรายจ่ายใหม่ทุกอย่างที่ไม่ทำให้มีเงินเข้าภายใน 7 วัน",
          "en": "Stop the bleeding first: pause every new cost that won't bring money in within 7 days"},
@@ -537,9 +554,13 @@ def steady(t: str, wl: dict) -> dict:
         {"th": "ถ้าเครียดจนนอนไม่หลับ หรือเริ่มคิดว่าไม่อยากอยู่ โทร 1323 ได้ 24 ชม. ฟรี",
          "en": "If the stress keeps you from sleeping, or you start thinking you don't want to be here, call 1323 in Thailand (24h, free)"},
     ]
-    ask = {"key": "dhd", "sop": 3,
-           "th": f"ตอนนี้แต่ละวันมีเงินออกประมาณเท่าไหร่ และยังมีเงินเข้าบ้างไหม — จะได้ดูว่า{have_th}พาไปได้อีกกี่วัน",
-           "en": f"Roughly how much goes out each day, and is anything still coming in? Then we can see how many days {have_en} buys you"}
+    if broke:
+        ask = {"key": "dhd", "sop": 3, "th": "ตอนนี้มีอะไรที่ต้องจ่ายเร็วที่สุด และต้องจ่ายภายในกี่วัน — เริ่มจากเรื่องนั้นก่อนค่ะ",
+               "en": "What has to be paid soonest, and within how many days? We'll start there."}
+    else:
+      ask = {"key": "dhd", "sop": 3,
+             "th": f"ตอนนี้แต่ละวันมีเงินออกประมาณเท่าไหร่ และยังมีเงินเข้าบ้างไหม — จะได้ดูว่า{have_th}พาไปได้อีกกี่วัน",
+             "en": f"Roughly how much goes out each day, and is anything still coming in? Then we can see how many days {have_en} buys you"}
     return {"text": t[:4000], "verdict": "steady", "talk": True, "gates": [], "sop": [], "asks": [ask], "steps": steps,
             "emergency": False, "brief": None,
             "waterline": dict(wl, show={"th": {k: _money(wl[k]) for k in ("floor", "current", "after")},
@@ -590,7 +611,9 @@ def audit(text: str, answered=()) -> dict:
         gates.append(g)
     stops = [g for g in gates if g["status"] == STOP]
     if not answered and not stops and sinking(t):
-        return steady(t, wl)              # ไม่มีแผนเสี่ยงให้หยุด แต่คนกำลังจะล้ม — ตั้งหลักก่อน
+        return steady(t, wl)
+    if not answered and not stops and only_heart(t):
+        return heart(t)              # ไม่มีแผนเสี่ยงให้หยุด แต่คนกำลังจะล้ม — ตั้งหลักก่อน
 
     asks = []
     if len(t) < 40:
