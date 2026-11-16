@@ -1469,6 +1469,11 @@ _EN_NUM = re.compile(r"(?i)\b(twenty|thirty|forty|fifty|sixty)(?:[- ](one|two|th
 _EN_SMALL = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9}
 
 
+# รอบสุ่ม 132: "ฆ่าตัวตายในเกมเพื่อเริ่มใหม่" (กดรีสปอว์น) เคยได้วิกฤต 95 — ลบเฉพาะวลีที่ผูกกับเกม (งานเขียนนิยายยังถามไถ่เบาๆ ตามเดิม)
+# คำอื่นในประโยคยังถูกอ่านตามปกติ ("อยากตายจริงๆ ฆ่าตัวตายในเกมก็ไม่ช่วย" ยังเป็นวิกฤต)
+_GAME_DEATH = re.compile(r"ฆ่าตัวตายในเกม(?:\s*(?:เพื่อ)?(?:เริ่มใหม่|เกิดใหม่|รีสปอน|รีเซ็ต|เซฟใหม่|ไปจุดเซฟ))?|"
+                         r"(?i:\b(?:kill(?:ed|ing)?|unalive)\s+(?:myself|my character)\s+in\s+(?:the\s+)?game\s+to\s+(?:respawn|restart|reset)\b)")
+
 def _th_num(m):
     w = m.group(1)
     if "สิบ" not in w:
@@ -1493,6 +1498,7 @@ def canon_text(text):
     t = _STRETCH.sub(_unstretch, t)
     t = _STRETCH_TH.sub(r"\1", t)
     t = _TH_NUM.sub(_th_num, t)
+    t = _GAME_DEATH.sub(" ", t)
     t = _EN_NUM.sub(_en_num, t)
     if re.search(r"[\u0e01-\u0e2e]", t):
         cut = _TAIL.sub("", t)
