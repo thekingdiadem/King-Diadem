@@ -536,3 +536,11 @@ UPGRADES += [
 UPGRADES += [(re.compile(r"(?i:\b(?:loan\s+shark|debt\s+collectors?|lenders?|they|he|she)\b[^\n]{0,20}?\b(?:said|says|threaten(?:ed|ing|s)?|warned)\b[^\n]{0,10}?\b(?:he'?ll|they'?ll|she'?ll|to|will|they\s+will|he\s+will)\s+"
                          r"(?:burn|torch|set\s+fire\s+to|kill|hurt)\s+(?:my|me|our|us)\b(?!\s+(?:feelings|heart|ego|chances))"
                          r"(?![^\n]{0,25}?\b(?:lol|lmao|haha|in\s+the\s+game|in\s+the\s+movie|if\s+i'?m\s+late|if\s+i\s+(?:forget|lose|break|tell|eat|spoil))\b))"), "violence")]
+
+# รอบ 104: สัญญาณเตรียมตัว — สะสมยานอนหลับ · ยกของให้คนอื่นเพราะ "ไม่ต้องใช้อีก"
+UPGRADES += [
+    (re.compile(r"(?<!ขายยา)(?<!ร้าน)(?<!โรงพยาบาล)(?:เก็บ|สะสม|ตุน|แอบเก็บ|รวบรวม)\S{0,6}?(?:ยานอนหลับ|ยาคลายเครียด|ยากล่อมประสาท|ยาพารา|ยา)\S{0,6}?(?:ไว้)?\S{0,4}?(?:เยอะ|เยอะแล้ว|หลายแผง|หลายสิบเม็ด|ครบแล้ว|พอแล้ว)"
+                r"(?![^\n]{0,20}?(?:ร้านขายยา|ขาย|ตู้ยา|เผื่อเดินทาง|ตรวจวันหมดอายุ|หมดอายุ))"), "crisis"),
+    (re.compile(r"(?:ยก|แจก|ให้)\S{0,4}?(?:ของ|สมบัติ|ข้าวของ|ของรัก|แมว|หมา)\S{0,10}?(?:หมด|ทั้งหมด)\S{0,6}[^\n]{0,10}?(?:ไม่ต้องใช้อีก|ไม่ได้ใช้อีกแล้ว|คงไม่ได้ใช้แล้ว|ไม่จำเป็นแล้ว)|"
+                r"(?i:\bgave\s+away\s+(?:all\s+)?(?:my|of\s+my)\s+(?:stuff|things|belongings|stuff\s+and)\b[^\n]{0,20}?\b(?:won'?t|wont|don'?t)\s+need\s+(?:it|them)\b(?:\s+anymore)?)"), "crisis"),
+]
