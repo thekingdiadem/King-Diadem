@@ -121,7 +121,7 @@ _VERBAL = re.compile(r"(?:พ่อ(?!ค้า)|แม่(?!น้ำ|ค้า
 _ASSET = r"(?:ทอง(?!เที่ยว|หล่อ)|หุ้น(?!ส่วน)|กองทุน|คริปโต|บิทคอยน์|บิตคอยน์|crypto|bitcoin|btc|ฟอเร็กซ์|forex|พันธบัตร|ssf|rmf)"
 _INVEST_ASSET = re.compile(r"ลงทุน\S{0,6}?" + _ASSET + r"|(?:ซื้อ|เล่น|ออม|เทรด)\S{0,2}?" + _ASSET, re.I)
 
-from core.thai_signals import INTRUDER_NIGHT as _TS_INTRUDER
+from core.thai_signals import INTRUDER_NIGHT as _TS_INTRUDER, BREAK_IN_NOW as _TS_BREAK_IN
 TOPICS = [
     # รอบหาบั๊กทุกไฟล์: หัวข้อเหล่านี้เคยตกไปทาง "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน"
     ("overdose", [OVERDOSE], {
@@ -190,7 +190,7 @@ TOPICS = [
         ],
         "ask": "นอกจากเรื่องเงิน เขาเคยห้ามคุณเจอใคร หรือทำร้ายร่างกายไหม?",
     }),
-    ("intruder", [_TS_INTRUDER], {
+    ("intruder", [_TS_INTRUDER, _TS_BREAK_IN], {
         "open": ["อย่าเปิดประตูนะ — ความปลอดภัยของคุณมาก่อน"],
         "paths": [
             "โทร 191 ตอนนี้ บอกที่อยู่ชัดๆ ว่ามีคนพยายามเข้าห้อง ถ้าพูดไม่ได้ให้เปิดสายค้างไว้",
@@ -2448,6 +2448,11 @@ def _assess_one(text: str, pattern: dict | None = None) -> dict:
             and not re.search(r"ข่าว|(?i:\bnews\b|\bheadline)", text):        # "ข่าวแก๊สรั่ว" ไม่ใช่เหตุของผู้ใช้          # ไฟไหม้บ้าน (id fr de pt ru) = ฉุกเฉิน
         a = dict(a, text_risk=max(a["text_risk"], 80), risk=max(a["risk"], 80),
                  risk_shown=max(a["risk_shown"], 80) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
+    # รอบสุ่ม 130: มีคนงัด/พังเข้าบ้านอยู่ตอนนี้ — หัวข้อผู้บุกรุกต้องมาพร้อมระดับฉุกเฉิน
+    # ("อ่านข่าวอยู่ มีคนพังประตูเข้ามาในบ้าน" เคยตกเหลือ 55 เมื่อได้หัวข้อ intruder แทน violence)
+    if isinstance(text, str) and not a["crisis"] and "intruder" in a["topics"] and _TS_BREAK_IN.search(text):
+        a = dict(a, text_risk=max(a["text_risk"], 85), risk=max(a["risk"], 85),
+                 risk_shown=max(a["risk_shown"], 85) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     if isinstance(text, str) and not a["crisis"] and _SUDDEN_VISION_RX.search(text):      # ตามัวกะทันหัน = ฉุกเฉิน
         a = dict(a, text_risk=max(a["text_risk"], 80), risk=max(a["risk"], 80),
                  risk_shown=max(a["risk_shown"], 80) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
