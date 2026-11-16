@@ -108,7 +108,9 @@ EN_UPGRADES: list[tuple[re.Pattern, str]] = [
                 r"\bpupils are tiny\b|\btoo much yaba\b|\bheart is racing\b[^.\n]{0,30}?\bchest\b|\blocked (?:herself|himself) in\b[^.\n]{0,30}?\bknife\b", _I),
      "health_emergency"),
     (re.compile(r"\b(?:send|post|share) my (?:pics|photos|nudes|videos?)\b[^.\n]{0,40}?\b(?:if i don'?t|unless i) pay\b", _I), "sextortion"),
-    (re.compile(r"\bbeat me up with\b|\btrying to break into my\b|\bbreaking into my\b", _I), "violence"),
+    (re.compile(r"\bbeat me up with\b|\btrying to break into my\b|\bbreaking into my\b|"
+                # รอบสุ่ม 125: ไม่มีคำว่า my — "someone is trying to break in right now" เคยได้ 0 (ไทย "งัดประตูบ้าน" ได้ 84)
+                r"\b(?:someone|somebody|a (?:man|guy|stranger)|people|they|he)(?: is|'s| are|'re)? (?:trying to )?(?:break(?:ing)?|get(?:ting)?) in\b(?=[^\n]{0,30}?\b(?:right now|now|tonight|downstairs|the (?:door|window)|back door|front door|i'?m (?:hiding|alone|scared)|help)\b)", _I), "violence"),
 ]
 
 # อดีตที่ผ่านไปแล้ว / ความรู้ / ข่าว — ภาษาอังกฤษ (ลดให้เป็นถามไถ่หรือปกติ)
