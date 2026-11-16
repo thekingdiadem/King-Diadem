@@ -115,3 +115,57 @@ def test_success_and_crisis_chat_are_never_padded():
     c = _app([0.0], slept)
     assert c.get("/hello").status_code == 200 and c.post("/run").status_code == 200
     assert not slept
+
+
+def _app_ip(clock, slept, ip_box):
+    a = FastAPI()
+
+    @a.get("/hello")
+    def hello():
+        return {"ok": 1}
+
+    async def fake_sleep(s):
+        slept.append(s)
+    a.add_middleware(S.ShieldMiddleware, shape_from=lambda: a, clock=lambda: clock[0], sleep=fake_sleep,
+                     ip_of=lambda scope: ip_box[0])
+    return TestClient(a)
+
+
+SCANNER = {"user-agent": "sqlmap/1.7", "accept": "*/*"}
+
+
+def test_changing_ip_does_not_hide_the_same_gait():
+    """เครื่องสแกนเปลี่ยน IP ทุกคำขอ — แต่ท่าเดินเหมือนเดิม โล่ก็ยังจำได้"""
+    clock, slept, ip = [0.0], [], ["10.0.0.0"]
+    c = _app_ip(clock, slept, ip)
+    for i in range(14):
+        ip[0] = f"10.0.{i}.{i}"
+        c.get(f"/probe{i}", headers=SCANNER)
+    tarpit = [s for s in slept if s != S.EVEN_S]
+    assert tarpit and max(tarpit) >= 1.0
+
+
+def test_a_real_person_sharing_the_gait_is_not_slowed_on_real_pages():
+    """คนจริงที่บังเอิญท่าเดินเหมือนเครื่องสแกน แต่มาจาก IP ของตัวเอง เข้าหน้าที่มีจริงได้ทันที"""
+    clock, slept, ip = [0.0], [], ["10.0.0.0"]
+    c = _app_ip(clock, slept, ip)
+    for i in range(14):
+        ip[0] = f"10.1.{i}.{i}"
+        c.get(f"/probe{i}", headers=SCANNER)
+    slept.clear()
+    ip[0] = "203.0.113.7"
+    assert c.get("/hello", headers=SCANNER).status_code == 200
+    assert not slept
+
+
+def test_gait_forgets_too():
+    clock, slept, ip = [0.0], [], ["x"]
+    c = _app_ip(clock, slept, ip)
+    for i in range(14):
+        ip[0] = f"10.2.{i}.{i}"
+        c.get(f"/probe{i}", headers=SCANNER)
+    clock[0] += 3 * 3600
+    slept.clear()
+    ip[0] = "10.9.9.9"
+    c.get("/probe-again", headers=SCANNER)
+    assert slept == [S.EVEN_S]                                     # แค่เวลาเอกภาพ ไม่มีหน่วงค้างจากเมื่อสามชั่วโมงก่อน

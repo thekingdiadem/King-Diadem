@@ -22,6 +22,11 @@ SECURITY/shield.py — โล่แบบแบน "เงื่อนไข" �
    เดิมทางที่ไม่มีจริงตอบเร็วกว่าทางที่มีจริงแต่ไม่มีสิทธิ์ คนจับเวลาเก่งยังพอแยกออก · ตอนนี้ทุกประตูที่ปิดดังเท่ากัน
    คำขอที่สำเร็จและทางแชทวิกฤตไม่ถูกแตะ — ช้าลงเฉพาะคนที่กำลังเคาะประตูผิด
 
+6. จำจังหวะการเดิน ไม่ใช่แค่ที่อยู่ — เครื่องสแกนเปลี่ยน IP ได้เป็นพัน แต่ "ท่าเดิน" ของมันเหมือนเดิม
+   (ชื่อโปรแกรม ภาษา การบีบอัด และลำดับหัวข้อที่ส่งมา) โล่จำท่าเดินนี้ด้วย คะแนนจางลงเองเหมือนกัน
+   ท่าเดินใช้หน่วงเฉพาะตอน "เคาะประตูที่ไม่มีจริง" เท่านั้น — คนจริงที่บังเอิญใช้เบราว์เซอร์รุ่นเดียวกับเครื่องสแกน
+   เข้าทางที่มีจริงได้ตามปกติ ไม่มีใครเดือดร้อนเพราะหน้าตาคล้ายคนอื่น
+
 ความเมตตาที่ตั้งใจใส่ไว้ (คนจริงต้องไม่เดือดร้อน):
 - ไม่บล็อกถาวร ไม่ตัดใครออก — แค่ช้าลง · คนไทยหลายคนใช้ IP มือถือร่วมกัน (CGNAT) ห้ามให้คนหนึ่งทำอีกคนเข้าไม่ได้
 - ทางแชท (/run ฯลฯ) ไม่ถูกหน่วงเลย — คนในวิกฤตต้องได้เบอร์ทันที เส้นนี้มี rate limit ของตัวเองอยู่แล้ว
@@ -34,6 +39,7 @@ SECURITY/shield.py — โล่แบบแบน "เงื่อนไข" �
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import math
 import re
@@ -68,6 +74,15 @@ class _Ledger:
         return e
 
 
+def gait_of(scope) -> str:
+    """ท่าเดิน: สิ่งที่ไม่เปลี่ยนตาม IP — ชื่อโปรแกรม ภาษา การบีบอัด และลำดับชื่อหัวข้อ"""
+    hs = list(scope.get("headers") or ())
+    d = dict(hs)
+    names = b",".join(k.lower() for k, _ in hs if k.lower() not in (b"host", b"content-length", b"cookie", b"x-forwarded-for", b"x-real-ip"))
+    raw = b"|".join((d.get(b"user-agent", b"-"), d.get(b"accept-language", b"-"), d.get(b"accept-encoding", b"-"), names))
+    return "g:" + hashlib.blake2b(raw, digest_size=8).hexdigest()
+
+
 def delay_for(score: float) -> float:
     if score < THRESHOLD:
         return 0.0
@@ -90,7 +105,7 @@ class ShieldMiddleware:
     def __init__(self, app, ip_of=None, shape_from=None, clock=time.monotonic, sleep=asyncio.sleep):
         self.app, self.ip_of, self.shape_from = app, ip_of, shape_from
         self.clock, self.sleep = clock, sleep
-        self.book, self.trapped, self._shape = _Ledger(), 0, None
+        self.book, self.gait, self.trapped, self._shape = _Ledger(), _Ledger(), 0, None
 
     def _known(self, path: str, method: str) -> bool:
         if path.startswith("/static/"):
@@ -119,7 +134,10 @@ class ShieldMiddleware:
                 if pad > 0:
                     await self.sleep(pad)
 
-        wait = 0.0 if path.startswith(NO_DELAY) else delay_for(e[0])
+        shaped = self._shape is not None or self.shape_from is not None
+        outside = shaped and not self._known(path, method)
+        g = self.gait.get(gait_of(scope), start) if outside else None
+        wait = 0.0 if path.startswith(NO_DELAY) else max(delay_for(e[0]), delay_for(g[0]) if g else 0.0)
         if wait:
             if self.trapped >= MAX_TRAPPED or e[2] >= 1:
                 e[0] += .5
@@ -132,14 +150,13 @@ class ShieldMiddleware:
                 self.trapped -= 1
                 e[2] -= 1
 
-        if self._shape is not None or self.shape_from is not None:
-            if not self._known(path, method):
-                e[0] += WEIGHT[404]
-                accept = dict(scope.get("headers") or ()).get(b"accept", b"")
-                if not (method == "GET" and b"text/html" in accept):
-                    await _evenly()
-                    return await _plain(send, 404, _UNIFORM)  # นอกรูปร่าง = คำตอบเดียวกันเสมอ
-                # คนเปิดลิงก์ผิดด้วยเบราว์เซอร์ ยังได้หน้า 404 สวยๆ ตามเดิม (แต่นับคะแนนเหมือนกัน)
+        if outside:
+            e[0] += WEIGHT[404]
+            g[0] += WEIGHT[404]
+            if not browser:
+                await _evenly()
+                return await _plain(send, 404, _UNIFORM)  # นอกรูปร่าง = คำตอบเดียวกันเสมอ
+            # คนเปิดลิงก์ผิดด้วยเบราว์เซอร์ ยังได้หน้า 404 สวยๆ ตามเดิม (แต่นับคะแนนเหมือนกัน)
 
         code = {"c": 500}
 
