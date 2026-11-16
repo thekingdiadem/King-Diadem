@@ -1062,10 +1062,18 @@ def ensure_user(email: str):
     conn = get_conn()
     try:
         conn.execute("INSERT OR IGNORE INTO users (email) VALUES (?)", (email,))
-        conn.execute(
+        cur = conn.execute(
             "INSERT OR IGNORE INTO credits (user_email, amount) VALUES (?, 10)",
             (email,)
         )
+        # เครดิตต้อนรับเคยเข้ายอดคงเหลือโดยไม่ลงสมุดบัญชี → ยอดในสมุดน้อยกว่าของจริง 10 ทุกบัญชี
+        # และหน้า wallet ที่เตรียมป้าย "เครดิตเริ่มต้น" (grant) ไว้ ขึ้นว่า "ยังไม่มีรายการ"
+        # จดเฉพาะตอนเพิ่งสร้างแถวเครดิตจริง (rowcount == 1) — เรียกซ้ำ/พร้อมกันไม่จดซ้ำ
+        if cur.rowcount == 1:
+            conn.execute(
+                "INSERT INTO credit_ledger (user_email, delta, reason, ref) VALUES (?, 10, 'grant', 'welcome')",
+                (email,)
+            )
         conn.commit()
     finally:
         conn.close()
