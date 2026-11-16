@@ -159,6 +159,16 @@ def four_truths(text: str) -> dict:
                 "nirodha": "ปลอดภัยแล้ว และมีคนอยู่ด้วย", "magga": _first_step(text), "clear": True, "key": "crisis"}
     key = _topic_key(text, a)
     dukkha, cause, nirodha = TRUTHS.get(key, (UNCLEAR, None, UNCLEAR))
+    if dukkha == UNCLEAR:
+        # แผนที่ DriftZero เห็นว่าข้ามเส้น — ทุกข์ที่กำลังจะเกิดคือความเสียหายที่ย้อนกลับไม่ได้ (เดิมตอบว่า "ยังไม่ชัด")
+        try:
+            from ENGINE.driftzero import stop_reasons
+            dz = stop_reasons(text)
+        except Exception:
+            dz = []
+        if dz:
+            dukkha, cause = "แผนนี้อาจทำให้เสียสิ่งที่ย้อนกลับไม่ได้", dz[0][1]
+            nirodha, key = "ไปถึงเป้าหมายได้โดยไม่ข้ามเส้นนี้", "driftzero"
 
     own = _BECAUSE.search(text)
     if own:
@@ -172,6 +182,15 @@ def four_truths(text: str) -> dict:
             ri = detect_root_cause(text)
             if ri.get("score") and ri.get("root") in ROOT_TH:
                 samudaya = ROOT_TH[ri["root"]]
+        except Exception:
+            pass
+    if samudaya == UNCLEAR:
+        # เหตุยังไม่ชัดจากคำที่เล่า แต่ DriftZero เห็นว่าแผนข้ามเส้นตรงไหน — ใช้เหตุผลนั้น (เดิม "จำนองบ้านไปลงคริปโต" ได้ "ยังไม่ชัด")
+        try:
+            from ENGINE.driftzero import stop_reasons
+            dz2 = stop_reasons(text)
+            if dz2:
+                samudaya = dz2[0][1]
         except Exception:
             pass
     clear = dukkha != UNCLEAR and samudaya != UNCLEAR

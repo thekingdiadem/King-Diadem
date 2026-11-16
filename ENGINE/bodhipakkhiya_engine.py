@@ -38,8 +38,9 @@ import re as _re
 
 FALSE_SPEECH = _re.compile(   # สัมมาวาจา — ตั้งใจพูดเท็จ ใส่ร้าย บิดข้อมูล
     r"(จะ|อยาก|ควร|ต้อง|ขอ|ช่วย)\s*(โกหก|ปั้นเรื่อง|แต่งเรื่อง|ใส่ร้าย|ใส่ความ|ปล่อยข่าว|ปิดบัง|บิดเบือน|ปลอมเอกสาร)"
-    r"|รีวิวปลอม|ปลอมรีวิว|เขียนรีวิวเอง|หลอกลูกค้า|โกหกลูกค้า|โกหกแฟน|โกหกพ่อแม่|โกหกหัวหน้า|โกหกเจ้านาย"
-    r"|\b(lie to|lying to|fake reviews?|make up a story|spread (a )?rumou?r|cover (it )?up)\b", _re.I)
+    r"|รีวิวปลอม|ปลอมรีวิว|เขียนรีวิวเอง|(?<!ไม่)(?<!ไม่มีการ)(?<!ห้าม)หลอกลูกค้า|(?<!ไม่)(?<!ห้าม)โกหก(?:ลูกค้า|แฟน|พ่อแม่|หัวหน้า|เจ้านาย)"
+    # "we will never lie to customers" เป็นคำมั่นที่ดี ไม่ใช่การพูดเท็จ (เดิมไม่ได้ PEACE)
+    r"|(?<!never )(?<!not )(?<!won't )(?<!don't )\b(lie to|lying to|fake reviews?|make up a story|spread (a )?rumou?r|cover (it )?up)\b", _re.I)
 ILL_WILL = _re.compile(       # สัมมาสังกัปปะ — เจตนามุ่งร้าย อยากเอาคืน
     r"แก้แค้น|เอาคืน|ล้างแค้น|ให้มันโดน|ให้มันพัง|ให้มันเจ็บ|ให้มันรู้สำนึก|สะใจ|เอาให้หมดอนาคต|ทำให้มันอับอาย"   # ไม่มี "ประจาน": "ขู่จะประจาน" คือคนอื่นขู่ผู้ใช้
     r"|\b(revenge|get back at|make (him|her|them) pay|ruin (him|her|them|their))\b", _re.I)
@@ -236,7 +237,14 @@ def guardian_check(context, pattern=None) -> dict:
     st = structure_score(pattern)
 
     magga_ok = layers[-1]["ok"]          # มรรค 8 = Final Governance Lock: ข้อใดไม่ผ่าน ไม่ให้ PEACE (เดิม "จะโกหกลูกค้า" ได้ PEACE)
-    peace = not critical and loop["complete"] and health >= 0.8 and magga_ok
+    # มองจากหลักฐานชุดเดียวกับ DriftZero — เดิมแผนที่ DriftZero หยุด (ใช้เงินสำรองทั้งหมด · ทิ้งกากพิษ · ไม่ใส่ราวกันตก
+    # · รถรับส่งไม่เช็กเด็ก · อีเมลเปลี่ยนเลขบัญชี) ได้ "PEACE — ดำเนินการได้" ทุกข้อ แล้วส่งบริบทนั้นต่อให้ AI
+    try:
+        from ENGINE.driftzero import stop_reasons
+        dz = stop_reasons(text)
+    except Exception:
+        dz = []
+    peace = not critical and loop["complete"] and health >= 0.8 and magga_ok and not dz
     # สงบ > ทำลาย: ยกไป survival เฉพาะเมื่อพื้นรอดพังจริง (โครงสร้างต่ำ หรือขาดปัจจัยพื้นฐาน)
     recommend_route = "survival" if (st < 0.35 or sig["basic"]) else None
     if peace:
@@ -245,6 +253,8 @@ def guardian_check(context, pattern=None) -> dict:
         verdict = "STABILIZE — พื้นรอดยังไม่มั่นคง ประคองก่อนตัดสินใจใหญ่"
     elif critical:
         verdict = "STOP — เรื่องนี้ต้องได้ความช่วยเหลือก่อน ไม่ใช่การชั่งทางเลือก"
+    elif dz:
+        verdict = "PAUSE — แผนนี้ข้ามเส้น: " + dz[0][1]
     else:
         verdict = "PAUSE — ทบทวนก่อนตัดสินใจ" + (f" (โพชฌงค์หยุดที่{loop['stopped_at']})" if loop["stopped_at"] else "")
     return {
@@ -258,6 +268,7 @@ def guardian_check(context, pattern=None) -> dict:
         "failed": [{"name": x["name"], "note": x["note"]} for x in failed],
         "magga": {x["name"]: x["ok"] for x in layers[-1]["items"]},
         "ariya": {k: sig["truths"].get(k) for k in ("dukkha", "samudaya", "nirodha", "magga", "clear", "own")} if sig["truths"] else None,
+        "driftzero": [{"gate": g, "why": w} for g, w, _ in dz],
     }
 
 
@@ -271,7 +282,11 @@ def llm_hint(result: dict) -> str:
         ar = _ah(a) if a else ""
     except Exception:
         pass
+    dz = (result or {}).get("driftzero") or []
+    dzh = ("[DriftZero: แผนนี้ข้ามเส้น — " + "; ".join(d["why"] for d in dz[:3])
+           + " · อย่าบอกว่าดำเนินการได้ ช่วยหาทางที่ไม่ข้ามเส้นนี้]") if dz else ""
     if not f:
-        return ar
-    return ((ar + " ") if ar else "") + ("[โพธิปักขิยธรรม: " + (result.get("final_verdict") or "") + " · ยังไม่ผ่าน: "
-            + "; ".join(f"{x['name']} — {x['note']}" for x in f[:4]) + "]")
+        return " ".join(x for x in (ar, dzh) if x)
+    return " ".join(x for x in (ar, dzh) if x) + (" " if (ar or dzh) else "") + (
+        "[โพธิปักขิยธรรม: " + (result.get("final_verdict") or "") + " · ยังไม่ผ่าน: "
+        + "; ".join(f"{x['name']} — {x['note']}" for x in f[:4]) + "]")

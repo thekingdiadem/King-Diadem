@@ -12,6 +12,7 @@
 """
 from __future__ import annotations
 
+import functools
 import re
 
 STOP, ASK, PASS = "stop", "ask", "pass"
@@ -40,11 +41,11 @@ GATES = [
      "ใช้แรงกดดัน/อำนาจ — ต้นฉบับให้ลดแรงก่อนขยาย และตั้งขอบเขตชัดเจน",
      "Force or coercion — reduce force before scaling, with clear boundaries"),
     ("K7", "ทำต่อเพราะเสียดาย", "Momentum stop",
-     _rx(r"ลงทุนไปแล้ว\S{0,12}(?:ต้อง|เลย)|ลงทุนไปเยอะแล้ว|เสียดายเงินที่ลง|มาไกลแล้ว|ถอยไม่ได้แล้ว|หยุดไม่ได้แล้ว|sunk cost|too far to stop|already invested"),
+     _rx(r"ลงทุนไปแล้ว\S{0,12}(?:ต้อง|เลย)|(?:ลง(?:ทุน)?|จ่าย)(?:เงิน)?ไปแล้ว[^\n]{0,24}?เสียดาย|เสียดาย(?:เงิน)?\S{0,6}(?:ที่ลง|ที่จ่าย)|ลงทุนไปเยอะแล้ว|เสียดายเงินที่ลง|มาไกลแล้ว|ถอยไม่ได้แล้ว|หยุดไม่ได้แล้ว|sunk cost|too far to stop|already invested"),
      "ทำต่อเพราะลงทุนไปแล้ว — ต้นฉบับ: หยุดได้แม้จะช้า ไม่มีต้นทุนจมไหนมีค่ากว่าชีวิต",
      "Continuing because of sunk cost — stop even if late"),
     ("K8", "ภาพลักษณ์แทนความจริง", "Distortion immunity",
-     _rx(r"สร้างภาพ|ภาพลักษณ์|ทำ PR|แถลงข่าวให้ดูดี|ฟอกเขียว|ดูเหมือนรักษ์โลก|ปิดข่าว|กลบข่าว|ไม่ต้องบอกใคร|greenwash|cover up|spin the story"),
+     _rx(r"สร้างภาพ|ภาพลักษณ์|ทำ PR|แถลงข่าวให้ดูดี|ฟอกเขียว|ดูเหมือนรักษ์โลก|(?<!เ)ปิดข่าว|กลบข่าว|ไม่ต้องบอกใคร|greenwash|cover up|spin the story"),
      "เน้นภาพลักษณ์หรือปิดข่าว — ความจริงไม่ต้องใช้การตลาด เปิดข้อมูลที่ตรวจสอบได้แทน",
      "Image management or cover-up — truth needs no marketing; publish verifiable facts"),
     ("K9", "อัตตาในการถกเถียง", "Ego debate",
@@ -60,7 +61,7 @@ GATES = [
      "มั่นใจเกินจริง ทุกอย่างเปลี่ยนแปลงได้ — เขียนสิ่งที่อาจพลาดออกมาอย่างน้อย 3 ข้อ",
      "Reality denial — everything changes; list at least 3 ways this could fail"),
     ("K12", "พบอันตราย หยุดสายพาน", "Stop the line",
-     _rx(r"บาดเจ็บ|เสียชีวิต|อันตรายต่อ(?:ชีวิต|สุขภาพ|ผู้คน|ชุมชน)|สารพิษ|สารเคมีรั่ว|ปนเปื้อน|ไฟไหม้|ระเบิด|ไม่ปลอดภัย|ละเมิดความปลอดภัย|injur|fatal|toxic|contaminat|unsafe|safety violation|leak(?:ed|ing)? chemical"),
+     _rx(r"บาดเจ็บ|เสียชีวิต|อันตรายต่อ(?:ชีวิต|สุขภาพ|ผู้คน|ชุมชน)|สารพิษ|สารเคมีรั่ว|(?<!ตรวจ)(?<!ตรวจการ)(?<!กัน)(?<!ป้องกัน)(?<!ป้องกันการ)ปนเปื้อน|(?<!เตือนภัย)(?<!แจ้งเตือน)(?<!ประกัน)(?<!ซ้อมหนี)(?<!ซ้อม)(?<!ป้องกัน)(?<!กัน)(?<!ดับ)ไฟไหม้|(?<!กัน)(?<!ป้องกัน)ระเบิด|ไม่ปลอดภัย|ละเมิดความปลอดภัย|injur|fatal|toxic|contaminat|unsafe|safety violation|leak(?:ed|ing)? chemical"),
      "พบความเสี่ยงต่อชีวิต/สุขภาพ — ใครก็หยุดงานได้ทันที แก้ให้ปลอดภัยก่อนทำต่อ",
      "Harm to life or health — anyone may halt the line; make it safe first"),
     ("K13", "ผลประโยชน์ทับซ้อน", "Self-dealing",
@@ -97,10 +98,10 @@ GATES = [
     # ด่านเหล่านี้ดูเฉพาะตัวแผน (ไม่ดูคำตอบข้อ "ถ้าพลาด") และข้ามเมื่อมีคำปฏิเสธนำหน้า ("จะไม่ขายข้อมูลลูกค้า") — ดู _negated
     # S1 จากโพสต์ตำรวจไซเบอร์ที่เจ้าของโปรเจกต์ส่งมา: ประตูที่คนร้ายใช้มักเป็นระบบเก่าที่ยังเปิดค้าง รหัสเริ่มต้น หรือคนนอกที่ได้สิทธิ์มากเกิน
     ("S1", "ประตูไซเบอร์ที่เปิดค้าง", "Open cyber doors",
-     _rx(r"(?:ระบบ|เซิร์ฟเวอร์|บัญชี|บริการ|เว็บ|VPN)\s*เก่า[^\n]{0,24}?(?:เปิด(?:ไว้|ค้าง|ทิ้ง)|ทิ้งไว้|ค้างไว้|ยังไม่ปิด|ปล่อย(?:ไว้|ทิ้ง))|ปล่อย[^\n]{0,10}?(?:ระบบ|เซิร์ฟเวอร์|บัญชี)\s*เก่า[^\n]{0,10}?เปิด|"
+     _rx(r"(?:ระบบ|เซิร์ฟเวอร์|บัญชี|บริการ|เว็บ|VPN)\s*เก่า[^\n]{0,24}?(?:เปิด(?:ไว้|ค้าง|ทิ้ง)|ทิ้งไว้|ค้างไว้|ยังไม่(?<!เ)ปิด|ปล่อย(?:ไว้|ทิ้ง))|ปล่อย[^\n]{0,10}?(?:ระบบ|เซิร์ฟเวอร์|บัญชี)\s*เก่า[^\n]{0,10}?เปิด|"
          r"(?:ไม่|ยังไม่|ไม่ต้อง|เลื่อน|งด)\s*(?:อัปเดต|อัพเดท|อัพเดต|อัปเดท|ลง|แก้)\s*(?:แพตช์|แพทช์|ระบบ|เฟิร์มแวร์|ซอฟต์แวร์|ช่องโหว่)|"
          r"(?:ใช้|ยังใช้|คง)[^\n]{0,24}?รหัส(?:ผ่าน)?[^\n]{0,12}?(?:เดิม|ค่าเริ่มต้น|จากโรงงาน|123456|admin|password)|รหัส(?:ผ่าน)?[^\n]{0,12}?(?:เดิม|ค่าเริ่มต้น|จากโรงงาน|123456)[^\n]{0,20}?ไม่(?:ต้อง)?เปลี่ยน|"
-         r"(?:ใช้|แชร์)[^\n]{0,8}?รหัส(?:ผ่าน)?[^\n]{0,8}?(?:แอดมิน|admin)[^\n]{0,8}?ร่วมกัน|บัญชี(?:แอดมิน|admin)\s*(?:เดียวกัน|ร่วม)|"
+         r"(?:(?<!เ)ปิด|ไม่สนใจ|(?<!เ)ปิดเสียง)\S{0,4}(?:การ)?แจ้งเตือน\S{0,4}(?:ช่องโหว่|ความปลอดภัย|ไวรัส|การบุกรุก)|\b(?:disable|silence|mute|ignore)\s+(?:the\s+)?(?:security|vulnerability|intrusion)\s+(?:alerts?|warnings?)\b|(?:ใช้|แชร์)\S{0,6}รหัส\s?(?:wifi|ไวไฟ|เดียวกัน)[^\n]{0,20}?(?:ระบบบัญชี|ระบบเงิน|ฐานข้อมูล|แอดมิน)|\bwithout\s+a\s+privacy\s+policy\b|รหัส(?:ผ่าน)?(?:ของ)?(?:ลูกค้า|ผู้ใช้|พนักงาน)?[^\n]{0,20}?(?:excel|เอ็กเซล|ไดรฟ์|drive|ไลน์กลุ่ม|กระดาษ)(?![^\n]{0,10}?เข้ารหัส)|\bpasswords?\b[^\n]{0,30}?\b(?:spreadsheet|excel|shared\s+drive|plain\s*text)\b|(?:ใช้|แชร์)[^\n]{0,8}?รหัส(?:ผ่าน)?[^\n]{0,8}?(?:แอดมิน|admin)[^\n]{0,8}?ร่วมกัน|บัญชี(?:แอดมิน|admin)\s*(?:เดียวกัน|ร่วม)|"
          r"ไม่(?:ต้อง)?(?:เปิด|ใช้)\s*(?:2FA|MFA|การยืนยัน(?:ตัวตน)?สองชั้น|ยืนยันสองชั้น)|"
          r"(?:บริษัท|ผู้รับเหมา|เวนเดอร์|ผู้ให้บริการ|เอเจนซี่|เอเจนซี|ฟรีแลนซ์|คนนอก)[^\n]{0,10}?(?:ภายนอก|ข้างนอก)?[^\n]{0,40}?(?:สิทธิ์|เข้าถึง)[^\n]{0,16}?(?:ทั้งหมด|เต็ม|แอดมิน|ทุก)|"
          r"(?:keep|leave)\s+(?:the\s+)?(?:old|legacy)\s+[\w-]+(?:\s+[\w-]+)?\s+(?:open|on|running|exposed)|legacy\s+[\w-]+\s+(?:stays?\s+)?(?:open|exposed)|"
@@ -111,7 +112,7 @@ GATES = [
      "This leaves a door open — most breaches come through old systems left running, default passwords, missing patches, or outsiders with too much access "
      "· shut what you no longer use, change default passwords, turn on MFA, and grant only the access the job needs"),
     ("S2", "ข้อมูลของคนอื่นไม่ใช่ของเรา", "Other people's data is not ours",
-     _rx(r"(?:ขาย|ส่ง|แชร์|ให้|ปล่อย)[^\n]{0,6}?ข้อมูล(?:ส่วนตัว|ส่วนบุคคล)?\s*(?:ของ)?\s*(?:ลูกค้า|ผู้ใช้|พนักงาน|สมาชิก|คนไข้|ผู้ป่วย|นักเรียน)[^\n]{0,40}?(?:ให้|แก่|ไปยัง|กับ)|"
+     _rx(r"(?:ข้อมูล|ประวัติ)\S{0,6}(?:ของ)?เด็ก[^\n]{0,24}?(?:ไม่ขอ|ไม่ถาม)\S{0,4}(?:ผู้ปกครอง|พ่อแม่)|\bchildren'?s?\s+data\b[^\n]{0,24}?\bwithout\s+(?:parental|parents'?)\s+consent\b|vender (?:los )?datos de (?:los )?clientes|bán dữ liệu khách hàng|客户数据卖|卖给第三方|고객 데이터를 팔|顧客データを売|(?:ใช้|เอา)\S{0,6}(?:รูป|ภาพ|คลิป|เสียง)(?:ของ)?(?:ลูกค้า|คนไข้|นักเรียน|พนักงาน)[^\n]{0,20}?(?:โดยไม่ขอ|ไม่ขออนุญาต|ไม่ถาม)|\buse\s+(?:customer|patient|student|employee)s?[\'’]?\s+(?:photos|images|videos|voices?)\b[^\n]{0,20}?\bwithout\s+(?:asking|consent|permission)\b|\btrack\s+(?:[\w'’]+\s+){0,2}(?:personal|private)\s+phones?\b|ติดตาม\S{0,4}(?:มือถือ|โทรศัพท์)ส่วนตัว(?:ของ)?(?:พนักงาน)?|(?:ขาย|ส่ง|แชร์|ให้|ปล่อย)[^\n]{0,6}?ข้อมูล(?:ส่วนตัว|ส่วนบุคคล)?\s*(?:ของ)?\s*(?:ลูกค้า|ผู้ใช้|พนักงาน|สมาชิก|คนไข้|ผู้ป่วย|นักเรียน)[^\n]{0,40}?(?:ให้|แก่|ไปยัง|กับ)|"
          r"(?:ข้อมูล|เบอร์(?:โทร)?|อีเมล|รายชื่อ|ที่อยู่|ประวัติ(?:การรักษา|การซื้อ)?)(?:ส่วนตัว)?\s*(?:ของ)?\s*(?:ลูกค้า|ผู้ใช้|พนักงาน|สมาชิก|คนไข้|ผู้ป่วย|นักเรียน)[^\n]{0,24}?(?:ส่งให้|ขายให้|แชร์ให้|ให้กับ|ให้แก่|ไปให้)|"
          r"(?:โดย)?ไม่(?:ต้อง)?ขอ(?:ความ)?ยินยอม|แอบ(?:บันทึก|เก็บ|ติดตาม|อ่าน|ดู)(?:ข้อมูล|ข้อความ|แชท|ตำแหน่ง)?|"
          r"ข้อมูล[^\n]{0,16}?(?:รั่ว|หลุด|ถูกขโมย|ถูกแฮ็ก)[^\n]{0,40}?(?:ไม่ต้องแจ้ง|ยังไม่(?:ต้อง)?แจ้ง|ไม่แจ้ง|ปิดเรื่อง|เงียบไว้)|"
@@ -122,7 +123,7 @@ GATES = [
      "Uses people's data without their knowledge or consent, or hides a breach — the data belongs to them, not the business · get consent first; if it leaks, tell the people affected and the regulator"),
     ("A1", "AI ตัดสินแทนคนไม่ได้", "AI must not decide alone",
      _rx(r"(?:AI|เอไอ|ระบบอัตโนมัติ|อัลกอริทึม|อัลกอริธึม|บอท|โมเดล)[^\n]{0,24}?(?:ตัดสิน|อนุมัติ|ปฏิเสธ|คัด(?:ออก|เลือก|กรอง)|ไล่ออก|เลิกจ้าง|ประเมิน|ให้คะแนน)[^\n]{0,40}?(?:ไม่ต้องมีคน|ไม่มีคน|โดยไม่มีคน|เองทั้งหมด|อัตโนมัติทั้งหมด|ไม่ต้องตรวจ)|"
-         r"(?:ไม่ต้องมีคน|ไม่มีคน)(?:ตรวจ|ดู|ทบทวน|อนุมัติ)[^\n]{0,30}?(?:AI|เอไอ|ระบบอัตโนมัติ)|"
+         r"\b(?:ai|chatbot|bot)\b[^\n]{0,40}?\bapproves?\s+(?:\w+\s+){0,2}automatically\b|(?:AI|เอไอ|บอท|แชทบอท)[^\n]{0,30}?อนุมัติ\S{0,10}(?:เอง|อัตโนมัติ)|(?:ไม่ต้องมีคน|ไม่มีคน)(?:ตรวจ|ดู|ทบทวน|อนุมัติ)[^\n]{0,30}?(?:AI|เอไอ|ระบบอัตโนมัติ)|"
          r"\b(?:ai|algorithm|model|bot|automated\s+system)\b[^\n]{0,50}?\b(?:auto-?(?:reject|approve|deny|fire|decide|score)\w*|decide\w*|reject\w*|approv\w*|fire\w*)\b[^\n]{0,40}?\b(?:no|without)\s+(?:any\s+)?human\b|"
          r"\b(?:no|without)\s+human\s+(?:review|oversight|check|in\s+the\s+loop)\b"),
      "ให้ AI หรือระบบอัตโนมัติตัดสินเรื่องที่กระทบชีวิตคน (งาน สินเชื่อ การรักษา) โดยไม่มีคนตรวจ — คนต้องดูและรับผิดชอบทุกการปฏิเสธ และผู้ถูกตัดสินต้องอุทธรณ์ถึงคนได้",
@@ -131,7 +132,7 @@ GATES = [
      _rx(r"จ้าง[^\n]{0,8}?(?:เด็ก|เยาวชน)[^\n]{0,12}?(?:อายุ\s*)?(?:1[0-4]|[5-9])(?!\d)|เด็ก(?:อายุ)?\s*(?:1[0-4]|[5-9])\s*(?:ขวบ|ปี)?[^\n]{0,12}?(?:ทำงาน|กะ|เข้างาน)|ใช้แรงงานเด็ก|"
          r"(?:ไม่จ่าย|ไม่ให้|ไม่มี)\s*(?:ค่า)?(?:โอที|ล่วงเวลา)|(?:โอที|ล่วงเวลา)[^\n]{0,24}?(?:ไม่จ่าย|ฟรี|ไม่มีค่า)|"
          r"(?:ต่ำกว่า|ไม่ถึง)\s*(?:ค่าแรง|ค่าจ้าง)?\s*ขั้นต่ำ|ยึด\s*(?:พาสปอร์ต|หนังสือเดินทาง|บัตรประชาชน|บัตรแรงงาน|เอกสาร)|"
-         r"ไม่มีวันหยุด|ไม่ให้(?:ลา|หยุด|พัก)|ทำงานวันละ\s*1[3-9]|"
+         r"no pagar (?:las )?horas extra|không trả (?:lương )?(?:làm )?thêm giờ|不付加班费|초과근무 수당을? 안|残業代を払わない|(?:ไม่ทำ|ไม่ขอ|ไม่มี)\S{0,4}ใบอนุญาตทำงาน|(?:จ้าง|ใช้)\S{0,10}(?:คน)?ต่างด้าว[^\n]{0,20}?ผิดกฎหมาย|\bclassify\s+(?:\w+\s+){0,2}as\s+contractors\b[^\n]{0,30}?\b(?:benefits|overtime|pay)\b|(?:เซ็น|ลงชื่อ)\S{0,4}ใบลาออก\S{0,6}(?:ล่วงหน้า|ไว้ก่อน)|ใบลาออกล่วงหน้า|pre-?signed\s+resignation|ไม่มีวันหยุด|ไม่ให้(?:ลา|หยุด|พัก)|ทำงานวันละ\s*1[3-9]|"
          r"(?:ลด|ตัด|งด)\s*(?:งบ|อุปกรณ์|การอบรม)?\s*(?:ด้าน)?(?:ความปลอดภัย|ป้องกัน|กันตก|PPE)|"
          r"\bchild\s+labou?r\b|\bhir(?:e|ing)\s+(?:kids|children|minors|\d{1,2}[- ]year[- ]olds)\b|\b(?:under|below)\s+(?:the\s+)?minimum\s+wage\b|\bunpaid\s+overtime\b|"
          r"\b(?:not|don'?t|won'?t)\s+pay\s+(?:for\s+)?overtime\b|\b(?:hold|keep|confiscate|take)\s+(?:the\s+)?(?:their|workers['’]?|staff['’]?s?|employees['’]?)\s+passports?\b|"
@@ -142,17 +143,17 @@ GATES = [
      _rx(r"ไม่รับ[^\n]{0,10}?(?:คน)?\s*(?:อายุ(?:เกิน|มากกว่า)|(?:คน)?ท้อง|ตั้งครรภ์|ผู้หญิง|ผู้ชาย|เพศ|LGBT|กะเทย|ศาสนา|มุสลิม|(?:คน)?พิการ|ผิวสี|ผิวดำ|ต่างด้าว|ชาว\S+)|"
          r"เลือก(?:รับ|ปฏิบัติ|จ้าง)[^\n]{0,10}?(?:ตาม|จาก)?(?:เพศ|อายุ|ศาสนา|เชื้อชาติ|สีผิว)|"
          r"(?:คุกคาม|ล่วงละเมิด)[^\n]{0,50}?(?:เก็บเรื่อง|ปิดเรื่อง|ไม่ต้องทำอะไร|เป็นคนเก่ง|ยอดขายดี|เงียบไว้)|(?:เก็บเรื่อง|ปิดเรื่อง|เงียบ)[^\n]{0,24}?(?:คุกคาม|ล่วงละเมิด)|"
-         r"(?:ไล่|เลิกจ้าง|ลงโทษ|ย้าย)[^\n]{0,8}?(?:คนที่)?\s*(?:ร้องเรียน|แจ้งเบาะแส|แฉ|ฟ้อง|ตั้งครรภ์|ท้อง)|"
+         r"(?:ตัด|(?<!เ)ปิด)(?:น้ำ|ไฟ)\S{0,6}(?:ตัด|(?<!เ)ปิด)?(?:น้ำ|ไฟ)?\S{0,4}ผู้เช่า|ผู้เช่า[^\n]{0,20}?(?:ตัดน้ำ|ตัดไฟ)|(?:ยึด|เก็บ)\S{0,4}(?:ของ|ทรัพย์สิน|ข้าวของ)(?:ของ)?ผู้เช่า|\block\s+(?:the\s+)?tenants?\s+out\b|\bkeep\s+(?:their|the\s+tenants?'?)\s+belongings\b|(?:ไล่|เลิกจ้าง|ลงโทษ|ย้าย)\S{0,12}(?:ที่)?(?:แจ้ง|ร้องเรียน|รายงาน)(?:เรื่อง)?\S{0,4}(?:คุกคาม|ล่วงละเมิด|ทุจริต|ความปลอดภัย)|(?:ไล่|เลิกจ้าง)\S{0,10}?(?:ที่)(?:ท้อง|ตั้งครรภ์)|(?:ไล่|เลิกจ้าง|ลงโทษ|ย้าย)[^\n]{0,8}?(?:คนที่)?\s*(?:ร้องเรียน|แจ้งเบาะแส|แฉ|ฟ้อง|ตั้งครรภ์|ท้อง)|"
          r"\b(?:won'?t|will\s+not|don'?t|do\s+not|not\s+going\s+to)\s+hire\s+(?:any\s+)?(?:women|men|pregnant|muslims?|disabled|older|anyone\s+(?:over|above|older))|\bhire\s+only\s+(?:men|women|young)\b|"
          r"\bfire\s+(?:the\s+)?(?:whistle-?blower|(?:person|employee|staff)\s+who\s+(?:complained|reported))|\b(?:cover|hush)\s+up\s+(?:the\s+)?(?:harassment|abuse|complaint)|"
          r"\bharass\w*\b[^\n]{0,50}?\b(?:keep\s+(?:it\s+)?quiet|top\s+(?:performer|seller)|let\s+it\s+(?:go|slide))"),
      "เลือกปฏิบัติ ปิดเรื่องคุกคาม หรือลงโทษคนที่ร้องเรียน — คนที่กล้าพูดคือสัญญาณเตือนที่มีค่าที่สุดขององค์กร · ตัดสินที่งาน ไม่ใช่ที่เพศ อายุ ศาสนา และคุ้มครองผู้แจ้ง",
      "Discrimination, covering up harassment, or punishing people who speak up — those who speak up are the organisation's best warning signal · judge the work, not gender, age or religion, and protect reporters"),
     ("G1", "ความซื่อตรงต่อลูกค้าและสาธารณะ", "Integrity with customers and the public",
-     _rx(r"ใต้โต๊ะ|สินบน|จ่ายพิเศษ[^\n]{0,12}?(?:เจ้าหน้าที่|ใบอนุญาต)|(?:เงิน|ค่า)พิเศษ\s*(?:ให้)?\s*เจ้าหน้าที่|บัญชี\s*(?:สอง|2)\s*ชุด|(?:เลี่ยง|หนี)ภาษี|ไม่ออกใบกำกับ|"
+     _rx(r"(?:กล่องสุ่ม|กาชา|ลูทบ็อกซ์)[^\n]{0,20}?(?:เด็ก)[^\n]{0,20}?(?:ไม่จำกัด|ไม่มีเพดาน)|\bloot\s*boxes?\b[^\n]{0,30}?\b(?:kids|children|minors)\b[^\n]{0,20}?\b(?:no|without)\s+(?:limit|cap)|\b(?:unsubscribe|cancel)\s+button\s+(?:tiny|hidden|grey|gray|hard\s+to\s+find)|(?:รีวิว|ให้ดาว)[^\n]{0,20}?(?:บัญชีปลอม|อวตาร|ไอดีปลอม)|บัญชีปลอม\S{0,6}(?:รีวิว|ให้ดาว)|(?:ส่ง|จัดส่ง)[^\n]{0,18}?(?:ช้า|เลื่อน)[^\n]{0,24}?โดยไม่(?:แจ้ง|บอก)|เงินบริจาค[^\n]{0,20}?(?:ซื้อ|จ่าย|ให้)[^\n]{0,10}?(?:ผู้บริหาร|กรรมการ|ส่วนตัว|รถ|บ้าน)|(?:ซ่อน|ปิดบัง|ไม่เปิดเผย|ตกแต่ง)\S{0,6}(?:ตัวเลข)?(?:ขาดทุน|งบ(?:การเงิน)?|บัญชี)[^\n]{0,16}?(?:นักลงทุน|ผู้ถือหุ้น|ธนาคาร)?|\bhide\s+(?:[\w'’]+\s+){0,3}(?:losses|debts?|numbers)\s+from\s+(?:investors|shareholders|the\s+bank|auditors)\b|(?:โกหก|หลอก)(?:ลูกค้า|ผู้ซื้อ|ผู้บริโภค)|\blie\s+to\s+(?:the\s+)?(?:customers?|clients?|buyers?)\b|ไม่(?:ต้อง)?ลงบัญชี|นอกบัญชี|\boff\s+the\s+books\b|เงินมัดจำ(?:ของ)?(?:ลูกค้า)?\S{0,6}(?:ไป)?(?:จ่าย|ใช้|โปะ)\S{0,4}หนี้|(?:โดย)?ไม่อธิบาย(?:เงื่อนไข|ข้อตกลง|ความเสี่ยง)|\bpay\s+us\s+(?:a\s+fee\s+)?to\s+be\s+(?:listed|ranked|shown)\s+first\b|(?:ไม่บอก|ไม่แจ้ง|ปิดบัง|ซ่อน)(?:ลูกค้า)?(?:ว่า)?\S{0,8}(?:มี)?(?:สารก่อภูมิแพ้|ส่วนผสม|ผลข้างเคียง|ข้อบกพร่อง|ตำหนิ)|(?:เลื่อน|ค้าง|ดึง)(?:จ่าย|ชำระ)?(?:เงิน)?\S{0,4}(?:ซัพพลายเออร์|ผู้ขาย|คู่ค้า)[^\n]{0,20}?(?:โดยไม่บอก|ไม่แจ้ง|เงียบ)|\b(?:hide|not\s+disclose|not\s+tell\s+(?:customers|buyers)\s+about)\b[^\n]{0,20}?\ballerg\w*|ใต้โต๊ะ|สินบน|จ่ายพิเศษ[^\n]{0,12}?(?:เจ้าหน้าที่|ใบอนุญาต)|(?:เงิน|ค่า)พิเศษ\s*(?:ให้)?\s*เจ้าหน้าที่|บัญชี\s*(?:สอง|2)\s*ชุด|(?:เลี่ยง|หนี)ภาษี|ไม่ออกใบกำกับ|"
          r"ปลอม(?:รีวิว|เอกสาร|ใบรับรอง|ลายเซ็น|ผลตรวจ|ผลแล็บ|ยอดขาย)|รีวิวปลอม|(?:อ้าง|เขียน|โฆษณา)(?:ว่า)?[^\n]{0,8}?รักษา(?:โรค|มะเร็ง|เบาหวาน|ความดัน)|รักษา(?:โรค|มะเร็ง|เบาหวาน)ได้|"
          r"ซ่อนปุ่ม(?:ยกเลิก)?|(?:ทำให้|ตั้งให้)?ยกเลิก(?:สมาชิก|บริการ)?ยาก|ต่ออายุอัตโนมัติ(?:โดยไม่แจ้ง)|ค่าธรรมเนียมแอบแฝง|"
-         r"(?:ช่วง|ตอน)\s*(?:น้ำท่วม|ภัย(?:พิบัติ)?|โรคระบาด|วิกฤต|แผ่นดินไหว)[^\n]{0,24}?ขึ้นราคา|ขึ้นราคา[^\n]{0,24}?(?:ช่วง|ตอน)\s*(?:น้ำท่วม|ภัย(?:พิบัติ)?|โรคระบาด|วิกฤต)|"
+         r"(?:ช่วง|ตอน)\s*(?:น้ำท่วม|ภัย(?:พิบัติ)?|โรคระบาด|วิกฤต|แผ่นดินไหว|แล้ง|ภัยแล้ง|คลื่นความร้อน|ฝุ่น)[^\n]{0,24}?ขึ้นราคา|ขึ้นราคา[^\n]{0,24}?(?:ช่วง|ตอน)\s*(?:น้ำท่วม|ภัย(?:พิบัติ)?|โรคระบาด|วิกฤต)|"
          r"เอาเงิน(?:ของ)?(?:ลูกค้า|สมาชิก|นักลงทุน)(?:ราย)?ใหม่(?:มา)?จ่าย|(?:ไม่|ยังไม่)(?:ต้อง)?เรียกคืน|ขาย(?:ให้)?หมด(?:ก่อน|ไปก่อน)[^\n]{0,20}?(?:ค่อย|แล้วค่อย)?|"
          r"\bbrib\w*|\bunder\s+the\s+table\b|\bpay\s+(?:the\s+|an?\s+)?(?:inspector|official|officer|clerk)\b[^\n]{0,20}?\bextra\b|\btwo\s+sets\s+of\s+(?:books|accounts)\b|\b(?:tax\s+evasion|evade\s+(?:the\s+)?tax(?:es)?)\b|"
          r"\bfake\s+(?:reviews?|testimonials?|certificates?|test\s+results?)\b|\bcures?\s+(?:cancer|diabetes|disease)\b|\bhide\s+(?:the\s+)?cancel\w*|\bhidden\s+fees?\b|"
@@ -163,16 +164,51 @@ GATES = [
      "Gains through deception, concealment or exploiting people in trouble (bribes, two sets of books, fake reviews, health claims, disaster price-hikes, paying old investors with new money, skipping a recall) "
      "— lost trust can't be recalled · only do what you could show everyone"),
     ("E1", "แลกความสะดวกกับความเสียหายระยะยาว", "Convenience trade-off",
-     _rx(r"ใช้ครั้งเดียวทิ้ง|พลาสติกครั้งเดียว|ตัดต้นไม้|ถางป่า|เผา(?:ขยะ|ป่า|ไร่)|ทิ้งขยะ|ฝังกลบ|ลดต้นทุนด้วยการไม่บำบัด|single-use|clear(?:ing)? (?:the )?forest|burn(?:ing)? (?:waste|fields)|landfill"),
+     _rx(r"(?:ทิ้ง|เท|ฝัง|ขน\S{0,6}ไป(?:ทิ้ง|เท))\S{0,10}(?:กาก|ขยะ|สาร)(?:อุตสาหกรรม|พิษ|เคมี|อันตราย)?|(?:กากอุตสาหกรรม|ขยะพิษ|ขยะอันตราย|สารเคมี(?:ที่ใช้แล้ว)?|น้ำมันเครื่องเก่า)[^\n]{0,24}?(?:ไป)?(?:ทิ้ง|เท|ฝัง|เผา)(?!\S{0,4}(?:อย่างถูก|ที่ได้รับอนุญาต))|เผา\S{0,6}(?:ตอซัง|ฟาง|ซังข้าว|อ้อย|พลาสติก|ยาง)|(?:ปล่อย|ระบาย)\S{0,6}น้ำ\S{0,10}(?:บ่อแร่|เหมือง|โรงงาน)|\b(?:dump|bury|pour)\s+(?:\w+\s+){0,3}(?:waste|solvents?|chemicals?|oil|sludge|tailings)\b|\brelease\s+(?:\w+\s+){0,2}tailings\b|\btailings\s+(?:water\s+)?into\s+(?:the\s+)?(?:river|stream|lake)\b|\bburn\s+(?:the\s+)?(?:plastic|tyres?|tires?|chemical|industrial|e-?)\s*waste\b|\bburn\s+(?:the\s+)?(?:stubble|crop\s+residue)\b|ใช้ครั้งเดียวทิ้ง|พลาสติกครั้งเดียว|ตัดต้นไม้|ถางป่า|เผา(?:ขยะ|ป่า|ไร่)|ทิ้งขยะ|ฝังกลบ|ลดต้นทุนด้วยการไม่บำบัด|single-use|clear(?:ing)? (?:the )?forest|burn(?:ing)? (?:waste|fields)|landfill"),
      "สะดวกวันนี้แต่โลกเสียหายระยะยาว — ค่าเริ่มต้นของต้นฉบับคือปฏิเสธ หาทางที่ไม่ทิ้งภาระ",
      "Short-term convenience with long-term harm — default: reject"),
     # Waterline ในระดับองค์กร = "เส้นขั้นต่ำที่ห้ามต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้" (เจ้าของโปรเจกต์นิยาม)
     # ไม่ใช่เรื่องน้ำอย่างเดียว — คนบริหารเงินหลักล้าน/พันล้านอ่าน "เส้นน้ำ" แล้วจะงงว่าน้ำเกี่ยวอะไรกับองค์กร
     # เดิมด่านนี้จับแค่คำเรื่องแหล่งน้ำ ตอนนี้จับการดันบางอย่างให้ต่ำกว่าเส้นที่กลับมาไม่ได้: เงินสดสำรอง
     # ทรัพย์หลัก คนหลัก ใบอนุญาต ความเชื่อใจ — ส่วนแหล่งน้ำ/ธรรมชาติยังนับเป็นกรณีหนึ่งของเส้นนี้
+    # F1 จากรอบสุ่ม DriftZero ที่ 15: คนที่กำลังจะโดนหลอกพิมพ์มาเป็น "การตัดสินใจ" — ลงทุนการันตีกำไร · อีเมลเปลี่ยนเลขบัญชี
+    # · "เจ้าหน้าที่" ให้ย้ายเงินไปบัญชีปลอดภัย · CEO ปลอมสั่งโอนด่วน · งานที่ให้จ่ายเงินก่อน
+    ("F1", "สัญญาณมิจฉาชีพ", "Scam signals",
+     _rx(r"(?:การันตี|รับประกัน)\S{0,6}(?:กำไร|ผลตอบแทน)|(?:ผลตอบแทน|กำไร)\S{0,6}(?:[1-9]\d|[3-9])\s?%\s?(?:ต่อ|/)?\s?(?:เดือน|สัปดาห์)|(?:ผลตอบแทน|กำไร)\S{0,6}วันละ\s?\d|"
+         r"(?:คน|ใคร)ใน(?:ไลน์|เฟซ|เทเลแกรม|telegram|ติ๊กต็อก)[^\n]{0,30}?(?:ลงทุน|ชวน|ผลตอบแทน)|"
+         r"(?:อีเมล|ข้อความ|ไลน์)[^\n]{0,20}?(?:เปลี่ยน|แจ้ง)(?:เลข)?บัญชี(?:ใหม่)?|เปลี่ยนเลขบัญชี(?:ใหม่)?[^\n]{0,16}?(?:ตามอีเมล|ทางอีเมล|ทางไลน์)|"
+         r"บัญชี(?:ที่)?ปลอดภัย|(?:เจ้าหน้าที่|ตำรวจ|ธนาคาร|สรรพากร|DSI)[^\n]{0,16}?โทร[^\n]{0,24}?(?:ย้ายเงิน|โอนเงิน|โอน)|"
+         r"(?:โอน|จ่าย)(?:ค่า)?(?:ประกัน|มัดจำ|สมัคร|ค่าธรรมเนียม)(?:ก่อน)?[^\n]{0,16}?(?:งาน|สมัครงาน)|(?:สมัคร)?งาน(?:ออนไลน์)?[^\n]{0,20}?(?:โอน|จ่าย)(?:ค่า)?(?:ประกัน|มัดจำ|สมัคร)|"
+         r"\bguarantee[ds]?\s+(?:\w+\s+){0,2}(?:returns?|profits?)\b|\b\d+(?:\.\d+)?\s?%\s+(?:daily|a\s+day|per\s+day|weekly)\s+returns?\b|"
+         r"\b(?:ceo|boss|director)\b[^\n]{0,30}?\b(?:wire|transfer|send)\b[^\n]{0,30}?\b(?:urgent\w*|new\s+(?:vendor|account))\b|"
+         r"\b(?:new|changed?)\s+(?:bank\s+)?account\s+(?:details|number)\b[^\n]{0,20}?\b(?:email|message)\b|\bsafe\s+account\b"),
+     "นี่คือรูปแบบที่มิจฉาชีพใช้บ่อยที่สุด (การันตีกำไรสูง · เปลี่ยนเลขบัญชีทางอีเมล · บัญชีปลอดภัย · ให้จ่ายก่อนได้งาน) "
+     "· หยุดโอนก่อน โทรกลับเบอร์ทางการที่หาเอง (ไม่ใช่เบอร์ในข้อความ) · สงสัยโทร 1441 ศูนย์ AOC ตลอด 24 ชม.",
+     "This matches the most common scam patterns (guaranteed high returns · bank details changed by email · a 'safe account' · pay first to get a job) "
+     "· stop before you transfer, call back on an official number you look up yourself (not the one in the message) · in Thailand call 1441 (24h)"),
+    # P1 จากรอบสุ่ม DriftZero ที่ 9: แผนที่เอาชีวิตและร่างกายคนไปเสี่ยงผ่านทุกด่าน (ฉีดยาโดยคนไม่มีใบอนุญาต · ยาหมดอายุ
+    # · ไม่ใส่ราวกันตก · ปิดเซ็นเซอร์ควัน · ทำงานกลางแดดไม่มีน้ำ · ตีนักเรียน · ขายนมผงหมดอายุ)
+    ("P1", "ชีวิตและร่างกายของคนมาก่อน", "Life and safety come first",
+     _rx(r"(?:ลด|ตัด|ใช้)\S{0,4}(?:เหล็ก(?:เสริม)?|ปูน|คอนกรีต|เสาเข็ม)[^\n]{0,16}?(?:น้อยกว่า|ต่ำกว่า|ถูกกว่า|ไม่ตรง)(?:แบบ|สเปก|ที่วิศวกร)|(?:ต่อเติม|สร้าง)[^\n]{0,20}?(?:ไม่ขออนุญาต|ไม่ให้วิศวกร|ไม่มีวิศวกร)|\b(?:cheaper|less|weaker)\s+(?:concrete|steel|rebar)\s+than\s+(?:the\s+)?(?:engineer|spec|design)\w*\b|ขับ\S{0,6}ต่อเนื่อง\s?(?:1[0-9]|[2-9]\d)\s?ชั่วโมง|ขับ[^\n]{0,20}?ไม่มีคน(?:สลับ|ผลัด)|(?:กิน|ใช้)\S{0,4}ยา(?:แก้ง่วง|ม้า|บ้า|กระตุ้น)\S{0,6}(?:ขับ|ทำงาน)|(?:บรรทุก|วิ่ง)\S{0,10}น้ำหนักเกิน|(?:เลื่อน|ไม่)\S{0,4}(?:เปลี่ยน|ซ่อม)\S{0,4}(?:เบรก|ยาง|พวงมาลัย)[^\n]{0,30}?(?:ทั้งที่|แม้|ดัง|สึก|ไม่ผ่าน)|(?:โบนัส|รางวัล|ค่าคอม)[^\n]{0,20}?ส่งเร็วกว่า\s?\d+\s?นาที|\bskip\s+(?:their\s+|the\s+)?rest\s+breaks?\b|\bbrakes?\s+failed\s+(?:the\s+)?inspection\b|\bkeep\s+(?:the\s+)?(?:bus|truck|van|vehicle)\s+running\b[^\n]{0,30}?\b(?:brakes?|failed|unsafe)\b|(?:อาหาร|กับข้าว)(?:ที่)?(?:เหลือ|ค้าง)\S{0,8}(?:มา)?(?:อุ่น)?\S{0,4}ขาย(?:ใหม่|ต่อ)|น้ำมัน\S{0,6}(?:ทอด)?ซ้ำ\S{0,8}(?:จน)?(?:ดำ|เหนียว|หลายวัน)|(?:เปลี่ยน|แก้|ปลอม|ติดใหม่)\S{0,6}(?:วัน)?(?:หมดอายุ|ผลิต)\S{0,10}(?:ฉลาก)?|(?:พนักงาน|คน)(?:ที่)?(?:ท้องเสีย|ป่วย|เป็นไข้|อาเจียน)[^\n]{0,10}?(?:ทำอาหาร|เข้าครัว|จับอาหาร)|(?:ใส่|ผสม)\S{0,4}(?:บอแรกซ์|ผงกรอบ|ฟอร์มาลีน|สีย้อมผ้า|สารกันบูดเกิน)|\b(?:relabel|re-?date|change\s+the\s+dates?\s+on)\b[^\n]{0,20}?\b(?:expired|old)\b|\b(?:expired|old)\s+(?:meat|food|milk)\b[^\n]{0,16}?\bnew\s+dates?\b|\braw\s+(?:chicken|meat|fish)\s+(?:next\s+to|above|on\s+top\s+of)\s+(?:the\s+)?(?:salads?|ready|cooked)\b|\bsick\s+(?:staff|cooks?|workers?)\s+(?:keep\s+)?(?:cooking|handling\s+food)\b|(?:รถรับส่ง|รถโรงเรียน|รถตู้)[^\n]{0,24}?(?:ไม่|ไม่มี(?:ครู|คน)?)\S{0,6}(?:เช็ก|เช็ค|ตรวจ|นับ)\S{0,8}(?:เด็ก|นักเรียน)?[^\n]{0,10}?(?:ก่อน)?(?:ล็อก|(?<!เ)ปิด)?|(?:ไม่|ไม่ต้อง)\S{0,2}(?:ตรวจ|เช็ก|เช็ค)\S{0,4}ประวัติ(?:อาชญากรรม)?[^\n]{0,24}?(?:พนักงาน|ครู|พี่เลี้ยง|อาสา|คน)|(?:พี่เลี้ยง|ครู|ผู้ดูแล)\s?1\s?คน\S{0,6}(?:ดู|ดูแล)\S{0,4}(?:เด็ก|ผู้สูงอายุ|ผู้ป่วย)\s?(?:1[5-9]|[2-9]\d)\s?คน|(?:อยู่|ปล่อย)\S{0,6}(?:กับ)?(?:นักเรียน|เด็ก)\S{0,6}(?:ตามลำพัง|สองต่อสอง)[^\n]{0,10}?(?:ห้อง(?<!เ)ปิด|ในห้อง)|(?:มัด|ผูก|ล่าม)\S{0,6}(?:ผู้สูงอายุ|ผู้ป่วย|คนไข้|เด็ก)[^\n]{0,10}?(?:ไว้กับ|กับ)?(?:เตียง|เก้าอี้)|(?:สระ(?:ว่ายน้ำ)?|ชายหาด)[^\n]{0,16}?(?:ไม่มี|ไม่จ้าง|ตัด)\S{0,4}(?:ไลฟ์การ์ด|เจ้าหน้าที่ช่วยชีวิต)|\bwithout\s+background\s+checks?\b|\bno\s+background\s+checks?\b|\b(?:won'?t|will\s+not|doesn'?t|no)\s+(?:do\s+(?:a\s+)?)?(?:final\s+)?head\s?count\b|\bno\s+lifeguards?\b|\b(?:tie|strap|restrain)\s+(?:\w+\s+){0,2}(?:residents?|patients?|elderly|children)\s+to\s+(?:the\s+)?(?:beds?|chairs?)\b|(?:สายไฟ|ปลั๊ก|สวิตช์|หน้าปัด)\S{0,6}(?:ละลาย|ไหม้|ขาด|เปื่อย|ช็อต)[^\n]{0,30}?(?:ใช้)?ต่อ(?:ไป)?(?:ก่อน)?|(?:ใช้)\S{0,10}ต่อ(?:ไป)?[^\n]{0,24}?(?:สายไฟ|ปลั๊ก)\S{0,6}(?:ละลาย|ไหม้|ขาด|เปื่อย)|ปลั๊กพ่วง\S{0,10}(?:ต่อกัน|หลายตัว|ต่อพ่วง)[^\n]{0,20}?(?:เครื่องจักร|แอร์|เตา|หม้อต้ม|เครื่องทำน้ำอุ่น)|(?:ซ่อม|แก้)\S{0,4}(?:ไฟ|สายไฟ|ปลั๊ก)[^\n]{0,20}?(?:ยัง)?(?:เสียบ|ไม่ได้ถอด|ไม่ตัด)\S{0,4}(?:ปลั๊ก|ไฟ|เบรกเกอร์)|(?:ถังแก๊ส|แก๊ส)\S{0,6}(?:ที่)?รั่ว[^\n]{0,20}?(?:ใช้)?(?:ต่อ|ไปก่อน|จนกว่า)|(?:ไม่|ยังไม่)(?:ซ่อม|แก้)\S{0,6}(?:ทางหนีไฟ|ประตูหนีไฟ|บันไดหนีไฟ|ถังดับเพลิง)|\bkeep\s+using\s+(?:the\s+)?(?:frayed|melted|damaged|burnt)\s+(?:\w+\s+){0,2}(?:cords?|cables?|wires?|plugs?)\b|\b(?:not|won'?t|will\s+not)\s+(?:fix|repair)\s+(?:the\s+)?(?:broken\s+)?(?:fire\s+(?:exit|escape|alarm)|sprinklers?)\b|\b(?:keep\s+using|use)\s+(?:the\s+)?leaking\s+gas\b|(?:คลื่นความร้อน|อากาศร้อน|หน้าร้อน|ร้อนจัด|4\d\s?องศา)[^\n]{0,40}?(?:ไม่มีพัก|ไม่ให้พัก|ต่อเนื่อง\s?\d{1,2}\s?ชั่วโมง|กลางแจ้งตอนเที่ยง|(?<!เ)ปิดแอร์|(?<!เ)ปิดพัดลม)|(?:ทำงาน|ส่งของ|ทำ)\S{0,8}ต่อเนื่อง\s?(?:1[0-9]|[89])\s?ชั่วโมง\S{0,4}ไม่มี(?:พัก|เบรก)|(?:กีฬาสี|กิจกรรม|ซ้อม|เดินแถว)[^\n]{0,16}?กลางแจ้ง[^\n]{0,12}?(?:ตอน)?เที่ยง[^\n]{0,20}?(?:4\d\s?องศา|ร้อนจัด)|(?:บ้านพักคนชรา|ผู้สูงอายุ|คนไข้|ผู้ป่วย|เด็กเล็ก)[^\n]{0,20}?(?<!เ)ปิด(?:แอร์|พัดลม)|(?<!เ)ปิด(?:แอร์|พัดลม)[^\n]{0,20}?(?:บ้านพักคนชรา|ผู้สูงอายุ|คนไข้|ผู้ป่วย|เด็กเล็ก|ช่วงหน้าร้อน)|(?<!เ)ปิด\S{0,4}พัดลมระบายอากาศ|\b(?:work|working)\s+through\s+the\s+heat\s*wave\b[^\n]{0,30}?\bno\s+(?:extra\s+)?breaks?\b|\b(?:switch|turn)\s+off\s+(?:the\s+)?(?:AC|air\s*con\w*)\b[^\n]{0,40}?\bheat\s*wave\b|\bheat\s*wave\b[^\n]{0,40}?\b(?:switch|turn)\s+off\s+(?:the\s+)?(?:AC|air\s*con\w*)\b|(?:ไม่มี|ไร้)ใบ(?:อนุญาต|ประกอบวิชาชีพ)[^\n]{0,20}?(?:ฉีด|จ่ายยา|สั่งยา|ผ่าตัด|รักษา|ทำคลอด)|(?:ฉีด|จ่ายยา|สั่งยา|ผ่าตัด|รักษา)[^\n]{0,20}?(?:ไม่มี|ไร้)ใบ(?:อนุญาต|ประกอบวิชาชีพ)|"
+         r"(?:ใช้|จ่าย|ให้|ขาย)[^\n]{0,10}?(?:ยา|อาหาร|นมผง|นม|วัคซีน|เลือด)[^\n]{0,6}?(?:ที่)?(?:หมดอายุ|เลยวันหมดอายุ)|"
+         r"(?:ไม่|งด|ไม่ต้อง)(?:ใส่|ติด|ทำ|มี)[^\n]{0,4}?(?:ราวกันตก|ตาข่ายกันตก|เข็มขัดนิรภัย|หมวกนิรภัย)|"
+         r"(?:(?<!เ)ปิด|ถอด|ตัด|งด)[^\n]{0,4}?(?:เซ็นเซอร์|สัญญาณ|ระบบ)[^\n]{0,4}?(?:ควัน|ไฟไหม้|เตือนภัย|แก๊ส|ดับเพลิง)|ล็อกประตูหนีไฟ|"
+         r"(?:กลางแดด|ร้อนจัด|4\d\s?องศา)[^\n]{0,24}?(?:ไม่มีน้ำ|ไม่ให้พัก|ห้ามพัก)|"
+         r"(?:ฉีด|พ่น)\S{0,4}(?:ยาฆ่าแมลง|สารเคมี|ยาปราบศัตรูพืช)[^\n]{0,16}?(?:คน(?:งาน)?ยัง(?:อยู่|ทำงาน)|ตอนมีคน)|"
+         r"(?:ตี|ทำร้าย|ลงโทษทางกาย)\S{0,6}(?:นักเรียน|เด็ก)|ลงโทษ\S{0,10}(?:นักเรียน|เด็ก)\S{0,6}(?:ด้วยการ)?ตี|"
+         r"(?:นักเรียน|เด็ก|ผู้ป่วย|คนไข้|ผู้สูงอายุ)[^\n]{0,30}?(?:แอร์เสีย|ร้อนจัด)[^\n]{0,24}?(?:เปิดไม่ได้|ทั้งวัน)|"
+         r"ยาปฏิชีวนะ\S{0,8}(?:ผสม|ใส่)\S{0,4}อาหาร|"
+         r"\bunlicensed\s+(?:staff|people|workers?|nurses?)\b(?:(?!\bnever\b|\bnot\b|n't|\bno\b)[^\n]){0,20}?\b(?:prescrib|inject|treat|operat|diagnos)\w*|"
+         r"\b(?:sell|use|give)\s+(?:\w+\s+){0,2}expired\s+(?:medicine|drugs?|formula|food|vaccines?)\b|"
+         r"\b(?:disable|turn\s+off|remove)\s+(?:the\s+)?(?:smoke|fire|gas)\s+(?:sensors?|alarms?|detectors?)\b|"
+         r"\bno\s+(?:guard\s*rails?|harness(?:es)?|fall\s+protection)\b"),
+     "แผนนี้เอาชีวิตหรือร่างกายของคน (คนไข้ นักเรียน คนงาน ลูกค้า) ไปเสี่ยงเพื่อความเร็วหรือต้นทุน — ความเสียหายแบบนี้ชดเชยไม่ได้ "
+     "· หาทางที่ช้าลงหรือแพงขึ้นแต่ปลอดภัย และหยุดงานส่วนนั้นจนกว่าจะปลอดภัย",
+     "This puts people's lives or bodies (patients, students, workers, customers) at risk for speed or cost — that kind of harm can't be undone "
+     "· find the slower or costlier way that is safe, and pause that part until it is"),
     ("E2", "Waterline — เส้นที่ห้ามต่ำกว่า", "Waterline — the floor you must not cross",
-     _rx(r"เงินสำรองทั้งหมด|ใช้เงินสำรอง(?:จน)?หมด|ทุ่มหมดหน้าตัก|หมดหน้าตัก|เทหมดตัว|all[- ]in|ใช้เงินสดทั้งหมด|เงินสดเหลือไม่ถึง|"
-         r"กู้เต็มวงเงิน|จำนอง(?:ทั้งหมด|ทุกอย่าง)|ค้ำประกันส่วนตัว|เอาบ้านไปค้ำ|ขายสินทรัพย์หลัก|ขายโรงงาน|ขายกิจการ|"
+     _rx(r"todas las reservas|toda la reserva|toàn bộ (?:tiền )?dự trữ|全部储备|所有储备|모든 예비금|準備金を全部|เงินสำรองทั้งหมด|ใช้เงินสำรอง(?:จน)?หมด|ทุ่มหมดหน้าตัก|หมดหน้าตัก|เทหมดตัว|all[- ]in|ใช้เงินสดทั้งหมด|เงินสดเหลือไม่ถึง|"
+         r"กู้เต็มวงเงิน|จำนอง(?:ทั้งหมด|ทุกอย่าง)|ค้ำประกันส่วนตัว|เอาบ้านไปค้ำ|(?:เอา)?(?:บ้าน|ที่ดิน|ที่นา|รถ)\S{0,4}(?:ไป)?(?:จำนอง|ขายฝาก)\S{0,10}(?:ลงทุน|เล่น|เทรด|คริปโต|หุ้น)|(?<!ไม่)(?<!ไม่ได้)(?:กู้|ยืม)\S{0,2}(?:เงิน)?นอกระบบ|เงินกู้นอกระบบ|หมุนเงินกู้|(?<!never use )(?<!no )(?<!not use )(?:loan sharks?|payday loans?)|mortgage (?:the|our|my) (?:house|home)\S{0,10}\s+(?:to|for)\s+(?:invest|crypto|trade|stocks)|ขายสินทรัพย์หลัก|ขายโรงงาน|ขายกิจการ|"
          r"ปลดคน(?:จน)?เหลือไม่พอ|เลิกจ้างทีมหลัก|ผิดนัดชำระ|ใบอนุญาต(?:ถูก)?(?:เพิกถอน|ระงับ)|ละเมิดสัญญา|"
          r"เสียความเชื่อใจของลูกค้า|ทำลายชื่อเสียง|ย้อนกลับไม่ได้|irreversible|point of no return|bet the company|"
          r"entire (?:cash )?reserves?|max(?:imum)? (?:out )?(?:the )?credit line|personal guarantee|default on|sell (?:the )?core assets?|"
@@ -189,7 +225,7 @@ _OWNER = _rx(r"ผู้รับผิดชอบ|รับผิดชอบ�
 _DRIFT = _rx(r"ทุกวัน|ต่อวัน|รายวัน|วันละ|/วัน|ต่อเดือน|เดือนละ|/เดือน|ทีละนิด|สะสม|เพิ่มขึ้นเรื่อยๆ|ลดลงเรื่อยๆ|per day|daily|per month|accumulat|gradually")
 _NUM = re.compile(r"\d")
 # เป็นเรื่องตัดสินใจขององค์กร/โครงการจริงไหม — ไม่ใช่ ให้แนะนำโหมดปรึกษา
-_ORG = _rx(r"บริษัท|องค์กร|โครงการ|โรงงาน|ธุรกิจ|ร้าน|สาขา|นโยบาย|ชุมชน|หน่วยงาน|ทีม|พนักงาน|ลูกค้า|ซัพพลายเออร์|งบประมาณ|ลงทุน|ผลิต|"
+_ORG = _rx(r"empresa|negocio|tienda|clientes|empleados|công ty|cửa hàng|khách hàng|nhân viên|公司|客户|员工|店铺|회사|가게|직원|고객|会社|店舗|従業員|顧客|คลินิก|โรงพยาบาล|โรงเรียน|มหาวิทยาลัย|ครู|นักเรียน|คนไข้|ผู้ป่วย|ฟาร์ม|ไร่|แปลง|คนงาน|ไซต์งาน|ผู้รับเหมา|มูลนิธิ|สมาคม|สหกรณ์|วัด|เทศบาล|อบต|clinic|farm|charity|foundation|nonprofit|ngo|contractor|drivers?|patients?|students?|board|investors?|บริษัท|องค์กร|โครงการ|โรงงาน|ธุรกิจ|ร้าน|สาขา|นโยบาย|ชุมชน|หน่วยงาน|ทีม|พนักงาน|ลูกค้า|ซัพพลายเออร์|งบประมาณ|ลงทุน|ผลิต|"
            r"company|organi[sz]ation|project|factory|business|policy|team|staff|budget|invest|supplier|community|plant|"
            r"\bstores?\b|\bshops?\b|branch|employee|customer|startup|school|hospital|department|government|firm|launch|hire|hiring|layoff|"
            # ผู้ใช้จริงคนแรกถามว่า "spend 10k on facebook ads" แล้วโดนบอกว่า "ดูเหมือนเป็นเรื่องส่วนตัว" — งานขาย/การตลาดก็คือการตัดสินใจของกิจการ
@@ -225,16 +261,24 @@ def _money_en(v) -> str:
     return f"{v:,.0f}"
 
 
+@functools.lru_cache(maxsize=128)
+def _read(text: str) -> tuple:
+    """อ่านข้อความด้วยตัวจับหลักครั้งเดียว แล้วใช้ซ้ำ — เดิม DriftZero เรียกซ้ำ 2-3 รอบต่อข้อความ
+    (ข้อความยาว 4,000 ตัวอักษรใช้เวลาถึง 1.7 วินาที) คืนเป็น tuple ที่แก้ไม่ได้ กันไม่ให้ผลในแคชถูกแก้โดยไม่ตั้งใจ"""
+    from core.kernel_voice import assess
+    a = assess(text)
+    return (bool(a.get("crisis")), tuple(a.get("topics") or ()), a.get("text_risk", 0))
+
+
 def _danger(text: str) -> tuple[bool, bool]:
     """(วิกฤตของคน, เหตุอันตรายตอนนี้)
     วิกฤตของคน (คิดทำร้ายตัวเอง) = ไม่ใช่เวลาตรวจด่าน ส่งไปหาความช่วยเหลือ
     เหตุอันตราย (สารเคมีรั่ว ไฟไหม้ คนเจ็บ) = ยังตรวจด่านได้ แต่ต้องโชว์เบอร์ฉุกเฉินก่อน — เดิม "สารเคมีรั่วในไลน์ผลิต"
     ถูกตัดไปเป็นเรื่องด่วนทั้งก้อน เลยไม่เห็นด่าน K12 Stop the line ที่ตรงที่สุด"""
     try:
-        from core.kernel_voice import assess
-        a = assess(text)
-        crisis = bool(a.get("crisis")) or "crisis" in (a.get("topics") or [])
-        return crisis, (not crisis and a.get("text_risk", 0) >= 85)
+        crisis_flag, topics, risk = _read(str(text or ""))
+        crisis = crisis_flag or "crisis" in topics
+        return crisis, (not crisis and risk >= 85)
     except Exception:
         return False, False
 
@@ -259,7 +303,11 @@ def parse_numbered(answer: str) -> dict[int, str]:
         if int(m.group(1)) == want:
             cuts.append((want, m.start(), m.end())); want += 1
     if not cuts or cuts[0][1] != 0:
-        return {}
+        tagged = list(re.finditer(r"(?:^|\s)ข้อ\s*(\d{1,2})\s*[).:\-]?\s*", a))   # "ข้อ 2 ขั้นต่ำ 2 แสน ข้อ 4 ผมเอง"
+        if not tagged or tagged[0].start() != 0:
+            return {}
+        return {int(m.group(1)): a[m.end():(tagged[i + 1].start() if i + 1 < len(tagged) else len(a))].strip(" ,;\n")
+                for i, m in enumerate(tagged) if a[m.end():(tagged[i + 1].start() if i + 1 < len(tagged) else len(a))].strip(" ,;\n")}
     out = {}
     for i, (n, _, end) in enumerate(cuts):
         stop = cuts[i + 1][1] if i + 1 < len(cuts) else len(a)
@@ -269,21 +317,68 @@ def parse_numbered(answer: str) -> dict[int, str]:
     return out
 
 
-def answered_keys(answer: str, prior_keys) -> set[str]:
-    """คำถามรอบก่อนข้อไหนที่ผู้ใช้ตอบแล้ว — ตอบแบบเป็นข้อ จับคู่ตามลำดับ · ถามข้อเดียวแล้วตอบเฉยๆ = ตอบข้อนั้น"""
+# คำตอบบอกตัวเองว่าเป็นคำตอบของข้อไหน — คนจริงข้ามข้อ ตอบทีละข้อ หรือเล่ารวดเดียว ("ขั้นต่ำ 2 แสน" = เส้นขั้นต่ำ ไม่ว่าจะอยู่ข้อไหน)
+_SIGNAL = (
+    ("floor", _rx(r"ขั้นต่ำ|อย่างน้อย|ไม่ต่ำกว่า|ห้ามต่ำกว่า|ต้องเหลือ|at least|minimum|floor|must not (?:go |fall )?below")),
+    ("dhd", _rx(r"วันละ|ต่อวัน|เดือนละ|ต่อเดือน|/วัน|/เดือน|per day|a day|daily|per month|a month|monthly")),
+    ("current", _rx(r"ตอนนี้มี|มีเงิน(?:สด)?|เงินสด(?:คงเหลือ)?|คงเหลือ|on hand|cash balance|we have|i have")),
+    ("owner", _rx(r"ผมเอง|ฉันเอง|หนูเอง|ตัวเอง|เจ้าของ|รับผิดชอบ|ผู้จัดการ|หัวหน้า|บอร์ด|หุ้นส่วน|ผู้อนุมัติ|\bme\b|myself|\bi am\b|\bi'?ll\b|\bowner\b|\bmanager\b|\bboard\b|\bceo\b|\bfounder\b")),
+    ("downside", _rx(r"ถ้าพลาด|ถ้าล้ม|เสีย(?:เงิน|ลูกค้า|ชื่อ|หาย)?|ขาดทุน|เจ๊ง|ปิดร้าน|\blose\b|\blost\b|worst|\bfail")),
+)
+_DONT_KNOW = re.compile(r"^(?:ไม่รู้|ไม่แน่ใจ|ไม่ทราบ|ยังไม่รู้|ไม่ได้จด|(?i:i\s+don'?t\s+know|not\s+sure|no\s+idea))", re.I)
+
+
+def _classify(part: str, keys) -> str | None:
+    for k, rx in _SIGNAL:
+        if k in keys and rx.search(part or ""):
+            return k
+    return None
+
+
+def assign(answer: str, prior_keys) -> dict:
+    """จับคู่คำตอบกับคำถาม: ดูเนื้อหาก่อน (ขั้นต่ำ · วันละ · ผมเอง) แล้วค่อยใช้ลำดับเลขข้อ"""
     keys = [k for k in (prior_keys or []) if k in ASK_KEYS]
-    parts = parse_numbered(answer)
+    a = str(answer or "").strip()
+    out = {}
+    parts = parse_numbered(a)
     if parts:
-        return {keys[n - 1] for n in parts if 0 < n <= len(keys)}
-    if len(keys) == 1 and str(answer or "").strip():
-        return {keys[0]}
-    return set()
+        for n, v in sorted(parts.items()):
+            left = [k for k in keys if k not in out]
+            pos = keys[n - 1] if 0 < n <= len(keys) and keys[n - 1] not in out else None
+            k = _classify(v, left)
+            # ข้อ "เล่าเพิ่ม ใครทำอะไร" ตอบว่า "me and my partner" ก็ถูกข้อแล้ว — ย้ายไปข้ออื่นเฉพาะเมื่อเป็นตัวเลข/ผลเสียชัดๆ
+            if pos and (k is None or k == pos or (pos == "detail" and k == "owner")):
+                k = pos
+            if k:
+                out[k] = v
+        return out
+    if not a or _DONT_KNOW.match(a):
+        return out
+    if len(keys) == 1:
+        return {keys[0]: a}
+    if re.fullmatch(r"[\d,.\s]+(?:พันล้าน|ล้าน|แสน|หมื่น|พัน|บาท|[kKmM])?\s*(?:บาท)?", a):   # ตอบตัวเลขเปล่าๆ = ข้อตัวเลขข้อแรกที่ถามอยู่
+        k = next((k for k in keys if k in ("floor", "current")), None)
+        return {k: a} if k else {}
+    hits = sorted((m.start(), k) for k, rx in _SIGNAL if k in keys for m in [rx.search(a)] if m)
+    seen = []
+    for pos, k in hits:
+        if k not in [x for _, x in seen]:
+            seen.append((pos, k))
+    for i, (pos, k) in enumerate(seen):                       # เล่ารวดเดียว: ตัดเป็นช่วงตามสัญญาณที่เจอ
+        start = 0 if i == 0 else pos
+        stop = seen[i + 1][0] if i + 1 < len(seen) else len(a)
+        out[k] = a[start:stop].strip(" ,;")
+    return out
+
+
+def answered_keys(answer: str, prior_keys) -> set[str]:
+    """คำถามรอบก่อนข้อไหนที่ผู้ใช้ตอบแล้ว"""
+    return set(assign(answer, prior_keys))
 
 
 def distress(text: str) -> bool:
     try:
-        from core.kernel_voice import assess
-        return bool(_DISTRESS & set(assess(text).get("topics") or []))
+        return bool(_DISTRESS & set(_read(str(text or ""))[1]))
     except Exception:
         return False
 
@@ -354,7 +449,7 @@ ABOUT_TEXT = {
 
 def is_about(text: str) -> bool:
     t = str(text or "").strip()
-    return len(t) <= 80 and bool(_ABOUT.search(t)) and not parse_numbered(t)
+    return len(t) <= 80 and bool(_ABOUT.search(t)) and not parse_numbered(t) and not _SINKING.search(t)
 
 
 def about(prior: dict | None = None) -> dict:
@@ -371,19 +466,30 @@ def follow_up(prior_text: str, prior_keys, answer: str) -> dict:
     answer = str(answer or "").strip()[:4000]
     if is_about(answer):
         return about(audit(prior_text))
-    got = answered_keys(answer, prior_keys)
+    if _danger(answer)[0]:                       # คำตอบรอบต่อเป็นเรื่องชีวิต ("อยากตายเลย") — ช่วยเหลือฉุกเฉินมาก่อนทุกอย่าง
+        return audit(answer)
+    if _CANCEL.search(answer):
+        return cancelled(prior_text)
+    if list(prior_keys or []) == ["dhd"] and sinking(prior_text):
+        return steady_runway(prior_text, answer)
+    pairs = assign(answer, prior_keys)
+    got = set(pairs)
+    skipped = None
+    if not pairs and _DONT_KNOW.match(answer.strip()):
+        keys_left = [k for k in (prior_keys or []) if k in ASK_KEYS]
+        if keys_left:
+            skipped = keys_left[0]                # "ไม่รู้" = ข้ามข้อนั้นไปก่อน ไม่ถามซ้ำวนไม่จบ
+            got.add(skipped)
     parts = parse_numbered(answer)
     body = " ".join(parts.values()) if parts else answer
-    keys = [k for k in (prior_keys or []) if k in ASK_KEYS]
-    if parts:
-        lines = [f"{LABELS[keys[n - 1]]}: {v}" for n, v in sorted(parts.items()) if 0 < n <= len(keys)]
-    elif len(keys) == 1 and answer:
-        lines = [f"{LABELS[keys[0]]}: {answer}"]
-    else:
-        lines = [answer]
+    lines = [f"{LABELS[k]}: {v}" for k, v in pairs.items()] if pairs else [answer]
+    if skipped:
+        lines = [f"{LABELS[skipped]}: (ยังไม่ทราบ)"]       # เก็บไว้ในเรื่อง รอบต่อไปจะได้ไม่ถามข้อนี้ซ้ำ
     lines = [" ".join(x.split()) for x in lines if x]              # หนึ่งคำตอบ = หนึ่งบรรทัด
     r = audit((prior_text + "\n" + "\n".join(lines)).strip(), answered=got)
     r["answered"] = sorted(got)
+    if skipped:
+        r["skipped"] = skipped
     if r["verdict"] != "urgent" and distress(body):
         r["note"] = {"th": "ฟังดูเหมือนคุณเองกำลังลำบากเรื่องนี้อยู่ — DriftZero ตรวจการตัดสินใจขององค์กร "
                            "ส่วนเรื่องเงิน ที่พัก หรือความเครียดของตัวเอง โหมดปรึกษาช่วยได้ตรงกว่า ลองเล่าที่นั่นได้เลยนะคะ",
@@ -402,16 +508,201 @@ def _answered_before(text: str) -> set[str]:
 
 
 # ด่านที่ดูเฉพาะตัวแผน (ไม่ดูคำตอบข้อ "ถ้าพลาด") — คนที่ตอบตรงๆ ว่าอาจเสียอะไรต้องไม่โดนหยุดเพราะความซื่อสัตย์
-_PLAN_ONLY = {"H1", "S1", "S2", "A1", "L1", "L2", "G1"}
+_PLAN_ONLY = {"H1", "S1", "S2", "A1", "L1", "L2", "G1", "P1", "F1"}
 # คำปฏิเสธนำหน้า: "จะไม่ขายข้อมูลลูกค้า" "ห้ามจ่ายใต้โต๊ะ" "we will never sell customer data" — เป็นนโยบายที่ดี ไม่ใช่สิ่งที่ต้องหยุด
 _NEG_BEFORE = re.compile(r"(?:ไม่|ห้าม|ไม่มีการ|ไม่ยอม|ปฏิเสธ|เลิก|หยุด|ต่อต้าน|ป้องกัน(?:การ)?)\s*(?:\S{0,6})?\s*$|"
                          r"(?i:\b(?:not|never|no|won'?t|don'?t|do\s+not|will\s+not|refuse\s+to|stop|avoid|prevent|against|bans?|banned|forbids?|forbidden|prohibits?|prohibited|zero\s+tolerance\s+(?:for|on))\b[\w\s'-]{0,12}$)")
+
+
+_TREATED = re.compile(r"บำบัด|ผ่านการบำบัด|ที่มีใบอนุญาต|ได้รับอนุญาต|ได้มาตรฐาน|แทนการเผา|(?i:\btreat(?:ed|ment)\b|\blicensed\b|\binstead\s+of\s+burning\b)")
+_ENV_WORD = re.compile(r"น้ำ|คลอง|แม่น้ำ|กาก|ขยะ|สาร|เผา|ตอซัง|(?i:waste|water|river|burn|tailings|chemical)")
 
 
 def _negated(text: str, m) -> bool:
     before = text[max(0, m.start() - 16):m.start()]
     # คำปฏิเสธที่อยู่ในตัวรูปประโยคเอง ("ไม่จ่ายค่าโอที" "โดยไม่ขอความยินยอม") คือสิ่งที่ผิด ไม่ใช่การปฏิเสธการทำผิด
     return bool(_NEG_BEFORE.search(before)) and not re.match(r"(?:ไม่|ยังไม่|โดยไม่|no\b|without\b|not\b)", m.group(0), re.I)
+
+
+_CANCEL = re.compile(r"^(?:ขอ)?(?:ยกเลิก|ไม่ทำแล้ว|เลิกคิด|ไม่เอาแล้ว|พอแล้ว)|ไม่ทำแล้ว|(?i:^(?:cancel|never\s?mind|forget\s+it)\b|\bnot\s+doing\s+it\b|\bwon'?t\s+do\s+it\b)")
+
+
+def cancelled(prior_text: str) -> dict:
+    """ผู้ใช้เปลี่ยนใจไม่ทำ — การไม่ทำก็เป็นการตัดสินใจที่ดีได้ ไม่ถามต่อ"""
+    msg = {"th": "ได้เลยค่ะ การตัดสินใจไม่ทำก็เป็นการตัดสินใจที่ดีได้เหมือนกัน — ถ้าวันไหนอยากกลับมาคิดใหม่ เล่ามาได้เสมอนะคะ",
+           "en": "Of course — choosing not to do it can be a good decision too. If you want to think it through again, just tell me any time."}
+    return {"text": "", "verdict": "pass", "talk": False, "gates": [], "sop": [], "asks": [], "emergency": False,
+            "brief": None, "waterline": None, "note": None, "summary": msg, "lyla": msg, "cancelled": True}
+
+
+def steady_runway(prior_text: str, answer: str) -> dict:
+    """รอบต่อของ "ตั้งหลักก่อน": คำนวณว่าเงินที่เหลือพาไปได้กี่วัน แล้วไม่ถามอะไรเพิ่ม"""
+    from ENGINE.waterline_gauge import gauge
+    wl = gauge(prior_text)
+    r = steady(prior_text, wl)
+    r["asks"] = []
+    r["answered"] = ["dhd"]
+    cur, out = wl.get("current"), _daily_out(answer)
+    inflow = not re.search(r"ไม่มี(?:เงิน)?เข้า|(?i:\bnothing\s+(?:is\s+)?coming\s+in|no\s+(?:money|income)\s+(?:is\s+)?coming)", answer or "")
+    if cur and out:
+        days = int(cur // out)
+        r["runway_days"] = days
+        th = f"ด้วยเงินออกวันละ {_money(out)} เงิน {_money(cur)} ที่เหลือพาไปได้ราว {days} วัน"
+        en = f"At {_money_en(out)} going out a day, the {_money_en(cur)} you have left lasts about {days} day{'' if days == 1 else 's'}"
+        if not inflow:
+            th += " และตอนนี้ยังไม่มีเงินเข้า — ข้อ 1–3 ข้างล่างคือสิ่งที่ยืดเวลานี้ได้มากที่สุด เริ่มวันนี้เลยนะคะ"
+            en += ", with nothing coming in yet — steps 1–3 below are what stretch that time the most. Start today."
+        else:
+            th += " — ข้อ 1–3 ข้างล่างช่วยยืดเวลานี้ได้ เริ่มวันนี้เลยนะคะ"
+            en += " — steps 1–3 below help stretch that. Start today."
+    elif cur and _due(answer):
+        due = _due(answer)
+        left = cur - due
+        r["after_due"] = left
+        if left >= 0:
+            th = (f"ถ้าจ่าย {_money(due)} ตามที่ต้องจ่าย จะเหลือ {_money(left)} — กันเงินก้อนนี้ไว้ก่อนเลย "
+                  "แล้วใช้ข้อ 1–3 ข้างล่างหาทางให้เงินที่เหลือพอไปอีกนิดนะคะ")
+            en = (f"If you pay the {_money_en(due)} that's due, {_money_en(left)} is left — set that payment aside first, "
+                  "then use steps 1–3 below to stretch the rest.")
+        else:
+            th = (f"ที่ต้องจ่าย {_money(due)} มากกว่าเงินที่มี {_money(cur)} อยู่ {_money(-left)} — "
+                  "รีบคุยกับคนที่จะเก็บเงิน (เจ้าของที่ ธนาคาร) ตอนนี้เลย ขอแบ่งจ่ายหรือเลื่อนก่อนถึงวันครบกำหนด ข้อ 3 ข้างล่างค่ะ")
+            en = (f"What's due ({_money_en(due)}) is {_money_en(-left)} more than you have ({_money_en(cur)}) — "
+                  "talk to whoever you owe (landlord, bank) now and ask to split or delay before the due date (step 3 below).")
+    else:
+        th = "ขอบคุณที่เล่าค่ะ — ข้อ 1–3 ข้างล่างคือสิ่งที่ช่วยยืดเวลาได้มากที่สุด เริ่มจากข้อ 1 วันนี้เลยนะคะ"
+        en = "Thank you for telling me — steps 1–3 below are what buy you the most time. Start with step 1 today."
+    r["summary"] = {"th": th, "en": en}
+    return r
+
+
+# คนที่กำลังจะไม่ไหว ไม่ใช่องค์กรที่กำลังวางแผน — "ธุรกิจกำลังจะพัง เงินเหลือ 3000 กู้ใครก็ไม่ได้แล้ว กำลังล้ม"
+# เดิมโดนถาม "Waterline คือเท่าไหร่ · DHD · ใครเซ็นรับผิดชอบ" ทั้งที่บอกตัวเลขมาแล้ว และน้ำเสียงกำลังจะล้ม
+_SINKING = re.compile(r"se está hundiendo|a punto de quebrar|en quiebra|no puedo pagar|sắp phá sản|phá sản|không trả nổi|快倒闭|要倒闭|撑不下去|快破产|망하기 직전|망할 것 같|폐업 직전|倒産しそう|潰れそう|กำลัง(?:จะ)?(?:ล้ม|พัง|เจ๊ง|จม)|จะ(?:ล้ม|พัง|เจ๊ง)แล้ว|(?:ร้าน|ธุรกิจ|กิจการ|บริษัท|โรงงาน)\S{0,6}จะ(?:เจ๊ง|พัง|ล้ม)(?!\S{0,3}(?:ไหม|มั้ย|หรือเปล่า|ถ้า))|ไม่ไหวแล้ว|หมดทาง|ไม่รู้จะ(?:ทำ|ไป)(?:ยังไง|ไง|ไหน)|"
+                      r"กู้\S{0,6}(?:ไม่ได้|ไม่ผ่าน)|ไม่มีใครให้(?:ยืม|กู้)|ยืมใครก็ไม่ได้|ไม่เหลืออะไร|สิ้นหวัง|ไปต่อไม่ไหว|"
+                      r"(?i:\b(?:going\s+under|losing\s+everything|(?:can'?t|cannot)\s+(?:pay|borrow|keep\s+going)|"
+                      r"no\s+one\s+will\s+lend|don'?t\s+know\s+what\s+to\s+do|about\s+to\s+collapse|i'?m\s+(?:sinking|drowning|done))\b)")
+
+
+_MONEY_TALK = re.compile(r"negocio|tienda|dinero|dólares|cửa hàng|tiền|triệu|công ty|公司|店|钱|가게|돈|회사|お金|会社|เงิน|หนี้|ขาดทุน|กู้|ยืม|ค่าเช่า|เจ๊ง|ร้าน|กิจการ|ธุรกิจ|"
+                         r"[$฿€£]\s?\d|(?i:\b(?:money|debt|loan|lend|borrow|rent|dollars?|baht|cash|shop|store|restaurant|business|company|bills?|pay|wages?|salar(?:y|ies)|staff)\b)")
+_NO_MONEY = re.compile(r"เงินหมด|ไม่มีเงิน(?:เหลือ)?|ไม่เหลือเงิน|หมดตัว|(?i:\b(?:no\s+money\s+left|out\s+of\s+money|broke|nothing\s+left)\b)")
+_PER_DAY = re.compile(r"(?:วันละ|ต่อวัน|(?i:\b(?:per|a|each)\s+day\b))")
+
+
+def sinking(t: str) -> bool:
+    """คนที่กิจการ/การเงินกำลังจะล้ม — ต้องมีเรื่องเงินหรือกิจการด้วย ("ไม่ไหวแล้ว" เฉยๆ เป็นเรื่องใจ ให้ไปคุยกับ LYLA)"""
+    return bool(_SINKING.search(t or "")) and bool(_MONEY_TALK.search(t or ""))
+
+
+def only_heart(t: str) -> bool:
+    return bool(_SINKING.search(t or "")) and not _MONEY_TALK.search(t or "") and distress(t)
+
+
+_DUE = re.compile(r"(?:ค่าเช่า|ค่าไฟ|ค่าน้ำ|ค่าแรง|เงินเดือน|หนี้|ผ่อน|ต้องจ่าย|rent|wages?|loan|payment|bill)[^\d\n]{0,12}(?P<n>\d[\d,]*(?:\.\d+)?)\s*(?P<u>หมื่น|พัน|แสน|[kK](?![a-zA-Z]))?", re.I)
+
+
+def _due(answer: str):
+    """ "ค่าเช่า 6000 ต้องจ่ายสิ้นเดือน" → 6000 (ไม่นับถ้าเป็นอัตราต่อวัน) """
+    from ENGINE.waterline_gauge import _val
+    if _PER_DAY.search(answer or ""):
+        return None
+    m = _DUE.search(answer or "")
+    return _val(m.group("n"), m.group("u")) if m else None
+
+
+def _daily_out(answer: str):
+    """อ่าน "วันละ 500" · "500 ต่อวัน" · "$40 a day" → 500.0"""
+    from ENGINE.waterline_gauge import _val
+    num = re.compile(r"(?P<n>\d[\d,]*(?:\.\d+)?)\s*(?P<u>พันล้าน|ล้าน|แสน|หมื่น|พัน|[kK](?![a-zA-Z]))?")
+    for m in _PER_DAY.finditer(answer or ""):
+        after = num.search(answer[m.end():m.end() + 20])          # "วันละ 500"
+        before = list(num.finditer(answer[max(0, m.start() - 20):m.start()]))   # "500 ต่อวัน"
+        hit = after or (before[-1] if before else None)
+        if hit:
+            return _val(hit.group("n"), hit.group("u"))
+    return None
+
+
+def heart(t: str) -> dict:
+    """"ไม่ไหวแล้ว" ที่ไม่ใช่เรื่องเงินหรือกิจการ — ไม่ใช่งานของ DriftZero ชวนไปคุยกับ LYLA แทนการให้คำแนะนำเรื่องหนี้"""
+    msg = {"th": "ฟังดูเหนื่อยมากเลยนะคะ เรื่องนี้ไม่ต้องผ่านด่านอะไรเลย — มาคุยกับ LYLA ในโหมดปรึกษาได้เลย "
+                 "ถ้าหนักจนเริ่มคิดว่าไม่อยากอยู่ โทร 1323 ได้ 24 ชม. ฟรีค่ะ",
+           "en": "That sounds exhausting. This doesn't need any gates — come and talk it through with LYLA in Talk mode. "
+                 "If it gets so heavy you start thinking you don't want to be here, call 1323 in Thailand (24h, free)."}
+    return {"text": t[:4000], "verdict": "steady", "talk": True, "gates": [], "sop": [], "asks": [], "steps": [],
+            "emergency": False, "brief": None, "waterline": None, "note": None, "summary": msg}
+
+
+def steady(t: str, wl: dict) -> dict:
+    """ตั้งหลักก่อน: ใช้ตัวเลขที่เล่ามาแล้ว · บอกสิ่งที่ทำได้ทันที · ถามแค่ข้อเดียวด้วยภาษาธรรมดา"""
+    cur = wl.get("current")
+    broke = cur is None and bool(_NO_MONEY.search(t or ""))
+    have_th = f"เงิน {_money(cur)} ที่เหลืออยู่" if cur is not None else ("เวลาและคนที่ช่วยได้" if broke else "เงินที่เหลืออยู่")
+    have_en = f"the {_money_en(cur)} you have left" if cur is not None else ("your time and the people who can help" if broke else "what you have left")
+    steps = [
+        {"th": "หยุดเลือดก่อน: งดรายจ่ายใหม่ทุกอย่างที่ไม่ทำให้มีเงินเข้าภายใน 7 วัน",
+         "en": "Stop the bleeding first: pause every new cost that won't bring money in within 7 days"},
+        {"th": "แยกสิ่งที่ต้องจ่ายเป็น 3 กอง: ต้องจ่ายแน่ (ค่าแรง ค่าเช่าที่ทำกิน) · ขอเลื่อนได้ · หยุดได้เลย",
+         "en": "Sort what you owe into 3 piles: must pay (wages, the rent you trade from) · can ask to delay · can stop now"},
+        {"th": "โทรคุยเจ้าหนี้หรือธนาคารก่อนผิดนัด ขอพักชำระหรือปรับโครงสร้างหนี้ — คุยก่อนผิดนัดมักได้เงื่อนไขดีกว่าหลังผิดนัด",
+         "en": "Call your lenders or bank before you miss a payment and ask to pause or restructure — talking first usually gets better terms"},
+        {"th": "อย่ากู้นอกระบบมาอุดช่อง — ดอกเบี้ยแบบนั้นทำให้ล้มเร็วขึ้น ไม่ได้ช่วยให้รอด",
+         "en": "Don't fill the gap with loan sharks — that interest makes you fall faster, not survive"},
+        {"th": "ถ้าเครียดจนนอนไม่หลับ หรือเริ่มคิดว่าไม่อยากอยู่ โทร 1323 ได้ 24 ชม. ฟรี",
+         "en": "If the stress keeps you from sleeping, or you start thinking you don't want to be here, call 1323 in Thailand (24h, free)"},
+    ]
+    if broke:
+        ask = {"key": "dhd", "sop": 3, "th": "ตอนนี้มีอะไรที่ต้องจ่ายเร็วที่สุด และต้องจ่ายภายในกี่วัน — เริ่มจากเรื่องนั้นก่อนค่ะ",
+               "en": "What has to be paid soonest, and within how many days? We'll start there."}
+    else:
+      ask = {"key": "dhd", "sop": 3,
+             "th": f"ตอนนี้แต่ละวันมีเงินออกประมาณเท่าไหร่ และยังมีเงินเข้าบ้างไหม — จะได้ดูว่า{have_th}พาไปได้อีกกี่วัน",
+             "en": f"Roughly how much goes out each day, and is anything still coming in? Then we can see how many days {have_en} buys you"}
+    return {"text": t[:4000], "verdict": "steady", "talk": True, "gates": [], "sop": [], "asks": [ask], "steps": steps,
+            "emergency": False, "brief": None,
+            "waterline": dict(wl, show={"th": {k: _money(wl[k]) for k in ("floor", "current", "after")},
+                                        "en": {k: _money_en(wl[k]) for k in ("floor", "current", "after")}}),
+            "note": {"th": "เรื่องที่หนักขนาดนี้ คุยกับ LYLA ในโหมดปรึกษาได้ด้วยนะคะ ไม่ต้องแบกคนเดียว",
+                     "en": "Something this heavy — you can also talk it through with LYLA in Talk mode. You don't have to carry it alone."},
+            "summary": {"th": f"ตั้งหลักก่อนนะคะ — ยังไม่ต้องตอบเรื่องด่านหรือแผนใหญ่ {have_th}คือของมีค่าที่สุดตอนนี้ เริ่มจากรักษามันไว้",
+                        "en": f"Let's steady things first — no gates or big plans yet. {have_en[0].upper() + have_en[1:]} is the most valuable thing right now; start by protecting it."}}
+
+
+def gate_scan(text: str) -> list:
+    """ตรวจด่านจากตัวข้อความล้วน (ไม่เรียกตัวจับหลัก ไม่คำนวณ Waterline) — ใช้ร่วมกับสภา 6 เสียงและอริยสัจ 4
+    ทุกระบบจะได้มองจากหลักฐานชุดเดียวกัน ไม่ใช่ต่างคนต่างคิดเอง"""
+    t = str(text or "")
+    out = []
+    for gid, th, en, rx, why_th, why_en in GATES:
+        # H1 ดูเฉพาะ "แผน" ไม่ดูคำตอบข้อ "ถ้าพลาดจะเสียอะไร" — ผลเสียที่เล่ามาเป็นเรื่องสมมติ ไม่ใช่สิ่งที่ตั้งใจจะทำ
+        plan = _WORST_LINE.sub("", t) if gid in _PLAN_ONLY else t
+        m = rx.search(plan)
+        if m and gid in ("E1", "E2") and _TREATED.search(plan) and _ENV_WORD.search(m.group(0)):
+            m = None                      # "ติดเครื่องบำบัดน้ำเสียก่อนปล่อยลงคลอง" · "ส่งกากให้บริษัทกำจัดที่มีใบอนุญาต" — ทำถูกแล้ว
+        if m and gid in _PLAN_ONLY and _negated(plan, m):
+            m = next((x for x in rx.finditer(plan) if not _negated(plan, x)), None)
+        out.append({"id": gid, "name": {"th": th, "en": en}, "status": STOP if m else PASS,
+                    "hit": m.group(0) if m else "", "why": {"th": why_th, "en": why_en} if m else None})
+    return out
+
+
+# ดูข่าว/อ่านข่าวแล้วรู้สึก ไม่ใช่แผนที่จะทำ — "ดูข่าวไฟไหม้โรงงานแล้วสงสารคนงาน" เคยถูกนับว่าข้ามเส้น
+_WATCHING_NEWS = re.compile(r"(?:ดู|อ่าน|เห็น|ฟัง)ข่าว|ในข่าว|ข่าวว่า|(?i:\b(?:saw|read|watched|heard)\s+(?:the\s+|a\s+)?news\b|\bon\s+the\s+news\b)")
+_PRIORITY = ["F1", "P1", "K12", "E2", "E1", "L1", "L2", "G1", "S1", "S2", "A1", "K7", "H1"]
+_SHARED = set(_PRIORITY)
+_PLANNING = re.compile(r"(?:^|\s|ร้าน|บริษัท|โรงงาน|เรา|ผม|ฉัน)จะ|(?i:\b(?:we|i|they)(?:'ll|\s+will|\s+plan\s+to|\s+want\s+to)\b)")
+
+
+def stop_reasons(text: str) -> list:
+    """[(id, เหตุผลประโยคแรก th, en)] ของด่านที่ติด — สำหรับสภา 6 เสียงและอริยสัจ 4
+    นับเฉพาะเมื่อข้อความเป็น "แผนที่จะทำ" หรือเรื่ององค์กร — คนที่เล่าว่าหมดไฟหรือไม่ได้นอน ไม่ได้กำลังวางแผนอะไร"""
+    t = str(text or "")
+    if not (_ORG.search(t) or _PLANNING.search(t)) or _WATCHING_NEWS.search(t):
+        return []
+    hits = [(g["id"], re.split(r" — | · ", g["why"]["th"])[0].strip(), re.split(r" — | · ", g["why"]["en"])[0].strip())
+            for g in gate_scan(t) if g["status"] == STOP and g["id"] in _SHARED]
+    return sorted(hits, key=lambda h: _PRIORITY.index(h[0]))      # เรื่องหนักสุดมาก่อน — มิจฉาชีพ/ชีวิต ก่อนเรื่องรอง
 
 
 def audit(text: str, answered=()) -> dict:
@@ -429,16 +720,8 @@ def audit(text: str, answered=()) -> dict:
     from ENGINE.waterline_gauge import gauge
     wl = gauge(t)
     gates = []
-    for gid, th, en, rx, why_th, why_en in GATES:
-        # H1 ดูเฉพาะ "แผน" ไม่ดูคำตอบข้อ "ถ้าพลาดจะเสียอะไร" — ผลเสียที่เล่ามาเป็นเรื่องสมมติ ไม่ใช่สิ่งที่ตั้งใจจะทำ
-        # (ไม่งั้นคนที่มีเงินพอและตอบตรงๆ ว่าถ้าพลาดจะจ่ายค่าเช่าไม่ไหว จะโดนหยุดทั้งที่แผนยังอยู่เหนือเส้น)
-        plan = _WORST_LINE.sub("", t) if gid in _PLAN_ONLY else t
-        m = rx.search(plan)
-        if m and gid in _PLAN_ONLY and _negated(plan, m):
-            m = next((x for x in rx.finditer(plan) if not _negated(plan, x)), None)
-        g = {"id": gid, "name": {"th": th, "en": en}, "status": STOP if m else PASS,
-             "hit": m.group(0) if m else "", "why": {"th": why_th, "en": why_en} if m else None}
-        if gid == "E2":
+    for g in gate_scan(t):
+        if g["id"] == "E2":
             if wl["level"] == "below":                      # L0: ต่ำกว่าเส้นไม่ได้เด็ดขาด
                 g.update(status=STOP, hit=g["hit"] or f"{_money(wl['after'])} < {_money(wl['floor'])}",
                          why={"th": f"ใต้ระดับน้ำ (Below Water) — หลังตัดสินใจเหลือ {_money(wl['after'])} ต่ำกว่าเส้น {_money(wl['floor'])} "
@@ -453,6 +736,10 @@ def audit(text: str, answered=()) -> dict:
                                     "· Stop the line: pull the risk back before you reach it"})
         gates.append(g)
     stops = [g for g in gates if g["status"] == STOP]
+    if not answered and not stops and sinking(t):
+        return steady(t, wl)
+    if not answered and not stops and only_heart(t):
+        return heart(t)              # ไม่มีแผนเสี่ยงให้หยุด แต่คนกำลังจะล้ม — ตั้งหลักก่อน
 
     asks = []
     if len(t) < 40:
@@ -488,7 +775,7 @@ def audit(text: str, answered=()) -> dict:
     elif asks:
         verdict = "ask"
         sm_th = f"ยังไม่เจอด่านที่ติด แต่ข้อมูลยังไม่ครบ {len(asks)} ข้อ — ตอบในช่องพิมพ์ได้เลย จะพิมพ์เป็นข้อ (1 … 2 …) ก็ได้"
-        sm_en = f"No gate blocked yet, but {len(asks)} answer(s) are missing — reply below, numbered (1 … 2 …) is fine"
+        sm_en = f"No gate blocked yet, but {len(asks)} answer{' is' if len(asks) == 1 else 's are'} missing — reply below, numbered (1 … 2 …) is fine"
     else:
         verdict = "pass"
         sm_th = "ผ่านทุกด่านจากข้อมูลที่ให้มา — ยังต้องมีคนเซ็นรับผิดชอบ และตรวจหลังทำ (SOP 7)"
@@ -506,3 +793,57 @@ def audit(text: str, answered=()) -> dict:
                 "th": {k: _money(wl[k]) for k in ("floor", "current", "after")},
                 "en": {k: _money_en(wl[k]) for k in ("floor", "current", "after")}}),
             "summary": {"th": sm_th, "en": sm_en}}
+
+
+def lyla_voice(r: dict) -> dict:
+    """LYLA รัน DriftZero แล้วเล่าผลเอง — บรรทัดแรกเป็นภาษาคน ส่วนด่าน/SOP อยู่ในการ์ดข้างล่าง"""
+    v = r.get("verdict")
+    if r.get("cancelled"):
+        return r
+    if v in ("urgent", "steady", "about") or not isinstance(r, dict):
+        r["lyla"] = r.get("summary")
+        return r
+    stops = [g for g in r.get("gates") or [] if g.get("status") == STOP]
+    # เรื่องหนักสุดมาก่อน (มิจฉาชีพ ชีวิต เส้นขั้นต่ำ) — เดิมคนที่กำลังโดนหลอกได้ยินเหตุผลแรกว่า "มั่นใจเกินจริง"
+    stops.sort(key=lambda g: _PRIORITY.index(g["id"]) if g["id"] in _PRIORITY else len(_PRIORITY))
+    n = len(r.get("asks") or [])
+    wl = r.get("waterline") or {}
+    cur = wl.get("current")
+    seen_th = f" เห็นว่าตอนนี้มี {_money(cur)} นะคะ" if cur is not None else ""
+    seen_en = f" I can see you have {_money_en(cur)} right now." if cur is not None else ""
+    after, floor = wl.get("after"), wl.get("floor")
+    if v == "stop":
+        why = (stops[0].get("why") or {}) if stops else {}
+        first_th = re.split(r" — | · ", why.get("th") or "")[0].strip()
+        first_en = re.split(r" — | · ", why.get("en") or "")[0].strip()
+        if stops and stops[0]["id"] == "E2" and wl.get("level") == "below" and after is not None and floor is not None:
+            first_th = f"ถ้าทำตามนี้จะเหลือ {_money(after)} ต่ำกว่าเส้นขั้นต่ำที่ตั้งไว้ {_money(floor)} อยู่ {_money(floor - after)}"
+            first_en = f"doing this leaves {_money_en(after)}, {_money_en(floor - after)} below the floor you set ({_money_en(floor)})"
+        more_th = f" และอีก {len(stops) - 1} จุดในการ์ดข้างล่าง" if len(stops) > 1 else ""
+        more_en = f", plus {len(stops) - 1} more in the card below" if len(stops) > 1 else ""
+        th = (f"LYLA รัน DriftZero ให้แล้วค่ะ{seen_th} มีจุดที่ควรหยุดคิดก่อน: {first_th}{more_th} — "
+              "ไม่ได้แปลว่าห้ามทำนะคะ แต่ถ้าแก้ตรงนี้ก่อน จะไม่เสียสิ่งที่ย้อนกลับไม่ได้")
+        en = (f"I ran DriftZero for you.{seen_en} One thing to pause on: {first_en}{more_en}. "
+              "That doesn't mean don't do it — fixing this first keeps you from losing something you can't get back.")
+    elif v == "ask":
+        th = (f"LYLA รัน DriftZero ให้แล้วค่ะ{seen_th} ยังไม่เจออะไรที่ต้องหยุด แต่ขอรู้อีก {n} อย่างจะได้ดูให้แม่นขึ้น — "
+              "ตอบสั้นๆ เป็นข้อ (1 … 2 …) ก็พอค่ะ ไม่ต้องรู้ศัพท์ในการ์ดเลย")
+        en = (f"I ran DriftZero for you.{seen_en} Nothing needs stopping yet, but I need {n} more thing{'' if n == 1 else 's'} to check it properly — "
+              "short numbered answers (1 … 2 …) are perfect. You don't need to know the terms in the card.")
+    elif after is not None and floor is not None:
+        th = (f"LYLA รัน DriftZero ให้แล้วค่ะ ผ่านทุกด่าน — หลังตัดสินใจจะเหลือ {_money(after)} สูงกว่าเส้นขั้นต่ำ {_money(floor)} "
+              f"อยู่ {_money(after - floor)} การตัดสินใจยังเป็นของคุณนะคะ ใบสรุปข้างล่างคัดลอกไปเก็บได้เลย")
+        en = (f"I ran DriftZero for you — it passes every gate. After this you'd have {_money_en(after)}, "
+              f"{_money_en(after - floor)} above your floor of {_money_en(floor)}. The decision is still yours; you can copy the summary below.")
+    else:
+        th = ("LYLA รัน DriftZero ให้แล้วค่ะ ผ่านทุกด่านจากข้อมูลที่ให้มา — การตัดสินใจยังเป็นของคุณนะคะ "
+              "ใบสรุปข้างล่างคัดลอกไปเก็บหรือส่งต่อได้เลย แล้วกลับมาเช็คอีกครั้งหลังลงมือ")
+        en = ("I ran DriftZero for you — it passes every gate on what you've told me. The decision is still yours. "
+              "You can copy the summary below, and come back to check once it's under way.")
+    unknown = (r.get("text") or "").count("(ยังไม่ทราบ)")
+    if v == "pass" and unknown:
+        th += f" — แต่ยังมี {unknown} ข้อที่ยังไม่รู้ ผลนี้จึงยังไม่แน่นอน ถ้าได้ตัวเลขเมื่อไหร่ กลับมาเช็คอีกครั้งนะคะ"
+        en += f" — but {unknown} answer{' is' if unknown == 1 else 's are'} still unknown, so this isn't certain yet. Come back once you have them."
+        r["unknown"] = unknown
+    r["lyla"] = {"th": th, "en": en}
+    return r
