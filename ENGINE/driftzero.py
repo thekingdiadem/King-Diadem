@@ -687,6 +687,8 @@ def gate_scan(text: str) -> list:
     return out
 
 
+# ดูข่าว/อ่านข่าวแล้วรู้สึก ไม่ใช่แผนที่จะทำ — "ดูข่าวไฟไหม้โรงงานแล้วสงสารคนงาน" เคยถูกนับว่าข้ามเส้น
+_WATCHING_NEWS = re.compile(r"(?:ดู|อ่าน|เห็น|ฟัง)ข่าว|ในข่าว|ข่าวว่า|(?i:\b(?:saw|read|watched|heard)\s+(?:the\s+|a\s+)?news\b|\bon\s+the\s+news\b)")
 _PRIORITY = ["F1", "P1", "K12", "E2", "E1", "L1", "L2", "G1", "S1", "S2", "A1", "K7", "H1"]
 _SHARED = set(_PRIORITY)
 _PLANNING = re.compile(r"(?:^|\s|ร้าน|บริษัท|โรงงาน|เรา|ผม|ฉัน)จะ|(?i:\b(?:we|i|they)(?:'ll|\s+will|\s+plan\s+to|\s+want\s+to)\b)")
@@ -696,7 +698,7 @@ def stop_reasons(text: str) -> list:
     """[(id, เหตุผลประโยคแรก th, en)] ของด่านที่ติด — สำหรับสภา 6 เสียงและอริยสัจ 4
     นับเฉพาะเมื่อข้อความเป็น "แผนที่จะทำ" หรือเรื่ององค์กร — คนที่เล่าว่าหมดไฟหรือไม่ได้นอน ไม่ได้กำลังวางแผนอะไร"""
     t = str(text or "")
-    if not (_ORG.search(t) or _PLANNING.search(t)):
+    if not (_ORG.search(t) or _PLANNING.search(t)) or _WATCHING_NEWS.search(t):
         return []
     hits = [(g["id"], re.split(r" — | · ", g["why"]["th"])[0].strip(), re.split(r" — | · ", g["why"]["en"])[0].strip())
             for g in gate_scan(t) if g["status"] == STOP and g["id"] in _SHARED]
