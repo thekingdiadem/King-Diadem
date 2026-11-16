@@ -2406,6 +2406,9 @@ _PAST_OR_NOT_NOW = re.compile(r"(?i)\bused\s+to\b|\byears?\s+ago\b|\bno\s+longer
                               r"\bmov(?:ing|ed)\s+(?:house|out|abroad|to\s+a\s+new)\b|\bdonat|\bretir|\btrip\b|\bvacation\b|\bstudy\s+abroad\b")
 
 
+_RUN = re.compile(r"(.{1,8}?)\1{4,}", re.S)
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
     """ประเมินข้อความ — ถ้าผลต่ำ และข้อความสั้นมีหลายท่อน ลองหมุนลำดับท่อนแล้วใช้ผลที่สูงสุด
 
@@ -2413,6 +2416,10 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     กฎส่วนใหญ่เขียนตามลำดับ เหตุ → ผล จึงหลุด 72 จาก 232 ข้อเมื่อสลับลำดับ
     แก้ที่โครงสร้างแทนการเขียนรูปแบบกลับด้านทีละข้อ · ข้อความปกติสลับแล้วก็ยังปกติ จึงไม่เตือนเกิน
     """
+    if isinstance(text, str) and len(text) > 500:
+        # ข้อความยาวที่ซ้ำติดกันยาวๆ ("ไม่ไม่ไม่…" 1,500 ครั้ง) ทำให้กฎบางตัวช้ามาก (เคยเกือบ 2 วินาที)
+        # การพิมพ์ซ้ำเกิน 4 ครั้งเป็นแค่การเน้นย้ำ — ย่อเหลือ 3 ความหมายไม่เปลี่ยน · ข้อความสั้นไม่แตะเลย
+        text = _RUN.sub(r"\1\1\1", text)
     a = _assess_one(text, pattern)
     if not isinstance(text, str) or a.get("crisis") or (a.get("risk_shown") or 0) >= 60 or len(text) > 400:
         return a

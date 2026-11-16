@@ -458,6 +458,16 @@ _more("someone", "zh", r"存了(?:很多|好多)?药[^。！？\n]{0,15}(?:撑�
 _more("someone", "ko", r"(?:못\s*버틸|힘든)\s*날을?\s*위해\s*약을?\s*(?:모아|모았|쌓아)|헤어지면\s*죽겠다고[가-힯\s,]{0,25}헤어지자고")
 _more("someone", "es", r"guarda\s+pastillas\s+para\s+el\s+d[íi]a\s+que|(?:dijo|dec[íi]a)\s+que\s+se\s+matar[íi]a\s+si[^.!?\n]{0,40}(?:termin[ée]|lo\s+dej[ée]|la\s+dej[ée])")
 _more("someone", "vi", r"tích\s+(?:nhiều\s+)?thuốc[^.!?\n]{0,20}(?:không\s+chịu\s+nổi|không\s+muốn\s+sống)")
+# ภาษาอื่นของเว็บ (หลังรอบสุ่ม DriftZero): คนแปลกหน้าทุบประตูตอนดึก · สามีทำร้ายทุกคืน · เด็กกลืนถ่าน · แม่ล้มลุกไม่ได้
+# ฉบับไทย/อังกฤษจับได้แล้ว (รอบ 99) แต่ es vi zh ko ja หลุด 9 จาก 20
+_more("violence", "es", r"(?:alguien|un\s+desconocido|un\s+extraño|un\s+hombre)\s+(?:está\s+)?(?:golpeando|aporreando|pateando|forzando)\s+(?:mi|la)\s+puerta[^.!?\n]{0,30}(?:\d\s*(?:am|de\s+la\s+madrugada)|madrugada|noche|ahora)")
+_more("violence", "vi", r"(?:có\s+người\s+lạ|người\s+lạ|ai\s+đó)\s+(?:đang\s+)?(?:đập|gõ\s+mạnh|phá|đạp)\s+cửa[^.!?\n]{0,30}(?:giờ\s+sáng|nửa\s+đêm|ban\s+đêm|bây\s+giờ)")
+_more("violence", "zh", r"(?:半夜|深夜|凌晨)[^。！？\n]{0,10}(?:陌生人|有人)[^。！？\n]{0,6}(?:砸|踹|撬|拼命敲)[^。！？\n]{0,4}门|(?:老公|丈夫|男朋友|老婆)[^。！？\n]{0,8}(?:每天|天天|每晚|每天晚上|经常)[^。！？\n]{0,4}(?:打我|揍我|家暴)")
+_more("violence", "ko", r"(?:새벽|한밤중|밤에)[가-힯\s\d시]{0,12}(?:모르는\s*사람|낯선\s*사람|누군가)[가-힯\s]{0,8}(?:문을?\s*(?:두드려|두들겨|부수|발로\s*차|따려))")
+_more("violence", "ja", r"(?:夜中|深夜|真夜中)[^。！？\n]{0,10}(?:知らない人|誰か|見知らぬ人)[^。！？\n]{0,8}(?:ドア|玄関)[^。！？\n]{0,4}(?:叩い|叩か|蹴|壊そう)|(?:夫|旦那|彼氏|妻)[^。！？\n]{0,6}(?:毎晩|毎日|いつも)[^。！？\n]{0,6}(?:殴|叩い|蹴)")
+_more("medical", "vi", r"(?:con|bé|cháu)\s+(?:tôi\s+|mình\s+)?(?:nuốt|nuốt\s+phải)\s+(?:viên\s+)?pin")
+_more("medical", "ja", r"(?:母|父|祖母|祖父|おばあちゃん|おじいちゃん)[^。！？\n]{0,6}(?:転んで|倒れて)[^。！？\n]{0,6}(?:起き上がれない|立てない|動けない)")
+
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
