@@ -213,7 +213,7 @@ OVERDOSE = re.compile(
     r"(?:กิน|ดื่ม|กลืน)(?:ยาฆ่าแมลง|ยาเบื่อ|น้ำยา(?:ล้าง|ซัก|ฟอก)|สารพิษ|ยาพิษ|น้ำมัน|ผงซักฟอก|เม็ดซักผ้า|ไฮเตอร์|ทินเนอร์|น้ำยาถูพื้น)|เด็ก\S{0,8}?กลืน|\boverdos(?!\w*\s+(?:of|on)\s+(?:coffee|caffeine|sugar|cuteness|memes|love|anime|tiktok|carbs|chocolate|work))|"
     # เด็กกินของใช้ในบ้าน (รอบหาบั๊ก 21): "น้องกินแชมพูเข้าไป" เคยไม่ติด
     r"(?:เด็ก|ลูก|หลาน|น้อง|ทารก)\S{0,8}?(?:กิน|ดื่ม|กลืน|เลีย|อม)\S{0,6}?(?:น้ำยาบ้วนปาก|ยากันยุง|ลูกเหม็น|การบูร|น้ำมันก๊าด|เบนซิน|น้ำมันรถ|น้ำยาล้างเล็บ|ยาทาเล็บ|น้ำหอม|แอลกอฮอล์|เจลล้างมือ)|"
-    r"\btook (?:too many|a lot of|all (?:my|of my|the)|\d+) (?:pills|tablets|meds|sleeping pills)|"
+    r"\b(?:took|swallowed|downed) (?:too many|a lot of|all (?:my|of my|the)|\d+) (?:pills|tablets|meds|sleeping pills)|"
     # ระบุชื่อยา — "i took 30 paracetamol" เคยได้ Risk 0 · ตั้งแต่ 5 เม็ดขึ้นไป ("took 2 tylenol" กินตามปกติ ไม่นับ)
     r"\b(?:took|have taken|'ve taken|swallowed|downed)\s+(?:like\s+|about\s+|maybe\s+)?(?:[5-9]|[1-9]\d+)\s+(?:of (?:my|the|her|his) )?"
     r"(?:paracetamol|acetaminophen|tylenol|panadol|ibuprofen|advil|motrin|aspirin|xanax|valium|benadryl|melatonin|antidepressants?|painkillers?|sleeping pills?)\b",
@@ -1420,12 +1420,45 @@ _PANIC_TYPO = [(re.compile(a, re.I), b) for a, b in [
 ]]
 
 
+# รอบสุ่ม 107: จำนวนเม็ดที่สะกดเป็นคำ ("กินยาพาราไปยี่สิบเม็ด" "took twenty paracetamol") เคยได้ 0
+# เพราะตัวจับยาเกินขนาดรู้จักแต่ตัวเลข — แปลงเป็นตัวเลขเฉพาะตอนที่ตามด้วยหน่วยยาเท่านั้น
+_TH_DIGIT = {"หนึ่ง": 1, "เอ็ด": 1, "สอง": 2, "ยี่": 2, "สาม": 3, "สี่": 4, "ห้า": 5, "หก": 6, "เจ็ด": 7, "แปด": 8, "เก้า": 9}
+_TH_NUM = re.compile(r"((?:หนึ่ง|สอง|ยี่|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า)?สิบ(?:เอ็ด|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า)?"
+                     r"|ห้า|หก|เจ็ด|แปด|เก้า)(?=\s*(?:เม็ด|แคปซูล))")
+_EN_ONES = {"five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12,
+            "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19}
+_EN_TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60}
+_EN_NUM = re.compile(r"(?i)\b(twenty|thirty|forty|fifty|sixty)(?:[- ](one|two|three|four|five|six|seven|eight|nine))?\b"
+                     r"|\b(five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)\b"
+                     r"(?=\s+(?:of (?:my|the|her|his) )?(?:pills|tablets|meds|capsules|sleeping pills?|paracetamol|acetaminophen|tylenol|panadol|ibuprofen|advil|aspirin|xanax|valium|benadryl|painkillers?)\b)")
+_EN_SMALL = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9}
+
+
+def _th_num(m):
+    w = m.group(1)
+    if "สิบ" not in w:
+        return str(_TH_DIGIT[w])
+    a, _, b = w.partition("สิบ")
+    return str((_TH_DIGIT[a] if a else 1) * 10 + (_TH_DIGIT[b] if b else 0))
+
+
+def _en_num(m):
+    if m.group(3):
+        return str(_EN_ONES[m.group(3).lower()])
+    rest = m.string[m.end():]
+    if not re.match(r"(?i)\s+(?:of (?:my|the|her|his) )?(?:pills|tablets|meds|capsules|sleeping pills?|paracetamol|acetaminophen|tylenol|panadol|ibuprofen|advil|aspirin|xanax|valium|benadryl|painkillers?)\b", rest):
+        return m.group(0)
+    return str(_EN_TENS[m.group(1).lower()] + (_EN_SMALL[m.group(2).lower()] if m.group(2) else 0))
+
+
 def canon_text(text):
     if not isinstance(text, str):
         return text
     t = _MULTI_SPACE.sub(" ", text).strip()
     t = _STRETCH.sub(_unstretch, t)
     t = _STRETCH_TH.sub(r"\1", t)
+    t = _TH_NUM.sub(_th_num, t)
+    t = _EN_NUM.sub(_en_num, t)
     if re.search(r"[\u0e01-\u0e2e]", t):
         cut = _TAIL.sub("", t)
         if len(cut) >= 6:
