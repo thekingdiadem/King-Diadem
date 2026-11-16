@@ -780,6 +780,9 @@ def lyla_voice(r: dict) -> dict:
         why = (stops[0].get("why") or {}) if stops else {}
         first_th = re.split(r" — | · ", why.get("th") or "")[0].strip()
         first_en = re.split(r" — | · ", why.get("en") or "")[0].strip()
+        if stops and stops[0]["id"] == "E2" and wl.get("level") == "below" and after is not None and floor is not None:
+            first_th = f"ถ้าทำตามนี้จะเหลือ {_money(after)} ต่ำกว่าเส้นขั้นต่ำที่ตั้งไว้ {_money(floor)} อยู่ {_money(floor - after)}"
+            first_en = f"doing this leaves {_money_en(after)}, {_money_en(floor - after)} below the floor you set ({_money_en(floor)})"
         more_th = f" และอีก {len(stops) - 1} จุดในการ์ดข้างล่าง" if len(stops) > 1 else ""
         more_en = f", plus {len(stops) - 1} more in the card below" if len(stops) > 1 else ""
         th = (f"LYLA รัน DriftZero ให้แล้วค่ะ{seen_th} มีจุดที่ควรหยุดคิดก่อน: {first_th}{more_th} — "

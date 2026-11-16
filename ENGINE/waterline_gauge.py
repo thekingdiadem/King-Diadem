@@ -55,6 +55,7 @@ _BURN = re.compile(r"(?:ขาดทุน|ติดลบ|เผาเงิน
                    r"(?P<lead>วันละ|เดือนละ)?\s*(?P<n>\d[\d,]*(?:\.\d+)?)\s*(?P<u>พันล้าน|ร้อยล้าน|สิบล้าน|ล้าน|ลบ\.?|แสน|หมื่น|พัน|million|[kKmM](?![a-zA-Z]))?", re.I)
 _PER = re.compile(r"^[^\n\d]{0,10}?(วันละ|ต่อวัน|/วัน|ทุกวัน|a day|per day|/day|daily|เดือนละ|ต่อเดือน|/เดือน|a month|per month|/month|monthly)", re.I)
 _PER_MONTH = re.compile(r"เดือน|month", re.I)
+_NUMBER = _rx(r"")                               # ตัวเลขแรกในบรรทัดคำตอบ (มีหน่วยหรือไม่มีก็ได้)
 
 NEAR = 0.2          # เหลือห่างเส้นไม่ถึง 20% ของเส้น = ใกล้จม
 
@@ -77,8 +78,23 @@ def _burn_per_day(text: str):
 def gauge(text: str) -> dict:
     t = str(text or "")
     floor, current, spend = _find(_FLOOR, t), _find(_CURRENT, t), _find(_SPEND, t)
-    if current is not None and floor is not None and abs(current - floor) < 1e-9:
+    # คำตอบที่มีป้ายกำกับ ("cash on hand: …" · "floor: …") มาจากคำถามข้อนั้นตรงๆ — เชื่อป้ายก่อน
+    # เดิม "ต้องเหลืออย่างน้อย 2 แสน" ถูกอ่านเป็นเงินที่มีด้วย แล้วบรรทัด "มีเงินสด 6 แสน" ที่ตอบทีหลังไม่ถูกใช้เลย
+    lab_cur = re.search(r"^cash on hand: (.+)$", t, re.M)
+    lab_floor = re.search(r"^floor: (.+)$", t, re.M)
+    if lab_floor:
+        v = _find(_NUMBER, lab_floor.group(1))
+        floor = v if v is not None else floor
+    if lab_cur:
+        v = _find(_NUMBER, lab_cur.group(1))
+        current = v if v is not None else current
+    if current is not None and floor is not None and abs(current - floor) < 1e-9 and not lab_cur:
         current = None                               # จับเลขตัวเดียวกันซ้ำ (เช่น "มีขั้นต่ำ 2 ล้าน")
+        for m in _CURRENT.finditer(t):               # ลองตัวถัดไป — "ต้องเหลืออย่างน้อย 2 แสน … ตอนนี้มีเงิน 6 แสน"
+            v = _val(m.group("n"), m.group("u"))
+            if abs(v - floor) > 1e-9:
+                current = v
+                break
     if current is None:
         current = _find(_LEFT, t)                    # "$500 left" — ตัวเลขมาก่อนคำว่าเหลือ
     burn = _burn_per_day(t)
