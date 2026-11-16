@@ -873,7 +873,8 @@ MISSING_PERSON = re.compile(
     # ผู้ป่วยสมองเสื่อมเดินออกจากบ้าน — มีคำอธิบายคั่นยาว ("แม่เป็นอัลไซเมอร์ เดินออกจากบ้านหาย")
     r"(?:อัลไซเมอร์|สมองเสื่อม|หลงลืม)[^\n.!?]{0,30}?(?:หายไป|หาไม่เจอ|ออกจากบ้าน\S{0,6}?หาย|ไม่กลับบ้าน)|"
     r"(?:ลูก|หลาน|น้อง|น้องสาว|น้องชาย|ลูกสาว|ลูกชาย)\S{0,6}หายไปกับ(?:คน|ผู้ชาย|ผู้หญิง|แฟน)|(?:คนแก่|ผู้สูงอายุ|ยาย|ตา|ปู่|ย่า)\S{0,4}หลงทาง|"
-    r"\bmy (?:child|son|daughter|kid|mom|dad|mother|father|wife|husband|sister|brother|friend|grandma|grandpa|girlfriend|boyfriend|baby|toddler|grandmother|grandfather|niece|nephew) (?:is|has gone|went|has been) missing\b|\b(?:a|the) (?:kid|child|toddler|little (?:boy|girl)) is missing\b|"
+    # รอบสุ่ม 116: มีอายุหรือคำขยายคั่น — "my 15 year old daughter has been missing since yesterday" เคยได้ 0
+    r"\bmy (?:(?:\d{1,2}[- ](?:year|yr)s?[- ]old|\d{1,2}yo|little|youngest|oldest|teenage|elderly|older|younger) )?(?:child|son|daughter|kid|mom|dad|mother|father|wife|husband|sister|brother|friend|grandma|grandpa|girlfriend|boyfriend|baby|toddler|grandmother|grandfather|niece|nephew) (?:is|has gone|went|has been) missing\b(?!\s+(?:a|an|her|his|their|my|the|some|out|on|school|class|work|you|us|me|home|him|them)\b)|\b(?:a|the) (?:kid|child|toddler|little (?:boy|girl)) is missing\b|"
     # "my dad with dementia wandered off" เคยได้คำตอบผู้ดูแลเหนื่อย ไม่ใช่การแจ้งคนหาย
     r"\b(?:dementia|alzheimer'?s)\b[^\n.]{0,30}?\b(?:wandered (?:off|away)|went missing|is missing|can'?t (?:be )?f(?:i|ou)nd)\b|"
     r"(?:แจ้ง|ตามหา)คนหาย|\bmissing (?:child|person|son|daughter|mom|dad)\b",
