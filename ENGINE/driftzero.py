@@ -443,16 +443,30 @@ def follow_up(prior_text: str, prior_keys, answer: str) -> dict:
     answer = str(answer or "").strip()[:4000]
     if is_about(answer):
         return about(audit(prior_text))
+    if _danger(answer)[0]:                       # คำตอบรอบต่อเป็นเรื่องชีวิต ("อยากตายเลย") — ช่วยเหลือฉุกเฉินมาก่อนทุกอย่าง
+        return audit(answer)
+    if _CANCEL.search(answer):
+        return cancelled(prior_text)
     if list(prior_keys or []) == ["dhd"] and sinking(prior_text):
         return steady_runway(prior_text, answer)
     pairs = assign(answer, prior_keys)
     got = set(pairs)
+    skipped = None
+    if not pairs and _DONT_KNOW.match(answer.strip()):
+        keys_left = [k for k in (prior_keys or []) if k in ASK_KEYS]
+        if keys_left:
+            skipped = keys_left[0]                # "ไม่รู้" = ข้ามข้อนั้นไปก่อน ไม่ถามซ้ำวนไม่จบ
+            got.add(skipped)
     parts = parse_numbered(answer)
     body = " ".join(parts.values()) if parts else answer
     lines = [f"{LABELS[k]}: {v}" for k, v in pairs.items()] if pairs else [answer]
+    if skipped:
+        lines = [f"{LABELS[skipped]}: (ยังไม่ทราบ)"]       # เก็บไว้ในเรื่อง รอบต่อไปจะได้ไม่ถามข้อนี้ซ้ำ
     lines = [" ".join(x.split()) for x in lines if x]              # หนึ่งคำตอบ = หนึ่งบรรทัด
     r = audit((prior_text + "\n" + "\n".join(lines)).strip(), answered=got)
     r["answered"] = sorted(got)
+    if skipped:
+        r["skipped"] = skipped
     if r["verdict"] != "urgent" and distress(body):
         r["note"] = {"th": "ฟังดูเหมือนคุณเองกำลังลำบากเรื่องนี้อยู่ — DriftZero ตรวจการตัดสินใจขององค์กร "
                            "ส่วนเรื่องเงิน ที่พัก หรือความเครียดของตัวเอง โหมดปรึกษาช่วยได้ตรงกว่า ลองเล่าที่นั่นได้เลยนะคะ",
@@ -483,6 +497,17 @@ def _negated(text: str, m) -> bool:
     return bool(_NEG_BEFORE.search(before)) and not re.match(r"(?:ไม่|ยังไม่|โดยไม่|no\b|without\b|not\b)", m.group(0), re.I)
 
 
+_CANCEL = re.compile(r"^(?:ขอ)?(?:ยกเลิก|ไม่ทำแล้ว|เลิกคิด|ไม่เอาแล้ว|พอแล้ว)|ไม่ทำแล้ว|(?i:^(?:cancel|never\s?mind|forget\s+it)\b|\bnot\s+doing\s+it\b|\bwon'?t\s+do\s+it\b)")
+
+
+def cancelled(prior_text: str) -> dict:
+    """ผู้ใช้เปลี่ยนใจไม่ทำ — การไม่ทำก็เป็นการตัดสินใจที่ดีได้ ไม่ถามต่อ"""
+    msg = {"th": "ได้เลยค่ะ การตัดสินใจไม่ทำก็เป็นการตัดสินใจที่ดีได้เหมือนกัน — ถ้าวันไหนอยากกลับมาคิดใหม่ เล่ามาได้เสมอนะคะ",
+           "en": "Of course — choosing not to do it can be a good decision too. If you want to think it through again, just tell me any time."}
+    return {"text": "", "verdict": "pass", "talk": False, "gates": [], "sop": [], "asks": [], "emergency": False,
+            "brief": None, "waterline": None, "note": None, "summary": msg, "lyla": msg, "cancelled": True}
+
+
 def steady_runway(prior_text: str, answer: str) -> dict:
     """รอบต่อของ "ตั้งหลักก่อน": คำนวณว่าเงินที่เหลือพาไปได้กี่วัน แล้วไม่ถามอะไรเพิ่ม"""
     from ENGINE.waterline_gauge import gauge
@@ -503,6 +528,20 @@ def steady_runway(prior_text: str, answer: str) -> dict:
         else:
             th += " — ข้อ 1–3 ข้างล่างช่วยยืดเวลานี้ได้ เริ่มวันนี้เลยนะคะ"
             en += " — steps 1–3 below help stretch that. Start today."
+    elif cur and _due(answer):
+        due = _due(answer)
+        left = cur - due
+        r["after_due"] = left
+        if left >= 0:
+            th = (f"ถ้าจ่าย {_money(due)} ตามที่ต้องจ่าย จะเหลือ {_money(left)} — กันเงินก้อนนี้ไว้ก่อนเลย "
+                  "แล้วใช้ข้อ 1–3 ข้างล่างหาทางให้เงินที่เหลือพอไปอีกนิดนะคะ")
+            en = (f"If you pay the {_money_en(due)} that's due, {_money_en(left)} is left — set that payment aside first, "
+                  "then use steps 1–3 below to stretch the rest.")
+        else:
+            th = (f"ที่ต้องจ่าย {_money(due)} มากกว่าเงินที่มี {_money(cur)} อยู่ {_money(-left)} — "
+                  "รีบคุยกับคนที่จะเก็บเงิน (เจ้าของที่ ธนาคาร) ตอนนี้เลย ขอแบ่งจ่ายหรือเลื่อนก่อนถึงวันครบกำหนด ข้อ 3 ข้างล่างค่ะ")
+            en = (f"What's due ({_money_en(due)}) is {_money_en(-left)} more than you have ({_money_en(cur)}) — "
+                  "talk to whoever you owe (landlord, bank) now and ask to split or delay before the due date (step 3 below).")
     else:
         th = "ขอบคุณที่เล่าค่ะ — ข้อ 1–3 ข้างล่างคือสิ่งที่ช่วยยืดเวลาได้มากที่สุด เริ่มจากข้อ 1 วันนี้เลยนะคะ"
         en = "Thank you for telling me — steps 1–3 below are what buy you the most time. Start with step 1 today."
@@ -531,6 +570,18 @@ def sinking(t: str) -> bool:
 
 def only_heart(t: str) -> bool:
     return bool(_SINKING.search(t or "")) and not _MONEY_TALK.search(t or "") and distress(t)
+
+
+_DUE = re.compile(r"(?:ค่าเช่า|ค่าไฟ|ค่าน้ำ|ค่าแรง|เงินเดือน|หนี้|ผ่อน|ต้องจ่าย|rent|wages?|loan|payment|bill)[^\d\n]{0,12}(?P<n>\d[\d,]*(?:\.\d+)?)\s*(?P<u>หมื่น|พัน|แสน|[kK](?![a-zA-Z]))?", re.I)
+
+
+def _due(answer: str):
+    """ "ค่าเช่า 6000 ต้องจ่ายสิ้นเดือน" → 6000 (ไม่นับถ้าเป็นอัตราต่อวัน) """
+    from ENGINE.waterline_gauge import _val
+    if _PER_DAY.search(answer or ""):
+        return None
+    m = _DUE.search(answer or "")
+    return _val(m.group("n"), m.group("u")) if m else None
 
 
 def _daily_out(answer: str):
@@ -692,6 +743,8 @@ def audit(text: str, answered=()) -> dict:
 def lyla_voice(r: dict) -> dict:
     """LYLA รัน DriftZero แล้วเล่าผลเอง — บรรทัดแรกเป็นภาษาคน ส่วนด่าน/SOP อยู่ในการ์ดข้างล่าง"""
     v = r.get("verdict")
+    if r.get("cancelled"):
+        return r
     if v in ("urgent", "steady", "about") or not isinstance(r, dict):
         r["lyla"] = r.get("summary")
         return r
@@ -727,5 +780,10 @@ def lyla_voice(r: dict) -> dict:
               "ใบสรุปข้างล่างคัดลอกไปเก็บหรือส่งต่อได้เลย แล้วกลับมาเช็คอีกครั้งหลังลงมือ")
         en = ("I ran DriftZero for you — it passes every gate on what you've told me. The decision is still yours. "
               "You can copy the summary below, and come back to check once it's under way.")
+    unknown = (r.get("text") or "").count("(ยังไม่ทราบ)")
+    if v == "pass" and unknown:
+        th += f" — แต่ยังมี {unknown} ข้อที่ยังไม่รู้ ผลนี้จึงยังไม่แน่นอน ถ้าได้ตัวเลขเมื่อไหร่ กลับมาเช็คอีกครั้งนะคะ"
+        en += f" — but {unknown} answer(s) are still unknown, so this isn't certain yet. Come back once you have them."
+        r["unknown"] = unknown
     r["lyla"] = {"th": th, "en": en}
     return r
