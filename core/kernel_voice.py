@@ -121,6 +121,7 @@ _VERBAL = re.compile(r"(?:พ่อ(?!ค้า)|แม่(?!น้ำ|ค้า
 _ASSET = r"(?:ทอง(?!เที่ยว|หล่อ)|หุ้น(?!ส่วน)|กองทุน|คริปโต|บิทคอยน์|บิตคอยน์|crypto|bitcoin|btc|ฟอเร็กซ์|forex|พันธบัตร|ssf|rmf)"
 _INVEST_ASSET = re.compile(r"ลงทุน\S{0,6}?" + _ASSET + r"|(?:ซื้อ|เล่น|ออม|เทรด)\S{0,2}?" + _ASSET, re.I)
 
+from core.thai_signals import INTRUDER_NIGHT as _TS_INTRUDER
 TOPICS = [
     # รอบหาบั๊กทุกไฟล์: หัวข้อเหล่านี้เคยตกไปทาง "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน"
     ("overdose", [OVERDOSE], {
@@ -170,6 +171,15 @@ TOPICS = [
             f"ถ้าโอนเงินหรือให้ข้อมูลไปแล้ว: โทรธนาคารของคุณให้ระงับทันที แล้วโทร {HOTLINE_SCAM} (24 ชม.) และแจ้งความออนไลน์ที่ thaipoliceonline.go.th",
         ],
         "ask": "ตอนนี้ได้โอนเงินหรือให้ข้อมูลอะไรไปแล้วหรือยัง?",
+    }),
+    ("intruder", [_TS_INTRUDER], {
+        "open": ["อย่าเปิดประตูนะ — ความปลอดภัยของคุณมาก่อน"],
+        "paths": [
+            "โทร 191 ตอนนี้ บอกที่อยู่ชัดๆ ว่ามีคนพยายามเข้าห้อง ถ้าพูดไม่ได้ให้เปิดสายค้างไว้",
+            "ล็อกประตู ดันของหนักมาขวาง แล้วไปอยู่ห้องที่ล็อกได้ เปิดไฟ อย่าออกไปเผชิญหน้าเอง",
+            "โทรหาเพื่อนบ้าน ยามหรือนิติบุคคลให้มาช่วยดู และส่งตำแหน่งให้คนที่ไว้ใจ",
+        ],
+        "ask": "ตอนนี้ประตูล็อกอยู่และคุณอยู่ในห้องที่ปลอดภัยไหม?",
     }),
     ("someone", [THIRD_PARTY_CRISIS, SAFETY_NET_OTHER], {
         "open": ["ขอบคุณที่ใส่ใจเขานะ การที่คุณอยู่ตรงนั้นช่วยได้มากกว่าที่คิด"],
@@ -1774,6 +1784,11 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "intruder": ("Please don't open the door — your safety comes first.", [
+        "Call the police now (191 in Thailand, 911 in the US, 112 in Europe) and give your address; if you can't talk, leave the line open.",
+        "Keep the door locked, push something heavy against it and move to a room that locks · turn the lights on and don't confront them.",
+        "Call a neighbour or building security and share your location with someone you trust."],
+        "Is the door locked and are you somewhere safe inside right now?"),
     "en_assault": ("I'm so sorry. What happened is not your fault.", [
         "Get somewhere safe and away from the person — call emergency services if you're in danger (191 in Thailand, 911 in the US, 000 in Australia).",
         "Go to a hospital emergency department within 72 hours if you can: they treat injuries, give medicine to prevent pregnancy and HIV, and can keep evidence. Try not to shower or wash clothes first.",
@@ -2202,7 +2217,7 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("intruder", "post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")

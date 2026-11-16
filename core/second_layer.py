@@ -176,6 +176,9 @@ ANGER_MOOD = re.compile(
     r"\bi (?:want|wanna) to (?:smash|break|destroy|wreck) everything\b|\bshaking with (?:anger|rage)\b)")
 # "โมโหมาก" มีตัวอักษร "หมา" ซ่อนอยู่ (โม-โห-มาก) — ต้องไม่ใช่ตัวต่อจาก โ และไม่ใช่ "หมาก"
 # รอบสุ่ม 18: สัญญาณค้ามนุษย์/บังคับใช้แรงงาน-ค้าประเวณี — เดิมได้ 0
+# คนแปลกหน้าทุบ/พังประตูตอนกลางคืน (core/thai_signals.INTRUDER_NIGHT)
+from core.thai_signals import INTRUDER_NIGHT as _INTRUDER
+UPGRADES += [(_INTRUDER, "intruder")]
 UPGRADES += [(re.compile(r"บังคับ(?:ให้)?\S{0,4}(?:ไป)?(?:ขายตัว|ขายบริการ|ค้าประเวณี|ทำงานบริการ)|"
                          r"(?:ยึด|เก็บ)(?:บัตรประชาชน|บัตรประจำตัว|พาสปอร์ต|หนังสือเดินทาง|บัตร)\S{0,4}(?:ไว้)?[^\n]{0,24}?(?:ไม่จ่าย|ไม่ให้(?:ออก|กลับ|ไป)|ห้ามออก)|"
                          r"(?:ไม่จ่าย(?:เงิน|ค่าแรง))[^\n]{0,24}?(?:ยึด|เก็บ)(?:บัตรประชาชน|พาสปอร์ต|หนังสือเดินทาง)|"
@@ -331,7 +334,7 @@ _EN_SET = set(EN_UPGRADES)
 _THAI_RUN = re.compile(r"[\u0E00-\u0E7F]+")
 
 _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85, "sexual_abuse": 85,
-            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85}
+            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85, "intruder": 85}
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
