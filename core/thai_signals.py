@@ -587,6 +587,8 @@ VIOLENCE_BY = re.compile(
     r"\b(?:he|she|they)\b[^\n]{0,20}?\b(?:took|takes|smashed|broke) my phone\b[^\n]{0,30}?\block(?:ed|s)?\b|\blocked me (?:in|inside)\b|"
     r"\b(?:a |the )?(?:man|guy|someone|person|stranger|people) with (?:a |an )?(?:knife|gun|machete|weapon)\b[^\n]{0,20}?\b(?:outside|at|near|in front of|trying)\b)|"
     r"(?i:\b(?:was|got|been|being|is being|are being|keeps? getting) (?:beaten|choked|strangled|punched|kicked|stabbed|shot|attacked)\b(?! (?:down|at dawn))|"
+    # รอบสุ่ม 115: "my husband pointed a gun at me" เคยได้ 0 ทั้งที่ "สามีเอาปืนจ่อหัว" ได้ 85
+    r"\b(?:pointed|pointing|points|aimed|aiming|held|holding|pulled|waved|waving) (?:a |an |his |her |their )?(?:loaded )?(?:knife|gun|pistol|rifle|shotgun|machete|weapon)\b[^\n]{0,15}?\b(?:at|to) (?:me|my|us|our|her|him|the kids?|my (?:son|daughter|mom|dad|child|baby))\b(?![^\n]{0,20}?\b(?:in the (?:game|movie|show|film)|on (?:tv|screen)|nerf|water ?gun|toy)\b)|"
     r"\bthreatened (?:me |her |him |them |us )?with a (?:knife|gun|weapon|machete)\b|\b(?:is|am|'m|are|was|been|being) locked (?:in|up)\b)|"
     # รอบสุ่ม 98: "แฟนตบมือเชียร์บอล" (ปรบมือ) เคยได้ 85 — ตบมือ/ตบยุง/เตะบอล/ทุบโต๊ะ ไม่ใช่ทำร้าย
     r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน|พ่อเลี้ยง|แม่เลี้ยง)\S{0,4}(?:กระทืบ|ตบ(?!มือ|ยุง|ตะกร้อ|บ่า|ไหล่|โต๊ะ)|(?<!แ)ต่อย(?!อด|มวย)|เตะ(?!บอล|ฟุตบอล|ตะกร้อ)|ทุบ(?!โต๊ะ|ประตู|ไหล่)|บีบคอ|ลากผม)|"
