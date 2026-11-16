@@ -32,3 +32,10 @@ def test_lights_come_from_black_marble_2016_in_three_sizes():
     js = Path("static/cockpit_earth.js").read_text(encoding="utf-8")
     assert "can8k" in js and "lights_8k.jpg" in js
     assert "BlackMarble_2016" in Path("scripts/build_earth_lights_2016.py").read_text(encoding="utf-8")
+
+
+def test_city_glow_under_clouds_and_red_airglow():
+    """เมืองใต้เมฆยังเรืองแสงผ่านเมฆ · ขอบโลกกลางคืนมี airglow สองชั้น (เขียว ~94 กม. · แดงสูงกว่า) แบบภาพจาก ISS"""
+    js = Path("static/cockpit_earth.js").read_text(encoding="utf-8")
+    assert "smoothstep(.15,.7,cl)" in js                  # แสงเมืองกระเจิงในเมฆ
+    assert "vec3(.20,.85,.42)" in js and "vec3(.80,.16,.22)" in js   # เขียว + แดง
