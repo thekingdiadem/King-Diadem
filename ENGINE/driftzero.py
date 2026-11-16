@@ -259,7 +259,11 @@ def parse_numbered(answer: str) -> dict[int, str]:
         if int(m.group(1)) == want:
             cuts.append((want, m.start(), m.end())); want += 1
     if not cuts or cuts[0][1] != 0:
-        return {}
+        tagged = list(re.finditer(r"(?:^|\s)ข้อ\s*(\d{1,2})\s*[).:\-]?\s*", a))   # "ข้อ 2 ขั้นต่ำ 2 แสน ข้อ 4 ผมเอง"
+        if not tagged or tagged[0].start() != 0:
+            return {}
+        return {int(m.group(1)): a[m.end():(tagged[i + 1].start() if i + 1 < len(tagged) else len(a))].strip(" ,;\n")
+                for i, m in enumerate(tagged) if a[m.end():(tagged[i + 1].start() if i + 1 < len(tagged) else len(a))].strip(" ,;\n")}
     out = {}
     for i, (n, _, end) in enumerate(cuts):
         stop = cuts[i + 1][1] if i + 1 < len(cuts) else len(a)
@@ -269,15 +273,63 @@ def parse_numbered(answer: str) -> dict[int, str]:
     return out
 
 
-def answered_keys(answer: str, prior_keys) -> set[str]:
-    """คำถามรอบก่อนข้อไหนที่ผู้ใช้ตอบแล้ว — ตอบแบบเป็นข้อ จับคู่ตามลำดับ · ถามข้อเดียวแล้วตอบเฉยๆ = ตอบข้อนั้น"""
+# คำตอบบอกตัวเองว่าเป็นคำตอบของข้อไหน — คนจริงข้ามข้อ ตอบทีละข้อ หรือเล่ารวดเดียว ("ขั้นต่ำ 2 แสน" = เส้นขั้นต่ำ ไม่ว่าจะอยู่ข้อไหน)
+_SIGNAL = (
+    ("floor", _rx(r"ขั้นต่ำ|อย่างน้อย|ไม่ต่ำกว่า|ห้ามต่ำกว่า|ต้องเหลือ|at least|minimum|floor|must not (?:go |fall )?below")),
+    ("dhd", _rx(r"วันละ|ต่อวัน|เดือนละ|ต่อเดือน|/วัน|/เดือน|per day|a day|daily|per month|a month|monthly")),
+    ("current", _rx(r"ตอนนี้มี|มีเงิน(?:สด)?|เงินสด(?:คงเหลือ)?|คงเหลือ|on hand|cash balance|we have|i have")),
+    ("owner", _rx(r"ผมเอง|ฉันเอง|หนูเอง|ตัวเอง|เจ้าของ|รับผิดชอบ|ผู้จัดการ|หัวหน้า|บอร์ด|หุ้นส่วน|ผู้อนุมัติ|\bme\b|myself|\bi am\b|\bi'?ll\b|\bowner\b|\bmanager\b|\bboard\b|\bceo\b|\bfounder\b")),
+    ("downside", _rx(r"ถ้าพลาด|ถ้าล้ม|เสีย(?:เงิน|ลูกค้า|ชื่อ|หาย)?|ขาดทุน|เจ๊ง|ปิดร้าน|\blose\b|\blost\b|worst|\bfail")),
+)
+_DONT_KNOW = re.compile(r"^(?:ไม่รู้|ไม่แน่ใจ|ไม่ทราบ|ยังไม่รู้|ไม่ได้จด|(?i:i\s+don'?t\s+know|not\s+sure|no\s+idea))", re.I)
+
+
+def _classify(part: str, keys) -> str | None:
+    for k, rx in _SIGNAL:
+        if k in keys and rx.search(part or ""):
+            return k
+    return None
+
+
+def assign(answer: str, prior_keys) -> dict:
+    """จับคู่คำตอบกับคำถาม: ดูเนื้อหาก่อน (ขั้นต่ำ · วันละ · ผมเอง) แล้วค่อยใช้ลำดับเลขข้อ"""
     keys = [k for k in (prior_keys or []) if k in ASK_KEYS]
-    parts = parse_numbered(answer)
+    a = str(answer or "").strip()
+    out = {}
+    parts = parse_numbered(a)
     if parts:
-        return {keys[n - 1] for n in parts if 0 < n <= len(keys)}
-    if len(keys) == 1 and str(answer or "").strip():
-        return {keys[0]}
-    return set()
+        for n, v in sorted(parts.items()):
+            left = [k for k in keys if k not in out]
+            pos = keys[n - 1] if 0 < n <= len(keys) and keys[n - 1] not in out else None
+            k = _classify(v, left)
+            # ข้อ "เล่าเพิ่ม ใครทำอะไร" ตอบว่า "me and my partner" ก็ถูกข้อแล้ว — ย้ายไปข้ออื่นเฉพาะเมื่อเป็นตัวเลข/ผลเสียชัดๆ
+            if pos and (k is None or k == pos or (pos == "detail" and k == "owner")):
+                k = pos
+            if k:
+                out[k] = v
+        return out
+    if not a or _DONT_KNOW.match(a):
+        return out
+    if len(keys) == 1:
+        return {keys[0]: a}
+    if re.fullmatch(r"[\d,.\s]+(?:พันล้าน|ล้าน|แสน|หมื่น|พัน|บาท|[kKmM])?\s*(?:บาท)?", a):   # ตอบตัวเลขเปล่าๆ = ข้อตัวเลขข้อแรกที่ถามอยู่
+        k = next((k for k in keys if k in ("floor", "current")), None)
+        return {k: a} if k else {}
+    hits = sorted((m.start(), k) for k, rx in _SIGNAL if k in keys for m in [rx.search(a)] if m)
+    seen = []
+    for pos, k in hits:
+        if k not in [x for _, x in seen]:
+            seen.append((pos, k))
+    for i, (pos, k) in enumerate(seen):                       # เล่ารวดเดียว: ตัดเป็นช่วงตามสัญญาณที่เจอ
+        start = 0 if i == 0 else pos
+        stop = seen[i + 1][0] if i + 1 < len(seen) else len(a)
+        out[k] = a[start:stop].strip(" ,;")
+    return out
+
+
+def answered_keys(answer: str, prior_keys) -> set[str]:
+    """คำถามรอบก่อนข้อไหนที่ผู้ใช้ตอบแล้ว"""
+    return set(assign(answer, prior_keys))
 
 
 def distress(text: str) -> bool:
@@ -373,16 +425,11 @@ def follow_up(prior_text: str, prior_keys, answer: str) -> dict:
         return about(audit(prior_text))
     if list(prior_keys or []) == ["dhd"] and sinking(prior_text):
         return steady_runway(prior_text, answer)
-    got = answered_keys(answer, prior_keys)
+    pairs = assign(answer, prior_keys)
+    got = set(pairs)
     parts = parse_numbered(answer)
     body = " ".join(parts.values()) if parts else answer
-    keys = [k for k in (prior_keys or []) if k in ASK_KEYS]
-    if parts:
-        lines = [f"{LABELS[keys[n - 1]]}: {v}" for n, v in sorted(parts.items()) if 0 < n <= len(keys)]
-    elif len(keys) == 1 and answer:
-        lines = [f"{LABELS[keys[0]]}: {answer}"]
-    else:
-        lines = [answer]
+    lines = [f"{LABELS[k]}: {v}" for k, v in pairs.items()] if pairs else [answer]
     lines = [" ".join(x.split()) for x in lines if x]              # หนึ่งคำตอบ = หนึ่งบรรทัด
     r = audit((prior_text + "\n" + "\n".join(lines)).strip(), answered=got)
     r["answered"] = sorted(got)
