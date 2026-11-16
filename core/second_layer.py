@@ -285,6 +285,16 @@ UPGRADES += [
                 r"(?i:\b(?:friend|sister|brother|mom|dad|boyfriend|girlfriend|wife|husband)\b[^\n]{0,20}?\b(?:has|keeps|is\s+keeping|saved)\s+(?:a\s+)?(?:stash\s+of\s+)?pills\b[^\n]{0,40}?\b(?:can'?t\s+take\s+it|the\s+day|when\s+(?:she|he)\s+(?:can'?t|is\s+done))\b|"
                 r"\b(?:dad|mom|father|mother|brother|sister|husband|wife)\s+disappeared\b[^\n]{0,40}?\bleft\s+a\s+(?:letter|note)\b)"), "someone"),
 ]
+# รอบสุ่ม 131: คนใกล้ตัวขอโทษ "ทุกคน/ทุกอย่าง" แล้วปิดเครื่อง/ติดต่อไม่ได้ — เคยได้ 0 ทั้งไทยและอังกฤษ
+UPGRADES += [
+    (re.compile(r"(?:เพื่อน|แฟน|น้อง|พี่|แม่|พ่อ|ลูก|สามี|ภรรยา)[^\n]{0,16}?ขอโทษ(?:ทุกคน|ทุกอย่าง|สำหรับทุกอย่าง)[^\n]{0,24}?(?:ปิดเครื่อง|ปิดมือถือ|โทรไม่ติด|ติดต่อไม่ได้|ไม่ตอบ|หายไป|บล็อก)|"
+                r"(?i:\b(?:friend|sister|brother|mom|dad|son|daughter|boyfriend|girlfriend|wife|husband|partner)\b[^\n]{0,24}?\b(?:sorry for everything|apologi[sz]ed to everyone|sorry to everyone)\b[^\n]{0,40}?\b(?:turned off|switched off|won'?t answer|not answering|can'?t reach|blocked|disappeared|phone (?:is )?off)\b)"), "someone"),
+]
+# รอบสุ่ม 133: นายจ้างไม่ให้ออก + ยึดโทรศัพท์/พาสปอร์ต (อังกฤษ) — เคยได้ 65 ขณะที่ฉบับไทยได้ 85
+UPGRADES += [
+    (re.compile(r"(?i:\b(?:employer|boss|agent|agency|recruiter|owner|madam)\b[^\n]{0,20}?\b(?:won'?t|doesn'?t|does not|will not) let (?:me|us) (?:leave|go (?:home|out))\b[^\n]{0,40}?\b(?:took|takes|kept|keeps|has|holding) (?:my|our) (?:phone|passport|id|documents)\b|"
+                r"\b(?:employer|boss|agent|agency|owner)\b[^\n]{0,20}?\b(?:took|takes|kept|keeps|is holding) (?:my|our) (?:phone|passport|id|documents)\b[^\n]{0,40}?\b(?:won'?t|doesn'?t|will not) let (?:me|us) (?:leave|go)\b)"), "trafficking"),
+]
 # รอบสุ่ม 89: แรงงานประมงถูกบังคับบนเรือ (อังกฤษ) — เคยได้ 0
 UPGRADES += [(re.compile(r"(?i:\bforced\s+to\s+work\s+on\s+(?:the|a)\s+(?:boat|ship|vessel)\b|\bhaven'?t\s+been\s+(?:ashore|on\s+land)\s+in\s+\d+\s+(?:months|weeks)\b)"), "trafficking")]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")

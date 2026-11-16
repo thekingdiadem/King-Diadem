@@ -102,7 +102,7 @@
     '    vec2 hp=px*1.3*mag;',
     '    float L=(texture2D(lights,tc+hp).r+texture2D(lights,tc-hp).r+texture2D(lights,tc+hp*vec2(1.,-1.)).r+texture2D(lights,tc+hp*vec2(-1.,1.)).r)*.25;',
     '    float gr=vn(tc*vec2(9000.,4500.))*vn(tc*vec2(3100.,1550.)+7.);',
-    '    L*=mix(1.,.5+1.9*gr,mag*.75);',
+    '    L*=mix(1.,.75+1.1*gr,mag*.6);',
     '    float B=(texture2D(lights,tc+px*vec2(5.,0.)).r+texture2D(lights,tc-px*vec2(5.,0.)).r+texture2D(lights,tc+px*vec2(0.,4.)).r+texture2D(lights,tc-px*vec2(0.,4.)).r)*.25;',
     '    vec2 cc=tc+vec2(t*.0004,0.);',
     '    float cl=(texture2D(clouds,cc+hp).r+texture2D(clouds,cc-hp).r+texture2D(clouds,cc+hp*vec2(1.,-1.)).r+texture2D(clouds,cc+hp*vec2(-1.,1.)).r)*.25;',
@@ -127,8 +127,10 @@
     '      vec3 sea=vec3(.004,.014,.034)+vec3(.30,.38,.55)*fres*.22+vec3(.75,.82,1.)*glint*(1.-cl);',
     '      baseC=mix(baseC,sea,wm);',
     '    }',
-    '    vec3 city=vec3(1.,.48,.10)*pow(L,1.35)*2.4+vec3(1.,.78,.42)*pow(L,4.)*1.4+vec3(1.,.42,.1)*pow(B,1.5)*.45;',
-    '    city*=(1.-.55*cl)*(1.-.85*wm);',                                              // ไฟเรือ/แท่นเจาะยังเห็นจางๆ
+    '    float W=(texture2D(lights,tc+px*vec2(14.,0.)).r+texture2D(lights,tc-px*vec2(14.,0.)).r+texture2D(lights,tc+px*vec2(0.,10.)).r+texture2D(lights,tc-px*vec2(0.,10.)).r)*.25;',   // แสงฟุ้งวงกว้างรอบเมืองใหญ่ (ภาพถ่ายจากสถานีอวกาศเห็นเมืองเป็นดวงไฟมีรัศมี)
+    '    vec3 sodium=vec3(1.,.55,.16),core=vec3(1.,.86,.62),led=vec3(.86,.9,1.);',   // ชานเมือง = ไฟถนนโซเดียมสีส้ม · ใจกลางเมือง = ขาวอุ่น · จุดสว่างจัด = LED ขาวอมฟ้า (ตามภาพถ่ายจริงจาก ISS)
+    '    vec3 city=mix(sodium,core,smoothstep(.25,.75,L))*pow(L,1.15)*3.4+mix(core,led,smoothstep(.75,1.,L))*pow(L,3.)*1.9+vec3(1.,.5,.15)*(pow(B,1.4)*.8+pow(W,1.6)*.55);',
+    '    city*=(1.-.45*cl)*(1.-.85*wm);',                                              // ไฟเรือ/แท่นเจาะยังเห็นจางๆ
     '    vec3 surf=(baseC+vec3(.55,.62,.85)*pow(cl,1.4)*.16)*mix(1.,.42,sunM)+city*ready;',   // ในยาน: กลางคืนมืดตามจริง ไฟเมืองเท่าเดิม
     '    surf+=(vec3(.18,.35,1.)*pow(1.-zz,2.6)*.35+vec3(.35,.55,1.)*pow(1.-zz,9.)*.6)*(1.-.85*sunM);', // ฟ้าหลัวตามความหนาของบรรยากาศที่มองผ่าน (ในยาน: กลางคืนไม่มีฟ้าหลัวสีฟ้า)
     '    if(dl>0.){',                                                                  // กลางวัน: สีจริงจากดาวเทียม เมฆขาว แดดสะท้อนทะเล
