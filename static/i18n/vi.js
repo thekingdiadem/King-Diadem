@@ -686,6 +686,8 @@
 "ด่าน DriftZero": "Các cửa DriftZero",
 "ผ่าน {n} ด่าน": "Qua {n} cửa",
 "ต้องตอบเพิ่ม": "Cần trả lời thêm",
+"LYLA กำลังรัน DriftZero…": "LYLA đang chạy DriftZero…",
+"LYLA · DriftZero": "LYLA · DriftZero",
 "ตั้งหลักก่อน": "Ổn định trước đã",
 "ทำได้ตอนนี้": "Việc làm được ngay",
 "ถามแค่ข้อเดียว": "Chỉ một câu hỏi",

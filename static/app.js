@@ -2493,7 +2493,7 @@ var Cosmos = (function(){
 /* ════════════════════════════════════════════════════════════════
    RENDER CHAT
    ════════════════════════════════════════════════════════════════ */
-var PNAME = { LYLA:['LYLA','lyla'], VEGA:['VEGA','vega'], COUNCIL:['สภา 6 เสียง','council'], CRISIS:['HALT · ช่วยเหลือฉุกเฉิน','crisis'], DRIFTZERO:['DriftZero','dz'], IMAGE:['สร้างภาพ','img'] };
+var PNAME = { LYLA:['LYLA','lyla'], VEGA:['VEGA','vega'], COUNCIL:['สภา 6 เสียง','council'], CRISIS:['HALT · ช่วยเหลือฉุกเฉิน','crisis'], DRIFTZERO:['LYLA · DriftZero','dz'], IMAGE:['สร้างภาพ','img'] };
 function crisisCard(){
   return '<div class="crisis-card"><b>' + _t('ถ้ากำลังอยู่ในอันตราย หรือคิดทำร้ายตัวเอง') + '</b> ' + _t('โทรหาคนที่ช่วยได้ทันที') + '<br>' +
     '<a href="tel:1323">1323</a>' + _t('สายด่วนสุขภาพจิต 24 ชม.') + '<br><a href="tel:1669">1669</a>' + _t('เจ็บป่วยฉุกเฉิน') + ' <a href="tel:191">191</a>' + _t('ตำรวจ') + '</div>';
@@ -3009,13 +3009,13 @@ async function sendMode(text, mode){
   inp.value = ''; autosize(); renderAll();
   busy = true; $('#send').disabled = true;
   var th = document.createElement('div'); th.className = 'm a';
-  th.innerHTML = '<div class="who"><span class="' + (mode === 'dz' ? 'dz' : 'img') + '">' + esc(_t(mode === 'dz' ? 'DriftZero' : 'สร้างภาพ')) + '</span><span class="tag">' + esc(_t(mode === 'dz' ? 'กำลังตรวจ…' : 'กำลังสร้างภาพ…')) + '</span></div><div class="thinking"><i></i><i></i><i></i></div>';
+  th.innerHTML = '<div class="who"><span class="' + (mode === 'dz' ? 'dz' : 'img') + '">' + esc(_t(mode === 'dz' ? 'LYLA · DriftZero' : 'สร้างภาพ')) + '</span><span class="tag">' + esc(_t(mode === 'dz' ? 'LYLA กำลังรัน DriftZero…' : 'กำลังสร้างภาพ…')) + '</span></div><div class="thinking"><i></i><i></i><i></i></div>';
   $('#msgs').appendChild(th); scrollBottom();
   function target(){ return Chat.s.items.find(function(x){ return x.id === sessId; }) || Chat.cur(); }
   try{
     if(mode === 'dz'){
       var d = await readJson(await fetchRetry('/api/driftzero', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify(dzBody(text, prevDz)) }, 3));
-      target().msgs.push({ r:'a', p:'DRIFTZERO', t: L2(d.audit.summary), dz: d.audit, ts: Date.now() });
+      target().msgs.push({ r:'a', p:'DRIFTZERO', t: L2(d.audit.lyla || d.audit.summary), dz: d.audit, ts: Date.now() });
     }else{
       var g = await readJson(await fetch('/api/image/generate', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt:text }) }));
       var ts = Date.now(); IMGS[ts] = g.image;

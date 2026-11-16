@@ -597,3 +597,36 @@ def audit(text: str, answered=()) -> dict:
                 "th": {k: _money(wl[k]) for k in ("floor", "current", "after")},
                 "en": {k: _money_en(wl[k]) for k in ("floor", "current", "after")}}),
             "summary": {"th": sm_th, "en": sm_en}}
+
+
+def lyla_voice(r: dict) -> dict:
+    """LYLA รัน DriftZero แล้วเล่าผลเอง — บรรทัดแรกเป็นภาษาคน ส่วนด่าน/SOP อยู่ในการ์ดข้างล่าง"""
+    v = r.get("verdict")
+    if v in ("urgent", "steady", "about") or not isinstance(r, dict):
+        r["lyla"] = r.get("summary")
+        return r
+    stops = [g for g in r.get("gates") or [] if g.get("status") == STOP]
+    n = len(r.get("asks") or [])
+    wl = r.get("waterline") or {}
+    cur = wl.get("current")
+    seen_th = f" เห็นว่าตอนนี้มี {_money(cur)} นะคะ" if cur is not None else ""
+    seen_en = f" I can see you have {_money_en(cur)} right now." if cur is not None else ""
+    if v == "stop":
+        names_th = " · ".join(g["name"]["th"] for g in stops)
+        names_en = " · ".join(g["name"]["en"] for g in stops)
+        th = (f"LYLA รัน DriftZero ให้แล้วค่ะ{seen_th} เจอจุดที่ควรหยุดคิดก่อน {len(stops)} จุด: {names_th} — "
+              "ไม่ได้แปลว่าห้ามทำนะคะ แต่ถ้าแก้จุดนี้ก่อน จะไม่เสียสิ่งที่ย้อนกลับไม่ได้ รายละเอียดอยู่ในการ์ดข้างล่างค่ะ")
+        en = (f"I ran DriftZero for you.{seen_en} It found {len(stops)} thing(s) worth pausing on: {names_en}. "
+              "That doesn't mean don't do it — fixing these first keeps you from losing something you can't get back. Details are in the card below.")
+    elif v == "ask":
+        th = (f"LYLA รัน DriftZero ให้แล้วค่ะ{seen_th} ยังไม่เจออะไรที่ต้องหยุด แต่ขอรู้อีก {n} อย่างจะได้ดูให้แม่นขึ้น — "
+              "ตอบสั้นๆ เป็นข้อ (1 … 2 …) ก็พอค่ะ ไม่ต้องรู้ศัพท์ในการ์ดเลย")
+        en = (f"I ran DriftZero for you.{seen_en} Nothing needs stopping yet, but I need {n} more thing(s) to check it properly — "
+              "short numbered answers (1 … 2 …) are perfect. You don't need to know the terms in the card.")
+    else:
+        th = ("LYLA รัน DriftZero ให้แล้วค่ะ ผ่านทุกด่านจากข้อมูลที่ให้มา — การตัดสินใจยังเป็นของคุณนะคะ "
+              "ใบสรุปข้างล่างคัดลอกไปเก็บหรือส่งต่อได้เลย แล้วกลับมาเช็คอีกครั้งหลังลงมือ")
+        en = ("I ran DriftZero for you — it passes every gate on what you've told me. The decision is still yours. "
+              "You can copy the summary below, and come back to check once it's under way.")
+    r["lyla"] = {"th": th, "en": en}
+    return r

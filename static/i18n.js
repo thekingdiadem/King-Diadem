@@ -638,6 +638,8 @@
     'ดาวน์โหลดภาพ': ['Download image', '画像をダウンロード'],
     'สร้างภาพต้องเข้าสู่ระบบก่อนนะคะ': ['Please sign in to create images', '画像を作るにはログインしてください'],
     'กำลังตรวจ…': ['Checking…', '点検中…'],
+    'LYLA กำลังรัน DriftZero…': ['LYLA is running DriftZero…', 'LYLA が DriftZero を実行中…'],
+    'LYLA · DriftZero': ['LYLA · DriftZero', 'LYLA · DriftZero'],
     'กำลังสร้างภาพ…': ['Creating image…', '画像を作成中…'],
     'ช่วยเหลือ': ['Help', 'ヘルプ'],
     'ติดตั้งแอป': ['Install app', 'アプリをインストール'],

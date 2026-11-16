@@ -686,6 +686,8 @@
 "ด่าน DriftZero": "Puertas DriftZero",
 "ผ่าน {n} ด่าน": "{n} puertas superadas",
 "ต้องตอบเพิ่ม": "Falta responder",
+"LYLA กำลังรัน DriftZero…": "LYLA está ejecutando DriftZero…",
+"LYLA · DriftZero": "LYLA · DriftZero",
 "ตั้งหลักก่อน": "Primero, estabilizarse",
 "ทำได้ตอนนี้": "Lo que puedes hacer ahora",
 "ถามแค่ข้อเดียว": "Solo una pregunta",

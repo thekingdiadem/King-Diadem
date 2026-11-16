@@ -45,3 +45,11 @@ def test_organisation_plans_still_go_through_gates(t):
 
 def test_life_danger_still_wins_over_steady():
     assert audit("ธุรกิจพังหมดแล้ว หมดทาง อยากตาย")["verdict"] == "urgent"
+
+
+def test_lyla_speaks_first_in_plain_words():
+    from ENGINE.driftzero import lyla_voice
+    a = lyla_voice(audit("จะใช้เงินสำรองทั้งหมดขยาย 10 สาขาในปีนี้"))
+    assert a["lyla"]["th"].startswith("LYLA รัน DriftZero") and "DHD" not in a["lyla"]["th"]
+    s = lyla_voice(audit(OWNER))
+    assert s["lyla"] == s["summary"]                               # ตั้งหลักก่อน ใช้ประโยคอบอุ่นเดิม
