@@ -581,6 +581,10 @@ VIOLENCE_BY = re.compile(
     r"\b(?:someone|he|she|they) locked me (?:in|up)\b|\bi'?m locked in\b|"
     # ตาราง 10,200 ข้อความ: ใครก็ตามที่ทำร้าย (ไม่ใช่แค่สามี/แฟน) — คนแปลกหน้า เจ้านาย พ่อเลี้ยง เคยได้ Risk 0
     r"(?i:\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,12}?\b(?:hits|beats|punches|kicks|slaps|chokes|strangles|burns|starves|whips|pushed|shoved|threw) me\b(?!\s+(?:why|how|what|at\s+(?:chess|cards|games?|tennis|racing|everything)|in\s+(?:chess|cards|games?|tennis|racing)|out\b|off\b|up\b))|"
+    # รอบสุ่ม 136: คนในบ้านไม่ตื่น + ตัวเย็น/ไม่ขยับ/เรียกไม่ตอบ — "คนแก่ในบ้านไม่ตื่น ตัวเย็น" เคยได้ 0 (อังกฤษได้ 85)
+    # (ปลุกไม่ตื่นเฉยๆ ยังไม่นับ — "ปลุกลูกไม่ตื่นไปโรงเรียน" เป็นเรื่องปกติ)
+    r"(?:ยาย|ตา(?!ย|ม|ก|ร)|ปู่|ย่า|พ่อ|แม่|คนแก่|ผู้สูงอายุ|สามี|ภรรยา|แฟน|ลูก|ทารก|น้อง|เพื่อน)[^\n]{0,12}?(?:ปลุก)?ไม่(?:ยอม)?ตื่น[^\n]{0,16}?(?:ตัวเย็น|ตัวซีด|ปากเขียว|ไม่ขยับ|ไม่หายใจ|เรียกไม่ตอบ|ตัวแข็ง)|"
+    r"(?:ยาย|ตา(?!ย|ม|ก|ร)|ปู่|ย่า|พ่อ|แม่|คนแก่|ผู้สูงอายุ|สามี|ภรรยา|แฟน|ลูก|ทารก)[^\n]{0,12}?(?:ตัวเย็น|ตัวแข็ง)[^\n]{0,10}?(?:ไม่ขยับ|ไม่ตื่น|ไม่หายใจ|เรียกไม่ตอบ)|"
     # รอบสุ่ม 135: แผลดำและมีกลิ่น (เนื้อตาย/ติดเชื้อรุนแรง) · มีคำว่าเบาหวาน ให้ชุดความรู้ kp_diabetic_foot ตอบแทน — "my dad's foot wound turned black and smells" เคยได้ 0
     r"(?:^(?![^\n]*(?:เบาหวาน|(?i:diabet)))[^\n]*?)(?i:\b(?:wound|cut|sore|ulcer|toe|toes|foot|leg)\b[^\n]{0,20}?\b(?:turn(?:ed|ing)? black|is black|gone black|black and)\b[^\n]{0,24}?\b(?:smell\w*|stink\w*|pus|oozing|fever)\b)|"
     r"(?:^(?![^\n]*(?:เบาหวาน|(?i:diabet)))[^\n]*?)แผล[^\n]{0,12}?(?:ดำ|เน่า)[^\n]{0,16}?(?<!ไม่)(?:มีกลิ่น|เหม็น|มีหนอง|มีไข้)|"
