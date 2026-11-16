@@ -121,7 +121,7 @@ _VERBAL = re.compile(r"(?:พ่อ(?!ค้า)|แม่(?!น้ำ|ค้า
 _ASSET = r"(?:ทอง(?!เที่ยว|หล่อ)|หุ้น(?!ส่วน)|กองทุน|คริปโต|บิทคอยน์|บิตคอยน์|crypto|bitcoin|btc|ฟอเร็กซ์|forex|พันธบัตร|ssf|rmf)"
 _INVEST_ASSET = re.compile(r"ลงทุน\S{0,6}?" + _ASSET + r"|(?:ซื้อ|เล่น|ออม|เทรด)\S{0,2}?" + _ASSET, re.I)
 
-from core.thai_signals import INTRUDER_NIGHT as _TS_INTRUDER
+from core.thai_signals import INTRUDER_NIGHT as _TS_INTRUDER, BREAK_IN_NOW as _TS_BREAK_IN
 TOPICS = [
     # รอบหาบั๊กทุกไฟล์: หัวข้อเหล่านี้เคยตกไปทาง "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน"
     ("overdose", [OVERDOSE], {
@@ -190,7 +190,7 @@ TOPICS = [
         ],
         "ask": "นอกจากเรื่องเงิน เขาเคยห้ามคุณเจอใคร หรือทำร้ายร่างกายไหม?",
     }),
-    ("intruder", [_TS_INTRUDER], {
+    ("intruder", [_TS_INTRUDER, _TS_BREAK_IN], {
         "open": ["อย่าเปิดประตูนะ — ความปลอดภัยของคุณมาก่อน"],
         "paths": [
             "โทร 191 ตอนนี้ บอกที่อยู่ชัดๆ ว่ามีคนพยายามเข้าห้อง ถ้าพูดไม่ได้ให้เปิดสายค้างไว้",
@@ -570,7 +570,7 @@ TOPICS = [
         ],
         "ask": "ตอนนี้มีใครอยู่ใกล้ตัวที่ช่วยพาไปโรงพยาบาลได้บ้าง?",
     }),
-    ("stranded", [re.compile(r"รถเสีย[^\n]{0,20}?(?:กลางทาง|กลางคืน|คนเดียว|ข้างทาง)|หลงทาง[^\n]{0,10}?(?:ในป่า|บนเขา|ในทะเล)|"
+    ("stranded", [re.compile(r"รถเสีย[^\n]{0,20}?(?:กลางทาง|กลางคืน|คนเดียว|ข้างทาง)|หลงทาง[^\n]{0,10}?(?:ในป่า|บนเขา|ในทะเล)|(?<!ไม่)(?<!ไม่ได้)หลง(?:ป่า|เขา|ในถ้ำ)(?!หิมพานต์)(?![^\n]{0,20}?(?:ในเกม|ในหนัง|ในละคร|ในฝัน|ตอนเด็ก|เมื่อปี))|"
                              r"ติดอยู่[^\n]{0,10}?(?:ในป่า|บนเขา|กลางทาง)|\b(?:car broke down|stranded|lost in the (?:woods|forest|mountains))\b", re.I)], {
         "open": ["ตอนนี้ความปลอดภัยของคุณมาก่อน — ค่อยๆ ทำทีละข้อ"],
         "paths": [
@@ -1235,7 +1235,10 @@ _DAYS_TO_PAY = re.compile(r"อีก\s*(\d+)\s*วัน\S{0,8}?(?:เงิน
 
 _FICTION = re.compile(r"หนัง(?:เรื่อง)?|ฉาก|ละคร|ซีรีส์|ข่าว|(?:อ่?าน|ดู|ฟัง)ข่?าว|นิยาย|การ์ตูน|ในเกม|(?i:\bin the (?:news|movie|show|game)\b)")
 _CLOSE = re.compile(r"ลูก|แม่|พ่อ|ฉัน|หนู|ผม|เรา|เพื่อน|แฟน|สามี|ภรรยา|น้อง|พี่|ยาย|ตา(?!ย)|ช่วยด้วย|(?i:\b(?:my|i|me|help)\b)")
-_MINOR = re.compile(r"นิดเดียว|นิดหน่?อย|ไม่?เป็นไร(?:มาก)?|ไม่?เข้?าเนื้?อ|ไม่มีแผล|ไม่ถึงกับ|เล่นๆ|(?i:\bjust a (?:little|scratch)\b|\bnot (?:bad|serious)\b|\bi'?m fine\b|\b(?:he|she|they)(?:'s|'re| is| are) (?:fine|ok|okay|alright)\b)")
+_MINOR = re.compile(r"นิดเดียว|นิดหน่?อย|ไม่?เป็นไร(?:มาก)?|ไม่?เข้?าเนื้?อ|ไม่มีแผล|ไม่ถึงกับ|เล่นๆ|กัดเล่น|งับเล่น|เบาๆ|(?i:\bjust a (?:little|scratch)\b|\bnot (?:bad|serious)\b|\bi'?m fine\b|\b(?:he|she|they)(?:'s|'re| is| are) (?:fine|ok|okay|alright)\b)")
+_RED_FLAG_NOW = re.compile(r"เมื่อกี้|ตอนนี้(?:ปวด|เจ็บ|บวม|ชา|เลือด)|อีกแล้ว|(?i:\bjust now\b|\bagain\b|\btoday\b)")
+_HEALED = re.compile(r"(?:เมื่อ(?:ปี|เดือน|อาทิตย์|สัปดาห์)(?:ที่แล้ว|ก่อน)|ตอนเด็ก|หลายปีก่อน|ปีก่อน)[^\n]{0,40}?(?:หายดี|หายแล้ว|หายสนิท|ปกติแล้ว|เดินได้ปกติ)|"
+                     r"(?i:\b(?:last (?:year|month)|years? ago|as a kid)\b[^\n]{0,40}?\b(?:fully )?(?:healed|recovered|fine now)\b)")
 _RED_FLAG = re.compile(r"หมดสติ|ไม่รู้สึกตัว|ชัก|อาเจียน|อ้วก|ซึม|หายใจ|เลือด\S{0,6}?(?:ไม่หยุด|พุ่ง|เยอะ|มาก)|หัว(?:ฟาด|กระแทก|แตก)|ลุกไม่|ขยับ\S{0,4}?ไม่(?:ได้)?|เดินไม่ได้|บวมมาก|ผิดรูป|"
                        r"งู|หมาบ้า|ค้างคาว|ลิง|ช็อต|ช๊อต|ดูด|ขาด|หัก|โผล่|ตา|ทารก|เด็ก(?:เล็ก)?|ผู้สูงอายุ|(?i:\bunconscious|\bbleeding|\bsnake|\bvomit|\bthrow(?:ing)? up|\bdrowsy|\bconfused|\bseizure|\bwon'?t wake|\bcut off|\belectrocuted)")
 
@@ -2415,7 +2418,7 @@ def assess(text: str, pattern: dict | None = None) -> dict:
         return a
     # เรื่องที่บอกชัดว่าผ่านไปแล้ว/ไม่ใช่ตอนนี้ — ห้ามหมุนลำดับจนกลายเป็นวิกฤต
     # ("I used to be suicidal years ago, now I'm fine" หมุนแล้วเคยกลายเป็น 95)
-    if _PAST_OR_NOT_NOW.search(text):
+    if _PAST_OR_NOT_NOW.search(text) or _HEALED.search(text):
         return a
     parts = [x for x in _CLAUSE_SPLIT.split(text.strip()) if x]
     # ภาษาไทยแบ่งท่อนด้วยการเว้นวรรคไม่ชัดเท่าจุลภาค — รอบสุ่ม 92 ลองหมุนตามเว้นวรรคแล้ว
@@ -2445,6 +2448,11 @@ def _assess_one(text: str, pattern: dict | None = None) -> dict:
             and not re.search(r"ข่าว|(?i:\bnews\b|\bheadline)", text):        # "ข่าวแก๊สรั่ว" ไม่ใช่เหตุของผู้ใช้          # ไฟไหม้บ้าน (id fr de pt ru) = ฉุกเฉิน
         a = dict(a, text_risk=max(a["text_risk"], 80), risk=max(a["risk"], 80),
                  risk_shown=max(a["risk_shown"], 80) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
+    # รอบสุ่ม 130: มีคนงัด/พังเข้าบ้านอยู่ตอนนี้ — หัวข้อผู้บุกรุกต้องมาพร้อมระดับฉุกเฉิน
+    # ("อ่านข่าวอยู่ มีคนพังประตูเข้ามาในบ้าน" เคยตกเหลือ 55 เมื่อได้หัวข้อ intruder แทน violence)
+    if isinstance(text, str) and not a["crisis"] and "intruder" in a["topics"] and _TS_BREAK_IN.search(text):
+        a = dict(a, text_risk=max(a["text_risk"], 85), risk=max(a["risk"], 85),
+                 risk_shown=max(a["risk_shown"], 85) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     if isinstance(text, str) and not a["crisis"] and _SUDDEN_VISION_RX.search(text):      # ตามัวกะทันหัน = ฉุกเฉิน
         a = dict(a, text_risk=max(a["text_risk"], 80), risk=max(a["risk"], 80),
                  risk_shown=max(a["risk_shown"], 80) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
@@ -2656,6 +2664,9 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     # "แมวกัดเล่นไม่เข้าเนื้อ" เคยได้ 75 — เรื่องในหนัง/ข่าวที่ไม่เกี่ยวกับคนใกล้ตัว และเจ็บเล็กน้อยที่ผู้ใช้บอกเองว่าไม่เป็นไร
     if _FICTION.search(t_now) and not _CLOSE.search(t_now):
         topics = [n for n in topics if n not in ("health_emergency", "first_aid")]
+    # รอบสุ่ม 129: เรื่องบาดเจ็บที่ผ่านไปนานแล้วและหายดี — "ตกบันไดเมื่อปีที่แล้ว ตอนนี้หายดีแล้ว" เคยได้ 75
+    if _HEALED.search(t_now) and not _RED_FLAG_NOW.search(t_now):
+        topics = [n for n in topics if n not in ("first_aid", "health_emergency")]
     if "first_aid" in topics and _MINOR.search(t_now) and not _RED_FLAG.search(t_now):
         topics = [n for n in topics if n != "first_aid"]
     if soft and not crisis and not set(topics) & set(_URGENT_TOPICS):
