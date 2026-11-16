@@ -176,6 +176,9 @@ ANGER_MOOD = re.compile(
     r"\bi (?:want|wanna) to (?:smash|break|destroy|wreck) everything\b|\bshaking with (?:anger|rage)\b)")
 # "โมโหมาก" มีตัวอักษร "หมา" ซ่อนอยู่ (โม-โห-มาก) — ต้องไม่ใช่ตัวต่อจาก โ และไม่ใช่ "หมาก"
 # รอบสุ่ม 18: สัญญาณค้ามนุษย์/บังคับใช้แรงงาน-ค้าประเวณี — เดิมได้ 0
+# คนแปลกหน้าทุบ/พังประตูตอนกลางคืน (core/thai_signals.INTRUDER_NIGHT)
+from core.thai_signals import INTRUDER_NIGHT as _INTRUDER
+UPGRADES += [(_INTRUDER, "intruder")]
 UPGRADES += [(re.compile(r"บังคับ(?:ให้)?\S{0,4}(?:ไป)?(?:ขายตัว|ขายบริการ|ค้าประเวณี|ทำงานบริการ)|"
                          r"(?:ยึด|เก็บ)(?:บัตรประชาชน|บัตรประจำตัว|พาสปอร์ต|หนังสือเดินทาง|บัตร)\S{0,4}(?:ไว้)?[^\n]{0,24}?(?:ไม่จ่าย|ไม่ให้(?:ออก|กลับ|ไป)|ห้ามออก)|"
                          r"(?:ไม่จ่าย(?:เงิน|ค่าแรง))[^\n]{0,24}?(?:ยึด|เก็บ)(?:บัตรประชาชน|พาสปอร์ต|หนังสือเดินทาง)|"
@@ -244,11 +247,11 @@ UPGRADES += [
 UPGRADES += [(re.compile(
     r"(?:โพสต์|ส่ง)(?:รูป)?\S{0,4}ยา(?:เต็มมือ|เป็นกำ|ทั้งแผง)[^\n]{0,20}?(?:ลาก่อน|บอกลา|ขอโทษ)|"
     r"ขอบคุณที่(?:เป็นเพื่อน|อยู่ด้วย|ดีกับ)[^\n]{0,30}?(?:ปิดเครื่อง|ไม่ตอบ|หายไป|ติดต่อไม่ได้)|"
-    r"ขังตัวเอง(?:อยู่)?ใน(?:ห้อง|ห้องน้ำ)[^\n]{0,30}?(?:เงียบ|ไม่ตอบ|ไม่ออกมา)|"
+    r"(?!.*(?:เล่นเกม|อ่านหนังสือ|ทำการบ้าน|ติวสอบ|ตั้งใจ))ขังตัวเอง(?:อยู่)?ใน(?:ห้อง|ห้องน้ำ)[^\n]{0,30}?(?:เสียง\S{0,8}ตก[^\n]{0,10}?เงียบ|เรียกไม่ตอบ|เคาะไม่ตอบ|ไม่ตอบ|ไม่ออกมา)|"
     r"(?:บอกว่า)?จะไป(?:กระโดด|ตาย|ฆ่าตัวตาย)[^\n]{0,20}?(?:ไม่รับสาย|ติดต่อไม่ได้|ปิดเครื่อง)|"
     r"(?i:\bposted\s+a\s+(?:photo|pic|picture)\s+of\s+(?:pills|a\s+handful\s+of\s+pills)\b[^\n]{0,30}?\b(?:goodbye|bye|sorry)\b|"
     r"\b(?:thanks|thank\s+you)\s+for\s+(?:being\s+my\s+friend|everything)\b[^\n]{0,30}?\b(?:turned\s+off|switched\s+off|not\s+answering|went\s+silent)\b|"
-    r"\blocked\s+(?:him|her|them)sel(?:f|ves)\s+in\b[^\n]{0,50}?\b(?:silent|quiet|not\s+answering|won'?t\s+answer)\b)"), "someone")]
+    r"(?!.*\b(?:study|studying|gaming|homework|lol|lmao)\b)\blocked\s+(?:him|her|them)sel(?:f|ves)\s+in\b[^\n]{0,50}?\b(?:heard\s+something[^\n]{0,30}?(?:silent|quiet)|not\s+answering|won'?t\s+answer)\b)"), "someone")]
 # รอบสุ่ม 76: คนข้างบ้านกำลังถูกทำร้าย · เด็กถูกทิ้งไว้คนเดียวหลายวัน (ผู้ใช้เป็นคนเห็นเหตุ)
 UPGRADES += [
     (re.compile(r"(?:ข้างห้อง|ข้างบ้าน|ห้องข้างๆ|บ้านข้างๆ)[^\n]{0,20}?(?:กรีดร้อง|ร้องให้ช่วย|ร้องขอความช่วยเหลือ)[^\n]{0,20}?(?:ตบ|ตี|ทุบ|เสียงของแตก|เสียงล้ม)|"
@@ -258,18 +261,27 @@ UPGRADES += [
 ]
 # รอบสุ่ม 78: ติดค้างระหว่างเดินทาง (หลงป่า · เรือเครื่องดับ · รถเสียไม่มีสัญญาณ) · ลูกหายในที่คนเยอะ
 UPGRADES += [
-    (re.compile(r"หลง(?:ป่า|ทาง)[^\n]{0,15}?(?:บน)?(?:ดอย|เขา|ภูเขา|ป่า)|เรือ[^\n]{0,8}?(?:เครื่องดับ|เสีย|ล่ม)[^\n]{0,15}?(?:กลางทะเล|กลางน้ำ|ทะเล)|"
+    (re.compile(r"(?si)^(?!.*\b(?:found\s+(?:it|the\s+(?:trail|way|path))|great\s+view|for\s+\d+\s+min)).*?(?:"
+                r"หลง(?:ป่า|ทาง)[^\n]{0,15}?(?:บน)?(?:ดอย|เขา|ภูเขา|ภู|ป่า)|เรือ[^\n]{0,8}?(?:เครื่องดับ|เสีย|ล่ม)[^\n]{0,15}?(?:กลางทะเล|กลางน้ำ|ทะเล)|"
                 r"รถเสีย[^\n]{0,20}?ไม่มีสัญญาณ|"
-                r"(?i:\blost\s+(?:on|in)\s+the\s+(?:mountain|woods|forest|jungle|desert)\b|\bboat\s+(?:engine\s+)?(?:died|broke\s+down|failed)\s+at\s+sea\b|\bcar\s+broke\s+down\b[^\n]{0,20}?\bno\s+(?:signal|service)\b)"), "stranded"),
+                r"(?i:\blost\s+(?:on|in)\s+the\s+(?:mountain|woods|forest|jungle|desert)\b|\bboat\s+(?:engine\s+)?(?:died|broke\s+down|failed)\s+at\s+sea\b|\bcar\s+broke\s+down\b[^\n]{0,20}?\bno\s+(?:signal|service)\b))"), "stranded"),
     (re.compile(r"ลูก(?:หาย|พลัดหลง)[^\n]{0,15}?(?:ห้าง|ตลาด|งาน|สนามบิน|สถานี|คนเยอะ)|(?i:\blost\s+my\s+(?:kid|child|son|daughter)\s+(?:in|at)\s+(?:a|the)\s+(?:\w+\s+)?(?:mall|market|crowd|airport|station|fair|festival)\b)"), "missing"),
 ]
 # รอบสุ่ม 80: คนในแชทนัดเด็กไปโรงแรม+ห้ามบอก · งานต่างประเทศจากเฟซ+นายหน้าเก็บพาสปอร์ต · แม่ถูกหลอกว่าเป็นลูก
 UPGRADES += [
-    (re.compile(r"(?:คนใน(?:แชท|เกม|เน็ต)|คนแปลกหน้า)[^\n]{0,20}?(?:ให้ไป|นัด)\S{0,4}(?:เจอ|หา)[^\n]{0,15}?(?:โรงแรม|ห้อง|บ้าน)[^\n]{0,30}?(?:ห้ามบอก|อย่าบอก)|"
+    (re.compile(r"(?:คนใน(?:แชท|เกม|เน็ต)|คนแปลกหน้า)[^\n]{0,20}?(?:ให้ไป|นัด)\S{0,4}(?:เจอ|หา)[^\n]{0,15}?(?:โรงแรม|โฮงแรม|ห้อง|บ้าน|เฮือน)[^\n]{0,30}?(?:ห้ามบอก|อย่าบอก|บ่ให้บอก|ไม่ให้บอก)|"
                 r"(?i:\bsomeone\s+(?:from|in)\s+(?:a|the)\s+(?:chat|game|app)\b[^\n]{0,30}?\bmeet\s+her\b[^\n]{0,20}?\bhotel\b[^\n]{0,40}?\bnot\s+to\s+tell\b)"), "online_grooming"),
     (re.compile(r"งานต่างประเทศ[^\n]{0,15}?(?:จาก|ใน|ทาง)(?:เฟซ|เฟสบุ๊ค|ไลน์|ติ๊กต็อก|โซเชียล)[^\n]{0,40}?(?:เก็บ|ยึด)(?:พาสปอร์ต|หนังสือเดินทาง)"), "trafficking"),
     (re.compile(r"(?:แม่|พ่อ|ยาย|ตา)\S{0,4}เชื่อ(?:คน)?ใน(?:ไลน์|แชท|เฟซ)\S{0,6}ว่าเป็น(?:ลูก|หลาน)[^\n]{0,20}?(?:โอน|ส่งเงิน)"), "scam"),
 ]
+# รอบสุ่ม 85: คนใกล้ตัวเตรียมยาไว้ "วันที่ไม่ไหว" · หายไปหลังงานศพพร้อมจดหมาย (EN เคยได้ 0 · ไทยได้ 55)
+UPGRADES += [
+    (re.compile(r"(?:เพื่อน|แฟน|น้อง|พี่|แม่|พ่อ)[^\n]{0,10}?(?:บอกว่า)?\S{0,4}(?:มี|เก็บ|ตุน)ยา(?:ไว้)?\S{0,6}[^\n]{0,10}?(?:ถ้า|วันไหน)[^\n]{0,15}?ไม่ไหว[^\n]{0,10}?(?:กิน|จะกิน)|"
+                r"(?i:\b(?:friend|sister|brother|mom|dad|boyfriend|girlfriend|wife|husband)\b[^\n]{0,20}?\b(?:has|keeps|is\s+keeping|saved)\s+(?:a\s+)?(?:stash\s+of\s+)?pills\b[^\n]{0,40}?\b(?:can'?t\s+take\s+it|the\s+day|when\s+(?:she|he)\s+(?:can'?t|is\s+done))\b|"
+                r"\b(?:dad|mom|father|mother|brother|sister|husband|wife)\s+disappeared\b[^\n]{0,40}?\bleft\s+a\s+(?:letter|note)\b)"), "someone"),
+]
+# รอบสุ่ม 89: แรงงานประมงถูกบังคับบนเรือ (อังกฤษ) — เคยได้ 0
+UPGRADES += [(re.compile(r"(?i:\bforced\s+to\s+work\s+on\s+(?:the|a)\s+(?:boat|ship|vessel)\b|\bhaven'?t\s+been\s+(?:ashore|on\s+land)\s+in\s+\d+\s+(?:months|weeks)\b)"), "trafficking")]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
@@ -322,12 +334,15 @@ _EN_SET = set(EN_UPGRADES)
 _THAI_RUN = re.compile(r"[\u0E00-\u0E7F]+")
 
 _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85, "sexual_abuse": 85,
-            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85}
+            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85, "intruder": 85}
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
     # รอบสุ่ม 42: ถามวิธีเตรียมตัว/ดูข่าวภัยพิบัติ (ja zh ko es vi) เคยได้ 70 จากคำว่า "แผ่นดินไหว" คำเดียว
     (re.compile(r"ニュース|(?:への)?備え|準備|怎么准备|怎麼準備|如何准备|新闻|新聞|대비|방법|뉴스|c[óo]mo\s+prepar|preparativos|noticias?|chuẩn\s+bị|tin\s+tức"), ("disaster", "help")),
+    # รอบสุ่ม 94: เด็กตก/ล้มแล้วบอกว่าปกติดี ("น้องตกเตียง ไม่ร้อง เล่นต่อปกติ" เคยได้ 75) — มีอาการเตือนเมื่อไรยังด่วน
+    (re.compile(r"(?:ตก|ล้ม)[^\n]{0,15}?(?:ไม่ร้อง|เล่นต่อ|ปกติดี|ไม่เป็นไร|ยิ้ม|ร่าเริง)"
+                r"(?![^\n]{0,40}(?:อาเจียน|อ้วก|ซึม|ชัก|หัวโน|เลือด|ไม่รู้สึกตัว|หายใจ))"), ("first_aid", "health_emergency")),
     # รอบสุ่ม 65: อุบัติเหตุที่จบแล้ว เคลมประกันแล้ว ("ขับรถชนเสาไฟฟ้าเมื่อวาน ประกันจ่ายแล้ว" เคยได้ 75)
     (re.compile(r"(?:เมื่อวาน|เมื่อวันก่อน|อาทิตย์ที่แล้ว|เดือนที่แล้ว)[^\n]{0,30}?(?:ประกัน(?:จ่าย|เคลม)|เคลม(?:ประกัน)?)\S{0,4}(?:แล้ว|เรียบร้อย)"
                 r"(?![^\n]{0,40}(?:เจ็บ|เลือด|หมดสติ|ไม่หายใจ|โรงพยาบาล))"), ("first_aid", "health_emergency")),
@@ -383,10 +398,17 @@ _SEVERE = re.compile(r"昏迷|昏倒|晕倒|叫不醒|没有呼吸|沒有呼吸|
 _NOW = re.compile(r"ตอนนี้\S{0,8}(?:หายใจ|ไม่|เลือด|ชัก)|เมื่อกี้|เดี๋ยวนี้|ช่วยด้วย|ด่วน|ยานอนหลับ[^\n]{0,12}?หมด(?:แผง|กระปุก|ขวด)|\b(?:right now|rn|(?<!how to )help|happening now|now he|now she|now i)\b", re.I)   # "fine now" ไม่ใช่เหตุตอนนี้
 
 
+_LONG = 4000
+
+
 def apply(text: str, a: dict) -> dict:
     """คืน assessment ที่ปรับแล้ว (ไม่แก้ dict เดิม)"""
     if not isinstance(text, str) or not text:
         return a
+    # ข้อความยาวมาก (เกิน 4,000 ตัว) ตรวจแค่ 2,000 ตัวแรก + 2,000 ตัวท้าย — กฎชั้นนี้มีหลายร้อยแบบแล้ว
+    # ข้อความตัวเลข 8,000 ตัวเคยใช้เกือบวินาทีต่อรอบ · สัญญาณอันตรายมักอยู่ต้นหรือท้ายเรื่อง (รอบสุ่ม 7/87)
+    if len(text) > _LONG:
+        text = text[:_LONG // 2] + "\n" + text[-_LONG // 2:]
     a = dict(a, topics=list(a.get("topics") or []))
     caught = a["crisis"] or a["text_risk"] >= 50 or bool(a.get("scam")) or bool(a.get("disaster"))
 
@@ -488,3 +510,13 @@ def apply(text: str, a: dict) -> dict:
                 continue
             break
     return a
+
+# รอบ 100: ถูกลูบ/จับตัวซ้ำๆ โดยคนที่มีอำนาจหรือคนใกล้ตัว · ไฟดูดจนไหม้ · ชักนาน (อังกฤษ)
+UPGRADES += [
+    (re.compile(r"(?:เพื่อนร่วมงาน|หัวหน้า|เจ้านาย|ครู|อาจารย์|โค้ช|ลุง|น้า|อา|พ่อเลี้ยง|รุ่นพี่)\S{0,10}?(?:ลูบ|จับ|แตะ|ขยำ|บีบ)\S{0,4}?(?:ขา|ต้นขา|ก้น|หน้าอก|นม|เอว|ตัว)"
+                r"(?![^\n]{0,15}?(?:ให้กำลังใจ|ปลอบ|แสดงความยินดี|ตอนเล่นกีฬา|ตรวจร่างกาย|ยืดเส้น|จัดท่า|ปฐมพยาบาล))|"
+                r"(?i:\b(?:teacher|coach|boss|coworker|co-worker|manager|uncle|stepdad)\b[^\n]{0,15}?\b(?:keeps?|kept|always)\s+(?:touching|grabbing|rubbing)\s+my\s+(?:leg|thigh|butt|chest|breasts?|waist|body)\b)"), "sexual_abuse"),
+    (re.compile(r"(?:ไฟดูด|ไฟช็อต|ปลั๊ก|สายไฟ|เต้าเสียบ)[^\n]{0,20}?(?:มือ|นิ้ว|แขน|เท้า|ตัว|ปาก)\S{0,4}?(?:ดำ|ไหม้|พอง|เป็นแผล)|(?:ไฟดูด|ไฟช็อต)[^\n]{0,20}?(?:หมดสติ|ไม่รู้สึกตัว|ไม่หายใจ|ชัก|ล้มลง)"), "health_emergency"),
+    (re.compile(r"(?i:\b(?:mom|mum|dad|son|daughter|baby|kid|child|brother|sister|wife|husband|friend|he|she)\b[^\n]{0,10}?\b(?:is|has\s+been|keeps?)\s+(?:seizing|convulsing|having\s+(?:a\s+)?seizures?)\b"
+                r"(?![^\n]{0,30}?\b(?:yesterday|last\s+(?:week|year|month)|years?\s+ago|controlled|medication\s+works)\b))"), "health_emergency"),
+]

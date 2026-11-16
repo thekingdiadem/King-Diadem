@@ -121,6 +121,7 @@ _VERBAL = re.compile(r"(?:พ่อ(?!ค้า)|แม่(?!น้ำ|ค้า
 _ASSET = r"(?:ทอง(?!เที่ยว|หล่อ)|หุ้น(?!ส่วน)|กองทุน|คริปโต|บิทคอยน์|บิตคอยน์|crypto|bitcoin|btc|ฟอเร็กซ์|forex|พันธบัตร|ssf|rmf)"
 _INVEST_ASSET = re.compile(r"ลงทุน\S{0,6}?" + _ASSET + r"|(?:ซื้อ|เล่น|ออม|เทรด)\S{0,2}?" + _ASSET, re.I)
 
+from core.thai_signals import INTRUDER_NIGHT as _TS_INTRUDER
 TOPICS = [
     # รอบหาบั๊กทุกไฟล์: หัวข้อเหล่านี้เคยตกไปทาง "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน"
     ("overdose", [OVERDOSE], {
@@ -170,6 +171,15 @@ TOPICS = [
             f"ถ้าโอนเงินหรือให้ข้อมูลไปแล้ว: โทรธนาคารของคุณให้ระงับทันที แล้วโทร {HOTLINE_SCAM} (24 ชม.) และแจ้งความออนไลน์ที่ thaipoliceonline.go.th",
         ],
         "ask": "ตอนนี้ได้โอนเงินหรือให้ข้อมูลอะไรไปแล้วหรือยัง?",
+    }),
+    ("intruder", [_TS_INTRUDER], {
+        "open": ["อย่าเปิดประตูนะ — ความปลอดภัยของคุณมาก่อน"],
+        "paths": [
+            "โทร 191 ตอนนี้ บอกที่อยู่ชัดๆ ว่ามีคนพยายามเข้าห้อง ถ้าพูดไม่ได้ให้เปิดสายค้างไว้",
+            "ล็อกประตู ดันของหนักมาขวาง แล้วไปอยู่ห้องที่ล็อกได้ เปิดไฟ อย่าออกไปเผชิญหน้าเอง",
+            "โทรหาเพื่อนบ้าน ยามหรือนิติบุคคลให้มาช่วยดู และส่งตำแหน่งให้คนที่ไว้ใจ",
+        ],
+        "ask": "ตอนนี้ประตูล็อกอยู่และคุณอยู่ในห้องที่ปลอดภัยไหม?",
     }),
     ("someone", [THIRD_PARTY_CRISIS, SAFETY_NET_OTHER], {
         "open": ["ขอบคุณที่ใส่ใจเขานะ การที่คุณอยู่ตรงนั้นช่วยได้มากกว่าที่คิด"],
@@ -631,6 +641,17 @@ TOPICS = [
     ("en_infant_fever", [re.compile(r"\bmy (?:baby|newborn|infant)\b[^\n]{0,20}?\bfever\b|\bfever\b[^\n]{0,30}?\b(?:[0-9]|two|three) (?:weeks?|months?) old\b", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
     ("en_preg_bleed", [re.compile(r"\bi'?m pregnant\b[^\n]{0,20}?\bbleeding\b|\bbleeding\b[^\n]{0,20}?\bpregnan", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
     ("en_spiked", [re.compile(r"\bdrink (?:was|got|has been) spiked\b|\bspiked my drink\b", re.I)], {"open": ["นี่เป็นเรื่องด่วน"], "paths": [f"โทร {HOTLINE_EMS}"], "ask": "ตอนนี้ปลอดภัยไหม?"}),
+    # รอบสุ่ม 98: หมากระเพาะบิด (GDV) — เดิมได้คำตอบทั่วไป "ขอเรียงเรื่องนี้ให้เห็นเป็นขั้นก่อน" ไม่บอกให้รีบไปหาสัตวแพทย์
+    ("pet_bloat", [re.compile(r"(?:หมา|สุนัข|น้องหมา)\S{0,6}ท้อง(?:บวม|ป่อง|โต)[^\n]{0,30}?(?:อ้วก|อาเจียน|ขย้อน)|"
+                              r"\bdog'?s?\b[^\n]{0,20}?\b(?:belly|stomach|abdomen)\s+(?:is\s+)?(?:swollen|bloated|distended)\b", re.I)], {
+        "open": ["รีบพาไปโรงพยาบาลสัตว์ตอนนี้เลย — ท้องบวมแล้วอ้วกไม่ออกอาจเป็นกระเพาะบิด ซึ่งรอไม่ได้"],
+        "paths": [
+            "โทรบอกโรงพยาบาลสัตว์ที่เปิด 24 ชม. ว่ากำลังพาไป อาการ \"ท้องบวม อ้วกไม่ออก\" เขาจะเตรียมรับทันที",
+            "ห้ามให้กินน้ำหรืออาหาร ห้ามกดท้อง และอย่ารอดูอาการจนถึงพรุ่งนี้ — กระเพาะบิดแย่ลงเร็วมากในไม่กี่ชั่วโมง",
+            "ระหว่างทางให้นอนในท่าที่สบาย และสังเกตเหงือก: ถ้าซีดหรือม่วง หายใจหอบ หรือล้มลง บอกหมอทันทีที่ถึง",
+        ],
+        "ask": "ตอนนี้ใกล้โรงพยาบาลสัตว์ไหนที่สุด และน้องยังยืนได้ไหม?",
+    }),
     ("pet_hurt", [re.compile(r"(?:หมา|แมว|สุนัข|ลูกหมา|ลูกแมว)\S{0,6}?(?:โดนรถชน|ถูกรถชน|รถทับ|เลือดออก|เดินไม่ได้|ตกตึก)|"
                              r"\bmy (?:dog|cat|puppy|kitten)\b[^\n]{0,20}?\b(?:was hit by a car|got hit|is bleeding|can'?t walk|fell)\b", re.I)], {
         "open": ["รีบหน่อยนะ — สัตว์ที่เจ็บมักซ่อนอาการ"],
@@ -1763,6 +1784,11 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "intruder": ("Please don't open the door — your safety comes first.", [
+        "Call the police now (191 in Thailand, 911 in the US, 112 in Europe) and give your address; if you can't talk, leave the line open.",
+        "Keep the door locked, push something heavy against it and move to a room that locks · turn the lights on and don't confront them.",
+        "Call a neighbour or building security and share your location with someone you trust."],
+        "Is the door locked and are you somewhere safe inside right now?"),
     "en_assault": ("I'm so sorry. What happened is not your fault.", [
         "Get somewhere safe and away from the person — call emergency services if you're in danger (191 in Thailand, 911 in the US, 000 in Australia).",
         "Go to a hospital emergency department within 72 hours if you can: they treat injuries, give medicine to prevent pregnancy and HIV, and can keep evidence. Try not to shower or wash clothes first.",
@@ -1803,6 +1829,11 @@ EN_TOPIC = {
         "Car broke down: pull over, hazard lights on, stay locked inside if outside isn't safe · lost outdoors: stop moving, stay in an open visible spot, don't walk at night.",
         "Call emergency services if you're unsafe or hurt (191/1669 in Thailand, 911 in the US, 000 in Australia) and describe landmarks around you."],
         "Does anyone know where you are right now?"),
+    "pet_bloat": ("Please take your dog to an emergency vet now — a swollen belly with unproductive retching can be bloat (GDV), which can't wait.", [
+        "Call a 24-hour animal hospital on the way and say \"swollen belly, trying to vomit but nothing comes out\" so they can prepare.",
+        "No food or water, don't press on the belly, and don't wait until morning — bloat gets worse within hours.",
+        "Watch the gums on the way: pale or purple gums, fast breathing or collapse — tell the vet the moment you arrive.",
+    ], "How far is the nearest emergency vet, and can your dog still stand?"),
     "pet_hurt": ("Please hurry — injured animals often hide how hurt they are.", [
         "Approach slowly — even your own pet may bite when in pain. Cover them with a towel or blanket before lifting.",
         "Move them as flat as possible (a board, box or blanket as a stretcher) and press a clean cloth on any bleeding.",
@@ -2186,7 +2217,7 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("intruder", "post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
@@ -2320,6 +2351,7 @@ _CU_SRC += (r"|(?:犬|狗|강아지|개|perro|chó)[^\n]{0,30}?(?:チョコ|巧�
             r"|(?:猫|고양이|gato|mèo)[^\n]{0,20}?(?:ユリ|百合|백합|lirio|hoa\s+ly)[^\n]{0,6}?(?:をかじ|を食べ|をなめ|を噛|咬|吃|舔|을?\s*씹|을?\s*먹|del|cắn|ăn)"
             r"|(?:猫|고양이|gato|mèo)[^\n]{0,6}?(?:かじ|咬了|mordi[óo]|cắn)[^\n]{0,12}?(?:ユリ|百合|백합|lirio|hoa\s+ly)"
             r"|(?:犬|狗|강아지|개|perro|chó)[^\n]{0,12}?(?:お腹|肚子|배|panza|barriga|bụng)[^\n]{0,24}?(?:膨れ|胀|脹|부풀|빵빵|hinchad|căng|phồng)[^\n]{0,40}?(?:何も出ない|吐不出|안\s*나와|no\s+sale|không\s+ra)"
+            r"|(?:吐不出|想吐)[^\n]{0,20}?(?:狗|狗狗)[^\n]{0,6}?肚子(?:胀|脹)"   # รอบสุ่ม 90: เล่าผลก่อนเหตุ
             r"|(?:panza|barriga|est[óo]mago)\s+de\s+mi\s+perr[oa][^\n]{0,30}?hinchad[^\n]{0,40}?no\s+sale"
             r"|(?:bụng\s+chó)[^\n]{0,20}?(?:căng|phồng)[^\n]{0,30}?không\s+ra")
 _CAT_URINARY_RX = re.compile(_CU_SRC, re.I)
@@ -2330,7 +2362,51 @@ _HEAT_SYMPTOM = re.compile(r"(?:ร้อน(?:จัด|มาก)|อากา
                            r"(?:เวียนหัว|คลื่นไส้|หน้ามืด|\bdizzy\b|\bfaint\w*)[^\n]{0,30}?(?:ร้อน(?:จัด|มาก)|กลางแดด|ตากแดด|\bheat\b|\bin the sun\b)", re.I)
 
 
+_CLAUSE_SPLIT = re.compile(r"\s*[,，、]\s*")
+_PAST_OR_NOT_NOW = re.compile(r"(?i)\bused\s+to\b|\byears?\s+ago\b|\bno\s+longer\b|\banymore\b|\bin\s+the\s+past\b|\bwhen\s+i\s+was\b|"
+                              r"เมื่อก่อน|สมัยก่อน|เคย[^\n]{0,20}?(?:แต่)?ตอนนี้|หลายปีก่อน|ไม่(?:ได้)?(?:คิด|ทำ)แล้ว|"
+                              r"以前|昔は|예전에|antes|hace\s+años|trước\s+đây|früher|autrefois|dulu|"
+                              # บอกเองว่าเล็กน้อย/หายแล้ว/ล้อเล่น — หมุนลำดับแล้วตัวบอกนี้ย้ายไปข้างหน้า กฎลดระดับจะมองไม่เห็น
+                              r"\b(?:small|minor|tiny|mild|slight|just\s+a|nothing\s+serious|fine\s+now|ok\s+now|okay\s+now|lol|lmao|haha|jk)\b|"
+                              r"เล็กน้อย|นิดหน่อย|นิดเดียว|ไม่เป็นไร(?:แล้ว)?|หายแล้ว|ไม่เจ็บ|ไม่ได้เป็นอะไร|555|ล้อเล่น|ขำๆ|"
+                              r"วันเสาร์|วันอาทิตย์|วันหยุด|เสาร์อาทิตย์|ประกันจ่าย|เคลม(?:ประกัน)?แล้ว|\bweekend\b|\bsaturday\b|\bsunday\b|"
+                              # บริบทชีวิตปกติที่ทำให้ "ยกของให้หมด" "ไม่อยู่แล้ว" ไม่น่ากังวล — หมุนลำดับแล้วกฎมองไม่เห็นบริบท
+                              r"ย้ายบ้าน|ย้ายห้อง|ย้ายออก|ย้ายไป|ลาออก|เกษียณ|บริจาค|ไปเที่ยว|ไปเรียนต่อ|ต่างประเทศ|"
+                              r"\bmov(?:ing|ed)\s+(?:house|out|abroad|to\s+a\s+new)\b|\bdonat|\bretir|\btrip\b|\bvacation\b|\bstudy\s+abroad\b")
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
+    """ประเมินข้อความ — ถ้าผลต่ำ และข้อความสั้นมีหลายท่อน ลองหมุนลำดับท่อนแล้วใช้ผลที่สูงสุด
+
+    รอบสุ่ม 91: คนตกใจมักเล่าผลก่อนเหตุ ("เขาไม่ขยับ ฉันชนคนเดินถนน" · "現在很晕，陌生人在我的饮料里放了东西")
+    กฎส่วนใหญ่เขียนตามลำดับ เหตุ → ผล จึงหลุด 72 จาก 232 ข้อเมื่อสลับลำดับ
+    แก้ที่โครงสร้างแทนการเขียนรูปแบบกลับด้านทีละข้อ · ข้อความปกติสลับแล้วก็ยังปกติ จึงไม่เตือนเกิน
+    """
+    a = _assess_one(text, pattern)
+    if not isinstance(text, str) or a.get("crisis") or (a.get("risk_shown") or 0) >= 60 or len(text) > 400:
+        return a
+    # เรื่องที่บอกชัดว่าผ่านไปแล้ว/ไม่ใช่ตอนนี้ — ห้ามหมุนลำดับจนกลายเป็นวิกฤต
+    # ("I used to be suicidal years ago, now I'm fine" หมุนแล้วเคยกลายเป็น 95)
+    if _PAST_OR_NOT_NOW.search(text):
+        return a
+    parts = [x for x in _CLAUSE_SPLIT.split(text.strip()) if x]
+    # ภาษาไทยแบ่งท่อนด้วยการเว้นวรรคไม่ชัดเท่าจุลภาค — รอบสุ่ม 92 ลองหมุนตามเว้นวรรคแล้ว
+    # "ซื้อเชือกไว้แล้ว ตากผ้า" "ยกของให้เพื่อนหมดแล้ว ตอนย้ายบ้าน" กลายเป็นวิกฤต จึงไม่ทำ (ยังเป็นช่องโหว่ที่รู้แล้ว)
+    if not (2 <= len(parts) <= 5):
+        return a
+    best = a
+    for i in range(1, len(parts)):
+        alt = ", ".join(parts[i:] + parts[:i])
+        b = _assess_one(alt, pattern)
+        # ใช้ผลที่หมุนแล้วเฉพาะเมื่อยกถึงระดับเตือนจริง — ไม่ให้เรื่องสวยๆ กลายเป็นการถามไถ่ ("standing on the bridge, the sunset view")
+        if b.get("crisis") or ((b.get("risk_shown") or 0) >= 60 and (b.get("risk_shown") or 0) > (best.get("risk_shown") or 0)):
+            best = b
+            if b.get("crisis") or (b.get("risk_shown") or 0) >= 80:
+                break
+    return best
+
+
+def _assess_one(text: str, pattern: dict | None = None) -> dict:
     from core.thai_signals import canon_text
     text = canon_text(text)                     # เว้นวรรคซ้อน · ลากตัวอักษร — ทุกชั้นเห็นรูปเดียวกัน
     a = _assess_raw(text, pattern)
@@ -3028,7 +3104,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     second = lib.get(a["topics"][1]) if len(a["topics"]) > 1 else None
     # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง
     # (เดิม "กินยาเกินขนาด" เสียขั้นที่ 3 ให้ "ใช้สิทธิ์บัตรทอง")
-    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "child_gaming", "consumer", "pet_hurt", "stranded", "teen_leave", "housing", "legal", "diagnosis",
+    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "child_gaming", "consumer", "pet_hurt", "pet_bloat", "stranded", "teen_leave", "housing", "legal", "diagnosis",
                                                            "caregiver", "health_rights", "preg_alone", "preg_care") + _KP.NAMES:
         second = None
     # เลนส์ปัญหา (core/problem_lens.py) — ตัดสินครั้งเดียว: ไม่ใช่วิกฤต · ความเสี่ยงต่ำกว่า 75 (หนี้ที่ "กลัวโดนยึด" ได้ 60 เคยถูกกันออก)

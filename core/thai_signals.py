@@ -541,7 +541,7 @@ SEXUAL_ABUSE = re.compile(
     r"ล่วงละเมิด(?:ทางเพศ)?|ลวนลาม|อนาจาร|"
     r"(?:พี่ชาย|พี่|น้า|ลุง|อา|พ่อ|ญาติ|ครู|โค้ช)\S{0,8}?(?:ชอบ)?(?:เข้ามา)?(?:จับตัว|ลูบตัว|กอดแปลกๆ)\S{0,8}?(?:ตอนกลางคืน|ตอนหลับ|ตอนอาบน้ำ|ตอนอยู่กันสองคน)|\b(?:sexually (?:assaulted|abused)|molested)\b|\b(?:someone|a (?:man|guy|stranger)|he) (?:touched|groped|grabbed) (?:me|my)\b|\bgroped\b|ข่มขืน|ถูกบังคับ(?:ให้)?(?:มีเพศสัมพันธ์|ถอด|นอนด้วย)|(?:ถูก|โดน)\S{0,10}?(?:บังคับ|ขืนใจ)\S{0,4}?(?:มีเพศสัมพันธ์|มีอะไรด้วย|นอนด้วย|มีเซ็กส์)|ขืนใจ|"
     r"(?:จับ|ลูบ|คลำ)(?:หน้าอก|นม|ก้น|ของลับ|จุดซ่อนเร้น)|(?:จับ|ลูบ|คลำ)(?:ตัว|ขา|ต้นขา)(?:หนู|ฉัน|ผม|เรา|ลูก|น้อง)|"
-    r"(?:พ่อเลี้ยง|แม่เลี้ยง|ลุง|น้า|อา|ครู|โค้ช|พระ)\S{0,10}?(?:จับ|ลูบ|คลำ|เข้ามาในห้อง\S{0,10}?กลางคืน|ให้ถอด)|"
+    r"(?<!หัวห)(?<!ข้างห)(?:พ่อเลี้ยง|แม่เลี้ยง|ลุง|น้า|อา|ครู|โค้ช|พระ)\S{0,10}?(?:(?:จับ|ลูบ|คลำ)(?!ไหล่|บ่า|มือ|หัว|ผม)(?![^\n]{0,20}?(?:ให้กำลังใจ|ตรวจร่างกาย|ยืดเส้น|จัดท่า|ปลอบ|ทักทาย|แสดงความยินดี|ปฐมพยาบาล))|เข้ามาในห้อง\S{0,10}?กลางคืน|ให้ถอด)|"
     r"\b(?:sexual(?:ly)? (?:abuse|assault)|molest|raped?)\b|\bmy (?:boss|teacher|coach|uncle|stepdad|stepfather|manager) (?:keeps )?(?:touch(?:es|ed|ing)?|grop(?:es|ed|ing))\b(?! base)",
     re.I,
 )
@@ -558,7 +558,8 @@ ADULT_INVITE = re.compile(
 )
 # ทำร้ายซ้ำๆ โดยไม่พิมพ์ว่าทำใคร — "สามีตีทุกครั้งที่เมา" เคยได้ Risk 0 และคำตอบเรื่องความรักทั่วไป
 VIOLENCE_HABIT = re.compile(r"(?:สามี|ผัว|แฟน|พ่อเลี้ยง|พ่อ|แม่เลี้ยง|ภรรยา|เมีย)\S{0,8}?(?:ตี|ทุบ|(?<!แ)ต่อย(?!อด)|ตบ|เตะ|ทำร้าย)"
-                            r"(?:ร่างกาย)?\S{0,2}?(?:ทุกครั้ง|ทุกวัน|บ่อย|อีกแล้ว|ทุกที|เวลาเมา|ตอนเมา|จนเขียว|จนช้ำ)")
+                            r"(?:ร่างกาย)?\S{0,2}?(?:ทุกครั้ง|ทุกวัน|ทุกคืน|ทุกเช้า|ทุกเย็น|ทุกอาทิตย์|ทุกเดือน|บ่อย|อีกแล้ว|ทุกที|เป็นประจำ|ประจำ|ซ้ำๆ|หลายครั้ง|หลายรอบ|"
+                            r"เวลาเมา|ตอนเมา|จนเขียว|จนช้ำ|จนเลือด)")   # รอบสุ่ม 98: "สามีตีทุกคืน" เคยได้ 0 + คำตอบเรื่องความรัก
 
 # ความรุนแรงที่ผู้ใช้ไม่ได้พิมพ์ "ถูก/โดน" — "ผัวเมาแล้วอาละวาด" "ครูทำร้ายนักเรียน"
 VIOLENCE_BY = re.compile(
@@ -587,7 +588,8 @@ VIOLENCE_BY = re.compile(
     r"\b(?:a |the )?(?:man|guy|someone|person|stranger|people) with (?:a |an )?(?:knife|gun|machete|weapon)\b[^\n]{0,20}?\b(?:outside|at|near|in front of|trying)\b)|"
     r"(?i:\b(?:was|got|been|being|is being|are being|keeps? getting) (?:beaten|choked|strangled|punched|kicked|stabbed|shot|attacked)\b(?! (?:down|at dawn))|"
     r"\bthreatened (?:me |her |him |them |us )?with a (?:knife|gun|weapon|machete)\b|\b(?:is|am|'m|are|was|been|being) locked (?:in|up)\b)|"
-    r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน|พ่อเลี้ยง|แม่เลี้ยง)\S{0,4}(?:กระทืบ|ตบ|(?<!แ)ต่อย(?!อด)|เตะ|ทุบ|บีบคอ|ลากผม)|"
+    # รอบสุ่ม 98: "แฟนตบมือเชียร์บอล" (ปรบมือ) เคยได้ 85 — ตบมือ/ตบยุง/เตะบอล/ทุบโต๊ะ ไม่ใช่ทำร้าย
+    r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน|พ่อเลี้ยง|แม่เลี้ยง)\S{0,4}(?:กระทืบ|ตบ(?!มือ|ยุง|ตะกร้อ|บ่า|ไหล่|โต๊ะ)|(?<!แ)ต่อย(?!อด|มวย)|เตะ(?!บอล|ฟุตบอล|ตะกร้อ)|ทุบ(?!โต๊ะ|ประตู|ไหล่)|บีบคอ|ลากผม)|"
     # "สามีขังฉันไว้ในบ้าน" เคยได้แค่หัวข้อความสัมพันธ์ Risk 0 — ต้องมีคนถูกขัง ("แม่ขังหมาไว้ในบ้าน" ไม่ใช่)
     r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน|พ่อเลี้ยง|แม่เลี้ยง|พ่อ|แม่|นายจ้าง|เจ้านาย)\S{0,4}(?:กัก)?ขัง(?:(?:ฉัน|หนู|ผม|เรา|กู|ลูก)|(?:ไว้)?ใน(?:ห้อง|บ้าน))|"
     r"(?:ผัว|สามี|เมีย|ภรรยา|แฟน)\S{0,4}ไม่ให้(?:ออกจากบ้าน|ไปไหน|เจอเพื่อน|เจอใคร)|ยึด(?:โทรศัพท์|มือถือ)(?:ของ)?(?:ฉัน|หนู|ผม|เรา)?|"
@@ -688,6 +690,9 @@ URGENT_BODY = re.compile(
     r"\bcan'?t stop the bleeding\b|\blots? of blood\b|\bblood\b[^\n]{0,30}?\b(?:soak(?:ing|ed|s)? (?:through|into)|pouring|spurting|gushing|won'?t stop)\b|\bsoak(?:ing|ed) through\b[^\n]{0,30}?\b(?:towels?|bandages?|cloths?|shirts?|gauze)\b|\bstung by an? (?:bee|wasp|hornet)\b[^\n]{0,40}?\b(?:swell|can'?t breathe|trouble breathing)|"
     r"\b(?:face|lips|tongue|throat) (?:is |are )?(?:swelling|swollen)\b[^\n]{0,30}?\b(?:breath|after eating|ate)|\bheat ?stroke\b|"
     r"\b(?:very )?drunk\b[^\n]{0,20}?\b(?:won'?t|can'?t|doesn'?t) wake\b|\bwon'?t wake up\b|\bpassed out drunk\b|"
+    # รอบสุ่ม 94: เบาหวานกินยาแล้วไม่กินข้าวจนมือสั่นเหงื่อออก · เด็กตกเตียงอาเจียนง่วงผิดปกติ (อังกฤษ)
+    r"\bdiabet\w*\s+(?:meds|medicine|pills|insulin)\b[^\n]{0,30}?\b(?:skipped|didn'?t\s+eat|no\s+(?:lunch|food|dinner))\b[^\n]{0,30}?\b(?:shaky|sweaty|confused|dizzy)\b|"
+    r"\b(?:fell|fallen)\s+off\s+the\s+(?:bed|couch|sofa|changing\s+table)\b[^\n]{0,40}?\bvomit\w*\b[^\n]{0,30}?\b(?:sleepy|drowsy|hard\s+to\s+wake)\b|"
     # รอบสุ่ม 82: หอบหืด/แพ้รุนแรง (อังกฤษ)
     r"\b(?:asthma|wheez\w*)\b[^\n]{0,30}?\binhaler\s+(?:isn'?t|is\s+not|not)\s+(?:helping|working)\b|\bcan\s+only\s+(?:speak|say)\s+a\s+few\s+words\b|"
     r"\b(?:allergic\s+reaction|hives)\b[^\n]{0,40}?\b(?:faint|dizzy|throat|can'?t\s+breathe|swelling)\b[^\n]{0,30}?\b(?:faint|dizzy|throat|breath)\w*|"
@@ -720,6 +725,9 @@ MEDICAL_EMERGENCY = re.compile(
     r"\b(?:can'?t|cannot) (?:lift|move|raise) (?:his|her|my|their) (?:left|right) (?:arm|leg)\b[^\n]{0,40}?\b(?:slurr|no sense|can'?t speak|drooping)|"
     r"\b(?:toddler|baby|kid|son|daughter|child)\b[^\n]{0,60}?\b(?:holding|has|got into|opened)\b[^\n]{0,20}?\b(?:bleach|drain cleaner|detergent pod|pesticide|antifreeze|lye)\b"
     r"[^\n]{0,50}?\b(?:mouth (?:is )?wet|in (?:his|her) mouth|licked|swallowed|drank|coughing|vomiting)\b)|"
+    # รอบสุ่ม 94: เด็กแหย่ปลั๊กมีรอยไหม้ · ถุงพลาสติกคลุมหัวหน้าเขียว
+    r"(?:แหย่|เสียบ|จิ้ม)\S{0,6}(?:ปลั๊ก|เต้าเสียบ)[^\n]{0,30}?(?:รอยไหม้|ไหม้|ชัก|หมดสติ|ไม่หายใจ)|"
+    r"ถุงพลาสติก\S{0,6}(?:คลุมหัว|ครอบหัว|ครอบหน้า)[^\n]{0,20}?(?:หน้าเขียว|ปากเขียว|หายใจไม่ออก|ไม่หายใจ)|"
     # รอบสุ่ม 82: หอบหืดพ่นยาไม่ดีขึ้น · อาหารติดคอไอไม่ออก
     r"หอบ(?:หืด)?[^\n]{0,15}?พ่นยา\S{0,4}(?:แล้ว)?\S{0,2}ไม่(?:ดีขึ้น|หาย|ช่วย)|พูดเป็นคำๆ|พูดได้ทีละคำ|"
     r"(?:ติดคอ|สำลักอาหาร)[^\n]{0,15}?(?:ไอไม่ออก|หายใจไม่ได้|หน้าเขียว|ปากเขียว|พูดไม่ได้)|"
@@ -730,7 +738,7 @@ MEDICAL_EMERGENCY = re.compile(
     r"(?:มือ|แขน|ขา)\S{0,6}?(?:ยกไม่ขึ้น|ขยับไม่ได้)[^\n]{0,24}?(?:พูดไม่รู้เรื่อง|พูดไม่ได้|พูดไม่ออก)|"
     r"(?:เด็ก|ลูก|หลาน|น้อง|ทารก)[^\n]{0,40}?(?:ถือ|จับ|เล่น|เปิด)\S{0,6}?(?:ขวด|กระป๋อง)?\S{0,4}?(?:น้ำยา|ยาฆ่าแมลง|ยาฆ่าหญ้า|ไฮเตอร์|โซดาไฟ|ทินเนอร์|น้ำมันก๊าด|ยาเบื่อ)"
     r"[^\n]{0,40}?(?:ปาก(?:เปียก|มีกลิ่น|แดง|พอง)|เลีย|อม|กลิ่น\S{0,6}ที่ปาก|ไอ|อาเจียน|ร้องไห้จ้า)|"
-    r"พูดไม่ชัด|ปากเบี้ยว|หน้าเบี้ยว|พูดไม่รู้เรื่อง(?:กะทันหัน|ทันที)|เลือด(?:กำเดา)?\S{0,6}?ไม่หยุด|แขนซ้ายชา|ชาครึ่งซีก|ชาข้างเดียว|อ่อนแรงครึ่งซีก|"
+    r"(?<!เมา)พูดไม่ชัด(?![^\n]{0,20}?(?:ฟันปลอม|คาราโอเกะ|ร้องเพลง|ภาษา|ตอนเด็ก|ตั้งแต่เกิด))|ปากเบี้ยว|หน้าเบี้ยว|พูดไม่รู้เรื่อง(?:กะทันหัน|ทันที)|เลือด(?:กำเดา)?\S{0,6}?ไม่หยุด|แขนซ้ายชา|ชาครึ่งซีก|ชาข้างเดียว|อ่อนแรงครึ่งซีก|"
     r"ปวดหัว(?:รุนแรง|แรง)ที่สุด|ปวดหัวรุนแรง(?:มาก)?(?:แบบไม่เคยเป็น|ทันที)?|"
     r"(?:ท้อง|ตั้งครรภ์|ตั้งท้อง)[^\n.]{0,20}?(?:เลือดออก|น้ำเดิน|น้ำคร่ำ|ลูกไม่ดิ้น|ชัก)|"
     # เด็กขาดน้ำ — "ลูกท้องเสียหลายรอบ ปากแห้ง ไม่มีปัสสาวะ" เคยได้ Risk 0
@@ -1394,6 +1402,24 @@ _EN_HINT = re.compile(r"\b(?:the|and|my|is|are|to|you|me|it|i|so|but|dont|cant|w
 _NOT_EN = re.compile(r"\b(?:und|ist|nicht|ich|mein|meine|bin|der|die|das|sehr|ein|eine)\b", re.I)
 
 
+# รอบสุ่ม 95: คำผิดตอนตกใจ — ไทยไม่ใส่สระ/วรรณยุกต์ · คาราโอเกะ · อังกฤษสะกดผิด (เดิมหลุด 10/12)
+# เลือกเฉพาะกลุ่มคำที่ไม่กำกวม (หลายพยางค์ติดกัน) — ไม่แปลงทีละพยางค์ เพื่อไม่กระทบข้อความปกติ
+_PANIC_TYPO = [(re.compile(a, re.I), b) for a, b in [
+    (r"ไมหายใจ", "ไม่หายใจ"), (r"ชวยดวย", "ช่วยด้วย"), (r"ออกไมได", "ออกไม่ได้"), (r"บานไฟไหม(?!้)", "บ้านไฟไหม้"),
+    (r"กลนยา", "กลืนยา"), (r"ทงแผง", "ทั้งแผง"), (r"^ลก(?=กลืน|กลน|กิน|ตก|หาย)", "ลูก"), (r"สามตี(?=หน|ฉ|ผ)", "สามีตี"), (r"ตีหน(?=\s|$)", "ตีหนู"),
+    (r"\bchuay\s+d(?:uay|uai|ooay)\b", "ช่วยด้วย"), (r"\bmai\s+hai\s+jai\b", "ไม่หายใจ"), (r"\byak\s+(?:tai|thai)\b", "อยากตาย"),
+    (r"\bfai\s+mai(?=\s+(?:ok|chuay|ban|laew|yai|tid))|(?<=\bban\s)fai\s+mai\b", "ไฟไหม้"), (r"\bok\s+mai\s+dai\b", "ออกไม่ได้"), (r"\bban\s+(?=ไฟไหม้)", "บ้าน"),
+    (r"\bbreat(?:h)?ing\b", "breathing"), (r"\bbreating\b", "breathing"), (r"\bswal+owed\b", "swallowed"), (r"\bbleech\b", "bleach"),
+    (r"\bwnat\b", "want"), (r"\bwant\s+to\s+dye\b", "want to die"), (r"\bsomone\b", "someone"), (r"\bbreakin\b", "breaking"), (r"\bbreaking\s+in\s+(?=my|our|the)", "breaking into "),
+    (r"\bmy\s+hous\b", "my house"), (r"\bmy\s+sun\s+(?=swallow|drank|ate|fell|is\s+not)", "my son "), (r"\bsuicid\b", "suicide"),
+    (r"\bkil+\s+my\s*self\b", "kill myself"),
+    # รอบสุ่ม 96: คาราโอเกะ/สะกดผิดเพิ่ม
+    (r"\bkin\s+ya\b[^\n]{0,20}?\b(?:sib|yee\s*sib|ha\s*sib|\d+)\s+med\b", "กินยาเกินขนาด"), (r"\bsami\s+tee\s+chan\b", "สามีตีฉัน"),
+    (r"\btuk\s+keun\b", "ทุกคืน"), (r"\bkon\s+ta\s+(?:mon|maun)\b", "คนตามมา"), (r"\bto+\s+many\s+pil+s\b", "too many pills"),
+    (r"\bfrend\b", "friend"), (r"\bcant\s+breath\b", "can't breathe"), (r"\bunconsious\b", "unconscious"),
+]]
+
+
 def canon_text(text):
     if not isinstance(text, str):
         return text
@@ -1409,6 +1435,8 @@ def canon_text(text):
         t = t.lower()                            # พิมพ์ตัวใหญ่ทั้งประโยค "THERE IS A FLOOD IN MY HOUSE" เคยหลุด
     # ภาษาแชทอังกฤษ (u → you · im → i'm) — เฉพาะข้อความที่มีคำอังกฤษจริง
     # รอบสุ่ม 49: "schwanger im 8. Monat" (เยอรมัน "im" = ใน) เคยถูกแก้เป็น "i'm" จนประโยคพัง
+    for rx, fix in _PANIC_TYPO:
+        t = rx.sub(fix, t)
     if re.search(r"[A-Za-z]", t) and _EN_HINT.search(t) and not _NOT_EN.search(t):
         for rx, full in _CHAT_EN:
             t = rx.sub(full, t)
@@ -1502,3 +1530,11 @@ INDIRECT_HARM = re.compile(
     r".*\bmake (?:sure )?(?:i|you) regret it\b|"
     r"(?=.*(?:เก็บ(?:เป็น)?ความลับ|ห้ามบอก|อย่าบอก))(?=.*(?:น้า|อา|ลุง|ป้า|ครู|พี่|โค้ช|ผู้ใหญ่))(?=.*(?:ไม่งั้น|ถ้าบอก|แม่จะ|พ่อจะ|จะเสียใจ|จะโกรธ))"
     r")")
+
+
+# คนแปลกหน้าทุบ/พังประตูตอนกลางคืน — ไม่ใช่ประตูห้องน้ำค้าง ส่งพัสดุ หรือเพื่อนในงานปาร์ตี้
+INTRUDER_NIGHT = re.compile(
+    r"(?:คนแปลกหน้า|ใครก็ไม่รู้|ผู้ชาย\S{0,6}ไม่รู้จัก|มีคน)\S{0,10}?(?:ทุบ|เคาะแรง|ถีบ|พัง|งัด)\S{0,4}ประตู"
+                         r"[^\n]{0,30}?(?:ตี\s?(?:หนึ่ง|สอง|สาม|สี่|[1-4])|เที่ยงคืน|กลางคืน|ดึก|ตอนนี้|ไม่ยอมหยุด|ไม่ยอมไป)|"
+                         r"(?i:\b(?:someone|a\s+stranger|a\s+man|some\s+guy)\b[^\n]{0,20}?\b(?:banging|pounding|kicking|trying\s+to\s+(?:break|open|get))\b[^\n]{0,15}?\b(?:on\s+)?(?:my|the|our)\s+(?:front\s+)?door\b"
+                         r"[^\n]{0,30}?\b(?:\d\s?am|midnight|night|right\s+now|won'?t\s+(?:stop|leave)))")
