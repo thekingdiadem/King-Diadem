@@ -339,7 +339,7 @@ _EN_SET = set(EN_UPGRADES)
 _THAI_RUN = re.compile(r"[\u0E00-\u0E7F]+")
 
 _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85, "sexual_abuse": 85,
-            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85, "intruder": 85, "forced_marriage": 85, "money_control": 65}
+            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85, "intruder": 85, "forced_marriage": 85, "confined_space": 90, "home_ventilator": 85, "money_control": 65}
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
@@ -588,4 +588,14 @@ UPGRADES += [
                 r"(?i:\b(?:diet|weight[-\s]loss|slimming)\s+pills?\b[^\n]{0,30}?\b(?:heart\s+(?:is\s+)?racing|chest\s+pain|can'?t\s+breathe|faint\w*|seiz\w*)\b)"), "health_emergency"),
     (re.compile(r"(?:ลูก|น้อง|หลาน)(?:สาว|ชาย)?\S{0,4}(?:หาย|หนี)(?:ไป)?(?:กับ)\S{0,10}(?:ที่)?(?:รู้จัก)?(?:ใน|ทาง)(?:เน็ต|ออนไลน์|เกม|แอป)[^\n]{0,20}?(?:ติดต่อไม่ได้|ไม่กลับ|โทรไม่ติด)|"
                 r"(?i:\b(?:daughter|son|kid|sister)\s+(?:ran\s+off|left|went\s+away)\s+with\s+(?:a\s+)?(?:guy|man|someone|person)\s+(?:she|he)\s+met\s+online\b[^\n]{0,30}?\b(?:no\s+contact|can'?t\s+reach|not\s+answering|days)\b)"), "missing"),
+]
+
+# รอบ 133: คนลงไปในบ่อเกรอะ/ท่อ/ถังแล้วไม่ขึ้นมา (แก๊สพิษ — ห้ามลงไปช่วยเอง) · ไฟดับขณะใช้เครื่องช่วยหายใจ · แมงกะพรุนแล้วหายใจขัด
+UPGRADES += [
+    (re.compile(r"(?:ลง|ตก|เข้า)(?:ไป)?(?:ใน)?(?:บ่อเกรอะ|บ่อบำบัด|บ่อน้ำเสีย|ท่อ(?:ระบาย|ใต้ดิน)?|ถัง(?:หมัก|เก็บ)|บ่อหมัก|ห้องใต้ดิน)[^\n]{0,24}?(?:ไม่ขึ้นมา|ไม่ออกมา|เงียบ|เรียกไม่ตอบ|หมดสติ|ล้ม)|"
+                r"(?:คน(?:ที่)?(?:อยู่)?(?:ข้าง)?ใน(?:ท่อ|บ่อ|ถัง))[^\n]{0,16}?(?:เงียบ|เรียกไม่ตอบ|หมดสติ|ล้ม|ไม่ขยับ)|"
+                r"(?i:\b(?:went|fell|climbed)\s+(?:in|into|down)\s+(?:the|a)\s+(?:septic\s+tank|manhole|sewer|tank|pit|well|silo)\b[^\n]{0,30}?\b(?:isn'?t\s+coming|not\s+coming|not\s+answering|collapsed|passed\s+out|unconscious)\b)"), "confined_space"),
+    (re.compile(r"ไฟ(?:ฟ้า)?ดับ[^\n]{0,24}?(?:เครื่องช่วยหายใจ|เครื่องผลิตออกซิเจน|ออกซิเจน)|(?:เครื่องช่วยหายใจ|เครื่องผลิตออกซิเจน)[^\n]{0,20}?ไฟ(?:ฟ้า)?ดับ|"
+                r"(?i:\bpower\s+(?:is\s+)?(?:out|cut|off)\b[^\n]{0,30}?\b(?:ventilator|oxygen\s+(?:machine|concentrator))\b|\b(?:ventilator|oxygen\s+concentrator)\b[^\n]{0,30}?\bpower\s+(?:is\s+)?(?:out|cut)\b)"), "home_ventilator"),
+    (re.compile(r"แมงกะพรุน[^\n]{0,20}?(?:หายใจ(?:ขัด|ลำบาก|ไม่ออก)|เจ็บหน้าอก|หมดสติ|ชัก)|(?i:\bjellyfish\b[^\n]{0,30}?\b(?:can'?t\s+breathe|hard\s+to\s+breathe|chest\s+pain|collapsed)\b)"), "health_emergency"),
 ]

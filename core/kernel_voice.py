@@ -172,6 +172,24 @@ TOPICS = [
         ],
         "ask": "ตอนนี้ได้โอนเงินหรือให้ข้อมูลอะไรไปแล้วหรือยัง?",
     }),
+    ("confined_space", [], {
+        "open": ["อย่าลงไปช่วยเองเด็ดขาด — ในบ่อ ท่อ หรือถังมักมีแก๊สพิษ คนที่ลงไปช่วยหมดสติตามเป็นคนที่สองบ่อยที่สุด"],
+        "paths": [
+            "โทร 1669 และ 199 ตอนนี้ บอกว่ามีคนหมดสติในที่อับอากาศ (บ่อเกรอะ ท่อ ถัง) ต้องการทีมกู้ภัยที่มีเครื่องช่วยหายใจ",
+            "จากข้างนอก: เปิดฝาและช่องลมให้มากที่สุด ห้ามจุดไฟหรือสูบบุหรี่ใกล้ปากบ่อ · ถ้ามีเชือกผูกตัวเขาอยู่ ดึงจากข้างบนได้",
+            "กันคนอื่นไม่ให้ลงไปตาม และรอทีมกู้ภัยที่ปากบ่อ บอกเวลาที่เขาลงไป",
+        ],
+        "ask": "ตอนนี้มีใครลงไปตามแล้วหรือยัง?",
+    }),
+    ("home_ventilator", [], {
+        "open": ["ไฟดับตอนใช้เครื่องช่วยหายใจเป็นเรื่องด่วน — ทำทีละขั้นนะคะ"],
+        "paths": [
+            "ดูก่อนว่าเครื่องมีแบตสำรองไหมและเหลือกี่ชั่วโมง · ถ้ามีถุงบีบลม (Ambu) ให้เตรียมไว้ข้างตัว",
+            "ถ้าหายใจลำบาก ปากเขียว หรือแบตเหลือน้อย โทร 1669 ตอนนี้ บอกว่าผู้ป่วยใช้เครื่องช่วยหายใจและไฟดับ",
+            "แจ้งการไฟฟ้า (กฟภ. 1129 · กฟน. 1130) ว่าในบ้านมีผู้ป่วยใช้เครื่องช่วยหายใจ และหาที่ที่มีไฟ (โรงพยาบาล รถที่สตาร์ทไว้พร้อมอินเวอร์เตอร์)",
+        ],
+        "ask": "เครื่องมีแบตสำรองเหลืออีกนานแค่ไหน?",
+    }),
     ("forced_marriage", [], {
         "open": ["คุณมีสิทธิ์ปฏิเสธการแต่งงานที่ไม่ได้เต็มใจ — ไม่ว่าใครจะกดดันแค่ไหน"],
         "paths": [
@@ -1805,6 +1823,16 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "confined_space": ("Do not go in after them — tanks, pits and pipes often hold toxic gas, and the would-be rescuer is very often the second person to collapse.", [
+        "Call emergency services now (1669 and 199 in Thailand, 911 in the US, 112 in Europe): someone has collapsed in a confined space and rescuers need breathing equipment.",
+        "From outside only: open every lid and vent you can, no flames or cigarettes near the opening · if they are on a rope, pull from above.",
+        "Keep anyone else from going down, and wait at the opening for rescuers — tell them when the person went in."],
+        "Has anyone else gone in after them?"),
+    "home_ventilator": ("A power cut while someone is on a ventilator is urgent — let's take it one step at a time.", [
+        "Check whether the machine has a backup battery and how many hours are left · keep a manual resuscitation bag (Ambu bag) beside them if you have one.",
+        "If they're struggling to breathe, their lips turn blue, or the battery is low, call emergency services now and say they're ventilator-dependent and the power is out.",
+        "Tell the electricity provider there is a ventilator user at home (in Thailand PEA 1129 · MEA 1130), and plan where there is power (hospital, a car with an inverter)."],
+        "How long will the backup battery last?"),
     "forced_marriage": ("You have the right to refuse a marriage you don't want — no matter who is pressuring you.", [
         "Talk to a helpline in confidence: 1300 in Thailand (24h), or the Forced Marriage Unit +44 20 7008 0151 in the UK · under 18, child marriage is illegal in most countries.",
         "If you fear being taken somewhere, keep your ID, passport and phone on you, and tell one trusted friend or teacher the date and place.",
@@ -2248,7 +2276,7 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("forced_marriage", "intruder", "post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("confined_space", "home_ventilator", "forced_marriage", "intruder", "post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
