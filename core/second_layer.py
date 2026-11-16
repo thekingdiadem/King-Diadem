@@ -480,7 +480,8 @@ def apply(text: str, a: dict) -> dict:
         a["text_risk"] = max(a["text_risk"], 85)
     # เหตุฉุกเฉินมาก่อนเรื่องเรื้อรัง — "ติดยาบ้า ใช้หนักจนใจเต้นเร็ว เจ็บหน้าอก" เคยได้คำตอบเรื่องเลิกยา ไม่มี 1669
     # (เบอร์ในคำตอบมาจากหัวข้อแรก)
-    if a["topics"] and a["topics"][0] in ("addiction", "health", "stress", "sleepless", "debt", "money", "job"):
+    # รอบ 131: "ติดในลิฟต์ หายใจไม่ค่อยออก" เคยได้แค่ "ลิฟต์ส่วนใหญ่ปลอดภัย" (50) — หายใจไม่ออกด่วนกว่า
+    if a["topics"] and a["topics"][0] in ("addiction", "health", "stress", "sleepless", "debt", "money", "job", "kp_elevator"):
         top = next((t for t in a["topics"] if t in ("health_emergency", "overdose")), None)
         if top:
             a["topics"] = [top] + [t for t in a["topics"] if t != top]
@@ -561,3 +562,15 @@ UPGRADES += [
 # รอบ 106: ควบคุมด้วยเงิน — ยึดเงินเดือน/บัตร ไม่ให้ใช้เงินเลย
 UPGRADES += [(re.compile(r"(?:แฟน|สามี|ผัว|ภรรยา|เมีย)\S{0,6}?(?:ยึด|เอาไป|คุม|เก็บ)\S{0,4}?(?:เงินเดือน|บัตร\S{0,4}|เงิน|สมุดบัญชี)\S{0,6}?(?:หมด|ทั้งหมด)?[^\n]{0,20}?(?:ไม่ให้ใช้|ไม่ให้\S{0,4}สักบาท|ต้องขอ|ห้ามซื้อ|ไม่ให้ทำงาน)|"
                          r"(?i:\bmy\s+(?:husband|wife|partner|boyfriend|girlfriend)\s+(?:takes|took|controls|keeps)\s+(?:all\s+)?(?:my\s+)?(?:salary|money|paycheck|wages|cards?)\b[^\n]{0,30}?\b(?:won'?t\s+let\s+me|not\s+allowed|have\s+to\s+ask|can'?t\s+(?:spend|buy|work))\b)"), "money_control")]
+
+# รอบ 131: หัวติดลูกกรง · เดินเซ+พูดสับสน (สโตรก) · ติดลิฟต์หายใจไม่ออก · น้ำร้อนลวกจนพอง (อังกฤษ)
+UPGRADES += [
+    (re.compile(r"(?:หัว|คอ|แขน|ขา)\S{0,6}ติด\S{0,4}(?:ลูกกรง|ซี่กรง|ราว|รั้ว|ช่อง)[^\n]{0,20}?(?:ดึงไม่ออก|เอาไม่ออก|ออกไม่ได้|ร้องไห้|หายใจ)"
+                r"(?![^\n]{0,10}?(?:ได้แล้ว|ออกแล้ว))|"
+                r"(?i:\b(?:head|arm|leg)\s+(?:is\s+)?stuck\s+(?:in|between)\s+(?:the\s+)?(?:railings?|bars|fence|gate)\b)"), "first_aid"),
+    (re.compile(r"(?![^\n]*(?:เมา|เหล้า|เบียร์|ฮ่าๆ|555))(?:เดินเซ|ทรงตัวไม่ได้|เซไปเซมา)[^\n]{0,20}?(?:พูด(?:จา)?สับสน|พูดไม่ชัด|พูดไม่รู้เรื่อง|ลิ้นแข็ง)|(?:พูด(?:จา)?สับสน|พูดไม่ชัด)[^\n]{0,20}?(?:เดินเซ|ทรงตัวไม่ได้)|"
+                r"(?i:\b(?:confused|disoriented)\s+and\s+slurr\w*\b|\bslurr\w*\s+(?:her|his|their)?\s*(?:words|speech)?\s*and\s+(?:confused|can'?t\s+walk|stumbling)\b)"), "health_emergency"),
+    (re.compile(r"ติด(?:อยู่)?(?:ใน)?ลิฟต์[^\n]{0,24}?(?:หายใจ(?:ไม่ค่อย|ไม่)ออก|หายใจลำบาก|อากาศไม่พอ|เป็นลม|หน้ามืด)|"
+                r"(?i:\bstuck\s+in\s+(?:the|an)\s+(?:elevator|lift)\b[^\n]{0,30}?\b(?:can'?t\s+breathe|hard\s+to\s+breathe|fainting|passing\s+out)\b)"), "health_emergency"),
+    (re.compile(r"(?i:\b(?:boiling|hot)\s+(?:water|oil|soup)\s+(?:spilled|poured)\s+on\s+(?:my\s+)?(?:baby|child|kid|son|daughter|toddler)'?s?\b[^\n]{0,30}?\b(?:blisters?|burn\w*|peeling)\b)"), "first_aid"),
+]

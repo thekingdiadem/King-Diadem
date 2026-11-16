@@ -2266,7 +2266,7 @@ _CALIBRATED = {"kp_double_dose", "kp_elevator"}
 # หัวข้อกว้างที่ตอบผิดเรื่องจนต้องตัดทิ้ง — ที่เหลือแค่เลื่อนไปไว้หลังหัวข้อเฉพาะ (ยังนับว่าเป็นเรื่องติดพนัน/ฉุกเฉินอยู่)
 _WRONG_FRAME = {"someone", "violence", "grief", "diagnosis"}
 # มีอาการอันตรายร่วม = ไม่ลดคะแนน ("กินยาความดันไปสองรอบ ตอนนี้หน้ามืดจะเป็นลม" ยังต้องด่วน)
-_DANGER_SIGNS = re.compile(r"หน้ามืด|เป็นลม|หมดสติ|ใจสั่น|เหงื่อแตก|สับสน|ซึม|ปลุกไม่ตื่น|หายใจ(?:ไม่ออก|ลำบาก|ไม่ทัน)|เจ็บหน้าอก|แน่นหน้าอก|ชัก|ตัวเย็น"
+_DANGER_SIGNS = re.compile(r"หน้ามืด|เป็นลม|หมดสติ|ใจสั่น|เหงื่อแตก|สับสน|ซึม|ปลุกไม่ตื่น|หายใจ(?:ไม่ออก|ลำบาก|ไม่ทัน|ไม่ค่อยออก)|เจ็บหน้าอก|แน่นหน้าอก|ชัก|ตัวเย็น"
                            r"|\b(?:faint\w*|dizz\w*|confused|drowsy|passed out|unconscious|can'?t breathe|chest pain|seizure|racing heart)\b", re.I)
 
 # (หัวข้อเฉพาะ, หัวข้อกว้างที่มันมาแทน)
@@ -2506,7 +2506,12 @@ def _specific_first(text, a: dict) -> dict:
     if not topics:
         return a
     calm = None
+    danger = bool(_DANGER_SIGNS.search(str(text or "")))
     for first, over in _SPECIFIC_FIRST:
+        # หัวข้อที่ "ลดระดับ" (ติดลิฟต์ส่วนใหญ่ปลอดภัย · กินยาซ้ำส่วนใหญ่ไม่อันตราย) ไม่มาแทนเมื่อมีอาการอันตรายจริง
+        # รอบ 131: "ติดอยู่ในลิฟต์ หายใจไม่ค่อยออก" เคยได้ "ลิฟต์ไม่ตก" แทนคำแนะนำเรื่องหายใจ
+        if first in _CALIBRATED and danger:
+            continue
         if first in topics and set(topics) & over:
             topics = [first] + [x for x in topics if x != first and not (x in over and x in _WRONG_FRAME)]
             calm = first if first in _CALIBRATED else calm
