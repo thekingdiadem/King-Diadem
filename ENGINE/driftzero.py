@@ -111,7 +111,7 @@ GATES = [
      "This leaves a door open — most breaches come through old systems left running, default passwords, missing patches, or outsiders with too much access "
      "· shut what you no longer use, change default passwords, turn on MFA, and grant only the access the job needs"),
     ("S2", "ข้อมูลของคนอื่นไม่ใช่ของเรา", "Other people's data is not ours",
-     _rx(r"(?:ใช้|เอา)\S{0,6}(?:รูป|ภาพ|คลิป|เสียง)(?:ของ)?(?:ลูกค้า|คนไข้|นักเรียน|พนักงาน)[^\n]{0,20}?(?:โดยไม่ขอ|ไม่ขออนุญาต|ไม่ถาม)|\buse\s+(?:customer|patient|student|employee)s?[\'’]?\s+(?:photos|images|videos|voices?)\b[^\n]{0,20}?\bwithout\s+(?:asking|consent|permission)\b|\btrack\s+(?:[\w'’]+\s+){0,2}(?:personal|private)\s+phones?\b|ติดตาม\S{0,4}(?:มือถือ|โทรศัพท์)ส่วนตัว(?:ของ)?(?:พนักงาน)?|(?:ขาย|ส่ง|แชร์|ให้|ปล่อย)[^\n]{0,6}?ข้อมูล(?:ส่วนตัว|ส่วนบุคคล)?\s*(?:ของ)?\s*(?:ลูกค้า|ผู้ใช้|พนักงาน|สมาชิก|คนไข้|ผู้ป่วย|นักเรียน)[^\n]{0,40}?(?:ให้|แก่|ไปยัง|กับ)|"
+     _rx(r"vender (?:los )?datos de (?:los )?clientes|bán dữ liệu khách hàng|客户数据卖|卖给第三方|고객 데이터를 팔|顧客データを売|(?:ใช้|เอา)\S{0,6}(?:รูป|ภาพ|คลิป|เสียง)(?:ของ)?(?:ลูกค้า|คนไข้|นักเรียน|พนักงาน)[^\n]{0,20}?(?:โดยไม่ขอ|ไม่ขออนุญาต|ไม่ถาม)|\buse\s+(?:customer|patient|student|employee)s?[\'’]?\s+(?:photos|images|videos|voices?)\b[^\n]{0,20}?\bwithout\s+(?:asking|consent|permission)\b|\btrack\s+(?:[\w'’]+\s+){0,2}(?:personal|private)\s+phones?\b|ติดตาม\S{0,4}(?:มือถือ|โทรศัพท์)ส่วนตัว(?:ของ)?(?:พนักงาน)?|(?:ขาย|ส่ง|แชร์|ให้|ปล่อย)[^\n]{0,6}?ข้อมูล(?:ส่วนตัว|ส่วนบุคคล)?\s*(?:ของ)?\s*(?:ลูกค้า|ผู้ใช้|พนักงาน|สมาชิก|คนไข้|ผู้ป่วย|นักเรียน)[^\n]{0,40}?(?:ให้|แก่|ไปยัง|กับ)|"
          r"(?:ข้อมูล|เบอร์(?:โทร)?|อีเมล|รายชื่อ|ที่อยู่|ประวัติ(?:การรักษา|การซื้อ)?)(?:ส่วนตัว)?\s*(?:ของ)?\s*(?:ลูกค้า|ผู้ใช้|พนักงาน|สมาชิก|คนไข้|ผู้ป่วย|นักเรียน)[^\n]{0,24}?(?:ส่งให้|ขายให้|แชร์ให้|ให้กับ|ให้แก่|ไปให้)|"
          r"(?:โดย)?ไม่(?:ต้อง)?ขอ(?:ความ)?ยินยอม|แอบ(?:บันทึก|เก็บ|ติดตาม|อ่าน|ดู)(?:ข้อมูล|ข้อความ|แชท|ตำแหน่ง)?|"
          r"ข้อมูล[^\n]{0,16}?(?:รั่ว|หลุด|ถูกขโมย|ถูกแฮ็ก)[^\n]{0,40}?(?:ไม่ต้องแจ้ง|ยังไม่(?:ต้อง)?แจ้ง|ไม่แจ้ง|ปิดเรื่อง|เงียบไว้)|"
@@ -131,7 +131,7 @@ GATES = [
      _rx(r"จ้าง[^\n]{0,8}?(?:เด็ก|เยาวชน)[^\n]{0,12}?(?:อายุ\s*)?(?:1[0-4]|[5-9])(?!\d)|เด็ก(?:อายุ)?\s*(?:1[0-4]|[5-9])\s*(?:ขวบ|ปี)?[^\n]{0,12}?(?:ทำงาน|กะ|เข้างาน)|ใช้แรงงานเด็ก|"
          r"(?:ไม่จ่าย|ไม่ให้|ไม่มี)\s*(?:ค่า)?(?:โอที|ล่วงเวลา)|(?:โอที|ล่วงเวลา)[^\n]{0,24}?(?:ไม่จ่าย|ฟรี|ไม่มีค่า)|"
          r"(?:ต่ำกว่า|ไม่ถึง)\s*(?:ค่าแรง|ค่าจ้าง)?\s*ขั้นต่ำ|ยึด\s*(?:พาสปอร์ต|หนังสือเดินทาง|บัตรประชาชน|บัตรแรงงาน|เอกสาร)|"
-         r"(?:ไม่ทำ|ไม่ขอ|ไม่มี)\S{0,4}ใบอนุญาตทำงาน|(?:จ้าง|ใช้)\S{0,10}(?:คน)?ต่างด้าว[^\n]{0,20}?ผิดกฎหมาย|\bclassify\s+(?:\w+\s+){0,2}as\s+contractors\b[^\n]{0,30}?\b(?:benefits|overtime|pay)\b|(?:เซ็น|ลงชื่อ)\S{0,4}ใบลาออก\S{0,6}(?:ล่วงหน้า|ไว้ก่อน)|ใบลาออกล่วงหน้า|pre-?signed\s+resignation|ไม่มีวันหยุด|ไม่ให้(?:ลา|หยุด|พัก)|ทำงานวันละ\s*1[3-9]|"
+         r"no pagar (?:las )?horas extra|không trả (?:lương )?(?:làm )?thêm giờ|不付加班费|초과근무 수당을? 안|残業代を払わない|(?:ไม่ทำ|ไม่ขอ|ไม่มี)\S{0,4}ใบอนุญาตทำงาน|(?:จ้าง|ใช้)\S{0,10}(?:คน)?ต่างด้าว[^\n]{0,20}?ผิดกฎหมาย|\bclassify\s+(?:\w+\s+){0,2}as\s+contractors\b[^\n]{0,30}?\b(?:benefits|overtime|pay)\b|(?:เซ็น|ลงชื่อ)\S{0,4}ใบลาออก\S{0,6}(?:ล่วงหน้า|ไว้ก่อน)|ใบลาออกล่วงหน้า|pre-?signed\s+resignation|ไม่มีวันหยุด|ไม่ให้(?:ลา|หยุด|พัก)|ทำงานวันละ\s*1[3-9]|"
          r"(?:ลด|ตัด|งด)\s*(?:งบ|อุปกรณ์|การอบรม)?\s*(?:ด้าน)?(?:ความปลอดภัย|ป้องกัน|กันตก|PPE)|"
          r"\bchild\s+labou?r\b|\bhir(?:e|ing)\s+(?:kids|children|minors|\d{1,2}[- ]year[- ]olds)\b|\b(?:under|below)\s+(?:the\s+)?minimum\s+wage\b|\bunpaid\s+overtime\b|"
          r"\b(?:not|don'?t|won'?t)\s+pay\s+(?:for\s+)?overtime\b|\b(?:hold|keep|confiscate|take)\s+(?:the\s+)?(?:their|workers['’]?|staff['’]?s?|employees['’]?)\s+passports?\b|"
@@ -191,7 +191,7 @@ GATES = [
      "This puts people's lives or bodies (patients, students, workers, customers) at risk for speed or cost — that kind of harm can't be undone "
      "· find the slower or costlier way that is safe, and pause that part until it is"),
     ("E2", "Waterline — เส้นที่ห้ามต่ำกว่า", "Waterline — the floor you must not cross",
-     _rx(r"เงินสำรองทั้งหมด|ใช้เงินสำรอง(?:จน)?หมด|ทุ่มหมดหน้าตัก|หมดหน้าตัก|เทหมดตัว|all[- ]in|ใช้เงินสดทั้งหมด|เงินสดเหลือไม่ถึง|"
+     _rx(r"todas las reservas|toda la reserva|toàn bộ (?:tiền )?dự trữ|全部储备|所有储备|모든 예비금|準備金を全部|เงินสำรองทั้งหมด|ใช้เงินสำรอง(?:จน)?หมด|ทุ่มหมดหน้าตัก|หมดหน้าตัก|เทหมดตัว|all[- ]in|ใช้เงินสดทั้งหมด|เงินสดเหลือไม่ถึง|"
          r"กู้เต็มวงเงิน|จำนอง(?:ทั้งหมด|ทุกอย่าง)|ค้ำประกันส่วนตัว|เอาบ้านไปค้ำ|(?:เอา)?(?:บ้าน|ที่ดิน|ที่นา|รถ)\S{0,4}(?:ไป)?(?:จำนอง|ขายฝาก)\S{0,10}(?:ลงทุน|เล่น|เทรด|คริปโต|หุ้น)|(?<!ไม่)(?<!ไม่ได้)(?:กู้|ยืม)\S{0,2}(?:เงิน)?นอกระบบ|เงินกู้นอกระบบ|หมุนเงินกู้|(?<!never use )(?<!no )(?<!not use )(?:loan sharks?|payday loans?)|mortgage (?:the|our|my) (?:house|home)\S{0,10}\s+(?:to|for)\s+(?:invest|crypto|trade|stocks)|ขายสินทรัพย์หลัก|ขายโรงงาน|ขายกิจการ|"
          r"ปลดคน(?:จน)?เหลือไม่พอ|เลิกจ้างทีมหลัก|ผิดนัดชำระ|ใบอนุญาต(?:ถูก)?(?:เพิกถอน|ระงับ)|ละเมิดสัญญา|"
          r"เสียความเชื่อใจของลูกค้า|ทำลายชื่อเสียง|ย้อนกลับไม่ได้|irreversible|point of no return|bet the company|"
@@ -209,7 +209,7 @@ _OWNER = _rx(r"ผู้รับผิดชอบ|รับผิดชอบ�
 _DRIFT = _rx(r"ทุกวัน|ต่อวัน|รายวัน|วันละ|/วัน|ต่อเดือน|เดือนละ|/เดือน|ทีละนิด|สะสม|เพิ่มขึ้นเรื่อยๆ|ลดลงเรื่อยๆ|per day|daily|per month|accumulat|gradually")
 _NUM = re.compile(r"\d")
 # เป็นเรื่องตัดสินใจขององค์กร/โครงการจริงไหม — ไม่ใช่ ให้แนะนำโหมดปรึกษา
-_ORG = _rx(r"คลินิก|โรงพยาบาล|โรงเรียน|มหาวิทยาลัย|ครู|นักเรียน|คนไข้|ผู้ป่วย|ฟาร์ม|ไร่|แปลง|คนงาน|ไซต์งาน|ผู้รับเหมา|มูลนิธิ|สมาคม|สหกรณ์|วัด|เทศบาล|อบต|clinic|farm|charity|foundation|nonprofit|ngo|contractor|drivers?|patients?|students?|board|investors?|บริษัท|องค์กร|โครงการ|โรงงาน|ธุรกิจ|ร้าน|สาขา|นโยบาย|ชุมชน|หน่วยงาน|ทีม|พนักงาน|ลูกค้า|ซัพพลายเออร์|งบประมาณ|ลงทุน|ผลิต|"
+_ORG = _rx(r"empresa|negocio|tienda|clientes|empleados|công ty|cửa hàng|khách hàng|nhân viên|公司|客户|员工|店铺|회사|가게|직원|고객|会社|店舗|従業員|顧客|คลินิก|โรงพยาบาล|โรงเรียน|มหาวิทยาลัย|ครู|นักเรียน|คนไข้|ผู้ป่วย|ฟาร์ม|ไร่|แปลง|คนงาน|ไซต์งาน|ผู้รับเหมา|มูลนิธิ|สมาคม|สหกรณ์|วัด|เทศบาล|อบต|clinic|farm|charity|foundation|nonprofit|ngo|contractor|drivers?|patients?|students?|board|investors?|บริษัท|องค์กร|โครงการ|โรงงาน|ธุรกิจ|ร้าน|สาขา|นโยบาย|ชุมชน|หน่วยงาน|ทีม|พนักงาน|ลูกค้า|ซัพพลายเออร์|งบประมาณ|ลงทุน|ผลิต|"
            r"company|organi[sz]ation|project|factory|business|policy|team|staff|budget|invest|supplier|community|plant|"
            r"\bstores?\b|\bshops?\b|branch|employee|customer|startup|school|hospital|department|government|firm|launch|hire|hiring|layoff|"
            # ผู้ใช้จริงคนแรกถามว่า "spend 10k on facebook ads" แล้วโดนบอกว่า "ดูเหมือนเป็นเรื่องส่วนตัว" — งานขาย/การตลาดก็คือการตัดสินใจของกิจการ
@@ -551,13 +551,13 @@ def steady_runway(prior_text: str, answer: str) -> dict:
 
 # คนที่กำลังจะไม่ไหว ไม่ใช่องค์กรที่กำลังวางแผน — "ธุรกิจกำลังจะพัง เงินเหลือ 3000 กู้ใครก็ไม่ได้แล้ว กำลังล้ม"
 # เดิมโดนถาม "Waterline คือเท่าไหร่ · DHD · ใครเซ็นรับผิดชอบ" ทั้งที่บอกตัวเลขมาแล้ว และน้ำเสียงกำลังจะล้ม
-_SINKING = re.compile(r"กำลัง(?:จะ)?(?:ล้ม|พัง|เจ๊ง|จม)|จะ(?:ล้ม|พัง|เจ๊ง)แล้ว|(?:ร้าน|ธุรกิจ|กิจการ|บริษัท|โรงงาน)\S{0,6}จะ(?:เจ๊ง|พัง|ล้ม)(?!\S{0,3}(?:ไหม|มั้ย|หรือเปล่า|ถ้า))|ไม่ไหวแล้ว|หมดทาง|ไม่รู้จะ(?:ทำ|ไป)(?:ยังไง|ไง|ไหน)|"
+_SINKING = re.compile(r"se está hundiendo|a punto de quebrar|en quiebra|no puedo pagar|sắp phá sản|phá sản|không trả nổi|快倒闭|要倒闭|撑不下去|快破产|망하기 직전|망할 것 같|폐업 직전|倒産しそう|潰れそう|กำลัง(?:จะ)?(?:ล้ม|พัง|เจ๊ง|จม)|จะ(?:ล้ม|พัง|เจ๊ง)แล้ว|(?:ร้าน|ธุรกิจ|กิจการ|บริษัท|โรงงาน)\S{0,6}จะ(?:เจ๊ง|พัง|ล้ม)(?!\S{0,3}(?:ไหม|มั้ย|หรือเปล่า|ถ้า))|ไม่ไหวแล้ว|หมดทาง|ไม่รู้จะ(?:ทำ|ไป)(?:ยังไง|ไง|ไหน)|"
                       r"กู้\S{0,6}(?:ไม่ได้|ไม่ผ่าน)|ไม่มีใครให้(?:ยืม|กู้)|ยืมใครก็ไม่ได้|ไม่เหลืออะไร|สิ้นหวัง|ไปต่อไม่ไหว|"
                       r"(?i:\b(?:going\s+under|losing\s+everything|(?:can'?t|cannot)\s+(?:pay|borrow|keep\s+going)|"
                       r"no\s+one\s+will\s+lend|don'?t\s+know\s+what\s+to\s+do|about\s+to\s+collapse|i'?m\s+(?:sinking|drowning|done))\b)")
 
 
-_MONEY_TALK = re.compile(r"เงิน|หนี้|ขาดทุน|กู้|ยืม|ค่าเช่า|เจ๊ง|ร้าน|กิจการ|ธุรกิจ|"
+_MONEY_TALK = re.compile(r"negocio|tienda|dinero|dólares|cửa hàng|tiền|triệu|công ty|公司|店|钱|가게|돈|회사|お金|会社|เงิน|หนี้|ขาดทุน|กู้|ยืม|ค่าเช่า|เจ๊ง|ร้าน|กิจการ|ธุรกิจ|"
                          r"[$฿€£]\s?\d|(?i:\b(?:money|debt|loan|lend|borrow|rent|dollars?|baht|cash|shop|store|restaurant|business|company|bills?|pay|wages?|salar(?:y|ies)|staff)\b)")
 _NO_MONEY = re.compile(r"เงินหมด|ไม่มีเงิน(?:เหลือ)?|ไม่เหลือเงิน|หมดตัว|(?i:\b(?:no\s+money\s+left|out\s+of\s+money|broke|nothing\s+left)\b)")
 _PER_DAY = re.compile(r"(?:วันละ|ต่อวัน|(?i:\b(?:per|a|each)\s+day\b))")
