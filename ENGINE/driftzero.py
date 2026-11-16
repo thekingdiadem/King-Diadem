@@ -163,7 +163,7 @@ GATES = [
      "Gains through deception, concealment or exploiting people in trouble (bribes, two sets of books, fake reviews, health claims, disaster price-hikes, paying old investors with new money, skipping a recall) "
      "— lost trust can't be recalled · only do what you could show everyone"),
     ("E1", "แลกความสะดวกกับความเสียหายระยะยาว", "Convenience trade-off",
-     _rx(r"ใช้ครั้งเดียวทิ้ง|พลาสติกครั้งเดียว|ตัดต้นไม้|ถางป่า|เผา(?:ขยะ|ป่า|ไร่)|ทิ้งขยะ|ฝังกลบ|ลดต้นทุนด้วยการไม่บำบัด|single-use|clear(?:ing)? (?:the )?forest|burn(?:ing)? (?:waste|fields)|landfill"),
+     _rx(r"(?:ทิ้ง|เท|ฝัง|ขน\S{0,6}ไป(?:ทิ้ง|เท))\S{0,10}(?:กาก|ขยะ|สาร)(?:อุตสาหกรรม|พิษ|เคมี|อันตราย)?|(?:กากอุตสาหกรรม|ขยะพิษ|ขยะอันตราย|สารเคมี(?:ที่ใช้แล้ว)?|น้ำมันเครื่องเก่า)[^\n]{0,24}?(?:ไป)?(?:ทิ้ง|เท|ฝัง|เผา)(?!\S{0,4}(?:อย่างถูก|ที่ได้รับอนุญาต))|เผา\S{0,6}(?:ตอซัง|ฟาง|ซังข้าว|อ้อย|พลาสติก|ยาง)|(?:ปล่อย|ระบาย)\S{0,6}น้ำ\S{0,10}(?:บ่อแร่|เหมือง|โรงงาน)|\b(?:dump|bury|pour)\s+(?:\w+\s+){0,3}(?:waste|solvents?|chemicals?|oil|sludge|tailings)\b|\brelease\s+(?:\w+\s+){0,2}tailings\b|\btailings\s+(?:water\s+)?into\s+(?:the\s+)?(?:river|stream|lake)\b|\bburn\s+(?:the\s+)?(?:plastic|tyres?|tires?|chemical|industrial|e-?)\s*waste\b|\bburn\s+(?:the\s+)?(?:stubble|crop\s+residue)\b|ใช้ครั้งเดียวทิ้ง|พลาสติกครั้งเดียว|ตัดต้นไม้|ถางป่า|เผา(?:ขยะ|ป่า|ไร่)|ทิ้งขยะ|ฝังกลบ|ลดต้นทุนด้วยการไม่บำบัด|single-use|clear(?:ing)? (?:the )?forest|burn(?:ing)? (?:waste|fields)|landfill"),
      "สะดวกวันนี้แต่โลกเสียหายระยะยาว — ค่าเริ่มต้นของต้นฉบับคือปฏิเสธ หาทางที่ไม่ทิ้งภาระ",
      "Short-term convenience with long-term harm — default: reject"),
     # Waterline ในระดับองค์กร = "เส้นขั้นต่ำที่ห้ามต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้" (เจ้าของโปรเจกต์นิยาม)
@@ -491,6 +491,10 @@ _NEG_BEFORE = re.compile(r"(?:ไม่|ห้าม|ไม่มีการ|�
                          r"(?i:\b(?:not|never|no|won'?t|don'?t|do\s+not|will\s+not|refuse\s+to|stop|avoid|prevent|against|bans?|banned|forbids?|forbidden|prohibits?|prohibited|zero\s+tolerance\s+(?:for|on))\b[\w\s'-]{0,12}$)")
 
 
+_TREATED = re.compile(r"บำบัด|ผ่านการบำบัด|ที่มีใบอนุญาต|ได้รับอนุญาต|ได้มาตรฐาน|แทนการเผา|(?i:\btreat(?:ed|ment)\b|\blicensed\b|\binstead\s+of\s+burning\b)")
+_ENV_WORD = re.compile(r"น้ำ|คลอง|แม่น้ำ|กาก|ขยะ|สาร|เผา|ตอซัง|(?i:waste|water|river|burn|tailings|chemical)")
+
+
 def _negated(text: str, m) -> bool:
     before = text[max(0, m.start() - 16):m.start()]
     # คำปฏิเสธที่อยู่ในตัวรูปประโยคเอง ("ไม่จ่ายค่าโอที" "โดยไม่ขอความยินยอม") คือสิ่งที่ผิด ไม่ใช่การปฏิเสธการทำผิด
@@ -662,6 +666,8 @@ def audit(text: str, answered=()) -> dict:
         # (ไม่งั้นคนที่มีเงินพอและตอบตรงๆ ว่าถ้าพลาดจะจ่ายค่าเช่าไม่ไหว จะโดนหยุดทั้งที่แผนยังอยู่เหนือเส้น)
         plan = _WORST_LINE.sub("", t) if gid in _PLAN_ONLY else t
         m = rx.search(plan)
+        if m and gid in ("E1", "E2") and _TREATED.search(plan) and _ENV_WORD.search(m.group(0)):
+            m = None                      # "ติดเครื่องบำบัดน้ำเสียก่อนปล่อยลงคลอง" · "ส่งกากให้บริษัทกำจัดที่มีใบอนุญาต" — ทำถูกแล้ว
         if m and gid in _PLAN_ONLY and _negated(plan, m):
             m = next((x for x in rx.finditer(plan) if not _negated(plan, x)), None)
         g = {"id": gid, "name": {"th": th, "en": en}, "status": STOP if m else PASS,
