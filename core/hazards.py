@@ -9,6 +9,7 @@
 """
 from __future__ import annotations
 
+import math
 import os
 import threading
 import time
@@ -38,20 +39,25 @@ def _http_get(url: str) -> dict:
 
 def _num(v):
     try:
-        return float(v)
+        x = float(v)
     except (TypeError, ValueError):
         return None
+    return x if math.isfinite(x) else None
 
 
 def parse(geo: dict) -> list:
     """GeoJSON ของ GDACS → รายการเหตุการณ์ (1 แถวต่อเหตุการณ์ · ใช้จุด Point เท่านั้น · ข้ามข้อมูลไม่ครบ)"""
     out, seen = [], set()
     for f in (geo or {}).get("features") or []:
+        if not isinstance(f, dict):                     # null / ข้อความ ปนมาในฟีด — ข้ามรายการเดียว ไม่ทิ้งทั้งฟีด
+            continue
         p, g = f.get("properties") or {}, f.get("geometry") or {}
+        if not isinstance(p, dict) or not isinstance(g, dict):
+            continue
         kind = str(p.get("eventtype") or "").upper()
         if kind not in KINDS or g.get("type") != "Point":
             continue
-        c = g.get("coordinates") or []
+        c = g.get("coordinates") if isinstance(g.get("coordinates"), (list, tuple)) else []
         lon, lat = (_num(c[0]), _num(c[1])) if len(c) >= 2 else (None, None)
         level = str(p.get("alertlevel") or "").lower()
         eid = f"{kind}{p.get('eventid')}"

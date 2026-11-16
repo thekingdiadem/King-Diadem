@@ -32,6 +32,9 @@ JMA_FEED = os.getenv("QUAKE_JMA_FEED", "https://www.jma.go.jp/bosai/quake/data/l
 SHINDO = ["1", "2", "3", "4", "5-", "5+", "6-", "6+", "7"]
 SHINDO_NOTE = "4"         # ชินโดะ 4 ขึ้นไป: ของบนชั้นตก คนส่วนใหญ่ตกใจ — ถึงจะบอกแม้ขนาด M ไม่ถึงเกณฑ์โลก
 MATCH_KM, MATCH_MIN = 150, 5
+# กันรายงานเหตุเดียวซ้ำ: เหตุนอกชายฝั่งใหญ่ ศูนย์กลาง/เวลาที่ USGS กับ JMA คำนวณได้อาจต่างกันเกินกรอบจับคู่ข้างบน
+# ถ้า JMA ลูกหนึ่งอยู่ใกล้เหตุที่ USGS รายงานไปแล้วในกรอบกว้างนี้ ถือว่าลูกเดียวกัน ไม่เอามาลงรายการญี่ปุ่นซ้ำ
+DEDUP_KM, DEDUP_MIN = 350, 10
 
 _cache = {"at": 0.0, "ok": False, "items": []}
 _jcache = {"at": 0.0, "ok": False, "items": []}
@@ -53,16 +56,27 @@ def km(lat1, lon1, lat2, lon2) -> float:
     return 12742 * math.asin(math.sqrt(a))
 
 
+_BAD_ROW = (TypeError, ValueError, AttributeError, KeyError, IndexError)
+
+
 def parse(geo: dict) -> list:
+    """GeoJSON ของ USGS → รายการ · ข้อมูลเสียรายการเดียว (mag เป็นข้อความ, feature เป็น null ฯลฯ) ข้ามเฉพาะรายการนั้น
+    เดิม exception หลุดทั้งก้อน → ทั้งฟีดหาย แล้ว AI บอกผู้ใช้ว่า "ดึงข้อมูลไม่ได้" ทั้งที่มีแผ่นดินไหวจริงอยู่"""
     out = []
     for f in (geo or {}).get("features") or []:
-        p, g = f.get("properties") or {}, (f.get("geometry") or {}).get("coordinates") or []
-        if p.get("mag") is None or len(g) < 2:
+        try:
+            p, g = f.get("properties") or {}, (f.get("geometry") or {}).get("coordinates") or []
+            if p.get("mag") is None or len(g) < 2:
+                continue
+            mag, lon, lat = float(p["mag"]), float(g[0]), float(g[1])
+            if not all(map(math.isfinite, (mag, lon, lat))):        # "nan" / "inf" → AI จะพูดว่า "Mnan"
+                continue
+            out.append({"id": f.get("id"), "mag": round(mag, 1), "place": str(p.get("place") or ""),
+                        "time": int(p.get("time") or 0), "lon": lon, "lat": lat,
+                        "depth": float(g[2]) if len(g) > 2 and g[2] is not None else None,
+                        "tsunami": bool(p.get("tsunami")), "alert": p.get("alert"), "url": str(p.get("url") or "")})
+        except _BAD_ROW:
             continue
-        out.append({"id": f.get("id"), "mag": round(float(p["mag"]), 1), "place": p.get("place") or "",
-                    "time": int(p.get("time") or 0), "lon": float(g[0]), "lat": float(g[1]),
-                    "depth": float(g[2]) if len(g) > 2 and g[2] is not None else None,
-                    "tsunami": bool(p.get("tsunami")), "alert": p.get("alert"), "url": p.get("url") or ""})
     return out
 
 
@@ -72,8 +86,13 @@ def shindo_rank(v) -> int:
 
 
 def _jst_ms(at: str) -> int:
-    from datetime import datetime
-    return int(datetime.fromisoformat(at).timestamp() * 1000)
+    """ISO ของ JMA → มิลลิวินาที · ถ้าสตริงไม่มีโซนเวลา (ไม่ควรเกิด แต่กันไว้) ถือว่าเป็น JST +09:00
+    ไม่งั้น datetime จะตีความเป็นเวลาท้องถิ่นของเครื่อง (UTC) แล้วเหตุทุกอันเพี้ยนไป 9 ชม. การจับคู่กับ USGS จะพังเงียบๆ"""
+    from datetime import datetime, timedelta, timezone
+    dt = datetime.fromisoformat(at)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone(timedelta(hours=9)))
+    return int(dt.timestamp() * 1000)
 
 
 def parse_jma(rows) -> list:
@@ -82,14 +101,15 @@ def parse_jma(rows) -> list:
     import re
     out, seen = [], set()
     for r in rows if isinstance(rows, list) else []:
-        if not isinstance(r, dict) or r.get("eid") in seen:
+        if not isinstance(r, dict) or not isinstance(r.get("eid"), (str, int)) or r.get("eid") in seen:
             continue
-        m = re.match(r"([+-]\d+(?:\.\d+)?)([+-]\d+(?:\.\d+)?)(?:([+-]\d+))?", r.get("cod") or "")
+        cod = r.get("cod")
+        m = re.match(r"([+-]\d+(?:\.\d+)?)([+-]\d+(?:\.\d+)?)(?:([+-]\d+))?", cod) if isinstance(cod, str) else None
         try:
             mag, t = float(r.get("mag")), _jst_ms(r.get("at") or "")
-        except (TypeError, ValueError):
+        except _BAD_ROW:
             continue
-        if not m:
+        if not m or not math.isfinite(mag):
             continue
         seen.add(r.get("eid"))
         out.append({"id": "jma" + str(r.get("eid")), "mag": round(mag, 1), "time": t,
@@ -129,9 +149,12 @@ def fetch_jma(get=None) -> tuple[bool, list]:
     return _fetch(JMA_FEED, _jcache, get, parse_jma)
 
 
-def _match(q: dict, jma: list):
-    """เหตุการณ์ JMA ที่เป็นแผ่นดินไหวเดียวกับ USGS: ห่างไม่เกิน MATCH_KM และเวลาห่างไม่เกิน MATCH_MIN นาที"""
+def _match(q: dict, jma: list, used=()):
+    """เหตุการณ์ JMA ที่เป็นแผ่นดินไหวเดียวกับ USGS: ห่างไม่เกิน MATCH_KM และเวลาห่างไม่เกิน MATCH_MIN นาที
+    ข้ามลูกที่ถูกจับคู่ไปแล้ว (used) — ชินโดะหนึ่งค่าต้องไม่ไปติดแผ่นดินไหวสองลูก"""
     for j in jma:
+        if j["id"] in used:
+            continue
         if abs(j["time"] - q["time"]) <= MATCH_MIN * 60000 and km(q["lat"], q["lon"], j["lat"], j["lon"]) <= MATCH_KM:
             return j
     return None
@@ -185,12 +208,20 @@ def recent(hours: float = 24, lat: float = HOME[0], lon: float = HOME[1], get=No
         jitems = [j for j in jitems if j["time"] >= since]
         used = set()
         for q in near + world:
-            j = _match(q, jitems)
-            if j and j["shindo"]:
-                q["shindo"] = j["shindo"]
+            j = _match(q, jitems, used)
+            if j:
                 used.add(j["id"])
-        japan = [dict(j, km=round(km(lat, lon, j["lat"], j["lon"]))) for j in jitems
-                 if j["id"] not in used and shindo_rank(j["shindo"]) >= shindo_rank(SHINDO_NOTE)]
+                if j["shindo"]:
+                    q["shindo"] = j["shindo"]
+        # รายการญี่ปุ่น: ชินโดะ ≥ 4 และไม่ใช่เหตุเดียวกับที่ USGS รายงานไปแล้ว (จับคู่ตรงๆ หรือใกล้กันในกรอบกว้าง)
+        japan = []
+        for j in jitems:
+            if j["id"] in used or shindo_rank(j["shindo"]) < shindo_rank(SHINDO_NOTE):
+                continue
+            if any(abs(j["time"] - q["time"]) <= DEDUP_MIN * 60000 and
+                   km(j["lat"], j["lon"], q["lat"], q["lon"]) <= DEDUP_KM for q in near + world):
+                continue
+            japan.append(dict(j, km=round(km(lat, lon, j["lat"], j["lon"]))))
         japan.sort(key=lambda j: (-shindo_rank(j["shindo"]), -j["time"]))
         out.update(japan=japan[:3], jma_ok=jok, ok=ok or jok)
     return out

@@ -74,3 +74,37 @@ def test_chat_uses_jma(client, monkeypatch):
     monkeypatch.setattr(quakes, "_http_get", _get)
     d = client.post("/run", json={"input": "เมื่อกี้แผ่นดินไหว ตึกสั่น"}).json()
     assert d["quakes"]["jma_ok"] and d["quakes"]["japan"][0]["shindo"] == "4"
+
+
+def test_naive_jma_timestamp_is_read_as_jst_not_server_time():
+    # ถ้าสตริงเวลาไม่มีโซน (+09:00) ต้องถือเป็น JST ไม่ใช่เวลาเครื่อง (UTC) ไม่งั้นเพี้ยน 9 ชม.
+    from datetime import datetime, timedelta, timezone
+    naive = "2026-11-17T12:00:00"
+    aware = "2026-11-17T12:00:00+09:00"
+    assert quakes._jst_ms(naive) == quakes._jst_ms(aware)
+    expect = int(datetime(2026, 11, 17, 12, 0, tzinfo=timezone(timedelta(hours=9))).timestamp() * 1000)
+    assert quakes._jst_ms(naive) == expect
+
+
+def test_same_quake_far_apart_solutions_is_not_listed_twice():
+    # USGS กับ JMA คำนวณศูนย์กลางเหตุนอกชายฝั่งเดียวกันต่างกัน ~250 กม. (เกินกรอบจับคู่ 150 กม.)
+    usgs = {"features": [{"id": "u", "properties": {"mag": 6.4, "place": "off Fukushima", "time": NOW - 20 * 60000, "tsunami": 0},
+                          "geometry": {"coordinates": [142.0, 37.5, 20]}}]}
+    jma = [{"eid": "J", "at": _jst(20), "en_anm": "Off Fukushima", "cod": "+37.4+139.5-20000/", "mag": "6.2", "maxi": "5-"}]
+    r = quakes.recent(get=lambda url: jma if "jma" in url else usgs, now_ms=NOW, jma=True)
+    places = [q["place"] for q in r["world"] + r["near"]] + [j["place"] for j in r["japan"]]
+    assert places.count("off Fukushima") + places.count("Off Fukushima") == 1       # ครั้งเดียว ไม่ซ้ำ
+    assert quakes.llm_note(r, now_ms=NOW).count("M6") == 1
+
+
+def test_one_shindo_is_not_pinned_to_two_quakes():
+    # เมนช็อก + อาฟเตอร์ช็อก ใกล้กันมาก แต่ JMA วัดชินโดะมาลูกเดียว — ต้องไม่เอาค่าเดียวไปติดทั้งสอง
+    usgs = {"features": [
+        {"id": "a", "properties": {"mag": 6.0, "place": "Noto A", "time": NOW - 10 * 60000, "tsunami": 0},
+         "geometry": {"coordinates": [137.0, 37.3, 10]}},
+        {"id": "b", "properties": {"mag": 5.7, "place": "Noto B", "time": NOW - 10 * 60000, "tsunami": 0},
+         "geometry": {"coordinates": [137.02, 37.31, 10]}}]}
+    jma = [{"eid": "J1", "at": _jst(10), "en_anm": "Noto", "cod": "+37.30+137.00-10000/", "mag": "5.9", "maxi": "5+"}]
+    r = quakes.recent(get=lambda url: jma if "jma" in url else usgs, now_ms=NOW, jma=True)
+    with_shindo = [q for q in r["world"] + r["near"] if q.get("shindo")]
+    assert len(with_shindo) == 1 and with_shindo[0]["shindo"] == "5+"
