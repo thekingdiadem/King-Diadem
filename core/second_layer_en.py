@@ -18,7 +18,10 @@ EN_UPGRADES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"\bk\s*m\s*s\b|\bkys\b|\bunaliv(?:e|ing)\b|\bctb\b|\bsewer\s*slide\b|\bend(?:ing)?\s+myself\b|"
                 r"(?<!n't )(?<!nt )(?<!not )(?<!never )\b(?:want|wanna|gonna|going)\s*(?:2|to)?\s*d[!1i]e\b(?!\s+(?:of|laughing|happy|old|in my sleep at))|\bi\s+want\s+2\s+die\b|"
                 r"\bthis is my goodbye\b|\bby the time you (?:read|see) this\b|\bwrote (?:a )?letters? (?:for|to) my family\b|"
-                r"\bfinal message\b|\bgoodbye world\b|\bgiving away my (?:stuff|things)\b|\b(?:won'?t|wont) need it (?:after|anymore)\b|"
+                r"\bfinal message\b|\bgoodbye world\b|\bgiving away my (?:stuff|things)\b|"
+                # รอบสุ่ม 117: ยกของ/สัตว์เลี้ยงให้คนอื่น + จดหมายลา/บอกลา ในประโยคเดียว — เคยได้แค่ 45–65 (ไทยได้ 95)
+                r"\b(?:gave|given|giving) away (?:all )?(?:of )?my (?:stuff|things|belongings|possessions|cat|dog|pets?|clothes)\b[^\n]{0,40}?\b(?:goodbye|letters?|farewell|notes? (?:for|to))\b|"
+                r"\b(?:goodbye|letters?|farewell)\b[^\n]{0,40}?\b(?:gave|given|giving) away (?:all )?(?:of )?my (?:stuff|things|belongings|possessions|cat|dog|pets?|clothes)\b|\b(?:won'?t|wont) need it (?:after|anymore)\b|"
                 r"\bdon'?t need it where i'?m going\b|\bdont need it where im going\b|"
                 r"\bbeen cutting (?:again|myself)\b|\bburning myself\b|\bi deserve to die\b|\bi should (?:just )?die\b|"
                 r"\bnobody (?:will|would)(?: even)? (?:miss|notice|care)\b[^.\n]{0,25}?\b(?:dead|gone|die|died)\b|"
@@ -105,7 +108,9 @@ EN_UPGRADES: list[tuple[re.Pattern, str]] = [
                 r"\bpupils are tiny\b|\btoo much yaba\b|\bheart is racing\b[^.\n]{0,30}?\bchest\b|\blocked (?:herself|himself) in\b[^.\n]{0,30}?\bknife\b", _I),
      "health_emergency"),
     (re.compile(r"\b(?:send|post|share) my (?:pics|photos|nudes|videos?)\b[^.\n]{0,40}?\b(?:if i don'?t|unless i) pay\b", _I), "sextortion"),
-    (re.compile(r"\bbeat me up with\b|\btrying to break into my\b|\bbreaking into my\b", _I), "violence"),
+    (re.compile(r"\bbeat me up with\b|\btrying to break into my\b|\bbreaking into my\b|"
+                # รอบสุ่ม 125: ไม่มีคำว่า my — "someone is trying to break in right now" เคยได้ 0 (ไทย "งัดประตูบ้าน" ได้ 84)
+                r"\b(?:someone|somebody|a (?:man|guy|stranger)|people|they|he)(?: is|'s| are|'re)? (?:trying to )?(?:break(?:ing)?|get(?:ting)?) in\b(?=[^\n]{0,30}?\b(?:right now|now|tonight|downstairs|the (?:door|window)|back door|front door|i'?m (?:hiding|alone|scared)|help)\b)", _I), "violence"),
 ]
 
 # อดีตที่ผ่านไปแล้ว / ความรู้ / ข่าว — ภาษาอังกฤษ (ลดให้เป็นถามไถ่หรือปกติ)
