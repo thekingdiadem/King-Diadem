@@ -583,6 +583,8 @@ VIOLENCE_BY = re.compile(
     r"(?i:\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,12}?\b(?:hits|beats|punches|kicks|slaps|chokes|strangles|burns|starves|whips|pushed|shoved|threw) me\b(?!\s+(?:why|how|what|at\s+(?:chess|cards|games?|tennis|racing|everything)|in\s+(?:chess|cards|games?|tennis|racing)|out\b|off\b|up\b))|"
     # รอบสุ่ม 138: อาการบวมมาก่อน แล้วค่อยบอกว่ากินอะไร — "ตาบวมปิด ปากบวม หลังกินกุ้ง" เคยได้ 0 (อังกฤษได้ 85)
     r"(?:ปากบวม|หน้าบวม|ตาบวม(?:ปิด)?|คอบวม|ลิ้นบวม|หายใจลำบาก|หายใจไม่ออก|ผื่นขึ้นทั้งตัว)[^\n]{0,24}?(?:หลัง|ตั้งแต่|เพราะ)?(?:กิน|แพ้|โดน(?:ผึ้ง|ต่อ|แตน)ต่อย|ฉีดยา)|"
+    # รอบสุ่ม 139: กินยาละลายลิ่มเลือดแล้วหัวกระแทก (เลือดออกในสมองได้แม้ดูปกติ) — เคยได้แค่ 75
+    r"(?:ยาละลายลิ่มเลือด|ยาต้านการแข็งตัวของเลือด|วาร์ฟาริน|warfarin|(?i:blood thinners?|anticoagulants?|eliquis|xarelto))[^\n]{0,30}?(?:หัว(?:กระแทก|ฟาด|โขก)|ล้ม|(?i:hit (?:his|her|their|my) head|fell|bumped (?:his|her|their|my) head))|"
     # รอบสุ่ม 137: เด็กเล็กตก/หัวกระแทกแล้วอาเจียน · ท้องแข็งเป็นดานปวดมาก (อังกฤษ) — เคยได้ 0 ขณะที่ฉบับไทยได้ 75–85
     r"(?i:\b(?:baby|toddler|infant|newborn|my (?:son|daughter|kid|child))\b[^\n]{0,16}?\b(?:fell(?! asleep)|hit (?:his|her|their) head|bumped (?:his|her|their) head)\b[^\n]{0,30}?\b(?:vomit\w*|threw up|throwing up|very sleepy|won'?t stop crying|limp|seizure)\b)|"
     r"(?i:\b(?:stomach|belly|abdomen)\b[^\n]{0,10}?\b(?:is |feels )?(?:rock[- ]hard|hard as (?:a )?(?:rock|board)|rigid)\b[^\n]{0,30}?\b(?:pain|hurts|unbearable|can'?t move|fever|vomit\w*)\b)|"
