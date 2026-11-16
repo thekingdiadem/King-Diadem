@@ -423,7 +423,7 @@ _RECOVER_WHO = (r"แฮ(?:ก|็ก)เกอร์|ทนาย|เพจ|ท
 _RECOVER_FEE = (r"ค่า(?:ดำเนินการ|ธรรมเนียม|มัดจำ|ทนาย|เอกสาร|ภาษี|ปลดล็อก|ยืนยัน)|จ่าย(?:เงิน)?ก่อน|โอน(?:เงิน)?ก่อน|มัดจำ|"
                 r"(?i:\b(?:fee|upfront|deposit|advance|pay first|payment first|retainer)\b)")
 SCAM_RECOVERY = re.compile(
-    r"(?=[\s\S]*(?:" + _RECOVER + r"))(?=[\s\S]*(?:" + _RECOVER_WHO + r"|" + _RECOVER_FEE + r"))", re.I)
+    r"\A(?=[\s\S]*(?:" + _RECOVER + r"))(?=[\s\S]*(?:" + _RECOVER_WHO + r"|" + _RECOVER_FEE + r"))", re.I)
 _RECOVER_FEE_RE = re.compile(_RECOVER_FEE, re.I)
 _RECOVER_WHO_RE = re.compile(_RECOVER_WHO, re.I)
 
@@ -444,7 +444,7 @@ _W_STORY = (r"(?:trúng thưởng|trúng giải|中奖|当選|당첨|ganaste|has
 # ต้องมี "ติดต่อมา/บอกว่า" ด้วย — "chuyển tiền qua ngân hàng cho mẹ" (โอนเงินผ่านธนาคารให้แม่) ไม่ใช่การหลอก
 _W_CONTACT = (r"gọi|nhắn|tin nhắn|nói|bảo|tự xưng|xưng là|liên hệ|打电话|来电|短信|说|自称|让我|要我|電話|名乗|言われ|メッセージ|"
               r"전화|문자|라며|라고|하래|llam[oó]|me escribi[oó]|mensaje|dice|dijo|me pide|me pidi[oó]")
-SCAM_WORLD_IMPERSONATE = re.compile(r"(?=[\s\S]*(?:" + _W_WHO + r"))(?=[\s\S]*(?:" + _W_ASK + r"))(?=[\s\S]*(?:" + _W_CONTACT + r"))", re.I)
+SCAM_WORLD_IMPERSONATE = re.compile(r"\A(?=[\s\S]*(?:" + _W_WHO + r"))(?=[\s\S]*(?:" + _W_ASK + r"))(?=[\s\S]*(?:" + _W_CONTACT + r"))", re.I)
 SCAM_WORLD_STORY = re.compile(_W_STORY, re.I)
 
 
