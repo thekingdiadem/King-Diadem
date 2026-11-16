@@ -3693,7 +3693,12 @@ def compose_council(text: str, footer: bool = True) -> str:
     if council_unsuitable(a) or detect_lang(text) != "th":
         return compose(text, footer=footer)          # ฉุกเฉิน/ภาษาอื่น: คำตอบที่ปลอดภัยที่สุดมาก่อนสภา
     from core import decision_brief as _db
-    if _db.applies(text) and a["text_risk"] < 60 and not a.get("scam") and not a["offer_flags"]:
+    try:
+        from ENGINE.driftzero import stop_reasons as _dz_stops
+        dz = _dz_stops(text)             # สภาเห็นหลักฐานชุดเดียวกับ DriftZero — เดิม DriftZero หยุด แต่สภาบอกว่า "ความเสี่ยงยังไม่ชัด"
+    except Exception:
+        dz = []
+    if _db.applies(text) and a["text_risk"] < 60 and not a.get("scam") and not a["offer_flags"] and not dz:
         return _db.council(text, footer=footer)      # ตัดสินใจเรื่องใหญ่: ทุกเสียงใช้ตัวเลขจริง + เงื่อนไขเดินหน้า/หยุด
     t = text.lower()
     lib = {name: d for name, _, d in TOPICS}
@@ -3738,6 +3743,9 @@ def compose_council(text: str, footer: bool = True) -> str:
         reversible_first = True
     if main.get("vega") and len(opts) < 2:
         vega = "ความเสี่ยง " + risk_phrase(a) + " — " + main["vega"]     # เลนส์ปัญหา: โครงสร้างของเรื่องนี้ แทนคำถามกลาง
+    if dz and not a["offer_flags"]:
+        vega = ("ความเสี่ยงสูง — DriftZero เห็นจุดที่ต้องหยุดก่อน: " + dz[0][1]
+                + (f" (และอีก {len(dz) - 1} จุด)" if len(dz) > 1 else "") + " · ทางที่ย้อนกลับได้และไม่ข้ามเส้นนี้ชนะเสมอ")
     if a["offer_flags"]:
         vega = ("ความเสี่ยง " + risk_phrase(a) + f" — ข้อเสนอนี้มีสัญญาณของการหลอก: "
                 + " · ".join(OFFER_FLAG_TH[f] for f in a["offer_flags"]) + " — ลงเงินแล้วอาจถอยไม่ได้")
@@ -3758,13 +3766,14 @@ def compose_council(text: str, footer: bool = True) -> str:
     cosmos = main["ask"]
 
     # มติ: ให้แต่ละเสียงโหวตจากหลักฐานของตัวเอง แล้วรวมด้วย AI/council_engine.build_consensus
-    risky = a["risk"] >= 55 or bool(a["offer_flags"]) or bool(a.get("scam"))
+    risky = a["risk"] >= 55 or bool(a["offer_flags"]) or bool(a.get("scam")) or bool(dz)
     votes = {
         "LYLA":    {"action": "stabilize" if risky else "proceed_small", "confidence": 0.6},
         "VEGA":    {"action": "proceed_small" if (reversible_first and not risky) else "pause", "confidence": 0.7},
         "PATICCA": {"action": "pause" if has_root and root["root"] in ("craving", "fear", "misinformation") else "proceed_small",
                     "confidence": 0.6},
-        "TITAN":   {"action": "stabilize" if a["risk"] >= 75 else "proceed_small", "confidence": 0.7},
+        # TITAN ทางรอดวันนี้: แผนที่ข้ามเส้นแบบย้อนกลับไม่ได้ (DriftZero) — ทางรอดคือหยุดก่อน ไม่ใช่ "เริ่มแบบเล็ก"
+        "TITAN":   {"action": "stabilize" if a["risk"] >= 75 else ("pause" if dz else "proceed_small"), "confidence": 0.7},
         "COSMOS":  {"action": "pause" if risky else "proceed_small", "confidence": 0.5},
     }
     civil, civil_vote = _civil_voice(text, risky, reversible_first and not _IRREVERSIBLE.search(text))

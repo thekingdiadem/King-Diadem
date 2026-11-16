@@ -159,6 +159,16 @@ def four_truths(text: str) -> dict:
                 "nirodha": "ปลอดภัยแล้ว และมีคนอยู่ด้วย", "magga": _first_step(text), "clear": True, "key": "crisis"}
     key = _topic_key(text, a)
     dukkha, cause, nirodha = TRUTHS.get(key, (UNCLEAR, None, UNCLEAR))
+    if dukkha == UNCLEAR:
+        # แผนที่ DriftZero เห็นว่าข้ามเส้น — ทุกข์ที่กำลังจะเกิดคือความเสียหายที่ย้อนกลับไม่ได้ (เดิมตอบว่า "ยังไม่ชัด")
+        try:
+            from ENGINE.driftzero import stop_reasons
+            dz = stop_reasons(text)
+        except Exception:
+            dz = []
+        if dz:
+            dukkha, cause = "แผนนี้อาจทำให้เสียสิ่งที่ย้อนกลับไม่ได้", dz[0][1]
+            nirodha, key = "ไปถึงเป้าหมายได้โดยไม่ข้ามเส้นนี้", "driftzero"
 
     own = _BECAUSE.search(text)
     if own:

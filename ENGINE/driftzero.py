@@ -669,6 +669,38 @@ def steady(t: str, wl: dict) -> dict:
                         "en": f"Let's steady things first — no gates or big plans yet. {have_en[0].upper() + have_en[1:]} is the most valuable thing right now; start by protecting it."}}
 
 
+def gate_scan(text: str) -> list:
+    """ตรวจด่านจากตัวข้อความล้วน (ไม่เรียกตัวจับหลัก ไม่คำนวณ Waterline) — ใช้ร่วมกับสภา 6 เสียงและอริยสัจ 4
+    ทุกระบบจะได้มองจากหลักฐานชุดเดียวกัน ไม่ใช่ต่างคนต่างคิดเอง"""
+    t = str(text or "")
+    out = []
+    for gid, th, en, rx, why_th, why_en in GATES:
+        # H1 ดูเฉพาะ "แผน" ไม่ดูคำตอบข้อ "ถ้าพลาดจะเสียอะไร" — ผลเสียที่เล่ามาเป็นเรื่องสมมติ ไม่ใช่สิ่งที่ตั้งใจจะทำ
+        plan = _WORST_LINE.sub("", t) if gid in _PLAN_ONLY else t
+        m = rx.search(plan)
+        if m and gid in ("E1", "E2") and _TREATED.search(plan) and _ENV_WORD.search(m.group(0)):
+            m = None                      # "ติดเครื่องบำบัดน้ำเสียก่อนปล่อยลงคลอง" · "ส่งกากให้บริษัทกำจัดที่มีใบอนุญาต" — ทำถูกแล้ว
+        if m and gid in _PLAN_ONLY and _negated(plan, m):
+            m = next((x for x in rx.finditer(plan) if not _negated(plan, x)), None)
+        out.append({"id": gid, "name": {"th": th, "en": en}, "status": STOP if m else PASS,
+                    "hit": m.group(0) if m else "", "why": {"th": why_th, "en": why_en} if m else None})
+    return out
+
+
+_SHARED = {"E1", "E2", "P1", "F1", "G1", "L1", "L2", "S1", "S2", "A1", "H1", "K7", "K12"}
+_PLANNING = re.compile(r"(?:^|\s|ร้าน|บริษัท|โรงงาน|เรา|ผม|ฉัน)จะ|(?i:\b(?:we|i|they)(?:'ll|\s+will|\s+plan\s+to|\s+want\s+to)\b)")
+
+
+def stop_reasons(text: str) -> list:
+    """[(id, เหตุผลประโยคแรก th, en)] ของด่านที่ติด — สำหรับสภา 6 เสียงและอริยสัจ 4
+    นับเฉพาะเมื่อข้อความเป็น "แผนที่จะทำ" หรือเรื่ององค์กร — คนที่เล่าว่าหมดไฟหรือไม่ได้นอน ไม่ได้กำลังวางแผนอะไร"""
+    t = str(text or "")
+    if not (_ORG.search(t) or _PLANNING.search(t)):
+        return []
+    return [(g["id"], re.split(r" — | · ", g["why"]["th"])[0].strip(), re.split(r" — | · ", g["why"]["en"])[0].strip())
+            for g in gate_scan(t) if g["status"] == STOP and g["id"] in _SHARED]
+
+
 def audit(text: str, answered=()) -> dict:
     t = str(text or "").strip()
     answered = set(answered or ())
@@ -684,18 +716,8 @@ def audit(text: str, answered=()) -> dict:
     from ENGINE.waterline_gauge import gauge
     wl = gauge(t)
     gates = []
-    for gid, th, en, rx, why_th, why_en in GATES:
-        # H1 ดูเฉพาะ "แผน" ไม่ดูคำตอบข้อ "ถ้าพลาดจะเสียอะไร" — ผลเสียที่เล่ามาเป็นเรื่องสมมติ ไม่ใช่สิ่งที่ตั้งใจจะทำ
-        # (ไม่งั้นคนที่มีเงินพอและตอบตรงๆ ว่าถ้าพลาดจะจ่ายค่าเช่าไม่ไหว จะโดนหยุดทั้งที่แผนยังอยู่เหนือเส้น)
-        plan = _WORST_LINE.sub("", t) if gid in _PLAN_ONLY else t
-        m = rx.search(plan)
-        if m and gid in ("E1", "E2") and _TREATED.search(plan) and _ENV_WORD.search(m.group(0)):
-            m = None                      # "ติดเครื่องบำบัดน้ำเสียก่อนปล่อยลงคลอง" · "ส่งกากให้บริษัทกำจัดที่มีใบอนุญาต" — ทำถูกแล้ว
-        if m and gid in _PLAN_ONLY and _negated(plan, m):
-            m = next((x for x in rx.finditer(plan) if not _negated(plan, x)), None)
-        g = {"id": gid, "name": {"th": th, "en": en}, "status": STOP if m else PASS,
-             "hit": m.group(0) if m else "", "why": {"th": why_th, "en": why_en} if m else None}
-        if gid == "E2":
+    for g in gate_scan(t):
+        if g["id"] == "E2":
             if wl["level"] == "below":                      # L0: ต่ำกว่าเส้นไม่ได้เด็ดขาด
                 g.update(status=STOP, hit=g["hit"] or f"{_money(wl['after'])} < {_money(wl['floor'])}",
                          why={"th": f"ใต้ระดับน้ำ (Below Water) — หลังตัดสินใจเหลือ {_money(wl['after'])} ต่ำกว่าเส้น {_money(wl['floor'])} "
