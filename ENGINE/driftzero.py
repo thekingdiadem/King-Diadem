@@ -687,7 +687,8 @@ def gate_scan(text: str) -> list:
     return out
 
 
-_SHARED = {"E1", "E2", "P1", "F1", "G1", "L1", "L2", "S1", "S2", "A1", "H1", "K7", "K12"}
+_PRIORITY = ["F1", "P1", "K12", "E2", "E1", "L1", "L2", "G1", "S1", "S2", "A1", "K7", "H1"]
+_SHARED = set(_PRIORITY)
 _PLANNING = re.compile(r"(?:^|\s|ร้าน|บริษัท|โรงงาน|เรา|ผม|ฉัน)จะ|(?i:\b(?:we|i|they)(?:'ll|\s+will|\s+plan\s+to|\s+want\s+to)\b)")
 
 
@@ -697,8 +698,9 @@ def stop_reasons(text: str) -> list:
     t = str(text or "")
     if not (_ORG.search(t) or _PLANNING.search(t)):
         return []
-    return [(g["id"], re.split(r" — | · ", g["why"]["th"])[0].strip(), re.split(r" — | · ", g["why"]["en"])[0].strip())
+    hits = [(g["id"], re.split(r" — | · ", g["why"]["th"])[0].strip(), re.split(r" — | · ", g["why"]["en"])[0].strip())
             for g in gate_scan(t) if g["status"] == STOP and g["id"] in _SHARED]
+    return sorted(hits, key=lambda h: _PRIORITY.index(h[0]))      # เรื่องหนักสุดมาก่อน — มิจฉาชีพ/ชีวิต ก่อนเรื่องรอง
 
 
 def audit(text: str, answered=()) -> dict:

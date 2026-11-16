@@ -289,13 +289,38 @@ def four_ways(context: str, pattern: Optional[dict] = None) -> dict:
                 "clinging": "ความยึดติด", "misinformation": "ข้อมูลผิดหรือไม่ครบ", "bias": "อคติ", "ignorance": "อวิชชา — ยังไม่เห็นตามจริง",
                 "non_existence": "ความรู้สึกไม่อยากมีอยู่ (ภวตัณหา/วิภวตัณหา)", "unknown": "ยังไม่ชัด"}
 
+    # มองจากหลักฐานชุดเดียวกับ DriftZero และอริยสัจ 4 — เดิมโยนิโสบอก "ยังไม่มีส่วนไหนต่ำเกินเส้น"
+    # ขณะที่ DriftZero หยุดเพราะแผนเอาเงินสำรองไปทั้งหมด และข้ออริยสัจ 4 เป็นแค่แม่แบบ ไม่ใช่เรื่องของผู้ใช้
+    dz, truths = [], {}
+    try:
+        from ENGINE.driftzero import stop_reasons
+        dz = stop_reasons(text)
+    except Exception:
+        pass
+    try:
+        if text.strip():
+            from ENGINE.ariya_sacca import four_truths
+            truths = four_truths(text)
+    except Exception:
+        pass
+
     # 1) สืบสาวเหตุปัจจัย — ต้นตอ ไม่ใช่คนผิด
-    causal = f"ต้นเหตุที่เห็น: {_ROOT_TH.get(root, root)}" + ("" if root != "unknown" else " — ถามว่าก่อนจะเป็นแบบนี้เกิดอะไรขึ้น")
+    if root in ("unknown", "ignorance") and truths.get("samudaya") not in (None, "", "ยังไม่ชัด"):
+        causal = f"ต้นเหตุที่เห็น: {truths['samudaya']}"
+    else:
+        causal = f"ต้นเหตุที่เห็น: {_ROOT_TH.get(root, root)}" + ("" if root != "unknown" else " — ถามว่าก่อนจะเป็นแบบนี้เกิดอะไรขึ้น")
     # 2) แยกแยะส่วนประกอบ — แตกเป็น ส่วนที่คุมได้ / คุมไม่ได้ และสามแกนของสถานะ
     weak = [n for n, bad in (("ใจ/ความเครียด", e > 65), ("ทรัพยากร", r < 30), ("ความมั่นคง", st < 40)) if bad]
-    analytical = "แยกเป็น 3 ส่วน: ใจ · เงิน/ทรัพยากร · ความมั่นคง — " + (f"ส่วนที่อ่อน: {', '.join(weak)}" if weak else "ยังไม่มีส่วนไหนต่ำเกินเส้น")
-    # 3) อริยสัจ 4 — ทุกข์ → สมุทัย → นิโรธ → มรรค (ด้านเสียก่อน)
-    ariyasacca = "ทุกข์ = ปัญหาจริงในประโยคเดียว · สมุทัย = ต้นตอที่คุมได้ · นิโรธ = สภาพที่ต้องการวัดได้ · มรรค = ก้าวแรกที่ทำได้วันนี้"
+    if dz:
+        analytical = "แยกเป็น 3 ส่วน: ใจ · เงิน/ทรัพยากร · ความมั่นคง — ส่วนที่กำลังข้ามเส้น: " + dz[0][1]
+    else:
+        analytical = "แยกเป็น 3 ส่วน: ใจ · เงิน/ทรัพยากร · ความมั่นคง — " + (f"ส่วนที่อ่อน: {', '.join(weak)}" if weak else "ยังไม่มีส่วนไหนต่ำเกินเส้น")
+    # 3) อริยสัจ 4 — ของเรื่องนี้จริงๆ (ENGINE/ariya_sacca) · อ่านไม่ออกค่อยใช้แม่แบบ
+    if truths.get("seen"):
+        ariyasacca = (f"ทุกข์ = {truths['dukkha']} · สมุทัย = {truths['samudaya']} · นิโรธ = {truths['nirodha']} "
+                      f"· มรรค = {truths['magga']}")
+    else:
+        ariyasacca = "ทุกข์ = ปัญหาจริงในประโยคเดียว · สมุทัย = ต้นตอที่คุมได้ · นิโรธ = สภาพที่ต้องการวัดได้ · มรรค = ก้าวแรกที่ทำได้วันนี้"
     # 4) รู้เท่าทันธรรมดา — อนิจจัง: สถานการณ์และความรู้สึกเปลี่ยนได้ อย่าตัดสินใจถาวรจากสภาพชั่วคราว
     impermanence = ("ความรู้สึกตอนนี้แรง แต่ไม่ถาวร — อย่าตัดสินใจที่ย้อนกลับไม่ได้จากสภาพชั่วคราว"
                     if feeling in ("pleasant", "unpleasant") or e > 65 else
