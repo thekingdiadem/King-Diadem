@@ -346,6 +346,7 @@ GATES_DATA = [
             r"卖给第三方",
             r"고객 데이터를 팔",
             r"顧客データを売",
+            r"(?:顧客|利用者|社員|患者)(?:の)?(?:個人)?(?:データ|情報)を[^。！？\n]{0,12}売",
             r"(?:ใช้|เอา)\S{0,6}(?:รูป|ภาพ|คลิป|เสียง)(?:ของ)?(?:ลูกค้า|คนไข้|นักเรียน|พนักงาน)[^\n]{0,20}?(?:โดยไม่ขอ|ไม่ขออนุญาต|ไม่ถาม)",
             r"\buse\s+(?:customer|patient|student|employee)s?[\'’]?\s+(?:photos|images|videos|voices?)\b[^\n]{0,20}?\bwithout\s+(?:asking|consent|permission)\b",
             r"\btrack\s+(?:[\w'’]+\s+){0,2}(?:personal|private)\s+phones?\b",

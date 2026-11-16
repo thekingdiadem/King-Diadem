@@ -38,7 +38,7 @@ _OWNER = _rx(r"ผู้รับผิดชอบ|รับผิดชอบ�
 _DRIFT = _rx(r"ทุกวัน|ต่อวัน|รายวัน|วันละ|/วัน|ต่อเดือน|เดือนละ|/เดือน|ทีละนิด|สะสม|เพิ่มขึ้นเรื่อยๆ|ลดลงเรื่อยๆ|per day|daily|per month|accumulat|gradually")
 _NUM = re.compile(r"\d")
 # เป็นเรื่องตัดสินใจขององค์กร/โครงการจริงไหม — ไม่ใช่ ให้แนะนำโหมดปรึกษา
-_ORG = _rx(r"empresa|negocio|tienda|clientes|empleados|công ty|cửa hàng|khách hàng|nhân viên|公司|客户|员工|店铺|회사|가게|직원|고객|会社|店舗|従業員|顧客|คลินิก|โรงพยาบาล|โรงเรียน|มหาวิทยาลัย|ครู|นักเรียน|คนไข้|ผู้ป่วย|ฟาร์ม|ไร่|แปลง|คนงาน|ไซต์งาน|ผู้รับเหมา|มูลนิธิ|สมาคม|สหกรณ์|วัด|เทศบาล|อบต|clinic|farm|charity|foundation|nonprofit|ngo|contractor|drivers?|patients?|students?|board|investors?|บริษัท|องค์กร|โครงการ|โรงงาน|ธุรกิจ|ร้าน|สาขา|นโยบาย|ชุมชน|หน่วยงาน|ทีม|พนักงาน|ลูกค้า|ซัพพลายเออร์|งบประมาณ|ลงทุน|ผลิต|"
+_ORG = _rx(r"empresa|negocio|tienda|clientes|empleados|công ty|cửa hàng|khách hàng|nhân viên|公司|客户|员工|店铺|회사|가게|직원|고객|会社|店舗|従業員|顧客|店を|社員|残業|工場|事業|คลินิก|โรงพยาบาล|โรงเรียน|มหาวิทยาลัย|ครู|นักเรียน|คนไข้|ผู้ป่วย|ฟาร์ม|ไร่|แปลง|คนงาน|ไซต์งาน|ผู้รับเหมา|มูลนิธิ|สมาคม|สหกรณ์|วัด|เทศบาล|อบต|clinic|farm|charity|foundation|nonprofit|ngo|contractor|drivers?|patients?|students?|board|investors?|บริษัท|องค์กร|โครงการ|โรงงาน|ธุรกิจ|ร้าน|สาขา|นโยบาย|ชุมชน|หน่วยงาน|ทีม|พนักงาน|ลูกค้า|ซัพพลายเออร์|งบประมาณ|ลงทุน|ผลิต|"
            r"company|organi[sz]ation|project|factory|business|policy|team|staff|budget|invest|supplier|community|plant|"
            r"\bstores?\b|\bshops?\b|branch|employee|customer|startup|school|hospital|department|government|firm|launch|hire|hiring|layoff|"
            # ผู้ใช้จริงคนแรกถามว่า "spend 10k on facebook ads" แล้วโดนบอกว่า "ดูเหมือนเป็นเรื่องส่วนตัว" — งานขาย/การตลาดก็คือการตัดสินใจของกิจการ
