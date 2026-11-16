@@ -2959,13 +2959,14 @@ function wlGauge(w){
 }
 function dzCard(a){
   if(a.verdict === 'urgent') return crisisCard();
-  var V = { stop: ['หยุดก่อน', 'stop'], ask: ['ข้อมูลยังไม่ครบ', 'ask'], pass: ['ผ่านทุกด่าน', 'pass'], about: ['วิธีใช้', 'ask'] }[a.verdict] || ['', ''];
+  var V = { stop: ['หยุดก่อน', 'stop'], ask: ['ข้อมูลยังไม่ครบ', 'ask'], pass: ['ผ่านทุกด่าน', 'pass'], about: ['วิธีใช้', 'ask'], steady: ['ตั้งหลักก่อน', 'ask'] }[a.verdict] || ['', ''];
   var stops = (a.gates || []).filter(function(g){ return g.status === 'stop'; }), ok = (a.gates || []).filter(function(g){ return g.status !== 'stop'; });
   var h = '<div class="dz"><div class="dz-h"><span class="dz-v ' + V[1] + '">' + esc(_t(V[0])) + '</span>' + esc(_t('ด่าน DriftZero')) + '</div>';
   h += wlGauge(a.waterline);
   stops.forEach(function(g){ h += '<div class="dz-g stop"><b>✕ ' + esc(g.id) + ' · ' + esc(L2(g.name)) + '</b><span>' + esc(L2(g.why)) + '</span>' + (g.hit ? '<i>“' + esc(g.hit) + '”</i>' : '') + '</div>'; });
   if(ok.length) h += '<details class="dz-ok"><summary>✓ ' + esc(_t('ผ่าน {n} ด่าน', { n: ok.length })) + '</summary>' + ok.map(function(g){ return '<span>' + esc(g.id) + ' ' + esc(L2(g.name)) + '</span>'; }).join('') + '</details>';
-  if((a.asks || []).length) h += '<div class="dz-ask"><b>' + esc(_t('ต้องตอบเพิ่ม')) + '</b><ol>' + a.asks.map(function(q){ return '<li>' + esc(L2(q)) + '</li>'; }).join('') + '</ol></div>';
+  if((a.steps || []).length) h += '<div class="dz-ask dz-steps"><b>' + esc(_t('ทำได้ตอนนี้')) + '</b><ol>' + a.steps.map(function(q){ return '<li>' + esc(L2(q)) + '</li>'; }).join('') + '</ol></div>';
+  if((a.asks || []).length) h += '<div class="dz-ask"><b>' + esc(_t(a.verdict === 'steady' ? 'ถามแค่ข้อเดียว' : 'ต้องตอบเพิ่ม')) + '</b><ol>' + a.asks.map(function(q){ return '<li>' + esc(L2(q)) + '</li>'; }).join('') + '</ol></div>';
   if(a.brief) h += dzBrief(a.brief);
   if((a.sop || []).length) h += '<div class="dz-sop">' + a.sop.map(function(x){ return '<span class="' + (x.done ? 'done' : '') + '" title="' + esc(L2(x)) + '">' + x.n + '</span>'; }).join('') + '<em>' + esc(_t('ขั้นตอน SOP')) + '</em></div>';
   if(a.note) h += '<p class="dz-note">' + esc(L2(a.note)) + '</p>';

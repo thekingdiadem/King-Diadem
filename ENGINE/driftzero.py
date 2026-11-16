@@ -371,6 +371,8 @@ def follow_up(prior_text: str, prior_keys, answer: str) -> dict:
     answer = str(answer or "").strip()[:4000]
     if is_about(answer):
         return about(audit(prior_text))
+    if list(prior_keys or []) == ["dhd"] and sinking(prior_text):
+        return steady_runway(prior_text, answer)
     got = answered_keys(answer, prior_keys)
     parts = parse_numbered(answer)
     body = " ".join(parts.values()) if parts else answer
@@ -414,6 +416,93 @@ def _negated(text: str, m) -> bool:
     return bool(_NEG_BEFORE.search(before)) and not re.match(r"(?:ไม่|ยังไม่|โดยไม่|no\b|without\b|not\b)", m.group(0), re.I)
 
 
+def steady_runway(prior_text: str, answer: str) -> dict:
+    """รอบต่อของ "ตั้งหลักก่อน": คำนวณว่าเงินที่เหลือพาไปได้กี่วัน แล้วไม่ถามอะไรเพิ่ม"""
+    from ENGINE.waterline_gauge import gauge
+    wl = gauge(prior_text)
+    r = steady(prior_text, wl)
+    r["asks"] = []
+    r["answered"] = ["dhd"]
+    cur, out = wl.get("current"), _daily_out(answer)
+    inflow = not re.search(r"ไม่มี(?:เงิน)?เข้า|(?i:\bnothing\s+(?:is\s+)?coming\s+in|no\s+(?:money|income)\s+(?:is\s+)?coming)", answer or "")
+    if cur and out:
+        days = int(cur // out)
+        r["runway_days"] = days
+        th = f"ด้วยเงินออกวันละ {_money(out)} เงิน {_money(cur)} ที่เหลือพาไปได้ราว {days} วัน"
+        en = f"At {_money_en(out)} going out a day, the {_money_en(cur)} you have left lasts about {days} day(s)"
+        if not inflow:
+            th += " และตอนนี้ยังไม่มีเงินเข้า — ข้อ 1–3 ข้างล่างคือสิ่งที่ยืดเวลานี้ได้มากที่สุด เริ่มวันนี้เลยนะคะ"
+            en += ", with nothing coming in yet — steps 1–3 below are what stretch that time the most. Start today."
+        else:
+            th += " — ข้อ 1–3 ข้างล่างช่วยยืดเวลานี้ได้ เริ่มวันนี้เลยนะคะ"
+            en += " — steps 1–3 below help stretch that. Start today."
+    else:
+        th = "ขอบคุณที่เล่าค่ะ — ข้อ 1–3 ข้างล่างคือสิ่งที่ช่วยยืดเวลาได้มากที่สุด เริ่มจากข้อ 1 วันนี้เลยนะคะ"
+        en = "Thank you for telling me — steps 1–3 below are what buy you the most time. Start with step 1 today."
+    r["summary"] = {"th": th, "en": en}
+    return r
+
+
+# คนที่กำลังจะไม่ไหว ไม่ใช่องค์กรที่กำลังวางแผน — "ธุรกิจกำลังจะพัง เงินเหลือ 3000 กู้ใครก็ไม่ได้แล้ว กำลังล้ม"
+# เดิมโดนถาม "Waterline คือเท่าไหร่ · DHD · ใครเซ็นรับผิดชอบ" ทั้งที่บอกตัวเลขมาแล้ว และน้ำเสียงกำลังจะล้ม
+_SINKING = re.compile(r"กำลัง(?:จะ)?(?:ล้ม|พัง|เจ๊ง|จม)|จะ(?:ล้ม|พัง|เจ๊ง)แล้ว|ไม่ไหวแล้ว|หมดทาง|ไม่รู้จะ(?:ทำ|ไป)(?:ยังไง|ไง|ไหน)|"
+                      r"กู้\S{0,6}(?:ไม่ได้|ไม่ผ่าน)|ไม่มีใครให้(?:ยืม|กู้)|ยืมใครก็ไม่ได้|ไม่เหลืออะไร|สิ้นหวัง|ไปต่อไม่ไหว|"
+                      r"(?i:\b(?:going\s+under|losing\s+everything|(?:can'?t|cannot)\s+(?:pay|borrow|keep\s+going)|"
+                      r"no\s+one\s+will\s+lend|don'?t\s+know\s+what\s+to\s+do|about\s+to\s+collapse|i'?m\s+(?:sinking|drowning|done))\b)")
+
+
+_MONEY_TALK = re.compile(r"เงิน|หนี้|ขาดทุน|กู้|ยืม|ค่าเช่า|เจ๊ง|ร้าน|กิจการ|ธุรกิจ|"
+                         r"(?i:\b(?:money|debt|loan|lend|borrow|rent|dollars?|baht|cash|shop|business|bills?)\b)")
+_PER_DAY = re.compile(r"(?:วันละ|ต่อวัน|(?i:\b(?:per|a|each)\s+day\b))")
+
+
+def sinking(t: str) -> bool:
+    return bool(_SINKING.search(t or "")) and (distress(t) or bool(_MONEY_TALK.search(t or "")))
+
+
+def _daily_out(answer: str):
+    """อ่าน "วันละ 500" · "500 ต่อวัน" · "$40 a day" → 500.0"""
+    from ENGINE.waterline_gauge import _val
+    num = re.compile(r"(?P<n>\d[\d,]*(?:\.\d+)?)\s*(?P<u>พันล้าน|ล้าน|แสน|หมื่น|พัน|[kK](?![a-zA-Z]))?")
+    for m in _PER_DAY.finditer(answer or ""):
+        after = num.search(answer[m.end():m.end() + 20])          # "วันละ 500"
+        before = list(num.finditer(answer[max(0, m.start() - 20):m.start()]))   # "500 ต่อวัน"
+        hit = after or (before[-1] if before else None)
+        if hit:
+            return _val(hit.group("n"), hit.group("u"))
+    return None
+
+
+def steady(t: str, wl: dict) -> dict:
+    """ตั้งหลักก่อน: ใช้ตัวเลขที่เล่ามาแล้ว · บอกสิ่งที่ทำได้ทันที · ถามแค่ข้อเดียวด้วยภาษาธรรมดา"""
+    cur = wl.get("current")
+    have_th = f"เงิน {_money(cur)} ที่เหลืออยู่" if cur is not None else "เงินที่เหลืออยู่"
+    have_en = f"the {_money_en(cur)} you have left" if cur is not None else "what you have left"
+    steps = [
+        {"th": "หยุดเลือดก่อน: งดรายจ่ายใหม่ทุกอย่างที่ไม่ทำให้มีเงินเข้าภายใน 7 วัน",
+         "en": "Stop the bleeding first: pause every new cost that won't bring money in within 7 days"},
+        {"th": "แยกสิ่งที่ต้องจ่ายเป็น 3 กอง: ต้องจ่ายแน่ (ค่าแรง ค่าเช่าที่ทำกิน) · ขอเลื่อนได้ · หยุดได้เลย",
+         "en": "Sort what you owe into 3 piles: must pay (wages, the rent you trade from) · can ask to delay · can stop now"},
+        {"th": "โทรคุยเจ้าหนี้หรือธนาคารก่อนผิดนัด ขอพักชำระหรือปรับโครงสร้างหนี้ — คุยก่อนผิดนัดมักได้เงื่อนไขดีกว่าหลังผิดนัด",
+         "en": "Call your lenders or bank before you miss a payment and ask to pause or restructure — talking first usually gets better terms"},
+        {"th": "อย่ากู้นอกระบบมาอุดช่อง — ดอกเบี้ยแบบนั้นทำให้ล้มเร็วขึ้น ไม่ได้ช่วยให้รอด",
+         "en": "Don't fill the gap with loan sharks — that interest makes you fall faster, not survive"},
+        {"th": "ถ้าเครียดจนนอนไม่หลับ หรือเริ่มคิดว่าไม่อยากอยู่ โทร 1323 ได้ 24 ชม. ฟรี",
+         "en": "If the stress keeps you from sleeping, or you start thinking you don't want to be here, call 1323 in Thailand (24h, free)"},
+    ]
+    ask = {"key": "dhd", "sop": 3,
+           "th": f"ตอนนี้แต่ละวันมีเงินออกประมาณเท่าไหร่ และยังมีเงินเข้าบ้างไหม — จะได้ดูว่า{have_th}พาไปได้อีกกี่วัน",
+           "en": f"Roughly how much goes out each day, and is anything still coming in? Then we can see how many days {have_en} buys you"}
+    return {"text": t[:4000], "verdict": "steady", "talk": True, "gates": [], "sop": [], "asks": [ask], "steps": steps,
+            "emergency": False, "brief": None,
+            "waterline": dict(wl, show={"th": {k: _money(wl[k]) for k in ("floor", "current", "after")},
+                                        "en": {k: _money_en(wl[k]) for k in ("floor", "current", "after")}}),
+            "note": {"th": "เรื่องที่หนักขนาดนี้ คุยกับ LYLA ในโหมดปรึกษาได้ด้วยนะคะ ไม่ต้องแบกคนเดียว",
+                     "en": "Something this heavy — you can also talk it through with LYLA in Talk mode. You don't have to carry it alone."},
+            "summary": {"th": f"ตั้งหลักก่อนนะคะ — ยังไม่ต้องตอบเรื่องด่านหรือแผนใหญ่ {have_th}คือของมีค่าที่สุดตอนนี้ เริ่มจากรักษามันไว้",
+                        "en": f"Let's steady things first — no gates or big plans yet. {have_en[0].upper() + have_en[1:]} is the most valuable thing right now; start by protecting it."}}
+
+
 def audit(text: str, answered=()) -> dict:
     t = str(text or "").strip()
     answered = set(answered or ())
@@ -453,6 +542,8 @@ def audit(text: str, answered=()) -> dict:
                                     "· Stop the line: pull the risk back before you reach it"})
         gates.append(g)
     stops = [g for g in gates if g["status"] == STOP]
+    if not answered and not stops and sinking(t):
+        return steady(t, wl)              # ไม่มีแผนเสี่ยงให้หยุด แต่คนกำลังจะล้ม — ตั้งหลักก่อน
 
     asks = []
     if len(t) < 40:
