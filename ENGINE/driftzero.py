@@ -182,7 +182,7 @@ GATES = [
          r"(?:ตี|ทำร้าย|ลงโทษทางกาย)\S{0,6}(?:นักเรียน|เด็ก)|ลงโทษ\S{0,10}(?:นักเรียน|เด็ก)\S{0,6}(?:ด้วยการ)?ตี|"
          r"(?:นักเรียน|เด็ก|ผู้ป่วย|คนไข้|ผู้สูงอายุ)[^\n]{0,30}?(?:แอร์เสีย|ร้อนจัด)[^\n]{0,24}?(?:เปิดไม่ได้|ทั้งวัน)|"
          r"ยาปฏิชีวนะ\S{0,8}(?:ผสม|ใส่)\S{0,4}อาหาร|"
-         r"\bunlicensed\s+(?:staff|people|workers?|nurses?)\b[^\n]{0,20}?\b(?:prescrib|inject|treat|operat|diagnos)\w*|"
+         r"\bunlicensed\s+(?:staff|people|workers?|nurses?)\b(?:(?!\bnever\b|\bnot\b|n't|\bno\b)[^\n]){0,20}?\b(?:prescrib|inject|treat|operat|diagnos)\w*|"
          r"\b(?:sell|use|give)\s+(?:\w+\s+){0,2}expired\s+(?:medicine|drugs?|formula|food|vaccines?)\b|"
          r"\b(?:disable|turn\s+off|remove)\s+(?:the\s+)?(?:smoke|fire|gas)\s+(?:sensors?|alarms?|detectors?)\b|"
          r"\bno\s+(?:guard\s*rails?|harness(?:es)?|fall\s+protection)\b"),
