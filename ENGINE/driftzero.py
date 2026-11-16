@@ -804,6 +804,8 @@ def lyla_voice(r: dict) -> dict:
         r["lyla"] = r.get("summary")
         return r
     stops = [g for g in r.get("gates") or [] if g.get("status") == STOP]
+    # เรื่องหนักสุดมาก่อน (มิจฉาชีพ ชีวิต เส้นขั้นต่ำ) — เดิมคนที่กำลังโดนหลอกได้ยินเหตุผลแรกว่า "มั่นใจเกินจริง"
+    stops.sort(key=lambda g: _PRIORITY.index(g["id"]) if g["id"] in _PRIORITY else len(_PRIORITY))
     n = len(r.get("asks") or [])
     wl = r.get("waterline") or {}
     cur = wl.get("current")
