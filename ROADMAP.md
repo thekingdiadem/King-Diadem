@@ -42,7 +42,7 @@
 - Pandemic survival simulation ✅
 - Food shortage scenario ✅
 - Climate disruption framework — คลื่นความร้อน · ฝุ่น PM2.5 · ภัยแล้ง (tests/test_climate_hazards.py) ✅
-- Real-time disaster data integration (USGS · JMA) (pending)
+- Real-time disaster data integration — USGS (core/quakes.py) · GDACS (core/hazards.py) · ชินโดะ JMA (tests/test_quakes_jma.py) ✅
 - Black swan detection · Monte Carlo engine (หางซ้าย · ต่อเข้าภาพอนาคต · tests/test_black_swan.py) ✅
 
 ---
