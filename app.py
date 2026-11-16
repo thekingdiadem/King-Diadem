@@ -3736,6 +3736,8 @@ async def practice_step(request: Request):
         body = await request.json()
     except Exception:
         body = {}
+    if not isinstance(body, dict):          # [1,2] / "ข้อความ" / 42 เป็น JSON ที่ถูก แต่ .get() พัง → เคยได้ 500
+        body = {}
     sid = str((body or {}).get("scenario") or "")
     choices = (body or {}).get("choices") or []
     if sid not in SCENARIOS or not isinstance(choices, list):
@@ -3836,6 +3838,8 @@ async def driftzero_audit(request: Request):
         body = await request.json()
     except Exception:
         body = {}
+    if not isinstance(body, dict):          # [1,2] / "ข้อความ" / 42 เป็น JSON ที่ถูก แต่ .get() พัง → เคยได้ 500
+        body = {}
     text = str((body or {}).get("input") or "").strip()[:4000]
     if not text:
         return JSONResponse({"error": "เล่าการตัดสินใจที่อยากให้ตรวจก่อนนะคะ"}, status_code=400)
@@ -3881,6 +3885,8 @@ async def image_generate(request: Request):
     try:
         body = await request.json()
     except Exception:
+        body = {}
+    if not isinstance(body, dict):          # [1,2] / "ข้อความ" / 42 เป็น JSON ที่ถูก แต่ .get() พัง → เคยได้ 500
         body = {}
     prompt = str((body or {}).get("prompt") or "").strip()
     if len(prompt) < 3:
