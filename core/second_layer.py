@@ -531,3 +531,8 @@ UPGRADES += [
     (re.compile(r"(?:ลูก|น้อง|หลาน)(?:สาว|ชาย)?\s?(?:อายุ\s?)?(?:1[0-5]|[5-9])\s?(?:ขวบ|ปี)?\s?(?:นัด|แอบ)(?:เจอ|ไปเจอ|ไปหา)\S{0,10}?(?:ผู้ชาย|ผู้ใหญ่|คน|ผู้หญิง)\S{0,10}?(?:ในเกม|ในเน็ต|ออนไลน์|ในแอป|ในดิสคอร์ด|ในติ๊กต็อก|ในเฟซ)|"
                 r"(?:ลูก|น้อง|หลาน)\S{0,10}?(?:นัด|แอบ)(?:เจอ|ไปเจอ)\S{0,8}?(?:ผู้ชาย|ผู้ใหญ่)\S{0,6}?(?:ที่)?(?:รู้จัก)?(?:ในเกม|ในเน็ต|ออนไลน์|ในแอป)"), "online_grooming"),
 ]
+
+# รอบ 102: เจ้าหนี้/แก๊งทวงหนี้ขู่จะเผา ทำร้าย หรือฆ่า (อังกฤษ) — ฉบับไทยจับได้อยู่แล้ว
+UPGRADES += [(re.compile(r"(?i:\b(?:loan\s+shark|debt\s+collectors?|lenders?|they|he|she)\b[^\n]{0,20}?\b(?:said|says|threaten(?:ed|ing|s)?|warned)\b[^\n]{0,10}?\b(?:he'?ll|they'?ll|she'?ll|to|will|they\s+will|he\s+will)\s+"
+                         r"(?:burn|torch|set\s+fire\s+to|kill|hurt)\s+(?:my|me|our|us)\b(?!\s+(?:feelings|heart|ego|chances))"
+                         r"(?![^\n]{0,25}?\b(?:lol|lmao|haha|in\s+the\s+game|in\s+the\s+movie|if\s+i'?m\s+late|if\s+i\s+(?:forget|lose|break|tell|eat|spoil))\b))"), "violence")]
