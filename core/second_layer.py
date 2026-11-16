@@ -599,3 +599,15 @@ UPGRADES += [
                 r"(?i:\bpower\s+(?:is\s+)?(?:out|cut|off)\b[^\n]{0,30}?\b(?:ventilator|oxygen\s+(?:machine|concentrator))\b|\b(?:ventilator|oxygen\s+concentrator)\b[^\n]{0,30}?\bpower\s+(?:is\s+)?(?:out|cut)\b)"), "home_ventilator"),
     (re.compile(r"แมงกะพรุน[^\n]{0,20}?(?:หายใจ(?:ขัด|ลำบาก|ไม่ออก)|เจ็บหน้าอก|หมดสติ|ชัก)|(?i:\bjellyfish\b[^\n]{0,30}?\b(?:can'?t\s+breathe|hard\s+to\s+breathe|chest\s+pain|collapsed)\b)"), "health_emergency"),
 ]
+
+# รอบ 134: คนท้องโดนทำร้ายที่ท้อง · ยานอนหลับเกินแล้วปลุกไม่ตื่น · แผลสักติดเชื้อมีไข้สูง · โรคน้ำหนีบหลังดำน้ำ
+UPGRADES += [
+    (re.compile(r"(?:คนท้อง|ท้อง\s?\d+\s?เดือน|ตั้งครรภ์|ภรรยาท้อง|เมียท้อง)[^\n]{0,24}?(?:โดน|ถูก)?\S{0,8}(?:ถีบ|เตะ|ต่อย|ตี|ทุบ|เหยียบ)\S{0,2}(?:ท้อง|ที่ท้อง)|"
+                r"(?i:\bpregnant\b[^\n]{0,30}?\b(?:kicked|punched|hit|stomped)\s+(?:in|on)\s+(?:the|her|my)\s+(?:stomach|belly|abdomen)\b)"), "violence"),
+    (re.compile(r"(?:ยานอนหลับ|ยากล่อมประสาท|ยาคลายเครียด)[^\n]{0,20}?(?:ผิดขนาด|เกินขนาด|หลายเม็ด|ทั้งแผง|เยอะ)[^\n]{0,20}?(?:ปลุกไม่ตื่น|ไม่ตื่น|หายใจช้า|ไม่ตอบสนอง)|"
+                r"(?i:\b(?:too\s+many|extra|a\s+lot\s+of)\s+sleeping\s+pills\b[^\n]{0,30}?\b(?:won'?t\s+wake|can'?t\s+wake|not\s+waking|unresponsive|breathing\s+slowly)\b)"), "overdose"),
+    (re.compile(r"(?:รอยสัก|สักลาย|เจาะ(?:หู|จมูก|ลิ้น|สะดือ))[^\n]{0,24}?(?:บวม|แดง|ร้อน|หนอง)[^\n]{0,20}?(?:ไข้สูง|ไข้ขึ้น|หนาวสั่น|เส้นแดงลาม)|"
+                r"(?i:\b(?:tattoo|piercing)\b[^\n]{0,30}?\b(?:swollen|red|hot|pus)\b[^\n]{0,30}?\b(?:high\s+fever|fever|chills|red\s+streaks?)\b)"), "health_emergency"),
+    (re.compile(r"(?:ดำน้ำ|ดำน้ำลึก|สกูบา)[^\n]{0,20}?(?:ขึ้นมา)?[^\n]{0,10}?(?:ปวดข้อ|เจ็บข้อ|ชา|อ่อนแรง|หายใจลำบาก|เจ็บหน้าอก|เวียนหัวมาก|สับสน)|"
+                r"(?i:\b(?:after|since)\s+(?:scuba\s+)?diving\b[^\n]{0,40}?\b(?:joint\s+pain|numb\w*|weak\w*|short\s+of\s+breath|chest\s+pain|confus\w*)\b)"), "health_emergency"),
+]
