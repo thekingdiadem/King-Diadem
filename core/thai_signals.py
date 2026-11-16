@@ -581,7 +581,7 @@ VIOLENCE_BY = re.compile(
     r"\b(?:someone|he|she|they) locked me (?:in|up)\b|\bi'?m locked in\b|"
     # ตาราง 10,200 ข้อความ: ใครก็ตามที่ทำร้าย (ไม่ใช่แค่สามี/แฟน) — คนแปลกหน้า เจ้านาย พ่อเลี้ยง เคยได้ Risk 0
     r"(?i:\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,12}?\b(?:hits|beats|punches|kicks|slaps|chokes|strangles|burns|starves|whips|pushed|shoved|threw) me\b(?!\s+(?:why|how|what|at\s+(?:chess|cards|games?|tennis|racing|everything)|in\s+(?:chess|cards|games?|tennis|racing)|out\b|off\b|up\b))|"
-    r"\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,12}?\b(?:won'?t let me (?:leave|go out|out of)|keeps? touching me|kept touching me|is touching me)\b|"
+    r"\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,12}?\b(?:won'?t let me (?:leave|go out|out of)(?!\s+(?:early|yet|until|before|on time|for lunch|during (?:work|my shift)))|keeps? touching me|kept touching me|is touching me)\b|"
     r"\b(?:has|with|holding|pulled|is holding) (?:a |an )?(?:knife|gun|machete|weapon)\b[^\n]{0,25}?\b(?:threaten\w*|at me|on me|to my)\b|"
     r"\b(?:is |keeps |kept |been )?following me (?:home|everywhere|to my (?:house|car|room))\b)|"
     # รอบตารางความรุนแรงภาษาอังกฤษ: เด็กถูกพ่อแม่ทำร้าย · พ่อตีแม่ · ถูกยึดโทรศัพท์ขังในห้อง · คนถือมีดหน้าประตู — เคยได้ Risk 0
@@ -1390,7 +1390,7 @@ _NET_KIN = (r"พ่อเลี้ยง|แม่เลี้ยง|พ่อ(
             r"\b(?:step(?:dad|mom|father|mother)|dad|mom|father|mother|husband|wife|boyfriend|girlfriend|uncle|aunt|boss|employer)\b")
 NET_CONFINE = re.compile(
     r"(?is)^" + _NET_FICTION + r"(?=.*(?:" + _NET_KIN + r"))(?=.*(?:(?<!ท่วม)(?<!น้ำ)(?:กัก)?ขัง(?:ไว้|ฉัน|หนู|ผม|เรา|ลูก)|(?:ถูก|โดน)(?:กัก)?ขัง|ล็อก(?:ประตู)?(?:ขัง|ไว้ในห้อง)|ไม่ให้กินข้าว(?:เลย|มา|ทั้งวัน|หลายวัน)|"
-    r"\blocks? me (?:in|inside|up)\b|\bwon'?t (?:give me (?:any )?(?:food|water)|let me (?:eat|leave|out))\b))")
+    r"\blocks? me (?:in|inside|up)\b|\bwon'?t (?:give me (?:any )?(?:food|water)|let me (?:eat|leave|out))\b(?!\s+(?:early|yet|until|before|on time|for lunch|during (?:work|my shift)))))")
 NET_GROOM = re.compile(
     r"(?is)^" + _NET_FICTION + r"(?=.*(?:ครู|อาจารย์|โค้ช|หัวหน้า|พระ|รุ่นพี่|ติวเตอร์|\b(?:teacher|coach|boss|priest|tutor|pastor)\b))"
     r"(?=.*(?:สองต่อสอง|อยู่กันสองคน|ไปที่ห้อง|เรียกเข้าห้อง|\balone with (?:him|her|me)\b|\bone[- ]on[- ]one\b|\bin (?:his|her) (?:office|room|car)\b))"

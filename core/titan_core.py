@@ -21,7 +21,7 @@ EXIT_BLOCKED = re.compile(
     r"(?:ล็อก|ล๊อก|ปิด)(?:ประตู|ห้อง|บ้าน)\S{0,10}(?:ไม่ให้|ห้าม)\S{0,6}ออก|(?:ขัง|กักขัง|กักตัว|ล่าม|มัด)(?:ฉัน|หนู|ผม|เรา|ไว้|อยู่|เด็ก|ลูก|แม่|ภรรยา)|"
     r"(?:ถูก|โดน)(?:ขัง|กักขัง|กักตัว|ล่าม|ล็อก(?:ห้อง|ประตู)?)|ไม่ให้(?:ฉัน|หนู|ผม|เรา)?\s?ออก(?:จาก)?(?:บ้าน|ห้อง|ที่พัก|โรงงาน|แคมป์|หอ)|ห้าม(?:ฉัน|หนู|ผม|เรา)\S{0,4}ออก(?:จาก)?(?:บ้าน|ห้อง|ที่พัก)|"
     # ยึดเอกสารอย่างเดียวยังไม่ใช่ถูกขัง (คำตอบแรงงาน/ค้ามนุษย์ของเดิมตรงกว่า) — ต้องบอกว่าห้ามออก/ถูกขังด้วย
-    r"(?i:\b(?:locked|locking) me (?:in|inside|up)\b|\bwon'?t let me (?:leave|out|go)\b|\b(?:took|takes|kept|keeps|holding|has) my passport\b|\bkeep(?:s|ing)? me locked\b|\bi'?m being held\b|\bnot allowed to leave (?:the )?(?:house|room|apartment|compound)\b)")
+    r"(?i:\b(?:locked|locking) me (?:in|inside|up)\b|\bwon'?t let me (?:leave|out|go)\b(?!\s+(?:early|yet|until|before|on time|for lunch|during (?:work|my shift)))|\b(?:took|takes|kept|keeps|holding|has) my passport\b|\bkeep(?:s|ing)? me locked\b|\bi'?m being held\b|\bnot allowed to leave (?:the )?(?:house|room|apartment|compound)\b)")
 # ── Section 5: ขอวิธีเพิ่มอำนาจเหนือคนอื่น/ลดทางออกของเขา (มุมของคนที่จะทำ) ─────────────────────────────
 _OTHER = r"(?:แฟน|สามี|ภรรยา|เมีย|ผัว|ลูกน้อง|ลูกจ้าง|พนักงาน|คนงาน|แรงงาน|ลูก|คู่)"
 POWER_OVER = re.compile(
