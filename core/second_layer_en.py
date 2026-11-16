@@ -24,7 +24,7 @@ EN_UPGRADES: list[tuple[re.Pattern, str]] = [
                 r"\bnobody (?:will|would)(?: even)? (?:miss|notice|care)\b[^.\n]{0,25}?\b(?:dead|gone|die|died)\b|"
                 r"\bdo(?:n'?t|nt) (?:want|wanna) (?:to )?be here anymore\b|\bdo(?:n'?t|nt) (?:want|wanna) (?:to )?wake up\b(?!\s+(?:(?:tomorrow|today)\s+)?(?:early|late|at|before|so|for|on|this|tomorrow morning))|"
                 r"\bwhat'?s the point (?:of|in) living\b|\bwhats the point of living\b|\bno reason to keep living\b|"
-                r"\bdisappear forever\b|\btired of existing\b|\bdo(?:n'?t|nt) see a future\b|\bending it (?:this|tonight|tomorrow|soon)\b", _I),
+                r"\bdisappear forever\b|\bdisappear into the (?:sea|ocean|river|waves|water)\b(?![^.\n]{0,20}?\b(?:on (?:a|my) (?:boat|cruise|surfboard)|diving|snorkel)\w*)|\btired of existing\b|\bdo(?:n'?t|nt) see a future\b|\bending it (?:this|tonight|tomorrow|soon)\b", _I),
      "crisis"),
     # ── อยากตาย: มีวิธี/แผน/เวลา ─────────────────────────────────────────────────────
     (re.compile(r"\b(?:hose|tube|pipe)\b[^.\n]{0,30}?\bexhaust\b|\bexhaust\b[^.\n]{0,24}?\bgarage\b|"

@@ -185,7 +185,7 @@ SELF_HARM_WARNING = re.compile(
     r"ยก(?:ของ|ข้าวของ|สมบัติ|ของรัก)\S{0,8}ให้\S{0,8}(?:หมด|ไปหมด)(?:แล้ว)?(?![^\n]{0,20}(?:ย้าย|บริจาค|ขาย|เคลียร์|ไม่ใช้))|"
     r"เบื่อชีวิต|เบื่อโลก(?!\S{0,4}(?:โซเชียล|ออนไลน์|การทำงาน|ธุรกิจ|ภายนอก))|ไม่มีอะไรจะเสีย(?:แล้ว)?|อยู่ไปก็(?:ไม่มีประโยชน์|ไร้ค่า|เท่านั้น|เปล่าประโยชน์)|"
     r"ชีวิต(?:นี้)?ไม่มีความหมาย|ไม่มีใครต้องการ(?:ฉัน|เรา|หนู|ผม)|เป็นภาระ(?:ของ|ให้)?(?:ทุกคน|ครอบครัว|คนอื่น|พ่อแม่)|"
-    r"\bwant to disappear\b(?!\s+(?:for\s+(?:a|the|this)\s+(?:weekend|while|day|week|trip|holiday|vacation)|on\s+(?:a\s+)?(?:trip|holiday|vacation)))|\bi (?:don'?t|do not) want to wake up\b(?!\s+(?:early|tomorrow|at|for|so|today))|\bno ?one would (?:miss|notice|care)\b|\bnobody would (?:miss|notice|care)\b|"
+    r"\bwant to disappear\b(?!\s+(?:for\s+(?:a|the|this)\s+(?:weekend|while|day|week|trip|holiday|vacation)|on\s+(?:a\s+)?(?:trip|holiday|vacation)|into\s+(?:a\s+|the\s+|my\s+)?(?:good\s+|new\s+)?(?:book|novel|movie|film|game|show|series|music|hobby|garden|kitchen|crowd|work|project)s?\b))|\bi (?:don'?t|do not) want to wake up\b(?!\s+(?:early|tomorrow|at|for|so|today))|\bno ?one would (?:miss|notice|care)\b|\bnobody would (?:miss|notice|care)\b|"
     r"\bi(?:'?m| am) (?:just )?a burden\b|\b(?:wish i could |want to )disappear forever\b|"
     r"อยาก(?:ไปอยู่กับ|ตามไปหา|ไปหา)(?:แม่|พ่อ|ยาย|ตา|ปู่|ย่า|แฟน|ลูก|เขา)\S{0,6}?(?:บนสวรรค์|บนฟ้า|ที่จากไป|บนนั้น)|"
     r"(?:ซื้อ|สะสม|ตุน)ยา\S{0,8}?(?:มา)?\s*(?:[2-9]|\d{2,})\s*แผง|"
