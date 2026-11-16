@@ -12,6 +12,7 @@
 """
 from __future__ import annotations
 
+import functools
 import re
 
 STOP, ASK, PASS = "stop", "ask", "pass"
@@ -260,16 +261,24 @@ def _money_en(v) -> str:
     return f"{v:,.0f}"
 
 
+@functools.lru_cache(maxsize=128)
+def _read(text: str) -> tuple:
+    """อ่านข้อความด้วยตัวจับหลักครั้งเดียว แล้วใช้ซ้ำ — เดิม DriftZero เรียกซ้ำ 2-3 รอบต่อข้อความ
+    (ข้อความยาว 4,000 ตัวอักษรใช้เวลาถึง 1.7 วินาที) คืนเป็น tuple ที่แก้ไม่ได้ กันไม่ให้ผลในแคชถูกแก้โดยไม่ตั้งใจ"""
+    from core.kernel_voice import assess
+    a = assess(text)
+    return (bool(a.get("crisis")), tuple(a.get("topics") or ()), a.get("text_risk", 0))
+
+
 def _danger(text: str) -> tuple[bool, bool]:
     """(วิกฤตของคน, เหตุอันตรายตอนนี้)
     วิกฤตของคน (คิดทำร้ายตัวเอง) = ไม่ใช่เวลาตรวจด่าน ส่งไปหาความช่วยเหลือ
     เหตุอันตราย (สารเคมีรั่ว ไฟไหม้ คนเจ็บ) = ยังตรวจด่านได้ แต่ต้องโชว์เบอร์ฉุกเฉินก่อน — เดิม "สารเคมีรั่วในไลน์ผลิต"
     ถูกตัดไปเป็นเรื่องด่วนทั้งก้อน เลยไม่เห็นด่าน K12 Stop the line ที่ตรงที่สุด"""
     try:
-        from core.kernel_voice import assess
-        a = assess(text)
-        crisis = bool(a.get("crisis")) or "crisis" in (a.get("topics") or [])
-        return crisis, (not crisis and a.get("text_risk", 0) >= 85)
+        crisis_flag, topics, risk = _read(str(text or ""))
+        crisis = crisis_flag or "crisis" in topics
+        return crisis, (not crisis and risk >= 85)
     except Exception:
         return False, False
 
@@ -369,8 +378,7 @@ def answered_keys(answer: str, prior_keys) -> set[str]:
 
 def distress(text: str) -> bool:
     try:
-        from core.kernel_voice import assess
-        return bool(_DISTRESS & set(assess(text).get("topics") or []))
+        return bool(_DISTRESS & set(_read(str(text or ""))[1]))
     except Exception:
         return False
 
