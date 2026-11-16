@@ -2323,6 +2323,8 @@ _CU_SRC += (r"|(?:犬|狗|강아지|개|perro|chó)[^\n]{0,30}?(?:チョコ|巧�
             r"|(?:panza|barriga|est[óo]mago)\s+de\s+mi\s+perr[oa][^\n]{0,30}?hinchad[^\n]{0,40}?no\s+sale"
             r"|(?:bụng\s+chó)[^\n]{0,20}?(?:căng|phồng)[^\n]{0,30}?không\s+ra")
 _CAT_URINARY_RX = re.compile(_CU_SRC, re.I)
+_STRANDED_DANGER = re.compile(r"มืด|หนาว|น้ำหมด|แบต(?:เหลือ|ใกล้หมด)|เด็กเล็ก|ลูกเล็ก|คลื่น(?:แรง|ใหญ่)|น้ำเข้า|บาดเจ็บ|"
+                              r"(?i:\bdark\b|freez|no\s+water|out\s+of\s+water|\d+\s?%|toddler|baby|big\s+waves|water\s+coming\s+in|injured)")
 _HEAT_SYMPTOM = re.compile(r"(?:ร้อน(?:จัด|มาก)|อากาศร้อน|กลางแดด|ตากแดด|หน้างานร้อน|\d{2}\s?องศา|\bheat\b|\bin the sun\b)[^\n]{0,40}?"
                            r"(?:เวียนหัว|คลื่นไส้|อาเจียน|หน้ามืด|อ่อนเพลีย|ใจสั่น|ตะคริว|ปวดหัว|\bdizzy\b|\bnause\w*|\bfaint\w*|\bcramps?\b|\bheadache\b)|"
                            r"(?:เวียนหัว|คลื่นไส้|หน้ามืด|\bdizzy\b|\bfaint\w*)[^\n]{0,30}?(?:ร้อน(?:จัด|มาก)|กลางแดด|ตากแดด|\bheat\b|\bin the sun\b)", re.I)
@@ -2370,6 +2372,10 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     # ชั้นสองอาจเติม harm_others กลับมา — คนที่ถูกคนอื่นขู่ไม่ใช่คนที่อยากทำร้ายใคร (ดู _THREAT_BY_OTHER)
     if isinstance(text, str) and "harm_others" in a["topics"] and "violence" in a["topics"] and _THREAT_BY_OTHER.search(text):
         a = dict(a, topics=[x for x in a["topics"] if x != "harm_others"])
+    # รอบสุ่ม 78: ติดค้าง + มีอันตรายประกอบ (มืด หนาว น้ำหมด เด็กเล็ก คลื่น น้ำเข้าเรือ) = ด่วนกว่าติดค้างธรรมดา
+    if isinstance(text, str) and not a["crisis"] and "stranded" in a.get("topics", []) and _STRANDED_DANGER.search(text):
+        a = dict(a, text_risk=max(a["text_risk"], 75), risk=max(a["risk"], 75),
+                 risk_shown=max(a["risk_shown"], 75) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     return _specific_first(text, _mother_baby_first(text, _with_conditions(text, a)))
 
 

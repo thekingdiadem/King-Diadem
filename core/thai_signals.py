@@ -688,6 +688,13 @@ URGENT_BODY = re.compile(
     r"\bcan'?t stop the bleeding\b|\blots? of blood\b|\bblood\b[^\n]{0,30}?\b(?:soak(?:ing|ed|s)? (?:through|into)|pouring|spurting|gushing|won'?t stop)\b|\bsoak(?:ing|ed) through\b[^\n]{0,30}?\b(?:towels?|bandages?|cloths?|shirts?|gauze)\b|\bstung by an? (?:bee|wasp|hornet)\b[^\n]{0,40}?\b(?:swell|can'?t breathe|trouble breathing)|"
     r"\b(?:face|lips|tongue|throat) (?:is |are )?(?:swelling|swollen)\b[^\n]{0,30}?\b(?:breath|after eating|ate)|\bheat ?stroke\b|"
     r"\b(?:very )?drunk\b[^\n]{0,20}?\b(?:won'?t|can'?t|doesn'?t) wake\b|\bwon'?t wake up\b|\bpassed out drunk\b|"
+    # รอบสุ่ม 82: หอบหืด/แพ้รุนแรง (อังกฤษ)
+    r"\b(?:asthma|wheez\w*)\b[^\n]{0,30}?\binhaler\s+(?:isn'?t|is\s+not|not)\s+(?:helping|working)\b|\bcan\s+only\s+(?:speak|say)\s+a\s+few\s+words\b|"
+    r"\b(?:allergic\s+reaction|hives)\b[^\n]{0,40}?\b(?:faint|dizzy|throat|can'?t\s+breathe|swelling)\b[^\n]{0,30}?\b(?:faint|dizzy|throat|breath)\w*|"
+    # รอบสุ่ม 81: ความร้อน/ความเย็น (อังกฤษ) — ผู้สูงอายุร้อนจัดซึม · ตัวสั่นปากม่วงง่วงซึม · ติดในห้องเย็น
+    r"\b(?:grandma|grandpa|elderly|old\s+(?:man|woman)|mom|dad)\b[^\n]{0,30}?\b(?:4\d|3[89])\s?(?:degrees|°c?)\b[^\n]{0,30}?\b(?:drowsy|confused|not\s+responding|very\s+sleepy|lethargic)\b|"
+    r"\bshivering\b[^\n]{0,20}?\bblue\s+lips\b|\bblue\s+lips\b[^\n]{0,30}?\b(?:sleepy|drowsy|confused|shivering)\b|"
+    r"\b(?:stuck|trapped|locked)\s+(?:inside\s+)?(?:in\s+)?(?:the\s+|a\s+)?(?:walk-in\s+)?(?:freezer|cold\s+room|cooler)\b|"
     # รอบสุ่ม 24: ยาเกินขนาด/ยาตีกัน (อังกฤษ) — เด็กดื่มยาแก้ไอทั้งขวด · เหล้า+ยานอนหลับแล้วหายใจช้า · ยาความดันซ้ำ
     r"\b(?:kid|child|son|daughter|toddler|baby)\b[^\n]{0,20}?\b(?:drank|swallowed|ate|took)\s+(?:a\s+|the\s+)?(?:whole|entire|full)\s+(?:bottle|pack|box|strip)\b|"
     r"\b(?:drank|drinking|alcohol|beer|wine)\b[^\n]{0,30}?\b(?:sleeping\s+pills?|benzos?|xanax|valium|opioids?|oxy\w*)\b[^\n]{0,40}?\b(?:breathing\s+(?:really\s+|very\s+)?slow|won'?t\s+wake|blue\s+lips|passed\s+out)\b|"
@@ -713,6 +720,11 @@ MEDICAL_EMERGENCY = re.compile(
     r"\b(?:can'?t|cannot) (?:lift|move|raise) (?:his|her|my|their) (?:left|right) (?:arm|leg)\b[^\n]{0,40}?\b(?:slurr|no sense|can'?t speak|drooping)|"
     r"\b(?:toddler|baby|kid|son|daughter|child)\b[^\n]{0,60}?\b(?:holding|has|got into|opened)\b[^\n]{0,20}?\b(?:bleach|drain cleaner|detergent pod|pesticide|antifreeze|lye)\b"
     r"[^\n]{0,50}?\b(?:mouth (?:is )?wet|in (?:his|her) mouth|licked|swallowed|drank|coughing|vomiting)\b)|"
+    # รอบสุ่ม 82: หอบหืดพ่นยาไม่ดีขึ้น · อาหารติดคอไอไม่ออก
+    r"หอบ(?:หืด)?[^\n]{0,15}?พ่นยา\S{0,4}(?:แล้ว)?\S{0,2}ไม่(?:ดีขึ้น|หาย|ช่วย)|พูดเป็นคำๆ|พูดได้ทีละคำ|"
+    r"(?:ติดคอ|สำลักอาหาร)[^\n]{0,15}?(?:ไอไม่ออก|หายใจไม่ได้|หน้าเขียว|ปากเขียว|พูดไม่ได้)|"
+    # รอบสุ่ม 81: ติดอยู่ในห้องเย็น/ตู้แช่ (ไทย)
+    r"(?:ติด|ขัง)(?:อยู่)?(?:ข้าง)?ใน(?:ห้องเย็น|ตู้แช่|ห้องแช่แข็ง)|(?:ห้องเย็น|ตู้แช่)[^\n]{0,20}?(?:ติดอยู่|ประตูเปิดไม่ได้|ออกไม่ได้)|"
     # รอบสุ่ม 7: สโตรกที่เล่าด้วยคำอื่น — "พูดไม่รู้เรื่อง มือซ้ายยกไม่ขึ้น" · เด็กถือน้ำยาเคมี ปากเปียก
     r"พูดไม่รู้เรื่อง[^\n]{0,24}?(?:มือ|แขน|ขา)\S{0,6}?(?:ยกไม่ขึ้น|อ่อนแรง|ไม่มีแรง|ขยับไม่ได้)|"
     r"(?:มือ|แขน|ขา)\S{0,6}?(?:ยกไม่ขึ้น|ขยับไม่ได้)[^\n]{0,24}?(?:พูดไม่รู้เรื่อง|พูดไม่ได้|พูดไม่ออก)|"
@@ -1184,6 +1196,7 @@ def repair_typing(t: str) -> str:
 _DIALECT = [
     (r"บ่(?=[ก-ฮเ-ไ])(?![าว่้ายง])(?!อ(?!อก|ยาก))", "ไม่"),
     # รอบสุ่ม 16: "ผัวตี๋ข้าเจ้าทุกวัน" (เหนือ) · "บ่อยากเป็นภาระไผแล้ว" (อีสาน) เคยได้ 0
+    (r"ลงไม้ลงมือ|ลงมือลงไม้", "ทำร้าย"),   # รอบสุ่ม 68: สำนวน = ทำร้ายร่างกาย ("ถ้าเจอ…จะลงไม้ลงมือ" เคยได้ 60)
     (r"ข้าเจ้า", "ฉัน"), (r"ตี๋(?=\s?(?:ข้า|ฉัน|เฮา|หนู|ลูก|แม่|เมีย))", "ตี"), (r"(?<![ก-ฮเแโใไ])ไผ(?![่้])", "ใคร"),
     (r"ข้อย", "ฉัน"), (r"(?<![ก-ฮเแโใไ])ข้า(?![วงมศ])", "ฉัน"), (r"ผัว", "สามี"), (r"เฮือน", "บ้าน"),
     (r"ฮู้สึก", "รู้สึก"), (r"(?<![ก-ฮเแโใไ])ป้อ(?![ง])", "พ่อ"), (r"เปิ้น", "เขา"), (r"ต๋าย", "ตาย"), (r"อี่หล่า|อีหล่า", "ลูก"),
@@ -1421,6 +1434,19 @@ INDIRECT_SELF = re.compile(
     # ไม่นับวันหยุด/ลางาน ("พรุ่งนี้วันเสาร์ คงไม่ต้องตื่นเช้า")
     r"(?!.*(?:วันหยุด|เสาร์|อาทิตย์|ลางาน|ปิดเทอม|หยุดยาว|ไม่มีเรียน|ไม่ต้องไปทำงาน|ทำงานที่บ้าน|wfh))"
     r".*(?:คง|จะ|อาจ(?:จะ)?)\S{0,2}ไม่(?:ต้อง)?ตื่น(?:ขึ้นมา)?(?:อีก(?:แล้ว)?|แล้ว)(?!\S{0,6}(?:เช้า|ไปทำงาน|ไปเรียน|ตีห้า))|"
+    # รอบสุ่ม 69: คำเลี่ยงแบบแสลง — รีสตาร์ทชีวิต · ออฟไลน์ถาวร · นอนในโลง · log off permanently · sleep forever tonight
+    r".*(?:รีสตาร์ท|รีเซ็ต)ชีวิต[^\n]{0,15}?(?:กดปิด|ปิดไปเลย|ปิดถาวร)|"
+    r".*อยาก(?:จะ)?ออฟไลน์ถาวร(?!\S{0,2}จาก)|"
+    r".*อยาก(?:ไป)?นอน(?:อยู่)?ใน(?:โลง|หลุม)|"
+    r".*\b(?:ready|want|going)\s+to\s+log\s+off\s+(?:permanently|forever|for\s+good)\b(?![^\n]{0,10}\bfrom\b)|"
+    r"(?!.*\b(?:phone|battery|laptop|computer|pc|cat|dog)\b).*\b(?:i'?m|i\s+am|i\s+will|gonna)\s+(?:going\s+to\s+)?sleep\s+forever\b|"
+    # รอบสุ่ม 66: ความผิดหวัง/กดดัน + "ยืนอยู่บนดาดฟ้า/ที่สูง" — เคยได้ 0–30
+    r"(?!.*(?:ถ่ายรูป|วิว|ปาร์ตี้|เพื่อนๆ|ชมวิว|selfie|photo|view|party))"
+    r".*(?:ผิดหวัง|สอบ(?:ตก|ไม่ติด|ติดไม่ได้)|ไม่ไหว|กดดัน|ไม่มีใคร|failed|disappoint|can'?t\s+take|no\s+one)[^\n]{0,60}?"
+    r"(?:ยืน(?:อยู่)?บน(?:ดาดฟ้า|ขอบ|สะพาน|ระเบียง)|ขึ้นมาบนดาดฟ้า|(?:standing|sitting)\s+on\s+the\s+(?:\w+\s+)?(?:rooftop|roof|ledge|bridge|edge))|"
+    # รอบสุ่ม 65: วิกฤตการเงินที่ซ่อนอันตราย — ขับรถลงเหว · ทำประกันไว้แล้ว "คืนนี้คงจบ"
+    r".*(?:จะ|อยาก|คิดว่าจะ)\S{0,4}ขับ(?:รถ)?\S{0,4}(?:ลงเหว|ตกเหว|ชนเสา|ลงน้ำ|ตกสะพาน|ลงแม่น้ำ)|"
+    r".*(?:ประกันชีวิต|ประกัน)[^\n]{0,30}?(?:คืนนี้|วันนี้|พรุ่งนี้)\S{0,4}(?:คง|จะ)?\S{0,4}(?:จบ|ไป|ปิดฉาก)(?!\S{0,4}(?:โปร|ส่วนลด|สัญญา|รอบ|ซื้อ))|"
     # รอบสุ่ม 29: สัญญาณหลังคำว่า "ไม่เป็นไร/โอเค/ขำๆ"
     r".*(?:เรา|ฉัน|หนู|ผม|ก็)\S{0,4}หายไป(?:เอง)?[^\n]{0,10}?(?:ทุกคน|คนอื่น|ที่บ้าน)\S{0,4}(?:จะ)?(?:ได้)?สบาย(?!ใจ)|"
     r"(?!.*(?:ลาออก|ขอบคุณ|อวยพร|วันแม่|วันเกิด|ปีใหม่|การ์ด))"

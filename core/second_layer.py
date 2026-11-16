@@ -210,11 +210,12 @@ UPGRADES += [
 # เดิมหลุด 8 จาก 10 ข้อ
 UPGRADES += [
     (re.compile(r"(?:มีคน|ผู้ชาย|คนแปลกหน้า|ใครไม่รู้)\S{0,4}(?:เดิน|ขับรถ)?ตาม(?:หลัง)?มา[^\n]{0,30}?(?:ยัง|ตอนนี้|ตั้งแต่|ไม่ยอม)|"
-                r"(?:แท็กซี่|คนขับ|grab|แกร็บ|วิน)[^\n]{0,30}?(?:ล็อกประตู|ไม่ยอมให้ลง|ไม่ให้ลง|ไม่ยอมจอด)|"
+                r"(?i:แท็กซี่|คนขับ|grab|แกร็บ|วิน|taxi|driver|uber|bolt)[^\n]{0,30}?(?:ล็อกประตู|ไม่ยอมให้ลง|ไม่ให้ลง|ไม่ยอมจอด)|"
                 r"(?:แฟนเก่า|สามีเก่า|ใครไม่รู้)?\S{0,4}(?:แอบ)?ติด\s?(?:GPS|จีพีเอส|เครื่องติดตาม|แท็ก)[^\n]{0,30}?(?:ตามมา|ตามไป|โผล่|มาดัก)|"
                 r"(?i:\b(?:taxi|driver|uber|cab)\b[^\n]{0,40}?\block(?:ed|s)?\s+the\s+doors?\b|\bwon'?t\s+let\s+me\s+(?:get\s+)?out\s+of\s+the\s+(?:car|taxi|cab)\b|"
                 r"\b(?:put|planted|hid)\s+a\s+(?:tracker|gps|airtag|tracking\s+device)\b[^\n]{0,40}?\b(?:showed\s+up|following|followed|waiting)\b)"), "violence"),
     (re.compile(r"(?:ใส่|ผสม|หยอด)(?:อะไร|ยา|ผง)?\S{0,4}ใน(?:แก้ว|เครื่องดื่ม|น้ำ)[^\n]{0,30}?(?:มึน|เวียน|หน้ามืด|ง่วง|ไม่ค่อยรู้สึกตัว|ตัวอ่อน)|"
+                r"(?i:\b(?:put|slipped)\s+something\s*ใน(?:แก้ว|เครื่องดื่ม)[^\n]{0,30}?(?:dizzy|มึน|เวียน|weird))|"
                 r"(?i:\b(?:put|slipped|dropped)\s+something\s+in(?:to)?\s+(?:my|her|his)\s+drink\b[^\n]{0,40}?\b(?:dizzy|drowsy|can'?t\s+stand|confused|blacking\s+out|weird)\b)"), "health_emergency"),
     (re.compile(r"(?:ไปเดท|นัดเจอ|ไปเจอ)[^\n]{0,30}?(?:แอป|ออนไลน์|ทินเดอร์|tinder)[^\n]{0,30}?(?:ไม่ติดต่อ|ติดต่อไม่ได้|หายไป|ปิดเครื่อง)[^\n]{0,20}?(?:ชั่วโมง|วัน|คืน)|"
                 r"(?i:\b(?:dating\s+app|tinder|bumble|hinge|met\s+online)\b[^\n]{0,40}?\b(?:hasn'?t\s+(?:answered|replied|come\s+back)|not\s+answering|phone\s+is\s+off|missing)\b)"), "missing"),
@@ -230,6 +231,45 @@ UPGRADES += [
 ]
 # รอบสุ่ม 37: กดลิงก์แล้วเงินในบัญชีหาย (อังกฤษ) — เดิมได้ 0
 UPGRADES += [(re.compile(r"(?i:\bclicked\s+(?:a|the|on\s+a|on\s+the)\s+(?:\w+\s+){0,3}link\b[^\n]{0,40}?\b(?:account|bank|wallet)\b[^\n]{0,20}?\b(?:is\s+)?(?:empty|drained|emptied|cleaned\s+out|money\s+(?:is\s+)?gone)\b)"), "scam")]
+# รอบสุ่ม 65: เจ้าหนี้ขู่จะเอาลูกไปขาย — เคยได้ 55
+UPGRADES += [(re.compile(r"(?:เจ้าหนี้|นายทุน|แก๊ง)[^\n]{0,20}?(?:ขู่|บอก)\S{0,4}(?:จะ)?(?:มา)?(?:เอา|จับ|ลัก)\S{0,4}(?:ลูก|เมีย|แม่|น้อง)\S{0,4}(?:ไป)?(?:ขาย|ขัง|เป็นตัวประกัน)"), "trafficking")]
+# รอบสุ่ม 67: ผู้สูงอายุอยู่คนเดียวติดต่อไม่ได้หลายวัน · ลิ่มเลือดหลังนั่งเครื่องบิน · อาเจียนสีดำ+ท้องแข็ง (EN)
+UPGRADES += [
+    (re.compile(r"(?:ยาย|ตา|ปู่|ย่า|แม่|พ่อ|ป้า|ลุง)[^\n]{0,10}?อยู่คนเดียว[^\n]{0,20}?(?:โทร(?:ไป)?)?\S{0,4}(?:สอง|สาม|หลาย|\d+)\s?วัน\S{0,4}ไม่(?:รับสาย|ตอบ|ติดต่อ)|"
+                r"(?i:\b(?:grandma|grandpa|grandmother|grandfather|mom|dad|mother|father|aunt|uncle)\b[^\n]{0,15}?\blives\s+alone\b[^\n]{0,40}?\b(?:hasn'?t\s+(?:answered|picked\s+up)|not\s+answering|no\s+answer)\b[^\n]{0,20}?\b(?:\d+|two|three|several)\s+days\b)"), "missing"),
+    (re.compile(r"(?:หายใจไม่อิ่ม|หอบ|เจ็บหน้าอก)[^\n]{0,20}?ขาบวมข้างเดียว|ขาบวมข้างเดียว[^\n]{0,30}?(?:หายใจไม่อิ่ม|หอบ|เจ็บหน้าอก)|"
+                r"(?i:\b(?:vomiting|throwing\s+up)\s+(?:black|coffee[- ]ground|blood)\b[^\n]{0,30}?\b(?:belly|stomach|abdomen)\b[^\n]{0,15}?\b(?:rigid|hard|swollen)\b)"), "health_emergency"),
+]
+# รอบสุ่ม 73: คนใกล้ตัวส่งสัญญาณบอกลา — รูปยาเต็มมือ+ลาก่อน · ขอบคุณแล้วปิดเครื่อง · ขังตัวเองแล้วเงียบ (เดิมหลุด 7/7)
+UPGRADES += [(re.compile(
+    r"(?:โพสต์|ส่ง)(?:รูป)?\S{0,4}ยา(?:เต็มมือ|เป็นกำ|ทั้งแผง)[^\n]{0,20}?(?:ลาก่อน|บอกลา|ขอโทษ)|"
+    r"ขอบคุณที่(?:เป็นเพื่อน|อยู่ด้วย|ดีกับ)[^\n]{0,30}?(?:ปิดเครื่อง|ไม่ตอบ|หายไป|ติดต่อไม่ได้)|"
+    r"ขังตัวเอง(?:อยู่)?ใน(?:ห้อง|ห้องน้ำ)[^\n]{0,30}?(?:เงียบ|ไม่ตอบ|ไม่ออกมา)|"
+    r"(?:บอกว่า)?จะไป(?:กระโดด|ตาย|ฆ่าตัวตาย)[^\n]{0,20}?(?:ไม่รับสาย|ติดต่อไม่ได้|ปิดเครื่อง)|"
+    r"(?i:\bposted\s+a\s+(?:photo|pic|picture)\s+of\s+(?:pills|a\s+handful\s+of\s+pills)\b[^\n]{0,30}?\b(?:goodbye|bye|sorry)\b|"
+    r"\b(?:thanks|thank\s+you)\s+for\s+(?:being\s+my\s+friend|everything)\b[^\n]{0,30}?\b(?:turned\s+off|switched\s+off|not\s+answering|went\s+silent)\b|"
+    r"\blocked\s+(?:him|her|them)sel(?:f|ves)\s+in\b[^\n]{0,50}?\b(?:silent|quiet|not\s+answering|won'?t\s+answer)\b)"), "someone")]
+# รอบสุ่ม 76: คนข้างบ้านกำลังถูกทำร้าย · เด็กถูกทิ้งไว้คนเดียวหลายวัน (ผู้ใช้เป็นคนเห็นเหตุ)
+UPGRADES += [
+    (re.compile(r"(?:ข้างห้อง|ข้างบ้าน|ห้องข้างๆ|บ้านข้างๆ)[^\n]{0,20}?(?:กรีดร้อง|ร้องให้ช่วย|ร้องขอความช่วยเหลือ)[^\n]{0,20}?(?:ตบ|ตี|ทุบ|เสียงของแตก|เสียงล้ม)|"
+                r"(?i:\b(?:next\s+door|neighbou?r'?s?|upstairs|downstairs)\b[^\n]{0,30}?\bscreaming\s+for\s+help\b[^\n]{0,30}?\b(?:slap|hit|crash|thud|bang)\w*)"), "violence"),
+    (re.compile(r"เด็ก[^\n]{0,10}?(?:ข้างบ้าน|ข้างห้อง)[^\n]{0,20}?ร้องไห้[^\n]{0,20}?ไม่เห็น(?:พ่อแม่|ผู้ใหญ่|ใคร)[^\n]{0,10}?(?:สอง|สาม|หลาย|\d+)\s?วัน|"
+                r"(?i:\b(?:kid|child|baby|toddler)\s+next\s+door\b[^\n]{0,40}?\bcrying\b[^\n]{0,40}?\bhaven'?t\s+seen\s+(?:the\s+)?(?:parents|adults|anyone)\b)"), "missing"),
+]
+# รอบสุ่ม 78: ติดค้างระหว่างเดินทาง (หลงป่า · เรือเครื่องดับ · รถเสียไม่มีสัญญาณ) · ลูกหายในที่คนเยอะ
+UPGRADES += [
+    (re.compile(r"หลง(?:ป่า|ทาง)[^\n]{0,15}?(?:บน)?(?:ดอย|เขา|ภูเขา|ป่า)|เรือ[^\n]{0,8}?(?:เครื่องดับ|เสีย|ล่ม)[^\n]{0,15}?(?:กลางทะเล|กลางน้ำ|ทะเล)|"
+                r"รถเสีย[^\n]{0,20}?ไม่มีสัญญาณ|"
+                r"(?i:\blost\s+(?:on|in)\s+the\s+(?:mountain|woods|forest|jungle|desert)\b|\bboat\s+(?:engine\s+)?(?:died|broke\s+down|failed)\s+at\s+sea\b|\bcar\s+broke\s+down\b[^\n]{0,20}?\bno\s+(?:signal|service)\b)"), "stranded"),
+    (re.compile(r"ลูก(?:หาย|พลัดหลง)[^\n]{0,15}?(?:ห้าง|ตลาด|งาน|สนามบิน|สถานี|คนเยอะ)|(?i:\blost\s+my\s+(?:kid|child|son|daughter)\s+(?:in|at)\s+(?:a|the)\s+(?:\w+\s+)?(?:mall|market|crowd|airport|station|fair|festival)\b)"), "missing"),
+]
+# รอบสุ่ม 80: คนในแชทนัดเด็กไปโรงแรม+ห้ามบอก · งานต่างประเทศจากเฟซ+นายหน้าเก็บพาสปอร์ต · แม่ถูกหลอกว่าเป็นลูก
+UPGRADES += [
+    (re.compile(r"(?:คนใน(?:แชท|เกม|เน็ต)|คนแปลกหน้า)[^\n]{0,20}?(?:ให้ไป|นัด)\S{0,4}(?:เจอ|หา)[^\n]{0,15}?(?:โรงแรม|ห้อง|บ้าน)[^\n]{0,30}?(?:ห้ามบอก|อย่าบอก)|"
+                r"(?i:\bsomeone\s+(?:from|in)\s+(?:a|the)\s+(?:chat|game|app)\b[^\n]{0,30}?\bmeet\s+her\b[^\n]{0,20}?\bhotel\b[^\n]{0,40}?\bnot\s+to\s+tell\b)"), "online_grooming"),
+    (re.compile(r"งานต่างประเทศ[^\n]{0,15}?(?:จาก|ใน|ทาง)(?:เฟซ|เฟสบุ๊ค|ไลน์|ติ๊กต็อก|โซเชียล)[^\n]{0,40}?(?:เก็บ|ยึด)(?:พาสปอร์ต|หนังสือเดินทาง)"), "trafficking"),
+    (re.compile(r"(?:แม่|พ่อ|ยาย|ตา)\S{0,4}เชื่อ(?:คน)?ใน(?:ไลน์|แชท|เฟซ)\S{0,6}ว่าเป็น(?:ลูก|หลาน)[^\n]{0,20}?(?:โอน|ส่งเงิน)"), "scam"),
+]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
@@ -282,12 +322,15 @@ _EN_SET = set(EN_UPGRADES)
 _THAI_RUN = re.compile(r"[\u0E00-\u0E7F]+")
 
 _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85, "sexual_abuse": 85,
-            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80}
+            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85}
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
     # รอบสุ่ม 42: ถามวิธีเตรียมตัว/ดูข่าวภัยพิบัติ (ja zh ko es vi) เคยได้ 70 จากคำว่า "แผ่นดินไหว" คำเดียว
     (re.compile(r"ニュース|(?:への)?備え|準備|怎么准备|怎麼準備|如何准备|新闻|新聞|대비|방법|뉴스|c[óo]mo\s+prepar|preparativos|noticias?|chuẩn\s+bị|tin\s+tức"), ("disaster", "help")),
+    # รอบสุ่ม 65: อุบัติเหตุที่จบแล้ว เคลมประกันแล้ว ("ขับรถชนเสาไฟฟ้าเมื่อวาน ประกันจ่ายแล้ว" เคยได้ 75)
+    (re.compile(r"(?:เมื่อวาน|เมื่อวันก่อน|อาทิตย์ที่แล้ว|เดือนที่แล้ว)[^\n]{0,30}?(?:ประกัน(?:จ่าย|เคลม)|เคลม(?:ประกัน)?)\S{0,4}(?:แล้ว|เรียบร้อย)"
+                r"(?![^\n]{0,40}(?:เจ็บ|เลือด|หมดสติ|ไม่หายใจ|โรงพยาบาล))"), ("first_aid", "health_emergency")),
     # รอบสุ่ม 22: บอกชัดว่าเจ็บนิดเดียว/เสียแค่ของ — "ขับรถชนเสาเบาๆ กันชนบุบ" เคยได้ 75 · "just a scraped knee" เคยได้ 85
     (re.compile(r"(?<!ไม่)(?:เบาๆ|นิดหน่อย|นิดเดียว)[^\n]{0,16}?(?:กันชน|บุบ|รอยขีด|ถลอก|แค่รอย)|(?:กันชน|ไฟท้าย)\S{0,4}(?:บุบ|แตก|ร้าว)(?![^\n]{0,30}(?:เจ็บ|เลือด|หมดสติ|ไม่หายใจ))|"
                 r"(?i:\b(?:just|only)\s+(?:a\s+)?(?:scraped|scratched|bruised|grazed|skinned)\s+(?:knee|elbow|arm|leg|hand)\b|\bjust\s+a\s+(?:scrape|scratch|bruise|graze)\b)"),
