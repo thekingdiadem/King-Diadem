@@ -10,7 +10,10 @@ APP = (ROOT / "static/app.js").read_text(encoding="utf-8")
 def test_close_up_lights_and_clouds_are_smoothed_only_when_magnified():
     assert "float mag=1.-smoothstep(" in EARTH
     assert "texture2D(lights,tc+hp)" in EARTH and "texture2D(clouds,cc+hp)" in EARTH
-    assert "vec2 hp=px*1.3*mag;" in EARTH          # มองทั้งโลก (mag = 0) ได้ภาพเดิมทุกจุด
+    # มองทั้งโลก (mag = 0) ได้ภาพเดิมทุกจุด — เกลี่ยเฉพาะตอนขยาย (ค่าเกลี่ยลดจาก 1.3 เหลือ .7 เมื่อเปลี่ยนเป็นภาพไฟ NASA 2016 ที่ละเอียดกว่า)
+    import re
+    m = re.search(r"vec2 hp=px\*([\d.]+)\*mag;", EARTH)
+    assert m and 0 < float(m.group(1)) <= 1.3
 
 
 def test_hero_title_has_a_scrim_and_steps_aside_for_popups():
