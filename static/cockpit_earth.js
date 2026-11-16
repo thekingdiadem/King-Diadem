@@ -101,8 +101,7 @@
     '    float mag=1.-smoothstep(.3,1.,(-b-sqrt(disc))*pix*326.);',
     '    vec2 hp=px*1.3*mag;',
     '    float L=(texture2D(lights,tc+hp).r+texture2D(lights,tc-hp).r+texture2D(lights,tc+hp*vec2(1.,-1.)).r+texture2D(lights,tc+hp*vec2(-1.,1.)).r)*.25;',
-    '    float gr=vn(tc*vec2(9000.,4500.))*vn(tc*vec2(3100.,1550.)+7.);',
-    '    L*=mix(1.,.75+1.1*gr,mag*.6);',
+    // (เดิมมีเม็ดสังเคราะห์แทนรายละเอียด — ภาพ NASA 2016 ละเอียดพอแล้ว เม็ดกลับเป็นลายตารางตอนซูมใกล้ จึงเอาออก)
     '    float B=(texture2D(lights,tc+px*vec2(5.,0.)).r+texture2D(lights,tc-px*vec2(5.,0.)).r+texture2D(lights,tc+px*vec2(0.,4.)).r+texture2D(lights,tc-px*vec2(0.,4.)).r)*.25;',
     '    vec2 cc=tc+vec2(t*.0004,0.);',
     '    float cl=(texture2D(clouds,cc+hp).r+texture2D(clouds,cc-hp).r+texture2D(clouds,cc+hp*vec2(1.,-1.)).r+texture2D(clouds,cc+hp*vec2(-1.,1.)).r)*.25;',
@@ -129,7 +128,7 @@
     '    }',
     '    float W=(texture2D(lights,tc+px*vec2(14.,0.)).r+texture2D(lights,tc-px*vec2(14.,0.)).r+texture2D(lights,tc+px*vec2(0.,10.)).r+texture2D(lights,tc-px*vec2(0.,10.)).r)*.25;',   // แสงฟุ้งวงกว้างรอบเมืองใหญ่ (ภาพถ่ายจากสถานีอวกาศเห็นเมืองเป็นดวงไฟมีรัศมี)
     '    vec3 sodium=vec3(1.,.55,.16),core=vec3(1.,.86,.62),led=vec3(.86,.9,1.);',   // ชานเมือง = ไฟถนนโซเดียมสีส้ม · ใจกลางเมือง = ขาวอุ่น · จุดสว่างจัด = LED ขาวอมฟ้า (ตามภาพถ่ายจริงจาก ISS)
-    '    vec3 city=mix(sodium,core,smoothstep(.25,.75,L))*pow(L,1.15)*3.4+mix(core,led,smoothstep(.75,1.,L))*pow(L,3.)*1.9+vec3(1.,.5,.15)*(pow(B,1.4)*.8+pow(W,1.6)*.55);',
+    '    vec3 city=mix(sodium,core,smoothstep(.25,.75,L))*pow(L,1.15)*3.4+mix(core,led,smoothstep(.75,1.,L))*pow(L,3.)*1.9+vec3(1.,.5,.15)*(pow(B,1.4)*.8+pow(W,1.6)*.55)*(1.-.6*mag);',
     '    city*=(1.-.45*cl)*(1.-.85*wm);',                                              // ไฟเรือ/แท่นเจาะยังเห็นจางๆ
     '    vec3 surf=(baseC+vec3(.55,.62,.85)*pow(cl,1.4)*.16)*mix(1.,.42,sunM)+city*ready;',   // ในยาน: กลางคืนมืดตามจริง ไฟเมืองเท่าเดิม
     '    surf+=(vec3(.18,.35,1.)*pow(1.-zz,2.6)*.35+vec3(.35,.55,1.)*pow(1.-zz,9.)*.6)*(1.-.85*sunM);', // ฟ้าหลัวตามความหนาของบรรยากาศที่มองผ่าน (ในยาน: กลางคืนไม่มีฟ้าหลัวสีฟ้า)
@@ -213,19 +212,23 @@
   }
   var conn = navigator.connection || {};
   var can4k = gl.getParameter(gl.MAX_TEXTURE_SIZE) >= 4096 && !conn.saveData;
+  var can8k = gl.getParameter(gl.MAX_TEXTURE_SIZE) >= 8192 && !conn.saveData;
   // มือถือ/เครื่องแรมน้อย/เน็ตช้า: ภาพ 4K (ราว 2.6 MB) ยังไม่โหลดจนกว่าจะซูมเข้าไปดูจริง — ทั้งโลกภาพ 2K ก็คมพอบนจอเล็ก
   var light = Math.min(screen.width, screen.height) < 700 || (navigator.deviceMemory || 8) <= 4 || /2g|3g/.test(conn.effectiveType || '');
   var got4k = false, firstIn = false;
   function maybe4k() {
     if (got4k || !firstIn || !can4k || (light && S.tL < 2 && !SHIP.on)) return;
     got4k = true;
-    load(0, 'lights_4k.jpg'); load(1, 'day_4k.jpg'); load(2, 'clouds_4k.jpg');      // 4K หลังภาพแรกขึ้นแล้ว — เน็ตช้าไม่ต้องรอ
+    // ไฟเมือง 8K (NASA Black Marble 2016 · เห็นถนนเป็นใยแสง) เฉพาะเครื่องที่รับภาพ 8192 ได้และไม่ใช่เครื่องเบา — ไฟล์ราว 1 MB เพราะเป็นภาพขาวดำ
+    load(1, 'day_4k.jpg'); load(2, 'clouds_4k.jpg');      // 4K หลังภาพแรกขึ้นแล้ว — เน็ตช้าไม่ต้องรอ
   }
   function firstDone() {
     if (--pending > 0) return;
     wrap.classList.add('lit');
     load(3, 'water.png', function () { hasW = 1; });
     firstIn = true;
+    // ไฟเมืองละเอียดโหลดทันที ไม่ต้องรอซูม: ภาพขาวดำเล็กมาก (4K ราว 0.3 MB · 8K ราว 1 MB) แต่ทำให้เมืองแยกเป็นดวงและเห็นถนน
+    if (can4k) load(0, can8k && !light ? 'lights_8k.jpg' : 'lights_4k.jpg');
     maybe4k();
     safeArrive();
   }

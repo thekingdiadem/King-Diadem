@@ -5,7 +5,7 @@
 | ไฟล์ | ขนาด | ที่มา |
 |---|---|---|
 | `day.jpg` | 2048×1024 | NASA Blue Marble (พื้นผิวโลกตอนกลางวัน) |
-| `lights.jpg` | 2048×1024 | NASA Earth at Night (Black Marble) — สกัดเฉพาะแสงเมือง เป็นภาพขาวดำ |
+| `lights.jpg` · `lights_4k.jpg` · `lights_8k.jpg` | 2048×1024 · 4096×2048 · 8192×4096 | NASA Black Marble 2016 (VIIRS, ภาพ 144898 ขนาด 13500×6750) — สกัดเฉพาะแสงเมืองเป็นภาพขาวดำด้วย `scripts/build_earth_lights_2016.py` · 8K โหลดเฉพาะเครื่องที่รองรับ |
 | `clouds.jpg` | 2048×1024 | ภาพเมฆทั้งโลก (ช่องความโปร่งใสของ `clouds.png`) |
 
 ภาพต้นฉบับมาจากโฟลเดอร์ตัวอย่างของแพ็กเกจ npm `three-globe` (`example/img/earth-blue-marble.jpg`,
@@ -19,7 +19,7 @@
 
 | ไฟล์ | ขนาด | ที่มา |
 |---|---|---|
-| `lights_4k.jpg` · `day_4k.jpg` · `clouds_4k.jpg` | 4096×2048 | ภาพ NASA เดิมจาก `three-globe` (MIT) ความละเอียดเต็ม — สร้างด้วย `scripts/build_earth_textures.py` |
+| `day_4k.jpg` · `clouds_4k.jpg` | 4096×2048 | ภาพ NASA เดิมจาก `three-globe` (MIT) ความละเอียดเต็ม — สร้างด้วย `scripts/build_earth_textures.py` |
 | `water.png` | 2048×1024 | แผนที่น้ำ (`three-globe` example/img/earth-water.png) — ใช้ทำประกายแสงจันทร์บนทะเล |
 | `capitals.json` | 241 เมือง | เมืองหลวงทุกประเทศ/ดินแดน จาก GeoNames (CC BY 4.0) ผ่านแพ็กเกจ `all-the-cities` (MIT) — รหัส PPLC |
 
