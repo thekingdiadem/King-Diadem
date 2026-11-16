@@ -3759,6 +3759,8 @@ def compose_council(text: str, footer: bool = True) -> str:
         pass
     has_root = root.get("evidence", True) and root.get("root") in _PATICCA_SAY
     paticca = (_PATICCA_SAY[root["root"]] if has_root else
+               ("ต้นเหตุที่เห็นคือการแลกสิ่งที่ย้อนกลับไม่ได้ (ชีวิต ความไว้ใจ เงินก้อนสุดท้าย ธรรมชาติ) กับความเร็วหรือต้นทุน "
+                "— ถามว่าถ้าพลาด ใครเป็นคนจ่าย และจ่ายคืนได้ไหม") if dz else
                "จากที่เล่ายังไม่เห็นต้นเหตุชัด — เรื่องนี้เริ่มจากอะไร ก่อนจะเป็นแบบนี้เกิดอะไรขึ้น")
 
     lyla = _pick(main["open"], text, "council")

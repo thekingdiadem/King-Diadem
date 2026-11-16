@@ -184,6 +184,15 @@ def four_truths(text: str) -> dict:
                 samudaya = ROOT_TH[ri["root"]]
         except Exception:
             pass
+    if samudaya == UNCLEAR:
+        # เหตุยังไม่ชัดจากคำที่เล่า แต่ DriftZero เห็นว่าแผนข้ามเส้นตรงไหน — ใช้เหตุผลนั้น (เดิม "จำนองบ้านไปลงคริปโต" ได้ "ยังไม่ชัด")
+        try:
+            from ENGINE.driftzero import stop_reasons
+            dz2 = stop_reasons(text)
+            if dz2:
+                samudaya = dz2[0][1]
+        except Exception:
+            pass
     clear = dukkha != UNCLEAR and samudaya != UNCLEAR
     return {"dukkha": dukkha, "samudaya": samudaya, "nirodha": nirodha,
             "magga": _first_step(text) if text.strip() else UNCLEAR, "clear": clear,
