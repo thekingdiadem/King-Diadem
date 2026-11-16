@@ -510,3 +510,13 @@ def apply(text: str, a: dict) -> dict:
                 continue
             break
     return a
+
+# รอบ 100: ถูกลูบ/จับตัวซ้ำๆ โดยคนที่มีอำนาจหรือคนใกล้ตัว · ไฟดูดจนไหม้ · ชักนาน (อังกฤษ)
+UPGRADES += [
+    (re.compile(r"(?:เพื่อนร่วมงาน|หัวหน้า|เจ้านาย|ครู|อาจารย์|โค้ช|ลุง|น้า|อา|พ่อเลี้ยง|รุ่นพี่)\S{0,10}?(?:ลูบ|จับ|แตะ|ขยำ|บีบ)\S{0,4}?(?:ขา|ต้นขา|ก้น|หน้าอก|นม|เอว|ตัว)"
+                r"(?![^\n]{0,15}?(?:ให้กำลังใจ|ปลอบ|แสดงความยินดี|ตอนเล่นกีฬา|ตรวจร่างกาย|ยืดเส้น|จัดท่า|ปฐมพยาบาล))|"
+                r"(?i:\b(?:teacher|coach|boss|coworker|co-worker|manager|uncle|stepdad)\b[^\n]{0,15}?\b(?:keeps?|kept|always)\s+(?:touching|grabbing|rubbing)\s+my\s+(?:leg|thigh|butt|chest|breasts?|waist|body)\b)"), "sexual_abuse"),
+    (re.compile(r"(?:ไฟดูด|ไฟช็อต|ปลั๊ก|สายไฟ|เต้าเสียบ)[^\n]{0,20}?(?:มือ|นิ้ว|แขน|เท้า|ตัว|ปาก)\S{0,4}?(?:ดำ|ไหม้|พอง|เป็นแผล)|(?:ไฟดูด|ไฟช็อต)[^\n]{0,20}?(?:หมดสติ|ไม่รู้สึกตัว|ไม่หายใจ|ชัก|ล้มลง)"), "health_emergency"),
+    (re.compile(r"(?i:\b(?:mom|mum|dad|son|daughter|baby|kid|child|brother|sister|wife|husband|friend|he|she)\b[^\n]{0,10}?\b(?:is|has\s+been|keeps?)\s+(?:seizing|convulsing|having\s+(?:a\s+)?seizures?)\b"
+                r"(?![^\n]{0,30}?\b(?:yesterday|last\s+(?:week|year|month)|years?\s+ago|controlled|medication\s+works)\b))"), "health_emergency"),
+]
