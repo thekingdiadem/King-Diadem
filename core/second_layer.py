@@ -334,7 +334,7 @@ _EN_SET = set(EN_UPGRADES)
 _THAI_RUN = re.compile(r"[\u0E00-\u0E7F]+")
 
 _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85, "sexual_abuse": 85,
-            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85, "intruder": 85}
+            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85, "intruder": 85, "forced_marriage": 85, "money_control": 65}
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
@@ -520,3 +520,39 @@ UPGRADES += [
     (re.compile(r"(?i:\b(?:mom|mum|dad|son|daughter|baby|kid|child|brother|sister|wife|husband|friend|he|she)\b[^\n]{0,10}?\b(?:is|has\s+been|keeps?)\s+(?:seizing|convulsing|having\s+(?:a\s+)?seizures?)\b"
                 r"(?![^\n]{0,30}?\b(?:yesterday|last\s+(?:week|year|month)|years?\s+ago|controlled|medication\s+works)\b))"), "health_emergency"),
 ]
+
+# รอบ 101: เห็ดป่า/เห็ดพิษแล้วมีอาการ · ผู้สูงอายุหลงหายจากบ้าน · เด็กนัดเจอคนที่รู้จักในเกม/ออนไลน์
+UPGRADES += [
+    (re.compile(r"(?:กิน|ทาน|เก็บ)\S{0,6}?เห็ด(?:ป่า|พิษ|ไม่รู้จัก|ที่เก็บมา|ข้างทาง)?[^\n]{0,30}?(?:อ้วก|อาเจียน|ท้องเสีย|ปวดท้อง|มึน|ชัก|ตาลาย|หมดสติ)"
+                r"(?![^\n]{0,10}?(?:นิดเดียวหาย|หายแล้ว))|"
+                r"(?i:\b(?:ate|eaten|eating)\s+(?:some\s+)?(?:wild|foraged|unknown|poisonous)\s+mushrooms?\b[^\n]{0,40}?\b(?:vomit\w*|throwing\s+up|diarrh\w*|dizzy|seiz\w*|passed\s+out|sick)\b)"), "health_emergency"),
+    (re.compile(r"(?:ยาย|ตา|ปู่|ย่า|พ่อ|แม่|คุณยาย|คุณตา)\S{0,10}?(?:หลง|เดินหลง|หาย|ออกจากบ้าน)\S{0,10}?(?:ตั้งแต่|มา|ไป)\S{0,12}?(?:เช้า|เมื่อวาน|เที่ยง|บ่าย|คืน|\d+\s?ชั่วโมง)"
+                r"[^\n]{0,20}?(?:ยังไม่กลับ|ยังหาไม่เจอ|ติดต่อไม่ได้|โทรไม่ติด)(?![^\n]{0,6}?(?:เพราะ|ไปงาน|ไปเที่ยว|ไปบ้าน|ค้างบ้าน))"), "missing"),
+    (re.compile(r"(?:ลูก|น้อง|หลาน)(?:สาว|ชาย)?\s?(?:อายุ\s?)?(?:1[0-5]|[5-9])\s?(?:ขวบ|ปี)?\s?(?:นัด|แอบ)(?:เจอ|ไปเจอ|ไปหา)\S{0,10}?(?:ผู้ชาย|ผู้ใหญ่|คน|ผู้หญิง)\S{0,10}?(?:ในเกม|ในเน็ต|ออนไลน์|ในแอป|ในดิสคอร์ด|ในติ๊กต็อก|ในเฟซ)|"
+                r"(?:ลูก|น้อง|หลาน)\S{0,10}?(?:นัด|แอบ)(?:เจอ|ไปเจอ)\S{0,8}?(?:ผู้ชาย|ผู้ใหญ่)\S{0,6}?(?:ที่)?(?:รู้จัก)?(?:ในเกม|ในเน็ต|ออนไลน์|ในแอป)"), "online_grooming"),
+]
+
+# รอบ 102: เจ้าหนี้/แก๊งทวงหนี้ขู่จะเผา ทำร้าย หรือฆ่า (อังกฤษ) — ฉบับไทยจับได้อยู่แล้ว
+UPGRADES += [(re.compile(r"(?i:\b(?:loan\s+shark|debt\s+collectors?|lenders?|they|he|she)\b[^\n]{0,20}?\b(?:said|says|threaten(?:ed|ing|s)?|warned)\b[^\n]{0,10}?\b(?:he'?ll|they'?ll|she'?ll|to|will|they\s+will|he\s+will)\s+"
+                         r"(?:burn|torch|set\s+fire\s+to|kill|hurt)\s+(?:my|me|our|us)\b(?!\s+(?:feelings|heart|ego|chances))"
+                         r"(?![^\n]{0,25}?\b(?:lol|lmao|haha|in\s+the\s+game|in\s+the\s+movie|if\s+i'?m\s+late|if\s+i\s+(?:forget|lose|break|tell|eat|spoil))\b))"), "violence")]
+
+# รอบ 104: สัญญาณเตรียมตัว — สะสมยานอนหลับ · ยกของให้คนอื่นเพราะ "ไม่ต้องใช้อีก"
+UPGRADES += [
+    (re.compile(r"(?<!ขายยา)(?<!ร้าน)(?<!โรงพยาบาล)(?:เก็บ|สะสม|ตุน|แอบเก็บ|รวบรวม)\S{0,6}?(?:ยานอนหลับ|ยาคลายเครียด|ยากล่อมประสาท|ยาพารา|ยา)\S{0,6}?(?:ไว้)?\S{0,4}?(?:เยอะ|เยอะแล้ว|หลายแผง|หลายสิบเม็ด|ครบแล้ว|พอแล้ว)"
+                r"(?![^\n]{0,20}?(?:ร้านขายยา|ขาย|ตู้ยา|เผื่อเดินทาง|ตรวจวันหมดอายุ|หมดอายุ))"), "crisis"),
+    (re.compile(r"(?:ยก|แจก|ให้)\S{0,4}?(?:ของ|สมบัติ|ข้าวของ|ของรัก|แมว|หมา)\S{0,10}?(?:หมด|ทั้งหมด)\S{0,6}[^\n]{0,10}?(?:ไม่ต้องใช้อีก|ไม่ได้ใช้อีกแล้ว|คงไม่ได้ใช้แล้ว|ไม่จำเป็นแล้ว)|"
+                r"(?i:\bgave\s+away\s+(?:all\s+)?(?:my|of\s+my)\s+(?:stuff|things|belongings|stuff\s+and)\b[^\n]{0,20}?\b(?:won'?t|wont|don'?t)\s+need\s+(?:it|them)\b(?:\s+anymore)?)"), "crisis"),
+]
+
+# รอบ 105: ถูกบังคับแต่งงาน · คู่ขู่ฆ่าตัวตายเพื่อไม่ให้เลิก (อังกฤษ)
+UPGRADES += [
+    (re.compile(r"(?:ถูก|โดน)?(?:บังคับ|บีบ)(?:ให้)?\S{0,4}?แต่งงาน\S{0,10}?(?:กับ)?\S{0,10}?(?:คนที่ไม่รู้จัก|คนแก่|ไม่ได้รัก|ไม่เต็มใจ|ไม่อยาก|ทั้งที่อายุ|ตอนอายุ\s?1[0-7])|"
+                r"(?:พ่อแม่|ครอบครัว|ที่บ้าน)\S{0,6}?(?:บังคับ|จะจับ)\S{0,4}?(?:ให้)?แต่งงาน|"
+                r"(?i:\b(?:forc(?:ing|ed|e)|making)\s+me\s+(?:to\s+)?(?:marry|get\s+married)\b|\b(?:i'?m|i\s+am|i\s+was|being)\s+forced\s+into\s+(?:a\s+)?marriage\b)"), "forced_marriage"),
+    (re.compile(r"(?i:\b(?:he|she|my\s+(?:boyfriend|girlfriend|partner|husband|wife|ex))\s+(?:says|said|threatens?|threatened|keeps\s+saying)\s+(?:he|she|they)(?:'ll|\s+will|\s+would)\s+(?:kill\s+(?:him|her|them)sel(?:f|ves)|end\s+(?:it|(?:his|her|their)\s+life))\b[^\n]{0,20}?\bif\s+i\b)"), "someone"),
+]
+
+# รอบ 106: ควบคุมด้วยเงิน — ยึดเงินเดือน/บัตร ไม่ให้ใช้เงินเลย
+UPGRADES += [(re.compile(r"(?:แฟน|สามี|ผัว|ภรรยา|เมีย)\S{0,6}?(?:ยึด|เอาไป|คุม|เก็บ)\S{0,4}?(?:เงินเดือน|บัตร\S{0,4}|เงิน|สมุดบัญชี)\S{0,6}?(?:หมด|ทั้งหมด)?[^\n]{0,20}?(?:ไม่ให้ใช้|ไม่ให้\S{0,4}สักบาท|ต้องขอ|ห้ามซื้อ|ไม่ให้ทำงาน)|"
+                         r"(?i:\bmy\s+(?:husband|wife|partner|boyfriend|girlfriend)\s+(?:takes|took|controls|keeps)\s+(?:all\s+)?(?:my\s+)?(?:salary|money|paycheck|wages|cards?)\b[^\n]{0,30}?\b(?:won'?t\s+let\s+me|not\s+allowed|have\s+to\s+ask|can'?t\s+(?:spend|buy|work))\b)"), "money_control")]

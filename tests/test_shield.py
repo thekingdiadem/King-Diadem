@@ -97,3 +97,133 @@ def test_shield_404_is_byte_identical_to_app_404():
         raise HTTPException(404)
     r = TestClient(a).get("/item/1")
     assert r.content == S._UNIFORM and r.headers["content-type"] == "application/json"
+
+
+def test_time_is_one_every_closed_door_takes_the_same_time():
+    """เวลาเป็นเอกภาพ: ทางที่ไม่มีจริง · method ผิด · ไม่มีสิทธิ์ — ต่างก็รอเท่ากัน จับเวลาแยกไม่ออก"""
+    waits = {}
+    for name, call in (("missing", lambda c: c.get("/wp-admin")), ("method", lambda c: c.delete("/hello")),
+                       ("auth", lambda c: c.post("/login"))):
+        slept = []
+        call(_app([0.0], slept))
+        waits[name] = sum(slept)
+    assert set(waits.values()) == {S.EVEN_S}
+
+
+def test_success_and_crisis_chat_are_never_padded():
+    slept = []
+    c = _app([0.0], slept)
+    assert c.get("/hello").status_code == 200 and c.post("/run").status_code == 200
+    assert not slept
+
+
+def _app_ip(clock, slept, ip_box):
+    a = FastAPI()
+
+    @a.get("/hello")
+    def hello():
+        return {"ok": 1}
+
+    async def fake_sleep(s):
+        slept.append(s)
+    a.add_middleware(S.ShieldMiddleware, shape_from=lambda: a, clock=lambda: clock[0], sleep=fake_sleep,
+                     ip_of=lambda scope: ip_box[0])
+    return TestClient(a)
+
+
+SCANNER = {"user-agent": "sqlmap/1.7", "accept": "*/*"}
+
+
+def test_changing_ip_does_not_hide_the_same_gait():
+    """เครื่องสแกนเปลี่ยน IP ทุกคำขอ — แต่ท่าเดินเหมือนเดิม โล่ก็ยังจำได้"""
+    clock, slept, ip = [0.0], [], ["10.0.0.0"]
+    c = _app_ip(clock, slept, ip)
+    for i in range(14):
+        ip[0] = f"10.0.{i}.{i}"
+        c.get(f"/probe{i}", headers=SCANNER)
+    tarpit = [s for s in slept if s != S.EVEN_S]
+    assert tarpit and max(tarpit) >= 1.0
+
+
+def test_a_real_person_sharing_the_gait_is_not_slowed_on_real_pages():
+    """คนจริงที่บังเอิญท่าเดินเหมือนเครื่องสแกน แต่มาจาก IP ของตัวเอง เข้าหน้าที่มีจริงได้ทันที"""
+    clock, slept, ip = [0.0], [], ["10.0.0.0"]
+    c = _app_ip(clock, slept, ip)
+    for i in range(14):
+        ip[0] = f"10.1.{i}.{i}"
+        c.get(f"/probe{i}", headers=SCANNER)
+    slept.clear()
+    ip[0] = "203.0.113.7"
+    assert c.get("/hello", headers=SCANNER).status_code == 200
+    assert not slept
+
+
+def test_gait_forgets_too():
+    clock, slept, ip = [0.0], [], ["x"]
+    c = _app_ip(clock, slept, ip)
+    for i in range(14):
+        ip[0] = f"10.2.{i}.{i}"
+        c.get(f"/probe{i}", headers=SCANNER)
+    clock[0] += 3 * 3600
+    slept.clear()
+    ip[0] = "10.9.9.9"
+    c.get("/probe-again", headers=SCANNER)
+    assert slept == [S.EVEN_S]                                     # แค่เวลาเอกภาพ ไม่มีหน่วงค้างจากเมื่อสามชั่วโมงก่อน
+
+
+def _app_mirage(clock, slept, wall, ip_box):
+    a = FastAPI()
+
+    @a.get("/hello")
+    def hello():
+        return {"ok": 1}
+
+    async def fake_sleep(s):
+        slept.append(s)
+    a.add_middleware(S.ShieldMiddleware, shape_from=lambda: a, clock=lambda: clock[0], sleep=fake_sleep,
+                     ip_of=lambda scope: ip_box[0], secret="test-secret", wall=lambda: wall[0])
+    return TestClient(a)
+
+
+def _doors(c):
+    return [ln.split(": ", 1)[1] for ln in c.get("/robots.txt").text.splitlines() if ln.startswith("Disallow")]
+
+
+def test_mirage_door_turns_a_scanner_into_a_turtle_at_once_and_looks_like_any_door():
+    slept, wall, ip = [], [10 * 86400.0], ["198.51.100.1"]
+    c = _app_mirage([0.0], slept, wall, ip)
+    doors = _doors(c)
+    assert len(doors) == S.MIRAGE_COUNT
+    r = c.get(doors[0], headers=SCANNER)
+    assert (r.status_code, r.content) == (404, S._UNIFORM)        # หน้าตาเหมือนประตูอื่นทุกไบต์
+    slept.clear()
+    c.get("/hello", headers=SCANNER)
+    assert slept and slept[0] >= 0.5                               # เหยียบครั้งเดียวก็เป็นเต่า
+
+
+def test_mirage_doors_rotate_and_old_ones_expire():
+    slept, wall, ip = [], [10 * 86400.0], ["198.51.100.2"]
+    c = _app_mirage([0.0], slept, wall, ip)
+    today = _doors(c)
+    wall[0] += 86400
+    tomorrow = _doors(c)
+    assert set(today).isdisjoint(tomorrow)                        # ประตูเปลี่ยนทุกวัน
+    wall[0] += 2 * 86400                                           # สามวันต่อมา ของที่จดไว้หมดอายุ
+    ip[0] = "198.51.100.3"
+    c.get(today[0], headers={"user-agent": "old-list", "accept": "*/*"})
+    slept.clear()
+    c.get("/hello", headers={"user-agent": "old-list", "accept": "*/*"})
+    assert not slept                                               # ประตูเก่าเป็นแค่ 404 ธรรมดา ไม่ใช่กับดัก
+
+
+def test_mirages_cannot_be_guessed_without_the_key():
+    assert S.mirages(b"a", 0.0) != S.mirages(b"b", 0.0)
+
+
+def test_real_visitor_never_meets_a_mirage():
+    slept, wall, ip = [], [10 * 86400.0], ["203.0.113.9"]
+    c = _app_mirage([0.0], slept, wall, ip)
+    for _ in range(5):
+        c.get("/hello", headers={"accept": "text/html"})
+    c.get("/robots.txt")
+    assert not slept

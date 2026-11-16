@@ -18,6 +18,21 @@ SECURITY/shield.py — โล่แบบแบน "เงื่อนไข" �
    ยิงขนานไม่ได้ · คอมเร็วแค่ไหนก็ได้แค่ไม่กี่คำขอต่อนาที · ฝั่งเราไม่เปลืองแรง (asyncio.sleep ไม่กิน CPU/thread)
    ถ้าถูกหน่วงพร้อมกันเกิน 200 คำขอ ตอบ 429 ทันที (ไม่ให้การหน่วงกลายเป็นช่องให้ถล่มเรา)
 
+5. เวลาเป็นเอกภาพ — คำตอบที่ถูกปฏิเสธทุกแบบ (404 ของโล่ · 401/403/404/405 ของแอป) ใช้เวลาเท่ากัน (EVEN_S)
+   เดิมทางที่ไม่มีจริงตอบเร็วกว่าทางที่มีจริงแต่ไม่มีสิทธิ์ คนจับเวลาเก่งยังพอแยกออก · ตอนนี้ทุกประตูที่ปิดดังเท่ากัน
+   คำขอที่สำเร็จและทางแชทวิกฤตไม่ถูกแตะ — ช้าลงเฉพาะคนที่กำลังเคาะประตูผิด
+
+6. จำจังหวะการเดิน ไม่ใช่แค่ที่อยู่ — เครื่องสแกนเปลี่ยน IP ได้เป็นพัน แต่ "ท่าเดิน" ของมันเหมือนเดิม
+   (ชื่อโปรแกรม ภาษา การบีบอัด และลำดับหัวข้อที่ส่งมา) โล่จำท่าเดินนี้ด้วย คะแนนจางลงเองเหมือนกัน
+   ท่าเดินใช้หน่วงเฉพาะตอน "เคาะประตูที่ไม่มีจริง" เท่านั้น — คนจริงที่บังเอิญใช้เบราว์เซอร์รุ่นเดียวกับเครื่องสแกน
+   เข้าทางที่มีจริงได้ตามปกติ ไม่มีใครเดือดร้อนเพราะหน้าตาคล้ายคนอื่น
+
+7. ประตูลวงที่หมุนเวียน — ทุกวันมีเส้นทางลวงชุดใหม่ สร้างจากกุญแจลับของเรา (HMAC กับ SECRET_KEY) วางไว้ใน robots.txt
+   ที่เดียว — คนจริงไม่เคยเปิด เบราว์เซอร์ไม่เคยเดินไป มีแต่เครื่องสแกนที่อ่าน "ห้ามเข้า" แล้วพุ่งเข้าไป
+   เหยียบเมื่อไหร่ = เต่าทันที ทั้ง IP และท่าเดิน · คำตอบหน้าตาและเวลาเหมือนทุกประตู ไม่รู้ด้วยซ้ำว่าเหยียบกับดัก
+   ข้ามวันประตูเก่าหมดอายุ (เก็บของเมื่อวานไว้อีกวันเผื่อคนข้ามเที่ยงคืน) — สิ่งที่เขาเรียนรู้ไปเมื่อกี้กลายเป็นของเก่า
+   เราไม่ต้องสร้างกับดักใหม่เอง เวลาเป็นคนหมุนให้
+
 ความเมตตาที่ตั้งใจใส่ไว้ (คนจริงต้องไม่เดือดร้อน):
 - ไม่บล็อกถาวร ไม่ตัดใครออก — แค่ช้าลง · คนไทยหลายคนใช้ IP มือถือร่วมกัน (CGNAT) ห้ามให้คนหนึ่งทำอีกคนเข้าไม่ได้
 - ทางแชท (/run ฯลฯ) ไม่ถูกหน่วงเลย — คนในวิกฤตต้องได้เบอร์ทันที เส้นนี้มี rate limit ของตัวเองอยู่แล้ว
@@ -30,6 +45,8 @@ SECURITY/shield.py — โล่แบบแบน "เงื่อนไข" �
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import hmac
 import json
 import math
 import re
@@ -39,6 +56,7 @@ from collections import OrderedDict
 HALF_LIFE_S = 600.0
 THRESHOLD = 8.0
 MAX_DELAY_S = 15.0
+EVEN_S = 0.4          # เวลาเป็นเอกภาพ: คำตอบที่ถูกปฏิเสธทุกแบบ ออกไม่เร็วกว่านี้ — จับเวลาแล้วแยกไม่ออกว่าเจออะไร
 MAX_TRAPPED = 200
 MAX_IPS = 20000
 NO_DELAY = ("/run", "/decision", "/simulate", "/health", "/api/crisis")
@@ -63,6 +81,31 @@ class _Ledger:
         return e
 
 
+def gait_of(scope) -> str:
+    """ท่าเดิน: สิ่งที่ไม่เปลี่ยนตาม IP — ชื่อโปรแกรม ภาษา การบีบอัด และลำดับชื่อหัวข้อ"""
+    hs = list(scope.get("headers") or ())
+    d = dict(hs)
+    names = b",".join(k.lower() for k, _ in hs if k.lower() not in (b"host", b"content-length", b"cookie", b"x-forwarded-for", b"x-real-ip"))
+    raw = b"|".join((d.get(b"user-agent", b"-"), d.get(b"accept-language", b"-"), d.get(b"accept-encoding", b"-"), names))
+    return "g:" + hashlib.blake2b(raw, digest_size=8).hexdigest()
+
+
+MIRAGE_PERIOD_S = 86400
+MIRAGE_COUNT = 3
+_MIRAGE_WORDS = ("admin", "backup", "internal", "staging", "private", "old", "api-v0", "debug", "config", "export")
+
+
+def mirages(secret: bytes, wall: float, back: int = 1) -> list:
+    """ประตูลวงของช่วงเวลานี้ (และช่วงก่อนหน้า back ช่วง) — คำนวณจากกุญแจลับ คนนอกเดาล่วงหน้าไม่ได้"""
+    w = int(wall // MIRAGE_PERIOD_S)
+    out = []
+    for k in range(w - back, w + 1):
+        for i in range(MIRAGE_COUNT):
+            h = hmac.new(secret, f"{k}:{i}".encode(), hashlib.sha256).hexdigest()
+            out.append(f"/{_MIRAGE_WORDS[int(h[:2], 16) % len(_MIRAGE_WORDS)]}-{h[2:10]}/")
+    return out
+
+
 def delay_for(score: float) -> float:
     if score < THRESHOLD:
         return 0.0
@@ -82,10 +125,13 @@ def shape_of(app) -> list:
 
 
 class ShieldMiddleware:
-    def __init__(self, app, ip_of=None, shape_from=None, clock=time.monotonic, sleep=asyncio.sleep):
+    def __init__(self, app, ip_of=None, shape_from=None, clock=time.monotonic, sleep=asyncio.sleep,
+                 secret=None, wall=time.time):
         self.app, self.ip_of, self.shape_from = app, ip_of, shape_from
+        self.secret = secret.encode() if isinstance(secret, str) else secret
+        self.wall = wall
         self.clock, self.sleep = clock, sleep
-        self.book, self.trapped, self._shape = _Ledger(), 0, None
+        self.book, self.gait, self.trapped, self._shape = _Ledger(), _Ledger(), 0, None
 
     def _known(self, path: str, method: str) -> bool:
         if path.startswith("/static/"):
@@ -103,9 +149,21 @@ class ShieldMiddleware:
         except Exception:  # noqa: BLE001
             ip = "?"
         path, method = scope.get("path", ""), scope.get("method", "GET")
-        e = self.book.get(ip, self.clock())
+        start = self.clock()
+        e = self.book.get(ip, start)
+        browser = method == "GET" and b"text/html" in dict(scope.get("headers") or ()).get(b"accept", b"")
+        even = not path.startswith(NO_DELAY) and not browser   # คนเปิดลิงก์เสียด้วยเบราว์เซอร์ได้หน้า 404 สวยๆ ทันที
 
-        wait = 0.0 if path.startswith(NO_DELAY) else delay_for(e[0])
+        async def _evenly():
+            if even:
+                pad = EVEN_S - (self.clock() - start)
+                if pad > 0:
+                    await self.sleep(pad)
+
+        shaped = self._shape is not None or self.shape_from is not None
+        outside = shaped and not self._known(path, method)
+        g = self.gait.get(gait_of(scope), start) if outside else None
+        wait = 0.0 if path.startswith(NO_DELAY) else max(delay_for(e[0]), delay_for(g[0]) if g else 0.0)
         if wait:
             if self.trapped >= MAX_TRAPPED or e[2] >= 1:
                 e[0] += .5
@@ -118,19 +176,32 @@ class ShieldMiddleware:
                 self.trapped -= 1
                 e[2] -= 1
 
-        if self._shape is not None or self.shape_from is not None:
-            if not self._known(path, method):
-                e[0] += WEIGHT[404]
-                accept = dict(scope.get("headers") or ()).get(b"accept", b"")
-                if not (method == "GET" and b"text/html" in accept):
-                    return await _plain(send, 404, _UNIFORM)  # นอกรูปร่าง = คำตอบเดียวกันเสมอ
-                # คนเปิดลิงก์ผิดด้วยเบราว์เซอร์ ยังได้หน้า 404 สวยๆ ตามเดิม (แต่นับคะแนนเหมือนกัน)
+        if self.secret and method == "GET" and path == "/robots.txt" and outside:
+            now_doors = mirages(self.secret, self.wall(), back=0)
+            body = ("User-agent: *\n" + "".join(f"Disallow: {d}\n" for d in now_doors)).encode()
+            return await _plain(send, 200, body, b"text/plain; charset=utf-8")
+
+        if self.secret and outside and any(path.startswith(d) for d in mirages(self.secret, self.wall())):
+            e[0] += THRESHOLD + 4                # เหยียบประตูลวง = เต่าทันที
+            g[0] += THRESHOLD + 4
+            await _evenly()
+            return await _plain(send, 404, _UNIFORM)
+
+        if outside:
+            e[0] += WEIGHT[404]
+            g[0] += WEIGHT[404]
+            if not browser:
+                await _evenly()
+                return await _plain(send, 404, _UNIFORM)  # นอกรูปร่าง = คำตอบเดียวกันเสมอ
+            # คนเปิดลิงก์ผิดด้วยเบราว์เซอร์ ยังได้หน้า 404 สวยๆ ตามเดิม (แต่นับคะแนนเหมือนกัน)
 
         code = {"c": 500}
 
         async def _send(m):
             if m.get("type") == "http.response.start":
                 code["c"] = int(m.get("status", 500))
+                if code["c"] in WEIGHT:
+                    await _evenly()            # ประตูที่ปิด ไม่ว่าเพราะอะไร ดังเท่ากัน
             await send(m)
 
         await self.app(scope, receive, _send)
@@ -147,7 +218,7 @@ class ShieldMiddleware:
         return {"watched_ips": len(self.book.d), "slowed_ips": slow, "trapped_now": self.trapped}
 
 
-async def _plain(send, status: int, body: bytes):
+async def _plain(send, status: int, body: bytes, ctype: bytes = b"application/json"):
     await send({"type": "http.response.start", "status": status,
-                "headers": [(b"content-type", b"application/json"), (b"content-length", str(len(body)).encode())]})
+                "headers": [(b"content-type", ctype), (b"content-length", str(len(body)).encode())]})
     await send({"type": "http.response.body", "body": body})

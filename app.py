@@ -480,7 +480,8 @@ if os.getenv("SHIELD_OFF") != "1":
     class _ShieldHook(_Shield):
         def __init__(self, inner):
             global _SHIELD
-            super().__init__(inner, ip_of=lambda scope: _client_ip(Request(scope)), shape_from=lambda: app)
+            super().__init__(inner, ip_of=lambda scope: _client_ip(Request(scope)), shape_from=lambda: app,
+                             secret=_SECRET_KEY)
             _SHIELD = self
 
     app.add_middleware(_ShieldHook)
