@@ -1235,7 +1235,7 @@ _DAYS_TO_PAY = re.compile(r"อีก\s*(\d+)\s*วัน\S{0,8}?(?:เงิน
 
 _FICTION = re.compile(r"หนัง(?:เรื่อง)?|ฉาก|ละคร|ซีรีส์|ข่าว|(?:อ่?าน|ดู|ฟัง)ข่?าว|นิยาย|การ์ตูน|ในเกม|(?i:\bin the (?:news|movie|show|game)\b)")
 _CLOSE = re.compile(r"ลูก|แม่|พ่อ|ฉัน|หนู|ผม|เรา|เพื่อน|แฟน|สามี|ภรรยา|น้อง|พี่|ยาย|ตา(?!ย)|ช่วยด้วย|(?i:\b(?:my|i|me|help)\b)")
-_MINOR = re.compile(r"นิดเดียว|นิดหน่?อย|ไม่?เป็นไร(?:มาก)?|ไม่?เข้?าเนื้?อ|ไม่มีแผล|ไม่ถึงกับ|เล่นๆ|(?i:\bjust a (?:little|scratch)\b|\bnot (?:bad|serious)\b|\bi'?m fine\b|\b(?:he|she|they)(?:'s|'re| is| are) (?:fine|ok|okay|alright)\b)")
+_MINOR = re.compile(r"นิดเดียว|นิดหน่?อย|ไม่?เป็นไร(?:มาก)?|ไม่?เข้?าเนื้?อ|ไม่มีแผล|ไม่ถึงกับ|เล่นๆ|กัดเล่น|งับเล่น|เบาๆ|(?i:\bjust a (?:little|scratch)\b|\bnot (?:bad|serious)\b|\bi'?m fine\b|\b(?:he|she|they)(?:'s|'re| is| are) (?:fine|ok|okay|alright)\b)")
 _RED_FLAG = re.compile(r"หมดสติ|ไม่รู้สึกตัว|ชัก|อาเจียน|อ้วก|ซึม|หายใจ|เลือด\S{0,6}?(?:ไม่หยุด|พุ่ง|เยอะ|มาก)|หัว(?:ฟาด|กระแทก|แตก)|ลุกไม่|ขยับ\S{0,4}?ไม่(?:ได้)?|เดินไม่ได้|บวมมาก|ผิดรูป|"
                        r"งู|หมาบ้า|ค้างคาว|ลิง|ช็อต|ช๊อต|ดูด|ขาด|หัก|โผล่|ตา|ทารก|เด็ก(?:เล็ก)?|ผู้สูงอายุ|(?i:\bunconscious|\bbleeding|\bsnake|\bvomit|\bthrow(?:ing)? up|\bdrowsy|\bconfused|\bseizure|\bwon'?t wake|\bcut off|\belectrocuted)")
 
