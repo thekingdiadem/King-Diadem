@@ -97,3 +97,21 @@ def test_shield_404_is_byte_identical_to_app_404():
         raise HTTPException(404)
     r = TestClient(a).get("/item/1")
     assert r.content == S._UNIFORM and r.headers["content-type"] == "application/json"
+
+
+def test_time_is_one_every_closed_door_takes_the_same_time():
+    """เวลาเป็นเอกภาพ: ทางที่ไม่มีจริง · method ผิด · ไม่มีสิทธิ์ — ต่างก็รอเท่ากัน จับเวลาแยกไม่ออก"""
+    waits = {}
+    for name, call in (("missing", lambda c: c.get("/wp-admin")), ("method", lambda c: c.delete("/hello")),
+                       ("auth", lambda c: c.post("/login"))):
+        slept = []
+        call(_app([0.0], slept))
+        waits[name] = sum(slept)
+    assert set(waits.values()) == {S.EVEN_S}
+
+
+def test_success_and_crisis_chat_are_never_padded():
+    slept = []
+    c = _app([0.0], slept)
+    assert c.get("/hello").status_code == 200 and c.post("/run").status_code == 200
+    assert not slept

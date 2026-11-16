@@ -18,6 +18,10 @@ SECURITY/shield.py — โล่แบบแบน "เงื่อนไข" �
    ยิงขนานไม่ได้ · คอมเร็วแค่ไหนก็ได้แค่ไม่กี่คำขอต่อนาที · ฝั่งเราไม่เปลืองแรง (asyncio.sleep ไม่กิน CPU/thread)
    ถ้าถูกหน่วงพร้อมกันเกิน 200 คำขอ ตอบ 429 ทันที (ไม่ให้การหน่วงกลายเป็นช่องให้ถล่มเรา)
 
+5. เวลาเป็นเอกภาพ — คำตอบที่ถูกปฏิเสธทุกแบบ (404 ของโล่ · 401/403/404/405 ของแอป) ใช้เวลาเท่ากัน (EVEN_S)
+   เดิมทางที่ไม่มีจริงตอบเร็วกว่าทางที่มีจริงแต่ไม่มีสิทธิ์ คนจับเวลาเก่งยังพอแยกออก · ตอนนี้ทุกประตูที่ปิดดังเท่ากัน
+   คำขอที่สำเร็จและทางแชทวิกฤตไม่ถูกแตะ — ช้าลงเฉพาะคนที่กำลังเคาะประตูผิด
+
 ความเมตตาที่ตั้งใจใส่ไว้ (คนจริงต้องไม่เดือดร้อน):
 - ไม่บล็อกถาวร ไม่ตัดใครออก — แค่ช้าลง · คนไทยหลายคนใช้ IP มือถือร่วมกัน (CGNAT) ห้ามให้คนหนึ่งทำอีกคนเข้าไม่ได้
 - ทางแชท (/run ฯลฯ) ไม่ถูกหน่วงเลย — คนในวิกฤตต้องได้เบอร์ทันที เส้นนี้มี rate limit ของตัวเองอยู่แล้ว
@@ -39,6 +43,7 @@ from collections import OrderedDict
 HALF_LIFE_S = 600.0
 THRESHOLD = 8.0
 MAX_DELAY_S = 15.0
+EVEN_S = 0.4          # เวลาเป็นเอกภาพ: คำตอบที่ถูกปฏิเสธทุกแบบ ออกไม่เร็วกว่านี้ — จับเวลาแล้วแยกไม่ออกว่าเจออะไร
 MAX_TRAPPED = 200
 MAX_IPS = 20000
 NO_DELAY = ("/run", "/decision", "/simulate", "/health", "/api/crisis")
@@ -103,7 +108,16 @@ class ShieldMiddleware:
         except Exception:  # noqa: BLE001
             ip = "?"
         path, method = scope.get("path", ""), scope.get("method", "GET")
-        e = self.book.get(ip, self.clock())
+        start = self.clock()
+        e = self.book.get(ip, start)
+        browser = method == "GET" and b"text/html" in dict(scope.get("headers") or ()).get(b"accept", b"")
+        even = not path.startswith(NO_DELAY) and not browser   # คนเปิดลิงก์เสียด้วยเบราว์เซอร์ได้หน้า 404 สวยๆ ทันที
+
+        async def _evenly():
+            if even:
+                pad = EVEN_S - (self.clock() - start)
+                if pad > 0:
+                    await self.sleep(pad)
 
         wait = 0.0 if path.startswith(NO_DELAY) else delay_for(e[0])
         if wait:
@@ -123,6 +137,7 @@ class ShieldMiddleware:
                 e[0] += WEIGHT[404]
                 accept = dict(scope.get("headers") or ()).get(b"accept", b"")
                 if not (method == "GET" and b"text/html" in accept):
+                    await _evenly()
                     return await _plain(send, 404, _UNIFORM)  # นอกรูปร่าง = คำตอบเดียวกันเสมอ
                 # คนเปิดลิงก์ผิดด้วยเบราว์เซอร์ ยังได้หน้า 404 สวยๆ ตามเดิม (แต่นับคะแนนเหมือนกัน)
 
@@ -131,6 +146,8 @@ class ShieldMiddleware:
         async def _send(m):
             if m.get("type") == "http.response.start":
                 code["c"] = int(m.get("status", 500))
+                if code["c"] in WEIGHT:
+                    await _evenly()            # ประตูที่ปิด ไม่ว่าเพราะอะไร ดังเท่ากัน
             await send(m)
 
         await self.app(scope, receive, _send)
