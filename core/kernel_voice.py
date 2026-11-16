@@ -172,6 +172,24 @@ TOPICS = [
         ],
         "ask": "ตอนนี้ได้โอนเงินหรือให้ข้อมูลอะไรไปแล้วหรือยัง?",
     }),
+    ("forced_marriage", [], {
+        "open": ["คุณมีสิทธิ์ปฏิเสธการแต่งงานที่ไม่ได้เต็มใจ — ไม่ว่าใครจะกดดันแค่ไหน"],
+        "paths": [
+            "โทร 1300 (ศูนย์ช่วยเหลือสังคม 24 ชม.) ได้เลย ปรึกษาเป็นความลับ · อายุไม่ถึง 18 ปี โทร 1387 สายด่วนเด็ก — การให้เด็กแต่งงานผิดกฎหมาย",
+            "ถ้ากลัวถูกพาไปที่อื่น เก็บบัตรประชาชน พาสปอร์ต และมือถือไว้กับตัว บอกเพื่อนหรือครูที่ไว้ใจ 1 คนว่ากำหนดวันไหน ที่ไหน",
+            "ถ้าถูกขัง ถูกทำร้าย หรือถูกพาไปตอนนี้ โทร 191",
+        ],
+        "ask": "ตอนนี้คุณปลอดภัยที่จะคุยไหม และเขากำหนดวันแต่งไว้เมื่อไหร่?",
+    }),
+    ("money_control", [], {
+        "open": ["การถูกยึดเงินจนต้องขอทุกบาท เป็นการควบคุมแบบหนึ่ง ไม่ใช่เรื่องปกติที่ต้องทนไว้"],
+        "paths": [
+            "ถ้าทำได้ เปิดบัญชีของตัวเองที่เขาไม่รู้ และค่อยๆ เก็บเงินสำรองไว้ แม้ทีละน้อย",
+            "ถ่ายรูปเอกสารสำคัญเก็บไว้ (บัตรประชาชน สมุดบัญชี ทะเบียนบ้าน) ในที่ที่เขาเข้าไม่ถึง",
+            "โทร 1300 ปรึกษาได้ 24 ชม. · ถ้ามีการข่มขู่หรือทำร้ายร่วมด้วย โทร 191",
+        ],
+        "ask": "นอกจากเรื่องเงิน เขาเคยห้ามคุณเจอใคร หรือทำร้ายร่างกายไหม?",
+    }),
     ("intruder", [_TS_INTRUDER], {
         "open": ["อย่าเปิดประตูนะ — ความปลอดภัยของคุณมาก่อน"],
         "paths": [
@@ -1784,6 +1802,16 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "forced_marriage": ("You have the right to refuse a marriage you don't want — no matter who is pressuring you.", [
+        "Talk to a helpline in confidence: 1300 in Thailand (24h), or the Forced Marriage Unit +44 20 7008 0151 in the UK · under 18, child marriage is illegal in most countries.",
+        "If you fear being taken somewhere, keep your ID, passport and phone on you, and tell one trusted friend or teacher the date and place.",
+        "If you're locked in, hurt or being taken right now, call the police (191 in Thailand, 911 in the US, 112 in Europe)."],
+        "Is it safe for you to talk right now, and when is the wedding planned?"),
+    "money_control": ("Having your money taken so you must ask for every baht is a form of control — it's not something you have to put up with.", [
+        "If you can, open an account of your own and slowly set aside an emergency fund, even small amounts.",
+        "Photograph important documents (ID, bank book, house registration) and keep copies where they can't reach.",
+        "A helpline can advise in confidence (1300 in Thailand, 24h) · if there are threats or violence too, call the police."],
+        "Besides money, do they stop you seeing people or ever hurt you?"),
     "intruder": ("Please don't open the door — your safety comes first.", [
         "Call the police now (191 in Thailand, 911 in the US, 112 in Europe) and give your address; if you can't talk, leave the line open.",
         "Keep the door locked, push something heavy against it and move to a room that locks · turn the lights on and don't confront them.",
@@ -2217,7 +2245,7 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("intruder", "post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("forced_marriage", "intruder", "post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
@@ -3104,7 +3132,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     second = lib.get(a["topics"][1]) if len(a["topics"]) > 1 else None
     # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง
     # (เดิม "กินยาเกินขนาด" เสียขั้นที่ 3 ให้ "ใช้สิทธิ์บัตรทอง")
-    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "child_gaming", "consumer", "pet_hurt", "pet_bloat", "stranded", "teen_leave", "housing", "legal", "diagnosis",
+    if a["topics"] and a["topics"][0] in _URGENT_TOPICS + ("adult_invite", "grief", "labor", "resign_block", "child_gaming", "consumer", "pet_hurt", "pet_bloat", "money_control", "stranded", "teen_leave", "housing", "legal", "diagnosis",
                                                            "caregiver", "health_rights", "preg_alone", "preg_care") + _KP.NAMES:
         second = None
     # เลนส์ปัญหา (core/problem_lens.py) — ตัดสินครั้งเดียว: ไม่ใช่วิกฤต · ความเสี่ยงต่ำกว่า 75 (หนี้ที่ "กลัวโดนยึด" ได้ 60 เคยถูกกันออก)

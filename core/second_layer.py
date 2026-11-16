@@ -334,7 +334,7 @@ _EN_SET = set(EN_UPGRADES)
 _THAI_RUN = re.compile(r"[\u0E00-\u0E7F]+")
 
 _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85, "sexual_abuse": 85,
-            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85, "intruder": 85}
+            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85, "intruder": 85, "forced_marriage": 85, "money_control": 65}
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
@@ -549,6 +549,10 @@ UPGRADES += [
 UPGRADES += [
     (re.compile(r"(?:ถูก|โดน)?(?:บังคับ|บีบ)(?:ให้)?\S{0,4}?แต่งงาน\S{0,10}?(?:กับ)?\S{0,10}?(?:คนที่ไม่รู้จัก|คนแก่|ไม่ได้รัก|ไม่เต็มใจ|ไม่อยาก|ทั้งที่อายุ|ตอนอายุ\s?1[0-7])|"
                 r"(?:พ่อแม่|ครอบครัว|ที่บ้าน)\S{0,6}?(?:บังคับ|จะจับ)\S{0,4}?(?:ให้)?แต่งงาน|"
-                r"(?i:\b(?:forc(?:ing|ed|e)|making)\s+me\s+(?:to\s+)?(?:marry|get\s+married)\b|\b(?:i'?m|i\s+am|i\s+was|being)\s+forced\s+into\s+(?:a\s+)?marriage\b)"), "trafficking"),
+                r"(?i:\b(?:forc(?:ing|ed|e)|making)\s+me\s+(?:to\s+)?(?:marry|get\s+married)\b|\b(?:i'?m|i\s+am|i\s+was|being)\s+forced\s+into\s+(?:a\s+)?marriage\b)"), "forced_marriage"),
     (re.compile(r"(?i:\b(?:he|she|my\s+(?:boyfriend|girlfriend|partner|husband|wife|ex))\s+(?:says|said|threatens?|threatened|keeps\s+saying)\s+(?:he|she|they)(?:'ll|\s+will|\s+would)\s+(?:kill\s+(?:him|her|them)sel(?:f|ves)|end\s+(?:it|(?:his|her|their)\s+life))\b[^\n]{0,20}?\bif\s+i\b)"), "someone"),
 ]
+
+# รอบ 106: ควบคุมด้วยเงิน — ยึดเงินเดือน/บัตร ไม่ให้ใช้เงินเลย
+UPGRADES += [(re.compile(r"(?:แฟน|สามี|ผัว|ภรรยา|เมีย)\S{0,6}?(?:ยึด|เอาไป|คุม|เก็บ)\S{0,4}?(?:เงินเดือน|บัตร\S{0,4}|เงิน|สมุดบัญชี)\S{0,6}?(?:หมด|ทั้งหมด)?[^\n]{0,20}?(?:ไม่ให้ใช้|ไม่ให้\S{0,4}สักบาท|ต้องขอ|ห้ามซื้อ|ไม่ให้ทำงาน)|"
+                         r"(?i:\bmy\s+(?:husband|wife|partner|boyfriend|girlfriend)\s+(?:takes|took|controls|keeps)\s+(?:all\s+)?(?:my\s+)?(?:salary|money|paycheck|wages|cards?)\b[^\n]{0,30}?\b(?:won'?t\s+let\s+me|not\s+allowed|have\s+to\s+ask|can'?t\s+(?:spend|buy|work))\b)"), "money_control")]
