@@ -585,6 +585,8 @@ VIOLENCE_BY = re.compile(
     r"(?:ปากบวม|หน้าบวม|ตาบวม(?:ปิด)?|คอบวม|ลิ้นบวม|หายใจลำบาก|หายใจไม่ออก|ผื่นขึ้นทั้งตัว)[^\n]{0,24}?(?:หลัง|ตั้งแต่|เพราะ)?(?:กิน|แพ้|โดน(?:ผึ้ง|ต่อ|แตน)ต่อย|ฉีดยา)|"
     # รอบสุ่ม 139: กินยาละลายลิ่มเลือดแล้วหัวกระแทก (เลือดออกในสมองได้แม้ดูปกติ) — เคยได้แค่ 75
     r"(?:ยาละลายลิ่มเลือด|ยาต้านการแข็งตัวของเลือด|วาร์ฟาริน|warfarin|(?i:blood thinners?|anticoagulants?|eliquis|xarelto))[^\n]{0,30}?(?:หัว(?:กระแทก|ฟาด|โขก)|ล้ม|(?i:hit (?:his|her|their|my) head|fell|bumped (?:his|her|their|my) head))|"
+    # รอบสุ่ม 140: เลือดกำเดาไหลไม่หยุด (อังกฤษ) — เคยได้ 0 ขณะที่ฉบับไทยได้ 85
+    r"(?i:\bnose ?bleed\b[^\n]{0,12}?\b(?:won'?t stop|will not stop|not stopping|keeps? (?:going|bleeding)|for (?:over )?(?:20|30|40|45|\d{2,}) ?(?:min|minutes))\b)|"
     # รอบสุ่ม 137: เด็กเล็กตก/หัวกระแทกแล้วอาเจียน · ท้องแข็งเป็นดานปวดมาก (อังกฤษ) — เคยได้ 0 ขณะที่ฉบับไทยได้ 75–85
     r"(?i:\b(?:baby|toddler|infant|newborn|my (?:son|daughter|kid|child))\b[^\n]{0,16}?\b(?:fell(?! asleep)|hit (?:his|her|their) head|bumped (?:his|her|their) head)\b[^\n]{0,30}?\b(?:vomit\w*|threw up|throwing up|very sleepy|won'?t stop crying|limp|seizure)\b)|"
     r"(?i:\b(?:stomach|belly|abdomen)\b[^\n]{0,10}?\b(?:is |feels )?(?:rock[- ]hard|hard as (?:a )?(?:rock|board)|rigid)\b[^\n]{0,30}?\b(?:pain|hurts|unbearable|can'?t move|fever|vomit\w*)\b)|"
