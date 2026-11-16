@@ -36,7 +36,7 @@ def test_follow_up_asks_only_what_is_still_missing():
     left = [q["key"] for q in r["asks"]]
     # ตอบเส้นขั้นต่ำเป็นตัวเลขแล้ว ("3 1k") ข้อถัดไปจึงถามว่าตอนนี้มีเท่าไหร่ เพื่อคำนวณว่าหลุดเส้นไหม
     assert left == ["current"] + keys[3:]
-    assert f"{len(left)} answer(s) are missing" in r["summary"]["en"]
+    assert f"{len(left)} answer{' is' if len(left) == 1 else 's are'} missing" in r["summary"]["en"]
     # รวมเรื่องเดิมไว้ ให้ตอบรอบต่อไปได้อีก
     assert "5 new stores" in r["text"] and "i do it" in r["text"]
 

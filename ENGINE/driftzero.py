@@ -540,7 +540,7 @@ def steady_runway(prior_text: str, answer: str) -> dict:
         days = int(cur // out)
         r["runway_days"] = days
         th = f"ด้วยเงินออกวันละ {_money(out)} เงิน {_money(cur)} ที่เหลือพาไปได้ราว {days} วัน"
-        en = f"At {_money_en(out)} going out a day, the {_money_en(cur)} you have left lasts about {days} day(s)"
+        en = f"At {_money_en(out)} going out a day, the {_money_en(cur)} you have left lasts about {days} day{'' if days == 1 else 's'}"
         if not inflow:
             th += " และตอนนี้ยังไม่มีเงินเข้า — ข้อ 1–3 ข้างล่างคือสิ่งที่ยืดเวลานี้ได้มากที่สุด เริ่มวันนี้เลยนะคะ"
             en += ", with nothing coming in yet — steps 1–3 below are what stretch that time the most. Start today."
@@ -741,7 +741,7 @@ def audit(text: str, answered=()) -> dict:
     elif asks:
         verdict = "ask"
         sm_th = f"ยังไม่เจอด่านที่ติด แต่ข้อมูลยังไม่ครบ {len(asks)} ข้อ — ตอบในช่องพิมพ์ได้เลย จะพิมพ์เป็นข้อ (1 … 2 …) ก็ได้"
-        sm_en = f"No gate blocked yet, but {len(asks)} answer(s) are missing — reply below, numbered (1 … 2 …) is fine"
+        sm_en = f"No gate blocked yet, but {len(asks)} answer{' is' if len(asks) == 1 else 's are'} missing — reply below, numbered (1 … 2 …) is fine"
     else:
         verdict = "pass"
         sm_th = "ผ่านทุกด่านจากข้อมูลที่ให้มา — ยังต้องมีคนเซ็นรับผิดชอบ และตรวจหลังทำ (SOP 7)"
@@ -789,7 +789,7 @@ def lyla_voice(r: dict) -> dict:
     elif v == "ask":
         th = (f"LYLA รัน DriftZero ให้แล้วค่ะ{seen_th} ยังไม่เจออะไรที่ต้องหยุด แต่ขอรู้อีก {n} อย่างจะได้ดูให้แม่นขึ้น — "
               "ตอบสั้นๆ เป็นข้อ (1 … 2 …) ก็พอค่ะ ไม่ต้องรู้ศัพท์ในการ์ดเลย")
-        en = (f"I ran DriftZero for you.{seen_en} Nothing needs stopping yet, but I need {n} more thing(s) to check it properly — "
+        en = (f"I ran DriftZero for you.{seen_en} Nothing needs stopping yet, but I need {n} more thing{'' if n == 1 else 's'} to check it properly — "
               "short numbered answers (1 … 2 …) are perfect. You don't need to know the terms in the card.")
     elif after is not None and floor is not None:
         th = (f"LYLA รัน DriftZero ให้แล้วค่ะ ผ่านทุกด่าน — หลังตัดสินใจจะเหลือ {_money(after)} สูงกว่าเส้นขั้นต่ำ {_money(floor)} "
@@ -804,7 +804,7 @@ def lyla_voice(r: dict) -> dict:
     unknown = (r.get("text") or "").count("(ยังไม่ทราบ)")
     if v == "pass" and unknown:
         th += f" — แต่ยังมี {unknown} ข้อที่ยังไม่รู้ ผลนี้จึงยังไม่แน่นอน ถ้าได้ตัวเลขเมื่อไหร่ กลับมาเช็คอีกครั้งนะคะ"
-        en += f" — but {unknown} answer(s) are still unknown, so this isn't certain yet. Come back once you have them."
+        en += f" — but {unknown} answer{' is' if unknown == 1 else 's are'} still unknown, so this isn't certain yet. Come back once you have them."
         r["unknown"] = unknown
     r["lyla"] = {"th": th, "en": en}
     return r
