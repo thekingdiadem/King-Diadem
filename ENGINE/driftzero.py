@@ -681,18 +681,27 @@ def lyla_voice(r: dict) -> dict:
     cur = wl.get("current")
     seen_th = f" เห็นว่าตอนนี้มี {_money(cur)} นะคะ" if cur is not None else ""
     seen_en = f" I can see you have {_money_en(cur)} right now." if cur is not None else ""
+    after, floor = wl.get("after"), wl.get("floor")
     if v == "stop":
-        names_th = " · ".join(g["name"]["th"] for g in stops)
-        names_en = " · ".join(g["name"]["en"] for g in stops)
-        th = (f"LYLA รัน DriftZero ให้แล้วค่ะ{seen_th} เจอจุดที่ควรหยุดคิดก่อน {len(stops)} จุด: {names_th} — "
-              "ไม่ได้แปลว่าห้ามทำนะคะ แต่ถ้าแก้จุดนี้ก่อน จะไม่เสียสิ่งที่ย้อนกลับไม่ได้ รายละเอียดอยู่ในการ์ดข้างล่างค่ะ")
-        en = (f"I ran DriftZero for you.{seen_en} It found {len(stops)} thing(s) worth pausing on: {names_en}. "
-              "That doesn't mean don't do it — fixing these first keeps you from losing something you can't get back. Details are in the card below.")
+        why = (stops[0].get("why") or {}) if stops else {}
+        first_th = re.split(r" — | · ", why.get("th") or "")[0].strip()
+        first_en = re.split(r" — | · ", why.get("en") or "")[0].strip()
+        more_th = f" และอีก {len(stops) - 1} จุดในการ์ดข้างล่าง" if len(stops) > 1 else ""
+        more_en = f", plus {len(stops) - 1} more in the card below" if len(stops) > 1 else ""
+        th = (f"LYLA รัน DriftZero ให้แล้วค่ะ{seen_th} มีจุดที่ควรหยุดคิดก่อน: {first_th}{more_th} — "
+              "ไม่ได้แปลว่าห้ามทำนะคะ แต่ถ้าแก้ตรงนี้ก่อน จะไม่เสียสิ่งที่ย้อนกลับไม่ได้")
+        en = (f"I ran DriftZero for you.{seen_en} One thing to pause on: {first_en}{more_en}. "
+              "That doesn't mean don't do it — fixing this first keeps you from losing something you can't get back.")
     elif v == "ask":
         th = (f"LYLA รัน DriftZero ให้แล้วค่ะ{seen_th} ยังไม่เจออะไรที่ต้องหยุด แต่ขอรู้อีก {n} อย่างจะได้ดูให้แม่นขึ้น — "
               "ตอบสั้นๆ เป็นข้อ (1 … 2 …) ก็พอค่ะ ไม่ต้องรู้ศัพท์ในการ์ดเลย")
         en = (f"I ran DriftZero for you.{seen_en} Nothing needs stopping yet, but I need {n} more thing(s) to check it properly — "
               "short numbered answers (1 … 2 …) are perfect. You don't need to know the terms in the card.")
+    elif after is not None and floor is not None:
+        th = (f"LYLA รัน DriftZero ให้แล้วค่ะ ผ่านทุกด่าน — หลังตัดสินใจจะเหลือ {_money(after)} สูงกว่าเส้นขั้นต่ำ {_money(floor)} "
+              f"อยู่ {_money(after - floor)} การตัดสินใจยังเป็นของคุณนะคะ ใบสรุปข้างล่างคัดลอกไปเก็บได้เลย")
+        en = (f"I ran DriftZero for you — it passes every gate. After this you'd have {_money_en(after)}, "
+              f"{_money_en(after - floor)} above your floor of {_money_en(floor)}. The decision is still yours; you can copy the summary below.")
     else:
         th = ("LYLA รัน DriftZero ให้แล้วค่ะ ผ่านทุกด่านจากข้อมูลที่ให้มา — การตัดสินใจยังเป็นของคุณนะคะ "
               "ใบสรุปข้างล่างคัดลอกไปเก็บหรือส่งต่อได้เลย แล้วกลับมาเช็คอีกครั้งหลังลงมือ")
