@@ -544,3 +544,11 @@ UPGRADES += [
     (re.compile(r"(?:ยก|แจก|ให้)\S{0,4}?(?:ของ|สมบัติ|ข้าวของ|ของรัก|แมว|หมา)\S{0,10}?(?:หมด|ทั้งหมด)\S{0,6}[^\n]{0,10}?(?:ไม่ต้องใช้อีก|ไม่ได้ใช้อีกแล้ว|คงไม่ได้ใช้แล้ว|ไม่จำเป็นแล้ว)|"
                 r"(?i:\bgave\s+away\s+(?:all\s+)?(?:my|of\s+my)\s+(?:stuff|things|belongings|stuff\s+and)\b[^\n]{0,20}?\b(?:won'?t|wont|don'?t)\s+need\s+(?:it|them)\b(?:\s+anymore)?)"), "crisis"),
 ]
+
+# รอบ 105: ถูกบังคับแต่งงาน · คู่ขู่ฆ่าตัวตายเพื่อไม่ให้เลิก (อังกฤษ)
+UPGRADES += [
+    (re.compile(r"(?:ถูก|โดน)?(?:บังคับ|บีบ)(?:ให้)?\S{0,4}?แต่งงาน\S{0,10}?(?:กับ)?\S{0,10}?(?:คนที่ไม่รู้จัก|คนแก่|ไม่ได้รัก|ไม่เต็มใจ|ไม่อยาก|ทั้งที่อายุ|ตอนอายุ\s?1[0-7])|"
+                r"(?:พ่อแม่|ครอบครัว|ที่บ้าน)\S{0,6}?(?:บังคับ|จะจับ)\S{0,4}?(?:ให้)?แต่งงาน|"
+                r"(?i:\b(?:forc(?:ing|ed|e)|making)\s+me\s+(?:to\s+)?(?:marry|get\s+married)\b|\b(?:i'?m|i\s+am|i\s+was|being)\s+forced\s+into\s+(?:a\s+)?marriage\b)"), "trafficking"),
+    (re.compile(r"(?i:\b(?:he|she|my\s+(?:boyfriend|girlfriend|partner|husband|wife|ex))\s+(?:says|said|threatens?|threatened|keeps\s+saying)\s+(?:he|she|they)(?:'ll|\s+will|\s+would)\s+(?:kill\s+(?:him|her|them)sel(?:f|ves)|end\s+(?:it|(?:his|her|their)\s+life))\b[^\n]{0,20}?\bif\s+i\b)"), "someone"),
+]
