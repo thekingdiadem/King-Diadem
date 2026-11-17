@@ -110,7 +110,7 @@ SELF_HARM_INTL = (
                r"(?<!仕事を)(?<!宿題を)(?<!関係を)(?:全部|すべて|全て|何もかも)(?:を)?終わりに(?:したい|したくなる|したくて|しよう)"),
     re.compile(r"죽고\s*싶|살기\s*싫|자살|유서|뛰어내리(?:고\s*싶|려고|겠)|(?:수면제|약)(?:을|를)?\s*(?:다|전부|많이)\s*먹었|손목을?\s*(?:그었|그어)|살고\s*싶지\s*않|사라지고\s*싶|죽어\s*버리고\s*싶|극단적\s*선택|목숨을\s*끊"),
     re.compile(r"\b(?:me\s+)?quiero\s+morir|\bsuicid|\bquitarme\s+la\s+vida|\bno\s+quiero\s+vivir|"
-               r"\bacabar\s+con\s+mi\s+vida|\bmatarme\b|\bhacerme\s+daño|\bno\s+quiero\s+seguir\s+(?:viviendo|con\s+vida|aqu[ií]\s*(?:$|[.!?…]))", re.I),
+               r"\bacabar\s+con\s+mi\s+vida|\b(?:escrib[íi]|dej[ée]|tengo)\s+(?:una\s+|mi\s+)?carta\s+(?:suicida|(?:de\s+despedida|de\s+adi[óo]s)(?:\s+(?:para|a)\s+(?:mi\s+familia|todos|mis\s+(?:hijos|padres|seres\s+queridos))|\s*(?:$|[.!?…])))|\bmatarme\b|\bhacerme\s+daño|\bno\s+quiero\s+seguir\s+(?:viviendo|con\s+vida|aqu[ií]\s*(?:$|[.!?…]))", re.I),
     # รัสเซีย · อาหรับ · ฮินดี — เดิมไม่มีเลย "я хочу умереть" ได้ความเสี่ยงต่ำ
     re.compile(r"хочу\s+умереть|не\s+хочу\s+жить|покончить\s+с\s+собой|суицид|убить\s+себя|"
                r"лучше\s+бы\s+я\s+умер|нет\s+смысла\s+жить", re.I),
@@ -118,7 +118,7 @@ SELF_HARM_INTL = (
                r"لا\s+اريد\s+ان\s+اعيش|أنهي\s+حياتي"),
     re.compile(r"मरना\s+चाहत|मर\s+जाना\s+चाहत|आत्महत्या|ख़ुदकुशी|खुदकुशी|जीना\s+नहीं\s+चाहत|खुद\s+को\s+मार"),
     # เวียดนาม · เยอรมัน · ฝรั่งเศส · โปรตุเกส/อินโด (แรงงานและนักท่องเที่ยวในไทย)
-    re.compile(r"(?<!mệt\s)(?<!đói\s)(?<!nóng\s)(?<!cười\s)(?<!ngủ\s)(?<!chán\s)muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|"
+    re.compile(r"(?<!mệt\s)(?<!đói\s)(?<!nóng\s)(?<!cười\s)(?<!ngủ\s)(?<!chán\s)muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|thư\s+tuyệt\s+mệnh|(?:viết|để\s+lại)\s+thư\s+(?:vĩnh\s+biệt|từ\s+biệt\s+(?:gia\s+đình|mọi\s+người|bố\s+mẹ|các\s+con))|"
                r"\b(?:ich\s+)?will\s+(?:nicht\s+mehr\s+leben|sterben)\b|\bselbstmord|\bmich\s+umbringen|"
                r"\bje\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|\bme\s+suicider|\bquero\s+morrer|\bn[ãa]o\s+(?:aguento|quero|consigo)\s+mais\s+viver|\bn[ãa]o\s+quero\s+(?:mais\s+)?viver|\bvou\s+(?<!vai\s)(?<!v(?:ã|a)o\s)me\s+matar|\b(?<!vai\s)(?<!v(?:ã|a)o\s)me\s+matar\b|\bingin\s+mati\b|\bbunuh\s+diri", re.I),
 )
@@ -161,6 +161,17 @@ SELF_HARM_INDIRECT = (
     re.compile(r"cho\s+(?:bạn\s+bè\s+|mọi\s+người\s+)?hết\s+(?:những\s+)?(?:thứ|đồ)|không\s+muốn\s+(?:làm|là)\s+gánh\s+nặng|không\s+còn\s+(?:nữa\s+)?thì[^.!?\n]{0,25}(?:chẳng|không)\s+ai\s+(?:để\s+ý|quan\s+tâm|nhận\s+ra)|"
                r"muốn\s+(?:đi\s+)?gặp\s+(?:mẹ|bố|ba|má)\s+(?:đã\s+)?(?:mất|qua\s+đời)|cầm\s+dao[^.!?\n]{0,20}(?:không\s+chịu\s+nổi|hết\s+chịu)", re.I),
 )
+
+# รอบสุ่ม 147: ชีวิตไม่มีความหมาย + เหนื่อย (ja ko es vi) — เคยได้ 0 ขณะที่ภาษาไทยได้คำถามไถ่เบาๆ (warning 65)
+# ลำดับใน SELF_HARM_INDIRECT: ja zh ko es vi · จดหมายลา es vi เพิ่มที่ SELF_HARM_INTL (เทียบ 遗书 유서 遺書 ที่ได้วิกฤต)
+_MEANINGLESS = {
+    0: r"(?:生きる|生きている|生きてる)意味が(?:ない|わからない|分からない|見つからない)",
+    2: r"(?:사는\s*게|살아야\s*할|살아갈)\s*(?:의미가\s*없|이유를\s*모르겠|이유가\s*없)",
+    3: r"\bno\s+(?:le\s+)?(?:encuentro|veo|tiene)\s+sentido\s+(?:a\s+)?(?:nada|la\s+vida|vivir|seguir)|\b(?:estoy\s+)?(?:agotad[oa]|cansad[oa])\s+de\s+(?:vivir|existir)",
+    4: r"sống\s+(?:chẳng|không)\s+(?:còn\s+)?(?:có\s+)?ý\s+nghĩa|mệt\s+mỏi\s+với\s+cuộc\s+sống\s+này",
+}
+SELF_HARM_INDIRECT = tuple(re.compile(rx.pattern + "|" + _MEANINGLESS[i], rx.flags) if i in _MEANINGLESS else rx
+                           for i, rx in enumerate(SELF_HARM_INDIRECT))
 
 # รอบสุ่ม 45: สัญญาณหลังคำปลอบ "ไม่เป็นไร/ทุกอย่างโอเค" (ja zh ko es vi) — เดิมหลุด 15/15
 # ต้องมีคำปลอบ + (ทุกคนจะสบาย · จดหมายถึงแม่เขียนเสร็จแล้ว · ไม่ต้องตามหา) — จดหมายวันแม่หรือไปค่ายไม่มีสัญญาณไม่นับ
