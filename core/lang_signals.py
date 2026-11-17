@@ -532,6 +532,12 @@ _more("medical", "vi", r"(?:uống|nuốt)\s+(?:hết\s+|cả\s+|nguyên\s+|mộ
 _more("violence", "vi", r"(?:chồng|vợ|bạn\s+trai|bạn\s+gái|người\s+yêu|bố|mẹ|cha|anh\s+ta|hắn)\s+(?:lại\s+|hay\s+|thường\s+|luôn\s+|cứ\s+)?(?:đánh|đập|tát|đá|bóp\s+cổ)\s+(?:tôi|mình|em|con\b(?!\s+(?:muỗi|ruồi|gián|chuột|cá|gà|chó|mèo)))"
                         r"|(?:đe\s+)?dọa\s+giết\s+(?:tôi|mình|em|con)\b")
 _more("violence", "zh", r"(?:收走|拿走|没收|沒收|扣下|扣着|扣著)(?:了)?(?:我们|我們|我|大家)?的?(?:护照|護照)|把(?:我|我们|我們)(?:关|關|锁|鎖)(?:起来|起來|在)")
+# รอบสุ่ม 145: ถูกบีบคอ/รัดคอ (es vi zh ko ja) — เคยได้ 0 ทุกภาษา · การบีบคอเป็นสัญญาณอันตรายถึงชีวิตที่ชัดที่สุดในความรุนแรงในครอบครัว
+_more("violence", "es", r"(?:me\s+)?(?:aprieta|apretó|agarra|agarró|apretaba)\s+(?:el|del)\s+cuello|(?:intent[óo]\s+)?estrangular(?:me|la|lo)?|me\s+ahorc(?:a|ó|aba)")
+_more("violence", "vi", r"bóp\s+cổ|siết\s+cổ|bóp\s+chặt\s+cổ")
+_more("violence", "zh", r"(?:掐|勒|扼)(?:住|着|著)?(?:我|她|他)?的?(?:脖子|喉咙|喉嚨)|掐脖子")
+_more("violence", "ko", r"목을\s*(?:졸라|졸랐|조르|조른|졸려)|목\s*졸")
+_more("violence", "ja", r"(?<!ネクタイで)(?<!マフラーで)(?<!服で)首を(?:絞め|しめ)(?!付け)|(?<!ネクタイで)(?<!マフラーで)首(?:を)?締め(?!付け)")
 
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
