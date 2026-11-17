@@ -25,11 +25,11 @@
   },
   "emergency": {
    "n": 242,
-   "tp": 193,
-   "fn": 49,
+   "tp": 240,
+   "fn": 2,
    "fp": 14,
-   "recall": 0.798,
-   "precision": 0.932
+   "recall": 0.992,
+   "precision": 0.945
   },
   "violence": {
    "n": 70,
@@ -57,7 +57,7 @@
   }
  },
  "danger_missed": {
-  "n": 52,
+  "n": 5,
   "of": 348
  },
  "false_alarm": {
@@ -66,31 +66,31 @@
  },
  "by_lang": {
   "en": {
-   "hit": 59,
+   "hit": 64,
    "n": 65
   },
   "es": {
-   "hit": 30,
+   "hit": 39,
    "n": 41
   },
   "ja": {
-   "hit": 33,
+   "hit": 41,
    "n": 42
   },
   "ko": {
-   "hit": 31,
+   "hit": 40,
    "n": 41
   },
   "th": {
-   "hit": 99,
+   "hit": 100,
    "n": 102
   },
   "vi": {
-   "hit": 29,
+   "hit": 37,
    "n": 40
   },
   "zh": {
-   "hit": 36,
+   "hit": 43,
    "n": 43
   }
  },
@@ -212,294 +212,12 @@
    ]
   },
   {
-   "line": 619,
-   "text": "น้ำเดือดหกใส่ขาลูก ผิวพองเต็มขา",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 635,
-   "text": "I got stung by a bee, now hives all over and I feel like I'm going to faint",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 636,
-   "text": "Peanut allergy, my tongue is so swollen I can't talk",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 637,
-   "text": "Hot oil splashed on my kid's face and the skin is blistering badly",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 638,
-   "text": "Kitchen fire, my mom's arm is burned and the skin is peeling off",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 641,
-   "text": "My little brother stuck his finger in a socket and got shocked, he fell down",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 652,
    "text": "Hot coffee scalded my tongue a little",
    "label": "none",
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 654,
-   "text": "Mi hijo comió camarón y se le hinchan los labios y la garganta, casi no puede respirar",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 655,
-   "text": "Me picó una abeja y tengo ronchas por todo el cuerpo, siento que me voy a desmayar",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 656,
-   "text": "Alergia al maní, tengo la lengua tan hinchada que no puedo hablar",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 657,
-   "text": "Aceite caliente le salpicó la cara a mi hijo y se le hacen ampollas",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 659,
-   "text": "Se le cayó agua hirviendo en la pierna a mi hija, ampollas enormes",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 660,
-   "text": "Mi papá se electrocutó arreglando un enchufe y ahora no se mueve",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 661,
-   "text": "Mi hermanito metió el dedo en el enchufe y le dio la corriente, se cayó",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 662,
-   "text": "Una serpiente le mordió la pierna a mi hijo y se hincha rápido",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 663,
-   "text": "Un perro callejero me mordió la mano, la herida es profunda y sangra",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 676,
-   "text": "Dị ứng đậu phộng, lưỡi sưng đến mức không nói được",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 677,
-   "text": "Dầu nóng bắn vào mặt con tôi, da phồng rộp nặng",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 678,
-   "text": "Cháy bếp, tay mẹ bị bỏng, da bong ra từng mảng",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 679,
-   "text": "Nước sôi đổ vào chân con gái, phồng rộp khắp chân",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 680,
-   "text": "Bố bị điện giật khi sửa ổ cắm, giờ không cử động",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 681,
-   "text": "Em trai thọc ngón tay vào ổ điện bị giật ngã xuống",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 682,
-   "text": "Con tôi bị rắn cắn ở chân khi đi dạo, chân sưng rất nhanh",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 683,
-   "text": "Chó hoang cắn tay tôi, vết thương sâu và chảy máu",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 696,
-   "text": "花生过敏，舌头肿得说不出话",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 697,
-   "text": "热油溅到孩子脸上，起了一大片水泡",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 698,
-   "text": "厨房着火，我妈的手臂烧伤了，皮都掉了",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 699,
-   "text": "开水洒在女儿腿上，整条腿都是水泡",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 700,
-   "text": "我爸修插座时触电了，现在一动不动",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 701,
-   "text": "弟弟把手指插进插座被电到，摔倒了",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 702,
-   "text": "儿子散步时腿被蛇咬了，肿得很快",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 714,
-   "text": "아들이 새우를 먹고 입술이랑 목이 부어서 숨을 잘 못 쉬어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 715,
-   "text": "벌에 쏘였는데 온몸에 두드러기가 나고 기절할 것 같아요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 716,
-   "text": "땅콩 알레르기인데 혀가 부어서 말을 못 해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 717,
-   "text": "뜨거운 기름이 아이 얼굴에 튀어서 물집이 심하게 생겼어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 718,
-   "text": "부엌에 불이 나서 엄마 팔에 화상을 입었고 피부가 벗겨졌어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 719,
-   "text": "끓는 물이 딸 다리에 쏟아져서 다리 전체에 물집이 생겼어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 720,
-   "text": "아빠가 콘센트 고치다가 감전돼서 지금 움직이지 않아요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 722,
-   "text": "아들이 산책하다 뱀에 다리를 물렸는데 빨리 부어올라요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 723,
-   "text": "들개가 제 손을 물었는데 상처가 깊고 피가 나요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 734,
-   "text": "息子がエビを食べたら唇と喉が腫れて息がしにくい",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 735,
-   "text": "ハチに刺されて全身にじんましんが出て、気を失いそう",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 736,
-   "text": "ピーナッツアレルギーで舌が腫れて話せない",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 737,
-   "text": "熱い油が子どもの顔にはねて、ひどい水ぶくれができた",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 739,
-   "text": "熱湯が娘の足にかかって、足じゅう水ぶくれ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 740,
-   "text": "父がコンセントを修理中に感電して、今動かない",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 742,
-   "text": "息子が散歩中にヘビに足をかまれて、どんどん腫れている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 743,
-   "text": "野良犬に手をかまれて、傷が深く血が出ている",
-   "label": "emergency",
-   "got": []
   }
  ]
 }

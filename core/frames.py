@@ -37,6 +37,12 @@ FRAMES = (
      ("FICTION", "HYPOTHETICAL", "PAID_OK")),
     ("unconscious", "medical", "health_emergency", (("UNCONSCIOUS",),), ("FICTION", "HYPOTHETICAL", "DEVICE", "NEARLY", "RECOVERED")),
     ("bleeding", "medical", "health_emergency", (("BLOOD", "BLEED_BAD"),), ("FICTION", "HYPOTHETICAL", "MINOR")),
+    # รอบ 3 (ชุดปิดตา F ล็อกไว้ก่อนเขียน)
+    ("anaphylaxis", "medical", "health_emergency",
+     (("ALLERGY", "SWELL", "MOUTH_PART"), ("ALLERGY", "BREATH_HARD"), ("ALLERGY", "HIVES_ALL", "FAINTISH")), ("FICTION", "HYPOTHETICAL", "MINOR")),
+    ("burn", "medical", "health_emergency", (("BURN", "BURN_SEVERE"),), ("FICTION", "HYPOTHETICAL", "MINOR", "NOT_BURN")),
+    ("electric", "medical", "health_emergency", (("ELECTRIC",), ("SOCKET", "SHOCK")), ("FICTION", "HYPOTHETICAL", "NOT_ELECTRIC", "MINOR")),
+    ("bite", "medical", "health_emergency", (("ANIMAL", "BITE", "VICTIM"),), ("FICTION", "HYPOTHETICAL", "NOT_BITE")),
 )
 
 
