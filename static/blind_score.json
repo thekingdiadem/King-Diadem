@@ -1,5 +1,5 @@
 {
- "total": 407,
+ "total": 547,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,20 +24,20 @@
    "precision": 0.806
   },
   "emergency": {
-   "n": 137,
-   "tp": 132,
-   "fn": 5,
-   "fp": 3,
-   "recall": 0.964,
-   "precision": 0.978
+   "n": 172,
+   "tp": 147,
+   "fn": 25,
+   "fp": 8,
+   "recall": 0.855,
+   "precision": 0.948
   },
   "violence": {
-   "n": 35,
-   "tp": 25,
-   "fn": 10,
+   "n": 70,
+   "tp": 28,
+   "fn": 42,
    "fp": 3,
-   "recall": 0.714,
-   "precision": 0.893
+   "recall": 0.4,
+   "precision": 0.903
   },
   "scam": {
    "n": 18,
@@ -51,47 +51,47 @@
    "n": 8,
    "tp": 7,
    "fn": 1,
-   "fp": 5,
+   "fp": 6,
    "recall": 0.875,
-   "precision": 0.583
+   "precision": 0.538
   }
  },
  "danger_missed": {
-  "n": 20,
-  "of": 208
+  "n": 69,
+  "of": 278
  },
  "false_alarm": {
-  "n": 5,
-  "of": 173
+  "n": 6,
+  "of": 243
  },
  "by_lang": {
   "en": {
-   "hit": 43,
-   "n": 45
+   "hit": 46,
+   "n": 55
   },
   "es": {
-   "hit": 17,
-   "n": 21
+   "hit": 19,
+   "n": 31
   },
   "ja": {
-   "hit": 18,
-   "n": 22
+   "hit": 21,
+   "n": 32
   },
   "ko": {
-   "hit": 17,
-   "n": 21
+   "hit": 19,
+   "n": 31
   },
   "th": {
-   "hit": 79,
-   "n": 82
+   "hit": 83,
+   "n": 92
   },
   "vi": {
-   "hit": 16,
-   "n": 20
+   "hit": 18,
+   "n": 30
   },
   "zh": {
-   "hit": 21,
-   "n": 23
+   "hit": 23,
+   "n": 33
   }
  },
  "misses": [
@@ -276,6 +276,332 @@
    "got": [
     "self_harm"
    ]
+  },
+  {
+   "line": 471,
+   "text": "สามีเอามือรัดคอฉันจนหายใจไม่ออก",
+   "label": "violence",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 472,
+   "text": "แฟนกดคอฉันไว้กับผนังเมื่อคืน",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 473,
+   "text": "พี่ชายเอาเชือกรัดคอน้องตอนทะเลาะกัน",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 474,
+   "text": "นายจ้างยึดเงินเดือนทั้งหมด บังคับให้ทำงานวันละสิบแปดชั่วโมง",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 477,
+   "text": "เพื่อนดื่มหนักแล้วนอนแน่นิ่ง ปลุกยังไงก็ไม่รู้สึกตัว",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 480,
+   "text": "แม่ถูกมีดบาดลึกที่ขา เลือดท่วมพื้น",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 491,
+   "text": "My husband squeezed my neck until I couldn't breathe",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 492,
+   "text": "My boyfriend pinned me to the wall by my throat last night",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 493,
+   "text": "My brother wrapped a rope around his sister's neck during a fight",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 494,
+   "text": "My employer keeps all my wages and forces me to work eighteen hours a day",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 495,
+   "text": "They lock us inside the factory to work off a debt that never ends",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 497,
+   "text": "My friend drank heavily and is lying limp, he won't respond no matter what",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 500,
+   "text": "Mom has a deep knife cut on her leg and there's blood all over the floor",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 511,
+   "text": "Mi esposo me apretó el cuello hasta que no podía respirar",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 512,
+   "text": "Mi novio me empujó contra la pared agarrándome de la garganta anoche",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 513,
+   "text": "Mi hermano le puso una cuerda en el cuello a mi hermana durante una pelea",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 514,
+   "text": "Mi patrón se queda con todo mi sueldo y me obliga a trabajar dieciocho horas al día",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 515,
+   "text": "Nos encierran en la fábrica para pagar una deuda que nunca termina",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 516,
+   "text": "Mi papá se desplomó en el baño y no logramos despertarlo",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 518,
+   "text": "La abuela perdió el conocimiento mientras cenaba",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 520,
+   "text": "Mi mamá tiene un corte profundo de cuchillo en la pierna y hay sangre por todo el piso",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 525,
+   "text": "Mi celular se congeló y no responde",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 531,
+   "text": "Chồng siết cổ tôi đến mức không thở được",
+   "label": "violence",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 532,
+   "text": "Bạn trai ghì cổ tôi vào tường tối qua",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 533,
+   "text": "Anh trai quấn dây vào cổ em gái khi cãi nhau",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 534,
+   "text": "Chủ giữ hết tiền lương và bắt tôi làm mười tám tiếng mỗi ngày",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 535,
+   "text": "Họ nhốt chúng tôi trong xưởng để làm trả nợ không bao giờ hết",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 536,
+   "text": "Bố ngã gục trong nhà tắm, gọi mãi không tỉnh",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 537,
+   "text": "Bạn tôi uống say rồi nằm im, lay thế nào cũng không phản ứng",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 540,
+   "text": "Mẹ bị dao cắt sâu ở chân, máu loang khắp sàn",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 551,
+   "text": "我老公勒住我的脖子，我喘不过气来",
+   "label": "violence",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 552,
+   "text": "昨晚男朋友掐着我的喉咙把我按在墙上",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 553,
+   "text": "我哥吵架时用绳子勒我妹妹的脖子",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 554,
+   "text": "老板扣下我所有工资，逼我每天干十八个小时",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 557,
+   "text": "朋友喝多了躺着一动不动，怎么摇都没反应",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 558,
+   "text": "奶奶吃饭的时候昏过去了",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 559,
+   "text": "弟弟手臂被玻璃划伤，血一直流",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 560,
+   "text": "我妈腿上被刀割了很深的口子，血流了一地",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 571,
+   "text": "남편이 제 목을 졸라서 숨을 쉴 수가 없었어요",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 572,
+   "text": "어젯밤 남자친구가 제 목을 잡고 벽에 밀어붙였어요",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 573,
+   "text": "오빠가 싸우다가 여동생 목에 줄을 감았어요",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 574,
+   "text": "사장이 월급을 전부 가져가고 하루 열여덟 시간씩 일하게 해요",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 575,
+   "text": "빚을 갚으라며 우리를 공장에 가둬놓고 일을 시켜요",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 577,
+   "text": "친구가 술을 많이 마시고 축 늘어져서 아무 반응이 없어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 578,
+   "text": "할머니가 저녁 드시다가 의식을 잃으셨어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 580,
+   "text": "엄마가 다리를 칼에 깊게 베여서 바닥이 피범벅이에요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 591,
+   "text": "夫に首を絞められて息ができなかった",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 592,
+   "text": "昨夜、彼氏に喉をつかまれて壁に押し付けられた",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 593,
+   "text": "兄がけんかの最中に妹の首にロープを巻いた",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 594,
+   "text": "雇い主に給料を全部取られて、一日十八時間働かされている",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 597,
+   "text": "友達が飲みすぎてぐったりして、揺すっても反応がない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 598,
+   "text": "祖母が夕食中に意識を失った",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 600,
+   "text": "母が包丁で足を深く切って床が血だらけ",
+   "label": "emergency",
+   "got": []
   }
  ]
 }

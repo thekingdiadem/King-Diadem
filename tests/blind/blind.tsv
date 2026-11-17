@@ -465,3 +465,146 @@ Bơi ở hồ bơi mỗi sáng giúp tôi ngủ ngon	none	vi	claude-seed
 この店のマンゴーもち米がおいしい	none	ja	claude-seed
 古いコインを10年集めている	none	ja	claude-seed
 毎朝プールで泳ぐとよく眠れる	none	ja	claude-seed
+
+# ── ชุด E: ล็อกไว้ก่อนขยาย core/frames.py — บีบคอ · แรงงานบังคับ · หมดสติ · เลือดออกไม่หยุด ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 18/70 (ไม่เห็นเลย 49) · เตือนเกิน 1/70
+สามีเอามือรัดคอฉันจนหายใจไม่ออก	violence	th	claude-seed
+แฟนกดคอฉันไว้กับผนังเมื่อคืน	violence	th	claude-seed
+พี่ชายเอาเชือกรัดคอน้องตอนทะเลาะกัน	violence	th	claude-seed
+นายจ้างยึดเงินเดือนทั้งหมด บังคับให้ทำงานวันละสิบแปดชั่วโมง	violence	th	claude-seed
+พวกเขาขังเราไว้ในโรงงาน ทำงานใช้หนี้ไม่มีวันหมด	violence	th	claude-seed
+พ่อล้มลงในห้องน้ำ เรียกไม่ตื่นเลย	emergency	th	claude-seed
+เพื่อนดื่มหนักแล้วนอนแน่นิ่ง ปลุกยังไงก็ไม่รู้สึกตัว	emergency	th	claude-seed
+ยายหมดสติไปตอนกำลังกินข้าว	emergency	th	claude-seed
+น้องโดนกระจกบาดแขน เลือดไหลไม่หยุดเลย	emergency	th	claude-seed
+แม่ถูกมีดบาดลึกที่ขา เลือดท่วมพื้น	emergency	th	claude-seed
+แฟนชอบกอดคอฉันตอนดูหนัง	none	th	claude-seed
+สร้อยคอเส้นนี้รัดคอไปหน่อย	none	th	claude-seed
+ทำโอทีวันละสามชั่วโมง ได้เงินเพิ่มดี	none	th	claude-seed
+อ่านหนังสือสอบจนหลับเป็นตาย	none	th	claude-seed
+มือถือค้าง กดยังไงก็ไม่ตอบสนอง	none	th	claude-seed
+เลือดกำเดาไหลนิดหน่อย หยุดแล้ว	none	th	claude-seed
+กระดาษบาดนิ้ว เลือดซึมนิดเดียว	none	th	claude-seed
+งานนี้หนักจนแทบขาดใจ	none	th	claude-seed
+ล้มตอนวิ่ง เข่าถลอกนิดหน่อย	none	th	claude-seed
+ยายงีบหลับหลังกินข้าว	none	th	claude-seed
+My husband squeezed my neck until I couldn't breathe	violence	en	claude-seed
+My boyfriend pinned me to the wall by my throat last night	violence	en	claude-seed
+My brother wrapped a rope around his sister's neck during a fight	violence	en	claude-seed
+My employer keeps all my wages and forces me to work eighteen hours a day	violence	en	claude-seed
+They lock us inside the factory to work off a debt that never ends	violence	en	claude-seed
+Dad collapsed in the bathroom and we can't wake him	emergency	en	claude-seed
+My friend drank heavily and is lying limp, he won't respond no matter what	emergency	en	claude-seed
+Grandma passed out while eating dinner	emergency	en	claude-seed
+My brother cut his arm on glass and it won't stop bleeding	emergency	en	claude-seed
+Mom has a deep knife cut on her leg and there's blood all over the floor	emergency	en	claude-seed
+My boyfriend likes to put his arm around my neck when we watch movies	none	en	claude-seed
+This necklace is a little tight on my neck	none	en	claude-seed
+I work three hours of overtime a day and the extra pay is good	none	en	claude-seed
+I studied for the exam until I slept like the dead	none	en	claude-seed
+My phone froze and isn't responding at all	none	en	claude-seed
+I had a small nosebleed but it stopped	none	en	claude-seed
+Paper cut on my finger, just a drop of blood	none	en	claude-seed
+This job is so hard it's killing me	none	en	claude-seed
+Fell while jogging, just a scraped knee	none	en	claude-seed
+Grandma took a nap after lunch	none	en	claude-seed
+Mi esposo me apretó el cuello hasta que no podía respirar	violence	es	claude-seed
+Mi novio me empujó contra la pared agarrándome de la garganta anoche	violence	es	claude-seed
+Mi hermano le puso una cuerda en el cuello a mi hermana durante una pelea	violence	es	claude-seed
+Mi patrón se queda con todo mi sueldo y me obliga a trabajar dieciocho horas al día	violence	es	claude-seed
+Nos encierran en la fábrica para pagar una deuda que nunca termina	violence	es	claude-seed
+Mi papá se desplomó en el baño y no logramos despertarlo	emergency	es	claude-seed
+Mi amigo bebió mucho y está tirado sin moverse, no reacciona con nada	emergency	es	claude-seed
+La abuela perdió el conocimiento mientras cenaba	emergency	es	claude-seed
+Mi hermano se cortó el brazo con un vidrio y no deja de sangrar	emergency	es	claude-seed
+Mi mamá tiene un corte profundo de cuchillo en la pierna y hay sangre por todo el piso	emergency	es	claude-seed
+A mi novio le gusta abrazarme del cuello cuando vemos películas	none	es	claude-seed
+Este collar me aprieta un poco el cuello	none	es	claude-seed
+Hago tres horas extra al día y me pagan bien	none	es	claude-seed
+Estudié para el examen hasta quedarme dormido como un tronco	none	es	claude-seed
+Mi celular se congeló y no responde	none	es	claude-seed
+Me sangró un poco la nariz pero ya paró	none	es	claude-seed
+Me corté con un papel, solo una gotita de sangre	none	es	claude-seed
+Este trabajo me está matando de cansancio	none	es	claude-seed
+Me caí corriendo, solo me raspé la rodilla	none	es	claude-seed
+La abuela tomó una siesta después de comer	none	es	claude-seed
+Chồng siết cổ tôi đến mức không thở được	violence	vi	claude-seed
+Bạn trai ghì cổ tôi vào tường tối qua	violence	vi	claude-seed
+Anh trai quấn dây vào cổ em gái khi cãi nhau	violence	vi	claude-seed
+Chủ giữ hết tiền lương và bắt tôi làm mười tám tiếng mỗi ngày	violence	vi	claude-seed
+Họ nhốt chúng tôi trong xưởng để làm trả nợ không bao giờ hết	violence	vi	claude-seed
+Bố ngã gục trong nhà tắm, gọi mãi không tỉnh	emergency	vi	claude-seed
+Bạn tôi uống say rồi nằm im, lay thế nào cũng không phản ứng	emergency	vi	claude-seed
+Bà bất tỉnh khi đang ăn cơm	emergency	vi	claude-seed
+Em trai bị kính cứa vào tay, máu chảy không ngừng	emergency	vi	claude-seed
+Mẹ bị dao cắt sâu ở chân, máu loang khắp sàn	emergency	vi	claude-seed
+Bạn trai thích quàng tay qua cổ tôi khi xem phim	none	vi	claude-seed
+Sợi dây chuyền này hơi chật cổ	none	vi	claude-seed
+Tôi làm thêm ba tiếng mỗi ngày, lương thêm khá tốt	none	vi	claude-seed
+Ôn thi đến mức ngủ say như chết	none	vi	claude-seed
+Điện thoại bị đơ, bấm thế nào cũng không phản hồi	none	vi	claude-seed
+Tôi bị chảy máu cam một chút nhưng đã ngừng	none	vi	claude-seed
+Bị giấy cứa tay, chỉ rỉ chút máu	none	vi	claude-seed
+Công việc này mệt muốn chết	none	vi	claude-seed
+Ngã khi chạy bộ, chỉ trầy đầu gối	none	vi	claude-seed
+Bà ngủ trưa sau khi ăn	none	vi	claude-seed
+我老公勒住我的脖子，我喘不过气来	violence	zh	claude-seed
+昨晚男朋友掐着我的喉咙把我按在墙上	violence	zh	claude-seed
+我哥吵架时用绳子勒我妹妹的脖子	violence	zh	claude-seed
+老板扣下我所有工资，逼我每天干十八个小时	violence	zh	claude-seed
+他们把我们锁在工厂里干活还债，债永远还不完	violence	zh	claude-seed
+我爸在浴室里倒下了，怎么叫都叫不醒	emergency	zh	claude-seed
+朋友喝多了躺着一动不动，怎么摇都没反应	emergency	zh	claude-seed
+奶奶吃饭的时候昏过去了	emergency	zh	claude-seed
+弟弟手臂被玻璃划伤，血一直流	emergency	zh	claude-seed
+我妈腿上被刀割了很深的口子，血流了一地	emergency	zh	claude-seed
+男朋友看电影时喜欢搂着我的脖子	none	zh	claude-seed
+这条项链有点勒脖子	none	zh	claude-seed
+每天加班三小时，加班费不错	none	zh	claude-seed
+复习考试复习到睡得像死猪一样	none	zh	claude-seed
+手机卡死了，怎么按都没反应	none	zh	claude-seed
+流了一点鼻血，已经停了	none	zh	claude-seed
+被纸划了一下手指，就一点点血	none	zh	claude-seed
+这份工作累得要命	none	zh	claude-seed
+跑步时摔了一下，膝盖擦破点皮	none	zh	claude-seed
+奶奶吃完饭睡午觉了	none	zh	claude-seed
+남편이 제 목을 졸라서 숨을 쉴 수가 없었어요	violence	ko	claude-seed
+어젯밤 남자친구가 제 목을 잡고 벽에 밀어붙였어요	violence	ko	claude-seed
+오빠가 싸우다가 여동생 목에 줄을 감았어요	violence	ko	claude-seed
+사장이 월급을 전부 가져가고 하루 열여덟 시간씩 일하게 해요	violence	ko	claude-seed
+빚을 갚으라며 우리를 공장에 가둬놓고 일을 시켜요	violence	ko	claude-seed
+아빠가 화장실에서 쓰러졌는데 아무리 불러도 안 깨요	emergency	ko	claude-seed
+친구가 술을 많이 마시고 축 늘어져서 아무 반응이 없어요	emergency	ko	claude-seed
+할머니가 저녁 드시다가 의식을 잃으셨어요	emergency	ko	claude-seed
+동생이 유리에 팔을 베였는데 피가 멈추지 않아요	emergency	ko	claude-seed
+엄마가 다리를 칼에 깊게 베여서 바닥이 피범벅이에요	emergency	ko	claude-seed
+남자친구가 영화 볼 때 제 목에 팔을 둘러요	none	ko	claude-seed
+이 목걸이가 목에 좀 꽉 껴요	none	ko	claude-seed
+하루 세 시간씩 야근하는데 수당이 괜찮아요	none	ko	claude-seed
+시험공부하다가 기절하듯 잠들었어요	none	ko	claude-seed
+휴대폰이 멈춰서 아무 반응이 없어요	none	ko	claude-seed
+코피가 조금 났는데 멈췄어요	none	ko	claude-seed
+종이에 손가락을 베여서 피가 살짝 났어요	none	ko	claude-seed
+이 일 너무 힘들어서 죽을 것 같아요	none	ko	claude-seed
+달리다가 넘어져서 무릎이 까졌어요	none	ko	claude-seed
+할머니가 점심 드시고 낮잠 주무셨어요	none	ko	claude-seed
+夫に首を絞められて息ができなかった	violence	ja	claude-seed
+昨夜、彼氏に喉をつかまれて壁に押し付けられた	violence	ja	claude-seed
+兄がけんかの最中に妹の首にロープを巻いた	violence	ja	claude-seed
+雇い主に給料を全部取られて、一日十八時間働かされている	violence	ja	claude-seed
+借金を返すまで工場に閉じ込められて働かされている	violence	ja	claude-seed
+父が風呂場で倒れて、呼んでも起きない	emergency	ja	claude-seed
+友達が飲みすぎてぐったりして、揺すっても反応がない	emergency	ja	claude-seed
+祖母が夕食中に意識を失った	emergency	ja	claude-seed
+弟がガラスで腕を切って血が止まらない	emergency	ja	claude-seed
+母が包丁で足を深く切って床が血だらけ	emergency	ja	claude-seed
+映画を見るとき彼氏が首に腕を回してくる	none	ja	claude-seed
+このネックレスは首が少しきつい	none	ja	claude-seed
+毎日三時間残業しているけど残業代はいい	none	ja	claude-seed
+試験勉強で気絶するように寝た	none	ja	claude-seed
+スマホが固まって反応しない	none	ja	claude-seed
+鼻血が少し出たけど止まった	none	ja	claude-seed
+紙で指を切って血がちょっと出た	none	ja	claude-seed
+この仕事はきつくて死にそう	none	ja	claude-seed
+ジョギング中に転んで膝をすりむいた	none	ja	claude-seed
+祖母は昼食後に昼寝した	none	ja	claude-seed
