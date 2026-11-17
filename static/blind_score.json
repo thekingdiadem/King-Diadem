@@ -1,5 +1,5 @@
 {
- "total": 147,
+ "total": 407,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -16,28 +16,28 @@
  "blind_by_people": 60,
  "classes": {
   "self_harm": {
-   "n": 15,
-   "tp": 15,
-   "fn": 0,
-   "fp": 3,
-   "recall": 1.0,
-   "precision": 0.833
+   "n": 36,
+   "tp": 29,
+   "fn": 7,
+   "fp": 7,
+   "recall": 0.806,
+   "precision": 0.806
   },
   "emergency": {
-   "n": 32,
-   "tp": 31,
-   "fn": 1,
-   "fp": 0,
-   "recall": 0.969,
-   "precision": 1.0
+   "n": 137,
+   "tp": 132,
+   "fn": 5,
+   "fp": 3,
+   "recall": 0.964,
+   "precision": 0.978
   },
   "violence": {
-   "n": 21,
-   "tp": 21,
-   "fn": 0,
+   "n": 35,
+   "tp": 25,
+   "fn": 10,
    "fp": 2,
-   "recall": 1.0,
-   "precision": 0.913
+   "recall": 0.714,
+   "precision": 0.926
   },
   "scam": {
    "n": 18,
@@ -57,37 +57,41 @@
   }
  },
  "danger_missed": {
-  "n": 0,
-  "of": 68
+  "n": 20,
+  "of": 208
  },
  "false_alarm": {
-  "n": 3,
-  "of": 53
+  "n": 5,
+  "of": 173
  },
  "by_lang": {
   "en": {
-   "hit": 25,
-   "n": 25
+   "hit": 43,
+   "n": 45
   },
   "es": {
-   "hit": 1,
-   "n": 1
+   "hit": 17,
+   "n": 21
   },
   "ja": {
-   "hit": 2,
-   "n": 2
+   "hit": 18,
+   "n": 22
   },
   "ko": {
-   "hit": 1,
-   "n": 1
+   "hit": 17,
+   "n": 21
   },
   "th": {
-   "hit": 60,
-   "n": 62
+   "hit": 79,
+   "n": 82
+  },
+  "vi": {
+   "hit": 16,
+   "n": 20
   },
   "zh": {
-   "hit": 3,
-   "n": 3
+   "hit": 21,
+   "n": 23
   }
  },
  "misses": [
@@ -127,6 +131,150 @@
    "label": "none",
    "got": [
     "distress"
+   ]
+  },
+  {
+   "line": 211,
+   "text": "เขาบังคับให้ทำงานไม่ได้เงิน แล้วไม่ยอมให้กลับบ้าน",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 219,
+   "text": "My mom fainted and isn't responding",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 222,
+   "text": "My friend cut her wrist and there's a lot of blood",
+   "label": "self_harm",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 226,
+   "text": "No le veo sentido a seguir, estoy cansado de existir",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 228,
+   "text": "Mi pareja me agarra del cuello cuando se enoja",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 231,
+   "text": "Me obligan a trabajar sin paga y no me dejan irme",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 232,
+   "text": "Mi amigo se cortó la muñeca y hay mucha sangre",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 235,
+   "text": "Tôi đã viết thư tuyệt mệnh rồi",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 241,
+   "text": "Họ ép tôi làm việc không lương và không cho tôi về",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 242,
+   "text": "Bạn tôi cắt cổ tay, máu chảy rất nhiều",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 248,
+   "text": "我老公一生气就掐我的脖子",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 251,
+   "text": "他们逼我干活不给工资，也不让我走",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 256,
+   "text": "사는 게 의미가 없어요, 너무 지쳤어요",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 258,
+   "text": "남편이 화가 나면 제 목을 졸라요",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 259,
+   "text": "엄마가 쓰러져서 반응이 없어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 261,
+   "text": "월급도 안 주고 일만 시키고 못 나가게 해요",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 266,
+   "text": "生きている意味がない、もう疲れた",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 268,
+   "text": "夫が怒ると私の首を絞める",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 269,
+   "text": "母が倒れて反応がない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 271,
+   "text": "給料をもらえず働かされて、帰らせてもらえない",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 299,
+   "text": "那个视频笑得我差点晕倒",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 397,
+   "text": "Con tôi ngậm đồng xu rồi bị mắc, không ho ra được",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 422,
+   "text": "糖尿病的药吃完了，要去医院再拿",
+   "label": "none",
+   "got": [
+    "self_harm"
    ]
   }
  ]

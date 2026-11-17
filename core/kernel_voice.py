@@ -2707,6 +2707,12 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
                        "danger": "help", "scam": "help"}[kind_w]
             if topic_w not in topics:
                 topics.append(topic_w)
+    # ตัวจับแบบประกอบชิ้นส่วน (core/frames): สารพิษ · ยาเกินขนาด · จมน้ำ · สำลัก ทุกภาษาด้วยกฎชุดเดียว
+    # จับข้อความที่ใช้คำเดิมแต่เรียงต่างจาก regex ข้างบน — เสริม ไม่ได้แทน
+    from core.frames import frames as _frames
+    for _kind_f, topic_f in _frames(text):
+        if topic_f not in topics:
+            topics.append(topic_f)
     # อารมณ์หนัก/ภัยที่พูดสั้น ในภาษา ja zh ko es vi (core/mood_intl) — เดิมได้ Risk 0 และแผนสามขั้นทั่วไป
     from core.mood_intl import mood_intl
     mood = mood_intl(text)
