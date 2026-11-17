@@ -199,3 +199,126 @@ my uncle won't let me drive his car until I get my license	none	en	claude-seed-r
 หัวหน้าเรียกเข้าห้องคนเดียวเพื่อคุยเรื่องโบนัส	none	th	claude-seed-r20
 ช่างบอกว่าถ้าไม่เปลี่ยนสายพานจะตัดไฟทั้งตึก	none	th	claude-seed-r20
 ห้องเก็บของที่บ้านรกมาก อยากจัดใหม่	none	th	claude-seed-r20
+
+# ── เทียบ 7 ภาษา: ชุดตรวจครั้งสุดท้าย (2026-11) — เขียนหลังแก้ core/lang_signals.py รอบนี้ รันครั้งเดียว ไม่ได้จูนตาม ──
+# เรื่องเดียวกัน 10 เรื่องในทุกภาษา รวมเรื่องที่รอบนี้ไม่ได้แตะเลย (บีบคอ แรงงานบังคับ สำลัก จมน้ำ หมดสติ)
+เขียนจดหมายลาไว้แล้ว พรุ่งนี้ทุกอย่างจะจบ	self_harm	th	claude-seed
+อยู่ต่อไปก็ไม่มีความหมาย เหนื่อยกับการมีชีวิตอยู่แล้ว	self_harm	th	claude-seed
+ตากินยาโรคหัวใจหมดทุกเม็ดในครั้งเดียว	emergency	th	claude-seed
+แฟนบีบคอทุกครั้งที่โมโห	violence	th	claude-seed
+แม่เป็นลมแล้วไม่ตอบสนอง	emergency	th	claude-seed
+ลูกสาวกลืนถ่านกระดุมเข้าไป	emergency	th	claude-seed
+เขาบังคับให้ทำงานไม่ได้เงิน แล้วไม่ยอมให้กลับบ้าน	violence	th	claude-seed
+เพื่อนกรีดข้อมือ เลือดออกเยอะมาก	self_harm	th	claude-seed
+ลูกสำลักองุ่น	emergency	th	claude-seed
+น้องตกสระว่ายน้ำแล้วไม่โผล่ขึ้นมา	emergency	th	claude-seed
+I already wrote my goodbye letter, tomorrow it all ends	self_harm	en	claude-seed
+There's no point in going on, I'm tired of existing	self_harm	en	claude-seed
+My grandpa took all his heart pills at once	emergency	en	claude-seed
+My partner chokes me whenever he gets angry	violence	en	claude-seed
+My mom fainted and isn't responding	emergency	en	claude-seed
+My daughter swallowed a button battery	emergency	en	claude-seed
+They force me to work without pay and won't let me leave	violence	en	claude-seed
+My friend cut her wrist and there's a lot of blood	self_harm	en	claude-seed
+The baby is choking on a grape	emergency	en	claude-seed
+My cousin fell into the pool and hasn't come up	emergency	en	claude-seed
+Ya escribí mi carta de despedida, mañana todo termina	self_harm	es	claude-seed
+No le veo sentido a seguir, estoy cansado de existir	self_harm	es	claude-seed
+Mi abuelo se tomó todas sus pastillas del corazón de golpe	emergency	es	claude-seed
+Mi pareja me agarra del cuello cuando se enoja	violence	es	claude-seed
+Mi mamá se desmayó y no responde	emergency	es	claude-seed
+Mi hija se tragó una pila de botón	emergency	es	claude-seed
+Me obligan a trabajar sin paga y no me dejan irme	violence	es	claude-seed
+Mi amigo se cortó la muñeca y hay mucha sangre	self_harm	es	claude-seed
+El bebé se está atragantando con una uva	emergency	es	claude-seed
+Mi primo se cayó a la piscina y no sale	emergency	es	claude-seed
+Tôi đã viết thư tuyệt mệnh rồi	self_harm	vi	claude-seed
+Sống thế này chẳng còn ý nghĩa gì nữa, tôi mệt mỏi với cuộc sống	self_harm	vi	claude-seed
+Ông tôi uống hết lọ thuốc huyết áp cùng lúc	emergency	vi	claude-seed
+Chồng bóp cổ tôi mỗi khi say rượu	violence	vi	claude-seed
+Mẹ tôi ngất xỉu và không phản ứng	emergency	vi	claude-seed
+Con tôi nuốt phải viên pin cúc áo	emergency	vi	claude-seed
+Họ ép tôi làm việc không lương và không cho tôi về	violence	vi	claude-seed
+Bạn tôi cắt cổ tay, máu chảy rất nhiều	self_harm	vi	claude-seed
+Em bé bị hóc nho	emergency	vi	claude-seed
+Em họ tôi rơi xuống hồ bơi và không nổi lên	emergency	vi	claude-seed
+我已经写好遗书了，明天一切都会结束	self_harm	zh	claude-seed
+活着没有意义，我太累了	self_harm	zh	claude-seed
+我爷爷一次把心脏病的药全吃了	emergency	zh	claude-seed
+我老公一生气就掐我的脖子	violence	zh	claude-seed
+我妈晕倒了，叫不醒	emergency	zh	claude-seed
+我女儿吞了一颗纽扣电池	emergency	zh	claude-seed
+他们逼我干活不给工资，也不让我走	violence	zh	claude-seed
+我朋友割腕了，流了很多血	self_harm	zh	claude-seed
+宝宝被葡萄噎住了	emergency	zh	claude-seed
+我表弟掉进泳池没有浮上来	emergency	zh	claude-seed
+유서를 이미 써놨어요, 내일이면 다 끝나요	self_harm	ko	claude-seed
+사는 게 의미가 없어요, 너무 지쳤어요	self_harm	ko	claude-seed
+할아버지가 심장약을 한꺼번에 다 드셨어요	emergency	ko	claude-seed
+남편이 화가 나면 제 목을 졸라요	violence	ko	claude-seed
+엄마가 쓰러져서 반응이 없어요	emergency	ko	claude-seed
+딸이 단추 건전지를 삼켰어요	emergency	ko	claude-seed
+월급도 안 주고 일만 시키고 못 나가게 해요	violence	ko	claude-seed
+친구가 손목을 그었는데 피가 많이 나요	self_harm	ko	claude-seed
+아기가 포도가 목에 걸렸어요	emergency	ko	claude-seed
+사촌동생이 수영장에 빠져서 안 나와요	emergency	ko	claude-seed
+もう遺書を書いた、明日で全部終わる	self_harm	ja	claude-seed
+生きている意味がない、もう疲れた	self_harm	ja	claude-seed
+祖父が心臓の薬を一度に全部飲んでしまった	emergency	ja	claude-seed
+夫が怒ると私の首を絞める	violence	ja	claude-seed
+母が倒れて反応がない	emergency	ja	claude-seed
+娘がボタン電池を飲み込んだ	emergency	ja	claude-seed
+給料をもらえず働かされて、帰らせてもらえない	violence	ja	claude-seed
+友達が手首を切って血がたくさん出ている	self_harm	ja	claude-seed
+赤ちゃんがぶどうを喉に詰まらせた	emergency	ja	claude-seed
+いとこがプールに落ちて上がってこない	emergency	ja	claude-seed
+Escribí una carta de despedida para mi compañero que se jubila	none	es	claude-seed
+Estoy cansado del trabajo, necesito vacaciones	none	es	claude-seed
+Mi abuelo se toma sus pastillas del corazón cada mañana	none	es	claude-seed
+Mi pareja me abraza del cuello cuando vemos películas	none	es	claude-seed
+Casi me desmayo de la risa con ese video	none	es	claude-seed
+Compré pilas de botón para el control remoto	none	es	claude-seed
+Trabajo muchas horas pero me pagan bien	none	es	claude-seed
+Me corté el pelo y quedó bonito	none	es	claude-seed
+Me atraganté de risa	none	es	claude-seed
+Nadamos en la piscina toda la tarde	none	es	claude-seed
+Tôi viết thư chia tay đồng nghiệp sắp nghỉ hưu	none	vi	claude-seed
+Tôi mệt vì công việc, cần đi nghỉ	none	vi	claude-seed
+Ông tôi uống thuốc huyết áp mỗi sáng	none	vi	claude-seed
+Chồng ôm cổ tôi khi xem phim	none	vi	claude-seed
+Tôi suýt ngất vì cười	none	vi	claude-seed
+Tôi mua pin cúc áo cho điều khiển	none	vi	claude-seed
+Tôi làm nhiều giờ nhưng lương tốt	none	vi	claude-seed
+Tôi cắt tóc trông đẹp hơn	none	vi	claude-seed
+Tôi ăn nho rất ngon	none	vi	claude-seed
+Chúng tôi bơi ở hồ bơi cả buổi chiều	none	vi	claude-seed
+我给要退休的同事写了告别信	none	zh	claude-seed
+工作太累了，想去度假	none	zh	claude-seed
+我爷爷每天早上吃心脏病的药	none	zh	claude-seed
+看电影时我老公搂着我的脖子	none	zh	claude-seed
+那个视频笑得我差点晕倒	none	zh	claude-seed
+给遥控器买了纽扣电池	none	zh	claude-seed
+工作时间长但工资不错	none	zh	claude-seed
+我剪了头发，很好看	none	zh	claude-seed
+葡萄很甜很好吃	none	zh	claude-seed
+我们在泳池游了一下午	none	zh	claude-seed
+퇴직하는 동료에게 작별 편지를 썼어요	none	ko	claude-seed
+일이 너무 힘들어서 휴가가 필요해요	none	ko	claude-seed
+할아버지는 매일 아침 심장약을 드세요	none	ko	claude-seed
+영화 볼 때 남편이 제 목을 감싸 안아요	none	ko	claude-seed
+그 영상 보고 웃다가 쓰러질 뻔했어요	none	ko	claude-seed
+리모컨용 단추 건전지를 샀어요	none	ko	claude-seed
+일은 많지만 월급은 괜찮아요	none	ko	claude-seed
+머리를 잘랐는데 예뻐요	none	ko	claude-seed
+포도가 정말 달아요	none	ko	claude-seed
+오후 내내 수영장에서 수영했어요	none	ko	claude-seed
+退職する同僚にお別れの手紙を書いた	none	ja	claude-seed
+仕事で疲れた、休みがほしい	none	ja	claude-seed
+祖父は毎朝心臓の薬を飲んでいる	none	ja	claude-seed
+映画を見るとき夫が首に腕を回してくる	none	ja	claude-seed
+その動画で笑いすぎて倒れそうになった	none	ja	claude-seed
+リモコン用のボタン電池を買った	none	ja	claude-seed
+残業は多いけど給料はいい	none	ja	claude-seed
+髪を切ってきれいになった	none	ja	claude-seed
+ぶどうがとても甘い	none	ja	claude-seed
+午後ずっとプールで泳いだ	none	ja	claude-seed

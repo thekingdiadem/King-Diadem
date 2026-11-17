@@ -1,5 +1,5 @@
 {
- "total": 147,
+ "total": 267,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -16,28 +16,28 @@
  "blind_by_people": 60,
  "classes": {
   "self_harm": {
-   "n": 15,
-   "tp": 15,
-   "fn": 0,
-   "fp": 3,
-   "recall": 1.0,
-   "precision": 0.833
+   "n": 36,
+   "tp": 29,
+   "fn": 7,
+   "fp": 4,
+   "recall": 0.806,
+   "precision": 0.879
   },
   "emergency": {
-   "n": 32,
-   "tp": 31,
-   "fn": 1,
-   "fp": 0,
-   "recall": 0.969,
-   "precision": 1.0
+   "n": 67,
+   "tp": 53,
+   "fn": 14,
+   "fp": 3,
+   "recall": 0.791,
+   "precision": 0.946
   },
   "violence": {
-   "n": 21,
-   "tp": 21,
-   "fn": 0,
+   "n": 35,
+   "tp": 25,
+   "fn": 10,
    "fp": 3,
-   "recall": 1.0,
-   "precision": 0.875
+   "recall": 0.714,
+   "precision": 0.893
   },
   "scam": {
    "n": 18,
@@ -57,37 +57,41 @@
   }
  },
  "danger_missed": {
-  "n": 0,
-  "of": 68
+  "n": 28,
+  "of": 138
  },
  "false_alarm": {
-  "n": 3,
-  "of": 53
+  "n": 4,
+  "of": 103
  },
  "by_lang": {
   "en": {
-   "hit": 25,
-   "n": 25
+   "hit": 33,
+   "n": 35
   },
   "es": {
-   "hit": 1,
-   "n": 1
+   "hit": 5,
+   "n": 11
   },
   "ja": {
-   "hit": 2,
-   "n": 2
+   "hit": 8,
+   "n": 12
   },
   "ko": {
-   "hit": 1,
-   "n": 1
+   "hit": 5,
+   "n": 11
   },
   "th": {
-   "hit": 60,
-   "n": 62
+   "hit": 66,
+   "n": 72
+  },
+  "vi": {
+   "hit": 6,
+   "n": 10
   },
   "zh": {
-   "hit": 3,
-   "n": 3
+   "hit": 9,
+   "n": 13
   }
  },
  "misses": [
@@ -127,6 +131,198 @@
    "label": "none",
    "got": [
     "distress"
+   ]
+  },
+  {
+   "line": 207,
+   "text": "ตากินยาโรคหัวใจหมดทุกเม็ดในครั้งเดียว",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 211,
+   "text": "เขาบังคับให้ทำงานไม่ได้เงิน แล้วไม่ยอมให้กลับบ้าน",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 213,
+   "text": "ลูกสำลักองุ่น",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 214,
+   "text": "น้องตกสระว่ายน้ำแล้วไม่โผล่ขึ้นมา",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 219,
+   "text": "My mom fainted and isn't responding",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 222,
+   "text": "My friend cut her wrist and there's a lot of blood",
+   "label": "self_harm",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 226,
+   "text": "No le veo sentido a seguir, estoy cansado de existir",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 227,
+   "text": "Mi abuelo se tomó todas sus pastillas del corazón de golpe",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 228,
+   "text": "Mi pareja me agarra del cuello cuando se enoja",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 231,
+   "text": "Me obligan a trabajar sin paga y no me dejan irme",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 232,
+   "text": "Mi amigo se cortó la muñeca y hay mucha sangre",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 233,
+   "text": "El bebé se está atragantando con una uva",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 235,
+   "text": "Tôi đã viết thư tuyệt mệnh rồi",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 241,
+   "text": "Họ ép tôi làm việc không lương và không cho tôi về",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 242,
+   "text": "Bạn tôi cắt cổ tay, máu chảy rất nhiều",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 244,
+   "text": "Em họ tôi rơi xuống hồ bơi và không nổi lên",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 247,
+   "text": "我爷爷一次把心脏病的药全吃了",
+   "label": "emergency",
+   "got": [
+    "self_harm"
+   ]
+  },
+  {
+   "line": 248,
+   "text": "我老公一生气就掐我的脖子",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 251,
+   "text": "他们逼我干活不给工资，也不让我走",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 253,
+   "text": "宝宝被葡萄噎住了",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 256,
+   "text": "사는 게 의미가 없어요, 너무 지쳤어요",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 257,
+   "text": "할아버지가 심장약을 한꺼번에 다 드셨어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 258,
+   "text": "남편이 화가 나면 제 목을 졸라요",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 259,
+   "text": "엄마가 쓰러져서 반응이 없어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 261,
+   "text": "월급도 안 주고 일만 시키고 못 나가게 해요",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 264,
+   "text": "사촌동생이 수영장에 빠져서 안 나와요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 266,
+   "text": "生きている意味がない、もう疲れた",
+   "label": "self_harm",
+   "got": []
+  },
+  {
+   "line": 268,
+   "text": "夫が怒ると私の首を絞める",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 269,
+   "text": "母が倒れて反応がない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 271,
+   "text": "給料をもらえず働かされて、帰らせてもらえない",
+   "label": "violence",
+   "got": []
+  },
+  {
+   "line": 299,
+   "text": "那个视频笑得我差点晕倒",
+   "label": "none",
+   "got": [
+    "emergency"
    ]
   }
  ]
