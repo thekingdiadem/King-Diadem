@@ -532,6 +532,17 @@ _more("medical", "vi", r"(?:uống|nuốt)\s+(?:hết\s+|cả\s+|nguyên\s+|mộ
 _more("violence", "vi", r"(?:chồng|vợ|bạn\s+trai|bạn\s+gái|người\s+yêu|bố|mẹ|cha|anh\s+ta|hắn)\s+(?:lại\s+|hay\s+|thường\s+|luôn\s+|cứ\s+)?(?:đánh|đập|tát|đá|bóp\s+cổ)\s+(?:tôi|mình|em|con\b(?!\s+(?:muỗi|ruồi|gián|chuột|cá|gà|chó|mèo)))"
                         r"|(?:đe\s+)?dọa\s+giết\s+(?:tôi|mình|em|con)\b")
 _more("violence", "zh", r"(?:收走|拿走|没收|沒收|扣下|扣着|扣著)(?:了)?(?:我们|我們|我|大家)?的?(?:护照|護照)|把(?:我|我们|我們)(?:关|關|锁|鎖)(?:起来|起來|在)")
+# รอบสุ่ม 146: ทำงานไม่ได้ค่าจ้าง + ไม่ให้ออก/กลับบ้าน (บังคับใช้แรงงาน) — ต้องมีครบทั้งสองอย่าง · เดิมจับได้เฉพาะตอนเอ่ยถึงพาสปอร์ต
+_PAY_ES, _HOLD_ES = r"(?:no\s+me\s+pagan|sin\s+(?:sueldo|paga|pago|salario)|no\s+(?:nos|me)\s+(?:dan|da)\s+(?:el\s+)?(?:sueldo|salario))", r"no\s+(?:me|nos)\s+deja[n]?\s+(?:salir|irme|irnos|volver|regresar)(?!\s+temprano)"
+_more("violence", "es", _PAY_ES + r"[^.!?\n]{0,40}" + _HOLD_ES + "|" + _HOLD_ES + r"[^.!?\n]{0,40}" + _PAY_ES)
+_PAY_VI, _HOLD_VI = r"(?:làm\s+không\s+công|không\s+trả\s+lương|không\s+được\s+trả\s+lương)", r"không\s+cho\s+(?:tôi|chúng\s+tôi)\s+(?:rời|về|đi|ra)"
+_more("violence", "vi", _PAY_VI + r"[^.!?\n]{0,40}" + _HOLD_VI + "|" + _HOLD_VI + r"[^.!?\n]{0,40}" + _PAY_VI)
+_PAY_ZH, _HOLD_ZH = r"(?:不(?:发|發|给|給)(?:工资|工資|钱|錢)|没有工资|沒有工資|拿不到工资)", r"不(?:准|让|讓|许|許)(?:我|我们|我們)?(?:离开|離開|走|回家|出去)"
+_more("violence", "zh", _PAY_ZH + r"[^。！？\n]{0,20}" + _HOLD_ZH + "|" + _HOLD_ZH + r"[^。！？\n]{0,20}" + _PAY_ZH)
+_PAY_KO, _HOLD_KO = r"(?:월급(?:을|도)?\s*(?:못\s*받|안\s*(?:줘|주))|돈(?:을|도)?\s*안\s*(?:줘|주))", r"(?:못\s*나가게|못\s*떠나게|집에\s*못\s*가게|밖으로\s*못)"
+_more("violence", "ko", _PAY_KO + r"[가-힯\s,]{0,30}" + _HOLD_KO + "|" + _HOLD_KO + r"[가-힯\s,]{0,30}" + _PAY_KO)
+_PAY_JA, _HOLD_JA = r"(?:給料(?:が|を|も)?(?:なし|もらえ(?:ない|ず)|払(?:わ|って)(?:れ)?(?:ない|もらえない))|無給で)", r"(?:(?:寮|工場|家|部屋)から出して(?:もらえない|くれない)|帰らせて(?:もらえない|くれない)|(?:パスポート|旅券)を取られ)"
+_more("violence", "ja", r"(?<!残業で)(?:" + _PAY_JA + r"[^。！？\n]{0,24}" + _HOLD_JA + "|" + _HOLD_JA + r"[^。！？\n]{0,24}" + _PAY_JA + ")")
 # รอบสุ่ม 145: ถูกบีบคอ/รัดคอ (es vi zh ko ja) — เคยได้ 0 ทุกภาษา · การบีบคอเป็นสัญญาณอันตรายถึงชีวิตที่ชัดที่สุดในความรุนแรงในครอบครัว
 _more("violence", "es", r"(?:me\s+)?(?:aprieta|apretó|agarra|agarró|apretaba)\s+(?:el|del)\s+cuello|(?:intent[óo]\s+)?estrangular(?:me|la|lo)?|me\s+ahorc(?:a|ó|aba)")
 _more("violence", "vi", r"bóp\s+cổ|siết\s+cổ|bóp\s+chặt\s+cổ")
