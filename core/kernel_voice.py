@@ -172,6 +172,42 @@ TOPICS = [
         ],
         "ask": "ตอนนี้ได้โอนเงินหรือให้ข้อมูลอะไรไปแล้วหรือยัง?",
     }),
+    ("car_water", [], {
+        "open": ["ออกจากรถให้เร็วที่สุด — อย่ารอให้รถจมก่อน อย่าเสียเวลาโทรตอนนี้"],
+        "paths": [
+            "ปลดเข็มขัด → เปิดกระจกข้างทันที (ไฟฟ้ามักยังใช้ได้ช่วงแรก) · ถ้าเปิดไม่ได้ ทุบที่มุมกระจกข้างด้วยที่ทุบกระจกหรือหมุดพนักพิงศีรษะ",
+            "ปลดเด็กก่อน ส่งออกทางหน้าต่าง แล้วตามออกไป · อย่าพยายามเปิดประตูตอนน้ำกดอยู่",
+            "ขึ้นไปบนหลังคารถหรือว่ายเข้าฝั่ง แล้วค่อยโทร 1669 / 191",
+        ],
+        "ask": "ตอนนี้ออกจากรถได้แล้วหรือยัง?",
+    }),
+    ("co_poison", [], {
+        "open": ["ออกไปข้างนอกที่อากาศโล่งตอนนี้เลยทุกคน — อาการแบบนี้อาจเป็นพิษจากแก๊สคาร์บอนมอนอกไซด์ ซึ่งมองไม่เห็นและไม่มีกลิ่น"],
+        "paths": [
+            "พาทุกคน รวมถึงสัตว์เลี้ยง ออกนอกบ้านก่อน แล้วค่อยกลับไปดับเครื่อง (เครื่องปั่นไฟ เตาถ่าน รถที่ติดเครื่อง) ถ้าทำได้ปลอดภัย",
+            "โทร 1669 ตอนนี้ โดยเฉพาะถ้ามีคนซึม สับสน หมดสติ เด็กเล็ก คนท้อง หรือผู้สูงอายุ",
+            "อย่ากลับเข้าไปจนกว่าจะเปิดประตูหน้าต่างระบายอากาศนานพอ · ต่อไปตั้งเครื่องปั่นไฟไว้นอกบ้านห่างหน้าต่าง",
+        ],
+        "ask": "ตอนนี้ทุกคนอยู่นอกบ้านแล้วหรือยัง?",
+    }),
+    ("confined_space", [], {
+        "open": ["อย่าลงไปช่วยเองเด็ดขาด — ในบ่อ ท่อ หรือถังมักมีแก๊สพิษ คนที่ลงไปช่วยหมดสติตามเป็นคนที่สองบ่อยที่สุด"],
+        "paths": [
+            "โทร 1669 และ 199 ตอนนี้ บอกว่ามีคนหมดสติในที่อับอากาศ (บ่อเกรอะ ท่อ ถัง) ต้องการทีมกู้ภัยที่มีเครื่องช่วยหายใจ",
+            "จากข้างนอก: เปิดฝาและช่องลมให้มากที่สุด ห้ามจุดไฟหรือสูบบุหรี่ใกล้ปากบ่อ · ถ้ามีเชือกผูกตัวเขาอยู่ ดึงจากข้างบนได้",
+            "กันคนอื่นไม่ให้ลงไปตาม และรอทีมกู้ภัยที่ปากบ่อ บอกเวลาที่เขาลงไป",
+        ],
+        "ask": "ตอนนี้มีใครลงไปตามแล้วหรือยัง?",
+    }),
+    ("home_ventilator", [], {
+        "open": ["ไฟดับตอนใช้เครื่องช่วยหายใจเป็นเรื่องด่วน — ทำทีละขั้นนะคะ"],
+        "paths": [
+            "ดูก่อนว่าเครื่องมีแบตสำรองไหมและเหลือกี่ชั่วโมง · ถ้ามีถุงบีบลม (Ambu) ให้เตรียมไว้ข้างตัว",
+            "ถ้าหายใจลำบาก ปากเขียว หรือแบตเหลือน้อย โทร 1669 ตอนนี้ บอกว่าผู้ป่วยใช้เครื่องช่วยหายใจและไฟดับ",
+            "แจ้งการไฟฟ้า (กฟภ. 1129 · กฟน. 1130) ว่าในบ้านมีผู้ป่วยใช้เครื่องช่วยหายใจ และหาที่ที่มีไฟ (โรงพยาบาล รถที่สตาร์ทไว้พร้อมอินเวอร์เตอร์)",
+        ],
+        "ask": "เครื่องมีแบตสำรองเหลืออีกนานแค่ไหน?",
+    }),
     ("forced_marriage", [], {
         "open": ["คุณมีสิทธิ์ปฏิเสธการแต่งงานที่ไม่ได้เต็มใจ — ไม่ว่าใครจะกดดันแค่ไหน"],
         "paths": [
@@ -1805,6 +1841,26 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "car_water": ("Get out of the car now — don't wait for it to sink, and don't spend time calling yet.", [
+        "Seatbelt off → open the side window right away (power often still works at first) · if it won't open, break a side window at the corner with a glass breaker or headrest pins.",
+        "Unbuckle children first and push them out the window, then follow · don't try the door while water is pressing on it.",
+        "Get onto the roof or swim to the bank, then call emergency services (1669 / 191 in Thailand, 911 in the US, 112 in Europe)."],
+        "Are you out of the car yet?"),
+    "co_poison": ("Get everyone outside into fresh air now — these symptoms can mean carbon monoxide poisoning, which you can't see or smell.", [
+        "Take everyone, pets too, outside first; only then switch off the source (generator, charcoal stove, running car) if it's safe.",
+        "Call emergency services now (1669 in Thailand, 911 in the US, 112 in Europe), especially if anyone is drowsy, confused, unconscious, a child, pregnant or elderly.",
+        "Don't go back in until the place has been aired out properly · always run generators outdoors, far from windows."],
+        "Is everyone outside now?"),
+    "confined_space": ("Do not go in after them — tanks, pits and pipes often hold toxic gas, and the would-be rescuer is very often the second person to collapse.", [
+        "Call emergency services now (1669 and 199 in Thailand, 911 in the US, 112 in Europe): someone has collapsed in a confined space and rescuers need breathing equipment.",
+        "From outside only: open every lid and vent you can, no flames or cigarettes near the opening · if they are on a rope, pull from above.",
+        "Keep anyone else from going down, and wait at the opening for rescuers — tell them when the person went in."],
+        "Has anyone else gone in after them?"),
+    "home_ventilator": ("A power cut while someone is on a ventilator is urgent — let's take it one step at a time.", [
+        "Check whether the machine has a backup battery and how many hours are left · keep a manual resuscitation bag (Ambu bag) beside them if you have one.",
+        "If they're struggling to breathe, their lips turn blue, or the battery is low, call emergency services now and say they're ventilator-dependent and the power is out.",
+        "Tell the electricity provider there is a ventilator user at home (in Thailand PEA 1129 · MEA 1130), and plan where there is power (hospital, a car with an inverter)."],
+        "How long will the backup battery last?"),
     "forced_marriage": ("You have the right to refuse a marriage you don't want — no matter who is pressuring you.", [
         "Talk to a helpline in confidence: 1300 in Thailand (24h), or the Forced Marriage Unit +44 20 7008 0151 in the UK · under 18, child marriage is illegal in most countries.",
         "If you fear being taken somewhere, keep your ID, passport and phone on you, and tell one trusted friend or teacher the date and place.",
@@ -2248,12 +2304,14 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("forced_marriage", "intruder", "post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("car_water", "co_poison", "confined_space", "home_ventilator", "forced_marriage", "intruder", "post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
 # คนที่ไม่หายใจ หรือเด็กหายใจไม่ออก มาก่อนภัยรอบตัว — "ยายเป็นลมแดด หมดสติ ไม่หายใจ" เคยได้คำแนะนำคลื่นความร้อน ไม่มี CPR
-_PERSON_OVER_HAZARD = {"health_emergency", "kp_child_breath", "kp_near_drowning", "kp_febrile_seizure", "kp_alcohol_poisoning", "kp_child_in_car"}
+# รอบ 138: รถตกน้ำ/พิษแก๊ส/ที่อับอากาศ มีคำตอบเฉพาะของตัวเอง — เดิมการ์ดน้ำท่วมบ้านมาก่อน ("ปิดเบรกเกอร์ไฟ" ให้คนที่ติดในรถกำลังจม)
+_PERSON_OVER_HAZARD = {"health_emergency", "kp_child_breath", "kp_near_drowning", "kp_febrile_seizure", "kp_alcohol_poisoning", "kp_child_in_car",
+                       "car_water", "co_poison", "confined_space"}
 
 
 def _person_first(text: str, a: dict) -> bool:
@@ -2266,7 +2324,7 @@ _CALIBRATED = {"kp_double_dose", "kp_elevator"}
 # หัวข้อกว้างที่ตอบผิดเรื่องจนต้องตัดทิ้ง — ที่เหลือแค่เลื่อนไปไว้หลังหัวข้อเฉพาะ (ยังนับว่าเป็นเรื่องติดพนัน/ฉุกเฉินอยู่)
 _WRONG_FRAME = {"someone", "violence", "grief", "diagnosis"}
 # มีอาการอันตรายร่วม = ไม่ลดคะแนน ("กินยาความดันไปสองรอบ ตอนนี้หน้ามืดจะเป็นลม" ยังต้องด่วน)
-_DANGER_SIGNS = re.compile(r"หน้ามืด|เป็นลม|หมดสติ|ใจสั่น|เหงื่อแตก|สับสน|ซึม|ปลุกไม่ตื่น|หายใจ(?:ไม่ออก|ลำบาก|ไม่ทัน)|เจ็บหน้าอก|แน่นหน้าอก|ชัก|ตัวเย็น"
+_DANGER_SIGNS = re.compile(r"หน้ามืด|เป็นลม|หมดสติ|ใจสั่น|เหงื่อแตก|สับสน|ซึม|ปลุกไม่ตื่น|หายใจ(?:ไม่ออก|ลำบาก|ไม่ทัน|ไม่ค่อยออก)|เจ็บหน้าอก|แน่นหน้าอก|ชัก|ตัวเย็น"
                            r"|\b(?:faint\w*|dizz\w*|confused|drowsy|passed out|unconscious|can'?t breathe|chest pain|seizure|racing heart)\b", re.I)
 
 # (หัวข้อเฉพาะ, หัวข้อกว้างที่มันมาแทน)
@@ -2506,7 +2564,12 @@ def _specific_first(text, a: dict) -> dict:
     if not topics:
         return a
     calm = None
+    danger = bool(_DANGER_SIGNS.search(str(text or "")))
     for first, over in _SPECIFIC_FIRST:
+        # หัวข้อที่ "ลดระดับ" (ติดลิฟต์ส่วนใหญ่ปลอดภัย · กินยาซ้ำส่วนใหญ่ไม่อันตราย) ไม่มาแทนเมื่อมีอาการอันตรายจริง
+        # รอบ 131: "ติดอยู่ในลิฟต์ หายใจไม่ค่อยออก" เคยได้ "ลิฟต์ไม่ตก" แทนคำแนะนำเรื่องหายใจ
+        if first in _CALIBRATED and danger:
+            continue
         if first in topics and set(topics) & over:
             topics = [first] + [x for x in topics if x != first and not (x in over and x in _WRONG_FRAME)]
             calm = first if first in _CALIBRATED else calm
