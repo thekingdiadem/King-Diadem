@@ -583,6 +583,10 @@ VIOLENCE_BY = re.compile(
     r"(?i:\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,12}?\b(?:hits|beats|punches|kicks|slaps|chokes|strangles|burns|starves|whips|pushed|shoved|threw) me\b(?!\s+(?:why|how|what|at\s+(?:chess|cards|games?|tennis|racing|everything)|in\s+(?:chess|cards|games?|tennis|racing)|out\b|off\b|up\b))|"
     # รอบสุ่ม 141: แน่นหน้าอก (chest pressure/tightness) ของคนในบ้าน แม้เจ้าตัวจะบอกว่าแค่ลมในท้อง — เคยได้ 0 (ไทยได้ 85)
     r"(?i:\b(?:dad|father|mom|mother|husband|wife|grandpa|grandma|grandfather|grandmother|partner|he|she)\b[^\n]{0,12}?\b(?:has|having|feels?|complain\w*(?: of)?)\s+(?:a\s+)?(?:chest (?:pressure|tightness|heaviness)|crushing chest|pressure in (?:his|her) chest)\b(?!\s+(?:exercise|press|workout|stretch|machine)))|"
+    # รอบสุ่ม 142: สัญญาณเตือนก๊าซคาร์บอนมอนอกไซด์ดัง · ทุกคนในบ้านปวดหัวพร้อมกัน — เคยได้ 0 / 64
+    r"(?i:\b(?:co|carbon monoxide)\s+(?:alarm|detector)\b[^\n]{0,20}?\b(?:going off|beeping|is beeping|sounding|went off|keeps? beeping)\b)|"
+    r"(?i:\b(?:everyone|all of us|whole family|we all)\b[^\n]{0,24}?\b(?:headaches?|dizzy|nause\w*|throwing up)\b[^\n]{0,40}?\b(?:alarm|heater|generator|furnace|gas|stove|car running)\b)|"
+    r"(?:คนในบ้าน|ทุกคนในบ้าน|ทั้งบ้าน)[^\n]{0,10}?(?:ปวดหัว|เวียนหัว|คลื่นไส้|อาเจียน)(?:ทุกคน|พร้อมกัน)?[^\n]{0,24}?(?:กลิ่นแก๊ส|แก๊ส|เครื่องปั่นไฟ|เตา|ถ่าน|ปิดห้อง)|(?:กลิ่นแก๊ส|แก๊สรั่ว|เตาถ่าน|เครื่องปั่นไฟ)[^\n]{0,24}?(?:คนในบ้าน|ทุกคน|ทั้งบ้าน)[^\n]{0,10}?(?:ปวดหัว|เวียนหัว|คลื่นไส้|อาเจียน)|"
     # รอบสุ่ม 138: อาการบวมมาก่อน แล้วค่อยบอกว่ากินอะไร — "ตาบวมปิด ปากบวม หลังกินกุ้ง" เคยได้ 0 (อังกฤษได้ 85)
     r"(?:ปากบวม|หน้าบวม|ตาบวม(?:ปิด)?|คอบวม|ลิ้นบวม|หายใจลำบาก|หายใจไม่ออก|ผื่นขึ้นทั้งตัว)[^\n]{0,24}?(?:หลัง|ตั้งแต่|เพราะ)?(?:กิน|แพ้|โดน(?:ผึ้ง|ต่อ|แตน)ต่อย|ฉีดยา)|"
     # รอบสุ่ม 139: กินยาละลายลิ่มเลือดแล้วหัวกระแทก (เลือดออกในสมองได้แม้ดูปกติ) — เคยได้แค่ 75
