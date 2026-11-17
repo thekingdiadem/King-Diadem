@@ -19,3 +19,8 @@ def test_meaningless_life_and_farewell_letters_are_heard(q):
 ])
 def test_everyday_meaning_and_goodbyes_stay_calm(q):
     assert assess(q)["risk_shown"] < 60
+
+
+def test_tired_of_living_in_a_place_is_not_a_crisis():
+    """"cansado de vivir en esta ciudad" = เบื่อการอยู่ในเมืองนี้ ไม่ใช่อยากตาย (เทสต์เดิม test_passive_ideation_intl จับได้)"""
+    assert assess("Estoy cansada de vivir en esta ciudad tan cara")["risk_shown"] < 60
