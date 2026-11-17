@@ -339,7 +339,7 @@ _EN_SET = set(EN_UPGRADES)
 _THAI_RUN = re.compile(r"[\u0E00-\u0E7F]+")
 
 _UP_RISK = {"crisis": 95, "health_emergency": 85, "overdose": 85, "violence": 85, "sexual_abuse": 85,
-            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85, "intruder": 85, "forced_marriage": 85, "confined_space": 90, "home_ventilator": 85, "money_control": 65}
+            "trafficking": 85, "sextortion": 80, "threat": 70, "help": 60, "soft_check": 45, "online_grooming": 90, "scam": 60, "stranded": 60, "harm_others": 90, "first_aid": 75, "bribery": 60, "eating": 75, "missing": 80, "someone": 85, "intruder": 85, "forced_marriage": 85, "confined_space": 90, "car_water": 95, "co_poison": 90, "home_ventilator": 85, "money_control": 65}
 
 # บริบทที่บอกว่าคำน่ากลัวไม่ใช่เหตุตอนนี้ — ใช้เฉพาะเมื่อไม่มีคำบอกว่า "กำลังเกิด"
 DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
@@ -634,3 +634,28 @@ UPGRADES += [
                 r"(?![^\n]*(?:กลับบ้านเอง|เรียกรถ|นั่งรถ|ขับรถ|จ่ายเอง|ทำเอง|ไปเอง|ดูแลตัวเอง))(?:คืนนี้|พรุ่งนี้|อีกไม่นาน)[^\n]{0,10}?(?:จะ)?ไม่(?:เป็นภาระ|มีใครต้องเหนื่อย|ต้องมีใครเหนื่อย)\S{0,6}(?:อีก|เพราะฉัน|เพราะหนู|เพราะผม)|"
                 r"(?:ภาระ)[^\n]{0,20}?(?:คืนนี้|พรุ่งนี้|อีกไม่นาน)\S{0,6}(?:จะ)?ไม่(?:เป็นภาระ)\S{0,4}อีก"), "crisis"),
 ]
+
+# รอบ 137: น้ำตาลในเลือดต่ำในคนเป็นเบาหวาน · ตกเลือดหลังคลอด (อังกฤษ)
+UPGRADES += [
+    (re.compile(r"เบาหวาน[^\n]{0,40}?(?:เหงื่อแตก|ใจสั่น|มือสั่น|ตัวสั่น)[^\n]{0,24}?(?:พูดไม่รู้เรื่อง|สับสน|ซึม|เรียกไม่ตอบ|ชัก|หมดสติ|พูดไม่ชัด)|"
+                r"เบาหวาน[^\n]{0,40}?(?:พูดไม่รู้เรื่อง|สับสน|ซึม|เรียกไม่ตอบ|หมดสติ)[^\n]{0,24}?(?:เหงื่อแตก|ใจสั่น|มือสั่น|ตัวสั่น)|"
+                r"(?i:\bdiabet\w*\b[^\n]{0,40}?\b(?:sweat\w*|shak\w*|trembl\w*)\b[^\n]{0,30}?\b(?:confused|not\s+making\s+sense|slurr\w*|drowsy|unresponsive|seiz\w*)\b)"), "health_emergency"),
+    (re.compile(r"(?i:\b(?:just\s+)?(?:gave\s+birth|had\s+(?:a|my|the)\s+baby|delivered)\b[^\n]{0,30}?\b(?:bleeding\s+(?:won'?t|will\s+not|doesn'?t)\s+stop|heavy\s+bleeding|soaking\s+(?:a\s+)?pads?|large\s+clots)\b)"), "health_emergency"),
+]
+
+# รอบ 138: รถตกน้ำ · พิษคาร์บอนมอนอกไซด์ (คำตอบเฉพาะ — เดิมได้ "นั่งในท่าที่หายใจสบาย" ซึ่งทำให้คนยังอยู่ในห้องที่มีแก๊ส)
+# · เด็กติดในตู้แช่เก่า · เด็กปีนรั้วไฟฟ้าแล้วไม่ขยับ
+UPGRADES += [
+    (re.compile(r"รถ\S{0,6}(?:ตก|ลง|จม|ไถล(?:ลง)?)\S{0,4}(?:น้ำ|คลอง|แม่น้ำ|บ่อ|อ่าง|ทะเล)[^\n]{0,30}?(?:น้ำเข้า|ประตูเปิดไม่|ออกไม่ได้|จม|ติดอยู่)|"
+                r"(?i:\bcar\s+(?:went|drove|slid|plunged)\s+into\s+(?:the\s+|a\s+)?(?:water|canal|river|lake|pond|sea)\b|\b(?:car|vehicle)\s+is\s+sinking\b)"), "car_water"),
+    (re.compile(r"(?:เครื่องปั่นไฟ|เตาถ่าน|ติดเครื่องรถ|รถติดเครื่อง)[^\n]{0,30}?(?:ในบ้าน|ในห้อง|ในโรงรถ|ห้องปิด)[^\n]{0,30}?(?:ปวดหัว|คลื่นไส้|เวียนหัว|ซึม|หมดสติ|ปลุกไม่ตื่น)|"
+                r"(?:ปวดหัว|คลื่นไส้|เวียนหัว|ซึม|หมดสติ|ปลุกไม่ตื่น)[^\n]{0,30}?(?:เครื่องปั่นไฟ|เตาถ่าน)[^\n]{0,12}?(?:ในบ้าน|ในห้อง)|"
+                r"(?:นอน|หลับ)(?:อยู่)?ใน(?:รถ)[^\n]{0,20}?(?:ติดเครื่อง)[^\n]{0,20}?(?:โรงรถ(?:ปิด)?|ห้องปิด)[^\n]{0,16}?(?:ปลุกไม่ตื่น|หมดสติ|ไม่ตอบ)|"
+                r"(?i:\b(?:generator|charcoal\s+(?:stove|grill)|running\s+(?:car|engine))\b[^\n]{0,30}?\b(?:indoors|inside|in\s+the\s+(?:house|garage|room))\b|"
+                r"\b(?:headaches?|nausea|dizz\w*|drowsy)\b[^\n]{0,40}?\b(?:generator|charcoal)\b[^\n]{0,20}?\b(?:indoors|inside)\b|"
+                r"\basleep\s+in\s+a\s+running\s+car\b[^\n]{0,30}?\b(?:closed|shut)\s+garage\b)"), "co_poison"),
+    (re.compile(r"(?:ลูก|เด็ก|น้อง|หลาน)\S{0,10}(?:ติด|เข้าไป|ซ่อน|แอบ)\S{0,6}(?:ใน)?(?:ตู้แช่|ตู้เย็น(?:เก่า)?|ตู้เสื้อผ้า(?:ล็อก)?|หีบ|กล่องเก็บของ|ท้ายรถ)[^\n]{0,24}?(?:เปิดไม่ได้|ออกไม่ได้|ล็อก|หายใจ)|"
+                r"(?:ปีน|จับ|แตะ)\S{0,4}รั้วไฟฟ้า[^\n]{0,20}?(?:ไม่ขยับ|หมดสติ|ไม่หายใจ|ล้ม)"), "health_emergency"),
+]
+# ล้างรถ/ฝนรั่วนิดหน่อย ไม่ใช่น้ำท่วม — "ล้างรถเสร็จแล้ว น้ำเข้ารถนิดหน่อย" เคยได้การ์ดน้ำท่วม 64
+DOWNGRADES.append((re.compile(r"ล้างรถ|คาร์แคร์|(?:น้ำ|ฝน)\S{0,6}(?:เข้า|รั่ว)\S{0,6}(?:รถ|ห้อง)\S{0,4}นิดหน่อย|(?i:\bcar\s+wash\b)"), ("disaster",)))
