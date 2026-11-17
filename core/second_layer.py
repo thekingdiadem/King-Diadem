@@ -298,6 +298,15 @@ UPGRADES += [
 # รอบสุ่ม 89: แรงงานประมงถูกบังคับบนเรือ (อังกฤษ) — เคยได้ 0
 UPGRADES += [(re.compile(r"(?i:\bforced\s+to\s+work\s+on\s+(?:the|a)\s+(?:boat|ship|vessel)\b|\bhaven'?t\s+been\s+(?:ashore|on\s+land)\s+in\s+\d+\s+(?:months|weeks)\b)"), "trafficking")]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
+# รอบสุ่ม 149: ผู้ใหญ่แปลกหน้าขอรูป (โป๊) จากเด็ก ใน es zh ko ja — เคยได้ 0 (vi ได้ 85 อยู่แล้ว)
+# ต้องมีครบ: เด็ก/อายุต่ำกว่า 18 + คนแปลกหน้า/ผู้ใหญ่ + ขอรูป
+_KID_INTL = r"(?:hij[oa]|niñ[oa]|\b(?:1[0-7]|[5-9])\s*años|女儿|儿子|孩子|(?:1[0-7]|[5-9])岁|열\s*\S{0,2}\s*살|(?:1[0-7]|[5-9])\s*살|딸|아들|娘|息子|子ども|子供|(?:1[0-7]|[5-9])歳)"
+_ASK_INTL = (r"(?:adulto|desconocid[oa]|hombre|señor|extrañ[oa])[^.!?\n]{0,30}(?:le\s+)?pide\s+(?:fotos|im[áa]genes)|"
+             r"(?:陌生人|成年人|网友|網友|大人)[^。！？\n]{0,12}(?:要|索要|要求)[^。！？\n]{0,6}(?:裸照|照片|私密照)|"
+             r"(?:모르는\s*(?:어른|사람|남자)|낯선\s*(?:어른|사람))[가-힯\s]{0,12}(?:사진을?\s*(?:요구|보내\s*달라)|알몸|나체)|"
+             r"(?:知らない|見知らぬ)(?:大人|人|男)[^。！？\n]{0,12}(?:写真|画像)を?(?:要求|送って|送れ|ほしい)")
+UPGRADES += [(re.compile(r"(?s)(?=.*" + _KID_INTL + r")(?=.*(?:" + _ASK_INTL + r"))", re.I), "online_grooming")]
+
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
 _WATCHING = re.compile(r"(?:ซ้อม|เล่น|แสดง|ถ่าย)\S{0,2}?ละคร(?:เวที)?\S{0,8}?(?:อยู่|กับ|ด้วยกัน)|(?:ดู|นั่งดู|เปิด|นอนดู)\S{0,4}?(?:ซีรีส์|ละคร|สารคดี|หนัง|ทีวี)\S{0,12}?(?:อยู่|กับ|ด้วยกัน|ไป)|อ่านข่าวอยู่|"
