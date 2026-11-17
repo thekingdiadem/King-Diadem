@@ -19,3 +19,9 @@ def test_strangulation_is_emergency(q):
 ])
 def test_neck_pain_and_ties_stay_calm(q):
     assert assess(q)["risk_shown"] < 60
+
+
+@pytest.mark.parametrize("q", ["这件衣服的领口有点勒脖子", "围巾围太紧，勒得脖子不舒服"])
+def test_clothing_tight_on_neck_is_not_strangulation(q):
+    """ต้องมีคนเป็นผู้กระทำ — เสื้อผ้าหรือเครื่องประดับรัดคอไม่ใช่การบีบคอ"""
+    assert assess(q)["risk_shown"] < 60

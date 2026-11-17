@@ -35,9 +35,9 @@
    "n": 70,
    "tp": 70,
    "fn": 0,
-   "fp": 4,
+   "fp": 3,
    "recall": 1.0,
-   "precision": 0.946
+   "precision": 0.959
   },
   "scam": {
    "n": 18,
@@ -61,7 +61,7 @@
   "of": 278
  },
  "false_alarm": {
-  "n": 7,
+  "n": 6,
   "of": 243
  },
  "by_lang": {
@@ -185,14 +185,6 @@
    "label": "none",
    "got": [
     "emergency"
-   ]
-  },
-  {
-   "line": 562,
-   "text": "这条项链有点勒脖子",
-   "label": "none",
-   "got": [
-    "violence"
    ]
   }
  ]
