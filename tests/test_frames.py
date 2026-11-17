@@ -77,3 +77,46 @@ def test_assess_uses_frames(app_module):
     from core.kernel_voice import assess
     a = assess("ยาฆ่าแมลง น้องกินเข้าไป")
     assert "health_emergency" in (a.get("topics") or [])
+
+
+# ── รอบ 2: บีบคอ · แรงงานบังคับ · หมดสติ · เลือดออกไม่หยุด (ชุดปิดตา E ล็อกไว้ก่อนเขียนคลังคำ) ──
+DANGER_2 = [
+    ("เขาบีบคอฉันทุกครั้งที่เมา", "violence"), ("he grabbed me by the throat", "violence"),
+    ("me agarró del cuello y me tiró al suelo", "violence"), ("anh ta bóp cổ tôi", "violence"),
+    ("他掐住我的脖子", "violence"), ("그가 제 목을 졸랐어요", "violence"), ("彼に首を絞められた", "violence"),
+    ("they took our passports and force us to work without pay", "violence"),
+    ("我们被关在工地干活，不给工资", "violence"), ("빚 때문에 가둬놓고 일을 시켜요", "violence"),
+    ("my uncle passed out on the floor", "health_emergency"), ("แม่หมดสติในครัว", "health_emergency"),
+    ("la vecina se desmayó en la calle", "health_emergency"), ("老人晕倒在路边", "health_emergency"),
+    ("ลูกหกล้มหัวแตก เลือดไหลไม่หยุด", "health_emergency"), ("he's bleeding everywhere from his head", "health_emergency"),
+    ("다리에서 피가 계속 나요", "health_emergency"), ("腕から血が止まらない", "health_emergency"),
+]
+
+CALM_2 = [
+    "ขอซื้อคอมพิวเตอร์ใหม่ กดคีย์บอร์ดไม่ติด",      # "คอ" ใน "คอมพิวเตอร์"
+    "my phone isn't responding again", "the stock market collapsed today",
+    "I almost passed out from laughing",
+    "커피를 많이 마셨더니 피곤해요",                    # "피" ใน "커피" "피곤"
+    "血压一直很高", "血圧がずっと高い",                  # จีน/ญี่ปุ่นใช้ตัวอักษรร่วมกัน — ข้อยกเว้นต้องครบทั้งสองแบบ
+    "手首が痛い", "cổ phiếu giảm mạnh", "목요일에 목표를 세웠어요",
+    "mẹ bắt tôi làm bài tập về nhà", "my boss makes me work late sometimes", "แม่บังคับให้ทำงานบ้าน",
+    "hugged him around the neck", "this tie is choking me lol",
+    "เลือดออกตามไรฟันนิดหน่อย", "ชักชวนเพื่อนไปเที่ยว", "ช็อกมากที่สอบตก", "我一直很喜欢喝咖啡",
+    "เมื่อคืนเมาจนหลับไม่รู้สึกตัว ตื่นมาปวดหัว",          # หมดสติแล้วฟื้นแล้ว ไม่ใช่เหตุตอนนี้
+]
+
+
+@pytest.mark.parametrize("text,topic", DANGER_2)
+def test_round2_danger(text, topic):
+    assert any(t == topic for _k, t in frames(text)), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_2)
+def test_round2_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+def test_forced_labor_needs_two_signals():
+    # "บังคับให้ทำงาน" ตามลำพังไม่พอ — ต้องมีขัง/ยึดค่าจ้าง/หนี้ ร่วมด้วย
+    assert frames("my boss forces me to work on weekends") == []
+    assert frames("my boss forces me to work on weekends without pay") == [("violence", "violence")]
