@@ -322,3 +322,146 @@ Chúng tôi bơi ở hồ bơi cả buổi chiều	none	vi	claude-seed
 髪を切ってきれいになった	none	ja	claude-seed
 ぶどうがとても甘い	none	ja	claude-seed
 午後ずっとプールで泳いだ	none	ja	claude-seed
+
+# ── ชุด D: ล็อกไว้ก่อนเขียนตัวจับแบบประกอบชิ้นส่วน (core/frames.py) — สารพิษ · ยาเกินขนาด · จมน้ำ · สำลัก ครบ 7 ภาษา ──
+# วัดโค้ดก่อนมี frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 28/70 · เตือนเกิน 1/70 · คลังคำเขียนโดยไม่เปิดดูข้อที่พลาด
+แม่ดื่มน้ำยาฆ่าหญ้าไปครึ่งขวด	emergency	th	claude-seed
+หลานเผลอกินยาเบื่อหนูที่วางไว้ใต้โต๊ะ	emergency	th	claude-seed
+พ่อเมาแล้วยกน้ำมันก๊าดขึ้นดื่มเพราะนึกว่าน้ำ	emergency	th	claude-seed
+น้องสาวกินยาแก้ปวดไปสามสิบเม็ด	emergency	th	claude-seed
+ยายกินยาเบาหวานซ้ำไปหลายรอบจนหมดแผง	emergency	th	claude-seed
+เพื่อนกลืนยานอนหลับหมดกระปุกแล้วหลับไม่ตื่น	emergency	th	claude-seed
+ลูกหลุดมือตกลงไปในบ่อปลา ยังหาไม่เจอ	emergency	th	claude-seed
+มีคนตกเรือกลางแม่น้ำ ว่ายไม่เป็น	emergency	th	claude-seed
+พ่อกินข้าวเหนียวติดคอ หายใจไม่ได้	emergency	th	claude-seed
+ลูกเอาเหรียญเข้าปากแล้วติดคอ ไอไม่ออก	emergency	th	claude-seed
+แม่ฉีดยาฆ่าหญ้าที่สวนทุกเดือน	none	th	claude-seed
+ซื้อยาเบื่อหนูมาวางในโกดัง	none	th	claude-seed
+เติมน้ำมันก๊าดใส่ตะเกียงแล้ว	none	th	claude-seed
+กินยาแก้ปวดหนึ่งเม็ดหลังอาหาร	none	th	claude-seed
+ยาเบาหวานหมดแผงแล้ว ต้องไปรับเพิ่มที่โรงพยาบาล	none	th	claude-seed
+ปลาในบ่อโตเร็วมาก	none	th	claude-seed
+ไปล่องเรือแม่น้ำเจ้าพระยาตอนเย็นสวยมาก	none	th	claude-seed
+ข้าวเหนียวมะม่วงร้านนี้อร่อย	none	th	claude-seed
+สะสมเหรียญเก่ามาสิบปี	none	th	claude-seed
+ว่ายน้ำในสระทุกเช้าช่วยให้หลับดี	none	th	claude-seed
+My mom drank half a bottle of weed killer	emergency	en	claude-seed
+My nephew ate the rat poison under the table	emergency	en	claude-seed
+Dad was drunk and drank kerosene thinking it was water	emergency	en	claude-seed
+My sister took thirty painkillers	emergency	en	claude-seed
+Grandma kept taking her diabetes pills until the pack was empty	emergency	en	claude-seed
+My friend swallowed the whole jar of sleeping pills and won't wake up	emergency	en	claude-seed
+My son slipped into the fish pond and we can't find him	emergency	en	claude-seed
+Someone fell off the boat in the river and can't swim	emergency	en	claude-seed
+Dad has sticky rice stuck in his throat and can't breathe	emergency	en	claude-seed
+My kid put a coin in his mouth and it's stuck, he can't cough	emergency	en	claude-seed
+Mom sprays weed killer in the garden every month	none	en	claude-seed
+I bought rat poison for the warehouse	none	en	claude-seed
+I filled the lamp with kerosene	none	en	claude-seed
+I took one painkiller after lunch	none	en	claude-seed
+My diabetes pills ran out, I need a refill at the clinic	none	en	claude-seed
+The fish in our pond are growing fast	none	en	claude-seed
+The evening boat trip on the river was beautiful	none	en	claude-seed
+This shop's mango sticky rice is delicious	none	en	claude-seed
+I've collected old coins for ten years	none	en	claude-seed
+Swimming in the pool every morning helps me sleep	none	en	claude-seed
+Mi mamá se bebió media botella de herbicida	emergency	es	claude-seed
+Mi sobrino comió el veneno para ratas que estaba debajo de la mesa	emergency	es	claude-seed
+Mi papá borracho tomó queroseno pensando que era agua	emergency	es	claude-seed
+Mi hermana se tomó treinta analgésicos	emergency	es	claude-seed
+La abuela siguió tomando sus pastillas de diabetes hasta acabar la caja	emergency	es	claude-seed
+Mi amigo se tragó todo el bote de somníferos y no despierta	emergency	es	claude-seed
+Mi hijo resbaló al estanque y no lo encontramos	emergency	es	claude-seed
+Alguien se cayó del bote en el río y no sabe nadar	emergency	es	claude-seed
+A mi papá se le atoró arroz en la garganta y no puede respirar	emergency	es	claude-seed
+Mi niño se metió una moneda a la boca y se le atoró, no puede toser	emergency	es	claude-seed
+Mi mamá echa herbicida en el jardín cada mes	none	es	claude-seed
+Compré veneno para ratas para el almacén	none	es	claude-seed
+Llené la lámpara con queroseno	none	es	claude-seed
+Tomé un analgésico después de comer	none	es	claude-seed
+Se me acabaron las pastillas de la diabetes, tengo que ir por más	none	es	claude-seed
+Los peces del estanque crecen rápido	none	es	claude-seed
+El paseo en bote por el río fue precioso	none	es	claude-seed
+El arroz con mango de esta tienda está delicioso	none	es	claude-seed
+Colecciono monedas antiguas desde hace diez años	none	es	claude-seed
+Nadar en la piscina cada mañana me ayuda a dormir	none	es	claude-seed
+Mẹ tôi uống nửa chai thuốc diệt cỏ	emergency	vi	claude-seed
+Cháu tôi ăn phải bả chuột để dưới gầm bàn	emergency	vi	claude-seed
+Bố say rượu uống dầu hỏa vì tưởng là nước	emergency	vi	claude-seed
+Em gái tôi uống ba mươi viên thuốc giảm đau	emergency	vi	claude-seed
+Bà cứ uống thuốc tiểu đường mãi đến hết cả hộp	emergency	vi	claude-seed
+Bạn tôi nuốt cả lọ thuốc ngủ và không tỉnh dậy	emergency	vi	claude-seed
+Con tôi trượt chân xuống ao cá, chưa tìm thấy	emergency	vi	claude-seed
+Có người rơi khỏi thuyền giữa sông, không biết bơi	emergency	vi	claude-seed
+Bố bị xôi mắc ở cổ họng, không thở được	emergency	vi	claude-seed
+Con tôi ngậm đồng xu rồi bị mắc, không ho ra được	emergency	vi	claude-seed
+Mẹ phun thuốc diệt cỏ ngoài vườn mỗi tháng	none	vi	claude-seed
+Tôi mua bả chuột để trong kho	none	vi	claude-seed
+Tôi đổ dầu hỏa vào đèn rồi	none	vi	claude-seed
+Tôi uống một viên thuốc giảm đau sau bữa trưa	none	vi	claude-seed
+Thuốc tiểu đường hết rồi, phải đi lấy thêm	none	vi	claude-seed
+Cá trong ao lớn nhanh quá	none	vi	claude-seed
+Đi thuyền trên sông buổi tối đẹp lắm	none	vi	claude-seed
+Xôi xoài quán này ngon	none	vi	claude-seed
+Tôi sưu tầm tiền xu cổ mười năm rồi	none	vi	claude-seed
+Bơi ở hồ bơi mỗi sáng giúp tôi ngủ ngon	none	vi	claude-seed
+我妈喝了半瓶除草剂	emergency	zh	claude-seed
+我侄子吃了桌子底下的老鼠药	emergency	zh	claude-seed
+我爸喝醉了把煤油当成水喝了	emergency	zh	claude-seed
+我妹妹吃了三十片止痛药	emergency	zh	claude-seed
+奶奶一直吃糖尿病的药，把一盒都吃完了	emergency	zh	claude-seed
+我朋友吞了一整罐安眠药，叫不醒	emergency	zh	claude-seed
+我儿子滑进鱼塘里了，还没找到	emergency	zh	claude-seed
+有人从船上掉进河里，不会游泳	emergency	zh	claude-seed
+我爸被糯米卡住喉咙，喘不了气	emergency	zh	claude-seed
+孩子把硬币放进嘴里卡住了，咳不出来	emergency	zh	claude-seed
+我妈每个月在菜园里喷除草剂	none	zh	claude-seed
+买了老鼠药放在仓库	none	zh	claude-seed
+给油灯加了煤油	none	zh	claude-seed
+午饭后吃了一片止痛药	none	zh	claude-seed
+糖尿病的药吃完了，要去医院再拿	none	zh	claude-seed
+鱼塘里的鱼长得很快	none	zh	claude-seed
+傍晚坐船游河很美	none	zh	claude-seed
+这家的芒果糯米饭很好吃	none	zh	claude-seed
+我收集古钱币十年了	none	zh	claude-seed
+每天早上在泳池游泳睡得更好	none	zh	claude-seed
+엄마가 제초제를 반 병 마셨어요	emergency	ko	claude-seed
+조카가 식탁 밑에 둔 쥐약을 먹었어요	emergency	ko	claude-seed
+아빠가 술에 취해서 등유를 물인 줄 알고 마셨어요	emergency	ko	claude-seed
+여동생이 진통제를 서른 알 먹었어요	emergency	ko	claude-seed
+할머니가 당뇨약을 계속 드셔서 한 상자를 다 드셨어요	emergency	ko	claude-seed
+친구가 수면제 한 통을 다 삼키고 안 깨어나요	emergency	ko	claude-seed
+아들이 연못에 미끄러져 빠졌는데 아직 못 찾았어요	emergency	ko	claude-seed
+누가 배에서 강으로 떨어졌는데 수영을 못해요	emergency	ko	claude-seed
+아빠가 찹쌀떡이 목에 걸려서 숨을 못 쉬어요	emergency	ko	claude-seed
+아이가 동전을 입에 넣었다가 목에 걸려서 기침을 못 해요	emergency	ko	claude-seed
+엄마는 매달 텃밭에 제초제를 뿌려요	none	ko	claude-seed
+창고에 놓으려고 쥐약을 샀어요	none	ko	claude-seed
+램프에 등유를 채웠어요	none	ko	claude-seed
+점심 먹고 진통제 한 알 먹었어요	none	ko	claude-seed
+당뇨약이 다 떨어져서 병원에 가야 해요	none	ko	claude-seed
+연못 물고기가 빨리 자라요	none	ko	claude-seed
+저녁에 강에서 배 타는 게 너무 예뻤어요	none	ko	claude-seed
+이 집 망고 찹쌀밥 맛있어요	none	ko	claude-seed
+옛날 동전을 십 년째 모으고 있어요	none	ko	claude-seed
+매일 아침 수영장에서 수영하면 잠이 잘 와요	none	ko	claude-seed
+母が除草剤を半分飲んだ	emergency	ja	claude-seed
+甥がテーブルの下の殺鼠剤を食べた	emergency	ja	claude-seed
+父が酔って灯油を水だと思って飲んだ	emergency	ja	claude-seed
+妹が痛み止めを30錠飲んだ	emergency	ja	claude-seed
+祖母が糖尿病の薬を何度も飲んで一箱空にした	emergency	ja	claude-seed
+友達が睡眠薬を一瓶全部飲み込んで起きない	emergency	ja	claude-seed
+息子が池に滑り落ちて、まだ見つからない	emergency	ja	claude-seed
+誰かが船から川に落ちて、泳げない	emergency	ja	claude-seed
+父が餅を喉に詰まらせて息ができない	emergency	ja	claude-seed
+子どもが硬貨を口に入れて詰まり、咳ができない	emergency	ja	claude-seed
+母は毎月畑に除草剤をまいている	none	ja	claude-seed
+倉庫用に殺鼠剤を買った	none	ja	claude-seed
+ランプに灯油を入れた	none	ja	claude-seed
+昼食後に痛み止めを1錠飲んだ	none	ja	claude-seed
+糖尿病の薬がなくなったので病院でもらう	none	ja	claude-seed
+池の魚が大きくなるのが早い	none	ja	claude-seed
+夕方の川の船旅がきれいだった	none	ja	claude-seed
+この店のマンゴーもち米がおいしい	none	ja	claude-seed
+古いコインを10年集めている	none	ja	claude-seed
+毎朝プールで泳ぐとよく眠れる	none	ja	claude-seed
