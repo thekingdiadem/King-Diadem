@@ -176,6 +176,17 @@ SELF_HARM_MASKED = tuple(re.compile(r"(?is)^" + _MASK_NOT + r"(?=.*(?:" + a_ + r
 # "พรุ่งนี้ไม่เห็นออนไลน์ ไม่ต้องตามหา" นับได้โดยไม่ต้องมีคำปลอบ ("ไม่ต้องหาในงานปาร์ตี้" ไม่นับ) · ไปเที่ยว/ไม่มีสัญญาณไม่นับ
 SELF_HARM_MASKED += (re.compile(r"(?is)^" + _MASK_NOT + r"(?=.*(?:明日|明天|내일|mañana|ngày\s+mai|\bmai\b))(?=.*(?:オンライン|在线|在線|접속|conectad|online))"
                                r".*(?:探さないで|别找我|別找我|찾지\s*마|no\s+me\s+busques|đừng\s+tìm)"),)
+# เวียดนามแบบอ้อม (เทียบ 7 ภาษา 2026-11): เดิมรู้จักแค่ "tỉnh dậy" ไม่รู้จัก "thức dậy" (คำที่ใช้บ่อยกว่า)
+# และ "ทุกคนจะดีขึ้นถ้าไม่มีฉัน" ซึ่งภาษาอื่นจับได้แล้ว — ต้องมี "ทุกคน/ครอบครัว" ไม่นับ "ทีมจะดีขึ้นถ้าไม่มีฉันเล่น"
+SELF_HARM_PASSIVE += (re.compile(r"không\s+muốn\s+(?:thức|tỉnh)\s+dậy\s+nữa|(?:mọi\s+người|cả\s+nhà|ai\s+cũng|gia\s+đình)[^.!?\n]{0,20}(?:tốt\s+hơn|nhẹ\s+nhõm|sướng\s+hơn|bớt\s+khổ)"
+                                 r"[^.!?\n]{0,15}(?:nếu\s+)?(?:không\s+có|thiếu|vắng)\s+(?:tôi|mình|em|con|tao)\b", re.I),)
+# ชุดตรวจซ้ำ (ข้อความที่ไม่เคยเห็น) ยังหลุด: es "me voy a quitar la vida" (เดิมรู้จักแค่ quitarme ติดกัน)
+# · es/ja "ครอบครัวคงสบายขึ้นถ้าไม่มีฉัน" · vi "kết liễu đời mình" (ปลิดชีวิตตัวเอง) · ja "もう目覚めたくない"
+SELF_HARM_PASSIVE += (
+    re.compile(r"\bme\s+(?:\w+\s+){0,3}?quitar\s+la\s+vida\b|(?:alivio|mejor|m[áa]s\s+felices|m[áa]s\s+tranquil[oa]s)[^.!?\n]{0,40}\bsi\s+(?:yo\s+)?(?:ya\s+)?no\s+(?:estuviera|existiera|estuviese)\b", re.I),
+    re.compile(r"kết\s+liễu\s+(?:đời|cuộc\s+đời|bản\s+thân|mạng\s+sống)|tự\s+kết\s+liễu|kết\s+thúc\s+(?:cuộc\s+đời|cuộc\s+sống|mạng\s+sống)\s+(?:của\s+)?(?:mình|tôi|em)\b", re.I),
+    re.compile(r"(?:私|僕|俺|自分|わたし)が(?:いなくなれば|いなくなったら|いない方が|消えれば|消えたら|死ねば|死んだら)[^。！？\n]{0,12}(?:楽になる|幸せになる|助かる|喜ぶ)|もう目覚めたくない"),
+)
 SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_PASSIVE + SELF_HARM_INDIRECT + SELF_HARM_MASKED   # ผู้ใช้ทุกที่ (kernel_voice วิกฤต · llm_gemini ความปลอดภัย) ได้แบบอ้อมด้วย
 
 
@@ -468,6 +479,60 @@ _more("violence", "ja", r"(?:夜中|深夜|真夜中)[^。！？\n]{0,10}(?:知�
 _more("medical", "vi", r"(?:con|bé|cháu)\s+(?:tôi\s+|mình\s+)?(?:nuốt|nuốt\s+phải)\s+(?:viên\s+)?pin")
 _more("medical", "ja", r"(?:母|父|祖母|祖父|おばあちゃん|おじいちゃん)[^。！？\n]{0,6}(?:転んで|倒れて)[^。！？\n]{0,6}(?:起き上がれない|立てない|動けない)")
 
+# ── เทียบ 7 ภาษาด้วยเรื่องเดียวกัน 8 เรื่อง (2026-11): ไทย/อังกฤษจับได้ 16/16 แต่ es vi zh ko ja ได้ 21/40
+# ทุกข้อที่หลุดได้ Risk 0 และคำตอบไม่มีเบอร์ฉุกเฉินเลย — เช่นคนเกาหลีพิมพ์ "ลูกสองขวบดื่มน้ำยาล้างห้องน้ำ" ได้คำตอบคุยทั่วไป
+# เขียนตาม "ความหมาย" ไม่ใช่ตามประโยคทดสอบ: (กริยา ทุกบุคคล) + (คำคั่นได้) + (สิ่งที่บอกว่าอันตราย)
+# ข้อที่แก้อยู่ใน tests/corpus/messages.tsv (หมวด ภาษาอื่น:เทียบ7ภาษา) · ชุดที่เขียนหลังแก้และไม่ได้จูนตามอยู่ใน tests/blind/blind.tsv
+# กินยาเกินขนาด — เดิม es มีแค่ "se tomó" (เขา) ไม่มี "me tomé" (ฉัน) · zh มีแค่ 吃 ไม่มี 吞/服 · ko ต้องมี 약을 ติดกัน
+_more("medical", "es", r"\b(?:me\s+)?(?:tom|trag|beb)\w*\b[^.!?\n]{0,25}?\b(?:frasco|caja|bote|bl[íi]ster|tira|todas?\s+las|un\s+mont[óo]n\s+de|un\s+pu[ñn]ado\s+de|much[ao]s)\b"
+                      r"[^.!?\n]{0,20}?\b(?:pastillas|p[íi]ldoras|medicamentos?|medicinas?|somn[íi]feros|ansiol[íi]ticos|calmantes|analg[ée]sicos|paracetamol|ibuprofeno)\b")
+_more("medical", "zh", r"(?<!不要)(?<!别)(?<!別)(?:吞|吃|服|喝)(?:了|下|掉)?[^。！？\n]{0,4}?(?:一整瓶|整瓶|一瓶|一大把|一把|好多|很多|大量|一整盒|整盒|一盒|全部|所有|几十[颗粒片])(?:的)?[^。！？\n]{0,4}?"
+                      r"(?:药|藥|安眠药|安眠藥|药片|藥片|止痛药|止痛藥|退烧药|退燒藥|镇静剂|鎮靜劑)")
+_more("medical", "ko", r"(?:수면제|약|진통제|알약|타이레놀|신경안정제|해열제|우울증\s*약)[을를]?\s*(?:한\s*(?:통|병|봉지|상자|갑|움큼)|통째로|전부|다|많이)[가-힯\s]{0,4}?(?:을|를)?\s*(?:다\s*)?(?:먹었|삼켰|털어\s*넣|먹어\s*버렸|삼켜\s*버렸)")
+_more("medical", "ja", r"(?:睡眠薬|薬|錠剤|風邪薬|鎮痛剤|精神安定剤|解熱剤)を?[^。！？\n]{0,4}?(?:一瓶|ひと瓶|一箱|ひと箱|丸ごと|一シート|全部|大量に?|たくさん)[^。！？\n]{0,4}?(?:飲ん|飲み込ん|飲みこん)")
+# ดื่ม/กลืนสารเคมีในบ้าน — เดิม zh ko ja ต้องขึ้นต้นด้วย "ลูก/เด็ก" และรู้จักไม่กี่ชนิด · ผู้ใหญ่ดื่มก็อันตรายเท่ากัน จึงไม่จำกัดว่าใคร
+_more("medical", "es", r"\b(?:bebi[óo]|beb[íi]|tom[óo]|tom[ée]|trag[óo]|tragu[ée]|se\s+(?:bebi[óo]|tom[óo]|trag[óo]))\s+(?:un\s+poco\s+de\s+|algo\s+de\s+|del?\s+|el\s+|la\s+)?"
+                      r"(?:limpiador|desinfectante|desatascador|destapacaños|amon[íi]aco|cloro|lej[íi]a|detergente|suavizante|raticida|veneno\s+para\s+ratas|insecticida|pesticida|herbicida|gasolina|queroseno|aguarr[áa]s|soda\s+c[áa]ustica|anticongelante)")
+_more("medical", "zh", r"(?<!不要)(?<!别)(?<!別)(?<!防止)(?<!避免)(?:喝|吃|吞|舔)(?:了|下|到)?(?:一?[口点點些])?[^。！？\n]{0,6}?"
+                      r"(?:清洁剂|清潔劑|洁厕|潔廁|马桶清洁|馬桶清潔|洗洁精|洗潔精|消毒液|消毒水|漂白水|漂白剂|漂白劑|农药|農藥|杀虫剂|殺蟲劑|老鼠药|老鼠藥|鼠药|除草剂|百草枯|汽油|煤油|洗衣液|洗衣凝珠|防冻液)")
+_more("medical", "ko", r"(?:세제|세정제|락스|표백제|농약|살충제|제초제|쥐약|부동액|휘발유|등유|소독약|소독제|유연제|캡슐\s*세제)[을를]?\s*(?:조금\s*|좀\s*|한\s*모금\s*)?(?:마셨|먹었|삼켰|핥았|마셔\s*버렸|먹어\s*버렸)")
+_more("medical", "ja", r"(?:洗剤|漂白剤|ハイター|カビキラー|洗浄剤|殺虫剤|農薬|除草剤|灯油|ガソリン|防虫剤|消毒液|柔軟剤|ジェルボール|不凍液)を?[^。！？\n]{0,4}?(?:飲ん|飲み込ん|飲みこん|口に入れ|なめ|舐め|食べ)(?:だ|で|て|た|ちゃ|しまっ)")
+# ไม่นับเรื่องแต่ง: ทั้งประโยคต้องไม่มีคำว่าหนัง/ฉาก/ซีรีส์/เกม/นิยาย — ชุดตรวจซ้ำเจอ "ฉากเลือดพุ่งในหนัง" ถูกตัดสินว่าวิกฤต 4 ภาษา
+# ใช้ (?:^|(?<=จบประโยค)) ยึดต้นประโยค แล้วดูทั้งประโยค — lookahead ธรรมดามองไม่เห็นคำที่อยู่ก่อน ("映画で血が…")
+_FICTION = {"es": r"pel[íi]cula|serie|escena|videojuego|juego|novela|libro|anime|cap[íi]tulo|tr[áa]iler|cine",
+            "vi": r"phim|cảnh\s+(?:quay|phim|này)|truyện|game|trò\s+chơi|tiểu\s+thuyết|anime",
+            "zh": r"电影|電影|镜头|鏡頭|电视剧|電視劇|剧里|劇裡|剧情|劇情|游戏|遊戲|小说|小說|动漫|動漫|场景|場景|画面|畫面",
+            "ko": r"영화|장면|드라마|게임|소설|웹툰|애니|만화",
+            "ja": r"映画|シーン|ドラマ|ゲーム|小説|漫画|マンガ|アニメ|場面|話|ニュース"}
+
+
+def _real(lang: str, rx: str) -> str:
+    return r"(?:^|(?<=[.!?。！？\n]))(?![^.!?。！？\n]*(?:" + _FICTION[lang] + r"))[^.!?。！？\n]*?(?:" + rx + r")"
+
+
+# เลือดออกไม่หยุด — เดิมต้องเป็นวลีติดกันพอดี ("出血が止まらない" "피가 멈추지 않") มีคำคั่นกลางก็หลุด
+_more("medical", "es", _real("es", r"\bsangr(?:e|a|ando)\b[^.!?\n]{0,30}?\b(?:a\s+chorros|chorrea|brota|no\s+(?:para|se\s+detiene|deja\s+de\s+salir|se\s+para)|sin\s+parar)|\bno\s+(?:para|deja)\s+de\s+sangrar"))
+_more("medical", "vi", _real("vi", r"máu\s+(?:phun|chảy|tuôn|ra)[^.!?\n]{0,20}?(?:không\s+(?:ngừng|cầm\s+được|dừng)|mãi\s+không\s+cầm|xối\s+xả|thành\s+tia)|chảy\s+máu\s+(?:không\s+(?:ngừng|cầm\s+được|dừng)|quá\s+nhiều)|cầm\s+máu\s+không\s+được|không\s+cầm\s+(?:được\s+)?máu"))
+_more("medical", "zh", _real("zh", r"血[^。！？\n]{0,6}?(?:喷|噴|涌|湧|冒|流)(?:出来|出來|个不停|個不停|不止)?[^。！？\n]{0,6}?(?:止不住|停不下来|停不下來|不停|不止)|血止不住|止不住(?:血|地流血)"))
+_more("medical", "ko", _real("ko", r"피가\s*[가-힯\s]{0,15}?(?:멈추지\s*않|안\s*멈추|안\s*멈춰|계속\s*(?:나|흘러|흐르)|뿜어져|솟구|철철)|출혈이\s*[가-힯\s]{0,8}?(?:심해|멈추지|안\s*멈)|지혈이\s*안"))
+_more("medical", "ja", _real("ja", r"血が[^。！？\n]{0,12}?(?:噴き出|吹き出|噴出|止まらな|ドクドク|あふれ|溢れ)|出血が[^。！？\n]{0,8}?(?:止まらな|ひどい)"))
+# อาการหัวใจ — เดิมต้องมี "เจ็บหน้าอก" ติดกันพอดี ("đau thắt ngực" "가슴이 짓눌리듯 아프" "胸が締め付けられるように痛" หลุด)
+_more("medical", "vi", _real("vi", r"(?:đau\s+(?:thắt\s+|tức\s+|nhói\s+)?ngực|tức\s+ngực)[^.!?\n]{0,30}(?:lan|tay\s+trái|vã\s+mồ\s+hôi|đổ\s+mồ\s+hôi|mồ\s+hôi\s+lạnh|khó\s+thở)"))
+_more("medical", "ko", _real("ko", r"가슴이?\s*[가-힯\s]{0,10}?(?:아프|아파|조이|조여|짓눌|쥐어짜)[가-힯\s]{0,20}?(?:식은땀|땀이|왼팔|왼쪽\s*팔|숨이|턱까지)"))
+_more("medical", "ja", _real("ja", r"胸が?[^。！？\n]{0,12}?(?:痛|苦し|締め付け|しめつけ|圧迫|押しつぶ)[^。！？\n]{0,20}?(?:冷や汗|汗|左腕|左肩|顎|息が)"))
+# ถูกทำร้าย/กักขังในบ้าน (ko) — เดิมรู้จักแค่ "때려요/때렸어" และ "갇혀 있" · ไม่นับตียุง/แมลง/กลอง
+_more("violence", "ko", r"(?:남편|아내|남자\s*친구|여자\s*친구|남친|여친|애인|아빠|엄마|오빠|형|시어머니|시아버지|그\s*사람)(?:이|가|은|는)?\s*(?:(?!모기|파리|벌레|공을|북을|드럼)[가-힯\s]){0,10}?(?:때리|때려|때렸|폭행|발로\s*차|목을\s*조)"
+                        r"|(?:저를|나를|날|절)\s*(?:방에\s*|집에\s*)?(?:가둬|가두|가뒀|감금)|(?:방|집|창고|지하실)에\s*(?:저를|나를|날)?\s*(?:가둬|가두|가뒀)")
+# ยึดพาสปอร์ต/ขัง (es ko) — สัญญาณค้ามนุษย์/แรงงานบังคับ · ไม่นับ "โรงแรมเก็บพาสปอร์ต" (เรื่องปกติในหลายประเทศ) จึงไม่ใช้ tiene/guarda
+_more("violence", "es", r"\b(?:me\s+)?(?:quit[óoa]|quitaron|retiene|retienen|confisc[óoa]|confiscaron|no\s+me\s+(?:devuelve|devuelven|quiere\s+devolver))\s+(?:mi\s+|el\s+)?pasaporte|\bme\s+(?:encierra|encierran|encerr[óo]|encerraron)\b")
+_more("violence", "ko", r"여권(?:을|를)?\s*(?:빼앗|뺏|가져가|압수|안\s*돌려|돌려주지\s*않)")
+# ชุดตรวจซ้ำยังหลุด: vi กลืนยาทั้งแผง · vi แฟนตี/ขู่ฆ่า · zh "收走了护照" "把我们关起来"
+# vi "con" เป็นทั้ง "ลูก" และลักษณนามสัตว์ ("đánh con muỗi" = ตียุง) — ไม่นับเมื่อตามด้วยชื่อสัตว์
+_more("medical", "vi", r"(?:uống|nuốt)\s+(?:hết\s+|cả\s+|nguyên\s+|một\s+)?(?:vỉ|lọ|hộp|chai|nắm|vốc)\s+thuốc|(?:uống|nuốt)\s+(?:rất\s+)?nhiều\s+thuốc\s+(?:ngủ|an\s+thần)")
+_more("violence", "vi", r"(?:chồng|vợ|bạn\s+trai|bạn\s+gái|người\s+yêu|bố|mẹ|cha|anh\s+ta|hắn)\s+(?:lại\s+|hay\s+|thường\s+|luôn\s+|cứ\s+)?(?:đánh|đập|tát|đá|bóp\s+cổ)\s+(?:tôi|mình|em|con\b(?!\s+(?:muỗi|ruồi|gián|chuột|cá|gà|chó|mèo)))"
+                        r"|(?:đe\s+)?dọa\s+giết\s+(?:tôi|mình|em|con)\b")
+_more("violence", "zh", r"(?:收走|拿走|没收|沒收|扣下|扣着|扣著)(?:了)?(?:我们|我們|我|大家)?的?(?:护照|護照)|把(?:我|我们|我們)(?:关|關|锁|鎖)(?:起来|起來|在)")
+
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
@@ -619,7 +684,7 @@ WORLD_URGENT = {
         r"သေချင်|မနေချင်တော့|ကိုယ့်ကိုယ်ကို\s*သတ်|ខ្ញុំចង់ស្លាប់|ចង់ស្លាប់|សម្លាប់ខ្លួន|ຢາກຕາຍ|ຂ້າໂຕຕາຍ|মরে\s*যেতে\s*চাই|আত্মহত্যা|বাঁচতে\s*চাই\s*না|मर्न\s*मन\s*लाग्छ|मर्न\s*चाहन्छु|مرنا\s*چاہت|خودکشی|جینا\s*نہیں\s*چاہت|சாக\s*வேண்டும்|சாகணும்|தற்கொலை|வாழ\s*விரும்பவில்லை|මැරෙන්න\s*ඕන|සියදිවි|می‌?\s*?خواهم\s*بمیرم|میخوام\s*بمیرم|chcę\s+umrzeć|zabić\s+się|samobójstw|ik\s+wil\s+(?:dood|sterven)|zelfmoord|хочу\s+померти|не\s+хочу\s+жити|самогубств|nataka\s+kufa|kujiua|sitaki\s+kuishi|ina\s+so\s+in\s+mutu|kashe\s+kaina|mo\s+fẹ́\s+kú|mo\s+fe\s+ku|pa\s+ara\s+mi|ngifuna\s+ukufa|ukuzibulala|ek\s+wil\s+doodgaan|selfmoord|waan\s+dhiman\s+rabaa|is\s+dil|መሞት\s*እፈልጋለሁ|ራሴን\s*ማጥፋት|θέλω\s+να\s+πεθάνω|αυτοκτον|vreau\s+să\s+mor|sinucid|jag\s+vill\s+dö|ta\s+livet\s+av\s+mig|självmord|אני\s+רוצה\s+למות|להתאבד|үхмээр\s+байна|амиа\s+хорлох|өлгім\s+келеді|өзімді\s+өлтір|o\'lmoqchiman|o\'zimni\s+o\'ldir|chci\s+umřít|sebevražd|chcem\s+zomrieť|samovražd|meg\s+akarok\s+halni|öngyilkos|haluan\s+kuolla|itsemurh|jeg\s+vil\s+dø|selvmord|želim\s+umrijeti|želim\s+da\s+umrem|samoubist|искам\s+да\s+умра|самоубийств|მინდა\s+მოვკვდე|თვითმკვლელ|ուզում\s+եմ\s+մեռնել|ինքնասպան|சாக\s*(?:விரும்|வேண்டும்|போகிறேன்)|தற்கொலை|இறக்க\s*விரும்|(?:rabaa|doonayaa)\s+(?:inaan|in\s+aan)\s+dhinto|is\s+dil(?:o|aa)|(?:jeg\s+)?(?:vil|orker)\s+ikke\s+(?:å\s+|at\s+)?leve\s+(?:mer|mere|lenger|længere)|ta\s+livet\s+av\s+meg|tage\s+mit\s+(?:eget\s+)?liv|(?:jag\s+)?(?:vill|orkar)\s+inte\s+(?:att\s+)?leva\s+(?:mer|längre)|ta\s+mitt\s+(?:eget\s+)?liv"),
     "medical": (
         r"zu\s+viele\s+tabletten|नींद\s+की\s+गोलियाँ\s+खा|"
-        r"không\s+thở\s+được|ngừng\s+thở|bất\s+tỉnh|ngất\s+xỉu|đau\s+ngực(?![^.!?\n]{0,6}(?:vì|do|tại)\s+(?:cười|ho|tập|khóc|nhớ|thương|xúc\s+động))|co\s+giật|chảy\s+máu\s+nhiều|đuối\s+nước|"
+        r"không\s+thở\s+được|ngừng\s+thở|bất\s+tỉnh|ngất\s+xỉu|đau\s+ngực(?![^.!?\n]{0,6}(?:vì|do|tại|sau\s+khi)\s+(?:cười|ho|tập|khóc|nhớ|thương|xúc\s+động))|co\s+giật|chảy\s+máu\s+nhiều|đuối\s+nước|"
         r"tidak\s+(?:bisa|dapat)\s+bernapas|tak\s+(?:boleh|dapat)\s+bernafas|tidak\s+bernapas|pingsan|tidak\s+sadarkan\s+diri|sesak\s+napas|kejang|tenggelam|"
         r"hindi\s+makahinga|nawalan\s+ng\s+malay|hinimatay|nalulunod|"
         r"ne\s+respire\s+(?:plus|pas)|je\s+ne\s+peux\s+(?:pas|plus)\s+respirer|inconscient|s['’]est\s+évanoui|crise\s+cardiaque|"
@@ -643,7 +708,7 @@ WORLD_URGENT = {
         r"(?:муж|отец|мать|парень)\s+(?:меня\s+)?(?:бь[её]т|избивает)|домашнее\s+насилие|изнасил|"
         r"(?:زوجي|أبي|ابي)\s+يضربني|يضربني|عنف\s+أسري|اغتصاب|"
         r"(?:पति|पिता|पापा)\s+मुझे\s+मार|घरेलू\s+हिंसा|बलात्कार|"
-        r"ရိုက်တယ်|ပတ်စ်ပို့[^\n]{0,14}?သိမ်း|យកលិខិតឆ្លងដែន|ຍຶດໜັງສືຜ່ານແດນ|(?:giữ|tịch\s+thu|lấy)\s+hộ\s+chiếu|menahan\s+paspor|kinuha\s+(?:ang\s+)?(?:aking\s+)?passport|ရိုက်နှက်|ဗလာ[တ]ကား|វាយខ្ញុំ|ຕີຂ້ອຍ|ທຸບຕີ|আমাকে\s*মার(?:ে|ছে)|মারধর|मलाई\s*कुट्छ|कुटपिट|مجھے\s*مارتا|مارتا\s*ہے|என்னை\s*அடிக்கிற(?:ார்|ான்)|මට\s*ගහනවා|منو\s*می‌?\s*?زنه|مرا\s*کتک\s*می‌?\s*?زند|کتکم\s*می|(?:mąż|ojciec|chłopak)\s+mnie\s+bije|przemoc\s+domow|(?:man|vriend|vader)\s+slaat\s+mij|huiselijk\s+geweld|(?:чоловік|батько)\s+(?:мене\s+)?б[ʼ\']?є|домашнє\s+насильство|mume\s+wangu\s+ananipiga|ananipiga|unyanyasaji|mijina\s+yana\s+duka\s+ni|yana\s+duka\s+ni|ọkọ\s+mi\s+ń\s+lù\s+mí|ń\s+lù\s+mí|umyeni\s+wami\s+uyangishaya|uyangishaya|my\s+man\s+slaan\s+my|slaan\s+my|ninkayga\s+wuu\s+i\s+garaacaa|i\s+garaacaa|ባሌ\s*ይመታኛል|ይመታኛል|(?:άντρας|σύζυγος|πατέρας)\s+μου\s+με\s+χτυπάει|με\s+χτυπάει|soțul\s+mă\s+bate|mă\s+bate|(?:min\s+man|min\s+pappa)\s+slår\s+mig|slår\s+mig|בעלי\s+מרביץ\s+לי|מרביץ\s+לי|нөхөр\s+минь?\s+намайг\s+зоддог|намайг\s+зоддог|күйеуім\s+мені\s+ұрады|мені\s+ұрады|erim\s+meni\s+uradi|meni\s+uradi|manžel\s+mě\s+bije|mě\s+bije|manžel\s+ma\s+bije|ma\s+bije|férjem\s+ver|engem\s+ver|mieheni\s+lyö|lyö\s+minua|min\s+mand\s+slår\s+mig|mannen\s+min\s+slår\s+meg|slår\s+meg|muž\s+me\s+tuče|me\s+tuče|мъжът\s+ми\s+ме\s+бие|бие\s+ме|ქმარი\s+მცემს|მცემს|ամուսինս\s+ծեծում\s+է|ծեծում\s+է\s+ինձ|(?:man|vriend|vader|moeder|partner)\s+(?:slaat|mishandelt|schopt)\s+(?:me|mij)|huiselijk\s+geweld|(?:מכה|מרביץ|מרביצה|מכה)\s*(?:אותי|לי)|אלימות\s+במשפחה|مرا\s*می‌?زند|منو\s*می‌?زنه|کتکم\s*می‌?زن|خشونت\s+خانگی|(?:yana|tana|suna)\s+duka(?:na|ni)|ana\s+dukana|i\s+garaac|igu\s+garaac|i\s+karbaash"),
+        r"ရိုက်တယ်|ပတ်စ်ပို့[^\n]{0,14}?သိမ်း|យកលិខិតឆ្លងដែន|ຍຶດໜັງສືຜ່ານແດນ|(?<!sạn\s)(?<!trọ\s)(?:giữ|tịch\s+thu|lấy)\s+hộ\s+chiếu(?![^.!?\n]{0,30}(?:trong\s+thời\s+gian\s+(?:ở|lưu\s+trú)|khi\s+(?:ở|lưu\s+trú|nhận\s+phòng)|check[- ]?in))|menahan\s+paspor|kinuha\s+(?:ang\s+)?(?:aking\s+)?passport|ရိုက်နှက်|ဗလာ[တ]ကား|វាយខ្ញុំ|ຕີຂ້ອຍ|ທຸບຕີ|আমাকে\s*মার(?:ে|ছে)|মারধর|मलाई\s*कुट्छ|कुटपिट|مجھے\s*مارتا|مارتا\s*ہے|என்னை\s*அடிக்கிற(?:ார்|ான்)|මට\s*ගහනවා|منو\s*می‌?\s*?زنه|مرا\s*کتک\s*می‌?\s*?زند|کتکم\s*می|(?:mąż|ojciec|chłopak)\s+mnie\s+bije|przemoc\s+domow|(?:man|vriend|vader)\s+slaat\s+mij|huiselijk\s+geweld|(?:чоловік|батько)\s+(?:мене\s+)?б[ʼ\']?є|домашнє\s+насильство|mume\s+wangu\s+ananipiga|ananipiga|unyanyasaji|mijina\s+yana\s+duka\s+ni|yana\s+duka\s+ni|ọkọ\s+mi\s+ń\s+lù\s+mí|ń\s+lù\s+mí|umyeni\s+wami\s+uyangishaya|uyangishaya|my\s+man\s+slaan\s+my|slaan\s+my|ninkayga\s+wuu\s+i\s+garaacaa|i\s+garaacaa|ባሌ\s*ይመታኛል|ይመታኛል|(?:άντρας|σύζυγος|πατέρας)\s+μου\s+με\s+χτυπάει|με\s+χτυπάει|soțul\s+mă\s+bate|mă\s+bate|(?:min\s+man|min\s+pappa)\s+slår\s+mig|slår\s+mig|בעלי\s+מרביץ\s+לי|מרביץ\s+לי|нөхөр\s+минь?\s+намайг\s+зоддог|намайг\s+зоддог|күйеуім\s+мені\s+ұрады|мені\s+ұрады|erim\s+meni\s+uradi|meni\s+uradi|manžel\s+mě\s+bije|mě\s+bije|manžel\s+ma\s+bije|ma\s+bije|férjem\s+ver|engem\s+ver|mieheni\s+lyö|lyö\s+minua|min\s+mand\s+slår\s+mig|mannen\s+min\s+slår\s+meg|slår\s+meg|muž\s+me\s+tuče|me\s+tuče|мъжът\s+ми\s+ме\s+бие|бие\s+ме|ქმარი\s+მცემს|მცემს|ամուսինս\s+ծեծում\s+է|ծեծում\s+է\s+ինձ|(?:man|vriend|vader|moeder|partner)\s+(?:slaat|mishandelt|schopt)\s+(?:me|mij)|huiselijk\s+geweld|(?:מכה|מרביץ|מרביצה|מכה)\s*(?:אותי|לי)|אלימות\s+במשפחה|مرا\s*می‌?زند|منو\s*می‌?زنه|کتکم\s*می‌?زن|خشونت\s+خانگی|(?:yana|tana|suna)\s+duka(?:na|ni)|ana\s+dukana|i\s+garaac|igu\s+garaac|i\s+karbaash"),
     "help": (
         r"^\W*(?:cứu\s+(?:tôi\s+)?(?:với)?|tolong(?:\s+saya)?|tulong|au\s+secours|à\s+l['’]aide|hilfe|socorro|auxilio|ayuda|aiuto|imdat|"
         r"помогите|النجدة|ساعدوني|बचाओ|ကယ်ပါ|ជួយផង|ຊ່ວຍແດ່|ຊ່ວຍດ້ວຍ|বাঁচাও|pomoc|pomozte|pomôžte|segítség|apua|hjælp|hjelp|upomoć|помощ|დამეხმარეთ|օգնեցեք|βοήθεια|ajutor|hjälp|הצילו|туслаарай|көмектесіңіз|yordam\s+bering|pomocy|ratunku|help\s+mij|допоможіть|nisaidie|msaada|a\s+taimaka|ràn\s+mí\s+lọ́wọ́|ngisize|help\s+my|i\s+caawi|እርዱኝ|बचाउ|بچاؤ|காப்பாற்றுங்கள்|උදව්\s*කරන්න|බේරගන්න|کمک(?:\s*کنید)?|救命|助けて|살려\s*주세요|도와\s*주세요)\W*$"),

@@ -1,0 +1,164 @@
+# คลังคำของตัวจับแบบประกอบชิ้นส่วน (core/frames.py) — แก้/เพิ่มคำได้โดยไม่ต้องแตะโค้ด
+# รูปแบบ: แนวคิด <TAB> ภาษา <TAB> คำ (คั่นด้วย |)   หรือ   แนวคิด <TAB> ภาษา <TAB> re:<regex หนึ่งตัว>
+# หนึ่งแนวคิด/ภาษา มีได้หลายบรรทัด — รวมกันเอง
+# en es vi ต้องเป็นคำเต็ม (มีขอบคำทั้งสองข้าง) · th zh ja ko จับเป็นส่วนของข้อความ (ไม่มีเว้นวรรคระหว่างคำ)
+# เติมคำหนึ่งคำ = ทุกกฎที่ใช้แนวคิดนั้นได้ผลทันที · ห้ามคัดลอกประโยคจาก tests/blind/blind.tsv มาไว้ที่นี่ (tests/test_blind_score.py ตรวจ)
+#
+# ── กิน ดื่ม กลืน ──
+INGEST	th	กิน|ดื่ม|กลืน|ซด|กรอก|ทาน|รับประทาน|เอาเข้าปาก|ยกขึ้นดื่ม
+INGEST	en	ate|eat|eaten|eating|drank|drink|drinking|swallow|swallowed|swallowing|took|take|taken|taking|gulped|chugged|ingested|downed|popped|overdosed
+INGEST	es	comió|comí|comer|comido|bebió|bebí|beber|bebido|tomó|tomé|tomar|tomado|tomarme|tomarse|tomando|tragó|tragué|tragar|tragado|ingirió|ingerí|ingerido
+INGEST	vi	ăn|uống|nuốt|ăn phải|uống phải|nuốt phải|tu
+INGEST	zh	吃|喝|吞|服|咽|误食|誤食|误服|誤服
+INGEST	ko	먹었|먹어|먹고|먹은|마셨|마셔|마시|삼켰|삼키|삼켜|드셨|드시|드셔|복용
+INGEST	ja	飲ん|飲み|食べ|誤飲|誤食|服用|口に入れ|なめ|舐め
+# ── สารเคมี/สารพิษในบ้านและไร่ ──
+CHEMICAL	th	น้ำยาล้าง|น้ำยาฆ่า|ยาฆ่าหญ้า|ยาตัดหญ้า|ยาฆ่าแมลง|ยาปราบศัตรูพืช|ยาเบื่อ|ยาฉีดยุง|ไฮเตอร์|น้ำยาซักผ้า|ผงซักฟอก|สารเคมี|น้ำมันก๊าด|น้ำมันเบนซิน|เบนซิน|ทินเนอร์|โซดาไฟ|น้ำกรด|กรด|ยาพิษ|พาราควอต|ไกลโฟเซต|แอมโมเนีย|เมทานอล|ยาล้างห้องน้ำ
+CHEMICAL	en	bleach|detergent|cleaner|drain cleaner|toilet cleaner|disinfectant|pesticide|insecticide|herbicide|weed killer|weedkiller|rat poison|poison|kerosene|paraffin|gasoline|petrol|lighter fluid|antifreeze|paint thinner|thinner|lye|ammonia|paraquat|glyphosate|methanol|battery acid|acid|laundry pod|laundry pods
+CHEMICAL	es	cloro|lejía|lejia|detergente|limpiador|desinfectante|pesticida|insecticida|herbicida|matamalezas|raticida|veneno|queroseno|keroseno|gasolina|anticongelante|aguarrás|sosa cáustica|soda cáustica|amoníaco|amoniaco|ácido|acido|paraquat|metanol|thinner
+CHEMICAL	vi	thuốc tẩy|nước tẩy|chất tẩy|thuốc trừ sâu|thuốc sâu|thuốc diệt cỏ|thuốc diệt chuột|bả chuột|thuốc chuột|dầu hỏa|dầu hoả|xăng|nước rửa|axit|thuốc độc|chất độc|xút|nước javel|methanol
+CHEMICAL	zh	除草剂|除草劑|农药|農藥|杀虫剂|殺蟲劑|老鼠药|老鼠藥|鼠药|灭鼠药|毒药|毒藥|漂白水|漂白剂|漂白劑|消毒水|消毒液|清洁剂|清潔劑|洁厕|潔廁|洗洁精|洗潔精|洗衣液|煤油|汽油|柴油|防冻液|硫酸|盐酸|百草枯|甲醇|天那水
+CHEMICAL	ko	제초제|농약|살충제|쥐약|살서제|락스|표백제|세제|세정제|소독약|소독제|등유|휘발유|경유|부동액|시너|염산|황산|그라목손|파라콰트|메탄올|독약
+CHEMICAL	ja	除草剤|農薬|殺虫剤|殺鼠剤|毒薬|漂白剤|ハイター|洗剤|洗浄剤|消毒液|灯油|ガソリン|軽油|不凍液|シンナー|塩酸|硫酸|パラコート|メタノール
+# ── ยา ── ไทย "ยา" ต้องไม่ใช่ ยาย/พยายาม/ยาว/ยาก/ยาง · เกาหลี "약" ต้องไม่ใช่ 약속(นัด)/약간(นิดหน่อย)
+MEDICINE	th	re:ยา(?![ยวกงม])
+MEDICINE	th	เม็ด|แคปซูล|พารา|อินซูลิน
+MEDICINE	en	pill|pills|tablet|tablets|capsule|capsules|medicine|medicines|medication|medications|meds|painkiller|painkillers|sleeping pills|paracetamol|acetaminophen|tylenol|ibuprofen|aspirin|antidepressants|insulin|sedatives|benzos|opioids
+MEDICINE	es	pastilla|pastillas|píldora|píldoras|pildoras|tableta|tabletas|medicamento|medicamentos|medicina|medicinas|analgésico|analgésicos|analgesicos|somníferos|somniferos|paracetamol|ibuprofeno|aspirinas|insulina|calmantes|ansiolíticos
+MEDICINE	vi	thuốc|viên|paracetamol|insulin
+MEDICINE	zh	药|藥|药片|藥片|片|粒|颗|顆|胶囊|膠囊|扑热息痛|胰岛素
+MEDICINE	ko	re:약(?!속|간|하|해|국|점|혼|자)
+MEDICINE	ko	알약|수면제|진통제|타이레놀|해열제|신경안정제|인슐린
+MEDICINE	ko	re:(?:\d|한|두|세|네|다섯|열|스무|서른|마흔|쉰)\s*알(?![아았])
+MEDICINE	ja	薬|錠|カプセル|痛み止め|インスリン
+# ── ปริมาณมาก/ทั้งหมด ── ไม่ใช้คำสั้นที่ใช้บ่อยตามลำพัง (en "all" · vi "cả" · zh "吃完" ที่แปลว่ากินข้าวเสร็จ · ko "다")
+AMOUNT	th	ทั้งแผง|หมดแผง|ทั้งขวด|หมดขวด|ครึ่งขวด|ทั้งกระปุก|หมดกระปุก|ทั้งกล่อง|หมดกล่อง|หลายเม็ด|กำมือ|ทีเดียวหมด|หมดทุกเม็ด|หลายสิบ|ซ้ำหลายรอบ|หลายรอบ|เยอะมาก|หมดเลย
+AMOUNT	th	re:(?:[1-9]\d|สิบ|ยี่สิบ|สามสิบ|สี่สิบ|ห้าสิบ)\s*เม็ด
+AMOUNT	en	handful|dozens|a bunch of|a lot of|lots of|half a bottle|empty|every pill|every tablet|ten|twenty|thirty|forty|fifty|hundred
+AMOUNT	en	re:\b(?:whole|entire|full)\s+(?:bottle|jar|pack|packet|box|strip|blister|sheet|container)\b
+AMOUNT	en	re:\ba\s+(?:bottle|jar|box)\s+of\b|\ball\s+(?:of\s+)?(?:my|his|her|their|the|those|these|your)\b|\b[1-9]\d+\s*(?:pills?|tablets?|capsules?|caps)\b
+AMOUNT	es	entero|entera|frasco|bote|caja|blíster|puñado|montón|media botella|una botella|docenas|vacío|vacía|diez|veinte|treinta|cuarenta|cincuenta|cien|hasta acabar|hasta terminar|de golpe
+AMOUNT	es	re:\btod[oa]s?\s+(?:el|la|los|las|sus|mis|su|mi)\b|\b[1-9]\d+\s*(?:pastillas?|p[íi]ldoras?|tabletas?|c[áa]psulas?|comprimidos?)\b
+AMOUNT	vi	re:(?:hết|cả|nguyên|nửa)\s+(?:cả\s+)?(?:lọ|vỉ|hộp|chai|nắm|vốc|túi|gói)\b|nhiều\s+(?:viên|thuốc)\b|\b[1-9]\d\s+viên\b|\bmươi\b|\bmười\b|đến\s+hết|cùng\s+lúc
+AMOUNT	zh	一整瓶|整瓶|一瓶|半瓶|一盒|整盒|一大把|一把|一罐|整罐|一整罐|一板|一整板|全部|所有|好多|很多|大量|几十|吃光|喝光|吞光
+AMOUNT	zh	re:[都全](?:吃|喝|吞)(?:光|完|了)|[二三四五六七八九]?十几?[片粒颗顆]|[1-9]\d\s*[片粒颗顆]|[都全]吃完
+AMOUNT	ko	한 통|한통|한 병|한병|반 병|반병|한 상자|한상자|한 움큼|한움큼|한꺼번에|통째로|많이|수십|전부|모두|스무|서른|마흔|쉰
+AMOUNT	ko	re:(?:^|\s)다\s*(?:먹|마시|마셨|삼키|삼켰|드셨|드시)|[1-9]\d\s*(?:알|정|개)
+AMOUNT	ja	全部|すべて|一瓶|ひと瓶|一箱|ひと箱|一シート|丸ごと|大量|たくさん|何錠も|何度も|空に|半分|数十|一度に
+AMOUNT	ja	re:[1-9]\d\s*錠|[二三四五]十錠
+# ── ตกน้ำ/จมน้ำ ──
+FALL_INTO	th	ตกน้ำ|ตกลงไป|ตกสระ|ตกบ่อ|ตกคลอง|ตกแม่น้ำ|ตกทะเล|ตกเรือ|พลัดตก|ลื่นตก|หลุดมือตก|ตกจาก|จม
+FALL_INTO	en	fell into|fell in|fell off|fallen into|slipped into|slipped in|went under|sinking|swept away|pulled under
+FALL_INTO	es	se cayó a|se cayó al|se cayó en|se cayó del|cayó al|cayó a|resbaló al|resbaló en|se resbaló|se hundió|se hunde|arrastrado|lo arrastró|la arrastró
+FALL_INTO	vi	rơi xuống|ngã xuống|té xuống|trượt chân|rơi khỏi|bị chìm|chìm|nước cuốn|bị cuốn
+FALL_INTO	zh	掉进|掉到|掉入|落水|滑进|滑入|摔进|跌进|跌入|沉下去|被冲走|从船上掉
+FALL_INTO	ko	빠졌|빠져|떨어졌|떨어져|미끄러져|휩쓸|가라앉
+FALL_INTO	ja	落ちて|落ちた|転落|流され|沈ん|滑り落ち
+DROWN	th	จมน้ำ
+DROWN	en	drowning|drowned|is drowning|drowns
+DROWN	es	se ahoga|se ahogó|se está ahogando|ahogándose|ahogado|ahogada
+DROWN	vi	đuối nước|chết đuối|đang đuối
+DROWN	zh	溺水|淹死|快淹死
+DROWN	ko	익사|물에 빠져 허우적
+DROWN	ja	溺れ
+WATER	th	น้ำ|สระ|บ่อ|คลอง|แม่น้ำ|ทะเล|อ่าง|ทะเลสาบ|เขื่อน|ลำธาร|เรือ
+WATER	en	water|pool|pond|river|lake|sea|ocean|canal|bathtub|tub|creek|stream|reservoir|boat|waves|the well|a well
+WATER	es	agua|piscina|alberca|pileta|estanque|río|rio|lago|mar|canal|pozo|bañera|tina|arroyo|presa|bote|barca|olas
+WATER	vi	nước|hồ|hồ bơi|ao|sông|biển|kênh|giếng|bồn tắm|suối|thuyền|đập
+WATER	zh	水|泳池|游泳池|池塘|鱼塘|魚塘|河|湖|海|水库|井|浴缸|小溪|船
+WATER	ko	물|수영장|연못|강|호수|바다|저수지|우물|욕조|개울|계곡|배
+WATER	ja	水|プール|池|川|湖|海|用水路|井戸|浴槽|お風呂|ダム|船
+NOT_SURFACE	th	ไม่โผล่|หาไม่เจอ|ยังหาไม่เจอ|ว่ายไม่เป็น|ว่ายน้ำไม่เป็น|ไม่ขึ้นมา|จมหาย|ไม่หายใจ|หมดสติ|ช่วยด้วย|ไม่เห็นตัว
+NOT_SURFACE	en	can't swim|cannot swim|can't find|cannot find|hasn't come up|didn't come up|not come up|not surfacing|under water|underwater|not breathing|unconscious|help|disappeared|missing|face down
+NOT_SURFACE	es	no sabe nadar|no sé nadar|no lo encontramos|no la encontramos|no aparece|no sale|no ha salido|bajo el agua|no respira|inconsciente|ayuda|desapareció|boca abajo
+NOT_SURFACE	vi	không biết bơi|chưa tìm thấy|không tìm thấy|không nổi lên|chưa nổi lên|dưới nước|không thở|bất tỉnh|cứu|mất tích|úp mặt
+NOT_SURFACE	zh	不会游泳|不會游泳|没找到|沒找到|找不到|没有浮上来|没浮上来|水下|没有呼吸|昏迷|救命|不见了|失踪
+NOT_SURFACE	ko	수영을 못|수영 못|못 찾|안 나와|안 올라와|물속|숨을 안|의식이 없|살려|실종|안 보여
+NOT_SURFACE	ja	泳げない|見つからない|上がってこない|浮かんでこない|水中|息をしていない|意識がない|助けて|行方不明|見えない
+# ── สำลัก/ของติดคอ ──
+CHOKE	th	สำลัก|ติดคอ|ติดหลอดลม
+CHOKE	en	choking|choked on|is choking|lodged in
+CHOKE	es	atragantando|atragantó|atragantado|atragantada|atragantarse|se le atoró|se le atoró en la garganta
+CHOKE	vi	hóc|mắc ở cổ|mắc cổ|mắc nghẹn|nghẹn
+CHOKE	zh	噎住|噎到|卡住喉咙|卡住喉嚨|卡在喉咙|卡喉|鲠住
+CHOKE	ko	목에 걸렸|목에 걸려|목에 걸린|기도가 막|기도가 막혔
+CHOKE	ja	喉に詰まら|喉に詰まっ|詰まらせ|誤嚥
+STUCK	th	ติด
+STUCK	en	stuck|lodged|caught
+STUCK	es	atoró|atorado|atorada|atascado|atascada|trabado|trabada
+STUCK	vi	mắc|kẹt|hóc
+STUCK	zh	卡住|卡在|噎
+STUCK	ko	걸려|걸렸|막혀|막혔
+STUCK	ja	詰ま|引っかか
+THROAT	th	คอ|ปาก|หลอดลม
+THROAT	en	throat|mouth|windpipe|airway
+THROAT	es	garganta|boca|tráquea
+THROAT	vi	cổ họng|họng|miệng
+THROAT	zh	喉咙|喉嚨|嘴|气管|氣管
+THROAT	ko	목|입|기도
+THROAT	ja	喉|口|気管
+AIRWAY_FAIL	th	หายใจไม่ได้|หายใจไม่ออก|ไอไม่ออก|พูดไม่ได้|หน้าเขียว|ปากเขียว
+AIRWAY_FAIL	en	can't breathe|cannot breathe|can't cough|cannot cough|turning blue|not breathing|gasping
+AIRWAY_FAIL	es	no puede respirar|no puede toser|no respira|morado|morada
+AIRWAY_FAIL	vi	không thở được|không ho được|không ho ra được|tím tái
+AIRWAY_FAIL	zh	喘不了气|喘不过气|喘不過氣|无法呼吸|無法呼吸|不能呼吸|咳不出来|咳不出來|脸发紫
+AIRWAY_FAIL	ko	숨을 못|숨이 안|기침을 못|얼굴이 파래
+AIRWAY_FAIL	ja	息ができ|咳ができ|顔が青|呼吸ができ
+# ── ตัวกันเตือนเกิน (ใช้ทั้งประโยค) ──
+FICTION	th	หนัง|ละคร|ซีรีส์|เกม|นิยาย|การ์ตูน|ฝันว่า|ในฝัน
+FICTION	en	movie|film|show|series|episode|game|novel|book|cartoon|anime|dream|scene
+FICTION	es	película|pelicula|serie|escena|videojuego|juego|novela|libro|anime|sueño|soñé
+FICTION	vi	phim|truyện|game|trò chơi|tiểu thuyết|anime|mơ thấy|giấc mơ
+FICTION	zh	电影|電影|镜头|鏡頭|电视剧|電視劇|剧情|劇情|游戏|遊戲|小说|小說|动漫|動漫|做梦|梦见
+FICTION	ko	영화|장면|드라마|게임|소설|웹툰|애니|만화|꿈에
+FICTION	ja	映画|シーン|ドラマ|ゲーム|小説|漫画|マンガ|アニメ|夢で
+HYPOTHETICAL	th	จะเป็นอะไรไหม|อันตรายไหม|ป้องกัน|กันไม่ให้|ควรเก็บ|เก็บให้พ้นมือ|กันจม|สอนว่ายน้ำ|สอนลูกว่ายน้ำ|เรียนว่ายน้ำ
+HYPOTHETICAL	en	what happens if|is it dangerous|is it safe|how to prevent|how do i prevent|childproof|keep away from
+HYPOTHETICAL	es	qué pasa si|que pasa si|es peligroso|cómo evitar|como evitar|prevenir
+HYPOTHETICAL	vi	thì sao|có nguy hiểm không|phòng tránh|làm sao để tránh
+HYPOTHETICAL	zh	会怎样|會怎樣|危险吗|危險嗎|防止|预防|預防|如何避免
+HYPOTHETICAL	ko	어떻게 되나|위험한가|예방|방지|하는 법|빼는 법
+HYPOTHETICAL	ja	どうなる|危ないですか|防ぐ|予防|対策|ないように|ないよう|ない様に
+ROUTINE	th	ทุกวัน|ทุกเช้า|ทุกเย็น|ทุกคืน|ทุกเดือน|ทุกสัปดาห์|ตามหมอสั่ง|ตามที่หมอสั่ง|เป็นประจำ
+ROUTINE	en	every day|every morning|every night|every month|every week|daily|as prescribed|as the doctor|regularly
+ROUTINE	es	cada día|cada mañana|cada noche|cada mes|todos los días|como me dijo el médico|recetad
+ROUTINE	vi	mỗi ngày|mỗi sáng|mỗi tối|mỗi tháng|hàng ngày|theo đơn|theo chỉ định
+ROUTINE	zh	每天|每个月|每個月|每月|每晚|按医生|按醫生|遵医嘱|遵醫囑
+ROUTINE	ko	매일|매달|매주|아침마다|처방대로|의사 말대로
+ROUTINE	ja	毎日|毎朝|毎晩|毎月|毎週|医者の指示|処方通り
+REFILL	th	ไปรับเพิ่ม|รับยาเพิ่ม|หมดแล้วต้อง|ต้องไปรับ|ไปซื้อเพิ่ม
+REFILL	en	ran out|run out|refill|need more|buy more
+REFILL	es	se acabaron|se me acabaron|por más|comprar más
+REFILL	vi	hết thuốc|lấy thêm|mua thêm
+REFILL	zh	再拿|再买|配药|没药了
+REFILL	ko	떨어져서|떨어졌|더 받아|더 사
+REFILL	ja	もらう|なくなった|切れた|買い足
+USE	th	ฉีด|พ่น|เติม|ซื้อ|เก็บไว้|วางไว้ใน|ราด
+# "ล้าง" อยู่ในชื่อสารเองด้วย (น้ำยาล้างจาน) — นับเฉพาะเมื่อไม่ได้เป็นส่วนของชื่อ
+USE	th	re:(?<!น้ำยา)(?<!ยา)ล้าง
+USE	en	spray|sprays|sprayed|cleaned with|clean with|filled|bought|store|stored|poured into
+USE	es	echa|rocía|rocié|limpié|limpia|llené|compré|guardo|guardé
+USE	vi	phun|lau|đổ vào|mua|cất|tưới
+USE	zh	喷|噴|擦|刷干净|加了|买了|買了|放在
+USE	ko	뿌려|뿌리|채웠|샀|보관
+USE	ko	re:청소(?!용)
+USE	ja	まいて|まく|散布|入れた|買った|保管
+USE	ja	re:掃除(?!用)
+LAUGH	th	หัวเราะ|ขำ|555|ฮ่าๆ
+LAUGH	en	laugh|laughing|laughter|lol|lmao|lmfao|haha|hahaha
+LAUGH	es	risa|reír|reir
+LAUGH	vi	cười
+LAUGH	zh	笑
+LAUGH	ko	웃
+LAUGH	ja	笑
+IDIOM_DROWN	th	จมอยู่กับ|จมปลัก|จมกับ|บ้านจมน้ำ|รถจมน้ำ|ถนนจมน้ำ|นาจมน้ำ|ห้องจมน้ำ|หมู่บ้านจมน้ำ|เมืองจมน้ำ|จมน้ำหมด
+IDIOM_CHOKE	en	re:\bchok(?:ing|ed|e)\s+on\s+(?:my|his|her|your|their|our)\s+words\b|\bchoked\s+up\b|\bchok(?:ed|ing|e)\s+(?:under\s+pressure|in\s+the\s+final)
+IDIOM_DROWN	en	re:\bdrown(?:ing|ed|s)?\s+in\s+(?!(?:the\s+|a\s+|our\s+|his\s+|her\s+|their\s+)?(?:water|pool|river|lake|sea|ocean|bath|bathtub|tub|pond|canal|creek|well)\b)
+# ── กินยาจนครบชุดตามปกติ (ยาฆ่าเชื้อครบคอร์ส ยาคุมหมดแผง) — ไม่ใช่กินเกินขนาด ──
+COURSE	th	ยาฆ่าเชื้อ|ยาปฏิชีวนะ|ยาคุม|ครบคอร์ส|หมดคอร์ส|แผงใหม่|เริ่มแผง|ยังไม่หาย|ประจำเดือน
+COURSE	en	antibiotic|antibiotics|birth control|the pill pack|new pack|finished the course|course of|still sick|still not better|my period
+COURSE	es	antibiótico|antibióticos|anticonceptiva|anticonceptivas|terminé el tratamiento|el tratamiento|sigo enfermo|sigo enferma|la regla
+COURSE	vi	kháng sinh|thuốc tránh thai|liệu trình|vẫn chưa khỏi|kinh nguyệt
+COURSE	zh	抗生素|消炎药|消炎藥|避孕药|避孕藥|疗程|療程|还没好|還沒好|月经|月經
+COURSE	ko	항생제|피임약|처방약|아직 안 나았|생리
+COURSE	ja	抗生物質|ピル|飲み終わ|まだ治ら|生理
