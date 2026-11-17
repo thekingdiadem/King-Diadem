@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="KING DIADEM">
+  <!-- ตรา KING DIADEM แบบมินิมอล — รูปทรงมงกุฎชุดเดียวกับ crest.svg แต่ตัดของประดับออกหมด:
+       ไม่มีขีดหน้าปัด รัศมีทแยง ชั้นเงาด้านหลัง แสงฟุ้ง หรือวงโคจรเอียง
+       เหลือ 3 อย่าง: มงกุฎ (ปีกเงิน แขนทอง แกนไพลิน) · วงแหวนเส้นเดียวฟ้าไปทอง · หยดแสงที่ฐาน
+       สีเรียบไม่ไล่เฉดหลายชั้น — ย่อเหลือไอคอน 48px ก็ยังอ่านรูปทรงออก -->
+  <defs>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6aa8ff"/><stop offset="1" stop-color="#e6c684"/>
+    </linearGradient>
+    <path id="blade" d="M264 381 C340 368 420 324 470 188 C462 272 418 334 344 364 C316 375 288 380 264 381 Z"/>
+    <path id="barb" d="M352 352 L426 232 L398 350 Z"/>
+    <path id="arm" d="M260 376 C290 338 298 270 290 214 C287 190 298 166 322 148 C311 176 312 208 316 246 C324 306 300 350 264 380 Z"/>
+    <g id="half">
+      <use href="#blade" fill="#c9d3ea"/><use href="#barb" fill="#c9d3ea"/><use href="#arm" fill="#e6c684"/>
+    </g>
+  </defs>
+  <circle cx="256" cy="262" r="196" fill="none" stroke="url(#ring)" stroke-width="6"/>
+  <use href="#half"/><use href="#half" transform="translate(512 0) scale(-1 1)"/>
+  <path d="M256 104 L275 252 L256 372 L237 252 Z" fill="#4f86e8"/>
+  <path d="M256 104 L256 372 L237 252 Z" fill="#8cb8ff"/>
+  <path d="M256 368 C261 382 266 390 266 398 A10 10 0 0 1 246 398 C246 390 251 382 256 368 Z" fill="#fff6e4"/>
+</svg>

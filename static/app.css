@@ -1477,3 +1477,48 @@ html.kd-calm #mic.on{animation:none}
 html[data-ink="dark"] body:not([data-view="universe"]) .st-chip{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 6px 14px -8px rgba(60,48,30,.35)}
 html[data-ink="dark"] body:not([data-view="universe"]) .kd-i{filter:none}
 html[data-ink="dark"] body:not([data-view="universe"]) .fb button{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 8px -5px rgba(60,48,30,.35)}
+/* ── หน้าเครื่องมือ: ดาวทางเลือกรอบตรา (#sim-orbit) ── */
+#sim-orbit{position:absolute;z-index:2;left:50%;top:calc(50% - 14px);width:min(92vw,360px);height:min(92vw,360px);transform:translate(-50%,-50%);overflow:visible;pointer-events:none}
+#sim-orbit .orb{fill:none;stroke:rgba(236,214,166,.18);stroke-width:.6;stroke-dasharray:2 3}
+#sim-orbit .st circle{fill:currentColor;opacity:0;transform:scale(.2);transition:opacity .5s ease,transform .5s cubic-bezier(.2,1.4,.4,1)}
+#sim-orbit .st text{fill:currentColor;font:600 9px var(--f-mono);text-anchor:middle;opacity:0;transition:opacity .5s}
+#sim-orbit .st.on circle{opacity:1;transform:none;filter:drop-shadow(0 0 4px currentColor)}
+#sim-orbit .st.on text{opacity:.9}
+#sim-orbit .s1{color:#8cc2ff} #sim-orbit .s2{color:#c9b6f0} #sim-orbit .s3{color:#93c4a4}
+#sim-orbit .st.risk{color:var(--bad)} #sim-orbit .st.risk circle{opacity:.45;filter:none}
+#sim-orbit .st.best{color:#ffe3a3} #sim-orbit .st.best circle{filter:drop-shadow(0 0 8px #ffd27a)}
+#sim-orbit .beam{stroke:#ffe9c4;stroke-width:1;opacity:.85;filter:drop-shadow(0 0 3px #ffd27a);stroke-dasharray:160;stroke-dashoffset:160;animation:kd-orbit-beam 1s ease .1s forwards}
+@keyframes kd-orbit-beam{to{stroke-dashoffset:0}}
+html.kd-calm #sim-orbit *{transition:none!important;animation:none!important;stroke-dashoffset:0}
+@media (prefers-reduced-motion:reduce){ #sim-orbit *{transition:none!important;animation:none!important;stroke-dashoffset:0} }
+/* ตัวอักษร A B C หน้าช่องทางเลือก = สีเดียวกับดาวของมัน */
+#sim-paths .path:nth-child(3n+1) b{color:#8cc2ff} #sim-paths .path:nth-child(3n+2) b{color:#c9b6f0} #sim-paths .path:nth-child(3n) b{color:#93c4a4}
+#sim-paths .path b{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 0 0 1px currentColor;text-shadow:0 0 8px currentColor}
+html[data-ink="dark"] #sim-paths .path b{filter:brightness(.6)}
+
+/* ── หน้าระบบ: หน้าปัดวงแหวน + การ์ดสมการบนแกนกลาง ── */
+.sys-hero h1{display:none}
+.stats.gauges{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;margin:0 0 18px}
+.gauge{position:relative;display:grid;justify-items:center;text-align:center;padding:12px 6px 10px;border-radius:16px;background:linear-gradient(170deg,rgba(22,26,52,.56),rgba(10,10,20,.7));box-shadow:inset 0 0 0 1px rgba(211,217,230,.08)}
+.gauge svg{width:64px;height:64px;transform:rotate(-90deg)}
+.gauge .trk{fill:none;stroke:rgba(241,237,228,.08);stroke-width:4}
+.gauge .val{fill:none;stroke:var(--gold-hi);stroke-width:4;stroke-linecap:round;filter:drop-shadow(0 0 3px rgba(236,214,166,.6))}
+.gauge.hot .val{stroke:#8cc2ff;filter:drop-shadow(0 0 3px rgba(140,194,255,.6))} .gauge.ok .val{stroke:var(--ok)}
+.gauge b{position:absolute;top:34px;left:0;right:0;font:600 14px/1 var(--f-mono);color:#fff6e4}
+.gauge.wide b{font-size:11px}
+.gauge span{margin-top:6px;font-size:11px;line-height:1.35;color:var(--ink-3)}
+.eq-deck{position:relative;display:grid;gap:10px;margin:0 0 18px;padding-left:22px}
+.eq-deck::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:1px;background:linear-gradient(180deg,rgba(140,194,255,0),rgba(140,194,255,.7) 12%,rgba(236,214,166,.7) 88%,rgba(236,214,166,0));box-shadow:0 0 8px rgba(140,194,255,.5)}
+.eqd{position:relative;border-radius:14px;background:linear-gradient(170deg,rgba(22,26,52,.6),rgba(10,10,20,.75));box-shadow:inset 0 0 0 1px rgba(211,217,230,.08)}
+.eqd::before{content:"";position:absolute;left:-18px;top:18px;width:7px;height:7px;border-radius:50%;background:var(--gold-hi);box-shadow:0 0 8px var(--gold-hi)}
+.eqd summary{list-style:none;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;cursor:pointer}
+.eqd summary::-webkit-details-marker{display:none}
+.eqd summary::after{content:"+";color:var(--ink-3);font:500 16px var(--f-mono)}
+.eqd[open] summary::after{content:"−"}
+.eqd .sym{min-width:44px;padding:4px 8px;border-radius:999px;text-align:center;font:600 12px var(--f-mono);color:#1c1810;background:var(--champ)}
+.eqd .fx{font:500 12.5px/1.5 var(--f-mono);color:#f1ede4;word-break:break-word}
+.eqd .more{padding:0 14px 12px;display:grid;gap:4px;font-size:12px;color:var(--ink-3)}
+.eqd .more code{font:11px var(--f-mono);color:var(--gold)}
+html[lang^="en"] .eqd .nm[lang="th"]{display:none}
+html[data-ink="dark"] .gauge,html[data-ink="dark"] .eqd{background:rgba(255,255,255,.65);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+html[data-ink="dark"] .gauge b,html[data-ink="dark"] .eqd .fx{color:var(--ink)}

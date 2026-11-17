@@ -35,9 +35,9 @@
    "n": 70,
    "tp": 70,
    "fn": 0,
-   "fp": 4,
+   "fp": 3,
    "recall": 1.0,
-   "precision": 0.946
+   "precision": 0.959
   },
   "scam": {
    "n": 18,
