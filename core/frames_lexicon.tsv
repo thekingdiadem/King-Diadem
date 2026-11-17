@@ -162,3 +162,147 @@ COURSE	vi	kháng sinh|thuốc tránh thai|liệu trình|vẫn chưa khỏi|kinh 
 COURSE	zh	抗生素|消炎药|消炎藥|避孕药|避孕藥|疗程|療程|还没好|還沒好|月经|月經
 COURSE	ko	항생제|피임약|처방약|아직 안 나았|생리
 COURSE	ja	抗生物質|ピル|飲み終わ|まだ治ら|生理
+# ════ รอบ 2: บีบคอ · แรงงานบังคับ · หมดสติ · เลือดออกไม่หยุด ════
+# ── บีบคอ ── คำสั้นที่ต้องกัน: ko 목요일/목표/목소리/목걸이 · ja 手首(ข้อมือ)/首相/首都 · vi cổ tay/cổ phiếu · th คอม/คอน/คอร์ส
+STRANGLE	th	บีบคอ|รัดคอ|เค้นคอ|ล็อกคอ|กดคอ|ขย้ำคอ|จับคอ
+STRANGLE	en	chokes me|choked me|choking me|strangled|strangling|strangles|strangle
+STRANGLE	es	me ahorca|me ahorcó|me ahorcaba|me estrangula|me estranguló|me asfixia|me asfixió
+STRANGLE	vi	bóp cổ|siết cổ|xiết cổ|ghì cổ
+STRANGLE	zh	掐我|勒我|掐脖子|勒脖子|掐住脖子|勒住脖子|掐着我的喉咙|掐住我的喉咙
+STRANGLE	ko	re:목을\s*(?:졸|조르|조여|잡고|눌러)
+STRANGLE	ja	首を絞め|首をしめ|首を締め|首を絞め
+SQUEEZE	th	รัด|บีบ|กด|ล็อก|ขย้ำ|เค้น|จับ
+SQUEEZE	en	squeezed|squeezing|squeeze|squeezes|choked|chokes|grabbed|grabbing|grabs|pinned|wrapped|wrapping|pressed|pressing
+SQUEEZE	es	apretó|aprieta|apretaba|apretando|ahorcó|ahorca|estranguló|estrangula|agarró|agarra|agarrando|agarrándome|empujó|puso
+SQUEEZE	vi	siết|xiết|bóp|ghì|quấn|đè|bóp chặt
+SQUEEZE	zh	勒|掐|扼|按住|卡住
+SQUEEZE	ko	졸라|조르|졸랐|조여|잡고|감았|눌러|짓눌
+SQUEEZE	ja	絞め|締め|つかま|掴ま|押さえ|押し付け|巻い
+NECK	th	re:(?:ลำ)?คอ(?![มนรลยวแ])
+NECK	th	หลอดลม
+NECK	en	neck|throat|windpipe
+NECK	es	cuello|garganta
+NECK	vi	re:\bcổ(?!\s+(?:tay|chân|phiếu|điển|tích|vũ|động|đại|xưa|truyền))\b|cổ họng
+NECK	zh	脖子|喉咙|喉嚨|颈|頸
+NECK	ko	re:목(?!요일|표|소리|록|적|걸이|욕|사|련|숨|장|재|수)
+NECK	ja	re:(?<![手足乳])首(?!相|都|位|脳|輪|謀|尾)|喉|のど
+AFFECTION	th	กอด|หอม|จูบ|โอบ
+AFFECTION	en	hug|hugs|hugged|cuddle|cuddles|arm around|arms around|kiss|kisses
+AFFECTION	es	abraz|besa|beso|acurruc
+AFFECTION	vi	ôm|quàng tay|hôn
+AFFECTION	zh	搂|摟|抱|亲|親
+AFFECTION	ko	안아|안고|팔을 둘러|껴안|뽀뽀
+AFFECTION	ja	抱き|腕を回|キス
+CLOTHING	th	สร้อย|เนคไท|เน็คไท|ปกเสื้อ|ผ้าพันคอ|เสื้อ|คอเสื้อ
+CLOTHING	en	necklace|tie|collar|scarf|shirt|choker|turtleneck
+CLOTHING	es	collar|corbata|bufanda|camisa|cuello de la camisa
+CLOTHING	vi	dây chuyền|cà vạt|khăn quàng|cổ áo|áo
+CLOTHING	zh	项链|項鍊|领带|領帶|围巾|圍巾|衣领|衣領
+CLOTHING	ko	목걸이|넥타이|목도리|옷깃|셔츠
+CLOTHING	ja	ネックレス|ネクタイ|マフラー|襟|シャツ
+# ── แรงงานบังคับ ── ต้องมีสัญญาณอันตรายอย่างน้อยสองอย่าง ("บังคับให้ทำงานบ้าน" ตามลำพังไม่นับ)
+FORCE	th	บังคับ|ถูกบังคับ|ขู่ให้|ฝืนใจ
+FORCE	en	forces|forced|forcing|force|makes me|make us|made us
+FORCE	es	obliga|obligan|obligó|obligaron|forzado|forzada|fuerzan
+FORCE	vi	bắt|ép|cưỡng bức|cưỡng ép
+FORCE	zh	逼|强迫|強迫|逼着|逼迫
+FORCE	ko	억지로|강제로|시켜요|시켜
+FORCE	ko	re:(?:일하게|일을)\s*(?:해요|시켜|시키)
+FORCE	ja	働かされ|強制|無理やり|させられ
+WORK	th	ทำงาน|ใช้แรงงาน|ใช้หนี้
+WORK	en	work|working|labor|labour|job
+WORK	es	trabajar|trabajo|trabajando|trabajamos
+WORK	vi	làm|làm việc|làm trả nợ
+WORK	zh	干活|幹活|工作|做工|打工|干|幹
+WORK	ko	일|노동
+WORK	ja	働|仕事|労働
+CONFINE	th	ขัง|กักขัง|กักตัว|ไม่ให้ออก|ไม่ให้กลับ|ไม่ยอมให้กลับ|ไม่ยอมให้ออก
+CONFINE	en	lock us|locks us|locked us|lock me|locks me|locked me|locked in|won't let me leave|won't let us leave|won't let me go|keep us inside|confined|not allowed to leave
+CONFINE	es	encierran|encierra|encerraron|encerrados|encerradas|no nos dejan salir|no me dejan salir|no me dejan irme|no nos dejan irnos|no me dejan ir
+CONFINE	vi	nhốt|không cho về|không cho đi|không cho ra ngoài|giam
+CONFINE	zh	锁在|鎖在|关在|關在|关起来|關起來|不让走|不讓走|不让出去|不讓出去|不让我走|囚禁
+CONFINE	ko	가둬|가두|가뒀|감금|못 나가|못 가게
+CONFINE	ja	閉じ込め|監禁|帰らせてもらえない|出してもらえない|帰してくれない
+DEBT	th	หนี้
+DEBT	en	debt|debts|owe them|pay off what i owe
+DEBT	es	deuda|deudas
+DEBT	vi	nợ
+DEBT	zh	债|債|欠款|还钱|還錢
+DEBT	ko	빚|채무
+DEBT	ja	借金|返済
+WAGE	th	ยึดเงินเดือน|ยึดค่าจ้าง|ไม่จ่ายเงิน|ไม่ให้เงิน|ไม่ได้เงิน|ไม่จ่ายค่าจ้าง|เอาเงินเดือนไป
+WAGE	en	without pay|no pay|unpaid|not paid|don't pay|doesn't pay|won't pay|keeps all my wages|keeps my wages|takes my wages|took my wages|keeps my salary|takes my salary
+WAGE	es	sin paga|sin pago|sin sueldo|no me pagan|no nos pagan|se queda con todo mi sueldo|se queda con mi sueldo|me quita el sueldo
+WAGE	vi	không lương|không trả lương|giữ hết tiền lương|giữ lương|lấy hết lương|không được trả tiền
+WAGE	zh	不给工资|不給工資|不发工资|不發工資|扣下我所有工资|扣工资|扣工資|扣下工资|没有工资|沒有工資
+WAGE	ko	re:월급(?:을|도)?\s*(?:전부\s*|다\s*)?(?:가져가|안\s*주|떼어|빼앗)|임금을?\s*(?:안\s*주|체불)
+WAGE	ja	re:給料を?(?:全部)?取られ|給料を?(?:もらえず|もらえない|払ってくれない|払わない)|給料が(?:出ない|もらえない)
+PAID_OK	th	ได้เงินเพิ่ม|ได้ค่าโอที|ค่าแรงดี|เงินดี
+PAID_OK	en	paid well|pay is good|good pay|extra pay|overtime pay|pays well
+PAID_OK	es	me pagan bien|pagan bien|buen sueldo
+PAID_OK	vi	lương tốt|lương thêm|trả lương đầy đủ
+PAID_OK	zh	加班费不错|加班費不錯|工资不错|工資不錯|待遇好
+PAID_OK	ko	수당이 괜찮|수당도 나와|월급이 괜찮
+PAID_OK	ja	残業代はいい|残業代が出る|給料はいい
+# ── หมดสติ ── ไม่นับ "มือถือ/คอมไม่ตอบสนอง" · "เกือบเป็นลม" · "หลับเป็นตาย"
+# "ไม่รู้สึกตัวว่า..." = ไม่ทันสังเกต (ไม่รู้สึกตัวเลยว่าเวลาผ่านไป) ไม่ใช่หมดสติ
+UNCONSCIOUS	th	re:ไม่รู้สึกตัว(?!(?:เลย|สักนิด)?\s*ว่า)
+UNCONSCIOUS	th	หมดสติ|เรียกไม่ตื่น|ปลุกไม่ตื่น|ปลุกยังไงก็ไม่|ไม่ตอบสนอง|แน่นิ่ง|เป็นลม|ล้มฟุบ|สลบ
+UNCONSCIOUS	en	passed out|unconscious|unresponsive|won't wake|can't wake|cannot wake|isn't responding|not responding|won't respond|lying limp|went limp|collapsed|fainted|blacked out|isn't breathing|not breathing
+UNCONSCIOUS	es	perdió el conocimiento|inconsciente|no reacciona|no responde|no despierta|se desmayó|desmayado|desmayada|se desplomó|no logramos despertarlo|no logramos despertarla|no respira
+UNCONSCIOUS	vi	bất tỉnh|ngất|ngất xỉu|không tỉnh|không phản ứng|ngã gục|lay không dậy|gọi mãi không tỉnh|không thở
+UNCONSCIOUS	zh	昏过去|昏過去|昏迷|晕倒|暈倒|叫不醒|没反应|沒反應|倒下|不省人事|没有呼吸|沒有呼吸
+UNCONSCIOUS	ko	의식을 잃|의식이 없|쓰러졌|쓰러져|기절했|안 깨|반응이 없|축 늘어|숨을 안
+UNCONSCIOUS	ja	意識を失|意識がない|倒れ|気絶した|起きない|反応がない|ぐったり|息をしていない
+DEVICE	th	มือถือ|โทรศัพท์|คอมพิวเตอร์|คอม|แอป|แอพ|จอ|ตลาดหุ้น|ระบบ|เว็บ
+DEVICE	en	phone|computer|laptop|app|screen|website|server|system|market|stock|building|bridge|economy|tent|wifi
+DEVICE	es	celular|teléfono|telefono|computadora|ordenador|app|pantalla|sistema|mercado|bolsa|edificio|puente|página
+DEVICE	vi	điện thoại|máy tính|ứng dụng|màn hình|hệ thống|thị trường|chứng khoán|tòa nhà|cầu|wifi
+DEVICE	zh	手机|手機|电脑|電腦|应用|應用|屏幕|系统|系統|股市|网站|網站|楼|樓
+DEVICE	ko	휴대폰|핸드폰|스마트폰|컴퓨터|앱|화면|시스템|주식|건물|사이트
+DEVICE	ja	スマホ|携帯|パソコン|アプリ|画面|システム|株価|建物|サイト
+NEARLY	th	เกือบ|แทบ|หลับเป็นตาย|เหมือนจะเป็นลม|จะเป็นลม
+NEARLY	en	almost|nearly|like the dead|could have fainted|about to faint
+NEARLY	es	casi|como un tronco|por poco
+NEARLY	vi	suýt|như chết|gần như
+NEARLY	zh	差点|差點|几乎|幾乎|像死猪|快要
+NEARLY	ko	뻔|하듯|것 같아|기절하듯
+NEARLY	ja	そうになった|ように寝|倒れそう|ほど
+# ── เลือดออกไม่หยุด ── ko "피" ต้องไม่ใช่ 커피/피곤/피자/피부 · zh "血" ต้องไม่ใช่ 血压/血糖/心血
+BLOOD	th	เลือด
+BLOOD	en	blood|bleeding|bleed|bleeds
+BLOOD	es	sangre|sangrar|sangra|sangrando|sangrado
+BLOOD	vi	máu|chảy máu
+BLOOD	zh	re:(?<!心)血(?!压|壓|圧|糖|型|管|脂|统|統|汗|液型)
+BLOOD	ko	re:(?<![커])피(?!곤|자|부|아노|해|하|씨|드백|크닉|로|서|난)|출혈
+BLOOD	ja	re:(?<!心)血(?!圧|压|壓|糖|液型|型|管|脂|統|统|汗)|出血
+BLEED_BAD	th	ไม่หยุด|ไม่ยอมหยุด|ท่วม|เต็มพื้น|นองพื้น|พุ่ง|เยอะมาก|ไหลไม่หยุด|นอง|ทะลัก
+BLEED_BAD	en	won't stop|not stopping|can't stop|cannot stop|all over|everywhere|so much|a lot of|lots of|pouring|gushing|spurting|soaked|soaking
+BLEED_BAD	es	no deja de|no para|por todo|a chorros|mucha|muchísima|empapad|no se detiene
+BLEED_BAD	vi	không ngừng|không cầm|loang|khắp|rất nhiều|xối xả|phun|ướt đẫm|không dừng
+BLEED_BAD	zh	一直流|流不停|止不住|一地|满地|滿地|很多|喷|噴|大量|一直
+BLEED_BAD	ko	멈추지 않|안 멈|계속|범벅|많이|흥건|뿜|철철
+BLEED_BAD	ja	止まらない|止まらな|だらけ|大量|たくさん|噴き出|あふれ|溢れ|びっしょり
+MINOR	th	นิดหน่อย|นิดเดียว|หยุดแล้ว|ซึม|เล็กน้อย|ถลอก
+MINOR	en	a little|a bit of|a drop|just a drop|stopped|paper cut|scrape|scraped|tiny
+MINOR	es	un poco|poquito|gotita|ya paró|raspé|raspón|papel
+MINOR	vi	một chút|chút|đã ngừng|giấy|trầy|rỉ
+MINOR	zh	一点|一點|已经停|已經停|止住了|纸|紙|擦破
+MINOR	ko	조금|살짝|멈췄|종이|까졌
+MINOR	ja	少し|ちょっと|止まった|紙で|すりむ
+# หมดสติแล้วฟื้นแล้ว ("เมาจนหลับไม่รู้สึกตัว ตื่นมาปวดหัว") — เรื่องที่ผ่านไปแล้ว ไม่ใช่เหตุฉุกเฉินตอนนี้
+RECOVERED	th	ตื่นมา|ตื่นขึ้นมา|ฟื้นแล้ว|ฟื้นขึ้นมา|รู้สึกตัวแล้ว|ตอนนี้ดีขึ้น|ตอนนี้ปกติ
+RECOVERED	en	woke up|came to|came round|came around|is fine now|is okay now|now awake|recovered
+RECOVERED	es	despertó|desperté|ya despertó|volvió en sí|ya está bien|ya se recuperó
+RECOVERED	vi	tỉnh dậy|đã tỉnh|tỉnh lại|giờ ổn|đã ổn
+RECOVERED	zh	醒来|醒來|醒过来|醒過來|已经醒|已經醒|没事了|沒事了
+RECOVERED	ko	깨어났|깨고 나니|일어나 보니|정신이 돌아|괜찮아졌
+RECOVERED	ja	目が覚め|目覚めた|意識が戻|もう大丈夫|起きたら
+# สิ่งที่ "ไม่ตอบ" แต่ไม่ใช่คน: ข้อความ แชท สายโทร ("แฟนไม่ตอบข้อความ" ≠ ไม่ตอบสนอง)
+DEVICE	th	ข้อความ|ไลน์|แชท|สายโทร|รับสาย|โทรไป
+DEVICE	en	messages|message|texts|text|calls|emails|dms|my calls
+DEVICE	es	mensajes|mensaje|correos|llamadas|whatsapp
+DEVICE	vi	tin nhắn|cuộc gọi|nghe máy|email
+DEVICE	zh	消息|短信|电话|電話|微信|回复|回覆
+DEVICE	ko	메시지|문자|카톡|전화|답장
+DEVICE	ja	メッセージ|返信|LINE|電話|メール
