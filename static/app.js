@@ -686,6 +686,15 @@ function eqCatalog(){
     return eqRow(e[0], esc(e[1]) + nm, '', esc(e[2]));
   }).join('') + '</div>';
 }
+/* หน้าระบบ: สมการเป็นการ์ดเรียงตามแกนกลางเส้นเดียว (แกนเคอร์เนล) — เห็นสัญลักษณ์กับสูตรก่อน แตะแล้วค่อยกางคำอธิบายและไฟล์ที่รันจริง
+   เดิมเป็นตัวหนังสือยาวต่อกันเหมือนเอกสาร เจ้าของโปรเจกต์บอกว่าไม่ล้ำ · <details> เปิดปิดได้ด้วยคีย์บอร์ด ไม่ต้องมีสคริปต์ */
+function eqDeck(){
+  return '<div class="eq-deck" id="sys-eq">' + EQ.map(function(e){
+    var nm = e[3] ? '<span class="nm" lang="en">' + esc(e[3]) + '</span><span class="nm" lang="th">' + esc(e[4]) + '</span>' : '';
+    return '<details class="eqd"><summary><span class="sym">' + esc(e[0]) + '</span><span class="fx">' + esc(e[1]) + '</span></summary>' +
+      '<div class="more">' + nm + '<code>' + esc(e[2]) + '</code></div></details>';
+  }).join('') + '</div>';
+}
 function r1(v){ return Math.round(v * 10) / 10; }
 function eqHTML(t){
   if(!t) return eqCatalog();
@@ -3089,7 +3098,7 @@ $('#sim-run').addEventListener('click', async function(){
     if(typeof txt !== 'string') txt = JSON.stringify(txt, null, 2);
     if(!txt) txt = JSON.stringify(d, null, 2);
     out.className = 'out'; out.textContent = txt;
-    drawFuture(d.future);
+    drawFuture(d.future); orbitFromFuture(d.future);
   }catch(e){ out.className = 'out'; out.textContent = '⚠ ' + e.message; drawFuture(null); }
   finally{ btn.disabled = false; }
 });
@@ -3241,7 +3250,7 @@ function buildSystem(){
   if(sysBuilt) return; sysBuilt = true;
   loadLiveMap();                                   // ขอตัวเลขสดก่อน ป้ายจะได้ขึ้นว่า "กำลังโหลด" ไม่ใช่ "ชุดที่ฝังไว้"
   sysStats();
-  $('#sys-eq').outerHTML = eqCatalog();
+  $('#sys-eq').outerHTML = eqDeck();
   $('#sys-pipe').innerHTML = PIPE.map(function(p){
     return '<li title="' + esc(p[1]) + '"><div><div class="t">' + esc(p[0]) + '</div><code>' + esc(p[2]) + '</code></div><span class="st"><i style="background:var(--' + (p[3] === 'ok' ? 'ok' : 'warn') + ')"></i>' + (p[3] === 'ok' ? '' : esc(p[4])) + '</span></li>';
   }).join('');
@@ -3274,12 +3283,14 @@ function sysStats(){
   }
   $('#sys-commit').title = mapLive ? _t('นับจากไฟล์ที่เซิร์ฟเวอร์รันอยู่จริง') + (MAP.built_at ? ' · ' + MAP.built_at : '') : _t('ยังโหลดแผนผังสดไม่ได้ — แสดงชุดที่ฝังไว้ตอน commit');
   var live = (counts.boot || 0) + (counts.request || 0);
-  $('#sys-stats').innerHTML =
-    '<div><b>' + F.length + '</b><span>ไฟล์ใน repo</span></div>' +
-    '<div><b>' + lines.toLocaleString('en-US') + '</b><span>บรรทัด (text)</span></div>' +
-    '<div><b>' + live + '</b><span>โมดูล Python ที่รันจริง</span></div>' +
-    '<div><b>' + py + '</b><span>ไฟล์ Python ทั้งหมด</span></div>' +
-    '<div><b>' + fixed + '</b><span>ไฟล์ที่ซ่อมรอยรั่วแล้ว</span></div>';
+  /* ตัวเลขระบบเป็นหน้าปัดวงแหวน: วงแสดงสัดส่วนจริง (โมดูลที่รันจริง/ไฟล์ Python ทั้งหมด · ไฟล์ที่ซ่อมแล้ว/ทุกไฟล์) */
+  function ring(v, of, label, cls){
+    var f = of ? Math.max(0, Math.min(1, v / of)) : 1, C = 2 * Math.PI * 26;
+    return '<div class="gauge ' + (cls || '') + '"><svg viewBox="0 0 64 64" aria-hidden="true"><circle class="trk" cx="32" cy="32" r="26"/>' +
+      '<circle class="val" cx="32" cy="32" r="26" stroke-dasharray="' + (C * f).toFixed(1) + ' ' + C.toFixed(1) + '"/></svg><b>' + v.toLocaleString('en-US') + '</b><span>' + label + '</span></div>';
+  }
+  $('#sys-stats').innerHTML = ring(F.length, F.length, 'ไฟล์ใน repo') + ring(lines, lines, 'บรรทัด (text)', 'wide') +
+    ring(live, py, 'โมดูล Python ที่รันจริง', 'hot') + ring(py, F.length, 'ไฟล์ Python ทั้งหมด') + ring(fixed, F.length, 'ไฟล์ที่ซ่อมรอยรั่วแล้ว', 'ok');
   $('#sys-stack').innerHTML = CATS.filter(function(c){ return counts[c[0]]; }).map(function(c){
     return '<i style="width:' + (counts[c[0]] / F.length * 100) + '%;background:' + catColor(c[0]) + '" title="' + esc(_t(c[1]) + ' ' + counts[c[0]]) + '"></i>';
   }).join('');
@@ -3505,4 +3516,37 @@ window.addEventListener('KD:response', function(e){
   }
   window.KD_voiceParts = parts;                                  /* ให้เทสต์/คอนโซลตรวจการแบ่งท่อนได้ */
 })();
-
+/* ── หน้าเครื่องมือ: ทางเลือกเป็นดาวโคจรรอบตรา ───────────────────────────────────────────────
+   พิมพ์ทางเลือกแล้วดาวดวงนั้นเกิดขึ้นทันที (ลบข้อความแล้วดับ) · กดจำลองแล้วดาวแต่ละดวงเปลี่ยนตามผลจริงจาก /simulate:
+   ปลายทางต่ำกว่าเส้นอันตราย = แดงและหรี่ · ทางที่รอดดีที่สุด = ทอง และมีเส้นแสงลงไปที่หยดแสงของตรา
+   วาดใหม่เฉพาะตอนพิมพ์หรือได้ผล ไม่มีลูปวาดตลอดเวลา (ไม่กินแบต) */
+var ORBIT = { res: null };
+function drawOrbit(){
+  var svg = $('#sim-orbit'); if(!svg) return;
+  var ins = $$('#sim-paths input'), n = ins.length, h = '', c = Math.cos(-11 * Math.PI / 180), sn = Math.sin(-11 * Math.PI / 180);
+  h += '<ellipse class="orb" cx="0" cy="22" rx="104" ry="30" transform="rotate(-11 0 22)"/>';
+  ins.forEach(function(inp, i){
+    var on = !!inp.value.trim(), a = Math.PI * [1, 0, 1.22, 1.78, .78, .22, .5][i % 7], r = ORBIT.res && ORBIT.res[i];   /* ปลายซ้าย-ขวาก่อน แล้วค่อยหน้า/หลัง — ไม่ให้ดาวทับตัวตรา */
+    var x = Math.cos(a) * 104, y0 = Math.sin(a) * 30, X = x * c - y0 * sn, Y = 22 + x * sn + y0 * c;
+    var cls = 'st s' + (i % 3 + 1) + (on ? ' on' : '') + (r ? ' ' + r : '');
+    if(r === 'best') h += '<line class="beam" x1="' + X.toFixed(1) + '" y1="' + Y.toFixed(1) + '" x2="0" y2="27"/>';   /* หยดแสงของตรา: ต่ำกว่ากึ่งกลาง 45px บนตราขนาด 168px = 27 หน่วยในกรอบนี้ */
+    h += '<g class="' + cls + '" transform="translate(' + X.toFixed(1) + ' ' + Y.toFixed(1) + ')"><circle r="' + (r === 'best' ? 7 : 5) + '"/><text y="-10">' + String.fromCharCode(65 + i) + '</text></g>';
+  });
+  svg.innerHTML = h;
+}
+/* แก้ทางเลือกหลังได้ผลแล้ว = ผลเดิมไม่ตรงกับทางเลือกใหม่ ล้างสีผลทิ้ง */
+$('#sim-paths').addEventListener('input', function(){ ORBIT.res = null; drawOrbit(); });
+$('#sim-paths').addEventListener('click', function(){ setTimeout(function(){ ORBIT.res = null; drawOrbit(); }, 0); });
+$('#sim-add').addEventListener('click', function(){ setTimeout(drawOrbit, 0); });
+/* ผลจริงจาก /simulate → สถานะของดาว · ใช้ค่ากลางเดือนสุดท้ายเทียบเส้นอันตราย (ค่าเดียวกับกราฟ 12 เดือนใต้ปุ่ม) */
+function orbitFromFuture(f){
+  var P = f && Array.isArray(f.paths) ? f.paths : [], floor = num(f && f.floor, 30), best = -1, bv = -1;
+  ORBIT.res = P.length ? P.map(function(p, i){
+    var m = p && p.mid, v = m && m.length ? num(m[m.length - 1], 0) : null;
+    if(v != null && v >= floor && v > bv){ bv = v; best = i; }
+    return v == null ? '' : v < floor ? 'risk' : 'safe';
+  }) : null;
+  if(ORBIT.res && best >= 0) ORBIT.res[best] = 'best';
+  drawOrbit();
+}
+drawOrbit();

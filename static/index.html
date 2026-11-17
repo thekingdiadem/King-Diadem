@@ -225,7 +225,7 @@ window.KD_themeVars = function(t, c){
     <!-- TOOLS -->
     <section class="view" id="view-tools" aria-label="เครื่องมือ">
       <div class="scroll"><div class="pad">
-        <div class="crest" aria-hidden="true"><img src="/static/brand/crest.svg" alt="" width="132" height="132" decoding="async"><i></i><b class="axis"></b><s class="ripple"></s><span class="crest-word" data-i18n-skip>KING DIADEM</span></div>
+        <div class="crest" aria-hidden="true"><img src="/static/brand/crest.svg" alt="" width="132" height="132" decoding="async"><i></i><b class="axis"></b><s class="ripple"></s><span class="crest-word" data-i18n-skip>KING DIADEM</span><svg id="sim-orbit" viewBox="-110 -110 220 220" aria-hidden="true"></svg></div>
         <div class="card glass" id="card-sim">
           <div class="card-h"><h2>จำลองทางเลือก</h2><p class="mono">Downside First · 30 / 90 วัน</p></div>
           <div class="card-b">
@@ -290,8 +290,8 @@ window.KD_themeVars = function(t, c){
           <div id="sys-live" class="live-pill wait" role="status" aria-live="polite"><i></i><span>กำลังโหลดตัวเลขสด…</span></div>
           <p class="mono"><a href="#" data-axis>THE PURE AXIS</a> · <span id="sys-commit">—</span> · <a href="#" id="to-sys-universe">จักรวาล →</a> · <a href="/architecture">สถาปัตยกรรม →</a></p>
         </div>
-        <div class="card glass"><div class="card-b"><div class="eq" id="sys-eq"></div></div></div>
-        <div class="stats" id="sys-stats"></div>
+        <div class="stats gauges" id="sys-stats"></div>
+        <div class="eq-deck" id="sys-eq"></div>
         <div class="card glass"><div class="card-b">
           <div class="stack" id="sys-stack"></div>
           <div class="legend" id="sys-legend"></div>
