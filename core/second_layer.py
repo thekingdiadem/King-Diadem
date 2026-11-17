@@ -305,7 +305,7 @@ _ASK_INTL = (r"(?:adulto|desconocid[oa]|hombre|señor|extrañ[oa])[^.!?\n]{0,30}
              r"(?:陌生人|成年人|网友|網友|大人)[^。！？\n]{0,12}(?:要|索要|要求)[^。！？\n]{0,6}(?:裸照|照片|私密照)|"
              r"(?:모르는\s*(?:어른|사람|남자)|낯선\s*(?:어른|사람))[가-힯\s]{0,12}(?:사진을?\s*(?:요구|보내\s*달라)|알몸|나체)|"
              r"(?:知らない|見知らぬ)(?:大人|人|男)[^。！？\n]{0,12}(?:写真|画像)を?(?:要求|送って|送れ|ほしい)")
-UPGRADES += [(re.compile(r"(?s)(?=.*" + _KID_INTL + r")(?=.*(?:" + _ASK_INTL + r"))", re.I), "online_grooming")]
+UPGRADES += [(re.compile(r"(?s)^(?=.*" + _KID_INTL + r")(?=.*(?:" + _ASK_INTL + r"))", re.I), "online_grooming")]
 
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
