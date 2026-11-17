@@ -25,11 +25,11 @@
   },
   "emergency": {
    "n": 137,
-   "tp": 80,
-   "fn": 57,
+   "tp": 132,
+   "fn": 5,
    "fp": 3,
-   "recall": 0.584,
-   "precision": 0.964
+   "recall": 0.964,
+   "precision": 0.978
   },
   "violence": {
    "n": 35,
@@ -57,7 +57,7 @@
   }
  },
  "danger_missed": {
-  "n": 70,
+  "n": 20,
   "of": 208
  },
  "false_alarm": {
@@ -66,31 +66,31 @@
  },
  "by_lang": {
   "en": {
-   "hit": 36,
+   "hit": 43,
    "n": 45
   },
   "es": {
-   "hit": 7,
+   "hit": 17,
    "n": 21
   },
   "ja": {
-   "hit": 12,
+   "hit": 18,
    "n": 22
   },
   "ko": {
-   "hit": 9,
+   "hit": 17,
    "n": 21
   },
   "th": {
-   "hit": 72,
+   "hit": 79,
    "n": 82
   },
   "vi": {
-   "hit": 8,
+   "hit": 16,
    "n": 20
   },
   "zh": {
-   "hit": 15,
+   "hit": 21,
    "n": 23
   }
  },
@@ -134,27 +134,9 @@
    ]
   },
   {
-   "line": 207,
-   "text": "ตากินยาโรคหัวใจหมดทุกเม็ดในครั้งเดียว",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 211,
    "text": "เขาบังคับให้ทำงานไม่ได้เงิน แล้วไม่ยอมให้กลับบ้าน",
    "label": "violence",
-   "got": []
-  },
-  {
-   "line": 213,
-   "text": "ลูกสำลักองุ่น",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 214,
-   "text": "น้องตกสระว่ายน้ำแล้วไม่โผล่ขึ้นมา",
-   "label": "emergency",
    "got": []
   },
   {
@@ -178,12 +160,6 @@
    "got": []
   },
   {
-   "line": 227,
-   "text": "Mi abuelo se tomó todas sus pastillas del corazón de golpe",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 228,
    "text": "Mi pareja me agarra del cuello cuando se enoja",
    "label": "violence",
@@ -199,12 +175,6 @@
    "line": 232,
    "text": "Mi amigo se cortó la muñeca y hay mucha sangre",
    "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 233,
-   "text": "El bebé se está atragantando con una uva",
-   "label": "emergency",
    "got": []
   },
   {
@@ -226,20 +196,6 @@
    "got": []
   },
   {
-   "line": 244,
-   "text": "Em họ tôi rơi xuống hồ bơi và không nổi lên",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 247,
-   "text": "我爷爷一次把心脏病的药全吃了",
-   "label": "emergency",
-   "got": [
-    "self_harm"
-   ]
-  },
-  {
    "line": 248,
    "text": "我老公一生气就掐我的脖子",
    "label": "violence",
@@ -252,21 +208,9 @@
    "got": []
   },
   {
-   "line": 253,
-   "text": "宝宝被葡萄噎住了",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 256,
    "text": "사는 게 의미가 없어요, 너무 지쳤어요",
    "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 257,
-   "text": "할아버지가 심장약을 한꺼번에 다 드셨어요",
-   "label": "emergency",
    "got": []
   },
   {
@@ -285,12 +229,6 @@
    "line": 261,
    "text": "월급도 안 주고 일만 시키고 못 나가게 해요",
    "label": "violence",
-   "got": []
-  },
-  {
-   "line": 264,
-   "text": "사촌동생이 수영장에 빠져서 안 나와요",
-   "label": "emergency",
    "got": []
   },
   {
@@ -326,190 +264,8 @@
    ]
   },
   {
-   "line": 328,
-   "text": "แม่ดื่มน้ำยาฆ่าหญ้าไปครึ่งขวด",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 330,
-   "text": "พ่อเมาแล้วยกน้ำมันก๊าดขึ้นดื่มเพราะนึกว่าน้ำ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 334,
-   "text": "ลูกหลุดมือตกลงไปในบ่อปลา ยังหาไม่เจอ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 335,
-   "text": "มีคนตกเรือกลางแม่น้ำ ว่ายไม่เป็น",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 348,
-   "text": "My mom drank half a bottle of weed killer",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 349,
-   "text": "My nephew ate the rat poison under the table",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 350,
-   "text": "Dad was drunk and drank kerosene thinking it was water",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 352,
-   "text": "Grandma kept taking her diabetes pills until the pack was empty",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 354,
-   "text": "My son slipped into the fish pond and we can't find him",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 355,
-   "text": "Someone fell off the boat in the river and can't swim",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 357,
-   "text": "My kid put a coin in his mouth and it's stuck, he can't cough",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 368,
-   "text": "Mi mamá se bebió media botella de herbicida",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 369,
-   "text": "Mi sobrino comió el veneno para ratas que estaba debajo de la mesa",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 371,
-   "text": "Mi hermana se tomó treinta analgésicos",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 372,
-   "text": "La abuela siguió tomando sus pastillas de diabetes hasta acabar la caja",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 374,
-   "text": "Mi hijo resbaló al estanque y no lo encontramos",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 375,
-   "text": "Alguien se cayó del bote en el río y no sabe nadar",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 376,
-   "text": "A mi papá se le atoró arroz en la garganta y no puede respirar",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 377,
-   "text": "Mi niño se metió una moneda a la boca y se le atoró, no puede toser",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 388,
-   "text": "Mẹ tôi uống nửa chai thuốc diệt cỏ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 389,
-   "text": "Cháu tôi ăn phải bả chuột để dưới gầm bàn",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 390,
-   "text": "Bố say rượu uống dầu hỏa vì tưởng là nước",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 391,
-   "text": "Em gái tôi uống ba mươi viên thuốc giảm đau",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 392,
-   "text": "Bà cứ uống thuốc tiểu đường mãi đến hết cả hộp",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 394,
-   "text": "Con tôi trượt chân xuống ao cá, chưa tìm thấy",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 395,
-   "text": "Có người rơi khỏi thuyền giữa sông, không biết bơi",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 397,
    "text": "Con tôi ngậm đồng xu rồi bị mắc, không ho ra được",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 411,
-   "text": "我妹妹吃了三十片止痛药",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 412,
-   "text": "奶奶一直吃糖尿病的药，把一盒都吃完了",
-   "label": "emergency",
-   "got": [
-    "self_harm"
-   ]
-  },
-  {
-   "line": 414,
-   "text": "我儿子滑进鱼塘里了，还没找到",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 417,
-   "text": "孩子把硬币放进嘴里卡住了，咳不出来",
    "label": "emergency",
    "got": []
   },
@@ -520,78 +276,6 @@
    "got": [
     "self_harm"
    ]
-  },
-  {
-   "line": 428,
-   "text": "엄마가 제초제를 반 병 마셨어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 430,
-   "text": "아빠가 술에 취해서 등유를 물인 줄 알고 마셨어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 431,
-   "text": "여동생이 진통제를 서른 알 먹었어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 432,
-   "text": "할머니가 당뇨약을 계속 드셔서 한 상자를 다 드셨어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 434,
-   "text": "아들이 연못에 미끄러져 빠졌는데 아직 못 찾았어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 435,
-   "text": "누가 배에서 강으로 떨어졌는데 수영을 못해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 449,
-   "text": "甥がテーブルの下の殺鼠剤を食べた",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 450,
-   "text": "父が酔って灯油を水だと思って飲んだ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 451,
-   "text": "妹が痛み止めを30錠飲んだ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 452,
-   "text": "祖母が糖尿病の薬を何度も飲んで一箱空にした",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 454,
-   "text": "息子が池に滑り落ちて、まだ見つからない",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 457,
-   "text": "子どもが硬貨を口に入れて詰まり、咳ができない",
-   "label": "emergency",
-   "got": []
   }
  ]
 }
