@@ -581,22 +581,6 @@ VIOLENCE_BY = re.compile(
     r"\b(?:someone|he|she|they) locked me (?:in|up)\b|\bi'?m locked in\b|"
     # ตาราง 10,200 ข้อความ: ใครก็ตามที่ทำร้าย (ไม่ใช่แค่สามี/แฟน) — คนแปลกหน้า เจ้านาย พ่อเลี้ยง เคยได้ Risk 0
     r"(?i:\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,12}?\b(?:hits|beats|punches|kicks|slaps|chokes|strangles|burns|starves|whips|pushed|shoved|threw) me\b(?!\s+(?:why|how|what|at\s+(?:chess|cards|games?|tennis|racing|everything)|in\s+(?:chess|cards|games?|tennis|racing)|out\b|off\b|up\b))|"
-    # รอบสุ่ม 138: อาการบวมมาก่อน แล้วค่อยบอกว่ากินอะไร — "ตาบวมปิด ปากบวม หลังกินกุ้ง" เคยได้ 0 (อังกฤษได้ 85)
-    r"(?:ปากบวม|หน้าบวม|ตาบวม(?:ปิด)?|คอบวม|ลิ้นบวม|หายใจลำบาก|หายใจไม่ออก|ผื่นขึ้นทั้งตัว)[^\n]{0,24}?(?:หลัง|ตั้งแต่|เพราะ)?(?:กิน|แพ้|โดน(?:ผึ้ง|ต่อ|แตน)ต่อย|ฉีดยา)|"
-    # รอบสุ่ม 139: กินยาละลายลิ่มเลือดแล้วหัวกระแทก (เลือดออกในสมองได้แม้ดูปกติ) — เคยได้แค่ 75
-    r"(?:ยาละลายลิ่มเลือด|ยาต้านการแข็งตัวของเลือด|วาร์ฟาริน|warfarin|(?i:blood thinners?|anticoagulants?|eliquis|xarelto))[^\n]{0,30}?(?:หัว(?:กระแทก|ฟาด|โขก)|ล้ม|(?i:hit (?:his|her|their|my) head|fell|bumped (?:his|her|their|my) head))|"
-    # รอบสุ่ม 140: เลือดกำเดาไหลไม่หยุด (อังกฤษ) — เคยได้ 0 ขณะที่ฉบับไทยได้ 85
-    r"(?i:\bnose ?bleed\b[^\n]{0,12}?\b(?:won'?t stop|will not stop|not stopping|keeps? (?:going|bleeding)|for (?:over )?(?:20|30|40|45|\d{2,}) ?(?:min|minutes))\b)|"
-    # รอบสุ่ม 137: เด็กเล็กตก/หัวกระแทกแล้วอาเจียน · ท้องแข็งเป็นดานปวดมาก (อังกฤษ) — เคยได้ 0 ขณะที่ฉบับไทยได้ 75–85
-    r"(?i:\b(?:baby|toddler|infant|newborn|my (?:son|daughter|kid|child))\b[^\n]{0,16}?\b(?:fell(?! asleep)|hit (?:his|her|their) head|bumped (?:his|her|their) head)\b[^\n]{0,30}?\b(?:vomit\w*|threw up|throwing up|very sleepy|won'?t stop crying|limp|seizure)\b)|"
-    r"(?i:\b(?:stomach|belly|abdomen)\b[^\n]{0,10}?\b(?:is |feels )?(?:rock[- ]hard|hard as (?:a )?(?:rock|board)|rigid)\b[^\n]{0,30}?\b(?:pain|hurts|unbearable|can'?t move|fever|vomit\w*)\b)|"
-    # รอบสุ่ม 136: คนในบ้านไม่ตื่น + ตัวเย็น/ไม่ขยับ/เรียกไม่ตอบ — "คนแก่ในบ้านไม่ตื่น ตัวเย็น" เคยได้ 0 (อังกฤษได้ 85)
-    # (ปลุกไม่ตื่นเฉยๆ ยังไม่นับ — "ปลุกลูกไม่ตื่นไปโรงเรียน" เป็นเรื่องปกติ)
-    r"(?:ยาย|ตา(?!ย|ม|ก|ร)|ปู่|ย่า|พ่อ|แม่|คนแก่|ผู้สูงอายุ|สามี|ภรรยา|แฟน|ลูก|ทารก|น้อง|เพื่อน)[^\n]{0,12}?(?:ปลุก)?ไม่(?:ยอม)?ตื่น[^\n]{0,16}?(?:ตัวเย็น|ตัวซีด|ปากเขียว|ไม่ขยับ|ไม่หายใจ|เรียกไม่ตอบ|ตัวแข็ง)|"
-    r"(?:ยาย|ตา(?!ย|ม|ก|ร)|ปู่|ย่า|พ่อ|แม่|คนแก่|ผู้สูงอายุ|สามี|ภรรยา|แฟน|ลูก|ทารก)[^\n]{0,12}?(?:ตัวเย็น|ตัวแข็ง)[^\n]{0,10}?(?:ไม่ขยับ|ไม่ตื่น|ไม่หายใจ|เรียกไม่ตอบ)|"
-    # รอบสุ่ม 135: แผลดำและมีกลิ่น (เนื้อตาย/ติดเชื้อรุนแรง) · มีคำว่าเบาหวาน ให้ชุดความรู้ kp_diabetic_foot ตอบแทน — "my dad's foot wound turned black and smells" เคยได้ 0
-    r"(?:^(?![^\n]*(?:เบาหวาน|(?i:diabet)))[^\n]*?)(?i:\b(?:wound|cut|sore|ulcer|toe|toes|foot|leg)\b[^\n]{0,20}?\b(?:turn(?:ed|ing)? black|is black|gone black|black and)\b[^\n]{0,24}?\b(?:smell\w*|stink\w*|pus|oozing|fever)\b)|"
-    r"(?:^(?![^\n]*(?:เบาหวาน|(?i:diabet)))[^\n]*?)แผล[^\n]{0,12}?(?:ดำ|เน่า)[^\n]{0,16}?(?<!ไม่)(?:มีกลิ่น|เหม็น|มีหนอง|มีไข้)|"
     # รอบสุ่ม 134: ล็อกประตูขังไว้ — "he locked the door and won't let me leave" · "แฟนล็อกประตูไม่ให้ออก" เคยได้ 0
     r"(?i:\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|mom|mother|ex|boss|employer)\b[^\n]{0,10}?\blocked (?:the |all the |every )?(?:door|doors|gate)\b[^\n]{0,30}?\b(?:won'?t let me (?:leave|out|go)|took my (?:keys|phone)|(?:is |keeps )?(?:screaming|yelling) at me|hit|hitting|threaten\w*)\b)|"
     r"(?:แฟน|สามี|ภรรยา|เมีย|ผัว|พ่อ|แม่|พ่อเลี้ยง|แม่เลี้ยง|นายจ้าง|เขา)\S{0,6}?(?:ล็อก|ล็อค|ปิด)(?:ประตู|กุญแจ)[^\n]{0,16}?(?:ไม่ให้(?:ออก|ไป|หนี)|ขัง|ยึด(?:กุญแจ|โทรศัพท์|มือถือ)|ตะคอก|ทำร้าย|ตี)|"
@@ -720,6 +704,30 @@ URGENT_BODY = re.compile(
     # รอบสุ่ม 121: ผู้สูงอายุ/เด็กเล็กไม่กินไม่ดื่มหลายวัน = ขาดน้ำรุนแรง — เคยได้ 0 ทั้งไทยและอังกฤษ
     r"(?:ยาย|ตา(?!ย|ม|ก|ร)|ปู่|ย่า|พ่อ|แม่|ผู้สูงอายุ|คนแก่|ลูก|ทารก|เด็ก)[^\n]{0,12}?ไม่(?:ยอม)?(?:กิน|ดื่ม)(?:ข้าว|อะไร)?\S{0,4}?ไม่(?:ยอม)?(?:ดื่ม|กิน)(?:น้ำ|นม)[^\n]{0,8}?(?:มา)?(?:สอง|สาม|สี่|ห้า|หลาย|[2-9])\s*วัน|"
     r"(?i:\b(?:grandma|grandpa|grandmother|grandfather|my (?:mom|dad|mother|father|baby|toddler)|elderly \w+)\b[^\n]{0,10}?\b(?:hasn'?t|has not|won'?t|didn'?t)\s+(?:eaten|eat) (?:or|and|nor) (?:drunk|drank|drink)\w*\b[^\n]{0,24}?\b(?:two|three|four|several|\d) days\b)|"
+    # รอบสุ่ม 141: แน่นหน้าอก (chest pressure/tightness) ของคนในบ้าน แม้เจ้าตัวจะบอกว่าแค่ลมในท้อง — เคยได้ 0 (ไทยได้ 85)
+    r"(?i:\b(?:dad|father|mom|mother|husband|wife|grandpa|grandma|grandfather|grandmother|partner|he|she)\b[^\n]{0,12}?\b(?:has|having|feels?|complain\w*(?: of)?)\s+(?:a\s+)?(?:chest (?:pressure|tightness|heaviness)|crushing chest|pressure in (?:his|her) chest)\b(?!\s+(?:exercise|press|workout|stretch|machine)))|"
+    # รอบสุ่ม 142: สัญญาณเตือนก๊าซคาร์บอนมอนอกไซด์ดัง · ทุกคนในบ้านปวดหัวพร้อมกัน — เคยได้ 0 / 64
+    r"(?i:\b(?:co|carbon monoxide)\s+(?:alarm|detector)\b[^\n]{0,20}?\b(?:going off|beeping|is beeping|sounding|went off|keeps? beeping)\b)|"
+    r"(?i:\b(?:everyone|all of us|whole family|we all)\b[^\n]{0,24}?\b(?:headaches?|dizzy|nause\w*|throwing up)\b[^\n]{0,40}?\b(?:alarm|heater|generator|furnace|gas|stove|car running)\b)|"
+    r"(?:คนในบ้าน|ทุกคนในบ้าน|ทั้งบ้าน)[^\n]{0,10}?(?:ปวดหัว|เวียนหัว|คลื่นไส้|อาเจียน)(?:ทุกคน|พร้อมกัน)?[^\n]{0,24}?(?:กลิ่นแก๊ส|แก๊ส|เครื่องปั่นไฟ|เตา|ถ่าน|ปิดห้อง)|(?:กลิ่นแก๊ส|แก๊สรั่ว|เตาถ่าน|เครื่องปั่นไฟ)[^\n]{0,24}?(?:คนในบ้าน|ทุกคน|ทั้งบ้าน)[^\n]{0,10}?(?:ปวดหัว|เวียนหัว|คลื่นไส้|อาเจียน)|"
+    # รอบสุ่ม 143: ตกน้ำแข็ง (อังกฤษ) — เคยได้ 0 (ไทยได้ 85)
+    r"(?i:\b(?:fell|fallen|falling|went|broke) through (?:the )?(?:thin )?ice\b)|"
+    # รอบสุ่ม 138: อาการบวมมาก่อน แล้วค่อยบอกว่ากินอะไร — "ตาบวมปิด ปากบวม หลังกินกุ้ง" เคยได้ 0 (อังกฤษได้ 85)
+    r"(?:ปากบวม|หน้าบวม|ตาบวม(?:ปิด)?|คอบวม|ลิ้นบวม|หายใจลำบาก|หายใจไม่ออก|ผื่นขึ้นทั้งตัว)[^\n]{0,24}?(?:หลัง|ตั้งแต่|เพราะ)?(?:กิน|แพ้|โดน(?:ผึ้ง|ต่อ|แตน)ต่อย|ฉีดยา)|"
+    # รอบสุ่ม 139: กินยาละลายลิ่มเลือดแล้วหัวกระแทก (เลือดออกในสมองได้แม้ดูปกติ) — เคยได้แค่ 75
+    r"(?:ยาละลายลิ่มเลือด|ยาต้านการแข็งตัวของเลือด|วาร์ฟาริน|warfarin|(?i:blood thinners?|anticoagulants?|eliquis|xarelto))[^\n]{0,30}?(?:หัว(?:กระแทก|ฟาด|โขก)|ล้ม|(?i:hit (?:his|her|their|my) head|fell|bumped (?:his|her|their|my) head))|"
+    # รอบสุ่ม 140: เลือดกำเดาไหลไม่หยุด (อังกฤษ) — เคยได้ 0 ขณะที่ฉบับไทยได้ 85
+    r"(?i:\bnose ?bleed\b[^\n]{0,12}?\b(?:won'?t stop|will not stop|not stopping|keeps? (?:going|bleeding)|for (?:over )?(?:20|30|40|45|\d{2,}) ?(?:min|minutes))\b)|"
+    # รอบสุ่ม 137: เด็กเล็กตก/หัวกระแทกแล้วอาเจียน · ท้องแข็งเป็นดานปวดมาก (อังกฤษ) — เคยได้ 0 ขณะที่ฉบับไทยได้ 75–85
+    r"(?i:\b(?:baby|toddler|infant|newborn|my (?:son|daughter|kid|child))\b[^\n]{0,16}?\b(?:fell(?! asleep)|hit (?:his|her|their) head|bumped (?:his|her|their) head)\b[^\n]{0,30}?\b(?:vomit\w*|threw up|throwing up|very sleepy|won'?t stop crying|limp|seizure)\b)|"
+    r"(?i:\b(?:stomach|belly|abdomen)\b[^\n]{0,10}?\b(?:is |feels )?(?:rock[- ]hard|hard as (?:a )?(?:rock|board)|rigid)\b[^\n]{0,30}?\b(?:pain|hurts|unbearable|can'?t move|fever|vomit\w*)\b)|"
+    # รอบสุ่ม 136: คนในบ้านไม่ตื่น + ตัวเย็น/ไม่ขยับ/เรียกไม่ตอบ — "คนแก่ในบ้านไม่ตื่น ตัวเย็น" เคยได้ 0 (อังกฤษได้ 85)
+    # (ปลุกไม่ตื่นเฉยๆ ยังไม่นับ — "ปลุกลูกไม่ตื่นไปโรงเรียน" เป็นเรื่องปกติ)
+    r"(?:ยาย|ตา(?!ย|ม|ก|ร)|ปู่|ย่า|พ่อ|แม่|คนแก่|ผู้สูงอายุ|สามี|ภรรยา|แฟน|ลูก|ทารก|น้อง|เพื่อน)[^\n]{0,12}?(?:ปลุก)?ไม่(?:ยอม)?ตื่น[^\n]{0,16}?(?:ตัวเย็น|ตัวซีด|ปากเขียว|ไม่ขยับ|ไม่หายใจ|เรียกไม่ตอบ|ตัวแข็ง)|"
+    r"(?:ยาย|ตา(?!ย|ม|ก|ร)|ปู่|ย่า|พ่อ|แม่|คนแก่|ผู้สูงอายุ|สามี|ภรรยา|แฟน|ลูก|ทารก)[^\n]{0,12}?(?:ตัวเย็น|ตัวแข็ง)[^\n]{0,10}?(?:ไม่ขยับ|ไม่ตื่น|ไม่หายใจ|เรียกไม่ตอบ)|"
+    # รอบสุ่ม 135: แผลดำและมีกลิ่น (เนื้อตาย/ติดเชื้อรุนแรง) · มีคำว่าเบาหวาน ให้ชุดความรู้ kp_diabetic_foot ตอบแทน — "my dad's foot wound turned black and smells" เคยได้ 0
+    r"(?:^(?![^\n]*(?:เบาหวาน|(?i:diabet)))[^\n]*?)(?i:\b(?:wound|cut|sore|ulcer|toe|toes|foot|leg)\b[^\n]{0,20}?\b(?:turn(?:ed|ing)? black|is black|gone black|black and)\b[^\n]{0,24}?\b(?:smell\w*|stink\w*|pus|oozing|fever)\b)|"
+    r"(?:^(?![^\n]*(?:เบาหวาน|(?i:diabet)))[^\n]*?)แผล[^\n]{0,12}?(?:ดำ|เน่า)[^\n]{0,16}?(?<!ไม่)(?:มีกลิ่น|เหม็น|มีหนอง|มีไข้)|"
     # รอบสุ่ม 119: บาดเจ็บกระดูกสันหลัง — "ตกบันไดหลังหัก ขาขยับไม่ได้" เคยได้ 75 ("can't feel my legs" ได้ 85)
     r"(?:ตก(?!รอบ|งาน|ลง|หลุม|ใจ|ค้าง|เทรน)|ล้ม(?!ละลาย|เหลว)|รถชน|ถูกชน|โดนชน|กระแทก|ดิ่ง|กระโดดน้ำ)[^\n]{0,30}?(?:หลังหัก|คอหัก|ขา(?:ทั้งสองข้าง)?(?:ชา|ขยับไม่ได้|ไม่มีแรง|ไม่รู้สึก)|แขน(?:ขา)?ชา|ขยับ(?:ขา|ตัว|แขน)ไม่ได้|ไม่รู้สึก(?:ที่)?(?:ขา|ตัว))|"
     # รอบสุ่ม 114: ล้มแล้วสับสน/ซึม = อาจเลือดออกในสมอง — "แม่ล้มในห้องน้ำ ลุกไม่ขึ้น พูดไม่รู้เรื่อง" เคยได้แค่ปฐมพยาบาล (75)
