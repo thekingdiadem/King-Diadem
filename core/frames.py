@@ -30,6 +30,13 @@ FRAMES = (
     ("overdose", "medical", "health_emergency", (("INGEST", "MEDICINE", "AMOUNT"),), ("FICTION", "HYPOTHETICAL", "ROUTINE", "REFILL", "COURSE")),
     ("drowning", "medical", "health_emergency", (("DROWN",), ("FALL_INTO", "WATER", "NOT_SURFACE")), ("FICTION", "HYPOTHETICAL", "IDIOM_DROWN")),
     ("choking", "medical", "health_emergency", (("CHOKE",), ("STUCK", "THROAT", "AIRWAY_FAIL")), ("FICTION", "HYPOTHETICAL", "LAUGH", "IDIOM_CHOKE")),
+    # รอบ 2 (ชุดปิดตา E ล็อกไว้ก่อนเขียน)
+    ("strangle", "violence", "violence", (("STRANGLE",), ("SQUEEZE", "NECK")), ("FICTION", "HYPOTHETICAL", "AFFECTION", "CLOTHING")),
+    # แรงงานบังคับต้องมีสัญญาณอันตรายอย่างน้อยสองอย่าง — "บังคับให้ทำงานบ้าน" หรือ "หัวหน้าให้อยู่ดึก" ตามลำพังไม่นับ
+    ("forced_labor", "violence", "violence", (("FORCE", "WAGE", "WORK"), ("FORCE", "CONFINE", "WORK"), ("CONFINE", "WAGE", "WORK"), ("CONFINE", "DEBT")),   # ขัง+ทำงานตามลำพังไม่พอ ("แม่ล็อกประตูก่อนออกไปทำงาน")
+     ("FICTION", "HYPOTHETICAL", "PAID_OK")),
+    ("unconscious", "medical", "health_emergency", (("UNCONSCIOUS",),), ("FICTION", "HYPOTHETICAL", "DEVICE", "NEARLY", "RECOVERED")),
+    ("bleeding", "medical", "health_emergency", (("BLOOD", "BLEED_BAD"),), ("FICTION", "HYPOTHETICAL", "MINOR")),
 )
 
 

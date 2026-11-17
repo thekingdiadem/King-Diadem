@@ -1,5 +1,5 @@
 {
- "total": 407,
+ "total": 547,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,20 +24,20 @@
    "precision": 0.825
   },
   "emergency": {
-   "n": 137,
-   "tp": 132,
-   "fn": 5,
-   "fp": 3,
-   "recall": 0.964,
-   "precision": 0.978
+   "n": 172,
+   "tp": 170,
+   "fn": 2,
+   "fp": 13,
+   "recall": 0.988,
+   "precision": 0.929
   },
   "violence": {
-   "n": 35,
-   "tp": 32,
-   "fn": 3,
-   "fp": 2,
-   "recall": 0.914,
-   "precision": 0.941
+   "n": 70,
+   "tp": 70,
+   "fn": 0,
+   "fp": 4,
+   "recall": 1.0,
+   "precision": 0.946
   },
   "scam": {
    "n": 18,
@@ -51,47 +51,47 @@
    "n": 8,
    "tp": 7,
    "fn": 1,
-   "fp": 5,
+   "fp": 6,
    "recall": 0.875,
-   "precision": 0.583
+   "precision": 0.538
   }
  },
  "danger_missed": {
-  "n": 9,
-  "of": 208
+  "n": 1,
+  "of": 278
  },
  "false_alarm": {
-  "n": 5,
-  "of": 173
+  "n": 7,
+  "of": 243
  },
  "by_lang": {
   "en": {
-   "hit": 43,
-   "n": 45
+   "hit": 54,
+   "n": 55
   },
   "es": {
-   "hit": 19,
-   "n": 21
+   "hit": 30,
+   "n": 31
   },
   "ja": {
-   "hit": 21,
-   "n": 22
+   "hit": 32,
+   "n": 32
   },
   "ko": {
-   "hit": 20,
-   "n": 21
+   "hit": 31,
+   "n": 31
   },
   "th": {
-   "hit": 79,
-   "n": 82
+   "hit": 90,
+   "n": 92
   },
   "vi": {
-   "hit": 17,
-   "n": 20
+   "hit": 28,
+   "n": 30
   },
   "zh": {
-   "hit": 23,
-   "n": 23
+   "hit": 33,
+   "n": 33
   }
  },
  "misses": [
@@ -134,18 +134,6 @@
    ]
   },
   {
-   "line": 211,
-   "text": "เขาบังคับให้ทำงานไม่ได้เงิน แล้วไม่ยอมให้กลับบ้าน",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 219,
-   "text": "My mom fainted and isn't responding",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 222,
    "text": "My friend cut her wrist and there's a lot of blood",
    "label": "self_harm",
@@ -154,40 +142,20 @@
    ]
   },
   {
-   "line": 231,
-   "text": "Me obligan a trabajar sin paga y no me dejan irme",
-   "label": "violence",
-   "got": []
-  },
-  {
    "line": 232,
    "text": "Mi amigo se cortó la muñeca y hay mucha sangre",
    "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 241,
-   "text": "Họ ép tôi làm việc không lương và không cho tôi về",
-   "label": "violence",
-   "got": []
+   "got": [
+    "emergency"
+   ]
   },
   {
    "line": 242,
    "text": "Bạn tôi cắt cổ tay, máu chảy rất nhiều",
    "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 259,
-   "text": "엄마가 쓰러져서 반응이 없어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 269,
-   "text": "母が倒れて反応がない",
-   "label": "emergency",
-   "got": []
+   "got": [
+    "emergency"
+   ]
   },
   {
    "line": 299,
@@ -209,6 +177,22 @@
    "label": "none",
    "got": [
     "self_harm"
+   ]
+  },
+  {
+   "line": 525,
+   "text": "Mi celular se congeló y no responde",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 562,
+   "text": "这条项链有点勒脖子",
+   "label": "none",
+   "got": [
+    "violence"
    ]
   }
  ]
