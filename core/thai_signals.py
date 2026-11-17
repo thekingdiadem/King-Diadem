@@ -581,7 +581,26 @@ VIOLENCE_BY = re.compile(
     r"\b(?:someone|he|she|they) locked me (?:in|up)\b|\bi'?m locked in\b|"
     # ตาราง 10,200 ข้อความ: ใครก็ตามที่ทำร้าย (ไม่ใช่แค่สามี/แฟน) — คนแปลกหน้า เจ้านาย พ่อเลี้ยง เคยได้ Risk 0
     r"(?i:\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,12}?\b(?:hits|beats|punches|kicks|slaps|chokes|strangles|burns|starves|whips|pushed|shoved|threw) me\b(?!\s+(?:why|how|what|at\s+(?:chess|cards|games?|tennis|racing|everything)|in\s+(?:chess|cards|games?|tennis|racing)|out\b|off\b|up\b))|"
-    r"\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,12}?\b(?:won'?t let me (?:leave|go out|out of)|keeps? touching me|kept touching me|is touching me)\b|"
+    # รอบสุ่ม 138: อาการบวมมาก่อน แล้วค่อยบอกว่ากินอะไร — "ตาบวมปิด ปากบวม หลังกินกุ้ง" เคยได้ 0 (อังกฤษได้ 85)
+    r"(?:ปากบวม|หน้าบวม|ตาบวม(?:ปิด)?|คอบวม|ลิ้นบวม|หายใจลำบาก|หายใจไม่ออก|ผื่นขึ้นทั้งตัว)[^\n]{0,24}?(?:หลัง|ตั้งแต่|เพราะ)?(?:กิน|แพ้|โดน(?:ผึ้ง|ต่อ|แตน)ต่อย|ฉีดยา)|"
+    # รอบสุ่ม 139: กินยาละลายลิ่มเลือดแล้วหัวกระแทก (เลือดออกในสมองได้แม้ดูปกติ) — เคยได้แค่ 75
+    r"(?:ยาละลายลิ่มเลือด|ยาต้านการแข็งตัวของเลือด|วาร์ฟาริน|warfarin|(?i:blood thinners?|anticoagulants?|eliquis|xarelto))[^\n]{0,30}?(?:หัว(?:กระแทก|ฟาด|โขก)|ล้ม|(?i:hit (?:his|her|their|my) head|fell|bumped (?:his|her|their|my) head))|"
+    # รอบสุ่ม 140: เลือดกำเดาไหลไม่หยุด (อังกฤษ) — เคยได้ 0 ขณะที่ฉบับไทยได้ 85
+    r"(?i:\bnose ?bleed\b[^\n]{0,12}?\b(?:won'?t stop|will not stop|not stopping|keeps? (?:going|bleeding)|for (?:over )?(?:20|30|40|45|\d{2,}) ?(?:min|minutes))\b)|"
+    # รอบสุ่ม 137: เด็กเล็กตก/หัวกระแทกแล้วอาเจียน · ท้องแข็งเป็นดานปวดมาก (อังกฤษ) — เคยได้ 0 ขณะที่ฉบับไทยได้ 75–85
+    r"(?i:\b(?:baby|toddler|infant|newborn|my (?:son|daughter|kid|child))\b[^\n]{0,16}?\b(?:fell(?! asleep)|hit (?:his|her|their) head|bumped (?:his|her|their) head)\b[^\n]{0,30}?\b(?:vomit\w*|threw up|throwing up|very sleepy|won'?t stop crying|limp|seizure)\b)|"
+    r"(?i:\b(?:stomach|belly|abdomen)\b[^\n]{0,10}?\b(?:is |feels )?(?:rock[- ]hard|hard as (?:a )?(?:rock|board)|rigid)\b[^\n]{0,30}?\b(?:pain|hurts|unbearable|can'?t move|fever|vomit\w*)\b)|"
+    # รอบสุ่ม 136: คนในบ้านไม่ตื่น + ตัวเย็น/ไม่ขยับ/เรียกไม่ตอบ — "คนแก่ในบ้านไม่ตื่น ตัวเย็น" เคยได้ 0 (อังกฤษได้ 85)
+    # (ปลุกไม่ตื่นเฉยๆ ยังไม่นับ — "ปลุกลูกไม่ตื่นไปโรงเรียน" เป็นเรื่องปกติ)
+    r"(?:ยาย|ตา(?!ย|ม|ก|ร)|ปู่|ย่า|พ่อ|แม่|คนแก่|ผู้สูงอายุ|สามี|ภรรยา|แฟน|ลูก|ทารก|น้อง|เพื่อน)[^\n]{0,12}?(?:ปลุก)?ไม่(?:ยอม)?ตื่น[^\n]{0,16}?(?:ตัวเย็น|ตัวซีด|ปากเขียว|ไม่ขยับ|ไม่หายใจ|เรียกไม่ตอบ|ตัวแข็ง)|"
+    r"(?:ยาย|ตา(?!ย|ม|ก|ร)|ปู่|ย่า|พ่อ|แม่|คนแก่|ผู้สูงอายุ|สามี|ภรรยา|แฟน|ลูก|ทารก)[^\n]{0,12}?(?:ตัวเย็น|ตัวแข็ง)[^\n]{0,10}?(?:ไม่ขยับ|ไม่ตื่น|ไม่หายใจ|เรียกไม่ตอบ)|"
+    # รอบสุ่ม 135: แผลดำและมีกลิ่น (เนื้อตาย/ติดเชื้อรุนแรง) · มีคำว่าเบาหวาน ให้ชุดความรู้ kp_diabetic_foot ตอบแทน — "my dad's foot wound turned black and smells" เคยได้ 0
+    r"(?:^(?![^\n]*(?:เบาหวาน|(?i:diabet)))[^\n]*?)(?i:\b(?:wound|cut|sore|ulcer|toe|toes|foot|leg)\b[^\n]{0,20}?\b(?:turn(?:ed|ing)? black|is black|gone black|black and)\b[^\n]{0,24}?\b(?:smell\w*|stink\w*|pus|oozing|fever)\b)|"
+    r"(?:^(?![^\n]*(?:เบาหวาน|(?i:diabet)))[^\n]*?)แผล[^\n]{0,12}?(?:ดำ|เน่า)[^\n]{0,16}?(?<!ไม่)(?:มีกลิ่น|เหม็น|มีหนอง|มีไข้)|"
+    # รอบสุ่ม 134: ล็อกประตูขังไว้ — "he locked the door and won't let me leave" · "แฟนล็อกประตูไม่ให้ออก" เคยได้ 0
+    r"(?i:\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|mom|mother|ex|boss|employer)\b[^\n]{0,10}?\blocked (?:the |all the |every )?(?:door|doors|gate)\b[^\n]{0,30}?\b(?:won'?t let me (?:leave|out|go)|took my (?:keys|phone)|(?:is |keeps )?(?:screaming|yelling) at me|hit|hitting|threaten\w*)\b)|"
+    r"(?:แฟน|สามี|ภรรยา|เมีย|ผัว|พ่อ|แม่|พ่อเลี้ยง|แม่เลี้ยง|นายจ้าง|เขา)\S{0,6}?(?:ล็อก|ล็อค|ปิด)(?:ประตู|กุญแจ)[^\n]{0,16}?(?:ไม่ให้(?:ออก|ไป|หนี)|ขัง|ยึด(?:กุญแจ|โทรศัพท์|มือถือ)|ตะคอก|ทำร้าย|ตี)|"
+    r"\b(?:he|she|they|husband|boyfriend|wife|girlfriend|partner|dad|father|stepdad|stepfather|mom|mother|stepmom|stepmother|parents?|uncle|aunt|brother|sister|ex|boss|teacher|coach|stranger|someone|somebody|man|guy|woman|neighbou?r|landlord|cousin|grandpa|grandma)\b[^\n]{0,12}?\b(?:won'?t let me (?:leave|go out|out of)(?!\s+(?:early|yet|until|before|on time|for lunch|during (?:work|my shift)))|keeps? touching me|kept touching me|is touching me)\b|"
     r"\b(?:has|with|holding|pulled|is holding) (?:a |an )?(?:knife|gun|machete|weapon)\b[^\n]{0,25}?\b(?:threaten\w*|at me|on me|to my)\b|"
     r"\b(?:is |keeps |kept |been )?following me (?:home|everywhere|to my (?:house|car|room))\b)|"
     # รอบตารางความรุนแรงภาษาอังกฤษ: เด็กถูกพ่อแม่ทำร้าย · พ่อตีแม่ · ถูกยึดโทรศัพท์ขังในห้อง · คนถือมีดหน้าประตู — เคยได้ Risk 0
@@ -1391,7 +1410,7 @@ _NET_KIN = (r"พ่อเลี้ยง|แม่เลี้ยง|พ่อ(
             r"\b(?:step(?:dad|mom|father|mother)|dad|mom|father|mother|husband|wife|boyfriend|girlfriend|uncle|aunt|boss|employer)\b")
 NET_CONFINE = re.compile(
     r"(?is)^" + _NET_FICTION + r"(?=.*(?:" + _NET_KIN + r"))(?=.*(?:(?<!ท่วม)(?<!น้ำ)(?:กัก)?ขัง(?:ไว้|ฉัน|หนู|ผม|เรา|ลูก)|(?:ถูก|โดน)(?:กัก)?ขัง|ล็อก(?:ประตู)?(?:ขัง|ไว้ในห้อง)|ไม่ให้กินข้าว(?:เลย|มา|ทั้งวัน|หลายวัน)|"
-    r"\blocks? me (?:in|inside|up)\b|\bwon'?t (?:give me (?:any )?(?:food|water)|let me (?:eat|leave|out))\b))")
+    r"\blocks? me (?:in|inside|up)\b|\bwon'?t (?:give me (?:any )?(?:food|water)|let me (?:eat|leave|out))\b(?!\s+(?:early|yet|until|before|on time|for lunch|during (?:work|my shift)))))")
 NET_GROOM = re.compile(
     r"(?is)^" + _NET_FICTION + r"(?=.*(?:ครู|อาจารย์|โค้ช|หัวหน้า|พระ|รุ่นพี่|ติวเตอร์|\b(?:teacher|coach|boss|priest|tutor|pastor)\b))"
     r"(?=.*(?:สองต่อสอง|อยู่กันสองคน|ไปที่ห้อง|เรียกเข้าห้อง|\balone with (?:him|her|me)\b|\bone[- ]on[- ]one\b|\bin (?:his|her) (?:office|room|car)\b))"
@@ -1470,6 +1489,11 @@ _EN_NUM = re.compile(r"(?i)\b(twenty|thirty|forty|fifty|sixty)(?:[- ](one|two|th
 _EN_SMALL = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9}
 
 
+# รอบสุ่ม 132: "ฆ่าตัวตายในเกมเพื่อเริ่มใหม่" (กดรีสปอว์น) เคยได้วิกฤต 95 — ลบเฉพาะวลีที่ผูกกับเกม (งานเขียนนิยายยังถามไถ่เบาๆ ตามเดิม)
+# คำอื่นในประโยคยังถูกอ่านตามปกติ ("อยากตายจริงๆ ฆ่าตัวตายในเกมก็ไม่ช่วย" ยังเป็นวิกฤต)
+_GAME_DEATH = re.compile(r"ฆ่าตัวตายในเกม(?:\s*(?:เพื่อ)?(?:เริ่มใหม่|เกิดใหม่|รีสปอน|รีเซ็ต|เซฟใหม่|ไปจุดเซฟ))?|"
+                         r"(?i:\b(?:kill(?:ed|ing)?|unalive)\s+(?:myself|my character)\s+in\s+(?:the\s+)?game\s+to\s+(?:respawn|restart|reset)\b)")
+
 def _th_num(m):
     w = m.group(1)
     if "สิบ" not in w:
@@ -1494,6 +1518,7 @@ def canon_text(text):
     t = _STRETCH.sub(_unstretch, t)
     t = _STRETCH_TH.sub(r"\1", t)
     t = _TH_NUM.sub(_th_num, t)
+    t = _GAME_DEATH.sub(" ", t)
     t = _EN_NUM.sub(_en_num, t)
     if re.search(r"[\u0e01-\u0e2e]", t):
         cut = _TAIL.sub("", t)

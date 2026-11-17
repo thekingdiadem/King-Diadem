@@ -2605,11 +2605,11 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                    + " / ".join(str(x) for x in (dis.get("steps") or [])[:3]) + " — "
                    "เรียงตามลำดับ ยังไม่ถามเรื่องอื่นหรือวิเคราะห์ยาว ถามว่าตอนนี้เขากับคนที่อยู่ด้วยปลอดภัยไหม "
                    "ปิดท้ายด้วยเบอร์ 1784 / 1669 และบอกว่าพิมพ์มาได้ตลอด]")
-        # แผ่นดินไหว: บอกข้อมูลจริงจาก USGS ว่าเกิดจริงไหม ขนาดเท่าไหร่ ห่างแค่ไหน (core/quakes.py)
+        # แผ่นดินไหว: บอกข้อมูลจริงจาก USGS ว่าเกิดจริงไหม ขนาดเท่าไหร่ ห่างแค่ไหน + ชินโดะจาก JMA ถ้าเป็นญี่ปุ่น (core/quakes.py)
         if dis.get("kind") == "quake":
             try:
                 from core import quakes as _quakes
-                quake_info = _quakes.recent()
+                quake_info = _quakes.recent(jma=True)
                 dis_ctx += " " + _quakes.llm_note(quake_info)
             except Exception as e:
                 print(f"⚠ quakes: {type(e).__name__}")
@@ -3736,6 +3736,8 @@ async def practice_step(request: Request):
         body = await request.json()
     except Exception:
         body = {}
+    if not isinstance(body, dict):          # [1,2] / "ข้อความ" / 42 เป็น JSON ที่ถูก แต่ .get() พัง → เคยได้ 500
+        body = {}
     sid = str((body or {}).get("scenario") or "")
     choices = (body or {}).get("choices") or []
     if sid not in SCENARIOS or not isinstance(choices, list):
@@ -3836,6 +3838,8 @@ async def driftzero_audit(request: Request):
         body = await request.json()
     except Exception:
         body = {}
+    if not isinstance(body, dict):          # [1,2] / "ข้อความ" / 42 เป็น JSON ที่ถูก แต่ .get() พัง → เคยได้ 500
+        body = {}
     text = str((body or {}).get("input") or "").strip()[:4000]
     if not text:
         return JSONResponse({"error": "เล่าการตัดสินใจที่อยากให้ตรวจก่อนนะคะ"}, status_code=400)
@@ -3881,6 +3885,8 @@ async def image_generate(request: Request):
     try:
         body = await request.json()
     except Exception:
+        body = {}
+    if not isinstance(body, dict):          # [1,2] / "ข้อความ" / 42 เป็น JSON ที่ถูก แต่ .get() พัง → เคยได้ 500
         body = {}
     prompt = str((body or {}).get("prompt") or "").strip()
     if len(prompt) < 3:

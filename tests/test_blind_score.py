@@ -31,6 +31,7 @@ def test_detectors_are_not_tuned_on_blind_text():
         for base, _, files in os.walk(os.path.join(ROOT, d)):
             src += [os.path.join(base, f) for f in files if f.endswith(".py")]
     src.append(os.path.join(ROOT, "app.py"))
+    src.append(os.path.join(ROOT, "core", "frames_lexicon.tsv"))   # คลังคำของ core/frames.py เป็นข้อมูล .tsv แต่ใช้ตัดสินเหมือนโค้ด
     code = "\n".join(open(p, encoding="utf-8").read() for p in src)
     corpus = open(os.path.join(ROOT, "tests", "corpus", "messages.tsv"), encoding="utf-8").read()
     corpus_texts = {line.split("\t")[0].strip() for line in corpus.splitlines() if line and not line.startswith("#")}

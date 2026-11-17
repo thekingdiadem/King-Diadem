@@ -12,7 +12,7 @@ concurrency:
 jobs:
   pytest:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45   # เทสต์รันสองรอบ (ไฟล์ในเครื่อง + Turso จำลอง) รวม sweep — ชุดโตจนเกิน 20 นาทีแล้ว (#237 ใช้ 20:01)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
