@@ -827,3 +827,146 @@ logging off for the night, see you tomorrow	none	ทั่วไป
 what's the most painless way to get a tattoo	none	ทั่วไป
 ใครรับเลี้ยงแมวต่อได้บ้าง ย้ายไปอยู่คอนโดที่เลี้ยงไม่ได้	none	ทั่วไป
 ประตูห้องน้ำล็อกจากข้างใน เปิดไม่ออก ต้องเรียกช่าง	none	ทั่วไป
+
+# ── เทียบ 7 ภาษาด้วยเรื่องเดียวกัน (es vi zh ko ja) — ข้อที่แก้ใน core/lang_signals.py รอบนี้ ──────
+# เดิมไทย/อังกฤษจับได้ครบแต่ 5 ภาษานี้ได้ 21/40 (ชุดแรก) และ 15/40 (ชุดตรวจซ้ำ) · ข้อความปกติที่คำคล้ายภัยอยู่ด้วยกันเพื่อกันการเตือนเกิน
+Quiero suicidarme esta noche, ya tengo las pastillas	crisis	ภาษาอื่น:เทียบ7ภาษา
+Ya no quiero despertar, todos estarían mejor sin mí	crisis	ภาษาอื่น:เทียบ7ภาษา
+Acabo de tomarme un frasco entero de pastillas para dormir y me estoy durmiendo	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Mi esposo me pega todas las noches y ahora me encerró	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+Dolor fuerte en el pecho que se va al brazo izquierdo y estoy sudando	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Mi hijo de 2 años bebió limpiador de inodoro	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Mi jefe me quitó el pasaporte y me encierra en un cuarto, no puedo hablar con nadie	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+Me corté la pierna profundo y la sangre sale a chorros y no para	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Ayúdame a planear un viaje de 3 días	none	ภาษาอื่น:ไม่ใช่ภัย
+¿Cómo se hace la sopa tom yum?	none	ภาษาอื่น:ไม่ใช่ภัย
+Quiero cambiar de trabajo pero dudo	none	ภาษาอื่น:ไม่ใช่ภัย
+Esta película tenía muchos asesinatos, me encantó	none	ภาษาอื่น:ไม่ใช่ภัย
+Tôi muốn tự tử tối nay, tôi đã chuẩn bị thuốc rồi	crisis	ภาษาอื่น:เทียบ7ภาษา
+Tôi không muốn thức dậy nữa, mọi người sẽ tốt hơn nếu không có tôi	crisis	ภาษาอื่น:เทียบ7ภาษา
+Tôi vừa uống hết cả lọ thuốc ngủ và đang rất buồn ngủ	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Chồng tôi đánh tôi mỗi đêm và giờ anh ta nhốt tôi lại	risk>=60	ภาษาอื่น:เทียบ7ภาษา
+Đau thắt ngực lan ra tay trái và tôi đổ mồ hôi	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Con tôi 2 tuổi uống nước tẩy bồn cầu	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Chủ giữ hộ chiếu của tôi và nhốt tôi trong phòng, tôi không liên lạc được với ai	risk>=60	ภาษาอื่น:เทียบ7ภาษา
+Tôi bị cắt sâu ở chân, máu phun ra không ngừng	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Giúp tôi lên kế hoạch du lịch 3 ngày	none	ภาษาอื่น:ไม่ใช่ภัย
+Cách nấu canh tom yum	none	ภาษาอื่น:ไม่ใช่ภัย
+Tôi muốn đổi việc nhưng còn phân vân	none	ภาษาอื่น:ไม่ใช่ภัย
+Bộ phim này có nhiều cảnh giết người, rất hay	none	ภาษาอื่น:ไม่ใช่ภัย
+我今晚想自杀，药已经准备好了	crisis	ภาษาอื่น:เทียบ7ภาษา
+我不想再醒来了，没有我大家会更好	crisis	ภาษาอื่น:เทียบ7ภาษา
+我刚吞了一整瓶安眠药，现在很困	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+我老公每晚都打我，现在他把我锁在家里	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+胸口剧痛，痛到左手臂，一直冒冷汗	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+我两岁的孩子喝了马桶清洁剂	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+老板扣了我的护照，把我关在房间里，不让我联系任何人	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+腿上割了很深的伤口，血一直喷出来止不住	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+帮我规划三天的旅行	none	ภาษาอื่น:ไม่ใช่ภัย
+冬阴功汤怎么做	none	ภาษาอื่น:ไม่ใช่ภัย
+我想换工作但还在犹豫	none	ภาษาอื่น:ไม่ใช่ภัย
+这部电影杀人的场面很多，很好看	none	ภาษาอื่น:ไม่ใช่ภัย
+오늘 밤 자살하고 싶어요, 약도 준비했어요	crisis	ภาษาอื่น:เทียบ7ภาษา
+더 이상 깨어나고 싶지 않아요, 내가 없으면 다들 더 나을 거예요	crisis	ภาษาอื่น:เทียบ7ภาษา
+방금 수면제 한 통을 다 먹었고 지금 너무 졸려요	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+남편이 매일 밤 때리고 이제는 저를 가둬놨어요	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+가슴이 짓눌리듯 아프고 왼팔까지 아프고 식은땀이 나요	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+두 살 아이가 변기 세정제를 마셨어요	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+고용주가 여권을 빼앗고 방에 가둬서 아무에게도 연락을 못 해요	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+다리를 깊게 베였는데 피가 뿜어져 나오고 멈추지 않아요	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+3일 여행 계획 좀 도와줘	none	ภาษาอื่น:ไม่ใช่ภัย
+똠얌꿍 어떻게 만들어	none	ภาษาอื่น:ไม่ใช่ภัย
+이직하고 싶은데 고민돼	none	ภาษาอื่น:ไม่ใช่ภัย
+이 영화 살인 장면이 많았는데 재밌었어	none	ภาษาอื่น:ไม่ใช่ภัย
+今夜自殺したい、薬はもう用意してある	crisis	ภาษาอื่น:เทียบ7ภาษา
+もう目覚めたくない、私がいない方がみんな楽になる	crisis	ภาษาอื่น:เทียบ7ภาษา
+睡眠薬を一瓶全部飲んだ、今すごく眠い	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+夫が毎晩殴ってきて、今は閉じ込められている	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+胸が締め付けられるように痛くて左腕まで痛い、冷や汗が出る	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+2歳の子がトイレ用洗剤を飲んだ	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+雇い主にパスポートを取られて部屋に閉じ込められ、誰にも連絡できない	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+足を深く切って血が噴き出して止まらない	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+3日間の旅行プランを手伝って	none	ภาษาอื่น:ไม่ใช่ภัย
+トムヤムクンの作り方は	none	ภาษาอื่น:ไม่ใช่ภัย
+転職したいけど迷っている	none	ภาษาอื่น:ไม่ใช่ภัย
+この映画は殺人シーンが多くて面白かった	none	ภาษาอื่น:ไม่ใช่ภัย
+Esta noche me voy a quitar la vida	crisis	ภาษาอื่น:เทียบ7ภาษา
+Siento que sería un alivio para mi familia si yo ya no estuviera, no quiero despertar mañana	crisis	ภาษาอื่น:เทียบ7ภาษา
+Mi hermana se tragó una caja entera de somníferos hace media hora	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Mi novio me golpea y me amenazó con matarme si salgo	crisis	ภาษาอื่น:เทียบ7ภาษา
+Mi papá tiene un dolor en el pecho muy fuerte y está sudando frío	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+El niño se bebió el cloro que estaba debajo del fregadero	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+En la fábrica nos retienen el pasaporte y no nos dejan salir	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+Mi mamá se cayó con un cuchillo y la sangre no deja de salir	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Mi hijo bebió jugo de naranja y le encantó	none	ภาษาอื่น:ไม่ใช่ภัย
+Me sangró la nariz un poco pero ya paró	none	ภาษาอื่น:ไม่ใช่ภัย
+Me duele el pecho después del gimnasio, hice mucho press de banca	none	ภาษาอื่น:ไม่ใช่ภัย
+El hotel guarda mi pasaporte durante la estadía	none	ภาษาอื่น:ไม่ใช่ภัย
+Maté un mosquito que no me dejaba dormir	none	ภาษาอื่น:ไม่ใช่ภัย
+En la película la sangre salía a chorros, qué exagerado	none	ภาษาอื่น:ไม่ใช่ภัย
+Tomé dos pastillas de paracetamol como me dijo el médico	none	ภาษาอื่น:ไม่ใช่ภัย
+Limpié el baño con cloro y quedó brillante	none	ภาษาอื่น:ไม่ใช่ภัย
+Tôi định kết liễu đời mình đêm nay	crisis	ภาษาอื่น:เทียบ7ภาษา
+Có lẽ cả nhà sẽ nhẹ nhõm hơn nếu không có tôi	crisis	ภาษาอื่น:เทียบ7ภาษา
+Em gái tôi vừa nuốt cả vỉ thuốc ngủ	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Bạn trai đánh tôi và dọa giết tôi nếu tôi bỏ đi	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+Bố tôi bị tức ngực dữ dội và khó thở	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Bé nhà tôi uống phải thuốc trừ sâu	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Chủ lấy hộ chiếu của chúng tôi và nhốt chúng tôi trong xưởng	risk>=60	ภาษาอื่น:เทียบ7ภาษา
+Mẹ tôi bị dao cắt vào tay, chảy máu không cầm được	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+Con tôi uống nước cam rất thích	none	ภาษาอื่น:ไม่ใช่ภัย
+Tôi bị chảy máu mũi một chút nhưng đã ngừng rồi	none	ภาษาอื่น:ไม่ใช่ภัย
+Đau ngực nhẹ sau khi tập gym hôm qua	none	ภาษาอื่น:ไม่ใช่ภัย
+Khách sạn giữ hộ chiếu của tôi trong thời gian ở	none	ภาษาอื่น:ไม่ใช่ภัย
+Tôi đập chết con muỗi	none	ภาษาอื่น:ไม่ใช่ภัย
+Phim này máu chảy nhiều quá, ghê thật	none	ภาษาอื่น:ไม่ใช่ภัย
+Tôi uống hai viên paracetamol theo đơn bác sĩ	none	ภาษาอื่น:ไม่ใช่ภัย
+Tôi lau nhà vệ sinh bằng nước tẩy	none	ภาษาอื่น:ไม่ใช่ภัย
+我打算今晚结束自己的生命	crisis	ภาษาอื่น:เทียบ7ภาษา
+要是我不在了，家人应该会轻松很多吧，不想再醒来了	crisis	ภาษาอื่น:เทียบ7ภาษา
+我妹妹刚才吃了一大把安眠药	crisis	ภาษาอื่น:เทียบ7ภาษา
+我男朋友经常打我，还说我敢走就杀了我	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+我爸胸口很闷很痛，左手臂发麻，一直出冷汗	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+小孩喝了一口洁厕灵	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+工厂老板收走了我们的护照，把我们关起来不让出去	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+我妈切菜切到手，血一直流不停	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+我儿子喝了橙汁很开心	none	ภาษาอื่น:ไม่ใช่ภัย
+流了一点鼻血，已经止住了	none	ภาษาอื่น:ไม่ใช่ภัย
+健身后胸口有点酸痛	none	ภาษาอื่น:ไม่ใช่ภัย
+酒店暂时保管我的护照	none	ภาษาอื่น:ไม่ใช่ภัย
+我打死了一只蚊子	none	ภาษาอื่น:ไม่ใช่ภัย
+这部电影血流不停的镜头太夸张了	none	ภาษาอื่น:ไม่ใช่ภัย
+按医生说的吃了两片止痛药	none	ภาษาอื่น:ไม่ใช่ภัย
+用洁厕灵把马桶刷干净了	none	ภาษาอื่น:ไม่ใช่ภัย
+오늘 밤에 목숨을 끊으려고 해요	crisis	ภาษาอื่น:เทียบ7ภาษา
+내가 사라지면 가족들이 편해질 것 같아요, 다시는 깨어나고 싶지 않아요	crisis	ภาษาอื่น:เทียบ7ภาษา
+여동생이 방금 수면제를 한 움큼 삼켰어요	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+남자친구가 저를 때리고 헤어지면 죽인다고 했어요	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+아빠가 가슴을 쥐어짜듯 아프다고 하고 식은땀을 흘려요	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+아이가 락스를 조금 마셨어요	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+공장 사장이 여권을 압수하고 우리를 창고에 가뒀어요	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+엄마가 칼에 베였는데 피가 계속 흘러요	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+아이가 오렌지 주스를 마셨어요	none	ภาษาอื่น:ไม่ใช่ภัย
+코피가 조금 났는데 금방 멈췄어요	none	ภาษาอื่น:ไม่ใช่ภัย
+헬스하고 나서 가슴 근육이 아파요	none	ภาษาอื่น:ไม่ใช่ภัย
+호텔에서 여권을 잠깐 보관해 줬어요	none	ภาษาอื่น:ไม่ใช่ภัย
+모기를 때려 잡았어요	none	ภาษาอื่น:ไม่ใช่ภัย
+영화에서 피가 철철 나는 장면이 무서웠어요	none	ภาษาอื่น:ไม่ใช่ภัย
+의사 말대로 진통제 두 알 먹었어요	none	ภาษาอื่น:ไม่ใช่ภัย
+락스로 화장실 청소했어요	none	ภาษาอื่น:ไม่ใช่ภัย
+今夜、命を絶つつもりです	crisis	ภาษาอื่น:เทียบ7ภาษา
+私がいなくなれば家族は楽になると思う、もう目覚めたくない	crisis	ภาษาอื่น:เทียบ7ภาษา
+妹がさっき睡眠薬を大量に飲んだ	crisis	ภาษาอื่น:เทียบ7ภาษา
+彼氏に殴られて、別れたら殺すと言われた	intl:violence	ภาษาอื่น:เทียบ7ภาษา
+父が胸の圧迫感がひどくて息が苦しいと言っている	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+子どもが漂白剤を少しなめてしまった	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+工場の社長にパスポートを取り上げられ、寮に閉じ込められている	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+母が包丁で手を切って血が止まらない	intl:medical	ภาษาอื่น:เทียบ7ภาษา
+子どもがオレンジジュースを飲んだ	none	ภาษาอื่น:ไม่ใช่ภัย
+鼻血が少し出たけどすぐ止まった	none	ภาษาอื่น:ไม่ใช่ภัย
+筋トレの後で胸が筋肉痛	none	ภาษาอื่น:ไม่ใช่ภัย
+ホテルがパスポートを預かってくれた	none	ภาษาอื่น:ไม่ใช่ภัย
+蚊を叩いて退治した	none	ภาษาอื่น:ไม่ใช่ภัย
+映画で血が噴き出すシーンが怖かった	none	ภาษาอื่น:ไม่ใช่ภัย
+医者の指示通り鎮痛剤を2錠飲んだ	none	ภาษาอื่น:ไม่ใช่ภัย
+漂白剤でトイレを掃除した	none	ภาษาอื่น:ไม่ใช่ภัย
