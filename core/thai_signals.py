@@ -704,6 +704,9 @@ URGENT_BODY = re.compile(
     # รอบสุ่ม 121: ผู้สูงอายุ/เด็กเล็กไม่กินไม่ดื่มหลายวัน = ขาดน้ำรุนแรง — เคยได้ 0 ทั้งไทยและอังกฤษ
     r"(?:ยาย|ตา(?!ย|ม|ก|ร)|ปู่|ย่า|พ่อ|แม่|ผู้สูงอายุ|คนแก่|ลูก|ทารก|เด็ก)[^\n]{0,12}?ไม่(?:ยอม)?(?:กิน|ดื่ม)(?:ข้าว|อะไร)?\S{0,4}?ไม่(?:ยอม)?(?:ดื่ม|กิน)(?:น้ำ|นม)[^\n]{0,8}?(?:มา)?(?:สอง|สาม|สี่|ห้า|หลาย|[2-9])\s*วัน|"
     r"(?i:\b(?:grandma|grandpa|grandmother|grandfather|my (?:mom|dad|mother|father|baby|toddler)|elderly \w+)\b[^\n]{0,10}?\b(?:hasn'?t|has not|won'?t|didn'?t)\s+(?:eaten|eat) (?:or|and|nor) (?:drunk|drank|drink)\w*\b[^\n]{0,24}?\b(?:two|three|four|several|\d) days\b)|"
+    # รอบสุ่ม 150: เด็ก/สัตว์ถูกทิ้งไว้ในรถร้อน (อังกฤษ) — เคยได้ 0 ขณะที่ฉบับไทยได้ 85
+    r"(?i:\b(?:baby|toddler|infant|child|kid|dog|puppy)\b[^\n]{0,24}?\b(?:alone|left|locked|trapped|stuck)\b[^\n]{0,24}?\b(?:in|inside) (?:a |the |my |their |his |her )?(?:hot |locked |parked )?(?:car|vehicle|van|truck)\b(?![^\n]{0,24}?\b(?:seat while i drive|with (?:me|us|the ac|air ?con)|air ?con(?:ditioning)? on)\b))|"
+    r"(?i:\b(?:hot|locked|parked)\s+(?:car|vehicle|van)\b[^\n]{0,24}?\b(?:baby|toddler|infant|child|kid|dog)\b[^\n]{0,16}?\b(?:alone|inside|crying|not moving|sweating))|"
     # รอบสุ่ม 141: แน่นหน้าอก (chest pressure/tightness) ของคนในบ้าน แม้เจ้าตัวจะบอกว่าแค่ลมในท้อง — เคยได้ 0 (ไทยได้ 85)
     r"(?i:\b(?:dad|father|mom|mother|husband|wife|grandpa|grandma|grandfather|grandmother|partner|he|she)\b[^\n]{0,12}?\b(?:has|having|feels?|complain\w*(?: of)?)\s+(?:a\s+)?(?:chest (?:pressure|tightness|heaviness)|crushing chest|pressure in (?:his|her) chest)\b(?!\s+(?:exercise|press|workout|stretch|machine)))|"
     # รอบสุ่ม 142: สัญญาณเตือนก๊าซคาร์บอนมอนอกไซด์ดัง · ทุกคนในบ้านปวดหัวพร้อมกัน — เคยได้ 0 / 64
