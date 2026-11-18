@@ -43,7 +43,7 @@ EN_UPGRADES: list[tuple[re.Pattern, str]] = [
                 r"\b(?:paracetamol|tylenol|panadol)\b[^.\n]{0,10}?\bis lethal\b", _I),
      "crisis"),
     # ── จะทำร้ายคนอื่น ───────────────────────────────────────────────────────────────
-    (re.compile(r"\b(?:bring(?:ing)?|take|taking)\b[^.\n]{0,20}?\bgun\b[^.\n]{0,24}?\b(?:school|class|work|office)\b|\bshoot up\b|"
+    (re.compile(r"\b(?:bring(?:ing)?|take|taking)\b[^.\n]{0,20}?(?<!toy )(?<!nerf )(?<!water )(?<!glue )(?<!cap )(?<!prop )(?<!squirt )\bgun\b[^.\n]{0,24}?\b(?:school|class|work|office)\b|\bshoot up\b|"
                 r"\b(?:going to|gonna|will|i'?ll|im going to|i'?m going to)\s+(?:kill|shoot|stab|murder|hurt|beat|strangle|burn|poison)\s+"
                 r"(?:him|her|them|everyone|every1|my|the|his|that|those|all|people|someone|somebody|kids|coworkers|classmates)\b|"
                 r"\bhave a (?:knife|gun)\b[^.\n]{0,30}?\bwaiting\b|\bmake them (?:all )?pay\b[^.\n]{0,40}?\bplan\b|"

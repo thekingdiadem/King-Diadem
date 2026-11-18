@@ -298,6 +298,9 @@ UPGRADES += [
 # รอบสุ่ม 89: แรงงานประมงถูกบังคับบนเรือ (อังกฤษ) — เคยได้ 0
 UPGRADES += [(re.compile(r"(?i:\bforced\s+to\s+work\s+on\s+(?:the|a)\s+(?:boat|ship|vessel)\b|\bhaven'?t\s+been\s+(?:ashore|on\s+land)\s+in\s+\d+\s+(?:months|weeks)\b)"), "trafficking")]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
+# รอบสุ่ม 151: มีคนบอกว่าจะเอาปืน/อาวุธมาโรงเรียน (อังกฤษ) — "said he'll bring a gun tomorrow" เคยได้ 0 ("shoot up the school" ได้ 90 อยู่แล้ว)
+UPGRADES += [(re.compile(r"(?i:\b(?:he|she|they|a (?:kid|boy|girl|student|classmate)|someone|my classmate)\b[^\n]{0,30}?\b(?:will|'ll|is going to|gonna|said (?:he|she|they)(?:'ll| will| would))\s+(?:bring|take)\s+(?:a |his |her |their |(?:his|her|their) (?:dad|mom|father|mother|brother)'s )?(?:gun|pistol|rifle|knife|weapon|bomb)\b[^\n]{0,30}?\b(?:to )?(?:school|class|campus|tomorrow|monday|on \w+day)\b(?![^\n]{0,20}?\b(?:for (?:show and tell|the play|drama|a costume)|toy|nerf|water)\b))"), "harm_others")]
+
 # รอบสุ่ม 149: ผู้ใหญ่แปลกหน้าขอรูป (โป๊) จากเด็ก ใน es zh ko ja — เคยได้ 0 (vi ได้ 85 อยู่แล้ว)
 # ต้องมีครบ: เด็ก/อายุต่ำกว่า 18 + คนแปลกหน้า/ผู้ใหญ่ + ขอรูป
 _KID_INTL = r"(?:hij[oa]|niñ[oa]|\b(?:1[0-7]|[5-9])\s*años|女儿|儿子|孩子|(?:1[0-7]|[5-9])岁|열\s*\S{0,2}\s*살|(?:1[0-7]|[5-9])\s*살|딸|아들|娘|息子|子ども|子供|(?:1[0-7]|[5-9])歳)"
