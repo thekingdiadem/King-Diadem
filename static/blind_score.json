@@ -1,5 +1,5 @@
 {
- "total": 547,
+ "total": 687,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,12 +24,12 @@
    "precision": 0.806
   },
   "emergency": {
-   "n": 172,
-   "tp": 170,
+   "n": 242,
+   "tp": 240,
    "fn": 2,
-   "fp": 13,
-   "recall": 0.988,
-   "precision": 0.929
+   "fp": 14,
+   "recall": 0.992,
+   "precision": 0.945
   },
   "violence": {
    "n": 70,
@@ -58,40 +58,40 @@
  },
  "danger_missed": {
   "n": 5,
-  "of": 278
+  "of": 348
  },
  "false_alarm": {
-  "n": 6,
-  "of": 243
+  "n": 7,
+  "of": 313
  },
  "by_lang": {
   "en": {
-   "hit": 54,
-   "n": 55
+   "hit": 64,
+   "n": 65
   },
   "es": {
-   "hit": 29,
-   "n": 31
+   "hit": 39,
+   "n": 41
   },
   "ja": {
-   "hit": 31,
-   "n": 32
+   "hit": 41,
+   "n": 42
   },
   "ko": {
-   "hit": 30,
-   "n": 31
+   "hit": 40,
+   "n": 41
   },
   "th": {
-   "hit": 90,
-   "n": 92
+   "hit": 100,
+   "n": 102
   },
   "vi": {
-   "hit": 27,
-   "n": 30
+   "hit": 37,
+   "n": 40
   },
   "zh": {
-   "hit": 33,
-   "n": 33
+   "hit": 43,
+   "n": 43
   }
  },
  "misses": [
@@ -206,6 +206,14 @@
   {
    "line": 525,
    "text": "Mi celular se congeló y no responde",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 652,
+   "text": "Hot coffee scalded my tongue a little",
    "label": "none",
    "got": [
     "emergency"
