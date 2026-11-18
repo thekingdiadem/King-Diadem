@@ -608,3 +608,146 @@ Bà ngủ trưa sau khi ăn	none	vi	claude-seed
 この仕事はきつくて死にそう	none	ja	claude-seed
 ジョギング中に転んで膝をすりむいた	none	ja	claude-seed
 祖母は昼食後に昼寝した	none	ja	claude-seed
+
+# ── ชุด F: ล็อกไว้ก่อนขยาย core/frames.py รอบ 3 — แพ้รุนแรง · ไฟไหม้/น้ำร้อนลวก · ไฟดูด · งู/สัตว์กัด ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 23/70 (ไม่เห็นเลย 47) · เตือนเกิน 1/70
+ลูกกินกุ้งแล้วปากบวม คอบวม หายใจลำบาก	emergency	th	claude-seed
+โดนผึ้งต่อยแล้วผื่นขึ้นทั้งตัว เวียนหัวจะเป็นลม	emergency	th	claude-seed
+แพ้ถั่วลิสง ลิ้นบวมจนพูดไม่ได้	emergency	th	claude-seed
+น้ำมันร้อนกระเด็นใส่หน้าลูก ผิวพองเป็นแผ่นใหญ่	emergency	th	claude-seed
+ไฟไหม้ครัว แขนแม่ไหม้ ผิวลอกเป็นแผ่น	emergency	th	claude-seed
+น้ำเดือดหกใส่ขาลูก ผิวพองเต็มขา	emergency	th	claude-seed
+พ่อโดนไฟดูดตอนซ่อมปลั๊ก ตอนนี้ไม่ขยับเลย	emergency	th	claude-seed
+น้องเอานิ้วแหย่ปลั๊กไฟ ถูกไฟช็อตจนล้ม	emergency	th	claude-seed
+ลูกโดนงูกัดที่ขาตอนเดินในสวน ขาบวมเร็วมาก	emergency	th	claude-seed
+สุนัขจรจัดกัดมือ แผลลึกเลือดออก	emergency	th	claude-seed
+แพ้ฝุ่นจามทั้งวัน	none	th	claude-seed
+ผิวไหม้แดดนิดหน่อยหลังไปทะเล	none	th	claude-seed
+ปิ้งขนมปังจนไหม้	none	th	claude-seed
+จับลูกบิดประตูแล้วโดนไฟฟ้าสถิตย์	none	th	claude-seed
+ข่าวนี้ช็อกมาก	none	th	claude-seed
+ไปดูงูที่สวนสัตว์ สนุกดี	none	th	claude-seed
+หมาเลียมือ น่ารักมาก	none	th	claude-seed
+ผึ้งบินวนในสวน	none	th	claude-seed
+กาแฟร้อนลวกลิ้นนิดหน่อย	none	th	claude-seed
+ค่าไฟเดือนนี้แพงมาก	none	th	claude-seed
+My son ate shrimp and his lips and throat are swelling, he can barely breathe	emergency	en	claude-seed
+I got stung by a bee, now hives all over and I feel like I'm going to faint	emergency	en	claude-seed
+Peanut allergy, my tongue is so swollen I can't talk	emergency	en	claude-seed
+Hot oil splashed on my kid's face and the skin is blistering badly	emergency	en	claude-seed
+Kitchen fire, my mom's arm is burned and the skin is peeling off	emergency	en	claude-seed
+Boiling water spilled on my daughter's leg, huge blisters everywhere	emergency	en	claude-seed
+Dad got electrocuted fixing an outlet and now he's not moving	emergency	en	claude-seed
+My little brother stuck his finger in a socket and got shocked, he fell down	emergency	en	claude-seed
+A snake bit my son's leg on a walk and it's swelling fast	emergency	en	claude-seed
+A stray dog bit my hand, the wound is deep and bleeding	emergency	en	claude-seed
+Dust allergy, sneezing all day	none	en	claude-seed
+Got a little sunburn at the beach	none	en	claude-seed
+I burned the toast	none	en	claude-seed
+Got a static shock from the doorknob	none	en	claude-seed
+This news is shocking	none	en	claude-seed
+We saw snakes at the zoo, it was fun	none	en	claude-seed
+The dog licked my hand, so cute	none	en	claude-seed
+Bees buzzing around the garden	none	en	claude-seed
+Hot coffee scalded my tongue a little	none	en	claude-seed
+The electric bill is so high this month	none	en	claude-seed
+Mi hijo comió camarón y se le hinchan los labios y la garganta, casi no puede respirar	emergency	es	claude-seed
+Me picó una abeja y tengo ronchas por todo el cuerpo, siento que me voy a desmayar	emergency	es	claude-seed
+Alergia al maní, tengo la lengua tan hinchada que no puedo hablar	emergency	es	claude-seed
+Aceite caliente le salpicó la cara a mi hijo y se le hacen ampollas	emergency	es	claude-seed
+Incendio en la cocina, a mi mamá se le quemó el brazo y se le cae la piel	emergency	es	claude-seed
+Se le cayó agua hirviendo en la pierna a mi hija, ampollas enormes	emergency	es	claude-seed
+Mi papá se electrocutó arreglando un enchufe y ahora no se mueve	emergency	es	claude-seed
+Mi hermanito metió el dedo en el enchufe y le dio la corriente, se cayó	emergency	es	claude-seed
+Una serpiente le mordió la pierna a mi hijo y se hincha rápido	emergency	es	claude-seed
+Un perro callejero me mordió la mano, la herida es profunda y sangra	emergency	es	claude-seed
+Alergia al polvo, estornudo todo el día	none	es	claude-seed
+Me quemé un poco con el sol en la playa	none	es	claude-seed
+Se me quemó el pan tostado	none	es	claude-seed
+Me dio un toque de estática la manija	none	es	claude-seed
+Esta noticia es impactante	none	es	claude-seed
+Vimos serpientes en el zoológico, fue divertido	none	es	claude-seed
+El perro me lamió la mano, qué lindo	none	es	claude-seed
+Abejas zumbando en el jardín	none	es	claude-seed
+El café caliente me quemó un poco la lengua	none	es	claude-seed
+La cuenta de luz está carísima este mes	none	es	claude-seed
+Con tôi ăn tôm xong môi và cổ họng sưng lên, gần như không thở được	emergency	vi	claude-seed
+Tôi bị ong đốt, nổi mề đay khắp người và thấy sắp ngất	emergency	vi	claude-seed
+Dị ứng đậu phộng, lưỡi sưng đến mức không nói được	emergency	vi	claude-seed
+Dầu nóng bắn vào mặt con tôi, da phồng rộp nặng	emergency	vi	claude-seed
+Cháy bếp, tay mẹ bị bỏng, da bong ra từng mảng	emergency	vi	claude-seed
+Nước sôi đổ vào chân con gái, phồng rộp khắp chân	emergency	vi	claude-seed
+Bố bị điện giật khi sửa ổ cắm, giờ không cử động	emergency	vi	claude-seed
+Em trai thọc ngón tay vào ổ điện bị giật ngã xuống	emergency	vi	claude-seed
+Con tôi bị rắn cắn ở chân khi đi dạo, chân sưng rất nhanh	emergency	vi	claude-seed
+Chó hoang cắn tay tôi, vết thương sâu và chảy máu	emergency	vi	claude-seed
+Dị ứng bụi, hắt hơi cả ngày	none	vi	claude-seed
+Bị cháy nắng nhẹ sau khi đi biển	none	vi	claude-seed
+Nướng bánh mì bị cháy	none	vi	claude-seed
+Chạm tay nắm cửa bị tĩnh điện	none	vi	claude-seed
+Tin này thật sốc	none	vi	claude-seed
+Đi sở thú xem rắn vui lắm	none	vi	claude-seed
+Con chó liếm tay tôi, dễ thương quá	none	vi	claude-seed
+Ong bay quanh vườn	none	vi	claude-seed
+Cà phê nóng làm bỏng lưỡi một chút	none	vi	claude-seed
+Tiền điện tháng này đắt quá	none	vi	claude-seed
+我儿子吃了虾，嘴唇和喉咙都肿起来，快喘不过气了	emergency	zh	claude-seed
+我被蜜蜂蛰了，全身起风团，感觉快晕倒了	emergency	zh	claude-seed
+花生过敏，舌头肿得说不出话	emergency	zh	claude-seed
+热油溅到孩子脸上，起了一大片水泡	emergency	zh	claude-seed
+厨房着火，我妈的手臂烧伤了，皮都掉了	emergency	zh	claude-seed
+开水洒在女儿腿上，整条腿都是水泡	emergency	zh	claude-seed
+我爸修插座时触电了，现在一动不动	emergency	zh	claude-seed
+弟弟把手指插进插座被电到，摔倒了	emergency	zh	claude-seed
+儿子散步时腿被蛇咬了，肿得很快	emergency	zh	claude-seed
+流浪狗咬了我的手，伤口很深还在流血	emergency	zh	claude-seed
+对灰尘过敏，一整天打喷嚏	none	zh	claude-seed
+去海边晒伤了一点	none	zh	claude-seed
+烤面包烤焦了	none	zh	claude-seed
+摸门把手被静电电了一下	none	zh	claude-seed
+这个消息太震惊了	none	zh	claude-seed
+去动物园看蛇，很好玩	none	zh	claude-seed
+狗舔了我的手，好可爱	none	zh	claude-seed
+蜜蜂在花园里飞来飞去	none	zh	claude-seed
+热咖啡烫了一下舌头	none	zh	claude-seed
+这个月电费好贵	none	zh	claude-seed
+아들이 새우를 먹고 입술이랑 목이 부어서 숨을 잘 못 쉬어요	emergency	ko	claude-seed
+벌에 쏘였는데 온몸에 두드러기가 나고 기절할 것 같아요	emergency	ko	claude-seed
+땅콩 알레르기인데 혀가 부어서 말을 못 해요	emergency	ko	claude-seed
+뜨거운 기름이 아이 얼굴에 튀어서 물집이 심하게 생겼어요	emergency	ko	claude-seed
+부엌에 불이 나서 엄마 팔에 화상을 입었고 피부가 벗겨졌어요	emergency	ko	claude-seed
+끓는 물이 딸 다리에 쏟아져서 다리 전체에 물집이 생겼어요	emergency	ko	claude-seed
+아빠가 콘센트 고치다가 감전돼서 지금 움직이지 않아요	emergency	ko	claude-seed
+동생이 콘센트에 손가락을 넣었다가 감전돼서 쓰러졌어요	emergency	ko	claude-seed
+아들이 산책하다 뱀에 다리를 물렸는데 빨리 부어올라요	emergency	ko	claude-seed
+들개가 제 손을 물었는데 상처가 깊고 피가 나요	emergency	ko	claude-seed
+먼지 알레르기라서 하루 종일 재채기해요	none	ko	claude-seed
+바닷가에서 살짝 햇볕에 탔어요	none	ko	claude-seed
+토스트를 태웠어요	none	ko	claude-seed
+문고리 잡다가 정전기가 났어요	none	ko	claude-seed
+이 소식 정말 충격적이에요	none	ko	claude-seed
+동물원에서 뱀 구경했는데 재밌었어요	none	ko	claude-seed
+강아지가 손을 핥았어요 귀여워요	none	ko	claude-seed
+정원에서 벌들이 날아다녀요	none	ko	claude-seed
+뜨거운 커피에 혀를 살짝 데었어요	none	ko	claude-seed
+이번 달 전기 요금이 너무 비싸요	none	ko	claude-seed
+息子がエビを食べたら唇と喉が腫れて息がしにくい	emergency	ja	claude-seed
+ハチに刺されて全身にじんましんが出て、気を失いそう	emergency	ja	claude-seed
+ピーナッツアレルギーで舌が腫れて話せない	emergency	ja	claude-seed
+熱い油が子どもの顔にはねて、ひどい水ぶくれができた	emergency	ja	claude-seed
+台所で火事になり、母の腕がやけどして皮がむけている	emergency	ja	claude-seed
+熱湯が娘の足にかかって、足じゅう水ぶくれ	emergency	ja	claude-seed
+父がコンセントを修理中に感電して、今動かない	emergency	ja	claude-seed
+弟がコンセントに指を入れて感電し、倒れた	emergency	ja	claude-seed
+息子が散歩中にヘビに足をかまれて、どんどん腫れている	emergency	ja	claude-seed
+野良犬に手をかまれて、傷が深く血が出ている	emergency	ja	claude-seed
+ほこりアレルギーで一日中くしゃみ	none	ja	claude-seed
+海で少し日焼けした	none	ja	claude-seed
+トーストを焦がした	none	ja	claude-seed
+ドアノブで静電気が来た	none	ja	claude-seed
+このニュースは衝撃的だ	none	ja	claude-seed
+動物園でヘビを見て楽しかった	none	ja	claude-seed
+犬が手をなめてかわいい	none	ja	claude-seed
+庭でハチが飛んでいる	none	ja	claude-seed
+熱いコーヒーで舌を少しやけどした	none	ja	claude-seed
+今月の電気代が高すぎる	none	ja	claude-seed

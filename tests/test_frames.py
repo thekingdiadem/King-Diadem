@@ -120,3 +120,38 @@ def test_forced_labor_needs_two_signals():
     # "บังคับให้ทำงาน" ตามลำพังไม่พอ — ต้องมีขัง/ยึดค่าจ้าง/หนี้ ร่วมด้วย
     assert frames("my boss forces me to work on weekends") == []
     assert frames("my boss forces me to work on weekends without pay") == [("violence", "violence")]
+
+
+# ── รอบ 3: แพ้รุนแรง · ไฟไหม้/น้ำร้อนลวก · ไฟดูด · งู/สัตว์กัด (ชุดปิดตา F ล็อกไว้ก่อนเขียนคลังคำ) ──
+DANGER_3 = [
+    "กินปูแล้วคอบวม หายใจไม่ออก", "stung by a wasp and my throat is closing, can't breathe", "Comí mariscos y no puedo respirar",
+    "ăn hải sản xong khó thở", "吃了海鲜，嘴唇肿了，呼吸困难", "새우 먹고 얼굴이 부어서 숨이 차요", "エビを食べて顔が腫れて息苦しい",
+    "น้ำร้อนลวกแขนลูก ผิวพองหมด", "grease fire, his hands are blistering", "se quemó con agua hirviendo y tiene ampollas",
+    "bị bỏng nước sôi, da phồng rộp", "被开水烫到，起了水泡", "끓는 물에 데어서 물집이 생겼어요", "熱湯でやけどして水ぶくれ",
+    "ลุงโดนไฟดูดตกจากเสา", "he touched a live wire and got shocked", "se electrocutó con un cable", "bị điện giật",
+    "他触电了", "감전됐어요", "感電した",
+    "งูเห่ากัดขาพ่อ", "a rattlesnake bit my dad", "un perro me mordió", "bị chó cắn", "被蛇咬了", "뱀에 물렸어요", "ヘビに噛まれた",
+    "들개가 제 손을 물었어요",
+]
+
+CALM_3 = [
+    "โดนต่อยหน้าบวม",                         # ต่อย = ชก ไม่ใช่แมลงต่อย
+    "my dog is a bit sick today",              # "a bit" ไม่ใช่ถูกกัด
+    "发烧了，起了一大片疹子",                    # 发烧 = เป็นไข้ ไม่ใช่ไฟไหม้
+    "駅のそばで蕎麦を食べた",                    # そば = ข้างๆ
+    "กินปูแล้วปากบวมนิดหน่อย", "I burned my dinner", "sunburn on my face is peeling",
+    "the news was shocking", "static shock from the car door", "electric bill went up",
+    "the cat bit my finger playfully, no blood", "we saw cobras at the zoo",
+    "강아지에 대해 선생님께 물었어요",            # 물었다 = ถาม
+    "ข้อมือแพ้นาฬิกาเป็นผื่นนิดหน่อย",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_3)
+def test_round3_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_3)
+def test_round3_calm(text):
+    assert frames(text) == [], explain(text)

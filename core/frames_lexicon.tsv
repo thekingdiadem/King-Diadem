@@ -283,7 +283,7 @@ BLEED_BAD	vi	không ngừng|không cầm|loang|khắp|rất nhiều|xối xả|p
 BLEED_BAD	zh	一直流|流不停|止不住|一地|满地|滿地|很多|喷|噴|大量|一直
 BLEED_BAD	ko	멈추지 않|안 멈|계속|범벅|많이|흥건|뿜|철철
 BLEED_BAD	ja	止まらない|止まらな|だらけ|大量|たくさん|噴き出|あふれ|溢れ|びっしょり
-MINOR	th	นิดหน่อย|นิดเดียว|หยุดแล้ว|ซึม|เล็กน้อย|ถลอก
+MINOR	th	นิดหน่อย|นิดเดียว|หยุดแล้ว|ซึม|เล็กน้อย|ถลอก|ไม่เป็นไร
 MINOR	en	a little|a bit of|a drop|just a drop|stopped|paper cut|scrape|scraped|tiny
 MINOR	es	un poco|poquito|gotita|ya paró|raspé|raspón|papel
 MINOR	vi	một chút|chút|đã ngừng|giấy|trầy|rỉ
@@ -306,3 +306,139 @@ DEVICE	vi	tin nhắn|cuộc gọi|nghe máy|email
 DEVICE	zh	消息|短信|电话|電話|微信|回复|回覆
 DEVICE	ko	메시지|문자|카톡|전화|답장
 DEVICE	ja	メッセージ|返信|LINE|電話|メール
+# ════ รอบ 3: แพ้รุนแรง · ไฟไหม้/น้ำร้อนลวก · ไฟดูด · งู/สัตว์กัด (ชุดปิดตา F ล็อกไว้ก่อนเขียน) ════
+# ── แพ้รุนแรง ── ต้องมีสิ่งกระตุ้น + อาการรุนแรง (แพ้แค่จาม/คันไม่นับ)
+# "ต่อย" ที่แปลว่าชก (โดนต่อยหน้าบวม) ไม่นับ — ต้องเป็นแมลงต่อย
+# "แพ้" แปลว่าแพ้เกม/แพ้ทางได้ด้วย — นับเฉพาะรูปที่บอกว่าแพ้สาร
+ALLERGY	th	แพ้อาหาร|แพ้ยา|แพ้กุ้ง|แพ้ถั่ว|แพ้อาหารทะเล|แพ้ผึ้ง|แพ้นม|แพ้ไข่|แพ้แป้ง|แพ้ปู|แพ้หอย|อาการแพ้|แพ้รุนแรง|กุ้ง|ถั่ว|อาหารทะเล|ปู|หอย
+ALLERGY	th	re:(?:ผึ้ง|ต่อ|แตน|มด|แมลง)\S{0,4}ต่อย
+ALLERGY	en	allergy|allergic|stung|sting|shrimp|peanut|peanuts|nuts|shellfish|bee|wasp|hornet
+ALLERGY	es	alergia|alérgico|alérgica|picó|picadura|camarón|camarones|maní|cacahuate|mariscos|abeja|avispa
+ALLERGY	vi	dị ứng|ong đốt|bị đốt|tôm|đậu phộng|hải sản|cua
+ALLERGY	zh	过敏|過敏|蛰|蜇|叮|虾|蝦|花生|海鲜|海鮮|坚果
+ALLERGY	ko	알레르기|쏘였|새우|땅콩|해산물|견과
+ALLERGY	ja	アレルギー|刺され|エビ|ピーナッツ|ナッツ|甲殻類|蕎麦
+SWELL	th	บวม
+SWELL	en	swell|swelling|swollen|swells
+SWELL	es	hinchan|hincha|hinchada|hinchado|hinchazón|hinchando
+SWELL	vi	sưng|sưng lên|sưng to
+SWELL	zh	肿|腫
+SWELL	ko	부어|부었|붓고|붓는
+SWELL	ja	腫れ
+MOUTH_PART	th	ปาก|ลิ้น|หน้า|ริมฝีปาก|ตาบวม|เปลือกตา
+MOUTH_PART	th	re:คอ(?![มนรลยวแ])
+MOUTH_PART	en	throat|tongue|lips|lip|face|mouth|eyes
+MOUTH_PART	es	garganta|lengua|labios|cara|boca|ojos
+MOUTH_PART	vi	cổ họng|họng|lưỡi|môi|mặt|mắt
+MOUTH_PART	zh	喉咙|喉嚨|舌头|舌頭|嘴唇|嘴|脸|臉|眼睛
+MOUTH_PART	ko	혀|입술|얼굴|눈
+MOUTH_PART	ko	re:목(?!요일|표|소리|록|적|걸이|욕|사|련|숨|장|재|수)|입(?:술|안|이|에|을)
+MOUTH_PART	ja	喉|舌|唇|口|顔|まぶた
+BREATH_HARD	th	หายใจลำบาก|หายใจไม่ออก|หายใจไม่ได้|หายใจติดขัด|หายใจมีเสียงหวีด
+BREATH_HARD	en	can barely breathe|can't breathe|cannot breathe|trouble breathing|hard to breathe|struggling to breathe|wheezing
+BREATH_HARD	es	no puede respirar|casi no puede respirar|le cuesta respirar|dificultad para respirar|no puedo respirar
+BREATH_HARD	vi	không thở được|khó thở|gần như không thở được
+BREATH_HARD	zh	喘不过气|喘不過氣|呼吸困难|呼吸困難|喘不上气|快喘不过气
+BREATH_HARD	ko	숨을 못|숨을 잘 못|숨쉬기 힘|숨이 차|숨이 막
+BREATH_HARD	ja	息がしにくい|息ができない|呼吸が苦しい|息苦しい
+HIVES_ALL	th	ผื่นขึ้นทั้งตัว|ลมพิษทั้งตัว|ผื่นทั้งตัว|ผื่นเต็มตัว|ลมพิษขึ้นเต็มตัว
+HIVES_ALL	en	hives all over|hives everywhere|rash all over|hives on my whole body
+HIVES_ALL	es	ronchas por todo|urticaria por todo|sarpullido por todo
+HIVES_ALL	vi	nổi mề đay khắp|phát ban khắp|mẩn đỏ khắp
+HIVES_ALL	zh	全身起风团|全身起風團|全身起疹|全身风团|全身起红疹
+HIVES_ALL	ko	온몸에 두드러기|온몸에 발진
+HIVES_ALL	ja	全身にじんましん|全身に発疹|全身に蕁麻疹
+FAINTISH	th	เวียนหัว|จะเป็นลม|หน้ามืด|ใจสั่น
+FAINTISH	en	faint|dizzy|lightheaded|light-headed
+FAINTISH	es	desmayar|desmayo|mareado|mareada|mareo
+FAINTISH	vi	ngất|chóng mặt|choáng
+FAINTISH	zh	晕倒|頭暈|头晕|快晕|快暈|晕
+FAINTISH	ko	기절|어지러|쓰러질
+FAINTISH	ja	気を失|めまい|ふらふら|倒れそう
+# ── ไฟไหม้/น้ำร้อนลวก ── ต้องมีอาการรุนแรง (พอง ลอก ที่หน้า) · ไม่นับแดด/อาหารไหม้/นิดหน่อย
+BURN	th	ไหม้|ลวก|น้ำร้อนลวก|น้ำมันร้อน|ไฟลวก|น้ำเดือด|ไฟไหม้|ไฟคลอก
+BURN	en	burned|burnt|burn|burns|scalded|scald|boiling water|hot oil|fire
+BURN	es	quemó|quemado|quemada|quemadura|quemaduras|agua hirviendo|aceite caliente|incendio
+BURN	vi	bỏng|phỏng|nước sôi|dầu nóng|cháy
+BURN	zh	烧伤|燒傷|烫伤|燙傷|开水|開水|热油|熱油|着火|著火|烧到|燒到|烫到|燙到
+BURN	ko	화상|데었|끓는 물|뜨거운 기름|불이 나
+BURN	ja	やけど|火傷|熱湯|熱い油|熱傷|火事
+BURN_SEVERE	th	พอง|ลอก|ผิวหลุด|เป็นแผ่น|เต็มขา|เต็มแขน|ทั้งแขน|ทั้งขา|ใบหน้า
+BURN_SEVERE	en	blister|blisters|blistering|peeling|skin is coming off|skin coming off|charred|blackened
+BURN_SEVERE	es	ampolla|ampollas|se le cae la piel|se cae la piel|piel se cae|carbonizad
+BURN_SEVERE	vi	phồng rộp|phồng|bong ra|da tróc|tróc da
+BURN_SEVERE	zh	水泡|起泡|皮都掉|脱皮|脫皮|一大片
+BURN_SEVERE	ko	물집|벗겨
+BURN_SEVERE	ja	水ぶくれ|水疱|皮がむけ
+NOT_BURN	th	แดด|ขนมปัง|ข้าวไหม้|อาหารไหม้|กับข้าวไหม้|ไหม้เกรียม
+NOT_BURN	en	sunburn|toast|dinner|food|rice|calories
+NOT_BURN	es	con el sol|pan tostado|comida|calorías
+NOT_BURN	vi	cháy nắng|bánh mì|cơm cháy|đồ ăn
+NOT_BURN	zh	晒伤|曬傷|面包|麵包|饭|飯|卡路里
+NOT_BURN	ko	햇볕에|토스트|밥|칼로리
+NOT_BURN	ja	日焼け|トースト|ご飯|カロリー
+# ── ไฟดูด ── ไม่นับไฟฟ้าสถิตย์ · ข่าวช็อก · ค่าไฟ
+ELECTRIC	th	ไฟดูด|ไฟช็อต|ไฟฟ้าช็อต|โดนไฟฟ้า|ถูกไฟฟ้า|ไฟฟ้าดูด
+ELECTRIC	en	electrocuted|electrocution|electric shock|got electrocuted
+ELECTRIC	es	electrocutó|electrocutado|electrocutada|descarga eléctrica|le dio la corriente|me dio la corriente
+ELECTRIC	vi	điện giật|bị giật điện
+ELECTRIC	zh	触电|觸電|被电到|被電到|电击|電擊
+ELECTRIC	ko	감전
+ELECTRIC	ja	感電|電気ショック
+SOCKET	th	ปลั๊ก|สายไฟ|เต้าเสียบ
+SOCKET	en	socket|outlet|live wire|power line|wire
+SOCKET	es	enchufe|cable|toma de corriente
+SOCKET	vi	ổ điện|ổ cắm|dây điện
+SOCKET	zh	插座|电线|電線
+SOCKET	ko	콘센트|전선
+SOCKET	ja	コンセント|電線
+SHOCK	th	ช็อต|ดูด
+SHOCK	en	shocked|zapped|shock
+SHOCK	es	corriente|descarga
+SHOCK	vi	giật
+SHOCK	zh	电到|電到|电了|電了
+SHOCK	ko	찌릿|감전
+SHOCK	ja	ビリッ|しびれ
+NOT_ELECTRIC	th	สถิตย์|สถิต|ค่าไฟ|ข่าว
+NOT_ELECTRIC	en	static|bill|news|shocking
+NOT_ELECTRIC	es	estática|cuenta|noticia|impactante
+NOT_ELECTRIC	vi	tĩnh điện|tiền điện|tin
+NOT_ELECTRIC	zh	静电|靜電|电费|電費|消息|震惊
+NOT_ELECTRIC	ko	정전기|요금|소식|충격적
+NOT_ELECTRIC	ja	静電気|電気代|ニュース|衝撃的
+# ── งู/สัตว์กัด ── ko "개" (หมา) เป็นลักษณนามด้วย และอยู่ใน 개월 — นับเฉพาะรูปที่ชัด
+# "หนู" เป็นสรรพนาม (ฉัน) ได้ด้วย (หนูกัดเล็บบ่อย) — นับเฉพาะรูปที่เป็นสัตว์ชัด
+ANIMAL	th	งู|หมา|สุนัข|แมว|ลิง|ตะขาบ|แมงป่อง|หมาจร|หนูท่อ|หนูนา|ตัวหนู
+ANIMAL	en	dog|stray|cat|monkey|rat|bat|scorpion|viper|cobra|adder|copperhead|python|krait
+ANIMAL	en	re:\b\w*snakes?\b
+ANIMAL	es	serpiente|víbora|culebra|perro|gato|mono|rata|alacrán|escorpión
+ANIMAL	vi	rắn|chó|mèo|khỉ|chuột|bọ cạp
+ANIMAL	zh	蛇|狗|猫|貓|猴|老鼠|蝎子
+ANIMAL	ko	뱀|들개|강아지|고양이|원숭이|쥐|전갈
+ANIMAL	ko	re:개(?:가|한테|에게|에|를|가\s)
+ANIMAL	ja	ヘビ|蛇|犬|猫|サル|ネズミ|サソリ|マムシ
+BITE	th	กัด|ฉก
+# "a bit" = นิดหน่อย ไม่ใช่ถูกกัด
+BITE	en	bitten|bites|bite
+BITE	en	re:(?<!\ba\s)(?<!\ba\slittle\s)\bbit\b(?!\s+(?:of|more|less|better|worse|much))
+BITE	es	mordió|mordida|mordedura|mordido|mordió|picó
+BITE	vi	cắn|mổ
+BITE	zh	咬
+BITE	ko	물렸|물었|물려|물림
+BITE	ja	かまれ|噛まれ|咬まれ|かんだ|噛んだ
+NOT_BITE	th	เลีย|งับเล่น|กัดเล่น|เล่นๆ|สวนสัตว์|ดูงู|ไม่ได้กัด|ไม่เคยโดน|ไม่กัด|กัดเล็บ
+NOT_BITE	en	licked|lick|nibble|nibbled|play bite|playfully|playing|zoo|teething|no blood|didn't bite|never bitten|doesn't bite|won't bite|sofa|toy|shoe|furniture
+NOT_BITE	es	lamió|lame|mordisquea|zoológico|zoo|no me mordió|no muerde|juguete|sofá
+NOT_BITE	vi	liếm|sở thú|gặm|không cắn|chưa bị|đồ chơi
+NOT_BITE	zh	舔|动物园|動物園|没咬|沒咬|不咬|玩具|沙发|沙發
+# 물었다 = กัด หรือ ถาม — "강아지에 대해 선생님께 물었어요" คือถาม
+NOT_BITE	ko	핥|동물원|장난으로|에 대해|께 물|한테 물어봤|질문|안 물|장난감|소파
+NOT_BITE	ja	なめ|動物園|甘噛み|噛まなかった|噛まない|おもちゃ|ソファ
+# ── ผู้ถูกกัด: ต้องมีคนหรือส่วนของร่างกาย หรือรูปถูกกระทำ ("แมวกัดโซฟา" ไม่นับ) ──
+VICTIM	th	โดน|ถูก|มือ|ขา|แขน|นิ้ว|เท้า|หน้า|ตัว|ลูก|พ่อ|แม่|น้อง|ฉัน|ผม|เรา|หลาน|ยาย|ตา
+VICTIM	en	me|him|her|us|hand|hands|leg|legs|arm|arms|finger|foot|feet|face|ankle|son|daughter|kid|child|baby|dad|mom|brother|sister|grandma|grandpa|husband|wife|friend|got bitten|was bitten|been bitten
+VICTIM	es	me|le|lo|la|nos|mano|pierna|brazo|dedo|pie|cara|tobillo|hijo|hija|niño|niña|papá|mamá|hermano|hermana
+VICTIM	vi	bị|tôi|tay|chân|ngón|mặt|con|bố|mẹ|em|anh|chị|bà|ông
+VICTIM	zh	被|我|他|她|手|腿|脚|腳|胳膊|手指|脸|臉|孩子|儿子|兒子|女儿|女兒|爸|妈|媽
+VICTIM	ko	물렸|물려|에게 물|한테 물|손|다리|팔|발|손가락|얼굴|아들|딸|아이|아빠|엄마|저를|제
+VICTIM	ja	噛まれ|かまれ|咬まれ|手|足|腕|指|顔|息子|娘|子ども|子供|父|母|私
