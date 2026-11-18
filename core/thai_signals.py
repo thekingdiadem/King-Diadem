@@ -325,6 +325,9 @@ SCAM_SCRIPT = re.compile(
 
 # บทพูดมิจฉาชีพภาษาอังกฤษ — เดิมหลุดทั้งชุด (768/768 ได้ Risk 0)
 SCAM_SCRIPT_EN = re.compile(
+    # รอบสุ่ม 152: แก๊งหลานโดนจับ (grandparent scam) — "grandma got a call saying I was arrested and needs bail money in gift cards" เคยได้ 50 หัวข้อกฎหมาย
+    r"\b(?:arrested|in jail|in prison|locked up|accident|in (?:the )?hospital|kidnapped)\b[^\n]{0,40}?\b(?:bail|money|cash|pay|fee|fine)\b[^\n]{0,30}?\b(?:gift ?cards?|wire|crypto|bitcoin|western union|zelle|cash app|courier|right away|immediately|urgent\w*|don'?t tell)\b|"
+    r"\b(?:called|call(?:ing)?|texted|message[ds]?)\b[^\n]{0,30}?\b(?:pretending|claim(?:ed|ing)) to be (?:me|my (?:son|daughter|grandson|granddaughter|nephew|niece|kid))\b|"
     r"\b(?:pay|paid|send|sent)\b[^\n]{0,8}?\b(?:in|with|by|via)\b[^\n]{0,10}?\b(?:gift ?cards|itunes cards?|steam cards?|google play cards?)\b|\bgift ?cards?\b[^\n]{0,20}?\b(?:send|sent|read|give)\b[^\n]{0,10}?\bcodes?\b|\b(?:send|sent|read|give)\b[^\n]{0,10}?\bcodes?\b[^\n]{0,10}?\bgift ?cards?\b|\bgift ?cards?\b[^\n]{0,24}?\bsend (?:them |him |her )?the codes\b|"
     r"\b(?:asked|asking|wants?|told me to (?:give|send))\b[^\n]{0,16}?\b(?:the |my )?(?:code|otp|pin|verification code|one.time (?:code|password))\b[^\n]{0,20}?\b(?:sent|texted|got) to my phone\b|"
     r"\b(?:asked|asking|wants?)\b[^\n]{0,12}?\bfor my (?:social security|ssn|bank (?:login|password)|card (?:number|pin)|cvv)\b|"
