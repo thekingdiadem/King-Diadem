@@ -301,6 +301,12 @@ _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+
 # รอบสุ่ม 151: มีคนบอกว่าจะเอาปืน/อาวุธมาโรงเรียน (อังกฤษ) — "said he'll bring a gun tomorrow" เคยได้ 0 ("shoot up the school" ได้ 90 อยู่แล้ว)
 UPGRADES += [(re.compile(r"(?i:\b(?:he|she|they|a (?:kid|boy|girl|student|classmate)|someone|my classmate)\b[^\n]{0,30}?\b(?:will|'ll|is going to|gonna|said (?:he|she|they)(?:'ll| will| would))\s+(?:bring|take)\s+(?:a |his |her |their |(?:his|her|their) (?:dad|mom|father|mother|brother)'s )?(?:gun|pistol|rifle|knife|weapon|bomb)\b[^\n]{0,30}?\b(?:to )?(?:school|class|campus|tomorrow|monday|on \w+day)\b(?![^\n]{0,20}?\b(?:for (?:show and tell|the play|drama|a costume)|toy|nerf|water)\b))"), "harm_others")]
 
+# รอบสุ่ม 153: ผู้ใหญ่สั่งให้เด็กเก็บความลับจากพ่อแม่ / ลบแชท / ให้ของขวัญแล้วห้ามบอก — สัญญาณ grooming ที่ชัดที่สุด เคยได้ 0 ทั้งไทยและอังกฤษ
+_ADULT_ROLE = r"(?:ครู|โค้ช|ครูพิเศษ|ติวเตอร์|พี่เลี้ยง|ลุง|น้า|อา|ผู้ชาย(?:ที่)?(?:ในเน็ต|ในเกม|แปลกหน้า)|ผู้ใหญ่|(?i:\b(?:coach|teacher|tutor|pastor|youth pastor|priest|uncle|neighbou?r|older (?:guy|man|boy)|adult|stranger|man online|guy online|scout leader)\b))"
+_SECRET_FROM_PARENTS = (r"(?:เก็บ(?:เป็น)?ความลับ|ห้ามบอก(?:พ่อ|แม่|ใคร)|อย่าบอก(?:พ่อ|แม่|ใคร)|ลบแชท|ลบข้อความ)|"
+                        r"(?i:\bkeep (?:it|this|their|our|a) (?:a )?secret\b|\b(?:not|don'?t|never) (?:to )?tell (?:us|his parents|her parents|mom|dad|anyone)\b|\bdelete (?:their|the|your|his|her) (?:chats?|messages|texts)\b)")
+UPGRADES += [(re.compile(r"(?s)^(?=.*" + _ADULT_ROLE + r")(?=.*(?:" + _SECRET_FROM_PARENTS + r"))(?=.*(?:ลูก|น้อง|หลาน|(?i:\b(?:my (?:son|daughter|kid|child)|my \d{1,2} ?yo|\d{1,2}[- ]year[- ]old|him|her)\b)))(?!.*(?:เซอร์ไพรส์|วันเกิด|ของขวัญวันแม่|ของขวัญวันพ่อ|(?i:surprise|birthday|christmas present|gift for (?:mom|dad|you))))"), "online_grooming")]
+
 # รอบสุ่ม 149: ผู้ใหญ่แปลกหน้าขอรูป (โป๊) จากเด็ก ใน es zh ko ja — เคยได้ 0 (vi ได้ 85 อยู่แล้ว)
 # ต้องมีครบ: เด็ก/อายุต่ำกว่า 18 + คนแปลกหน้า/ผู้ใหญ่ + ขอรูป
 _KID_INTL = r"(?:hij[oa]|niñ[oa]|\b(?:1[0-7]|[5-9])\s*años|女儿|儿子|孩子|(?:1[0-7]|[5-9])岁|열\s*\S{0,2}\s*살|(?:1[0-7]|[5-9])\s*살|딸|아들|娘|息子|子ども|子供|(?:1[0-7]|[5-9])歳)"

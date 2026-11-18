@@ -1272,6 +1272,8 @@ _DAYS_TO_PAY = re.compile(r"อีก\s*(\d+)\s*วัน\S{0,8}?(?:เงิน
 _FICTION = re.compile(r"หนัง(?:เรื่อง)?|ฉาก|ละคร|ซีรีส์|ข่าว|(?:อ่?าน|ดู|ฟัง)ข่?าว|นิยาย|การ์ตูน|ในเกม|(?i:\bin the (?:news|movie|show|game)\b)")
 _CLOSE = re.compile(r"ลูก|แม่|พ่อ|ฉัน|หนู|ผม|เรา|เพื่อน|แฟน|สามี|ภรรยา|น้อง|พี่|ยาย|ตา(?!ย)|ช่วยด้วย|(?i:\b(?:my|i|me|help)\b)")
 _MINOR = re.compile(r"นิดเดียว|นิดหน่?อย|ไม่?เป็นไร(?:มาก)?|ไม่?เข้?าเนื้?อ|ไม่มีแผล|ไม่ถึงกับ|เล่นๆ|กัดเล่น|งับเล่น|เบาๆ|(?i:\bjust a (?:little|scratch)\b|\bnot (?:bad|serious)\b|\bi'?m fine\b|\b(?:he|she|they)(?:'s|'re| is| are) (?:fine|ok|okay|alright)\b)")
+_SECRET_BENIGN = re.compile(r"เซอร์ไพรส์|วันเกิด|งานเลี้ยง|เฉลย|ข้อสอบ|(?i:\bsurprise\b|\bbirthday\b|\bparty\b|\bquiz\b|\bexam\b|\btest answers?\b|\banswers\b)")
+_GROOM_RED = re.compile(r"รูป|ภาพ|จับ|ลูบ|กอด|นัดเจอ|ไปบ้าน|ของขวัญ|ให้เงิน|(?i:\bphotos?\b|\bpics?\b|\bpictures?\b|\btouch\w*|\bmeet\b|\bgifts?\b|\bhis (?:house|car)\b|\balone\b)")
 _HOT_CAR = re.compile(r"(?i:\b(?:baby|toddler|infant|child|kid|dog|puppy|cat)\b[^\n]{0,24}?\b(?:locked|left|trapped|stuck)\b[^\n]{0,10}?\bin (?:a |the )?(?:hot |parked |locked )?(?:car|vehicle|van)\b)|(?:เด็ก|ลูก|หมา|แมว)[^\n]{0,10}?(?:ติด|ถูกขัง|อยู่)(?:อยู่)?ใน(?:รถ)(?![^\n]{0,12}?(?:กับ|ด้วยกัน))")
 _NOT_SWALLOWED = re.compile(r"ไม่ได้กลืน|คาย(?:ออก(?:มา)?)?(?:แล้ว|ทัน)|(?i:\b(?:didn'?t|did not|never) swallow\b|\bspat it (?:back )?out\b|\bspit it out\b)")
 _SWALLOW_DOUBT = re.compile(r"ไม่แน่ใจ|ไม่รู้ว่า|หรือเปล่า|ไหม|มั้ย|ไอ|อาเจียน|อ้วก|หายใจ|เจ็บ|น้ำลายไหล|ร้องไม่หยุด|(?i:\bnot sure\b|\bmaybe\b|\bmight have\b|\bcough\w*|\bchok\w*|\bvomit\w*|\bthrow\w* up\b|\bdrool\w*|\bbreath\w*|\bpain\b)")
@@ -2557,6 +2559,10 @@ def _assess_one(text: str, pattern: dict | None = None) -> dict:
         a = dict(a, text_risk=max(a["text_risk"], 75), risk=max(a["risk"], 75),
                  risk_shown=max(a["risk_shown"], 75) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     a = _specific_first(text, _mother_baby_first(text, _with_conditions(text, a)))
+    # รอบสุ่ม 153: ความลับที่เป็นเซอร์ไพรส์/เฉลยข้อสอบ ไม่ใช่สัญญาณ grooming — เว้นแต่มีเรื่องรูป การแตะตัว นัดเจอ หรือของขวัญส่วนตัว
+    if isinstance(text, str) and "online_grooming" in a["topics"] and _SECRET_BENIGN.search(text) and not _GROOM_RED.search(text):
+        a = dict(a, topics=[n for n in a["topics"] if n != "online_grooming"], text_risk=min(a["text_risk"], 20),
+                 risk=min(a["risk"], 20), risk_shown=min(a["risk_shown"], 20) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     # รอบสุ่ม 150: สัตว์/เด็ก "locked in a parked car" คือรถร้อน ไม่ใช่การถูกขัง — ไม่ให้คำตอบเรื่องความรุนแรงมาแทนคำแนะนำเรื่องความร้อน
     if isinstance(text, str) and "violence" in a["topics"] and _HOT_CAR.search(text):
         a = dict(a, topics=["health_emergency"] + [n for n in a["topics"] if n not in ("violence", "health_emergency")])
