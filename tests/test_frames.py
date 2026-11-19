@@ -155,3 +155,39 @@ def test_round3_danger(text):
 @pytest.mark.parametrize("text", CALM_3)
 def test_round3_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 4: ชัก · เส้นเลือดในสมอง · หัวกระแทก/ตกที่สูง · อุบัติเหตุรถ (ชุดปิดตา G ล็อกไว้ก่อนเขียนคลังคำ) ──
+DANGER_4 = [
+    "ลูกชักไม่หยุด ตัวเขียว", "my daughter is having a seizure right now", "el bebé está convulsionando", "bé đang co giật",
+    "孩子在抽搐", "아기가 경련해요", "子どもがけいれんしている",
+    "แม่ปากเบี้ยว พูดไม่ชัด", "grandpa's face is drooping and his speech is slurred", "mi papá tiene la boca torcida y no puede hablar bien",
+    "bà bị méo miệng, nói ngọng", "爷爷嘴歪了，说话含糊不清", "할머니 입이 돌아가고 말이 어눌해요", "祖母の口が曲がって、ろれつが回らない",
+    "I think dad is having a stroke", "Grandpa suddenly can't make sense when he talks",
+    "เด็กตกจากต้นไม้ หัวฟาดพื้น อาเจียน", "he fell off the ladder, hit his head and is confused", "se cayó del techo y está inconsciente",
+    "em bé ngã cầu thang đập đầu và nôn", "从梯子上摔下来撞到头，一直吐", "사다리에서 떨어져서 머리를 부딪치고 토해요", "はしごから落ちて頭を打ち、吐いている",
+    "รถคว่ำ คนขับติดอยู่ในรถ", "there was a crash and someone is bleeding badly", "hubo un choque y hay un herido",
+    "tai nạn xe, có người bị thương", "车祸了，有人流血", "교통사고가 났는데 사람이 다쳤어요", "事故で人がけがをしている",
+]
+
+CALM_4 = [
+    "ตกใจมากจนหัวเราะไม่ออก แล้วก็อาเจียน",       # ตก ใน ตกใจ · หัว ใน หัวเราะ
+    "หัวหน้าล้มเหลวในโปรเจกต์", "ฝนตกหนัก ปวดหัว", "ล้มป่วยเป็นไข้หวัด",
+    "my eyelid keeps twitching", "I had a crash course in Python, I'm fine",
+    "the stock market crashed and I'm not moving my money",
+    "slurred speech after too many beers, so drunk lol",
+    "suddenly I can't make sense of this math",   # ไม่เข้าใจ ≠ พูดไม่รู้เรื่อง
+    "mi celular se cayó y no se mueve la pantalla", "điện thoại rơi, không sao", "手机掉了，没事",
+    "휴대폰이 떨어졌는데 괜찮아요", "スマホが落ちたけど大丈夫",
+    "I fell asleep on the couch, head on the armrest", "we had a minor accident, nobody hurt, no pain",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_4)
+def test_round4_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_4)
+def test_round4_calm(text):
+    assert frames(text) == [], explain(text)

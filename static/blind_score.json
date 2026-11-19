@@ -1,5 +1,5 @@
 {
- "total": 687,
+ "total": 827,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,20 +24,20 @@
    "precision": 0.806
   },
   "emergency": {
-   "n": 242,
-   "tp": 240,
+   "n": 312,
+   "tp": 310,
    "fn": 2,
-   "fp": 14,
-   "recall": 0.992,
-   "precision": 0.945
+   "fp": 17,
+   "recall": 0.994,
+   "precision": 0.948
   },
   "violence": {
    "n": 70,
    "tp": 70,
    "fn": 0,
-   "fp": 3,
+   "fp": 4,
    "recall": 1.0,
-   "precision": 0.959
+   "precision": 0.946
   },
   "scam": {
    "n": 18,
@@ -58,40 +58,40 @@
  },
  "danger_missed": {
   "n": 5,
-  "of": 348
+  "of": 418
  },
  "false_alarm": {
-  "n": 7,
-  "of": 313
+  "n": 10,
+  "of": 383
  },
  "by_lang": {
   "en": {
-   "hit": 64,
-   "n": 65
+   "hit": 74,
+   "n": 75
   },
   "es": {
-   "hit": 39,
-   "n": 41
+   "hit": 49,
+   "n": 51
   },
   "ja": {
-   "hit": 41,
-   "n": 42
+   "hit": 51,
+   "n": 52
   },
   "ko": {
-   "hit": 40,
-   "n": 41
+   "hit": 50,
+   "n": 51
   },
   "th": {
-   "hit": 100,
-   "n": 102
+   "hit": 110,
+   "n": 112
   },
   "vi": {
-   "hit": 37,
-   "n": 40
+   "hit": 47,
+   "n": 50
   },
   "zh": {
-   "hit": 43,
-   "n": 43
+   "hit": 53,
+   "n": 53
   }
  },
  "misses": [
@@ -214,6 +214,30 @@
   {
    "line": 652,
    "text": "Hot coffee scalded my tongue a little",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 768,
+   "text": "ยิ้มแล้วปากเบี้ยวนิดๆ ตามธรรมชาติ",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 769,
+   "text": "พูดไม่ชัดเพราะเพิ่งทำฟัน",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 771,
+   "text": "ตกบันไดขั้นเดียว ไม่เจ็บอะไร",
    "label": "none",
    "got": [
     "emergency"

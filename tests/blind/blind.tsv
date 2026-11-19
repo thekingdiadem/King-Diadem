@@ -751,3 +751,146 @@ Tiền điện tháng này đắt quá	none	vi	claude-seed
 庭でハチが飛んでいる	none	ja	claude-seed
 熱いコーヒーで舌を少しやけどした	none	ja	claude-seed
 今月の電気代が高すぎる	none	ja	claude-seed
+
+# ── ชุด G: ล็อกไว้ก่อนขยาย core/frames.py รอบ 4 — ชัก · เส้นเลือดในสมอง · หัวกระแทก/ตกที่สูง · อุบัติเหตุรถ ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 34/70 (ไม่เห็นเลย 36) · เตือนเกิน 3/70
+ลูกชักเกร็ง ตาเหลือก น้ำลายฟูมปาก	emergency	th	claude-seed
+พ่อชักกระตุกทั้งตัวมาห้านาทีแล้วไม่หยุด	emergency	th	claude-seed
+หลานไข้สูงแล้วชัก ตัวแข็งไปหมด	emergency	th	claude-seed
+แม่ปากเบี้ยว แขนขวายกไม่ขึ้น พูดไม่ชัด	emergency	th	claude-seed
+ตาพูดจาไม่รู้เรื่องกะทันหัน หน้าเบี้ยวไปข้างหนึ่ง	emergency	th	claude-seed
+ยายอ่อนแรงซีกซ้ายทันที เดินเซ	emergency	th	claude-seed
+ลูกตกจากชั้นสอง หัวฟาดพื้น อาเจียน	emergency	th	claude-seed
+พ่อตกบันไดหัวกระแทก ซึมลงเรื่อยๆ	emergency	th	claude-seed
+รถชนกันบนทางด่วน คนขับติดอยู่ในรถ	emergency	th	claude-seed
+มอเตอร์ไซค์ล้ม คนซ้อนนอนไม่ขยับ	emergency	th	claude-seed
+กล้ามเนื้อกระตุกตอนกำลังจะหลับ	none	th	claude-seed
+ยิ้มแล้วปากเบี้ยวนิดๆ ตามธรรมชาติ	none	th	claude-seed
+พูดไม่ชัดเพราะเพิ่งทำฟัน	none	th	claude-seed
+เดินชนประตูเบาๆ ไม่เป็นไร	none	th	claude-seed
+ตกบันไดขั้นเดียว ไม่เจ็บอะไร	none	th	claude-seed
+รถติดมากวันนี้	none	th	claude-seed
+ดูหนังฉากรถชนสนุกมาก	none	th	claude-seed
+แขนเมื่อยเพราะยกของ	none	th	claude-seed
+ลูกเล่นเกมแข่งรถทั้งวัน	none	th	claude-seed
+หัวเราะจนตัวสั่น	none	th	claude-seed
+My son is having a seizure, eyes rolled back and foaming at the mouth	emergency	en	claude-seed
+Dad has been convulsing for five minutes and it won't stop	emergency	en	claude-seed
+My nephew had a high fever then started seizing, his whole body went stiff	emergency	en	claude-seed
+Mom's face is drooping, she can't lift her right arm and her speech is slurred	emergency	en	claude-seed
+Grandpa suddenly can't make sense when he talks and one side of his face is drooping	emergency	en	claude-seed
+Grandma suddenly went weak on her left side and can't walk straight	emergency	en	claude-seed
+My kid fell from the second floor, hit his head and is vomiting	emergency	en	claude-seed
+Dad fell down the stairs, hit his head and keeps getting drowsier	emergency	en	claude-seed
+Car crash on the highway, the driver is trapped inside	emergency	en	claude-seed
+Motorbike went down, the passenger is lying there not moving	emergency	en	claude-seed
+My muscles twitch when I'm falling asleep	none	en	claude-seed
+My smile is a little crooked naturally	none	en	claude-seed
+My speech is slurred because I just had dental work	none	en	claude-seed
+Bumped into the door lightly, I'm fine	none	en	claude-seed
+Missed one step on the stairs, no pain at all	none	en	claude-seed
+Traffic is terrible today	none	en	claude-seed
+The car crash scene in the movie was awesome	none	en	claude-seed
+My arms are sore from lifting boxes	none	en	claude-seed
+My kid played racing games all day	none	en	claude-seed
+I laughed so hard I was shaking	none	en	claude-seed
+Mi hijo está convulsionando, se le voltean los ojos y le sale espuma por la boca	emergency	es	claude-seed
+Mi papá lleva cinco minutos convulsionando y no para	emergency	es	claude-seed
+Mi sobrino tuvo fiebre alta y empezó a convulsionar, se le puso todo el cuerpo rígido	emergency	es	claude-seed
+A mi mamá se le cae un lado de la cara, no puede levantar el brazo derecho y habla arrastrando las palabras	emergency	es	claude-seed
+Mi abuelo de repente no se le entiende al hablar y tiene la cara caída de un lado	emergency	es	claude-seed
+A la abuela de repente se le debilitó el lado izquierdo y no puede caminar derecho	emergency	es	claude-seed
+Mi niño se cayó del segundo piso, se golpeó la cabeza y está vomitando	emergency	es	claude-seed
+Mi papá se cayó por las escaleras, se pegó en la cabeza y está cada vez más somnoliento	emergency	es	claude-seed
+Choque en la autopista, el conductor quedó atrapado	emergency	es	claude-seed
+Se cayó la moto, el pasajero está tirado sin moverse	emergency	es	claude-seed
+Se me contraen los músculos cuando me estoy durmiendo	none	es	claude-seed
+Mi sonrisa es un poco chueca de nacimiento	none	es	claude-seed
+Hablo raro porque me acaban de arreglar los dientes	none	es	claude-seed
+Me golpeé suavemente con la puerta, estoy bien	none	es	claude-seed
+Me salté un escalón, no me dolió nada	none	es	claude-seed
+Hay mucho tráfico hoy	none	es	claude-seed
+La escena del choque en la película estuvo genial	none	es	claude-seed
+Me duelen los brazos de cargar cajas	none	es	claude-seed
+Mi hijo jugó videojuegos de carreras todo el día	none	es	claude-seed
+Me reí tanto que estaba temblando	none	es	claude-seed
+Con tôi đang co giật, mắt trợn ngược, sùi bọt mép	emergency	vi	claude-seed
+Bố co giật năm phút rồi không dừng	emergency	vi	claude-seed
+Cháu sốt cao rồi co giật, cả người cứng đờ	emergency	vi	claude-seed
+Mẹ bị méo miệng, không nhấc được tay phải, nói ngọng	emergency	vi	claude-seed
+Ông đột nhiên nói không rõ, một bên mặt bị xệ	emergency	vi	claude-seed
+Bà đột ngột yếu nửa người bên trái, đi loạng choạng	emergency	vi	claude-seed
+Con tôi ngã từ tầng hai, đập đầu xuống đất và nôn	emergency	vi	claude-seed
+Bố ngã cầu thang đập đầu, càng lúc càng lơ mơ	emergency	vi	claude-seed
+Tai nạn xe trên cao tốc, tài xế bị kẹt trong xe	emergency	vi	claude-seed
+Xe máy bị ngã, người ngồi sau nằm im không cử động	emergency	vi	claude-seed
+Cơ bị giật khi tôi sắp ngủ	none	vi	claude-seed
+Nụ cười của tôi hơi lệch tự nhiên	none	vi	claude-seed
+Nói ngọng vì vừa làm răng	none	vi	claude-seed
+Đụng nhẹ vào cửa, không sao	none	vi	claude-seed
+Hụt một bậc cầu thang, không đau gì	none	vi	claude-seed
+Hôm nay kẹt xe quá	none	vi	claude-seed
+Cảnh tai nạn xe trong phim hay quá	none	vi	claude-seed
+Tay mỏi vì bê đồ	none	vi	claude-seed
+Con chơi game đua xe cả ngày	none	vi	claude-seed
+Cười đến run cả người	none	vi	claude-seed
+我儿子在抽搐，翻白眼，口吐白沫	emergency	zh	claude-seed
+我爸抽搐了五分钟还停不下来	emergency	zh	claude-seed
+侄子发高烧后开始抽搐，全身僵硬	emergency	zh	claude-seed
+我妈嘴歪了，右手抬不起来，说话含糊不清	emergency	zh	claude-seed
+爷爷突然说话说不清楚，一边脸往下垂	emergency	zh	claude-seed
+奶奶突然左半边身子没力气，走路不稳	emergency	zh	claude-seed
+孩子从二楼摔下来，头撞到地上，一直吐	emergency	zh	claude-seed
+我爸从楼梯摔下来撞到头，越来越迷糊	emergency	zh	claude-seed
+高速公路上撞车了，司机被困在车里	emergency	zh	claude-seed
+摩托车翻了，后座的人躺着不动	emergency	zh	claude-seed
+快睡着的时候肌肉会抽动一下	none	zh	claude-seed
+我笑起来嘴有点歪，天生的	none	zh	claude-seed
+刚看完牙，说话有点含糊	none	zh	claude-seed
+轻轻撞了一下门，没事	none	zh	claude-seed
+楼梯踩空了一级，一点都不疼	none	zh	claude-seed
+今天堵车好严重	none	zh	claude-seed
+电影里撞车的场面很精彩	none	zh	claude-seed
+搬箱子搬得手臂酸	none	zh	claude-seed
+孩子玩了一整天赛车游戏	none	zh	claude-seed
+笑得浑身发抖	none	zh	claude-seed
+아들이 경련을 일으켜요, 눈이 뒤집히고 거품을 물어요	emergency	ko	claude-seed
+아빠가 5분째 경련하는데 멈추지 않아요	emergency	ko	claude-seed
+조카가 고열 후에 경련을 시작했고 온몸이 굳었어요	emergency	ko	claude-seed
+엄마 입이 돌아가고 오른팔을 못 들고 말이 어눌해요	emergency	ko	claude-seed
+할아버지가 갑자기 말을 알아들을 수 없게 하고 얼굴 한쪽이 처졌어요	emergency	ko	claude-seed
+할머니가 갑자기 왼쪽 몸에 힘이 빠지고 똑바로 못 걸어요	emergency	ko	claude-seed
+아이가 2층에서 떨어져 머리를 부딪치고 토해요	emergency	ko	claude-seed
+아빠가 계단에서 굴러 머리를 부딪쳤는데 점점 졸려해요	emergency	ko	claude-seed
+고속도로에서 차 사고가 났는데 운전자가 차 안에 갇혔어요	emergency	ko	claude-seed
+오토바이가 넘어졌는데 뒤에 탄 사람이 누워서 안 움직여요	emergency	ko	claude-seed
+잠들 때 근육이 움찔거려요	none	ko	claude-seed
+웃으면 입이 살짝 비뚤어요 원래 그래요	none	ko	claude-seed
+치과 치료 받아서 발음이 어눌해요	none	ko	claude-seed
+문에 살짝 부딪혔는데 괜찮아요	none	ko	claude-seed
+계단 한 칸 헛디뎠는데 하나도 안 아파요	none	ko	claude-seed
+오늘 차가 너무 막혀요	none	ko	claude-seed
+영화에서 차 사고 장면이 멋있었어요	none	ko	claude-seed
+상자 나르느라 팔이 뻐근해요	none	ko	claude-seed
+아이가 하루 종일 레이싱 게임을 했어요	none	ko	claude-seed
+너무 웃어서 몸이 떨렸어요	none	ko	claude-seed
+息子がけいれんして白目をむき、口から泡を吹いている	emergency	ja	claude-seed
+父のけいれんが五分続いて止まらない	emergency	ja	claude-seed
+甥が高熱のあとけいれんし始め、全身が硬直した	emergency	ja	claude-seed
+母の口が曲がって、右腕が上がらず、ろれつが回らない	emergency	ja	claude-seed
+祖父が急に話が通じなくなり、顔の片側が下がっている	emergency	ja	claude-seed
+祖母が急に左半身に力が入らず、まっすぐ歩けない	emergency	ja	claude-seed
+子どもが二階から落ちて頭を打ち、吐いている	emergency	ja	claude-seed
+父が階段から落ちて頭を打ち、だんだんぼんやりしてきた	emergency	ja	claude-seed
+高速道路で事故、運転手が車内に閉じ込められている	emergency	ja	claude-seed
+バイクが転倒して、後ろに乗っていた人が倒れたまま動かない	emergency	ja	claude-seed
+寝入りばなに筋肉がピクッとする	none	ja	claude-seed
+笑うと口元が少し曲がるのは生まれつき	none	ja	claude-seed
+歯医者の後でろれつが少し怪しい	none	ja	claude-seed
+ドアに軽くぶつかったけど大丈夫	none	ja	claude-seed
+階段を一段踏み外したけど全然痛くない	none	ja	claude-seed
+今日は渋滞がひどい	none	ja	claude-seed
+映画の事故シーンが迫力あった	none	ja	claude-seed
+箱を運んで腕がだるい	none	ja	claude-seed
+子どもが一日中レースゲームをしていた	none	ja	claude-seed
+笑いすぎて体が震えた	none	ja	claude-seed
