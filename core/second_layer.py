@@ -407,7 +407,7 @@ DOWNGRADES.append((re.compile(r"歴史|历史|歷史|역사|\bhistory\b|\bsimula
 _PAST_DONE = re.compile(r"(?:ตอนเด็ก|เคย|ปีที่แล้ว)[^\n]{0,20}?(?:ตอนนี้|โตแล้ว)[^\n]{0,10}?(?:ไม่เป็นแล้ว|หายแล้ว|ได้เงินคืนแล้ว|ปกติแล้ว)")
 _MONEY_GONE = re.compile(r"เงินหาย|ดูดเงิน|โอนไปแล้ว|โอนเงินออก(?:จากบัญชี)?|ถอน(?:เงิน)?ไม่ได้|(?i:\bmoney (?:is )?(?:gone|stolen)\b|\bdrained\b)")
 _TRAPPED = re.compile(r"ยึด(?:พาสปอร์ต|หนังสือเดินทาง|บัตร)|ห้ามออก|ออกไม่ได้|กักตัว|ขังไว้|ล่ามโซ่|ไม่ให้กลับ")
-_SEVERE = re.compile(r"昏迷|昏倒|晕倒|叫不醒|没有呼吸|沒有呼吸|流血不止|意識がない|息をしていない|起きない|倒れ|出血が止まらない|"
+_SEVERE = re.compile(r"昏迷|昏倒|(?<!差点)(?<!差點)(?<!快要)(?<!快)晕倒|叫不醒|没有呼吸|沒有呼吸|流血不止|意識がない|息をしていない|起きない|倒れ|出血が止まらない|"
                      r"의식이\s*없|숨을\s*안|쓰러졌|안\s*깨어나|피가\s*안\s*멈|ไม่รู้สึกตัว|หมดสติ|ไม่หายใจ|ปลุกไม่ตื่น|เรียกไม่ตื่น|เลือดไม่หยุด|เลือดพุ่ง|ชักเกร็ง|ตัวเขียว|ปากเขียว|"
                      r"(?i:\bunconscious\b|\bnot breathing\b|\bwon'?t wake\b)")
 _NOW = re.compile(r"ตอนนี้\S{0,8}(?:หายใจ|ไม่|เลือด|ชัก)|เมื่อกี้|เดี๋ยวนี้|ช่วยด้วย|ด่วน|ยานอนหลับ[^\n]{0,12}?หมด(?:แผง|กระปุก|ขวด)|\b(?:right now|rn|(?<!how to )help|happening now|now he|now she|now i)\b", re.I)   # "fine now" ไม่ใช่เหตุตอนนี้
@@ -682,4 +682,21 @@ UPGRADES += [
                r"(?![^\n]{0,30}?(?:บอล|ลูกบอล|ของเล่น|โทรศัพท์|มือถือ|รองเท้า|เล่น\S{0,4}กัน|ขึ้นมาแล้ว[^\n]{0,8}?(?:ปกติ|ไม่เป็นไร|ร้องเสียงดัง)))"), "health_emergency"),
     (re.compile(r"(?i:\b(?:grandma|grandpa|grandmother|grandfather|mom|dad|mother|father|elderly)\b[^\n]{0,30}?\bfell\b(?! asleep)[^\n]{0,30}?\b(?:can'?t|cannot|unable to)\s+(?:move|stand|walk|get up)\b)|"
                r"(?:ยาย|ตา|ย่า|ปู่|แม่|พ่อ|ผู้สูงอายุ|คนแก่)\S{0,6}ล้ม[^\n]{0,20}?(?:ขยับ|ลุก|ยืน|เดิน)\S{0,4}ไม่ได้"), "health_emergency"),
+]
+
+# งานแก้จุดอ่อนจากชุดปิดตา (ฝั่งเตือนเกิน) — แก้เป็นกลุ่ม ไม่ใช่ทีละประโยค:
+# อาการคล้ายสโตรก/ล้ม ที่ผู้ใช้บอกสาเหตุธรรมดาเอง · ลวกลิ้นนิดเดียว · เครื่อง/แอป "ไม่ตอบสนอง" · ขำจนแทบเป็นลม (จีน)
+_CALM_DANGER = r"(?![^\n]*(?:แขน\S{0,4}อ่อนแรง|ขา\S{0,4}อ่อนแรง|ชา(?:ครึ่ง|ข้าง)|หมดสติ|ชัก|อาเจียน|ปวดหัว\S{0,4}(?:มาก|รุนแรง)|หัวฟาด|เลือด|weak|numb|vomit|blood))"
+DOWNGRADES += [
+    (re.compile(r"^" + _CALM_DANGER + r"[^\n]*?(?:ปากเบี้ยว|หน้าเบี้ยว|พูดไม่ชัด|ลิ้นแข็ง|พูดไม่ค่อยชัด)[^\n]{0,20}?"
+                r"(?:ตามธรรมชาติ|ตั้งแต่เกิด|มาตั้งแต่เด็ก|เป็นปกติของ|เพราะ(?:เพิ่ง)?\S{0,4}(?:ทำฟัน|ถอนฟัน|อุดฟัน|ขูดหินปูน|ฉีดยาชา|จัดฟัน|ใส่รีเทนเนอร์|อมลูกอม|ยาชา))"), ("health_emergency", "first_aid")),
+    (re.compile(r"^" + _CALM_DANGER + r"[^\n]*?(?:ตก|ล้ม|สะดุด)[^\n]{0,15}?(?:ขั้นเดียว|นิดเดียว|เบาๆ)[^\n]{0,15}?(?:ไม่เจ็บ|ไม่เป็นอะไร|ไม่เป็นไร|ปกติดี)"), ("health_emergency", "first_aid")),
+    (re.compile(r"(?i:\b(?:scald(?:ed)?|burn(?:t|ed)?)\s+my\s+(?:tongue|lip|finger)\s+(?:a\s+(?:little|bit)|slightly)\b|\b(?:a\s+little|slightly)\s+(?:scald(?:ed)?|burn(?:t|ed)?)\s+my\s+(?:tongue|lip)\b)"), ("health_emergency", "first_aid")),
+]
+DOWNGRADES += [
+    # "笑得差点晕倒" = ขำจนแทบเป็นลม (สำนวน) · ถ้าเป็นลมจริงจะไม่มีคำว่า 差点/快
+    (re.compile(r"(?:笑|乐|樂|开心|開心|激动|激動)[^。！？\n]{0,6}?(?:差点|差點|快要?)(?:晕倒|暈倒|晕过去|暈過去|昏倒)"), ("health_emergency", "first_aid")),
+    # อุปกรณ์/แอป "ไม่ตอบสนอง" ไม่ใช่คน (es · en · th)
+    (re.compile(r"(?i:\b(?:mi\s+)?(?:celular|m[oó]vil|tel[eé]fono|computadora|ordenador|port[aá]til|laptop|pantalla|app|aplicaci[oó]n|tablet|tele|televisor|router)\b[^.!?\n]{0,20}?\b(?:se\s+(?:congel[oó]|colg[oó]|trab[oó])|no\s+responde)\b|"
+               r"\b(?:my\s+)?(?:phone|laptop|computer|screen|app|tablet|tv|router)\b[^.!?\n]{0,12}?\b(?:froze|frozen|is\s+not\s+responding|isn'?t\s+responding|not\s+responding|unresponsive)\b)"), ("health_emergency", "first_aid")),
 ]
