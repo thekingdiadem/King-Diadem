@@ -547,6 +547,19 @@ _more("violence", "zh", r"(?:收走|拿走|没收|沒收|扣下|扣着|扣著)(?
 _more("medical", "vi", r"(?:đồng\s+xu|viên\s+bi|kẹo|hạt|xương|pin|nắp|đồ\s+chơi)[^.!?\n]{0,25}?(?:bị\s+)?mắc(?:\s+(?:ở|trong))?(?:\s+(?:cổ|họng))?"
                        r"[^.!?\n]{0,25}?(?:không\s+(?:ho|nuốt|thở|khóc)\s+(?:ra\s+)?được|khó\s+thở|tím\s+tái)")
 
+# รอบสุ่ม 219: อันตรายที่เล่าด้วยคำเบาๆ (คู่กับรอบ 214–218 ไทย/อังกฤษ) — es vi ko ja zh
+_more("violence", "es", r"\bmi\s+(?:hija|hijo|sobrin[ao]|herman[ao])\s+de\s+1[0-7]\b[^.!?\n]{0,30}?\b(?:verse|encontrarse|quedar)\s+con\s+(?:un|una)\s+(?:hombre|señor|adulto|desconocid[oa]|chico|mujer)\b[^.!?\n]{0,20}?\b(?:conoci[óo]\s+en|de)\s+(?:tiktok|discord|roblox|instagram|internet|un\s+juego|la\s+red)"
+      r"|\b(?:bebi[óo]|borracho|drogado)\b[^.!?\n]{0,30}?\b(?:con|tiene|agarr[óo]|blandiendo)\s+(?:un\s+)?(?:machete|cuchillo|hacha|pistola|arma)\b(?![^.!?\n]{0,15}?\b(?:cort[óo]\s+leña|cocina))")
+_more("violence", "vi", r"(?:người\s+lạ|đàn\s+ông\s+lạ|ai\s+đó)\s+(?:đang\s+)?(?:ngủ|trốn|nấp|ở)\s+(?:trong|dưới)\s+(?:nhà\s+kho|gầm\s+cầu\s+thang|nhà|xe|gara)")
+_more("violence", "zh", r"(?:说|扬言|威胁)[^。！？\n]{0,6}(?:要|会)?(?:带|拿)(?:刀|枪|炸药)[^。！？\n]{0,10}(?:算账|报复|教训|砍|杀)")
+_more("violence", "ko", r"(?:딸|아들|동생|조카)[가이]?\s*[^.!?\n]{0,10}(?:틱톡|디스코드|게임|인스타|온라인)에서\s*(?:만난|알게\s*된)\s*(?:남자|어른|아저씨|사람)[^.!?\n]{0,10}(?:만나|보러)")
+_more("violence", "ja", r"(?:娘|息子|妹|弟)[^。！？\n]{0,10}(?:TikTok|ティックトック|ディスコード|ゲーム|ネット|インスタ)で(?:知り合った|会った)(?:男|大人|おじさん|人)[^。！？\n]{0,10}(?:会う|会いに)")
+_more("medical", "vi", r"không\s+ngủ\s+(?:\d+|ba|bốn|năm|sáu)\s+(?:ngày|đêm)[^.!?\n]{0,40}(?:bỏ\s+thuốc\s+độc|đầu\s+độc|theo\s+dõi|nghe\s+lén|có\s+tiếng\s+nói)")
+_more("medical", "ko", r"자석을?\s*(?:여러\s*개|두\s*개|몇\s*개|많이)\s*삼켰")
+_more("medical", "ja", r"(?:転んで|ぶつけて|事故で|事故の後)[^。！？\n]{0,15}(?:吐いて|吐いた|嘔吐)[^。！？\n]{0,15}(?:眠そう|ぼんやり|意識が)")
+_more("someone", "ko", r"아끼던\s*(?:고양이|강아지|개|반려동물|물건)[^.!?\n]{0,20}(?:주고|줬)[^.!?\n]{0,20}(?:다\s*나눠|다\s*정리|다\s*버렸)")
+_more("someone", "zh", r"(?:说|发|写)[^。！？\n]{0,4}(?:今晚|今天)是最后一(?:晚|天)(?!的?(?:演唱会|活动|旅行|假期))[^。！？\n]{0,10}(?:谢谢|再见|对不起|爱你们)")
+
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
