@@ -707,3 +707,100 @@ CONTROLLED	vi	kiểm soát tốt
 CONTROLLED	zh	控制得很好|控制得很好
 CONTROLLED	ko	잘 관리
 CONTROLLED	ja	コントロール
+
+# ═══ รอบ 6: หัวใจวาย/เจ็บหน้าอก · ขาดน้ำรุนแรง · ติดอยู่ในที่แคบ · น้ำท่วมฉับพลัน ═══
+# ── หัวใจ ── เจ็บ/แน่นหน้าอก + อาการร่วม ("เจ็บหน้าอกเพราะไอ" "เล่นเวท" "อกหัก" ไม่นับ)
+HEART_ATTACK	th	หัวใจวาย|หัวใจขาดเลือด|กล้ามเนื้อหัวใจตาย
+HEART_ATTACK	en	heart attack|cardiac arrest
+HEART_ATTACK	es	infarto|ataque al corazón|ataque cardiaco|ataque cardíaco
+HEART_ATTACK	vi	nhồi máu cơ tim|đau tim cấp|ngừng tim
+HEART_ATTACK	zh	心梗|心肌梗塞|心肌梗死|心脏病发作|心臟病發作
+HEART_ATTACK	ko	심근경색|심장마비
+HEART_ATTACK	ja	心筋梗塞|心臓発作
+CHEST_PAIN	th	เจ็บหน้าอก|แน่นหน้าอก|เจ็บแน่นหน้าอก|ปวดหน้าอก|ทับหน้าอก|เจ็บอก
+CHEST_PAIN	en	chest pain|chest hurts|chest pressure|chest tightness|on his chest|on her chest|on my chest
+CHEST_PAIN	es	dolor en el pecho|duele el pecho|dolor opresivo en el pecho|peso en el pecho|presión en el pecho
+CHEST_PAIN	vi	đau ngực|đau thắt ngực|tức ngực|đè lên ngực
+CHEST_PAIN	zh	胸痛|胸口疼|胸口痛|胸口压|胸口壓|胸口像压|胸闷|胸悶
+CHEST_PAIN	ko	가슴 통증|가슴이 아프|가슴을 쥐어짜|가슴이 답답|가슴에 돌
+CHEST_PAIN	ja	胸の痛み|胸が痛|胸を締め付け|胸に重い
+CARDIAC_SIGN	th	แขนซ้าย|ร้าวไปแขน|ร้าวไปกราม|เหงื่อออก|เหงื่อแตก|หายใจไม่อิ่ม|หายใจไม่ออก|หน้าซีด|คลื่นไส้|ไม่หาย|ครึ่งชั่วโมง
+CARDIAC_SIGN	en	left arm|jaw|sweat|sweating|drenched|can't catch his breath|can't catch her breath|short of breath|pale|nauseous|won't go away|half an hour
+CARDIAC_SIGN	es	brazo izquierdo|mandíbula|sudor|sudando|le falta el aire|pálido|pálida|náuseas|no se le pasa|media hora
+CARDIAC_SIGN	vi	tay trái|hàm|mồ hôi|thở không nổi|khó thở|tái mét|buồn nôn|không hết|nửa tiếng
+CARDIAC_SIGN	zh	左臂|左胳膊|下巴|大汗|冷汗|喘不上气|喘不上氣|苍白|蒼白|想吐|恶心|没缓解|沒緩解|半小时
+CARDIAC_SIGN	ko	왼팔|턱|식은땀|숨이 차|하얘|창백|메스꺼|안 가라앉|30분
+CARDIAC_SIGN	ja	左腕|あご|大汗|冷や汗|息苦し|真っ青|吐き気|治まらず|30分
+CHEST_BENIGN	th	ไอ|เล่นเวท|ยกเวท|ออกกำลัง|อกหัก|หนังผี
+CHEST_BENIGN	en	cough|coughing|bench|workout|gym|heartbroken|breakup|horror
+CHEST_BENIGN	es	toser|tos|press de banca|gimnasio|ruptura|terror
+CHEST_BENIGN	vi	ho|tập|chia tay|kinh dị
+CHEST_BENIGN	zh	咳|卧推|臥推|健身|分手|恐怖
+CHEST_BENIGN	ko	기침|벤치|운동|이별|공포
+CHEST_BENIGN	ja	咳|ベンチプレス|筋トレ|失恋|ホラー
+# ── ขาดน้ำ ── ท้องเสีย/อาเจียน + สัญญาณขาดน้ำ ("คอแห้งขอน้ำ" "ท้องเสียนิดหน่อยกินเกลือแร่แล้วดีขึ้น" ไม่นับ)
+FLUID_LOSS	th	ท้องเสีย|ท้องร่วง|อาเจียน|อ้วก
+FLUID_LOSS	en	diarrhea|diarrhoea|vomiting|throwing up
+FLUID_LOSS	es	diarrea|vomitar|vomitando|vómitos
+FLUID_LOSS	vi	tiêu chảy|nôn|ói
+FLUID_LOSS	zh	拉肚子|腹泻|腹瀉|吐
+FLUID_LOSS	ko	설사|토하|구토
+FLUID_LOSS	ja	下痢|吐き
+DEHY_SIGN	th	ไม่ฉี่|ไม่ปัสสาวะ|ปากแห้ง|ตาลึก|ตาโหล|ซึม|กินน้ำไม่ได้|ดื่มน้ำไม่ได้|อ่อนเพลียมาก
+DEHY_SIGN	en	no wet diaper|hasn't peed|no urine|dry mouth|sunken|very sleepy|lethargic|can't keep water down|can't keep anything down
+DEHY_SIGN	es	no moja el pañal|no orina|boca seca|ojos hundidos|decaído|decaída|no retiene
+DEHY_SIGN	vi	không đi tiểu|môi khô|miệng khô|mắt trũng|lừ đừ|uống nước vào là nôn
+DEHY_SIGN	zh	没尿|沒尿|嘴唇干|嘴唇乾|眼窝凹陷|眼窩凹陷|没精神|沒精神|喝水也吐
+DEHY_SIGN	ko	소변을 안|소변이 안|입술이 마르|입이 마르|눈이 퀭|처져|물도 못
+DEHY_SIGN	ja	おしっこが出|尿が出|唇が乾|口が乾|目がくぼ|ぐったり|水も飲めず|水も飲めない
+BETTER	th	ดีขึ้น|หายแล้ว
+BETTER	en	feel better|feeling better|better now
+BETTER	es	me siento mejor|ya estoy mejor
+BETTER	vi	thấy đỡ|đỡ rồi|khỏi rồi
+BETTER	zh	好多了|好了
+BETTER	ko	나아졌|괜찮아졌
+BETTER	ja	良くなった|治った
+# ── ติดอยู่ในที่แคบ ── ติด + สถานที่ + อันตราย (อากาศ แดด เวลานาน ตึกถล่ม) — "รถติด" ไม่นับ
+TRAPPED	th	ติดอยู่|ติดค้าง|ค้าง|ล็อก|ออกไม่ได้|เปิดไม่ได้
+TRAPPED	en	trapped|stuck|locked in|can't get out|can't get the door open
+TRAPPED	es	re:atrapad[oa]s?|encerrad[oa]|parado|no puedo abrir|no puede salir
+TRAPPED	vi	kẹt|bị khóa|không mở được|không ra được
+TRAPPED	zh	被困|卡在|锁在|鎖在|打不开|打不開|出不来|出不來|压在|壓在
+TRAPPED	ko	갇혀|갇혔|멈췄|안 열려|못 나와|깔려
+TRAPPED	ja	閉じ込め|止まって|開かない|出られない|埋まって
+PLACE	th	ลิฟต์|ในรถ|ห้องเย็น|ซาก
+PLACE	en	elevator|lift|car|rubble|freezer
+PLACE	es	ascensor|coche|carro|escombros
+PLACE	vi	thang máy|trong xe|đổ nát
+PLACE	zh	电梯|電梯|车里|車裡|废墟|廢墟
+PLACE	ko	엘리베이터|차 안|잔해
+PLACE	ja	エレベーター|車|がれき
+TRAP_DANGER	th	อากาศ|หายใจ|แดด|ชั่วโมง|ถล่ม|ใต้
+TRAP_DANGER	en	air|breathe|sun|hour|collapsed|under
+TRAP_DANGER	es	aire|sol|hora|derrumbó|bajo
+TRAP_DANGER	vi	ngột|nắng|tiếng|sập|dưới
+TRAP_DANGER	zh	空气|空氣|闷|悶|太阳|太陽|小时|小時|塌
+TRAP_DANGER	ko	공기|숨|땡볕|햇볕|시간째|무너
+TRAP_DANGER	ja	空気|息|炎天下|日なた|時間|崩れ
+TRAFFIC	th	รถติด
+TRAFFIC	en	traffic
+TRAFFIC	es	tráfico|trafico|atasco
+TRAFFIC	vi	kẹt xe|tắc đường
+TRAFFIC	zh	堵车|堵車|塞车|塞車
+TRAFFIC	ko	차가 막혀|교통 체증
+TRAFFIC	ja	渋滞
+# ── น้ำท่วมฉับพลัน ── น้ำป่า/ถูกน้ำพัด + คนติด/น้ำถึงหลังคา ("น้ำขังนิดหน่อย" "ข่าวน้ำท่วม" ไม่นับ)
+FLOOD	th	น้ำป่า|น้ำท่วม|น้ำพัด|น้ำหลาก|ไหลหลาก
+FLOOD	en	flash flood|flood|floodwater|flooding|swept
+FLOOD	es	riada|inundación|inundacion|corriente arrastró|arrastró
+FLOOD	vi	lũ|lũ quét|nước lũ|lũ cuốn
+FLOOD	zh	山洪|洪水|冲走|沖走
+FLOOD	ko	홍수|급류|휩쓸
+FLOOD	ja	鉄砲水|洪水|流され
+FLOOD_DANGER	th	หลังคา|ออกไม่ได้|ติดอยู่|จมน้ำ|ถูกพัด
+FLOOD_DANGER	en	roof|roofs|can't get out|trapped|stranded
+FLOOD_DANGER	es	tejado|tejados|techo|no puede salir|atrapad
+FLOOD_DANGER	vi	mái nhà|không ra được|mắc kẹt
+FLOOD_DANGER	zh	屋顶|屋頂|出不来|出不來|被困|淹到
+FLOOD_DANGER	ko	지붕|못 나와|갇혀
+FLOOD_DANGER	ja	屋根|出られない|取り残

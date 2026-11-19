@@ -222,3 +222,29 @@ def test_round5_danger(text):
 @pytest.mark.parametrize("text", CALM_5)
 def test_round5_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 6: หัวใจ · ขาดน้ำ · ติดในที่แคบ · น้ำท่วมฉับพลัน (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา I) ──
+DANGER_6 = [
+    "ตาแน่นหน้าอก เหงื่อแตก ร้าวไปกราม", "my husband has chest pain and is short of breath",
+    "她心肌梗塞了，冷汗直流", "dolor en el pecho y le duele el brazo izquierdo",
+    "น้องท้องร่วงทั้งคืน ตาโหลและซึม", "he keeps vomiting and can't keep water down", "아기가 설사하고 소변을 안 봐요",
+    "ติดอยู่ในลิฟต์ หายใจลำบาก", "we're trapped in the elevator and the air is running out", "孩子被锁在车里，外面太阳很大",
+    "น้ำป่าพัดบ้าน ยายติดอยู่บนหลังคา", "flash flood, we're stranded on the roof", "洪水淹到二楼，我们被困了",
+]
+CALM_6 = [
+    "เจ็บหน้าอกเพราะไอทั้งคืน", "my chest is sore from the gym, a little sweaty", "ท้องเสียนิดหน่อย",
+    "had diarrhea yesterday but feel better now", "ติดอยู่ในรถติดหนึ่งชั่วโมง", "stuck in traffic in the car for an hour",
+    "the elevator is slow today",
+    "I almost had a heart attack, I was so sweaty from nerves", "น้ำท่วมถนนนิดหน่อย", "flood insurance is expensive",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_6)
+def test_round6_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_6)
+def test_round6_calm(text):
+    assert frames(text) == [], explain(text)
