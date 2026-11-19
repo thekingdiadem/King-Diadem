@@ -43,6 +43,15 @@ FRAMES = (
     ("burn", "medical", "health_emergency", (("BURN", "BURN_SEVERE"),), ("FICTION", "HYPOTHETICAL", "MINOR", "NOT_BURN")),
     ("electric", "medical", "health_emergency", (("ELECTRIC",), ("SOCKET", "SHOCK")), ("FICTION", "HYPOTHETICAL", "NOT_ELECTRIC", "MINOR")),
     ("bite", "medical", "health_emergency", (("ANIMAL", "BITE", "VICTIM"),), ("FICTION", "HYPOTHETICAL", "NOT_BITE")),
+    # รอบ 4 (ชุดปิดตา G ล็อกไว้ก่อนเขียน)
+    ("seizure", "medical", "health_emergency", (("SEIZURE",),), ("FICTION", "HYPOTHETICAL", "TWITCH")),
+    # เส้นเลือดในสมอง: คำชัดเจน หรืออาการสองอย่างร่วมกัน (หลัก BE-FAST) — อาการเดียวมักมีเหตุอื่น
+    ("stroke", "medical", "health_emergency",
+     (("STROKE",), ("FACE_DROOP", "SLUR"), ("FACE_DROOP", "WEAK_SIDE"), ("WEAK_SIDE", "SLUR"),
+      ("WEAK_SIDE", "SUDDEN"), ("SLUR", "SUDDEN"), ("FACE_DROOP", "SUDDEN")), ("FICTION", "HYPOTHETICAL", "NOT_STROKE")),
+    ("head_injury", "medical", "health_emergency", (("FALL", "HEAD", "RED_FLAG"), ("FALL", "HEIGHT", "RED_FLAG")),
+     ("FICTION", "HYPOTHETICAL", "MINOR", "NO_PAIN")),
+    ("crash", "medical", "health_emergency", (("CRASH", "CRASH_HARM"),), ("FICTION", "HYPOTHETICAL", "MINOR", "NO_PAIN", "DEVICE")),   # ตลาดหุ้น/ระบบ crash ไม่ใช่รถชน
 )
 
 

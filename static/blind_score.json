@@ -25,11 +25,11 @@
   },
   "emergency": {
    "n": 312,
-   "tp": 274,
-   "fn": 38,
+   "tp": 310,
+   "fn": 2,
    "fp": 17,
-   "recall": 0.878,
-   "precision": 0.942
+   "recall": 0.994,
+   "precision": 0.948
   },
   "violence": {
    "n": 70,
@@ -57,7 +57,7 @@
   }
  },
  "danger_missed": {
-  "n": 41,
+  "n": 5,
   "of": 418
  },
  "false_alarm": {
@@ -66,31 +66,31 @@
  },
  "by_lang": {
   "en": {
-   "hit": 71,
+   "hit": 74,
    "n": 75
   },
   "es": {
-   "hit": 42,
+   "hit": 49,
    "n": 51
   },
   "ja": {
-   "hit": 46,
+   "hit": 51,
    "n": 52
   },
   "ko": {
-   "hit": 44,
+   "hit": 50,
    "n": 51
   },
   "th": {
-   "hit": 109,
+   "hit": 110,
    "n": 112
   },
   "vi": {
-   "hit": 40,
+   "hit": 47,
    "n": 50
   },
   "zh": {
-   "hit": 46,
+   "hit": 53,
    "n": 53
   }
  },
@@ -220,12 +220,6 @@
    ]
   },
   {
-   "line": 762,
-   "text": "ยายอ่อนแรงซีกซ้ายทันที เดินเซ",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 768,
    "text": "ยิ้มแล้วปากเบี้ยวนิดๆ ตามธรรมชาติ",
    "label": "none",
@@ -248,216 +242,6 @@
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 779,
-   "text": "My nephew had a high fever then started seizing, his whole body went stiff",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 782,
-   "text": "Grandma suddenly went weak on her left side and can't walk straight",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 786,
-   "text": "Motorbike went down, the passenger is lying there not moving",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 800,
-   "text": "A mi mamá se le cae un lado de la cara, no puede levantar el brazo derecho y habla arrastrando las palabras",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 801,
-   "text": "Mi abuelo de repente no se le entiende al hablar y tiene la cara caída de un lado",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 802,
-   "text": "A la abuela de repente se le debilitó el lado izquierdo y no puede caminar derecho",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 803,
-   "text": "Mi niño se cayó del segundo piso, se golpeó la cabeza y está vomitando",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 804,
-   "text": "Mi papá se cayó por las escaleras, se pegó en la cabeza y está cada vez más somnoliento",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 805,
-   "text": "Choque en la autopista, el conductor quedó atrapado",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 806,
-   "text": "Se cayó la moto, el pasajero está tirado sin moverse",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 820,
-   "text": "Mẹ bị méo miệng, không nhấc được tay phải, nói ngọng",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 821,
-   "text": "Ông đột nhiên nói không rõ, một bên mặt bị xệ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 822,
-   "text": "Bà đột ngột yếu nửa người bên trái, đi loạng choạng",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 823,
-   "text": "Con tôi ngã từ tầng hai, đập đầu xuống đất và nôn",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 824,
-   "text": "Bố ngã cầu thang đập đầu, càng lúc càng lơ mơ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 825,
-   "text": "Tai nạn xe trên cao tốc, tài xế bị kẹt trong xe",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 826,
-   "text": "Xe máy bị ngã, người ngồi sau nằm im không cử động",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 840,
-   "text": "我妈嘴歪了，右手抬不起来，说话含糊不清",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 841,
-   "text": "爷爷突然说话说不清楚，一边脸往下垂",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 842,
-   "text": "奶奶突然左半边身子没力气，走路不稳",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 843,
-   "text": "孩子从二楼摔下来，头撞到地上，一直吐",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 844,
-   "text": "我爸从楼梯摔下来撞到头，越来越迷糊",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 845,
-   "text": "高速公路上撞车了，司机被困在车里",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 846,
-   "text": "摩托车翻了，后座的人躺着不动",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 860,
-   "text": "엄마 입이 돌아가고 오른팔을 못 들고 말이 어눌해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 861,
-   "text": "할아버지가 갑자기 말을 알아들을 수 없게 하고 얼굴 한쪽이 처졌어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 862,
-   "text": "할머니가 갑자기 왼쪽 몸에 힘이 빠지고 똑바로 못 걸어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 863,
-   "text": "아이가 2층에서 떨어져 머리를 부딪치고 토해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 864,
-   "text": "아빠가 계단에서 굴러 머리를 부딪쳤는데 점점 졸려해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 866,
-   "text": "오토바이가 넘어졌는데 뒤에 탄 사람이 누워서 안 움직여요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 880,
-   "text": "母の口が曲がって、右腕が上がらず、ろれつが回らない",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 881,
-   "text": "祖父が急に話が通じなくなり、顔の片側が下がっている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 882,
-   "text": "祖母が急に左半身に力が入らず、まっすぐ歩けない",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 883,
-   "text": "子どもが二階から落ちて頭を打ち、吐いている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 884,
-   "text": "父が階段から落ちて頭を打ち、だんだんぼんやりしてきた",
-   "label": "emergency",
-   "got": []
   }
  ]
 }

@@ -442,3 +442,122 @@ VICTIM	vi	bị|tôi|tay|chân|ngón|mặt|con|bố|mẹ|em|anh|chị|bà|ông
 VICTIM	zh	被|我|他|她|手|腿|脚|腳|胳膊|手指|脸|臉|孩子|儿子|兒子|女儿|女兒|爸|妈|媽
 VICTIM	ko	물렸|물려|에게 물|한테 물|손|다리|팔|발|손가락|얼굴|아들|딸|아이|아빠|엄마|저를|제
 VICTIM	ja	噛まれ|かまれ|咬まれ|手|足|腕|指|顔|息子|娘|子ども|子供|父|母|私
+# ════ รอบ 4: ชัก · เส้นเลือดในสมอง · หัวกระแทก/ตกที่สูง · อุบัติเหตุรถ (ชุดปิดตา G ล็อกไว้ก่อนเขียน) ════
+# ── ชัก ── ไทย "ชัก" อยู่ใน ชักชวน/ชักจะ/ชักช้า — นับเฉพาะรูปที่ชัด
+# "แล้วชัก" เป็นต้นของ แล้วชักชวน/แล้วชักช้า · "ลมชัก" "อาการชัก" เป็นชื่อโรค/อาการ (เป็นโรคลมชัก ขับรถได้ไหม) ไม่ใช่กำลังชัก
+SEIZURE	th	ชักเกร็ง|ชักกระตุก|ชักตาตั้ง|ชักไม่หยุด|ชักดิ้น
+SEIZURE	th	re:(?:แล้ว|เริ่ม|กำลัง|ลูก|น้อง)ชัก(?!ชวน|ช้า|จะ|นำ|ธง|ว่าว|เย่อ|ใย|สงสัย|ไม่|แม่น|ออก|ชัก|เข้า|มา|ไป|ดาบ|ปืน|เงิน|สีหน้า)
+SEIZURE	en	seizure|seizing|convulsing|convulsion|having a fit
+SEIZURE	es	convulsión|convulsiones|convulsionando|convulsiona|convulsionó|convulsionar|ataque epiléptico|crisis epiléptica
+SEIZURE	vi	co giật|lên cơn động kinh|động kinh
+SEIZURE	zh	抽搐|癫痫发作|癲癇發作|羊癫疯|抽风|抽風
+SEIZURE	ko	경련|발작|간질
+SEIZURE	ja	けいれん|痙攣|ひきつけ|てんかん発作
+TWITCH	th	ตอนจะหลับ|ตอนกำลังจะหลับ|เปลือกตา|ตากระตุก
+TWITCH	en	falling asleep|eyelid|eye twitch
+TWITCH	es	durmiendo|párpado
+TWITCH	vi	sắp ngủ|mí mắt
+TWITCH	zh	睡着|睡著|眼皮
+TWITCH	ko	잠들|눈꺼풀
+TWITCH	ja	寝入り|まぶた
+# ── เส้นเลือดในสมอง ── คำชัดเจน หรืออาการสองอย่าง (ปากเบี้ยว · พูดไม่ชัด · อ่อนแรงครึ่งซีก · กะทันหัน)
+STROKE	th	เส้นเลือดในสมอง|หลอดเลือดสมอง|อัมพฤกษ์|สโตรก
+STROKE	en	stroke|having a stroke
+STROKE	es	derrame cerebral|ictus|accidente cerebrovascular
+STROKE	vi	đột quỵ|tai biến
+STROKE	zh	中风|中風|脑卒中|腦卒中|脑梗|腦梗
+STROKE	ko	뇌졸중|중풍|뇌경색
+STROKE	ja	脳卒中|脳梗塞|脳出血
+FACE_DROOP	th	ปากเบี้ยว|หน้าเบี้ยว|มุมปากตก
+FACE_DROOP	en	face is drooping|face drooping|drooping|droopy face|crooked face
+FACE_DROOP	es	se le cae un lado de la cara|cara caída|boca torcida|boca chueca
+FACE_DROOP	vi	méo miệng|mặt bị xệ|bị xệ|lệch mặt|méo mặt
+FACE_DROOP	zh	嘴歪|脸歪|臉歪|往下垂|口角歪斜
+FACE_DROOP	ko	입이 돌아|얼굴 한쪽이 처|입이 비뚤어졌
+FACE_DROOP	ja	口が曲が|顔の片側が下が|顔がゆが|顔がゆがん
+SLUR	th	พูดไม่ชัด|พูดไม่รู้เรื่อง|พูดจาไม่รู้เรื่อง|ลิ้นแข็ง|พูดไม่ออก
+# "can't make sense" ตามลำพัง = ไม่เข้าใจ (can't make sense of this math) — นับเฉพาะเมื่อพูดถึงการพูด
+SLUR	en	slurred|slurring|can't speak properly|garbled|talking nonsense
+SLUR	en	re:\b(?:can'?t|cannot)\s+make\s+sense\s+when\s+(?:he|she|they|i)\s+(?:talks?|speaks?)\b|\b(?:his|her|their)\s+(?:speech|words)\s+(?:is|are)\s+(?:slurred|garbled|strange|jumbled)
+SLUR	es	arrastrando las palabras|no se le entiende|no puede hablar bien
+SLUR	vi	nói ngọng|nói không rõ|nói lắp bắp|nói không ra lời
+SLUR	zh	说话含糊|說話含糊|说不清楚|說不清楚|口齿不清|口齒不清|含糊不清
+SLUR	ko	말이 어눌|발음이 어눌|알아들을 수 없|말을 못 해
+SLUR	ja	ろれつが回らない|話が通じな|言葉が出な|ろれつが
+WEAK_SIDE	th	อ่อนแรงซีก|อ่อนแรงครึ่งซีก|ชาครึ่งซีก|ขาไม่มีแรงข้างเดียว
+WEAK_SIDE	th	re:แขน\S{0,4}ยกไม่ขึ้น
+WEAK_SIDE	en	weak on one side|numb on one side|went weak on|weak on her left|weak on his left|weak on her right|weak on his right
+WEAK_SIDE	en	re:\bcan'?t\s+lift\s+(?:her|his|my|their)\s+(?:right\s+|left\s+)?arm\b
+WEAK_SIDE	es	no puede levantar el brazo|se le debilitó el lado|lado del cuerpo
+WEAK_SIDE	vi	yếu nửa người|không nhấc được tay|tê nửa người|liệt nửa người
+WEAK_SIDE	zh	半边身子没力气|半邊身子沒力氣|手抬不起来|手抬不起來|半身无力|半身無力|半身不遂
+WEAK_SIDE	ko	팔을 못 들|한쪽 몸에 힘이|왼쪽 몸에 힘이|오른쪽 몸에 힘이|반신|편마비
+WEAK_SIDE	ja	腕が上がらず|腕が上がらない|半身に力が入らず|半身に力が入らない|片側に力が入らない
+SUDDEN	th	กะทันหัน|ทันที|จู่ๆ|อยู่ๆ
+SUDDEN	en	suddenly|sudden|all of a sudden
+SUDDEN	es	de repente|repentinamente|de golpe
+SUDDEN	vi	đột nhiên|đột ngột|bỗng nhiên|bỗng
+SUDDEN	zh	突然
+SUDDEN	ko	갑자기
+SUDDEN	ja	急に|突然
+NOT_STROKE	th	ทำฟัน|หมอฟัน|ธรรมชาติ|แต่กำเนิด|ตั้งแต่เกิด|เมา
+NOT_STROKE	en	dental|dentist|naturally|since birth|born with|drunk|smile
+NOT_STROKE	es	dientes|dentista|nacimiento|borracho|sonrisa
+NOT_STROKE	vi	làm răng|nha sĩ|tự nhiên|bẩm sinh|say rượu|nụ cười
+NOT_STROKE	zh	看牙|牙医|牙醫|天生|喝醉|笑起来
+NOT_STROKE	ko	치과|원래|태어날 때|술 취|웃으면
+NOT_STROKE	ja	歯医者|生まれつき|酔っ|笑うと
+# ── หัวกระแทก/ตกที่สูง ── ต้องมีสัญญาณอันตราย (อาเจียน ซึมลง ไม่ขยับ) — "ตกบันไดขั้นเดียว ไม่เจ็บ" ไม่นับ
+# "ตก" อยู่ใน ตกใจ/ตกงาน/ฝนตก/ตกลง · "ล้ม" อยู่ใน ล้มเหลว/ล้มป่วย — นับเฉพาะความหมายว่าร่วงลง
+FALL	th	re:ตก(?!ใจ|งาน|ลง|แต่ง|ปลา|ค้าง|หล่น|ต่ำ|ยุค|เทรนด์|รถ)|ล้ม(?!เหลว|ละลาย|ป่วย|เลิก|ล้าง)
+FALL	en	fell|fall|fallen|falling|tumbled
+FALL	es	se cayó|cayó|caída|se cae
+FALL	vi	ngã|té|rơi
+FALL	zh	摔|跌|掉
+FALL	ko	떨어져|떨어졌|굴러|넘어져|넘어졌
+FALL	ja	落ち|転落|転倒|転ん
+# "หัว" อยู่ใน หัวเราะ/หัวหน้า/หัวใจ/หัวข้อ
+HEAD	th	ศีรษะ
+HEAD	th	re:หัว(?!เราะ|หน้า|ใจ|ข้อ|เรื่อง|ละ|ไช|เข่า|นม|หอม|ไหล่|ค่ำ)
+HEAD	en	head
+HEAD	es	cabeza
+HEAD	vi	đầu
+HEAD	zh	头|頭
+HEAD	ko	머리
+HEAD	ja	頭
+HEIGHT	th	ชั้นสอง|ชั้นสาม|หลังคา|ต้นไม้|นั่งร้าน|ระเบียง|ที่สูง|บันได
+HEIGHT	en	second floor|third floor|roof|tree|ladder|balcony|stairs|scaffold|bunk bed
+HEIGHT	es	segundo piso|tercer piso|techo|árbol|escalera|escaleras|balcón
+HEIGHT	vi	tầng hai|tầng ba|mái nhà|cây|thang|ban công|cầu thang
+HEIGHT	zh	二楼|二樓|三楼|三樓|屋顶|屋頂|树上|樹上|梯子|阳台|陽台|楼梯|樓梯
+HEIGHT	ko	2층|3층|이층|지붕|나무|사다리|베란다|계단
+HEIGHT	ja	二階|三階|2階|屋根|木から|はしご|ベランダ|階段
+RED_FLAG	th	อาเจียน|ซึม|ไม่ขยับ|ไม่รู้สึกตัว|เลือดออกหู|สับสน|หมดสติ
+RED_FLAG	en	vomiting|vomited|throwing up|threw up|drowsy|drowsier|not moving|unconscious|confused|bleeding from his ear|bleeding from her ear
+RED_FLAG	es	vomitando|vomitó|somnoliento|somnolienta|no se mueve|sin moverse|inconsciente|confundido|confundida
+RED_FLAG	vi	nôn|ói|lơ mơ|không cử động|nằm im|bất tỉnh|lú lẫn
+RED_FLAG	zh	一直吐|呕吐|嘔吐|迷糊|不动|不動|昏迷|意识不清|意識不清
+RED_FLAG	ko	토해|토하|졸려|안 움직|의식이|멍해
+RED_FLAG	ja	吐い|吐き|ぼんやり|動かない|意識が
+NO_PAIN	th	ไม่เจ็บ|ไม่เป็นไร|ปกติดี
+NO_PAIN	en	no pain|didn't hurt|doesn't hurt|i'm fine|i'm okay
+NO_PAIN	es	no me dolió|no duele|estoy bien
+NO_PAIN	vi	không đau|không sao
+NO_PAIN	zh	不疼|不痛|没事|沒事
+NO_PAIN	ko	안 아파|괜찮아
+NO_PAIN	ja	痛くない|大丈夫
+# ── อุบัติเหตุรถ ── ต้องมีคนบาดเจ็บ ("รถติด" "ฉากรถชนในหนัง" ไม่นับ)
+CRASH	th	รถชน|ชนกัน|รถคว่ำ|รถล้ม|มอเตอร์ไซค์ล้ม|อุบัติเหตุ|ประสานงา|ถูกรถชน|โดนรถชน
+CRASH	en	car crash|crash|crashed|collision|accident|went down|hit by a car|run over|rolled over
+CRASH	es	choque|chocó|accidente|atropellado|atropellada|atropelló|se cayó la moto|volcó
+CRASH	vi	tai nạn|đâm xe|tông xe|bị xe đâm|bị ngã xe|xe máy bị ngã|lật xe
+CRASH	zh	撞车|撞車|车祸|車禍|翻了|被车撞|被車撞|撞了
+CRASH	ko	사고|교통사고|치였|전복|넘어졌
+CRASH	ja	事故|衝突|はねられ|横転|転倒
+CRASH_HARM	th	ติดอยู่ในรถ|ติดในรถ|ไม่ขยับ|เลือด|หมดสติ|บาดเจ็บ|ไม่รู้สึกตัว|นอนไม่ขยับ
+CRASH_HARM	en	trapped|not moving|unconscious|bleeding|injured|pinned|badly hurt
+CRASH_HARM	es	atrapado|atrapada|sin moverse|inconsciente|sangra|sangrando|herido|herida
+CRASH_HARM	vi	bị kẹt|không cử động|nằm im|bất tỉnh|chảy máu|bị thương
+CRASH_HARM	zh	被困|不动|不動|昏迷|流血|受伤|受傷
+CRASH_HARM	ko	갇혔|안 움직|의식|피가|다쳤
+CRASH_HARM	ja	閉じ込め|動かない|意識|血が|けが|怪我
