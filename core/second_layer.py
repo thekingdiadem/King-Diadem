@@ -714,3 +714,20 @@ UPGRADES += [
 ]
 # "ทารกนอนหลับสบาย ไม่ร้องเลย" = ข่าวดี ไม่ใช่ทารกไม่ตอบสนอง
 DOWNGRADES.append((re.compile(r"^(?![^\n]*(?:ไม่ขยับ|ไม่หายใจ|ตัวเย็น|ตัวเขียว|ปากเขียว|ปลุกไม่ตื่น|ซึม|ไข้|ชัก))[^\n]*?(?:หลับสบาย|นอนหลับยาว|หลับยาว|หลับปุ๋ย|นอนเก่ง)[^\n]{0,20}?ไม่ร้อง"), ("health_emergency", "first_aid", "newborn_danger")))
+
+# รอบ 214 (อังกฤษ): อันตรายที่เล่าแบบบรรยาย ไม่มีคำแรง — เคยได้ 0 ทั้งหมด
+_EN_FICT = r"(?![^\n]*\b(?:in the (?:movie|show|game|book)|novel|episode)\b)"
+UPGRADES += [
+    (re.compile(r"(?i)^" + _EN_FICT + r"[^\n]*\b(?:tracks?|tracking|monitors?|checks?|reads?)\s+(?:her|his|my|their)\s+(?:phone|location|messages)\b[^\n]{0,40}?"
+                r"\b(?:won'?t|doesn'?t|does not|will not)\s+let\s+(?:her|him|me|them)\s+(?:see|meet|talk to|go out with)\s+(?:her |his |my |their )?(?:friends|family)\b"), "control_en"),
+    (re.compile(r"(?i)\b(?:strange|unknown|random)\s+(?:man|woman|person|guy)\s+(?:is\s+)?(?:sleeping|hiding|living|sitting)\s+in\s+(?:our|my)\s+(?:car|garage|basement|attic|shed|house|backyard)\b"), "intruder"),
+    (re.compile(r"(?i)\b(?:drunk|drinking|high)\b[^\n]{0,30}?\b(?:swinging|waving|holding|grabbed|pointing)\s+(?:a\s+|his\s+|her\s+)?(?:machete|knife|axe|bat|gun|sword|cleaver)\b"), "violence"),
+    (re.compile(r"(?i)^" + _EN_FICT + r"[^\n]*\b(?:keeps?|kept)\s+saying\s+(?:that\s+)?(?:everyone|we|they|his family|her family)\s+(?:would|'d)\s+be\s+better\s+(?:off\s+)?without\s+(?:him|her|them)\b"), "warning"),
+    (re.compile(r"(?i)\b(?:says?|saying|claims?|claiming)\s+(?:they\s+)?(?:have|has|took|kidnapped)\s+my\s+(?:son|daughter|child|kid|husband|wife|mom|dad)\b[^\n]{0,30}?\b(?:money|pay|ransom|transfer|bitcoin|gift cards?)\b"), "scam"),
+    (re.compile(r"(?i)\b(?:soft\s*spot|fontanelle)\s+(?:is\s+|looks\s+)?sunken\b|\bsunken\s+(?:soft\s*spot|fontanelle)\b"), "health_emergency"),
+    (re.compile(r"(?i)\b(?:sweating|shaking|trembling|confused|pale)\b[^\n]{0,40}?\b(?:after|since)\s+(?:his\s+|her\s+|my\s+|an?\s+)?insulin\b|\binsulin\b[^\n]{0,30}?\b(?:sweating|shaking|confused|passed out|won'?t wake)\b"), "health_emergency"),
+    (re.compile(r"(?i)\b(?:stuck|trapped|stranded)\s+on\s+(?:the|our|a)\s+roof\b[^\n]{0,30}?\bwater\b|\bwater\s+(?:is\s+)?(?:still\s+)?rising\b[^\n]{0,30}?\b(?:stuck|trapped|roof|can'?t get out)\b"), "health_emergency"),
+]
+DOWNGRADES.append((re.compile(r"(?i)^(?![^\n]*\b(?:bring|bringing|take|taking|kill|shoot (?:up|people|everyone)|hurt)\b)[^\n]*\b(?:shooting|rifle|archery|gun)\s+(?:club|range|team|lessons?|class|sport)\b"), ("weapon", "harm_others", "violence", "disaster")))
+_UP_RISK.setdefault("control_en", 70)
+_UP_RISK.setdefault("warning", 85)
