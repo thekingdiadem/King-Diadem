@@ -561,3 +561,149 @@ CRASH_HARM	vi	bị kẹt|không cử động|nằm im|bất tỉnh|chảy máu|b
 CRASH_HARM	zh	被困|不动|不動|昏迷|流血|受伤|受傷
 CRASH_HARM	ko	갇혔|안 움직|의식|피가|다쳤
 CRASH_HARM	ja	閉じ込め|動かない|意識|血が|けが|怪我
+
+# ═══ รอบ 5: ก๊าซรั่ว/CO · ลมแดด · น้ำตาลต่ำ · หอบหืดกำเริบ ═══
+# ── ก๊าซรั่ว/CO ── ต้องมีอาการ ("แก๊สใกล้หมด" "ห้องกลิ่นอับ" ไม่นับ)
+GAS	th	แก๊ส|ก๊าซ|แก็ส
+GAS	en	gas|propane
+GAS	es	gas|butano
+GAS	vi	ga|khí ga|gas
+GAS	zh	煤气|煤氣|燃气|燃氣|天然气|天然氣|瓦斯
+GAS	ko	가스
+GAS	ja	ガス
+LEAK_SMELL	th	รั่ว|กลิ่น
+LEAK_SMELL	en	smell|smells|leak|leaking
+LEAK_SMELL	es	olor|huele|fuga
+LEAK_SMELL	vi	mùi|rò rỉ|xì
+LEAK_SMELL	zh	味|泄漏|漏气|漏氣
+LEAK_SMELL	ko	냄새|누출|새고|새요
+LEAK_SMELL	ja	臭い|におい|匂い|漏れ
+CO	th	คาร์บอนมอนอกไซด์|ก๊าซพิษ
+CO	en	carbon monoxide|co alarm|co detector
+CO	es	monóxido de carbono|monoxido de carbono
+CO	vi	khí co|carbon monoxide|cacbon monoxit
+CO	zh	一氧化碳|煤气中毒|煤氣中毒
+CO	ko	일산화탄소
+CO	ja	一酸化炭素|CO中毒
+CLOSED_ROOM	th	ห้องปิด|ปิดห้อง|ปิดประตู|ปิดหน้าต่าง|ห้องทึบ
+CLOSED_ROOM	en	closed room|closed garage|windows closed|sealed room|garage
+CLOSED_ROOM	es	cuarto cerrado|habitación cerrada|habitacion cerrada|garaje
+CLOSED_ROOM	vi	phòng kín|đóng kín
+CLOSED_ROOM	zh	关着门|關著門|关门|關門|密闭|密閉|门窗紧闭|門窗緊閉
+CLOSED_ROOM	ko	문 닫고|밀폐|창문 닫
+CLOSED_ROOM	ja	締め切った|閉め切った|密閉
+FUEL_BURN	th	เตาถ่าน|ถ่าน|เครื่องปั่นไฟ|ฮีตเตอร์|ติดเครื่องรถ
+FUEL_BURN	en	heater|charcoal|grill|generator|engine running
+FUEL_BURN	es	brasero|carbón|carbon|calefactor|estufa|generador
+FUEL_BURN	vi	than|lò sưởi|máy phát
+FUEL_BURN	zh	烧炭|燒炭|炭火|煤炉|煤爐|取暖|发电机|發電機
+FUEL_BURN	ko	숯|번개탄|난로|발전기
+FUEL_BURN	ja	炭火|七輪|練炭|ストーブ|発電機
+GAS_SYMPTOM	th	เวียนหัว|มึนหัว|ปวดหัว|อาเจียน|คลื่นไส้|ซึม|หมดสติ|ปลุกไม่ตื่น|ปลุกไม่ค่อยตื่น
+GAS_SYMPTOM	en	dizzy|headache|headaches|throwing up|vomiting|nauseous|drowsy|passed out|won't wake|can barely wake
+GAS_SYMPTOM	es	re:maread[oa]s?|mareo|dolor de cabeza|vomit\w*|somnolient[oa]|desmay\w*|no despierta
+GAS_SYMPTOM	vi	chóng mặt|đau đầu|nôn|buồn nôn|lơ mơ|ngất|không tỉnh
+GAS_SYMPTOM	zh	头晕|頭暈|头痛|頭痛|呕吐|嘔吐|恶心|噁心|昏昏沉沉|叫不醒|昏迷
+GAS_SYMPTOM	ko	어지러|머리 아프|두통|토해|토하|구토|몽롱|안 깨|의식
+GAS_SYMPTOM	ja	めまい|頭痛|吐き気|吐い|ぼーっと|起きない|意識
+# ── ลมแดด ── คำชัดเจน หรือตัวร้อนจัด + สัญญาณอันตราย ("ร้อนเหงื่อท่วม" "ผิวแดงนิดหน่อย" ไม่นับ)
+HEATSTROKE	th	ฮีทสโตรก|ฮีตสโตรก|โรคลมแดด|ลมแดด
+HEATSTROKE	en	heatstroke|heat stroke
+HEATSTROKE	es	golpe de calor|insolación|insolacion
+HEATSTROKE	vi	sốc nhiệt|say nắng
+HEATSTROKE	zh	中暑|热射病|熱射病
+HEATSTROKE	ko	열사병|일사병
+HEATSTROKE	ja	熱中症|熱射病
+HOT_BODY	th	ตัวร้อนจัด|ตัวร้อนมาก|ร้อนเหมือนไฟ|ตัวร้อนจี๋|ตัวร้อนผิดปกติ
+HOT_BODY	en	burning hot|scorching hot|hot to the touch|burning up
+HOT_BODY	es	ardiendo|hirviendo|muy caliente
+HOT_BODY	vi	nóng ran|nóng như lửa|nóng hầm hập|người nóng
+HOT_BODY	zh	滚烫|滾燙|烫得|燙得|发烫|發燙
+HOT_BODY	ko	펄펄 끓|불덩이|몸이 뜨거
+HOT_BODY	ja	体が熱|体がすごく熱|火のように熱|熱くて
+HEAT_RED	th	ไม่มีเหงื่อ|เหงื่อไม่ออก|สับสน|ล้มลง|หมดสติ|เป็นลม|พูดไม่รู้เรื่อง|ชัก
+HEAT_RED	en	not sweating|stopped sweating|confused|collapsed|passed out|fainted|unresponsive
+HEAT_RED	es	no suda|confundido|confundida|se desplomó|se desplomo|se desmayó|se desmayo|desmayado|desmayada
+HEAT_RED	vi	không ra mồ hôi|lẫn lộn|ngã quỵ|ngất|bất tỉnh
+HEAT_RED	zh	不出汗|没汗|沒汗|糊涂|糊塗|倒下|晕倒|暈倒|昏迷
+HEAT_RED	ko	땀도 안|땀이 안|횡설수설|쓰러|의식
+HEAT_RED	ja	汗も出|汗が出な|話がおかしい|倒れ|意識
+ADVICE	th	ระวัง|วิธีป้องกัน|อธิบาย|คืออะไร|ทำรายงาน|การบ้าน
+ADVICE	en	tips|beware|watch out for|explain|homework
+ADVICE	es	cuidado con|consejos|explica|qué es|que es|tarea
+ADVICE	vi	đề phòng|cẩn thận|giải thích|là gì|bài tập
+ADVICE	zh	注意|小心|解释|解釋|是什么|是什麼|作业|作業
+ADVICE	ko	주의|조심|설명|뭐예요|숙제
+ADVICE	ja	注意|気をつけ|説明|宿題
+# ── น้ำตาลต่ำ ── เบาหวาน/อินซูลิน/น้ำตาลต่ำ + อาการ หรือค่าน้ำตาลต่ำเป็นตัวเลข ("หิวจนมือสั่นนิดๆ" "ผลตรวจปกติ" ไม่นับ)
+DIABETES	th	เบาหวาน|อินซูลิน
+DIABETES	en	diabetic|diabetes|insulin
+DIABETES	es	diabético|diabética|diabetico|diabetica|diabetes|insulina
+DIABETES	vi	tiểu đường|đái tháo đường|insulin
+DIABETES	zh	糖尿病|胰岛素|胰島素
+DIABETES	ko	당뇨|인슐린
+DIABETES	ja	糖尿病|インスリン
+LOW_SUGAR	th	น้ำตาลต่ำ|น้ำตาลตก|น้ำตาลในเลือดต่ำ
+LOW_SUGAR	en	low blood sugar|blood sugar is low|hypoglycemia|hypoglycemic|sugar crashed|sugar dropped
+LOW_SUGAR	es	hipoglucemia|azúcar baja|azucar baja|bajón de azúcar
+LOW_SUGAR	vi	hạ đường huyết|đường huyết thấp
+LOW_SUGAR	zh	低血糖|血糖低|血糖很低
+LOW_SUGAR	ko	저혈당|혈당이 떨어
+LOW_SUGAR	ja	低血糖|血糖値が下が
+HYPO_SIGN	th	เหงื่อแตกพลั่ก|เหงื่อเย็น|ตัวสั่น|ใจสั่น|ซึม|สับสน|เรียกไม่รู้เรื่อง|เรียกไม่ค่อยรู้เรื่อง|หมดสติ|เป็นลม|ชัก
+HYPO_SIGN	en	cold sweat|clammy|shaking|shaky|drowsy|confused|unresponsive|barely responding|not responding|passed out|pass out|faint
+HYPO_SIGN	es	sudor frío|sudor frio|temblando|adormilado|adormilada|somnoliento|somnolienta|confundido|confundida|no responde|desmayar|desmayo
+HYPO_SIGN	vi	mồ hôi lạnh|run rẩy|lừ đừ|lơ mơ|không phản ứng|ngất|lẫn lộn
+HYPO_SIGN	zh	冷汗|发抖|發抖|迷糊|反应很慢|反應很慢|没反应|沒反應|晕倒|暈倒|心慌
+HYPO_SIGN	ko	식은땀|떨|처져|반응이 없|몽롱|쓰러
+HYPO_SIGN	ja	冷や汗|震え|ぼんやり|反応が鈍|反応がない|倒れ
+SUGAR_NUM	th	re:น้ำตาล[^0-9]{0,14}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])(?!\s*(?:กรัม|ก\.|%|เปอร์))
+SUGAR_NUM	en	re:sugar[^0-9]{0,16}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])(?!\s*(?:g\b|grams|mg|%|percent))
+SUGAR_NUM	es	re:(?:azúcar|azucar|glucosa)[^0-9]{0,16}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])(?!\s*(?:g\b|gramos|mg|%))
+SUGAR_NUM	vi	re:đường huyết[^0-9]{0,16}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])(?!\s*(?:g\b|gam|%))
+SUGAR_NUM	zh	re:血糖[^0-9]{0,12}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])
+SUGAR_NUM	ko	re:혈당[^0-9]{0,12}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])
+SUGAR_NUM	ja	re:血糖[^0-9]{0,12}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])
+SUGAR_OK	th	ปกติ|กินแล้วหาย|ดีขึ้นแล้ว
+SUGAR_OK	en	normal|fixed it|feel better now
+SUGAR_OK	es	normal|se me pasó|ya estoy bien
+SUGAR_OK	vi	bình thường|là hết|đỡ rồi
+SUGAR_OK	zh	正常|就好了|好多了
+SUGAR_OK	ko	정상|괜찮아|나아졌
+SUGAR_OK	ja	正常|治った|良くなった
+# ── หอบหืดกำเริบ ── หืด + ยาไม่ช่วย/ปากเขียว หรือเสียงวี้ด + พูดได้ทีละคำ ("หืดแต่คุมได้" "วิ่งแล้วหอบ" ไม่นับ)
+ASTHMA	th	หอบหืด|โรคหืด|หืด
+ASTHMA	en	asthma|asthmatic
+ASTHMA	es	asma|asmático|asmática
+ASTHMA	vi	hen|hen suyễn|suyễn
+ASTHMA	zh	哮喘|气喘|氣喘
+ASTHMA	ko	천식
+ASTHMA	ja	喘息|ぜんそく
+ASTHMA_FAIL	th	พ่นยาแล้วไม่ดีขึ้น|พ่นยาไม่ดีขึ้น|ยาพ่นไม่ช่วย|พ่นแล้วไม่หาย|ปากเขียว|ปากม่วง|หายใจไม่ออก|หายใจไม่ทัน
+ASTHMA_FAIL	en	inhaler isn't helping|inhaler isn't working|inhaler not working|inhaler doesn't help|lips are turning blue|lips turning blue|blue lips|can't breathe|cannot breathe
+ASTHMA_FAIL	es	no le hace efecto|no hace efecto|labios morados|no puede respirar|no puedo respirar
+ASTHMA_FAIL	vi	không đỡ|môi tím|môi bắt đầu tím|không thở được
+ASTHMA_FAIL	zh	没用|沒用|发紫|發紫|喘不过气|喘不過氣|呼吸困难|呼吸困難
+ASTHMA_FAIL	ko	안 듣|파래|숨을 못|숨이 안
+ASTHMA_FAIL	ja	効かず|効かない|紫|息ができない|息が苦しい
+WHEEZE	th	เสียงวี้ด|หายใจวี้ด|หายใจหวีด|หวีด
+WHEEZE	en	wheezing|wheeze|wheezes
+WHEEZE	es	silbidos|silbido|sibilancias
+WHEEZE	vi	khò khè
+WHEEZE	zh	哮鸣|哮鳴|喘鸣|喘鳴
+WHEEZE	ko	쌕쌕
+WHEEZE	ja	ゼーゼー|ヒューヒュー|ぜいぜい
+SHORT_SPEECH	th	พูดได้ทีละคำ|พูดไม่เป็นประโยค|พูดไม่จบประโยค
+SHORT_SPEECH	en	one word at a time|can't finish a sentence|can't talk
+SHORT_SPEECH	es	una palabra a la vez|no puede hablar
+SHORT_SPEECH	vi	từng chữ|không nói được
+SHORT_SPEECH	zh	一个字|一個字|说不出话|說不出話
+SHORT_SPEECH	ko	한 단어씩|말을 못
+SHORT_SPEECH	ja	一言ずつ|話せない
+CONTROLLED	th	คุมได้|ควบคุมได้
+CONTROLLED	en	well controlled|under control
+CONTROLLED	es	bien controlada|bien controlado
+CONTROLLED	vi	kiểm soát tốt
+CONTROLLED	zh	控制得很好|控制得很好
+CONTROLLED	ko	잘 관리
+CONTROLLED	ja	コントロール

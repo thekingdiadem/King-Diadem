@@ -25,10 +25,10 @@
   },
   "emergency": {
    "n": 382,
-   "tp": 348,
-   "fn": 34,
-   "fp": 11,
-   "recall": 0.911,
+   "tp": 378,
+   "fn": 4,
+   "fp": 12,
+   "recall": 0.99,
    "precision": 0.969
   },
   "violence": {
@@ -57,40 +57,40 @@
   }
  },
  "danger_missed": {
-  "n": 32,
+  "n": 2,
   "of": 488
  },
  "false_alarm": {
-  "n": 4,
+  "n": 5,
   "of": 453
  },
  "by_lang": {
   "en": {
-   "hit": 80,
+   "hit": 84,
    "n": 85
   },
   "es": {
-   "hit": 53,
+   "hit": 59,
    "n": 61
   },
   "ja": {
-   "hit": 56,
+   "hit": 61,
    "n": 62
   },
   "ko": {
-   "hit": 57,
+   "hit": 61,
    "n": 61
   },
   "th": {
-   "hit": 118,
+   "hit": 119,
    "n": 122
   },
   "vi": {
-   "hit": 53,
+   "hit": 59,
    "n": 60
   },
   "zh": {
-   "hit": 59,
+   "hit": 63,
    "n": 63
   }
  },
@@ -158,10 +158,12 @@
    ]
   },
   {
-   "line": 903,
-   "text": "ลูกซ้อมบอลตอนเที่ยง ล้มลงตัวร้อนเหมือนไฟ",
-   "label": "emergency",
-   "got": []
+   "line": 442,
+   "text": "당뇨약이 다 떨어져서 병원에 가야 해요",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
   },
   {
    "line": 905,
@@ -172,68 +174,8 @@
    ]
   },
   {
-   "line": 922,
-   "text": "A worker out in the sun is burning hot, not sweating and talking confused",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 924,
-   "text": "Dad is diabetic, he's sweating, shaking and barely responding",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 925,
-   "text": "Mom took her insulin and skipped dinner, now she's very drowsy",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 926,
-   "text": "My sugar reads 40, my heart is racing and I feel like I'll pass out",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 939,
-   "text": "Hay un olor fuerte a gas en la cocina y todos estamos mareados",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 940,
    "text": "Dejamos el brasero encendido en el cuarto cerrado toda la noche y ahora todos vomitan con dolor de cabeza",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 942,
-   "text": "Un trabajador bajo el sol está ardiendo, no suda y habla confundido",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 945,
-   "text": "Mi mamá se puso la insulina y no cenó, ahora está muy adormilada",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 946,
-   "text": "Tengo el azúcar en 40, el corazón acelerado y siento que me voy a desmayar",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 947,
-   "text": "Crisis de asma, el inhalador no le hace efecto y se le ponen los labios morados",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 948,
-   "text": "Mi niño tiene silbidos al respirar y solo puede decir una palabra a la vez",
    "label": "emergency",
    "got": []
   },
@@ -246,122 +188,8 @@
    ]
   },
   {
-   "line": 959,
-   "text": "Trong bếp có mùi ga rất nặng, cả nhà đều chóng mặt",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 960,
-   "text": "Đốt than sưởi trong phòng kín cả đêm, sáng dậy ai cũng đau đầu và nôn",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 962,
-   "text": "Một công nhân làm ngoài nắng người nóng ran, không ra mồ hôi, nói lẫn lộn",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 963,
-   "text": "Con trai tôi ngã quỵ khi tập bóng buổi trưa, người nóng như lửa",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 965,
-   "text": "Mẹ tiêm insulin rồi bỏ bữa tối, giờ lừ đừ lắm",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 968,
-   "text": "Con tôi thở khò khè, chỉ nói được từng chữ một",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 980,
-   "text": "关着门烧炭取暖一整夜，醒来全家头痛呕吐",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 982,
-   "text": "工人在太阳底下干活，全身滚烫，不出汗，说话糊涂",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 985,
-   "text": "妈妈打了胰岛素却没吃晚饭，现在很迷糊",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 988,
-   "text": "孩子呼吸有哮鸣音，一次只能说一个字",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1000,
-   "text": "방문 닫고 밤새 숯불을 피웠더니 아침에 모두 머리 아프고 토해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1002,
-   "text": "땡볕에서 일하던 인부가 몸이 펄펄 끓고 땀도 안 나고 횡설수설해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1006,
-   "text": "혈당이 40 나왔어요 심장이 빨리 뛰고 쓰러질 것 같아요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1008,
-   "text": "아이가 쌕쌕거리고 한 단어씩밖에 말을 못 해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1020,
-   "text": "締め切った部屋で一晩中炭火を焚いていて、朝みんな頭痛と吐き気がある",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 1022,
    "text": "炎天下の作業員が体がすごく熱くて汗も出ず、話がおかしい",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1025,
-   "text": "母がインスリンを打ったのに夕食を食べず、今すごくぼんやりしている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1026,
-   "text": "血糖値が40で、動悸がして倒れそう",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1027,
-   "text": "喘息の発作で、吸入しても効かず唇が紫になってきた",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1028,
-   "text": "子どもがゼーゼーして、一言ずつしか話せない",
    "label": "emergency",
    "got": []
   }
