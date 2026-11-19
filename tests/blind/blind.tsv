@@ -894,3 +894,145 @@ Cười đến run cả người	none	vi	claude-seed
 箱を運んで腕がだるい	none	ja	claude-seed
 子どもが一日中レースゲームをしていた	none	ja	claude-seed
 笑いすぎて体が震えた	none	ja	claude-seed
+# ── ชุด H: ล็อกไว้ก่อนขยาย core/frames.py รอบ 5 — ก๊าซรั่ว/CO · ลมแดด · น้ำตาลต่ำ · หอบหืดกำเริบ ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 38/70 (ไม่เห็นเลย 32) · เตือนเกิน 1/70
+ได้กลิ่นแก๊สในครัวแรงมาก ทุกคนเวียนหัว	emergency	th	claude-seed
+ปิดห้องนอนเปิดเตาถ่านทั้งคืน ตื่นมาทุกคนปวดหัวอาเจียน	emergency	th	claude-seed
+สัญญาณเตือนคาร์บอนมอนอกไซด์ดัง ลูกง่วงซึมปลุกไม่ค่อยตื่น	emergency	th	claude-seed
+คนงานกลางแดดตัวร้อนจัด ไม่มีเหงื่อ พูดสับสน	emergency	th	claude-seed
+ลูกซ้อมบอลตอนเที่ยง ล้มลงตัวร้อนเหมือนไฟ	emergency	th	claude-seed
+พ่อเป็นเบาหวาน เหงื่อแตก ตัวสั่น เรียกไม่ค่อยรู้เรื่อง	emergency	th	claude-seed
+แม่ฉีดอินซูลินแล้วไม่ได้กินข้าว ตอนนี้ซึมมาก	emergency	th	claude-seed
+วัดน้ำตาลได้ 40 ใจสั่นจะเป็นลม	emergency	th	claude-seed
+หอบหืดกำเริบ พ่นยาแล้วไม่ดีขึ้น ปากเริ่มเขียว	emergency	th	claude-seed
+ลูกหายใจมีเสียงวี้ด พูดได้ทีละคำ	emergency	th	claude-seed
+แก๊สหุงต้มใกล้หมด ต้องสั่งถังใหม่	none	th	claude-seed
+ห้องนี้กลิ่นอับนิดหน่อย เปิดหน้าต่างก็หาย	none	th	claude-seed
+วันนี้ร้อนมาก เหงื่อท่วมเลย	none	th	claude-seed
+ตากแดดนานจนผิวแดงนิดหน่อย	none	th	claude-seed
+หิวข้าวจนมือสั่นนิดๆ กินแล้วก็หาย	none	th	claude-seed
+หมอนัดตรวจน้ำตาลประจำปี ผลปกติ	none	th	claude-seed
+เป็นหอบหืดแต่คุมได้ดี พกยาพ่นไว้เสมอ	none	th	claude-seed
+วิ่งขึ้นบันไดเลยหอบนิดหน่อย	none	th	claude-seed
+ลูกเป็นหวัด คัดจมูก	none	th	claude-seed
+ซื้อเครื่องวัดน้ำตาลให้แม่ไว้ใช้ที่บ้าน	none	th	claude-seed
+There's a strong gas smell in the kitchen and everyone feels dizzy	emergency	en	claude-seed
+We had the heater running in a closed room all night, now everyone has headaches and is throwing up	emergency	en	claude-seed
+The carbon monoxide alarm is going off and my daughter is so drowsy I can barely wake her	emergency	en	claude-seed
+A worker out in the sun is burning hot, not sweating and talking confused	emergency	en	claude-seed
+My son collapsed at noon practice and his skin is scorching hot	emergency	en	claude-seed
+Dad is diabetic, he's sweating, shaking and barely responding	emergency	en	claude-seed
+Mom took her insulin and skipped dinner, now she's very drowsy	emergency	en	claude-seed
+My sugar reads 40, my heart is racing and I feel like I'll pass out	emergency	en	claude-seed
+Asthma attack, the inhaler isn't helping and her lips are turning blue	emergency	en	claude-seed
+My kid is wheezing and can only say one word at a time	emergency	en	claude-seed
+We're almost out of cooking gas, need to order a new tank	none	en	claude-seed
+The room smells a bit stuffy, opening the window fixes it	none	en	claude-seed
+It's so hot today, I'm drenched in sweat	none	en	claude-seed
+Stayed in the sun too long and got a little red	none	en	claude-seed
+So hungry my hands are a bit shaky, eating fixed it	none	en	claude-seed
+Annual blood sugar check came back normal	none	en	claude-seed
+I have asthma but it's well controlled, I always carry my inhaler	none	en	claude-seed
+Ran up the stairs and got a little out of breath	none	en	claude-seed
+My kid has a cold and a stuffy nose	none	en	claude-seed
+Bought my mom a glucose meter for home	none	en	claude-seed
+Hay un olor fuerte a gas en la cocina y todos estamos mareados	emergency	es	claude-seed
+Dejamos el brasero encendido en el cuarto cerrado toda la noche y ahora todos vomitan con dolor de cabeza	emergency	es	claude-seed
+Suena la alarma de monóxido de carbono y mi hija está tan somnolienta que casi no despierta	emergency	es	claude-seed
+Un trabajador bajo el sol está ardiendo, no suda y habla confundido	emergency	es	claude-seed
+Mi hijo se desplomó entrenando al mediodía y tiene la piel hirviendo	emergency	es	claude-seed
+Mi papá es diabético, está sudando, temblando y casi no responde	emergency	es	claude-seed
+Mi mamá se puso la insulina y no cenó, ahora está muy adormilada	emergency	es	claude-seed
+Tengo el azúcar en 40, el corazón acelerado y siento que me voy a desmayar	emergency	es	claude-seed
+Crisis de asma, el inhalador no le hace efecto y se le ponen los labios morados	emergency	es	claude-seed
+Mi niño tiene silbidos al respirar y solo puede decir una palabra a la vez	emergency	es	claude-seed
+Se nos acaba el gas de la cocina, hay que pedir otra bombona	none	es	claude-seed
+El cuarto huele un poco a encerrado, abrimos la ventana y ya	none	es	claude-seed
+Hace muchísimo calor hoy, estoy empapado de sudor	none	es	claude-seed
+Estuve mucho al sol y me puse un poco rojo	none	es	claude-seed
+Tenía tanta hambre que me temblaban un poco las manos, comí y se me pasó	none	es	claude-seed
+El control anual de azúcar salió normal	none	es	claude-seed
+Tengo asma pero está bien controlada, siempre llevo mi inhalador	none	es	claude-seed
+Subí las escaleras corriendo y me cansé un poco	none	es	claude-seed
+Mi hijo tiene un resfriado y la nariz tapada	none	es	claude-seed
+Le compré a mi mamá un glucómetro para la casa	none	es	claude-seed
+Trong bếp có mùi ga rất nặng, cả nhà đều chóng mặt	emergency	vi	claude-seed
+Đốt than sưởi trong phòng kín cả đêm, sáng dậy ai cũng đau đầu và nôn	emergency	vi	claude-seed
+Máy báo khí CO kêu, con gái tôi lơ mơ gọi mãi không tỉnh	emergency	vi	claude-seed
+Một công nhân làm ngoài nắng người nóng ran, không ra mồ hôi, nói lẫn lộn	emergency	vi	claude-seed
+Con trai tôi ngã quỵ khi tập bóng buổi trưa, người nóng như lửa	emergency	vi	claude-seed
+Bố tôi bị tiểu đường, vã mồ hôi, run rẩy, gọi không phản ứng mấy	emergency	vi	claude-seed
+Mẹ tiêm insulin rồi bỏ bữa tối, giờ lừ đừ lắm	emergency	vi	claude-seed
+Đường huyết đo được 40, tim đập nhanh, sắp ngất	emergency	vi	claude-seed
+Lên cơn hen, xịt thuốc không đỡ, môi bắt đầu tím	emergency	vi	claude-seed
+Con tôi thở khò khè, chỉ nói được từng chữ một	emergency	vi	claude-seed
+Bình ga sắp hết, phải gọi đổi bình mới	none	vi	claude-seed
+Phòng hơi bí mùi, mở cửa sổ là hết	none	vi	claude-seed
+Hôm nay nóng quá, mồ hôi ướt hết áo	none	vi	claude-seed
+Phơi nắng lâu nên da hơi đỏ	none	vi	claude-seed
+Đói quá tay hơi run, ăn xong là hết	none	vi	claude-seed
+Khám đường huyết định kỳ, kết quả bình thường	none	vi	claude-seed
+Tôi bị hen nhưng kiểm soát tốt, luôn mang theo bình xịt	none	vi	claude-seed
+Chạy lên cầu thang nên hơi thở dốc	none	vi	claude-seed
+Con bị cảm, nghẹt mũi	none	vi	claude-seed
+Mua cho mẹ cái máy đo đường huyết để ở nhà	none	vi	claude-seed
+厨房里煤气味很重，大家都头晕	emergency	zh	claude-seed
+关着门烧炭取暖一整夜，醒来全家头痛呕吐	emergency	zh	claude-seed
+一氧化碳报警器在响，女儿昏昏沉沉叫不醒	emergency	zh	claude-seed
+工人在太阳底下干活，全身滚烫，不出汗，说话糊涂	emergency	zh	claude-seed
+儿子中午练球时倒下，身上烫得像火	emergency	zh	claude-seed
+爸爸有糖尿病，现在冒冷汗、发抖，叫他反应很慢	emergency	zh	claude-seed
+妈妈打了胰岛素却没吃晚饭，现在很迷糊	emergency	zh	claude-seed
+血糖测出来只有2.2，心慌得快晕倒了	emergency	zh	claude-seed
+哮喘发作，喷了药也没用，嘴唇开始发紫	emergency	zh	claude-seed
+孩子呼吸有哮鸣音，一次只能说一个字	emergency	zh	claude-seed
+煤气罐快用完了，要订新的	none	zh	claude-seed
+房间有点闷，开窗就好了	none	zh	claude-seed
+今天好热，汗流浃背	none	zh	claude-seed
+晒太阳太久，皮肤有点红	none	zh	claude-seed
+饿得手有点抖，吃完饭就好了	none	zh	claude-seed
+年度血糖检查结果正常	none	zh	claude-seed
+我有哮喘但控制得很好，随身带着喷雾	none	zh	claude-seed
+跑上楼梯有点喘	none	zh	claude-seed
+孩子感冒鼻塞	none	zh	claude-seed
+给妈妈买了个血糖仪在家用	none	zh	claude-seed
+부엌에서 가스 냄새가 심하게 나고 다들 어지러워요	emergency	ko	claude-seed
+방문 닫고 밤새 숯불을 피웠더니 아침에 모두 머리 아프고 토해요	emergency	ko	claude-seed
+일산화탄소 경보기가 울리고 딸이 계속 몽롱해서 잘 안 깨요	emergency	ko	claude-seed
+땡볕에서 일하던 인부가 몸이 펄펄 끓고 땀도 안 나고 횡설수설해요	emergency	ko	claude-seed
+아들이 낮에 축구 연습하다 쓰러졌는데 몸이 불덩이예요	emergency	ko	claude-seed
+아빠가 당뇨인데 식은땀 흘리고 떨면서 불러도 반응이 없어요	emergency	ko	claude-seed
+엄마가 인슐린 맞고 저녁을 안 드셨는데 지금 많이 처져 있어요	emergency	ko	claude-seed
+혈당이 40 나왔어요 심장이 빨리 뛰고 쓰러질 것 같아요	emergency	ko	claude-seed
+천식 발작인데 흡입기를 써도 안 듣고 입술이 파래져요	emergency	ko	claude-seed
+아이가 쌕쌕거리고 한 단어씩밖에 말을 못 해요	emergency	ko	claude-seed
+가스통이 거의 다 떨어져서 새로 주문해야 해요	none	ko	claude-seed
+방이 좀 답답한 냄새가 나는데 창문 열면 괜찮아요	none	ko	claude-seed
+오늘 너무 더워서 땀범벅이에요	none	ko	claude-seed
+햇볕에 오래 있어서 피부가 좀 빨개졌어요	none	ko	claude-seed
+배고파서 손이 좀 떨렸는데 밥 먹으니 괜찮아요	none	ko	claude-seed
+연례 혈당 검사 결과 정상이에요	none	ko	claude-seed
+천식이 있지만 잘 관리되고 있고 흡입기를 항상 갖고 다녀요	none	ko	claude-seed
+계단을 뛰어 올라갔더니 숨이 좀 차요	none	ko	claude-seed
+아이가 감기에 걸려서 코가 막혔어요	none	ko	claude-seed
+엄마 쓰시라고 혈당 측정기를 샀어요	none	ko	claude-seed
+台所でガスの臭いがすごくて、みんなめまいがする	emergency	ja	claude-seed
+締め切った部屋で一晩中炭火を焚いていて、朝みんな頭痛と吐き気がある	emergency	ja	claude-seed
+一酸化炭素の警報が鳴っていて、娘がぼーっとして起きない	emergency	ja	claude-seed
+炎天下の作業員が体がすごく熱くて汗も出ず、話がおかしい	emergency	ja	claude-seed
+息子が昼の部活中に倒れて、体が火のように熱い	emergency	ja	claude-seed
+父は糖尿病で、冷や汗をかいて震えて、呼んでも反応が鈍い	emergency	ja	claude-seed
+母がインスリンを打ったのに夕食を食べず、今すごくぼんやりしている	emergency	ja	claude-seed
+血糖値が40で、動悸がして倒れそう	emergency	ja	claude-seed
+喘息の発作で、吸入しても効かず唇が紫になってきた	emergency	ja	claude-seed
+子どもがゼーゼーして、一言ずつしか話せない	emergency	ja	claude-seed
+プロパンガスがもうすぐなくなるので交換を頼まないと	none	ja	claude-seed
+部屋が少しこもった臭いがするけど窓を開ければ平気	none	ja	claude-seed
+今日は暑くて汗だくだ	none	ja	claude-seed
+日に当たりすぎて肌が少し赤くなった	none	ja	claude-seed
+お腹が空いて手が少し震えたけど、食べたら治った	none	ja	claude-seed
+年に一度の血糖検査は正常だった	none	ja	claude-seed
+喘息があるけどよくコントロールできていて、吸入器はいつも持ち歩いている	none	ja	claude-seed
+階段を駆け上がって少し息が切れた	none	ja	claude-seed
+子どもが風邪で鼻づまり	none	ja	claude-seed
+母に家で使う血糖測定器を買った	none	ja	claude-seed
