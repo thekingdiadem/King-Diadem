@@ -1036,3 +1036,145 @@ Mua cho mẹ cái máy đo đường huyết để ở nhà	none	vi	claude-seed
 階段を駆け上がって少し息が切れた	none	ja	claude-seed
 子どもが風邪で鼻づまり	none	ja	claude-seed
 母に家で使う血糖測定器を買った	none	ja	claude-seed
+# ── ชุด I: ล็อกไว้ก่อนขยาย core/frames.py รอบ 6 — หัวใจวาย/เจ็บหน้าอก · ขาดน้ำรุนแรง · ติดอยู่ในที่แคบ · น้ำท่วมฉับพลัน ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 33/70 (ไม่เห็นเลย 37) · เตือนเกิน 8/70
+พ่อเจ็บแน่นหน้าอก ร้าวไปแขนซ้าย เหงื่อออกท่วมตัว	emergency	th	claude-seed
+ลุงบอกเหมือนมีอะไรทับหน้าอก หายใจไม่อิ่ม หน้าซีด	emergency	th	claude-seed
+แม่เจ็บหน้าอกมาครึ่งชั่วโมงแล้วไม่หาย คลื่นไส้	emergency	th	claude-seed
+ลูกท้องเสียทั้งวัน ไม่ฉี่เลยตั้งแต่เช้า ปากแห้ง ซึม	emergency	th	claude-seed
+ยายอาเจียนไม่หยุด กินน้ำไม่ได้ ตาลึกโหล	emergency	th	claude-seed
+ลิฟต์ค้างระหว่างชั้น อยู่ในนี้มาชั่วโมงแล้ว อากาศเริ่มไม่พอ	emergency	th	claude-seed
+ลูกติดอยู่ในรถที่จอดกลางแดด ล็อกเปิดไม่ได้	emergency	th	claude-seed
+ตึกถล่ม มีคนติดอยู่ใต้ซาก	emergency	th	claude-seed
+น้ำป่าไหลหลากเข้าหมู่บ้าน น้ำขึ้นถึงหลังคาแล้ว	emergency	th	claude-seed
+รถถูกน้ำพัดกลางสะพาน คนข้างในออกไม่ได้	emergency	th	claude-seed
+เจ็บหน้าอกนิดหน่อยเพราะไอหนัก	none	th	claude-seed
+ใจเต้นแรงตอนดูหนังผี	none	th	claude-seed
+ปวดกล้ามเนื้อหน้าอกหลังเล่นเวท	none	th	claude-seed
+คอแห้ง ขอน้ำแก้วหนึ่ง	none	th	claude-seed
+ท้องเสียนิดหน่อย กินเกลือแร่แล้วดีขึ้น	none	th	claude-seed
+ลิฟต์ที่ออฟฟิศเสีย ต้องเดินขึ้นบันได	none	th	claude-seed
+ติดอยู่ในรถติดสองชั่วโมง เบื่อมาก	none	th	claude-seed
+ฝนตกหนัก ถนนหน้าบ้านน้ำขังนิดหน่อย	none	th	claude-seed
+ดูข่าวน้ำท่วมต่างประเทศแล้วสงสาร	none	th	claude-seed
+อกหักเจ็บใจมาก	none	th	claude-seed
+Dad has crushing chest pain going down his left arm and he's drenched in sweat	emergency	en	claude-seed
+My uncle says it feels like an elephant on his chest, he can't catch his breath and he's pale	emergency	en	claude-seed
+Mom's had chest pain for half an hour that won't go away and she's nauseous	emergency	en	claude-seed
+My baby has had diarrhea all day, no wet diaper since morning, dry mouth and very sleepy	emergency	en	claude-seed
+Grandma can't stop vomiting, can't keep water down and her eyes look sunken	emergency	en	claude-seed
+The elevator is stuck between floors, we've been in here an hour and the air is getting thin	emergency	en	claude-seed
+My toddler is locked in the car in the sun and I can't get the door open	emergency	en	claude-seed
+The building collapsed and people are trapped under the rubble	emergency	en	claude-seed
+A flash flood is pouring into the village, the water is up to the roofs	emergency	en	claude-seed
+A car got swept off the bridge by floodwater and the people inside can't get out	emergency	en	claude-seed
+My chest hurts a bit from coughing so hard	none	en	claude-seed
+My heart was pounding during the horror movie	none	en	claude-seed
+Chest muscles are sore after bench press	none	en	claude-seed
+My throat is dry, could I get a glass of water	none	en	claude-seed
+Mild diarrhea, had some electrolytes and feel better	none	en	claude-seed
+The office elevator is broken so I took the stairs	none	en	claude-seed
+Stuck in traffic for two hours, so bored	none	en	claude-seed
+Heavy rain, a bit of standing water on our street	none	en	claude-seed
+Saw news of floods abroad and felt sad	none	en	claude-seed
+Heartbroken after the breakup	none	en	claude-seed
+Mi papá tiene un dolor opresivo en el pecho que le baja al brazo izquierdo y está empapado en sudor	emergency	es	claude-seed
+Mi tío dice que siente como un peso en el pecho, le falta el aire y está pálido	emergency	es	claude-seed
+A mi mamá le duele el pecho desde hace media hora y no se le pasa, tiene náuseas	emergency	es	claude-seed
+Mi bebé tiene diarrea todo el día, no moja el pañal desde la mañana, boca seca y muy decaído	emergency	es	claude-seed
+Mi abuela no para de vomitar, no retiene el agua y tiene los ojos hundidos	emergency	es	claude-seed
+El ascensor se quedó parado entre pisos, llevamos una hora dentro y falta el aire	emergency	es	claude-seed
+Mi niño quedó encerrado en el coche al sol y no puedo abrir la puerta	emergency	es	claude-seed
+Se derrumbó el edificio y hay gente atrapada bajo los escombros	emergency	es	claude-seed
+Una riada entró al pueblo, el agua llega a los tejados	emergency	es	claude-seed
+La corriente arrastró un coche del puente y la gente de adentro no puede salir	emergency	es	claude-seed
+Me duele un poco el pecho de tanto toser	none	es	claude-seed
+El corazón me latía fuerte viendo la película de terror	none	es	claude-seed
+Tengo el pecho adolorido después del press de banca	none	es	claude-seed
+Tengo la garganta seca, ¿me das un vaso de agua?	none	es	claude-seed
+Diarrea leve, tomé suero oral y ya me siento mejor	none	es	claude-seed
+El ascensor de la oficina está averiado, subí por las escaleras	none	es	claude-seed
+Atrapado en el tráfico dos horas, qué aburrido	none	es	claude-seed
+Llovió fuerte, hay un poco de agua estancada en la calle	none	es	claude-seed
+Vi noticias de inundaciones en otro país y me dio pena	none	es	claude-seed
+Tengo el corazón roto por la ruptura	none	es	claude-seed
+Bố tôi đau thắt ngực lan xuống tay trái, vã mồ hôi đầm đìa	emergency	vi	claude-seed
+Chú tôi nói như có tảng đá đè lên ngực, thở không nổi, mặt tái mét	emergency	vi	claude-seed
+Mẹ tôi đau ngực nửa tiếng rồi không hết, buồn nôn	emergency	vi	claude-seed
+Con tôi tiêu chảy cả ngày, từ sáng không đi tiểu, môi khô, lừ đừ	emergency	vi	claude-seed
+Bà tôi nôn không ngừng, uống nước vào là nôn, mắt trũng sâu	emergency	vi	claude-seed
+Thang máy kẹt giữa hai tầng, chúng tôi ở trong một tiếng rồi, bắt đầu ngột thở	emergency	vi	claude-seed
+Con tôi bị khóa trong xe ngoài nắng, tôi không mở được cửa	emergency	vi	claude-seed
+Tòa nhà sập, có người bị kẹt dưới đống đổ nát	emergency	vi	claude-seed
+Lũ quét tràn vào làng, nước dâng tới mái nhà	emergency	vi	claude-seed
+Một chiếc xe bị nước lũ cuốn khỏi cầu, người bên trong không ra được	emergency	vi	claude-seed
+Ho nhiều quá nên hơi đau ngực	none	vi	claude-seed
+Xem phim kinh dị tim đập thình thịch	none	vi	claude-seed
+Tập đẩy ngực xong cơ ngực hơi mỏi	none	vi	claude-seed
+Khát nước quá, cho xin cốc nước	none	vi	claude-seed
+Tiêu chảy nhẹ, uống oresol xong thấy đỡ	none	vi	claude-seed
+Thang máy công ty hỏng nên đi bộ lên	none	vi	claude-seed
+Kẹt xe hai tiếng, chán quá	none	vi	claude-seed
+Mưa to, đường trước nhà hơi ngập một chút	none	vi	claude-seed
+Xem tin lũ lụt ở nước ngoài thấy thương	none	vi	claude-seed
+Chia tay xong đau lòng lắm	none	vi	claude-seed
+爸爸胸口压榨样疼痛，放射到左臂，满身大汗	emergency	zh	claude-seed
+叔叔说胸口像压了块大石头，喘不上气，脸色苍白	emergency	zh	claude-seed
+妈妈胸痛半小时了还没缓解，想吐	emergency	zh	claude-seed
+宝宝拉肚子一整天，从早上到现在没尿，嘴唇干，没精神	emergency	zh	claude-seed
+奶奶吐个不停，喝水也吐，眼窝凹陷	emergency	zh	claude-seed
+电梯卡在两层之间，我们被困一个小时了，空气越来越闷	emergency	zh	claude-seed
+孩子被锁在太阳底下的车里，车门打不开	emergency	zh	claude-seed
+楼塌了，有人被压在废墟下面	emergency	zh	claude-seed
+山洪冲进村子，水已经淹到屋顶了	emergency	zh	claude-seed
+一辆车被洪水从桥上冲走，里面的人出不来	emergency	zh	claude-seed
+咳嗽太厉害胸口有点痛	none	zh	claude-seed
+看恐怖片心跳得好快	none	zh	claude-seed
+练完卧推胸肌酸痛	none	zh	claude-seed
+口好干，给我一杯水	none	zh	claude-seed
+轻微拉肚子，喝了补液盐好多了	none	zh	claude-seed
+公司电梯坏了，只好走楼梯	none	zh	claude-seed
+堵车堵了两个小时，好无聊	none	zh	claude-seed
+下大雨，门口路上有点积水	none	zh	claude-seed
+看到国外洪水的新闻很难过	none	zh	claude-seed
+分手了心好痛	none	zh	claude-seed
+아빠가 가슴을 쥐어짜듯 아프고 왼팔까지 저리고 식은땀을 흘려요	emergency	ko	claude-seed
+삼촌이 가슴에 돌을 얹은 것 같대요 숨이 차고 얼굴이 하얘요	emergency	ko	claude-seed
+엄마가 가슴 통증이 30분째 안 가라앉고 메스꺼워해요	emergency	ko	claude-seed
+아기가 하루 종일 설사하고 아침부터 소변을 안 봐요 입술이 마르고 처져요	emergency	ko	claude-seed
+할머니가 계속 토하고 물도 못 넘기고 눈이 퀭해요	emergency	ko	claude-seed
+엘리베이터가 층 사이에 멈췄어요 한 시간째 갇혀 있고 공기가 답답해져요	emergency	ko	claude-seed
+아이가 땡볕에 세워둔 차 안에 갇혔는데 문이 안 열려요	emergency	ko	claude-seed
+건물이 무너져서 사람들이 잔해에 깔려 있어요	emergency	ko	claude-seed
+급류가 마을로 밀려와서 물이 지붕까지 찼어요	emergency	ko	claude-seed
+차가 홍수에 다리에서 휩쓸려 갔는데 안에 사람이 못 나와요	emergency	ko	claude-seed
+기침을 심하게 해서 가슴이 좀 아파요	none	ko	claude-seed
+공포 영화 보다가 심장이 쿵쾅거렸어요	none	ko	claude-seed
+벤치프레스 하고 나서 가슴 근육이 뻐근해요	none	ko	claude-seed
+목이 말라요 물 한 잔 주세요	none	ko	claude-seed
+설사를 조금 했는데 이온음료 마시고 나아졌어요	none	ko	claude-seed
+회사 엘리베이터가 고장 나서 계단으로 갔어요	none	ko	claude-seed
+차가 막혀서 두 시간 갇혀 있었어요 지루해요	none	ko	claude-seed
+비가 많이 와서 집 앞길에 물이 좀 고였어요	none	ko	claude-seed
+해외 홍수 뉴스를 보고 마음이 아팠어요	none	ko	claude-seed
+이별해서 가슴이 너무 아파요	none	ko	claude-seed
+父が胸を締め付けられるように痛がって、左腕まで痛みが広がり、大汗をかいている	emergency	ja	claude-seed
+叔父が胸に重い石が乗っているようだと言って、息苦しそうで顔が真っ青	emergency	ja	claude-seed
+母の胸の痛みが30分続いていて治まらず、吐き気もある	emergency	ja	claude-seed
+赤ちゃんが一日中下痢で、朝からおしっこが出ていない、唇が乾いてぐったりしている	emergency	ja	claude-seed
+祖母が吐き続けて水も飲めず、目がくぼんでいる	emergency	ja	claude-seed
+エレベーターが階の間で止まって、一時間閉じ込められている、空気が薄くなってきた	emergency	ja	claude-seed
+子どもが炎天下の車に閉じ込められて、ドアが開かない	emergency	ja	claude-seed
+建物が崩れて、がれきの下に人が埋まっている	emergency	ja	claude-seed
+鉄砲水が村に流れ込んで、水が屋根まで来ている	emergency	ja	claude-seed
+車が洪水で橋から流されて、中の人が出られない	emergency	ja	claude-seed
+咳のしすぎで胸が少し痛い	none	ja	claude-seed
+ホラー映画で心臓がドキドキした	none	ja	claude-seed
+ベンチプレスの後で胸の筋肉が痛い	none	ja	claude-seed
+喉が渇いた、水を一杯ください	none	ja	claude-seed
+軽い下痢だったけど経口補水液を飲んだら良くなった	none	ja	claude-seed
+会社のエレベーターが故障して階段で上がった	none	ja	claude-seed
+渋滞に二時間はまって退屈だ	none	ja	claude-seed
+大雨で家の前の道に少し水たまりができた	none	ja	claude-seed
+海外の洪水のニュースを見て心が痛んだ	none	ja	claude-seed
+失恋して胸が痛い	none	ja	claude-seed

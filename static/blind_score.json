@@ -1,5 +1,5 @@
 {
- "total": 967,
+ "total": 1107,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,20 +24,20 @@
    "precision": 0.892
   },
   "emergency": {
-   "n": 382,
-   "tp": 378,
-   "fn": 4,
-   "fp": 12,
-   "recall": 0.99,
-   "precision": 0.969
+   "n": 452,
+   "tp": 408,
+   "fn": 44,
+   "fp": 19,
+   "recall": 0.903,
+   "precision": 0.956
   },
   "violence": {
    "n": 70,
    "tp": 70,
    "fn": 0,
-   "fp": 5,
+   "fp": 12,
    "recall": 1.0,
-   "precision": 0.933
+   "precision": 0.854
   },
   "scam": {
    "n": 18,
@@ -57,41 +57,41 @@
   }
  },
  "danger_missed": {
-  "n": 2,
-  "of": 488
+  "n": 39,
+  "of": 558
  },
  "false_alarm": {
-  "n": 5,
-  "of": 453
+  "n": 13,
+  "of": 523
  },
  "by_lang": {
   "en": {
-   "hit": 84,
-   "n": 85
+   "hit": 93,
+   "n": 95
   },
   "es": {
    "hit": 59,
-   "n": 61
+   "n": 71
   },
   "ja": {
-   "hit": 61,
-   "n": 62
+   "hit": 66,
+   "n": 72
   },
   "ko": {
-   "hit": 61,
-   "n": 61
+   "hit": 64,
+   "n": 71
   },
   "th": {
-   "hit": 119,
-   "n": 122
+   "hit": 128,
+   "n": 132
   },
   "vi": {
-   "hit": 59,
-   "n": 60
+   "hit": 61,
+   "n": 70
   },
   "zh": {
-   "hit": 63,
-   "n": 63
+   "hit": 65,
+   "n": 73
   }
  },
  "misses": [
@@ -192,6 +192,316 @@
    "text": "炎天下の作業員が体がすごく熱くて汗も出ず、話がおかしい",
    "label": "emergency",
    "got": []
+  },
+  {
+   "line": 1050,
+   "text": "รถถูกน้ำพัดกลางสะพาน คนข้างในออกไม่ได้",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1051,
+   "text": "เจ็บหน้าอกนิดหน่อยเพราะไอหนัก",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1057,
+   "text": "ติดอยู่ในรถติดสองชั่วโมง เบื่อมาก",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1062,
+   "text": "My uncle says it feels like an elephant on his chest, he can't catch his breath and he's pale",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1079,
+   "text": "Saw news of floods abroad and felt sad",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1081,
+   "text": "Mi papá tiene un dolor opresivo en el pecho que le baja al brazo izquierdo y está empapado en sudor",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1082,
+   "text": "Mi tío dice que siente como un peso en el pecho, le falta el aire y está pálido",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1083,
+   "text": "A mi mamá le duele el pecho desde hace media hora y no se le pasa, tiene náuseas",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1084,
+   "text": "Mi bebé tiene diarrea todo el día, no moja el pañal desde la mañana, boca seca y muy decaído",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1085,
+   "text": "Mi abuela no para de vomitar, no retiene el agua y tiene los ojos hundidos",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1086,
+   "text": "El ascensor se quedó parado entre pisos, llevamos una hora dentro y falta el aire",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1087,
+   "text": "Mi niño quedó encerrado en el coche al sol y no puedo abrir la puerta",
+   "label": "emergency",
+   "got": [
+    "violence"
+   ]
+  },
+  {
+   "line": 1088,
+   "text": "Se derrumbó el edificio y hay gente atrapada bajo los escombros",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1089,
+   "text": "Una riada entró al pueblo, el agua llega a los tejados",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1090,
+   "text": "La corriente arrastró un coche del puente y la gente de adentro no puede salir",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1102,
+   "text": "Chú tôi nói như có tảng đá đè lên ngực, thở không nổi, mặt tái mét",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1104,
+   "text": "Con tôi tiêu chảy cả ngày, từ sáng không đi tiểu, môi khô, lừ đừ",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1105,
+   "text": "Bà tôi nôn không ngừng, uống nước vào là nôn, mắt trũng sâu",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1106,
+   "text": "Thang máy kẹt giữa hai tầng, chúng tôi ở trong một tiếng rồi, bắt đầu ngột thở",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1107,
+   "text": "Con tôi bị khóa trong xe ngoài nắng, tôi không mở được cửa",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1108,
+   "text": "Tòa nhà sập, có người bị kẹt dưới đống đổ nát",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1109,
+   "text": "Lũ quét tràn vào làng, nước dâng tới mái nhà",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1110,
+   "text": "Một chiếc xe bị nước lũ cuốn khỏi cầu, người bên trong không ra được",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1111,
+   "text": "Ho nhiều quá nên hơi đau ngực",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1119,
+   "text": "Xem tin lũ lụt ở nước ngoài thấy thương",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1122,
+   "text": "叔叔说胸口像压了块大石头，喘不上气，脸色苍白",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1123,
+   "text": "妈妈胸痛半小时了还没缓解，想吐",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1124,
+   "text": "宝宝拉肚子一整天，从早上到现在没尿，嘴唇干，没精神",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1125,
+   "text": "奶奶吐个不停，喝水也吐，眼窝凹陷",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1126,
+   "text": "电梯卡在两层之间，我们被困一个小时了，空气越来越闷",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1127,
+   "text": "孩子被锁在太阳底下的车里，车门打不开",
+   "label": "emergency",
+   "got": [
+    "violence"
+   ]
+  },
+  {
+   "line": 1128,
+   "text": "楼塌了，有人被压在废墟下面",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1129,
+   "text": "山洪冲进村子，水已经淹到屋顶了",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1142,
+   "text": "삼촌이 가슴에 돌을 얹은 것 같대요 숨이 차고 얼굴이 하얘요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1143,
+   "text": "엄마가 가슴 통증이 30분째 안 가라앉고 메스꺼워해요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1144,
+   "text": "아기가 하루 종일 설사하고 아침부터 소변을 안 봐요 입술이 마르고 처져요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1145,
+   "text": "할머니가 계속 토하고 물도 못 넘기고 눈이 퀭해요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1146,
+   "text": "엘리베이터가 층 사이에 멈췄어요 한 시간째 갇혀 있고 공기가 답답해져요",
+   "label": "emergency",
+   "got": [
+    "violence"
+   ]
+  },
+  {
+   "line": 1148,
+   "text": "건물이 무너져서 사람들이 잔해에 깔려 있어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1149,
+   "text": "급류가 마을로 밀려와서 물이 지붕까지 찼어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1157,
+   "text": "차가 막혀서 두 시간 갇혀 있었어요 지루해요",
+   "label": "none",
+   "got": [
+    "violence"
+   ]
+  },
+  {
+   "line": 1160,
+   "text": "이별해서 가슴이 너무 아파요",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1162,
+   "text": "叔父が胸に重い石が乗っているようだと言って、息苦しそうで顔が真っ青",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1163,
+   "text": "母の胸の痛みが30分続いていて治まらず、吐き気もある",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1165,
+   "text": "祖母が吐き続けて水も飲めず、目がくぼんでいる",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1168,
+   "text": "建物が崩れて、がれきの下に人が埋まっている",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1169,
+   "text": "鉄砲水が村に流れ込んで、水が屋根まで来ている",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1180,
+   "text": "失恋して胸が痛い",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
   }
  ]
 }
