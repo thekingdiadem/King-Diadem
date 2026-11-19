@@ -282,13 +282,13 @@ def _sample(items, n, seed):
     return items
 
 
-def urgent(n=0):
-    cases = sorted({f.format(w=w, e=e).strip() for w, e, f in itertools.product(URGENT_WHO, URGENT_EVENTS, URGENT_FRAME)})
+def urgent(n=0, part=0, parts=1):
+    cases = _sample(sorted({f.format(w=w, e=e).strip() for w, e, f in itertools.product(URGENT_WHO, URGENT_EVENTS, URGENT_FRAME)}), n, 1)
     bad = []
-    for t in _sample(cases, n, 1):
+    for t in cases[part::parts]:  # แบ่งเป็นส่วนๆ ให้หลายแกน CPU ช่วยกันได้
         if assess(t)["text_risk"] < 60 or any(g in compose(t) for g in GENERIC):
             bad.append(t)
-    return len(_sample(cases, n, 1)), bad
+    return len(cases), bad
 
 
 def _violence_cases():
@@ -503,15 +503,45 @@ def main(argv):
         i = argv.index("--sample")
         n = int(argv[i + 1])
         argv = argv[:i] + argv[i + 2:]
+    serial = "--serial" in argv
     names = [a for a in argv if a in SUITES] or list(SUITES)
+    # รันแต่ละชุดคู่ขนานกันตามจำนวนแกน CPU (ชุดไม่ขึ้นต่อกัน) · --serial = รันทีละชุดแบบเดิม
+    workers = 1 if serial else min(len(names), os.cpu_count() or 1)
     failed = 0
-    for name in names:
-        total, bad = SUITES[name](n)
+    if workers > 1:
+        import multiprocessing as mp
+        from concurrent.futures import ProcessPoolExecutor
+        ctx = mp.get_context("fork") if "fork" in mp.get_all_start_methods() else None
+        with ProcessPoolExecutor(max_workers=workers, mp_context=ctx) as ex:
+            # ชุดใหญ่ส่งก่อน จะได้ไม่ต้องรอชุดใหญ่ตัวสุดท้าย
+            # ชุดที่ช้าที่สุด (urgent) แบ่งเป็นหลายส่วน ส่วนชุดอื่นรันชุดละหนึ่งงาน
+            jobs = {}
+            for name in sorted(names, key=_WEIGHT.get, reverse=True):
+                parts = workers if name in _SPLIT else 1
+                jobs[name] = [ex.submit(_run_suite, name, n, i, parts) for i in range(parts)]
+            results = []
+            for name in names:
+                outs = [f.result() for f in jobs[name]]
+                results.append((name, outs[0][0], [t for _, b in outs for t in b]))
+    else:
+        results = [(name, *_run_suite(name, n)) for name in names]
+    for name, total, bad in results:
         failed += len(bad)
         print(f"{name:9s} {total:6d} ข้อความ · หลุด {len(bad)}")
         for t in bad[:8]:
             print("   ", t)
     return 1 if failed else 0
+
+
+# น้ำหนักโดยประมาณ (จำนวนข้อความ) ใช้จัดลำดับส่งงาน
+_SPLIT = {"urgent"}
+_WEIGHT = {"urgent": 20, "th_violence": 10, "en_violence": 10, "th_crisis": 5, "en_crisis": 4, "typing": 3,
+           "benign": 2, "th_scam": 2, "world": 1, "en_scam": 1, "violence": 1, "intl": 1, "en": 1, "followup": 1}
+
+
+def _run_suite(name, n, part=0, parts=1):
+    total, bad = SUITES[name](n, part, parts) if parts > 1 else SUITES[name](n)
+    return total, list(bad)
 
 
 if __name__ == "__main__":
