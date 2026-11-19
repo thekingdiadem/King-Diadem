@@ -1,5 +1,5 @@
 {
- "total": 827,
+ "total": 967,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,20 +24,20 @@
    "precision": 0.892
   },
   "emergency": {
-   "n": 312,
-   "tp": 311,
-   "fn": 1,
-   "fp": 11,
-   "recall": 0.997,
-   "precision": 0.966
+   "n": 382,
+   "tp": 378,
+   "fn": 4,
+   "fp": 12,
+   "recall": 0.99,
+   "precision": 0.969
   },
   "violence": {
    "n": 70,
    "tp": 70,
    "fn": 0,
-   "fp": 4,
+   "fp": 5,
    "recall": 1.0,
-   "precision": 0.946
+   "precision": 0.933
   },
   "scam": {
    "n": 18,
@@ -51,47 +51,47 @@
    "n": 8,
    "tp": 7,
    "fn": 1,
-   "fp": 6,
+   "fp": 7,
    "recall": 0.875,
-   "precision": 0.538
+   "precision": 0.5
   }
  },
  "danger_missed": {
-  "n": 0,
-  "of": 418
+  "n": 2,
+  "of": 488
  },
  "false_alarm": {
-  "n": 3,
-  "of": 383
+  "n": 5,
+  "of": 453
  },
  "by_lang": {
   "en": {
-   "hit": 74,
-   "n": 75
+   "hit": 84,
+   "n": 85
   },
   "es": {
-   "hit": 50,
-   "n": 51
+   "hit": 59,
+   "n": 61
   },
   "ja": {
-   "hit": 52,
-   "n": 52
+   "hit": 61,
+   "n": 62
   },
   "ko": {
-   "hit": 51,
-   "n": 51
+   "hit": 61,
+   "n": 61
   },
   "th": {
-   "hit": 110,
-   "n": 112
+   "hit": 119,
+   "n": 122
   },
   "vi": {
-   "hit": 49,
-   "n": 50
+   "hit": 59,
+   "n": 60
   },
   "zh": {
-   "hit": 53,
-   "n": 53
+   "hit": 63,
+   "n": 63
   }
  },
  "misses": [
@@ -156,6 +156,42 @@
    "got": [
     "emergency"
    ]
+  },
+  {
+   "line": 442,
+   "text": "당뇨약이 다 떨어져서 병원에 가야 해요",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 905,
+   "text": "แม่ฉีดอินซูลินแล้วไม่ได้กินข้าว ตอนนี้ซึมมาก",
+   "label": "emergency",
+   "got": [
+    "distress"
+   ]
+  },
+  {
+   "line": 940,
+   "text": "Dejamos el brasero encendido en el cuarto cerrado toda la noche y ahora todos vomitan con dolor de cabeza",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 950,
+   "text": "El cuarto huele un poco a encerrado, abrimos la ventana y ya",
+   "label": "none",
+   "got": [
+    "violence"
+   ]
+  },
+  {
+   "line": 1022,
+   "text": "炎天下の作業員が体がすごく熱くて汗も出ず、話がおかしい",
+   "label": "emergency",
+   "got": []
   }
  ]
 }

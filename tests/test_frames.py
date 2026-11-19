@@ -191,3 +191,34 @@ def test_round4_danger(text):
 @pytest.mark.parametrize("text", CALM_4)
 def test_round4_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 5: ก๊าซรั่ว/CO · ลมแดด · น้ำตาลต่ำ · หอบหืด (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา H) ──
+DANGER_5 = [
+    "ถังแก๊สรั่ว ยายมึนหัวจะล้ม", "smells like gas in the basement and my husband feels dizzy",
+    "เปิดฮีตเตอร์ห้องปิด พ่อคลื่นไส้", "olor a gas en el baño, mi abuela está mareada",
+    "the carbon monoxide detector beeped and grandma has a bad headache",
+    "ลุงเป็นลมแดดกลางนา", "the runner is burning up and confused after the race", "爷爷在田里中暑了",
+    "น้องเป็นเบาหวาน ตอนนี้เหงื่อเย็นตัวสั่น", "my wife is diabetic and she's confused and shaky",
+    "blood sugar just read 35", "혈당이 38이에요", "低血糖で冷や汗が止まらない",
+    "หืดกำเริบ หายใจไม่ออก", "his asthma is acting up and he can't breathe", "Bà lên cơn hen, không thở được",
+    "아이가 쌕쌕거리고 말을 못 해요",
+]
+CALM_5 = [
+    "ซื้อแก๊สถังใหม่มาเปลี่ยน", "the gas bill went up this month", "ปิดห้องเปิดแอร์นอนสบาย",
+    "วิธีป้องกันลมแดดสำหรับนักวิ่ง", "熱中症に注意しましょう", "the pizza oven is scorching hot",
+    "แม่เป็นเบาหวาน หมอบอกน้ำตาลปกติดี", "I'm diabetic and I go to the gym every day",
+    "เป็นเบาหวาน วิ่งเสร็จเหงื่อแตกสดชื่น",
+    "this recipe uses 50 grams of sugar", "หลานเป็นหืดแต่คุมได้ดี", "asthma awareness week starts monday",
+    "my kid wheezes a little when he has a cold",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_5)
+def test_round5_danger(text):
+    assert frames(text) == [("medical", "health_emergency")], explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_5)
+def test_round5_calm(text):
+    assert frames(text) == [], explain(text)

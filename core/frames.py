@@ -52,6 +52,14 @@ FRAMES = (
     ("head_injury", "medical", "health_emergency", (("FALL", "HEAD", "RED_FLAG"), ("FALL", "HEIGHT", "RED_FLAG")),
      ("FICTION", "HYPOTHETICAL", "MINOR", "NO_PAIN")),
     ("crash", "medical", "health_emergency", (("CRASH", "CRASH_HARM"),), ("FICTION", "HYPOTHETICAL", "MINOR", "NO_PAIN", "DEVICE")),   # ตลาดหุ้น/ระบบ crash ไม่ใช่รถชน
+    # รอบ 5 (ชุดปิดตา H ล็อกไว้ก่อนเขียน) — ทุกข้อต้องมีอาการ/สัญญาณอันตรายร่วม คำเดี่ยวอย่าง "แก๊ส" "ร้อน" "เบาหวาน" ไม่พอ
+    ("gas_co", "medical", "health_emergency",
+     (("CO", "GAS_SYMPTOM"), ("GAS", "LEAK_SMELL", "GAS_SYMPTOM"), ("CLOSED_ROOM", "FUEL_BURN", "GAS_SYMPTOM")), ("FICTION", "HYPOTHETICAL")),
+    ("heatstroke", "medical", "health_emergency", (("HEATSTROKE",), ("HOT_BODY", "HEAT_RED")), ("FICTION", "HYPOTHETICAL", "ADVICE")),
+    ("hypoglycemia", "medical", "health_emergency", (("DIABETES", "HYPO_SIGN"), ("LOW_SUGAR", "HYPO_SIGN"), ("SUGAR_NUM",)),
+     ("FICTION", "HYPOTHETICAL", "SUGAR_OK")),
+    ("asthma", "medical", "health_emergency", (("ASTHMA", "ASTHMA_FAIL"), ("WHEEZE", "SHORT_SPEECH"), ("WHEEZE", "ASTHMA_FAIL")),
+     ("FICTION", "HYPOTHETICAL", "CONTROLLED")),
 )
 
 
