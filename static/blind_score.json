@@ -17,19 +17,19 @@
  "classes": {
   "self_harm": {
    "n": 36,
-   "tp": 29,
-   "fn": 7,
-   "fp": 7,
-   "recall": 0.806,
-   "precision": 0.806
+   "tp": 33,
+   "fn": 3,
+   "fp": 4,
+   "recall": 0.917,
+   "precision": 0.892
   },
   "emergency": {
    "n": 312,
-   "tp": 310,
-   "fn": 2,
-   "fp": 17,
-   "recall": 0.994,
-   "precision": 0.948
+   "tp": 311,
+   "fn": 1,
+   "fp": 11,
+   "recall": 0.997,
+   "precision": 0.966
   },
   "violence": {
    "n": 70,
@@ -57,11 +57,11 @@
   }
  },
  "danger_missed": {
-  "n": 5,
+  "n": 0,
   "of": 418
  },
  "false_alarm": {
-  "n": 10,
+  "n": 3,
   "of": 383
  },
  "by_lang": {
@@ -70,15 +70,15 @@
    "n": 75
   },
   "es": {
-   "hit": 49,
+   "hit": 50,
    "n": 51
   },
   "ja": {
-   "hit": 51,
+   "hit": 52,
    "n": 52
   },
   "ko": {
-   "hit": 50,
+   "hit": 51,
    "n": 51
   },
   "th": {
@@ -86,7 +86,7 @@
    "n": 112
   },
   "vi": {
-   "hit": 47,
+   "hit": 49,
    "n": 50
   },
   "zh": {
@@ -142,12 +142,6 @@
    ]
   },
   {
-   "line": 226,
-   "text": "No le veo sentido a seguir, estoy cansado de existir",
-   "label": "self_harm",
-   "got": []
-  },
-  {
    "line": 232,
    "text": "Mi amigo se cortó la muñeca y hay mucha sangre",
    "label": "self_harm",
@@ -156,89 +150,9 @@
    ]
   },
   {
-   "line": 235,
-   "text": "Tôi đã viết thư tuyệt mệnh rồi",
-   "label": "self_harm",
-   "got": []
-  },
-  {
    "line": 242,
    "text": "Bạn tôi cắt cổ tay, máu chảy rất nhiều",
    "label": "self_harm",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 256,
-   "text": "사는 게 의미가 없어요, 너무 지쳤어요",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 266,
-   "text": "生きている意味がない、もう疲れた",
-   "label": "self_harm",
-   "got": []
-  },
-  {
-   "line": 299,
-   "text": "那个视频笑得我差点晕倒",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 397,
-   "text": "Con tôi ngậm đồng xu rồi bị mắc, không ho ra được",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 422,
-   "text": "糖尿病的药吃完了，要去医院再拿",
-   "label": "none",
-   "got": [
-    "self_harm"
-   ]
-  },
-  {
-   "line": 525,
-   "text": "Mi celular se congeló y no responde",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 652,
-   "text": "Hot coffee scalded my tongue a little",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 768,
-   "text": "ยิ้มแล้วปากเบี้ยวนิดๆ ตามธรรมชาติ",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 769,
-   "text": "พูดไม่ชัดเพราะเพิ่งทำฟัน",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 771,
-   "text": "ตกบันไดขั้นเดียว ไม่เจ็บอะไร",
-   "label": "none",
    "got": [
     "emergency"
    ]

@@ -103,7 +103,7 @@ SELF_HARM_INTL = (
                r"\bend(?:ing)?\s+(?:my\s+life|it\s+all)\b(?!\s+(?:with\s+a\s+bang|at\s+the\s+party|in\s+style))|\bdon'?t\s+want\s+to\s+(?:live|be\s+alive|exist)\b|"
                r"\bbetter\s+off\s+dead\b|\bno\s+reason\s+to\s+live\b|\b(?:hurt|harm|cut)(?:ting)?\s+myself\b|"
                r"\bself[- ]harm", re.I),
-    re.compile(r"想死(?!你|您|他|她|它|我了|了你)|不想活|不想再醒|写好遗书|寫好遺書|遗书|遺書|(?:天台|楼顶|樓頂)[^。！？\n]{0,8}?(?:跳|跳下)|想跳(?:楼|樓|下去)|(?:安眠药|安眠藥|药|藥)[^。！？\n]{0,4}?(?:都|全)?吃(?:了|光|完)|吃了[^。！？\n]{0,4}?(?:安眠药|整瓶)|割腕|活不下去|自杀|自殺|轻生|輕生|结束(?:自己的)?生命|結束(?:自己的)?生命|"
+    re.compile(r"想死(?!你|您|他|她|它|我了|了你)|不想活|不想再醒|写好遗书|寫好遺書|遗书|遺書|(?:天台|楼顶|樓頂)[^。！？\n]{0,8}?(?:跳|跳下)|想跳(?:楼|樓|下去)|(?<!的)(?:安眠药|安眠藥|药|藥)(?![^。！？\n]{0,6}?(?:要去|去医院|去醫院|再拿|再开|再開|去买|去買|续|續))[^。！？\n]{0,4}?(?:都|全)?吃(?:了|光|完)|吃了[^。！？\n]{0,4}?(?:安眠药|整瓶)|割腕|活不下去|自杀|自殺|轻生|輕生|结束(?:自己的)?生命|結束(?:自己的)?生命|"
                r"死了算了|不如死了"),
     re.compile(r"死にたい|消えたい|自殺|遺書|飛び降り(?:たい|る)|(?:睡眠薬|薬)を?(?:全部|たくさん|大量に)飲ん|リストカット|手首を切|生きていたくない|生きたくない|死のう|命を絶|"
                # "全部終わりにしたい" — ไม่นับเมื่อเป็นงาน/การบ้าน/ความสัมพันธ์ ("仕事を全部終わりにしたい")
@@ -187,6 +187,16 @@ SELF_HARM_PASSIVE += (
     re.compile(r"kết\s+liễu\s+(?:đời|cuộc\s+đời|bản\s+thân|mạng\s+sống)|tự\s+kết\s+liễu|kết\s+thúc\s+(?:cuộc\s+đời|cuộc\s+sống|mạng\s+sống)\s+(?:của\s+)?(?:mình|tôi|em)\b", re.I),
     re.compile(r"(?:私|僕|俺|自分|わたし)が(?:いなくなれば|いなくなったら|いない方が|消えれば|消えたら|死ねば|死んだら)[^。！？\n]{0,12}(?:楽になる|幸せになる|助かる|喜ぶ)|もう目覚めたくない"),
 )
+# งานแก้จุดอ่อนจากชุดปิดตา: "ชีวิตไม่มีความหมาย + เหนื่อยจะมีอยู่" และ "เขียนจดหมายลาตายแล้ว" ใน es vi ko ja
+# แก้ที่รูปประโยคทั่วไป ไม่ได้คัดลอกข้อสอบ (เทสต์ใช้ประโยคคนละแบบ: tests/test_blind_weak_spots.py)
+SELF_HARM_MEANING = (
+    re.compile(r"\bno\s+(?:le\s+)?(?:veo|encuentro|tiene)\s+(?:ning[uú]n\s+)?sentido\s+(?:a\s+|en\s+)?(?:seguir|vivir|la\s+vida|mi\s+vida|existir)\b(?!\s+(?:con|en|de|el|la|los|las|este|esta|ese|esa|aqu[ií]\s+en|trabajando|estudiando)\b)|"
+               r"\bcansad[oa]\s+de\s+(?:existir|vivir|estar\s+viv[oa])\b(?!\s+(?:en|con|de|cerca|lejos|solo|sola|aqu[ií]|all[ií])\b)|\bcarta\s+de\s+suicidio\b", re.I),
+    re.compile(r"thư\s+tuyệt\s+mệnh|di\s+thư\s+(?:cho|để\s+lại)|sống\s+(?:không|chẳng)\s+(?:còn\s+)?(?:có\s+)?ý\s+nghĩa\s+gì|mệt\s+mỏi\s+với\s+việc\s+(?:sống|tồn\s+tại)", re.I),
+    re.compile(r"(?:사는\s*(?:게|것이|것도)|살아\s*있는\s*(?:게|것이)|살아갈|살아야\s*할)\s*(?:아무\s*)?(?:의미가|의미도|이유가|이유도)\s*없"),
+    re.compile(r"(?:生きて(?:い|る|いる)|生きる)(?:こと(?:に|の))?意味(?:が|も)?(?:ない|無い|わからない|分からない)|生きるのに疲れ|生きることに疲れ"),
+)
+SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_MEANING
 SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_PASSIVE + SELF_HARM_INDIRECT + SELF_HARM_MASKED   # ผู้ใช้ทุกที่ (kernel_voice วิกฤต · llm_gemini ความปลอดภัย) ได้แบบอ้อมด้วย
 
 
@@ -532,6 +542,10 @@ _more("medical", "vi", r"(?:uống|nuốt)\s+(?:hết\s+|cả\s+|nguyên\s+|mộ
 _more("violence", "vi", r"(?:chồng|vợ|bạn\s+trai|bạn\s+gái|người\s+yêu|bố|mẹ|cha|anh\s+ta|hắn)\s+(?:lại\s+|hay\s+|thường\s+|luôn\s+|cứ\s+)?(?:đánh|đập|tát|đá|bóp\s+cổ)\s+(?:tôi|mình|em|con\b(?!\s+(?:muỗi|ruồi|gián|chuột|cá|gà|chó|mèo)))"
                         r"|(?:đe\s+)?dọa\s+giết\s+(?:tôi|mình|em|con)\b")
 _more("violence", "zh", r"(?:收走|拿走|没收|沒收|扣下|扣着|扣著)(?:了)?(?:我们|我們|我|大家)?的?(?:护照|護照)|把(?:我|我们|我們)(?:关|關|锁|鎖)(?:起来|起來|在)")
+
+# งานแก้จุดอ่อนจากชุดปิดตา: ของติดคอแบบไม่ใช้คำว่า "hóc" — "(đồ vật) bị mắc (ở cổ)" + "không ho ra được / khó thở"
+_more("medical", "vi", r"(?:đồng\s+xu|viên\s+bi|kẹo|hạt|xương|pin|nắp|đồ\s+chơi)[^.!?\n]{0,25}?(?:bị\s+)?mắc(?:\s+(?:ở|trong))?(?:\s+(?:cổ|họng))?"
+                       r"[^.!?\n]{0,25}?(?:không\s+(?:ho|nuốt|thở|khóc)\s+(?:ra\s+)?được|khó\s+thở|tím\s+tái)")
 
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
@@ -1046,3 +1060,4 @@ def world_urgent(text) -> list:
     """เรื่องด่วนภาษาอื่นนอกไทย/อังกฤษ → ชนิดที่เจอ (crisis medical violence help)"""
     t = str(text or "")
     return [k for k, rx in _WORLD_RX.items() if rx.search(t)]
+
