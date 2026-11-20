@@ -58,3 +58,12 @@ def test_toast_stays_readable_on_light_themes():
     assert m
     bg = "#%02x%02x%02x" % tuple(int(m.group(i)) for i in (1, 2, 3))
     assert _cr(m.group(4), bg) >= 7
+
+
+def test_palette_follows_the_github_site_tone():
+    """พี่คิงอยากให้แอปใช้โทนเดียวกับเว็บ GitHub (docs/index.html): ดำอวกาศ + ทองหม่น + ฟ้าแสงดาว"""
+    from pathlib import Path
+    css = (Path(__file__).resolve().parent.parent / "static" / "app.css").read_text(encoding="utf-8")
+    root = css[css.index("--bg:#02030c"):]
+    for token in ("--bg:#02030c", "--gold-hi:#e8cc7a", "--blue:#78bcff"):
+        assert token in root, token
