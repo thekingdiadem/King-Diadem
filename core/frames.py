@@ -20,8 +20,8 @@ from functools import lru_cache
 LEXICON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frames_lexicon.tsv")
 _WORD_LANGS = {"en", "es", "vi"}           # มีเว้นวรรคระหว่างคำ → ต้องตรงทั้งคำ
 # ชิ้นส่วนต้องอยู่ห่างกันไม่เกินนี้ (ตัวอักษร) — กัน "กินข้าวเที่ยงแล้วไปฉีดยาฆ่าหญ้า" ไม่ให้นับเป็นกินยาฆ่าหญ้า
-_WINDOW = {"en": 70, "es": 70, "vi": 70}
-_WINDOW_DEFAULT = 34                       # th zh ja ko — หนึ่งตัวอักษรเก็บความหมายได้มากกว่า
+_WINDOW = {"en": 100, "es": 100, "vi": 100}   # เดิม 70: ประโยคสเปนที่เล่ายาว ("dejamos el brasero ... toda la noche ... vomitan") หลุด
+_WINDOW_DEFAULT = 44                       # th zh ja ko — หนึ่งตัวอักษรเก็บความหมายได้มากกว่า
 _SENTENCE = re.compile(r"[.!?。！？\n]+")
 
 # (ชื่อ, ชนิด, หัวข้อ, ทางเลือกของชิ้นส่วนที่ต้องพบครบ, ตัวกันเตือนเกิน)
@@ -127,6 +127,17 @@ def _frame_hit(sentence: str, need: tuple) -> bool:
     return _near(merged, _WINDOW_DEFAULT)
 
 
+_KANA = re.compile(r"[\u3040-\u30ff]")
+
+
+def _blocked(concept: str, sentence: str) -> bool:
+    """ตัวกันเตือนเกินในประโยคนี้ — ประโยคญี่ปุ่น (มีคานะ) ไม่ใช้คำจีน: "作業員" ไม่ใช่ "作业" (การบ้าน)"""
+    found = _spans(concept, sentence)
+    if _KANA.search(sentence):
+        found.pop("zh", None)
+    return bool(found)
+
+
 def frames(text) -> list:
     """เหตุอันตรายที่ประกอบได้ครบในประโยคใดประโยคหนึ่ง → [(ชนิด, หัวข้อ)] ไม่ซ้ำ เรียงตาม FRAMES"""
     t = str(text or "")
@@ -136,7 +147,7 @@ def frames(text) -> list:
     out = []
     for name, kind, topic, options, blockers in FRAMES:
         for s in sentences:
-            if any(_spans(b, s) for b in blockers):
+            if any(_blocked(b, s) for b in blockers):
                 continue
             if any(_frame_hit(s, need) for need in options):
                 if (kind, topic) not in out:
@@ -151,7 +162,7 @@ def explain(text) -> list:
     rows = []
     for name, _k, _t, options, blockers in FRAMES:
         for s in [x for x in _SENTENCE.split(t) if x.strip()]:
-            blocked = [b for b in blockers if _spans(b, s)]
+            blocked = [b for b in blockers if _blocked(b, s)]
             for need in options:
                 if _frame_hit(s, need):
                     rows.append({"frame": name, "sentence": s.strip(), "parts": list(need), "blocked_by": blocked})

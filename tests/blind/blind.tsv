@@ -902,7 +902,7 @@ Cười đến run cả người	none	vi	claude-seed
 คนงานกลางแดดตัวร้อนจัด ไม่มีเหงื่อ พูดสับสน	emergency	th	claude-seed
 ลูกซ้อมบอลตอนเที่ยง ล้มลงตัวร้อนเหมือนไฟ	emergency	th	claude-seed
 พ่อเป็นเบาหวาน เหงื่อแตก ตัวสั่น เรียกไม่ค่อยรู้เรื่อง	emergency	th	claude-seed
-แม่ฉีดอินซูลินแล้วไม่ได้กินข้าว ตอนนี้ซึมมาก	emergency	th	claude-seed
+ตาฉีดอินซูลินเช้านี้แต่ไม่ได้กินอะไรเลย ตอนนี้เรียกไม่ค่อยรู้เรื่อง	emergency	th	claude-seed
 วัดน้ำตาลได้ 40 ใจสั่นจะเป็นลม	emergency	th	claude-seed
 หอบหืดกำเริบ พ่นยาแล้วไม่ดีขึ้น ปากเริ่มเขียว	emergency	th	claude-seed
 ลูกหายใจมีเสียงวี้ด พูดได้ทีละคำ	emergency	th	claude-seed
@@ -937,7 +937,7 @@ Ran up the stairs and got a little out of breath	none	en	claude-seed
 My kid has a cold and a stuffy nose	none	en	claude-seed
 Bought my mom a glucose meter for home	none	en	claude-seed
 Hay un olor fuerte a gas en la cocina y todos estamos mareados	emergency	es	claude-seed
-Dejamos el brasero encendido en el cuarto cerrado toda la noche y ahora todos vomitan con dolor de cabeza	emergency	es	claude-seed
+Prendimos la estufa de leña con las ventanas cerradas y ahora mi abuelo está mareado y vomitando	emergency	es	claude-seed
 Suena la alarma de monóxido de carbono y mi hija está tan somnolienta que casi no despierta	emergency	es	claude-seed
 Un trabajador bajo el sol está ardiendo, no suda y habla confundido	emergency	es	claude-seed
 Mi hijo se desplomó entrenando al mediodía y tiene la piel hirviendo	emergency	es	claude-seed
@@ -1019,7 +1019,7 @@ Mua cho mẹ cái máy đo đường huyết để ở nhà	none	vi	claude-seed
 台所でガスの臭いがすごくて、みんなめまいがする	emergency	ja	claude-seed
 締め切った部屋で一晩中炭火を焚いていて、朝みんな頭痛と吐き気がある	emergency	ja	claude-seed
 一酸化炭素の警報が鳴っていて、娘がぼーっとして起きない	emergency	ja	claude-seed
-炎天下の作業員が体がすごく熱くて汗も出ず、話がおかしい	emergency	ja	claude-seed
+畑仕事をしていた祖父が体が火のように熱くて、呼びかけても反応が鈍い	emergency	ja	claude-seed
 息子が昼の部活中に倒れて、体が火のように熱い	emergency	ja	claude-seed
 父は糖尿病で、冷や汗をかいて震えて、呼んでも反応が鈍い	emergency	ja	claude-seed
 母がインスリンを打ったのに夕食を食べず、今すごくぼんやりしている	emergency	ja	claude-seed
@@ -1087,7 +1087,7 @@ El ascensor se quedó parado entre pisos, llevamos una hora dentro y falta el ai
 Mi niño quedó encerrado en el coche al sol y no puedo abrir la puerta	emergency	es	claude-seed
 Se derrumbó el edificio y hay gente atrapada bajo los escombros	emergency	es	claude-seed
 Una riada entró al pueblo, el agua llega a los tejados	emergency	es	claude-seed
-La corriente arrastró un coche del puente y la gente de adentro no puede salir	emergency	es	claude-seed
+El río se desbordó y mi tío quedó atrapado en el techo de su casa con el agua subiendo	emergency	es	claude-seed
 Me duele un poco el pecho de tanto toser	none	es	claude-seed
 El corazón me latía fuerte viendo la película de terror	none	es	claude-seed
 Tengo el pecho adolorido después del press de banca	none	es	claude-seed

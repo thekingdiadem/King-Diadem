@@ -248,3 +248,9 @@ def test_round6_danger(text):
 @pytest.mark.parametrize("text", CALM_6)
 def test_round6_calm(text):
     assert frames(text) == [], explain(text)
+
+
+def test_chinese_blocker_does_not_apply_to_japanese():
+    # "作業員" (คนงาน) มีอักษรเดียวกับ "作业" (การบ้านภาษาจีน) — ต้องไม่ถูกนับเป็นคำถามเชิงความรู้
+    assert frames("工事現場の作業員が体がすごく熱くて、倒れた") == [("medical", "health_emergency")]
+    assert frames("中暑的作业怎么写") == []
