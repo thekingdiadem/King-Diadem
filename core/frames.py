@@ -76,6 +76,12 @@ FRAMES = (
     ("kidney_infection", "medical", "health_emergency", (("FLANK", "KIDNEY_FEVER"),), ("FICTION", "HYPOTHETICAL", "BETTER")),
     ("dialysis", "medical", "health_emergency", (("DIALYSIS", "MISSED"), ("DIALYSIS", "HIGH_K"), ("HIGH_K", "RENAL_RED"), ("CKD", "RENAL_RED")),
      ("FICTION", "HYPOTHETICAL")),
+    # รอบ 9 (ชุดปิดตา L ล็อกไว้ก่อนเขียน)
+    ("hypothermia", "medical", "health_emergency", (("COLD_BODY", "COLD_RED"),), ("FICTION", "HYPOTHETICAL")),
+    ("acute_abdomen", "medical", "health_emergency", (("ABD_PAIN", "ABD_RED"),), ("FICTION", "HYPOTHETICAL", "MINOR", "PERIOD", "BETTER")),
+    ("gi_bleed", "medical", "health_emergency", (("VOMIT_BLOOD",), ("TARRY",)), ("FICTION", "HYPOTHETICAL", "IRON")),
+    ("meningitis", "medical", "health_emergency", (("FEVER", "STIFF_NECK"), ("FEVER", "PURPURA"), ("FEVER", "MENINGEAL")),
+     ("FICTION", "HYPOTHETICAL", "SLEPT_WRONG")),
 )
 
 

@@ -841,9 +841,9 @@ FEVER	th	ไข้|ตัวร้อน
 FEVER	en	fever|burning hot|burning up
 FEVER	es	fiebre|ardiendo
 FEVER	vi	sốt|nóng hầm hập|nóng ran
-FEVER	zh	发烧|發燒|发热|發熱|滚烫|滾燙
-FEVER	ko	열이|불덩이
-FEVER	ja	熱
+FEVER	zh	高烧|高燒|发烧|發燒|发热|發熱|滚烫|滾燙
+FEVER	ko	고열|열이|불덩이
+FEVER	ja	高熱|熱
 INFANT_RED	th	ไม่ยอมกินนม|ไม่กินนม|ร้องไม่หยุด|กระหม่อมโป่ง|ซึม|ชัก|หายใจเร็ว
 INFANT_RED	en	won't feed|not feeding|nonstop|soft spot|lethargic|floppy|seizure
 INFANT_RED	es	no quiere comer|no come|sin parar|fontanela|decaído|convulsión
@@ -980,3 +980,93 @@ CKD	vi	suy thận|bệnh thận mạn
 CKD	zh	慢性肾病|慢性腎病|肾衰竭|腎衰竭|尿毒症
 CKD	ko	만성 신부전|신부전|만성 콩팥병
 CKD	ja	慢性腎臓病|腎不全
+
+# ═══ รอบ 9: ตัวเย็นเกิน · ปวดท้องเฉียบพลันรุนแรง · เลือดออกในทางเดินอาหาร · ไข้+คอแข็ง/จ้ำเลือด ═══
+# ── ตัวเย็นเกิน ── ตัวเย็นจัด/ตกน้ำเย็น + สั่นไม่หยุด พูดช้า ตอบช้า ("หนาวใส่เสื้อสองชั้น" "มือเย็นในห้องแอร์" ไม่นับ)
+COLD_BODY	th	ตัวเย็นเฉียบ|ตัวเย็น|เย็นเฉียบ|ตกน้ำเย็น|น้ำแข็ง
+COLD_BODY	en	ice cold|cold to the touch|icy water|freezing water|hypothermia|frozen
+COLD_BODY	es	helado|helada|frío al tacto|frio al tacto|agua helada|hipotermia
+COLD_BODY	vi	lạnh ngắt|lạnh buốt|nước lạnh|hạ thân nhiệt
+COLD_BODY	zh	冰凉|冰涼|冰冷|冰水|失温|失溫|低体温|低體溫
+COLD_BODY	ko	얼음장|차갑|얼음물|저체온
+COLD_BODY	ja	氷のように冷た|体が冷た|冷たい川|低体温
+COLD_RED	th	สั่นไม่หยุด|พูดช้า|เรียกไม่ค่อยตอบ|ไม่ตอบ|ซึม|สับสน|หมดสติ
+COLD_RED	en	shivering nonstop|speech is slowing|slurring|barely answers|not answering|confused|drowsy|unconscious
+COLD_RED	es	tiembla sin parar|habla más lento|habla mas lento|casi no contesta|no contesta|confundido|confundida|inconsciente
+COLD_RED	vi	run không ngừng|nói chậm|không trả lời|lơ mơ|lú lẫn|bất tỉnh
+COLD_RED	zh	一直发抖|一直發抖|说话越来越慢|說話越來越慢|几乎不应|幾乎不應|不应|迷糊|昏迷
+COLD_RED	ko	계속 떨|말이 느려|대답을 안|대답이 없|의식
+COLD_RED	ja	震えが止まらず|震えが止まらない|話し方が遅|返事がない|意識
+# ── ปวดท้องรุนแรง ── ปวดมาก/ท้องแข็ง + ไข้ อาเจียน กดเจ็บ ("ปวดท้องประจำเดือน" "ปวดนิดหน่อยเพราะกินเผ็ด" ไม่นับ)
+ABD_PAIN	th	re:ปวดท้อง\S{0,14}?(?:รุนแรง|มาก|ทั้งท้อง)|ท้องแข็งเป็นดาน|ท้องแข็งเหมือนไม้|ปวดท้องทั้งท้อง
+ABD_PAIN	en	severe pain in my lower right belly|severe belly pain|severe abdominal pain|whole belly hurts|rigid like a board|belly is rigid
+ABD_PAIN	es	dolor muy fuerte abajo|dolor abdominal fuerte|me duele toda la barriga|dura como una tabla
+ABD_PAIN	vi	đau dữ dội bụng|đau bụng dữ dội|đau khắp bụng|bụng cứng
+ABD_PAIN	zh	腹剧痛|腹劇痛|肚子剧痛|整个肚子都痛|整個肚子都痛|硬得像木板
+ABD_PAIN	ko	아랫배가 너무 아프|배가 너무 아프|배 전체가 아프|판자처럼
+ABD_PAIN	ja	下腹がすごく痛|お腹がすごく痛|お腹全体が痛|板のように硬
+ABD_RED	th	กดแล้วเจ็บ|ไข้|อาเจียน|ท้องแข็งเป็นดาน|แตะไม่ได้|ตัวงอ
+ABD_RED	en	hurts when pressed|fever|vomiting|rigid|can't stand being touched
+ABD_RED	es	duele al apretar|fiebre|vómitos|vomitos|dura|no soporto que me toquen
+ABD_RED	vi	ấn vào thì đau|sốt|nôn|cứng|không cho ai chạm
+ABD_RED	zh	按下去很痛|发烧|發燒|呕吐|嘔吐|木板|一碰就
+ABD_RED	ko	누르면 아프|열이|토해|딱딱|만지지도
+ABD_RED	ja	押すと痛|熱|吐い|硬く|触られる
+PERIOD	th	ประจำเดือน
+PERIOD	en	period cramps|menstrual
+PERIOD	es	menstrual|regla
+PERIOD	vi	đau bụng kinh|kinh nguyệt
+PERIOD	zh	痛经|痛經|月经|月經
+PERIOD	ko	생리통
+PERIOD	ja	生理痛
+# ── เลือดออกในทางเดินอาหาร ── อาเจียนเป็นเลือด/สีกาแฟ · ถ่ายดำเหมือนยางมะตอย ("ถ่ายดำเพราะธาตุเหล็ก" "เลือดออกไรฟัน" ไม่นับ)
+VOMIT_BLOOD	th	อาเจียนเป็นเลือด|อ้วกเป็นเลือด|อาเจียนเป็นสีกาแฟ|อ้วกเป็นสีกาแฟ|สีกาแฟ|อาเจียนเลือด
+VOMIT_BLOOD	en	vomiting blood|vomiting bright red blood|threw up blood|coffee grounds
+VOMIT_BLOOD	es	vomitando sangre|vomitó sangre|posos de café
+VOMIT_BLOOD	vi	nôn ra máu|ói ra máu|bã cà phê
+VOMIT_BLOOD	zh	吐血|吐出鲜红的血|吐出鮮紅的血|咖啡渣
+VOMIT_BLOOD	ko	피를 토|피를 한 컵|커피 찌꺼기
+VOMIT_BLOOD	ja	血を吐|血をコップ|コーヒーかす
+TARRY	th	เหมือนยางมะตอย|ถ่ายเป็นเลือด|ถ่ายดำเหมือน
+TARRY	en	black tarry|tarry stool|tarry stools|bloody stool
+TARRY	es	heces negras como alquitrán|alquitrán|heces con sangre
+TARRY	vi	phân đen như hắc ín|hắc ín|đi ngoài ra máu
+TARRY	zh	柏油|便血
+TARRY	ko	짜장 같은 검은 변|혈변
+TARRY	ja	タール便|血便
+IRON	th	ธาตุเหล็ก|ยาบำรุงเลือด
+IRON	en	iron supplement|iron pills
+IRON	es	hierro
+IRON	vi	viên sắt|sắt
+IRON	zh	补铁|補鐵|铁剂|鐵劑
+IRON	ko	철분
+IRON	ja	鉄剤
+# ── ไข้ + คอแข็ง / จ้ำเลือด / ปวดหัวแพ้แสงอาเจียนพุ่ง (เยื่อหุ้มสมองอักเสบ) — "คอแข็งเพราะตกหมอน" ไม่นับ
+STIFF_NECK	th	คอแข็ง|ก้มคอไม่ได้|ก้มไม่ได้
+STIFF_NECK	en	stiff neck|can't bend it forward|neck is stiff
+STIFF_NECK	es	cuello rígido|cuello rigido|no puede doblarlo
+STIFF_NECK	vi	cứng cổ|không cúi được
+STIFF_NECK	zh	脖子僵硬|颈部僵硬|頸部僵硬|低不了头|低不了頭
+STIFF_NECK	ko	목이 뻣뻣|숙이지를 못
+STIFF_NECK	ja	首が硬|首を曲げられない|前に曲げられない
+PURPURA	th	จุดแดงจ้ำ|จ้ำเลือด|จ้ำๆ|จุดม่วง
+PURPURA	en	purple spots|purple rash|rash that doesn't fade
+PURPURA	es	manchas moradas|manchas púrpuras
+PURPURA	vi	chấm tím|ban xuất huyết
+PURPURA	zh	紫色斑点|紫色斑點|紫斑|瘀点|瘀點
+PURPURA	ko	보라색 반점|자반
+PURPURA	ja	紫の斑点|紫斑
+MENINGEAL	th	แพ้แสง|อาเจียนพุ่ง
+MENINGEAL	en	light hurts|projectile vomiting|can't stand light
+MENINGEAL	es	le molesta la luz|vomita a chorro
+MENINGEAL	vi	sợ ánh sáng|nôn vọt
+MENINGEAL	zh	怕光|喷射状呕吐|噴射狀嘔吐
+MENINGEAL	ko	빛을 못|분수처럼 토
+MENINGEAL	ja	光がつら|噴水のように吐
+SLEPT_WRONG	th	ตกหมอน|นอนผิดท่า
+SLEPT_WRONG	en	sleeping wrong|slept wrong|slept funny
+SLEPT_WRONG	es	mala postura|dormí mal
+SLEPT_WRONG	vi	ngủ sai tư thế|ngủ sai
+SLEPT_WRONG	zh	落枕
+SLEPT_WRONG	ko	잠을 잘못 자
+SLEPT_WRONG	ja	寝違え

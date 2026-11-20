@@ -301,3 +301,26 @@ def test_round8_kidney_danger(text):
 @pytest.mark.parametrize("text", CALM_8)
 def test_round8_kidney_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 9: ตัวเย็นเกิน · ปวดท้องรุนแรง · เลือดออกทางเดินอาหาร · เยื่อหุ้มสมองอักเสบ (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา L) ──
+DANGER_9 = [
+    "ยายตัวเย็นเฉียบ เรียกไม่ตอบ", "pulled him out of freezing water, he's confused and shivering nonstop", "爷爷失温了，一直发抖",
+    "ปวดท้องรุนแรงมาก มีไข้", "severe abdominal pain and vomiting", "배가 너무 아프고 열이 나요",
+    "อาเจียนเป็นเลือดเมื่อกี้", "my dad is vomiting blood", "タール便が出た",
+    "ลูกไข้สูง คอแข็ง", "high fever and a stiff neck", "고열에 보라색 반점이 생겼어요",
+]
+CALM_9 = [
+    "หนาวมาก ใส่เสื้อสองชั้น", "my hands are ice cold in the office", "ปวดท้องประจำเดือนมาก", "severe belly pain from period cramps",
+    "ถ่ายดำเพราะกินธาตุเหล็ก", "black tarry stool from iron pills", "คอแข็งเพราะตกหมอน มีไข้นิดหน่อย", "stiff neck from sleeping wrong",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_9)
+def test_round9_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_9)
+def test_round9_calm(text):
+    assert frames(text) == [], explain(text)
