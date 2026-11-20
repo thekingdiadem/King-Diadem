@@ -1427,3 +1427,82 @@ GUN_HOBBY	vi	trường bắn|lau súng|đi săn
 GUN_HOBBY	zh	靶场|射击场|射擊場|擦枪|擦槍
 GUN_HOBBY	ko	사격장|총 손질|사냥
 GUN_HOBBY	ja	射撃場|銃の手入れ|狩猟
+
+# ═══ รอบ 14: น้ำตาลสูงวิกฤต (DKA) · ความดันวิกฤต · ลิ่มเลือดอุดปอด/ขา · ตามองไม่เห็นกะทันหัน ═══
+SUGAR_HIGH	th	re:น้ำตาล[^0-9\n]{0,14}(?:[4-9]\d\d)(?!\d)|น้ำตาลสูงมาก|วัดไม่ขึ้น|เครื่องขึ้น\s*HI
+SUGAR_HIGH	en	re:sugar[^0-9\n]{0,16}(?:[4-9]\d\d)(?!\d)(?!\s*(?:g\b|grams|mg\b|calories))|says hi\b|sugar is so high
+SUGAR_HIGH	es	re:azúcar[^0-9\n]{0,16}(?:[4-9]\d\d)(?!\d)|marca hi\b|azúcar tan alto
+SUGAR_HIGH	vi	re:đường huyết[^0-9\n]{0,16}(?:[4-9]\d\d)(?!\d)|báo hi\b|cao đến mức máy
+SUGAR_HIGH	zh	re:血糖[^0-9\n]{0,8}(?:[4-9]\d\d)(?!\d)|显示HI|顯示HI|血糖高到
+SUGAR_HIGH	ko	re:혈당[^0-9\n]{0,8}(?:[4-9]\d\d)(?!\d)|HI라고|혈당이 너무 높
+SUGAR_HIGH	ja	re:血糖値?[^0-9\n]{0,8}(?:[4-9]\d\d)(?!\d)|HIと表示|血糖値が高すぎ
+HYPER_RED	th	หายใจหอบลึก|หายใจลึก|กลิ่นผลไม้|อาเจียน|ปวดท้อง|ซึม
+HYPER_RED	en	breathing deep|deep and fast|fruity|vomiting|belly pain|drowsy
+HYPER_RED	es	respira hondo|huele a fruta|vomita|le duele la barriga|adormilada|adormilado
+HYPER_RED	vi	thở sâu|mùi trái cây|nôn|đau bụng|lơ mơ
+HYPER_RED	zh	呼吸又深又快|水果味|呕吐|嘔吐|肚子痛|迷糊
+HYPER_RED	ko	숨을 깊고|과일 냄새|토하|배가 아프|처져
+HYPER_RED	ja	深く速い呼吸|果物|吐い|お腹が痛|ぼんやり
+BP_HIGH	th	re:ความดัน\S{0,10}?\s*(?:1[89]\d|2\d\d)(?!\d)|ความดันพุ่ง
+BP_HIGH	en	re:(?:blood pressure|\bbp\b)[^0-9\n]{0,16}(?:1[89]\d|2\d\d)(?!\d)|pressure spiked
+BP_HIGH	es	re:presión[^0-9\n]{0,16}(?:1[89]\d|2\d\d)(?!\d)|se le subió la presión
+BP_HIGH	vi	re:huyết áp[^0-9\n]{0,16}(?:1[89]\d|2\d\d)(?!\d)
+BP_HIGH	zh	re:血压[^0-9\n]{0,8}(?:1[89]\d|2\d\d)(?!\d)|血壓[^0-9\n]{0,8}(?:1[89]\d|2\d\d)(?!\d)|血压飙
+BP_HIGH	ko	re:혈압[^0-9\n]{0,8}(?:1[89]\d|2\d\d)(?!\d)
+BP_HIGH	ja	re:血圧[^0-9\n]{0,8}(?:1[89]\d|2\d\d)(?!\d)
+BP_RED	th	ปวดหัวรุนแรง|ปวดหัวมาก|ตาพร่า|เจ็บหน้าอก|หายใจไม่อิ่ม|แขนขาอ่อนแรง
+BP_RED	en	severe headache|blurry|chest pain|short of breath
+BP_RED	es	dolor de cabeza fuerte|borrosa|dolor de pecho|falta el aire
+BP_RED	vi	đau đầu dữ dội|mờ mắt|đau ngực|khó thở
+BP_RED	zh	头痛得厉害|頭痛得厲害|模糊|胸痛|喘不上气|喘不上氣
+BP_RED	ko	머리가 심하게|흐려|가슴이 아프|숨이 차
+BP_RED	ja	ひどい頭痛|かすみ|胸が痛|息が苦し
+LEG_SWELL	th	ขาข้างหนึ่งบวม|ขาบวมข้างเดียว|น่องบวมข้างเดียว
+LEG_SWELL	en	one leg is swollen|one calf is swollen|leg is swollen and red
+LEG_SWELL	es	una pierna hinchada|una pantorrilla hinchada
+LEG_SWELL	vi	một chân sưng|một bên bắp chân sưng
+LEG_SWELL	zh	一条腿又肿|一條腿又腫|一边小腿肿|一邊小腿腫
+LEG_SWELL	ko	한쪽 다리가 붓|한쪽 종아리가 붓
+LEG_SWELL	ja	片足が腫れ|片方のふくらはぎが腫れ
+IMMOBILE	th	นั่งเครื่องบินไกล|หลังผ่าตัด|นอนนาน|นอนติดเตียง
+IMMOBILE	en	long flight|after surgery|bed rest
+IMMOBILE	es	vuelo largo|después de la cirugía|reposo
+IMMOBILE	vi	chuyến bay dài|sau mổ|nằm nhiều
+IMMOBILE	zh	长途飞机|長途飛機|手术后|手術後|卧床|臥床
+IMMOBILE	ko	장거리 비행|수술 후|오래 누워
+IMMOBILE	ja	長距離フライト|手術後|ずっと寝て
+CHEST_BREATH	th	เจ็บหน้าอก|หายใจไม่ทัน|หายใจหอบ|ไอเป็นเลือด
+CHEST_BREATH	en	chest pain|can't catch my breath|breathing fast|coughing blood|coughing up blood
+CHEST_BREATH	es	duele el pecho|no puedo respirar|respira rápido|tose sangre
+CHEST_BREATH	vi	đau ngực|thở không kịp|thở gấp|ho ra máu
+CHEST_BREATH	zh	胸痛|喘不过气|喘不過氣|呼吸急促|咳血
+CHEST_BREATH	ko	가슴이 아프|숨이 안 쉬어|숨이 가쁘|피를 기침
+CHEST_BREATH	ja	胸が痛|息ができない|息が荒く|血を咳
+CALF_RED	th	ร้อนแดง|ร้อน|แดง|เจ็บมาก
+CALF_RED	en	hot|red|very painful
+CALF_RED	es	caliente|roja|muy dolorosa
+CALF_RED	vi	nóng|đỏ|rất đau
+CALF_RED	zh	发热|發熱|发红|發紅|非常痛
+CALF_RED	ko	뜨겁|빨갛|너무 아파
+CALF_RED	ja	熱を持|赤く|すごく痛
+VISION_LOSS	th	มองไม่เห็น|ม่านดำ|ตาบอดกะทันหัน
+VISION_LOSS	en	can't see|lost vision|black curtain|went blind
+VISION_LOSS	es	no veo|perdí la vista|cortina negra
+VISION_LOSS	vi	không nhìn thấy|mất thị lực|màn đen
+VISION_LOSS	zh	看不见|看不見|黑幕|失明
+VISION_LOSS	ko	안 보여|안 보이|검은 커튼
+VISION_LOSS	ja	見えなくな|黒いカーテン
+FLASHES	th	แสงวาบ|ฟ้าแลบในตา
+FLASHES	en	flashes of light|flashing lights in my eye
+FLASHES	es	destellos
+FLASHES	vi	chớp sáng
+FLASHES	zh	闪光|閃光
+FLASHES	ko	번쩍이는 빛|번쩍
+FLASHES	ja	チカチカ|光が走
+FLOATERS_MANY	th	เงาดำลอยเต็ม|มองไม่ชัดครึ่ง
+FLOATERS_MANY	en	shower of floaters|half my vision
+FLOATERS_MANY	es	muchas manchas|la mitad
+FLOATERS_MANY	vi	một loạt đốm|mờ một nửa
+FLOATERS_MANY	zh	一堆黑影|半边看不清|半邊看不清
+FLOATERS_MANY	ko	검은 점이 잔뜩|절반이 흐
+FLOATERS_MANY	ja	黒い点がたくさん|半分がぼやけ

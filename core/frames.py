@@ -102,6 +102,12 @@ FRAMES = (
     ("stalker", "violence", "violence", (("FOLLOWED", "AT_DOOR"),), ("FICTION", "HYPOTHETICAL", "SAME_WAY")),
     ("sexual_assault", "violence", "violence", (("SEX_ASSAULT",),), ("FICTION", "HYPOTHETICAL", "NEWS")),
     ("child_abuse", "violence", "violence", (("KID", "ABUSE_SIGN"),), ("FICTION", "HYPOTHETICAL", "PLAY", "NEWS")),
+    # รอบ 14 (ชุดปิดตา Q ล็อกไว้ก่อนเขียน)
+    ("hyperglycemia", "medical", "health_emergency", (("SUGAR_HIGH", "HYPER_RED"),), ("FICTION", "HYPOTHETICAL")),
+    ("bp_crisis", "medical", "health_emergency", (("BP_HIGH", "BP_RED"),), ("FICTION", "HYPOTHETICAL")),
+    ("clot", "medical", "health_emergency", (("LEG_SWELL", "CHEST_BREATH"), ("IMMOBILE", "CHEST_BREATH"), ("LEG_SWELL", "CALF_RED")),
+     ("FICTION", "HYPOTHETICAL", "MINOR")),
+    ("vision_loss", "medical", "health_emergency", (("SUDDEN", "VISION_LOSS"), ("FLASHES", "FLOATERS_MANY")), ("FICTION", "HYPOTHETICAL")),
 )
 
 

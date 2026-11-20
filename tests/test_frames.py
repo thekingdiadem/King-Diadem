@@ -415,3 +415,26 @@ def test_round13_violence(text):
 @pytest.mark.parametrize("text", CALM_13)
 def test_round13_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 14: น้ำตาลสูงวิกฤต · ความดันวิกฤต · ลิ่มเลือด · ตามองไม่เห็นกะทันหัน (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา Q) ──
+DANGER_14 = [
+    "น้ำตาล 600 อาเจียน ซึม", "his sugar is 550 and his breath smells fruity", "혈당이 600인데 토하고 처져요",
+    "ความดัน 210/120 ปวดหัวมาก", "blood pressure 200/110 with chest pain", "血压200，胸痛",
+    "นั่งเครื่องบินไกลมา เจ็บหน้าอก หายใจไม่ทัน", "after surgery I'm suddenly coughing up blood", "片足が腫れて息ができない",
+    "จู่ๆ ตาข้างซ้ายมองไม่เห็น", "suddenly I can't see out of one eye", "De repente veo destellos y muchas manchas",
+]
+CALM_14 = [
+    "น้ำตาลหลังอาหารสูงนิดหน่อย", "this cake has 450 grams of sugar", "ความดัน 130/85", "blood pressure 120/80 today",
+    "นั่งรถนานขาเมื่อย", "can't see the screen without my glasses", "มีเงาดำลอยเล็กๆ มานาน",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_14)
+def test_round14_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_14)
+def test_round14_calm(text):
+    assert frames(text) == [], explain(text)
