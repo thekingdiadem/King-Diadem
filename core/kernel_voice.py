@@ -2642,7 +2642,7 @@ def _with_conditions(text, a: dict) -> dict:
     if not hits:
         return a
     topics, scam, risk = list(a["topics"]), list(a.get("scam") or []), 0
-    urgent_have = set(topics) & {"overdose", "swallowed", "household", "health_emergency", "pet_poison"}
+    urgent_have = set(topics) & {"overdose", "swallowed", "household", "pet_poison"}   # "health_emergency" กว้างเกิน — เรื่องกินยา/ของ ควรได้คำตอบเฉพาะทาง
     for h in hits:
         if h.topic in ("overdose", "swallowed") and urgent_have:      # ของเดิมจับเรื่องด่วนได้แล้ว คำตอบเฉพาะทางของเดิมดีกว่า
             risk = max(risk, h.risk)

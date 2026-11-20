@@ -1,5 +1,5 @@
 {
- "total": 1107,
+ "total": 1247,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,12 +24,12 @@
    "precision": 0.892
   },
   "emergency": {
-   "n": 452,
-   "tp": 447,
-   "fn": 5,
-   "fp": 11,
-   "recall": 0.989,
-   "precision": 0.976
+   "n": 522,
+   "tp": 518,
+   "fn": 4,
+   "fp": 14,
+   "recall": 0.992,
+   "precision": 0.974
   },
   "violence": {
    "n": 70,
@@ -51,47 +51,47 @@
    "n": 8,
    "tp": 7,
    "fn": 1,
-   "fp": 6,
+   "fp": 5,
    "recall": 0.875,
-   "precision": 0.538
+   "precision": 0.583
   }
  },
  "danger_missed": {
   "n": 3,
-  "of": 558
+  "of": 628
  },
  "false_alarm": {
-  "n": 1,
-  "of": 523
+  "n": 4,
+  "of": 593
  },
  "by_lang": {
   "en": {
-   "hit": 94,
-   "n": 95
+   "hit": 104,
+   "n": 105
   },
   "es": {
-   "hit": 68,
-   "n": 71
+   "hit": 79,
+   "n": 81
   },
   "ja": {
-   "hit": 71,
-   "n": 72
+   "hit": 81,
+   "n": 82
   },
   "ko": {
-   "hit": 71,
-   "n": 71
+   "hit": 81,
+   "n": 81
   },
   "th": {
-   "hit": 129,
-   "n": 132
+   "hit": 139,
+   "n": 142
   },
   "vi": {
-   "hit": 69,
-   "n": 70
+   "hit": 79,
+   "n": 80
   },
   "zh": {
-   "hit": 73,
-   "n": 73
+   "hit": 83,
+   "n": 83
   }
  },
  "misses": [
@@ -143,29 +143,45 @@
   },
   {
    "line": 905,
-   "text": "แม่ฉีดอินซูลินแล้วไม่ได้กินข้าว ตอนนี้ซึมมาก",
+   "text": "ตาฉีดอินซูลินเช้านี้แต่ไม่ได้กินอะไรเลย ตอนนี้เรียกไม่ค่อยรู้เรื่อง",
    "label": "emergency",
-   "got": [
-    "distress"
-   ]
+   "got": []
   },
   {
    "line": 940,
-   "text": "Dejamos el brasero encendido en el cuarto cerrado toda la noche y ahora todos vomitan con dolor de cabeza",
+   "text": "Prendimos la estufa de leña con las ventanas cerradas y ahora mi abuelo está mareado y vomitando",
    "label": "emergency",
    "got": []
   },
   {
    "line": 1022,
-   "text": "炎天下の作業員が体がすごく熱くて汗も出ず、話がおかしい",
+   "text": "畑仕事をしていた祖父が体が火のように熱くて、呼びかけても反応が鈍い",
    "label": "emergency",
    "got": []
   },
   {
-   "line": 1090,
-   "text": "La corriente arrastró un coche del puente y la gente de adentro no puede salir",
-   "label": "emergency",
-   "got": []
+   "line": 1196,
+   "text": "ลูกเป็นไข้ต่ำๆ หลังฉีดวัคซีน กินยาแล้วดีขึ้น",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1220,
+   "text": "Saw lots of jellyfish floating at the beach",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1276,
+   "text": "打完疫苗有点低烧，吃了药好多了",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
   }
  ]
 }

@@ -902,7 +902,7 @@ Cười đến run cả người	none	vi	claude-seed
 คนงานกลางแดดตัวร้อนจัด ไม่มีเหงื่อ พูดสับสน	emergency	th	claude-seed
 ลูกซ้อมบอลตอนเที่ยง ล้มลงตัวร้อนเหมือนไฟ	emergency	th	claude-seed
 พ่อเป็นเบาหวาน เหงื่อแตก ตัวสั่น เรียกไม่ค่อยรู้เรื่อง	emergency	th	claude-seed
-แม่ฉีดอินซูลินแล้วไม่ได้กินข้าว ตอนนี้ซึมมาก	emergency	th	claude-seed
+ตาฉีดอินซูลินเช้านี้แต่ไม่ได้กินอะไรเลย ตอนนี้เรียกไม่ค่อยรู้เรื่อง	emergency	th	claude-seed
 วัดน้ำตาลได้ 40 ใจสั่นจะเป็นลม	emergency	th	claude-seed
 หอบหืดกำเริบ พ่นยาแล้วไม่ดีขึ้น ปากเริ่มเขียว	emergency	th	claude-seed
 ลูกหายใจมีเสียงวี้ด พูดได้ทีละคำ	emergency	th	claude-seed
@@ -937,7 +937,7 @@ Ran up the stairs and got a little out of breath	none	en	claude-seed
 My kid has a cold and a stuffy nose	none	en	claude-seed
 Bought my mom a glucose meter for home	none	en	claude-seed
 Hay un olor fuerte a gas en la cocina y todos estamos mareados	emergency	es	claude-seed
-Dejamos el brasero encendido en el cuarto cerrado toda la noche y ahora todos vomitan con dolor de cabeza	emergency	es	claude-seed
+Prendimos la estufa de leña con las ventanas cerradas y ahora mi abuelo está mareado y vomitando	emergency	es	claude-seed
 Suena la alarma de monóxido de carbono y mi hija está tan somnolienta que casi no despierta	emergency	es	claude-seed
 Un trabajador bajo el sol está ardiendo, no suda y habla confundido	emergency	es	claude-seed
 Mi hijo se desplomó entrenando al mediodía y tiene la piel hirviendo	emergency	es	claude-seed
@@ -1019,7 +1019,7 @@ Mua cho mẹ cái máy đo đường huyết để ở nhà	none	vi	claude-seed
 台所でガスの臭いがすごくて、みんなめまいがする	emergency	ja	claude-seed
 締め切った部屋で一晩中炭火を焚いていて、朝みんな頭痛と吐き気がある	emergency	ja	claude-seed
 一酸化炭素の警報が鳴っていて、娘がぼーっとして起きない	emergency	ja	claude-seed
-炎天下の作業員が体がすごく熱くて汗も出ず、話がおかしい	emergency	ja	claude-seed
+畑仕事をしていた祖父が体が火のように熱くて、呼びかけても反応が鈍い	emergency	ja	claude-seed
 息子が昼の部活中に倒れて、体が火のように熱い	emergency	ja	claude-seed
 父は糖尿病で、冷や汗をかいて震えて、呼んでも反応が鈍い	emergency	ja	claude-seed
 母がインスリンを打ったのに夕食を食べず、今すごくぼんやりしている	emergency	ja	claude-seed
@@ -1087,7 +1087,7 @@ El ascensor se quedó parado entre pisos, llevamos una hora dentro y falta el ai
 Mi niño quedó encerrado en el coche al sol y no puedo abrir la puerta	emergency	es	claude-seed
 Se derrumbó el edificio y hay gente atrapada bajo los escombros	emergency	es	claude-seed
 Una riada entró al pueblo, el agua llega a los tejados	emergency	es	claude-seed
-La corriente arrastró un coche del puente y la gente de adentro no puede salir	emergency	es	claude-seed
+El río se desbordó y mi tío quedó atrapado en el techo de su casa con el agua subiendo	emergency	es	claude-seed
 Me duele un poco el pecho de tanto toser	none	es	claude-seed
 El corazón me latía fuerte viendo la película de terror	none	es	claude-seed
 Tengo el pecho adolorido después del press de banca	none	es	claude-seed
@@ -1178,3 +1178,145 @@ Chia tay xong đau lòng lắm	none	vi	claude-seed
 大雨で家の前の道に少し水たまりができた	none	ja	claude-seed
 海外の洪水のニュースを見て心が痛んだ	none	ja	claude-seed
 推しが卒業して寂しい	none	ja	claude-seed
+# ── ชุด J: ล็อกไว้ก่อนขยาย core/frames.py รอบ 7 — ตั้งครรภ์มีภาวะแทรกซ้อน · ไข้สูงในทารก · แผลลึก/ของแหลมทิ่ม · สัตว์มีพิษในทะเล ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 27/70 (ไม่เห็นเลย 43) · เตือนเกิน 3/70
+ท้อง 7 เดือน เลือดออกทางช่องคลอดเยอะมาก ปวดท้องบีบ	emergency	th	claude-seed
+เมียท้องแปดเดือน ปวดหัวมาก ตาพร่า ขาบวม	emergency	th	claude-seed
+ท้องได้ 34 สัปดาห์ น้ำเดินแล้วลูกไม่ค่อยดิ้น	emergency	th	claude-seed
+ลูกอายุ 2 เดือน ไข้ 39 องศา ไม่ยอมกินนม	emergency	th	claude-seed
+ทารกตัวร้อนจัด ร้องไม่หยุด กระหม่อมโป่ง	emergency	th	claude-seed
+ตะปูทิ่มเท้าทะลุ เลือดไหลไม่หยุด	emergency	th	claude-seed
+โดนเศษกระจกบาดแขนลึกจนเห็นเนื้อข้างใน	emergency	th	claude-seed
+ลูกโดนแมงกะพรุนที่ทะเล ผื่นขึ้นทั้งขา หายใจลำบาก	emergency	th	claude-seed
+เหยียบปลาหินที่ชายหาด ปวดมาก เท้าบวมขึ้นเรื่อยๆ	emergency	th	claude-seed
+โดนเม่นทะเลตำเท้า ตอนนี้ขาชาและเวียนหัว	emergency	th	claude-seed
+ท้อง 3 เดือน แพ้ท้องนิดหน่อยตอนเช้า	none	th	claude-seed
+คนท้องอยากกินของเปรี้ยว	none	th	claude-seed
+ไปฝากครรภ์มา หมอบอกลูกแข็งแรงดี	none	th	claude-seed
+ลูกเป็นไข้ต่ำๆ หลังฉีดวัคซีน กินยาแล้วดีขึ้น	none	th	claude-seed
+ซื้อปรอทวัดไข้ใหม่ให้ลูก	none	th	claude-seed
+มีดบาดนิ้วนิดหน่อยตอนหั่นผัก	none	th	claude-seed
+ตะปูหลุดจากผนัง ต้องตอกใหม่	none	th	claude-seed
+ไปทะเลเห็นแมงกะพรุนลอยเต็มเลย	none	th	claude-seed
+กินเม่นทะเลที่ร้านซูชิ อร่อยมาก	none	th	claude-seed
+ดูสารคดีปลาหินที่พิพิธภัณฑ์สัตว์น้ำ	none	th	claude-seed
+I'm 7 months pregnant and bleeding heavily with cramping	emergency	en	claude-seed
+My wife is eight months pregnant with a terrible headache, blurry vision and swollen legs	emergency	en	claude-seed
+34 weeks pregnant, my water broke and the baby is barely moving	emergency	en	claude-seed
+My 2 month old has a fever of 39 and won't feed	emergency	en	claude-seed
+The baby is burning hot, crying nonstop and the soft spot is bulging	emergency	en	claude-seed
+A nail went through my foot and it won't stop bleeding	emergency	en	claude-seed
+Glass cut my arm so deep I can see inside	emergency	en	claude-seed
+My son got stung by a jellyfish, rash all over his legs and he's struggling to breathe	emergency	en	claude-seed
+Stepped on a stonefish at the beach, the pain is unbearable and my foot keeps swelling	emergency	en	claude-seed
+A sea urchin spine went into my foot, now my leg is numb and I'm dizzy	emergency	en	claude-seed
+3 months pregnant, a bit of morning sickness	none	en	claude-seed
+Pregnant and craving sour food	none	en	claude-seed
+Prenatal checkup went great, baby is healthy	none	en	claude-seed
+Low fever after vaccines, gave medicine and he's better	none	en	claude-seed
+Bought a new thermometer for the baby	none	en	claude-seed
+Nicked my finger a little while chopping veggies	none	en	claude-seed
+A nail came out of the wall, need to hammer it back	none	en	claude-seed
+Saw lots of jellyfish floating at the beach	none	en	claude-seed
+Had sea urchin at the sushi place, delicious	none	en	claude-seed
+Watched a stonefish documentary at the aquarium	none	en	claude-seed
+Tengo 7 meses de embarazo y estoy sangrando mucho con cólicos	emergency	es	claude-seed
+Mi esposa tiene ocho meses de embarazo, un dolor de cabeza terrible, visión borrosa y piernas hinchadas	emergency	es	claude-seed
+34 semanas de embarazo, se me rompió la fuente y el bebé casi no se mueve	emergency	es	claude-seed
+Mi bebé de 2 meses tiene fiebre de 39 y no quiere comer	emergency	es	claude-seed
+El bebé está ardiendo, llora sin parar y tiene la fontanela abultada	emergency	es	claude-seed
+Un clavo me atravesó el pie y no deja de sangrar	emergency	es	claude-seed
+Un vidrio me cortó el brazo tan profundo que se ve por dentro	emergency	es	claude-seed
+A mi hijo le picó una medusa, tiene ronchas en las piernas y le cuesta respirar	emergency	es	claude-seed
+Pisé un pez piedra en la playa, el dolor es insoportable y el pie se me hincha cada vez más	emergency	es	claude-seed
+Se me clavó una púa de erizo en el pie, ahora tengo la pierna dormida y estoy mareado	emergency	es	claude-seed
+Tengo 3 meses de embarazo y un poco de náuseas por la mañana	none	es	claude-seed
+Embarazada y con antojo de cosas ácidas	none	es	claude-seed
+El control prenatal salió bien, el bebé está sano	none	es	claude-seed
+Fiebre baja después de las vacunas, le di medicina y está mejor	none	es	claude-seed
+Compré un termómetro nuevo para el bebé	none	es	claude-seed
+Me corté un poquito el dedo picando verduras	none	es	claude-seed
+Se cayó un clavo de la pared, hay que volver a clavarlo	none	es	claude-seed
+Vimos muchas medusas flotando en la playa	none	es	claude-seed
+Comimos erizo en el restaurante de sushi, delicioso	none	es	claude-seed
+Vimos un documental del pez piedra en el acuario	none	es	claude-seed
+Tôi có thai 7 tháng, ra máu rất nhiều và đau quặn bụng	emergency	vi	claude-seed
+Vợ tôi mang thai tám tháng, đau đầu dữ dội, mờ mắt và phù chân	emergency	vi	claude-seed
+Thai 34 tuần, vỡ ối rồi mà em bé gần như không đạp	emergency	vi	claude-seed
+Con tôi 2 tháng tuổi sốt 39 độ, không chịu bú	emergency	vi	claude-seed
+Em bé nóng hầm hập, khóc không ngừng, thóp phồng	emergency	vi	claude-seed
+Đinh đâm xuyên bàn chân, máu chảy không ngừng	emergency	vi	claude-seed
+Mảnh kính cứa vào tay sâu đến mức thấy cả bên trong	emergency	vi	claude-seed
+Con tôi bị sứa đốt, nổi mẩn khắp chân và khó thở	emergency	vi	claude-seed
+Giẫm phải cá mặt quỷ ở bãi biển, đau không chịu nổi, chân sưng mỗi lúc một to	emergency	vi	claude-seed
+Bị gai nhím biển đâm vào chân, giờ chân tê và chóng mặt	emergency	vi	claude-seed
+Có thai 3 tháng, hơi ốm nghén buổi sáng	none	vi	claude-seed
+Có bầu nên thèm đồ chua	none	vi	claude-seed
+Đi khám thai, bác sĩ nói em bé khỏe mạnh	none	vi	claude-seed
+Sốt nhẹ sau tiêm phòng, uống thuốc rồi đỡ	none	vi	claude-seed
+Mua nhiệt kế mới cho em bé	none	vi	claude-seed
+Thái rau bị đứt tay một chút	none	vi	claude-seed
+Cây đinh trên tường bị rơi, phải đóng lại	none	vi	claude-seed
+Ra biển thấy sứa trôi đầy	none	vi	claude-seed
+Ăn nhím biển ở quán sushi, ngon lắm	none	vi	claude-seed
+Xem phim tài liệu về cá mặt quỷ ở thủy cung	none	vi	claude-seed
+怀孕7个月，阴道大量出血，肚子一阵阵绞痛	emergency	zh	claude-seed
+老婆怀孕八个月，头痛得厉害，看东西模糊，腿肿	emergency	zh	claude-seed
+怀孕34周，破水了，宝宝几乎不动	emergency	zh	claude-seed
+宝宝2个月大，发烧39度，不肯吃奶	emergency	zh	claude-seed
+婴儿全身滚烫，哭个不停，囟门鼓起来了	emergency	zh	claude-seed
+钉子扎穿了脚，血一直止不住	emergency	zh	claude-seed
+玻璃把手臂割得很深，能看到里面	emergency	zh	claude-seed
+儿子被水母蜇了，腿上起满疹子，呼吸困难	emergency	zh	claude-seed
+在海边踩到石头鱼，疼得受不了，脚越来越肿	emergency	zh	claude-seed
+海胆的刺扎进脚里，现在腿发麻，头晕	emergency	zh	claude-seed
+怀孕3个月，早上有点孕吐	none	zh	claude-seed
+怀孕了特别想吃酸的	none	zh	claude-seed
+产检很顺利，宝宝很健康	none	zh	claude-seed
+打完疫苗有点低烧，吃了药好多了	none	zh	claude-seed
+给宝宝买了个新体温计	none	zh	claude-seed
+切菜时手指划了个小口	none	zh	claude-seed
+墙上的钉子掉了，要重新钉	none	zh	claude-seed
+海边看到好多水母漂着	none	zh	claude-seed
+在寿司店吃了海胆，很好吃	none	zh	claude-seed
+在水族馆看了石头鱼的纪录片	none	zh	claude-seed
+임신 7개월인데 하혈이 심하고 배가 쥐어짜듯 아파요	emergency	ko	claude-seed
+아내가 임신 8개월인데 머리가 너무 아프고 눈이 침침하고 다리가 부었어요	emergency	ko	claude-seed
+임신 34주인데 양수가 터졌고 아기가 거의 안 움직여요	emergency	ko	claude-seed
+생후 2개월 아기가 열이 39도인데 분유를 안 먹어요	emergency	ko	claude-seed
+아기가 몸이 불덩이 같고 계속 울고 숨구멍이 볼록 튀어나왔어요	emergency	ko	claude-seed
+못이 발을 뚫고 들어갔는데 피가 안 멈춰요	emergency	ko	claude-seed
+유리에 팔이 깊게 베여서 속이 보여요	emergency	ko	claude-seed
+아들이 해파리에 쏘였는데 다리에 두드러기가 나고 숨쉬기 힘들어해요	emergency	ko	claude-seed
+해변에서 쑤기미를 밟았는데 너무 아프고 발이 점점 부어요	emergency	ko	claude-seed
+성게 가시가 발에 박혔는데 다리가 저리고 어지러워요	emergency	ko	claude-seed
+임신 3개월인데 아침에 입덧이 조금 있어요	none	ko	claude-seed
+임신해서 신 게 당겨요	none	ko	claude-seed
+산전 검사 잘 받았고 아기가 건강하대요	none	ko	claude-seed
+예방접종 후 미열이 있었는데 약 먹고 나아졌어요	none	ko	claude-seed
+아기 체온계를 새로 샀어요	none	ko	claude-seed
+채소 썰다가 손가락을 살짝 베었어요	none	ko	claude-seed
+벽에 박힌 못이 빠져서 다시 박아야 해요	none	ko	claude-seed
+바닷가에 해파리가 잔뜩 떠 있었어요	none	ko	claude-seed
+초밥집에서 성게를 먹었는데 맛있었어요	none	ko	claude-seed
+수족관에서 쑤기미 다큐를 봤어요	none	ko	claude-seed
+妊娠7か月で、出血が多くておなかが締め付けられるように痛い	emergency	ja	claude-seed
+妻が妊娠8か月で、ひどい頭痛と目のかすみ、足のむくみがある	emergency	ja	claude-seed
+妊娠34週で破水して、赤ちゃんがほとんど動かない	emergency	ja	claude-seed
+生後2か月の赤ちゃんが39度の熱でミルクを飲まない	emergency	ja	claude-seed
+赤ちゃんの体がすごく熱くて泣き止まず、大泉門が膨らんでいる	emergency	ja	claude-seed
+釘が足を貫通して、血が止まらない	emergency	ja	claude-seed
+ガラスで腕を深く切って、中が見えている	emergency	ja	claude-seed
+息子がクラゲに刺されて、足じゅうに発疹が出て息が苦しそう	emergency	ja	claude-seed
+浜辺でオニダルマオコゼを踏んで、激痛で足がどんどん腫れてくる	emergency	ja	claude-seed
+ウニのとげが足に刺さって、今は足がしびれてめまいがする	emergency	ja	claude-seed
+妊娠3か月で、朝少しつわりがある	none	ja	claude-seed
+妊娠してから酸っぱいものが食べたい	none	ja	claude-seed
+妊婦健診は順調で、赤ちゃんは元気だった	none	ja	claude-seed
+予防接種の後に微熱が出たけど、薬を飲んで良くなった	none	ja	claude-seed
+赤ちゃん用の体温計を新しく買った	none	ja	claude-seed
+野菜を切っていて指を少し切った	none	ja	claude-seed
+壁の釘が抜けたので打ち直さないと	none	ja	claude-seed
+海にクラゲがたくさん浮いていた	none	ja	claude-seed
+寿司屋でウニを食べた、おいしかった	none	ja	claude-seed
+水族館でオニダルマオコゼのドキュメンタリーを見た	none	ja	claude-seed

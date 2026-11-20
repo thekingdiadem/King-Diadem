@@ -984,3 +984,8 @@ Xem tin lũ lụt ở nước ngoài thấy thương	none	เตือนเก�
 이별해서 가슴이 너무 아파요	none	เตือนเกิน:ย้ายจากชุดปิดตา
 失恋して胸が痛い	none	เตือนเกิน:ย้ายจากชุดปิดตา
 Donated some money to the flood relief fund today	none	เตือนเกิน:ย้ายจากชุดปิดตา
+# ── ย้ายจากชุดปิดตา (พลาดเรื่องอันตราย แก้แล้ว 2026-11: ระยะคำใน frames · ตัวกันภาษาจีนในประโยคญี่ปุ่น) ──
+Dejamos el brasero encendido en el cuarto cerrado toda la noche y ahora todos vomitan con dolor de cabeza	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+炎天下の作業員が体がすごく熱くて汗も出ず、話がおかしい	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+La corriente arrastró un coche del puente y la gente de adentro no puede salir	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+แม่ฉีดอินซูลินแล้วไม่ได้กินข้าว ตอนนี้ซึมมาก	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา

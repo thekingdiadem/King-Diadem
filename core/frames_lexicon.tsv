@@ -804,3 +804,93 @@ FLOOD_DANGER	vi	mái nhà|không ra được|mắc kẹt
 FLOOD_DANGER	zh	屋顶|屋頂|出不来|出不來|被困|淹到
 FLOOD_DANGER	ko	지붕|못 나와|갇혀
 FLOOD_DANGER	ja	屋根|出られない|取り残
+
+# ═══ รอบ 7: ครรภ์เสี่ยง · ไข้สูงในทารก · แผลลึก/ของแหลมทิ่ม · สัตว์มีพิษในทะเล ═══
+# ── ตั้งครรภ์ + สัญญาณอันตราย ("แพ้ท้องนิดหน่อย" "อยากกินของเปรี้ยว" "ฝากครรภ์ผลดี" ไม่นับ)
+PREGNANT	th	re:ท้อง(?:ได้)?\s*(?:\d+|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า)\s*(?:เดือน|สัปดาห์|วีค)|ตั้งครรภ์|คนท้อง|อายุครรภ์
+PREGNANT	en	pregnant|pregnancy
+PREGNANT	es	embarazo|embarazada
+PREGNANT	vi	có thai|mang thai|có bầu|thai
+PREGNANT	zh	怀孕|懷孕|孕妇|孕婦
+PREGNANT	ko	임신|임산부
+PREGNANT	ja	妊娠|妊婦
+PREG_DANGER	th	เลือดออก|ตกเลือด|ปวดหัวมาก|ตาพร่า|ตามัว|น้ำเดิน|ลูกไม่ดิ้น|ลูกไม่ค่อยดิ้น|ชัก|ปวดท้องบีบ
+PREG_DANGER	en	bleeding|terrible headache|severe headache|blurry vision|water broke|barely moving|not moving|stopped moving|seizure
+PREG_DANGER	es	sangrando|sangrado|dolor de cabeza terrible|visión borrosa|vision borrosa|se me rompió la fuente|rompí fuente|no se mueve|convulsión
+PREG_DANGER	vi	ra máu|chảy máu|đau đầu dữ dội|mờ mắt|vỡ ối|không đạp|co giật
+PREG_DANGER	zh	出血|流血|头痛得厉害|頭痛得厲害|模糊|破水|几乎不动|幾乎不動|不动了|抽搐
+PREG_DANGER	ko	하혈|출혈|피가|머리가 너무 아프|침침|양수가 터|안 움직|경련
+PREG_DANGER	ja	出血|ひどい頭痛|かすみ|破水|動かない|けいれん
+PREG_OK	th	นิดหน่อย|แข็งแรงดี|ปกติดี|ผลดี
+PREG_OK	en	a bit of|healthy|went great|normal
+PREG_OK	es	un poco|sano|salió bien
+PREG_OK	vi	hơi|khỏe mạnh|bình thường
+PREG_OK	zh	有点|很健康|很顺利
+PREG_OK	ko	조금|건강하|잘 받았
+PREG_OK	ja	少し|元気|順調
+# ── ไข้ในทารก ── ทารก + ไข้ + สัญญาณอันตราย (ไม่กินนม ร้องไม่หยุด ซึม กระหม่อมโป่ง)
+INFANT	th	re:ทารก|เด็กแรกเกิด|(?:ลูก|หลาน|น้อง)\S{0,6}?(?:อายุ\s*)?\d+\s*(?:เดือน|สัปดาห์)
+INFANT	en	re:\b\d+[ -](?:month|week)[ -]old\b|\bnewborn\b|\binfant\b|\bthe baby\b|\bmy baby\b
+INFANT	es	re:\bbeb[ée]\b|\breci[ée]n nacid[oa]\b
+INFANT	vi	re:em bé|trẻ sơ sinh|\d+\s+tháng tuổi
+INFANT	zh	婴儿|嬰兒|宝宝|寶寶|新生儿|新生兒
+INFANT	ko	re:아기|신생아|생후\s*\d+
+INFANT	ja	re:赤ちゃん|新生児|生後\s*\d+
+FEVER	th	ไข้|ตัวร้อน
+FEVER	en	fever|burning hot|burning up
+FEVER	es	fiebre|ardiendo
+FEVER	vi	sốt|nóng hầm hập|nóng ran
+FEVER	zh	发烧|發燒|发热|發熱|滚烫|滾燙
+FEVER	ko	열이|불덩이
+FEVER	ja	熱
+INFANT_RED	th	ไม่ยอมกินนม|ไม่กินนม|ร้องไม่หยุด|กระหม่อมโป่ง|ซึม|ชัก|หายใจเร็ว
+INFANT_RED	en	won't feed|not feeding|nonstop|soft spot|lethargic|floppy|seizure
+INFANT_RED	es	no quiere comer|no come|sin parar|fontanela|decaído|convulsión
+INFANT_RED	vi	không chịu bú|không bú|khóc không ngừng|thóp|lừ đừ|co giật
+INFANT_RED	zh	不肯吃奶|不吃奶|哭个不停|哭個不停|囟门|囟門|没精神|抽搐
+INFANT_RED	ko	분유를 안|젖을 안|계속 울|숨구멍|처져|경련
+INFANT_RED	ja	ミルクを飲まない|泣き止まず|泣き止まない|大泉門|ぐったり|けいれん
+# ── แผลลึก ── ของแหลมทะลุ + เลือดไม่หยุด หรือบาดลึกจนเห็นข้างใน ("มีดบาดนิ้วนิดหน่อย" "ตะปูหลุดจากผนัง" ไม่นับ)
+PIERCE	th	ทิ่ม|ทะลุ|เสียบ|ปักเข้า
+PIERCE	en	went through|impaled|stuck in my|through my foot|through his
+PIERCE	es	atravesó|atraveso|se me clavó|se clavó
+PIERCE	vi	đâm xuyên|xuyên qua|đâm vào
+PIERCE	zh	扎穿|刺穿|扎进|刺进|插进
+PIERCE	ko	뚫고|박혔|찔렸
+PIERCE	ja	貫通|刺さって|突き刺さ
+BLEED_NONSTOP	th	ไหลไม่หยุด|ไม่หยุด|ทะลัก
+BLEED_NONSTOP	en	won't stop bleeding|keeps bleeding|bleeding a lot|pouring blood
+BLEED_NONSTOP	es	no deja de sangrar|no para de sangrar|sangra mucho
+BLEED_NONSTOP	vi	chảy không ngừng|không cầm được|chảy rất nhiều
+BLEED_NONSTOP	zh	止不住|一直流血|血流不止
+BLEED_NONSTOP	ko	안 멈춰|멈추지 않|계속 나
+BLEED_NONSTOP	ja	止まらない|止まらず
+CUT_DEEP	th	re:บาด[^\n]{0,10}?ลึก|เห็นเนื้อข้างใน|เห็นกระดูก|แผลลึก
+CUT_DEEP	en	so deep|can see inside|see the bone|deep gash|deep cut
+CUT_DEEP	es	tan profundo|se ve por dentro|se ve el hueso|corte profundo
+CUT_DEEP	vi	sâu đến mức|thấy cả bên trong|thấy xương|vết cắt sâu
+CUT_DEEP	zh	割得很深|能看到里面|能看到裡面|看到骨头|看到骨頭
+CUT_DEEP	ko	깊게 베|속이 보여|뼈가 보여
+CUT_DEEP	ja	深く切って|中が見え|骨が見え
+# ── สัตว์มีพิษในทะเล ── ชื่อสัตว์ + โดน/เหยียบ + อาการ ("เห็นแมงกะพรุน" "กินเม่นทะเล" "ดูสารคดีปลาหิน" ไม่นับ)
+MARINE	th	แมงกะพรุน|ปลาหิน|เม่นทะเล|ปลากระเบน|ปลาสิงโต
+MARINE	en	jellyfish|stonefish|sea urchin|stingray|lionfish
+MARINE	es	medusa|pez piedra|erizo|raya|pez león
+MARINE	vi	sứa|cá mặt quỷ|nhím biển|cá đuối
+MARINE	zh	水母|石头鱼|石頭魚|海胆|海膽|魟鱼|魟魚
+MARINE	ko	해파리|쑤기미|성게|가오리
+MARINE	ja	クラゲ|オニダルマオコゼ|ウニ|エイ
+MARINE_ACT	th	โดน|เหยียบ|ตำ|ต่อย
+MARINE_ACT	en	stung|stepped on|spine|sting
+MARINE_ACT	es	picó|pique|pisé|clavó|púa
+MARINE_ACT	vi	đốt|giẫm|đâm|gai
+MARINE_ACT	zh	蜇|踩到|扎进|刺
+MARINE_ACT	ko	쏘였|밟았|박혔|가시
+MARINE_ACT	ja	刺され|踏ん|刺さ|とげ
+MARINE_RED	th	หายใจลำบาก|บวม|ชา|เวียนหัว|ปวดมาก|ผื่น
+MARINE_RED	en	breathe|swelling|swollen|numb|dizzy|unbearable|rash
+MARINE_RED	es	respirar|hincha|dormida|mareado|mareada|insoportable|ronchas
+MARINE_RED	vi	khó thở|sưng|tê|chóng mặt|không chịu nổi|mẩn
+MARINE_RED	zh	呼吸困难|呼吸困難|肿|腫|发麻|發麻|头晕|頭暈|受不了|疹子
+MARINE_RED	ko	숨쉬기|숨을|부어|저리|어지러|두드러기|너무 아프
+MARINE_RED	ja	息が苦し|腫れ|しびれ|めまい|激痛|発疹
