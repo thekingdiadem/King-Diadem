@@ -108,6 +108,11 @@ FRAMES = (
     ("clot", "medical", "health_emergency", (("LEG_SWELL", "CHEST_BREATH"), ("IMMOBILE", "CHEST_BREATH"), ("LEG_SWELL", "CALF_RED")),
      ("FICTION", "HYPOTHETICAL", "MINOR")),
     ("vision_loss", "medical", "health_emergency", (("SUDDEN", "VISION_LOSS"), ("FLASHES", "FLOATERS_MANY")), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 15 (ชุดปิดตา R ล็อกไว้ก่อนเขียน)
+    ("newborn", "medical", "health_emergency", (("NEWBORN", "NB_RED"),), ("FICTION", "HYPOTHETICAL")),
+    ("postpartum_bleed", "medical", "health_emergency", (("POSTPARTUM", "PP_RED"),), ("FICTION", "HYPOTHETICAL", "NORMAL_PP")),
+    ("delirium", "medical", "health_emergency", (("SUDDEN", "CONFUSION"),), ("FICTION", "HYPOTHETICAL", "WAKING")),
+    ("eye_injury", "medical", "health_emergency", (("EYE", "EYE_CHEM"), ("EYE", "EYE_TRAUMA")), ("FICTION", "HYPOTHETICAL", "MINOR")),
 )
 
 

@@ -438,3 +438,26 @@ def test_round14_danger(text):
 @pytest.mark.parametrize("text", CALM_14)
 def test_round14_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 15: ทารกแรกเกิด · ตกเลือดหลังคลอด · สับสนกะทันหัน · สารเคมีเข้าตา (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา R) ──
+DANGER_15 = [
+    "ทารกแรกเกิดตัวเขียว", "the newborn stops breathing sometimes", "신생아 입술이 보라색이에요",
+    "เพิ่งคลอดเมื่อวาน เลือดออกเยอะ หน้ามืด", "I just gave birth and passed a large clot", "刚生完孩子，湿透了好几片，头晕",
+    "ปู่จู่ๆ สับสน จำใครไม่ได้", "my mom is suddenly confused and doesn't know where she is", "急に混乱してうわごとを言う",
+    "น้ำยาล้างห้องน้ำเข้าตา", "bleach splashed in my eye", "Mạt sắt bắn vào mắt",
+]
+CALM_15 = [
+    "ทารกแรกเกิดตัวเหลืองนิดหน่อย", "normal postpartum bleeding, getting lighter", "พ่อเพิ่งตื่นนอน งงๆ", "眼睛酸，看手机太久了",
+    "แชมพูเข้าตาแสบนิดหน่อย", "dust in my eye, rinsed it",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_15)
+def test_round15_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_15)
+def test_round15_calm(text):
+    assert frames(text) == [], explain(text)

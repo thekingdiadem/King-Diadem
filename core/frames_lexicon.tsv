@@ -1506,3 +1506,75 @@ FLOATERS_MANY	vi	một loạt đốm|mờ một nửa
 FLOATERS_MANY	zh	一堆黑影|半边看不清|半邊看不清
 FLOATERS_MANY	ko	검은 점이 잔뜩|절반이 흐
 FLOATERS_MANY	ja	黒い点がたくさん|半分がぼやけ
+
+# ═══ รอบ 15: ทารกแรกเกิดตัวเขียว/หยุดหายใจ · ตกเลือดหลังคลอด · ผู้สูงอายุสับสนกะทันหัน · สารเคมีเข้าตา/ตาบาดเจ็บ ═══
+NEWBORN	th	เพิ่งคลอด|ทารกแรกเกิด|ลูกแรกเกิด|เด็กแรกเกิด
+NEWBORN	en	born two days ago|was born|newborn
+NEWBORN	es	nació hace|recién nacida|recién nacido
+NEWBORN	vi	mới sinh|sơ sinh
+NEWBORN	zh	刚出生|剛出生|才出生|新生儿|新生兒
+NEWBORN	ko	태어난 지|신생아
+NEWBORN	ja	生まれて|新生児
+NB_RED	th	ตัวเขียว|หายใจเฮือก|หยุดหายใจ|ปากม่วง|ปากเขียว|ไม่หายใจ
+NB_RED	en	turning blue|gasping|stopping breathing|stops breathing|lips are purple|not breathing
+NB_RED	es	poniendo azul|jadea|deja de respirar|labios morados|no respira
+NB_RED	vi	tím tái|thở hắt|ngừng thở|môi tím|không thở
+NB_RED	zh	发紫|發紫|喘不过气|喘不過氣|停止呼吸|没有呼吸|沒有呼吸
+NB_RED	ko	파래지|헐떡|숨을 멈추|보라색|숨을 안
+NB_RED	ja	紫色|あえい|息を止め|紫に|息をしていない
+POSTPARTUM	th	คลอดลูก|เพิ่งคลอด|หลังคลอด
+POSTPARTUM	en	gave birth|just gave birth|after delivery|postpartum
+POSTPARTUM	es	di a luz|dar a luz|después del parto
+POSTPARTUM	vi	sinh con|vừa sinh|sau sinh
+POSTPARTUM	zh	生完孩子|刚生完|剛生完|产后|產後
+POSTPARTUM	ko	출산
+POSTPARTUM	ja	出産
+PP_RED	th	เลือดออกเยอะ|ชุ่มผ้าอนามัย|ก้อนเลือดใหญ่|ก้อนเลือด|หน้ามืด|ใจสั่น|จะเป็นลม
+PP_RED	en	soaking a pad|huge clot|large clot|faint|heart is racing
+PP_RED	es	empapo|coágulo|desmay
+PP_RED	vi	ướt đẫm|cục máu|choáng|ngất
+PP_RED	zh	湿透|濕透|血块|血塊|头晕|頭暈|晕倒|暈倒
+PP_RED	ko	흠뻑 젖|핏덩어리|어지러|쓰러질
+PP_RED	ja	びっしょり|血の塊|気が遠く|気を失
+NORMAL_PP	th	ตามปกติ|ค่อยๆ ลด|ลดลง
+NORMAL_PP	en	normal postpartum|getting lighter
+NORMAL_PP	es	sangrado normal|disminuyendo
+NORMAL_PP	vi	bình thường|giảm dần
+NORMAL_PP	zh	恶露正常|惡露正常|变少|變少
+NORMAL_PP	ko	정상적으로|줄고
+NORMAL_PP	ja	普通で|減って
+CONFUSION	th	จำใครไม่ได้|พูดเพ้อ|เห็นสิ่งที่ไม่มี|สับสน|ไม่รู้ว่าอยู่ที่ไหน
+CONFUSION	en	doesn't recognize|rambling|seeing things|confused|doesn't know where
+CONFUSION	es	no reconoce|delira|ve cosas|confundido|confundida|no sabe dónde
+CONFUSION	vi	không nhận ra|nói nhảm|thấy những thứ|lú lẫn|không biết mình
+CONFUSION	zh	谁都不认识|誰都不認識|胡言乱语|胡言亂語|看到不存在|神志不清|不知道自己在哪
+CONFUSION	ko	못 알아보|헛소리|없는 게 보|혼미|어디인지 모르
+CONFUSION	ja	分からなくな|うわごと|ないものが見え|混乱|どこにいるか分からず
+WAKING	th	เพิ่งตื่น|ตอนตื่นนอน
+WAKING	en	right after waking|just woke up
+WAKING	es	al despertar
+WAKING	vi	mới ngủ dậy
+WAKING	zh	刚睡醒|剛睡醒
+WAKING	ko	막 일어나
+WAKING	ja	起きたばかり
+EYE	th	เข้าตา|ตาแดง|แทงตา|จากตา|ลืมตา|ตาลูก|ในตา
+EYE	en	eye
+EYE	es	ojo
+EYE	vi	mắt
+EYE	zh	眼睛|眼
+EYE	ko	눈에|눈이
+EYE	ja	目に|目が|目から
+EYE_CHEM	th	น้ำยาล้างห้องน้ำ|ปูนขาว|ปูน|สารเคมี|กรด|น้ำยาฟอกขาว|โซดาไฟ
+EYE_CHEM	en	toilet cleaner|lime powder|bleach|chemical|acid|drain cleaner
+EYE_CHEM	es	limpiador|cal |cloro|químico|ácido|lejía
+EYE_CHEM	vi	nước tẩy|vôi|hóa chất|axit
+EYE_CHEM	zh	洁厕剂|潔廁劑|石灰|化学品|化學品|漂白|硫酸|盐酸|鹽酸
+EYE_CHEM	ko	세정제|석회|화학|락스|산성
+EYE_CHEM	ja	洗剤|石灰|薬品|漂白剤
+EYE_TRAUMA	th	เศษเหล็ก|กิ่งไม้แทง|เลือดออกจากตา|แทงตา
+EYE_TRAUMA	en	metal shard|branch poked|is bleeding|it's bleeding|stabbed in the eye
+EYE_TRAUMA	es	esquirla|una rama|le sangra
+EYE_TRAUMA	vi	mạt sắt|cành cây|chảy máu
+EYE_TRAUMA	zh	铁屑|鐵屑|树枝|樹枝|流血
+EYE_TRAUMA	ko	쇳조각|나뭇가지|피가
+EYE_TRAUMA	ja	鉄片|木の枝|血が
