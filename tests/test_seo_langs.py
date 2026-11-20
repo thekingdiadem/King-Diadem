@@ -56,3 +56,12 @@ def test_descriptions_speak_about_the_system_and_teachings():
         assert "O ≥ 1" in desc and "DriftZero" in desc and "LYLA" in desc, lg
     for word in ("better than", "unlike", "ดีกว่า", "ต่างจาก", "แทนที่จะ"):
         assert all(word not in d for _, d, _ in META.values()), word
+
+
+def test_site_verification_accepts_a_pasted_whole_meta_tag():
+    """เคยวางแท็กทั้งบรรทัดลงใน Render → รหัสกลายเป็น "metanamegoogle-site-verificationcontent…" ยืนยันไม่ผ่าน"""
+    import app as A
+    code = "nz4_fWcDMapEmRRf89wQz8H9TxbL9eeumkIBJJrEgkE"
+    assert A._site_code(f'<meta name="google-site-verification" content="{code}" />') == code
+    assert A._site_code(code) == code
+    assert A._site_code("") == ""
