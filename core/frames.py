@@ -66,6 +66,11 @@ FRAMES = (
     ("dehydration", "medical", "health_emergency", (("FLUID_LOSS", "DEHY_SIGN"),), ("FICTION", "HYPOTHETICAL", "BETTER")),   # ไม่ใช้ MINOR: มีคำว่า "ซึม" ซึ่งเป็นอาการขาดน้ำ
     ("trapped", "medical", "health_emergency", (("TRAPPED", "PLACE", "TRAP_DANGER"),), ("FICTION", "HYPOTHETICAL", "TRAFFIC")),
     ("flash_flood", "medical", "health_emergency", (("FLOOD", "FLOOD_DANGER"),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 7 (ชุดปิดตา J ล็อกไว้ก่อนเขียน)
+    ("pregnancy", "medical", "health_emergency", (("PREGNANT", "PREG_DANGER"),), ("FICTION", "HYPOTHETICAL", "PREG_OK")),
+    ("infant_fever", "medical", "health_emergency", (("INFANT", "FEVER", "INFANT_RED"),), ("FICTION", "HYPOTHETICAL", "BETTER")),
+    ("deep_wound", "medical", "health_emergency", (("PIERCE", "BLEED_NONSTOP"), ("CUT_DEEP",)), ("FICTION", "HYPOTHETICAL", "MINOR")),
+    ("marine_sting", "medical", "health_emergency", (("MARINE", "MARINE_ACT", "MARINE_RED"),), ("FICTION", "HYPOTHETICAL")),
 )
 
 

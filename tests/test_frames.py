@@ -254,3 +254,27 @@ def test_chinese_blocker_does_not_apply_to_japanese():
     # "作業員" (คนงาน) มีอักษรเดียวกับ "作业" (การบ้านภาษาจีน) — ต้องไม่ถูกนับเป็นคำถามเชิงความรู้
     assert frames("工事現場の作業員が体がすごく熱くて、倒れた") == [("medical", "health_emergency")]
     assert frames("中暑的作业怎么写") == []
+
+
+# ── รอบ 7: ครรภ์เสี่ยง · ไข้ทารก · แผลลึก · สัตว์มีพิษในทะเล (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา J) ──
+DANGER_7 = [
+    "ท้องได้ 30 สัปดาห์ เลือดออกเยอะ", "she's pregnant and her water broke early", "怀孕六个月，突然大量出血",
+    "หลานอายุ 3 เดือน ไข้สูง ซึมไม่ยอมกินนม", "my 6-week-old has a fever and is very lethargic", "생후 5주 아기가 열이 나고 처져 있어요",
+    "เหล็กเสียบขาทะลุ เลือดไหลไม่หยุด", "a screwdriver went through my hand and it keeps bleeding", "包丁で手を深く切って骨が見える",
+    "น้องโดนแมงกะพรุน หายใจลำบาก", "got stung by a lionfish, my hand is swollen and numb", "bị sứa đốt, chóng mặt",
+]
+CALM_7 = [
+    "ท้อง 5 เดือน หมอบอกปกติดี", "I'm pregnant and so happy", "ลูกเป็นไข้ กินยาแล้วดีขึ้น",
+    "the baby has a little fever but is feeding fine, better now", "ตะปูทิ่มเสื้อขาดนิดหน่อย", "a nail went through the drywall",
+    "jellyfish soup was tasty", "เห็นแมงกะพรุนเยอะมาก", "ウニの殻で少し指を切った",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_7)
+def test_round7_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_7)
+def test_round7_calm(text):
+    assert frames(text) == [], explain(text)
