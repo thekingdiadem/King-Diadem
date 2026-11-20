@@ -10,9 +10,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # แยกเป็นสามงานที่รันพร้อมกัน และแต่ละงานใช้ทุกแกนของเครื่อง (pytest-xdist -n auto)
+  # เดิมรันต่อกันทีละขั้นในงานเดียว ~20–28 นาที · ตอนนี้เวลารวมเท่ากับงานที่ช้าที่สุด (~5–6 นาที)
   pytest:
     runs-on: ubuntu-latest
-    timeout-minutes: 45   # เทสต์รันสองรอบ (ไฟล์ในเครื่อง + Turso จำลอง) รวม sweep — ชุดโตจนเกิน 20 นาทีแล้ว (#237 ใช้ 20:01)
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        db: [local, hrana-fake]   # local = ไฟล์ในเครื่อง · hrana-fake = ตัวต่อ Turso (DATABASE/turso.py) กับเซิร์ฟเวอร์จำลอง
+    name: pytest (${{ matrix.db }})
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -22,12 +29,22 @@ jobs:
           cache-dependency-path: requirements-dev.txt
       - run: pip install -r requirements-dev.txt
       - name: pytest
-        run: python -m pytest -q -p no:warnings
-      - name: pytest ผ่านตัวต่อ Turso (DATABASE/turso.py) กับเซิร์ฟเวอร์จำลอง — กันโค้ดใหม่ใช้ได้แค่กับไฟล์ในเครื่อง
         env:
-          KD_DB_DRIVER: hrana-fake
-        run: python -m pytest -q -p no:warnings -x
-      - name: ชุดกวาดข้อความ (sweep_all — หลุดแม้ข้อเดียวก็ล้ม)
+          KD_DB_DRIVER: ${{ matrix.db == 'hrana-fake' && 'hrana-fake' || '' }}
+        run: python -m pytest -q -p no:warnings -n auto
+
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - name: ชุดกวาดข้อความ (sweep_all — หลุดแม้ข้อเดียวก็ล้ม · รันคู่ขนานตามจำนวนแกนอยู่แล้ว)
         env:
           KD_AI: "off"
         run: python scripts/sweep_all.py
