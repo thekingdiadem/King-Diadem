@@ -2,7 +2,7 @@ CHOICE PRESERVATION SYSTEM (CPS)
 
 Hash rule: SHA-256 of this file, UTF-8, LF line endings,
 with the single line starting "SHA-256:" removed.
-SHA-256: 6177330b5fa5e6cd3e66e656028a8291cfe92a7b15ee547ef56e9f5c90386ca1
+SHA-256: 71d646275591486db36b668a110bb25746712c6d7ea7df525948d396e438a5f8
 
 The hash proves this text is unchanged.
 It does not prove any system is good. Only O ≥ 1 does.
@@ -27,7 +27,7 @@ walk away from it, and not be punished for taking it.
     O = number of ways out
 
 The person it happens to decides these values,
-or can appeal them.
+or can appeal them to the keepers of the record (section 6).
 A value set only by the one holding power does not count.
 
 
