@@ -3450,3 +3450,145 @@ Cơn đau nửa đầu hằng tháng, uống thuốc quen là đỡ	none	vi	clau
 仕事のストレスで頭痛がしたけど休んだら治った	none	ja	claude-seed
 毎月の片頭痛で、いつもの薬を飲んだら良くなった	none	ja	claude-seed
 コーヒーが足りなくて頭が痛い	none	ja	claude-seed
+# ── ชุด Z: ล็อกไว้ก่อนขยาย core/frames.py รอบ 23 — (ไต) ผู้สูงอายุกินยาขับปัสสาวะแล้วขาดน้ำ ฉี่น้อย สับสน · ไข้เลือดออกระยะอันตราย · แพ้ยารุนแรงผิวลอก · บาดทะยัก ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 19/70 (ไม่เห็นเลย 51) · เตือนเกิน 0/70
+ยายกินยาขับปัสสาวะอยู่ แล้วท้องเสียทั้งวัน ตอนนี้ฉี่น้อยมาก สับสน	emergency	th	claude-seed
+ตากินยาขับน้ำ อากาศร้อนกินน้ำน้อย ตอนนี้ไม่ฉี่ครึ่งวัน ซึม	emergency	th	claude-seed
+พ่อกินยาความดันกับยาขับปัสสาวะ อาเจียนสองวัน ตอนนี้ลุกไม่ไหว ฉี่ไม่ค่อยออก	emergency	th	claude-seed
+ลูกเป็นไข้เลือดออก ไข้ลดแล้วแต่ซึมลง ปวดท้องมาก มือเท้าเย็น	emergency	th	claude-seed
+น้องไข้เลือดออก เลือดกำเดาไหล อาเจียนเป็นเลือด	emergency	th	claude-seed
+กินยาแก้อักเสบแล้วผื่นขึ้นทั้งตัว ผิวพองลอก ปากเป็นแผล ตาแดง	emergency	th	claude-seed
+แพ้ยากันชัก ผิวหนังลอกเป็นแผ่น มีไข้ เจ็บปากกลืนไม่ได้	emergency	th	claude-seed
+โดนตะปูสนิมตำเมื่ออาทิตย์ก่อน ตอนนี้อ้าปากไม่ขึ้น กล้ามเนื้อเกร็ง	emergency	th	claude-seed
+แผลที่ขาไม่ได้ฉีดบาดทะยัก ตอนนี้ขากรรไกรแข็ง หลังแอ่น กระตุก	emergency	th	claude-seed
+ตาไม่เคยฉีดวัคซีนบาดทะยัก หลังโดนแผลก็กลืนลำบาก คอแข็ง	emergency	th	claude-seed
+ยายกินยาขับปัสสาวะตามหมอสั่ง ตรวจเลือดปกติดี	none	th	claude-seed
+อากาศร้อนดื่มน้ำมากขึ้นตามที่หมอแนะนำ	none	th	claude-seed
+ลูกเป็นไข้เลือดออก ไข้ลดแล้ว กินข้าวได้ เล่นได้ปกติ	none	th	claude-seed
+ฉีดพ่นยุงลายรอบบ้านกันไข้เลือดออก	none	th	claude-seed
+แพ้ยาเป็นผื่นคันเล็กน้อย หมอเปลี่ยนยาให้แล้ว	none	th	claude-seed
+ผิวลอกเพราะตากแดดที่ทะเล	none	th	claude-seed
+โดนตะปูตำ ไปฉีดวัคซีนบาดทะยักแล้ว	none	th	claude-seed
+ขากรรไกรเมื่อยเพราะเคี้ยวหมากฝรั่งนาน	none	th	claude-seed
+กล้ามเนื้อเกร็งหลังออกกำลังกาย ยืดเส้นแล้วหาย	none	th	claude-seed
+อ่านเรื่องบาดทะยักในหนังสือสุขศึกษา	none	th	claude-seed
+Grandma is on water pills and had diarrhea all day, now she's barely peeing and confused	emergency	en	claude-seed
+Grandpa takes diuretics, drank little in the heat, hasn't peed for half a day and is drowsy	emergency	en	claude-seed
+Dad takes blood pressure pills and a diuretic, vomited for two days, now can't get up and hardly pees	emergency	en	claude-seed
+My kid has dengue, the fever dropped but he's getting drowsy, bad belly pain and cold hands and feet	emergency	en	claude-seed
+My brother has dengue, nosebleed and vomiting blood	emergency	en	claude-seed
+After an antibiotic my whole body broke out, the skin is blistering and peeling, mouth sores and red eyes	emergency	en	claude-seed
+Allergic to the seizure medicine, skin peeling off in sheets, fever and mouth too sore to swallow	emergency	en	claude-seed
+Stepped on a rusty nail last week, now I can't open my jaw and my muscles are stiff	emergency	en	claude-seed
+No tetanus shot after the leg wound, now his jaw is locked, back arching and spasms	emergency	en	claude-seed
+Grandpa never had a tetanus vaccine, since the wound he struggles to swallow and his neck is stiff	emergency	en	claude-seed
+Grandma takes her water pill as prescribed, blood tests are normal	none	en	claude-seed
+Drinking more water in the heat as the doctor advised	none	en	claude-seed
+Kid had dengue, fever's gone, eating and playing normally	none	en	claude-seed
+Sprayed for mosquitoes around the house to prevent dengue	none	en	claude-seed
+Mild itchy rash from a medicine, the doctor switched it	none	en	claude-seed
+Skin peeling from sunburn at the beach	none	en	claude-seed
+Stepped on a nail, got a tetanus shot	none	en	claude-seed
+Jaw tired from chewing gum too long	none	en	claude-seed
+Muscles stiff after a workout, stretching fixed it	none	en	claude-seed
+Read about tetanus in a health textbook	none	en	claude-seed
+Mi abuela toma diuréticos y tuvo diarrea todo el día, ahora casi no orina y está confundida	emergency	es	claude-seed
+Mi abuelo toma pastillas para orinar, tomó poca agua con el calor, no orina desde hace medio día y está adormilado	emergency	es	claude-seed
+Mi papá toma pastillas para la presión y un diurético, vomitó dos días, ahora no se puede levantar y casi no orina	emergency	es	claude-seed
+Mi hijo tiene dengue, le bajó la fiebre pero está cada vez más adormilado, mucho dolor de barriga y manos y pies fríos	emergency	es	claude-seed
+Mi hermano tiene dengue, sangra por la nariz y vomita sangre	emergency	es	claude-seed
+Después de un antibiótico me salió sarpullido en todo el cuerpo, la piel se ampolla y se pela, llagas en la boca y ojos rojos	emergency	es	claude-seed
+Alérgico al medicamento para las convulsiones, la piel se cae a tiras, fiebre y la boca tan dolorida que no puede tragar	emergency	es	claude-seed
+Pisé un clavo oxidado la semana pasada, ahora no puedo abrir la mandíbula y tengo los músculos rígidos	emergency	es	claude-seed
+No se vacunó contra el tétanos tras la herida de la pierna, ahora tiene la mandíbula trabada, la espalda arqueada y espasmos	emergency	es	claude-seed
+Mi abuelo nunca se vacunó contra el tétanos, desde la herida le cuesta tragar y tiene el cuello rígido	emergency	es	claude-seed
+Mi abuela toma su diurético como le recetaron, los análisis salen normales	none	es	claude-seed
+Tomo más agua con el calor como dijo el médico	none	es	claude-seed
+Mi hijo tuvo dengue, ya no tiene fiebre, come y juega normal	none	es	claude-seed
+Fumigamos mosquitos alrededor de la casa para prevenir el dengue	none	es	claude-seed
+Sarpullido leve con picazón por un medicamento, el médico lo cambió	none	es	claude-seed
+La piel se pela por quemadura de sol en la playa	none	es	claude-seed
+Pisé un clavo, me pusieron la vacuna del tétanos	none	es	claude-seed
+La mandíbula cansada de mascar chicle mucho rato	none	es	claude-seed
+Músculos rígidos tras entrenar, se me pasó estirando	none	es	claude-seed
+Leí sobre el tétanos en un libro de salud	none	es	claude-seed
+Bà tôi đang uống thuốc lợi tiểu, bị tiêu chảy cả ngày, giờ tiểu rất ít và lú lẫn	emergency	vi	claude-seed
+Ông tôi uống thuốc lợi tiểu, trời nóng uống ít nước, nửa ngày chưa đi tiểu và lơ mơ	emergency	vi	claude-seed
+Bố tôi uống thuốc huyết áp và thuốc lợi tiểu, nôn hai ngày, giờ không dậy nổi và hầu như không tiểu	emergency	vi	claude-seed
+Con tôi bị sốt xuất huyết, hết sốt nhưng lừ đừ dần, đau bụng nhiều và tay chân lạnh	emergency	vi	claude-seed
+Em trai tôi bị sốt xuất huyết, chảy máu cam và nôn ra máu	emergency	vi	claude-seed
+Sau khi uống kháng sinh, nổi ban toàn thân, da phồng rộp bong tróc, lở miệng và đỏ mắt	emergency	vi	claude-seed
+Dị ứng thuốc chống động kinh, da bong từng mảng, sốt và đau miệng không nuốt được	emergency	vi	claude-seed
+Tuần trước giẫm phải đinh gỉ, giờ không há miệng được và cơ cứng đờ	emergency	vi	claude-seed
+Vết thương ở chân không tiêm uốn ván, giờ cứng hàm, ưỡn lưng và co giật	emergency	vi	claude-seed
+Ông tôi chưa từng tiêm uốn ván, từ khi bị thương thì khó nuốt và cứng cổ	emergency	vi	claude-seed
+Bà uống thuốc lợi tiểu đúng chỉ định, xét nghiệm máu bình thường	none	vi	claude-seed
+Trời nóng uống thêm nước như bác sĩ dặn	none	vi	claude-seed
+Con bị sốt xuất huyết, đã hết sốt, ăn uống chơi bình thường	none	vi	claude-seed
+Phun thuốc diệt muỗi quanh nhà phòng sốt xuất huyết	none	vi	claude-seed
+Nổi mẩn ngứa nhẹ do thuốc, bác sĩ đã đổi thuốc	none	vi	claude-seed
+Da bong vì cháy nắng ở biển	none	vi	claude-seed
+Giẫm phải đinh, đã đi tiêm uốn ván	none	vi	claude-seed
+Mỏi hàm vì nhai kẹo cao su lâu	none	vi	claude-seed
+Cơ cứng sau khi tập, giãn cơ là hết	none	vi	claude-seed
+Đọc về uốn ván trong sách sức khỏe	none	vi	claude-seed
+奶奶在吃利尿药，拉了一整天肚子，现在尿很少，意识混乱	emergency	zh	claude-seed
+爷爷吃利尿剂，天热喝水少，半天没尿，昏昏沉沉	emergency	zh	claude-seed
+爸爸吃降压药和利尿药，吐了两天，现在起不来，几乎没尿	emergency	zh	claude-seed
+孩子得了登革热，烧退了但越来越没精神，肚子很痛，手脚冰凉	emergency	zh	claude-seed
+弟弟得了登革热，流鼻血还吐血	emergency	zh	claude-seed
+吃了抗生素后全身起疹子，皮肤起泡脱落，嘴巴溃烂，眼睛红	emergency	zh	claude-seed
+对抗癫痫药过敏，皮肤一片片脱落，发烧，嘴痛得咽不下	emergency	zh	claude-seed
+上周踩到生锈的钉子，现在张不开嘴，肌肉僵硬	emergency	zh	claude-seed
+腿上的伤口没打破伤风针，现在牙关紧闭，背弓起来，抽搐	emergency	zh	claude-seed
+爷爷从没打过破伤风疫苗，受伤后吞咽困难，脖子僵硬	emergency	zh	claude-seed
+奶奶按医嘱吃利尿药，验血正常	none	zh	claude-seed
+天热按医生建议多喝水	none	zh	claude-seed
+孩子得过登革热，现在退烧了，吃喝玩都正常	none	zh	claude-seed
+在房子周围喷药防登革热	none	zh	claude-seed
+吃药后起了点小红疹，医生换药了	none	zh	claude-seed
+海边晒伤皮肤脱皮	none	zh	claude-seed
+踩到钉子，已经打了破伤风针	none	zh	claude-seed
+嚼口香糖太久下巴酸	none	zh	claude-seed
+运动后肌肉僵硬，拉伸后好了	none	zh	claude-seed
+在健康课本里读到破伤风	none	zh	claude-seed
+할머니가 이뇨제를 드시는데 하루 종일 설사를 하시고 지금 소변이 아주 적고 정신이 혼미해요	emergency	ko	claude-seed
+할아버지가 이뇨제를 드시는데 더운 날 물을 적게 드셔서 반나절째 소변을 안 보시고 처져 계세요	emergency	ko	claude-seed
+아빠가 혈압약이랑 이뇨제를 드시는데 이틀 토하시고 지금 못 일어나시고 소변이 거의 없어요	emergency	ko	claude-seed
+아이가 뎅기열인데 열은 내렸지만 점점 처지고 배가 많이 아프고 손발이 차가워요	emergency	ko	claude-seed
+남동생이 뎅기열인데 코피가 나고 피를 토해요	emergency	ko	claude-seed
+항생제를 먹고 온몸에 발진이 나고 피부에 물집이 생기며 벗겨지고 입안이 헐고 눈이 빨개요	emergency	ko	claude-seed
+항경련제에 알레르기가 생겨서 피부가 한 꺼풀씩 벗겨지고 열이 나고 입이 아파서 못 삼켜요	emergency	ko	claude-seed
+지난주에 녹슨 못을 밟았는데 지금 입이 안 벌어지고 근육이 뻣뻣해요	emergency	ko	claude-seed
+다리 상처에 파상풍 주사를 안 맞았는데 지금 턱이 굳고 등이 휘고 경련이 와요	emergency	ko	claude-seed
+할아버지가 파상풍 백신을 맞은 적이 없는데 다친 뒤로 삼키기 힘들고 목이 뻣뻣해요	emergency	ko	claude-seed
+할머니가 처방대로 이뇨제를 드시고 피검사도 정상이에요	none	ko	claude-seed
+더워서 의사 말대로 물을 더 마셔요	none	ko	claude-seed
+아이가 뎅기열을 앓았는데 열이 내리고 잘 먹고 잘 놀아요	none	ko	claude-seed
+뎅기열 예방하려고 집 주변에 모기약을 뿌렸어요	none	ko	claude-seed
+약 때문에 가벼운 두드러기가 나서 의사가 약을 바꿨어요	none	ko	claude-seed
+바닷가에서 햇볕에 타서 피부가 벗겨져요	none	ko	claude-seed
+못을 밟아서 파상풍 주사를 맞았어요	none	ko	claude-seed
+껌을 오래 씹어서 턱이 아파요	none	ko	claude-seed
+운동 후 근육이 뻣뻣했는데 스트레칭하니 풀렸어요	none	ko	claude-seed
+보건 교과서에서 파상풍에 대해 읽었어요	none	ko	claude-seed
+祖母が利尿剤を飲んでいて一日中下痢をして、今は尿がとても少なく混乱している	emergency	ja	claude-seed
+祖父が利尿剤を飲んでいて暑い中で水をあまり飲まず、半日尿が出ずぼんやりしている	emergency	ja	claude-seed
+父が降圧剤と利尿剤を飲んでいて二日吐き続け、今は起き上がれず尿がほとんど出ない	emergency	ja	claude-seed
+子どもがデング熱で、熱は下がったのにだんだんぐったりして、お腹がすごく痛く手足が冷たい	emergency	ja	claude-seed
+弟がデング熱で、鼻血が出て血を吐いた	emergency	ja	claude-seed
+抗生物質を飲んだら全身に発疹が出て、皮膚が水ぶくれになってむけ、口内がただれて目が赤い	emergency	ja	claude-seed
+抗てんかん薬にアレルギーが出て、皮膚がはがれ落ち、熱があって口が痛くて飲み込めない	emergency	ja	claude-seed
+先週さびた釘を踏んで、今は口が開かず筋肉がこわばっている	emergency	ja	claude-seed
+脚の傷に破傷風の注射をしていなくて、今はあごがこわばり、背中が反り返ってけいれんしている	emergency	ja	claude-seed
+祖父は破傷風ワクチンを打ったことがなく、けがの後から飲み込みにくく首が硬い	emergency	ja	claude-seed
+祖母は処方通り利尿剤を飲んでいて血液検査は正常	none	ja	claude-seed
+暑いので医者の言う通り水を多めに飲んでいる	none	ja	claude-seed
+子どもはデング熱だったけど熱が下がって元気に食べて遊んでいる	none	ja	claude-seed
+デング熱予防に家の周りに殺虫剤をまいた	none	ja	claude-seed
+薬で軽いかゆみの発疹が出たので医者が薬を変えた	none	ja	claude-seed
+海で日焼けして皮がむけている	none	ja	claude-seed
+釘を踏んだので破傷風の注射を打った	none	ja	claude-seed
+ガムを長く噛んであごが疲れた	none	ja	claude-seed
+運動後に筋肉がこわばったけどストレッチで治った	none	ja	claude-seed
+保健の教科書で破傷風について読んだ	none	ja	claude-seed
