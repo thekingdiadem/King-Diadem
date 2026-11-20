@@ -570,6 +570,11 @@ _more("medical", "ja", r"(?:転んで|ぶつけて|事故で|事故の後)[^。�
 _more("someone", "ko", r"아끼던\s*(?:고양이|강아지|개|반려동물|물건)[^.!?\n]{0,20}(?:주고|줬)[^.!?\n]{0,20}(?:다\s*나눠|다\s*정리|다\s*버렸)")
 _more("someone", "zh", r"(?:说|发|写)[^。！？\n]{0,4}(?:今晚|今天)是最后一(?:晚|天)(?!的?(?:演唱会|活动|旅行|假期))[^。！？\n]{0,10}(?:谢谢|再见|对不起|爱你们)")
 
+# รอบสุ่ม 224 (es vi zh): กำลังถูกตี · ลูกไม่หายใจ
+_more("violence", "es", r"me\s+est(?:á|a)\s+(?:golpeando|pegando)|me\s+(?:golpea|pega)\s+(?:ahora|todos\s+los\s+d(?:í|i)as)")
+_more("violence", "vi", r"(?:chồng|vợ|bố|cha|mẹ|anh|nó)\s+(?:tôi\s+)?(?:đang|vừa|lại)\s+(?:đánh|đập)\s+(?:tôi|em|con)")
+_more("medical", "zh", r"(?:儿子|女儿|孩子|宝宝|妈妈|爸爸|老公|老婆|他|她)\S{0,3}不呼吸了?|不喘气了")
+
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
@@ -1076,6 +1081,12 @@ WORLD_FIRE += r"|ไฟไหม้[^\n]{0,24}?ควัน\S{0,6}?(?:เข้�
 WORLD_FIRE += r"|^\W*(?:ไฟไหม้|fire|火事|着火了|불이야|incendio|cháy)\W*!*\W*$"
 WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
 
+# รอบสุ่ม 224: การกระทำที่เกิดแล้ว/กำลังเกิด เล่าด้วยคำธรรมดา — กินยาทั้งหมดแล้ว · กำลังถูกตี · ลูกไม่หายใจ (fr de pt)
+WORLD_URGENT["crisis"] += (r"|j'?ai\s+(?:pris|avalé)\s+(?:toutes?\s+(?:mes|les)|tout\s+le\s+(?:tube|flacon)|toute\s+la\s+boîte)\s*(?:de\s+)?(?:pilules|cachets|comprimés|médicaments)?(?![^.!?\n]*(?:comme\s+prescrit|ordonnance|vitamine))"
+                           r"|ich\s+habe\s+alle\s+(?:meine\s+)?(?:tabletten|pillen)\s+(?:genommen|geschluckt)(?![^.!?\n]*(?:wie\s+verschrieben|vitamin))"
+                           r"|tomei\s+(?:todos\s+os|todas\s+as)\s+(?:meus\s+|minhas\s+)?(?:comprimidos|remédios|pílulas)(?![^.!?\n]*(?:como\s+receitado|vitamina|receita))")
+WORLD_URGENT["violence"] += r"|me\s+est(?:á|a)\s+batendo|est(?:á|a)\s+me\s+(?:batendo|espancando)"
+WORLD_URGENT["medical"] += r"|n(?:ã|a)o\s+est(?:á|a)\s+respirando|parou\s+de\s+respirar"
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
