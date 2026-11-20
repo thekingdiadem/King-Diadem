@@ -172,6 +172,15 @@ TOPICS = [
         ],
         "ask": "ตอนนี้ได้โอนเงินหรือให้ข้อมูลอะไรไปแล้วหรือยัง?",
     }),
+    ("burden", [], {
+        "open": ["ขอบคุณที่ยอมพูดความคิดนี้ออกมานะ ความรู้สึกว่า \"ถ้าไม่มีเรา ทุกคนคงสบายกว่า\" หนักมาก และมักมาตอนที่ใจเหนื่อยจนมองไม่เห็นว่าตัวเองมีค่ากับใคร"],
+        "paths": [
+            "ความคิดนี้รู้สึกเหมือนความจริง แต่มันคือเสียงของความเหนื่อย ไม่ใช่สิ่งที่คนรักเราคิด — คนที่เสียคนในครอบครัวไปแทบไม่มีใครรู้สึกว่า \"สบายขึ้น\" เลย",
+            "ขอถามตรงๆ นะ: ตอนนี้มีความคิดอยากหายไปหรือทำร้ายตัวเองไหม — ถ้ามี หรือไม่แน่ใจ โทร 1323 (ฟรี 24 ชม.) ไม่ต้องเตรียมคำพูด แค่บอกว่า \"รู้สึกว่าเป็นภาระ\" ก็พอ",
+            "คืนนี้ลองอยู่ใกล้ใครสักคน หรือส่งข้อความหาคนเดียวว่า \"ช่วงนี้ไม่ไหว\" — การขอให้มีคนอยู่ด้วยไม่ใช่การเป็นภาระ",
+        ],
+        "ask": "ช่วงนี้มีเรื่องอะไรที่ทำให้รู้สึกว่าตัวเองเป็นภาระมากที่สุด?",
+    }),
     ("car_water", [], {
         "open": ["ออกจากรถให้เร็วที่สุด — อย่ารอให้รถจมก่อน อย่าเสียเวลาโทรตอนนี้"],
         "paths": [
@@ -1843,6 +1852,11 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "burden": ("Thank you for saying this out loud. The feeling that \"everyone would be better off without me\" is so heavy — it usually comes when you're too exhausted to see what you mean to people.", [
+        "That thought feels true, but it's exhaustion talking, not what the people who love you think — families who lose someone almost never feel \"better off\".",
+        "Can I ask directly: are you having thoughts of disappearing or hurting yourself? If yes, or you're not sure, reach a crisis line now — 1323 in Thailand (free, 24h), 988 in the US, or findahelpline.com. You can simply say \"I feel like a burden.\"",
+        "Tonight, be near someone or message one person \"I'm not okay right now\" — asking someone to be with you is not being a burden."],
+        "What's been making you feel like a burden most lately?"),
     "car_water": ("Get out of the car now — don't wait for it to sink, and don't spend time calling yet.", [
         "Seatbelt off → open the side window right away (power often still works at first) · if it won't open, break a side window at the corner with a glass breaker or headrest pins.",
         "Unbuckle children first and push them out the window, then follow · don't try the door while water is pressing on it.",
@@ -2306,7 +2320,7 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("car_water", "co_poison", "confined_space", "home_ventilator", "forced_marriage", "intruder", "post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("burden", "car_water", "co_poison", "confined_space", "home_ventilator", "forced_marriage", "intruder", "post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")

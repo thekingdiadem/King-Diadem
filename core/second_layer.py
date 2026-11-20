@@ -816,3 +816,25 @@ UPGRADES += [
 _UP_RISK.setdefault("kp_grooming_th", 85)
 _UP_RISK["kp_grooming_th"] = max(_UP_RISK["kp_grooming_th"], 85)
 _UP_RISK.setdefault("drunk_drive", 80)
+
+# ── คำตอบที่ตรงใจขึ้น ─────────────────────────────────────────────
+# 1) "ถ้าไม่มีหนู พ่อแม่คงสบายขึ้น" = ความเชื่อว่าตัวเองเป็นภาระ — ตอบตรงความรู้สึกนั้น (หัวข้อ burden) แทนคำตอบสัญญาณเตือนทั่วไป
+# 2) เล่าสัญญาณเตือนของ "คนอื่น" (น้องยกหมาให้คนอื่น · พี่ชายบอกว่าบ้านคงสบายขึ้นถ้าไม่มีเขา)
+#    เคยได้คำตอบที่ถามผู้ใช้ว่า "คุณคิดทำร้ายตัวเองไหม" — ถามผิดคน · ตอนนี้ใช้คำตอบสำหรับคนที่ห่วงคนอื่น (someone)
+_BURDEN_SELF = re.compile(r"(?:ถ้า|หาก)(?:ไม่มี|ขาด)(?:หนู|ฉัน|ผม|กู|เรา|ตัวเอง|ดิฉัน)(?!\S{0,2}(?:คน|ทีม))|เป็นภาระ(?:ของ)?\S{0,8}(?:ทุกคน|ครอบครัว|พ่อแม่|คนอื่น)|"
+                          r"(?i:\b(?:everyone|they|my family|my parents)\s+(?:would|'d)\s+be\s+better\s+(?:off\s+)?without\s+me\b|\bi'?m\s+(?:just\s+)?a\s+burden\b)")
+_OTHER_PERSON = re.compile(r"^\s*(?:พี่ชาย|พี่สาว|น้องชาย|น้องสาว|เพื่อน(?:สนิท)?|สามี|ภรรยา|แฟน|ลูก(?:ชาย|สาว)?|หลาน|พ่อ|แม่)(?:ของ\S{0,6})?\S{0,4}(?:บอก|พูด|ยก|แจก|เอาแต่|ชอบ|เขียน|โพสต์|ไม่)"
+                           r"|(?i:^\s*(?:my\s+)?(?:brother|sister|friend|son|daughter|husband|wife|boyfriend|girlfriend|mom|mother|dad|father|uncle|aunt|cousin|roommate|coworker|classmate|student)\b|^\s*(?:he|she)\b)")
+_FIRST_PERSON_BURDEN = re.compile(r"(?:ถ้า|หาก)(?:ไม่มี|ขาด)(?:หนู|ฉัน|ผม|กู|ดิฉัน)|(?i:\bwithout\s+me\b|\bi'?m\s+(?:just\s+)?a\s+burden\b)")
+_apply_before_heart = apply
+
+
+def apply(text, a):  # noqa: F811
+    a = _apply_before_heart(text, a)
+    if not isinstance(text, str) or "warning" not in a.get("topics", []):
+        return a
+    if _OTHER_PERSON.search(text) and not _FIRST_PERSON_BURDEN.search(text):
+        a["topics"] = ["someone"] + [t for t in a["topics"] if t not in ("warning", "someone")]
+    elif _BURDEN_SELF.search(text):
+        a["topics"] = ["burden"] + [t for t in a["topics"] if t != "burden"]
+    return a

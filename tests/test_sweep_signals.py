@@ -18,7 +18,7 @@ def test_indirect_self_harm_is_crisis(text):
 @pytest.mark.parametrize("text", ["เหนื่อยจนอยากหายไป", "เบื่อชีวิต", "ไม่มีอะไรจะเสียแล้ว", "เป็นภาระของทุกคน"])
 def test_warning_signs_ask_gently_and_directly(text):
     a = assess(text)
-    assert not a["crisis"] and a["text_risk"] >= 60 and a["topics"][0] == "warning"
+    assert not a["crisis"] and a["text_risk"] >= 60 and a["topics"][0] in ("warning", "burden")   # burden = คำตอบเฉพาะความรู้สึกว่าเป็นภาระ
     r = compose(text)
     assert "ขอถามตรงๆ" in r and "1323" in r
 
