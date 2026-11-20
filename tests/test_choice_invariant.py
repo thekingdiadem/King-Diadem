@@ -43,3 +43,11 @@ def test_every_urgent_reply_leaves_at_least_one_way_out():
 ])
 def test_choices_left_counts_ways_out(reply, expect):
     assert choices_left(reply) == expect
+
+
+def test_live_reply_adds_a_last_way_out_when_a_topic_forgets(monkeypatch):
+    """ถ้าวันหน้ามีหัวข้อใหม่ที่ลืมใส่ทางไป LYLA ต้องเติมทางสุดท้ายให้เองตอนตอบ"""
+    import core.kernel_voice as K
+    monkeypatch.setattr(K, "_compose_before_choice", lambda text, *a, **k: "ใจเย็นๆ นะ\n\nเดี๋ยวก็ดีขึ้น")
+    r = K.compose("แม่หมดสติ ไม่หายใจ")
+    assert choices_left(r) >= 1 and "1669" in r
