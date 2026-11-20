@@ -2314,3 +2314,145 @@ Ho có đờm vì cảm	none	vi	claude-seed
 父に血圧計を買った	none	ja	claude-seed
 風邪で痰の絡む咳が出る	none	ja	claude-seed
 甘いものを食べすぎたので糖分を控えないと	none	ja	claude-seed
+# ── ชุด R: ล็อกไว้ก่อนขยาย core/frames.py รอบ 15 — ทารกแรกเกิดตัวเขียว/ไม่หายใจ · ตกเลือดหลังคลอด · ผู้สูงอายุสับสนกะทันหัน · สารเคมีเข้าตา/ตาบาดเจ็บ ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 16/70 (ไม่เห็นเลย 54) · เตือนเกิน 1/70
+ลูกเพิ่งคลอดได้สองวัน ตัวเขียว หายใจเฮือกๆ	emergency	th	claude-seed
+ทารกแรกเกิดหยุดหายใจเป็นพักๆ ปากม่วง	emergency	th	claude-seed
+คลอดลูกเมื่อวาน เลือดออกเยอะจนชุ่มผ้าอนามัยทุกชั่วโมง หน้ามืด	emergency	th	claude-seed
+ภรรยาเพิ่งคลอด มีก้อนเลือดใหญ่ออกมา ใจสั่นจะเป็นลม	emergency	th	claude-seed
+ยายจู่ๆ จำใครไม่ได้ พูดเพ้อ เห็นสิ่งที่ไม่มีอยู่	emergency	th	claude-seed
+พ่อสับสนกะทันหันตั้งแต่เช้า ไม่รู้ว่าอยู่ที่ไหน มีไข้ด้วย	emergency	th	claude-seed
+น้ำยาล้างห้องน้ำกระเด็นเข้าตา แสบมาก ลืมตาไม่ได้	emergency	th	claude-seed
+ปูนขาวเข้าตาลูก ตาแดงร้องไม่หยุด	emergency	th	claude-seed
+โดนเศษเหล็กกระเด็นเข้าตาตอนเจียร์ ตอนนี้มองไม่ชัด	emergency	th	claude-seed
+ลูกโดนกิ่งไม้แทงตา มีเลือดออกจากตา	emergency	th	claude-seed
+ลูกแรกเกิดตัวเหลืองนิดหน่อย หมอให้ตากแดดอ่อนๆ	none	th	claude-seed
+ทารกสะอึกบ่อย หมอบอกปกติ	none	th	claude-seed
+หลังคลอดมีน้ำคาวปลาตามปกติ ค่อยๆ ลดลง	none	th	claude-seed
+คลอดลูกมาสามเดือน นอนไม่ค่อยพอ	none	th	claude-seed
+ยายขี้ลืมวางแว่นไม่เป็นที่	none	th	claude-seed
+พ่องงๆ ตอนเพิ่งตื่นนอน สักพักก็ปกติ	none	th	claude-seed
+ฝุ่นเข้าตา ล้างน้ำแล้วหาย	none	th	claude-seed
+แชมพูเข้าตาลูก แสบนิดหน่อย ล้างแล้วดีขึ้น	none	th	claude-seed
+ตาแดงเพราะนอนดึก	none	th	claude-seed
+ใส่คอนแทคเลนส์นานจนตาแห้ง	none	th	claude-seed
+My baby was born two days ago, he's turning blue and gasping	emergency	en	claude-seed
+The newborn keeps stopping breathing and her lips are purple	emergency	en	claude-seed
+I gave birth yesterday and I'm soaking a pad every hour, feeling faint	emergency	en	claude-seed
+My wife just gave birth and passed a huge clot, her heart is racing and she's about to faint	emergency	en	claude-seed
+Grandma suddenly doesn't recognize anyone, she's rambling and seeing things that aren't there	emergency	en	claude-seed
+Dad has been suddenly confused since this morning, doesn't know where he is, and has a fever	emergency	en	claude-seed
+Toilet cleaner splashed in my eye, it burns so bad I can't open it	emergency	en	claude-seed
+Lime powder got in my kid's eye, it's red and he won't stop crying	emergency	en	claude-seed
+A metal shard flew into my eye while grinding, now my vision is blurry	emergency	en	claude-seed
+A branch poked my son's eye and it's bleeding	emergency	en	claude-seed
+Newborn is a little yellow, doctor said some gentle sunlight	none	en	claude-seed
+Baby hiccups a lot, doctor says it's normal	none	en	claude-seed
+Normal postpartum bleeding, slowly getting lighter	none	en	claude-seed
+Three months postpartum and not sleeping enough	none	en	claude-seed
+Grandma is forgetful and misplaces her glasses	none	en	claude-seed
+Dad is groggy right after waking up, normal after a bit	none	en	claude-seed
+Got dust in my eye, rinsed it and it's fine	none	en	claude-seed
+Shampoo got in my kid's eye, stung a bit, better after rinsing	none	en	claude-seed
+Red eyes from staying up late	none	en	claude-seed
+Dry eyes from wearing contacts too long	none	en	claude-seed
+Mi bebé nació hace dos días, se está poniendo azul y jadea	emergency	es	claude-seed
+La recién nacida deja de respirar a ratos y tiene los labios morados	emergency	es	claude-seed
+Di a luz ayer y empapo una toalla cada hora, me siento desmayar	emergency	es	claude-seed
+Mi esposa acaba de dar a luz y expulsó un coágulo enorme, el corazón le late rápido y está por desmayarse	emergency	es	claude-seed
+Mi abuela de repente no reconoce a nadie, delira y ve cosas que no están	emergency	es	claude-seed
+Mi papá está confundido de repente desde la mañana, no sabe dónde está y tiene fiebre	emergency	es	claude-seed
+Me salpicó limpiador de baño en el ojo, me arde tanto que no puedo abrirlo	emergency	es	claude-seed
+Le entró cal en el ojo a mi hijo, está rojo y no para de llorar	emergency	es	claude-seed
+Me saltó una esquirla de metal al ojo mientras esmerilaba, ahora veo borroso	emergency	es	claude-seed
+Una rama le pinchó el ojo a mi hijo y le sangra	emergency	es	claude-seed
+El recién nacido está un poco amarillo, el médico dijo sol suave	none	es	claude-seed
+El bebé tiene hipo seguido, el médico dice que es normal	none	es	claude-seed
+Sangrado normal después del parto, va disminuyendo	none	es	claude-seed
+Tres meses después del parto y duermo poco	none	es	claude-seed
+Mi abuela es olvidadiza y pierde los lentes	none	es	claude-seed
+Mi papá está atontado al despertar, luego se le pasa	none	es	claude-seed
+Me entró polvo al ojo, lo enjuagué y ya	none	es	claude-seed
+Le entró champú en el ojo a mi hijo, le ardió un poco y mejoró al enjuagar	none	es	claude-seed
+Ojos rojos por desvelarme	none	es	claude-seed
+Ojos secos por usar lentes de contacto mucho tiempo	none	es	claude-seed
+Con tôi mới sinh được hai ngày, người tím tái và thở hắt	emergency	vi	claude-seed
+Bé sơ sinh cứ ngừng thở từng lúc, môi tím	emergency	vi	claude-seed
+Tôi sinh con hôm qua, máu ra ướt đẫm băng vệ sinh mỗi giờ, choáng váng	emergency	vi	claude-seed
+Vợ tôi vừa sinh, ra một cục máu đông to, tim đập nhanh sắp ngất	emergency	vi	claude-seed
+Bà tôi đột nhiên không nhận ra ai, nói nhảm và thấy những thứ không có	emergency	vi	claude-seed
+Bố tôi đột nhiên lú lẫn từ sáng, không biết mình đang ở đâu và bị sốt	emergency	vi	claude-seed
+Nước tẩy bồn cầu bắn vào mắt, rát quá không mở mắt được	emergency	vi	claude-seed
+Vôi bột bay vào mắt con, mắt đỏ và khóc không ngừng	emergency	vi	claude-seed
+Mạt sắt bắn vào mắt khi mài, giờ nhìn mờ	emergency	vi	claude-seed
+Cành cây chọc vào mắt con, mắt chảy máu	emergency	vi	claude-seed
+Bé sơ sinh hơi vàng da, bác sĩ bảo tắm nắng nhẹ	none	vi	claude-seed
+Em bé hay nấc, bác sĩ nói bình thường	none	vi	claude-seed
+Sản dịch sau sinh bình thường, giảm dần	none	vi	claude-seed
+Sinh con được ba tháng, ngủ không đủ	none	vi	claude-seed
+Bà hay quên, để kính lung tung	none	vi	claude-seed
+Bố mới ngủ dậy còn ngơ ngác, một lúc là bình thường	none	vi	claude-seed
+Bụi bay vào mắt, rửa nước là hết	none	vi	claude-seed
+Dầu gội dính vào mắt con, hơi cay, rửa xong đỡ	none	vi	claude-seed
+Mắt đỏ vì thức khuya	none	vi	claude-seed
+Khô mắt vì đeo kính áp tròng lâu	none	vi	claude-seed
+宝宝才出生两天，全身发紫，喘不过气	emergency	zh	claude-seed
+新生儿时不时停止呼吸，嘴唇发紫	emergency	zh	claude-seed
+我昨天刚生完孩子，每小时都湿透一片卫生巾，头晕	emergency	zh	claude-seed
+老婆刚生完，排出一大块血块，心跳很快快晕倒了	emergency	zh	claude-seed
+奶奶突然谁都不认识了，胡言乱语，看到不存在的东西	emergency	zh	claude-seed
+爸爸从早上开始突然神志不清，不知道自己在哪，还发烧	emergency	zh	claude-seed
+洁厕剂溅到眼睛里，疼得睁不开	emergency	zh	claude-seed
+石灰粉进了孩子眼睛，眼睛通红哭个不停	emergency	zh	claude-seed
+打磨时铁屑飞进眼睛，现在看不清	emergency	zh	claude-seed
+树枝戳到儿子眼睛，眼睛在流血	emergency	zh	claude-seed
+新生儿有点黄疸，医生说晒晒太阳	none	zh	claude-seed
+宝宝经常打嗝，医生说正常	none	zh	claude-seed
+产后恶露正常，慢慢变少	none	zh	claude-seed
+生完孩子三个月，睡眠不足	none	zh	claude-seed
+奶奶健忘，眼镜乱放	none	zh	claude-seed
+爸爸刚睡醒有点迷糊，一会儿就好了	none	zh	claude-seed
+灰尘进了眼睛，冲水就好了	none	zh	claude-seed
+洗发水进了孩子眼睛，有点辣，冲洗后好多了	none	zh	claude-seed
+熬夜眼睛红	none	zh	claude-seed
+隐形眼镜戴久了眼睛干	none	zh	claude-seed
+아기가 태어난 지 이틀인데 몸이 파래지고 헐떡거려요	emergency	ko	claude-seed
+신생아가 자꾸 숨을 멈추고 입술이 보라색이에요	emergency	ko	claude-seed
+어제 출산했는데 한 시간마다 패드가 흠뻑 젖고 어지러워요	emergency	ko	claude-seed
+아내가 방금 출산했는데 큰 핏덩어리가 나오고 심장이 빨리 뛰고 쓰러질 것 같아요	emergency	ko	claude-seed
+할머니가 갑자기 아무도 못 알아보고 헛소리를 하고 없는 게 보인대요	emergency	ko	claude-seed
+아빠가 아침부터 갑자기 정신이 혼미하고 어디인지 모르고 열도 나요	emergency	ko	claude-seed
+변기 세정제가 눈에 튀어서 너무 따가워 눈을 못 떠요	emergency	ko	claude-seed
+석회 가루가 아이 눈에 들어가서 눈이 빨갛고 계속 울어요	emergency	ko	claude-seed
+그라인더 작업 중 쇳조각이 눈에 튀어서 지금 잘 안 보여요	emergency	ko	claude-seed
+나뭇가지에 아들 눈이 찔려서 눈에서 피가 나요	emergency	ko	claude-seed
+신생아가 살짝 노래서 의사가 햇볕 조금 쬐래요	none	ko	claude-seed
+아기가 딸꾹질을 자주 하는데 의사가 정상이래요	none	ko	claude-seed
+출산 후 오로가 정상적으로 줄고 있어요	none	ko	claude-seed
+출산 후 석 달째인데 잠이 부족해요	none	ko	claude-seed
+할머니가 건망증이 있어서 안경을 아무 데나 둬요	none	ko	claude-seed
+아빠가 막 일어나서 멍했는데 조금 지나니 괜찮아요	none	ko	claude-seed
+먼지가 눈에 들어갔는데 물로 씻으니 괜찮아요	none	ko	claude-seed
+샴푸가 아이 눈에 들어가서 조금 따가웠는데 씻으니 나아졌어요	none	ko	claude-seed
+밤을 새서 눈이 빨개요	none	ko	claude-seed
+렌즈를 오래 껴서 눈이 건조해요	none	ko	claude-seed
+赤ちゃんが生まれて二日で、体が紫色になってあえいでいる	emergency	ja	claude-seed
+新生児が時々息を止めて、唇が紫になる	emergency	ja	claude-seed
+昨日出産して、一時間ごとにナプキンがびっしょりになり、気が遠くなる	emergency	ja	claude-seed
+妻が出産直後に大きな血の塊が出て、動悸がして気を失いそう	emergency	ja	claude-seed
+祖母が急に誰のことも分からなくなって、うわごとを言い、ないものが見えると言う	emergency	ja	claude-seed
+父が今朝から急に混乱して、どこにいるか分からず熱もある	emergency	ja	claude-seed
+トイレ用洗剤が目に入って、痛くて目を開けられない	emergency	ja	claude-seed
+石灰が子どもの目に入って、目が真っ赤で泣き止まない	emergency	ja	claude-seed
+グラインダー作業中に鉄片が目に飛び込んで、今は見えにくい	emergency	ja	claude-seed
+木の枝が息子の目に刺さって、目から血が出ている	emergency	ja	claude-seed
+新生児が少し黄色くて、医者に日光浴をすすめられた	none	ja	claude-seed
+赤ちゃんがよくしゃっくりするけど医者は正常と言った	none	ja	claude-seed
+産後の悪露は普通で、だんだん減っている	none	ja	claude-seed
+出産して三か月、睡眠不足	none	ja	claude-seed
+祖母は物忘れがあって眼鏡を置き忘れる	none	ja	claude-seed
+父は起きたばかりでぼーっとしていたけど、しばらくして普通になった	none	ja	claude-seed
+目にほこりが入ったけど水で洗ったら治った	none	ja	claude-seed
+シャンプーが子どもの目に入って少ししみたけど、洗ったら良くなった	none	ja	claude-seed
+夜更かしで目が赤い	none	ja	claude-seed
+コンタクトを長くつけて目が乾く	none	ja	claude-seed
