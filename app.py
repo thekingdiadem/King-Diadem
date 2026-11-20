@@ -932,7 +932,12 @@ def sitemap_xml():
     from core import seo_langs as _seo
     urls = _seo.sitemap_home(_public_url("").rstrip("/"))      # หน้าแรกทุกภาษา + hreflang
     urls += "".join(f"<url><loc>{_public_url(p)}</loc><changefreq>{f}</changefreq><priority>{pr}</priority></url>"
-                    for p, pr, f in SITEMAP_PAGES if p != "/")
+                    for p, pr, f in SITEMAP_PAGES if p not in ("/", "/survival"))
+    # คู่มือเอาชีวิตรอดมีฉบับไทยและอังกฤษจริง (core/survival_page.py) — บอกทั้งสองภาษา
+    surv = "".join(f'<xhtml:link rel="alternate" hreflang="{lg}" href="{_public_url(u)}"/>'
+                   for lg, u in (("th", "/survival"), ("en", "/survival?lang=en"), ("x-default", "/survival?lang=en")))
+    urls += "".join(f"<url><loc>{_public_url(u)}</loc>{surv}<changefreq>weekly</changefreq><priority>0.9</priority></url>"
+                    for u in ("/survival", "/survival?lang=en"))
     xml = ('<?xml version="1.0" encoding="UTF-8"?>'
            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'
            f'{urls}</urlset>')
