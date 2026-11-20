@@ -2022,3 +2022,61 @@ BONE_OK	vi	là trôi|cẩn thận xương
 BONE_OK	zh	下去了|小心刺
 BONE_OK	ko	내려갔|가시 조심
 BONE_OK	ja	取れた|骨に気をつけ
+
+# ═══ รอบ 22: (ไต) ยาแก้ปวด/ยาชุดทำไตวาย · ประจำเดือนมามากจนหน้ามืด · แผลเบาหวานที่เท้าติดเชื้อ · ปวดหัวรุนแรงที่สุดทันที ═══
+PAINKILLER	th	ยาแก้ปวด|ยาชุด|ไอบูโพรเฟน|ยาแก้อักเสบ|ยาแก้ปวดข้อ
+PAINKILLER	en	painkiller|painkillers|pain pills|joint pain pills|ibuprofen|nsaid|naproxen|diclofenac
+PAINKILLER	es	analgésicos|analgesicos|pastillas para el dolor|ibuprofeno|naproxeno
+PAINKILLER	vi	thuốc giảm đau|ibuprofen|thuốc kháng viêm
+PAINKILLER	zh	止痛药|止痛藥|布洛芬|消炎药|消炎藥
+PAINKILLER	ko	진통제|이부프로펜|소염제
+PAINKILLER	ja	痛み止め|イブプロフェン|鎮痛剤
+RENAL_FAIL_SIGN	th	ฉี่ไม่ออก|ฉี่น้อยมาก|ฉี่ออกน้อย|ตัวบวม|ขาบวม
+RENAL_FAIL_SIGN	en	can't pee|barely peeing|peeing very little|swelling up|swollen legs|legs are swollen|ankles are swollen|stopped peeing
+RENAL_FAIL_SIGN	es	no puede orinar|casi no orina|orina muy poco|hinchando|piernas hinchadas
+RENAL_FAIL_SIGN	vi	không tiểu được|gần như không tiểu|tiểu rất ít|phù lên|phù chân
+RENAL_FAIL_SIGN	zh	尿不出来|尿不出來|几乎没尿|幾乎沒尿|尿很少|浮肿|浮腫|腿肿|腿腫
+RENAL_FAIL_SIGN	ko	소변이 안|소변이 거의|소변이 아주 적|부었|다리가 붓
+RENAL_FAIL_SIGN	ja	尿が出ず|尿がほとんど|尿がとても少な|むくん
+AS_DOSED	th	ตามขนาด|กินครบแล้ว
+AS_DOSED	en	right dose|as directed|finished them
+AS_DOSED	es	dosis correcta|ya las terminé
+AS_DOSED	vi	đúng liều|đã uống xong
+AS_DOSED	zh	按剂量|按劑量|已经吃完|已經吃完
+AS_DOSED	ko	정량|다 먹었
+AS_DOSED	ja	用量通り|飲み終わった
+PERIOD2	th	ประจำเดือน|เมนส์
+PERIOD2	en	period
+PERIOD2	es	regla|menstruación
+PERIOD2	vi	kinh nguyệt|máu kinh|hành kinh|kinh
+PERIOD2	zh	月经|月經
+PERIOD2	ko	생리
+PERIOD2	ja	生理
+HEAVY_BLEED	th	เปลี่ยนผ้าอนามัยทุกชั่วโมง|หน้ามืด|ก้อนใหญ่|ใจสั่น|ตัวซีด|จะเป็นลม
+HEAVY_BLEED	en	soaking a pad every hour|faint|huge clots|heart racing|pale
+HEAVY_BLEED	es	empapo una toalla|desmayar|coágulos enormes|acelerado|pálida
+HEAVY_BLEED	vi	mỗi giờ phải thay|ngất|cục to|tim đập nhanh|tái
+HEAVY_BLEED	zh	每小时都要换|每小時都要換|晕倒|暈倒|很大的血块|很大的血塊|心慌|苍白|蒼白
+HEAVY_BLEED	ko	한 시간마다|쓰러질|큰 핏덩어리|심장이 빨리|창백
+HEAVY_BLEED	ja	一時間ごと|倒れそう|大きな血の塊|動悸|真っ青
+FOOT	th	เท้า
+FOOT	en	foot|toe|feet
+FOOT	es	pie
+FOOT	vi	chân
+FOOT	zh	脚|腳
+FOOT	ko	발
+FOOT	ja	足
+FOOT_INFECT	th	ดำ|กลิ่นเหม็น|บวมแดง|หนอง|ลามขึ้นขา
+FOOT_INFECT	en	is black|smells bad|red and swollen|spreading up|pus
+FOOT_INFECT	es	negra|huele mal|rojo e hinchado|subiendo por la pierna|pus
+FOOT_INFECT	vi	đen lại|mùi hôi|sưng đỏ|lan lên|mủ
+FOOT_INFECT	zh	发黑|發黑|发臭|發臭|红肿|紅腫|蔓延|脓|膿
+FOOT_INFECT	ko	까맣게|냄새가|빨갛게 붓|번지|고름
+FOOT_INFECT	ja	黒く|臭い|赤く腫れ|広がり|膿
+WORST_HEADACHE	th	ปวดหัวรุนแรงที่สุดในชีวิต|ปวดหัวระเบิด|ปวดหัวแบบไม่เคยเป็นมาก่อน|ปวดหัวที่สุดในชีวิต
+WORST_HEADACHE	en	worst headache of my life|explosive headache|headache unlike anything|thunderclap headache
+WORST_HEADACHE	es	peor dolor de cabeza|dolor de cabeza explosivo|dolor de cabeza como nunca
+WORST_HEADACHE	vi	đau đầu tệ nhất|đau đầu như nổ tung|đau đầu kiểu chưa từng có
+WORST_HEADACHE	zh	突然头痛欲裂|突然頭痛欲裂|最严重的头痛|最嚴重的頭痛|从没有过的突然剧烈头痛|從沒有過的突然劇烈頭痛
+WORST_HEADACHE	ko	최악의 두통|머리가 터질 듯|처음 겪는 갑작스럽고
+WORST_HEADACHE	ja	人生最悪の頭痛|今までにない突然の|頭が割れるように痛くなり

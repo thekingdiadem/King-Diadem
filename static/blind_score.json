@@ -25,10 +25,10 @@
   },
   "emergency": {
    "n": 1502,
-   "tp": 1453,
-   "fn": 49,
+   "tp": 1500,
+   "fn": 2,
    "fp": 18,
-   "recall": 0.967,
+   "recall": 0.999,
    "precision": 0.988
   },
   "violence": {
@@ -57,7 +57,7 @@
   }
  },
  "danger_missed": {
-  "n": 46,
+  "n": 1,
   "of": 1678
  },
  "false_alarm": {
@@ -66,31 +66,31 @@
  },
  "by_lang": {
   "en": {
-   "hit": 249,
+   "hit": 254,
    "n": 255
   },
   "es": {
-   "hit": 221,
+   "hit": 229,
    "n": 231
   },
   "ja": {
-   "hit": 223,
+   "hit": 232,
    "n": 232
   },
   "ko": {
-   "hit": 222,
+   "hit": 231,
    "n": 231
   },
   "th": {
-   "hit": 286,
+   "hit": 290,
    "n": 292
   },
   "vi": {
-   "hit": 223,
+   "hit": 229,
    "n": 230
   },
   "zh": {
-   "hit": 227,
+   "hit": 233,
    "n": 233
   }
  },
@@ -196,184 +196,6 @@
    ]
   },
   {
-   "line": 3314,
-   "text": "ลุงกินยาชุดจากร้านขายของชำทุกวัน ตอนนี้ฉี่น้อยมาก หายใจเหนื่อย",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3315,
-   "text": "แม่กินไอบูโพรเฟนเยอะเพราะปวดหลัง ตอนนี้ฉี่ออกน้อย ขาบวม คลื่นไส้",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3318,
-   "text": "แผลที่เท้าของพ่อซึ่งเป็นเบาหวาน ดำและมีกลิ่นเหม็น มีไข้",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3322,
-   "text": "พี่สาวปวดหัวแบบไม่เคยเป็นมาก่อน ฉับพลันรุนแรง แล้วเริ่มซึม",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3334,
-   "text": "My uncle takes those mixed painkiller packets from the corner shop every day, now barely peeing and short of breath",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3336,
-   "text": "My period is extremely heavy, soaking a pad every hour, I feel like I'm going to faint",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3337,
-   "text": "Passing huge clots with my period that won't stop, heart racing and I look pale",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3341,
-   "text": "Suddenly an explosive headache while lifting, stiff neck and vomiting",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3342,
-   "text": "My sister has a headache unlike anything before, sudden and severe, and she's getting drowsy",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3355,
-   "text": "Mi mamá tomó mucho ibuprofeno por la espalda, ahora orina muy poco, piernas hinchadas y náuseas",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3356,
-   "text": "La regla me viene muy abundante, empapo una toalla cada hora, siento que me voy a desmayar",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3357,
-   "text": "Coágulos enormes con la regla que no para, el corazón acelerado y estoy pálida",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3358,
-   "text": "La herida del pie de mi papá diabético está negra y huele mal, y tiene fiebre",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3359,
-   "text": "Mi mamá es diabética, el dedo del pie rojo e hinchado subiendo por la pierna, pus y fiebre alta",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3360,
-   "text": "El peor dolor de cabeza de mi vida empezó de golpe, como un golpe en la cabeza",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3361,
-   "text": "De repente un dolor de cabeza explosivo al levantar algo, cuello rígido y vómitos",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3362,
-   "text": "Mi hermana tiene un dolor de cabeza como nunca antes, repentino y fuerte, y se está adormilando",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3375,
-   "text": "Mẹ tôi uống nhiều ibuprofen vì đau lưng, giờ tiểu rất ít, phù chân và buồn nôn",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3378,
-   "text": "Vết loét ở chân bố tôi bị tiểu đường đen lại, có mùi hôi và sốt",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3379,
-   "text": "Mẹ tôi bị tiểu đường, ngón chân sưng đỏ lan lên cẳng chân, có mủ và sốt cao",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3380,
-   "text": "Cơn đau đầu tệ nhất đời tôi ập đến đột ngột, như bị đánh vào đầu",
-   "label": "emergency",
-   "got": [
-    "violence"
-   ]
-  },
-  {
-   "line": 3381,
-   "text": "Đột nhiên đau đầu như nổ tung khi đang khiêng đồ, cứng cổ và nôn",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3382,
-   "text": "Chị tôi đau đầu kiểu chưa từng có, đột ngột và dữ dội, rồi bắt đầu lơ mơ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3395,
-   "text": "妈妈因为腰痛吃了很多布洛芬，现在尿很少，腿肿，恶心",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3398,
-   "text": "糖尿病的爸爸脚上的伤口发黑发臭，还发烧",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3399,
-   "text": "妈妈有糖尿病，脚趾红肿蔓延到小腿，有脓，高烧",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3400,
-   "text": "突然出现这辈子最严重的头痛，像被人打了一下头",
-   "label": "emergency",
-   "got": [
-    "violence"
-   ]
-  },
-  {
-   "line": 3401,
-   "text": "搬东西时突然头痛欲裂，脖子僵硬，呕吐",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3402,
-   "text": "姐姐出现从没有过的突然剧烈头痛，然后开始迷糊",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 3404,
    "text": "医生开了三天关节止痛药，已经吃完了",
    "label": "none",
@@ -382,120 +204,12 @@
    ]
   },
   {
-   "line": 3414,
-   "text": "삼촌이 동네 가게에서 산 진통제 봉지약을 매일 먹는데 지금 소변이 거의 없고 숨이 차요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3415,
-   "text": "엄마가 허리 때문에 이부프로펜을 많이 드셨는데 지금 소변이 아주 적고 다리가 붓고 메스꺼워해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3416,
-   "text": "생리양이 너무 많아서 한 시간마다 패드를 갈고 쓰러질 것 같아요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3417,
-   "text": "생리 중에 큰 핏덩어리가 계속 나오고 심장이 빨리 뛰고 얼굴이 창백해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3418,
-   "text": "당뇨가 있는 아빠 발의 상처가 까맣게 변하고 냄새가 나고 열이 나요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3419,
-   "text": "엄마가 당뇨인데 발가락이 빨갛게 붓고 다리로 번지고 고름이 나오고 고열이에요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3420,
-   "text": "갑자기 평생 처음 겪는 최악의 두통이 왔어요 머리를 맞은 것 같아요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3421,
-   "text": "짐을 들다가 갑자기 머리가 터질 듯 아프고 목이 뻣뻣하고 토해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3422,
-   "text": "언니가 처음 겪는 갑작스럽고 심한 두통이 오더니 점점 처져요",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 3424,
    "text": "의사가 관절 진통제를 사흘 처방했는데 다 먹었어요",
    "label": "none",
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 3434,
-   "text": "叔父が近所の店の痛み止めの粉薬を毎日飲んでいて、今は尿がほとんど出ず息が苦しい",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3435,
-   "text": "母が腰痛でイブプロフェンをたくさん飲んで、今は尿がとても少なく、脚がむくみ、吐き気がある",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3436,
-   "text": "生理の量がものすごく多くて、一時間ごとにナプキンを替えていて、倒れそう",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3437,
-   "text": "生理で大きな血の塊が止まらず、動悸がして顔色が真っ青",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3438,
-   "text": "糖尿病の父の足の傷が黒くなって臭いがあり、熱もある",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3439,
-   "text": "母は糖尿病で、足の指が赤く腫れてすねまで広がり、膿が出て高熱がある",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3440,
-   "text": "人生最悪の頭痛が突然来た、頭を殴られたみたい",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3441,
-   "text": "荷物を持ち上げたとき急に頭が割れるように痛くなり、首が硬くて吐いた",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3442,
-   "text": "姉が今までにない突然の激しい頭痛になって、だんだんぼんやりしてきた",
-   "label": "emergency",
-   "got": []
   }
  ]
 }

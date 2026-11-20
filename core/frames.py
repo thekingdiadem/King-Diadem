@@ -144,6 +144,11 @@ FRAMES = (
     ("pesticide", "medical", "health_emergency", (("PESTICIDE_USE", "OP_SIGN"),), ("FICTION", "HYPOTHETICAL", "PROTECTED")),
     ("chemical_skin", "medical", "health_emergency", (("CORROSIVE", "SKIN_BURN"),), ("FICTION", "HYPOTHETICAL", "MINOR")),
     ("bone_stuck", "medical", "health_emergency", (("BONE_STUCK", "BONE_RED"),), ("FICTION", "HYPOTHETICAL", "BONE_OK")),
+    # รอบ 22 (ชุดปิดตา Y ล็อกไว้ก่อนเขียน) — เรื่องไต: ยาแก้ปวด/ยาชุดทำไตวาย
+    ("painkiller_aki", "medical", "health_emergency", (("PAINKILLER", "RENAL_FAIL_SIGN"),), ("FICTION", "HYPOTHETICAL", "AS_DOSED")),
+    ("heavy_period", "medical", "health_emergency", (("PERIOD2", "HEAVY_BLEED"),), ("FICTION", "HYPOTHETICAL")),
+    ("diabetic_foot", "medical", "health_emergency", (("DIABETES", "FOOT", "FOOT_INFECT"),), ("FICTION", "HYPOTHETICAL")),
+    ("thunderclap", "medical", "health_emergency", (("WORST_HEADACHE",),), ("FICTION", "HYPOTHETICAL")),
 )
 
 

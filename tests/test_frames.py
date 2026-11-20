@@ -605,3 +605,26 @@ def test_round21_danger(text):
 @pytest.mark.parametrize("text", CALM_21)
 def test_round21_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 22: (ไต) ยาแก้ปวดทำไตวาย · ประจำเดือนมามาก · แผลเบาหวานที่เท้า · ปวดหัวรุนแรงทันที (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา Y) ──
+DANGER_22 = [
+    "กินยาแก้ปวดทุกวันมาสองเดือน ตอนนี้ฉี่ไม่ออก", "I've been taking ibuprofen daily and now my legs are swollen", "진통제를 매일 먹었더니 소변이 거의 안 나와요",
+    "ประจำเดือนมามาก หน้ามืดจะเป็นลม", "my period is so heavy I feel faint and look pale", "月经量很大，心慌，快晕倒了",
+    "พ่อเป็นเบาหวาน แผลที่เท้ามีหนองและกลิ่นเหม็น", "diabetic and my toe is red and swollen with pus", "糖尿病で足の傷が黒くなった",
+    "ปวดหัวรุนแรงที่สุดในชีวิต", "the worst headache of my life just hit", "突然头痛欲裂",
+]
+CALM_22 = [
+    "กินยาพาราตามขนาด", "took ibuprofen as directed for a toothache", "ประจำเดือนมาวันแรกปวดนิดหน่อย", "my period is a bit heavier than usual",
+    "ตรวจเท้าทุกวันเพราะเป็นเบาหวาน", "a mild headache from stress",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_22)
+def test_round22_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_22)
+def test_round22_calm(text):
+    assert frames(text) == [], explain(text)
