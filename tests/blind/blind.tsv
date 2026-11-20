@@ -2740,3 +2740,145 @@ Xem phim kinh dị có cảnh chặt ngón tay	none	vi	claude-seed
 爪を深く切りすぎて少し痛い	none	ja	claude-seed
 指に小さな切り傷、絆創膏を貼った	none	ja	claude-seed
 指を切り落とすシーンのあるホラー映画を見た	none	ja	claude-seed
+# ── ชุด U: ล็อกไว้ก่อนขยาย core/frames.py รอบ 18 — (ไต) เส้นฟอกไตเลือดพุ่ง/อุดตัน · หลอดเลือดแดงใหญ่ฉีก · ลำไส้อุดตัน · ผึ้ง/ต่อรุมต่อย ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 19/70 (ไม่เห็นเลย 51) · เตือนเกิน 3/70
+เส้นฟอกไตที่แขนพ่อแตก เลือดพุ่งไม่หยุด	emergency	th	claude-seed
+แม่เพิ่งฟอกไตกลับมา รูเข็มที่เส้นฟอกเลือดซึมไม่หยุดมาครึ่งชั่วโมง	emergency	th	claude-seed
+เส้นฟอกไตคลำไม่สั่นแล้ว แขนบวมเย็น พรุ่งนี้ต้องฟอก	emergency	th	claude-seed
+ปู่เจ็บหน้าอกเหมือนมีดฉีกทะลุไปหลัง ปวดรุนแรงมากทันที	emergency	th	claude-seed
+ลุงปวดหลังรุนแรงฉับพลันเหมือนถูกฉีก ความดันสองแขนไม่เท่ากัน	emergency	th	claude-seed
+ท้องอืดแข็ง ไม่ผายลมไม่ถ่ายมาสามวัน อาเจียนตลอด	emergency	th	claude-seed
+พ่อเคยผ่าตัดท้อง ตอนนี้ปวดท้องบิดเป็นพักๆ อาเจียนเป็นสีเขียว ท้องป่อง	emergency	th	claude-seed
+ลูกโดนผึ้งรุมต่อยหลายสิบตัว ตัวบวม อาเจียน	emergency	th	claude-seed
+ตาโดนต่อหัวเสือต่อยหลายที่ ตอนนี้ฉี่สีเข้ม ตัวบวม	emergency	th	claude-seed
+คนงานโดนแตนรุมต่อยทั้งตัว หายใจไม่ค่อยออก	emergency	th	claude-seed
+พาพ่อไปฟอกไตตามนัด เส้นฟอกใช้งานได้ดี	none	th	claude-seed
+หมอนัดตรวจเส้นฟอกไตเดือนหน้า	none	th	claude-seed
+เจ็บหน้าอกนิดหน่อยตอนหายใจลึกๆ เพราะเป็นหวัด	none	th	claude-seed
+ปวดหลังเพราะยกของหนัก นวดแล้วดีขึ้น	none	th	claude-seed
+ท้องอืดเพราะกินถั่วเยอะ ผายลมแล้วสบาย	none	th	claude-seed
+ท้องผูกสองวัน กินผักผลไม้แล้วถ่ายได้	none	th	claude-seed
+โดนผึ้งต่อยหนึ่งที่ บวมแดงนิดหน่อย	none	th	claude-seed
+เลี้ยงผึ้งเก็บน้ำผึ้ง ใส่ชุดป้องกันทุกครั้ง	none	th	claude-seed
+มีรังต่อที่ชายคา เรียกเจ้าหน้าที่มาเอาออก	none	th	claude-seed
+กินน้ำผึ้งผสมมะนาวทุกเช้า	none	th	claude-seed
+The dialysis fistula in Dad's arm burst and blood is spurting nonstop	emergency	en	claude-seed
+Mom just came back from dialysis and the needle site keeps oozing blood for half an hour	emergency	en	claude-seed
+I can't feel the thrill in my dialysis fistula anymore, my arm is swollen and cold, dialysis is tomorrow	emergency	en	claude-seed
+Grandpa has chest pain like a knife tearing through to his back, sudden and severe	emergency	en	claude-seed
+My uncle has sudden tearing back pain and the blood pressure is different in each arm	emergency	en	claude-seed
+Belly is bloated and hard, no gas or poop for three days and vomiting constantly	emergency	en	claude-seed
+Dad had belly surgery before, now crampy pain on and off, vomiting green and his belly is swollen	emergency	en	claude-seed
+My kid was stung by dozens of bees, swelling all over and vomiting	emergency	en	claude-seed
+Grandpa was stung many times by hornets, now his pee is dark and he's swollen	emergency	en	claude-seed
+A worker got swarmed by wasps all over and can barely breathe	emergency	en	claude-seed
+Took Dad to his regular dialysis, the fistula works fine	none	en	claude-seed
+Doctor scheduled a fistula check next month	none	en	claude-seed
+Slight chest pain when breathing deep because of a cold	none	en	claude-seed
+Back ache from lifting, felt better after a massage	none	en	claude-seed
+Bloated from eating beans, better after passing gas	none	en	claude-seed
+Constipated for two days, ate fruit and went fine	none	en	claude-seed
+Stung once by a bee, a little red and swollen	none	en	claude-seed
+We keep bees for honey and always wear the suit	none	en	claude-seed
+There's a wasp nest under the eaves, called someone to remove it	none	en	claude-seed
+Honey with lemon every morning	none	en	claude-seed
+La fístula de diálisis del brazo de mi papá se reventó y la sangre sale a chorros sin parar	emergency	es	claude-seed
+Mi mamá acaba de volver de diálisis y el sitio de la aguja sigue sangrando desde hace media hora	emergency	es	claude-seed
+Ya no siento el frémito de mi fístula, el brazo está hinchado y frío, mañana me toca diálisis	emergency	es	claude-seed
+Mi abuelo tiene dolor de pecho como un cuchillo que desgarra hasta la espalda, de golpe y muy fuerte	emergency	es	claude-seed
+Mi tío tiene dolor de espalda repentino como desgarro y la presión es distinta en cada brazo	emergency	es	claude-seed
+La barriga hinchada y dura, sin gases ni evacuar en tres días y vomita todo el tiempo	emergency	es	claude-seed
+Mi papá tuvo cirugía abdominal, ahora cólicos que van y vienen, vomita verde y la barriga hinchada	emergency	es	claude-seed
+A mi hijo le picaron docenas de abejas, hinchado entero y vomitando	emergency	es	claude-seed
+A mi abuelo le picaron muchos avispones, ahora su orina es oscura y está hinchado	emergency	es	claude-seed
+A un trabajador lo atacó un enjambre de avispas y casi no puede respirar	emergency	es	claude-seed
+Llevé a mi papá a su diálisis de siempre, la fístula funciona bien	none	es	claude-seed
+El médico programó revisión de la fístula el próximo mes	none	es	claude-seed
+Leve dolor de pecho al respirar hondo por un resfriado	none	es	claude-seed
+Dolor de espalda por cargar, mejor tras un masaje	none	es	claude-seed
+Hinchado por comer frijoles, mejor tras soltar gases	none	es	claude-seed
+Estreñido dos días, comí fruta y ya fui	none	es	claude-seed
+Me picó una abeja una vez, un poco rojo e hinchado	none	es	claude-seed
+Tenemos abejas para miel y siempre usamos el traje	none	es	claude-seed
+Hay un nido de avispas bajo el alero, llamé para que lo quiten	none	es	claude-seed
+Miel con limón cada mañana	none	es	claude-seed
+Cầu nối chạy thận ở tay bố tôi bị vỡ, máu phun không ngừng	emergency	vi	claude-seed
+Mẹ vừa chạy thận về, chỗ kim chích cứ rỉ máu mãi nửa tiếng chưa cầm	emergency	vi	claude-seed
+Tôi không còn sờ thấy rung ở cầu nối chạy thận, tay sưng và lạnh, mai phải chạy thận	emergency	vi	claude-seed
+Ông tôi đau ngực như dao xé xuyên ra sau lưng, đột ngột và dữ dội	emergency	vi	claude-seed
+Chú tôi đau lưng như bị xé đột ngột, huyết áp hai tay khác nhau	emergency	vi	claude-seed
+Bụng chướng cứng, ba ngày không xì hơi không đi ngoài, nôn liên tục	emergency	vi	claude-seed
+Bố tôi từng mổ bụng, giờ đau quặn từng cơn, nôn ra dịch xanh, bụng chướng	emergency	vi	claude-seed
+Con tôi bị cả đàn ong đốt mấy chục nốt, sưng khắp người và nôn	emergency	vi	claude-seed
+Ông tôi bị ong vò vẽ đốt nhiều nốt, giờ nước tiểu sẫm và người phù	emergency	vi	claude-seed
+Một công nhân bị đàn ong bắp cày tấn công khắp người, gần như không thở được	emergency	vi	claude-seed
+Đưa bố đi chạy thận đúng lịch, cầu nối hoạt động tốt	none	vi	claude-seed
+Bác sĩ hẹn kiểm tra cầu nối tháng sau	none	vi	claude-seed
+Hơi đau ngực khi hít sâu vì bị cảm	none	vi	claude-seed
+Đau lưng vì bê đồ, xoa bóp xong đỡ	none	vi	claude-seed
+Đầy bụng vì ăn đậu, xì hơi xong dễ chịu	none	vi	claude-seed
+Táo bón hai ngày, ăn trái cây là đi được	none	vi	claude-seed
+Bị ong đốt một nốt, hơi sưng đỏ	none	vi	claude-seed
+Nuôi ong lấy mật, lúc nào cũng mặc đồ bảo hộ	none	vi	claude-seed
+Có tổ ong dưới mái hiên, gọi người tới gỡ	none	vi	claude-seed
+Mật ong pha chanh mỗi sáng	none	vi	claude-seed
+爸爸手臂上的透析内瘘破了，血一直往外喷	emergency	zh	claude-seed
+妈妈刚做完透析回来，针眼一直渗血半小时了	emergency	zh	claude-seed
+透析内瘘摸不到震颤了，手臂又肿又凉，明天要透析	emergency	zh	claude-seed
+爷爷胸口像刀撕裂一样痛到背后，突然剧痛	emergency	zh	claude-seed
+叔叔突然背部撕裂样剧痛，两只手臂血压不一样	emergency	zh	claude-seed
+肚子胀得硬邦邦，三天没放屁没大便，一直吐	emergency	zh	claude-seed
+爸爸以前做过腹部手术，现在阵发性绞痛，吐绿色的东西，肚子鼓起来	emergency	zh	claude-seed
+孩子被几十只蜜蜂蜇了，全身肿，呕吐	emergency	zh	claude-seed
+爷爷被马蜂蜇了很多处，现在尿色很深，全身浮肿	emergency	zh	claude-seed
+工人被一群黄蜂围攻全身蜇伤，几乎喘不过气	emergency	zh	claude-seed
+按时带爸爸去透析，内瘘很好用	none	zh	claude-seed
+医生约了下个月检查内瘘	none	zh	claude-seed
+感冒了深呼吸时胸口有点痛	none	zh	claude-seed
+搬东西腰痛，按摩后好多了	none	zh	claude-seed
+吃豆子胀气，放了屁就舒服了	none	zh	claude-seed
+便秘两天，吃了水果就通了	none	zh	claude-seed
+被蜜蜂蜇了一下，有点红肿	none	zh	claude-seed
+养蜂取蜜，每次都穿防护服	none	zh	claude-seed
+屋檐下有个马蜂窝，叫人来摘掉了	none	zh	claude-seed
+每天早上喝蜂蜜柠檬水	none	zh	claude-seed
+아빠 팔의 투석용 혈관이 터져서 피가 계속 뿜어져 나와요	emergency	ko	claude-seed
+엄마가 투석 받고 왔는데 바늘 자리에서 30분째 피가 스며 나와요	emergency	ko	claude-seed
+투석 혈관에서 떨림이 안 느껴지고 팔이 붓고 차가워요 내일 투석이에요	emergency	ko	claude-seed
+할아버지가 칼로 찢는 것처럼 가슴이 등까지 아프대요 갑자기 엄청 심하게요	emergency	ko	claude-seed
+삼촌이 갑자기 등이 찢어지듯 아프고 양팔 혈압이 달라요	emergency	ko	claude-seed
+배가 빵빵하고 딱딱하고 사흘째 방귀도 변도 안 나오고 계속 토해요	emergency	ko	claude-seed
+아빠가 예전에 배 수술을 했는데 지금 배가 쥐어짜듯 아팠다 말았다 하고 초록색을 토하고 배가 부풀었어요	emergency	ko	claude-seed
+아이가 벌 수십 마리에 쏘여서 온몸이 붓고 토해요	emergency	ko	claude-seed
+할아버지가 말벌에 여러 군데 쏘였는데 지금 소변 색이 진하고 몸이 부었어요	emergency	ko	claude-seed
+인부가 말벌 떼에 온몸을 쏘여서 숨을 거의 못 쉬어요	emergency	ko	claude-seed
+아빠 정기 투석 모시고 갔는데 혈관 상태가 좋대요	none	ko	claude-seed
+의사가 다음 달에 투석 혈관 검사를 잡았어요	none	ko	claude-seed
+감기 때문에 깊게 숨 쉬면 가슴이 살짝 아파요	none	ko	claude-seed
+짐을 들어서 허리가 아팠는데 마사지 받고 나아졌어요	none	ko	claude-seed
+콩을 많이 먹어서 더부룩했는데 방귀 뀌고 편해졌어요	none	ko	claude-seed
+이틀 변비였는데 과일 먹고 해결했어요	none	ko	claude-seed
+벌에 한 번 쏘여서 살짝 빨갛게 부었어요	none	ko	claude-seed
+양봉을 하는데 항상 보호복을 입어요	none	ko	claude-seed
+처마 밑에 말벌집이 있어서 제거를 불렀어요	none	ko	claude-seed
+매일 아침 꿀레몬차를 마셔요	none	ko	claude-seed
+父の腕の透析シャントが破れて、血が噴き出して止まらない	emergency	ja	claude-seed
+母が透析から帰ってきたら、針の跡から30分も血がにじみ続けている	emergency	ja	claude-seed
+透析シャントのスリルが感じられなくなり、腕が腫れて冷たい、明日は透析	emergency	ja	claude-seed
+祖父が胸を刃物で裂かれるような痛みが背中まで走って、突然ひどく痛がっている	emergency	ja	claude-seed
+叔父が急に背中が裂けるように痛くて、両腕の血圧が違う	emergency	ja	claude-seed
+お腹がパンパンに張って硬く、三日間おならも便も出ず、ずっと吐いている	emergency	ja	claude-seed
+父は以前お腹の手術をしていて、今は差し込むような痛みが波のように来て、緑色のものを吐き、お腹が膨らんでいる	emergency	ja	claude-seed
+子どもが何十匹もの蜂に刺されて、全身が腫れて吐いている	emergency	ja	claude-seed
+祖父がスズメバチに何か所も刺されて、今は尿の色が濃く体がむくんでいる	emergency	ja	claude-seed
+作業員がハチの大群に全身を刺されて、ほとんど息ができない	emergency	ja	claude-seed
+父をいつもの透析に連れて行った、シャントは順調	none	ja	claude-seed
+来月シャントの検査を予約した	none	ja	claude-seed
+風邪で深呼吸すると胸が少し痛い	none	ja	claude-seed
+荷物を持って腰が痛かったけどマッサージで良くなった	none	ja	claude-seed
+豆を食べてお腹が張ったけど、おならが出て楽になった	none	ja	claude-seed
+二日便秘だったけど果物を食べたら出た	none	ja	claude-seed
+蜂に一回刺されて少し赤く腫れた	none	ja	claude-seed
+養蜂をしていていつも防護服を着ている	none	ja	claude-seed
+軒下にハチの巣があったので駆除を頼んだ	none	ja	claude-seed
+毎朝はちみつレモンを飲んでいる	none	ja	claude-seed
