@@ -1,5 +1,5 @@
 {
- "total": 1107,
+ "total": 1247,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,12 +24,12 @@
    "precision": 0.892
   },
   "emergency": {
-   "n": 452,
-   "tp": 448,
-   "fn": 4,
-   "fp": 11,
-   "recall": 0.991,
-   "precision": 0.976
+   "n": 522,
+   "tp": 475,
+   "fn": 47,
+   "fp": 14,
+   "recall": 0.91,
+   "precision": 0.971
   },
   "violence": {
    "n": 70,
@@ -57,41 +57,41 @@
   }
  },
  "danger_missed": {
-  "n": 3,
-  "of": 558
+  "n": 46,
+  "of": 628
  },
  "false_alarm": {
-  "n": 1,
-  "of": 523
+  "n": 4,
+  "of": 593
  },
  "by_lang": {
   "en": {
-   "hit": 94,
-   "n": 95
+   "hit": 100,
+   "n": 105
   },
   "es": {
-   "hit": 69,
-   "n": 71
+   "hit": 72,
+   "n": 81
   },
   "ja": {
-   "hit": 71,
-   "n": 72
+   "hit": 74,
+   "n": 82
   },
   "ko": {
-   "hit": 71,
-   "n": 71
+   "hit": 74,
+   "n": 81
   },
   "th": {
-   "hit": 129,
-   "n": 132
+   "hit": 136,
+   "n": 142
   },
   "vi": {
-   "hit": 69,
-   "n": 70
+   "hit": 71,
+   "n": 80
   },
   "zh": {
-   "hit": 73,
-   "n": 73
+   "hit": 76,
+   "n": 83
   }
  },
  "misses": [
@@ -156,6 +156,288 @@
   {
    "line": 1022,
    "text": "畑仕事をしていた祖父が体が火のように熱くて、呼びかけても反応が鈍い",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1189,
+   "text": "โดนเศษกระจกบาดแขนลึกจนเห็นเนื้อข้างใน",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1191,
+   "text": "เหยียบปลาหินที่ชายหาด ปวดมาก เท้าบวมขึ้นเรื่อยๆ",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1192,
+   "text": "โดนเม่นทะเลตำเท้า ตอนนี้ขาชาและเวียนหัว",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1196,
+   "text": "ลูกเป็นไข้ต่ำๆ หลังฉีดวัคซีน กินยาแล้วดีขึ้น",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1207,
+   "text": "The baby is burning hot, crying nonstop and the soft spot is bulging",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1209,
+   "text": "Glass cut my arm so deep I can see inside",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1211,
+   "text": "Stepped on a stonefish at the beach, the pain is unbearable and my foot keeps swelling",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1212,
+   "text": "A sea urchin spine went into my foot, now my leg is numb and I'm dizzy",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1220,
+   "text": "Saw lots of jellyfish floating at the beach",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1224,
+   "text": "Mi esposa tiene ocho meses de embarazo, un dolor de cabeza terrible, visión borrosa y piernas hinchadas",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1225,
+   "text": "34 semanas de embarazo, se me rompió la fuente y el bebé casi no se mueve",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1226,
+   "text": "Mi bebé de 2 meses tiene fiebre de 39 y no quiere comer",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1227,
+   "text": "El bebé está ardiendo, llora sin parar y tiene la fontanela abultada",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1229,
+   "text": "Un vidrio me cortó el brazo tan profundo que se ve por dentro",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1231,
+   "text": "Pisé un pez piedra en la playa, el dolor es insoportable y el pie se me hincha cada vez más",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1232,
+   "text": "Se me clavó una púa de erizo en el pie, ahora tengo la pierna dormida y estoy mareado",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1244,
+   "text": "Vợ tôi mang thai tám tháng, đau đầu dữ dội, mờ mắt và phù chân",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1245,
+   "text": "Thai 34 tuần, vỡ ối rồi mà em bé gần như không đạp",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1246,
+   "text": "Con tôi 2 tháng tuổi sốt 39 độ, không chịu bú",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1247,
+   "text": "Em bé nóng hầm hập, khóc không ngừng, thóp phồng",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1249,
+   "text": "Mảnh kính cứa vào tay sâu đến mức thấy cả bên trong",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1250,
+   "text": "Con tôi bị sứa đốt, nổi mẩn khắp chân và khó thở",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1251,
+   "text": "Giẫm phải cá mặt quỷ ở bãi biển, đau không chịu nổi, chân sưng mỗi lúc một to",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1252,
+   "text": "Bị gai nhím biển đâm vào chân, giờ chân tê và chóng mặt",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1264,
+   "text": "老婆怀孕八个月，头痛得厉害，看东西模糊，腿肿",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1265,
+   "text": "怀孕34周，破水了，宝宝几乎不动",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1266,
+   "text": "宝宝2个月大，发烧39度，不肯吃奶",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1267,
+   "text": "婴儿全身滚烫，哭个不停，囟门鼓起来了",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1269,
+   "text": "玻璃把手臂割得很深，能看到里面",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1271,
+   "text": "在海边踩到石头鱼，疼得受不了，脚越来越肿",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1272,
+   "text": "海胆的刺扎进脚里，现在腿发麻，头晕",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1276,
+   "text": "打完疫苗有点低烧，吃了药好多了",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1283,
+   "text": "임신 7개월인데 하혈이 심하고 배가 쥐어짜듯 아파요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1285,
+   "text": "임신 34주인데 양수가 터졌고 아기가 거의 안 움직여요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1286,
+   "text": "생후 2개월 아기가 열이 39도인데 분유를 안 먹어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1287,
+   "text": "아기가 몸이 불덩이 같고 계속 울고 숨구멍이 볼록 튀어나왔어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1289,
+   "text": "유리에 팔이 깊게 베여서 속이 보여요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1291,
+   "text": "해변에서 쑤기미를 밟았는데 너무 아프고 발이 점점 부어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1292,
+   "text": "성게 가시가 발에 박혔는데 다리가 저리고 어지러워요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1305,
+   "text": "妊娠34週で破水して、赤ちゃんがほとんど動かない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1306,
+   "text": "生後2か月の赤ちゃんが39度の熱でミルクを飲まない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1307,
+   "text": "赤ちゃんの体がすごく熱くて泣き止まず、大泉門が膨らんでいる",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1309,
+   "text": "ガラスで腕を深く切って、中が見えている",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1310,
+   "text": "息子がクラゲに刺されて、足じゅうに発疹が出て息が苦しそう",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1311,
+   "text": "浜辺でオニダルマオコゼを踏んで、激痛で足がどんどん腫れてくる",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1312,
+   "text": "ウニのとげが足に刺さって、今は足がしびれてめまいがする",
    "label": "emergency",
    "got": []
   }
