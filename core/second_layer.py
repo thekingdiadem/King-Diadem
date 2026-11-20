@@ -838,3 +838,7 @@ def apply(text, a):  # noqa: F811
     elif _BURDEN_SELF.search(text):
         a["topics"] = ["burden"] + [t for t in a["topics"] if t != "burden"]
     return a
+
+# "I lost all my savings to a scam" / "scammed out of" — เคยได้ 0 (ไม่มีคำว่า scammed/transfer ตรงตัว)
+UPGRADES += [(re.compile(r"(?i)\blost\s+(?:all\s+(?:of\s+)?)?(?:my|our|her|his)\s+(?:\w+\s+){0,2}(?:savings|money|pension|retirement|life\s+savings)\s+to\s+(?:a\s+|an\s+|some\s+)?(?:scam|scammer|fraud|fake|con)\w*\b|"
+                          r"\b(?:scammed|conned|cheated|defrauded)\s+out\s+of\b"), "scam")]

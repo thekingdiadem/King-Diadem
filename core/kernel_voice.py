@@ -3930,3 +3930,15 @@ def compose_followup(text: str, voice_mode: str = "lyla", footer: bool = True) -
         return f"{body}\n\n{line}\n\n{sign}{tag}"
     q = ("ครับ" if vega else "คะ") if lang == "th" else ""     # คำถาม/นะ ใช้ "คะ" ไม่ใช่ "ค่ะ" ("นะค่ะ" "ไหมค่ะ" สะกดผิด)
     return f"{ask.format(end=end, q=q)}\n\n{line}\n\n{close.format(end=end)}\n\n{sign}{tag}"
+
+
+# คำตอบที่ได้ใจ (core/heart_lines.py): เติมหนึ่งถึงสองบรรทัดตอบความรู้สึกที่ผู้ใช้เล่า — ละอายที่โดนหลอก · ไม่มีที่ไป · ถูกทำร้ายซ้ำ
+_compose_plain = compose
+
+
+def compose(text: str, *args, **kw) -> str:  # noqa: F811
+    reply = _compose_plain(text, *args, **kw)
+    if isinstance(text, str) and text and not args and set(kw) <= {"footer"}:
+        from core import heart_lines as _hl
+        reply = _heal.guard("heart_lines", lambda: _hl.add(reply, text, assess(text))) or reply
+    return reply
