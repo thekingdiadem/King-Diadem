@@ -842,3 +842,10 @@ def apply(text, a):  # noqa: F811
 # "I lost all my savings to a scam" / "scammed out of" — เคยได้ 0 (ไม่มีคำว่า scammed/transfer ตรงตัว)
 UPGRADES += [(re.compile(r"(?i)\blost\s+(?:all\s+(?:of\s+)?)?(?:my|our|her|his)\s+(?:\w+\s+){0,2}(?:savings|money|pension|retirement|life\s+savings)\s+to\s+(?:a\s+|an\s+|some\s+)?(?:scam|scammer|fraud|fake|con)\w*\b|"
                           r"\b(?:scammed|conned|cheated|defrauded)\s+out\s+of\b"), "scam")]
+
+# การสูญเสียที่เล่าแบบมีคำแทรก ("แม่เพิ่งเสีย") และภาษาอังกฤษ ("my dad died") — เคยไม่ได้หัวข้ออะไรเลย
+_UP_RISK.setdefault("grief", 0)   # ความเศร้าไม่ใช่เหตุด่วน — ได้หัวข้อเพื่อให้ได้คำตอบเรื่องการสูญเสีย
+UPGRADES += [(re.compile(r"(?:พ่อ|แม่|ยาย|ตา|ย่า|ปู่|สามี|ภรรยา|แฟน|ลูก|พี่|น้อง|เพื่อนสนิท|หมา|แมว)\S{0,4}(?:เพิ่ง|ได้)(?:เสีย(?:ชีวิต)?|จากไป|ตาย|สิ้นใจ)"
+                          r"(?!\S{0,2}(?:ใจ|งาน|เงิน|ตัง|ของ|หาย|ดาย|สละ|สมาธิ|ชื่อ|เวลา|โอกาส|สิทธิ|ภาษี|เปรียบ|ทรง|ว))(?![^\n]*(?:ต้องทำ(?:ยังไง|อะไร)|แจ้งตาย|ใบมรณบัตร|ใบรับรองการตาย))|"
+                          r"(?i:\b(?:my|our)\s+(?:mom|mum|mother|dad|father|grandma|grandmother|grandpa|grandfather|husband|wife|partner|son|daughter|brother|sister|best\s+friend|dog|cat)\s+"
+                          r"(?:just\s+|recently\s+)?(?:died|passed\s+away|passed)\b(?!\s+(?:the\s+)?(?:exam|test|ball|class|course|out))(?![^\n]*\b(?:what\s+do\s+(?:i|we)\s+do|who\s+do\s+(?:i|we)\s+call|certificate|paperwork)\b))"), "grief")]

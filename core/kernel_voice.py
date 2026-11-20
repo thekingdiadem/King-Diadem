@@ -1852,6 +1852,11 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "grief": ("I'm so sorry. Grief doesn't need to be over quickly — it's love that still has nowhere to go.", [
+        "Let yourself be sad and cry — you don't have to be strong for anyone right now.",
+        "Tell someone about them, or write to them — the things you wanted to say but didn't get to.",
+        "Keep the basics going: eat, sleep, drink water · if weeks pass and you still can't function, or you start thinking of hurting yourself, reach a crisis line (1323 in Thailand, 988 in the US)."],
+        "Is there something about them you'd like to tell me?"),
     "burden": ("Thank you for saying this out loud. The feeling that \"everyone would be better off without me\" is so heavy — it usually comes when you're too exhausted to see what you mean to people.", [
         "That thought feels true, but it's exhaustion talking, not what the people who love you think — families who lose someone almost never feel \"better off\".",
         "Can I ask directly: are you having thoughts of disappearing or hurting yourself? If yes, or you're not sure, reach a crisis line now — 1323 in Thailand (free, 24h), 988 in the US, or findahelpline.com. You can simply say \"I feel like a burden.\"",

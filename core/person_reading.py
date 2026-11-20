@@ -69,6 +69,7 @@ def read(text: str) -> dict:
 # ── ปรับคำตอบจากสมการ (ไม่มี AI) ────────────────────────────────────────────
 _ACK_TH = "ฟังแล้วรู้สึกได้ว่าเรื่องนี้หนักกับใจคุณจริงๆ — ขอเรียงทางให้ทีละขั้นนะ"
 _ACK_EN = "That sounds genuinely heavy — let's take it one step at a time."
+_ALREADY_HELD = re.compile(r"^(?:เสียใจด้วย|ขอบคุณที่|ขอโทษที่|ฟังแล้ว)|(?i:^(?:i'?m\s+so\s+sorry|i'?m\s+sorry|thank\s+you\s+for))")
 _DECIDE_TH = "ถ้าต้องเลือกทำแค่ข้อเดียวภายในสัปดาห์นี้ ข้อไหนที่ทำแล้วเปลี่ยนสถานการณ์มากที่สุด?"
 _DECIDE_EN = "If you could do only one of these this week, which would change things most?"
 
@@ -80,7 +81,9 @@ def adapt_main(main: dict, reading: dict, lang: str = "th") -> dict:
         return main
     m = dict(main)
     open_ = m["open"][0]
-    if reading.get("decide") == "F":
+    # ประโยคเปิดที่รับความรู้สึกอยู่แล้ว ("เสียใจด้วยนะ…" "ขอบคุณที่บอก…") ไม่ต้องเติมซ้ำ
+    # และ "ขอเรียงทางให้ทีละขั้น" ไม่เข้ากับคนที่เพิ่งเสียคนรัก
+    if reading.get("decide") == "F" and not _ALREADY_HELD.search(open_):
         open_ = (_ACK_EN if lang == "en" else _ACK_TH) + "\n\n" + open_
     elif (reading.get("decide") == "T" or reading.get("info") == "N") and m.get("vega") and m["vega"] not in open_:
         open_ = open_ + "\n\n" + ("In short: " if lang == "en" else "สรุปเชิงเหตุผล: ") + m["vega"]
