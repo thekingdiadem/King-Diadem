@@ -347,3 +347,26 @@ def test_round10_danger(text):
 @pytest.mark.parametrize("text", CALM_10)
 def test_round10_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 11: เด็กหาย · ผู้สูงอายุเดินหลง · หลงป่า · ติดกลางทะเล (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา N) ──
+DANGER_11 = [
+    "ลูกหายไปจากตลาด หาไม่เจอ", "we haven't found her yet, my daughter is missing", "아들이 실종됐는데 아직 못 찾았어요",
+    "Mi hijo no volvió de la escuela", "ปู่เป็นอัลไซเมอร์ ออกจากบ้านไปแล้วหาไม่เจอ", "my mom has dementia and wandered off",
+    "หลงป่าบนดอย ติดต่อไม่ได้", "lost on the mountain trail, can't reach anyone", "山で遭難した",
+    "เรือคว่ำกลางทะเล", "our boat is sinking at sea", "바다에서 카약이 떠밀려 돌아갈 수가 없어요",
+]
+CALM_11 = [
+    "ลูกเล่นซ่อนแอบ หาเจอแล้ว", "found him, he was at the neighbor's", "ไปเดินป่ากับไกด์",
+    "watched a documentary about people lost in the forest", "นั่งเรือเล่นที่ทะเล สนุกมาก", "my son came back home late",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_11)
+def test_round11_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_11)
+def test_round11_calm(text):
+    assert frames(text) == [], explain(text)

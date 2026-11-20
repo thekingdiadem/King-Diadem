@@ -87,6 +87,11 @@ FRAMES = (
     ("methanol", "medical", "health_emergency", (("BOOTLEG", "VISION"),), ("FICTION", "HYPOTHETICAL")),
     ("drug_overdose", "medical", "health_emergency", (("STREET_DRUG", "OD_RED"),), ("FICTION", "HYPOTHETICAL")),
     ("battery_magnet", "medical", "health_emergency", (("BATT_MAGNET", "SWALLOW"),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 11 (ชุดปิดตา N ล็อกไว้ก่อนเขียน) — คนหาย/หลง/ติดกลางทะเล
+    ("missing_child", "medical", "health_emergency", (("CHILD_REF", "VANISHED"),), ("FICTION", "HYPOTHETICAL", "FOUND", "PAST_STORY", "PET")),
+    ("dementia_wander", "medical", "health_emergency", (("DEMENTIA", "WANDER"),), ("FICTION", "HYPOTHETICAL", "FOUND", "PAST_STORY")),
+    ("lost_wild", "medical", "health_emergency", (("WILD", "LOST_WILD"),), ("FICTION", "HYPOTHETICAL", "DOCU", "FOUND", "PAST_STORY")),
+    ("at_sea", "medical", "health_emergency", (("SEA", "SEA_RED"),), ("FICTION", "HYPOTHETICAL", "DOCU", "PAST_STORY", "FIXED", "MINOR")),
 )
 
 

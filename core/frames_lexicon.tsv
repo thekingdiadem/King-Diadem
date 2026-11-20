@@ -284,7 +284,7 @@ BLEED_BAD	vi	không ngừng|không cầm|loang|khắp|rất nhiều|xối xả|p
 BLEED_BAD	zh	一直流|流不停|止不住|一地|满地|滿地|很多|喷|噴|大量|一直
 BLEED_BAD	ko	멈추지 않|안 멈|계속|범벅|많이|흥건|뿜|철철
 BLEED_BAD	ja	止まらない|止まらな|だらけ|大量|たくさん|噴き出|あふれ|溢れ|びっしょり
-MINOR	th	นิดหน่อย|นิดเดียว|หยุดแล้ว|ซึม|เล็กน้อย|ถลอก|ไม่เป็นไร
+MINOR	th	นิดนึง|นิดหน่อย|นิดเดียว|หยุดแล้ว|ซึม|เล็กน้อย|ถลอก|ไม่เป็นไร
 MINOR	en	a little|a bit of|a drop|just a drop|stopped|paper cut|scrape|scraped|tiny
 MINOR	es	un poco|poquito|gotita|ya paró|raspé|raspón|papel
 MINOR	vi	một chút|chút|đã ngừng|giấy|trầy|rỉ
@@ -1135,3 +1135,99 @@ MOTION_SICK	vi	say xe|say tàu|say sóng|say nắng
 MOTION_SICK	zh	晕车|暈車|晕船|暈船
 MOTION_SICK	ko	멀미
 MOTION_SICK	ja	車酔い|船酔い
+
+# ═══ รอบ 11: เด็กหาย · ผู้สูงอายุสมองเสื่อมเดินหลง · หลงป่า/หลงบนเขา · ติดกลางทะเล ═══
+CHILD_REF	th	ลูกสาว|ลูกชาย|ลูก|หลาน|น้อง
+CHILD_REF	en	daughter|son|nephew|niece|kid|child|toddler
+CHILD_REF	es	hija|hijo|sobrino|sobrina|niño|niña
+CHILD_REF	vi	con gái|con trai|cháu|con tôi|bé
+CHILD_REF	zh	女儿|女兒|儿子|兒子|侄子|孩子|小孩
+CHILD_REF	ko	딸|아들|조카|아이
+CHILD_REF	ja	娘|息子|甥|姪|子ども|子供
+VANISHED	th	หายไป|หาไม่เจอ|ไม่กลับบ้าน|โทรไม่ติด|หายตัว
+VANISHED	en	disappeared|vanished|can't find her|can't find him|didn't come home|phone has been off|went missing
+VANISHED	en	re:\bis missing\b(?! (?:her|his|my|their|the|our|out|a|some)\b)
+VANISHED	es	desapareció|no la encontramos|no lo encontramos|no volvió|teléfono apagado|está desaparecid
+VANISHED	vi	mất tích|biến mất|không về nhà|điện thoại tắt|tìm không thấy
+VANISHED	zh	不见了|不見了|找不到|没回家|沒回家|关机|關機|失踪|失蹤
+VANISHED	ko	사라진|사라졌|못 찾|안 오고|꺼져|실종
+VANISHED	ja	いなくなって|見つからない|帰ってこな|電源が切れ|行方不明
+FOUND	th	หาเจอแล้ว|เจอแล้ว|กลับมาแล้ว|บอกไว้แล้ว|ซ่อนแอบ
+FOUND	en	found it|found the trail|found our way|found the way
+FOUND	en	re:\b(?<!n't )(?<!not )(?<!never )found (?:everyone|her|him|them)\b|(?<!n't )(?<!not )came back|said (?:he|she)'ll be back|hide and seek
+FOUND	es	re:encontramos a todos|la encontramos ya|(?<!no )volvió|dijo que vuelve|escondidas
+FOUND	vi	tìm thấy hết|tìm thấy rồi|đã về|đã nói|trốn tìm
+FOUND	zh	都找到|找到了|回来了|說好|说好|捉迷藏
+FOUND	ko	re:다 찾|(?<!못 )찾았어|(?<!안 )돌아왔|온다고|숨바꼭질
+FOUND	ja	見つかった|帰ってきた|帰ると言|かくれんぼ
+DEMENTIA	th	อัลไซเมอร์|ความจำเสื่อม|สมองเสื่อม
+DEMENTIA	en	alzheimer's|alzheimers|dementia
+DEMENTIA	es	alzhéimer|alzheimer|demencia
+DEMENTIA	vi	alzheimer|sa sút trí tuệ|lẫn tuổi già
+DEMENTIA	zh	阿尔茨海默|阿爾茨海默|失智|痴呆|老年痴呆
+DEMENTIA	ko	치매
+DEMENTIA	ja	認知症
+WANDER	th	เดินออกจากบ้าน|ออกจากบ้าน|หาไม่เจอ|หลงทาง|ไม่รู้ว่าอยู่ไหน|หายไป
+WANDER	en	walked out|can't find her|can't find him|got lost|doesn't know where|wandered off|is missing
+WANDER	es	salió de casa|no la encontramos|no lo encontramos|se perdió|no sabe dónde
+WANDER	vi	ra khỏi nhà|chưa tìm thấy|bị lạc|không biết mình|đi lạc
+WANDER	zh	走出家门|走出家門|没找到|沒找到|迷路|不知道自己在哪|走丢|走丟
+WANDER	ko	나가셨|못 찾|길을 잃|어디인지 모르|실종
+WANDER	ja	家を出|見つからない|道に迷|どこにいるか分からない|行方不明
+WILD	th	ป่า|ดอย|ภูเขา|บนเขา|เดินป่า
+WILD	en	forest|woods|mountain|hiking|trail
+WILD	es	bosque|montaña|senderismo|sendero
+WILD	vi	rừng|núi|leo núi
+WILD	zh	森林|山里|山裡|登山|徒步
+WILD	ko	숲|산속|등산|산에서
+WILD	ja	森|山の|山で|登山
+LOST_WILD	th	หลงป่า|หลง|แยกกลุ่ม|ยังไม่กลับ|ติดต่อไม่ได้
+LOST_WILD	en	lost|split from|hasn't come back|can't reach
+LOST_WILD	es	perdidos|perdido|perdida|se separó|no ha vuelto|no podemos contactarlo
+LOST_WILD	vi	lạc|tách khỏi|chưa về|không liên lạc được
+LOST_WILD	zh	迷路|走散|没回来|沒回來|联系不上|聯繫不上
+LOST_WILD	ko	길을 잃|떨어졌|안 돌아|연락이 안
+LOST_WILD	ja	迷って|はぐれ|戻らず|連絡がつかない|遭難
+DOCU	th	สารคดี
+DOCU	en	documentary
+DOCU	es	documental
+DOCU	vi	phim tài liệu
+DOCU	zh	纪录片|紀錄片
+DOCU	ko	다큐
+DOCU	ja	ドキュメンタリー
+SEA	th	ทะเล|เรือ|คายัค
+SEA	en	sea|boat|kayak|ocean
+SEA	es	mar|barco|kayak|bote
+SEA	vi	biển|thuyền|kayak
+SEA	zh	海上|海中|海|船|皮划艇
+SEA	ko	바다|어선|카약|보트|배가 뒤집
+SEA	ja	沖|海|船|カヤック
+SEA_RED	th	เครื่องดับ|น้ำเข้าเรือ|คลื่นแรงมาก|กระแสน้ำพัด|กลับไม่ได้|เรือคว่ำ|เรือล่ม|ลอยอยู่กลางทะเล
+SEA_RED	en	engine died|water is coming in|current pulled|can't get back|capsized|clinging|sinking
+SEA_RED	es	se le paró el motor|entra agua|se llevó|no puedo volver|volcó|agarrados|se hunde
+SEA_RED	vi	chết máy|nước tràn vào|kéo|không quay lại được|bị lật|bám vào|chìm
+SEA_RED	zh	熄火|进水|進水|冲离|沖離|回不去|翻了|抱着船|沉了
+SEA_RED	ko	꺼졌|물이 들어|떠밀려|돌아갈 수가 없|뒤집혀|붙잡고|가라앉
+SEA_RED	ja	止まって|浸水|流され|戻れない|転覆|つかまって|沈ん
+# ── ตัวกันเตือนเกินของรอบ 11 ── เรื่องเก่า/ในอดีต · ซ่อมเสร็จแล้ว · สัตว์เลี้ยง (คนละเรื่องกับเด็กหาย)
+PAST_STORY	th	ตอนเด็ก|เคยหลง|เมื่อหลายปีก่อน|สมัยก่อน|ปีที่แล้ว
+PAST_STORY	en	when i was a kid|years ago|last year|as a child|back in
+PAST_STORY	es	cuando era niño|cuando era niña|hace años|el año pasado
+PAST_STORY	vi	hồi nhỏ|nhiều năm trước|năm ngoái
+PAST_STORY	zh	小时候|小時候|多年前|去年
+PAST_STORY	ko	어렸을 때|몇 년 전|작년
+PAST_STORY	ja	子どもの頃|子供の頃|何年も前|去年
+FIXED	th	ซ่อมเสร็จ|ช่างมาแล้ว|ซ่อมได้แล้ว|ติดแล้ว
+FIXED	en	fixed it|got it fixed|repaired|started again
+FIXED	es	lo arreglaron|ya arrancó|reparado
+FIXED	vi	sửa xong|đã sửa|nổ máy lại
+FIXED	zh	修好了|修好|又能开了
+FIXED	ko	고쳤|수리했|다시 시동
+FIXED	ja	直った|修理できた|動き出した
+PET	th	แมว|หมา|สุนัข|นก|กระต่าย
+PET	en	cat|dog|puppy|kitten|parrot|rabbit
+PET	es	gato|perro|perrito|gatito
+PET	vi	mèo|chó|cún
+PET	zh	猫|貓|狗
+PET	ko	고양이|강아지|개가
+PET	ja	猫|犬|ペット
