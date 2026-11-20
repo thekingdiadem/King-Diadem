@@ -474,9 +474,10 @@ def apply(text: str, a: dict) -> dict:
     # บริบทบอกชัดว่าไม่ใช่เหตุตอนนี้ (ถามความรู้ ข่าว อดีตที่จบแล้ว มุก) → ไม่ยกกลับขึ้นมาอีก
     # และคะแนนที่ค้างจากชั้นอื่น (เช่นคำว่า "ล่ม" ในข่าว) ลดลงด้วย ถ้าไม่เหลือหัวข้อที่อันตราย
     if calmed and not a["crisis"]:
+        # หัวข้อเบา (ความเศร้า หนี้ ข่าวดี ค่า 0) ไม่ค้ำคะแนนไว้ — นับเฉพาะหัวข้อที่อันตรายจริง
         # สัญญาณทำร้ายตัวเองแบบอ้อม ("warning") ไม่ถูกลดด้วยคำแวดล้อมอย่าง "ซีรีส์" — รอบสุ่ม 7:
         # "ดูซีรีส์ไปสองตอน … พรุ่งนี้คงไม่ต้องตื่นแล้ว" เคยถูกลดจาก 65 เหลือ 20 (การจับเรื่องแต่งจริงทำที่ INDIRECT_SELF แล้ว)
-        if not a.get("disaster") and not a.get("scam") and not a.get("intl_urgent") and not any(t in _UP_RISK for t in a["topics"]) \
+        if not a.get("disaster") and not a.get("scam") and not a.get("intl_urgent") and not any(_UP_RISK.get(t, 0) > 0 for t in a["topics"]) \
                 and "warning" not in a["topics"]:
             a["text_risk"] = min(a["text_risk"], 20)
             a["risk"] = min(a.get("risk", 0), 20)
@@ -887,3 +888,12 @@ UPGRADES += [
 DOWNGRADES.append((re.compile(r"^(?![^\n]*(?:ไม่ฟื้น|ไม่ตื่น|หายใจ|ชัก|เขียว|แพ้ยา|ผื่น|ปากบวม|หมดสติ))[^\n]*?(?:วางยาสลบ|ดมยา|ยาสลบ|บล็อกหลัง)[^\n]{0,15}?(?:ผ่าตัด|ทำฟัน|ส่องกล้อง|คลอด|หมอ|โรงพยาบาล)"), ("health_emergency", "first_aid", "overdose")))
 # หลังผ่าตัด/ดมยาแล้วไม่ตื่น — เคยได้ 0
 UPGRADES += [(re.compile(r"(?:หลังผ่าตัด|ดมยา|ยาสลบ|ผ่าตัดเสร็จ)[^\n]{0,25}?(?:ไม่ตื่น|ไม่ฟื้น|ปลุกไม่ตื่น|เรียกไม่ตอบ|หายใจไม่ออก|หายใจแผ่ว)"), "health_emergency")]
+
+# อังกฤษ: เรื่องชีวิตประจำวันที่เคยไม่ได้หัวข้อเลย (ได้คำตอบทั่วไป) — หนี้ · พ่อแม่ทะเลาะ · สอบตก · ข่าวดี
+_UP_RISK.setdefault("debt", 0); _UP_RISK.setdefault("family", 0); _UP_RISK.setdefault("study", 0); _UP_RISK.setdefault("positive", 0)
+UPGRADES += [
+    (re.compile(r"(?i)\b(?:drowning\s+in|buried\s+in|can'?t\s+pay\s+(?:off\s+)?(?:my\s+)?|so\s+much)\s+(?:credit\s+card\s+|student\s+|loan\s+)?(?:debt|debts|loans?|bills)\b(?![^\n]*\b(?:die|kill|end\s+it|suicide)\b)"), "debt"),
+    (re.compile(r"(?i)\bmy\s+(?:parents|mom\s+and\s+dad|family)\s+(?:fight|argue|yell|scream)s?\b|\b(?:fight|argue)s?\s+with\s+my\s+(?:parents|mom|dad|mother|father|sister|brother)\b"), "family"),
+    (re.compile(r"(?i)\b(?:i\s+)?(?:failed|flunked|bombed)\s+(?:my\s+|the\s+|an?\s+)?(?:exam|test|midterm|final|class|course|module)s?\b(?![^\n]*\b(?:kill\s+me|will\s+kill|parents|mom|dad)\b)"), "study"),
+    (re.compile(r"(?i)\b(?:i\s+)?(?:got\s+(?:promoted|the\s+job|accepted|engaged|a\s+raise)|passed\s+(?:my|the)\s+(?:exam|test|interview))\b(?![^\n]*\b(?:but|however|scared|afraid|anxious|sad)\b)"), "positive"),
+]
