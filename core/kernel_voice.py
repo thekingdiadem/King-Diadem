@@ -1852,6 +1852,11 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    "bribery": ("Officials can't demand money outside the system — you have the right to ask for an official ticket or document every time.", [
+        "In the moment: stay calm, don't argue, ask to see their ID and an official ticket or receipt — fines are paid at the station or official channels, never in cash to a person.",
+        "Note down: name, rank or badge · time and place · plate number · the amount asked · if safe, record audio or video.",
+        "Report it: in Thailand Damrongdhama Center 1567 · NACC 1205 · for police, the complaints line 1599 — you can ask to stay anonymous."],
+        "Are you still there now, or has it already happened?"),
     "grief": ("I'm so sorry. Grief doesn't need to be over quickly — it's love that still has nowhere to go.", [
         "Let yourself be sad and cry — you don't have to be strong for anyone right now.",
         "Tell someone about them, or write to them — the things you wanted to say but didn't get to.",
