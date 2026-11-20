@@ -453,7 +453,7 @@ _CYR = re.compile(r"[Ѐ-ӿ]")
 _WORDS = {
     "fr": r"frappe|mari|mère|mourir|respire|je|j'ai|ne|pas|mon|ma|mes|est|suis|veux|avec|pour|mais|très|aujourd'hui|ça|c'est|qu'|ai|au|secours|aide",
     "de": r"sterben|atmet|schlägt|mann|mutter|ich|nicht|mein|meine|ist|bin|und|mit|habe|kann|will|heute|sehr|aber|was|hilfe|mich|mir",
-    "pt": r"quero|morrer|respira|marido|bate|mãe|eu|não|meu|minha|estou|quero|com|muito|hoje|mas|você|tenho|socorro|está|sou",
+    "pt": r"quero|morrer|respira|marido|bate|mãe|eu|não|meu|minha|estou|quero|com|muito|hoje|mas|você|tenho|socorro|está|sou|tomei|comprimidos|remédios|filho|filha|batendo|respirando",
     "it": r"morire|respira|marito|picchia|madre|io|non|mio|mia|sono|voglio|con|molto|oggi|ma|ho|aiuto|perché|sto|che",
     "pl": r"umrzeć|oddycha|mąż|bije|ratunku|mama|jestem|nie|mój|moja|mam|chcę|bardzo|dzisiaj|ale|się|pomocy|mnie|jak",
     "nl": r"dood|ademt|slaat|mij|moeder|ik|niet|mijn|ben|wil|met|heel|vandaag|maar|het|een|help|hulp|heb|kan",
