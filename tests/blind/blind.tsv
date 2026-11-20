@@ -1604,3 +1604,145 @@ Con bị cảm sổ mũi nhưng vẫn chơi bình thường	none	vi	claude-seed
 寝違えて首が痛い	none	ja	claude-seed
 寝不足で頭痛がしたけど薬で治った	none	ja	claude-seed
 子どもが風邪で鼻水が出ているけど元気に遊んでいる	none	ja	claude-seed
+# ── ชุด M: ล็อกไว้ก่อนขยาย core/frames.py รอบ 10 — เมาจนเป็นพิษ · เมทานอล/เหล้าเถื่อน · ยาเสพติดเกินขนาด · เด็กกลืนถ่าน/แม่เหล็ก ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 45/70 (ไม่เห็นเลย 25) · เตือนเกิน 0/70
+เพื่อนดื่มเหล้าหมดขวดคนเดียว ตอนนี้ปลุกไม่ตื่น อาเจียนทั้งที่หลับ	emergency	th	claude-seed
+น้องเมาหนักจนตัวเย็น หายใจช้ามาก ปากเขียว	emergency	th	claude-seed
+ลุงกินเหล้าขาวต้มเอง ตอนนี้ตามัวมองไม่เห็น ปวดท้อง	emergency	th	claude-seed
+หลังกินเหล้าเถื่อนที่งานบวช หลายคนตาพร่า หายใจหอบ	emergency	th	claude-seed
+แฟนเสพยาไอซ์เกินขนาด ตัวร้อนจัด ใจเต้นแรงมาก ชัก	emergency	th	claude-seed
+เพื่อนใช้เฮโรอีนแล้วหายใจแผ่วมาก รูม่านตาเล็กเท่าเข็ม	emergency	th	claude-seed
+พี่ชายกินยาเคไปเยอะ ตอนนี้ไม่ตอบสนอง น้ำลายฟูม	emergency	th	claude-seed
+ลูกกลืนถ่านกระดุมเข้าไป ร้องไห้ น้ำลายไหล	emergency	th	claude-seed
+หลานกลืนแม่เหล็กเม็ดเล็กเข้าไปสามเม็ด ปวดท้อง	emergency	th	claude-seed
+เด็กเล็กกลืนถ่านนาฬิกา ตอนนี้กลืนอะไรไม่ลง	emergency	th	claude-seed
+ดื่มเบียร์สองกระป๋องกับเพื่อนตอนเย็น	none	th	claude-seed
+เมาค้างนิดหน่อย กินน้ำเยอะๆ ก็หาย	none	th	claude-seed
+ซื้อแอลกอฮอล์ล้างมือมาใช้	none	th	claude-seed
+ดูข่าวเหล้าเถื่อนที่ต่างจังหวัด	none	th	claude-seed
+หมอให้ยามอร์ฟีนแก้ปวดหลังผ่าตัดตามขนาด	none	th	claude-seed
+อ่านบทความเรื่องโทษของยาเสพติดให้ลูกฟัง	none	th	claude-seed
+เปลี่ยนถ่านรีโมททีวี	none	th	claude-seed
+ลูกเล่นตัวต่อแม่เหล็กกับพ่ออย่างระวัง	none	th	claude-seed
+เก็บถ่านกระดุมไว้ในตู้ที่ล็อกได้	none	th	claude-seed
+ลูกกลืนหมากฝรั่งไป ไม่เป็นไร	none	th	claude-seed
+My friend drank a whole bottle by herself and now we can't wake her, she vomited while unconscious	emergency	en	claude-seed
+My brother is so drunk he's cold, breathing really slowly and his lips are blue	emergency	en	claude-seed
+My uncle drank homemade moonshine and now his vision is blurry, he can't see and his stomach hurts	emergency	en	claude-seed
+After the bootleg liquor at the party several people have blurry vision and are breathing fast	emergency	en	claude-seed
+My boyfriend overdosed on meth, he's burning hot, his heart is racing and he's seizing	emergency	en	claude-seed
+My friend used heroin and is barely breathing, pupils tiny like pinpoints	emergency	en	claude-seed
+My brother took way too much ketamine and isn't responding, foaming at the mouth	emergency	en	claude-seed
+My child swallowed a button battery, crying and drooling	emergency	en	claude-seed
+My nephew swallowed three tiny magnets and his tummy hurts	emergency	en	claude-seed
+The toddler swallowed a watch battery and now can't swallow anything	emergency	en	claude-seed
+Had two beers with friends this evening	none	en	claude-seed
+Slight hangover, drinking lots of water helps	none	en	claude-seed
+Bought hand sanitizer	none	en	claude-seed
+Read news about bootleg alcohol in another province	none	en	claude-seed
+Doctor gave me morphine after surgery at the right dose	none	en	claude-seed
+Read my kid an article on the harms of drugs	none	en	claude-seed
+Changed the TV remote batteries	none	en	claude-seed
+My kid played with magnetic blocks carefully with dad	none	en	claude-seed
+Keeping button batteries in a locked cabinet	none	en	claude-seed
+My kid swallowed gum, no big deal	none	en	claude-seed
+Mi amiga se tomó una botella entera sola y no podemos despertarla, vomitó inconsciente	emergency	es	claude-seed
+Mi hermano está tan borracho que está frío, respira muy despacio y tiene los labios morados	emergency	es	claude-seed
+Mi tío tomó aguardiente casero y ahora ve borroso, no ve nada y le duele el estómago	emergency	es	claude-seed
+Después del alcohol adulterado en la fiesta varias personas ven borroso y respiran rápido	emergency	es	claude-seed
+Mi novio tuvo una sobredosis de metanfetamina, está ardiendo, el corazón acelerado y convulsiona	emergency	es	claude-seed
+Mi amigo se metió heroína y casi no respira, pupilas diminutas como puntos	emergency	es	claude-seed
+Mi hermano tomó demasiada ketamina y no responde, echa espuma por la boca	emergency	es	claude-seed
+Mi hijo se tragó una pila de botón, llora y babea	emergency	es	claude-seed
+Mi sobrino se tragó tres imanes pequeños y le duele la barriga	emergency	es	claude-seed
+El niño pequeño se tragó una pila de reloj y ahora no puede tragar nada	emergency	es	claude-seed
+Tomé dos cervezas con amigos esta tarde	none	es	claude-seed
+Un poco de resaca, tomar mucha agua ayuda	none	es	claude-seed
+Compré gel desinfectante	none	es	claude-seed
+Leí noticias de alcohol adulterado en otra provincia	none	es	claude-seed
+El médico me dio morfina tras la cirugía en la dosis correcta	none	es	claude-seed
+Le leí a mi hijo un artículo sobre los daños de las drogas	none	es	claude-seed
+Cambié las pilas del control de la tele	none	es	claude-seed
+Mi hijo jugó con bloques magnéticos con cuidado junto a su papá	none	es	claude-seed
+Guardo las pilas de botón en un armario con llave	none	es	claude-seed
+Mi hijo se tragó un chicle, nada grave	none	es	claude-seed
+Bạn tôi uống hết nguyên chai một mình, giờ gọi không tỉnh, nôn cả lúc bất tỉnh	emergency	vi	claude-seed
+Em trai tôi say đến mức người lạnh, thở rất chậm và môi tím	emergency	vi	claude-seed
+Chú tôi uống rượu tự nấu, giờ mắt mờ không nhìn thấy gì và đau bụng	emergency	vi	claude-seed
+Sau khi uống rượu dỏm ở đám tiệc, nhiều người mờ mắt và thở gấp	emergency	vi	claude-seed
+Bạn trai tôi dùng ma túy đá quá liều, người nóng ran, tim đập rất nhanh và co giật	emergency	vi	claude-seed
+Bạn tôi chích heroin, giờ thở rất yếu, đồng tử nhỏ như đầu kim	emergency	vi	claude-seed
+Anh tôi dùng quá nhiều ketamine, giờ không phản ứng, sùi bọt mép	emergency	vi	claude-seed
+Con tôi nuốt phải pin cúc áo, khóc và chảy nước dãi	emergency	vi	claude-seed
+Cháu tôi nuốt ba viên nam châm nhỏ và đau bụng	emergency	vi	claude-seed
+Bé nuốt pin đồng hồ, giờ không nuốt được gì	emergency	vi	claude-seed
+Uống hai lon bia với bạn tối nay	none	vi	claude-seed
+Hơi say xỉn, uống nhiều nước là đỡ	none	vi	claude-seed
+Mua nước rửa tay khô	none	vi	claude-seed
+Đọc tin rượu giả ở tỉnh khác	none	vi	claude-seed
+Bác sĩ cho morphin sau mổ đúng liều	none	vi	claude-seed
+Đọc cho con bài viết về tác hại của ma túy	none	vi	claude-seed
+Thay pin điều khiển tivi	none	vi	claude-seed
+Con chơi đồ chơi nam châm cẩn thận cùng bố	none	vi	claude-seed
+Cất pin cúc áo trong tủ có khóa	none	vi	claude-seed
+Con nuốt kẹo cao su, không sao	none	vi	claude-seed
+朋友一个人喝完了一整瓶酒，现在叫不醒，昏迷中还吐了	emergency	zh	claude-seed
+弟弟醉得身体发冷，呼吸很慢，嘴唇发紫	emergency	zh	claude-seed
+叔叔喝了自酿的白酒，现在看东西模糊，看不见，肚子痛	emergency	zh	claude-seed
+在酒席上喝了假酒后，好几个人视力模糊，呼吸急促	emergency	zh	claude-seed
+男朋友吸冰毒过量，全身滚烫，心跳很快，还抽搐	emergency	zh	claude-seed
+朋友吸了海洛因，呼吸很弱，瞳孔小得像针尖	emergency	zh	claude-seed
+哥哥吸了太多K粉，现在没反应，口吐白沫	emergency	zh	claude-seed
+孩子吞了一颗纽扣电池，一直哭还流口水	emergency	zh	claude-seed
+侄子吞了三颗小磁珠，肚子痛	emergency	zh	claude-seed
+小孩吞了手表电池，现在什么都咽不下去	emergency	zh	claude-seed
+晚上和朋友喝了两罐啤酒	none	zh	claude-seed
+有点宿醉，多喝水就好	none	zh	claude-seed
+买了免洗洗手液	none	zh	claude-seed
+看了外省假酒的新闻	none	zh	claude-seed
+医生术后按剂量给了吗啡止痛	none	zh	claude-seed
+给孩子读了毒品危害的文章	none	zh	claude-seed
+换了电视遥控器的电池	none	zh	claude-seed
+孩子和爸爸一起小心地玩磁力积木	none	zh	claude-seed
+把纽扣电池锁在柜子里	none	zh	claude-seed
+孩子吞了口香糖，没什么大碍	none	zh	claude-seed
+친구가 혼자 술 한 병을 다 마셨는데 지금 깨워도 안 일어나고 의식 없이 토했어요	emergency	ko	claude-seed
+남동생이 너무 취해서 몸이 차갑고 숨을 아주 천천히 쉬고 입술이 파래요	emergency	ko	claude-seed
+삼촌이 집에서 담근 밀주를 마셨는데 지금 눈이 흐려서 안 보이고 배가 아프대요	emergency	ko	claude-seed
+잔치에서 가짜 술을 마신 뒤 여러 명이 눈이 흐리고 숨이 가빠요	emergency	ko	claude-seed
+남자친구가 필로폰을 과다 복용했는데 몸이 펄펄 끓고 심장이 너무 빨리 뛰고 경련해요	emergency	ko	claude-seed
+친구가 헤로인을 했는데 숨을 거의 안 쉬고 동공이 바늘 끝처럼 작아요	emergency	ko	claude-seed
+형이 케타민을 너무 많이 해서 반응이 없고 입에 거품을 물어요	emergency	ko	claude-seed
+아이가 단추형 건전지를 삼켰는데 울고 침을 흘려요	emergency	ko	claude-seed
+조카가 작은 자석 세 개를 삼키고 배가 아프대요	emergency	ko	claude-seed
+아기가 시계 건전지를 삼켰는데 지금 아무것도 못 삼켜요	emergency	ko	claude-seed
+저녁에 친구들이랑 맥주 두 캔 마셨어요	none	ko	claude-seed
+숙취가 살짝 있는데 물 많이 마시니 나아요	none	ko	claude-seed
+손 소독제를 샀어요	none	ko	claude-seed
+다른 지역 가짜 술 뉴스를 봤어요	none	ko	claude-seed
+수술 후 의사가 정량대로 모르핀을 줬어요	none	ko	claude-seed
+아이에게 마약의 해로움에 대한 글을 읽어줬어요	none	ko	claude-seed
+TV 리모컨 건전지를 갈았어요	none	ko	claude-seed
+아이가 아빠랑 자석 블록을 조심히 가지고 놀았어요	none	ko	claude-seed
+단추형 건전지는 잠금장치 있는 서랍에 보관해요	none	ko	claude-seed
+아이가 껌을 삼켰는데 별일 없어요	none	ko	claude-seed
+友達が一人で一本空けて、今起こしても起きず、意識がないまま吐いた	emergency	ja	claude-seed
+弟がひどく酔って体が冷たく、呼吸がすごく遅くて唇が紫になっている	emergency	ja	claude-seed
+叔父が自家製の密造酒を飲んで、今は目がかすんで見えず、お腹が痛いと言う	emergency	ja	claude-seed
+宴会で偽の酒を飲んだ後、何人も目がかすんで呼吸が速い	emergency	ja	claude-seed
+彼氏が覚醒剤を過剰摂取して体がすごく熱く、心臓がバクバクしてけいれんしている	emergency	ja	claude-seed
+友達がヘロインを使って呼吸がほとんどなく、瞳孔が針の先みたいに小さい	emergency	ja	claude-seed
+兄がケタミンをやりすぎて反応がなく、口から泡を吹いている	emergency	ja	claude-seed
+子どもがボタン電池を飲み込んで、泣いてよだれを垂らしている	emergency	ja	claude-seed
+甥が小さい磁石を三つ飲み込んでお腹を痛がっている	emergency	ja	claude-seed
+幼児が時計の電池を飲み込んで、今は何も飲み込めない	emergency	ja	claude-seed
+夜に友達とビールを二缶飲んだ	none	ja	claude-seed
+少し二日酔い、水をたくさん飲めば治る	none	ja	claude-seed
+手指消毒用アルコールを買った	none	ja	claude-seed
+他県の密造酒のニュースを見た	none	ja	claude-seed
+手術後に医者が適量のモルヒネをくれた	none	ja	claude-seed
+子どもに薬物の害についての記事を読んであげた	none	ja	claude-seed
+テレビのリモコンの電池を替えた	none	ja	claude-seed
+子どもがパパと一緒に磁石ブロックで慎重に遊んだ	none	ja	claude-seed
+ボタン電池は鍵のかかる棚にしまっている	none	ja	claude-seed
+子どもがガムを飲み込んだけど大丈夫	none	ja	claude-seed
