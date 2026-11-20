@@ -3024,3 +3024,145 @@ Xem tin ngộ độc thực phẩm ở một nhà máy	none	vi	claude-seed
 農場でマッシュルームを採ってスープにした	none	ja	claude-seed
 工場の食中毒のニュースを見た	none	ja	claude-seed
 レストランで牡蠣を食べた、おいしかった	none	ja	claude-seed
+# ── ชุด W: ล็อกไว้ก่อนขยาย core/frames.py รอบ 20 — (ไต) เด็กไตอักเสบ ฉี่สีโค้ก ตาบวม · ไข้หลายวัน+ตาแดงลิ้นแดง (คาวาซากิ) · เลือดกำเดาไหลไม่หยุด · ฟันติดเชื้อลามคอ ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 8/70 (ไม่เห็นเลย 62) · เตือนเกิน 0/70
+ลูกเพิ่งหายเจ็บคอ ตอนนี้ตาบวม ฉี่สีโค้ก ปวดหัว	emergency	th	claude-seed
+หลานหนังตาบวมทุกเช้า ฉี่น้อยลง สีเหมือนน้ำล้างเนื้อ	emergency	th	claude-seed
+ลูกไตอักเสบ ความดันสูง ปวดหัวมาก อาเจียน	emergency	th	claude-seed
+ลูกไข้สูงมาห้าวัน ตาแดงทั้งสองข้าง ลิ้นแดงเหมือนสตรอว์เบอร์รี่	emergency	th	claude-seed
+หลานไข้ไม่ลงหลายวัน ปากแดงแตก มือเท้าบวมแดง ผื่นขึ้น	emergency	th	claude-seed
+เลือดกำเดาไหลไม่หยุดมาครึ่งชั่วโมงแล้ว บีบจมูกก็ไม่หยุด	emergency	th	claude-seed
+พ่อกินยาละลายลิ่มเลือด เลือดกำเดาไหลเป็นสาย หน้ามืด	emergency	th	claude-seed
+ปวดฟันกรามมาหลายวัน ตอนนี้แก้มบวมลามไปคอ กลืนน้ำลายไม่ได้	emergency	th	claude-seed
+ฟันผุติดเชื้อ ใต้คางบวมแข็ง อ้าปากไม่ขึ้น หายใจลำบาก	emergency	th	claude-seed
+เหงือกบวมเป็นหนอง ไข้ขึ้น หน้าบวมจนตาปิด	emergency	th	claude-seed
+ลูกตาบวมนิดหน่อยตอนตื่นนอนเพราะร้องไห้เมื่อคืน	none	th	claude-seed
+เด็กฉี่บ่อยเพราะดื่มน้ำหวานเยอะ	none	th	claude-seed
+ลูกเป็นไข้สองวัน หมอบอกไวรัส กินยาลดไข้แล้วดีขึ้น	none	th	claude-seed
+ตาแดงเพราะว่ายน้ำในสระ	none	th	claude-seed
+กินสตรอว์เบอร์รี่จนลิ้นแดง	none	th	claude-seed
+เลือดกำเดาไหลนิดหน่อยเพราะอากาศแห้ง บีบจมูกห้านาทีก็หยุด	none	th	claude-seed
+แคะจมูกแล้วเลือดออกนิดเดียว	none	th	claude-seed
+ปวดฟันเพราะกินของเย็น	none	th	claude-seed
+ไปถอนฟันคุดมา แก้มบวมนิดหน่อยตามที่หมอบอก	none	th	claude-seed
+จัดฟันแล้วเจ็บเหงือกสองวัน	none	th	claude-seed
+My son just got over a sore throat and now his eyes are puffy, his pee looks like cola and he has a headache	emergency	en	claude-seed
+My niece's eyelids are swollen every morning, she's peeing less and it looks like meat-washing water	emergency	en	claude-seed
+My kid has nephritis, high blood pressure, a terrible headache and is vomiting	emergency	en	claude-seed
+My kid has had a high fever for five days, both eyes are red and his tongue is red like a strawberry	emergency	en	claude-seed
+My nephew's fever won't come down for days, cracked red lips, swollen red hands and feet and a rash	emergency	en	claude-seed
+The nosebleed hasn't stopped for half an hour even pinching my nose	emergency	en	claude-seed
+Dad is on blood thinners, his nose is pouring blood and he feels faint	emergency	en	claude-seed
+My molar has hurt for days, now my cheek swelling spreads to my neck and I can't swallow my spit	emergency	en	claude-seed
+An infected tooth, the area under my jaw is hard and swollen, I can't open my mouth and it's hard to breathe	emergency	en	claude-seed
+My gum is swollen with pus, I have a fever and my face is so swollen my eye is shut	emergency	en	claude-seed
+My kid's eyes are a bit puffy in the morning from crying last night	none	en	claude-seed
+The kid pees a lot from drinking sweet drinks	none	en	claude-seed
+Kid had a fever two days, doctor said viral, better with fever medicine	none	en	claude-seed
+Red eyes from swimming in the pool	none	en	claude-seed
+Ate so many strawberries my tongue is red	none	en	claude-seed
+Small nosebleed from dry air, stopped after pinching five minutes	none	en	claude-seed
+Picked my nose and it bled a little	none	en	claude-seed
+Tooth sensitivity from cold drinks	none	en	claude-seed
+Had my wisdom tooth out, cheek a little swollen as the dentist said	none	en	claude-seed
+Gums sore for two days after braces	none	en	claude-seed
+Mi hijo acaba de superar una faringitis y ahora tiene los ojos hinchados, la orina parece Coca-Cola y le duele la cabeza	emergency	es	claude-seed
+A mi sobrina se le hinchan los párpados cada mañana, orina menos y parece agua de lavar carne	emergency	es	claude-seed
+Mi hijo tiene nefritis, presión alta, un dolor de cabeza terrible y vomita	emergency	es	claude-seed
+Mi hijo lleva cinco días con fiebre alta, los dos ojos rojos y la lengua roja como fresa	emergency	es	claude-seed
+A mi sobrino no le baja la fiebre en días, labios rojos agrietados, manos y pies hinchados y rojos y sarpullido	emergency	es	claude-seed
+El sangrado de nariz no para desde hace media hora aunque aprieto la nariz	emergency	es	claude-seed
+Mi papá toma anticoagulantes, le sale sangre a chorros por la nariz y se siente desmayar	emergency	es	claude-seed
+Me duele la muela hace días, ahora la hinchazón de la mejilla baja al cuello y no puedo tragar saliva	emergency	es	claude-seed
+Un diente infectado, debajo de la mandíbula está duro e hinchado, no puedo abrir la boca y me cuesta respirar	emergency	es	claude-seed
+Tengo la encía hinchada con pus, fiebre y la cara tan hinchada que se me cerró el ojo	emergency	es	claude-seed
+Mi hijo tiene los ojos un poco hinchados en la mañana por llorar anoche	none	es	claude-seed
+El niño orina mucho por tomar refrescos	none	es	claude-seed
+Mi hijo tuvo fiebre dos días, el médico dijo que es viral, mejor con antipirético	none	es	claude-seed
+Ojos rojos por nadar en la piscina	none	es	claude-seed
+Comí tantas fresas que tengo la lengua roja	none	es	claude-seed
+Sangrado de nariz pequeño por el aire seco, paró tras apretar cinco minutos	none	es	claude-seed
+Me metí el dedo en la nariz y sangró un poquito	none	es	claude-seed
+Sensibilidad dental con bebidas frías	none	es	claude-seed
+Me sacaron la muela del juicio, la mejilla un poco hinchada como dijo el dentista	none	es	claude-seed
+Encías adoloridas dos días tras ponerme brackets	none	es	claude-seed
+Con tôi vừa khỏi viêm họng, giờ mắt sưng húp, nước tiểu như màu coca và đau đầu	emergency	vi	claude-seed
+Cháu tôi mí mắt sưng mỗi sáng, tiểu ít đi và màu như nước rửa thịt	emergency	vi	claude-seed
+Con tôi bị viêm cầu thận, huyết áp cao, đau đầu dữ dội và nôn	emergency	vi	claude-seed
+Con tôi sốt cao năm ngày, hai mắt đỏ và lưỡi đỏ như quả dâu	emergency	vi	claude-seed
+Cháu tôi sốt mãi không hạ, môi đỏ nứt nẻ, tay chân sưng đỏ và nổi ban	emergency	vi	claude-seed
+Chảy máu cam nửa tiếng không cầm dù đã bóp mũi	emergency	vi	claude-seed
+Bố tôi uống thuốc chống đông, máu mũi chảy thành dòng và choáng váng	emergency	vi	claude-seed
+Đau răng hàm mấy ngày, giờ má sưng lan xuống cổ, không nuốt được nước bọt	emergency	vi	claude-seed
+Răng sâu nhiễm trùng, dưới hàm sưng cứng, không há miệng được và khó thở	emergency	vi	claude-seed
+Lợi sưng có mủ, sốt và mặt sưng đến mức nhắm cả mắt	emergency	vi	claude-seed
+Con hơi sưng mắt buổi sáng vì khóc tối qua	none	vi	claude-seed
+Bé đi tiểu nhiều vì uống nước ngọt	none	vi	claude-seed
+Con sốt hai ngày, bác sĩ nói do virus, uống hạ sốt thấy đỡ	none	vi	claude-seed
+Đỏ mắt vì bơi ở hồ bơi	none	vi	claude-seed
+Ăn nhiều dâu quá nên lưỡi đỏ	none	vi	claude-seed
+Chảy máu cam chút vì trời khô, bóp mũi năm phút là cầm	none	vi	claude-seed
+Ngoáy mũi bị chảy chút máu	none	vi	claude-seed
+Ê buốt răng khi uống đồ lạnh	none	vi	claude-seed
+Nhổ răng khôn xong, má hơi sưng như bác sĩ dặn	none	vi	claude-seed
+Niềng răng xong đau lợi hai ngày	none	vi	claude-seed
+孩子嗓子痛刚好，现在眼睛浮肿，尿像可乐，头痛	emergency	zh	claude-seed
+外甥女每天早上眼皮肿，尿变少，颜色像洗肉水	emergency	zh	claude-seed
+孩子得了肾炎，血压高，头痛得厉害还吐	emergency	zh	claude-seed
+孩子高烧五天了，两只眼睛都红，舌头红得像草莓	emergency	zh	claude-seed
+外甥发烧好几天不退，嘴唇红裂，手脚红肿，还出疹子	emergency	zh	claude-seed
+鼻血流了半小时止不住，捏着鼻子也没用	emergency	zh	claude-seed
+爸爸在吃抗凝药，鼻血流个不停，头晕	emergency	zh	claude-seed
+大牙痛了好几天，现在脸颊肿到脖子，口水都咽不下	emergency	zh	claude-seed
+蛀牙感染了，下巴下面又硬又肿，张不开嘴，呼吸困难	emergency	zh	claude-seed
+牙龈肿起来化脓，发烧，脸肿得眼睛都睁不开	emergency	zh	claude-seed
+孩子昨晚哭了，早上眼睛有点肿	none	zh	claude-seed
+孩子喝饮料多所以尿多	none	zh	claude-seed
+孩子发烧两天，医生说是病毒，吃退烧药好多了	none	zh	claude-seed
+游泳后眼睛红	none	zh	claude-seed
+草莓吃太多舌头都红了	none	zh	claude-seed
+天气干流了点鼻血，捏五分钟就止住了	none	zh	claude-seed
+挖鼻孔出了一点血	none	zh	claude-seed
+喝冷饮牙齿敏感	none	zh	claude-seed
+拔了智齿，脸有点肿，医生说正常	none	zh	claude-seed
+戴牙套后牙龈痛了两天	none	zh	claude-seed
+아들이 목감기가 막 나았는데 지금 눈이 붓고 소변이 콜라색이고 머리가 아파요	emergency	ko	claude-seed
+조카가 매일 아침 눈꺼풀이 붓고 소변이 줄고 고기 씻은 물 같은 색이에요	emergency	ko	claude-seed
+아이가 신장염인데 혈압이 높고 머리가 너무 아프고 토해요	emergency	ko	claude-seed
+아이가 닷새째 고열에 두 눈이 빨갛고 혀가 딸기처럼 빨개요	emergency	ko	claude-seed
+조카가 며칠째 열이 안 내리고 입술이 빨갛게 갈라지고 손발이 붓고 발진이 났어요	emergency	ko	claude-seed
+코피가 30분째 안 멈춰요 코를 눌러도 소용없어요	emergency	ko	claude-seed
+아빠가 항응고제를 드시는데 코피가 줄줄 흐르고 어지러워해요	emergency	ko	claude-seed
+어금니가 며칠째 아팠는데 지금 볼이 붓다가 목까지 번지고 침을 못 삼켜요	emergency	ko	claude-seed
+충치가 감염돼서 턱 밑이 딱딱하게 붓고 입이 안 벌어지고 숨쉬기 힘들어요	emergency	ko	claude-seed
+잇몸이 고름이 차서 붓고 열이 나고 얼굴이 부어서 눈이 감겼어요	emergency	ko	claude-seed
+어젯밤에 울어서 아이 눈이 아침에 조금 부었어요	none	ko	claude-seed
+아이가 음료수를 많이 마셔서 소변을 자주 봐요	none	ko	claude-seed
+아이가 이틀 열이 났는데 의사가 바이러스래요 해열제 먹고 나아졌어요	none	ko	claude-seed
+수영장에서 수영해서 눈이 빨개요	none	ko	claude-seed
+딸기를 너무 많이 먹어서 혀가 빨개요	none	ko	claude-seed
+건조해서 코피가 조금 났는데 5분 누르니 멈췄어요	none	ko	claude-seed
+코를 후볐더니 피가 조금 났어요	none	ko	claude-seed
+찬 음료 마시면 이가 시려요	none	ko	claude-seed
+사랑니 뽑았는데 의사 말대로 볼이 조금 부었어요	none	ko	claude-seed
+교정기 끼고 이틀 잇몸이 아팠어요	none	ko	claude-seed
+息子が喉の風邪から治ったばかりなのに、今はまぶたが腫れて尿がコーラ色で頭痛がする	emergency	ja	claude-seed
+姪が毎朝まぶたが腫れていて、尿が減り、肉を洗った水のような色をしている	emergency	ja	claude-seed
+子どもが腎炎で血圧が高く、ひどい頭痛で吐いている	emergency	ja	claude-seed
+子どもが五日間高熱で、両目が赤く舌がいちごのように赤い	emergency	ja	claude-seed
+甥の熱が何日も下がらず、唇が赤くひび割れ、手足が赤く腫れて発疹が出ている	emergency	ja	claude-seed
+鼻血が30分止まらず、鼻を押さえてもだめ	emergency	ja	claude-seed
+父は血液をサラサラにする薬を飲んでいて、鼻血がだらだら流れてふらふらしている	emergency	ja	claude-seed
+奥歯が何日も痛くて、今は頬の腫れが首まで広がり、唾が飲み込めない	emergency	ja	claude-seed
+虫歯が化膿して、あごの下が硬く腫れて口が開かず、息がしにくい	emergency	ja	claude-seed
+歯茎が膿んで腫れて熱があり、顔が腫れて目が開かない	emergency	ja	claude-seed
+昨夜泣いたので子どもの目が朝少し腫れている	none	ja	claude-seed
+子どもがジュースをたくさん飲むのでトイレが近い	none	ja	claude-seed
+子どもが二日熱を出したけど、医者はウイルスと言い、解熱剤で良くなった	none	ja	claude-seed
+プールで泳いで目が赤い	none	ja	claude-seed
+いちごを食べすぎて舌が赤い	none	ja	claude-seed
+空気が乾燥して少し鼻血が出たけど、五分押さえたら止まった	none	ja	claude-seed
+鼻をほじったら少し血が出た	none	ja	claude-seed
+冷たい飲み物で歯がしみる	none	ja	claude-seed
+親知らずを抜いて、歯医者の言う通り頬が少し腫れた	none	ja	claude-seed
+矯正を始めて二日歯茎が痛い	none	ja	claude-seed

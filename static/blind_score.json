@@ -1,5 +1,5 @@
 {
- "total": 2927,
+ "total": 3067,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,11 +24,11 @@
    "precision": 0.892
   },
   "emergency": {
-   "n": 1292,
-   "tp": 1290,
-   "fn": 2,
+   "n": 1362,
+   "tp": 1298,
+   "fn": 64,
    "fp": 15,
-   "recall": 0.998,
+   "recall": 0.953,
    "precision": 0.989
   },
   "violence": {
@@ -57,41 +57,41 @@
   }
  },
  "danger_missed": {
-  "n": 1,
-  "of": 1468
+  "n": 63,
+  "of": 1538
  },
  "false_alarm": {
   "n": 5,
-  "of": 1433
+  "of": 1503
  },
  "by_lang": {
   "en": {
-   "hit": 224,
-   "n": 225
+   "hit": 225,
+   "n": 235
   },
   "es": {
-   "hit": 199,
-   "n": 201
+   "hit": 201,
+   "n": 211
   },
   "ja": {
    "hit": 202,
-   "n": 202
+   "n": 212
   },
   "ko": {
-   "hit": 201,
-   "n": 201
+   "hit": 202,
+   "n": 211
   },
   "th": {
-   "hit": 260,
-   "n": 262
+   "hit": 261,
+   "n": 272
   },
   "vi": {
-   "hit": 199,
-   "n": 200
+   "hit": 200,
+   "n": 210
   },
   "zh": {
-   "hit": 203,
-   "n": 203
+   "hit": 205,
+   "n": 213
   }
  },
  "misses": [
@@ -178,6 +178,378 @@
    "got": [
     "emergency"
    ]
+  },
+  {
+   "line": 3029,
+   "text": "ลูกเพิ่งหายเจ็บคอ ตอนนี้ตาบวม ฉี่สีโค้ก ปวดหัว",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3030,
+   "text": "หลานหนังตาบวมทุกเช้า ฉี่น้อยลง สีเหมือนน้ำล้างเนื้อ",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3031,
+   "text": "ลูกไตอักเสบ ความดันสูง ปวดหัวมาก อาเจียน",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3032,
+   "text": "ลูกไข้สูงมาห้าวัน ตาแดงทั้งสองข้าง ลิ้นแดงเหมือนสตรอว์เบอร์รี่",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3033,
+   "text": "หลานไข้ไม่ลงหลายวัน ปากแดงแตก มือเท้าบวมแดง ผื่นขึ้น",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3035,
+   "text": "พ่อกินยาละลายลิ่มเลือด เลือดกำเดาไหลเป็นสาย หน้ามืด",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3036,
+   "text": "ปวดฟันกรามมาหลายวัน ตอนนี้แก้มบวมลามไปคอ กลืนน้ำลายไม่ได้",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3037,
+   "text": "ฟันผุติดเชื้อ ใต้คางบวมแข็ง อ้าปากไม่ขึ้น หายใจลำบาก",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3038,
+   "text": "เหงือกบวมเป็นหนอง ไข้ขึ้น หน้าบวมจนตาปิด",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3049,
+   "text": "My son just got over a sore throat and now his eyes are puffy, his pee looks like cola and he has a headache",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3050,
+   "text": "My niece's eyelids are swollen every morning, she's peeing less and it looks like meat-washing water",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3051,
+   "text": "My kid has nephritis, high blood pressure, a terrible headache and is vomiting",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3052,
+   "text": "My kid has had a high fever for five days, both eyes are red and his tongue is red like a strawberry",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3053,
+   "text": "My nephew's fever won't come down for days, cracked red lips, swollen red hands and feet and a rash",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3054,
+   "text": "The nosebleed hasn't stopped for half an hour even pinching my nose",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3056,
+   "text": "My molar has hurt for days, now my cheek swelling spreads to my neck and I can't swallow my spit",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3057,
+   "text": "An infected tooth, the area under my jaw is hard and swollen, I can't open my mouth and it's hard to breathe",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3058,
+   "text": "My gum is swollen with pus, I have a fever and my face is so swollen my eye is shut",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3069,
+   "text": "Mi hijo acaba de superar una faringitis y ahora tiene los ojos hinchados, la orina parece Coca-Cola y le duele la cabeza",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3070,
+   "text": "A mi sobrina se le hinchan los párpados cada mañana, orina menos y parece agua de lavar carne",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3071,
+   "text": "Mi hijo tiene nefritis, presión alta, un dolor de cabeza terrible y vomita",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3072,
+   "text": "Mi hijo lleva cinco días con fiebre alta, los dos ojos rojos y la lengua roja como fresa",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3073,
+   "text": "A mi sobrino no le baja la fiebre en días, labios rojos agrietados, manos y pies hinchados y rojos y sarpullido",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3076,
+   "text": "Me duele la muela hace días, ahora la hinchazón de la mejilla baja al cuello y no puedo tragar saliva",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3077,
+   "text": "Un diente infectado, debajo de la mandíbula está duro e hinchado, no puedo abrir la boca y me cuesta respirar",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3078,
+   "text": "Tengo la encía hinchada con pus, fiebre y la cara tan hinchada que se me cerró el ojo",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3089,
+   "text": "Con tôi vừa khỏi viêm họng, giờ mắt sưng húp, nước tiểu như màu coca và đau đầu",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3090,
+   "text": "Cháu tôi mí mắt sưng mỗi sáng, tiểu ít đi và màu như nước rửa thịt",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3091,
+   "text": "Con tôi bị viêm cầu thận, huyết áp cao, đau đầu dữ dội và nôn",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3092,
+   "text": "Con tôi sốt cao năm ngày, hai mắt đỏ và lưỡi đỏ như quả dâu",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3093,
+   "text": "Cháu tôi sốt mãi không hạ, môi đỏ nứt nẻ, tay chân sưng đỏ và nổi ban",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3095,
+   "text": "Bố tôi uống thuốc chống đông, máu mũi chảy thành dòng và choáng váng",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3096,
+   "text": "Đau răng hàm mấy ngày, giờ má sưng lan xuống cổ, không nuốt được nước bọt",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3097,
+   "text": "Răng sâu nhiễm trùng, dưới hàm sưng cứng, không há miệng được và khó thở",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3098,
+   "text": "Lợi sưng có mủ, sốt và mặt sưng đến mức nhắm cả mắt",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3109,
+   "text": "孩子嗓子痛刚好，现在眼睛浮肿，尿像可乐，头痛",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3110,
+   "text": "外甥女每天早上眼皮肿，尿变少，颜色像洗肉水",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3111,
+   "text": "孩子得了肾炎，血压高，头痛得厉害还吐",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3112,
+   "text": "孩子高烧五天了，两只眼睛都红，舌头红得像草莓",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3113,
+   "text": "外甥发烧好几天不退，嘴唇红裂，手脚红肿，还出疹子",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3116,
+   "text": "大牙痛了好几天，现在脸颊肿到脖子，口水都咽不下",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3117,
+   "text": "蛀牙感染了，下巴下面又硬又肿，张不开嘴，呼吸困难",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3118,
+   "text": "牙龈肿起来化脓，发烧，脸肿得眼睛都睁不开",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3129,
+   "text": "아들이 목감기가 막 나았는데 지금 눈이 붓고 소변이 콜라색이고 머리가 아파요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3130,
+   "text": "조카가 매일 아침 눈꺼풀이 붓고 소변이 줄고 고기 씻은 물 같은 색이에요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3131,
+   "text": "아이가 신장염인데 혈압이 높고 머리가 너무 아프고 토해요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3132,
+   "text": "아이가 닷새째 고열에 두 눈이 빨갛고 혀가 딸기처럼 빨개요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3133,
+   "text": "조카가 며칠째 열이 안 내리고 입술이 빨갛게 갈라지고 손발이 붓고 발진이 났어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3135,
+   "text": "아빠가 항응고제를 드시는데 코피가 줄줄 흐르고 어지러워해요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3136,
+   "text": "어금니가 며칠째 아팠는데 지금 볼이 붓다가 목까지 번지고 침을 못 삼켜요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3137,
+   "text": "충치가 감염돼서 턱 밑이 딱딱하게 붓고 입이 안 벌어지고 숨쉬기 힘들어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3138,
+   "text": "잇몸이 고름이 차서 붓고 열이 나고 얼굴이 부어서 눈이 감겼어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3149,
+   "text": "息子が喉の風邪から治ったばかりなのに、今はまぶたが腫れて尿がコーラ色で頭痛がする",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3150,
+   "text": "姪が毎朝まぶたが腫れていて、尿が減り、肉を洗った水のような色をしている",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3151,
+   "text": "子どもが腎炎で血圧が高く、ひどい頭痛で吐いている",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3152,
+   "text": "子どもが五日間高熱で、両目が赤く舌がいちごのように赤い",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3153,
+   "text": "甥の熱が何日も下がらず、唇が赤くひび割れ、手足が赤く腫れて発疹が出ている",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3154,
+   "text": "鼻血が30分止まらず、鼻を押さえてもだめ",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3155,
+   "text": "父は血液をサラサラにする薬を飲んでいて、鼻血がだらだら流れてふらふらしている",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3156,
+   "text": "奥歯が何日も痛くて、今は頬の腫れが首まで広がり、唾が飲み込めない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3157,
+   "text": "虫歯が化膿して、あごの下が硬く腫れて口が開かず、息がしにくい",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 3158,
+   "text": "歯茎が膿んで腫れて熱があり、顔が腫れて目が開かない",
+   "label": "emergency",
+   "got": []
   }
  ]
 }
