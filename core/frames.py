@@ -82,6 +82,11 @@ FRAMES = (
     ("gi_bleed", "medical", "health_emergency", (("VOMIT_BLOOD",), ("TARRY",)), ("FICTION", "HYPOTHETICAL", "IRON")),
     ("meningitis", "medical", "health_emergency", (("FEVER", "STIFF_NECK"), ("FEVER", "PURPURA"), ("FEVER", "MENINGEAL")),
      ("FICTION", "HYPOTHETICAL", "SLEPT_WRONG")),
+    # รอบ 10 (ชุดปิดตา M ล็อกไว้ก่อนเขียน)
+    ("alcohol_poisoning", "medical", "health_emergency", (("DRUNK", "DRUNK_RED"),), ("FICTION", "HYPOTHETICAL", "MOTION_SICK", "RECOVERED")),
+    ("methanol", "medical", "health_emergency", (("BOOTLEG", "VISION"),), ("FICTION", "HYPOTHETICAL")),
+    ("drug_overdose", "medical", "health_emergency", (("STREET_DRUG", "OD_RED"),), ("FICTION", "HYPOTHETICAL")),
+    ("battery_magnet", "medical", "health_emergency", (("BATT_MAGNET", "SWALLOW"),), ("FICTION", "HYPOTHETICAL")),
 )
 
 

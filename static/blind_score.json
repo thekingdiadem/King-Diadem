@@ -25,11 +25,11 @@
   },
   "emergency": {
    "n": 732,
-   "tp": 705,
-   "fn": 27,
+   "tp": 729,
+   "fn": 3,
    "fp": 12,
-   "recall": 0.963,
-   "precision": 0.983
+   "recall": 0.996,
+   "precision": 0.984
   },
   "violence": {
    "n": 70,
@@ -57,7 +57,7 @@
   }
  },
  "danger_missed": {
-  "n": 26,
+  "n": 2,
   "of": 838
  },
  "false_alarm": {
@@ -66,31 +66,31 @@
  },
  "by_lang": {
   "en": {
-   "hit": 133,
+   "hit": 134,
    "n": 135
   },
   "es": {
-   "hit": 106,
+   "hit": 109,
    "n": 111
   },
   "ja": {
-   "hit": 109,
+   "hit": 112,
    "n": 112
   },
   "ko": {
-   "hit": 106,
+   "hit": 111,
    "n": 111
   },
   "th": {
-   "hit": 169,
+   "hit": 170,
    "n": 172
   },
   "vi": {
-   "hit": 103,
+   "hit": 108,
    "n": 110
   },
   "zh": {
-   "hit": 107,
+   "hit": 113,
    "n": 113
   }
  },
@@ -156,152 +156,8 @@
    ]
   },
   {
-   "line": 1614,
-   "text": "เพื่อนใช้เฮโรอีนแล้วหายใจแผ่วมาก รูม่านตาเล็กเท่าเข็ม",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1637,
-   "text": "My nephew swallowed three tiny magnets and his tummy hurts",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1650,
-   "text": "Mi hermano está tan borracho que está frío, respira muy despacio y tiene los labios morados",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1651,
-   "text": "Mi tío tomó aguardiente casero y ahora ve borroso, no ve nada y le duele el estómago",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 1652,
    "text": "Después del alcohol adulterado en la fiesta varias personas ven borroso y respiran rápido",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1657,
-   "text": "Mi sobrino se tragó tres imanes pequeños y le duele la barriga",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1670,
-   "text": "Em trai tôi say đến mức người lạnh, thở rất chậm và môi tím",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1671,
-   "text": "Chú tôi uống rượu tự nấu, giờ mắt mờ không nhìn thấy gì và đau bụng",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1672,
-   "text": "Sau khi uống rượu dỏm ở đám tiệc, nhiều người mờ mắt và thở gấp",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1674,
-   "text": "Bạn tôi chích heroin, giờ thở rất yếu, đồng tử nhỏ như đầu kim",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1677,
-   "text": "Cháu tôi nuốt ba viên nam châm nhỏ và đau bụng",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1690,
-   "text": "弟弟醉得身体发冷，呼吸很慢，嘴唇发紫",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1691,
-   "text": "叔叔喝了自酿的白酒，现在看东西模糊，看不见，肚子痛",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1692,
-   "text": "在酒席上喝了假酒后，好几个人视力模糊，呼吸急促",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1694,
-   "text": "朋友吸了海洛因，呼吸很弱，瞳孔小得像针尖",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1697,
-   "text": "侄子吞了三颗小磁珠，肚子痛",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1698,
-   "text": "小孩吞了手表电池，现在什么都咽不下去",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1710,
-   "text": "남동생이 너무 취해서 몸이 차갑고 숨을 아주 천천히 쉬고 입술이 파래요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1711,
-   "text": "삼촌이 집에서 담근 밀주를 마셨는데 지금 눈이 흐려서 안 보이고 배가 아프대요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1712,
-   "text": "잔치에서 가짜 술을 마신 뒤 여러 명이 눈이 흐리고 숨이 가빠요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1714,
-   "text": "친구가 헤로인을 했는데 숨을 거의 안 쉬고 동공이 바늘 끝처럼 작아요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1717,
-   "text": "조카가 작은 자석 세 개를 삼키고 배가 아프대요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1731,
-   "text": "叔父が自家製の密造酒を飲んで、今は目がかすんで見えず、お腹が痛いと言う",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1735,
-   "text": "兄がケタミンをやりすぎて反応がなく、口から泡を吹いている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1737,
-   "text": "甥が小さい磁石を三つ飲み込んでお腹を痛がっている",
    "label": "emergency",
    "got": []
   }

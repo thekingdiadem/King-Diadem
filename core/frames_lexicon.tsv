@@ -1070,3 +1070,68 @@ SLEPT_WRONG	vi	ngủ sai tư thế|ngủ sai
 SLEPT_WRONG	zh	落枕
 SLEPT_WRONG	ko	잠을 잘못 자
 SLEPT_WRONG	ja	寝違え
+
+# ═══ รอบ 10: เมาจนเป็นพิษ · เหล้าเถื่อน/เมทานอล · ยาเสพติดเกินขนาด · เด็กกลืนถ่านกระดุม/แม่เหล็ก ═══
+DRUNK	th	เมาหนัก|เมามาก|เมาจน|หมดขวด|ดื่มเหล้า|กินเหล้า|เมา
+DRUNK	en	drunk|drank a whole bottle|whole bottle|blackout drunk|alcohol poisoning
+DRUNK	es	borracho|borracha|botella entera|intoxicación etílica
+DRUNK	vi	say|uống hết nguyên chai|nguyên chai|ngộ độc rượu
+DRUNK	zh	醉|喝完了一整瓶|一整瓶酒|酒精中毒
+DRUNK	ko	취해|술 한 병|급성 알코올
+DRUNK	ja	酔って|一本空け|急性アルコール
+DRUNK_RED	th	ปลุกไม่ตื่น|อาเจียนทั้งที่หลับ|ตัวเย็น|หายใจช้า|ปากเขียว|หมดสติ|ไม่รู้สึกตัว
+DRUNK_RED	en	can't wake|vomited while unconscious|cold|breathing really slowly|breathing slowly|lips are blue|unconscious|passed out
+DRUNK_RED	es	no podemos despertarla|no podemos despertarlo|vomitó inconsciente|frío|respira muy despacio|labios morados|inconsciente
+DRUNK_RED	vi	gọi không tỉnh|nôn cả lúc bất tỉnh|người lạnh|thở rất chậm|môi tím|bất tỉnh
+DRUNK_RED	zh	叫不醒|昏迷|发冷|發冷|呼吸很慢|嘴唇发紫|嘴唇發紫
+DRUNK_RED	ko	깨워도 안|의식 없이|몸이 차갑|숨을 아주 천천히|입술이 파래
+DRUNK_RED	ja	起こしても起きず|意識がない|体が冷た|呼吸がすごく遅|唇が紫
+BOOTLEG	th	เหล้าขาวต้มเอง|ต้มเอง|เหล้าเถื่อน|เหล้าปลอม|เหล้าป่า
+BOOTLEG	en	moonshine|bootleg|homemade liquor|methanol|fake alcohol
+BOOTLEG	es	aguardiente casero|alcohol adulterado|metanol|alcohol falso
+BOOTLEG	vi	rượu tự nấu|rượu dỏm|rượu giả|methanol
+BOOTLEG	zh	自酿|自釀|假酒|甲醇
+BOOTLEG	ko	밀주|가짜 술|메탄올
+BOOTLEG	ja	密造酒|偽の酒|メタノール
+VISION	th	ตามัว|มองไม่เห็น|ตาพร่า|ตาบอด
+VISION	en	blurry|can't see|vision is going|went blind
+VISION	es	ve borroso|no ve|visión borrosa
+VISION	vi	mờ mắt|mắt mờ|không nhìn thấy
+VISION	zh	模糊|看不见|看不見|失明
+VISION	ko	흐려|안 보|흐리
+VISION	ja	かすん|見えず|見えない
+STREET_DRUG	th	ยาไอซ์|ไอซ์|ยาบ้า|เฮโรอีน|ยาเค|เคตามีน|โคเคน|เฟนทานิล
+STREET_DRUG	en	meth|heroin|ketamine|cocaine|fentanyl|opioids
+STREET_DRUG	es	metanfetamina|heroína|heroina|ketamina|cocaína|cocaina|fentanilo
+STREET_DRUG	vi	ma túy đá|ma túy|heroin|ketamine|cocaine
+STREET_DRUG	zh	冰毒|海洛因|K粉|氯胺酮|可卡因|芬太尼
+STREET_DRUG	ko	필로폰|마약|헤로인|케타민|코카인|펜타닐
+STREET_DRUG	ja	覚醒剤|ヘロイン|ケタミン|コカイン|フェンタニル
+OD_RED	th	เกินขนาด|ตัวร้อนจัด|ใจเต้นแรง|ชัก|หายใจแผ่ว|รูม่านตาเล็ก|ไม่ตอบสนอง|น้ำลายฟูม|หมดสติ
+OD_RED	en	overdosed|overdose|burning hot|heart is racing|seizing|barely breathing|pinpoint|isn't responding|not responding|foaming
+OD_RED	es	sobredosis|ardiendo|acelerado|convulsiona|casi no respira|diminutas|no responde|espuma
+OD_RED	vi	quá liều|nóng ran|tim đập rất nhanh|co giật|thở rất yếu|đầu kim|không phản ứng|sùi bọt
+OD_RED	zh	过量|過量|滚烫|滾燙|心跳很快|抽搐|呼吸很弱|针尖|針尖|没反应|沒反應|口吐白沫
+OD_RED	ko	과다|펄펄|빨리 뛰|경련|숨을 거의|바늘|반응이 없|거품
+OD_RED	ja	過剰|熱く|バクバク|けいれん|呼吸がほとんど|針の先|反応がな|泡
+BATT_MAGNET	th	ถ่านกระดุม|ถ่านนาฬิกา|ถ่านก้อนเล็ก|แม่เหล็ก
+BATT_MAGNET	en	button battery|watch battery|coin battery|magnets|magnet
+BATT_MAGNET	es	pila de botón|pila de boton|pila de reloj|imanes|imán
+BATT_MAGNET	vi	pin cúc áo|pin đồng hồ|pin nút|nam châm
+BATT_MAGNET	zh	纽扣电池|鈕扣電池|手表电池|手錶電池|磁珠|磁铁|磁鐵
+BATT_MAGNET	ko	단추형 건전지|시계 건전지|자석
+BATT_MAGNET	ja	ボタン電池|時計の電池|磁石
+SWALLOW	th	กลืน
+SWALLOW	en	swallowed|swallow
+SWALLOW	es	tragó|trago|se tragó
+SWALLOW	vi	nuốt
+SWALLOW	zh	吞|咽
+SWALLOW	ko	삼켰|삼키
+SWALLOW	ja	飲み込
+MOTION_SICK	th	เมารถ|เมาเรือ|เมาเครื่องบิน
+MOTION_SICK	en	carsick|seasick|motion sickness
+MOTION_SICK	es	mareo en el coche|mareado en el barco
+MOTION_SICK	vi	say xe|say tàu|say sóng|say nắng
+MOTION_SICK	zh	晕车|暈車|晕船|暈船
+MOTION_SICK	ko	멀미
+MOTION_SICK	ja	車酔い|船酔い

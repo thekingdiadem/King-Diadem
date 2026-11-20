@@ -324,3 +324,26 @@ def test_round9_danger(text):
 @pytest.mark.parametrize("text", CALM_9)
 def test_round9_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 10: เมาจนเป็นพิษ · เหล้าเถื่อน · ยาเสพติดเกินขนาด · กลืนถ่าน/แม่เหล็ก (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา M) ──
+DANGER_10 = [
+    "เพื่อนเมาจนปลุกไม่ตื่น", "he's blackout drunk and breathing slowly", "喝完了一整瓶酒，叫不醒",
+    "กินเหล้าเถื่อนแล้วตามัว", "drank moonshine and now can't see", "밀주 마시고 눈이 흐려요",
+    "เพื่อนเสพยาบ้าแล้วชัก", "she took fentanyl and is barely breathing", "覚醒剤で心臓がバクバク",
+    "ลูกกลืนถ่านกระดุม", "my son swallowed a magnet", "아이가 자석을 삼켰어요",
+]
+CALM_10 = [
+    "เมารถ ตัวเย็นนิดหน่อย", "ดื่มเบียร์สองกระป๋อง", "read about the dangers of heroin", "เปลี่ยนถ่านนาฬิกา",
+    "keep magnets away from kids", "ดูข่าวเหล้าเถื่อน", "say xe nên người lạnh",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_10)
+def test_round10_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_10)
+def test_round10_calm(text):
+    assert frames(text) == [], explain(text)
