@@ -681,6 +681,8 @@
   function learn(lang) { var P = PACK[lang] || {}; Object.keys(P).forEach(function (th) { if (D[th]) REV[P[th]] = th; }); }
 
   function pick() {
+    // ลิงก์ภาษาจากเครื่องมือค้นหา (/?lang=en) มาก่อนเสมอ — core/seo_langs.py ใส่ชื่อเรื่องภาษานั้นไว้แล้ว
+    try { var q = new URLSearchParams(location.search).get('lang'); if (q && LANGS.indexOf(q) >= 0) return q; } catch (e) {}
     try { var s = localStorage.getItem(KEY); if (LANGS.indexOf(s) >= 0) return s; } catch (e) {}
     var n = String((navigator.languages && navigator.languages[0]) || navigator.language || 'th').toLowerCase(), base = n.split(/[-_]/)[0];
     if (ALIAS[base]) return ALIAS[base];

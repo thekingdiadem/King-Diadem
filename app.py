@@ -906,9 +906,11 @@ def root(request: Request):
     if request.method == "GET":
         _metric("visit")
         _metric("visitor", _client_ip(request))
-    if not _GSV:
-        return FileResponse("static/index.html")
-    return HTMLResponse(_index_html())
+    # SEO หลายภาษา (core/seo_langs.py): ?lang=en|ja|zh|ko|es|vi ได้ชื่อเรื่อง/คำอธิบายภาษานั้น + hreflang ทุกภาษา
+    from core import seo_langs as _seo
+    lg = _seo.lang_of(request.query_params.get("lang"))
+    page = _index_html() if _GSV else open("static/index.html", encoding="utf-8").read()
+    return HTMLResponse(_seo.head_for(page, lg, _public_url("").rstrip("/")))
 
 # ── ให้ Google เจอหน้าเว็บ (SEO) ─────────────────────────────────────────
 # robots.txt บอกว่าหน้าไหนให้เก็บ · หน้าส่วนตัว (API บัญชี รายงานที่แชร์) ห้ามเก็บ
@@ -927,10 +929,13 @@ def robots_txt():
 
 @app.get("/sitemap.xml")
 def sitemap_xml():
-    urls = "".join(f"<url><loc>{_public_url(p)}</loc><changefreq>{f}</changefreq><priority>{pr}</priority></url>"
-                   for p, pr, f in SITEMAP_PAGES)
+    from core import seo_langs as _seo
+    urls = _seo.sitemap_home(_public_url("").rstrip("/"))      # หน้าแรกทุกภาษา + hreflang
+    urls += "".join(f"<url><loc>{_public_url(p)}</loc><changefreq>{f}</changefreq><priority>{pr}</priority></url>"
+                    for p, pr, f in SITEMAP_PAGES if p != "/")
     xml = ('<?xml version="1.0" encoding="UTF-8"?>'
-           f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'
+           f'{urls}</urlset>')
     return Response(xml, media_type="application/xml")
 
 # service worker ต้องเสิร์ฟจากรากเว็บถึงจะดูแลทั้งแอปได้ (อยู่ใต้ /static/ = ดูแลได้แค่ /static/)
