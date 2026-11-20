@@ -1087,6 +1087,17 @@ WORLD_URGENT["crisis"] += (r"|j'?ai\s+(?:pris|avalé)\s+(?:toutes?\s+(?:mes|les)
                            r"|tomei\s+(?:todos\s+os|todas\s+as)\s+(?:meus\s+|minhas\s+)?(?:comprimidos|remédios|pílulas)(?![^.!?\n]*(?:como\s+receitado|vitamina|receita))")
 WORLD_URGENT["violence"] += r"|me\s+est(?:á|a)\s+batendo|est(?:á|a)\s+me\s+(?:batendo|espancando)"
 WORLD_URGENT["medical"] += r"|n(?:ã|a)o\s+est(?:á|a)\s+respirando|parou\s+de\s+respirar"
+# รอบสุ่ม 225: การกระทำที่เกิดแล้ว/กำลังเกิด — it ru id hi ar tl my (เคยได้ 0)
+WORLD_URGENT["crisis"] += (r"|mi\s+sto\s+facendo\s+del\s+male|mi\s+taglio(?!\s+i\s+capelli)|ho\s+preso\s+tutte\s+le\s+(?:pillole|pastiglie|compresse)"
+                           r"|я\s+(?:режу|порезала?|режусь)\s+себя|режу\s+(?:руки|вены)|(?:выпила?|выпил|съела?)\s+все\s+(?:таблетки|снотворное)"
+                           r"|(?:minum|menelan)\s+semua\s+(?:obat|pil)(?![^.!?\n]*(?:sesuai\s+resep|resep\s+dokter|vitamin|seperti\s+biasa))"
+                           r"|सारी\s+गोलियां\s+खा\s+ली|खुद\s+को\s+(?:चोट\s+पहुंचा|काट)"
+                           r"|(?:أخذت|بلعت|تناولت)\s+كل\s+(?:الحبوب|الأدوية|الدواء)|أؤذي\s+نفسي|أجرح\s+نفسي"
+                           r"|ininom\s+ko\s+(?:lahat|ang\s+lahat)\s+ng\s+(?:gamot|tableta)|sinasaktan\s+ko\s+ang\s+sarili\s+ko")
+WORLD_URGENT["violence"] += (r"|mi\s+sta\s+picchiando|mi\s+picchia|"
+                             r"(?:sedang\s+)?memukul\s+saya|menghajar\s+saya"
+                             r"|ကျွန်(?:မ|တော်)ကို\s*ရိုက်")
+WORLD_URGENT["medical"] += r"|hindi\s+(?:na\s+)?humihinga"
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
