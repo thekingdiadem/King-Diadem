@@ -128,6 +128,11 @@ FRAMES = (
     ("dissection", "medical", "health_emergency", (("TEAR_PAIN", "CHEST_BACK"),), ("FICTION", "HYPOTHETICAL")),
     ("bowel_obstruction", "medical", "health_emergency", (("NO_GAS", "OBST_RED"), ("GREEN_VOMIT",)), ("FICTION", "HYPOTHETICAL", "BETTER")),
     ("bee_swarm", "medical", "health_emergency", (("MANY_STINGS",),), ("FICTION", "HYPOTHETICAL", "NEWS")),
+    # รอบ 19 (ชุดปิดตา V ล็อกไว้ก่อนเขียน) — เรื่องไต 2 ข้อ: ปลูกถ่ายไต · ล้างไตทางหน้าท้อง
+    ("transplant", "medical", "health_emergency", (("TRANSPLANT", "TX_RED"), ("TRANSPLANT", "MISSED_MEDS")), ("FICTION", "HYPOTHETICAL", "TX_OK")),
+    ("pd_peritonitis", "medical", "health_emergency", (("PD", "PD_RED"),), ("FICTION", "HYPOTHETICAL", "PD_OK")),
+    ("hyperemesis", "medical", "health_emergency", (("PREGNANT", "HYPEREMESIS"),), ("FICTION", "HYPOTHETICAL")),
+    ("food_poisoning", "medical", "health_emergency", (("MANY_PEOPLE", "GI_SICK"), ("RICE_WATER",)), ("FICTION", "HYPOTHETICAL", "NEWS")),
 )
 
 

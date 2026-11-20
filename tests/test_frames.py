@@ -530,3 +530,26 @@ def test_round18_danger(text):
 @pytest.mark.parametrize("text", CALM_18)
 def test_round18_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 19: (ไต) ปลูกถ่ายไต · (ไต) ล้างไตทางหน้าท้อง · คนท้องอาเจียนหนัก · อาหารเป็นพิษหลายคน (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา V) ──
+DANGER_19 = [
+    "เปลี่ยนไตมา มีไข้สูง ฉี่น้อยลง", "my kidney transplant patient missed anti-rejection meds and is swollen", "腎移植した父が高熱で尿が少ない",
+    "ล้างไตทางหน้าท้อง น้ำยาขุ่น ปวดท้อง", "my PD fluid is cloudy and I have a fever", "복막투석액이 뿌옇고 열이 나요",
+    "เมียท้อง อาเจียนทั้งวัน กินน้ำก็อ้วก", "pregnant and vomiting all day, can't even keep water down", "怀孕了整天吐，喝水都吐",
+    "กินอาหารในงานแล้วหลายคนอาเจียน", "the whole family has diarrhea after the wild mushrooms", "rice water diarrhea after eating raw clams",
+]
+CALM_19 = [
+    "เปลี่ยนไตมาห้าปี ผลตรวจดี", "my PD fluid is clear as usual", "แพ้ท้องนิดหน่อยตอนเช้า", "everyone loved the party food",
+    "ดูข่าวอาหารเป็นพิษ", "I take my anti-rejection meds every day",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_19)
+def test_round19_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_19)
+def test_round19_calm(text):
+    assert frames(text) == [], explain(text)

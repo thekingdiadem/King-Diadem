@@ -25,11 +25,11 @@
   },
   "emergency": {
    "n": 1292,
-   "tp": 1235,
-   "fn": 57,
+   "tp": 1290,
+   "fn": 2,
    "fp": 15,
-   "recall": 0.956,
-   "precision": 0.988
+   "recall": 0.998,
+   "precision": 0.989
   },
   "violence": {
    "n": 140,
@@ -57,7 +57,7 @@
   }
  },
  "danger_missed": {
-  "n": 56,
+  "n": 1,
   "of": 1468
  },
  "false_alarm": {
@@ -66,31 +66,31 @@
  },
  "by_lang": {
   "en": {
-   "hit": 215,
+   "hit": 224,
    "n": 225
   },
   "es": {
-   "hit": 189,
+   "hit": 199,
    "n": 201
   },
   "ja": {
-   "hit": 195,
+   "hit": 202,
    "n": 202
   },
   "ko": {
-   "hit": 193,
+   "hit": 201,
    "n": 201
   },
   "th": {
-   "hit": 256,
+   "hit": 260,
    "n": 262
   },
   "vi": {
-   "hit": 190,
+   "hit": 199,
    "n": 200
   },
   "zh": {
-   "hit": 195,
+   "hit": 203,
    "n": 203
   }
  },
@@ -178,336 +178,6 @@
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 2887,
-   "text": "พ่อเปลี่ยนไตมาปีหนึ่ง ตอนนี้ไข้สูง ฉี่น้อยลงมาก ปวดตรงไตใหม่",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2890,
-   "text": "สายล้างไตทางหน้าท้องรอบแผลแดงบวมมีหนอง ไข้ขึ้น",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2891,
-   "text": "ท้องสองเดือน อาเจียนทั้งวัน กินน้ำก็อ้วก ฉี่น้อย หน้ามืด",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2895,
-   "text": "นักเรียนสิบกว่าคนอาเจียนหลังกินอาหารกลางวันที่โรงเรียน",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2907,
-   "text": "Dad had a kidney transplant a year ago, now high fever, much less pee and pain over the new kidney",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2908,
-   "text": "A kidney transplant patient forgot his anti-rejection meds for three days, now swollen and barely peeing",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2909,
-   "text": "Mom does peritoneal dialysis, the drained fluid is cloudy, bad belly pain and a fever",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2910,
-   "text": "The skin around her PD catheter is red, swollen and oozing pus, and she has a fever",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2911,
-   "text": "Two months pregnant, vomiting all day, can't even keep water down, peeing little, dizzy",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2912,
-   "text": "My pregnant wife vomits so much she can't get up, losing weight fast and her mouth is very dry",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2914,
-   "text": "The whole family ate wild mushrooms we picked, now everyone has belly pain, vomiting and diarrhea",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2915,
-   "text": "More than ten students vomited after school lunch",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2916,
-   "text": "Ate raw shellfish, now watery diarrhea like rice water and very weak",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2927,
-   "text": "Mi papá tuvo un trasplante de riñón hace un año, ahora fiebre alta, orina mucho menos y dolor sobre el riñón nuevo",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2928,
-   "text": "Un paciente trasplantado de riñón olvidó sus inmunosupresores tres días, ahora está hinchado y casi no orina",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2929,
-   "text": "Mi mamá hace diálisis peritoneal, el líquido que drena sale turbio, mucho dolor de barriga y fiebre",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2930,
-   "text": "La piel alrededor del catéter de diálisis peritoneal está roja, hinchada y con pus, y tiene fiebre",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2931,
-   "text": "Dos meses de embarazo, vomito todo el día, ni el agua retengo, orino poco y estoy mareada",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2932,
-   "text": "Mi esposa embarazada vomita tanto que no se puede levantar, baja de peso rápido y tiene la boca muy seca",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2933,
-   "text": "Comimos pollo con arroz en una fiesta, mucha gente vomitando con diarrea fuerte, algunos se desmayaron",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2934,
-   "text": "Toda la familia comió hongos silvestres que recogimos, ahora todos tienen dolor de barriga, vómitos y diarrea",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2935,
-   "text": "Más de diez alumnos vomitaron después del almuerzo escolar",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2936,
-   "text": "Comí mariscos crudos, ahora diarrea acuosa como agua de arroz y estoy muy débil",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2947,
-   "text": "Bố tôi ghép thận được một năm, giờ sốt cao, tiểu ít hẳn và đau chỗ quả thận mới",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2948,
-   "text": "Bệnh nhân ghép thận quên uống thuốc chống thải ghép ba ngày, giờ phù và gần như không tiểu",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2949,
-   "text": "Mẹ tôi lọc màng bụng, dịch xả ra bị đục, đau bụng nhiều và sốt",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2950,
-   "text": "Da quanh ống thông lọc màng bụng đỏ, sưng, chảy mủ và bị sốt",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2951,
-   "text": "Có thai hai tháng, nôn cả ngày, uống nước cũng nôn, tiểu ít, choáng váng",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2952,
-   "text": "Vợ tôi mang thai nôn nhiều đến mức không dậy nổi, sụt cân nhanh và miệng rất khô",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2954,
-   "text": "Cả nhà ăn nấm rừng tự hái, giờ ai cũng đau bụng, nôn và tiêu chảy",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2955,
-   "text": "Hơn mười học sinh nôn sau bữa trưa ở trường",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2956,
-   "text": "Ăn hải sản sống, giờ tiêu chảy toàn nước như nước vo gạo và rất mệt",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2967,
-   "text": "爸爸肾移植一年了，现在发高烧，尿量明显减少，新肾的位置疼",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2969,
-   "text": "妈妈做腹膜透析，放出来的液体浑浊，肚子很痛还发烧",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2970,
-   "text": "腹透管周围的皮肤又红又肿还流脓，发烧了",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2971,
-   "text": "怀孕两个月，整天吐，喝水都吐，尿很少，头晕",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2972,
-   "text": "老婆怀孕吐得起不来，体重掉得很快，嘴巴很干",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2974,
-   "text": "全家吃了自己采的野生蘑菇，现在每个人都肚子痛、呕吐、腹泻",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2975,
-   "text": "十几个学生吃完学校午餐后呕吐",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2976,
-   "text": "吃了生贝壳海鲜，现在拉米汤样的水便，非常虚弱",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2987,
-   "text": "아빠가 신장 이식한 지 1년인데 지금 고열에 소변이 확 줄고 새 신장 부위가 아파요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2989,
-   "text": "엄마가 복막투석을 하는데 빼낸 투석액이 뿌옇고 배가 많이 아프고 열이 나요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2990,
-   "text": "복막투석 도관 주변 피부가 빨갛게 붓고 고름이 나오고 열이 나요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2991,
-   "text": "임신 두 달인데 하루 종일 토하고 물도 토하고 소변이 적고 어지러워요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2992,
-   "text": "아내가 임신 중인데 너무 토해서 일어나지도 못하고 체중이 빨리 줄고 입이 바싹 말라요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2994,
-   "text": "온 가족이 직접 딴 야생 버섯을 먹었는데 지금 다들 배가 아프고 토하고 설사해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2995,
-   "text": "학생 열 명 넘게 학교 점심 먹고 토했어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2996,
-   "text": "날조개를 먹었더니 쌀뜨물 같은 설사를 하고 너무 기운이 없어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3007,
-   "text": "父が腎移植して一年、今は高熱で尿がすごく減り、新しい腎臓のあたりが痛い",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3008,
-   "text": "腎移植の患者が免疫抑制剤を三日飲み忘れて、今はむくんで尿がほとんど出ない",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3010,
-   "text": "腹膜透析のカテーテル周りの皮膚が赤く腫れて膿が出て、熱がある",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3011,
-   "text": "妊娠二か月で一日中吐いていて、水も吐いてしまい、尿が少なくふらふらする",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3012,
-   "text": "妊娠中の妻が吐きすぎて起き上がれず、体重が急に減って口がからからに乾いている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3014,
-   "text": "家族みんなで採った野生のキノコを食べて、全員腹痛と嘔吐と下痢がある",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3015,
-   "text": "十人以上の生徒が給食の後に吐いた",
-   "label": "emergency",
-   "got": []
   }
  ]
 }

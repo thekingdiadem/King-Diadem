@@ -1773,3 +1773,83 @@ MANY_STINGS	vi	cả đàn ong|đốt nhiều nốt|bị đàn ong|đốt mấy c
 MANY_STINGS	zh	几十只蜜蜂|幾十隻蜜蜂|蜇了很多处|蜇了很多處|一群黄蜂|一群黃蜂|围攻|圍攻
 MANY_STINGS	ko	수십 마리|여러 군데 쏘|떼에
 MANY_STINGS	ja	何十匹|何か所も刺|大群
+
+# ═══ รอบ 19: (ไต) ปลูกถ่ายไตแล้วมีไข้/ฉี่น้อย · (ไต) ล้างไตทางหน้าท้องน้ำขุ่น · คนท้องอาเจียนหนัก · อาหารเป็นพิษหลายคน ═══
+TRANSPLANT	th	เปลี่ยนไต|ปลูกถ่ายไต|ไตใหม่|ผ่าตัดเปลี่ยนไต
+TRANSPLANT	en	kidney transplant|transplant patient|transplanted kidney|new kidney
+TRANSPLANT	es	trasplante de riñón|trasplantado de riñón|riñón nuevo
+TRANSPLANT	vi	ghép thận|quả thận mới
+TRANSPLANT	zh	肾移植|腎移植|新肾|新腎
+TRANSPLANT	ko	신장 이식|이식 환자|새 신장
+TRANSPLANT	ja	腎移植|新しい腎臓
+TX_RED	th	ไข้|ฉี่น้อย|ปวดตรงไตใหม่|ตัวบวม|ฉี่ไม่ค่อยออก|ฉี่ไม่ออก
+TX_RED	en	fever|less pee|barely peeing|pain over|swollen
+TX_RED	es	fiebre|orina mucho menos|casi no orina|dolor sobre|hinchado
+TX_RED	vi	sốt|tiểu ít|đau chỗ|phù|không tiểu
+TX_RED	zh	发烧|發燒|发高烧|尿量|没尿|沒尿|浮肿|浮腫
+TX_RED	ko	고열|소변이|붓고
+TX_RED	ja	高熱|尿が|むくん
+MISSED_MEDS	th	ลืมกินยากดภูมิ|ไม่ได้กินยากดภูมิ|ขาดยากดภูมิ
+MISSED_MEDS	en	forgot his anti-rejection|forgot her anti-rejection|missed anti-rejection|stopped anti-rejection
+MISSED_MEDS	es	olvidó sus inmunosupresores|dejó los inmunosupresores
+MISSED_MEDS	vi	quên uống thuốc chống thải|bỏ thuốc chống thải
+MISSED_MEDS	zh	忘了吃抗排斥药|忘了吃抗排斥藥|停了抗排斥药
+MISSED_MEDS	ko	re:면역억제제를[^.\n]{0,10}안 먹
+MISSED_MEDS	ja	re:免疫抑制剤を[^。\n]{0,8}飲み忘れ
+TX_OK	th	ค่าดี|ผลดี|ผลตรวจดี
+TX_OK	en	checkup was good|results were good
+TX_OK	es	salió bien
+TX_OK	vi	kết quả tốt
+TX_OK	zh	结果很好|結果很好
+TX_OK	ko	결과가 좋
+TX_OK	ja	良好
+PD	th	ล้างไตทางหน้าท้อง|สายล้างไต|น้ำยาล้างไต
+PD	en	peritoneal dialysis|pd catheter|pd fluid
+PD	es	diálisis peritoneal|catéter de diálisis peritoneal
+PD	vi	lọc màng bụng
+PD	zh	腹膜透析|腹透
+PD	ko	복막투석
+PD	ja	腹膜透析
+PD_RED	th	ขุ่น|ปวดท้อง|ไข้|หนอง|แดงบวม
+PD_RED	en	cloudy|belly pain|fever|pus|red, swollen
+PD_RED	es	turbio|dolor de barriga|fiebre|pus|roja
+PD_RED	vi	đục|đau bụng|sốt|mủ|đỏ
+PD_RED	zh	浑浊|渾濁|肚子很痛|发烧|發燒|脓|膿|红肿|紅腫
+PD_RED	ko	뿌옇|배가 많이 아프|열이|고름|빨갛
+PD_RED	ja	濁っ|お腹がすごく痛|熱が|膿|赤く腫れ
+PD_OK	th	ใสปกติ|น้ำใส
+PD_OK	en	clear as usual|fluid is clear
+PD_OK	es	sale claro
+PD_OK	vi	vẫn trong
+PD_OK	zh	一样清|一樣清
+PD_OK	ko	맑아요
+PD_OK	ja	透明
+PREGNANT	th	เมียท้อง|ภรรยาท้อง|กำลังท้อง|ตอนท้อง
+HYPEREMESIS	th	อาเจียนทั้งวัน|กินน้ำก็อ้วก|อาเจียนจนไม่มีแรง|น้ำหนักลด|ปากแห้งมาก
+HYPEREMESIS	en	vomiting all day|can't even keep water down|vomits so much|losing weight fast|mouth is very dry
+HYPEREMESIS	es	vomito todo el día|ni el agua retengo|vomita tanto|baja de peso|boca muy seca
+HYPEREMESIS	vi	nôn cả ngày|uống nước cũng nôn|nôn nhiều đến mức|sụt cân|miệng rất khô
+HYPEREMESIS	zh	整天吐|喝水都吐|吐得起不来|吐得起不來|体重掉|體重掉|嘴巴很干
+HYPEREMESIS	ko	하루 종일 토|물도 토|너무 토해|체중이 빨리|입이 바싹
+HYPEREMESIS	ja	一日中吐|水も吐|吐きすぎ|体重が急に|口がからから
+MANY_PEOPLE	th	หลายคน|ทั้งบ้าน|ทุกคน|สิบกว่าคน|ทั้งครอบครัว
+MANY_PEOPLE	en	lots of people|whole family|everyone|more than ten|several people
+MANY_PEOPLE	es	mucha gente|toda la familia|todos|más de diez|varias personas
+MANY_PEOPLE	vi	nhiều người|cả nhà|ai cũng|hơn mười
+MANY_PEOPLE	zh	很多人|全家|每个人|每個人|十几个|十幾個
+MANY_PEOPLE	ko	여러 명|온 가족|다들|열 명 넘게
+MANY_PEOPLE	ja	大勢|家族みんな|全員|十人以上
+GI_SICK	th	อาเจียน|ท้องเสีย|ปวดท้อง|เป็นลม
+GI_SICK	en	vomit|vomited|vomiting|threw up|throwing up|diarrhea|belly pain|fainted
+GI_SICK	es	vomitando|vomitaron|diarrea|vómitos|desmayaron
+GI_SICK	vi	nôn|tiêu chảy|đau bụng|ngất
+GI_SICK	zh	呕吐|嘔吐|拉肚子|腹泻|腹瀉|晕倒|暈倒|肚子痛
+GI_SICK	ko	토하|토했|설사|쓰러|배가 아프
+GI_SICK	ja	吐い|下痢|腹痛|嘔吐|倒れ
+RICE_WATER	th	น้ำซาวข้าว
+RICE_WATER	en	rice water
+RICE_WATER	es	agua de arroz
+RICE_WATER	vi	nước vo gạo
+RICE_WATER	zh	米汤样|米湯樣
+RICE_WATER	ko	쌀뜨물
+RICE_WATER	ja	米のとぎ汁
