@@ -27,9 +27,9 @@
    "n": 452,
    "tp": 447,
    "fn": 5,
-   "fp": 12,
+   "fp": 11,
    "recall": 0.989,
-   "precision": 0.974
+   "precision": 0.976
   },
   "violence": {
    "n": 70,
@@ -61,7 +61,7 @@
   "of": 558
  },
  "false_alarm": {
-  "n": 2,
+  "n": 1,
   "of": 523
  },
  "by_lang": {
@@ -160,14 +160,6 @@
    "text": "炎天下の作業員が体がすごく熱くて汗も出ず、話がおかしい",
    "label": "emergency",
    "got": []
-  },
-  {
-   "line": 1079,
-   "text": "Donated some money to the flood relief fund today",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
   },
   {
    "line": 1090,
