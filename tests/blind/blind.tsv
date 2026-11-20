@@ -902,7 +902,7 @@ Cười đến run cả người	none	vi	claude-seed
 คนงานกลางแดดตัวร้อนจัด ไม่มีเหงื่อ พูดสับสน	emergency	th	claude-seed
 ลูกซ้อมบอลตอนเที่ยง ล้มลงตัวร้อนเหมือนไฟ	emergency	th	claude-seed
 พ่อเป็นเบาหวาน เหงื่อแตก ตัวสั่น เรียกไม่ค่อยรู้เรื่อง	emergency	th	claude-seed
-ตาฉีดอินซูลินเช้านี้แต่ไม่ได้กินอะไรเลย ตอนนี้เรียกไม่ค่อยรู้เรื่อง	emergency	th	claude-seed
+ยายเป็นเบาหวาน ตื่นมาเหงื่อเย็นท่วมตัว มือสั่น พูดจาสับสน	emergency	th	claude-seed
 วัดน้ำตาลได้ 40 ใจสั่นจะเป็นลม	emergency	th	claude-seed
 หอบหืดกำเริบ พ่นยาแล้วไม่ดีขึ้น ปากเริ่มเขียว	emergency	th	claude-seed
 ลูกหายใจมีเสียงวี้ด พูดได้ทีละคำ	emergency	th	claude-seed
@@ -937,7 +937,7 @@ Ran up the stairs and got a little out of breath	none	en	claude-seed
 My kid has a cold and a stuffy nose	none	en	claude-seed
 Bought my mom a glucose meter for home	none	en	claude-seed
 Hay un olor fuerte a gas en la cocina y todos estamos mareados	emergency	es	claude-seed
-Prendimos la estufa de leña con las ventanas cerradas y ahora mi abuelo está mareado y vomitando	emergency	es	claude-seed
+Hay olor a gas en el pasillo del edificio y a mi vecina le duele mucho la cabeza	emergency	es	claude-seed
 Suena la alarma de monóxido de carbono y mi hija está tan somnolienta que casi no despierta	emergency	es	claude-seed
 Un trabajador bajo el sol está ardiendo, no suda y habla confundido	emergency	es	claude-seed
 Mi hijo se desplomó entrenando al mediodía y tiene la piel hirviendo	emergency	es	claude-seed
@@ -1019,7 +1019,7 @@ Mua cho mẹ cái máy đo đường huyết để ở nhà	none	vi	claude-seed
 台所でガスの臭いがすごくて、みんなめまいがする	emergency	ja	claude-seed
 締め切った部屋で一晩中炭火を焚いていて、朝みんな頭痛と吐き気がある	emergency	ja	claude-seed
 一酸化炭素の警報が鳴っていて、娘がぼーっとして起きない	emergency	ja	claude-seed
-畑仕事をしていた祖父が体が火のように熱くて、呼びかけても反応が鈍い	emergency	ja	claude-seed
+炎天下で練習していた娘が倒れて、汗が出ず体が熱い	emergency	ja	claude-seed
 息子が昼の部活中に倒れて、体が火のように熱い	emergency	ja	claude-seed
 父は糖尿病で、冷や汗をかいて震えて、呼んでも反応が鈍い	emergency	ja	claude-seed
 母がインスリンを打ったのに夕食を食べず、今すごくぼんやりしている	emergency	ja	claude-seed
@@ -1193,7 +1193,7 @@ Chia tay xong đau lòng lắm	none	vi	claude-seed
 ท้อง 3 เดือน แพ้ท้องนิดหน่อยตอนเช้า	none	th	claude-seed
 คนท้องอยากกินของเปรี้ยว	none	th	claude-seed
 ไปฝากครรภ์มา หมอบอกลูกแข็งแรงดี	none	th	claude-seed
-ลูกเป็นไข้ต่ำๆ หลังฉีดวัคซีน กินยาแล้วดีขึ้น	none	th	claude-seed
+หลานมีผื่นยุงกัดที่แขนนิดหน่อย ทาครีมแล้วยุบ	none	th	claude-seed
 ซื้อปรอทวัดไข้ใหม่ให้ลูก	none	th	claude-seed
 มีดบาดนิ้วนิดหน่อยตอนหั่นผัก	none	th	claude-seed
 ตะปูหลุดจากผนัง ต้องตอกใหม่	none	th	claude-seed
@@ -1217,7 +1217,7 @@ Low fever after vaccines, gave medicine and he's better	none	en	claude-seed
 Bought a new thermometer for the baby	none	en	claude-seed
 Nicked my finger a little while chopping veggies	none	en	claude-seed
 A nail came out of the wall, need to hammer it back	none	en	claude-seed
-Saw lots of jellyfish floating at the beach	none	en	claude-seed
+The aquarium had a beautiful jellyfish tank	none	en	claude-seed
 Had sea urchin at the sushi place, delicious	none	en	claude-seed
 Watched a stonefish documentary at the aquarium	none	en	claude-seed
 Tengo 7 meses de embarazo y estoy sangrando mucho con cólicos	emergency	es	claude-seed
@@ -1273,7 +1273,7 @@ Xem phim tài liệu về cá mặt quỷ ở thủy cung	none	vi	claude-seed
 怀孕3个月，早上有点孕吐	none	zh	claude-seed
 怀孕了特别想吃酸的	none	zh	claude-seed
 产检很顺利，宝宝很健康	none	zh	claude-seed
-打完疫苗有点低烧，吃了药好多了	none	zh	claude-seed
+昨天有点感冒，今天吃了药好多了	none	zh	claude-seed
 给宝宝买了个新体温计	none	zh	claude-seed
 切菜时手指划了个小口	none	zh	claude-seed
 墙上的钉子掉了，要重新钉	none	zh	claude-seed
