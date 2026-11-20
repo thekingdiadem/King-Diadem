@@ -21,3 +21,27 @@ def test_reply_answers_the_feeling(q, must):
 def test_no_extra_lines_when_feeling_not_said(q):
     r = compose(q)
     assert "เขาเก่งเรื่องโกหก" not in r and "ไม่ได้แปลว่าไม่มีทางเลือก" not in r
+
+
+@pytest.mark.parametrize("q,must", [
+    ("หนี้ท่วมหัว อายจนไม่กล้าออกจากบ้าน", ["ไม่ได้วัดค่าของคน"]),
+    ("ตกงานมาสามเดือน ไม่กล้าบอกที่บ้าน", ["ไม่ได้วัดค่าของคน"]),
+    ("I lost my job and I'm ashamed to tell my family", ["doesn't measure your worth"]),
+    ("แม่เพิ่งเสีย หนูไม่ได้อยู่ข้างแม่ตอนสุดท้าย รู้สึกผิดมาก", ["ไม่ได้ลบทุกวันที่คุณรักเขามา", "เสียใจด้วยนะ"]),
+    ("my dad died and I wasn't there, I feel so guilty", ["doesn't erase all the days you loved them", "I'm so sorry"]),
+])
+def test_shame_and_guilt_get_a_line_for_the_heart(q, must):
+    r = compose(q)
+    for m in must:
+        assert m in r, (m, r)
+
+
+def test_grief_opens_with_condolence_not_step_by_step():
+    r = compose("แม่เพิ่งเสีย หนูไม่ได้อยู่ข้างแม่ตอนสุดท้าย รู้สึกผิดมาก")
+    assert r.startswith("เสียใจด้วย") and "ขอเรียงทางให้ทีละขั้น" not in r
+
+
+@pytest.mark.parametrize("q", ["แม่เสียใจที่หนูสอบตก", "พ่อเสียงดังมาก", "my son passed the exam"])
+def test_not_grief(q):
+    from core.kernel_voice import assess
+    assert "grief" not in assess(q)["topics"]
