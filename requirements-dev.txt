@@ -1,4 +1,5 @@
 # ชุดทดสอบ (ไม่ใช้บน Render) — ติดตั้ง: pip install -r requirements-dev.txt แล้วรัน: pytest
 -r requirements.txt
 pytest
+pytest-xdist    # รันเทสต์หลายแกนพร้อมกัน (-n auto) — CI จาก ~25 นาทีเหลือราว 5
 Pillow          # tests/test_pwa.py ตรวจขนาดไอคอน

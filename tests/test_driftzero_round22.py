@@ -16,7 +16,7 @@ def test_kernel_is_read_once_per_text():
 
 def test_gates_alone_stay_fast_on_long_text():
     t = ("จะ" + "ไม่" * 1500)[:4000]
-    start = time.perf_counter()
+    start = time.process_time()
     for _, _, _, rx, _, _ in D.GATES:
         rx.search(t)
-    assert time.perf_counter() - start < 0.5
+    assert time.process_time() - start < 0.5

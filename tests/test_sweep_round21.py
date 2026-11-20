@@ -10,9 +10,9 @@ from core.kernel_voice import assess, compose
 @pytest.mark.parametrize("t", ["1" * 8000, "9" * 8000 + " มื้อ", "ก" * 4000 + "1" * 4000])
 def test_long_digit_runs_stay_fast(t):
     # แบบกำลังสองที่ 8000 ตัวใช้หลายวินาที — แบบเส้นตรงไม่ถึงครึ่งวินาที
-    s = time.perf_counter()
+    s = time.process_time()
     assess(t), compose(t, route="survival"), analyze(t)
-    assert time.perf_counter() - s < 2.0
+    assert time.process_time() - s < 2.0
 
 
 @pytest.mark.parametrize("t,needle", [

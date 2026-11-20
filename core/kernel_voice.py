@@ -2466,7 +2466,7 @@ _PAST_OR_NOT_NOW = re.compile(r"(?i)\bused\s+to\b|\byears?\s+ago\b|\bno\s+longer
                               r"\bmov(?:ing|ed)\s+(?:house|out|abroad|to\s+a\s+new)\b|\bdonat|\bretir|\btrip\b|\bvacation\b|\bstudy\s+abroad\b")
 
 
-_RUN = re.compile(r"(.{1,8}?)\1{4,}", re.S)
+_RUN = re.compile(r"(.{1,40}?)\1{4,}", re.S)   # ท่อนซ้ำยาวได้ถึง 40 ตัวอักษร ("เรื่องเล่ายาวๆ " × 400)
 
 
 def assess(text: str, pattern: dict | None = None) -> dict:
