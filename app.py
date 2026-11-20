@@ -888,7 +888,14 @@ def galaxy_state_debug():
 # ── PAGES ─────────────────────────────────────────────────────────
 # ยืนยันเจ้าของเว็บกับ Google Search Console: ตั้ง GOOGLE_SITE_VERIFICATION ใน Render
 # (ค่า content จาก <meta name="google-site-verification" content="…"> ที่ Search Console ให้มา) — ไม่ต้องแก้โค้ด
-_GSV = re.sub(r"[^A-Za-z0-9_\-]", "", os.getenv("GOOGLE_SITE_VERIFICATION", ""))
+def _site_code(raw: str) -> str:
+    """รหัสยืนยันเว็บจาก env — ถ้าวางแท็กทั้งบรรทัดมา (<meta name=... content="รหัส">) ดึงเฉพาะรหัส
+    เคยวางทั้งแท็ก ระบบตัดสัญลักษณ์ออกจนกลายเป็น "metanamegoogle-site-verificationcontent<รหัส>" แล้ว Google ยืนยันไม่ผ่าน"""
+    m = re.search(r'content\s*=\s*["\']?([^"\'>\s]+)', raw or "")
+    return re.sub(r"[^A-Za-z0-9_\-]", "", m.group(1) if m else (raw or ""))
+
+
+_GSV = _site_code(os.getenv("GOOGLE_SITE_VERIFICATION", ""))
 _INDEX_HTML = None
 
 def _index_html() -> str:
