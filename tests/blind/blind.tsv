@@ -2882,3 +2882,145 @@ Mật ong pha chanh mỗi sáng	none	vi	claude-seed
 養蜂をしていていつも防護服を着ている	none	ja	claude-seed
 軒下にハチの巣があったので駆除を頼んだ	none	ja	claude-seed
 毎朝はちみつレモンを飲んでいる	none	ja	claude-seed
+# ── ชุด V: ล็อกไว้ก่อนขยาย core/frames.py รอบ 19 — (ไต) ปลูกถ่ายไตแล้วมีไข้/ฉี่น้อย · (ไต) ล้างไตทางหน้าท้องน้ำขุ่น · คนท้องอาเจียนจนกินไม่ได้ · อาหารเป็นพิษหลายคน ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 15/70 (ไม่เห็นเลย 55) · เตือนเกิน 0/70
+พ่อเปลี่ยนไตมาปีหนึ่ง ตอนนี้ไข้สูง ฉี่น้อยลงมาก ปวดตรงไตใหม่	emergency	th	claude-seed
+คนไข้ปลูกถ่ายไตลืมกินยากดภูมิสามวัน ตอนนี้ตัวบวม ฉี่ไม่ค่อยออก	emergency	th	claude-seed
+แม่ล้างไตทางหน้าท้อง น้ำยาที่ปล่อยออกมาขุ่น ปวดท้องมาก มีไข้	emergency	th	claude-seed
+สายล้างไตทางหน้าท้องรอบแผลแดงบวมมีหนอง ไข้ขึ้น	emergency	th	claude-seed
+ท้องสองเดือน อาเจียนทั้งวัน กินน้ำก็อ้วก ฉี่น้อย หน้ามืด	emergency	th	claude-seed
+เมียท้อง อาเจียนจนไม่มีแรงลุก น้ำหนักลดเร็ว ปากแห้งมาก	emergency	th	claude-seed
+กินข้าวมันไก่ในงานเลี้ยง หลายคนอาเจียน ท้องเสียหนัก บางคนเป็นลม	emergency	th	claude-seed
+ทั้งบ้านกินเห็ดเก็บจากป่า ตอนนี้ปวดท้อง อาเจียน ท้องเสียทุกคน	emergency	th	claude-seed
+นักเรียนสิบกว่าคนอาเจียนหลังกินอาหารกลางวันที่โรงเรียน	emergency	th	claude-seed
+กินหอยดิบแล้วท้องเสียเป็นน้ำซาวข้าว อ่อนเพลียมาก	emergency	th	claude-seed
+เปลี่ยนไตมาห้าปีแล้ว ไปตรวจตามนัด ค่าดี	none	th	claude-seed
+กินยากดภูมิตรงเวลาทุกวัน	none	th	claude-seed
+ล้างไตทางหน้าท้องที่บ้าน น้ำใสปกติ	none	th	claude-seed
+คนท้องแพ้ท้องตอนเช้านิดหน่อย กินขนมปังแล้วดีขึ้น	none	th	claude-seed
+ท้องสามเดือน อยากกินมะม่วงเปรี้ยว	none	th	claude-seed
+กินส้มตำเผ็ดไปหน่อย ท้องเสียรอบเดียว	none	th	claude-seed
+ไปงานเลี้ยงอาหารอร่อยมาก ทุกคนอิ่ม	none	th	claude-seed
+เก็บเห็ดฟางจากฟาร์มมาทำต้มยำ	none	th	claude-seed
+ดูข่าวอาหารเป็นพิษที่โรงงาน	none	th	claude-seed
+กินหอยนางรมที่ร้าน อร่อยดี	none	th	claude-seed
+Dad had a kidney transplant a year ago, now high fever, much less pee and pain over the new kidney	emergency	en	claude-seed
+A kidney transplant patient forgot his anti-rejection meds for three days, now swollen and barely peeing	emergency	en	claude-seed
+Mom does peritoneal dialysis, the drained fluid is cloudy, bad belly pain and a fever	emergency	en	claude-seed
+The skin around her PD catheter is red, swollen and oozing pus, and she has a fever	emergency	en	claude-seed
+Two months pregnant, vomiting all day, can't even keep water down, peeing little, dizzy	emergency	en	claude-seed
+My pregnant wife vomits so much she can't get up, losing weight fast and her mouth is very dry	emergency	en	claude-seed
+Ate chicken rice at a party, lots of people vomiting with bad diarrhea, some fainted	emergency	en	claude-seed
+The whole family ate wild mushrooms we picked, now everyone has belly pain, vomiting and diarrhea	emergency	en	claude-seed
+More than ten students vomited after school lunch	emergency	en	claude-seed
+Ate raw shellfish, now watery diarrhea like rice water and very weak	emergency	en	claude-seed
+Five years after my transplant, checkup was good	none	en	claude-seed
+I take my anti-rejection meds on time every day	none	en	claude-seed
+Doing PD at home, fluid is clear as usual	none	en	claude-seed
+Mild morning sickness, crackers help	none	en	claude-seed
+Three months pregnant and craving sour mango	none	en	claude-seed
+Spicy papaya salad gave me one loose stool	none	en	claude-seed
+The party food was great, everyone was full	none	en	claude-seed
+Picked button mushrooms from the farm for soup	none	en	claude-seed
+Saw news about food poisoning at a factory	none	en	claude-seed
+Had oysters at the restaurant, delicious	none	en	claude-seed
+Mi papá tuvo un trasplante de riñón hace un año, ahora fiebre alta, orina mucho menos y dolor sobre el riñón nuevo	emergency	es	claude-seed
+Un paciente trasplantado de riñón olvidó sus inmunosupresores tres días, ahora está hinchado y casi no orina	emergency	es	claude-seed
+Mi mamá hace diálisis peritoneal, el líquido que drena sale turbio, mucho dolor de barriga y fiebre	emergency	es	claude-seed
+La piel alrededor del catéter de diálisis peritoneal está roja, hinchada y con pus, y tiene fiebre	emergency	es	claude-seed
+Dos meses de embarazo, vomito todo el día, ni el agua retengo, orino poco y estoy mareada	emergency	es	claude-seed
+Mi esposa embarazada vomita tanto que no se puede levantar, baja de peso rápido y tiene la boca muy seca	emergency	es	claude-seed
+Comimos pollo con arroz en una fiesta, mucha gente vomitando con diarrea fuerte, algunos se desmayaron	emergency	es	claude-seed
+Toda la familia comió hongos silvestres que recogimos, ahora todos tienen dolor de barriga, vómitos y diarrea	emergency	es	claude-seed
+Más de diez alumnos vomitaron después del almuerzo escolar	emergency	es	claude-seed
+Comí mariscos crudos, ahora diarrea acuosa como agua de arroz y estoy muy débil	emergency	es	claude-seed
+Cinco años después del trasplante, el control salió bien	none	es	claude-seed
+Tomo mis inmunosupresores a tiempo todos los días	none	es	claude-seed
+Hago diálisis peritoneal en casa, el líquido sale claro como siempre	none	es	claude-seed
+Náuseas leves por la mañana, las galletas ayudan	none	es	claude-seed
+Tres meses de embarazo y antojo de mango verde	none	es	claude-seed
+La ensalada picante me dio una sola diarrea	none	es	claude-seed
+La comida de la fiesta estuvo genial, todos llenos	none	es	claude-seed
+Recogí champiñones de la granja para la sopa	none	es	claude-seed
+Vi noticias de una intoxicación en una fábrica	none	es	claude-seed
+Comí ostras en el restaurante, deliciosas	none	es	claude-seed
+Bố tôi ghép thận được một năm, giờ sốt cao, tiểu ít hẳn và đau chỗ quả thận mới	emergency	vi	claude-seed
+Bệnh nhân ghép thận quên uống thuốc chống thải ghép ba ngày, giờ phù và gần như không tiểu	emergency	vi	claude-seed
+Mẹ tôi lọc màng bụng, dịch xả ra bị đục, đau bụng nhiều và sốt	emergency	vi	claude-seed
+Da quanh ống thông lọc màng bụng đỏ, sưng, chảy mủ và bị sốt	emergency	vi	claude-seed
+Có thai hai tháng, nôn cả ngày, uống nước cũng nôn, tiểu ít, choáng váng	emergency	vi	claude-seed
+Vợ tôi mang thai nôn nhiều đến mức không dậy nổi, sụt cân nhanh và miệng rất khô	emergency	vi	claude-seed
+Ăn cơm gà ở đám tiệc, nhiều người nôn và tiêu chảy nặng, vài người ngất	emergency	vi	claude-seed
+Cả nhà ăn nấm rừng tự hái, giờ ai cũng đau bụng, nôn và tiêu chảy	emergency	vi	claude-seed
+Hơn mười học sinh nôn sau bữa trưa ở trường	emergency	vi	claude-seed
+Ăn hải sản sống, giờ tiêu chảy toàn nước như nước vo gạo và rất mệt	emergency	vi	claude-seed
+Ghép thận được năm năm, tái khám kết quả tốt	none	vi	claude-seed
+Uống thuốc chống thải ghép đúng giờ mỗi ngày	none	vi	claude-seed
+Lọc màng bụng tại nhà, dịch vẫn trong như thường	none	vi	claude-seed
+Ốm nghén nhẹ buổi sáng, ăn bánh quy thấy đỡ	none	vi	claude-seed
+Có thai ba tháng, thèm xoài chua	none	vi	claude-seed
+Ăn gỏi đu đủ cay bị đi ngoài một lần	none	vi	claude-seed
+Đồ ăn ở tiệc rất ngon, ai cũng no	none	vi	claude-seed
+Hái nấm rơm ở trang trại về nấu canh	none	vi	claude-seed
+Xem tin ngộ độc thực phẩm ở một nhà máy	none	vi	claude-seed
+Ăn hàu ở nhà hàng, ngon lắm	none	vi	claude-seed
+爸爸肾移植一年了，现在发高烧，尿量明显减少，新肾的位置疼	emergency	zh	claude-seed
+肾移植病人忘了吃抗排斥药三天，现在全身浮肿，几乎没尿	emergency	zh	claude-seed
+妈妈做腹膜透析，放出来的液体浑浊，肚子很痛还发烧	emergency	zh	claude-seed
+腹透管周围的皮肤又红又肿还流脓，发烧了	emergency	zh	claude-seed
+怀孕两个月，整天吐，喝水都吐，尿很少，头晕	emergency	zh	claude-seed
+老婆怀孕吐得起不来，体重掉得很快，嘴巴很干	emergency	zh	claude-seed
+在酒席上吃了鸡饭，很多人呕吐拉肚子很严重，有人晕倒	emergency	zh	claude-seed
+全家吃了自己采的野生蘑菇，现在每个人都肚子痛、呕吐、腹泻	emergency	zh	claude-seed
+十几个学生吃完学校午餐后呕吐	emergency	zh	claude-seed
+吃了生贝壳海鲜，现在拉米汤样的水便，非常虚弱	emergency	zh	claude-seed
+肾移植五年了，复查结果很好	none	zh	claude-seed
+每天按时吃抗排斥药	none	zh	claude-seed
+在家做腹透，液体和平时一样清	none	zh	claude-seed
+早上有点孕吐，吃饼干好多了	none	zh	claude-seed
+怀孕三个月，特别想吃酸芒果	none	zh	claude-seed
+吃了辣木瓜沙拉拉了一次	none	zh	claude-seed
+宴席的菜很好吃，大家都吃饱了	none	zh	claude-seed
+从农场摘了草菇做汤	none	zh	claude-seed
+看了工厂食物中毒的新闻	none	zh	claude-seed
+在餐厅吃了生蚝，很好吃	none	zh	claude-seed
+아빠가 신장 이식한 지 1년인데 지금 고열에 소변이 확 줄고 새 신장 부위가 아파요	emergency	ko	claude-seed
+신장 이식 환자가 면역억제제를 사흘 동안 안 먹어서 지금 붓고 소변이 거의 안 나와요	emergency	ko	claude-seed
+엄마가 복막투석을 하는데 빼낸 투석액이 뿌옇고 배가 많이 아프고 열이 나요	emergency	ko	claude-seed
+복막투석 도관 주변 피부가 빨갛게 붓고 고름이 나오고 열이 나요	emergency	ko	claude-seed
+임신 두 달인데 하루 종일 토하고 물도 토하고 소변이 적고 어지러워요	emergency	ko	claude-seed
+아내가 임신 중인데 너무 토해서 일어나지도 못하고 체중이 빨리 줄고 입이 바싹 말라요	emergency	ko	claude-seed
+잔치에서 닭밥을 먹었는데 여러 명이 토하고 설사가 심하고 몇 명은 쓰러졌어요	emergency	ko	claude-seed
+온 가족이 직접 딴 야생 버섯을 먹었는데 지금 다들 배가 아프고 토하고 설사해요	emergency	ko	claude-seed
+학생 열 명 넘게 학교 점심 먹고 토했어요	emergency	ko	claude-seed
+날조개를 먹었더니 쌀뜨물 같은 설사를 하고 너무 기운이 없어요	emergency	ko	claude-seed
+이식한 지 5년째인데 정기검진 결과가 좋아요	none	ko	claude-seed
+매일 정해진 시간에 면역억제제를 먹어요	none	ko	claude-seed
+집에서 복막투석하는데 투석액이 평소처럼 맑아요	none	ko	claude-seed
+아침에 입덧이 조금 있는데 크래커 먹으면 괜찮아요	none	ko	claude-seed
+임신 3개월인데 새콤한 망고가 당겨요	none	ko	claude-seed
+매운 쏨땀 먹고 설사 한 번 했어요	none	ko	claude-seed
+잔치 음식이 너무 맛있어서 다들 배불렀어요	none	ko	claude-seed
+농장에서 양송이버섯을 따서 국을 끓였어요	none	ko	claude-seed
+공장 식중독 뉴스를 봤어요	none	ko	claude-seed
+식당에서 굴을 먹었는데 맛있었어요	none	ko	claude-seed
+父が腎移植して一年、今は高熱で尿がすごく減り、新しい腎臓のあたりが痛い	emergency	ja	claude-seed
+腎移植の患者が免疫抑制剤を三日飲み忘れて、今はむくんで尿がほとんど出ない	emergency	ja	claude-seed
+母は腹膜透析をしていて、排液が濁っていて、お腹がすごく痛く熱がある	emergency	ja	claude-seed
+腹膜透析のカテーテル周りの皮膚が赤く腫れて膿が出て、熱がある	emergency	ja	claude-seed
+妊娠二か月で一日中吐いていて、水も吐いてしまい、尿が少なくふらふらする	emergency	ja	claude-seed
+妊娠中の妻が吐きすぎて起き上がれず、体重が急に減って口がからからに乾いている	emergency	ja	claude-seed
+宴会でチキンライスを食べたら、大勢が吐いてひどい下痢になり、倒れた人もいる	emergency	ja	claude-seed
+家族みんなで採った野生のキノコを食べて、全員腹痛と嘔吐と下痢がある	emergency	ja	claude-seed
+十人以上の生徒が給食の後に吐いた	emergency	ja	claude-seed
+生の貝を食べたら米のとぎ汁のような下痢でぐったりしている	emergency	ja	claude-seed
+移植して五年、定期検診の結果は良好	none	ja	claude-seed
+免疫抑制剤を毎日決まった時間に飲んでいる	none	ja	claude-seed
+自宅で腹膜透析していて排液はいつも通り透明	none	ja	claude-seed
+朝に少しつわりがあるけどクラッカーで楽になる	none	ja	claude-seed
+妊娠三か月で酸っぱいマンゴーが食べたい	none	ja	claude-seed
+辛いソムタムを食べて一回お腹を下した	none	ja	claude-seed
+宴会の料理がおいしくてみんな満腹	none	ja	claude-seed
+農場でマッシュルームを採ってスープにした	none	ja	claude-seed
+工場の食中毒のニュースを見た	none	ja	claude-seed
+レストランで牡蠣を食べた、おいしかった	none	ja	claude-seed
