@@ -1888,3 +1888,145 @@ Bọn trẻ chơi trốn tìm, tìm thấy hết rồi	none	vi	claude-seed
 フェリーで島に行った、少し揺れた	none	ja	claude-seed
 父と沖釣りに行って、たくさん釣れた	none	ja	claude-seed
 子どもたちがかくれんぼをして、全員見つかった	none	ja	claude-seed
+# ── ชุด O: ล็อกไว้ก่อนขยาย core/frames.py รอบ 12 — แผ่นดินไหวติดใต้ซาก · ดินถล่ม · ไฟป่าลามใกล้ · ถูกฟ้าผ่า ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 44/70 (ไม่เห็นเลย 26) · เตือนเกิน 21/70 (สูงมาก)
+แผ่นดินไหว บ้านพัง แม่ติดอยู่ใต้ผนัง ขยับไม่ได้	emergency	th	claude-seed
+ตึกร้าวหลังแผ่นดินไหว ยังมีคนอยู่ข้างใน ได้ยินเสียงร้อง	emergency	th	claude-seed
+ดินโคลนถล่มทับบ้านทั้งหลัง มีคนหายไปสองคน	emergency	th	claude-seed
+ฝนตกหนัก ภูเขาหลังบ้านเริ่มสไลด์ ดินไหลลงมาแล้ว	emergency	th	claude-seed
+ดินถล่มปิดทาง รถติดอยู่ใต้ดิน คนข้างในยังไม่ออก	emergency	th	claude-seed
+ไฟป่าลามมาถึงหลังหมู่บ้าน ควันเต็มไปหมด ออกทางไหนไม่ได้	emergency	th	claude-seed
+ไฟป่าลุกเข้ามาใกล้บ้านมาก ยายเดินไม่ได้	emergency	th	claude-seed
+ฟ้าผ่าคนในนา ตอนนี้ไม่หายใจ	emergency	th	claude-seed
+เพื่อนโดนฟ้าผ่าตอนตีกอล์ฟ ล้มลงหมดสติ	emergency	th	claude-seed
+ฟ้าผ่าต้นไม้ข้างๆ ลูกโดนด้วย แขนไหม้ พูดไม่รู้เรื่อง	emergency	th	claude-seed
+เมื่อคืนรู้สึกแผ่นดินไหวเบาๆ ไม่มีอะไรเสียหาย	none	th	claude-seed
+ซ้อมหนีแผ่นดินไหวที่โรงเรียน	none	th	claude-seed
+ดูข่าวดินถล่มที่ต่างประเทศ	none	th	claude-seed
+ทำสวนแล้วดินพังนิดหน่อย	none	th	claude-seed
+มีหมอกควันไฟป่าไกลๆ ใส่หน้ากากออกไปข้างนอก	none	th	claude-seed
+เผาใบไม้ในสวนแล้วดับเรียบร้อย	none	th	claude-seed
+ฟ้าร้องดังมาก เลยถอดปลั๊กทีวี	none	th	claude-seed
+ดูรูปฟ้าผ่าสวยๆ ที่เพื่อนถ่าย	none	th	claude-seed
+เล่นเกมจำลองแผ่นดินไหว	none	th	claude-seed
+ฟ้าผ่าเสาไฟไกลบ้าน ไฟดับครึ่งชั่วโมง	none	th	claude-seed
+Earthquake, our house collapsed, mom is trapped under a wall and can't move	emergency	en	claude-seed
+The building cracked after the quake, people are still inside, we can hear screaming	emergency	en	claude-seed
+A mudslide buried a whole house, two people are missing	emergency	en	claude-seed
+Heavy rain, the hill behind the house is starting to slide, mud is coming down	emergency	en	claude-seed
+A landslide blocked the road, a car is buried and the people inside haven't got out	emergency	en	claude-seed
+The wildfire reached the back of the village, smoke everywhere, no way out	emergency	en	claude-seed
+The bushfire is very close to the house and grandma can't walk	emergency	en	claude-seed
+Lightning struck a man in the field, he's not breathing	emergency	en	claude-seed
+My friend got struck by lightning on the golf course, collapsed and unconscious	emergency	en	claude-seed
+Lightning hit the tree next to us, my kid was hit too, arm burned and talking nonsense	emergency	en	claude-seed
+Felt a light quake last night, no damage	none	en	claude-seed
+Earthquake drill at school	none	en	claude-seed
+Watched news about landslides abroad	none	en	claude-seed
+Some soil collapsed while gardening	none	en	claude-seed
+Wildfire haze far away, wore a mask outside	none	en	claude-seed
+Burned leaves in the yard and put it out	none	en	claude-seed
+Thunder was loud so I unplugged the TV	none	en	claude-seed
+Looking at cool lightning photos my friend took	none	en	claude-seed
+Played an earthquake simulation game	none	en	claude-seed
+Lightning hit a pole far away, power was out half an hour	none	en	claude-seed
+Terremoto, la casa se derrumbó, mi mamá está atrapada bajo una pared y no se puede mover	emergency	es	claude-seed
+El edificio se agrietó con el sismo, todavía hay gente adentro, se oyen gritos	emergency	es	claude-seed
+Un alud de lodo sepultó una casa entera, faltan dos personas	emergency	es	claude-seed
+Lluvia fuerte, el cerro detrás de la casa empieza a deslizarse, ya baja el lodo	emergency	es	claude-seed
+Un deslave tapó la carretera, un coche quedó enterrado y la gente no ha salido	emergency	es	claude-seed
+El incendio forestal llegó detrás del pueblo, humo por todas partes, no hay salida	emergency	es	claude-seed
+El incendio está muy cerca de la casa y mi abuela no puede caminar	emergency	es	claude-seed
+Un rayo le cayó a un hombre en el campo, no respira	emergency	es	claude-seed
+A mi amigo le cayó un rayo en el campo de golf, se desplomó inconsciente	emergency	es	claude-seed
+Un rayo cayó en el árbol de al lado, a mi hijo también le alcanzó, brazo quemado y dice cosas sin sentido	emergency	es	claude-seed
+Sentí un temblor leve anoche, sin daños	none	es	claude-seed
+Simulacro de sismo en la escuela	none	es	claude-seed
+Vi noticias de deslaves en otro país	none	es	claude-seed
+Se desmoronó un poco de tierra en el jardín	none	es	claude-seed
+Humo de incendios lejanos, salí con mascarilla	none	es	claude-seed
+Quemé hojas en el patio y lo apagué	none	es	claude-seed
+Los truenos sonaban fuerte, desenchufé la tele	none	es	claude-seed
+Mirando fotos bonitas de rayos que sacó mi amigo	none	es	claude-seed
+Jugué un simulador de terremotos	none	es	claude-seed
+Un rayo cayó en un poste lejos, se fue la luz media hora	none	es	claude-seed
+Động đất, nhà sập, mẹ tôi bị kẹt dưới bức tường không cử động được	emergency	vi	claude-seed
+Tòa nhà nứt sau động đất, vẫn còn người bên trong, nghe tiếng kêu cứu	emergency	vi	claude-seed
+Lở đất vùi lấp cả căn nhà, hai người mất tích	emergency	vi	claude-seed
+Mưa lớn, đồi sau nhà bắt đầu sạt, bùn đang chảy xuống	emergency	vi	claude-seed
+Sạt lở chặn đường, một chiếc xe bị vùi, người bên trong chưa ra được	emergency	vi	claude-seed
+Cháy rừng lan tới sau làng, khói khắp nơi, không có lối ra	emergency	vi	claude-seed
+Cháy rừng rất gần nhà, bà tôi không đi được	emergency	vi	claude-seed
+Sét đánh trúng một người ngoài đồng, giờ không thở	emergency	vi	claude-seed
+Bạn tôi bị sét đánh ở sân golf, ngã gục bất tỉnh	emergency	vi	claude-seed
+Sét đánh cây bên cạnh, con tôi cũng bị, tay bị bỏng và nói lảm nhảm	emergency	vi	claude-seed
+Tối qua có rung nhẹ, không thiệt hại gì	none	vi	claude-seed
+Diễn tập động đất ở trường	none	vi	claude-seed
+Xem tin sạt lở ở nước ngoài	none	vi	claude-seed
+Làm vườn bị sụt chút đất	none	vi	claude-seed
+Khói cháy rừng ở xa, đeo khẩu trang ra ngoài	none	vi	claude-seed
+Đốt lá trong vườn rồi dập tắt	none	vi	claude-seed
+Sấm to quá nên rút phích tivi	none	vi	claude-seed
+Xem ảnh sét đẹp bạn chụp	none	vi	claude-seed
+Chơi game mô phỏng động đất	none	vi	claude-seed
+Sét đánh cột điện xa nhà, mất điện nửa tiếng	none	vi	claude-seed
+地震了，房子塌了，妈妈被压在墙下动不了	emergency	zh	claude-seed
+地震后楼裂了，里面还有人，能听到喊叫声	emergency	zh	claude-seed
+泥石流把整栋房子埋了，有两个人失踪	emergency	zh	claude-seed
+下大雨，屋后的山开始滑坡，泥已经冲下来了	emergency	zh	claude-seed
+山体滑坡堵了路，一辆车被埋，里面的人还没出来	emergency	zh	claude-seed
+山火烧到了村子后面，到处是烟，出不去了	emergency	zh	claude-seed
+山火离房子很近，奶奶走不了路	emergency	zh	claude-seed
+田里有人被雷劈了，现在没有呼吸	emergency	zh	claude-seed
+朋友在高尔夫球场被雷击中，倒地昏迷	emergency	zh	claude-seed
+雷劈中旁边的树，孩子也被击中，手臂烧伤，说胡话	emergency	zh	claude-seed
+昨晚感觉到轻微地震，没有损失	none	zh	claude-seed
+学校进行地震演练	none	zh	claude-seed
+看了国外山体滑坡的新闻	none	zh	claude-seed
+种花时土塌了一点	none	zh	claude-seed
+远处山火的烟霾，戴口罩出门	none	zh	claude-seed
+在院子里烧树叶，已经扑灭了	none	zh	claude-seed
+雷声很大，拔了电视插头	none	zh	claude-seed
+看朋友拍的漂亮闪电照片	none	zh	claude-seed
+玩地震模拟游戏	none	zh	claude-seed
+雷击中远处电线杆，停电半小时	none	zh	claude-seed
+지진으로 집이 무너졌고 엄마가 벽 아래 깔려서 움직이지 못해요	emergency	ko	claude-seed
+지진 후 건물에 금이 갔는데 아직 안에 사람이 있고 비명이 들려요	emergency	ko	claude-seed
+산사태가 집 한 채를 덮쳐서 두 명이 실종됐어요	emergency	ko	claude-seed
+비가 많이 와서 집 뒤 산이 무너지기 시작했고 흙이 쏟아져요	emergency	ko	claude-seed
+산사태로 길이 막혔고 차가 묻혔는데 안에 사람이 아직 못 나왔어요	emergency	ko	claude-seed
+산불이 마을 뒤까지 번졌어요 연기가 가득하고 빠져나갈 길이 없어요	emergency	ko	claude-seed
+산불이 집 바로 앞까지 왔는데 할머니가 걷지 못해요	emergency	ko	claude-seed
+논에서 사람이 벼락을 맞았는데 지금 숨을 안 쉬어요	emergency	ko	claude-seed
+친구가 골프장에서 벼락을 맞고 쓰러져서 의식이 없어요	emergency	ko	claude-seed
+옆 나무에 벼락이 떨어졌는데 아이도 맞아서 팔이 타고 횡설수설해요	emergency	ko	claude-seed
+어젯밤 약한 지진을 느꼈는데 피해는 없어요	none	ko	claude-seed
+학교에서 지진 대피 훈련을 했어요	none	ko	claude-seed
+해외 산사태 뉴스를 봤어요	none	ko	claude-seed
+정원 일하다 흙이 조금 무너졌어요	none	ko	claude-seed
+멀리 산불 연기가 있어서 마스크 쓰고 나갔어요	none	ko	claude-seed
+마당에서 낙엽을 태우고 다 껐어요	none	ko	claude-seed
+천둥이 커서 TV 플러그를 뽑았어요	none	ko	claude-seed
+친구가 찍은 멋진 번개 사진을 봤어요	none	ko	claude-seed
+지진 시뮬레이션 게임을 했어요	none	ko	claude-seed
+멀리 전봇대에 벼락이 떨어져서 30분 정전됐어요	none	ko	claude-seed
+地震で家が倒壊して、母が壁の下敷きになって動けない	emergency	ja	claude-seed
+地震のあとビルにひびが入って、まだ中に人がいて叫び声が聞こえる	emergency	ja	claude-seed
+土石流が家を丸ごと埋めて、二人が行方不明	emergency	ja	claude-seed
+大雨で裏山が崩れ始めて、泥が流れてきている	emergency	ja	claude-seed
+土砂崩れで道がふさがって、車が埋まり中の人がまだ出てこない	emergency	ja	claude-seed
+山火事が村の裏まで来て、煙だらけで逃げ道がない	emergency	ja	claude-seed
+山火事が家のすぐ近くまで来て、祖母が歩けない	emergency	ja	claude-seed
+田んぼで人に雷が落ちて、今息をしていない	emergency	ja	claude-seed
+友達がゴルフ場で落雷に遭って倒れ、意識がない	emergency	ja	claude-seed
+隣の木に雷が落ちて子どもも当たり、腕をやけどしてうわごとを言っている	emergency	ja	claude-seed
+昨夜弱い地震を感じたけど被害はない	none	ja	claude-seed
+学校で地震の避難訓練をした	none	ja	claude-seed
+海外の土砂崩れのニュースを見た	none	ja	claude-seed
+庭仕事で土が少し崩れた	none	ja	claude-seed
+遠くの山火事の煙でマスクをして外出した	none	ja	claude-seed
+庭で落ち葉を燃やして消した	none	ja	claude-seed
+雷がうるさいのでテレビのプラグを抜いた	none	ja	claude-seed
+友達が撮ったきれいな雷の写真を見た	none	ja	claude-seed
+地震シミュレーションゲームをした	none	ja	claude-seed
+遠くの電柱に雷が落ちて30分停電した	none	ja	claude-seed
