@@ -3734,3 +3734,145 @@ Thấy cầu vồng sau mưa, đẹp lắm	none	vi	claude-seed
 画面の見すぎで目が疲れた	none	ja	claude-seed
 年に一度の眼科検診で眼圧は正常	none	ja	claude-seed
 雨上がりに虹を見た、きれいだった	none	ja	claude-seed
+# ── ชุด AB: ล็อกไว้ก่อนขยาย core/frames.py รอบ 25 — (ไต) ของเสียคั่งจากไตวาย · แมงป่องต่อย · ลมรั่วในปอด · ประสาทไขสันหลังล่างถูกกดทับ ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 25/70 (ไม่เห็นเลย 45) · เตือนเกิน 3/70
+ตาเป็นไตวายระยะสุดท้ายแต่ยังไม่ฟอก ตอนนี้สับสน คันทั้งตัว อาเจียนตลอด	emergency	th	claude-seed
+แม่ไตวาย ลมหายใจมีกลิ่นฉี่ ซึมลง มือสั่นกระตุก	emergency	th	claude-seed
+ยายไตเสื่อมไม่ยอมไปฟอก ตอนนี้เพ้อ ชักกระตุก กินอะไรไม่ได้	emergency	th	claude-seed
+ลูกโดนแมงป่องต่อยที่เท้า ร้องไม่หยุด น้ำลายไหล ตัวกระตุก	emergency	th	claude-seed
+หลานโดนแมงป่องต่อย หายใจลำบาก ตากลอกไปมา	emergency	th	claude-seed
+ชายหนุ่มตัวผอมสูง จู่ๆ เจ็บหน้าอกข้างเดียว หายใจไม่ทัน	emergency	th	claude-seed
+โดนกระแทกหน้าอก ตอนนี้หายใจลำบากมาก ปอดข้างหนึ่งเหมือนไม่ขยาย ปากเขียว	emergency	th	claude-seed
+พ่อปวดหลังมาก ขาอ่อนแรงทั้งสองข้าง กลั้นปัสสาวะไม่อยู่	emergency	th	claude-seed
+ปวดหลังร้าวลงขา ชาบริเวณก้น อุจจาระราดไม่รู้ตัว	emergency	th	claude-seed
+หลังยกของหนักปวดหลัง ตอนนี้ขาสองข้างชา ฉี่ไม่ออก	emergency	th	claude-seed
+คันตัวเพราะผิวแห้งช่วงหน้าหนาว	none	th	claude-seed
+ฟอกไตตามนัด รู้สึกสดชื่นขึ้น	none	th	claude-seed
+ลมหายใจมีกลิ่นเพราะกินกระเทียม	none	th	claude-seed
+เห็นแมงป่องในห้องน้ำ ใช้ไม้เขี่ยออกไปแล้ว	none	th	claude-seed
+ไปสวนสัตว์ดูแมงป่องในตู้กระจก	none	th	claude-seed
+เจ็บหน้าอกนิดหน่อยตอนวิ่งเพราะจุก	none	th	claude-seed
+หายใจไม่ทันตอนวิ่งขึ้นเขา พักแล้วหาย	none	th	claude-seed
+ปวดหลังเพราะนั่งนาน ยืดเส้นแล้วดีขึ้น	none	th	claude-seed
+ขาชาเพราะนั่งไขว่ห้างนาน	none	th	claude-seed
+ปวดหลังล่างตอนเป็นประจำเดือน	none	th	claude-seed
+Grandpa has end-stage kidney failure but isn't on dialysis yet, now he's confused, itchy all over and vomiting constantly	emergency	en	claude-seed
+Mom has kidney failure, her breath smells like urine, she's getting drowsy and her hands are jerking	emergency	en	claude-seed
+Grandma's kidneys are failing and she refused dialysis, now she's delirious, twitching and can't eat	emergency	en	claude-seed
+My kid was stung by a scorpion on the foot, crying nonstop, drooling and his body is jerking	emergency	en	claude-seed
+My nephew got stung by a scorpion, struggling to breathe and his eyes are rolling around	emergency	en	claude-seed
+A tall thin young guy suddenly has one-sided chest pain and can't catch his breath	emergency	en	claude-seed
+Took a hit to the chest, now very hard to breathe, one lung doesn't seem to expand, lips blue	emergency	en	claude-seed
+Dad has terrible back pain, both legs are weak and he can't hold his urine	emergency	en	claude-seed
+Back pain shooting down my legs, numb around my buttocks and I soiled myself without noticing	emergency	en	claude-seed
+After lifting something heavy my back hurts, now both legs are numb and I can't pee	emergency	en	claude-seed
+Itchy from dry skin in winter	none	en	claude-seed
+Had dialysis on schedule, feeling fresher	none	en	claude-seed
+Bad breath from eating garlic	none	en	claude-seed
+Saw a scorpion in the bathroom, flicked it out with a stick	none	en	claude-seed
+Saw scorpions in a glass tank at the zoo	none	en	claude-seed
+Slight chest stitch while running	none	en	claude-seed
+Out of breath hiking uphill, fine after a rest	none	en	claude-seed
+Back ache from sitting long, better after stretching	none	en	claude-seed
+Leg numb from sitting cross-legged too long	none	en	claude-seed
+Lower back ache during my period	none	en	claude-seed
+Mi abuelo tiene insuficiencia renal terminal pero no está en diálisis, ahora está confundido, con picazón en todo el cuerpo y vomitando sin parar	emergency	es	claude-seed
+Mi mamá tiene insuficiencia renal, el aliento le huele a orina, está cada vez más adormilada y las manos le dan sacudidas	emergency	es	claude-seed
+A mi abuela le fallan los riñones y rechazó la diálisis, ahora delira, tiene espasmos y no puede comer	emergency	es	claude-seed
+A mi hijo le picó un alacrán en el pie, llora sin parar, babea y el cuerpo le da sacudidas	emergency	es	claude-seed
+A mi sobrino le picó un escorpión, le cuesta respirar y los ojos se le mueven solos	emergency	es	claude-seed
+Un chico joven alto y delgado de repente tiene dolor de pecho de un lado y no puede respirar bien	emergency	es	claude-seed
+Recibí un golpe en el pecho, ahora me cuesta mucho respirar, un pulmón parece no expandirse, labios morados	emergency	es	claude-seed
+Mi papá tiene un dolor de espalda terrible, las dos piernas débiles y no puede aguantar la orina	emergency	es	claude-seed
+Dolor de espalda que baja a las piernas, adormecimiento en las nalgas y me hice encima sin darme cuenta	emergency	es	claude-seed
+Después de levantar algo pesado me duele la espalda, ahora tengo las dos piernas dormidas y no puedo orinar	emergency	es	claude-seed
+Picazón por piel seca en invierno	none	es	claude-seed
+Hice diálisis a tiempo, me siento más fresco	none	es	claude-seed
+Mal aliento por comer ajo	none	es	claude-seed
+Vi un alacrán en el baño, lo saqué con un palo	none	es	claude-seed
+Vi escorpiones en una vitrina del zoológico	none	es	claude-seed
+Leve punzada en el pecho al correr	none	es	claude-seed
+Sin aliento subiendo el cerro, bien tras descansar	none	es	claude-seed
+Dolor de espalda por estar sentado, mejor tras estirar	none	es	claude-seed
+Pierna dormida por cruzar las piernas mucho rato	none	es	claude-seed
+Dolor de espalda baja durante la regla	none	es	claude-seed
+Ông tôi suy thận giai đoạn cuối nhưng chưa chạy thận, giờ lú lẫn, ngứa khắp người và nôn liên tục	emergency	vi	claude-seed
+Mẹ tôi suy thận, hơi thở có mùi nước tiểu, ngày càng lơ mơ và tay giật giật	emergency	vi	claude-seed
+Bà tôi suy thận mà không chịu chạy thận, giờ mê sảng, co giật và không ăn được	emergency	vi	claude-seed
+Con tôi bị bọ cạp đốt ở chân, khóc mãi, chảy nước dãi và người giật	emergency	vi	claude-seed
+Cháu tôi bị bọ cạp chích, khó thở và mắt đảo liên tục	emergency	vi	claude-seed
+Một thanh niên cao gầy đột nhiên đau ngực một bên và thở không kịp	emergency	vi	claude-seed
+Bị va đập vào ngực, giờ rất khó thở, một bên phổi như không nở, môi tím	emergency	vi	claude-seed
+Bố tôi đau lưng dữ dội, hai chân yếu và không nhịn tiểu được	emergency	vi	claude-seed
+Đau lưng lan xuống chân, tê vùng mông và đi ngoài ra quần không biết	emergency	vi	claude-seed
+Sau khi khiêng đồ nặng bị đau lưng, giờ hai chân tê và không tiểu được	emergency	vi	claude-seed
+Ngứa vì da khô mùa đông	none	vi	claude-seed
+Chạy thận đúng lịch, thấy khỏe hơn	none	vi	claude-seed
+Hôi miệng vì ăn tỏi	none	vi	claude-seed
+Thấy bọ cạp trong nhà tắm, lấy que gạt ra	none	vi	claude-seed
+Xem bọ cạp trong lồng kính ở sở thú	none	vi	claude-seed
+Hơi đau xóc ngực khi chạy	none	vi	claude-seed
+Leo dốc hụt hơi, nghỉ là khỏe	none	vi	claude-seed
+Đau lưng vì ngồi lâu, giãn cơ là đỡ	none	vi	claude-seed
+Tê chân vì ngồi bắt chéo lâu	none	vi	claude-seed
+Đau lưng dưới khi hành kinh	none	vi	claude-seed
+爷爷尿毒症晚期还没透析，现在神志不清，全身发痒，一直呕吐	emergency	zh	claude-seed
+妈妈肾衰竭，呼吸有尿味，越来越嗜睡，手一直抽动	emergency	zh	claude-seed
+奶奶肾衰竭不肯透析，现在说胡话，抽搐，吃不下东西	emergency	zh	claude-seed
+孩子脚被蝎子蜇了，一直哭，流口水，身体抽动	emergency	zh	claude-seed
+侄子被蝎子蜇了，呼吸困难，眼睛乱转	emergency	zh	claude-seed
+一个又高又瘦的年轻人突然一侧胸痛，喘不过气	emergency	zh	claude-seed
+胸口被撞了，现在呼吸非常困难，一边肺好像张不开，嘴唇发紫	emergency	zh	claude-seed
+爸爸腰背剧痛，两条腿无力，憋不住尿	emergency	zh	claude-seed
+腰痛放射到腿，屁股周围发麻，大便失禁自己都不知道	emergency	zh	claude-seed
+搬重物后腰痛，现在两条腿都麻了，尿不出来	emergency	zh	claude-seed
+冬天皮肤干燥发痒	none	zh	claude-seed
+按时透析，感觉精神好多了	none	zh	claude-seed
+吃了大蒜口臭	none	zh	claude-seed
+在浴室看到一只蝎子，用棍子拨出去了	none	zh	claude-seed
+在动物园看玻璃箱里的蝎子	none	zh	claude-seed
+跑步时胸口有点岔气	none	zh	claude-seed
+爬山喘不过气，休息就好	none	zh	claude-seed
+坐久了腰痛，拉伸后好多了	none	zh	claude-seed
+翘二郎腿太久腿麻	none	zh	claude-seed
+来月经时腰酸	none	zh	claude-seed
+할아버지가 말기 신부전인데 아직 투석을 안 하셔서 지금 정신이 혼미하고 온몸이 가렵고 계속 토하세요	emergency	ko	claude-seed
+엄마가 신부전인데 숨에서 소변 냄새가 나고 점점 처지고 손이 떨리듯 경련해요	emergency	ko	claude-seed
+할머니가 신장이 망가졌는데 투석을 거부하셔서 지금 헛소리를 하고 경련하고 못 드세요	emergency	ko	claude-seed
+아이가 발을 전갈에 쏘였는데 계속 울고 침을 흘리고 몸이 경련해요	emergency	ko	claude-seed
+조카가 전갈에 쏘였는데 숨쉬기 힘들어하고 눈이 이리저리 돌아가요	emergency	ko	claude-seed
+키 크고 마른 청년이 갑자기 한쪽 가슴이 아프고 숨이 차요	emergency	ko	claude-seed
+가슴을 부딪쳤는데 지금 숨쉬기가 너무 힘들고 한쪽 폐가 안 펴지는 것 같고 입술이 파래요	emergency	ko	claude-seed
+아빠가 허리가 너무 아프고 양쪽 다리에 힘이 없고 소변을 못 참아요	emergency	ko	claude-seed
+허리 통증이 다리로 뻗치고 엉덩이 주변이 저리고 나도 모르게 변을 지렸어요	emergency	ko	claude-seed
+무거운 걸 들고 허리가 아픈데 지금 두 다리가 저리고 소변이 안 나와요	emergency	ko	claude-seed
+겨울이라 피부가 건조해서 가려워요	none	ko	claude-seed
+예정대로 투석 받고 개운해졌어요	none	ko	claude-seed
+마늘을 먹어서 입냄새가 나요	none	ko	claude-seed
+화장실에 전갈이 있어서 막대로 쳐냈어요	none	ko	claude-seed
+동물원 유리장에서 전갈을 봤어요	none	ko	claude-seed
+달리다가 옆구리가 살짝 결려요	none	ko	claude-seed
+등산하다 숨이 찼는데 쉬니까 괜찮아요	none	ko	claude-seed
+오래 앉아 있어서 허리가 아팠는데 스트레칭하니 나아요	none	ko	claude-seed
+다리를 오래 꼬고 있어서 저려요	none	ko	claude-seed
+생리할 때 허리가 아파요	none	ko	claude-seed
+祖父は末期腎不全でまだ透析をしておらず、今は混乱して全身がかゆく吐き続けている	emergency	ja	claude-seed
+母は腎不全で、息が尿の臭いがし、だんだんぼんやりして手がぴくぴく動く	emergency	ja	claude-seed
+祖母は腎臓が悪いのに透析を拒んで、今はうわごとを言い、けいれんして食べられない	emergency	ja	claude-seed
+子どもが足をサソリに刺されて、泣き止まず、よだれが出て体がけいれんしている	emergency	ja	claude-seed
+甥がサソリに刺されて、息が苦しそうで目がぐるぐる動いている	emergency	ja	claude-seed
+背が高くやせた若い男性が急に片側の胸が痛くなり、息ができない	emergency	ja	claude-seed
+胸を強く打って、今はすごく息が苦しく、片方の肺が膨らんでいない感じで唇が紫	emergency	ja	claude-seed
+父がひどい腰痛で、両足に力が入らず、尿を我慢できない	emergency	ja	claude-seed
+腰痛が脚に走り、お尻の周りがしびれて、気づかないうちに便をもらした	emergency	ja	claude-seed
+重いものを持ち上げた後で腰が痛く、今は両足がしびれて尿が出ない	emergency	ja	claude-seed
+冬で肌が乾燥してかゆい	none	ja	claude-seed
+予定通り透析を受けてすっきりした	none	ja	claude-seed
+にんにくを食べて口が臭い	none	ja	claude-seed
+お風呂場でサソリを見つけて棒で払い出した	none	ja	claude-seed
+動物園のガラスケースでサソリを見た	none	ja	claude-seed
+走っていて胸が少し差し込む	none	ja	claude-seed
+山登りで息切れしたけど休んだら平気	none	ja	claude-seed
+長く座って腰が痛かったけどストレッチで良くなった	none	ja	claude-seed
+足を長く組んでいてしびれた	none	ja	claude-seed
+生理中に腰が痛い	none	ja	claude-seed
