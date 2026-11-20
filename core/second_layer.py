@@ -854,3 +854,12 @@ UPGRADES += [(re.compile(r"(?:พ่อ|แม่|ยาย|ตา|ย่า|ป
 UPGRADES += [(re.compile(r"(?i)\b(?:look(?:ing)?\s+after|tak(?:e|ing)\s+care\s+of|car(?:e|ing)\s+for)\s+(?:my\s+)?(?:mom|mum|mother|dad|father|grandma|grandpa|husband|wife|partner|son|daughter|parents?)\b"
                           r"[^\n]{0,40}?\b(?:alone|by\s+myself|on\s+my\s+own|every\s+(?:day|night)|24/7|for\s+(?:\d+|two|three|four|five|many)\s+(?:years|months))\b"), "caregiver")]
 _UP_RISK.setdefault("caregiver", 40)
+
+# รอบ 221: เล่าว่าคนอื่นกำลังกรีดตัวเอง ("is cutting herself") — เคยได้ 0 · คนขู่ฆ่าอยู่หน้าประตูตอนนี้ — เคยได้แค่ 65
+UPGRADES += [
+    (re.compile(r"(?i)\b(?:is|was|keeps?|been|started)\s+(?:cutting|hurting|burning|harming)\s+(?:herself|himself|themselves|themself)\b"), "someone"),
+    (re.compile(r"(?i)\b(?:outside|at)\s+(?:my|our|the)\s+(?:door|window|house|room)\b[^\n]{0,40}?\b(?:kill|hurt|shoot|stab|get)\s+(?:me|us)\b|"
+               r"\b(?:banging|pounding|kicking|trying\s+to\s+(?:open|break))\b[^\n]{0,20}?\b(?:door|window)\b[^\n]{0,40}?\b(?:kill|hurt|shoot|stab)\b"), "intruder"),
+]
+# "took my passport photo / passport picture" = ถ่ายรูปทำพาสปอร์ต ไม่ใช่ยึดพาสปอร์ต
+DOWNGRADES.append((re.compile(r"(?i)\btook\s+my\s+passport\s+(?:photo|picture|pic|photos)\b(?![^\n]*\b(?:won'?t\s+let|locked|keeps?\s+it|refuses?)\b)"), ("trafficking", "violence", "control_en")))

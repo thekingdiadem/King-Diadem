@@ -101,7 +101,7 @@ def prompt_lang(text) -> str:
 SELF_HARM_INTL = (
     re.compile(r"\b(?:i\s+)?(?:want|wanna|going)\s+to\s+die\b|\bkill(?:ing)?\s+myself\b|\bsuicid|"
                r"\bend(?:ing)?\s+(?:my\s+life|it\s+all)\b(?!\s+(?:with\s+a\s+bang|at\s+the\s+party|in\s+style))|\bdon'?t\s+want\s+to\s+(?:live|be\s+alive|exist)\b|"
-               r"\bbetter\s+off\s+dead\b|\bno\s+reason\s+to\s+live\b|\b(?:hurt|harm|cut)(?:ting)?\s+myself\b|"
+               r"\bbetter\s+off\s+dead\b|\bno\s+reason\s+to\s+live\b|\b(?:hurt(?:ing)?|harm(?:ing)?|cut(?:ting)?|burn(?:ing)?)\s+myself\b(?!\s+(?:at\s+(?:the\s+)?(?:gym|work|practice)|while|when|by\s+accident|accidentally|shaving|cooking|lifting|playing|during|on\s+(?:a|the)\s+(?:knife|stove|oven|pan|glass)|with\s+(?:a\s+)?(?:kitchen\s+knife|the\s+oven))\b)|"
                r"\bself[- ]harm", re.I),
     re.compile(r"想死(?!你|您|他|她|它|我了|了你)|不想活|不想再醒|写好遗书|寫好遺書|遗书|遺書|(?:天台|楼顶|樓頂)[^。！？\n]{0,8}?(?:跳|跳下)|想跳(?:楼|樓|下去)|(?<!的)(?:安眠药|安眠藥|药|藥)(?![^。！？\n]{0,6}?(?:要去|去医院|去醫院|再拿|再开|再開|去买|去買|续|續))[^。！？\n]{0,4}?(?:都|全)?吃(?:了|光|完)|吃了[^。！？\n]{0,4}?(?:安眠药|整瓶)|割腕|活不下去|自杀|自殺|轻生|輕生|结束(?:自己的)?生命|結束(?:自己的)?生命|"
                r"死了算了|不如死了"),
