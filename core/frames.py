@@ -60,6 +60,12 @@ FRAMES = (
      ("FICTION", "HYPOTHETICAL", "SUGAR_OK")),
     ("asthma", "medical", "health_emergency", (("ASTHMA", "ASTHMA_FAIL"), ("WHEEZE", "SHORT_SPEECH"), ("WHEEZE", "ASTHMA_FAIL")),
      ("FICTION", "HYPOTHETICAL", "CONTROLLED")),
+    # รอบ 6 (ชุดปิดตา I ล็อกไว้ก่อนเขียน)
+    ("cardiac", "medical", "health_emergency", (("HEART_ATTACK", "CARDIAC_SIGN"), ("CHEST_PAIN", "CARDIAC_SIGN")),   # "heart attack" ลำพังมักเป็นสำนวน
+     ("FICTION", "HYPOTHETICAL", "CHEST_BENIGN", "MINOR", "NEARLY")),
+    ("dehydration", "medical", "health_emergency", (("FLUID_LOSS", "DEHY_SIGN"),), ("FICTION", "HYPOTHETICAL", "BETTER")),   # ไม่ใช้ MINOR: มีคำว่า "ซึม" ซึ่งเป็นอาการขาดน้ำ
+    ("trapped", "medical", "health_emergency", (("TRAPPED", "PLACE", "TRAP_DANGER"),), ("FICTION", "HYPOTHETICAL", "TRAFFIC")),
+    ("flash_flood", "medical", "health_emergency", (("FLOOD", "FLOOD_DANGER"),), ("FICTION", "HYPOTHETICAL")),
 )
 
 

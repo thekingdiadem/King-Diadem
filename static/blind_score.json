@@ -1,5 +1,5 @@
 {
- "total": 967,
+ "total": 1107,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,20 +24,20 @@
    "precision": 0.892
   },
   "emergency": {
-   "n": 382,
-   "tp": 378,
-   "fn": 4,
-   "fp": 12,
-   "recall": 0.99,
-   "precision": 0.969
+   "n": 452,
+   "tp": 447,
+   "fn": 5,
+   "fp": 19,
+   "recall": 0.989,
+   "precision": 0.959
   },
   "violence": {
    "n": 70,
    "tp": 70,
    "fn": 0,
-   "fp": 5,
+   "fp": 12,
    "recall": 1.0,
-   "precision": 0.933
+   "precision": 0.854
   },
   "scam": {
    "n": 18,
@@ -57,41 +57,41 @@
   }
  },
  "danger_missed": {
-  "n": 2,
-  "of": 488
+  "n": 3,
+  "of": 558
  },
  "false_alarm": {
-  "n": 5,
-  "of": 453
+  "n": 13,
+  "of": 523
  },
  "by_lang": {
   "en": {
-   "hit": 84,
-   "n": 85
+   "hit": 94,
+   "n": 95
   },
   "es": {
-   "hit": 59,
-   "n": 61
+   "hit": 68,
+   "n": 71
   },
   "ja": {
-   "hit": 61,
-   "n": 62
+   "hit": 71,
+   "n": 72
   },
   "ko": {
-   "hit": 61,
-   "n": 61
+   "hit": 71,
+   "n": 71
   },
   "th": {
-   "hit": 119,
-   "n": 122
+   "hit": 129,
+   "n": 132
   },
   "vi": {
-   "hit": 59,
-   "n": 60
+   "hit": 69,
+   "n": 70
   },
   "zh": {
-   "hit": 63,
-   "n": 63
+   "hit": 73,
+   "n": 73
   }
  },
  "misses": [
@@ -192,6 +192,76 @@
    "text": "炎天下の作業員が体がすごく熱くて汗も出ず、話がおかしい",
    "label": "emergency",
    "got": []
+  },
+  {
+   "line": 1051,
+   "text": "เจ็บหน้าอกนิดหน่อยเพราะไอหนัก",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1057,
+   "text": "ติดอยู่ในรถติดสองชั่วโมง เบื่อมาก",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1079,
+   "text": "Saw news of floods abroad and felt sad",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1090,
+   "text": "La corriente arrastró un coche del puente y la gente de adentro no puede salir",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1111,
+   "text": "Ho nhiều quá nên hơi đau ngực",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1119,
+   "text": "Xem tin lũ lụt ở nước ngoài thấy thương",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1157,
+   "text": "차가 막혀서 두 시간 갇혀 있었어요 지루해요",
+   "label": "none",
+   "got": [
+    "violence"
+   ]
+  },
+  {
+   "line": 1160,
+   "text": "이별해서 가슴이 너무 아파요",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1180,
+   "text": "失恋して胸が痛い",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
   }
  ]
 }
