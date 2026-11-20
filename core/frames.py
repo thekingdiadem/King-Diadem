@@ -123,6 +123,11 @@ FRAMES = (
     ("ectopic", "medical", "health_emergency", (("PREG_POS", "ONE_SIDE_PAIN"),), ("FICTION", "HYPOTHETICAL", "PREG_OK")),   # "เลือดออกนิดหน่อย" ตอนท้องยังอันตราย ไม่ใช้ MINOR
     ("spinal", "medical", "health_emergency", (("SPINE_EVENT", "NO_LEGS"),), ("FICTION", "HYPOTHETICAL")),
     ("amputation", "medical", "health_emergency", (("SEVERED",),), ("FICTION", "HYPOTHETICAL", "NEWS")),
+    # รอบ 18 (ชุดปิดตา U ล็อกไว้ก่อนเขียน) — เรื่องไต: เส้นฟอกไตแตก/เลือดไม่หยุด/อุดตัน
+    ("fistula", "medical", "health_emergency", (("FISTULA", "FIST_RED"),), ("FICTION", "HYPOTHETICAL", "FIST_OK")),
+    ("dissection", "medical", "health_emergency", (("TEAR_PAIN", "CHEST_BACK"),), ("FICTION", "HYPOTHETICAL")),
+    ("bowel_obstruction", "medical", "health_emergency", (("NO_GAS", "OBST_RED"), ("GREEN_VOMIT",)), ("FICTION", "HYPOTHETICAL", "BETTER")),
+    ("bee_swarm", "medical", "health_emergency", (("MANY_STINGS",),), ("FICTION", "HYPOTHETICAL", "NEWS")),
 )
 
 

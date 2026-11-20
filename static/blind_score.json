@@ -25,11 +25,11 @@
   },
   "emergency": {
    "n": 1222,
-   "tp": 1169,
-   "fn": 53,
+   "tp": 1220,
+   "fn": 2,
    "fp": 15,
-   "recall": 0.957,
-   "precision": 0.987
+   "recall": 0.998,
+   "precision": 0.988
   },
   "violence": {
    "n": 140,
@@ -57,7 +57,7 @@
   }
  },
  "danger_missed": {
-  "n": 52,
+  "n": 1,
   "of": 1398
  },
  "false_alarm": {
@@ -66,31 +66,31 @@
  },
  "by_lang": {
   "en": {
-   "hit": 206,
+   "hit": 214,
    "n": 215
   },
   "es": {
-   "hit": 181,
+   "hit": 189,
    "n": 191
   },
   "ja": {
-   "hit": 184,
+   "hit": 192,
    "n": 192
   },
   "ko": {
-   "hit": 182,
+   "hit": 191,
    "n": 191
   },
   "th": {
-   "hit": 246,
+   "hit": 250,
    "n": 252
   },
   "vi": {
-   "hit": 182,
+   "hit": 189,
    "n": 190
   },
   "zh": {
-   "hit": 186,
+   "hit": 193,
    "n": 193
   }
  },
@@ -156,84 +156,12 @@
    ]
   },
   {
-   "line": 2747,
-   "text": "เส้นฟอกไตคลำไม่สั่นแล้ว แขนบวมเย็น พรุ่งนี้ต้องฟอก",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2749,
-   "text": "ลุงปวดหลังรุนแรงฉับพลันเหมือนถูกฉีก ความดันสองแขนไม่เท่ากัน",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2750,
-   "text": "ท้องอืดแข็ง ไม่ผายลมไม่ถ่ายมาสามวัน อาเจียนตลอด",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2751,
-   "text": "พ่อเคยผ่าตัดท้อง ตอนนี้ปวดท้องบิดเป็นพักๆ อาเจียนเป็นสีเขียว ท้องป่อง",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 2757,
    "text": "เจ็บหน้าอกนิดหน่อยตอนหายใจลึกๆ เพราะเป็นหวัด",
    "label": "none",
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 2766,
-   "text": "Mom just came back from dialysis and the needle site keeps oozing blood for half an hour",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2767,
-   "text": "I can't feel the thrill in my dialysis fistula anymore, my arm is swollen and cold, dialysis is tomorrow",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2769,
-   "text": "My uncle has sudden tearing back pain and the blood pressure is different in each arm",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2770,
-   "text": "Belly is bloated and hard, no gas or poop for three days and vomiting constantly",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2771,
-   "text": "Dad had belly surgery before, now crampy pain on and off, vomiting green and his belly is swollen",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2772,
-   "text": "My kid was stung by dozens of bees, swelling all over and vomiting",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2773,
-   "text": "Grandpa was stung many times by hornets, now his pee is dark and he's swollen",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2774,
-   "text": "A worker got swarmed by wasps all over and can barely breathe",
-   "label": "emergency",
-   "got": []
   },
   {
    "line": 2777,
@@ -244,246 +172,12 @@
    ]
   },
   {
-   "line": 2786,
-   "text": "Mi mamá acaba de volver de diálisis y el sitio de la aguja sigue sangrando desde hace media hora",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2787,
-   "text": "Ya no siento el frémito de mi fístula, el brazo está hinchado y frío, mañana me toca diálisis",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2789,
-   "text": "Mi tío tiene dolor de espalda repentino como desgarro y la presión es distinta en cada brazo",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2790,
-   "text": "La barriga hinchada y dura, sin gases ni evacuar en tres días y vomita todo el tiempo",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2791,
-   "text": "Mi papá tuvo cirugía abdominal, ahora cólicos que van y vienen, vomita verde y la barriga hinchada",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2792,
-   "text": "A mi hijo le picaron docenas de abejas, hinchado entero y vomitando",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2793,
-   "text": "A mi abuelo le picaron muchos avispones, ahora su orina es oscura y está hinchado",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2794,
-   "text": "A un trabajador lo atacó un enjambre de avispas y casi no puede respirar",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 2797,
    "text": "Leve dolor de pecho al respirar hondo por un resfriado",
    "label": "none",
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 2806,
-   "text": "Mẹ vừa chạy thận về, chỗ kim chích cứ rỉ máu mãi nửa tiếng chưa cầm",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2807,
-   "text": "Tôi không còn sờ thấy rung ở cầu nối chạy thận, tay sưng và lạnh, mai phải chạy thận",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2809,
-   "text": "Chú tôi đau lưng như bị xé đột ngột, huyết áp hai tay khác nhau",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2810,
-   "text": "Bụng chướng cứng, ba ngày không xì hơi không đi ngoài, nôn liên tục",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2811,
-   "text": "Bố tôi từng mổ bụng, giờ đau quặn từng cơn, nôn ra dịch xanh, bụng chướng",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2812,
-   "text": "Con tôi bị cả đàn ong đốt mấy chục nốt, sưng khắp người và nôn",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2813,
-   "text": "Ông tôi bị ong vò vẽ đốt nhiều nốt, giờ nước tiểu sẫm và người phù",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2827,
-   "text": "透析内瘘摸不到震颤了，手臂又肿又凉，明天要透析",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2828,
-   "text": "爷爷胸口像刀撕裂一样痛到背后，突然剧痛",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2829,
-   "text": "叔叔突然背部撕裂样剧痛，两只手臂血压不一样",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2830,
-   "text": "肚子胀得硬邦邦，三天没放屁没大便，一直吐",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2831,
-   "text": "爸爸以前做过腹部手术，现在阵发性绞痛，吐绿色的东西，肚子鼓起来",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2832,
-   "text": "孩子被几十只蜜蜂蜇了，全身肿，呕吐",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2833,
-   "text": "爷爷被马蜂蜇了很多处，现在尿色很深，全身浮肿",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2846,
-   "text": "엄마가 투석 받고 왔는데 바늘 자리에서 30분째 피가 스며 나와요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2847,
-   "text": "투석 혈관에서 떨림이 안 느껴지고 팔이 붓고 차가워요 내일 투석이에요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2848,
-   "text": "할아버지가 칼로 찢는 것처럼 가슴이 등까지 아프대요 갑자기 엄청 심하게요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2849,
-   "text": "삼촌이 갑자기 등이 찢어지듯 아프고 양팔 혈압이 달라요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2850,
-   "text": "배가 빵빵하고 딱딱하고 사흘째 방귀도 변도 안 나오고 계속 토해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2851,
-   "text": "아빠가 예전에 배 수술을 했는데 지금 배가 쥐어짜듯 아팠다 말았다 하고 초록색을 토하고 배가 부풀었어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2852,
-   "text": "아이가 벌 수십 마리에 쏘여서 온몸이 붓고 토해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2853,
-   "text": "할아버지가 말벌에 여러 군데 쏘였는데 지금 소변 색이 진하고 몸이 부었어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2854,
-   "text": "인부가 말벌 떼에 온몸을 쏘여서 숨을 거의 못 쉬어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2866,
-   "text": "母が透析から帰ってきたら、針の跡から30分も血がにじみ続けている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2867,
-   "text": "透析シャントのスリルが感じられなくなり、腕が腫れて冷たい、明日は透析",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2868,
-   "text": "祖父が胸を刃物で裂かれるような痛みが背中まで走って、突然ひどく痛がっている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2869,
-   "text": "叔父が急に背中が裂けるように痛くて、両腕の血圧が違う",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2870,
-   "text": "お腹がパンパンに張って硬く、三日間おならも便も出ず、ずっと吐いている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2871,
-   "text": "父は以前お腹の手術をしていて、今は差し込むような痛みが波のように来て、緑色のものを吐き、お腹が膨らんでいる",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2872,
-   "text": "子どもが何十匹もの蜂に刺されて、全身が腫れて吐いている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2873,
-   "text": "祖父がスズメバチに何か所も刺されて、今は尿の色が濃く体がむくんでいる",
-   "label": "emergency",
-   "got": []
   }
  ]
 }

@@ -1708,3 +1708,68 @@ SEVERED	vi	cắt đứt ngón|kẹp đứt|đứt hai ngón|đứt ngón
 SEVERED	zh	手指切断|手指切斷|夹断|夾斷|断了两根手指|斷了兩根手指|断指|斷指
 SEVERED	ko	손가락이 잘렸|끝이 잘렸|손가락 두 개가 잘렸|절단
 SEVERED	ja	指が切断|指先が切れて取れ|指が二本切断|切断された
+
+# ═══ รอบ 18: (ไต) เส้นฟอกไตเลือดพุ่ง/อุดตัน · หลอดเลือดแดงใหญ่ฉีก · ลำไส้อุดตัน · ผึ้ง/ต่อรุมต่อย ═══
+FISTULA	th	เส้นฟอกไต|เส้นฟอก|รูเข็ม
+FISTULA	en	dialysis fistula|fistula|needle site|dialysis graft
+FISTULA	es	fístula|fistula|sitio de la aguja
+FISTULA	vi	cầu nối chạy thận|cầu nối|chỗ kim chích
+FISTULA	zh	内瘘|內瘻|针眼|針眼
+FISTULA	ko	투석용 혈관|투석 혈관|바늘 자리
+FISTULA	ja	シャント|針の跡
+FIST_RED	th	แตก|พุ่ง|ไม่หยุด|ซึมไม่หยุด|คลำไม่สั่น|ไม่สั่นแล้ว|บวมเย็น
+FIST_RED	en	burst|spurting|nonstop|keeps oozing|can't feel the thrill|swollen and cold
+FIST_RED	es	reventó|a chorros|sigue sangrando|ya no siento|hinchado y frío
+FIST_RED	vi	bị vỡ|phun|rỉ máu mãi|không còn sờ thấy|sưng và lạnh
+FIST_RED	zh	破了|喷|噴|一直渗血|一直滲血|摸不到震颤|摸不到震顫|又肿又凉|又腫又涼
+FIST_RED	ko	터져|뿜어|피가 스며|떨림이 안|붓고 차가
+FIST_RED	ja	破れて|噴き出|にじみ続け|スリルが感じられ|腫れて冷た
+FIST_OK	th	ใช้งานได้ดี|ใช้ได้ดี
+FIST_OK	en	works fine|working well
+FIST_OK	es	funciona bien
+FIST_OK	vi	hoạt động tốt
+FIST_OK	zh	很好用
+FIST_OK	ko	상태가 좋
+FIST_OK	ja	順調
+TEAR_PAIN	th	เหมือนมีดฉีก|เหมือนถูกฉีก|ปวดแบบฉีก|ฉีกทะลุไปหลัง
+TEAR_PAIN	en	knife tearing|tearing pain|tearing through|tearing back pain|ripping pain
+TEAR_PAIN	es	desgarra|desgarro
+TEAR_PAIN	vi	như dao xé|bị xé
+TEAR_PAIN	zh	撕裂
+TEAR_PAIN	ko	찢는|찢어지듯
+TEAR_PAIN	ja	裂かれる|裂ける
+CHEST_BACK	th	หน้าอก|หลัง
+CHEST_BACK	en	chest|back
+CHEST_BACK	es	pecho|espalda
+CHEST_BACK	vi	ngực|lưng
+CHEST_BACK	zh	胸|背
+CHEST_BACK	ko	가슴|등이|등까지
+CHEST_BACK	ja	胸|背中
+NO_GAS	th	ไม่ผายลม|ไม่ถ่าย|ไม่ตด
+NO_GAS	en	no gas|no poop|can't pass gas|haven't pooped
+NO_GAS	es	sin gases|ni evacuar|no puedo evacuar
+NO_GAS	vi	không xì hơi|không đi ngoài
+NO_GAS	zh	没放屁|沒放屁|没大便|沒大便
+NO_GAS	ko	방귀도|변도 안
+NO_GAS	ja	おならも便も出ず|おならが出ない
+OBST_RED	th	อาเจียน|ท้องแข็ง|ท้องป่อง|ท้องอืดแข็ง
+OBST_RED	en	vomiting|hard|swollen
+OBST_RED	es	vomita|dura|hinchada
+OBST_RED	vi	nôn|chướng cứng|chướng
+OBST_RED	zh	吐|硬邦邦|鼓起来|鼓起來
+OBST_RED	ko	토해|딱딱|부풀
+OBST_RED	ja	吐い|硬く|膨らん
+GREEN_VOMIT	th	อาเจียนเป็นสีเขียว|อ้วกสีเขียว
+GREEN_VOMIT	en	vomiting green|throwing up green|green vomit
+GREEN_VOMIT	es	vomita verde|vómito verde
+GREEN_VOMIT	vi	nôn ra dịch xanh|nôn ra màu xanh
+GREEN_VOMIT	zh	吐绿色|吐綠色
+GREEN_VOMIT	ko	초록색을 토
+GREEN_VOMIT	ja	緑色のものを吐|緑色の嘔吐
+MANY_STINGS	th	รุมต่อย|ต่อยหลายที่|หลายสิบตัว|ต่อยทั้งตัว
+MANY_STINGS	en	stung by dozens|stung many times|swarmed|dozens of stings
+MANY_STINGS	es	picaron docenas|picaron muchos|enjambre
+MANY_STINGS	vi	cả đàn ong|đốt nhiều nốt|bị đàn ong|đốt mấy chục
+MANY_STINGS	zh	几十只蜜蜂|幾十隻蜜蜂|蜇了很多处|蜇了很多處|一群黄蜂|一群黃蜂|围攻|圍攻
+MANY_STINGS	ko	수십 마리|여러 군데 쏘|떼에
+MANY_STINGS	ja	何十匹|何か所も刺|大群

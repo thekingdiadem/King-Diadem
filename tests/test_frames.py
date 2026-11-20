@@ -507,3 +507,26 @@ def test_round17_danger(text):
 @pytest.mark.parametrize("text", CALM_17)
 def test_round17_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 18: (ไต) เส้นฟอกไต · หลอดเลือดแดงใหญ่ฉีก · ลำไส้อุดตัน · ผึ้งรุมต่อย (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา U) ──
+DANGER_18 = [
+    "เส้นฟอกไตแตก เลือดพุ่ง", "my dialysis fistula is bleeding nonstop", "シャントから血が噴き出している",
+    "ปวดหลังเหมือนถูกฉีก", "sudden tearing pain in my chest going to my back", "胸口撕裂样剧痛",
+    "ไม่ผายลมไม่ถ่าย อาเจียน ท้องแข็ง", "my baby is throwing up green", "방귀도 안 나오고 계속 토해요",
+    "โดนผึ้งรุมต่อย", "he was swarmed by hornets", "bị cả đàn ong đốt",
+]
+CALM_18 = [
+    "เส้นฟอกไตใช้งานได้ดี", "fistula check next month", "ท้องอืดเพราะกินถั่ว ผายลมแล้วสบาย", "tearing up at the wedding",
+    "โดนผึ้งต่อยหนึ่งที่", "beekeeping is fun",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_18)
+def test_round18_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_18)
+def test_round18_calm(text):
+    assert frames(text) == [], explain(text)
