@@ -206,7 +206,18 @@ SELF_HARM_ACT = (
     re.compile(r"\bje\s+me\s+(?:fais\s+du\s+mal|coupe(?!\s+les\s+cheveux)|scarifie|mutile)|\bautomutil|\bich\s+(?:verletze|ritze)\s+mich|\bselbstverletz|"
                r"\b(?:eu\s+)?me\s+(?:corto(?!\s+(?:o|el|la|las|los|os|as)\s+(?:cabelo|pelo|cabello|unhas|uñas|barba|franja|flequillo|dedo|cebolla|cebola))|machuco|mutilo)\b|\bmelukai\s+diri|\bmenyakiti\s+diri", re.I),
 )
-SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_MEANING + SELF_HARM_ACT
+# รอบสุ่ม 228: ข้อความที่ทิ้งไว้ ("ถ้าอ่านข้อความนี้ แปลว่าฉันไม่อยู่แล้ว") · ฝากสัตว์เลี้ยงแล้วบอกว่าจะไม่อยู่ — 9 ภาษา เคยได้ 0
+# "猫をよろしく、もう会えない" ไม่จับ — ย้ายไปต่างประเทศก็พูดแบบนี้ได้
+SELF_HARM_NOTE = (
+    re.compile(r"\bsi\s+(?:estás|estas)\s+leyendo\s+esto[^.!?\n]{0,15}?ya\s+no\s+(?:estoy|existo)|\bya\s+no\s+voy\s+a\s+estar\b(?![^.!?\n]{0,20}(?:en\s+la\s+oficina|en\s+casa|mañana|esta\s+semana|el\s+lunes))", re.I),
+    re.compile(r"(?:看到|读到|讀到)这?(?:条|條)?(?:消息|讯息|訊息|信)[^。！？\n]{0,6}(?:我已经|我已經)?(?:不在了|走了|离开了|離開了)|我以后不在了|我以後不在了"),
+    re.compile(r"(?:これを)?読んでいる(?:なら|ということは)[^。！？\n]{0,10}(?:私|僕|俺)?(?:は)?もう(?:いない|この世にいない)"),
+    re.compile(r"(?:이\s*글을?|이걸)\s*(?:보고|읽고)\s*있다면[^.!?\n]{0,15}(?:이미|이제)\s*없|난\s*이제\s*없을\s*거"),
+    re.compile(r"(?:đọc|thấy)\s+được\s+(?:tin|thư|tin\s+nhắn)\s+này[^.!?\n]{0,15}(?:đã\s+đi\s+rồi|không\s+còn\s+nữa|không\s+còn\s+trên\s+đời)|^(?![\s\S]*(?:chuyển|đi\s+làm|du\s+lịch|về\s+quê|ra\s+nước\s+ngoài|công\s+ty))[\s\S]*?sẽ\s+không\s+còn\s+ở\s+đây\s+nữa", re.I),
+    re.compile(r"\bsi\s+tu\s+lis\s+ceci[^.!?\n]{0,15}je\s+ne\s+suis\s+plus\s+l(?:à|a)|\bwenn\s+du\s+das\s+liest[^.!?\n]{0,15}bin\s+ich\s+nicht\s+mehr\s+da"
+               r"|\bse\s+voc(?:ê|e)\s+est(?:á|a)\s+lendo\s+isso[^.!?\n]{0,15}(?:j(?:á|a)\s+)?n(?:ã|a)o\s+estou\s+mais|\bkalau\s+kamu\s+baca\s+ini[^.!?\n]{0,15}(?:aku|saya)\s+sudah\s+tidak\s+ada", re.I),
+)
+SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_MEANING + SELF_HARM_ACT + SELF_HARM_NOTE
 SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_PASSIVE + SELF_HARM_INDIRECT + SELF_HARM_MASKED   # ผู้ใช้ทุกที่ (kernel_voice วิกฤต · llm_gemini ความปลอดภัย) ได้แบบอ้อมด้วย
 
 
@@ -1098,6 +1109,8 @@ WORLD_URGENT["violence"] += (r"|mi\s+sta\s+picchiando|mi\s+picchia|"
                              r"(?:sedang\s+)?memukul\s+saya|menghajar\s+saya"
                              r"|ကျွန်(?:မ|တော်)ကို\s*ရိုက်")
 WORLD_URGENT["medical"] += r"|hindi\s+(?:na\s+)?humihinga"
+# ข้อความทิ้งไว้/ทำร้ายตัวเอง (SELF_HARM_NOTE · SELF_HARM_ACT) ต้องได้คำตอบวิกฤตในภาษาของผู้ใช้ด้วย ไม่ใช่ภาษาอังกฤษ
+WORLD_URGENT["crisis"] += "|" + "|".join(p.pattern for p in SELF_HARM_NOTE + SELF_HARM_ACT)
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 
