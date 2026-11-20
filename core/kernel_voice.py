@@ -3942,3 +3942,21 @@ def compose(text: str, *args, **kw) -> str:  # noqa: F811
         from core import heart_lines as _hl
         reply = _heal.guard("heart_lines", lambda: _hl.add(reply, text, assess(text))) or reply
     return reply
+
+
+# O ≥ 1 ตอนตอบจริง (core/choice.py): ถ้าคำตอบเรื่องด่วนไหนไม่เหลือทางให้คนไปเลย เติมทางสุดท้ายให้เสมอ
+# เทสต์ tests/test_choice_invariant.py ทำให้กรณีนี้ไม่ควรเกิด — ตรงนี้คือตาข่ายกันไว้อีกชั้นสำหรับหัวข้อใหม่ในอนาคต
+_compose_before_choice = compose
+_LAST_WAY = {"th": "ยังมีทางเสมอ: ถ้าอันตรายตอนนี้ โทร 1669 (เจ็บป่วยฉุกเฉิน) หรือ 191 (ตำรวจ) · ถ้าใจไม่ไหว โทร 1323 ได้ตลอด 24 ชม. ฟรี",
+             "en": "There is always a way: if it's dangerous right now, call local emergency services (1669 / 191 in Thailand, 911 in the US, 112 in Europe) · if your mind can't take it, findahelpline.com lists free 24h lines."}
+
+
+def compose(text: str, *args, **kw) -> str:  # noqa: F811
+    reply = _compose_before_choice(text, *args, **kw)
+    if isinstance(text, str) and text and isinstance(reply, str):
+        from core.choice import choices_left
+        if choices_left(reply) < 1 and (assess(text).get("risk_shown") or 0) >= 60:
+            way = _LAST_WAY["th" if re.search(r"[฀-๿]", text) else "en"]
+            head, sep, rest = reply.partition("\n\n")
+            reply = f"{head}\n\n{way}\n\n{rest}" if sep else f"{reply}\n\n{way}"
+    return reply
