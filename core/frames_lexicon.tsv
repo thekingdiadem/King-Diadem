@@ -823,13 +823,13 @@ PREG_DANGER	vi	ra máu|chảy máu|đau đầu dữ dội|mờ mắt|vỡ ối|k
 PREG_DANGER	zh	出血|流血|头痛得厉害|頭痛得厲害|模糊|破水|几乎不动|幾乎不動|不动了|抽搐
 PREG_DANGER	ko	하혈|출혈|피가|머리가 너무 아프|침침|양수가 터|안 움직|경련
 PREG_DANGER	ja	出血|ひどい頭痛|かすみ|破水|動かない|けいれん
-PREG_OK	th	นิดหน่อย|แข็งแรงดี|ปกติดี|ผลดี
-PREG_OK	en	a bit of|healthy|went great|normal
-PREG_OK	es	un poco|sano|salió bien
-PREG_OK	vi	hơi|khỏe mạnh|bình thường
-PREG_OK	zh	有点|很健康|很顺利
-PREG_OK	ko	조금|건강하|잘 받았
-PREG_OK	ja	少し|元気|順調
+PREG_OK	th	แข็งแรงดี|ปกติดี|ผลดี
+PREG_OK	en	healthy|went great|normal
+PREG_OK	es	sano|salió bien
+PREG_OK	vi	khỏe mạnh|bình thường
+PREG_OK	zh	很健康|很顺利
+PREG_OK	ko	건강하|잘 받았
+PREG_OK	ja	元気|順調
 # ── ไข้ในทารก ── ทารก + ไข้ + สัญญาณอันตราย (ไม่กินนม ร้องไม่หยุด ซึม กระหม่อมโป่ง)
 INFANT	th	re:ทารก|เด็กแรกเกิด|(?:ลูก|หลาน|น้อง)\S{0,6}?(?:อายุ\s*)?\d+\s*(?:เดือน|สัปดาห์)
 INFANT	en	re:\b\d+[ -](?:month|week)[ -]old\b|\bnewborn\b|\binfant\b|\bthe baby\b|\bmy baby\b
@@ -1657,3 +1657,54 @@ TESTIS_RED	vi	đột nhiên|dữ dội|sưng|nôn
 TESTIS_RED	zh	突然|剧痛|劇痛|肿|腫|呕吐|嘔吐
 TESTIS_RED	ko	갑자기|심하게|붓고|토해
 TESTIS_RED	ja	急に|激痛|腫れ|吐い
+
+# ═══ รอบ 17: (ไต) กล้ามเนื้อสลาย ฉี่สีโค้ก · ท้องนอกมดลูก · กระดูกสันหลังบาดเจ็บ · นิ้ว/อวัยวะขาด ═══
+DARK_URINE	th	ฉี่สีโค้ก|สีเหมือนโค้ก|ฉี่สีน้ำตาลเข้ม|ฉี่สีชาเข้ม|ปัสสาวะสีโค้ก|ปัสสาวะสีน้ำตาลเข้ม
+DARK_URINE	en	looks like cola|cola-colored|cola colored|urine is dark brown|dark like tea|tea-colored
+DARK_URINE	es	parece coca-cola|parece coca cola|marrón oscuro|oscura como té
+DARK_URINE	vi	như màu coca|nâu sẫm|sẫm như nước trà
+DARK_URINE	zh	尿像可乐|尿像可樂|深棕色|像浓茶|像濃茶
+DARK_URINE	ko	콜라색|진한 갈색|홍차색
+DARK_URINE	ja	コーラ色|濃い茶色|紅茶色
+RHABDO_CAUSE	th	หนักมาก|ครอสฟิต|ยกเวท|เล่นกีฬา|ออกกำลังกายหนัก|วิ่งมาราธอน|ทับ|ปวดกล้ามเนื้อ|แทบไม่มีฉี่
+RHABDO_CAUSE	en	worked out|marathon|crushed|muscle|barely peeing
+RHABDO_CAUSE	es	ejercicio|maratón|aplastó|músculos|casi no orino
+RHABDO_CAUSE	vi	tập thể dục|marathon|đè|cơ|gần như không tiểu
+RHABDO_CAUSE	zh	运动|運動|马拉松|馬拉松|压了|壓了|肌肉|尿不出
+RHABDO_CAUSE	ko	운동|마라톤|깔려|근육|안 나와
+RHABDO_CAUSE	ja	運動|マラソン|挟まれ|筋肉|出ない
+PREG_POS	th	ประจำเดือนขาด|ตรวจครรภ์ขึ้นสองขีด|ขึ้นสองขีด|เมนส์ขาด
+PREG_POS	en	missed my period|positive pregnancy test|period is late and
+PREG_POS	es	no me baja la regla|prueba de embarazo positiva
+PREG_POS	vi	trễ kinh hai|trễ kinh|que thử hai vạch
+PREG_POS	zh	没来月经|沒來月經|验孕两条杠|驗孕兩條槓
+PREG_POS	ko	re:생리를[^.\n]{0,12}안|두 줄인데
+PREG_POS	ja	re:生理が\S{0,6}来な|妊娠検査は陽性
+ONE_SIDE_PAIN	th	ปวดท้องน้อยข้างเดียว|ข้างเดียวรุนแรง|ปวดท้องข้างขวามาก|ปวดท้องข้างซ้ายมาก|ไหล่เจ็บ|หน้ามืด
+ONE_SIDE_PAIN	en	one-sided|one side|right side|left side|shoulder hurts|faint
+ONE_SIDE_PAIN	es	un lado|lado derecho|lado izquierdo|hombro|desmayar
+ONE_SIDE_PAIN	vi	một bên|bên phải|bên trái|đau vai|choáng
+ONE_SIDE_PAIN	zh	一侧|一側|右边|右邊|左边|左邊|肩膀|头晕|頭暈
+ONE_SIDE_PAIN	ko	한쪽|오른쪽|왼쪽|어깨|어지러
+ONE_SIDE_PAIN	ja	片側|右側|左側|肩|めまい
+SPINE_EVENT	th	กระโดดน้ำ|ตกจาก|หัวกระแทก|ตกหลังคา|ตกตึก
+SPINE_EVENT	en	dove|fell off|fell from|hit his head|hit her head|diving
+SPINE_EVENT	es	se tiró|se cayó|golpeó
+SPINE_EVENT	vi	nhảy xuống|ngã từ|đập đầu
+SPINE_EVENT	zh	跳进|跳進|摔下|撞到头|撞到頭
+SPINE_EVENT	ko	다이빙|떨어졌|부딪
+SPINE_EVENT	ja	飛び込|落ちて|頭を打
+NO_LEGS	th	ขยับขาไม่ได้|ขาชาไม่รู้สึก|ขาไม่มีความรู้สึก|ขาไม่รู้สึก
+NO_LEGS	en	can't move his legs|can't move her legs|can't move my legs|can't feel his legs|can't feel her legs|can't feel my legs
+NO_LEGS	es	no puede mover las piernas|no siente las piernas|no puedo mover las piernas
+NO_LEGS	vi	không cử động chân|chân không còn cảm giác|không cử động được chân
+NO_LEGS	zh	腿动不了|腿動不了|腿没有感觉|腿沒有感覺
+NO_LEGS	ko	다리를 못 움직|다리에 감각이 없
+NO_LEGS	ja	脚が動かせない|脚の感覚がない|足が動かない
+SEVERED	th	นิ้วขาด|ตัดนิ้วขาด|ขาดไปข้อหนึ่ง|มือขาด|แขนขาด|ขาขาด
+SEVERED	en	cut off my finger|cut off the tip|fingers are cut off|finger is cut off|severed|amputated
+SEVERED	es	me cortó un dedo|cortó la punta|dedos cortados|dedo cortado|amputado
+SEVERED	vi	cắt đứt ngón|kẹp đứt|đứt hai ngón|đứt ngón
+SEVERED	zh	手指切断|手指切斷|夹断|夾斷|断了两根手指|斷了兩根手指|断指|斷指
+SEVERED	ko	손가락이 잘렸|끝이 잘렸|손가락 두 개가 잘렸|절단
+SEVERED	ja	指が切断|指先が切れて取れ|指が二本切断|切断された

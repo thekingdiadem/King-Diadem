@@ -484,3 +484,26 @@ def test_round16_danger(text):
 @pytest.mark.parametrize("text", CALM_16)
 def test_round16_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 17: (ไต) กล้ามเนื้อสลาย · ท้องนอกมดลูก · กระดูกสันหลัง · นิ้วขาด (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา T) ──
+DANGER_17 = [
+    "เล่นครอสฟิตหนักมาก ฉี่สีโค้ก", "after the marathon my urine is dark brown", "근육이 너무 아프고 소변이 콜라색이에요",
+    "ประจำเดือนขาด ปวดท้องน้อยข้างเดียวรุนแรง", "positive pregnancy test and sharp pain on one side", "验孕两条杠，右边很痛，有点出血",
+    "ตกจากบันได ขยับขาไม่ได้", "he dove into the pool and can't feel his legs", "屋根から落ちて脚が動かせない",
+    "เครื่องจักรตัดนิ้วขาด", "my finger was severed by the saw", "đứt ngón tay vì máy cưa",
+]
+CALM_17 = [
+    "ฉี่สีเข้มเพราะดื่มน้ำน้อย", "ate beets and my pee is pink", "ประจำเดือนมาช้าสามวัน", "positive pregnancy test, so happy",
+    "ขาชาเพราะนั่งพับเพียบ", "ดูหนังฉากนิ้วขาด", "my muscles are sore after the gym",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_17)
+def test_round17_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_17)
+def test_round17_calm(text):
+    assert frames(text) == [], explain(text)

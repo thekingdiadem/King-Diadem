@@ -118,6 +118,11 @@ FRAMES = (
     ("sepsis", "medical", "health_emergency", (("SEPSIS_FEVER", "SEPSIS_CIRC"),), ("FICTION", "HYPOTHETICAL", "BETTER")),
     ("fracture", "medical", "health_emergency", (("DEFORM",), ("BONE_OUT",), ("LEG_SHORT",)), ("FICTION", "HYPOTHETICAL", "MINOR")),
     ("torsion", "medical", "health_emergency", (("TESTIS", "TESTIS_RED"),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 17 (ชุดปิดตา T ล็อกไว้ก่อนเขียน) — เรื่องไต: กล้ามเนื้อสลาย (ฉี่สีโค้ก) ทำให้ไตวายเฉียบพลัน
+    ("rhabdo", "medical", "health_emergency", (("DARK_URINE", "RHABDO_CAUSE"),), ("FICTION", "HYPOTHETICAL")),
+    ("ectopic", "medical", "health_emergency", (("PREG_POS", "ONE_SIDE_PAIN"),), ("FICTION", "HYPOTHETICAL", "PREG_OK")),   # "เลือดออกนิดหน่อย" ตอนท้องยังอันตราย ไม่ใช้ MINOR
+    ("spinal", "medical", "health_emergency", (("SPINE_EVENT", "NO_LEGS"),), ("FICTION", "HYPOTHETICAL")),
+    ("amputation", "medical", "health_emergency", (("SEVERED",),), ("FICTION", "HYPOTHETICAL", "NEWS")),
 )
 
 
