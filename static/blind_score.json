@@ -25,11 +25,11 @@
   },
   "emergency": {
    "n": 1572,
-   "tp": 1519,
-   "fn": 53,
+   "tp": 1570,
+   "fn": 2,
    "fp": 18,
-   "recall": 0.966,
-   "precision": 0.988
+   "recall": 0.999,
+   "precision": 0.989
   },
   "violence": {
    "n": 140,
@@ -57,7 +57,7 @@
   }
  },
  "danger_missed": {
-  "n": 52,
+  "n": 1,
   "of": 1748
  },
  "false_alarm": {
@@ -66,31 +66,31 @@
  },
  "by_lang": {
   "en": {
-   "hit": 257,
+   "hit": 264,
    "n": 265
   },
   "es": {
-   "hit": 231,
+   "hit": 239,
    "n": 241
   },
   "ja": {
-   "hit": 235,
+   "hit": 242,
    "n": 242
   },
   "ko": {
-   "hit": 234,
+   "hit": 241,
    "n": 241
   },
   "th": {
-   "hit": 292,
+   "hit": 300,
    "n": 302
   },
   "vi": {
-   "hit": 232,
+   "hit": 239,
    "n": 240
   },
   "zh": {
-   "hit": 236,
+   "hit": 243,
    "n": 243
   }
  },
@@ -210,312 +210,6 @@
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 3455,
-   "text": "ยายกินยาขับปัสสาวะอยู่ แล้วท้องเสียทั้งวัน ตอนนี้ฉี่น้อยมาก สับสน",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3457,
-   "text": "พ่อกินยาความดันกับยาขับปัสสาวะ อาเจียนสองวัน ตอนนี้ลุกไม่ไหว ฉี่ไม่ค่อยออก",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3458,
-   "text": "ลูกเป็นไข้เลือดออก ไข้ลดแล้วแต่ซึมลง ปวดท้องมาก มือเท้าเย็น",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3460,
-   "text": "กินยาแก้อักเสบแล้วผื่นขึ้นทั้งตัว ผิวพองลอก ปากเป็นแผล ตาแดง",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3461,
-   "text": "แพ้ยากันชัก ผิวหนังลอกเป็นแผ่น มีไข้ เจ็บปากกลืนไม่ได้",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3462,
-   "text": "โดนตะปูสนิมตำเมื่ออาทิตย์ก่อน ตอนนี้อ้าปากไม่ขึ้น กล้ามเนื้อเกร็ง",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3463,
-   "text": "แผลที่ขาไม่ได้ฉีดบาดทะยัก ตอนนี้ขากรรไกรแข็ง หลังแอ่น กระตุก",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3464,
-   "text": "ตาไม่เคยฉีดวัคซีนบาดทะยัก หลังโดนแผลก็กลืนลำบาก คอแข็ง",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3475,
-   "text": "Grandma is on water pills and had diarrhea all day, now she's barely peeing and confused",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3477,
-   "text": "Dad takes blood pressure pills and a diuretic, vomited for two days, now can't get up and hardly pees",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3478,
-   "text": "My kid has dengue, the fever dropped but he's getting drowsy, bad belly pain and cold hands and feet",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3480,
-   "text": "After an antibiotic my whole body broke out, the skin is blistering and peeling, mouth sores and red eyes",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3482,
-   "text": "Stepped on a rusty nail last week, now I can't open my jaw and my muscles are stiff",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3483,
-   "text": "No tetanus shot after the leg wound, now his jaw is locked, back arching and spasms",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3484,
-   "text": "Grandpa never had a tetanus vaccine, since the wound he struggles to swallow and his neck is stiff",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3496,
-   "text": "Mi abuelo toma pastillas para orinar, tomó poca agua con el calor, no orina desde hace medio día y está adormilado",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3497,
-   "text": "Mi papá toma pastillas para la presión y un diurético, vomitó dos días, ahora no se puede levantar y casi no orina",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3498,
-   "text": "Mi hijo tiene dengue, le bajó la fiebre pero está cada vez más adormilado, mucho dolor de barriga y manos y pies fríos",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3499,
-   "text": "Mi hermano tiene dengue, sangra por la nariz y vomita sangre",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3500,
-   "text": "Después de un antibiótico me salió sarpullido en todo el cuerpo, la piel se ampolla y se pela, llagas en la boca y ojos rojos",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3502,
-   "text": "Pisé un clavo oxidado la semana pasada, ahora no puedo abrir la mandíbula y tengo los músculos rígidos",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3503,
-   "text": "No se vacunó contra el tétanos tras la herida de la pierna, ahora tiene la mandíbula trabada, la espalda arqueada y espasmos",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3504,
-   "text": "Mi abuelo nunca se vacunó contra el tétanos, desde la herida le cuesta tragar y tiene el cuello rígido",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3515,
-   "text": "Bà tôi đang uống thuốc lợi tiểu, bị tiêu chảy cả ngày, giờ tiểu rất ít và lú lẫn",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3516,
-   "text": "Ông tôi uống thuốc lợi tiểu, trời nóng uống ít nước, nửa ngày chưa đi tiểu và lơ mơ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3517,
-   "text": "Bố tôi uống thuốc huyết áp và thuốc lợi tiểu, nôn hai ngày, giờ không dậy nổi và hầu như không tiểu",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3518,
-   "text": "Con tôi bị sốt xuất huyết, hết sốt nhưng lừ đừ dần, đau bụng nhiều và tay chân lạnh",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3520,
-   "text": "Sau khi uống kháng sinh, nổi ban toàn thân, da phồng rộp bong tróc, lở miệng và đỏ mắt",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3522,
-   "text": "Tuần trước giẫm phải đinh gỉ, giờ không há miệng được và cơ cứng đờ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3524,
-   "text": "Ông tôi chưa từng tiêm uốn ván, từ khi bị thương thì khó nuốt và cứng cổ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3535,
-   "text": "奶奶在吃利尿药，拉了一整天肚子，现在尿很少，意识混乱",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3536,
-   "text": "爷爷吃利尿剂，天热喝水少，半天没尿，昏昏沉沉",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3538,
-   "text": "孩子得了登革热，烧退了但越来越没精神，肚子很痛，手脚冰凉",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3540,
-   "text": "吃了抗生素后全身起疹子，皮肤起泡脱落，嘴巴溃烂，眼睛红",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3541,
-   "text": "对抗癫痫药过敏，皮肤一片片脱落，发烧，嘴痛得咽不下",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3542,
-   "text": "上周踩到生锈的钉子，现在张不开嘴，肌肉僵硬",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3544,
-   "text": "爷爷从没打过破伤风疫苗，受伤后吞咽困难，脖子僵硬",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3555,
-   "text": "할머니가 이뇨제를 드시는데 하루 종일 설사를 하시고 지금 소변이 아주 적고 정신이 혼미해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3556,
-   "text": "할아버지가 이뇨제를 드시는데 더운 날 물을 적게 드셔서 반나절째 소변을 안 보시고 처져 계세요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3557,
-   "text": "아빠가 혈압약이랑 이뇨제를 드시는데 이틀 토하시고 지금 못 일어나시고 소변이 거의 없어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3558,
-   "text": "아이가 뎅기열인데 열은 내렸지만 점점 처지고 배가 많이 아프고 손발이 차가워요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3560,
-   "text": "항생제를 먹고 온몸에 발진이 나고 피부에 물집이 생기며 벗겨지고 입안이 헐고 눈이 빨개요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3562,
-   "text": "지난주에 녹슨 못을 밟았는데 지금 입이 안 벌어지고 근육이 뻣뻣해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3564,
-   "text": "할아버지가 파상풍 백신을 맞은 적이 없는데 다친 뒤로 삼키기 힘들고 목이 뻣뻣해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3575,
-   "text": "祖母が利尿剤を飲んでいて一日中下痢をして、今は尿がとても少なく混乱している",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3576,
-   "text": "祖父が利尿剤を飲んでいて暑い中で水をあまり飲まず、半日尿が出ずぼんやりしている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3577,
-   "text": "父が降圧剤と利尿剤を飲んでいて二日吐き続け、今は起き上がれず尿がほとんど出ない",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3580,
-   "text": "抗生物質を飲んだら全身に発疹が出て、皮膚が水ぶくれになってむけ、口内がただれて目が赤い",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3581,
-   "text": "抗てんかん薬にアレルギーが出て、皮膚がはがれ落ち、熱があって口が痛くて飲み込めない",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3582,
-   "text": "先週さびた釘を踏んで、今は口が開かず筋肉がこわばっている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3584,
-   "text": "祖父は破傷風ワクチンを打ったことがなく、けがの後から飲み込みにくく首が硬い",
-   "label": "emergency",
-   "got": []
   }
  ]
 }

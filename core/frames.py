@@ -149,6 +149,11 @@ FRAMES = (
     ("heavy_period", "medical", "health_emergency", (("PERIOD2", "HEAVY_BLEED"),), ("FICTION", "HYPOTHETICAL")),
     ("diabetic_foot", "medical", "health_emergency", (("DIABETES", "FOOT", "FOOT_INFECT"),), ("FICTION", "HYPOTHETICAL")),
     ("thunderclap", "medical", "health_emergency", (("WORST_HEADACHE",),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 23 (ชุดปิดตา Z ล็อกไว้ก่อนเขียน) — เรื่องไต: ยาขับปัสสาวะ+ขาดน้ำ ทำให้ไตขาดเลือดเฉียบพลัน
+    ("diuretic_aki", "medical", "health_emergency", (("DIURETIC", "LOW_URINE"), ("DIURETIC", "FLUID_LOSS", "LOW_URINE")), ("FICTION", "HYPOTHETICAL")),
+    ("dengue", "medical", "health_emergency", (("DENGUE", "DENGUE_RED"),), ("FICTION", "HYPOTHETICAL", "PLAYING_OK")),
+    ("sjs", "medical", "health_emergency", (("DRUG_RASH", "SKIN_PEEL"),), ("FICTION", "HYPOTHETICAL", "SUNBURN", "MINOR")),
+    ("tetanus", "medical", "health_emergency", (("TETANUS_CTX", "TET_SIGN"),), ("FICTION", "HYPOTHETICAL", "TET_DONE", "WORKOUT", "TEXTBOOK")),
 )
 
 

@@ -628,3 +628,31 @@ def test_round22_danger(text):
 @pytest.mark.parametrize("text", CALM_22)
 def test_round22_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 23: (ไต) ยาขับปัสสาวะ+ขาดน้ำ · ไข้เลือดออก · แพ้ยาผิวลอก · บาดทะยัก (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา Z) ──
+DANGER_23 = [
+    "ปู่กินยาขับน้ำ แล้วอาเจียนทั้งคืน ตอนนี้ไม่ฉี่", "grandma is on diuretics and has been barely peeing since yesterday", "利尿剤を飲んでいて尿がほとんど出ない",
+    "ลูกไข้เลือดออก ไข้ลดแต่ซึม มือเท้าเย็น", "dengue and now vomiting blood", "뎅기열인데 배가 많이 아프고 처져요",
+    "กินยาปฏิชีวนะแล้วผิวพองลอก ปากเป็นแผล", "after an antibiotic my skin is blistering and peeling", "吃了抗生素后皮肤起泡脱落",
+    "โดนตะปูสนิมตำ ตอนนี้อ้าปากไม่ขึ้น", "the wound got dirty and now his jaw is locked", "vết thương không tiêm uốn ván, giờ cứng hàm",
+]
+CALM_23 = [
+    "กินยาขับปัสสาวะตามหมอสั่ง", "my kid had dengue but is playing normally now", "ผิวลอกเพราะตากแดด", "sunburn peeling on my back",
+    "โดนตะปูตำ ฉีดวัคซีนบาดทะยักแล้ว", "muscles are stiff after a workout", "อ่านเรื่องบาดทะยักในหนังสือ",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_23)
+def test_round23_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_23)
+def test_round23_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+def test_skin_is_not_a_movie():
+    # "ผิวหนัง" มีคำว่า "หนัง" (ภาพยนตร์) อยู่ข้างใน — ต้องไม่ถูกนับเป็นเรื่องแต่ง
+    assert frames("แพ้ยาปฏิชีวนะ ผิวหนังลอกเป็นแผ่น") == [("medical", "health_emergency")]

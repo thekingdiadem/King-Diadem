@@ -106,7 +106,7 @@ AIRWAY_FAIL	zh	喘不了气|喘不过气|喘不過氣|无法呼吸|無法呼吸|
 AIRWAY_FAIL	ko	숨을 못|숨이 안|기침을 못|얼굴이 파래
 AIRWAY_FAIL	ja	息ができ|咳ができ|顔が青|呼吸ができ
 # ── ตัวกันเตือนเกิน (ใช้ทั้งประโยค) ──
-FICTION	th	re:หนัง(?!ตา|สือ|หัว|ศีรษะ|ยาง|สัตว์|กำพร้า|ท้อง)
+FICTION	th	re:(?<!ผิว)(?<!ผิวหนัง)หนัง(?!ตา|สือ|หัว|ศีรษะ|ยาง|สัตว์|กำพร้า|ท้อง|ลอก)
 FICTION	th	ละคร|ซีรีส์|เกม|นิยาย|การ์ตูน|ฝันว่า|ในฝัน
 FICTION	en	movie|film|show|series|episode|game|novel|book|cartoon|anime|dream|scene
 FICTION	es	película|pelicula|serie|escena|videojuego|juego|novela|libro|anime|sueño|soñé
@@ -2080,3 +2080,96 @@ WORST_HEADACHE	vi	đau đầu tệ nhất|đau đầu như nổ tung|đau đầu
 WORST_HEADACHE	zh	突然头痛欲裂|突然頭痛欲裂|最严重的头痛|最嚴重的頭痛|从没有过的突然剧烈头痛|從沒有過的突然劇烈頭痛
 WORST_HEADACHE	ko	최악의 두통|머리가 터질 듯|처음 겪는 갑작스럽고
 WORST_HEADACHE	ja	人生最悪の頭痛|今までにない突然の|頭が割れるように痛くなり
+
+# ═══ รอบ 23: (ไต) ยาขับปัสสาวะ+ขาดน้ำในผู้สูงอายุ · ไข้เลือดออกระยะอันตราย · แพ้ยารุนแรงผิวลอก · บาดทะยัก ═══
+DIURETIC	th	ยาขับปัสสาวะ|ยาขับน้ำ
+DIURETIC	en	water pills|water pill|diuretic|diuretics
+DIURETIC	es	diurético|diuréticos|pastillas para orinar
+DIURETIC	vi	thuốc lợi tiểu
+DIURETIC	zh	利尿药|利尿藥|利尿剂|利尿劑
+DIURETIC	ko	이뇨제
+DIURETIC	ja	利尿剤
+LOW_URINE	th	ฉี่น้อยมาก|ไม่ฉี่|ฉี่ไม่ค่อยออก|ฉี่น้อย
+LOW_URINE	en	barely peeing|hasn't peed|hardly pees|peeing very little
+LOW_URINE	es	casi no orina|no orina
+LOW_URINE	vi	tiểu rất ít|chưa đi tiểu|hầu như không tiểu
+LOW_URINE	zh	尿很少|半天没尿|半天沒尿|几乎没尿|幾乎沒尿
+LOW_URINE	ko	소변이 아주 적|소변을 안 보|소변이 거의 없
+LOW_URINE	ja	尿がとても少な|尿が出ず|尿がほとんど出ない
+DENGUE	th	ไข้เลือดออก
+DENGUE	en	dengue
+DENGUE	es	dengue
+DENGUE	vi	sốt xuất huyết
+DENGUE	zh	登革热|登革熱
+DENGUE	ko	뎅기열
+DENGUE	ja	デング熱
+DENGUE_RED	th	ซึม|ปวดท้องมาก|มือเท้าเย็น|เลือดกำเดา|อาเจียนเป็นเลือด|ถ่ายดำ
+DENGUE_RED	en	drowsy|belly pain|cold hands|nosebleed|vomiting blood
+DENGUE_RED	es	adormilado|dolor de barriga|manos y pies fríos|sangra por la nariz|vomita sangre
+DENGUE_RED	vi	lừ đừ|đau bụng|tay chân lạnh|chảy máu cam|nôn ra máu
+DENGUE_RED	zh	没精神|沒精神|肚子很痛|手脚冰凉|手腳冰涼|流鼻血|吐血
+DENGUE_RED	ko	처지|배가 많이 아프|손발이 차|코피|피를 토
+DENGUE_RED	ja	ぐったり|お腹がすごく痛|手足が冷た|鼻血|血を吐
+PLAYING_OK	th	เล่นได้ปกติ|กินข้าวได้
+PLAYING_OK	en	playing normally|eating and playing
+PLAYING_OK	es	juega normal|come y juega
+PLAYING_OK	vi	chơi bình thường
+PLAYING_OK	zh	玩都正常
+PLAYING_OK	ko	잘 놀아
+PLAYING_OK	ja	元気に
+DRUG_RASH	th	ยาแก้อักเสบ|ยากันชัก|แพ้ยา|ยาปฏิชีวนะ
+DRUG_RASH	en	antibiotic|seizure medicine|allergic to the|drug reaction
+DRUG_RASH	es	antibiótico|medicamento|alérgico
+DRUG_RASH	vi	kháng sinh|dị ứng thuốc|thuốc chống động kinh
+DRUG_RASH	zh	抗生素|抗癫痫药|抗癲癇藥|过敏|過敏
+DRUG_RASH	ko	항생제|항경련제|알레르기
+DRUG_RASH	ja	抗生物質|抗てんかん薬|アレルギー
+SKIN_PEEL	th	ผิวพองลอก|ผิวหนังลอกเป็นแผ่น|ปากเป็นแผล|ผิวลอก|พองลอก
+SKIN_PEEL	en	blistering|peeling off|peeling|mouth sores
+SKIN_PEEL	es	se ampolla|se pela|se cae a tiras|llagas en la boca
+SKIN_PEEL	vi	phồng rộp|bong tróc|bong từng mảng|lở miệng
+SKIN_PEEL	zh	起泡|脱落|溃烂|潰爛|一片片
+SKIN_PEEL	ko	물집|벗겨지|헐고|한 꺼풀
+SKIN_PEEL	ja	水ぶくれ|むけ|はがれ落ち|ただれ
+SUNBURN	th	ตากแดด|ผิวไหม้แดด
+SUNBURN	en	sunburn
+SUNBURN	es	quemadura de sol
+SUNBURN	vi	cháy nắng
+SUNBURN	zh	晒伤|曬傷
+SUNBURN	ko	햇볕에 타
+SUNBURN	ja	日焼け
+TETANUS_CTX	th	ตะปูสนิม|บาดทะยัก|แผล|ตะปูตำ
+TETANUS_CTX	en	rusty nail|tetanus|wound
+TETANUS_CTX	es	clavo oxidado|tétanos|herida
+TETANUS_CTX	vi	đinh gỉ|uốn ván|vết thương
+TETANUS_CTX	zh	生锈的钉子|生鏽的釘子|破伤风|破傷風|伤口|傷口
+TETANUS_CTX	ko	녹슨 못|파상풍|상처|다친
+TETANUS_CTX	ja	さびた釘|破傷風|傷
+TET_SIGN	th	อ้าปากไม่ขึ้น|ขากรรไกรแข็ง|กล้ามเนื้อเกร็ง|หลังแอ่น|กลืนลำบาก|คอแข็ง
+TET_SIGN	en	can't open my jaw|jaw is locked|muscles are stiff|back arching|struggles to swallow|neck is stiff
+TET_SIGN	es	no puedo abrir la mandíbula|mandíbula trabada|músculos rígidos|espalda arqueada|cuesta tragar|cuello rígido
+TET_SIGN	vi	không há miệng|cứng hàm|cơ cứng|ưỡn lưng|khó nuốt|cứng cổ
+TET_SIGN	zh	张不开嘴|張不開嘴|牙关紧闭|牙關緊閉|肌肉僵硬|背弓|吞咽困难|吞嚥困難|脖子僵硬
+TET_SIGN	ko	입이 안 벌어|턱이 굳|근육이 뻣뻣|등이 휘|삼키기 힘들|목이 뻣뻣
+TET_SIGN	ja	口が開かず|あごがこわば|筋肉がこわば|反り返|飲み込みにく|首が硬
+TET_DONE	th	ฉีดวัคซีนบาดทะยักแล้ว|ไปฉีดบาดทะยักแล้ว
+TET_DONE	en	got a tetanus shot|had a tetanus shot
+TET_DONE	es	me pusieron la vacuna
+TET_DONE	vi	đã đi tiêm
+TET_DONE	zh	已经打了|已經打了
+TET_DONE	ko	주사를 맞았어요
+TET_DONE	ja	注射を打った
+WORKOUT	th	หลังออกกำลังกาย|ยืดเส้น
+WORKOUT	en	after a workout|stretching
+WORKOUT	es	tras entrenar|estirando
+WORKOUT	vi	sau khi tập|giãn cơ
+WORKOUT	zh	运动后|運動後|拉伸
+WORKOUT	ko	운동 후|스트레칭
+WORKOUT	ja	運動後|ストレッチ
+TEXTBOOK	th	หนังสือ|ตำรา
+TEXTBOOK	en	textbook|book
+TEXTBOOK	es	libro
+TEXTBOOK	vi	sách
+TEXTBOOK	zh	课本|課本|书里|書裡
+TEXTBOOK	ko	교과서|책에서
+TEXTBOOK	ja	教科書
