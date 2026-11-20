@@ -25,10 +25,10 @@
   },
   "emergency": {
    "n": 1712,
-   "tp": 1664,
-   "fn": 48,
+   "tp": 1710,
+   "fn": 2,
    "fp": 22,
-   "recall": 0.972,
+   "recall": 0.999,
    "precision": 0.987
   },
   "violence": {
@@ -57,7 +57,7 @@
   }
  },
  "danger_missed": {
-  "n": 46,
+  "n": 1,
   "of": 1888
  },
  "false_alarm": {
@@ -66,31 +66,31 @@
  },
  "by_lang": {
   "en": {
-   "hit": 277,
+   "hit": 284,
    "n": 285
   },
   "es": {
-   "hit": 252,
+   "hit": 259,
    "n": 261
   },
   "ja": {
-   "hit": 255,
+   "hit": 262,
    "n": 262
   },
   "ko": {
-   "hit": 256,
+   "hit": 261,
    "n": 261
   },
   "th": {
-   "hit": 315,
+   "hit": 320,
    "n": 322
   },
   "vi": {
-   "hit": 251,
+   "hit": 259,
    "n": 260
   },
   "zh": {
-   "hit": 256,
+   "hit": 263,
    "n": 263
   }
  },
@@ -220,36 +220,6 @@
    ]
   },
   {
-   "line": 3739,
-   "text": "ตาเป็นไตวายระยะสุดท้ายแต่ยังไม่ฟอก ตอนนี้สับสน คันทั้งตัว อาเจียนตลอด",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3740,
-   "text": "แม่ไตวาย ลมหายใจมีกลิ่นฉี่ ซึมลง มือสั่นกระตุก",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3746,
-   "text": "พ่อปวดหลังมาก ขาอ่อนแรงทั้งสองข้าง กลั้นปัสสาวะไม่อยู่",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3747,
-   "text": "ปวดหลังร้าวลงขา ชาบริเวณก้น อุจจาระราดไม่รู้ตัว",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3748,
-   "text": "หลังยกของหนักปวดหลัง ตอนนี้ขาสองข้างชา ฉี่ไม่ออก",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 3754,
    "text": "เจ็บหน้าอกนิดหน่อยตอนวิ่งเพราะจุก",
    "label": "none",
@@ -266,260 +236,12 @@
    ]
   },
   {
-   "line": 3759,
-   "text": "Grandpa has end-stage kidney failure but isn't on dialysis yet, now he's confused, itchy all over and vomiting constantly",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3760,
-   "text": "Mom has kidney failure, her breath smells like urine, she's getting drowsy and her hands are jerking",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3761,
-   "text": "Grandma's kidneys are failing and she refused dialysis, now she's delirious, twitching and can't eat",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3765,
-   "text": "Took a hit to the chest, now very hard to breathe, one lung doesn't seem to expand, lips blue",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3766,
-   "text": "Dad has terrible back pain, both legs are weak and he can't hold his urine",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3767,
-   "text": "Back pain shooting down my legs, numb around my buttocks and I soiled myself without noticing",
-   "label": "emergency",
-   "got": [
-    "violence"
-   ]
-  },
-  {
-   "line": 3768,
-   "text": "After lifting something heavy my back hurts, now both legs are numb and I can't pee",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3779,
-   "text": "Mi abuelo tiene insuficiencia renal terminal pero no está en diálisis, ahora está confundido, con picazón en todo el cuerpo y vomitando sin parar",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3780,
-   "text": "Mi mamá tiene insuficiencia renal, el aliento le huele a orina, está cada vez más adormilada y las manos le dan sacudidas",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3781,
-   "text": "A mi abuela le fallan los riñones y rechazó la diálisis, ahora delira, tiene espasmos y no puede comer",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3785,
-   "text": "Recibí un golpe en el pecho, ahora me cuesta mucho respirar, un pulmón parece no expandirse, labios morados",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3786,
-   "text": "Mi papá tiene un dolor de espalda terrible, las dos piernas débiles y no puede aguantar la orina",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3787,
-   "text": "Dolor de espalda que baja a las piernas, adormecimiento en las nalgas y me hice encima sin darme cuenta",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3788,
-   "text": "Después de levantar algo pesado me duele la espalda, ahora tengo las dos piernas dormidas y no puedo orinar",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3799,
-   "text": "Ông tôi suy thận giai đoạn cuối nhưng chưa chạy thận, giờ lú lẫn, ngứa khắp người và nôn liên tục",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3800,
-   "text": "Mẹ tôi suy thận, hơi thở có mùi nước tiểu, ngày càng lơ mơ và tay giật giật",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3802,
-   "text": "Con tôi bị bọ cạp đốt ở chân, khóc mãi, chảy nước dãi và người giật",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3803,
-   "text": "Cháu tôi bị bọ cạp chích, khó thở và mắt đảo liên tục",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3805,
-   "text": "Bị va đập vào ngực, giờ rất khó thở, một bên phổi như không nở, môi tím",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3806,
-   "text": "Bố tôi đau lưng dữ dội, hai chân yếu và không nhịn tiểu được",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3807,
-   "text": "Đau lưng lan xuống chân, tê vùng mông và đi ngoài ra quần không biết",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3808,
-   "text": "Sau khi khiêng đồ nặng bị đau lưng, giờ hai chân tê và không tiểu được",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3819,
-   "text": "爷爷尿毒症晚期还没透析，现在神志不清，全身发痒，一直呕吐",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3820,
-   "text": "妈妈肾衰竭，呼吸有尿味，越来越嗜睡，手一直抽动",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3822,
-   "text": "孩子脚被蝎子蜇了，一直哭，流口水，身体抽动",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3825,
-   "text": "胸口被撞了，现在呼吸非常困难，一边肺好像张不开，嘴唇发紫",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3826,
-   "text": "爸爸腰背剧痛，两条腿无力，憋不住尿",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3827,
-   "text": "腰痛放射到腿，屁股周围发麻，大便失禁自己都不知道",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3828,
-   "text": "搬重物后腰痛，现在两条腿都麻了，尿不出来",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 3835,
    "text": "爬山喘不过气，休息就好",
    "label": "none",
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 3839,
-   "text": "할아버지가 말기 신부전인데 아직 투석을 안 하셔서 지금 정신이 혼미하고 온몸이 가렵고 계속 토하세요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3845,
-   "text": "가슴을 부딪쳤는데 지금 숨쉬기가 너무 힘들고 한쪽 폐가 안 펴지는 것 같고 입술이 파래요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3846,
-   "text": "아빠가 허리가 너무 아프고 양쪽 다리에 힘이 없고 소변을 못 참아요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3847,
-   "text": "허리 통증이 다리로 뻗치고 엉덩이 주변이 저리고 나도 모르게 변을 지렸어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3848,
-   "text": "무거운 걸 들고 허리가 아픈데 지금 두 다리가 저리고 소변이 안 나와요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3859,
-   "text": "祖父は末期腎不全でまだ透析をしておらず、今は混乱して全身がかゆく吐き続けている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3860,
-   "text": "母は腎不全で、息が尿の臭いがし、だんだんぼんやりして手がぴくぴく動く",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3863,
-   "text": "甥がサソリに刺されて、息が苦しそうで目がぐるぐる動いている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3865,
-   "text": "胸を強く打って、今はすごく息が苦しく、片方の肺が膨らんでいない感じで唇が紫",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3866,
-   "text": "父がひどい腰痛で、両足に力が入らず、尿を我慢できない",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3867,
-   "text": "腰痛が脚に走り、お尻の周りがしびれて、気づかないうちに便をもらした",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3868,
-   "text": "重いものを持ち上げた後で腰が痛く、今は両足がしびれて尿が出ない",
-   "label": "emergency",
-   "got": []
   }
  ]
 }

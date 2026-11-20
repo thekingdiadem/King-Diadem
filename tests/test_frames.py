@@ -679,3 +679,26 @@ def test_round24_danger(text):
 @pytest.mark.parametrize("text", CALM_24)
 def test_round24_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 25: (ไต) ของเสียคั่งจากไตวาย · แมงป่อง · ลมรั่วในปอด · ประสาทไขสันหลังถูกกดทับ (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา AB) ──
+DANGER_25 = [
+    "แม่ไตวาย คันทั้งตัว อาเจียนตลอด สับสน", "my grandpa has kidney failure and his breath smells like urine", "尿毒症，说胡话，抽搐",
+    "ลูกโดนแมงป่องต่อย น้ำลายไหล ตัวกระตุก", "stung by a scorpion and now struggling to breathe", "전갈에 쏘여서 경련해요",
+    "จู่ๆ เจ็บหน้าอกข้างเดียว หายใจไม่ทัน", "sudden one-sided chest pain and I can't catch my breath", "胸を強く打って息ができない",
+    "ปวดหลัง ขาอ่อนแรงทั้งสองข้าง กลั้นปัสสาวะไม่อยู่", "back pain and now both legs are numb and I can't pee", "đau lưng, hai chân yếu, không nhịn tiểu được",
+]
+CALM_25 = [
+    "ฟอกไตตามนัด สดชื่นขึ้น", "itchy from dry skin in winter", "เห็นแมงป่องในตู้ที่สวนสัตว์", "out of breath hiking, fine after a rest",
+    "ปวดหลังเพราะนั่งนาน", "lower back ache during my period",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_25)
+def test_round25_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_25)
+def test_round25_calm(text):
+    assert frames(text) == [], explain(text)

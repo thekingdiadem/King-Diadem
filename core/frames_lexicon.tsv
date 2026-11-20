@@ -2223,3 +2223,59 @@ GLAUC_SIGN	vi	quầng|mờ dần|mắt cứng|nôn|buồn nôn
 GLAUC_SIGN	zh	彩虹|模糊|发硬|發硬|呕吐|嘔吐|恶心|噁心
 GLAUC_SIGN	ko	무지개|뿌옇|딱딱|토해|메스
 GLAUC_SIGN	ja	虹|かすん|硬い|吐い|吐き気
+
+# ═══ รอบ 25: (ไต) ของเสียคั่งจากไตวาย · แมงป่องต่อย · ลมรั่วในปอด · ประสาทไขสันหลังล่างถูกกดทับ ═══
+KIDNEY_PT	zh	尿毒症
+KIDNEY_PT	ko	신장이 망가
+KIDNEY_PT	ja	腎臓が悪い
+KIDNEY_PT	es	le fallan los riñones|riñones fallando
+KIDNEY_PT	en	kidneys are failing
+UREMIA_SIGN	th	สับสน|คันทั้งตัว|อาเจียนตลอด|กลิ่นฉี่|ซึมลง|มือสั่นกระตุก|เพ้อ|ชักกระตุก
+UREMIA_SIGN	en	confused|itchy all over|vomiting constantly|smells like urine|drowsy|jerking|delirious|twitching
+UREMIA_SIGN	es	confundido|picazón en todo|vomitando sin parar|huele a orina|adormilada|sacudidas|delira|espasmos
+UREMIA_SIGN	vi	lú lẫn|ngứa khắp|nôn liên tục|mùi nước tiểu|lơ mơ|giật|mê sảng|co giật
+UREMIA_SIGN	zh	神志不清|全身发痒|全身發癢|一直呕吐|一直嘔吐|尿味|嗜睡|抽动|抽動|说胡话|說胡話|抽搐
+UREMIA_SIGN	ko	혼미|가렵|계속 토|소변 냄새|처지|경련|헛소리
+UREMIA_SIGN	ja	混乱|かゆく|吐き続け|尿の臭い|ぼんやり|ぴくぴく|うわごと|けいれん
+SCORPION	th	แมงป่อง
+SCORPION	en	scorpion
+SCORPION	es	alacrán|escorpión
+SCORPION	vi	bọ cạp
+SCORPION	zh	蝎子
+SCORPION	ko	전갈
+SCORPION	ja	サソリ
+SCORP_RED	th	ร้องไม่หยุด|น้ำลายไหล|ตัวกระตุก|หายใจลำบาก|ตากลอก
+SCORP_RED	en	crying nonstop|drooling|jerking|struggling to breathe|eyes are rolling
+SCORP_RED	es	llora sin parar|babea|sacudidas|cuesta respirar|ojos se le mueven
+SCORP_RED	vi	khóc mãi|chảy nước dãi|giật|khó thở|mắt đảo
+SCORP_RED	zh	一直哭|流口水|抽动|抽動|呼吸困难|呼吸困難|眼睛乱转|眼睛亂轉
+SCORP_RED	ko	계속 울|침을|경련|숨쉬기 힘들|눈이 이리저리
+SCORP_RED	ja	泣き止まず|よだれ|けいれん|息が苦し|目がぐるぐる
+ONE_SIDE_CHEST	th	เจ็บหน้าอกข้างเดียว|ปอดข้างหนึ่ง|กระแทกหน้าอก
+ONE_SIDE_CHEST	en	one-sided chest pain|one lung|hit to the chest
+ONE_SIDE_CHEST	es	dolor de pecho de un lado|un pulmón|golpe en el pecho
+ONE_SIDE_CHEST	vi	đau ngực một bên|một bên phổi|va đập vào ngực
+ONE_SIDE_CHEST	zh	一侧胸痛|一側胸痛|一边肺|一邊肺|胸口被撞
+ONE_SIDE_CHEST	ko	한쪽 가슴|한쪽 폐|가슴을 부딪
+ONE_SIDE_CHEST	ja	片側の胸|片方の肺|胸を強く打
+BREATHLESS	th	หายใจไม่ทัน|หายใจลำบาก|ปากเขียว
+BREATHLESS	en	can't catch his breath|can't catch my breath|hard to breathe|lips blue
+BREATHLESS	es	no puede respirar|cuesta mucho respirar|labios morados
+BREATHLESS	vi	thở không kịp|khó thở|môi tím
+BREATHLESS	zh	喘不过气|喘不過氣|呼吸非常困难|呼吸非常困難|嘴唇发紫|嘴唇發紫
+BREATHLESS	ko	숨이 차|숨쉬기가 너무 힘들|입술이 파래
+BREATHLESS	ja	息ができない|息が苦し|唇が紫
+BACK_PAIN2	th	ปวดหลัง
+BACK_PAIN2	en	back pain|back hurts
+BACK_PAIN2	es	dolor de espalda|me duele la espalda
+BACK_PAIN2	vi	đau lưng
+BACK_PAIN2	zh	腰背剧痛|腰背劇痛|腰痛
+BACK_PAIN2	ko	허리
+BACK_PAIN2	ja	腰痛|腰が痛
+CAUDA_SIGN	th	ขาอ่อนแรงทั้งสองข้าง|กลั้นปัสสาวะไม่อยู่|ชาบริเวณก้น|อุจจาระราด|ขาสองข้างชา|ฉี่ไม่ออก
+CAUDA_SIGN	en	both legs are weak|can't hold his urine|can't hold my urine|numb around my buttocks|soiled myself|both legs are numb|can't pee
+CAUDA_SIGN	es	las dos piernas débiles|no puede aguantar la orina|nalgas|me hice encima|dos piernas dormidas|no puedo orinar
+CAUDA_SIGN	vi	hai chân yếu|không nhịn tiểu|tê vùng mông|đi ngoài ra quần|hai chân tê|không tiểu được
+CAUDA_SIGN	zh	两条腿无力|兩條腿無力|憋不住尿|屁股周围发麻|屁股周圍發麻|大便失禁|两条腿都麻|兩條腿都麻|尿不出来|尿不出來
+CAUDA_SIGN	ko	양쪽 다리에 힘이 없|소변을 못 참|엉덩이 주변이 저리|변을 지렸|두 다리가 저리|소변이 안 나와
+CAUDA_SIGN	ja	両足に力が入らず|尿を我慢できない|お尻の周りがしびれ|便をもらした|両足がしびれ|尿が出ない

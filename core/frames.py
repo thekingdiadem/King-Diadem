@@ -159,6 +159,11 @@ FRAMES = (
     ("ace_angioedema", "medical", "health_emergency", (("BP_MED", "ANGIO_SWELL"),), ("FICTION", "HYPOTHETICAL")),
     ("hemoptysis", "medical", "health_emergency", (("COUGH_BLOOD2",),), ("FICTION", "HYPOTHETICAL", "MINOR")),
     ("glaucoma", "medical", "health_emergency", (("EYE_PAIN", "GLAUC_SIGN"),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 25 (ชุดปิดตา AB ล็อกไว้ก่อนเขียน) — เรื่องไต: ของเสียคั่งจากไตวาย (ยังไม่ฟอก/ไม่ยอมฟอก)
+    ("uremia", "medical", "health_emergency", (("KIDNEY_PT", "UREMIA_SIGN"),), ("FICTION", "HYPOTHETICAL")),
+    ("scorpion", "medical", "health_emergency", (("SCORPION", "SCORP_RED"),), ("FICTION", "HYPOTHETICAL")),
+    ("pneumothorax", "medical", "health_emergency", (("ONE_SIDE_CHEST", "BREATHLESS"),), ("FICTION", "HYPOTHETICAL")),
+    ("cauda_equina", "medical", "health_emergency", (("BACK_PAIN2", "CAUDA_SIGN"),), ("FICTION", "HYPOTHETICAL", "PERIOD")),
 )
 
 
