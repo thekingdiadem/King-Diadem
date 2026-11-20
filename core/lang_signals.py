@@ -101,7 +101,7 @@ def prompt_lang(text) -> str:
 SELF_HARM_INTL = (
     re.compile(r"\b(?:i\s+)?(?:want|wanna|going)\s+to\s+die\b|\bkill(?:ing)?\s+myself\b|\bsuicid|"
                r"\bend(?:ing)?\s+(?:my\s+life|it\s+all)\b(?!\s+(?:with\s+a\s+bang|at\s+the\s+party|in\s+style))|\bdon'?t\s+want\s+to\s+(?:live|be\s+alive|exist)\b|"
-               r"\bbetter\s+off\s+dead\b|\bno\s+reason\s+to\s+live\b|\b(?:hurt(?:ing)?|harm(?:ing)?|cut(?:ting)?|burn(?:ing)?)\s+myself\b(?!\s+(?:at\s+(?:the\s+)?(?:gym|work|practice)|while|when|by\s+accident|accidentally|shaving|cooking|lifting|playing|during|on\s+(?:a|the)\s+(?:knife|stove|oven|pan|glass)|with\s+(?:a\s+)?(?:kitchen\s+knife|the\s+oven))\b)|"
+               r"\bbetter\s+off\s+dead\b|\bno\s+reason\s+to\s+live\b|(?:^(?![\s\S]*\b(?:gym|work(?:ing)?\s+out|practice|by\s+accident|accidentally|shaving|cooking|lifting|playing|kitchen\s+knife|oven|stove)\b)[\s\S]*?\b(?:hurt(?:ing)?|harm(?:ing)?|cut(?:ting)?|burn(?:ing)?)\s+myself\b)|"
                r"\bself[- ]harm", re.I),
     re.compile(r"想死(?!你|您|他|她|它|我了|了你)|不想活|不想再醒|写好遗书|寫好遺書|遗书|遺書|(?:天台|楼顶|樓頂)[^。！？\n]{0,8}?(?:跳|跳下)|想跳(?:楼|樓|下去)|(?<!的)(?:安眠药|安眠藥|药|藥)(?![^。！？\n]{0,6}?(?:要去|去医院|去醫院|再拿|再开|再開|去买|去買|续|續))[^。！？\n]{0,4}?(?:都|全)?吃(?:了|光|完)|吃了[^。！？\n]{0,4}?(?:安眠药|整瓶)|割腕|活不下去|自杀|自殺|轻生|輕生|结束(?:自己的)?生命|結束(?:自己的)?生命|"
                r"死了算了|不如死了"),
@@ -196,7 +196,28 @@ SELF_HARM_MEANING = (
     re.compile(r"(?:사는\s*(?:게|것이|것도)|살아\s*있는\s*(?:게|것이)|살아갈|살아야\s*할)\s*(?:아무\s*)?(?:의미가|의미도|이유가|이유도)\s*없"),
     re.compile(r"(?:生きて(?:い|る|いる)|生きる)(?:こと(?:に|の))?意味(?:が|も)?(?:ない|無い|わからない|分からない)|生きるのに疲れ|生きることに疲れ"),
 )
-SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_MEANING
+# รอบสุ่ม 223: การทำร้ายตัวเองที่เกิดอยู่แล้ว (ไม่ใช่แค่ "อยากตาย") — เคยได้ 0 ใน 9 ภาษา
+SELF_HARM_ACT = (
+    re.compile(r"\bme\s+(?:estoy\s+)?(?:haciendo|hago|hice)\s+daño\b|\bme\s+(?:corto|corté|estoy\s+cortando)\s+(?:los\s+brazos|las\s+muñecas|las\s+piernas|a\s+propósito|otra\s+vez|todas\s+las\s+noches)|\bautolesi", re.I),
+    re.compile(r"tự\s+(?:làm\s+đau|làm\s+hại|hành\s+hạ)\s+(?:mình|bản\s+thân)|tự\s+(?:cắt|rạch)\s+tay|(?:hay|thường|lại|vẫn)\s+(?:cắt|rạch)\s+tay", re.I),
+    re.compile(r"(?<!不要)(?<!别)(?<!不會)(?<!不会)(?:伤害|傷害)自己|自残|自殘|割(?:自己|手腕|手臂|腕)"),
+    re.compile(r"自分を傷つけ|自傷|リスカ|(?:自分の|わざと)(?:腕|手首)を(?:切っ|切る)"),   # "ガラスで腕を切って" = อุบัติเหตุ
+    re.compile(r"자해|(?:팔|손목|다리)을?\s*(?:그어|긋|그었)"),
+    re.compile(r"\bje\s+me\s+(?:fais\s+du\s+mal|coupe(?!\s+les\s+cheveux)|scarifie|mutile)|\bautomutil|\bich\s+(?:verletze|ritze)\s+mich|\bselbstverletz|"
+               r"(?:^(?![\s\S]*\b(?:cabelo|pelo|cabello|unhas|uñas|barba|franja|flequillo|dedo|cebolla|cebola|cocinando|cozinhando)\b)[\s\S]*?\b(?:eu\s+)?me\s+(?:corto|machuco|mutilo)\b)|\bmelukai\s+diri|\bmenyakiti\s+diri", re.I),
+)
+# รอบสุ่ม 228: ข้อความที่ทิ้งไว้ ("ถ้าอ่านข้อความนี้ แปลว่าฉันไม่อยู่แล้ว") · ฝากสัตว์เลี้ยงแล้วบอกว่าจะไม่อยู่ — 9 ภาษา เคยได้ 0
+# "猫をよろしく、もう会えない" ไม่จับ — ย้ายไปต่างประเทศก็พูดแบบนี้ได้
+SELF_HARM_NOTE = (
+    re.compile(r"\bsi\s+(?:estás|estas)\s+leyendo\s+esto[^.!?\n]{0,15}?ya\s+no\s+(?:estoy|existo)|\bya\s+no\s+voy\s+a\s+estar\b(?![^.!?\n]{0,20}(?:en\s+la\s+oficina|en\s+casa|mañana|esta\s+semana|el\s+lunes))", re.I),
+    re.compile(r"(?:看到|读到|讀到)这?(?:条|條)?(?:消息|讯息|訊息|信)[^。！？\n]{0,6}(?:我已经|我已經)?(?:不在了|走了|离开了|離開了)|我以后不在了|我以後不在了"),
+    re.compile(r"(?:これを)?読んでいる(?:なら|ということは)[^。！？\n]{0,10}(?:私|僕|俺)?(?:は)?もう(?:いない|この世にいない)"),
+    re.compile(r"(?:이\s*글을?|이걸)\s*(?:보고|읽고)\s*있다면[^.!?\n]{0,15}(?:이미|이제)\s*없|난\s*이제\s*없을\s*거"),
+    re.compile(r"(?:đọc|thấy)\s+được\s+(?:tin|thư|tin\s+nhắn)\s+này[^.!?\n]{0,15}(?:đã\s+đi\s+rồi|không\s+còn\s+nữa|không\s+còn\s+trên\s+đời)|^(?![\s\S]*(?:chuyển|đi\s+làm|du\s+lịch|về\s+quê|ra\s+nước\s+ngoài|công\s+ty))[\s\S]*?sẽ\s+không\s+còn\s+ở\s+đây\s+nữa", re.I),
+    re.compile(r"\bsi\s+tu\s+lis\s+ceci[^.!?\n]{0,15}je\s+ne\s+suis\s+plus\s+l(?:à|a)|\bwenn\s+du\s+das\s+liest[^.!?\n]{0,15}bin\s+ich\s+nicht\s+mehr\s+da"
+               r"|\bse\s+voc(?:ê|e)\s+est(?:á|a)\s+lendo\s+isso[^.!?\n]{0,15}(?:j(?:á|a)\s+)?n(?:ã|a)o\s+estou\s+mais|\bkalau\s+kamu\s+baca\s+ini[^.!?\n]{0,15}(?:aku|saya)\s+sudah\s+tidak\s+ada", re.I),
+)
+SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_MEANING + SELF_HARM_ACT + SELF_HARM_NOTE
 SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_PASSIVE + SELF_HARM_INDIRECT + SELF_HARM_MASKED   # ผู้ใช้ทุกที่ (kernel_voice วิกฤต · llm_gemini ความปลอดภัย) ได้แบบอ้อมด้วย
 
 
@@ -559,6 +580,11 @@ _more("medical", "ko", r"자석을?\s*(?:여러\s*개|두\s*개|몇\s*개|많이
 _more("medical", "ja", r"(?:転んで|ぶつけて|事故で|事故の後)[^。！？\n]{0,15}(?:吐いて|吐いた|嘔吐)[^。！？\n]{0,15}(?:眠そう|ぼんやり|意識が)")
 _more("someone", "ko", r"아끼던\s*(?:고양이|강아지|개|반려동물|물건)[^.!?\n]{0,20}(?:주고|줬)[^.!?\n]{0,20}(?:다\s*나눠|다\s*정리|다\s*버렸)")
 _more("someone", "zh", r"(?:说|发|写)[^。！？\n]{0,4}(?:今晚|今天)是最后一(?:晚|天)(?!的?(?:演唱会|活动|旅行|假期))[^。！？\n]{0,10}(?:谢谢|再见|对不起|爱你们)")
+
+# รอบสุ่ม 224 (es vi zh): กำลังถูกตี · ลูกไม่หายใจ
+_more("violence", "es", r"me\s+est(?:á|a)\s+(?:golpeando|pegando)|me\s+(?:golpea|pega)\s+(?:ahora|todos\s+los\s+d(?:í|i)as)")
+_more("violence", "vi", r"(?:chồng|vợ|bố|cha|mẹ|anh|nó)\s+(?:tôi\s+)?(?:đang|vừa|lại)\s+(?:đánh|đập)\s+(?:tôi|em|con)")
+_more("medical", "zh", r"(?:儿子|女儿|孩子|宝宝|妈妈|爸爸|老公|老婆|他|她)\S{0,3}不呼吸了?|不喘气了")
 
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
@@ -1083,6 +1109,25 @@ WORLD_FIRE += r"|ไฟไหม้[^\n]{0,24}?ควัน\S{0,6}?(?:เข้�
 WORLD_FIRE += r"|^\W*(?:ไฟไหม้|fire|火事|着火了|불이야|incendio|cháy)\W*!*\W*$"
 WORLD_FIRE_RX = re.compile(WORLD_FIRE, re.I)
 
+# รอบสุ่ม 224: การกระทำที่เกิดแล้ว/กำลังเกิด เล่าด้วยคำธรรมดา — กินยาทั้งหมดแล้ว · กำลังถูกตี · ลูกไม่หายใจ (fr de pt)
+WORLD_URGENT["crisis"] += (r"|j'?ai\s+(?:pris|avalé)\s+(?:toutes?\s+(?:mes|les)|tout\s+le\s+(?:tube|flacon)|toute\s+la\s+boîte)\s*(?:de\s+)?(?:pilules|cachets|comprimés|médicaments)?(?![^.!?\n]*(?:comme\s+prescrit|ordonnance|vitamine))"
+                           r"|ich\s+habe\s+alle\s+(?:meine\s+)?(?:tabletten|pillen)\s+(?:genommen|geschluckt)(?![^.!?\n]*(?:wie\s+verschrieben|vitamin))"
+                           r"|tomei\s+(?:todos\s+os|todas\s+as)\s+(?:meus\s+|minhas\s+)?(?:comprimidos|remédios|pílulas)(?![^.!?\n]*(?:como\s+receitado|vitamina|receita))")
+WORLD_URGENT["violence"] += r"|me\s+est(?:á|a)\s+batendo|est(?:á|a)\s+me\s+(?:batendo|espancando)"
+WORLD_URGENT["medical"] += r"|n(?:ã|a)o\s+est(?:á|a)\s+respirando|parou\s+de\s+respirar"
+# รอบสุ่ม 225: การกระทำที่เกิดแล้ว/กำลังเกิด — it ru id hi ar tl my (เคยได้ 0)
+WORLD_URGENT["crisis"] += (r"|mi\s+sto\s+facendo\s+del\s+male|mi\s+taglio(?!\s+i\s+capelli)|ho\s+preso\s+tutte\s+le\s+(?:pillole|pastiglie|compresse)"
+                           r"|я\s+(?:режу|порезала?|режусь)\s+себя|режу\s+(?:руки|вены)|(?:выпила?|выпил|съела?)\s+все\s+(?:таблетки|снотворное)"
+                           r"|(?:minum|menelan)\s+semua\s+(?:obat|pil)(?![^.!?\n]*(?:sesuai\s+resep|resep\s+dokter|vitamin|seperti\s+biasa))"
+                           r"|सारी\s+गोलियां\s+खा\s+ली|खुद\s+को\s+(?:चोट\s+पहुंचा|काट)"
+                           r"|(?:أخذت|بلعت|تناولت)\s+كل\s+(?:الحبوب|الأدوية|الدواء)|أؤذي\s+نفسي|أجرح\s+نفسي"
+                           r"|ininom\s+ko\s+(?:lahat|ang\s+lahat)\s+ng\s+(?:gamot|tableta)|sinasaktan\s+ko\s+ang\s+sarili\s+ko")
+WORLD_URGENT["violence"] += (r"|mi\s+sta\s+picchiando|mi\s+picchia|"
+                             r"(?:sedang\s+)?memukul\s+saya|menghajar\s+saya"
+                             r"|ကျွန်(?:မ|တော်)ကို\s*ရိုက်")
+WORLD_URGENT["medical"] += r"|hindi\s+(?:na\s+)?humihinga"
+# ข้อความทิ้งไว้/ทำร้ายตัวเอง (SELF_HARM_NOTE · SELF_HARM_ACT) ต้องได้คำตอบวิกฤตในภาษาของผู้ใช้ด้วย ไม่ใช่ภาษาอังกฤษ
+WORLD_URGENT["crisis"] += "|" + "|".join(p.pattern for p in SELF_HARM_NOTE + SELF_HARM_ACT)
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 

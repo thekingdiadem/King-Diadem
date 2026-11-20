@@ -965,21 +965,22 @@ html[data-ink="dark"] body:not([data-view="universe"]) .card-h p{color:var(--ink
      · อ่านง่ายสำหรับผู้สูงอายุ: ตัวอักษรทุกระดับคมกว่าพื้นอย่างน้อย 7:1 (WCAG AAA) ทั้งพื้นมืดและพื้นสว่าง
        ไม่ใช้เทาจางบนดำ ไม่ใช้ฟ้าเข้มบนดำ (เลนส์ตาที่เหลืองตามวัยกรองแสงฟ้าออก) — tests/test_timeless_palette.py ตรวจไว้
    ไล่เฉดได้แค่ในสีเดียวกัน ไม่ไล่ข้ามสี · เพิ่มสีใหม่ให้เพิ่มเป็นตัวแปรตรงนี้ ไม่เขียนเลขสีลงคอมโพเนนต์ */
+/* โทนจากเว็บ GitHub ของพี่คิง (docs/index.html): ดำอวกาศ + ทองหม่น + ฟ้าแสงดาว — ลึกกว่าเดิม ฝั่งเย็นเป็นฟ้าแทนเงิน */
 :root{
-  --bg:#06070c; --glass:rgba(10,11,18,.66);
-  --ink:#f1ede4; --ink-2:#c4beb2; --ink-3:#a39d92;
-  --line:rgba(241,237,228,.09); --line-2:rgba(241,237,228,.18); --focus:#ecd6a6;
-  --gold:#d8b878; --gold-hi:#ecd6a6; --blue:#aeb8cc; --blue-hi:#d3d9e6;
-  --ok:#93c4a4; --ok-bg:rgba(147,196,164,.11); --warn:#d8b878; --warn-bg:rgba(216,184,120,.11);
-  --bad:#df8a8f; --bad-bg:rgba(223,138,143,.11); --info:#d3d9e6; --info-bg:rgba(174,184,204,.1);
-  --lyla:#ecd6a6; --vega:#d3d9e6; --crisis:#df8a8f;
-  --sky:#c3cbdb; --sky-hi:#e3e7ef; --lilac:#c3cbdb; --peach:#e6cf9e; --sun:#d8b878; --moon:#f6ecd8;
-  --mint:#b9d6c3; --rose:#ecc2c5; --lav:#d6dbe6;
-  --champ:linear-gradient(180deg,#f2e2bd,#d8b878);
-  --silver:linear-gradient(180deg,#eef0f5,#c3cbdb);
+  --bg:#02030c; --glass:rgba(4,5,20,.72);
+  --ink:#f1ede4; --ink-2:#c9c4ba; --ink-3:#aaa49a;
+  --line:rgba(140,190,255,.10); --line-2:rgba(140,190,255,.20); --focus:#e8cc7a;
+  --gold:#d4b45e; --gold-hi:#e8cc7a; --blue:#78bcff; --blue-hi:#a9d4ff;
+  --ok:#93c4a4; --ok-bg:rgba(147,196,164,.11); --warn:#d4b45e; --warn-bg:rgba(212,180,94,.11);
+  --bad:#ff8aa0; --bad-bg:rgba(255,138,160,.11); --info:#a9d4ff; --info-bg:rgba(120,188,255,.1);
+  --lyla:#e8cc7a; --vega:#a9d4ff; --crisis:#ff8aa0;
+  --sky:#8fc6ff; --sky-hi:#cfe6ff; --lilac:#c4a0ff; --peach:#e6cf9e; --sun:#d4b45e; --moon:#f6ecd8;
+  --mint:#b9d6c3; --rose:#ffc2cd; --lav:#d2c2ff;
+  --champ:linear-gradient(180deg,#f0dc9c,#d4b45e);
+  --silver:linear-gradient(180deg,#d6ebff,#78bcff);
   --warm:var(--champ); --cool:var(--silver); --dusk:var(--champ); --pastel:var(--champ); --arc:var(--champ);
-  --pane:linear-gradient(180deg,rgba(16,17,26,.7),rgba(8,9,15,.78));
-  --rim:linear-gradient(160deg,rgba(241,237,228,.22),rgba(241,237,228,.05) 45%,rgba(216,184,120,.2));
+  --pane:linear-gradient(180deg,rgba(6,8,26,.72),rgba(2,3,12,.82));
+  --rim:linear-gradient(160deg,rgba(140,190,255,.22),rgba(140,190,255,.05) 45%,rgba(212,180,94,.22));
 }
 body{background:var(--bg)}
 ::selection{background:rgba(216,184,120,.32);color:#fff}

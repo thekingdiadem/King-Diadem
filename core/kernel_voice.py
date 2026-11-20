@@ -1852,6 +1852,106 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    # คำตอบภาษาอังกฤษของหัวข้อที่เคยมีแต่ภาษาไทย — ผู้ใช้อังกฤษเคยได้แค่ "Let's lay this out step by step"
+    "stress": ("You don't have to fix everything right now — just take the weight off one piece at a time.", [
+        "Pick the single smallest thing you can do in 10 minutes, and do only that.",
+        "Sleep, eat and drink water before any big decision — a tired brain sees fewer options than really exist.",
+        "Tell one person \"I'm not okay right now\" — no need to explain · if this lasts more than 2 weeks, talk to a doctor or a helpline (1323 in Thailand, 988 in the US)."],
+        "Of everything pressing on you, which one thing can you actually control — just one?"),
+    "friendship": ("Friendship hurt is real — but it doesn't mean you're worth less.", [
+        "Send one short, no-pressure message: \"We've drifted lately — if I did something that bothered you, you can tell me.\" Then give them time.",
+        "Separate what they actually said or did from what you're guessing — don't judge from silence yet.",
+        "Meanwhile, don't sit alone with the thoughts — spend time with other people or things you enjoy · if a group is gossiping about you at school or work, keep evidence."],
+        "Before they went quiet, did anything happen between you?"),
+    "diagnosis": ("News like this is heavy — you don't have to understand everything today. One step at a time is enough.", [
+        "Write your questions for the doctor: what stage, what treatment options, what your coverage pays for, and what needs doing this week.",
+        "Bring someone you trust to the results or treatment talk — they help you remember and ask.",
+        "If the worry keeps you from sleeping, talking to someone helps (1323 in Thailand, 988 in the US)."],
+        "What worries you most right now — the illness, the treatment, or the cost?"),
+    "health_rights": ("Everyone has a right to treatment — let's lay out the options.", [
+        "In Thailand, every Thai citizen without other coverage can use the Gold Card (UCS) — register at a public hospital or call NHSO 1330 to check your rights.",
+        "In a critical emergency (chest pain, unconscious, can't breathe) go to the nearest hospital, private included — the first 72 hours are free under UCEP.",
+        "If costs are high, ask to speak with the hospital social worker about payment relief."],
+        "Which coverage do you have now — Gold Card, social security, or not sure?"),
+    "health": ("Your body is sending a signal — listen to it first.", [
+        "If it's getting worse fast, with high fever that won't come down, trouble breathing or severe pain — go to a hospital today.",
+        "A pharmacist can advise you first for milder symptoms, or use your coverage at your registered hospital.",
+        "Rest, drink water, and note your symptoms with times — it helps the doctor assess you accurately."],
+        "Compared with yesterday, is it better, the same, or worse?"),
+    "debt": ("Debt is numbers — it can be solved one piece at a time.", [
+        "List every debt: balance · yearly interest · minimum per month — see the real picture before deciding.",
+        "Pay the minimum on all of them so none defaults, then put extra on the highest-interest one first.",
+        "Call lenders before the due date to ask for restructuring or lower payments — before you miss a payment you have more options · don't take a new high-interest loan to pay an old one, that shrinks next month's choices. Collectors who threaten or shame you are breaking the law; keep evidence."],
+        "If you could pay only one debt this month, which would hurt most to miss?"),
+    "legal": ("Legal trouble feels scary, but there are steps and free help.", [
+        "Never ignore a court summons — note the date and court, and go (most debt cases can be settled with a payment plan there).",
+        "If arrested: you have the right to know the charge, to see a lawyer, and to tell family — don't sign anything you don't understand.",
+        "Free lawyers: in Thailand the Lawyers Council (1167) or the Justice Fund · keep every document and note dates of everything."],
+        "Does the document you received give a hearing date or deadline?"),
+    "money": ("Little money doesn't mean no way — it means putting things in order.", [
+        "Split the next 30 days of spending into three piles: must pay (food, housing, medicine) · can delay · can cut.",
+        "Count how many days your money covers the 'must pay' pile — that number is the time you really have.",
+        "Find the fastest income using skills you already have (day work, selling unused things, short gigs) before long-term plans."],
+        "How many more days can your money cover what you truly must pay for?"),
+    "school_refusal": ("A child who won't go to school usually has a reason they can't say yet — listen before you push.", [
+        "Ask at a calm time (not the rushed morning) what at school they don't want to face — friends, a teacher, the work, or the trip there.",
+        "Talk to the homeroom teacher about what they've noticed · watch for morning stomach-aches, headaches or poor sleep; if frequent, see a pediatrician.",
+        "If they mention bullying, being hurt, or not wanting to live, call a helpline (1387 child line / 1323 in Thailand)."],
+        "Has your child ever said what at school makes them not want to go?"),
+    "elder_driving": ("This is hard because driving is their freedom — talk about safety, not age.", [
+        "Let a doctor be the middle person: check eyesight, hearing and current medicines — advice from a doctor is often easier to hear than from family.",
+        "Prepare alternatives before asking them to stop: family rides, ride apps, buses — so they don't feel stuck at home.",
+        "If they've started scraping cars, getting lost, or driving grandchildren, stop the driving now and discuss the long term later."],
+        "Have there been any scrapes or getting lost recently?"),
+    "family": ("Family matters sit closest to the heart — take one conversation at a time.", [
+        "Separate what is your responsibility from what isn't.",
+        "Talk about one thing at a time, when no one is exhausted — not in the middle of a fight.",
+        "Set one clear, doable boundary, and hold it politely · insults you hear again and again are not the truth about you."],
+        "What do you really need from your family in this — just one thing?"),
+    "study_or_work": ("Further study or work first — both can get you there; they differ in timing and cost.", [
+        "Write your 3–5 year goal, then check 5–10 real job postings: does that path truly require the degree?",
+        "Compare costs: tuition + income lost while studying, versus experience and money from working first — ask one person who took each path.",
+        "The more reversible path usually wins: working first and studying later (evening, online, employer-funded) is often still possible."],
+        "What work or life do you want to see yourself in 5 years from now — one sentence is enough?"),
+    "study": ("Studying is a long road — make it shorter pieces.", [
+        "Split work into 25–45 minute blocks, one at a time, with short breaks between.",
+        "Start with the high-score parts you can't do yet, before the parts you're already good at.",
+        "Ask a teacher or friend as soon as you're stuck — the longer you wait, the higher the pile."],
+        "If you had only one hour today, which part would add the most to your score?"),
+    "decision": ("A good decision is one that still leaves you choices tomorrow.", [
+        "Write the downside of each option before the upside: if it goes wrong, what do you lose, and can you go back?",
+        "If outcomes are similar, the reversible option beats the irreversible one.",
+        "Test small before committing: try the path for 1–2 weeks at a size you can afford to lose."],
+        "After choosing this path, how many options will you still have?"),
+    "positive": ("That's wonderful — good moments deserve to be noticed.", [
+        "Write down what made today good — on hard days you'll know what helps.",
+        "Use the good stretch to build a cushion: savings, relationships, skills."],
+        "Is there anything you'd like to decide while your mind is calm like this?"),
+    "teen_leave": ("Wanting to leave home usually has something heavy behind it — you can tell me.", [
+        "If someone at home hurts you, insults you, or it isn't safe, call a child helpline (1387 in Thailand, free 24h) — they can help find a safe place.",
+        "Before leaving, line up a safe place first: a trusted relative, a school counselor, or a state shelter — don't go to someone you just met online.",
+        "If there's no danger, try talking with a neutral adult both sides listen to (a teacher, a relative) about what makes home unbearable."],
+        "Is home safe right now — is anyone hurting you?"),
+    "adult_invite": ("Good that you asked before going — this is worth checking first.", [
+        "Ask exactly what it's for — if it's just to pick up work or an item, ask to get it at school during the day instead.",
+        "If you really must go, bring a parent or family member, and always tell home where, with whom, and when you'll be back.",
+        "Adults who mean well won't ask you to come alone at night or keep it secret — if it feels wrong, say no, and tell an adult you trust (child line 1387 in Thailand)."],
+        "Did they say what it's for, and does your family know yet?"),
+    "child_gaming": ("Kids often get hooked on screens because they find something there they can't find outside — start with understanding, not confiscating.", [
+        "Agree on rules together (not one-sided orders): when play is okay, and a screens-off time before bed — write it where everyone can see.",
+        "Charge devices outside the bedroom at night · offer another activity to do together, not just take the screen away.",
+        "If they become violently angry, hurt themselves or others when stopped, or refuse school, talk to a pediatrician or helpline."],
+        "What does your child play, and with whom — do you know what the game gives them that outside doesn't?"),
+    "traffic_ticket": ("A ticket you believe is wrong can be disputed — do it before the deadline.", [
+        "Check the ticket and photo evidence (in Thailand at ptm.police.go.th with your plate) — do the date, time and place match where you really were?",
+        "If you didn't do it, dispute at the issuing station before the payment deadline with evidence (dashcam, receipts, proof you were elsewhere).",
+        "Never pay cash to an individual — pay only through official channels."],
+        "Does the ticket's date, time and place match where you actually were?"),
+    "bribery": ("Officials can't demand money outside the system — you have the right to ask for an official ticket or document every time.", [
+        "In the moment: stay calm, don't argue, ask to see their ID and an official ticket or receipt — fines are paid at the station or official channels, never in cash to a person.",
+        "Note down: name, rank or badge · time and place · plate number · the amount asked · if safe, record audio or video.",
+        "Report it: in Thailand Damrongdhama Center 1567 · NACC 1205 · for police, the complaints line 1599 — you can ask to stay anonymous."],
+        "Are you still there now, or has it already happened?"),
     "grief": ("I'm so sorry. Grief doesn't need to be over quickly — it's love that still has nowhere to go.", [
         "Let yourself be sad and cry — you don't have to be strong for anyone right now.",
         "Tell someone about them, or write to them — the things you wanted to say but didn't get to.",

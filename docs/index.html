@@ -34,6 +34,10 @@ body{
 
 /* ── CANVAS BG ── */
 #stars-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+html{scroll-behavior:smooth;}
+/* มือถือ: กระจกฝ้าเบลอน้อยลง (เบลอบนพื้นหลังที่ขยับต้องคำนวณใหม่ทุกเฟรม) */
+@media (max-width:760px){nav,.hero-formula,.how-card,.arch-box,.cta-inner{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{animation:none!important;transition:none!important;}}
 
 /* ── NAV ── */
 nav{
@@ -508,9 +512,9 @@ footer{
     <div class="nav-title">KING DIADEM</div>
   </div>
   <div class="nav-links">
-    <a class="nav-link" onclick="scrollTo('how')">HOW IT WORKS</a>
-    <a class="nav-link" onclick="scrollTo('principles')">PRINCIPLES</a>
-    <a class="nav-link" onclick="scrollTo('council-sec')">COUNCIL</a>
+    <a class="nav-link" href="#how">HOW IT WORKS</a>
+    <a class="nav-link" href="#principles">PRINCIPLES</a>
+    <a class="nav-link" href="#council-sec">COUNCIL</a>
     <a class="nav-cta" href="https://king-diadem.onrender.com" target="_blank">LAUNCH APP ↗</a>
   </div>
 </nav>
@@ -540,7 +544,7 @@ footer{
       <span class="btn-icon">⬡</span>
       <span>View on GitHub</span>
     </a>
-    <a class="btn-cosmic btn-outline ripple-wrap" onclick="scrollTo('waterline-demo')">
+    <a class="btn-cosmic btn-outline ripple-wrap" href="#waterline-demo">
       <span class="btn-icon">◈</span>
       <span>ลอง Waterline Demo</span>
     </a>
@@ -837,44 +841,53 @@ footer{
 
 <script>
 // ── Stars canvas ──
+// เดิมวาดดาว 1,800 ดวงใหม่ทุกเฟรม (60 ครั้ง/วิ) ทำให้มือถือหน่วง
+// ตอนนี้: วาดดาวนิ่งครั้งเดียวลงชั้นภาพ แล้วกะพริบแค่ 140 ดวง ~24 ครั้ง/วิ · หยุดเมื่อแท็บถูกซ่อน · เคารพ "ลดการเคลื่อนไหว"
 (function(){
   var cv=document.getElementById('stars-canvas');
   var ctx=cv.getContext('2d');
-  var W,H,stars=[];
-  function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
-  resize();
-  for(var i=0;i<1800;i++){
-    stars.push({
-      x:Math.random(),y:Math.random(),
-      r:0.1+Math.random()*0.35,
-      a:0.05+Math.random()*0.20,
-      col:Math.random()>0.5?'170,205,255':'205,185,255',
-      tw:Math.random()>0.5,
-      tS:0.00005+Math.random()*0.00015,
-      tO:Math.random()*Math.PI*2
-    });
+  var still=document.createElement('canvas'), sctx=still.getContext('2d');
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var small=Math.min(innerWidth,innerHeight)<700;
+  var N=small?900:1800, TW=small?80:140, W,H,dpr, stars=[], tw=[];
+  for(var i=0;i<N;i++){
+    stars.push({x:Math.random(),y:Math.random(),r:0.1+Math.random()*0.35,a:0.05+Math.random()*0.20,
+      col:Math.random()>0.5?'170,205,255':'205,185,255'});
   }
+  for(var k=0;k<TW;k++){
+    tw.push({x:Math.random(),y:Math.random(),r:0.2+Math.random()*0.35,a:0.08+Math.random()*0.22,
+      col:Math.random()>0.5?'170,205,255':'205,185,255',tS:0.0006+Math.random()*0.0015,tO:Math.random()*Math.PI*2});
+  }
+  function paintStill(){
+    sctx.setTransform(dpr,0,0,dpr,0,0);sctx.clearRect(0,0,W,H);
+    for(var i=0;i<stars.length;i++){var s=stars[i];
+      sctx.fillStyle='rgba('+s.col+','+s.a.toFixed(3)+')';sctx.fillRect(s.x*W,s.y*H,s.r*2,s.r*2);}
+  }
+  function resize(){
+    dpr=Math.min(window.devicePixelRatio||1,1.5);W=innerWidth;H=innerHeight;
+    cv.width=still.width=Math.round(W*dpr);cv.height=still.height=Math.round(H*dpr);
+    cv.style.width=W+'px';cv.style.height=H+'px';
+    paintStill();draw(0);
+  }
+  function draw(ts){
+    ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);ctx.drawImage(still,0,0);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    for(var i=0;i<tw.length;i++){var s=tw[i];
+      var al=s.a*(0.5+0.5*Math.sin(ts*s.tS+s.tO));
+      ctx.fillStyle='rgba('+s.col+','+al.toFixed(3)+')';ctx.fillRect(s.x*W,s.y*H,s.r*2,s.r*2);}
+  }
+  var last=0, running=false;
   function frame(ts){
-    ctx.clearRect(0,0,W,H);
-    ctx.save();ctx.globalCompositeOperation='screen';
-    for(var i=0;i<stars.length;i++){
-      var s=stars[i];
-      var al=s.a*(s.tw?0.5+0.5*Math.sin(ts*s.tS+s.tO):1);
-      ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);
-      ctx.fillStyle='rgba('+s.col+','+al.toFixed(3)+')';ctx.fill();
-    }
-    ctx.restore();
+    if(!running)return;
+    if(ts-last>=42){last=ts;draw(ts);}
     requestAnimationFrame(frame);
   }
-  requestAnimationFrame(frame);
-  window.addEventListener('resize',resize,{passive:true});
+  function start(){if(reduce||running)return;running=true;requestAnimationFrame(frame);}
+  function stop(){running=false;}
+  resize();start();
+  var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(resize,150);},{passive:true});
+  document.addEventListener('visibilitychange',function(){document.hidden?stop():start();});
 })();
-
-// ── Scroll nav ──
-function scrollTo(id){
-  var el=document.getElementById(id);
-  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-}
 
 // ── Ripple effect on buttons ──
 document.querySelectorAll('.ripple-wrap').forEach(function(btn){
