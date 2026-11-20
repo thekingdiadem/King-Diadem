@@ -60,8 +60,12 @@ MILD = _rx(r"แชมพู", r"สบู่", r"ยาสีฟัน", r"ค�
 # วัตถุชิ้นเล็ก (ถ่าน แม่เหล็ก เหรียญ) = เอกซเรย์/ผ่าตัด ("swallowed") · สารพิษและยา = ศูนย์พิษวิทยา ("overdose")
 OBJECT = _rx(r"ถ่าน(?:กระดุม|นาฬิกา)?", r"แบตเตอรี", r"แม่เหล็ก", r"เหรียญ", r"\b(?:button )?batter(?:y|ies)\b", r"\bmagnets?\b", r"\bcoins?\b")
 
+RECOVERED = _rx(r"(?:กิน|ทาน)ยา\S{0,6}?(?:แล้ว)?(?:ดีขึ้น|หาย)", r"\b(?:gave (?:him|her|them) (?:some )?medicine|feel(?:s|ing)? better)\b")
+
 
 def child_ingest(t: str) -> Hit | None:
+    if RECOVERED.search(t):                      # "ลูกเป็นไข้ กินยาแล้วดีขึ้น" = ให้ยาตามปกติแล้วหาย
+        return None
     if MILD.search(t) and not NON_FOOD.search(MILD.sub("", t)):
         return None
     if AS_PRESCRIBED.search(t):

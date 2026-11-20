@@ -40,7 +40,8 @@ AMOUNT	en	re:\ba\s+(?:bottle|jar|box)\s+of\b|\ball\s+(?:of\s+)?(?:my|his|her|the
 AMOUNT	es	entero|entera|frasco|bote|caja|blíster|puñado|montón|media botella|una botella|docenas|vacío|vacía|diez|veinte|treinta|cuarenta|cincuenta|cien|hasta acabar|hasta terminar|de golpe
 AMOUNT	es	re:\btod[oa]s?\s+(?:el|la|los|las|sus|mis|su|mi)\b|\b[1-9]\d+\s*(?:pastillas?|p[íi]ldoras?|tabletas?|c[áa]psulas?|comprimidos?)\b
 AMOUNT	vi	re:(?:hết|cả|nguyên|nửa)\s+(?:cả\s+)?(?:lọ|vỉ|hộp|chai|nắm|vốc|túi|gói)\b|nhiều\s+(?:viên|thuốc)\b|\b[1-9]\d\s+viên\b|\bmươi\b|\bmười\b|đến\s+hết|cùng\s+lúc
-AMOUNT	zh	一整瓶|整瓶|一瓶|半瓶|一盒|整盒|一大把|一把|一罐|整罐|一整罐|一板|一整板|全部|所有|好多|很多|大量|几十|吃光|喝光|吞光
+AMOUNT	zh	一整瓶|整瓶|一瓶|半瓶|一盒|整盒|一大把|一把|一罐|整罐|一整罐|一板|一整板|全部|所有|很多|大量|几十|吃光|喝光|吞光
+AMOUNT	zh	re:好多(?!了)
 AMOUNT	zh	re:[都全](?:吃|喝|吞)(?:光|完|了)|[二三四五六七八九]?十几?[片粒颗顆]|[1-9]\d\s*[片粒颗顆]|[都全]吃完
 AMOUNT	ko	한 통|한통|한 병|한병|반 병|반병|한 상자|한상자|한 움큼|한움큼|한꺼번에|통째로|많이|수십|전부|모두|스무|서른|마흔|쉰
 AMOUNT	ko	re:(?:^|\s)다\s*(?:먹|마시|마셨|삼키|삼켰|드셨|드시)|[1-9]\d\s*(?:알|정|개)
@@ -585,10 +586,10 @@ CO	vi	khí co|carbon monoxide|cacbon monoxit
 CO	zh	一氧化碳|煤气中毒|煤氣中毒
 CO	ko	일산화탄소
 CO	ja	一酸化炭素|CO中毒
-CLOSED_ROOM	th	ห้องปิด|ปิดห้อง|ปิดประตู|ปิดหน้าต่าง|ห้องทึบ
-CLOSED_ROOM	en	closed room|closed garage|windows closed|sealed room|garage
-CLOSED_ROOM	es	cuarto cerrado|habitación cerrada|habitacion cerrada|garaje
-CLOSED_ROOM	vi	phòng kín|đóng kín
+CLOSED_ROOM	th	ห้องปิด|ปิดห้อง|ปิดประตู|ปิดหน้าต่าง|ห้องทึบ|ปิดทุกบาน|ปิดมิดชิด
+CLOSED_ROOM	en	closed room|closed garage|windows closed|sealed room|garage|windows shut|doors shut|windows closed
+CLOSED_ROOM	es	cuarto cerrado|habitación cerrada|habitacion cerrada|garaje|ventanas cerradas|puertas cerradas|todo cerrado
+CLOSED_ROOM	vi	phòng kín|đóng kín|đóng cửa
 CLOSED_ROOM	zh	关着门|關著門|关门|關門|密闭|密閉|门窗紧闭|門窗緊閉
 CLOSED_ROOM	ko	문 닫고|밀폐|창문 닫
 CLOSED_ROOM	ja	締め切った|閉め切った|密閉
@@ -621,13 +622,13 @@ HOT_BODY	vi	nóng ran|nóng như lửa|nóng hầm hập|người nóng
 HOT_BODY	zh	滚烫|滾燙|烫得|燙得|发烫|發燙
 HOT_BODY	ko	펄펄 끓|불덩이|몸이 뜨거
 HOT_BODY	ja	体が熱|体がすごく熱|火のように熱|熱くて
-HEAT_RED	th	ไม่มีเหงื่อ|เหงื่อไม่ออก|สับสน|ล้มลง|หมดสติ|เป็นลม|พูดไม่รู้เรื่อง|ชัก
+HEAT_RED	th	ไม่มีเหงื่อ|เหงื่อไม่ออก|สับสน|ล้มลง|หมดสติ|เป็นลม|พูดไม่รู้เรื่อง|ชัก|ไม่ค่อยตอบสนอง|เรียกไม่ตื่น|ไม่ตอบสนอง
 HEAT_RED	en	not sweating|stopped sweating|confused|collapsed|passed out|fainted|unresponsive
-HEAT_RED	es	no suda|confundido|confundida|se desplomó|se desplomo|se desmayó|se desmayo|desmayado|desmayada
-HEAT_RED	vi	không ra mồ hôi|lẫn lộn|ngã quỵ|ngất|bất tỉnh
-HEAT_RED	zh	不出汗|没汗|沒汗|糊涂|糊塗|倒下|晕倒|暈倒|昏迷
-HEAT_RED	ko	땀도 안|땀이 안|횡설수설|쓰러|의식
-HEAT_RED	ja	汗も出|汗が出な|話がおかしい|倒れ|意識
+HEAT_RED	es	no suda|confundido|confundida|se desplomó|se desplomo|se desmayó|se desmayo|desmayado|desmayada|no responde
+HEAT_RED	vi	không ra mồ hôi|lẫn lộn|ngã quỵ|ngất|bất tỉnh|không phản ứng
+HEAT_RED	zh	不出汗|没汗|沒汗|糊涂|糊塗|倒下|晕倒|暈倒|昏迷|反应很慢|反應很慢|没反应|沒反應
+HEAT_RED	ko	땀도 안|땀이 안|횡설수설|쓰러|의식|반응이 없|반응이 느
+HEAT_RED	ja	汗も出|汗が出な|話がおかしい|倒れ|意識|反応が鈍|反応がない
 ADVICE	th	ระวัง|วิธีป้องกัน|อธิบาย|คืออะไร|ทำรายงาน|การบ้าน
 ADVICE	en	tips|beware|watch out for|explain|homework
 ADVICE	es	cuidado con|consejos|explica|qué es|que es|tarea
@@ -894,3 +895,18 @@ MARINE_RED	vi	khó thở|sưng|tê|chóng mặt|không chịu nổi|mẩn
 MARINE_RED	zh	呼吸困难|呼吸困難|肿|腫|发麻|發麻|头晕|頭暈|受不了|疹子
 MARINE_RED	ko	숨쉬기|숨을|부어|저리|어지러|두드러기|너무 아프
 MARINE_RED	ja	息が苦し|腫れ|しびれ|めまい|激痛|発疹
+# ── น้ำตาลต่ำ (เพิ่ม): ฉีดอินซูลินแล้วไม่ได้กิน — สาเหตุน้ำตาลต่ำที่พบบ่อยที่สุด เล่ายาวจนอาการอยู่ไกลก็ยังนับ
+INSULIN	th	อินซูลิน
+INSULIN	en	insulin
+INSULIN	es	insulina
+INSULIN	vi	insulin
+INSULIN	zh	胰岛素|胰島素
+INSULIN	ko	인슐린
+INSULIN	ja	インスリン
+SKIPPED_MEAL	th	ไม่ได้กิน|ไม่ได้ทาน|ไม่กินข้าว|อดข้าว
+SKIPPED_MEAL	en	skipped|didn't eat|hasn't eaten|without eating|no food
+SKIPPED_MEAL	es	no cenó|no comió|no ha comido|sin comer|no desayunó
+SKIPPED_MEAL	vi	bỏ bữa|không ăn|chưa ăn
+SKIPPED_MEAL	zh	没吃饭|沒吃飯|没吃|沒吃|不吃饭
+SKIPPED_MEAL	ko	안 드셨|안 먹|굶
+SKIPPED_MEAL	ja	食べず|食べていない|食べてない|抜いた
