@@ -278,3 +278,26 @@ def test_round7_danger(text):
 @pytest.mark.parametrize("text", CALM_7)
 def test_round7_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 8 เน้นไต (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา K) ──
+DANGER_8 = [
+    "ปู่ฉี่ไม่ออกตั้งแต่เมื่อคืน ท้องน้อยโป่ง", "he can't pee and his belly is hard and swollen", "爸爸尿不出来，肚子胀得难受",
+    "เป็นนิ่วในไต มีไข้หนาวสั่น", "kidney stone pain and now a fever", "신장결석인데 오한이 나요",
+    "พ่อขาดฟอกไตมาสามวัน", "she missed dialysis this week and feels weak", "透析を休んで息ができない",
+    "หมอบอกโพแทสเซียมสูง ใจเต้นผิดจังหวะ", "mi madre tiene insuficiencia renal y no puede orinar",
+]
+CALM_8 = [
+    "ไข้หวัด ปวดหลังปวดตัว", "flu with fever and my back hurts", "ไปฟอกไตตามนัดทุกสัปดาห์", "I peed a lot after drinking tea",
+    "ปวดฉี่ตอนรถติด", "kidney beans for dinner", "ค่าไตปกติดี",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_8)
+def test_round8_kidney_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_8)
+def test_round8_kidney_calm(text):
+    assert frames(text) == [], explain(text)

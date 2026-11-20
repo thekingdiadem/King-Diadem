@@ -910,3 +910,73 @@ SKIPPED_MEAL	vi	bỏ bữa|không ăn|chưa ăn
 SKIPPED_MEAL	zh	没吃饭|沒吃飯|没吃|沒吃|不吃饭
 SKIPPED_MEAL	ko	안 드셨|안 먹|굶
 SKIPPED_MEAL	ja	食べず|食べていない|食べてない|抜いた
+
+# ═══ รอบ 8 (เน้นไต): ปัสสาวะไม่ออก/ไตวาย · นิ่วอุดตันมีไข้ · ฟอกไตขาด/โพแทสเซียมสูง · กรวยไตอักเสบ ═══
+# ── ปัสสาวะไม่ออก ── ("ฉี่บ่อยเพราะดื่มน้ำ" "ปวดฉี่ตอนรถติด" ไม่นับ — ต้องไม่ออกเลย/น้อยมาก ร่วมกับอาการ)
+NO_URINE	th	re:(?:ไม่|ไม่ได้)(?:ปัสสาวะ|ฉี่)|(?:ฉี่|ปัสสาวะ)(?:ไม่ออก|ออกน้อยมาก|ไม่ค่อยออก)
+NO_URINE	en	hasn't peed|haven't peed|can't pee|cannot pee|can't urinate|barely urinated|no urine|not peeing|stopped peeing
+NO_URINE	es	no ha orinado|no puede orinar|casi no orina|no orina
+NO_URINE	vi	không đi tiểu được|không tiểu được|gần như không tiểu|bí tiểu
+NO_URINE	zh	尿不出来|尿不出來|几乎没尿|幾乎沒尿|没有尿|沒有尿|排不出尿
+NO_URINE	ko	소변을 못 보|소변이 거의 안|소변이 안 나|소변을 못
+NO_URINE	ja	おしっこが出な|尿が出ず|尿が出な|ほとんど尿が
+URINE_RED	th	ท้องน้อยโป่ง|ปวดมาก|ตัวบวม|บวมทั้งตัว|หายใจเหนื่อย|หายใจไม่ออก|สับสน|ซึม
+URINE_RED	en	hard and swollen|in agony|swelling up|swollen all over|short of breath|can't breathe|confused|drowsy
+URINE_RED	es	duro e hinchado|muchísimo|hinchando|hinchado entero|le falta el aire|no puede respirar|confundido|confundida
+URINE_RED	vi	căng cứng|đau dữ dội|phù lên|phù toàn thân|khó thở|lú lẫn|lơ mơ
+URINE_RED	zh	胀得|脹得|疼得厉害|浮肿|浮腫|全身肿|全身腫|喘不上气|喘不上氣|糊涂|糊塗
+URINE_RED	ko	부풀어|너무 아파|붓고|부었|숨이 차|숨을 못|오락가락
+URINE_RED	ja	パンパン|激しく痛|むくん|息が苦し|息ができない|混乱
+# ── นิ่ว/กรวยไตอักเสบ ── ปวดเอว/สีข้าง + ไข้หนาวสั่น (ไข้ + ไต/ทางเดินปัสสาวะ = ติดเชื้อที่ไต)
+FLANK	th	ปวดเอว|ปวดบั้นเอว|ปวดหลังข้างเดียว|นิ่วในไต|นิ่ว|ติดเชื้อทางเดินปัสสาวะ|กรวยไต
+FLANK	en	flank pain|kidney stone|one side of my back|uti|kidney infection
+FLANK	es	costado|cálculo renal|calculo renal|un lado de la espalda|infección urinaria
+FLANK	vi	đau hông|sỏi thận|một bên lưng|viêm đường tiểu|nhiễm trùng tiểu
+FLANK	zh	腰侧|腰側|肾结石|腎結石|一侧腰痛|一側腰痛|尿路感染
+FLANK	ko	옆구리|신장결석|한쪽 허리|방광염|신우신염
+FLANK	ja	脇腹|腎臓結石|片側の腰|膀胱炎|腎盂腎炎
+KIDNEY_FEVER	th	ไข้หนาวสั่น|หนาวสั่น|ไข้สูง|ไข้ขึ้นสูง
+KIDNEY_FEVER	th	re:ไข้\s*(?:3[89]|4[01])
+KIDNEY_FEVER	en	fever|chills|shaking
+KIDNEY_FEVER	es	fiebre|escalofríos|temblores
+KIDNEY_FEVER	vi	sốt
+KIDNEY_FEVER	zh	发烧|發燒|高烧|高燒|发冷|發冷|寒战|寒戰
+KIDNEY_FEVER	ko	열이|고열|오한
+KIDNEY_FEVER	ja	熱|寒気|震え
+# ── ฟอกไต ── ขาดฟอก หรือโพแทสเซียมสูง + อาการ ("พาแม่ไปฟอกไตตามนัด" ไม่นับ)
+DIALYSIS	th	ฟอกไต|ล้างไต
+DIALYSIS	en	dialysis
+DIALYSIS	es	diálisis|dialisis
+DIALYSIS	vi	chạy thận|lọc máu
+DIALYSIS	zh	透析
+DIALYSIS	ko	투석
+DIALYSIS	ja	透析
+MISSED	th	ขาด|ไม่ได้ไป|ไม่ได้ฟอก|ไม่ไป
+MISSED	en	missed|skipped|didn't go
+MISSED	es	faltó|falto|no fue
+MISSED	vi	bỏ lỡ|bỏ chạy|không đi
+MISSED	zh	漏了|没去|沒去|没做|沒做
+MISSED	ko	빠졌|안 받|못 받
+MISSED	ja	休ん|行かず|行かなかった
+HIGH_K	th	โพแทสเซียมสูง|ค่าโพแทสเซียมสูง
+HIGH_K	en	potassium is very high|potassium is high|high potassium
+HIGH_K	es	potasio muy alto|potasio alto
+HIGH_K	vi	kali máu rất cao|kali cao
+HIGH_K	zh	血钾很高|血鉀很高|高血钾|高血鉀
+HIGH_K	ko	칼륨 수치가|고칼륨
+HIGH_K	ja	カリウムがすごく高|カリウムが高|高カリウム
+RENAL_RED	th	อ่อนแรง|ใจเต้นผิดจังหวะ|ชา|ไม่มีแรง|บวม|หายใจไม่ออก|หายใจเหนื่อย
+RENAL_RED	en	weak|irregular|numb|swollen|full of fluid|can't breathe|short of breath
+RENAL_RED	es	débil|irregular|entumecidos|sin fuerza|hinchad|líquido|no puede respirar
+RENAL_RED	vi	yếu|loạn nhịp|tê|phù|không thở được
+RENAL_RED	zh	无力|無力|心跳不规律|心跳不規律|发麻|發麻|没力气|沒力氣|水肿|水腫|喘不过气|喘不過氣
+RENAL_RED	ko	기운이 없|불규칙|저리|힘이 없|붓고|숨을 못
+RENAL_RED	ja	力が入ら|不規則|しびれ|むくん|息ができない
+# ── โรคไตเรื้อรัง + อาการกำเริบ ──
+CKD	th	โรคไตเรื้อรัง|ไตวาย|ไตเสื่อม|โรคไต
+CKD	en	chronic kidney disease|kidney failure|ckd
+CKD	es	enfermedad renal crónica|insuficiencia renal
+CKD	vi	suy thận|bệnh thận mạn
+CKD	zh	慢性肾病|慢性腎病|肾衰竭|腎衰竭|尿毒症
+CKD	ko	만성 신부전|신부전|만성 콩팥병
+CKD	ja	慢性腎臓病|腎不全

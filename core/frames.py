@@ -71,6 +71,11 @@ FRAMES = (
     ("infant_fever", "medical", "health_emergency", (("INFANT", "FEVER", "INFANT_RED"),), ("FICTION", "HYPOTHETICAL", "BETTER")),
     ("deep_wound", "medical", "health_emergency", (("PIERCE", "BLEED_NONSTOP"), ("CUT_DEEP",)), ("FICTION", "HYPOTHETICAL", "MINOR")),
     ("marine_sting", "medical", "health_emergency", (("MARINE", "MARINE_ACT", "MARINE_RED"),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 8 เน้นไต (ชุดปิดตา K ล็อกไว้ก่อนเขียน)
+    ("no_urine", "medical", "health_emergency", (("NO_URINE", "URINE_RED"), ("CKD", "NO_URINE")), ("FICTION", "HYPOTHETICAL", "TRAFFIC")),
+    ("kidney_infection", "medical", "health_emergency", (("FLANK", "KIDNEY_FEVER"),), ("FICTION", "HYPOTHETICAL", "BETTER")),
+    ("dialysis", "medical", "health_emergency", (("DIALYSIS", "MISSED"), ("DIALYSIS", "HIGH_K"), ("HIGH_K", "RENAL_RED"), ("CKD", "RENAL_RED")),
+     ("FICTION", "HYPOTHETICAL")),
 )
 
 
