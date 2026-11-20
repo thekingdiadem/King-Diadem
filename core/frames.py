@@ -56,7 +56,7 @@ FRAMES = (
     ("gas_co", "medical", "health_emergency",
      (("CO", "GAS_SYMPTOM"), ("GAS", "LEAK_SMELL", "GAS_SYMPTOM"), ("CLOSED_ROOM", "FUEL_BURN", "GAS_SYMPTOM")), ("FICTION", "HYPOTHETICAL")),
     ("heatstroke", "medical", "health_emergency", (("HEATSTROKE",), ("HOT_BODY", "HEAT_RED")), ("FICTION", "HYPOTHETICAL", "ADVICE")),
-    ("hypoglycemia", "medical", "health_emergency", (("DIABETES", "HYPO_SIGN"), ("LOW_SUGAR", "HYPO_SIGN"), ("SUGAR_NUM",)),
+    ("hypoglycemia", "medical", "health_emergency", (("DIABETES", "HYPO_SIGN"), ("LOW_SUGAR", "HYPO_SIGN"), ("SUGAR_NUM",), ("INSULIN", "SKIPPED_MEAL")),
      ("FICTION", "HYPOTHETICAL", "SUGAR_OK")),
     ("asthma", "medical", "health_emergency", (("ASTHMA", "ASTHMA_FAIL"), ("WHEEZE", "SHORT_SPEECH"), ("WHEEZE", "ASTHMA_FAIL")),
      ("FICTION", "HYPOTHETICAL", "CONTROLLED")),

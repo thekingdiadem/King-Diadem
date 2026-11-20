@@ -25,11 +25,11 @@
   },
   "emergency": {
    "n": 522,
-   "tp": 518,
-   "fn": 4,
-   "fp": 14,
-   "recall": 0.992,
-   "precision": 0.974
+   "tp": 521,
+   "fn": 1,
+   "fp": 11,
+   "recall": 0.998,
+   "precision": 0.979
   },
   "violence": {
    "n": 70,
@@ -57,11 +57,11 @@
   }
  },
  "danger_missed": {
-  "n": 3,
+  "n": 0,
   "of": 628
  },
  "false_alarm": {
-  "n": 4,
+  "n": 1,
   "of": 593
  },
  "by_lang": {
@@ -70,11 +70,11 @@
    "n": 105
   },
   "es": {
-   "hit": 79,
+   "hit": 80,
    "n": 81
   },
   "ja": {
-   "hit": 81,
+   "hit": 82,
    "n": 82
   },
   "ko": {
@@ -82,7 +82,7 @@
    "n": 81
   },
   "th": {
-   "hit": 139,
+   "hit": 140,
    "n": 142
   },
   "vi": {
@@ -137,48 +137,6 @@
    "line": 242,
    "text": "Bạn tôi cắt cổ tay, máu chảy rất nhiều",
    "label": "self_harm",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 905,
-   "text": "ตาฉีดอินซูลินเช้านี้แต่ไม่ได้กินอะไรเลย ตอนนี้เรียกไม่ค่อยรู้เรื่อง",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 940,
-   "text": "Prendimos la estufa de leña con las ventanas cerradas y ahora mi abuelo está mareado y vomitando",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1022,
-   "text": "畑仕事をしていた祖父が体が火のように熱くて、呼びかけても反応が鈍い",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1196,
-   "text": "ลูกเป็นไข้ต่ำๆ หลังฉีดวัคซีน กินยาแล้วดีขึ้น",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1220,
-   "text": "Saw lots of jellyfish floating at the beach",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1276,
-   "text": "打完疫苗有点低烧，吃了药好多了",
-   "label": "none",
    "got": [
     "emergency"
    ]
