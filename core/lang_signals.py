@@ -196,7 +196,17 @@ SELF_HARM_MEANING = (
     re.compile(r"(?:사는\s*(?:게|것이|것도)|살아\s*있는\s*(?:게|것이)|살아갈|살아야\s*할)\s*(?:아무\s*)?(?:의미가|의미도|이유가|이유도)\s*없"),
     re.compile(r"(?:生きて(?:い|る|いる)|生きる)(?:こと(?:に|の))?意味(?:が|も)?(?:ない|無い|わからない|分からない)|生きるのに疲れ|生きることに疲れ"),
 )
-SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_MEANING
+# รอบสุ่ม 223: การทำร้ายตัวเองที่เกิดอยู่แล้ว (ไม่ใช่แค่ "อยากตาย") — เคยได้ 0 ใน 9 ภาษา
+SELF_HARM_ACT = (
+    re.compile(r"\bme\s+(?:estoy\s+)?(?:haciendo|hago|hice)\s+daño\b|\bme\s+(?:corto|corté|estoy\s+cortando)\s+(?:los\s+brazos|las\s+muñecas|las\s+piernas|a\s+propósito|otra\s+vez|todas\s+las\s+noches)|\bautolesi", re.I),
+    re.compile(r"tự\s+(?:làm\s+đau|làm\s+hại|hành\s+hạ)\s+(?:mình|bản\s+thân)|tự\s+(?:cắt|rạch)\s+tay|(?:hay|thường|lại|vẫn)\s+(?:cắt|rạch)\s+tay", re.I),
+    re.compile(r"(?<!不要)(?<!别)(?<!不會)(?<!不会)(?:伤害|傷害)自己|自残|自殘|割(?:自己|手腕|手臂|腕)"),
+    re.compile(r"自分を傷つけ|自傷|リスカ|(?:自分の|わざと)(?:腕|手首)を(?:切っ|切る)"),   # "ガラスで腕を切って" = อุบัติเหตุ
+    re.compile(r"자해|(?:팔|손목|다리)을?\s*(?:그어|긋|그었)"),
+    re.compile(r"\bje\s+me\s+(?:fais\s+du\s+mal|coupe(?!\s+les\s+cheveux)|scarifie|mutile)|\bautomutil|\bich\s+(?:verletze|ritze)\s+mich|\bselbstverletz|"
+               r"\b(?:eu\s+)?me\s+(?:corto(?!\s+(?:o|el|la|las|los|os|as)\s+(?:cabelo|pelo|cabello|unhas|uñas|barba|franja|flequillo|dedo|cebolla|cebola))|machuco|mutilo)\b|\bmelukai\s+diri|\bmenyakiti\s+diri", re.I),
+)
+SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_MEANING + SELF_HARM_ACT
 SELF_HARM_INTL = SELF_HARM_INTL + SELF_HARM_PASSIVE + SELF_HARM_INDIRECT + SELF_HARM_MASKED   # ผู้ใช้ทุกที่ (kernel_voice วิกฤต · llm_gemini ความปลอดภัย) ได้แบบอ้อมด้วย
 
 
