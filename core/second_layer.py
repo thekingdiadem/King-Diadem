@@ -911,8 +911,8 @@ UPGRADES += [
 # รอบ 227: คำบอกลาแบบอ้อม (เคยได้ 0 ทั้งหมด) — จับเฉพาะรูปที่เป็นสัญญาณชัด และใช้ระดับ "ถามตรงๆ อย่างอ่อนโยน" (warning)
 # ประโยคที่ธรรมดาได้บ่อย ("ฝากบอกแม่ว่ารักนะ" "เขียนพินัยกรรม") ไม่จับเดี่ยวๆ
 UPGRADES += [
-    (re.compile(_TH_NOT_STORY + r"[^\n]*?ถ้า(?:ใคร)?(?:เห็น|อ่าน)ข้อความนี้[^\n]{0,15}?(?:แปลว่า|แสดงว่า|คือ)\S{0,6}(?:ไปแล้ว|ไม่อยู่แล้ว|จากไปแล้ว)|"
-               r"(?i:\bif\s+you(?:'re|\s+are)\s+reading\s+this[^\n]{0,15}?\b(?:i'?m|i\s+am)\s+(?:already\s+)?(?:gone|dead|not\s+here)\b)"), "crisis"),
+    (re.compile(r"^(?![\s\S]*(?:ไปเที่ยว|เที่ยวทะเล|ไปทำงาน|ไปต่างประเทศ|ขึ้นเครื่อง|ไปแล้วนะ\s*เดี๋ยวกลับ|(?i:\b(?:vacation|holiday|trip|flight|back\s+(?:on|in|soon))\b)))" + _TH_NOT_STORY[1:] + r"[^\n]*?ถ้า(?:ใคร)?(?:เห็น|อ่าน)ข้อความนี้[^\n]{0,15}?(?:แปลว่า|แสดงว่า|คือ)\S{0,6}(?:ไปแล้ว|ไม่อยู่แล้ว|จากไปแล้ว)|"
+               r"(?i:^(?![\s\S]*\b(?:vacation|holiday|trip|flight|plane|back\s+(?:on|in|soon)|out\s+of\s+office)\b)[\s\S]*?\bif\s+you(?:'re|\s+are)\s+reading\s+this[^\n]{0,15}?\b(?:i'?m|i\s+am)\s+(?:already\s+)?(?:gone|dead|not\s+here)\b)"), "crisis"),
     (re.compile(_TH_NOT_STORY + r"[^\n]*?(?:"
                r"ฝาก(?:ดูแล|เลี้ยง)(?:แมว|หมา|น้อง|ลูก|แม่|พ่อ)[^\n]{0,25}?(?:คง)?(?:ไม่ได้|ไม่)(?:เลี้ยง|ดูแล|อยู่)(?:แล้ว|อีก|ต่อ)|"
                r"ทุกคน(?:จะ|คง)ได้สบาย(?:แล้ว|ขึ้น)(?![^\n]{0,15}?(?:เพราะ(?:ได้|มี|ซื้อ)|แอร์|บ้านใหม่|รถใหม่|โบนัส|วันหยุด))|"
@@ -920,7 +920,7 @@ UPGRADES += [
                r"ขอบคุณที่เคย[^\n]{0,30}?(?:ลาก่อน|บ๊ายบาย|ไปก่อนนะ))"
                r"|(?i:\btake\s+care\s+of\s+my\s+(?:cat|dog|pet|kids?|mom|dad)\b[^\n]{0,30}?\b(?:i\s+won'?t\s+be\s+(?:around|here)|after\s+i'?m\s+gone)\b|"
                r"\beveryone\s+(?:will|would)\s+(?:be\s+free\s+of\s+me|be\s+better\s+off\s+soon)\b|"
-               r"\b(?:i'?ve\s+)?given\s+away\s+everything\b[^\n]{0,30}?\b(?:sorted|done|ready|taken\s+care)\b|"
-               r"\bthis\s+is\s+my\s+(?:last|final)\s+(?:post|message|note|goodbye)\b(?!\s+(?:of|for|before|on|until|this|today|tonight\s+before)\b)|"
+               r"\b(?:i'?ve\s+)?given\s+away\s+everything\b(?![^\n]*\b(?:garage|yard|moving|sale|charity\s+shop|donation\s+center|minimalis\w*|declutter\w*)\b)[^\n]{0,30}?\b(?:sorted|done|ready|taken\s+care)\b|"
+               r"^(?![\s\S]*\b(?:of\s+the\s+(?:year|day|week|month|trip|series)|before\s+(?:vacation|holiday|bed|the)|for\s+(?:today|now|the\s+(?:year|week))|until)\b)[\s\S]*?\bthis\s+is\s+my\s+(?:last|final)\s+(?:post|message|note|goodbye)\b|"
                r"\bthank\s+you\s+for\s+(?:being|everything)[^\n]{0,30}?\b(?:goodbye\s+forever|forever\s+goodbye|i\s+won'?t\s+be\s+around)\b)"), "warning"),
 ]
