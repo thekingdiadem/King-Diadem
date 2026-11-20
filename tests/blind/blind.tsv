@@ -3308,3 +3308,145 @@ Mua xương heo về hầm nước dùng	none	vi	claude-seed
 焼きサバを食べるときは骨に気をつけて	none	ja	claude-seed
 小さい魚の骨が引っかかったけどご飯を飲み込んだら取れた	none	ja	claude-seed
 スープ用に豚骨を買った	none	ja	claude-seed
+# ── ชุด Y: ล็อกไว้ก่อนขยาย core/frames.py รอบ 22 — (ไต) กินยาแก้ปวด/ยาชุดจนไตวาย · ประจำเดือนมามากจนหน้ามืด · แผลเบาหวานที่เท้าติดเชื้อ · ปวดหัวรุนแรงที่สุดทันที ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 25/70 (ไม่เห็นเลย 45) · เตือนเกิน 2/70
+พ่อกินยาแก้ปวดข้อวันละหลายเม็ดมาเป็นเดือน ตอนนี้ฉี่ไม่ออก ตัวบวม	emergency	th	claude-seed
+ลุงกินยาชุดจากร้านขายของชำทุกวัน ตอนนี้ฉี่น้อยมาก หายใจเหนื่อย	emergency	th	claude-seed
+แม่กินไอบูโพรเฟนเยอะเพราะปวดหลัง ตอนนี้ฉี่ออกน้อย ขาบวม คลื่นไส้	emergency	th	claude-seed
+ประจำเดือนมามากผิดปกติ เปลี่ยนผ้าอนามัยทุกชั่วโมง หน้ามืดจะเป็นลม	emergency	th	claude-seed
+เลือดประจำเดือนออกเป็นก้อนใหญ่ไม่หยุด ใจสั่น ตัวซีด	emergency	th	claude-seed
+แผลที่เท้าของพ่อซึ่งเป็นเบาหวาน ดำและมีกลิ่นเหม็น มีไข้	emergency	th	claude-seed
+แม่เป็นเบาหวาน นิ้วเท้าบวมแดงลามขึ้นขา มีหนอง ไข้สูง	emergency	th	claude-seed
+ปวดหัวรุนแรงที่สุดในชีวิตขึ้นมาทันที เหมือนโดนตีหัว	emergency	th	claude-seed
+จู่ๆ ปวดหัวระเบิดตอนยกของ คอแข็ง อาเจียน	emergency	th	claude-seed
+พี่สาวปวดหัวแบบไม่เคยเป็นมาก่อน ฉับพลันรุนแรง แล้วเริ่มซึม	emergency	th	claude-seed
+กินยาพาราตามขนาดเวลาปวดหัว	none	th	claude-seed
+หมอให้ยาแก้ปวดข้อสามวัน กินครบแล้ว	none	th	claude-seed
+ซื้อยาสามัญประจำบ้านไว้ใช้	none	th	claude-seed
+ประจำเดือนมาวันแรก ปวดท้องนิดหน่อย	none	th	claude-seed
+ประจำเดือนมามากกว่าปกตินิดหน่อย แต่ไม่เวียนหัว	none	th	claude-seed
+พ่อเป็นเบาหวาน ตรวจเท้าทุกวันตามที่หมอสอน	none	th	claude-seed
+ตัดเล็บเท้าให้แม่ที่เป็นเบาหวานอย่างระวัง	none	th	claude-seed
+ปวดหัวเพราะเครียดงาน นอนพักแล้วหาย	none	th	claude-seed
+ปวดหัวไมเกรนเหมือนทุกเดือน กินยาประจำแล้วดีขึ้น	none	th	claude-seed
+ปวดหัวเพราะดื่มกาแฟน้อยไป	none	th	claude-seed
+Dad has taken several joint pain pills a day for a month, now he can't pee and he's swelling up	emergency	en	claude-seed
+My uncle takes those mixed painkiller packets from the corner shop every day, now barely peeing and short of breath	emergency	en	claude-seed
+Mom took a lot of ibuprofen for her back, now peeing very little, swollen legs and nausea	emergency	en	claude-seed
+My period is extremely heavy, soaking a pad every hour, I feel like I'm going to faint	emergency	en	claude-seed
+Passing huge clots with my period that won't stop, heart racing and I look pale	emergency	en	claude-seed
+The sore on my diabetic dad's foot is black and smells bad, and he has a fever	emergency	en	claude-seed
+Mom is diabetic, her toe is red and swollen spreading up the leg, pus and a high fever	emergency	en	claude-seed
+Worst headache of my life came on instantly, like being hit on the head	emergency	en	claude-seed
+Suddenly an explosive headache while lifting, stiff neck and vomiting	emergency	en	claude-seed
+My sister has a headache unlike anything before, sudden and severe, and she's getting drowsy	emergency	en	claude-seed
+Took paracetamol at the right dose for a headache	none	en	claude-seed
+Doctor gave me joint pain pills for three days, finished them	none	en	claude-seed
+Bought basic medicines for the home	none	en	claude-seed
+First day of my period, mild cramps	none	en	claude-seed
+Period a bit heavier than usual but not dizzy	none	en	claude-seed
+Dad is diabetic and checks his feet daily as the doctor taught	none	en	claude-seed
+Carefully trimmed my diabetic mom's toenails	none	en	claude-seed
+Stress headache from work, gone after a rest	none	en	claude-seed
+My usual monthly migraine, better after my regular medicine	none	en	claude-seed
+Headache from not enough coffee	none	en	claude-seed
+Mi papá toma varias pastillas para el dolor de articulaciones al día desde hace un mes, ahora no puede orinar y se está hinchando	emergency	es	claude-seed
+Mi tío toma esos sobres de analgésicos de la tienda todos los días, ahora casi no orina y le falta el aire	emergency	es	claude-seed
+Mi mamá tomó mucho ibuprofeno por la espalda, ahora orina muy poco, piernas hinchadas y náuseas	emergency	es	claude-seed
+La regla me viene muy abundante, empapo una toalla cada hora, siento que me voy a desmayar	emergency	es	claude-seed
+Coágulos enormes con la regla que no para, el corazón acelerado y estoy pálida	emergency	es	claude-seed
+La herida del pie de mi papá diabético está negra y huele mal, y tiene fiebre	emergency	es	claude-seed
+Mi mamá es diabética, el dedo del pie rojo e hinchado subiendo por la pierna, pus y fiebre alta	emergency	es	claude-seed
+El peor dolor de cabeza de mi vida empezó de golpe, como un golpe en la cabeza	emergency	es	claude-seed
+De repente un dolor de cabeza explosivo al levantar algo, cuello rígido y vómitos	emergency	es	claude-seed
+Mi hermana tiene un dolor de cabeza como nunca antes, repentino y fuerte, y se está adormilando	emergency	es	claude-seed
+Tomé paracetamol en la dosis correcta por dolor de cabeza	none	es	claude-seed
+El médico me dio pastillas para las articulaciones tres días, ya las terminé	none	es	claude-seed
+Compré medicinas básicas para la casa	none	es	claude-seed
+Primer día de la regla, cólicos leves	none	es	claude-seed
+La regla un poco más abundante de lo normal pero sin mareos	none	es	claude-seed
+Mi papá es diabético y revisa sus pies a diario como le enseñó el médico	none	es	claude-seed
+Le corté las uñas de los pies con cuidado a mi mamá diabética	none	es	claude-seed
+Dolor de cabeza por estrés del trabajo, se fue al descansar	none	es	claude-seed
+Mi migraña de cada mes, mejor con mi medicina de siempre	none	es	claude-seed
+Dolor de cabeza por tomar poco café	none	es	claude-seed
+Bố tôi uống mấy viên thuốc giảm đau khớp mỗi ngày suốt một tháng, giờ không tiểu được và phù lên	emergency	vi	claude-seed
+Chú tôi ngày nào cũng uống thuốc giảm đau gói mua ở tạp hóa, giờ gần như không tiểu và khó thở	emergency	vi	claude-seed
+Mẹ tôi uống nhiều ibuprofen vì đau lưng, giờ tiểu rất ít, phù chân và buồn nôn	emergency	vi	claude-seed
+Kinh nguyệt ra rất nhiều, mỗi giờ phải thay băng, tôi sắp ngất	emergency	vi	claude-seed
+Máu kinh ra cục to không ngừng, tim đập nhanh và da tái	emergency	vi	claude-seed
+Vết loét ở chân bố tôi bị tiểu đường đen lại, có mùi hôi và sốt	emergency	vi	claude-seed
+Mẹ tôi bị tiểu đường, ngón chân sưng đỏ lan lên cẳng chân, có mủ và sốt cao	emergency	vi	claude-seed
+Cơn đau đầu tệ nhất đời tôi ập đến đột ngột, như bị đánh vào đầu	emergency	vi	claude-seed
+Đột nhiên đau đầu như nổ tung khi đang khiêng đồ, cứng cổ và nôn	emergency	vi	claude-seed
+Chị tôi đau đầu kiểu chưa từng có, đột ngột và dữ dội, rồi bắt đầu lơ mơ	emergency	vi	claude-seed
+Uống paracetamol đúng liều khi đau đầu	none	vi	claude-seed
+Bác sĩ cho thuốc đau khớp ba ngày, đã uống xong	none	vi	claude-seed
+Mua thuốc thông dụng để trong nhà	none	vi	claude-seed
+Ngày đầu hành kinh, hơi đau bụng	none	vi	claude-seed
+Kinh nhiều hơn bình thường một chút nhưng không chóng mặt	none	vi	claude-seed
+Bố bị tiểu đường, kiểm tra chân mỗi ngày như bác sĩ dặn	none	vi	claude-seed
+Cắt móng chân cẩn thận cho mẹ bị tiểu đường	none	vi	claude-seed
+Đau đầu vì căng thẳng công việc, nghỉ là hết	none	vi	claude-seed
+Cơn đau nửa đầu hằng tháng, uống thuốc quen là đỡ	none	vi	claude-seed
+Đau đầu vì uống ít cà phê	none	vi	claude-seed
+爸爸一个月来每天吃好几片关节止痛药，现在尿不出来，全身浮肿	emergency	zh	claude-seed
+叔叔每天吃小卖部买的止痛药包，现在几乎没尿，喘不上气	emergency	zh	claude-seed
+妈妈因为腰痛吃了很多布洛芬，现在尿很少，腿肿，恶心	emergency	zh	claude-seed
+月经量特别多，每小时都要换卫生巾，快晕倒了	emergency	zh	claude-seed
+月经排出很大的血块止不住，心慌，脸色苍白	emergency	zh	claude-seed
+糖尿病的爸爸脚上的伤口发黑发臭，还发烧	emergency	zh	claude-seed
+妈妈有糖尿病，脚趾红肿蔓延到小腿，有脓，高烧	emergency	zh	claude-seed
+突然出现这辈子最严重的头痛，像被人打了一下头	emergency	zh	claude-seed
+搬东西时突然头痛欲裂，脖子僵硬，呕吐	emergency	zh	claude-seed
+姐姐出现从没有过的突然剧烈头痛，然后开始迷糊	emergency	zh	claude-seed
+头痛时按剂量吃了扑热息痛	none	zh	claude-seed
+医生开了三天关节止痛药，已经吃完了	none	zh	claude-seed
+买了些家庭常备药	none	zh	claude-seed
+月经第一天，有点肚子痛	none	zh	claude-seed
+月经比平时多一点，但不头晕	none	zh	claude-seed
+爸爸有糖尿病，按医生教的每天检查脚	none	zh	claude-seed
+小心地给有糖尿病的妈妈剪脚趾甲	none	zh	claude-seed
+工作压力大头痛，休息后好了	none	zh	claude-seed
+每个月的偏头痛，吃常用药后好多了	none	zh	claude-seed
+咖啡喝少了头痛	none	zh	claude-seed
+아빠가 한 달째 관절 진통제를 하루에 여러 알씩 드셨는데 지금 소변이 안 나오고 몸이 부었어요	emergency	ko	claude-seed
+삼촌이 동네 가게에서 산 진통제 봉지약을 매일 먹는데 지금 소변이 거의 없고 숨이 차요	emergency	ko	claude-seed
+엄마가 허리 때문에 이부프로펜을 많이 드셨는데 지금 소변이 아주 적고 다리가 붓고 메스꺼워해요	emergency	ko	claude-seed
+생리양이 너무 많아서 한 시간마다 패드를 갈고 쓰러질 것 같아요	emergency	ko	claude-seed
+생리 중에 큰 핏덩어리가 계속 나오고 심장이 빨리 뛰고 얼굴이 창백해요	emergency	ko	claude-seed
+당뇨가 있는 아빠 발의 상처가 까맣게 변하고 냄새가 나고 열이 나요	emergency	ko	claude-seed
+엄마가 당뇨인데 발가락이 빨갛게 붓고 다리로 번지고 고름이 나오고 고열이에요	emergency	ko	claude-seed
+갑자기 평생 처음 겪는 최악의 두통이 왔어요 머리를 맞은 것 같아요	emergency	ko	claude-seed
+짐을 들다가 갑자기 머리가 터질 듯 아프고 목이 뻣뻣하고 토해요	emergency	ko	claude-seed
+언니가 처음 겪는 갑작스럽고 심한 두통이 오더니 점점 처져요	emergency	ko	claude-seed
+머리가 아파서 정량대로 타이레놀을 먹었어요	none	ko	claude-seed
+의사가 관절 진통제를 사흘 처방했는데 다 먹었어요	none	ko	claude-seed
+상비약을 사다 놨어요	none	ko	claude-seed
+생리 첫날이라 배가 조금 아파요	none	ko	claude-seed
+생리양이 평소보다 조금 많지만 어지럽지는 않아요	none	ko	claude-seed
+아빠가 당뇨라서 의사가 알려준 대로 매일 발을 확인해요	none	ko	claude-seed
+당뇨 있는 엄마 발톱을 조심히 잘라 드렸어요	none	ko	claude-seed
+업무 스트레스로 두통이 있었는데 쉬니까 나았어요	none	ko	claude-seed
+매달 오는 편두통인데 늘 먹는 약 먹고 나아졌어요	none	ko	claude-seed
+커피를 덜 마셔서 머리가 아파요	none	ko	claude-seed
+父が一か月間、関節の痛み止めを毎日何錠も飲んでいて、今は尿が出ずむくんでいる	emergency	ja	claude-seed
+叔父が近所の店の痛み止めの粉薬を毎日飲んでいて、今は尿がほとんど出ず息が苦しい	emergency	ja	claude-seed
+母が腰痛でイブプロフェンをたくさん飲んで、今は尿がとても少なく、脚がむくみ、吐き気がある	emergency	ja	claude-seed
+生理の量がものすごく多くて、一時間ごとにナプキンを替えていて、倒れそう	emergency	ja	claude-seed
+生理で大きな血の塊が止まらず、動悸がして顔色が真っ青	emergency	ja	claude-seed
+糖尿病の父の足の傷が黒くなって臭いがあり、熱もある	emergency	ja	claude-seed
+母は糖尿病で、足の指が赤く腫れてすねまで広がり、膿が出て高熱がある	emergency	ja	claude-seed
+人生最悪の頭痛が突然来た、頭を殴られたみたい	emergency	ja	claude-seed
+荷物を持ち上げたとき急に頭が割れるように痛くなり、首が硬くて吐いた	emergency	ja	claude-seed
+姉が今までにない突然の激しい頭痛になって、だんだんぼんやりしてきた	emergency	ja	claude-seed
+頭痛で用量通りにカロナールを飲んだ	none	ja	claude-seed
+医者に関節の痛み止めを三日分出されて、飲み終わった	none	ja	claude-seed
+常備薬を買っておいた	none	ja	claude-seed
+生理一日目で少しお腹が痛い	none	ja	claude-seed
+生理がいつもより少し多いけどめまいはない	none	ja	claude-seed
+父は糖尿病で、医者に教わった通り毎日足をチェックしている	none	ja	claude-seed
+糖尿病の母の足の爪を気をつけて切った	none	ja	claude-seed
+仕事のストレスで頭痛がしたけど休んだら治った	none	ja	claude-seed
+毎月の片頭痛で、いつもの薬を飲んだら良くなった	none	ja	claude-seed
+コーヒーが足りなくて頭が痛い	none	ja	claude-seed
