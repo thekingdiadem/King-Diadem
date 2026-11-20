@@ -1089,14 +1089,14 @@ DRUNK_RED	ko	깨워도 안|의식 없이|몸이 차갑|숨을 아주 천천히|�
 DRUNK_RED	ja	起こしても起きず|意識がない|体が冷た|呼吸がすごく遅|唇が紫
 BOOTLEG	th	เหล้าขาวต้มเอง|ต้มเอง|เหล้าเถื่อน|เหล้าปลอม|เหล้าป่า
 BOOTLEG	en	moonshine|bootleg|homemade liquor|methanol|fake alcohol
-BOOTLEG	es	licor casero|licor de contrabando|aguardiente casero|alcohol adulterado|metanol|alcohol falso
+BOOTLEG	es	alcohol de contrabando|licor casero|licor de contrabando|aguardiente casero|alcohol adulterado|metanol|alcohol falso
 BOOTLEG	vi	rượu tự nấu|rượu dỏm|rượu giả|methanol
 BOOTLEG	zh	自酿|自釀|假酒|甲醇
 BOOTLEG	ko	밀주|가짜 술|메탄올
 BOOTLEG	ja	密造酒|偽の酒|メタノール
 VISION	th	ตามัว|มองไม่เห็น|ตาพร่า|ตาบอด
 VISION	en	blurry|can't see|vision is going|went blind
-VISION	es	nublado|nublada|ven borroso|veo borroso|vista borrosa|ve borroso|no ve|visión borrosa
+VISION	es	niebla|nublado|nublada|ven borroso|veo borroso|vista borrosa|ve borroso|no ve|visión borrosa
 VISION	vi	mờ mắt|mắt mờ|không nhìn thấy
 VISION	zh	模糊|看不见|看不見|失明
 VISION	ko	흐려|안 보|흐리

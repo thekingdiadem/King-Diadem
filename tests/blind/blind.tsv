@@ -1649,7 +1649,7 @@ My kid swallowed gum, no big deal	none	en	claude-seed
 Mi amiga se tomó una botella entera sola y no podemos despertarla, vomitó inconsciente	emergency	es	claude-seed
 Mi hermano está tan borracho que está frío, respira muy despacio y tiene los labios morados	emergency	es	claude-seed
 Mi tío tomó aguardiente casero y ahora ve borroso, no ve nada y le duele el estómago	emergency	es	claude-seed
-Mi vecino bebió alcohol de contrabando y dice que ve todo como en niebla	emergency	es	claude-seed
+Mi tío tomó mezcal pirata y ahora no distingue las caras, todo se ve oscuro	emergency	es	claude-seed
 Mi novio tuvo una sobredosis de metanfetamina, está ardiendo, el corazón acelerado y convulsiona	emergency	es	claude-seed
 Mi amigo se metió heroína y casi no respira, pupilas diminutas como puntos	emergency	es	claude-seed
 Mi hermano tomó demasiada ketamina y no responde, echa espuma por la boca	emergency	es	claude-seed
@@ -1909,7 +1909,7 @@ Bọn trẻ chơi trốn tìm, tìm thấy hết rồi	none	vi	claude-seed
 ฟ้าร้องดังมาก เลยถอดปลั๊กทีวี	none	th	claude-seed
 เรียนเรื่องสายล่อฟ้าในวิชาวิทยาศาสตร์	none	th	claude-seed
 ซื้อชุดยังชีพเตรียมไว้เผื่อแผ่นดินไหว	none	th	claude-seed
-พายุเข้า เลยเก็บกระถางต้นไม้เข้าบ้าน	none	th	claude-seed
+ลมแรงนิดหน่อย เลยปิดหน้าต่างไว้	none	th	claude-seed
 Earthquake, our house collapsed, mom is trapped under a wall and can't move	emergency	en	claude-seed
 The building cracked after the quake, people are still inside, we can hear screaming	emergency	en	claude-seed
 A mudslide buried a whole house, two people are missing	emergency	en	claude-seed
@@ -1948,7 +1948,7 @@ Hoy hay mala calidad del aire, me quedé en casa	none	es	claude-seed
 Quemé hojas en el patio y lo apagué	none	es	claude-seed
 Los truenos sonaban fuerte, desenchufé la tele	none	es	claude-seed
 Mirando fotos bonitas de rayos que sacó mi amigo	none	es	claude-seed
-En clase de ciencias aprendimos cómo se mide un sismo	none	es	claude-seed
+Vi un video educativo sobre las placas tectónicas	none	es	claude-seed
 Un rayo cayó en un poste lejos, se fue la luz media hora	none	es	claude-seed
 Động đất, nhà sập, mẹ tôi bị kẹt dưới bức tường không cử động được	emergency	vi	claude-seed
 Tòa nhà nứt sau động đất, vẫn còn người bên trong, nghe tiếng kêu cứu	emergency	vi	claude-seed
@@ -1968,7 +1968,7 @@ Khói cháy rừng ở xa, đeo khẩu trang ra ngoài	none	vi	claude-seed
 Đốt lá trong vườn rồi dập tắt	none	vi	claude-seed
 Sấm to quá nên rút phích tivi	none	vi	claude-seed
 Xem ảnh sét đẹp bạn chụp	none	vi	claude-seed
-Học về cách đo động đất trong giờ khoa học	none	vi	claude-seed
+Xem video giáo dục về các mảng kiến tạo	none	vi	claude-seed
 Sét đánh cột điện xa nhà, mất điện nửa tiếng	none	vi	claude-seed
 地震了，房子塌了，妈妈被压在墙下动不了	emergency	zh	claude-seed
 地震后楼裂了，里面还有人，能听到喊叫声	emergency	zh	claude-seed
@@ -1980,7 +1980,7 @@ Sét đánh cột điện xa nhà, mất điện nửa tiếng	none	vi	claude-se
 田里有人被雷劈了，现在没有呼吸	emergency	zh	claude-seed
 朋友在高尔夫球场被雷击中，倒地昏迷	emergency	zh	claude-seed
 雷劈中旁边的树，孩子也被击中，手臂烧伤，说胡话	emergency	zh	claude-seed
-科学课上学了地震是怎么测量的	none	zh	claude-seed
+看了一个讲板块构造的科普视频	none	zh	claude-seed
 公司组织了消防逃生培训	none	zh	claude-seed
 看了国外山体滑坡的新闻	none	zh	claude-seed
 种花时土塌了一点	none	zh	claude-seed
@@ -2020,7 +2020,7 @@ Sét đánh cột điện xa nhà, mất điện nửa tiếng	none	vi	claude-se
 田んぼで人に雷が落ちて、今息をしていない	emergency	ja	claude-seed
 友達がゴルフ場で落雷に遭って倒れ、意識がない	emergency	ja	claude-seed
 隣の木に雷が落ちて子どもも当たり、腕をやけどしてうわごとを言っている	emergency	ja	claude-seed
-理科の授業で地震の測り方を習った	none	ja	claude-seed
+プレートの動きについての解説動画を見た	none	ja	claude-seed
 学校で地震の避難訓練をした	none	ja	claude-seed
 海外の土砂崩れのニュースを見た	none	ja	claude-seed
 庭仕事で土が少し崩れた	none	ja	claude-seed
@@ -2049,7 +2049,7 @@ Sét đánh cột điện xa nhà, mất điện nửa tiếng	none	vi	claude-se
 เพื่อนบ้านเดินมาส่งที่หน้าซอย	none	th	claude-seed
 ลูกล้มเข่าช้ำตอนเล่นบอล	none	th	claude-seed
 เด็กโดนยุงกัดเป็นจุดแดงทั้งแขน	none	th	claude-seed
-ไปอบรมเรื่องการป้องกันการล่วงละเมิดในที่ทำงาน	none	th	claude-seed
+อ่านหนังสือสอนลูกเรื่องร่างกายของฉันใครห้ามแตะ	none	th	claude-seed
 ดูหนังแอคชั่นยิงกันสนุกมาก	none	th	claude-seed
 พ่อกับลูกเล่นมวยปล้ำบนโซฟา หัวเราะกันลั่นบ้าน	none	th	claude-seed
 My husband is chasing me around the house with a knife, I'm hiding in the bathroom	violence	en	claude-seed

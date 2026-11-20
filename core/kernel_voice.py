@@ -2716,7 +2716,7 @@ def _assess_raw(text: str, pattern: dict | None = None) -> dict:
 _TONE_RE_KV = re.compile("[\u0e48\u0e49\u0e4a\u0e4b]")
 
 
-_NEWS_ONLY = re.compile(r"ข่าว(?:การ|เรื่อง|เกี่ยวกับ)?\S{0,4}(?:ล่วงละเมิด|ข่มขืน|ทำร้าย|ความรุนแรง|ทารุณ)|"
+_NEWS_ONLY = re.compile(r"(?:ข่าว|อบรม|การป้องกัน|รณรงค์)(?:การ|เรื่อง|เกี่ยวกับ)?\S{0,12}(?:ล่วงละเมิด|ข่มขืน|ทำร้าย|ความรุนแรง|ทารุณ)|"
                         r"\b(?:news|article)s? (?:about|on|of) (?:\w+ ){0,2}(?:abuse|assault|rape|violence)\b|"
                         r"noticias de (?:abuso|violencia)|tin (?:về )?(?:xâm hại|bạo lực)|(?:虐待|性侵|暴力)的?新闻|학대 뉴스|虐待のニュース", re.I)
 _SELF_VICTIM = re.compile(r"ฉันโดน|หนูโดน|ผมโดน|ฉันถูก|หนูถูก|ผมถูก|\bi was\b|\bme\b|\bmy\b|me\s+(?:viol|toc)|tôi bị|我被|제가|私が", re.I)

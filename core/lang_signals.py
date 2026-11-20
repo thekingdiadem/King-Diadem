@@ -579,7 +579,8 @@ _DISASTER_CALM = re.compile(r"simulacro|simulador|juego|lejanos|sin daños|diễ
                             r"훈련|시뮬레이션|게임|멀리|피해는 없|뉴스|訓練|シミュレーション|ゲーム|遠く|被害はない|ニュース|"
                             # แจ้งเตือนแต่ไม่รู้สึก · เตรียมของเผื่อ (หลังรอบ 15)
                             r"por\s+si\s+hay|mochila\s+de\s+emergencia|no\s+se\s+sintió|phòng\s+khi|túi\s+đồ\s+khẩn\s+cấp|không\s+cảm\s+thấy|"
-                            r"预警|預警|没感觉|沒感覺|应急包|應急包|防震|알림이\s*왔|느낌이\s*없|대비|비상가방|速報|揺れなかった|備えて|防災", re.I)
+                            r"预警|預警|没感觉|沒感覺|应急包|應急包|防震|알림이\s*왔|느낌이\s*없|대비|비상가방|速報|揺れなかった|備えて|防災|"
+                            r"en\s+clase|aprendimos|trong\s+giờ|giờ\s+khoa\s+học|课上|課上|学了|學了|수업|배웠|授業|習った", re.I)
 
 
 def _calm_disaster(t: str, hits: list) -> list:

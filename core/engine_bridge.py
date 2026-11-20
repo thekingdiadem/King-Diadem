@@ -741,7 +741,10 @@ _HAZARD_STAGED = re.compile(r"ซ้อม|ทดลองระบบ|ทดส
                             r"演练|演練|模拟|模擬|远处|遠處|没有损失|沒有損失|훈련|시뮬레이션|게임|멀리|피해는 없|訓練|シミュレーション|ゲーム|遠く|被害はない|"
                             # หลังรอบ 15: เดินตามเพราะทางเดียวกัน · แอปเตือนแต่ไม่รู้สึก · เตรียมของเผื่อ · ไฟดับแล้วกลับมา
                             r"ทางเดียวกัน|แอปเตือน|แจ้งเตือน|ไม่รู้สึกอะไร|ไม่รู้สึก|ชุดยังชีพ|เตรียม\S{0,10}เผื่อ|ไฟ\S{0,22}(?:แล้วก็มา|กลับมาแล้ว|มาแล้ว)|"
-                            r"\b(?:same way|same direction|alert said|didn'?t feel|in case of|emergency kit|power came back)\b", re.I)
+                            r"\b(?:same way|same direction|alert said|didn'?t feel|in case of|emergency kit|power came back)\b|"
+                            # เรียน/อบรม/ทำการบ้านเรื่องภัย — ไม่ใช่เหตุตอนนี้ (หมวดบริบท ไม่ใช่รายคำ)
+                            r"เลยเก็บ|เก็บ\S{0,12}เข้าบ้าน|ผูกหลังคา|\b(?:secured|tied down|brought .{0,20} inside)\b|ในวิชา|วิชาวิทยาศาสตร์|ห้องเรียน|อบรม|ทำรายงาน|การบ้าน|\b(?:in (?:science )?class|lesson|homework|school project|training)\b|"
+                            r"en clase|aprendimos|tarea escolar|trong giờ|giờ khoa học|bài học|课上|課上|学了|學了|수업|배웠|授業|習った", re.I)
 _HAZARD_REAL = re.compile(r"ไม่ใช่การซ้อม|ไม่ใช่ซ้อม|ของจริง|\bnot an? (?:drill|test)\b|\breal\b", re.I)
 
 
