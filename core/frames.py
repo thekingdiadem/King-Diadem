@@ -154,6 +154,11 @@ FRAMES = (
     ("dengue", "medical", "health_emergency", (("DENGUE", "DENGUE_RED"),), ("FICTION", "HYPOTHETICAL", "PLAYING_OK")),
     ("sjs", "medical", "health_emergency", (("DRUG_RASH", "SKIN_PEEL"),), ("FICTION", "HYPOTHETICAL", "SUNBURN", "MINOR")),
     ("tetanus", "medical", "health_emergency", (("TETANUS_CTX", "TET_SIGN"),), ("FICTION", "HYPOTHETICAL", "TET_DONE", "WORKOUT", "TEXTBOOK")),
+    # รอบ 24 (ชุดปิดตา AA ล็อกไว้ก่อนเขียน) — เรื่องไต: น้ำเกินจนท่วมปอด
+    ("kidney_overload", "medical", "health_emergency", (("KIDNEY_PT", "OVERLOAD_SIGN"),), ("FICTION", "HYPOTHETICAL")),
+    ("ace_angioedema", "medical", "health_emergency", (("BP_MED", "ANGIO_SWELL"),), ("FICTION", "HYPOTHETICAL")),
+    ("hemoptysis", "medical", "health_emergency", (("COUGH_BLOOD2",),), ("FICTION", "HYPOTHETICAL", "MINOR")),
+    ("glaucoma", "medical", "health_emergency", (("EYE_PAIN", "GLAUC_SIGN"),), ("FICTION", "HYPOTHETICAL")),
 )
 
 

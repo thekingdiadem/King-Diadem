@@ -656,3 +656,26 @@ def test_round23_calm(text):
 def test_skin_is_not_a_movie():
     # "ผิวหนัง" มีคำว่า "หนัง" (ภาพยนตร์) อยู่ข้างใน — ต้องไม่ถูกนับเป็นเรื่องแต่ง
     assert frames("แพ้ยาปฏิชีวนะ ผิวหนังลอกเป็นแผ่น") == [("medical", "health_emergency")]
+
+
+# ── รอบ 24: (ไต) โรคไตน้ำท่วมปอด · ยาความดันทำปากลิ้นบวม · ไอเป็นเลือด · ต้อหินเฉียบพลัน (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา AA) ──
+DANGER_24 = [
+    "แม่เป็นไตวาย นอนราบไม่ได้ ต้องนั่งหายใจ", "my dad has kidney failure and is coughing pink frothy sputum", "腎不全で横になると息ができない",
+    "กินยาความดันแล้วลิ้นบวม", "her tongue is swollen after starting a new blood pressure pill", "降压药吃了以后嘴唇和舌头肿了",
+    "ไอเป็นเลือดเยอะมาก", "he's coughing up a lot of blood", "피를 한 컵이나 기침했어요",
+    "ปวดตามาก เห็นวงรุ้งรอบไฟ อาเจียน", "sudden eye pain with rainbow halos and nausea", "眼睛痛，看灯有彩虹圈",
+]
+CALM_24 = [
+    "ขาบวมนิดหน่อยตอนเย็น", "started a new blood pressure pill, no side effects", "ไอเป็นเลือดนิดหน่อยตอนเป็นหวัด", "saw a rainbow after the rain",
+    "ตาล้าเพราะจ้องจอ",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_24)
+def test_round24_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_24)
+def test_round24_calm(text):
+    assert frames(text) == [], explain(text)

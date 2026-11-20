@@ -2173,3 +2173,53 @@ TEXTBOOK	vi	sách
 TEXTBOOK	zh	课本|課本|书里|書裡
 TEXTBOOK	ko	교과서|책에서
 TEXTBOOK	ja	教科書
+
+# ═══ รอบ 24: (ไต) โรคไตน้ำท่วมปอด · ยาความดันทำปาก/ลิ้นบวม · ไอเป็นเลือดมาก · ต้อหินเฉียบพลัน ═══
+KIDNEY_PT	th	เบาหวานลงไต
+KIDNEY_PT	en	diabetic kidney disease|nephropathy
+KIDNEY_PT	es	nefropatía
+KIDNEY_PT	vi	biến chứng thận
+KIDNEY_PT	ko	신장병성|신장병
+KIDNEY_PT	ja	腎症
+OVERLOAD_SIGN	th	นอนราบไม่ได้|นั่งหายใจ|ฟองสีชมพู|หายใจเหนื่อยหอบ|น้ำหนักขึ้น|หายใจไม่ออกตอนนอน
+OVERLOAD_SIGN	en	can't lie flat|sit up all night to breathe|pink frothy|gasping|gained five kilos|can't breathe lying down
+OVERLOAD_SIGN	es	no puede acostarse|dormir sentado|rosada espumosa|jadea|subió cinco kilos|no respira acostado
+OVERLOAD_SIGN	vi	không nằm được|ngồi thở|bọt hồng|thở hổn hển|tăng năm ký|nằm xuống là không thở
+OVERLOAD_SIGN	zh	躺不下|坐着呼吸|坐著呼吸|粉红色泡沫|粉紅色泡沫|喘得厉害|喘得厲害|胖了五公斤|躺下就喘
+OVERLOAD_SIGN	ko	누울 수가 없|앉아서 숨|분홍색 거품|헐떡|킬로가 늘|누우면 숨을 못
+OVERLOAD_SIGN	ja	横になれず|座って息|ピンク色の泡|息が苦し|キロ増え|横になると息
+BP_MED	th	ยาความดัน|ยาลดความดัน
+BP_MED	en	blood pressure pill|blood pressure meds|blood pressure medicine|ace inhibitor
+BP_MED	es	pastilla nueva para la presión|medicina para la presión|pastilla para la presión
+BP_MED	vi	thuốc huyết áp
+BP_MED	zh	降压药|降壓藥
+BP_MED	ko	혈압약
+BP_MED	ja	降圧剤
+ANGIO_SWELL	th	ปากกับลิ้นบวม|ลิ้นบวม|หน้าบวม|คอบวม|กลืนลำบาก|ปากบวมเป่ง
+ANGIO_SWELL	en	lips and tongue|tongue is swollen|face and throat are swelling|throat is swelling|hard to swallow
+ANGIO_SWELL	es	labios y la lengua|se me hincha la cara y la garganta|garganta hinchada|cuesta tragar
+ANGIO_SWELL	vi	môi và lưỡi sưng|mặt và cổ sưng|khó nuốt
+ANGIO_SWELL	zh	嘴唇和舌头肿|嘴唇和舌頭腫|脸和喉咙肿|臉和喉嚨腫|吞咽困难|吞嚥困難
+ANGIO_SWELL	ko	입술과 혀가|얼굴과 목이 붓|삼키기 힘들
+ANGIO_SWELL	ja	唇と舌が|顔と喉が腫れ|飲み込みにく
+COUGH_BLOOD2	th	ไอเป็นเลือด|ไอเลือด
+COUGH_BLOOD2	en	coughing up blood|coughing up bright red|coughing up a lot of blood|coughed up blood
+COUGH_BLOOD2	es	toso sangre|tose sangre|tose mucha sangre
+COUGH_BLOOD2	vi	ho ra máu
+COUGH_BLOOD2	zh	咳出鲜红的血|咳出鮮紅的血|咳了很多血|咳血
+COUGH_BLOOD2	ko	re:피를[^.\n]{0,8}기침
+COUGH_BLOOD2	ja	血を咳き込
+EYE_PAIN	th	ปวดตา
+EYE_PAIN	en	eye pain|pain in my right eye|pain in my left eye|pain in my eye
+EYE_PAIN	es	dolor de ojo|dolor fuerte y repentino en el ojo|dolor en el ojo
+EYE_PAIN	vi	đau mắt|đau dữ dội mắt
+EYE_PAIN	zh	眼突然剧痛|眼突然劇痛|眼睛痛|眼痛|眼睛剧痛|眼睛劇痛|眼剧痛|眼睛和头剧痛
+EYE_PAIN	ko	눈이 너무 아프|눈과 머리가 심하게
+EYE_PAIN	ja	目がひどく痛|目と頭がひどく
+GLAUC_SIGN	th	วงรุ้ง|แสงรุ้ง|ตามัว|ตาแข็ง|อาเจียน|คลื่นไส้
+GLAUC_SIGN	en	rainbow halos|halos|cloudy|feels hard|vomiting|nausea
+GLAUC_SIGN	es	halos|se nubla|duro|vomito|náuseas
+GLAUC_SIGN	vi	quầng|mờ dần|mắt cứng|nôn|buồn nôn
+GLAUC_SIGN	zh	彩虹|模糊|发硬|發硬|呕吐|嘔吐|恶心|噁心
+GLAUC_SIGN	ko	무지개|뿌옇|딱딱|토해|메스
+GLAUC_SIGN	ja	虹|かすん|硬い|吐い|吐き気
