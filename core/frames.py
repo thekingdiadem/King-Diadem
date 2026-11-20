@@ -97,6 +97,11 @@ FRAMES = (
     ("landslide", "medical", "health_emergency", (("SLIDE", "SLIDE_RED"),), ("FICTION", "HYPOTHETICAL", "DRILL")),
     ("wildfire", "medical", "health_emergency", (("WILDFIRE", "FIRE_NEAR"),), ("FICTION", "HYPOTHETICAL", "DRILL", "FAR")),
     ("lightning", "medical", "health_emergency", (("LIGHTNING", "STRUCK_RED"),), ("FICTION", "HYPOTHETICAL", "FAR", "PHOTO")),
+    # รอบ 13 (ชุดปิดตา P ล็อกไว้ก่อนเขียน) — ความรุนแรงที่กำลังเกิด/เพิ่งเกิด
+    ("weapon_threat", "violence", "violence", (("WEAPON", "THREAT_ACT"), ("KILL_THREAT", "NEAR_ME")), ("FICTION", "HYPOTHETICAL", "COOKING", "TOY", "GUN_HOBBY")),
+    ("stalker", "violence", "violence", (("FOLLOWED", "AT_DOOR"),), ("FICTION", "HYPOTHETICAL", "SAME_WAY")),
+    ("sexual_assault", "violence", "violence", (("SEX_ASSAULT",),), ("FICTION", "HYPOTHETICAL", "NEWS")),
+    ("child_abuse", "violence", "violence", (("KID", "ABUSE_SIGN"),), ("FICTION", "HYPOTHETICAL", "PLAY", "NEWS")),
 )
 
 

@@ -1319,3 +1319,111 @@ HEMATURIA	vi	tiểu ra máu|nước tiểu có máu
 HEMATURIA	zh	尿里有血|尿裡有血|血尿
 HEMATURIA	ko	소변에 피|혈뇨
 HEMATURIA	ja	尿に血|血尿
+
+# ═══ รอบ 13 (ความรุนแรง): ขู่ด้วยอาวุธ · ถูกตามตื๊อถึงหน้าประตู · เพิ่งถูกล่วงละเมิดทางเพศ · เด็กมีร่องรอยถูกทำร้าย ═══
+WEAPON	th	มีด|ปืน|ขวาน|ไม้หน้าสาม
+WEAPON	en	knife|gun|axe|machete
+WEAPON	es	cuchillo|pistola|navaja|machete
+WEAPON	vi	dao|súng|rìu
+WEAPON	zh	刀|枪|槍|斧头
+WEAPON	ko	칼|총|흉기
+WEAPON	ja	包丁|銃|ナイフ|刃物
+THREAT_ACT	th	ไล่|จ่อ|ขู่|หลบอยู่|แทง|จะยิง|ยิงใส่
+THREAT_ACT	en	chasing|holding a gun to|pointing|hiding|threatening|stabbed
+THREAT_ACT	es	persigue|apunta|escondida|escondido|amenaza|apuñal
+THREAT_ACT	vi	đuổi|dí|trốn|đe dọa|đâm
+THREAT_ACT	zh	追|顶着|頂著|躲|威胁|威脅|捅
+THREAT_ACT	ko	쫓아|겨누|숨어|협박|찔렀
+THREAT_ACT	ja	追いかけ|突きつけ|隠れ|脅|刺され
+KILL_THREAT	th	เอาให้ตาย|จะฆ่า|ฆ่าให้ตาย
+KILL_THREAT	en	kill me|he'd kill|she'd kill|going to kill
+KILL_THREAT	es	me iba a matar|me va a matar|matarme
+KILL_THREAT	vi	sẽ giết|giết tôi
+KILL_THREAT	zh	弄死我|杀了我|殺了我|杀死我
+KILL_THREAT	ko	죽여버리|죽이겠|죽인다고
+KILL_THREAT	ja	殺してやる|殺す
+NEAR_ME	th	หน้าบ้าน|อยู่หน้า|หน้าห้อง|หน้าประตู
+NEAR_ME	en	outside my|standing outside|at my door|outside the house
+NEAR_ME	es	afuera de mi|frente a mi casa|en mi puerta
+NEAR_ME	vi	trước nhà|ngoài cửa|ngoài phòng
+NEAR_ME	zh	门口|門口|房门外|房門外|楼下
+NEAR_ME	ko	집 앞|문 앞|방 앞
+NEAR_ME	ja	家の前|ドアの前|部屋の前
+COOKING	th	หั่น|ทำกับข้าว|ทำอาหาร
+COOKING	en	cutting|chopping|for dinner|cooking
+COOKING	es	corté|picando|para la cena|cocinando
+COOKING	vi	thái|nấu cơm|nấu ăn
+COOKING	zh	切猪肉|切菜|做晚饭|做飯
+COOKING	ko	썰었|요리|저녁 하려고
+COOKING	ja	切った|料理|夕飯
+TOY	th	ปืนฉีดน้ำ|ปืนของเล่น|ของเล่น
+TOY	en	water gun|toy gun|nerf
+TOY	es	pistolas de agua|pistola de agua|de juguete
+TOY	vi	súng nước|đồ chơi
+TOY	zh	水枪|水槍|玩具枪
+TOY	ko	물총|장난감
+TOY	ja	水鉄砲|おもちゃ
+FOLLOWED	th	ตามฉันมา|ตามมาถึง|ตามฉันจาก|สะกดรอย
+FOLLOWED	en	followed me|has followed me|following me|stalking me
+FOLLOWED	es	me siguió|me sigue|me está siguiendo
+FOLLOWED	vi	theo tôi|bám theo tôi|đi theo tôi
+FOLLOWED	zh	跟我到|跟着我|跟著我|一路跟我|跟踪我|跟蹤我
+FOLLOWED	ko	따라와|따라오|스토킹
+FOLLOWED	ja	ついてき|つけてき|ストーカー
+AT_DOOR	th	เคาะประตู|ไม่ยอมไป|หน้าห้อง|หน้าคอนโด|หน้าบ้าน
+AT_DOOR	en	knocking on my door|outside my room|won't leave|outside my door|at my door
+AT_DOOR	es	tocar mi puerta|afuera de mi cuarto|no se va|en mi puerta
+AT_DOOR	vi	gõ cửa|ngoài phòng|không chịu đi|trước cửa
+AT_DOOR	zh	敲门|敲門|房门外|房門外|不走
+AT_DOOR	ko	문을 두드리|방 앞|안 가요|문 앞
+AT_DOOR	ja	ドアを叩|部屋の前|帰らない|ドアの前
+SAME_WAY	th	ทางเดียวกัน
+SAME_WAY	en	same way|same direction
+SAME_WAY	es	mismo lugar|misma dirección
+SAME_WAY	vi	cùng đường
+SAME_WAY	zh	同路
+SAME_WAY	ko	같은 방향
+SAME_WAY	ja	同じ方向
+SEX_ASSAULT	th	ลวนลาม|ข่มขืน|ล่วงละเมิดทางเพศ|ถูกจับหน้าอก
+SEX_ASSAULT	en	groped|raped|sexually assaulted|molested
+SEX_ASSAULT	es	manosearme|manosearon|me violó|me violaron|abusó de mí
+SEX_ASSAULT	vi	sàm sỡ|cưỡng hiếp|hiếp dâm|xâm hại tình dục
+SEX_ASSAULT	zh	猥亵|猥褻|强奸|強姦|性侵
+SEX_ASSAULT	ko	성추행|성폭행|강간
+SEX_ASSAULT	ja	痴漢|レイプ|性的暴行|強姦
+NEWS	th	ข่าว
+NEWS	en	news|article
+NEWS	es	noticias|artículo
+NEWS	vi	tin tức|đọc tin|xem tin
+NEWS	zh	新闻|新聞
+NEWS	ko	뉴스|기사
+NEWS	ja	ニュース|記事
+KID	th	หลาน|ลูก|เด็ก|นักเรียน|น้อง
+KID	en	nephew|niece|kid|child|student|son|daughter
+KID	es	sobrino|sobrina|niño|niña|alumna|alumno|hijo|hija
+KID	vi	cháu|đứa trẻ|học sinh|con|bé
+KID	zh	侄子|孩子|学生|學生|儿子|女儿
+KID	ko	조카|아이|학생|아들|딸
+KID	ja	甥|子|生徒|息子|娘
+ABUSE_SIGN	th	รอยช้ำทั้งตัว|ช้ำทั้งตัว|ตีทุกวัน|รอยไหม้บุหรี่|จับตัว|จับหน้าอก|ทำร้ายทุกวัน
+ABUSE_SIGN	en	bruises all over|hits him every day|hits her every day|cigarette burns|touches her|touches him
+ABUSE_SIGN	es	moretones por todo|le pega todos los días|quemaduras de cigarro|la toca|lo toca
+ABUSE_SIGN	vi	bầm tím khắp|đánh mỗi ngày|bỏng thuốc lá|sờ soạng
+ABUSE_SIGN	zh	全身都是淤青|每天打|烟头烫伤|煙頭燙傷|摸她|摸他
+ABUSE_SIGN	ko	온몸에 멍|매일 때린|담뱃불|만진다
+ABUSE_SIGN	ja	体じゅうにあざ|毎日叩か|タバコの火傷|触られる
+PLAY	th	เล่นกัน|หัวเราะกัน
+PLAY	en	playfully|laughed|joking
+PLAY	es	jugando|se rieron
+PLAY	vi	đùa|cười
+PLAY	zh	玩时|玩時|都笑了
+PLAY	ko	장난|웃었
+PLAY	ja	遊びで|笑った
+# ── ตัวกันเตือนเกินของอาวุธ: สนามยิงปืน/ทำความสะอาดปืน/ล่าสัตว์ ไม่ใช่การขู่
+GUN_HOBBY	th	สนามยิงปืน|ทำความสะอาดปืน|ซ้อมยิง|ใบอนุญาตพกปืน
+GUN_HOBBY	en	shooting range|cleaning his gun|cleaning my gun|gun license|hunting
+GUN_HOBBY	es	campo de tiro|limpiando la pistola|cacería
+GUN_HOBBY	vi	trường bắn|lau súng|đi săn
+GUN_HOBBY	zh	靶场|射击场|射擊場|擦枪|擦槍
+GUN_HOBBY	ko	사격장|총 손질|사냥
+GUN_HOBBY	ja	射撃場|銃の手入れ|狩猟

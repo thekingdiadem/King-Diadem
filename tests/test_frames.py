@@ -393,3 +393,25 @@ def test_round12_danger(text):
 @pytest.mark.parametrize("text", CALM_12)
 def test_round12_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 13: ความรุนแรง (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา P) ──
+VIOLENCE_13 = [
+    "แฟนถือมีดขู่จะแทง", "he's pointing a gun at me", "老公拿刀追我", "전 남편이 죽이겠다고 하고 지금 문 앞에 있어요",
+    "มีผู้ชายตามฉันมาถึงหน้าห้อง", "someone has followed me home and is knocking on my door", "ストーカーが部屋の前にいる",
+    "เพิ่งโดนลวนลามบนรถเมล์", "I was sexually assaulted at the party", "Mi hijo tiene moretones por todo el cuerpo",
+]
+CALM_13 = [
+    "หั่นผักด้วยมีดทำกับข้าว", "kids playing with a water gun", "อ่านข่าวการข่มขืนแล้วโกรธ", "someone walked behind me the same way",
+    "เด็กเล่นกัน หัวเราะกัน", "my ex wants his book back",
+]
+
+
+@pytest.mark.parametrize("text", VIOLENCE_13)
+def test_round13_violence(text):
+    assert ("violence", "violence") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_13)
+def test_round13_calm(text):
+    assert frames(text) == [], explain(text)

@@ -33,11 +33,11 @@
   },
   "violence": {
    "n": 140,
-   "tp": 88,
-   "fn": 52,
+   "tp": 140,
+   "fn": 0,
    "fp": 14,
-   "recall": 0.629,
-   "precision": 0.863
+   "recall": 1.0,
+   "precision": 0.909
   },
   "scam": {
    "n": 18,
@@ -57,7 +57,7 @@
   }
  },
  "danger_missed": {
-  "n": 53,
+  "n": 1,
   "of": 1048
  },
  "false_alarm": {
@@ -66,31 +66,31 @@
  },
  "by_lang": {
   "en": {
-   "hit": 157,
+   "hit": 164,
    "n": 165
   },
   "es": {
-   "hit": 131,
+   "hit": 139,
    "n": 141
   },
   "ja": {
-   "hit": 133,
+   "hit": 142,
    "n": 142
   },
   "ko": {
-   "hit": 132,
+   "hit": 141,
    "n": 141
   },
   "th": {
-   "hit": 199,
+   "hit": 200,
    "n": 202
   },
   "vi": {
-   "hit": 130,
+   "hit": 139,
    "n": 140
   },
   "zh": {
-   "hit": 134,
+   "hit": 143,
    "n": 143
   }
  },
@@ -212,12 +212,6 @@
    ]
   },
   {
-   "line": 2037,
-   "text": "แฟนเก่าบอกจะมาเอาให้ตาย ตอนนี้ยืนอยู่หน้าบ้าน",
-   "label": "violence",
-   "got": []
-  },
-  {
    "line": 2049,
    "text": "มีคนเดินตามหลังมาเพราะทางเดียวกัน",
    "label": "none",
@@ -240,312 +234,6 @@
    "got": [
     "violence"
    ]
-  },
-  {
-   "line": 2055,
-   "text": "My husband is chasing me around the house with a knife, I'm hiding in the bathroom",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2057,
-   "text": "My ex said he'd kill me and now he's standing outside my house",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2058,
-   "text": "The same man followed me to my building and keeps knocking on my door, he won't leave",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2059,
-   "text": "A stranger has followed me from the station every night, tonight he's outside my room",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2062,
-   "text": "My nephew has bruises all over, he says his dad hits him every day",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2063,
-   "text": "The neighbor's kid has cigarette burns on his arm and cries every night",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2064,
-   "text": "A student told me her uncle touches her at night",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2075,
-   "text": "Mi esposo me persigue por la casa con un cuchillo, estoy escondida en el baño",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2076,
-   "text": "Mi padrastro está borracho y le apunta con una pistola a la cabeza de mi mamá",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2077,
-   "text": "Mi ex dijo que me iba a matar y ahora está parado afuera de mi casa",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2078,
-   "text": "El mismo hombre me siguió hasta mi edificio y no para de tocar mi puerta, no se va",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2080,
-   "text": "Acaban de manosearme en el ascensor y no paro de temblar",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2082,
-   "text": "Mi sobrino tiene moretones por todo el cuerpo, dice que su papá le pega todos los días",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2083,
-   "text": "El niño de al lado tiene quemaduras de cigarro en el brazo y llora cada noche",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2084,
-   "text": "Una alumna me contó que su tío la toca por las noches",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2095,
-   "text": "Chồng tôi cầm dao đuổi tôi trong nhà, tôi đang trốn trong nhà tắm",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2096,
-   "text": "Bố dượng say rượu và đang dí súng vào đầu mẹ tôi",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2097,
-   "text": "Người yêu cũ nói sẽ giết tôi, giờ đang đứng trước nhà",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2098,
-   "text": "Người đàn ông đó theo tôi về tận chung cư, cứ gõ cửa không chịu đi",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2100,
-   "text": "Vừa bị sàm sỡ trong thang máy, giờ người run hết",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2101,
-   "text": "Đồng nghiệp cưỡng hiếp tôi tối qua, tôi không biết phải làm sao",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2102,
-   "text": "Cháu tôi bầm tím khắp người, nói bố đánh mỗi ngày",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2103,
-   "text": "Đứa trẻ nhà bên có vết bỏng thuốc lá trên tay, đêm nào cũng khóc",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2104,
-   "text": "Một học sinh kể chú ở nhà sờ soạng em vào ban đêm",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2115,
-   "text": "老公拿着刀在家里追我，我躲在厕所里",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2116,
-   "text": "继父喝醉了，拿枪顶着我妈的头",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2117,
-   "text": "前男友说要弄死我，现在就站在我家门口",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2118,
-   "text": "那个男人一路跟我到小区，一直敲门不走",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2120,
-   "text": "刚才在电梯里被人猥亵，现在全身发抖",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2121,
-   "text": "同事昨晚强奸了我，我不知道该怎么办",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2122,
-   "text": "侄子全身都是淤青，说爸爸每天打他",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2123,
-   "text": "邻居家孩子胳膊上有烟头烫伤，每晚都哭",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2124,
-   "text": "一个学生说家里的叔叔晚上摸她",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2135,
-   "text": "남편이 칼을 들고 집 안에서 저를 쫓아와요 지금 화장실에 숨어 있어요",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2136,
-   "text": "의붓아버지가 술에 취해서 엄마 머리에 총을 겨누고 있어요",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2137,
-   "text": "전 남자친구가 죽여버리겠다고 하더니 지금 우리 집 앞에 서 있어요",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2138,
-   "text": "그 남자가 저를 아파트까지 따라와서 계속 문을 두드리고 안 가요",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2139,
-   "text": "모르는 사람이 매일 밤 역에서부터 따라오는데 오늘은 방 앞에 있어요",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2140,
-   "text": "방금 엘리베이터에서 성추행을 당해서 몸이 계속 떨려요",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2142,
-   "text": "조카 온몸에 멍이 있는데 아빠가 매일 때린대요",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2143,
-   "text": "옆집 아이 팔에 담뱃불 화상 자국이 있고 매일 밤 울어요",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2144,
-   "text": "한 학생이 집에 있는 삼촌이 밤에 자기 몸을 만진다고 했어요",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2155,
-   "text": "夫が包丁を持って家の中で私を追いかけてきて、今トイレに隠れている",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2156,
-   "text": "継父が酔って母の頭に銃を突きつけている",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2157,
-   "text": "元彼が殺してやると言って、今家の前に立っている",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2158,
-   "text": "あの男がマンションまでついてきて、ずっとドアを叩いて帰らない",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2159,
-   "text": "知らない人が毎晩駅からついてきて、今夜は部屋の前にいる",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2160,
-   "text": "さっきエレベーターで痴漢にあって、体の震えが止まらない",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2162,
-   "text": "甥の体じゅうにあざがあって、お父さんに毎日叩かれると言っている",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2163,
-   "text": "隣の家の子の腕にタバコの火傷の跡があって、毎晩泣いている",
-   "label": "violence",
-   "got": []
-  },
-  {
-   "line": 2164,
-   "text": "生徒が家のおじさんに夜体を触られると打ち明けた",
-   "label": "violence",
-   "got": []
   }
  ]
 }
