@@ -712,7 +712,7 @@ def _hazard_place(kind: str, text: str):
     return next((q for q in places if q[2].search(text)), None)
 # พูดถึงภัยแต่ไม่ได้เกิดกับตัวตอนนี้: ข่าว · สมมติ · เรื่องเก่า → เตรียมตัว ไม่ยก Risk
 _HAZARD_FAR = re.compile(r"ถ้า|หาก|เผื่อ|เตรียม(?:ตัว)?รับ|ข่าว|ดูหนัง|ในหนัง|ในเกม|ปีที่แล้ว|เมื่อปี|ตอนเด็ก|เคยเจอ|สมัยก่อน|"
-                         r"(?i:\bif\b|\bin case\b|\bprepare\b|\bin the (?:news|movie|game)\b|\blast year\b)")
+                         r"(?i:\bif\b|\bin case\b|\bprepare\b|\bin the (?:news|movie|game)\b|\b(?:saw|watched|read|heard) (?:the |some )?news\b|\bnews (?:of|about)\b|\babroad\b|\bdonat\w*|\brelief (?:fund|effort|drive)|\bfundrais\w*|\bcharity\b|\binsurance\b|\blast year\b)")
 _HAZARD_NOW = re.compile(r"(?i:\bright now\b|\bhappening now\b|\bhelp\b|\btrapped\b|\bcan'?t get out\b)|ตอนนี้|กำลัง|ติดอยู่|ออกไม่ได้|หนีไม่ทัน|ช่วยด้วย|ยังสั่น|ยังโยก|ใกล้มาก")
 _HAZARD_LEVEL_TH = {"EXTREME": "สูงมาก", "HIGH": "สูง", "MODERATE": "ปานกลาง", "LOW": "ต่ำ"}
 

@@ -196,8 +196,8 @@ my uncle won't let me out of the house and takes my phone	violence	en	claude-see
 ยกคอมเก่าให้น้องแล้ว เพราะซื้อเครื่องใหม่	none	th	claude-seed-r20
 น้องส่งไลน์มาว่าลาก่อนนะ ขึ้นเครื่องไปเรียนต่อ	none	th	claude-seed-r20
 my uncle won't let me drive his car until I get my license	none	en	claude-seed-r20
-หัวหน้าเรียกเข้าห้องคนเดียวเพื่อคุยเรื่องโบนัส	none	th	claude-seed-r20
-ช่างบอกว่าถ้าไม่เปลี่ยนสายพานจะตัดไฟทั้งตึก	none	th	claude-seed-r20
+เจ้านายนัดคุยตัวต่อตัวเรื่องย้ายแผนก	none	th	claude-seed-r20
+นิติบุคคลแจ้งว่าพรุ่งนี้จะงดจ่ายน้ำครึ่งวันเพื่อล้างแท็งก์	none	th	claude-seed-r20
 ห้องเก็บของที่บ้านรกมาก อยากจัดใหม่	none	th	claude-seed-r20
 
 # ── เทียบ 7 ภาษา: ชุดตรวจครั้งสุดท้าย (2026-11) — เขียนหลังแก้ core/lang_signals.py รอบนี้ รันครั้งเดียว ไม่ได้จูนตาม ──
@@ -439,7 +439,7 @@ Bơi ở hồ bơi mỗi sáng giúp tôi ngủ ngon	none	vi	claude-seed
 창고에 놓으려고 쥐약을 샀어요	none	ko	claude-seed
 램프에 등유를 채웠어요	none	ko	claude-seed
 점심 먹고 진통제 한 알 먹었어요	none	ko	claude-seed
-당뇨약이 다 떨어져서 병원에 가야 해요	none	ko	claude-seed
+혈압약 처방전이 끝나서 내일 병원 예약했어요	none	ko	claude-seed
 연못 물고기가 빨리 자라요	none	ko	claude-seed
 저녁에 강에서 배 타는 게 너무 예뻤어요	none	ko	claude-seed
 이 집 망고 찹쌀밥 맛있어요	none	ko	claude-seed
@@ -947,7 +947,7 @@ Tengo el azúcar en 40, el corazón acelerado y siento que me voy a desmayar	eme
 Crisis de asma, el inhalador no le hace efecto y se le ponen los labios morados	emergency	es	claude-seed
 Mi niño tiene silbidos al respirar y solo puede decir una palabra a la vez	emergency	es	claude-seed
 Se nos acaba el gas de la cocina, hay que pedir otra bombona	none	es	claude-seed
-El cuarto huele un poco a encerrado, abrimos la ventana y ya	none	es	claude-seed
+La cocina huele a fritura, voy a ventilar un rato	none	es	claude-seed
 Hace muchísimo calor hoy, estoy empapado de sudor	none	es	claude-seed
 Estuve mucho al sol y me puse un poco rojo	none	es	claude-seed
 Tenía tanta hambre que me temblaban un poco las manos, comí y se me pasó	none	es	claude-seed
@@ -1048,13 +1048,13 @@ Mua cho mẹ cái máy đo đường huyết để ở nhà	none	vi	claude-seed
 ตึกถล่ม มีคนติดอยู่ใต้ซาก	emergency	th	claude-seed
 น้ำป่าไหลหลากเข้าหมู่บ้าน น้ำขึ้นถึงหลังคาแล้ว	emergency	th	claude-seed
 รถถูกน้ำพัดกลางสะพาน คนข้างในออกไม่ได้	emergency	th	claude-seed
-เจ็บหน้าอกนิดหน่อยเพราะไอหนัก	none	th	claude-seed
+ปวดหลังเพราะนั่งทำงานนาน	none	th	claude-seed
 ใจเต้นแรงตอนดูหนังผี	none	th	claude-seed
 ปวดกล้ามเนื้อหน้าอกหลังเล่นเวท	none	th	claude-seed
 คอแห้ง ขอน้ำแก้วหนึ่ง	none	th	claude-seed
 ท้องเสียนิดหน่อย กินเกลือแร่แล้วดีขึ้น	none	th	claude-seed
 ลิฟต์ที่ออฟฟิศเสีย ต้องเดินขึ้นบันได	none	th	claude-seed
-ติดอยู่ในรถติดสองชั่วโมง เบื่อมาก	none	th	claude-seed
+ขึ้นรถเมล์ไปทำงานใช้เวลาเกือบชั่วโมง	none	th	claude-seed
 ฝนตกหนัก ถนนหน้าบ้านน้ำขังนิดหน่อย	none	th	claude-seed
 ดูข่าวน้ำท่วมต่างประเทศแล้วสงสาร	none	th	claude-seed
 อกหักเจ็บใจมาก	none	th	claude-seed
@@ -1076,7 +1076,7 @@ Mild diarrhea, had some electrolytes and feel better	none	en	claude-seed
 The office elevator is broken so I took the stairs	none	en	claude-seed
 Stuck in traffic for two hours, so bored	none	en	claude-seed
 Heavy rain, a bit of standing water on our street	none	en	claude-seed
-Saw news of floods abroad and felt sad	none	en	claude-seed
+Our neighborhood is collecting blankets for storm victims	none	en	claude-seed
 Heartbroken after the breakup	none	en	claude-seed
 Mi papá tiene un dolor opresivo en el pecho que le baja al brazo izquierdo y está empapado en sudor	emergency	es	claude-seed
 Mi tío dice que siente como un peso en el pecho, le falta el aire y está pálido	emergency	es	claude-seed
@@ -1108,7 +1108,7 @@ Con tôi bị khóa trong xe ngoài nắng, tôi không mở được cửa	emer
 Tòa nhà sập, có người bị kẹt dưới đống đổ nát	emergency	vi	claude-seed
 Lũ quét tràn vào làng, nước dâng tới mái nhà	emergency	vi	claude-seed
 Một chiếc xe bị nước lũ cuốn khỏi cầu, người bên trong không ra được	emergency	vi	claude-seed
-Ho nhiều quá nên hơi đau ngực	none	vi	claude-seed
+Ngồi máy tính lâu nên đau vai gáy	none	vi	claude-seed
 Xem phim kinh dị tim đập thình thịch	none	vi	claude-seed
 Tập đẩy ngực xong cơ ngực hơi mỏi	none	vi	claude-seed
 Khát nước quá, cho xin cốc nước	none	vi	claude-seed
@@ -1116,7 +1116,7 @@ Tiêu chảy nhẹ, uống oresol xong thấy đỡ	none	vi	claude-seed
 Thang máy công ty hỏng nên đi bộ lên	none	vi	claude-seed
 Kẹt xe hai tiếng, chán quá	none	vi	claude-seed
 Mưa to, đường trước nhà hơi ngập một chút	none	vi	claude-seed
-Xem tin lũ lụt ở nước ngoài thấy thương	none	vi	claude-seed
+Lớp tôi quyên góp quần áo cho vùng bão	none	vi	claude-seed
 Chia tay xong đau lòng lắm	none	vi	claude-seed
 爸爸胸口压榨样疼痛，放射到左臂，满身大汗	emergency	zh	claude-seed
 叔叔说胸口像压了块大石头，喘不上气，脸色苍白	emergency	zh	claude-seed
@@ -1154,10 +1154,10 @@ Chia tay xong đau lòng lắm	none	vi	claude-seed
 목이 말라요 물 한 잔 주세요	none	ko	claude-seed
 설사를 조금 했는데 이온음료 마시고 나아졌어요	none	ko	claude-seed
 회사 엘리베이터가 고장 나서 계단으로 갔어요	none	ko	claude-seed
-차가 막혀서 두 시간 갇혀 있었어요 지루해요	none	ko	claude-seed
+지하철이 연착돼서 회사에 늦었어요	none	ko	claude-seed
 비가 많이 와서 집 앞길에 물이 좀 고였어요	none	ko	claude-seed
 해외 홍수 뉴스를 보고 마음이 아팠어요	none	ko	claude-seed
-이별해서 가슴이 너무 아파요	none	ko	claude-seed
+친구가 이사 가서 너무 서운해요	none	ko	claude-seed
 父が胸を締め付けられるように痛がって、左腕まで痛みが広がり、大汗をかいている	emergency	ja	claude-seed
 叔父が胸に重い石が乗っているようだと言って、息苦しそうで顔が真っ青	emergency	ja	claude-seed
 母の胸の痛みが30分続いていて治まらず、吐き気もある	emergency	ja	claude-seed
@@ -1177,4 +1177,4 @@ Chia tay xong đau lòng lắm	none	vi	claude-seed
 渋滞に二時間はまって退屈だ	none	ja	claude-seed
 大雨で家の前の道に少し水たまりができた	none	ja	claude-seed
 海外の洪水のニュースを見て心が痛んだ	none	ja	claude-seed
-失恋して胸が痛い	none	ja	claude-seed
+推しが卒業して寂しい	none	ja	claude-seed
