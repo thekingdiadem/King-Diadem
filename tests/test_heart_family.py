@@ -47,3 +47,31 @@ def test_no_line_without_the_story(q):
 def test_family_line_appears_in_the_real_reply():
     r = compose("แม่ตีหนูบ่อย แต่แม่ก็เลี้ยงหนูมาคนเดียว")
     assert "คนคนเดียวมีได้ทั้งด้านที่รักเราและด้านที่ทำให้เราเจ็บ" in r and "ไม่ได้แปลว่าคุณต้องเป็นเหมือนเขา" in r
+
+
+# แบบที่ 4 — พ่อหรือแม่เลิกกันแล้วไปมีครอบครัวใหม่ตอนลูกยังเล็ก · โตมาถูกเปรียบเทียบ (ญาติก็เปรียบได้)
+@pytest.mark.parametrize("q", [
+    "พ่อเลิกกับแม่ตอนเรายังเล็ก แล้วไปมีครอบครัวใหม่", "พ่อมีเมียใหม่ตั้งแต่หนูเด็กๆ", "แม่ทิ้งเราไปมีผัวใหม่",
+    "my dad left us for his new family when I was 5", "my mom started a new family",
+])
+def test_parent_left_for_new_family(q):
+    assert _has(q, "left") and not _has(q, "parent_cheat")
+
+
+@pytest.mark.parametrize("q", [
+    "ญาติชอบเอาเราไปเทียบกับลูกบ้านนั้นที่รวยกว่า", "ญาติชอบถามว่าเงินเดือนเท่าไหร่ แล้วบอกว่าลูกคนอื่นได้ดีกว่า",
+    "แม่ชอบเปรียบเทียบหนูกับพี่", "ป้าพูดว่าหลานคนอื่นเก่งกว่า", "my parents always compared me to my cousin",
+    "relatives say his new kids are more successful",
+])
+def test_being_compared(q):
+    assert _has(q, "compare")
+
+
+@pytest.mark.parametrize("q", ["เปรียบเทียบราคามือถือสองรุ่น", "ช่วยเทียบสเปกคอมให้หน่อย", "compare these two laptops"])
+def test_comparing_things_is_not_comparing_people(q):
+    assert not _has(q, "compare")
+
+
+def test_left_line_says_being_their_child_never_changes():
+    r = compose("พ่อเลิกกับแม่ตอนเรายังเล็ก แล้วไปมีครอบครัวใหม่")
+    assert "คำว่า \"ลูก\" ของคุณไม่มีวันเปลี่ยนสถานะ" in r
