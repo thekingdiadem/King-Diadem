@@ -3166,3 +3166,145 @@ Niềng răng xong đau lợi hai ngày	none	vi	claude-seed
 冷たい飲み物で歯がしみる	none	ja	claude-seed
 親知らずを抜いて、歯医者の言う通り頬が少し腫れた	none	ja	claude-seed
 矯正を始めて二日歯茎が痛い	none	ja	claude-seed
+# ── ชุด X: ล็อกไว้ก่อนขยาย core/frames.py รอบ 21 — (ไต) โรคไตกินอาหารโพแทสเซียมสูงแล้วใจสั่น/อ่อนแรง · พิษยาฆ่าแมลงจากการพ่น · กรด/สารเคมีโดนผิว · ก้างติดคอ ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 22/70 (ไม่เห็นเลย 48) · เตือนเกิน 2/70
+พ่อเป็นไตวาย กินทุเรียนไปเยอะ ตอนนี้ใจเต้นผิดจังหวะ แขนขาไม่มีแรง	emergency	th	claude-seed
+แม่ฟอกไต ดื่มน้ำมะพร้าวไปสองลูก ตอนนี้ใจสั่น ชาปาก ขาอ่อนแรง	emergency	th	claude-seed
+ยายไตเสื่อมกินกล้วยกับส้มวันละหลายลูก ตอนนี้อ่อนแรงยืนไม่ไหว ใจเต้นช้า	emergency	th	claude-seed
+ลุงพ่นยาฆ่าแมลงในนาไม่ใส่หน้ากาก ตอนนี้เหงื่อแตก น้ำลายไหล ตาพร่า กล้ามเนื้อกระตุก	emergency	th	claude-seed
+พ่อฉีดยาฆ่าหญ้าทั้งวัน ตอนนี้อาเจียน หายใจลำบาก รูม่านตาเล็ก	emergency	th	claude-seed
+น้ำกรดหกใส่แขน ผิวไหม้เป็นแผลขาว ปวดแสบมาก	emergency	th	claude-seed
+โซดาไฟกระเด็นโดนหน้า ผิวลอก แสบร้อน	emergency	th	claude-seed
+ก้างปลาติดคอลูก กลืนไม่ลง น้ำลายไหล ร้องไห้ไม่หยุด	emergency	th	claude-seed
+ก้างปลาติดคอมาตั้งแต่เมื่อวาน เจ็บมาก ตอนนี้มีไข้ คอบวม	emergency	th	claude-seed
+กลืนกระดูกไก่เข้าไป เจ็บหน้าอกเวลากลืน อาเจียนเป็นเลือด	emergency	th	claude-seed
+หมอบอกคนโรคไตควรลดผลไม้โพแทสเซียมสูง	none	th	claude-seed
+กินทุเรียนกับเพื่อน อร่อยมาก	none	th	claude-seed
+ดื่มน้ำมะพร้าวหลังวิ่ง สดชื่นดี	none	th	claude-seed
+พ่นยากันยุงในบ้านแล้วเปิดหน้าต่างระบายอากาศ	none	th	claude-seed
+ใส่ชุดป้องกันครบตอนพ่นยาในสวน	none	th	claude-seed
+ล้างห้องน้ำด้วยน้ำยา ใส่ถุงมือทุกครั้ง	none	th	claude-seed
+มะนาวโดนแผลที่มือ แสบนิดหน่อย	none	th	claude-seed
+กินปลาทูทอด ระวังก้าง	none	th	claude-seed
+ก้างปลาติดคอนิดหน่อย กลืนข้าวสวยแล้วหลุด	none	th	claude-seed
+ซื้อกระดูกหมูมาต้มน้ำซุป	none	th	claude-seed
+Dad has kidney failure, ate a lot of durian, now his heartbeat is irregular and his limbs are weak	emergency	en	claude-seed
+Mom is on dialysis, drank two coconuts' worth of coconut water, now palpitations, numb lips and weak legs	emergency	en	claude-seed
+Grandma has weak kidneys and eats several bananas and oranges a day, now she's too weak to stand and her heart is slow	emergency	en	claude-seed
+My uncle sprayed insecticide in the field without a mask, now sweating, drooling, blurry vision and muscle twitching	emergency	en	claude-seed
+Dad sprayed herbicide all day, now vomiting, trouble breathing and tiny pupils	emergency	en	claude-seed
+Acid spilled on my arm, the skin is burned white and it stings terribly	emergency	en	claude-seed
+Caustic soda splashed on my face, the skin is peeling and burning	emergency	en	claude-seed
+A fish bone is stuck in my kid's throat, can't swallow, drooling and crying nonstop	emergency	en	claude-seed
+Fish bone stuck in my throat since yesterday, very painful, now fever and my neck is swelling	emergency	en	claude-seed
+Swallowed a chicken bone, chest pain when swallowing and vomiting blood	emergency	en	claude-seed
+The doctor said kidney patients should cut high-potassium fruit	none	en	claude-seed
+Ate durian with friends, delicious	none	en	claude-seed
+Coconut water after my run, so refreshing	none	en	claude-seed
+Sprayed mosquito repellent at home and opened the windows	none	en	claude-seed
+Wore full protective gear while spraying the garden	none	en	claude-seed
+Cleaned the bathroom with gloves on as always	none	en	claude-seed
+Lime juice got in a cut on my hand, stung a little	none	en	claude-seed
+Eating fried mackerel, careful with the bones	none	en	claude-seed
+Small fish bone in my throat, swallowed some rice and it went down	none	en	claude-seed
+Bought pork bones for soup stock	none	en	claude-seed
+Mi papá tiene insuficiencia renal, comió mucho durián y ahora el corazón le late irregular y tiene los brazos y piernas débiles	emergency	es	claude-seed
+Mi mamá está en diálisis, tomó agua de dos cocos, ahora palpitaciones, labios entumecidos y piernas débiles	emergency	es	claude-seed
+Mi abuela tiene los riñones débiles y come varios plátanos y naranjas al día, ahora está tan débil que no se para y el corazón le late lento	emergency	es	claude-seed
+Mi tío fumigó insecticida en el campo sin mascarilla, ahora suda, babea, ve borroso y tiene espasmos musculares	emergency	es	claude-seed
+Mi papá fumigó herbicida todo el día, ahora vomita, le cuesta respirar y tiene las pupilas diminutas	emergency	es	claude-seed
+Se me derramó ácido en el brazo, la piel quedó quemada blanca y arde muchísimo	emergency	es	claude-seed
+Me salpicó sosa cáustica en la cara, la piel se pela y quema	emergency	es	claude-seed
+A mi hijo se le atoró una espina de pescado en la garganta, no puede tragar, babea y llora sin parar	emergency	es	claude-seed
+Tengo una espina de pescado atorada desde ayer, duele mucho, ahora fiebre y el cuello se hincha	emergency	es	claude-seed
+Me tragué un hueso de pollo, me duele el pecho al tragar y vomito sangre	emergency	es	claude-seed
+El médico dijo que los enfermos renales reduzcan la fruta alta en potasio	none	es	claude-seed
+Comí durián con amigos, delicioso	none	es	claude-seed
+Agua de coco después de correr, muy refrescante	none	es	claude-seed
+Rocié repelente de mosquitos en casa y abrí las ventanas	none	es	claude-seed
+Usé equipo de protección completo al fumigar el jardín	none	es	claude-seed
+Limpié el baño con guantes como siempre	none	es	claude-seed
+Me cayó limón en una cortada de la mano, ardió un poco	none	es	claude-seed
+Comiendo caballa frita, cuidado con las espinas	none	es	claude-seed
+Una espinita en la garganta, tragué arroz y bajó	none	es	claude-seed
+Compré huesos de cerdo para el caldo	none	es	claude-seed
+Bố tôi suy thận, ăn nhiều sầu riêng, giờ tim đập loạn nhịp và tay chân yếu	emergency	vi	claude-seed
+Mẹ tôi chạy thận, uống nước hai quả dừa, giờ hồi hộp, tê môi và yếu chân	emergency	vi	claude-seed
+Bà tôi thận yếu, ngày ăn mấy quả chuối và cam, giờ yếu đến không đứng nổi và tim đập chậm	emergency	vi	claude-seed
+Chú tôi phun thuốc trừ sâu ngoài ruộng không đeo khẩu trang, giờ vã mồ hôi, chảy nước dãi, mờ mắt và giật cơ	emergency	vi	claude-seed
+Bố tôi phun thuốc diệt cỏ cả ngày, giờ nôn, khó thở và đồng tử co nhỏ	emergency	vi	claude-seed
+Axit đổ vào tay, da bị bỏng trắng và rát kinh khủng	emergency	vi	claude-seed
+Xút bắn vào mặt, da bong tróc và bỏng rát	emergency	vi	claude-seed
+Con tôi bị hóc xương cá, không nuốt được, chảy nước dãi và khóc mãi	emergency	vi	claude-seed
+Hóc xương cá từ hôm qua, đau lắm, giờ sốt và cổ sưng	emergency	vi	claude-seed
+Nuốt phải xương gà, đau ngực khi nuốt và nôn ra máu	emergency	vi	claude-seed
+Bác sĩ dặn người bệnh thận nên giảm trái cây nhiều kali	none	vi	claude-seed
+Ăn sầu riêng với bạn, ngon lắm	none	vi	claude-seed
+Uống nước dừa sau khi chạy, mát lắm	none	vi	claude-seed
+Xịt thuốc muỗi trong nhà rồi mở cửa sổ	none	vi	claude-seed
+Mặc đồ bảo hộ đầy đủ khi phun thuốc vườn	none	vi	claude-seed
+Rửa nhà tắm lúc nào cũng đeo găng	none	vi	claude-seed
+Nước chanh dính vào vết đứt tay, hơi rát	none	vi	claude-seed
+Ăn cá nục chiên, cẩn thận xương	none	vi	claude-seed
+Hơi vướng xương cá, nuốt miếng cơm là trôi	none	vi	claude-seed
+Mua xương heo về hầm nước dùng	none	vi	claude-seed
+爸爸肾衰竭，吃了很多榴莲，现在心跳不规律，四肢无力	emergency	zh	claude-seed
+妈妈在透析，喝了两个椰子的椰子水，现在心慌、嘴唇发麻、腿没力	emergency	zh	claude-seed
+奶奶肾不好，每天吃好几根香蕉和橙子，现在虚弱得站不起来，心跳很慢	emergency	zh	claude-seed
+叔叔在田里喷农药没戴口罩，现在出汗、流口水、看不清、肌肉抽动	emergency	zh	claude-seed
+爸爸喷了一整天除草剂，现在呕吐、呼吸困难、瞳孔很小	emergency	zh	claude-seed
+硫酸洒到手臂上，皮肤烧得发白，痛得厉害	emergency	zh	claude-seed
+烧碱溅到脸上，皮肤脱皮，火辣辣地痛	emergency	zh	claude-seed
+孩子被鱼刺卡住喉咙，咽不下，流口水，一直哭	emergency	zh	claude-seed
+鱼刺从昨天卡到现在，很痛，现在发烧，脖子肿了	emergency	zh	claude-seed
+吞了鸡骨头，吞咽时胸痛，还吐血	emergency	zh	claude-seed
+医生说肾病患者要少吃高钾水果	none	zh	claude-seed
+和朋友吃榴莲，很好吃	none	zh	claude-seed
+跑完步喝椰子水，很清爽	none	zh	claude-seed
+在家喷了蚊香液，打开窗户通风	none	zh	claude-seed
+在花园喷药时穿全套防护服	none	zh	claude-seed
+戴手套清洗浴室	none	zh	claude-seed
+柠檬汁碰到手上的伤口，有点刺痛	none	zh	claude-seed
+吃煎鱼要小心刺	none	zh	claude-seed
+有根小鱼刺，吞口饭就下去了	none	zh	claude-seed
+买了猪骨头熬汤	none	zh	claude-seed
+아빠가 신부전인데 두리안을 많이 드시고 지금 심장이 불규칙하게 뛰고 팔다리에 힘이 없어요	emergency	ko	claude-seed
+엄마가 투석 중인데 코코넛 워터를 두 통 마시고 지금 가슴이 두근거리고 입술이 저리고 다리에 힘이 없어요	emergency	ko	claude-seed
+할머니가 신장이 약한데 하루에 바나나랑 오렌지를 여러 개 드시다가 지금 일어서지도 못하고 맥이 느려요	emergency	ko	claude-seed
+삼촌이 마스크 없이 논에 살충제를 뿌렸는데 지금 땀이 나고 침을 흘리고 눈이 흐리고 근육이 떨려요	emergency	ko	claude-seed
+아빠가 하루 종일 제초제를 뿌리고 지금 토하고 숨쉬기 힘들고 동공이 작아요	emergency	ko	claude-seed
+팔에 염산이 쏟아져서 피부가 하얗게 타고 너무 쓰라려요	emergency	ko	claude-seed
+양잿물이 얼굴에 튀어서 피부가 벗겨지고 화끈거려요	emergency	ko	claude-seed
+아이 목에 생선 가시가 걸려서 못 삼키고 침을 흘리고 계속 울어요	emergency	ko	claude-seed
+어제부터 생선 가시가 걸려 있는데 너무 아프고 지금 열이 나고 목이 부어요	emergency	ko	claude-seed
+닭뼈를 삼켰는데 삼킬 때 가슴이 아프고 피를 토했어요	emergency	ko	claude-seed
+의사가 신장 환자는 칼륨 높은 과일을 줄이래요	none	ko	claude-seed
+친구들이랑 두리안을 먹었는데 맛있었어요	none	ko	claude-seed
+달리기 후 코코넛 워터 마시니 시원해요	none	ko	claude-seed
+집에 모기약 뿌리고 창문을 열었어요	none	ko	claude-seed
+정원에 약 칠 때 보호복을 다 갖춰 입어요	none	ko	claude-seed
+장갑 끼고 화장실 청소했어요	none	ko	claude-seed
+레몬즙이 손 상처에 묻어서 조금 따가웠어요	none	ko	claude-seed
+고등어구이 먹을 때 가시 조심해요	none	ko	claude-seed
+작은 생선 가시가 걸렸는데 밥 삼키니 내려갔어요	none	ko	claude-seed
+국물 내려고 돼지뼈를 샀어요	none	ko	claude-seed
+父は腎不全なのにドリアンをたくさん食べて、今は脈が不規則で手足に力が入らない	emergency	ja	claude-seed
+母は透析中で、ココナッツウォーターを二個分飲んで、今は動悸と唇のしびれと脚の脱力がある	emergency	ja	claude-seed
+祖母は腎臓が弱いのに毎日バナナとオレンジを何個も食べて、今は立てないほど弱って脈が遅い	emergency	ja	claude-seed
+叔父がマスクなしで畑に殺虫剤をまいて、今は汗が出て、よだれが出て、目がかすみ、筋肉がぴくぴくしている	emergency	ja	claude-seed
+父が一日中除草剤をまいて、今は吐いて、息が苦しく、瞳孔が小さい	emergency	ja	claude-seed
+腕に酸がこぼれて、皮膚が白く焼けてひどくしみる	emergency	ja	claude-seed
+苛性ソーダが顔に飛んで、皮膚がむけてヒリヒリ焼けるように痛い	emergency	ja	claude-seed
+子どもの喉に魚の骨が刺さって、飲み込めず、よだれが出て泣き止まない	emergency	ja	claude-seed
+昨日から魚の骨が刺さったままで、すごく痛く、今は熱があって首が腫れている	emergency	ja	claude-seed
+鶏の骨を飲み込んで、飲み込むと胸が痛く、血を吐いた	emergency	ja	claude-seed
+腎臓病の人はカリウムの多い果物を控えるよう医者に言われた	none	ja	claude-seed
+友達とドリアンを食べた、おいしかった	none	ja	claude-seed
+走った後のココナッツウォーターは爽快	none	ja	claude-seed
+家で虫よけスプレーをして窓を開けた	none	ja	claude-seed
+庭で薬をまくときは防護服を全部着る	none	ja	claude-seed
+手袋をしてお風呂掃除をした	none	ja	claude-seed
+手の切り傷にレモン汁がついて少ししみた	none	ja	claude-seed
+焼きサバを食べるときは骨に気をつけて	none	ja	claude-seed
+小さい魚の骨が引っかかったけどご飯を飲み込んだら取れた	none	ja	claude-seed
+スープ用に豚骨を買った	none	ja	claude-seed
