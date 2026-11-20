@@ -2456,3 +2456,145 @@ Khô mắt vì đeo kính áp tròng lâu	none	vi	claude-seed
 シャンプーが子どもの目に入って少ししみたけど、洗ったら良くなった	none	ja	claude-seed
 夜更かしで目が赤い	none	ja	claude-seed
 コンタクトを長くつけて目が乾く	none	ja	claude-seed
+# ── ชุด S: ล็อกไว้ก่อนขยาย core/frames.py รอบ 16 — (ไต) คนโรคไตกินมะเฟือง/สมุนไพรแล้วเป็นพิษ · ติดเชื้อในกระแสเลือด · กระดูกหักผิดรูป/ทะลุ · อัณฑะบิด ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 18/70 (ไม่เห็นเลย 52) · เตือนเกิน 0/70
+พ่อเป็นโรคไต กินน้ำมะเฟืองไปสองแก้ว ตอนนี้สะอึกไม่หยุด สับสน	emergency	th	claude-seed
+แม่ฟอกไตอยู่ กินมะเฟืองไป ตอนนี้ชักเกร็ง	emergency	th	claude-seed
+ยายไตเสื่อม กินยาต้มสมุนไพรมาสามวัน ฉี่ไม่ออก ตัวบวม	emergency	th	claude-seed
+ลุงไข้สูง หนาวสั่น หายใจเร็ว ความดันตก สับสน	emergency	th	claude-seed
+แผลที่ขาติดเชื้อ ตอนนี้ไข้ขึ้น ตัวเย็นซีด ใจเต้นเร็วมาก	emergency	th	claude-seed
+ลูกตกต้นไม้ แขนผิดรูป บิดงอ ร้องเจ็บมาก	emergency	th	claude-seed
+มอเตอร์ไซค์ล้ม กระดูกขาโผล่ออกมานอกเนื้อ	emergency	th	claude-seed
+พ่อลื่นล้ม สะโพกเจ็บมาก ลุกไม่ได้ ขาสั้นลงข้างหนึ่ง	emergency	th	claude-seed
+ลูกชายวัยรุ่นปวดอัณฑะข้างเดียวกะทันหัน บวมแดง อาเจียน	emergency	th	claude-seed
+ปวดลูกอัณฑะรุนแรงทันทีตอนตื่นนอน ปวดร้าวไปท้องน้อย	emergency	th	claude-seed
+คุณหมอบอกคนเป็นโรคไตห้ามกินมะเฟือง เลยเลี่ยงไว้	none	th	claude-seed
+ซื้อมะเฟืองมาทำน้ำผลไม้ให้ลูก	none	th	claude-seed
+ดื่มชาสมุนไพรตอนเย็น นอนหลับสบาย	none	th	claude-seed
+เป็นไข้หวัดหนาวสั่นนิดหน่อย กินยาแล้วดีขึ้น	none	th	claude-seed
+แผลถลอกที่เข่า ทายาแล้วแห้งดี	none	th	claude-seed
+ข้อเท้าแพลงนิดหน่อยตอนวิ่ง ประคบเย็นแล้ว	none	th	claude-seed
+ใส่เฝือกมาสามสัปดาห์ หมอนัดถอดอาทิตย์หน้า	none	th	claude-seed
+ปวดเมื่อยหลังเพราะยกของ	none	th	claude-seed
+ไปตรวจสุขภาพชาย ผลปกติดี	none	th	claude-seed
+ปั่นจักรยานนานจนเป้าระบมนิดหน่อย	none	th	claude-seed
+Dad has kidney disease, drank two glasses of star fruit juice, now hiccuping nonstop and confused	emergency	en	claude-seed
+Mom is on dialysis, ate star fruit and now she's having a seizure	emergency	en	claude-seed
+Grandma has weak kidneys, took an herbal decoction for three days, can't pee and is swelling up	emergency	en	claude-seed
+My uncle has a high fever, chills, fast breathing, low blood pressure and is confused	emergency	en	claude-seed
+The wound on his leg got infected, now he's feverish, cold and pale, heart racing	emergency	en	claude-seed
+My kid fell from a tree, his arm is bent the wrong way and he's screaming	emergency	en	claude-seed
+Motorbike crash, the leg bone is sticking out through the skin	emergency	en	claude-seed
+Dad slipped, his hip hurts terribly, can't get up and one leg looks shorter	emergency	en	claude-seed
+My teenage son has sudden pain in one testicle, it's swollen and red and he's vomiting	emergency	en	claude-seed
+Woke up with sudden severe testicle pain spreading to my lower belly	emergency	en	claude-seed
+The doctor said kidney patients shouldn't eat star fruit so I avoid it	none	en	claude-seed
+Bought star fruit to make juice for the kids	none	en	claude-seed
+Had herbal tea in the evening and slept well	none	en	claude-seed
+A cold with mild chills, feeling better after medicine	none	en	claude-seed
+Scraped my knee, it's drying up nicely	none	en	claude-seed
+Twisted my ankle a bit running, iced it	none	en	claude-seed
+Three weeks in a cast, getting it off next week	none	en	claude-seed
+Back ache from lifting stuff	none	en	claude-seed
+Men's health check came back normal	none	en	claude-seed
+A bit sore down there after a long bike ride	none	en	claude-seed
+Mi papá tiene enfermedad renal, tomó dos vasos de jugo de carambola y ahora tiene hipo sin parar y está confundido	emergency	es	claude-seed
+Mi mamá está en diálisis, comió carambola y ahora está convulsionando	emergency	es	claude-seed
+Mi abuela tiene los riñones débiles, tomó un cocimiento de hierbas tres días, no orina y se está hinchando	emergency	es	claude-seed
+Mi tío tiene fiebre alta, escalofríos, respira rápido, presión baja y está confundido	emergency	es	claude-seed
+La herida de la pierna se infectó, ahora tiene fiebre, está frío y pálido, el corazón acelerado	emergency	es	claude-seed
+Mi hijo se cayó de un árbol, tiene el brazo torcido al revés y grita	emergency	es	claude-seed
+Accidente de moto, el hueso de la pierna se sale por la piel	emergency	es	claude-seed
+Mi papá se resbaló, le duele muchísimo la cadera, no se puede levantar y una pierna se ve más corta	emergency	es	claude-seed
+Mi hijo adolescente tiene dolor repentino en un testículo, hinchado y rojo, y vomita	emergency	es	claude-seed
+Me desperté con un dolor fuerte y repentino en el testículo que llega al bajo vientre	emergency	es	claude-seed
+El médico dijo que los enfermos renales no coman carambola, así que la evito	none	es	claude-seed
+Compré carambola para hacer jugo a los niños	none	es	claude-seed
+Tomé té de hierbas en la noche y dormí bien	none	es	claude-seed
+Resfriado con escalofríos leves, mejor con medicina	none	es	claude-seed
+Me raspé la rodilla, ya se está secando	none	es	claude-seed
+Me torcí un poco el tobillo corriendo, le puse hielo	none	es	claude-seed
+Tres semanas con yeso, me lo quitan la próxima semana	none	es	claude-seed
+Dolor de espalda por cargar cosas	none	es	claude-seed
+El chequeo de salud masculina salió normal	none	es	claude-seed
+Un poco adolorido después de un paseo largo en bici	none	es	claude-seed
+Bố tôi bị bệnh thận, uống hai cốc nước khế, giờ nấc liên tục và lú lẫn	emergency	vi	claude-seed
+Mẹ tôi đang chạy thận, ăn khế xong giờ co giật	emergency	vi	claude-seed
+Bà tôi thận yếu, uống thuốc nam ba ngày, không tiểu được và phù lên	emergency	vi	claude-seed
+Chú tôi sốt cao, rét run, thở nhanh, huyết áp tụt và lú lẫn	emergency	vi	claude-seed
+Vết thương ở chân bị nhiễm trùng, giờ sốt, người lạnh và tái, tim đập rất nhanh	emergency	vi	claude-seed
+Con tôi ngã từ trên cây xuống, tay bị cong ngược và la hét	emergency	vi	claude-seed
+Tai nạn xe máy, xương chân lòi ra ngoài da	emergency	vi	claude-seed
+Bố tôi trượt ngã, đau hông dữ dội, không đứng dậy được và một chân trông ngắn hơn	emergency	vi	claude-seed
+Con trai tuổi teen của tôi đột nhiên đau một bên tinh hoàn, sưng đỏ và nôn	emergency	vi	claude-seed
+Ngủ dậy đột nhiên đau tinh hoàn dữ dội lan xuống bụng dưới	emergency	vi	claude-seed
+Bác sĩ dặn người bệnh thận không ăn khế nên tôi tránh	none	vi	claude-seed
+Mua khế về ép nước cho con	none	vi	claude-seed
+Uống trà thảo mộc buổi tối, ngủ ngon	none	vi	claude-seed
+Cảm có rét nhẹ, uống thuốc thấy đỡ	none	vi	claude-seed
+Trầy đầu gối, đang khô lại	none	vi	claude-seed
+Hơi trẹo cổ chân khi chạy, đã chườm đá	none	vi	claude-seed
+Bó bột ba tuần, tuần sau tháo	none	vi	claude-seed
+Đau lưng vì bê đồ	none	vi	claude-seed
+Khám sức khỏe nam khoa, kết quả bình thường	none	vi	claude-seed
+Đạp xe lâu nên hơi ê ẩm	none	vi	claude-seed
+爸爸有肾病，喝了两杯杨桃汁，现在一直打嗝，意识混乱	emergency	zh	claude-seed
+妈妈在做透析，吃了杨桃现在抽搐了	emergency	zh	claude-seed
+奶奶肾功能不好，喝了三天草药汤，尿不出来，全身浮肿	emergency	zh	claude-seed
+叔叔高烧寒战，呼吸很快，血压下降，意识不清	emergency	zh	claude-seed
+腿上的伤口感染了，现在发烧，身体发冷苍白，心跳很快	emergency	zh	claude-seed
+孩子从树上摔下来，手臂弯成反方向，一直哭喊	emergency	zh	claude-seed
+摔车了，腿骨刺穿皮肤露在外面	emergency	zh	claude-seed
+爸爸滑倒了，髋部剧痛，站不起来，一条腿看起来变短了	emergency	zh	claude-seed
+十几岁的儿子突然一侧睾丸剧痛，又肿又红，还呕吐	emergency	zh	claude-seed
+早上醒来睾丸突然剧痛，痛到小腹	emergency	zh	claude-seed
+医生说肾病患者不能吃杨桃，所以我避开	none	zh	claude-seed
+买了杨桃给孩子榨汁	none	zh	claude-seed
+晚上喝了花草茶，睡得很好	none	zh	claude-seed
+感冒有点发冷，吃药后好多了	none	zh	claude-seed
+膝盖擦伤了，正在结痂	none	zh	claude-seed
+跑步时脚踝扭了一下，冰敷了	none	zh	claude-seed
+打石膏三周了，下周拆	none	zh	claude-seed
+搬东西腰酸	none	zh	claude-seed
+男性体检结果正常	none	zh	claude-seed
+骑车太久下面有点酸痛	none	zh	claude-seed
+아빠가 신장병이 있는데 스타프루트 주스를 두 잔 마시고 딸꾹질이 안 멈추고 정신이 혼미해요	emergency	ko	claude-seed
+엄마가 투석 중인데 스타프루트를 먹고 지금 경련해요	emergency	ko	claude-seed
+할머니가 신장이 약한데 사흘 동안 한약을 달여 드시고 소변이 안 나오고 몸이 부었어요	emergency	ko	claude-seed
+삼촌이 고열에 오한이 나고 숨이 빠르고 혈압이 떨어지고 정신이 흐려요	emergency	ko	claude-seed
+다리 상처가 감염됐는데 지금 열이 나고 몸이 차갑고 창백하고 심장이 너무 빨리 뛰어요	emergency	ko	claude-seed
+아이가 나무에서 떨어졌는데 팔이 반대로 꺾이고 비명을 질러요	emergency	ko	claude-seed
+오토바이 사고로 다리뼈가 피부 밖으로 튀어나왔어요	emergency	ko	claude-seed
+아빠가 미끄러졌는데 엉덩이가 너무 아프고 못 일어나고 한쪽 다리가 짧아 보여요	emergency	ko	claude-seed
+십대 아들이 갑자기 한쪽 고환이 아프고 붓고 빨갛고 토해요	emergency	ko	claude-seed
+자고 일어났더니 갑자기 고환이 심하게 아프고 아랫배까지 아파요	emergency	ko	claude-seed
+의사가 신장병 환자는 스타프루트를 먹지 말래서 피하고 있어요	none	ko	claude-seed
+아이들 주스 만들려고 스타프루트를 샀어요	none	ko	claude-seed
+저녁에 허브차를 마시고 잘 잤어요	none	ko	claude-seed
+감기로 살짝 오한이 있었는데 약 먹고 나아졌어요	none	ko	claude-seed
+무릎이 까졌는데 잘 아물고 있어요	none	ko	claude-seed
+달리다 발목을 살짝 삐어서 얼음찜질했어요	none	ko	claude-seed
+깁스한 지 3주인데 다음 주에 풀어요	none	ko	claude-seed
+짐을 들어서 허리가 뻐근해요	none	ko	claude-seed
+남성 건강검진 결과 정상이에요	none	ko	claude-seed
+자전거를 오래 타서 사타구니가 좀 뻐근해요	none	ko	claude-seed
+父は腎臓病で、スターフルーツのジュースを二杯飲んで、しゃっくりが止まらず混乱している	emergency	ja	claude-seed
+母は透析中で、スターフルーツを食べたら今けいれんしている	emergency	ja	claude-seed
+祖母は腎臓が弱いのに三日間煎じ薬を飲んで、尿が出ずむくんでいる	emergency	ja	claude-seed
+叔父が高熱で悪寒があり、呼吸が速く、血圧が下がって意識がもうろうとしている	emergency	ja	claude-seed
+脚の傷が化膿して、今は熱があり、体が冷たく青白く、脈がすごく速い	emergency	ja	claude-seed
+子どもが木から落ちて、腕が変な方向に曲がって泣き叫んでいる	emergency	ja	claude-seed
+バイク事故で脚の骨が皮膚から飛び出している	emergency	ja	claude-seed
+父が滑って転び、股関節がひどく痛く立ち上がれず、片足が短く見える	emergency	ja	claude-seed
+十代の息子が急に片方の睾丸が痛くなり、腫れて赤く、吐いている	emergency	ja	claude-seed
+朝起きたら急に睾丸に激痛が走り、下腹まで痛い	emergency	ja	claude-seed
+腎臓病の人はスターフルーツを食べないよう医者に言われたので避けている	none	ja	claude-seed
+子どもたちのジュース用にスターフルーツを買った	none	ja	claude-seed
+夜にハーブティーを飲んでよく眠れた	none	ja	claude-seed
+風邪で少し寒気がしたけど薬で良くなった	none	ja	claude-seed
+膝をすりむいたけど乾いてきた	none	ja	claude-seed
+走っていて足首を少しひねったので冷やした	none	ja	claude-seed
+ギプスをして三週間、来週外す	none	ja	claude-seed
+荷物を持って腰がだるい	none	ja	claude-seed
+男性の健康診断は異常なし	none	ja	claude-seed
+長時間自転車に乗って股が少し痛い	none	ja	claude-seed
