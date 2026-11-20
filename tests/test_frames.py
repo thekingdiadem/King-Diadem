@@ -461,3 +461,26 @@ def test_round15_danger(text):
 @pytest.mark.parametrize("text", CALM_15)
 def test_round15_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 16: (ไต) มะเฟือง/สมุนไพรกับคนโรคไต · ติดเชื้อในกระแสเลือด · กระดูกหัก · อัณฑะบิด (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา S) ──
+DANGER_16 = [
+    "ป้าเป็นโรคไต กินมะเฟืองแล้วสะอึกไม่หยุด", "my dad is on dialysis and ate star fruit, now he's confused", "肾病患者吃了杨桃后抽搐",
+    "แผลติดเชื้อ ไข้สูง ความดันตก", "fever and chills, now cold and pale with a racing heart", "고열에 혈압이 떨어졌어요",
+    "ขาผิดรูปหลังตกบันได", "his bone is sticking out of his arm", "股関節が痛くて片足が短く見える",
+    "ปวดอัณฑะกะทันหัน", "sudden severe testicle pain", "đột nhiên đau tinh hoàn dữ dội",
+]
+CALM_16 = [
+    "คนเป็นโรคไตควรเลี่ยงมะเฟือง", "kidney patients should avoid star fruit", "ไข้หวัดหนาวสั่นนิดหน่อย กินยาแล้วดีขึ้น",
+    "ข้อเท้าแพลงนิดหน่อย", "testicular cancer awareness month", "ซื้อมะเฟืองมาทำน้ำผลไม้",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_16)
+def test_round16_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_16)
+def test_round16_calm(text):
+    assert frames(text) == [], explain(text)

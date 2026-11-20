@@ -1578,3 +1578,82 @@ EYE_TRAUMA	vi	mạt sắt|cành cây|chảy máu
 EYE_TRAUMA	zh	铁屑|鐵屑|树枝|樹枝|流血
 EYE_TRAUMA	ko	쇳조각|나뭇가지|피가
 EYE_TRAUMA	ja	鉄片|木の枝|血が
+
+# ═══ รอบ 16: (ไต) คนโรคไตกินมะเฟือง/สมุนไพรเป็นพิษ · ติดเชื้อในกระแสเลือด · กระดูกหักผิดรูป/ทะลุ · อัณฑะบิด ═══
+KIDNEY_PT	th	โรคไต|ไตเสื่อม|ไตไม่ดี|ไตวาย|ฟอกไต|ล้างไต
+KIDNEY_PT	en	kidney disease|weak kidneys|kidney failure|dialysis|ckd
+KIDNEY_PT	es	enfermedad renal|riñones débiles|insuficiencia renal|diálisis
+KIDNEY_PT	vi	bệnh thận|thận yếu|suy thận|chạy thận
+KIDNEY_PT	zh	肾病|腎病|肾功能不好|腎功能不好|肾衰|腎衰|透析
+KIDNEY_PT	ko	신장병|신장이 약|신부전|투석
+KIDNEY_PT	ja	腎臓病|腎臓が弱|腎不全|透析
+TOXIN_FOOD	th	มะเฟือง|ยาต้มสมุนไพร|สมุนไพร|ยาหม้อ|ยาลูกกลอน
+TOXIN_FOOD	en	star fruit|starfruit|herbal|herbs|carambola
+TOXIN_FOOD	es	carambola|hierbas|cocimiento
+TOXIN_FOOD	vi	khế|thuốc nam|thuốc bắc
+TOXIN_FOOD	zh	杨桃|楊桃|草药|草藥|中药|中藥
+TOXIN_FOOD	ko	스타프루트|한약|약초
+TOXIN_FOOD	ja	スターフルーツ|煎じ薬|漢方
+TOX_RED	th	สะอึก|สับสน|ชัก|ฉี่ไม่ออก|บวม|ซึม
+TOX_RED	en	hiccup|confused|seizure|can't pee|swelling|drowsy
+TOX_RED	es	hipo|confundido|confundida|convulsion|no orina|hinchando|hinchada
+TOX_RED	vi	nấc|lú lẫn|co giật|không tiểu|phù
+TOX_RED	zh	打嗝|意识混乱|意識混亂|抽搐|尿不出|浮肿|浮腫
+TOX_RED	ko	딸꾹질|혼미|경련|소변이 안|부었
+TOX_RED	ja	しゃっくり|混乱|けいれん|尿が出ず|むくん
+AVOID	th	เลี่ยง|ห้ามกิน|ไม่กิน
+AVOID	en	avoid|shouldn't eat|should not eat|don't eat
+AVOID	es	evito|no coman|no comer
+AVOID	vi	tránh|không ăn
+AVOID	zh	避开|避開|不能吃
+AVOID	ko	피하|먹지 말
+AVOID	ja	避けて|食べないよう
+SEPSIS_FEVER	th	ไข้สูง|ไข้ขึ้น|หนาวสั่น|ติดเชื้อ
+SEPSIS_FEVER	en	high fever|feverish|chills|infected|fever
+SEPSIS_FEVER	es	fiebre alta|tiene fiebre|escalofríos|infectó|infectada|fiebre
+SEPSIS_FEVER	vi	sốt cao|sốt|rét run|nhiễm trùng
+SEPSIS_FEVER	zh	高烧|高燒|发烧|發燒|寒战|寒戰|感染
+SEPSIS_FEVER	ko	고열|열이 나|오한|감염
+SEPSIS_FEVER	ja	高熱|熱があり|悪寒|化膿
+SEPSIS_CIRC	th	ความดันตก|ตัวเย็นซีด|ใจเต้นเร็วมาก|ตัวลาย|มือเท้าเย็น
+SEPSIS_CIRC	en	low blood pressure|cold and pale|heart racing|mottled
+SEPSIS_CIRC	es	presión baja|frío y pálido|corazón acelerado
+SEPSIS_CIRC	vi	huyết áp tụt|lạnh và tái|tim đập rất nhanh
+SEPSIS_CIRC	zh	血压下降|血壓下降|发冷苍白|發冷蒼白|心跳很快
+SEPSIS_CIRC	ko	혈압이 떨어|창백|심장이 너무 빨리
+SEPSIS_CIRC	ja	血圧が下が|青白|脈がすごく速
+DEFORM	th	ผิดรูป|บิดงอ|งอผิดทาง
+DEFORM	en	bent the wrong way|deformed|at a weird angle
+DEFORM	es	torcido al revés|deformado
+DEFORM	vi	cong ngược|biến dạng
+DEFORM	zh	弯成反方向|彎成反方向|变形|變形
+DEFORM	ko	반대로 꺾|기형
+DEFORM	ja	変な方向に曲が|変形
+BONE_OUT	th	re:กระดูก\S{0,10}?(?:โผล่|ทะลุ)
+BONE_OUT	en	bone is sticking out|bone sticking out|through the skin
+BONE_OUT	es	sale por la piel|hueso expuesto
+BONE_OUT	vi	lòi ra ngoài da|xương lòi
+BONE_OUT	zh	刺穿皮肤|刺穿皮膚|骨头露|骨頭露
+BONE_OUT	ko	피부 밖으로|뼈가 튀어나
+BONE_OUT	ja	皮膚から飛び出|骨が飛び出
+LEG_SHORT	th	ขาสั้นลง
+LEG_SHORT	en	leg looks shorter|one leg is shorter
+LEG_SHORT	es	pierna se ve más corta|pierna más corta
+LEG_SHORT	vi	chân trông ngắn hơn|chân ngắn hơn
+LEG_SHORT	zh	腿看起来变短|腿看起來變短|腿变短|腿變短
+LEG_SHORT	ko	다리가 짧아
+LEG_SHORT	ja	片足が短く|足が短く見え
+TESTIS	th	อัณฑะ|ไข่ข้างเดียว
+TESTIS	en	testicle|testicular
+TESTIS	es	testículo
+TESTIS	vi	tinh hoàn
+TESTIS	zh	睾丸
+TESTIS	ko	고환
+TESTIS	ja	睾丸
+TESTIS_RED	th	กะทันหัน|ทันที|รุนแรง|บวมแดง|อาเจียน|ปวดมาก
+TESTIS_RED	en	sudden|severe|swollen|vomiting
+TESTIS_RED	es	repentino|fuerte|hinchado|vomita
+TESTIS_RED	vi	đột nhiên|dữ dội|sưng|nôn
+TESTIS_RED	zh	突然|剧痛|劇痛|肿|腫|呕吐|嘔吐
+TESTIS_RED	ko	갑자기|심하게|붓고|토해
+TESTIS_RED	ja	急に|激痛|腫れ|吐い

@@ -113,6 +113,11 @@ FRAMES = (
     ("postpartum_bleed", "medical", "health_emergency", (("POSTPARTUM", "PP_RED"),), ("FICTION", "HYPOTHETICAL", "NORMAL_PP")),
     ("delirium", "medical", "health_emergency", (("SUDDEN", "CONFUSION"),), ("FICTION", "HYPOTHETICAL", "WAKING")),
     ("eye_injury", "medical", "health_emergency", (("EYE", "EYE_CHEM"), ("EYE", "EYE_TRAUMA")), ("FICTION", "HYPOTHETICAL", "MINOR")),
+    # รอบ 16 (ชุดปิดตา S ล็อกไว้ก่อนเขียน) — เรื่องไต: คนโรคไตกินมะเฟือง/สมุนไพรแล้วมีอาการ
+    ("kidney_toxin", "medical", "health_emergency", (("KIDNEY_PT", "TOXIN_FOOD", "TOX_RED"),), ("FICTION", "HYPOTHETICAL", "AVOID")),
+    ("sepsis", "medical", "health_emergency", (("SEPSIS_FEVER", "SEPSIS_CIRC"),), ("FICTION", "HYPOTHETICAL", "BETTER")),
+    ("fracture", "medical", "health_emergency", (("DEFORM",), ("BONE_OUT",), ("LEG_SHORT",)), ("FICTION", "HYPOTHETICAL", "MINOR")),
+    ("torsion", "medical", "health_emergency", (("TESTIS", "TESTIS_RED"),), ("FICTION", "HYPOTHETICAL")),
 )
 
 
