@@ -553,3 +553,32 @@ def test_round19_danger(text):
 @pytest.mark.parametrize("text", CALM_19)
 def test_round19_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 20: (ไต) เด็กไตอักเสบ · คาวาซากิ · เลือดกำเดาไม่หยุด · ฟันติดเชื้อลามคอ (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา W) ──
+DANGER_20 = [
+    "ลูกหนังตาบวม ฉี่สีโค้ก", "my daughter has puffy eyes and her pee looks like cola", "子どもが腎炎で血圧が高く頭痛がする",
+    "ลูกไข้มาหกวัน ตาแดง ลิ้นแดง", "fever for six days with red eyes and a rash", "닷새째 고열에 눈이 빨갛고 입술이 빨갛게 갈라졌어요",
+    "เลือดกำเดาไหลไม่หยุดเป็นชั่วโมง", "nosebleed hasn't stopped and he's on blood thinners", "鼻血止不住半小时了",
+    "ฟันคุดอักเสบ หน้าบวม กลืนน้ำลายไม่ได้", "tooth infection, swelling spreads to my neck", "răng sâu, dưới hàm sưng, khó thở",
+]
+CALM_20 = [
+    "ตาบวมเพราะร้องไห้", "ดูหนังเรื่องเด็กป่วย", "my eyes are puffy from crying", "เลือดกำเดาไหลนิดหน่อย บีบจมูกก็หยุด",
+    "nosebleed stopped after five minutes", "ปวดฟันเพราะกินของเย็น", "fever for two days, doctor said viral, better now",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_20)
+def test_round20_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_20)
+def test_round20_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+def test_eyelid_is_not_a_movie_and_hasnt_stopped_is_not_stopped():
+    # "หนังตา" = เปลือกตา ไม่ใช่ "หนัง" (ภาพยนตร์) · "hasn't stopped" ไม่ใช่ "stopped"
+    assert frames("หนังตาบวม ฉี่สีน้ำล้างเนื้อ") == [("medical", "health_emergency")]
+    assert frames("the nosebleed hasn't stopped for an hour") == [("medical", "health_emergency")]

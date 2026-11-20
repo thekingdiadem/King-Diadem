@@ -133,6 +133,11 @@ FRAMES = (
     ("pd_peritonitis", "medical", "health_emergency", (("PD", "PD_RED"),), ("FICTION", "HYPOTHETICAL", "PD_OK")),
     ("hyperemesis", "medical", "health_emergency", (("PREGNANT", "HYPEREMESIS"),), ("FICTION", "HYPOTHETICAL")),
     ("food_poisoning", "medical", "health_emergency", (("MANY_PEOPLE", "GI_SICK"), ("RICE_WATER",)), ("FICTION", "HYPOTHETICAL", "NEWS")),
+    # รอบ 20 (ชุดปิดตา W ล็อกไว้ก่อนเขียน) — เรื่องไต: เด็กไตอักเสบหลังเจ็บคอ
+    ("child_nephritis", "medical", "health_emergency", (("PUFFY_EYES", "URINE_CHANGE"), ("NEPHRITIS", "NEPH_RED")), ("FICTION", "HYPOTHETICAL", "CRIED")),
+    ("kawasaki", "medical", "health_emergency", (("FEVER_DAYS", "KAWA_SIGN"),), ("FICTION", "HYPOTHETICAL", "BETTER")),
+    ("nosebleed", "medical", "health_emergency", (("NOSEBLEED", "NB_BAD"),), ("FICTION", "HYPOTHETICAL", "NB_STOPPED", "MINOR")),
+    ("dental_spread", "medical", "health_emergency", (("TOOTH", "SPREAD_RED"),), ("FICTION", "HYPOTHETICAL")),
 )
 
 

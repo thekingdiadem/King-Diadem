@@ -106,7 +106,8 @@ AIRWAY_FAIL	zh	喘不了气|喘不过气|喘不過氣|无法呼吸|無法呼吸|
 AIRWAY_FAIL	ko	숨을 못|숨이 안|기침을 못|얼굴이 파래
 AIRWAY_FAIL	ja	息ができ|咳ができ|顔が青|呼吸ができ
 # ── ตัวกันเตือนเกิน (ใช้ทั้งประโยค) ──
-FICTION	th	หนัง|ละคร|ซีรีส์|เกม|นิยาย|การ์ตูน|ฝันว่า|ในฝัน
+FICTION	th	re:หนัง(?!ตา|สือ|หัว|ศีรษะ|ยาง|สัตว์|กำพร้า|ท้อง)
+FICTION	th	ละคร|ซีรีส์|เกม|นิยาย|การ์ตูน|ฝันว่า|ในฝัน
 FICTION	en	movie|film|show|series|episode|game|novel|book|cartoon|anime|dream|scene
 FICTION	es	película|pelicula|serie|escena|videojuego|juego|novela|libro|anime|sueño|soñé
 FICTION	vi	phim|truyện|game|trò chơi|tiểu thuyết|anime|mơ thấy|giấc mơ
@@ -286,7 +287,8 @@ BLEED_BAD	zh	一直流|流不停|止不住|一地|满地|滿地|很多|喷|噴|�
 BLEED_BAD	ko	멈추지 않|안 멈|계속|범벅|많이|흥건|뿜|철철
 BLEED_BAD	ja	止まらない|止まらな|だらけ|大量|たくさん|噴き出|あふれ|溢れ|びっしょり
 MINOR	th	นิดนึง|นิดหน่อย|นิดเดียว|หยุดแล้ว|ซึม|เล็กน้อย|ถลอก|ไม่เป็นไร
-MINOR	en	a little|a bit of|a drop|just a drop|stopped|paper cut|scrape|scraped|tiny
+MINOR	en	a little|a bit of|a drop|just a drop|paper cut|scrape|scraped|tiny
+MINOR	en	re:(?<!n't )(?<!not )(?<!never )\bstopped\b
 MINOR	es	un poco|poquito|gotita|ya paró|raspé|raspón|papel
 MINOR	vi	một chút|chút|đã ngừng|giấy|trầy|rỉ
 MINOR	zh	一点|一點|已经停|已經停|止住了|纸|紙|擦破
@@ -1853,3 +1855,89 @@ RICE_WATER	vi	nước vo gạo
 RICE_WATER	zh	米汤样|米湯樣
 RICE_WATER	ko	쌀뜨물
 RICE_WATER	ja	米のとぎ汁
+
+# ═══ รอบ 20: (ไต) เด็กไตอักเสบ · ไข้หลายวัน+ตาแดงลิ้นแดง (คาวาซากิ) · เลือดกำเดาไม่หยุด · ฟันติดเชื้อลามคอ ═══
+PUFFY_EYES	th	ตาบวม|หนังตาบวม|เปลือกตาบวม
+PUFFY_EYES	en	eyes are puffy|eyelids are swollen|puffy eyes|puffy face
+PUFFY_EYES	es	ojos hinchados|párpados|cara hinchada
+PUFFY_EYES	vi	mắt sưng|mí mắt sưng|mặt phù
+PUFFY_EYES	zh	眼睛浮肿|眼睛浮腫|眼皮肿|眼皮腫
+PUFFY_EYES	ko	눈이 붓|눈꺼풀이 붓
+PUFFY_EYES	ja	まぶたが腫れ|顔がむくん
+URINE_CHANGE	th	ฉี่สีโค้ก|น้ำล้างเนื้อ|ฉี่น้อยลง|ปัสสาวะน้อยลง
+URINE_CHANGE	en	pee looks like cola|meat-washing|meat washing|peeing less|urine is red
+URINE_CHANGE	es	parece coca-cola|agua de lavar carne|orina menos
+URINE_CHANGE	vi	màu coca|nước rửa thịt|tiểu ít đi|tiểu ít
+URINE_CHANGE	zh	尿像可乐|尿像可樂|洗肉水|尿变少|尿變少
+URINE_CHANGE	ko	콜라색|고기 씻은|소변이 줄
+URINE_CHANGE	ja	コーラ色|肉を洗った|尿が減
+CRIED	th	ร้องไห้
+CRIED	en	crying|cried
+CRIED	es	llorar|lloró
+CRIED	vi	khóc
+CRIED	zh	哭
+CRIED	ko	울어서|울었
+CRIED	ja	泣い
+NEPHRITIS	th	ไตอักเสบ
+NEPHRITIS	en	nephritis|glomerulonephritis
+NEPHRITIS	es	nefritis
+NEPHRITIS	vi	viêm cầu thận|viêm thận
+NEPHRITIS	zh	肾炎|腎炎
+NEPHRITIS	ko	신장염|사구체신염
+NEPHRITIS	ja	腎炎
+NEPH_RED	th	ความดันสูง|ปวดหัว|อาเจียน|ชัก
+NEPH_RED	en	high blood pressure|headache|vomiting|seizure
+NEPH_RED	es	presión alta|dolor de cabeza|vomita|convulsión
+NEPH_RED	vi	huyết áp cao|đau đầu|nôn|co giật
+NEPH_RED	zh	血压高|血壓高|头痛|頭痛|吐|抽搐
+NEPH_RED	ko	혈압이 높|머리가|토해|경련
+NEPH_RED	ja	血圧が高|頭痛|吐い|けいれん
+FEVER_DAYS	th	re:ไข้\S{0,10}?(?:ห้า|5|หก|6|เจ็ด|7|หลาย)\s?วัน|ไข้ไม่ลงหลายวัน|ไข้ไม่ลง
+FEVER_DAYS	en	re:fever for (?:five|5|six|6|seven|7|several) days|fever won't come down for days
+FEVER_DAYS	es	re:(?:cinco|5|seis|6|siete|7) días con fiebre|no le baja la fiebre en días
+FEVER_DAYS	vi	re:sốt cao (?:năm|5|sáu|6|bảy|7) ngày|sốt mãi không hạ
+FEVER_DAYS	zh	re:高烧(?:五|5|六|6|七|7)天|发烧好几天不退|發燒好幾天不退
+FEVER_DAYS	ko	re:(?:닷새|엿새|이레)째 고열|며칠째 열이 안
+FEVER_DAYS	ja	re:(?:五|5|六|6|七|7)日間高熱|熱が何日も下がらず
+KAWA_SIGN	th	ตาแดง|ลิ้นแดง|สตรอว์เบอร์รี่|ปากแดงแตก|มือเท้าบวม|ผื่น
+KAWA_SIGN	en	red eyes|eyes are red|strawberry|cracked red lips|swollen red hands|rash
+KAWA_SIGN	es	ojos rojos|fresa|labios rojos agrietados|manos y pies hinchados|sarpullido
+KAWA_SIGN	vi	mắt đỏ|dâu|môi đỏ nứt|tay chân sưng|ban
+KAWA_SIGN	zh	眼睛都红|眼睛都紅|草莓|嘴唇红裂|嘴唇紅裂|手脚红肿|手腳紅腫|疹子
+KAWA_SIGN	ko	눈이 빨갛|딸기|입술이 빨갛게 갈라|손발이 붓|발진
+KAWA_SIGN	ja	目が赤|いちご|唇が赤くひび|手足が赤く腫れ|発疹
+NOSEBLEED	th	เลือดกำเดา
+NOSEBLEED	en	nosebleed|nose is pouring blood|nose won't stop bleeding
+NOSEBLEED	es	sangrado de nariz|sangre por la nariz
+NOSEBLEED	vi	chảy máu cam|máu mũi
+NOSEBLEED	zh	鼻血
+NOSEBLEED	ko	코피
+NOSEBLEED	ja	鼻血
+NB_BAD	th	ไหลไม่หยุด|ครึ่งชั่วโมง|เป็นสาย|ไม่หยุด|ยาละลายลิ่มเลือด|หน้ามืด
+NB_BAD	en	hasn't stopped|half an hour|pouring|blood thinners|faint
+NB_BAD	es	no para|media hora|a chorros|anticoagulantes|desmayar
+NB_BAD	vi	không cầm|nửa tiếng|thành dòng|chống đông|choáng
+NB_BAD	zh	止不住|半小时|半小時|流个不停|流個不停|抗凝|头晕|頭暈
+NB_BAD	ko	안 멈춰|30분째|줄줄|항응고제|어지러
+NB_BAD	ja	止まらず|30分|だらだら|サラサラ|ふらふら
+NB_STOPPED	th	ก็หยุด|หยุดแล้ว
+NB_STOPPED	en	stopped after|it stopped
+NB_STOPPED	es	paró
+NB_STOPPED	vi	là cầm
+NB_STOPPED	zh	止住了
+NB_STOPPED	ko	멈췄어요
+NB_STOPPED	ja	止まった
+TOOTH	th	ฟัน|เหงือก
+TOOTH	en	tooth|molar|gum
+TOOTH	es	muela|diente|encía
+TOOTH	vi	răng|lợi
+TOOTH	zh	牙
+TOOTH	ko	어금니|충치|잇몸|이가
+TOOTH	ja	歯|奥歯|歯茎|虫歯
+SPREAD_RED	th	ลามไปคอ|กลืนน้ำลายไม่ได้|ใต้คางบวม|อ้าปากไม่ขึ้น|หายใจลำบาก|หน้าบวมจนตาปิด
+SPREAD_RED	en	spreads to my neck|can't swallow|under my jaw|can't open my mouth|hard to breathe|eye is shut
+SPREAD_RED	es	baja al cuello|no puedo tragar|debajo de la mandíbula|no puedo abrir la boca|cuesta respirar|se me cerró el ojo
+SPREAD_RED	vi	lan xuống cổ|không nuốt được|dưới hàm|không há miệng|khó thở|nhắm cả mắt
+SPREAD_RED	zh	肿到脖子|腫到脖子|咽不下|下巴下面|张不开嘴|張不開嘴|呼吸困难|呼吸困難|睁不开|睜不開
+SPREAD_RED	ko	목까지|못 삼켜|턱 밑|입이 안 벌어|숨쉬기 힘들|눈이 감겼
+SPREAD_RED	ja	首まで|飲み込めない|あごの下|口が開かず|息がしにくい|目が開かない
