@@ -2030,3 +2030,145 @@ Sét đánh cột điện xa nhà, mất điện nửa tiếng	none	vi	claude-se
 友達が撮ったきれいな雷の写真を見た	none	ja	claude-seed
 地震に備えて防災リュックを準備した	none	ja	claude-seed
 遠くの電柱に雷が落ちて30分停電した	none	ja	claude-seed
+# ── ชุด P: ล็อกไว้ก่อนขยาย core/frames.py รอบ 13 — ขู่ด้วยอาวุธในบ้าน · คนตามตื๊ออยู่หน้าประตู · เพิ่งถูกล่วงละเมิดทางเพศ · เด็กมีร่องรอยถูกทำร้าย ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 18/70 (ไม่เห็นเลย 52) · เตือนเกิน 3/70
+สามีถือมีดไล่ฉันในบ้าน ตอนนี้ฉันหลบอยู่ในห้องน้ำ	violence	th	claude-seed
+พ่อเลี้ยงเมาแล้วเอาปืนจ่อหัวแม่	violence	th	claude-seed
+แฟนเก่าบอกจะมาเอาให้ตาย ตอนนี้ยืนอยู่หน้าบ้าน	violence	th	claude-seed
+ผู้ชายคนเดิมตามฉันมาถึงคอนโด ยืนเคาะประตูไม่ยอมไป	violence	th	claude-seed
+มีคนแปลกหน้าตามฉันจากสถานีมาทุกคืน คืนนี้อยู่หน้าห้อง	violence	th	claude-seed
+เมื่อกี้โดนลวนลามในลิฟต์ ตอนนี้ตัวสั่นไปหมด	violence	th	claude-seed
+ฉันโดนเพื่อนร่วมงานข่มขืนเมื่อคืน ไม่รู้จะทำยังไง	violence	th	claude-seed
+หลานมีรอยช้ำทั้งตัว บอกว่าพ่อตีทุกวัน	violence	th	claude-seed
+เด็กข้างบ้านมีรอยไหม้บุหรี่ที่แขน ร้องไห้ทุกคืน	violence	th	claude-seed
+นักเรียนบอกว่าลุงที่บ้านจับตัวเขาตอนกลางคืน	violence	th	claude-seed
+ทำกับข้าวใช้มีดหั่นหมู	none	th	claude-seed
+ลูกเล่นปืนฉีดน้ำกับเพื่อน	none	th	claude-seed
+แฟนเก่าทักมาขอคืนหนังสือ	none	th	claude-seed
+เพื่อนมาเคาะประตูชวนไปกินข้าว	none	th	claude-seed
+มีคนเดินตามหลังมาเพราะทางเดียวกัน	none	th	claude-seed
+ลูกล้มเข่าช้ำตอนเล่นบอล	none	th	claude-seed
+เด็กโดนยุงกัดเป็นจุดแดงทั้งแขน	none	th	claude-seed
+อ่านข่าวการล่วงละเมิดแล้วโกรธมาก	none	th	claude-seed
+ดูหนังแอคชั่นยิงกันสนุกมาก	none	th	claude-seed
+พ่อตีลูกเบาๆ ที่ก้นตอนเล่นกัน หัวเราะกันใหญ่	none	th	claude-seed
+My husband is chasing me around the house with a knife, I'm hiding in the bathroom	violence	en	claude-seed
+My stepdad is drunk and holding a gun to my mom's head	violence	en	claude-seed
+My ex said he'd kill me and now he's standing outside my house	violence	en	claude-seed
+The same man followed me to my building and keeps knocking on my door, he won't leave	violence	en	claude-seed
+A stranger has followed me from the station every night, tonight he's outside my room	violence	en	claude-seed
+I was just groped in the elevator and I can't stop shaking	violence	en	claude-seed
+My coworker raped me last night and I don't know what to do	violence	en	claude-seed
+My nephew has bruises all over, he says his dad hits him every day	violence	en	claude-seed
+The neighbor's kid has cigarette burns on his arm and cries every night	violence	en	claude-seed
+A student told me her uncle touches her at night	violence	en	claude-seed
+Cutting pork with a knife for dinner	none	en	claude-seed
+The kids are playing with water guns	none	en	claude-seed
+My ex texted asking for his book back	none	en	claude-seed
+A friend knocked on my door to invite me to lunch	none	en	claude-seed
+Someone walked behind me because we were going the same way	none	en	claude-seed
+My kid bruised his knee playing soccer	none	en	claude-seed
+Mosquito bites all over the kid's arm	none	en	claude-seed
+Read news about abuse and felt angry	none	en	claude-seed
+Watched an action movie with lots of shooting	none	en	claude-seed
+Dad playfully patted the kid's bottom and they laughed	none	en	claude-seed
+Mi esposo me persigue por la casa con un cuchillo, estoy escondida en el baño	violence	es	claude-seed
+Mi padrastro está borracho y le apunta con una pistola a la cabeza de mi mamá	violence	es	claude-seed
+Mi ex dijo que me iba a matar y ahora está parado afuera de mi casa	violence	es	claude-seed
+El mismo hombre me siguió hasta mi edificio y no para de tocar mi puerta, no se va	violence	es	claude-seed
+Un desconocido me sigue desde la estación todas las noches, hoy está afuera de mi cuarto	violence	es	claude-seed
+Acaban de manosearme en el ascensor y no paro de temblar	violence	es	claude-seed
+Un compañero de trabajo me violó anoche y no sé qué hacer	violence	es	claude-seed
+Mi sobrino tiene moretones por todo el cuerpo, dice que su papá le pega todos los días	violence	es	claude-seed
+El niño de al lado tiene quemaduras de cigarro en el brazo y llora cada noche	violence	es	claude-seed
+Una alumna me contó que su tío la toca por las noches	violence	es	claude-seed
+Corté cerdo con un cuchillo para la cena	none	es	claude-seed
+Los niños juegan con pistolas de agua	none	es	claude-seed
+Mi ex me escribió para pedirme su libro	none	es	claude-seed
+Una amiga tocó mi puerta para invitarme a comer	none	es	claude-seed
+Alguien caminaba detrás de mí porque íbamos al mismo lugar	none	es	claude-seed
+Mi hijo se golpeó la rodilla jugando fútbol	none	es	claude-seed
+Picaduras de mosquito en todo el brazo del niño	none	es	claude-seed
+Leí noticias de abuso y me dio rabia	none	es	claude-seed
+Vi una película de acción con muchos disparos	none	es	claude-seed
+Papá le dio una palmadita jugando al niño y se rieron	none	es	claude-seed
+Chồng tôi cầm dao đuổi tôi trong nhà, tôi đang trốn trong nhà tắm	violence	vi	claude-seed
+Bố dượng say rượu và đang dí súng vào đầu mẹ tôi	violence	vi	claude-seed
+Người yêu cũ nói sẽ giết tôi, giờ đang đứng trước nhà	violence	vi	claude-seed
+Người đàn ông đó theo tôi về tận chung cư, cứ gõ cửa không chịu đi	violence	vi	claude-seed
+Một người lạ theo tôi từ ga về mỗi đêm, tối nay đang ở ngoài phòng	violence	vi	claude-seed
+Vừa bị sàm sỡ trong thang máy, giờ người run hết	violence	vi	claude-seed
+Đồng nghiệp cưỡng hiếp tôi tối qua, tôi không biết phải làm sao	violence	vi	claude-seed
+Cháu tôi bầm tím khắp người, nói bố đánh mỗi ngày	violence	vi	claude-seed
+Đứa trẻ nhà bên có vết bỏng thuốc lá trên tay, đêm nào cũng khóc	violence	vi	claude-seed
+Một học sinh kể chú ở nhà sờ soạng em vào ban đêm	violence	vi	claude-seed
+Dùng dao thái thịt heo nấu cơm	none	vi	claude-seed
+Bọn trẻ chơi súng nước	none	vi	claude-seed
+Người yêu cũ nhắn xin lại cuốn sách	none	vi	claude-seed
+Bạn gõ cửa rủ đi ăn	none	vi	claude-seed
+Có người đi sau vì cùng đường	none	vi	claude-seed
+Con bị bầm đầu gối khi đá bóng	none	vi	claude-seed
+Muỗi đốt đầy tay bé	none	vi	claude-seed
+Đọc tin về xâm hại thấy tức giận	none	vi	claude-seed
+Xem phim hành động bắn nhau rất hay	none	vi	claude-seed
+Bố vỗ mông con đùa, hai bố con cười	none	vi	claude-seed
+老公拿着刀在家里追我，我躲在厕所里	violence	zh	claude-seed
+继父喝醉了，拿枪顶着我妈的头	violence	zh	claude-seed
+前男友说要弄死我，现在就站在我家门口	violence	zh	claude-seed
+那个男人一路跟我到小区，一直敲门不走	violence	zh	claude-seed
+有个陌生人每晚从车站跟着我，今晚就在我房门外	violence	zh	claude-seed
+刚才在电梯里被人猥亵，现在全身发抖	violence	zh	claude-seed
+同事昨晚强奸了我，我不知道该怎么办	violence	zh	claude-seed
+侄子全身都是淤青，说爸爸每天打他	violence	zh	claude-seed
+邻居家孩子胳膊上有烟头烫伤，每晚都哭	violence	zh	claude-seed
+一个学生说家里的叔叔晚上摸她	violence	zh	claude-seed
+用刀切猪肉做晚饭	none	zh	claude-seed
+孩子们在玩水枪	none	zh	claude-seed
+前男友发消息要回他的书	none	zh	claude-seed
+朋友敲门约我去吃饭	none	zh	claude-seed
+有人走在我后面因为同路	none	zh	claude-seed
+孩子踢球摔青了膝盖	none	zh	claude-seed
+孩子胳膊上都是蚊子包	none	zh	claude-seed
+看了虐待的新闻很生气	none	zh	claude-seed
+看动作片枪战很过瘾	none	zh	claude-seed
+爸爸跟孩子玩时轻轻拍了下屁股，大家都笑了	none	zh	claude-seed
+남편이 칼을 들고 집 안에서 저를 쫓아와요 지금 화장실에 숨어 있어요	violence	ko	claude-seed
+의붓아버지가 술에 취해서 엄마 머리에 총을 겨누고 있어요	violence	ko	claude-seed
+전 남자친구가 죽여버리겠다고 하더니 지금 우리 집 앞에 서 있어요	violence	ko	claude-seed
+그 남자가 저를 아파트까지 따라와서 계속 문을 두드리고 안 가요	violence	ko	claude-seed
+모르는 사람이 매일 밤 역에서부터 따라오는데 오늘은 방 앞에 있어요	violence	ko	claude-seed
+방금 엘리베이터에서 성추행을 당해서 몸이 계속 떨려요	violence	ko	claude-seed
+어젯밤 직장 동료에게 성폭행을 당했는데 어떻게 해야 할지 모르겠어요	violence	ko	claude-seed
+조카 온몸에 멍이 있는데 아빠가 매일 때린대요	violence	ko	claude-seed
+옆집 아이 팔에 담뱃불 화상 자국이 있고 매일 밤 울어요	violence	ko	claude-seed
+한 학생이 집에 있는 삼촌이 밤에 자기 몸을 만진다고 했어요	violence	ko	claude-seed
+저녁 하려고 칼로 돼지고기를 썰었어요	none	ko	claude-seed
+아이들이 물총 놀이를 해요	none	ko	claude-seed
+전 남자친구가 책 돌려달라고 연락했어요	none	ko	claude-seed
+친구가 밥 먹자고 문을 두드렸어요	none	ko	claude-seed
+같은 방향이라 누가 뒤에서 걸어왔어요	none	ko	claude-seed
+아이가 축구하다 무릎에 멍이 들었어요	none	ko	claude-seed
+아이 팔에 모기 물린 자국이 가득해요	none	ko	claude-seed
+학대 뉴스를 보고 화가 났어요	none	ko	claude-seed
+총격전 나오는 액션 영화를 재밌게 봤어요	none	ko	claude-seed
+아빠가 장난으로 아이 엉덩이를 톡 쳤는데 다 같이 웃었어요	none	ko	claude-seed
+夫が包丁を持って家の中で私を追いかけてきて、今トイレに隠れている	violence	ja	claude-seed
+継父が酔って母の頭に銃を突きつけている	violence	ja	claude-seed
+元彼が殺してやると言って、今家の前に立っている	violence	ja	claude-seed
+あの男がマンションまでついてきて、ずっとドアを叩いて帰らない	violence	ja	claude-seed
+知らない人が毎晩駅からついてきて、今夜は部屋の前にいる	violence	ja	claude-seed
+さっきエレベーターで痴漢にあって、体の震えが止まらない	violence	ja	claude-seed
+昨夜同僚にレイプされて、どうしたらいいか分からない	violence	ja	claude-seed
+甥の体じゅうにあざがあって、お父さんに毎日叩かれると言っている	violence	ja	claude-seed
+隣の家の子の腕にタバコの火傷の跡があって、毎晩泣いている	violence	ja	claude-seed
+生徒が家のおじさんに夜体を触られると打ち明けた	violence	ja	claude-seed
+夕飯のために包丁で豚肉を切った	none	ja	claude-seed
+子どもたちが水鉄砲で遊んでいる	none	ja	claude-seed
+元彼から本を返してほしいと連絡があった	none	ja	claude-seed
+友達がご飯に誘いにドアをノックした	none	ja	claude-seed
+同じ方向なので誰かが後ろを歩いていた	none	ja	claude-seed
+子どもがサッカーで膝にあざを作った	none	ja	claude-seed
+子どもの腕が蚊に刺された跡だらけ	none	ja	claude-seed
+虐待のニュースを見て腹が立った	none	ja	claude-seed
+銃撃戦のアクション映画を楽しんだ	none	ja	claude-seed
+パパが遊びで子どものお尻を軽くたたいて、みんなで笑った	none	ja	claude-seed
