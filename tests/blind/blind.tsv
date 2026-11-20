@@ -2598,3 +2598,145 @@ Khám sức khỏe nam khoa, kết quả bình thường	none	vi	claude-seed
 荷物を持って腰がだるい	none	ja	claude-seed
 男性の健康診断は異常なし	none	ja	claude-seed
 長時間自転車に乗って股が少し痛い	none	ja	claude-seed
+# ── ชุด T: ล็อกไว้ก่อนขยาย core/frames.py รอบ 17 — (ไต) กล้ามเนื้อสลาย ฉี่สีโค้ก · ท้องนอกมดลูก · กระดูกสันหลังบาดเจ็บ · นิ้ว/อวัยวะขาด ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 14/70 (ไม่เห็นเลย 56) · เตือนเกิน 1/70
+ออกกำลังกายหนักมากเมื่อวาน วันนี้ฉี่สีเหมือนโค้ก ปวดกล้ามเนื้อทั้งตัว	emergency	th	claude-seed
+วิ่งมาราธอนกลางแดดแล้วฉี่สีน้ำตาลเข้ม แทบไม่มีฉี่	emergency	th	claude-seed
+พ่อโดนของหนักทับขาหลายชั่วโมง เพิ่งเอาออก ฉี่สีชาเข้ม	emergency	th	claude-seed
+ประจำเดือนขาดมาสองเดือน ปวดท้องน้อยข้างเดียวรุนแรง หน้ามืด	emergency	th	claude-seed
+ตรวจครรภ์ขึ้นสองขีด แต่ปวดท้องข้างขวามาก เลือดออกกะปริบกะปรอย ไหล่เจ็บ	emergency	th	claude-seed
+ลูกกระโดดน้ำตื้นหัวกระแทกพื้น ตอนนี้ขยับขาไม่ได้	emergency	th	claude-seed
+ตาตกจากหลังคา ปวดหลังมาก ขาชาไม่รู้สึก	emergency	th	claude-seed
+เครื่องตัดหญ้าตัดนิ้วขาด เลือดออกเยอะ	emergency	th	claude-seed
+ประตูหนีบนิ้วลูกจนขาดไปข้อหนึ่ง	emergency	th	claude-seed
+มือติดเครื่องจักรที่โรงงาน นิ้วขาดสองนิ้ว	emergency	th	claude-seed
+ออกกำลังกายแล้วปวดเมื่อยกล้ามเนื้อนิดหน่อย	none	th	claude-seed
+ฉี่สีเข้มเพราะดื่มน้ำน้อย ดื่มเพิ่มแล้วใส	none	th	claude-seed
+กินบีทรูทแล้วฉี่สีชมพู	none	th	claude-seed
+ประจำเดือนมาช้าไปสามวัน	none	th	claude-seed
+ตรวจครรภ์ขึ้นสองขีด ไปฝากครรภ์แล้ว ทุกอย่างปกติ	none	th	claude-seed
+ปวดหลังเพราะนั่งทำงานนาน	none	th	claude-seed
+ขาชาเพราะนั่งพับเพียบนาน ลุกแล้วหาย	none	th	claude-seed
+ตัดเล็บแล้วโดนเนื้อนิดหน่อย	none	th	claude-seed
+มีดบาดนิ้วเป็นแผลเล็กๆ ปิดพลาสเตอร์แล้ว	none	th	claude-seed
+ดูหนังสยองขวัญฉากนิ้วขาด	none	th	claude-seed
+I worked out extremely hard yesterday and today my pee looks like cola and every muscle hurts	emergency	en	claude-seed
+Ran a marathon in the heat and now my urine is dark brown and I'm barely peeing	emergency	en	claude-seed
+Dad's leg was crushed under something heavy for hours, just got it off, his pee is dark like tea	emergency	en	claude-seed
+Missed my period two months, severe one-sided lower belly pain and I feel faint	emergency	en	claude-seed
+Positive pregnancy test but terrible pain on my right side, spotting and my shoulder hurts	emergency	en	claude-seed
+My son dove into shallow water and hit his head, now he can't move his legs	emergency	en	claude-seed
+Grandpa fell off the roof, terrible back pain and he can't feel his legs	emergency	en	claude-seed
+The lawn mower cut off my finger, bleeding a lot	emergency	en	claude-seed
+The door slammed and cut off the tip of my kid's finger	emergency	en	claude-seed
+My hand got caught in a machine at the factory, two fingers are cut off	emergency	en	claude-seed
+Muscles a bit sore after the gym	none	en	claude-seed
+Dark pee because I didn't drink enough, clear now	none	en	claude-seed
+Ate beets and my pee turned pink	none	en	claude-seed
+Period is three days late	none	en	claude-seed
+Positive test, had my first prenatal visit, all normal	none	en	claude-seed
+Back hurts from sitting at work all day	none	en	claude-seed
+Legs went numb from sitting cross-legged, fine after standing	none	en	claude-seed
+Clipped my nail too short, a little sore	none	en	claude-seed
+Small cut on my finger, put a bandaid on	none	en	claude-seed
+Watched a horror movie with a finger chopping scene	none	en	claude-seed
+Ayer hice ejercicio muy intenso y hoy mi orina parece Coca-Cola y me duelen todos los músculos	emergency	es	claude-seed
+Corrí un maratón con calor y ahora la orina es marrón oscuro y casi no orino	emergency	es	claude-seed
+A mi papá le aplastó la pierna algo pesado durante horas, recién lo sacamos, su orina es oscura como té	emergency	es	claude-seed
+No me baja la regla hace dos meses, dolor fuerte en un lado del bajo vientre y me siento desmayar	emergency	es	claude-seed
+Prueba de embarazo positiva pero dolor terrible del lado derecho, manchado y me duele el hombro	emergency	es	claude-seed
+Mi hijo se tiró de cabeza en agua poco profunda, se golpeó y ahora no puede mover las piernas	emergency	es	claude-seed
+Mi abuelo se cayó del techo, dolor de espalda terrible y no siente las piernas	emergency	es	claude-seed
+La podadora me cortó un dedo, sangro mucho	emergency	es	claude-seed
+La puerta le cortó la punta del dedo a mi hijo	emergency	es	claude-seed
+Se me atoró la mano en una máquina de la fábrica, tengo dos dedos cortados	emergency	es	claude-seed
+Músculos un poco adoloridos después del gimnasio	none	es	claude-seed
+Orina oscura porque tomé poca agua, ya está clara	none	es	claude-seed
+Comí betabel y la orina salió rosada	none	es	claude-seed
+La regla se me atrasó tres días	none	es	claude-seed
+Prueba positiva, ya tuve mi primer control prenatal, todo normal	none	es	claude-seed
+Me duele la espalda de estar sentado en el trabajo	none	es	claude-seed
+Se me durmieron las piernas por sentarme cruzado, bien al pararme	none	es	claude-seed
+Me corté la uña muy corta, un poco adolorido	none	es	claude-seed
+Cortadita en el dedo, le puse una curita	none	es	claude-seed
+Vi una película de terror con una escena de dedos cortados	none	es	claude-seed
+Hôm qua tập thể dục rất nặng, hôm nay nước tiểu như màu coca và đau nhức toàn bộ cơ	emergency	vi	claude-seed
+Chạy marathon dưới nắng, giờ nước tiểu nâu sẫm và gần như không tiểu	emergency	vi	claude-seed
+Chân bố tôi bị vật nặng đè mấy tiếng, vừa kéo ra, nước tiểu sẫm như nước trà	emergency	vi	claude-seed
+Trễ kinh hai tháng, đau dữ dội một bên bụng dưới và choáng	emergency	vi	claude-seed
+Que thử hai vạch nhưng đau dữ dội bên phải, ra máu lấm tấm và đau vai	emergency	vi	claude-seed
+Con trai tôi nhảy xuống chỗ nước nông đập đầu, giờ không cử động chân được	emergency	vi	claude-seed
+Ông tôi ngã từ mái nhà, đau lưng dữ dội và chân không còn cảm giác	emergency	vi	claude-seed
+Máy cắt cỏ cắt đứt ngón tay tôi, chảy máu nhiều	emergency	vi	claude-seed
+Cửa đập kẹp đứt đầu ngón tay con tôi	emergency	vi	claude-seed
+Tay bị cuốn vào máy ở nhà máy, đứt hai ngón	emergency	vi	claude-seed
+Tập gym xong hơi đau cơ	none	vi	claude-seed
+Nước tiểu sẫm vì uống ít nước, giờ trong rồi	none	vi	claude-seed
+Ăn củ dền nên nước tiểu màu hồng	none	vi	claude-seed
+Kinh nguyệt trễ ba ngày	none	vi	claude-seed
+Que thử hai vạch, đã đi khám thai lần đầu, mọi thứ bình thường	none	vi	claude-seed
+Ngồi làm việc cả ngày nên đau lưng	none	vi	claude-seed
+Ngồi xếp bằng lâu nên tê chân, đứng dậy là hết	none	vi	claude-seed
+Cắt móng sát quá, hơi đau	none	vi	claude-seed
+Đứt tay nhẹ, đã dán băng cá nhân	none	vi	claude-seed
+Xem phim kinh dị có cảnh chặt ngón tay	none	vi	claude-seed
+昨天运动强度太大，今天尿像可乐一样，全身肌肉都痛	emergency	zh	claude-seed
+在大太阳下跑了马拉松，现在尿是深棕色的，几乎尿不出来	emergency	zh	claude-seed
+爸爸的腿被重物压了好几个小时，刚搬开，尿像浓茶一样	emergency	zh	claude-seed
+两个月没来月经，一侧小腹剧痛，头晕	emergency	zh	claude-seed
+验孕两条杠，但右边肚子很痛，有点出血，肩膀也痛	emergency	zh	claude-seed
+儿子跳进浅水里撞到头，现在腿动不了	emergency	zh	claude-seed
+爷爷从屋顶摔下来，背痛得厉害，腿没有感觉	emergency	zh	claude-seed
+割草机把我的手指切断了，流了很多血	emergency	zh	claude-seed
+门夹断了孩子的指尖	emergency	zh	claude-seed
+手被工厂机器卷进去，断了两根手指	emergency	zh	claude-seed
+健身后肌肉有点酸	none	zh	claude-seed
+喝水少尿黄，现在清了	none	zh	claude-seed
+吃了甜菜根尿变粉了	none	zh	claude-seed
+月经推迟了三天	none	zh	claude-seed
+验孕阳性，第一次产检一切正常	none	zh	claude-seed
+上班坐太久背痛	none	zh	claude-seed
+盘腿坐久了腿麻，站起来就好	none	zh	claude-seed
+指甲剪太短有点痛	none	zh	claude-seed
+手指划了个小口，贴了创可贴	none	zh	claude-seed
+看了有剁手指情节的恐怖片	none	zh	claude-seed
+어제 운동을 너무 심하게 했는데 오늘 소변이 콜라색이고 온몸 근육이 아파요	emergency	ko	claude-seed
+땡볕에 마라톤을 뛰었는데 소변이 진한 갈색이고 거의 안 나와요	emergency	ko	claude-seed
+아빠 다리가 무거운 것에 몇 시간 깔려 있다가 방금 빼냈는데 소변이 진한 홍차색이에요	emergency	ko	claude-seed
+생리를 두 달째 안 하는데 한쪽 아랫배가 심하게 아프고 어지러워요	emergency	ko	claude-seed
+임신 테스트기 두 줄인데 오른쪽 배가 너무 아프고 피가 비치고 어깨가 아파요	emergency	ko	claude-seed
+아들이 얕은 물에 다이빙하다 머리를 부딪쳤는데 지금 다리를 못 움직여요	emergency	ko	claude-seed
+할아버지가 지붕에서 떨어졌는데 허리가 너무 아프고 다리에 감각이 없대요	emergency	ko	claude-seed
+잔디깎이에 손가락이 잘렸어요 피가 많이 나요	emergency	ko	claude-seed
+문에 끼어서 아이 손가락 끝이 잘렸어요	emergency	ko	claude-seed
+공장 기계에 손이 말려 들어가서 손가락 두 개가 잘렸어요	emergency	ko	claude-seed
+헬스 후 근육이 조금 뻐근해요	none	ko	claude-seed
+물을 적게 마셔서 소변이 진했는데 지금은 맑아요	none	ko	claude-seed
+비트를 먹었더니 소변이 분홍색이에요	none	ko	claude-seed
+생리가 사흘 늦어요	none	ko	claude-seed
+임신 테스트기 두 줄, 첫 산전검사 받았는데 다 정상이래요	none	ko	claude-seed
+하루 종일 앉아서 일해서 허리가 아파요	none	ko	claude-seed
+양반다리로 오래 앉아서 다리가 저렸는데 일어나니 괜찮아요	none	ko	claude-seed
+손톱을 너무 짧게 잘라서 조금 아파요	none	ko	claude-seed
+손가락에 작은 상처가 나서 밴드를 붙였어요	none	ko	claude-seed
+손가락 자르는 장면이 나오는 공포 영화를 봤어요	none	ko	claude-seed
+昨日激しい運動をしたら、今日の尿がコーラ色で全身の筋肉が痛い	emergency	ja	claude-seed
+炎天下でマラソンを走ったら尿が濃い茶色で、ほとんど出ない	emergency	ja	claude-seed
+父の脚が重いものに何時間も挟まれていて、やっと出したら尿が濃い紅茶色	emergency	ja	claude-seed
+生理が二か月来なくて、片側の下腹がひどく痛く、めまいがする	emergency	ja	claude-seed
+妊娠検査は陽性なのに右側のお腹がすごく痛く、少し出血して肩も痛い	emergency	ja	claude-seed
+息子が浅いプールに飛び込んで頭を打ち、今脚が動かせない	emergency	ja	claude-seed
+祖父が屋根から落ちて、腰がひどく痛く脚の感覚がない	emergency	ja	claude-seed
+草刈り機で指が切断されて、出血がひどい	emergency	ja	claude-seed
+ドアに挟まって子どもの指先が切れて取れた	emergency	ja	claude-seed
+工場の機械に手を巻き込まれて、指が二本切断された	emergency	ja	claude-seed
+ジムの後で少し筋肉痛	none	ja	claude-seed
+水分不足で尿が濃かったけど今は透明	none	ja	claude-seed
+ビーツを食べたら尿がピンクになった	none	ja	claude-seed
+生理が三日遅れている	none	ja	claude-seed
+妊娠検査陽性、初めての妊婦健診は全部正常だった	none	ja	claude-seed
+一日中座って仕事をして腰が痛い	none	ja	claude-seed
+あぐらで長く座って足がしびれたけど立ったら治った	none	ja	claude-seed
+爪を深く切りすぎて少し痛い	none	ja	claude-seed
+指に小さな切り傷、絆創膏を貼った	none	ja	claude-seed
+指を切り落とすシーンのあるホラー映画を見た	none	ja	claude-seed
