@@ -45,3 +45,17 @@ def test_grief_opens_with_condolence_not_step_by_step():
 def test_not_grief(q):
     from core.kernel_voice import assess
     assert "grief" not in assess(q)["topics"]
+
+
+@pytest.mark.parametrize("q,must", [
+    ("ดูแลพ่อติดเตียงคนเดียว บางทีหงุดหงิดใส่พ่อแล้วก็เกลียดตัวเองที่เป็นแบบนี้", "ไม่ได้แปลว่าคุณรักเขาน้อยลง"),
+    ("I look after my mom alone and I snapped at her today", "doesn't mean you love them less"),
+    ("เลิกกับแฟนแล้ว รู้สึกว่าตัวเองไร้ค่า", "ความรักที่จบลงไม่ได้วัดค่าของคุณ"),
+    ("สอบตก รู้สึกว่าตัวเองไม่ได้เรื่อง", "ไม่ใช่ป้ายที่บอกว่าคุณเป็นคนแบบไหน"),
+])
+def test_caregiver_breakup_exam_feelings(q, must):
+    assert must in compose(q)
+
+
+def test_no_worth_line_without_the_feeling():
+    assert "ความรักที่จบลงไม่ได้วัดค่าของคุณ" not in compose("เลิกกับแฟนแล้ว แต่ก็โอเค")

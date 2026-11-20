@@ -849,3 +849,8 @@ UPGRADES += [(re.compile(r"(?:พ่อ|แม่|ยาย|ตา|ย่า|ป
                           r"(?!\S{0,2}(?:ใจ|งาน|เงิน|ตัง|ของ|หาย|ดาย|สละ|สมาธิ|ชื่อ|เวลา|โอกาส|สิทธิ|ภาษี|เปรียบ|ทรง|ว))(?![^\n]*(?:ต้องทำ(?:ยังไง|อะไร)|แจ้งตาย|ใบมรณบัตร|ใบรับรองการตาย))|"
                           r"(?i:\b(?:my|our)\s+(?:mom|mum|mother|dad|father|grandma|grandmother|grandpa|grandfather|husband|wife|partner|son|daughter|brother|sister|best\s+friend|dog|cat)\s+"
                           r"(?:just\s+|recently\s+)?(?:died|passed\s+away|passed)\b(?!\s+(?:the\s+)?(?:exam|test|ball|class|course|out))(?![^\n]*\b(?:what\s+do\s+(?:i|we)\s+do|who\s+do\s+(?:i|we)\s+call|certificate|paperwork)\b))"), "grief")]
+
+# ผู้ดูแลที่เล่าเป็นภาษาอังกฤษแบบธรรมดา ("I look after my mom alone") — เคยไม่ได้หัวข้อผู้ดูแลเลย
+UPGRADES += [(re.compile(r"(?i)\b(?:look(?:ing)?\s+after|tak(?:e|ing)\s+care\s+of|car(?:e|ing)\s+for)\s+(?:my\s+)?(?:mom|mum|mother|dad|father|grandma|grandpa|husband|wife|partner|son|daughter|parents?)\b"
+                          r"[^\n]{0,40}?\b(?:alone|by\s+myself|on\s+my\s+own|every\s+(?:day|night)|24/7|for\s+(?:\d+|two|three|four|five|many)\s+(?:years|months))\b"), "caregiver")]
+_UP_RISK.setdefault("caregiver", 40)

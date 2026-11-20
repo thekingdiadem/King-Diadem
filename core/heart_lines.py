@@ -24,6 +24,11 @@ _HIDE_EN = re.compile(r"(?i)\b(?:ashamed|embarrassed|afraid)\s+to\s+tell\b|\bhav
 _GUILT_TH = re.compile(r"ไม่ได้อยู่ข้าง|ไม่ทันได้|ไม่ได้ร่ำลา|ไม่ได้บอกลา|รู้สึกผิด|โทษตัวเอง|น่าจะทำ\S{0,8}มากกว่านี้")
 _GUILT_EN = re.compile(r"(?i)\bwasn'?t\s+there\b|\bdidn'?t\s+(?:get\s+to\s+)?say\s+goodbye\b|\bguilt|\bblame\s+myself\b|\bshould\s+have\b")
 
+_RESENT_TH = re.compile(r"โกรธ(?:แม่|พ่อ|ยาย|ตา|เขา|สามี|ภรรยา|ลูก)|หงุดหงิดใส่|รำคาญ(?:แม่|พ่อ|เขา)|อยากให้มันจบ|เกลียดตัวเองที่")
+_RESENT_EN = re.compile(r"(?i)\b(?:resent|angry\s+at|snap(?:ped)?\s+at|hate\s+myself\s+for|wish\s+it\s+(?:was|were)\s+over)\b")
+_WORTHLESS_TH = re.compile(r"ไม่มีค่า|ไร้ค่า|ไม่เอาไหน|ไม่ได้เรื่อง|ไม่ดีพอ|ห่วยแตก|มันโง่|ล้มเหลว(?:ทั้งชีวิต)?")
+_WORTHLESS_EN = re.compile(r"(?i)\b(?:worthless|not\s+good\s+enough|a\s+failure|useless|unlovable)\b")
+
 LINES = {
     "shame": ("แก๊งพวกนี้ใช้บทพูดที่ฝึกมาเป็นทีม หลอกได้ทั้งหมอ ครู และพนักงานธนาคาร — การโดนหลอกไม่ได้แปลว่าคุณโง่ แต่แปลว่าเขาเก่งเรื่องโกหก",
               "These groups work from rehearsed scripts and fool doctors, teachers and bank staff too — being scammed doesn't mean you're stupid; it means they are skilled liars."),
@@ -35,6 +40,12 @@ LINES = {
              "Shame makes us want to carry this alone, but money or work trouble doesn't measure your worth — you could tell just one person you trust first; the weight halves when it's shared."),
     "guilt": ("ความรู้สึกผิดแบบนี้มักมาจากความรักที่ยังอยากทำให้เขาอีก — การไม่ได้อยู่ตรงนั้นในวินาทีสุดท้าย ไม่ได้ลบทุกวันที่คุณรักเขามา",
               "Guilt like this usually comes from love that still wants to do more for them — not being there at the very end doesn't erase all the days you loved them."),
+    "resent": ("การโกรธหรือเหนื่อยใส่คนที่เราดูแล ไม่ได้แปลว่าคุณรักเขาน้อยลง — มันคือสัญญาณว่าคุณแบกมานานเกินคนคนเดียวจะแบกไหว",
+               "Feeling anger or resentment toward the person you care for doesn't mean you love them less — it's a sign you've carried this longer than one person can."),
+    "worth_love": ("ความรักที่จบลงไม่ได้วัดค่าของคุณ — มันบอกแค่ว่าความสัมพันธ์นี้ไปต่อไม่ได้ ไม่ได้บอกว่าคุณไม่ควรค่ากับการถูกรัก",
+                   "A relationship ending doesn't measure your worth — it says this relationship couldn't continue, not that you aren't worth loving."),
+    "worth_exam": ("ผลสอบเป็นข้อมูลว่าวิธีอ่านแบบนี้ยังไม่เวิร์ก ไม่ใช่ป้ายที่บอกว่าคุณเป็นคนแบบไหน",
+                   "A result tells you the way you studied didn't work yet — it isn't a label for who you are."),
     "again": ("การที่ยังอยู่หรือเคยกลับไป ไม่ใช่ความผิดของคุณ — คุณออกได้เมื่อพร้อม และวางแผนเงียบๆ ไว้ก่อนได้ เช่น เก็บบัตรประชาชน เงินเล็กน้อย และเบอร์สำคัญไว้ที่คนที่ไว้ใจ",
               "Staying, or going back before, is not your fault — you can leave when you're ready, and quietly plan ahead: keep ID, a little money and key numbers with someone you trust."),
 }
@@ -59,6 +70,13 @@ def lines_for(text: str, a: dict) -> list:
             pick.append("again")
     if ("debt" in topics or "job" in topics or "labor" in topics) and (_HIDE_EN if en else _HIDE_TH).search(text):
         pick.append("hide")
+    if "caregiver" in topics and (_RESENT_EN if en else _RESENT_TH).search(text):
+        pick.append("resent")
+    if (_WORTHLESS_EN if en else _WORTHLESS_TH).search(text):
+        if "relationship" in topics or "breakup" in topics:
+            pick.append("worth_love")
+        elif any(t in topics for t in ("study", "kp_exam_fail", "exam")):
+            pick.append("worth_exam")
     if "grief" in topics and (_GUILT_EN if en else _GUILT_TH).search(text):
         pick.append("guilt")
     return [LINES[k][1 if en else 0] for k in pick[:2]]
