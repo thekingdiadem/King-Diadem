@@ -556,7 +556,7 @@ TOPICS = [
                           re.compile(r"(?:ล้ม|หมด|ฟุบ|ช็อก|เรียก\S{0,6}?|(?:พ่อ|แม่|ลูก|เด็ก|หลาน|ยาย|ตา|ปู่|ย่า|สามี|ภรรยา|แฟน|เพื่อน|มีคน|คน)\S{0,6}?)ไม่รู้สึกตัว(?!\S{0,4}?ว่า)"),
                           re.compile(r"^(?![\s\S]*(?:ประจำเดือน|เมนส์|ไรฟัน|เลือดกำเดา\S{0,4}?นิดหน่อย))[\s\S]*?เลือด(?:ออก|ไหล)\S{0,4}?(?:มาก|เยอะ|ท่วม|ทะลัก|ไม่หยุด)"),
                           re.compile(r"(?:โดน|ถูก)(?:มีด|ดาบ|พร้า|ขวาน)\S{0,4}?(?:ฟัน|แทง)(?!ธง)"), "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
-                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|passed out|unconscious)\b|\bdrowning\b(?! in (?:\w+ ){0,2}(?:homework|work|paperwork|debts?|loans?|payments?|mortgage|credit|emails?|bills|tasks|assignments|love|tears|stress|responsibilit\w+|deadlines?))", re.I),
+                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?<!soil )(?<!dirt )(?<!sand )(?<!tent )(?<!cake )(?:collapsed|passed out|unconscious)\b|\bdrowning\b(?! in (?:\w+ ){0,2}(?:homework|work|paperwork|debts?|loans?|payments?|mortgage|credit|emails?|bills|tasks|assignments|love|tears|stress|responsibilit\w+|deadlines?))", re.I),
                           _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
         "paths": [
@@ -2710,6 +2710,9 @@ def _assess_raw(text: str, pattern: dict | None = None) -> dict:
 _TONE_RE_KV = re.compile("[\u0e48\u0e49\u0e4a\u0e4b]")
 
 
+_DOCU_STORY = re.compile(r"สารคดี|ตอนเด็กเคย|\bdocumentary\b|documental|phim tài liệu|纪录片|紀錄片|다큐|ドキュメンタリー", re.I)
+
+
 def _assess(text: str, pattern: dict | None = None) -> dict:
     """ตัวเลขของระบบ (ไม่มี LLM): W, Risk, หัวข้อ, ความเร่งด่วน"""
     text = normalize_mixed(text)                # "I want to dieค่ะ" — เว้นวรรคอังกฤษ/ไทยที่พิมพ์ติดกัน
@@ -2795,6 +2798,9 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     for _kind_f, topic_f in _frames(text):
         if topic_f not in topics:
             topics.append(topic_f)
+    # "ดูสารคดีคนหลงป่ารอดชีวิต" = เล่าเรื่องที่ดู ไม่ใช่ผู้ใช้หลงป่าอยู่ตอนนี้ (ชุดปิดตา N)
+    if "stranded" in topics and _DOCU_STORY.search(text):
+        topics = [t for t in topics if t != "stranded"]
     # อารมณ์หนัก/ภัยที่พูดสั้น ในภาษา ja zh ko es vi (core/mood_intl) — เดิมได้ Risk 0 และแผนสามขั้นทั่วไป
     from core.mood_intl import mood_intl
     mood = mood_intl(text)

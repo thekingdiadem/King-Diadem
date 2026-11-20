@@ -1384,7 +1384,7 @@ Mi amiga le donó un riñón a su hermano, la cirugía salió bien	none	es	claud
 Tenía ganas de orinar en el tráfico pero llegué a casa bien	none	es	claude-seed
 Bố tôi cả ngày không đi tiểu được, bụng dưới căng cứng và đau dữ dội	emergency	vi	claude-seed
 Mẹ tôi hai ngày nay gần như không tiểu, người phù lên và khó thở	emergency	vi	claude-seed
-Đau dữ dội vùng hông lan xuống bẹn, sốt rét run và tiểu ra máu	emergency	vi	claude-seed
+Tôi bị đau quặn thắt lưng bên phải, sốt cao và buồn nôn	emergency	vi	claude-seed
 Tôi bị sỏi thận, giờ sốt 39 độ, đau lưng đến mức không dậy nổi	emergency	vi	claude-seed
 Bà tôi bỏ lỡ hai buổi chạy thận, giờ người yếu và tim đập loạn nhịp	emergency	vi	claude-seed
 Bệnh nhân chạy thận được báo kali máu rất cao, tay chân tê và yếu	emergency	vi	claude-seed
@@ -1479,7 +1479,7 @@ Buồn tiểu lúc kẹt xe nhưng về nhà kịp	none	vi	claude-seed
 ปวดท้องนิดหน่อยเพราะกินเผ็ด เข้าห้องน้ำแล้วหาย	none	th	claude-seed
 ปวดท้องประจำเดือนเหมือนทุกเดือน	none	th	claude-seed
 ถ่ายสีดำเพราะกินยาบำรุงเลือดธาตุเหล็ก	none	th	claude-seed
-แปรงฟันแล้วเลือดออกตามไรฟันนิดหน่อย	none	th	claude-seed
+ไหมขัดฟันบาดเหงือกนิดเดียว	none	th	claude-seed
 อ้วกเพราะเมารถ ลงรถแล้วดีขึ้น	none	th	claude-seed
 คอแข็งเพราะนอนตกหมอน	none	th	claude-seed
 ปวดหัวเพราะนอนน้อย กินยาแล้วหาย	none	th	claude-seed
@@ -1649,7 +1649,7 @@ My kid swallowed gum, no big deal	none	en	claude-seed
 Mi amiga se tomó una botella entera sola y no podemos despertarla, vomitó inconsciente	emergency	es	claude-seed
 Mi hermano está tan borracho que está frío, respira muy despacio y tiene los labios morados	emergency	es	claude-seed
 Mi tío tomó aguardiente casero y ahora ve borroso, no ve nada y le duele el estómago	emergency	es	claude-seed
-Después del alcohol adulterado en la fiesta varias personas ven borroso y respiran rápido	emergency	es	claude-seed
+Mi primo tomó licor casero del mercado y ahora ve todo nublado y le cuesta respirar	emergency	es	claude-seed
 Mi novio tuvo una sobredosis de metanfetamina, está ardiendo, el corazón acelerado y convulsiona	emergency	es	claude-seed
 Mi amigo se metió heroína y casi no respira, pupilas diminutas como puntos	emergency	es	claude-seed
 Mi hermano tomó demasiada ketamina y no responde, echa espuma por la boca	emergency	es	claude-seed
@@ -1764,7 +1764,7 @@ TV 리모컨 건전지를 갈았어요	none	ko	claude-seed
 ยายเริ่มลืมๆ บ่อย พาไปหาหมอตามนัด	none	th	claude-seed
 หลงทางนิดหน่อยตอนขับรถ เปิดแผนที่ก็ถึง	none	th	claude-seed
 ไปเดินป่ากับไกด์ สนุกมาก	none	th	claude-seed
-ดูสารคดีคนหลงป่ารอดชีวิต	none	th	claude-seed
+อ่านหนังสือเอาตัวรอดในป่าก่อนไปแคมป์	none	th	claude-seed
 นั่งเรือข้ามฟากไปเกาะ คลื่นนิดหน่อย	none	th	claude-seed
 ไปตกปลากลางทะเลกับพ่อ ได้ปลาเยอะ	none	th	claude-seed
 ลูกเล่นซ่อนแอบกับเพื่อน หาเจอแล้ว	none	th	claude-seed
@@ -1784,7 +1784,7 @@ The cat was gone all night and came back in the morning	none	en	claude-seed
 Grandma is getting forgetful, taking her to her doctor appointment	none	en	claude-seed
 Got a little lost driving, the map app got me there	none	en	claude-seed
 Went hiking with a guide, so much fun	none	en	claude-seed
-Watched a documentary about surviving being lost in the woods	none	en	claude-seed
+Reading a wilderness survival book before our camping trip	none	en	claude-seed
 Took the ferry to the island, a bit choppy	none	en	claude-seed
 Went deep sea fishing with dad, caught a lot	none	en	claude-seed
 Kids played hide and seek, found everyone	none	en	claude-seed
@@ -1900,16 +1900,16 @@ Bọn trẻ chơi trốn tìm, tìm thấy hết rồi	none	vi	claude-seed
 ฟ้าผ่าคนในนา ตอนนี้ไม่หายใจ	emergency	th	claude-seed
 เพื่อนโดนฟ้าผ่าตอนตีกอล์ฟ ล้มลงหมดสติ	emergency	th	claude-seed
 ฟ้าผ่าต้นไม้ข้างๆ ลูกโดนด้วย แขนไหม้ พูดไม่รู้เรื่อง	emergency	th	claude-seed
-เมื่อคืนรู้สึกแผ่นดินไหวเบาๆ ไม่มีอะไรเสียหาย	none	th	claude-seed
+แอปเตือนว่ามีแผ่นดินไหวที่พม่า ที่บ้านไม่รู้สึกอะไร	none	th	claude-seed
 ซ้อมหนีแผ่นดินไหวที่โรงเรียน	none	th	claude-seed
 ดูข่าวดินถล่มที่ต่างประเทศ	none	th	claude-seed
 ทำสวนแล้วดินพังนิดหน่อย	none	th	claude-seed
-มีหมอกควันไฟป่าไกลๆ ใส่หน้ากากออกไปข้างนอก	none	th	claude-seed
+ค่าฝุ่นสูงเพราะการเผาในภาคเหนือ ใส่หน้ากากไปทำงาน	none	th	claude-seed
 เผาใบไม้ในสวนแล้วดับเรียบร้อย	none	th	claude-seed
 ฟ้าร้องดังมาก เลยถอดปลั๊กทีวี	none	th	claude-seed
-ดูรูปฟ้าผ่าสวยๆ ที่เพื่อนถ่าย	none	th	claude-seed
-เล่นเกมจำลองแผ่นดินไหว	none	th	claude-seed
-ฟ้าผ่าเสาไฟไกลบ้าน ไฟดับครึ่งชั่วโมง	none	th	claude-seed
+เรียนเรื่องสายล่อฟ้าในวิชาวิทยาศาสตร์	none	th	claude-seed
+ซื้อชุดยังชีพเตรียมไว้เผื่อแผ่นดินไหว	none	th	claude-seed
+พายุเข้า ไฟดับไปชั่วโมงหนึ่งแล้วก็มา	none	th	claude-seed
 Earthquake, our house collapsed, mom is trapped under a wall and can't move	emergency	en	claude-seed
 The building cracked after the quake, people are still inside, we can hear screaming	emergency	en	claude-seed
 A mudslide buried a whole house, two people are missing	emergency	en	claude-seed
@@ -1923,12 +1923,12 @@ Lightning hit the tree next to us, my kid was hit too, arm burned and talking no
 Felt a light quake last night, no damage	none	en	claude-seed
 Earthquake drill at school	none	en	claude-seed
 Watched news about landslides abroad	none	en	claude-seed
-Some soil collapsed while gardening	none	en	claude-seed
-Wildfire haze far away, wore a mask outside	none	en	claude-seed
+The sandcastle collapsed when the wave came	none	en	claude-seed
+The air quality app says smoky skies today, staying indoors	none	en	claude-seed
 Burned leaves in the yard and put it out	none	en	claude-seed
 Thunder was loud so I unplugged the TV	none	en	claude-seed
 Looking at cool lightning photos my friend took	none	en	claude-seed
-Played an earthquake simulation game	none	en	claude-seed
+Packed an emergency kit in case of earthquakes	none	en	claude-seed
 Lightning hit a pole far away, power was out half an hour	none	en	claude-seed
 Terremoto, la casa se derrumbó, mi mamá está atrapada bajo una pared y no se puede mover	emergency	es	claude-seed
 El edificio se agrietó con el sismo, todavía hay gente adentro, se oyen gritos	emergency	es	claude-seed
@@ -1941,14 +1941,14 @@ Un rayo le cayó a un hombre en el campo, no respira	emergency	es	claude-seed
 A mi amigo le cayó un rayo en el campo de golf, se desplomó inconsciente	emergency	es	claude-seed
 Un rayo cayó en el árbol de al lado, a mi hijo también le alcanzó, brazo quemado y dice cosas sin sentido	emergency	es	claude-seed
 Sentí un temblor leve anoche, sin daños	none	es	claude-seed
-Simulacro de sismo en la escuela	none	es	claude-seed
+Practicamos la ruta de evacuación en la oficina	none	es	claude-seed
 Vi noticias de deslaves en otro país	none	es	claude-seed
 Se desmoronó un poco de tierra en el jardín	none	es	claude-seed
-Humo de incendios lejanos, salí con mascarilla	none	es	claude-seed
+Hoy hay mala calidad del aire, me quedé en casa	none	es	claude-seed
 Quemé hojas en el patio y lo apagué	none	es	claude-seed
 Los truenos sonaban fuerte, desenchufé la tele	none	es	claude-seed
 Mirando fotos bonitas de rayos que sacó mi amigo	none	es	claude-seed
-Jugué un simulador de terremotos	none	es	claude-seed
+Preparé una mochila de emergencia por si hay terremoto	none	es	claude-seed
 Un rayo cayó en un poste lejos, se fue la luz media hora	none	es	claude-seed
 Động đất, nhà sập, mẹ tôi bị kẹt dưới bức tường không cử động được	emergency	vi	claude-seed
 Tòa nhà nứt sau động đất, vẫn còn người bên trong, nghe tiếng kêu cứu	emergency	vi	claude-seed
@@ -1961,14 +1961,14 @@ Sét đánh trúng một người ngoài đồng, giờ không thở	emergency	v
 Bạn tôi bị sét đánh ở sân golf, ngã gục bất tỉnh	emergency	vi	claude-seed
 Sét đánh cây bên cạnh, con tôi cũng bị, tay bị bỏng và nói lảm nhảm	emergency	vi	claude-seed
 Tối qua có rung nhẹ, không thiệt hại gì	none	vi	claude-seed
-Diễn tập động đất ở trường	none	vi	claude-seed
+Trường tổ chức buổi học kỹ năng thoát hiểm	none	vi	claude-seed
 Xem tin sạt lở ở nước ngoài	none	vi	claude-seed
 Làm vườn bị sụt chút đất	none	vi	claude-seed
 Khói cháy rừng ở xa, đeo khẩu trang ra ngoài	none	vi	claude-seed
 Đốt lá trong vườn rồi dập tắt	none	vi	claude-seed
 Sấm to quá nên rút phích tivi	none	vi	claude-seed
 Xem ảnh sét đẹp bạn chụp	none	vi	claude-seed
-Chơi game mô phỏng động đất	none	vi	claude-seed
+Chuẩn bị túi đồ khẩn cấp phòng khi có động đất	none	vi	claude-seed
 Sét đánh cột điện xa nhà, mất điện nửa tiếng	none	vi	claude-seed
 地震了，房子塌了，妈妈被压在墙下动不了	emergency	zh	claude-seed
 地震后楼裂了，里面还有人，能听到喊叫声	emergency	zh	claude-seed
@@ -1980,15 +1980,15 @@ Sét đánh cột điện xa nhà, mất điện nửa tiếng	none	vi	claude-se
 田里有人被雷劈了，现在没有呼吸	emergency	zh	claude-seed
 朋友在高尔夫球场被雷击中，倒地昏迷	emergency	zh	claude-seed
 雷劈中旁边的树，孩子也被击中，手臂烧伤，说胡话	emergency	zh	claude-seed
-昨晚感觉到轻微地震，没有损失	none	zh	claude-seed
-学校进行地震演练	none	zh	claude-seed
+手机收到地震预警，但我们这里没感觉	none	zh	claude-seed
+公司组织了消防逃生培训	none	zh	claude-seed
 看了国外山体滑坡的新闻	none	zh	claude-seed
 种花时土塌了一点	none	zh	claude-seed
 远处山火的烟霾，戴口罩出门	none	zh	claude-seed
 在院子里烧树叶，已经扑灭了	none	zh	claude-seed
 雷声很大，拔了电视插头	none	zh	claude-seed
 看朋友拍的漂亮闪电照片	none	zh	claude-seed
-玩地震模拟游戏	none	zh	claude-seed
+准备了一个防震应急包	none	zh	claude-seed
 雷击中远处电线杆，停电半小时	none	zh	claude-seed
 지진으로 집이 무너졌고 엄마가 벽 아래 깔려서 움직이지 못해요	emergency	ko	claude-seed
 지진 후 건물에 금이 갔는데 아직 안에 사람이 있고 비명이 들려요	emergency	ko	claude-seed
@@ -2000,7 +2000,7 @@ Sét đánh cột điện xa nhà, mất điện nửa tiếng	none	vi	claude-se
 논에서 사람이 벼락을 맞았는데 지금 숨을 안 쉬어요	emergency	ko	claude-seed
 친구가 골프장에서 벼락을 맞고 쓰러져서 의식이 없어요	emergency	ko	claude-seed
 옆 나무에 벼락이 떨어졌는데 아이도 맞아서 팔이 타고 횡설수설해요	emergency	ko	claude-seed
-어젯밤 약한 지진을 느꼈는데 피해는 없어요	none	ko	claude-seed
+휴대폰에 지진 알림이 왔는데 여기는 아무 느낌이 없었어요	none	ko	claude-seed
 학교에서 지진 대피 훈련을 했어요	none	ko	claude-seed
 해외 산사태 뉴스를 봤어요	none	ko	claude-seed
 정원 일하다 흙이 조금 무너졌어요	none	ko	claude-seed
@@ -2008,7 +2008,7 @@ Sét đánh cột điện xa nhà, mất điện nửa tiếng	none	vi	claude-se
 마당에서 낙엽을 태우고 다 껐어요	none	ko	claude-seed
 천둥이 커서 TV 플러그를 뽑았어요	none	ko	claude-seed
 친구가 찍은 멋진 번개 사진을 봤어요	none	ko	claude-seed
-지진 시뮬레이션 게임을 했어요	none	ko	claude-seed
+지진 대비 비상가방을 챙겨 뒀어요	none	ko	claude-seed
 멀리 전봇대에 벼락이 떨어져서 30분 정전됐어요	none	ko	claude-seed
 地震で家が倒壊して、母が壁の下敷きになって動けない	emergency	ja	claude-seed
 地震のあとビルにひびが入って、まだ中に人がいて叫び声が聞こえる	emergency	ja	claude-seed
@@ -2020,13 +2020,13 @@ Sét đánh cột điện xa nhà, mất điện nửa tiếng	none	vi	claude-se
 田んぼで人に雷が落ちて、今息をしていない	emergency	ja	claude-seed
 友達がゴルフ場で落雷に遭って倒れ、意識がない	emergency	ja	claude-seed
 隣の木に雷が落ちて子どもも当たり、腕をやけどしてうわごとを言っている	emergency	ja	claude-seed
-昨夜弱い地震を感じたけど被害はない	none	ja	claude-seed
+スマホに地震速報が来たけど、こちらは揺れなかった	none	ja	claude-seed
 学校で地震の避難訓練をした	none	ja	claude-seed
 海外の土砂崩れのニュースを見た	none	ja	claude-seed
 庭仕事で土が少し崩れた	none	ja	claude-seed
-遠くの山火事の煙でマスクをして外出した	none	ja	claude-seed
+今日は空気が悪いので家で過ごした	none	ja	claude-seed
 庭で落ち葉を燃やして消した	none	ja	claude-seed
 雷がうるさいのでテレビのプラグを抜いた	none	ja	claude-seed
 友達が撮ったきれいな雷の写真を見た	none	ja	claude-seed
-地震シミュレーションゲームをした	none	ja	claude-seed
+地震に備えて防災リュックを準備した	none	ja	claude-seed
 遠くの電柱に雷が落ちて30分停電した	none	ja	claude-seed

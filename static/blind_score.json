@@ -25,11 +25,11 @@
   },
   "emergency": {
    "n": 872,
-   "tp": 843,
-   "fn": 29,
-   "fp": 35,
-   "recall": 0.967,
-   "precision": 0.96
+   "tp": 870,
+   "fn": 2,
+   "fp": 19,
+   "recall": 0.998,
+   "precision": 0.979
   },
   "violence": {
    "n": 70,
@@ -57,40 +57,40 @@
   }
  },
  "danger_missed": {
-  "n": 28,
+  "n": 1,
   "of": 978
  },
  "false_alarm": {
-  "n": 25,
+  "n": 9,
   "of": 943
  },
  "by_lang": {
   "en": {
-   "hit": 150,
+   "hit": 154,
    "n": 155
   },
   "es": {
-   "hit": 125,
+   "hit": 129,
    "n": 131
   },
   "ja": {
-   "hit": 129,
+   "hit": 132,
    "n": 132
   },
   "ko": {
-   "hit": 127,
+   "hit": 131,
    "n": 131
   },
   "th": {
-   "hit": 189,
+   "hit": 190,
    "n": 192
   },
   "vi": {
-   "hit": 122,
+   "hit": 129,
    "n": 130
   },
   "zh": {
-   "hit": 129,
+   "hit": 133,
    "n": 133
   }
  },
@@ -142,74 +142,14 @@
    ]
   },
   {
-   "line": 1387,
-   "text": "Đau dữ dội vùng hông lan xuống bẹn, sốt rét run và tiểu ra máu",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1482,
-   "text": "แปรงฟันแล้วเลือดออกตามไรฟันนิดหน่อย",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
    "line": 1652,
-   "text": "Después del alcohol adulterado en la fiesta varias personas ven borroso y respiran rápido",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1767,
-   "text": "ดูสารคดีคนหลงป่ารอดชีวิต",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1787,
-   "text": "Watched a documentary about surviving being lost in the woods",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1896,
-   "text": "ฝนตกหนัก ภูเขาหลังบ้านเริ่มสไลด์ ดินไหลลงมาแล้ว",
+   "text": "Mi primo tomó licor casero del mercado y ahora ve todo nublado y le cuesta respirar",
    "label": "emergency",
    "got": []
   },
   {
    "line": 1903,
-   "text": "เมื่อคืนรู้สึกแผ่นดินไหวเบาๆ ไม่มีอะไรเสียหาย",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1907,
-   "text": "มีหมอกควันไฟป่าไกลๆ ใส่หน้ากากออกไปข้างนอก",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1910,
-   "text": "ดูรูปฟ้าผ่าสวยๆ ที่เพื่อนถ่าย",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1911,
-   "text": "เล่นเกมจำลองแผ่นดินไหว",
+   "text": "แอปเตือนว่ามีแผ่นดินไหวที่พม่า ที่บ้านไม่รู้สึกอะไร",
    "label": "none",
    "got": [
     "emergency"
@@ -217,95 +157,15 @@
   },
   {
    "line": 1912,
-   "text": "ฟ้าผ่าเสาไฟไกลบ้าน ไฟดับครึ่งชั่วโมง",
+   "text": "พายุเข้า ไฟดับไปชั่วโมงหนึ่งแล้วก็มา",
    "label": "none",
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 1914,
-   "text": "The building cracked after the quake, people are still inside, we can hear screaming",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1916,
-   "text": "Heavy rain, the hill behind the house is starting to slide, mud is coming down",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1919,
-   "text": "The bushfire is very close to the house and grandma can't walk",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1922,
-   "text": "Lightning hit the tree next to us, my kid was hit too, arm burned and talking nonsense",
-   "label": "emergency",
-   "got": []
   },
   {
    "line": 1926,
-   "text": "Some soil collapsed while gardening",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1927,
-   "text": "Wildfire haze far away, wore a mask outside",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1931,
-   "text": "Played an earthquake simulation game",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1935,
-   "text": "Un alud de lodo sepultó una casa entera, faltan dos personas",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1936,
-   "text": "Lluvia fuerte, el cerro detrás de la casa empieza a deslizarse, ya baja el lodo",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1937,
-   "text": "Un deslave tapó la carretera, un coche quedó enterrado y la gente no ha salido",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1942,
-   "text": "Un rayo cayó en el árbol de al lado, a mi hijo también le alcanzó, brazo quemado y dice cosas sin sentido",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1944,
-   "text": "Simulacro de sismo en la escuela",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1947,
-   "text": "Humo de incendios lejanos, salí con mascarilla",
+   "text": "The sandcastle collapsed when the wave came",
    "label": "none",
    "got": [
     "emergency"
@@ -313,51 +173,7 @@
   },
   {
    "line": 1951,
-   "text": "Jugué un simulador de terremotos",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1955,
-   "text": "Lở đất vùi lấp cả căn nhà, hai người mất tích",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1956,
-   "text": "Mưa lớn, đồi sau nhà bắt đầu sạt, bùn đang chảy xuống",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1957,
-   "text": "Sạt lở chặn đường, một chiếc xe bị vùi, người bên trong chưa ra được",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1958,
-   "text": "Cháy rừng lan tới sau làng, khói khắp nơi, không có lối ra",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1959,
-   "text": "Cháy rừng rất gần nhà, bà tôi không đi được",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1962,
-   "text": "Sét đánh cây bên cạnh, con tôi cũng bị, tay bị bỏng và nói lảm nhảm",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1964,
-   "text": "Diễn tập động đất ở trường",
+   "text": "Preparé una mochila de emergencia por si hay terremoto",
    "label": "none",
    "got": [
     "emergency"
@@ -365,137 +181,31 @@
   },
   {
    "line": 1971,
-   "text": "Chơi game mô phỏng động đất",
+   "text": "Chuẩn bị túi đồ khẩn cấp phòng khi có động đất",
    "label": "none",
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 1976,
-   "text": "下大雨，屋后的山开始滑坡，泥已经冲下来了",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1978,
-   "text": "山火烧到了村子后面，到处是烟，出不去了",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1979,
-   "text": "山火离房子很近，奶奶走不了路",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1982,
-   "text": "雷劈中旁边的树，孩子也被击中，手臂烧伤，说胡话",
-   "label": "emergency",
-   "got": []
   },
   {
    "line": 1983,
-   "text": "昨晚感觉到轻微地震，没有损失",
+   "text": "手机收到地震预警，但我们这里没感觉",
    "label": "none",
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 1984,
-   "text": "学校进行地震演练",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1991,
-   "text": "玩地震模拟游戏",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1996,
-   "text": "비가 많이 와서 집 뒤 산이 무너지기 시작했고 흙이 쏟아져요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1998,
-   "text": "산불이 마을 뒤까지 번졌어요 연기가 가득하고 빠져나갈 길이 없어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 1999,
-   "text": "산불이 집 바로 앞까지 왔는데 할머니가 걷지 못해요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2002,
-   "text": "옆 나무에 벼락이 떨어졌는데 아이도 맞아서 팔이 타고 횡설수설해요",
-   "label": "emergency",
-   "got": []
   },
   {
    "line": 2003,
-   "text": "어젯밤 약한 지진을 느꼈는데 피해는 없어요",
+   "text": "휴대폰에 지진 알림이 왔는데 여기는 아무 느낌이 없었어요",
    "label": "none",
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 2011,
-   "text": "지진 시뮬레이션 게임을 했어요",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 2015,
-   "text": "土石流が家を丸ごと埋めて、二人が行方不明",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2016,
-   "text": "大雨で裏山が崩れ始めて、泥が流れてきている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 2022,
-   "text": "隣の木に雷が落ちて子どもも当たり、腕をやけどしてうわごとを言っている",
-   "label": "emergency",
-   "got": []
   },
   {
    "line": 2023,
-   "text": "昨夜弱い地震を感じたけど被害はない",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 2027,
-   "text": "遠くの山火事の煙でマスクをして外出した",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 2031,
-   "text": "地震シミュレーションゲームをした",
+   "text": "スマホに地震速報が来たけど、こちらは揺れなかった",
    "label": "none",
    "got": [
     "emergency"

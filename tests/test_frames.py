@@ -370,3 +370,26 @@ def test_round11_danger(text):
 @pytest.mark.parametrize("text", CALM_11)
 def test_round11_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 12: แผ่นดินไหวติดใต้ซาก · ดินถล่ม · ไฟป่าลามใกล้ · ฟ้าผ่า (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา O) ──
+DANGER_12 = [
+    "แผ่นดินไหว พ่อติดอยู่ใต้ซากบ้าน", "after the earthquake my neighbor is pinned under the roof", "地震后有人被压在下面",
+    "ดินถล่มทับบ้านเพื่อน มีคนหาย", "a landslide buried our car", "산사태로 집이 묻혔어요",
+    "ไฟป่าลามมาถึงหลังบ้านแล้ว ออกไม่ได้", "the wildfire is very close and we're surrounded", "山火事がすぐ近くまで来ている",
+    "ฟ้าผ่าคนข้างบ้าน ตอนนี้หมดสติ", "my dad was struck by lightning and isn't breathing", "bị sét đánh, bất tỉnh",
+]
+CALM_12 = [
+    "ซ้อมหนีแผ่นดินไหวที่ออฟฟิศ", "earthquake drill at work today", "ควันไฟป่าไกลๆ", "photos of lightning over the city",
+    "ดินพังนิดหน่อยตอนขุดดิน", "the sandcastle collapsed",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_12)
+def test_round12_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_12)
+def test_round12_calm(text):
+    assert frames(text) == [], explain(text)

@@ -996,3 +996,31 @@ Prendimos la estufa de leña con las ventanas cerradas y ahora mi abuelo está m
 ลูกเป็นไข้ต่ำๆ หลังฉีดวัคซีน กินยาแล้วดีขึ้น	none	เตือนเกิน:ย้ายจากชุดปิดตา
 Saw lots of jellyfish floating at the beach	none	เตือนเกิน:ย้ายจากชุดปิดตา
 打完疫苗有点低烧，吃了药好多了	none	เตือนเกิน:ย้ายจากชุดปิดตา
+# ── ย้ายจากชุดปิดตา K/M (แก้แล้วหลังรอบ 12): vùng hông + tiểu ra máu · ven borroso ──
+Đau dữ dội vùng hông lan xuống bẹn, sốt rét run và tiểu ra máu	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+Después del alcohol adulterado en la fiesta varias personas ven borroso y respiran rápido	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+# ── ย้ายจากชุดปิดตา L/N/O (เตือนเกิน แก้แล้วหลังรอบ 12): ซ้อม · เกมจำลอง · ไกลตัว · ไม่เสียหาย · ดูรูป · สารคดี · ดินพัง · เหงือกเลือดออกนิดหน่อย ──
+แปรงฟันแล้วเลือดออกตามไรฟันนิดหน่อย	none	เตือนเกิน:ย้ายจากชุดปิดตา
+ดูสารคดีคนหลงป่ารอดชีวิต	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Watched a documentary about surviving being lost in the woods	none	เตือนเกิน:ย้ายจากชุดปิดตา
+เมื่อคืนรู้สึกแผ่นดินไหวเบาๆ ไม่มีอะไรเสียหาย	none	เตือนเกิน:ย้ายจากชุดปิดตา
+มีหมอกควันไฟป่าไกลๆ ใส่หน้ากากออกไปข้างนอก	none	เตือนเกิน:ย้ายจากชุดปิดตา
+ดูรูปฟ้าผ่าสวยๆ ที่เพื่อนถ่าย	none	เตือนเกิน:ย้ายจากชุดปิดตา
+เล่นเกมจำลองแผ่นดินไหว	none	เตือนเกิน:ย้ายจากชุดปิดตา
+ฟ้าผ่าเสาไฟไกลบ้าน ไฟดับครึ่งชั่วโมง	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Some soil collapsed while gardening	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Wildfire haze far away, wore a mask outside	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Played an earthquake simulation game	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Simulacro de sismo en la escuela	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Humo de incendios lejanos, salí con mascarilla	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Jugué un simulador de terremotos	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Diễn tập động đất ở trường	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Chơi game mô phỏng động đất	none	เตือนเกิน:ย้ายจากชุดปิดตา
+昨晚感觉到轻微地震，没有损失	none	เตือนเกิน:ย้ายจากชุดปิดตา
+学校进行地震演练	none	เตือนเกิน:ย้ายจากชุดปิดตา
+玩地震模拟游戏	none	เตือนเกิน:ย้ายจากชุดปิดตา
+어젯밤 약한 지진을 느꼈는데 피해는 없어요	none	เตือนเกิน:ย้ายจากชุดปิดตา
+지진 시뮬레이션 게임을 했어요	none	เตือนเกิน:ย้ายจากชุดปิดตา
+昨夜弱い地震を感じたけど被害はない	none	เตือนเกิน:ย้ายจากชุดปิดตา
+遠くの山火事の煙でマスクをして外出した	none	เตือนเกิน:ย้ายจากชุดปิดตา
+地震シミュレーションゲームをした	none	เตือนเกิน:ย้ายจากชุดปิดตา

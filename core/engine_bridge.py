@@ -734,7 +734,11 @@ _FLOOD_AFTER_STEPS = [
 
 # ซ้อมหนีไฟ / ทดสอบระบบเตือนภัย / ฉากในหนัง — ไม่ใช่เหตุที่กำลังเกิด (แต่ "this is not a drill" ยังเป็นเหตุจริง)
 _HAZARD_STAGED = re.compile(r"ซ้อม|ทดลองระบบ|ทดสอบระบบ|ฉากในหนัง|ในหนัง|ในเกม|ในซีรีส์|"
-                            r"\b(?:drills?|scene|movie|film|video game)\b", re.I)
+                            r"\b(?:drills?|scene|movie|film|video game)\b|"
+                            # ชุดปิดตา O: ซ้อม/เกมจำลอง/เกิดไกลตัว/ไม่เสียหาย/ดูรูป ไม่ใช่ภัยที่กำลังเกิดกับตัว
+                            r"เกม|จำลอง|ไกลๆ|ไกลบ้าน|ไม่มีอะไรเสียหาย|ไม่เสียหาย|ดูรูป|\b(?:simulat\w*|game|far away|in the distance|no damage|photos?)\b|"
+                            r"simulacro|simulador|lejanos|sin daños|diễn tập|mô phỏng|ở xa|không thiệt hại|"
+                            r"演练|演練|模拟|模擬|远处|遠處|没有损失|沒有損失|훈련|시뮬레이션|게임|멀리|피해는 없|訓練|シミュレーション|ゲーム|遠く|被害はない", re.I)
 _HAZARD_REAL = re.compile(r"ไม่ใช่การซ้อม|ไม่ใช่ซ้อม|ของจริง|\bnot an? (?:drill|test)\b|\breal\b", re.I)
 
 

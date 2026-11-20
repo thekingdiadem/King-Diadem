@@ -573,15 +573,28 @@ def strip_someone_intl(text) -> str:
     return t
 
 
+_DISASTER_WORD = re.compile(r"động\s+đất|lũ|sạt\s+lở|cháy\s+rừng|sét|terremoto|sismo|incendio|deslave|地震|山火|洪水|滑坡|지진|산불|홍수|산사태|山火事|洪水|土砂", re.I)
+_DISASTER_CALM = re.compile(r"simulacro|simulador|juego|lejanos|sin daños|diễn tập|mô phỏng|game|ở xa|không thiệt hại|tin\s|"
+                            r"演练|演練|模拟|模擬|游戏|遊戲|远处|遠處|没有损失|沒有損失|新闻|新聞|"
+                            r"훈련|시뮬레이션|게임|멀리|피해는 없|뉴스|訓練|シミュレーション|ゲーム|遠く|被害はない|ニュース", re.I)
+
+
+def _calm_disaster(t: str, hits: list) -> list:
+    """ภัยพิบัติที่เป็นการซ้อม/เกม/ข่าว/ไกลตัว/ไม่เสียหาย ไม่ใช่เหตุตอนนี้ (ชุดปิดตา O)"""
+    if any(k == "disaster" for k, _ in hits) and _DISASTER_CALM.search(t):
+        return [h for h in hits if h[0] != "disaster"]
+    return hits
+
+
 def urgent_intl(text, lang: str | None = None) -> list:
     """เรื่องด่วนในภาษา zh ja ko es → [(ชนิด, หัวข้อในระบบไทย)] เรียงตามความเร่งด่วน"""
     t = str(text or "")
     if lang == "all":                        # ภาษาปนกัน ("我朋友说他想自杀ค่ะ") — รูปประโยคแต่ละภาษาใช้ตัวอักษรของมันเอง ตรวจทุกภาษาได้
-        return [(k, topic) for k, topic, by in _URGENT_RX if any(rx.search(t) for rx in by.values())]
+        return _calm_disaster(t, [(k, topic) for k, topic, by in _URGENT_RX if any(rx.search(t) for rx in by.values())])
     if not lang:
         # detect_lang ไม่มีค่า "vi" (เวียดนามถูกเดาเป็น es/en) — รูปแบบ vi ที่นี่เลยไม่เคยถูกใช้ (รอบสุ่ม 32)
         lang = "vi" if script_lang(t) == "vi" else detect_lang(t)
-    return [(k, topic) for k, topic, by in _URGENT_RX if lang in by and by[lang].search(t)]
+    return _calm_disaster(t, [(k, topic) for k, topic, by in _URGENT_RX if lang in by and by[lang].search(t)])
 
 
 URGENT_REPLY = {
@@ -1072,5 +1085,9 @@ _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 def world_urgent(text) -> list:
     """เรื่องด่วนภาษาอื่นนอกไทย/อังกฤษ → ชนิดที่เจอ (crisis medical violence help)"""
     t = str(text or "")
-    return [k for k, rx in _WORLD_RX.items() if rx.search(t)]
+    hits = [k for k, rx in _WORLD_RX.items() if rx.search(t)]
+    # ซ้อม/เกมจำลอง/ข่าว/ไกลตัว ของภัยพิบัติ ไม่ใช่เหตุตอนนี้ (ชุดปิดตา O) — เฉพาะเมื่อพูดถึงภัยพิบัติจริงๆ
+    if "danger" in hits and _DISASTER_CALM.search(t) and _DISASTER_WORD.search(t):
+        hits = [k for k in hits if k != "danger"]
+    return hits
 

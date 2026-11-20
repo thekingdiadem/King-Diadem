@@ -249,7 +249,8 @@ PAID_OK	ja	残業代はいい|残業代が出る|給料はいい
 # "ไม่รู้สึกตัวว่า..." = ไม่ทันสังเกต (ไม่รู้สึกตัวเลยว่าเวลาผ่านไป) ไม่ใช่หมดสติ
 UNCONSCIOUS	th	re:ไม่รู้สึกตัว(?!(?:เลย|สักนิด)?\s*ว่า)
 UNCONSCIOUS	th	หมดสติ|เรียกไม่ตื่น|ปลุกไม่ตื่น|ปลุกยังไงก็ไม่|ไม่ตอบสนอง|แน่นิ่ง|เป็นลม|ล้มฟุบ|สลบ
-UNCONSCIOUS	en	passed out|unconscious|unresponsive|won't wake|can't wake|cannot wake|isn't responding|not responding|won't respond|lying limp|went limp|collapsed|fainted|blacked out|isn't breathing|not breathing
+UNCONSCIOUS	en	passed out|unconscious|unresponsive|won't wake|can't wake|cannot wake|isn't responding|not responding|won't respond|lying limp|went limp|fainted|blacked out|isn't breathing|not breathing
+UNCONSCIOUS	en	re:\b(?<!soil )(?<!dirt )(?<!sand )(?<!sandcastle )(?<!tent )(?<!cake )(?<!roof )(?<!wall )(?<!bridge )(?<!building )collapsed\b
 UNCONSCIOUS	es	perdió el conocimiento|inconsciente|no reacciona|no responde|no despierta|se desmayó|desmayado|desmayada|se desplomó|no logramos despertarlo|no logramos despertarla|no respira
 UNCONSCIOUS	vi	bất tỉnh|ngất|ngất xỉu|không tỉnh|không phản ứng|ngã gục|lay không dậy|gọi mãi không tỉnh|không thở
 UNCONSCIOUS	zh	昏过去|昏過去|昏迷|晕倒|暈倒|叫不醒|没反应|沒反應|倒下|不省人事|没有呼吸|沒有呼吸
@@ -931,7 +932,7 @@ URINE_RED	ja	パンパン|激しく痛|むくん|息が苦し|息ができない
 FLANK	th	ปวดเอว|ปวดบั้นเอว|ปวดหลังข้างเดียว|นิ่วในไต|นิ่ว|ติดเชื้อทางเดินปัสสาวะ|กรวยไต
 FLANK	en	flank pain|kidney stone|one side of my back|uti|kidney infection
 FLANK	es	costado|cálculo renal|calculo renal|un lado de la espalda|infección urinaria
-FLANK	vi	đau hông|sỏi thận|một bên lưng|viêm đường tiểu|nhiễm trùng tiểu
+FLANK	vi	vùng hông|hông lưng|thắt lưng|đau hông|sỏi thận|một bên lưng|viêm đường tiểu|nhiễm trùng tiểu
 FLANK	zh	腰侧|腰側|肾结石|腎結石|一侧腰痛|一側腰痛|尿路感染
 FLANK	ko	옆구리|신장결석|한쪽 허리|방광염|신우신염
 FLANK	ja	脇腹|腎臓結石|片側の腰|膀胱炎|腎盂腎炎
@@ -1095,7 +1096,7 @@ BOOTLEG	ko	밀주|가짜 술|메탄올
 BOOTLEG	ja	密造酒|偽の酒|メタノール
 VISION	th	ตามัว|มองไม่เห็น|ตาพร่า|ตาบอด
 VISION	en	blurry|can't see|vision is going|went blind
-VISION	es	ve borroso|no ve|visión borrosa
+VISION	es	ven borroso|veo borroso|vista borrosa|ve borroso|no ve|visión borrosa
 VISION	vi	mờ mắt|mắt mờ|không nhìn thấy
 VISION	zh	模糊|看不见|看不見|失明
 VISION	ko	흐려|안 보|흐리
@@ -1231,3 +1232,90 @@ PET	vi	mèo|chó|cún
 PET	zh	猫|貓|狗
 PET	ko	고양이|강아지|개가
 PET	ja	猫|犬|ペット
+
+# ═══ รอบ 12: แผ่นดินไหวติดใต้ซาก · ดินถล่ม · ไฟป่าลามใกล้ · ถูกฟ้าผ่า ═══
+QUAKE	th	แผ่นดินไหว
+QUAKE	en	earthquake|quake
+QUAKE	es	terremoto|sismo
+QUAKE	vi	động đất
+QUAKE	zh	地震
+QUAKE	ko	지진
+QUAKE	ja	地震
+TRAPPED_UNDER	th	ติดอยู่ใต้|ยังมีคนอยู่ข้างใน|อยู่ข้างใน|เสียงร้อง|ขยับไม่ได้|ทับ
+TRAPPED_UNDER	en	trapped|still inside|screaming|can't move|pinned
+TRAPPED_UNDER	es	atrapada|atrapado|adentro|gritos|no se puede mover
+TRAPPED_UNDER	vi	bị kẹt|bên trong|kêu cứu|không cử động
+TRAPPED_UNDER	zh	压在|壓在|里面还有人|裡面還有人|喊叫|动不了|動不了
+TRAPPED_UNDER	ko	깔려|안에 사람|비명|움직이지 못
+TRAPPED_UNDER	ja	下敷き|中に人|叫び声|動けない
+DRILL	th	ซ้อม|ฝึกซ้อม
+DRILL	en	drill|simulation
+DRILL	es	simulacro|simulador
+DRILL	vi	diễn tập|mô phỏng
+DRILL	zh	演练|演練|模拟|模擬
+DRILL	ko	훈련|시뮬레이션
+DRILL	ja	訓練|シミュレーション
+SLIDE	th	ดินโคลนถล่ม|ดินถล่ม|โคลนถล่ม|สไลด์|ดินไหลลงมา
+SLIDE	en	mudslide|landslide|starting to slide|mud is coming down
+SLIDE	es	alud de lodo|alud|deslave|deslizarse|derrumbe de tierra
+SLIDE	vi	lở đất|sạt lở|sạt
+SLIDE	zh	泥石流|滑坡|塌方
+SLIDE	ko	산사태|무너지기 시작|흙이 쏟아
+SLIDE	ja	土石流|土砂崩れ|裏山が崩れ|がけ崩れ
+SLIDE_RED	th	ทับบ้าน|คนหาย|ไหลลงมาแล้ว|ติดอยู่ใต้|ยังไม่ออก|ฝังอยู่
+SLIDE_RED	en	buried|missing|coming down|haven't got out|trapped
+SLIDE_RED	es	sepultó|sepultada|faltan|baja el lodo|enterrado|no ha salido
+SLIDE_RED	vi	vùi|mất tích|chảy xuống|chưa ra được|bị kẹt
+SLIDE_RED	zh	埋了|被埋|失踪|失蹤|冲下来|沖下來|没出来|沒出來
+SLIDE_RED	ko	덮쳐|실종|쏟아져|묻혔|못 나왔
+SLIDE_RED	ja	埋め|埋まり|行方不明|流れてき|出てこない
+WILDFIRE	th	ไฟป่า
+WILDFIRE	en	wildfire|bushfire|forest fire
+WILDFIRE	es	incendio forestal|incendio
+WILDFIRE	vi	cháy rừng
+WILDFIRE	zh	山火|森林火灾|森林火災
+WILDFIRE	ko	산불
+WILDFIRE	ja	山火事|森林火災
+FIRE_NEAR	th	ลามมาถึง|ใกล้บ้าน|ออกทางไหนไม่ได้|ออกไม่ได้|เดินไม่ได้|ควันเต็ม
+FIRE_NEAR	en	reached|very close|no way out|can't walk|smoke everywhere|surrounded
+FIRE_NEAR	es	llegó|muy cerca|no hay salida|no puede caminar|humo por todas partes|rodeados
+FIRE_NEAR	vi	lan tới|rất gần|không có lối ra|không đi được|khói khắp nơi
+FIRE_NEAR	zh	烧到|燒到|离房子很近|離房子很近|出不去|走不了|到处是烟|到處是煙
+FIRE_NEAR	ko	번졌|바로 앞|빠져나갈 길이 없|걷지 못|연기가 가득
+FIRE_NEAR	ja	まで来て|すぐ近く|逃げ道がない|歩けない|煙だらけ
+FAR	th	ไกลๆ|ไกลบ้าน|อยู่ไกล
+FAR	en	far away|far off|in the distance
+FAR	es	lejanos|lejos
+FAR	vi	ở xa|xa nhà
+FAR	zh	远处|遠處|很远|很遠
+FAR	ko	멀리
+FAR	ja	遠く
+LIGHTNING	th	ฟ้าผ่า
+LIGHTNING	en	lightning
+LIGHTNING	es	rayo
+LIGHTNING	vi	sét
+LIGHTNING	zh	雷劈|雷击|雷擊|被雷
+LIGHTNING	ko	벼락|낙뢰
+LIGHTNING	ja	雷が落ち|落雷
+STRUCK_RED	th	ไม่หายใจ|หมดสติ|ล้มลง|ไหม้|พูดไม่รู้เรื่อง|โดนด้วย
+STRUCK_RED	en	not breathing|unconscious|collapsed|burned|nonsense|was hit
+STRUCK_RED	es	no respira|inconsciente|se desplomó|quemado|sin sentido|le alcanzó|le cayó
+STRUCK_RED	vi	không thở|bất tỉnh|ngã gục|bỏng|lảm nhảm|bị sét đánh|đánh trúng
+STRUCK_RED	zh	没有呼吸|沒有呼吸|昏迷|倒地|烧伤|燒傷|胡话|胡話|被击中|被擊中
+STRUCK_RED	ko	숨을 안|의식이 없|쓰러|타고|횡설수설|맞았|맞고|맞아서
+STRUCK_RED	ja	息をしていない|意識がない|倒れ|やけど|うわごと|当たり
+PHOTO	th	รูป|ภาพ
+PHOTO	en	photos|photo|pictures
+PHOTO	es	fotos|foto
+PHOTO	vi	ảnh
+PHOTO	zh	照片
+PHOTO	ko	사진
+PHOTO	ja	写真
+# ── ปัสสาวะเป็นเลือด + ไข้ (เพิ่มหลังรอบ 12: "sốt rét run và tiểu ra máu" เคยหลุดเพราะเขียนตำแหน่งปวดต่างไป)
+HEMATURIA	th	ฉี่เป็นเลือด|ปัสสาวะเป็นเลือด
+HEMATURIA	en	blood in my urine|blood in his urine|blood in her urine|peeing blood
+HEMATURIA	es	sangre en la orina|orina con sangre
+HEMATURIA	vi	tiểu ra máu|nước tiểu có máu
+HEMATURIA	zh	尿里有血|尿裡有血|血尿
+HEMATURIA	ko	소변에 피|혈뇨
+HEMATURIA	ja	尿に血|血尿

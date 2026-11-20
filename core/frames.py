@@ -73,7 +73,7 @@ FRAMES = (
     ("marine_sting", "medical", "health_emergency", (("MARINE", "MARINE_ACT", "MARINE_RED"),), ("FICTION", "HYPOTHETICAL")),
     # รอบ 8 เน้นไต (ชุดปิดตา K ล็อกไว้ก่อนเขียน)
     ("no_urine", "medical", "health_emergency", (("NO_URINE", "URINE_RED"), ("CKD", "NO_URINE")), ("FICTION", "HYPOTHETICAL", "TRAFFIC")),
-    ("kidney_infection", "medical", "health_emergency", (("FLANK", "KIDNEY_FEVER"),), ("FICTION", "HYPOTHETICAL", "BETTER")),
+    ("kidney_infection", "medical", "health_emergency", (("FLANK", "KIDNEY_FEVER"), ("HEMATURIA", "KIDNEY_FEVER")), ("FICTION", "HYPOTHETICAL", "BETTER")),
     ("dialysis", "medical", "health_emergency", (("DIALYSIS", "MISSED"), ("DIALYSIS", "HIGH_K"), ("HIGH_K", "RENAL_RED"), ("CKD", "RENAL_RED")),
      ("FICTION", "HYPOTHETICAL")),
     # รอบ 9 (ชุดปิดตา L ล็อกไว้ก่อนเขียน)
@@ -92,6 +92,11 @@ FRAMES = (
     ("dementia_wander", "medical", "health_emergency", (("DEMENTIA", "WANDER"),), ("FICTION", "HYPOTHETICAL", "FOUND", "PAST_STORY")),
     ("lost_wild", "medical", "health_emergency", (("WILD", "LOST_WILD"),), ("FICTION", "HYPOTHETICAL", "DOCU", "FOUND", "PAST_STORY")),
     ("at_sea", "medical", "health_emergency", (("SEA", "SEA_RED"),), ("FICTION", "HYPOTHETICAL", "DOCU", "PAST_STORY", "FIXED", "MINOR")),
+    # รอบ 12 (ชุดปิดตา O ล็อกไว้ก่อนเขียน) — ภัยพิบัติที่มีคนติด/อยู่ใกล้ตัว
+    ("quake_trapped", "medical", "health_emergency", (("QUAKE", "TRAPPED_UNDER"),), ("FICTION", "HYPOTHETICAL", "DRILL")),
+    ("landslide", "medical", "health_emergency", (("SLIDE", "SLIDE_RED"),), ("FICTION", "HYPOTHETICAL", "DRILL")),
+    ("wildfire", "medical", "health_emergency", (("WILDFIRE", "FIRE_NEAR"),), ("FICTION", "HYPOTHETICAL", "DRILL", "FAR")),
+    ("lightning", "medical", "health_emergency", (("LIGHTNING", "STRUCK_RED"),), ("FICTION", "HYPOTHETICAL", "FAR", "PHOTO")),
 )
 
 
