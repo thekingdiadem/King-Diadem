@@ -655,7 +655,7 @@ HYPO_SIGN	en	cold sweat|clammy|shaking|shaky|drowsy|confused|unresponsive|barely
 HYPO_SIGN	es	sudor frío|sudor frio|temblando|adormilado|adormilada|somnoliento|somnolienta|confundido|confundida|no responde|desmayar|desmayo
 HYPO_SIGN	vi	mồ hôi lạnh|run rẩy|lừ đừ|lơ mơ|không phản ứng|ngất|lẫn lộn
 HYPO_SIGN	zh	冷汗|发抖|發抖|迷糊|反应很慢|反應很慢|没反应|沒反應|晕倒|暈倒|心慌
-HYPO_SIGN	ko	식은땀|떨|처져|반응이 없|몽롱|쓰러
+HYPO_SIGN	ko	식은땀|떨려|떨고|떨면서|덜덜|처져|반응이 없|몽롱|쓰러
 HYPO_SIGN	ja	冷や汗|震え|ぼんやり|反応が鈍|反応がない|倒れ
 SUGAR_NUM	th	re:น้ำตาล[^0-9]{0,14}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])(?!\s*(?:กรัม|ก\.|%|เปอร์))
 SUGAR_NUM	en	re:sugar[^0-9]{0,16}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])(?!\s*(?:g\b|grams|mg|%|percent))

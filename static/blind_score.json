@@ -27,17 +27,17 @@
    "n": 452,
    "tp": 447,
    "fn": 5,
-   "fp": 19,
+   "fp": 12,
    "recall": 0.989,
-   "precision": 0.959
+   "precision": 0.974
   },
   "violence": {
    "n": 70,
    "tp": 70,
    "fn": 0,
-   "fp": 12,
+   "fp": 9,
    "recall": 1.0,
-   "precision": 0.854
+   "precision": 0.886
   },
   "scam": {
    "n": 18,
@@ -51,9 +51,9 @@
    "n": 8,
    "tp": 7,
    "fn": 1,
-   "fp": 7,
+   "fp": 6,
    "recall": 0.875,
-   "precision": 0.5
+   "precision": 0.538
   }
  },
  "danger_missed": {
@@ -61,7 +61,7 @@
   "of": 558
  },
  "false_alarm": {
-  "n": 13,
+  "n": 2,
   "of": 523
  },
  "by_lang": {
@@ -118,22 +118,6 @@
    ]
   },
   {
-   "line": 199,
-   "text": "หัวหน้าเรียกเข้าห้องคนเดียวเพื่อคุยเรื่องโบนัส",
-   "label": "none",
-   "got": [
-    "violence"
-   ]
-  },
-  {
-   "line": 200,
-   "text": "ช่างบอกว่าถ้าไม่เปลี่ยนสายพานจะตัดไฟทั้งตึก",
-   "label": "none",
-   "got": [
-    "distress"
-   ]
-  },
-  {
    "line": 222,
    "text": "My friend cut her wrist and there's a lot of blood",
    "label": "self_harm",
@@ -158,14 +142,6 @@
    ]
   },
   {
-   "line": 442,
-   "text": "당뇨약이 다 떨어져서 병원에 가야 해요",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
    "line": 905,
    "text": "แม่ฉีดอินซูลินแล้วไม่ได้กินข้าว ตอนนี้ซึมมาก",
    "label": "emergency",
@@ -180,38 +156,14 @@
    "got": []
   },
   {
-   "line": 950,
-   "text": "El cuarto huele un poco a encerrado, abrimos la ventana y ya",
-   "label": "none",
-   "got": [
-    "violence"
-   ]
-  },
-  {
    "line": 1022,
    "text": "炎天下の作業員が体がすごく熱くて汗も出ず、話がおかしい",
    "label": "emergency",
    "got": []
   },
   {
-   "line": 1051,
-   "text": "เจ็บหน้าอกนิดหน่อยเพราะไอหนัก",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1057,
-   "text": "ติดอยู่ในรถติดสองชั่วโมง เบื่อมาก",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
    "line": 1079,
-   "text": "Saw news of floods abroad and felt sad",
+   "text": "Donated some money to the flood relief fund today",
    "label": "none",
    "got": [
     "emergency"
@@ -222,46 +174,6 @@
    "text": "La corriente arrastró un coche del puente y la gente de adentro no puede salir",
    "label": "emergency",
    "got": []
-  },
-  {
-   "line": 1111,
-   "text": "Ho nhiều quá nên hơi đau ngực",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1119,
-   "text": "Xem tin lũ lụt ở nước ngoài thấy thương",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1157,
-   "text": "차가 막혀서 두 시간 갇혀 있었어요 지루해요",
-   "label": "none",
-   "got": [
-    "violence"
-   ]
-  },
-  {
-   "line": 1160,
-   "text": "이별해서 가슴이 너무 아파요",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1180,
-   "text": "失恋して胸が痛い",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
   }
  ]
 }
