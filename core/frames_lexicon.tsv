@@ -1941,3 +1941,84 @@ SPREAD_RED	vi	lan xuống cổ|không nuốt được|dưới hàm|không há mi
 SPREAD_RED	zh	肿到脖子|腫到脖子|咽不下|下巴下面|张不开嘴|張不開嘴|呼吸困难|呼吸困難|睁不开|睜不開
 SPREAD_RED	ko	목까지|못 삼켜|턱 밑|입이 안 벌어|숨쉬기 힘들|눈이 감겼
 SPREAD_RED	ja	首まで|飲み込めない|あごの下|口が開かず|息がしにくい|目が開かない
+
+# ═══ รอบ 21: (ไต) โพแทสเซียมสูงจากอาหารในคนโรคไต · พิษยาฆ่าแมลงจากการพ่น · กรด/ด่างโดนผิว · ก้าง/กระดูกติดคอ ═══
+KIDNEY_PT	zh	肾不好|腎不好|肾不好的
+KIDNEY_PT	th	ไตไม่ค่อยดี
+HIGH_K_FOOD	th	ทุเรียน|น้ำมะพร้าว|มะพร้าว|กล้วย|ส้ม|ลำไย
+HIGH_K_FOOD	en	durian|coconut water|bananas|banana|oranges|potassium
+HIGH_K_FOOD	es	durián|agua de coco|cocos|coco|plátanos|naranjas
+HIGH_K_FOOD	vi	sầu riêng|nước dừa|quả dừa|dừa|chuối|cam
+HIGH_K_FOOD	zh	榴莲|榴槤|椰子水|香蕉|橙子
+HIGH_K_FOOD	ko	두리안|코코넛|바나나|오렌지
+HIGH_K_FOOD	ja	ドリアン|ココナッツ|バナナ|オレンジ
+K_RED	th	ใจเต้นผิดจังหวะ|ใจสั่น|ชาปาก|อ่อนแรง|ไม่มีแรง|ใจเต้นช้า|ยืนไม่ไหว
+K_RED	en	irregular|palpitations|numb|weak|heart is slow
+K_RED	es	irregular|palpitaciones|entumecidos|débil|débiles|lento
+K_RED	vi	loạn nhịp|hồi hộp|tê|yếu|chậm
+K_RED	zh	不规律|不規律|心慌|发麻|發麻|无力|無力|没力|站不起来|很慢
+K_RED	ko	불규칙|두근|저리|힘이 없|일어서지|맥이 느
+K_RED	ja	不規則|動悸|しびれ|力が入らない|脱力|立てない|脈が遅
+AVOID	th	ควรลด|ลดผลไม้
+AVOID	en	should cut|cut down on|reduce
+AVOID	es	reduzcan|reducir
+AVOID	vi	nên giảm|giảm trái cây
+AVOID	zh	少吃
+AVOID	ko	줄이래
+AVOID	ja	控える
+PESTICIDE_USE	th	พ่นยาฆ่าแมลง|ฉีดยาฆ่าหญ้า|ฉีดยาฆ่าแมลง|พ่นยาฆ่าหญ้า|ยาฆ่าแมลง|ยาฆ่าหญ้า
+PESTICIDE_USE	en	sprayed insecticide|sprayed herbicide|sprayed pesticide|pesticide|insecticide|herbicide
+PESTICIDE_USE	es	fumigó|insecticida|herbicida|plaguicida
+PESTICIDE_USE	vi	phun thuốc trừ sâu|thuốc trừ sâu|thuốc diệt cỏ
+PESTICIDE_USE	zh	喷农药|噴農藥|农药|農藥|除草剂|除草劑
+PESTICIDE_USE	ko	살충제|제초제|농약
+PESTICIDE_USE	ja	殺虫剤|除草剤|農薬
+OP_SIGN	th	เหงื่อแตก|น้ำลายไหล|ตาพร่า|กล้ามเนื้อกระตุก|อาเจียน|หายใจลำบาก|รูม่านตาเล็ก
+OP_SIGN	en	sweating|drooling|blurry|twitching|vomiting|trouble breathing|tiny pupils
+OP_SIGN	es	suda|babea|borroso|espasmos|vomita|cuesta respirar|pupilas diminutas
+OP_SIGN	vi	vã mồ hôi|chảy nước dãi|mờ mắt|giật cơ|nôn|khó thở|đồng tử co
+OP_SIGN	zh	出汗|流口水|看不清|抽动|抽動|呕吐|嘔吐|呼吸困难|呼吸困難|瞳孔很小
+OP_SIGN	ko	땀이|침을|흐리|떨려|토하|숨쉬기|동공이 작
+OP_SIGN	ja	汗が|よだれ|かすみ|ぴくぴく|吐い|息が苦し|瞳孔が小さ
+PROTECTED	th	ใส่ชุดป้องกัน|ชุดป้องกันครบ
+PROTECTED	en	protective gear|protective suit
+PROTECTED	es	equipo de protección
+PROTECTED	vi	đồ bảo hộ
+PROTECTED	zh	防护服|防護服
+PROTECTED	ko	보호복
+PROTECTED	ja	防護服
+CORROSIVE	th	น้ำกรด|กรด|โซดาไฟ|น้ำยาล้างท่อ
+CORROSIVE	en	acid|caustic soda|lye|drain cleaner
+CORROSIVE	es	ácido|sosa cáustica
+CORROSIVE	vi	axit|xút
+CORROSIVE	zh	硫酸|烧碱|燒鹼|强酸|強酸|盐酸|鹽酸
+CORROSIVE	ko	염산|황산|양잿물
+CORROSIVE	ja	苛性ソーダ|塩酸|硫酸|酸が
+SKIN_BURN	th	ผิวไหม้|แผลขาว|ปวดแสบมาก|ผิวลอก|แสบร้อน
+SKIN_BURN	en	skin is burned|burning|peeling|stings terribly
+SKIN_BURN	es	quemada|arde muchísimo|se pela|quema
+SKIN_BURN	vi	bỏng|rát kinh khủng|bong tróc|bỏng rát
+SKIN_BURN	zh	烧得发白|燒得發白|脱皮|火辣辣|痛得厉害
+SKIN_BURN	ko	하얗게 타|쓰라려|벗겨지|화끈
+SKIN_BURN	ja	白く焼け|ひどくしみる|むけて|焼けるように
+BONE_STUCK	th	ก้างปลาติดคอ|ก้างติดคอ|กลืนกระดูก|กระดูกติดคอ
+BONE_STUCK	en	fish bone is stuck|fish bone stuck|swallowed a chicken bone|bone stuck in
+BONE_STUCK	es	espina de pescado|hueso de pollo
+BONE_STUCK	vi	hóc xương cá|xương gà|hóc xương
+BONE_STUCK	zh	鱼刺|魚刺|鸡骨头|雞骨頭
+BONE_STUCK	ko	생선 가시|닭뼈
+BONE_STUCK	ja	魚の骨|鶏の骨
+BONE_RED	th	กลืนไม่ลง|น้ำลายไหล|ร้องไห้ไม่หยุด|เจ็บมาก|ไข้|คอบวม|เจ็บหน้าอก|อาเจียนเป็นเลือด
+BONE_RED	en	can't swallow|drooling|crying nonstop|very painful|fever|swelling|chest pain|vomiting blood
+BONE_RED	es	no puede tragar|babea|llora sin parar|duele mucho|fiebre|hincha|duele el pecho|vomito sangre
+BONE_RED	vi	không nuốt|chảy nước dãi|khóc mãi|đau lắm|sốt|sưng|đau ngực|nôn ra máu
+BONE_RED	zh	咽不下|流口水|一直哭|很痛|发烧|發燒|肿|腫|胸痛|吐血
+BONE_RED	ko	못 삼키|침을|계속 울|너무 아프|열이|부어|가슴이 아프|피를 토
+BONE_RED	ja	飲み込めず|よだれ|泣き止まない|すごく痛|熱が|腫れ|胸が痛|血を吐
+BONE_OK	th	หลุดแล้ว|แล้วหลุด|ก็หลุด|ระวังก้าง
+BONE_OK	en	went down|careful with the bones
+BONE_OK	es	bajó|cuidado con las espinas
+BONE_OK	vi	là trôi|cẩn thận xương
+BONE_OK	zh	下去了|小心刺
+BONE_OK	ko	내려갔|가시 조심
+BONE_OK	ja	取れた|骨に気をつけ

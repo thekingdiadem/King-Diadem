@@ -582,3 +582,26 @@ def test_eyelid_is_not_a_movie_and_hasnt_stopped_is_not_stopped():
     # "หนังตา" = เปลือกตา ไม่ใช่ "หนัง" (ภาพยนตร์) · "hasn't stopped" ไม่ใช่ "stopped"
     assert frames("หนังตาบวม ฉี่สีน้ำล้างเนื้อ") == [("medical", "health_emergency")]
     assert frames("the nosebleed hasn't stopped for an hour") == [("medical", "health_emergency")]
+
+
+# ── รอบ 21: (ไต) โพแทสเซียมสูงจากอาหาร · พิษยาฆ่าแมลง · กรด/ด่างโดนผิว · ก้างติดคอ (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา X) ──
+DANGER_21 = [
+    "ตาเป็นโรคไต กินกล้วยหอมทุกวัน ตอนนี้ใจเต้นผิดจังหวะ", "my mom on dialysis drank coconut water and now has palpitations", "透析中にバナナを食べて脈が不規則",
+    "พ่อพ่นยาฆ่าหญ้าแล้วน้ำลายไหล รูม่านตาเล็ก", "he sprayed pesticide and now he's drooling and twitching", "농약을 뿌리고 침을 흘리고 동공이 작아요",
+    "น้ำกรดหกใส่ขา ผิวไหม้", "lye splashed on my hand, the skin is peeling", "硫酸溅到手上，皮肤脱皮",
+    "ก้างปลาติดคอ กลืนไม่ลง", "a fish bone is stuck and he's drooling, can't swallow", "hóc xương cá, sốt và cổ sưng",
+]
+CALM_21 = [
+    "คนเป็นโรคไตควรลดกล้วยกับส้ม", "durian season is here", "ใส่ชุดป้องกันตอนพ่นยาฆ่าแมลง", "lemon juice stung my cut a bit",
+    "ก้างติดคอนิดหน่อย กลืนข้าวแล้วหลุด", "careful with the bones in this fish",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_21)
+def test_round21_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_21)
+def test_round21_calm(text):
+    assert frames(text) == [], explain(text)

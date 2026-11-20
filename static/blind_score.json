@@ -25,10 +25,10 @@
   },
   "emergency": {
    "n": 1432,
-   "tp": 1382,
-   "fn": 50,
+   "tp": 1430,
+   "fn": 2,
    "fp": 17,
-   "recall": 0.965,
+   "recall": 0.999,
    "precision": 0.988
   },
   "violence": {
@@ -57,7 +57,7 @@
   }
  },
  "danger_missed": {
-  "n": 49,
+  "n": 1,
   "of": 1608
  },
  "false_alarm": {
@@ -66,31 +66,31 @@
  },
  "by_lang": {
   "en": {
-   "hit": 236,
+   "hit": 244,
    "n": 245
   },
   "es": {
-   "hit": 211,
+   "hit": 219,
    "n": 221
   },
   "ja": {
-   "hit": 214,
+   "hit": 222,
    "n": 222
   },
   "ko": {
-   "hit": 213,
+   "hit": 221,
    "n": 221
   },
   "th": {
-   "hit": 277,
+   "hit": 280,
    "n": 282
   },
   "vi": {
-   "hit": 213,
+   "hit": 219,
    "n": 220
   },
   "zh": {
-   "hit": 216,
+   "hit": 223,
    "n": 223
   }
  },
@@ -180,300 +180,12 @@
    ]
   },
   {
-   "line": 3172,
-   "text": "แม่ฟอกไต ดื่มน้ำมะพร้าวไปสองลูก ตอนนี้ใจสั่น ชาปาก ขาอ่อนแรง",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3174,
-   "text": "ลุงพ่นยาฆ่าแมลงในนาไม่ใส่หน้ากาก ตอนนี้เหงื่อแตก น้ำลายไหล ตาพร่า กล้ามเนื้อกระตุก",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3176,
-   "text": "น้ำกรดหกใส่แขน ผิวไหม้เป็นแผลขาว ปวดแสบมาก",
-   "label": "emergency",
-   "got": []
-  },
-  {
    "line": 3189,
-   "text": "ก้างปลาติดคอนิดหน่อย กลืนข้าวสวยแล้วหลุด",
+   "text": "ลูกกินปลาทูแล้วไอเพราะสำลักน้ำแกง สักพักก็หาย",
    "label": "none",
    "got": [
     "emergency"
    ]
-  },
-  {
-   "line": 3192,
-   "text": "Mom is on dialysis, drank two coconuts' worth of coconut water, now palpitations, numb lips and weak legs",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3193,
-   "text": "Grandma has weak kidneys and eats several bananas and oranges a day, now she's too weak to stand and her heart is slow",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3194,
-   "text": "My uncle sprayed insecticide in the field without a mask, now sweating, drooling, blurry vision and muscle twitching",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3195,
-   "text": "Dad sprayed herbicide all day, now vomiting, trouble breathing and tiny pupils",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3196,
-   "text": "Acid spilled on my arm, the skin is burned white and it stings terribly",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3197,
-   "text": "Caustic soda splashed on my face, the skin is peeling and burning",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3198,
-   "text": "A fish bone is stuck in my kid's throat, can't swallow, drooling and crying nonstop",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3199,
-   "text": "Fish bone stuck in my throat since yesterday, very painful, now fever and my neck is swelling",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3212,
-   "text": "Mi mamá está en diálisis, tomó agua de dos cocos, ahora palpitaciones, labios entumecidos y piernas débiles",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3213,
-   "text": "Mi abuela tiene los riñones débiles y come varios plátanos y naranjas al día, ahora está tan débil que no se para y el corazón le late lento",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3214,
-   "text": "Mi tío fumigó insecticida en el campo sin mascarilla, ahora suda, babea, ve borroso y tiene espasmos musculares",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3215,
-   "text": "Mi papá fumigó herbicida todo el día, ahora vomita, le cuesta respirar y tiene las pupilas diminutas",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3216,
-   "text": "Se me derramó ácido en el brazo, la piel quedó quemada blanca y arde muchísimo",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3217,
-   "text": "Me salpicó sosa cáustica en la cara, la piel se pela y quema",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3219,
-   "text": "Tengo una espina de pescado atorada desde ayer, duele mucho, ahora fiebre y el cuello se hincha",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3220,
-   "text": "Me tragué un hueso de pollo, me duele el pecho al tragar y vomito sangre",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3232,
-   "text": "Mẹ tôi chạy thận, uống nước hai quả dừa, giờ hồi hộp, tê môi và yếu chân",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3233,
-   "text": "Bà tôi thận yếu, ngày ăn mấy quả chuối và cam, giờ yếu đến không đứng nổi và tim đập chậm",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3234,
-   "text": "Chú tôi phun thuốc trừ sâu ngoài ruộng không đeo khẩu trang, giờ vã mồ hôi, chảy nước dãi, mờ mắt và giật cơ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3235,
-   "text": "Bố tôi phun thuốc diệt cỏ cả ngày, giờ nôn, khó thở và đồng tử co nhỏ",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3236,
-   "text": "Axit đổ vào tay, da bị bỏng trắng và rát kinh khủng",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3237,
-   "text": "Xút bắn vào mặt, da bong tróc và bỏng rát",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3252,
-   "text": "妈妈在透析，喝了两个椰子的椰子水，现在心慌、嘴唇发麻、腿没力",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3253,
-   "text": "奶奶肾不好，每天吃好几根香蕉和橙子，现在虚弱得站不起来，心跳很慢",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3254,
-   "text": "叔叔在田里喷农药没戴口罩，现在出汗、流口水、看不清、肌肉抽动",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3255,
-   "text": "爸爸喷了一整天除草剂，现在呕吐、呼吸困难、瞳孔很小",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3256,
-   "text": "硫酸洒到手臂上，皮肤烧得发白，痛得厉害",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3257,
-   "text": "烧碱溅到脸上，皮肤脱皮，火辣辣地痛",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3259,
-   "text": "鱼刺从昨天卡到现在，很痛，现在发烧，脖子肿了",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3272,
-   "text": "엄마가 투석 중인데 코코넛 워터를 두 통 마시고 지금 가슴이 두근거리고 입술이 저리고 다리에 힘이 없어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3273,
-   "text": "할머니가 신장이 약한데 하루에 바나나랑 오렌지를 여러 개 드시다가 지금 일어서지도 못하고 맥이 느려요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3274,
-   "text": "삼촌이 마스크 없이 논에 살충제를 뿌렸는데 지금 땀이 나고 침을 흘리고 눈이 흐리고 근육이 떨려요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3275,
-   "text": "아빠가 하루 종일 제초제를 뿌리고 지금 토하고 숨쉬기 힘들고 동공이 작아요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3276,
-   "text": "팔에 염산이 쏟아져서 피부가 하얗게 타고 너무 쓰라려요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3277,
-   "text": "양잿물이 얼굴에 튀어서 피부가 벗겨지고 화끈거려요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3278,
-   "text": "아이 목에 생선 가시가 걸려서 못 삼키고 침을 흘리고 계속 울어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3279,
-   "text": "어제부터 생선 가시가 걸려 있는데 너무 아프고 지금 열이 나고 목이 부어요",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3292,
-   "text": "母は透析中で、ココナッツウォーターを二個分飲んで、今は動悸と唇のしびれと脚の脱力がある",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3293,
-   "text": "祖母は腎臓が弱いのに毎日バナナとオレンジを何個も食べて、今は立てないほど弱って脈が遅い",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3294,
-   "text": "叔父がマスクなしで畑に殺虫剤をまいて、今は汗が出て、よだれが出て、目がかすみ、筋肉がぴくぴくしている",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3295,
-   "text": "父が一日中除草剤をまいて、今は吐いて、息が苦しく、瞳孔が小さい",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3296,
-   "text": "腕に酸がこぼれて、皮膚が白く焼けてひどくしみる",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3297,
-   "text": "苛性ソーダが顔に飛んで、皮膚がむけてヒリヒリ焼けるように痛い",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3298,
-   "text": "子どもの喉に魚の骨が刺さって、飲み込めず、よだれが出て泣き止まない",
-   "label": "emergency",
-   "got": []
-  },
-  {
-   "line": 3299,
-   "text": "昨日から魚の骨が刺さったままで、すごく痛く、今は熱があって首が腫れている",
-   "label": "emergency",
-   "got": []
   },
   {
    "line": 3305,

@@ -21,7 +21,8 @@ LEXICON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frames_lexic
 _WORD_LANGS = {"en", "es", "vi"}           # มีเว้นวรรคระหว่างคำ → ต้องตรงทั้งคำ
 # ชิ้นส่วนต้องอยู่ห่างกันไม่เกินนี้ (ตัวอักษร) — กัน "กินข้าวเที่ยงแล้วไปฉีดยาฆ่าหญ้า" ไม่ให้นับเป็นกินยาฆ่าหญ้า
 _WINDOW = {"en": 100, "es": 100, "vi": 100}   # เดิม 70: ประโยคสเปนที่เล่ายาว ("dejamos el brasero ... toda la noche ... vomitan") หลุด
-_WINDOW_DEFAULT = 44                       # th zh ja ko — หนึ่งตัวอักษรเก็บความหมายได้มากกว่า
+_WINDOW_PER_PART = 12                      # เพิ่มต่อชิ้นส่วนที่เกินสอง
+_WINDOW_DEFAULT = 50                       # th zh ja ko — หนึ่งตัวอักษรเก็บความหมายได้มากกว่า
 _SENTENCE = re.compile(r"[.!?。！？\n]+")
 
 # (ชื่อ, ชนิด, หัวข้อ, ทางเลือกของชิ้นส่วนที่ต้องพบครบ, ตัวกันเตือนเกิน)
@@ -29,7 +30,7 @@ FRAMES = (
     ("poison", "medical", "health_emergency", (("INGEST", "CHEMICAL"),), ("FICTION", "HYPOTHETICAL", "USE")),
     ("overdose", "medical", "health_emergency", (("INGEST", "MEDICINE", "AMOUNT"),), ("FICTION", "HYPOTHETICAL", "ROUTINE", "REFILL", "COURSE")),
     ("drowning", "medical", "health_emergency", (("DROWN",), ("FALL_INTO", "WATER", "NOT_SURFACE")), ("FICTION", "HYPOTHETICAL", "IDIOM_DROWN")),
-    ("choking", "medical", "health_emergency", (("CHOKE",), ("STUCK", "THROAT", "AIRWAY_FAIL")), ("FICTION", "HYPOTHETICAL", "LAUGH", "IDIOM_CHOKE")),
+    ("choking", "medical", "health_emergency", (("CHOKE",), ("STUCK", "THROAT", "AIRWAY_FAIL")), ("FICTION", "HYPOTHETICAL", "LAUGH", "IDIOM_CHOKE", "BONE_OK")),   # ติดคอแล้ว "หลุดแล้ว" = ผ่านไปแล้ว
     # รอบ 2 (ชุดปิดตา E ล็อกไว้ก่อนเขียน)
     ("strangle", "violence", "violence", (("STRANGLE",), ("SQUEEZE", "NECK")), ("FICTION", "HYPOTHETICAL", "AFFECTION", "CLOTHING")),
     # แรงงานบังคับต้องมีสัญญาณอันตรายอย่างน้อยสองอย่าง — "บังคับให้ทำงานบ้าน" หรือ "หัวหน้าให้อยู่ดึก" ตามลำพังไม่นับ
@@ -138,6 +139,11 @@ FRAMES = (
     ("kawasaki", "medical", "health_emergency", (("FEVER_DAYS", "KAWA_SIGN"),), ("FICTION", "HYPOTHETICAL", "BETTER")),
     ("nosebleed", "medical", "health_emergency", (("NOSEBLEED", "NB_BAD"),), ("FICTION", "HYPOTHETICAL", "NB_STOPPED", "MINOR")),
     ("dental_spread", "medical", "health_emergency", (("TOOTH", "SPREAD_RED"),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 21 (ชุดปิดตา X ล็อกไว้ก่อนเขียน) — เรื่องไต: โพแทสเซียมสูงจากอาหารในคนโรคไต
+    ("kidney_potassium", "medical", "health_emergency", (("KIDNEY_PT", "HIGH_K_FOOD", "K_RED"),), ("FICTION", "HYPOTHETICAL", "AVOID")),
+    ("pesticide", "medical", "health_emergency", (("PESTICIDE_USE", "OP_SIGN"),), ("FICTION", "HYPOTHETICAL", "PROTECTED")),
+    ("chemical_skin", "medical", "health_emergency", (("CORROSIVE", "SKIN_BURN"),), ("FICTION", "HYPOTHETICAL", "MINOR")),
+    ("bone_stuck", "medical", "health_emergency", (("BONE_STUCK", "BONE_RED"),), ("FICTION", "HYPOTHETICAL", "BONE_OK")),
 )
 
 
@@ -192,11 +198,12 @@ def _frame_hit(sentence: str, need: tuple) -> bool:
         return False
     # ภาษาเดียวกันก่อน (ส่วนใหญ่) แล้วค่อยลองปนภาษา ("กินยาพาราไป 30 tablets")
     langs = set.intersection(*(set(f) for f in found))
+    extra = _WINDOW_PER_PART * max(0, len(need) - 2)   # กฎสามชิ้นส่วนต้องการระยะมากกว่า ("ยายไตเสื่อม กินกล้วย… ตอนนี้อ่อนแรง")
     for lg in langs:
-        if _near([f[lg] for f in found], _WINDOW.get(lg, _WINDOW_DEFAULT)):
+        if _near([f[lg] for f in found], _WINDOW.get(lg, _WINDOW_DEFAULT) + extra):
             return True
     merged = [sorted({s for spans in f.values() for s in spans}) for f in found]
-    return _near(merged, _WINDOW_DEFAULT)
+    return _near(merged, _WINDOW_DEFAULT + extra)
 
 
 _KANA = re.compile(r"[\u3040-\u30ff]")
