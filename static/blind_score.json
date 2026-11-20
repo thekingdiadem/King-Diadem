@@ -1,5 +1,5 @@
 {
- "total": 1247,
+ "total": 1387,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,20 +24,20 @@
    "precision": 0.892
   },
   "emergency": {
-   "n": 522,
-   "tp": 521,
-   "fn": 1,
+   "n": 592,
+   "tp": 528,
+   "fn": 64,
    "fp": 11,
-   "recall": 0.998,
-   "precision": 0.979
+   "recall": 0.892,
+   "precision": 0.98
   },
   "violence": {
    "n": 70,
    "tp": 70,
    "fn": 0,
-   "fp": 9,
+   "fp": 10,
    "recall": 1.0,
-   "precision": 0.886
+   "precision": 0.875
   },
   "scam": {
    "n": 18,
@@ -57,41 +57,41 @@
   }
  },
  "danger_missed": {
-  "n": 0,
-  "of": 628
+  "n": 62,
+  "of": 698
  },
  "false_alarm": {
   "n": 1,
-  "of": 593
+  "of": 663
  },
  "by_lang": {
   "en": {
-   "hit": 104,
-   "n": 105
+   "hit": 105,
+   "n": 115
   },
   "es": {
    "hit": 80,
-   "n": 81
+   "n": 91
   },
   "ja": {
    "hit": 82,
-   "n": 82
+   "n": 92
   },
   "ko": {
-   "hit": 81,
-   "n": 81
+   "hit": 82,
+   "n": 91
   },
   "th": {
-   "hit": 140,
-   "n": 142
+   "hit": 142,
+   "n": 152
   },
   "vi": {
-   "hit": 79,
-   "n": 80
+   "hit": 80,
+   "n": 90
   },
   "zh": {
-   "hit": 83,
-   "n": 83
+   "hit": 85,
+   "n": 93
   }
  },
  "misses": [
@@ -140,6 +140,386 @@
    "got": [
     "emergency"
    ]
+  },
+  {
+   "line": 1325,
+   "text": "พ่อไม่ปัสสาวะเลยมาทั้งวัน ท้องน้อยโป่งแข็ง ปวดมาก",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1326,
+   "text": "แม่ฉี่ออกน้อยมากสองวันแล้ว ตัวบวม หายใจเหนื่อย",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1327,
+   "text": "ปวดเอวร้าวลงขาหนีบอย่างแรง มีไข้หนาวสั่น ฉี่เป็นเลือด",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1328,
+   "text": "เป็นนิ่วในไต ตอนนี้ไข้ 39 ปวดหลังจนลุกไม่ไหว",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1329,
+   "text": "ยายฟอกไตแต่ขาดไปสองรอบ ตอนนี้อ่อนแรง ใจเต้นผิดจังหวะ",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1330,
+   "text": "คนไข้ล้างไตบอกค่าโพแทสเซียมสูงมาก แขนขาชาไม่มีแรง",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1332,
+   "text": "ปวดหลังข้างเดียว ไข้สูงหนาวสั่น อาเจียน ฉี่แสบขุ่น",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1333,
+   "text": "น้องสาวติดเชื้อทางเดินปัสสาวะ ตอนนี้ไข้ขึ้นสูง ปวดบั้นเอว ซึม",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1345,
+   "text": "Dad hasn't peed all day, his lower belly is hard and swollen and he's in agony",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1346,
+   "text": "Mom has barely urinated in two days, she's swelling up and short of breath",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1347,
+   "text": "Severe flank pain shooting into my groin, fever with chills and blood in my urine",
+   "label": "emergency",
+   "got": [
+    "violence"
+   ]
+  },
+  {
+   "line": 1348,
+   "text": "I have a kidney stone and now a fever of 39, my back hurts so much I can't get up",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1349,
+   "text": "Grandma missed two dialysis sessions, now she's weak and her heartbeat is irregular",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1350,
+   "text": "Dialysis patient told his potassium is very high, his arms and legs are numb and weak",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1352,
+   "text": "Pain on one side of my back, high fever and shaking, vomiting, burning cloudy pee",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1353,
+   "text": "My sister's UTI got worse, high fever, flank pain and she's very drowsy",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1354,
+   "text": "Grandpa has chronic kidney disease, today he's confused, can't pee and swollen all over",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1365,
+   "text": "Mi papá no ha orinado en todo el día, tiene el bajo vientre duro e hinchado y le duele muchísimo",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1366,
+   "text": "Mi mamá casi no orina desde hace dos días, se está hinchando y le falta el aire",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1367,
+   "text": "Dolor fuerte en el costado que baja a la ingle, fiebre con escalofríos y sangre en la orina",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1368,
+   "text": "Tengo un cálculo renal y ahora fiebre de 39, me duele tanto la espalda que no puedo levantarme",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1369,
+   "text": "Mi abuela faltó a dos sesiones de diálisis, ahora está débil y el corazón le late irregular",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1370,
+   "text": "Al paciente de diálisis le dijeron que tiene el potasio muy alto, brazos y piernas entumecidos y sin fuerza",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1371,
+   "text": "Mi tío no fue a la diálisis, está lleno de líquido y no puede respirar acostado",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1372,
+   "text": "Dolor en un lado de la espalda, fiebre alta con temblores, vómitos y orina turbia que arde",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1373,
+   "text": "La infección urinaria de mi hermana empeoró, fiebre alta, dolor en el costado y está muy somnolienta",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1374,
+   "text": "Mi abuelo tiene enfermedad renal crónica, hoy está confundido, no puede orinar y está hinchado entero",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1385,
+   "text": "Bố tôi cả ngày không đi tiểu được, bụng dưới căng cứng và đau dữ dội",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1386,
+   "text": "Mẹ tôi hai ngày nay gần như không tiểu, người phù lên và khó thở",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1387,
+   "text": "Đau dữ dội vùng hông lan xuống bẹn, sốt rét run và tiểu ra máu",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1388,
+   "text": "Tôi bị sỏi thận, giờ sốt 39 độ, đau lưng đến mức không dậy nổi",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1389,
+   "text": "Bà tôi bỏ lỡ hai buổi chạy thận, giờ người yếu và tim đập loạn nhịp",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1390,
+   "text": "Bệnh nhân chạy thận được báo kali máu rất cao, tay chân tê và yếu",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1392,
+   "text": "Đau một bên lưng, sốt cao run người, nôn, tiểu buốt và đục",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1393,
+   "text": "Em gái tôi viêm đường tiểu nặng hơn, sốt cao, đau hông lưng và lơ mơ",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1394,
+   "text": "Ông tôi bị suy thận mạn, hôm nay lú lẫn, không tiểu được và phù toàn thân",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1405,
+   "text": "爸爸一整天都尿不出来，小肚子胀得硬邦邦，疼得厉害",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1406,
+   "text": "妈妈两天几乎没尿，全身浮肿，喘不上气",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1408,
+   "text": "我有肾结石，现在发烧39度，腰疼得起不来",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1409,
+   "text": "奶奶漏了两次透析，现在浑身无力，心跳不规律",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1410,
+   "text": "透析病人说血钾很高，手脚发麻没力气",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1412,
+   "text": "一侧腰痛，高烧打寒战，呕吐，小便刺痛浑浊",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1413,
+   "text": "妹妹尿路感染加重了，高烧，腰疼，迷迷糊糊的",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1414,
+   "text": "爷爷有慢性肾病，今天糊涂了，尿不出来，全身肿",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1425,
+   "text": "아빠가 하루 종일 소변을 못 보고 아랫배가 딱딱하게 부풀어서 너무 아파해요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1426,
+   "text": "엄마가 이틀째 소변이 거의 안 나오고 몸이 붓고 숨이 차요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1427,
+   "text": "옆구리가 사타구니까지 찢어질 듯 아프고 열이 나고 오한이 있고 소변에 피가 나와요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1428,
+   "text": "신장결석이 있는데 지금 열이 39도이고 허리가 아파서 일어날 수가 없어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1429,
+   "text": "할머니가 투석을 두 번 빠졌는데 지금 기운이 없고 심장이 불규칙하게 뛰어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1430,
+   "text": "투석 환자인데 칼륨 수치가 아주 높대요 팔다리가 저리고 힘이 없어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1432,
+   "text": "한쪽 허리가 아프고 고열에 오한이 나고 토하고 소변이 따갑고 탁해요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1433,
+   "text": "여동생 방광염이 심해져서 고열에 옆구리가 아프고 축 처져 있어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1434,
+   "text": "할아버지가 만성 신부전인데 오늘 정신이 오락가락하고 소변이 안 나오고 온몸이 부었어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1445,
+   "text": "父が一日中おしっこが出なくて、下腹がパンパンに張って激しく痛がっている",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1446,
+   "text": "母が二日間ほとんど尿が出ず、むくんで息が苦しそう",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1447,
+   "text": "脇腹から足の付け根まで激痛が走って、熱と寒気があり、尿に血が混じっている",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1448,
+   "text": "腎臓結石があって今39度の熱、腰が痛くて起き上がれない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1449,
+   "text": "祖母が透析を2回休んで、今は力が入らず脈が不規則",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1450,
+   "text": "透析患者でカリウムがすごく高いと言われ、手足がしびれて力が入らない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1451,
+   "text": "叔父が透析に行かず、全身むくんで横になると息ができない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1452,
+   "text": "片側の腰が痛くて高熱で震え、吐いていて、尿がしみて濁っている",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1453,
+   "text": "妹の膀胱炎が悪化して高熱、脇腹が痛く、ぼんやりしている",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1454,
+   "text": "祖父は慢性腎臓病で、今日は混乱していて尿が出ず全身がむくんでいる",
+   "label": "emergency",
+   "got": []
   }
  ]
 }

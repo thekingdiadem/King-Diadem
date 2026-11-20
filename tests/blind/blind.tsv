@@ -1320,3 +1320,145 @@ Xem phim tài liệu về cá mặt quỷ ở thủy cung	none	vi	claude-seed
 海にクラゲがたくさん浮いていた	none	ja	claude-seed
 寿司屋でウニを食べた、おいしかった	none	ja	claude-seed
 水族館でオニダルマオコゼのドキュメンタリーを見た	none	ja	claude-seed
+# ── ชุด K: ล็อกไว้ก่อนขยาย core/frames.py รอบ 8 (เน้นไต) — ปัสสาวะไม่ออก/ไตวายเฉียบพลัน · นิ่วอุดตันมีไข้ · ฟอกไตขาด/โพแทสเซียมสูง · กรวยไตอักเสบ ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 8/70 (ไม่เห็นเลย 62) · เตือนเกิน 0/70
+พ่อไม่ปัสสาวะเลยมาทั้งวัน ท้องน้อยโป่งแข็ง ปวดมาก	emergency	th	claude-seed
+แม่ฉี่ออกน้อยมากสองวันแล้ว ตัวบวม หายใจเหนื่อย	emergency	th	claude-seed
+ปวดเอวร้าวลงขาหนีบอย่างแรง มีไข้หนาวสั่น ฉี่เป็นเลือด	emergency	th	claude-seed
+เป็นนิ่วในไต ตอนนี้ไข้ 39 ปวดหลังจนลุกไม่ไหว	emergency	th	claude-seed
+ยายฟอกไตแต่ขาดไปสองรอบ ตอนนี้อ่อนแรง ใจเต้นผิดจังหวะ	emergency	th	claude-seed
+คนไข้ล้างไตบอกค่าโพแทสเซียมสูงมาก แขนขาชาไม่มีแรง	emergency	th	claude-seed
+ลุงฟอกไตไม่ได้ไปตามนัด ตัวบวมน้ำ นอนราบแล้วหายใจไม่ออก	emergency	th	claude-seed
+ปวดหลังข้างเดียว ไข้สูงหนาวสั่น อาเจียน ฉี่แสบขุ่น	emergency	th	claude-seed
+น้องสาวติดเชื้อทางเดินปัสสาวะ ตอนนี้ไข้ขึ้นสูง ปวดบั้นเอว ซึม	emergency	th	claude-seed
+ตาเป็นโรคไตเรื้อรัง วันนี้สับสน ฉี่ไม่ออก ตัวบวมทั้งตัว	emergency	th	claude-seed
+ไปตรวจไตประจำปี ค่าไตปกติดี	none	th	claude-seed
+ดื่มน้ำเยอะเลยฉี่บ่อย	none	th	claude-seed
+หมอบอกมีนิ่วเม็ดเล็ก ให้ดื่มน้ำเยอะๆ ตอนนี้ไม่ปวดแล้ว	none	th	claude-seed
+พาแม่ไปฟอกไตตามนัดทุกวันอังคาร	none	th	claude-seed
+ปวดหลังเพราะยกของหนัก	none	th	claude-seed
+กินไตย่างที่ร้านปิ้งย่าง	none	th	claude-seed
+อ่านบทความเรื่องดูแลไตให้แข็งแรง	none	th	claude-seed
+ฉี่สีเข้มเพราะดื่มน้ำน้อย ดื่มเพิ่มแล้วใสขึ้น	none	th	claude-seed
+เพื่อนบริจาคไตให้พี่ชาย ผ่าตัดเรียบร้อยดี	none	th	claude-seed
+ปวดฉี่ตอนรถติดแต่ถึงบ้านก็เข้าห้องน้ำได้	none	th	claude-seed
+Dad hasn't peed all day, his lower belly is hard and swollen and he's in agony	emergency	en	claude-seed
+Mom has barely urinated in two days, she's swelling up and short of breath	emergency	en	claude-seed
+Severe flank pain shooting into my groin, fever with chills and blood in my urine	emergency	en	claude-seed
+I have a kidney stone and now a fever of 39, my back hurts so much I can't get up	emergency	en	claude-seed
+Grandma missed two dialysis sessions, now she's weak and her heartbeat is irregular	emergency	en	claude-seed
+Dialysis patient told his potassium is very high, his arms and legs are numb and weak	emergency	en	claude-seed
+My uncle skipped dialysis, he's full of fluid and can't breathe lying down	emergency	en	claude-seed
+Pain on one side of my back, high fever and shaking, vomiting, burning cloudy pee	emergency	en	claude-seed
+My sister's UTI got worse, high fever, flank pain and she's very drowsy	emergency	en	claude-seed
+Grandpa has chronic kidney disease, today he's confused, can't pee and swollen all over	emergency	en	claude-seed
+Annual kidney check, my numbers are normal	none	en	claude-seed
+Drank a lot of water so I'm peeing often	none	en	claude-seed
+Doctor found a tiny stone, said drink lots of water, no pain now	none	en	claude-seed
+Taking mom to her regular dialysis every Tuesday	none	en	claude-seed
+Back hurts from lifting heavy boxes	none	en	claude-seed
+Had steak and kidney pie for lunch	none	en	claude-seed
+Read an article on keeping your kidneys healthy	none	en	claude-seed
+Dark pee because I didn't drink enough, it's clearer now	none	en	claude-seed
+My friend donated a kidney to her brother, surgery went well	none	en	claude-seed
+Needed to pee in traffic but made it home fine	none	en	claude-seed
+Mi papá no ha orinado en todo el día, tiene el bajo vientre duro e hinchado y le duele muchísimo	emergency	es	claude-seed
+Mi mamá casi no orina desde hace dos días, se está hinchando y le falta el aire	emergency	es	claude-seed
+Dolor fuerte en el costado que baja a la ingle, fiebre con escalofríos y sangre en la orina	emergency	es	claude-seed
+Tengo un cálculo renal y ahora fiebre de 39, me duele tanto la espalda que no puedo levantarme	emergency	es	claude-seed
+Mi abuela faltó a dos sesiones de diálisis, ahora está débil y el corazón le late irregular	emergency	es	claude-seed
+Al paciente de diálisis le dijeron que tiene el potasio muy alto, brazos y piernas entumecidos y sin fuerza	emergency	es	claude-seed
+Mi tío no fue a la diálisis, está lleno de líquido y no puede respirar acostado	emergency	es	claude-seed
+Dolor en un lado de la espalda, fiebre alta con temblores, vómitos y orina turbia que arde	emergency	es	claude-seed
+La infección urinaria de mi hermana empeoró, fiebre alta, dolor en el costado y está muy somnolienta	emergency	es	claude-seed
+Mi abuelo tiene enfermedad renal crónica, hoy está confundido, no puede orinar y está hinchado entero	emergency	es	claude-seed
+Chequeo anual de riñón, los valores salieron normales	none	es	claude-seed
+Tomé mucha agua y orino seguido	none	es	claude-seed
+El médico vio un cálculo pequeñito, me dijo que tome agua, ya no me duele	none	es	claude-seed
+Llevo a mi mamá a su diálisis de siempre los martes	none	es	claude-seed
+Me duele la espalda de cargar cajas	none	es	claude-seed
+Comimos riñones al jerez en el bar	none	es	claude-seed
+Leí un artículo sobre cómo cuidar los riñones	none	es	claude-seed
+Orina oscura porque tomé poca agua, ya está más clara	none	es	claude-seed
+Mi amiga le donó un riñón a su hermano, la cirugía salió bien	none	es	claude-seed
+Tenía ganas de orinar en el tráfico pero llegué a casa bien	none	es	claude-seed
+Bố tôi cả ngày không đi tiểu được, bụng dưới căng cứng và đau dữ dội	emergency	vi	claude-seed
+Mẹ tôi hai ngày nay gần như không tiểu, người phù lên và khó thở	emergency	vi	claude-seed
+Đau dữ dội vùng hông lan xuống bẹn, sốt rét run và tiểu ra máu	emergency	vi	claude-seed
+Tôi bị sỏi thận, giờ sốt 39 độ, đau lưng đến mức không dậy nổi	emergency	vi	claude-seed
+Bà tôi bỏ lỡ hai buổi chạy thận, giờ người yếu và tim đập loạn nhịp	emergency	vi	claude-seed
+Bệnh nhân chạy thận được báo kali máu rất cao, tay chân tê và yếu	emergency	vi	claude-seed
+Chú tôi bỏ chạy thận, người phù nước, nằm xuống là không thở được	emergency	vi	claude-seed
+Đau một bên lưng, sốt cao run người, nôn, tiểu buốt và đục	emergency	vi	claude-seed
+Em gái tôi viêm đường tiểu nặng hơn, sốt cao, đau hông lưng và lơ mơ	emergency	vi	claude-seed
+Ông tôi bị suy thận mạn, hôm nay lú lẫn, không tiểu được và phù toàn thân	emergency	vi	claude-seed
+Khám thận định kỳ, chỉ số bình thường	none	vi	claude-seed
+Uống nhiều nước nên đi tiểu nhiều	none	vi	claude-seed
+Bác sĩ thấy sỏi nhỏ, dặn uống nhiều nước, giờ hết đau rồi	none	vi	claude-seed
+Đưa mẹ đi chạy thận đúng lịch mỗi thứ Ba	none	vi	claude-seed
+Đau lưng vì bê đồ nặng	none	vi	claude-seed
+Ăn cật heo xào ở quán	none	vi	claude-seed
+Đọc bài viết về cách giữ thận khỏe	none	vi	claude-seed
+Nước tiểu sẫm vì uống ít nước, uống thêm thì trong lại	none	vi	claude-seed
+Bạn tôi hiến thận cho anh trai, ca mổ thành công	none	vi	claude-seed
+Buồn tiểu lúc kẹt xe nhưng về nhà kịp	none	vi	claude-seed
+爸爸一整天都尿不出来，小肚子胀得硬邦邦，疼得厉害	emergency	zh	claude-seed
+妈妈两天几乎没尿，全身浮肿，喘不上气	emergency	zh	claude-seed
+腰侧剧痛一直放射到腹股沟，发烧发冷，尿里有血	emergency	zh	claude-seed
+我有肾结石，现在发烧39度，腰疼得起不来	emergency	zh	claude-seed
+奶奶漏了两次透析，现在浑身无力，心跳不规律	emergency	zh	claude-seed
+透析病人说血钾很高，手脚发麻没力气	emergency	zh	claude-seed
+叔叔没去透析，全身水肿，躺下就喘不过气	emergency	zh	claude-seed
+一侧腰痛，高烧打寒战，呕吐，小便刺痛浑浊	emergency	zh	claude-seed
+妹妹尿路感染加重了，高烧，腰疼，迷迷糊糊的	emergency	zh	claude-seed
+爷爷有慢性肾病，今天糊涂了，尿不出来，全身肿	emergency	zh	claude-seed
+年度肾功能检查，指标正常	none	zh	claude-seed
+喝水多所以尿多	none	zh	claude-seed
+医生说有个小结石，多喝水就好，现在不疼了	none	zh	claude-seed
+每周二按时带妈妈去透析	none	zh	claude-seed
+搬重物搬得腰疼	none	zh	claude-seed
+在烧烤店吃了烤腰子	none	zh	claude-seed
+看了一篇保养肾脏的文章	none	zh	claude-seed
+水喝少了尿有点黄，多喝点就清了	none	zh	claude-seed
+朋友给哥哥捐了一个肾，手术很成功	none	zh	claude-seed
+堵车时很想上厕所，到家就好了	none	zh	claude-seed
+아빠가 하루 종일 소변을 못 보고 아랫배가 딱딱하게 부풀어서 너무 아파해요	emergency	ko	claude-seed
+엄마가 이틀째 소변이 거의 안 나오고 몸이 붓고 숨이 차요	emergency	ko	claude-seed
+옆구리가 사타구니까지 찢어질 듯 아프고 열이 나고 오한이 있고 소변에 피가 나와요	emergency	ko	claude-seed
+신장결석이 있는데 지금 열이 39도이고 허리가 아파서 일어날 수가 없어요	emergency	ko	claude-seed
+할머니가 투석을 두 번 빠졌는데 지금 기운이 없고 심장이 불규칙하게 뛰어요	emergency	ko	claude-seed
+투석 환자인데 칼륨 수치가 아주 높대요 팔다리가 저리고 힘이 없어요	emergency	ko	claude-seed
+삼촌이 투석을 안 받아서 몸이 퉁퉁 붓고 누우면 숨을 못 쉬어요	emergency	ko	claude-seed
+한쪽 허리가 아프고 고열에 오한이 나고 토하고 소변이 따갑고 탁해요	emergency	ko	claude-seed
+여동생 방광염이 심해져서 고열에 옆구리가 아프고 축 처져 있어요	emergency	ko	claude-seed
+할아버지가 만성 신부전인데 오늘 정신이 오락가락하고 소변이 안 나오고 온몸이 부었어요	emergency	ko	claude-seed
+연례 신장 검사 결과 수치가 정상이에요	none	ko	claude-seed
+물을 많이 마셔서 소변을 자주 봐요	none	ko	claude-seed
+의사가 작은 결석이 있다고 물 많이 마시래요 지금은 안 아파요	none	ko	claude-seed
+매주 화요일 엄마 투석에 모시고 가요	none	ko	claude-seed
+무거운 짐을 들어서 허리가 아파요	none	ko	claude-seed
+곱창집에서 콩팥 구이를 먹었어요	none	ko	claude-seed
+신장 건강 관리법 기사를 읽었어요	none	ko	claude-seed
+물을 적게 마셔서 소변이 진했는데 더 마시니 맑아졌어요	none	ko	claude-seed
+친구가 오빠에게 신장을 기증했는데 수술이 잘 됐어요	none	ko	claude-seed
+차 막힐 때 소변이 마려웠는데 집에 와서 해결했어요	none	ko	claude-seed
+父が一日中おしっこが出なくて、下腹がパンパンに張って激しく痛がっている	emergency	ja	claude-seed
+母が二日間ほとんど尿が出ず、むくんで息が苦しそう	emergency	ja	claude-seed
+脇腹から足の付け根まで激痛が走って、熱と寒気があり、尿に血が混じっている	emergency	ja	claude-seed
+腎臓結石があって今39度の熱、腰が痛くて起き上がれない	emergency	ja	claude-seed
+祖母が透析を2回休んで、今は力が入らず脈が不規則	emergency	ja	claude-seed
+透析患者でカリウムがすごく高いと言われ、手足がしびれて力が入らない	emergency	ja	claude-seed
+叔父が透析に行かず、全身むくんで横になると息ができない	emergency	ja	claude-seed
+片側の腰が痛くて高熱で震え、吐いていて、尿がしみて濁っている	emergency	ja	claude-seed
+妹の膀胱炎が悪化して高熱、脇腹が痛く、ぼんやりしている	emergency	ja	claude-seed
+祖父は慢性腎臓病で、今日は混乱していて尿が出ず全身がむくんでいる	emergency	ja	claude-seed
+年に一度の腎臓検査、数値は正常だった	none	ja	claude-seed
+水をたくさん飲んだのでトイレが近い	none	ja	claude-seed
+医者に小さな結石があると言われ、水を飲むように言われた、今は痛くない	none	ja	claude-seed
+毎週火曜に母をいつもの透析に連れて行く	none	ja	claude-seed
+重い荷物を持って腰が痛い	none	ja	claude-seed
+焼肉屋でマメ（腎臓）を食べた	none	ja	claude-seed
+腎臓を健康に保つ記事を読んだ	none	ja	claude-seed
+水分不足で尿が濃かったけど、飲んだら薄くなった	none	ja	claude-seed
+友達が兄に腎臓を提供して、手術は無事成功した	none	ja	claude-seed
+渋滞中にトイレに行きたくなったけど家まで間に合った	none	ja	claude-seed
