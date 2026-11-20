@@ -1,5 +1,5 @@
 {
- "total": 2087,
+ "total": 2227,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,11 +24,11 @@
    "precision": 0.892
   },
   "emergency": {
-   "n": 872,
-   "tp": 870,
-   "fn": 2,
+   "n": 942,
+   "tp": 894,
+   "fn": 48,
    "fp": 19,
-   "recall": 0.998,
+   "recall": 0.949,
    "precision": 0.979
   },
   "violence": {
@@ -57,41 +57,41 @@
   }
  },
  "danger_missed": {
-  "n": 1,
-  "of": 1048
+  "n": 47,
+  "of": 1118
  },
  "false_alarm": {
   "n": 12,
-  "of": 1013
+  "of": 1083
  },
  "by_lang": {
   "en": {
-   "hit": 164,
-   "n": 165
+   "hit": 170,
+   "n": 175
   },
   "es": {
-   "hit": 139,
-   "n": 141
+   "hit": 141,
+   "n": 151
   },
   "ja": {
-   "hit": 142,
-   "n": 142
+   "hit": 144,
+   "n": 152
   },
   "ko": {
-   "hit": 141,
-   "n": 141
+   "hit": 144,
+   "n": 151
   },
   "th": {
-   "hit": 200,
-   "n": 202
+   "hit": 207,
+   "n": 212
   },
   "vi": {
-   "hit": 139,
-   "n": 140
+   "hit": 141,
+   "n": 150
   },
   "zh": {
-   "hit": 143,
-   "n": 143
+   "hit": 145,
+   "n": 153
   }
  },
  "misses": [
@@ -234,6 +234,282 @@
    "got": [
     "violence"
    ]
+  },
+  {
+   "line": 2183,
+   "text": "น่องบวมข้างเดียว ร้อนแดง เจ็บมาก",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2185,
+   "text": "จู่ๆ มองไม่เห็นทั้งสองข้าง ปวดตามาก คลื่นไส้",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2186,
+   "text": "เห็นแสงวาบๆ แล้วมีเงาดำลอยเต็มตา มองไม่ชัดครึ่งหนึ่ง",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2197,
+   "text": "My son is diabetic, his sugar is over 500, breathing deep and fast, breath smells fruity",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2198,
+   "text": "My aunt's sugar is so high the meter just says HI, she's vomiting, belly pain and getting drowsy",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2203,
+   "text": "One calf is swollen, hot, red and very painful",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2206,
+   "text": "Saw flashes of light then a shower of floaters, half my vision is blurry",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2217,
+   "text": "Mi hijo es diabético, tiene el azúcar en más de 500, respira hondo y rápido, el aliento huele a fruta",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2218,
+   "text": "Mi tía tiene el azúcar tan alto que el aparato marca HI, vomita, le duele la barriga y está adormilada",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2219,
+   "text": "Mi papá tiene la presión en 220/130 con dolor de cabeza fuerte y visión borrosa",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2222,
+   "text": "Después de la cirugía y mucho reposo, de repente respira rápido y tose sangre",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2223,
+   "text": "Una pantorrilla hinchada, caliente, roja y muy dolorosa",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2224,
+   "text": "De repente no veo del ojo derecho, como si bajara una cortina negra",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2225,
+   "text": "De repente perdí la vista en ambos ojos con mucho dolor de ojos y náuseas",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2226,
+   "text": "Vi destellos de luz y luego muchas manchas flotantes, veo borrosa la mitad",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2237,
+   "text": "Con trai tôi bị tiểu đường, đường huyết trên 500, thở sâu và nhanh, hơi thở mùi trái cây",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2238,
+   "text": "Dì tôi đường huyết cao đến mức máy báo HI, nôn, đau bụng và lơ mơ",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2239,
+   "text": "Bố tôi huyết áp 220/130, đau đầu dữ dội và mờ mắt",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2242,
+   "text": "Sau mổ nằm nhiều, đột nhiên thở gấp và ho ra máu",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2243,
+   "text": "Một bên bắp chân sưng, nóng, đỏ và rất đau",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2244,
+   "text": "Đột nhiên mắt phải không nhìn thấy gì, như có tấm màn đen kéo xuống",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2245,
+   "text": "Đột nhiên mất thị lực cả hai mắt, đau mắt dữ dội và buồn nôn",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2246,
+   "text": "Thấy chớp sáng rồi một loạt đốm đen bay, nhìn mờ một nửa",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2257,
+   "text": "儿子有糖尿病，血糖超过500，呼吸又深又快，呼气有水果味",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2258,
+   "text": "阿姨血糖高到仪器显示HI，呕吐、肚子痛、越来越迷糊",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2259,
+   "text": "爸爸血压220/130，头痛得厉害，看东西模糊",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2262,
+   "text": "手术后卧床很久，突然呼吸急促还咳血",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2263,
+   "text": "一边小腿肿、发热、发红，非常痛",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2264,
+   "text": "右眼突然看不见了，像有块黑幕挡住",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2265,
+   "text": "突然两只眼睛都看不见，眼睛剧痛还恶心",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2266,
+   "text": "看到闪光后眼前一堆黑影飘，半边看不清",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2277,
+   "text": "아들이 당뇨인데 혈당이 500이 넘고 숨을 깊고 빠르게 쉬고 입에서 과일 냄새가 나요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2279,
+   "text": "아빠 혈압이 220/130인데 머리가 심하게 아프고 눈이 흐려요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2282,
+   "text": "수술 후 오래 누워 있었는데 갑자기 숨이 가쁘고 피를 기침해요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2283,
+   "text": "한쪽 종아리가 붓고 뜨겁고 빨갛고 너무 아파요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2284,
+   "text": "갑자기 오른쪽 눈이 안 보여요 검은 커튼이 내려온 것 같아요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2285,
+   "text": "갑자기 두 눈이 다 안 보이고 눈이 너무 아프고 메스꺼워요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2286,
+   "text": "번쩍이는 빛이 보이더니 검은 점이 잔뜩 떠다니고 시야 절반이 흐려요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2297,
+   "text": "息子は糖尿病で、血糖値が500を超え、深く速い呼吸で息が果物のような匂いがする",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2298,
+   "text": "叔母の血糖値が高すぎて機械がHIと表示し、吐いてお腹が痛く、ぼんやりしてきた",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2299,
+   "text": "父の血圧が220/130で、ひどい頭痛と目のかすみがある",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2302,
+   "text": "手術後ずっと寝ていたら、急に息が荒くなって血を咳き込んだ",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2303,
+   "text": "片方のふくらはぎが腫れて熱を持ち、赤くてすごく痛い",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2304,
+   "text": "急に右目が見えなくなった、黒いカーテンが下りてきたみたい",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2305,
+   "text": "急に両目が見えなくなって、目がすごく痛く吐き気がする",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 2306,
+   "text": "光がチカチカした後に黒い点がたくさん飛んで、視界の半分がぼやける",
+   "label": "emergency",
+   "got": []
   }
  ]
 }

@@ -2172,3 +2172,145 @@ Bố vỗ mông con đùa, hai bố con cười	none	vi	claude-seed
 虐待のニュースを見て腹が立った	none	ja	claude-seed
 銃撃戦のアクション映画を楽しんだ	none	ja	claude-seed
 パパが遊びで子どものお尻を軽くたたいて、みんなで笑った	none	ja	claude-seed
+# ── ชุด Q: ล็อกไว้ก่อนขยาย core/frames.py รอบ 14 — เบาหวานเลือดเป็นกรด/น้ำตาลสูงมาก · ความดันวิกฤต · ลิ่มเลือดอุดปอด/ขา · ตามองไม่เห็นกะทันหัน ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 24/70 (ไม่เห็นเลย 46) · เตือนเกิน 0/70
+ลูกเป็นเบาหวาน น้ำตาลขึ้นถึง 500 หายใจหอบลึก ลมหายใจกลิ่นผลไม้	emergency	th	claude-seed
+ป้าน้ำตาลสูงมากวัดไม่ขึ้น อาเจียน ปวดท้อง ซึมลง	emergency	th	claude-seed
+พ่อวัดความดันได้ 220/130 ปวดหัวรุนแรง ตาพร่า	emergency	th	claude-seed
+แม่ความดันพุ่ง 200 เจ็บหน้าอก หายใจไม่อิ่ม	emergency	th	claude-seed
+เพิ่งนั่งเครื่องบินไกลมา ขาข้างหนึ่งบวมแดง ตอนนี้เจ็บหน้าอกหายใจไม่ทัน	emergency	th	claude-seed
+หลังผ่าตัดนอนนาน จู่ๆ หายใจหอบ ไอเป็นเลือด	emergency	th	claude-seed
+น่องบวมข้างเดียว ร้อนแดง เจ็บมาก	emergency	th	claude-seed
+ตาข้างขวามองไม่เห็นกะทันหัน เหมือนม่านดำมาบัง	emergency	th	claude-seed
+จู่ๆ มองไม่เห็นทั้งสองข้าง ปวดตามาก คลื่นไส้	emergency	th	claude-seed
+เห็นแสงวาบๆ แล้วมีเงาดำลอยเต็มตา มองไม่ชัดครึ่งหนึ่ง	emergency	th	claude-seed
+น้ำตาลหลังอาหารสูงนิดหน่อย หมอให้คุมอาหาร	none	th	claude-seed
+ความดัน 130/85 หมอบอกให้ออกกำลังกาย	none	th	claude-seed
+นั่งรถนานขาเมื่อย ลุกเดินแล้วหาย	none	th	claude-seed
+ขาบวมนิดหน่อยตอนท้อง หมอบอกปกติ	none	th	claude-seed
+สายตาสั้นขึ้น ต้องตัดแว่นใหม่	none	th	claude-seed
+ตาพร่าเพราะจ้องจอนาน พักแล้วดีขึ้น	none	th	claude-seed
+มีเงาดำลอยเล็กๆ มานานแล้ว หมอตรวจว่าไม่เป็นไร	none	th	claude-seed
+ซื้อเครื่องวัดความดันให้พ่อ	none	th	claude-seed
+ไอมีเสมหะเพราะเป็นหวัด	none	th	claude-seed
+กินขนมหวานเยอะ ต้องลดน้ำตาล	none	th	claude-seed
+My son is diabetic, his sugar is over 500, breathing deep and fast, breath smells fruity	emergency	en	claude-seed
+My aunt's sugar is so high the meter just says HI, she's vomiting, belly pain and getting drowsy	emergency	en	claude-seed
+Dad's blood pressure is 220/130 with a severe headache and blurry vision	emergency	en	claude-seed
+Mom's blood pressure spiked to 200, chest pain and short of breath	emergency	en	claude-seed
+Just got off a long flight, one leg is swollen and red, now chest pain and can't catch my breath	emergency	en	claude-seed
+After surgery and lots of bed rest, suddenly breathing fast and coughing blood	emergency	en	claude-seed
+One calf is swollen, hot, red and very painful	emergency	en	claude-seed
+Suddenly can't see out of my right eye, like a black curtain came down	emergency	en	claude-seed
+Suddenly lost vision in both eyes with bad eye pain and nausea	emergency	en	claude-seed
+Saw flashes of light then a shower of floaters, half my vision is blurry	emergency	en	claude-seed
+Post meal sugar a bit high, doctor said watch my diet	none	en	claude-seed
+Blood pressure 130/85, doctor said exercise more	none	en	claude-seed
+Legs ache after a long drive, walking around fixed it	none	en	claude-seed
+Mild leg swelling in pregnancy, doctor says it's normal	none	en	claude-seed
+My eyesight got worse, need new glasses	none	en	claude-seed
+Blurry eyes from staring at screens, better after a break	none	en	claude-seed
+Had small floaters for years, eye doctor said it's fine	none	en	claude-seed
+Bought a blood pressure monitor for dad	none	en	claude-seed
+Coughing phlegm from a cold	none	en	claude-seed
+Ate too many sweets, need to cut sugar	none	en	claude-seed
+Mi hijo es diabético, tiene el azúcar en más de 500, respira hondo y rápido, el aliento huele a fruta	emergency	es	claude-seed
+Mi tía tiene el azúcar tan alto que el aparato marca HI, vomita, le duele la barriga y está adormilada	emergency	es	claude-seed
+Mi papá tiene la presión en 220/130 con dolor de cabeza fuerte y visión borrosa	emergency	es	claude-seed
+A mi mamá se le subió la presión a 200, dolor de pecho y le falta el aire	emergency	es	claude-seed
+Acabo de bajar de un vuelo largo, tengo una pierna hinchada y roja, ahora me duele el pecho y no puedo respirar bien	emergency	es	claude-seed
+Después de la cirugía y mucho reposo, de repente respira rápido y tose sangre	emergency	es	claude-seed
+Una pantorrilla hinchada, caliente, roja y muy dolorosa	emergency	es	claude-seed
+De repente no veo del ojo derecho, como si bajara una cortina negra	emergency	es	claude-seed
+De repente perdí la vista en ambos ojos con mucho dolor de ojos y náuseas	emergency	es	claude-seed
+Vi destellos de luz y luego muchas manchas flotantes, veo borrosa la mitad	emergency	es	claude-seed
+El azúcar después de comer un poco alto, el médico dijo que cuide la dieta	none	es	claude-seed
+Presión 130/85, el médico dijo que haga ejercicio	none	es	claude-seed
+Me duelen las piernas tras un viaje largo en coche, caminar lo arregló	none	es	claude-seed
+Piernas un poco hinchadas en el embarazo, el médico dice que es normal	none	es	claude-seed
+Me empeoró la vista, necesito lentes nuevos	none	es	claude-seed
+Ojos borrosos por mirar pantallas, mejor tras descansar	none	es	claude-seed
+Tengo moscas volantes pequeñas desde hace años, el oculista dijo que está bien	none	es	claude-seed
+Compré un tensiómetro para mi papá	none	es	claude-seed
+Tos con flema por un resfriado	none	es	claude-seed
+Comí demasiados dulces, tengo que bajar el azúcar	none	es	claude-seed
+Con trai tôi bị tiểu đường, đường huyết trên 500, thở sâu và nhanh, hơi thở mùi trái cây	emergency	vi	claude-seed
+Dì tôi đường huyết cao đến mức máy báo HI, nôn, đau bụng và lơ mơ	emergency	vi	claude-seed
+Bố tôi huyết áp 220/130, đau đầu dữ dội và mờ mắt	emergency	vi	claude-seed
+Huyết áp của mẹ vọt lên 200, đau ngực và khó thở	emergency	vi	claude-seed
+Vừa xuống chuyến bay dài, một chân sưng đỏ, giờ đau ngực và thở không kịp	emergency	vi	claude-seed
+Sau mổ nằm nhiều, đột nhiên thở gấp và ho ra máu	emergency	vi	claude-seed
+Một bên bắp chân sưng, nóng, đỏ và rất đau	emergency	vi	claude-seed
+Đột nhiên mắt phải không nhìn thấy gì, như có tấm màn đen kéo xuống	emergency	vi	claude-seed
+Đột nhiên mất thị lực cả hai mắt, đau mắt dữ dội và buồn nôn	emergency	vi	claude-seed
+Thấy chớp sáng rồi một loạt đốm đen bay, nhìn mờ một nửa	emergency	vi	claude-seed
+Đường huyết sau ăn hơi cao, bác sĩ bảo ăn kiêng	none	vi	claude-seed
+Huyết áp 130/85, bác sĩ bảo tập thể dục	none	vi	claude-seed
+Ngồi xe lâu mỏi chân, đi lại là hết	none	vi	claude-seed
+Phù chân nhẹ khi mang thai, bác sĩ nói bình thường	none	vi	claude-seed
+Mắt kém đi, phải cắt kính mới	none	vi	claude-seed
+Mờ mắt vì nhìn màn hình lâu, nghỉ là đỡ	none	vi	claude-seed
+Có ruồi bay nhỏ trong mắt nhiều năm, bác sĩ nói không sao	none	vi	claude-seed
+Mua máy đo huyết áp cho bố	none	vi	claude-seed
+Ho có đờm vì cảm	none	vi	claude-seed
+Ăn nhiều đồ ngọt quá, phải giảm đường	none	vi	claude-seed
+儿子有糖尿病，血糖超过500，呼吸又深又快，呼气有水果味	emergency	zh	claude-seed
+阿姨血糖高到仪器显示HI，呕吐、肚子痛、越来越迷糊	emergency	zh	claude-seed
+爸爸血压220/130，头痛得厉害，看东西模糊	emergency	zh	claude-seed
+妈妈血压飙到200，胸痛，喘不上气	emergency	zh	claude-seed
+刚下长途飞机，一条腿又肿又红，现在胸痛喘不过气	emergency	zh	claude-seed
+手术后卧床很久，突然呼吸急促还咳血	emergency	zh	claude-seed
+一边小腿肿、发热、发红，非常痛	emergency	zh	claude-seed
+右眼突然看不见了，像有块黑幕挡住	emergency	zh	claude-seed
+突然两只眼睛都看不见，眼睛剧痛还恶心	emergency	zh	claude-seed
+看到闪光后眼前一堆黑影飘，半边看不清	emergency	zh	claude-seed
+餐后血糖有点高，医生让控制饮食	none	zh	claude-seed
+血压130/85，医生说多运动	none	zh	claude-seed
+坐车久了腿酸，走走就好	none	zh	claude-seed
+怀孕时腿有点肿，医生说正常	none	zh	claude-seed
+视力下降了，要重新配眼镜	none	zh	claude-seed
+看屏幕太久眼睛模糊，休息一下就好	none	zh	claude-seed
+飞蚊症好多年了，眼科医生说没事	none	zh	claude-seed
+给爸爸买了血压计	none	zh	claude-seed
+感冒咳嗽有痰	none	zh	claude-seed
+甜食吃多了，要控糖	none	zh	claude-seed
+아들이 당뇨인데 혈당이 500이 넘고 숨을 깊고 빠르게 쉬고 입에서 과일 냄새가 나요	emergency	ko	claude-seed
+이모가 혈당이 너무 높아서 기계에 HI라고 뜨고 토하고 배가 아프고 점점 처져요	emergency	ko	claude-seed
+아빠 혈압이 220/130인데 머리가 심하게 아프고 눈이 흐려요	emergency	ko	claude-seed
+엄마 혈압이 200까지 치솟고 가슴이 아프고 숨이 차요	emergency	ko	claude-seed
+장거리 비행 후 한쪽 다리가 붓고 빨개졌는데 지금 가슴이 아프고 숨이 안 쉬어져요	emergency	ko	claude-seed
+수술 후 오래 누워 있었는데 갑자기 숨이 가쁘고 피를 기침해요	emergency	ko	claude-seed
+한쪽 종아리가 붓고 뜨겁고 빨갛고 너무 아파요	emergency	ko	claude-seed
+갑자기 오른쪽 눈이 안 보여요 검은 커튼이 내려온 것 같아요	emergency	ko	claude-seed
+갑자기 두 눈이 다 안 보이고 눈이 너무 아프고 메스꺼워요	emergency	ko	claude-seed
+번쩍이는 빛이 보이더니 검은 점이 잔뜩 떠다니고 시야 절반이 흐려요	emergency	ko	claude-seed
+식후 혈당이 조금 높아서 의사가 식단 조절하래요	none	ko	claude-seed
+혈압 130/85라서 의사가 운동하래요	none	ko	claude-seed
+오래 차를 타서 다리가 뻐근했는데 걸으니 괜찮아요	none	ko	claude-seed
+임신 중 다리가 조금 부었는데 의사가 정상이래요	none	ko	claude-seed
+시력이 나빠져서 안경을 새로 맞춰야 해요	none	ko	claude-seed
+화면을 오래 봐서 눈이 침침했는데 쉬니 나아졌어요	none	ko	claude-seed
+비문증이 몇 년째인데 안과에서 괜찮대요	none	ko	claude-seed
+아빠께 혈압계를 사드렸어요	none	ko	claude-seed
+감기로 가래 기침이 나요	none	ko	claude-seed
+단 걸 너무 먹어서 당을 줄여야 해요	none	ko	claude-seed
+息子は糖尿病で、血糖値が500を超え、深く速い呼吸で息が果物のような匂いがする	emergency	ja	claude-seed
+叔母の血糖値が高すぎて機械がHIと表示し、吐いてお腹が痛く、ぼんやりしてきた	emergency	ja	claude-seed
+父の血圧が220/130で、ひどい頭痛と目のかすみがある	emergency	ja	claude-seed
+母の血圧が200まで急上昇して、胸が痛く息が苦しい	emergency	ja	claude-seed
+長距離フライトの後、片足が腫れて赤くなり、今は胸が痛くて息ができない	emergency	ja	claude-seed
+手術後ずっと寝ていたら、急に息が荒くなって血を咳き込んだ	emergency	ja	claude-seed
+片方のふくらはぎが腫れて熱を持ち、赤くてすごく痛い	emergency	ja	claude-seed
+急に右目が見えなくなった、黒いカーテンが下りてきたみたい	emergency	ja	claude-seed
+急に両目が見えなくなって、目がすごく痛く吐き気がする	emergency	ja	claude-seed
+光がチカチカした後に黒い点がたくさん飛んで、視界の半分がぼやける	emergency	ja	claude-seed
+食後血糖が少し高く、医者に食事に気をつけるよう言われた	none	ja	claude-seed
+血圧130/85で、医者に運動するよう言われた	none	ja	claude-seed
+長時間の運転で足がだるかったけど歩いたら治った	none	ja	claude-seed
+妊娠中に足が少しむくんだけど医者は正常と言った	none	ja	claude-seed
+視力が落ちて眼鏡を作り直す必要がある	none	ja	claude-seed
+画面の見すぎで目がかすんだけど休んだら良くなった	none	ja	claude-seed
+飛蚊症は何年も前からで、眼科で問題ないと言われた	none	ja	claude-seed
+父に血圧計を買った	none	ja	claude-seed
+風邪で痰の絡む咳が出る	none	ja	claude-seed
+甘いものを食べすぎたので糖分を控えないと	none	ja	claude-seed
