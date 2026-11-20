@@ -556,7 +556,7 @@ TOPICS = [
                           re.compile(r"(?:ล้ม|หมด|ฟุบ|ช็อก|เรียก\S{0,6}?|(?:พ่อ|แม่|ลูก|เด็ก|หลาน|ยาย|ตา|ปู่|ย่า|สามี|ภรรยา|แฟน|เพื่อน|มีคน|คน)\S{0,6}?)ไม่รู้สึกตัว(?!\S{0,4}?ว่า)"),
                           re.compile(r"^(?![\s\S]*(?:ประจำเดือน|เมนส์|ไรฟัน|เลือดกำเดา\S{0,4}?นิดหน่อย))[\s\S]*?เลือด(?:ออก|ไหล)\S{0,4}?(?:มาก|เยอะ|ท่วม|ทะลัก|ไม่หยุด)"),
                           re.compile(r"(?:โดน|ถูก)(?:มีด|ดาบ|พร้า|ขวาน)\S{0,4}?(?:ฟัน|แทง)(?!ธง)"), "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
-                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?<!soil )(?<!dirt )(?<!sand )(?<!tent )(?<!cake )(?:collapsed|passed out|unconscious)\b|\bdrowning\b(?! in (?:\w+ ){0,2}(?:homework|work|paperwork|debts?|loans?|payments?|mortgage|credit|emails?|bills|tasks|assignments|love|tears|stress|responsibilit\w+|deadlines?))", re.I),
+                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?<!soil )(?<!dirt )(?<!sand )(?<!sandcastle )(?<!tent )(?<!cake )(?:collapsed|passed out|unconscious)\b|\bdrowning\b(?! in (?:\w+ ){0,2}(?:homework|work|paperwork|debts?|loans?|payments?|mortgage|credit|emails?|bills|tasks|assignments|love|tears|stress|responsibilit\w+|deadlines?))", re.I),
                           _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
         "paths": [
@@ -2565,6 +2565,12 @@ def _assess_one(text: str, pattern: dict | None = None) -> dict:
         # "ศึกษาเรื่องการค้ามนุษย์ทำรายงาน" เคยได้ Risk 80 ราวกับกำลังถูกค้ามนุษย์
         a = dict(a, topics=[t for t in a["topics"] if t not in ("trafficking", "violence", "sexual_abuse", "overdose")],
                  text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20), risk_shown=min(a["risk_shown"], 20))
+    # ตีเล่น/อ่านข่าว ที่ถูกตัดหัวข้อความรุนแรงออกแล้ว — Risk ต้องลงตามด้วย (หลังรอบ 15)
+    # เฉพาะเมื่อเพิ่งตัดหัวข้อความรุนแรงออกจริงๆ และไม่มีเรื่องด่วนอื่นเหลือ ("แม่ดูข่าวอยู่แล้วหมดสติ" ต้องยังด่วน)
+    if isinstance(text, str) and a.get("calmed_violence") and not a["crisis"] and not set(a["topics"]) & set(_URGENT_TOPICS) \
+            and not a.get("disaster") and not a.get("intl_urgent"):
+        a = dict(a, text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20),
+                 risk_shown=min(a["risk_shown"], 20) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     from core.second_layer import apply as _second_layer
     a = _second_layer(text, a)
     # ชั้นสองอาจเติม harm_others กลับมา — คนที่ถูกคนอื่นขู่ไม่ใช่คนที่อยากทำร้ายใคร (ดู _THREAT_BY_OTHER)
@@ -2710,6 +2716,12 @@ def _assess_raw(text: str, pattern: dict | None = None) -> dict:
 _TONE_RE_KV = re.compile("[\u0e48\u0e49\u0e4a\u0e4b]")
 
 
+_NEWS_ONLY = re.compile(r"ข่าว(?:การ|เรื่อง|เกี่ยวกับ)?\S{0,4}(?:ล่วงละเมิด|ข่มขืน|ทำร้าย|ความรุนแรง|ทารุณ)|"
+                        r"\b(?:news|article)s? (?:about|on|of) (?:\w+ ){0,2}(?:abuse|assault|rape|violence)\b|"
+                        r"noticias de (?:abuso|violencia)|tin (?:về )?(?:xâm hại|bạo lực)|(?:虐待|性侵|暴力)的?新闻|학대 뉴스|虐待のニュース", re.I)
+_SELF_VICTIM = re.compile(r"ฉันโดน|หนูโดน|ผมโดน|ฉันถูก|หนูถูก|ผมถูก|\bi was\b|\bme\b|\bmy\b|me\s+(?:viol|toc)|tôi bị|我被|제가|私が", re.I)
+_PLAYFUL = re.compile(r"เบาๆ\S{0,12}(?:เล่น|หัวเราะ)|เล่นกัน|หัวเราะกัน|\b(?:playfully|jokingly|as a joke)\b", re.I)
+_HURT_MARK = re.compile(r"ช้ำ|เลือด|ร้องไห้|เจ็บมาก|ทุกวัน|\b(?:bruise|bleed|crying|every day)\w*", re.I)
 _DOCU_STORY = re.compile(r"สารคดี|ตอนเด็กเคย|\bdocumentary\b|documental|phim tài liệu|纪录片|紀錄片|다큐|ドキュメンタリー", re.I)
 
 
@@ -2801,6 +2813,13 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     # "ดูสารคดีคนหลงป่ารอดชีวิต" = เล่าเรื่องที่ดู ไม่ใช่ผู้ใช้หลงป่าอยู่ตอนนี้ (ชุดปิดตา N)
     if "stranded" in topics and _DOCU_STORY.search(text):
         topics = [t for t in topics if t != "stranded"]
+    # "อ่านข่าวการล่วงละเมิดแล้วโกรธ" = อ่านข่าว ไม่ได้ถูกกระทำ · "พ่อตีก้นลูกเบาๆ ตอนเล่นกัน" = เล่นกัน (หลังรอบ 15)
+    _before_calm = len(topics)
+    if _NEWS_ONLY.search(text) and not _SELF_VICTIM.search(text):
+        topics = [t for t in topics if t not in ("sexual_abuse", "violence")]
+    if "violence" in topics and _PLAYFUL.search(text) and not _HURT_MARK.search(text):
+        topics = [t for t in topics if t != "violence"]
+    _calmed_violence = len(topics) < _before_calm
     # อารมณ์หนัก/ภัยที่พูดสั้น ในภาษา ja zh ko es vi (core/mood_intl) — เดิมได้ Risk 0 และแผนสามขั้นทั่วไป
     from core.mood_intl import mood_intl
     mood = mood_intl(text)
@@ -2919,7 +2938,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
         "text_risk": round(text_risk), "offer_flags": flags,
         "relationship": rel["data"]["status"] if rel else None,
         "disaster": dis["data"] if dis and dis["data"]["active"] else None,
-        "crisis": crisis, "topics": topics, "money": _money(text),
+        "crisis": crisis, "topics": topics, "calmed_violence": _calmed_violence, "money": _money(text),
         "options": _options(text or ""),
     }
 

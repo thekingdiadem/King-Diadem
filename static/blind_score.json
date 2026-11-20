@@ -27,17 +27,17 @@
    "n": 1012,
    "tp": 1010,
    "fn": 2,
-   "fp": 20,
+   "fp": 16,
    "recall": 0.998,
-   "precision": 0.981
+   "precision": 0.984
   },
   "violence": {
    "n": 140,
    "tp": 140,
    "fn": 0,
-   "fp": 14,
+   "fp": 12,
    "recall": 1.0,
-   "precision": 0.909
+   "precision": 0.921
   },
   "scam": {
    "n": 18,
@@ -61,7 +61,7 @@
   "of": 1188
  },
  "false_alarm": {
-  "n": 13,
+  "n": 7,
   "of": 1153
  },
  "by_lang": {
@@ -143,29 +143,13 @@
   },
   {
    "line": 1652,
-   "text": "Mi primo tomó licor casero del mercado y ahora ve todo nublado y le cuesta respirar",
+   "text": "Mi vecino bebió alcohol de contrabando y dice que ve todo como en niebla",
    "label": "emergency",
    "got": []
   },
   {
-   "line": 1903,
-   "text": "แอปเตือนว่ามีแผ่นดินไหวที่พม่า ที่บ้านไม่รู้สึกอะไร",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
    "line": 1912,
-   "text": "พายุเข้า ไฟดับไปชั่วโมงหนึ่งแล้วก็มา",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 1926,
-   "text": "The sandcastle collapsed when the wave came",
+   "text": "พายุเข้า เลยเก็บกระถางต้นไม้เข้าบ้าน",
    "label": "none",
    "got": [
     "emergency"
@@ -173,7 +157,7 @@
   },
   {
    "line": 1951,
-   "text": "Preparé una mochila de emergencia por si hay terremoto",
+   "text": "En clase de ciencias aprendimos cómo se mide un sismo",
    "label": "none",
    "got": [
     "emergency"
@@ -181,7 +165,7 @@
   },
   {
    "line": 1971,
-   "text": "Chuẩn bị túi đồ khẩn cấp phòng khi có động đất",
+   "text": "Học về cách đo động đất trong giờ khoa học",
    "label": "none",
    "got": [
     "emergency"
@@ -189,15 +173,7 @@
   },
   {
    "line": 1983,
-   "text": "手机收到地震预警，但我们这里没感觉",
-   "label": "none",
-   "got": [
-    "emergency"
-   ]
-  },
-  {
-   "line": 2003,
-   "text": "휴대폰에 지진 알림이 왔는데 여기는 아무 느낌이 없었어요",
+   "text": "科学课上学了地震是怎么测量的",
    "label": "none",
    "got": [
     "emergency"
@@ -205,42 +181,18 @@
   },
   {
    "line": 2023,
-   "text": "スマホに地震速報が来たけど、こちらは揺れなかった",
+   "text": "理科の授業で地震の測り方を習った",
    "label": "none",
    "got": [
     "emergency"
-   ]
-  },
-  {
-   "line": 2049,
-   "text": "มีคนเดินตามหลังมาเพราะทางเดียวกัน",
-   "label": "none",
-   "got": [
-    "violence"
    ]
   },
   {
    "line": 2052,
-   "text": "อ่านข่าวการล่วงละเมิดแล้วโกรธมาก",
+   "text": "ไปอบรมเรื่องการป้องกันการล่วงละเมิดในที่ทำงาน",
    "label": "none",
    "got": [
     "violence"
-   ]
-  },
-  {
-   "line": 2054,
-   "text": "พ่อตีลูกเบาๆ ที่ก้นตอนเล่นกัน หัวเราะกันใหญ่",
-   "label": "none",
-   "got": [
-    "violence"
-   ]
-  },
-  {
-   "line": 2329,
-   "text": "ลูกแรกเกิดตัวเหลืองนิดหน่อย หมอให้ตากแดดอ่อนๆ",
-   "label": "none",
-   "got": [
-    "emergency"
    ]
   }
  ]

@@ -576,7 +576,10 @@ def strip_someone_intl(text) -> str:
 _DISASTER_WORD = re.compile(r"động\s+đất|lũ|sạt\s+lở|cháy\s+rừng|sét|terremoto|sismo|incendio|deslave|地震|山火|洪水|滑坡|지진|산불|홍수|산사태|山火事|洪水|土砂", re.I)
 _DISASTER_CALM = re.compile(r"simulacro|simulador|juego|lejanos|sin daños|diễn tập|mô phỏng|game|ở xa|không thiệt hại|tin\s|"
                             r"演练|演練|模拟|模擬|游戏|遊戲|远处|遠處|没有损失|沒有損失|新闻|新聞|"
-                            r"훈련|시뮬레이션|게임|멀리|피해는 없|뉴스|訓練|シミュレーション|ゲーム|遠く|被害はない|ニュース", re.I)
+                            r"훈련|시뮬레이션|게임|멀리|피해는 없|뉴스|訓練|シミュレーション|ゲーム|遠く|被害はない|ニュース|"
+                            # แจ้งเตือนแต่ไม่รู้สึก · เตรียมของเผื่อ (หลังรอบ 15)
+                            r"por\s+si\s+hay|mochila\s+de\s+emergencia|no\s+se\s+sintió|phòng\s+khi|túi\s+đồ\s+khẩn\s+cấp|không\s+cảm\s+thấy|"
+                            r"预警|預警|没感觉|沒感覺|应急包|應急包|防震|알림이\s*왔|느낌이\s*없|대비|비상가방|速報|揺れなかった|備えて|防災", re.I)
 
 
 def _calm_disaster(t: str, hits: list) -> list:
