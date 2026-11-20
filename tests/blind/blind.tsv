@@ -1746,3 +1746,145 @@ TV 리모컨 건전지를 갈았어요	none	ko	claude-seed
 子どもがパパと一緒に磁石ブロックで慎重に遊んだ	none	ja	claude-seed
 ボタン電池は鍵のかかる棚にしまっている	none	ja	claude-seed
 子どもがガムを飲み込んだけど大丈夫	none	ja	claude-seed
+# ── ชุด N: ล็อกไว้ก่อนขยาย core/frames.py รอบ 11 — เด็กหาย · ผู้สูงอายุสมองเสื่อมเดินหลง · หลงป่า/หลงบนเขา · ติดกลางทะเล ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 8/70 (ไม่เห็นเลย 62) · เตือนเกิน 2/70
+ลูกสาวหกขวบหายไปจากห้างเกือบชั่วโมงแล้ว หาไม่เจอ	emergency	th	claude-seed
+ลูกชายไม่กลับบ้านหลังเลิกเรียน โทรไม่ติดตั้งแต่บ่าย	emergency	th	claude-seed
+หลานเล่นอยู่หน้าบ้านแล้วหายไป ไม่มีใครเห็น	emergency	th	claude-seed
+ยายเป็นอัลไซเมอร์ เดินออกจากบ้านตอนตีสาม ยังหาไม่เจอ	emergency	th	claude-seed
+พ่อความจำเสื่อม ขับรถออกไปแล้วหลงทาง โทรมาบอกไม่รู้ว่าอยู่ไหน	emergency	th	claude-seed
+หลงป่าบนดอยมาตั้งแต่เมื่อวาน น้ำหมด แบตเหลือ 5%	emergency	th	claude-seed
+เพื่อนเดินป่าแยกกลุ่มไป มืดแล้วยังไม่กลับมา ติดต่อไม่ได้	emergency	th	claude-seed
+เรือประมงเครื่องดับกลางทะเล คลื่นแรงมาก น้ำเข้าเรือ	emergency	th	claude-seed
+พายเรือคายัคแล้วโดนกระแสน้ำพัดออกไปไกลฝั่ง กลับไม่ได้	emergency	th	claude-seed
+เรือคว่ำ พวกเราเกาะเรือลอยอยู่กลางทะเล	emergency	th	claude-seed
+ลูกไปบ้านเพื่อน บอกไว้แล้วว่าจะกลับสองทุ่ม	none	th	claude-seed
+หาแว่นไม่เจอ ที่แท้อยู่บนหัว	none	th	claude-seed
+แมวหายไปทั้งคืน เช้ามาก็กลับมาเอง	none	th	claude-seed
+ยายเริ่มลืมๆ บ่อย พาไปหาหมอตามนัด	none	th	claude-seed
+หลงทางนิดหน่อยตอนขับรถ เปิดแผนที่ก็ถึง	none	th	claude-seed
+ไปเดินป่ากับไกด์ สนุกมาก	none	th	claude-seed
+ดูสารคดีคนหลงป่ารอดชีวิต	none	th	claude-seed
+นั่งเรือข้ามฟากไปเกาะ คลื่นนิดหน่อย	none	th	claude-seed
+ไปตกปลากลางทะเลกับพ่อ ได้ปลาเยอะ	none	th	claude-seed
+ลูกเล่นซ่อนแอบกับเพื่อน หาเจอแล้ว	none	th	claude-seed
+My 6 year old daughter disappeared at the mall almost an hour ago, we can't find her	emergency	en	claude-seed
+My son didn't come home after school and his phone has been off since the afternoon	emergency	en	claude-seed
+My nephew was playing in front of the house and vanished, nobody saw anything	emergency	en	claude-seed
+Grandma has Alzheimer's, she walked out of the house at 3am and we still can't find her	emergency	en	claude-seed
+Dad has dementia, he drove off and got lost, called saying he doesn't know where he is	emergency	en	claude-seed
+Lost in the mountain forest since yesterday, out of water, phone at 5%	emergency	en	claude-seed
+My friend split from the hiking group, it's dark and he hasn't come back, can't reach him	emergency	en	claude-seed
+Our fishing boat's engine died far out at sea, the waves are huge and water is coming in	emergency	en	claude-seed
+The current pulled my kayak far from shore and I can't get back	emergency	en	claude-seed
+Our boat capsized, we're clinging to it in the middle of the sea	emergency	en	claude-seed
+My kid is at a friend's house, said he'll be back at 8	none	en	claude-seed
+Couldn't find my glasses, they were on my head	none	en	claude-seed
+The cat was gone all night and came back in the morning	none	en	claude-seed
+Grandma is getting forgetful, taking her to her doctor appointment	none	en	claude-seed
+Got a little lost driving, the map app got me there	none	en	claude-seed
+Went hiking with a guide, so much fun	none	en	claude-seed
+Watched a documentary about surviving being lost in the woods	none	en	claude-seed
+Took the ferry to the island, a bit choppy	none	en	claude-seed
+Went deep sea fishing with dad, caught a lot	none	en	claude-seed
+Kids played hide and seek, found everyone	none	en	claude-seed
+Mi hija de 6 años desapareció en el centro comercial hace casi una hora, no la encontramos	emergency	es	claude-seed
+Mi hijo no volvió a casa después del colegio y tiene el teléfono apagado desde la tarde	emergency	es	claude-seed
+Mi sobrino jugaba frente a la casa y desapareció, nadie vio nada	emergency	es	claude-seed
+Mi abuela tiene alzhéimer, salió de casa a las 3 de la mañana y todavía no la encontramos	emergency	es	claude-seed
+Mi papá tiene demencia, se fue en el coche y se perdió, llamó diciendo que no sabe dónde está	emergency	es	claude-seed
+Perdidos en el bosque de la montaña desde ayer, sin agua, el móvil al 5%	emergency	es	claude-seed
+Mi amigo se separó del grupo de senderismo, ya es de noche y no ha vuelto, no podemos contactarlo	emergency	es	claude-seed
+Al barco pesquero se le paró el motor mar adentro, las olas son enormes y entra agua	emergency	es	claude-seed
+La corriente se llevó mi kayak lejos de la orilla y no puedo volver	emergency	es	claude-seed
+Nuestro barco volcó, estamos agarrados a él en medio del mar	emergency	es	claude-seed
+Mi hijo está en casa de un amigo, dijo que vuelve a las 8	none	es	claude-seed
+No encontraba mis gafas, las tenía en la cabeza	none	es	claude-seed
+El gato desapareció toda la noche y volvió por la mañana	none	es	claude-seed
+Mi abuela está más olvidadiza, la llevo a su cita con el médico	none	es	claude-seed
+Me perdí un poco manejando, el mapa me llevó	none	es	claude-seed
+Fuimos de senderismo con guía, muy divertido	none	es	claude-seed
+Vi un documental sobre sobrevivir perdido en el bosque	none	es	claude-seed
+Tomamos el ferry a la isla, un poco movido	none	es	claude-seed
+Fui a pescar en alta mar con mi papá, pescamos mucho	none	es	claude-seed
+Los niños jugaron a las escondidas, encontramos a todos	none	es	claude-seed
+Con gái 6 tuổi của tôi mất tích ở trung tâm thương mại gần một tiếng rồi, tìm không thấy	emergency	vi	claude-seed
+Con trai tôi tan học không về nhà, điện thoại tắt từ chiều	emergency	vi	claude-seed
+Cháu tôi đang chơi trước nhà rồi biến mất, không ai thấy gì	emergency	vi	claude-seed
+Bà tôi bị Alzheimer, đi ra khỏi nhà lúc 3 giờ sáng, vẫn chưa tìm thấy	emergency	vi	claude-seed
+Bố tôi bị sa sút trí tuệ, lái xe đi rồi bị lạc, gọi về nói không biết mình đang ở đâu	emergency	vi	claude-seed
+Lạc trong rừng trên núi từ hôm qua, hết nước, điện thoại còn 5%	emergency	vi	claude-seed
+Bạn tôi tách khỏi đoàn leo núi, trời tối rồi vẫn chưa về, không liên lạc được	emergency	vi	claude-seed
+Thuyền đánh cá chết máy giữa biển, sóng rất lớn, nước tràn vào	emergency	vi	claude-seed
+Dòng chảy kéo thuyền kayak của tôi ra xa bờ, không quay lại được	emergency	vi	claude-seed
+Thuyền bị lật, chúng tôi bám vào thuyền giữa biển	emergency	vi	claude-seed
+Con đi chơi nhà bạn, đã nói 8 giờ về	none	vi	claude-seed
+Tìm kính mãi, hóa ra đang đeo trên đầu	none	vi	claude-seed
+Con mèo đi đâu cả đêm, sáng lại tự về	none	vi	claude-seed
+Bà dạo này hay quên, đưa bà đi khám đúng hẹn	none	vi	claude-seed
+Lái xe hơi lạc đường, mở bản đồ là tới	none	vi	claude-seed
+Đi leo núi với hướng dẫn viên, vui lắm	none	vi	claude-seed
+Xem phim tài liệu về người sống sót khi lạc rừng	none	vi	claude-seed
+Đi phà ra đảo, sóng hơi lớn	none	vi	claude-seed
+Đi câu cá ngoài khơi với bố, được nhiều cá	none	vi	claude-seed
+Bọn trẻ chơi trốn tìm, tìm thấy hết rồi	none	vi	claude-seed
+我6岁的女儿在商场不见了快一个小时，找不到	emergency	zh	claude-seed
+儿子放学没回家，手机从下午就关机了	emergency	zh	claude-seed
+侄子在家门口玩着玩着就不见了，没人看到	emergency	zh	claude-seed
+奶奶有阿尔茨海默症，凌晨三点走出家门，到现在还没找到	emergency	zh	claude-seed
+爸爸有失智症，开车出去迷路了，打电话说不知道自己在哪	emergency	zh	claude-seed
+从昨天起就在山里的森林迷路了，没水了，手机只剩5%	emergency	zh	claude-seed
+朋友和登山队走散了，天黑了还没回来，联系不上	emergency	zh	claude-seed
+渔船在海上熄火了，浪很大，船进水了	emergency	zh	claude-seed
+水流把我的皮划艇冲离岸边很远，回不去了	emergency	zh	claude-seed
+船翻了，我们抱着船漂在海中央	emergency	zh	claude-seed
+孩子去朋友家了，说好八点回来	none	zh	claude-seed
+找不到眼镜，原来戴在头上	none	zh	claude-seed
+猫一晚上不见，早上自己回来了	none	zh	claude-seed
+奶奶最近有点健忘，按时带她去看医生	none	zh	claude-seed
+开车有点迷路，开导航就到了	none	zh	claude-seed
+跟着向导去徒步，很好玩	none	zh	claude-seed
+看了一部森林迷路求生的纪录片	none	zh	claude-seed
+坐渡轮去岛上，有点晃	none	zh	claude-seed
+和爸爸出海钓鱼，钓了很多	none	zh	claude-seed
+孩子们玩捉迷藏，都找到了	none	zh	claude-seed
+6살 딸이 쇼핑몰에서 사라진 지 거의 한 시간이 됐는데 못 찾고 있어요	emergency	ko	claude-seed
+아들이 하교 후 집에 안 오고 오후부터 휴대폰이 꺼져 있어요	emergency	ko	claude-seed
+조카가 집 앞에서 놀다가 사라졌는데 본 사람이 없어요	emergency	ko	claude-seed
+할머니가 치매인데 새벽 3시에 집을 나가셨고 아직 못 찾았어요	emergency	ko	claude-seed
+아빠가 치매가 있는데 차를 몰고 나가서 길을 잃었고 어디인지 모르겠다고 전화했어요	emergency	ko	claude-seed
+어제부터 산속 숲에서 길을 잃었어요 물도 떨어지고 배터리 5% 남았어요	emergency	ko	claude-seed
+친구가 등산 일행과 떨어졌는데 해가 졌는데도 안 돌아오고 연락이 안 돼요	emergency	ko	claude-seed
+어선 엔진이 바다 한가운데서 꺼졌고 파도가 너무 높고 물이 들어와요	emergency	ko	claude-seed
+조류에 카약이 해안에서 멀리 떠밀려서 돌아갈 수가 없어요	emergency	ko	claude-seed
+배가 뒤집혀서 바다 한가운데서 배를 붙잡고 있어요	emergency	ko	claude-seed
+아이가 친구 집에 갔는데 8시에 온다고 했어요	none	ko	claude-seed
+안경을 못 찾았는데 머리에 쓰고 있었어요	none	ko	claude-seed
+고양이가 밤새 없어졌다가 아침에 돌아왔어요	none	ko	claude-seed
+할머니가 요즘 깜빡깜빡하셔서 진료 예약대로 모시고 가요	none	ko	claude-seed
+운전하다 조금 길을 헤맸는데 지도 보고 도착했어요	none	ko	claude-seed
+가이드랑 등산 갔는데 너무 재밌었어요	none	ko	claude-seed
+숲에서 길 잃고 살아남은 다큐를 봤어요	none	ko	claude-seed
+페리 타고 섬에 갔는데 좀 흔들렸어요	none	ko	claude-seed
+아빠랑 바다낚시 가서 많이 잡았어요	none	ko	claude-seed
+아이들이 숨바꼭질하고 다 찾았어요	none	ko	claude-seed
+6歳の娘がショッピングモールでいなくなって一時間近く、見つからない	emergency	ja	claude-seed
+息子が下校後に帰ってこなくて、午後から携帯の電源が切れている	emergency	ja	claude-seed
+甥が家の前で遊んでいたらいなくなって、誰も見ていない	emergency	ja	claude-seed
+祖母が認知症で夜中の3時に家を出て、まだ見つからない	emergency	ja	claude-seed
+父が認知症で車で出かけて道に迷い、どこにいるか分からないと電話してきた	emergency	ja	claude-seed
+昨日から山の森で道に迷って、水がなくなり携帯の電池が5%	emergency	ja	claude-seed
+友達が登山グループからはぐれて、暗くなってもまだ戻らず連絡がつかない	emergency	ja	claude-seed
+漁船のエンジンが沖で止まって、波がすごく高くて浸水している	emergency	ja	claude-seed
+潮の流れでカヤックが岸から遠くに流されて戻れない	emergency	ja	claude-seed
+船が転覆して、海の真ん中で船につかまっている	emergency	ja	claude-seed
+子どもは友達の家にいて、8時に帰ると言っていた	none	ja	claude-seed
+眼鏡が見つからなかったけど頭にかけていた	none	ja	claude-seed
+猫が一晩いなかったけど朝に帰ってきた	none	ja	claude-seed
+祖母が最近物忘れが多いので、予約通り病院に連れて行く	none	ja	claude-seed
+運転中に少し道に迷ったけど地図で着いた	none	ja	claude-seed
+ガイドと一緒にハイキングに行って楽しかった	none	ja	claude-seed
+森で遭難して生還した人のドキュメンタリーを見た	none	ja	claude-seed
+フェリーで島に行った、少し揺れた	none	ja	claude-seed
+父と沖釣りに行って、たくさん釣れた	none	ja	claude-seed
+子どもたちがかくれんぼをして、全員見つかった	none	ja	claude-seed

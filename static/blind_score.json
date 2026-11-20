@@ -1,5 +1,5 @@
 {
- "total": 1667,
+ "total": 1807,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,12 +24,12 @@
    "precision": 0.892
   },
   "emergency": {
-   "n": 732,
-   "tp": 729,
-   "fn": 3,
-   "fp": 12,
-   "recall": 0.996,
-   "precision": 0.984
+   "n": 802,
+   "tp": 737,
+   "fn": 65,
+   "fp": 14,
+   "recall": 0.919,
+   "precision": 0.981
   },
   "violence": {
    "n": 70,
@@ -57,41 +57,41 @@
   }
  },
  "danger_missed": {
-  "n": 2,
-  "of": 838
+  "n": 64,
+  "of": 908
  },
  "false_alarm": {
-  "n": 2,
-  "of": 803
+  "n": 4,
+  "of": 873
  },
  "by_lang": {
   "en": {
-   "hit": 134,
-   "n": 135
+   "hit": 136,
+   "n": 145
   },
   "es": {
    "hit": 109,
-   "n": 111
+   "n": 121
   },
   "ja": {
-   "hit": 112,
-   "n": 112
+   "hit": 113,
+   "n": 122
   },
   "ko": {
-   "hit": 111,
-   "n": 111
+   "hit": 112,
+   "n": 121
   },
   "th": {
-   "hit": 170,
-   "n": 172
+   "hit": 174,
+   "n": 182
   },
   "vi": {
    "hit": 108,
-   "n": 110
+   "n": 120
   },
   "zh": {
    "hit": 113,
-   "n": 113
+   "n": 123
   }
  },
  "misses": [
@@ -158,6 +158,394 @@
   {
    "line": 1652,
    "text": "Después del alcohol adulterado en la fiesta varias personas ven borroso y respiran rápido",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1751,
+   "text": "ลูกสาวหกขวบหายไปจากห้างเกือบชั่วโมงแล้ว หาไม่เจอ",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1753,
+   "text": "หลานเล่นอยู่หน้าบ้านแล้วหายไป ไม่มีใครเห็น",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1755,
+   "text": "พ่อความจำเสื่อม ขับรถออกไปแล้วหลงทาง โทรมาบอกไม่รู้ว่าอยู่ไหน",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1757,
+   "text": "เพื่อนเดินป่าแยกกลุ่มไป มืดแล้วยังไม่กลับมา ติดต่อไม่ได้",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1759,
+   "text": "พายเรือคายัคแล้วโดนกระแสน้ำพัดออกไปไกลฝั่ง กลับไม่ได้",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1760,
+   "text": "เรือคว่ำ พวกเราเกาะเรือลอยอยู่กลางทะเล",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1767,
+   "text": "ดูสารคดีคนหลงป่ารอดชีวิต",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1771,
+   "text": "My 6 year old daughter disappeared at the mall almost an hour ago, we can't find her",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1772,
+   "text": "My son didn't come home after school and his phone has been off since the afternoon",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1773,
+   "text": "My nephew was playing in front of the house and vanished, nobody saw anything",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1774,
+   "text": "Grandma has Alzheimer's, she walked out of the house at 3am and we still can't find her",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1775,
+   "text": "Dad has dementia, he drove off and got lost, called saying he doesn't know where he is",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1777,
+   "text": "My friend split from the hiking group, it's dark and he hasn't come back, can't reach him",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1779,
+   "text": "The current pulled my kayak far from shore and I can't get back",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1780,
+   "text": "Our boat capsized, we're clinging to it in the middle of the sea",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1787,
+   "text": "Watched a documentary about surviving being lost in the woods",
+   "label": "none",
+   "got": [
+    "emergency"
+   ]
+  },
+  {
+   "line": 1791,
+   "text": "Mi hija de 6 años desapareció en el centro comercial hace casi una hora, no la encontramos",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1792,
+   "text": "Mi hijo no volvió a casa después del colegio y tiene el teléfono apagado desde la tarde",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1793,
+   "text": "Mi sobrino jugaba frente a la casa y desapareció, nadie vio nada",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1794,
+   "text": "Mi abuela tiene alzhéimer, salió de casa a las 3 de la mañana y todavía no la encontramos",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1795,
+   "text": "Mi papá tiene demencia, se fue en el coche y se perdió, llamó diciendo que no sabe dónde está",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1796,
+   "text": "Perdidos en el bosque de la montaña desde ayer, sin agua, el móvil al 5%",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1797,
+   "text": "Mi amigo se separó del grupo de senderismo, ya es de noche y no ha vuelto, no podemos contactarlo",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1798,
+   "text": "Al barco pesquero se le paró el motor mar adentro, las olas son enormes y entra agua",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1799,
+   "text": "La corriente se llevó mi kayak lejos de la orilla y no puedo volver",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1800,
+   "text": "Nuestro barco volcó, estamos agarrados a él en medio del mar",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1811,
+   "text": "Con gái 6 tuổi của tôi mất tích ở trung tâm thương mại gần một tiếng rồi, tìm không thấy",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1812,
+   "text": "Con trai tôi tan học không về nhà, điện thoại tắt từ chiều",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1813,
+   "text": "Cháu tôi đang chơi trước nhà rồi biến mất, không ai thấy gì",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1814,
+   "text": "Bà tôi bị Alzheimer, đi ra khỏi nhà lúc 3 giờ sáng, vẫn chưa tìm thấy",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1815,
+   "text": "Bố tôi bị sa sút trí tuệ, lái xe đi rồi bị lạc, gọi về nói không biết mình đang ở đâu",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1816,
+   "text": "Lạc trong rừng trên núi từ hôm qua, hết nước, điện thoại còn 5%",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1817,
+   "text": "Bạn tôi tách khỏi đoàn leo núi, trời tối rồi vẫn chưa về, không liên lạc được",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1818,
+   "text": "Thuyền đánh cá chết máy giữa biển, sóng rất lớn, nước tràn vào",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1819,
+   "text": "Dòng chảy kéo thuyền kayak của tôi ra xa bờ, không quay lại được",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1820,
+   "text": "Thuyền bị lật, chúng tôi bám vào thuyền giữa biển",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1831,
+   "text": "我6岁的女儿在商场不见了快一个小时，找不到",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1832,
+   "text": "儿子放学没回家，手机从下午就关机了",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1833,
+   "text": "侄子在家门口玩着玩着就不见了，没人看到",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1834,
+   "text": "奶奶有阿尔茨海默症，凌晨三点走出家门，到现在还没找到",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1835,
+   "text": "爸爸有失智症，开车出去迷路了，打电话说不知道自己在哪",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1836,
+   "text": "从昨天起就在山里的森林迷路了，没水了，手机只剩5%",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1837,
+   "text": "朋友和登山队走散了，天黑了还没回来，联系不上",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1838,
+   "text": "渔船在海上熄火了，浪很大，船进水了",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1839,
+   "text": "水流把我的皮划艇冲离岸边很远，回不去了",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1840,
+   "text": "船翻了，我们抱着船漂在海中央",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1851,
+   "text": "6살 딸이 쇼핑몰에서 사라진 지 거의 한 시간이 됐는데 못 찾고 있어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1852,
+   "text": "아들이 하교 후 집에 안 오고 오후부터 휴대폰이 꺼져 있어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1853,
+   "text": "조카가 집 앞에서 놀다가 사라졌는데 본 사람이 없어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1854,
+   "text": "할머니가 치매인데 새벽 3시에 집을 나가셨고 아직 못 찾았어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1856,
+   "text": "어제부터 산속 숲에서 길을 잃었어요 물도 떨어지고 배터리 5% 남았어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1857,
+   "text": "친구가 등산 일행과 떨어졌는데 해가 졌는데도 안 돌아오고 연락이 안 돼요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1858,
+   "text": "어선 엔진이 바다 한가운데서 꺼졌고 파도가 너무 높고 물이 들어와요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1859,
+   "text": "조류에 카약이 해안에서 멀리 떠밀려서 돌아갈 수가 없어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1860,
+   "text": "배가 뒤집혀서 바다 한가운데서 배를 붙잡고 있어요",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1871,
+   "text": "6歳の娘がショッピングモールでいなくなって一時間近く、見つからない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1872,
+   "text": "息子が下校後に帰ってこなくて、午後から携帯の電源が切れている",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1873,
+   "text": "甥が家の前で遊んでいたらいなくなって、誰も見ていない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1874,
+   "text": "祖母が認知症で夜中の3時に家を出て、まだ見つからない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1875,
+   "text": "父が認知症で車で出かけて道に迷い、どこにいるか分からないと電話してきた",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1876,
+   "text": "昨日から山の森で道に迷って、水がなくなり携帯の電池が5%",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1877,
+   "text": "友達が登山グループからはぐれて、暗くなってもまだ戻らず連絡がつかない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1879,
+   "text": "潮の流れでカヤックが岸から遠くに流されて戻れない",
+   "label": "emergency",
+   "got": []
+  },
+  {
+   "line": 1880,
+   "text": "船が転覆して、海の真ん中で船につかまっている",
    "label": "emergency",
    "got": []
   }
