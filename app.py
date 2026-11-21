@@ -965,6 +965,11 @@ def favicon():
 async def wallet_page():
     return FileResponse("static/wallet.html")
 
+@app.get("/kidney")
+async def kidney_page():
+    return FileResponse("static/kidney.html")
+
+
 @app.get("/guide")
 async def guide_page():
     return FileResponse("static/guide.html")

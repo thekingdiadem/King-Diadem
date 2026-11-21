@@ -1061,3 +1061,11 @@ Leve dolor de pecho al respirar hondo por un resfriado	none	health_minor
 เจ็บหน้าอกนิดหน่อยตอนวิ่งเพราะจุก	none	health_minor
 หายใจไม่ทันตอนวิ่งขึ้นเขา พักแล้วหาย	none	health_minor
 爬山喘不过气，休息就好	none	health_minor
+Mi tío tomó mezcal pirata y ahora no distingue las caras, todo se ve oscuro	topic:health_emergency	methanol
+ลูกเอาหัวโขกกำแพงจนเลือดออก หยุดไม่ได้	topic:health_emergency	round_fix
+My friend cut her wrist and there's a lot of blood	topic:someone	round_fix
+Mi amigo se cortó la muñeca y hay mucha sangre	topic:someone	round_fix
+Bạn tôi cắt cổ tay, máu chảy rất nhiều	topic:someone	round_fix
+ตกงานมาครึ่งปี เงินเก็บเหลือพันกว่าบาท	topic:basic	round_fix
+My roommate slit his arm and won't let me see it	topic:someone	round_fix
+My cousin keeps scratching her arms with a razor at night	topic:someone	round_fix
