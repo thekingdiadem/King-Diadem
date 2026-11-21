@@ -278,3 +278,427 @@ def test_round7_danger(text):
 @pytest.mark.parametrize("text", CALM_7)
 def test_round7_calm(text):
     assert frames(text) == [], explain(text)
+
+
+# ── รอบ 8 เน้นไต (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา K) ──
+DANGER_8 = [
+    "ปู่ฉี่ไม่ออกตั้งแต่เมื่อคืน ท้องน้อยโป่ง", "he can't pee and his belly is hard and swollen", "爸爸尿不出来，肚子胀得难受",
+    "เป็นนิ่วในไต มีไข้หนาวสั่น", "kidney stone pain and now a fever", "신장결석인데 오한이 나요",
+    "พ่อขาดฟอกไตมาสามวัน", "she missed dialysis this week and feels weak", "透析を休んで息ができない",
+    "หมอบอกโพแทสเซียมสูง ใจเต้นผิดจังหวะ", "mi madre tiene insuficiencia renal y no puede orinar",
+]
+CALM_8 = [
+    "ไข้หวัด ปวดหลังปวดตัว", "flu with fever and my back hurts", "ไปฟอกไตตามนัดทุกสัปดาห์", "I peed a lot after drinking tea",
+    "ปวดฉี่ตอนรถติด", "kidney beans for dinner", "ค่าไตปกติดี",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_8)
+def test_round8_kidney_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_8)
+def test_round8_kidney_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 9: ตัวเย็นเกิน · ปวดท้องรุนแรง · เลือดออกทางเดินอาหาร · เยื่อหุ้มสมองอักเสบ (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา L) ──
+DANGER_9 = [
+    "ยายตัวเย็นเฉียบ เรียกไม่ตอบ", "pulled him out of freezing water, he's confused and shivering nonstop", "爷爷失温了，一直发抖",
+    "ปวดท้องรุนแรงมาก มีไข้", "severe abdominal pain and vomiting", "배가 너무 아프고 열이 나요",
+    "อาเจียนเป็นเลือดเมื่อกี้", "my dad is vomiting blood", "タール便が出た",
+    "ลูกไข้สูง คอแข็ง", "high fever and a stiff neck", "고열에 보라색 반점이 생겼어요",
+]
+CALM_9 = [
+    "หนาวมาก ใส่เสื้อสองชั้น", "my hands are ice cold in the office", "ปวดท้องประจำเดือนมาก", "severe belly pain from period cramps",
+    "ถ่ายดำเพราะกินธาตุเหล็ก", "black tarry stool from iron pills", "คอแข็งเพราะตกหมอน มีไข้นิดหน่อย", "stiff neck from sleeping wrong",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_9)
+def test_round9_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_9)
+def test_round9_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 10: เมาจนเป็นพิษ · เหล้าเถื่อน · ยาเสพติดเกินขนาด · กลืนถ่าน/แม่เหล็ก (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา M) ──
+DANGER_10 = [
+    "เพื่อนเมาจนปลุกไม่ตื่น", "he's blackout drunk and breathing slowly", "喝完了一整瓶酒，叫不醒",
+    "กินเหล้าเถื่อนแล้วตามัว", "drank moonshine and now can't see", "밀주 마시고 눈이 흐려요",
+    "เพื่อนเสพยาบ้าแล้วชัก", "she took fentanyl and is barely breathing", "覚醒剤で心臓がバクバク",
+    "ลูกกลืนถ่านกระดุม", "my son swallowed a magnet", "아이가 자석을 삼켰어요",
+]
+CALM_10 = [
+    "เมารถ ตัวเย็นนิดหน่อย", "ดื่มเบียร์สองกระป๋อง", "read about the dangers of heroin", "เปลี่ยนถ่านนาฬิกา",
+    "keep magnets away from kids", "ดูข่าวเหล้าเถื่อน", "say xe nên người lạnh",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_10)
+def test_round10_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_10)
+def test_round10_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 11: เด็กหาย · ผู้สูงอายุเดินหลง · หลงป่า · ติดกลางทะเล (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา N) ──
+DANGER_11 = [
+    "ลูกหายไปจากตลาด หาไม่เจอ", "we haven't found her yet, my daughter is missing", "아들이 실종됐는데 아직 못 찾았어요",
+    "Mi hijo no volvió de la escuela", "ปู่เป็นอัลไซเมอร์ ออกจากบ้านไปแล้วหาไม่เจอ", "my mom has dementia and wandered off",
+    "หลงป่าบนดอย ติดต่อไม่ได้", "lost on the mountain trail, can't reach anyone", "山で遭難した",
+    "เรือคว่ำกลางทะเล", "our boat is sinking at sea", "바다에서 카약이 떠밀려 돌아갈 수가 없어요",
+]
+CALM_11 = [
+    "ลูกเล่นซ่อนแอบ หาเจอแล้ว", "found him, he was at the neighbor's", "ไปเดินป่ากับไกด์",
+    "watched a documentary about people lost in the forest", "นั่งเรือเล่นที่ทะเล สนุกมาก", "my son came back home late",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_11)
+def test_round11_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_11)
+def test_round11_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 12: แผ่นดินไหวติดใต้ซาก · ดินถล่ม · ไฟป่าลามใกล้ · ฟ้าผ่า (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา O) ──
+DANGER_12 = [
+    "แผ่นดินไหว พ่อติดอยู่ใต้ซากบ้าน", "after the earthquake my neighbor is pinned under the roof", "地震后有人被压在下面",
+    "ดินถล่มทับบ้านเพื่อน มีคนหาย", "a landslide buried our car", "산사태로 집이 묻혔어요",
+    "ไฟป่าลามมาถึงหลังบ้านแล้ว ออกไม่ได้", "the wildfire is very close and we're surrounded", "山火事がすぐ近くまで来ている",
+    "ฟ้าผ่าคนข้างบ้าน ตอนนี้หมดสติ", "my dad was struck by lightning and isn't breathing", "bị sét đánh, bất tỉnh",
+]
+CALM_12 = [
+    "ซ้อมหนีแผ่นดินไหวที่ออฟฟิศ", "earthquake drill at work today", "ควันไฟป่าไกลๆ", "photos of lightning over the city",
+    "ดินพังนิดหน่อยตอนขุดดิน", "the sandcastle collapsed",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_12)
+def test_round12_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_12)
+def test_round12_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 13: ความรุนแรง (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา P) ──
+VIOLENCE_13 = [
+    "แฟนถือมีดขู่จะแทง", "he's pointing a gun at me", "老公拿刀追我", "전 남편이 죽이겠다고 하고 지금 문 앞에 있어요",
+    "มีผู้ชายตามฉันมาถึงหน้าห้อง", "someone has followed me home and is knocking on my door", "ストーカーが部屋の前にいる",
+    "เพิ่งโดนลวนลามบนรถเมล์", "I was sexually assaulted at the party", "Mi hijo tiene moretones por todo el cuerpo",
+]
+CALM_13 = [
+    "หั่นผักด้วยมีดทำกับข้าว", "kids playing with a water gun", "อ่านข่าวการข่มขืนแล้วโกรธ", "someone walked behind me the same way",
+    "เด็กเล่นกัน หัวเราะกัน", "my ex wants his book back",
+]
+
+
+@pytest.mark.parametrize("text", VIOLENCE_13)
+def test_round13_violence(text):
+    assert ("violence", "violence") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_13)
+def test_round13_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 14: น้ำตาลสูงวิกฤต · ความดันวิกฤต · ลิ่มเลือด · ตามองไม่เห็นกะทันหัน (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา Q) ──
+DANGER_14 = [
+    "น้ำตาล 600 อาเจียน ซึม", "his sugar is 550 and his breath smells fruity", "혈당이 600인데 토하고 처져요",
+    "ความดัน 210/120 ปวดหัวมาก", "blood pressure 200/110 with chest pain", "血压200，胸痛",
+    "นั่งเครื่องบินไกลมา เจ็บหน้าอก หายใจไม่ทัน", "after surgery I'm suddenly coughing up blood", "片足が腫れて息ができない",
+    "จู่ๆ ตาข้างซ้ายมองไม่เห็น", "suddenly I can't see out of one eye", "De repente veo destellos y muchas manchas",
+]
+CALM_14 = [
+    "น้ำตาลหลังอาหารสูงนิดหน่อย", "this cake has 450 grams of sugar", "ความดัน 130/85", "blood pressure 120/80 today",
+    "นั่งรถนานขาเมื่อย", "can't see the screen without my glasses", "มีเงาดำลอยเล็กๆ มานาน",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_14)
+def test_round14_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_14)
+def test_round14_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 15: ทารกแรกเกิด · ตกเลือดหลังคลอด · สับสนกะทันหัน · สารเคมีเข้าตา (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา R) ──
+DANGER_15 = [
+    "ทารกแรกเกิดตัวเขียว", "the newborn stops breathing sometimes", "신생아 입술이 보라색이에요",
+    "เพิ่งคลอดเมื่อวาน เลือดออกเยอะ หน้ามืด", "I just gave birth and passed a large clot", "刚生完孩子，湿透了好几片，头晕",
+    "ปู่จู่ๆ สับสน จำใครไม่ได้", "my mom is suddenly confused and doesn't know where she is", "急に混乱してうわごとを言う",
+    "น้ำยาล้างห้องน้ำเข้าตา", "bleach splashed in my eye", "Mạt sắt bắn vào mắt",
+]
+CALM_15 = [
+    "ทารกแรกเกิดตัวเหลืองนิดหน่อย", "normal postpartum bleeding, getting lighter", "พ่อเพิ่งตื่นนอน งงๆ", "眼睛酸，看手机太久了",
+    "แชมพูเข้าตาแสบนิดหน่อย", "dust in my eye, rinsed it",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_15)
+def test_round15_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_15)
+def test_round15_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 16: (ไต) มะเฟือง/สมุนไพรกับคนโรคไต · ติดเชื้อในกระแสเลือด · กระดูกหัก · อัณฑะบิด (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา S) ──
+DANGER_16 = [
+    "ป้าเป็นโรคไต กินมะเฟืองแล้วสะอึกไม่หยุด", "my dad is on dialysis and ate star fruit, now he's confused", "肾病患者吃了杨桃后抽搐",
+    "แผลติดเชื้อ ไข้สูง ความดันตก", "fever and chills, now cold and pale with a racing heart", "고열에 혈압이 떨어졌어요",
+    "ขาผิดรูปหลังตกบันได", "his bone is sticking out of his arm", "股関節が痛くて片足が短く見える",
+    "ปวดอัณฑะกะทันหัน", "sudden severe testicle pain", "đột nhiên đau tinh hoàn dữ dội",
+]
+CALM_16 = [
+    "คนเป็นโรคไตควรเลี่ยงมะเฟือง", "kidney patients should avoid star fruit", "ไข้หวัดหนาวสั่นนิดหน่อย กินยาแล้วดีขึ้น",
+    "ข้อเท้าแพลงนิดหน่อย", "testicular cancer awareness month", "ซื้อมะเฟืองมาทำน้ำผลไม้",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_16)
+def test_round16_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_16)
+def test_round16_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 17: (ไต) กล้ามเนื้อสลาย · ท้องนอกมดลูก · กระดูกสันหลัง · นิ้วขาด (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา T) ──
+DANGER_17 = [
+    "เล่นครอสฟิตหนักมาก ฉี่สีโค้ก", "after the marathon my urine is dark brown", "근육이 너무 아프고 소변이 콜라색이에요",
+    "ประจำเดือนขาด ปวดท้องน้อยข้างเดียวรุนแรง", "positive pregnancy test and sharp pain on one side", "验孕两条杠，右边很痛，有点出血",
+    "ตกจากบันได ขยับขาไม่ได้", "he dove into the pool and can't feel his legs", "屋根から落ちて脚が動かせない",
+    "เครื่องจักรตัดนิ้วขาด", "my finger was severed by the saw", "đứt ngón tay vì máy cưa",
+]
+CALM_17 = [
+    "ฉี่สีเข้มเพราะดื่มน้ำน้อย", "ate beets and my pee is pink", "ประจำเดือนมาช้าสามวัน", "positive pregnancy test, so happy",
+    "ขาชาเพราะนั่งพับเพียบ", "ดูหนังฉากนิ้วขาด", "my muscles are sore after the gym",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_17)
+def test_round17_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_17)
+def test_round17_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 18: (ไต) เส้นฟอกไต · หลอดเลือดแดงใหญ่ฉีก · ลำไส้อุดตัน · ผึ้งรุมต่อย (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา U) ──
+DANGER_18 = [
+    "เส้นฟอกไตแตก เลือดพุ่ง", "my dialysis fistula is bleeding nonstop", "シャントから血が噴き出している",
+    "ปวดหลังเหมือนถูกฉีก", "sudden tearing pain in my chest going to my back", "胸口撕裂样剧痛",
+    "ไม่ผายลมไม่ถ่าย อาเจียน ท้องแข็ง", "my baby is throwing up green", "방귀도 안 나오고 계속 토해요",
+    "โดนผึ้งรุมต่อย", "he was swarmed by hornets", "bị cả đàn ong đốt",
+]
+CALM_18 = [
+    "เส้นฟอกไตใช้งานได้ดี", "fistula check next month", "ท้องอืดเพราะกินถั่ว ผายลมแล้วสบาย", "tearing up at the wedding",
+    "โดนผึ้งต่อยหนึ่งที่", "beekeeping is fun",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_18)
+def test_round18_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_18)
+def test_round18_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 19: (ไต) ปลูกถ่ายไต · (ไต) ล้างไตทางหน้าท้อง · คนท้องอาเจียนหนัก · อาหารเป็นพิษหลายคน (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา V) ──
+DANGER_19 = [
+    "เปลี่ยนไตมา มีไข้สูง ฉี่น้อยลง", "my kidney transplant patient missed anti-rejection meds and is swollen", "腎移植した父が高熱で尿が少ない",
+    "ล้างไตทางหน้าท้อง น้ำยาขุ่น ปวดท้อง", "my PD fluid is cloudy and I have a fever", "복막투석액이 뿌옇고 열이 나요",
+    "เมียท้อง อาเจียนทั้งวัน กินน้ำก็อ้วก", "pregnant and vomiting all day, can't even keep water down", "怀孕了整天吐，喝水都吐",
+    "กินอาหารในงานแล้วหลายคนอาเจียน", "the whole family has diarrhea after the wild mushrooms", "rice water diarrhea after eating raw clams",
+]
+CALM_19 = [
+    "เปลี่ยนไตมาห้าปี ผลตรวจดี", "my PD fluid is clear as usual", "แพ้ท้องนิดหน่อยตอนเช้า", "everyone loved the party food",
+    "ดูข่าวอาหารเป็นพิษ", "I take my anti-rejection meds every day",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_19)
+def test_round19_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_19)
+def test_round19_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 20: (ไต) เด็กไตอักเสบ · คาวาซากิ · เลือดกำเดาไม่หยุด · ฟันติดเชื้อลามคอ (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา W) ──
+DANGER_20 = [
+    "ลูกหนังตาบวม ฉี่สีโค้ก", "my daughter has puffy eyes and her pee looks like cola", "子どもが腎炎で血圧が高く頭痛がする",
+    "ลูกไข้มาหกวัน ตาแดง ลิ้นแดง", "fever for six days with red eyes and a rash", "닷새째 고열에 눈이 빨갛고 입술이 빨갛게 갈라졌어요",
+    "เลือดกำเดาไหลไม่หยุดเป็นชั่วโมง", "nosebleed hasn't stopped and he's on blood thinners", "鼻血止不住半小时了",
+    "ฟันคุดอักเสบ หน้าบวม กลืนน้ำลายไม่ได้", "tooth infection, swelling spreads to my neck", "răng sâu, dưới hàm sưng, khó thở",
+]
+CALM_20 = [
+    "ตาบวมเพราะร้องไห้", "ดูหนังเรื่องเด็กป่วย", "my eyes are puffy from crying", "เลือดกำเดาไหลนิดหน่อย บีบจมูกก็หยุด",
+    "nosebleed stopped after five minutes", "ปวดฟันเพราะกินของเย็น", "fever for two days, doctor said viral, better now",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_20)
+def test_round20_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_20)
+def test_round20_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+def test_eyelid_is_not_a_movie_and_hasnt_stopped_is_not_stopped():
+    # "หนังตา" = เปลือกตา ไม่ใช่ "หนัง" (ภาพยนตร์) · "hasn't stopped" ไม่ใช่ "stopped"
+    assert frames("หนังตาบวม ฉี่สีน้ำล้างเนื้อ") == [("medical", "health_emergency")]
+    assert frames("the nosebleed hasn't stopped for an hour") == [("medical", "health_emergency")]
+
+
+# ── รอบ 21: (ไต) โพแทสเซียมสูงจากอาหาร · พิษยาฆ่าแมลง · กรด/ด่างโดนผิว · ก้างติดคอ (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา X) ──
+DANGER_21 = [
+    "ตาเป็นโรคไต กินกล้วยหอมทุกวัน ตอนนี้ใจเต้นผิดจังหวะ", "my mom on dialysis drank coconut water and now has palpitations", "透析中にバナナを食べて脈が不規則",
+    "พ่อพ่นยาฆ่าหญ้าแล้วน้ำลายไหล รูม่านตาเล็ก", "he sprayed pesticide and now he's drooling and twitching", "농약을 뿌리고 침을 흘리고 동공이 작아요",
+    "น้ำกรดหกใส่ขา ผิวไหม้", "lye splashed on my hand, the skin is peeling", "硫酸溅到手上，皮肤脱皮",
+    "ก้างปลาติดคอ กลืนไม่ลง", "a fish bone is stuck and he's drooling, can't swallow", "hóc xương cá, sốt và cổ sưng",
+]
+CALM_21 = [
+    "คนเป็นโรคไตควรลดกล้วยกับส้ม", "durian season is here", "ใส่ชุดป้องกันตอนพ่นยาฆ่าแมลง", "lemon juice stung my cut a bit",
+    "ก้างติดคอนิดหน่อย กลืนข้าวแล้วหลุด", "careful with the bones in this fish",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_21)
+def test_round21_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_21)
+def test_round21_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 22: (ไต) ยาแก้ปวดทำไตวาย · ประจำเดือนมามาก · แผลเบาหวานที่เท้า · ปวดหัวรุนแรงทันที (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา Y) ──
+DANGER_22 = [
+    "กินยาแก้ปวดทุกวันมาสองเดือน ตอนนี้ฉี่ไม่ออก", "I've been taking ibuprofen daily and now my legs are swollen", "진통제를 매일 먹었더니 소변이 거의 안 나와요",
+    "ประจำเดือนมามาก หน้ามืดจะเป็นลม", "my period is so heavy I feel faint and look pale", "月经量很大，心慌，快晕倒了",
+    "พ่อเป็นเบาหวาน แผลที่เท้ามีหนองและกลิ่นเหม็น", "diabetic and my toe is red and swollen with pus", "糖尿病で足の傷が黒くなった",
+    "ปวดหัวรุนแรงที่สุดในชีวิต", "the worst headache of my life just hit", "突然头痛欲裂",
+]
+CALM_22 = [
+    "กินยาพาราตามขนาด", "took ibuprofen as directed for a toothache", "ประจำเดือนมาวันแรกปวดนิดหน่อย", "my period is a bit heavier than usual",
+    "ตรวจเท้าทุกวันเพราะเป็นเบาหวาน", "a mild headache from stress",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_22)
+def test_round22_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_22)
+def test_round22_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 23: (ไต) ยาขับปัสสาวะ+ขาดน้ำ · ไข้เลือดออก · แพ้ยาผิวลอก · บาดทะยัก (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา Z) ──
+DANGER_23 = [
+    "ปู่กินยาขับน้ำ แล้วอาเจียนทั้งคืน ตอนนี้ไม่ฉี่", "grandma is on diuretics and has been barely peeing since yesterday", "利尿剤を飲んでいて尿がほとんど出ない",
+    "ลูกไข้เลือดออก ไข้ลดแต่ซึม มือเท้าเย็น", "dengue and now vomiting blood", "뎅기열인데 배가 많이 아프고 처져요",
+    "กินยาปฏิชีวนะแล้วผิวพองลอก ปากเป็นแผล", "after an antibiotic my skin is blistering and peeling", "吃了抗生素后皮肤起泡脱落",
+    "โดนตะปูสนิมตำ ตอนนี้อ้าปากไม่ขึ้น", "the wound got dirty and now his jaw is locked", "vết thương không tiêm uốn ván, giờ cứng hàm",
+]
+CALM_23 = [
+    "กินยาขับปัสสาวะตามหมอสั่ง", "my kid had dengue but is playing normally now", "ผิวลอกเพราะตากแดด", "sunburn peeling on my back",
+    "โดนตะปูตำ ฉีดวัคซีนบาดทะยักแล้ว", "muscles are stiff after a workout", "อ่านเรื่องบาดทะยักในหนังสือ",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_23)
+def test_round23_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_23)
+def test_round23_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+def test_skin_is_not_a_movie():
+    # "ผิวหนัง" มีคำว่า "หนัง" (ภาพยนตร์) อยู่ข้างใน — ต้องไม่ถูกนับเป็นเรื่องแต่ง
+    assert frames("แพ้ยาปฏิชีวนะ ผิวหนังลอกเป็นแผ่น") == [("medical", "health_emergency")]
+
+
+# ── รอบ 24: (ไต) โรคไตน้ำท่วมปอด · ยาความดันทำปากลิ้นบวม · ไอเป็นเลือด · ต้อหินเฉียบพลัน (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา AA) ──
+DANGER_24 = [
+    "แม่เป็นไตวาย นอนราบไม่ได้ ต้องนั่งหายใจ", "my dad has kidney failure and is coughing pink frothy sputum", "腎不全で横になると息ができない",
+    "กินยาความดันแล้วลิ้นบวม", "her tongue is swollen after starting a new blood pressure pill", "降压药吃了以后嘴唇和舌头肿了",
+    "ไอเป็นเลือดเยอะมาก", "he's coughing up a lot of blood", "피를 한 컵이나 기침했어요",
+    "ปวดตามาก เห็นวงรุ้งรอบไฟ อาเจียน", "sudden eye pain with rainbow halos and nausea", "眼睛痛，看灯有彩虹圈",
+]
+CALM_24 = [
+    "ขาบวมนิดหน่อยตอนเย็น", "started a new blood pressure pill, no side effects", "ไอเป็นเลือดนิดหน่อยตอนเป็นหวัด", "saw a rainbow after the rain",
+    "ตาล้าเพราะจ้องจอ",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_24)
+def test_round24_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_24)
+def test_round24_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+# ── รอบ 25: (ไต) ของเสียคั่งจากไตวาย · แมงป่อง · ลมรั่วในปอด · ประสาทไขสันหลังถูกกดทับ (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา AB) ──
+DANGER_25 = [
+    "แม่ไตวาย คันทั้งตัว อาเจียนตลอด สับสน", "my grandpa has kidney failure and his breath smells like urine", "尿毒症，说胡话，抽搐",
+    "ลูกโดนแมงป่องต่อย น้ำลายไหล ตัวกระตุก", "stung by a scorpion and now struggling to breathe", "전갈에 쏘여서 경련해요",
+    "จู่ๆ เจ็บหน้าอกข้างเดียว หายใจไม่ทัน", "sudden one-sided chest pain and I can't catch my breath", "胸を強く打って息ができない",
+    "ปวดหลัง ขาอ่อนแรงทั้งสองข้าง กลั้นปัสสาวะไม่อยู่", "back pain and now both legs are numb and I can't pee", "đau lưng, hai chân yếu, không nhịn tiểu được",
+]
+CALM_25 = [
+    "ฟอกไตตามนัด สดชื่นขึ้น", "itchy from dry skin in winter", "เห็นแมงป่องในตู้ที่สวนสัตว์", "out of breath hiking, fine after a rest",
+    "ปวดหลังเพราะนั่งนาน", "lower back ache during my period",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_25)
+def test_round25_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_25)
+def test_round25_calm(text):
+    assert frames(text) == [], explain(text)

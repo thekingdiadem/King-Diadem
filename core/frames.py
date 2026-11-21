@@ -21,7 +21,8 @@ LEXICON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frames_lexic
 _WORD_LANGS = {"en", "es", "vi"}           # มีเว้นวรรคระหว่างคำ → ต้องตรงทั้งคำ
 # ชิ้นส่วนต้องอยู่ห่างกันไม่เกินนี้ (ตัวอักษร) — กัน "กินข้าวเที่ยงแล้วไปฉีดยาฆ่าหญ้า" ไม่ให้นับเป็นกินยาฆ่าหญ้า
 _WINDOW = {"en": 100, "es": 100, "vi": 100}   # เดิม 70: ประโยคสเปนที่เล่ายาว ("dejamos el brasero ... toda la noche ... vomitan") หลุด
-_WINDOW_DEFAULT = 44                       # th zh ja ko — หนึ่งตัวอักษรเก็บความหมายได้มากกว่า
+_WINDOW_PER_PART = 12                      # เพิ่มต่อชิ้นส่วนที่เกินสอง
+_WINDOW_DEFAULT = 50                       # th zh ja ko — หนึ่งตัวอักษรเก็บความหมายได้มากกว่า
 _SENTENCE = re.compile(r"[.!?。！？\n]+")
 
 # (ชื่อ, ชนิด, หัวข้อ, ทางเลือกของชิ้นส่วนที่ต้องพบครบ, ตัวกันเตือนเกิน)
@@ -29,7 +30,7 @@ FRAMES = (
     ("poison", "medical", "health_emergency", (("INGEST", "CHEMICAL"),), ("FICTION", "HYPOTHETICAL", "USE")),
     ("overdose", "medical", "health_emergency", (("INGEST", "MEDICINE", "AMOUNT"),), ("FICTION", "HYPOTHETICAL", "ROUTINE", "REFILL", "COURSE")),
     ("drowning", "medical", "health_emergency", (("DROWN",), ("FALL_INTO", "WATER", "NOT_SURFACE")), ("FICTION", "HYPOTHETICAL", "IDIOM_DROWN")),
-    ("choking", "medical", "health_emergency", (("CHOKE",), ("STUCK", "THROAT", "AIRWAY_FAIL")), ("FICTION", "HYPOTHETICAL", "LAUGH", "IDIOM_CHOKE")),
+    ("choking", "medical", "health_emergency", (("CHOKE",), ("STUCK", "THROAT", "AIRWAY_FAIL")), ("FICTION", "HYPOTHETICAL", "LAUGH", "IDIOM_CHOKE", "BONE_OK")),   # ติดคอแล้ว "หลุดแล้ว" = ผ่านไปแล้ว
     # รอบ 2 (ชุดปิดตา E ล็อกไว้ก่อนเขียน)
     ("strangle", "violence", "violence", (("STRANGLE",), ("SQUEEZE", "NECK")), ("FICTION", "HYPOTHETICAL", "AFFECTION", "CLOTHING")),
     # แรงงานบังคับต้องมีสัญญาณอันตรายอย่างน้อยสองอย่าง — "บังคับให้ทำงานบ้าน" หรือ "หัวหน้าให้อยู่ดึก" ตามลำพังไม่นับ
@@ -71,6 +72,98 @@ FRAMES = (
     ("infant_fever", "medical", "health_emergency", (("INFANT", "FEVER", "INFANT_RED"),), ("FICTION", "HYPOTHETICAL", "BETTER")),
     ("deep_wound", "medical", "health_emergency", (("PIERCE", "BLEED_NONSTOP"), ("CUT_DEEP",)), ("FICTION", "HYPOTHETICAL", "MINOR")),
     ("marine_sting", "medical", "health_emergency", (("MARINE", "MARINE_ACT", "MARINE_RED"),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 8 เน้นไต (ชุดปิดตา K ล็อกไว้ก่อนเขียน)
+    ("no_urine", "medical", "health_emergency", (("NO_URINE", "URINE_RED"), ("CKD", "NO_URINE")), ("FICTION", "HYPOTHETICAL", "TRAFFIC")),
+    ("kidney_infection", "medical", "health_emergency", (("FLANK", "KIDNEY_FEVER"), ("HEMATURIA", "KIDNEY_FEVER")), ("FICTION", "HYPOTHETICAL", "BETTER")),
+    ("dialysis", "medical", "health_emergency", (("DIALYSIS", "MISSED"), ("DIALYSIS", "HIGH_K"), ("HIGH_K", "RENAL_RED"), ("CKD", "RENAL_RED")),
+     ("FICTION", "HYPOTHETICAL")),
+    # รอบ 9 (ชุดปิดตา L ล็อกไว้ก่อนเขียน)
+    ("hypothermia", "medical", "health_emergency", (("COLD_BODY", "COLD_RED"),), ("FICTION", "HYPOTHETICAL")),
+    ("acute_abdomen", "medical", "health_emergency", (("ABD_PAIN", "ABD_RED"),), ("FICTION", "HYPOTHETICAL", "MINOR", "PERIOD", "BETTER")),
+    ("gi_bleed", "medical", "health_emergency", (("VOMIT_BLOOD",), ("TARRY",)), ("FICTION", "HYPOTHETICAL", "IRON")),
+    ("meningitis", "medical", "health_emergency", (("FEVER", "STIFF_NECK"), ("FEVER", "PURPURA"), ("FEVER", "MENINGEAL")),
+     ("FICTION", "HYPOTHETICAL", "SLEPT_WRONG")),
+    # รอบ 10 (ชุดปิดตา M ล็อกไว้ก่อนเขียน)
+    ("alcohol_poisoning", "medical", "health_emergency", (("DRUNK", "DRUNK_RED"),), ("FICTION", "HYPOTHETICAL", "MOTION_SICK", "RECOVERED")),
+    ("methanol", "medical", "health_emergency", (("BOOTLEG", "VISION"),), ("FICTION", "HYPOTHETICAL")),
+    ("drug_overdose", "medical", "health_emergency", (("STREET_DRUG", "OD_RED"),), ("FICTION", "HYPOTHETICAL")),
+    ("battery_magnet", "medical", "health_emergency", (("BATT_MAGNET", "SWALLOW"),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 11 (ชุดปิดตา N ล็อกไว้ก่อนเขียน) — คนหาย/หลง/ติดกลางทะเล
+    ("missing_child", "medical", "health_emergency", (("CHILD_REF", "VANISHED"),), ("FICTION", "HYPOTHETICAL", "FOUND", "PAST_STORY", "PET")),
+    ("dementia_wander", "medical", "health_emergency", (("DEMENTIA", "WANDER"),), ("FICTION", "HYPOTHETICAL", "FOUND", "PAST_STORY")),
+    ("lost_wild", "medical", "health_emergency", (("WILD", "LOST_WILD"),), ("FICTION", "HYPOTHETICAL", "DOCU", "FOUND", "PAST_STORY")),
+    ("at_sea", "medical", "health_emergency", (("SEA", "SEA_RED"),), ("FICTION", "HYPOTHETICAL", "DOCU", "PAST_STORY", "FIXED", "MINOR")),
+    # รอบ 12 (ชุดปิดตา O ล็อกไว้ก่อนเขียน) — ภัยพิบัติที่มีคนติด/อยู่ใกล้ตัว
+    ("quake_trapped", "medical", "health_emergency", (("QUAKE", "TRAPPED_UNDER"),), ("FICTION", "HYPOTHETICAL", "DRILL")),
+    ("landslide", "medical", "health_emergency", (("SLIDE", "SLIDE_RED"),), ("FICTION", "HYPOTHETICAL", "DRILL")),
+    ("wildfire", "medical", "health_emergency", (("WILDFIRE", "FIRE_NEAR"),), ("FICTION", "HYPOTHETICAL", "DRILL", "FAR")),
+    ("lightning", "medical", "health_emergency", (("LIGHTNING", "STRUCK_RED"),), ("FICTION", "HYPOTHETICAL", "FAR", "PHOTO")),
+    # รอบ 13 (ชุดปิดตา P ล็อกไว้ก่อนเขียน) — ความรุนแรงที่กำลังเกิด/เพิ่งเกิด
+    ("weapon_threat", "violence", "violence", (("WEAPON", "THREAT_ACT"), ("KILL_THREAT", "NEAR_ME")), ("FICTION", "HYPOTHETICAL", "COOKING", "TOY", "GUN_HOBBY")),
+    ("stalker", "violence", "violence", (("FOLLOWED", "AT_DOOR"),), ("FICTION", "HYPOTHETICAL", "SAME_WAY")),
+    ("sexual_assault", "violence", "violence", (("SEX_ASSAULT",),), ("FICTION", "HYPOTHETICAL", "NEWS")),
+    ("child_abuse", "violence", "violence", (("KID", "ABUSE_SIGN"),), ("FICTION", "HYPOTHETICAL", "PLAY", "NEWS")),
+    # รอบ 14 (ชุดปิดตา Q ล็อกไว้ก่อนเขียน)
+    ("hyperglycemia", "medical", "health_emergency", (("SUGAR_HIGH", "HYPER_RED"),), ("FICTION", "HYPOTHETICAL")),
+    ("bp_crisis", "medical", "health_emergency", (("BP_HIGH", "BP_RED"),), ("FICTION", "HYPOTHETICAL")),
+    ("clot", "medical", "health_emergency", (("LEG_SWELL", "CHEST_BREATH"), ("IMMOBILE", "CHEST_BREATH"), ("LEG_SWELL", "CALF_RED")),
+     ("FICTION", "HYPOTHETICAL", "MINOR")),
+    ("vision_loss", "medical", "health_emergency", (("SUDDEN", "VISION_LOSS"), ("FLASHES", "FLOATERS_MANY")), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 15 (ชุดปิดตา R ล็อกไว้ก่อนเขียน)
+    ("newborn", "medical", "health_emergency", (("NEWBORN", "NB_RED"),), ("FICTION", "HYPOTHETICAL")),
+    ("postpartum_bleed", "medical", "health_emergency", (("POSTPARTUM", "PP_RED"),), ("FICTION", "HYPOTHETICAL", "NORMAL_PP")),
+    ("delirium", "medical", "health_emergency", (("SUDDEN", "CONFUSION"),), ("FICTION", "HYPOTHETICAL", "WAKING")),
+    ("eye_injury", "medical", "health_emergency", (("EYE", "EYE_CHEM"), ("EYE", "EYE_TRAUMA")), ("FICTION", "HYPOTHETICAL", "MINOR")),
+    # รอบ 16 (ชุดปิดตา S ล็อกไว้ก่อนเขียน) — เรื่องไต: คนโรคไตกินมะเฟือง/สมุนไพรแล้วมีอาการ
+    ("kidney_toxin", "medical", "health_emergency", (("KIDNEY_PT", "TOXIN_FOOD", "TOX_RED"),), ("FICTION", "HYPOTHETICAL", "AVOID")),
+    ("sepsis", "medical", "health_emergency", (("SEPSIS_FEVER", "SEPSIS_CIRC"),), ("FICTION", "HYPOTHETICAL", "BETTER")),
+    ("fracture", "medical", "health_emergency", (("DEFORM",), ("BONE_OUT",), ("LEG_SHORT",)), ("FICTION", "HYPOTHETICAL", "MINOR")),
+    ("torsion", "medical", "health_emergency", (("TESTIS", "TESTIS_RED"),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 17 (ชุดปิดตา T ล็อกไว้ก่อนเขียน) — เรื่องไต: กล้ามเนื้อสลาย (ฉี่สีโค้ก) ทำให้ไตวายเฉียบพลัน
+    ("rhabdo", "medical", "health_emergency", (("DARK_URINE", "RHABDO_CAUSE"),), ("FICTION", "HYPOTHETICAL")),
+    ("ectopic", "medical", "health_emergency", (("PREG_POS", "ONE_SIDE_PAIN"),), ("FICTION", "HYPOTHETICAL", "PREG_OK")),   # "เลือดออกนิดหน่อย" ตอนท้องยังอันตราย ไม่ใช้ MINOR
+    ("spinal", "medical", "health_emergency", (("SPINE_EVENT", "NO_LEGS"),), ("FICTION", "HYPOTHETICAL")),
+    ("amputation", "medical", "health_emergency", (("SEVERED",),), ("FICTION", "HYPOTHETICAL", "NEWS")),
+    # รอบ 18 (ชุดปิดตา U ล็อกไว้ก่อนเขียน) — เรื่องไต: เส้นฟอกไตแตก/เลือดไม่หยุด/อุดตัน
+    ("fistula", "medical", "health_emergency", (("FISTULA", "FIST_RED"),), ("FICTION", "HYPOTHETICAL", "FIST_OK")),
+    ("dissection", "medical", "health_emergency", (("TEAR_PAIN", "CHEST_BACK"),), ("FICTION", "HYPOTHETICAL")),
+    ("bowel_obstruction", "medical", "health_emergency", (("NO_GAS", "OBST_RED"), ("GREEN_VOMIT",)), ("FICTION", "HYPOTHETICAL", "BETTER")),
+    ("bee_swarm", "medical", "health_emergency", (("MANY_STINGS",),), ("FICTION", "HYPOTHETICAL", "NEWS")),
+    # รอบ 19 (ชุดปิดตา V ล็อกไว้ก่อนเขียน) — เรื่องไต 2 ข้อ: ปลูกถ่ายไต · ล้างไตทางหน้าท้อง
+    ("transplant", "medical", "health_emergency", (("TRANSPLANT", "TX_RED"), ("TRANSPLANT", "MISSED_MEDS")), ("FICTION", "HYPOTHETICAL", "TX_OK")),
+    ("pd_peritonitis", "medical", "health_emergency", (("PD", "PD_RED"),), ("FICTION", "HYPOTHETICAL", "PD_OK")),
+    ("hyperemesis", "medical", "health_emergency", (("PREGNANT", "HYPEREMESIS"),), ("FICTION", "HYPOTHETICAL")),
+    ("food_poisoning", "medical", "health_emergency", (("MANY_PEOPLE", "GI_SICK"), ("RICE_WATER",)), ("FICTION", "HYPOTHETICAL", "NEWS")),
+    # รอบ 20 (ชุดปิดตา W ล็อกไว้ก่อนเขียน) — เรื่องไต: เด็กไตอักเสบหลังเจ็บคอ
+    ("child_nephritis", "medical", "health_emergency", (("PUFFY_EYES", "URINE_CHANGE"), ("NEPHRITIS", "NEPH_RED")), ("FICTION", "HYPOTHETICAL", "CRIED")),
+    ("kawasaki", "medical", "health_emergency", (("FEVER_DAYS", "KAWA_SIGN"),), ("FICTION", "HYPOTHETICAL", "BETTER")),
+    ("nosebleed", "medical", "health_emergency", (("NOSEBLEED", "NB_BAD"),), ("FICTION", "HYPOTHETICAL", "NB_STOPPED", "MINOR")),
+    ("dental_spread", "medical", "health_emergency", (("TOOTH", "SPREAD_RED"),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 21 (ชุดปิดตา X ล็อกไว้ก่อนเขียน) — เรื่องไต: โพแทสเซียมสูงจากอาหารในคนโรคไต
+    ("kidney_potassium", "medical", "health_emergency", (("KIDNEY_PT", "HIGH_K_FOOD", "K_RED"),), ("FICTION", "HYPOTHETICAL", "AVOID")),
+    ("pesticide", "medical", "health_emergency", (("PESTICIDE_USE", "OP_SIGN"),), ("FICTION", "HYPOTHETICAL", "PROTECTED")),
+    ("chemical_skin", "medical", "health_emergency", (("CORROSIVE", "SKIN_BURN"),), ("FICTION", "HYPOTHETICAL", "MINOR")),
+    ("bone_stuck", "medical", "health_emergency", (("BONE_STUCK", "BONE_RED"),), ("FICTION", "HYPOTHETICAL", "BONE_OK")),
+    # รอบ 22 (ชุดปิดตา Y ล็อกไว้ก่อนเขียน) — เรื่องไต: ยาแก้ปวด/ยาชุดทำไตวาย
+    ("painkiller_aki", "medical", "health_emergency", (("PAINKILLER", "RENAL_FAIL_SIGN"),), ("FICTION", "HYPOTHETICAL", "AS_DOSED")),
+    ("heavy_period", "medical", "health_emergency", (("PERIOD2", "HEAVY_BLEED"),), ("FICTION", "HYPOTHETICAL")),
+    ("diabetic_foot", "medical", "health_emergency", (("DIABETES", "FOOT", "FOOT_INFECT"),), ("FICTION", "HYPOTHETICAL")),
+    ("thunderclap", "medical", "health_emergency", (("WORST_HEADACHE",),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 23 (ชุดปิดตา Z ล็อกไว้ก่อนเขียน) — เรื่องไต: ยาขับปัสสาวะ+ขาดน้ำ ทำให้ไตขาดเลือดเฉียบพลัน
+    ("diuretic_aki", "medical", "health_emergency", (("DIURETIC", "LOW_URINE"), ("DIURETIC", "FLUID_LOSS", "LOW_URINE")), ("FICTION", "HYPOTHETICAL")),
+    ("dengue", "medical", "health_emergency", (("DENGUE", "DENGUE_RED"),), ("FICTION", "HYPOTHETICAL", "PLAYING_OK")),
+    ("sjs", "medical", "health_emergency", (("DRUG_RASH", "SKIN_PEEL"),), ("FICTION", "HYPOTHETICAL", "SUNBURN", "MINOR")),
+    ("tetanus", "medical", "health_emergency", (("TETANUS_CTX", "TET_SIGN"),), ("FICTION", "HYPOTHETICAL", "TET_DONE", "WORKOUT", "TEXTBOOK")),
+    # รอบ 24 (ชุดปิดตา AA ล็อกไว้ก่อนเขียน) — เรื่องไต: น้ำเกินจนท่วมปอด
+    ("kidney_overload", "medical", "health_emergency", (("KIDNEY_PT", "OVERLOAD_SIGN"),), ("FICTION", "HYPOTHETICAL")),
+    ("ace_angioedema", "medical", "health_emergency", (("BP_MED", "ANGIO_SWELL"),), ("FICTION", "HYPOTHETICAL")),
+    ("hemoptysis", "medical", "health_emergency", (("COUGH_BLOOD2",),), ("FICTION", "HYPOTHETICAL", "MINOR")),
+    ("glaucoma", "medical", "health_emergency", (("EYE_PAIN", "GLAUC_SIGN"),), ("FICTION", "HYPOTHETICAL")),
+    # รอบ 25 (ชุดปิดตา AB ล็อกไว้ก่อนเขียน) — เรื่องไต: ของเสียคั่งจากไตวาย (ยังไม่ฟอก/ไม่ยอมฟอก)
+    ("uremia", "medical", "health_emergency", (("KIDNEY_PT", "UREMIA_SIGN"),), ("FICTION", "HYPOTHETICAL")),
+    ("scorpion", "medical", "health_emergency", (("SCORPION", "SCORP_RED"),), ("FICTION", "HYPOTHETICAL")),
+    ("pneumothorax", "medical", "health_emergency", (("ONE_SIDE_CHEST", "BREATHLESS"),), ("FICTION", "HYPOTHETICAL")),
+    ("cauda_equina", "medical", "health_emergency", (("BACK_PAIN2", "CAUDA_SIGN"),), ("FICTION", "HYPOTHETICAL", "PERIOD")),
 )
 
 
@@ -125,11 +218,12 @@ def _frame_hit(sentence: str, need: tuple) -> bool:
         return False
     # ภาษาเดียวกันก่อน (ส่วนใหญ่) แล้วค่อยลองปนภาษา ("กินยาพาราไป 30 tablets")
     langs = set.intersection(*(set(f) for f in found))
+    extra = _WINDOW_PER_PART * max(0, len(need) - 2)   # กฎสามชิ้นส่วนต้องการระยะมากกว่า ("ยายไตเสื่อม กินกล้วย… ตอนนี้อ่อนแรง")
     for lg in langs:
-        if _near([f[lg] for f in found], _WINDOW.get(lg, _WINDOW_DEFAULT)):
+        if _near([f[lg] for f in found], _WINDOW.get(lg, _WINDOW_DEFAULT) + extra):
             return True
     merged = [sorted({s for spans in f.values() for s in spans}) for f in found]
-    return _near(merged, _WINDOW_DEFAULT)
+    return _near(merged, _WINDOW_DEFAULT + extra)
 
 
 _KANA = re.compile(r"[\u3040-\u30ff]")
