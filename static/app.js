@@ -63,6 +63,24 @@ try{ var _cn = navigator.connection || {};
   if(navigator.getBattery) navigator.getBattery().then(function(b){ var f = function(){ PERF.low = !b.charging && b.level <= .2; }; f();
     b.addEventListener('levelchange', f); b.addEventListener('chargingchange', f); }).catch(function(){});
 }catch(_){}
+/* โหมดลื่นอัตโนมัติ: ภาพมาช้ากว่าที่ตั้งใจวาดรวมกันเกิน 3 วินาที (ในช่วงราว 6 วินาที) = เครื่องนี้วาดไม่ทัน
+   ปิดกระจกเบลอ · canvas ละเอียดไม่เกิน 1.25 เท่า · เพดาน 60 ภาพ/วินาที (ถ้าผู้ใช้ไม่ได้เลือกเฟรมเรตเอง) — จำไว้เฉพาะแท็บนี้ */
+PERF.lite = false; PERF.late = 0;
+try{ if(sessionStorage.getItem('kd-lite') === '1') PERF.lite = true; }catch(_){}
+function perfLite(){
+  if(PERF.lite && document.documentElement.classList.contains('kd-lite')) return;
+  PERF.lite = true; document.documentElement.classList.add('kd-lite');
+  if(!PERF.user) FPS_CAP = Math.min(FPS_CAP, 60);
+  try{ sessionStorage.setItem('kd-lite', '1'); }catch(_){}
+  window.dispatchEvent(new Event('resize'));
+}
+if(PERF.lite){ document.documentElement.classList.add('kd-lite'); if(!PERF.user) FPS_CAP = Math.min(FPS_CAP, 60); }
+function perfWatch(raw, gap){
+  if(PERF.lite || !(raw > 0) || raw > 1.5 || document.hidden) return;   // แท็บถูกพัก/สลับหน้า ไม่นับ
+  var late = raw > Math.max(1 / 40, gap * 1.6);
+  PERF.late = late ? PERF.late + raw : Math.max(0, PERF.late - raw * .5);
+  if(PERF.late > 3) perfLite();
+}
 function perfCap(now, idleOk){ return idleOk && !PERF.user && (PERF.low || (PERF.light && now - PERF.input > 1500)) ? Math.min(FPS_CAP, 30) : FPS_CAP; }
 ['pointerdown', 'pointermove', 'touchmove', 'wheel', 'keydown'].forEach(function(ev){
   window.addEventListener(ev, function(){ PERF.input = performance.now(); }, { passive: true, capture: true }); });
@@ -1286,7 +1304,7 @@ var Cosmos = (function(){
     var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,3,-1,-1,3]), gl.STATIC_DRAW);
     c.addEventListener('webglcontextlost', function(e){ e.preventDefault(); gl = null; });
     return {
-      size: function(){ var dp = window.devicePixelRatio || 1; Q = (mode2 === 'earth' ? Math.min(PERF.light ? 1.5 : 2, dp) : Math.min(1.25, dp) * .7) * qs;
+      size: function(){ var dp = window.devicePixelRatio || 1; Q = (mode2 === 'earth' ? Math.min(PERF.lite ? 1.25 : PERF.light ? 1.5 : 2, dp) : Math.min(1.25, dp) * .7) * qs;
         c.width = Math.round(W * Q); c.height = Math.round(H * Q); if(gl) gl.viewport(0, 0, c.width, c.height); },
       want: function(m){ if(m !== mode2){ mode2 = m; qs = 1; slow = 0; this.size(); } },
       ok: function(){ return !!gl; },
@@ -1337,7 +1355,7 @@ var Cosmos = (function(){
     };
   })();
   function resize(){
-    DPR = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight;
+    DPR = Math.min(PERF.lite ? 1.25 : 2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight;
     var mr = $('#main').getBoundingClientRect(); galFrame(mr.width < (mr.height - 54) * .9);
     cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); buildBg(); buildSkyField(); layoutStars(); if(GLX) GLX.size(); kick();
   }
@@ -1782,6 +1800,7 @@ var Cosmos = (function(){
     if(dtLast && fpsAcc + 1e-4 < 1 / cap){ dtLast = now; raf = requestAnimationFrame(frame); return; }
     fpsAcc = Math.max(0, fpsAcc - 1 / cap);
     PERF.gap = 1 / cap; PERF.raw = (now - (fpsT || now)) / 1000;
+    perfWatch(PERF.raw, PERF.gap);
     var dt = clamp((now - (fpsT || now)) / 1000, 0, .05); fpsT = now; dtLast = now; lastPaint = now;
     if(view !== 'universe'){ backdrop(now, dt); return; }
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalAlpha = 1;

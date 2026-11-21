@@ -21,7 +21,12 @@ def test_cinema_and_universe_view_keep_the_full_rate():
 
 
 def test_phone_renders_earth_at_one_and_a_half_not_two():
-    assert "Math.min(PERF.light ? 1.5 : 2, dp)" in APP
+    assert "Math.min(PERF.lite ? 1.25 : PERF.light ? 1.5 : 2, dp)" in APP
+
+
+def test_lite_mode_also_watches_slow_frames_at_rest():
+    """โหมดลื่นต้องไม่เปิดเพราะพักที่ 30 ภาพ/วินาที (ภาพห่าง 33 ms ตั้งใจ ไม่ใช่เครื่องช้า)"""
+    assert "var late = raw > Math.max(1 / 40, gap * 1.6);" in APP
 
 
 def test_resting_at_30_is_not_mistaken_for_a_slow_device():
