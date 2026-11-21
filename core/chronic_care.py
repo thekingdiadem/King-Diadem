@@ -670,3 +670,90 @@ def plan(profile: dict | None, lang: str = "th") -> dict:
         "warnings": warn, "lifestyle": life, "ask": ask,
         "text": "\n".join(head + [f"· {x}" for x in ask + lines]),
     }
+
+
+# ═══ 6) จากข้อความในแชท ══════════════════════════════════════════════════════════════
+# "ค่าไต eGFR 45 ทำไงไม่ให้ต้องฟอกไต" → ดึงตัวเลขที่ผู้ใช้พิมพ์เองเท่านั้น ไม่เติมค่าที่ไม่ได้บอก
+
+_KIDNEY_WORD = re.compile(r"ไต(?!หวัน|ร|ล|้|่)|ฟอกไต|ล้างไต|\begfr\b|\bgfr\b|creatinine|ครีเอตินีน|ครีอะตินิน|\bckd\b|kidney|"
+                          r"riñ[oó]n|renal|thận|肾|腎|신장|콩팥", re.I)
+_ASK_SLOW = re.compile(r"ไม่ให้(?:ต้อง)?(?:ฟอก|ล้าง)|ชะลอ|ไม่ให้แย่ลง|ดูแล|ทำ(?:ยัง)?ไง|กินอะไร|ควร|หายขาด|"
+                       r"avoid dialysis|slow|what (?:should|can) I|how (?:do|can) I|evitar diálisis|frenar|"
+                       r"tránh chạy thận|làm chậm|避免透析|延缓|투석.{0,6}(?:피하|안 하)|透析を避け|進行を遅", re.I)
+_NUM = r"(\d+(?:[.,]\d+)?)"
+_PARSE = {
+    "egfr": re.compile(r"\be?gfr\b\D{0,8}" + _NUM, re.I),
+    "creatinine": re.compile(r"(?:creatinine|ครีเอตินีน|ครีอะตินิน|\bcr\b|\bscr\b)\D{0,8}" + _NUM, re.I),
+    "uacr": re.compile(r"(?:uacr|\bacr\b|albumin)\D{0,8}" + _NUM, re.I),
+    "hba1c": re.compile(r"(?:hba1c|a1c|น้ำตาลสะสม)\D{0,8}" + _NUM, re.I),
+    "ldl": re.compile(r"\bldl\b\D{0,8}" + _NUM, re.I),
+    "age": re.compile(r"(?:อายุ|age)\s*" + _NUM + r"|" + _NUM + r"\s*(?:ปี|years? old|yo\b|tuổi|岁|歳|살|años)", re.I),
+    "weight_kg": re.compile(r"(?:หนัก|น้ำหนัก|weigh\w*)\s*" + _NUM + r"|" + _NUM + r"\s*(?:กก|kg|กิโล)", re.I),
+}
+_BP = re.compile(r"(?<!\d)(\d{2,3})\s*/\s*(\d{2,3})(?!\d)")
+_MALE = re.compile(r"ผู้ชาย|เพศชาย|\bmale\b|\bman\b|\bhombre\b|\bnam\b|男|남자|ชาย(?:อายุ)", re.I)
+_FEMALE = re.compile(r"ผู้หญิง|เพศหญิง|\bfemale\b|\bwoman\b|\bmujer\b|\bnữ\b|女|여자|หญิง(?:อายุ)", re.I)
+_DIABETES = re.compile(r"เบาหวาน|diabet|tiểu đường|糖尿病|당뇨", re.I)
+
+
+def parse_text(text: str) -> dict:
+    t = str(text or "")
+    p: dict = {}
+    for key, rx in _PARSE.items():
+        m = rx.search(t)
+        if m:
+            v = next(g for g in m.groups() if g)
+            p[key] = float(v.replace(",", "."))
+    m = _BP.search(t)
+    if m and 70 <= int(m.group(1)) <= 260 and 40 <= int(m.group(2)) <= 160:
+        p["sys_bp"], p["dia_bp"] = int(m.group(1)), int(m.group(2))
+    if _FEMALE.search(t):
+        p["sex"] = "f"
+    elif _MALE.search(t):
+        p["sex"] = "m"
+    if _DIABETES.search(t):
+        p["diabetes"] = True
+    if p.get("creatinine", 0) > 25:            # พิมพ์เป็น µmol/L (เช่น 140)
+        p["creatinine_unit"] = "umol/L"
+    return p
+
+
+def chat_check(text: str) -> bool:
+    """เป็นคำถามดูแลโรคไตของตัวเอง/คนในบ้าน: มีคำเรื่องไต + (ตัวเลขค่าไต หรือถามวิธีชะลอ)"""
+    t = str(text or "")
+    if not _KIDNEY_WORD.search(t):
+        return False
+    p = parse_text(t)
+    return bool("egfr" in p or "creatinine" in p or "uacr" in p or _ASK_SLOW.search(t))
+
+
+def _chat_lang(text: str) -> str:
+    t = str(text or "")
+    for lang, rx in (("th", r"[฀-๿]"), ("ko", r"[가-힣]"), ("ja", r"[ぁ-ゟ゠-ヿ]"), ("zh", r"[一-鿿]"),
+                     ("vi", r"[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]"),
+                     ("es", r"[ñáéíóú¿¡]|\b(?:riñón|diálisis|tengo|mi)\b")):
+        if re.search(rx, t, re.I):
+            return lang
+    return "en"
+
+
+_PAGE_LINE = {
+    "th": "กรอกค่าเพิ่ม (ยา อาหาร ชั่วโมงนอน นั่ง ยืน) เพื่อแผนที่ตรงตัวขึ้นได้ที่ /kidney",
+    "en": "Add more (medicines, foods, sleep, sitting, standing hours) for a more personal plan at /kidney",
+    "es": "Agrega más datos (medicinas, comidas, horas de sueño, sentado, de pie) en /kidney para un plan más personal",
+    "vi": "Nhập thêm (thuốc, đồ ăn, giờ ngủ, ngồi, đứng) tại /kidney để có kế hoạch sát hơn",
+    "zh": "在 /kidney 补充用药、饮食、睡眠和坐立时间，可获得更贴合您的计划",
+    "ko": "/kidney 에서 약, 음식, 수면·앉는·서 있는 시간을 더 입력하면 더 맞춤형 계획을 볼 수 있어요",
+    "ja": "/kidney で薬・食べ物・睡眠や座る・立つ時間を入力すると、より自分に合った計画になります",
+}
+
+
+def reply(text: str, footer: bool = True) -> str | None:
+    if not chat_check(text):
+        return None
+    lang = _chat_lang(text)
+    r = plan(parse_text(text), lang)
+    tag = ""
+    if footer:
+        tag = "\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if lang == "th" else "\n· Answered from the system's equations — no AI used"
+    return f"{r['text']}\n\n{_PAGE_LINE[lang]}\n\n— LYLA ◈{tag}"
