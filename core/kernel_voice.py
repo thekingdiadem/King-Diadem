@@ -3095,6 +3095,13 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
         # "เป็นลมแดด ตัวร้อนจัด" เคยได้ Risk 59 — โรคลมแดดในตัวคนเป็นเรื่องฉุกเฉิน ไม่ใช่แค่สภาพอากาศ
         if dis["data"].get("kind") == "heat" and re.search(r"ไม่มีเหงื่อ|ตัวร้อนจัด|ซึม|สับสน|ชัก|หมดสติ|เป็นลมแดด|โรคลมแดด|ฮีทสโตรก|ฮีตสโตรก", text):
             text_risk = max(text_risk, 75)
+    # ผลเลือดระดับวิกฤต (โพแทสเซียม 6.4 ฯลฯ) — เคยขึ้นป้าย "ยังรับมือได้" ทั้งที่ต้องไปโรงพยาบาลวันนี้
+    try:
+        from core import lab_values as _lv
+        if any(x[2] == "urgent" for x in _lv.read(text)):
+            text_risk = max(text_risk, 80)
+    except Exception:
+        pass
     kinds_i = [kd for kd, _ in intl]
     if "disaster" in kinds_i or "scam" in kinds_i or "basic" in kinds_i:
         text_risk = max(text_risk, 70)

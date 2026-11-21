@@ -3496,14 +3496,60 @@ window.addEventListener('KD:response', function(e){
     });
     return out.map(function(x){ return { who: x.who, t: clean(x.t) }; }).filter(function(x){ return x.t; });
   }
+  /* เสียงที่ชัดที่สุดในเครื่องขึ้นก่อน (Google · Premium · Enhanced · Natural) — เสียงพื้นฐานบางเครื่องอู้อี้ */
+  function rankVoices(vs){
+    function sc(v){ return (/natural|neural|premium|enhanced/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1); }
+    return vs.slice().sort(function(a, b){ return sc(b) - sc(a); });
+  }
+  /* ทำนองสรภัญญะ (กาพย์ยานี ๑๑): วรรคหน้า 5 พยางค์ · วรรคหลัง 6 พยางค์ · จังหวะกระชับ เอื้อนสั้นท้ายบาท
+     เบราว์เซอร์ร้องเป็นทำนองจริงไม่ได้ — ทำได้คือแบ่งวรรคตามฉันทลักษณ์ ยกเสียงวรรคหน้า ลงเสียงวรรคหลัง
+     และอ่านคำท้ายบาทช้าลงนิดหนึ่งให้เป็นการเอื้อน · ใช้กับภาษาไทยเท่านั้น */
+  var CHANT = lsGet('kd-chant') !== '0';
+  function sylls(w){                                     // นับพยางค์ไทยโดยประมาณ: กลุ่มพยัญชนะต้นที่มีสระ/วรรณยุกต์กำกับ
+    var m = String(w).match(/[\u0E40-\u0E44][\u0E01-\u0E2E]{1,2}[\u0E30-\u0E3A\u0E47]*|[\u0E30-\u0E3A\u0E47]+/g);
+    var bare = String(w).replace(/[\u0E40-\u0E44][\u0E01-\u0E2E]{1,2}[\u0E30-\u0E3A\u0E47]*|[\u0E01-\u0E2E][\u0E30-\u0E3A\u0E47]+[\u0E01-\u0E2E]?/g, '').match(/[\u0E01-\u0E2E]{2}/g);
+    return Math.max(1, (m ? m.length : 0) + (bare ? bare.length : 0));   // "ของ" "ผล" ไม่มีสระกำกับ = 1 พยางค์ต่อ 2–3 ตัว
+  }
+  function chantLines(t){
+    var seg = window.Intl && Intl.Segmenter ? new Intl.Segmenter('th', { granularity: 'word' }) : null, out = [];
+    String(t).split(/\n+/).forEach(function(line){
+      var lineStart = out.length;
+      var words = seg ? Array.from(seg.segment(line)).filter(function(x){ return x.isWordLike; }).map(function(x){ return x.segment; })
+                      : line.split(/\s+/);
+      var cur = [], n = 0, want = 5;                    // สลับ 5 → 6 → 5 → 6 …
+      words.forEach(function(w){
+        cur.push(w); n += sylls(w);
+        if(n >= want){ out.push({ t: cur.join(''), back: want === 6, last: w }); cur = []; n = 0; want = want === 5 ? 6 : 5; }
+      });
+      if(cur.length){                                  // เศษท้ายบรรทัดสั้นๆ ("เค็ม") รวมกับวรรคก่อน ไม่ให้เป็นวรรคคำเดียว
+        if(n < 3 && out.length > lineStart) out[out.length - 1] = { t: out[out.length - 1].t + cur.join(''), back: true, last: cur[cur.length - 1] };
+        else out.push({ t: cur.join(''), back: true, last: cur[cur.length - 1] });
+      }
+    });
+    return out;
+  }
+  function chantable(x, L){ return CHANT && L === 'th-TH' && x.who !== 'CRISIS' && !/(?:^|\D)(?:1669|1323|191|199|1300)(?:\D|$)/.test(x.t); }
   function speak(t, p){
     if(!synth) return;
     synth.cancel();
-    var L = lang(), vs = (synth.getVoices() || []).filter(function(v){ return v.lang && v.lang.slice(0, 2) === L.slice(0, 2); }), ps = parts(t, p);
-    ps.forEach(function(x, i){
-      var u = new SpeechSynthesisUtterance(x.t), V = VOICE[x.who] || VOICE.LYLA;
-      u.lang = L; u.pitch = V[0]; u.rate = V[1]; if(vs.length) u.voice = vs[V[2] % vs.length];
-      if(i === ps.length - 1) u.onend = function(){ if(call) listen(); };
+    var L = lang(), vs = rankVoices((synth.getVoices() || []).filter(function(v){ return v.lang && v.lang.slice(0, 2) === L.slice(0, 2); })), ps = parts(t, p);
+    var queue = [];
+    ps.forEach(function(x){
+      var V = VOICE[x.who] || VOICE.LYLA, voice = vs.length ? vs[x.who === 'LYLA' ? 0 : V[2] % vs.length] : null;
+      if(!chantable(x, L)){ queue.push({ t: x.t, pitch: V[0], rate: V[1], voice: voice }); return; }
+      /* เสียงเคะ มีพลัง: เร็วขึ้นเล็กน้อย ระดับกลาง · วรรคหน้าสูง วรรคหลังต่ำลงปิดบาท · คำท้ายบาทเอื้อนสั้น */
+      var base = Math.min(1.1, V[0]), rate = Math.min(1.12, V[1] + .1);
+      chantLines(x.t).forEach(function(v){
+        if(!v.back){ queue.push({ t: v.t, pitch: base * 1.12, rate: rate, voice: voice }); return; }
+        var w = v.t, cut = v.last && w.length > v.last.length ? w.length - v.last.length : 0;   // เอื้อนทั้งคำสุดท้าย ไม่ตัดกลางพยางค์ ("ลดเ|ค็ม")
+        if(cut > 0) queue.push({ t: w.slice(0, cut), pitch: base * .96, rate: rate, voice: voice });
+        queue.push({ t: w.slice(cut), pitch: base * .9, rate: rate * .78, voice: voice });     // เอื้อนสั้นท้ายบาท
+      });
+    });
+    queue.forEach(function(q, i){
+      var u = new SpeechSynthesisUtterance(q.t);
+      u.lang = L; u.pitch = Math.max(0, Math.min(2, q.pitch)); u.rate = q.rate; if(q.voice) u.voice = q.voice;
+      if(i === queue.length - 1) u.onend = function(){ if(call) listen(); };
       synth.speak(u);
     });
   }
@@ -3527,6 +3573,9 @@ window.addEventListener('KD:response', function(e){
       listen();
     });
   }
+  /* กดค้าง/คลิกขวาที่ปุ่มอ่านออกเสียง = สลับทำนองสรภัญญะ ↔ อ่านเรียบ */
+  if(synth) chip.addEventListener('contextmenu', function(e){ e.preventDefault(); CHANT = !CHANT; lsSet('kd-chant', CHANT ? '1' : '0');
+    toast(CHANT ? _t('อ่านแบบทำนองสรภัญญะ (กาพย์ยานี ๑๑)') : _t('อ่านแบบเรียบ'), false, 2500); });
   if(synth){ chip.classList.remove('hide'); setSpeak(speakOn);
     chip.addEventListener('click', function(){ setSpeak(!speakOn); });
     window.addEventListener('KD:reply', function(e){ if(speakOn || call) speak(e.detail.t, e.detail.p); });   /* พูดมา = ได้ฟังคำตอบเสมอ (เหมือนโทรคุย) · พิมพ์มา = อ่านเมื่อเปิดปุ่มในตัวเลือก */
