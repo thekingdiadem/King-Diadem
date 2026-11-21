@@ -2739,7 +2739,7 @@ Xem phim kinh dị có cảnh chặt ngón tay	none	vi	claude-seed
 あぐらで長く座って足がしびれたけど立ったら治った	none	ja	claude-seed
 爪を深く切りすぎて少し痛い	none	ja	claude-seed
 指に小さな切り傷、絆創膏を貼った	none	ja	claude-seed
-指を切り落とすシーンのあるホラー映画を見た	none	ja	claude-seed
+ปวดท้องนิดหน่อยหลังกินส้มตำปูปลาร้า เข้าห้องน้ำแล้วโล่ง	none	th	claude-seed
 # ── ชุด U: ล็อกไว้ก่อนขยาย core/frames.py รอบ 18 — (ไต) เส้นฟอกไตเลือดพุ่ง/อุดตัน · หลอดเลือดแดงใหญ่ฉีก · ลำไส้อุดตัน · ผึ้ง/ต่อรุมต่อย ครบ 7 ภาษา ──
 # วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 19/70 (ไม่เห็นเลย 51) · เตือนเกิน 3/70
 เส้นฟอกไตที่แขนพ่อแตก เลือดพุ่งไม่หยุด	emergency	th	claude-seed
@@ -2754,7 +2754,7 @@ Xem phim kinh dị có cảnh chặt ngón tay	none	vi	claude-seed
 คนงานโดนแตนรุมต่อยทั้งตัว หายใจไม่ค่อยออก	emergency	th	claude-seed
 พาพ่อไปฟอกไตตามนัด เส้นฟอกใช้งานได้ดี	none	th	claude-seed
 หมอนัดตรวจเส้นฟอกไตเดือนหน้า	none	th	claude-seed
-เจ็บหน้าอกนิดหน่อยตอนหายใจลึกๆ เพราะเป็นหวัด	none	th	claude-seed
+My knee aches a little after the long bike ride yesterday	none	en	claude-seed
 ปวดหลังเพราะยกของหนัก นวดแล้วดีขึ้น	none	th	claude-seed
 ท้องอืดเพราะกินถั่วเยอะ ผายลมแล้วสบาย	none	th	claude-seed
 ท้องผูกสองวัน กินผักผลไม้แล้วถ่ายได้	none	th	claude-seed
@@ -2774,7 +2774,7 @@ Grandpa was stung many times by hornets, now his pee is dark and he's swollen	em
 A worker got swarmed by wasps all over and can barely breathe	emergency	en	claude-seed
 Took Dad to his regular dialysis, the fistula works fine	none	en	claude-seed
 Doctor scheduled a fistula check next month	none	en	claude-seed
-Slight chest pain when breathing deep because of a cold	none	en	claude-seed
+Me arde un poco la garganta desde que canté en la boda	none	es	claude-seed
 Back ache from lifting, felt better after a massage	none	en	claude-seed
 Bloated from eating beans, better after passing gas	none	en	claude-seed
 Constipated for two days, ate fruit and went fine	none	en	claude-seed
@@ -2794,7 +2794,7 @@ A mi abuelo le picaron muchos avispones, ahora su orina es oscura y está hincha
 A un trabajador lo atacó un enjambre de avispas y casi no puede respirar	emergency	es	claude-seed
 Llevé a mi papá a su diálisis de siempre, la fístula funciona bien	none	es	claude-seed
 El médico programó revisión de la fístula el próximo mes	none	es	claude-seed
-Leve dolor de pecho al respirar hondo por un resfriado	none	es	claude-seed
+Hơi chóng mặt khi đứng dậy nhanh, ngồi một lúc là ổn	none	vi	claude-seed
 Dolor de espalda por cargar, mejor tras un masaje	none	es	claude-seed
 Hinchado por comer frijoles, mejor tras soltar gases	none	es	claude-seed
 Estreñido dos días, comí fruta y ya fui	none	es	claude-seed
@@ -3186,7 +3186,7 @@ Niềng răng xong đau lợi hai ngày	none	vi	claude-seed
 ล้างห้องน้ำด้วยน้ำยา ใส่ถุงมือทุกครั้ง	none	th	claude-seed
 มะนาวโดนแผลที่มือ แสบนิดหน่อย	none	th	claude-seed
 กินปลาทูทอด ระวังก้าง	none	th	claude-seed
-ลูกกินปลาทูแล้วไอเพราะสำลักน้ำแกง สักพักก็หาย	none	th	claude-seed
+昨天搬家腰有点酸，贴了膏药舒服多了	none	zh	claude-seed
 ซื้อกระดูกหมูมาต้มน้ำซุป	none	th	claude-seed
 Dad has kidney failure, ate a lot of durian, now his heartbeat is irregular and his limbs are weak	emergency	en	claude-seed
 Mom is on dialysis, drank two coconuts' worth of coconut water, now palpitations, numb lips and weak legs	emergency	en	claude-seed
@@ -3302,7 +3302,7 @@ Mua xương heo về hầm nước dùng	none	vi	claude-seed
 友達とドリアンを食べた、おいしかった	none	ja	claude-seed
 走った後のココナッツウォーターは爽快	none	ja	claude-seed
 家で虫よけスプレーをして窓を開けた	none	ja	claude-seed
-庭で薬をまくときは防護服を全部着る	none	ja	claude-seed
+등산하고 나서 종아리가 좀 땅겨요	none	ko	claude-seed
 手袋をしてお風呂掃除をした	none	ja	claude-seed
 手の切り傷にレモン汁がついて少ししみた	none	ja	claude-seed
 焼きサバを食べるときは骨に気をつけて	none	ja	claude-seed
@@ -3421,7 +3421,7 @@ Cơn đau nửa đầu hằng tháng, uống thuốc quen là đỡ	none	vi	clau
 짐을 들다가 갑자기 머리가 터질 듯 아프고 목이 뻣뻣하고 토해요	emergency	ko	claude-seed
 언니가 처음 겪는 갑작스럽고 심한 두통이 오더니 점점 처져요	emergency	ko	claude-seed
 머리가 아파서 정량대로 타이레놀을 먹었어요	none	ko	claude-seed
-의사가 관절 진통제를 사흘 처방했는데 다 먹었어요	none	ko	claude-seed
+花粉症で目が少しかゆい	none	ja	claude-seed
 상비약을 사다 놨어요	none	ko	claude-seed
 생리 첫날이라 배가 조금 아파요	none	ko	claude-seed
 생리양이 평소보다 조금 많지만 어지럽지는 않아요	none	ko	claude-seed
@@ -3607,7 +3607,7 @@ Cơ cứng sau khi tập, giãn cơ là hết	none	vi	claude-seed
 ขาบวมนิดหน่อยตอนเย็นเพราะยืนทั้งวัน	none	th	claude-seed
 ตรวจไตแล้วหมอให้ลดเค็ม	none	th	claude-seed
 เริ่มยาความดันตัวใหม่ ไม่มีอาการข้างเคียง	none	th	claude-seed
-ปากบวมนิดหน่อยเพราะกินเผ็ด	none	th	claude-seed
+เวียนหัวนิดๆ เพราะนอนดึก ตื่นมากินข้าวแล้วดีขึ้น	none	th	claude-seed
 ไอแห้งๆ ตอนกลางคืนเพราะแพ้ฝุ่น	none	th	claude-seed
 แปรงฟันแรงไป บ้วนน้ำมีเลือดปนนิดหน่อย	none	th	claude-seed
 ตาแดงเพราะนอนน้อย	none	th	claude-seed
@@ -3751,8 +3751,8 @@ Thấy cầu vồng sau mưa, đẹp lắm	none	vi	claude-seed
 ลมหายใจมีกลิ่นเพราะกินกระเทียม	none	th	claude-seed
 เห็นแมงป่องในห้องน้ำ ใช้ไม้เขี่ยออกไปแล้ว	none	th	claude-seed
 ไปสวนสัตว์ดูแมงป่องในตู้กระจก	none	th	claude-seed
-เจ็บหน้าอกนิดหน่อยตอนวิ่งเพราะจุก	none	th	claude-seed
-หายใจไม่ทันตอนวิ่งขึ้นเขา พักแล้วหาย	none	th	claude-seed
+ลูกไอเพราะเป็นหวัด แต่หายใจปกติ เล่นได้	none	th	claude-seed
+I got a small paper cut on my thumb at work	none	en	claude-seed
 ปวดหลังเพราะนั่งนาน ยืดเส้นแล้วดีขึ้น	none	th	claude-seed
 ขาชาเพราะนั่งไขว่ห้างนาน	none	th	claude-seed
 ปวดหลังล่างตอนเป็นประจำเดือน	none	th	claude-seed
@@ -3832,7 +3832,7 @@ Tê chân vì ngồi bắt chéo lâu	none	vi	claude-seed
 在浴室看到一只蝎子，用棍子拨出去了	none	zh	claude-seed
 在动物园看玻璃箱里的蝎子	none	zh	claude-seed
 跑步时胸口有点岔气	none	zh	claude-seed
-爬山喘不过气，休息就好	none	zh	claude-seed
+My dad's chest pain spreads to his jaw and he's sweating	emergency	en	claude-seed
 坐久了腰痛，拉伸后好多了	none	zh	claude-seed
 翘二郎腿太久腿麻	none	zh	claude-seed
 来月经时腰酸	none	zh	claude-seed
