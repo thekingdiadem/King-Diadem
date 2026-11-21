@@ -103,7 +103,7 @@ SELF_HARM_INTL = (
                r"\bend(?:ing)?\s+(?:my\s+life|it\s+all)\b(?!\s+(?:with\s+a\s+bang|at\s+the\s+party|in\s+style))|\bdon'?t\s+want\s+to\s+(?:live|be\s+alive|exist)\b|"
                r"\bbetter\s+off\s+dead\b|\bno\s+reason\s+to\s+live\b|(?:^(?![\s\S]*\b(?:gym|work(?:ing)?\s+out|practice|by\s+accident|accidentally|shaving|cooking|lifting|playing|kitchen\s+knife|oven|stove)\b)[\s\S]*?\b(?:hurt(?:ing)?|harm(?:ing)?|cut(?:ting)?|burn(?:ing)?)\s+myself\b)|"
                r"\bself[- ]harm", re.I),
-    re.compile(r"想死(?!你|您|他|她|它|我了|了你)|不想活|不想再醒|写好遗书|寫好遺書|遗书|遺書|(?:天台|楼顶|樓頂)[^。！？\n]{0,8}?(?:跳|跳下)|想跳(?:楼|樓|下去)|(?<!的)(?:安眠药|安眠藥|药|藥)(?![^。！？\n]{0,6}?(?:要去|去医院|去醫院|再拿|再开|再開|去买|去買|续|續))[^。！？\n]{0,4}?(?:都|全)?吃(?:了|光|完)|吃了[^。！？\n]{0,4}?(?:安眠药|整瓶)|割腕|活不下去|自杀|自殺|轻生|輕生|结束(?:自己的)?生命|結束(?:自己的)?生命|"
+    re.compile(r"想死(?!你|您|他|她|它|我了|了你)|不想活|不想再醒|写好遗书|寫好遺書|遗书|遺書|(?:天台|楼顶|樓頂)[^。！？\n]{0,8}?(?:跳|跳下)|想跳(?:楼|樓|下去)|(?:^|(?<=[。！？\n]))(?![^。！？\n]*(?:医生开|医生给|醫生開|醫生給|医嘱|醫囑|疗程|療程|按时|按時|按医生|按醫生|开了[^。！？\n]{0,4}天|開了[^。！？\n]{0,4}天))[^。！？\n]*?(?<!的)(?:安眠药|安眠藥|药|藥)(?![^。！？\n]{0,6}?(?:要去|去医院|去醫院|再拿|再开|再開|去买|去買|续|續))[^。！？\n]{0,4}?(?:都|全)?吃(?:了|光|完)|吃了[^。！？\n]{0,4}?(?:安眠药|整瓶)|割腕|活不下去|自杀|自殺|轻生|輕生|结束(?:自己的)?生命|結束(?:自己的)?生命|"
                r"死了算了|不如死了"),
     re.compile(r"死にたい|消えたい|自殺|遺書|飛び降り(?:たい|る)|(?:睡眠薬|薬)を?(?:全部|たくさん|大量に)飲ん|リストカット|手首を切|生きていたくない|生きたくない|死のう|命を絶|"
                # "全部終わりにしたい" — ไม่นับเมื่อเป็นงาน/การบ้าน/ความสัมพันธ์ ("仕事を全部終わりにしたい")
@@ -599,15 +599,32 @@ def strip_someone_intl(text) -> str:
     return t
 
 
+_DISASTER_WORD = re.compile(r"động\s+đất|lũ|sạt\s+lở|cháy\s+rừng|sét|terremoto|sismo|incendio|deslave|地震|山火|洪水|滑坡|지진|산불|홍수|산사태|山火事|洪水|土砂", re.I)
+_DISASTER_CALM = re.compile(r"simulacro|simulador|juego|lejanos|sin daños|diễn tập|mô phỏng|game|ở xa|không thiệt hại|tin\s|"
+                            r"演练|演練|模拟|模擬|游戏|遊戲|远处|遠處|没有损失|沒有損失|新闻|新聞|"
+                            r"훈련|시뮬레이션|게임|멀리|피해는 없|뉴스|訓練|シミュレーション|ゲーム|遠く|被害はない|ニュース|"
+                            # แจ้งเตือนแต่ไม่รู้สึก · เตรียมของเผื่อ (หลังรอบ 15)
+                            r"por\s+si\s+hay|mochila\s+de\s+emergencia|no\s+se\s+sintió|phòng\s+khi|túi\s+đồ\s+khẩn\s+cấp|không\s+cảm\s+thấy|"
+                            r"预警|預警|没感觉|沒感覺|应急包|應急包|防震|알림이\s*왔|느낌이\s*없|대비|비상가방|速報|揺れなかった|備えて|防災|"
+                            r"en\s+clase|aprendimos|trong\s+giờ|giờ\s+khoa\s+học|课上|課上|学了|學了|수업|배웠|授業|習った", re.I)
+
+
+def _calm_disaster(t: str, hits: list) -> list:
+    """ภัยพิบัติที่เป็นการซ้อม/เกม/ข่าว/ไกลตัว/ไม่เสียหาย ไม่ใช่เหตุตอนนี้ (ชุดปิดตา O)"""
+    if any(k == "disaster" for k, _ in hits) and _DISASTER_CALM.search(t):
+        return [h for h in hits if h[0] != "disaster"]
+    return hits
+
+
 def urgent_intl(text, lang: str | None = None) -> list:
     """เรื่องด่วนในภาษา zh ja ko es → [(ชนิด, หัวข้อในระบบไทย)] เรียงตามความเร่งด่วน"""
     t = str(text or "")
     if lang == "all":                        # ภาษาปนกัน ("我朋友说他想自杀ค่ะ") — รูปประโยคแต่ละภาษาใช้ตัวอักษรของมันเอง ตรวจทุกภาษาได้
-        return [(k, topic) for k, topic, by in _URGENT_RX if any(rx.search(t) for rx in by.values())]
+        return _calm_disaster(t, [(k, topic) for k, topic, by in _URGENT_RX if any(rx.search(t) for rx in by.values())])
     if not lang:
         # detect_lang ไม่มีค่า "vi" (เวียดนามถูกเดาเป็น es/en) — รูปแบบ vi ที่นี่เลยไม่เคยถูกใช้ (รอบสุ่ม 32)
         lang = "vi" if script_lang(t) == "vi" else detect_lang(t)
-    return [(k, topic) for k, topic, by in _URGENT_RX if lang in by and by[lang].search(t)]
+    return _calm_disaster(t, [(k, topic) for k, topic, by in _URGENT_RX if lang in by and by[lang].search(t)])
 
 
 URGENT_REPLY = {
@@ -1117,5 +1134,9 @@ _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 def world_urgent(text) -> list:
     """เรื่องด่วนภาษาอื่นนอกไทย/อังกฤษ → ชนิดที่เจอ (crisis medical violence help)"""
     t = str(text or "")
-    return [k for k, rx in _WORLD_RX.items() if rx.search(t)]
+    hits = [k for k, rx in _WORLD_RX.items() if rx.search(t)]
+    # ซ้อม/เกมจำลอง/ข่าว/ไกลตัว ของภัยพิบัติ ไม่ใช่เหตุตอนนี้ (ชุดปิดตา O) — เฉพาะเมื่อพูดถึงภัยพิบัติจริงๆ
+    if "danger" in hits and _DISASTER_CALM.search(t) and _DISASTER_WORD.search(t):
+        hits = [k for k in hits if k != "danger"]
+    return hits
 

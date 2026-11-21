@@ -70,3 +70,12 @@ def test_survival_guide_tells_search_engines_both_languages(lg):
     h = render(lg)
     for x in ("th", "en", "x-default"):
         assert f'<link rel="alternate" hreflang="{x}"' in h, x
+
+
+def test_site_verification_accepts_a_pasted_whole_meta_tag():
+    """เคยวางแท็กทั้งบรรทัดลงใน Render → รหัสกลายเป็น "metanamegoogle-site-verificationcontent…" ยืนยันไม่ผ่าน"""
+    import app as A
+    code = "nz4_fWcDMapEmRRf89wQz8H9TxbL9eeumkIBJJrEgkE"
+    assert A._site_code(f'<meta name="google-site-verification" content="{code}" />') == code
+    assert A._site_code(code) == code
+    assert A._site_code("") == ""

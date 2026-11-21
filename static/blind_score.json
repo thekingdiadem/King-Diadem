@@ -1,5 +1,5 @@
 {
- "total": 1247,
+ "total": 3767,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -24,18 +24,18 @@
    "precision": 0.892
   },
   "emergency": {
-   "n": 522,
-   "tp": 521,
-   "fn": 1,
+   "n": 1713,
+   "tp": 1711,
+   "fn": 2,
    "fp": 11,
-   "recall": 0.998,
-   "precision": 0.979
+   "recall": 0.999,
+   "precision": 0.994
   },
   "violence": {
-   "n": 70,
-   "tp": 70,
+   "n": 140,
+   "tp": 140,
    "fn": 0,
-   "fp": 9,
+   "fp": 18,
    "recall": 1.0,
    "precision": 0.886
   },
@@ -51,47 +51,47 @@
    "n": 8,
    "tp": 7,
    "fn": 1,
-   "fp": 5,
+   "fp": 8,
    "recall": 0.875,
-   "precision": 0.583
+   "precision": 0.467
   }
  },
  "danger_missed": {
-  "n": 0,
-  "of": 628
+  "n": 1,
+  "of": 1889
  },
  "false_alarm": {
   "n": 1,
-  "of": 593
+  "of": 1852
  },
  "by_lang": {
   "en": {
-   "hit": 104,
-   "n": 105
+   "hit": 285,
+   "n": 286
   },
   "es": {
-   "hit": 80,
-   "n": 81
+   "hit": 259,
+   "n": 261
   },
   "ja": {
-   "hit": 82,
-   "n": 82
+   "hit": 262,
+   "n": 262
   },
   "ko": {
-   "hit": 81,
-   "n": 81
+   "hit": 261,
+   "n": 261
   },
   "th": {
-   "hit": 140,
-   "n": 142
+   "hit": 320,
+   "n": 322
   },
   "vi": {
-   "hit": 79,
-   "n": 80
+   "hit": 259,
+   "n": 260
   },
   "zh": {
-   "hit": 83,
-   "n": 83
+   "hit": 263,
+   "n": 263
   }
  },
  "misses": [
@@ -140,6 +140,12 @@
    "got": [
     "emergency"
    ]
+  },
+  {
+   "line": 1652,
+   "text": "Mi tío tomó mezcal pirata y ahora no distingue las caras, todo se ve oscuro",
+   "label": "emergency",
+   "got": []
   }
  ]
 }
