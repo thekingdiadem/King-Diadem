@@ -3822,7 +3822,10 @@ def compose(text: str, *args, **kw) -> str:
     # ดูแลโรคไตเรื้อรัง (core/chronic_care.py): "ค่าไต eGFR 45 ทำไงไม่ให้ต้องฟอกไต" → แผนจากค่าที่บอกมา
     if text:
         from core import chronic_care as _cc
-        if _heal.guard("chronic_care", _cc.chat_check, text):
+        from core import lab_values as _lab0
+        _urgent_lab = any(x[2] == "urgent" for x in (_heal.guard("lab_values", _lab0.read, text) or []))
+        # ค่าวิกฤต (เช่น โพแทสเซียม 6.4) ต้องได้ "ไปโรงพยาบาลวันนี้" ก่อนแผนระยะยาว
+        if not _urgent_lab and _heal.guard("chronic_care", _cc.chat_check, text):
             a0 = assess(text)
             if not a0.get("crisis") and a0.get("text_risk", 0) < 60:
                 cc = _heal.guard("chronic_care", _cc.reply, text, footer=kw.get("footer", True))

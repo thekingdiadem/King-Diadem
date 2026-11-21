@@ -122,3 +122,9 @@ def test_kidney_emergency_still_goes_to_emergency():
     from core.kernel_voice import compose
     out = compose("ฉี่ไม่ออก ตัวบวม เป็นโรคไตอยู่ หายใจไม่ออก")
     assert "1669" in out and "/kidney" not in out
+
+
+def test_critical_lab_value_comes_before_long_term_plan():
+    from core.kernel_voice import compose
+    out = compose("My blood test: potassium 6.4, creatinine 2.1, eGFR 35", footer=False)
+    assert "go to hospital today" in out
