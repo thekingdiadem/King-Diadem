@@ -937,3 +937,10 @@ _R232_LOSS = r"(?:พนัน|บาคาร่า|สล็อต|หวย|�
 UPGRADES.insert(0, (re.compile(
     r"ไม่มีหน้า(?:จะ)?(?:อยู่|มีชีวิต)(?:ต่อ(?:ไป)?(?:แล้ว)?(?![^\n]{0,4}(?:ที่|บ้าน|ใน|กับ))|บนโลก(?:นี้)?|ในโลก(?:นี้)?)|"
     r"^(?=[\s\S]*" + _R232_LOSS + r")(?![\s\S]*(?i:photo|picture|view|pretty|beautiful|hotel|สวย))(?=[\s\S]*(?i:\b(?:staring|looking|stood|standing)\s+(?:at|on)\s+the\s+bridge\b))"), "crisis"))
+
+# รอบ 231: หมดตัวเพราะโดนหลอก/หนี้ แล้วพูดถึงการจบชีวิตแบบอ้อม — เคยได้แค่ 60
+# ดูเงื่อนไขสองอย่างพร้อมกัน (สูญเสียเงินก้อนใหญ่ + สัญญาณจบชีวิต) ไม่จับคำเดี่ยวๆ
+_R231_LOSS = r"(?:โดน\S{0,10}หลอก|มิจฉาชีพ|แก๊งคอล|หนี้|หมดตัว|เงิน\S{0,6}หมด|(?i:\bscam\w*|\bfraud\b|\bdebt\b|\blost\s+everything\b|\bbankrupt\w*))"
+_R231_END = (r"(?:ตายไป(?:คง|ก็)(?:จบ|หมดเรื่อง)|(?:เตรียม|ซื้อ|เก็บ|สะสม)ยา(?:นอนหลับ|พารา)\S{0,6}ไว้(?:แล้ว)?|"
+             r"(?i:\bwrit(?:e|ing)\s+(?:a\s+)?(?:note|letter)s?\s+(?:for|to)\s+my\s+(?:family|kids|wife|husband|parents|mom|dad)\s+tonight\b))")
+UPGRADES.insert(0, (re.compile(r"^(?=[\s\S]*" + _R231_LOSS + r")(?=[\s\S]*" + _R231_END + r")"), "crisis"))  # ก่อนหัวข้อ scam ที่จับได้ก่อน
