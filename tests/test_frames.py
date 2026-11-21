@@ -702,3 +702,11 @@ def test_round25_danger(text):
 @pytest.mark.parametrize("text", CALM_25)
 def test_round25_calm(text):
     assert frames(text) == [], explain(text)
+
+
+def test_finished_prescribed_course_is_not_an_overdose_zh():
+    # "หมอจ่ายยาแก้ปวดข้อสามวัน กินหมดแล้ว" = กินครบตามที่หมอสั่ง ไม่ใช่กินยาเกินขนาด
+    from core.kernel_voice import assess
+    assert not assess("医生开了三天关节止痛药，已经吃完了")["crisis"]
+    assert assess("我把药都吃完了，不想活了")["crisis"]
+    assert assess("把安眠药全吃了")["crisis"]

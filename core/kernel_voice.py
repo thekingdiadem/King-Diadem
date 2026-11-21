@@ -2623,6 +2623,41 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     return best
 
 
+_MINOR_DROP = ("health_emergency", "panic", "overdose", "choking")
+_MINOR_MILD = re.compile(r"นิดหน่อย|นิดนึง|เล็กน้อย|\b(?:slight(?:ly)?|a (?:little|bit)|mild(?:ly)?)\b|\b(?:leve|un poco|ligero)\b|"
+                         r"有点|有點|一点|一點|少し|ちょっと|조금|약간|\b(?:hơi|một chút|chút)\b", re.I)
+_MINOR_CAUSE = re.compile(r"หวัด|ไอ|จุก|วิ่ง|ขึ้นเขา|ปีนเขา|ออกกำลัง|เผ็ด|สำลักน้ำ(?!ทะเล|ในสระ)|"
+                          r"\b(?:cold|cough(?:ing)?|running|jogging|hiking|uphill|workout|spicy|stitch)\b|"
+                          r"resfriado|\btos\b|correr|subir|picante|感冒|咳嗽|爬山|跑步|辣|風邪|咳|山登り|走っ|辛い|감기|기침|등산|달리|매운|"
+                          r"cảm lạnh|\bho\b|leo núi|chạy bộ|cay", re.I)
+_MINOR_RESOLVED = re.compile(r"(?<!ไม่)(?<!ยังไม่)หาย(?!ใจ)|ดีขึ้น|เป็นปกติ|\b(?:went away|goes away|better now|fine now|passed)\b|"
+                             r"se (?:me )?pas[óa]|ya estoy bien|休息就好|就好了|好了|治った|治まっ|楽になっ|나았|괜찮아졌|"
+                             r"\bđỡ\b|\bhết (?:đau|ho|mệt)\b", re.I)
+_MINOR_CONTEXT = re.compile(r"หมอสั่ง|แพทย์สั่ง|\bprescribed\b|recet[óa]|医生开|醫生開|处方|處方|처방|処方|bác sĩ kê|"
+                            r"ชุดป้องกัน|protective (?:suit|gear)|防護服|防护服|방호복|"
+                            r"(?:ดู|watch(?:ed|ing)?|vi|看了?|見た|봤)[^。.!\n]{0,20}(?:หนัง|ภาพยนตร์|movie|film|película|phim|电影|電影|映画|영화)|"
+                            r"(?:หนัง|movie|film|película|phim|电影|電影|映画|영화)[^。.!\n]{0,20}(?:ดู|watch|vi|看|見た|봤)", re.I)
+_MINOR_RED = re.compile(r"ร้าว|เหงื่อแตก|เหงื่อออกเยอะ|หมดสติ|เป็นลม|ปากเขียว|หน้าเขียว|ไม่หาย|แย่ลง|หนักขึ้น|ทั้งขวด|ทีเดียว|ครั้งเดียว|"
+                        r"อยากตาย|ไม่อยากอยู่|ฆ่าตัว|หายใจไม่ออก(?![^\n]{0,15}หาย)|พูดไม่ได้|"
+                        r"\b(?:radiat|sweat|faint|passed out|blue|crushing|worse|still|won'?t stop|at once|whole bottle|kill myself|suicid|can'?t breathe)\w*|"
+                        r"desmay|sudor|peor|no se (?:me )?pasa|todas? de una|"
+                        r"冷汗|昏|晕倒|暈倒|加重|一次|全部吃|不想活|自杀|冷や汗|気を失|悪化|一度に|死にたい|식은땀|기절|심해|한꺼번에|죽고|"
+                        r"vã mồ hôi|ngất|nặng hơn|một lúc|muốn chết|cả chai|nguyên chai|cả lọ|cả vỉ|"
+                        r"ทั้งขวด|ทั้งแผง|整瓶|一整瓶|한 병|병째|一瓶|丸ごと|全部飲|bottle|"
+                        # สัญญาณไต: ฉี่สีโคล่า/ไม่ออก/เป็นเลือด · หนังตาหรือตัวบวม — "หวัดเพิ่งหาย" แล้วตามด้วยอาการนี้คือไตอักเสบ
+                        r"ฉี่|ปัสสาวะ|หนังตาบวม|ตาบวม|ตัวบวม|ขาบวม|\b(?:urine|pee|cola|swollen eyes?|puffy)\b|orina|nước tiểu|"
+                        r"尿|浮肿|浮腫|腫れ|むくみ|소변|붓고|부었|눈이 부|tiểu|phù", re.I)
+
+
+def _benign_minor(text: str) -> bool:
+    """อาการเล็กน้อย + สาเหตุธรรมดา (+ หาย) · ยาที่หมอสั่ง · ฉากในหนัง — และไม่มีสัญญาณอันตรายใดเลย"""
+    if not text or _MINOR_RED.search(text):
+        return False
+    if _MINOR_CONTEXT.search(text):
+        return True
+    return bool(_MINOR_CAUSE.search(text) and (_MINOR_MILD.search(text) or _MINOR_RESOLVED.search(text)))
+
+
 def _assess_one(text: str, pattern: dict | None = None) -> dict:
     from core.thai_signals import canon_text
     text = canon_text(text)                     # เว้นวรรคซ้อน · ลากตัวอักษร — ทุกชั้นเห็นรูปเดียวกัน
@@ -2920,6 +2955,12 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     if "violence" in topics and _PLAYFUL.search(text) and not _HURT_MARK.search(text):
         topics = [t for t in topics if t != "violence"]
     _calmed_violence = len(topics) < _before_calm
+    # อาการเล็กน้อยที่มีสาเหตุธรรมดาและบอกเองว่าหาย/ดีขึ้น — "เจ็บหน้าอกนิดหน่อยเพราะเป็นหวัด" เคยได้ Risk 85
+    # ตัดสินจากโครงสร้าง (เบา + สาเหตุธรรมดา + หาย/สั่งโดยหมอ/ดูหนัง) ไม่ใช่คำเดี่ยว และสัญญาณอันตรายชนะเสมอ
+    _calmed_minor = _benign_minor(text)
+    if _calmed_minor:
+        topics = [t_ for t_ in topics if t_ not in _MINOR_DROP]
+        intl = [x for x in intl if x[0] != "medical"]
     # อารมณ์หนัก/ภัยที่พูดสั้น ในภาษา ja zh ko es vi (core/mood_intl) — เดิมได้ Risk 0 และแผนสามขั้นทั่วไป
     from core.mood_intl import mood_intl
     mood = mood_intl(text)

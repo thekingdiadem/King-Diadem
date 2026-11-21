@@ -1100,6 +1100,17 @@ def health():
 
 
 # ── 👍/👎 ใต้คำตอบ → วงจรเรียนรู้ (เก็บแค่เส้นทาง · ความเสี่ยง · ผลโหวต) ─────────
+@app.post("/api/chronic-care")
+async def post_chronic_care(request: Request, data: dict):
+    """แผนดูแลไต เบาหวาน ความดัน ไขมัน จากค่าของคนนั้น (core/chronic_care.py — ไม่ใช้ AI)"""
+    if not _rate_check("cc|" + _client_ip(request)):
+        return JSONResponse({"ok": False, "error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่นะคะ"}, status_code=429)
+    from core import chronic_care
+    data = data if isinstance(data, dict) else {}
+    prof = data.get("profile") if isinstance(data.get("profile"), dict) else {}
+    return await run_in_threadpool(chronic_care.plan, prof, str(data.get("lang") or "th"))
+
+
 @app.post("/api/feedback")
 async def post_feedback(request: Request, data: dict):
     if not feedback_loop:
