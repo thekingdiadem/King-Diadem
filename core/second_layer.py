@@ -931,3 +931,9 @@ DOWNGRADES += [
     (re.compile(r"^" + _R209_DANGER + r"[^\n]*?(?:ยกเวท|ยกน้ำหนัก|เล่นกล้าม|วิดพื้น|ออกกำลัง)[^\n]{0,20}?เจ็บ(?:หน้า)?อก[^\n]{0,20}?(?:กล้ามเนื้อ|ตึง|ระบม)"), ("health_emergency",)),
     (re.compile(r"^" + _R209_DANGER + r"[^\n]*?(?:ตอนนี้)?\S{0,4}(?:ปกติ|ไม่เป็นไร|หายแล้ว)[^\n]{0,20}?ไฟ(?:ดูด|ช็อต)\S{0,4}(?:เบาๆ|นิดเดียว|นิดหน่อย)"), ("first_aid", "health_emergency")),
 ]
+
+# รอบ 232: ติดพนัน/หมดตัวแล้วพูดถึงการไม่อยู่ต่อแบบอ้อม — เคยได้ 0
+_R232_LOSS = r"(?:พนัน|บาคาร่า|สล็อต|หวย|หนี้|หมดตัว|ขโมยเงิน|(?i:\bgambl\w*|\bslots?\b|\bcasino\b|\bbet(?:s|ting)?\b|\bdebt\b|\blost\s+(?:\d+k?|everything|it\s+all)\b))"
+UPGRADES.insert(0, (re.compile(
+    r"ไม่มีหน้า(?:จะ)?(?:อยู่|มีชีวิต)(?:ต่อ(?:ไป)?(?:แล้ว)?(?![^\n]{0,4}(?:ที่|บ้าน|ใน|กับ))|บนโลก(?:นี้)?|ในโลก(?:นี้)?)|"
+    r"^(?=[\s\S]*" + _R232_LOSS + r")(?![\s\S]*(?i:photo|picture|view|pretty|beautiful|hotel|สวย))(?=[\s\S]*(?i:\b(?:staring|looking|stood|standing)\s+(?:at|on)\s+the\s+bridge\b))"), "crisis"))
