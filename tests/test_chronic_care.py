@@ -128,3 +128,15 @@ def test_critical_lab_value_comes_before_long_term_plan():
     from core.kernel_voice import compose
     out = compose("My blood test: potassium 6.4, creatinine 2.1, eGFR 35", footer=False)
     assert "go to hospital today" in out
+
+
+def test_not_kidney_care_title_or_pets():
+    assert not cc.chat_check("ไตเติ้ลควรเป็นอะไรดี")
+    assert not cc.chat_check("แมวไตวายควรทำไง")
+    assert not cc.chat_check("my dog has kidney disease, eGFR 40")
+
+
+def test_years_with_disease_is_not_age():
+    assert "age" not in cc.parse_text("เป็นเบาหวานมา 10 ปี ครีเอตินีน 1.4")
+    assert cc.parse_text("ผู้ชาย 60 ปี")["age"] == 60
+    assert cc.parse_text("อายุ 72")["age"] == 72
