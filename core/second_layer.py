@@ -122,7 +122,7 @@ UPGRADES += [
                 r"(?i:\bcut\b)\s*แขน|(?i:\bod\b)\s*ยา|ลาก่อน[^\n]{0,6}?ไม่ไหว|ไม่ไหว[^\n]{0,12}?ลาก่อน|จะไปตายแล้ว"), "crisis"),
     (re.compile(r"ช็อก[^\n]{0,8}?(?:นอนไม่ขยับ|ไม่ขยับ|ไม่ตอบ)|สำลัก[^\n]{0,10}?ไอไม่ออก|ล้มบ่ฟื้น|บ่ฟื้น|หายใจรวยริน|"
                 r"ทารก[^\n]{0,12}?(?:ไม่ร้อง|ซึม)|(?:เห็ดป่า|เห็ดพิษ)[^\n]{0,20}?(?:อาเจียน|ท้องเสีย|ชัก)|ปลาปักเป้า[^\n]{0,16}?(?:ชา|หายใจ|อาเจียน)|"
-                r"(?:เด็ก|ลูก)[^\n]{0,10}?(?:ติด)?(?:ใน|อยู่ใน)รถ[^\n]{0,24}?(?:ล็อค|ล็อก|ร้อน)|ไข้เลือดออก[^\n]{0,20}?(?:เลือดออก|จุดแดง)|เลือดออกตามไรฟัน|"
+                r"(?:เด็ก|ลูก)[^\n]{0,10}?(?:ติด)?(?:ใน|อยู่ใน)รถ[^\n]{0,24}?(?:ล็อค|ล็อก|ร้อน)|ไข้เลือดออก[^\n]{0,20}?(?:เลือดออก|จุดแดง)|(?<!แปรงฟันแล้ว)เลือดออกตามไรฟัน(?!นิดหน่อย|นิดนึง|เล็กน้อย)|"
                 r"ระเบิด[^\n]{0,16}?(?:บาดเจ็บ|เจ็บ|ตาย)|เผา(?:ด้วย)?น้ำมัน|ราดน้ำมัน(?!\S{0,4}(?:ใส่|บน|ลง)?\S{0,4}(?:สลัด|ผัก|ข้าว|กระทะ|ขนม|อาหาร|ปลา|ไก่|หมู|เนื้อ|บานพับ|โซ่|เครื่อง))"), "health_emergency"),
     # สำเนียงถิ่น: เหนือ "ผัวตุบฮา" (ตุบ = ตี · ฮา = ฉัน) · ใต้ "ผัวตีฉานเหลย" (ฉาน = ฉัน) · อีสาน "ตีข่อย"
     (re.compile(r"(?:ผัว|สามี|แฟน|พ่อ|แม่|พี่|ลุง|เขา|มัน)\S{0,4}?(?:ตุบ|ตี|เตะ|(?<!แ)ต่อย(?!อด)|ซ้อม|ทุบ|บุบ)\s*(?:ฮา|ข่อย|เฮา|ฉาน|หนู|กู|เค้า|ข้อย)(?![^\n]{0,10}?(?:เล่น|หยอก|ขำ|555))"), "violence"),
@@ -152,7 +152,7 @@ UPGRADES += [
                 r"ลูกไม่ดิ้น|ท้องนอกมดลูก|หน้ามืดจะเป็นลม|แผลผ่าคลอด[^\n]{0,20}?(?:หนอง|ไข้)|หัวเด็กโผล่|คลอด(?:ลูก)?(?:อยู่)?บนรถ|"
                 r"(?:ก๊าซ|แก๊ส)[^\n]{0,10}?รั่ว[^\n]{0,20}?เป็นลม|ตกบ่อ[^\n]{0,40}?(?:ไม่ขึ้นมา|จม)|เครื่องจักร(?:ดึง|หนีบ|ทับ)|แขนหักผิดรูป|"
                 r"ขาหัก|หมวกแตก|รถ\S{0,4}พลิกคว่ำ|รถ(?:บัส|ตู้|พ่วง|เก๋ง)\S{0,8}ชน[^\n]{0,24}?(?:บาดเจ็บ|เสียชีวิต|ตาย|ติด)|เลือดออก[^\n]{0,12}?(?:ห้ามไม่อยู่|เยอะมาก)|"
-                r"ตกเหว|ติดอยู่ในรถ|หายใจ(?:เสียงดัง)?ครืดคราด|เรียกไม่ตอบ|น้ำลายฟูมปาก|ฉีดยาฆ่า(?:หญ้า|แมลง)[^\n]{0,40}?(?:เป็นลม|หายใจ|ตาพร่า|ชัก)|"
+                r"ตกเหว|ติดอยู่ในรถ(?!ติด)|หายใจ(?:เสียงดัง)?ครืดคราด|เรียกไม่ตอบ|น้ำลายฟูมปาก|ฉีดยาฆ่า(?:หญ้า|แมลง)[^\n]{0,40}?(?:เป็นลม|หายใจ|ตาพร่า|ชัก)|"
                 r"ควายขวิด|วัวขวิด|ไส้ทะลัก|รถไถ(?:พลิก)?ทับ|ตก(?:ลงไป)?(?:ใน)?บ่อน้ำ[^\n]{0,20}?จม|จมหายไป|ล้ม[^\n]{0,24}?ลุกไม่ได้|"
                 r"สายสวน[^\n]{0,16}?เลือด|อัมพาต[^\n]{0,16}?ไข้สูง|ไม่รู้สึกตัว[^\n]{0,4}?ตัวเย็น|ชักหน้าเขียว|ดมกาว[^\n]{0,20}?ชัก|"
                 r"ตกเขา|ล้มแล้วร้อง(?:ให้)?ช่วย|ครูซ้อม|เลือดออกหู|ยาขับเลือด"), "health_emergency"),
@@ -397,7 +397,7 @@ DOWNGRADES: list[tuple[re.Pattern, tuple]] = [
     (re.compile(r"ตีลูก[^\n]{0,8}?(?:แบด|ขนไก่|เทนนิส|กอล์ฟ|ปิงปอง|เบสบอล)|(?:ไม้แบด|ไม้เทนนิส|ไม้กอล์ฟ|ไม้ปิงปอง)"), ("violence",)),
     (re.compile(r"ไฟฟ้าสถิต"), ("first_aid", "health_emergency")),
     # ถามความรู้ / แปลคำ / ข่าว / หนังสือ / หนัง / ชื่อวง — ไม่ใช่เหตุตอนนี้
-    (re.compile(r"เกิดจากอะไร|แปลว่า|แปลคำว่า|ภาษาอังกฤษว่า|ภาษาอังกฤษ(?:คือ|เรียกว่า)?\s*$|วิธีเตรียม|ป้องกันยังไง|เตรียมตัวยังไง|"
+    (re.compile(r"เกิดจากอะไร|แปลว่า(?![^\n]{0,8}?(?:ไปแล้ว|ตายแล้ว|ไม่อยู่แล้ว|จากไปแล้ว))|แปลคำว่า|ภาษาอังกฤษว่า|ภาษาอังกฤษ(?:คือ|เรียกว่า)?\s*$|วิธีเตรียม|ป้องกันยังไง|เตรียมตัวยังไง|"
                 r"หนังสือเรื่อง|หนังสือ\\S{0,12}เล่มไหน|อ่านหนังสือ|หนังเรื่อง|ฉากสุดยอด|ข่าว\S{0,8}(?:น่า|ที่)|แฟนเพลง|วง(?:ดนตรี)?\S{0,4}(?:ไฟป่า|ดินถล่ม)|"
                 r"(?i:\bwhat (?:is|does)\b|\bhow to prevent\b|\btranslate\b)"),
      ("health_emergency", "first_aid", "psychosis", "panic", "disaster")),
@@ -432,7 +432,7 @@ DOWNGRADES.append((re.compile(r"歴史|历史|歷史|역사|\bhistory\b|\bsimula
 _PAST_DONE = re.compile(r"(?:ตอนเด็ก|เคย|ปีที่แล้ว)[^\n]{0,20}?(?:ตอนนี้|โตแล้ว)[^\n]{0,10}?(?:ไม่เป็นแล้ว|หายแล้ว|ได้เงินคืนแล้ว|ปกติแล้ว)")
 _MONEY_GONE = re.compile(r"เงินหาย|ดูดเงิน|โอนไปแล้ว|โอนเงินออก(?:จากบัญชี)?|ถอน(?:เงิน)?ไม่ได้|(?i:\bmoney (?:is )?(?:gone|stolen)\b|\bdrained\b)")
 _TRAPPED = re.compile(r"ยึด(?:พาสปอร์ต|หนังสือเดินทาง|บัตร)|ห้ามออก|ออกไม่ได้|กักตัว|ขังไว้|ล่ามโซ่|ไม่ให้กลับ")
-_SEVERE = re.compile(r"昏迷|昏倒|晕倒|叫不醒|没有呼吸|沒有呼吸|流血不止|意識がない|息をしていない|起きない|倒れ|出血が止まらない|"
+_SEVERE = re.compile(r"昏迷|昏倒|(?<!差点)(?<!差點)(?<!快要)(?<!快)晕倒|叫不醒|没有呼吸|沒有呼吸|流血不止|意識がない|息をしていない|起きない|倒れ|出血が止まらない|"
                      r"의식이\s*없|숨을\s*안|쓰러졌|안\s*깨어나|피가\s*안\s*멈|ไม่รู้สึกตัว|หมดสติ|ไม่หายใจ|ปลุกไม่ตื่น|เรียกไม่ตื่น|เลือดไม่หยุด|เลือดพุ่ง|ชักเกร็ง|ตัวเขียว|ปากเขียว|"
                      r"(?i:\bunconscious\b|\bnot breathing\b|\bwon'?t wake\b)")
 _NOW = re.compile(r"ตอนนี้\S{0,8}(?:หายใจ|ไม่|เลือด|ชัก)|เมื่อกี้|เดี๋ยวนี้|ช่วยด้วย|ด่วน|ยานอนหลับ[^\n]{0,12}?หมด(?:แผง|กระปุก|ขวด)|\b(?:right now|rn|(?<!how to )help|happening now|now he|now she|now i)\b", re.I)   # "fine now" ไม่ใช่เหตุตอนนี้
@@ -499,9 +499,10 @@ def apply(text: str, a: dict) -> dict:
     # บริบทบอกชัดว่าไม่ใช่เหตุตอนนี้ (ถามความรู้ ข่าว อดีตที่จบแล้ว มุก) → ไม่ยกกลับขึ้นมาอีก
     # และคะแนนที่ค้างจากชั้นอื่น (เช่นคำว่า "ล่ม" ในข่าว) ลดลงด้วย ถ้าไม่เหลือหัวข้อที่อันตราย
     if calmed and not a["crisis"]:
+        # หัวข้อเบา (ความเศร้า หนี้ ข่าวดี ค่า 0) ไม่ค้ำคะแนนไว้ — นับเฉพาะหัวข้อที่อันตรายจริง
         # สัญญาณทำร้ายตัวเองแบบอ้อม ("warning") ไม่ถูกลดด้วยคำแวดล้อมอย่าง "ซีรีส์" — รอบสุ่ม 7:
         # "ดูซีรีส์ไปสองตอน … พรุ่งนี้คงไม่ต้องตื่นแล้ว" เคยถูกลดจาก 65 เหลือ 20 (การจับเรื่องแต่งจริงทำที่ INDIRECT_SELF แล้ว)
-        if not a.get("disaster") and not a.get("scam") and not a.get("intl_urgent") and not any(t in _UP_RISK for t in a["topics"]) \
+        if not a.get("disaster") and not a.get("scam") and not a.get("intl_urgent") and not any(_UP_RISK.get(t, 0) > 0 for t in a["topics"]) \
                 and "warning" not in a["topics"]:
             a["text_risk"] = min(a["text_risk"], 20)
             a["risk"] = min(a.get("risk", 0), 20)
@@ -694,3 +695,277 @@ UPGRADES += [
 ]
 # ล้างรถ/ฝนรั่วนิดหน่อย ไม่ใช่น้ำท่วม — "ล้างรถเสร็จแล้ว น้ำเข้ารถนิดหน่อย" เคยได้การ์ดน้ำท่วม 64
 DOWNGRADES.append((re.compile(r"ล้างรถ|คาร์แคร์|(?:น้ำ|ฝน)\S{0,6}(?:เข้า|รั่ว)\S{0,6}(?:รถ|ห้อง)\S{0,4}นิดหน่อย|(?i:\bcar\s+wash\b)"), ("disaster",)))
+
+# รอบ 209: เรื่องเล็กที่จบแล้ว — ไฟช็อตเบาๆ แล้วปกติ · เจ็บอกจากกล้ามเนื้อหลังยกเวท · บีบนวดคอให้กัน
+_R209_DANGER = r"(?![^\n]*(?:หายใจ|เหงื่อแตก|ร้าว|แขนซ้าย|ใจสั่น|หมดสติ|ชัก|ไหม้|ไม่รู้สึกตัว|เจ็บ\S{0,4}มาก|ตาย))"
+DOWNGRADES.append((re.compile(r"^" + _R209_DANGER + r"[^\n]*?ไฟ(?:ดูด|ช็อต)\S{0,4}(?:เบาๆ|นิดเดียว|นิดหน่อย)[^\n]{0,30}?(?:ตอนนี้)?\S{0,4}(?:ปกติ|ไม่เป็นไร|หายแล้ว)"), ("first_aid", "health_emergency")))
+DOWNGRADES.append((re.compile(r"^" + _R209_DANGER + r"[^\n]*?เจ็บ(?:หน้า)?อก[^\n]{0,20}?(?:ยกเวท|ยกน้ำหนัก|เล่นกล้าม|วิดพื้น|ออกกำลัง)[^\n]{0,20}?(?:กล้ามเนื้อ|ตึง|ระบม)"), ("health_emergency",)))
+DOWNGRADES.append((re.compile(r"^(?![^\n]*(?:บีบคอ(?!ให้)|ทำร้าย|ตบ|ตี|ขู่))[^\n]*?(?:บีบ\s*นวด|นวด)(?:คอ|ไหล่|บ่า)"), ("violence",)))
+
+# รอบ 210: ตกบ่อ/สระ/บ่อปลา/คลอง (ยังไม่บอกว่าจมน้ำ) · ผู้สูงอายุล้มแล้วขยับสะโพก/ขาไม่ได้ (สงสัยสะโพกหัก)
+UPGRADES += [
+    (re.compile(r"(?:เด็ก|ลูก(?!บอล|ปิงปอง|โป่ง|กุญแจ|อม)|หลาน|น้อง|ยาย|ตา|แม่|พ่อ|คน|เพื่อน)\S{0,6}(?:ตก|พลัดตก|หล่น)(?:ลง)?(?:ไป)?(?:ใน)?(?:บ่อ(?!เกรอะ)|สระ(?:น้ำ|ว่ายน้ำ)?|คลอง|แม่น้ำ|ท่อระบาย)"
+               r"(?![^\n]{0,30}?(?:บอล|ลูกบอล|ของเล่น|โทรศัพท์|มือถือ|รองเท้า|เล่น\S{0,4}กัน|ขึ้นมาแล้ว[^\n]{0,8}?(?:ปกติ|ไม่เป็นไร|ร้องเสียงดัง)))"), "health_emergency"),
+    (re.compile(r"(?i:\b(?:grandma|grandpa|grandmother|grandfather|mom|dad|mother|father|elderly)\b[^\n]{0,30}?\bfell\b(?! asleep)[^\n]{0,30}?\b(?:can'?t|cannot|unable to)\s+(?:move|stand|walk|get up)\b)|"
+               r"(?:ยาย|ตา|ย่า|ปู่|แม่|พ่อ|ผู้สูงอายุ|คนแก่)\S{0,6}ล้ม[^\n]{0,20}?(?:ขยับ|ลุก|ยืน|เดิน)\S{0,4}ไม่ได้"), "health_emergency"),
+]
+
+# งานแก้จุดอ่อนจากชุดปิดตา (ฝั่งเตือนเกิน) — แก้เป็นกลุ่ม ไม่ใช่ทีละประโยค:
+# อาการคล้ายสโตรก/ล้ม ที่ผู้ใช้บอกสาเหตุธรรมดาเอง · ลวกลิ้นนิดเดียว · เครื่อง/แอป "ไม่ตอบสนอง" · ขำจนแทบเป็นลม (จีน)
+_CALM_DANGER = r"(?![^\n]*(?:แขน\S{0,4}อ่อนแรง|ขา\S{0,4}อ่อนแรง|ชา(?:ครึ่ง|ข้าง)|หมดสติ|ชัก|อาเจียน|ปวดหัว\S{0,4}(?:มาก|รุนแรง)|หัวฟาด|เลือด|weak|numb|vomit|blood))"
+DOWNGRADES += [
+    (re.compile(r"^" + _CALM_DANGER + r"[^\n]*?(?:ปากเบี้ยว|หน้าเบี้ยว|พูดไม่ชัด|ลิ้นแข็ง|พูดไม่ค่อยชัด)[^\n]{0,20}?"
+                r"(?:ตามธรรมชาติ|ตั้งแต่เกิด|มาตั้งแต่เด็ก|เป็นปกติของ|เพราะ(?:เพิ่ง)?\S{0,4}(?:ทำฟัน|ถอนฟัน|อุดฟัน|ขูดหินปูน|ฉีดยาชา|จัดฟัน|ใส่รีเทนเนอร์|อมลูกอม|ยาชา))"), ("health_emergency", "first_aid")),
+    (re.compile(r"^" + _CALM_DANGER + r"[^\n]*?(?:ตก|ล้ม|สะดุด)[^\n]{0,15}?(?:ขั้นเดียว|นิดเดียว|เบาๆ)[^\n]{0,15}?(?:ไม่เจ็บ|ไม่เป็นอะไร|ไม่เป็นไร|ปกติดี)"), ("health_emergency", "first_aid")),
+    (re.compile(r"(?i:\b(?:scald(?:ed)?|burn(?:t|ed)?)\s+my\s+(?:tongue|lip|finger)\s+(?:a\s+(?:little|bit)|slightly)\b|\b(?:a\s+little|slightly)\s+(?:scald(?:ed)?|burn(?:t|ed)?)\s+my\s+(?:tongue|lip)\b)"), ("health_emergency", "first_aid")),
+]
+DOWNGRADES += [
+    # "笑得差点晕倒" = ขำจนแทบเป็นลม (สำนวน) · ถ้าเป็นลมจริงจะไม่มีคำว่า 差点/快
+    (re.compile(r"(?:笑|乐|樂|开心|開心|激动|激動)[^。！？\n]{0,6}?(?:差点|差點|快要?)(?:晕倒|暈倒|晕过去|暈過去|昏倒)"), ("health_emergency", "first_aid")),
+    # อุปกรณ์/แอป "ไม่ตอบสนอง" ไม่ใช่คน (es · en · th)
+    (re.compile(r"(?i:\b(?:mi\s+)?(?:celular|m[oó]vil|tel[eé]fono|computadora|ordenador|port[aá]til|laptop|pantalla|app|aplicaci[oó]n|tablet|tele|televisor|router)\b[^.!?\n]{0,20}?\b(?:se\s+(?:congel[oó]|colg[oó]|trab[oó])|no\s+responde)\b|"
+               r"\b(?:my\s+)?(?:phone|laptop|computer|screen|app|tablet|tv|router)\b[^.!?\n]{0,12}?\b(?:froze|frozen|is\s+not\s+responding|isn'?t\s+responding|not\s+responding|unresponsive)\b)"), ("health_emergency", "first_aid")),
+]
+
+# รอบ 213: สัญญาณที่เล่าแบบไม่ใช้คำแรง — เด็กถูกล่วงละเมิด/ล่อลวง · บังคับทางเพศแลกงาน · ลักพาตัวเด็ก · สโตรกแบบ "มือตก"
+_R213_FICTION = r"(?![^\n]*(?:ในละคร|ในหนัง|ในซีรีส์|ในนิยาย|ในเกม))"
+UPGRADES += [
+    (re.compile(r"^" + _R213_FICTION + r"[^\n]*?(?:พ่อเลี้ยง|แม่เลี้ยง|ลุง|น้า|อา|ญาติ|แฟนแม่|ผัวแม่|ครู|โค้ช|ครูฝึก)\S{0,10}"
+                r"(?:(?:แอบ|ชอบ)?(?:เข้า|ย่อง)\S{0,4}ห้อง(?:นอน)?\S{0,8}(?:ตอน)?(?:กลางคืน|ดึก|ตอนนอน|ตอนแม่ไม่อยู่)|"
+                r"(?:ส่งข้อความ|ทัก|แชท|ไลน์)\S{0,10}(?:ชวน|นัด)\S{0,6}(?:ไป)?(?:ค้างคืน|นอนด้วย|ไปห้อง|ไปโรงแรม|เจอกันสองคน))"), "sexual_abuse"),
+    (re.compile(r"(?:บังคับ|ขู่)\S{0,6}(?:ให้)?(?:เป็นเมียน้อย|เป็นเด็ก(?:เลี้ยง)?|นอนด้วย|มีอะไรด้วย|มีเพศสัมพันธ์)[^\n]{0,30}?(?:ไม่งั้น|ไม่อย่างนั้น|ถ้าไม่)[^\n]{0,15}?(?:ไล่ออก|ตกงาน|ไม่ผ่าน|ไม่ได้เกรด|ไม่ต่อสัญญา)"), "sexual_abuse"),
+    (re.compile(r"(?:คนแปลกหน้า|ผู้ชาย|ผู้หญิง|ใครก็ไม่รู้|มีคน)\S{0,10}(?:พยายาม|จะ)?\S{0,4}(?:ดึง|ลาก|อุ้ม|ฉุด|จับ)\S{0,6}(?:ลูก|เด็ก|น้อง|หลาน)\S{0,6}(?:ขึ้นรถ|ไปกับ|เข้ารถ)"), "violence"),
+    (re.compile(r"(?:จู่ๆ|อยู่ดีๆ|ทันที|กะทันหัน|เมื่อกี้)[^\n]{0,40}?(?:พูดซ้ำ|จำไม่ได้|พูดไม่รู้เรื่อง|สับสน)[^\n]{0,40}?(?:มือ|แขน)\S{0,6}(?:ข้าง\S{0,4})?(?:ตก|อ่อนแรง|ยกไม่ขึ้น)|"
+               r"(?:มือ|แขน)\S{0,4}ข้าง(?:ขวา|ซ้าย|เดียว|หนึ่ง)\S{0,2}(?:ตก|ยกไม่ขึ้น)(?![^\n]{0,20}?(?:นอนทับ|เพราะชา|ชาเพราะ|ยกของหนัก|ออกกำลัง|ยกเวท|ไหล่หลุด|ฉีดวัคซีน))"), "health_emergency"),
+]
+# "ทารกนอนหลับสบาย ไม่ร้องเลย" = ข่าวดี ไม่ใช่ทารกไม่ตอบสนอง
+DOWNGRADES.append((re.compile(r"^(?![^\n]*(?:ไม่ขยับ|ไม่หายใจ|ตัวเย็น|ตัวเขียว|ปากเขียว|ปลุกไม่ตื่น|ซึม|ไข้|ชัก))[^\n]*?(?:หลับสบาย|นอนหลับยาว|หลับยาว|หลับปุ๋ย|นอนเก่ง)[^\n]{0,20}?ไม่ร้อง"), ("health_emergency", "first_aid", "newborn_danger")))
+
+# รอบ 214 (อังกฤษ): อันตรายที่เล่าแบบบรรยาย ไม่มีคำแรง — เคยได้ 0 ทั้งหมด
+_EN_FICT = r"(?![^\n]*\b(?:in the (?:movie|show|game|book)|novel|episode)\b)"
+UPGRADES += [
+    (re.compile(r"(?i)^" + _EN_FICT + r"[^\n]*\b(?:tracks?|tracking|monitors?|checks?|reads?)\s+(?:her|his|my|their)\s+(?:phone|location|messages)\b[^\n]{0,40}?"
+                r"\b(?:won'?t|doesn'?t|does not|will not)\s+let\s+(?:her|him|me|them)\s+(?:see|meet|talk to|go out with)\s+(?:her |his |my |their )?(?:friends|family)\b"), "control_en"),
+    (re.compile(r"(?i)\b(?:strange|unknown|random)\s+(?:man|woman|person|guy)\s+(?:is\s+)?(?:sleeping|hiding|living|sitting)\s+in\s+(?:our|my)\s+(?:car|garage|basement|attic|shed|house|backyard)\b"), "intruder"),
+    (re.compile(r"(?i)\b(?:drunk|drinking|high)\b[^\n]{0,30}?\b(?:swinging|waving|holding|grabbed|pointing)\s+(?:a\s+|his\s+|her\s+)?(?:machete|knife|axe|bat|gun|sword|cleaver)\b"), "violence"),
+    (re.compile(r"(?i)^" + _EN_FICT + r"[^\n]*\b(?:keeps?|kept)\s+saying\s+(?:that\s+)?(?:everyone|we|they|his family|her family)\s+(?:would|'d)\s+be\s+better\s+(?:off\s+)?without\s+(?:him|her|them)\b"), "warning"),
+    (re.compile(r"(?i)\b(?:says?|saying|claims?|claiming)\s+(?:they\s+)?(?:have|has|took|kidnapped)\s+my\s+(?:son|daughter|child|kid|husband|wife|mom|dad)\b[^\n]{0,30}?\b(?:money|pay|ransom|transfer|bitcoin|gift cards?)\b"), "scam"),
+    (re.compile(r"(?i)\b(?:soft\s*spot|fontanelle)\s+(?:is\s+|looks\s+)?sunken\b|\bsunken\s+(?:soft\s*spot|fontanelle)\b"), "health_emergency"),
+    (re.compile(r"(?i)\b(?:sweating|shaking|trembling|confused|pale)\b[^\n]{0,40}?\b(?:after|since)\s+(?:his\s+|her\s+|my\s+|an?\s+)?insulin\b|\binsulin\b[^\n]{0,30}?\b(?:sweating|shaking|confused|passed out|won'?t wake)\b"), "health_emergency"),
+    (re.compile(r"(?i)\b(?:stuck|trapped|stranded)\s+on\s+(?:the|our|a)\s+roof\b[^\n]{0,30}?\bwater\b|\bwater\s+(?:is\s+)?(?:still\s+)?rising\b[^\n]{0,30}?\b(?:stuck|trapped|roof|can'?t get out)\b"), "health_emergency"),
+]
+DOWNGRADES.append((re.compile(r"(?i)^(?![^\n]*\b(?:bring|bringing|take|taking|kill|shoot (?:up|people|everyone)|hurt)\b)[^\n]*\b(?:shooting|rifle|archery|gun)\s+(?:club|range|team|lessons?|class|sport)\b"), ("weapon", "harm_others", "violence", "disaster")))
+_UP_RISK.setdefault("control_en", 70)
+_UP_RISK.setdefault("warning", 85)
+
+# รอบ 215: ฉบับภาษาไทยของรอบ 214 — เล่าเหตุการณ์ด้วยคำเบาๆ
+_TH_FICT = r"(?![^\n]*(?:ในละคร|ในหนัง|ในซีรีส์|ในนิยาย|ในเกม|ในคลิป))"
+UPGRADES += [
+    (re.compile(r"(?:ผู้ชาย|ผู้หญิง|คน)\S{0,4}(?:ไม่รู้จัก|แปลกหน้า)\S{0,6}(?:มา)?(?:นอน|ซ่อน|แอบ|อาศัย)\S{0,4}(?:อยู่)?\S{0,4}"
+               r"(?:ใต้บันได|ในบ้าน|ในโรงรถ|ในรถ|หลังบ้าน|บนหลังคา|ในห้องเก็บของ|ใต้ถุน|ในสวน)"), "intruder"),
+    (re.compile(r"(?:เมา|กินเหล้า|ดื่มเหล้า|เสพยา|เมายา)[^\n]{0,20}?(?:ถือ|ควง|เหวี่ยง|ชัก|กำ|ไล่ฟัน|ฟัน)\S{0,4}(?:มีด|พร้า|ขวาน|ไม้|ปืน|ดาบ)(?![^\n]{0,15}?(?:หั่น|ทำกับข้าว|หมูกระทะ|ปอกผลไม้|ทำอาหาร|ตัดหญ้า|ถางหญ้า))"), "violence"),
+    (re.compile(r"^" + _TH_FICT + r"[^\n]*?(?:ถ้า|หาก)(?:ไม่มี|ขาด)(?:เขา|เธอ|ผม|ฉัน|หนู|กู|ตัวเอง)(?![^\n]{0,15}?(?:ร้าน|งาน|ทีม|บริษัท|ขาย|โปรเจ|ลูกค้า|ห้อง|แข่ง))[^\n]{0,12}?(?:คง|จะ)\S{0,4}(?:สบาย|ดี|มีความสุข|เบา|หมดภาระ)(?:ขึ้น|กว่า)"), "warning"),
+    (re.compile(r"กระหม่อม\S{0,6}(?:บุ๋ม|ยุบ|จม|ลึก)"), "health_emergency"),
+    (re.compile(r"หายใจ\S{0,4}(?:หอบ|เร็ว|ถี่)[^\n]{0,20}?(?:มือจีบ|มือเกร็ง|นิ้วเกร็ง|ชาที่ปาก|ชารอบปาก)"), "panic"),
+]
+_UP_RISK.setdefault("panic", 65)
+
+# รอบ 216: ลูกวัยรุ่นถูกชวนขนยา · หลอกผู้สูงอายุเซ็นโฉนด · ผู้สูงอายุหลงลืมหายจากบ้าน
+UPGRADES += [
+    (re.compile(r"(?:งาน|รับจ้าง|จ้าง)\S{0,6}(?:เดินยา|ขนยา|ส่งยาบ้า|ขนของข้ามแดน|หิ้วของข้ามแดน|ส่งพัสดุข้ามแดน|ขนยาเสพติด)"), "trafficking"),
+    (re.compile(r"(?:หลอก|ล่อ|บังคับ)\S{0,10}(?:เอา|ให้)?\S{0,4}(?:โฉนด|ที่ดิน|บ้าน|สมุดบัญชี|บัตรประชาชน)\S{0,8}(?:ไป)?(?:เซ็น|โอน|จำนอง|ขาย)"), "scam"),
+    (re.compile(r"(?:พ่อ|แม่|ยาย|ตา|ย่า|ปู่|ผู้สูงอายุ|คนแก่)\S{0,10}(?:จำทาง\S{0,12}ไม่ได้|หลงๆลืมๆ|ความจำเสื่อม|อัลไซเมอร์|สมองเสื่อม)[^\n]{0,30}?(?:หายไป|ออกจากบ้าน|ยังไม่กลับ|หาไม่เจอ|ติดต่อไม่ได้)"), "missing"),
+]
+
+# ไฟที่กำลังลุกอยู่ตรงหน้า ("ไฟเริ่มลุก" "ควันเข้าห้องแล้ว" "ติดอยู่ในห้อง") — การ์ดภัยไฟไหม้เคยได้แค่ 53–64
+_FIRE_NOW = re.compile(r"ไฟเริ่ม(?:ลุก|ลาม|ไหม้|ติด)|ไฟ(?:เริ่ม)?(?:ลุก|ลาม|ไหม้)\S{0,6}(?:แล้ว|อยู่|ขึ้น|มา)|ควัน\S{0,6}(?:เข้า|ขึ้น|เต็ม|ถึง)\S{0,4}(?:มา)?\S{0,4}(?:ห้อง|บ้าน|ทางเดิน|บันได)|"
+                       r"ติด(?:อยู่)?\S{0,4}(?:ใน|บน)\S{0,6}(?:ห้อง|ตึก|บ้าน|ชั้น)[^\n]{0,15}?(?:ไฟ|ควัน)|ไฟ\S{0,6}(?:ช็อต|ลัดวงจร)\S{0,6}(?:ลุก|ติดไฟ|มีไฟ)")
+_apply_before_fire = apply
+
+
+def apply(text, a):  # noqa: F811 — ห่อของเดิม เพิ่มเกณฑ์ไฟที่กำลังลุก
+    a = _apply_before_fire(text, a)
+    d = a.get("disaster") or {}
+    fire_card = "ไฟ" in str(d.get("name", "")) or (isinstance(text, str) and re.search(r"ปลั๊ก|สายไฟ|เต้าเสียบ|ควันดำ|ควันโขมง", text))
+    if isinstance(text, str) and fire_card and not a.get("crisis") and _FIRE_NOW.search(text) \
+            and not re.search(r"ข่าว|ซ้อม|เมื่อปี|ปีที่แล้ว|ในละคร|ในหนัง|(?<!ไหม้)เตา(?:ถ่าน|แก๊ส|ปิ้ง)?(?![^\n]{0,10}?(?:ระเบิด|รั่ว|ไหม้บ้าน))|ย่าง|ปิ้ง|หมูกระทะ|บาร์บีคิว|ก่อไฟ|แคมป์ไฟ|จุดเทียน|ธูป", text):
+        a["text_risk"] = max(a["text_risk"], 85)
+        a["risk"] = max(a.get("risk", 0), 85)
+        if isinstance(a.get("risk_shown"), (int, float)):
+            a["risk_shown"] = max(a["risk_shown"], 85)
+    return a
+
+# รอบ 217 (อังกฤษ): เด็กนัดเจอคนจากเน็ต · ขู่เอาปืนมาที่ทำงาน · ยกของรักให้คนอื่น (สัญญาณเตรียมจากไป)
+# · ไม่นอนหลายวัน + คิดว่าถูกวางยา · หัวกระแทกแล้วอาเจียน/ซึมทีหลัง · เครื่องทำความร้อนล้มมีควัน
+_UP_RISK.setdefault("psychosis", 80)
+UPGRADES += [
+    (re.compile(r"(?i)\b(?:my\s+)?(?:1[0-7]|eleven|twelve|thirteen|fourteen|fifteen|sixteen)[\s-]*(?:year[\s-]*old|yo)\b[^\n]{0,30}?\b(?:meeting|meet up with|going to see|sneaking out to meet)\s+(?:a\s+|an\s+|some\s+)?(?:man|guy|adult|stranger|older|boy|girl|someone)\b[^\n]{0,20}?\b(?:from|on|she met on|he met on)\s+(?:discord|roblox|tiktok|instagram|snapchat|online|the internet|a game)\b"), "online_grooming"),
+    (re.compile(r"(?i)\b(?:said|says|threatened|told\s+\w+)\s+(?:he|she|they)(?:'d|'ll| would| will)\s+(?:bring|come back with)\s+(?:a\s+|his\s+|her\s+)?(?:gun|rifle|knife|weapon)\b[^\n]{0,30}?\b(?:make\s+(?:them|us|you|everyone)\s+pay|show\s+them|teach\s+them|hurt|kill|tomorrow)\b"), "harm_others"),
+    (re.compile(r"(?i)\b(?:gave|giving|given)\s+away\s+(?:all\s+)?(?:his|her|their|my)\s+(?:dog|cat|pet|things|stuff|belongings|guitar|prized|favorite)\b[^\n]{0,40}?\b(?:this\s+week|lately|suddenly|recently|today|and\s+(?:his|her)\s+\w+)\b"), "warning"),
+    (re.compile(r"(?i)\b(?:hasn'?t|has\s+not|haven'?t)\s+slept\s+(?:in|for)\s+(?:\d+|three|four|five|several)\s+days\b[^\n]{0,40}?\b(?:poison\w*|spying|spied|watching (?:her|him|me)|following (?:her|him|me)|voices|cameras)\b"), "psychosis"),
+    (re.compile(r"(?i)\b(?:accident|crash|fell|hit\s+(?:his|her)\s+head|head\s+injury)\b[^\n]{0,40}?\b(?:now|later|hours later|tonight)\b[^\n]{0,20}?\b(?:vomiting|throwing up|very sleepy|confused|can'?t stay awake|slurring)\b"), "health_emergency"),
+]
+_FIRE_NOW_EN = re.compile(r"(?i)\b(?:heater|outlet|socket|charger|power strip|extension cord|wires?|toaster|microwave|battery)\b[^\n]{0,40}?\b(?:smoking|on fire|caught fire|sparking|flames?|burning smell and smoke)\b")
+_apply_before_fire_en = apply
+
+
+def apply(text, a):  # noqa: F811
+    a = _apply_before_fire_en(text, a)
+    if isinstance(text, str) and not a.get("crisis") and _FIRE_NOW_EN.search(text) and not re.search(r"(?i)\b(?:news|drill|last year|movie|show)\b", text):
+        a["text_risk"] = max(a["text_risk"], 85)
+        a["risk"] = max(a.get("risk", 0), 85)
+        if isinstance(a.get("risk_shown"), (int, float)):
+            a["risk_shown"] = max(a["risk_shown"], 85)
+    return a
+
+# รอบ 218: ฉบับภาษาไทยของรอบ 217
+UPGRADES += [
+    (re.compile(r"(?:ลูก|หลาน|น้อง)\S{0,6}(?:วัย|อายุ)?\s?(?:1[0-7]|สิบ\S{0,4})\s?(?:ขวบ|ปี)?\S{0,4}(?:นัด|แอบ|จะ)\S{0,4}(?:เจอ|ไปหา|ไปพบ)\S{0,6}(?:ผู้ชาย|ผู้ใหญ่|คน|ผู้หญิง)\S{0,10}(?:ที่)?(?:รู้จัก|เจอ|คุย)\S{0,4}(?:ใน|ทาง|จาก)\S{0,2}(?:ติ๊กต็อก|tiktok|เฟส|ไอจี|ดิสคอร์ด|discord|เกม|เน็ต|โซเชียล|แอปหาคู่)", re.I), "online_grooming"),
+    (re.compile(r"(?:บอก|ขู่|พูด)(?:ว่า)?\S{0,10}(?:จะ)(?:เอา|พก)\S{0,2}(?:ปืน|มีด|ระเบิด)\S{0,4}(?:มา)?\S{0,6}(?:เอาคืน|แก้แค้น|เคลียร์|จัดการ|ยิง|ฆ่า|สั่งสอน)"), "harm_others"),
+    (re.compile(r"(?:ยก|ให้)\S{0,6}(?:แมว|หมา|สัตว์เลี้ยง|ของรัก)\S{0,10}(?:ที่รัก(?:ที่สุด)?)?\S{0,6}ให้\S{0,6}(?:คนอื่น|เพื่อน|ใคร)?[^\n]{0,15}?(?:แจกของ|ยกของ|ทิ้งของ)\S{0,4}(?:หมด|ทั้งหมด)"), "warning"),
+    (re.compile(r"ไม่(?:ได้)?นอน(?:มา)?\S{0,4}(?:สาม|สี่|ห้า|หก|เจ็ด|\d)\s?(?:วัน|คืน)[^\n]{0,30}?(?:ใส่ยา(?:พิษ)?|วางยา|แอบมอง|สะกดรอย|ตามฆ่า|มีเสียง|ดักฟัง|กล้องแอบ)"), "psychosis"),
+    (re.compile(r"(?:โพสต์|เขียน|สตอรี่|แคปชั่น)\S{0,10}(?:ว่า)?\S{0,4}(?:คืนนี้|วันนี้)\S{0,4}(?:คือ|เป็น)?\S{0,2}(?:คืน|วัน)สุดท้าย(?![^\n]{0,20}?(?:คอนเสิร์ต|ทริป|เที่ยว|งาน|โปร|ลดราคา|ของปี|ที่นี่|ที่ญี่ปุ่น|ของเทอม|ก่อนสอบ))[^\n]{0,20}?(?:ขอบคุณ|ลาก่อน|ขอโทษ|รักทุกคน)"), "warning"),
+]
+_FIRE_NOW = re.compile(_FIRE_NOW.pattern + r"|(?<!เตาถ่าน)(?<!เตา)(?<!ถ่าน)ไฟลุก(?!\S{0,4}(?:โชติช่วง|ในเตา|ดี|แล้วย่าง|พร้อมย่าง))")
+
+# รอบ 219: "เจอผู้ใหญ่ที่รู้จักในเกม" = การล่อลวงออกมาเจอตัวจริง ห้ามลดเพราะคำว่าเกม (ทุกภาษา)
+_GROOM_ANY = re.compile(_GROOM_ANY.pattern + r"|(?:게임|ゲーム|游戏|遊戲|juego|jeu|game|เกม)[^\n]{0,20}?"
+                        r"(?:만난|知り合った|认识的|認識的|conoci|met|รู้จัก|คุย)[^\n]{0,20}?(?:만나러|만나|会いに|会う|见面|見面|quedar|verse|gặp|meet|เจอ|ไปหา)", re.I)
+
+# รอบ 220: แอบถ่ายตอนอาบน้ำแล้วขู่ · ผู้ใหญ่ชวนเด็กเข้าบ้าน + "ห้ามบอกแม่" · ง่วงจนตาจะปิดแต่ต้องขับต่อ · กลัวคู่ครองที่เงียบผิดปกติแล้วลับมีด
+UPGRADES += [
+    (re.compile(r"(?:ถ่าย|แอบถ่าย|อัด)(?:คลิป|รูป|วิดีโอ)\S{0,10}(?:ตอน)?(?:อาบน้ำ|แก้ผ้า|เปลี่ยนชุด|ไม่ใส่เสื้อ|ในห้องน้ำ|มีอะไรกัน)[^\n]{0,30}?(?:ขู่|จะส่ง|จะปล่อย|จะโพสต์|แบล็กเมล)"), "sextortion"),
+    (re.compile(r"(?:ชวน|เรียก|พา)\S{0,6}(?:เด็ก|ลูก|หลาน|น้อง)\S{0,8}(?:เข้า)?(?:บ้าน|ห้อง|รถ)[^\n]{0,30}?(?:ห้ามบอก|อย่าบอก|เป็นความลับ)\S{0,4}(?:แม่|พ่อ|ใคร|ผู้ปกครอง)(?![^\n]{0,15}?(?:ว่า(?:กิน|ซื้อ|เล่น|ดู)|ขนม|ไอติม|ของขวัญ|เซอร์ไพรส์|วันเกิด))"), "kp_grooming_th"),
+    (re.compile(r"(?:ไม่ได้นอน|อดนอน)\S{0,10}[^\n]{0,20}?(?:ตาจะปิด|หลับใน|วูบ|ง่วงจน)[^\n]{0,20}?(?:ขับ|ต้องขับ|ยังขับ)|(?:ขับรถ|ขับ)\S{0,10}(?:ไม่ได้นอน|อดนอน)[^\n]{0,30}?(?:ตาจะปิด|หลับใน|วูบ|ง่วงมาก)"), "drunk_drive"),
+    (re.compile(r"กลัว(?:สามี|แฟน|ผัว|ภรรยา|เมีย)\S{0,6}[^\n]{0,30}?(?:เงียบผิดปกติ|จ้องหน้า|ไม่พูด)[^\n]{0,20}?(?:ลับมีด|ถือมีด|เตรียมมีด|หยิบมีด|เช็ดปืน|ขัดปืน)"), "violence"),
+]
+_UP_RISK.setdefault("kp_grooming_th", 85)
+_UP_RISK["kp_grooming_th"] = max(_UP_RISK["kp_grooming_th"], 85)
+_UP_RISK.setdefault("drunk_drive", 80)
+
+# ── คำตอบที่ตรงใจขึ้น ─────────────────────────────────────────────
+# 1) "ถ้าไม่มีหนู พ่อแม่คงสบายขึ้น" = ความเชื่อว่าตัวเองเป็นภาระ — ตอบตรงความรู้สึกนั้น (หัวข้อ burden) แทนคำตอบสัญญาณเตือนทั่วไป
+# 2) เล่าสัญญาณเตือนของ "คนอื่น" (น้องยกหมาให้คนอื่น · พี่ชายบอกว่าบ้านคงสบายขึ้นถ้าไม่มีเขา)
+#    เคยได้คำตอบที่ถามผู้ใช้ว่า "คุณคิดทำร้ายตัวเองไหม" — ถามผิดคน · ตอนนี้ใช้คำตอบสำหรับคนที่ห่วงคนอื่น (someone)
+_BURDEN_SELF = re.compile(r"(?:ถ้า|หาก)(?:ไม่มี|ขาด)(?:หนู|ฉัน|ผม|กู|เรา|ตัวเอง|ดิฉัน)(?!\S{0,2}(?:คน|ทีม))|เป็นภาระ(?:ของ)?\S{0,8}(?:ทุกคน|ครอบครัว|พ่อแม่|คนอื่น)|"
+                          r"(?i:\b(?:everyone|they|my family|my parents)\s+(?:would|'d)\s+be\s+better\s+(?:off\s+)?without\s+me\b|\bi'?m\s+(?:just\s+)?a\s+burden\b)")
+_OTHER_PERSON = re.compile(r"^\s*(?:พี่ชาย|พี่สาว|น้องชาย|น้องสาว|เพื่อน(?:สนิท)?|สามี|ภรรยา|แฟน|ลูก(?:ชาย|สาว)?|หลาน|พ่อ|แม่)(?:ของ\S{0,6})?\S{0,4}(?:บอก|พูด|ยก|แจก|เอาแต่|ชอบ|เขียน|โพสต์|ไม่)"
+                           r"|(?i:^\s*(?:my\s+)?(?:brother|sister|friend|son|daughter|husband|wife|boyfriend|girlfriend|mom|mother|dad|father|uncle|aunt|cousin|roommate|coworker|classmate|student)\b|^\s*(?:he|she)\b)")
+_FIRST_PERSON_BURDEN = re.compile(r"(?:ถ้า|หาก)(?:ไม่มี|ขาด)(?:หนู|ฉัน|ผม|กู|ดิฉัน)|(?i:\bwithout\s+me\b|\bi'?m\s+(?:just\s+)?a\s+burden\b)")
+_apply_before_heart = apply
+
+
+def apply(text, a):  # noqa: F811
+    a = _apply_before_heart(text, a)
+    if not isinstance(text, str) or "warning" not in a.get("topics", []):
+        return a
+    if _OTHER_PERSON.search(text) and not _FIRST_PERSON_BURDEN.search(text):
+        a["topics"] = ["someone"] + [t for t in a["topics"] if t not in ("warning", "someone")]
+    elif _BURDEN_SELF.search(text):
+        a["topics"] = ["burden"] + [t for t in a["topics"] if t != "burden"]
+    return a
+
+# "I lost all my savings to a scam" / "scammed out of" — เคยได้ 0 (ไม่มีคำว่า scammed/transfer ตรงตัว)
+UPGRADES += [(re.compile(r"(?i)\blost\s+(?:all\s+(?:of\s+)?)?(?:my|our|her|his)\s+(?:\w+\s+){0,2}(?:savings|money|pension|retirement|life\s+savings)\s+to\s+(?:a\s+|an\s+|some\s+)?(?:scam|scammer|fraud|fake|con)\w*\b|"
+                          r"\b(?:scammed|conned|cheated|defrauded)\s+out\s+of\b"), "scam")]
+
+# การสูญเสียที่เล่าแบบมีคำแทรก ("แม่เพิ่งเสีย") และภาษาอังกฤษ ("my dad died") — เคยไม่ได้หัวข้ออะไรเลย
+_UP_RISK.setdefault("grief", 0)   # ความเศร้าไม่ใช่เหตุด่วน — ได้หัวข้อเพื่อให้ได้คำตอบเรื่องการสูญเสีย
+UPGRADES += [(re.compile(r"(?:พ่อ|แม่|ยาย|ตา|ย่า|ปู่|สามี|ภรรยา|แฟน|ลูก|พี่|น้อง|เพื่อนสนิท|หมา|แมว)\S{0,4}(?:เพิ่ง|ได้)(?:เสีย(?:ชีวิต)?|จากไป|ตาย|สิ้นใจ)"
+                          r"(?!\S{0,2}(?:ใจ|งาน|เงิน|ตัง|ของ|หาย|ดาย|สละ|สมาธิ|ชื่อ|เวลา|โอกาส|สิทธิ|ภาษี|เปรียบ|ทรง|ว))(?![^\n]*(?:ต้องทำ(?:ยังไง|อะไร)|แจ้งตาย|ใบมรณบัตร|ใบรับรองการตาย))|"
+                          r"(?i:\b(?:my|our)\s+(?:mom|mum|mother|dad|father|grandma|grandmother|grandpa|grandfather|husband|wife|partner|son|daughter|brother|sister|best\s+friend|dog|cat)\s+"
+                          r"(?:just\s+|recently\s+)?(?:died|passed\s+away|passed)\b(?!\s+(?:the\s+)?(?:exam|test|ball|class|course|out))(?![^\n]*\b(?:what\s+do\s+(?:i|we)\s+do|who\s+do\s+(?:i|we)\s+call|certificate|paperwork)\b))"), "grief")]
+
+# ผู้ดูแลที่เล่าเป็นภาษาอังกฤษแบบธรรมดา ("I look after my mom alone") — เคยไม่ได้หัวข้อผู้ดูแลเลย
+UPGRADES += [(re.compile(r"(?i)\b(?:look(?:ing)?\s+after|tak(?:e|ing)\s+care\s+of|car(?:e|ing)\s+for)\s+(?:my\s+)?(?:mom|mum|mother|dad|father|grandma|grandpa|husband|wife|partner|son|daughter|parents?)\b"
+                          r"[^\n]{0,40}?\b(?:alone|by\s+myself|on\s+my\s+own|every\s+(?:day|night)|24/7|for\s+(?:\d+|two|three|four|five|many)\s+(?:years|months))\b"), "caregiver")]
+_UP_RISK.setdefault("caregiver", 40)
+
+# รอบ 221: เล่าว่าคนอื่นกำลังกรีดตัวเอง ("is cutting herself") — เคยได้ 0 · คนขู่ฆ่าอยู่หน้าประตูตอนนี้ — เคยได้แค่ 65
+UPGRADES += [
+    (re.compile(r"(?i)\b(?:is|was|keeps?|been|started)\s+(?:cutting|hurting|burning|harming)\s+(?:herself|himself|themselves|themself)\b"), "someone"),
+    (re.compile(r"(?i)\b(?:outside|at)\s+(?:my|our|the)\s+(?:door|window|house|room)\b[^\n]{0,40}?\b(?:kill|hurt|shoot|stab|get)\s+(?:me|us)\b|"
+               r"\b(?:banging|pounding|kicking|trying\s+to\s+(?:open|break))\b[^\n]{0,20}?\b(?:door|window)\b[^\n]{0,40}?\b(?:kill|hurt|shoot|stab)\b"), "intruder"),
+]
+# "took my passport photo / passport picture" = ถ่ายรูปทำพาสปอร์ต ไม่ใช่ยึดพาสปอร์ต
+DOWNGRADES.append((re.compile(r"(?i)\btook\s+my\s+passport\s+(?:photo|picture|pic|photos)\b(?![^\n]*\b(?:won'?t\s+let|locked|keeps?\s+it|refuses?)\b)"), ("trafficking", "violence", "control_en")))
+
+# รอบ 222 (อังกฤษ): เล่าตรงๆ แต่ไม่มีคำที่ระบบรู้จัก — เคยได้ 0 ทั้งหมด
+_EN_NOT_FICTION = r"(?![^\n]*\b(?:in\s+the\s+(?:movie|show|game|book)|novel|episode|character)\b)"
+UPGRADES += [
+    (re.compile(r"(?i)^" + _EN_NOT_FICTION + r"[^\n]*\b(?:starv(?:e|ing)\s+myself|(?:haven'?t|not)\s+eat(?:en|ing)\b[^\n]{0,20}?\bon\s+purpose|purg(?:e|ing)\s+after\s+(?:every\s+)?meal)"), "eating"),
+    (re.compile(r"(?i)^" + _EN_NOT_FICTION + r"[^\n]*\b(?:hit(?:s|ting)?|beat(?:s|ing)?|hurt(?:s|ing)?|kick(?:s|ing)?|slap(?:s|ping)?|punch(?:es|ing)?)\s+(?:the|our|my|her|his)\s+(?:kids|children|son|daughter|baby|toddler|little\s+(?:brother|sister))\b(?!['’])"
+                r"(?!\s+(?:in\s+(?:the\s+)?game|at\s+(?:tag|chess|cards)))"), "violence"),
+    (re.compile(r"(?i)\b(?:i\s+was|i\s+got|someone|somebody|he|she|they)\s+(?:drugged|roofied)\b(?:\s+me\b)?(?![^\n]*\b(?:surgery|anesthesia|anaesthesia|hospital|dentist|procedure|colonoscopy|vet)\b)|\bthink\s+i\s+(?:was|got)\s+(?:drugged|roofied)\b(?![^\n]*\b(?:surgery|anesthesia|anaesthesia|hospital|dentist|procedure|colonoscopy|vet)\b)"), "en_spiked"),
+    (re.compile(r"(?i)\bpunch(?:es|ed)?\s+(?:walls|the\s+wall|doors)\s+(?:and\s+)?then\s+me\b|\b(?:lock|locks|locked)\s+me\s+in\s+(?:my|the|a)\s+(?:room|closet|basement|bathroom)\s+for\s+(?:days|hours|nights)\b|"
+               r"\bnot\s+allowed\s+to\s+eat\s+(?:until|unless)\b"), "violence"),
+    (re.compile(r"(?i)\b(?:my\s+)?(?:teacher|coach|tutor|stepdad|uncle|pastor|an?\s+(?:adult|older\s+(?:man|guy))(?:\s+online)?)\b[^\n]{0,20}?\b(?:sends?|sent|asked\s+for|asks\s+for|wants)\s+(?:me\s+)?(?:nudes|naked\s+(?:pics|photos)|my\s+(?:pics|photos|nudes))\b"), "online_grooming"),
+]
+_UP_RISK.setdefault("en_spiked", 80)
+
+# รอบ 222 (ไทย): ฉบับภาษาไทยของจุดที่หลุด
+UPGRADES += [
+    (re.compile(r"^(?![^\n]*(?:นิยาย|ละคร|ซีรีส์|หนัง|ตัวเอก|นางเอก|พระเอก|ตัวละคร|การ์ตูน|ในเกม))[^\n]*?(?:โดน|ถูก|คิดว่าโดน|น่าจะโดน)(?:แอบ)?(?:วางยา|ใส่ยา|มอมยา)(?![^\n]{0,10}?(?:ฆ่าแมลง|ฆ่าหญ้า|ตามหมอ|ผ่าตัด|ดมยา))"), "en_spiked"),
+    (re.compile(r"อด(?:อาหาร|ข้าว)(?:มา)?\S{0,6}(?:\d|สอง|สาม|สี่|ห้า|หก|เจ็ด|หลาย)\s?(?:วัน|สัปดาห์|อาทิตย์)[^\n]{0,15}?(?:อยากผอม|ลดน้ำหนัก|กลัวอ้วน|เกลียดตัวเอง)|ไม่กินข้าว\S{0,8}(?:เพราะ)?(?:อยากผอม|กลัวอ้วน)"), "eating"),
+    (re.compile(r"(?:ชก|ต่อย|ทุบ|เตะ)(?:กำแพง|ประตู|โต๊ะ|ของ)[^\n]{0,15}?(?:แล้ว)?(?:หันมา|มา|ก็)?(?:ชก|ต่อย|ตบ|ตี|เตะ|ทำร้าย)(?:หนู|ฉัน|ผม|เรา|ลูก|แม่)"), "violence"),
+]
+# "โดนวางยาสลบตอนผ่าตัด" = ดมยาตามปกติของการผ่าตัด (เคยได้ 85) — ถ้ามีอาการผิดปกติหลังผ่าตัดยังด่วนเหมือนเดิม
+DOWNGRADES.append((re.compile(r"^(?![^\n]*(?:ไม่ฟื้น|ไม่ตื่น|หายใจ|ชัก|เขียว|แพ้ยา|ผื่น|ปากบวม|หมดสติ))[^\n]*?(?:วางยาสลบ|ดมยา|ยาสลบ|บล็อกหลัง)[^\n]{0,15}?(?:ผ่าตัด|ทำฟัน|ส่องกล้อง|คลอด|หมอ|โรงพยาบาล)"), ("health_emergency", "first_aid", "overdose")))
+# หลังผ่าตัด/ดมยาแล้วไม่ตื่น — เคยได้ 0
+UPGRADES += [(re.compile(r"(?:หลังผ่าตัด|ดมยา|ยาสลบ|ผ่าตัดเสร็จ)[^\n]{0,25}?(?:ไม่ตื่น|ไม่ฟื้น|ปลุกไม่ตื่น|เรียกไม่ตอบ|หายใจไม่ออก|หายใจแผ่ว)"), "health_emergency")]
+
+# อังกฤษ: เรื่องชีวิตประจำวันที่เคยไม่ได้หัวข้อเลย (ได้คำตอบทั่วไป) — หนี้ · พ่อแม่ทะเลาะ · สอบตก · ข่าวดี
+_UP_RISK.setdefault("debt", 0); _UP_RISK.setdefault("family", 0); _UP_RISK.setdefault("study", 0); _UP_RISK.setdefault("positive", 0)
+UPGRADES += [
+    (re.compile(r"(?i)\b(?:drowning\s+in|buried\s+in|can'?t\s+pay\s+(?:off\s+)?(?:my\s+)?|so\s+much)\s+(?:credit\s+card\s+|student\s+|loan\s+)?(?:debt|debts|loans?|bills)\b(?![^\n]*\b(?:die|kill|end\s+it|suicide)\b)"), "debt"),
+    (re.compile(r"(?i)\bmy\s+(?:parents|mom\s+and\s+dad|family)\s+(?:fight|argue|yell|scream)s?\b|\b(?:fight|argue)s?\s+with\s+my\s+(?:parents|mom|dad|mother|father|sister|brother)\b"), "family"),
+    (re.compile(r"(?i)\b(?:i\s+)?(?:failed|flunked|bombed)\s+(?:my\s+|the\s+|an?\s+)?(?:exam|test|midterm|final|class|course|module)s?\b(?![^\n]*\b(?:kill\s+me|will\s+kill|parents|mom|dad)\b)"), "study"),
+    (re.compile(r"(?i)\b(?:i\s+)?(?:got\s+(?:promoted|the\s+job|accepted|engaged|a\s+raise)|passed\s+(?:my|the)\s+(?:exam|test|interview))\b(?![^\n]*\b(?:but|however|scared|afraid|anxious|sad)\b)"), "positive"),
+]
+
+# รอบ 226: ไทยที่หลุด — "จะไปโดดน้ำตาย" "ตัดข้อมือตัวเอง" (เคยได้ 0) · คำบอกลาที่ไม่มีคำว่าตาย · ภาษาถิ่น "ตุ๊บ" · "มันจะฆ่าข้อย"
+_TH_NOT_STORY = r"^(?![^\n]*(?:ในละคร|ในหนัง|ในซีรีส์|ในนิยาย|ตัวละคร|ในเกม|เพลง))"
+UPGRADES += [
+    (re.compile(_TH_NOT_STORY + r"[^\n]*?(?:จะ|อยาก|กำลังจะ)\S{0,4}(?:ไป)?(?:โดด|กระโดด)(?:น้ำ|ตึก|สะพาน|ลงมา)\S{0,4}ตาย|(?:ตัด|กรีด|เฉือน)(?:ข้อมือ|แขน)ตัวเอง"), "crisis"),
+    (re.compile(_TH_NOT_STORY + r"(?![\s\S]*(?:ไปเที่ยว|ไปทำงาน|ลาพัก|ต่างจังหวัด|กลับบ้าน|ประชุม|ต่างประเทศ|สัมมนา|ย้ายบ้าน|ขึ้นเครื่อง|เพราะ(?:ได้|มี|ซื้อ)|แอร์|บ้านใหม่|รถใหม่|โบนัส|วันหยุด|เงินเดือนขึ้น))[^\n]*?(?:พรุ่งนี้|คืนนี้|หลังจากนี้)\S{0,4}(?:คง)?(?:ไม่อยู่|ไม่ได้อยู่)แล้ว\S{0,4}(?:นะ|น้า|นะคะ|นะครับ)?\S{0,2}ทุกคน|"
+               r"(?:จะ)?ไปแล้ว[^\n]{0,6}?(?:ไม่ต้อง|อย่า)(?:ตามหา|ตามหาเรา|ตามหาหนู|ตาม)(?!\S{0,3}(?:ข้าว|ของ|งาน|ใจ|เพลง))"), "warning"),
+    (re.compile(r"(?:ผัว|สามี|แฟน|พ่อ|มัน)\S{0,4}(?:มา)?(?:ตุ๊บ|ตุ้บ|ซัด|อัด|กระทืบ|ฟาด)(?:ข้า|ข้อย|กู|หนู|ฉัน|เฮา|เค้า)"), "violence"),
+    (re.compile(r"(?:มัน|ผัว|สามี|แฟน|เขา)\S{0,4}(?:จะ|ขู่ว่าจะ)(?:ฆ่า|ยิง|แทง|เผา)(?:ข้อย|ข้า|กู|ฉัน|หนู|เรา|เฮา)"), "violence"),
+]
+
+# รอบ 227: คำบอกลาแบบอ้อม (เคยได้ 0 ทั้งหมด) — จับเฉพาะรูปที่เป็นสัญญาณชัด และใช้ระดับ "ถามตรงๆ อย่างอ่อนโยน" (warning)
+# ประโยคที่ธรรมดาได้บ่อย ("ฝากบอกแม่ว่ารักนะ" "เขียนพินัยกรรม") ไม่จับเดี่ยวๆ
+UPGRADES += [
+    (re.compile(r"^(?![\s\S]*(?:ไปเที่ยว|เที่ยวทะเล|ไปทำงาน|ไปต่างประเทศ|ขึ้นเครื่อง|ไปแล้วนะ\s*เดี๋ยวกลับ|(?i:\b(?:vacation|holiday|trip|flight|back\s+(?:on|in|soon))\b)))" + _TH_NOT_STORY[1:] + r"[^\n]*?ถ้า(?:ใคร)?(?:เห็น|อ่าน)ข้อความนี้[^\n]{0,15}?(?:แปลว่า|แสดงว่า|คือ)\S{0,6}(?:ไปแล้ว|ไม่อยู่แล้ว|จากไปแล้ว)|"
+               r"(?i:^(?![\s\S]*\b(?:vacation|holiday|trip|flight|plane|back\s+(?:on|in|soon)|out\s+of\s+office)\b)[\s\S]*?\bif\s+you(?:'re|\s+are)\s+reading\s+this[^\n]{0,15}?\b(?:i'?m|i\s+am)\s+(?:already\s+)?(?:gone|dead|not\s+here)\b)"), "crisis"),
+    (re.compile(_TH_NOT_STORY + r"(?![\s\S]*(?:เพราะ(?:ได้|มี|ซื้อ)|แอร์|บ้านใหม่|รถใหม่|โบนัส|วันหยุด|เงินเดือนขึ้น|ไปเที่ยว|ต่างจังหวัด))[^\n]*?(?:"
+               r"ฝาก(?:ดูแล|เลี้ยง)(?:แมว|หมา|น้อง|ลูก|แม่|พ่อ)[^\n]{0,25}?(?:คง)?(?:ไม่ได้|ไม่)(?:เลี้ยง|ดูแล|อยู่)(?:แล้ว|อีก|ต่อ)|"
+               r"ทุกคน(?:จะ|คง)ได้สบาย(?:แล้ว|ขึ้น)|"
+               r"(?:จัดการ|เคลียร์)(?:เรื่อง)?ทุกอย่าง(?:เรียบร้อย|ไว้)แล้ว[^\n]{0,15}?ไม่ต้องห่วง(?:อะไร)?(?:อีก|แล้ว)|"
+               r"ขอบคุณที่เคย[^\n]{0,30}?(?:ลาก่อน|บ๊ายบาย|ไปก่อนนะ))"
+               r"|(?i:\btake\s+care\s+of\s+my\s+(?:cat|dog|pet|kids?|mom|dad)\b[^\n]{0,30}?\b(?:i\s+won'?t\s+be\s+(?:around|here)|after\s+i'?m\s+gone)\b|"
+               r"\beveryone\s+(?:will|would)\s+(?:be\s+free\s+of\s+me|be\s+better\s+off\s+soon)\b|"
+               r"\b(?:i'?ve\s+)?given\s+away\s+everything\b(?![^\n]*\b(?:garage|yard|moving|sale|charity\s+shop|donation\s+center|minimalis\w*|declutter\w*)\b)[^\n]{0,30}?\b(?:sorted|done|ready|taken\s+care)\b|"
+               r"^(?![\s\S]*\b(?:of\s+the\s+(?:year|day|week|month|trip|series)|before\s+(?:vacation|holiday|bed|the)|for\s+(?:today|now|the\s+(?:year|week))|until)\b)[\s\S]*?\bthis\s+is\s+my\s+(?:last|final)\s+(?:post|message|note|goodbye)\b|"
+               r"\bthank\s+you\s+for\s+(?:being|everything)[^\n]{0,30}?\b(?:goodbye\s+forever|forever\s+goodbye|i\s+won'?t\s+be\s+around)\b)"), "warning"),
+]
+
+# รอบ 230: ลำดับกลับ (คำบอกว่าธรรมดามาก่อนคำอันตราย) — "ผ่าตัดเมื่อเช้า โดนวางยาสลบ" "ยกเวทมา เจ็บหน้าอก" "ตอนนี้ปกติ ไฟดูดเบาๆ"
+DOWNGRADES += [
+    (re.compile(r"^(?![^\n]*(?:ไม่ฟื้น|ไม่ตื่น|หายใจ|ชัก|เขียว|แพ้ยา|ผื่น|ปากบวม|หมดสติ))[^\n]*?(?:ผ่าตัด|ทำฟัน|ส่องกล้อง|คลอด|หมอ|โรงพยาบาล)[^\n]{0,20}?(?:วางยาสลบ|ดมยา|ยาสลบ|บล็อกหลัง)"), ("health_emergency", "first_aid", "overdose")),
+    (re.compile(r"^" + _R209_DANGER + r"[^\n]*?(?:ยกเวท|ยกน้ำหนัก|เล่นกล้าม|วิดพื้น|ออกกำลัง)[^\n]{0,20}?เจ็บ(?:หน้า)?อก[^\n]{0,20}?(?:กล้ามเนื้อ|ตึง|ระบม)"), ("health_emergency",)),
+    (re.compile(r"^" + _R209_DANGER + r"[^\n]*?(?:ตอนนี้)?\S{0,4}(?:ปกติ|ไม่เป็นไร|หายแล้ว)[^\n]{0,20}?ไฟ(?:ดูด|ช็อต)\S{0,4}(?:เบาๆ|นิดเดียว|นิดหน่อย)"), ("first_aid", "health_emergency")),
+]
+
+# รอบ 232: ติดพนัน/หมดตัวแล้วพูดถึงการไม่อยู่ต่อแบบอ้อม — เคยได้ 0
+_R232_LOSS = r"(?:พนัน|บาคาร่า|สล็อต|หวย|หนี้|หมดตัว|ขโมยเงิน|(?i:\bgambl\w*|\bslots?\b|\bcasino\b|\bbet(?:s|ting)?\b|\bdebt\b|\blost\s+(?:\d+k?|everything|it\s+all)\b))"
+UPGRADES.insert(0, (re.compile(
+    r"ไม่มีหน้า(?:จะ)?(?:อยู่|มีชีวิต)(?:ต่อ(?:ไป)?(?:แล้ว)?(?![^\n]{0,4}(?:ที่|บ้าน|ใน|กับ))|บนโลก(?:นี้)?|ในโลก(?:นี้)?)|"
+    r"^(?=[\s\S]*" + _R232_LOSS + r")(?![\s\S]*(?i:photo|picture|view|pretty|beautiful|hotel|สวย))(?=[\s\S]*(?i:\b(?:staring|looking|stood|standing)\s+(?:at|on)\s+the\s+bridge\b))"), "crisis"))
+
+# รอบ 231: หมดตัวเพราะโดนหลอก/หนี้ แล้วพูดถึงการจบชีวิตแบบอ้อม — เคยได้แค่ 60
+# ดูเงื่อนไขสองอย่างพร้อมกัน (สูญเสียเงินก้อนใหญ่ + สัญญาณจบชีวิต) ไม่จับคำเดี่ยวๆ
+_R231_LOSS = r"(?:โดน\S{0,10}หลอก|มิจฉาชีพ|แก๊งคอล|หนี้|หมดตัว|เงิน\S{0,6}หมด|(?i:\bscam\w*|\bfraud\b|\bdebt\b|\blost\s+everything\b|\bbankrupt\w*))"
+_R231_END = (r"(?:ตายไป(?:คง|ก็)(?:จบ|หมดเรื่อง)|(?:เตรียม|ซื้อ|เก็บ|สะสม)ยา(?:นอนหลับ|พารา)\S{0,6}ไว้(?:แล้ว)?|"
+             r"(?i:\bwrit(?:e|ing)\s+(?:a\s+)?(?:note|letter)s?\s+(?:for|to)\s+my\s+(?:family|kids|wife|husband|parents|mom|dad)\s+tonight\b))")
+UPGRADES.insert(0, (re.compile(r"^(?=[\s\S]*" + _R231_LOSS + r")(?=[\s\S]*" + _R231_END + r")"), "crisis"))  # ก่อนหัวข้อ scam ที่จับได้ก่อน

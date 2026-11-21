@@ -117,7 +117,7 @@ body[data-veil="1"] #veil{opacity:.78} body[data-veil="2"] #veil{opacity:1}
 .m{margin:0 0 20px;display:flex;flex-direction:column}
 .m.u{align-items:flex-end}
 .m.u .bubble{background:linear-gradient(135deg,rgba(77,155,255,.28),rgba(77,155,255,.14));border:1px solid rgba(120,170,255,.35);border-radius:16px 16px 4px 16px;padding:10px 14px;max-width:86%;white-space:pre-wrap;word-break:break-word}
-.m.a .bubble,.m.e .bubble{max-width:100%;word-break:break-word;background:rgba(8,11,28,.7);border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:12px 16px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.m.a .bubble,.m.e .bubble{max-width:100%;word-break:break-word;background:rgba(8,11,28,.86);border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:12px 16px}
 .m.a .who,.m.e .who{font:600 11px/1 var(--f-mono);letter-spacing:.12em;margin-bottom:7px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .who .lyla{color:var(--lyla)} .who .vega{color:var(--vega)} .who .crisis{color:var(--crisis)} .who .council{color:var(--ok)}
 .bubble .cm{color:var(--ink)}
@@ -193,7 +193,7 @@ body[data-veil="1"] #veil{opacity:.78} body[data-veil="2"] #veil{opacity:1}
 #empty p{color:var(--ink-2);margin:0 auto 16px;max-width:540px}
 .axiom{display:inline-block;font:500 13px/1 var(--f-mono);padding:7px 12px;border:1px solid rgba(246,178,74,.35);border-radius:999px;margin-bottom:20px;color:var(--gold-hi);background:rgba(246,178,74,.07)}
 .sugg{display:grid;gap:8px;text-align:left}
-.sugg button{border:1px solid var(--line);background:rgba(8,11,28,.62);border-radius:var(--r);padding:11px 14px;font-size:14px;color:var(--ink-2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.sugg button{border:1px solid var(--line);background:rgba(8,11,28,.8);border-radius:var(--r);padding:11px 14px;font-size:14px;color:var(--ink-2)}
 .sugg button:hover{border-color:var(--line-2);color:var(--ink)}
 
 /* composer */
@@ -965,21 +965,22 @@ html[data-ink="dark"] body:not([data-view="universe"]) .card-h p{color:var(--ink
      · อ่านง่ายสำหรับผู้สูงอายุ: ตัวอักษรทุกระดับคมกว่าพื้นอย่างน้อย 7:1 (WCAG AAA) ทั้งพื้นมืดและพื้นสว่าง
        ไม่ใช้เทาจางบนดำ ไม่ใช้ฟ้าเข้มบนดำ (เลนส์ตาที่เหลืองตามวัยกรองแสงฟ้าออก) — tests/test_timeless_palette.py ตรวจไว้
    ไล่เฉดได้แค่ในสีเดียวกัน ไม่ไล่ข้ามสี · เพิ่มสีใหม่ให้เพิ่มเป็นตัวแปรตรงนี้ ไม่เขียนเลขสีลงคอมโพเนนต์ */
+/* โทนจากเว็บ GitHub ของพี่คิง (docs/index.html): ดำอวกาศ + ทองหม่น + ฟ้าแสงดาว — ลึกกว่าเดิม ฝั่งเย็นเป็นฟ้าแทนเงิน */
 :root{
-  --bg:#06070c; --glass:rgba(10,11,18,.66);
-  --ink:#f1ede4; --ink-2:#c4beb2; --ink-3:#a39d92;
-  --line:rgba(241,237,228,.09); --line-2:rgba(241,237,228,.18); --focus:#ecd6a6;
-  --gold:#d8b878; --gold-hi:#ecd6a6; --blue:#aeb8cc; --blue-hi:#d3d9e6;
-  --ok:#93c4a4; --ok-bg:rgba(147,196,164,.11); --warn:#d8b878; --warn-bg:rgba(216,184,120,.11);
-  --bad:#df8a8f; --bad-bg:rgba(223,138,143,.11); --info:#d3d9e6; --info-bg:rgba(174,184,204,.1);
-  --lyla:#ecd6a6; --vega:#d3d9e6; --crisis:#df8a8f;
-  --sky:#c3cbdb; --sky-hi:#e3e7ef; --lilac:#c3cbdb; --peach:#e6cf9e; --sun:#d8b878; --moon:#f6ecd8;
-  --mint:#b9d6c3; --rose:#ecc2c5; --lav:#d6dbe6;
-  --champ:linear-gradient(180deg,#f2e2bd,#d8b878);
-  --silver:linear-gradient(180deg,#eef0f5,#c3cbdb);
+  --bg:#02030c; --glass:rgba(4,5,20,.72);
+  --ink:#f1ede4; --ink-2:#c9c4ba; --ink-3:#aaa49a;
+  --line:rgba(140,190,255,.10); --line-2:rgba(140,190,255,.20); --focus:#e8cc7a;
+  --gold:#d4b45e; --gold-hi:#e8cc7a; --blue:#78bcff; --blue-hi:#a9d4ff;
+  --ok:#93c4a4; --ok-bg:rgba(147,196,164,.11); --warn:#d4b45e; --warn-bg:rgba(212,180,94,.11);
+  --bad:#ff8aa0; --bad-bg:rgba(255,138,160,.11); --info:#a9d4ff; --info-bg:rgba(120,188,255,.1);
+  --lyla:#e8cc7a; --vega:#a9d4ff; --crisis:#ff8aa0;
+  --sky:#8fc6ff; --sky-hi:#cfe6ff; --lilac:#c4a0ff; --peach:#e6cf9e; --sun:#d4b45e; --moon:#f6ecd8;
+  --mint:#b9d6c3; --rose:#ffc2cd; --lav:#d2c2ff;
+  --champ:linear-gradient(180deg,#f0dc9c,#d4b45e);
+  --silver:linear-gradient(180deg,#d6ebff,#78bcff);
   --warm:var(--champ); --cool:var(--silver); --dusk:var(--champ); --pastel:var(--champ); --arc:var(--champ);
-  --pane:linear-gradient(180deg,rgba(16,17,26,.7),rgba(8,9,15,.78));
-  --rim:linear-gradient(160deg,rgba(241,237,228,.22),rgba(241,237,228,.05) 45%,rgba(216,184,120,.2));
+  --pane:linear-gradient(180deg,rgba(6,8,26,.72),rgba(2,3,12,.82));
+  --rim:linear-gradient(160deg,rgba(140,190,255,.22),rgba(140,190,255,.05) 45%,rgba(212,180,94,.22));
 }
 body{background:var(--bg)}
 ::selection{background:rgba(216,184,120,.32);color:#fff}
@@ -1522,3 +1523,10 @@ html[data-ink="dark"] #sim-paths .path b{filter:brightness(.6)}
 html[lang^="en"] .eqd .nm[lang="th"]{display:none}
 html[data-ink="dark"] .gauge,html[data-ink="dark"] .eqd{background:rgba(255,255,255,.65);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
 html[data-ink="dark"] .gauge b,html[data-ink="dark"] .eqd .fx{color:var(--ink)}
+
+/* โหมดลื่น (kd-lite): เครื่องวาดไม่ทันต่อเนื่อง app.js จะเปิดให้เอง — กระจกเบลอทุกชิ้นต้องเบลอใหม่ทุกเฟรมเพราะฉากข้างหลังขยับ
+   ปิดเบลอแล้วใช้พื้นทึบแทน หน้าตาแทบเหมือนเดิมแต่การ์ดจอเบาลงมาก */
+html.kd-lite *,html.kd-lite *::backdrop{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html.kd-lite .glass{background:rgba(6,8,20,.9)}
+html.kd-lite .inrow{background:rgba(8,11,28,.95)}
+html.kd-lite #tabbar{background:rgba(5,7,18,.97)}

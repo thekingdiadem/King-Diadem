@@ -28,7 +28,7 @@ DANGER = {"self_harm", "emergency", "violence"}
 
 # ผลของ assess() → หมวด (ระบบเห็นอะไรในข้อความ)
 _TOPIC_CLASS = {
-    "self_harm": {"warning", "someone"},
+    "self_harm": {"warning", "someone", "burden"},
     "emergency": {"overdose", "swallowed", "household", "pet_poison", "health_emergency", "first_aid", "stranded",
                   "en_infant_fever", "en_preg_bleed", "preg_danger", "post_danger", "newborn_danger", "post_harm", "needlestick", "missing", "drunk_drive", "panic", "psychosis",
                   "kp_heatstroke", "kp_methanol", "kp_fever_rash", "kp_gi_bleed", "kp_bp_crisis", "kp_child_breath", "kp_sudden_vision",

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#03040d">
+<title>ดูแลไต — KING DIADEM</title>
+<link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
+<style>
+:root{--void:#06070c;--gold:#d8b878;--line:rgba(216,184,120,.22);--txt:#e6e8ee;--dim:#9aa1b2;--red:#e88;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--txt);font:16px/1.6 "Noto Sans Thai Looped",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:24px 16px 64px}
+h1{color:var(--gold);font-size:1.4rem;margin:0 0 4px}
+p.sub{color:var(--dim);margin:0 0 20px}
+fieldset{border:1px solid var(--line);border-radius:10px;margin:0 0 14px;padding:12px 14px}
+legend{color:var(--gold);padding:0 6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+label{display:flex;flex-direction:column;font-size:.9rem;color:var(--dim)}
+input,select,textarea{margin-top:4px;background:#0c0f1a;color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:8px;font:inherit}
+label.chk{flex-direction:row;align-items:center;gap:6px}
+button{background:var(--gold);color:#111;border:0;border-radius:8px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+#out{white-space:pre-wrap;margin-top:20px;border:1px solid var(--line);border-radius:10px;padding:14px;display:none}
+#err{color:var(--red);margin-top:10px}
+</style>
+</head>
+<body>
+<main>
+<h1>แผนดูแลไต เบาหวาน ความดัน ไขมัน</h1>
+<p class="sub">กรอกเท่าที่มี ช่องไหนไม่รู้เว้นไว้ ระบบจะถามแทนการเดา · ไม่ใช่การวินิจฉัย</p>
+<form id="f">
+<fieldset><legend>ตัวคุณ</legend><div class="grid">
+<label>อายุ (ปี)<input name="age" type="number" min="18" max="120"></label>
+<label>เพศ<select name="sex"><option value="">—</option><option value="m">ชาย</option><option value="f">หญิง</option></select></label>
+<label>น้ำหนัก (กก.)<input name="weight_kg" type="number" step="0.1"></label>
+<label>ภาษา<select name="lang"><option value="th">ไทย</option><option value="en">English</option><option value="es">Español</option><option value="vi">Tiếng Việt</option><option value="zh">中文</option><option value="ko">한국어</option><option value="ja">日本語</option></select></label>
+</div></fieldset>
+<fieldset><legend>ผลเลือดและปัสสาวะ</legend><div class="grid">
+<label>ครีเอตินีน<input name="creatinine" type="number" step="0.01"></label>
+<label>หน่วย<select name="creatinine_unit"><option value="mg/dL">mg/dL</option><option value="umol/L">µmol/L</option></select></label>
+<label>ไข่ขาวในปัสสาวะ UACR (mg/g)<input name="uacr" type="number" step="0.1"></label>
+<label>HbA1c (%)<input name="hba1c" type="number" step="0.1"></label>
+<label>LDL (mg/dL)<input name="ldl" type="number"></label>
+<label>ความดันตัวบน<input name="sys_bp" type="number"></label>
+<label>ความดันตัวล่าง<input name="dia_bp" type="number"></label>
+</div></fieldset>
+<fieldset><legend>โรคที่มี</legend><div class="grid">
+<label class="chk"><input name="diabetes" type="checkbox">เบาหวาน</label>
+<label class="chk"><input name="cvd" type="checkbox">เคยเป็นโรคหัวใจ/สมองขาดเลือด</label>
+<label class="chk"><input name="dialysis" type="checkbox">ฟอกไตอยู่</label>
+<label class="chk"><input name="smoker" type="checkbox">สูบบุหรี่</label>
+</div></fieldset>
+<fieldset><legend>ยา อาหาร การใช้ชีวิต</legend><div class="grid">
+<label>ยาที่กิน (คั่นด้วย ,)<textarea name="meds" rows="2"></textarea></label>
+<label>อาหาร/สมุนไพรที่กินบ่อย<textarea name="foods" rows="2"></textarea></label>
+<label>นอนวันละ (ชม.)<input name="sleep_hours" type="number" step="0.5"></label>
+<label>นั่งวันละ (ชม.)<input name="sitting_hours" type="number" step="0.5"></label>
+<label>ยืนวันละ (ชม.)<input name="standing_hours" type="number" step="0.5"></label>
+</div></fieldset>
+<button id="go" type="submit">ดูแผนของฉัน</button>
+<div id="err"></div>
+</form>
+<div id="out"></div>
+</main>
+<script>
+document.getElementById("f").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  var fd = new FormData(this), prof = {}, lang = fd.get("lang") || "th";
+  ["age","weight_kg","creatinine","uacr","hba1c","ldl","sys_bp","dia_bp","sleep_hours","sitting_hours","standing_hours"].forEach(function (k) {
+    var v = fd.get(k); if (v !== null && v !== "") prof[k] = Number(v);
+  });
+  ["sex","creatinine_unit"].forEach(function (k) { if (fd.get(k)) prof[k] = fd.get(k); });
+  ["diabetes","cvd","dialysis","smoker"].forEach(function (k) { prof[k] = fd.get(k) === "on"; });
+  ["meds","foods"].forEach(function (k) {
+    prof[k] = String(fd.get(k) || "").split(/[,\n]/).map(function (s) { return s.trim(); }).filter(Boolean);
+  });
+  var err = document.getElementById("err"), out = document.getElementById("out");
+  err.textContent = "";
+  try {
+    var r = await fetch("/api/chronic-care", {method: "POST", headers: {"Content-Type": "application/json"},
+                                              body: JSON.stringify({lang: lang, profile: prof})});
+    var j = await r.json();
+    if (!r.ok) { err.textContent = j.error || "ส่งไม่สำเร็จ ลองใหม่อีกครั้งนะคะ"; return; }
+    out.textContent = j.text; out.style.display = "block"; out.scrollIntoView({behavior: "smooth"});
+  } catch (x) { err.textContent = "เชื่อมต่อไม่ได้ ลองใหม่อีกครั้งนะคะ"; }
+});
+</script>
+</body>
+</html>

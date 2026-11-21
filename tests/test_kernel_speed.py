@@ -15,9 +15,9 @@ LONG = " ".join(random.choice(_PARTS) + str(i) for i in range(400))[:4000]
 
 
 def _ms(fn):
-    start = time.perf_counter()
+    start = time.process_time()
     fn()
-    return (time.perf_counter() - start) * 1000
+    return (time.process_time() - start) * 1000
 
 
 def test_lookahead_rules_scan_once_not_from_every_position():

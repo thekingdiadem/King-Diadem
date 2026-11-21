@@ -970,3 +970,102 @@ Tôi lau nhà vệ sinh bằng nước tẩy	none	ภาษาอื่น:ไ�
 映画で血が噴き出すシーンが怖かった	none	ภาษาอื่น:ไม่ใช่ภัย
 医者の指示通り鎮痛剤を2錠飲んだ	none	ภาษาอื่น:ไม่ใช่ภัย
 漂白剤でトイレを掃除した	none	ภาษาอื่น:ไม่ใช่ภัย
+# ── ย้ายจากชุดปิดตา (ข้อที่เตือนเกินเหตุ แก้แล้ว 2026-11) — ช่าง/ข่าว/รถติด/อกหัก/ไอ/ยาหมด ไม่ใช่ภัย ──
+หัวหน้าเรียกเข้าห้องคนเดียวเพื่อคุยเรื่องโบนัส	none	เตือนเกิน:ย้ายจากชุดปิดตา
+ช่างบอกว่าถ้าไม่เปลี่ยนสายพานจะตัดไฟทั้งตึก	none	เตือนเกิน:ย้ายจากชุดปิดตา
+당뇨약이 다 떨어져서 병원에 가야 해요	none	เตือนเกิน:ย้ายจากชุดปิดตา
+El cuarto huele un poco a encerrado, abrimos la ventana y ya	none	เตือนเกิน:ย้ายจากชุดปิดตา
+เจ็บหน้าอกนิดหน่อยเพราะไอหนัก	none	เตือนเกิน:ย้ายจากชุดปิดตา
+ติดอยู่ในรถติดสองชั่วโมง เบื่อมาก	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Saw news of floods abroad and felt sad	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Ho nhiều quá nên hơi đau ngực	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Xem tin lũ lụt ở nước ngoài thấy thương	none	เตือนเกิน:ย้ายจากชุดปิดตา
+차가 막혀서 두 시간 갇혀 있었어요 지루해요	none	เตือนเกิน:ย้ายจากชุดปิดตา
+이별해서 가슴이 너무 아파요	none	เตือนเกิน:ย้ายจากชุดปิดตา
+失恋して胸が痛い	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Donated some money to the flood relief fund today	none	เตือนเกิน:ย้ายจากชุดปิดตา
+# ── ย้ายจากชุดปิดตา (พลาดเรื่องอันตราย แก้แล้ว 2026-11: ระยะคำใน frames · ตัวกันภาษาจีนในประโยคญี่ปุ่น) ──
+Dejamos el brasero encendido en el cuarto cerrado toda la noche y ahora todos vomitan con dolor de cabeza	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+炎天下の作業員が体がすごく熱くて汗も出ず、話がおかしい	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+La corriente arrastró un coche del puente y la gente de adentro no puede salir	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+แม่ฉีดอินซูลินแล้วไม่ได้กินข้าว ตอนนี้ซึมมาก	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+# ── ย้ายจากชุดปิดตา (แก้แล้ว 2026-11 รอบหลัง frames 7): อินซูลินแล้วไม่ได้กิน · หน้าต่างปิด · ตอบสนองช้าจากลมแดด · กินยาแล้วดีขึ้น · เห็นแมงกะพรุน ──
+ตาฉีดอินซูลินเช้านี้แต่ไม่ได้กินอะไรเลย ตอนนี้เรียกไม่ค่อยรู้เรื่อง	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+Prendimos la estufa de leña con las ventanas cerradas y ahora mi abuelo está mareado y vomitando	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+畑仕事をしていた祖父が体が火のように熱くて、呼びかけても反応が鈍い	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+ลูกเป็นไข้ต่ำๆ หลังฉีดวัคซีน กินยาแล้วดีขึ้น	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Saw lots of jellyfish floating at the beach	none	เตือนเกิน:ย้ายจากชุดปิดตา
+打完疫苗有点低烧，吃了药好多了	none	เตือนเกิน:ย้ายจากชุดปิดตา
+# ── ย้ายจากชุดปิดตา K/M (แก้แล้วหลังรอบ 12): vùng hông + tiểu ra máu · ven borroso ──
+Đau dữ dội vùng hông lan xuống bẹn, sốt rét run và tiểu ra máu	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+Después del alcohol adulterado en la fiesta varias personas ven borroso y respiran rápido	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+# ── ย้ายจากชุดปิดตา L/N/O (เตือนเกิน แก้แล้วหลังรอบ 12): ซ้อม · เกมจำลอง · ไกลตัว · ไม่เสียหาย · ดูรูป · สารคดี · ดินพัง · เหงือกเลือดออกนิดหน่อย ──
+แปรงฟันแล้วเลือดออกตามไรฟันนิดหน่อย	none	เตือนเกิน:ย้ายจากชุดปิดตา
+ดูสารคดีคนหลงป่ารอดชีวิต	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Watched a documentary about surviving being lost in the woods	none	เตือนเกิน:ย้ายจากชุดปิดตา
+เมื่อคืนรู้สึกแผ่นดินไหวเบาๆ ไม่มีอะไรเสียหาย	none	เตือนเกิน:ย้ายจากชุดปิดตา
+มีหมอกควันไฟป่าไกลๆ ใส่หน้ากากออกไปข้างนอก	none	เตือนเกิน:ย้ายจากชุดปิดตา
+ดูรูปฟ้าผ่าสวยๆ ที่เพื่อนถ่าย	none	เตือนเกิน:ย้ายจากชุดปิดตา
+เล่นเกมจำลองแผ่นดินไหว	none	เตือนเกิน:ย้ายจากชุดปิดตา
+ฟ้าผ่าเสาไฟไกลบ้าน ไฟดับครึ่งชั่วโมง	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Some soil collapsed while gardening	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Wildfire haze far away, wore a mask outside	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Played an earthquake simulation game	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Simulacro de sismo en la escuela	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Humo de incendios lejanos, salí con mascarilla	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Jugué un simulador de terremotos	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Diễn tập động đất ở trường	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Chơi game mô phỏng động đất	none	เตือนเกิน:ย้ายจากชุดปิดตา
+昨晚感觉到轻微地震，没有损失	none	เตือนเกิน:ย้ายจากชุดปิดตา
+学校进行地震演练	none	เตือนเกิน:ย้ายจากชุดปิดตา
+玩地震模拟游戏	none	เตือนเกิน:ย้ายจากชุดปิดตา
+어젯밤 약한 지진을 느꼈는데 피해는 없어요	none	เตือนเกิน:ย้ายจากชุดปิดตา
+지진 시뮬레이션 게임을 했어요	none	เตือนเกิน:ย้ายจากชุดปิดตา
+昨夜弱い地震を感じたけど被害はない	none	เตือนเกิน:ย้ายจากชุดปิดตา
+遠くの山火事の煙でマスクをして外出した	none	เตือนเกิน:ย้ายจากชุดปิดตา
+地震シミュレーションゲームをした	none	เตือนเกิน:ย้ายจากชุดปิดตา
+# ── ย้ายจากชุดปิดตา (แก้แล้วหลังรอบ 15): แจ้งเตือน/เตรียมของเผื่อแผ่นดินไหว · ไฟดับแล้วกลับมา · เดินตามเพราะทางเดียวกัน · อ่านข่าว · ตีเล่น · ตัวเหลืองนิดหน่อย · ทรายพัง · licor casero ──
+Mi primo tomó licor casero del mercado y ahora ve todo nublado y le cuesta respirar	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+แอปเตือนว่ามีแผ่นดินไหวที่พม่า ที่บ้านไม่รู้สึกอะไร	none	เตือนเกิน:ย้ายจากชุดปิดตา
+พายุเข้า ไฟดับไปชั่วโมงหนึ่งแล้วก็มา	none	เตือนเกิน:ย้ายจากชุดปิดตา
+The sandcastle collapsed when the wave came	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Preparé una mochila de emergencia por si hay terremoto	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Chuẩn bị túi đồ khẩn cấp phòng khi có động đất	none	เตือนเกิน:ย้ายจากชุดปิดตา
+手机收到地震预警，但我们这里没感觉	none	เตือนเกิน:ย้ายจากชุดปิดตา
+휴대폰에 지진 알림이 왔는데 여기는 아무 느낌이 없었어요	none	เตือนเกิน:ย้ายจากชุดปิดตา
+スマホに地震速報が来たけど、こちらは揺れなかった	none	เตือนเกิน:ย้ายจากชุดปิดตา
+มีคนเดินตามหลังมาเพราะทางเดียวกัน	none	เตือนเกิน:ย้ายจากชุดปิดตา
+อ่านข่าวการล่วงละเมิดแล้วโกรธมาก	none	เตือนเกิน:ย้ายจากชุดปิดตา
+พ่อตีลูกเบาๆ ที่ก้นตอนเล่นกัน หัวเราะกันใหญ่	none	เตือนเกิน:ย้ายจากชุดปิดตา
+ลูกแรกเกิดตัวเหลืองนิดหน่อย หมอให้ตากแดดอ่อนๆ	none	เตือนเกิน:ย้ายจากชุดปิดตา
+# ── ย้ายจากชุดปิดตา (แก้แล้ว: เรียน/อบรมเรื่องภัย · เตรียมรับพายุ · alcohol de contrabando) ──
+Mi vecino bebió alcohol de contrabando y dice que ve todo como en niebla	topic:health_emergency	พลาด:ย้ายจากชุดปิดตา
+พายุเข้า เลยเก็บกระถางต้นไม้เข้าบ้าน	none	เตือนเกิน:ย้ายจากชุดปิดตา
+En clase de ciencias aprendimos cómo se mide un sismo	none	เตือนเกิน:ย้ายจากชุดปิดตา
+Học về cách đo động đất trong giờ khoa học	none	เตือนเกิน:ย้ายจากชุดปิดตา
+科学课上学了地震是怎么测量的	none	เตือนเกิน:ย้ายจากชุดปิดตา
+理科の授業で地震の測り方を習った	none	เตือนเกิน:ย้ายจากชุดปิดตา
+ไปอบรมเรื่องการป้องกันการล่วงละเมิดในที่ทำงาน	none	เตือนเกิน:ย้ายจากชุดปิดตา
+# ── ย้ายจากชุดปิดตา X (เทสต์รอบ 21 ใช้ประโยคแทบเดียวกัน จึงไม่ใช่ข้อสอบปิดตาแล้ว) ──
+ก้างปลาติดคอนิดหน่อย กลืนข้าวสวยแล้วหลุด	none	เตือนเกิน:ย้ายจากชุดปิดตา
+# ── ย้ายจากชุดปิดตา Y (แก้แล้ว: กินยาที่หมอจ่ายจนครบ ไม่ใช่กินยาเกินขนาด) ──
+医生开了三天关节止痛药，已经吃完了	!crisis	เตือนเกิน:ย้ายจากชุดปิดตา
+指を切り落とすシーンのあるホラー映画を見た	none	health_minor
+เจ็บหน้าอกนิดหน่อยตอนหายใจลึกๆ เพราะเป็นหวัด	none	health_minor
+Slight chest pain when breathing deep because of a cold	none	health_minor
+Leve dolor de pecho al respirar hondo por un resfriado	none	health_minor
+ลูกกินปลาทูแล้วไอเพราะสำลักน้ำแกง สักพักก็หาย	none	health_minor
+庭で薬をまくときは防護服を全部着る	none	health_minor
+의사가 관절 진통제를 사흘 처방했는데 다 먹었어요	none	health_minor
+ปากบวมนิดหน่อยเพราะกินเผ็ด	none	health_minor
+เจ็บหน้าอกนิดหน่อยตอนวิ่งเพราะจุก	none	health_minor
+หายใจไม่ทันตอนวิ่งขึ้นเขา พักแล้วหาย	none	health_minor
+爬山喘不过气，休息就好	none	health_minor
+Mi tío tomó mezcal pirata y ahora no distingue las caras, todo se ve oscuro	topic:health_emergency	methanol
+ลูกเอาหัวโขกกำแพงจนเลือดออก หยุดไม่ได้	topic:health_emergency	round_fix
+My friend cut her wrist and there's a lot of blood	topic:someone	round_fix
+Mi amigo se cortó la muñeca y hay mucha sangre	topic:someone	round_fix
+Bạn tôi cắt cổ tay, máu chảy rất nhiều	topic:someone	round_fix
+ตกงานมาครึ่งปี เงินเก็บเหลือพันกว่าบาท	topic:basic	round_fix
+My roommate slit his arm and won't let me see it	topic:someone	round_fix
+My cousin keeps scratching her arms with a razor at night	topic:someone	round_fix

@@ -40,7 +40,8 @@ AMOUNT	en	re:\ba\s+(?:bottle|jar|box)\s+of\b|\ball\s+(?:of\s+)?(?:my|his|her|the
 AMOUNT	es	entero|entera|frasco|bote|caja|blíster|puñado|montón|media botella|una botella|docenas|vacío|vacía|diez|veinte|treinta|cuarenta|cincuenta|cien|hasta acabar|hasta terminar|de golpe
 AMOUNT	es	re:\btod[oa]s?\s+(?:el|la|los|las|sus|mis|su|mi)\b|\b[1-9]\d+\s*(?:pastillas?|p[íi]ldoras?|tabletas?|c[áa]psulas?|comprimidos?)\b
 AMOUNT	vi	re:(?:hết|cả|nguyên|nửa)\s+(?:cả\s+)?(?:lọ|vỉ|hộp|chai|nắm|vốc|túi|gói)\b|nhiều\s+(?:viên|thuốc)\b|\b[1-9]\d\s+viên\b|\bmươi\b|\bmười\b|đến\s+hết|cùng\s+lúc
-AMOUNT	zh	一整瓶|整瓶|一瓶|半瓶|一盒|整盒|一大把|一把|一罐|整罐|一整罐|一板|一整板|全部|所有|好多|很多|大量|几十|吃光|喝光|吞光
+AMOUNT	zh	一整瓶|整瓶|一瓶|半瓶|一盒|整盒|一大把|一把|一罐|整罐|一整罐|一板|一整板|全部|所有|很多|大量|几十|吃光|喝光|吞光
+AMOUNT	zh	re:好多(?!了)
 AMOUNT	zh	re:[都全](?:吃|喝|吞)(?:光|完|了)|[二三四五六七八九]?十几?[片粒颗顆]|[1-9]\d\s*[片粒颗顆]|[都全]吃完
 AMOUNT	ko	한 통|한통|한 병|한병|반 병|반병|한 상자|한상자|한 움큼|한움큼|한꺼번에|통째로|많이|수십|전부|모두|스무|서른|마흔|쉰
 AMOUNT	ko	re:(?:^|\s)다\s*(?:먹|마시|마셨|삼키|삼켰|드셨|드시)|[1-9]\d\s*(?:알|정|개)
@@ -105,7 +106,8 @@ AIRWAY_FAIL	zh	喘不了气|喘不过气|喘不過氣|无法呼吸|無法呼吸|
 AIRWAY_FAIL	ko	숨을 못|숨이 안|기침을 못|얼굴이 파래
 AIRWAY_FAIL	ja	息ができ|咳ができ|顔が青|呼吸ができ
 # ── ตัวกันเตือนเกิน (ใช้ทั้งประโยค) ──
-FICTION	th	หนัง|ละคร|ซีรีส์|เกม|นิยาย|การ์ตูน|ฝันว่า|ในฝัน
+FICTION	th	re:(?<!ผิว)(?<!ผิวหนัง)หนัง(?!ตา|สือ|หัว|ศีรษะ|ยาง|สัตว์|กำพร้า|ท้อง|ลอก)
+FICTION	th	ละคร|ซีรีส์|เกม|นิยาย|การ์ตูน|ฝันว่า|ในฝัน
 FICTION	en	movie|film|show|series|episode|game|novel|book|cartoon|anime|dream|scene
 FICTION	es	película|pelicula|serie|escena|videojuego|juego|novela|libro|anime|sueño|soñé
 FICTION	vi	phim|truyện|game|trò chơi|tiểu thuyết|anime|mơ thấy|giấc mơ
@@ -248,7 +250,8 @@ PAID_OK	ja	残業代はいい|残業代が出る|給料はいい
 # "ไม่รู้สึกตัวว่า..." = ไม่ทันสังเกต (ไม่รู้สึกตัวเลยว่าเวลาผ่านไป) ไม่ใช่หมดสติ
 UNCONSCIOUS	th	re:ไม่รู้สึกตัว(?!(?:เลย|สักนิด)?\s*ว่า)
 UNCONSCIOUS	th	หมดสติ|เรียกไม่ตื่น|ปลุกไม่ตื่น|ปลุกยังไงก็ไม่|ไม่ตอบสนอง|แน่นิ่ง|เป็นลม|ล้มฟุบ|สลบ
-UNCONSCIOUS	en	passed out|unconscious|unresponsive|won't wake|can't wake|cannot wake|isn't responding|not responding|won't respond|lying limp|went limp|collapsed|fainted|blacked out|isn't breathing|not breathing
+UNCONSCIOUS	en	passed out|unconscious|unresponsive|won't wake|can't wake|cannot wake|isn't responding|not responding|won't respond|lying limp|went limp|fainted|blacked out|isn't breathing|not breathing
+UNCONSCIOUS	en	re:\b(?<!soil )(?<!dirt )(?<!sand )(?<!sandcastle )(?<!tent )(?<!cake )(?<!roof )(?<!wall )(?<!bridge )(?<!building )collapsed\b
 UNCONSCIOUS	es	perdió el conocimiento|inconsciente|no reacciona|no responde|no despierta|se desmayó|desmayado|desmayada|se desplomó|no logramos despertarlo|no logramos despertarla|no respira
 UNCONSCIOUS	vi	bất tỉnh|ngất|ngất xỉu|không tỉnh|không phản ứng|ngã gục|lay không dậy|gọi mãi không tỉnh|không thở
 UNCONSCIOUS	zh	昏过去|昏過去|昏迷|晕倒|暈倒|叫不醒|没反应|沒反應|倒下|不省人事|没有呼吸|沒有呼吸
@@ -283,8 +286,9 @@ BLEED_BAD	vi	không ngừng|không cầm|loang|khắp|rất nhiều|xối xả|p
 BLEED_BAD	zh	一直流|流不停|止不住|一地|满地|滿地|很多|喷|噴|大量|一直
 BLEED_BAD	ko	멈추지 않|안 멈|계속|범벅|많이|흥건|뿜|철철
 BLEED_BAD	ja	止まらない|止まらな|だらけ|大量|たくさん|噴き出|あふれ|溢れ|びっしょり
-MINOR	th	นิดหน่อย|นิดเดียว|หยุดแล้ว|ซึม|เล็กน้อย|ถลอก|ไม่เป็นไร
-MINOR	en	a little|a bit of|a drop|just a drop|stopped|paper cut|scrape|scraped|tiny
+MINOR	th	นิดนึง|นิดหน่อย|นิดเดียว|หยุดแล้ว|ซึม|เล็กน้อย|ถลอก|ไม่เป็นไร
+MINOR	en	a little|a bit of|a drop|just a drop|paper cut|scrape|scraped|tiny
+MINOR	en	re:(?<!n't )(?<!not )(?<!never )\bstopped\b
 MINOR	es	un poco|poquito|gotita|ya paró|raspé|raspón|papel
 MINOR	vi	một chút|chút|đã ngừng|giấy|trầy|rỉ
 MINOR	zh	一点|一點|已经停|已經停|止住了|纸|紙|擦破
@@ -442,3 +446,1837 @@ VICTIM	vi	bị|tôi|tay|chân|ngón|mặt|con|bố|mẹ|em|anh|chị|bà|ông
 VICTIM	zh	被|我|他|她|手|腿|脚|腳|胳膊|手指|脸|臉|孩子|儿子|兒子|女儿|女兒|爸|妈|媽
 VICTIM	ko	물렸|물려|에게 물|한테 물|손|다리|팔|발|손가락|얼굴|아들|딸|아이|아빠|엄마|저를|제
 VICTIM	ja	噛まれ|かまれ|咬まれ|手|足|腕|指|顔|息子|娘|子ども|子供|父|母|私
+# ════ รอบ 4: ชัก · เส้นเลือดในสมอง · หัวกระแทก/ตกที่สูง · อุบัติเหตุรถ (ชุดปิดตา G ล็อกไว้ก่อนเขียน) ════
+# ── ชัก ── ไทย "ชัก" อยู่ใน ชักชวน/ชักจะ/ชักช้า — นับเฉพาะรูปที่ชัด
+# "แล้วชัก" เป็นต้นของ แล้วชักชวน/แล้วชักช้า · "ลมชัก" "อาการชัก" เป็นชื่อโรค/อาการ (เป็นโรคลมชัก ขับรถได้ไหม) ไม่ใช่กำลังชัก
+SEIZURE	th	ชักเกร็ง|ชักกระตุก|ชักตาตั้ง|ชักไม่หยุด|ชักดิ้น
+SEIZURE	th	re:(?:แล้ว|เริ่ม|กำลัง|ลูก|น้อง)ชัก(?!ชวน|ช้า|จะ|นำ|ธง|ว่าว|เย่อ|ใย|สงสัย|ไม่|แม่น|ออก|ชัก|เข้า|มา|ไป|ดาบ|ปืน|เงิน|สีหน้า)
+SEIZURE	en	seizure|seizing|convulsing|convulsion|having a fit
+SEIZURE	es	convulsión|convulsiones|convulsionando|convulsiona|convulsionó|convulsionar|ataque epiléptico|crisis epiléptica
+SEIZURE	vi	co giật|lên cơn động kinh|động kinh
+SEIZURE	zh	抽搐|癫痫发作|癲癇發作|羊癫疯|抽风|抽風
+SEIZURE	ko	경련|발작|간질
+SEIZURE	ja	けいれん|痙攣|ひきつけ|てんかん発作
+TWITCH	th	ตอนจะหลับ|ตอนกำลังจะหลับ|เปลือกตา|ตากระตุก
+TWITCH	en	falling asleep|eyelid|eye twitch
+TWITCH	es	durmiendo|párpado
+TWITCH	vi	sắp ngủ|mí mắt
+TWITCH	zh	睡着|睡著|眼皮
+TWITCH	ko	잠들|눈꺼풀
+TWITCH	ja	寝入り|まぶた
+# ── เส้นเลือดในสมอง ── คำชัดเจน หรืออาการสองอย่าง (ปากเบี้ยว · พูดไม่ชัด · อ่อนแรงครึ่งซีก · กะทันหัน)
+STROKE	th	เส้นเลือดในสมอง|หลอดเลือดสมอง|อัมพฤกษ์|สโตรก
+STROKE	en	stroke|having a stroke
+STROKE	es	derrame cerebral|ictus|accidente cerebrovascular
+STROKE	vi	đột quỵ|tai biến
+STROKE	zh	中风|中風|脑卒中|腦卒中|脑梗|腦梗
+STROKE	ko	뇌졸중|중풍|뇌경색
+STROKE	ja	脳卒中|脳梗塞|脳出血
+FACE_DROOP	th	ปากเบี้ยว|หน้าเบี้ยว|มุมปากตก
+FACE_DROOP	en	face is drooping|face drooping|drooping|droopy face|crooked face
+FACE_DROOP	es	se le cae un lado de la cara|cara caída|boca torcida|boca chueca
+FACE_DROOP	vi	méo miệng|mặt bị xệ|bị xệ|lệch mặt|méo mặt
+FACE_DROOP	zh	嘴歪|脸歪|臉歪|往下垂|口角歪斜
+FACE_DROOP	ko	입이 돌아|얼굴 한쪽이 처|입이 비뚤어졌
+FACE_DROOP	ja	口が曲が|顔の片側が下が|顔がゆが|顔がゆがん
+SLUR	th	พูดไม่ชัด|พูดไม่รู้เรื่อง|พูดจาไม่รู้เรื่อง|ลิ้นแข็ง|พูดไม่ออก
+# "can't make sense" ตามลำพัง = ไม่เข้าใจ (can't make sense of this math) — นับเฉพาะเมื่อพูดถึงการพูด
+SLUR	en	slurred|slurring|can't speak properly|garbled|talking nonsense
+SLUR	en	re:\b(?:can'?t|cannot)\s+make\s+sense\s+when\s+(?:he|she|they|i)\s+(?:talks?|speaks?)\b|\b(?:his|her|their)\s+(?:speech|words)\s+(?:is|are)\s+(?:slurred|garbled|strange|jumbled)
+SLUR	es	arrastrando las palabras|no se le entiende|no puede hablar bien
+SLUR	vi	nói ngọng|nói không rõ|nói lắp bắp|nói không ra lời
+SLUR	zh	说话含糊|說話含糊|说不清楚|說不清楚|口齿不清|口齒不清|含糊不清
+SLUR	ko	말이 어눌|발음이 어눌|알아들을 수 없|말을 못 해
+SLUR	ja	ろれつが回らない|話が通じな|言葉が出な|ろれつが
+WEAK_SIDE	th	อ่อนแรงซีก|อ่อนแรงครึ่งซีก|ชาครึ่งซีก|ขาไม่มีแรงข้างเดียว
+WEAK_SIDE	th	re:แขน\S{0,4}ยกไม่ขึ้น
+WEAK_SIDE	en	weak on one side|numb on one side|went weak on|weak on her left|weak on his left|weak on her right|weak on his right
+WEAK_SIDE	en	re:\bcan'?t\s+lift\s+(?:her|his|my|their)\s+(?:right\s+|left\s+)?arm\b
+WEAK_SIDE	es	no puede levantar el brazo|se le debilitó el lado|lado del cuerpo
+WEAK_SIDE	vi	yếu nửa người|không nhấc được tay|tê nửa người|liệt nửa người
+WEAK_SIDE	zh	半边身子没力气|半邊身子沒力氣|手抬不起来|手抬不起來|半身无力|半身無力|半身不遂
+WEAK_SIDE	ko	팔을 못 들|한쪽 몸에 힘이|왼쪽 몸에 힘이|오른쪽 몸에 힘이|반신|편마비
+WEAK_SIDE	ja	腕が上がらず|腕が上がらない|半身に力が入らず|半身に力が入らない|片側に力が入らない
+SUDDEN	th	กะทันหัน|ทันที|จู่ๆ|อยู่ๆ
+SUDDEN	en	suddenly|sudden|all of a sudden
+SUDDEN	es	de repente|repentinamente|de golpe
+SUDDEN	vi	đột nhiên|đột ngột|bỗng nhiên|bỗng
+SUDDEN	zh	突然
+SUDDEN	ko	갑자기
+SUDDEN	ja	急に|突然
+NOT_STROKE	th	ทำฟัน|หมอฟัน|ธรรมชาติ|แต่กำเนิด|ตั้งแต่เกิด|เมา
+NOT_STROKE	en	dental|dentist|naturally|since birth|born with|drunk|smile
+NOT_STROKE	es	dientes|dentista|nacimiento|borracho|sonrisa
+NOT_STROKE	vi	làm răng|nha sĩ|tự nhiên|bẩm sinh|say rượu|nụ cười
+NOT_STROKE	zh	看牙|牙医|牙醫|天生|喝醉|笑起来
+NOT_STROKE	ko	치과|원래|태어날 때|술 취|웃으면
+NOT_STROKE	ja	歯医者|生まれつき|酔っ|笑うと
+# ── หัวกระแทก/ตกที่สูง ── ต้องมีสัญญาณอันตราย (อาเจียน ซึมลง ไม่ขยับ) — "ตกบันไดขั้นเดียว ไม่เจ็บ" ไม่นับ
+# "ตก" อยู่ใน ตกใจ/ตกงาน/ฝนตก/ตกลง · "ล้ม" อยู่ใน ล้มเหลว/ล้มป่วย — นับเฉพาะความหมายว่าร่วงลง
+FALL	th	re:ตก(?!ใจ|งาน|ลง|แต่ง|ปลา|ค้าง|หล่น|ต่ำ|ยุค|เทรนด์|รถ)|ล้ม(?!เหลว|ละลาย|ป่วย|เลิก|ล้าง)
+FALL	en	fell|fall|fallen|falling|tumbled
+FALL	es	se cayó|cayó|caída|se cae
+FALL	vi	ngã|té|rơi
+FALL	zh	摔|跌|掉
+FALL	ko	떨어져|떨어졌|굴러|넘어져|넘어졌
+FALL	ja	落ち|転落|転倒|転ん
+# "หัว" อยู่ใน หัวเราะ/หัวหน้า/หัวใจ/หัวข้อ
+HEAD	th	ศีรษะ
+HEAD	th	re:หัว(?!เราะ|หน้า|ใจ|ข้อ|เรื่อง|ละ|ไช|เข่า|นม|หอม|ไหล่|ค่ำ)
+HEAD	en	head
+HEAD	es	cabeza
+HEAD	vi	đầu
+HEAD	zh	头|頭
+HEAD	ko	머리
+HEAD	ja	頭
+HEIGHT	th	ชั้นสอง|ชั้นสาม|หลังคา|ต้นไม้|นั่งร้าน|ระเบียง|ที่สูง|บันได
+HEIGHT	en	second floor|third floor|roof|tree|ladder|balcony|stairs|scaffold|bunk bed
+HEIGHT	es	segundo piso|tercer piso|techo|árbol|escalera|escaleras|balcón
+HEIGHT	vi	tầng hai|tầng ba|mái nhà|cây|thang|ban công|cầu thang
+HEIGHT	zh	二楼|二樓|三楼|三樓|屋顶|屋頂|树上|樹上|梯子|阳台|陽台|楼梯|樓梯
+HEIGHT	ko	2층|3층|이층|지붕|나무|사다리|베란다|계단
+HEIGHT	ja	二階|三階|2階|屋根|木から|はしご|ベランダ|階段
+RED_FLAG	th	อาเจียน|ซึม|ไม่ขยับ|ไม่รู้สึกตัว|เลือดออกหู|สับสน|หมดสติ
+RED_FLAG	en	vomiting|vomited|throwing up|threw up|drowsy|drowsier|not moving|unconscious|confused|bleeding from his ear|bleeding from her ear
+RED_FLAG	es	vomitando|vomitó|somnoliento|somnolienta|no se mueve|sin moverse|inconsciente|confundido|confundida
+RED_FLAG	vi	nôn|ói|lơ mơ|không cử động|nằm im|bất tỉnh|lú lẫn
+RED_FLAG	zh	一直吐|呕吐|嘔吐|迷糊|不动|不動|昏迷|意识不清|意識不清
+RED_FLAG	ko	토해|토하|졸려|안 움직|의식이|멍해
+RED_FLAG	ja	吐い|吐き|ぼんやり|動かない|意識が
+NO_PAIN	th	ไม่เจ็บ|ไม่เป็นไร|ปกติดี
+NO_PAIN	en	no pain|didn't hurt|doesn't hurt|i'm fine|i'm okay
+NO_PAIN	es	no me dolió|no duele|estoy bien
+NO_PAIN	vi	không đau|không sao
+NO_PAIN	zh	不疼|不痛|没事|沒事
+NO_PAIN	ko	안 아파|괜찮아
+NO_PAIN	ja	痛くない|大丈夫
+# ── อุบัติเหตุรถ ── ต้องมีคนบาดเจ็บ ("รถติด" "ฉากรถชนในหนัง" ไม่นับ)
+CRASH	th	รถชน|ชนกัน|รถคว่ำ|รถล้ม|มอเตอร์ไซค์ล้ม|อุบัติเหตุ|ประสานงา|ถูกรถชน|โดนรถชน
+CRASH	en	car crash|crash|crashed|collision|accident|went down|hit by a car|run over|rolled over
+CRASH	es	choque|chocó|accidente|atropellado|atropellada|atropelló|se cayó la moto|volcó
+CRASH	vi	tai nạn|đâm xe|tông xe|bị xe đâm|bị ngã xe|xe máy bị ngã|lật xe
+CRASH	zh	撞车|撞車|车祸|車禍|翻了|被车撞|被車撞|撞了
+CRASH	ko	사고|교통사고|치였|전복|넘어졌
+CRASH	ja	事故|衝突|はねられ|横転|転倒
+CRASH_HARM	th	ติดอยู่ในรถ|ติดในรถ|ไม่ขยับ|เลือด|หมดสติ|บาดเจ็บ|ไม่รู้สึกตัว|นอนไม่ขยับ
+CRASH_HARM	en	trapped|not moving|unconscious|bleeding|injured|pinned|badly hurt
+CRASH_HARM	es	atrapado|atrapada|sin moverse|inconsciente|sangra|sangrando|herido|herida
+CRASH_HARM	vi	bị kẹt|không cử động|nằm im|bất tỉnh|chảy máu|bị thương
+CRASH_HARM	zh	被困|不动|不動|昏迷|流血|受伤|受傷
+CRASH_HARM	ko	갇혔|안 움직|의식|피가|다쳤
+CRASH_HARM	ja	閉じ込め|動かない|意識|血が|けが|怪我
+
+# ═══ รอบ 5: ก๊าซรั่ว/CO · ลมแดด · น้ำตาลต่ำ · หอบหืดกำเริบ ═══
+# ── ก๊าซรั่ว/CO ── ต้องมีอาการ ("แก๊สใกล้หมด" "ห้องกลิ่นอับ" ไม่นับ)
+GAS	th	แก๊ส|ก๊าซ|แก็ส
+GAS	en	gas|propane
+GAS	es	gas|butano
+GAS	vi	ga|khí ga|gas
+GAS	zh	煤气|煤氣|燃气|燃氣|天然气|天然氣|瓦斯
+GAS	ko	가스
+GAS	ja	ガス
+LEAK_SMELL	th	รั่ว|กลิ่น
+LEAK_SMELL	en	smell|smells|leak|leaking
+LEAK_SMELL	es	olor|huele|fuga
+LEAK_SMELL	vi	mùi|rò rỉ|xì
+LEAK_SMELL	zh	味|泄漏|漏气|漏氣
+LEAK_SMELL	ko	냄새|누출|새고|새요
+LEAK_SMELL	ja	臭い|におい|匂い|漏れ
+CO	th	คาร์บอนมอนอกไซด์|ก๊าซพิษ
+CO	en	carbon monoxide|co alarm|co detector
+CO	es	monóxido de carbono|monoxido de carbono
+CO	vi	khí co|carbon monoxide|cacbon monoxit
+CO	zh	一氧化碳|煤气中毒|煤氣中毒
+CO	ko	일산화탄소
+CO	ja	一酸化炭素|CO中毒
+CLOSED_ROOM	th	ห้องปิด|ปิดห้อง|ปิดประตู|ปิดหน้าต่าง|ห้องทึบ|ปิดทุกบาน|ปิดมิดชิด
+CLOSED_ROOM	en	closed room|closed garage|windows closed|sealed room|garage|windows shut|doors shut|windows closed
+CLOSED_ROOM	es	cuarto cerrado|habitación cerrada|habitacion cerrada|garaje|ventanas cerradas|puertas cerradas|todo cerrado
+CLOSED_ROOM	vi	phòng kín|đóng kín|đóng cửa
+CLOSED_ROOM	zh	关着门|關著門|关门|關門|密闭|密閉|门窗紧闭|門窗緊閉
+CLOSED_ROOM	ko	문 닫고|밀폐|창문 닫
+CLOSED_ROOM	ja	締め切った|閉め切った|密閉
+FUEL_BURN	th	เตาถ่าน|ถ่าน|เครื่องปั่นไฟ|ฮีตเตอร์|ติดเครื่องรถ
+FUEL_BURN	en	heater|charcoal|grill|generator|engine running
+FUEL_BURN	es	brasero|carbón|carbon|calefactor|estufa|generador
+FUEL_BURN	vi	than|lò sưởi|máy phát
+FUEL_BURN	zh	烧炭|燒炭|炭火|煤炉|煤爐|取暖|发电机|發電機
+FUEL_BURN	ko	숯|번개탄|난로|발전기
+FUEL_BURN	ja	炭火|七輪|練炭|ストーブ|発電機
+GAS_SYMPTOM	th	เวียนหัว|มึนหัว|ปวดหัว|อาเจียน|คลื่นไส้|ซึม|หมดสติ|ปลุกไม่ตื่น|ปลุกไม่ค่อยตื่น
+GAS_SYMPTOM	en	dizzy|headache|headaches|throwing up|vomiting|nauseous|drowsy|passed out|won't wake|can barely wake
+GAS_SYMPTOM	es	re:maread[oa]s?|mareo|dolor de cabeza|vomit\w*|somnolient[oa]|desmay\w*|no despierta
+GAS_SYMPTOM	vi	chóng mặt|đau đầu|nôn|buồn nôn|lơ mơ|ngất|không tỉnh
+GAS_SYMPTOM	zh	头晕|頭暈|头痛|頭痛|呕吐|嘔吐|恶心|噁心|昏昏沉沉|叫不醒|昏迷
+GAS_SYMPTOM	ko	어지러|머리 아프|두통|토해|토하|구토|몽롱|안 깨|의식
+GAS_SYMPTOM	ja	めまい|頭痛|吐き気|吐い|ぼーっと|起きない|意識
+# ── ลมแดด ── คำชัดเจน หรือตัวร้อนจัด + สัญญาณอันตราย ("ร้อนเหงื่อท่วม" "ผิวแดงนิดหน่อย" ไม่นับ)
+HEATSTROKE	th	ฮีทสโตรก|ฮีตสโตรก|โรคลมแดด|ลมแดด
+HEATSTROKE	en	heatstroke|heat stroke
+HEATSTROKE	es	golpe de calor|insolación|insolacion
+HEATSTROKE	vi	sốc nhiệt|say nắng
+HEATSTROKE	zh	中暑|热射病|熱射病
+HEATSTROKE	ko	열사병|일사병
+HEATSTROKE	ja	熱中症|熱射病
+HOT_BODY	th	ตัวร้อนจัด|ตัวร้อนมาก|ร้อนเหมือนไฟ|ตัวร้อนจี๋|ตัวร้อนผิดปกติ
+HOT_BODY	en	burning hot|scorching hot|hot to the touch|burning up
+HOT_BODY	es	ardiendo|hirviendo|muy caliente
+HOT_BODY	vi	nóng ran|nóng như lửa|nóng hầm hập|người nóng
+HOT_BODY	zh	滚烫|滾燙|烫得|燙得|发烫|發燙
+HOT_BODY	ko	펄펄 끓|불덩이|몸이 뜨거
+HOT_BODY	ja	体が熱|体がすごく熱|火のように熱|熱くて
+HEAT_RED	th	ไม่มีเหงื่อ|เหงื่อไม่ออก|สับสน|ล้มลง|หมดสติ|เป็นลม|พูดไม่รู้เรื่อง|ชัก|ไม่ค่อยตอบสนอง|เรียกไม่ตื่น|ไม่ตอบสนอง
+HEAT_RED	en	not sweating|stopped sweating|confused|collapsed|passed out|fainted|unresponsive
+HEAT_RED	es	no suda|confundido|confundida|se desplomó|se desplomo|se desmayó|se desmayo|desmayado|desmayada|no responde
+HEAT_RED	vi	không ra mồ hôi|lẫn lộn|ngã quỵ|ngất|bất tỉnh|không phản ứng
+HEAT_RED	zh	不出汗|没汗|沒汗|糊涂|糊塗|倒下|晕倒|暈倒|昏迷|反应很慢|反應很慢|没反应|沒反應
+HEAT_RED	ko	땀도 안|땀이 안|횡설수설|쓰러|의식|반응이 없|반응이 느
+HEAT_RED	ja	汗も出|汗が出な|話がおかしい|倒れ|意識|反応が鈍|反応がない
+ADVICE	th	ระวัง|วิธีป้องกัน|อธิบาย|คืออะไร|ทำรายงาน|การบ้าน
+ADVICE	en	tips|beware|watch out for|explain|homework
+ADVICE	es	cuidado con|consejos|explica|qué es|que es|tarea
+ADVICE	vi	đề phòng|cẩn thận|giải thích|là gì|bài tập
+ADVICE	zh	注意|小心|解释|解釋|是什么|是什麼|作业|作業
+ADVICE	ko	주의|조심|설명|뭐예요|숙제
+ADVICE	ja	注意|気をつけ|説明|宿題
+# ── น้ำตาลต่ำ ── เบาหวาน/อินซูลิน/น้ำตาลต่ำ + อาการ หรือค่าน้ำตาลต่ำเป็นตัวเลข ("หิวจนมือสั่นนิดๆ" "ผลตรวจปกติ" ไม่นับ)
+DIABETES	th	เบาหวาน|อินซูลิน
+DIABETES	en	diabetic|diabetes|insulin
+DIABETES	es	diabético|diabética|diabetico|diabetica|diabetes|insulina
+DIABETES	vi	tiểu đường|đái tháo đường|insulin
+DIABETES	zh	糖尿病|胰岛素|胰島素
+DIABETES	ko	당뇨|인슐린
+DIABETES	ja	糖尿病|インスリン
+LOW_SUGAR	th	น้ำตาลต่ำ|น้ำตาลตก|น้ำตาลในเลือดต่ำ
+LOW_SUGAR	en	low blood sugar|blood sugar is low|hypoglycemia|hypoglycemic|sugar crashed|sugar dropped
+LOW_SUGAR	es	hipoglucemia|azúcar baja|azucar baja|bajón de azúcar
+LOW_SUGAR	vi	hạ đường huyết|đường huyết thấp
+LOW_SUGAR	zh	低血糖|血糖低|血糖很低
+LOW_SUGAR	ko	저혈당|혈당이 떨어
+LOW_SUGAR	ja	低血糖|血糖値が下が
+HYPO_SIGN	th	เหงื่อแตกพลั่ก|เหงื่อเย็น|ตัวสั่น|ใจสั่น|ซึม|สับสน|เรียกไม่รู้เรื่อง|เรียกไม่ค่อยรู้เรื่อง|หมดสติ|เป็นลม|ชัก
+HYPO_SIGN	en	cold sweat|clammy|shaking|shaky|drowsy|confused|unresponsive|barely responding|not responding|passed out|pass out|faint
+HYPO_SIGN	es	sudor frío|sudor frio|temblando|adormilado|adormilada|somnoliento|somnolienta|confundido|confundida|no responde|desmayar|desmayo
+HYPO_SIGN	vi	mồ hôi lạnh|run rẩy|lừ đừ|lơ mơ|không phản ứng|ngất|lẫn lộn
+HYPO_SIGN	zh	冷汗|发抖|發抖|迷糊|反应很慢|反應很慢|没反应|沒反應|晕倒|暈倒|心慌
+HYPO_SIGN	ko	식은땀|떨려|떨고|떨면서|덜덜|처져|반응이 없|몽롱|쓰러
+HYPO_SIGN	ja	冷や汗|震え|ぼんやり|反応が鈍|反応がない|倒れ
+SUGAR_NUM	th	re:น้ำตาล[^0-9]{0,14}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])(?!\s*(?:กรัม|ก\.|%|เปอร์))
+SUGAR_NUM	en	re:sugar[^0-9]{0,16}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])(?!\s*(?:g\b|grams|mg|%|percent))
+SUGAR_NUM	es	re:(?:azúcar|azucar|glucosa)[^0-9]{0,16}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])(?!\s*(?:g\b|gramos|mg|%))
+SUGAR_NUM	vi	re:đường huyết[^0-9]{0,16}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])(?!\s*(?:g\b|gam|%))
+SUGAR_NUM	zh	re:血糖[^0-9]{0,12}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])
+SUGAR_NUM	ko	re:혈당[^0-9]{0,12}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])
+SUGAR_NUM	ja	re:血糖[^0-9]{0,12}(?:[1-5][0-9]|[1-3]\.[0-9])(?![0-9.])
+SUGAR_OK	th	ปกติ|กินแล้วหาย|ดีขึ้นแล้ว
+SUGAR_OK	en	normal|fixed it|feel better now
+SUGAR_OK	es	normal|se me pasó|ya estoy bien
+SUGAR_OK	vi	bình thường|là hết|đỡ rồi
+SUGAR_OK	zh	正常|就好了|好多了
+SUGAR_OK	ko	정상|괜찮아|나아졌
+SUGAR_OK	ja	正常|治った|良くなった
+# ── หอบหืดกำเริบ ── หืด + ยาไม่ช่วย/ปากเขียว หรือเสียงวี้ด + พูดได้ทีละคำ ("หืดแต่คุมได้" "วิ่งแล้วหอบ" ไม่นับ)
+ASTHMA	th	หอบหืด|โรคหืด|หืด
+ASTHMA	en	asthma|asthmatic
+ASTHMA	es	asma|asmático|asmática
+ASTHMA	vi	hen|hen suyễn|suyễn
+ASTHMA	zh	哮喘|气喘|氣喘
+ASTHMA	ko	천식
+ASTHMA	ja	喘息|ぜんそく
+ASTHMA_FAIL	th	พ่นยาแล้วไม่ดีขึ้น|พ่นยาไม่ดีขึ้น|ยาพ่นไม่ช่วย|พ่นแล้วไม่หาย|ปากเขียว|ปากม่วง|หายใจไม่ออก|หายใจไม่ทัน
+ASTHMA_FAIL	en	inhaler isn't helping|inhaler isn't working|inhaler not working|inhaler doesn't help|lips are turning blue|lips turning blue|blue lips|can't breathe|cannot breathe
+ASTHMA_FAIL	es	no le hace efecto|no hace efecto|labios morados|no puede respirar|no puedo respirar
+ASTHMA_FAIL	vi	không đỡ|môi tím|môi bắt đầu tím|không thở được
+ASTHMA_FAIL	zh	没用|沒用|发紫|發紫|喘不过气|喘不過氣|呼吸困难|呼吸困難
+ASTHMA_FAIL	ko	안 듣|파래|숨을 못|숨이 안
+ASTHMA_FAIL	ja	効かず|効かない|紫|息ができない|息が苦しい
+WHEEZE	th	เสียงวี้ด|หายใจวี้ด|หายใจหวีด|หวีด
+WHEEZE	en	wheezing|wheeze|wheezes
+WHEEZE	es	silbidos|silbido|sibilancias
+WHEEZE	vi	khò khè
+WHEEZE	zh	哮鸣|哮鳴|喘鸣|喘鳴
+WHEEZE	ko	쌕쌕
+WHEEZE	ja	ゼーゼー|ヒューヒュー|ぜいぜい
+SHORT_SPEECH	th	พูดได้ทีละคำ|พูดไม่เป็นประโยค|พูดไม่จบประโยค
+SHORT_SPEECH	en	one word at a time|can't finish a sentence|can't talk
+SHORT_SPEECH	es	una palabra a la vez|no puede hablar
+SHORT_SPEECH	vi	từng chữ|không nói được
+SHORT_SPEECH	zh	一个字|一個字|说不出话|說不出話
+SHORT_SPEECH	ko	한 단어씩|말을 못
+SHORT_SPEECH	ja	一言ずつ|話せない
+CONTROLLED	th	คุมได้|ควบคุมได้
+CONTROLLED	en	well controlled|under control
+CONTROLLED	es	bien controlada|bien controlado
+CONTROLLED	vi	kiểm soát tốt
+CONTROLLED	zh	控制得很好|控制得很好
+CONTROLLED	ko	잘 관리
+CONTROLLED	ja	コントロール
+
+# ═══ รอบ 6: หัวใจวาย/เจ็บหน้าอก · ขาดน้ำรุนแรง · ติดอยู่ในที่แคบ · น้ำท่วมฉับพลัน ═══
+# ── หัวใจ ── เจ็บ/แน่นหน้าอก + อาการร่วม ("เจ็บหน้าอกเพราะไอ" "เล่นเวท" "อกหัก" ไม่นับ)
+HEART_ATTACK	th	หัวใจวาย|หัวใจขาดเลือด|กล้ามเนื้อหัวใจตาย
+HEART_ATTACK	en	heart attack|cardiac arrest
+HEART_ATTACK	es	infarto|ataque al corazón|ataque cardiaco|ataque cardíaco
+HEART_ATTACK	vi	nhồi máu cơ tim|đau tim cấp|ngừng tim
+HEART_ATTACK	zh	心梗|心肌梗塞|心肌梗死|心脏病发作|心臟病發作
+HEART_ATTACK	ko	심근경색|심장마비
+HEART_ATTACK	ja	心筋梗塞|心臓発作
+CHEST_PAIN	th	เจ็บหน้าอก|แน่นหน้าอก|เจ็บแน่นหน้าอก|ปวดหน้าอก|ทับหน้าอก|เจ็บอก
+CHEST_PAIN	en	chest pain|chest hurts|chest pressure|chest tightness|on his chest|on her chest|on my chest
+CHEST_PAIN	es	dolor en el pecho|duele el pecho|dolor opresivo en el pecho|peso en el pecho|presión en el pecho
+CHEST_PAIN	vi	đau ngực|đau thắt ngực|tức ngực|đè lên ngực
+CHEST_PAIN	zh	胸痛|胸口疼|胸口痛|胸口压|胸口壓|胸口像压|胸闷|胸悶
+CHEST_PAIN	ko	가슴 통증|가슴이 아프|가슴을 쥐어짜|가슴이 답답|가슴에 돌
+CHEST_PAIN	ja	胸の痛み|胸が痛|胸を締め付け|胸に重い
+CARDIAC_SIGN	th	แขนซ้าย|ร้าวไปแขน|ร้าวไปกราม|เหงื่อออก|เหงื่อแตก|หายใจไม่อิ่ม|หายใจไม่ออก|หน้าซีด|คลื่นไส้|ไม่หาย|ครึ่งชั่วโมง
+CARDIAC_SIGN	en	left arm|jaw|sweat|sweating|drenched|can't catch his breath|can't catch her breath|short of breath|pale|nauseous|won't go away|half an hour
+CARDIAC_SIGN	es	brazo izquierdo|mandíbula|sudor|sudando|le falta el aire|pálido|pálida|náuseas|no se le pasa|media hora
+CARDIAC_SIGN	vi	tay trái|hàm|mồ hôi|thở không nổi|khó thở|tái mét|buồn nôn|không hết|nửa tiếng
+CARDIAC_SIGN	zh	左臂|左胳膊|下巴|大汗|冷汗|喘不上气|喘不上氣|苍白|蒼白|想吐|恶心|没缓解|沒緩解|半小时
+CARDIAC_SIGN	ko	왼팔|턱|식은땀|숨이 차|하얘|창백|메스꺼|안 가라앉|30분
+CARDIAC_SIGN	ja	左腕|あご|大汗|冷や汗|息苦し|真っ青|吐き気|治まらず|30分
+CHEST_BENIGN	th	ไอ|เล่นเวท|ยกเวท|ออกกำลัง|อกหัก|หนังผี
+CHEST_BENIGN	en	cough|coughing|bench|workout|gym|heartbroken|breakup|horror
+CHEST_BENIGN	es	toser|tos|press de banca|gimnasio|ruptura|terror
+CHEST_BENIGN	vi	ho|tập|chia tay|kinh dị
+CHEST_BENIGN	zh	咳|卧推|臥推|健身|分手|恐怖
+CHEST_BENIGN	ko	기침|벤치|운동|이별|공포
+CHEST_BENIGN	ja	咳|ベンチプレス|筋トレ|失恋|ホラー
+# ── ขาดน้ำ ── ท้องเสีย/อาเจียน + สัญญาณขาดน้ำ ("คอแห้งขอน้ำ" "ท้องเสียนิดหน่อยกินเกลือแร่แล้วดีขึ้น" ไม่นับ)
+FLUID_LOSS	th	ท้องเสีย|ท้องร่วง|อาเจียน|อ้วก
+FLUID_LOSS	en	diarrhea|diarrhoea|vomiting|throwing up
+FLUID_LOSS	es	diarrea|vomitar|vomitando|vómitos
+FLUID_LOSS	vi	tiêu chảy|nôn|ói
+FLUID_LOSS	zh	拉肚子|腹泻|腹瀉|吐
+FLUID_LOSS	ko	설사|토하|구토
+FLUID_LOSS	ja	下痢|吐き
+DEHY_SIGN	th	ไม่ฉี่|ไม่ปัสสาวะ|ปากแห้ง|ตาลึก|ตาโหล|ซึม|กินน้ำไม่ได้|ดื่มน้ำไม่ได้|อ่อนเพลียมาก
+DEHY_SIGN	en	no wet diaper|hasn't peed|no urine|dry mouth|sunken|very sleepy|lethargic|can't keep water down|can't keep anything down
+DEHY_SIGN	es	no moja el pañal|no orina|boca seca|ojos hundidos|decaído|decaída|no retiene
+DEHY_SIGN	vi	không đi tiểu|môi khô|miệng khô|mắt trũng|lừ đừ|uống nước vào là nôn
+DEHY_SIGN	zh	没尿|沒尿|嘴唇干|嘴唇乾|眼窝凹陷|眼窩凹陷|没精神|沒精神|喝水也吐
+DEHY_SIGN	ko	소변을 안|소변이 안|입술이 마르|입이 마르|눈이 퀭|처져|물도 못
+DEHY_SIGN	ja	おしっこが出|尿が出|唇が乾|口が乾|目がくぼ|ぐったり|水も飲めず|水も飲めない
+BETTER	th	ดีขึ้น|หายแล้ว
+BETTER	en	feel better|feeling better|better now
+BETTER	es	me siento mejor|ya estoy mejor
+BETTER	vi	thấy đỡ|đỡ rồi|khỏi rồi
+BETTER	zh	好多了|好了
+BETTER	ko	나아졌|괜찮아졌
+BETTER	ja	良くなった|治った
+# ── ติดอยู่ในที่แคบ ── ติด + สถานที่ + อันตราย (อากาศ แดด เวลานาน ตึกถล่ม) — "รถติด" ไม่นับ
+TRAPPED	th	ติดอยู่|ติดค้าง|ค้าง|ล็อก|ออกไม่ได้|เปิดไม่ได้
+TRAPPED	en	trapped|stuck|locked in|can't get out|can't get the door open
+TRAPPED	es	re:atrapad[oa]s?|encerrad[oa]|parado|no puedo abrir|no puede salir
+TRAPPED	vi	kẹt|bị khóa|không mở được|không ra được
+TRAPPED	zh	被困|卡在|锁在|鎖在|打不开|打不開|出不来|出不來|压在|壓在
+TRAPPED	ko	갇혀|갇혔|멈췄|안 열려|못 나와|깔려
+TRAPPED	ja	閉じ込め|止まって|開かない|出られない|埋まって
+PLACE	th	ลิฟต์|ในรถ|ห้องเย็น|ซาก
+PLACE	en	elevator|lift|car|rubble|freezer
+PLACE	es	ascensor|coche|carro|escombros
+PLACE	vi	thang máy|trong xe|đổ nát
+PLACE	zh	电梯|電梯|车里|車裡|废墟|廢墟
+PLACE	ko	엘리베이터|차 안|잔해
+PLACE	ja	エレベーター|車|がれき
+TRAP_DANGER	th	อากาศ|หายใจ|แดด|ชั่วโมง|ถล่ม|ใต้
+TRAP_DANGER	en	air|breathe|sun|hour|collapsed|under
+TRAP_DANGER	es	aire|sol|hora|derrumbó|bajo
+TRAP_DANGER	vi	ngột|nắng|tiếng|sập|dưới
+TRAP_DANGER	zh	空气|空氣|闷|悶|太阳|太陽|小时|小時|塌
+TRAP_DANGER	ko	공기|숨|땡볕|햇볕|시간째|무너
+TRAP_DANGER	ja	空気|息|炎天下|日なた|時間|崩れ
+TRAFFIC	th	รถติด
+TRAFFIC	en	traffic
+TRAFFIC	es	tráfico|trafico|atasco
+TRAFFIC	vi	kẹt xe|tắc đường
+TRAFFIC	zh	堵车|堵車|塞车|塞車
+TRAFFIC	ko	차가 막혀|교통 체증
+TRAFFIC	ja	渋滞
+# ── น้ำท่วมฉับพลัน ── น้ำป่า/ถูกน้ำพัด + คนติด/น้ำถึงหลังคา ("น้ำขังนิดหน่อย" "ข่าวน้ำท่วม" ไม่นับ)
+FLOOD	th	น้ำป่า|น้ำท่วม|น้ำพัด|น้ำหลาก|ไหลหลาก
+FLOOD	en	flash flood|flood|floodwater|flooding|swept
+FLOOD	es	riada|inundación|inundacion|corriente arrastró|arrastró
+FLOOD	vi	lũ|lũ quét|nước lũ|lũ cuốn
+FLOOD	zh	山洪|洪水|冲走|沖走
+FLOOD	ko	홍수|급류|휩쓸
+FLOOD	ja	鉄砲水|洪水|流され
+FLOOD_DANGER	th	หลังคา|ออกไม่ได้|ติดอยู่|จมน้ำ|ถูกพัด
+FLOOD_DANGER	en	roof|roofs|can't get out|trapped|stranded
+FLOOD_DANGER	es	tejado|tejados|techo|no puede salir|atrapad
+FLOOD_DANGER	vi	mái nhà|không ra được|mắc kẹt
+FLOOD_DANGER	zh	屋顶|屋頂|出不来|出不來|被困|淹到
+FLOOD_DANGER	ko	지붕|못 나와|갇혀
+FLOOD_DANGER	ja	屋根|出られない|取り残
+
+# ═══ รอบ 7: ครรภ์เสี่ยง · ไข้สูงในทารก · แผลลึก/ของแหลมทิ่ม · สัตว์มีพิษในทะเล ═══
+# ── ตั้งครรภ์ + สัญญาณอันตราย ("แพ้ท้องนิดหน่อย" "อยากกินของเปรี้ยว" "ฝากครรภ์ผลดี" ไม่นับ)
+PREGNANT	th	re:ท้อง(?:ได้)?\s*(?:\d+|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า)\s*(?:เดือน|สัปดาห์|วีค)|ตั้งครรภ์|คนท้อง|อายุครรภ์
+PREGNANT	en	pregnant|pregnancy
+PREGNANT	es	embarazo|embarazada
+PREGNANT	vi	có thai|mang thai|có bầu|thai
+PREGNANT	zh	怀孕|懷孕|孕妇|孕婦
+PREGNANT	ko	임신|임산부
+PREGNANT	ja	妊娠|妊婦
+PREG_DANGER	th	เลือดออก|ตกเลือด|ปวดหัวมาก|ตาพร่า|ตามัว|น้ำเดิน|ลูกไม่ดิ้น|ลูกไม่ค่อยดิ้น|ชัก|ปวดท้องบีบ
+PREG_DANGER	en	bleeding|terrible headache|severe headache|blurry vision|water broke|barely moving|not moving|stopped moving|seizure
+PREG_DANGER	es	sangrando|sangrado|dolor de cabeza terrible|visión borrosa|vision borrosa|se me rompió la fuente|rompí fuente|no se mueve|convulsión
+PREG_DANGER	vi	ra máu|chảy máu|đau đầu dữ dội|mờ mắt|vỡ ối|không đạp|co giật
+PREG_DANGER	zh	出血|流血|头痛得厉害|頭痛得厲害|模糊|破水|几乎不动|幾乎不動|不动了|抽搐
+PREG_DANGER	ko	하혈|출혈|피가|머리가 너무 아프|침침|양수가 터|안 움직|경련
+PREG_DANGER	ja	出血|ひどい頭痛|かすみ|破水|動かない|けいれん
+PREG_OK	th	แข็งแรงดี|ปกติดี|ผลดี
+PREG_OK	en	healthy|went great|normal
+PREG_OK	es	sano|salió bien
+PREG_OK	vi	khỏe mạnh|bình thường
+PREG_OK	zh	很健康|很顺利
+PREG_OK	ko	건강하|잘 받았
+PREG_OK	ja	元気|順調
+# ── ไข้ในทารก ── ทารก + ไข้ + สัญญาณอันตราย (ไม่กินนม ร้องไม่หยุด ซึม กระหม่อมโป่ง)
+INFANT	th	re:ทารก|เด็กแรกเกิด|(?:ลูก|หลาน|น้อง)\S{0,6}?(?:อายุ\s*)?\d+\s*(?:เดือน|สัปดาห์)
+INFANT	en	re:\b\d+[ -](?:month|week)[ -]old\b|\bnewborn\b|\binfant\b|\bthe baby\b|\bmy baby\b
+INFANT	es	re:\bbeb[ée]\b|\breci[ée]n nacid[oa]\b
+INFANT	vi	re:em bé|trẻ sơ sinh|\d+\s+tháng tuổi
+INFANT	zh	婴儿|嬰兒|宝宝|寶寶|新生儿|新生兒
+INFANT	ko	re:아기|신생아|생후\s*\d+
+INFANT	ja	re:赤ちゃん|新生児|生後\s*\d+
+FEVER	th	ไข้|ตัวร้อน
+FEVER	en	fever|burning hot|burning up
+FEVER	es	fiebre|ardiendo
+FEVER	vi	sốt|nóng hầm hập|nóng ran
+FEVER	zh	高烧|高燒|发烧|發燒|发热|發熱|滚烫|滾燙
+FEVER	ko	고열|열이|불덩이
+FEVER	ja	高熱|熱
+INFANT_RED	th	ไม่ยอมกินนม|ไม่กินนม|ร้องไม่หยุด|กระหม่อมโป่ง|ซึม|ชัก|หายใจเร็ว
+INFANT_RED	en	won't feed|not feeding|nonstop|soft spot|lethargic|floppy|seizure
+INFANT_RED	es	no quiere comer|no come|sin parar|fontanela|decaído|convulsión
+INFANT_RED	vi	không chịu bú|không bú|khóc không ngừng|thóp|lừ đừ|co giật
+INFANT_RED	zh	不肯吃奶|不吃奶|哭个不停|哭個不停|囟门|囟門|没精神|抽搐
+INFANT_RED	ko	분유를 안|젖을 안|계속 울|숨구멍|처져|경련
+INFANT_RED	ja	ミルクを飲まない|泣き止まず|泣き止まない|大泉門|ぐったり|けいれん
+# ── แผลลึก ── ของแหลมทะลุ + เลือดไม่หยุด หรือบาดลึกจนเห็นข้างใน ("มีดบาดนิ้วนิดหน่อย" "ตะปูหลุดจากผนัง" ไม่นับ)
+PIERCE	th	ทิ่ม|ทะลุ|เสียบ|ปักเข้า
+PIERCE	en	went through|impaled|stuck in my|through my foot|through his
+PIERCE	es	atravesó|atraveso|se me clavó|se clavó
+PIERCE	vi	đâm xuyên|xuyên qua|đâm vào
+PIERCE	zh	扎穿|刺穿|扎进|刺进|插进
+PIERCE	ko	뚫고|박혔|찔렸
+PIERCE	ja	貫通|刺さって|突き刺さ
+BLEED_NONSTOP	th	ไหลไม่หยุด|ไม่หยุด|ทะลัก
+BLEED_NONSTOP	en	won't stop bleeding|keeps bleeding|bleeding a lot|pouring blood
+BLEED_NONSTOP	es	no deja de sangrar|no para de sangrar|sangra mucho
+BLEED_NONSTOP	vi	chảy không ngừng|không cầm được|chảy rất nhiều
+BLEED_NONSTOP	zh	止不住|一直流血|血流不止
+BLEED_NONSTOP	ko	안 멈춰|멈추지 않|계속 나
+BLEED_NONSTOP	ja	止まらない|止まらず
+CUT_DEEP	th	re:บาด[^\n]{0,10}?ลึก|เห็นเนื้อข้างใน|เห็นกระดูก|แผลลึก
+CUT_DEEP	en	so deep|can see inside|see the bone|deep gash|deep cut
+CUT_DEEP	es	tan profundo|se ve por dentro|se ve el hueso|corte profundo
+CUT_DEEP	vi	sâu đến mức|thấy cả bên trong|thấy xương|vết cắt sâu
+CUT_DEEP	zh	割得很深|能看到里面|能看到裡面|看到骨头|看到骨頭
+CUT_DEEP	ko	깊게 베|속이 보여|뼈가 보여
+CUT_DEEP	ja	深く切って|中が見え|骨が見え
+# ── สัตว์มีพิษในทะเล ── ชื่อสัตว์ + โดน/เหยียบ + อาการ ("เห็นแมงกะพรุน" "กินเม่นทะเล" "ดูสารคดีปลาหิน" ไม่นับ)
+MARINE	th	แมงกะพรุน|ปลาหิน|เม่นทะเล|ปลากระเบน|ปลาสิงโต
+MARINE	en	jellyfish|stonefish|sea urchin|stingray|lionfish
+MARINE	es	medusa|pez piedra|erizo|raya|pez león
+MARINE	vi	sứa|cá mặt quỷ|nhím biển|cá đuối
+MARINE	zh	水母|石头鱼|石頭魚|海胆|海膽|魟鱼|魟魚
+MARINE	ko	해파리|쑤기미|성게|가오리
+MARINE	ja	クラゲ|オニダルマオコゼ|ウニ|エイ
+MARINE_ACT	th	โดน|เหยียบ|ตำ|ต่อย
+MARINE_ACT	en	stung|stepped on|spine|sting
+MARINE_ACT	es	picó|pique|pisé|clavó|púa
+MARINE_ACT	vi	đốt|giẫm|đâm|gai
+MARINE_ACT	zh	蜇|踩到|扎进|刺
+MARINE_ACT	ko	쏘였|밟았|박혔|가시
+MARINE_ACT	ja	刺され|踏ん|刺さ|とげ
+MARINE_RED	th	หายใจลำบาก|บวม|ชา|เวียนหัว|ปวดมาก|ผื่น
+MARINE_RED	en	breathe|swelling|swollen|numb|dizzy|unbearable|rash
+MARINE_RED	es	respirar|hincha|dormida|mareado|mareada|insoportable|ronchas
+MARINE_RED	vi	khó thở|sưng|tê|chóng mặt|không chịu nổi|mẩn
+MARINE_RED	zh	呼吸困难|呼吸困難|肿|腫|发麻|發麻|头晕|頭暈|受不了|疹子
+MARINE_RED	ko	숨쉬기|숨을|부어|저리|어지러|두드러기|너무 아프
+MARINE_RED	ja	息が苦し|腫れ|しびれ|めまい|激痛|発疹
+# ── น้ำตาลต่ำ (เพิ่ม): ฉีดอินซูลินแล้วไม่ได้กิน — สาเหตุน้ำตาลต่ำที่พบบ่อยที่สุด เล่ายาวจนอาการอยู่ไกลก็ยังนับ
+INSULIN	th	อินซูลิน
+INSULIN	en	insulin
+INSULIN	es	insulina
+INSULIN	vi	insulin
+INSULIN	zh	胰岛素|胰島素
+INSULIN	ko	인슐린
+INSULIN	ja	インスリン
+SKIPPED_MEAL	th	ไม่ได้กิน|ไม่ได้ทาน|ไม่กินข้าว|อดข้าว
+SKIPPED_MEAL	en	skipped|didn't eat|hasn't eaten|without eating|no food
+SKIPPED_MEAL	es	no cenó|no comió|no ha comido|sin comer|no desayunó
+SKIPPED_MEAL	vi	bỏ bữa|không ăn|chưa ăn
+SKIPPED_MEAL	zh	没吃饭|沒吃飯|没吃|沒吃|不吃饭
+SKIPPED_MEAL	ko	안 드셨|안 먹|굶
+SKIPPED_MEAL	ja	食べず|食べていない|食べてない|抜いた
+
+# ═══ รอบ 8 (เน้นไต): ปัสสาวะไม่ออก/ไตวาย · นิ่วอุดตันมีไข้ · ฟอกไตขาด/โพแทสเซียมสูง · กรวยไตอักเสบ ═══
+# ── ปัสสาวะไม่ออก ── ("ฉี่บ่อยเพราะดื่มน้ำ" "ปวดฉี่ตอนรถติด" ไม่นับ — ต้องไม่ออกเลย/น้อยมาก ร่วมกับอาการ)
+NO_URINE	th	re:(?:ไม่|ไม่ได้)(?:ปัสสาวะ|ฉี่)|(?:ฉี่|ปัสสาวะ)(?:ไม่ออก|ออกน้อยมาก|ไม่ค่อยออก)
+NO_URINE	en	hasn't peed|haven't peed|can't pee|cannot pee|can't urinate|barely urinated|no urine|not peeing|stopped peeing
+NO_URINE	es	no ha orinado|no puede orinar|casi no orina|no orina
+NO_URINE	vi	không đi tiểu được|không tiểu được|gần như không tiểu|bí tiểu
+NO_URINE	zh	尿不出来|尿不出來|几乎没尿|幾乎沒尿|没有尿|沒有尿|排不出尿
+NO_URINE	ko	소변을 못 보|소변이 거의 안|소변이 안 나|소변을 못
+NO_URINE	ja	おしっこが出な|尿が出ず|尿が出な|ほとんど尿が
+URINE_RED	th	ท้องน้อยโป่ง|ปวดมาก|ตัวบวม|บวมทั้งตัว|หายใจเหนื่อย|หายใจไม่ออก|สับสน|ซึม
+URINE_RED	en	hard and swollen|in agony|swelling up|swollen all over|short of breath|can't breathe|confused|drowsy
+URINE_RED	es	duro e hinchado|muchísimo|hinchando|hinchado entero|le falta el aire|no puede respirar|confundido|confundida
+URINE_RED	vi	căng cứng|đau dữ dội|phù lên|phù toàn thân|khó thở|lú lẫn|lơ mơ
+URINE_RED	zh	胀得|脹得|疼得厉害|浮肿|浮腫|全身肿|全身腫|喘不上气|喘不上氣|糊涂|糊塗
+URINE_RED	ko	부풀어|너무 아파|붓고|부었|숨이 차|숨을 못|오락가락
+URINE_RED	ja	パンパン|激しく痛|むくん|息が苦し|息ができない|混乱
+# ── นิ่ว/กรวยไตอักเสบ ── ปวดเอว/สีข้าง + ไข้หนาวสั่น (ไข้ + ไต/ทางเดินปัสสาวะ = ติดเชื้อที่ไต)
+FLANK	th	ปวดเอว|ปวดบั้นเอว|ปวดหลังข้างเดียว|นิ่วในไต|นิ่ว|ติดเชื้อทางเดินปัสสาวะ|กรวยไต
+FLANK	en	flank pain|kidney stone|one side of my back|uti|kidney infection
+FLANK	es	costado|cálculo renal|calculo renal|un lado de la espalda|infección urinaria
+FLANK	vi	vùng hông|hông lưng|thắt lưng|đau hông|sỏi thận|một bên lưng|viêm đường tiểu|nhiễm trùng tiểu
+FLANK	zh	腰侧|腰側|肾结石|腎結石|一侧腰痛|一側腰痛|尿路感染
+FLANK	ko	옆구리|신장결석|한쪽 허리|방광염|신우신염
+FLANK	ja	脇腹|腎臓結石|片側の腰|膀胱炎|腎盂腎炎
+KIDNEY_FEVER	th	ไข้หนาวสั่น|หนาวสั่น|ไข้สูง|ไข้ขึ้นสูง
+KIDNEY_FEVER	th	re:ไข้\s*(?:3[89]|4[01])
+KIDNEY_FEVER	en	fever|chills|shaking
+KIDNEY_FEVER	es	fiebre|escalofríos|temblores
+KIDNEY_FEVER	vi	sốt
+KIDNEY_FEVER	zh	发烧|發燒|高烧|高燒|发冷|發冷|寒战|寒戰
+KIDNEY_FEVER	ko	열이|고열|오한
+KIDNEY_FEVER	ja	熱|寒気|震え
+# ── ฟอกไต ── ขาดฟอก หรือโพแทสเซียมสูง + อาการ ("พาแม่ไปฟอกไตตามนัด" ไม่นับ)
+DIALYSIS	th	ฟอกไต|ล้างไต
+DIALYSIS	en	dialysis
+DIALYSIS	es	diálisis|dialisis
+DIALYSIS	vi	chạy thận|lọc máu
+DIALYSIS	zh	透析
+DIALYSIS	ko	투석
+DIALYSIS	ja	透析
+MISSED	th	ขาด|ไม่ได้ไป|ไม่ได้ฟอก|ไม่ไป
+MISSED	en	missed|skipped|didn't go
+MISSED	es	faltó|falto|no fue
+MISSED	vi	bỏ lỡ|bỏ chạy|không đi
+MISSED	zh	漏了|没去|沒去|没做|沒做
+MISSED	ko	빠졌|안 받|못 받
+MISSED	ja	休ん|行かず|行かなかった
+HIGH_K	th	โพแทสเซียมสูง|ค่าโพแทสเซียมสูง
+HIGH_K	en	potassium is very high|potassium is high|high potassium
+HIGH_K	es	potasio muy alto|potasio alto
+HIGH_K	vi	kali máu rất cao|kali cao
+HIGH_K	zh	血钾很高|血鉀很高|高血钾|高血鉀
+HIGH_K	ko	칼륨 수치가|고칼륨
+HIGH_K	ja	カリウムがすごく高|カリウムが高|高カリウム
+RENAL_RED	th	อ่อนแรง|ใจเต้นผิดจังหวะ|ชา|ไม่มีแรง|บวม|หายใจไม่ออก|หายใจเหนื่อย
+RENAL_RED	en	weak|irregular|numb|swollen|full of fluid|can't breathe|short of breath
+RENAL_RED	es	débil|irregular|entumecidos|sin fuerza|hinchad|líquido|no puede respirar
+RENAL_RED	vi	yếu|loạn nhịp|tê|phù|không thở được
+RENAL_RED	zh	无力|無力|心跳不规律|心跳不規律|发麻|發麻|没力气|沒力氣|水肿|水腫|喘不过气|喘不過氣
+RENAL_RED	ko	기운이 없|불규칙|저리|힘이 없|붓고|숨을 못
+RENAL_RED	ja	力が入ら|不規則|しびれ|むくん|息ができない
+# ── โรคไตเรื้อรัง + อาการกำเริบ ──
+CKD	th	โรคไตเรื้อรัง|ไตวาย|ไตเสื่อม|โรคไต
+CKD	en	chronic kidney disease|kidney failure|ckd
+CKD	es	enfermedad renal crónica|insuficiencia renal
+CKD	vi	suy thận|bệnh thận mạn
+CKD	zh	慢性肾病|慢性腎病|肾衰竭|腎衰竭|尿毒症
+CKD	ko	만성 신부전|신부전|만성 콩팥병
+CKD	ja	慢性腎臓病|腎不全
+
+# ═══ รอบ 9: ตัวเย็นเกิน · ปวดท้องเฉียบพลันรุนแรง · เลือดออกในทางเดินอาหาร · ไข้+คอแข็ง/จ้ำเลือด ═══
+# ── ตัวเย็นเกิน ── ตัวเย็นจัด/ตกน้ำเย็น + สั่นไม่หยุด พูดช้า ตอบช้า ("หนาวใส่เสื้อสองชั้น" "มือเย็นในห้องแอร์" ไม่นับ)
+COLD_BODY	th	ตัวเย็นเฉียบ|ตัวเย็น|เย็นเฉียบ|ตกน้ำเย็น|น้ำแข็ง
+COLD_BODY	en	ice cold|cold to the touch|icy water|freezing water|hypothermia|frozen
+COLD_BODY	es	helado|helada|frío al tacto|frio al tacto|agua helada|hipotermia
+COLD_BODY	vi	lạnh ngắt|lạnh buốt|nước lạnh|hạ thân nhiệt
+COLD_BODY	zh	冰凉|冰涼|冰冷|冰水|失温|失溫|低体温|低體溫
+COLD_BODY	ko	얼음장|차갑|얼음물|저체온
+COLD_BODY	ja	氷のように冷た|体が冷た|冷たい川|低体温
+COLD_RED	th	สั่นไม่หยุด|พูดช้า|เรียกไม่ค่อยตอบ|ไม่ตอบ|ซึม|สับสน|หมดสติ
+COLD_RED	en	shivering nonstop|speech is slowing|slurring|barely answers|not answering|confused|drowsy|unconscious
+COLD_RED	es	tiembla sin parar|habla más lento|habla mas lento|casi no contesta|no contesta|confundido|confundida|inconsciente
+COLD_RED	vi	run không ngừng|nói chậm|không trả lời|lơ mơ|lú lẫn|bất tỉnh
+COLD_RED	zh	一直发抖|一直發抖|说话越来越慢|說話越來越慢|几乎不应|幾乎不應|不应|迷糊|昏迷
+COLD_RED	ko	계속 떨|말이 느려|대답을 안|대답이 없|의식
+COLD_RED	ja	震えが止まらず|震えが止まらない|話し方が遅|返事がない|意識
+# ── ปวดท้องรุนแรง ── ปวดมาก/ท้องแข็ง + ไข้ อาเจียน กดเจ็บ ("ปวดท้องประจำเดือน" "ปวดนิดหน่อยเพราะกินเผ็ด" ไม่นับ)
+ABD_PAIN	th	re:ปวดท้อง\S{0,14}?(?:รุนแรง|มาก|ทั้งท้อง)|ท้องแข็งเป็นดาน|ท้องแข็งเหมือนไม้|ปวดท้องทั้งท้อง
+ABD_PAIN	en	severe pain in my lower right belly|severe belly pain|severe abdominal pain|whole belly hurts|rigid like a board|belly is rigid
+ABD_PAIN	es	dolor muy fuerte abajo|dolor abdominal fuerte|me duele toda la barriga|dura como una tabla
+ABD_PAIN	vi	đau dữ dội bụng|đau bụng dữ dội|đau khắp bụng|bụng cứng
+ABD_PAIN	zh	腹剧痛|腹劇痛|肚子剧痛|整个肚子都痛|整個肚子都痛|硬得像木板
+ABD_PAIN	ko	아랫배가 너무 아프|배가 너무 아프|배 전체가 아프|판자처럼
+ABD_PAIN	ja	下腹がすごく痛|お腹がすごく痛|お腹全体が痛|板のように硬
+ABD_RED	th	กดแล้วเจ็บ|ไข้|อาเจียน|ท้องแข็งเป็นดาน|แตะไม่ได้|ตัวงอ
+ABD_RED	en	hurts when pressed|fever|vomiting|rigid|can't stand being touched
+ABD_RED	es	duele al apretar|fiebre|vómitos|vomitos|dura|no soporto que me toquen
+ABD_RED	vi	ấn vào thì đau|sốt|nôn|cứng|không cho ai chạm
+ABD_RED	zh	按下去很痛|发烧|發燒|呕吐|嘔吐|木板|一碰就
+ABD_RED	ko	누르면 아프|열이|토해|딱딱|만지지도
+ABD_RED	ja	押すと痛|熱|吐い|硬く|触られる
+PERIOD	th	ประจำเดือน
+PERIOD	en	period cramps|menstrual
+PERIOD	es	menstrual|regla
+PERIOD	vi	đau bụng kinh|kinh nguyệt
+PERIOD	zh	痛经|痛經|月经|月經
+PERIOD	ko	생리통
+PERIOD	ja	生理痛
+# ── เลือดออกในทางเดินอาหาร ── อาเจียนเป็นเลือด/สีกาแฟ · ถ่ายดำเหมือนยางมะตอย ("ถ่ายดำเพราะธาตุเหล็ก" "เลือดออกไรฟัน" ไม่นับ)
+VOMIT_BLOOD	th	อาเจียนเป็นเลือด|อ้วกเป็นเลือด|อาเจียนเป็นสีกาแฟ|อ้วกเป็นสีกาแฟ|สีกาแฟ|อาเจียนเลือด
+VOMIT_BLOOD	en	vomiting blood|vomiting bright red blood|threw up blood|coffee grounds
+VOMIT_BLOOD	es	vomitando sangre|vomitó sangre|posos de café
+VOMIT_BLOOD	vi	nôn ra máu|ói ra máu|bã cà phê
+VOMIT_BLOOD	zh	吐血|吐出鲜红的血|吐出鮮紅的血|咖啡渣
+VOMIT_BLOOD	ko	피를 토|피를 한 컵|커피 찌꺼기
+VOMIT_BLOOD	ja	血を吐|血をコップ|コーヒーかす
+TARRY	th	เหมือนยางมะตอย|ถ่ายเป็นเลือด|ถ่ายดำเหมือน
+TARRY	en	black tarry|tarry stool|tarry stools|bloody stool
+TARRY	es	heces negras como alquitrán|alquitrán|heces con sangre
+TARRY	vi	phân đen như hắc ín|hắc ín|đi ngoài ra máu
+TARRY	zh	柏油|便血
+TARRY	ko	짜장 같은 검은 변|혈변
+TARRY	ja	タール便|血便
+IRON	th	ธาตุเหล็ก|ยาบำรุงเลือด
+IRON	en	iron supplement|iron pills
+IRON	es	hierro
+IRON	vi	viên sắt|sắt
+IRON	zh	补铁|補鐵|铁剂|鐵劑
+IRON	ko	철분
+IRON	ja	鉄剤
+# ── ไข้ + คอแข็ง / จ้ำเลือด / ปวดหัวแพ้แสงอาเจียนพุ่ง (เยื่อหุ้มสมองอักเสบ) — "คอแข็งเพราะตกหมอน" ไม่นับ
+STIFF_NECK	th	คอแข็ง|ก้มคอไม่ได้|ก้มไม่ได้
+STIFF_NECK	en	stiff neck|can't bend it forward|neck is stiff
+STIFF_NECK	es	cuello rígido|cuello rigido|no puede doblarlo
+STIFF_NECK	vi	cứng cổ|không cúi được
+STIFF_NECK	zh	脖子僵硬|颈部僵硬|頸部僵硬|低不了头|低不了頭
+STIFF_NECK	ko	목이 뻣뻣|숙이지를 못
+STIFF_NECK	ja	首が硬|首を曲げられない|前に曲げられない
+PURPURA	th	จุดแดงจ้ำ|จ้ำเลือด|จ้ำๆ|จุดม่วง
+PURPURA	en	purple spots|purple rash|rash that doesn't fade
+PURPURA	es	manchas moradas|manchas púrpuras
+PURPURA	vi	chấm tím|ban xuất huyết
+PURPURA	zh	紫色斑点|紫色斑點|紫斑|瘀点|瘀點
+PURPURA	ko	보라색 반점|자반
+PURPURA	ja	紫の斑点|紫斑
+MENINGEAL	th	แพ้แสง|อาเจียนพุ่ง
+MENINGEAL	en	light hurts|projectile vomiting|can't stand light
+MENINGEAL	es	le molesta la luz|vomita a chorro
+MENINGEAL	vi	sợ ánh sáng|nôn vọt
+MENINGEAL	zh	怕光|喷射状呕吐|噴射狀嘔吐
+MENINGEAL	ko	빛을 못|분수처럼 토
+MENINGEAL	ja	光がつら|噴水のように吐
+SLEPT_WRONG	th	ตกหมอน|นอนผิดท่า
+SLEPT_WRONG	en	sleeping wrong|slept wrong|slept funny
+SLEPT_WRONG	es	mala postura|dormí mal
+SLEPT_WRONG	vi	ngủ sai tư thế|ngủ sai
+SLEPT_WRONG	zh	落枕
+SLEPT_WRONG	ko	잠을 잘못 자
+SLEPT_WRONG	ja	寝違え
+
+# ═══ รอบ 10: เมาจนเป็นพิษ · เหล้าเถื่อน/เมทานอล · ยาเสพติดเกินขนาด · เด็กกลืนถ่านกระดุม/แม่เหล็ก ═══
+DRUNK	th	เมาหนัก|เมามาก|เมาจน|หมดขวด|ดื่มเหล้า|กินเหล้า|เมา
+DRUNK	en	drunk|drank a whole bottle|whole bottle|blackout drunk|alcohol poisoning
+DRUNK	es	borracho|borracha|botella entera|intoxicación etílica
+DRUNK	vi	say|uống hết nguyên chai|nguyên chai|ngộ độc rượu
+DRUNK	zh	醉|喝完了一整瓶|一整瓶酒|酒精中毒
+DRUNK	ko	취해|술 한 병|급성 알코올
+DRUNK	ja	酔って|一本空け|急性アルコール
+DRUNK_RED	th	ปลุกไม่ตื่น|อาเจียนทั้งที่หลับ|ตัวเย็น|หายใจช้า|ปากเขียว|หมดสติ|ไม่รู้สึกตัว
+DRUNK_RED	en	can't wake|vomited while unconscious|cold|breathing really slowly|breathing slowly|lips are blue|unconscious|passed out
+DRUNK_RED	es	no podemos despertarla|no podemos despertarlo|vomitó inconsciente|frío|respira muy despacio|labios morados|inconsciente
+DRUNK_RED	vi	gọi không tỉnh|nôn cả lúc bất tỉnh|người lạnh|thở rất chậm|môi tím|bất tỉnh
+DRUNK_RED	zh	叫不醒|昏迷|发冷|發冷|呼吸很慢|嘴唇发紫|嘴唇發紫
+DRUNK_RED	ko	깨워도 안|의식 없이|몸이 차갑|숨을 아주 천천히|입술이 파래
+DRUNK_RED	ja	起こしても起きず|意識がない|体が冷た|呼吸がすごく遅|唇が紫
+BOOTLEG	th	เหล้าขาวต้มเอง|ต้มเอง|เหล้าเถื่อน|เหล้าปลอม|เหล้าป่า|เหล้าไม่มียี่ห้อ|เหล้าไม่มีฉลาก
+BOOTLEG	en	moonshine|bootleg|homemade liquor|methanol|fake alcohol|bootleg vodka|unlabeled liquor|street liquor
+BOOTLEG	es	alcohol de contrabando|licor casero|licor de contrabando|aguardiente casero|alcohol adulterado|metanol|alcohol falso
+BOOTLEG	es	re:\b(?:mezcal|tequila|ron|licor|alcohol|aguardiente|guaro|chicha|pisco|caña)\s+(?:pirata|clandestin[oa]|sin marca|de dudosa procedencia|adulterad[oa])\b
+BOOTLEG	vi	rượu tự nấu|rượu dỏm|rượu giả|methanol
+BOOTLEG	zh	自酿|自釀|假酒|甲醇
+BOOTLEG	ko	밀주|가짜 술|메탄올
+BOOTLEG	ja	密造酒|偽の酒|メタノール
+VISION	th	ตามัว|มองไม่เห็น|ตาพร่า|ตาบอด|มืดไปหมด|มองหน้าคนไม่ออก|เห็นไม่ชัด
+VISION	en	blurry|can't see|vision is going|went blind|everything looks dark|can't make out faces|everything went dark
+VISION	es	niebla|nublado|nublada|ven borroso|veo borroso|vista borrosa|ve borroso|no ve|visión borrosa|no distingue|no distingo|se ve oscuro|todo oscuro|veo oscuro|ve todo negro
+VISION	vi	mờ mắt|mắt mờ|không nhìn thấy|tối sầm|không nhận ra mặt
+VISION	zh	模糊|看不见|看不見|失明|眼前发黑|眼前發黑|认不出人|認不出人
+VISION	ko	흐려|안 보|흐리|눈앞이 캄캄|얼굴을 못 알아
+VISION	ja	かすん|見えず|見えない|目の前が暗く|顔が分からない
+STREET_DRUG	th	ยาไอซ์|ไอซ์|ยาบ้า|เฮโรอีน|ยาเค|เคตามีน|โคเคน|เฟนทานิล
+STREET_DRUG	en	meth|heroin|ketamine|cocaine|fentanyl|opioids
+STREET_DRUG	es	metanfetamina|heroína|heroina|ketamina|cocaína|cocaina|fentanilo
+STREET_DRUG	vi	ma túy đá|ma túy|heroin|ketamine|cocaine
+STREET_DRUG	zh	冰毒|海洛因|K粉|氯胺酮|可卡因|芬太尼
+STREET_DRUG	ko	필로폰|마약|헤로인|케타민|코카인|펜타닐
+STREET_DRUG	ja	覚醒剤|ヘロイン|ケタミン|コカイン|フェンタニル
+OD_RED	th	เกินขนาด|ตัวร้อนจัด|ใจเต้นแรง|ชัก|หายใจแผ่ว|รูม่านตาเล็ก|ไม่ตอบสนอง|น้ำลายฟูม|หมดสติ
+OD_RED	en	overdosed|overdose|burning hot|heart is racing|seizing|barely breathing|pinpoint|isn't responding|not responding|foaming
+OD_RED	es	sobredosis|ardiendo|acelerado|convulsiona|casi no respira|diminutas|no responde|espuma
+OD_RED	vi	quá liều|nóng ran|tim đập rất nhanh|co giật|thở rất yếu|đầu kim|không phản ứng|sùi bọt
+OD_RED	zh	过量|過量|滚烫|滾燙|心跳很快|抽搐|呼吸很弱|针尖|針尖|没反应|沒反應|口吐白沫
+OD_RED	ko	과다|펄펄|빨리 뛰|경련|숨을 거의|바늘|반응이 없|거품
+OD_RED	ja	過剰|熱く|バクバク|けいれん|呼吸がほとんど|針の先|反応がな|泡
+BATT_MAGNET	th	ถ่านกระดุม|ถ่านนาฬิกา|ถ่านก้อนเล็ก|แม่เหล็ก
+BATT_MAGNET	en	button battery|watch battery|coin battery|magnets|magnet
+BATT_MAGNET	es	pila de botón|pila de boton|pila de reloj|imanes|imán
+BATT_MAGNET	vi	pin cúc áo|pin đồng hồ|pin nút|nam châm
+BATT_MAGNET	zh	纽扣电池|鈕扣電池|手表电池|手錶電池|磁珠|磁铁|磁鐵
+BATT_MAGNET	ko	단추형 건전지|시계 건전지|자석
+BATT_MAGNET	ja	ボタン電池|時計の電池|磁石
+SWALLOW	th	กลืน
+SWALLOW	en	swallowed|swallow
+SWALLOW	es	tragó|trago|se tragó
+SWALLOW	vi	nuốt
+SWALLOW	zh	吞|咽
+SWALLOW	ko	삼켰|삼키
+SWALLOW	ja	飲み込
+MOTION_SICK	th	เมารถ|เมาเรือ|เมาเครื่องบิน
+MOTION_SICK	en	carsick|seasick|motion sickness
+MOTION_SICK	es	mareo en el coche|mareado en el barco
+MOTION_SICK	vi	say xe|say tàu|say sóng|say nắng
+MOTION_SICK	zh	晕车|暈車|晕船|暈船
+MOTION_SICK	ko	멀미
+MOTION_SICK	ja	車酔い|船酔い
+
+# ═══ รอบ 11: เด็กหาย · ผู้สูงอายุสมองเสื่อมเดินหลง · หลงป่า/หลงบนเขา · ติดกลางทะเล ═══
+CHILD_REF	th	ลูกสาว|ลูกชาย|ลูก|หลาน|น้อง
+CHILD_REF	en	daughter|son|nephew|niece|kid|child|toddler
+CHILD_REF	es	hija|hijo|sobrino|sobrina|niño|niña
+CHILD_REF	vi	con gái|con trai|cháu|con tôi|bé
+CHILD_REF	zh	女儿|女兒|儿子|兒子|侄子|孩子|小孩
+CHILD_REF	ko	딸|아들|조카|아이
+CHILD_REF	ja	娘|息子|甥|姪|子ども|子供
+VANISHED	th	หายไป|หาไม่เจอ|ไม่กลับบ้าน|โทรไม่ติด|หายตัว
+VANISHED	en	disappeared|vanished|can't find her|can't find him|didn't come home|phone has been off|went missing
+VANISHED	en	re:\bis missing\b(?! (?:her|his|my|their|the|our|out|a|some)\b)
+VANISHED	es	desapareció|no la encontramos|no lo encontramos|no volvió|teléfono apagado|está desaparecid
+VANISHED	vi	mất tích|biến mất|không về nhà|điện thoại tắt|tìm không thấy
+VANISHED	zh	不见了|不見了|找不到|没回家|沒回家|关机|關機|失踪|失蹤
+VANISHED	ko	사라진|사라졌|못 찾|안 오고|꺼져|실종
+VANISHED	ja	いなくなって|見つからない|帰ってこな|電源が切れ|行方不明
+FOUND	th	หาเจอแล้ว|เจอแล้ว|กลับมาแล้ว|บอกไว้แล้ว|ซ่อนแอบ
+FOUND	en	found it|found the trail|found our way|found the way
+FOUND	en	re:\b(?<!n't )(?<!not )(?<!never )found (?:everyone|her|him|them)\b|(?<!n't )(?<!not )came back|said (?:he|she)'ll be back|hide and seek
+FOUND	es	re:encontramos a todos|la encontramos ya|(?<!no )volvió|dijo que vuelve|escondidas
+FOUND	vi	tìm thấy hết|tìm thấy rồi|đã về|đã nói|trốn tìm
+FOUND	zh	都找到|找到了|回来了|說好|说好|捉迷藏
+FOUND	ko	re:다 찾|(?<!못 )찾았어|(?<!안 )돌아왔|온다고|숨바꼭질
+FOUND	ja	見つかった|帰ってきた|帰ると言|かくれんぼ
+DEMENTIA	th	อัลไซเมอร์|ความจำเสื่อม|สมองเสื่อม
+DEMENTIA	en	alzheimer's|alzheimers|dementia
+DEMENTIA	es	alzhéimer|alzheimer|demencia
+DEMENTIA	vi	alzheimer|sa sút trí tuệ|lẫn tuổi già
+DEMENTIA	zh	阿尔茨海默|阿爾茨海默|失智|痴呆|老年痴呆
+DEMENTIA	ko	치매
+DEMENTIA	ja	認知症
+WANDER	th	เดินออกจากบ้าน|ออกจากบ้าน|หาไม่เจอ|หลงทาง|ไม่รู้ว่าอยู่ไหน|หายไป
+WANDER	en	walked out|can't find her|can't find him|got lost|doesn't know where|wandered off|is missing
+WANDER	es	salió de casa|no la encontramos|no lo encontramos|se perdió|no sabe dónde
+WANDER	vi	ra khỏi nhà|chưa tìm thấy|bị lạc|không biết mình|đi lạc
+WANDER	zh	走出家门|走出家門|没找到|沒找到|迷路|不知道自己在哪|走丢|走丟
+WANDER	ko	나가셨|못 찾|길을 잃|어디인지 모르|실종
+WANDER	ja	家を出|見つからない|道に迷|どこにいるか分からない|行方不明
+WILD	th	ป่า|ดอย|ภูเขา|บนเขา|เดินป่า
+WILD	en	forest|woods|mountain|hiking|trail
+WILD	es	bosque|montaña|senderismo|sendero
+WILD	vi	rừng|núi|leo núi
+WILD	zh	森林|山里|山裡|登山|徒步
+WILD	ko	숲|산속|등산|산에서
+WILD	ja	森|山の|山で|登山
+LOST_WILD	th	หลงป่า|หลง|แยกกลุ่ม|ยังไม่กลับ|ติดต่อไม่ได้
+LOST_WILD	en	lost|split from|hasn't come back|can't reach
+LOST_WILD	es	perdidos|perdido|perdida|se separó|no ha vuelto|no podemos contactarlo
+LOST_WILD	vi	lạc|tách khỏi|chưa về|không liên lạc được
+LOST_WILD	zh	迷路|走散|没回来|沒回來|联系不上|聯繫不上
+LOST_WILD	ko	길을 잃|떨어졌|안 돌아|연락이 안
+LOST_WILD	ja	迷って|はぐれ|戻らず|連絡がつかない|遭難
+DOCU	th	สารคดี
+DOCU	en	documentary
+DOCU	es	documental
+DOCU	vi	phim tài liệu
+DOCU	zh	纪录片|紀錄片
+DOCU	ko	다큐
+DOCU	ja	ドキュメンタリー
+SEA	th	ทะเล|เรือ|คายัค
+SEA	en	sea|boat|kayak|ocean
+SEA	es	mar|barco|kayak|bote
+SEA	vi	biển|thuyền|kayak
+SEA	zh	海上|海中|海|船|皮划艇
+SEA	ko	바다|어선|카약|보트|배가 뒤집
+SEA	ja	沖|海|船|カヤック
+SEA_RED	th	เครื่องดับ|น้ำเข้าเรือ|คลื่นแรงมาก|กระแสน้ำพัด|กลับไม่ได้|เรือคว่ำ|เรือล่ม|ลอยอยู่กลางทะเล
+SEA_RED	en	engine died|water is coming in|current pulled|can't get back|capsized|clinging|sinking
+SEA_RED	es	se le paró el motor|entra agua|se llevó|no puedo volver|volcó|agarrados|se hunde
+SEA_RED	vi	chết máy|nước tràn vào|kéo|không quay lại được|bị lật|bám vào|chìm
+SEA_RED	zh	熄火|进水|進水|冲离|沖離|回不去|翻了|抱着船|沉了
+SEA_RED	ko	꺼졌|물이 들어|떠밀려|돌아갈 수가 없|뒤집혀|붙잡고|가라앉
+SEA_RED	ja	止まって|浸水|流され|戻れない|転覆|つかまって|沈ん
+# ── ตัวกันเตือนเกินของรอบ 11 ── เรื่องเก่า/ในอดีต · ซ่อมเสร็จแล้ว · สัตว์เลี้ยง (คนละเรื่องกับเด็กหาย)
+PAST_STORY	th	ตอนเด็ก|เคยหลง|เมื่อหลายปีก่อน|สมัยก่อน|ปีที่แล้ว
+PAST_STORY	en	when i was a kid|years ago|last year|as a child|back in
+PAST_STORY	es	cuando era niño|cuando era niña|hace años|el año pasado
+PAST_STORY	vi	hồi nhỏ|nhiều năm trước|năm ngoái
+PAST_STORY	zh	小时候|小時候|多年前|去年
+PAST_STORY	ko	어렸을 때|몇 년 전|작년
+PAST_STORY	ja	子どもの頃|子供の頃|何年も前|去年
+FIXED	th	ซ่อมเสร็จ|ช่างมาแล้ว|ซ่อมได้แล้ว|ติดแล้ว
+FIXED	en	fixed it|got it fixed|repaired|started again
+FIXED	es	lo arreglaron|ya arrancó|reparado
+FIXED	vi	sửa xong|đã sửa|nổ máy lại
+FIXED	zh	修好了|修好|又能开了
+FIXED	ko	고쳤|수리했|다시 시동
+FIXED	ja	直った|修理できた|動き出した
+PET	th	แมว|หมา|สุนัข|นก|กระต่าย
+PET	en	cat|dog|puppy|kitten|parrot|rabbit
+PET	es	gato|perro|perrito|gatito
+PET	vi	mèo|chó|cún
+PET	zh	猫|貓|狗
+PET	ko	고양이|강아지|개가
+PET	ja	猫|犬|ペット
+
+# ═══ รอบ 12: แผ่นดินไหวติดใต้ซาก · ดินถล่ม · ไฟป่าลามใกล้ · ถูกฟ้าผ่า ═══
+QUAKE	th	แผ่นดินไหว
+QUAKE	en	earthquake|quake
+QUAKE	es	terremoto|sismo
+QUAKE	vi	động đất
+QUAKE	zh	地震
+QUAKE	ko	지진
+QUAKE	ja	地震
+TRAPPED_UNDER	th	ติดอยู่ใต้|ยังมีคนอยู่ข้างใน|อยู่ข้างใน|เสียงร้อง|ขยับไม่ได้|ทับ
+TRAPPED_UNDER	en	trapped|still inside|screaming|can't move|pinned
+TRAPPED_UNDER	es	atrapada|atrapado|adentro|gritos|no se puede mover
+TRAPPED_UNDER	vi	bị kẹt|bên trong|kêu cứu|không cử động
+TRAPPED_UNDER	zh	压在|壓在|里面还有人|裡面還有人|喊叫|动不了|動不了
+TRAPPED_UNDER	ko	깔려|안에 사람|비명|움직이지 못
+TRAPPED_UNDER	ja	下敷き|中に人|叫び声|動けない
+DRILL	th	ซ้อม|ฝึกซ้อม
+DRILL	en	drill|simulation
+DRILL	es	simulacro|simulador
+DRILL	vi	diễn tập|mô phỏng
+DRILL	zh	演练|演練|模拟|模擬
+DRILL	ko	훈련|시뮬레이션
+DRILL	ja	訓練|シミュレーション
+SLIDE	th	ดินโคลนถล่ม|ดินถล่ม|โคลนถล่ม|สไลด์|ดินไหลลงมา
+SLIDE	en	mudslide|landslide|starting to slide|mud is coming down
+SLIDE	es	alud de lodo|alud|deslave|deslizarse|derrumbe de tierra
+SLIDE	vi	lở đất|sạt lở|sạt
+SLIDE	zh	泥石流|滑坡|塌方
+SLIDE	ko	산사태|무너지기 시작|흙이 쏟아
+SLIDE	ja	土石流|土砂崩れ|裏山が崩れ|がけ崩れ
+SLIDE_RED	th	ทับบ้าน|คนหาย|ไหลลงมาแล้ว|ติดอยู่ใต้|ยังไม่ออก|ฝังอยู่
+SLIDE_RED	en	buried|missing|coming down|haven't got out|trapped
+SLIDE_RED	es	sepultó|sepultada|faltan|baja el lodo|enterrado|no ha salido
+SLIDE_RED	vi	vùi|mất tích|chảy xuống|chưa ra được|bị kẹt
+SLIDE_RED	zh	埋了|被埋|失踪|失蹤|冲下来|沖下來|没出来|沒出來
+SLIDE_RED	ko	덮쳐|실종|쏟아져|묻혔|못 나왔
+SLIDE_RED	ja	埋め|埋まり|行方不明|流れてき|出てこない
+WILDFIRE	th	ไฟป่า
+WILDFIRE	en	wildfire|bushfire|forest fire
+WILDFIRE	es	incendio forestal|incendio
+WILDFIRE	vi	cháy rừng
+WILDFIRE	zh	山火|森林火灾|森林火災
+WILDFIRE	ko	산불
+WILDFIRE	ja	山火事|森林火災
+FIRE_NEAR	th	ลามมาถึง|ใกล้บ้าน|ออกทางไหนไม่ได้|ออกไม่ได้|เดินไม่ได้|ควันเต็ม
+FIRE_NEAR	en	reached|very close|no way out|can't walk|smoke everywhere|surrounded
+FIRE_NEAR	es	llegó|muy cerca|no hay salida|no puede caminar|humo por todas partes|rodeados
+FIRE_NEAR	vi	lan tới|rất gần|không có lối ra|không đi được|khói khắp nơi
+FIRE_NEAR	zh	烧到|燒到|离房子很近|離房子很近|出不去|走不了|到处是烟|到處是煙
+FIRE_NEAR	ko	번졌|바로 앞|빠져나갈 길이 없|걷지 못|연기가 가득
+FIRE_NEAR	ja	まで来て|すぐ近く|逃げ道がない|歩けない|煙だらけ
+FAR	th	ไกลๆ|ไกลบ้าน|อยู่ไกล
+FAR	en	far away|far off|in the distance
+FAR	es	lejanos|lejos
+FAR	vi	ở xa|xa nhà
+FAR	zh	远处|遠處|很远|很遠
+FAR	ko	멀리
+FAR	ja	遠く
+LIGHTNING	th	ฟ้าผ่า
+LIGHTNING	en	lightning
+LIGHTNING	es	rayo
+LIGHTNING	vi	sét
+LIGHTNING	zh	雷劈|雷击|雷擊|被雷
+LIGHTNING	ko	벼락|낙뢰
+LIGHTNING	ja	雷が落ち|落雷
+STRUCK_RED	th	ไม่หายใจ|หมดสติ|ล้มลง|ไหม้|พูดไม่รู้เรื่อง|โดนด้วย
+STRUCK_RED	en	not breathing|unconscious|collapsed|burned|nonsense|was hit
+STRUCK_RED	es	no respira|inconsciente|se desplomó|quemado|sin sentido|le alcanzó|le cayó
+STRUCK_RED	vi	không thở|bất tỉnh|ngã gục|bỏng|lảm nhảm|bị sét đánh|đánh trúng
+STRUCK_RED	zh	没有呼吸|沒有呼吸|昏迷|倒地|烧伤|燒傷|胡话|胡話|被击中|被擊中
+STRUCK_RED	ko	숨을 안|의식이 없|쓰러|타고|횡설수설|맞았|맞고|맞아서
+STRUCK_RED	ja	息をしていない|意識がない|倒れ|やけど|うわごと|当たり
+PHOTO	th	รูป|ภาพ
+PHOTO	en	photos|photo|pictures
+PHOTO	es	fotos|foto
+PHOTO	vi	ảnh
+PHOTO	zh	照片
+PHOTO	ko	사진
+PHOTO	ja	写真
+# ── ปัสสาวะเป็นเลือด + ไข้ (เพิ่มหลังรอบ 12: "sốt rét run và tiểu ra máu" เคยหลุดเพราะเขียนตำแหน่งปวดต่างไป)
+HEMATURIA	th	ฉี่เป็นเลือด|ปัสสาวะเป็นเลือด
+HEMATURIA	en	blood in my urine|blood in his urine|blood in her urine|peeing blood
+HEMATURIA	es	sangre en la orina|orina con sangre
+HEMATURIA	vi	tiểu ra máu|nước tiểu có máu
+HEMATURIA	zh	尿里有血|尿裡有血|血尿
+HEMATURIA	ko	소변에 피|혈뇨
+HEMATURIA	ja	尿に血|血尿
+
+# ═══ รอบ 13 (ความรุนแรง): ขู่ด้วยอาวุธ · ถูกตามตื๊อถึงหน้าประตู · เพิ่งถูกล่วงละเมิดทางเพศ · เด็กมีร่องรอยถูกทำร้าย ═══
+WEAPON	th	มีด|ปืน|ขวาน|ไม้หน้าสาม
+WEAPON	en	knife|gun|axe|machete
+WEAPON	es	cuchillo|pistola|navaja|machete
+WEAPON	vi	dao|súng|rìu
+WEAPON	zh	刀|枪|槍|斧头
+WEAPON	ko	칼|총|흉기
+WEAPON	ja	包丁|銃|ナイフ|刃物
+THREAT_ACT	th	ไล่|จ่อ|ขู่|หลบอยู่|แทง|จะยิง|ยิงใส่
+THREAT_ACT	en	chasing|holding a gun to|pointing|hiding|threatening|stabbed
+THREAT_ACT	es	persigue|apunta|escondida|escondido|amenaza|apuñal
+THREAT_ACT	vi	đuổi|dí|trốn|đe dọa|đâm
+THREAT_ACT	zh	追|顶着|頂著|躲|威胁|威脅|捅
+THREAT_ACT	ko	쫓아|겨누|숨어|협박|찔렀
+THREAT_ACT	ja	追いかけ|突きつけ|隠れ|脅|刺され
+KILL_THREAT	th	เอาให้ตาย|จะฆ่า|ฆ่าให้ตาย
+KILL_THREAT	en	kill me|he'd kill|she'd kill|going to kill
+KILL_THREAT	es	me iba a matar|me va a matar|matarme
+KILL_THREAT	vi	sẽ giết|giết tôi
+KILL_THREAT	zh	弄死我|杀了我|殺了我|杀死我
+KILL_THREAT	ko	죽여버리|죽이겠|죽인다고
+KILL_THREAT	ja	殺してやる|殺す
+NEAR_ME	th	หน้าบ้าน|อยู่หน้า|หน้าห้อง|หน้าประตู
+NEAR_ME	en	outside my|standing outside|at my door|outside the house
+NEAR_ME	es	afuera de mi|frente a mi casa|en mi puerta
+NEAR_ME	vi	trước nhà|ngoài cửa|ngoài phòng
+NEAR_ME	zh	门口|門口|房门外|房門外|楼下
+NEAR_ME	ko	집 앞|문 앞|방 앞
+NEAR_ME	ja	家の前|ドアの前|部屋の前
+COOKING	th	หั่น|ทำกับข้าว|ทำอาหาร
+COOKING	en	cutting|chopping|for dinner|cooking
+COOKING	es	corté|picando|para la cena|cocinando
+COOKING	vi	thái|nấu cơm|nấu ăn
+COOKING	zh	切猪肉|切菜|做晚饭|做飯
+COOKING	ko	썰었|요리|저녁 하려고
+COOKING	ja	切った|料理|夕飯
+TOY	th	ปืนฉีดน้ำ|ปืนของเล่น|ของเล่น
+TOY	en	water gun|toy gun|nerf
+TOY	es	pistolas de agua|pistola de agua|de juguete
+TOY	vi	súng nước|đồ chơi
+TOY	zh	水枪|水槍|玩具枪
+TOY	ko	물총|장난감
+TOY	ja	水鉄砲|おもちゃ
+FOLLOWED	th	ตามฉันมา|ตามมาถึง|ตามฉันจาก|สะกดรอย
+FOLLOWED	en	followed me|has followed me|following me|stalking me
+FOLLOWED	es	me siguió|me sigue|me está siguiendo
+FOLLOWED	vi	theo tôi|bám theo tôi|đi theo tôi
+FOLLOWED	zh	跟我到|跟着我|跟著我|一路跟我|跟踪我|跟蹤我
+FOLLOWED	ko	따라와|따라오|스토킹
+FOLLOWED	ja	ついてき|つけてき|ストーカー
+AT_DOOR	th	เคาะประตู|ไม่ยอมไป|หน้าห้อง|หน้าคอนโด|หน้าบ้าน
+AT_DOOR	en	knocking on my door|outside my room|won't leave|outside my door|at my door
+AT_DOOR	es	tocar mi puerta|afuera de mi cuarto|no se va|en mi puerta
+AT_DOOR	vi	gõ cửa|ngoài phòng|không chịu đi|trước cửa
+AT_DOOR	zh	敲门|敲門|房门外|房門外|不走
+AT_DOOR	ko	문을 두드리|방 앞|안 가요|문 앞
+AT_DOOR	ja	ドアを叩|部屋の前|帰らない|ドアの前
+SAME_WAY	th	ทางเดียวกัน
+SAME_WAY	en	same way|same direction
+SAME_WAY	es	mismo lugar|misma dirección
+SAME_WAY	vi	cùng đường
+SAME_WAY	zh	同路
+SAME_WAY	ko	같은 방향
+SAME_WAY	ja	同じ方向
+SEX_ASSAULT	th	ลวนลาม|ข่มขืน|ล่วงละเมิดทางเพศ|ถูกจับหน้าอก
+SEX_ASSAULT	en	groped|raped|sexually assaulted|molested
+SEX_ASSAULT	es	manosearme|manosearon|me violó|me violaron|abusó de mí
+SEX_ASSAULT	vi	sàm sỡ|cưỡng hiếp|hiếp dâm|xâm hại tình dục
+SEX_ASSAULT	zh	猥亵|猥褻|强奸|強姦|性侵
+SEX_ASSAULT	ko	성추행|성폭행|강간
+SEX_ASSAULT	ja	痴漢|レイプ|性的暴行|強姦
+NEWS	th	ข่าว
+NEWS	en	news|article
+NEWS	es	noticias|artículo
+NEWS	vi	tin tức|đọc tin|xem tin
+NEWS	zh	新闻|新聞
+NEWS	ko	뉴스|기사
+NEWS	ja	ニュース|記事
+KID	th	หลาน|ลูก|เด็ก|นักเรียน|น้อง
+KID	en	nephew|niece|kid|child|student|son|daughter
+KID	es	sobrino|sobrina|niño|niña|alumna|alumno|hijo|hija
+KID	vi	cháu|đứa trẻ|học sinh|con|bé
+KID	zh	侄子|孩子|学生|學生|儿子|女儿
+KID	ko	조카|아이|학생|아들|딸
+KID	ja	甥|子|生徒|息子|娘
+ABUSE_SIGN	th	รอยช้ำทั้งตัว|ช้ำทั้งตัว|ตีทุกวัน|รอยไหม้บุหรี่|จับตัว|จับหน้าอก|ทำร้ายทุกวัน
+ABUSE_SIGN	en	bruises all over|hits him every day|hits her every day|cigarette burns|touches her|touches him
+ABUSE_SIGN	es	moretones por todo|le pega todos los días|quemaduras de cigarro|la toca|lo toca
+ABUSE_SIGN	vi	bầm tím khắp|đánh mỗi ngày|bỏng thuốc lá|sờ soạng
+ABUSE_SIGN	zh	全身都是淤青|每天打|烟头烫伤|煙頭燙傷|摸她|摸他
+ABUSE_SIGN	ko	온몸에 멍|매일 때린|담뱃불|만진다
+ABUSE_SIGN	ja	体じゅうにあざ|毎日叩か|タバコの火傷|触られる
+PLAY	th	เล่นกัน|หัวเราะกัน
+PLAY	en	playfully|laughed|joking
+PLAY	es	jugando|se rieron
+PLAY	vi	đùa|cười
+PLAY	zh	玩时|玩時|都笑了
+PLAY	ko	장난|웃었
+PLAY	ja	遊びで|笑った
+# ── ตัวกันเตือนเกินของอาวุธ: สนามยิงปืน/ทำความสะอาดปืน/ล่าสัตว์ ไม่ใช่การขู่
+GUN_HOBBY	th	สนามยิงปืน|ทำความสะอาดปืน|ซ้อมยิง|ใบอนุญาตพกปืน
+GUN_HOBBY	en	shooting range|cleaning his gun|cleaning my gun|gun license|hunting
+GUN_HOBBY	es	campo de tiro|limpiando la pistola|cacería
+GUN_HOBBY	vi	trường bắn|lau súng|đi săn
+GUN_HOBBY	zh	靶场|射击场|射擊場|擦枪|擦槍
+GUN_HOBBY	ko	사격장|총 손질|사냥
+GUN_HOBBY	ja	射撃場|銃の手入れ|狩猟
+
+# ═══ รอบ 14: น้ำตาลสูงวิกฤต (DKA) · ความดันวิกฤต · ลิ่มเลือดอุดปอด/ขา · ตามองไม่เห็นกะทันหัน ═══
+SUGAR_HIGH	th	re:น้ำตาล[^0-9\n]{0,14}(?:[4-9]\d\d)(?!\d)|น้ำตาลสูงมาก|วัดไม่ขึ้น|เครื่องขึ้น\s*HI
+SUGAR_HIGH	en	re:sugar[^0-9\n]{0,16}(?:[4-9]\d\d)(?!\d)(?!\s*(?:g\b|grams|mg\b|calories))|says hi\b|sugar is so high
+SUGAR_HIGH	es	re:azúcar[^0-9\n]{0,16}(?:[4-9]\d\d)(?!\d)|marca hi\b|azúcar tan alto
+SUGAR_HIGH	vi	re:đường huyết[^0-9\n]{0,16}(?:[4-9]\d\d)(?!\d)|báo hi\b|cao đến mức máy
+SUGAR_HIGH	zh	re:血糖[^0-9\n]{0,8}(?:[4-9]\d\d)(?!\d)|显示HI|顯示HI|血糖高到
+SUGAR_HIGH	ko	re:혈당[^0-9\n]{0,8}(?:[4-9]\d\d)(?!\d)|HI라고|혈당이 너무 높
+SUGAR_HIGH	ja	re:血糖値?[^0-9\n]{0,8}(?:[4-9]\d\d)(?!\d)|HIと表示|血糖値が高すぎ
+HYPER_RED	th	หายใจหอบลึก|หายใจลึก|กลิ่นผลไม้|อาเจียน|ปวดท้อง|ซึม
+HYPER_RED	en	breathing deep|deep and fast|fruity|vomiting|belly pain|drowsy
+HYPER_RED	es	respira hondo|huele a fruta|vomita|le duele la barriga|adormilada|adormilado
+HYPER_RED	vi	thở sâu|mùi trái cây|nôn|đau bụng|lơ mơ
+HYPER_RED	zh	呼吸又深又快|水果味|呕吐|嘔吐|肚子痛|迷糊
+HYPER_RED	ko	숨을 깊고|과일 냄새|토하|배가 아프|처져
+HYPER_RED	ja	深く速い呼吸|果物|吐い|お腹が痛|ぼんやり
+BP_HIGH	th	re:ความดัน\S{0,10}?\s*(?:1[89]\d|2\d\d)(?!\d)|ความดันพุ่ง
+BP_HIGH	en	re:(?:blood pressure|\bbp\b)[^0-9\n]{0,16}(?:1[89]\d|2\d\d)(?!\d)|pressure spiked
+BP_HIGH	es	re:presión[^0-9\n]{0,16}(?:1[89]\d|2\d\d)(?!\d)|se le subió la presión
+BP_HIGH	vi	re:huyết áp[^0-9\n]{0,16}(?:1[89]\d|2\d\d)(?!\d)
+BP_HIGH	zh	re:血压[^0-9\n]{0,8}(?:1[89]\d|2\d\d)(?!\d)|血壓[^0-9\n]{0,8}(?:1[89]\d|2\d\d)(?!\d)|血压飙
+BP_HIGH	ko	re:혈압[^0-9\n]{0,8}(?:1[89]\d|2\d\d)(?!\d)
+BP_HIGH	ja	re:血圧[^0-9\n]{0,8}(?:1[89]\d|2\d\d)(?!\d)
+BP_RED	th	ปวดหัวรุนแรง|ปวดหัวมาก|ตาพร่า|เจ็บหน้าอก|หายใจไม่อิ่ม|แขนขาอ่อนแรง
+BP_RED	en	severe headache|blurry|chest pain|short of breath
+BP_RED	es	dolor de cabeza fuerte|borrosa|dolor de pecho|falta el aire
+BP_RED	vi	đau đầu dữ dội|mờ mắt|đau ngực|khó thở
+BP_RED	zh	头痛得厉害|頭痛得厲害|模糊|胸痛|喘不上气|喘不上氣
+BP_RED	ko	머리가 심하게|흐려|가슴이 아프|숨이 차
+BP_RED	ja	ひどい頭痛|かすみ|胸が痛|息が苦し
+LEG_SWELL	th	ขาข้างหนึ่งบวม|ขาบวมข้างเดียว|น่องบวมข้างเดียว
+LEG_SWELL	en	one leg is swollen|one calf is swollen|leg is swollen and red
+LEG_SWELL	es	una pierna hinchada|una pantorrilla hinchada
+LEG_SWELL	vi	một chân sưng|một bên bắp chân sưng
+LEG_SWELL	zh	一条腿又肿|一條腿又腫|一边小腿肿|一邊小腿腫
+LEG_SWELL	ko	한쪽 다리가 붓|한쪽 종아리가 붓
+LEG_SWELL	ja	片足が腫れ|片方のふくらはぎが腫れ
+IMMOBILE	th	นั่งเครื่องบินไกล|หลังผ่าตัด|นอนนาน|นอนติดเตียง
+IMMOBILE	en	long flight|after surgery|bed rest
+IMMOBILE	es	vuelo largo|después de la cirugía|reposo
+IMMOBILE	vi	chuyến bay dài|sau mổ|nằm nhiều
+IMMOBILE	zh	长途飞机|長途飛機|手术后|手術後|卧床|臥床
+IMMOBILE	ko	장거리 비행|수술 후|오래 누워
+IMMOBILE	ja	長距離フライト|手術後|ずっと寝て
+CHEST_BREATH	th	เจ็บหน้าอก|หายใจไม่ทัน|หายใจหอบ|ไอเป็นเลือด
+CHEST_BREATH	en	chest pain|can't catch my breath|breathing fast|coughing blood|coughing up blood
+CHEST_BREATH	es	duele el pecho|no puedo respirar|respira rápido|tose sangre
+CHEST_BREATH	vi	đau ngực|thở không kịp|thở gấp|ho ra máu
+CHEST_BREATH	zh	胸痛|喘不过气|喘不過氣|呼吸急促|咳血
+CHEST_BREATH	ko	가슴이 아프|숨이 안 쉬어|숨이 가쁘|피를 기침
+CHEST_BREATH	ja	胸が痛|息ができない|息が荒く|血を咳
+CALF_RED	th	ร้อนแดง|ร้อน|แดง|เจ็บมาก
+CALF_RED	en	hot|red|very painful
+CALF_RED	es	caliente|roja|muy dolorosa
+CALF_RED	vi	nóng|đỏ|rất đau
+CALF_RED	zh	发热|發熱|发红|發紅|非常痛
+CALF_RED	ko	뜨겁|빨갛|너무 아파
+CALF_RED	ja	熱を持|赤く|すごく痛
+VISION_LOSS	th	มองไม่เห็น|ม่านดำ|ตาบอดกะทันหัน
+VISION_LOSS	en	can't see|lost vision|black curtain|went blind
+VISION_LOSS	es	no veo|perdí la vista|cortina negra
+VISION_LOSS	vi	không nhìn thấy|mất thị lực|màn đen
+VISION_LOSS	zh	看不见|看不見|黑幕|失明
+VISION_LOSS	ko	안 보여|안 보이|검은 커튼
+VISION_LOSS	ja	見えなくな|黒いカーテン
+FLASHES	th	แสงวาบ|ฟ้าแลบในตา
+FLASHES	en	flashes of light|flashing lights in my eye
+FLASHES	es	destellos
+FLASHES	vi	chớp sáng
+FLASHES	zh	闪光|閃光
+FLASHES	ko	번쩍이는 빛|번쩍
+FLASHES	ja	チカチカ|光が走
+FLOATERS_MANY	th	เงาดำลอยเต็ม|มองไม่ชัดครึ่ง
+FLOATERS_MANY	en	shower of floaters|half my vision
+FLOATERS_MANY	es	muchas manchas|la mitad
+FLOATERS_MANY	vi	một loạt đốm|mờ một nửa
+FLOATERS_MANY	zh	一堆黑影|半边看不清|半邊看不清
+FLOATERS_MANY	ko	검은 점이 잔뜩|절반이 흐
+FLOATERS_MANY	ja	黒い点がたくさん|半分がぼやけ
+
+# ═══ รอบ 15: ทารกแรกเกิดตัวเขียว/หยุดหายใจ · ตกเลือดหลังคลอด · ผู้สูงอายุสับสนกะทันหัน · สารเคมีเข้าตา/ตาบาดเจ็บ ═══
+NEWBORN	th	เพิ่งคลอด|ทารกแรกเกิด|ลูกแรกเกิด|เด็กแรกเกิด
+NEWBORN	en	born two days ago|was born|newborn
+NEWBORN	es	nació hace|recién nacida|recién nacido
+NEWBORN	vi	mới sinh|sơ sinh
+NEWBORN	zh	刚出生|剛出生|才出生|新生儿|新生兒
+NEWBORN	ko	태어난 지|신생아
+NEWBORN	ja	生まれて|新生児
+NB_RED	th	ตัวเขียว|หายใจเฮือก|หยุดหายใจ|ปากม่วง|ปากเขียว|ไม่หายใจ
+NB_RED	en	turning blue|gasping|stopping breathing|stops breathing|lips are purple|not breathing
+NB_RED	es	poniendo azul|jadea|deja de respirar|labios morados|no respira
+NB_RED	vi	tím tái|thở hắt|ngừng thở|môi tím|không thở
+NB_RED	zh	发紫|發紫|喘不过气|喘不過氣|停止呼吸|没有呼吸|沒有呼吸
+NB_RED	ko	파래지|헐떡|숨을 멈추|보라색|숨을 안
+NB_RED	ja	紫色|あえい|息を止め|紫に|息をしていない
+POSTPARTUM	th	คลอดลูก|เพิ่งคลอด|หลังคลอด
+POSTPARTUM	en	gave birth|just gave birth|after delivery|postpartum
+POSTPARTUM	es	di a luz|dar a luz|después del parto
+POSTPARTUM	vi	sinh con|vừa sinh|sau sinh
+POSTPARTUM	zh	生完孩子|刚生完|剛生完|产后|產後
+POSTPARTUM	ko	출산
+POSTPARTUM	ja	出産
+PP_RED	th	เลือดออกเยอะ|ชุ่มผ้าอนามัย|ก้อนเลือดใหญ่|ก้อนเลือด|หน้ามืด|ใจสั่น|จะเป็นลม
+PP_RED	en	soaking a pad|huge clot|large clot|faint|heart is racing
+PP_RED	es	empapo|coágulo|desmay
+PP_RED	vi	ướt đẫm|cục máu|choáng|ngất
+PP_RED	zh	湿透|濕透|血块|血塊|头晕|頭暈|晕倒|暈倒
+PP_RED	ko	흠뻑 젖|핏덩어리|어지러|쓰러질
+PP_RED	ja	びっしょり|血の塊|気が遠く|気を失
+NORMAL_PP	th	ตามปกติ|ค่อยๆ ลด|ลดลง
+NORMAL_PP	en	normal postpartum|getting lighter
+NORMAL_PP	es	sangrado normal|disminuyendo
+NORMAL_PP	vi	bình thường|giảm dần
+NORMAL_PP	zh	恶露正常|惡露正常|变少|變少
+NORMAL_PP	ko	정상적으로|줄고
+NORMAL_PP	ja	普通で|減って
+CONFUSION	th	จำใครไม่ได้|พูดเพ้อ|เห็นสิ่งที่ไม่มี|สับสน|ไม่รู้ว่าอยู่ที่ไหน
+CONFUSION	en	doesn't recognize|rambling|seeing things|confused|doesn't know where
+CONFUSION	es	no reconoce|delira|ve cosas|confundido|confundida|no sabe dónde
+CONFUSION	vi	không nhận ra|nói nhảm|thấy những thứ|lú lẫn|không biết mình
+CONFUSION	zh	谁都不认识|誰都不認識|胡言乱语|胡言亂語|看到不存在|神志不清|不知道自己在哪
+CONFUSION	ko	못 알아보|헛소리|없는 게 보|혼미|어디인지 모르
+CONFUSION	ja	分からなくな|うわごと|ないものが見え|混乱|どこにいるか分からず
+WAKING	th	เพิ่งตื่น|ตอนตื่นนอน
+WAKING	en	right after waking|just woke up
+WAKING	es	al despertar
+WAKING	vi	mới ngủ dậy
+WAKING	zh	刚睡醒|剛睡醒
+WAKING	ko	막 일어나
+WAKING	ja	起きたばかり
+EYE	th	เข้าตา|ตาแดง|แทงตา|จากตา|ลืมตา|ตาลูก|ในตา
+EYE	en	eye
+EYE	es	ojo
+EYE	vi	mắt
+EYE	zh	眼睛|眼
+EYE	ko	눈에|눈이
+EYE	ja	目に|目が|目から
+EYE_CHEM	th	น้ำยาล้างห้องน้ำ|ปูนขาว|ปูน|สารเคมี|กรด|น้ำยาฟอกขาว|โซดาไฟ
+EYE_CHEM	en	toilet cleaner|lime powder|bleach|chemical|acid|drain cleaner
+EYE_CHEM	es	limpiador|cal |cloro|químico|ácido|lejía
+EYE_CHEM	vi	nước tẩy|vôi|hóa chất|axit
+EYE_CHEM	zh	洁厕剂|潔廁劑|石灰|化学品|化學品|漂白|硫酸|盐酸|鹽酸
+EYE_CHEM	ko	세정제|석회|화학|락스|산성
+EYE_CHEM	ja	洗剤|石灰|薬品|漂白剤
+EYE_TRAUMA	th	เศษเหล็ก|กิ่งไม้แทง|เลือดออกจากตา|แทงตา
+EYE_TRAUMA	en	metal shard|branch poked|is bleeding|it's bleeding|stabbed in the eye
+EYE_TRAUMA	es	esquirla|una rama|le sangra
+EYE_TRAUMA	vi	mạt sắt|cành cây|chảy máu
+EYE_TRAUMA	zh	铁屑|鐵屑|树枝|樹枝|流血
+EYE_TRAUMA	ko	쇳조각|나뭇가지|피가
+EYE_TRAUMA	ja	鉄片|木の枝|血が
+
+# ═══ รอบ 16: (ไต) คนโรคไตกินมะเฟือง/สมุนไพรเป็นพิษ · ติดเชื้อในกระแสเลือด · กระดูกหักผิดรูป/ทะลุ · อัณฑะบิด ═══
+KIDNEY_PT	th	โรคไต|ไตเสื่อม|ไตไม่ดี|ไตวาย|ฟอกไต|ล้างไต
+KIDNEY_PT	en	kidney disease|weak kidneys|kidney failure|dialysis|ckd
+KIDNEY_PT	es	enfermedad renal|riñones débiles|insuficiencia renal|diálisis
+KIDNEY_PT	vi	bệnh thận|thận yếu|suy thận|chạy thận
+KIDNEY_PT	zh	肾病|腎病|肾功能不好|腎功能不好|肾衰|腎衰|透析
+KIDNEY_PT	ko	신장병|신장이 약|신부전|투석
+KIDNEY_PT	ja	腎臓病|腎臓が弱|腎不全|透析
+TOXIN_FOOD	th	มะเฟือง|ยาต้มสมุนไพร|สมุนไพร|ยาหม้อ|ยาลูกกลอน
+TOXIN_FOOD	en	star fruit|starfruit|herbal|herbs|carambola
+TOXIN_FOOD	es	carambola|hierbas|cocimiento
+TOXIN_FOOD	vi	khế|thuốc nam|thuốc bắc
+TOXIN_FOOD	zh	杨桃|楊桃|草药|草藥|中药|中藥
+TOXIN_FOOD	ko	스타프루트|한약|약초
+TOXIN_FOOD	ja	スターフルーツ|煎じ薬|漢方
+TOX_RED	th	สะอึก|สับสน|ชัก|ฉี่ไม่ออก|บวม|ซึม
+TOX_RED	en	hiccup|confused|seizure|can't pee|swelling|drowsy
+TOX_RED	es	hipo|confundido|confundida|convulsion|no orina|hinchando|hinchada
+TOX_RED	vi	nấc|lú lẫn|co giật|không tiểu|phù
+TOX_RED	zh	打嗝|意识混乱|意識混亂|抽搐|尿不出|浮肿|浮腫
+TOX_RED	ko	딸꾹질|혼미|경련|소변이 안|부었
+TOX_RED	ja	しゃっくり|混乱|けいれん|尿が出ず|むくん
+AVOID	th	เลี่ยง|ห้ามกิน|ไม่กิน
+AVOID	en	avoid|shouldn't eat|should not eat|don't eat
+AVOID	es	evito|no coman|no comer
+AVOID	vi	tránh|không ăn
+AVOID	zh	避开|避開|不能吃
+AVOID	ko	피하|먹지 말
+AVOID	ja	避けて|食べないよう
+SEPSIS_FEVER	th	ไข้สูง|ไข้ขึ้น|หนาวสั่น|ติดเชื้อ
+SEPSIS_FEVER	en	high fever|feverish|chills|infected|fever
+SEPSIS_FEVER	es	fiebre alta|tiene fiebre|escalofríos|infectó|infectada|fiebre
+SEPSIS_FEVER	vi	sốt cao|sốt|rét run|nhiễm trùng
+SEPSIS_FEVER	zh	高烧|高燒|发烧|發燒|寒战|寒戰|感染
+SEPSIS_FEVER	ko	고열|열이 나|오한|감염
+SEPSIS_FEVER	ja	高熱|熱があり|悪寒|化膿
+SEPSIS_CIRC	th	ความดันตก|ตัวเย็นซีด|ใจเต้นเร็วมาก|ตัวลาย|มือเท้าเย็น
+SEPSIS_CIRC	en	low blood pressure|cold and pale|heart racing|mottled
+SEPSIS_CIRC	es	presión baja|frío y pálido|corazón acelerado
+SEPSIS_CIRC	vi	huyết áp tụt|lạnh và tái|tim đập rất nhanh
+SEPSIS_CIRC	zh	血压下降|血壓下降|发冷苍白|發冷蒼白|心跳很快
+SEPSIS_CIRC	ko	혈압이 떨어|창백|심장이 너무 빨리
+SEPSIS_CIRC	ja	血圧が下が|青白|脈がすごく速
+DEFORM	th	ผิดรูป|บิดงอ|งอผิดทาง
+DEFORM	en	bent the wrong way|deformed|at a weird angle
+DEFORM	es	torcido al revés|deformado
+DEFORM	vi	cong ngược|biến dạng
+DEFORM	zh	弯成反方向|彎成反方向|变形|變形
+DEFORM	ko	반대로 꺾|기형
+DEFORM	ja	変な方向に曲が|変形
+BONE_OUT	th	re:กระดูก\S{0,10}?(?:โผล่|ทะลุ)
+BONE_OUT	en	bone is sticking out|bone sticking out|through the skin
+BONE_OUT	es	sale por la piel|hueso expuesto
+BONE_OUT	vi	lòi ra ngoài da|xương lòi
+BONE_OUT	zh	刺穿皮肤|刺穿皮膚|骨头露|骨頭露
+BONE_OUT	ko	피부 밖으로|뼈가 튀어나
+BONE_OUT	ja	皮膚から飛び出|骨が飛び出
+LEG_SHORT	th	ขาสั้นลง
+LEG_SHORT	en	leg looks shorter|one leg is shorter
+LEG_SHORT	es	pierna se ve más corta|pierna más corta
+LEG_SHORT	vi	chân trông ngắn hơn|chân ngắn hơn
+LEG_SHORT	zh	腿看起来变短|腿看起來變短|腿变短|腿變短
+LEG_SHORT	ko	다리가 짧아
+LEG_SHORT	ja	片足が短く|足が短く見え
+TESTIS	th	อัณฑะ|ไข่ข้างเดียว
+TESTIS	en	testicle|testicular
+TESTIS	es	testículo
+TESTIS	vi	tinh hoàn
+TESTIS	zh	睾丸
+TESTIS	ko	고환
+TESTIS	ja	睾丸
+TESTIS_RED	th	กะทันหัน|ทันที|รุนแรง|บวมแดง|อาเจียน|ปวดมาก
+TESTIS_RED	en	sudden|severe|swollen|vomiting
+TESTIS_RED	es	repentino|fuerte|hinchado|vomita
+TESTIS_RED	vi	đột nhiên|dữ dội|sưng|nôn
+TESTIS_RED	zh	突然|剧痛|劇痛|肿|腫|呕吐|嘔吐
+TESTIS_RED	ko	갑자기|심하게|붓고|토해
+TESTIS_RED	ja	急に|激痛|腫れ|吐い
+
+# ═══ รอบ 17: (ไต) กล้ามเนื้อสลาย ฉี่สีโค้ก · ท้องนอกมดลูก · กระดูกสันหลังบาดเจ็บ · นิ้ว/อวัยวะขาด ═══
+DARK_URINE	th	ฉี่สีโค้ก|สีเหมือนโค้ก|ฉี่สีน้ำตาลเข้ม|ฉี่สีชาเข้ม|ปัสสาวะสีโค้ก|ปัสสาวะสีน้ำตาลเข้ม
+DARK_URINE	en	looks like cola|cola-colored|cola colored|urine is dark brown|dark like tea|tea-colored
+DARK_URINE	es	parece coca-cola|parece coca cola|marrón oscuro|oscura como té
+DARK_URINE	vi	như màu coca|nâu sẫm|sẫm như nước trà
+DARK_URINE	zh	尿像可乐|尿像可樂|深棕色|像浓茶|像濃茶
+DARK_URINE	ko	콜라색|진한 갈색|홍차색
+DARK_URINE	ja	コーラ色|濃い茶色|紅茶色
+RHABDO_CAUSE	th	หนักมาก|ครอสฟิต|ยกเวท|เล่นกีฬา|ออกกำลังกายหนัก|วิ่งมาราธอน|ทับ|ปวดกล้ามเนื้อ|แทบไม่มีฉี่
+RHABDO_CAUSE	en	worked out|marathon|crushed|muscle|barely peeing
+RHABDO_CAUSE	es	ejercicio|maratón|aplastó|músculos|casi no orino
+RHABDO_CAUSE	vi	tập thể dục|marathon|đè|cơ|gần như không tiểu
+RHABDO_CAUSE	zh	运动|運動|马拉松|馬拉松|压了|壓了|肌肉|尿不出
+RHABDO_CAUSE	ko	운동|마라톤|깔려|근육|안 나와
+RHABDO_CAUSE	ja	運動|マラソン|挟まれ|筋肉|出ない
+PREG_POS	th	ประจำเดือนขาด|ตรวจครรภ์ขึ้นสองขีด|ขึ้นสองขีด|เมนส์ขาด
+PREG_POS	en	missed my period|positive pregnancy test|period is late and
+PREG_POS	es	no me baja la regla|prueba de embarazo positiva
+PREG_POS	vi	trễ kinh hai|trễ kinh|que thử hai vạch
+PREG_POS	zh	没来月经|沒來月經|验孕两条杠|驗孕兩條槓
+PREG_POS	ko	re:생리를[^.\n]{0,12}안|두 줄인데
+PREG_POS	ja	re:生理が\S{0,6}来な|妊娠検査は陽性
+ONE_SIDE_PAIN	th	ปวดท้องน้อยข้างเดียว|ข้างเดียวรุนแรง|ปวดท้องข้างขวามาก|ปวดท้องข้างซ้ายมาก|ไหล่เจ็บ|หน้ามืด
+ONE_SIDE_PAIN	en	one-sided|one side|right side|left side|shoulder hurts|faint
+ONE_SIDE_PAIN	es	un lado|lado derecho|lado izquierdo|hombro|desmayar
+ONE_SIDE_PAIN	vi	một bên|bên phải|bên trái|đau vai|choáng
+ONE_SIDE_PAIN	zh	一侧|一側|右边|右邊|左边|左邊|肩膀|头晕|頭暈
+ONE_SIDE_PAIN	ko	한쪽|오른쪽|왼쪽|어깨|어지러
+ONE_SIDE_PAIN	ja	片側|右側|左側|肩|めまい
+SPINE_EVENT	th	กระโดดน้ำ|ตกจาก|หัวกระแทก|ตกหลังคา|ตกตึก
+SPINE_EVENT	en	dove|fell off|fell from|hit his head|hit her head|diving
+SPINE_EVENT	es	se tiró|se cayó|golpeó
+SPINE_EVENT	vi	nhảy xuống|ngã từ|đập đầu
+SPINE_EVENT	zh	跳进|跳進|摔下|撞到头|撞到頭
+SPINE_EVENT	ko	다이빙|떨어졌|부딪
+SPINE_EVENT	ja	飛び込|落ちて|頭を打
+NO_LEGS	th	ขยับขาไม่ได้|ขาชาไม่รู้สึก|ขาไม่มีความรู้สึก|ขาไม่รู้สึก
+NO_LEGS	en	can't move his legs|can't move her legs|can't move my legs|can't feel his legs|can't feel her legs|can't feel my legs
+NO_LEGS	es	no puede mover las piernas|no siente las piernas|no puedo mover las piernas
+NO_LEGS	vi	không cử động chân|chân không còn cảm giác|không cử động được chân
+NO_LEGS	zh	腿动不了|腿動不了|腿没有感觉|腿沒有感覺
+NO_LEGS	ko	다리를 못 움직|다리에 감각이 없
+NO_LEGS	ja	脚が動かせない|脚の感覚がない|足が動かない
+SEVERED	th	นิ้วขาด|ตัดนิ้วขาด|ขาดไปข้อหนึ่ง|มือขาด|แขนขาด|ขาขาด
+SEVERED	en	cut off my finger|cut off the tip|fingers are cut off|finger is cut off|severed|amputated
+SEVERED	es	me cortó un dedo|cortó la punta|dedos cortados|dedo cortado|amputado
+SEVERED	vi	cắt đứt ngón|kẹp đứt|đứt hai ngón|đứt ngón
+SEVERED	zh	手指切断|手指切斷|夹断|夾斷|断了两根手指|斷了兩根手指|断指|斷指
+SEVERED	ko	손가락이 잘렸|끝이 잘렸|손가락 두 개가 잘렸|절단
+SEVERED	ja	指が切断|指先が切れて取れ|指が二本切断|切断された
+
+# ═══ รอบ 18: (ไต) เส้นฟอกไตเลือดพุ่ง/อุดตัน · หลอดเลือดแดงใหญ่ฉีก · ลำไส้อุดตัน · ผึ้ง/ต่อรุมต่อย ═══
+FISTULA	th	เส้นฟอกไต|เส้นฟอก|รูเข็ม
+FISTULA	en	dialysis fistula|fistula|needle site|dialysis graft
+FISTULA	es	fístula|fistula|sitio de la aguja
+FISTULA	vi	cầu nối chạy thận|cầu nối|chỗ kim chích
+FISTULA	zh	内瘘|內瘻|针眼|針眼
+FISTULA	ko	투석용 혈관|투석 혈관|바늘 자리
+FISTULA	ja	シャント|針の跡
+FIST_RED	th	แตก|พุ่ง|ไม่หยุด|ซึมไม่หยุด|คลำไม่สั่น|ไม่สั่นแล้ว|บวมเย็น
+FIST_RED	en	burst|spurting|nonstop|keeps oozing|can't feel the thrill|swollen and cold
+FIST_RED	es	reventó|a chorros|sigue sangrando|ya no siento|hinchado y frío
+FIST_RED	vi	bị vỡ|phun|rỉ máu mãi|không còn sờ thấy|sưng và lạnh
+FIST_RED	zh	破了|喷|噴|一直渗血|一直滲血|摸不到震颤|摸不到震顫|又肿又凉|又腫又涼
+FIST_RED	ko	터져|뿜어|피가 스며|떨림이 안|붓고 차가
+FIST_RED	ja	破れて|噴き出|にじみ続け|スリルが感じられ|腫れて冷た
+FIST_OK	th	ใช้งานได้ดี|ใช้ได้ดี
+FIST_OK	en	works fine|working well
+FIST_OK	es	funciona bien
+FIST_OK	vi	hoạt động tốt
+FIST_OK	zh	很好用
+FIST_OK	ko	상태가 좋
+FIST_OK	ja	順調
+TEAR_PAIN	th	เหมือนมีดฉีก|เหมือนถูกฉีก|ปวดแบบฉีก|ฉีกทะลุไปหลัง
+TEAR_PAIN	en	knife tearing|tearing pain|tearing through|tearing back pain|ripping pain
+TEAR_PAIN	es	desgarra|desgarro
+TEAR_PAIN	vi	như dao xé|bị xé
+TEAR_PAIN	zh	撕裂
+TEAR_PAIN	ko	찢는|찢어지듯
+TEAR_PAIN	ja	裂かれる|裂ける
+CHEST_BACK	th	หน้าอก|หลัง
+CHEST_BACK	en	chest|back
+CHEST_BACK	es	pecho|espalda
+CHEST_BACK	vi	ngực|lưng
+CHEST_BACK	zh	胸|背
+CHEST_BACK	ko	가슴|등이|등까지
+CHEST_BACK	ja	胸|背中
+NO_GAS	th	ไม่ผายลม|ไม่ถ่าย|ไม่ตด
+NO_GAS	en	no gas|no poop|can't pass gas|haven't pooped
+NO_GAS	es	sin gases|ni evacuar|no puedo evacuar
+NO_GAS	vi	không xì hơi|không đi ngoài
+NO_GAS	zh	没放屁|沒放屁|没大便|沒大便
+NO_GAS	ko	방귀도|변도 안
+NO_GAS	ja	おならも便も出ず|おならが出ない
+OBST_RED	th	อาเจียน|ท้องแข็ง|ท้องป่อง|ท้องอืดแข็ง
+OBST_RED	en	vomiting|hard|swollen
+OBST_RED	es	vomita|dura|hinchada
+OBST_RED	vi	nôn|chướng cứng|chướng
+OBST_RED	zh	吐|硬邦邦|鼓起来|鼓起來
+OBST_RED	ko	토해|딱딱|부풀
+OBST_RED	ja	吐い|硬く|膨らん
+GREEN_VOMIT	th	อาเจียนเป็นสีเขียว|อ้วกสีเขียว
+GREEN_VOMIT	en	vomiting green|throwing up green|green vomit
+GREEN_VOMIT	es	vomita verde|vómito verde
+GREEN_VOMIT	vi	nôn ra dịch xanh|nôn ra màu xanh
+GREEN_VOMIT	zh	吐绿色|吐綠色
+GREEN_VOMIT	ko	초록색을 토
+GREEN_VOMIT	ja	緑色のものを吐|緑色の嘔吐
+MANY_STINGS	th	รุมต่อย|ต่อยหลายที่|หลายสิบตัว|ต่อยทั้งตัว
+MANY_STINGS	en	stung by dozens|stung many times|swarmed|dozens of stings
+MANY_STINGS	es	picaron docenas|picaron muchos|enjambre
+MANY_STINGS	vi	cả đàn ong|đốt nhiều nốt|bị đàn ong|đốt mấy chục
+MANY_STINGS	zh	几十只蜜蜂|幾十隻蜜蜂|蜇了很多处|蜇了很多處|一群黄蜂|一群黃蜂|围攻|圍攻
+MANY_STINGS	ko	수십 마리|여러 군데 쏘|떼에
+MANY_STINGS	ja	何十匹|何か所も刺|大群
+
+# ═══ รอบ 19: (ไต) ปลูกถ่ายไตแล้วมีไข้/ฉี่น้อย · (ไต) ล้างไตทางหน้าท้องน้ำขุ่น · คนท้องอาเจียนหนัก · อาหารเป็นพิษหลายคน ═══
+TRANSPLANT	th	เปลี่ยนไต|ปลูกถ่ายไต|ไตใหม่|ผ่าตัดเปลี่ยนไต
+TRANSPLANT	en	kidney transplant|transplant patient|transplanted kidney|new kidney
+TRANSPLANT	es	trasplante de riñón|trasplantado de riñón|riñón nuevo
+TRANSPLANT	vi	ghép thận|quả thận mới
+TRANSPLANT	zh	肾移植|腎移植|新肾|新腎
+TRANSPLANT	ko	신장 이식|이식 환자|새 신장
+TRANSPLANT	ja	腎移植|新しい腎臓
+TX_RED	th	ไข้|ฉี่น้อย|ปวดตรงไตใหม่|ตัวบวม|ฉี่ไม่ค่อยออก|ฉี่ไม่ออก
+TX_RED	en	fever|less pee|barely peeing|pain over|swollen
+TX_RED	es	fiebre|orina mucho menos|casi no orina|dolor sobre|hinchado
+TX_RED	vi	sốt|tiểu ít|đau chỗ|phù|không tiểu
+TX_RED	zh	发烧|發燒|发高烧|尿量|没尿|沒尿|浮肿|浮腫
+TX_RED	ko	고열|소변이|붓고
+TX_RED	ja	高熱|尿が|むくん
+MISSED_MEDS	th	ลืมกินยากดภูมิ|ไม่ได้กินยากดภูมิ|ขาดยากดภูมิ
+MISSED_MEDS	en	forgot his anti-rejection|forgot her anti-rejection|missed anti-rejection|stopped anti-rejection
+MISSED_MEDS	es	olvidó sus inmunosupresores|dejó los inmunosupresores
+MISSED_MEDS	vi	quên uống thuốc chống thải|bỏ thuốc chống thải
+MISSED_MEDS	zh	忘了吃抗排斥药|忘了吃抗排斥藥|停了抗排斥药
+MISSED_MEDS	ko	re:면역억제제를[^.\n]{0,10}안 먹
+MISSED_MEDS	ja	re:免疫抑制剤を[^。\n]{0,8}飲み忘れ
+TX_OK	th	ค่าดี|ผลดี|ผลตรวจดี
+TX_OK	en	checkup was good|results were good
+TX_OK	es	salió bien
+TX_OK	vi	kết quả tốt
+TX_OK	zh	结果很好|結果很好
+TX_OK	ko	결과가 좋
+TX_OK	ja	良好
+PD	th	ล้างไตทางหน้าท้อง|สายล้างไต|น้ำยาล้างไต
+PD	en	peritoneal dialysis|pd catheter|pd fluid
+PD	es	diálisis peritoneal|catéter de diálisis peritoneal
+PD	vi	lọc màng bụng
+PD	zh	腹膜透析|腹透
+PD	ko	복막투석
+PD	ja	腹膜透析
+PD_RED	th	ขุ่น|ปวดท้อง|ไข้|หนอง|แดงบวม
+PD_RED	en	cloudy|belly pain|fever|pus|red, swollen
+PD_RED	es	turbio|dolor de barriga|fiebre|pus|roja
+PD_RED	vi	đục|đau bụng|sốt|mủ|đỏ
+PD_RED	zh	浑浊|渾濁|肚子很痛|发烧|發燒|脓|膿|红肿|紅腫
+PD_RED	ko	뿌옇|배가 많이 아프|열이|고름|빨갛
+PD_RED	ja	濁っ|お腹がすごく痛|熱が|膿|赤く腫れ
+PD_OK	th	ใสปกติ|น้ำใส
+PD_OK	en	clear as usual|fluid is clear
+PD_OK	es	sale claro
+PD_OK	vi	vẫn trong
+PD_OK	zh	一样清|一樣清
+PD_OK	ko	맑아요
+PD_OK	ja	透明
+PREGNANT	th	เมียท้อง|ภรรยาท้อง|กำลังท้อง|ตอนท้อง
+HYPEREMESIS	th	อาเจียนทั้งวัน|กินน้ำก็อ้วก|อาเจียนจนไม่มีแรง|น้ำหนักลด|ปากแห้งมาก
+HYPEREMESIS	en	vomiting all day|can't even keep water down|vomits so much|losing weight fast|mouth is very dry
+HYPEREMESIS	es	vomito todo el día|ni el agua retengo|vomita tanto|baja de peso|boca muy seca
+HYPEREMESIS	vi	nôn cả ngày|uống nước cũng nôn|nôn nhiều đến mức|sụt cân|miệng rất khô
+HYPEREMESIS	zh	整天吐|喝水都吐|吐得起不来|吐得起不來|体重掉|體重掉|嘴巴很干
+HYPEREMESIS	ko	하루 종일 토|물도 토|너무 토해|체중이 빨리|입이 바싹
+HYPEREMESIS	ja	一日中吐|水も吐|吐きすぎ|体重が急に|口がからから
+MANY_PEOPLE	th	หลายคน|ทั้งบ้าน|ทุกคน|สิบกว่าคน|ทั้งครอบครัว
+MANY_PEOPLE	en	lots of people|whole family|everyone|more than ten|several people
+MANY_PEOPLE	es	mucha gente|toda la familia|todos|más de diez|varias personas
+MANY_PEOPLE	vi	nhiều người|cả nhà|ai cũng|hơn mười
+MANY_PEOPLE	zh	很多人|全家|每个人|每個人|十几个|十幾個
+MANY_PEOPLE	ko	여러 명|온 가족|다들|열 명 넘게
+MANY_PEOPLE	ja	大勢|家族みんな|全員|十人以上
+GI_SICK	th	อาเจียน|ท้องเสีย|ปวดท้อง|เป็นลม
+GI_SICK	en	vomit|vomited|vomiting|threw up|throwing up|diarrhea|belly pain|fainted
+GI_SICK	es	vomitando|vomitaron|diarrea|vómitos|desmayaron
+GI_SICK	vi	nôn|tiêu chảy|đau bụng|ngất
+GI_SICK	zh	呕吐|嘔吐|拉肚子|腹泻|腹瀉|晕倒|暈倒|肚子痛
+GI_SICK	ko	토하|토했|설사|쓰러|배가 아프
+GI_SICK	ja	吐い|下痢|腹痛|嘔吐|倒れ
+RICE_WATER	th	น้ำซาวข้าว
+RICE_WATER	en	rice water
+RICE_WATER	es	agua de arroz
+RICE_WATER	vi	nước vo gạo
+RICE_WATER	zh	米汤样|米湯樣
+RICE_WATER	ko	쌀뜨물
+RICE_WATER	ja	米のとぎ汁
+
+# ═══ รอบ 20: (ไต) เด็กไตอักเสบ · ไข้หลายวัน+ตาแดงลิ้นแดง (คาวาซากิ) · เลือดกำเดาไม่หยุด · ฟันติดเชื้อลามคอ ═══
+PUFFY_EYES	th	ตาบวม|หนังตาบวม|เปลือกตาบวม
+PUFFY_EYES	en	eyes are puffy|eyelids are swollen|puffy eyes|puffy face
+PUFFY_EYES	es	ojos hinchados|párpados|cara hinchada
+PUFFY_EYES	vi	mắt sưng|mí mắt sưng|mặt phù
+PUFFY_EYES	zh	眼睛浮肿|眼睛浮腫|眼皮肿|眼皮腫
+PUFFY_EYES	ko	눈이 붓|눈꺼풀이 붓
+PUFFY_EYES	ja	まぶたが腫れ|顔がむくん
+URINE_CHANGE	th	ฉี่สีโค้ก|น้ำล้างเนื้อ|ฉี่น้อยลง|ปัสสาวะน้อยลง
+URINE_CHANGE	en	pee looks like cola|meat-washing|meat washing|peeing less|urine is red
+URINE_CHANGE	es	parece coca-cola|agua de lavar carne|orina menos
+URINE_CHANGE	vi	màu coca|nước rửa thịt|tiểu ít đi|tiểu ít
+URINE_CHANGE	zh	尿像可乐|尿像可樂|洗肉水|尿变少|尿變少
+URINE_CHANGE	ko	콜라색|고기 씻은|소변이 줄
+URINE_CHANGE	ja	コーラ色|肉を洗った|尿が減
+CRIED	th	ร้องไห้
+CRIED	en	crying|cried
+CRIED	es	llorar|lloró
+CRIED	vi	khóc
+CRIED	zh	哭
+CRIED	ko	울어서|울었
+CRIED	ja	泣い
+NEPHRITIS	th	ไตอักเสบ
+NEPHRITIS	en	nephritis|glomerulonephritis
+NEPHRITIS	es	nefritis
+NEPHRITIS	vi	viêm cầu thận|viêm thận
+NEPHRITIS	zh	肾炎|腎炎
+NEPHRITIS	ko	신장염|사구체신염
+NEPHRITIS	ja	腎炎
+NEPH_RED	th	ความดันสูง|ปวดหัว|อาเจียน|ชัก
+NEPH_RED	en	high blood pressure|headache|vomiting|seizure
+NEPH_RED	es	presión alta|dolor de cabeza|vomita|convulsión
+NEPH_RED	vi	huyết áp cao|đau đầu|nôn|co giật
+NEPH_RED	zh	血压高|血壓高|头痛|頭痛|吐|抽搐
+NEPH_RED	ko	혈압이 높|머리가|토해|경련
+NEPH_RED	ja	血圧が高|頭痛|吐い|けいれん
+FEVER_DAYS	th	re:ไข้\S{0,10}?(?:ห้า|5|หก|6|เจ็ด|7|หลาย)\s?วัน|ไข้ไม่ลงหลายวัน|ไข้ไม่ลง
+FEVER_DAYS	en	re:fever for (?:five|5|six|6|seven|7|several) days|fever won't come down for days
+FEVER_DAYS	es	re:(?:cinco|5|seis|6|siete|7) días con fiebre|no le baja la fiebre en días
+FEVER_DAYS	vi	re:sốt cao (?:năm|5|sáu|6|bảy|7) ngày|sốt mãi không hạ
+FEVER_DAYS	zh	re:高烧(?:五|5|六|6|七|7)天|发烧好几天不退|發燒好幾天不退
+FEVER_DAYS	ko	re:(?:닷새|엿새|이레)째 고열|며칠째 열이 안
+FEVER_DAYS	ja	re:(?:五|5|六|6|七|7)日間高熱|熱が何日も下がらず
+KAWA_SIGN	th	ตาแดง|ลิ้นแดง|สตรอว์เบอร์รี่|ปากแดงแตก|มือเท้าบวม|ผื่น
+KAWA_SIGN	en	red eyes|eyes are red|strawberry|cracked red lips|swollen red hands|rash
+KAWA_SIGN	es	ojos rojos|fresa|labios rojos agrietados|manos y pies hinchados|sarpullido
+KAWA_SIGN	vi	mắt đỏ|dâu|môi đỏ nứt|tay chân sưng|ban
+KAWA_SIGN	zh	眼睛都红|眼睛都紅|草莓|嘴唇红裂|嘴唇紅裂|手脚红肿|手腳紅腫|疹子
+KAWA_SIGN	ko	눈이 빨갛|딸기|입술이 빨갛게 갈라|손발이 붓|발진
+KAWA_SIGN	ja	目が赤|いちご|唇が赤くひび|手足が赤く腫れ|発疹
+NOSEBLEED	th	เลือดกำเดา
+NOSEBLEED	en	nosebleed|nose is pouring blood|nose won't stop bleeding
+NOSEBLEED	es	sangrado de nariz|sangre por la nariz
+NOSEBLEED	vi	chảy máu cam|máu mũi
+NOSEBLEED	zh	鼻血
+NOSEBLEED	ko	코피
+NOSEBLEED	ja	鼻血
+NB_BAD	th	ไหลไม่หยุด|ครึ่งชั่วโมง|เป็นสาย|ไม่หยุด|ยาละลายลิ่มเลือด|หน้ามืด
+NB_BAD	en	hasn't stopped|half an hour|pouring|blood thinners|faint
+NB_BAD	es	no para|media hora|a chorros|anticoagulantes|desmayar
+NB_BAD	vi	không cầm|nửa tiếng|thành dòng|chống đông|choáng
+NB_BAD	zh	止不住|半小时|半小時|流个不停|流個不停|抗凝|头晕|頭暈
+NB_BAD	ko	안 멈춰|30분째|줄줄|항응고제|어지러
+NB_BAD	ja	止まらず|30分|だらだら|サラサラ|ふらふら
+NB_STOPPED	th	ก็หยุด|หยุดแล้ว
+NB_STOPPED	en	stopped after|it stopped
+NB_STOPPED	es	paró
+NB_STOPPED	vi	là cầm
+NB_STOPPED	zh	止住了
+NB_STOPPED	ko	멈췄어요
+NB_STOPPED	ja	止まった
+TOOTH	th	ฟัน|เหงือก
+TOOTH	en	tooth|molar|gum
+TOOTH	es	muela|diente|encía
+TOOTH	vi	răng|lợi
+TOOTH	zh	牙
+TOOTH	ko	어금니|충치|잇몸|이가
+TOOTH	ja	歯|奥歯|歯茎|虫歯
+SPREAD_RED	th	ลามไปคอ|กลืนน้ำลายไม่ได้|ใต้คางบวม|อ้าปากไม่ขึ้น|หายใจลำบาก|หน้าบวมจนตาปิด
+SPREAD_RED	en	spreads to my neck|can't swallow|under my jaw|can't open my mouth|hard to breathe|eye is shut
+SPREAD_RED	es	baja al cuello|no puedo tragar|debajo de la mandíbula|no puedo abrir la boca|cuesta respirar|se me cerró el ojo
+SPREAD_RED	vi	lan xuống cổ|không nuốt được|dưới hàm|không há miệng|khó thở|nhắm cả mắt
+SPREAD_RED	zh	肿到脖子|腫到脖子|咽不下|下巴下面|张不开嘴|張不開嘴|呼吸困难|呼吸困難|睁不开|睜不開
+SPREAD_RED	ko	목까지|못 삼켜|턱 밑|입이 안 벌어|숨쉬기 힘들|눈이 감겼
+SPREAD_RED	ja	首まで|飲み込めない|あごの下|口が開かず|息がしにくい|目が開かない
+
+# ═══ รอบ 21: (ไต) โพแทสเซียมสูงจากอาหารในคนโรคไต · พิษยาฆ่าแมลงจากการพ่น · กรด/ด่างโดนผิว · ก้าง/กระดูกติดคอ ═══
+KIDNEY_PT	zh	肾不好|腎不好|肾不好的
+KIDNEY_PT	th	ไตไม่ค่อยดี
+HIGH_K_FOOD	th	ทุเรียน|น้ำมะพร้าว|มะพร้าว|กล้วย|ส้ม|ลำไย
+HIGH_K_FOOD	en	durian|coconut water|bananas|banana|oranges|potassium
+HIGH_K_FOOD	es	durián|agua de coco|cocos|coco|plátanos|naranjas
+HIGH_K_FOOD	vi	sầu riêng|nước dừa|quả dừa|dừa|chuối|cam
+HIGH_K_FOOD	zh	榴莲|榴槤|椰子水|香蕉|橙子
+HIGH_K_FOOD	ko	두리안|코코넛|바나나|오렌지
+HIGH_K_FOOD	ja	ドリアン|ココナッツ|バナナ|オレンジ
+K_RED	th	ใจเต้นผิดจังหวะ|ใจสั่น|ชาปาก|อ่อนแรง|ไม่มีแรง|ใจเต้นช้า|ยืนไม่ไหว
+K_RED	en	irregular|palpitations|numb|weak|heart is slow
+K_RED	es	irregular|palpitaciones|entumecidos|débil|débiles|lento
+K_RED	vi	loạn nhịp|hồi hộp|tê|yếu|chậm
+K_RED	zh	不规律|不規律|心慌|发麻|發麻|无力|無力|没力|站不起来|很慢
+K_RED	ko	불규칙|두근|저리|힘이 없|일어서지|맥이 느
+K_RED	ja	不規則|動悸|しびれ|力が入らない|脱力|立てない|脈が遅
+AVOID	th	ควรลด|ลดผลไม้
+AVOID	en	should cut|cut down on|reduce
+AVOID	es	reduzcan|reducir
+AVOID	vi	nên giảm|giảm trái cây
+AVOID	zh	少吃
+AVOID	ko	줄이래
+AVOID	ja	控える
+PESTICIDE_USE	th	พ่นยาฆ่าแมลง|ฉีดยาฆ่าหญ้า|ฉีดยาฆ่าแมลง|พ่นยาฆ่าหญ้า|ยาฆ่าแมลง|ยาฆ่าหญ้า
+PESTICIDE_USE	en	sprayed insecticide|sprayed herbicide|sprayed pesticide|pesticide|insecticide|herbicide
+PESTICIDE_USE	es	fumigó|insecticida|herbicida|plaguicida
+PESTICIDE_USE	vi	phun thuốc trừ sâu|thuốc trừ sâu|thuốc diệt cỏ
+PESTICIDE_USE	zh	喷农药|噴農藥|农药|農藥|除草剂|除草劑
+PESTICIDE_USE	ko	살충제|제초제|농약
+PESTICIDE_USE	ja	殺虫剤|除草剤|農薬
+OP_SIGN	th	เหงื่อแตก|น้ำลายไหล|ตาพร่า|กล้ามเนื้อกระตุก|อาเจียน|หายใจลำบาก|รูม่านตาเล็ก
+OP_SIGN	en	sweating|drooling|blurry|twitching|vomiting|trouble breathing|tiny pupils
+OP_SIGN	es	suda|babea|borroso|espasmos|vomita|cuesta respirar|pupilas diminutas
+OP_SIGN	vi	vã mồ hôi|chảy nước dãi|mờ mắt|giật cơ|nôn|khó thở|đồng tử co
+OP_SIGN	zh	出汗|流口水|看不清|抽动|抽動|呕吐|嘔吐|呼吸困难|呼吸困難|瞳孔很小
+OP_SIGN	ko	땀이|침을|흐리|떨려|토하|숨쉬기|동공이 작
+OP_SIGN	ja	汗が|よだれ|かすみ|ぴくぴく|吐い|息が苦し|瞳孔が小さ
+PROTECTED	th	ใส่ชุดป้องกัน|ชุดป้องกันครบ
+PROTECTED	en	protective gear|protective suit
+PROTECTED	es	equipo de protección
+PROTECTED	vi	đồ bảo hộ
+PROTECTED	zh	防护服|防護服
+PROTECTED	ko	보호복
+PROTECTED	ja	防護服
+CORROSIVE	th	น้ำกรด|กรด|โซดาไฟ|น้ำยาล้างท่อ
+CORROSIVE	en	acid|caustic soda|lye|drain cleaner
+CORROSIVE	es	ácido|sosa cáustica
+CORROSIVE	vi	axit|xút
+CORROSIVE	zh	硫酸|烧碱|燒鹼|强酸|強酸|盐酸|鹽酸
+CORROSIVE	ko	염산|황산|양잿물
+CORROSIVE	ja	苛性ソーダ|塩酸|硫酸|酸が
+SKIN_BURN	th	ผิวไหม้|แผลขาว|ปวดแสบมาก|ผิวลอก|แสบร้อน
+SKIN_BURN	en	skin is burned|burning|peeling|stings terribly
+SKIN_BURN	es	quemada|arde muchísimo|se pela|quema
+SKIN_BURN	vi	bỏng|rát kinh khủng|bong tróc|bỏng rát
+SKIN_BURN	zh	烧得发白|燒得發白|脱皮|火辣辣|痛得厉害
+SKIN_BURN	ko	하얗게 타|쓰라려|벗겨지|화끈
+SKIN_BURN	ja	白く焼け|ひどくしみる|むけて|焼けるように
+BONE_STUCK	th	ก้างปลาติดคอ|ก้างติดคอ|กลืนกระดูก|กระดูกติดคอ
+BONE_STUCK	en	fish bone is stuck|fish bone stuck|swallowed a chicken bone|bone stuck in
+BONE_STUCK	es	espina de pescado|hueso de pollo
+BONE_STUCK	vi	hóc xương cá|xương gà|hóc xương
+BONE_STUCK	zh	鱼刺|魚刺|鸡骨头|雞骨頭
+BONE_STUCK	ko	생선 가시|닭뼈
+BONE_STUCK	ja	魚の骨|鶏の骨
+BONE_RED	th	กลืนไม่ลง|น้ำลายไหล|ร้องไห้ไม่หยุด|เจ็บมาก|ไข้|คอบวม|เจ็บหน้าอก|อาเจียนเป็นเลือด
+BONE_RED	en	can't swallow|drooling|crying nonstop|very painful|fever|swelling|chest pain|vomiting blood
+BONE_RED	es	no puede tragar|babea|llora sin parar|duele mucho|fiebre|hincha|duele el pecho|vomito sangre
+BONE_RED	vi	không nuốt|chảy nước dãi|khóc mãi|đau lắm|sốt|sưng|đau ngực|nôn ra máu
+BONE_RED	zh	咽不下|流口水|一直哭|很痛|发烧|發燒|肿|腫|胸痛|吐血
+BONE_RED	ko	못 삼키|침을|계속 울|너무 아프|열이|부어|가슴이 아프|피를 토
+BONE_RED	ja	飲み込めず|よだれ|泣き止まない|すごく痛|熱が|腫れ|胸が痛|血を吐
+BONE_OK	th	หลุดแล้ว|แล้วหลุด|ก็หลุด|ระวังก้าง
+BONE_OK	en	went down|careful with the bones
+BONE_OK	es	bajó|cuidado con las espinas
+BONE_OK	vi	là trôi|cẩn thận xương
+BONE_OK	zh	下去了|小心刺
+BONE_OK	ko	내려갔|가시 조심
+BONE_OK	ja	取れた|骨に気をつけ
+
+# ═══ รอบ 22: (ไต) ยาแก้ปวด/ยาชุดทำไตวาย · ประจำเดือนมามากจนหน้ามืด · แผลเบาหวานที่เท้าติดเชื้อ · ปวดหัวรุนแรงที่สุดทันที ═══
+PAINKILLER	th	ยาแก้ปวด|ยาชุด|ไอบูโพรเฟน|ยาแก้อักเสบ|ยาแก้ปวดข้อ
+PAINKILLER	en	painkiller|painkillers|pain pills|joint pain pills|ibuprofen|nsaid|naproxen|diclofenac
+PAINKILLER	es	analgésicos|analgesicos|pastillas para el dolor|ibuprofeno|naproxeno
+PAINKILLER	vi	thuốc giảm đau|ibuprofen|thuốc kháng viêm
+PAINKILLER	zh	止痛药|止痛藥|布洛芬|消炎药|消炎藥
+PAINKILLER	ko	진통제|이부프로펜|소염제
+PAINKILLER	ja	痛み止め|イブプロフェン|鎮痛剤
+RENAL_FAIL_SIGN	th	ฉี่ไม่ออก|ฉี่น้อยมาก|ฉี่ออกน้อย|ตัวบวม|ขาบวม
+RENAL_FAIL_SIGN	en	can't pee|barely peeing|peeing very little|swelling up|swollen legs|legs are swollen|ankles are swollen|stopped peeing
+RENAL_FAIL_SIGN	es	no puede orinar|casi no orina|orina muy poco|hinchando|piernas hinchadas
+RENAL_FAIL_SIGN	vi	không tiểu được|gần như không tiểu|tiểu rất ít|phù lên|phù chân
+RENAL_FAIL_SIGN	zh	尿不出来|尿不出來|几乎没尿|幾乎沒尿|尿很少|浮肿|浮腫|腿肿|腿腫
+RENAL_FAIL_SIGN	ko	소변이 안|소변이 거의|소변이 아주 적|부었|다리가 붓
+RENAL_FAIL_SIGN	ja	尿が出ず|尿がほとんど|尿がとても少な|むくん
+AS_DOSED	th	ตามขนาด|กินครบแล้ว
+AS_DOSED	en	right dose|as directed|finished them
+AS_DOSED	es	dosis correcta|ya las terminé
+AS_DOSED	vi	đúng liều|đã uống xong
+AS_DOSED	zh	按剂量|按劑量|已经吃完|已經吃完
+AS_DOSED	ko	정량|다 먹었
+AS_DOSED	ja	用量通り|飲み終わった
+PERIOD2	th	ประจำเดือน|เมนส์
+PERIOD2	en	period
+PERIOD2	es	regla|menstruación
+PERIOD2	vi	kinh nguyệt|máu kinh|hành kinh|kinh
+PERIOD2	zh	月经|月經
+PERIOD2	ko	생리
+PERIOD2	ja	生理
+HEAVY_BLEED	th	เปลี่ยนผ้าอนามัยทุกชั่วโมง|หน้ามืด|ก้อนใหญ่|ใจสั่น|ตัวซีด|จะเป็นลม
+HEAVY_BLEED	en	soaking a pad every hour|faint|huge clots|heart racing|pale
+HEAVY_BLEED	es	empapo una toalla|desmayar|coágulos enormes|acelerado|pálida
+HEAVY_BLEED	vi	mỗi giờ phải thay|ngất|cục to|tim đập nhanh|tái
+HEAVY_BLEED	zh	每小时都要换|每小時都要換|晕倒|暈倒|很大的血块|很大的血塊|心慌|苍白|蒼白
+HEAVY_BLEED	ko	한 시간마다|쓰러질|큰 핏덩어리|심장이 빨리|창백
+HEAVY_BLEED	ja	一時間ごと|倒れそう|大きな血の塊|動悸|真っ青
+FOOT	th	เท้า
+FOOT	en	foot|toe|feet
+FOOT	es	pie
+FOOT	vi	chân
+FOOT	zh	脚|腳
+FOOT	ko	발
+FOOT	ja	足
+FOOT_INFECT	th	ดำ|กลิ่นเหม็น|บวมแดง|หนอง|ลามขึ้นขา
+FOOT_INFECT	en	is black|smells bad|red and swollen|spreading up|pus
+FOOT_INFECT	es	negra|huele mal|rojo e hinchado|subiendo por la pierna|pus
+FOOT_INFECT	vi	đen lại|mùi hôi|sưng đỏ|lan lên|mủ
+FOOT_INFECT	zh	发黑|發黑|发臭|發臭|红肿|紅腫|蔓延|脓|膿
+FOOT_INFECT	ko	까맣게|냄새가|빨갛게 붓|번지|고름
+FOOT_INFECT	ja	黒く|臭い|赤く腫れ|広がり|膿
+WORST_HEADACHE	th	ปวดหัวรุนแรงที่สุดในชีวิต|ปวดหัวระเบิด|ปวดหัวแบบไม่เคยเป็นมาก่อน|ปวดหัวที่สุดในชีวิต
+WORST_HEADACHE	en	worst headache of my life|explosive headache|headache unlike anything|thunderclap headache
+WORST_HEADACHE	es	peor dolor de cabeza|dolor de cabeza explosivo|dolor de cabeza como nunca
+WORST_HEADACHE	vi	đau đầu tệ nhất|đau đầu như nổ tung|đau đầu kiểu chưa từng có
+WORST_HEADACHE	zh	突然头痛欲裂|突然頭痛欲裂|最严重的头痛|最嚴重的頭痛|从没有过的突然剧烈头痛|從沒有過的突然劇烈頭痛
+WORST_HEADACHE	ko	최악의 두통|머리가 터질 듯|처음 겪는 갑작스럽고
+WORST_HEADACHE	ja	人生最悪の頭痛|今までにない突然の|頭が割れるように痛くなり
+
+# ═══ รอบ 23: (ไต) ยาขับปัสสาวะ+ขาดน้ำในผู้สูงอายุ · ไข้เลือดออกระยะอันตราย · แพ้ยารุนแรงผิวลอก · บาดทะยัก ═══
+DIURETIC	th	ยาขับปัสสาวะ|ยาขับน้ำ
+DIURETIC	en	water pills|water pill|diuretic|diuretics
+DIURETIC	es	diurético|diuréticos|pastillas para orinar
+DIURETIC	vi	thuốc lợi tiểu
+DIURETIC	zh	利尿药|利尿藥|利尿剂|利尿劑
+DIURETIC	ko	이뇨제
+DIURETIC	ja	利尿剤
+LOW_URINE	th	ฉี่น้อยมาก|ไม่ฉี่|ฉี่ไม่ค่อยออก|ฉี่น้อย
+LOW_URINE	en	barely peeing|hasn't peed|hardly pees|peeing very little
+LOW_URINE	es	casi no orina|no orina
+LOW_URINE	vi	tiểu rất ít|chưa đi tiểu|hầu như không tiểu
+LOW_URINE	zh	尿很少|半天没尿|半天沒尿|几乎没尿|幾乎沒尿
+LOW_URINE	ko	소변이 아주 적|소변을 안 보|소변이 거의 없
+LOW_URINE	ja	尿がとても少な|尿が出ず|尿がほとんど出ない
+DENGUE	th	ไข้เลือดออก
+DENGUE	en	dengue
+DENGUE	es	dengue
+DENGUE	vi	sốt xuất huyết
+DENGUE	zh	登革热|登革熱
+DENGUE	ko	뎅기열
+DENGUE	ja	デング熱
+DENGUE_RED	th	ซึม|ปวดท้องมาก|มือเท้าเย็น|เลือดกำเดา|อาเจียนเป็นเลือด|ถ่ายดำ
+DENGUE_RED	en	drowsy|belly pain|cold hands|nosebleed|vomiting blood
+DENGUE_RED	es	adormilado|dolor de barriga|manos y pies fríos|sangra por la nariz|vomita sangre
+DENGUE_RED	vi	lừ đừ|đau bụng|tay chân lạnh|chảy máu cam|nôn ra máu
+DENGUE_RED	zh	没精神|沒精神|肚子很痛|手脚冰凉|手腳冰涼|流鼻血|吐血
+DENGUE_RED	ko	처지|배가 많이 아프|손발이 차|코피|피를 토
+DENGUE_RED	ja	ぐったり|お腹がすごく痛|手足が冷た|鼻血|血を吐
+PLAYING_OK	th	เล่นได้ปกติ|กินข้าวได้
+PLAYING_OK	en	playing normally|eating and playing
+PLAYING_OK	es	juega normal|come y juega
+PLAYING_OK	vi	chơi bình thường
+PLAYING_OK	zh	玩都正常
+PLAYING_OK	ko	잘 놀아
+PLAYING_OK	ja	元気に
+DRUG_RASH	th	ยาแก้อักเสบ|ยากันชัก|แพ้ยา|ยาปฏิชีวนะ
+DRUG_RASH	en	antibiotic|seizure medicine|allergic to the|drug reaction
+DRUG_RASH	es	antibiótico|medicamento|alérgico
+DRUG_RASH	vi	kháng sinh|dị ứng thuốc|thuốc chống động kinh
+DRUG_RASH	zh	抗生素|抗癫痫药|抗癲癇藥|过敏|過敏
+DRUG_RASH	ko	항생제|항경련제|알레르기
+DRUG_RASH	ja	抗生物質|抗てんかん薬|アレルギー
+SKIN_PEEL	th	ผิวพองลอก|ผิวหนังลอกเป็นแผ่น|ปากเป็นแผล|ผิวลอก|พองลอก
+SKIN_PEEL	en	blistering|peeling off|peeling|mouth sores
+SKIN_PEEL	es	se ampolla|se pela|se cae a tiras|llagas en la boca
+SKIN_PEEL	vi	phồng rộp|bong tróc|bong từng mảng|lở miệng
+SKIN_PEEL	zh	起泡|脱落|溃烂|潰爛|一片片
+SKIN_PEEL	ko	물집|벗겨지|헐고|한 꺼풀
+SKIN_PEEL	ja	水ぶくれ|むけ|はがれ落ち|ただれ
+SUNBURN	th	ตากแดด|ผิวไหม้แดด
+SUNBURN	en	sunburn
+SUNBURN	es	quemadura de sol
+SUNBURN	vi	cháy nắng
+SUNBURN	zh	晒伤|曬傷
+SUNBURN	ko	햇볕에 타
+SUNBURN	ja	日焼け
+TETANUS_CTX	th	ตะปูสนิม|บาดทะยัก|แผล|ตะปูตำ
+TETANUS_CTX	en	rusty nail|tetanus|wound
+TETANUS_CTX	es	clavo oxidado|tétanos|herida
+TETANUS_CTX	vi	đinh gỉ|uốn ván|vết thương
+TETANUS_CTX	zh	生锈的钉子|生鏽的釘子|破伤风|破傷風|伤口|傷口
+TETANUS_CTX	ko	녹슨 못|파상풍|상처|다친
+TETANUS_CTX	ja	さびた釘|破傷風|傷
+TET_SIGN	th	อ้าปากไม่ขึ้น|ขากรรไกรแข็ง|กล้ามเนื้อเกร็ง|หลังแอ่น|กลืนลำบาก|คอแข็ง
+TET_SIGN	en	can't open my jaw|jaw is locked|muscles are stiff|back arching|struggles to swallow|neck is stiff
+TET_SIGN	es	no puedo abrir la mandíbula|mandíbula trabada|músculos rígidos|espalda arqueada|cuesta tragar|cuello rígido
+TET_SIGN	vi	không há miệng|cứng hàm|cơ cứng|ưỡn lưng|khó nuốt|cứng cổ
+TET_SIGN	zh	张不开嘴|張不開嘴|牙关紧闭|牙關緊閉|肌肉僵硬|背弓|吞咽困难|吞嚥困難|脖子僵硬
+TET_SIGN	ko	입이 안 벌어|턱이 굳|근육이 뻣뻣|등이 휘|삼키기 힘들|목이 뻣뻣
+TET_SIGN	ja	口が開かず|あごがこわば|筋肉がこわば|反り返|飲み込みにく|首が硬
+TET_DONE	th	ฉีดวัคซีนบาดทะยักแล้ว|ไปฉีดบาดทะยักแล้ว
+TET_DONE	en	got a tetanus shot|had a tetanus shot
+TET_DONE	es	me pusieron la vacuna
+TET_DONE	vi	đã đi tiêm
+TET_DONE	zh	已经打了|已經打了
+TET_DONE	ko	주사를 맞았어요
+TET_DONE	ja	注射を打った
+WORKOUT	th	หลังออกกำลังกาย|ยืดเส้น
+WORKOUT	en	after a workout|stretching
+WORKOUT	es	tras entrenar|estirando
+WORKOUT	vi	sau khi tập|giãn cơ
+WORKOUT	zh	运动后|運動後|拉伸
+WORKOUT	ko	운동 후|스트레칭
+WORKOUT	ja	運動後|ストレッチ
+TEXTBOOK	th	หนังสือ|ตำรา
+TEXTBOOK	en	textbook|book
+TEXTBOOK	es	libro
+TEXTBOOK	vi	sách
+TEXTBOOK	zh	课本|課本|书里|書裡
+TEXTBOOK	ko	교과서|책에서
+TEXTBOOK	ja	教科書
+
+# ═══ รอบ 24: (ไต) โรคไตน้ำท่วมปอด · ยาความดันทำปาก/ลิ้นบวม · ไอเป็นเลือดมาก · ต้อหินเฉียบพลัน ═══
+KIDNEY_PT	th	เบาหวานลงไต
+KIDNEY_PT	en	diabetic kidney disease|nephropathy
+KIDNEY_PT	es	nefropatía
+KIDNEY_PT	vi	biến chứng thận
+KIDNEY_PT	ko	신장병성|신장병
+KIDNEY_PT	ja	腎症
+OVERLOAD_SIGN	th	นอนราบไม่ได้|นั่งหายใจ|ฟองสีชมพู|หายใจเหนื่อยหอบ|น้ำหนักขึ้น|หายใจไม่ออกตอนนอน
+OVERLOAD_SIGN	en	can't lie flat|sit up all night to breathe|pink frothy|gasping|gained five kilos|can't breathe lying down
+OVERLOAD_SIGN	es	no puede acostarse|dormir sentado|rosada espumosa|jadea|subió cinco kilos|no respira acostado
+OVERLOAD_SIGN	vi	không nằm được|ngồi thở|bọt hồng|thở hổn hển|tăng năm ký|nằm xuống là không thở
+OVERLOAD_SIGN	zh	躺不下|坐着呼吸|坐著呼吸|粉红色泡沫|粉紅色泡沫|喘得厉害|喘得厲害|胖了五公斤|躺下就喘
+OVERLOAD_SIGN	ko	누울 수가 없|앉아서 숨|분홍색 거품|헐떡|킬로가 늘|누우면 숨을 못
+OVERLOAD_SIGN	ja	横になれず|座って息|ピンク色の泡|息が苦し|キロ増え|横になると息
+BP_MED	th	ยาความดัน|ยาลดความดัน
+BP_MED	en	blood pressure pill|blood pressure meds|blood pressure medicine|ace inhibitor
+BP_MED	es	pastilla nueva para la presión|medicina para la presión|pastilla para la presión
+BP_MED	vi	thuốc huyết áp
+BP_MED	zh	降压药|降壓藥
+BP_MED	ko	혈압약
+BP_MED	ja	降圧剤
+ANGIO_SWELL	th	ปากกับลิ้นบวม|ลิ้นบวม|หน้าบวม|คอบวม|กลืนลำบาก|ปากบวมเป่ง
+ANGIO_SWELL	en	lips and tongue|tongue is swollen|face and throat are swelling|throat is swelling|hard to swallow
+ANGIO_SWELL	es	labios y la lengua|se me hincha la cara y la garganta|garganta hinchada|cuesta tragar
+ANGIO_SWELL	vi	môi và lưỡi sưng|mặt và cổ sưng|khó nuốt
+ANGIO_SWELL	zh	嘴唇和舌头肿|嘴唇和舌頭腫|脸和喉咙肿|臉和喉嚨腫|吞咽困难|吞嚥困難
+ANGIO_SWELL	ko	입술과 혀가|얼굴과 목이 붓|삼키기 힘들
+ANGIO_SWELL	ja	唇と舌が|顔と喉が腫れ|飲み込みにく
+COUGH_BLOOD2	th	ไอเป็นเลือด|ไอเลือด
+COUGH_BLOOD2	en	coughing up blood|coughing up bright red|coughing up a lot of blood|coughed up blood
+COUGH_BLOOD2	es	toso sangre|tose sangre|tose mucha sangre
+COUGH_BLOOD2	vi	ho ra máu
+COUGH_BLOOD2	zh	咳出鲜红的血|咳出鮮紅的血|咳了很多血|咳血
+COUGH_BLOOD2	ko	re:피를[^.\n]{0,8}기침
+COUGH_BLOOD2	ja	血を咳き込
+EYE_PAIN	th	ปวดตา
+EYE_PAIN	en	eye pain|pain in my right eye|pain in my left eye|pain in my eye
+EYE_PAIN	es	dolor de ojo|dolor fuerte y repentino en el ojo|dolor en el ojo
+EYE_PAIN	vi	đau mắt|đau dữ dội mắt
+EYE_PAIN	zh	眼突然剧痛|眼突然劇痛|眼睛痛|眼痛|眼睛剧痛|眼睛劇痛|眼剧痛|眼睛和头剧痛
+EYE_PAIN	ko	눈이 너무 아프|눈과 머리가 심하게
+EYE_PAIN	ja	目がひどく痛|目と頭がひどく
+GLAUC_SIGN	th	วงรุ้ง|แสงรุ้ง|ตามัว|ตาแข็ง|อาเจียน|คลื่นไส้
+GLAUC_SIGN	en	rainbow halos|halos|cloudy|feels hard|vomiting|nausea
+GLAUC_SIGN	es	halos|se nubla|duro|vomito|náuseas
+GLAUC_SIGN	vi	quầng|mờ dần|mắt cứng|nôn|buồn nôn
+GLAUC_SIGN	zh	彩虹|模糊|发硬|發硬|呕吐|嘔吐|恶心|噁心
+GLAUC_SIGN	ko	무지개|뿌옇|딱딱|토해|메스
+GLAUC_SIGN	ja	虹|かすん|硬い|吐い|吐き気
+
+# ═══ รอบ 25: (ไต) ของเสียคั่งจากไตวาย · แมงป่องต่อย · ลมรั่วในปอด · ประสาทไขสันหลังล่างถูกกดทับ ═══
+KIDNEY_PT	zh	尿毒症
+KIDNEY_PT	ko	신장이 망가
+KIDNEY_PT	ja	腎臓が悪い
+KIDNEY_PT	es	le fallan los riñones|riñones fallando
+KIDNEY_PT	en	kidneys are failing
+UREMIA_SIGN	th	สับสน|คันทั้งตัว|อาเจียนตลอด|กลิ่นฉี่|ซึมลง|มือสั่นกระตุก|เพ้อ|ชักกระตุก
+UREMIA_SIGN	en	confused|itchy all over|vomiting constantly|smells like urine|drowsy|jerking|delirious|twitching
+UREMIA_SIGN	es	confundido|picazón en todo|vomitando sin parar|huele a orina|adormilada|sacudidas|delira|espasmos
+UREMIA_SIGN	vi	lú lẫn|ngứa khắp|nôn liên tục|mùi nước tiểu|lơ mơ|giật|mê sảng|co giật
+UREMIA_SIGN	zh	神志不清|全身发痒|全身發癢|一直呕吐|一直嘔吐|尿味|嗜睡|抽动|抽動|说胡话|說胡話|抽搐
+UREMIA_SIGN	ko	혼미|가렵|계속 토|소변 냄새|처지|경련|헛소리
+UREMIA_SIGN	ja	混乱|かゆく|吐き続け|尿の臭い|ぼんやり|ぴくぴく|うわごと|けいれん
+SCORPION	th	แมงป่อง
+SCORPION	en	scorpion
+SCORPION	es	alacrán|escorpión
+SCORPION	vi	bọ cạp
+SCORPION	zh	蝎子
+SCORPION	ko	전갈
+SCORPION	ja	サソリ
+SCORP_RED	th	ร้องไม่หยุด|น้ำลายไหล|ตัวกระตุก|หายใจลำบาก|ตากลอก
+SCORP_RED	en	crying nonstop|drooling|jerking|struggling to breathe|eyes are rolling
+SCORP_RED	es	llora sin parar|babea|sacudidas|cuesta respirar|ojos se le mueven
+SCORP_RED	vi	khóc mãi|chảy nước dãi|giật|khó thở|mắt đảo
+SCORP_RED	zh	一直哭|流口水|抽动|抽動|呼吸困难|呼吸困難|眼睛乱转|眼睛亂轉
+SCORP_RED	ko	계속 울|침을|경련|숨쉬기 힘들|눈이 이리저리
+SCORP_RED	ja	泣き止まず|よだれ|けいれん|息が苦し|目がぐるぐる
+ONE_SIDE_CHEST	th	เจ็บหน้าอกข้างเดียว|ปอดข้างหนึ่ง|กระแทกหน้าอก
+ONE_SIDE_CHEST	en	one-sided chest pain|one lung|hit to the chest
+ONE_SIDE_CHEST	es	dolor de pecho de un lado|un pulmón|golpe en el pecho
+ONE_SIDE_CHEST	vi	đau ngực một bên|một bên phổi|va đập vào ngực
+ONE_SIDE_CHEST	zh	一侧胸痛|一側胸痛|一边肺|一邊肺|胸口被撞
+ONE_SIDE_CHEST	ko	한쪽 가슴|한쪽 폐|가슴을 부딪
+ONE_SIDE_CHEST	ja	片側の胸|片方の肺|胸を強く打
+BREATHLESS	th	หายใจไม่ทัน|หายใจลำบาก|ปากเขียว
+BREATHLESS	en	can't catch his breath|can't catch my breath|hard to breathe|lips blue
+BREATHLESS	es	no puede respirar|cuesta mucho respirar|labios morados
+BREATHLESS	vi	thở không kịp|khó thở|môi tím
+BREATHLESS	zh	喘不过气|喘不過氣|呼吸非常困难|呼吸非常困難|嘴唇发紫|嘴唇發紫
+BREATHLESS	ko	숨이 차|숨쉬기가 너무 힘들|입술이 파래
+BREATHLESS	ja	息ができない|息が苦し|唇が紫
+BACK_PAIN2	th	ปวดหลัง
+BACK_PAIN2	en	back pain|back hurts
+BACK_PAIN2	es	dolor de espalda|me duele la espalda
+BACK_PAIN2	vi	đau lưng
+BACK_PAIN2	zh	腰背剧痛|腰背劇痛|腰痛
+BACK_PAIN2	ko	허리
+BACK_PAIN2	ja	腰痛|腰が痛
+CAUDA_SIGN	th	ขาอ่อนแรงทั้งสองข้าง|กลั้นปัสสาวะไม่อยู่|ชาบริเวณก้น|อุจจาระราด|ขาสองข้างชา|ฉี่ไม่ออก
+CAUDA_SIGN	en	both legs are weak|can't hold his urine|can't hold my urine|numb around my buttocks|soiled myself|both legs are numb|can't pee
+CAUDA_SIGN	es	las dos piernas débiles|no puede aguantar la orina|nalgas|me hice encima|dos piernas dormidas|no puedo orinar
+CAUDA_SIGN	vi	hai chân yếu|không nhịn tiểu|tê vùng mông|đi ngoài ra quần|hai chân tê|không tiểu được
+CAUDA_SIGN	zh	两条腿无力|兩條腿無力|憋不住尿|屁股周围发麻|屁股周圍發麻|大便失禁|两条腿都麻|兩條腿都麻|尿不出来|尿不出來
+CAUDA_SIGN	ko	양쪽 다리에 힘이 없|소변을 못 참|엉덩이 주변이 저리|변을 지렸|두 다리가 저리|소변이 안 나와
+CAUDA_SIGN	ja	両足に力が入らず|尿を我慢できない|お尻の周りがしびれ|便をもらした|両足がしびれ|尿が出ない

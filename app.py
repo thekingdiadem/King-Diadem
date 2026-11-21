@@ -888,7 +888,14 @@ def galaxy_state_debug():
 # ── PAGES ─────────────────────────────────────────────────────────
 # ยืนยันเจ้าของเว็บกับ Google Search Console: ตั้ง GOOGLE_SITE_VERIFICATION ใน Render
 # (ค่า content จาก <meta name="google-site-verification" content="…"> ที่ Search Console ให้มา) — ไม่ต้องแก้โค้ด
-_GSV = re.sub(r"[^A-Za-z0-9_\-]", "", os.getenv("GOOGLE_SITE_VERIFICATION", ""))
+def _site_code(raw: str) -> str:
+    """รหัสยืนยันเว็บจาก env — ถ้าวางแท็กทั้งบรรทัดมา (<meta name=... content="รหัส">) ดึงเฉพาะรหัส
+    เคยวางทั้งแท็ก ระบบตัดสัญลักษณ์ออกจนกลายเป็น "metanamegoogle-site-verificationcontent<รหัส>" แล้ว Google ยืนยันไม่ผ่าน"""
+    m = re.search(r'content\s*=\s*["\']?([^"\'>\s]+)', raw or "")
+    return re.sub(r"[^A-Za-z0-9_\-]", "", m.group(1) if m else (raw or ""))
+
+
+_GSV = _site_code(os.getenv("GOOGLE_SITE_VERIFICATION", ""))
 _INDEX_HTML = None
 
 def _index_html() -> str:
@@ -906,9 +913,11 @@ def root(request: Request):
     if request.method == "GET":
         _metric("visit")
         _metric("visitor", _client_ip(request))
-    if not _GSV:
-        return FileResponse("static/index.html")
-    return HTMLResponse(_index_html())
+    # SEO หลายภาษา (core/seo_langs.py): ?lang=en|ja|zh|ko|es|vi ได้ชื่อเรื่อง/คำอธิบายภาษานั้น + hreflang ทุกภาษา
+    from core import seo_langs as _seo
+    lg = _seo.lang_of(request.query_params.get("lang"))
+    page = _index_html() if _GSV else open("static/index.html", encoding="utf-8").read()
+    return HTMLResponse(_seo.head_for(page, lg, _public_url("").rstrip("/")))
 
 # ── ให้ Google เจอหน้าเว็บ (SEO) ─────────────────────────────────────────
 # robots.txt บอกว่าหน้าไหนให้เก็บ · หน้าส่วนตัว (API บัญชี รายงานที่แชร์) ห้ามเก็บ
@@ -927,10 +936,18 @@ def robots_txt():
 
 @app.get("/sitemap.xml")
 def sitemap_xml():
-    urls = "".join(f"<url><loc>{_public_url(p)}</loc><changefreq>{f}</changefreq><priority>{pr}</priority></url>"
-                   for p, pr, f in SITEMAP_PAGES)
+    from core import seo_langs as _seo
+    urls = _seo.sitemap_home(_public_url("").rstrip("/"))      # หน้าแรกทุกภาษา + hreflang
+    urls += "".join(f"<url><loc>{_public_url(p)}</loc><changefreq>{f}</changefreq><priority>{pr}</priority></url>"
+                    for p, pr, f in SITEMAP_PAGES if p not in ("/", "/survival"))
+    # คู่มือเอาชีวิตรอดมีฉบับไทยและอังกฤษจริง (core/survival_page.py) — บอกทั้งสองภาษา
+    surv = "".join(f'<xhtml:link rel="alternate" hreflang="{lg}" href="{_public_url(u)}"/>'
+                   for lg, u in (("th", "/survival"), ("en", "/survival?lang=en"), ("x-default", "/survival?lang=en")))
+    urls += "".join(f"<url><loc>{_public_url(u)}</loc>{surv}<changefreq>weekly</changefreq><priority>0.9</priority></url>"
+                    for u in ("/survival", "/survival?lang=en"))
     xml = ('<?xml version="1.0" encoding="UTF-8"?>'
-           f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'
+           f'{urls}</urlset>')
     return Response(xml, media_type="application/xml")
 
 # service worker ต้องเสิร์ฟจากรากเว็บถึงจะดูแลทั้งแอปได้ (อยู่ใต้ /static/ = ดูแลได้แค่ /static/)
@@ -947,6 +964,11 @@ def favicon():
 @app.get("/wallet")
 async def wallet_page():
     return FileResponse("static/wallet.html")
+
+@app.get("/kidney")
+async def kidney_page():
+    return FileResponse("static/kidney.html")
+
 
 @app.get("/guide")
 async def guide_page():
@@ -1088,6 +1110,17 @@ def health():
 
 
 # ── 👍/👎 ใต้คำตอบ → วงจรเรียนรู้ (เก็บแค่เส้นทาง · ความเสี่ยง · ผลโหวต) ─────────
+@app.post("/api/chronic-care")
+async def post_chronic_care(request: Request, data: dict):
+    """แผนดูแลไต เบาหวาน ความดัน ไขมัน จากค่าของคนนั้น (core/chronic_care.py — ไม่ใช้ AI)"""
+    if not _rate_check("cc|" + _client_ip(request)):
+        return JSONResponse({"ok": False, "error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่นะคะ"}, status_code=429)
+    from core import chronic_care
+    data = data if isinstance(data, dict) else {}
+    prof = data.get("profile") if isinstance(data.get("profile"), dict) else {}
+    return await run_in_threadpool(chronic_care.plan, prof, str(data.get("lang") or "th"))
+
+
 @app.post("/api/feedback")
 async def post_feedback(request: Request, data: dict):
     if not feedback_loop:

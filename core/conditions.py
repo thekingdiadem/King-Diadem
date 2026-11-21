@@ -60,8 +60,12 @@ MILD = _rx(r"แชมพู", r"สบู่", r"ยาสีฟัน", r"ค�
 # วัตถุชิ้นเล็ก (ถ่าน แม่เหล็ก เหรียญ) = เอกซเรย์/ผ่าตัด ("swallowed") · สารพิษและยา = ศูนย์พิษวิทยา ("overdose")
 OBJECT = _rx(r"ถ่าน(?:กระดุม|นาฬิกา)?", r"แบตเตอรี", r"แม่เหล็ก", r"เหรียญ", r"\b(?:button )?batter(?:y|ies)\b", r"\bmagnets?\b", r"\bcoins?\b")
 
+RECOVERED = _rx(r"(?:กิน|ทาน)ยา\S{0,6}?(?:แล้ว)?(?:ดีขึ้น|หาย)", r"\b(?:gave (?:him|her|them) (?:some )?medicine|feel(?:s|ing)? better)\b")
+
 
 def child_ingest(t: str) -> Hit | None:
+    if RECOVERED.search(t):                      # "ลูกเป็นไข้ กินยาแล้วดีขึ้น" = ให้ยาตามปกติแล้วหาย
+        return None
     if MILD.search(t) and not NON_FOOD.search(MILD.sub("", t)):
         return None
     if AS_PRESCRIBED.search(t):
@@ -149,9 +153,12 @@ HOMELESS = _rx(r"ไม่มีที่(?:อยู่|นอน|ไป|ซุ
 LACK = _rx(r"ไม่มีเงิน", r"(?:จ่าย|ผ่อน)ไม่ไหว", r"หาเงินไม่ได้", r"ไม่พอ", r"ค้าง(?:จ่าย)?", r"(?:จะ|โดน|ถูก)(?:มา)?ตัด", r"ตัด(?:ไฟ|น้ำ)", r"ไล่(?:ออก|ที่)", r"ไม่มีที่",
            r"\b(?:can'?t (?:pay|afford|cover|buy)|cannot (?:pay|afford)|behind on|owe|shut\w* (?:off|down)|cut\w* (?:off|in half)|disconnect\w*|evict\w*|threaten\w* to|no money|ran out|run out|sleeping (?:in|on)|nowhere)\b")
 
+MAINTENANCE = _rx(r"ช่าง", r"ซ่อม", r"ปิดปรับปรุง", r"บำรุงรักษา", r"\b(?:maintenance|repairs?|technician|electrician)\b")
+
 
 def basic_needs(t: str) -> Hit | None:
-    if (_near(POWER, LACK, t, 50) or _near(WATER, LACK, t, 50)):
+    # "ช่างบอกว่าถ้าไม่เปลี่ยนสายพานจะตัดไฟทั้งตึก" = ปิดไฟซ่อม ไม่ใช่ถูกตัดเพราะค้างจ่าย
+    if (_near(POWER, LACK, t, 50) and not MAINTENANCE.search(t) or _near(WATER, LACK, t, 50)):
         return Hit("utilities", "basic", 70)
     if HOMELESS.search(t) or _near(RENT, LACK, t, 60):
         return Hit("housing", "housing", 70)

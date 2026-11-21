@@ -83,6 +83,9 @@ def render(lang: str = "th") -> str:
 <meta name="theme-color" content="#04050d">
 <title>{e(t["title"])} · KING DIADEM</title>
 <link rel="canonical" href="https://king-diadem.onrender.com/survival{"?lang=en" if lang == "en" else ""}">
+<link rel="alternate" hreflang="th" href="https://king-diadem.onrender.com/survival">
+<link rel="alternate" hreflang="en" href="https://king-diadem.onrender.com/survival?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://king-diadem.onrender.com/survival?lang=en">
 <link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
 <meta name="description" content="{e(t["lead"])}">
 <link rel="preconnect" href="https://fonts.googleapis.com">

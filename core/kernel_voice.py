@@ -172,6 +172,15 @@ TOPICS = [
         ],
         "ask": "ตอนนี้ได้โอนเงินหรือให้ข้อมูลอะไรไปแล้วหรือยัง?",
     }),
+    ("burden", [], {
+        "open": ["ขอบคุณที่ยอมพูดความคิดนี้ออกมานะ ความรู้สึกว่า \"ถ้าไม่มีเรา ทุกคนคงสบายกว่า\" หนักมาก และมักมาตอนที่ใจเหนื่อยจนมองไม่เห็นว่าตัวเองมีค่ากับใคร"],
+        "paths": [
+            "ความคิดนี้รู้สึกเหมือนความจริง แต่มันคือเสียงของความเหนื่อย ไม่ใช่สิ่งที่คนรักเราคิด — คนที่เสียคนในครอบครัวไปแทบไม่มีใครรู้สึกว่า \"สบายขึ้น\" เลย",
+            "ขอถามตรงๆ นะ: ตอนนี้มีความคิดอยากหายไปหรือทำร้ายตัวเองไหม — ถ้ามี หรือไม่แน่ใจ โทร 1323 (ฟรี 24 ชม.) ไม่ต้องเตรียมคำพูด แค่บอกว่า \"รู้สึกว่าเป็นภาระ\" ก็พอ",
+            "คืนนี้ลองอยู่ใกล้ใครสักคน หรือส่งข้อความหาคนเดียวว่า \"ช่วงนี้ไม่ไหว\" — การขอให้มีคนอยู่ด้วยไม่ใช่การเป็นภาระ",
+        ],
+        "ask": "ช่วงนี้มีเรื่องอะไรที่ทำให้รู้สึกว่าตัวเองเป็นภาระมากที่สุด?",
+    }),
     ("car_water", [], {
         "open": ["ออกจากรถให้เร็วที่สุด — อย่ารอให้รถจมก่อน อย่าเสียเวลาโทรตอนนี้"],
         "paths": [
@@ -564,7 +573,7 @@ TOPICS = [
         "ask": "ตอนนี้เรื่องไหนที่ดึงแรงคุณไปมากที่สุด — หรือถ้ากำลังทำรายงาน อยากได้ข้อมูลด้านไหนเพิ่ม?",
     }),
     # "กินจนอิ่มหายใจไม่ออก" "ขำจนหายใจไม่ออก" "งานเยอะจนหายใจไม่ออก" เป็นสำนวน ไม่ใช่หายใจไม่ได้จริง
-    ("health_emergency", ["เจ็บหน้าอก", "แน่นหน้าอก",
+    ("health_emergency", [re.compile(r"เจ็บหน้าอก(?!\S{0,10}?(?:เพราะ|จาก)\S{0,3}?(?:ไอ|อกหัก|เล่นเวท|ยกเวท|ออกกำลัง))"), "แน่นหน้าอก",   # "เจ็บหน้าอกนิดหน่อยเพราะไอหนัก" ไม่ใช่หัวใจ
                           re.compile(r"^(?![\s\S]*(?:อิ่ม|ขำ|หัวเราะ|งานเยอะ|งานล้น|ภาระ|หนี้)\S{0,8}?หายใจไม่(?:ค่อย)?(?:ออก|ได้))(?![\s\S]*หายใจไม่(?:ค่อย)?(?:ออก|ได้)\S{0,4}?(?:ถ้า|หากไม่|ขาด|เพราะ(?:เธอ|เขา|คิดถึง)))[\s\S]*?หายใจไม่(?:ค่อย)?(?:ออก|ได้)"), "หมดสติ", "ชักเกร็ง", "ชักกระตุก",
                           "ชักไม่หยุด", re.compile(r"(?:ลูก|เด็ก|หลาน|ทารก|น้อง)\S{0,8}?ชัก(?!ชวน|จูง|ธง|ช้า|ว่าว|ใย)"),
                           re.compile(r"ปวดท้อง\S{0,4}?(?:ขวาล่าง|ด้านขวาล่าง)[^\n]{0,20}?ไข้|ไข้[^\n]{0,20}?ปวดท้อง\S{0,4}?ขวาล่าง"),
@@ -573,7 +582,7 @@ TOPICS = [
                           re.compile(r"(?:ล้ม|หมด|ฟุบ|ช็อก|เรียก\S{0,6}?|(?:พ่อ|แม่|ลูก|เด็ก|หลาน|ยาย|ตา|ปู่|ย่า|สามี|ภรรยา|แฟน|เพื่อน|มีคน|คน)\S{0,6}?)ไม่รู้สึกตัว(?!\S{0,4}?ว่า)"),
                           re.compile(r"^(?![\s\S]*(?:ประจำเดือน|เมนส์|ไรฟัน|เลือดกำเดา\S{0,4}?นิดหน่อย))[\s\S]*?เลือด(?:ออก|ไหล)\S{0,4}?(?:มาก|เยอะ|ท่วม|ทะลัก|ไม่หยุด)"),
                           re.compile(r"(?:โดน|ถูก)(?:มีด|ดาบ|พร้า|ขวาน)\S{0,4}?(?:ฟัน|แทง)(?!ธง)"), "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
-                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?:collapsed|unconscious)\b|\bpassed out\b(?![^\n]{0,40}?\b(?:on the (?:couch|sofa|bed)|after (?:the |a |that |his |her |my )?(?:night |long |double )?(?:game|movie|show|party|shift|workout|work)|from (?:exhaustion|tiredness)|in front of the tv|snoring|asleep)\b(?![^\n]{0,30}?\b(?:won'?t wake|not (?:waking|responding|breathing)|can'?t wake|drunk|drinking|alcohol|vodka|whiskey|bottle|pills|vomit\w*|blue)\b))|\bdrowning\b(?! in (?:\w+ ){0,2}(?:homework|work|paperwork|debts?|loans?|payments?|mortgage|credit|emails?|bills|tasks|assignments|love|tears|stress|responsibilit\w+|deadlines?))", re.I),
+                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\bpassed out\b(?![^\n]{0,40}?\b(?:on the (?:couch|sofa|bed)|after (?:the |a |that |his |her |my )?(?:night |long |double )?(?:game|movie|show|party|shift|workout|work)|from (?:exhaustion|tiredness)|in front of the tv|snoring|asleep)\b(?![^\n]{0,30}?\b(?:won'?t wake|not (?:waking|responding|breathing)|can'?t wake|drunk|drinking|alcohol|vodka|whiskey|bottle|pills|vomit\w*|blue)\b))|\b(?<!soil )(?<!dirt )(?<!sand )(?<!sandcastle )(?<!tent )(?<!cake )(?:collapsed|unconscious)\b|\bdrowning\b(?! in (?:\w+ ){0,2}(?:homework|work|paperwork|debts?|loans?|payments?|mortgage|credit|emails?|bills|tasks|assignments|love|tears|stress|responsibilit\w+|deadlines?))", re.I),
                           _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
         "paths": [
@@ -1874,6 +1883,116 @@ EN_HAZARD = {
 }
 
 EN_TOPIC = {
+    # คำตอบภาษาอังกฤษของหัวข้อที่เคยมีแต่ภาษาไทย — ผู้ใช้อังกฤษเคยได้แค่ "Let's lay this out step by step"
+    "stress": ("You don't have to fix everything right now — just take the weight off one piece at a time.", [
+        "Pick the single smallest thing you can do in 10 minutes, and do only that.",
+        "Sleep, eat and drink water before any big decision — a tired brain sees fewer options than really exist.",
+        "Tell one person \"I'm not okay right now\" — no need to explain · if this lasts more than 2 weeks, talk to a doctor or a helpline (1323 in Thailand, 988 in the US)."],
+        "Of everything pressing on you, which one thing can you actually control — just one?"),
+    "friendship": ("Friendship hurt is real — but it doesn't mean you're worth less.", [
+        "Send one short, no-pressure message: \"We've drifted lately — if I did something that bothered you, you can tell me.\" Then give them time.",
+        "Separate what they actually said or did from what you're guessing — don't judge from silence yet.",
+        "Meanwhile, don't sit alone with the thoughts — spend time with other people or things you enjoy · if a group is gossiping about you at school or work, keep evidence."],
+        "Before they went quiet, did anything happen between you?"),
+    "diagnosis": ("News like this is heavy — you don't have to understand everything today. One step at a time is enough.", [
+        "Write your questions for the doctor: what stage, what treatment options, what your coverage pays for, and what needs doing this week.",
+        "Bring someone you trust to the results or treatment talk — they help you remember and ask.",
+        "If the worry keeps you from sleeping, talking to someone helps (1323 in Thailand, 988 in the US)."],
+        "What worries you most right now — the illness, the treatment, or the cost?"),
+    "health_rights": ("Everyone has a right to treatment — let's lay out the options.", [
+        "In Thailand, every Thai citizen without other coverage can use the Gold Card (UCS) — register at a public hospital or call NHSO 1330 to check your rights.",
+        "In a critical emergency (chest pain, unconscious, can't breathe) go to the nearest hospital, private included — the first 72 hours are free under UCEP.",
+        "If costs are high, ask to speak with the hospital social worker about payment relief."],
+        "Which coverage do you have now — Gold Card, social security, or not sure?"),
+    "health": ("Your body is sending a signal — listen to it first.", [
+        "If it's getting worse fast, with high fever that won't come down, trouble breathing or severe pain — go to a hospital today.",
+        "A pharmacist can advise you first for milder symptoms, or use your coverage at your registered hospital.",
+        "Rest, drink water, and note your symptoms with times — it helps the doctor assess you accurately."],
+        "Compared with yesterday, is it better, the same, or worse?"),
+    "debt": ("Debt is numbers — it can be solved one piece at a time.", [
+        "List every debt: balance · yearly interest · minimum per month — see the real picture before deciding.",
+        "Pay the minimum on all of them so none defaults, then put extra on the highest-interest one first.",
+        "Call lenders before the due date to ask for restructuring or lower payments — before you miss a payment you have more options · don't take a new high-interest loan to pay an old one, that shrinks next month's choices. Collectors who threaten or shame you are breaking the law; keep evidence."],
+        "If you could pay only one debt this month, which would hurt most to miss?"),
+    "legal": ("Legal trouble feels scary, but there are steps and free help.", [
+        "Never ignore a court summons — note the date and court, and go (most debt cases can be settled with a payment plan there).",
+        "If arrested: you have the right to know the charge, to see a lawyer, and to tell family — don't sign anything you don't understand.",
+        "Free lawyers: in Thailand the Lawyers Council (1167) or the Justice Fund · keep every document and note dates of everything."],
+        "Does the document you received give a hearing date or deadline?"),
+    "money": ("Little money doesn't mean no way — it means putting things in order.", [
+        "Split the next 30 days of spending into three piles: must pay (food, housing, medicine) · can delay · can cut.",
+        "Count how many days your money covers the 'must pay' pile — that number is the time you really have.",
+        "Find the fastest income using skills you already have (day work, selling unused things, short gigs) before long-term plans."],
+        "How many more days can your money cover what you truly must pay for?"),
+    "school_refusal": ("A child who won't go to school usually has a reason they can't say yet — listen before you push.", [
+        "Ask at a calm time (not the rushed morning) what at school they don't want to face — friends, a teacher, the work, or the trip there.",
+        "Talk to the homeroom teacher about what they've noticed · watch for morning stomach-aches, headaches or poor sleep; if frequent, see a pediatrician.",
+        "If they mention bullying, being hurt, or not wanting to live, call a helpline (1387 child line / 1323 in Thailand)."],
+        "Has your child ever said what at school makes them not want to go?"),
+    "elder_driving": ("This is hard because driving is their freedom — talk about safety, not age.", [
+        "Let a doctor be the middle person: check eyesight, hearing and current medicines — advice from a doctor is often easier to hear than from family.",
+        "Prepare alternatives before asking them to stop: family rides, ride apps, buses — so they don't feel stuck at home.",
+        "If they've started scraping cars, getting lost, or driving grandchildren, stop the driving now and discuss the long term later."],
+        "Have there been any scrapes or getting lost recently?"),
+    "family": ("Family matters sit closest to the heart — take one conversation at a time.", [
+        "Separate what is your responsibility from what isn't.",
+        "Talk about one thing at a time, when no one is exhausted — not in the middle of a fight.",
+        "Set one clear, doable boundary, and hold it politely · insults you hear again and again are not the truth about you."],
+        "What do you really need from your family in this — just one thing?"),
+    "study_or_work": ("Further study or work first — both can get you there; they differ in timing and cost.", [
+        "Write your 3–5 year goal, then check 5–10 real job postings: does that path truly require the degree?",
+        "Compare costs: tuition + income lost while studying, versus experience and money from working first — ask one person who took each path.",
+        "The more reversible path usually wins: working first and studying later (evening, online, employer-funded) is often still possible."],
+        "What work or life do you want to see yourself in 5 years from now — one sentence is enough?"),
+    "study": ("Studying is a long road — make it shorter pieces.", [
+        "Split work into 25–45 minute blocks, one at a time, with short breaks between.",
+        "Start with the high-score parts you can't do yet, before the parts you're already good at.",
+        "Ask a teacher or friend as soon as you're stuck — the longer you wait, the higher the pile."],
+        "If you had only one hour today, which part would add the most to your score?"),
+    "decision": ("A good decision is one that still leaves you choices tomorrow.", [
+        "Write the downside of each option before the upside: if it goes wrong, what do you lose, and can you go back?",
+        "If outcomes are similar, the reversible option beats the irreversible one.",
+        "Test small before committing: try the path for 1–2 weeks at a size you can afford to lose."],
+        "After choosing this path, how many options will you still have?"),
+    "positive": ("That's wonderful — good moments deserve to be noticed.", [
+        "Write down what made today good — on hard days you'll know what helps.",
+        "Use the good stretch to build a cushion: savings, relationships, skills."],
+        "Is there anything you'd like to decide while your mind is calm like this?"),
+    "teen_leave": ("Wanting to leave home usually has something heavy behind it — you can tell me.", [
+        "If someone at home hurts you, insults you, or it isn't safe, call a child helpline (1387 in Thailand, free 24h) — they can help find a safe place.",
+        "Before leaving, line up a safe place first: a trusted relative, a school counselor, or a state shelter — don't go to someone you just met online.",
+        "If there's no danger, try talking with a neutral adult both sides listen to (a teacher, a relative) about what makes home unbearable."],
+        "Is home safe right now — is anyone hurting you?"),
+    "adult_invite": ("Good that you asked before going — this is worth checking first.", [
+        "Ask exactly what it's for — if it's just to pick up work or an item, ask to get it at school during the day instead.",
+        "If you really must go, bring a parent or family member, and always tell home where, with whom, and when you'll be back.",
+        "Adults who mean well won't ask you to come alone at night or keep it secret — if it feels wrong, say no, and tell an adult you trust (child line 1387 in Thailand)."],
+        "Did they say what it's for, and does your family know yet?"),
+    "child_gaming": ("Kids often get hooked on screens because they find something there they can't find outside — start with understanding, not confiscating.", [
+        "Agree on rules together (not one-sided orders): when play is okay, and a screens-off time before bed — write it where everyone can see.",
+        "Charge devices outside the bedroom at night · offer another activity to do together, not just take the screen away.",
+        "If they become violently angry, hurt themselves or others when stopped, or refuse school, talk to a pediatrician or helpline."],
+        "What does your child play, and with whom — do you know what the game gives them that outside doesn't?"),
+    "traffic_ticket": ("A ticket you believe is wrong can be disputed — do it before the deadline.", [
+        "Check the ticket and photo evidence (in Thailand at ptm.police.go.th with your plate) — do the date, time and place match where you really were?",
+        "If you didn't do it, dispute at the issuing station before the payment deadline with evidence (dashcam, receipts, proof you were elsewhere).",
+        "Never pay cash to an individual — pay only through official channels."],
+        "Does the ticket's date, time and place match where you actually were?"),
+    "bribery": ("Officials can't demand money outside the system — you have the right to ask for an official ticket or document every time.", [
+        "In the moment: stay calm, don't argue, ask to see their ID and an official ticket or receipt — fines are paid at the station or official channels, never in cash to a person.",
+        "Note down: name, rank or badge · time and place · plate number · the amount asked · if safe, record audio or video.",
+        "Report it: in Thailand Damrongdhama Center 1567 · NACC 1205 · for police, the complaints line 1599 — you can ask to stay anonymous."],
+        "Are you still there now, or has it already happened?"),
+    "grief": ("I'm so sorry. Grief doesn't need to be over quickly — it's love that still has nowhere to go.", [
+        "Let yourself be sad and cry — you don't have to be strong for anyone right now.",
+        "Tell someone about them, or write to them — the things you wanted to say but didn't get to.",
+        "Keep the basics going: eat, sleep, drink water · if weeks pass and you still can't function, or you start thinking of hurting yourself, reach a crisis line (1323 in Thailand, 988 in the US)."],
+        "Is there something about them you'd like to tell me?"),
+    "burden": ("Thank you for saying this out loud. The feeling that \"everyone would be better off without me\" is so heavy — it usually comes when you're too exhausted to see what you mean to people.", [
+        "That thought feels true, but it's exhaustion talking, not what the people who love you think — families who lose someone almost never feel \"better off\".",
+        "Can I ask directly: are you having thoughts of disappearing or hurting yourself? If yes, or you're not sure, reach a crisis line now — 1323 in Thailand (free, 24h), 988 in the US, or findahelpline.com. You can simply say \"I feel like a burden.\"",
+        "Tonight, be near someone or message one person \"I'm not okay right now\" — asking someone to be with you is not being a burden."],
+        "What's been making you feel like a burden most lately?"),
     "car_water": ("Get out of the car now — don't wait for it to sink, and don't spend time calling yet.", [
         "Seatbelt off → open the side window right away (power often still works at first) · if it won't open, break a side window at the corner with a glass breaker or headrest pins.",
         "Unbuckle children first and push them out the window, then follow · don't try the door while water is pressing on it.",
@@ -2347,7 +2466,7 @@ OFFER = {
 
 
 # เรื่องฉุกเฉิน/เปราะบาง: ขั้นของเรื่องนั้นต้องครบ ไม่แบ่งที่ให้หัวข้อรอง และไม่ผ่านสภา 5 เสียง
-_URGENT_TOPICS = ("car_water", "co_poison", "confined_space", "home_ventilator", "forced_marriage", "intruder", "post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
+_URGENT_TOPICS = ("burden", "car_water", "co_poison", "confined_space", "home_ventilator", "forced_marriage", "intruder", "post_harm", "post_danger", "newborn_danger", "preg_danger", "titan_exit", "minor_adult", "trafficking", "overdose", "swallowed", "en_assault", "en_infant_fever", "en_preg_bleed", "en_spiked", "online_grooming", "household", "pet_poison", "violence", "health_emergency", "scam", "warning", "help", "basic", "someone", "stop_meds",
                   "sexual_abuse", "sextortion", "first_aid", "missing", "drunk_drive", "panic", "psychosis", "eating")
 # หัวข้อที่ต้องเป็นเรื่องของตัวผู้ใช้เอง (ไม่นับคำที่อยู่ในประโยคเล่าถึงวิกฤตของคนอื่น)
 _OWN_ONLY = ("warning", "grief")
@@ -2507,7 +2626,7 @@ _PAST_OR_NOT_NOW = re.compile(r"(?i)\bused\s+to\b|\byears?\s+ago\b|\bno\s+longer
                               r"\bmov(?:ing|ed)\s+(?:house|out|abroad|to\s+a\s+new)\b|\bdonat|\bretir|\btrip\b|\bvacation\b|\bstudy\s+abroad\b")
 
 
-_RUN = re.compile(r"(.{1,8}?)\1{4,}", re.S)
+_RUN = re.compile(r"(.{1,40}?)\1{4,}", re.S)   # ท่อนซ้ำยาวได้ถึง 40 ตัวอักษร ("เรื่องเล่ายาวๆ " × 400)
 
 
 def assess(text: str, pattern: dict | None = None) -> dict:
@@ -2543,6 +2662,62 @@ def assess(text: str, pattern: dict | None = None) -> dict:
             if b.get("crisis") or (b.get("risk_shown") or 0) >= 80:
                 break
     return best
+
+
+_OTHER_WRIST = re.compile(r"(?:เพื่อน|แฟน|น้อง|พี่|ลูก|แม่|พ่อ)[^\n]{0,12}(?:กรีด|เฉือน|ปาด)(?:แขน|ข้อมือ|ขา|ตัวเอง)|"
+                          r"\b(?:my|our)\s+(?:friend|sister|brother|son|daughter|mom|dad|girlfriend|boyfriend|partner|roommate)\b[^.\n]{0,20}\b(?:cut|slit|slashed|sliced|carved)(?: up)? (?:her|his|their) (?:wrists?|arms?|legs?|thighs?)\b|"
+                          r"\b(?:mi|su)\s+(?:amig[oa]|herman[oa]|hij[oa]|novi[oa]|pareja)\b[^.\n]{0,20}\bse (?:cort[óo]|rajó|rasgó) (?:la muñeca|las muñecas|el brazo|los brazos|las piernas)|"
+                          r"\b(?:bạn|em|con|anh|chị)\b[^.\n]{0,12}(?:cắt|rạch|cứa) (?:cổ tay|tay|chân)|"
+                          r"(?:朋友|女儿|儿子|妹妹|弟弟)[^。\n]{0,8}割(?:腕|手腕)|(?:친구|딸|아들|동생)[^.\n]{0,8}손목을 그|(?:友達|娘|息子|妹|弟)[^。\n]{0,8}手首を切", re.I)
+# คนอื่น + ของมีคม + แขน/ขา/ข้อมือ ในประโยคเดียว — ไม่ต้องไล่คำกริยาทีละคำ (cut/slit/scratch/carve …)
+_OTHER_BLADE = re.compile(r"\b(?:my|our)\s+(?:friend|sister|brother|son|daughter|cousin|kid|child|mom|dad|girlfriend|boyfriend|partner|roommate|student)\b"
+                          r"(?![^.\n]{0,60}\b(?:shav\w*|accident\w*|fell|tripped|on (?:a |some )?(?:broken )?glass|cooking)\b)(?=[^.\n]{0,60}\b(?:cut\w*|slit\w*|slash\w*|scratch\w*|carv\w*|hurt\w*|digs?)\b)(?=[^.\n]{0,60}\b(?:razor|blade|knife|sharpener|glass|scissors)\b)(?=[^.\n]{0,60}\b(?:arms?|wrists?|legs?|thighs?|skin)\b)|"
+                          r"(?:เพื่อน|น้อง|พี่|ลูก|แฟน)(?=[^\n]{0,30}(?:มีดโกน|ใบมีด|คัตเตอร์|เศษแก้ว))(?=[^\n]{0,30}(?:แขน|ข้อมือ|ขา))|"
+                          r"\b(?:mi|su)\s+(?:amig[oa]|herman[oa]|hij[oa]|prim[oa]|novi[oa])\b(?=[^.\n]{0,60}(?:navaja|cuchilla|cúter|vidrio))(?=[^.\n]{0,60}(?:brazo|muñeca|pierna))|"
+                          r"\b(?:bạn|em|con|anh|chị)\b(?=[^.\n]{0,40}(?:dao lam|lưỡi dao|dao cạo|mảnh kính))(?=[^.\n]{0,40}(?:tay|chân))", re.I)
+_ACCIDENT_CUT = re.compile(r"\b(?:accident\w*|by mistake|fell|tripped|on (?:a |some )?(?:broken )?(?:glass|rock|metal|fence)|cooking|chopping)\b|"
+                           r"โดยไม่ตั้งใจ|อุบัติเหตุ|หกล้ม|ทำกับข้าว|sin querer|accidente|se cayó|vô tình|bị ngã|不小心|실수로|うっかり", re.I)
+_HEAD_BANG_BLEED = re.compile(r"เอาหัว(?:โขก|กระแทก|ฟาด)[^\n]{0,20}(?:เลือด|หยุดไม่ได้|ไม่หยุด)|"
+                              r"\bbang(?:s|ing)? (?:his|her|their) head\b[^.\n]{0,30}\b(?:blood|bleed|won'?t stop)|"
+                              r"golpea(?:ndo)? la cabeza[^.\n]{0,30}(?:sangr|no para)", re.I)
+_JOBLESS = re.compile(r"ตกงาน|ไม่มีงาน|โดนเลิกจ้าง|ถูกเลิกจ้าง|\b(?:unemployed|out of work|lost my job|laid off)\b|sin trabajo|desemplead|thất nghiệp|失业|失業|실직|실업", re.I)
+_SAVINGS_LOW = re.compile(r"เงิน(?:เก็บ)?(?:เหลือ|ก็เหลือ)(?:แค่|อยู่)?\s*(?:\d+|ร้อย|พัน|ไม่กี่)|เงินหมด|เงินเก็บหมด|"
+                          r"\b(?:savings? (?:are|is) (?:almost )?gone|down to my last|only \$?\d+ left)\b|"
+                          r"me quedan? (?:solo )?\d+|sin ahorros|hết tiền|chỉ còn \d+|存款(?:快)?(?:没|用完)|钱快没|돈이 다 떨어|貯金が(?:ない|尽き)", re.I)
+
+_MINOR_DROP = ("health_emergency", "panic", "overdose", "choking")
+_MINOR_MILD = re.compile(r"นิดหน่อย|นิดนึง|เล็กน้อย|\b(?:slight(?:ly)?|a (?:little|bit)|mild(?:ly)?)\b|\b(?:leve|un poco|ligero)\b|"
+                         r"有点|有點|一点|一點|少し|ちょっと|조금|약간|\b(?:hơi|một chút|chút)\b", re.I)
+_MINOR_CAUSE = re.compile(r"หวัด|ไอ|จุก|วิ่ง|ขึ้นเขา|ปีนเขา|ออกกำลัง|เผ็ด|สำลักน้ำ(?!ทะเล|ในสระ)|"
+                          r"\b(?:cold|cough(?:ing)?|running|jogging|hiking|uphill|workout|spicy|stitch)\b|"
+                          r"resfriado|\btos\b|correr|subir|picante|感冒|咳嗽|爬山|跑步|辣|風邪|咳|山登り|走っ|辛い|감기|기침|등산|달리|매운|"
+                          r"cảm lạnh|\bho\b|leo núi|chạy bộ|cay", re.I)
+_MINOR_RESOLVED = re.compile(r"(?<!ไม่)(?<!ยังไม่)หาย(?!ใจ)|ดีขึ้น|เป็นปกติ|\b(?:went away|goes away|better now|fine now|passed)\b|"
+                             r"se (?:me )?pas[óa]|ya estoy bien|休息就好|就好了|好了|治った|治まっ|楽になっ|나았|괜찮아졌|"
+                             r"\bđỡ\b|\bhết (?:đau|ho|mệt)\b", re.I)
+_MINOR_CONTEXT = re.compile(r"หมอสั่ง|แพทย์สั่ง|\bprescribed\b|recet[óa]|医生开|醫生開|处方|處方|처방|処方|bác sĩ kê|"
+                            r"ชุดป้องกัน|protective (?:suit|gear)|防護服|防护服|방호복|"
+                            r"(?:ดู|watch(?:ed|ing)?|vi|看了?|見た|봤)[^。.!\n]{0,20}(?:หนัง|ภาพยนตร์|movie|film|película|phim|电影|電影|映画|영화)|"
+                            r"(?:หนัง|movie|film|película|phim|电影|電影|映画|영화)[^。.!\n]{0,20}(?:ดู|watch|vi|看|見た|봤)", re.I)
+_MINOR_RED = re.compile(r"ร้าว|เหงื่อแตก|เหงื่อออกเยอะ|หมดสติ|เป็นลม|ปากเขียว|หน้าเขียว|ไม่หาย|แย่ลง|หนักขึ้น|ทั้งขวด|ทีเดียว|ครั้งเดียว|"
+                        r"อยากตาย|ไม่อยากอยู่|ฆ่าตัว|หายใจไม่ออก(?![^\n]{0,15}หาย)|พูดไม่ได้|"
+                        r"\b(?:radiat|sweat|faint|passed out|blue|crushing|worse|still|won'?t stop|at once|whole bottle|kill myself|suicid|can'?t breathe)\w*|"
+                        r"desmay|sudor|peor|no se (?:me )?pasa|todas? de una|"
+                        r"冷汗|昏|晕倒|暈倒|加重|一次|全部吃|不想活|自杀|冷や汗|気を失|悪化|一度に|死にたい|식은땀|기절|심해|한꺼번에|죽고|"
+                        r"vã mồ hôi|ngất|nặng hơn|một lúc|muốn chết|cả chai|nguyên chai|cả lọ|cả vỉ|"
+                        r"ทั้งขวด|ทั้งแผง|整瓶|一整瓶|한 병|병째|一瓶|丸ごと|全部飲|bottle|"
+                        # สัญญาณไต: ฉี่สีโคล่า/ไม่ออก/เป็นเลือด · หนังตาหรือตัวบวม — "หวัดเพิ่งหาย" แล้วตามด้วยอาการนี้คือไตอักเสบ
+                        r"ฉี่|ปัสสาวะ|หนังตาบวม|ตาบวม|ตัวบวม|ขาบวม|\b(?:urine|pee|cola|swollen eyes?|puffy)\b|orina|nước tiểu|"
+                        r"尿|浮肿|浮腫|腫れ|むくみ|소변|붓고|부었|눈이 부|tiểu|phù", re.I)
+
+
+def _benign_minor(text: str) -> bool:
+    """อาการเล็กน้อย + สาเหตุธรรมดา (+ หาย) · ยาที่หมอสั่ง · ฉากในหนัง — และไม่มีสัญญาณอันตรายใดเลย"""
+    if not text or _MINOR_RED.search(text):
+        return False
+    if _MINOR_CONTEXT.search(text):
+        return True
+    return bool(_MINOR_CAUSE.search(text) and (_MINOR_MILD.search(text) or _MINOR_RESOLVED.search(text)))
 
 
 def _assess_one(text: str, pattern: dict | None = None) -> dict:
@@ -2587,6 +2762,12 @@ def _assess_one(text: str, pattern: dict | None = None) -> dict:
         # "ศึกษาเรื่องการค้ามนุษย์ทำรายงาน" เคยได้ Risk 80 ราวกับกำลังถูกค้ามนุษย์
         a = dict(a, topics=[t for t in a["topics"] if t not in ("trafficking", "violence", "sexual_abuse", "overdose")],
                  text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20), risk_shown=min(a["risk_shown"], 20))
+    # ตีเล่น/อ่านข่าว ที่ถูกตัดหัวข้อความรุนแรงออกแล้ว — Risk ต้องลงตามด้วย (หลังรอบ 15)
+    # เฉพาะเมื่อเพิ่งตัดหัวข้อความรุนแรงออกจริงๆ และไม่มีเรื่องด่วนอื่นเหลือ ("แม่ดูข่าวอยู่แล้วหมดสติ" ต้องยังด่วน)
+    if isinstance(text, str) and a.get("calmed_violence") and not a["crisis"] and not set(a["topics"]) & set(_URGENT_TOPICS) \
+            and not a.get("disaster") and not a.get("intl_urgent"):
+        a = dict(a, text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20),
+                 risk_shown=min(a["risk_shown"], 20) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     from core.second_layer import apply as _second_layer
     a = _second_layer(text, a)
     # ชั้นสองอาจเติม harm_others กลับมา — คนที่ถูกคนอื่นขู่ไม่ใช่คนที่อยากทำร้ายใคร (ดู _THREAT_BY_OTHER)
@@ -2676,7 +2857,7 @@ def _with_conditions(text, a: dict) -> dict:
     if not hits:
         return a
     topics, scam, risk = list(a["topics"]), list(a.get("scam") or []), 0
-    urgent_have = set(topics) & {"overdose", "swallowed", "household", "health_emergency", "pet_poison"}
+    urgent_have = set(topics) & {"overdose", "swallowed", "household", "pet_poison"}   # "health_emergency" กว้างเกิน — เรื่องกินยา/ของ ควรได้คำตอบเฉพาะทาง
     for h in hits:
         if h.topic in ("overdose", "swallowed") and urgent_have:      # ของเดิมจับเรื่องด่วนได้แล้ว คำตอบเฉพาะทางของเดิมดีกว่า
             risk = max(risk, h.risk)
@@ -2742,6 +2923,15 @@ def _assess_raw(text: str, pattern: dict | None = None) -> dict:
 
 
 _TONE_RE_KV = re.compile("[\u0e48\u0e49\u0e4a\u0e4b]")
+
+
+_NEWS_ONLY = re.compile(r"(?:ข่าว|อบรม|การป้องกัน|รณรงค์)(?:การ|เรื่อง|เกี่ยวกับ)?\S{0,12}(?:ล่วงละเมิด|ข่มขืน|ทำร้าย|ความรุนแรง|ทารุณ)|"
+                        r"\b(?:news|article)s? (?:about|on|of) (?:\w+ ){0,2}(?:abuse|assault|rape|violence)\b|"
+                        r"noticias de (?:abuso|violencia)|tin (?:về )?(?:xâm hại|bạo lực)|(?:虐待|性侵|暴力)的?新闻|학대 뉴스|虐待のニュース", re.I)
+_SELF_VICTIM = re.compile(r"ฉันโดน|หนูโดน|ผมโดน|ฉันถูก|หนูถูก|ผมถูก|\bi was\b|\bme\b|\bmy\b|me\s+(?:viol|toc)|tôi bị|我被|제가|私が", re.I)
+_PLAYFUL = re.compile(r"เบาๆ\S{0,12}(?:เล่น|หัวเราะ)|เล่นกัน|หัวเราะกัน|\b(?:playfully|jokingly|as a joke)\b", re.I)
+_HURT_MARK = re.compile(r"ช้ำ|เลือด|ร้องไห้|เจ็บมาก|ทุกวัน|\b(?:bruise|bleed|crying|every day)\w*", re.I)
+_DOCU_STORY = re.compile(r"สารคดี|ตอนเด็กเคย|\bdocumentary\b|documental|phim tài liệu|纪录片|紀錄片|다큐|ドキュメンタリー", re.I)
 
 
 def _assess(text: str, pattern: dict | None = None) -> dict:
@@ -2829,6 +3019,31 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     for _kind_f, topic_f in _frames(text):
         if topic_f not in topics:
             topics.append(topic_f)
+    # คนอื่นกรีดข้อมือตัวเอง = ทำร้ายตัวเอง (ต้องมีขั้นตอนดูแลใจด้วย ไม่ใช่แค่ห้ามเลือด)
+    if (_OTHER_WRIST.search(text) or _OTHER_BLADE.search(text)) and not _ACCIDENT_CUT.search(text) and "someone" not in topics:
+        topics.append("someone")
+    # เอาหัวโขกจนเลือดออก/ไม่หยุด = บาดเจ็บที่หัว ต้องปฐมพยาบาลด้วย ไม่ใช่แค่คุยเรื่องใจ
+    if _HEAD_BANG_BLEED.search(text) and "health_emergency" not in topics:
+        topics.append("health_emergency")
+    # ตกงานนาน + เงินเก็บใกล้หมด = ปัจจัยพื้นฐานกำลังจะขาด (เดิมได้แค่หัวข้อหางาน)
+    if _JOBLESS.search(text) and _SAVINGS_LOW.search(text) and "basic" not in topics:
+        topics.append("basic")
+    # "ดูสารคดีคนหลงป่ารอดชีวิต" = เล่าเรื่องที่ดู ไม่ใช่ผู้ใช้หลงป่าอยู่ตอนนี้ (ชุดปิดตา N)
+    if "stranded" in topics and _DOCU_STORY.search(text):
+        topics = [t for t in topics if t != "stranded"]
+    # "อ่านข่าวการล่วงละเมิดแล้วโกรธ" = อ่านข่าว ไม่ได้ถูกกระทำ · "พ่อตีก้นลูกเบาๆ ตอนเล่นกัน" = เล่นกัน (หลังรอบ 15)
+    _before_calm = len(topics)
+    if _NEWS_ONLY.search(text) and not _SELF_VICTIM.search(text):
+        topics = [t for t in topics if t not in ("sexual_abuse", "violence")]
+    if "violence" in topics and _PLAYFUL.search(text) and not _HURT_MARK.search(text):
+        topics = [t for t in topics if t != "violence"]
+    _calmed_violence = len(topics) < _before_calm
+    # อาการเล็กน้อยที่มีสาเหตุธรรมดาและบอกเองว่าหาย/ดีขึ้น — "เจ็บหน้าอกนิดหน่อยเพราะเป็นหวัด" เคยได้ Risk 85
+    # ตัดสินจากโครงสร้าง (เบา + สาเหตุธรรมดา + หาย/สั่งโดยหมอ/ดูหนัง) ไม่ใช่คำเดี่ยว และสัญญาณอันตรายชนะเสมอ
+    _calmed_minor = _benign_minor(text)
+    if _calmed_minor:
+        topics = [t_ for t_ in topics if t_ not in _MINOR_DROP]
+        intl = [x for x in intl if x[0] != "medical"]
     # อารมณ์หนัก/ภัยที่พูดสั้น ในภาษา ja zh ko es vi (core/mood_intl) — เดิมได้ Risk 0 และแผนสามขั้นทั่วไป
     from core.mood_intl import mood_intl
     mood = mood_intl(text)
@@ -2947,7 +3162,7 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
         "text_risk": round(text_risk), "offer_flags": flags,
         "relationship": rel["data"]["status"] if rel else None,
         "disaster": dis["data"] if dis and dis["data"]["active"] else None,
-        "crisis": crisis, "topics": topics, "money": _money(text),
+        "crisis": crisis, "topics": topics, "calmed_violence": _calmed_violence, "money": _money(text),
         "options": _options(text or ""),
     }
 
@@ -3657,6 +3872,20 @@ def compose(text: str, *args, **kw) -> str:
             if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
                 dp = dp.replace("— LYLA ◈", "— VEGA ◆")
             return dp
+    # ดูแลโรคไตเรื้อรัง (core/chronic_care.py): "ค่าไต eGFR 45 ทำไงไม่ให้ต้องฟอกไต" → แผนจากค่าที่บอกมา
+    if text:
+        from core import chronic_care as _cc
+        from core import lab_values as _lab0
+        _urgent_lab = any(x[2] == "urgent" for x in (_heal.guard("lab_values", _lab0.read, text) or []))
+        # ค่าวิกฤต (เช่น โพแทสเซียม 6.4) ต้องได้ "ไปโรงพยาบาลวันนี้" ก่อนแผนระยะยาว
+        if not _urgent_lab and _heal.guard("chronic_care", _cc.chat_check, text):
+            a0 = assess(text)
+            if not a0.get("crisis") and a0.get("text_risk", 0) < 60:
+                cc = _heal.guard("chronic_care", _cc.reply, text, footer=kw.get("footer", True))
+                if cc:
+                    if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
+                        cc = cc.replace("— LYLA ◈", "— VEGA ◆")
+                    return cc
     # ค่าเลือดจากผลตรวจ (core/lab_values.py): "LDL 190 น้ำตาล 130" → บอกความหมายของแต่ละค่า ค่าวิกฤตให้พบแพทย์วันนี้
     if text:
         from core import lab_values as _lab
@@ -3969,3 +4198,33 @@ def compose_followup(text: str, voice_mode: str = "lyla", footer: bool = True) -
         return f"{body}\n\n{line}\n\n{sign}{tag}"
     q = ("ครับ" if vega else "คะ") if lang == "th" else ""     # คำถาม/นะ ใช้ "คะ" ไม่ใช่ "ค่ะ" ("นะค่ะ" "ไหมค่ะ" สะกดผิด)
     return f"{ask.format(end=end, q=q)}\n\n{line}\n\n{close.format(end=end)}\n\n{sign}{tag}"
+
+
+# คำตอบที่ได้ใจ (core/heart_lines.py): เติมหนึ่งถึงสองบรรทัดตอบความรู้สึกที่ผู้ใช้เล่า — ละอายที่โดนหลอก · ไม่มีที่ไป · ถูกทำร้ายซ้ำ
+_compose_plain = compose
+
+
+def compose(text: str, *args, **kw) -> str:  # noqa: F811
+    reply = _compose_plain(text, *args, **kw)
+    if isinstance(text, str) and text and not args and set(kw) <= {"footer"}:
+        from core import heart_lines as _hl
+        reply = _heal.guard("heart_lines", lambda: _hl.add(reply, text, assess(text))) or reply
+    return reply
+
+
+# O ≥ 1 ตอนตอบจริง (core/choice.py): ถ้าคำตอบเรื่องด่วนไหนไม่เหลือทางให้คนไปเลย เติมทางสุดท้ายให้เสมอ
+# เทสต์ tests/test_choice_invariant.py ทำให้กรณีนี้ไม่ควรเกิด — ตรงนี้คือตาข่ายกันไว้อีกชั้นสำหรับหัวข้อใหม่ในอนาคต
+_compose_before_choice = compose
+_LAST_WAY = {"th": "ยังมีทางเสมอ: ถ้าอันตรายตอนนี้ โทร 1669 (เจ็บป่วยฉุกเฉิน) หรือ 191 (ตำรวจ) · ถ้าใจไม่ไหว โทร 1323 ได้ตลอด 24 ชม. ฟรี",
+             "en": "There is always a way: if it's dangerous right now, call local emergency services (1669 / 191 in Thailand, 911 in the US, 112 in Europe) · if your mind can't take it, findahelpline.com lists free 24h lines."}
+
+
+def compose(text: str, *args, **kw) -> str:  # noqa: F811
+    reply = _compose_before_choice(text, *args, **kw)
+    if isinstance(text, str) and text and isinstance(reply, str):
+        from core.choice import choices_left
+        if choices_left(reply) < 1 and (assess(text).get("risk_shown") or 0) >= 60:
+            way = _LAST_WAY["th" if re.search(r"[฀-๿]", text) else "en"]
+            head, sep, rest = reply.partition("\n\n")
+            reply = f"{head}\n\n{way}\n\n{rest}" if sep else f"{reply}\n\n{way}"
+    return reply
