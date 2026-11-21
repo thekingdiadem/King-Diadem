@@ -1089,20 +1089,21 @@ DRUNK_RED	vi	gọi không tỉnh|nôn cả lúc bất tỉnh|người lạnh|th�
 DRUNK_RED	zh	叫不醒|昏迷|发冷|發冷|呼吸很慢|嘴唇发紫|嘴唇發紫
 DRUNK_RED	ko	깨워도 안|의식 없이|몸이 차갑|숨을 아주 천천히|입술이 파래
 DRUNK_RED	ja	起こしても起きず|意識がない|体が冷た|呼吸がすごく遅|唇が紫
-BOOTLEG	th	เหล้าขาวต้มเอง|ต้มเอง|เหล้าเถื่อน|เหล้าปลอม|เหล้าป่า
-BOOTLEG	en	moonshine|bootleg|homemade liquor|methanol|fake alcohol
+BOOTLEG	th	เหล้าขาวต้มเอง|ต้มเอง|เหล้าเถื่อน|เหล้าปลอม|เหล้าป่า|เหล้าไม่มียี่ห้อ|เหล้าไม่มีฉลาก
+BOOTLEG	en	moonshine|bootleg|homemade liquor|methanol|fake alcohol|bootleg vodka|unlabeled liquor|street liquor
 BOOTLEG	es	alcohol de contrabando|licor casero|licor de contrabando|aguardiente casero|alcohol adulterado|metanol|alcohol falso
+BOOTLEG	es	re:\b(?:mezcal|tequila|ron|licor|alcohol|aguardiente|guaro|chicha|pisco|caña)\s+(?:pirata|clandestin[oa]|sin marca|de dudosa procedencia|adulterad[oa])\b
 BOOTLEG	vi	rượu tự nấu|rượu dỏm|rượu giả|methanol
 BOOTLEG	zh	自酿|自釀|假酒|甲醇
 BOOTLEG	ko	밀주|가짜 술|메탄올
 BOOTLEG	ja	密造酒|偽の酒|メタノール
-VISION	th	ตามัว|มองไม่เห็น|ตาพร่า|ตาบอด
-VISION	en	blurry|can't see|vision is going|went blind
-VISION	es	niebla|nublado|nublada|ven borroso|veo borroso|vista borrosa|ve borroso|no ve|visión borrosa
-VISION	vi	mờ mắt|mắt mờ|không nhìn thấy
-VISION	zh	模糊|看不见|看不見|失明
-VISION	ko	흐려|안 보|흐리
-VISION	ja	かすん|見えず|見えない
+VISION	th	ตามัว|มองไม่เห็น|ตาพร่า|ตาบอด|มืดไปหมด|มองหน้าคนไม่ออก|เห็นไม่ชัด
+VISION	en	blurry|can't see|vision is going|went blind|everything looks dark|can't make out faces|everything went dark
+VISION	es	niebla|nublado|nublada|ven borroso|veo borroso|vista borrosa|ve borroso|no ve|visión borrosa|no distingue|no distingo|se ve oscuro|todo oscuro|veo oscuro|ve todo negro
+VISION	vi	mờ mắt|mắt mờ|không nhìn thấy|tối sầm|không nhận ra mặt
+VISION	zh	模糊|看不见|看不見|失明|眼前发黑|眼前發黑|认不出人|認不出人
+VISION	ko	흐려|안 보|흐리|눈앞이 캄캄|얼굴을 못 알아
+VISION	ja	かすん|見えず|見えない|目の前が暗く|顔が分からない
 STREET_DRUG	th	ยาไอซ์|ไอซ์|ยาบ้า|เฮโรอีน|ยาเค|เคตามีน|โคเคน|เฟนทานิล
 STREET_DRUG	en	meth|heroin|ketamine|cocaine|fentanyl|opioids
 STREET_DRUG	es	metanfetamina|heroína|heroina|ketamina|cocaína|cocaina|fentanilo

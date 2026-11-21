@@ -710,3 +710,11 @@ def test_finished_prescribed_course_is_not_an_overdose_zh():
     assert not assess("医生开了三天关节止痛药，已经吃完了")["crisis"]
     assert assess("我把药都吃完了，不想活了")["crisis"]
     assert assess("把安眠药全吃了")["crisis"]
+
+
+def test_unbranded_spirits_with_vision_loss_is_methanol():
+    from core.kernel_voice import assess
+    assert "health_emergency" in assess("Mi tío tomó mezcal pirata y ahora no distingue las caras, todo se ve oscuro")["topics"]
+    assert "health_emergency" in assess("พ่อกินเหล้าไม่มียี่ห้อแล้วมืดไปหมด")["topics"]
+    assert assess("Compré mezcal pirata para la fiesta, sabe rico")["text_risk"] < 60
+    assert assess("todo se ve oscuro en el cine")["text_risk"] < 60
