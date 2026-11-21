@@ -662,7 +662,11 @@ _META_PLAIN = re.compile(
     r"The user (?:is|has|seems|wants|asked|says|wrote|might|may)\b|"
     r"I (?:need|should|must) (?:to )?(?:address|acknowledge|reaffirm)\b[^\n]*\b(?:the user|user's|their (?:input|message))|"
     r"Okay,? (?:the user|so the user)|Let me (?:analy[sz]e|break down) (?:the user|this request|the request)|"
-    r"(?:Strategizing|Planning) (?:complete|done)\b)", re.M)
+    r"(?:Strategizing|Planning) (?:complete|done)\b|"
+    # เว็บจริง 21 พ.ย. (ค่าไต): "My primary directive is to prioritize safety… I also need to provide emergency contact information… Plan: 2. …"
+    r"My (?:primary |main |core |first )?(?:directive|goal|priority|objective|task|job) (?:is|here is|should be)\b|"
+    r"I also need to (?:provide|include|give|mention|add)\b|I cannot diagnose or provide medical advice, but I (?:must|should|need)\b|"
+    r"Plan\s*:\s*$)", re.M)
 # ย่อหน้าที่มีเบอร์ช่วยเหลือ หรือพูดกับผู้ใช้โดยตรง ห้ามตัดทิ้งเด็ดขาด (เคยตัด "We need to keep you safe … call 1669")
 _KEEP_PARA = re.compile(r"(?<!\d)(?:1669|1323|191|1155|1300|1387|1367|1441|1599|911|988|112|999)(?!\d)|\byou\b|\byour\b|คุณ", re.I)
 _THINK_BLOCK = re.compile(r"<(think|thinking|reasoning|plan)>.*?</\1>\s*|```(?:thought|thinking|plan|reasoning)\b.*?```\s*", re.S | re.I)
@@ -673,6 +677,7 @@ _PLAN_END = re.compile(
     r"I will now (?:generate|write|compose|draft|craft) the (?:final )?(?:response|reply|answer)[^.\n]*\.|"
     r"Now (?:I'?ll|I will|let me) (?:write|craft|generate|compose) the (?:final )?(?:response|reply)[^.\n]*[.:]|"
     r"^\s*(?:Here is|Here's) (?:the|my) (?:final )?(?:response|reply)\s*:", re.I | re.M)
+_GLUED_PLAN = re.compile(r"(^\s*\d+\.\s[^\n]*?\b(?:tone|empathy|empathetic|concise|calm|supportive|urgent|format|language)\.)([A-Z][a-z])", re.M)
 _CHECK_LINE = re.compile(r"^\s*\d+\.\s.*:\s*(?:Yes|No)\b", re.I)
 _NUM_LINE = re.compile(r"^\s*\d+\.\s+[A-Za-z]")
 _NON_LATIN = re.compile(r"[\u0E00-\u0E7F\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]")
@@ -713,6 +718,7 @@ def strip_reasoning(text):
                     break
         except Exception:
             pass
+    text = _GLUED_PLAN.sub(lambda m: m.group(1) + "\n\n" + m.group(2), text)
     ends = list(_PLAN_END.finditer(text))
     if ends and _META_PLAIN.search(text[:ends[-1].start()] or " "):
         rest = text[ends[-1].end():].strip()

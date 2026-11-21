@@ -167,7 +167,7 @@ SELF_HARM_INDIRECT = (
 _MEANINGLESS = {
     0: r"(?:生きる|生きている|生きてる)意味が(?:ない|わからない|分からない|見つからない)",
     2: r"(?:사는\s*게|살아야\s*할|살아갈)\s*(?:의미가\s*없|이유를\s*모르겠|이유가\s*없)",
-    3: r"\bno\s+(?:le\s+)?(?:encuentro|veo|tiene)\s+sentido\s+(?:a\s+)?(?:nada|la\s+vida|vivir|seguir)|\b(?:estoy\s+)?(?:agotad[oa]|cansad[oa])\s+de\s+(?:vivir(?!\s+(?:en|aqu[ií]|con|lejos|cerca|de\s+alquiler|as[ií]\s+de))|existir)",
+    3: r"\bno\s+(?:le\s+)?(?:encuentro|veo|tiene)\s+sentido\s+(?:a\s+)?(?:nada(?!\s+(?:de\s+)?(?:esto|este|esta|del?\s+(?:proyecto|trabajo|curso|plan)))|la\s+vida|vivir|seguir(?!\s+(?:con|en|estudiando|trabajando|aqu[ií]\s+en)))|\b(?:estoy\s+)?(?:agotad[oa]|cansad[oa])\s+de\s+(?:vivir(?!\s+(?:en|aqu[ií]|con|lejos|cerca|de\s+alquiler|as[ií]\s+de))|existir)",
     4: r"sống\s+(?:chẳng|không)\s+(?:còn\s+)?(?:có\s+)?ý\s+nghĩa|mệt\s+mỏi\s+với\s+cuộc\s+sống\s+này",
 }
 SELF_HARM_INDIRECT = tuple(re.compile(rx.pattern + "|" + _MEANINGLESS[i], rx.flags) if i in _MEANINGLESS else rx

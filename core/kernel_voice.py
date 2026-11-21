@@ -2783,6 +2783,16 @@ def _assess_one(text: str, pattern: dict | None = None) -> dict:
     if isinstance(text, str) and "harm_others" in a["topics"] and _THOUGHT_FEAR.search(text) and not _REAL_INTENT.search(text):
         first = "post_harm" if "post_harm" in a["topics"] else "intrusive"
         a = dict(a, topics=[first] + [n for n in a["topics"] if n not in (first, "harm_others")])
+    # ค่าเลือดวิกฤต (เช่น โพแทสเซียม 6.4): เคยได้ความเสี่ยง 0 จึงไม่เข้าทางด่วน แล้ว AI ตอบเองจนความคิดของ AI หลุดถึงผู้ใช้
+    # (เว็บจริง 21 พ.ย.) · ตอนนี้ได้ระดับด่วน → ทางด่วนใช้คำตอบของระบบ ("ไปโรงพยาบาลวันนี้" มาก่อนแผนระยะยาว)
+    if isinstance(text, str) and not a["crisis"] and (a.get("text_risk") or 0) < 85:
+        try:
+            from core import lab_values as _lv
+            if any(x[2] == "urgent" for x in (_lv.read(text) or [])):
+                a = dict(a, topics=["health_emergency"] + [n for n in a["topics"] if n != "health_emergency"], text_risk=85,
+                         risk=max(a["risk"], 85), risk_shown=max(a["risk_shown"], 85) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
+        except Exception:
+            pass
     # รอบสุ่ม 153: ความลับที่เป็นเซอร์ไพรส์/เฉลยข้อสอบ ไม่ใช่สัญญาณ grooming — เว้นแต่มีเรื่องรูป การแตะตัว นัดเจอ หรือของขวัญส่วนตัว
     if isinstance(text, str) and "online_grooming" in a["topics"] and _SECRET_BENIGN.search(text) and not _GROOM_RED.search(text):
         a = dict(a, topics=[n for n in a["topics"] if n != "online_grooming"], text_risk=min(a["text_risk"], 20),
