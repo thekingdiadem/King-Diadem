@@ -40,7 +40,7 @@ def test_sitemap_lists_every_language_with_hreflang(client):
     assert 'xmlns:xhtml="http://www.w3.org/1999/xhtml"' in x
     for lg in ("en", "ja", "zh", "ko", "es", "vi"):
         assert f"/?lang={lg}</loc>" in x
-    assert x.count('hreflang="x-default"') == 7
+    assert x.count('hreflang="x-default"') == 9   # หน้าแรก 7 ภาษา + คู่มือเอาชีวิตรอด 2 ภาษา
 
 
 def test_frontend_opens_in_the_language_from_the_link():
@@ -56,6 +56,20 @@ def test_descriptions_speak_about_the_system_and_teachings():
         assert "O ≥ 1" in desc and "DriftZero" in desc and "LYLA" in desc, lg
     for word in ("better than", "unlike", "ดีกว่า", "ต่างจาก", "แทนที่จะ"):
         assert all(word not in d for _, d, _ in META.values()), word
+
+
+def test_sitemap_lists_the_english_survival_guide(client):
+    """คู่มือเอาชีวิตรอดมีฉบับอังกฤษจริง (/survival?lang=en) แต่ sitemap เคยมีแค่ฉบับไทย"""
+    x = client.get("/sitemap.xml").text
+    assert "/survival?lang=en</loc>" in x and x.count("/survival</loc>") == 1
+
+
+@pytest.mark.parametrize("lg", ["th", "en"])
+def test_survival_guide_tells_search_engines_both_languages(lg):
+    from core.survival_page import render
+    h = render(lg)
+    for x in ("th", "en", "x-default"):
+        assert f'<link rel="alternate" hreflang="{x}"' in h, x
 
 
 def test_site_verification_accepts_a_pasted_whole_meta_tag():
