@@ -2623,6 +2623,27 @@ def assess(text: str, pattern: dict | None = None) -> dict:
     return best
 
 
+_OTHER_WRIST = re.compile(r"(?:เพื่อน|แฟน|น้อง|พี่|ลูก|แม่|พ่อ)[^\n]{0,12}(?:กรีด|เฉือน|ปาด)(?:แขน|ข้อมือ|ขา|ตัวเอง)|"
+                          r"\b(?:my|our)\s+(?:friend|sister|brother|son|daughter|mom|dad|girlfriend|boyfriend|partner|roommate)\b[^.\n]{0,20}\b(?:cut|slit|slashed|sliced|carved)(?: up)? (?:her|his|their) (?:wrists?|arms?|legs?|thighs?)\b|"
+                          r"\b(?:mi|su)\s+(?:amig[oa]|herman[oa]|hij[oa]|novi[oa]|pareja)\b[^.\n]{0,20}\bse (?:cort[óo]|rajó|rasgó) (?:la muñeca|las muñecas|el brazo|los brazos|las piernas)|"
+                          r"\b(?:bạn|em|con|anh|chị)\b[^.\n]{0,12}(?:cắt|rạch|cứa) (?:cổ tay|tay|chân)|"
+                          r"(?:朋友|女儿|儿子|妹妹|弟弟)[^。\n]{0,8}割(?:腕|手腕)|(?:친구|딸|아들|동생)[^.\n]{0,8}손목을 그|(?:友達|娘|息子|妹|弟)[^。\n]{0,8}手首を切", re.I)
+# คนอื่น + ของมีคม + แขน/ขา/ข้อมือ ในประโยคเดียว — ไม่ต้องไล่คำกริยาทีละคำ (cut/slit/scratch/carve …)
+_OTHER_BLADE = re.compile(r"\b(?:my|our)\s+(?:friend|sister|brother|son|daughter|cousin|kid|child|mom|dad|girlfriend|boyfriend|partner|roommate|student)\b"
+                          r"(?![^.\n]{0,60}\b(?:shav\w*|accident\w*|fell|tripped|on (?:a |some )?(?:broken )?glass|cooking)\b)(?=[^.\n]{0,60}\b(?:cut\w*|slit\w*|slash\w*|scratch\w*|carv\w*|hurt\w*|digs?)\b)(?=[^.\n]{0,60}\b(?:razor|blade|knife|sharpener|glass|scissors)\b)(?=[^.\n]{0,60}\b(?:arms?|wrists?|legs?|thighs?|skin)\b)|"
+                          r"(?:เพื่อน|น้อง|พี่|ลูก|แฟน)(?=[^\n]{0,30}(?:มีดโกน|ใบมีด|คัตเตอร์|เศษแก้ว))(?=[^\n]{0,30}(?:แขน|ข้อมือ|ขา))|"
+                          r"\b(?:mi|su)\s+(?:amig[oa]|herman[oa]|hij[oa]|prim[oa]|novi[oa])\b(?=[^.\n]{0,60}(?:navaja|cuchilla|cúter|vidrio))(?=[^.\n]{0,60}(?:brazo|muñeca|pierna))|"
+                          r"\b(?:bạn|em|con|anh|chị)\b(?=[^.\n]{0,40}(?:dao lam|lưỡi dao|dao cạo|mảnh kính))(?=[^.\n]{0,40}(?:tay|chân))", re.I)
+_ACCIDENT_CUT = re.compile(r"\b(?:accident\w*|by mistake|fell|tripped|on (?:a |some )?(?:broken )?(?:glass|rock|metal|fence)|cooking|chopping)\b|"
+                           r"โดยไม่ตั้งใจ|อุบัติเหตุ|หกล้ม|ทำกับข้าว|sin querer|accidente|se cayó|vô tình|bị ngã|不小心|실수로|うっかり", re.I)
+_HEAD_BANG_BLEED = re.compile(r"เอาหัว(?:โขก|กระแทก|ฟาด)[^\n]{0,20}(?:เลือด|หยุดไม่ได้|ไม่หยุด)|"
+                              r"\bbang(?:s|ing)? (?:his|her|their) head\b[^.\n]{0,30}\b(?:blood|bleed|won'?t stop)|"
+                              r"golpea(?:ndo)? la cabeza[^.\n]{0,30}(?:sangr|no para)", re.I)
+_JOBLESS = re.compile(r"ตกงาน|ไม่มีงาน|โดนเลิกจ้าง|ถูกเลิกจ้าง|\b(?:unemployed|out of work|lost my job|laid off)\b|sin trabajo|desemplead|thất nghiệp|失业|失業|실직|실업", re.I)
+_SAVINGS_LOW = re.compile(r"เงิน(?:เก็บ)?(?:เหลือ|ก็เหลือ)(?:แค่|อยู่)?\s*(?:\d+|ร้อย|พัน|ไม่กี่)|เงินหมด|เงินเก็บหมด|"
+                          r"\b(?:savings? (?:are|is) (?:almost )?gone|down to my last|only \$?\d+ left)\b|"
+                          r"me quedan? (?:solo )?\d+|sin ahorros|hết tiền|chỉ còn \d+|存款(?:快)?(?:没|用完)|钱快没|돈이 다 떨어|貯金が(?:ない|尽き)", re.I)
+
 _MINOR_DROP = ("health_emergency", "panic", "overdose", "choking")
 _MINOR_MILD = re.compile(r"นิดหน่อย|นิดนึง|เล็กน้อย|\b(?:slight(?:ly)?|a (?:little|bit)|mild(?:ly)?)\b|\b(?:leve|un poco|ligero)\b|"
                          r"有点|有點|一点|一點|少し|ちょっと|조금|약간|\b(?:hơi|một chút|chút)\b", re.I)
@@ -2945,6 +2966,15 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     for _kind_f, topic_f in _frames(text):
         if topic_f not in topics:
             topics.append(topic_f)
+    # คนอื่นกรีดข้อมือตัวเอง = ทำร้ายตัวเอง (ต้องมีขั้นตอนดูแลใจด้วย ไม่ใช่แค่ห้ามเลือด)
+    if (_OTHER_WRIST.search(text) or _OTHER_BLADE.search(text)) and not _ACCIDENT_CUT.search(text) and "someone" not in topics:
+        topics.append("someone")
+    # เอาหัวโขกจนเลือดออก/ไม่หยุด = บาดเจ็บที่หัว ต้องปฐมพยาบาลด้วย ไม่ใช่แค่คุยเรื่องใจ
+    if _HEAD_BANG_BLEED.search(text) and "health_emergency" not in topics:
+        topics.append("health_emergency")
+    # ตกงานนาน + เงินเก็บใกล้หมด = ปัจจัยพื้นฐานกำลังจะขาด (เดิมได้แค่หัวข้อหางาน)
+    if _JOBLESS.search(text) and _SAVINGS_LOW.search(text) and "basic" not in topics:
+        topics.append("basic")
     # "ดูสารคดีคนหลงป่ารอดชีวิต" = เล่าเรื่องที่ดู ไม่ใช่ผู้ใช้หลงป่าอยู่ตอนนี้ (ชุดปิดตา N)
     if "stranded" in topics and _DOCU_STORY.search(text):
         topics = [t for t in topics if t != "stranded"]

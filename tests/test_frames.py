@@ -718,3 +718,27 @@ def test_unbranded_spirits_with_vision_loss_is_methanol():
     assert "health_emergency" in assess("พ่อกินเหล้าไม่มียี่ห้อแล้วมืดไปหมด")["topics"]
     assert assess("Compré mezcal pirata para la fiesta, sabe rico")["text_risk"] < 60
     assert assess("todo se ve oscuro en el cine")["text_risk"] < 60
+
+
+def test_third_person_wrist_cut_is_self_harm_and_head_banging_is_injury():
+    from core.kernel_voice import assess
+    for s in ("My friend cut her wrist and there's a lot of blood", "Mi amigo se cortó la muñeca y hay mucha sangre",
+              "Bạn tôi cắt cổ tay, máu chảy rất nhiều"):
+        assert "someone" in assess(s)["topics"], s
+    assert "health_emergency" in assess("ลูกเอาหัวโขกกำแพงจนเลือดออก หยุดไม่ได้")["topics"]
+    assert "someone" in assess("My roommate slit his arm and won't let me see it")["topics"]
+    assert "someone" not in assess("My friend cut her finger cooking")["topics"]
+
+
+def test_long_jobless_with_savings_almost_gone_is_basic_needs():
+    from core.kernel_voice import assess
+    assert "basic" in assess("ตกงานมาครึ่งปี เงินเก็บเหลือพันกว่าบาท")["topics"]
+    assert "basic" not in assess("ตกงานแต่เงินเก็บยังเหลือเยอะ")["topics"]
+
+
+def test_blade_self_harm_by_someone_else_vs_accidents():
+    from core.kernel_voice import assess
+    assert "someone" in assess("my sister cuts her thighs with a blade")["topics"]
+    assert "someone" in assess("น้องใช้คัตเตอร์กรีดแขน")["topics"]
+    assert "someone" not in assess("My friend bought a new razor and shaved his arms")["topics"]
+    assert "someone" not in assess("My son cut his arm on broken glass at the beach")["topics"]
