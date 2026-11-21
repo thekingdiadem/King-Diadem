@@ -88,3 +88,11 @@ def test_api_endpoint():
     c = TestClient(app.app)
     r = c.post("/api/chronic-care", json={"lang": "en", "profile": {"egfr": 50}})
     assert r.status_code == 200 and r.json()["stage"]["g"] == "G3a"
+
+
+def test_kidney_page_served_and_csp_safe():
+    from fastapi.testclient import TestClient
+    import app, re
+    r = TestClient(app.app).get("/kidney")
+    assert r.status_code == 200 and "/api/chronic-care" in r.text
+    assert not re.search(r"<[^>]+\son[a-z]+=", r.text)
