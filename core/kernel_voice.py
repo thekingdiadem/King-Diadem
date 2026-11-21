@@ -3819,6 +3819,17 @@ def compose(text: str, *args, **kw) -> str:
             if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
                 dp = dp.replace("— LYLA ◈", "— VEGA ◆")
             return dp
+    # ดูแลโรคไตเรื้อรัง (core/chronic_care.py): "ค่าไต eGFR 45 ทำไงไม่ให้ต้องฟอกไต" → แผนจากค่าที่บอกมา
+    if text:
+        from core import chronic_care as _cc
+        if _heal.guard("chronic_care", _cc.chat_check, text):
+            a0 = assess(text)
+            if not a0.get("crisis") and a0.get("text_risk", 0) < 60:
+                cc = _heal.guard("chronic_care", _cc.reply, text, footer=kw.get("footer", True))
+                if cc:
+                    if (kw.get("voice_mode") or (args[1] if len(args) > 1 else "")) == "vega":
+                        cc = cc.replace("— LYLA ◈", "— VEGA ◆")
+                    return cc
     # ค่าเลือดจากผลตรวจ (core/lab_values.py): "LDL 190 น้ำตาล 130" → บอกความหมายของแต่ละค่า ค่าวิกฤตให้พบแพทย์วันนี้
     if text:
         from core import lab_values as _lab

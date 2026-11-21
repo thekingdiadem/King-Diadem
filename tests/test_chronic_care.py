@@ -96,3 +96,29 @@ def test_kidney_page_served_and_csp_safe():
     r = TestClient(app.app).get("/kidney")
     assert r.status_code == 200 and "/api/chronic-care" in r.text
     assert not re.search(r"<[^>]+\son[a-z]+=", r.text)
+
+
+def test_chat_reads_numbers_the_user_typed():
+    p = cc.parse_text("ผู้ชายอายุ 60 ครีเอตินีน 1.6 เป็นเบาหวาน ความดัน 150/95 หนัก 70 กก")
+    assert p == {"age": 60, "creatinine": 1.6, "sys_bp": 150, "dia_bp": 95, "sex": "m", "diabetes": True, "weight_kg": 70}
+    assert cc.parse_text("creatinine 140")["creatinine_unit"] == "umol/L"
+
+
+def test_chat_check_needs_kidney_and_a_value_or_question():
+    assert cc.chat_check("ค่าไต eGFR 45 ทำไงไม่ให้ต้องฟอกไต")
+    assert cc.chat_check("My eGFR is 38, how can I avoid dialysis?")
+    assert not cc.chat_check("ไปเที่ยวไต้หวันมา")
+    assert not cc.chat_check("eGFR คืออะไร")         # ถามความหมายเฉยๆ ไม่ใช่ขอแผน
+
+
+def test_chat_reply_in_lyla():
+    from core.kernel_voice import compose
+    out = compose("ค่าไต eGFR 45 ทำไงไม่ให้ต้องฟอกไต")
+    assert "G3a" in out and "/kidney" in out and "หายขาดไม่ได้" in out
+    assert "G3b" in compose("My eGFR is 38, how can I avoid dialysis?")
+
+
+def test_kidney_emergency_still_goes_to_emergency():
+    from core.kernel_voice import compose
+    out = compose("ฉี่ไม่ออก ตัวบวม เป็นโรคไตอยู่ หายใจไม่ออก")
+    assert "1669" in out and "/kidney" not in out
