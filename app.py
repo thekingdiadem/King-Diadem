@@ -977,7 +977,7 @@ def root(request: Request):
 # robots.txt บอกว่าหน้าไหนให้เก็บ · หน้าส่วนตัว (API บัญชี รายงานที่แชร์) ห้ามเก็บ
 # sitemap.xml บอก Google ว่ามีหน้าสาธารณะอะไรบ้าง — เดิมไม่มีทั้งสองไฟล์
 SITEMAP_PAGES = [("/", "1.0", "daily"), ("/safe", "0.9", "monthly"), ("/guide", "0.8", "weekly"), ("/learn", "0.8", "weekly"), ("/survival", "0.9", "weekly"), ("/ask", "0.7", "weekly"),
-                 ("/sky", "0.9", "daily"), ("/pregnancy", "0.8", "monthly"), ("/universe", "0.8", "weekly"),
+                 ("/sky", "0.9", "daily"), ("/pregnancy", "0.8", "monthly"), ("/universe", "0.8", "weekly"), ("/equations", "0.8", "monthly"),
                  ("/architecture", "0.6", "weekly"), ("/letter", "0.6", "monthly"), ("/support", "0.5", "monthly"),
                  ("/privacy", "0.3", "yearly"), ("/terms", "0.3", "yearly"), ("/refund", "0.3", "yearly")]
 _ROBOTS_BLOCK = ["/api/", "/report/", "/auth/", "/login", "/me", "/dashboard", "/wallet", "/credits", "/static/login.html",
@@ -4095,6 +4095,12 @@ async def sky_page():
     """ท้องฟ้าจริง ณ ตำแหน่งและเวลาของผู้ใช้ (static/sky.html · static/sky_view.js) — คำนวณในเครื่องผู้ใช้ทั้งหมด
     เสิร์ฟตรงที่ /sky (เดิม redirect ไป /static/sky.html) — Google เก็บ URL สั้นเป็นหน้าหลักได้"""
     return FileResponse("static/sky.html")
+
+
+@app.get("/equations")
+async def equations_page():
+    """สองสมการหลักเป็น HTML ล้วน — ให้ Google ค้น "Choice(t) >= 1" หรือ "Risk = Drift × Exposure" แล้วเจอเว็บเรา"""
+    return FileResponse("static/equations.html")
 
 
 @app.get("/saturn")
