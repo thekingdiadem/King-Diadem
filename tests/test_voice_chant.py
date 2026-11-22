@@ -25,6 +25,7 @@ def test_urgent_and_crisis_are_read_plainly():
     assert "x.who !== 'CRISIS'" in APP and "1669|1323|191" in APP
     assert "rate * .78" in APP              # เอื้อนสั้นท้ายบาท
     assert "contextmenu" in APP and "kd-chant" in APP
+    assert "var CHANT = lsGet('kd-chant') === '1';" in APP     # ปิดเป็นค่าเริ่มต้น
 
 
 def test_drawn_out_ending_is_a_whole_word_not_half_a_syllable():
