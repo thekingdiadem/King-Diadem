@@ -491,8 +491,9 @@ html.kd-calm .section,html.kd-calm .reveal{opacity:1;transform:none;filter:none}
 html.kd-calm .hud,html.kd-calm .hud-deg{display:none}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 /* ── ฉากกำเนิดจักรวาล (static/big_bang.js) ── */
-#big-bang{position:fixed;inset:0;z-index:9000;background:#000;touch-action:none;-webkit-user-select:none;user-select:none}
+#big-bang{-webkit-tap-highlight-color:transparent;position:fixed;inset:0;z-index:9000;background:#000;touch-action:none;-webkit-user-select:none;user-select:none}
 #big-bang[hidden]{display:none}
+#big-bang *{-webkit-tap-highlight-color:transparent}   /* Android ระบายสีฟ้าทับสิ่งที่แตะ — ฉากเต็มจอเลยฟ้าทั้งจอ */
 #big-bang canvas{position:absolute;inset:0;display:block;cursor:pointer}
 html.bb-on,html.bb-on body{overflow:hidden}
 .bb-hud{position:absolute;top:max(18px,env(safe-area-inset-top));left:20px;display:flex;gap:18px;font:500 12px/1.4 var(--f-mono);letter-spacing:.08em;color:#ffe2b8;text-shadow:0 0 12px rgba(0,0,0,.9);pointer-events:none}
@@ -578,6 +579,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
       <h3>เครื่องมือ</h3>
       <div class="ec-grid">
         <a class="ec-tile" href="/sky"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.6 4.9.4-3.7 3.2 1.1 4.8L12 13.5 7.8 16l1.1-4.8L5.2 8l4.9-.4z"/><path d="M4 21h16" opacity=".6"/></svg>ดูดาว</a>
+        <a class="ec-tile" id="ec-eq" href="/equations"><svg viewBox="0 0 24 24"><path d="M5 9h14M5 15h14"/></svg>สมการ</a>
         <a class="ec-tile" id="ec-saturn" href="/saturn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.4"/><ellipse cx="12" cy="12" rx="9.5" ry="3.6" transform="rotate(-18 12 12)"/></svg>Black Saturn</a>
         <button type="button" class="ec-tile" id="ec-bang" data-act="bang"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4M5.3 5.3l2.8 2.8M15.9 15.9l2.8 2.8M18.7 5.3l-2.8 2.8M8.1 15.9l-2.8 2.8"/></svg>บิ๊กแบง</button>
         <button type="button" class="ec-tile" data-act="hzlist" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M2.5 13h3l2-5 3 10 3-13 2.5 8h5.5"/></svg>ภัยพิบัติ</button>
