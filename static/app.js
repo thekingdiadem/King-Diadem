@@ -2911,7 +2911,8 @@ var Live = {
     return Array.prototype.map.call(a, function(x){ return (x % 36).toString(36); }).join('');
   },
   watch: function(rid, th){
-    var tag = th.querySelector('.tag'), sub = document.createElement('p'), on = true, seen = '', timer = 0;
+    /* ถามทุก 0.7 วินาที และหยุดเองหลัง 60 วินาที — เซิร์ฟเวอร์มี worker เดียวที่รีสตาร์ตตามจำนวนคำขอ (render.yaml) ถามถี่เกินทำให้เว็บสะดุด */
+    var tag = th.querySelector('.tag'), sub = document.createElement('p'), on = true, seen = '', timer = 0, t0 = Date.now();
     sub.className = 'live-sub mono'; sub.setAttribute('aria-hidden', 'true'); th.appendChild(sub);
     function tick(){
       if(!on) return;
@@ -2922,7 +2923,7 @@ var Live = {
           if(tag) tag.textContent = _t(Live.STEP[last][0]) + '…';
           sub.textContent = st.map(function(x){ return (Live.STEP[x.stage] || [0, x.stage])[1]; }).join(' → ');
         }
-      }).catch(function(){}).then(function(){ if(on) timer = setTimeout(tick, 400); });
+      }).catch(function(){}).then(function(){ if(on && Date.now() - t0 < 60000) timer = setTimeout(tick, 700); });
     }
     timer = setTimeout(tick, 250);
     return function(){ on = false; clearTimeout(timer); };

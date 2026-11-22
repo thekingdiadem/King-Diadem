@@ -1304,12 +1304,19 @@ async def admin_medical_export(request: Request):
                              headers={"Content-Disposition": 'attachment; filename="medical-review.csv"'})
 
 
+_MR_CACHE = {"t": 0.0, "v": {}}
+
+
 @app.get("/api/medical-review")
 async def medical_review_summary(request: Request):
     """ตัวเลขรวมว่าแพทย์ตรวจข้อความแล้วกี่ข้อ — หน้า /kidney โชว์ให้ผู้ใช้เห็นตามจริง"""
-    from core import medical_review
-    s = await run_in_threadpool(medical_review.summary)
-    return {"total": s["total"], "approved": s["approved"], "by_source": s["by_source"]}
+    # เปิดสาธารณะ — จำผลไว้ 60 วินาที (คำนวณครั้งละ ~70 ms อ่านฐานข้อมูลทั้งตาราง · กันคนยิงถี่จนเซิร์ฟเวอร์ช้า)
+    now = time.time()
+    if now - _MR_CACHE["t"] > 60:
+        from core import medical_review
+        s = await run_in_threadpool(medical_review.summary)
+        _MR_CACHE.update(t=now, v={"total": s["total"], "approved": s["approved"], "by_source": s["by_source"]})
+    return _MR_CACHE["v"]
 
 
 # ── ความปลอดภัยของบัญชีผู้ดูแล (/admin/security) — ใครมีสิทธิ์ · เปิด 2FA หรือยัง · ใครทำอะไรล่าสุด ──
@@ -3543,6 +3550,9 @@ def _grants_premium(price_ids) -> bool:
 
 @app.post("/create-checkout-session")
 async def create_checkout(request: Request, data: dict):
+    # สร้างหน้าจ่ายเงินได้ไม่จำกัดเคยเปลืองโควตา API ของ Stripe — จำกัดเหมือนเส้นทางอื่น
+    if not _rate_check("pay|" + _client_ip(request)):
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่นะคะ"}, status_code=429)
     # ต้องล็อกอิน — เดิมรับอีเมลที่พิมพ์มาเอง เครดิต/Premium จึงไปลงอีเมลใครก็ได้ (หรืออีเมลที่ไม่มีบัญชี)
     email = _session_email(request)
     if not email:
@@ -3825,6 +3835,9 @@ async def wallet_balance(request: Request):
 @app.post("/wallet/topup")
 async def wallet_topup(request: Request, data: dict):
     """สร้าง Stripe Checkout สำหรับเติมเครดิต — เครดิตเข้าบัญชีเมื่อ webhook ยืนยันการจ่ายเงินเท่านั้น"""
+    # สร้างหน้าจ่ายเงินได้ไม่จำกัดเคยเปลืองโควตา API ของ Stripe — จำกัดเหมือนเส้นทางอื่น
+    if not _rate_check("pay|" + _client_ip(request)):
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่นะคะ"}, status_code=429)
     email = _session_email(request)
     if not email:
         return JSONResponse({"error": "เข้าสู่ระบบก่อนแล้วค่อยเติมเครดิตนะคะ", "code": "login_required"}, status_code=401)
@@ -3860,6 +3873,9 @@ async def wallet_topup(request: Request, data: dict):
 @app.post("/billing-portal")
 async def billing_portal(request: Request):
     """หน้าจัดการสมาชิกของ Stripe — ยกเลิก เปลี่ยนบัตร ดูใบเสร็จ (เดิมไม่มีทางยกเลิกเอง)"""
+    # สร้างหน้าจ่ายเงินได้ไม่จำกัดเคยเปลืองโควตา API ของ Stripe — จำกัดเหมือนเส้นทางอื่น
+    if not _rate_check("pay|" + _client_ip(request)):
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่นะคะ"}, status_code=429)
     email = _session_email(request)
     if not email:
         return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
