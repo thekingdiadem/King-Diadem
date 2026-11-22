@@ -381,6 +381,11 @@ details[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
     document.getElementById('score-who').textContent = s.blind_by_people
       ? 'ในจำนวนนี้ ' + s.blind_by_people + ' ข้อเขียนโดยคนที่ไม่ได้เขียนโค้ดตัวตรวจจับ'
       : 'ชุดเริ่มต้นนี้ AI เป็นคนเขียน จึงยังไม่ปิดตาเต็มร้อย — ข้อสอบปิดตาของจริงต้องมาจากคนที่ไม่ได้เขียนโค้ดตัวตรวจจับ';
+    /* ข้อความจากผู้ใช้จริง — แยกให้เห็นชัด เพราะสะท้อนโลกจริงกว่าข้อที่คนเขียนตัวตรวจจับเขียนเอง */
+    var ru = s.real_user || { n: 0 }, rw = document.getElementById('score-who');
+    rw.textContent += ru.n
+      ? ' · ข้อความจากผู้ใช้จริง ' + ru.n + ' ข้อ: พลาดอันตราย ' + ru.danger_missed.n + '/' + ru.danger_missed.of + ' · เตือนเกิน ' + ru.false_alarm.n + '/' + ru.false_alarm.of
+      : ' · ยังไม่มีข้อความจากผู้ใช้จริงในชุดนี้';
   }).catch(function(){ var b = document.getElementById('score-table'); if(b){ b.textContent = ''; b.appendChild(el('p', 'sub', 'โหลดคะแนนไม่สำเร็จ')); } });
   getJSON('/api/system_map').catch(function(){ return getJSON('/static/system_map.json'); }).then(init).catch(function(){
     document.getElementById('flds').innerHTML = '';

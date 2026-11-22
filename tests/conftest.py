@@ -99,3 +99,15 @@ def user(client):
     assert r.status_code == 200
     client.email = email
     return client
+
+
+def verify_email(email: str) -> None:
+    """ทำเหมือนเข้าด้วย Google มาแล้ว 1 ครั้ง (พิสูจน์ว่าเป็นเจ้าของอีเมล) — สิทธิ์ผู้ดูแลต้องใช้
+    ไม่ใช้ claim_verified_email เพราะตัวนั้นลบรหัสผ่านทิ้งด้วย (เทสต์ยังล็อกอินด้วยรหัสผ่านต่อ)"""
+    from DATABASE.db import get_conn
+    conn = get_conn()
+    try:
+        conn.execute("INSERT OR IGNORE INTO verified_emails (email) VALUES (?)", (email.lower(),))
+        conn.commit()
+    finally:
+        conn.close()

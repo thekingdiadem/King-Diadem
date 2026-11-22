@@ -56,6 +56,7 @@ def test_run_feeds_the_loop(client, app_module, monkeypatch, fresh):
 def test_owner_card_gets_the_overview(client, app_module, monkeypatch, fresh):
     email = f"owner-{uuid.uuid4().hex[:8]}@test.co"
     monkeypatch.setattr(app_module, "_ADMIN_EMAILS", {email})
+    from tests.conftest import verify_email; verify_email(email)
     client.post("/register", json={"email": email, "password": "secret12"})
     for r in (10, 20, 30):
         SL.record_decision({"route": "general", "risk_score": r})

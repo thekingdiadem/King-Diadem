@@ -781,5 +781,7 @@
 "ส่งไม่สำเร็จ ลองใหม่อีกครั้งนะคะ": "No se pudo enviar — inténtalo de nuevo",
 "มีคนรายงานคำตอบ {n} รายการ — อ่านได้ที่ /api/admin/reports": "{n} respuestas reportadas — léelas en /api/admin/reports",
 "อ่านแบบทำนองสรภัญญะ (กาพย์ยานี ๑๑)":"Lectura con ritmo de canto tailandés (Sarabhanya)",
-"อ่านแบบเรียบ":"Lectura normal"
+"อ่านแบบเรียบ":"Lectura normal",
+"ติดป้ายข้อความจริง":"Etiquetar mensajes reales",
+"ความปลอดภัยผู้ดูแล":"Seguridad de administradores"
 };

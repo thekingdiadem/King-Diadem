@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#03040d">
+<title>ความปลอดภัยผู้ดูแล — KING DIADEM</title>
+<link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
+<style>
+:root{--void:#06070c;--gold:#d8b878;--line:rgba(216,184,120,.22);--txt:#e6e8ee;--dim:#9aa1b2;--red:#ef8a8a;--ok:#8fd3a8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--txt);font:16px/1.6 "Noto Sans Thai Looped",system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 80px}
+h1{color:var(--gold);font-size:1.35rem;margin:0 0 4px}
+h2{color:var(--gold);font-size:1.05rem;margin:28px 0 8px}
+p.sub{color:var(--dim);margin:0 0 16px;font-size:.92rem}
+#summary{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:8px}
+#summary.ok{border-color:rgba(143,211,168,.5)}
+#summary.warn{border-color:rgba(239,138,138,.6)}
+.person{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:10px}
+.person .top{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.person .mail{font-weight:500}
+.tag{font-size:.8rem;border:1px solid var(--line);border-radius:999px;padding:1px 9px;color:var(--dim)}
+.tag.good{color:var(--ok);border-color:rgba(143,211,168,.45)}
+.tag.bad{color:var(--red);border-color:rgba(239,138,138,.55)}
+.todo{color:var(--red);font-size:.9rem;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+td{border-bottom:1px solid var(--line);padding:6px 4px;vertical-align:top}
+td.t{color:var(--dim);white-space:nowrap}
+#err{color:var(--red)}
+.tips{color:var(--dim);font-size:.9rem}
+.tips li{margin-bottom:6px}
+a{color:var(--gold)}
+</style>
+</head>
+<body>
+<main>
+<h1>ความปลอดภัยของบัญชีผู้ดูแล</h1>
+<p class="sub">ใครมีสิทธิ์ · เปิดการยืนยันสองขั้น (2FA) หรือยัง · ใครทำอะไรล่าสุด — อีเมลแสดงไม่เต็มเพื่อกันคนแอบมองจอ</p>
+<div id="summary">กำลังโหลด…</div>
+<p id="err" hidden></p>
+
+<h2>คนที่มีสิทธิ์</h2>
+<div id="people"></div>
+
+<h2>ถ้ามือถือหาย</h2>
+<ol class="tips">
+  <li>ใช้รหัสกู้คืน 2FA ที่จดเก็บไว้ เข้าจากเครื่องอื่น แล้วกด "ออกจากระบบ" — ระบบออกจากทุกเครื่องในครั้งเดียว รวมมือถือที่หาย</li>
+  <li>เปลี่ยนรหัสผ่าน Google ของอีเมลนั้น และถอดมือถือเครื่องที่หายออกจากบัญชี Google</li>
+  <li>ถ้ายังกังวล เอาอีเมลนั้นออกจาก <code>ADMIN_EMAILS</code> บน Render ชั่วคราว (บัญชีของแม่ยังใช้แทนได้)</li>
+  <li>เข้า Render และ GitHub ด้วยรหัสกู้คืนของแต่ละที่ — สองบัญชีนี้ควบคุมทั้งระบบ</li>
+</ol>
+
+<h2>การกระทำล่าสุด</h2>
+<table><tbody id="actions"></tbody></table>
+<p class="sub"><a href="/admin/label">ไปหน้าติดป้ายข้อความจริง</a></p>
+</main>
+<script>
+(function(){
+  var ACT = { label: 'ติดป้าย', export: 'ส่งออกชุดทดสอบ', view_reports: 'ดูรายงาน', view_security: 'เปิดหน้านี้' };
+  var ROLE = { admin: 'ผู้ดูแล', labeler: 'ติดป้ายอย่างเดียว' };
+  function el(tag, cls, text){ var e = document.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
+  fetch('/api/admin/security', { credentials: 'same-origin' }).then(function(r){
+    if(!r.ok) throw new Error(r.status === 404 ? 'หน้านี้สำหรับผู้ดูแลเท่านั้น (ต้องอยู่ใน ADMIN_EMAILS และเคยเข้าด้วย Google)' : 'โหลดไม่สำเร็จ');
+    return r.json();
+  }).then(function(j){
+    var s = document.getElementById('summary');
+    s.className = j.ok ? 'ok' : 'warn';
+    s.textContent = j.ok ? 'ครบแล้ว: ทุกคนที่มีสิทธิ์พิสูจน์อีเมลและเปิด 2FA แล้ว'
+                         : 'ต้องทำเพิ่ม ' + j.weak + ' บัญชี (จาก ' + j.people.length + ') — ดูรายการด้านล่าง';
+    var box = document.getElementById('people');
+    j.people.forEach(function(p){
+      var d = el('div', 'person'), top = el('div', 'top');
+      top.appendChild(el('span', 'mail', p.email));
+      top.appendChild(el('span', 'tag', ROLE[p.role] || p.role));
+      top.appendChild(el('span', 'tag ' + (p.verified ? 'good' : 'bad'), p.verified ? 'พิสูจน์อีเมลแล้ว' : 'ยังไม่พิสูจน์อีเมล'));
+      top.appendChild(el('span', 'tag ' + (p.twofa ? 'good' : 'bad'), p.twofa ? '2FA เปิด' : '2FA ปิด'));
+      d.appendChild(top);
+      if(p.todo) d.appendChild(el('div', 'todo', p.todo));
+      box.appendChild(d);
+    });
+    var tb = document.getElementById('actions');
+    if(!j.actions.length){ var tr0 = el('tr'); tr0.appendChild(el('td', 't', 'ยังไม่มี')); tb.appendChild(tr0); }
+    j.actions.forEach(function(a){
+      var tr = el('tr');
+      tr.appendChild(el('td', 't', new Date(a.ts * 1000).toLocaleString('th-TH')));
+      tr.appendChild(el('td', null, a.who + ' · ' + (ACT[a.action] || a.action) + (a.detail ? ' ' + a.detail : '')));
+      tb.appendChild(tr);
+    });
+  }).catch(function(e){ var x = document.getElementById('err'); x.textContent = e.message; x.hidden = false;
+                         document.getElementById('summary').textContent = ''; });
+})();
+</script>
+</body>
+</html>

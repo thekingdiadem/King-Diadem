@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#03040d">
+<title>ติดป้ายข้อความจริง — KING DIADEM</title>
+<link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
+<style>
+:root{--void:#06070c;--gold:#d8b878;--line:rgba(216,184,120,.22);--txt:#e6e8ee;--dim:#9aa1b2;--red:#ef8a8a;--ok:#8fd3a8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--txt);font:16px/1.6 "Noto Sans Thai Looped",system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 80px}
+h1{color:var(--gold);font-size:1.35rem;margin:0 0 4px}
+p.sub{color:var(--dim);margin:0 0 16px;font-size:.92rem}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.bar .count{color:var(--dim);font-size:.9rem;margin-right:auto}
+a.btn,button{background:transparent;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font:inherit;cursor:pointer;text-decoration:none}
+button.lbl[data-label="emergency"],button.lbl[data-label="self_harm"],button.lbl[data-label="violence"]{border-color:rgba(239,138,138,.55)}
+button.lbl:hover,button.lbl:focus-visible{background:rgba(216,184,120,.12);outline:none}
+.card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.q{font-size:1.05rem;white-space:pre-wrap;word-break:break-word;margin:0 0 8px}
+.meta{color:var(--dim);font-size:.85rem;margin-bottom:10px}
+.meta b{color:var(--txt);font-weight:500}
+.meta .miss{color:var(--red)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.card.done{opacity:.45}
+.card.done .btns{display:none}
+#empty,#err{color:var(--dim);padding:24px 0;text-align:center}
+#err{color:var(--red)}
+.keys{color:var(--dim);font-size:.8rem;margin-top:24px}
+kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font:inherit;font-size:.8rem}
+</style>
+</head>
+<body>
+<main>
+<h1>ติดป้ายข้อความจริง</h1>
+<p class="sub">ประโยคที่ผู้ใช้ติ๊กแนบมาเองตอนกดธงใต้คำตอบ (ลบเบอร์/อีเมลแล้ว · หายเองเมื่อครบ 90 วัน)
+ติดป้ายว่าจริงๆ เป็นเรื่องอะไร แล้วกด "ส่งออก" เพื่อได้บรรทัดสำหรับเพิ่มใน <code>tests/blind/blind.tsv</code></p>
+<div class="bar">
+  <span class="count" id="count">กำลังโหลด…</span>
+  <button id="reload" type="button">โหลดใหม่</button>
+  <a class="btn" id="export" href="/api/admin/label-export">ส่งออก (.tsv)</a>
+</div>
+<div id="list"></div>
+<div id="empty" hidden>ไม่มีประโยครอติดป้ายแล้ว</div>
+<div id="err" hidden></div>
+<p class="keys">แป้นลัดกับข้อบนสุดที่ยังไม่ติด: <kbd>1</kbd> ด่วน · <kbd>2</kbd> ทำร้ายตัวเอง · <kbd>3</kbd> ความรุนแรง ·
+<kbd>4</kbd> มิจฉาชีพ · <kbd>5</kbd> ลำบาก · <kbd>0</kbd> ปกติ · <kbd>s</kbd> ข้าม</p>
+</main>
+<script>
+(function(){
+  var NAMES = { emergency: 'ด่วน/การแพทย์', self_harm: 'ทำร้ายตัวเอง', violence: 'ความรุนแรง', scam: 'มิจฉาชีพ',
+                distress: 'ลำบาก/ปัจจัยพื้นฐาน', none: 'ปกติ', skip: 'ข้าม' };
+  var KEYS = { '1': 'emergency', '2': 'self_harm', '3': 'violence', '4': 'scam', '5': 'distress', '0': 'none', 's': 'skip' };
+  var REASON = { missed: 'ผู้ใช้บอกว่าระบบไม่เห็นว่าอันตราย', harmful: 'คำตอบเป็นอันตราย', offensive: 'ไม่สุภาพ', wrong: 'ผิด', other: 'อื่นๆ' };
+  var list = document.getElementById('list'), count = document.getElementById('count');
+  var empty = document.getElementById('empty'), err = document.getElementById('err'), labeled = 0;
+
+  function el(tag, cls, text){ var e = document.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
+
+  function card(it){
+    var c = el('div', 'card'); c.dataset.id = it.id;
+    c.appendChild(el('p', 'q', it.question));
+    var m = el('div', 'meta'), det = (it.now && it.now.detected) || [];
+    m.appendChild(document.createTextNode((REASON[it.reason] || it.reason) + ' · ตอนรายงาน Risk ' + it.risk + ' · ตอนนี้ระบบเห็น '));
+    var b = el('b', det.length ? '' : 'miss', det.length ? det.map(function(d){ return NAMES[d] || d; }).join(', ') : 'ไม่เห็นอะไร');
+    m.appendChild(b);
+    m.appendChild(document.createTextNode(' (Risk ' + (it.now ? it.now.risk : '?') + ') · เหลือ ' + it.days_left + ' วันก่อนประโยคถูกลบ'));
+    c.appendChild(m);
+    var bs = el('div', 'btns');
+    ['emergency', 'self_harm', 'violence', 'scam', 'distress', 'none', 'skip'].forEach(function(l){
+      var btn = el('button', 'lbl', NAMES[l]); btn.type = 'button'; btn.dataset.label = l;
+      btn.addEventListener('click', function(){ send(c, l); });
+      bs.appendChild(btn);
+    });
+    c.appendChild(bs);
+    return c;
+  }
+
+  function show(msg){ err.textContent = msg; err.hidden = !msg; }
+
+  function load(){
+    show(''); list.textContent = ''; empty.hidden = true; count.textContent = 'กำลังโหลด…';
+    fetch('/api/admin/label-queue?limit=50', { credentials: 'same-origin' }).then(function(r){
+      if(!r.ok) throw new Error(r.status === 404 ? 'หน้านี้สำหรับผู้ดูแลเท่านั้น (ADMIN_EMAILS)' : 'โหลดไม่สำเร็จ');
+      return r.json();
+    }).then(function(j){
+      labeled = j.labeled || 0;
+      j.items.forEach(function(it){ list.appendChild(card(it)); });
+      empty.hidden = !!j.items.length;
+      count.textContent = 'รอติดป้าย ' + j.items.length + ' · ติดแล้ว ' + labeled;
+    }).catch(function(e){ count.textContent = ''; show(e.message); });
+  }
+
+  function send(c, label){
+    if(c.classList.contains('done')) return;
+    c.classList.add('done');
+    fetch('/api/admin/label', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ id: Number(c.dataset.id), label: label }) })
+      .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j.error || 'บันทึกไม่สำเร็จ'); }); })
+      .then(function(){
+        labeled++;
+        var left = list.querySelectorAll('.card:not(.done)').length;
+        count.textContent = 'รอติดป้าย ' + left + ' · ติดแล้ว ' + labeled;
+        var meta = c.querySelector('.meta'); meta.appendChild(document.createTextNode(' → ' + NAMES[label]));
+      })
+      .catch(function(e){ c.classList.remove('done'); show(e.message); });
+  }
+
+  document.getElementById('reload').addEventListener('click', load);
+  document.addEventListener('keydown', function(e){
+    if(e.target.closest && e.target.closest('input,textarea')) return;
+    var l = KEYS[e.key]; if(!l) return;
+    var c = list.querySelector('.card:not(.done)'); if(c) send(c, l);
+  });
+  load();
+})();
+</script>
+</body>
+</html>

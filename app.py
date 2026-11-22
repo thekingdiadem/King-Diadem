@@ -655,8 +655,33 @@ def _urgent_text(text: str) -> bool:
 # นับพลาด = ข้ามเงียบๆ ห้ามทำให้แชท/การจ่ายเงินล้ม
 _ADMIN_EMAILS = {e.strip().lower() for e in os.getenv("ADMIN_EMAILS", "").split(",") if e.strip()}
 
+_LABELER_EMAILS = {e.strip().lower() for e in os.getenv("LABELER_EMAILS", "").split(",") if e.strip()}
+
+
+def _owns_email(email) -> bool:
+    """พิสูจน์แล้วว่าเป็นเจ้าของอีเมลนี้ (เคยเข้าด้วย Google) — สมัครด้วยรหัสผ่านใช้อีเมลของใครก็ได้
+    เดิมสิทธิ์ผู้ดูแลเทียบแค่ตัวอักษรของอีเมล: อีเมลใน ADMIN_EMAILS ที่ยังไม่เคยสมัคร ใครสมัครก่อนได้สิทธิ์ผู้ดูแลไปเลย"""
+    try:
+        return bool(email_verified and email_verified(str(email).lower()))
+    except Exception as e:
+        print(f"⚠ owns_email: {type(e).__name__}")
+        return False
+
+
 def _is_admin(email) -> bool:
-    return bool(email) and str(email).lower() in _ADMIN_EMAILS
+    return bool(email) and str(email).lower() in _ADMIN_EMAILS and _owns_email(email)
+
+
+def _can_label(email) -> bool:
+    """ผู้ดูแล หรือคนที่อยู่ใน LABELER_EMAILS (ติดป้ายได้อย่างเดียว ไม่เห็นรายได้/รายงานอื่น)"""
+    if not email:
+        return False
+    e = str(email).lower()
+    return (e in _ADMIN_EMAILS or e in _LABELER_EMAILS) and _owns_email(e)
+
+
+def _admin_role(email) -> str | None:
+    return "admin" if _is_admin(email) else "labeler" if _can_label(email) else None
 
 def _mkey(*parts) -> str:
     import hashlib, hmac as _h
@@ -1153,11 +1178,95 @@ async def post_answer_report(request: Request, data: dict):
 @app.get("/api/admin/reports")
 async def admin_answer_reports(request: Request, limit: int = 50):
     """รายงานคำตอบล่าสุด (เฉพาะอีเมลใน ADMIN_EMAILS)"""
-    if not _is_admin(_session_email(request)):
+    email = _session_email(request)
+    if not _is_admin(email):
         return JSONResponse({"error": "not found"}, status_code=404)      # ไม่บอกว่ามีหน้านี้อยู่
-    from core import answer_reports
+    from core import answer_reports, admin_access
+    await run_in_threadpool(admin_access.record, email, "admin", "view_reports", "")
     rows = await run_in_threadpool(answer_reports.recent, limit)
     return {"count": await run_in_threadpool(answer_reports.count), "reports": rows}
+
+
+# ── โต๊ะติดป้ายข้อความจริง: ประโยคที่ผู้ใช้แนบมาเอง → ผู้ดูแลติดป้าย → บรรทัดของชุดปิดตา (ผู้เขียน real-user) ──
+# ทุกเส้นทางตอบ 404 กับคนที่ไม่ใช่ผู้ดูแล (ไม่บอกว่ามีอยู่) · ประโยคถูกลบเบอร์/อีเมลตั้งแต่ตอนเก็บ และหายเองเมื่อครบ 90 วัน
+@app.get("/admin/label")
+async def admin_label_page(request: Request):
+    if not _can_label(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return FileResponse("static/admin_label.html")
+
+
+def _label_item(r: dict) -> dict:
+    from core.kernel_voice import assess
+    from scripts.blind_score import detected
+    try:
+        a = assess(r["question"])
+        now = {"risk": a.get("risk_shown"), "detected": sorted(detected(a))}
+    except Exception:
+        now = {"risk": None, "detected": []}
+    days_left = max(0, int(90 - (time.time() - float(r["ts"] or 0)) / 86400))
+    return {**r, "now": now, "days_left": days_left}
+
+
+@app.get("/api/admin/label-queue")
+async def admin_label_queue(request: Request, limit: int = 30):
+    if not _can_label(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import answer_reports
+    rows = await run_in_threadpool(answer_reports.label_queue, limit)
+    items = await run_in_threadpool(lambda: [_label_item(r) for r in rows])
+    done = await run_in_threadpool(answer_reports.labeled, True)
+    return {"items": items, "labels": list(answer_reports.LABELS), "labeled": len(done)}
+
+
+@app.post("/api/admin/label")
+async def admin_label_set(request: Request, data: dict):
+    email = _session_email(request)
+    if not _can_label(email):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import answer_reports, admin_access
+    data = data if isinstance(data, dict) else {}
+    r = await run_in_threadpool(answer_reports.set_label, data.get("id"), data.get("label"))
+    if r.get("ok"):
+        await run_in_threadpool(admin_access.record, email, _admin_role(email), "label", f"#{data.get('id')} → {data.get('label')}")
+    return r if r.get("ok") else JSONResponse(r, status_code=400)
+
+
+@app.get("/api/admin/label-export")
+async def admin_label_export(request: Request):
+    email = _session_email(request)
+    if not _can_label(email):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import answer_reports, admin_access
+    await run_in_threadpool(admin_access.record, email, _admin_role(email), "export", "")
+    from fastapi.responses import PlainTextResponse
+    body = await run_in_threadpool(answer_reports.export_blind_lines)
+    return PlainTextResponse(body, media_type="text/tab-separated-values; charset=utf-8",
+                             headers={"Content-Disposition": 'attachment; filename="real-user-blind.tsv"'})
+
+
+# ── ความปลอดภัยของบัญชีผู้ดูแล (/admin/security) — ใครมีสิทธิ์ · เปิด 2FA หรือยัง · ใครทำอะไรล่าสุด ──
+@app.get("/admin/security")
+async def admin_security_page(request: Request):
+    if not _is_admin(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return FileResponse("static/admin_security.html")
+
+
+@app.get("/api/admin/security")
+async def admin_security(request: Request):
+    email = _session_email(request)
+    if not _is_admin(email):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import admin_access
+
+    def _exists_verified(e):
+        return bool(user_exists and user_exists(e)) and _owns_email(e)
+
+    st = await run_in_threadpool(admin_access.security_status, _twofa_on, _exists_verified, _ADMIN_EMAILS, _LABELER_EMAILS)
+    st["actions"] = await run_in_threadpool(admin_access.recent, 50)
+    await run_in_threadpool(admin_access.record, email, "admin", "view_security", "")
+    return st
 
 
 # ── ความจำข้ามแชทของ LYLA (เฉพาะผู้ที่เข้าสู่ระบบ) — ผู้ใช้ดู ปิด หรือล้างเองได้ ─────────

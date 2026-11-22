@@ -624,6 +624,8 @@
     'ใช้ไมค์ไม่ได้ — อนุญาตไมโครโฟนให้เว็บนี้ก่อน หรือพิมพ์แทนได้เลยนะคะ': ['Cannot use the microphone — allow it for this site first, or just type instead', 'マイクが使えません — このサイトにマイクを許可するか、入力してください'],
     'เสียงของคุณถูกแปลงเป็นข้อความโดยเบราว์เซอร์ (บางเบราว์เซอร์ส่งเสียงไปที่เซิร์ฟเวอร์ของผู้ผลิต) ก่อนส่งข้อความมาที่เรา': ['Your voice is turned into text by your browser (some browsers send the audio to their maker’s servers) before the text is sent to us', '音声はブラウザでテキストに変換されます（一部のブラウザは音声を提供元のサーバーに送信します）。その後テキストが送られます'],
     'อ่านออกเสียง': ['Read aloud', '読み上げ'],
+    'ติดป้ายข้อความจริง': ['Label real messages', '実際のメッセージにラベル付け'],
+    'ความปลอดภัยผู้ดูแล': ['Admin security', '管理者のセキュリティ'],
     'อ่านแบบทำนองสรภัญญะ (กาพย์ยานี ๑๑)': ['Reading in Thai chant rhythm (Sarabhanya)', 'タイの詠唱リズムで読み上げ（サラパンヤ）'],
     'อ่านแบบเรียบ': ['Reading plainly', '普通に読み上げ'],
     'พูดแทนพิมพ์': ['Speak instead of typing', '話して入力'],

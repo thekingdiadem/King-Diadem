@@ -42,6 +42,7 @@ def test_tap_does_not_steal_buttons_or_chat_and_popup_is_announced():
 def test_owner_dashboard_shows_system_health(user, app_module, monkeypatch):
     """ข้อมูลที่ /api/admin/metrics มีอยู่แล้วแต่ไม่เคยแสดง: คำตอบช่วยได้ไหม · สร้างภาพพังเพราะอะไร · ราคาที่เปลี่ยนโดยไม่มีเหตุผล"""
     monkeypatch.setattr(app_module, "_ADMIN_EMAILS", {user.email.lower()})
+    from tests.conftest import verify_email; verify_email(user.email.lower())
     d = user.get("/api/admin/metrics").json()
     assert "feedback" in d and "image" in d and "policy" in d
     h = _fn("healthHTML")

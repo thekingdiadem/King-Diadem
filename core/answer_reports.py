@@ -59,6 +59,8 @@ def _ensure(conn) -> None:
     cols = {r[1] for r in conn.execute("PRAGMA table_info(answer_reports)").fetchall()}
     if "question" not in cols:
         conn.execute("ALTER TABLE answer_reports ADD COLUMN question TEXT NOT NULL DEFAULT ''")
+    if "label" not in cols:                       # ป้ายที่ผู้ดูแลติด (โต๊ะติดป้าย /admin/label) · '' = ยังไม่ได้ติด
+        conn.execute("ALTER TABLE answer_reports ADD COLUMN label TEXT NOT NULL DEFAULT ''")
     conn.commit()
     _ready = True
 
@@ -140,3 +142,78 @@ def count() -> int:
         return int(conn.execute("SELECT COUNT(*) FROM answer_reports").fetchone()[0])
     finally:
         conn.close()
+
+
+# ═══ โต๊ะติดป้ายข้อความจริง (/admin/label) ═══════════════════════════════════════════════
+# ประโยคจริงที่ผู้ใช้แนบมาเอง → ผู้ดูแลกดป้ายถูก → ส่งออกเป็นบรรทัดของชุดปิดตา (ผู้เขียน = real-user)
+# ทำไม: ชุดปิดตา 3,700 กว่าข้อเขียนโดยคนเดียวกับที่เขียนตัวตรวจจับ ตัวเลขความแม่นจึงดีเกินจริง
+# ป้ายชุดเดียวกับ tests/blind/blind.tsv · "skip" = ไม่เอาเข้าชุดทดสอบ (เช่น ประโยคไม่ครบ อ่านไม่รู้เรื่อง)
+LABELS = ("none", "self_harm", "emergency", "violence", "scam", "distress", "skip")
+
+
+def label_queue(limit: int = 50) -> list:
+    """ประโยคที่ผู้ใช้แนบมาและยังไม่ได้ติดป้าย — เก่าก่อน (ใกล้ครบ 90 วันจะถูกลบ ต้องติดก่อน)"""
+    limit = max(1, min(int(limit or 50), 200))
+    conn = _conn()
+    try:
+        _ensure(conn)
+        rows = conn.execute("SELECT id, ts, reason, risk, question FROM answer_reports "
+                            "WHERE question != '' AND label = '' ORDER BY id ASC LIMIT ?", (limit,)).fetchall()
+    finally:
+        conn.close()
+    return [{"id": r[0], "ts": r[1], "reason": r[2], "risk": r[3], "question": r[4]} for r in rows]
+
+
+def set_label(report_id, label) -> dict:
+    label = str(label or "").strip().lower() if isinstance(label, str) else ""
+    if label not in LABELS:
+        return {"ok": False, "error": "ป้ายไม่ถูกต้อง"}
+    try:
+        report_id = int(report_id)
+    except (TypeError, ValueError):
+        return {"ok": False, "error": "ไม่พบรายการ"}
+    with _lock:
+        conn = _conn()
+        try:
+            _ensure(conn)
+            n = conn.execute("UPDATE answer_reports SET label = ? WHERE id = ? AND question != ''", (label, report_id)).rowcount
+            conn.commit()
+        finally:
+            conn.close()
+    return {"ok": True} if n else {"ok": False, "error": "ไม่พบรายการ (อาจถูกลบเมื่อครบ 90 วันแล้ว)"}
+
+
+_LANG_RX = (("th", r"[\u0E00-\u0E7F]"), ("ko", r"[\uAC00-\uD7AF]"), ("ja", r"[\u3040-\u30FF]"), ("zh", r"[\u4E00-\u9FFF]"),
+            ("my", r"[\u1000-\u109F]"), ("km", r"[\u1780-\u17FF]"), ("lo", r"[\u0E80-\u0EFF]"), ("ar", r"[\u0600-\u06FF]"),
+            ("hi", r"[\u0900-\u097F]"), ("ru", r"[\u0400-\u04FF]"),
+            ("vi", r"[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]"), ("es", r"[ñ¿¡]"))
+
+
+def guess_lang(text: str) -> str:
+    for lang, rx in _LANG_RX:
+        if re.search(rx, text or "", re.I):
+            return lang
+    return "en"
+
+
+def labeled(include_skip: bool = False) -> list:
+    conn = _conn()
+    try:
+        _ensure(conn)
+        rows = conn.execute("SELECT id, question, label FROM answer_reports WHERE question != '' AND label != '' ORDER BY id").fetchall()
+    finally:
+        conn.close()
+    return [{"id": r[0], "question": r[1], "label": r[2]} for r in rows if include_skip or r[2] != "skip"]
+
+
+def export_blind_lines() -> str:
+    """บรรทัดพร้อมวางต่อท้าย tests/blind/blind.tsv: ข้อความ<TAB>ป้าย<TAB>ภาษา<TAB>real-user
+    แท็บ/ขึ้นบรรทัดในประโยคถูกแทนด้วยช่องว่าง (ไฟล์ชุดปิดตาเป็นหนึ่งบรรทัดต่อข้อ) · ข้อความซ้ำส่งออกครั้งเดียว"""
+    seen, out = set(), []
+    for r in labeled():
+        q = re.sub(r"\s+", " ", r["question"]).strip()
+        if not q or q in seen:
+            continue
+        seen.add(q)
+        out.append(f"{q}\t{r['label']}\t{guess_lang(q)}\treal-user")
+    return "\n".join(out) + ("\n" if out else "")
