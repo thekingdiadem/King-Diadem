@@ -977,11 +977,20 @@ def root(request: Request):
 # robots.txt บอกว่าหน้าไหนให้เก็บ · หน้าส่วนตัว (API บัญชี รายงานที่แชร์) ห้ามเก็บ
 # sitemap.xml บอก Google ว่ามีหน้าสาธารณะอะไรบ้าง — เดิมไม่มีทั้งสองไฟล์
 SITEMAP_PAGES = [("/", "1.0", "daily"), ("/safe", "0.9", "monthly"), ("/guide", "0.8", "weekly"), ("/learn", "0.8", "weekly"), ("/survival", "0.9", "weekly"), ("/ask", "0.7", "weekly"),
-                 ("/sky", "0.9", "daily"), ("/pregnancy", "0.8", "monthly"), ("/universe", "0.8", "weekly"),
+                 ("/sky", "0.9", "daily"), ("/pregnancy", "0.8", "monthly"), ("/universe", "0.8", "weekly"), ("/equations", "0.8", "monthly"),
                  ("/architecture", "0.6", "weekly"), ("/letter", "0.6", "monthly"), ("/support", "0.5", "monthly"),
                  ("/privacy", "0.3", "yearly"), ("/terms", "0.3", "yearly"), ("/refund", "0.3", "yearly")]
 _ROBOTS_BLOCK = ["/api/", "/report/", "/auth/", "/login", "/me", "/dashboard", "/wallet", "/credits", "/static/login.html",
                  "/static/register.html", "/static/report.html"]
+
+def _middle_path_stats():
+    """ตัวตรวจทางสายกลางเติมคำตอบไปกี่ครั้ง แยกฝั่ง upside / constraint"""
+    try:
+        from core.middle_path import stats
+        return stats()
+    except Exception:
+        return None
+
 
 @app.get("/robots.txt")
 def robots_txt():
@@ -1152,7 +1161,7 @@ async def health():
         asyncio.get_running_loop().create_task(_refresh())
     # ภาระตอนนี้ (นับในหน่วยความจำ ถูกมาก) ต้องสดเสมอ — ส่วนที่แพง (ฐานข้อมูล ไฟล์สำรอง) มาจากผลที่เก็บไว้
     live = {"load": get_survival_stats() if get_survival_stats else None, "shield": _SHIELD.stats() if _SHIELD else None,
-            "reply_ms": _reply_ms(), "model_ms": _model_ms()}           # เวลาตอบ (นับในหน่วยความจำ) ต้องสดเหมือนกัน
+            "reply_ms": _reply_ms(), "model_ms": _model_ms(), "middle_path": _middle_path_stats()}           # เวลาตอบ (นับในหน่วยความจำ) ต้องสดเหมือนกัน
     return {**_HEALTH["v"], **live}
 
 
@@ -3227,6 +3236,13 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 result["ai_response"] = ensure_safety_line(user_input, result["ai_response"], k_assess or None)
         except Exception as e:
             print(f"⚠ safety line: {type(e).__name__}")
+        # ทางสายกลาง: เชียร์อย่างเดียวไม่บอกด้านเสีย หรือห้ามจนไม่เหลือทางไป → เติมด้านที่ขาด (core/middle_path.py)
+        try:
+            from core.middle_path import balance as _mp_balance
+            if isinstance(result.get("ai_response"), str):
+                result["ai_response"] = _mp_balance(user_input, result["ai_response"], k_assess or None)
+        except Exception as e:
+            print(f"⚠ middle path: {type(e).__name__}")
 
     # risk ที่แสดง = max(สถานะ, สัญญาณในข้อความ) — สมการเดียวกับ kernel_voice.assess
     try:
@@ -4079,6 +4095,12 @@ async def sky_page():
     """ท้องฟ้าจริง ณ ตำแหน่งและเวลาของผู้ใช้ (static/sky.html · static/sky_view.js) — คำนวณในเครื่องผู้ใช้ทั้งหมด
     เสิร์ฟตรงที่ /sky (เดิม redirect ไป /static/sky.html) — Google เก็บ URL สั้นเป็นหน้าหลักได้"""
     return FileResponse("static/sky.html")
+
+
+@app.get("/equations")
+async def equations_page():
+    """สองสมการหลักเป็น HTML ล้วน — ให้ Google ค้น "Choice(t) >= 1" หรือ "Risk = Drift × Exposure" แล้วเจอเว็บเรา"""
+    return FileResponse("static/equations.html")
 
 
 @app.get("/saturn")

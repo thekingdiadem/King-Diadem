@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06070c">
+<title>Choice(t) ≥ 1 → collapse = False · Risk = Drift × Exposure × Time / Remaining Choice — KING DIADEM</title>
+<meta name="description" content="สองสมการหลักของ KING DIADEM: Choice(t) >= 1 -> collapse = False (ถ้ายังมีทางเลือกอย่างน้อย 1 ทาง ระบบยังไม่พัง) และ Risk = Drift × Exposure × Time / Remaining Choice (ความเสี่ยงโตเมื่อทางเลือกเหลือน้อย)">
+<link rel="canonical" href="https://king-diadem.onrender.com/equations">
+<meta property="og:title" content="Choice(t) ≥ 1 → collapse = False — KING DIADEM">
+<meta property="og:description" content="As long as at least one option remains, the system has not collapsed. Risk = Drift × Exposure × Time / Remaining Choice.">
+<link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"DefinedTermSet","name":"KING DIADEM equations","url":"https://king-diadem.onrender.com/equations","hasDefinedTerm":[
+{"@type":"DefinedTerm","name":"Choice(t) >= 1 -> collapse = False","alternateName":["Choice(t) ≥ 1 → collapse = False","Choice(t) ≥ 1"],"description":"At time t, as long as at least one option remains, the system (or a person's situation) is not considered collapsed. Collapse happens only when Choice(t) = 0."},
+{"@type":"DefinedTerm","name":"Risk = Drift × Exposure × Time / Remaining Choice","alternateName":["R = (D × E × T) / C","Risk = Drift * Exposure * Time / Remaining Choice"],"description":"Risk grows with how far things have drifted, how exposed you are, and how long it lasts, and shrinks with every option you still have."}]}</script>
+<style>
+:root{--void:#06070c;--gold:#d8b878;--txt:#e6e8ee;--dim:#9aa1b2;--line:rgba(216,184,120,.22)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--txt);font:17px/1.75 "Noto Sans Thai Looped",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 80px}
+h1{color:var(--gold);font-size:1.4rem;margin:0 0 6px}
+h2{color:var(--gold);font-size:1.1rem;margin:36px 0 6px}
+.eq{font:600 1.25rem/1.5 ui-monospace,Menlo,monospace;color:#f3e3bd;border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.alt{color:var(--dim);font-size:.9rem;margin:6px 0 0}
+p,li{color:var(--txt)}
+.dim{color:var(--dim)}
+a{color:var(--gold)}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+td{border-bottom:1px solid var(--line);padding:6px 4px;vertical-align:top}
+</style>
+</head>
+<body>
+<main>
+<h1>สมการของ KING DIADEM</h1>
+<p class="dim">สองบรรทัดที่ระบบใช้คิดทุกครั้งที่มีคนเล่าเรื่องยากๆ ให้ LYLA ฟัง · The two equations behind KING DIADEM</p>
+
+<h2>1. Choice(t) ≥ 1 → collapse = False</h2>
+<div class="eq">Choice(t) ≥ 1 → collapse = False</div>
+<p class="alt">พิมพ์แบบธรรมดา: Choice(t) &gt;= 1 -&gt; collapse = False</p>
+<p>ณ เวลา t ถ้ายังมีทางเลือกอย่างน้อย 1 ทาง ระบบจะยังไม่ถือว่า "พัง" — ชีวิตคนก็เหมือนกัน
+จะพังจริงก็ต่อเมื่อ Choice(t) = 0 คือไม่เหลือทางไปเลย</p>
+<p>ใน KING DIADEM สมการนี้เป็นกฎในโค้ด: คำตอบเรื่องด่วนทุกคำตอบต้องเหลือทางไปต่ออย่างน้อยหนึ่งทางเสมอ
+และคำตอบที่มีแต่ "ห้าม อย่า ไม่ควร" จะถูกเติมทางที่ทำได้จริงก่อนส่งถึงผู้ใช้</p>
+<p class="dim">English: At time t, as long as at least one option remains, the system has not collapsed.
+Collapse only happens when Choice(t) = 0. In KING DIADEM this is enforced in code: no urgent answer may leave someone without a next step.</p>
+
+<h2>2. Risk = Drift × Exposure × Time / Remaining Choice</h2>
+<div class="eq">Risk = Drift × Exposure × Time / Remaining Choice</div>
+<p class="alt">ย่อ: R = (D × E × T) / C · พิมพ์แบบธรรมดา: Risk = Drift * Exposure * Time / Remaining Choice</p>
+<table>
+<tr><td><b>Drift (D)</b></td><td>สถานการณ์เบี่ยงออกจากปกติไปแค่ไหน</td></tr>
+<tr><td><b>Exposure (E)</b></td><td>ถ้าพลาด เสียหายได้มากแค่ไหน (เงิน สุขภาพ ความปลอดภัย)</td></tr>
+<tr><td><b>Time (T)</b></td><td>เป็นแบบนี้มานานหรือเร่งด่วนแค่ไหน</td></tr>
+<tr><td><b>Remaining Choice (C)</b></td><td>ทางเลือกที่ยังเหลือ — ยิ่งเหลือน้อย ความเสี่ยงยิ่งพุ่ง</td></tr>
+</table>
+<p>สมการนี้บอกว่าวิธีลดความเสี่ยงที่ได้ผลที่สุดอย่างหนึ่ง ไม่ใช่การห้าม แต่คือการ <b>เพิ่มทางเลือก</b> ให้คนที่กำลังลำบาก</p>
+<p class="dim">English: Risk grows with drift, exposure and time, and shrinks with every option you still have.
+One of the most effective ways to lower risk is not to forbid, but to add a choice.</p>
+
+<h2>ลองดูสมการทำงานจริง</h2>
+<p><a href="/">คุยกับ LYLA</a> · <a href="/saturn">Black Saturn — วงแหวนยุบเมื่อทางเลือกหมด</a> · <a href="/learn">เรียนรู้เพิ่ม</a></p>
+</main>
+</body>
+</html>
