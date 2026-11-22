@@ -261,6 +261,7 @@ Admin access (optional):
 ```bash
 export ADMIN_EMAILS=you@gmail.com,backup@gmail.com   # full admin: business numbers, reports, /admin/security
 export LABELER_EMAILS=helper@gmail.com               # can only label real messages at /admin/label
+export REVIEWER_EMAILS=doctor@gmail.com              # doctor/pharmacist: reviews every medical text at /admin/medical
 ```
 
 An email in either list gets access only after signing in **with Google** once (proving the email is yours) —

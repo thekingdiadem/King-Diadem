@@ -67,7 +67,10 @@ nav.legal a{margin-right:16px}
 <li><b>ตัวเลขสถิติ:</b> นับเป็นจำนวนต่อวัน (คนเข้าเว็บ คนที่คุย คนที่จ่าย) และตัวเลขภาพรวมของคำถาม (ระดับความเสี่ยง เส้นทาง) —
 <b>ไม่มีอีเมล ข้อความ หรือ IP</b> ในส่วนนี้ ตัวนับไม่ซ้ำใช้ค่าแฮชที่เปลี่ยนทุกวัน จึงโยงกลับไปหาตัวคุณไม่ได้</li>
 <li><b>ปุ่ม “ช่วยได้ / ยังไม่ช่วย” ใต้คำตอบ:</b> เก็บแค่ว่าช่วยหรือไม่ช่วย เส้นทาง และระดับความเสี่ยง ไม่เก็บข้อความ</li>
-<li><b>ปุ่มธง “รายงานคำตอบนี้”:</b> เมื่อคุณกดส่งรายงาน เราเก็บคำตอบของ LYLA ข้อนั้น เหตุผลที่คุณเลือก และข้อความที่คุณเขียนเพิ่มเอง เพื่อให้คนดูแลอ่านและแก้ไข ไม่เก็บข้อความที่คุณพิมพ์ถาม ไม่ผูกกับชื่อ อีเมล หรือ IP</li>
+<li><b>ปุ่มธง “รายงานคำตอบนี้”:</b> เมื่อคุณกดส่งรายงาน เราเก็บคำตอบของ LYLA ข้อนั้น เหตุผลที่คุณเลือก และข้อความที่คุณเขียนเพิ่มเอง เพื่อให้คนดูแลอ่านและแก้ไข ไม่ผูกกับชื่อ อีเมล หรือ IP ·
+ข้อความที่คุณพิมพ์ถาม เราเก็บ<b>เฉพาะเมื่อคุณติ๊ก “แนบประโยคที่ฉันพิมพ์ไปด้วย” เอง</b> (ค่าเริ่มต้นไม่ติ๊ก) — ลบอีเมลและเบอร์โทรออกก่อนเก็บ
+และลบทิ้งเองเมื่อครบ 90 วัน คนดูแลใช้ประโยคนี้สร้างชุดทดสอบให้ระบบจับเรื่องอันตรายได้ดีขึ้น</li>
+<li><b>บันทึกการทำงานของผู้ดูแล:</b> ใครในทีมดูแลเปิดดูรายงานหรือติดป้ายข้อความเมื่อไร (ไม่มีข้อความของคุณในบันทึกนี้) — ลบเองเมื่อครบ 1 ปี</li>
 </ul>
 
 <h2>3. เราใช้ข้อมูลทำอะไร</h2>
@@ -84,7 +87,7 @@ nav.legal a{margin-right:16px}
 
 <h2>4. ผู้ให้บริการภายนอกที่ได้รับข้อมูล</h2>
 <ul>
-<li><b>Google (Gemini API):</b> ข้อความที่คุณพิมพ์ถูกส่งไปให้ AI ช่วยร่างคำตอบ · ถ้า AI ใช้ไม่ได้ ระบบจะตอบจากสมการของเราเองโดยไม่ส่งออกไป</li>
+<li><b>Google (Gemini API):</b> ข้อความที่คุณพิมพ์ถูกส่งไปให้ AI ช่วยร่างคำตอบ (ก่อนส่ง ระบบซ่อนอีเมล รหัสผ่าน รหัส OTP และเลขยาวอย่างเลขบัญชี บัตร เบอร์โทร ให้เหลือ 4 ตัวท้าย) · ถ้า AI ใช้ไม่ได้ ระบบจะตอบจากสมการของเราเองโดยไม่ส่งออกไป</li>
 <li><b>Google (เข้าสู่ระบบ):</b> เมื่อคุณเลือกเข้าสู่ระบบด้วย Google</li>
 <li><b>Stripe:</b> รับชำระเงิน — ข้อมูลบัตรอยู่กับ Stripe เท่านั้น</li>
 <li><b>Render:</b> เครื่องเซิร์ฟเวอร์ที่รันเว็บ · <b>Turso:</b> ฐานข้อมูลบนคลาวด์ที่เก็บข้อมูลบัญชีและประวัติ</li>
@@ -104,9 +107,12 @@ nav.legal a{margin-right:16px}
 <li>สำเนาสำรองของฐานข้อมูล: หมุนเวียนเขียนทับตามรอบ ข้อมูลที่ลบแล้วจะหายจากสำเนาเมื่อครบรอบ</li>
 </ul>
 
-<h2>7. สิทธิ์ของคุณ</h2>
+<h2 id="delete">7. สิทธิ์ของคุณ</h2>
 <p>คุณมีสิทธิ์ขอเข้าถึง ขอสำเนา ขอแก้ไข ขอลบ ขอระงับ หรือคัดค้านการใช้ข้อมูล ขอโอนย้ายข้อมูล และถอนความยินยอม
-หลายอย่างทำได้เองในเว็บ (ส่งออกประวัติ ปิด/ลบความจำ) ส่วนเรื่องอื่น เช่น ขอลบบัญชี ส่งอีเมลจากอีเมลที่ใช้สมัครมาที่
+หลายอย่างทำได้เองในเว็บและในแอป (ส่งออกประวัติ ปิด/ลบความจำ)
+<b>ลบบัญชีได้เองทันที</b>: เข้าสู่ระบบ → แท็บ “เครื่องมือ” → การ์ด “ลบบัญชี” → พิมพ์อีเมลของตัวเองยืนยัน
+(ลบบัญชี ประวัติแชท ความจำ เครดิต และการยืนยันสองชั้นทั้งหมด และยกเลิกแพ็กเกจรายรอบบิลให้ก่อน)
+ถ้าเข้าบัญชีไม่ได้หรือต้องการเรื่องอื่น ส่งอีเมลจากอีเมลที่ใช้สมัครมาที่
 <a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a> เราจะตอบภายใน 30 วัน
 หากเห็นว่าเราไม่ปฏิบัติตามกฎหมาย คุณร้องเรียนต่อสำนักงานคณะกรรมการคุ้มครองข้อมูลส่วนบุคคล (สคส.) ได้</p>
 
@@ -130,8 +136,8 @@ nav.legal a{margin-right:16px}
 <p>KING DIADEM is operated by {{OPERATOR_EN}} (data controller under Thailand's PDPA). Contact: <a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a>.</p>
 <ul>
 <li>We collect your account (email, name, hashed password or Google sign-in), chat history and memory <b>only when you are signed in</b>, any state you enter yourself, credits and payment references (no card numbers — Stripe handles payments), 2FA data (encrypted/hashed), and IP addresses for guest daily limits and rate limiting.</li>
-<li>Statistics are daily counts and anonymous question-level numbers (risk level, route) with no email, message text or IP.</li>
-<li>Your messages are sent to Google's Gemini API to draft answers; if the AI is unavailable we answer from our own rules without sending them out. Other processors: Google sign-in, Stripe, Render (hosting), Turso (database), Google Fonts. Data may be stored outside Thailand.</li>
+<li>Statistics are daily counts and anonymous question-level numbers (risk level, route) with no email, message text or IP. If you report an answer, we keep that answer and your reason; the sentence you typed is kept only if you tick “attach my message” (emails and phone numbers removed, deleted after 90 days) to build safety tests.</li>
+<li>Your messages are sent to Google's Gemini API to draft answers (emails, passwords, OTPs and long numbers such as account, card or phone numbers are masked to the last 4 digits first); if the AI is unavailable we answer from our own rules without sending them out. Other processors: Google sign-in, Stripe, Render (hosting), Turso (database), Google Fonts. Data may be stored outside Thailand.</li>
 <li>We never sell your data or use it for advertising. Only essential cookies are used.</li>
 <li>You can export your history and turn off or clear memory in the app, and request access, correction, deletion or portability by email — we reply within 30 days. You may also complain to Thailand's PDPC.</li>
 </ul>

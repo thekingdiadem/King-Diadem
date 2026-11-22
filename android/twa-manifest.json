@@ -1,0 +1,49 @@
+{
+  "packageId": "com.kingdiadem.app",
+  "host": "king-diadem.onrender.com",
+  "name": "KING DIADEM",
+  "launcherName": "KING DIADEM",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#04050D",
+  "themeColorDark": "#04050D",
+  "navigationColor": "#04050D",
+  "navigationColorDark": "#04050D",
+  "navigationDividerColor": "#04050D",
+  "navigationDividerColorDark": "#04050D",
+  "backgroundColor": "#04050D",
+  "enableNotifications": false,
+  "startUrl": "/?src=twa",
+  "iconUrl": "https://king-diadem.onrender.com/static/icons/icon-512.png",
+  "maskableIconUrl": "https://king-diadem.onrender.com/static/icons/maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "kingdiadem"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "แชทใหม่",
+      "shortName": "แชท",
+      "url": "/?new=1",
+      "chosenIconUrl": "https://king-diadem.onrender.com/static/icons/icon-192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://king-diadem.onrender.com/static/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://king-diadem.onrender.com/",
+  "minSdkVersion": 21,
+  "orientationLock": "portrait",
+  "retainedBundles": [],
+  "appVersion": "1.0.0"
+}

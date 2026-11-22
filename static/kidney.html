@@ -28,6 +28,7 @@ button{background:var(--gold);color:#111;border:0;border-radius:8px;padding:12px
 <main>
 <h1>แผนดูแลไต เบาหวาน ความดัน ไขมัน</h1>
 <p class="sub">กรอกเท่าที่มี ช่องไหนไม่รู้เว้นไว้ ระบบจะถามแทนการเดา · ไม่ใช่การวินิจฉัย</p>
+<p class="sub" id="review">กำลังตรวจสถานะ…</p>
 <form id="f">
 <fieldset><legend>ตัวคุณ</legend><div class="grid">
 <label>อายุ (ปี)<input name="age" type="number" min="18" max="120"></label>
@@ -63,6 +64,13 @@ button{background:var(--gold);color:#111;border:0;border-radius:8px;padding:12px
 <div id="out"></div>
 </main>
 <script>
+/* บอกตามจริงว่าแพทย์ตรวจข้อความในแผนนี้แล้วกี่ข้อ (core/medical_review) — ยังไม่ได้ตรวจก็บอกว่ายังไม่ได้ตรวจ */
+fetch("/api/medical-review").then(function (r) { return r.json(); }).then(function (j) {
+  var s = (j.by_source || {}).chronic || { total: 0, approved: 0 }, el = document.getElementById("review");
+  el.textContent = s.approved
+    ? "แพทย์ตรวจข้อความในแผนนี้แล้ว " + s.approved + " จาก " + s.total + " ข้อ"
+    : "ข้อความในแผนนี้ยังไม่ผ่านการตรวจจากแพทย์ — อ้างอิงแนวทาง KDIGO และ ADA ใช้เพื่อเตรียมคุยกับหมอเท่านั้น";
+}).catch(function () { document.getElementById("review").hidden = true; });
 document.getElementById("f").addEventListener("submit", async function (e) {
   e.preventDefault();
   var fd = new FormData(this), prof = {}, lang = fd.get("lang") || "th";

@@ -1025,6 +1025,26 @@ def _msg(role: str, text: str):
     return SimpleNamespace(role=role, parts=[SimpleNamespace(text=text)])
 
 
+# ข้อมูลลับที่ผู้ใช้พิมพ์มา ไม่ต้องส่งให้ AI ภายนอก (ข่าว พ.ย. 2569: ผู้ให้บริการ AI บางรายเก็บ/รั่ว prompt)
+# AI ไม่ต้องรู้เลขเต็มก็ช่วยได้ — เหลือ 4 ตัวท้ายพอให้พูดถึง "บัญชีที่ลงท้าย 1234" ตอนช่วยเรื่องโดนหลอก
+# เบอร์ฉุกเฉิน (1669 · 191 · 1323 ฯลฯ) และตัวเลขเงิน/อายุ/ค่าเลือดสั้นๆ ไม่ถูกแตะ
+_SECRET_RX = [
+    (re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+"), lambda m: "[อีเมล]"),
+    (re.compile(r"(?i)(รหัสผ่าน|พาสเวิร์ด|password|passcode|pin|otp|รหัส\s*otp|รหัส\s*pin)(\s*(?:คือ|is|:|=)?\s*)(\S{3,})"),
+     lambda m: m.group(1) + m.group(2) + "[ซ่อนไว้]"),
+    (re.compile(r"(?<![\d.,])(\d[\d\s-]{8,}\d)(?![\d.,])"),
+     lambda m: (lambda d: f"[เลขยาว ••{d[-4:]}]" if len(d) >= 9 else m.group(0))(re.sub(r"\D", "", m.group(1)))),
+]
+
+
+def scrub_secrets(text: str) -> str:
+    if not isinstance(text, str) or not text:
+        return text
+    for rx, rep in _SECRET_RX:
+        text = rx.sub(rep, text)
+    return text
+
+
 def _build_contents(history: list, user_input: str, ctx_note: str = "") -> list:
     contents = []
     history = history if isinstance(history, list) else []
@@ -1032,9 +1052,10 @@ def _build_contents(history: list, user_input: str, ctx_note: str = "") -> list:
         if not isinstance(turn, dict) or turn.get("role") not in ("user", "assistant", "model"):
             continue
         role = "user" if turn.get("role") == "user" else "model"
-        text = str(turn.get("content", ""))[:2000].strip()   # รอบละไม่เกิน 2000 ตัวอักษร — กันประวัติยาวหลาย MB
+        text = scrub_secrets(str(turn.get("content", ""))[:2000].strip())   # รอบละไม่เกิน 2000 ตัวอักษร — กันประวัติยาวหลาย MB
         if text:
             contents.append(_msg(role, text))
+    user_input, ctx_note = scrub_secrets(user_input), scrub_secrets(ctx_note)
     final = f"{user_input}\n\n[บริบท: {ctx_note}]" if ctx_note else user_input
     contents.append(_msg("user", final))
     return contents

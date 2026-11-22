@@ -1530,3 +1530,11 @@ html.kd-lite *,html.kd-lite *::backdrop{-webkit-backdrop-filter:none!important;b
 html.kd-lite .glass{background:rgba(6,8,20,.9)}
 html.kd-lite .inrow{background:rgba(8,11,28,.95)}
 html.kd-lite #tabbar{background:rgba(5,7,18,.97)}
+/* แอป Android (TWA บน Google Play): ไม่แสดงการซื้อในแอป — Play บังคับใช้ Play Billing และห้ามพาไปจ่ายที่อื่น */
+[data-app-only]{display:none}
+html.in-app [data-buy]{display:none!important}
+html.in-app [data-app-only]{display:block}
+
+/* สถานะเบื้องหลังระหว่างรอ — ชื่อส่วนที่ทำงาน ตัวเล็ก จาง ไม่แย่งสายตาจากคำง่ายๆ ด้านบน */
+.live-sub{margin:4px 0 0;font-size:11px;letter-spacing:.02em;color:var(--ink-3, #8a8fa3);opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+

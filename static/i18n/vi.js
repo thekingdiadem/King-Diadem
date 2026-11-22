@@ -783,5 +783,14 @@
 "อ่านแบบทำนองสรภัญญะ (กาพย์ยานี ๑๑)":"Đọc theo nhịp ngâm Thái (Sarabhanya)",
 "อ่านแบบเรียบ":"Đọc bình thường",
 "ติดป้ายข้อความจริง":"Gắn nhãn tin nhắn thật",
-"ความปลอดภัยผู้ดูแล":"Bảo mật quản trị viên"
+"ความปลอดภัยผู้ดูแล":"Bảo mật quản trị viên",
+"แพทย์ตรวจข้อความ":"Bác sĩ duyệt nội dung",
+"ใช้ฟรีได้วันละ 20 ข้อความ — พรุ่งนี้คุยต่อได้อีกค่ะ ถ้ากำลังอันตราย โทร 1669 หรือ 1323 ได้ตลอด":"Miễn phí 20 tin nhắn mỗi ngày — ngày mai bạn có thể trò chuyện tiếp. Nếu đang gặp nguy hiểm, hãy gọi 1669 hoặc 1323 bất cứ lúc nào.",
+"รับเรื่องแล้ว":"Đã nhận",
+"ดูว่ามีอะไรด่วนไหม":"Xem có gì khẩn cấp không",
+"คิดตัวเลขให้":"Tính các con số",
+"อ่านคนในเรื่อง":"Đọc về những người trong chuyện",
+"ไล่ทางเลือกที่ยังเหลือ":"Xem các lựa chọn còn lại",
+"เรียบเรียงคำตอบ":"Sắp xếp câu trả lời",
+"เช็กความปลอดภัยก่อนส่ง":"Kiểm tra an toàn trước khi gửi"
 };

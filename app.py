@@ -680,8 +680,23 @@ def _can_label(email) -> bool:
     return (e in _ADMIN_EMAILS or e in _LABELER_EMAILS) and _owns_email(e)
 
 
+_REVIEWER_EMAILS = {e.strip().lower() for e in os.getenv("REVIEWER_EMAILS", "").split(",") if e.strip()}
+
+
+def _can_review(email) -> bool:
+    """แพทย์/เภสัชกรที่ตรวจข้อความทางการแพทย์ (REVIEWER_EMAILS) หรือผู้ดูแล — ต้องพิสูจน์อีเมลด้วย Google เหมือนกัน"""
+    if not email:
+        return False
+    e = str(email).lower()
+    return (e in _ADMIN_EMAILS or e in _REVIEWER_EMAILS) and _owns_email(e)
+
+
 def _admin_role(email) -> str | None:
-    return "admin" if _is_admin(email) else "labeler" if _can_label(email) else None
+    if _is_admin(email):
+        return "admin"
+    if _can_review(email):
+        return "reviewer"
+    return "labeler" if _can_label(email) else None
 
 def _mkey(*parts) -> str:
     import hashlib, hmac as _h
@@ -1245,6 +1260,65 @@ async def admin_label_export(request: Request):
                              headers={"Content-Disposition": 'attachment; filename="real-user-blind.tsv"'})
 
 
+# ── โต๊ะแพทย์ตรวจ (/admin/medical): ข้อความทางการแพทย์ทุกข้อ → แพทย์กด ถูกต้อง/ต้องแก้ (core/medical_review) ──
+# แก้ข้อความทีหลัง = สถานะกลับเป็น "รอตรวจใหม่" เอง · ตัวเลขรวมเปิดสาธารณะ (/api/medical-review) ไม่มีชื่อแพทย์/หมายเหตุ
+@app.get("/admin/medical")
+async def admin_medical_page(request: Request):
+    if not _can_review(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return FileResponse("static/admin_medical.html")
+
+
+@app.get("/api/admin/medical")
+async def admin_medical_list(request: Request):
+    if not _can_review(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import medical_review, admin_access
+    rows = await run_in_threadpool(medical_review.listing, admin_access.mask)
+    return {"items": rows, "summary": await run_in_threadpool(medical_review.summary), "sources": medical_review.SOURCES}
+
+
+@app.post("/api/admin/medical")
+async def admin_medical_review(request: Request, data: dict):
+    email = _session_email(request)
+    if not _can_review(email):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import medical_review, admin_access
+    data = data if isinstance(data, dict) else {}
+    r = await run_in_threadpool(medical_review.review, str(data.get("id") or ""), data.get("verdict"), data.get("note"), email)
+    if r.get("ok"):
+        await run_in_threadpool(admin_access.record, email, _admin_role(email), "medical_review", f"{data.get('id')} → {data.get('verdict')}")
+    return r if r.get("ok") else JSONResponse(r, status_code=400)
+
+
+@app.get("/api/admin/medical-export")
+async def admin_medical_export(request: Request):
+    email = _session_email(request)
+    if not _can_review(email):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import medical_review, admin_access
+    from fastapi.responses import PlainTextResponse
+    await run_in_threadpool(admin_access.record, email, _admin_role(email), "medical_export", "")
+    body = await run_in_threadpool(medical_review.export_csv, admin_access.mask)
+    return PlainTextResponse(body, media_type="text/csv; charset=utf-8",
+                             headers={"Content-Disposition": 'attachment; filename="medical-review.csv"'})
+
+
+_MR_CACHE = {"t": 0.0, "v": {}}
+
+
+@app.get("/api/medical-review")
+async def medical_review_summary(request: Request):
+    """ตัวเลขรวมว่าแพทย์ตรวจข้อความแล้วกี่ข้อ — หน้า /kidney โชว์ให้ผู้ใช้เห็นตามจริง"""
+    # เปิดสาธารณะ — จำผลไว้ 60 วินาที (คำนวณครั้งละ ~70 ms อ่านฐานข้อมูลทั้งตาราง · กันคนยิงถี่จนเซิร์ฟเวอร์ช้า)
+    now = time.time()
+    if now - _MR_CACHE["t"] > 60:
+        from core import medical_review
+        s = await run_in_threadpool(medical_review.summary)
+        _MR_CACHE.update(t=now, v={"total": s["total"], "approved": s["approved"], "by_source": s["by_source"]})
+    return _MR_CACHE["v"]
+
+
 # ── ความปลอดภัยของบัญชีผู้ดูแล (/admin/security) — ใครมีสิทธิ์ · เปิด 2FA หรือยัง · ใครทำอะไรล่าสุด ──
 @app.get("/admin/security")
 async def admin_security_page(request: Request):
@@ -1263,7 +1337,7 @@ async def admin_security(request: Request):
     def _exists_verified(e):
         return bool(user_exists and user_exists(e)) and _owns_email(e)
 
-    st = await run_in_threadpool(admin_access.security_status, _twofa_on, _exists_verified, _ADMIN_EMAILS, _LABELER_EMAILS)
+    st = await run_in_threadpool(admin_access.security_status, _twofa_on, _exists_verified, _ADMIN_EMAILS, _LABELER_EMAILS, _REVIEWER_EMAILS)
     st["actions"] = await run_in_threadpool(admin_access.recent, 50)
     await run_in_threadpool(admin_access.record, email, "admin", "view_security", "")
     return st
@@ -2302,6 +2376,15 @@ _HAZARD_ASK = re.compile(r"ภัยพิบัติ\S{0,12}(?:ตอนนี
                          r"|\b(?:current|latest|today'?s|active)\b.{0,20}\b(?:disasters?|typhoons?|cyclones?|eruptions?|wildfires?)\b", re.I)
 
 
+from core import progress as _progress
+
+
+@app.get("/api/progress/{rid}")
+async def run_progress(rid: str):
+    """ขั้นที่ระบบทำไปแล้วของคำขอนี้ — มีแค่ชื่อขั้น ไม่มีข้อความของผู้ใช้ · rid สุ่ม 8–32 ตัว เดาของคนอื่นไม่ได้"""
+    return _progress.read(rid)
+
+
 @app.post("/run")
 @app.post("/decision")
 def run_kernel(request: Request, data: dict):
@@ -2356,6 +2439,7 @@ def _run_kernel(request: Request, data: dict):
     reset_fallback_flag()
     # นับโควตาไม่ได้ (ฐานข้อมูลล่ม) → ยังตอบได้ แต่ตอบจากสมการเท่านั้น ไม่เปิดทางให้ใช้ AI ที่มีต้นทุนฟรีไม่จำกัด
     request_no_ai(ticket.get("mode") == "unmetered")
+    _progress.begin(data.get("rid"))          # สถานะเบื้องหลังจริงระหว่างรอ (core/progress) — ไม่เก็บข้อความ
     try:
         result = _run_kernel_impl(data, user_input, email)
     except Exception:
@@ -2363,6 +2447,7 @@ def _run_kernel(request: Request, data: dict):
         raise
     finally:
         request_no_ai(False)
+        _progress.end()
     if not _answered(result):
         _refund(ticket)
     else:
@@ -2436,6 +2521,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     k_assess, offer_ctx = {}, ""
     if kernel_assess:
         try:
+            _progress.mark("risk")
             k_assess = kernel_assess(user_input, human_state if _has_user_state(data.get("context")) else None) or {}
         except Exception as e:
             print(f"⚠ kernel_assess: {type(e).__name__}")
@@ -2866,6 +2952,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     calc_ctx = ""
     if bridge_analyze and not offer_flags:
         try:
+            _progress.mark("numbers")
             calc_ctx = bridge_analyze(user_input).get("llm_ctx", "")
         except Exception as e:
             print(f"⚠ engine_bridge: {type(e).__name__}")
@@ -2907,6 +2994,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # อ่านคน (core/person_reading.py): บอก AI ว่าข้อความนี้ต้องการคำตอบแบบไหน — ไม่ใช่ไทป์ของผู้ใช้ · ไม่ใช้กับเรื่องด่วน/วิกฤต
     if not g_urgent and route not in ("crisis", "collapse", "survival"):
         try:
+            from core.story_check import check as _st_check, llm_hint as _st_hint
+            _sth = _st_hint(_st_check(user_input))
+            if _sth:
+                effective += "\n\n" + _sth
+        except Exception as e:
+            print(f"⚠ story_check: {type(e).__name__}")
+        try:
+            _progress.mark("people")
             from core.person_reading import read as _p_read, llm_hint as _p_hint
             _ph = _p_hint(_p_read(user_input))
             if _ph:
@@ -2978,13 +3073,16 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     if fast_path:
         result = {"route": route, "fast_path": True}
     elif full_run_decision:
+        _progress.mark("options")
         result = full_run_decision(payload)
     elif engine:
+        _progress.mark("options")
         result = engine.run(payload)
     else:
         reply = ""
         if llm:
             try:
+                _progress.mark("ai")
                 reply = llm.generate_with_governance(
                     prompt=effective,
                     additional_context=(
@@ -3062,6 +3160,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         try:
             from core.kernel_voice import ensure_safety_line
             if isinstance(result.get("ai_response"), str):
+                _progress.mark("safety")
                 result["ai_response"] = ensure_safety_line(user_input, result["ai_response"], k_assess or None)
         except Exception as e:
             print(f"⚠ safety line: {type(e).__name__}")
@@ -3451,6 +3550,9 @@ def _grants_premium(price_ids) -> bool:
 
 @app.post("/create-checkout-session")
 async def create_checkout(request: Request, data: dict):
+    # สร้างหน้าจ่ายเงินได้ไม่จำกัดเคยเปลืองโควตา API ของ Stripe — จำกัดเหมือนเส้นทางอื่น
+    if not _rate_check("pay|" + _client_ip(request)):
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่นะคะ"}, status_code=429)
     # ต้องล็อกอิน — เดิมรับอีเมลที่พิมพ์มาเอง เครดิต/Premium จึงไปลงอีเมลใครก็ได้ (หรืออีเมลที่ไม่มีบัญชี)
     email = _session_email(request)
     if not email:
@@ -3733,6 +3835,9 @@ async def wallet_balance(request: Request):
 @app.post("/wallet/topup")
 async def wallet_topup(request: Request, data: dict):
     """สร้าง Stripe Checkout สำหรับเติมเครดิต — เครดิตเข้าบัญชีเมื่อ webhook ยืนยันการจ่ายเงินเท่านั้น"""
+    # สร้างหน้าจ่ายเงินได้ไม่จำกัดเคยเปลืองโควตา API ของ Stripe — จำกัดเหมือนเส้นทางอื่น
+    if not _rate_check("pay|" + _client_ip(request)):
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่นะคะ"}, status_code=429)
     email = _session_email(request)
     if not email:
         return JSONResponse({"error": "เข้าสู่ระบบก่อนแล้วค่อยเติมเครดิตนะคะ", "code": "login_required"}, status_code=401)
@@ -3768,6 +3873,9 @@ async def wallet_topup(request: Request, data: dict):
 @app.post("/billing-portal")
 async def billing_portal(request: Request):
     """หน้าจัดการสมาชิกของ Stripe — ยกเลิก เปลี่ยนบัตร ดูใบเสร็จ (เดิมไม่มีทางยกเลิกเอง)"""
+    # สร้างหน้าจ่ายเงินได้ไม่จำกัดเคยเปลืองโควตา API ของ Stripe — จำกัดเหมือนเส้นทางอื่น
+    if not _rate_check("pay|" + _client_ip(request)):
+        return JSONResponse({"error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่นะคะ"}, status_code=429)
     email = _session_email(request)
     if not email:
         return JSONResponse({"error": "เข้าสู่ระบบก่อนนะคะ"}, status_code=401)
