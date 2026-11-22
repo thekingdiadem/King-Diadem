@@ -1158,11 +1158,40 @@ WORLD_URGENT["medical"] += r"|hindi\s+(?:na\s+)?humihinga"
 WORLD_URGENT["crisis"] += "|" + "|".join(p.pattern for p in SELF_HARM_NOTE + SELF_HARM_ACT)
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
+# พิมพ์ไม่มีวรรณยุกต์/เครื่องหมาย (คีย์บอร์ดมือถือไม่มีภาษานั้น) — "me toi khong tho duoc" · "kocam beni dovuyor"
+# เคยได้ Risk 0 ทั้งที่แม่หายใจไม่ได้/โดนสามีทำร้าย · พับเครื่องหมายเฉพาะอักษรละติน ทั้งในรูปแบบและในข้อความ
+# อักษรไทย พม่า เขมร ฮินดี ฯลฯ ไม่แตะ (สระ/วรรณยุกต์เป็นส่วนของคำ ไม่มีใครพิมพ์ตัดทิ้ง)
+import unicodedata as _ud
+_FOLD_MAP = str.maketrans({"đ": "d", "Đ": "D", "ı": "i", "İ": "I", "ł": "l", "Ł": "L", "ø": "o", "Ø": "O"})
+
+
+def fold_latin(s: str) -> str:
+    out, base_latin = [], False
+    for ch in _ud.normalize("NFD", str(s or "").translate(_FOLD_MAP)):
+        if _ud.category(ch) == "Mn":
+            if base_latin:
+                continue
+        else:
+            base_latin = ch < "\u0250"
+        out.append(ch)
+    return _ud.normalize("NFC", "".join(out))
+
+
+_WORLD_RX_FOLD = {}
+for _k, _v in WORLD_URGENT.items():
+    try:
+        _WORLD_RX_FOLD[_k] = re.compile(fold_latin(_v), re.I)
+    except re.error:                       # พับแล้ว regex เพี้ยน (ไม่ควรเกิด) — ข้ามชนิดนั้น ไม่ล่มทั้งระบบ
+        pass
+
 
 def world_urgent(text) -> list:
     """เรื่องด่วนภาษาอื่นนอกไทย/อังกฤษ → ชนิดที่เจอ (crisis medical violence help)"""
     t = str(text or "")
     hits = [k for k, rx in _WORLD_RX.items() if rx.search(t)]
+    ft = fold_latin(t)
+    if ft != t or t.isascii():
+        hits += [k for k, rx in _WORLD_RX_FOLD.items() if k not in hits and rx.search(ft)]
     # ซ้อม/เกมจำลอง/ข่าว/ไกลตัว ของภัยพิบัติ ไม่ใช่เหตุตอนนี้ (ชุดปิดตา O) — เฉพาะเมื่อพูดถึงภัยพิบัติจริงๆ
     if "danger" in hits and _DISASTER_CALM.search(t) and _DISASTER_WORD.search(t):
         hits = [k for k in hits if k != "danger"]
