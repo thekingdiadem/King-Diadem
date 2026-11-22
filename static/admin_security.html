@@ -54,12 +54,12 @@ a{color:var(--gold)}
 
 <h2>การกระทำล่าสุด</h2>
 <table><tbody id="actions"></tbody></table>
-<p class="sub"><a href="/admin/label">ไปหน้าติดป้ายข้อความจริง</a></p>
+<p class="sub"><a href="/admin/label">ไปหน้าติดป้ายข้อความจริง</a> · <a href="/admin/medical">ไปหน้าแพทย์ตรวจข้อความ</a></p>
 </main>
 <script>
 (function(){
-  var ACT = { label: 'ติดป้าย', export: 'ส่งออกชุดทดสอบ', view_reports: 'ดูรายงาน', view_security: 'เปิดหน้านี้' };
-  var ROLE = { admin: 'ผู้ดูแล', labeler: 'ติดป้ายอย่างเดียว' };
+  var ACT = { label: 'ติดป้าย', export: 'ส่งออกชุดทดสอบ', view_reports: 'ดูรายงาน', view_security: 'เปิดหน้านี้', medical_review: 'ตรวจข้อความแพทย์', medical_export: 'ส่งออกผลตรวจแพทย์' };
+  var ROLE = { admin: 'ผู้ดูแล', reviewer: 'แพทย์ผู้ตรวจ', labeler: 'ติดป้ายอย่างเดียว' };
   function el(tag, cls, text){ var e = document.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
   fetch('/api/admin/security', { credentials: 'same-origin' }).then(function(r){
     if(!r.ok) throw new Error(r.status === 404 ? 'หน้านี้สำหรับผู้ดูแลเท่านั้น (ต้องอยู่ใน ADMIN_EMAILS และเคยเข้าด้วย Google)' : 'โหลดไม่สำเร็จ');

@@ -16,8 +16,8 @@ import re
 import threading
 import time
 
-ROLES = ("admin", "labeler")
-ACTIONS = ("label", "export", "view_reports", "view_security")
+ROLES = ("admin", "labeler", "reviewer")
+ACTIONS = ("label", "export", "view_reports", "view_security", "medical_review", "medical_export")
 KEEP_DAYS = 365
 _CTRL = re.compile(r"[\x00-\x1f\x7f]")
 _lock = threading.Lock()
@@ -123,14 +123,15 @@ def prune(now: float | None = None) -> int:
 
 # ── สถานะความปลอดภัย ──────────────────────────────────────────────────────────
 
-def security_status(twofa_on, user_exists, admin_emails=None, labeler_emails=None) -> dict:
+def security_status(twofa_on, user_exists, admin_emails=None, labeler_emails=None, reviewer_emails=None) -> dict:
     """ทุกอีเมลที่มีสิทธิ์: สมัครแล้วหรือยัง · เปิด 2FA หรือยัง · คำแนะนำที่ต้องทำ
     twofa_on / user_exists = ฟังก์ชันจากระบบหลัก (ส่งเข้ามา จะได้ทดสอบได้)
     user_exists ที่ส่งมาควรนับเฉพาะบัญชีที่พิสูจน์อีเมลแล้ว (เคยเข้าด้วย Google) — สิทธิ์ผู้ดูแลต้องใช้แบบนั้น"""
     admins = sorted(_emails("ADMIN_EMAILS") if admin_emails is None else admin_emails)
     labelers = sorted((_emails("LABELER_EMAILS") if labeler_emails is None else labeler_emails) - set(admins))
+    reviewers = sorted((_emails("REVIEWER_EMAILS") if reviewer_emails is None else reviewer_emails) - set(admins))
     people = []
-    for r, group in (("admin", admins), ("labeler", labelers)):
+    for r, group in (("admin", admins), ("reviewer", reviewers), ("labeler", labelers)):
         for e in group:
             try:
                 exists = bool(user_exists(e))
@@ -149,4 +150,4 @@ def security_status(twofa_on, user_exists, admin_emails=None, labeler_emails=Non
             people.append({"email": mask(e), "role": r, "verified": exists, "twofa": tfa, "todo": todo})
     weak = [p for p in people if p["todo"]]
     return {"people": people, "ok": not weak and bool(admins), "weak": len(weak),
-            "admins": len(admins), "labelers": len(labelers)}
+            "admins": len(admins), "labelers": len(labelers), "reviewers": len(reviewers)}

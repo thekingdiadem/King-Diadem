@@ -680,8 +680,23 @@ def _can_label(email) -> bool:
     return (e in _ADMIN_EMAILS or e in _LABELER_EMAILS) and _owns_email(e)
 
 
+_REVIEWER_EMAILS = {e.strip().lower() for e in os.getenv("REVIEWER_EMAILS", "").split(",") if e.strip()}
+
+
+def _can_review(email) -> bool:
+    """แพทย์/เภสัชกรที่ตรวจข้อความทางการแพทย์ (REVIEWER_EMAILS) หรือผู้ดูแล — ต้องพิสูจน์อีเมลด้วย Google เหมือนกัน"""
+    if not email:
+        return False
+    e = str(email).lower()
+    return (e in _ADMIN_EMAILS or e in _REVIEWER_EMAILS) and _owns_email(e)
+
+
 def _admin_role(email) -> str | None:
-    return "admin" if _is_admin(email) else "labeler" if _can_label(email) else None
+    if _is_admin(email):
+        return "admin"
+    if _can_review(email):
+        return "reviewer"
+    return "labeler" if _can_label(email) else None
 
 def _mkey(*parts) -> str:
     import hashlib, hmac as _h
@@ -1245,6 +1260,58 @@ async def admin_label_export(request: Request):
                              headers={"Content-Disposition": 'attachment; filename="real-user-blind.tsv"'})
 
 
+# ── โต๊ะแพทย์ตรวจ (/admin/medical): ข้อความทางการแพทย์ทุกข้อ → แพทย์กด ถูกต้อง/ต้องแก้ (core/medical_review) ──
+# แก้ข้อความทีหลัง = สถานะกลับเป็น "รอตรวจใหม่" เอง · ตัวเลขรวมเปิดสาธารณะ (/api/medical-review) ไม่มีชื่อแพทย์/หมายเหตุ
+@app.get("/admin/medical")
+async def admin_medical_page(request: Request):
+    if not _can_review(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return FileResponse("static/admin_medical.html")
+
+
+@app.get("/api/admin/medical")
+async def admin_medical_list(request: Request):
+    if not _can_review(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import medical_review, admin_access
+    rows = await run_in_threadpool(medical_review.listing, admin_access.mask)
+    return {"items": rows, "summary": await run_in_threadpool(medical_review.summary), "sources": medical_review.SOURCES}
+
+
+@app.post("/api/admin/medical")
+async def admin_medical_review(request: Request, data: dict):
+    email = _session_email(request)
+    if not _can_review(email):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import medical_review, admin_access
+    data = data if isinstance(data, dict) else {}
+    r = await run_in_threadpool(medical_review.review, str(data.get("id") or ""), data.get("verdict"), data.get("note"), email)
+    if r.get("ok"):
+        await run_in_threadpool(admin_access.record, email, _admin_role(email), "medical_review", f"{data.get('id')} → {data.get('verdict')}")
+    return r if r.get("ok") else JSONResponse(r, status_code=400)
+
+
+@app.get("/api/admin/medical-export")
+async def admin_medical_export(request: Request):
+    email = _session_email(request)
+    if not _can_review(email):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import medical_review, admin_access
+    from fastapi.responses import PlainTextResponse
+    await run_in_threadpool(admin_access.record, email, _admin_role(email), "medical_export", "")
+    body = await run_in_threadpool(medical_review.export_csv, admin_access.mask)
+    return PlainTextResponse(body, media_type="text/csv; charset=utf-8",
+                             headers={"Content-Disposition": 'attachment; filename="medical-review.csv"'})
+
+
+@app.get("/api/medical-review")
+async def medical_review_summary(request: Request):
+    """ตัวเลขรวมว่าแพทย์ตรวจข้อความแล้วกี่ข้อ — หน้า /kidney โชว์ให้ผู้ใช้เห็นตามจริง"""
+    from core import medical_review
+    s = await run_in_threadpool(medical_review.summary)
+    return {"total": s["total"], "approved": s["approved"], "by_source": s["by_source"]}
+
+
 # ── ความปลอดภัยของบัญชีผู้ดูแล (/admin/security) — ใครมีสิทธิ์ · เปิด 2FA หรือยัง · ใครทำอะไรล่าสุด ──
 @app.get("/admin/security")
 async def admin_security_page(request: Request):
@@ -1263,7 +1330,7 @@ async def admin_security(request: Request):
     def _exists_verified(e):
         return bool(user_exists and user_exists(e)) and _owns_email(e)
 
-    st = await run_in_threadpool(admin_access.security_status, _twofa_on, _exists_verified, _ADMIN_EMAILS, _LABELER_EMAILS)
+    st = await run_in_threadpool(admin_access.security_status, _twofa_on, _exists_verified, _ADMIN_EMAILS, _LABELER_EMAILS, _REVIEWER_EMAILS)
     st["actions"] = await run_in_threadpool(admin_access.recent, 50)
     await run_in_threadpool(admin_access.record, email, "admin", "view_security", "")
     return st

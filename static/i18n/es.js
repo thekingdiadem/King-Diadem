@@ -783,5 +783,6 @@
 "อ่านแบบทำนองสรภัญญะ (กาพย์ยานี ๑๑)":"Lectura con ritmo de canto tailandés (Sarabhanya)",
 "อ่านแบบเรียบ":"Lectura normal",
 "ติดป้ายข้อความจริง":"Etiquetar mensajes reales",
-"ความปลอดภัยผู้ดูแล":"Seguridad de administradores"
+"ความปลอดภัยผู้ดูแล":"Seguridad de administradores",
+"แพทย์ตรวจข้อความ":"Revisión médica"
 };
