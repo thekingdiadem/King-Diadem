@@ -2629,7 +2629,37 @@ _PAST_OR_NOT_NOW = re.compile(r"(?i)\bused\s+to\b|\byears?\s+ago\b|\bno\s+longer
 _RUN = re.compile(r"(.{1,40}?)\1{4,}", re.S)   # ท่อนซ้ำยาวได้ถึง 40 ตัวอักษร ("เรื่องเล่ายาวๆ " × 400)
 
 
+# ── จำผล assess ไว้ระหว่าง compose หนึ่งครั้ง ──────────────────────────────────────────────
+# compose ชั้นต่างๆ (มิจฉาชีพ · ความสมเหตุสมผล · ทางสุดท้าย ฯลฯ) เรียก assess ข้อความเดิมซ้ำ 4 ครั้ง ครั้งละ ~6 ms
+# ชุดกวาด CI (3 หมื่นข้อความ) จึงเกิน 30 นาทีจนถูกยกเลิก · จำเฉพาะในหนึ่ง compose แล้วทิ้ง
+# (ไม่จำข้ามข้อความ/ข้ามเทสต์ — เทสต์ที่ monkeypatch ค่าไม่เจอผลเก่าค้าง) · คืนสำเนาเสมอ ผู้เรียกแก้ผลได้ไม่กระทบกัน
+import copy as _copy
+import threading as _threading
+_MEMO = _threading.local()
+
+
+def _memo_start() -> bool:
+    if getattr(_MEMO, "d", None) is None:
+        _MEMO.d = {}
+        return True
+    return False
+
+
+def _memo_stop(owner: bool) -> None:
+    if owner:
+        _MEMO.d = None
+
+
 def assess(text: str, pattern: dict | None = None) -> dict:
+    d = getattr(_MEMO, "d", None)
+    if d is None or pattern is not None or not isinstance(text, str):
+        return _assess_uncached(text, pattern)
+    if text not in d:
+        d[text] = _assess_uncached(text, pattern)
+    return _copy.deepcopy(d[text])
+
+
+def _assess_uncached(text: str, pattern: dict | None = None) -> dict:
     """ประเมินข้อความ — ถ้าผลต่ำ และข้อความสั้นมีหลายท่อน ลองหมุนลำดับท่อนแล้วใช้ผลที่สูงสุด
 
     รอบสุ่ม 91: คนตกใจมักเล่าผลก่อนเหตุ ("เขาไม่ขยับ ฉันชนคนเดินถนน" · "現在很晕，陌生人在我的饮料里放了东西")
@@ -4309,6 +4339,14 @@ _compose_before_story = compose
 
 
 def compose(text: str, *args, **kw) -> str:  # noqa: F811
+    owner = _memo_start()
+    try:
+        return _compose_story(text, *args, **kw)
+    finally:
+        _memo_stop(owner)
+
+
+def _compose_story(text: str, *args, **kw) -> str:
     reply = _compose_before_story(text, *args, **kw)
     if not (isinstance(text, str) and text and isinstance(reply, str)):
         return reply
