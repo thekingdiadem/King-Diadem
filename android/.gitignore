@@ -1,0 +1,14 @@
+# กุญแจเซ็นแอป — ห้ามเข้า git เด็ดขาด (หายหรือรั่ว = อัปเดตแอปเดิมไม่ได้อีก หรือคนอื่นปลอมแอปได้)
+*.keystore
+*.jks
+# โค้ดที่ Bubblewrap สร้าง (สร้างใหม่ได้ทุกเมื่อจาก twa-manifest.json)
+app/
+build/
+.gradle/
+*.apk
+*.aab
+*.idsig
+gradle*
+local.properties
+settings.gradle
+build.gradle
