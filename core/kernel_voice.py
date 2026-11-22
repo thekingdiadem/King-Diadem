@@ -2685,6 +2685,9 @@ _SAVINGS_LOW = re.compile(r"เงิน(?:เก็บ)?(?:เหลือ|ก�
                           r"\b(?:savings? (?:are|is) (?:almost )?gone|down to my last|only \$?\d+ left)\b|"
                           r"me quedan? (?:solo )?\d+|sin ahorros|hết tiền|chỉ còn \d+|存款(?:快)?(?:没|用完)|钱快没|돈이 다 떨어|貯金が(?:ない|尽き)", re.I)
 
+_STORY_OPEN = re.compile(r"^\s*(?:(?:เพิ่ง|เมื่อคืน|เมื่อวาน)?(?:ดู|อ่าน|ฟัง)\S{0,4}(?:หนัง|ละคร|ซีรีส์|ซีรี่ส์|คลิป|ข่าว|นิยาย|การ์ตูน|สารคดี)|ข่าว|ในหนัง|ในเกม|ในละคร|"
+                         r"(?:just )?(?:watched|watching|read|reading)\b[^.\n]{0,15}\b(?:movie|film|show|series|news|clip|novel)|(?:in )?(?:the|a) (?:movie|film|news)\b)", re.I)
+_NOW_ME = re.compile(r"ตอนนี้|อยู่ในบ้าน(?:ผม|ฉัน|หนู|เรา)|บ้าน(?:ผม|ฉัน|หนู|เรา)|ช่วยด้วย|\b(?:right now|my house|my home|help me)\b", re.I)
 _MINOR_DROP = ("health_emergency", "panic", "overdose", "choking")
 _MINOR_MILD = re.compile(r"นิดหน่อย|นิดนึง|เล็กน้อย|\b(?:slight(?:ly)?|a (?:little|bit)|mild(?:ly)?)\b|\b(?:leve|un poco|ligero)\b|"
                          r"有点|有點|一点|一點|少し|ちょっと|조금|약간|\b(?:hơi|một chút|chút)\b", re.I)
@@ -3038,6 +3041,9 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     # ตกงานนาน + เงินเก็บใกล้หมด = ปัจจัยพื้นฐานกำลังจะขาด (เดิมได้แค่หัวข้อหางาน)
     if _JOBLESS.search(text) and _SAVINGS_LOW.search(text) and "basic" not in topics:
         topics.append("basic")
+    # "ดูหนังที่มีคนบุกเข้ามาในบ้าน" "ข่าวโจรบุกเข้ามาปล้นร้านทอง" = เรื่องที่ดู/อ่าน ไม่ใช่มีคนบุกบ้านผู้ใช้ตอนนี้
+    if "intruder" in topics and _STORY_OPEN.search(text) and not _NOW_ME.search(text):
+        topics = [t_ for t_ in topics if t_ != "intruder"]
     # "ดูสารคดีคนหลงป่ารอดชีวิต" = เล่าเรื่องที่ดู ไม่ใช่ผู้ใช้หลงป่าอยู่ตอนนี้ (ชุดปิดตา N)
     if "stranded" in topics and _DOCU_STORY.search(text):
         topics = [t for t in topics if t != "stranded"]
@@ -3155,6 +3161,9 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
         pass
     if dis and dis["data"]["active"]:
         text_risk = max(text_risk, dis["data"]["threat"])
+        # คนบุกรุก/ถูกตาม = อันตรายต่อตัวคนตอนนี้ เท่ากับเหตุฉุกเฉินอื่น (เดิมบางประโยคได้ 70 ต่ำกว่าเกณฑ์ด่วน)
+        if dis["data"].get("kind") == "intruder":
+            text_risk = max(text_risk, 85)
         # "เป็นลมแดด ตัวร้อนจัด" เคยได้ Risk 59 — โรคลมแดดในตัวคนเป็นเรื่องฉุกเฉิน ไม่ใช่แค่สภาพอากาศ
         if dis["data"].get("kind") == "heat" and re.search(r"ไม่มีเหงื่อ|ตัวร้อนจัด|ซึม|สับสน|ชัก|หมดสติ|เป็นลมแดด|โรคลมแดด|ฮีทสโตรก|ฮีตสโตรก", text):
             text_risk = max(text_risk, 75)

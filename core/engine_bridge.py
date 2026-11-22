@@ -508,7 +508,10 @@ _HAZARDS = (
                 r"\bbreaking into my\b|\bintruder (?:in|inside|at)\b|\bthere'?s an intruder\b|\bsomeone (?:is )?(?:in|inside) my (?:house|home|room|apartment)\b|"
                 r"\b(?:i'?m|i am) being followed\b|\bsomeone (?:is )?following me\b|\bstalking me\b|"
                 r"มีคน(?:แปลกหน้า)?\S{0,6}(?:อยู่|ยืน|ป้วนเปี้ยน|ด้อมๆมองๆ)\S{0,2}(?:หน้า|รอบ)(?:บ้าน|ห้อง|ประตู)|"
-                r"\bsomeone (?:is )?(?:outside|at|trying to open) my (?:door|window|house|room)\b", re.I),
+                r"\bsomeone (?:is )?(?:outside|at|trying to open) my (?:door|window|house|room)\b|"
+                # "someone is breaking in" (ไม่มีคำว่า my house) · "มีคนจะเข้ามาทำร้าย" — เคยได้ Risk 0 (เทสต์บิดข้อความ พ.ย. 2569)
+                r"\b(?:someone|somebody|a (?:man|guy|stranger)|people|they)(?:'s|'re| is| are)? (?:breaking|trying to break|forcing (?:their|his|her) way) in\b(?!\s+(?:a |the |my |his |her |new |to\b|on\b|shoes|boots|jeans))|"
+                r"(?<!ที่)(?<!ข่าว)(?:มีคน|คนแปลกหน้า|ใคร(?:ก็)?ไม่รู้|ผู้ชาย|โจร)\S{0,6}(?:จะ|กำลัง)?\S{0,2}(?:เข้ามา|บุกเข้ามา|บุกมา|ปีนเข้ามา|พังประตู)\S{0,4}(?:ทำร้าย|ฆ่า|ข่มขืน|ปล้น|ในบ้าน|ในห้อง)", re.I),
      ["อย่าออกไปเผชิญหน้า — ล็อกตัวเองในห้องที่ล็อกได้ เปิดไฟ แล้วโทร 191 บอกที่อยู่ให้ชัด (พูดไม่ได้ให้เปิดสายค้างไว้)",
       "ถ้ากำลังถูกตาม: อย่ากลับบ้าน (เขาจะรู้ที่อยู่) — ไปที่มีคนเยอะและมีไฟสว่าง เช่น ร้านสะดวกซื้อ ปั๊ม หรือสถานีตำรวจ",
       "โทรหาคนที่ไว้ใจแล้วเปิดสายคุยไว้ แชร์ตำแหน่งให้เขา และจำรูปร่าง เสื้อผ้า หรือทะเบียนรถไว้ถ้าทำได้ปลอดภัย"]),
