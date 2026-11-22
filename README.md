@@ -170,7 +170,7 @@ It also includes API routes for:
 ```text
 Backend:     FastAPI + Python
 AI:          Google Gemini + fallback deterministic logic
-Database:    SQLite (PostgreSQL planned)
+Database:    SQLite locally · Turso (SQLite in the cloud, over HTTPS) in production
 Auth:        Google OAuth + signed session cookies
 Payments:    Stripe checkout + webhook validation
 Frontend:    Vanilla JS + HTML/CSS + Canvas/PWA
@@ -299,7 +299,7 @@ Since the June 2026 roadmap, Phase 4 (crisis simulation) is complete, Phase 6 (w
 Phase 7 exceeded its language goal (7 languages instead of 3), and three areas that were not on the original roadmap were built:
 an emergency detector across 7 languages, chronic-care health tools, and voice.
 
-Remaining: real-user evaluation data, medical review of health text, PostgreSQL, app-store release,
+Remaining: real-user evaluation data (labeling tool ready at `/admin/label`), medical review of health text, app-store release,
 food-price / supply-chain feeds and location-based alerts. See [ROADMAP.md](ROADMAP.md).
 
 ---
