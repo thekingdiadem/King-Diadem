@@ -983,6 +983,15 @@ SITEMAP_PAGES = [("/", "1.0", "daily"), ("/safe", "0.9", "monthly"), ("/guide", 
 _ROBOTS_BLOCK = ["/api/", "/report/", "/auth/", "/login", "/me", "/dashboard", "/wallet", "/credits", "/static/login.html",
                  "/static/register.html", "/static/report.html"]
 
+def _middle_path_stats():
+    """ตัวตรวจทางสายกลางเติมคำตอบไปกี่ครั้ง แยกฝั่ง upside / constraint"""
+    try:
+        from core.middle_path import stats
+        return stats()
+    except Exception:
+        return None
+
+
 @app.get("/robots.txt")
 def robots_txt():
     lines = ["User-agent: *", "Allow: /"] + [f"Disallow: {p}" for p in _ROBOTS_BLOCK] + ["", f"Sitemap: {_public_url('/sitemap.xml')}", ""]
@@ -1152,7 +1161,7 @@ async def health():
         asyncio.get_running_loop().create_task(_refresh())
     # ภาระตอนนี้ (นับในหน่วยความจำ ถูกมาก) ต้องสดเสมอ — ส่วนที่แพง (ฐานข้อมูล ไฟล์สำรอง) มาจากผลที่เก็บไว้
     live = {"load": get_survival_stats() if get_survival_stats else None, "shield": _SHIELD.stats() if _SHIELD else None,
-            "reply_ms": _reply_ms(), "model_ms": _model_ms()}           # เวลาตอบ (นับในหน่วยความจำ) ต้องสดเหมือนกัน
+            "reply_ms": _reply_ms(), "model_ms": _model_ms(), "middle_path": _middle_path_stats()}           # เวลาตอบ (นับในหน่วยความจำ) ต้องสดเหมือนกัน
     return {**_HEALTH["v"], **live}
 
 
@@ -3227,6 +3236,13 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 result["ai_response"] = ensure_safety_line(user_input, result["ai_response"], k_assess or None)
         except Exception as e:
             print(f"⚠ safety line: {type(e).__name__}")
+        # ทางสายกลาง: เชียร์อย่างเดียวไม่บอกด้านเสีย หรือห้ามจนไม่เหลือทางไป → เติมด้านที่ขาด (core/middle_path.py)
+        try:
+            from core.middle_path import balance as _mp_balance
+            if isinstance(result.get("ai_response"), str):
+                result["ai_response"] = _mp_balance(user_input, result["ai_response"], k_assess or None)
+        except Exception as e:
+            print(f"⚠ middle path: {type(e).__name__}")
 
     # risk ที่แสดง = max(สถานะ, สัญญาณในข้อความ) — สมการเดียวกับ kernel_voice.assess
     try:
