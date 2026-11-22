@@ -1,6 +1,26 @@
 # KING DIADEM — Development Roadmap
 
-สร้างโดย นิธิกร บุญสร้าง | อัปเดต: มิถุนายน 2026
+สร้างโดย นิธิกร บุญสร้าง | อัปเดต: พฤศจิกายน 2026 (ฉบับเดิม: มิถุนายน 2026)
+
+> **สรุปสั้น:** Roadmap เดิมมี 7 เฟส — ตอนนั้นเสร็จ 4 เฟส (1, 2, 3, 5) อีก 1 เฟสกำลังทำ และอีก 2 เฟสยังเป็นแผน
+> ตอนนี้ เฟส 4 เสร็จแล้ว · เฟส 6 เสร็จเกินครึ่ง · เฟส 7 ทำได้บางส่วน (ภาษาเกินเป้า แต่ฐานข้อมูลยังไม่ย้าย)
+> และมีงานใหญ่ที่ **ไม่อยู่ใน roadmap เดิมเลย** อีก 3 หมวด (เฟส 8–10 ด้านล่าง)
+
+---
+
+## ตัวเลขปัจจุบัน (นับจากโค้ดจริง 22 พ.ย. 2026)
+
+| | |
+|---|---|
+| Pull request ที่รวมแล้ว | 290+ |
+| ไฟล์เทสต์ · ฟังก์ชันเทสต์ | 538 ไฟล์ · 2,667 ฟังก์ชัน (`python -m pytest` ต้องผ่านก่อนทุก commit) |
+| โมดูลใน `core/` | 78 ไฟล์ · Python รวม `app.py` ราว 34,000 บรรทัด |
+| หน้าเว็บ (JS/HTML/CSS) | ราว 18,000 บรรทัด · 7 ภาษา |
+| ตัวจับเหตุฉุกเฉินแบบประกอบชิ้นส่วน (frames) | 99 กฎ · คลังคำ 2,282 บรรทัด · 7 ภาษา |
+| ชุดข้อความปิดตา (blind set) | 3,767 ข้อ · พลาดเรื่องอันตราย **0/1,889** · เตือนเกิน **1/1,852** |
+
+ข้อควรรู้: ชุดปิดตาส่วนใหญ่ (3,709 ข้อ) เขียนโดยผู้ช่วยเขียนโค้ดคนเดียวกับที่เขียนตัวตรวจจับ มีเพียง 58 ข้อที่คนอื่นเขียน
+ตัวเลขจริงกับข้อความของผู้ใช้จริงจะต่ำกว่านี้ — งานที่สำคัญที่สุดต่อไปคือได้ข้อความจริงจากคนจริง
 
 ---
 
@@ -12,68 +32,87 @@
 - ANIMA-SAFE CORE (Non-Human Life Protection)
 - Core Law: Choice(t) ≥ 1 → collapse = False
 
----
-
 ## Phase 2 — System Build ✅ Complete
 
-- FastAPI backend · Gemini 2.0 Flash Lite integration
-- Multi-AI Council (LYLA · VEGA · TITAN · PATICCA · COSMOS)
-- Galaxy Visualization (Canvas solar system · v37)
-- Decision Engine · Risk Engine · Collapse Predictor
-- Paticcasamuppada Engine · Survivor Engine
-- Google OAuth · Stripe payment · SQLite database
-- Decision Report URL system (FATE™ audit trail)
+- FastAPI backend · Gemini integration (ปัจจุบันรองรับหลายรุ่น มีลำดับสำรองเมื่อรุ่นหนึ่งล่ม)
+- Multi-AI Council (LYLA · VEGA · TITAN · PATICCA · COSMOS · CIVIL)
+- Galaxy Visualization — ตอนนี้เป็น WebGL โลก 4K · ดาวจาก ESA/Gaia
+- Decision · Risk · Collapse · Paticcasamuppada · Survivor Engines
+- Google OAuth · Stripe · SQLite · Decision Report URL
 - Deployed: king-diadem.onrender.com
-
----
 
 ## Phase 3 — Intelligence Layer ✅ Complete
 
-- Route detection (GENERAL · RISK · SURVIVAL · COLLAPSE · CIVIL · VEGA)
-- Waterline assessment (entropy · stability · resource)
-- Exponential backoff · Key rotation · Model fallback chain
-- Cache collision fix · Cross-session memory architecture
-- LYLA/VEGA persona separation · Crisis override system
+- Route detection · Waterline · Key rotation · Model fallback
+- LYLA/VEGA persona separation · Crisis override
+- **เพิ่มหลังฉบับเดิม:** ตัดความคิดภายในของโมเดลที่หลุดถึงผู้ใช้ (`strip_reasoning`) · ระบบซ่อมตัวเอง (`core/self_heal.py`)
 
----
+## Phase 4 — Crisis Simulation ✅ Complete (ฉบับเดิม: กำลังทำ)
 
-## Phase 4 — Crisis Simulation 🔄 In Progress
-
-- Pandemic survival simulation ✅
-- Food shortage scenario ✅
-- Climate disruption framework — คลื่นความร้อน · ฝุ่น PM2.5 · ภัยแล้ง (tests/test_climate_hazards.py) ✅
-- Real-time disaster data integration — USGS (core/quakes.py) · GDACS (core/hazards.py) · ชินโดะ JMA (tests/test_quakes_jma.py) ✅
-- Black swan detection · Monte Carlo engine (หางซ้าย · ต่อเข้าภาพอนาคต · tests/test_black_swan.py) ✅
-
----
+- Pandemic · Food shortage ✅
+- Climate — คลื่นความร้อน · PM2.5 · ภัยแล้ง ✅
+- Real-time disaster data — USGS · GDACS · ชินโดะ JMA ✅
+- Black swan · Monte Carlo ✅
 
 ## Phase 5 — Memory & Personalization ✅ Complete
 
-- chat_memory table · auto_extract_memory (db.py v2.2) ✅
-- build_memory_context injection into LLM ✅
-- Cross-session memory test (tests/test_memory.py) ✅
-- User-specific waterline tracking (/api/waterline · tests/test_waterline.py) ✅
+- chat_memory · build_memory_context · cross-session memory · waterline รายคน ✅
+
+## Phase 6 — World Model Integration 🟡 ส่วนใหญ่เสร็จ (ฉบับเดิม: แผน)
+
+- แผ่นดินไหว / สึนามิ (USGS · JMA) ✅
+- สภาพอากาศวิกฤต ✅
+- แผนที่ภัยบนหน้าแรก กดแล้วถาม LYLA ว่า "ฉันอยู่แถวนี้ ต้องทำอะไรก่อน" ✅
+- ราคาอาหาร / supply chain ⬜ ยังไม่ได้ทำ
+- เตือนก่อนผู้ใช้เข้าพื้นที่เสี่ยง (ใช้ตำแหน่ง) ⬜ ยังไม่ได้ทำ
+- Civilization-scale decision support ⬜
+
+## Phase 7 — Scale & Resilience 🟡 บางส่วน (ฉบับเดิม: แผน)
+
+- หลายภาษา — เป้าเดิม 3 ภาษา (TH · EN · JP) → **ทำได้ 7 ภาษา** (เพิ่ม 中文 · 한국어 · Español · Tiếng Việt) ✅
+- ทำงานได้แม้ไม่มี AI — ตอบจากสมการของระบบเมื่อ AI ภายนอกล่มหรือโควตาหมด ✅
+- เครื่องสเปกต่ำ — โหมดลื่นอัตโนมัติ · มือถือวาดฉากเบาลง · เคารพ "ลดการเคลื่อนไหว" ✅
+- ความปลอดภัยเว็บ — CSP ปิดสคริปต์แทรก · บังคับ SECRET_KEY · จำกัดขนาดคำขอ ✅
+- Persistent database (PostgreSQL) ⬜ ยังใช้ SQLite
+- UptimeRobot keep-alive ⬜
+- Community decision nodes ⬜
 
 ---
 
-## Phase 6 — World Model Integration 📋 Planned
+## Phase 8 — ตัวจับเหตุฉุกเฉิน 7 ภาษา ✅ (ไม่อยู่ใน roadmap เดิม)
 
-- Real-time external data feeds
-  - แผ่นดินไหว / สึนามิ (USGS · JMA)
-  - ราคาอาหาร / supply chain
-  - สภาพอากาศวิกฤต
-- Alert ก่อน user ตัดสินใจเข้าพื้นที่เสี่ยง
-- Civilization-scale decision support
+- `core/frames.py` — จับเหตุจากโครงสร้างประโยค (คน + เหตุ + อาการ) ไม่ใช่คำเดี่ยว · 99 กฎ 25 รอบ
+  เช่น สารพิษ · ยาเกินขนาด · จมน้ำ · สำลัก · งูกัด · แมงป่อง · ลมรั่วในปอด · ไตวายเฉียบพลัน · เมทานอล
+- ตัวกรองเตือนเกิน — อาการเล็กน้อยที่มีสาเหตุธรรมดา · ยาที่หมอสั่ง · ฉากในหนัง · ข่าว · การเล่น
+  แต่สัญญาณอันตรายชนะเสมอ (เจ็บร้าว · เหงื่อแตก · ฉี่ผิดปกติ · กินยาทั้งขวด)
+- ชุดปิดตาที่ล็อกก่อนเขียนโค้ด ห้ามจูนด้วยข้อความในชุด · คะแนนโชว์บน `/architecture`
+- กลโกงไซเบอร์ (`core/cyber_scam.py`) · คนใกล้ตัวทำร้ายตัวเอง · ปัจจัยพื้นฐานกำลังขาด
+
+## Phase 9 — สุขภาพ: ไต เบาหวาน ความดัน ไขมัน ✅ (ไม่อยู่ใน roadmap เดิม)
+
+- `core/chronic_care.py` — eGFR (CKD-EPI 2021) · ระยะ KDIGO · ความถี่การตรวจ · เป้า BP/HbA1c/LDL · สแตติน
+- เตือน NSAIDs · เมทฟอร์มิน · มะเฟือง · สมุนไพร · โพแทสเซียม · กฎวันป่วย · คำแนะนำการนอน นั่ง ยืน
+- พูดตรง: ชะลอได้แต่ไม่หายขาด · ไม่เดาระยะเวลา · ไม่แนะนำสมุนไพรเพื่อรักษา
+- หน้า `/kidney` · API `/api/chronic-care` · LYLA อ่านตัวเลขจากแชทแล้วตอบเป็นแผนได้เลย
+- ค่าเลือด (`core/lab_values.py`) — ค่าวิกฤตเตือน "ไปโรงพยาบาลวันนี้" ก่อนเสมอ · ยาตีกัน (`core/drug_pairs.py`)
+- คู่มือตั้งครรภ์ `/pregnancy` · คู่มือเอาชีวิตรอด `/survival`
+
+## Phase 10 — เสียง ✅ บางส่วน (ไม่อยู่ใน roadmap เดิม)
+
+- พูดแทนพิมพ์ (ไมค์) และคุยต่อเนื่องเหมือนโทร ✅
+- อ่านออกเสียง แต่ละผู้ตอบเสียงต่างกัน · เลือกเสียงที่ชัดที่สุดในเครื่อง ✅
+- ทำนองสรภัญญะ (กาพย์ยานี ๑๑) — ทดลองแล้ว เสียงในเครื่องยังขาดเป็นท่อน **ปิดไว้เป็นค่าเริ่มต้น** (กดค้างที่ปุ่มอ่านออกเสียงเพื่อเปิด)
+- เสียงที่ไพเราะจริงต้องใช้ TTS แบบ neural จากภายนอก ⬜ (มีค่าใช้จ่าย และต้องส่งข้อความออกไปภายนอก — รอเจ้าของโปรเจกต์ตัดสินใจ)
 
 ---
 
-## Phase 7 — Scale & Resilience 📋 Planned
+## ต่อไป (เรียงตามความสำคัญ)
 
-- Persistent database (PostgreSQL on Render)
-- UptimeRobot keep-alive automation
-- Multi-language support (EN · TH · JP) — แชทตอบตามภาษาผู้ใช้ · หน้าเว็บสลับ ไทย/English/日本語 (static/i18n.js) ✅
-- Community decision nodes
-- Low-energy governance for resource-limited environments
+1. **ข้อความจริงจากผู้ใช้จริง** — เพิ่มชุดปิดตาที่คนอื่นเขียน (ตอนนี้ 58 ข้อ) เพื่อให้ตัวเลขความแม่นสะท้อนโลกจริง
+2. **แพทย์ตรวจข้อความทางการแพทย์** — โดยเฉพาะหน้า `/kidney` และคำแปล 7 ภาษา
+3. **PostgreSQL** — SQLite บนดิสก์ชั่วคราวของ Render อาจหายเมื่อ deploy ใหม่หรือเครื่องรีสตาร์ท
+4. **ลงแอปพลิเคชัน** (App Store / Play Store)
+5. TTS neural (ถ้าเลือกทำ) · ราคาอาหาร/supply chain · เตือนตามตำแหน่ง
 
 ---
 

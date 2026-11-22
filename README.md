@@ -18,6 +18,7 @@ Live demo: https://king-diadem.onrender.com
 - ใช้ฟรีวันละ 20 ข้อความ ไม่ต้องสมัคร · ตอบได้แม้ AI ภายนอกล่ม (ตอบจากสมการของระบบ)
 - เห็น **อริยสัจ 4** ของเรื่องก่อน แล้วตรวจทางที่เลือกด้วย **มรรค 8** · จับมิจฉาชีพและเหตุฉุกเฉิน พร้อมเบอร์ 1669 · 191 · 1323 · 1441
 - หน้าเว็บ 7 ภาษา: ไทย · English · 日本語 · 中文 · 한국어 · Español · Tiếng Việt
+- ดูแลไต เบาหวาน ความดัน ไขมัน จากค่าเลือดของตัวเอง ที่ `/kidney` หรือพิมพ์ค่าในแชทได้เลย
 - ระบบไม่ตัดสินใจแทนคน — **คุณเป็นคนตัดสินใจเสมอ**
 
 ลองใช้: https://king-diadem.onrender.com
@@ -62,7 +63,11 @@ This repository is not a blank prototype. It contains a working decision-support
 - crisis-aware responses for self-harm, violence, basic-needs shortages, scams, and disaster conditions
 - deterministic fallback logic when AI is unavailable or blocked
 - session memory and user-specific state tracking
-- multi-language handling for Thai, English, and Japanese
+- multi-language handling in 7 languages: Thai, English, Japanese, Chinese, Korean, Spanish, Vietnamese
+- emergency detection by sentence structure (`core/frames.py`, 99 rules × 7 languages) with false-alarm filters
+- chronic-care plans for kidney disease, diabetes, blood pressure and cholesterol (`core/chronic_care.py`)
+- lab-value reading, drug-interaction checks, cyber-scam detection
+- voice input and read-aloud
 - Google OAuth login and session management
 - Stripe billing, premium handling, and wallet-style credit flows
 - report generation and shareable decision reports
@@ -133,6 +138,11 @@ The application includes pages and APIs with concrete functions:
 | `/` | main conversation and decision experience |
 | `/ask` | direct comparison / option analysis |
 | `/guide` | user guidance and instructions |
+| `/kidney` | personal kidney / diabetes / BP / cholesterol plan |
+| `/pregnancy` | pregnancy guide and danger signs |
+| `/survival` | survival guide for disasters |
+| `/universe` | interactive sky and decision constellation |
+| `/learn` | how the system thinks (equations explained) |
 | `/letter` | narrative / founder letter |
 | `/architecture` | architecture and repo map |
 | `/wallet` | credit, premium, account payment state |
@@ -150,6 +160,7 @@ It also includes API routes for:
 - `/api/memory`
 - `/api/waterline`
 - `/api/feedback`
+- `/api/chronic-care`
 - `/api/report/share`
 
 ---
@@ -159,7 +170,7 @@ It also includes API routes for:
 ```text
 Backend:     FastAPI + Python
 AI:          Google Gemini + fallback deterministic logic
-Database:    SQLite
+Database:    SQLite (PostgreSQL planned)
 Auth:        Google OAuth + signed session cookies
 Payments:    Stripe checkout + webhook validation
 Frontend:    Vanilla JS + HTML/CSS + Canvas/PWA
@@ -183,6 +194,17 @@ The codebase explicitly includes:
 ## Current project status
 
 This repository is in a mature working state for a research-to-product decision-governance project.
+
+Numbers as of November 2026 (counted from the code):
+
+| | |
+|---|---|
+| Merged pull requests | 290+ |
+| Test files · test functions | 538 · 2,667 (the full suite must pass before every commit) |
+| Blind (held-out) set | 3,767 messages · dangerous messages missed **0 / 1,889** · false alarms **1 / 1,852** |
+| Languages | 7 (web UI and replies) |
+
+Honest caveat: only 58 of the blind-set messages were written by people other than the author of the detector, so real-world accuracy will be lower. Real user messages are the most valuable next input.
 
 It already contains substantial implementation in:
 
@@ -273,7 +295,12 @@ The repo already includes completed work in:
 - web deployment and app buildout
 - project-wide testing and governance layers
 
-The remaining work is centered on deeper external-data integration, resilience scaling, and broader live-world scenario coverage.
+Since the June 2026 roadmap, Phase 4 (crisis simulation) is complete, Phase 6 (world model) is mostly done,
+Phase 7 exceeded its language goal (7 languages instead of 3), and three areas that were not on the original roadmap were built:
+an emergency detector across 7 languages, chronic-care health tools, and voice.
+
+Remaining: real-user evaluation data, medical review of health text, PostgreSQL, app-store release,
+food-price / supply-chain feeds and location-based alerts. See [ROADMAP.md](ROADMAP.md).
 
 ---
 
