@@ -80,6 +80,12 @@ def _report_questions(now: datetime) -> int:
     return forget_old_questions(now.timestamp())
 
 
+def _admin_actions(now: datetime) -> int:
+    """บันทึกการกระทำของผู้ดูแล (core/admin_access) — ลบเมื่อเกิน 1 ปี"""
+    from core.admin_access import prune
+    return prune(now.timestamp())
+
+
 def _sqlite(now: datetime) -> str:
     from DATABASE.db import get_conn
     conn = get_conn()
@@ -91,7 +97,7 @@ def _sqlite(now: datetime) -> str:
         conn.close()
 
 
-STEPS = (("usage_daily", _usage_daily), ("mail_memory", _mail_memory), ("expired_reports", _expired_reports), ("report_questions", _report_questions), ("sqlite", _sqlite))
+STEPS = (("usage_daily", _usage_daily), ("mail_memory", _mail_memory), ("expired_reports", _expired_reports), ("report_questions", _report_questions), ("admin_actions", _admin_actions), ("sqlite", _sqlite))
 
 
 def due(now: datetime | None = None) -> bool:

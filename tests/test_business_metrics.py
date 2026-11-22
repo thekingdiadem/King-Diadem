@@ -12,6 +12,7 @@ import pytest
 def owner(client, app_module, monkeypatch):
     email = f"owner-{uuid.uuid4().hex[:8]}@test.co"
     monkeypatch.setattr(app_module, "_ADMIN_EMAILS", {email})
+    from tests.conftest import verify_email; verify_email(email)
     client.post("/register", json={"email": email, "password": "secret12"})
     return client
 
@@ -39,6 +40,7 @@ def test_owner_flag_and_funnel_counts(owner, app_module):
 
 def test_paywall_counts_people_who_used_up_free(client, app_module, monkeypatch):
     monkeypatch.setattr(app_module, "_ADMIN_EMAILS", {"boss-paywall@test.co"})
+    from tests.conftest import verify_email; verify_email("boss-paywall@test.co")
     boss = type(client)(app_module.app, base_url="https://testserver", headers={"cf-connecting-ip": "10.250.1.1"})
     boss.post("/register", json={"email": "boss-paywall@test.co", "password": "secret12"})
     before = _report(boss)

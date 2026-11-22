@@ -61,6 +61,7 @@ def test_everyone_can_see_prices_and_their_history(client, app_module, monkeypat
 
 def test_admin_sees_changes_without_a_reason(user, app_module, monkeypatch):
     monkeypatch.setattr(app_module, "_ADMIN_EMAILS", {user.email.lower()})
+    from tests.conftest import verify_email; verify_email(user.email.lower())
     monkeypatch.setattr(app_module, "IMAGE_PREMIUM_DAILY", 3)
     monkeypatch.delenv("POLICY_CHANGE_REASON", raising=False)
     app_module._policy_sync()

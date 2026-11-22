@@ -781,5 +781,7 @@
 "ส่งไม่สำเร็จ ลองใหม่อีกครั้งนะคะ": "Chưa gửi được — vui lòng thử lại",
 "มีคนรายงานคำตอบ {n} รายการ — อ่านได้ที่ /api/admin/reports": "Có {n} câu trả lời bị báo cáo — xem tại /api/admin/reports",
 "อ่านแบบทำนองสรภัญญะ (กาพย์ยานี ๑๑)":"Đọc theo nhịp ngâm Thái (Sarabhanya)",
-"อ่านแบบเรียบ":"Đọc bình thường"
+"อ่านแบบเรียบ":"Đọc bình thường",
+"ติดป้ายข้อความจริง":"Gắn nhãn tin nhắn thật",
+"ความปลอดภัยผู้ดูแล":"Bảo mật quản trị viên"
 };
