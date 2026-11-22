@@ -675,7 +675,7 @@ def plan(profile: dict | None, lang: str = "th") -> dict:
 # ═══ 6) จากข้อความในแชท ══════════════════════════════════════════════════════════════
 # "ค่าไต eGFR 45 ทำไงไม่ให้ต้องฟอกไต" → ดึงตัวเลขที่ผู้ใช้พิมพ์เองเท่านั้น ไม่เติมค่าที่ไม่ได้บอก
 
-_KIDNEY_WORD = re.compile(r"ไต(?!หวัน|ร|ล|้|่)|ฟอกไต|ล้างไต|\begfr\b|\bgfr\b|creatinine|ครีเอตินีน|ครีอะตินิน|\bckd\b|kidney|"
+_KIDNEY_WORD = re.compile(r"ไต(?!หวัน|ร|ล|้|่|เติ้ล|เติล|ฝุ่น)|ฟอกไต|ล้างไต|\begfr\b|\bgfr\b|creatinine|ครีเอตินีน|ครีอะตินิน|\bckd\b|kidney|"
                           r"riñ[oó]n|renal|thận|肾|腎|신장|콩팥", re.I)
 _ASK_SLOW = re.compile(r"ไม่ให้(?:ต้อง)?(?:ฟอก|ล้าง)|ชะลอ|ไม่ให้แย่ลง|ดูแล|ทำ(?:ยัง)?ไง|กินอะไร|ควร|หายขาด|"
                        r"avoid dialysis|slow|what (?:should|can) I|how (?:do|can) I|evitar diálisis|frenar|"
@@ -687,7 +687,9 @@ _PARSE = {
     "uacr": re.compile(r"(?:uacr|\bacr\b|albumin)\D{0,8}" + _NUM, re.I),
     "hba1c": re.compile(r"(?:hba1c|a1c|น้ำตาลสะสม)\D{0,8}" + _NUM, re.I),
     "ldl": re.compile(r"\bldl\b\D{0,8}" + _NUM, re.I),
-    "age": re.compile(r"(?:อายุ|age)\s*" + _NUM + r"|" + _NUM + r"\s*(?:ปี|years? old|yo\b|tuổi|岁|歳|살|años)", re.I),
+    # "เป็นเบาหวานมา 10 ปี" คือระยะเวลา ไม่ใช่อายุ — ตัวเลขลอยๆ + ปี ต้องไม่ตามหลัง มา/นาน/เป็น/for
+    "age": re.compile(r"(?:อายุ|age)\s*" + _NUM + r"|(?<![\d.,])(?<!มา )(?<!มา)(?<!นาน )(?<!นาน)(?<!for )(?<!เป็น )(?<!เป็น)" + _NUM
+                      + r"\s*(?:ปี(?!ก่อน|ที่แล้ว)|years? old|yo\b|tuổi|岁|歳|살|años)", re.I),
     "weight_kg": re.compile(r"(?:หนัก|น้ำหนัก|weigh\w*)\s*" + _NUM + r"|" + _NUM + r"\s*(?:กก|kg|กิโล)", re.I),
 }
 _BP = re.compile(r"(?<!\d)(\d{2,3})\s*/\s*(\d{2,3})(?!\d)")
@@ -718,10 +720,13 @@ def parse_text(text: str) -> dict:
     return p
 
 
+_PET = re.compile(r"แมว|หมา|สุนัข|น้องหมา|น้องแมว|\b(?:cat|dog|kitten|puppy|pet)s?\b|gato|perro|mèo|chó|猫|狗|고양이|강아지|犬", re.I)
+
+
 def chat_check(text: str) -> bool:
-    """เป็นคำถามดูแลโรคไตของตัวเอง/คนในบ้าน: มีคำเรื่องไต + (ตัวเลขค่าไต หรือถามวิธีชะลอ)"""
+    """เป็นคำถามดูแลโรคไตของตัวเอง/คนในบ้าน: มีคำเรื่องไต + (ตัวเลขค่าไต หรือถามวิธีชะลอ) · สัตว์เลี้ยงใช้เกณฑ์คนไม่ได้"""
     t = str(text or "")
-    if not _KIDNEY_WORD.search(t):
+    if not _KIDNEY_WORD.search(t) or _PET.search(t):
         return False
     p = parse_text(t)
     return bool("egfr" in p or "creatinine" in p or "uacr" in p or _ASK_SLOW.search(t))

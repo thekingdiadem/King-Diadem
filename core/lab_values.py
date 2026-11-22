@@ -151,6 +151,9 @@ def read(text: str):
                 used.append((m.start(), m.end()))
             break
     if len(out) < 2 and not _CONTEXT.search(t):
+        # ยกเว้นโพแทสเซียมวิกฤตที่เขียนชื่อเต็ม ("โพแทสเซียม 6.4") — ไม่มีความหมายอื่นนอกจากค่าเลือด และพลาดแล้วอันตรายถึงหัวใจ
+        if out and out[0][0] == "k" and out[0][2] == "urgent" and re.search(r"potassium|โพแทสเซียม|โปแตสเซียม", t, re.I):
+            return out
         return []                              # ค่าเดียวโดยไม่มีบริบทผลตรวจ — ไม่อ่าน
     return out
 

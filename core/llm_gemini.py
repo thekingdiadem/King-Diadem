@@ -658,15 +658,14 @@ _META_HEAD = re.compile(
 #  Strategizing complete. I will now generate the response based on the plan.That's a very thought-…"
 _META_PLAIN = re.compile(
     r"^\s*\**\s*(?:My (?:immediate |final |main )?(?:response|reply|answer|plan|approach) (?:should|will|needs)|"
+    # "My primary directive is to prioritize safety…" · "Plan:" (หน้าจอจริง พ.ย. 2569 — ผลเลือดโพแทสเซียม 6.4)
+    r"My (?:primary |core |main |first |top )?(?:directive|goal|objective|priority|task|role|instruction) is\b|"
+    r"(?:Plan|Response plan|My plan|Approach|Steps)\**\s*:\s*$(?=[\s\S]{0,600}?\b(?:them|the user|I am an AI|Reiterate|Acknowledge|Maintain an? \w+(?: and \w+)? tone|Provide (?:emergency|general|contact))\b)|"
     r"The internal (?:state|context|notes?) (?:indicates?|says|shows)|The user'?s (?:language|input|message|query|request) is|"
     r"The user (?:is|has|seems|wants|asked|says|wrote|might|may)\b|"
     r"I (?:need|should|must) (?:to )?(?:address|acknowledge|reaffirm)\b[^\n]*\b(?:the user|user's|their (?:input|message))|"
     r"Okay,? (?:the user|so the user)|Let me (?:analy[sz]e|break down) (?:the user|this request|the request)|"
-    r"(?:Strategizing|Planning) (?:complete|done)\b|"
-    # เว็บจริง 21 พ.ย. (ค่าไต): "My primary directive is to prioritize safety… I also need to provide emergency contact information… Plan: 2. …"
-    r"My (?:primary |main |core |first )?(?:directive|goal|priority|objective|task|job) (?:is|here is|should be)\b|"
-    r"I also need to (?:provide|include|give|mention|add)\b|I cannot diagnose or provide medical advice, but I (?:must|should|need)\b|"
-    r"Plan\s*:\s*$)", re.M)
+    r"(?:Strategizing|Planning) (?:complete|done)\b)", re.M)
 # ย่อหน้าที่มีเบอร์ช่วยเหลือ หรือพูดกับผู้ใช้โดยตรง ห้ามตัดทิ้งเด็ดขาด (เคยตัด "We need to keep you safe … call 1669")
 _KEEP_PARA = re.compile(r"(?<!\d)(?:1669|1323|191|1155|1300|1387|1367|1441|1599|911|988|112|999)(?!\d)|\byou\b|\byour\b|คุณ", re.I)
 _THINK_BLOCK = re.compile(r"<(think|thinking|reasoning|plan)>.*?</\1>\s*|```(?:thought|thinking|plan|reasoning)\b.*?```\s*", re.S | re.I)
@@ -677,7 +676,8 @@ _PLAN_END = re.compile(
     r"I will now (?:generate|write|compose|draft|craft) the (?:final )?(?:response|reply|answer)[^.\n]*\.|"
     r"Now (?:I'?ll|I will|let me) (?:write|craft|generate|compose) the (?:final )?(?:response|reply)[^.\n]*[.:]|"
     r"^\s*(?:Here is|Here's) (?:the|my) (?:final )?(?:response|reply)\s*:", re.I | re.M)
-_GLUED_PLAN = re.compile(r"(^\s*\d+\.\s[^\n]*?\b(?:tone|empathy|empathetic|concise|calm|supportive|urgent|format|language)\.)([A-Z][a-z])", re.M)
+# จุดที่คำตอบจริงต่อกับแผนโดยไม่เว้นวรรค: ตัวพิมพ์เล็ก + "." + ตัวพิมพ์ใหญ่ตามด้วยตัวพิมพ์เล็ก ("tone.Thank")
+_GLUED_EN = re.compile(r"(?<=[a-z)])[.!](?=[A-Z][a-z])")
 _CHECK_LINE = re.compile(r"^\s*\d+\.\s.*:\s*(?:Yes|No)\b", re.I)
 _NUM_LINE = re.compile(r"^\s*\d+\.\s+[A-Za-z]")
 _NON_LATIN = re.compile(r"[\u0E00-\u0E7F\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]")
@@ -718,7 +718,6 @@ def strip_reasoning(text):
                     break
         except Exception:
             pass
-    text = _GLUED_PLAN.sub(lambda m: m.group(1) + "\n\n" + m.group(2), text)
     ends = list(_PLAN_END.finditer(text))
     if ends and _META_PLAIN.search(text[:ends[-1].start()] or " "):
         rest = text[ends[-1].end():].strip()
@@ -733,7 +732,12 @@ def strip_reasoning(text):
         lines = [l for l in para.split("\n") if l.strip()]
         if not lines:
             continue
-        if _META_PLAIN.match(lines[0]) and not (_KEEP_PARA.search(para) and
+        glue = _GLUED_EN.search(lines[-1]) if len(lines) > 1 else None
+        if glue and (_META_PLAIN.match("\n".join(lines)) or in_meta and all(_NUM_LINE.match(l) for l in lines)):
+            in_meta = False                                 # คำตอบจริงต่อท้ายข้อสุดท้ายของแผน ("…tone.Thank you for…")
+            out.append(lines[-1][glue.end():].strip())
+            continue
+        if _META_PLAIN.match("\n".join(lines)) and not (_KEEP_PARA.search(para) and
                                                 not re.search(r"\bthe user\b|\buser's\b|ผู้ใช้", para, re.I)):                 # แผนภาษาอังกฤษ — ทิ้งทั้งย่อหน้า (มีวงเล็บไทยปนได้ ห้ามเก็บท้าย)
             in_meta = True
             continue
