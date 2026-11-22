@@ -658,6 +658,9 @@ _META_HEAD = re.compile(
 #  Strategizing complete. I will now generate the response based on the plan.That's a very thought-…"
 _META_PLAIN = re.compile(
     r"^\s*\**\s*(?:My (?:immediate |final |main )?(?:response|reply|answer|plan|approach) (?:should|will|needs)|"
+    # "My primary directive is to prioritize safety…" · "Plan:" (หน้าจอจริง พ.ย. 2569 — ผลเลือดโพแทสเซียม 6.4)
+    r"My (?:primary |core |main |first |top )?(?:directive|goal|objective|priority|task|role|instruction) is\b|"
+    r"(?:Plan|Response plan|My plan|Approach|Steps)\**\s*:\s*$(?=[\s\S]{0,600}?\b(?:them|the user|I am an AI|Reiterate|Acknowledge|Maintain an? \w+(?: and \w+)? tone|Provide (?:emergency|general|contact))\b)|"
     r"The internal (?:state|context|notes?) (?:indicates?|says|shows)|The user'?s (?:language|input|message|query|request) is|"
     r"The user (?:is|has|seems|wants|asked|says|wrote|might|may)\b|"
     r"I (?:need|should|must) (?:to )?(?:address|acknowledge|reaffirm)\b[^\n]*\b(?:the user|user's|their (?:input|message))|"
@@ -673,6 +676,8 @@ _PLAN_END = re.compile(
     r"I will now (?:generate|write|compose|draft|craft) the (?:final )?(?:response|reply|answer)[^.\n]*\.|"
     r"Now (?:I'?ll|I will|let me) (?:write|craft|generate|compose) the (?:final )?(?:response|reply)[^.\n]*[.:]|"
     r"^\s*(?:Here is|Here's) (?:the|my) (?:final )?(?:response|reply)\s*:", re.I | re.M)
+# จุดที่คำตอบจริงต่อกับแผนโดยไม่เว้นวรรค: ตัวพิมพ์เล็ก + "." + ตัวพิมพ์ใหญ่ตามด้วยตัวพิมพ์เล็ก ("tone.Thank")
+_GLUED_EN = re.compile(r"(?<=[a-z)])[.!](?=[A-Z][a-z])")
 _CHECK_LINE = re.compile(r"^\s*\d+\.\s.*:\s*(?:Yes|No)\b", re.I)
 _NUM_LINE = re.compile(r"^\s*\d+\.\s+[A-Za-z]")
 _NON_LATIN = re.compile(r"[\u0E00-\u0E7F\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]")
@@ -727,7 +732,12 @@ def strip_reasoning(text):
         lines = [l for l in para.split("\n") if l.strip()]
         if not lines:
             continue
-        if _META_PLAIN.match(lines[0]) and not (_KEEP_PARA.search(para) and
+        glue = _GLUED_EN.search(lines[-1]) if len(lines) > 1 else None
+        if glue and (_META_PLAIN.match("\n".join(lines)) or in_meta and all(_NUM_LINE.match(l) for l in lines)):
+            in_meta = False                                 # คำตอบจริงต่อท้ายข้อสุดท้ายของแผน ("…tone.Thank you for…")
+            out.append(lines[-1][glue.end():].strip())
+            continue
+        if _META_PLAIN.match("\n".join(lines)) and not (_KEEP_PARA.search(para) and
                                                 not re.search(r"\bthe user\b|\buser's\b|ผู้ใช้", para, re.I)):                 # แผนภาษาอังกฤษ — ทิ้งทั้งย่อหน้า (มีวงเล็บไทยปนได้ ห้ามเก็บท้าย)
             in_meta = True
             continue

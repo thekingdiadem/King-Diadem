@@ -779,5 +779,7 @@
 "ส่งรายงาน": "Gửi báo cáo",
 "ได้รับรายงานแล้ว ขอบคุณที่ช่วยดูแลกันนะคะ": "Đã nhận báo cáo — cảm ơn bạn đã quan tâm đến mọi người",
 "ส่งไม่สำเร็จ ลองใหม่อีกครั้งนะคะ": "Chưa gửi được — vui lòng thử lại",
-"มีคนรายงานคำตอบ {n} รายการ — อ่านได้ที่ /api/admin/reports": "Có {n} câu trả lời bị báo cáo — xem tại /api/admin/reports"
+"มีคนรายงานคำตอบ {n} รายการ — อ่านได้ที่ /api/admin/reports": "Có {n} câu trả lời bị báo cáo — xem tại /api/admin/reports",
+"อ่านแบบทำนองสรภัญญะ (กาพย์ยานี ๑๑)":"Đọc theo nhịp ngâm Thái (Sarabhanya)",
+"อ่านแบบเรียบ":"Đọc bình thường"
 };

@@ -779,5 +779,7 @@
 "ส่งรายงาน": "Enviar reporte",
 "ได้รับรายงานแล้ว ขอบคุณที่ช่วยดูแลกันนะคะ": "Reporte recibido — gracias por cuidar de los demás",
 "ส่งไม่สำเร็จ ลองใหม่อีกครั้งนะคะ": "No se pudo enviar — inténtalo de nuevo",
-"มีคนรายงานคำตอบ {n} รายการ — อ่านได้ที่ /api/admin/reports": "{n} respuestas reportadas — léelas en /api/admin/reports"
+"มีคนรายงานคำตอบ {n} รายการ — อ่านได้ที่ /api/admin/reports": "{n} respuestas reportadas — léelas en /api/admin/reports",
+"อ่านแบบทำนองสรภัญญะ (กาพย์ยานี ๑๑)":"Lectura con ritmo de canto tailandés (Sarabhanya)",
+"อ่านแบบเรียบ":"Lectura normal"
 };
