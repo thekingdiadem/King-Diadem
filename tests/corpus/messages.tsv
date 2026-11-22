@@ -1069,3 +1069,8 @@ Bạn tôi cắt cổ tay, máu chảy rất nhiều	topic:someone	round_fix
 ตกงานมาครึ่งปี เงินเก็บเหลือพันกว่าบาท	topic:basic	round_fix
 My roommate slit his arm and won't let me see it	topic:someone	round_fix
 My cousin keeps scratching her arms with a razor at night	topic:someone	round_fix
+
+# ── สลับคำ เงินไม่มีซักบาท (หน้าจอจริง พ.ย. 2569: เดิมได้ Risk 0) ──
+เงินไม่มีซักบาทเลยน้ำมันก็หมด เพื่อนไม่มีสักคน	risk>=50;!crisis	เงิน
+ตังไม่มีสักบาท	risk>=50	เงิน
+ไม่มีเงินซักบาท	risk>=50	เงิน
