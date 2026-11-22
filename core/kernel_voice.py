@@ -4182,3 +4182,50 @@ def compose(text: str, *args, **kw) -> str:  # noqa: F811
             head, sep, rest = reply.partition("\n\n")
             reply = f"{head}\n\n{way}\n\n{rest}" if sep else f"{reply}\n\n{way}"
     return reply
+
+
+# โดนหลอก/มิจฉาชีพ — ทุกภาษาต้องได้ทางแจ้งตำรวจไซเบอร์ (เจ้าของโปรเจกต์ขอ พ.ย. 2569)
+# เดิมภาษาไทยมี 1441 ครบ แต่จีนไม่มีเบอร์เลย เวียดนาม/เกาหลี/ญี่ปุ่น/สเปนไม่มีช่องทางแจ้งเรื่องโดนหลอก
+# เบอร์ไทย: 1441 ศูนย์ปฏิบัติการต่อต้านอาชญากรรมออนไลน์ (AOC) · แจ้งความออนไลน์ thaipoliceonline.go.th
+_SCAM_WAY = {
+    "en": "If you were scammed: call your bank now to freeze the receiving account · in Thailand call 1441 (cyber-crime hotline, 24h) and report at thaipoliceonline.go.th · elsewhere, report to your local police.",
+    "vi": "Nếu bị lừa: gọi ngay ngân hàng để phong tỏa tài khoản nhận tiền · ở Thái Lan gọi 1441 (đường dây tội phạm mạng, 24 giờ), báo cáo tại thaipoliceonline.go.th · ở Việt Nam gọi 113 (công an).",
+    "zh": "如果被骗：马上致电银行冻结收款账户 · 在泰国拨打 1441（网络犯罪热线，24小时）并在 thaipoliceonline.go.th 报案 · 在中国大陆拨打 96110（反诈专线）或 110。",
+    "ko": "사기를 당했다면: 지금 은행에 전화해 받는 계좌를 지급정지하세요 · 태국에서는 1441(사이버범죄 신고, 24시간), thaipoliceonline.go.th 에 신고 · 한국에서는 112(경찰) 또는 1332(금융감독원).",
+    "ja": "詐欺にあったら：すぐ銀行に電話して振込先口座を止めてもらう · タイでは 1441（サイバー犯罪ホットライン・24時間）と thaipoliceonline.go.th へ · 日本では #9110（警察相談）か 188（消費者ホットライン）、緊急なら 110。",
+    "es": "Si te estafaron: llama ya a tu banco para congelar la cuenta que recibió el dinero · en Tailandia llama al 1441 (ciberdelitos, 24 h) y denuncia en thaipoliceonline.go.th · en otro país, denuncia a la policía local (112).",
+}
+
+
+def _scam_lang(text: str) -> str | None:
+    t = str(text or "")
+    if re.search(r"[฀-๿]", t):
+        return None                                   # ภาษาไทยมีครบในคำตอบเดิมแล้ว
+    for lang, rx in (("ko", r"[가-힣]"), ("ja", r"[ぁ-ゟ゠-ヿ]"), ("zh", r"[一-鿿]"),
+                     ("vi", r"[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]|\blừa\b|\blua dao\b|\bbi lua\b|\btoi\b"),
+                     ("es", r"[ñ¿¡]|\b(?:estaf\w+|fraude|me robaron)\b")):
+        if re.search(rx, t, re.I):
+            return lang
+    return "en" if t.isascii() else None
+
+
+# คำว่า "โดนหลอก" ในภาษาที่ตัวจับมิจฉาชีพหลักยังไม่รู้จัก (เวียดนาม จีน) — ต้องเป็นการโดนหลอกจริง ไม่ใช่ถามความหมาย
+_SCAM_WORDS = re.compile(r"(?:bị|bi)\s+(?:lừa|lua)(?:\s+(?:đảo|dao))?|(?:lừa|lua)\s+(?:đảo|dao)[^.!?\n]{0,20}(?:chuyển|mất|chuyen|mat)|"
+                         r"被(?:网上|網上|电话|電話)?(?:诈骗|詐騙|骗|騙)|(?:诈骗|詐騙)[^。！？\n]{0,10}(?:转|轉|汇|匯|钱|錢)|上当受骗", re.I)
+_compose_before_scam = compose
+
+
+def compose(text: str, *args, **kw) -> str:  # noqa: F811
+    reply = _compose_before_scam(text, *args, **kw)
+    if isinstance(text, str) and text and isinstance(reply, str) and "thaipoliceonline" not in reply:
+        a = assess(text)
+        if (a.get("scam") or a.get("cyber") or "scam" in (a.get("intl_urgent") or []) or "scam" in (a.get("topics") or [])
+                or _SCAM_WORDS.search(text)) and not a.get("crisis"):
+            lang = _scam_lang(text)
+            if lang:
+                way = _SCAM_WAY[lang]
+                if "1441" in reply and lang == "en":       # มี 1441 แล้ว — ไม่พูดซ้ำ เติมแค่ที่ขาด
+                    way = "Also: call your bank now to freeze the receiving account, and file a report at thaipoliceonline.go.th (Thailand) or with your local police."
+                head, sep, rest = reply.partition("\n\n")
+                reply = f"{head}\n\n{way}\n\n{rest}" if sep else f"{reply}\n\n{way}"
+    return reply
