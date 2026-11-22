@@ -32,7 +32,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTex
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
-import os, re, json, stripe, math, time, threading, secrets
+import os, re, json, stripe, math, time, threading, secrets, asyncio
 from urllib.parse import quote, unquote
 
 # ── ENGINE ────────────────────────────────────────────────────────
@@ -285,8 +285,22 @@ if not _SECRET_KEY:
         "ตั้งค่าใน Render environment ก่อน: SECRET_KEY=<random 32+ chars>"
     )
 
+# เธรดสำหรับงานที่รอเครือข่าย (เรียก AI · Turso) — ค่าเริ่มต้น 40 ทำให้คนที่ 41 ขึ้นไปต้องเข้าคิว
+# ยิงทดสอบ 80 คนพร้อมกันรอนานสุด 17 วินาที · การรอ AI ไม่ใช้ CPU และใช้หน่วยความจำน้อย จึงเพิ่มเป็น 120
+_THREADS = max(40, int(os.getenv("KD_THREADS", "120")))
+
+
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def _lifespan(_app):
+    import anyio.to_thread
+    anyio.to_thread.current_default_thread_limiter().total_tokens = _THREADS
+    yield
+
 # /docs /redoc /openapi.json ปิด — เดิมเปิดสาธารณะ ลิสต์ทุก endpoint ให้คนไล่หาช่องโหว่ (ไม่มีหน้าไหนใช้)
-app = FastAPI(title="KING DIADEM OS", docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(title="KING DIADEM OS", docs_url=None, redoc_url=None, openapi_url=None, lifespan=_lifespan)
 
 
 # body ที่ไม่ใช่ JSON object (เช่น Infinity) เคยทำให้ทุก endpoint ตอบ 500 —
@@ -1114,8 +1128,35 @@ except Exception as _e:
     print(f"⚠ self_heal ใช้ไม่ได้: {type(_e).__name__}: {_e}")
 
 
+# /health ต้องไม่ต่อคิวกับแชท — Render ใช้เช็กว่าเว็บยังอยู่ไหม ถ้าตอบช้าเกินจะรีสตาร์ตทั้งเครื่อง (คนที่คุยอยู่หลุดหมด)
+# ยิงทดสอบ 80 คนรอ AI พร้อมกัน: /health เดิมใช้เธรดกองเดียวกับแชท ตอบช้า 14.5 วินาที → ยิ่งคนเยอะยิ่งรีสตาร์ต
+# ตอนนี้ตอบทันทีจากผลที่คำนวณไว้ (สดไม่เกิน ~15 วินาที) แล้วคำนวณรอบใหม่เบื้องหลัง · ครั้งแรกคำนวณให้เลย
+_HEALTH = {"t": 0.0, "v": None, "busy": False}
+
+
 @app.get("/health")
-def health():
+async def health():
+    now = time.time()
+    if _HEALTH["v"] is None:
+        _HEALTH.update(v=await run_in_threadpool(_health_compute), t=now)
+    elif now - _HEALTH["t"] > 15 and not _HEALTH["busy"]:
+        _HEALTH["busy"] = True
+
+        async def _refresh():
+            try:
+                _HEALTH.update(v=await run_in_threadpool(_health_compute), t=time.time())
+            except Exception as e:
+                print(f"⚠ health refresh: {type(e).__name__}")
+            finally:
+                _HEALTH["busy"] = False
+        asyncio.get_running_loop().create_task(_refresh())
+    # ภาระตอนนี้ (นับในหน่วยความจำ ถูกมาก) ต้องสดเสมอ — ส่วนที่แพง (ฐานข้อมูล ไฟล์สำรอง) มาจากผลที่เก็บไว้
+    live = {"load": get_survival_stats() if get_survival_stats else None, "shield": _SHIELD.stats() if _SHIELD else None,
+            "reply_ms": _reply_ms(), "model_ms": _model_ms()}           # เวลาตอบ (นับในหน่วยความจำ) ต้องสดเหมือนกัน
+    return {**_HEALTH["v"], **live}
+
+
+def _health_compute():
     return {
         "status":             "alive 👑",
         "version":            "5.0",
@@ -1317,6 +1358,28 @@ async def medical_review_summary(request: Request):
         s = await run_in_threadpool(medical_review.summary)
         _MR_CACHE.update(t=now, v={"total": s["total"], "approved": s["approved"], "by_source": s["by_source"]})
     return _MR_CACHE["v"]
+
+
+# ── หลักฐานการซ่อนข้อมูลลับก่อนส่ง AI (core/secret_audit) + ปลายทางที่ต่อจริง (core/llm_provider_policy) ──
+# ใช้ออกรายงานให้ลูกค้า/ผู้ตรวจ · ไม่มีค่าจริงของข้อมูลลับในรายงาน · เฉพาะผู้ดูแล
+@app.get("/api/admin/secret-audit")
+async def admin_secret_audit(request: Request, days: int = 30):
+    if not _is_admin(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import secret_audit
+    return await run_in_threadpool(secret_audit.report, days)
+
+
+@app.get("/api/admin/secret-audit.csv")
+async def admin_secret_audit_csv(request: Request, days: int = 30):
+    email = _session_email(request)
+    if not _is_admin(email):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import secret_audit
+    from fastapi.responses import PlainTextResponse
+    body = await run_in_threadpool(secret_audit.export_csv, days)
+    return PlainTextResponse(body, media_type="text/csv; charset=utf-8",
+                             headers={"Content-Disposition": 'attachment; filename="secret-audit.csv"'})
 
 
 # ── ความปลอดภัยของบัญชีผู้ดูแล (/admin/security) — ใครมีสิทธิ์ · เปิด 2FA หรือยัง · ใครทำอะไรล่าสุด ──
@@ -4016,6 +4079,12 @@ async def sky_page():
     """ท้องฟ้าจริง ณ ตำแหน่งและเวลาของผู้ใช้ (static/sky.html · static/sky_view.js) — คำนวณในเครื่องผู้ใช้ทั้งหมด
     เสิร์ฟตรงที่ /sky (เดิม redirect ไป /static/sky.html) — Google เก็บ URL สั้นเป็นหน้าหลักได้"""
     return FileResponse("static/sky.html")
+
+
+@app.get("/saturn")
+async def black_saturn_page():
+    """Black Saturn — ผู้ใช้อยู่ตรงกลาง วงแหวนเครื่องยนต์สว่างตามขั้นที่ระบบทำจริง ยุบเมื่อทางเลือกหมด"""
+    return FileResponse("static/black_saturn.html")
 
 
 @app.get("/universe")

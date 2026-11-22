@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#020308">
+<title>Black Saturn — KING DIADEM</title>
+<meta name="description" content="ภาพระบบ KING DIADEM แบบ Black Saturn: ผู้ใช้อยู่ตรงกลาง วงแหวนเครื่องยนต์หมุนสองระนาบ สว่างตามขั้นที่ระบบทำงานจริง และยุบเมื่อทางเลือกหมด">
+<meta property="og:title" content="Black Saturn — KING DIADEM">
+<meta property="og:image" content="https://king-diadem.onrender.com/static/og.jpg">
+<link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai+Looped:wght@300;400;500&display=swap">
+<style>
+:root{--void:#020308;--gold:#d8b878;--txt:#e6e8ee;--dim:#8f96a8;--line:rgba(216,184,120,.22)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--void);color:var(--txt);font:15px/1.6 "Noto Sans Thai Looped",system-ui,sans-serif;overflow:hidden}
+canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block;touch-action:none;cursor:grab}
+canvas:active{cursor:grabbing}
+header{position:fixed;top:0;left:0;right:0;padding:16px 16px 0;pointer-events:none}
+header h1{margin:0;color:var(--gold);font-size:1.15rem;letter-spacing:.06em;font-weight:500}
+header p{margin:2px 0 0;color:var(--dim);font-size:.85rem;max-width:560px}
+header a{pointer-events:auto;color:var(--gold)}
+#panel{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(14px + env(safe-area-inset-bottom));
+  background:linear-gradient(transparent,rgba(2,3,8,.92) 30%);display:flex;flex-direction:column;gap:8px;max-width:720px;margin:0 auto}
+#state{font-size:.9rem;min-height:1.5em}
+#state b{color:var(--gold);font-weight:500}
+#legend{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.72rem;color:var(--dim)}
+#legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;background:var(--c);vertical-align:middle;box-shadow:0 0 6px var(--c)}
+form{display:flex;gap:8px}
+input[type=text]{flex:1;min-width:0;background:#0b0e18;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit}
+button{background:var(--gold);color:#14110a;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:500;cursor:pointer}
+button:disabled{opacity:.5}
+label.sl{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--dim)}
+input[type=range]{flex:1;accent-color:var(--gold)}
+#reply{font-size:.85rem;color:var(--dim);max-height:22vh;overflow:auto;white-space:pre-wrap;display:none;border-left:1px solid var(--line);padding-left:10px}
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<header>
+  <h1>BLACK SATURN</h1>
+  <p>คุณอยู่ตรงกลาง · วงแหวนคือส่วนต่างๆ ของระบบที่หมุนอยู่สองระนาบ (ความปลอดภัย · ทางเลือก) ·
+  วงแหวนอยู่ได้เพราะยังหมุน — ทางเลือกหมดเมื่อไร วงแหวนยุบ · แรงบันดาลใจจากคำตอบใหม่ของสมการไอน์สไตน์ใน 5 มิติ
+  (J. Armas, 2026) · <a href="/universe">← จักรวาล</a></p>
+</header>
+<section id="panel" aria-label="ลองถาม">
+  <div id="state" role="status">วงแหวนรอข้อความของคุณ</div>
+  <div id="legend"></div>
+  <div id="reply"></div>
+  <form id="ask"><input type="text" id="q" maxlength="500" placeholder="ลองเล่าเรื่องที่ตัดสินใจยาก แล้วดูว่าระบบทำงานส่วนไหน" aria-label="ข้อความ">
+    <button type="submit" id="go">ส่ง</button></form>
+  <label class="sl">ทางเลือกที่ยังเหลือ <input type="range" id="choices" min="0" max="3" step="1" value="3" aria-label="ทางเลือกที่ยังเหลือ"><output id="cv">3</output></label>
+</section>
+<script>
+(function(){
+  /* ขั้นที่ระบบทำจริง (core/progress) → ช่วงของวงแหวน · สีแยกตามหน้าที่ */
+  var STAGES = [
+    ['receive', 'รับเรื่อง', '#9fb4ff'], ['risk', 'ดูว่าด่วนไหม', '#ff8a8a'], ['numbers', 'คิดตัวเลข', '#ffd27a'],
+    ['people', 'อ่านคนในเรื่อง', '#c79bff'], ['options', 'ไล่ทางเลือก', '#7fe0c4'], ['ai', 'เรียบเรียง', '#8ad1ff'],
+    ['safety', 'เช็กความปลอดภัย', '#f2c879']
+  ];
+  var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cv = document.getElementById('sky'), g = cv.getContext('2d'), W = 0, H = 0, DPR = 1;
+  var glow = {}, choices = 3, shown = 3, spin = 0, tilt = .5, yaw = 0, drag = 0, t0 = performance.now();
+  var stars = [], sparks = [], SPR = {}, N = 560, slowFrames = 0;
+  STAGES.forEach(function(s){ glow[s[0]] = 0; });
+
+  /* ── สีไฮบริด: สีของแต่ละขั้นไหลเข้าหากันเป็นแถบเดียว + เหลือบสีตามเวลาและมุมมอง (เหมือนฟิล์มบนฟองสบู่) ── */
+  function rgb(h){ return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]; }
+  var COL = STAGES.map(function(s){ return rgb(s[2]); });
+  function mix(a, b, t){ return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
+  function hybrid(u, shimmer){                       // u = ตำแหน่งรอบวง 0..1 → สีที่ผสมจากสองขั้นข้างเคียง (smoothstep)
+    var n = COL.length, x = ((u % 1) + 1) % 1 * n, k = Math.floor(x), f = x - k;
+    f = f * f * (3 - 2 * f);
+    var c = mix(COL[k % n], COL[(k + 1) % n], f);
+    var w = .5 + .5 * Math.sin(shimmer);             // เหลือบ: ดึงเข้าหาขาวทองเล็กน้อยเป็นจังหวะ
+    return mix(c, [255, 236, 200], .18 * w);
+  }
+
+  /* สไปรต์แสงวาดครั้งเดียวต่อสี (แทน shadowBlur ทุกจุดทุกเฟรม ซึ่งหนักที่สุดบนมือถือ) · ผสมแบบ 'lighter' ได้แสงซ้อนจริง */
+  function sprite(c){
+    var key = c.map(function(v){ return Math.round(v / 12); }).join(',');
+    if(SPR[key]) return SPR[key];
+    var s = document.createElement('canvas'), z = 64; s.width = s.height = z;
+    var x = s.getContext('2d'), gr = x.createRadialGradient(z / 2, z / 2, 0, z / 2, z / 2, z / 2);
+    var col = 'rgba(' + Math.round(c[0]) + ',' + Math.round(c[1]) + ',' + Math.round(c[2]) + ',';
+    gr.addColorStop(0, col + '1)'); gr.addColorStop(.18, col + '.55)'); gr.addColorStop(.5, col + '.12)'); gr.addColorStop(1, col + '0)');
+    x.fillStyle = gr; x.fillRect(0, 0, z, z);
+    return (SPR[key] = s);
+  }
+
+  var lg = document.getElementById('legend');
+  STAGES.forEach(function(s, i){ var e = document.createElement('span'); e.textContent = s[1];
+    var c = hybrid((i + .5) / STAGES.length, 0); e.style.setProperty('--c', 'rgb(' + c.map(Math.round).join(',') + ')'); lg.appendChild(e); });
+
+  /* พื้นหลัง + ดาวทั้งหมดวาดครั้งเดียวต่อขนาดจอ (เดิมไล่สีเต็มจอ + ดาว ~460 ดวงทุกเฟรม → จอใหญ่เหลือ ~33 ภาพ/วินาที)
+     ต่อเฟรมวาดแค่ภาพนี้ 1 ครั้ง + ดาวกะพริบ 60 ดวง */
+  var BG = null, TW = [];
+  function size(){
+    W = innerWidth; H = innerHeight;
+    // จำกัดพิกเซลรวม ~2.6 ล้าน — จอใหญ่ที่ 2 เท่าเคยวาด 4 ล้านพิกเซลต่อเฟรม (ภาพแสงนุ่มอยู่แล้ว ลดนิดเดียวแทบไม่เห็นต่าง)
+    DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1, Math.sqrt(2.6e6 / (W * H))));
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); g.setTransform(DPR, 0, 0, DPR, 0, 0);
+    BG = document.createElement('canvas'); BG.width = cv.width; BG.height = cv.height;
+    var b = BG.getContext('2d'); b.setTransform(DPR, 0, 0, DPR, 0, 0);
+    var cx = W / 2, cy = H * .4, gr = b.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * .75);
+    gr.addColorStop(0, '#0a0814'); gr.addColorStop(.45, '#05060f'); gr.addColorStop(1, '#010206');
+    b.fillStyle = gr; b.fillRect(0, 0, W, H);
+    TW = [];
+    for(var i = 0; i < Math.round(W * H / 2200); i++){
+      var warm = Math.random(), c = warm < .7 ? '200,214,255' : warm < .9 ? '255,226,180' : '214,180,255';
+      var st = [Math.random() * W, Math.random() * H, Math.random() * 1.1 + .25, Math.random() * 9, c];
+      b.fillStyle = 'rgba(' + c + ',' + (.25 + Math.random() * .45).toFixed(2) + ')'; b.fillRect(st[0], st[1], st[2], st[2]);
+      if(TW.length < 60 && Math.random() < .2){ st[5] = 'rgba(' + c + ','; TW.push(st); }
+    }
+  }
+
+  /* จุดบนวงแหวนหลังหมุนสองระนาบ (5 มิติมีสองระนาบหมุนอิสระ — เห็นเป็นหมุนรอบตัว + เอียงส่าย) + มุมมองที่ผู้ใช้ลากเอง */
+  function ringPoint(a, R, cx, cy){
+    // ระนาบที่ 1: หมุนรอบตัว (a รวม spin แล้ว) · ระนาบที่ 2: แกนเอียงของวงแหวนค่อยๆ หมุนเอง (precession — yaw)
+    // หมุนจริงในสามมิติทั้งหมด แล้วฉายด้วยกล้องที่อยู่ไกลพอ วงแหวนจึงเป็นวงรีเนียน ไม่บิดเป็นเหลี่ยม
+    var x = Math.cos(a) * R, z = Math.sin(a) * R;
+    var ct = Math.cos(tilt), st = Math.sin(tilt);
+    var y = -z * st, z1 = z * ct;                                // เอียงรอบแกน x
+    var roll = Math.sin(yaw) * .32, cr = Math.cos(roll), sr = Math.sin(roll);
+    var x2 = x * cr - y * sr, y2 = x * sr + y * cr;              // ระนาบที่สอง: หมุนจริงรอบแกนกล้อง (วงรียังเป็นวงรี ไม่บิดเป็นเหลี่ยม)
+    var p = 2600 / (2600 + z1);
+    return [cx + x2 * p, cy + y2 * p, z1, p];
+  }
+
+  function frame(now){
+    if(document.hidden){ frame.t = 0; return requestAnimationFrame(frame); }
+    var raw = (now - (frame.t || now)) / 1000, dt = Math.min(.05, raw); frame.t = now;
+    /* เครื่องช้า (ภาพห่างเกิน 32 ms ต่อเนื่อง) → ลดจำนวนอนุภาคเอง ภาพยังสวยแต่ลื่นก่อน */
+    slowFrames = raw > .032 ? slowFrames + 1 : Math.max(0, slowFrames - 1);
+    if(slowFrames > 40 && N > 200){ N = Math.round(N * .75); slowFrames = 0; }
+    var cx = W / 2, cy = H * .4, base = Math.min(W, H * .82);   // ยกขึ้นและเล็กลงนิด ไม่ให้วงแหวนจมใต้แผงข้อความบนจอใหญ่
+    shown += (choices - shown) * Math.min(1, dt * 2.2);
+    var life = Math.max(0, shown / 3), T = (now - t0) / 1000;
+    var speed = REDUCED ? 0 : (.1 + .5 * life);
+    spin += dt * speed; drag += dt * speed * .6;
+    if(!pointer.down){ tilt += ((.48 + (REDUCED ? 0 : .16 * Math.sin(T / 4.6))) - tilt) * Math.min(1, dt * 1.5); yaw += pointer.vy * dt + (REDUCED ? 0 : dt * .05 * Math.sin(T / 9)); pointer.vy *= .95; }
+    STAGES.forEach(function(s){ glow[s[0]] = Math.max(0, glow[s[0]] - dt * .38); });
+
+    g.globalCompositeOperation = 'source-over';
+    g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(BG, 0, 0); g.setTransform(DPR, 0, 0, DPR, 0, 0);
+    for(var i = 0; i < TW.length; i++){
+      var st = TW[i], a = .15 + .75 * Math.abs(Math.sin(T * .7 + st[3]));
+      g.fillStyle = st[5] + a.toFixed(2) + ')'; g.fillRect(st[0], st[1], st[2] * 1.3, st[2] * 1.3);
+    }
+
+    var Rc = base * .082, R = base * (.15 + .22 * Math.max(.06, life)), segN = STAGES.length;
+    // สีไฮบริด 96 ช่วงต่อเฟรม (ไม่ใช่ทุกอนุภาค) — อนุภาคหยิบสไปรต์ของช่วงที่ใกล้สุด
+    var BK = 96, bucket = new Array(BK);
+    for(var bq = 0; bq < BK; bq++){ var ub = bq / BK; bucket[bq] = sprite(hybrid(ub + T * .015, T * 1.3 + ub * 18)); }
+    var pts = [];
+    for(var n = 0; n < N; n++){
+      var u = n / N, ang = spin + u * Math.PI * 2;
+      var stg = STAGES[Math.floor(u * segN) % segN][0], l = glow[stg];
+      var c = bucket[Math.floor(u * BK) % BK];          // สีไหลช้าๆ รอบวง + เหลือบ
+      // วงแหวนมีชีวิต ไม่ใช่เส้นแข็ง — จำนวนลูกคลื่นต้องเป็นจำนวนเต็มรอบวง ไม่งั้นจุดเริ่ม/จุดจบไม่ต่อกัน (เคยเห็นรอยหัก)
+      var wob = 1 + .009 * Math.sin(u * Math.PI * 2 * 9 + T * 1.6);
+      var p = ringPoint(ang, R * wob, cx, cy);
+      pts.push([p, c, l]);
+    }
+    function ring(back){
+      g.globalCompositeOperation = 'lighter';
+      for(var i = 0; i < pts.length; i++){
+        var p = pts[i][0]; if((p[2] < 0) !== back) continue;
+        var l = pts[i][2], sz = (9 + 16 * l) * p[3] * (base / 430) * (.55 + .45 * life);
+        g.globalAlpha = (.38 + .6 * l) * (.4 + .6 * life) * (back ? .5 : 1);
+        g.drawImage(pts[i][1], p[0] - sz, p[1] - sz, sz * 2, sz * 2);
+      }
+      g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+    }
+
+    ring(true);
+    /* เลนส์ความโน้มถ่วง: แสงจากวงแหวนด้านหลังโค้งอ้อมทรงกลม เห็นเป็นโค้งบางๆ เหนือและใต้ (ภาพจำของหลุมดำ) */
+    g.globalCompositeOperation = 'lighter';
+    var lensC = hybrid(T * .02, T);
+    for(var side = -1; side <= 1; side += 2){
+      var lg2 = g.createLinearGradient(cx - Rc * 1.6, 0, cx + Rc * 1.6, 0);
+      var lc = 'rgba(' + lensC.map(Math.round).join(',') + ',';
+      lg2.addColorStop(0, lc + '0)'); lg2.addColorStop(.5, lc + (.28 * (.3 + .7 * life)).toFixed(2) + ')'); lg2.addColorStop(1, lc + '0)');
+      g.strokeStyle = lg2; g.lineWidth = Rc * .09;
+      g.beginPath(); g.ellipse(cx, cy, Rc * 1.42, Rc * 1.18, 0, side < 0 ? Math.PI * 1.08 : Math.PI * .08, side < 0 ? Math.PI * 1.92 : Math.PI * .92); g.stroke();
+    }
+    /* แสงรอบศูนย์กลาง: ไล่สีทอง → ม่วง → ฟ้า หมุนช้าๆ (สีไฮบริดของผู้ใช้) */
+    var halo = g.createRadialGradient(cx, cy, Rc * .95, cx, cy, Rc * 2.3), hc1 = hybrid(T * .01 + .9, T), hc2 = hybrid(T * .01 + .35, T + 2);
+    halo.addColorStop(0, 'rgba(' + hc1.map(Math.round).join(',') + ',' + (.5 * (.35 + .65 * life)).toFixed(2) + ')');
+    halo.addColorStop(.45, 'rgba(' + hc2.map(Math.round).join(',') + ',' + (.14 * (.35 + .65 * life)).toFixed(2) + ')');
+    halo.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = halo; g.beginPath(); g.arc(cx, cy, Rc * 2.3, 0, Math.PI * 2); g.fill();
+    g.globalCompositeOperation = 'source-over';
+    /* ทรงกลมมืด (ผู้ใช้) + วงแหวนโฟตอน: เส้นแสงบางรอบขอบ หมุนตามแรงลากของวงแหวน (frame dragging) */
+    g.fillStyle = '#000'; g.beginPath(); g.arc(cx, cy, Rc, 0, Math.PI * 2); g.fill();
+    g.globalCompositeOperation = 'lighter';
+    for(var k = 0; k < 3; k++){
+      var pc = hybrid(k / 3 + T * .03, T * 2 + k), pa = drag + k * 2.1;
+      g.strokeStyle = 'rgba(' + pc.map(Math.round).join(',') + ',' + (.75 - k * .18).toFixed(2) + ')';
+      g.lineWidth = 1.4 - k * .3; g.beginPath(); g.arc(cx, cy, Rc * (1.005 + k * .012), pa, pa + 1.3 - k * .25); g.stroke();
+    }
+    /* ประกายไหลเข้าหาศูนย์กลางตอนขั้นนั้นทำงาน (เหมือนสสารถูกดึงเข้า) */
+    if(!REDUCED) for(var q = 0; q < STAGES.length; q++){
+      if(glow[STAGES[q][0]] > .6 && Math.random() < .5){
+        var ua = spin + ((q + Math.random()) / STAGES.length) * Math.PI * 2, sp = ringPoint(ua, R, cx, cy);
+        sparks.push({ x: sp[0], y: sp[1], c: hybrid((q + .5) / STAGES.length, T), life: 1 });
+      }
+    }
+    for(var m = sparks.length - 1; m >= 0; m--){
+      var k2 = sparks[m]; k2.life -= dt * 1.1; if(k2.life <= 0){ sparks.splice(m, 1); continue; }
+      k2.x += (cx - k2.x) * dt * 1.6; k2.y += (cy - k2.y) * dt * 1.6;
+      var z3 = 10 * k2.life; g.globalAlpha = k2.life * .8; g.drawImage(sprite(k2.c), k2.x - z3, k2.y - z3, z3 * 2, z3 * 2);
+    }
+    g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+    ring(false);
+
+    if(life < .2){
+      g.fillStyle = 'rgba(255,150,150,' + (.9 - life * 3).toFixed(2) + ')'; g.font = '500 13px "Noto Sans Thai Looped",sans-serif'; g.textAlign = 'center';
+      g.fillText('ทางเลือกหมด — วงแหวนยุบ (Choice = 0)', cx, cy - Rc * 2.4);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* ลากเพื่อหมุนดูวงแหวนเอง (นิ้ว/เมาส์) — ปล่อยแล้วหมุนต่อด้วยแรงเฉื่อยแล้วค่อยกลับท่าเดิม */
+  var pointer = { down: false, x: 0, y: 0, vy: 0 };
+  cv.addEventListener('pointerdown', function(e){ pointer.down = true; pointer.x = e.clientX; pointer.y = e.clientY; cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener('pointermove', function(e){
+    if(!pointer.down) return;
+    var dx = e.clientX - pointer.x, dy = e.clientY - pointer.y; pointer.x = e.clientX; pointer.y = e.clientY;
+    yaw += dx * .006; pointer.vy = dx * .4; tilt = Math.max(.05, Math.min(1.35, tilt + dy * .006));
+  });
+  ['pointerup', 'pointercancel'].forEach(function(t){ cv.addEventListener(t, function(){ pointer.down = false; }); });
+
+  /* ── ถามจริง: ส่ง /run พร้อม rid → ถาม /api/progress → ช่วงที่ทำงานจริงสว่าง ── */
+  var form = document.getElementById('ask'), q = document.getElementById('q'), go = document.getElementById('go');
+  var state = document.getElementById('state'), reply = document.getElementById('reply');
+  var slider = document.getElementById('choices'), out = document.getElementById('cv');
+  function setChoices(n){ choices = Math.max(0, Math.min(3, n)); slider.value = String(choices); out.textContent = String(choices); }
+  slider.addEventListener('input', function(){
+    setChoices(Number(slider.value));
+    state.textContent = choices ? 'ลองลดทางเลือกเหลือ ' + choices + ' — วงแหวนหมุนช้าลงและหดเข้าหาศูนย์กลาง'
+                                : 'ทางเลือกเป็นศูนย์ — ระบบยุบ นี่คือสิ่งที่ KING DIADEM ป้องกันไม่ให้เกิด';
+  });
+  function rid(){ var a = new Uint8Array(12); crypto.getRandomValues(a); return Array.prototype.map.call(a, function(x){ return (x % 36).toString(36); }).join(''); }
+  function name(st){ var s = STAGES.filter(function(x){ return x[0] === st; })[0]; return s ? s[1] : st; }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var text = q.value.trim(); if(!text) return;
+    var id = rid(), seen = 0, on = true; go.disabled = true; reply.style.display = 'none';
+    state.innerHTML = ''; state.appendChild(document.createTextNode('กำลังคิด…'));
+    (function poll(){
+      if(!on) return;
+      fetch('/api/progress/' + id, { cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(j){
+        var st = j.stages || [];
+        for(; seen < st.length; seen++){ glow[st[seen].stage] = 1; state.textContent = name(st[seen].stage) + '…'; }
+      }).catch(function(){}).then(function(){ if(on) setTimeout(poll, 350); });
+    })();
+    fetch('/run', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ input: text, rid: id }) })
+      .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j.error || 'ส่งไม่สำเร็จ'); return j; }); })
+      .then(function(d){
+        var ans = String(d.ai_response || d.message || '');
+        /* ทางเลือกที่ระบบเสนอจริง (บรรทัด 1) 2) 3)) · เรื่องวิกฤต = มีทางเดียวคือโทรขอความช่วยเหลือ */
+        var n = (ans.match(/^\s*\d+\s*[).]\s+\S/gm) || []).length;
+        if(!n && /1669|1323|191/.test(ans)) n = 1;
+        setChoices(Math.min(3, n || (ans ? 2 : 0)));
+        var risk = Number(d.risk_score || 0);
+        state.innerHTML = '';
+        var b = document.createElement('b'); b.textContent = 'ทางเลือกที่ยังเหลือ ' + choices;
+        state.appendChild(b); state.appendChild(document.createTextNode(' · ความเสี่ยง ' + Math.round(risk) + '/100'));
+        reply.textContent = ans; reply.style.display = ans ? 'block' : 'none';
+      })
+      .catch(function(err){ state.textContent = err.message; })
+      .then(function(){ on = false; go.disabled = false; });
+  });
+
+  addEventListener('resize', size); size(); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

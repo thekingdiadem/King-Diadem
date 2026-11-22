@@ -13,7 +13,8 @@ from core.llm_openai_compat import OpenAICompatLLM
 @pytest.fixture
 def compat_env(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "openai_compat")
-    monkeypatch.setenv("LLM_BASE_URL", "https://example.invalid/v1")
+    # ปลายทางทางการ (core/llm_provider_policy ไม่ต่อโดเมนที่ไม่รู้จัก) — การเรียกจริงถูกแทนด้วย _post ปลอมในแต่ละเทสต์
+    monkeypatch.setenv("LLM_BASE_URL", "https://api.openai.com/v1")
     monkeypatch.setenv("LLM_API_KEY", "k1")
     monkeypatch.setenv("LLM_MODEL", "test-model")
     monkeypatch.setenv("LLM_CALL_BUDGET_S", "5")

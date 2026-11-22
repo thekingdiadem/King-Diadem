@@ -268,6 +268,14 @@ An email in either list gets access only after signing in **with Google** once (
 signing up with a password alone is not enough, because anyone can type any email.
 Turn on two-step verification for every admin account; `/admin/security` shows who still needs it.
 
+AI provider safety:
+
+- Every message to an AI provider passes one choke point that masks emails, passwords/OTPs and long numbers (accounts, cards, phones).
+  Each masking is logged with kinds, counts and a hash of the masked text in a tamper-evident hash chain — never the secret values.
+  Admins get a report and CSV export at `/admin/security`.
+- Only official vendor endpoints (or a self-hosted model on a private network) are allowed. Routers/resellers are refused unless
+  `KD_ALLOW_UNVERIFIED_LLM=1` is set explicitly. Fallback: configured provider → official Gemini (4 models) → rule-based answers.
+
 Run locally:
 
 ```bash
