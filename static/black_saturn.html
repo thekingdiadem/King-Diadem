@@ -271,7 +271,8 @@ input[type=range]{flex:1;accent-color:var(--gold)}
         state.innerHTML = '';
         var b = document.createElement('b'); b.textContent = 'ทางเลือกที่ยังเหลือ ' + choices;
         state.appendChild(b); state.appendChild(document.createTextNode(' · ความเสี่ยง ' + Math.round(risk) + '/100'));
-        reply.textContent = ans; reply.style.display = ans ? 'block' : 'none';
+        reply.textContent = ans.replace(/\*\*([^*\n]+)\*\*/g, '$1');   // ตัดเครื่องหมาย ** ของ markdown ไม่ให้โชว์ดิบ
+        reply.style.display = ans ? 'block' : 'none';
       })
       .catch(function(err){ state.textContent = err.message; })
       .then(function(){ on = false; go.disabled = false; });
