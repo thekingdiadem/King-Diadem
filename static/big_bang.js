@@ -236,7 +236,9 @@
     }
     if (state === 'fade') {
       var o = Math.max(0, 1 - (now - fadeAt) / (FADE * 1000));
-      root.style.opacity = o;
+      // ฉากมืดลงเป็นดำก่อน แล้วค่อยเปิดหน้าเว็บ — ไม่ให้ภาพฟ้าของฉากซ้อนกับหน้าจนจอเป็นสีฟ้า
+      cv.style.opacity = Math.max(0, o * 2 - 1);
+      root.style.opacity = Math.min(1, o * 2);
       if (o <= 0) { close(); return; }
     }
     if (!document.hidden) raf = requestAnimationFrame(step);
@@ -433,7 +435,7 @@
     prevFocus = document.activeElement;
     resize(); if (GL) GL.seed(GL.count(W, H)); else seed();
     phase = -1; waves = []; glWaves = []; wellAmt = 0; hit = false;
-    root.hidden = false; root.style.opacity = 1; root.classList.remove('lit', 'still');
+    root.hidden = false; root.style.opacity = 1; cv.style.opacity = 1; root.classList.remove('lit', 'still');
     document.documentElement.classList.add('bb-on');
     capEl.textContent = 'ก่อนเวลาจะเริ่ม ทุกอย่างอยู่ในจุดเดียว'; timeEl.textContent = '—'; tempEl.textContent = '—';
     try { skipEl.focus({ preventScroll: true }); } catch (e) { skipEl.focus(); }
