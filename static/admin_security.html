@@ -52,6 +52,10 @@ a{color:var(--gold)}
   <li>เข้า Render และ GitHub ด้วยรหัสกู้คืนของแต่ละที่ — สองบัญชีนี้ควบคุมทั้งระบบ</li>
 </ol>
 
+<h2>ข้อมูลลับที่ระบบซ่อนก่อนส่ง AI (30 วัน)</h2>
+<p class="sub" id="sa">กำลังโหลด…</p>
+<p class="sub"><a href="/api/admin/secret-audit.csv">ดาวน์โหลดหลักฐาน (.csv)</a> — ไม่มีค่าจริงของข้อมูลลับ มีแค่ชนิด จำนวน และ hash ของข้อความหลังซ่อน</p>
+
 <h2>การกระทำล่าสุด</h2>
 <table><tbody id="actions"></tbody></table>
 <p class="sub"><a href="/admin/label">ไปหน้าติดป้ายข้อความจริง</a> · <a href="/admin/medical">ไปหน้าแพทย์ตรวจข้อความ</a></p>
@@ -90,6 +94,17 @@ a{color:var(--gold)}
     });
   }).catch(function(e){ var x = document.getElementById('err'); x.textContent = e.message; x.hidden = false;
                          document.getElementById('summary').textContent = ''; });
+})();
+(function(){
+  var K = { email: 'อีเมล', password: 'รหัสผ่าน/OTP', long_number: 'เลขยาว (บัญชี บัตร เบอร์)' };
+  fetch('/api/admin/secret-audit?days=30', { credentials: 'same-origin' }).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+    var el = document.getElementById('sa'); if(!j){ el.textContent = ''; return; }
+    var parts = Object.keys(K).map(function(k){ return K[k] + ' ' + (j.masked[k] || 0); });
+    var p = j.provider || {};
+    el.textContent = 'ซ่อนใน ' + j.messages_with_secrets + ' ข้อความ · ' + parts.join(' · ') +
+      ' · ส่งไปที่ ' + (p.host || '?') + (p.verified ? ' (ปลายทางทางการ)' : ' (ไม่ได้ตรวจสอบ!)') +
+      ' · โซ่หลักฐาน ' + (j.chain.ok ? 'สมบูรณ์' : 'ขาดที่แถว ' + j.chain.broken_at);
+  }).catch(function(){});
 })();
 </script>
 </body>

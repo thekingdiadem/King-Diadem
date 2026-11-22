@@ -86,6 +86,12 @@ def _admin_actions(now: datetime) -> int:
     return prune(now.timestamp())
 
 
+def _secret_audit(now: datetime) -> int:
+    """หลักฐานการซ่อนข้อมูลลับ (core/secret_audit) — ลบเมื่อเกิน 400 วัน"""
+    from core.secret_audit import prune
+    return prune(now.timestamp())
+
+
 def _sqlite(now: datetime) -> str:
     from DATABASE.db import get_conn
     conn = get_conn()
@@ -97,7 +103,7 @@ def _sqlite(now: datetime) -> str:
         conn.close()
 
 
-STEPS = (("usage_daily", _usage_daily), ("mail_memory", _mail_memory), ("expired_reports", _expired_reports), ("report_questions", _report_questions), ("admin_actions", _admin_actions), ("sqlite", _sqlite))
+STEPS = (("usage_daily", _usage_daily), ("mail_memory", _mail_memory), ("expired_reports", _expired_reports), ("report_questions", _report_questions), ("admin_actions", _admin_actions), ("secret_audit", _secret_audit), ("sqlite", _sqlite))
 
 
 def due(now: datetime | None = None) -> bool:

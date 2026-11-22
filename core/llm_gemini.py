@@ -1019,6 +1019,9 @@ def _cache_set(key: str, value: str):
 def _msg(role: str, text: str):
     """ข้อความหนึ่งรอบ — ใช้ชนิดของ google-genai ถ้ามี ไม่มีก็ใช้โครงเดียวกันแบบธรรมดา
     (.role / .parts[0].text) เพื่อให้ผู้ให้บริการรายอื่นใช้ governance ชุดเดียวกันได้โดยไม่ต้องลงไลบรารี Gemini"""
+    # ซ่อนข้อมูลลับที่จุดเดียวที่ทุกข้อความต้องผ่าน — เดิมซ่อนแค่ใน _build_contents
+    # ทาง generate() (สภา 6 เสียง · DecisionEngine) สร้างข้อความเองจึงหลุดไปได้
+    text = scrub_secrets(text, record=True)
     if types is not None:
         return types.Content(role=role, parts=[types.Part.from_text(text=text)])
     from types import SimpleNamespace
@@ -1037,12 +1040,34 @@ _SECRET_RX = [
 ]
 
 
-def scrub_secrets(text: str) -> str:
+_SECRET_KIND = ("email", "password", "long_number")
+
+
+def scrub_counts(text: str) -> tuple[str, dict]:
+    """ข้อความหลังซ่อน + จำนวนที่ซ่อนแยกตามชนิด (ไม่มีค่าจริง)"""
+    counts = {}
+    if not isinstance(text, str) or not text:
+        return text, counts
+    for kind, (rx, rep) in zip(_SECRET_KIND, _SECRET_RX):
+        text, n = rx.subn(rep, text)
+        if kind == "long_number":                           # subn นับทุกเลขที่ match แม้เลขสั้นที่คืนค่าเดิม
+            n = text.count("[เลขยาว ••")
+        if n:
+            counts[kind] = n
+    return text, counts
+
+
+def scrub_secrets(text: str, record: bool = False) -> str:
     if not isinstance(text, str) or not text:
         return text
-    for rx, rep in _SECRET_RX:
-        text = rx.sub(rep, text)
-    return text
+    out, counts = scrub_counts(text)
+    if record and counts:
+        try:
+            from core import secret_audit
+            secret_audit.note(counts, out)
+        except Exception as e:
+            print(f"⚠ secret_audit: {type(e).__name__}")
+    return out
 
 
 def _build_contents(history: list, user_input: str, ctx_note: str = "") -> list:
@@ -1052,10 +1077,9 @@ def _build_contents(history: list, user_input: str, ctx_note: str = "") -> list:
         if not isinstance(turn, dict) or turn.get("role") not in ("user", "assistant", "model"):
             continue
         role = "user" if turn.get("role") == "user" else "model"
-        text = scrub_secrets(str(turn.get("content", ""))[:2000].strip())   # รอบละไม่เกิน 2000 ตัวอักษร — กันประวัติยาวหลาย MB
+        text = str(turn.get("content", ""))[:2000].strip()   # รอบละไม่เกิน 2000 ตัวอักษร — ข้อมูลลับถูกซ่อนใน _msg
         if text:
             contents.append(_msg(role, text))
-    user_input, ctx_note = scrub_secrets(user_input), scrub_secrets(ctx_note)
     final = f"{user_input}\n\n[บริบท: {ctx_note}]" if ctx_note else user_input
     contents.append(_msg("user", final))
     return contents
@@ -1086,7 +1110,13 @@ class GeminiLLM:
         print(f"✅ GeminiLLM ready | model={model} | keys={len(self._keys)}")
 
     def _init_client(self):
-        self.client = genai.Client(api_key=self._keys[self._key_index])
+        # ล็อกปลายทางเป็นของ Google เสมอ (core/llm_provider_policy) — ไม่ให้ค่าในเครื่องพาข้อความผู้ใช้ไปตัวกลาง
+        from core.llm_provider_policy import GEMINI_OFFICIAL
+        try:
+            self.client = genai.Client(api_key=self._keys[self._key_index],
+                                       http_options=types.HttpOptions(base_url=GEMINI_OFFICIAL))
+        except Exception:                                     # ไลบรารีรุ่นเก่าไม่มี HttpOptions — ใช้ค่าเริ่มต้น (ของ Google อยู่แล้ว)
+            self.client = genai.Client(api_key=self._keys[self._key_index])
 
     def _rotate_key(self):
         if len(self._keys) > 1:
@@ -1440,7 +1470,7 @@ class GeminiLLM:
 # ══════════════════════════════════════════════════════════════════
 def _provider_class():
     """เลือกผู้ให้บริการด้วย LLM_PROVIDER — ทุกเจ้าใช้ governance ชุดเดียวกัน (สืบทอดจาก GeminiLLM)
-    gemini (ค่าเริ่มต้น) · openai_compat (OpenAI / DeepSeek / Qwen / OpenRouter — ดู core/llm_openai_compat.py)
+    gemini (ค่าเริ่มต้น) · openai_compat (OpenAI / DeepSeek / Qwen ปลายทางทางการเท่านั้น — core/llm_provider_policy.py)
     ชื่อที่ไม่รู้จัก → ไม่เดา: สร้างไม่ได้ ระบบจะใช้คำตอบจากสมการแทน"""
     name = os.getenv("LLM_PROVIDER", "gemini").strip().lower() or "gemini"
     if name == "gemini":
@@ -1465,7 +1495,16 @@ def get_llm(model: str = "") -> GeminiLLM:
             return _instance
         inst = _instances.get(model)
         if inst is None:
-            inst = _instances[model] = _provider_class()(model=model)
+            cls = _provider_class()
+            try:
+                inst = cls(model=model)
+            except ValueError as e:
+                # ผู้ให้บริการที่ตั้งไว้ใช้ไม่ได้ (ปลายทางไม่ใช่ของทางการ · ไม่มี key) → สลับไป Gemini ทางการถ้ามี key
+                if cls is GeminiLLM:
+                    raise
+                print(f"⚠ LLM provider ใช้ไม่ได้ ({e}) — สลับไป Gemini ทางการ")
+                inst = GeminiLLM(model="")
+            _instances[model] = inst
         if not model or _instance is None:
             _instance = inst
         return inst

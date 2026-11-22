@@ -1319,6 +1319,28 @@ async def medical_review_summary(request: Request):
     return _MR_CACHE["v"]
 
 
+# ── หลักฐานการซ่อนข้อมูลลับก่อนส่ง AI (core/secret_audit) + ปลายทางที่ต่อจริง (core/llm_provider_policy) ──
+# ใช้ออกรายงานให้ลูกค้า/ผู้ตรวจ · ไม่มีค่าจริงของข้อมูลลับในรายงาน · เฉพาะผู้ดูแล
+@app.get("/api/admin/secret-audit")
+async def admin_secret_audit(request: Request, days: int = 30):
+    if not _is_admin(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import secret_audit
+    return await run_in_threadpool(secret_audit.report, days)
+
+
+@app.get("/api/admin/secret-audit.csv")
+async def admin_secret_audit_csv(request: Request, days: int = 30):
+    email = _session_email(request)
+    if not _is_admin(email):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import secret_audit
+    from fastapi.responses import PlainTextResponse
+    body = await run_in_threadpool(secret_audit.export_csv, days)
+    return PlainTextResponse(body, media_type="text/csv; charset=utf-8",
+                             headers={"Content-Disposition": 'attachment; filename="secret-audit.csv"'})
+
+
 # ── ความปลอดภัยของบัญชีผู้ดูแล (/admin/security) — ใครมีสิทธิ์ · เปิด 2FA หรือยัง · ใครทำอะไรล่าสุด ──
 @app.get("/admin/security")
 async def admin_security_page(request: Request):

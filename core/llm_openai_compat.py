@@ -9,7 +9,7 @@ core/llm_openai_compat.py — ผู้ให้บริการ AI ราย�
     governance ทั้งหมด (CRISIS / VEGA / LYLA / COUNCIL, ตัดความคิดภายใน, cache, คำตอบสำรอง)
     อยู่ใน GeminiLLM — คลาสนี้สืบทอดมาแล้วเปลี่ยนแค่ "ท่อส่ง" (_call) จึงได้กฎชุดเดียวกันทุกเจ้า
 
-ใช้กับ: OpenAI · DeepSeek · Qwen (DashScope compatible-mode) · OpenRouter · เซิร์ฟเวอร์ที่รัน
+ใช้กับ: OpenAI · DeepSeek · Qwen (DashScope compatible-mode) — ปลายทางทางการเท่านั้น (core/llm_provider_policy.py) · ตัวกลางอย่าง OpenRouter ไม่ต่อ · เซิร์ฟเวอร์ที่รัน
     โมเดลเองแบบ OpenAI-compatible (vLLM, Ollama ฯลฯ)
 
 ตั้งค่า (Render environment):
@@ -39,6 +39,13 @@ class OpenAICompatLLM(_g.GeminiLLM):
         self.base_url = os.getenv("LLM_BASE_URL", "").strip().rstrip("/")
         if not self.base_url.startswith(("https://", "http://")):
             raise ValueError("ไม่พบ LLM_BASE_URL (ต้องขึ้นต้นด้วย https://)")
+        # ต่อได้เฉพาะปลายทางทางการของผู้ผลิตโมเดล (core/llm_provider_policy) — ตัวกลาง/router ไม่ต่อ
+        from core.llm_provider_policy import check_url
+        pol = check_url(self.base_url)
+        if not pol["ok"]:
+            raise ValueError(f"LLM_BASE_URL ไม่ผ่านนโยบาย: {pol['host'] or self.base_url} — {pol['reason']}")
+        if not pol["verified"]:
+            print(f"⚠ LLM ปลายทางไม่ได้ตรวจสอบ: {pol['host']} — {pol['reason']}")
         self._keys = [k for k in (os.getenv("LLM_API_KEY"), os.getenv("LLM_API_KEY2")) if k]
         if not self._keys:
             raise ValueError("ไม่พบ LLM_API_KEY")
