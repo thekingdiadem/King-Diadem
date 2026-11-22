@@ -44,7 +44,8 @@ def test_missing_information_is_asked_not_guessed():
     assert a["verdict"] == "ask"
     sops = {q["sop"] for q in a["asks"]}
     assert {1, 2, 3, 6} <= sops                          # รายละเอียด · ผลเสีย · DHD · คนรับผิดชอบ
-    assert any("DHD" in q["th"] for q in a["asks"])
+    # ถามเรื่องที่แย่ลงทุกวัน (DHD) ด้วยภาษาธรรมดา — ไม่ขึ้นต้นด้วยศัพท์ระบบ (เจ้าของโปรเจกต์เลือก พ.ย. 2569)
+    assert any(q["key"] == "dhd" and "แย่ลงทีละนิดทุกวัน" in q["th"] and "DHD" not in q["th"] for q in a["asks"])
 
 
 def test_same_text_same_result():
@@ -91,7 +92,7 @@ def test_waterline_means_the_floor_not_just_water():
     g = {x["id"]: x for x in audit("บริษัทจะใช้เงินสำรองทั้งหมดขยายสาขา")["gates"]}["E2"]
     assert g["status"] == "stop" and "น้ำ" not in g["name"]["th"] and "ย้อนกลับไม่ได้" in g["why"]["th"]
     asks = audit("บริษัทจะขยายสาขา")["asks"]
-    assert any(q["th"].startswith("Waterline") and "ห้ามต่ำกว่า" in q["th"] for q in asks)
+    assert any(q["th"].startswith("เส้นขั้นต่ำ") and "ห้ามต่ำกว่า" in q["th"] and "Waterline" not in q["th"] for q in asks)
     assert [q["sop"] for q in asks] == sorted(q["sop"] for q in asks)
 
 

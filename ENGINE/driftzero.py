@@ -562,16 +562,17 @@ def audit(text: str, answered=()) -> dict:
         asks.append({"key": "downside", "sop": 2, "th": "ถ้าพลาด อะไรเสียหายที่สุด และใครรับผลนั้น",
                      "en": "If this fails, what is the worst damage, and who bears it?"})
     if not (_DRIFT.search(t) and _NUM.search(t)):
-        asks.append({"key": "dhd", "sop": 3, "th": "DHD: ถ้าทำต่อไปเรื่อยๆ อะไรจะแย่ลงทีละนิดทุกวัน — วัดเป็นตัวเลขอะไรได้บ้าง (เช่น เงินออกวันละเท่าไหร่ · ลูกค้าหายเดือนละกี่ราย · ของเสียกี่ลิตร/วัน)",
-                     "en": "DHD (daily drift): if this keeps going, what gets a little worse every day — and what number shows it? (e.g. money going out per day, customers lost per month)"})
+        asks.append({"key": "dhd", "sop": 3, "th": "ถ้าทำต่อไปเรื่อยๆ อะไรจะแย่ลงทีละนิดทุกวัน — วัดเป็นตัวเลขอะไรได้บ้าง (เช่น เงินออกวันละเท่าไหร่ · ลูกค้าหายเดือนละกี่ราย · ของเสียกี่ลิตร/วัน)",
+                     "en": "If this keeps going, what gets a little worse every day — and what number shows it? (e.g. money going out per day, customers lost per month)"})
     if wl["floor"] is not None and wl["current"] is None:
-        asks.append({"key": "current", "sop": 2, "th": "Waterline: ตอนนี้มีเท่าไหร่ (เช่น เงินสดคงเหลือ) — จะได้คำนวณว่าหลังตัดสินใจยังอยู่เหนือเส้นขั้นต่ำไหม",
-                     "en": "Waterline: how much do you have right now (e.g. cash on hand)? Then I can work out whether you stay above your floor"})
+        asks.append({"key": "current", "sop": 2, "th": "ตอนนี้มีเท่าไหร่ (เช่น เงินสดคงเหลือ) — จะได้คำนวณว่าหลังตัดสินใจยังอยู่เหนือเส้นขั้นต่ำไหม",
+                     "en": "How much do you have right now (e.g. cash on hand)? Then I can work out whether you stay above your floor"})
     if wl["floor"] is None:
-        asks.append({"key": "floor", "sop": 2, "th": "Waterline: เส้นขั้นต่ำของเรื่องนี้คือเท่าไหร่ — ตัวเลขที่ห้ามต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้ "
+        asks.append({"key": "floor", "sop": 2, "th": "เส้นขั้นต่ำของเรื่องนี้คือเท่าไหร่ — ตัวเลขที่ห้ามต่ำกว่า ไม่งั้นความเสียหายย้อนกลับไม่ได้ "
                                     "(เช่น ต้องเหลือเงินสดไม่ต่ำกว่า 50,000 · ทีมหลักไม่ต่ำกว่า 5 คน)",
-                     "en": "Waterline (your floor): what is the lowest you can safely go — the number you must not fall below, or the damage can't be undone? "
+                     "en": "What is the lowest you can safely go — the number you must not fall below, or the damage can't be undone? "
                            "(e.g. keep at least 5k in cash · at least 5 core staff)"})
+    # คำถามถึงผู้ใช้ไม่ขึ้นต้นด้วยศัพท์ระบบ (DHD · Waterline) — การ์ดบอกว่า "ไม่ต้องรู้ศัพท์" แต่คำถามเคยมีศัพท์นำหน้า (หน้าจอจริง พ.ย. 2569)
     if not _OWNER.search(t):
         asks.append({"key": "owner", "sop": 6, "th": "ใครเป็นคนรับผิดชอบการตัดสินใจนี้ (ชื่อหรือตำแหน่ง)",
                      "en": "Who is responsible for this decision? (a name or a role)"})
