@@ -4301,3 +4301,30 @@ def compose(text: str, *args, **kw) -> str:  # noqa: F811
                 head, sep, rest = reply.partition("\n\n")
                 reply = f"{head}\n\n{way}\n\n{rest}" if sep else f"{reply}\n\n{way}"
     return reply
+
+
+# ความสมเหตุสมผลของเรื่องที่เล่า (core/story_check) — ชี้จุดที่ไม่ตรงกัน ไม่ตัดสินว่าใครโกหก
+# เรื่องด่วน/วิกฤตไม่เติม (ความปลอดภัยมาก่อน ไม่ทำให้ขั้นตอนฉุกเฉินจางลง)
+_compose_before_story = compose
+
+
+def compose(text: str, *args, **kw) -> str:  # noqa: F811
+    reply = _compose_before_story(text, *args, **kw)
+    if not (isinstance(text, str) and text and isinstance(reply, str)):
+        return reply
+    try:
+        from core.story_check import check as _sc, reply_block as _sb
+        found = _sc(text)
+        if not found:
+            return reply
+        a = assess(text)
+        if a.get("crisis") or (a.get("text_risk") or 0) >= 75:    # ถูกทำร้าย/เรื่องด่วน: ขั้นตอนความปลอดภัยต้องเด่น
+            return reply
+        block = _sb(found, "en" if not re.search(r"[฀-๿]", text) else "th")
+        tail = re.search(r"\n\n— (?:LYLA|VEGA)[^\n]*(?:\n[^\n]*)?$", reply)
+        if tail:                                              # ก่อนลายเซ็นท้ายคำตอบ
+            return reply[:tail.start()] + "\n\n" + block + reply[tail.start():]
+        return reply + "\n\n" + block
+    except Exception as e:
+        print(f"⚠ story_check: {type(e).__name__}")
+        return reply
