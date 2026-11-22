@@ -1151,7 +1151,8 @@ async def health():
                 _HEALTH["busy"] = False
         asyncio.get_running_loop().create_task(_refresh())
     # ภาระตอนนี้ (นับในหน่วยความจำ ถูกมาก) ต้องสดเสมอ — ส่วนที่แพง (ฐานข้อมูล ไฟล์สำรอง) มาจากผลที่เก็บไว้
-    live = {"load": get_survival_stats() if get_survival_stats else None, "shield": _SHIELD.stats() if _SHIELD else None}
+    live = {"load": get_survival_stats() if get_survival_stats else None, "shield": _SHIELD.stats() if _SHIELD else None,
+            "reply_ms": _reply_ms(), "model_ms": _model_ms()}           # เวลาตอบ (นับในหน่วยความจำ) ต้องสดเหมือนกัน
     return {**_HEALTH["v"], **live}
 
 
@@ -4078,6 +4079,12 @@ async def sky_page():
     """ท้องฟ้าจริง ณ ตำแหน่งและเวลาของผู้ใช้ (static/sky.html · static/sky_view.js) — คำนวณในเครื่องผู้ใช้ทั้งหมด
     เสิร์ฟตรงที่ /sky (เดิม redirect ไป /static/sky.html) — Google เก็บ URL สั้นเป็นหน้าหลักได้"""
     return FileResponse("static/sky.html")
+
+
+@app.get("/saturn")
+async def black_saturn_page():
+    """Black Saturn — ผู้ใช้อยู่ตรงกลาง วงแหวนเครื่องยนต์สว่างตามขั้นที่ระบบทำจริง ยุบเมื่อทางเลือกหมด"""
+    return FileResponse("static/black_saturn.html")
 
 
 @app.get("/universe")

@@ -371,6 +371,7 @@ html.kd-calm .ship,html.kd-calm .ship-note{transition:none}
 .ec-sheet h3{margin:8px 6px 6px;font:600 11.5px var(--f-body);letter-spacing:.08em;color:rgba(232,238,252,.55)}
 .ec-sheet h3:first-child{margin-top:2px}
 .ec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+a.ec-tile{text-decoration:none;color:inherit}
 .earth-ctl .ec-tile,.ec-tile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:11px 4px;border-radius:14px;border:0;background:none;
   color:rgba(232,238,252,.72);font:500 12px/1.3 var(--f-body);text-align:center;text-decoration:none;cursor:pointer;backdrop-filter:none}
 .ec-tile:hover,.ec-tile:focus-visible{background:rgba(255,255,255,.06);color:#fff;outline:none}
@@ -576,6 +577,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
       <h3>เครื่องมือ</h3>
       <div class="ec-grid">
         <a class="ec-tile" href="/sky"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.6 4.9.4-3.7 3.2 1.1 4.8L12 13.5 7.8 16l1.1-4.8L5.2 8l4.9-.4z"/><path d="M4 21h16" opacity=".6"/></svg>ดูดาว</a>
+        <a class="ec-tile" id="ec-saturn" href="/saturn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.4"/><ellipse cx="12" cy="12" rx="9.5" ry="3.6" transform="rotate(-18 12 12)"/></svg>Black Saturn</a>
         <button type="button" class="ec-tile" id="ec-bang" data-act="bang"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4M5.3 5.3l2.8 2.8M15.9 15.9l2.8 2.8M18.7 5.3l-2.8 2.8M8.1 15.9l-2.8 2.8"/></svg>บิ๊กแบง</button>
         <button type="button" class="ec-tile" data-act="hzlist" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M2.5 13h3l2-5 3 10 3-13 2.5 8h5.5"/></svg>ภัยพิบัติ</button>
         <a class="ec-tile" id="ec-gmaps" href="https://www.google.com/maps" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0113 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Google Maps</a>
