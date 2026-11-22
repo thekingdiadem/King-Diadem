@@ -94,6 +94,21 @@
    "n": 263
   }
  },
+ "real_user": {
+  "n": 0,
+  "danger_missed": {
+   "n": 0,
+   "of": 0
+  },
+  "false_alarm": {
+   "n": 0,
+   "of": 0
+  },
+  "right_category": {
+   "n": 0,
+   "of": 0
+  }
+ },
  "misses": [
   {
    "line": 93,

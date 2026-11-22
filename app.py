@@ -1160,6 +1160,59 @@ async def admin_answer_reports(request: Request, limit: int = 50):
     return {"count": await run_in_threadpool(answer_reports.count), "reports": rows}
 
 
+# ── โต๊ะติดป้ายข้อความจริง: ประโยคที่ผู้ใช้แนบมาเอง → ผู้ดูแลติดป้าย → บรรทัดของชุดปิดตา (ผู้เขียน real-user) ──
+# ทุกเส้นทางตอบ 404 กับคนที่ไม่ใช่ผู้ดูแล (ไม่บอกว่ามีอยู่) · ประโยคถูกลบเบอร์/อีเมลตั้งแต่ตอนเก็บ และหายเองเมื่อครบ 90 วัน
+@app.get("/admin/label")
+async def admin_label_page(request: Request):
+    if not _is_admin(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return FileResponse("static/admin_label.html")
+
+
+def _label_item(r: dict) -> dict:
+    from core.kernel_voice import assess
+    from scripts.blind_score import detected
+    try:
+        a = assess(r["question"])
+        now = {"risk": a.get("risk_shown"), "detected": sorted(detected(a))}
+    except Exception:
+        now = {"risk": None, "detected": []}
+    days_left = max(0, int(90 - (time.time() - float(r["ts"] or 0)) / 86400))
+    return {**r, "now": now, "days_left": days_left}
+
+
+@app.get("/api/admin/label-queue")
+async def admin_label_queue(request: Request, limit: int = 30):
+    if not _is_admin(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import answer_reports
+    rows = await run_in_threadpool(answer_reports.label_queue, limit)
+    items = await run_in_threadpool(lambda: [_label_item(r) for r in rows])
+    done = await run_in_threadpool(answer_reports.labeled, True)
+    return {"items": items, "labels": list(answer_reports.LABELS), "labeled": len(done)}
+
+
+@app.post("/api/admin/label")
+async def admin_label_set(request: Request, data: dict):
+    if not _is_admin(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import answer_reports
+    data = data if isinstance(data, dict) else {}
+    r = await run_in_threadpool(answer_reports.set_label, data.get("id"), data.get("label"))
+    return r if r.get("ok") else JSONResponse(r, status_code=400)
+
+
+@app.get("/api/admin/label-export")
+async def admin_label_export(request: Request):
+    if not _is_admin(_session_email(request)):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from core import answer_reports
+    from fastapi.responses import PlainTextResponse
+    body = await run_in_threadpool(answer_reports.export_blind_lines)
+    return PlainTextResponse(body, media_type="text/tab-separated-values; charset=utf-8",
+                             headers={"Content-Disposition": 'attachment; filename="real-user-blind.tsv"'})
+
+
 # ── ความจำข้ามแชทของ LYLA (เฉพาะผู้ที่เข้าสู่ระบบ) — ผู้ใช้ดู ปิด หรือล้างเองได้ ─────────
 @app.get("/api/memory")
 def get_my_memory(request: Request):

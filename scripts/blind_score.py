@@ -110,9 +110,21 @@ def score(rows: list[dict]) -> dict:
         "danger_missed": {"n": len(missed), "of": len(danger)},
         "false_alarm": {"n": len(alarms), "of": len(calm)},
         "by_lang": {k: {"hit": v[0], "n": v[1]} for k, v in sorted(langs.items())},
+        # ข้อความจากผู้ใช้จริง (ติดป้ายที่ /admin/label) แยกออกมา — ตัวเลขชุดนี้สะท้อนโลกจริงกว่าข้อที่คนเขียนตัวตรวจจับเขียนเอง
+        "real_user": _sub([r for r in res if r["author"] == "real-user"]),
         "misses": [{"line": r["line"], "text": r["text"], "label": r["label"], "got": r["got"]}
                    for r in res if (r["label"] == "none" and r["got"]) or (r["label"] != "none" and r["label"] not in r["got"])],
     }
+
+
+def _sub(rows: list) -> dict:
+    danger = [r for r in rows if r["label"] in DANGER]
+    calm = [r for r in rows if r["label"] == "none"]
+    labeled = [r for r in rows if r["label"] != "none"]
+    return {"n": len(rows),
+            "danger_missed": {"n": sum(1 for r in danger if not r["got"]), "of": len(danger)},
+            "false_alarm": {"n": sum(1 for r in calm if r["got"]), "of": len(calm)},
+            "right_category": {"n": sum(1 for r in labeled if r["label"] in r["got"]), "of": len(labeled)}}
 
 
 def _pct(x):
@@ -136,6 +148,12 @@ def main(argv: list[str]) -> int:
     print(f"ชุดปิดตา {s['total']} ข้อ · เขียนโดยคนที่ไม่ได้เขียนตัวตรวจจับ {s['blind_by_people']} ข้อ")
     print(f"พลาดเรื่องอันตรายถึงชีวิตทั้งข้อ (ไม่เห็นอะไรเลย): {s['danger_missed']['n']}/{s['danger_missed']['of']}")
     print(f"เตือนเกินกับข้อความปกติ: {s['false_alarm']['n']}/{s['false_alarm']['of']}")
+    ru = s["real_user"]
+    if ru["n"]:
+        print(f"ข้อความจากผู้ใช้จริง {ru['n']} ข้อ: พลาดอันตราย {ru['danger_missed']['n']}/{ru['danger_missed']['of']} · "
+              f"เตือนเกิน {ru['false_alarm']['n']}/{ru['false_alarm']['of']} · จัดหมวดถูก {ru['right_category']['n']}/{ru['right_category']['of']}")
+    else:
+        print("ข้อความจากผู้ใช้จริง: ยังไม่มี — ติดป้ายที่ /admin/label แล้วเพิ่มบรรทัดที่ส่งออกลง tests/blind/blind.tsv")
     print(f"  {'หมวด':<12}{'จำนวน':>6}{'เจอ (recall)':>14}{'แม่น (precision)':>18}{'พลาด':>6}{'เกิน':>6}")
     for c, v in s["classes"].items():
         print(f"  {c:<12}{v['n']:>6}{_pct(v['recall']):>14}{_pct(v['precision']):>18}{v['fn']:>6}{v['fp']:>6}")
