@@ -260,6 +260,8 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
 </main>
 
 <script>
+/* เปิดในแอป Android บน Google Play: หน้านี้ขายเครดิตผ่าน Stripe ซึ่ง Play ไม่อนุญาตในแอป — กลับหน้าแรก (app.js ตั้งค่า kd-in-app) */
+try{ if(sessionStorage.getItem('kd-in-app') === '1'){ location.replace('/'); } }catch(_){}
 (function(){
   var W = { min: 20, max: 10000, rate: 1 };
   /* แปลข้อความที่ประกอบเอง (static/i18n.js) — ไม่มีคำแปลก็คืนภาษาไทย */

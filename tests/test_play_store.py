@@ -11,7 +11,7 @@ DOC = open("docs/PLAY_STORE.md", encoding="utf-8").read()
 
 
 def test_app_config_matches_the_web_manifest():
-    assert TWA["startUrl"] == WEB["start_url"] and TWA["display"] == WEB["display"]
+    assert TWA["startUrl"] == "/?src=twa" and TWA["display"] == WEB["display"]   # src=twa = รู้ว่าเปิดจากแอป
     assert TWA["backgroundColor"].lower() == WEB["background_color"].lower()
     assert TWA["themeColor"].lower() == WEB["theme_color"].lower()
     assert TWA["webManifestUrl"].endswith("/static/manifest.json")
@@ -50,3 +50,15 @@ def test_privacy_policy_matches_what_the_flag_button_really_keeps():
     assert "แนบประโยคที่ฉันพิมพ์ไปด้วย" in PRIVACY and "90 วัน" in PRIVACY      # คำเดียวกับช่องติ๊กที่ผู้ใช้เห็น
     assert "attach my message" in PRIVACY
     assert "แนบประโยคที่ฉันพิมพ์ไปด้วย" in front_page()
+
+
+def test_no_buying_inside_the_play_app():
+    """ทาง 1 (ใช้เงินน้อยสุด): ในแอปไม่แสดงการซื้อ — Play บังคับ Play Billing และห้ามพาไปจ่ายที่อื่น (anti-steering)"""
+    page = front_page()
+    assert 'id="card-pay" data-buy' in page and '<div class="dlg-f" data-buy>' in page
+    assert "html.in-app [data-buy]{display:none!important}" in page
+    assert "sessionStorage.setItem('kd-in-app', '1')" in page and "localStorage.setItem('kd-in-app'" not in page
+    note = re.search(r'data-app-only>([^<]+)<', page).group(1)
+    assert "20 ข้อความ" in note and "เว็บ" not in note and "Stripe" not in note   # ไม่ชี้ไปจ่ายที่อื่น
+    wallet = open("static/wallet.html", encoding="utf-8").read()
+    assert "sessionStorage.getItem('kd-in-app') === '1'" in wallet

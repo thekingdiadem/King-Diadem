@@ -13,7 +13,7 @@
   "navigationDividerColorDark": "#04050D",
   "backgroundColor": "#04050D",
   "enableNotifications": false,
-  "startUrl": "/",
+  "startUrl": "/?src=twa",
   "iconUrl": "https://king-diadem.onrender.com/static/icons/icon-512.png",
   "maskableIconUrl": "https://king-diadem.onrender.com/static/icons/maskable-512.png",
   "splashScreenFadeOutDuration": 300,
@@ -35,7 +35,9 @@
   "webManifestUrl": "https://king-diadem.onrender.com/static/manifest.json",
   "fallbackType": "customtabs",
   "features": {},
-  "alphaDependencies": { "enabled": false },
+  "alphaDependencies": {
+    "enabled": false
+  },
   "enableSiteSettingsShortcut": true,
   "isChromeOSOnly": false,
   "isMetaQuest": false,

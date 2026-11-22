@@ -246,7 +246,7 @@ window.KD_themeVars = function(t, c){
             <div class="out empty" id="img-out">—</div>
           </div>
         </div>
-        <div class="card glass" id="card-pay">
+        <div class="card glass" id="card-pay" data-buy>
           <div class="card-h"><h2>แพ็กเกจ</h2><p class="mono">Stripe · <a href="/static/wallet.html">เติมเครดิต →</a></p></div>
           <div class="card-b">
             <label class="field"><span>อีเมล</span><input class="inp" type="email" id="pay-email" autocomplete="email" placeholder="you@example.com"></label>
@@ -407,7 +407,8 @@ window.KD_themeVars = function(t, c){
       <div><span>Premium</span><b>∞</b></div>
     </div>
   </div>
-  <div class="dlg-f"><a class="btn ghost" href="/static/wallet.html">เติมเครดิต</a><button type="button" class="btn primary" id="up-go">Premium ฿279</button></div>
+  <div class="dlg-f" data-buy><a class="btn ghost" href="/static/wallet.html">เติมเครดิต</a><button type="button" class="btn primary" id="up-go">Premium ฿279</button></div>
+  <p class="dlg-f app-note" data-app-only>ใช้ฟรีได้วันละ 20 ข้อความ — พรุ่งนี้คุยต่อได้อีกค่ะ ถ้ากำลังอันตราย โทร 1669 หรือ 1323 ได้ตลอด</p>
 </dialog>
 
 <dialog id="dlg-axis" class="axis" aria-label="THE PURE AXIS">
