@@ -592,7 +592,7 @@ def audit(text: str, answered=()) -> dict:
         sm_en = f"No gate blocked yet, but {len(asks)} answer{' is' if len(asks) == 1 else 's are'} missing — reply below, numbered (1 … 2 …) is fine"
     else:
         verdict = "pass"
-        sm_th = "ผ่านทุกด่านจากข้อมูลที่ให้มา — ยังต้องมีคนเซ็นรับผิดชอบ และตรวจหลังทำ (SOP 7)"
+        sm_th = "ผ่านทุกจุดที่ตรวจจากข้อมูลที่ให้มา — ยังต้องมีคนเซ็นรับผิดชอบ และตรวจหลังทำ (SOP 7)"
         sm_en = "Passes every gate on the information given — a human still signs off, and a post-audit closes the loop"
 
     done = {1: len(t) >= 40 or "detail" in answered, 2: bool(_DOWNSIDE.search(t)) or "downside" in answered,
@@ -635,29 +635,40 @@ def lyla_voice(r: dict) -> dict:
             first_en = f"doing this leaves {_money_en(after)}, {_money_en(floor - after)} below the floor you set ({_money_en(floor)})"
         more_th = f" และอีก {len(stops) - 1} จุดในการ์ดข้างล่าง" if len(stops) > 1 else ""
         more_en = f", plus {len(stops) - 1} more in the card below" if len(stops) > 1 else ""
-        th = (f"LYLA รัน DriftZero ให้แล้วค่ะ{seen_th} มีจุดที่ควรหยุดคิดก่อน: {first_th}{more_th} — "
+        th = (f"ดูให้แล้วค่ะ{seen_th} มีจุดที่ควรหยุดคิดก่อน: {first_th}{more_th} — "
               "ไม่ได้แปลว่าห้ามทำนะคะ แต่ถ้าแก้ตรงนี้ก่อน จะไม่เสียสิ่งที่ย้อนกลับไม่ได้")
-        en = (f"I ran DriftZero for you.{seen_en} One thing to pause on: {first_en}{more_en}. "
+        en = (f"I've looked this over for you.{seen_en} One thing to pause on: {first_en}{more_en}. "
               "That doesn't mean don't do it — fixing this first keeps you from losing something you can't get back.")
     elif v == "ask":
-        th = (f"LYLA รัน DriftZero ให้แล้วค่ะ{seen_th} ยังไม่เจออะไรที่ต้องหยุด แต่ขอรู้อีก {n} อย่างจะได้ดูให้แม่นขึ้น — "
+        th = (f"ดูให้แล้วค่ะ{seen_th} ยังไม่เจออะไรที่ต้องหยุด แต่ขอรู้อีก {n} อย่างจะได้ดูให้แม่นขึ้น — "
               "ตอบสั้นๆ เป็นข้อ (1 … 2 …) ก็พอค่ะ ไม่ต้องรู้ศัพท์ในการ์ดเลย")
-        en = (f"I ran DriftZero for you.{seen_en} Nothing needs stopping yet, but I need {n} more thing{'' if n == 1 else 's'} to check it properly — "
+        en = (f"I've looked this over for you.{seen_en} Nothing needs stopping yet, but I need {n} more thing{'' if n == 1 else 's'} to check it properly — "
               "short numbered answers (1 … 2 …) are perfect. You don't need to know the terms in the card.")
     elif after is not None and floor is not None:
-        th = (f"LYLA รัน DriftZero ให้แล้วค่ะ ผ่านทุกด่าน — หลังตัดสินใจจะเหลือ {_money(after)} สูงกว่าเส้นขั้นต่ำ {_money(floor)} "
+        th = (f"ดูให้แล้วค่ะ ผ่านทุกจุดที่ตรวจ — หลังตัดสินใจจะเหลือ {_money(after)} สูงกว่าเส้นขั้นต่ำ {_money(floor)} "
               f"อยู่ {_money(after - floor)} การตัดสินใจยังเป็นของคุณนะคะ ใบสรุปข้างล่างคัดลอกไปเก็บได้เลย")
-        en = (f"I ran DriftZero for you — it passes every gate. After this you'd have {_money_en(after)}, "
+        en = (f"I've looked this over for you — nothing needs stopping. After this you'd have {_money_en(after)}, "
               f"{_money_en(after - floor)} above your floor of {_money_en(floor)}. The decision is still yours; you can copy the summary below.")
     else:
-        th = ("LYLA รัน DriftZero ให้แล้วค่ะ ผ่านทุกด่านจากข้อมูลที่ให้มา — การตัดสินใจยังเป็นของคุณนะคะ "
+        th = ("ดูให้แล้วค่ะ ผ่านทุกจุดที่ตรวจจากข้อมูลที่ให้มา — การตัดสินใจยังเป็นของคุณนะคะ "
               "ใบสรุปข้างล่างคัดลอกไปเก็บหรือส่งต่อได้เลย แล้วกลับมาเช็คอีกครั้งหลังลงมือ")
-        en = ("I ran DriftZero for you — it passes every gate on what you've told me. The decision is still yours. "
+        en = ("I've looked this over for you — nothing needs stopping on what you've told me. The decision is still yours. "
               "You can copy the summary below, and come back to check once it's under way.")
     unknown = (r.get("text") or "").count("(ยังไม่ทราบ)")
     if v == "pass" and unknown:
         th += f" — แต่ยังมี {unknown} ข้อที่ยังไม่รู้ ผลนี้จึงยังไม่แน่นอน ถ้าได้ตัวเลขเมื่อไหร่ กลับมาเช็คอีกครั้งนะคะ"
         en += f" — but {unknown} answer{' is' if unknown == 1 else 's are'} still unknown, so this isn't certain yet. Come back once you have them."
         r["unknown"] = unknown
+    # คนในเรื่องพูด/ทำอะไรไม่ตรงกัน (core/story_check) — นายหน้าการันตีกำไร หุ้นส่วนไม่ให้ดูบัญชี ตัวเลขไม่ตรงเอกสาร
+    # ชี้จุดที่ต้องเช็ก ไม่ตัดสินว่าใครโกหก
+    try:
+        from core.story_check import check as _sc, reply_block as _sb
+        found = _sc(r.get("text") or "")
+        if found:
+            r["story"] = found
+            th += "\n\n" + _sb(found, "th")
+            en += "\n\n" + _sb(found, "en")
+    except Exception as e:
+        print(f"⚠ driftzero story_check: {type(e).__name__}")
     r["lyla"] = {"th": th, "en": en}
     return r

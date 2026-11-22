@@ -784,5 +784,13 @@
 "อ่านแบบเรียบ":"Lectura normal",
 "ติดป้ายข้อความจริง":"Etiquetar mensajes reales",
 "ความปลอดภัยผู้ดูแล":"Seguridad de administradores",
-"แพทย์ตรวจข้อความ":"Revisión médica"
+"แพทย์ตรวจข้อความ":"Revisión médica",
+"ใช้ฟรีได้วันละ 20 ข้อความ — พรุ่งนี้คุยต่อได้อีกค่ะ ถ้ากำลังอันตราย โทร 1669 หรือ 1323 ได้ตลอด":"Gratis hasta 20 mensajes al día — mañana puedes seguir hablando. Si estás en peligro ahora, llama al 1669 o 1323 en cualquier momento.",
+"รับเรื่องแล้ว":"Recibido",
+"ดูว่ามีอะไรด่วนไหม":"Revisando si hay algo urgente",
+"คิดตัวเลขให้":"Calculando los números",
+"อ่านคนในเรื่อง":"Leyendo a las personas involucradas",
+"ไล่ทางเลือกที่ยังเหลือ":"Revisando tus opciones",
+"เรียบเรียงคำตอบ":"Armando la respuesta",
+"เช็กความปลอดภัยก่อนส่ง":"Revisión de seguridad antes de enviar"
 };

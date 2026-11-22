@@ -48,6 +48,14 @@ function lsDel(k){ try{ localStorage.removeItem(k); }catch(_){} }
 function num(v, d){ var n = Number(v); return isFinite(n) ? n : d; }
 function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
 /* ลดการเคลื่อนไหว: ตั้งในมือถือ หรือกดปุ่มในเมนูสี (ค่าเดียวกับหน้า Universe และฉากบิ๊กแบง · kd-calm) */
+/* เปิดจากแอป Android บน Google Play (TWA): เริ่มที่ /?src=twa หรือ referrer เป็น android-app:// — จำไว้ใน sessionStorage
+   (ไม่ใช้ localStorage: แอปแบบ TWA ใช้ที่เก็บร่วมกับ Chrome ในเครื่อง ถ้าจำถาวร คนเปิดเว็บใน Chrome จะซื้อไม่ได้ไปด้วย) */
+var IN_APP = false;
+try{
+  if(/[?&]src=twa\b/.test(location.search) || /^android-app:\/\//.test(document.referrer || '')) sessionStorage.setItem('kd-in-app', '1');
+  IN_APP = sessionStorage.getItem('kd-in-app') === '1';
+}catch(_){}
+if(IN_APP) document.documentElement.classList.add('in-app');
 var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 try{ if(localStorage.getItem('kd-calm') === '1'){ REDUCED = true; document.documentElement.classList.add('kd-calm'); } }catch(_){}
 /* เฟรมเรตสูงสุดของฉากจักรวาล — เลือกได้ในเมนูโหมดสี · 30 เครื่องเย็น/ประหยัดแบต · 90 ค่าเดิมที่พี่เลือก
@@ -2856,8 +2864,10 @@ async function send(textArg){
      ตัวจับเวลาผูกกับกล่อง "กำลังคิด" — กล่องถูกลบเมื่อได้คำตอบ ข้อความพวกนี้จึงหายไปเอง */
   [[6000, 'ยังอยู่ตรงนี้นะคะ กำลังคิดคำตอบให้ดีที่สุด'], [20000, 'ใช้เวลานานกว่าปกติ ขอโทษที่ให้รอนะคะ — ถ้าเป็นเรื่องด่วน โทรได้เลยไม่ต้องรอ: 1669 เจ็บป่วยฉุกเฉิน · 191 ตำรวจ · 1323 สุขภาพจิต']].forEach(function(w){
     setTimeout(function(){ if(!th.parentNode) return; var p = document.createElement('p'); p.className = 'wait-note'; p.setAttribute('role', 'status'); p.textContent = _t(w[1]); th.appendChild(p); scrollBottom(); }, w[0]); });
-  var body = { input:text, route:Route, voice_mode:mode, persona_ui:Persona, voice_hint:voiceHint(mode), history:history,
+  var rid = Live.id();
+  var body = { input:text, route:Route, voice_mode:mode, persona_ui:Persona, voice_hint:voiceHint(mode), history:history, rid:rid,
     context: Object.assign({ client_voice:mode, tone_notes:voiceHint(mode), route_ui:Route }, state) };
+  var stopLive = Live.watch(rid, th);
   var born = null;
   try{
     var d = await readJson(await fetchRetry('/run', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) }, 3));
@@ -2880,12 +2890,45 @@ async function send(textArg){
     var sos = e.status === 402 ? '' : '\n\n' + _t('ถ้าเป็นเรื่องด่วน โทรได้เลยไม่ต้องรอ: 1669 เจ็บป่วยฉุกเฉิน · 191 ตำรวจ · 1323 สุขภาพจิต');
     tg.msgs.push({ r:'e', t:e.message + sos, ts:Date.now() }); Chat.persist(); if(e.status !== 402) toast(e.message, true, 6000);
   }finally{
+    stopLive();
     busy = false; $('#send').disabled = false; th.remove(); Cosmos.thinking(false); if(born) CHANT_TS = born.ts; renderAll();
     window.dispatchEvent(new CustomEvent('KD:thinking', { detail:{ on:false } }));
     if(window.KD_galaxy) KD_galaxy.refocus();
     if(born) Cosmos.birth(born.ts);
   }
 }
+/* ── สถานะเบื้องหลังจริงระหว่างรอ (core/progress · GET /api/progress/<rid>) ────────────────────────
+   เจ้าของโปรเจกต์: อยากเห็นว่าระบบกำลังทำอะไรจริงแบบ "Percolating…" แต่ในแชทไม่มีศัพท์ยาก
+   → คำง่ายๆ แทนป้าย "กำลังคิด…" ในฟองรอ + ชื่อส่วนที่ทำงานตัวเล็กข้างใต้ · ฟองหายเมื่อคำตอบมา
+   ขึ้นเฉพาะขั้นที่ server ทำจริง (ไม่วนข้อความหลอก) · ถามไม่ได้ก็เงียบ คำตอบยังมาตามปกติ */
+var Live = {
+  STEP: { receive: ['รับเรื่องแล้ว', 'input guard'], risk: ['ดูว่ามีอะไรด่วนไหม', 'kernel_voice · frames'],
+          numbers: ['คิดตัวเลขให้', 'engine_bridge'], people: ['อ่านคนในเรื่อง', 'person_reading'],
+          options: ['ไล่ทางเลือกที่ยังเหลือ', 'decision engine'], ai: ['เรียบเรียงคำตอบ', 'gemini'],
+          safety: ['เช็กความปลอดภัยก่อนส่ง', 'safety line'] },
+  id: function(){
+    var a = new Uint8Array(12); (window.crypto || window.msCrypto).getRandomValues(a);
+    return Array.prototype.map.call(a, function(x){ return (x % 36).toString(36); }).join('');
+  },
+  watch: function(rid, th){
+    var tag = th.querySelector('.tag'), sub = document.createElement('p'), on = true, seen = '', timer = 0;
+    sub.className = 'live-sub mono'; sub.setAttribute('aria-hidden', 'true'); th.appendChild(sub);
+    function tick(){
+      if(!on) return;
+      fetch('/api/progress/' + rid, { cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(j){
+        var st = (j.stages || []), last = st.length ? st[st.length - 1].stage : '';
+        if(on && last && last !== seen && Live.STEP[last]){
+          seen = last;
+          if(tag) tag.textContent = _t(Live.STEP[last][0]) + '…';
+          sub.textContent = st.map(function(x){ return (Live.STEP[x.stage] || [0, x.stage])[1]; }).join(' → ');
+        }
+      }).catch(function(){}).then(function(){ if(on) timer = setTimeout(tick, 400); });
+    }
+    timer = setTimeout(tick, 250);
+    return function(){ on = false; clearTimeout(timer); };
+  }
+};
+
 /* ════════════════════════════════════════════════════════════════
    โหมดการใช้งาน: ปรึกษา · ◎ DriftZero · สร้างภาพ — แยกกัน ไม่ปนกับการปรึกษา
    DriftZero = ตรวจการตัดสินใจขององค์กร/โครงการด้วยกฎ (POST /api/driftzero · ไม่ใช้ AI ไม่หักโควตา)
@@ -3037,7 +3080,7 @@ async function sendMode(text, mode){
   inp.value = ''; autosize(); renderAll();
   busy = true; $('#send').disabled = true;
   var th = document.createElement('div'); th.className = 'm a';
-  th.innerHTML = '<div class="who"><span class="' + (mode === 'dz' ? 'dz' : 'img') + '">' + esc(_t(mode === 'dz' ? 'LYLA · DriftZero' : 'สร้างภาพ')) + '</span><span class="tag">' + esc(_t(mode === 'dz' ? 'LYLA กำลังรัน DriftZero…' : 'กำลังสร้างภาพ…')) + '</span></div><div class="thinking"><i></i><i></i><i></i></div>';
+  th.innerHTML = '<div class="who"><span class="' + (mode === 'dz' ? 'dz' : 'img') + '">' + esc(_t(mode === 'dz' ? 'LYLA' : 'สร้างภาพ')) + '</span><span class="tag">' + esc(_t(mode === 'dz' ? 'LYLA กำลังรัน DriftZero…' : 'กำลังสร้างภาพ…')) + '</span></div><div class="thinking"><i></i><i></i><i></i></div>';
   $('#msgs').appendChild(th); scrollBottom();
   function target(){ return Chat.s.items.find(function(x){ return x.id === sessId; }) || Chat.cur(); }
   try{

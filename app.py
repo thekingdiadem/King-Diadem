@@ -2369,6 +2369,15 @@ _HAZARD_ASK = re.compile(r"ภัยพิบัติ\S{0,12}(?:ตอนนี
                          r"|\b(?:current|latest|today'?s|active)\b.{0,20}\b(?:disasters?|typhoons?|cyclones?|eruptions?|wildfires?)\b", re.I)
 
 
+from core import progress as _progress
+
+
+@app.get("/api/progress/{rid}")
+async def run_progress(rid: str):
+    """ขั้นที่ระบบทำไปแล้วของคำขอนี้ — มีแค่ชื่อขั้น ไม่มีข้อความของผู้ใช้ · rid สุ่ม 8–32 ตัว เดาของคนอื่นไม่ได้"""
+    return _progress.read(rid)
+
+
 @app.post("/run")
 @app.post("/decision")
 def run_kernel(request: Request, data: dict):
@@ -2423,6 +2432,7 @@ def _run_kernel(request: Request, data: dict):
     reset_fallback_flag()
     # นับโควตาไม่ได้ (ฐานข้อมูลล่ม) → ยังตอบได้ แต่ตอบจากสมการเท่านั้น ไม่เปิดทางให้ใช้ AI ที่มีต้นทุนฟรีไม่จำกัด
     request_no_ai(ticket.get("mode") == "unmetered")
+    _progress.begin(data.get("rid"))          # สถานะเบื้องหลังจริงระหว่างรอ (core/progress) — ไม่เก็บข้อความ
     try:
         result = _run_kernel_impl(data, user_input, email)
     except Exception:
@@ -2430,6 +2440,7 @@ def _run_kernel(request: Request, data: dict):
         raise
     finally:
         request_no_ai(False)
+        _progress.end()
     if not _answered(result):
         _refund(ticket)
     else:
@@ -2503,6 +2514,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     k_assess, offer_ctx = {}, ""
     if kernel_assess:
         try:
+            _progress.mark("risk")
             k_assess = kernel_assess(user_input, human_state if _has_user_state(data.get("context")) else None) or {}
         except Exception as e:
             print(f"⚠ kernel_assess: {type(e).__name__}")
@@ -2933,6 +2945,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     calc_ctx = ""
     if bridge_analyze and not offer_flags:
         try:
+            _progress.mark("numbers")
             calc_ctx = bridge_analyze(user_input).get("llm_ctx", "")
         except Exception as e:
             print(f"⚠ engine_bridge: {type(e).__name__}")
@@ -2974,6 +2987,14 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     # อ่านคน (core/person_reading.py): บอก AI ว่าข้อความนี้ต้องการคำตอบแบบไหน — ไม่ใช่ไทป์ของผู้ใช้ · ไม่ใช้กับเรื่องด่วน/วิกฤต
     if not g_urgent and route not in ("crisis", "collapse", "survival"):
         try:
+            from core.story_check import check as _st_check, llm_hint as _st_hint
+            _sth = _st_hint(_st_check(user_input))
+            if _sth:
+                effective += "\n\n" + _sth
+        except Exception as e:
+            print(f"⚠ story_check: {type(e).__name__}")
+        try:
+            _progress.mark("people")
             from core.person_reading import read as _p_read, llm_hint as _p_hint
             _ph = _p_hint(_p_read(user_input))
             if _ph:
@@ -3045,13 +3066,16 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
     if fast_path:
         result = {"route": route, "fast_path": True}
     elif full_run_decision:
+        _progress.mark("options")
         result = full_run_decision(payload)
     elif engine:
+        _progress.mark("options")
         result = engine.run(payload)
     else:
         reply = ""
         if llm:
             try:
+                _progress.mark("ai")
                 reply = llm.generate_with_governance(
                     prompt=effective,
                     additional_context=(
@@ -3129,6 +3153,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         try:
             from core.kernel_voice import ensure_safety_line
             if isinstance(result.get("ai_response"), str):
+                _progress.mark("safety")
                 result["ai_response"] = ensure_safety_line(user_input, result["ai_response"], k_assess or None)
         except Exception as e:
             print(f"⚠ safety line: {type(e).__name__}")
