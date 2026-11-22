@@ -32,7 +32,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTex
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
-import os, re, json, stripe, math, time, threading, secrets
+import os, re, json, stripe, math, time, threading, secrets, asyncio
 from urllib.parse import quote, unquote
 
 # ── ENGINE ────────────────────────────────────────────────────────
@@ -285,8 +285,22 @@ if not _SECRET_KEY:
         "ตั้งค่าใน Render environment ก่อน: SECRET_KEY=<random 32+ chars>"
     )
 
+# เธรดสำหรับงานที่รอเครือข่าย (เรียก AI · Turso) — ค่าเริ่มต้น 40 ทำให้คนที่ 41 ขึ้นไปต้องเข้าคิว
+# ยิงทดสอบ 80 คนพร้อมกันรอนานสุด 17 วินาที · การรอ AI ไม่ใช้ CPU และใช้หน่วยความจำน้อย จึงเพิ่มเป็น 120
+_THREADS = max(40, int(os.getenv("KD_THREADS", "120")))
+
+
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def _lifespan(_app):
+    import anyio.to_thread
+    anyio.to_thread.current_default_thread_limiter().total_tokens = _THREADS
+    yield
+
 # /docs /redoc /openapi.json ปิด — เดิมเปิดสาธารณะ ลิสต์ทุก endpoint ให้คนไล่หาช่องโหว่ (ไม่มีหน้าไหนใช้)
-app = FastAPI(title="KING DIADEM OS", docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(title="KING DIADEM OS", docs_url=None, redoc_url=None, openapi_url=None, lifespan=_lifespan)
 
 
 # body ที่ไม่ใช่ JSON object (เช่น Infinity) เคยทำให้ทุก endpoint ตอบ 500 —
@@ -1114,8 +1128,34 @@ except Exception as _e:
     print(f"⚠ self_heal ใช้ไม่ได้: {type(_e).__name__}: {_e}")
 
 
+# /health ต้องไม่ต่อคิวกับแชท — Render ใช้เช็กว่าเว็บยังอยู่ไหม ถ้าตอบช้าเกินจะรีสตาร์ตทั้งเครื่อง (คนที่คุยอยู่หลุดหมด)
+# ยิงทดสอบ 80 คนรอ AI พร้อมกัน: /health เดิมใช้เธรดกองเดียวกับแชท ตอบช้า 14.5 วินาที → ยิ่งคนเยอะยิ่งรีสตาร์ต
+# ตอนนี้ตอบทันทีจากผลที่คำนวณไว้ (สดไม่เกิน ~15 วินาที) แล้วคำนวณรอบใหม่เบื้องหลัง · ครั้งแรกคำนวณให้เลย
+_HEALTH = {"t": 0.0, "v": None, "busy": False}
+
+
 @app.get("/health")
-def health():
+async def health():
+    now = time.time()
+    if _HEALTH["v"] is None:
+        _HEALTH.update(v=await run_in_threadpool(_health_compute), t=now)
+    elif now - _HEALTH["t"] > 15 and not _HEALTH["busy"]:
+        _HEALTH["busy"] = True
+
+        async def _refresh():
+            try:
+                _HEALTH.update(v=await run_in_threadpool(_health_compute), t=time.time())
+            except Exception as e:
+                print(f"⚠ health refresh: {type(e).__name__}")
+            finally:
+                _HEALTH["busy"] = False
+        asyncio.get_running_loop().create_task(_refresh())
+    # ภาระตอนนี้ (นับในหน่วยความจำ ถูกมาก) ต้องสดเสมอ — ส่วนที่แพง (ฐานข้อมูล ไฟล์สำรอง) มาจากผลที่เก็บไว้
+    live = {"load": get_survival_stats() if get_survival_stats else None, "shield": _SHIELD.stats() if _SHIELD else None}
+    return {**_HEALTH["v"], **live}
+
+
+def _health_compute():
     return {
         "status":             "alive 👑",
         "version":            "5.0",

@@ -55,3 +55,24 @@ def test_server_does_not_restart_every_few_chats():
     from tests._front import front_page
     page = front_page()
     assert "setTimeout(tick, 700)" in page and "Date.now() - t0 < 60000" in page
+
+
+def test_health_never_waits_in_the_chat_queue(client, app_module, monkeypatch):
+    """Render รีสตาร์ตเว็บเมื่อ /health ตอบช้า — ยิงทดสอบ 80 คนรอ AI: /health เดิมช้า 14.5 วินาที"""
+    import time as _t
+    first = client.get("/health").json()
+    assert first["status"].startswith("alive") and "ai" in first
+    slow = []
+    monkeypatch.setattr(app_module, "_health_compute", lambda: slow.append(1) or _t.sleep(3) or {"status": "x"})
+    t = _t.time()
+    for _ in range(5):
+        assert client.get("/health").status_code == 200
+    assert _t.time() - t < 1.0                                   # ตอบจากผลที่เก็บไว้ ไม่รอคำนวณ
+    import inspect
+    assert inspect.iscoroutinefunction(app_module.health)
+
+
+def test_thread_pool_is_raised_for_ai_waits(app_module):
+    assert app_module._THREADS >= 120
+    with __import__("fastapi.testclient", fromlist=["TestClient"]).TestClient(app_module.app):
+        pass                                                       # lifespan ทำงานได้ไม่ล้ม
