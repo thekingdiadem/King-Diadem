@@ -256,6 +256,17 @@ export STRIPE_PRICE_ID=...
 export STRIPE_PREMIUM_PRICE_ID=...
 ```
 
+Admin access (optional):
+
+```bash
+export ADMIN_EMAILS=you@gmail.com,backup@gmail.com   # full admin: business numbers, reports, /admin/security
+export LABELER_EMAILS=helper@gmail.com               # can only label real messages at /admin/label
+```
+
+An email in either list gets access only after signing in **with Google** once (proving the email is yours) —
+signing up with a password alone is not enough, because anyone can type any email.
+Turn on two-step verification for every admin account; `/admin/security` shows who still needs it.
+
 Run locally:
 
 ```bash
