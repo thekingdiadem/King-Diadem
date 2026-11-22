@@ -199,7 +199,7 @@ CLOTHING	th	สร้อย|เนคไท|เน็คไท|ปกเสื�
 CLOTHING	en	necklace|tie|collar|scarf|shirt|choker|turtleneck
 CLOTHING	es	collar|corbata|bufanda|camisa|cuello de la camisa
 CLOTHING	vi	dây chuyền|cà vạt|khăn quàng|cổ áo|áo
-CLOTHING	zh	项链|項鍊|领带|領帶|围巾|圍巾|衣领|衣領
+CLOTHING	zh	项链|項鍊|领带|領帶|围巾|圍巾|衣领|衣領|领口|領口|衣服|口罩
 CLOTHING	ko	목걸이|넥타이|목도리|옷깃|셔츠
 CLOTHING	ja	ネックレス|ネクタイ|マフラー|襟|シャツ
 # ── แรงงานบังคับ ── ต้องมีสัญญาณอันตรายอย่างน้อยสองอย่าง ("บังคับให้ทำงานบ้าน" ตามลำพังไม่นับ)
@@ -265,7 +265,7 @@ DEVICE	zh	手机|手機|电脑|電腦|应用|應用|屏幕|系统|系統|股市|
 DEVICE	ko	휴대폰|핸드폰|스마트폰|컴퓨터|앱|화면|시스템|주식|건물|사이트
 DEVICE	ja	スマホ|携帯|パソコン|アプリ|画面|システム|株価|建物|サイト
 NEARLY	th	เกือบ|แทบ|หลับเป็นตาย|เหมือนจะเป็นลม|จะเป็นลม
-NEARLY	en	almost|nearly|like the dead|could have fainted|about to faint
+NEARLY	en	almost|nearly|like the dead|could have fainted|about to faint|after my shift|after my night shift|after my long shift|after work|on the couch|on the sofa|snoring|in front of the tv
 NEARLY	es	casi|como un tronco|por poco
 NEARLY	vi	suýt|như chết|gần như
 NEARLY	zh	差点|差點|几乎|幾乎|像死猪|快要

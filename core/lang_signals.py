@@ -110,7 +110,7 @@ SELF_HARM_INTL = (
                r"(?<!仕事を)(?<!宿題を)(?<!関係を)(?:全部|すべて|全て|何もかも)(?:を)?終わりに(?:したい|したくなる|したくて|しよう)"),
     re.compile(r"죽고\s*싶|살기\s*싫|자살|유서|뛰어내리(?:고\s*싶|려고|겠)|(?:수면제|약)(?:을|를)?\s*(?:다|전부|많이)\s*먹었|손목을?\s*(?:그었|그어)|살고\s*싶지\s*않|사라지고\s*싶|죽어\s*버리고\s*싶|극단적\s*선택|목숨을\s*끊"),
     re.compile(r"\b(?:me\s+)?quiero\s+morir|\bsuicid|\bquitarme\s+la\s+vida|\bno\s+quiero\s+vivir|"
-               r"\bacabar\s+con\s+mi\s+vida|\bmatarme\b|\bhacerme\s+daño|\bno\s+quiero\s+seguir\s+(?:viviendo|con\s+vida|aqu[ií]\s*(?:$|[.!?…]))", re.I),
+               r"\bacabar\s+con\s+mi\s+vida|\b(?:escrib[íi]|dej[ée]|tengo)\s+(?:una\s+|mi\s+)?carta\s+(?:suicida|(?:de\s+despedida|de\s+adi[óo]s)(?:\s+(?:para|a)\s+(?:mi\s+familia|todos|mis\s+(?:hijos|padres|seres\s+queridos))|\s*(?:$|[.!?…])))|\bmatarme\b|\bhacerme\s+daño|\bno\s+quiero\s+seguir\s+(?:viviendo|con\s+vida|aqu[ií]\s*(?:$|[.!?…]))", re.I),
     # รัสเซีย · อาหรับ · ฮินดี — เดิมไม่มีเลย "я хочу умереть" ได้ความเสี่ยงต่ำ
     re.compile(r"хочу\s+умереть|не\s+хочу\s+жить|покончить\s+с\s+собой|суицид|убить\s+себя|"
                r"лучше\s+бы\s+я\s+умер|нет\s+смысла\s+жить", re.I),
@@ -118,7 +118,7 @@ SELF_HARM_INTL = (
                r"لا\s+اريد\s+ان\s+اعيش|أنهي\s+حياتي"),
     re.compile(r"मरना\s+चाहत|मर\s+जाना\s+चाहत|आत्महत्या|ख़ुदकुशी|खुदकुशी|जीना\s+नहीं\s+चाहत|खुद\s+को\s+मार"),
     # เวียดนาม · เยอรมัน · ฝรั่งเศส · โปรตุเกส/อินโด (แรงงานและนักท่องเที่ยวในไทย)
-    re.compile(r"(?<!mệt\s)(?<!đói\s)(?<!nóng\s)(?<!cười\s)(?<!ngủ\s)(?<!chán\s)muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|"
+    re.compile(r"(?<!mệt\s)(?<!đói\s)(?<!nóng\s)(?<!cười\s)(?<!ngủ\s)(?<!chán\s)muốn\s+chết|tự\s+tử|không\s+muốn\s+sống|thư\s+tuyệt\s+mệnh|(?:viết|để\s+lại)\s+thư\s+(?:vĩnh\s+biệt|từ\s+biệt\s+(?:gia\s+đình|mọi\s+người|bố\s+mẹ|các\s+con))|"
                r"\b(?:ich\s+)?will\s+(?:nicht\s+mehr\s+leben|sterben)\b|\bselbstmord|\bmich\s+umbringen|"
                r"\bje\s+veux\s+mourir(?!\s+de\s+(?:rire|honte|faim))|\bme\s+suicider|\bquero\s+morrer|\bn[ãa]o\s+(?:aguento|quero|consigo)\s+mais\s+viver|\bn[ãa]o\s+quero\s+(?:mais\s+)?viver|\bvou\s+(?<!vai\s)(?<!v(?:ã|a)o\s)me\s+matar|\b(?<!vai\s)(?<!v(?:ã|a)o\s)me\s+matar\b|\bingin\s+mati\b|\bbunuh\s+diri", re.I),
 )
@@ -161,6 +161,17 @@ SELF_HARM_INDIRECT = (
     re.compile(r"cho\s+(?:bạn\s+bè\s+|mọi\s+người\s+)?hết\s+(?:những\s+)?(?:thứ|đồ)|không\s+muốn\s+(?:làm|là)\s+gánh\s+nặng|không\s+còn\s+(?:nữa\s+)?thì[^.!?\n]{0,25}(?:chẳng|không)\s+ai\s+(?:để\s+ý|quan\s+tâm|nhận\s+ra)|"
                r"muốn\s+(?:đi\s+)?gặp\s+(?:mẹ|bố|ba|má)\s+(?:đã\s+)?(?:mất|qua\s+đời)|cầm\s+dao[^.!?\n]{0,20}(?:không\s+chịu\s+nổi|hết\s+chịu)", re.I),
 )
+
+# รอบสุ่ม 147: ชีวิตไม่มีความหมาย + เหนื่อย (ja ko es vi) — เคยได้ 0 ขณะที่ภาษาไทยได้คำถามไถ่เบาๆ (warning 65)
+# ลำดับใน SELF_HARM_INDIRECT: ja zh ko es vi · จดหมายลา es vi เพิ่มที่ SELF_HARM_INTL (เทียบ 遗书 유서 遺書 ที่ได้วิกฤต)
+_MEANINGLESS = {
+    0: r"(?:生きる|生きている|生きてる)意味が(?:ない|わからない|分からない|見つからない)",
+    2: r"(?:사는\s*게|살아야\s*할|살아갈)\s*(?:의미가\s*없|이유를\s*모르겠|이유가\s*없)",
+    3: r"\bno\s+(?:le\s+)?(?:encuentro|veo|tiene)\s+sentido\s+(?:a\s+)?(?:nada(?!\s+(?:de\s+)?(?:esto|este|esta|del?\s+(?:proyecto|trabajo|curso|plan)))|la\s+vida|vivir|seguir(?!\s+(?:con|en|estudiando|trabajando|aqu[ií]\s+en)))|\b(?:estoy\s+)?(?:agotad[oa]|cansad[oa])\s+de\s+(?:vivir(?!\s+(?:en|aqu[ií]|con|lejos|cerca|de\s+alquiler|as[ií]\s+de))|existir)",
+    4: r"sống\s+(?:chẳng|không)\s+(?:còn\s+)?(?:có\s+)?ý\s+nghĩa|mệt\s+mỏi\s+với\s+cuộc\s+sống\s+này",
+}
+SELF_HARM_INDIRECT = tuple(re.compile(rx.pattern + "|" + _MEANINGLESS[i], rx.flags) if i in _MEANINGLESS else rx
+                           for i, rx in enumerate(SELF_HARM_INDIRECT))
 
 # รอบสุ่ม 45: สัญญาณหลังคำปลอบ "ไม่เป็นไร/ทุกอย่างโอเค" (ja zh ko es vi) — เดิมหลุด 15/15
 # ต้องมีคำปลอบ + (ทุกคนจะสบาย · จดหมายถึงแม่เขียนเสร็จแล้ว · ไม่ต้องตามหา) — จดหมายวันแม่หรือไปค่ายไม่มีสัญญาณไม่นับ
@@ -563,6 +574,23 @@ _more("medical", "vi", r"(?:uống|nuốt)\s+(?:hết\s+|cả\s+|nguyên\s+|mộ
 _more("violence", "vi", r"(?:chồng|vợ|bạn\s+trai|bạn\s+gái|người\s+yêu|bố|mẹ|cha|anh\s+ta|hắn)\s+(?:lại\s+|hay\s+|thường\s+|luôn\s+|cứ\s+)?(?:đánh|đập|tát|đá|bóp\s+cổ)\s+(?:tôi|mình|em|con\b(?!\s+(?:muỗi|ruồi|gián|chuột|cá|gà|chó|mèo)))"
                         r"|(?:đe\s+)?dọa\s+giết\s+(?:tôi|mình|em|con)\b")
 _more("violence", "zh", r"(?:收走|拿走|没收|沒收|扣下|扣着|扣著)(?:了)?(?:我们|我們|我|大家)?的?(?:护照|護照)|把(?:我|我们|我們)(?:关|關|锁|鎖)(?:起来|起來|在)")
+# รอบสุ่ม 146: ทำงานไม่ได้ค่าจ้าง + ไม่ให้ออก/กลับบ้าน (บังคับใช้แรงงาน) — ต้องมีครบทั้งสองอย่าง · เดิมจับได้เฉพาะตอนเอ่ยถึงพาสปอร์ต
+_PAY_ES, _HOLD_ES = r"(?:no\s+me\s+pagan|sin\s+(?:sueldo|paga|pago|salario)|no\s+(?:nos|me)\s+(?:dan|da)\s+(?:el\s+)?(?:sueldo|salario))", r"no\s+(?:me|nos)\s+deja[n]?\s+(?:salir|irme|irnos|volver|regresar)(?!\s+temprano)"
+_more("violence", "es", _PAY_ES + r"[^.!?\n]{0,40}" + _HOLD_ES + "|" + _HOLD_ES + r"[^.!?\n]{0,40}" + _PAY_ES)
+_PAY_VI, _HOLD_VI = r"(?:làm\s+không\s+công|không\s+trả\s+lương|không\s+được\s+trả\s+lương)", r"không\s+cho\s+(?:tôi|chúng\s+tôi)\s+(?:rời|về|đi|ra)"
+_more("violence", "vi", _PAY_VI + r"[^.!?\n]{0,40}" + _HOLD_VI + "|" + _HOLD_VI + r"[^.!?\n]{0,40}" + _PAY_VI)
+_PAY_ZH, _HOLD_ZH = r"(?:不(?:发|發|给|給)(?:工资|工資|钱|錢)|没有工资|沒有工資|拿不到工资)", r"不(?:准|让|讓|许|許)(?:我|我们|我們)?(?:离开|離開|走|回家|出去)"
+_more("violence", "zh", _PAY_ZH + r"[^。！？\n]{0,20}" + _HOLD_ZH + "|" + _HOLD_ZH + r"[^。！？\n]{0,20}" + _PAY_ZH)
+_PAY_KO, _HOLD_KO = r"(?:월급(?:을|도)?\s*(?:못\s*받|안\s*(?:줘|주))|돈(?:을|도)?\s*안\s*(?:줘|주))", r"(?:못\s*나가게|못\s*떠나게|집에\s*못\s*가게|밖으로\s*못)"
+_more("violence", "ko", _PAY_KO + r"[가-힯\s,]{0,30}" + _HOLD_KO + "|" + _HOLD_KO + r"[가-힯\s,]{0,30}" + _PAY_KO)
+_PAY_JA, _HOLD_JA = r"(?:給料(?:が|を|も)?(?:なし|もらえ(?:ない|ず)|払(?:わ|って)(?:れ)?(?:ない|もらえない))|無給で)", r"(?:(?:寮|工場|家|部屋)から出して(?:もらえない|くれない)|帰らせて(?:もらえない|くれない)|(?:パスポート|旅券)を取られ)"
+_more("violence", "ja", r"(?<!残業で)(?:" + _PAY_JA + r"[^。！？\n]{0,24}" + _HOLD_JA + "|" + _HOLD_JA + r"[^。！？\n]{0,24}" + _PAY_JA + ")")
+# รอบสุ่ม 145: ถูกบีบคอ/รัดคอ (es vi zh ko ja) — เคยได้ 0 ทุกภาษา · การบีบคอเป็นสัญญาณอันตรายถึงชีวิตที่ชัดที่สุดในความรุนแรงในครอบครัว
+_more("violence", "es", r"(?:me\s+)?(?:aprieta|apretó|agarra|agarró|apretaba)\s+(?:el|del)\s+cuello|(?:intent[óo]\s+)?estrangular(?:me|la|lo)?|me\s+ahorc(?:a|ó|aba)")
+_more("violence", "vi", r"bóp\s+cổ|siết\s+cổ|bóp\s+chặt\s+cổ")
+_more("violence", "zh", r"(?:他|她|老公|丈夫|男朋友|男友|女朋友|女友|前任|爸爸?|妈妈?|继父|繼父|有人|那个人|那個人)[^。！？\n]{0,8}(?:掐|勒|扼)(?:住|着|著)?(?:我|她|他)?的?(?:脖子|喉咙|喉嚨)")   # ต้องมีผู้กระทำเป็นคน — "这条项链勒脖子" (สร้อยรัดคอ) ไม่นับ
+_more("violence", "ko", r"목을\s*(?:졸라|졸랐|조르|조른|졸려)|목\s*졸")
+_more("violence", "ja", r"(?<!ネクタイで)(?<!マフラーで)(?<!服で)首を(?:絞め|しめ)(?!付け)|(?<!ネクタイで)(?<!マフラーで)首(?:を)?締め(?!付け)")
 
 # งานแก้จุดอ่อนจากชุดปิดตา: ของติดคอแบบไม่ใช้คำว่า "hóc" — "(đồ vật) bị mắc (ở cổ)" + "không ho ra được / khó thở"
 _more("medical", "vi", r"(?:đồng\s+xu|viên\s+bi|kẹo|hạt|xương|pin|nắp|đồ\s+chơi)[^.!?\n]{0,25}?(?:bị\s+)?mắc(?:\s+(?:ở|trong))?(?:\s+(?:cổ|họng))?"

@@ -284,6 +284,32 @@ TOPICS = [
         ],
         "ask": "เขาขออะไรจากคุณ และให้เวลาถึงเมื่อไหร่?",
     }),
+    # รอบ A (จากสรุป "กาย วาจา ใจ" — เจตนาเป็นตัวตัดสิน): ทำร้ายสัตว์/คนโดยไม่ตั้งใจ และอีกฝ่ายไม่ได้บาดเจ็บหนักแล้ว — ปลอบ ไม่ตัดสิน
+    # เคยได้คำตอบแบบแก้ปัญหาทั่วไป ("ลองแยกปัญหาเป็นข้อ") หรือคำปลอบเรื่องการสูญเสียคนใกล้ตัว
+    ("accident_guilt", [re.compile(r"(?:เผลอ|ไม่ได้ตั้งใจ|โดยไม่ตั้งใจ|โดยบังเอิญ)[^\n]{0,40}?(?:ทับ|ชน|เหยียบ|ทำ\S{0,6}ตาย|ทำ\S{0,6}เจ็บ)[^\n]{0,30}?(?:รู้สึกผิด|โทษตัวเอง|เสียใจมาก|นอนไม่หลับ|ร้องไห้)|"
+                                   r"(?:ทับ|ชน|เหยียบ)[^\n]{0,24}?(?:ตาย)?[^\n]{0,12}?(?:โดยไม่ได้ตั้งใจ|โดยไม่ตั้งใจ|ไม่ได้ตั้งใจ)[^\n]{0,24}?(?:รู้สึกผิด|โทษตัวเอง|เสียใจ)|"
+                                   r"(?i:\b(?:accidentally|by accident|didn'?t mean to)\b[^\n]{0,50}?\b(?:ran over|hit|killed|stepped on|hurt|backed (?:over|into))\b[^\n]{0,60}?\b(?:feel (?:horrible|terrible|awful|so guilty|sick)|can'?t stop (?:shaking|crying|thinking)|hate myself|guilt\w*|blame myself)\b)")], {
+        "open": ["ไม่ได้ตั้งใจ ไม่ได้แปลว่าคุณเป็นคนไม่ดี — ความรู้สึกผิดที่หนักขนาดนี้ บอกว่าคุณใส่ใจมาก"],
+        "paths": [
+            "ถ้ายังมีคนหรือสัตว์บาดเจ็บอยู่ ดูแลตรงนั้นก่อน (โทร 1669 สำหรับคน · พาสัตว์ไปโรงพยาบาลสัตว์) ถ้าเรื่องจบแล้ว ให้หายใจช้าๆ สักสองสามนาที",
+            "ถ้าเกี่ยวกับคนอื่น (เจ้าของสัตว์ เพื่อนบ้าน ครอบครัว) การบอกเขาตรงๆ และขอโทษ มักช่วยให้ทั้งสองฝ่ายเบาลง — ไม่ต้องรีบวันนี้ถ้ายังไม่พร้อม",
+            "ภาพเหตุการณ์อาจวนในหัวไปอีกหลายวัน นั่นเป็นเรื่องปกติหลังเหตุช็อก ถ้าผ่านไปสองสามสัปดาห์แล้วยังนอนไม่หลับหรือโทษตัวเองไม่หยุด คุยกับ 1323 ได้",
+        ],
+        "ask": "ตอนนี้มีใครอยู่ด้วยไหม ที่คุณเล่าเรื่องนี้ให้ฟังได้?",
+    }),
+    # รอบ B: ความคิดแทรกซ้อน — ภาพ/ความคิดน่ากลัวที่ผุดขึ้นเองทั้งที่ไม่อยากคิด (แม่หลังคลอด · ย้ำคิดย้ำทำ) — ไม่ใช่เจตนา
+    # มีแผน/เตรียมการ/ตั้งใจจะทำจริง ไม่เข้าหัวข้อนี้ (ตัวจับเดิมให้ระดับฉุกเฉิน)
+    ("intrusive", [re.compile(r"^(?![\s\S]*(?:เตรียม(?:ไว้)?แล้ว|ตั้งใจจะ|จะทำจริง|วางแผน|(?i:\bi have a plan\b|\bplanning to\b|\bi want to\b)))"
+                              r"[\s\S]*(?:(?:ภาพ|ความคิด)(?:ใน(?:หัว|ใจ))?(?:แวบ|ผุด|โผล่|วน)?[^\n]{0,24}?(?:ทำ(?:ลูก|น้อง|คน|เขา)?\S{0,4}(?:หล่น|ตก|จมน้ำ|เจ็บ)|ทำร้าย|ผลัก)[^\n]{0,30}?(?:กลัว|ไม่อยาก|ไม่กล้า|เกลียดตัวเอง|ไม่เคยคิดจะทำ)|"
+                              r"(?i:\bintrusive thoughts?\b|\b(?:unwanted|scary|horrible|disturbing) (?:thoughts|images)\b[^\n]{0,40}?\b(?:hurting|harming|pushing|dropping|stabbing)\b))")], {
+        "open": ["ขอบคุณที่กล้าเล่า — ความคิดที่ผุดขึ้นเองโดยไม่ได้อยากคิด ไม่ใช่เจตนา และไม่ได้แปลว่าคุณเป็นคนอันตราย การที่คุณกลัวมันขนาดนี้ คือสัญญาณว่าคุณไม่อยากทำ"],
+        "paths": [
+            "ความคิดแบบนี้เรียกว่า \"ความคิดแทรกซ้อน\" พบบ่อยมาก โดยเฉพาะแม่หลังคลอดและคนที่มีอาการย้ำคิดย้ำทำ — และรักษาได้",
+            "ไม่ต้องพยายามกดมันทิ้ง (ยิ่งกดยิ่งวน) ลองบอกตัวเองว่า \"นี่แค่ความคิด ไม่ใช่การกระทำ\" แล้วปล่อยให้มันผ่านไป",
+            "คุยกับแพทย์ พยาบาลหลังคลอด หรือโทร 1323 (สุขภาพจิต 24 ชม.) — บอกตรงๆ ได้ เขาเจอบ่อยและไม่ตัดสิน · ถ้าวันไหนรู้สึกว่าอาจทำจริง ให้ออกห่างแล้วโทร 1669",
+        ],
+        "ask": "ความคิดนี้เริ่มเมื่อไหร่ และมีใครที่คุณเล่าให้ฟังได้บ้างไหม?",
+    }),
     ("grief", [GRIEF], {
         "open": ["เสียใจด้วยนะ การสูญเสียไม่ต้องรีบหาย ความเสียใจคือความรักที่ยังส่งไปไม่ถึง"],
         "paths": [
@@ -556,7 +582,7 @@ TOPICS = [
                           re.compile(r"(?:ล้ม|หมด|ฟุบ|ช็อก|เรียก\S{0,6}?|(?:พ่อ|แม่|ลูก|เด็ก|หลาน|ยาย|ตา|ปู่|ย่า|สามี|ภรรยา|แฟน|เพื่อน|มีคน|คน)\S{0,6}?)ไม่รู้สึกตัว(?!\S{0,4}?ว่า)"),
                           re.compile(r"^(?![\s\S]*(?:ประจำเดือน|เมนส์|ไรฟัน|เลือดกำเดา\S{0,4}?นิดหน่อย))[\s\S]*?เลือด(?:ออก|ไหล)\S{0,4}?(?:มาก|เยอะ|ท่วม|ทะลัก|ไม่หยุด)"),
                           re.compile(r"(?:โดน|ถูก)(?:มีด|ดาบ|พร้า|ขวาน)\S{0,4}?(?:ฟัน|แทง)(?!ธง)"), "แขนขาอ่อนแรง", "chest pain", MEDICAL_EMERGENCY,
-                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\b(?<!soil )(?<!dirt )(?<!sand )(?<!sandcastle )(?<!tent )(?<!cake )(?:collapsed|passed out|unconscious)\b|\bdrowning\b(?! in (?:\w+ ){0,2}(?:homework|work|paperwork|debts?|loans?|payments?|mortgage|credit|emails?|bills|tasks|assignments|love|tears|stress|responsibilit\w+|deadlines?))", re.I),
+                          re.compile(r"(?:คน|เด็ก|ลูก|เพื่อน|มีคน)\S{0,4}?(?:จมน้ำ|ตกน้ำ)|\bpassed out\b(?![^\n]{0,40}?\b(?:on the (?:couch|sofa|bed)|after (?:the |a |that |his |her |my )?(?:night |long |double )?(?:game|movie|show|party|shift|workout|work)|from (?:exhaustion|tiredness)|in front of the tv|snoring|asleep)\b(?![^\n]{0,30}?\b(?:won'?t wake|not (?:waking|responding|breathing)|can'?t wake|drunk|drinking|alcohol|vodka|whiskey|bottle|pills|vomit\w*|blue)\b))|\b(?<!soil )(?<!dirt )(?<!sand )(?<!sandcastle )(?<!tent )(?<!cake )(?:collapsed|unconscious)\b|\bdrowning\b(?! in (?:\w+ ){0,2}(?:homework|work|paperwork|debts?|loans?|payments?|mortgage|credit|emails?|bills|tasks|assignments|love|tears|stress|responsibilit\w+|deadlines?))", re.I),
                           _NOT_BREATHING, CARBON_MONOXIDE, URGENT_BODY], {
         "open": ["อาการแบบนี้ต้องให้แพทย์ดูก่อน ไม่ควรรอ"],
         "paths": [
@@ -1281,6 +1307,11 @@ _DAYS_TO_PAY = re.compile(r"อีก\s*(\d+)\s*วัน\S{0,8}?(?:เงิน
 _FICTION = re.compile(r"หนัง(?:เรื่อง)?|ฉาก|ละคร|ซีรีส์|ข่าว|(?:อ่?าน|ดู|ฟัง)ข่?าว|นิยาย|การ์ตูน|ในเกม|(?i:\bin the (?:news|movie|show|game)\b)")
 _CLOSE = re.compile(r"ลูก|แม่|พ่อ|ฉัน|หนู|ผม|เรา|เพื่อน|แฟน|สามี|ภรรยา|น้อง|พี่|ยาย|ตา(?!ย)|ช่วยด้วย|(?i:\b(?:my|i|me|help)\b)")
 _MINOR = re.compile(r"นิดเดียว|นิดหน่?อย|ไม่?เป็นไร(?:มาก)?|ไม่?เข้?าเนื้?อ|ไม่มีแผล|ไม่ถึงกับ|เล่นๆ|กัดเล่น|งับเล่น|เบาๆ|(?i:\bjust a (?:little|scratch)\b|\bnot (?:bad|serious)\b|\bi'?m fine\b|\b(?:he|she|they)(?:'s|'re| is| are) (?:fine|ok|okay|alright)\b)")
+_THOUGHT_FEAR = re.compile(r"กลัวตัวเอง|ไม่อยากทำ|ไม่เคยคิดจะทำ|ไม่มีวันทำ|ความคิด(?:แทรก|แวบ|ผุด)|(?i:\bterrif\w*|\bscares? me\b|\bfrighten\w*|\bi would never\b|\bi'?d never\b|\bi don'?t want to\b|\bintrusive\b|\bunwanted thoughts?\b|\bhate (?:these|the|that) thoughts?\b)")
+_REAL_INTENT = re.compile(r"เตรียม(?:ไว้)?แล้ว|ตั้งใจจะ|จะทำจริง|วางแผน|อยากทำร้าย\S{0,6}จริงๆ|(?i:\bi have a plan\b|\bplanning to\b|\bi'?m going to\b|\bi will\b)")
+_SECRET_BENIGN = re.compile(r"เซอร์ไพรส์|วันเกิด|งานเลี้ยง|เฉลย|ข้อสอบ|(?i:\bsurprise\b|\bbirthday\b|\bparty\b|\bquiz\b|\bexam\b|\btest answers?\b|\banswers\b)")
+_GROOM_RED = re.compile(r"รูป|ภาพ|จับ|ลูบ|กอด|นัดเจอ|ไปบ้าน|ของขวัญ|ให้เงิน|(?i:\bphotos?\b|\bpics?\b|\bpictures?\b|\btouch\w*|\bmeet\b|\bgifts?\b|\bhis (?:house|car)\b|\balone\b)")
+_HOT_CAR = re.compile(r"(?i:\b(?:baby|toddler|infant|child|kid|dog|puppy|cat)\b[^\n]{0,24}?\b(?:locked|left|trapped|stuck)\b[^\n]{0,10}?\bin (?:a |the )?(?:hot |parked |locked )?(?:car|vehicle|van)\b)|(?:เด็ก|ลูก|หมา|แมว)[^\n]{0,10}?(?:ติด|ถูกขัง|อยู่)(?:อยู่)?ใน(?:รถ)(?![^\n]{0,12}?(?:กับ|ด้วยกัน))")
 _NOT_SWALLOWED = re.compile(r"ไม่ได้กลืน|คาย(?:ออก(?:มา)?)?(?:แล้ว|ทัน)|(?i:\b(?:didn'?t|did not|never) swallow\b|\bspat it (?:back )?out\b|\bspit it out\b)")
 _SWALLOW_DOUBT = re.compile(r"ไม่แน่ใจ|ไม่รู้ว่า|หรือเปล่า|ไหม|มั้ย|ไอ|อาเจียน|อ้วก|หายใจ|เจ็บ|น้ำลายไหล|ร้องไม่หยุด|(?i:\bnot sure\b|\bmaybe\b|\bmight have\b|\bcough\w*|\bchok\w*|\bvomit\w*|\bthrow\w* up\b|\bdrool\w*|\bbreath\w*|\bpain\b)")
 _RED_FLAG_NOW = re.compile(r"เมื่อกี้|ตอนนี้(?:ปวด|เจ็บ|บวม|ชา|เลือด)|อีกแล้ว|(?i:\bjust now\b|\bagain\b|\btoday\b)")
@@ -1992,6 +2023,16 @@ EN_TOPIC = {
         "Photograph important documents (ID, bank book, house registration) and keep copies where they can't reach.",
         "A helpline can advise in confidence (1300 in Thailand, 24h) · if there are threats or violence too, call the police."],
         "Besides money, do they stop you seeing people or ever hurt you?"),
+    "accident_guilt": ("Not meaning to doesn't make you a bad person — feeling this much guilt shows how much you care.", [
+        "If someone or an animal is still hurt, deal with that first (emergency services for a person · a vet for an animal). If it's over, breathe slowly for a few minutes.",
+        "If it involves someone else (the owner, a neighbour, family), telling them honestly and saying sorry usually eases things for both of you — it doesn't have to be today.",
+        "The scene may replay in your head for days; that's normal after a shock. If after a few weeks you still can't sleep or stop blaming yourself, talk to a counsellor or your doctor."],
+        "Is there someone with you that you can tell about this?"),
+    "intrusive": ("Thank you for saying this. Thoughts that pop up uninvited aren't intentions, and they don't make you dangerous — being this scared of them shows you don't want to act on them.", [
+        "These are called intrusive thoughts. They're very common, especially after giving birth and with OCD, and they're treatable.",
+        "Don't try to force them away (that makes them loop). Try telling yourself \"this is just a thought, not an action\" and let it pass.",
+        "Tell a doctor, your postnatal nurse or a mental-health line (1323 in Thailand · 988 in the US) — they hear this often and won't judge. If you ever feel you might act, step away and call emergency services."],
+        "When did these thoughts start, and is there someone you can tell?"),
     "intruder": ("Please don't open the door — your safety comes first.", [
         "Call the police now (191 in Thailand, 911 in the US, 112 in Europe) and give your address; if you can't talk, leave the line open.",
         "Keep the door locked, push something heavy against it and move to a room that locks · turn the lights on and don't confront them.",
@@ -2465,7 +2506,7 @@ _SPECIFIC_FIRST = (
     ("kp_palliative_pain", {"grief", "diagnosis", "kp_end_of_life"}),
 )
 # risk จากข้อความของหัวข้อที่เพิ่มในรอบหาบั๊ก 2
-_TOPIC_RISK = {"post_harm": 85, "post_danger": 85, "newborn_danger": 85, "preg_danger": 85, "preg_alone": 45, "control_en": 60, "minor_adult": 70, "soft_check": 45, "trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
+_TOPIC_RISK = {"intrusive": 55, "post_harm": 85, "post_danger": 85, "newborn_danger": 85, "preg_danger": 85, "preg_alone": 45, "control_en": 60, "minor_adult": 70, "soft_check": 45, "trafficking": 80, "postpartum": 70, "needlestick": 60, "online_grooming": 75, "en_assault": 85, "en_infant_fever": 85, "en_preg_bleed": 85, "en_spiked": 80, "swallowed": 85, "household": 60, "sleepless": 50, "pet_poison": 70, "adult_invite": 55, "threat": 65, "harm_others": 80, "witness": 70, "elder_abuse": 75, "sextortion": 75, "first_aid": 75, "missing": 80, "drunk_drive": 75, "panic": 60,
                "housing": 45, "labor": 40, "psychosis": 75, "eating": 65, "caregiver": 55, "legal": 50,
                "diagnosis": 50, "health_rights": 40, "bribery": 45, "stop_meds": 50}
 _TOPIC_RISK.update(_KP.RISK)
@@ -2737,6 +2778,28 @@ def _assess_one(text: str, pattern: dict | None = None) -> dict:
         a = dict(a, text_risk=max(a["text_risk"], 75), risk=max(a["risk"], 75),
                  risk_shown=max(a["risk_shown"], 75) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     a = _specific_first(text, _mother_baby_first(text, _with_conditions(text, a)))
+    # รอบ B: กลัวความคิดของตัวเอง ("terrifies me" "I would never" "กลัวตัวเอง") ไม่ใช่ความโกรธ — คำตอบ harm_others ("โกรธขนาดนี้… ออกห่างจากคนนั้น… แจ้งตำรวจ")
+    # ผิดเรื่องสำหรับแม่หลังคลอดที่มีความคิดแทรกซ้อน · ใช้คำตอบหลังคลอด (post_harm) หรือความคิดแทรกซ้อนแทน ระดับความเสี่ยงคงเดิม
+    if isinstance(text, str) and "harm_others" in a["topics"] and _THOUGHT_FEAR.search(text) and not _REAL_INTENT.search(text):
+        first = "post_harm" if "post_harm" in a["topics"] else "intrusive"
+        a = dict(a, topics=[first] + [n for n in a["topics"] if n not in (first, "harm_others")])
+    # ค่าเลือดวิกฤต (เช่น โพแทสเซียม 6.4): เคยได้ความเสี่ยง 0 จึงไม่เข้าทางด่วน แล้ว AI ตอบเองจนความคิดของ AI หลุดถึงผู้ใช้
+    # (เว็บจริง 21 พ.ย.) · ตอนนี้ได้ระดับด่วน → ทางด่วนใช้คำตอบของระบบ ("ไปโรงพยาบาลวันนี้" มาก่อนแผนระยะยาว)
+    if isinstance(text, str) and not a["crisis"] and (a.get("text_risk") or 0) < 85:
+        try:
+            from core import lab_values as _lv
+            if any(x[2] == "urgent" for x in (_lv.read(text) or [])):
+                a = dict(a, topics=["health_emergency"] + [n for n in a["topics"] if n != "health_emergency"], text_risk=85,
+                         risk=max(a["risk"], 85), risk_shown=max(a["risk_shown"], 85) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
+        except Exception:
+            pass
+    # รอบสุ่ม 153: ความลับที่เป็นเซอร์ไพรส์/เฉลยข้อสอบ ไม่ใช่สัญญาณ grooming — เว้นแต่มีเรื่องรูป การแตะตัว นัดเจอ หรือของขวัญส่วนตัว
+    if isinstance(text, str) and "online_grooming" in a["topics"] and _SECRET_BENIGN.search(text) and not _GROOM_RED.search(text):
+        a = dict(a, topics=[n for n in a["topics"] if n != "online_grooming"], text_risk=min(a["text_risk"], 20),
+                 risk=min(a["risk"], 20), risk_shown=min(a["risk_shown"], 20) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
+    # รอบสุ่ม 150: สัตว์/เด็ก "locked in a parked car" คือรถร้อน ไม่ใช่การถูกขัง — ไม่ให้คำตอบเรื่องความรุนแรงมาแทนคำแนะนำเรื่องความร้อน
+    if isinstance(text, str) and "violence" in a["topics"] and _HOT_CAR.search(text):
+        a = dict(a, topics=["health_emergency"] + [n for n in a["topics"] if n not in ("violence", "health_emergency")])
     # รอบสุ่ม 144: เด็กเอาของเข้าปากแต่ "ไม่ได้กลืน/คายแล้ว" และไม่มีอาการ — เคยได้หัวข้อกลืนสิ่งแปลกปลอม 85 ("เป็นเหตุฉุกเฉินแม้ดูปกติ")
     # ไม่แน่ใจว่ากลืนไหม หรือมีอาการไอ/อาเจียน/หายใจลำบาก ยังเป็นเหตุด่วนเหมือนเดิม
     if isinstance(text, str) and not a["crisis"] and _NOT_SWALLOWED.search(text) and not _SWALLOW_DOUBT.search(text):

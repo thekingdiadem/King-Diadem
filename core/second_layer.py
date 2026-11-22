@@ -298,6 +298,31 @@ UPGRADES += [
 # รอบสุ่ม 89: แรงงานประมงถูกบังคับบนเรือ (อังกฤษ) — เคยได้ 0
 UPGRADES += [(re.compile(r"(?i:\bforced\s+to\s+work\s+on\s+(?:the|a)\s+(?:boat|ship|vessel)\b|\bhaven'?t\s+been\s+(?:ashore|on\s+land)\s+in\s+\d+\s+(?:months|weeks)\b)"), "trafficking")]
 _GROOM_ANY = re.compile(r"裸の(?:写真|画像)|裸照|알몸|나체|fotos?\s+desnud|khỏa\s+thân|รูปโป๊|ภาพโป๊|(?i:\bnudes?\b|\bnaked\s+(?:pics|photos)\b)")
+# รอบสุ่ม 151: มีคนบอกว่าจะเอาปืน/อาวุธมาโรงเรียน (อังกฤษ) — "said he'll bring a gun tomorrow" เคยได้ 0 ("shoot up the school" ได้ 90 อยู่แล้ว)
+UPGRADES += [(re.compile(r"(?i:\b(?:he|she|they|a (?:kid|boy|girl|student|classmate)|someone|my classmate)\b[^\n]{0,30}?\b(?:will|'ll|is going to|gonna|said (?:he|she|they)(?:'ll| will| would))\s+(?:bring|take)\s+(?:a |his |her |their |(?:his|her|their) (?:dad|mom|father|mother|brother)'s )?(?:gun|pistol|rifle|knife|weapon|bomb)\b[^\n]{0,30}?\b(?:to )?(?:school|class|campus|tomorrow|monday|on \w+day)\b(?![^\n]{0,20}?\b(?:for (?:show and tell|the play|drama|a costume)|toy|nerf|water)\b))"), "harm_others")]
+
+# รอบสุ่ม 154: คนใกล้ตัวพูดบอกลาแบบอ้อม — "won't have to worry about him anymore" · "จะไม่อยู่ให้เห็นหน้าแล้ว" เคยได้ 0
+# ไม่นับเมื่อเป็นการย้ายบ้าน/ไปเรียน/ไปทำงาน/เลิกกัน
+_MOVING = r"(?:ย้าย|ไปเรียน|ไปทำงาน|ต่างประเทศ|ต่างจังหวัด|เลิกกัน|ลาออก|(?i:\b(?:moving|move|abroad|college|university|new job|transfer\w*|break\w* up|broke up|quit\w*|deploy\w*)\b))"
+UPGRADES += [(re.compile(r"(?s)^(?!.*" + _MOVING + r")(?:.*(?:เพื่อน|แฟน|พี่|น้อง|แม่|พ่อ|ลูก)[^\n]{0,16}?(?:พูด|บอก)ว่า[^\n]{0,8}?(?:จะ)?ไม่(?:อยู่)?ให้เห็นหน้า(?:อีก)?แล้ว|"
+                         r".*(?i:\b(?:friend|sister|brother|mom|dad|son|daughter|boyfriend|girlfriend|wife|husband|partner)\b[^\n]{0,20}?\b(?:said|says|told me|texted)\b[^\n]{0,24}?"
+                         r"(?:i\s+won'?t\s+have\s+to\s+worry\s+about\s+(?:him|her|them)\s+(?:anymore|much longer)|(?:he|she|they)\s+won'?t\s+be\s+(?:a\s+burden|around)\s+(?:to\s+anyone|for\s+(?:long|much\s+longer)|anymore|after\s+this\s+week)|(?:soon\s+)?(?:she|he|they)\s+won'?t\s+be\s+a\s+burden)))"), "someone")]
+
+# รอบสุ่ม 153: ผู้ใหญ่สั่งให้เด็กเก็บความลับจากพ่อแม่ / ลบแชท / ให้ของขวัญแล้วห้ามบอก — สัญญาณ grooming ที่ชัดที่สุด เคยได้ 0 ทั้งไทยและอังกฤษ
+_ADULT_ROLE = r"(?:ครู|โค้ช|ครูพิเศษ|ติวเตอร์|พี่เลี้ยง|ลุง|น้า|อา|ผู้ชาย(?:ที่)?(?:ในเน็ต|ในเกม|แปลกหน้า)|ผู้ใหญ่|(?i:\b(?:coach|teacher|tutor|pastor|youth pastor|priest|uncle|neighbou?r|older (?:guy|man|boy)|adult|stranger|man online|guy online|scout leader)\b))"
+_SECRET_FROM_PARENTS = (r"(?:เก็บ(?:เป็น)?ความลับ|ห้ามบอก(?:พ่อ|แม่|ใคร)|อย่าบอก(?:พ่อ|แม่|ใคร)|ลบแชท|ลบข้อความ)|"
+                        r"(?i:\bkeep (?:it|this|their|our|a) (?:a )?secret\b|\b(?:not|don'?t|never) (?:to )?tell (?:us|his parents|her parents|mom|dad|anyone)\b|\bdelete (?:their|the|your|his|her) (?:chats?|messages|texts)\b)")
+UPGRADES += [(re.compile(r"(?s)^(?=.*" + _ADULT_ROLE + r")(?=.*(?:" + _SECRET_FROM_PARENTS + r"))(?=.*(?:ลูก|น้อง|หลาน|(?i:\b(?:my (?:son|daughter|kid|child)|my \d{1,2} ?yo|\d{1,2}[- ]year[- ]old|him|her)\b)))(?!.*(?:เซอร์ไพรส์|วันเกิด|ของขวัญวันแม่|ของขวัญวันพ่อ|(?i:surprise|birthday|christmas present|gift for (?:mom|dad|you))))"), "online_grooming")]
+
+# รอบสุ่ม 149: ผู้ใหญ่แปลกหน้าขอรูป (โป๊) จากเด็ก ใน es zh ko ja — เคยได้ 0 (vi ได้ 85 อยู่แล้ว)
+# ต้องมีครบ: เด็ก/อายุต่ำกว่า 18 + คนแปลกหน้า/ผู้ใหญ่ + ขอรูป
+_KID_INTL = r"(?:hij[oa]|niñ[oa]|\b(?:1[0-7]|[5-9])\s*años|女儿|儿子|孩子|(?:1[0-7]|[5-9])岁|열\s*\S{0,2}\s*살|(?:1[0-7]|[5-9])\s*살|딸|아들|娘|息子|子ども|子供|(?:1[0-7]|[5-9])歳)"
+_ASK_INTL = (r"(?:adulto|desconocid[oa]|hombre|señor|extrañ[oa])[^.!?\n]{0,30}(?:le\s+)?pide\s+(?:fotos|im[áa]genes)|"
+             r"(?:陌生人|成年人|网友|網友|大人)[^。！？\n]{0,12}(?:要|索要|要求)[^。！？\n]{0,6}(?:裸照|照片|私密照)|"
+             r"(?:모르는\s*(?:어른|사람|남자)|낯선\s*(?:어른|사람))[가-힯\s]{0,12}(?:사진을?\s*(?:요구|보내\s*달라)|알몸|나체)|"
+             r"(?:知らない|見知らぬ)(?:大人|人|男)[^。！？\n]{0,12}(?:写真|画像)を?(?:要求|送って|送れ|ほしい)")
+UPGRADES += [(re.compile(r"(?s)^(?=.*" + _KID_INTL + r")(?=.*(?:" + _ASK_INTL + r"))", re.I), "online_grooming")]
+
 _WATCH_WORDS = {"ซีรีส์", "ละคร", "สารคดี", "อ่านข่าว", "documentary", "series", "show", "drama", "movie", "tv", "essay", "report", "homework", "assignment", "research"}
 _CHARACTER = re.compile(r"นางเอก|พระเอก|ตัวละคร|ตัวร้าย|ในเรื่อง|ในละคร|ในซีรีส์|(?i:\b(?:character|the hero|the villain|in the (?:show|series|movie))\b)")
 _WATCHING = re.compile(r"(?:ซ้อม|เล่น|แสดง|ถ่าย)\S{0,2}?ละคร(?:เวที)?\S{0,8}?(?:อยู่|กับ|ด้วยกัน)|(?:ดู|นั่งดู|เปิด|นอนดู)\S{0,4}?(?:ซีรีส์|ละคร|สารคดี|หนัง|ทีวี)\S{0,12}?(?:อยู่|กับ|ด้วยกัน|ไป)|อ่านข่าวอยู่|"
