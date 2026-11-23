@@ -297,7 +297,17 @@ from contextlib import asynccontextmanager
 async def _lifespan(_app):
     import anyio.to_thread
     anyio.to_thread.current_default_thread_limiter().total_tokens = _THREADS
+    # นับไฟล์ทั้ง repo สำหรับหน้า "ระบบ" (ตัวเลขสด) ไว้ล่วงหน้าในเธรดแยก — เดิมคนแรกหลัง deploy ต้องรอ 10+ วินาที
+    import threading as _th
+    _th.Thread(target=_prewarm_live_map, name="prewarm-map", daemon=True).start()
     yield
+
+
+def _prewarm_live_map():
+    try:
+        _build_live_map()
+    except Exception as e:
+        print(f"⚠ prewarm system_map: {type(e).__name__}")
 
 # /docs /redoc /openapi.json ปิด — เดิมเปิดสาธารณะ ลิสต์ทุก endpoint ให้คนไล่หาช่องโหว่ (ไม่มีหน้าไหนใช้)
 app = FastAPI(title="KING DIADEM OS", docs_url=None, redoc_url=None, openapi_url=None, lifespan=_lifespan)
