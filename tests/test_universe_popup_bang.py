@@ -21,3 +21,13 @@ def test_bang_fades_to_black_before_revealing_page():
 def test_saturn_reply_hides_markdown_stars():
     s = Path("static/black_saturn.html").read_text(encoding="utf-8")
     assert "ans.replace(/\\*\\*([^*\\n]+)\\*\\*/g, '$1')" in s
+
+
+def test_bang_has_no_android_blue_tap_flash():
+    assert "#big-bang{-webkit-tap-highlight-color:transparent" in UNI
+    assert "#big-bang *{-webkit-tap-highlight-color:transparent}" in UNI
+
+
+def test_equations_linked_from_app():
+    assert 'href="/equations"' in UNI
+    assert 'href="/equations"' in Path("static/index.html").read_text(encoding="utf-8")
