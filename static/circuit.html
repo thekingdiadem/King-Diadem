@@ -278,7 +278,7 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
     var legs = [];
     for(var i = 1; i < stops.length; i++) legs.push(stops[i - 1] === stops[i] ? null : curve(stops[i - 1], stops[i]));
     legs.push(curve(stops[stops.length - 1], hub));
-    trip = {rip: [], stops: stops, legs: legs, i: 0, d: 0, hold: 0, names: JOURNEY.filter(function(j){ return PATH[j[0]]; })};
+    trip = {seen: {}, touched: 0, rip: [], stops: stops, legs: legs, i: 0, d: 0, hold: 0, names: JOURNEY.filter(function(j){ return PATH[j[0]]; })};
     document.getElementById('go').disabled = true;
     pulses = []; paint();
   }
@@ -289,7 +289,14 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
     trip.d += (reduce ? 9999 : R * .55) * dt;
     if(!leg || trip.d >= leg.len){
       var arrived = trip.stops[trip.i + 1];
-      if(arrived && arrived.p){ trip.rip.push({x: arrived.x, y: arrived.y, a: 1}); cap(trip.i); }
+      if(arrived && arrived.p){
+        trip.rip.push({x: arrived.x, y: arrived.y, a: 1});
+        if(!trip.seen[arrived.i]){ trip.seen[arrived.i] = 1; trip.touched++; }
+        /* แตกแสงตามไฟล์ที่ขั้นนี้ import จริง — ข้อความหนึ่งไม่ได้ผ่านแค่ 8 ไฟล์ */
+        var fan = E.filter(function(e){ return e.a === arrived.i && e.k === 0; });
+        fan.forEach(function(e){ if(!trip.seen[e.b]){ trip.seen[e.b] = 1; trip.touched++; } pulses.push({e: e, d: 0, v: R * (.5 + Math.random() * .3)}); });
+        cap(trip.i, fan.length);
+      }
       if(trip.i + 1 >= trip.legs.length) waves.push({r: R * .1, a: 1}, {r: R * .05, a: .7});
       trip.i++; trip.d = 0; trip.hold = .55;
       if(trip.i >= trip.legs.length){ trip = null; cap(-1); document.getElementById('go').disabled = false; if(pending){ var p = pending; pending = null; init(p); } else paint(); }
@@ -315,8 +322,10 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
   function tripLabels(){
     var c = Math.cos(rot), s = Math.sin(rot);
     ctx.font = '500 ' + Math.max(9, R * .034) + 'px ' + getComputedStyle(document.body).fontFamily; ctx.textBaseline = 'middle';
+    var lastAt = {};                                  /* ไฟล์เดียวกันหลายขั้น (kernel_voice) → ขึ้นป้ายขั้นล่าสุดอันเดียว */
+    trip.stops.forEach(function(st, k){ if(k && k <= trip.i) lastAt[st.i] = k; });
     trip.stops.forEach(function(st, k){
-      if(!k || k > trip.i || !trip.names[k - 1]) return;
+      if(!k || k > trip.i || !trip.names[k - 1] || lastAt[st.i] !== k) return;
       var dx = st.x - C, dy = st.y - C, x = C + dx * c - dy * s, y = C + dx * s + dy * c;
       var right = x >= C; ctx.textAlign = right ? 'left' : 'right';
       ctx.fillStyle = 'rgba(10,7,9,.7)'; var w = ctx.measureText(trip.names[k - 1][1]).width;
@@ -324,12 +333,12 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
       ctx.fillStyle = k === trip.i ? '#efe6d8' : 'rgba(226,207,154,.75)'; ctx.fillText(trip.names[k - 1][1], right ? x + 9 : x - 9, y);
     });
   }
-  function cap(i){
+  function cap(i, fan){
     var c = document.getElementById('cap'); c.textContent = '';
     if(i < 0 || !trip) return;
     var j = trip.names[i]; if(!j) return;
     c.appendChild(document.createTextNode((i + 1) + '/' + trip.names.length + ' · ' + j[1]));
-    c.appendChild(el('small', null, j[0]));
+    c.appendChild(el('small', null, j[0] + (fan ? ' → เรียกต่อ ' + fan + ' ไฟล์' : '') + ' · รวม ' + trip.touched + ' ไฟล์'));
   }
 
   /* ── แตะไฟล์ ── */
