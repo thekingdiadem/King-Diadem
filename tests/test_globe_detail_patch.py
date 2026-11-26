@@ -46,3 +46,9 @@ def test_hero_title_bold_opal_gradient():
     uni = Path("static/king_diadem_universe.html").read_text(encoding="utf-8")
     assert "#ffa6dc 0%,#e3a4ff 22%,#bca6ff 40%,#98bcff 58%,#7fe2ff 76%,#72f5dc 100%" in uni
     assert "drop-shadow(0 0 14px rgba(190,160,255,.5))" in uni
+
+
+def test_title_gold_edge_and_equation_gold_rules():
+    uni = Path("static/king_diadem_universe.html").read_text(encoding="utf-8")
+    assert "-webkit-text-stroke:.7px rgba(246,206,120,.95)" in uni
+    assert "border-top:1px solid rgba(246,206,120,.55);border-bottom:1px solid rgba(246,206,120,.55)" in uni
