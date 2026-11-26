@@ -988,7 +988,7 @@ def root(request: Request):
 # sitemap.xml บอก Google ว่ามีหน้าสาธารณะอะไรบ้าง — เดิมไม่มีทั้งสองไฟล์
 SITEMAP_PAGES = [("/", "1.0", "daily"), ("/safe", "0.9", "monthly"), ("/guide", "0.8", "weekly"), ("/learn", "0.8", "weekly"), ("/survival", "0.9", "weekly"), ("/ask", "0.7", "weekly"),
                  ("/sky", "0.9", "daily"), ("/pregnancy", "0.8", "monthly"), ("/universe", "0.8", "weekly"), ("/equations", "0.8", "monthly"),
-                 ("/architecture", "0.6", "weekly"), ("/letter", "0.6", "monthly"), ("/support", "0.5", "monthly"),
+                 ("/architecture", "0.6", "weekly"), ("/circuit", "0.6", "weekly"), ("/letter", "0.6", "monthly"), ("/support", "0.5", "monthly"),
                  ("/privacy", "0.3", "yearly"), ("/terms", "0.3", "yearly"), ("/refund", "0.3", "yearly")]
 _ROBOTS_BLOCK = ["/api/", "/report/", "/auth/", "/login", "/me", "/dashboard", "/wallet", "/credits", "/static/login.html",
                  "/static/register.html", "/static/report.html"]
@@ -1083,6 +1083,10 @@ async def guide_page():
 @app.get("/architecture")
 async def architecture_page():
     return FileResponse("static/architecture.html")
+
+@app.get("/circuit")
+async def circuit_page():
+    return FileResponse("static/circuit.html")
 
 # ── นโยบายความเป็นส่วนตัว / ข้อกำหนดการใช้งาน (PDPA · Play Store ต้องมี) ─────────────
 # อีเมลติดต่อตั้งใน Render ได้ (SUPPORT_EMAIL) — เปลี่ยนเป็น support@โดเมน ทีหลังได้โดยไม่ต้องแก้โค้ด

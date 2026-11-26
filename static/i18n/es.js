@@ -4,6 +4,7 @@
 "ถ้าเป็นเรื่องด่วน โทรได้เลยไม่ต้องรอ: 1669 เจ็บป่วยฉุกเฉิน · 191 ตำรวจ · 1323 สุขภาพจิต": "Si es urgente, llama ya, no esperes: Tailandia 1669 emergencias · 191 policía · 1323 salud mental ／ 112 / 911",
 "ท้องฟ้าคืนนี้ ↗": "El cielo de esta noche ↗",
 "ระบบสุริยะ ↗": "Sistema solar ↗",
+"วงจรระบบ ↗": "Circuito del sistema ↗",
 "{h} ชม.ที่แล้ว": "hace {h} h",
 "{d} วันที่แล้ว": "hace {d} días",
 "ฉันอยู่ใกล้{k} {n} ตอนนี้ต้องทำอะไรก่อน": "Estoy cerca de {k} {n}, ¿qué hago primero?",
