@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0b0a14">
+<meta name="theme-color" content="#0a0709">
 <title>วงจรระบบ · KING DIADEM</title>
 <link rel="canonical" href="https://king-diadem.onrender.com/circuit">
 <link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
@@ -13,10 +13,10 @@
    ไม่มีไฟล์หรือเส้นไหนที่วาดขึ้นเอง: หมวด = คอลัมน์ · ไฟล์ = จุดบนคอลัมน์ · เส้น = import / หน้าเว็บโหลด / อ้างถึง
    แสงวิ่งจากไฟล์ที่เรียก → ไปไฟล์ที่ถูกเรียก · มือถือจำกัดแสงพร้อมกัน · ตั้งค่าลดการเคลื่อนไหวไว้ = แสงหยุด */
 :root{
-  --void:#0b0a14; --tx-hi:#ece8f4; --tx:#b9b4c8; --tx-lo:#7d7893; --gold:#d9c8ff;
-  /* พาสเทลโทนลึก: ลาเวนเดอร์ · กุหลาบหม่น · ฟ้าหมอก · มิ้นต์ · ทรายจาง — คลีน ไม่ฉูดฉาด */
-  --c-boot:#c9b6ff; --c-request:#f2c4d6; --c-web:#a9c4f5; --c-site:#b6ddd0; --c-pkg:#8d88a8;
-  --c-config:#cfc5b6; --c-docs:#e3d3a8; --c-tests:#9fd3cb;
+  --void:#0a0709; --tx-hi:#efe6d8; --tx:#bdb1a6; --tx-lo:#857a76; --gold:#e2cf9a;
+  /* พาสเทลโทนราชายมโลก: ทองโบราณ · กุหลาบเลือดจาง · อเมทิสต์หมอกควัน · หยกซีด · กระดูก · เถ้า — สง่า เงียบ ไม่ฉูดฉาด */
+  --c-boot:#e2cf9a; --c-request:#d99aa5; --c-web:#b7a3d9; --c-site:#a9cbb8; --c-pkg:#7f7891;
+  --c-config:#d6cdbd; --c-docs:#bfa9c9; --c-tests:#8fbfb6;
   --f-body:'Noto Sans Thai Looped',system-ui,sans-serif; --f-mono:ui-monospace,'DM Mono',monospace;
 }
 *{box-sizing:border-box}
@@ -28,8 +28,8 @@ h1{margin:0;font-size:19px;letter-spacing:.22em;color:var(--tx-hi);font-weight:5
 .nav{margin-top:8px;font-size:12.5px}
 .nav a{color:var(--gold);text-decoration:none;margin-right:12px}
 .legend{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;max-width:980px;margin:0 auto;position:sticky;top:0;z-index:3;
-  background:linear-gradient(var(--void) 70%,rgba(11,10,20,0))}
-.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(217,200,255,.14);border-radius:999px;padding:4px 10px;
+  background:linear-gradient(var(--void) 70%,rgba(10,7,9,0))}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(226,207,154,.16);border-radius:999px;padding:4px 10px;
   font-size:12px;color:var(--tx);background:rgba(255,255,255,.03);cursor:pointer;font-family:inherit}
 .chip i{width:8px;height:8px;border-radius:2px;display:inline-block}
 .chip[aria-pressed="false"]{opacity:.38}
@@ -39,7 +39,7 @@ h1{margin:0;font-size:19px;letter-spacing:.22em;color:var(--tx-hi);font-weight:5
 #wrap{position:relative;max-width:980px;margin:0 auto}
 #cv{position:sticky;top:0;display:block;width:100%;touch-action:pan-y}
 #info{position:fixed;left:12px;right:12px;bottom:12px;max-width:560px;margin:0 auto;z-index:5;display:none;
-  background:rgba(18,16,30,.95);border:1px solid rgba(217,200,255,.28);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.55}
+  background:rgba(20,12,15,.95);border:1px solid rgba(226,207,154,.3);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.55}
 #info.on{display:block}
 #info .p{font-family:var(--f-mono);color:var(--tx-hi);word-break:break-all;font-size:12.5px}
 #info .m{color:var(--tx-lo);font-size:12px;margin-top:2px}
@@ -57,9 +57,9 @@ footer{padding:20px 16px 90px;text-align:center;font-size:12px;color:var(--tx-lo
 </header>
 <div class="legend" id="legend" role="group" aria-label="เลือกหมวดที่จะแสดง"></div>
 <div class="kinds">
-  <span><i style="background:#c9b6ff"></i>import ของ Python</span>
-  <span><i style="background:#a9c4f5"></i>หน้าเว็บโหลด / ส่ง</span>
-  <span><i style="background:#7d7893"></i>เทสต์ / เอกสาร / ตั้งค่าอ้างถึง</span>
+  <span><i style="background:#e2cf9a"></i>import ของ Python</span>
+  <span><i style="background:#b7a3d9"></i>หน้าเว็บโหลด / ส่ง</span>
+  <span><i style="background:#857a76"></i>เทสต์ / เอกสาร / ตั้งค่าอ้างถึง</span>
 </div>
 <div id="wrap"><canvas id="cv" aria-label="วงจรไฟล์ทั้งหมดของระบบ แตะจุดเพื่อดูว่าไฟล์นั้นต่อกับอะไร"></canvas></div>
 <div id="status"></div>
@@ -72,7 +72,7 @@ footer{padding:20px 16px 90px;text-align:center;font-size:12px;color:var(--tx-lo
     ['boot', 'ทำงานตอนบูต'], ['request', 'ทำงานตอนตอบ'], ['web', 'หน้าเว็บ'], ['site', 'เว็บ GitHub Pages'],
     ['pkg', 'ไฟล์บอกโฟลเดอร์'], ['config', 'ตั้งค่า'], ['docs', 'เอกสาร'], ['tests', 'เทสต์']
   ];
-  var KIND_COLOR = ['201,182,255', '169,196,245', '160,154,186'];
+  var KIND_COLOR = ['226,207,154', '183,163,217', '150,138,150'];
   var css = getComputedStyle(document.documentElement);
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mobile = Math.min(screen.width, screen.height) < 700;
@@ -111,6 +111,8 @@ footer{padding:20px 16px 90px;text-align:center;font-size:12px;color:var(--tx-lo
     var b = el('b', null, F.length.toLocaleString('en-US') + ' ไฟล์ · ' + E.length.toLocaleString('en-US') + ' เส้น');
     sub.appendChild(b);
     sub.appendChild(document.createTextNode(' (import ' + nk[0] + ' · เว็บ ' + nk[1] + ' · อ้างถึง ' + nk[2] + ')' + (d.commit ? ' · commit ' + d.commit : '')));
+    var live = (counts.boot || 0) + (counts.request || 0);
+    if(live){ sub.appendChild(document.createTextNode(' · ')); sub.appendChild(el('b', null, 'โมดูล Python ที่รันจริง ' + live)); sub.appendChild(document.createTextNode(' (ทำงานตอนบูต ' + (counts.boot || 0) + ' + ทำงานตอนตอบ ' + (counts.request || 0) + ')')); }
     var lg = document.getElementById('legend');
     lanes.forEach(function(l){
       var c = el('button', 'chip'); c.type = 'button'; c.setAttribute('aria-pressed', 'true');
@@ -227,11 +229,11 @@ footer{padding:20px 16px 90px;text-align:center;font-size:12px;color:var(--tx-lo
     });
     g.globalAlpha = 1;
     var gr = g.createRadialGradient(hub.x, hub.y, 2, hub.x, hub.y, hub.r * 1.8);
-    gr.addColorStop(0, 'rgba(217,200,255,.22)'); gr.addColorStop(1, 'rgba(217,200,255,0)');
+    gr.addColorStop(0, 'rgba(160,60,80,.28)'); gr.addColorStop(1, 'rgba(160,60,80,0)');
     g.fillStyle = gr; g.beginPath(); g.arc(hub.x, hub.y, hub.r * 1.8, 0, 7); g.fill();
-    g.strokeStyle = 'rgba(217,200,255,.7)'; g.lineWidth = 1; g.beginPath(); g.arc(hub.x, hub.y, hub.r, 0, 7); g.stroke();
-    g.strokeStyle = 'rgba(242,196,214,.35)'; g.beginPath(); g.arc(hub.x, hub.y, hub.r + 4, 0, 7); g.stroke();
-    g.fillStyle = '#ece8f4'; g.font = '500 8.5px ' + font; g.textAlign = 'center';
+    g.strokeStyle = 'rgba(226,207,154,.75)'; g.lineWidth = 1; g.beginPath(); g.arc(hub.x, hub.y, hub.r, 0, 7); g.stroke();
+    g.strokeStyle = 'rgba(217,154,165,.38)'; g.beginPath(); g.arc(hub.x, hub.y, hub.r + 4, 0, 7); g.stroke();
+    g.fillStyle = '#efe6d8'; g.font = '500 8.5px ' + font; g.textAlign = 'center';
     g.fillText('KING', hub.x, hub.y - 2); g.fillText('DIADEM', hub.x, hub.y + 9);
   }
 
@@ -275,12 +277,12 @@ footer{padding:20px 16px 90px;text-align:center;font-size:12px;color:var(--tx-lo
         ctx.strokeStyle = 'rgba(' + KIND_COLOR[e.k] + ',' + (e.a === sel ? .6 : .35) + ')'; ctx.lineWidth = .9; stroke(ctx, e.pts);
       });
       var f = BY[sel];
-      ctx.strokeStyle = '#ece8f4'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(f.x, f.y, 5, 0, 7); ctx.stroke();
+      ctx.strokeStyle = '#efe6d8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(f.x, f.y, 5, 0, 7); ctx.stroke();
     }
         pulses.forEach(function(p){
       var pts = p.e.pts;
       if(pts[0][1] > oy + VH + 40 && pts[pts.length - 1][1] > oy + VH + 40) return;
-      var col = p.e.trunk ? '242,196,214' : KIND_COLOR[p.e.k];
+      var col = p.e.trunk ? '217,154,165' : KIND_COLOR[p.e.k];
       for(var s = 0; s < 6; s++){
         var q = at(pts, p.d - s * 5); if(q[1] < oy - 20 || q[1] > oy + VH + 20) continue;
         ctx.fillStyle = 'rgba(' + col + ',' + (0.85 - s * .14) + ')';
