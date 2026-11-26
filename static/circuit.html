@@ -144,7 +144,9 @@ body.film #cap{display:none}
       film.camK = ease((film.t - film.t0) / 6);     /* กล้องถอยออกจนเห็นทั้งจักรวาล */
       RINGS.forEach(function(r){ if(!r.chimed && film.rev >= r[1] * R){ r.chimed = 1; chimes.push({r: r[1] * R, c: r[0][0], a: 1, age: 0}); } });
       film.lit = film.lit || {}; film.nlit = film.nlit || 0;
-      F.forEach(function(f){ if(!film.lit[f.i] && vis(f) && f.rf * R <= film.rev){ film.lit[f.i] = 1; film.nlit++; flashes.push({f: f, a: .75}); } });
+      F.forEach(function(f){ if(!film.lit[f.i] && vis(f) && f.rf * R <= film.rev){ film.lit[f.i] = 1; film.nlit++;
+        /* วาบไล่กันเป็นระลอก ไม่พร้อมกันทั้งวง (เดิม 737 ไฟล์วาบพร้อมกันจนเป็นวงขาวทึบ) */
+        if(f.i % 3 === 0) flashes.push({f: f, a: .75, wait: (f.i % 11) * .09}); } });
       capText('แล้วแสงก็แผ่ไปทั้งระบบ', 'แสงถึงแล้ว ' + fmt(film.nlit) + ' / ' + fmt(F.length) + ' ไฟล์ · ' + fmt(E.length) + ' เส้น · ทุกเส้นคือโค้ดจริง');
       if(film.t - film.t0 > 8){ film.ph = 4; film.t1 = film.t; }
     }
@@ -344,7 +346,7 @@ body.film #cap{display:none}
     }
     if(!reduce && (!film || film.ph >= 3)){ beat -= dt; if(beat <= 0){ beat = 3.2; waves.push({r: R * .1, a: .5}); } }
     waves.forEach(function(w){ w.r += dt * R * .45; w.a -= dt * .2; }); waves = waves.filter(function(w){ return w.a > 0 && w.r < R; });
-    flashes.forEach(function(x){ x.a -= dt * 1.6; }); flashes = flashes.filter(function(x){ return x.a > 0; });
+    flashes.forEach(function(x){ if(x.wait > 0){ x.wait -= dt; return; } x.a -= dt * 1.6; }); flashes = flashes.filter(function(x){ return x.a > 0; });
     if(trip) stepTrip(dt);
     draw();
   }
@@ -415,6 +417,7 @@ body.film #cap{display:none}
       ctx.fillStyle = 'rgba(255,248,235,.95)'; ctx.beginPath(); ctx.arc(h[0], h[1], 1.1, 0, 7); ctx.fill();
     });
     flashes.forEach(function(x){
+      if(x.wait > 0) return;
       blob(film ? '232,222,255' : '239,230,216', x.f.x, x.f.y, 4 + (1 - x.a) * 8, x.a * .8);
       ctx.strokeStyle = 'rgba(239,230,216,' + x.a * .5 + ')'; ctx.lineWidth = .7; ctx.beginPath(); ctx.arc(x.f.x, x.f.y, 2 + (1 - x.a) * 12, 0, 7); ctx.stroke();
     });
@@ -436,7 +439,7 @@ body.film #cap{display:none}
     accx.globalCompositeOperation = 'lighter';
     accx.lineWidth = .55;
     storm.forEach(function(p){
-      if(INK){ var bb = at(p.e.pts, p.d); brush(accx, p.e.pts, p.d, 16, sideC(proj(bb[0], bb[1])[0]), 1.1, .5); return; }
+      if(INK){ var bb = at(p.e.pts, p.d); brush(accx, p.e.pts, p.d, 16, sideC(proj(bb[0], bb[1])[0]), .9, .2); return; }
       var a = at(p.e.pts, Math.max(0, p.d - 9)), b = at(p.e.pts, p.d);
       accx.strokeStyle = 'rgba(' + sideC(proj(b[0], b[1])[0]) + ',.24)'; accx.beginPath(); accx.moveTo(a[0], a[1]); accx.lineTo(b[0], b[1]); accx.stroke();
     });
@@ -550,7 +553,8 @@ body.film #cap{display:none}
       g.strokeStyle = 'rgba(' + col + ',' + .55 * am * k + ')'; g.lineWidth = w * 1.9;
       g.beginPath(); g.moveTo(prev[0], prev[1]); g.lineTo(q[0], q[1]); g.stroke();
       g.globalCompositeOperation = 'source-over';
-      g.strokeStyle = 'rgba(255,246,226,' + .95 * am * k + ')'; g.lineWidth = Math.max(.25, w * .55);
+      var cc = col.split(','), core = Math.round((+cc[0] + 255 * 2) / 3) + ',' + Math.round((+cc[1] + 246 * 2) / 3) + ',' + Math.round((+cc[2] + 226 * 2) / 3);   /* แกนติดสีของเส้น ไม่ขาวล้วน */
+      g.strokeStyle = 'rgba(' + core + ',' + .95 * am * k + ')'; g.lineWidth = Math.max(.25, w * .55);
       g.beginPath(); g.moveTo(prev[0], prev[1]); g.lineTo(q[0], q[1]); g.stroke();
       prev = q;
     }
