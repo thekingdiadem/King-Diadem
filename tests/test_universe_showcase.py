@@ -99,8 +99,15 @@ def test_phone_does_not_download_4k_until_zoom():
     """มือถือเคยโหลดภาพ 4K ทั้งสามภาพ (~2.6 MB) ทันทีที่เปิดหน้า แม้ไม่ได้ซูม"""
     js = open("static/cockpit_earth.js", encoding="utf-8").read()
     assert "light && S.tL < 2" in js and "maybe4k();" in js           # tL ≥ 2 = ซูมลงใกล้กว่าวงโคจร 2 เท่า
-    # ภาพกลางวัน/เมฆ 4K (ก้อนใหญ่) ยังรอซูมเหมือนเดิม · ไฟเมืองละเอียด (ภาพขาวดำ ~0.3 MB) โหลดทันทีที่เดียว
+    # ภาพกลางวัน/เมฆ 4K (ก้อนใหญ่) รอซูม · ไฟเมืองละเอียด: คอมโหลดทันที มือถือรอซูมด้วย (พ.ย. 2569: หน้าแผนที่หน่วงบนมือถือ)
     assert js.count("load(1, 'day_4k.jpg')") == 1 and "load(1, 'day_4k.jpg'); load(2, 'clouds_4k.jpg');" in js
     assert js.count("'lights_4k.jpg'") == 1
+    assert "if (light) load(0, LIGHTS_HI);" in js and "if (can4k && !light) load(0, LIGHTS_HI);" in js
+
+
+def test_water_mask_is_small():
+    # แผนที่น้ำ (ใช้ทำแสงสะท้อนทะเล) เดิมเป็น PNG 256 ระดับ 345 KB → 4 ระดับ ขนาดเดิม ~51 KB
+    import os
+    assert os.path.getsize("static/earth/water.png") < 80_000
     import os
     assert os.path.getsize("static/earth/lights_4k.jpg") < 500_000
