@@ -470,6 +470,7 @@
 "ดูเป็นตาราง": "Ver como tabla",
 "ทาง": "Camino",
 "ภาพจำลองความมั่นคง W ของแต่ละทางเลือก 12 เดือน": "Estabilidad W simulada de cada opción a 12 meses",
+"⚠ ภาพจะถูกส่งให้ AI ทั้งภาพ · อย่าถ่ายเลขบัญชี บัตรประชาชน บัตรเครดิต หรือรหัสผ่านติดมา": "⚠ La imagen completa se envía a la IA · no incluyas números de cuenta, documentos de identidad, tarjetas de crédito ni contraseñas",
 "เลือกภาพก่อน": "Elige primero una imagen",
 "⚠ รองรับเฉพาะ jpeg / png / webp": "⚠ Solo se admiten jpeg / png / webp",
 "⚠ ไฟล์ใหญ่เกิน 10MB": "⚠ El archivo supera los 10 MB",

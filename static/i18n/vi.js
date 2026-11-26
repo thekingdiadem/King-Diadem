@@ -470,6 +470,7 @@
 "ดูเป็นตาราง": "Xem dạng bảng",
 "ทาง": "Con đường",
 "ภาพจำลองความมั่นคง W ของแต่ละทางเลือก 12 เดือน": "Độ ổn định W mô phỏng của từng lựa chọn trong 12 tháng",
+"⚠ ภาพจะถูกส่งให้ AI ทั้งภาพ · อย่าถ่ายเลขบัญชี บัตรประชาชน บัตรเครดิต หรือรหัสผ่านติดมา": "⚠ Toàn bộ hình ảnh sẽ được gửi cho AI · đừng để lộ số tài khoản, thẻ căn cước, thẻ tín dụng hay mật khẩu",
 "เลือกภาพก่อน": "Hãy chọn hình ảnh trước",
 "⚠ รองรับเฉพาะ jpeg / png / webp": "⚠ Chỉ hỗ trợ jpeg / png / webp",
 "⚠ ไฟล์ใหญ่เกิน 10MB": "⚠ Tệp lớn hơn 10MB",

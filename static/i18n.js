@@ -357,6 +357,7 @@
     'ดูเป็นตาราง': ['View as table', '表で見る'],
     'ทาง': ['Path', '道'],
     'ภาพจำลองความมั่นคง W ของแต่ละทางเลือก 12 เดือน': ['Simulated stability W of each option over 12 months', '各選択肢の安定度Wの12か月シミュレーション'],
+    '⚠ ภาพจะถูกส่งให้ AI ทั้งภาพ · อย่าถ่ายเลขบัญชี บัตรประชาชน บัตรเครดิต หรือรหัสผ่านติดมา': ['⚠ The whole image is sent to the AI · don’t include bank account numbers, ID cards, credit cards or passwords', '⚠ 画像はそのままAIに送られます · 口座番号・身分証・クレジットカード・パスワードが写らないようにしてください'],
     'เลือกภาพก่อน': ['Choose an image first', 'まず画像を選んでください'],
     '⚠ รองรับเฉพาะ jpeg / png / webp': ['⚠ Only jpeg / png / webp are supported', '⚠ jpeg / png / webp のみ対応'],
     '⚠ ไฟล์ใหญ่เกิน 10MB': ['⚠ File is larger than 10MB', '⚠ ファイルが10MBを超えています'],
