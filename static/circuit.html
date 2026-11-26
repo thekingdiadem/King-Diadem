@@ -80,7 +80,17 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
   var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
   var F = [], E = [], BY = {}, PATH = {}, on = {}, counts = {};
   var S = 0, C = 0, R = 0, dpr = 1, layer = null, rot = 0, last = 0;
-  var sel = -1, inc = [], pulses = [], flashes = [], trip = null;
+  var sel = -1, inc = [], pulses = [], flashes = [], trip = null, waves = [], beat = 0, stars = [];
+  /* สไปรต์แสงเรือง (วาดครั้งเดียว ใช้ drawImage แทน shadowBlur ที่หนักบนมือถือ) */
+  var GLOW = {};
+  function glow(c){
+    if(GLOW[c]) return GLOW[c];
+    var g = document.createElement('canvas'); g.width = g.height = 64; var x = g.getContext('2d');
+    var gr = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gr.addColorStop(0, 'rgba(' + c + ',.9)'); gr.addColorStop(.18, 'rgba(' + c + ',.45)'); gr.addColorStop(1, 'rgba(' + c + ',0)');
+    x.fillStyle = gr; x.fillRect(0, 0, 64, 64); return (GLOW[c] = g);
+  }
+  function blob(c, x, y, r, a){ ctx.globalAlpha = a; ctx.drawImage(glow(c), x - r, y - r, r * 2, r * 2); ctx.globalAlpha = 1; }
 
   function el(t, c, x){ var e = document.createElement(t); if(c) e.className = c; if(x != null) e.textContent = x; return e; }
   function col(c){ return (css.getPropertyValue('--c-' + c) || '#888').trim(); }
@@ -88,9 +98,9 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
   function fmt(n){ return n.toLocaleString('en-US'); }
 
   /* ขึ้นภาพทันทีจากชุดที่บันทึกไว้ (static) แล้วเปลี่ยนเป็นชุดสดเมื่อเซิร์ฟเวอร์นับเสร็จ (~10 วินาทีครั้งแรก) */
-  var ready = false;
+  var ready = false, pending = null;   /* ชุดสดที่มาถึงระหว่างดูข้อความเดินทาง — รอจบก่อนค่อยสลับ */
   getJSON('/static/system_map.json').then(function(d){ if(!ready) init(d); }).catch(function(){});
-  getJSON('/api/system_map').then(function(d){ if(d && d.files) init(d); })
+  getJSON('/api/system_map').then(function(d){ if(d && d.files){ if(trip) pending = d; else init(d); } })
     .catch(function(){ if(!ready) document.getElementById('stat').textContent = 'โหลดไม่ได้ ลองรีเฟรช'; });
 
   function init(d){
@@ -141,7 +151,7 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
     });
   }
   function size(){
-    var w = Math.min(document.getElementById('stage').clientWidth, 720), h = window.innerHeight * .62;
+    var w = Math.min(document.getElementById('stage').clientWidth, 720), h = window.innerHeight * .74;
     S = Math.max(300, Math.min(w, Math.max(h, 320)));
     C = S / 2; R = C - 8; dpr = Math.min(2, window.devicePixelRatio || 1);
     cv.style.width = cv.style.height = S + 'px'; cv.width = cv.height = Math.round(S * dpr);
@@ -179,24 +189,31 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
       g.strokeStyle = 'rgba(' + KC[k] + ',' + (dim ? .025 : .07) + ')';
       E.forEach(function(e){ if(e.k === k && vis(e.A) && vis(e.B)) line(g, e.pts); });
     });
-    RINGS.forEach(function(r){ g.strokeStyle = 'rgba(226,207,154,.07)'; g.lineWidth = .6; g.beginPath(); g.arc(C, C, r[1] * R, 0, 7); g.stroke(); });
-    for(var i = 0; i < 24; i++){            /* รัศมีมงกุฎบางๆ */
-      var a = i / 24 * Math.PI * 2, r0 = R * .15, r1 = R * (i % 2 ? .2 : .23);
-      g.strokeStyle = 'rgba(226,207,154,' + (i % 2 ? .12 : .22) + ')'; g.lineWidth = .7;
+    var bg = g.createRadialGradient(C, C, R * .1, C, C, R * 1.05);
+    bg.addColorStop(0, 'rgba(70,24,38,.35)'); bg.addColorStop(.6, 'rgba(30,14,24,.18)'); bg.addColorStop(1, 'rgba(10,7,9,0)');
+    g.fillStyle = bg; g.fillRect(0, 0, S, S);
+    if(!stars.length) for(var si = 0; si < 140; si++) stars.push([Math.random(), Math.random(), Math.random()]);
+    stars.forEach(function(st){ g.fillStyle = 'rgba(239,230,216,' + (.08 + st[2] * .25) + ')'; g.fillRect(st[0] * S, st[1] * S, st[2] > .85 ? 1.2 : .7, st[2] > .85 ? 1.2 : .7); });
+    RINGS.forEach(function(r){ g.strokeStyle = 'rgba(226,207,154,.06)'; g.lineWidth = .5; g.beginPath(); g.arc(C, C, r[1] * R, 0, 7); g.stroke(); });
+    for(var i = 0; i < 36; i++){            /* รัศมีมงกุฎ */
+      var a = i / 36 * Math.PI * 2, r0 = R * .13, r1 = R * (i % 3 ? .175 : .2);
+      g.strokeStyle = 'rgba(226,207,154,' + (i % 3 ? .14 : .32) + ')'; g.lineWidth = i % 3 ? .5 : .9;
       g.beginPath(); g.moveTo(C + Math.cos(a) * r0, C + Math.sin(a) * r0); g.lineTo(C + Math.cos(a) * r1, C + Math.sin(a) * r1); g.stroke();
     }
+    /* ไฟล์ = ขีดรัศมี ยาวตามจำนวนบรรทัดจริง → วงออกมาเหมือนคลื่นเสียง */
+    g.lineCap = 'round';
     F.forEach(function(f){
       if(!vis(f)) return;
-      g.fillStyle = col(f.c); g.globalAlpha = dim ? .3 : .85;
-      g.beginPath(); g.arc(f.x, f.y, Math.max(.9, Math.min(2, .5 + Math.log10(f.n + 1) * .4)), 0, 7); g.fill();
+      var L = Math.min(R * .05, 1.5 + Math.log10(f.n + 1) * R * .011), c = Math.cos(f.ang), s2 = Math.sin(f.ang);
+      g.strokeStyle = col(f.c); g.globalAlpha = dim ? .22 : .78; g.lineWidth = f.rf < .4 ? 1.4 : .8;
+      g.beginPath(); g.moveTo(f.x, f.y); g.lineTo(f.x + c * L, f.y + s2 * L); g.stroke();
     });
     g.globalAlpha = 1;
-    var gr = g.createRadialGradient(C, C, 0, C, C, R * .14);
-    gr.addColorStop(0, 'rgba(160,60,80,.35)'); gr.addColorStop(1, 'rgba(160,60,80,0)');
-    g.fillStyle = gr; g.beginPath(); g.arc(C, C, R * .14, 0, 7); g.fill();
-    g.strokeStyle = 'rgba(226,207,154,.7)'; g.lineWidth = .9; g.beginPath(); g.arc(C, C, R * .1, 0, 7); g.stroke();
-    g.fillStyle = '#efe6d8'; g.font = '500 ' + Math.max(7, R * .028) + 'px ' + getComputedStyle(document.body).fontFamily;
-    g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('KING DIADEM', C, C);
+    var gr = g.createRadialGradient(C, C, 0, C, C, R * .16);
+    gr.addColorStop(0, 'rgba(190,70,95,.5)'); gr.addColorStop(1, 'rgba(160,60,80,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(C, C, R * .16, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(226,207,154,.85)'; g.lineWidth = 1; g.beginPath(); g.arc(C, C, R * .1, 0, 7); g.stroke();
+    g.strokeStyle = 'rgba(226,207,154,.3)'; g.lineWidth = .5; g.beginPath(); g.arc(C, C, R * .113, 0, 7); g.stroke();
     pulses = [];
   }
 
@@ -219,6 +236,8 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
       pulses.forEach(function(p){ p.d += p.v * dt; if(p.d >= p.e.pts.len && !p.done){ p.done = 1; flashes.push({f: p.e.B, a: 1}); } });
       pulses = pulses.filter(function(p){ return p.d < p.e.pts.len + 20; });
     }
+    if(!reduce){ beat -= dt; if(beat <= 0){ beat = 3.2; waves.push({r: R * .1, a: .5}); } }
+    waves.forEach(function(w){ w.r += dt * R * .45; w.a -= dt * .2; }); waves = waves.filter(function(w){ return w.a > 0 && w.r < R; });
     flashes.forEach(function(x){ x.a -= dt * 1.6; }); flashes = flashes.filter(function(x){ return x.a > 0; });
     if(trip) stepTrip(dt);
     draw();
@@ -230,17 +249,24 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
     ctx.drawImage(layer, 0, 0, S, S);
     inc.forEach(function(e){ ctx.strokeStyle = 'rgba(' + KC[e.k] + ',' + (e.a === sel ? .55 : .3) + ')'; ctx.lineWidth = .8; line(ctx, e.pts); });
     if(sel >= 0){ var f = BY[sel]; ctx.strokeStyle = '#efe6d8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(f.x, f.y, 5, 0, 7); ctx.stroke(); }
+    waves.forEach(function(w){ ctx.strokeStyle = 'rgba(217,154,165,' + w.a * .5 + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(C, C, w.r, 0, 7); ctx.stroke(); });
+    ctx.globalCompositeOperation = 'lighter';
     pulses.forEach(function(p){
       var c = KC[p.e.k];
-      for(var s = 0; s < 5; s++){
-        var q = at(p.e.pts, p.d - s * 4);
-        ctx.fillStyle = 'rgba(' + c + ',' + (.85 - s * .16) + ')'; ctx.beginPath(); ctx.arc(q[0], q[1], s ? .9 : 1.6, 0, 7); ctx.fill();
-      }
+      for(var s = 1; s < 6; s++){ var q = at(p.e.pts, p.d - s * 4); ctx.fillStyle = 'rgba(' + c + ',' + (.5 - s * .08) + ')'; ctx.beginPath(); ctx.arc(q[0], q[1], .8, 0, 7); ctx.fill(); }
+      var h = at(p.e.pts, p.d); blob(c, h[0], h[1], 7, .8);
+      ctx.fillStyle = 'rgba(255,248,235,.95)'; ctx.beginPath(); ctx.arc(h[0], h[1], 1.1, 0, 7); ctx.fill();
     });
     flashes.forEach(function(x){
-      ctx.fillStyle = 'rgba(239,230,216,' + (x.a * .7) + ')'; ctx.beginPath(); ctx.arc(x.f.x, x.f.y, 1.5 + (1 - x.a) * 4, 0, 7); ctx.fill();
+      blob('239,230,216', x.f.x, x.f.y, 4 + (1 - x.a) * 8, x.a * .8);
+      ctx.strokeStyle = 'rgba(239,230,216,' + x.a * .5 + ')'; ctx.lineWidth = .7; ctx.beginPath(); ctx.arc(x.f.x, x.f.y, 2 + (1 - x.a) * 12, 0, 7); ctx.stroke();
     });
+    ctx.globalCompositeOperation = 'source-over';
     if(trip) drawTrip();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);          /* ชื่อกลางวงไม่หมุนตาม */
+    ctx.fillStyle = '#efe6d8'; ctx.font = '500 ' + Math.max(7, R * .026) + 'px ' + getComputedStyle(document.body).fontFamily;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('KING DIADEM', C, C);
+    if(trip) tripLabels();
   }
 
   /* ── ดูข้อความเดินทาง: ลำดับจริงใน _run_kernel ── */
@@ -252,31 +278,51 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
     var legs = [];
     for(var i = 1; i < stops.length; i++) legs.push(stops[i - 1] === stops[i] ? null : curve(stops[i - 1], stops[i]));
     legs.push(curve(stops[stops.length - 1], hub));
-    trip = {stops: stops, legs: legs, i: 0, d: 0, hold: 0, names: JOURNEY.filter(function(j){ return PATH[j[0]]; })};
+    trip = {rip: [], stops: stops, legs: legs, i: 0, d: 0, hold: 0, names: JOURNEY.filter(function(j){ return PATH[j[0]]; })};
     document.getElementById('go').disabled = true;
     pulses = []; paint();
   }
   function stepTrip(dt){
     var leg = trip.legs[trip.i];
+    trip.rip.forEach(function(r){ r.a -= dt * 1.4; }); trip.rip = trip.rip.filter(function(r){ return r.a > 0; });
     if(trip.hold > 0){ trip.hold -= dt; return; }
-    trip.d += (reduce ? 9999 : 140) * dt;
+    trip.d += (reduce ? 9999 : R * .55) * dt;
     if(!leg || trip.d >= leg.len){
       var arrived = trip.stops[trip.i + 1];
-      if(arrived && arrived.p){ flashes.push({f: arrived, a: 1}); cap(trip.i); }
+      if(arrived && arrived.p){ trip.rip.push({x: arrived.x, y: arrived.y, a: 1}); cap(trip.i); }
+      if(trip.i + 1 >= trip.legs.length) waves.push({r: R * .1, a: 1}, {r: R * .05, a: .7});
       trip.i++; trip.d = 0; trip.hold = .55;
-      if(trip.i >= trip.legs.length){ trip = null; cap(-1); document.getElementById('go').disabled = false; paint(); }
+      if(trip.i >= trip.legs.length){ trip = null; cap(-1); document.getElementById('go').disabled = false; if(pending){ var p = pending; pending = null; init(p); } else paint(); }
     }
   }
   function drawTrip(){
+    ctx.fillStyle = 'rgba(10,7,9,.35)'; ctx.fillRect(-S, -S, S * 3, S * 3);
+    ctx.globalCompositeOperation = 'lighter';
     for(var i = 0; i <= trip.i && i < trip.legs.length; i++){
       var lg = trip.legs[i]; if(!lg) continue;
-      ctx.strokeStyle = 'rgba(217,154,165,.55)'; ctx.lineWidth = 1.1;
-      if(i < trip.i) line(ctx, lg);
-      else { ctx.beginPath(); ctx.moveTo(lg[0][0], lg[0][1]); for(var d = 0; d <= trip.d; d += 4){ var q = at(lg, d); ctx.lineTo(q[0], q[1]); } ctx.stroke();
-        var h = at(lg, trip.d); ctx.fillStyle = 'rgba(239,230,216,.95)'; ctx.beginPath(); ctx.arc(h[0], h[1], 2.4, 0, 7); ctx.fill();
-        ctx.fillStyle = 'rgba(217,154,165,.25)'; ctx.beginPath(); ctx.arc(h[0], h[1], 7, 0, 7); ctx.fill(); }
+      var upto = i < trip.i ? lg.len : trip.d;
+      [[5, .1], [2.2, .35], [1, .9]].forEach(function(w){
+        ctx.strokeStyle = 'rgba(217,154,165,' + w[1] + ')'; ctx.lineWidth = w[0];
+        ctx.beginPath(); ctx.moveTo(lg[0][0], lg[0][1]); for(var d = 0; d <= upto; d += 3){ var q = at(lg, d); ctx.lineTo(q[0], q[1]); } ctx.stroke();
+      });
+      if(i === trip.i){ var h = at(lg, trip.d); blob('255,226,200', h[0], h[1], 14, 1); }
     }
-    trip.stops.forEach(function(s, k){ if(k && k <= trip.i){ ctx.strokeStyle = 'rgba(226,207,154,.9)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(s.x, s.y, 4, 0, 7); ctx.stroke(); } });
+    trip.stops.forEach(function(s, k){ if(k && k <= trip.i){ blob('226,207,154', s.x, s.y, 9, .7); } });
+    trip.rip.forEach(function(r){ ctx.strokeStyle = 'rgba(226,207,154,' + r.a + ')'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(r.x, r.y, 4 + (1 - r.a) * 26, 0, 7); ctx.stroke(); });
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  /* ชื่อขั้นตอนบนภาพ — วาดแบบไม่หมุน แต่ตำแหน่งตามจุดที่หมุนอยู่ */
+  function tripLabels(){
+    var c = Math.cos(rot), s = Math.sin(rot);
+    ctx.font = '500 ' + Math.max(9, R * .034) + 'px ' + getComputedStyle(document.body).fontFamily; ctx.textBaseline = 'middle';
+    trip.stops.forEach(function(st, k){
+      if(!k || k > trip.i || !trip.names[k - 1]) return;
+      var dx = st.x - C, dy = st.y - C, x = C + dx * c - dy * s, y = C + dx * s + dy * c;
+      var right = x >= C; ctx.textAlign = right ? 'left' : 'right';
+      ctx.fillStyle = 'rgba(10,7,9,.7)'; var w = ctx.measureText(trip.names[k - 1][1]).width;
+      ctx.fillRect(right ? x + 7 : x - 11 - w, y - 8, w + 4, 16);
+      ctx.fillStyle = k === trip.i ? '#efe6d8' : 'rgba(226,207,154,.75)'; ctx.fillText(trip.names[k - 1][1], right ? x + 9 : x - 9, y);
+    });
   }
   function cap(i){
     var c = document.getElementById('cap'); c.textContent = '';
