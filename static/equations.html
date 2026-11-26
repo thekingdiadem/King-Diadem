@@ -34,7 +34,7 @@ td{border-bottom:1px solid var(--line);padding:6px 4px;vertical-align:top}
 <h1>สมการของ KING DIADEM</h1>
 <p class="dim">สองบรรทัดที่ระบบใช้คิดทุกครั้งที่มีคนเล่าเรื่องยากๆ ให้ LYLA ฟัง · The two equations behind KING DIADEM</p>
 
-<h2>1. Choice(t) ≥ 1 → collapse = False</h2>
+<h2 id="choice">1. Choice(t) ≥ 1 → collapse = False</h2>
 <div class="eq">Choice(t) ≥ 1 → collapse = False</div>
 <p class="alt">พิมพ์แบบธรรมดา: Choice(t) &gt;= 1 -&gt; collapse = False</p>
 <p>ณ เวลา t ถ้ายังมีทางเลือกอย่างน้อย 1 ทาง ระบบจะยังไม่ถือว่า "พัง" — ชีวิตคนก็เหมือนกัน
@@ -44,7 +44,7 @@ td{border-bottom:1px solid var(--line);padding:6px 4px;vertical-align:top}
 <p class="dim">English: At time t, as long as at least one option remains, the system has not collapsed.
 Collapse only happens when Choice(t) = 0. In KING DIADEM this is enforced in code: no urgent answer may leave someone without a next step.</p>
 
-<h2>2. Risk = Drift × Exposure × Time / Remaining Choice</h2>
+<h2 id="risk">2. Risk = Drift × Exposure × Time / Remaining Choice</h2>
 <div class="eq">Risk = Drift × Exposure × Time / Remaining Choice</div>
 <p class="alt">ย่อ: R = (D × E × T) / C · พิมพ์แบบธรรมดา: Risk = Drift * Exposure * Time / Remaining Choice</p>
 <table>

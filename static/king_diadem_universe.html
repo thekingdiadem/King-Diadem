@@ -49,6 +49,9 @@ html,body{width:100%;min-height:100%;background:var(--void);color:var(--tx);font
 .hero-title{font-family:var(--f-display);font-size:clamp(28px,7vw,58px);font-weight:600;letter-spacing:.18em;background:linear-gradient(138deg,#76aeff 0%,#d6eaff 28%,#fff 46%,#f0d070 64%,#c8a440 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15;margin-bottom:14px}
 .hero-sub{font-family:var(--f-mono);font-size:9px;letter-spacing:.26em;color:rgba(200,164,64,0.42);margin-bottom:24px}
 .hero-rule{font-size:18px;color:var(--tx-hi);font-weight:500;margin-bottom:8px}
+a.hero-rule{display:block;text-decoration:none;cursor:pointer}
+a.hero-rule:hover span,a.hero-rule:focus-visible span{text-decoration:underline;text-underline-offset:4px}
+.hero-rule .eq-go{font-size:12px;color:var(--gold-hi);opacity:.75;margin-left:4px}
 .hero-rule span{color:var(--gold-hi);font-family:var(--f-mono)}
 .hero-desc{font-size:13px;color:var(--tx-mid);max-width:480px;margin:0 auto}
 .scroll-hint{margin-top:28px;font-family:var(--f-mono);font-size:8px;letter-spacing:.18em;color:var(--tx-lo);animation:bounce 2s ease-in-out infinite;pointer-events:auto;cursor:pointer}
@@ -614,9 +617,9 @@ html.bb-on,html.bb-on body{overflow:hidden}
     <div class="hero-badge">KING DIADEM™ · DRIFTZERO · MILKY SCOPE</div>
     <h1 class="hero-title">THE UNIVERSE<br>THAT RESTORES CHOICE</h1>
     <div class="hero-sub">KING DIADEM · 2026</div>
-    <div class="hero-rule">
-      <span>Choice(t) ≥ 1</span> → collapse = False
-    </div>
+    <a class="hero-rule" href="/equations#choice" title="อ่านสมการนี้เต็มๆ">
+      <span>Choice(t) ≥ 1</span> → collapse = False <small class="eq-go">↗</small>
+    </a>
     <p class="hero-desc">ตราบใดที่ยังมีทางเลือกอย่างน้อย 1 ทาง ระบบจะยังไม่ถือว่า "พัง"</p>
     <div class="scroll-hint" data-act="scroll">↓ เลื่อนลง ↓</div>
   </div>
@@ -851,7 +854,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
 
 <footer id="footer">
   <div class="footer-text">KING DIADEM™ · DRIFTZERO DEA-3</div>
-  <div class="footer-axiom">"Fail less. Harm less. Restore more." · Choice(t) ≥ 1 → collapse = False</div>
+  <div class="footer-axiom">"Fail less. Harm less. Restore more." · <a href="/equations#choice" style="color:inherit">Choice(t) ≥ 1 → collapse = False</a></div>
 </footer>
 
 <!-- SKY -->
