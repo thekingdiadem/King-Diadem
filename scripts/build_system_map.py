@@ -176,6 +176,10 @@ def static_refs(files: list[str]) -> set[str]:
             refs.update(os.path.basename(m) for m in re.findall(r'(?:src|href)="([^"#?]+\.(?:js|css))"', html))
             # โหลดด้วย JS: s.src = '/static/galaxy_scene.js' (หน้า The Universe โหลดฉากแบบนี้)
             refs.update(os.path.basename(m) for m in re.findall(r"\.(?:src|href)\s*=\s*['\"]([^'\"#?]+\.(?:js|css))['\"]", html))
+        # สคริปต์ที่โหลดสคริปต์อื่นต่อ (universe_sky.js → sky_astro.js) — เดิมไม่นับ ไฟล์ปลายทางเลยขึ้นว่า "ไม่มีหน้าไหนโหลด"
+        elif f.startswith("static/") and f.endswith(".js"):
+            js = open(os.path.join(ROOT, f), encoding="utf-8").read()
+            refs.update(os.path.basename(m) for m in re.findall(r"\.(?:src|href)\s*=\s*['\"]([^'\"#?]+\.(?:js|css))['\"]", js))
     return refs
 
 

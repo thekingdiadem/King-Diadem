@@ -189,3 +189,12 @@ def test_reference_edges_do_not_double_count():
     m = sm.build(_embedded())
     pairs = [(a, b) for a, b, _ in m["edges"]]
     assert len(pairs) == len(set(pairs))
+
+
+def test_script_loaded_by_another_script_counts_as_web():
+    """sky_astro.js ถูก universe_sky.js โหลดต่อ — ต้องเป็นหน้าเว็บ ไม่ใช่ "ไม่มีหน้าไหนโหลด" """
+    import sys
+    sys.path.insert(0, "scripts")
+    from build_system_map import static_refs
+    files = ["static/universe_sky.js", "static/sky_astro.js"]
+    assert "sky_astro.js" in static_refs(files)
