@@ -52,7 +52,9 @@ html,body{width:100%;min-height:100%;background:var(--void);color:var(--tx);font
 a.hero-rule{display:block;text-decoration:none;cursor:pointer}
 a.hero-rule:hover span,a.hero-rule:focus-visible span{text-decoration:underline;text-underline-offset:4px}
 .hero-rule .eq-go{font-size:12px;color:var(--gold-hi);opacity:.75;margin-left:4px}
-.hero-rule span{color:var(--gold-hi);font-family:var(--f-mono)}
+.hero-rule span{color:#fff8e7;font-family:var(--f-mono)}
+/* Cosmic Latte (#FFF8E7) = สีเฉลี่ยของแสงทั้งจักรวาล — สมการทั้งบรรทัดเป็นแสงเดียวกัน เรืองอุ่นจางๆ ไม่แยกเป็นทอง/ขาว */
+#hero .hero-rule{color:#fff8e7;text-shadow:0 1px 14px rgba(0,0,0,.9),0 0 18px rgba(255,236,200,.28)}
 .hero-desc{font-size:13px;color:var(--tx-mid);max-width:480px;margin:0 auto}
 .scroll-hint{margin-top:28px;font-family:var(--f-mono);font-size:8px;letter-spacing:.18em;color:var(--tx-lo);animation:bounce 2s ease-in-out infinite;pointer-events:auto;cursor:pointer}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
