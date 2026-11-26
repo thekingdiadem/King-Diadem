@@ -7,190 +7,151 @@
 <title>วงจรระบบ · KING DIADEM</title>
 <link rel="canonical" href="https://king-diadem.onrender.com/circuit">
 <link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
-<meta name="description" content="วงจรของ KING DIADEM — ทุกไฟล์ใน repo วางตามหมวดจริง ทุกเส้นคือการ import / โหลด / อ้างถึงที่มีอยู่จริงในโค้ด แสงที่วิ่งคือทิศทางที่ไฟล์หนึ่งเรียกใช้อีกไฟล์">
+<meta name="description" content="วงจรของ KING DIADEM — ทุกไฟล์ใน repo เรียงเป็นวงแหวนรอบแกนกลาง ทุกเส้นคือการเรียกใช้ที่มีอยู่จริงในโค้ด กดดูเส้นทางที่ข้อความหนึ่งเดินผ่านระบบ">
 <style>
-/* วงจรระบบ — ข้อมูลทั้งหมดมาจาก /api/system_map (สำรอง /static/system_map.json) ที่สร้างจาก repo จริง
-   ไม่มีไฟล์หรือเส้นไหนที่วาดขึ้นเอง: หมวด = คอลัมน์ · ไฟล์ = จุดบนคอลัมน์ · เส้น = import / หน้าเว็บโหลด / อ้างถึง
-   แสงวิ่งจากไฟล์ที่เรียก → ไปไฟล์ที่ถูกเรียก · มือถือจำกัดแสงพร้อมกัน · ตั้งค่าลดการเคลื่อนไหวไว้ = แสงหยุด */
+/* วงจรระบบ (มณฑล) — ข้อมูลจาก /api/system_map (สำรอง /static/system_map.json) ที่สร้างจาก repo จริงเท่านั้น
+   วงใน → นอก: ทำงานตอนตอบ · ทำงานตอนบูต · หน้าเว็บ · (GitHub Pages · package · ตั้งค่า · เอกสาร) · เทสต์
+   เส้น = import / หน้าเว็บโหลด / อ้างถึง · แสงวิ่งจากไฟล์ที่เรียก → ไฟล์ที่ถูกเรียก
+   "ดูข้อความเดินทาง" = ลำดับจริงใน app.py (_run_kernel): risk_engine → kernel_voice → story_check → llm_gemini → kernel_voice → middle_path */
 :root{
-  --void:#0a0709; --tx-hi:#efe6d8; --tx:#bdb1a6; --tx-lo:#857a76; --gold:#e2cf9a;
-  /* พาสเทลโทนราชายมโลก: ทองโบราณ · กุหลาบเลือดจาง · อเมทิสต์หมอกควัน · หยกซีด · กระดูก · เถ้า — สง่า เงียบ ไม่ฉูดฉาด */
+  --void:#0a0709; --tx-hi:#efe6d8; --tx:#bdb1a6; --tx-lo:#857a76; --gold:#e2cf9a; --rose:#d99aa5;
   --c-boot:#e2cf9a; --c-request:#d99aa5; --c-web:#b7a3d9; --c-site:#a9cbb8; --c-pkg:#7f7891;
   --c-config:#d6cdbd; --c-docs:#bfa9c9; --c-tests:#8fbfb6;
   --f-body:'Noto Sans Thai Looped',system-ui,sans-serif; --f-mono:ui-monospace,'DM Mono',monospace;
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--void);color:var(--tx);font-family:var(--f-body)}
-header{padding:18px 16px 6px;max-width:980px;margin:0 auto}
-h1{margin:0;font-size:19px;letter-spacing:.22em;color:var(--tx-hi);font-weight:500}
-.sub{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--tx)}
-.sub b{color:var(--gold);font-weight:500}
-.nav{margin-top:8px;font-size:12.5px}
-.nav a{color:var(--gold);text-decoration:none;margin-right:12px}
-.legend{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;max-width:980px;margin:0 auto;position:sticky;top:0;z-index:3;
-  background:linear-gradient(var(--void) 70%,rgba(10,7,9,0))}
-.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(226,207,154,.16);border-radius:999px;padding:4px 10px;
-  font-size:12px;color:var(--tx);background:rgba(255,255,255,.03);cursor:pointer;font-family:inherit}
-.chip i{width:8px;height:8px;border-radius:2px;display:inline-block}
-.chip[aria-pressed="false"]{opacity:.38}
-.kinds{font-size:11.5px;color:var(--tx-lo);padding:0 16px 4px;max-width:980px;margin:0 auto}
-.kinds span{margin-right:12px;white-space:nowrap}
-.kinds i{display:inline-block;width:16px;height:2px;vertical-align:middle;margin-right:4px}
-#wrap{position:relative;max-width:980px;margin:0 auto}
-#cv{position:sticky;top:0;display:block;width:100%;touch-action:pan-y}
-#info{position:fixed;left:12px;right:12px;bottom:12px;max-width:560px;margin:0 auto;z-index:5;display:none;
-  background:rgba(20,12,15,.95);border:1px solid rgba(226,207,154,.3);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.55}
+html,body{margin:0;background:var(--void);color:var(--tx);font-family:var(--f-body);overflow-x:hidden}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center}
+header{width:100%;max-width:720px;padding:16px 16px 0;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+h1{margin:0;font-size:15px;letter-spacing:.32em;color:var(--tx-hi);font-weight:500}
+header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
+.stat{width:100%;max-width:720px;padding:4px 16px 0;font-size:12px;color:var(--tx-lo);font-family:var(--f-mono)}
+.stat b{color:var(--gold);font-weight:500}
+#stage{position:relative;width:100%;max-width:720px}
+#cv{display:block;margin:0 auto;touch-action:manipulation}
+.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;padding:0 16px;max-width:720px;font-size:11px;color:var(--tx-lo)}
+.legend button{background:none;border:0;color:inherit;font:inherit;padding:4px 0;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.legend i{width:6px;height:6px;border-radius:50%;display:inline-block}
+.legend button[aria-pressed="false"]{opacity:.35}
+.go{margin:14px auto 6px;display:block;background:none;border:1px solid rgba(226,207,154,.45);color:var(--gold);
+  border-radius:999px;padding:9px 20px;font:inherit;font-size:13px;letter-spacing:.06em;cursor:pointer}
+.go:disabled{opacity:.4}
+#cap{min-height:40px;text-align:center;font-size:13px;color:var(--tx-hi);padding:0 16px}
+#cap small{display:block;color:var(--tx-lo);font-family:var(--f-mono);font-size:11px;margin-top:2px}
+#info{position:fixed;left:12px;right:12px;bottom:12px;max-width:520px;margin:0 auto;display:none;z-index:5;
+  background:rgba(20,12,15,.95);border:1px solid rgba(226,207,154,.28);border-radius:12px;padding:10px 36px 10px 14px;font-size:12.5px}
 #info.on{display:block}
-#info .p{font-family:var(--f-mono);color:var(--tx-hi);word-break:break-all;font-size:12.5px}
-#info .m{color:var(--tx-lo);font-size:12px;margin-top:2px}
-#info .d{margin-top:6px}
-#info button{position:absolute;top:6px;right:8px;background:none;border:0;color:var(--tx);font-size:18px;cursor:pointer}
-#status{padding:30px 16px;text-align:center;color:var(--tx-lo);font-size:13px}
-footer{padding:20px 16px 90px;text-align:center;font-size:12px;color:var(--tx-lo)}
+#info .p{font-family:var(--f-mono);color:var(--tx-hi);word-break:break-all}
+#info .m{color:var(--tx-lo);margin-top:2px}
+#info button{position:absolute;top:4px;right:6px;background:none;border:0;color:var(--tx);font-size:17px;cursor:pointer;padding:4px 8px}
 </style>
 </head>
 <body>
-<header>
-  <h1>วงจรระบบ</h1>
-  <p class="sub" id="sub">กำลังโหลดแผนผังจาก repo จริง…</p>
-  <div class="nav"><a href="/">← กลับหน้าหลัก</a><a href="/architecture">สถาปัตยกรรม</a><a href="/equations">สมการ</a></div>
-</header>
-<div class="legend" id="legend" role="group" aria-label="เลือกหมวดที่จะแสดง"></div>
-<div class="kinds">
-  <span><i style="background:#e2cf9a"></i>import ของ Python</span>
-  <span><i style="background:#b7a3d9"></i>หน้าเว็บโหลด / ส่ง</span>
-  <span><i style="background:#857a76"></i>เทสต์ / เอกสาร / ตั้งค่าอ้างถึง</span>
-</div>
-<div id="wrap"><canvas id="cv" aria-label="วงจรไฟล์ทั้งหมดของระบบ แตะจุดเพื่อดูว่าไฟล์นั้นต่อกับอะไร"></canvas></div>
-<div id="status"></div>
-<div id="info" role="dialog" aria-live="polite"><button type="button" id="info-x" aria-label="ปิด">✕</button><div class="p" id="info-p"></div><div class="m" id="info-m"></div><div class="d" id="info-d"></div></div>
-<footer>แตะจุดใดก็ได้ แสงจะวิ่งเฉพาะเส้นที่ต่อกับไฟล์นั้น · ข้อมูลสร้างจาก scripts/build_system_map.py</footer>
+<header><h1>วงจร</h1><a href="/">← กลับ</a></header>
+<div class="stat" id="stat">กำลังโหลด…</div>
+<div id="stage"><canvas id="cv" aria-label="ไฟล์ทั้งหมดของระบบเรียงเป็นวงแหวน แตะจุดเพื่อดูว่าไฟล์นั้นต่อกับอะไร"></canvas></div>
+<div class="legend" id="legend" role="group" aria-label="หมวด"></div>
+<button type="button" class="go" id="go" disabled>▶ ดูข้อความเดินทาง</button>
+<div id="cap" aria-live="polite"></div>
+<div id="info" role="dialog" aria-live="polite"><button type="button" id="info-x" aria-label="ปิด">✕</button><div class="p" id="info-p"></div><div class="m" id="info-m"></div></div>
 <script>
 (function(){
   'use strict';
-  var LANES = [
-    ['boot', 'ทำงานตอนบูต'], ['request', 'ทำงานตอนตอบ'], ['web', 'หน้าเว็บ'], ['site', 'เว็บ GitHub Pages'],
-    ['pkg', 'ไฟล์บอกโฟลเดอร์'], ['config', 'ตั้งค่า'], ['docs', 'เอกสาร'], ['tests', 'เทสต์']
+  var NAME = {request: 'ตอนตอบ', boot: 'ตอนบูต', web: 'เว็บ', site: 'Pages', pkg: 'package', config: 'ตั้งค่า', docs: 'เอกสาร', tests: 'เทสต์'};
+  /* วงแหวน: [หมวด, รัศมี (สัดส่วน)] — หมวดเล็กแบ่งวงเดียวกันเป็นส่วนโค้ง */
+  var RINGS = [[['request'], .24], [['boot'], .36], [['web'], .52], [['site', 'pkg', 'config', 'docs'], .68], [['tests'], .86]];
+  /* เส้นทางจริงของข้อความหนึ่ง (app.py _run_kernel) */
+  var JOURNEY = [
+    ['app.py', 'รับข้อความ'],
+    ['ENGINE/risk_engine.py', 'วัดความเสี่ยง'],
+    ['core/kernel_voice.py', 'จับเหตุฉุกเฉิน'],
+    ['core/story_check.py', 'ตรวจเรื่องเล่า'],
+    ['core/llm_gemini.py', 'ซ่อนข้อมูลลับ · LYLA คิด'],
+    ['core/kernel_voice.py', 'เติมสายด่วน'],
+    ['core/middle_path.py', 'ทางสายกลาง'],
+    ['app.py', 'ตอบกลับ']
   ];
-  var KIND_COLOR = ['226,207,154', '183,163,217', '150,138,150'];
+  var KC = ['226,207,154', '183,163,217', '150,138,150'];
   var css = getComputedStyle(document.documentElement);
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mobile = Math.min(screen.width, screen.height) < 700;
-  var MAXP = mobile ? 28 : 70;
+  var MAXP = mobile ? 26 : 60;
 
-  var cv = document.getElementById('cv'), ctx = cv.getContext('2d'), wrap = document.getElementById('wrap');
-  var F = [], E = [], lanes = [], on = {}, W = 0, H = 0, VH = 0, dpr = 1, layer = null, sel = -1, incident = [];
-  var BY = {}, pulses = [], last = 0, hub = {x: 0, y: 0, r: 26}, trunks = [];
+  var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  var F = [], E = [], BY = {}, PATH = {}, on = {}, counts = {};
+  var S = 0, C = 0, R = 0, dpr = 1, layer = null, rot = 0, last = 0;
+  var sel = -1, inc = [], pulses = [], flashes = [], trip = null;
 
-  function el(tag, cls, txt){ var e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
-  function laneColor(c){ return (css.getPropertyValue('--c-' + c) || '#888').trim(); }
+  function el(t, c, x){ var e = document.createElement(t); if(c) e.className = c; if(x != null) e.textContent = x; return e; }
+  function col(c){ return (css.getPropertyValue('--c-' + c) || '#888').trim(); }
   function getJSON(u){ return fetch(u, {cache: 'no-cache'}).then(function(r){ if(!r.ok) throw r.status; return r.json(); }); }
-  function hash(n){ n = (n ^ 61) ^ (n >>> 16); n = n + (n << 3); n = n ^ (n >>> 4); n = Math.imul(n, 0x27d4eb2d); return ((n ^ (n >>> 15)) >>> 0) / 4294967296; }
+  function fmt(n){ return n.toLocaleString('en-US'); }
 
-  getJSON('/api/system_map').catch(function(){ return getJSON('/static/system_map.json'); }).then(init).catch(function(){
-    document.getElementById('sub').textContent = 'โหลดแผนผังไม่ได้ ลองรีเฟรชอีกครั้ง';
-  });
+  getJSON('/api/system_map').catch(function(){ return getJSON('/static/system_map.json'); }).then(init)
+    .catch(function(){ document.getElementById('stat').textContent = 'โหลดไม่ได้ ลองรีเฟรช'; });
 
   function init(d){
-    if(!d || !d.files) throw 0;
-    F = d.files.map(function(f, i){ return {i: i, p: f[0], n: f[1], c: f[2], d: f[3], s: f[4]}; });
-    E = (d.edges || []).map(function(e){ return {a: e[0], b: e[1], k: e[2]}; }).filter(function(e){ return F[e.a] && F[e.b]; });
-    var counts = {};
-    F.forEach(function(f){ counts[f.c] = (counts[f.c] || 0) + 1; });
-    lanes = LANES.filter(function(l){ return counts[l[0]]; });
-    var known = {}; lanes.forEach(function(l){ known[l[0]] = 1; on[l[0]] = true; });
-    F = F.filter(function(f){ return known[f.c]; });
-    var keep = {}; F.forEach(function(f){ keep[f.i] = 1; });
-    E = E.filter(function(e){ return keep[e.a] && keep[e.b] && e.a !== e.b; });
-    BY = {}; F.forEach(function(f){ BY[f.i] = f; });
-    E.forEach(function(e){ e.A = BY[e.a]; e.B = BY[e.b]; });
-    var nk = [0, 0, 0]; E.forEach(function(e){ nk[e.k]++; });
-    document.getElementById('sub').innerHTML = '';
-    var sub = document.getElementById('sub');
-    sub.appendChild(document.createTextNode('ทุกไฟล์ใน repo วางตามหมวดจริง ทุกเส้นมีอยู่จริงในโค้ด · '));
-    var b = el('b', null, F.length.toLocaleString('en-US') + ' ไฟล์ · ' + E.length.toLocaleString('en-US') + ' เส้น');
-    sub.appendChild(b);
-    sub.appendChild(document.createTextNode(' (import ' + nk[0] + ' · เว็บ ' + nk[1] + ' · อ้างถึง ' + nk[2] + ')' + (d.commit ? ' · commit ' + d.commit : '')));
-    var live = (counts.boot || 0) + (counts.request || 0);
-    if(live){ sub.appendChild(document.createTextNode(' · ')); sub.appendChild(el('b', null, 'โมดูล Python ที่รันจริง ' + live)); sub.appendChild(document.createTextNode(' (ทำงานตอนบูต ' + (counts.boot || 0) + ' + ทำงานตอนตอบ ' + (counts.request || 0) + ')')); }
-    var lg = document.getElementById('legend');
-    lanes.forEach(function(l){
-      var c = el('button', 'chip'); c.type = 'button'; c.setAttribute('aria-pressed', 'true');
-      var sw = el('i'); sw.style.background = laneColor(l[0]); c.appendChild(sw);
-      c.appendChild(document.createTextNode(l[1] + ' ' + counts[l[0]]));
-      c.addEventListener('click', function(){ on[l[0]] = !on[l[0]]; c.setAttribute('aria-pressed', on[l[0]] ? 'true' : 'false'); if(sel >= 0 && !on[BY[sel].c]){ sel = -1; document.getElementById('info').classList.remove('on'); } build(); });
-      lg.appendChild(c);
+    var ringOf = {};
+    RINGS.forEach(function(r){ r[0].forEach(function(c){ ringOf[c] = r; on[c] = true; }); });
+    F = d.files.map(function(f, i){ return {i: i, p: f[0], n: f[1], c: f[2]}; }).filter(function(f){ return ringOf[f.c]; });
+    F.forEach(function(f){ BY[f.i] = f; PATH[f.p] = f; counts[f.c] = (counts[f.c] || 0) + 1; });
+    E = (d.edges || []).map(function(e){ return {a: e[0], b: e[1], k: e[2], A: BY[e[0]], B: BY[e[1]]}; })
+      .filter(function(e){ return e.A && e.B && e.a !== e.b; });
+    var live = (counts.boot || 0) + (counts.request || 0), st = document.getElementById('stat');
+    st.textContent = '';
+    [['', fmt(F.length)], [' ไฟล์ · ', fmt(E.length)], [' เส้น · รันจริง ', String(live)]].forEach(function(x){
+      st.appendChild(document.createTextNode(x[0])); st.appendChild(el('b', null, x[1]));
     });
-    build();
-    window.addEventListener('resize', function(){ clearTimeout(init._t); init._t = setTimeout(build, 150); });
-    window.addEventListener('scroll', function(){ if(reduce) draw(0); }, {passive: true});
-    cv.addEventListener('click', onTap);
+    var lg = document.getElementById('legend');
+    RINGS.forEach(function(r){ r[0].forEach(function(c){
+      if(!counts[c]) return;
+      var b = el('button'); b.type = 'button'; b.setAttribute('aria-pressed', 'true');
+      var i = el('i'); i.style.background = col(c); b.appendChild(i);
+      b.appendChild(document.createTextNode(NAME[c] + ' ' + counts[c]));
+      b.addEventListener('click', function(){ on[c] = !on[c]; b.setAttribute('aria-pressed', on[c] ? 'true' : 'false'); if(sel >= 0 && !on[BY[sel].c]) close(); paint(); });
+      lg.appendChild(b);
+    }); });
+    place(); size();
+    window.addEventListener('resize', function(){ clearTimeout(init.t); init.t = setTimeout(size, 150); });
+    cv.addEventListener('click', tap);
     document.getElementById('info-x').addEventListener('click', close);
+    var go = document.getElementById('go'); go.disabled = false; go.addEventListener('click', startTrip);
     requestAnimationFrame(loop);
   }
 
-  /* ── จัดวาง: หมวด = คอลัมน์ · ไฟล์เรียงตามโฟลเดอร์ · ความสูงทุกคอลัมน์ใกล้กัน ── */
-  function build(){
-    W = Math.max(320, wrap.clientWidth); VH = Math.max(320, window.innerHeight);
-    dpr = Math.min(2, window.devicePixelRatio || 1);
-    var vis = lanes.filter(function(l){ return on[l[0]]; });
-    var n = Math.max(1, vis.length), pad = 18, colW = (W - 2 * pad) / n;
-    hub = {x: W / 2, y: 46, r: 24};
-    var top = 132, body = Math.max(520, Math.min(1500, VH * 1.6));
-    var X = {};
-    vis.forEach(function(l, i){ X[l[0]] = pad + (i + .5) * colW; });
-    var groups = {};
-    F.forEach(function(f){ f.x = f.y = null; if(X[f.c] != null) (groups[f.c] = groups[f.c] || []).push(f); });
-    var maxY = top;
-    Object.keys(groups).forEach(function(c){
-      var g = groups[c].sort(function(a, b){ return a.p < b.p ? -1 : 1; });
-      var step = Math.max(4, Math.min(16, body / g.length));
-      g.forEach(function(f, k){ f.x = X[c]; f.y = top + 18 + k * step; f.side = k % 2 ? 1 : -1; });
-      maxY = Math.max(maxY, top + 18 + g.length * step);
+  /* ── จัดวาง: มุม (ไม่ขึ้นกับขนาดจอ) ── */
+  function place(){
+    RINGS.forEach(function(r){
+      var cats = r[0].filter(function(c){ return counts[c]; }), tot = 0;
+      cats.forEach(function(c){ tot += counts[c]; });
+      var gap = cats.length > 1 ? .06 : 0, span = Math.PI * 2 - gap * cats.length, a0 = -Math.PI / 2;
+      cats.forEach(function(c){
+        var g = F.filter(function(f){ return f.c === c; }).sort(function(x, y){ return x.p < y.p ? -1 : 1; });
+        var arc = span * g.length / tot;
+        g.forEach(function(f, k){ f.ang = a0 + (k + .5) * arc / g.length; f.rf = r[1]; });
+        a0 += arc + gap;
+      });
     });
-    H = maxY + 40;
-    trunks = vis.map(function(l, i){
-      var x = X[l[0]], busY = 96 + (Math.abs(x - hub.x) / W) * 10;
-      return {c: l[0], pts: [[hub.x, hub.y + hub.r], [hub.x, busY], [x, busY], [x, top + 10]]};
-    });
-    E.forEach(function(e){ e.pts = (e.A.x == null || e.B.x == null) ? null : route(e, colW); });
-    incident = sel >= 0 ? E.filter(function(e){ return e.pts && (e.a === sel || e.b === sel); }) : [];
-    wrap.style.height = H + 'px';
-    cv.style.height = VH + 'px';
-    cv.width = Math.round(W * dpr); cv.height = Math.round(VH * dpr);
-    paintLayer();
-    pulses = [];
-    draw(0);
   }
-
-  /* เส้นแบบลายวงจร: ออกจากจุด → ช่องว่างข้างคอลัมน์ → ขึ้น/ลง → เข้าจุดปลาย (มุมตัด 45°) */
-  function route(e, colW){
-    var a = e.A, b = e.B, j = hash(e.a * 7919 + e.b) - .5;
-    if(a.x === b.x){
-      var o = (colW * .18 + Math.abs(j) * colW * .22) * a.side;
-      return chamfer([[a.x, a.y], [a.x + o, a.y], [a.x + o, b.y], [b.x, b.y]]);
-    }
-    var dir = b.x > a.x ? 1 : -1, gx = a.x + dir * colW * (.5 + j * .3);
-    var gx2 = b.x - dir * colW * (.5 - j * .3);
-    if(Math.abs(b.x - a.x) <= colW * 1.01) return chamfer([[a.x, a.y], [gx, a.y], [gx, b.y], [b.x, b.y]]);
-    var mid = (a.y + b.y) / 2 + j * 40;
-    return chamfer([[a.x, a.y], [gx, a.y], [gx, mid], [gx2, mid], [gx2, b.y], [b.x, b.y]]);
+  function size(){
+    var w = Math.min(document.getElementById('stage').clientWidth, 720), h = window.innerHeight * .62;
+    S = Math.max(300, Math.min(w, Math.max(h, 320)));
+    C = S / 2; R = C - 8; dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.style.width = cv.style.height = S + 'px'; cv.width = cv.height = Math.round(S * dpr);
+    F.forEach(function(f){ f.x = C + Math.cos(f.ang) * f.rf * R; f.y = C + Math.sin(f.ang) * f.rf * R; });
+    E.forEach(function(e){ e.pts = curve(e.A, e.B); });
+    paint();
   }
-  function chamfer(p){
-    var out = [p[0]], r = 5;
-    for(var i = 1; i < p.length - 1; i++){
-      var A = p[i - 1], B = p[i], C = p[i + 1];
-      var l1 = Math.hypot(B[0] - A[0], B[1] - A[1]), l2 = Math.hypot(C[0] - B[0], C[1] - B[1]);
-      if(l1 < 1 || l2 < 1){ continue; }
-      var k1 = Math.min(r, l1 / 2) / l1, k2 = Math.min(r, l2 / 2) / l2;
-      out.push([B[0] - (B[0] - A[0]) * k1, B[1] - (B[1] - A[1]) * k1]);
-      out.push([B[0] + (C[0] - B[0]) * k2, B[1] + (C[1] - B[1]) * k2]);
+  /* เส้นโค้งผ่านใกล้แกนกลาง — ยิ่งสองไฟล์ห่างกัน ยิ่งโค้งเข้าใกล้ศูนย์กลาง */
+  function curve(A, B){
+    var mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, k = .42;
+    var cx = C + (mx - C) * k, cy = C + (my - C) * k, p = [], L = [0], len = 0;
+    for(var i = 0; i <= 18; i++){
+      var t = i / 18, u = 1 - t;
+      p.push([u * u * A.x + 2 * u * t * cx + t * t * B.x, u * u * A.y + 2 * u * t * cy + t * t * B.y]);
+      if(i){ len += Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); L.push(len); }
     }
-    out.push(p[p.length - 1]);
-    var len = 0; out.L = [0];
-    for(var q = 1; q < out.length; q++){ len += Math.hypot(out[q][0] - out[q - 1][0], out[q][1] - out[q - 1][1]); out.L.push(len); }
-    out.len = len;
-    return out;
+    p.L = L; p.len = len; return p;
   }
   function at(p, d){
     if(d <= 0) return p[0]; if(d >= p.len) return p[p.length - 1];
@@ -198,122 +159,143 @@ footer{padding:20px 16px 90px;text-align:center;font-size:12px;color:var(--tx-lo
     var t = (d - p.L[i - 1]) / ((p.L[i] - p.L[i - 1]) || 1);
     return [p[i - 1][0] + (p[i][0] - p[i - 1][0]) * t, p[i - 1][1] + (p[i][1] - p[i - 1][1]) * t];
   }
-  function stroke(g, p){ g.beginPath(); g.moveTo(p[0][0], p[0][1]); for(var i = 1; i < p.length; i++) g.lineTo(p[i][0], p[i][1]); g.stroke(); }
+  function line(g, p){ g.beginPath(); g.moveTo(p[0][0], p[0][1]); for(var i = 1; i < p.length; i++) g.lineTo(p[i][0], p[i][1]); g.stroke(); }
+  function vis(f){ return on[f.c]; }
 
-  /* ชั้นนิ่ง (วาดครั้งเดียว): ฮับ · ลำต้น · เส้นทั้งหมดจางๆ · จุดไฟล์ */
-  function paintLayer(){
-    layer = document.createElement('canvas');
-    layer.width = Math.round(W * dpr); layer.height = Math.round(H * dpr);
-    var g = layer.getContext('2d'); g.scale(dpr, dpr); g.lineCap = 'round'; g.lineJoin = 'round';
-    var dim = sel >= 0;
-    /* คลีน: ตอนยังไม่แตะ เห็นแค่ import กับหน้าเว็บ (เส้นที่ "ทำงาน" จริง) · เส้นอ้างถึงของเทสต์/เอกสารโผล่เมื่อแตะไฟล์ */
+  /* ── ชั้นนิ่ง (วาดใหม่เมื่อเปลี่ยนตัวกรอง/เลือก) ── */
+  function paint(){
+    layer = document.createElement('canvas'); layer.width = layer.height = Math.round(S * dpr);
+    var g = layer.getContext('2d'); g.scale(dpr, dpr);
+    var dim = sel >= 0 || trip;
+    g.lineWidth = .5;
     [1, 0].forEach(function(k){
-      g.strokeStyle = 'rgba(' + KIND_COLOR[k] + ',' + (dim ? .03 : .11) + ')';
-      g.lineWidth = .6;
-      E.forEach(function(e){ if(e.k === k && e.pts) stroke(g, e.pts); });
+      g.strokeStyle = 'rgba(' + KC[k] + ',' + (dim ? .025 : .07) + ')';
+      E.forEach(function(e){ if(e.k === k && vis(e.A) && vis(e.B)) line(g, e.pts); });
     });
-    var font = getComputedStyle(document.body).fontFamily;
-    trunks.forEach(function(t){
-      g.strokeStyle = laneColor(t.c); g.globalAlpha = .45; g.lineWidth = 1; stroke(g, t.pts);
-      var col = F.filter(function(f){ return f.c === t.c && f.x != null; });
-      if(col.length){ g.globalAlpha = .22; g.beginPath(); g.moveTo(t.pts[3][0], t.pts[3][1]); g.lineTo(t.pts[3][0], col[col.length - 1].y); g.stroke(); }
-      g.globalAlpha = .9; g.fillStyle = laneColor(t.c); g.beginPath(); g.arc(t.pts[3][0], t.pts[3][1], 2.6, 0, 7); g.fill();
-      g.globalAlpha = .75; g.font = '500 9px ' + font; g.textAlign = 'center';
-      g.fillText(String(col.length), t.pts[3][0], t.pts[3][1] - 7);
-      g.globalAlpha = 1;
-    });
+    RINGS.forEach(function(r){ g.strokeStyle = 'rgba(226,207,154,.07)'; g.lineWidth = .6; g.beginPath(); g.arc(C, C, r[1] * R, 0, 7); g.stroke(); });
+    for(var i = 0; i < 24; i++){            /* รัศมีมงกุฎบางๆ */
+      var a = i / 24 * Math.PI * 2, r0 = R * .15, r1 = R * (i % 2 ? .2 : .23);
+      g.strokeStyle = 'rgba(226,207,154,' + (i % 2 ? .12 : .22) + ')'; g.lineWidth = .7;
+      g.beginPath(); g.moveTo(C + Math.cos(a) * r0, C + Math.sin(a) * r0); g.lineTo(C + Math.cos(a) * r1, C + Math.sin(a) * r1); g.stroke();
+    }
     F.forEach(function(f){
-      if(f.x == null) return;
-      g.fillStyle = laneColor(f.c); g.globalAlpha = dim && f.i !== sel ? .25 : .8;
-      g.beginPath(); g.arc(f.x, f.y, Math.max(1, Math.min(2.2, .6 + Math.log10(f.n + 1) * .45)), 0, 7); g.fill();
+      if(!vis(f)) return;
+      g.fillStyle = col(f.c); g.globalAlpha = dim ? .3 : .85;
+      g.beginPath(); g.arc(f.x, f.y, Math.max(.9, Math.min(2, .5 + Math.log10(f.n + 1) * .4)), 0, 7); g.fill();
     });
     g.globalAlpha = 1;
-    var gr = g.createRadialGradient(hub.x, hub.y, 2, hub.x, hub.y, hub.r * 1.8);
-    gr.addColorStop(0, 'rgba(160,60,80,.28)'); gr.addColorStop(1, 'rgba(160,60,80,0)');
-    g.fillStyle = gr; g.beginPath(); g.arc(hub.x, hub.y, hub.r * 1.8, 0, 7); g.fill();
-    g.strokeStyle = 'rgba(226,207,154,.75)'; g.lineWidth = 1; g.beginPath(); g.arc(hub.x, hub.y, hub.r, 0, 7); g.stroke();
-    g.strokeStyle = 'rgba(217,154,165,.38)'; g.beginPath(); g.arc(hub.x, hub.y, hub.r + 4, 0, 7); g.stroke();
-    g.fillStyle = '#efe6d8'; g.font = '500 8.5px ' + font; g.textAlign = 'center';
-    g.fillText('KING', hub.x, hub.y - 2); g.fillText('DIADEM', hub.x, hub.y + 9);
+    var gr = g.createRadialGradient(C, C, 0, C, C, R * .14);
+    gr.addColorStop(0, 'rgba(160,60,80,.35)'); gr.addColorStop(1, 'rgba(160,60,80,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(C, C, R * .14, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(226,207,154,.7)'; g.lineWidth = .9; g.beginPath(); g.arc(C, C, R * .1, 0, 7); g.stroke();
+    g.fillStyle = '#efe6d8'; g.font = '500 ' + Math.max(7, R * .028) + 'px ' + getComputedStyle(document.body).fontFamily;
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('KING DIADEM', C, C);
+    pulses = [];
   }
 
   /* ── แสงวิ่ง ── */
   function spawn(){
-    var pool = incident.length ? incident : null, e;
-    if(pool) e = pool[(Math.random() * pool.length) | 0];
-    else if(Math.random() < .12 && trunks.length){ var t = trunks[(Math.random() * trunks.length) | 0]; if(!t.path) t.path = chamfer(t.pts); e = {pts: t.path, k: 0, trunk: t.c}; }
-    else {
-      for(var tries = 0; tries < 8; tries++){
-        e = E[(Math.random() * E.length) | 0];
-        if(e && e.pts && e.k !== 2) break;
-      }
+    var pool = inc.length ? inc : E, e;
+    for(var t = 0; t < 10; t++){
+      e = pool[(Math.random() * pool.length) | 0];
+      if(e && vis(e.A) && vis(e.B) && (inc.length || e.k !== 2)) break; e = null;
     }
-    if(!e || !e.pts) return;
-    pulses.push({e: e, d: 0, v: 90 + Math.random() * 130});
+    if(e) pulses.push({e: e, d: 0, v: 50 + Math.random() * 70});
   }
   function loop(t){
     requestAnimationFrame(loop);
     if(document.hidden || !layer) return;
     var dt = last ? Math.min(.05, (t - last) / 1000) : 0; last = t;
     if(!reduce){
-      var cap = incident.length ? Math.min(MAXP, Math.max(6, incident.length * 2)) : MAXP;
-      while(pulses.length < cap) spawn();
-      pulses.forEach(function(p){ p.d += p.v * dt; });
-      pulses = pulses.filter(function(p){ return p.d < p.e.pts.len + 30; });
+      rot += dt * .012;
+      if(!trip){ var cap = inc.length ? Math.min(MAXP, inc.length * 2 + 4) : MAXP; while(pulses.length < cap) spawn(); }
+      pulses.forEach(function(p){ p.d += p.v * dt; if(p.d >= p.e.pts.len && !p.done){ p.done = 1; flashes.push({f: p.e.B, a: 1}); } });
+      pulses = pulses.filter(function(p){ return p.d < p.e.pts.len + 20; });
     }
-    draw(dt);
+    flashes.forEach(function(x){ x.a -= dt * 1.6; }); flashes = flashes.filter(function(x){ return x.a > 0; });
+    if(trip) stepTrip(dt);
+    draw();
   }
-  function offset(){ var r = wrap.getBoundingClientRect(); return Math.max(0, Math.min(H - VH, -r.top)); }
   function draw(){
-    if(!layer) return;
-    var oy = offset();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    ctx.drawImage(layer, 0, Math.round(oy * dpr), cv.width, cv.height, 0, 0, cv.width, cv.height);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, -oy * dpr);
-    ctx.lineCap = 'round';
-    if(incident.length){
-      incident.forEach(function(e){
-        ctx.strokeStyle = 'rgba(' + KIND_COLOR[e.k] + ',' + (e.a === sel ? .6 : .35) + ')'; ctx.lineWidth = .9; stroke(ctx, e.pts);
-      });
-      var f = BY[sel];
-      ctx.strokeStyle = '#efe6d8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(f.x, f.y, 5, 0, 7); ctx.stroke();
-    }
-        pulses.forEach(function(p){
-      var pts = p.e.pts;
-      if(pts[0][1] > oy + VH + 40 && pts[pts.length - 1][1] > oy + VH + 40) return;
-      var col = p.e.trunk ? '217,154,165' : KIND_COLOR[p.e.k];
-      for(var s = 0; s < 6; s++){
-        var q = at(pts, p.d - s * 5); if(q[1] < oy - 20 || q[1] > oy + VH + 20) continue;
-        ctx.fillStyle = 'rgba(' + col + ',' + (0.85 - s * .14) + ')';
-        ctx.beginPath(); ctx.arc(q[0], q[1], s ? 1 : 1.8, 0, 7); ctx.fill();
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.translate(C, C); ctx.rotate(rot); ctx.translate(-C, -C);
+    ctx.drawImage(layer, 0, 0, S, S);
+    inc.forEach(function(e){ ctx.strokeStyle = 'rgba(' + KC[e.k] + ',' + (e.a === sel ? .55 : .3) + ')'; ctx.lineWidth = .8; line(ctx, e.pts); });
+    if(sel >= 0){ var f = BY[sel]; ctx.strokeStyle = '#efe6d8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(f.x, f.y, 5, 0, 7); ctx.stroke(); }
+    pulses.forEach(function(p){
+      var c = KC[p.e.k];
+      for(var s = 0; s < 5; s++){
+        var q = at(p.e.pts, p.d - s * 4);
+        ctx.fillStyle = 'rgba(' + c + ',' + (.85 - s * .16) + ')'; ctx.beginPath(); ctx.arc(q[0], q[1], s ? .9 : 1.6, 0, 7); ctx.fill();
       }
-      var h = at(pts, p.d);
-      ctx.fillStyle = 'rgba(' + col + ',.12)'; ctx.beginPath(); ctx.arc(h[0], h[1], 4.5, 0, 7); ctx.fill();
     });
+    flashes.forEach(function(x){
+      ctx.fillStyle = 'rgba(239,230,216,' + (x.a * .7) + ')'; ctx.beginPath(); ctx.arc(x.f.x, x.f.y, 1.5 + (1 - x.a) * 4, 0, 7); ctx.fill();
+    });
+    if(trip) drawTrip();
   }
 
-  /* ── แตะจุด: ดูว่าไฟล์นี้ต่อกับอะไร ── */
-  function onTap(ev){
-    var r = cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top + offset();
-    if(Math.hypot(x - hub.x, y - hub.y) < hub.r){ close(); return; }
-    var best = -1, bd = 14;
-    F.forEach(function(f){ if(f.x == null) return; var d = Math.hypot(f.x - x, (f.y - y) * 1.4); if(d < bd){ bd = d; best = f.i; } });
+  /* ── ดูข้อความเดินทาง: ลำดับจริงใน _run_kernel ── */
+  function startTrip(){
+    close();
+    var hub = {x: C, y: C}, stops = [hub];
+    JOURNEY.forEach(function(j){ var f = PATH[j[0]]; if(f) stops.push(f); });
+    if(stops.length < 3) return;
+    var legs = [];
+    for(var i = 1; i < stops.length; i++) legs.push(stops[i - 1] === stops[i] ? null : curve(stops[i - 1], stops[i]));
+    legs.push(curve(stops[stops.length - 1], hub));
+    trip = {stops: stops, legs: legs, i: 0, d: 0, hold: 0, names: JOURNEY.filter(function(j){ return PATH[j[0]]; })};
+    document.getElementById('go').disabled = true;
+    pulses = []; paint();
+  }
+  function stepTrip(dt){
+    var leg = trip.legs[trip.i];
+    if(trip.hold > 0){ trip.hold -= dt; return; }
+    trip.d += (reduce ? 9999 : 140) * dt;
+    if(!leg || trip.d >= leg.len){
+      var arrived = trip.stops[trip.i + 1];
+      if(arrived && arrived.p){ flashes.push({f: arrived, a: 1}); cap(trip.i); }
+      trip.i++; trip.d = 0; trip.hold = .55;
+      if(trip.i >= trip.legs.length){ trip = null; cap(-1); document.getElementById('go').disabled = false; paint(); }
+    }
+  }
+  function drawTrip(){
+    for(var i = 0; i <= trip.i && i < trip.legs.length; i++){
+      var lg = trip.legs[i]; if(!lg) continue;
+      ctx.strokeStyle = 'rgba(217,154,165,.55)'; ctx.lineWidth = 1.1;
+      if(i < trip.i) line(ctx, lg);
+      else { ctx.beginPath(); ctx.moveTo(lg[0][0], lg[0][1]); for(var d = 0; d <= trip.d; d += 4){ var q = at(lg, d); ctx.lineTo(q[0], q[1]); } ctx.stroke();
+        var h = at(lg, trip.d); ctx.fillStyle = 'rgba(239,230,216,.95)'; ctx.beginPath(); ctx.arc(h[0], h[1], 2.4, 0, 7); ctx.fill();
+        ctx.fillStyle = 'rgba(217,154,165,.25)'; ctx.beginPath(); ctx.arc(h[0], h[1], 7, 0, 7); ctx.fill(); }
+    }
+    trip.stops.forEach(function(s, k){ if(k && k <= trip.i){ ctx.strokeStyle = 'rgba(226,207,154,.9)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(s.x, s.y, 4, 0, 7); ctx.stroke(); } });
+  }
+  function cap(i){
+    var c = document.getElementById('cap'); c.textContent = '';
+    if(i < 0 || !trip) return;
+    var j = trip.names[i]; if(!j) return;
+    c.appendChild(document.createTextNode((i + 1) + '/' + trip.names.length + ' · ' + j[1]));
+    c.appendChild(el('small', null, j[0]));
+  }
+
+  /* ── แตะไฟล์ ── */
+  function tap(ev){
+    if(trip) return;
+    var r = cv.getBoundingClientRect(), x = ev.clientX - r.left - C, y = ev.clientY - r.top - C;
+    var c = Math.cos(-rot), s = Math.sin(-rot), px = x * c - y * s + C, py = x * s + y * c + C;
+    var best = -1, bd = 12;
+    F.forEach(function(f){ if(!vis(f)) return; var d = Math.hypot(f.x - px, f.y - py); if(d < bd){ bd = d; best = f.i; } });
     if(best < 0){ close(); return; }
-    select(best);
-  }
-  function select(i){
-    sel = i; var f = BY[i];
-    incident = E.filter(function(e){ return e.pts && (e.a === i || e.b === i); });
-    var outN = incident.filter(function(e){ return e.a === i; }).length, inN = incident.length - outN;
-    var lane = LANES.filter(function(l){ return l[0] === f.c; })[0];
+    sel = best; var f = BY[best];
+    inc = E.filter(function(e){ return (e.a === best || e.b === best) && vis(e.A) && vis(e.B); });
+    var out = inc.filter(function(e){ return e.a === best; }).length;
     document.getElementById('info-p').textContent = f.p;
-    document.getElementById('info-m').textContent = (lane ? lane[1] : f.c) + ' · ' + (f.n || 0).toLocaleString('en-US') + ' บรรทัด · เรียกใช้ ' + outN + ' · ถูกเรียก ' + inN;
-    document.getElementById('info-d').textContent = f.d || '';
+    document.getElementById('info-m').textContent = NAME[f.c] + ' · เรียก ' + out + ' · ถูกเรียก ' + (inc.length - out);
     document.getElementById('info').classList.add('on');
-    pulses = []; paintLayer(); draw(0);
+    paint();
   }
-  function close(){ sel = -1; incident = []; document.getElementById('info').classList.remove('on'); pulses = []; paintLayer(); draw(0); }
+  function close(){ sel = -1; inc = []; document.getElementById('info').classList.remove('on'); paint(); }
 })();
 </script>
 </body>
