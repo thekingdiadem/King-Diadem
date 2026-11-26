@@ -87,12 +87,18 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
   function getJSON(u){ return fetch(u, {cache: 'no-cache'}).then(function(r){ if(!r.ok) throw r.status; return r.json(); }); }
   function fmt(n){ return n.toLocaleString('en-US'); }
 
-  getJSON('/api/system_map').catch(function(){ return getJSON('/static/system_map.json'); }).then(init)
-    .catch(function(){ document.getElementById('stat').textContent = 'โหลดไม่ได้ ลองรีเฟรช'; });
+  /* ขึ้นภาพทันทีจากชุดที่บันทึกไว้ (static) แล้วเปลี่ยนเป็นชุดสดเมื่อเซิร์ฟเวอร์นับเสร็จ (~10 วินาทีครั้งแรก) */
+  var ready = false;
+  getJSON('/static/system_map.json').then(function(d){ if(!ready) init(d); }).catch(function(){});
+  getJSON('/api/system_map').then(function(d){ if(d && d.files) init(d); })
+    .catch(function(){ if(!ready) document.getElementById('stat').textContent = 'โหลดไม่ได้ ลองรีเฟรช'; });
 
   function init(d){
-    var ringOf = {};
-    RINGS.forEach(function(r){ r[0].forEach(function(c){ ringOf[c] = r; on[c] = true; }); });
+    var first = !ready; ready = true;
+    var ringOf = {}; F = []; E = []; BY = {}; PATH = {}; counts = {};
+    if(trip){ trip = null; cap(-1); document.getElementById('go').disabled = false; }
+    sel = -1; inc = []; document.getElementById('info').classList.remove('on');
+    RINGS.forEach(function(r){ r[0].forEach(function(c){ ringOf[c] = r; if(on[c] == null) on[c] = true; }); });
     F = d.files.map(function(f, i){ return {i: i, p: f[0], n: f[1], c: f[2]}; }).filter(function(f){ return ringOf[f.c]; });
     F.forEach(function(f){ BY[f.i] = f; PATH[f.p] = f; counts[f.c] = (counts[f.c] || 0) + 1; });
     E = (d.edges || []).map(function(e){ return {a: e[0], b: e[1], k: e[2], A: BY[e[0]], B: BY[e[1]]}; })
@@ -102,16 +108,17 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
     [['', fmt(F.length)], [' ไฟล์ · ', fmt(E.length)], [' เส้น · รันจริง ', String(live)]].forEach(function(x){
       st.appendChild(document.createTextNode(x[0])); st.appendChild(el('b', null, x[1]));
     });
-    var lg = document.getElementById('legend');
+    var lg = document.getElementById('legend'); lg.textContent = '';
     RINGS.forEach(function(r){ r[0].forEach(function(c){
       if(!counts[c]) return;
-      var b = el('button'); b.type = 'button'; b.setAttribute('aria-pressed', 'true');
+      var b = el('button'); b.type = 'button'; b.setAttribute('aria-pressed', on[c] ? 'true' : 'false');
       var i = el('i'); i.style.background = col(c); b.appendChild(i);
       b.appendChild(document.createTextNode(NAME[c] + ' ' + counts[c]));
       b.addEventListener('click', function(){ on[c] = !on[c]; b.setAttribute('aria-pressed', on[c] ? 'true' : 'false'); if(sel >= 0 && !on[BY[sel].c]) close(); paint(); });
       lg.appendChild(b);
     }); });
     place(); size();
+    if(!first) return;
     window.addEventListener('resize', function(){ clearTimeout(init.t); init.t = setTimeout(size, 150); });
     cv.addEventListener('click', tap);
     document.getElementById('info-x').addEventListener('click', close);

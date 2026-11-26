@@ -14,7 +14,8 @@ def test_route_serves_page():
 
 
 def test_draws_only_from_real_map():
-    assert "getJSON('/api/system_map')" in HTML and "/static/system_map.json" in HTML
+    assert "getJSON('/api/system_map')" in HTML and "getJSON('/static/system_map.json')" in HTML
+    assert HTML.index("getJSON('/static/system_map.json')") < HTML.index("getJSON('/api/system_map')")  # ขึ้นภาพทันที
 
 
 def test_respects_reduced_motion_and_caps_pulses_on_mobile():
