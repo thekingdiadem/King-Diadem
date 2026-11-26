@@ -56,9 +56,9 @@ input[type=range]{flex:1;accent-color:var(--gold)}
 (function(){
   /* ขั้นที่ระบบทำจริง (core/progress) → ช่วงของวงแหวน · สีแยกตามหน้าที่ */
   var STAGES = [
-    ['receive', 'รับเรื่อง', '#a9bcff'], ['risk', 'ดูว่าด่วนไหม', '#ff9fbe'], ['numbers', 'คิดตัวเลข', '#ffc98f'],
-    ['people', 'อ่านคนในเรื่อง', '#cba6ff'], ['options', 'ไล่ทางเลือก', '#86ecd9'], ['ai', 'เรียบเรียง', '#a2dcff'],
-    ['safety', 'เช็กความปลอดภัย', '#f6d78e']
+    ['receive', 'รับเรื่อง', '#7fa2ff'], ['risk', 'ดูว่าด่วนไหม', '#ff6f9c'], ['numbers', 'คิดตัวเลข', '#ffb347'],
+    ['people', 'อ่านคนในเรื่อง', '#a985ff'], ['options', 'ไล่ทางเลือก', '#3fe6c8'], ['ai', 'เรียบเรียง', '#62c8ff'],
+    ['safety', 'เช็กความปลอดภัย', '#ffd35c']
   ];
   var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var cv = document.getElementById('sky'), g = cv.getContext('2d'), W = 0, H = 0, DPR = 1;
