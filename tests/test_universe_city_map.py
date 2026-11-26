@@ -168,7 +168,7 @@ def test_round4_feedback_day_mode_on_real_phone():
 def test_satellite_base_is_public_domain_nasa_and_hands_over_to_the_city_map():
     assert "gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry" in CITY
     assert "{z}/{y}/{x}.jpeg" in CITY and "maxzoom: 8" in CITY          # WMTS ของ NASA เรียงแถวก่อนคอลัมน์
-    assert "'raster-opacity': ['interpolate', ['linear'], ['zoom'], 8.5, 1, 10.8, 0]" in CITY
+    assert "'raster-opacity': ['interpolate', ['linear'], ['zoom'], 12.6, 1, 14, 0]" in CITY   # อยู่ใต้ Sentinel กันช่องดำ
     assert "NASA GIBS" in CITY                                            # ให้เครดิตแหล่งภาพ
 
 
