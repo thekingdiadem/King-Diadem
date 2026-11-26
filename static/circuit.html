@@ -7,6 +7,8 @@
 <title>วงจรระบบ · KING DIADEM</title>
 <link rel="canonical" href="https://king-diadem.onrender.com/circuit">
 <link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&display=swap">
 <meta name="description" content="วงจรของ KING DIADEM — ทุกไฟล์ใน repo เรียงเป็นวงแหวนรอบแกนกลาง ทุกเส้นคือการเรียกใช้ที่มีอยู่จริงในโค้ด กดดูเส้นทางที่ข้อความหนึ่งเดินผ่านระบบ">
 <style>
 /* วงจรระบบ (มณฑล) — ข้อมูลจาก /api/system_map (สำรอง /static/system_map.json) ที่สร้างจาก repo จริงเท่านั้น
@@ -96,6 +98,12 @@ body.film #cap{display:none}
   /* สีแสงของภาพยนตร์: ชมพู · ลาเวนเดอร์ · ฟ้ามิ้นต์ (ไล่สีเดียวกับหัวข้อหน้า The Universe) */
   var FILMC = ['240,184,216', '196,176,255', '166,236,223'];
   function fc(){ return FILMC[(Math.random() * 3) | 0]; }
+  /* แสงที่ไหล = พาสเทลไล่ตามตำแหน่งบนจอ (ชมพู → ลาเวนเดอร์ → มิ้นต์) · โครงสร้าง = ทองคม ตัดกัน */
+  var SIDE = [[240, 184, 216], [196, 176, 255], [166, 236, 223]], GOLD = '255,212,128';
+  function sideC(sx){
+    var k = Math.max(0, Math.min(1, sx / S)) * 2, i = k < 1 ? 0 : 1, f = k - i, a = SIDE[i], b = SIDE[i + 1];
+    return Math.round(a[0] + (b[0] - a[0]) * f) + ',' + Math.round(a[1] + (b[1] - a[1]) * f) + ',' + Math.round(a[2] + (b[2] - a[2]) * f);
+  }
   function camSet(){ ctx.translate(C, C); ctx.scale(cam.z, cam.z * cam.ty); ctx.rotate(rot); ctx.translate(-cam.x, -cam.y); }
   function proj(x, y){                               /* ตำแหน่งในวง → ตำแหน่งบนจอ (ใช้วางป้ายที่ไม่หมุน/ไม่เอียงตาม) */
     var dx = x - cam.x, dy = y - cam.y, c = Math.cos(rot), s = Math.sin(rot);
@@ -337,7 +345,17 @@ body.film #cap{display:none}
   function draw(){
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    if(film){ if(!cam.x){ cam.x = cam.y = C; cam.z = 2.3; } camSet(); }
+    if(film){
+      /* ฉากหลัง: หมอกฟ้าฝั่งซ้าย · หมอกทองฝั่งขวา บนพื้นกรมท่าเข้ม */
+      var nb = Math.min(1, (film.ign || 0) + (film.ph >= 1 ? 1 : 0)) * (.55 + .45 * (film.stormK || 0));
+      if(nb > 0){
+        ctx.globalCompositeOperation = 'lighter';
+        blob('90,60,160', S * .12, S * .38, S * .62, .42 * nb); blob('120,60,110', S * .5, S * .55, S * .5, .22 * nb);
+        blob('170,120,40', S * .9, S * .4, S * .6, .38 * nb);
+        ctx.globalCompositeOperation = 'source-over';
+      }
+      if(!cam.x){ cam.x = cam.y = C; cam.z = 2.3; } camSet();
+    }
     else { ctx.translate(C, C); ctx.rotate(rot); ctx.translate(-C, -C); }
     if(!film || (film.ph >= 3 && film.rev >= R * 1.07)) ctx.drawImage(layer, 0, 0, S, S);
     else if(film.ph >= 3){                           /* แสงแผ่: เปิดชั้นนิ่งเฉพาะในรัศมีที่แสงไปถึงแล้ว */
@@ -354,18 +372,30 @@ body.film #cap{display:none}
     inc.forEach(function(e){ ctx.strokeStyle = 'rgba(' + KC[e.k] + ',' + (e.a === sel ? .55 : .3) + ')'; ctx.lineWidth = .8; line(ctx, e.pts); });
     if(sel >= 0){ var f = BY[sel]; ctx.strokeStyle = '#efe6d8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(f.x, f.y, 5, 0, 7); ctx.stroke(); }
     waves.forEach(function(w){ ctx.strokeStyle = 'rgba(217,154,165,' + w.a * .5 + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(C, C, w.r, 0, 7); ctx.stroke(); });
-    if(film && film.ph === 4){ drawStorm(); ctx.globalCompositeOperation = 'lighter'; msgs.forEach(function(m){ var lg = m.legs[m.i]; if(lg){ var h = at(lg, m.d); blob(m.c, h[0], h[1], 6, .7); } }); ctx.globalCompositeOperation = 'source-over'; }
+    if(film && film.ph === 4){ drawStorm(); ctx.globalCompositeOperation = 'lighter'; msgs.forEach(function(m){ var lg = m.legs[m.i]; if(lg){ var h = at(lg, m.d); blob(GOLD, h[0], h[1], 5, .6); } }); ctx.globalCompositeOperation = 'source-over';
+      /* เส้นทางจริง 7 ขั้นเป็นทองคม วาดทับด้านบน ไม่ให้ซ้อนจนขาว */
+      if(film.jlegs){ var ja = Math.min(1, (film.t - film.t1) / 3);
+        film.jlegs.forEach(function(lg){ [[2.4, .25], [.9, .85]].forEach(function(w){ ctx.strokeStyle = 'rgba(' + GOLD + ',' + w[1] * ja + ')'; ctx.lineWidth = w[0]; line(ctx, lg); }); }); }
+      ctx.lineWidth = 1.2;
+      msgs.forEach(function(m){ var lg = m.legs[m.i]; if(!lg) return; var a = at(lg, Math.max(0, m.d - 16)), b = at(lg, m.d);
+        ctx.strokeStyle = 'rgba(255,236,190,.95)'; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); });
+    }
+    if(film && film.ph >= 3){                       /* วงแหวนทองคม: เส้นบางสว่าง ตัดกับแสงพาสเทล */
+      RINGS.forEach(function(r){ var rr = r[1] * R; if(film.ph === 3 && rr > film.rev) return;
+        ctx.strokeStyle = 'rgba(' + GOLD + ',' + (.42 + .3 * (film.stormK || 0)) + ')'; ctx.lineWidth = .8; ctx.beginPath(); ctx.arc(C, C, rr, 0, 7); ctx.stroke(); });
+      ctx.strokeStyle = 'rgba(' + GOLD + ',.9)'; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(C, C, R * .1, 0, 7); ctx.stroke();
+    }
     if(chimes.length){                                /* วงขานรับ: ทั้งวงเรืองขึ้นเมื่อแสงไปถึง เหมือนระฆังดังต่อกัน */
       ctx.globalCompositeOperation = 'lighter';
       chimes.forEach(function(c){
-        var h = col(c.c), rgb = parseInt(h.substr(1, 2), 16) + ',' + parseInt(h.substr(3, 2), 16) + ',' + parseInt(h.substr(5, 2), 16);
+        var h = col(c.c), rgb = film ? GOLD : parseInt(h.substr(1, 2), 16) + ',' + parseInt(h.substr(3, 2), 16) + ',' + parseInt(h.substr(5, 2), 16);
         [[16, .05], [7, .12], [2.2, .5]].forEach(function(w){ ctx.strokeStyle = 'rgba(' + rgb + ',' + w[1] * c.a + ')'; ctx.lineWidth = w[0]; ctx.beginPath(); ctx.arc(C, C, c.r, 0, 7); ctx.stroke(); });
       });
       ctx.globalCompositeOperation = 'source-over';
     }
     ctx.globalCompositeOperation = 'lighter';
     pulses.forEach(function(p){
-      var c = p.c || KC[p.e.k];
+      var c = film ? sideC(proj.apply(null, at(p.e.pts, p.d))[0]) : (p.c || KC[p.e.k]);
       /* หางแสงเป็นสายต่อเนื่อง (เดิมเป็นจุดห่างๆ) — ค่อยๆ จางและบางลงไปทางท้าย */
       var TL = film ? 34 : 22, prev = at(p.e.pts, p.d);
       for(var s = 2; s <= TL; s += 2){
@@ -396,16 +426,10 @@ body.film #cap{display:none}
     accx.globalCompositeOperation = 'destination-out';
     accx.fillStyle = 'rgba(0,0,0,' + (.1 - .045 * (film.stormK || 0)) + ')'; accx.fillRect(0, 0, S, S);
     accx.globalCompositeOperation = 'lighter';
-    accx.lineWidth = 1.1;
-    msgs.forEach(function(m){                         /* หัวข้อความ: เส้นหนากว่า สว่างกว่า */
-      var lg = m.legs[m.i]; if(!lg) return;
-      var a = at(lg, Math.max(0, m.d - 14)), b = at(lg, m.d);
-      accx.strokeStyle = 'rgba(' + m.c + ',.5)'; accx.beginPath(); accx.moveTo(a[0], a[1]); accx.lineTo(b[0], b[1]); accx.stroke();
-    });
     accx.lineWidth = .55;
     storm.forEach(function(p){
       var a = at(p.e.pts, Math.max(0, p.d - 9)), b = at(p.e.pts, p.d);
-      accx.strokeStyle = 'rgba(' + p.c + ',.3)'; accx.beginPath(); accx.moveTo(a[0], a[1]); accx.lineTo(b[0], b[1]); accx.stroke();
+      accx.strokeStyle = 'rgba(' + sideC(proj(b[0], b[1])[0]) + ',.24)'; accx.beginPath(); accx.moveTo(a[0], a[1]); accx.lineTo(b[0], b[1]); accx.stroke();
     });
     ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(acc, 0, 0, S, S);
     var k = film.stormK || 0;                         /* ใจกลางกับทั้งวงค่อยๆ เรืองตามความหนาแน่นของแสง */
@@ -423,18 +447,22 @@ body.film #cap{display:none}
       ctx.fillStyle = 'rgba(239,224,200,' + a + ')'; ctx.beginPath(); ctx.arc(d.x, d.y, d.s, 0, 7); ctx.fill();
     });
     ctx.globalCompositeOperation = 'source-over';
-    if(film.title > 0){                              /* คำเปิด: ไล่สีแบบหัวข้อหน้า The Universe */
+    if(film.title > 0){                              /* คำเปิด: KING DIADEM แบบโลโก้ — Cinzel ทองแวววาว */
       ctx.save(); ctx.globalAlpha = film.title; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      var fs = R * .095, gy = C - R * .16;
-      ctx.font = '500 ' + fs + 'px "Cinzel","Noto Serif Thai",serif';
-      if('letterSpacing' in ctx) ctx.letterSpacing = (fs * .22) + 'px';
-      var gr = ctx.createLinearGradient(C - R * .7, 0, C + R * .7, 0);
-      gr.addColorStop(0, '#ecb8dc'); gr.addColorStop(.5, '#c4b2f5'); gr.addColorStop(1, '#a6e6dc');
-      ctx.fillStyle = gr;
-      ['THE UNIVERSE', 'THAT RESTORES', 'CHOICE'].forEach(function(t, i){ ctx.fillText(t, C, gy + i * fs * 1.22); });
-      ctx.font = '400 ' + (R * .03) + 'px ui-monospace,"DM Mono",monospace'; ctx.fillStyle = 'rgba(226,207,154,.8)';
-      if('letterSpacing' in ctx) ctx.letterSpacing = (R * .014) + 'px';
-      ctx.fillText('KING DIADEM · 2026', C, gy + 3 * fs * 1.22 + R * .05);
+      var fs = R * .15, gy = C - R * .04;
+      ctx.font = '600 ' + fs + 'px Cinzel, serif';
+      if('letterSpacing' in ctx) ctx.letterSpacing = (fs * .06) + 'px';
+      var gr = ctx.createLinearGradient(0, gy - fs * .5, 0, gy + fs * .5);
+      gr.addColorStop(0, '#fff6df'); gr.addColorStop(.45, '#f4d38a'); gr.addColorStop(.7, '#d9a04a'); gr.addColorStop(1, '#a86f2a');
+      ctx.globalCompositeOperation = 'lighter'; blob('255,190,110', C, gy, R * .7, .22 * film.title); ctx.globalCompositeOperation = 'source-over';
+      ctx.shadowColor = 'rgba(255,200,120,.55)'; ctx.shadowBlur = fs * .25;
+      ctx.fillStyle = gr; ctx.fillText('KING DIADEM', C, gy);
+      ctx.shadowBlur = 0;
+      ctx.font = '500 ' + (R * .036) + 'px Cinzel, serif';
+      if('letterSpacing' in ctx) ctx.letterSpacing = (R * .016) + 'px';
+      var g2 = ctx.createLinearGradient(C - R * .6, 0, C + R * .6, 0);
+      g2.addColorStop(0, '#8fb6ff'); g2.addColorStop(.5, '#d8d0ff'); g2.addColorStop(1, '#ffc98a');
+      ctx.fillStyle = g2; ctx.fillText('THE UNIVERSE THAT RESTORES CHOICE', C, gy + fs * .78);
       ctx.restore();
     }
     filmCaptions();
@@ -492,6 +520,7 @@ body.film #cap{display:none}
     var legs = [];
     for(var i = 1; i < stops.length; i++) if(stops[i - 1] !== stops[i]) legs.push(curve(stops[i - 1], stops[i]));
     legs.push(curve(stops[stops.length - 1], {x: C, y: C}));
+    film.jlegs = legs;
     msgs.push({legs: legs, i: 0, d: 0, v: R * (.6 + Math.random() * .5), c: fc(), stops: stops.slice(1)});
   }
   function stepMsgs(dt){
@@ -544,7 +573,7 @@ body.film #cap{display:none}
   }
   function drawTrip(T, ga){
     T = T || trip; ga = ga == null ? 1 : ga;
-    var PC = film ? '240,184,216' : '217,154,165', HC = film ? '255,230,246' : '255,226,200';
+    var PC = film ? GOLD : '217,154,165', HC = film ? '255,240,205' : '255,226,200';
     ctx.fillStyle = 'rgba(10,7,9,' + .35 * ga + ')'; ctx.fillRect(-S, -S, S * 3, S * 3);
     ctx.globalCompositeOperation = 'lighter';
     for(var i = 0; i <= T.i && i < T.legs.length; i++){
