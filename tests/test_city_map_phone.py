@@ -37,3 +37,11 @@ def test_nasa_and_sentinel_same_colour_so_gaps_do_not_show():
 
 def test_phone_dive_shorter():
     assert "at.zoom + (phone ? .8 : 1.6)" in CITY
+
+
+def test_hillshade_tiles_not_downloaded_where_invisible():
+    assert "{ id: 'hillshade', type: 'hillshade', source: 'demhs', minzoom: 12.5," in CITY
+
+
+def test_phone_requests_fewer_sentinel_tiles():
+    assert "tileSize: (Math.min(screen.width || 1e4, screen.height || 1e4) < 700) ? 512 : 256" in CITY

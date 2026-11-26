@@ -102,7 +102,8 @@ def test_phone_does_not_download_4k_until_zoom():
     # ภาพกลางวัน/เมฆ 4K (ก้อนใหญ่) รอซูม · ไฟเมืองละเอียด: คอมโหลดทันที มือถือรอซูมด้วย (พ.ย. 2569: หน้าแผนที่หน่วงบนมือถือ)
     assert js.count("load(1, 'day_4k.jpg')") == 1 and "load(1, 'day_4k.jpg'); load(2, 'clouds_4k.jpg');" in js
     assert js.count("'lights_4k.jpg'") == 1
-    assert "if (light) load(0, LIGHTS_HI);" in js and "if (can4k && !light) load(0, LIGHTS_HI);" in js
+    assert "if (can4k) load(0, LIGHTS_HI);" in js                    # ไฟเมือง 4K ทันทีทุกเครื่อง (พี่อยากให้คมทันที)
+    assert "if (light && can8k && (navigator.deviceMemory || 8) > 3) load(0, 'lights_8k.jpg');" in js       # มือถือได้ 8K เมื่อซูมลง
 
 
 def test_water_mask_is_small():
