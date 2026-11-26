@@ -93,6 +93,8 @@ body.film #cap{display:none}
      ?film=1&wait=1 = รอ window.__filmGo ก่อนเริ่ม (ใช้ตอนอัดคลิป ให้รอชุดข้อมูลสดก่อน) */
   var film = /[?&]film=1/.test(location.search) ? {t: 0, ph: 0, ign: 0, rev: 0, go: false} : null;
   if(film) document.body.classList.add('film');
+  /* ลายเส้นพู่กัน (?ink=1): หัวหนาปลายแหลม แกนขาวทองคม ขอบสีบาง หมอกเรืองน้อยลง */
+  var INK = !!film && /[?&]ink=1/.test(location.search);
   /* กล้อง (เฉพาะโหมดภาพยนตร์): จุดโฟกัส · ซูม · เอียงเป็นมิติ (ty < 1 = วงเอียงหนีสายตา) */
   var cam = {x: 0, y: 0, z: 1, ty: 1}, dust = [], chimes = [], storm = [], acc = null, accx = null;
   /* สีแสงของภาพยนตร์: ชมพู · ลาเวนเดอร์ · ฟ้ามิ้นต์ (ไล่สีเดียวกับหัวข้อหน้า The Universe) */
@@ -402,6 +404,7 @@ body.film #cap{display:none}
     pulses.forEach(function(p){
       var c = film ? sideC(proj.apply(null, at(p.e.pts, p.d))[0]) : (p.c || KC[p.e.k]);
       /* หางแสงเป็นสายต่อเนื่อง (เดิมเป็นจุดห่างๆ) — ค่อยๆ จางและบางลงไปทางท้าย */
+      if(INK){ brush(ctx, p.e.pts, p.d, 46, c, 2.6); return; }
       var TL = film ? 34 : 22, prev = at(p.e.pts, p.d);
       for(var s = 2; s <= TL; s += 2){
         var q = at(p.e.pts, p.d - s), k = 1 - s / TL;
@@ -433,6 +436,7 @@ body.film #cap{display:none}
     accx.globalCompositeOperation = 'lighter';
     accx.lineWidth = .55;
     storm.forEach(function(p){
+      if(INK){ var bb = at(p.e.pts, p.d); brush(accx, p.e.pts, p.d, 16, sideC(proj(bb[0], bb[1])[0]), 1.1, .5); return; }
       var a = at(p.e.pts, Math.max(0, p.d - 9)), b = at(p.e.pts, p.d);
       accx.strokeStyle = 'rgba(' + sideC(proj(b[0], b[1])[0]) + ',.24)'; accx.beginPath(); accx.moveTo(a[0], a[1]); accx.lineTo(b[0], b[1]); accx.stroke();
     });
@@ -536,6 +540,22 @@ body.film #cap{display:none}
     });
     msgs = msgs.filter(function(m){ return m.i < m.legs.length; });
   }
+  /* เส้นพู่กัน: หัวหนา → ปลายเรียวเป็นเข็ม · ขอบสี + แกนขาวทองคม */
+  function brush(g, pts, d, len, col, w0, am){
+    am = am == null ? 1 : am;
+    var n = 10, prev = at(pts, d);
+    for(var i = 1; i <= n; i++){
+      var q = at(pts, d - len * i / n), k = 1 - (i - 1) / n, w = w0 * k * k + .15;
+      g.globalCompositeOperation = 'lighter';
+      g.strokeStyle = 'rgba(' + col + ',' + .55 * am * k + ')'; g.lineWidth = w * 1.9;
+      g.beginPath(); g.moveTo(prev[0], prev[1]); g.lineTo(q[0], q[1]); g.stroke();
+      g.globalCompositeOperation = 'source-over';
+      g.strokeStyle = 'rgba(255,246,226,' + .95 * am * k + ')'; g.lineWidth = Math.max(.25, w * .55);
+      g.beginPath(); g.moveTo(prev[0], prev[1]); g.lineTo(q[0], q[1]); g.stroke();
+      prev = q;
+    }
+    g.globalCompositeOperation = g === ctx ? 'lighter' : 'lighter';
+  }
   function tripHead(){
     var lg = trip.legs[Math.min(trip.i, trip.legs.length - 1)];
     if(!lg){ var st = trip.stops[Math.min(trip.i, trip.stops.length - 1)]; return [st.x, st.y]; }
@@ -584,7 +604,7 @@ body.film #cap{display:none}
     for(var i = 0; i <= T.i && i < T.legs.length; i++){
       var lg = T.legs[i]; if(!lg) continue;
       var upto = i < T.i ? lg.len : T.d;
-      [[5, .1], [2.2, .35], [1, .9]].forEach(function(w){
+      (INK ? [[2.6, .2], [1.3, 1]] : [[5, .1], [2.2, .35], [1, .9]]).forEach(function(w){
         ctx.strokeStyle = 'rgba(' + PC + ',' + w[1] * ga + ')'; ctx.lineWidth = w[0];
         ctx.beginPath(); ctx.moveTo(lg[0][0], lg[0][1]); for(var d = 0; d <= upto; d += 3){ var q = at(lg, d); ctx.lineTo(q[0], q[1]); } ctx.stroke();
       });
