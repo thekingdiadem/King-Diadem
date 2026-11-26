@@ -993,13 +993,46 @@ SITEMAP_PAGES = [("/", "1.0", "daily"), ("/safe", "0.9", "monthly"), ("/guide", 
 _ROBOTS_BLOCK = ["/api/", "/report/", "/auth/", "/login", "/me", "/dashboard", "/wallet", "/credits", "/static/login.html",
                  "/static/register.html", "/static/report.html"]
 
-def _middle_path_stats():
-    """ตัวตรวจทางสายกลางเติมคำตอบไปกี่ครั้ง แยกฝั่ง upside / constraint"""
+_MP_KEYS = ("checked", "upside", "constraint")
+_MP_DAYS = 30
+_mp_cache = {"at": 0.0, "v": None}
+
+
+def _mp_mem():
     try:
         from core.middle_path import stats
         return stats()
     except Exception:
-        return None
+        return {}
+
+
+def _mp_record(before: dict, after: dict):
+    """นับลงฐานข้อมูลรายวัน (metric_counts) — ตัวนับในหน่วยความจำหายทุกครั้งที่ Render หลับหรือ deploy"""
+    for k in _MP_KEYS:
+        d = int(after.get(k, 0)) - int(before.get(k, 0))
+        if d > 0:
+            _metric("middle_path:" + k)
+
+
+def _middle_path_stats():
+    """ตัวตรวจทางสายกลางเติมคำตอบไปกี่ครั้ง แยกฝั่ง upside / constraint
+    รวม 30 วันล่าสุดจากฐานข้อมูล (ไม่หายตอนรีสตาร์ต) · ฐานข้อมูลใช้ไม่ได้ → ตัวนับในหน่วยความจำ"""
+    now = time.time()
+    if _mp_cache["v"] is not None and now - _mp_cache["at"] < 60:
+        return _mp_cache["v"]
+    try:
+        from DATABASE.db import metric_report
+        since = (datetime.now(_BKK) - timedelta(days=_MP_DAYS - 1)).strftime("%Y-%m-%d")
+        tot = {k: 0 for k in _MP_KEYS}
+        for day in metric_report(since).values():
+            for k in _MP_KEYS:
+                tot[k] += int(day.get("middle_path:" + k, 0) or 0)
+        v = dict(tot, days=_MP_DAYS, source="db")
+    except Exception:
+        m = _mp_mem()
+        v = dict({k: int(m.get(k, 0)) for k in _MP_KEYS}, source="memory") if m else None
+    _mp_cache.update(at=now, v=v)
+    return v
 
 
 @app.get("/robots.txt")
@@ -3250,7 +3283,9 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         try:
             from core.middle_path import balance as _mp_balance
             if isinstance(result.get("ai_response"), str):
+                _mp_before = _mp_mem()
                 result["ai_response"] = _mp_balance(user_input, result["ai_response"], k_assess or None)
+                _mp_record(_mp_before, _mp_mem())
         except Exception as e:
             print(f"⚠ middle path: {type(e).__name__}")
 
