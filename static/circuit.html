@@ -12,7 +12,7 @@
 /* วงจรระบบ (มณฑล) — ข้อมูลจาก /api/system_map (สำรอง /static/system_map.json) ที่สร้างจาก repo จริงเท่านั้น
    วงใน → นอก: ทำงานตอนตอบ · ทำงานตอนบูต · หน้าเว็บ · (GitHub Pages · package · ตั้งค่า · เอกสาร) · เทสต์
    เส้น = import / หน้าเว็บโหลด / อ้างถึง · แสงวิ่งจากไฟล์ที่เรียก → ไฟล์ที่ถูกเรียก
-   "ดูข้อความเดินทาง" = ลำดับจริงใน app.py (_run_kernel): risk_engine → kernel_voice → story_check → llm_gemini → kernel_voice → middle_path */
+   "ดูข้อความเดินทาง" = ลำดับจริงใน app.py (_run_kernel): risk_engine → kernel_voice → story_check → kernel_voice (ตอบจากสมการ ยังไม่มี AI) → middle_path */
 :root{
   --void:#0a0709; --tx-hi:#efe6d8; --tx:#bdb1a6; --tx-lo:#857a76; --gold:#e2cf9a; --rose:#d99aa5;
   --c-boot:#e2cf9a; --c-request:#d99aa5; --c-web:#b7a3d9; --c-site:#a9cbb8; --c-pkg:#7f7891;
@@ -66,8 +66,7 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
     ['ENGINE/risk_engine.py', 'วัดความเสี่ยง'],
     ['core/kernel_voice.py', 'จับเหตุฉุกเฉิน'],
     ['core/story_check.py', 'ตรวจเรื่องเล่า'],
-    ['core/llm_gemini.py', 'ซ่อนข้อมูลลับ · LYLA คิด'],
-    ['core/kernel_voice.py', 'เติมสายด่วน'],
+    ['core/kernel_voice.py', 'ตอบจากสมการ · เติมสายด่วน'],   /* ยังไม่มี AI ต่ออยู่: app.py ข้าม llm_gemini ให้ kernel_voice ตอบ */
     ['core/middle_path.py', 'ทางสายกลาง'],
     ['app.py', 'ตอบกลับ']
   ];
