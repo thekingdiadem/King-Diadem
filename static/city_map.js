@@ -120,7 +120,10 @@
               encoding: 'terrarium', tileSize: 256, maxzoom: 12,
               attribution: '<a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles</a> (Mapzen · SRTM · ETOPO1 ฯลฯ)' };
   // เครื่องแรมน้อย/จอเล็ก: เงาภูเขาอย่างเดียว ไม่ยกพื้นเป็น 3 มิติ (ประหยัดแรงเครื่องและเน็ต)
-  var lightDevice = (navigator.deviceMemory || 8) <= 3 || (navigator.connection || {}).saveData;
+  // มือถือ (จอเล็ก): เดิมเปิดภูเขา 3 มิติ + วาดเต็มความละเอียดจอ (มักเป็น 3 เท่า) — ไทล์ไหลมาทีละครึ่งๆ ไม่สมูท (พ.ย. 2569)
+  var phone = Math.min(screen.width || 1e4, screen.height || 1e4) < 700;
+  var lightDevice = phone || (navigator.deviceMemory || 8) <= 3 || (navigator.connection || {}).saveData;
+  var MAP_DPR = Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2);   // จอ 3 เท่า = พิกเซลมากกว่า 1.5 เท่าถึง 4 เท่า
   function style() {
     var st = buildStyle();
     // ภูเขานูนจริงเมื่อเอียงกล้อง · 1.5 เท่า ให้เขาเตี้ยๆ ริมทะเล (เขาสามมุข ~100 ม.) ยังเห็นเป็นเนิน
@@ -349,7 +352,7 @@
       if (!map) {
         map = new lib.Map({ container: box, style: style(), center: opts.center, zoom: opts.zoom, pitch: opts.pitch,
                             maxPitch: 75, minZoom: 3, maxZoom: 18.5, attributionControl: false,
-                            fadeDuration: calm() ? 0 : 300 });
+                            fadeDuration: calm() ? 0 : 300, pixelRatio: MAP_DPR });
         map.addControl(new lib.AttributionControl({ compact: true,
           customAttribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> · © OpenStreetMap contributors · <a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a> · <a href="https://cloudless.eox.at" target="_blank" rel="noopener">Sentinel-2 cloudless</a> by EOX (Copernicus Sentinel data 2016)' }),
           'top-right');                                                   // มุมล่างมีปุ่มควบคุมโลกอยู่แล้ว
@@ -381,7 +384,7 @@
       show(true);
       // ดำดิ่งลงไปอีกนิดตอนเข้า ให้รู้สึกว่าบินลงเมือง
       entering = true;
-      var dive = { zoom: at.zoom + 1.6, pitch: Math.min(60, at.pitch + 8) };
+      var dive = { zoom: at.zoom + 1.6, pitch: Math.min(phone ? 45 : 60, at.pitch + 8) };   // มือถือเอียงน้อยลง = ไทล์ถึงขอบฟ้าน้อยลง
       if (calm()) { map.jumpTo(dive); entering = false; }
       else { map.easeTo(Object.assign(dive, { duration: 1400 })); map.once('moveend', function () { entering = false; }); }
     });
