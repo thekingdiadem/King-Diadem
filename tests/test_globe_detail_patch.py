@@ -47,3 +47,11 @@ def test_hero_title_every_letter_own_colour_words_not_split():
     assert "(-((i * .618034) % 1) * 24)" in uni                        # อัตราส่วนทองคำ ไม่ซ้ำท้ายบรรทัด
     assert "h.setAttribute('aria-label'" in uni                     # โปรแกรมอ่านหน้าจอยังอ่านเป็นประโยคเดียว
     assert "html.kd-calm #hero .hero-title .ch{animation-play-state:paused}" in uni
+
+
+def test_letters_tinted_from_earth_pixels_in_oklch():
+    uni = Path("static/king_diadem_universe.html").read_text(encoding="utf-8")
+    assert "window.KD_earthSample = function (pts, cb)" in JS and "gl.readPixels(x, y, 1, 1" in JS
+    assert "function toLch(rgb)" in uni and "function fromLch(L, C, H)" in uni
+    assert "bg[0] < .55 ? Math.min(.95, bg[0] + .62) : Math.max(.22, bg[0] - .5)" in uni   # ต่างจากพื้นพอให้อ่านชัด
+    assert "#hero .hero-title.earth-tint .ch{animation:none;transition:color 2.4s ease}" in uni

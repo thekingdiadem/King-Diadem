@@ -532,6 +532,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
 @keyframes kd-letter{0%{color:#f3d08a}14%{color:#f6a9c2}28%{color:#c7aaff}42%{color:#9fbcff}57%{color:#97e3d6}71%{color:#fff8e7}85%{color:#ffc3a1}100%{color:#f3d08a}}
 @media (prefers-reduced-motion:reduce){#hero .hero-title .ch{animation-play-state:paused}}
 html.kd-calm #hero .hero-title .ch{animation-play-state:paused}
+#hero .hero-title.earth-tint .ch{animation:none;transition:color 2.4s ease}
 </style>
 </head>
 <body>
@@ -1383,6 +1384,43 @@ setTimeout(function(){
     h.replaceChild(f, n);
   });
   h.classList.add('lettered');
+  // ── สีตามโลกทุกตำแหน่ง: อ่านสีโลกใต้แต่ละตัวอักษร แล้วคำนวณพาสเทลในปริภูมิ OKLCH (ตามการรับรู้ของตาจริง) ──
+  // เฉด = เฉดของพื้นใต้ตัวอักษร ขยับไปข้างเคียงตามอัตราส่วนทองคำ (กลมกลืนแต่ไม่ซ้ำกัน)
+  // ความสว่าง = คำนวณให้ต่างจากพื้นอย่างน้อย 0.45 (อ่านชัดเสมอ) · ความสด = พาสเทล 0.07–0.12
+  function lin(c){ c /= 255; return c <= .04045 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4); }
+  function gam(c){ c = c <= .0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - .055; return Math.round(Math.max(0, Math.min(1, c)) * 255); }
+  function toLch(rgb){
+    var r = lin(rgb[0]), g = lin(rgb[1]), b = lin(rgb[2]);
+    var l = Math.cbrt(.4122214708*r + .5363325363*g + .0514459929*b), m = Math.cbrt(.2119034982*r + .6806995451*g + .1073969566*b), s = Math.cbrt(.0883024619*r + .2817188376*g + .6299787005*b);
+    var L = .2104542553*l + .7936177850*m - .0040720468*s, A = 1.9779984951*l - 2.4285922050*m + .4505937099*s, B = .0259040371*l + .7827717662*m - .8086757660*s;
+    return [L, Math.hypot(A, B), Math.atan2(B, A)];
+  }
+  function fromLch(L, C, H){
+    var A = C * Math.cos(H), B = C * Math.sin(H);
+    var l = Math.pow(L + .3963377774*A + .2158037573*B, 3), m = Math.pow(L - .1055613458*A - .0638541728*B, 3), s = Math.pow(L - .0894841775*A - 1.2914855480*B, 3);
+    return 'rgb(' + gam(4.0767416621*l - 3.3077115913*m + .2309699292*s) + ',' + gam(-1.2684380046*l + 2.6097574011*m - .3413193965*s) + ',' + gam(-.0041960863*l - .7034186147*m + 1.7076147010*s) + ')';
+  }
+  var chs = Array.prototype.slice.call(h.querySelectorAll('.ch')), cv = null;
+  var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function tint(){
+    if(!window.KD_earthSample || document.hidden || !cv) return;
+    var r = cv.getBoundingClientRect();
+    var pts = chs.map(function(e){ var q = e.getBoundingClientRect(); return [q.left + q.width / 2 - r.left, q.top + q.height / 2 - r.top]; });
+    KD_earthSample(pts, function(cols){
+      h.classList.add('earth-tint');
+      cols.forEach(function(c, i){
+        var bg = toLch(c), L = bg[0] < .55 ? Math.min(.95, bg[0] + .62) : Math.max(.22, bg[0] - .5);
+        var hue = (bg[1] > .02 ? bg[2] : 4.2) + (((i * .618034) % 1) - .5) * 2.1;   // พื้นไม่มีสี (กลางคืน) = เริ่มที่ฟ้าคราม แล้วกระจายรอบเฉดพื้น ±60°
+        chs[i].style.color = fromLch(L, .075 + .045 * ((i * .381966) % 1), hue);
+      });
+    });
+  }
+  function ready(){
+    cv = document.querySelector('.cockpit>canvas');
+    if(!window.KD_earthSample || !cv) return setTimeout(ready, 500);
+    tint(); setInterval(function(){ if(!REDUCE) tint(); }, 1800);
+  }
+  setTimeout(ready, 1500);
 })();
 </script>
 </body>

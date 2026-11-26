@@ -94,9 +94,9 @@
     // Opalite Dawn: แสงโอปอลวนรอบขอบโลก ทอง → ชมพูอรุณ → ม่วง → ฟ้าเขียว หมุนช้า หายใจตามจังหวะสวด (~6.4 วิ)
     // และจุดแสงอรุณหนึ่งดวงเคลื่อนรอบขอบโลก — "อันแสงสว่างไม่มีประมาณได้ปรากฏแล้วในโลก" · ในยานปิด (ภาพจริงตามตา)
     '    vec3 cpt=normalize(P-b*rd);float an=atan(dot(cpt,up),dot(cpt,rt))/6.2831853;',
-    '    vec3 opal=vec3(.62,.56,.70)+vec3(.38,.32,.30)*cos(6.2831853*(an+t*.012+vec3(0.,.2,.43)));',
+    '    vec3 opal=vec3(.58,.5,.66)+vec3(.48,.46,.42)*cos(6.2831853*(an+t*.012+vec3(0.,.2,.43)));',
     '    float dawn=pow(.5+.5*cos(6.2831853*(an-t*.035)),28.);',
-    '    col+=opal*exp(-o*70.)*(.2+.07*sin(t*.98)+.55*dawn)*(1.-near);}',
+    '    col+=max(opal,0.)*exp(-o*70.)*(.26+.08*sin(t*.98)+.6*dawn)*(1.-near);}',
     '  if(disc>0.&&-b-sqrt(disc)>0.){',
     '    vec3 nl=P+rd*(-b-sqrt(disc));',
     '    vec3 n=M*nl;float sz=dot(nl,sl),dl=max(dayM,sunM*smoothstep(-.08,.06,sz));',   // dl = ส่วนที่เป็นกลางวัน ณ จุดนี้
@@ -599,6 +599,9 @@
     return hit.sort(function (a, b) { return a.s - b.s; }).slice(0, 8);
   }
 
+  var sampleQ = [];
+  // ให้หน้าเว็บขอสีพื้นหลังโลกใต้จุดต่างๆ (พิกัด CSS px เทียบมุมซ้ายบนของ canvas) — ใช้ทำสีตัวอักษรให้กลมกลืนกับโลกทุกตำแหน่ง
+  window.KD_earthSample = function (pts, cb) { if (sampleQ.length < 2) sampleQ.push({ pts: pts, cb: cb }); kick(); return canvas.getBoundingClientRect(); };
   window.KD_earth = {
     // ค้นหาเมือง → [{en, th, lat, lon, tier}] · บินไปพิกัดนั้นด้วย flyTo
     find: function (q, cb) { findLoad(function (rows) { cb(findRank(rows, q)); }); },
@@ -752,6 +755,13 @@
     gl.uniform1f(U.hasW, hasW); gl.uniform1f(U.dayM, dayM);
     patchStep(dt, busy, now);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (sampleQ.length) {                                               // อ่านสีโลกใต้จุดที่หน้าเว็บขอ (ต้องอ่านทันทีหลังวาด ก่อนภาพถูกล้าง)
+      var q = sampleQ.shift(), px = new Uint8Array(4), kx = canvas.width / Math.max(1, canvas.clientWidth), ky = canvas.height / Math.max(1, canvas.clientHeight);
+      q.cb(q.pts.map(function (p) {
+        var x = clamp(Math.round(p[0] * kx), 0, canvas.width - 1), y = clamp(canvas.height - 1 - Math.round(p[1] * ky), 0, canvas.height - 1);
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); return [px[0], px[1], px[2]];
+      }));
+    }
     if (hudPos && now - lastHud > 250) {
       lastHud = now;
       var lo = window.KD_satLon(), la = S.lat, V = view(), alt = (Math.hypot(V.C[0], V.C[1], V.C[2]) - 1) * 6371;
