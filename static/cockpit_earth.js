@@ -22,7 +22,8 @@
   var MQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
   function calm() { return MQ.matches || document.documentElement.classList.contains('kd-calm'); }
 
-  var PI = Math.PI, RAD = PI / 180, LMAX = 4.4;   // ลึกกว่านี้ภาพ NASA (~10 กม./พิกเซล) เบลอเป็นก้อน
+  // มือถือส่งต่อให้แผนที่เมืองเร็วขึ้น (3.6) — เดิมซูมต่อถึง 4.4 ซึ่งภาพโลกบนมือถือเบลอเป็นก้อนก่อนแผนที่รับช่วง (พ.ย. 2569)
+  var PI = Math.PI, RAD = PI / 180, LMAX = Math.min(screen.width || 1e4, screen.height || 1e4) < 700 ? 3.6 : 4.4;   // ลึกกว่านี้ภาพ NASA (~10 กม./พิกเซล) เบลอเป็นก้อน
   // lon/lat = จุดกลางจอบนผิวโลก · L = ระดับซูม · ค่า t* คือเป้าหมายที่ค่อยๆ เลื่อนไปหา · v* = ความเร็วที่ไหลต่อหลังปล่อยนิ้ว
   // zoom/mag เก็บไว้ให้โค้ดเดิมอ่านได้: zoom 0–1 (ทั้งโลก → วงโคจร) · mag = 2^(L−1)
   var S = { lon: -95, lat: 40, L: 1, tlon: -95, tlat: 40, tL: 1, vlon: 0, vlat: 0, zoom: 1, mag: 1, tzoom: 1, tmag: 1 };

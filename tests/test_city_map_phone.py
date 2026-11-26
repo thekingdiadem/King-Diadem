@@ -16,3 +16,24 @@ def test_map_pixel_ratio_capped():
 
 def test_phone_dive_pitch_lower():
     assert "pitch: Math.min(phone ? 45 : 60, at.pitch + 8)" in CITY
+
+
+def test_phone_hands_over_to_city_map_before_globe_blurs():
+    earth = Path("static/cockpit_earth.js").read_text(encoding="utf-8")
+    assert "LMAX = Math.min(screen.width || 1e4, screen.height || 1e4) < 700 ? 3.6 : 4.4" in earth
+
+
+def test_nasa_layer_fills_gaps_under_sentinel_until_city_zoom():
+    i = CITY.index("{ id: 'sat'"); j = CITY.index("{ id: 's2'")
+    assert i < j                                   # อยู่ใต้ Sentinel
+    assert "maxzoom: 14.2" in CITY[i:j]
+
+
+def test_nasa_and_sentinel_same_colour_so_gaps_do_not_show():
+    i = CITY.index("{ id: 'sat'"); j = CITY.index("{ id: 's2'"); k = CITY.index("{ id: 'hillshade'")
+    pick = lambda seg: seg[seg.index("'raster-brightness-max'"):seg.index("} },")]
+    assert pick(CITY[i:j]) == pick(CITY[j:k])
+
+
+def test_phone_dive_shorter():
+    assert "at.zoom + (phone ? .8 : 1.6)" in CITY
