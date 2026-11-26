@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#06070c">
+<meta name="theme-color" content="#0b0a14">
 <title>วงจรระบบ · KING DIADEM</title>
 <link rel="canonical" href="https://king-diadem.onrender.com/circuit">
 <link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
@@ -13,22 +13,23 @@
    ไม่มีไฟล์หรือเส้นไหนที่วาดขึ้นเอง: หมวด = คอลัมน์ · ไฟล์ = จุดบนคอลัมน์ · เส้น = import / หน้าเว็บโหลด / อ้างถึง
    แสงวิ่งจากไฟล์ที่เรียก → ไปไฟล์ที่ถูกเรียก · มือถือจำกัดแสงพร้อมกัน · ตั้งค่าลดการเคลื่อนไหวไว้ = แสงหยุด */
 :root{
-  --void:#06070c; --tx-hi:#f1ede4; --tx:#c4beb2; --tx-lo:#8f897e; --gold:#e8b864; --line:rgba(232,184,100,.18);
-  --c-boot:#f6b24a; --c-request:#ffe2a8; --c-web:#4d9bff; --c-site:#6c82b8; --c-pkg:#5a6390;
-  --c-config:#8e96b0; --c-docs:#a78bfa; --c-tests:#2bcfb4;
+  --void:#0b0a14; --tx-hi:#ece8f4; --tx:#b9b4c8; --tx-lo:#7d7893; --gold:#d9c8ff;
+  /* พาสเทลโทนลึก: ลาเวนเดอร์ · กุหลาบหม่น · ฟ้าหมอก · มิ้นต์ · ทรายจาง — คลีน ไม่ฉูดฉาด */
+  --c-boot:#c9b6ff; --c-request:#f2c4d6; --c-web:#a9c4f5; --c-site:#b6ddd0; --c-pkg:#8d88a8;
+  --c-config:#cfc5b6; --c-docs:#e3d3a8; --c-tests:#9fd3cb;
   --f-body:'Noto Sans Thai Looped',system-ui,sans-serif; --f-mono:ui-monospace,'DM Mono',monospace;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--void);color:var(--tx);font-family:var(--f-body)}
 header{padding:18px 16px 6px;max-width:980px;margin:0 auto}
-h1{margin:0;font-size:20px;letter-spacing:.14em;color:var(--tx-hi);font-weight:600}
+h1{margin:0;font-size:19px;letter-spacing:.22em;color:var(--tx-hi);font-weight:500}
 .sub{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--tx)}
 .sub b{color:var(--gold);font-weight:500}
 .nav{margin-top:8px;font-size:12.5px}
 .nav a{color:var(--gold);text-decoration:none;margin-right:12px}
 .legend{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;max-width:980px;margin:0 auto;position:sticky;top:0;z-index:3;
-  background:linear-gradient(var(--void) 70%,rgba(6,7,12,0))}
-.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:4px 10px;
+  background:linear-gradient(var(--void) 70%,rgba(11,10,20,0))}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(217,200,255,.14);border-radius:999px;padding:4px 10px;
   font-size:12px;color:var(--tx);background:rgba(255,255,255,.03);cursor:pointer;font-family:inherit}
 .chip i{width:8px;height:8px;border-radius:2px;display:inline-block}
 .chip[aria-pressed="false"]{opacity:.38}
@@ -38,7 +39,7 @@ h1{margin:0;font-size:20px;letter-spacing:.14em;color:var(--tx-hi);font-weight:6
 #wrap{position:relative;max-width:980px;margin:0 auto}
 #cv{position:sticky;top:0;display:block;width:100%;touch-action:pan-y}
 #info{position:fixed;left:12px;right:12px;bottom:12px;max-width:560px;margin:0 auto;z-index:5;display:none;
-  background:rgba(12,14,22,.94);border:1px solid rgba(232,184,100,.35);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.55}
+  background:rgba(18,16,30,.95);border:1px solid rgba(217,200,255,.28);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.55}
 #info.on{display:block}
 #info .p{font-family:var(--f-mono);color:var(--tx-hi);word-break:break-all;font-size:12.5px}
 #info .m{color:var(--tx-lo);font-size:12px;margin-top:2px}
@@ -56,9 +57,9 @@ footer{padding:20px 16px 90px;text-align:center;font-size:12px;color:var(--tx-lo
 </header>
 <div class="legend" id="legend" role="group" aria-label="เลือกหมวดที่จะแสดง"></div>
 <div class="kinds">
-  <span><i style="background:#e8b864"></i>import ของ Python</span>
-  <span><i style="background:#4d9bff"></i>หน้าเว็บโหลด / ส่ง</span>
-  <span><i style="background:#6f7486"></i>เทสต์ / เอกสาร / ตั้งค่าอ้างถึง</span>
+  <span><i style="background:#c9b6ff"></i>import ของ Python</span>
+  <span><i style="background:#a9c4f5"></i>หน้าเว็บโหลด / ส่ง</span>
+  <span><i style="background:#7d7893"></i>เทสต์ / เอกสาร / ตั้งค่าอ้างถึง</span>
 </div>
 <div id="wrap"><canvas id="cv" aria-label="วงจรไฟล์ทั้งหมดของระบบ แตะจุดเพื่อดูว่าไฟล์นั้นต่อกับอะไร"></canvas></div>
 <div id="status"></div>
@@ -71,11 +72,11 @@ footer{padding:20px 16px 90px;text-align:center;font-size:12px;color:var(--tx-lo
     ['boot', 'ทำงานตอนบูต'], ['request', 'ทำงานตอนตอบ'], ['web', 'หน้าเว็บ'], ['site', 'เว็บ GitHub Pages'],
     ['pkg', 'ไฟล์บอกโฟลเดอร์'], ['config', 'ตั้งค่า'], ['docs', 'เอกสาร'], ['tests', 'เทสต์']
   ];
-  var KIND_COLOR = ['232,184,100', '77,155,255', '150,156,176'];
+  var KIND_COLOR = ['201,182,255', '169,196,245', '160,154,186'];
   var css = getComputedStyle(document.documentElement);
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mobile = Math.min(screen.width, screen.height) < 700;
-  var MAXP = mobile ? 40 : 110;
+  var MAXP = mobile ? 28 : 70;
 
   var cv = document.getElementById('cv'), ctx = cv.getContext('2d'), wrap = document.getElementById('wrap');
   var F = [], E = [], lanes = [], on = {}, W = 0, H = 0, VH = 0, dpr = 1, layer = null, sel = -1, incident = [];
@@ -203,30 +204,34 @@ footer{padding:20px 16px 90px;text-align:center;font-size:12px;color:var(--tx-lo
     layer.width = Math.round(W * dpr); layer.height = Math.round(H * dpr);
     var g = layer.getContext('2d'); g.scale(dpr, dpr); g.lineCap = 'round'; g.lineJoin = 'round';
     var dim = sel >= 0;
-    [2, 1, 0].forEach(function(k){
-      g.strokeStyle = 'rgba(' + KIND_COLOR[k] + ',' + (dim ? .035 : k === 2 ? .05 : .16) + ')';
-      g.lineWidth = k === 2 ? .6 : .8;
+    /* คลีน: ตอนยังไม่แตะ เห็นแค่ import กับหน้าเว็บ (เส้นที่ "ทำงาน" จริง) · เส้นอ้างถึงของเทสต์/เอกสารโผล่เมื่อแตะไฟล์ */
+    [1, 0].forEach(function(k){
+      g.strokeStyle = 'rgba(' + KIND_COLOR[k] + ',' + (dim ? .03 : .11) + ')';
+      g.lineWidth = .6;
       E.forEach(function(e){ if(e.k === k && e.pts) stroke(g, e.pts); });
     });
+    var font = getComputedStyle(document.body).fontFamily;
     trunks.forEach(function(t){
-      g.strokeStyle = laneColor(t.c); g.globalAlpha = .5; g.lineWidth = 1.6; stroke(g, t.pts);
-      g.globalAlpha = .28; g.lineWidth = 1;
+      g.strokeStyle = laneColor(t.c); g.globalAlpha = .45; g.lineWidth = 1; stroke(g, t.pts);
       var col = F.filter(function(f){ return f.c === t.c && f.x != null; });
-      if(col.length){ g.beginPath(); g.moveTo(t.pts[3][0], t.pts[3][1]); g.lineTo(t.pts[3][0], col[col.length - 1].y); g.stroke(); }
+      if(col.length){ g.globalAlpha = .22; g.beginPath(); g.moveTo(t.pts[3][0], t.pts[3][1]); g.lineTo(t.pts[3][0], col[col.length - 1].y); g.stroke(); }
+      g.globalAlpha = .9; g.fillStyle = laneColor(t.c); g.beginPath(); g.arc(t.pts[3][0], t.pts[3][1], 2.6, 0, 7); g.fill();
+      g.globalAlpha = .75; g.font = '500 9px ' + font; g.textAlign = 'center';
+      g.fillText(String(col.length), t.pts[3][0], t.pts[3][1] - 7);
       g.globalAlpha = 1;
     });
     F.forEach(function(f){
       if(f.x == null) return;
-      g.fillStyle = laneColor(f.c); g.globalAlpha = dim && f.i !== sel ? .35 : .9;
-      var w = Math.max(2.4, Math.min(5, 1.6 + Math.log10(f.n + 1)));
-      g.fillRect(f.x - w / 2, f.y - 1.2, w, 2.4);
+      g.fillStyle = laneColor(f.c); g.globalAlpha = dim && f.i !== sel ? .25 : .8;
+      g.beginPath(); g.arc(f.x, f.y, Math.max(1, Math.min(2.2, .6 + Math.log10(f.n + 1) * .45)), 0, 7); g.fill();
     });
     g.globalAlpha = 1;
-    var gr = g.createRadialGradient(hub.x, hub.y, 2, hub.x, hub.y, hub.r * 2.2);
-    gr.addColorStop(0, 'rgba(255,240,200,.9)'); gr.addColorStop(.35, 'rgba(232,184,100,.35)'); gr.addColorStop(1, 'rgba(232,184,100,0)');
-    g.fillStyle = gr; g.beginPath(); g.arc(hub.x, hub.y, hub.r * 2.2, 0, 7); g.fill();
-    g.strokeStyle = 'rgba(232,184,100,.8)'; g.lineWidth = 1.2; g.beginPath(); g.arc(hub.x, hub.y, hub.r, 0, 7); g.stroke();
-    g.fillStyle = '#f1ede4'; g.font = '600 9px ' + getComputedStyle(document.body).fontFamily; g.textAlign = 'center';
+    var gr = g.createRadialGradient(hub.x, hub.y, 2, hub.x, hub.y, hub.r * 1.8);
+    gr.addColorStop(0, 'rgba(217,200,255,.22)'); gr.addColorStop(1, 'rgba(217,200,255,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(hub.x, hub.y, hub.r * 1.8, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(217,200,255,.7)'; g.lineWidth = 1; g.beginPath(); g.arc(hub.x, hub.y, hub.r, 0, 7); g.stroke();
+    g.strokeStyle = 'rgba(242,196,214,.35)'; g.beginPath(); g.arc(hub.x, hub.y, hub.r + 4, 0, 7); g.stroke();
+    g.fillStyle = '#ece8f4'; g.font = '500 8.5px ' + font; g.textAlign = 'center';
     g.fillText('KING', hub.x, hub.y - 2); g.fillText('DIADEM', hub.x, hub.y + 9);
   }
 
@@ -234,11 +239,11 @@ footer{padding:20px 16px 90px;text-align:center;font-size:12px;color:var(--tx-lo
   function spawn(){
     var pool = incident.length ? incident : null, e;
     if(pool) e = pool[(Math.random() * pool.length) | 0];
-    else if(Math.random() < .12 && trunks.length){ var t = trunks[(Math.random() * trunks.length) | 0]; if(!t.pts.len) t.pts = chamfer(t.pts); e = {pts: t.pts, k: 0, trunk: t.c}; }
+    else if(Math.random() < .12 && trunks.length){ var t = trunks[(Math.random() * trunks.length) | 0]; if(!t.path) t.path = chamfer(t.pts); e = {pts: t.path, k: 0, trunk: t.c}; }
     else {
       for(var tries = 0; tries < 8; tries++){
         e = E[(Math.random() * E.length) | 0];
-        if(e && e.pts && (e.k !== 2 || Math.random() < .25)) break;
+        if(e && e.pts && e.k !== 2) break;
       }
     }
     if(!e || !e.pts) return;
@@ -267,25 +272,23 @@ footer{padding:20px 16px 90px;text-align:center;font-size:12px;color:var(--tx-lo
     ctx.lineCap = 'round';
     if(incident.length){
       incident.forEach(function(e){
-        ctx.strokeStyle = 'rgba(' + KIND_COLOR[e.k] + ',' + (e.a === sel ? .75 : .45) + ')'; ctx.lineWidth = 1.1; stroke(ctx, e.pts);
+        ctx.strokeStyle = 'rgba(' + KIND_COLOR[e.k] + ',' + (e.a === sel ? .6 : .35) + ')'; ctx.lineWidth = .9; stroke(ctx, e.pts);
       });
       var f = BY[sel];
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(f.x, f.y, 6, 0, 7); ctx.stroke();
+      ctx.strokeStyle = '#ece8f4'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(f.x, f.y, 5, 0, 7); ctx.stroke();
     }
-    ctx.globalCompositeOperation = 'lighter';
-    pulses.forEach(function(p){
+        pulses.forEach(function(p){
       var pts = p.e.pts;
       if(pts[0][1] > oy + VH + 40 && pts[pts.length - 1][1] > oy + VH + 40) return;
-      var col = p.e.trunk ? '255,226,168' : KIND_COLOR[p.e.k];
+      var col = p.e.trunk ? '242,196,214' : KIND_COLOR[p.e.k];
       for(var s = 0; s < 6; s++){
         var q = at(pts, p.d - s * 5); if(q[1] < oy - 20 || q[1] > oy + VH + 20) continue;
-        ctx.fillStyle = 'rgba(' + col + ',' + (0.9 - s * .15) + ')';
-        ctx.beginPath(); ctx.arc(q[0], q[1], s ? 1.3 : 2.2, 0, 7); ctx.fill();
+        ctx.fillStyle = 'rgba(' + col + ',' + (0.85 - s * .14) + ')';
+        ctx.beginPath(); ctx.arc(q[0], q[1], s ? 1 : 1.8, 0, 7); ctx.fill();
       }
       var h = at(pts, p.d);
-      ctx.fillStyle = 'rgba(' + col + ',.18)'; ctx.beginPath(); ctx.arc(h[0], h[1], 6, 0, 7); ctx.fill();
+      ctx.fillStyle = 'rgba(' + col + ',.12)'; ctx.beginPath(); ctx.arc(h[0], h[1], 4.5, 0, 7); ctx.fill();
     });
-    ctx.globalCompositeOperation = 'source-over';
   }
 
   /* ── แตะจุด: ดูว่าไฟล์นี้ต่อกับอะไร ── */
