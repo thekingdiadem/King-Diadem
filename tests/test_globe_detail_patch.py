@@ -31,7 +31,7 @@ def test_phone_memory_bounded():
 
 
 def test_opalite_dawn_ring_and_title():
-    assert "vec3 opal=vec3(.62,.56,.70)" in JS and "float dawn=pow(" in JS and "*(1.-near);}'" in JS   # ในยานปิด
+    assert "vec3 opal=vec3(.58,.5,.66)" in JS and "float dawn=pow(" in JS and "*(1.-near);}'" in JS   # ในยานปิด
     uni = Path("static/king_diadem_universe.html").read_text(encoding="utf-8")
     assert "@keyframes kd-opal" in uni and "#hero .hero-title{animation:none}" in uni   # ลดการเคลื่อนไหว = นิ่ง
 
@@ -39,3 +39,11 @@ def test_opalite_dawn_ring_and_title():
 def test_equation_in_cosmic_latte():
     uni = Path("static/king_diadem_universe.html").read_text(encoding="utf-8")
     assert ".hero-rule span{color:#fff8e7;" in uni and "#hero .hero-rule{color:#fff8e7;" in uni
+
+
+def test_hero_title_every_letter_own_colour_words_not_split():
+    uni = Path("static/king_diadem_universe.html").read_text(encoding="utf-8")
+    assert "@keyframes kd-letter" in uni and "#hero .hero-title .wd{display:inline-block;white-space:nowrap}" in uni
+    assert "(-((i * .618034) % 1) * 24)" in uni                        # อัตราส่วนทองคำ ไม่ซ้ำท้ายบรรทัด
+    assert "h.setAttribute('aria-label'" in uni                     # โปรแกรมอ่านหน้าจอยังอ่านเป็นประโยคเดียว
+    assert "html.kd-calm #hero .hero-title .ch{animation-play-state:paused}" in uni
