@@ -180,7 +180,8 @@
         // ภาพ NASA อยู่ใต้ Sentinel-2 ไปจนระดับเมือง — ไทล์ Sentinel ที่ยังโหลดไม่ถึงจะเห็นภาพ NASA แทนช่องดำเป็นสี่เหลี่ยม (พ.ย. 2569)
         { id: 'sat', type: 'raster', source: 'sat', maxzoom: 14.2,
           paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 12.6, 1, 14, 0], 'raster-fade-duration': 300,
-                   'raster-brightness-max': day ? 1 : .42, 'raster-saturation': day ? 0 : -.25, 'raster-contrast': day ? .05 : .1 } },
+                   // สีเดียวกับ Sentinel-2 ด้านบน — เดิมกลางคืนมืดกว่า (.42 กับ .62) ช่องที่ Sentinel ยังไม่มาเลยเห็นเป็นสี่เหลี่ยมเข้ม
+                   'raster-brightness-max': day ? 1 : .62, 'raster-saturation': day ? .05 : -.15, 'raster-contrast': day ? .08 : .18 } },
         { id: 's2', type: 'raster', source: 's2', minzoom: 6, maxzoom: 14.2,
           paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 6, 0, 7, 1, 12.6, 1, 14, 0], 'raster-fade-duration': 300,
                    'raster-brightness-max': day ? 1 : .62, 'raster-saturation': day ? .05 : -.15, 'raster-contrast': day ? .08 : .18 } },
@@ -385,7 +386,7 @@
       show(true);
       // ดำดิ่งลงไปอีกนิดตอนเข้า ให้รู้สึกว่าบินลงเมือง
       entering = true;
-      var dive = { zoom: at.zoom + 1.6, pitch: Math.min(phone ? 45 : 60, at.pitch + 8) };   // มือถือเอียงน้อยลง = ไทล์ถึงขอบฟ้าน้อยลง
+      var dive = { zoom: at.zoom + (phone ? .8 : 1.6), pitch: Math.min(phone ? 45 : 60, at.pitch + 8) };   // มือถือดิ่งสั้นลง = โหลดไทล์ซ้อนสองระดับน้อยลง   // มือถือเอียงน้อยลง = ไทล์ถึงขอบฟ้าน้อยลง
       if (calm()) { map.jumpTo(dive); entering = false; }
       else { map.easeTo(Object.assign(dive, { duration: 1400 })); map.once('moveend', function () { entering = false; }); }
     });

@@ -27,3 +27,13 @@ def test_nasa_layer_fills_gaps_under_sentinel_until_city_zoom():
     i = CITY.index("{ id: 'sat'"); j = CITY.index("{ id: 's2'")
     assert i < j                                   # อยู่ใต้ Sentinel
     assert "maxzoom: 14.2" in CITY[i:j]
+
+
+def test_nasa_and_sentinel_same_colour_so_gaps_do_not_show():
+    i = CITY.index("{ id: 'sat'"); j = CITY.index("{ id: 's2'"); k = CITY.index("{ id: 'hillshade'")
+    pick = lambda seg: seg[seg.index("'raster-brightness-max'"):seg.index("} },")]
+    assert pick(CITY[i:j]) == pick(CITY[j:k])
+
+
+def test_phone_dive_shorter():
+    assert "at.zoom + (phone ? .8 : 1.6)" in CITY
