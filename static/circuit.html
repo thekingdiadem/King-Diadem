@@ -130,9 +130,9 @@ body.film #cap{display:none}
     film.t += dt;
     if(film.ph === 0){                              /* เปิด: ชื่อปรากฏในความมืด → ใจกลางค่อยๆ สว่าง */
       film.title = film.t < 2.4 ? ease(film.t / 2.4) : film.t < 5 ? 1 : 1 - ease((film.t - 5) / 1.8);
-      film.ign = ease((film.t - 4.6) / 2.4);
-      if(film.t > 6.4 && !film.said0){ film.said0 = 1; capText('ข้อความหนึ่งมาถึง', ''); }
-      if(film.t >= 7.6){ film.ph = 1; startTrip(); }
+      film.ign = ease((film.t - 6.6) / 2.6);       /* ใจกลางติดไฟหลังชื่อจางหมดแล้ว ไม่ซ้อนตัวอักษร */
+      if(film.t > 8.6 && !film.said0){ film.said0 = 1; capText('ข้อความหนึ่งมาถึง', ''); }
+      if(film.t >= 9.8){ film.ph = 1; startTrip(); }
     } else if(film.ph === 1 && !trip){
       film.ph = 3; film.t0 = film.t; waves.push({r: R * .1, a: 1});
       capText('แล้วแสงก็แผ่ไปทั้งระบบ', fmt(F.length) + ' ไฟล์ · ' + fmt(E.length) + ' เส้น · ทุกเส้นคือโค้ดจริง');
@@ -140,7 +140,7 @@ body.film #cap{display:none}
       var k = ease((film.t - film.t0) / 7);
       film.rev = R * (.08 + 1.0 * k);
       film.camK = ease((film.t - film.t0) / 6);     /* กล้องถอยออกจนเห็นทั้งจักรวาล */
-      RINGS.forEach(function(r){ if(!r.chimed && film.rev >= r[1] * R){ r.chimed = 1; chimes.push({r: r[1] * R, c: r[0][0], a: 1}); } });
+      RINGS.forEach(function(r){ if(!r.chimed && film.rev >= r[1] * R){ r.chimed = 1; chimes.push({r: r[1] * R, c: r[0][0], a: 1, age: 0}); } });
       film.lit = film.lit || {}; film.nlit = film.nlit || 0;
       F.forEach(function(f){ if(!film.lit[f.i] && vis(f) && f.rf * R <= film.rev){ film.lit[f.i] = 1; film.nlit++; flashes.push({f: f, a: .75}); } });
       capText('แล้วแสงก็แผ่ไปทั้งระบบ', 'แสงถึงแล้ว ' + fmt(film.nlit) + ' / ' + fmt(F.length) + ' ไฟล์ · ' + fmt(E.length) + ' เส้น · ทุกเส้นคือโค้ดจริง');
@@ -153,9 +153,13 @@ body.film #cap{display:none}
       tx = lerp(C, h[0], holding ? .15 : .55); ty0 = lerp(C, h[1], holding ? .15 : .55); tz = holding ? 1.2 : 1.9;
     }
     if(film.ph >= 3){ var kk = film.camK || 0; tz = lerp(1.9, .97, kk); tilt = lerp(1, .74, kk); }
+    if(film.ph === 4){                               /* ช่วงใยแสงเต็ม: กล้องค่อยๆ เข้าใกล้ใจกลาง วงหายใจ ไม่นิ่ง */
+      var pk = ease((film.t - film.t1 - 14) / 22);
+      tz = lerp(.97, 1.16, pk); tilt = .74 + .07 * Math.sin((film.t - film.t1) * .22) * pk;
+    }
     var sm = film.ph >= 3 ? .06 : .035;
     cam.x = lerp(cam.x || C, tx, sm); cam.y = lerp(cam.y || C, ty0, sm); cam.z = lerp(cam.z, tz, sm); cam.ty = lerp(cam.ty, tilt, .05);
-    chimes.forEach(function(c){ c.a -= dt * .45; }); chimes = chimes.filter(function(c){ return c.a > 0; });
+    chimes.forEach(function(c){ c.age = (c.age || 0) + dt; c.a -= dt * .45; }); chimes = chimes.filter(function(c){ return c.a > 0; });
     if(film.ph === 4){                                /* จบ: แสงนับพันสายวิ่งพร้อมกันบนเส้นโค้ดจริงทุกเส้น ทิ้งรอยซ้อนจนทั้งจอสว่าง */
       film.lit = film.lit || {}; film.nlit = film.nlit || 0;
       F.forEach(function(f){ if(!film.lit[f.i] && vis(f)){ film.lit[f.i] = 1; film.nlit++; } });
@@ -389,7 +393,8 @@ body.film #cap{display:none}
       ctx.globalCompositeOperation = 'lighter';
       chimes.forEach(function(c){
         var h = col(c.c), rgb = film ? GOLD : parseInt(h.substr(1, 2), 16) + ',' + parseInt(h.substr(3, 2), 16) + ',' + parseInt(h.substr(5, 2), 16);
-        [[16, .05], [7, .12], [2.2, .5]].forEach(function(w){ ctx.strokeStyle = 'rgba(' + rgb + ',' + w[1] * c.a + ')'; ctx.lineWidth = w[0]; ctx.beginPath(); ctx.arc(C, C, c.r, 0, 7); ctx.stroke(); });
+        var atk = film ? ease((c.age || 0) / .6) : 1;   /* ค่อยๆ สว่างขึ้น ไม่เด้งเป็นแฟลช */
+        (film ? [[9, .04], [4, .1], [1.2, .55]] : [[16, .05], [7, .12], [2.2, .5]]).forEach(function(w){ ctx.strokeStyle = 'rgba(' + rgb + ',' + w[1] * c.a * atk + ')'; ctx.lineWidth = w[0]; ctx.beginPath(); ctx.arc(C, C, c.r, 0, 7); ctx.stroke(); });
       });
       ctx.globalCompositeOperation = 'source-over';
     }
@@ -583,7 +588,7 @@ body.film #cap{display:none}
         ctx.strokeStyle = 'rgba(' + PC + ',' + w[1] * ga + ')'; ctx.lineWidth = w[0];
         ctx.beginPath(); ctx.moveTo(lg[0][0], lg[0][1]); for(var d = 0; d <= upto; d += 3){ var q = at(lg, d); ctx.lineTo(q[0], q[1]); } ctx.stroke();
       });
-      if(i === T.i){ var h = at(lg, T.d); blob(HC, h[0], h[1], 14, ga); }
+      if(i === T.i){ var h = at(lg, T.d), fi = film && i === 0 ? Math.min(1, T.d / (R * .12)) : 1; blob(HC, h[0], h[1], 14, ga * fi); }
     }
     T.stops.forEach(function(s, k){ if(k && k <= T.i){ blob(film ? '196,176,255' : '226,207,154', s.x, s.y, 9, .7 * ga); } });
     T.rip.forEach(function(r){ ctx.strokeStyle = 'rgba(226,207,154,' + r.a * ga + ')'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(r.x, r.y, 4 + (1 - r.a) * 26, 0, 7); ctx.stroke(); });
