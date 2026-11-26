@@ -38,6 +38,11 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
 .go:disabled{opacity:.4}
 #cap{min-height:40px;text-align:center;font-size:13px;color:var(--tx-hi);padding:0 16px}
 #cap small{display:block;color:var(--tx-lo);font-family:var(--f-mono);font-size:11px;margin-top:2px}
+#flood{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 42%,#fffaf0 0%,#fbecc8 28%,#efd29a 55%,#d9a6a0 85%,#b9848c 100%)}
+#cap{position:relative;z-index:5;transition:color 1.2s}
+#cap.lit{color:#2a1712;font-size:15px;letter-spacing:.04em}
+#cap.lit small{color:#6b4a3a}
 #info{position:fixed;left:12px;right:12px;bottom:12px;max-width:520px;margin:0 auto;display:none;z-index:5;
   background:rgba(20,12,15,.95);border:1px solid rgba(226,207,154,.28);border-radius:12px;padding:10px 36px 10px 14px;font-size:12.5px}
 #info.on{display:block}
@@ -80,6 +85,37 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
   var F = [], E = [], BY = {}, PATH = {}, on = {}, counts = {};
   var S = 0, C = 0, R = 0, dpr = 1, layer = null, rot = 0, last = 0;
   var sel = -1, inc = [], pulses = [], flashes = [], trip = null, waves = [], beat = 0, stars = [];
+  /* โหมดภาพยนตร์ (?film=1) — ข้อมูลชุดเดียวกัน เล่าเป็นเรื่องต่อเนื่อง:
+     มืด → แสงจุดที่ใจกลาง → ข้อความเดินทาง → แสงแผ่ออกทีละวงจนถึงวงนอกสุด → ทั้งระบบทำงาน
+     ?film=1&wait=1 = รอ window.__filmGo ก่อนเริ่ม (ใช้ตอนอัดคลิป ให้รอชุดข้อมูลสดก่อน) */
+  var film = /[?&]film=1/.test(location.search) ? {t: 0, ph: 0, ign: 0, rev: 0, go: false} : null;
+  function capText(a, b){ var c = document.getElementById('cap'); c.textContent = a || ''; if(b) c.appendChild(el('small', null, b)); }
+  function filmStep(dt){
+    if(!film.go){ film.go = !!window.__filmGo || !/[?&]wait=1/.test(location.search); if(!film.go) return; }
+    film.t += dt;
+    if(film.ph === 0){
+      film.ign = Math.min(1, film.t / 1.6);
+      capText('ข้อความหนึ่งมาถึง', '');
+      if(film.t >= 1.8){ film.ph = 1; startTrip(); }
+    } else if(film.ph === 1 && !trip){
+      film.ph = 3; film.t0 = film.t; waves.push({r: R * .1, a: 1});
+      capText('แล้วแสงก็แผ่ไปทั้งระบบ', fmt(F.length) + ' ไฟล์ · ' + fmt(E.length) + ' เส้น · ทุกเส้นคือโค้ดจริง');
+    } else if(film.ph === 3){
+      var k = Math.min(1, (film.t - film.t0) / 7); k = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      film.rev = R * (.08 + 1.0 * k);
+      film.lit = film.lit || {}; film.nlit = film.nlit || 0;
+      F.forEach(function(f){ if(!film.lit[f.i] && vis(f) && f.rf * R <= film.rev){ film.lit[f.i] = 1; film.nlit++; flashes.push({f: f, a: .75}); } });
+      capText('แล้วแสงก็แผ่ไปทั้งระบบ', 'แสงถึงแล้ว ' + fmt(film.nlit) + ' / ' + fmt(F.length) + ' ไฟล์ · ' + fmt(E.length) + ' เส้น · ทุกเส้นคือโค้ดจริง');
+      if(film.t - film.t0 > 10){ film.ph = 4; film.t1 = film.t; }
+    } else if(film.ph === 4){                         /* จบ: แสงสว่างทั่วทั้งจอ */
+      var q = Math.min(1, (film.t - film.t1) / 2.2); q = q * q * (3 - 2 * q);
+      film.flood = q;
+      var fl = document.getElementById('flood');
+      if(!fl){ fl = el('div'); fl.id = 'flood'; document.body.appendChild(fl); }
+      fl.style.opacity = String(q * .94);
+      if(q > .35 && !film.said){ film.said = 1; capText('อันแสงสว่างไม่มีประมาณ ได้ปรากฏแล้วในโลก', 'Choice(t) ≥ 1'); document.getElementById('cap').classList.add('lit'); }
+    }
+  }
   /* สไปรต์แสงเรือง (วาดครั้งเดียว ใช้ drawImage แทน shadowBlur ที่หนักบนมือถือ) */
   var GLOW = {};
   function glow(c){
@@ -152,7 +188,7 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
   function size(){
     var w = Math.min(document.getElementById('stage').clientWidth, 720), h = window.innerHeight * .74;
     S = Math.max(300, Math.min(w, Math.max(h, 320)));
-    C = S / 2; R = C - 8; dpr = Math.min(2, window.devicePixelRatio || 1);
+    C = S / 2; R = C - 8; dpr = film ? Math.max(1, window.devicePixelRatio || 1) : Math.min(2, window.devicePixelRatio || 1);
     cv.style.width = cv.style.height = S + 'px'; cv.width = cv.height = Math.round(S * dpr);
     F.forEach(function(f){ f.x = C + Math.cos(f.ang) * f.rf * R; f.y = C + Math.sin(f.ang) * f.rf * R; });
     E.forEach(function(e){ e.pts = curve(e.A, e.B); });
@@ -221,7 +257,7 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
     var pool = inc.length ? inc : E, e;
     for(var t = 0; t < 10; t++){
       e = pool[(Math.random() * pool.length) | 0];
-      if(e && vis(e.A) && vis(e.B) && (inc.length || e.k !== 2)) break; e = null;
+      if(e && vis(e.A) && vis(e.B) && (inc.length || e.k !== 2 || (film && film.ph >= 3 && Math.random() < .5)) && (!film || film.ph < 3 || (e.A.rf * R <= film.rev && e.B.rf * R <= film.rev))) break; e = null;
     }
     if(e) pulses.push({e: e, d: 0, v: 50 + Math.random() * 70});
   }
@@ -229,13 +265,14 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
     requestAnimationFrame(loop);
     if(document.hidden || !layer) return;
     var dt = last ? Math.min(.05, (t - last) / 1000) : 0; last = t;
+    if(film) filmStep(dt);
     if(!reduce){
       rot += dt * .012;
-      if(!trip){ var cap = inc.length ? Math.min(MAXP, inc.length * 2 + 4) : MAXP; while(pulses.length < cap) spawn(); }
+      if(!trip && (!film || film.ph >= 3)){ var cap = inc.length ? Math.min(MAXP, inc.length * 2 + 4) : MAXP; while(pulses.length < cap) spawn(); }
       pulses.forEach(function(p){ p.d += p.v * dt; if(p.d >= p.e.pts.len && !p.done){ p.done = 1; flashes.push({f: p.e.B, a: 1}); } });
       pulses = pulses.filter(function(p){ return p.d < p.e.pts.len + 20; });
     }
-    if(!reduce){ beat -= dt; if(beat <= 0){ beat = 3.2; waves.push({r: R * .1, a: .5}); } }
+    if(!reduce && (!film || film.ph >= 3)){ beat -= dt; if(beat <= 0){ beat = 3.2; waves.push({r: R * .1, a: .5}); } }
     waves.forEach(function(w){ w.r += dt * R * .45; w.a -= dt * .2; }); waves = waves.filter(function(w){ return w.a > 0 && w.r < R; });
     flashes.forEach(function(x){ x.a -= dt * 1.6; }); flashes = flashes.filter(function(x){ return x.a > 0; });
     if(trip) stepTrip(dt);
@@ -245,7 +282,18 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.translate(C, C); ctx.rotate(rot); ctx.translate(-C, -C);
-    ctx.drawImage(layer, 0, 0, S, S);
+    if(!film || (film.ph >= 3 && film.rev >= R * 1.07)) ctx.drawImage(layer, 0, 0, S, S);
+    else if(film.ph >= 3){                           /* แสงแผ่: เปิดชั้นนิ่งเฉพาะในรัศมีที่แสงไปถึงแล้ว */
+      ctx.save(); ctx.beginPath(); ctx.arc(C, C, film.rev, 0, 7); ctx.clip(); ctx.drawImage(layer, 0, 0, S, S); ctx.restore();
+      ctx.globalCompositeOperation = 'lighter';
+      [[10, .06], [4, .16], [1.4, .55]].forEach(function(w){ ctx.strokeStyle = 'rgba(226,207,154,' + w[1] + ')'; ctx.lineWidth = w[0]; ctx.beginPath(); ctx.arc(C, C, film.rev, 0, 7); ctx.stroke(); });
+      ctx.globalCompositeOperation = 'source-over';
+    } else {                                          /* ก่อนแผ่: มืด เหลือเงาวงจางๆ กับใจกลางที่ค่อยๆ สว่าง */
+      RINGS.forEach(function(r){ ctx.strokeStyle = 'rgba(226,207,154,.09)'; ctx.lineWidth = .5; ctx.beginPath(); ctx.arc(C, C, r[1] * R, 0, 7); ctx.stroke(); });
+      ctx.globalCompositeOperation = 'lighter'; blob('190,70,95', C, C, R * .32 * film.ign, .9 * film.ign); blob('226,207,154', C, C, R * .14 * film.ign, .5 * film.ign);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = 'rgba(226,207,154,' + .85 * film.ign + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(C, C, R * .1, 0, 7); ctx.stroke();
+    }
     inc.forEach(function(e){ ctx.strokeStyle = 'rgba(' + KC[e.k] + ',' + (e.a === sel ? .55 : .3) + ')'; ctx.lineWidth = .8; line(ctx, e.pts); });
     if(sel >= 0){ var f = BY[sel]; ctx.strokeStyle = '#efe6d8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(f.x, f.y, 5, 0, 7); ctx.stroke(); }
     waves.forEach(function(w){ ctx.strokeStyle = 'rgba(217,154,165,' + w.a * .5 + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(C, C, w.r, 0, 7); ctx.stroke(); });
@@ -285,7 +333,7 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
     var leg = trip.legs[trip.i];
     trip.rip.forEach(function(r){ r.a -= dt * 1.4; }); trip.rip = trip.rip.filter(function(r){ return r.a > 0; });
     if(trip.hold > 0){ trip.hold -= dt; return; }
-    trip.d += (reduce ? 9999 : R * .55) * dt;
+    trip.d += (reduce ? 9999 : R * (film ? .75 : .55)) * dt;
     if(!leg || trip.d >= leg.len){
       var arrived = trip.stops[trip.i + 1];
       if(arrived && arrived.p){
@@ -297,7 +345,7 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
         cap(trip.i, fan.length);
       }
       if(trip.i + 1 >= trip.legs.length) waves.push({r: R * .1, a: 1}, {r: R * .05, a: .7});
-      trip.i++; trip.d = 0; trip.hold = .55;
+      trip.i++; trip.d = 0; trip.hold = film ? .3 : .55;
       if(trip.i >= trip.legs.length){ trip = null; cap(-1); document.getElementById('go').disabled = false; if(pending){ var p = pending; pending = null; init(p); } else paint(); }
     }
   }
