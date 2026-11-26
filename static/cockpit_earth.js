@@ -217,12 +217,13 @@
   var can8k = gl.getParameter(gl.MAX_TEXTURE_SIZE) >= 8192 && !conn.saveData;
   // มือถือ/เครื่องแรมน้อย/เน็ตช้า: ภาพ 4K (ราว 2.6 MB) ยังไม่โหลดจนกว่าจะซูมเข้าไปดูจริง — ทั้งโลกภาพ 2K ก็คมพอบนจอเล็ก
   var light = Math.min(screen.width, screen.height) < 700 || (navigator.deviceMemory || 8) <= 4 || /2g|3g/.test(conn.effectiveType || '');
-  var got4k = false, firstIn = false;
+  var got4k = false, firstIn = false, LIGHTS_HI = can8k && !light ? 'lights_8k.jpg' : 'lights_4k.jpg';
   function maybe4k() {
     if (got4k || !firstIn || !can4k || (light && S.tL < 2 && !SHIP.on)) return;
     got4k = true;
     // ไฟเมือง 8K (NASA Black Marble 2016 · เห็นถนนเป็นใยแสง) เฉพาะเครื่องที่รับภาพ 8192 ได้และไม่ใช่เครื่องเบา — ไฟล์ราว 1 MB เพราะเป็นภาพขาวดำ
     load(1, 'day_4k.jpg'); load(2, 'clouds_4k.jpg');      // 4K หลังภาพแรกขึ้นแล้ว — เน็ตช้าไม่ต้องรอ
+    if (light) load(0, LIGHTS_HI);                         // มือถือ: ไฟเมืองละเอียดรอซูมเหมือนกัน (เดิมโหลดทันทีอีก 0.3 MB)
   }
   function firstDone() {
     if (--pending > 0) return;
@@ -230,7 +231,7 @@
     load(3, 'water.png', function () { hasW = 1; });
     firstIn = true;
     // ไฟเมืองละเอียดโหลดทันที ไม่ต้องรอซูม: ภาพขาวดำเล็กมาก (4K ราว 0.3 MB · 8K ราว 1 MB) แต่ทำให้เมืองแยกเป็นดวงและเห็นถนน
-    if (can4k) load(0, can8k && !light ? 'lights_8k.jpg' : 'lights_4k.jpg');
+    if (can4k && !light) load(0, LIGHTS_HI);
     maybe4k();
     safeArrive();
   }
