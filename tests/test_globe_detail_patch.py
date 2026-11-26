@@ -28,3 +28,9 @@ def test_only_requests_when_camera_settled_and_only_needed_kind():
 def test_phone_memory_bounded():
     assert "PN = light ? 5 : 6" in JS and "PCACHE = light ? 50 : 140" in JS
     assert "b.close()" in JS
+
+
+def test_opalite_dawn_ring_and_title():
+    assert "vec3 opal=vec3(.62,.56,.70)" in JS and "float dawn=pow(" in JS and "*(1.-near);}'" in JS   # ในยานปิด
+    uni = Path("static/king_diadem_universe.html").read_text(encoding="utf-8")
+    assert "@keyframes kd-opal" in uni and "#hero .hero-title{animation:none}" in uni   # ลดการเคลื่อนไหว = นิ่ง

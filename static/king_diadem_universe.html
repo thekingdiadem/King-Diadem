@@ -46,7 +46,7 @@ html,body{width:100%;min-height:100%;background:var(--void);color:var(--tx);font
 /* ── HERO ── */
 #hero{position:relative;z-index:10;height:100vh;height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:80px;text-align:center;pointer-events:none}
 .hero-badge{font-family:var(--f-mono);font-size:8px;letter-spacing:.22em;color:rgba(74,158,255,0.50);border:1px solid rgba(74,158,255,0.16);border-radius:999px;padding:4px 14px;margin-bottom:18px;display:inline-block}
-.hero-title{font-family:var(--f-display);font-size:clamp(28px,7vw,58px);font-weight:600;letter-spacing:.18em;background:linear-gradient(138deg,#76aeff 0%,#d6eaff 28%,#fff 46%,#f0d070 64%,#c8a440 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15;margin-bottom:14px}
+.hero-title{font-family:var(--f-display);font-size:clamp(28px,7vw,58px);font-weight:600;letter-spacing:.18em;background:linear-gradient(120deg,#9fb8ff 0%,#e8f0ff 18%,#fff 30%,#f6d58a 44%,#ffb8c8 58%,#c9b0ff 72%,#a8f0e4 86%,#9fb8ff 100%);background-size:260% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15;margin-bottom:14px}
 .hero-sub{font-family:var(--f-mono);font-size:9px;letter-spacing:.26em;color:rgba(200,164,64,0.42);margin-bottom:24px}
 .hero-rule{font-size:18px;color:var(--tx-hi);font-weight:500;margin-bottom:8px}
 a.hero-rule{display:block;text-decoration:none;cursor:pointer}
@@ -518,6 +518,10 @@ html.bb-on,html.bb-on body{overflow:hidden}
 .bb-snd:hover,.bb-snd:focus-visible,.bb-txt:hover,.bb-txt:focus-visible,.bb-skip:hover,.bb-skip:focus-visible{background:rgba(255,248,231,.14);outline:2px solid #ffd99a;outline-offset:2px}
 .lang-more summary{cursor:pointer;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:rgba(118,152,215,.9);margin:6px 0 10px}
 .kd-i{width:1.15em;height:1.15em;vertical-align:-.22em;flex:none}
+/* Opalite Dawn: หัวเรื่องเป็นประกายโอปอลไหลช้าๆ (ลดการเคลื่อนไหว = นิ่ง) */
+@keyframes kd-opal{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+#hero .hero-title{animation:kd-rise 1.6s var(--ease) .2s both,kd-opal 16s ease-in-out 1.8s infinite alternate}
+@media (prefers-reduced-motion:reduce){#hero .hero-title{animation:none}}
 </style>
 </head>
 <body>
