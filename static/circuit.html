@@ -121,10 +121,10 @@ body.film #cap{display:none}
     }
     film.t += dt;
     if(film.ph === 0){                              /* เปิด: ชื่อปรากฏในความมืด → ใจกลางค่อยๆ สว่าง */
-      film.title = film.t < 1.8 ? ease(film.t / 1.8) : film.t < 3.4 ? 1 : 1 - ease((film.t - 3.4) / 1.4);
-      film.ign = ease((film.t - 3.2) / 1.8);
-      if(film.t > 4.4 && !film.said0){ film.said0 = 1; capText('ข้อความหนึ่งมาถึง', ''); }
-      if(film.t >= 5.4){ film.ph = 1; startTrip(); }
+      film.title = film.t < 2.4 ? ease(film.t / 2.4) : film.t < 5 ? 1 : 1 - ease((film.t - 5) / 1.8);
+      film.ign = ease((film.t - 4.6) / 2.4);
+      if(film.t > 6.4 && !film.said0){ film.said0 = 1; capText('ข้อความหนึ่งมาถึง', ''); }
+      if(film.t >= 7.6){ film.ph = 1; startTrip(); }
     } else if(film.ph === 1 && !trip){
       film.ph = 3; film.t0 = film.t; waves.push({r: R * .1, a: 1});
       capText('แล้วแสงก็แผ่ไปทั้งระบบ', fmt(F.length) + ' ไฟล์ · ' + fmt(E.length) + ' เส้น · ทุกเส้นคือโค้ดจริง');
@@ -136,11 +136,14 @@ body.film #cap{display:none}
       film.lit = film.lit || {}; film.nlit = film.nlit || 0;
       F.forEach(function(f){ if(!film.lit[f.i] && vis(f) && f.rf * R <= film.rev){ film.lit[f.i] = 1; film.nlit++; flashes.push({f: f, a: .75}); } });
       capText('แล้วแสงก็แผ่ไปทั้งระบบ', 'แสงถึงแล้ว ' + fmt(film.nlit) + ' / ' + fmt(F.length) + ' ไฟล์ · ' + fmt(E.length) + ' เส้น · ทุกเส้นคือโค้ดจริง');
-      if(film.t - film.t0 > 6.5){ film.ph = 4; film.t1 = film.t; }
+      if(film.t - film.t0 > 8){ film.ph = 4; film.t1 = film.t; }
     }
     /* กล้อง: ช่วงมืดและเดินทาง = ใกล้ ตามหัวแสง · ช่วงแผ่ = ถอยออก + เอียงเป็นมิติ */
     var tx = C, ty0 = C, tz = 2.3, tilt = 1;
-    if(film.ph === 1 && trip){ var h = tripHead(); tx = lerp(C, h[0], .55); ty0 = lerp(C, h[1], .55); tz = 1.9; }
+    if(film.ph === 1 && trip){
+      var h = tripHead(), holding = trip.hold > 0 && trip.i > 0;   /* ระหว่างแตกแสง: ถอยกล้องให้เห็นแสงไหลไปทั้งวง */
+      tx = lerp(C, h[0], holding ? .15 : .55); ty0 = lerp(C, h[1], holding ? .15 : .55); tz = holding ? 1.2 : 1.9;
+    }
     if(film.ph >= 3){ var kk = film.camK || 0; tz = lerp(1.9, .97, kk); tilt = lerp(1, .74, kk); }
     var sm = film.ph >= 3 ? .06 : .035;
     cam.x = lerp(cam.x || C, tx, sm); cam.y = lerp(cam.y || C, ty0, sm); cam.z = lerp(cam.z, tz, sm); cam.ty = lerp(cam.ty, tilt, .05);
@@ -148,9 +151,16 @@ body.film #cap{display:none}
     if(film.ph === 4){                                /* จบ: แสงนับพันสายวิ่งพร้อมกันบนเส้นโค้ดจริงทุกเส้น ทิ้งรอยซ้อนจนทั้งจอสว่าง */
       film.lit = film.lit || {}; film.nlit = film.nlit || 0;
       F.forEach(function(f){ if(!film.lit[f.i] && vis(f)){ film.lit[f.i] = 1; film.nlit++; } });
-      var sk = ease((film.t - film.t1) / 16); film.stormK = sk;
-      if(film.t - film.t1 > 2.5) capText('', '');
-      var want = Math.round(120 + 3400 * sk);
+      var tt = film.t - film.t1;
+      /* ข้อความหลั่งไหล: 1 → หลายร้อยข้อความพร้อมกัน แล้วใยแสงทั้งระบบค่อยๆ ตามมา */
+      var mk = ease(tt / 18), wantM = Math.round(1 + 180 * mk * mk);
+      film.msgSent = film.msgSent || 0;
+      for(var mm = 0; msgs.length < wantM && mm < 6; mm++){ spawnMsg(); film.msgSent++; }
+      stepMsgs(dt);
+      if(tt < 16) capText('ข้อความหลั่งไหลเข้ามา', 'ข้อความที่ ' + fmt(film.msgSent) + ' · ทุกข้อความผ่านเส้นทางจริงเดียวกัน 7 ขั้น');
+      else capText('', '');
+      var sk = ease((tt - 8) / 18); film.stormK = sk;
+      var want = Math.round(40 + 2400 * sk);
       for(var n = 0; storm.length < want && n < 260; n++){
         var e = E[(Math.random() * E.length) | 0];
         if(e && vis(e.A) && vis(e.B)) storm.push({e: e, d: 0, v: R * (.3 + Math.random() * .6), c: fc()});
@@ -160,6 +170,7 @@ body.film #cap{display:none}
       film.trav = (film.trav || 0);
     }
     if(film.ghost){ film.ghost.a -= dt * .3; if(film.ghost.a <= 0) film.ghost = null; }
+    stepFloats(dt);
   }
   /* สไปรต์แสงเรือง (วาดครั้งเดียว ใช้ drawImage แทน shadowBlur ที่หนักบนมือถือ) */
   var GLOW = {};
@@ -314,7 +325,7 @@ body.film #cap{display:none}
     if(!reduce){
       rot += dt * .012;
       if(!trip && (!film || film.ph >= 3)){ var cap = inc.length ? Math.min(MAXP, inc.length * 2 + 4) : MAXP; for(var tries = 0; pulses.length < cap && tries < cap * 3; tries++) spawn(); }   /* จำกัดรอบ: ช่วงแสงเพิ่งเริ่มแผ่ยังไม่มีเส้นให้วิ่ง เดิมวนไม่จบ */
-      pulses.forEach(function(p){ p.d += p.v * dt; if(p.d >= p.e.pts.len && !p.done){ p.done = 1; flashes.push({f: p.e.B, a: 1}); } });
+      pulses.forEach(function(p){ p.d += p.v * dt; if(p.d >= p.e.pts.len && !p.done){ p.done = 1; flashes.push({f: p.e.B, a: 1}); if(p.dep) cascade(p); } });
       pulses = pulses.filter(function(p){ return p.d < p.e.pts.len + 20; });
     }
     if(!reduce && (!film || film.ph >= 3)){ beat -= dt; if(beat <= 0){ beat = 3.2; waves.push({r: R * .1, a: .5}); } }
@@ -343,7 +354,7 @@ body.film #cap{display:none}
     inc.forEach(function(e){ ctx.strokeStyle = 'rgba(' + KC[e.k] + ',' + (e.a === sel ? .55 : .3) + ')'; ctx.lineWidth = .8; line(ctx, e.pts); });
     if(sel >= 0){ var f = BY[sel]; ctx.strokeStyle = '#efe6d8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(f.x, f.y, 5, 0, 7); ctx.stroke(); }
     waves.forEach(function(w){ ctx.strokeStyle = 'rgba(217,154,165,' + w.a * .5 + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(C, C, w.r, 0, 7); ctx.stroke(); });
-    if(film && film.ph === 4) drawStorm();
+    if(film && film.ph === 4){ drawStorm(); ctx.globalCompositeOperation = 'lighter'; msgs.forEach(function(m){ var lg = m.legs[m.i]; if(lg){ var h = at(lg, m.d); blob(m.c, h[0], h[1], 6, .7); } }); ctx.globalCompositeOperation = 'source-over'; }
     if(chimes.length){                                /* วงขานรับ: ทั้งวงเรืองขึ้นเมื่อแสงไปถึง เหมือนระฆังดังต่อกัน */
       ctx.globalCompositeOperation = 'lighter';
       chimes.forEach(function(c){
@@ -362,7 +373,7 @@ body.film #cap{display:none}
         ctx.strokeStyle = 'rgba(' + c + ',' + (.6 * k) + ')'; ctx.lineWidth = .4 + 1.1 * k;
         ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); prev = q;
       }
-      var h = at(p.e.pts, p.d); blob(c, h[0], h[1], 7, .8);
+      var h = at(p.e.pts, p.d); blob(c, h[0], h[1], film ? 10 : 7, film ? .9 : .8);
       ctx.fillStyle = 'rgba(255,248,235,.95)'; ctx.beginPath(); ctx.arc(h[0], h[1], 1.1, 0, 7); ctx.fill();
     });
     flashes.forEach(function(x){
@@ -377,14 +388,20 @@ body.film #cap{display:none}
     var hp = film ? proj(C, C) : [C, C];
     if(!film || film.ph > 0 || film.ign > .05){ ctx.globalAlpha = film && film.ph === 0 ? film.ign : 1; ctx.fillText('KING DIADEM', hp[0], hp[1]); ctx.globalAlpha = 1; }
     if(trip) tripLabels(); else if(film && film.ghost) tripLabels(film.ghost.t, film.ghost.a);
-    if(film) filmScreen();
+    if(film){ drawFloats(); filmScreen(); }
   }
   /* แสงนับพันสาย: วาดลงผืนสะสม (จางลงทีละน้อยทุกเฟรม) → รอยแสงซ้อนกันเป็นใยทั้งจักรวาล */
   function drawStorm(){
     if(!acc){ acc = document.createElement('canvas'); acc.width = acc.height = Math.round(S * dpr); accx = acc.getContext('2d'); accx.scale(dpr, dpr); accx.lineCap = 'round'; }
     accx.globalCompositeOperation = 'destination-out';
-    accx.fillStyle = 'rgba(0,0,0,' + (.11 - .05 * (film.stormK || 0)) + ')'; accx.fillRect(0, 0, S, S);
+    accx.fillStyle = 'rgba(0,0,0,' + (.1 - .045 * (film.stormK || 0)) + ')'; accx.fillRect(0, 0, S, S);
     accx.globalCompositeOperation = 'lighter';
+    accx.lineWidth = 1.1;
+    msgs.forEach(function(m){                         /* หัวข้อความ: เส้นหนากว่า สว่างกว่า */
+      var lg = m.legs[m.i]; if(!lg) return;
+      var a = at(lg, Math.max(0, m.d - 14)), b = at(lg, m.d);
+      accx.strokeStyle = 'rgba(' + m.c + ',.5)'; accx.beginPath(); accx.moveTo(a[0], a[1]); accx.lineTo(b[0], b[1]); accx.stroke();
+    });
     accx.lineWidth = .55;
     storm.forEach(function(p){
       var a = at(p.e.pts, Math.max(0, p.d - 9)), b = at(p.e.pts, p.d);
@@ -436,6 +453,55 @@ body.film #cap{display:none}
     one(film.capPrev, 1 - k); one(film.capCur, k);
   }
 
+  /* แสงไหลลึกลงไปตามโครงสร้างจริง: ไฟล์ที่แสงไปถึง → ไฟล์ที่มัน import ต่อ (สูงสุด 3 ชั้น) */
+  var floats = [], msgs = [];
+  function cascade(p){
+    if(p.dep >= 3 || !p.cas) return;
+    var kids = E.filter(function(e){ return e.a === p.e.b && e.k === 0 && !p.cas[e.b]; }).slice(0, 14);
+    kids.forEach(function(e){
+      p.cas[e.b] = 1; if(trip && !trip.seen[e.b]){ trip.seen[e.b] = 1; trip.touched++; }
+      pulses.push({e: e, d: 0, v: R * (.38 + Math.random() * .25), c: fc(), dep: p.dep + 1, cas: p.cas});
+    });
+    if(p.dep === 1 && kids.length) floatName(p.e.B, false);
+  }
+  function floatName(f, main){
+    if(!f || !f.p) return;
+    if(!main && floats.length > 16) return;
+    floats.push({f: f, t: f.p.split('/').pop(), a: 0, life: main ? 3.2 : 2.4, age: 0, main: main});
+  }
+  function stepFloats(dt){
+    floats.forEach(function(x){ x.age += dt; x.a = Math.min(1, x.age / .5) * Math.min(1, (x.life - x.age) / .8); });
+    floats = floats.filter(function(x){ return x.age < x.life; });
+  }
+  function drawFloats(){
+    ctx.textBaseline = 'middle';
+    floats.forEach(function(x){
+      if(x.a <= 0) return;
+      var pp = proj(x.f.x, x.f.y), right = pp[0] >= C;
+      ctx.globalAlpha = x.a * (x.main ? 1 : .8); ctx.textAlign = right ? 'left' : 'right';
+      ctx.font = (x.main ? '500 ' : '400 ') + (R * (x.main ? .032 : .024)) + 'px ui-monospace,"DM Mono",monospace';
+      ctx.fillStyle = x.main ? '#f4e9ff' : 'rgba(214,204,236,.9)';
+      ctx.fillText(x.t, pp[0] + (right ? 8 : -8), pp[1] - (x.main ? 0 : 6));
+    });
+    ctx.globalAlpha = 1;
+  }
+  /* ข้อความหลั่งไหล: แต่ละข้อความวิ่งตามเส้นทางจริง 7 ขั้นเหมือนข้อความแรก ทิ้งรอยลงผืนสะสม */
+  function spawnMsg(){
+    var stops = [{x: C, y: C}];
+    JOURNEY.forEach(function(j){ var f = PATH[j[0]]; if(f) stops.push(f); });
+    var legs = [];
+    for(var i = 1; i < stops.length; i++) if(stops[i - 1] !== stops[i]) legs.push(curve(stops[i - 1], stops[i]));
+    legs.push(curve(stops[stops.length - 1], {x: C, y: C}));
+    msgs.push({legs: legs, i: 0, d: 0, v: R * (.6 + Math.random() * .5), c: fc(), stops: stops.slice(1)});
+  }
+  function stepMsgs(dt){
+    msgs.forEach(function(m){
+      m.d += m.v * dt;
+      var lg = m.legs[m.i];
+      if(lg && m.d >= lg.len){ var st = m.stops[m.i]; if(st && st.p && Math.random() < .35) flashes.push({f: st, a: .6}); m.i++; m.d = 0; }
+    });
+    msgs = msgs.filter(function(m){ return m.i < m.legs.length; });
+  }
   function tripHead(){
     var lg = trip.legs[Math.min(trip.i, trip.legs.length - 1)];
     if(!lg){ var st = trip.stops[Math.min(trip.i, trip.stops.length - 1)]; return [st.x, st.y]; }
@@ -458,7 +524,7 @@ body.film #cap{display:none}
     var leg = trip.legs[trip.i];
     trip.rip.forEach(function(r){ r.a -= dt * 1.4; }); trip.rip = trip.rip.filter(function(r){ return r.a > 0; });
     if(trip.hold > 0){ trip.hold -= dt; return; }
-    trip.d += (reduce ? 9999 : R * (film ? .75 : .55)) * dt;
+    trip.d += (reduce ? 9999 : R * (film ? .5 : .55)) * dt;
     if(!leg || trip.d >= leg.len){
       var arrived = trip.stops[trip.i + 1];
       if(arrived && arrived.p){
@@ -466,11 +532,13 @@ body.film #cap{display:none}
         if(!trip.seen[arrived.i]){ trip.seen[arrived.i] = 1; trip.touched++; }
         /* แตกแสงตามไฟล์ที่ขั้นนี้ import จริง — ข้อความหนึ่งไม่ได้ผ่านแค่ 8 ไฟล์ */
         var fan = E.filter(function(e){ return e.a === arrived.i && e.k === 0; });
-        fan.forEach(function(e){ if(!trip.seen[e.b]){ trip.seen[e.b] = 1; trip.touched++; } pulses.push({e: e, d: 0, v: R * (.5 + Math.random() * .3), c: film ? fc() : null}); });
+        var casSet = film ? {} : null; if(casSet){ casSet[arrived.i] = 1; fan.forEach(function(e){ casSet[e.b] = 1; }); }   /* แต่ละขั้นแตกแสงตามโครงสร้างของตัวเองเต็มๆ */
+        fan.forEach(function(e){ if(!trip.seen[e.b]){ trip.seen[e.b] = 1; trip.touched++; } pulses.push({e: e, d: 0, v: R * (.5 + Math.random() * .3), c: film ? fc() : null, dep: film ? 1 : 0, cas: casSet}); });
+        if(film) floatName(arrived, true);
         cap(trip.i, fan.length);
       }
       if(trip.i + 1 >= trip.legs.length) waves.push({r: R * .1, a: 1}, {r: R * .05, a: .7});
-      trip.i++; trip.d = 0; trip.hold = film ? .3 : .55;
+      trip.i++; trip.d = 0; trip.hold = film ? 2.6 : .55;
       if(trip.i >= trip.legs.length){ if(film) film.ghost = {t: trip, a: 1}; trip = null; cap(-1); document.getElementById('go').disabled = false; if(pending){ var p = pending; pending = null; init(p); } else paint(); }
     }
   }
