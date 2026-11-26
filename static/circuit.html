@@ -288,7 +288,7 @@ header a{color:var(--tx-lo);font-size:12px;text-decoration:none}
     if(film) filmStep(dt);
     if(!reduce){
       rot += dt * .012;
-      if(!trip && (!film || film.ph >= 3)){ var cap = inc.length ? Math.min(MAXP, inc.length * 2 + 4) : MAXP; while(pulses.length < cap) spawn(); }
+      if(!trip && (!film || film.ph >= 3)){ var cap = inc.length ? Math.min(MAXP, inc.length * 2 + 4) : MAXP; for(var tries = 0; pulses.length < cap && tries < cap * 3; tries++) spawn(); }   /* จำกัดรอบ: ช่วงแสงเพิ่งเริ่มแผ่ยังไม่มีเส้นให้วิ่ง เดิมวนไม่จบ */
       pulses.forEach(function(p){ p.d += p.v * dt; if(p.d >= p.e.pts.len && !p.done){ p.done = 1; flashes.push({f: p.e.B, a: 1}); } });
       pulses = pulses.filter(function(p){ return p.d < p.e.pts.len + 20; });
     }
