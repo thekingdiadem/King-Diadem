@@ -46,7 +46,7 @@ html,body{width:100%;min-height:100%;background:var(--void);color:var(--tx);font
 /* ── HERO ── */
 #hero{position:relative;z-index:10;height:100vh;height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:80px;text-align:center;pointer-events:none}
 .hero-badge{font-family:var(--f-mono);font-size:8px;letter-spacing:.22em;color:rgba(74,158,255,0.50);border:1px solid rgba(74,158,255,0.16);border-radius:999px;padding:4px 14px;margin-bottom:18px;display:inline-block}
-.hero-title{font-family:var(--f-display);font-size:clamp(28px,7vw,58px);font-weight:600;letter-spacing:.18em;background:linear-gradient(120deg,#5f9bff 0%,#ffffff 14%,#ffc94a 28%,#ff6f9c 42%,#9d7bff 56%,#3fe6c8 70%,#ffffff 84%,#5f9bff 100%);background-size:260% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15;margin-bottom:14px}
+.hero-title{font-family:var(--f-display);font-size:clamp(28px,7vw,58px);font-weight:600;letter-spacing:.18em;background:linear-gradient(100deg,#ffa6dc 0%,#e3a4ff 22%,#bca6ff 40%,#98bcff 58%,#7fe2ff 76%,#72f5dc 100%);background-size:100% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15;margin-bottom:14px}
 .hero-sub{font-family:var(--f-mono);font-size:9px;letter-spacing:.26em;color:rgba(200,164,64,0.42);margin-bottom:24px}
 .hero-rule{font-size:18px;color:var(--tx-hi);font-weight:500;margin-bottom:8px}
 a.hero-rule{display:block;text-decoration:none;cursor:pointer}
@@ -522,7 +522,8 @@ html.bb-on,html.bb-on body{overflow:hidden}
 .kd-i{width:1.15em;height:1.15em;vertical-align:-.22em;flex:none}
 /* Opalite Dawn: หัวเรื่องเป็นประกายโอปอลไหลช้าๆ (ลดการเคลื่อนไหว = นิ่ง) */
 @keyframes kd-opal{0%{background-position:0% 50%}100%{background-position:100% 50%}}
-#hero .hero-title{animation:kd-rise 1.6s var(--ease) .2s both,kd-opal 16s ease-in-out 1.8s infinite alternate}
+/* โอปอลแบบแรกที่พี่ชอบ (ชมพู → ลาเวนเดอร์ → ฟ้า → เขียวมิ้นต์) สดและคมขึ้น: เส้นขอบมืดบางๆ + แสงเรืองสีเดียวกัน */
+#hero .hero-title{animation:kd-rise 1.6s var(--ease) .2s both;filter:drop-shadow(0 0 14px rgba(190,160,255,.5)) drop-shadow(0 2px 6px rgba(0,0,0,.9))}
 @media (prefers-reduced-motion:reduce){#hero .hero-title{animation:none}}
 /* ทุกตัวอักษรคนละสี ตัดกันคม (พี่คิง: "แบบทุกตัวอักษรนะ") — คลื่นสีไหลผ่านทีละตัว ลดการเคลื่อนไหว = หยุดนิ่งแต่ยังคนละสี */
 #hero .hero-title.lettered{background:none;-webkit-text-fill-color:currentColor;animation:kd-rise 1.6s var(--ease) .2s both}
@@ -1362,66 +1363,5 @@ setTimeout(function(){
 }, 600);
 </script>
 
-<script>
-// หัวเรื่อง: แยกเป็นตัวอักษร ตัวละสี — หน่วงเวลาทีละตัวให้สีเป็นคลื่นไหลผ่าน (ไม่มี JS ก็ยังเป็นไล่สีโอปอลเดิม)
-(function(){
-  var h = document.querySelector('#hero .hero-title'); if(!h) return;
-  h.setAttribute('aria-label', h.textContent.replace(/\s+/g, ' ').trim());
-  var i = 0;
-  Array.prototype.slice.call(h.childNodes).forEach(function(n){
-    if(n.nodeType !== 3) return;
-    var f = document.createDocumentFragment();
-    n.textContent.split(/(\s+)/).forEach(function(wd){             // คำละกล่อง ห้ามตัดกลางคำ (เดิม CHOICE ขาดเป็น CHO / ICE)
-      if(!wd) return;
-      if(/^\s+$/.test(wd)){ f.appendChild(document.createTextNode(wd)); return; }
-      var w = document.createElement('span'); w.className = 'wd';
-      wd.split('').forEach(function(c){
-        var sp = document.createElement('span'); sp.className = 'ch'; sp.setAttribute('aria-hidden', 'true');
-        sp.textContent = c; sp.style.animationDelay = (-((i * .618034) % 1) * 24).toFixed(2) + 's'; i++; w.appendChild(sp);   // อัตราส่วนทองคำ: สีไม่ซ้ำเป็นแพทเทิร์นท้ายบรรทัด
-      });
-      f.appendChild(w);
-    });
-    h.replaceChild(f, n);
-  });
-  h.classList.add('lettered');
-  // ── สีตามโลกทุกตำแหน่ง: อ่านสีโลกใต้แต่ละตัวอักษร แล้วคำนวณพาสเทลในปริภูมิ OKLCH (ตามการรับรู้ของตาจริง) ──
-  // เฉด = เฉดของพื้นใต้ตัวอักษร ขยับไปข้างเคียงตามอัตราส่วนทองคำ (กลมกลืนแต่ไม่ซ้ำกัน)
-  // ความสว่าง = คำนวณให้ต่างจากพื้นอย่างน้อย 0.45 (อ่านชัดเสมอ) · ความสด = พาสเทล 0.07–0.12
-  function lin(c){ c /= 255; return c <= .04045 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4); }
-  function gam(c){ c = c <= .0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - .055; return Math.round(Math.max(0, Math.min(1, c)) * 255); }
-  function toLch(rgb){
-    var r = lin(rgb[0]), g = lin(rgb[1]), b = lin(rgb[2]);
-    var l = Math.cbrt(.4122214708*r + .5363325363*g + .0514459929*b), m = Math.cbrt(.2119034982*r + .6806995451*g + .1073969566*b), s = Math.cbrt(.0883024619*r + .2817188376*g + .6299787005*b);
-    var L = .2104542553*l + .7936177850*m - .0040720468*s, A = 1.9779984951*l - 2.4285922050*m + .4505937099*s, B = .0259040371*l + .7827717662*m - .8086757660*s;
-    return [L, Math.hypot(A, B), Math.atan2(B, A)];
-  }
-  function fromLch(L, C, H){
-    var A = C * Math.cos(H), B = C * Math.sin(H);
-    var l = Math.pow(L + .3963377774*A + .2158037573*B, 3), m = Math.pow(L - .1055613458*A - .0638541728*B, 3), s = Math.pow(L - .0894841775*A - 1.2914855480*B, 3);
-    return 'rgb(' + gam(4.0767416621*l - 3.3077115913*m + .2309699292*s) + ',' + gam(-1.2684380046*l + 2.6097574011*m - .3413193965*s) + ',' + gam(-.0041960863*l - .7034186147*m + 1.7076147010*s) + ')';
-  }
-  var chs = Array.prototype.slice.call(h.querySelectorAll('.ch')), cv = null;
-  var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function tint(){
-    if(!window.KD_earthSample || document.hidden || !cv) return;
-    var r = cv.getBoundingClientRect();
-    var pts = chs.map(function(e){ var q = e.getBoundingClientRect(); return [q.left + q.width / 2 - r.left, q.top + q.height / 2 - r.top]; });
-    KD_earthSample(pts, function(cols){
-      h.classList.add('earth-tint');
-      cols.forEach(function(c, i){
-        var bg = toLch(c), L = bg[0] < .55 ? Math.min(.95, bg[0] + .62) : Math.max(.22, bg[0] - .5);
-        var hue = (bg[1] > .02 ? bg[2] : 4.2) + (((i * .618034) % 1) - .5) * 2.1;   // พื้นไม่มีสี (กลางคืน) = เริ่มที่ฟ้าคราม แล้วกระจายรอบเฉดพื้น ±60°
-        chs[i].style.color = fromLch(L, .075 + .045 * ((i * .381966) % 1), hue);
-      });
-    });
-  }
-  function ready(){
-    cv = document.querySelector('.cockpit>canvas');
-    if(!window.KD_earthSample || !cv) return setTimeout(ready, 500);
-    tint(); setInterval(function(){ if(!REDUCE) tint(); }, 1800);
-  }
-  setTimeout(ready, 1500);
-})();
-</script>
 </body>
 </html>

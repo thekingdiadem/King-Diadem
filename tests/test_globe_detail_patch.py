@@ -41,17 +41,8 @@ def test_equation_in_cosmic_latte():
     assert ".hero-rule span{color:#fff8e7;" in uni and "#hero .hero-rule{color:#fff8e7;" in uni
 
 
-def test_hero_title_every_letter_own_colour_words_not_split():
-    uni = Path("static/king_diadem_universe.html").read_text(encoding="utf-8")
-    assert "@keyframes kd-letter" in uni and "#hero .hero-title .wd{display:inline-block;white-space:nowrap}" in uni
-    assert "(-((i * .618034) % 1) * 24)" in uni                        # อัตราส่วนทองคำ ไม่ซ้ำท้ายบรรทัด
-    assert "h.setAttribute('aria-label'" in uni                     # โปรแกรมอ่านหน้าจอยังอ่านเป็นประโยคเดียว
-    assert "html.kd-calm #hero .hero-title .ch{animation-play-state:paused}" in uni
 
-
-def test_letters_tinted_from_earth_pixels_in_oklch():
+def test_hero_title_bold_opal_gradient():
     uni = Path("static/king_diadem_universe.html").read_text(encoding="utf-8")
-    assert "window.KD_earthSample = function (pts, cb)" in JS and "gl.readPixels(x, y, 1, 1" in JS
-    assert "function toLch(rgb)" in uni and "function fromLch(L, C, H)" in uni
-    assert "bg[0] < .55 ? Math.min(.95, bg[0] + .62) : Math.max(.22, bg[0] - .5)" in uni   # ต่างจากพื้นพอให้อ่านชัด
-    assert "#hero .hero-title.earth-tint .ch{animation:none;transition:color 2.4s ease}" in uni
+    assert "#ffa6dc 0%,#e3a4ff 22%,#bca6ff 40%,#98bcff 58%,#7fe2ff 76%,#72f5dc 100%" in uni
+    assert "drop-shadow(0 0 14px rgba(190,160,255,.5))" in uni
