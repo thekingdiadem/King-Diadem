@@ -3255,7 +3255,7 @@ var HEALTH_ROWS = [
   ['belief_core','Belief core','bool'], ['survivor_engine','Survivor engine','bool'], ['risk_engine','Risk engine','bool'],
   ['consensus_engine','Consensus engine','bool'], ['collapse_predictor','Collapse predictor','bool'], ['simulation_engine','Simulation engine','bool'],
   ['cosmic_latte_canon','Canon gate','bool'], ['king_diadem_core','KING DIADEM core','core'], ['stripe_loaded','Stripe','bool'],
-  ['db_initialized','Database','bool'], ['freedom_score','Freedom score','num'], ['feedback','เสียงจากผู้ใช้','fb']
+  ['db_initialized','Database','bool'], ['freedom_score','Freedom score','num'], ['feedback','เสียงจากผู้ใช้','fb'], ['middle_path','ทางสายกลาง','mp']
 ];
 var sysBuilt = false;
 async function checkHealth(){
@@ -3276,6 +3276,7 @@ function renderHealth(){
     var v = d[r[0]], cls, txt;
     if(r[2] === 'core'){ var cv = v && v.core_version; cls = cv && cv !== 'fallback' ? 'ok' : 'warn'; txt = cv || '—'; }
     else if(r[2] === 'num'){ cls = ''; txt = v == null ? '—' : String(v); }
+    else if(r[2] === 'mp'){ cls = !v ? 'bad' : ''; txt = !v ? _t('ไม่โหลด') : !(v.upside || v.constraint) ? _t('ตรวจ {n} ครั้ง · ยังไม่ต้องเติม', {n: num(v.checked, 0)}) : _t('ตรวจ {n} · เติมด้านเสีย {u} · เติมทางไปต่อ {c}', {n: num(v.checked, 0), u: num(v.upside, 0), c: num(v.constraint, 0)}); }
     else if(r[2] === 'fb'){ cls = !v ? 'bad' : v.signal === 'DRIFT_ALERT' ? 'bad' : v.votes ? 'ok' : ''; txt = !v ? _t('ไม่โหลด') : v.votes ? _t('{v} โหวต · ช่วยได้ {r}% · {t}', {v: v.votes, r: Math.round(num(v.helpful_rate, 0) * 100), t: v.trend}) : _t('ยังไม่มีโหวต'); }
     else { cls = v ? 'ok' : 'bad'; txt = v ? 'โหลดแล้ว' : 'ไม่โหลด'; }
     return '<div><span class="dot ' + cls + '"></span>' + esc(r[1]) + '<span class="mono">' + esc(txt) + '</span></div>';
