@@ -77,6 +77,15 @@ def _hit(text: str, phrases) -> bool:
     return False
 
 
+_ALC_WITHDRAW = re.compile(r"(?:เลิก|หยุด|ขาด|อด)(?:เหล้า|ดื่ม|สุรา)|ลงแดง|ไม่ได้(?:กิน|ดื่ม)เหล้า|"
+                           r"\b(?:stopped|quit)\s+drinking\b|\bwithdrawal\b|\bwithout a drink\b", re.I)
+
+
+def _central_thai_kv(t: str) -> str:
+    from core.frames import _central_thai
+    return _central_thai(t)
+
+
 def _paths(d: dict, t: str) -> list:
     """ทางของหัวข้อ — รายการที่เป็น (วลี, ข้อความ) ใช้เฉพาะเมื่อข้อความมีวลีนั้น"""
     out = []
@@ -3093,6 +3102,9 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     for _kind_f, topic_f in _frames(text):
         if topic_f not in topics:
             topics.append(topic_f)
+    # หยุดเหล้าแล้วเห็นภาพหลอน/หูแว่ว = ขาดสุรา (อันตรายถึงชีวิต) ไม่ใช่โรคจิตเวช — ต้องได้คำแนะนำเรื่องขาดสุรา
+    if "psychosis" in topics and "health_emergency" in topics and _ALC_WITHDRAW.search(_central_thai_kv(text)):
+        topics = [t_ for t_ in topics if t_ != "psychosis"]
     # คนอื่นกรีดข้อมือตัวเอง = ทำร้ายตัวเอง (ต้องมีขั้นตอนดูแลใจด้วย ไม่ใช่แค่ห้ามเลือด)
     if (_OTHER_WRIST.search(text) or _OTHER_BLADE.search(text)) and not _ACCIDENT_CUT.search(text) and "someone" not in topics:
         topics.append("someone")

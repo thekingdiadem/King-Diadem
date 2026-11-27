@@ -811,3 +811,12 @@ def test_dialect_answers_get_specific_first_aid():
     assert "ห้ามขันชะเนาะ" in compose("งูตอดแขนอ้าย แขนบวมขึ้นเรื่อยๆ")
     assert "ทุกคนที่กิน" in compose("กินเห็ดป่าแล้วฮากบ่เซา")
     assert "พิษสุนัขบ้า" in compose("หมาขบขาหลาน เลือดออก")
+
+
+def test_alcohol_withdrawal_hallucination_is_not_psychosis():
+    """หยุดเหล้าแล้วเห็นภาพหลอน เคยได้คำตอบจิตเวช ("ถ้าเสียงนั้นสั่ง...") ไม่ได้บอกว่าเป็นขาดสุรา"""
+    from core.kernel_voice import assess, compose
+    t = "พ่อเลิกเหล้ามาสามวัน ตอนนี้เห็นภาพหลอน"
+    assert "psychosis" not in assess(t)["topics"]
+    assert "ขาดสุรา" in compose(t)
+    assert "psychosis" in assess("ช่วงนี้หูแว่ว เห็นภาพหลอน")["topics"]   # ไม่มีเรื่องเหล้า = ยังเป็นเรื่องจิตเวช
