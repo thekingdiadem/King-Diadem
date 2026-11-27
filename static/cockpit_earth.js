@@ -58,6 +58,11 @@
   var FS = [
     'precision highp float;',
     'uniform vec2 res;uniform float t,ready,lon,lat,D,tilt,F,hasW,dayM,sunM,near;uniform vec3 sun;uniform sampler2D lights,day,clouds,water;',
+    // แผ่นรายละเอียด 2 ช่อง (ค่อยๆ สลับกัน): pd = ภาพกลางวัน · pl = ไฟเมือง · pb = (x0, y0, สเกล) ในพิกัด Web Mercator 0–1 · pa = ความทึบ (กลางวัน, ไฟ)
+    'uniform sampler2D pd0,pl0,pd1,pl1;uniform vec4 pb0,pb1;uniform vec2 pa0,pa1;',
+    'float pw(vec4 b,float mx,float my,out vec2 q){q=vec2(fract(mx-b.x),my-b.y)*b.z;vec2 e=min(q,1.-q);'
+    + 'return step(0.,q.y)*step(q.y,1.)*step(q.x,1.)*smoothstep(0.,.06,min(e.x,e.y));}',
+    'float pbm(vec3 c){return clamp((dot(c,vec3(.3,.45,.25))-.07)/.93,0.,1.);}',   // Black Marble มีพื้นฟ้าเทาจาง ~7% — หักออกให้ทะเลมืดเท่าภาพหลัก
     'const float PI=3.14159265;',
     'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
     'float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+1.),f.x),f.y);}',
@@ -85,7 +90,13 @@
     '    col+=vec3(.15,.35,1.)*exp(-o*k1)*mix(.45+.5*dayM,.05+.95*ls,sunM)+vec3(.35,.6,1.)*exp(-o*k2)*.55*mix(1.,.12+.88*ls,sunM)',
     '      +vec3(.20,.85,.42)*exp(-abs(o-mix(.007,.0147,near))*480.)*mix(.5,.26,near)*(1.-ls)+vec3(1.,.42,.12)*exp(-o*320.)*tw*.8'
     // airglow ชั้นบนสีแดง (ออกซิเจนอะตอม 630 นาโนเมตร ราว 200–300 กม.) จางกว่าและฟุ้งกว่าชั้นเขียว — ภาพถ่ายกลางคืนจาก ISS เห็นเป็นม่านแดงบางๆ เหนือเส้นเขียว
-    ,'      +vec3(.80,.16,.22)*exp(-abs(o-mix(.013,.032,near))*150.)*mix(.13,.09,near)*(1.-ls);}',
+    ,'      +vec3(.80,.16,.22)*exp(-abs(o-mix(.013,.032,near))*150.)*mix(.13,.09,near)*(1.-ls);',
+    // Opalite Dawn: แสงโอปอลวนรอบขอบโลก ทอง → ชมพูอรุณ → ม่วง → ฟ้าเขียว หมุนช้า หายใจตามจังหวะสวด (~6.4 วิ)
+    // และจุดแสงอรุณหนึ่งดวงเคลื่อนรอบขอบโลก — "อันแสงสว่างไม่มีประมาณได้ปรากฏแล้วในโลก" · ในยานปิด (ภาพจริงตามตา)
+    '    vec3 cpt=normalize(P-b*rd);float an=atan(dot(cpt,up),dot(cpt,rt))/6.2831853;',
+    '    vec3 opal=vec3(.58,.5,.66)+vec3(.48,.46,.42)*cos(6.2831853*(an+t*.012+vec3(0.,.2,.43)));',
+    '    float dawn=pow(.5+.5*cos(6.2831853*(an-t*.035)),28.);',
+    '    col+=max(opal,0.)*exp(-o*70.)*(.26+.08*sin(t*.98)+.6*dawn)*(1.-near);}',
     '  if(disc>0.&&-b-sqrt(disc)>0.){',
     '    vec3 nl=P+rd*(-b-sqrt(disc));',
     '    vec3 n=M*nl;float sz=dot(nl,sl),dl=max(dayM,sunM*smoothstep(-.08,.06,sz));',   // dl = ส่วนที่เป็นกลางวัน ณ จุดนี้
@@ -97,6 +108,8 @@
     '    float tx2=fract(tc.x+.5)-.5;',
     '    if(fwidth(tx2)<fwidth(tc.x))tc.x=tx2;',
     '#endif',
+    '    float mx=fract(lo/(2.*PI)+.5),my=.5-log(tan(PI*.25+clamp(la,-1.4,1.4)*.5))/(2.*PI);',
+    '    vec2 q0,q1;float w0=pw(pb0,mx,my,q0),w1=pw(pb1,mx,my,q1);',
     '    float zz=max(dot(nl,-rd),0.);',
     '    vec2 px=vec2(1./4096.,1./2048.);',
     // มองใกล้ (หน้าแรกของหน้านี้บนมือถือ): ภาพ 2K ถูกขยาย 3–4 เท่า ไฟเมืองกับเมฆเลยเห็นเป็นบล็อกสี่เหลี่ยม
@@ -104,6 +117,8 @@
     '    float mag=1.-smoothstep(.3,1.,(-b-sqrt(disc))*pix*326.);',
     '    vec2 hp=px*.7*mag;',   // ภาพไฟ 2016 ละเอียดพอ — เกลี่ยน้อยลงให้เมืองคมเป็นดวง
     '    float L=(texture2D(lights,tc+hp).r+texture2D(lights,tc-hp).r+texture2D(lights,tc+hp*vec2(1.,-1.)).r+texture2D(lights,tc+hp*vec2(-1.,1.)).r)*.25;',
+    '    if(w0*pa0.y>0.)L=mix(L,pbm(texture2D(pl0,q0).rgb),w0*pa0.y);',
+    '    if(w1*pa1.y>0.)L=mix(L,pbm(texture2D(pl1,q1).rgb),w1*pa1.y);',
     // (เดิมมีเม็ดสังเคราะห์แทนรายละเอียด — ภาพ NASA 2016 ละเอียดพอแล้ว เม็ดกลับเป็นลายตารางตอนซูมใกล้ จึงเอาออก)
     '    float B=(texture2D(lights,tc+px*vec2(5.,0.)).r+texture2D(lights,tc-px*vec2(5.,0.)).r+texture2D(lights,tc+px*vec2(0.,4.)).r+texture2D(lights,tc-px*vec2(0.,4.)).r)*.25;',
     '    vec2 cc=tc+vec2(t*.0004,0.);',
@@ -115,6 +130,8 @@
     '    cl=clamp(cl+(wisp-.5)*.42*mag*smoothstep(.04,.45,cl)*(1.-cl),0.,1.);',
     '    cl=mix(cl,smoothstep(.08,.85,cl),near*.55);',                 // ในยาน: ขอบเมฆคมขึ้น (ภาพถูกขยายมากตอนมองใกล้)
     '    vec3 land=texture2D(day,tc).rgb;',
+    '    if(w0*pa0.x>0.)land=mix(land,texture2D(pd0,q0).rgb,w0*pa0.x);',
+    '    if(w1*pa1.x>0.)land=mix(land,texture2D(pd1,q1).rgb,w1*pa1.x);',
     '    float wm=hasW>.5?texture2D(water,tc).r:0.;',
     '    vec3 baseC=land*vec3(.018,.026,.05)+vec3(.002,.005,.014);',
     '    float glint=0.;',
@@ -183,7 +200,7 @@
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
   var U = {};
-  ['res', 't', 'ready', 'lon', 'lat', 'D', 'tilt', 'F', 'hasW', 'dayM', 'sunM', 'near', 'sun', 'lights', 'day', 'clouds', 'water']
+  ['res', 't', 'ready', 'lon', 'lat', 'D', 'tilt', 'F', 'hasW', 'dayM', 'sunM', 'near', 'sun', 'lights', 'day', 'clouds', 'water', 'pd0', 'pl0', 'pd1', 'pl1', 'pb0', 'pb1', 'pa0', 'pa1']
     .forEach(function (k) { U[k] = gl.getUniformLocation(prog, k); });
 
   var base = (document.currentScript && document.currentScript.src || '/static/cockpit_earth.js').replace(/cockpit_earth\.js.*$/, '');
@@ -224,7 +241,7 @@
     got4k = true;
     // ไฟเมือง 8K (NASA Black Marble 2016 · เห็นถนนเป็นใยแสง) เฉพาะเครื่องที่รับภาพ 8192 ได้และไม่ใช่เครื่องเบา — ไฟล์ราว 1 MB เพราะเป็นภาพขาวดำ
     load(1, 'day_4k.jpg'); load(2, 'clouds_4k.jpg');      // 4K หลังภาพแรกขึ้นแล้ว — เน็ตช้าไม่ต้องรอ
-    if (light) load(0, LIGHTS_HI);                         // มือถือ: ไฟเมืองละเอียดรอซูมเหมือนกัน (เดิมโหลดทันทีอีก 0.3 MB)
+    if (light && can8k && (navigator.deviceMemory || 8) > 3) load(0, 'lights_8k.jpg');         // มือถือ: ซูมลงจริงแล้วค่อยเปลี่ยนไฟเมืองเป็น 8K (ภาพขาวดำ ~1 MB)
   }
   function firstDone() {
     if (--pending > 0) return;
@@ -232,7 +249,7 @@
     load(3, 'water.png', function () { hasW = 1; });
     firstIn = true;
     // ไฟเมืองละเอียดโหลดทันที ไม่ต้องรอซูม: ภาพขาวดำเล็กมาก (4K ราว 0.3 MB · 8K ราว 1 MB) แต่ทำให้เมืองแยกเป็นดวงและเห็นถนน
-    if (can4k && !light) load(0, LIGHTS_HI);
+    if (can4k) load(0, LIGHTS_HI);                          // ไฟเมืองละเอียดโหลดทันทีทุกเครื่อง — มือถือ 4K (~0.3 MB) ให้คมตั้งแต่แรก
     maybe4k();
     safeArrive();
   }
@@ -252,6 +269,99 @@
     })();
   }
   load(0, 'lights.jpg', firstDone); load(1, 'day.jpg', firstDone); load(2, 'clouds.jpg', firstDone);
+
+  // ── แผ่นรายละเอียด: คมทั้งโลกโดยไม่ต้องโหลดภาพทั้งโลกความละเอียดสูง ─────────────────────────────────────
+  // ภาพทั้งโลก 4K ≈ 10 กม./พิกเซล — ซูมลงแล้วเบลอเป็นก้อน · ซูมลงเมื่อไร ดึงไทล์ NASA GIBS (ฟรี สาธารณสมบัติ ~600 ม./พิกเซล)
+  // เฉพาะบริเวณที่มองอยู่มาต่อเป็นภาพเดียว แล้วผสมทับในเชดเดอร์ · 2 ช่องสลับกันค่อยๆ จาง ไม่กระพริบตอนเลื่อน
+  // กลางวัน = Blue Marble · กลางคืน = Black Marble 2016 (VIIRS) · ใช้ fetch (CSP connect-src อนุญาต GIBS) แล้วถอดภาพในเครื่อง
+  var GIBS = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/';
+  var PN = light ? 5 : 6, PZMAX = 8, PZMIN = 5;                     // ไทล์ต่อด้าน · ระดับซูมของ GIBS ที่ใช้ (Level8 = ละเอียดสุด)
+  var pslot = [0, 1].map(function (i) {
+    var o = { d: gl.createTexture(), l: gl.createTexture(), box: [0, 0, 0], ad: 0, al: 0, td: 0, tl: 0, key: '' };
+    [[o.d, 4 + i * 2], [o.l, 5 + i * 2]].forEach(function (pair) {
+      gl.activeTexture(gl.TEXTURE0 + pair[1]); gl.bindTexture(gl.TEXTURE_2D, pair[0]);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    });
+    gl.uniform1i(U['pd' + i], 4 + i * 2); gl.uniform1i(U['pl' + i], 5 + i * 2);
+    return o;
+  });
+  var pActive = 0, pWant = '', pLast = 0, pCache = {}, pOrder = [], PCACHE = light ? 50 : 140;
+  function tileURL(night, z, y, x) {
+    return night ? GIBS + 'VIIRS_Black_Marble/default/2016-01-01/GoogleMapsCompatible_Level8/' + z + '/' + y + '/' + x + '.png'
+                 : GIBS + 'BlueMarble_ShadedRelief_Bathymetry/default/2004-08-01/GoogleMapsCompatible_Level8/' + z + '/' + y + '/' + x + '.jpeg';
+  }
+  function decode(blob) {
+    if (window.createImageBitmap) return createImageBitmap(blob);
+    return new Promise(function (ok, no) {
+      var u = URL.createObjectURL(blob), im = new Image();
+      im.onload = function () { URL.revokeObjectURL(u); ok(im); }; im.onerror = function () { URL.revokeObjectURL(u); no(); }; im.src = u;
+    });
+  }
+  function getTile(url) {
+    if (pCache[url]) return pCache[url];
+    var pr = fetch(url, { mode: 'cors', credentials: 'omit' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); }).then(decode)
+      .catch(function () { delete pCache[url]; return null; });      // ไทล์ไหนพลาด = ช่องนั้นใช้ภาพทั้งโลกแทน
+    pCache[url] = pr; pOrder.push(url);
+    while (pOrder.length > PCACHE) {                                   // คืนหน่วยความจำ (มือถือแรมน้อยเก็บน้อยกว่า)
+      var old = pOrder.shift(), op = pCache[old]; delete pCache[old];
+      if (op) op.then(function (b) { if (b && b.close) b.close(); });
+    }
+    return pr;
+  }
+  function patchKinds() { return SHIP.on ? [1, 1] : dayOn() ? [1, 0] : [0, 1]; }   // [กลางวัน, กลางคืน] — นอกยานเห็นแค่แบบเดียว ไม่ต้องโหลดอีกแบบ
+  function patchCheck() {
+    var V = view(), span = V.cam.D / (F * V.H) / RAD * Math.max(V.W, V.H) * 1.6;   // องศาที่เห็นบนจอ (เผื่อมุมเอียง)
+    var z = Math.min(PZMAX, Math.floor(Math.log(360 * PN / Math.max(span, 1e-3)) / Math.LN2));
+    var lat = clamp(S.lat, -84, 84);
+    if (S.city || z < PZMIN || Math.abs(S.lat) > 84) { pWant = ''; pslot.forEach(function (o) { o.td = o.tl = 0; }); return; }
+    var n = 1 << z, lon = ((S.lon % 360) + 540) % 360 - 180;
+    var fx = (lon + 180) / 360 * n, fy = (1 - Math.log(Math.tan(lat * RAD) + 1 / Math.cos(lat * RAD)) / PI) / 2 * n;
+    var x0 = Math.round(fx - PN / 2), y0 = clamp(Math.round(fy - PN / 2), 0, n - PN), kd = patchKinds();
+    var key = z + '/' + x0 + '/' + y0 + '/' + kd.join('');
+    var cur = pslot[pActive];
+    if (key === pWant || key === cur.key) return;
+    pWant = key;
+    var cv = [document.createElement('canvas'), document.createElement('canvas')], jobs = [];
+    cv.forEach(function (c) { c.width = c.height = PN * 256; });
+    for (var k = 0; k < 2; k++) {
+      if (!kd[k]) continue;
+      var ctx = cv[k].getContext('2d');
+      for (var j = 0; j < PN; j++) for (var i = 0; i < PN; i++) {
+        (function (ctx, i, j, night) {
+          var tx = ((x0 + i) % n + n) % n;
+          jobs.push(getTile(tileURL(night, z, y0 + j, tx)).then(function (b) { if (b) ctx.drawImage(b, i * 256, j * 256); }));
+        })(ctx, i, j, k);
+      }
+    }
+    Promise.all(jobs).then(function () {
+      if (pWant !== key) return;                                        // ระหว่างรอ ผู้ใช้เลื่อนไปที่อื่นแล้ว — ทิ้ง
+      var nx = pActive ^ 1, o = pslot[nx];
+      [[o.d, 4 + nx * 2, cv[0], kd[0]], [o.l, 5 + nx * 2, cv[1], kd[1]]].forEach(function (q) {
+        if (!q[3]) return;
+        gl.activeTexture(gl.TEXTURE0 + q[1]); gl.bindTexture(gl.TEXTURE_2D, q[0]);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, q[2]);
+      });
+      o.box = [x0 / n, y0 / n, n / PN]; o.key = key; o.ad = o.al = 0; o.td = kd[0]; o.tl = kd[1];
+      pslot[pActive].td = pslot[pActive].tl = 0; pActive = nx;           // ช่องเก่าค่อยๆ จางออก ช่องใหม่ค่อยๆ ขึ้น
+      kick();
+    });
+  }
+  function patchStep(dt, busy, now) {
+    // กล้องนิ่งแล้วค่อยขอ (ไม่ใช่แค่ไม่มีนิ้วแตะ — ตอนบินไปยังจุดหมาย กล้องเลื่อนเองหลายวินาที เดิมขอไทล์ทุกช่วงทาง ~150 แผ่น)
+    var settled = !busy && Math.abs(S.tL - S.L) < .03 && Math.abs(S.tlon - S.lon) + Math.abs(S.tlat - S.lat) < .08;
+    if (settled && now - pLast > 350) { pLast = now; patchCheck(); }
+    var k = Math.min(1, dt * (calm() ? 60 : 3.5)), moving = false;
+    pslot.forEach(function (o, i) {
+      o.ad += (o.td - o.ad) * k; o.al += (o.tl - o.al) * k;
+      if (Math.abs(o.td - o.ad) + Math.abs(o.tl - o.al) > .01) moving = true;
+      gl.uniform4f(U['pb' + i], o.box[0], o.box[1], o.box[2], 0);
+      gl.uniform2f(U['pa' + i], o.ad, o.al);
+    });
+    if (moving) kick();
+  }
 
   // ── ความละเอียดการวาดปรับตามเครื่อง: เฟรมช้า → ลดลงทีละขั้น · เร็วพอ → เพิ่มกลับ ─────────────────────
   var quietSince = 0;
@@ -489,6 +599,9 @@
     return hit.sort(function (a, b) { return a.s - b.s; }).slice(0, 8);
   }
 
+  var sampleQ = [];
+  // ให้หน้าเว็บขอสีพื้นหลังโลกใต้จุดต่างๆ (พิกัด CSS px เทียบมุมซ้ายบนของ canvas) — ใช้ทำสีตัวอักษรให้กลมกลืนกับโลกทุกตำแหน่ง
+  window.KD_earthSample = function (pts, cb) { if (sampleQ.length < 2) sampleQ.push({ pts: pts, cb: cb }); kick(); return canvas.getBoundingClientRect(); };
   window.KD_earth = {
     // ค้นหาเมือง → [{en, th, lat, lon, tier}] · บินไปพิกัดนั้นด้วย flyTo
     find: function (q, cb) { findLoad(function (rows) { cb(findRank(rows, q)); }); },
@@ -640,7 +753,15 @@
     gl.uniform1f(U.lon, S.lon); gl.uniform1f(U.lat, S.lat);
     gl.uniform1f(U.D, cam.D); gl.uniform1f(U.tilt, cam.tilt); gl.uniform1f(U.F, Fv);
     gl.uniform1f(U.hasW, hasW); gl.uniform1f(U.dayM, dayM);
+    patchStep(dt, busy, now);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (sampleQ.length) {                                               // อ่านสีโลกใต้จุดที่หน้าเว็บขอ (ต้องอ่านทันทีหลังวาด ก่อนภาพถูกล้าง)
+      var q = sampleQ.shift(), px = new Uint8Array(4), kx = canvas.width / Math.max(1, canvas.clientWidth), ky = canvas.height / Math.max(1, canvas.clientHeight);
+      q.cb(q.pts.map(function (p) {
+        var x = clamp(Math.round(p[0] * kx), 0, canvas.width - 1), y = clamp(canvas.height - 1 - Math.round(p[1] * ky), 0, canvas.height - 1);
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); return [px[0], px[1], px[2]];
+      }));
+    }
     if (hudPos && now - lastHud > 250) {
       lastHud = now;
       var lo = window.KD_satLon(), la = S.lat, V = view(), alt = (Math.hypot(V.C[0], V.C[1], V.C[2]) - 1) * 6371;

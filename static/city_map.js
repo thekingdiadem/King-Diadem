@@ -140,7 +140,8 @@
   // ละเอียด ~10 ม./พิกเซล เห็นแม่น้ำ สะพาน ถนนใหญ่ แปลงนา · สัญญาอนุญาต CC BY 4.0 (ใช้เชิงพาณิชย์ได้ ต้องให้เครดิต)
   // ใช้ได้เฉพาะปี 2016 (ปี 2017 ก็ CC BY แต่ภาพเหนือกรุงเทพฯ เป็นรู) — ปี 2018 เป็นต้นไปเป็น CC BY-NC-SA ห้ามใช้เชิงพาณิชย์ ห้ามเปลี่ยนเป็นปีใหม่กว่าโดยไม่ดูสัญญา
   // ภาพจริงละเอียดสุดที่แผ่นระดับ 13 (= ซูมแผนที่ราว 12 เพราะแผ่นกว้าง 256 จุด) · ลึกกว่านั้นภาพเบลอ จึงจางให้ถนนและตึก (OpenStreetMap) รับช่วงที่ 12.6–14
-  var S2 = { type: 'raster', tileSize: 256, minzoom: 6, maxzoom: 13,
+  // มือถือ: ขอภาพ Sentinel แผ่นละ 512 (ระดับซูมต่ำลงหนึ่งขั้น) = จำนวนไทล์น้อยลง 4 เท่า — เซิร์ฟเวอร์ EOX ตอบช้า ~0.75 วิ/แผ่น
+  var S2 = { type: 'raster', tileSize: (Math.min(screen.width || 1e4, screen.height || 1e4) < 700) ? 512 : 256, minzoom: 6, maxzoom: 13,
              tiles: ['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/{z}/{y}/{x}.jpg'],
              attribution: '<a href="https://cloudless.eox.at" target="_blank" rel="noopener">Sentinel-2 cloudless</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2016) · CC BY 4.0' };
   // "โลกเมื่อวาน": ภาพจริงรายวันจากดาวเทียม Terra ของ NASA (เครื่องวัด MODIS) — เห็นเมฆ พายุ ควันไฟป่าของเมื่อวานจริงๆ
@@ -186,7 +187,8 @@
           paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 6, 0, 7, 1, 12.6, 1, 14, 0], 'raster-fade-duration': 300,
                    'raster-brightness-max': day ? 1 : .62, 'raster-saturation': day ? .05 : -.15, 'raster-contrast': day ? .08 : .18 } },
         // เงาภูเขาใต้แสงจันทร์ — สันเขาสว่างอมฟ้าจางๆ หุบเขามืด
-        { id: 'hillshade', type: 'hillshade', source: 'demhs',
+        // minzoom 12.5: เงาภูเขาเห็นตั้งแต่ 12.6 — เดิมโหลดไทล์ความสูง (55 KB/แผ่น · เซิร์ฟเวอร์ HTTP/1.1 ต่อได้ทีละ 6) ทุกระดับซูม แย่งคิวไทล์อื่นจนแผนที่ขึ้นช้า
+        { id: 'hillshade', type: 'hillshade', source: 'demhs', minzoom: 12.5,
           paint: { 'hillshade-shadow-color': C.hsShadow, 'hillshade-highlight-color': C.hsHi,
                    'hillshade-accent-color': C.hsAccent, 'hillshade-illumination-direction': 315,
                    // ช่วงที่มีภาพดาวเทียมอยู่ข้างใต้ (ซูมไม่ถึง 12.6) ไม่ต้องลงเงาภูเขาซ้ำ — ภาพถ่ายมีแสงเงาภูมิประเทศจริงอยู่แล้ว
