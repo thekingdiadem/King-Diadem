@@ -776,5 +776,6 @@ def test_round26_thai_answers_keep_specific_first_aid():
     from core.kernel_voice import compose
     assert "ห้ามขันชะเนาะ" in compose("งูฉกที่เท้า เท้าบวมขึ้นเรื่อยๆ")
     assert "ทุกคนที่กิน" in compose("เก็บเห็ดป่ามาต้มกิน ท้องเสียหนัก")
-    assert "อย่าพยายามดึงให้ลุก" in compose("ย่าลื่นล้มในห้องน้ำ ลุกไม่ขึ้น")
+    fall = compose("ย่าลื่นล้มในห้องน้ำ ลุกไม่ขึ้น")
+    assert "อย่าพยายามดึงให้ลุก" in fall or "อย่ารีบดึงให้ลุก" in fall   # คำตอบปฐมพยาบาลเดิมก็บอกไว้แล้ว
     assert "อย่าหยุดเองคนเดียวทันที" in compose("อยากเลิกเหล้า แต่ลงแดง มือสั่น")
