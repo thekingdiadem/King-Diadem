@@ -57,6 +57,23 @@ Collapse only happens when Choice(t) = 0. In KING DIADEM this is enforced in cod
 <p class="dim">English: Risk grows with drift, exposure and time, and shrinks with every option you still have.
 One of the most effective ways to lower risk is not to forbid, but to add a choice.</p>
 
+<h2 id="collapse">3. เลือกทางหนึ่ง ≠ ระบบพัง</h2>
+<div class="eq">Choice(t+1) = 0 → collapse = True</div>
+<p class="alt">พิมพ์แบบธรรมดา: Choice(t+1) == 0 -&gt; collapse = True</p>
+<p>มีสองเรื่องที่คนมักรวมเป็นเรื่องเดียวกัน:</p>
+<table>
+<tr><td><b>ทางอื่นยุบลง ณ เวลา t</b></td><td>พอเลือกหนึ่งทาง ทางอื่นก็พักไปก่อน ถ้าไม่ยอมเลือกเลย ก็จะค้างอยู่ที่ความลังเล ไม่มีผลลัพธ์จริงเกิดขึ้น — นี่ไม่ใช่ความล้มเหลว</td></tr>
+<tr><td><b>ระบบพัง</b></td><td>เกิดเมื่อทางที่เลือกปิดทุกประตูในรอบถัดไป จนไม่เหลือทางไปต่อหรือแก้ไขได้เลย</td></tr>
+</table>
+<p>ถ้าทางที่เลือกยังเหลือทางเดินหรือทางแก้ (Choice(t+1) ≥ 1) ต่อให้ผลรอบแรกไม่สมบูรณ์ ก็แค่ <b>เปลี่ยนสถานะ</b> แล้วเดินต่อรอบหน้า ไม่ใช่การล้มเหลว</p>
+<p class="dim">คำว่า "ยุบตัว" ในที่นี้เป็นภาพเปรียบ ยืมมาจากฟิสิกส์ควอนตัม ไม่ได้หมายถึงฟิสิกส์จริง</p>
+<p class="dim"><b>สิ่งที่โค้ดยังทำไม่ได้ (บอกตรงๆ):</b> ตอนนี้ระบบคำนวณจำนวนทางเลือกเป็น
+<code>max(1, ⌊(100 − Risk) / 20⌋)</code> (ENGINE/risk_engine.py) ค่าจึงไม่ต่ำกว่า 1 เสมอ
+แปลว่ากฎข้อ 1 เป็นจริงส่วนหนึ่งเพราะเราเขียนบังคับไว้ ระบบยังแยกไม่ได้ว่า "ยังมีทางจริง" กับ "กำหนดให้มีไว้ก่อน"
+งานถัดไปคือให้ระบบวัดสถานะที่ไม่เหลือทางจริงๆ ได้</p>
+<p class="dim">English: Letting other options go when you choose one is not failure. Collapse happens only when the chosen path closes every door next time — Choice(t+1) = 0.
+Honest limit: the code currently floors Choice at 1, so it cannot yet measure a true "no way out".</p>
+
 <h2>ลองดูสมการทำงานจริง</h2>
 <p><a href="/">คุยกับ LYLA</a> · <a href="/saturn">Black Saturn — วงแหวนยุบเมื่อทางเลือกหมด</a> · <a href="/learn">เรียนรู้เพิ่ม</a></p>
 </main>

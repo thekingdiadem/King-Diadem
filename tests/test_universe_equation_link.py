@@ -16,3 +16,12 @@ def test_hero_equation_links_to_equations_page():
 def test_equations_page_has_anchor_targets():
     html = (ROOT / "static/equations.html").read_text(encoding="utf-8")
     assert 'id="choice"' in html and 'id="risk"' in html
+
+
+def test_equations_page_explains_choice_floor_honestly():
+    """หัวข้อ 3 ต้องบอกตรงๆ ว่าโค้ดตอนนี้บังคับ Choice ไม่ต่ำกว่า 1 — ถ้าโค้ดเปลี่ยน ข้อความต้องเปลี่ยนตาม"""
+    html = (ROOT / "static/equations.html").read_text(encoding="utf-8")
+    assert 'id="collapse"' in html and "Choice(t+1) = 0" in html
+    src = (ROOT / "ENGINE/risk_engine.py").read_text(encoding="utf-8")
+    if "max(1, int((100 - risk_score) / 20))" in src:
+        assert "max(1, ⌊(100 − Risk) / 20⌋)" in html
