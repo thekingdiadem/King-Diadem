@@ -803,3 +803,11 @@ def test_dialect_bor_is_not_pond_or_often():
     from core.frames import _central_thai
     assert _central_thai("หายใจบ่อิ่ม ลุกบ่ได้") == "หายใจไม่อิ่ม ลุกไม่ได้"
     assert _central_thai("บ่อน้ำ บ่อย บ่าย บ่น") == "บ่อน้ำ บ่อย บ่าย บ่น"
+
+
+def test_dialect_answers_get_specific_first_aid():
+    """ภาษาถิ่นเคยได้แค่คำตอบฉุกเฉินทั่วไป — "งูตอด" ไม่มีคำเตือนห้ามขันชะเนาะ"""
+    from core.kernel_voice import compose
+    assert "ห้ามขันชะเนาะ" in compose("งูตอดแขนอ้าย แขนบวมขึ้นเรื่อยๆ")
+    assert "ทุกคนที่กิน" in compose("กินเห็ดป่าแล้วฮากบ่เซา")
+    assert "พิษสุนัขบ้า" in compose("หมาขบขาหลาน เลือดออก")

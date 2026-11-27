@@ -80,9 +80,12 @@ def _hit(text: str, phrases) -> bool:
 def _paths(d: dict, t: str) -> list:
     """ทางของหัวข้อ — รายการที่เป็น (วลี, ข้อความ) ใช้เฉพาะเมื่อข้อความมีวลีนั้น"""
     out = []
+    # ภาษาถิ่น ("งูตอดตีนพ่อ") เลือกคำแนะนำจากความหมายภาษากลางได้ด้วย — ข้อความเดิมยังใช้เลือกเหมือนเดิม
+    from core.frames import _central_thai
+    tc = _central_thai(t)
     for p in d["paths"]:
         if isinstance(p, tuple):
-            if _hit(t, p[0]):
+            if _hit(t, p[0]) or (tc != t and _hit(tc, p[0])):
                 out.append(p[1])
         else:
             out.append(p)
