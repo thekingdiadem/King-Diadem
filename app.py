@@ -4307,8 +4307,24 @@ async def image_generate(request: Request):
 
 _IMAGE_EMPTY = "LYLA วิเคราะห์ภาพไม่ได้ค่ะ — อาจถูก Gemini safety block หรือภาพไม่ชัด"
 
+def _strip_image_metadata(data: bytes, mime: str) -> tuple[bytes, str]:
+    """ลบข้อมูลแฝงในรูปก่อนส่งให้ AI — รูปจากมือถือมักมีพิกัด GPS ของที่ถ่าย (มักเป็นบ้าน) รุ่นเครื่อง และเวลาถ่าย
+    วาดใหม่เฉพาะพิกเซล (หมุนตามที่ถ่ายจริงก่อน) จึงไม่มี EXIF / GPS / XMP / ICC ติดไป · ถอดรูปไม่ได้ = ไม่ส่ง"""
+    import io
+    from PIL import Image, ImageOps
+    Image.MAX_IMAGE_PIXELS = 40_000_000                              # กันรูประเบิดหน่วยความจำ (decompression bomb)
+    im = ImageOps.exif_transpose(Image.open(io.BytesIO(data)))
+    im.load()
+    if im.mode not in ("RGB", "L"):
+        im = im.convert("RGB")
+    out = io.BytesIO()
+    im.save(out, format="JPEG", quality=90)                           # ไม่ส่ง exif= ใดๆ → ไม่มีข้อมูลแฝง
+    return out.getvalue(), "image/jpeg"
+
+
 def _analyze_image_sync(data: bytes, mime: str) -> str:
     """เรียก Gemini vision แบบ blocking — รันใน threadpool ไม่บล็อก event loop"""
+    data, mime = _strip_image_metadata(data, mime)
     from google.genai import types as gt
     contents = [gt.Content(role="user", parts=[
         gt.Part.from_bytes(data=data, mime_type=mime),
