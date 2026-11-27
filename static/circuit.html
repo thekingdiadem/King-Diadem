@@ -158,8 +158,13 @@ body.film #cap{display:none}
     }
     if(film.ph >= 3){ var kk = film.camK || 0; tz = lerp(1.9, .97, kk); tilt = lerp(1, .74, kk); }
     if(film.ph === 4){                               /* ช่วงใยแสงเต็ม: กล้องค่อยๆ เข้าใกล้ใจกลาง วงหายใจ ไม่นิ่ง */
-      var pk = ease((film.t - film.t1 - 14) / 22);
-      tz = lerp(.97, 1.16, pk); tilt = .74 + .07 * Math.sin((film.t - film.t1) * .22) * pk;
+      var pk = ease((film.t - film.t1 - 18) / 22), tq = film.t - film.t1;
+      tz = lerp(.97, 1.16, pk); tilt = .74 + .07 * Math.sin(tq * .22) * pk;
+      if(film.diveT){                                 /* ลงลึก 2 → 13 วินาที แล้วถอยกลับ */
+        var dv = ease((tq - 2) / 3.5) * (1 - ease((tq - 10) / 3.5));
+        film.dv = dv;
+        tx = lerp(C, film.diveT.x, dv); ty0 = lerp(C, film.diveT.y, dv); tz = lerp(tz, 5.2, dv); tilt = lerp(tilt, 1, dv);
+      }
     }
     var sm = film.ph >= 3 ? .06 : .035;
     cam.x = lerp(cam.x || C, tx, sm); cam.y = lerp(cam.y || C, ty0, sm); cam.z = lerp(cam.z, tz, sm); cam.ty = lerp(cam.ty, tilt, .05);
@@ -168,14 +173,27 @@ body.film #cap{display:none}
       film.lit = film.lit || {}; film.nlit = film.nlit || 0;
       F.forEach(function(f){ if(!film.lit[f.i] && vis(f)){ film.lit[f.i] = 1; film.nlit++; } });
       var tt = film.t - film.t1;
+      /* ดำดิ่งลงระดับเมือง: กล้องลงไปที่กลุ่มฟังก์ชันที่หนาแน่นที่สุด แล้วถอยกลับ */
+      film.cityK = ease(tt / 3);
+      if(!film.diveT && FN.length){
+        var cnt = {}; FN.forEach(function(n){ if(n) cnt[n.f.i] = (cnt[n.f.i] || 0) + 1; });
+        var best = null; F.forEach(function(f){ if(f.rf < .4 && (!best || (cnt[f.i] || 0) > (cnt[best.i] || 0))) best = f; });
+        film.diveT = best; film.diveN = best ? cnt[best.i] : 0;
+      }
+      film.micro = (film.micro || []).filter(function(p){ p.k += dt * p.v; return p.k < 1; });
+      if(film.diveT && tt > 1 && tt < 15){
+        var near = FE.filter(function(e){ return Math.hypot(e.a.x - film.diveT.x, e.a.y - film.diveT.y) < R * .12; });
+        for(var mi = 0; film.micro.length < 70 && mi < 6 && near.length; mi++) film.micro.push({e: near[(Math.random() * near.length) | 0], k: 0, v: .5 + Math.random() * .7});
+      }
       /* ข้อความหลั่งไหล: 1 → หลายร้อยข้อความพร้อมกัน แล้วใยแสงทั้งระบบค่อยๆ ตามมา */
-      var mk = ease(tt / 18), wantM = Math.round(1 + 180 * mk * mk);
+      var mk = ease((tt - 12) / 18), wantM = Math.round(1 + 180 * mk * mk);
       film.msgSent = film.msgSent || 0;
       for(var mm = 0; msgs.length < wantM && mm < 6; mm++){ spawnMsg(); film.msgSent++; }
       stepMsgs(dt);
-      if(tt < 16) capText('ข้อความหลั่งไหลเข้ามา', 'ข้อความที่ ' + fmt(film.msgSent) + ' · ทุกข้อความผ่านเส้นทางจริงเดียวกัน 7 ขั้น');
+      if(tt > 2 && tt < 13) capText('ลงไปถึงระดับฟังก์ชัน', fmt(FN.filter(Boolean).length) + ' ฟังก์ชันและคลาส · ' + fmt(FE.length) + ' การเรียกใช้จริง' + (film.diveT ? ' · ' + film.diveT.p.split('/').pop() + ' ' + film.diveN + ' ฟังก์ชัน' : ''));
+      else if(tt < 20) capText('ข้อความหลั่งไหลเข้ามา', 'ข้อความที่ ' + fmt(film.msgSent) + ' · ทุกข้อความผ่านเส้นทางจริงเดียวกัน 7 ขั้น');
       else capText('', '');
-      var sk = ease((tt - 8) / 18); film.stormK = sk;
+      var sk = ease((tt - 18) / 18); film.stormK = sk;
       var want = Math.round(40 + 2400 * sk);
       for(var n = 0; storm.length < want && n < 260; n++){
         var e = E[(Math.random() * E.length) | 0];
@@ -207,9 +225,33 @@ body.film #cap{display:none}
   /* ขึ้นภาพทันทีจากชุดที่บันทึกไว้ (static) แล้วเปลี่ยนเป็นชุดสดเมื่อเซิร์ฟเวอร์นับเสร็จ (~10 วินาทีครั้งแรก) */
   var ready = false, pending = null;   /* ชุดสดที่มาถึงระหว่างดูข้อความเดินทาง — รอจบก่อนค่อยสลับ */
   getJSON('/static/system_map.json').then(function(d){ if(!ready) init(d); }).catch(function(){});
-  getJSON('/api/system_map').then(function(d){ if(d && d.files){ if(trip) pending = d; else init(d); } })
+  /* ภาพยนตร์ใช้ชุดที่บันทึกไว้ชุดเดียว: ชุดสดมาถึงไม่แน่นอนตามเวลาจริง ทำให้อัดเป็นช่วงแล้วต่อกันไม่ตรงเฟรม */
+  if(!film) getJSON('/api/system_map').then(function(d){ if(d && d.files){ if(trip) pending = d; else init(d); } })
     .catch(function(){ if(!ready) document.getElementById('stat').textContent = 'โหลดไม่ได้ ลองรีเฟรช'; });
 
+  /* ระดับเมือง: ฟังก์ชัน/คลาสจริงทุกตัว (static/func_map.json จาก scripts/build_func_map.py) */
+  var FN = [], FE = [], fmap = null;
+  if(film) getJSON('/static/func_map.json').then(function(m){ fmap = m; placeFuncs(); }).catch(function(){});
+  function placeFuncs(){
+    if(!fmap || !F.length) return;
+    var byFile = {}; FN = [];
+    fmap.nodes.forEach(function(n, i){ (byFile[n[0]] = byFile[n[0]] || []).push(i); });
+    Object.keys(byFile).forEach(function(fi){
+      var f = BY[fi]; if(!f || f.x == null) return;
+      var ids = byFile[fi], m = ids.length;
+      /* ฟังก์ชันของไฟล์เดียวกันเกาะเป็นกลุ่มรอบไฟล์ เรียงแบบเกลียวทานตะวัน (ไม่ทับกัน) */
+      ids.forEach(function(id, k){
+        var rr = R * .0045 * Math.sqrt(k + 1) * (m > 60 ? .85 : 1), aa = k * 2.39996;
+        var n = fmap.nodes[id];
+        FN[id] = {x: f.x + Math.cos(aa) * rr, y: f.y + Math.sin(aa) * rr, f: f, n: n[2], k: n[3], name: n[1]};
+      });
+    });
+    FE = fmap.edges.filter(function(e){ return FN[e[0]] && FN[e[1]]; }).map(function(e){
+      var a = FN[e[0]], b = FN[e[1]], same = a.f === b.f;
+      return {a: a, b: b, same: same, pts: same ? null : curve(a, b)};
+    });
+    window.__cityReady = 1;
+  }
   function init(d){
     var first = !ready; ready = true;
     var ringOf = {}; F = []; E = []; BY = {}; PATH = {}; counts = {};
@@ -264,6 +306,7 @@ body.film #cap{display:none}
     cv.style.width = cv.style.height = S + 'px'; cv.width = cv.height = Math.round(S * dpr);
     F.forEach(function(f){ f.x = C + Math.cos(f.ang) * f.rf * R; f.y = C + Math.sin(f.ang) * f.rf * R; });
     E.forEach(function(e){ e.pts = curve(e.A, e.B); });
+    placeFuncs();
     paint();
   }
   /* เส้นโค้งผ่านใกล้แกนกลาง — ยิ่งสองไฟล์ห่างกัน ยิ่งโค้งเข้าใกล้ศูนย์กลาง */
@@ -288,8 +331,9 @@ body.film #cap{display:none}
 
   /* ── ชั้นนิ่ง (วาดใหม่เมื่อเปลี่ยนตัวกรอง/เลือก) ── */
   function paint(){
-    layer = document.createElement('canvas'); layer.width = layer.height = Math.round(S * dpr);
-    var g = layer.getContext('2d'); g.scale(dpr, dpr);
+    var LQ = film ? dpr * 2.5 : dpr;                  /* ภาพยนตร์: วาดชั้นนิ่งละเอียดกว่าจอ 2.5 เท่า ซูมลงระดับเมืองแล้วไม่แตก */
+    layer = document.createElement('canvas'); layer.width = layer.height = Math.round(S * LQ);
+    var g = layer.getContext('2d'); g.scale(LQ, LQ);
     var dim = sel >= 0 || trip;
     g.lineWidth = .5;
     [1, 0].forEach(function(k){
@@ -365,7 +409,7 @@ body.film #cap{display:none}
       if(!cam.x){ cam.x = cam.y = C; cam.z = 2.3; } camSet();
     }
     else { ctx.translate(C, C); ctx.rotate(rot); ctx.translate(-C, -C); }
-    if(!film || (film.ph >= 3 && film.rev >= R * 1.07)) ctx.drawImage(layer, 0, 0, S, S);
+    if(!film || (film.ph >= 3 && film.rev >= R * 1.07)){ ctx.globalAlpha = film ? 1 - .6 * (film.dv || 0) : 1; ctx.drawImage(layer, 0, 0, S, S); ctx.globalAlpha = 1; }
     else if(film.ph >= 3){                           /* แสงแผ่: เปิดชั้นนิ่งเฉพาะในรัศมีที่แสงไปถึงแล้ว */
       ctx.save(); ctx.beginPath(); ctx.arc(C, C, film.rev, 0, 7); ctx.clip(); ctx.drawImage(layer, 0, 0, S, S); ctx.restore();
       ctx.globalCompositeOperation = 'lighter';
@@ -380,10 +424,11 @@ body.film #cap{display:none}
     inc.forEach(function(e){ ctx.strokeStyle = 'rgba(' + KC[e.k] + ',' + (e.a === sel ? .55 : .3) + ')'; ctx.lineWidth = .8; line(ctx, e.pts); });
     if(sel >= 0){ var f = BY[sel]; ctx.strokeStyle = '#efe6d8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(f.x, f.y, 5, 0, 7); ctx.stroke(); }
     waves.forEach(function(w){ ctx.strokeStyle = 'rgba(217,154,165,' + w.a * .5 + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(C, C, w.r, 0, 7); ctx.stroke(); });
+    if(film && film.ph >= 3 && FN.length) drawCity();
     if(film && film.ph === 4){ drawStorm(); ctx.globalCompositeOperation = 'lighter'; msgs.forEach(function(m){ var lg = m.legs[m.i]; if(lg){ var h = at(lg, m.d); blob(GOLD, h[0], h[1], 5, .6); } }); ctx.globalCompositeOperation = 'source-over';
       /* เส้นทางจริง 7 ขั้นเป็นทองคม วาดทับด้านบน ไม่ให้ซ้อนจนขาว */
       if(film.jlegs){ var ja = Math.min(1, (film.t - film.t1) / 3);
-        film.jlegs.forEach(function(lg){ [[2.4, .25], [.9, .85]].forEach(function(w){ ctx.strokeStyle = 'rgba(' + GOLD + ',' + w[1] * ja + ')'; ctx.lineWidth = w[0]; line(ctx, lg); }); }); }
+        film.jlegs.forEach(function(lg){ [[2.4, .25], [.9, .85]].forEach(function(w){ ctx.strokeStyle = 'rgba(' + GOLD + ',' + w[1] * ja * (1 - .5 * (film.dv || 0)) + ')'; ctx.lineWidth = w[0] / Math.max(1, cam.z * .7); line(ctx, lg); }); }); }
       ctx.lineWidth = 1.2;
       msgs.forEach(function(m){ var lg = m.legs[m.i]; if(!lg) return; var a = at(lg, Math.max(0, m.d - 16)), b = at(lg, m.d);
         ctx.strokeStyle = 'rgba(255,236,190,.95)'; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); });
@@ -431,9 +476,32 @@ body.film #cap{display:none}
     if(trip) tripLabels(); else if(film && film.ghost) tripLabels(film.ghost.t, film.ghost.a);
     if(film){ drawFloats(); filmScreen(); }
   }
+  function drawCity(){
+    var rev = film.ph === 3 ? film.rev : R * 2, ca = (film.ph === 3 ? .55 : .55 + .45 * (film.cityK || 0)) * (1 + 1.4 * (film.dv || 0)), z = cam.z;
+    ctx.save(); ctx.lineCap = 'round';
+    ctx.lineWidth = .6 / z;                           /* เส้นบางคงที่บนจอ ไม่ว่าซูมแค่ไหน */
+    ctx.globalCompositeOperation = 'lighter';
+    FE.forEach(function(e){
+      if(Math.hypot(e.a.x - C, e.a.y - C) > rev) return;
+      if(e.same){ ctx.strokeStyle = 'rgba(255,212,128,' + Math.min(.8, .3 * ca) + ')'; ctx.beginPath(); ctx.moveTo(e.a.x, e.a.y); ctx.lineTo(e.b.x, e.b.y); ctx.stroke(); }
+      else { ctx.strokeStyle = 'rgba(196,176,255,' + .07 * ca + ')'; line(ctx, e.pts); }
+    });
+    FN.forEach(function(n){
+      if(!n || Math.hypot(n.x - C, n.y - C) > rev) return;
+      var r = Math.max(.35, Math.min(1.4, .3 + Math.log10(n.n + 1) * .4)) / Math.sqrt(z);
+      ctx.fillStyle = n.k === 1 ? 'rgba(255,214,140,' + .85 * ca + ')' : n.k === 2 ? 'rgba(214,206,255,' + .7 * ca + ')' : 'rgba(255,240,220,' + .75 * ca + ')';
+      ctx.fillRect(n.x - r, n.y - r, r * 2, r * 2);
+    });
+    /* แสงวิ่งระดับฟังก์ชัน ระหว่างกล้องดำดิ่ง */
+    (film.micro || []).forEach(function(p){
+      var e = p.e, q = e.same ? [lerp(e.a.x, e.b.x, p.k), lerp(e.a.y, e.b.y, p.k)] : at(e.pts, p.k * e.pts.len);
+      blob('255,226,170', q[0], q[1], 3 / z, .9);
+    });
+    ctx.restore();
+  }
   /* แสงนับพันสาย: วาดลงผืนสะสม (จางลงทีละน้อยทุกเฟรม) → รอยแสงซ้อนกันเป็นใยทั้งจักรวาล */
   function drawStorm(){
-    if(!acc){ acc = document.createElement('canvas'); acc.width = acc.height = Math.round(S * dpr); accx = acc.getContext('2d'); accx.scale(dpr, dpr); accx.lineCap = 'round'; }
+    if(!acc){ acc = document.createElement('canvas'); acc.width = acc.height = Math.round(S * dpr * 2); accx = acc.getContext('2d'); accx.scale(dpr * 2, dpr * 2); accx.lineCap = 'round'; }
     accx.globalCompositeOperation = 'destination-out';
     accx.fillStyle = 'rgba(0,0,0,' + (.1 - .045 * (film.stormK || 0)) + ')'; accx.fillRect(0, 0, S, S);
     accx.globalCompositeOperation = 'lighter';
@@ -602,6 +670,10 @@ body.film #cap{display:none}
       ctx.restore();
     }
     var k = film.capCur ? ease((film.t - film.capCur.t) / .9) : 0;
+    if((film.capCur && film.capCur.a) || (film.capPrev && film.capPrev.a && k < 1)){   /* แถบมืดหลังคำบรรยาย อ่านออกแม้ฉากหลังสว่าง */
+      var bg2 = ctx.createLinearGradient(0, y - R * .12, 0, S); bg2.addColorStop(0, 'rgba(10,7,9,0)'); bg2.addColorStop(.45, 'rgba(10,7,9,.72)'); bg2.addColorStop(1, 'rgba(10,7,9,.85)');
+      ctx.fillStyle = bg2; ctx.fillRect(0, y - R * .12, S, S - y + R * .12);
+    }
     one(film.capPrev, 1 - k); one(film.capCur, k);
   }
 
