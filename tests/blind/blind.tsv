@@ -3876,3 +3876,91 @@ My dad's chest pain spreads to his jaw and he's sweating	emergency	en	claude-see
 長く座って腰が痛かったけどストレッチで良くなった	none	ja	claude-seed
 足を長く組んでいてしびれた	none	ja	claude-seed
 生理中に腰が痛い	none	ja	claude-seed
+
+# ── ชุด AC: ล็อกไว้ก่อนขยาย core/frames.py รอบ 26 — เมลิออยโดสิส · ฉี่หนู · พิษสุนัขบ้า · เห็ดพิษ · งูกัด · ผู้สูงอายุล้มลุกไม่ได้ · ลงแดงจากเหล้า · ครรภ์เป็นพิษ ครบ 7 ภาษา ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 43/64 (ไม่เห็นเลย 21) · เตือนเกิน 1/21
+พ่อทำนาอยู่ เป็นเบาหวาน ไข้สูงหนาวสั่นมาสามวัน ตอนนี้หอบ	emergency	th	claude-seed
+ลุงเป็นเบาหวาน ทำไร่ทั้งวัน มีฝีหลายที่ ไข้สูงไม่ลด ซึมลง	emergency	th	claude-seed
+ลุยน้ำท่วมมาหลายวัน ตอนนี้ไข้สูง ปวดน่องมากจนเดินไม่ได้	emergency	th	claude-seed
+หลังลงไปดำนา ไข้ขึ้น ปวดกล้ามเนื้อน่อง ตาแดง ตัวเหลือง	emergency	th	claude-seed
+ลูกโดนหมาจรกัดที่มือ เลือดซิบ ยังไม่เคยฉีดวัคซีนพิษสุนัขบ้า	emergency	th	claude-seed
+แมวข้างบ้านข่วนจนเลือดออก แมวไม่เคยฉีดยา ต้องไปหาหมอไหม	emergency	th	claude-seed
+เก็บเห็ดในป่ามาแกงกินกันทั้งบ้าน ตอนนี้อาเจียน ท้องเสียกันหมด	emergency	th	claude-seed
+แม่กินเห็ดที่เก็บจากโคนต้นไม้ เมื่อคืน อาเจียนไม่หยุด ปวดท้องมาก	emergency	th	claude-seed
+พ่อโดนงูเห่าฉกที่เท้า ตอนนี้หนังตาตก พูดไม่ค่อยชัด	emergency	th	claude-seed
+ยายโดนงูกะปะกัด แผลบวมดำ เลือดออกตามไรฟัน	emergency	th	claude-seed
+ยายล้มในห้องน้ำ ลุกไม่ขึ้น ปวดสะโพกมาก ขาข้างหนึ่งบิดออก	emergency	th	claude-seed
+ตาล้มอยู่บนพื้นทั้งคืน เพิ่งมีคนมาเจอ ลุกเองไม่ได้	emergency	th	claude-seed
+ลุงหยุดเหล้ามาสองวัน มือสั่น เหงื่อแตก เห็นภาพหลอนว่ามีแมลงเต็มห้อง	emergency	th	claude-seed
+พี่ชายเลิกดื่มทันที ตอนนี้ชักเกร็ง สับสน	emergency	th	claude-seed
+เมียท้องแปดเดือน ปวดหัวมาก ตาพร่ามัว หน้าบวมเท้าบวม	emergency	th	claude-seed
+ตั้งครรภ์ 34 สัปดาห์ ความดันสูง ปวดใต้ลิ้นปี่ เห็นแสงวูบวาบ	emergency	th	claude-seed
+my uncle is a rice farmer with diabetes, high fever for days and now he's short of breath	emergency	en	claude-seed
+waded through floodwater last week, now a high fever and terrible calf pain	emergency	en	claude-seed
+a stray dog bit my son and he hasn't had any rabies shots	emergency	en	claude-seed
+we picked wild mushrooms and cooked them, now everyone is vomiting	emergency	en	claude-seed
+a cobra bit my dad on the ankle and his eyelids are drooping	emergency	en	claude-seed
+my 85 year old mom fell and can't get up, her hip hurts badly	emergency	en	claude-seed
+he stopped drinking suddenly two days ago and now he's shaking and seeing things	emergency	en	claude-seed
+I'm 32 weeks pregnant with a severe headache, blurry vision and swollen face	emergency	en	claude-seed
+mi abuelo es agricultor y diabético, tiene fiebre alta y le cuesta respirar	emergency	es	claude-seed
+caminé por agua de inundación y ahora tengo fiebre y dolor fuerte en las pantorrillas	emergency	es	claude-seed
+un perro callejero mordió a mi hija y no tiene la vacuna antirrábica	emergency	es	claude-seed
+comimos hongos silvestres del bosque y ahora todos vomitamos	emergency	es	claude-seed
+una serpiente mordió a mi padre y se le hinchó toda la pierna	emergency	es	claude-seed
+mi abuela se cayó y no puede levantarse, le duele mucho la cadera	emergency	es	claude-seed
+dejó de beber de golpe y ahora tiembla, suda y ve cosas que no existen	emergency	es	claude-seed
+estoy embarazada de 33 semanas, dolor de cabeza fuerte y visión borrosa	emergency	es	claude-seed
+bố tôi làm ruộng, bị tiểu đường, sốt cao nhiều ngày và khó thở	emergency	vi	claude-seed
+lội nước lũ mấy hôm, giờ sốt cao và đau bắp chân dữ dội	emergency	vi	claude-seed
+con tôi bị chó hoang cắn, chưa tiêm phòng dại	emergency	vi	claude-seed
+cả nhà ăn nấm rừng hái về, giờ ai cũng nôn	emergency	vi	claude-seed
+bố bị rắn hổ mang cắn, mí mắt sụp xuống	emergency	vi	claude-seed
+bà tôi bị ngã, không đứng dậy được, đau hông nhiều	emergency	vi	claude-seed
+anh tôi bỏ rượu đột ngột, giờ run tay, co giật	emergency	vi	claude-seed
+tôi mang thai 35 tuần, đau đầu dữ dội, mờ mắt, phù mặt	emergency	vi	claude-seed
+爸爸种水稻，有糖尿病，高烧好几天，现在喘不上气	emergency	zh	claude-seed
+蹚了洪水之后发高烧，小腿肌肉疼得走不了路	emergency	zh	claude-seed
+孩子被流浪狗咬了，还没打狂犬疫苗	emergency	zh	claude-seed
+一家人吃了山上采的野蘑菇，现在都在吐	emergency	zh	claude-seed
+爸爸被眼镜蛇咬了，眼皮耷拉下来	emergency	zh	claude-seed
+奶奶摔倒了起不来，髋部很痛	emergency	zh	claude-seed
+他突然戒酒两天，现在手抖、出汗、看到幻觉	emergency	zh	claude-seed
+怀孕八个月，头痛得厉害，眼睛看不清，脸肿	emergency	zh	claude-seed
+농사짓는 당뇨 있는 아버지가 며칠째 고열이고 숨이 차요	emergency	ko	claude-seed
+홍수 물을 건넌 뒤로 고열이 나고 종아리가 너무 아파요	emergency	ko	claude-seed
+아이가 떠돌이 개한테 물렸는데 광견병 주사를 안 맞았어요	emergency	ko	claude-seed
+산에서 딴 버섯을 먹고 가족 모두 토해요	emergency	ko	claude-seed
+아버지가 독사에게 물려서 다리가 퉁퉁 부었어요	emergency	ko	claude-seed
+할머니가 넘어져서 못 일어나시고 엉덩이가 많이 아프대요	emergency	ko	claude-seed
+술을 갑자기 끊었더니 손이 떨리고 헛것이 보인대요	emergency	ko	claude-seed
+임신 8개월인데 머리가 심하게 아프고 눈이 침침하고 얼굴이 부었어요	emergency	ko	claude-seed
+糖尿病の父が田んぼ仕事のあと高熱が何日も続き、息が苦しそう	emergency	ja	claude-seed
+洪水の中を歩いた後、高熱が出てふくらはぎがすごく痛い	emergency	ja	claude-seed
+子どもが野良犬にかまれたのに狂犬病のワクチンを打っていない	emergency	ja	claude-seed
+山で採ったキノコを家族で食べたら、みんな吐いている	emergency	ja	claude-seed
+父がマムシにかまれて足がひどく腫れてきた	emergency	ja	claude-seed
+祖母が転んで起き上がれず、股関節をすごく痛がっている	emergency	ja	claude-seed
+急に酒をやめたら手が震えて幻覚が見えるらしい	emergency	ja	claude-seed
+妊娠34週で激しい頭痛と目のかすみ、顔がむくんでいる	emergency	ja	claude-seed
+ทำนาเสร็จแล้วไปอาบน้ำพักผ่อน	none	th	claude-seed
+เก็บเห็ดฟางจากตลาดมาผัดกิน อร่อยดี	none	th	claude-seed
+ไปเที่ยวสวนงูดูโชว์จับงูเห่า	none	th	claude-seed
+พาหมาไปฉีดวัคซีนพิษสุนัขบ้าประจำปีแล้ว	none	th	claude-seed
+ยายล้มแต่ลุกเองได้ ไม่เจ็บตรงไหน	none	th	claude-seed
+ตั้งใจเลิกเหล้าเข้าพรรษาปีนี้	none	th	claude-seed
+ท้องเจ็ดเดือน เท้าบวมนิดหน่อยตอนเย็น หมอบอกปกติ	none	th	claude-seed
+the puppy nipped my finger while playing, no broken skin	none	en	claude-seed
+bought mushrooms at the supermarket for soup	none	en	claude-seed
+grandpa slipped but got right back up, he's fine	none	en	claude-seed
+I quit drinking last year and feel great	none	en	claude-seed
+vimos una serpiente en el zoológico	none	es	claude-seed
+compré champiñones en el mercado	none	es	claude-seed
+hôm nay đi cấy lúa mệt quá	none	vi	claude-seed
+đưa chó đi tiêm phòng dại rồi	none	vi	claude-seed
+超市买的香菇炒青菜	none	zh	claude-seed
+怀孕七个月，脚有点肿，医生说正常	none	zh	claude-seed
+버섯전골 끓여 먹었어요	none	ko	claude-seed
+금주 한 달째, 기분이 좋아요	none	ko	claude-seed
+スーパーで買ったしいたけを焼いた	none	ja	claude-seed
+動物園でヘビを見た	none	ja	claude-seed

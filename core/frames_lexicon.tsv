@@ -2280,3 +2280,159 @@ CAUDA_SIGN	vi	hai chân yếu|không nhịn tiểu|tê vùng mông|đi ngoài ra
 CAUDA_SIGN	zh	两条腿无力|兩條腿無力|憋不住尿|屁股周围发麻|屁股周圍發麻|大便失禁|两条腿都麻|兩條腿都麻|尿不出来|尿不出來
 CAUDA_SIGN	ko	양쪽 다리에 힘이 없|소변을 못 참|엉덩이 주변이 저리|변을 지렸|두 다리가 저리|소변이 안 나와
 CAUDA_SIGN	ja	両足に力が入らず|尿を我慢できない|お尻の周りがしびれ|便をもらした|両足がしびれ|尿が出ない
+# ── รอบ 26: โรคที่คนไทยเจอจริงในชนบท · ผู้สูงอายุ · คนท้อง ──
+# เมลิออยโดสิส: ทำนา/ทำไร่/ดินโคลน + เบาหวาน + ไข้
+FARMWORK	th	ทำนา|ดำนา|เกี่ยวข้าว|ทำไร่|ทำสวน|ลงนา|ย่ำโคลน|ขุดดิน|ชาวนา|ไถนา|ปักดำ
+FARMWORK	en	rice farmer|farmer|farm work|paddy|paddies|rice field|rice fields|working in the mud|planting rice|farming
+FARMWORK	es	agricultor|agricultora|campesino|campesina|arrozal|arrozales|campo de arroz|trabaja en el campo|sembrando arroz
+FARMWORK	vi	làm ruộng|cấy lúa|nông dân|ruộng lúa|làm nông|lội bùn|gặt lúa
+FARMWORK	zh	种水稻|種水稻|种田|種田|下田|稻田|农民|農民|干农活|幹農活|插秧
+FARMWORK	ko	농사|논일|밭일|농부|논에서|모내기
+FARMWORK	ja	田んぼ|農作業|農家|稲作|田植え|畑仕事
+MELIOID	th	เมลิออยด์|เมลิออยโดสิส|โรคไข้ดิน
+MELIOID	en	melioidosis|burkholderia
+MELIOID	es	melioidosis
+MELIOID	vi	whitmore|melioidosis|bệnh nhiễm khuẩn burkholderia
+MELIOID	zh	类鼻疽|類鼻疽
+MELIOID	ko	유비저
+MELIOID	ja	類鼻疽
+ABSCESS	th	ฝีหลายที่|ฝีหลายจุด|ฝีตามตัว|หนองหลายที่|ฝีในตับ
+ABSCESS	en	abscesses|boils all over|multiple boils
+ABSCESS	es	abscesos|forúnculos
+ABSCESS	vi	nhiều ổ áp xe|áp xe nhiều nơi|mụn nhọt khắp người
+ABSCESS	zh	多处脓肿|多處膿腫|全身脓包
+ABSCESS	ko	여러 군데 고름|종기가 여러
+ABSCESS	ja	あちこちに膿|膿瘍が複数
+# เลปโตสไปโรซิส: น้ำท่วม/ลุยน้ำ/ทำนา + ปวดน่อง หรือคำว่าฉี่หนู
+LEPTO_CTX	th	ลุยน้ำ|น้ำท่วม|ย่ำน้ำ|แช่น้ำ|ดำนา|ลงนา|ทำนา|ย่ำโคลน|น้ำขัง
+LEPTO_CTX	en	waded|wading|floodwater|flood water|floodwaters|flooded|paddy|rice field|rice fields|muddy water|sewer water
+LEPTO_CTX	es	inundación|inundaciones|agua de inundación|caminé por el agua|arrozal|aguas estancadas|agua sucia
+LEPTO_CTX	vi	lội nước|nước lũ|ngập lụt|lũ lụt|ruộng|nước ngập|lội bùn
+LEPTO_CTX	zh	蹚水|趟水|洪水|涉水|积水|積水|下田|稻田|泡水
+LEPTO_CTX	ko	홍수|물을 건너|침수|논에서|흙탕물
+LEPTO_CTX	ja	洪水|浸水|水の中を歩|田んぼ|冠水
+CALF_PAIN	th	ปวดน่อง|เจ็บน่อง|น่องปวด|ปวดกล้ามเนื้อน่อง|ปวดขามาก
+CALF_PAIN	en	calf pain|calves hurt|calf muscles|aching calves|pain in my calves|pain in his calves|pain in her calves
+CALF_PAIN	es	dolor en las pantorrillas|dolor de pantorrillas|me duelen las pantorrillas|pantorrillas
+CALF_PAIN	vi	đau bắp chân|bắp chân đau|nhức bắp chân
+CALF_PAIN	zh	小腿疼|小腿痛|小腿肌肉疼|小腿肌肉痛|腿肚子疼
+CALF_PAIN	ko	종아리가 아파|종아리 통증|종아리가 너무
+CALF_PAIN	ja	ふくらはぎが痛|ふくらはぎの痛み
+LEPTO	th	ฉี่หนู|เลปโตสไปโรซิส|เลปโต
+LEPTO	en	leptospirosis|weil's disease
+LEPTO	es	leptospirosis
+LEPTO	vi	xoắn khuẩn|leptospira
+LEPTO	zh	钩体病|鉤體病|钩端螺旋体|鉤端螺旋體
+LEPTO	ko	렙토스피라
+LEPTO	ja	レプトスピラ|ワイル病
+# พิษสุนัขบ้า: สัตว์กัด/ข่วน + ยังไม่ฉีดวัคซีน (ของคนหรือของสัตว์)
+SCRATCH	th	ข่วน|ตะปบ
+SCRATCH	en	scratched|scratch
+SCRATCH	es	arañó|arañazo|rasguñó|rasguño
+SCRATCH	vi	cào|cấu
+SCRATCH	zh	抓伤|抓傷|挠伤|撓傷|抓破
+SCRATCH	ko	할퀴|긁혔
+SCRATCH	ja	引っかかれ|ひっかかれ
+NO_RABIES_VAX	th	ไม่เคยฉีด|ยังไม่ได้ฉีด|ยังไม่ฉีด|ไม่ได้ฉีดวัคซีน|ไม่มีวัคซีน|ไม่รู้ว่าฉีดวัคซีน|หมาบ้า|ไม่รู้ว่าเป็นหมาของใคร
+NO_RABIES_VAX	en	hasn't had any rabies|no rabies shot|no rabies shots|not vaccinated|unvaccinated|never vaccinated|hasn't been vaccinated|haven't had rabies|no rabies vaccine|rabid|might have rabies
+NO_RABIES_VAX	es	no tiene la vacuna|sin vacuna|no está vacunado|no está vacunada|no vacunado|no vacunada|rabioso|rabiosa|sin vacunar
+NO_RABIES_VAX	vi	chưa tiêm phòng|chưa tiêm|không tiêm phòng|chó dại|mèo dại|chưa chích ngừa
+NO_RABIES_VAX	zh	没打狂犬|沒打狂犬|还没打|還沒打|没有打疫苗|没打疫苗|疯狗|瘋狗|未接种|未接種
+NO_RABIES_VAX	ko	광견병 주사를 안|예방접종을 안|접종 안|주사를 안 맞|미접종|광견병
+NO_RABIES_VAX	ja	ワクチンを打っていない|打っていない|未接種|狂犬病
+# เห็ดพิษ: เห็ดป่า/เก็บเห็ด + อาเจียน ท้องเสีย
+WILD_MUSH	th	เห็ดป่า|เก็บเห็ด|เห็ดที่เก็บ|เห็ดไม่รู้จัก|เห็ดขึ้นเอง|เห็ดระโงก|เห็ดพิษ|เห็ดเมา|เห็ดขี้ควาย
+WILD_MUSH	en	wild mushrooms|wild mushroom|foraged mushrooms|picked mushrooms|mushrooms we found|mushrooms from the forest|mushrooms from the woods|poisonous mushroom|toadstool|toadstools
+WILD_MUSH	es	hongos silvestres|setas silvestres|hongos del bosque|setas del bosque|hongos del campo|setas que recogimos|hongos que recogimos|hongo venenoso|seta venenosa
+WILD_MUSH	vi	nấm rừng|nấm dại|nấm lạ|nấm hái|nấm độc
+WILD_MUSH	zh	野蘑菇|野生菌|野菌|毒蘑菇|毒菌|采的蘑菇|採的蘑菇|采的菌|山上的蘑菇
+WILD_MUSH	ko	산에서 딴 버섯|야생 버섯|독버섯|산버섯|채취한 버섯
+WILD_MUSH	ja	山で採ったキノコ|野生のキノコ|毒キノコ|採ってきたキノコ|山のキノコ|きのこ狩り
+MUSH_SICK	th	อาเจียน|ท้องเสีย|ปวดท้อง|คลื่นไส้|อ้วก|ถ่ายเหลว|ตัวเหลือง|เป็นลม|มึนงง|เห็นภาพหลอน
+MUSH_SICK	en	vomit|vomiting|vomited|threw up|throwing up|diarrhea|nausea|belly pain|stomach pain|cramps|hallucinating
+MUSH_SICK	es	vomitamos|vomitan|vomitando|vómitos|diarrea|náuseas|dolor de estómago|alucinando
+MUSH_SICK	vi	nôn|ói|tiêu chảy|đau bụng|buồn nôn
+MUSH_SICK	zh	吐|呕吐|嘔吐|拉肚子|腹泻|腹瀉|肚子痛|恶心|噁心|幻觉|幻覺
+MUSH_SICK	ko	토해|토하|토했|설사|배가 아프|구토|메스꺼
+MUSH_SICK	ja	吐いて|吐い|下痢|腹痛|嘔吐|吐き気
+# งูกัด: คำว่างู + กัด/ฉก + อาการพิษ (บวม หนังตาตก เลือดออก หายใจลำบาก)
+SNAKE	th	งู
+SNAKE	en	snake|cobra|viper|krait|adder|rattlesnake|copperhead|pit viper|mamba
+SNAKE	es	serpiente|víbora|culebra|cascabel|cobra
+SNAKE	vi	rắn
+SNAKE	zh	蛇
+SNAKE	ko	뱀|독사|살모사|코브라
+SNAKE	ja	ヘビ|蛇|マムシ|ハブ|コブラ
+SNAKE_RED	th	บวม|หนังตาตก|ตาปรือ|พูดไม่ชัด|กลืนลำบาก|หายใจลำบาก|หายใจไม่ออก|เลือดออก|ไรฟัน|ม่วงคล้ำ|แผลดำ|ชา|อ่อนแรง|ปัสสาวะเป็นเลือด
+SNAKE_RED	en	swelling|swollen|swell|eyelids are drooping|eyelids drooping|droopy eyelids|slurred|can't swallow|trouble breathing|can't breathe|bleeding gums|bleeding|numb|weak|blistering
+SNAKE_RED	es	hinchó|hinchada|hinchado|hinchazón|párpados caídos|no puede respirar|le cuesta respirar|sangrado|sangra|entumecido|débil
+SNAKE_RED	vi	sưng|mí mắt sụp|sụp mí|khó thở|khó nuốt|chảy máu|tê|yếu
+SNAKE_RED	zh	肿|腫|眼皮耷拉|眼皮下垂|喘不上气|呼吸困难|呼吸困難|出血|麻木|没力气
+SNAKE_RED	ko	부었|붓고|부어|눈꺼풀이 처|숨쉬기|숨이 차|피가|저려|힘이 없
+SNAKE_RED	ja	腫れ|まぶたが下が|息が苦し|出血|しびれ|力が入らない
+# ผู้สูงอายุล้มแล้วลุกไม่ได้ (สะโพกหัก/นอนบนพื้นนาน)
+ELDER	th	ยาย|ย่า|ตา|ปู่|คุณยาย|คุณตา|ผู้สูงอายุ|คนแก่|แม่อายุ|พ่ออายุ|ป้า|ลุง
+ELDER	en	grandma|grandpa|grandmother|grandfather|elderly|old man|old woman|year old mom|year old dad|year old mother|year old father|my nan|my gran
+ELDER	es	abuela|abuelo|anciana|anciano|mi madre mayor|mi padre mayor|adulto mayor
+ELDER	vi	bà|ông|cụ|người già|bà nội|ông nội|bà ngoại|ông ngoại
+ELDER	zh	奶奶|爷爷|爺爺|外婆|姥姥|外公|姥爷|老人|老太太|老大爷|老爸|老妈
+ELDER	ko	할머니|할아버지|노인|어르신|노모|노부
+ELDER	ja	祖母|祖父|おばあちゃん|おじいちゃん|高齢|老人|年寄り
+CANT_GET_UP	th	ลุกไม่ขึ้น|ลุกไม่ได้|ลุกเองไม่ได้|ยืนไม่ได้|ล้มอยู่บนพื้น|นอนอยู่บนพื้น|ขาบิดออก|ปวดสะโพก
+CANT_GET_UP	en	can't get up|cannot get up|couldn't get up|unable to get up|can't stand|on the floor all night|on the floor for hours|hip hurts|hip pain|leg is twisted
+CANT_GET_UP	es	no puede levantarse|no se puede levantar|no puede pararse|en el suelo toda la noche|le duele mucho la cadera|dolor de cadera
+CANT_GET_UP	vi	không đứng dậy được|không dậy được|nằm dưới sàn|đau hông|không đứng được
+CANT_GET_UP	zh	起不来|起不來|站不起来|站不起來|躺在地上|髋部很痛|髖部很痛|髋部痛|胯骨痛
+CANT_GET_UP	ko	못 일어나|일어나지 못|일어날 수가 없|바닥에 쓰러져|엉덩이가 많이 아프|고관절
+CANT_GET_UP	ja	起き上がれ|立ち上がれ|床に倒れたまま|股関節|足の付け根が痛
+ELDER_FALL	th	ล้ม|หกล้ม|ลื่นล้ม|ตกเตียง
+ELDER_FALL	en	fell|fallen|fall|slipped|took a fall
+ELDER_FALL	es	se cayó|cayó|caída|resbaló
+ELDER_FALL	vi	ngã|té|trượt chân
+ELDER_FALL	zh	摔倒|跌倒|摔了|滑倒
+ELDER_FALL	ko	넘어지|넘어져|넘어졌|미끄러
+ELDER_FALL	ja	転んで|転倒|転んだ|滑って
+GOT_UP	th	ลุกเองได้|ลุกขึ้นได้|ไม่เจ็บ|ไม่เป็นไร|ปกติดี
+GOT_UP	en	got right back up|got back up|got up fine|he's fine|she's fine|no pain|not hurt
+GOT_UP	es	se levantó sola|se levantó solo|está bien|no le duele
+GOT_UP	vi	tự đứng dậy|không sao|không đau
+GOT_UP	zh	自己站起来|没事|沒事|不疼
+GOT_UP	ko	혼자 일어나|괜찮|안 아프
+GOT_UP	ja	自分で起き上が|大丈夫|痛くない
+# ลงแดงจากเหล้า: หยุดดื่มกะทันหัน + ภาพหลอน ชัก สับสน (มือสั่นอย่างเดียวให้คำแนะนำเรื่องเลิกเหล้าตามเดิม ไม่ใช่ 1669)
+ALC_STOP	th	หยุดเหล้า|เลิกเหล้า|เลิกดื่ม|หยุดดื่ม|อดเหล้า|ขาดเหล้า|ไม่ได้กินเหล้า|ลงแดง
+ALC_STOP	en	stopped drinking|quit drinking|stopped alcohol|cut off alcohol|without a drink|no alcohol for|withdrawal|withdrawals|detoxing|the shakes|delirium tremens
+ALC_STOP	es	dejó de beber|dejó el alcohol|dejé de beber|sin beber|abstinencia|síndrome de abstinencia
+ALC_STOP	vi	bỏ rượu|cai rượu|ngừng uống rượu|không uống rượu|thiếu rượu
+ALC_STOP	zh	戒酒|停酒|断酒|斷酒|不喝酒了|戒断|戒斷
+ALC_STOP	ko	술을 끊|술을 갑자기 끊|금단|술을 안 마신 지
+ALC_STOP	ja	酒をやめ|お酒をやめ|断酒|禁酒|離脱症状
+WITHDRAW_SIGN	th	ภาพหลอน|เห็นภาพหลอน|เห็นสิ่งที่ไม่มี|หูแว่ว|ชัก|สับสน|เพ้อ|ไม่รู้สึกตัว
+WITHDRAW_SIGN	en	seeing things|hallucinating|hallucinations|seizure|seizures|confused|bugs crawling|delirium
+WITHDRAW_SIGN	es	ve cosas|alucina|alucinaciones|convulsiones|convulsión|confundido|confundida|delirando
+WITHDRAW_SIGN	vi	ảo giác|thấy những thứ|co giật|lú lẫn|mê sảng
+WITHDRAW_SIGN	zh	幻觉|幻覺|抽搐|癫痫|癲癇|神志不清|胡言乱语|看到不存在
+WITHDRAW_SIGN	ko	헛것|환각|경련|발작|횡설수설|정신이 혼미
+WITHDRAW_SIGN	ja	幻覚|けいれん|痙攣|発作|錯乱|意識がもうろう
+QUIT_OK	th	เข้าพรรษา|ตั้งใจเลิก|เลิกมาปี|เลิกได้แล้ว|เลิกมานาน
+QUIT_OK	en	last year|feel great|years sober|months sober|sober for
+QUIT_OK	es	el año pasado|me siento genial|años sobrio
+QUIT_OK	vi	năm ngoái|thấy khỏe
+QUIT_OK	zh	去年|感觉很好|感覺很好
+QUIT_OK	ko	한 달째|기분이 좋|작년
+QUIT_OK	ja	去年|気分がいい
+# ครรภ์เป็นพิษ: ตั้งครรภ์ + อาการ (ปวดหัวมาก ตาพร่า บวมหน้า ความดันสูง ปวดใต้ลิ้นปี่)
+PREECL_SIGN	th	ปวดหัวมาก|ปวดศีรษะรุนแรง|ตาพร่า|ตามัว|เห็นแสงวูบวาบ|หน้าบวม|ความดันสูง|ปวดใต้ลิ้นปี่|ปวดจุกลิ้นปี่|ชัก|มือบวมหน้าบวม
+PREECL_SIGN	en	severe headache|bad headache|blurry vision|blurred vision|seeing spots|flashing lights|swollen face|face is swollen|high blood pressure|pain under my ribs|upper belly pain|seizure
+PREECL_SIGN	es	dolor de cabeza fuerte|dolor de cabeza intenso|visión borrosa|veo luces|cara hinchada|presión alta|dolor bajo las costillas|convulsión
+PREECL_SIGN	vi	đau đầu dữ dội|nhức đầu dữ dội|mờ mắt|nhìn mờ|phù mặt|huyết áp cao|đau thượng vị|co giật
+PREECL_SIGN	zh	头痛得厉害|頭痛得厲害|剧烈头痛|劇烈頭痛|眼睛看不清|视力模糊|視力模糊|脸肿|臉腫|血压高|血壓高|上腹痛|抽搐
+PREECL_SIGN	ko	머리가 심하게|심한 두통|눈이 침침|시야가 흐|얼굴이 부|혈압이 높|명치가 아프|경련
+PREECL_SIGN	ja	激しい頭痛|ひどい頭痛|目のかすみ|目がかすむ|顔がむくん|血圧が高|みぞおちが痛|けいれん
+PREG_NORMAL	th	หมอบอกปกติ|เท้าบวมนิดหน่อย|บวมนิดหน่อย|ตามปกติ
+PREG_NORMAL	en	doctor said it's normal|doctor says normal|a little swelling|slightly swollen feet
+PREG_NORMAL	es	el médico dijo que es normal|un poco hinchados
+PREG_NORMAL	vi	bác sĩ nói bình thường|hơi phù chân
+PREG_NORMAL	zh	医生说正常|醫生說正常|有点肿|有點腫
+PREG_NORMAL	ko	의사가 정상|조금 부었
+PREG_NORMAL	ja	医者は正常|少しむくん

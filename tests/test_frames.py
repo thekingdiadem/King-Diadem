@@ -742,3 +742,39 @@ def test_blade_self_harm_by_someone_else_vs_accidents():
     assert "someone" in assess("น้องใช้คัตเตอร์กรีดแขน")["topics"]
     assert "someone" not in assess("My friend bought a new razor and shaved his arms")["topics"]
     assert "someone" not in assess("My son cut his arm on broken glass at the beach")["topics"]
+
+
+# ── รอบ 26: เมลิออยโดสิส · ฉี่หนู · พิษสุนัขบ้า · เห็ดพิษ · งูกัด · ผู้สูงอายุล้ม · ลงแดงจากเหล้า · ครรภ์เป็นพิษ (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา AC) ──
+DANGER_26 = [
+    "แม่เป็นเบาหวาน ไปเกี่ยวข้าวมา ไข้สูงหนาวสั่น", "farmer with diabetes, fever and chills for a week", "类鼻疽，高烧不退",
+    "หลังน้ำท่วมมีไข้ ปวดน่องมาก", "fever after wading in the paddy, calf pain is awful", "đi lội nước lũ về bị sốt, đau bắp chân",
+    "แมวจรข่วนแขน ยังไม่ได้ฉีดวัคซีน", "a stray cat scratched my hand and I'm not vaccinated", "被疯狗咬了一口",
+    "กินเห็ดป่าแล้วอาเจียน", "ate toadstools from the garden and now vomiting", "독버섯을 먹고 구토해요",
+    "โดนงูกัดที่นิ้ว ตอนนี้แขนบวม", "bitten by a rattlesnake, leg swelling fast", "マムシにかまれて腫れてきた",
+    "คุณตาหกล้มในครัว ลุกไม่ได้", "my grandpa slipped in the bathroom and can't get up", "할아버지가 넘어져서 못 일어나세요",
+    "เลิกเหล้าได้สามวัน มือสั่น หูแว่ว", "day two without a drink and he is seeing bugs crawling on the wall", "戒酒以后手抖、看到幻觉",
+    "ตั้งครรภ์ 36 สัปดาห์ ตาพร่า ปวดหัวมาก", "pregnant and suddenly blurry vision with a severe headache", "妊娠中で激しい頭痛と目のかすみ",
+]
+CALM_26 = [
+    "ไปทำนากับพ่อ สนุกดี", "bought mushrooms for pizza", "ยายหกล้มแต่ลุกเองได้", "I quit drinking last year and feel great",
+    "ท้องหกเดือน เท้าบวมนิดหน่อย หมอบอกปกติ", "saw a cobra at the zoo",
+]
+
+
+@pytest.mark.parametrize("text", DANGER_26)
+def test_round26_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_26)
+def test_round26_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+def test_round26_thai_answers_keep_specific_first_aid():
+    """งูกัดแล้วบวมเคยได้แค่คำตอบฉุกเฉินทั่วไป ไม่มี "ห้ามขันชะเนาะ" · ลงแดงแค่มือสั่นไม่ควรกลายเป็น 1669"""
+    from core.kernel_voice import compose
+    assert "ห้ามขันชะเนาะ" in compose("งูฉกที่เท้า เท้าบวมขึ้นเรื่อยๆ")
+    assert "ทุกคนที่กิน" in compose("เก็บเห็ดป่ามาต้มกิน ท้องเสียหนัก")
+    assert "อย่าพยายามดึงให้ลุก" in compose("ย่าลื่นล้มในห้องน้ำ ลุกไม่ขึ้น")
+    assert "อย่าหยุดเองคนเดียวทันที" in compose("อยากเลิกเหล้า แต่ลงแดง มือสั่น")

@@ -164,6 +164,16 @@ FRAMES = (
     ("scorpion", "medical", "health_emergency", (("SCORPION", "SCORP_RED"),), ("FICTION", "HYPOTHETICAL")),
     ("pneumothorax", "medical", "health_emergency", (("ONE_SIDE_CHEST", "BREATHLESS"),), ("FICTION", "HYPOTHETICAL")),
     ("cauda_equina", "medical", "health_emergency", (("BACK_PAIN2", "CAUDA_SIGN"),), ("FICTION", "HYPOTHETICAL", "PERIOD")),
+    # รอบ 26 (ชุดปิดตา AC ล็อกไว้ก่อนเขียน) — โรคที่คนไทยเจอจริง: ชนบท · ผู้สูงอายุ · คนท้อง
+    ("melioidosis", "medical", "health_emergency", (("MELIOID",), ("FARMWORK", "DIABETES", "FEVER"), ("DIABETES", "ABSCESS", "FEVER")), ("FICTION", "HYPOTHETICAL")),
+    ("leptospirosis", "medical", "health_emergency", (("LEPTO", "FEVER"), ("LEPTO_CTX", "FEVER", "CALF_PAIN")), ("FICTION", "HYPOTHETICAL")),
+    ("rabies_exposure", "medical", "health_emergency", (("ANIMAL", "BITE", "NO_RABIES_VAX"), ("ANIMAL", "SCRATCH", "NO_RABIES_VAX")),
+     ("FICTION", "HYPOTHETICAL", "NOT_BITE")),
+    ("mushroom", "medical", "health_emergency", (("WILD_MUSH", "MUSH_SICK"),), ("FICTION", "HYPOTHETICAL")),
+    ("snakebite", "medical", "health_emergency", (("SNAKE", "BITE", "SNAKE_RED"),), ("FICTION", "HYPOTHETICAL", "NOT_BITE")),
+    ("elder_fall", "medical", "health_emergency", (("ELDER", "ELDER_FALL", "CANT_GET_UP"),), ("FICTION", "HYPOTHETICAL", "GOT_UP")),
+    ("alcohol_withdrawal", "medical", "health_emergency", (("ALC_STOP", "WITHDRAW_SIGN"),), ("FICTION", "HYPOTHETICAL", "QUIT_OK")),
+    ("preeclampsia", "medical", "health_emergency", (("PREGNANT", "PREECL_SIGN"),), ("FICTION", "HYPOTHETICAL", "PREG_NORMAL")),
 )
 
 
