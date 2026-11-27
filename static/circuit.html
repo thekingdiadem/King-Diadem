@@ -92,7 +92,7 @@ body.film #cap{display:none}
      มืด → แสงจุดที่ใจกลาง → ข้อความเดินทาง → แสงแผ่ออกทีละวงจนถึงวงนอกสุด → ทั้งระบบทำงาน
      ?film=1&wait=1 = รอ window.__filmGo ก่อนเริ่ม (ใช้ตอนอัดคลิป ให้รอชุดข้อมูลสดก่อน) */
   var film = /[?&]film=1/.test(location.search) ? {t: 0, ph: 0, ign: 0, rev: 0, go: false} : null;
-  if(film) document.body.classList.add('film');
+  if(film){ document.body.classList.add('film'); window.__film = film; }   /* ตัวอัดคลิปอ่านเวลาของแต่ละฉาก */
   /* ลายเส้นพู่กัน (?ink=1): หัวหนาปลายแหลม แกนขาวทองคม ขอบสีบาง หมอกเรืองน้อยลง */
   var INK = !!film && /[?&]ink=1/.test(location.search);
   /* กล้อง (เฉพาะโหมดภาพยนตร์): จุดโฟกัส · ซูม · เอียงเป็นมิติ (ty < 1 = วงเอียงหนีสายตา) */
