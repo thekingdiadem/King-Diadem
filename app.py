@@ -1065,7 +1065,8 @@ def service_worker():
 
 @app.get("/favicon.ico")
 def favicon():
-    return FileResponse("static/logo.png")
+    # ไอคอนเดียวกับ <link rel="icon"> ทุกหน้า — เดิมส่ง logo.png (ตราเก่า) แถบที่อยู่เลยค้างไอคอนเก่า
+    return FileResponse("static/icons/favicon-48.png", media_type="image/png", headers={"Cache-Control": "no-cache"})
 
 @app.get("/wallet")
 async def wallet_page():
