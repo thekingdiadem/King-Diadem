@@ -31,7 +31,7 @@ def test_phone_memory_bounded():
 
 
 def test_opalite_dawn_ring_and_title():
-    assert "vec3 opal=vec3(.58,.5,.66)" in JS and "float dawn=pow(" in JS and "*(1.-near);}'" in JS   # ในยานปิด
+    assert "vec3 opal=" not in JS                                  # ขอบโลกตามจริง: ฟ้าบางๆ + airglow เขียว/แดง ไม่มีวงโอปอลแต่ง
     uni = Path("static/king_diadem_universe.html").read_text(encoding="utf-8")
     assert "@keyframes kd-opal" in uni and "#hero .hero-title{animation:none}" in uni   # ลดการเคลื่อนไหว = นิ่ง
 
