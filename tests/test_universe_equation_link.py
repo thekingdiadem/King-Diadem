@@ -25,3 +25,4 @@ def test_equations_page_explains_choice_floor_honestly():
     src = (ROOT / "ENGINE/risk_engine.py").read_text(encoding="utf-8")
     if "max(1, int((100 - risk_score) / 20))" in src:
         assert "max(1, ⌊(100 − Risk) / 20⌋)" in html
+    assert ("choice_measured" in src) == ("choice_measured" in html)
