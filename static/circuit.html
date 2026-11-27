@@ -543,8 +543,9 @@ body.film #cap{display:none}
       var g2 = o.createLinearGradient(gx - S * .12, 0, gx + S * .12, 0);
       g2.addColorStop(0, 'rgba(255,255,255,0)'); g2.addColorStop(.5, 'rgba(255,252,240,.85)'); g2.addColorStop(1, 'rgba(255,255,255,0)');
       o.fillStyle = g2; o.fillRect(0, 0, S, S);
-      ctx.save(); ctx.globalAlpha = crisp;
-      ctx.globalCompositeOperation = 'lighter'; blob('255,200,120', C, gy, R * .7 * zoom, .16); ctx.globalCompositeOperation = 'source-over';
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter'; blob('255,200,120', C, gy, R * .7 * zoom, .16 * crisp); ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = crisp;   /* ตั้งหลัง blob — blob คืนค่า globalAlpha เป็น 1 ทำให้ตัวอักษรไม่จางตอนกล้องพุ่งผ่าน */
       ctx.shadowColor = 'rgba(255,200,120,.5)'; ctx.shadowBlur = intro.fs * .2;
       ctx.drawImage(oc, 0, 0, S, S); ctx.restore();
       var sub = ease((t - 2.5) / .6) * (1 - dive);
