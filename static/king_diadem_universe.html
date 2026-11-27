@@ -534,6 +534,9 @@ html.bb-on,html.bb-on body{overflow:hidden}
 @media (prefers-reduced-motion:reduce){#hero .hero-title .ch{animation-play-state:paused}}
 html.kd-calm #hero .hero-title .ch{animation-play-state:paused}
 #hero .hero-title.earth-tint .ch{animation:none;transition:color 2.4s ease}
+/* กระโดดหน้าผา: ระหว่างกล้องพุ่ง ซ่อนหัวเรื่อง แล้วค่อยๆ ลอยขึ้นมาตอนกล้องเริ่มช้า */
+#hero>div:not(.earth-ctl){transition:opacity 1.8s ease,transform 2.4s cubic-bezier(.2,.7,.2,1)}
+html.kd-dive #hero>div:not(.earth-ctl){opacity:0;transform:translateY(18px)}
 </style>
 </head>
 <body>

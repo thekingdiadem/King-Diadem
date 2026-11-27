@@ -428,6 +428,34 @@
     if (hero) { hero.style.setProperty('--hero-a', '0'); hero.classList.add('zoomed'); }   // โลกหยุดวาดแล้ว — ต้องซ่อนหัวเรื่องเอง
     return true;
   }
+  // ── กระโดดหน้าผา (พี่คิง): เปิดหน้า กล้องพุ่งจากอวกาศไกลลงหาโลกเร็วๆ แล้วชะลอเป็นสโลว์โมชั่นตอนใกล้ถึง
+  // เหมือนช่วงลอยกลางอากาศก่อนแตะผิวน้ำ — หัวเรื่องค่อยปรากฏตอนกล้องเริ่มช้า · ลดการเคลื่อนไหว / แตะจอ = ข้าม
+  var DIVE = { on: false, t0: 0, dur: 6200, from: -.7, lat0: 0 };
+  function diveEase(p) { return 1 - Math.pow(1 - p, 2.3); }            // เร็วสุดตอนออกตัว แล้วช้าลงต่อเนื่องจนแทบหยุดตอนแตะ (ไม่มีจังหวะสะดุด)
+  function diveStep(now) {
+    if (!DIVE.t0) DIVE.t0 = now;
+    var p = Math.min(1, (now - DIVE.t0) / DIVE.dur), e = Math.min(1, Math.max(0, diveEase(p)));
+    S.L = S.tL = DIVE.from + (1 - DIVE.from) * e;
+    S.lat = S.tlat = DIVE.lat0 + (40 - DIVE.lat0) * e;
+    sync();
+    if (p > .62) document.documentElement.classList.remove('kd-dive');   // ลอยช้าแล้ว — หัวเรื่องค่อยปรากฏ
+    if (p >= 1) { DIVE.on = false; S.L = S.tL = 1; sync(); }
+    kick();
+  }
+  function startDive() {
+    if (calm() || DIVE.on) return;
+    DIVE.on = true; DIVE.t0 = 0; DIVE.lat0 = 8;
+    S.L = S.tL = DIVE.from; sync();
+    document.documentElement.classList.add('kd-dive');
+    kick();
+  }
+  function stopDive() { if (!DIVE.on) return; DIVE.on = false; S.tL = 1; document.documentElement.classList.remove('kd-dive'); }
+  ['pointerdown', 'wheel', 'keydown'].forEach(function (ev) { window.addEventListener(ev, stopDive, { passive: true }); });
+  (function () {
+    // บิ๊กแบงกำลังเล่น (html.bb-on) = รอให้จบแล้วกระโดดต่อทันที · ไม่ได้เล่น = กระโดดเลย
+    if (document.documentElement.classList.contains('bb-on')) window.addEventListener('kd-bang-done', startDive, { once: true });
+    else startDive();
+  })();
   function settle() { if (calm()) { S.lon = S.tlon; S.lat = S.tlat; S.L = S.tL; sync(); } }
   function hold(ms) { idleUntil = performance.now() + ms; kick(); }
   function degPerPx(V) {                                             // ระยะบนพื้นต่อ 1 พิกเซล (องศา) ตรงกลางจอ
@@ -719,6 +747,7 @@
     var k = still ? 1 : 1 - Math.exp(-dt * (gest ? 18 : 5));
     S.lon += (S.tlon - S.lon) * k; S.lat += (S.tlat - S.lat) * k;
     S.L += (S.tL - S.L) * (still ? 1 : 1 - Math.exp(-dt * (gest ? 16 : 4)));
+    if (DIVE.on) diveStep(now);
     sync();
     if (S.tL > LMAX - 1 && window.KD_cityMap) window.KD_cityMap.prefetch();   // ใกล้ถึงระดับเมือง — โหลดแผนที่รอไว้
     var dayT = dayOn();
