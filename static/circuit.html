@@ -410,10 +410,11 @@ body.film #cap{display:none}
       var nb = Math.min(1, (film.ign || 0) + (film.ph >= 1 ? 1 : 0)) * (.55 + .45 * (film.stormK || 0));
       if(nb > 0){
         ctx.globalCompositeOperation = 'lighter';
-        blob('90,60,160', S * .12, S * .38, S * .62, .42 * nb); blob('120,60,110', S * .5, S * .55, S * .5, .22 * nb);
+        blob('90,60,160', S * .12, S * .38, S * .62, .28 * nb); blob('120,60,110', S * .5, S * .55, S * .5, .12 * nb);
         blob('170,120,40', S * .9, S * .4, S * .6, .38 * nb);
         ctx.globalCompositeOperation = 'source-over';
       }
+      ctx.globalAlpha = .9; ctx.drawImage(deepField(), 0, 0, S, S); ctx.globalAlpha = 1;
       if(!cam.x){ cam.x = cam.y = C; cam.z = 2.3; } camSet();
     }
     else { ctx.translate(C, C); ctx.rotate(rot); ctx.translate(-C, -C); }
@@ -466,7 +467,7 @@ body.film #cap{display:none}
         ctx.strokeStyle = 'rgba(' + c + ',' + (.6 * k) + ')'; ctx.lineWidth = .4 + 1.1 * k;
         ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); prev = q;
       }
-      var h = at(p.e.pts, p.d); blob(c, h[0], h[1], film ? 10 : 7, film ? .9 : .8);
+      var h = at(p.e.pts, p.d); blob(c, h[0], h[1], film ? 6 : 7, film ? .7 : .8);
       ctx.fillStyle = 'rgba(255,248,235,.95)'; ctx.beginPath(); ctx.arc(h[0], h[1], 1.1, 0, 7); ctx.fill();
     });
     flashes.forEach(function(x){
@@ -517,11 +518,12 @@ body.film #cap{display:none}
     storm.forEach(function(p){
       if(INK){ var bb = at(p.e.pts, p.d); brush(accx, p.e.pts, p.d, 16, sideC(proj(bb[0], bb[1])[0]), .9, .2); return; }
       var a = at(p.e.pts, Math.max(0, p.d - 9)), b = at(p.e.pts, p.d);
-      accx.strokeStyle = 'rgba(' + sideC(proj(b[0], b[1])[0]) + ',.24)'; accx.beginPath(); accx.moveTo(a[0], a[1]); accx.lineTo(b[0], b[1]); accx.stroke();
+      accx.strokeStyle = 'rgba(' + sideC(proj(b[0], b[1])[0]) + ',.15)'; accx.beginPath(); accx.moveTo(a[0], a[1]); accx.lineTo(b[0], b[1]); accx.stroke();
     });
-    ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(acc, 0, 0, S, S);
-    var k = film.stormK || 0;                         /* ใจกลางกับทั้งวงค่อยๆ เรืองตามความหนาแน่นของแสง */
-    blob('240,200,235', C, C, R * (.5 + .7 * k), .25 * k); blob('200,190,255', C, C, R * 1.15, .18 * k);
+    /* ลุคเลนส์: ใยแสงไม่ให้ซ้อนจนขาวโพลน — ลดน้ำหนักผืนสะสม และเลิกหมอกเรืองทับทั้งวง */
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .72; ctx.drawImage(acc, 0, 0, S, S); ctx.globalAlpha = 1;
+    var k = film.stormK || 0;
+    blob('240,200,235', C, C, R * .35, .08 * k);
     ctx.globalCompositeOperation = 'source-over';
   }
   /* ── ฉากเปิดแบบค่ายหนัง (เวลาจำลอง 0–4.2 วินาที) ──
@@ -636,7 +638,31 @@ body.film #cap{display:none}
     }
   }
   /* ชั้นบนสุดของโหมดภาพยนตร์ (ไม่หมุน ไม่เอียง): ฝุ่นดาวลอย · ชื่อเปิดเรื่อง */
+  /* ฉากลึกระดับเอกภพ: ดาวจุดคมไม่ฟุ้ง สีตามอุณหภูมิดาวจริง (น้ำเงิน-ขาว-เหลือง-ส้ม) + กาแล็กซีไกลจางๆ */
+  var deep = null;
+  function deepField(){
+    if(deep) return deep;
+    deep = document.createElement('canvas'); deep.width = deep.height = Math.round(S * dpr);
+    var g = deep.getContext('2d'); g.scale(dpr, dpr);
+    var TEMP = ['170,191,255', '202,215,255', '248,247,255', '255,244,234', '255,210,161', '255,190,140'];
+    for(var i = 0; i < 1400; i++){
+      var m = Math.pow(Math.random(), 3), x = Math.random() * S, y = Math.random() * S;
+      g.fillStyle = 'rgba(' + TEMP[(Math.random() * TEMP.length) | 0] + ',' + (.18 + .8 * m) + ')';
+      var r = .25 + m * .9; g.fillRect(x - r / 2, y - r / 2, r, r);
+    }
+    for(var j = 0; j < 9; j++){                      /* กาแล็กซีไกล: วงรีเล็ก แกนสว่างนิดเดียว */
+      var gx = Math.random() * S, gy = Math.random() * S, gr = 3 + Math.random() * 7, ga = Math.random() * Math.PI;
+      g.save(); g.translate(gx, gy); g.rotate(ga); g.scale(1, .32 + Math.random() * .3);
+      var rg = g.createRadialGradient(0, 0, 0, 0, 0, gr); rg.addColorStop(0, 'rgba(255,240,220,.35)'); rg.addColorStop(.3, 'rgba(210,200,255,.12)'); rg.addColorStop(1, 'rgba(200,190,255,0)');
+      g.fillStyle = rg; g.beginPath(); g.arc(0, 0, gr, 0, 7); g.fill(); g.restore();
+    }
+    return deep;
+  }
   function filmScreen(){
+    /* ขอบภาพมืดลงแบบเลนส์ ให้ดำลึก ไม่ใช่เทาหม่น */
+    var vg = ctx.createRadialGradient(C, C, S * .38, C, C, S * .75);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.55)');
+    ctx.fillStyle = vg; ctx.fillRect(0, 0, S, S);
     if(!dust.length) for(var i = 0; i < 170; i++) dust.push({x: Math.random() * S, y: Math.random() * S, vx: (Math.random() - .5) * 4, vy: -1.5 - Math.random() * 4, s: .4 + Math.random() * 1.3, p: Math.random() * 6.28});
     ctx.globalCompositeOperation = 'lighter';
     dust.forEach(function(d){
