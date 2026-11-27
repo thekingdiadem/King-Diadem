@@ -820,3 +820,10 @@ def test_alcohol_withdrawal_hallucination_is_not_psychosis():
     assert "psychosis" not in assess(t)["topics"]
     assert "ขาดสุรา" in compose(t)
     assert "psychosis" in assess("ช่วงนี้หูแว่ว เห็นภาพหลอน")["topics"]   # ไม่มีเรื่องเหล้า = ยังเป็นเรื่องจิตเวช
+
+
+@pytest.mark.parametrize("text", ["หยุดเหล้ามือสั่น หยิบของก็สั่น", "มือสั่นตั้งแต่เลิกดื่ม", "ขาดเหล้าสองวัน เหงื่อแตก นอนไม่หลับ"])
+def test_stopping_alcohol_with_tremor_gets_withdrawal_advice(text):
+    """เคยได้คำตอบทั่วไป ("เขียนสิ่งที่เกิดขึ้นเป็นประโยคเดียว") ไม่มีคำแนะนำเรื่องขาดสุราเลย"""
+    from core.kernel_voice import compose
+    assert "ขาดสุรา" in compose(text)
