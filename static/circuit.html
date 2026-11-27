@@ -225,7 +225,8 @@ body.film #cap{display:none}
   /* ขึ้นภาพทันทีจากชุดที่บันทึกไว้ (static) แล้วเปลี่ยนเป็นชุดสดเมื่อเซิร์ฟเวอร์นับเสร็จ (~10 วินาทีครั้งแรก) */
   var ready = false, pending = null;   /* ชุดสดที่มาถึงระหว่างดูข้อความเดินทาง — รอจบก่อนค่อยสลับ */
   getJSON('/static/system_map.json').then(function(d){ if(!ready) init(d); }).catch(function(){});
-  getJSON('/api/system_map').then(function(d){ if(d && d.files){ if(trip) pending = d; else init(d); } })
+  /* ภาพยนตร์ใช้ชุดที่บันทึกไว้ชุดเดียว: ชุดสดมาถึงไม่แน่นอนตามเวลาจริง ทำให้อัดเป็นช่วงแล้วต่อกันไม่ตรงเฟรม */
+  if(!film) getJSON('/api/system_map').then(function(d){ if(d && d.files){ if(trip) pending = d; else init(d); } })
     .catch(function(){ if(!ready) document.getElementById('stat').textContent = 'โหลดไม่ได้ ลองรีเฟรช'; });
 
   /* ระดับเมือง: ฟังก์ชัน/คลาสจริงทุกตัว (static/func_map.json จาก scripts/build_func_map.py) */
@@ -249,6 +250,7 @@ body.film #cap{display:none}
       var a = FN[e[0]], b = FN[e[1]], same = a.f === b.f;
       return {a: a, b: b, same: same, pts: same ? null : curve(a, b)};
     });
+    window.__cityReady = 1;
   }
   function init(d){
     var first = !ready; ready = true;
