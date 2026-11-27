@@ -779,3 +779,27 @@ def test_round26_thai_answers_keep_specific_first_aid():
     fall = compose("ย่าลื่นล้มในห้องน้ำ ลุกไม่ขึ้น")
     assert "อย่าพยายามดึงให้ลุก" in fall or "อย่ารีบดึงให้ลุก" in fall   # คำตอบปฐมพยาบาลเดิมก็บอกไว้แล้ว
     assert "อย่าหยุดเองคนเดียวทันที" in compose("อยากเลิกเหล้า แต่ลงแดง มือสั่น")
+
+
+# ── รอบ 27: ภาษาถิ่นอีสาน เหนือ ใต้ (ข้อความใหม่ ไม่ได้มาจากชุดปิดตา AD) ──
+DANGER_27 = [
+    "ตาบ่ได้ยี่ยวสองมื้อแล้ว ตัวบวม", "หลานกินยาฆ่าแมลง ฮากบ่เซา", "งูตอดมือแม่ มือบวมหลาย", "ย่าล้มในครัว ลุกบ่ได้",
+    "ป้อกิ๋นยาพาราไปทั้งแผง", "อุ๊ยล้มหัวฟาดพื้น เอิ้นบ่ตื่น", "งูขบตีนลูก ตีนบวมหนัด", "พี่เฮ็ดนา เป็นเบาหวาน ไข้ขึ้นหลายสามมื้อแล้ว",
+]
+CALM_27 = ["แซบหลาย ส้มตำปูปลาร้า", "หมาขบเกิบพัง", "ไปเฮ็ดนามาเมื่อยหลาย", "หรอยจังหู", "บ่อน้ำบ้านยายแห้งแล้ว", "ไปบ่อยหลาย"]
+
+
+@pytest.mark.parametrize("text", DANGER_27)
+def test_round27_dialect_danger(text):
+    assert ("medical", "health_emergency") in frames(text), explain(text)
+
+
+@pytest.mark.parametrize("text", CALM_27)
+def test_round27_dialect_calm(text):
+    assert frames(text) == [], explain(text)
+
+
+def test_dialect_bor_is_not_pond_or_often():
+    from core.frames import _central_thai
+    assert _central_thai("หายใจบ่อิ่ม ลุกบ่ได้") == "หายใจไม่อิ่ม ลุกไม่ได้"
+    assert _central_thai("บ่อน้ำ บ่อย บ่าย บ่น") == "บ่อน้ำ บ่อย บ่าย บ่น"

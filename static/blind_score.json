@@ -1,5 +1,5 @@
 {
- "total": 3852,
+ "total": 3888,
  "authors": [
   "claude-seed",
   "claude-seed-r12",
@@ -19,13 +19,13 @@
    "n": 36,
    "tp": 36,
    "fn": 0,
-   "fp": 5,
+   "fp": 6,
    "recall": 1.0,
-   "precision": 0.878
+   "precision": 0.857
   },
   "emergency": {
-   "n": 1777,
-   "tp": 1777,
+   "n": 1805,
+   "tp": 1805,
    "fn": 0,
    "fp": 9,
    "recall": 1.0,
@@ -35,9 +35,9 @@
    "n": 140,
    "tp": 140,
    "fn": 0,
-   "fp": 17,
+   "fp": 18,
    "recall": 1.0,
-   "precision": 0.892
+   "precision": 0.886
   },
   "scam": {
    "n": 18,
@@ -58,11 +58,11 @@
  },
  "danger_missed": {
   "n": 0,
-  "of": 1953
+  "of": 1981
  },
  "false_alarm": {
   "n": 2,
-  "of": 1873
+  "of": 1881
  },
  "by_lang": {
   "en": {
@@ -82,8 +82,8 @@
    "n": 269
   },
   "th": {
-   "hit": 338,
-   "n": 338
+   "hit": 366,
+   "n": 366
   },
   "vi": {
    "hit": 268,

@@ -3964,3 +3964,42 @@ hôm nay đi cấy lúa mệt quá	none	vi	claude-seed
 금주 한 달째, 기분이 좋아요	none	ko	claude-seed
 スーパーで買ったしいたけを焼いた	none	ja	claude-seed
 動物園でヘビを見た	none	ja	claude-seed
+
+# ── ชุด AD: ล็อกไว้ก่อนขยาย core/frames.py รอบ 27 — ภาษาถิ่นอีสาน เหนือ ใต้ ที่คนเฒ่าคนแก่ในต่างจังหวัดพิมพ์จริง ──
+# วัดโค้ดก่อนขยาย frames แบบดูตัวเลขรวมเท่านั้น: จับเรื่องอันตรายได้ 18/28 (ไม่เห็นเลย 10) · เตือนเกิน 0/8
+แม่บ่ได้ยี่ยวมื้อหนึ่งแล้ว ขาบวม หายใจบ่อิ่ม	emergency	th	claude-seed
+พ่อเฮ็ดนาอยู่ เป็นเบาหวาน ไข้ขึ้นหลายมาสามมื้อแล้ว	emergency	th	claude-seed
+หลานกินน้ำยาล้างห้องน้ำเข้าไป ตอนนี้ฮากบ่เซา	emergency	th	claude-seed
+งูตอดตีนพ่อ ตีนบวมขึ้นเรื่อยๆ	emergency	th	claude-seed
+หมาขบแขนลูก เลือดไหลบ่เซา	emergency	th	claude-seed
+ยายล้มอยู่ห้องน้ำ ลุกบ่ได้ เจ็บสะโพกหลาย	emergency	th	claude-seed
+พ่อเจ็บหน้าอกหลาย เหงื่อแตก หายใจบ่ออก	emergency	th	claude-seed
+เก็บเห็ดในป่ามากิน ฮากกันทั้งบ้าน	emergency	th	claude-seed
+ตาปากเบี้ยว เว้าบ่ชัด แขนซ้ายยกบ่ขึ้น	emergency	th	claude-seed
+ลูกไข้ขึ้นหลาย ชักตาเหลือก	emergency	th	claude-seed
+แม่ล้มหัวฟาดพื้น ตอนนี้เอิ้นบ่ตื่น	emergency	th	claude-seed
+อ้ายกินยาฆ่าหญ้าไปแล้ว บ่อยากอยู่	emergency	th	claude-seed
+ลุงตกต้นตาล บ่ฮู้สึกตัว	emergency	th	claude-seed
+แม่ฟอกไตบ่ทัน ตอนนี้หอบ นอนราบบ่ได้	emergency	th	claude-seed
+อุ๊ยบ่ได้ยี่ยวสองวันแล้ว ตัวบวม	emergency	th	claude-seed
+ป้อเจ็บอกขนาด เหงื่อออก หายใจบ่ออก	emergency	th	claude-seed
+ลูกกิ๋นยาพาราไปทั้งแผง	emergency	th	claude-seed
+อุ๊ยล้มในห้องน้ำ ลุกบ่ได้	emergency	th	claude-seed
+หลานตกน้ำ ดึงขึ้นมาแล้วบ่หายใจ	emergency	th	claude-seed
+งูขบขาป้อ ขาบวมขนาด	emergency	th	claude-seed
+ป้อปากเบี้ยว อู้บ่จัด	emergency	th	claude-seed
+แม่ไม่ได้เยี่ยวทั้งวันแล้ว หอบ	emergency	th	claude-seed
+พ่อเจ็บอกหนัด เหงื่อแตก หายใจไม่ทัน	emergency	th	claude-seed
+ลูกกินน้ำมันก๊าดเข้าไป อ้วกไม่หยุด	emergency	th	claude-seed
+ยายตกเรือนลุกไม่ได้ เจ็บสะโพกหนัด	emergency	th	claude-seed
+งูขบตีนแม่ ตีนบวมหนัด	emergency	th	claude-seed
+ลูกเป็นไข้ ชักเกร็ง ตาค้าง	emergency	th	claude-seed
+พ่อแหลงไม่ชัด ปากเบี้ยว แขนอ่อนแรง	emergency	th	claude-seed
+มื้อนี้ไปเฮ็ดนามา เมื่อยหลาย	none	th	claude-seed
+แซบหลาย ข้าวเหนียวส้มตำ	none	th	claude-seed
+หมาขบเกิบขาด	none	th	claude-seed
+อุ๊ยไปวัดมาแล้ว ม่วนขนาด	none	th	claude-seed
+กิ๋นข้าวแล้วกา	none	th	claude-seed
+หรอยจังหู แกงไตปลาบ้านยาย	none	th	claude-seed
+ไปทะเลมา แดดร้อนหนัด	none	th	claude-seed
+ยายล้มแต่ลุกขึ้นเองได้ บ่เป็นหยัง	none	th	claude-seed
