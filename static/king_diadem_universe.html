@@ -54,7 +54,7 @@ a.hero-rule:hover span,a.hero-rule:focus-visible span{text-decoration:underline;
 .hero-rule .eq-go{font-size:12px;color:var(--gold-hi);opacity:.75;margin-left:4px}
 .hero-rule span{color:#fff8e7;font-family:var(--f-mono)}
 /* Cosmic Latte (#FFF8E7) = สีเฉลี่ยของแสงทั้งจักรวาล — สมการทั้งบรรทัดเป็นแสงเดียวกัน เรืองอุ่นจางๆ ไม่แยกเป็นทอง/ขาว */
-#hero .hero-rule{color:#fff8e7;text-shadow:0 1px 14px rgba(0,0,0,.9),0 0 18px rgba(255,236,200,.28)}
+#hero .hero-rule{color:#fff8e7;border-top:1px solid rgba(246,206,120,.55);border-bottom:1px solid rgba(246,206,120,.55);padding:8px 0;max-width:max-content;margin-left:auto;margin-right:auto;text-shadow:0 1px 14px rgba(0,0,0,.9),0 0 18px rgba(255,236,200,.28)}
 .hero-desc{font-size:13px;color:var(--tx-mid);max-width:480px;margin:0 auto}
 .scroll-hint{margin-top:28px;font-family:var(--f-mono);font-size:8px;letter-spacing:.18em;color:var(--tx-lo);animation:bounce 2s ease-in-out infinite;pointer-events:auto;cursor:pointer}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
@@ -523,7 +523,7 @@ html.bb-on,html.bb-on body{overflow:hidden}
 /* Opalite Dawn: หัวเรื่องเป็นประกายโอปอลไหลช้าๆ (ลดการเคลื่อนไหว = นิ่ง) */
 @keyframes kd-opal{0%{background-position:0% 50%}100%{background-position:100% 50%}}
 /* โอปอลแบบแรกที่พี่ชอบ (ชมพู → ลาเวนเดอร์ → ฟ้า → เขียวมิ้นต์) สดและคมขึ้น: เส้นขอบมืดบางๆ + แสงเรืองสีเดียวกัน */
-#hero .hero-title{animation:kd-rise 1.6s var(--ease) .2s both;filter:drop-shadow(0 0 14px rgba(190,160,255,.5)) drop-shadow(0 2px 6px rgba(0,0,0,.9))}
+#hero .hero-title{animation:kd-rise 1.6s var(--ease) .2s both;-webkit-text-stroke:.7px rgba(246,206,120,.95);filter:drop-shadow(0 0 1px rgba(255,214,140,.9)) drop-shadow(0 0 14px rgba(190,160,255,.45)) drop-shadow(0 2px 6px rgba(0,0,0,.9))}
 @media (prefers-reduced-motion:reduce){#hero .hero-title{animation:none}}
 /* ทุกตัวอักษรคนละสี ตัดกันคม (พี่คิง: "แบบทุกตัวอักษรนะ") — คลื่นสีไหลผ่านทีละตัว ลดการเคลื่อนไหว = หยุดนิ่งแต่ยังคนละสี */
 #hero .hero-title.lettered{background:none;-webkit-text-fill-color:currentColor;animation:kd-rise 1.6s var(--ease) .2s both}
@@ -636,7 +636,7 @@ html.kd-calm #hero .hero-title .ch{animation-play-state:paused}
     <a class="hero-rule" href="/equations#choice" title="อ่านสมการนี้เต็มๆ">
       <span>Choice(t) ≥ 1</span> → collapse = False <small class="eq-go">↗</small>
     </a>
-    <p class="hero-desc">เหลือทางเลือกแม้เพียงทางเดียว ชีวิตก็ยังไม่จบ</p>
+    <p class="hero-desc">แม้เหลือทางเลือกเพียงทางเดียว ชีวิตก็ยังไม่จบ</p>
     <div class="scroll-hint" data-act="scroll">↓ เลื่อนลง ↓</div>
   </div>
 </section>
