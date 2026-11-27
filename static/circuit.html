@@ -106,9 +106,9 @@ body.film #cap{display:none}
     var k = Math.max(0, Math.min(1, sx / S)) * 2, i = k < 1 ? 0 : 1, f = k - i, a = SIDE[i], b = SIDE[i + 1];
     return Math.round(a[0] + (b[0] - a[0]) * f) + ',' + Math.round(a[1] + (b[1] - a[1]) * f) + ',' + Math.round(a[2] + (b[2] - a[2]) * f);
   }
-  function camSet(){ ctx.translate(C, C); ctx.scale(cam.z, cam.z * cam.ty); ctx.rotate(rot); ctx.translate(-cam.x, -cam.y); }
+  function camSet(){ ctx.translate(C, C); ctx.scale(cam.z, cam.z * cam.ty); ctx.rotate(rot + (film && film.btRot || 0)); ctx.translate(-cam.x, -cam.y); }
   function proj(x, y){                               /* ตำแหน่งในวง → ตำแหน่งบนจอ (ใช้วางป้ายที่ไม่หมุน/ไม่เอียงตาม) */
-    var dx = x - cam.x, dy = y - cam.y, c = Math.cos(rot), s = Math.sin(rot);
+    var rr = rot + (film && film.btRot || 0), dx = x - cam.x, dy = y - cam.y, c = Math.cos(rr), s = Math.sin(rr);
     return [C + (dx * c - dy * s) * cam.z, C + (dx * s + dy * c) * cam.z * cam.ty];
   }
   function ease(k){ k = Math.max(0, Math.min(1, k)); return k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; }
@@ -167,6 +167,14 @@ body.film #cap{display:none}
       }
     }
     var sm = film.ph >= 3 ? .06 : .035;
+    /* ช็อตหยุดเวลา: ตัวอัดส่งเวลาคลิปจริง (__vt) กับช่วงช็อต (__bt=[เริ่ม,จบ]) มา — เวลาในฉากเกือบหยุด แต่กล้องยังหมุนรอบวง */
+    var BT = window.__bt, vt = window.__vt;
+    if(BT && vt != null && vt > BT[0] && vt < BT[1]){
+      var bk = (vt - BT[0]) / (BT[1] - BT[0]), bw = Math.sin(Math.PI * bk);
+      film.btRot = Math.PI * .9 * ease(bk);          /* หมุนเกือบครึ่งรอบ */
+      tz = lerp(tz, 1.55, bw); tilt = lerp(tilt, .42, bw);   /* ต่ำลงข้างวง เห็นทั้งดาวข้างนอกและแสงใจกลาง */
+      sm = Math.max(sm, .12);
+    }
     cam.x = lerp(cam.x || C, tx, sm); cam.y = lerp(cam.y || C, ty0, sm); cam.z = lerp(cam.z, tz, sm); cam.ty = lerp(cam.ty, tilt, .05);
     chimes.forEach(function(c){ c.age = (c.age || 0) + dt; c.a -= dt * .45; }); chimes = chimes.filter(function(c){ return c.a > 0; });
     if(film.ph === 4){                                /* จบ: แสงนับพันสายวิ่งพร้อมกันบนเส้นโค้ดจริงทุกเส้น ทิ้งรอยซ้อนจนทั้งจอสว่าง */
