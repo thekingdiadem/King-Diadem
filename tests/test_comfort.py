@@ -46,6 +46,12 @@ def test_in_app_reduce_motion_switch():
 
 def test_big_bang_flashes_are_soft():
     """แสงวาบตอนระเบิดและตอนชนค่อยๆ สว่างขึ้น และไม่ขาวเต็มจอ"""
-    assert "smoothstep(0.,.25,t)" in GL and "*.85;" in GL and "fl*fl*.22" in GL
+    # วาบตอนเริ่ม: ค่อยๆ สว่างขึ้น (≥ .25 วิ) และความแรงสูงสุดไม่เกิน .35 — เดิม .85 จ้าเกือบเต็มจอ (วัดได้ 21% ของจอ)
+    import re
+    m = re.search(r"float fl=max\(0\.,1\.-t/1\.3\)\*smoothstep\(0\.,([\d.]+),t\);.*?fl\*exp\(-d\*d/\(fr\*fr\)\)\*([\d.]+);", GL)
+    assert m and float(m.group(1)) >= .25 and float(m.group(2)) <= .35
+    assert "fl*fl*.22" in GL
     assert "rs(0.,.18,t-ti)" in GL and "exp(-(t-ti)*2.5)*1.4" not in GL
-    assert "Math.min(1, t / .25) * .6" in BB and "* e * .35" in BB
+    m2 = re.search(r"Math\.min\(1, t / ([\d.]+)\) \* ([\d.]+), fr", BB)
+    assert m2 and float(m2.group(1)) >= .25 and float(m2.group(2)) <= .3
+    assert "* e * .35" in BB

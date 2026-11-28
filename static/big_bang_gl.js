@@ -82,7 +82,7 @@
     ' gl_PointSize=clamp(sz*uPx*uDPR*1.7/max(w,.25),1.,40.);',
     ' if(aS.w<.45)al*=mix(1.,pc*.9+.05,pe);sz*=1.+pf*3.;',
     ' gl_PointSize=clamp(sz*uPx*uDPR*1.7/max(w,.25),1.,40.);',
-    ' vC=c*(1.+fl*1.6+glow+pf*5.);vA=al*uGain*clamp(1.6/w,0.,1.3)*(aS.x<.012?3.:1.)*(1.+3.*(1.-smoothstep(1.8,3.,t)))*(1.-smoothstep(11.9,12.7,t));',
+    ' vC=c*(1.+fl*1.6+glow+pf*5.);vA=al*uGain*clamp(1.6/w,0.,1.3)*(aS.x<.012?3.:1.)*(1.+1.2*(1.-smoothstep(1.8,3.,t)))*(1.-smoothstep(11.9,12.7,t));',
     '}'
   ].join('\n');
 
@@ -256,7 +256,7 @@
     '  gl_FragColor=vec4(c,1.);return;}',
     // แสงวาบตอนระเบิด
     // แสงวาบนุ่มลง: ค่อยๆ สว่างขึ้นใน 0.25 วินาทีแรก และไม่ขาวเต็มจอ (คนไวต่อแสงไม่แสบตา)
-    ' float fl=max(0.,1.-t/1.3)*smoothstep(0.,.25,t);float fr=.15+t*1.6;c+=vec3(1.,.93,.84)*fl*exp(-d*d/(fr*fr))*.85;',
+    ' float fl=max(0.,1.-t/1.3)*smoothstep(0.,.4,t);float fr=.1+t*.6;c+=vec3(1.,.93,.84)*fl*exp(-d*d/(fr*fr))*.3;',
     ' c+=vec3(1.,.8,.6)*fl*fl*.22;',
     // ซุปพลาสมาร้อน (เดือดเป็นคลื่น)
     ' float pw=smoothstep(1.4,2.8,t)*(1.-smoothstep(4.7,6.3,t));',
