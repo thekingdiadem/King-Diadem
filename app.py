@@ -988,7 +988,7 @@ def root(request: Request):
 # sitemap.xml บอก Google ว่ามีหน้าสาธารณะอะไรบ้าง — เดิมไม่มีทั้งสองไฟล์
 SITEMAP_PAGES = [("/", "1.0", "daily"), ("/safe", "0.9", "monthly"), ("/guide", "0.8", "weekly"), ("/learn", "0.8", "weekly"), ("/survival", "0.9", "weekly"), ("/ask", "0.7", "weekly"),
                  ("/sky", "0.9", "daily"), ("/pregnancy", "0.8", "monthly"), ("/universe", "0.8", "weekly"), ("/equations", "0.8", "monthly"),
-                 ("/architecture", "0.6", "weekly"), ("/circuit", "0.6", "weekly"), ("/letter", "0.6", "monthly"), ("/support", "0.5", "monthly"),
+                 ("/architecture", "0.6", "weekly"), ("/circuit", "0.6", "weekly"), ("/give", "0.5", "monthly"), ("/letter", "0.6", "monthly"), ("/support", "0.5", "monthly"),
                  ("/privacy", "0.3", "yearly"), ("/terms", "0.3", "yearly"), ("/refund", "0.3", "yearly")]
 _ROBOTS_BLOCK = ["/api/", "/report/", "/auth/", "/login", "/me", "/dashboard", "/wallet", "/credits", "/static/login.html",
                  "/static/register.html", "/static/report.html"]
@@ -1285,6 +1285,30 @@ async def post_answer_report(request: Request, data: dict):
     except Exception as e:
         print(f"⚠ answer_reports: {type(e).__name__}")
         return JSONResponse({"ok": False, "error": "ตอนนี้รับรายงานไม่ได้ค่ะ ลองใหม่อีกครั้งนะคะ"}, status_code=503)
+    return r if r.get("ok") else JSONResponse(r, status_code=400)
+
+
+# ── หน้า /give: ส่งประโยคแบบที่คนพิมพ์จริงตอนแย่ๆ → คิวโต๊ะติดป้าย (ชุดทดสอบยังไม่มีข้อความจากผู้ใช้จริงเลย) ──
+@app.get("/give")
+async def give_page():
+    return FileResponse("static/give.html")
+
+
+@app.post("/api/give-sentence")
+async def post_give_sentence(request: Request, data: dict):
+    if not _rate_check("gv|" + _client_ip(request)):
+        return JSONResponse({"ok": False, "error": "ส่งถี่ไปนิดนึงค่ะ พักสักครู่นะคะ"}, status_code=429)
+    data = data if isinstance(data, dict) else {}
+    if data.get("consent") is not True:
+        return JSONResponse({"ok": False, "error": "ติ๊กยินยอมก่อนส่งนะคะ"}, status_code=400)
+    from core import answer_reports
+    try:
+        r = await run_in_threadpool(answer_reports.donate, data.get("sentence"))
+    except Exception as e:
+        print(f"⚠ give_sentence: {type(e).__name__}")
+        return JSONResponse({"ok": False, "error": "ตอนนี้รับไม่ได้ค่ะ ลองใหม่อีกครั้งนะคะ"}, status_code=503)
+    if r.get("ok"):
+        _metric("give_sentence")
     return r if r.get("ok") else JSONResponse(r, status_code=400)
 
 

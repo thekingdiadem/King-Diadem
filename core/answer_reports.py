@@ -17,7 +17,7 @@ import re
 import threading
 import time
 
-REASONS = ("harmful", "missed", "offensive", "wrong", "other")   # missed = ระบบไม่เห็นว่าเรื่องนี้ด่วน/อันตราย
+REASONS = ("harmful", "missed", "offensive", "wrong", "other", "donated")   # missed = ระบบไม่เห็นว่าเรื่องนี้ด่วน/อันตราย · donated = ประโยคที่คนส่งให้จากหน้า /give
 MAX_ANSWER = 4000
 MAX_NOTE = 500
 MAX_QUESTION = 1000
@@ -95,6 +95,17 @@ def record(reason, answer, note=None, route=None, risk=None, question=None) -> d
         finally:
             conn.close()
     return {"ok": True}
+
+
+DONATED_ANSWER = "(ประโยคที่ส่งมาจากหน้า /give — ไม่มีคำตอบของ AI)"
+
+
+def donate(sentence) -> dict:
+    """ประโยคแบบที่คนพิมพ์จริงตอนแย่ๆ จากหน้า /give → เข้าคิวโต๊ะติดป้ายเหมือนประโยคที่แนบมากับรายงาน"""
+    q = _text(sentence, MAX_QUESTION)
+    if len(q) < 2:
+        return {"ok": False, "error": "พิมพ์ประโยคก่อนส่งนะคะ"}
+    return record("donated", DONATED_ANSWER, question=q)
 
 
 def recent(limit: int = 50) -> list:

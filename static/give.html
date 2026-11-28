@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06070c">
+<title>ส่งประโยคให้ LYLA เรียนรู้ — KING DIADEM</title>
+<meta name="description" content="ช่วยให้ระบบเห็นคนที่กำลังลำบากได้ดีขึ้น ด้วยประโยคแบบที่คนพิมพ์จริงตอนแย่ๆ ไม่ต้องบอกว่าเป็นของใคร">
+<link rel="canonical" href="https://king-diadem.onrender.com/give">
+<link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
+<style>
+:root{--void:#06070c;--gold:#d8b878;--txt:#e6e8ee;--dim:#9aa1b2;--line:rgba(216,184,120,.22);--ok:#9fd3b0;--err:#f0a8a0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--txt);font:17px/1.75 "Noto Sans Thai Looped",system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 80px}
+h1{color:var(--gold);font-size:1.35rem;margin:0 0 8px}
+.dim{color:var(--dim);font-size:.93rem}
+.help{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:18px 0;font-size:.95rem}
+a{color:var(--gold)}
+textarea{width:100%;min-height:120px;background:#0b0f1c;color:var(--txt);border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;resize:vertical}
+label{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-size:.95rem}
+input[type=checkbox]{width:20px;height:20px;margin-top:4px;flex:none}
+button{background:var(--gold);color:#1a1408;border:0;border-radius:999px;padding:12px 26px;font:600 1rem inherit;font-family:inherit;cursor:pointer;min-height:44px}
+button:disabled{opacity:.45;cursor:default}
+#msg{min-height:1.6em;margin-top:10px}
+#msg.ok{color:var(--ok)} #msg.err{color:var(--err)}
+ul{padding-left:1.2em}
+</style>
+</head>
+<body>
+<main>
+<h1>ส่งประโยคให้ LYLA เรียนรู้</h1>
+<p>ระบบจับเรื่องอันตรายจากคำที่คนพิมพ์ แต่ประโยคที่ใช้ทดสอบเกือบทั้งหมดเราเขียนกันเอง
+ยังไม่มีประโยคจากคนจริงเลยสักข้อ ถ้าคุณเคยพิมพ์หาใครสักคนตอนแย่ๆ หรือเคยได้ยินคนพูดแบบนั้น ส่งมาได้เลยค่ะ ไม่ต้องบอกว่าเป็นของใคร</p>
+
+<div class="help" id="now">ถ้าตอนนี้คุณกำลังลำบากอยู่เอง หน้านี้ไม่มีใครตอบกลับนะคะ
+โทร <a href="tel:1323">1323</a> (สายด่วนสุขภาพจิต 24 ชม.) · <a href="tel:1669">1669</a> (เจ็บป่วยฉุกเฉิน) ·
+<a href="/safe">หน้าฉุกเฉิน</a> · หรือ <a href="/">คุยกับ LYLA</a></div>
+
+<textarea id="sentence" maxlength="1000" placeholder="เช่น ไม่อยากตื่นมาเจอพรุ่งนี้แล้ว"></textarea>
+<label><input type="checkbox" id="consent">
+<span>ยินยอมให้ผู้ดูแลอ่านประโยคนี้ ติดป้ายว่าอันตรายหรือไม่ และนำไปเป็นข้อทดสอบของระบบ</span></label>
+<button id="send" disabled>ส่งประโยค</button>
+<div id="msg" role="status" aria-live="polite"></div>
+
+<h2 class="dim" style="font-size:1rem;margin-top:32px">เกิดอะไรขึ้นกับประโยคนี้</h2>
+<ul class="dim">
+<li>ไม่เก็บชื่อ อีเมล หรือบัญชีของคุณ · เบอร์โทร อีเมล และเลขยาว (บัญชี บัตร) ในประโยคจะถูกลบก่อนบันทึก</li>
+<li>ผู้ดูแลติดป้าย (ปกติ · ทำร้ายตัวเอง · ฉุกเฉิน · ความรุนแรง · หลอกลวง · ทุกข์ใจ) แล้วนำไปเป็นข้อทดสอบ</li>
+<li>ถ้ายังไม่ได้ติดป้าย ประโยคจะถูกลบเองเมื่อครบ 90 วัน</li>
+<li>ข้อที่ติดป้ายแล้วจะอยู่ในชุดทดสอบของโปรเจกต์ อาจถูกเปิดเผยพร้อมโค้ด จึงไม่ควรใส่รายละเอียดที่ระบุตัวคนได้</li>
+</ul>
+</main>
+<script>
+(function () {
+  var ta = document.getElementById('sentence'), cb = document.getElementById('consent'),
+      btn = document.getElementById('send'), msg = document.getElementById('msg');
+  function sync() { btn.disabled = !(cb.checked && ta.value.trim().length >= 2); }
+  ta.addEventListener('input', sync); cb.addEventListener('change', sync);
+  btn.addEventListener('click', function () {
+    btn.disabled = true; msg.className = ''; msg.textContent = 'กำลังส่ง…';
+    fetch('/api/give-sentence', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sentence: ta.value, consent: cb.checked }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        if (j.ok) { msg.className = 'ok'; msg.textContent = 'ได้รับแล้ว ขอบคุณมากนะคะ ส่งเพิ่มได้อีกค่ะ'; ta.value = ''; }
+        else { msg.className = 'err'; msg.textContent = j.error || 'ส่งไม่สำเร็จ ลองใหม่อีกครั้งนะคะ'; }
+        sync();
+      })
+      .catch(function () { msg.className = 'err'; msg.textContent = 'ส่งไม่สำเร็จ ลองใหม่อีกครั้งนะคะ'; sync(); });
+  });
+})();
+</script>
+</body>
+</html>
