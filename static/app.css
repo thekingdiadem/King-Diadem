@@ -1539,6 +1539,15 @@ html.in-app [data-app-only]{display:block}
 .live-sub{margin:4px 0 0;font-size:11px;letter-spacing:.02em;color:var(--ink-3, #8a8fa3);opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 
+/* เส้นทางแสงสดในฟองรอ: นิ่ง คลีน ไม่ทำให้เวียนหัว */
+.live-path{position:relative;height:14px;margin:10px 4px 2px;max-width:240px}
+.live-path::before{content:"";position:absolute;left:0;right:0;top:6px;height:2px;border-radius:2px;background:rgba(232,184,100,.15)}
+.live-path .lp-fill{position:absolute;left:0;top:6px;height:2px;width:0;border-radius:2px;background:linear-gradient(90deg,#d9a24c,#f3cf7e);
+  box-shadow:0 0 6px rgba(243,207,126,.55);transition:width 1.1s cubic-bezier(.22,.8,.3,1)}
+.live-path b{position:absolute;top:3px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:#2a2533;box-shadow:inset 0 0 0 1px rgba(232,184,100,.35);transition:background .6s,box-shadow .6s}
+.live-path b.on{background:#f3cf7e;box-shadow:0 0 6px rgba(243,207,126,.6)}
+.live-path b.head{box-shadow:0 0 0 3px rgba(243,207,126,.18),0 0 10px rgba(243,207,126,.8)}
+@media (prefers-reduced-motion: reduce){.live-path .lp-fill,.live-path b{transition:none}}
 /* แถบโทรฉุกเฉิน: โผล่เองเมื่อคำตอบเป็นเรื่องฉุกเฉิน · ปุ่มเต็มความกว้าง สูง กดด้วยข้อนิ้ว/คางได้ · ไม่มีแอนิเมชัน */
 #sos-bar{position:fixed;left:0;right:0;bottom:0;z-index:90;display:grid;grid-template-columns:1fr 1fr;gap:8px;
   padding:10px 10px calc(10px + env(safe-area-inset-bottom));background:rgba(20,6,10,.96);border-top:1px solid rgba(255,93,108,.5)}

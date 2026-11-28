@@ -2918,10 +2918,23 @@ var Live = {
     /* ถามทุก 0.7 วินาที และหยุดเองหลัง 60 วินาที — เซิร์ฟเวอร์มี worker เดียวที่รีสตาร์ตตามจำนวนคำขอ (render.yaml) ถามถี่เกินทำให้เว็บสะดุด */
     var tag = th.querySelector('.tag'), sub = document.createElement('p'), on = true, seen = '', timer = 0, t0 = Date.now();
     sub.className = 'live-sub mono'; sub.setAttribute('aria-hidden', 'true'); th.appendChild(sub);
+    /* เส้นทางแสงสด: 7 จุดตามขั้นจริงของเซิร์ฟเวอร์ · เส้นทองเติมถึงขั้นล่าสุดที่ทำจริง
+       กล้องไม่ขยับ ไม่หมุน ไม่ซูม — มีแค่เส้นค่อยๆ ยาวขึ้น (ลดการเคลื่อนไหว = ไม่มีทรานซิชัน) */
+    var KEYS = ['receive', 'risk', 'numbers', 'people', 'options', 'ai', 'safety'];
+    var path = document.createElement('div'); path.className = 'live-path'; path.setAttribute('aria-hidden', 'true');
+    path.innerHTML = '<i class="lp-fill"></i>' + KEYS.map(function(k, i){ return '<b data-k="' + k + '" style="left:' + (i / (KEYS.length - 1) * 100) + '%"></b>'; }).join('');
+    th.appendChild(path);
+    function light(st){
+      var done = {}; st.forEach(function(x){ done[x.stage] = 1; });
+      var far = -1; KEYS.forEach(function(k, i){ if(done[k]) far = i; });
+      path.querySelector('.lp-fill').style.width = (far < 0 ? 0 : far / (KEYS.length - 1) * 100) + '%';
+      Array.prototype.forEach.call(path.querySelectorAll('b'), function(b, i){ b.classList.toggle('on', !!done[KEYS[i]]); b.classList.toggle('head', i === far); });
+    }
     function tick(){
       if(!on) return;
       fetch('/api/progress/' + rid, { cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(j){
         var st = (j.stages || []), last = st.length ? st[st.length - 1].stage : '';
+        if(on) light(st);
         if(on && last && last !== seen && Live.STEP[last]){
           seen = last;
           if(tag) tag.textContent = _t(Live.STEP[last][0]) + '…';
