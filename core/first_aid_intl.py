@@ -857,3 +857,143 @@ def hi_event(text):
 LINES["snakebite"]["hi"] = "साँप के काटने पर: हिलें नहीं, काटे हुए हाथ-पैर को सहारा देकर दिल से नीचे रखें, अंगूठी उतारें · कसकर न बाँधें, चीरा न लगाएँ, ज़हर न चूसें · झाड़-फूँक में समय न गँवाएँ, तुरंत अस्पताल।"
 LINES["drowning"]["hi"] = "डूबना: तैरने वाली चीज़ या रस्सी फेंकें, बचाव न आता हो तो कूदें नहीं · बाहर निकालने पर साँस न ले तो तुरंत छाती दबाएँ · उल्टा लटकाकर पानी निकालने की कोशिश न करें।"
 LINES["electric"]["hi"] = "करंट लगना: छूने से पहले बिजली बंद करें; न हो सके तो सूखी लकड़ी या प्लास्टिक से अलग करें · साँस न ले तो छाती दबाएँ · ठीक लगे तब भी अस्पताल जाएँ।"
+
+
+# ══════════════════════════════════════════════════════════════════
+# ตารางกลางของภาษาที่ระบบมีคำตอบสำเร็จรูป (core/world_replies) แต่ไม่รู้จักเหตุฉุกเฉินเฉพาะเรื่อง
+# สวาฮีลี ฝรั่งเศส อาหรับ เยอรมัน โปรตุเกส และอังกฤษแบบนิวซีแลนด์ — เดิม 33 จาก 35 ประโยคได้คำตอบทั่วไป
+# และตัวแยกภาษาเดาผิดหลายข้อ (โปรตุเกสเป็นเซอร์เบีย อังกฤษเป็นดัตช์ สวาฮีลีเป็นฝรั่งเศส)
+# หนึ่งแถว = รูปประโยค · ชนิดคำตอบ · ขั้นเฉพาะเรื่อง · รูปประโยคเป็นของภาษานั้นเอง จึงใช้บอกภาษาไปด้วย
+# ══════════════════════════════════════════════════════════════════
+WORLD_EVENTS = {
+    "sw": (   # เคนยา 999/112 · แทนซาเนีย 112 (ตำรวจ 114 · ดับเพลิง 115)
+        (r"\bnimeumia\b|\bameumia\b|\bajali\b|\bamegongwa\b", "medical",
+         "Jeraha au ajali: kaa mbali na barabara · usimsogeze aliyeumia sana (linda shingo na mgongo) · bonyeza jeraha linalovuja damu kwa kitambaa safi · Kenya 999 / 112 · Tanzania 112."),
+        (r"\bhoma\b|\btumbo\s+linauma\b|\bkuhara\b|\bkutapika\b", "medical",
+         "Homa au tumbo: kunywa maji safi na ORS kidogo kidogo mara nyingi · homa kali, kutapika kila mara, damu kwenye choo au kulegea sana — nenda hospitali leo (malaria inawezekana)."),
+        (r"\bkizunguzungu\b|\bkiu\s+kali\b|\bjoto\s+kali\b", "medical",
+         "Kizunguzungu na kiu: nenda kivulini, kunywa maji na ORS kidogo kidogo · lowesha shingo na kwapa kwa maji baridi · akichanganyikiwa au hawezi kunywa, piga 999 / 112."),
+        (r"\bhawezi\s+kupumua\b|\bsiwezi\s+kupumua\b|\bamezimia\b|\bhana\s+fahamu\b", "medical",
+         "Hapumui au hana fahamu: anza kubonyeza kifua katikati kwa nguvu (mara 100–120 kwa dakika) · piga 999 / 112 sasa."),
+        (r"\bnyumba\s+inaungua\b|\bkuna\s+moto\b|\bmoto\s+mkubwa\b", "medical",   # "moto" เดี่ยวๆ = มอเตอร์ไซค์ในภาษาสเปน
+         "Moto: piga kelele, toka nje mara moja · moshi — inama chini, funika pua kwa kitambaa kibichi · usitumie lifti · piga 999 / 112 ukiwa nje."),
+        (r"\bnimeibiwa\b|\bmwizi\b|\bwezi\b|\bnimeporwa\b", "violence",
+         "Umeibiwa: usipigane, maisha ni muhimu zaidi · nenda mahali penye watu, piga 999 / 112 · zuia kadi na simu mara moja · toa taarifa kituo cha polisi upate nakala."),
+        (r"\bpasipoti\b[\w\s]{0,20}\bimepotea\b|\bimepotea\b[\w\s]{0,20}\bpasipoti\b|\bpochi\b[\w\s]{0,10}\bimepotea\b", "help",
+         "Pasipoti au pochi imepotea: toa taarifa kituo cha polisi upate cheti cha upotevu · wasiliana na ubalozi wa nchi yako kwa hati ya dharura · zuia kadi za benki mara moja."),
+        (r"\bnimepotea\b|\bnimepotea\s+njia\b", "help",
+         "Umepotea: kaa mahali penye mwanga na watu · tuma mahali ulipo kwa mtu unayemwamini kupitia ramani ya simu · uliza dukani, hotelini au polisi."),
+        (r"\bnisaidie\b|\bnisaidieni\b|\bmsaada\b|\bdharura\b", "help",
+         "Niambie kwa maneno machache kinachotokea — nani, nini, wapi — nikupe hatua sahihi · kama kuna hatari sasa, piga 999 / 112 (Kenya) au 112 (Tanzania)."),
+    ),
+    "fr": (   # 112 Europe · 911 Canada
+        (r"\bje\s+me\s+suis\s+bless[ée]e?\b|\bbless[ée]e?\s+grave|\bun\s+accident\s+de\b|\bil\s+y\s+a\s+eu\s+un\s+accident\b", "medical",   # "accident" เดี่ยวๆ เป็นคำอังกฤษด้วย
+         "Blessure ou accident : éloignez-vous de la circulation · ne déplacez pas un blessé grave (protégez cou et dos) · appuyez fort sur une plaie qui saigne avec un tissu propre · 112 en Europe, 911 au Canada."),
+        (r"\bje\s+ne\s+me\s+sens\s+pas\s+bien\b|\bmalaise\b|\bfi[èe]vre\b", "medical",
+         "Malaise : asseyez-vous ou allongez-vous, buvez de l'eau si vous êtes conscient · douleur dans la poitrine, gêne pour respirer, faiblesse d'un côté ou confusion : 112 / 911 tout de suite."),
+        (r"\bdouleur\s+(?:dans\s+la|à\s+la)\s+poitrine\b|\bcrise\s+cardiaque\b", "medical", None),
+        (r"\bje\s+n['’]arrive\s+pas\s+à\s+respirer\b|\bne\s+respire\s+plus\b|\binconscient", "medical",
+         "Ne respire pas ou inconscient : commencez le massage cardiaque (centre de la poitrine, fort et vite, 100–120 par minute) · demandez un défibrillateur (DAE) · 112 / 911."),
+        (r"\btr[èe]s\s+froid\b|\bhypothermie\b|\bje\s+glisse\b|\bverglas\b", "help",
+         "Grand froid ou verglas : mettez-vous à l'abri au chaud (café, magasin, hall) · changez les vêtements mouillés · marchez à petits pas · frissons qui s'arrêtent ou confusion : 911 / 112."),
+        (r"\bincendie\b|\bau\s+feu\b|\bil\s+y\s+a\s+le\s+feu\b", "disaster",
+         "Incendie : prévenez tout le monde et sortez · fumée : baissez-vous, couvrez nez et bouche · pas d'ascenseur · appelez 112 / 911 dehors, ne retournez pas à l'intérieur."),
+        (r"\bon\s+m['’]a\s+vol[ée]\b|\bvol[ée]\s+mon\b|\bvoleur\b|\bagress[ée]", "violence",
+         "Vol ou agression : ne résistez pas · allez dans un endroit avec du monde et appelez 112 / 911 · bloquez cartes et téléphone · portez plainte et gardez une copie."),
+        (r"\bperdu\s+mon\s+(?:portefeuille|passeport|t[ée]l[ée]phone)\b", "help",
+         "Passeport ou portefeuille perdu : faites une déclaration de perte au poste de police · contactez l'ambassade ou le consulat de votre pays pour un document de voyage · bloquez vos cartes."),
+        (r"\bje\s+suis\s+perdu[e]?\b", "help",
+         "Vous êtes perdu : restez dans un endroit éclairé et fréquenté · partagez votre position avec un proche depuis la carte du téléphone · demandez dans un magasin, un hôtel ou à la police."),
+        (r"\baidez[\s-]moi\b|\bau\s+secours\b|\burgence\b", "help",
+         "Dites-moi en quelques mots ce qui se passe — qui, quoi, où — pour que je vous donne les bonnes étapes · en danger maintenant : 112 (Europe) ou 911 (Canada)."),
+    ),
+    "ar": (   # الإمارات 999 · 998 إسعاف · 997 إطفاء · مصر 122 · 123 · 180
+        (r"أصبت|أُصبتُ|بأذى|حادث|إصابة", "medical",
+         "إصابة أو حادث: ابتعد عن الطريق · لا تحرّك المصاب إصابة بالغة (احمِ الرقبة والظهر) · اضغط على الجرح النازف بقطعة قماش نظيفة · الإسعاف: 998 في الإمارات · 123 في مصر."),
+        (r"دوار|حرارة شديدة|ضربة شمس|عطش شديد", "medical",
+         "دوار وحرارة شديدة: انتقل إلى الظل أو مكان بارد، واشرب الماء على دفعات · بلّل الرقبة والإبطين بماء بارد · إذا حدث تشوّش أو لم يستطع الشرب، اتصل بالإسعاف فورًا."),
+        (r"توعك شديد|أشعر بألم|ألم في الصدر|ألم شديد", "medical",
+         "توعك شديد: اجلس أو استلقِ واشرب الماء إن كنت واعيًا · ألم في الصدر أو ضيق تنفس أو ضعف في جانب واحد أو تشوّش: اتصل بالإسعاف الآن (998 الإمارات · 123 مصر)."),
+        (r"لا أستطيع التنفس|ضيق في التنفس|فاقد الوعي|لا يتنفس", "medical",
+         "لا يتنفس أو فاقد الوعي: ابدأ الضغط على منتصف الصدر بقوة وسرعة (100–120 مرة في الدقيقة) · اطلب جهاز الصدمات AED · اتصل بالإسعاف."),
+        (r"حريق|النار|دخان", "disaster",
+         "حريق: نبّه الجميع واخرج فورًا · مع الدخان انحنِ وغطِّ أنفك وفمك بقماش مبلل · لا تستخدم المصعد · اتصل بالدفاع المدني من الخارج (997 الإمارات · 180 مصر)."),
+        (r"سرق|سُرق|لص|نشل", "violence",
+         "سرقة: لا تقاوم، حياتك أهم · اذهب إلى مكان فيه ناس واتصل بالشرطة (999 الإمارات · 122 مصر) · أوقف البطاقات والهاتف فورًا · قدّم بلاغًا واحتفظ بنسخة."),
+        (r"جواز سفري|فقدت محفظتي|فُقدت محفظتي|ضاع جواز", "help",
+         "فقدان الجواز أو المحفظة: قدّم بلاغ فقدان في أقرب مركز شرطة · تواصل مع سفارة بلدك لاستخراج وثيقة سفر طارئة · أوقف بطاقاتك البنكية فورًا."),
+        (r"ضللت|ضللتُ|تهت|تائه", "help",
+         "ضللت الطريق: ابقَ في مكان مضاء ومزدحم · شارك موقعك مع شخص تثق به عبر خريطة الهاتف · اسأل في متجر أو فندق أو الشرطة."),
+        (r"ساعدني|ساعدوني|النجدة|طوارئ", "help",
+         "أخبرني بكلمات قليلة ماذا يحدث — من، ماذا، أين — لأعطيك الخطوات الصحيحة · إن كان هناك خطر الآن: 999 في الإمارات · 122 في مصر · 112 في كثير من الدول."),
+    ),
+    "de": (   # Deutschland 112 Rettung/Feuerwehr · 110 Polizei
+        (r"\bich\s+habe\s+mich\s+verletzt\b|\bverletzt\b|\bunfall\b", "medical",
+         "Verletzung oder Unfall: weg von der Straße · Schwerverletzte nicht bewegen (Hals und Rücken schützen) · blutende Wunde mit sauberem Tuch fest drücken · Notruf 112."),
+        (r"\bmir\s+ist\s+(?:nicht\s+gut|schlecht|schwindlig)\b|\bfieber\b", "medical",
+         "Unwohlsein: hinsetzen oder hinlegen, etwas trinken, wenn wach · Brustschmerz, Atemnot, eine Körperseite schwach oder Verwirrung: sofort 112 · nachts ohne Notfall: ärztlicher Bereitschaftsdienst 116 117."),
+        (r"\bbrustschmerz|\bherzinfarkt\b", "medical", None),
+        (r"\bkann\s+nicht\s+atmen\b|\batmet\s+nicht\b|\bbewusstlos\b", "medical",
+         "Atmet nicht oder bewusstlos: sofort Herzdruckmassage (Mitte der Brust, fest und schnell, 100–120 pro Minute) · Defibrillator (AED) holen lassen · 112."),
+        (r"\bsehr\s+kalt\b|\bglatt\b|\bunterk[üu]hl", "help",
+         "Kälte und Glätte: ins Warme gehen (Café, Geschäft, Bahnhof) · nasse Kleidung wechseln · kleine Schritte · Zittern hört auf oder Verwirrung: 112."),
+        (r"\bfeuer\b|\bes\s+brennt\b|\bbrand\s+im\b", "disaster",   # "brand" เดี่ยวๆ เป็นคำอังกฤษ
+         "Feuer: alle warnen und sofort raus · bei Rauch tief bleiben, Mund und Nase bedecken · keinen Aufzug · draußen 112 anrufen, nicht zurückgehen."),
+        (r"\bbestohlen\b|\bgeklaut\b|\bdieb\b|\b[üu]berfallen\b", "violence",
+         "Diebstahl oder Überfall: nicht wehren, Ihr Leben zählt mehr · an einen belebten Ort gehen und 110 anrufen · Karten sperren (Sperr-Notruf 116 116) · Anzeige erstatten, Kopie behalten."),
+        (r"\b(?:geldbeutel|portemonnaie|reisepass|pass)\b[\w\s]{0,20}\b(?:weg|verloren)\b|\bverloren\b[\w\s]{0,20}\breisepass\b", "help",
+         "Reisepass oder Geldbeutel weg: Verlustanzeige bei der Polizei · Botschaft oder Konsulat Ihres Landes für ein Notreisedokument kontaktieren · Karten sperren (116 116)."),
+        (r"\bverlaufen\b|\bverirrt\b", "help",
+         "Verlaufen: an einem hellen, belebten Ort bleiben · Standort über die Karten-App mit jemandem teilen · in einem Geschäft, Hotel oder bei der Polizei fragen."),
+        (r"\bhelfen\s+sie\s+mir\b|\bhilfe\b|\bnotfall\b", "help",
+         "Sagen Sie mir in wenigen Worten, was passiert — wer, was, wo — dann gebe ich Ihnen die richtigen Schritte · bei Gefahr jetzt: 112 (Rettung) oder 110 (Polizei)."),
+    ),
+    "pt": (   # Brasil 192 SAMU · 190 polícia · 193 bombeiros · Portugal 112
+        (r"\bme\s+machuquei\b|\bmachucad[oa]\b|\bacidente\b", "medical",
+         "Ferimento ou acidente: saia da via · não mexa em quem se machucou gravemente (proteja pescoço e costas) · pressione o ferimento que sangra com um pano limpo · SAMU 192 no Brasil · 112 em Portugal."),
+        (r"\btontura\b|\bmuita\s+sede\b|\binsola[çc][ãa]o\b", "medical",
+         "Tontura e muita sede: vá para a sombra, beba água ou soro aos poucos · molhe pescoço e axilas com água fria · se ficar confuso ou não conseguir beber, ligue 192."),
+        (r"\bn[ãa]o\s+estou\s+me\s+sentindo\s+bem\b|\bpassando\s+mal\b|\bfebre\b", "medical",
+         "Passando mal: sente ou deite, beba água se estiver consciente · dor no peito, falta de ar, fraqueza de um lado ou confusão: ligue 192 agora."),
+        (r"\bdor\s+no\s+peito\b", "medical", None),
+        (r"\bn[ãa]o\s+consigo\s+respirar\b|\bn[ãa]o\s+respira\b|\bdesmaiou\b|\binconsciente\b", "medical",
+         "Não respira ou desmaiou: comece a massagem cardíaca (centro do peito, forte e rápido, 100–120 por minuto) · peça um DEA (desfibrilador) · ligue 192."),
+        (r"\bincêndio\b|\bincendio\b|\bfogo\b", "disaster",
+         "Incêndio: avise todos e saia já · com fumaça, abaixe-se e cubra nariz e boca · não use elevador · ligue 193 (bombeiros) do lado de fora e não volte."),
+        (r"\bfui\s+roubad[oa]\b|\bme\s+roubaram\b|\bladr[ãa]o\b|\bassalt", "violence",
+         "Roubo ou assalto: não reaja, sua vida vale mais · vá para um lugar com gente e ligue 190 · bloqueie cartões e celular · registre o boletim de ocorrência e guarde a cópia."),
+        (r"\bperdi\s+(?:minha|meu|o|a)\s+(?:carteira|passaporte|celular)\b|\bperdi\b[\w\s]{0,15}\bpassaporte\b", "help",
+         "Passaporte ou carteira perdidos: registre um boletim de ocorrência na delegacia · procure a embaixada ou consulado do seu país para um documento de viagem · bloqueie os cartões."),
+        (r"\bestou\s+perdid[oa]\b|\bme\s+perdi\b", "help",
+         "Você está perdido: fique num lugar iluminado e com gente · compartilhe sua localização com alguém pelo mapa do celular · pergunte numa loja, hotel ou à polícia."),
+        (r"\bme\s+ajud[ae]\b|\bemergência\b", "help",   # "socorro" "emergencia" เป็นภาษาสเปนด้วย
+         "Me diga em poucas palavras o que está acontecendo — quem, o quê, onde — para eu dar os passos certos · em perigo agora: 190 (polícia) · 192 (SAMU) · 193 (bombeiros)."),
+    ),
+    "en": (   # อังกฤษแบบนิวซีแลนด์และทั่วไป — เฉพาะที่คำตอบภาษาอังกฤษเดิมยังไม่มี
+        (r"\blost\s+my\s+way\b|\blost\s+on\s+(?:the|this|a)\s+(?:track|trail|tramp|hike)\b|\bi['’]?m\s+lost\s+(?:in|on)\s+the\s+(?:bush|mountains?|woods|forest)\b", "help",
+         "Lost on a track: stop and stay put — rescuers find people faster when they don't move · keep warm and dry, put on all layers · call 111 in NZ (112 or 911 elsewhere) or set off a personal locator beacon · if no signal, try text 111 or climb a little for reception."),
+        (r"\bturned\s+nasty\b|\bi['’]?m\s+freezing\b|\bsoaked\s+and\s+cold\b|\bhypothermi", "help",
+         "Cold and wet: get out of the wind and rain, change into dry layers, cover your head · eat and drink something warm · shivering that stops, confusion or stumbling is hypothermia — call 111 in NZ (911 / 112 elsewhere)."),
+        (r"\bit['’]?s\s+an\s+emergency\b|\bplease\s+help\s+me\b", "help",
+         "Tell me in a few words what's happening — who, what, where — and I'll give you the exact steps · if anyone is in danger now, call 111 in NZ, 000 in Australia, 911 in the US/Canada, 112 in Europe."),
+    ),
+}
+_WORLD_EVENT_RX = {lg: tuple((__import__("re").compile(rx, __import__("re").I), k, ln) for rx, k, ln in rows) for lg, rows in WORLD_EVENTS.items()}
+WORLD_CALM = __import__("re").compile(r"\b(?:film|filme|movie|série|serie|jeu|jogo|spiel|game|news|nouvelles|notícia|nachrichten|exercice|simulado|übung|drill)\b|فيلم|لعبة|أخبار", __import__("re").I)
+_WORLD_DEFAULT = {"poitrine": ("fr", "cardiac"), "cardiaque": ("fr", "cardiac"), "brust": ("de", "cardiac"), "herzinfarkt": ("de", "cardiac"),
+                  "peito": ("pt", "cardiac"), "infarto": ("pt", "cardiac")}
+
+
+def world_event(text, langs=None):
+    """(ภาษา, ชนิดคำตอบ, ขั้นเฉพาะเรื่อง) ของเหตุแรกที่พบในตารางกลาง — ไม่พบคืน None"""
+    t = str(text or "")
+    if WORLD_CALM.search(t):
+        return None
+    for lg in (langs or WORLD_EVENTS):
+        for rx, kind, line in _WORLD_EVENT_RX.get(lg, ()):
+            if rx.search(t):
+                if line is None:
+                    key = next((v[1] for k, v in _WORLD_DEFAULT.items() if k in t.lower() and v[0] == lg), "cardiac")
+                    line = LINES.get(key, {}).get(lg) or LINES.get(key, {}).get("en")
+                return lg, kind, line
+    return None

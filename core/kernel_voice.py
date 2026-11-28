@@ -2841,6 +2841,10 @@ def _assess_one(text: str, pattern: dict | None = None) -> dict:
             and not a.get("disaster") and not a.get("intl_urgent"):
         a = dict(a, text_risk=min(a["text_risk"], 20), risk=min(a["risk"], 20),
                  risk_shown=min(a["risk_shown"], 20) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
+    # "i want to die of embarrassment" — สำนวน: ถามไถ่เบาๆ ความเสี่ยงไม่ควรขึ้นสีแดง (ยังมีเบอร์ในคำตอบ)
+    if isinstance(text, str) and not a["crisis"] and _DIE_OF_IDIOM.search(text) and not _SERIOUS_DIE.search(text):
+        a = dict(a, text_risk=min(a["text_risk"], 45), risk=min(a["risk"], 45),
+                 risk_shown=min(a["risk_shown"], 45) if isinstance(a.get("risk_shown"), (int, float)) else a.get("risk_shown"))
     from core.second_layer import apply as _second_layer
     a = _second_layer(text, a)
     # ชั้นสองอาจเติม harm_others กลับมา — คนที่ถูกคนอื่นขู่ไม่ใช่คนที่อยากทำร้ายใคร (ดู _THREAT_BY_OTHER)
@@ -3050,6 +3054,13 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
     crisis = (bool(tr.get("self_harm")) and not fiction) or _hit(own, CRISIS_PHRASES)
     if fiction_hit and not crisis:
         soft = True
+    # สำนวน "die of embarrassment/boredom/laughter" = ขำหรืออาย ไม่ใช่อยากตาย → ถามไถ่เบาๆ แทน (ยังมีเบอร์ให้)
+    if crisis and _DIE_OF_IDIOM.search(own) and not _hit(_DIE_OF_IDIOM.sub(" ", own), CRISIS_PHRASES) \
+            and not _SERIOUS_DIE.search(own):
+        crisis, soft = False, True
+    # "ขำๆนะ แต่บางทีก็คิดว่าตายไปคงดี" — มุกที่กลบความคิดจริง เคยได้ความเสี่ยง 0
+    if not crisis and _BETTER_DEAD.search(own) and not _OTHER_DEAD.search(own):
+        crisis = True
     # "พี่เคยทำร้ายเขา … ตอนนี้ไม่มีแล้ว" — ผู้ใช้สารภาพเรื่องเก่า ไม่ใช่คนที่กำลังถูกทำร้าย
     t_now, own = strip_own_past_harm(t), strip_own_past_harm(own)
     topics = [name for name, phrases, _ in TOPICS if _hit(own if name in _OWN_ONLY else t_now, phrases)]
@@ -3075,6 +3086,8 @@ def _assess(text: str, pattern: dict | None = None) -> dict:
         topics = [n for n in topics if n not in ("first_aid", "health_emergency")]
     if "first_aid" in topics and _MINOR.search(t_now) and not _RED_FLAG.search(t_now):
         topics = [n for n in topics if n != "first_aid"]
+    if not crisis and "warning" not in topics and low_mood_cluster(own):
+        topics.insert(0, "warning")            # ถามตรงๆ อย่างอ่อนโยนว่ามีความคิดทำร้ายตัวเองไหม พร้อมเบอร์ 1323
     if soft and not crisis and not set(topics) & set(_URGENT_TOPICS):
         topics.insert(0, "soft_check")         # ไม่ใช่วิกฤต แต่เป็นห่วงเบาๆ และบอกว่าโทรได้ถ้าวันไหนไม่ไหว
     if tr.get("third_party") and "someone" not in topics:      # "เพื่อนบอกว่ากรีดแขน" — คนอื่นกำลังวิกฤต
@@ -3429,6 +3442,26 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
         _he = hi_event(text)
         if _he:
             _w = _cw_hi("hi", _he[0], "", sign, footer, extra=_he[1])
+            if _w:
+                return _w
+
+    # ── ตารางกลาง (core/first_aid_intl.WORLD_EVENTS): สวาฮีลี ฝรั่งเศส อาหรับ เยอรมัน โปรตุเกส อังกฤษ(นิวซีแลนด์)
+    # เดิม 33 จาก 35 ประโยคได้ "เขียนเรื่องเป็นประโยคเดียว" และภาษาถูกเดาผิด (โปรตุเกส → เซอร์เบีย · อังกฤษ → ดัตช์)
+    if not a["crisis"] and detect_lang(text) in ("en", "es") and not re.search(r"[\u0e00-\u0e7f\u0900-\u097f]", text):
+        from core.first_aid_intl import world_event
+        _wv = world_event(text)
+        if _wv:
+            _lg, _k, _line = _wv
+            if _lg == "en":
+                _st = status_line(a, "en")
+                _steps = [_line, "Share your location with someone you trust, and keep your phone battery for calls.",
+                          "If anyone is hurt or in danger, call emergency services now: 111 NZ · 000 Australia · 911 US/Canada · 112 Europe · 1669 Thailand."]
+                return ("Let's get you safe, one step at a time.\n\n" + (f"{_st}\n\n" if _st else "")
+                        + "\n".join(f"{i + 1}) {x}" for i, x in enumerate(_steps))
+                        + f"\n\nAre you somewhere safe right now?\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
+            from core.world_replies import compose_world as _cw_w, reply_for as _rf_w
+            _k = _k if _rf_w(_lg, _k) else "help"
+            _w = _cw_w(_lg, _k, "", sign, footer, extra=_line)
             if _w:
                 return _w
 
@@ -3839,6 +3872,26 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     return (f"{opener}\n\n{status}\n\n{body}{calc_block}{opt_block}{money_line}\n\n"
             f"คำถามเดียวที่ควรถามตัวเองตอนนี้: {main['ask']}\n\n{sign}" + tag)
 
+
+
+# ── ประโยคกำกวม: เล่น vs เศร้าจริง (ชุดทดสอบหลังรอบ 27) ──
+_DIE_OF_IDIOM = re.compile(r"\b(?:want|wanna|gonna|going)\s+(?:to\s+)?die\s+of\s+(?:embarrassment|boredom|laughter|laughing|shame|cringe|cuteness|jealousy)\b"
+                           r"|\bdie\s+of\s+(?:embarrassment|boredom|laughter|cringe)\b", re.I)
+_BETTER_DEAD = re.compile(r"ตายไป(?:ก็|คง|น่าจะ)?(?:ดี|จบ|สบาย)|ตายๆ\s*ไป(?:ซะ)?(?:ก็|คง)?ดี|ไม่ต้องตื่น(?:อีก)?(?:ก็|คง)?ดี|หลับไปไม่ตื่น(?:ก็|คง)?ดี|"
+                          r"\bbetter\s+off\s+dead\b|\bwish\s+i\s+(?:was|were)\s+dead\b|\bwish\s+i\s+(?:could\s+)?(?:not\s+wake|never\s+woke)", re.I)
+_SERIOUS_DIE = re.compile(r"\bkill\s+myself\b|\bsuicid|\bend\s+(?:it|my\s+life)\b|\bpills?\b|\bfor\s+real\b|\bseriously\b|\bnot\s+joking\b", re.I)
+_OTHER_DEAD = re.compile(r"(?:มัน|เขา|เค้า|แก|คนนั้น|พวกนั้น|ไอ้|อี|หมอนั่น|นักการเมือง)\S{0,12}ตายไป|คน\S{0,10}(?:แบบนั้น|แบบนี้|พวกนี้|พวกนั้น)\S{0,4}ตายไป|ตัวละคร|\b(?:he|she|they|that guy)\s+(?:is|was|would\s+be)\s+better\s+off\s+dead", re.I)
+# สัญญาณซึมเศร้าที่มาด้วยกันหลายอย่าง — เดิม "นอนไม่หลับ ไม่อยากทำอะไร ไม่อยากเจอใคร" ได้ความเสี่ยง 0
+_LOW_SIGNS = (re.compile(r"นอนไม่หลับ|หลับไม่ลง|นอนทั้งวัน|\bcan'?t\s+sleep\b|\bsleep(?:ing)?\s+all\s+day\b", re.I),
+              re.compile(r"ไม่อยากทำอะไร|ไม่มีแรงทำอะไร|ไม่อยากลุก|\bdon'?t\s+want\s+to\s+do\s+anything\b|\bno\s+energy\b", re.I),
+              re.compile(r"ไม่อยากเจอใคร|ไม่อยากคุยกับใคร|ไม่อยากออกจากห้อง|\bdon'?t\s+want\s+to\s+see\s+anyone\b|\bavoid(?:ing)?\s+everyone\b", re.I),
+              re.compile(r"ร้องไห้ทุกวัน|ร้องไห้ทุกคืน|ไม่มีความสุขกับอะไรเลย|ว่างเปล่า|ไม่รู้สึกอะไร|\bcry(?:ing)?\s+every\s+(?:day|night)\b|\bfeel\s+(?:empty|numb|nothing)\b", re.I),
+              re.compile(r"กินไม่ลง|ไม่อยากกินอะไร|\bcan'?t\s+eat\b|\bstopped\s+eating\b", re.I))
+
+
+def low_mood_cluster(text) -> bool:
+    """สัญญาณซึมเศร้าอย่างน้อยสองอย่างในข้อความเดียว — คำเดียวมักเป็นเรื่องธรรมดา ("นอนไม่หลับเพราะกาแฟ")"""
+    return sum(bool(rx.search(text or "")) for rx in _LOW_SIGNS) >= 2
 
 
 # "อยากตาย 555" / "I want to die 😂" — มักพูดเล่น แต่บางคนใช้หัวเราะกลบความจริง

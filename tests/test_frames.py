@@ -1050,3 +1050,51 @@ def test_hindi_set2_situations_get_specific_answer(text, needle):
     from core.kernel_voice import compose
     out = compose(text)
     assert needle in out, out
+
+
+# ── ตารางกลาง: สวาฮีลี ฝรั่งเศส อาหรับ เยอรมัน โปรตุเกส อังกฤษ(นิวซีแลนด์) — เดิม 33 จาก 35 ได้คำตอบทั่วไป ──
+WORLD_SET = [
+    ("Nina homa na tumbo linauma.", "malaria"), ("Nimeibiwa simu yangu", "999"), ("Je me suis blessé.", "911 au Canada"),
+    ("J’ai perdu mon portefeuille ou mon passeport.", "consulat"), ("لقد أُصبتُ بأذى.", "998"), ("فُقدت محفظتي أو جواز سفري.", "سفارة"),
+    ("Ich habe mich verletzt.", "112"), ("Mein Geldbeutel oder Reisepass ist weg.", "116 116"), ("Eu me machuquei.", "SAMU 192"),
+    ("Perdi minha carteira ou passaporte.", "boletim"), ("I've lost my way on this track.", "111"), ("Please help me, it's an emergency.", "111 in NZ"),
+]
+
+
+@pytest.mark.parametrize("text, needle", WORLD_SET)
+def test_world_languages_get_specific_answer_in_their_language(text, needle):
+    from core.kernel_voice import compose
+    out = compose(text)
+    assert needle in out, out
+
+
+@pytest.mark.parametrize("text", ["I had an accident at work", "my moto broke down", "new brand of shoes"])
+def test_words_shared_with_english_do_not_switch_language(text):
+    from core.kernel_voice import compose
+    out = compose(text)
+    for foreign in ("Blessure", "Jeraha", "Feuer", "Ferimento"):
+        assert foreign not in out
+
+
+# ── ประโยคกำกวม: พิมพ์เล่น vs เศร้าจริง ──
+def test_joke_framing_does_not_hide_real_thoughts():
+    """"ขำๆนะ แต่บางทีก็คิดว่าตายไปคงดี" เคยได้ความเสี่ยง 0 — มุกที่กลบความคิดจริง"""
+    from core.kernel_voice import assess
+    assert assess("ขำๆนะ แต่บางทีก็คิดว่าตายไปคงดี")["crisis"]
+    assert assess("lol i wish i was dead tbh")["crisis"]
+    assert not assess("คนโกงแบบนั้นตายไปคงดี")["crisis"]      # พูดถึงคนอื่น
+
+
+def test_low_mood_cluster_is_checked_gently():
+    """สัญญาณซึมเศร้าหลายอย่างรวมกันเคยได้ความเสี่ยง 0 · อย่างเดียวที่มีสาเหตุธรรมดายังไม่เตือน"""
+    from core.kernel_voice import assess
+    assert "warning" in assess("ช่วงนี้นอนไม่หลับ ไม่อยากทำอะไร ไม่อยากเจอใคร")["topics"]
+    assert "warning" in assess("i can't sleep, i don't want to do anything and i feel empty")["topics"]
+    assert "warning" not in assess("นอนไม่หลับเพราะกินกาแฟ")["topics"]
+
+
+def test_die_of_embarrassment_is_an_idiom():
+    from core.kernel_voice import assess
+    a = assess("ugh i want to die of embarrassment")
+    assert not a["crisis"] and a["text_risk"] < 60 and "soft_check" in a["topics"]
+    assert assess("i want to die of embarrassment but also i want to kill myself")["crisis"]
