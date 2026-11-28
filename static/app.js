@@ -2531,7 +2531,6 @@ var Cosmos = (function(){
    ════════════════════════════════════════════════════════════════ */
 var PNAME = { LYLA:['LYLA','lyla'], VEGA:['VEGA','vega'], COUNCIL:['สภา 6 เสียง','council'], CRISIS:['HALT · ช่วยเหลือฉุกเฉิน','crisis'], DRIFTZERO:['LYLA · DriftZero','dz'], IMAGE:['สร้างภาพ','img'] };
 function crisisCard(){
-  showSos();
   return '<div class="crisis-card"><b>' + _t('ถ้ากำลังอยู่ในอันตราย หรือคิดทำร้ายตัวเอง') + '</b> ' + _t('โทรหาคนที่ช่วยได้ทันที') + '<br>' +
     '<a href="tel:1323">1323</a>' + _t('สายด่วนสุขภาพจิต 24 ชม.') + '<br><a href="tel:1669">1669</a>' + _t('เจ็บป่วยฉุกเฉิน') + ' <a href="tel:191">191</a>' + _t('ตำรวจ') + '</div>';
 }
@@ -2884,6 +2883,8 @@ async function send(textArg){
       var reply = String(d.ai_response || d.pause_reason || d.message || '').replace(/\s*[—–-]+\s*(LYLA\s*[◈✦✧]?|VEGA\s*[◆◇]?|HALT\s*[⬡]?|สภา\s*KING\s*DIADEM\s*✦?)\s*$/gi, '').trim();
       born = { r:'a', t: reply || '(ไม่มีข้อความตอบกลับ)', p: d.persona || (mode==='vega' ? 'VEGA' : mode==='council' ? 'COUNCIL' : 'LYLA'), tr: traceOf(d, mode, sentState ? state : null), l: d.help_links, q: d.quakes, hz: d.hazards, c: d.companion, s: d.survival, ts:Date.now() };
       target.msgs.push(born);
+      // แถบโทรเต็มจอเฉพาะคำตอบใหม่ที่เซิร์ฟเวอร์ตัดสินว่าฉุกเฉิน — ไม่ใช่แค่คำตอบที่มีเบอร์ 1323/1669 หรือประวัติเก่าที่เปิดซ้ำ
+      if(born.tr && born.tr.mode === 'crisis') showSos();
       try{ window.dispatchEvent(new CustomEvent('KD:reply', { detail:{ t: born.t, p: born.p } })); }catch(_){}
     }
     Chat.persist(); refreshMe();
@@ -3093,6 +3094,7 @@ async function sendMode(text, mode){
     if(mode === 'dz'){
       var d = await readJson(await fetchRetry('/api/driftzero', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify(dzBody(text, prevDz)) }, 3));
       target().msgs.push({ r:'a', p:'DRIFTZERO', t: L2(d.audit.lyla || d.audit.summary), dz: d.audit, ts: Date.now() });
+      if(d.audit.verdict === 'urgent' || d.audit.emergency) showSos();   // ด่าน DriftZero เจอเรื่องฉุกเฉินจริงตอนนี้
     }else{
       var g = await readJson(await fetch('/api/image/generate', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt:text }) }));
       var ts = Date.now(); IMGS[ts] = g.image;

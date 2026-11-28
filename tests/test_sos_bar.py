@@ -12,10 +12,14 @@ def test_sos_bar_has_real_numbers_and_location():
     assert 'href="tel:191"' in bar and 'href="tel:1669"' in bar and 'href="/safe"' in bar
 
 
-def test_crisis_card_opens_sos_bar():
+def test_sos_bar_only_for_fresh_server_crisis():
+    """เดิมแถบโผล่ทุกครั้งที่วาดการ์ดฉุกเฉิน: เปิดหน้าใหม่แล้วมีประวัติเก่า หรือคำตอบธรรมดาที่แค่เอ่ยเบอร์ 1323
+    ก็ขึ้นแถบโทร 191 เต็มจอ เสี่ยงคนกดโทรโดยไม่ได้ตั้งใจ · ตอนนี้ขึ้นเฉพาะคำตอบใหม่ที่เซิร์ฟเวอร์ตัดสินว่าฉุกเฉิน"""
     js = (ROOT / "static/app.js").read_text(encoding="utf-8")
-    body = js[js.index("function crisisCard(){"):js.index("}", js.index("function crisisCard(){"))]
-    assert "showSos()" in body
+    body = js[js.index("function crisisCard(){"):js.index("\n}", js.index("function crisisCard(){"))]
+    assert "showSos" not in body
+    assert "if(born.tr && born.tr.mode === 'crisis') showSos();" in js
+    assert js.count("showSos();") == 2     # คำตอบแชทใหม่ · ผล DriftZero ใหม่ — ไม่มีที่อื่น
 
 
 def test_safe_page_teaches_phone_sos():
