@@ -845,7 +845,8 @@ def get_recent_decisions(user_email: str, limit: int = 3) -> list:
 
 # ── ความจำข้ามแชท: ผู้ใช้ควบคุมเองได้ (ดู · ปิด · ล้าง) ──────────────────────────
 # แถวเหล่านี้เป็นค่าตั้ง/ข้อมูลภายใน ไม่ใช่ "สิ่งที่รู้เกี่ยวกับผู้ใช้" — ไม่ส่งเข้า prompt และไม่แสดง
-_MEM_INTERNAL = ("engine_last_turns", "last_route", "memory_reset", "memory_off")
+_MEM_INTERNAL = ("engine_last_turns", "last_route", "memory_reset", "memory_off",
+                 "next_step", "next_step_asked")          # กตญาณ (core/katanyana) — ไม่ส่งเข้า prompt ไม่ให้ AI เปิดเรื่องเอง
 
 
 def _mem_value(user_email: str, key: str):
@@ -1016,6 +1017,12 @@ def auto_extract_memory(user_email: str, user_input: str,
                     "ไม่ต้องลงรายละเอียดเรื่องเดิม", route, importance=5)
         save_memory(user_email, "last_route", route, route, importance=1)
         return
+    # กตญาณ: จำท่อน "เกิดขึ้นแล้ว" ไว้ถามครั้งเดียวในวันถัดไป (เรื่องเปราะบางออกจากฟังก์ชันไปแล้วข้างบน)
+    try:
+        from core.katanyana import remember as _kt_remember
+        _kt_remember(user_email, str(user_input or ""), save_memory)
+    except Exception as e:
+        print(f"⚠ katanyana: {type(e).__name__}")
     if topics:
         th = {"debt": "หนี้", "money": "เงิน", "job": "งาน", "business": "ธุรกิจ", "relationship": "ความรัก",
               "family": "ครอบครัว", "study": "การเรียน", "lonely": "ความเหงา", "stress": "ความเครียด",

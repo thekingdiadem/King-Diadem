@@ -3507,6 +3507,22 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
         except Exception as _tw:
             print(f"⚠ time_windows: {type(_tw).__name__}")
 
+    # ── กตญาณ (core/katanyana): วันถัดไปที่ผู้ใช้แค่ทักทาย ถามครั้งเดียวว่าก้าวที่ตั้งใจไว้เป็นอย่างไร ·
+    # ถ้าเขาบอกว่าทำแล้ว รับรู้ว่าก้าวนั้นเสร็จแล้วจริงๆ — เฉพาะคนที่เปิดความจำ ไม่ใช่วิกฤต
+    if email and email != "anonymous" and isinstance(result.get("ai_response"), str) and result.get("ai_response") \
+            and result.get("route") not in ("crisis", "collapse"):
+        try:
+            from DATABASE.db import _mem_value, save_memory, memory_enabled
+            from core.katanyana import checkin as _kt_checkin, acknowledge as _kt_ack
+            from core.intent import is_bare_greeting as _kt_bare
+            _on = memory_enabled(email)
+            _kt = (_kt_ack(email, user_input, _mem_value, save_memory) if _on else None) or \
+                _kt_checkin(email, user_input, _mem_value, save_memory, _on, _kt_bare(user_input))
+            if _kt:
+                result["ai_response"] = _kt + "\n\n" + result["ai_response"]
+        except Exception as _kte:
+            print(f"⚠ katanyana: {type(_kte).__name__}")
+
     if log_decision:
         try:
             log_decision(
