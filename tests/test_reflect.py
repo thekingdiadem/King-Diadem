@@ -16,7 +16,7 @@ def test_wanting_not_to_be_is_its_own_pile():
 
 def test_english_and_no_judgement_tail():
     b = block("I got laid off last week and I am scared I will never find another job, I just want things to be normal")
-    assert "Already happened" in b and "neither is wrong" in b
+    assert "Already happened" in b and "don't have to fight it" in b
 
 
 def test_short_or_single_pile_text_gets_nothing():
@@ -36,3 +36,13 @@ def test_intent_engine_agrees_with_assess():
     assert analyze_intent("ขำๆนะ แต่บางทีก็คิดว่าตายไปคงดี")["intent"] == "crisis"
     assert analyze_intent("ช่วงนี้นอนไม่หลับ ไม่อยากทำอะไร ไม่อยากเจอใคร")["intent"] == "crisis"
     assert analyze_intent("i want to die of embarrassment")["intent"] != "crisis"
+
+
+def test_closing_follows_the_middle_way():
+    """ธัมมจักกัปปวัตตนสูตร: อยากมีอยากเป็นกับไม่อยากมีไม่อยากเป็นเป็นแรงดึงเดียวกัน · ไม่ตามและไม่ทรมานตัวเอง"""
+    both = block("อยากมีงานที่มั่นคง แต่ไม่อยากกลับไปทำงานที่เดิมแล้ว กลัวว่าจะไม่มีเงิน")
+    assert "แรงที่ดึงใจเราอยู่เหมือนกัน" in both and "ไม่ต้องโทษตัวเอง" in both
+    fact_fear = block("แฟนบอกเลิกเมื่อวาน กลัวจะอยู่คนเดียวไปตลอด")
+    assert "ยังเป็นแค่ความคิด" in fact_fear
+    for b in (both, fact_fear):
+        assert "ตัณหา" not in b and "ตั้งสติ" not in b      # ไม่สั่งสอน ไม่สั่งให้ตั้งสติ

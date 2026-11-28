@@ -7,7 +7,13 @@
   · เกิดขึ้นแล้ว — สิ่งที่เป็นจริงตอนนี้ แก้ได้หรือรับมือได้
   · ยังไม่เกิด — สิ่งที่กลัวว่าจะเกิด (ความคิด ไม่ใช่เหตุการณ์)
   · อยากมี อยากเป็น (ภวตัณหา) · ไม่อยากมี ไม่อยากเป็น (วิภวตัณหา)
-แล้วปิดด้วยหลักว่าเลือกทางไหนก็ไม่ผิด แต่ทางที่เลือกจะเป็นเหตุใหม่
+ประโยคปิดตามธัมมจักกัปปวัตตนสูตร (เจ้าของโปรเจกต์ส่งตัวบทมาให้ตรวจ):
+  · ทุกข์ควรกำหนดรู้ — ให้เห็นกองที่เกิดขึ้นแล้ว ไม่ใช่หนี
+  · ความอยากมีอยากเป็น (ภวตัณหา) กับความไม่อยากมีไม่อยากเป็น (วิภวตัณหา) เป็นแรงดึงชนิดเดียวกัน
+    "ไม่อยาก" ไม่ใช่การปล่อยวาง — มันคือความอยากอีกทาง
+  · ทางสายกลางไม่เข้าใกล้ที่สุดสองข้าง: ไม่ตามความอยากไป และไม่ทรมานตัวเอง (ไม่สู้ ไม่โทษตัวเองที่รู้สึก)
+  · มรรคควรเจริญ — ปิดด้วยสิ่งที่ทำได้จริงวันนี้
+ไม่ใช้คำว่า "ตัณหา" ในคำตอบ: คนที่กำลังทุกข์อาจรู้สึกว่าถูกสั่งสอน หรือได้ยินว่าทุกข์ของเขา "เป็นแค่ความอยาก"
 
 ใช้เฉพาะเมื่อข้อความมีอย่างน้อยสองกอง และหนึ่งในนั้นเป็น "กลัว" หรือ "อยาก/ไม่อยาก"
 ไม่ใช้กับเรื่องวิกฤตหรือเรื่องด่วน — ตอนนั้นขั้นตอนความปลอดภัยต้องมาก่อน
@@ -70,12 +76,20 @@ def applies(text: str, piles: dict | None = None) -> bool:
 _LABELS = {
     "th": {"head": "ลองดูสิ่งที่คุณเล่า แยกเป็นกองๆ นะ",
            "fact": "เกิดขึ้นแล้ว", "fear": "ยังไม่เกิด — เป็นสิ่งที่กลัว", "want_be": "อยากมี อยากเป็น", "want_not": "ไม่อยากมี ไม่อยากเป็น",
-           "tail": "เลือกเอาหรือเลือกวาง ไม่มีทางไหนผิด — แต่ทางที่เลือกวันนี้จะเป็นเหตุของวันพรุ่งนี้ "
-                   "กองแรกคือสิ่งที่จับต้องได้จริง ส่วนกองที่สองยังเป็นแค่ความคิด"},
+           "tail_both": "อยากให้มี กับไม่อยากให้เป็น ดูเหมือนอยู่คนละฝั่ง แต่ทั้งสองคือแรงที่ดึงใจเราอยู่เหมือนกัน "
+                        "ไม่ต้องตามมันไป และไม่ต้องโทษตัวเองที่รู้สึกแบบนี้ — ลองดูแค่กองแรก ว่าวันนี้มีอะไรหนึ่งอย่างที่ทำได้จริง",
+           "tail_want": "ความรู้สึกนี้ไม่ผิด มันเป็นแค่แรงที่ดึงใจอยู่ — ไม่ต้องตามมันไป และไม่ต้องสู้กับมัน "
+                        "ทางที่เลือกวันนี้จะเป็นเหตุของวันพรุ่งนี้ ลองเริ่มจากกองแรกหนึ่งอย่างที่ทำได้จริง",
+           "tail": "กองแรกคือสิ่งที่เกิดขึ้นจริงและจับต้องได้ ส่วนกองที่สองยังเป็นแค่ความคิด — "
+                   "ลองเริ่มจากกองแรกหนึ่งอย่างที่ทำได้วันนี้"},
     "en": {"head": "Here's what you wrote, sorted into piles",
            "fact": "Already happened", "fear": "Hasn't happened — it's a fear", "want_be": "Wanting to have / to be", "want_not": "Not wanting to have / to be",
-           "tail": "Holding on or letting go — neither is wrong. Whatever you choose today becomes a cause for tomorrow. "
-                   "The first pile is what's real and workable; the second is still only a thought."},
+           "tail_both": "Wanting it to be, and wanting it not to be, look like opposites — but both are the same pull on the mind. "
+                        "You don't have to follow it, and you don't have to blame yourself for feeling it. Look only at the first pile: what's one thing you can actually do today?",
+           "tail_want": "This feeling isn't wrong — it's a pull on the mind. You don't have to follow it, and you don't have to fight it. "
+                        "Whatever you choose today becomes a cause for tomorrow; start with one real thing from the first pile.",
+           "tail": "The first pile is what actually happened and can be worked with; the second is still only a thought. "
+                   "Start with one thing from the first pile you can do today."},
 }
 
 
@@ -90,5 +104,10 @@ def block(text: str) -> str | None:
     for k in ("fact", "fear", "want_be", "want_not"):
         for p in piles[k][:2]:
             lines.append(f"· {L[k]}: “{p}”")
-    lines.append(L["tail"])
+    if piles["want_be"] and piles["want_not"]:
+        lines.append(L["tail_both"])
+    elif piles["want_be"] or piles["want_not"]:
+        lines.append(L["tail_want"])
+    else:
+        lines.append(L["tail"])
     return "\n".join(lines)
