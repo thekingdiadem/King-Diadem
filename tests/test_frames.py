@@ -935,3 +935,26 @@ def test_japanese_fire_is_not_answered_with_earthquake_first():
 def test_japanese_everyday_and_drills_are_not_emergencies(text):
     from core.kernel_voice import assess
     assert assess(text)["text_risk"] < 60
+
+
+# ── เหตุฉุกเฉินภาษาจีนจากรายการ 200 วลีที่เจ้าของโปรเจกต์รวบรวม (เดิมประโยคอันตราย 45 จาก 65 ได้คำตอบทั่วไป) ──
+ZH_EMERGENCIES = [
+    ("着火了", "湿毛巾捂住口鼻"), ("煤气泄漏", "不要开灯"), ("洪水", "往高处"), ("出车祸了", "122"), ("被抢劫了", "不要反抗"),
+    ("昏迷了", "胸外按压"), ("烫伤了", "凉水冲 20 分钟"), ("被蛇咬了", "止血带"), ("狗咬人了", "狂犬"), ("孩子走丢了", "110"),
+    ("被关在电梯里了", "紧急呼叫按钮"), ("护照丢了", "大使馆"), ("我迷路了", "地图软件"), ("有人跟踪我", "派出所"),
+    ("山体滑坡", "两侧高处"), ("高原反应", "下撤"), ("溺水了", "不要跳下去"), ("触电了", "断电"),
+]
+
+
+@pytest.mark.parametrize("text, needle", ZH_EMERGENCIES)
+def test_chinese_emergencies_get_specific_answer(text, needle):
+    from core.kernel_voice import compose
+    out = compose(text)
+    assert needle in out, out
+    assert "用一句话写下发生了什么 — 真正的问题" not in out
+
+
+@pytest.mark.parametrize("text", ["花粉过敏", "停电了", "医院在哪里", "地震演习", "看了火灾新闻", "下大雨，门口路上有点积水"])
+def test_chinese_everyday_and_drills_are_not_emergencies(text):
+    from core.kernel_voice import assess
+    assert assess(text)["text_risk"] < 60

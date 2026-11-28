@@ -3379,6 +3379,20 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             return compose_urgent_intl("ja", "medical", _st, sign, footer,
                                        steps_override=[_line] + JA_HELP_REST, opener_override="落ち着いて、一つずつ対処しましょう。")
 
+    # ── ภาษาจีน: เหตุจากรายการ 200 วลี (core/first_aid_intl.ZH_EVENTS) — เดิมไฟไหม้/แก๊สรั่วได้คำแนะนำแผ่นดินไหว
+    if not a["crisis"] and detect_lang(text) == "zh":
+        from core.first_aid_intl import zh_event, ZH_DISASTER_REST, ZH_HELP_REST
+        _ze = zh_event(text)
+        if _ze:
+            _k, _line = _ze
+            _st = status_line(a, "zh")
+            if _k in ("medical", "violence"):
+                return compose_urgent_intl("zh", _k, _st, sign, footer, extra=_line)
+            if _k == "disaster":
+                return compose_urgent_intl("zh", "disaster", _st, sign, footer, steps_override=[_line] + ZH_DISASTER_REST)
+            return compose_urgent_intl("zh", "medical", _st, sign, footer,
+                                       steps_override=[_line] + ZH_HELP_REST, opener_override="别慌，我们一步一步处理。")
+
     # ── ภาษาเอเชียที่มีคำตอบเรื่องด่วนของตัวเอง (พม่า เขมร ลาว เวียดนาม ฮินดี ฯลฯ) ──
     if world_urgent(text):
         from core.world_replies import world_lang, compose_world as compose_asia

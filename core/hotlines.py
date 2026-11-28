@@ -114,7 +114,8 @@ REGISTRY: dict[str, list[Line]] = {
     "KR": [Line("112", "ตำรวจ", "Police", "emergency", "police.go.kr"), Line("119", "ดับเพลิง/รถพยาบาล", "Fire / ambulance", "emergency", "nfa.go.kr"),
            Line("109", "ป้องกันการฆ่าตัวตาย 24 ชม.", "Suicide prevention, 24h", "mental", "mohw.go.kr")],
     "CN": [Line("110", "ตำรวจ", "Police", "emergency", "mps.gov.cn"), Line("120", "รถพยาบาล", "Ambulance", "emergency", "nhc.gov.cn"),
-           Line("119", "ดับเพลิง", "Fire", "emergency", "119.gov.cn")],
+           Line("119", "ดับเพลิง", "Fire", "emergency", "119.gov.cn"),
+           Line("122", "อุบัติเหตุจราจร", "Traffic accidents", "emergency", "mps.gov.cn")],
 }
 
 # สมุดรายชื่อทางการ — ใช้เมื่อไม่มีเบอร์ของประเทศนั้นในทะเบียน (ดีกว่าเดาเบอร์)
