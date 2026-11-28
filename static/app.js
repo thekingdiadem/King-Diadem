@@ -2536,8 +2536,9 @@ function crisisCard(){
     '<a href="tel:1323">1323</a>' + _t('สายด่วนสุขภาพจิต 24 ชม.') + '<br><a href="tel:1669">1669</a>' + _t('เจ็บป่วยฉุกเฉิน') + ' <a href="tel:191">191</a>' + _t('ตำรวจ') + '</div>';
 }
 /* แถบโทรฉุกเฉิน: ปิดเองได้ แต่จะกลับมาเมื่อมีคำตอบฉุกเฉินใหม่ */
-function showSos(){ setTimeout(function(){ var b = document.getElementById('sos-bar'); if(b && !b.dataset.closed) b.classList.remove('hide'); }, 0); }
-(function(){ var x = document.getElementById('sos-x'); if(x) x.addEventListener('click', function(){ var b = document.getElementById('sos-bar'); b.classList.add('hide'); b.dataset.closed = '1'; setTimeout(function(){ delete b.dataset.closed; }, 60000); }); })();
+function showSos(){ setTimeout(function(){ var b = document.getElementById('sos-bar'); if(b && !b.dataset.closed){ b.classList.remove('hide'); document.documentElement.style.setProperty('--sos-h', b.offsetHeight + 'px'); } }, 0); }   // หดหน้าแชทขึ้นเท่าความสูงแถบ ช่องพิมพ์จึงไม่ถูกบัง
+// ฟังที่ document — app.js โหลดก่อนแถบ SOS ใน index.html เดิมหา #sos-x ไม่เจอ ปุ่มปิดจึงกดไม่ติดมาตลอด
+(function(){ document.addEventListener('click', function(e){ if(!e.target.closest || !e.target.closest('#sos-x')) return; var b = document.getElementById('sos-bar'); b.classList.add('hide'); b.dataset.closed = '1'; document.documentElement.style.removeProperty('--sos-h'); setTimeout(function(){ delete b.dataset.closed; }, 60000); }); })();
 /* สภา 6 เสียง: ชื่อแต่ละเสียงเป็นตัวหนา อ่านง่ายบนมือถือ */
 function councilFmt(t){
   return fmt(t).replace(/(^|<br>)(LYLA ◈|VEGA ◆|PATICCA ☸|TITAN ▲|COSMOS ✦|CIVIL ⬡|มติสภา[^:<]{0,24}:)/g, '$1<strong class="cm">$2</strong>');

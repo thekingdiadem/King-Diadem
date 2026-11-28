@@ -48,7 +48,7 @@ body{background:#03040b}
 body[data-veil="1"] #veil{opacity:.78} body[data-veil="2"] #veil{opacity:1}
 
 /* ── shell ─────────────────────────────────────────────────────── */
-#app{position:relative;z-index:2;display:grid;grid-template-columns:var(--sb-w) minmax(0,1fr);height:100dvh}
+#app{position:relative;z-index:2;display:grid;grid-template-columns:var(--sb-w) minmax(0,1fr);height:calc(100dvh - var(--sos-h,0px))}
 @media (min-width:1240px){ #app.has-trace{grid-template-columns:var(--sb-w) minmax(0,1fr) var(--tr-w)} }
 @media (max-width:899px){ #app{grid-template-columns:minmax(0,1fr)} }
 .glass{background:var(--glass);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2)}
@@ -1547,4 +1547,4 @@ html.in-app [data-app-only]{display:block}
 #sos-bar .sos-call b{font-size:30px;font-family:var(--f-mono);letter-spacing:.04em}
 #sos-bar .sos-loc{grid-column:1 / -1;display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:14px;
   background:rgba(255,217,168,.12);color:#ffd9a8;text-decoration:none;font-size:15px}
-#sos-bar .sos-x{position:absolute;top:-34px;right:10px;width:30px;height:30px;border-radius:50%;border:0;background:rgba(20,6,10,.9);color:#fff;font-size:14px}
+#sos-bar .sos-x{position:absolute;top:-50px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(20,6,10,.9);color:#fff;font-size:14px}
