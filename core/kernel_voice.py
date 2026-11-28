@@ -3422,6 +3422,16 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             return compose_urgent_intl("es", "medical", _st, sign, footer,
                                        steps_override=[_line] + ES_HELP_REST, opener_override="Con calma, vamos paso a paso.")
 
+    # ── ภาษาฮินดี: 20 สถานการณ์ (core/first_aid_intl.HI_EVENTS) — เดิมความเสี่ยง 0 ทุกข้อ บางข้อถูกตอบเป็นภาษาเนปาล
+    if not a["crisis"] and re.search(r"[\u0900-\u097f]", text):
+        from core.first_aid_intl import hi_event
+        from core.world_replies import compose_world as _cw_hi
+        _he = hi_event(text)
+        if _he:
+            _w = _cw_hi("hi", _he[0], "", sign, footer, extra=_he[1])
+            if _w:
+                return _w
+
     # ── ภาษาเอเชียที่มีคำตอบเรื่องด่วนของตัวเอง (พม่า เขมร ลาว เวียดนาม ฮินดี ฯลฯ) ──
     if world_urgent(text):
         from core.world_replies import world_lang, compose_world as compose_asia

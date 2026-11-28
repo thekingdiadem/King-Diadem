@@ -1242,6 +1242,18 @@ def _vi_events_into_world():
 
 
 _vi_events_into_world()
+
+
+def _hi_events_into_world():
+    """เหตุภาษาฮินดี (core/first_aid_intl.HI_EVENTS) — เดิม 20 สถานการณ์ได้ความเสี่ยง 0 ทั้งหมด"""
+    from core.first_aid_intl import HI_EVENTS, HI_CALM
+    guard = r"^(?![\s\S]*(?:" + HI_CALM.pattern + r"))[\s\S]*?"
+    for rx, kind, _line in HI_EVENTS:
+        k = {"disaster": "help"}.get(kind, kind)
+        WORLD_URGENT[k] += "|" + guard + r"(?:" + rx + r")"
+
+
+_hi_events_into_world()
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 # พิมพ์ไม่มีวรรณยุกต์/เครื่องหมาย (คีย์บอร์ดมือถือไม่มีภาษานั้น) — "me toi khong tho duoc" · "kocam beni dovuyor"

@@ -1008,3 +1008,26 @@ def test_spanish_emergencies_get_specific_spanish_answer(text, needle):
 def test_spanish_everyday_is_not_an_emergency(text):
     from core.kernel_voice import assess
     assert assess(text)["text_risk"] < 60
+
+
+# ── 20 สถานการณ์ภาษาฮินดีที่เจ้าของโปรเจกต์รวบรวม (เดิมความเสี่ยง 0 ทุกข้อ บางข้อถูกตอบเป็นภาษาเนปาล) ──
+HI_EMERGENCIES = [
+    ("मुझे फ़ूड पॉइज़निंग हो गई है।", "ORS"), ("मुझे बहुत तेज़ बुखार है।", "पैरासिटामोल"), ("मुझे सांस लेने में तकलीफ हो रही है।", "इनहेलर"),
+    ("मेरा एक्सीडेंट हो गया है।", "हेलमेट"), ("मेरा बटुआ चोरी हो गया है।", "FIR"), ("मेरा पासपोर्ट खो गया है।", "दूतावास"),
+    ("कोई मेरा पीछा कर रहा है।", "112"), ("इमारत में आग लग गई है।", "सीढ़ियाँ"), ("सड़क पर बहुत पानी भर गया है।", "ऊँची जगह"),
+    ("मेरे मालिक ने मेरा पासपोर्ट ले लिया है।", "MADAD"), ("इस ड्राइवर ने मुझसे ज़्यादा पैसे लिए हैं।", "1363"),
+]
+
+
+@pytest.mark.parametrize("text, needle", HI_EMERGENCIES)
+def test_hindi_situations_get_specific_hindi_answer(text, needle):
+    from core.kernel_voice import compose
+    out = compose(text)
+    assert needle in out, out
+    assert "एक वाक्य में लिखें कि असल में" not in out and "वास्तवमा" not in out
+
+
+@pytest.mark.parametrize("text", ["अस्पताल कहाँ है?", "मैंने फ़िल्म में आग देखी", "थोड़ा सा बुखार था, अब ठीक हूँ"])
+def test_hindi_everyday_is_not_an_emergency(text):
+    from core.kernel_voice import assess
+    assert assess(text)["text_risk"] < 60
