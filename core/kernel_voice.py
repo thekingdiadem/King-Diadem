@@ -4541,9 +4541,32 @@ _compose_before_story = compose
 def compose(text: str, *args, **kw) -> str:  # noqa: F811
     owner = _memo_start()
     try:
-        return _compose_story(text, *args, **kw)
+        return _compose_reflect(text, _compose_story(text, *args, **kw))
     finally:
         _memo_stop(owner)
+
+
+def _compose_reflect(text, reply):
+    """แยกสิ่งที่ผู้ใช้เล่าเป็นกอง (เกิดแล้ว · กลัว · อยาก · ไม่อยาก) ให้เขาเห็นความจริงเอง — core/reflect.py
+    ไม่ใช้กับวิกฤตหรือเรื่องด่วน (ขั้นตอนความปลอดภัยต้องเด่น) และไม่ซ้ำถ้าคำตอบมีบล็อกนี้แล้ว"""
+    if not (isinstance(text, str) and text and isinstance(reply, str)):
+        return reply
+    try:
+        from core.reflect import block as _rb
+        b = _rb(text)
+        if not b or b.split("\n", 1)[0] in reply:
+            return reply
+        a = assess(text)
+        if a.get("crisis") or (a.get("text_risk") or 0) >= 80 or set(a.get("topics") or []) & set(_URGENT_TOPICS) \
+                or a.get("intl_urgent") or a.get("disaster"):
+            return reply
+        tail = re.search(r"\n\n— (?:LYLA|VEGA)[^\n]*(?:\n[^\n]*)?$", reply)
+        if tail:
+            return reply[:tail.start()] + "\n\n" + b + reply[tail.start():]
+        return reply + "\n\n" + b
+    except Exception as e:
+        print(f"⚠ reflect: {type(e).__name__}")
+        return reply
 
 
 def _compose_story(text: str, *args, **kw) -> str:

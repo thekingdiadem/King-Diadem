@@ -146,7 +146,7 @@ def _causal_depth(text: str) -> float:
     return min(0.15, hits * 0.05)  # +0.05 ต่อ marker สูงสุด +0.15
 
 
-def analyze_intent(text: str) -> dict:
+def _analyze_keywords(text: str) -> dict:
     """
     โยนิโสมนสิการ — วิเคราะห์เจตนา 3 ชั้น:
       1. Surface: pattern match + weight
@@ -261,3 +261,27 @@ def analyze_intent(text: str) -> dict:
         "causal_depth": causal_boost,
         "amplified":    amplified,
     }
+
+
+def analyze_intent(text: str) -> dict:
+    """เจตนาจากคำ (ด้านบน) แล้วปรับให้ตรงกับตัวตัดสินความปลอดภัยตัวจริง core/kernel_voice.assess
+
+    เดิมสองตัวนี้เห็นไม่ตรงกัน: "การบ้านเยอะจนอยากตาย 555" → crisis เต็มตัว · "ขำๆนะ แต่บางทีก็คิดว่าตายไปคงดี" → general
+    ตอนนี้เรื่องวิกฤตใช้ผลของ assess ตัวเดียว ทั้งระบบเห็นความจริงชุดเดียวกัน
+    """
+    out = _analyze_keywords(text)
+    try:
+        from core.kernel_voice import assess
+        a = assess(str(text or ""))
+    except Exception:
+        return out
+    topics = a.get("topics") or []
+    if a.get("crisis") or "warning" in topics:
+        conf = 0.95 if a.get("crisis") else 0.7
+        return dict(out, intent="crisis", confidence=max(out.get("confidence", 0), conf),
+                    signals=sorted(set(out.get("signals", [])) | {"assess_crisis" if a.get("crisis") else "assess_warning"}))
+    if out.get("intent") == "crisis":       # คำว่าตายในสำนวน/มุก — assess ดูบริบทแล้วว่าไม่ใช่วิกฤต
+        rest = {k: v for k, v in (out.get("all_scores") or {}).items() if k != "crisis"}
+        best = max(rest, key=rest.get) if rest else "general"
+        return dict(out, intent=best, confidence=0.5, signals=sorted(set(out.get("signals", [])) | {"soft_check"} if "soft_check" in topics else set(out.get("signals", []))))
+    return out
