@@ -361,6 +361,8 @@
     'ทางสายกลาง': ['Middle path', '中道'],
     'ตรวจ {n} ครั้ง · ยังไม่ต้องเติม': ['Checked {n} · nothing to balance yet', '{n}回確認 · 補足なし'],
     'ตรวจ {n} · เติมด้านเสีย {u} · เติมทางไปต่อ {c}': ['Checked {n} · added downside {u} · added a way forward {c}', '{n}回確認 · リスク補足 {u} · 次の一歩補足 {c}'],
+    'ตำรวจ · พูดไม่ได้ให้เปิดสายค้างไว้': ['Police · if you can’t talk, keep the line open', '警察 · 話せなくても通話をつないだままに'],
+    'ส่งตำแหน่งให้คนที่ไว้ใจ ›': ['Send my location to someone I trust ›', '信頼できる人に位置を送る ›'],
     'เลือกภาพก่อน': ['Choose an image first', 'まず画像を選んでください'],
     '⚠ รองรับเฉพาะ jpeg / png / webp': ['⚠ Only jpeg / png / webp are supported', '⚠ jpeg / png / webp のみ対応'],
     '⚠ ไฟล์ใหญ่เกิน 10MB': ['⚠ File is larger than 10MB', '⚠ ファイルが10MBを超えています'],

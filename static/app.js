@@ -2531,9 +2531,13 @@ var Cosmos = (function(){
    ════════════════════════════════════════════════════════════════ */
 var PNAME = { LYLA:['LYLA','lyla'], VEGA:['VEGA','vega'], COUNCIL:['สภา 6 เสียง','council'], CRISIS:['HALT · ช่วยเหลือฉุกเฉิน','crisis'], DRIFTZERO:['LYLA · DriftZero','dz'], IMAGE:['สร้างภาพ','img'] };
 function crisisCard(){
+  showSos();
   return '<div class="crisis-card"><b>' + _t('ถ้ากำลังอยู่ในอันตราย หรือคิดทำร้ายตัวเอง') + '</b> ' + _t('โทรหาคนที่ช่วยได้ทันที') + '<br>' +
     '<a href="tel:1323">1323</a>' + _t('สายด่วนสุขภาพจิต 24 ชม.') + '<br><a href="tel:1669">1669</a>' + _t('เจ็บป่วยฉุกเฉิน') + ' <a href="tel:191">191</a>' + _t('ตำรวจ') + '</div>';
 }
+/* แถบโทรฉุกเฉิน: ปิดเองได้ แต่จะกลับมาเมื่อมีคำตอบฉุกเฉินใหม่ */
+function showSos(){ setTimeout(function(){ var b = document.getElementById('sos-bar'); if(b && !b.dataset.closed) b.classList.remove('hide'); }, 0); }
+(function(){ var x = document.getElementById('sos-x'); if(x) x.addEventListener('click', function(){ var b = document.getElementById('sos-bar'); b.classList.add('hide'); b.dataset.closed = '1'; setTimeout(function(){ delete b.dataset.closed; }, 60000); }); })();
 /* สภา 6 เสียง: ชื่อแต่ละเสียงเป็นตัวหนา อ่านง่ายบนมือถือ */
 function councilFmt(t){
   return fmt(t).replace(/(^|<br>)(LYLA ◈|VEGA ◆|PATICCA ☸|TITAN ▲|COSMOS ✦|CIVIL ⬡|มติสภา[^:<]{0,24}:)/g, '$1<strong class="cm">$2</strong>');
