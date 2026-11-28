@@ -47,3 +47,13 @@ def test_inputs_have_accessible_names():
     ask = open("static/ask.html", encoding="utf-8").read()
     assert 'aria-label="ตัวเลือก A"' in ask and 'aria-label="ตัวเลือก B"' in ask
     assert "esc(p.text)" in uni and "esc(p.letter)" in uni
+
+
+def test_key_visual_and_linkedin_cover():
+    """ภาพหลักของแบรนด์ (ลึกลับ + มีอำนาจ) และปก LinkedIn — ขนาดตามที่แพลตฟอร์มกำหนด ไฟล์ไม่หนัก"""
+    import os
+    from PIL import Image
+    assert Image.open("static/brand/key-visual.jpg").size == (2400, 1350)
+    assert Image.open("static/brand/linkedin-cover.jpg").size == (1584, 396)
+    for f in ("static/brand/key-visual.jpg", "static/brand/linkedin-cover.jpg", "static/og.jpg"):
+        assert os.path.getsize(f) < 400_000, f

@@ -1065,7 +1065,8 @@ def service_worker():
 
 @app.get("/favicon.ico")
 def favicon():
-    return FileResponse("static/logo.png")
+    # ไอคอนเดียวกับ <link rel="icon"> ทุกหน้า — เดิมส่ง logo.png (ตราเก่า) แถบที่อยู่เลยค้างไอคอนเก่า
+    return FileResponse("static/icons/favicon-48.png", media_type="image/png", headers={"Cache-Control": "no-cache"})
 
 @app.get("/wallet")
 async def wallet_page():
@@ -2618,6 +2619,16 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                 if r.get("level") in ("HIGH", "CRITICAL") and route not in ("vega",) and not _bare(user_input):
                     route = _escalate_route(route, "collapse")
         except Exception: pass
+    # ทางเลือกที่วัดได้จริงจากข้อความ (เป็น 0 ได้) — นับรายวันเพื่อดูว่ามีคนมาถึงจุดไม่เหลือทางบ่อยแค่ไหน
+    choice_measured = None
+    if assess_risk:
+        try:
+            _cm = assess_risk({"raw_input": user_input})
+            choice_measured = _cm.get("choice_measured")
+            _metric("choice:checked")
+            if _cm.get("dead_end"):
+                _metric("choice:dead_end")
+        except Exception: pass
 
     # ── risk จากข้อความ ──────────────────────────────────────────
     # เดิม assess_risk ได้แค่ human_state จาก context → คนที่พิมพ์ว่า "ไม่มีข้าวกิน" ไปทาง general
@@ -3229,6 +3240,7 @@ def _run_kernel_impl(data: dict, user_input: str, email: str):
                               and intent.get("intent") in ("vega", "civil", "risk", "survival", "collapse")
                               else route),
             "ai_response":   reply,
+            "choice_measured": choice_measured,
             "governance":    {"intent": intent, "human_state": human_state},
             "persona":       _PERSONA.get(vm, "LYLA"),
             "pattern":       human_state,

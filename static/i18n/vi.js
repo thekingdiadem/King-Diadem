@@ -475,6 +475,8 @@
 "ทางสายกลาง": "Trung đạo",
 "ตรวจ {n} ครั้ง · ยังไม่ต้องเติม": "Đã kiểm tra {n} · chưa cần cân bằng",
 "ตรวจ {n} · เติมด้านเสีย {u} · เติมทางไปต่อ {c}": "Đã kiểm tra {n} · thêm rủi ro {u} · thêm lối đi {c}",
+"ตำรวจ · พูดไม่ได้ให้เปิดสายค้างไว้": "Cảnh sát · nếu không nói được, cứ giữ máy",
+"ส่งตำแหน่งให้คนที่ไว้ใจ ›": "Gửi vị trí cho người tôi tin ›",
 "เลือกภาพก่อน": "Hãy chọn hình ảnh trước",
 "⚠ รองรับเฉพาะ jpeg / png / webp": "⚠ Chỉ hỗ trợ jpeg / png / webp",
 "⚠ ไฟล์ใหญ่เกิน 10MB": "⚠ Tệp lớn hơn 10MB",

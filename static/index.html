@@ -26,7 +26,6 @@ window.KD_themeVars = function(t, c){
 <title>KING DIADEM — ช่วยคิดเวลาตัดสินใจยาก เห็นทางเลือกที่ยังเหลือ</title>
 <link rel="canonical" href="https://king-diadem.onrender.com/">
 <link rel="icon" href="/static/icons/favicon-48.png" sizes="48x48" type="image/png">
-<link rel="alternate icon" href="/static/logo.png" type="image/png">
 <meta property="og:title" content="KING DIADEM — ช่วยคิดเวลาตัดสินใจยาก เห็นทางเลือกที่ยังเหลือ">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="KING DIADEM">
@@ -434,5 +433,11 @@ if('serviceWorker' in navigator && window.isSecureContext){
 }
 </script>
 <script src="/static/i18n.js" defer></script>
+<div id="sos-bar" class="hide" role="region" aria-label="ขอความช่วยเหลือฉุกเฉิน">
+  <a class="sos-call" href="tel:191"><b>191</b><span>ตำรวจ · พูดไม่ได้ให้เปิดสายค้างไว้</span></a>
+  <a class="sos-call" href="tel:1669"><b>1669</b><span>เจ็บป่วยฉุกเฉิน</span></a>
+  <a class="sos-loc" href="/safe" target="_blank" rel="noopener">ส่งตำแหน่งให้คนที่ไว้ใจ ›</a>
+  <button type="button" class="sos-x" id="sos-x" aria-label="ปิด">✕</button>
+</div>
 </body>
 </html>

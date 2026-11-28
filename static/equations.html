@@ -57,6 +57,22 @@ Collapse only happens when Choice(t) = 0. In KING DIADEM this is enforced in cod
 <p class="dim">English: Risk grows with drift, exposure and time, and shrinks with every option you still have.
 One of the most effective ways to lower risk is not to forbid, but to add a choice.</p>
 
+<h2 id="collapse">3. เลือกทางหนึ่ง ไม่ได้แปลว่าพัง</h2>
+<div class="eq">Choice(t+1) = 0 → collapse = True</div>
+<p class="alt">พิมพ์แบบธรรมดา: Choice(t+1) == 0 -&gt; collapse = True</p>
+<table>
+<tr><td><b>เลือกแล้ว ทางอื่นหายไป</b></td><td>เรื่องปกติ ไม่เลือกเลยก็ไม่มีอะไรเกิดขึ้น</td></tr>
+<tr><td><b>พังจริง</b></td><td>เมื่อทางที่เลือก ไม่เหลือทางไปต่อหรือแก้ได้เลยในวันถัดไป</td></tr>
+</table>
+<p>ผลแรกไม่ดี แต่ยังมีทางแก้ = ยังไม่พัง แค่เดินต่อ</p>
+<p class="dim"><b>ในโค้ดตอนนี้:</b> ระบบมีตัวเลขสองตัว
+ตัวแรกคือทางที่ระบบเปิดให้เสมอ ไม่ต่ำกว่า 1 (<code>max(1, ⌊(100 − Risk) / 20⌋)</code> — สายด่วน คนช่วย)
+ตัวที่สองคือทางที่วัดจากข้อความจริง (<code>choice_measured</code>) เป็น 0 ได้ เมื่อคนเล่าว่าตั้งใจทำร้ายตัวเองหรือกินยาเกินขนาด
+ระบบจึงแยกได้แล้วว่า "คนนี้ไม่เหลือทาง" กับ "ระบบยังเปิดทางให้" — แต่ยังวัดจากคำที่พิมพ์เท่านั้น และยังไม่มีแพทย์ตรวจเกณฑ์</p>
+<p class="dim">English: Choosing one path is not failure. It only collapses when nothing is left to try next.
+The code keeps two numbers: what the system always offers (never below 1), and what the person's own words show (can be 0).
+It reads words only, and no clinician has reviewed the thresholds yet.</p>
+
 <h2>ลองดูสมการทำงานจริง</h2>
 <p><a href="/">คุยกับ LYLA</a> · <a href="/saturn">Black Saturn — วงแหวนยุบเมื่อทางเลือกหมด</a> · <a href="/learn">เรียนรู้เพิ่ม</a></p>
 </main>

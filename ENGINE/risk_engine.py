@@ -117,11 +117,19 @@ def assess(pattern: dict) -> dict:
         level = "HIGH"
         risk_score = max(risk_score, 60.0)
     remaining_choices = max(1, int((100 - risk_score) / 20))
+    # ทางเลือกที่ "วัดได้จริง" — ไม่ถูกบังคับให้ ≥ 1
+    # remaining_choices คงไว้ ≥ 1 เพราะเป็นสิ่งที่ระบบต้องเปิดให้เสมอ (สายด่วน · คนช่วย)
+    # choice_measured = 0 เมื่อข้อความบอกว่าคนนั้นมองไม่เห็นทางไปต่อแล้ว: ตั้งใจทำร้ายตัวเอง หรือกินยา/สารพิษเกินขนาด
+    # ใช้แยก "ยังมีทางจริง" ออกจาก "ระบบกำหนดให้มีไว้ก่อน" (หน้า /equations หัวข้อ 3)
+    dead_end = bool(text_risk.get("self_harm") or text_risk.get("overdose"))
+    choice_measured = 0 if dead_end else int(max(0, (100 - risk_score) / 20))
     return {
         "risk_score":        round(risk_score, 2),
         "level":             level,
         "decision_level":    level,
         "remaining_choices": remaining_choices,
+        "choice_measured":   choice_measured,
+        "dead_end":          dead_end,
         "stability":         stability,
         "resource":          resource,
         "entropy":           entropy,
