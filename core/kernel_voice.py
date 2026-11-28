@@ -3449,7 +3449,7 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             return (lz["open"][0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(lz["paths"]))
                     + f"\n\n{lz['ask']}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         en = EN_TOPIC.get(en_key) if (lang == "en" and script_lang(t) != "vi" and (a["topics"] or str(en_key).startswith("magga_") or en_key == "code_help") and not a["crisis"]) else None
-        if en and "health_emergency" in a["topics"]:
+        if en and "health_emergency" in a["topics"] and en_key == "health_emergency":   # คำตอบเฉพาะเรื่องภาษาอังกฤษ (en_stroke ฯลฯ) ดีอยู่แล้ว ไม่แทน
             from core.first_aid_intl import specific_line, with_specific
             en = (en[0], with_specific(en[1], specific_line(t, "en")), en[2])
         if en:

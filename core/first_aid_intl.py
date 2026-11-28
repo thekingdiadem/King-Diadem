@@ -76,6 +76,58 @@ LINES = {
     },
 }
 
+# เรื่องที่พบบ่อยจากรอบก่อนๆ — บรรทัด en ใช้เฉพาะตอนข้อความภาษาอังกฤษได้คำตอบฉุกเฉินทั่วไป (เรื่องที่มี en_stroke en_allergy ฯลฯ ใช้คำตอบเดิม)
+LINES.update({
+    "cardiac": {
+        "en": "Possible heart attack: have them sit and rest, loosen tight clothing · don't let them drive or walk to get help · if they stop responding and aren't breathing, start chest compressions.",
+        "es": "Posible infarto: que se siente y descanse, afloja la ropa · no lo dejes conducir ni caminar · si deja de responder y no respira, empieza compresiones en el pecho.",
+        "vi": "Có thể là nhồi máu cơ tim: cho ngồi nghỉ, nới lỏng quần áo · không để tự lái xe hay đi lại · nếu bất tỉnh và ngừng thở, ép tim ngay.",
+        "zh": "可能是心梗：让他坐下休息，松开衣服 · 不要让他自己开车或走动 · 如果叫不醒、没有呼吸，马上做胸外按压。",
+        "ko": "심근경색일 수 있어요: 앉혀서 쉬게 하고 옷을 느슨하게 · 직접 운전하거나 걷게 하지 마세요 · 반응이 없고 숨을 안 쉬면 바로 가슴압박을 시작하세요.",
+        "ja": "心筋梗塞の可能性：座って安静にし、服をゆるめる · 自分で運転・歩かせない · 反応がなく呼吸していなければすぐ胸骨圧迫を。",
+    },
+    "stroke": {
+        "en": "This could be a stroke — every minute counts: note the time symptoms started · no food, drink or medicine · treatment works much better within 4.5 hours.",
+        "es": "Puede ser un ictus — cada minuto cuenta: anota la hora en que empezaron los síntomas · no le des comida, bebida ni medicinas · el tratamiento funciona mucho mejor en las primeras 4,5 horas.",
+        "vi": "Có thể là đột quỵ — từng phút đều quan trọng: ghi lại giờ bắt đầu triệu chứng · không cho ăn uống hay uống thuốc · điều trị trong 4,5 giờ đầu hiệu quả hơn nhiều.",
+        "zh": "可能是中风，每一分钟都重要：记下症状开始的时间 · 不要给吃喝或吃药 · 4.5 小时内治疗效果好得多。",
+        "ko": "뇌졸중일 수 있어요. 1분 1초가 중요합니다: 증상이 시작된 시각을 적어 두세요 · 음식, 물, 약을 주지 마세요 · 4.5시간 안에 치료하면 훨씬 효과가 좋아요.",
+        "ja": "脳卒中の可能性 — 一分一秒が大切：症状が始まった時刻をメモ · 食べ物・飲み物・薬を与えない · 4.5時間以内の治療がずっと効果的です。",
+    },
+    "anaphylaxis": {
+        "en": "Severe allergy: use an epinephrine auto-injector (EpiPen) now if there is one · sit up if breathing is hard, lie down with legs raised if faint · don't leave them alone.",
+        "es": "Alergia grave: si tiene autoinyector de adrenalina (EpiPen), úsalo ya · si le cuesta respirar, que se siente; si se marea, acuéstalo con las piernas en alto · no lo dejes solo.",
+        "vi": "Dị ứng nặng: nếu có bút tiêm adrenaline (EpiPen), tiêm ngay · khó thở thì cho ngồi; choáng thì nằm kê chân cao · không để ở một mình.",
+        "zh": "严重过敏：如果有肾上腺素笔（EpiPen）马上用 · 呼吸困难就坐着，头晕就平躺抬高双腿 · 不要让他一个人待着。",
+        "ko": "심한 알레르기: 에피네프린 자동주사기(에피펜)가 있으면 바로 쓰세요 · 숨쉬기 힘들면 앉히고, 어지러우면 눕혀서 다리를 올려 주세요 · 혼자 두지 마세요.",
+        "ja": "重いアレルギー：エピペンがあればすぐ使う · 息が苦しければ座らせ、ふらつくなら足を上げて寝かせる · 一人にしない。",
+    },
+    "poison": {
+        "en": "Swallowed a chemical: don't make them vomit and don't give milk or oil · rinse the mouth with water · keep the container and call poison control (1367 in Thailand, 1-800-222-1222 in the US).",
+        "es": "Tragó un químico: no provoques el vómito y no le des leche ni aceite · enjuágale la boca con agua · guarda el envase y llama a toxicología o a emergencias.",
+        "vi": "Uống phải hóa chất: không gây nôn, không cho uống sữa hay dầu · súc miệng bằng nước · giữ lại chai lọ và gọi cấp cứu hoặc trung tâm chống độc.",
+        "zh": "误服化学品：不要催吐，不要喝牛奶或油 · 用清水漱口 · 保留瓶子，打急救或中毒咨询电话。",
+        "ko": "화학제품을 삼켰다면: 억지로 토하게 하지 말고 우유나 기름도 주지 마세요 · 물로 입을 헹궈 주세요 · 용기를 챙겨 119나 중독상담에 전화하세요.",
+        "ja": "化学品を飲んだ：無理に吐かせない、牛乳や油を飲ませない · 水で口をすすぐ · 容器を持って救急か中毒110番に電話。",
+    },
+    "electric": {
+        "en": "Electric shock: cut the power before touching them; if you can't, push them away with something dry and non-metal · no breathing: chest compressions · go to hospital even if they seem fine.",
+        "es": "Descarga eléctrica: corta la corriente antes de tocarlo; si no puedes, apártalo con algo seco que no sea metal · si no respira, compresiones en el pecho · al hospital aunque parezca bien.",
+        "vi": "Bị điện giật: ngắt điện trước khi chạm vào; nếu không được, dùng vật khô không phải kim loại đẩy ra · ngừng thở thì ép tim · vẫn đi bệnh viện dù trông ổn.",
+        "zh": "触电：先断电再碰他；断不了就用干燥的非金属物把他推开 · 没呼吸就做胸外按压 · 看起来没事也要去医院。",
+        "ko": "감전: 먼저 전원을 끄고 만지세요. 끌 수 없으면 마른 비금속 물건으로 떼어 내세요 · 숨을 안 쉬면 가슴압박 · 괜찮아 보여도 병원에 가세요.",
+        "ja": "感電：触る前に電源を切る。切れなければ乾いた金属以外の物で離す · 呼吸がなければ胸骨圧迫 · 大丈夫そうでも病院へ。",
+    },
+    "drowning": {
+        "en": "Drowning: throw something that floats or a rope — don't jump in unless trained · once out, if not breathing start chest compressions · don't hang them upside down to drain water.",
+        "es": "Ahogamiento: lanza algo que flote o una cuerda, no te tires si no sabes rescatar · ya fuera del agua, si no respira empieza compresiones en el pecho · no lo cuelgues boca abajo para sacar agua.",
+        "vi": "Đuối nước: ném vật nổi hoặc dây, đừng nhảy xuống nếu không biết cứu hộ · lên bờ mà ngừng thở thì ép tim ngay · không dốc ngược để xốc nước.",
+        "zh": "溺水：扔漂浮物或绳子，不会救生就不要跳下去 · 上岸后没呼吸马上胸外按压 · 不要倒挂控水。",
+        "ko": "물에 빠졌을 때: 뜨는 물건이나 줄을 던지고, 구조를 모르면 뛰어들지 마세요 · 물 밖에서 숨을 안 쉬면 바로 가슴압박 · 거꾸로 들어 물을 빼려 하지 마세요.",
+        "ja": "溺水：浮く物やロープを投げ、救助の訓練がなければ飛び込まない · 水から出て呼吸がなければすぐ胸骨圧迫 · 逆さにして水を吐かせようとしない。",
+    },
+})
+
 
 def frame_names(text) -> list:
     from core.frames import explain

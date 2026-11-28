@@ -863,3 +863,23 @@ def test_new_zealand_and_vietnam_numbers():
     from core.kernel_voice import compose
     assert "111 in New Zealand" in compose("got bitten by a viper and my ankle is swelling")
     assert "115" in compose("bị rắn cắn, chân sưng")
+
+
+@pytest.mark.parametrize("text, needle", [
+    ("a mi madre le duele el pecho, va al brazo izquierdo y suda mucho", "Posible infarto"),
+    ("ông tôi đột nhiên méo miệng, nói ngọng", "đột quỵ"),
+    ("孩子误喝了洁厕灵", "不要催吐"),
+    ("아이가 콘센트에 감전됐어요", "전원을 끄고"),
+    ("子どもがプールでおぼれた", "胸骨圧迫"),
+    ("my wife has crushing chest pain and is sweating", "Possible heart attack"),
+])
+def test_common_emergencies_get_specific_first_aid_in_other_languages(text, needle):
+    from core.kernel_voice import compose
+    out = compose(text)
+    assert needle in out, out
+
+
+def test_specific_english_answers_are_not_replaced():
+    """คำตอบภาษาอังกฤษเฉพาะเรื่อง (สโตรก) ดีอยู่แล้ว — บรรทัดทั่วไปต้องไม่มาแทน"""
+    from core.kernel_voice import compose
+    assert "Note the time the symptoms started" in compose("dad face drooping and slurred speech")

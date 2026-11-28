@@ -2444,3 +2444,7 @@ BITE	es	mordio|mordieron|me mordio|lo mordio|la mordio
 ELDER_FALL	es	se cayo|cayo
 WILD_MUSH	es	setas del monte|hongos del monte|setas del campo|hongos que encontramos|setas que encontramos
 NO_RABIES_VAX	es	no tiene vacuna|no tiene vacunas|no está vacunado|no esta vacunado|no esta vacunada|nunca lo vacunaron
+# ── หลังรอบ 27: คำที่คำตอบภาษาอื่นพลาด ──
+CHEST_PAIN	es	dolor de pecho|me duele el pecho|le duele el pecho
+CARDIAC_SIGN	es	suda|va al brazo|al brazo izquierdo
+DROWN	ja	おぼれ|溺れかけ
