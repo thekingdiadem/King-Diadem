@@ -847,3 +847,19 @@ def test_frame_only_emergencies_get_specific_first_aid_in_other_languages(text, 
     assert needle in out, out
     for generic in ("Escribe lo que pasó", "用一句话写下", "한 문장으로 적어", "一文で書いて", "Viết một câu"):
         assert generic not in out
+
+
+@pytest.mark.parametrize("text", ["comimos setas del monte y ahora todos vomitamos", "un perro callejero mordio a mi hijo y no tiene vacuna"])
+def test_spanish_without_accents_is_answered_in_spanish(text):
+    """เคยถูกเดาเป็นอังกฤษ — คำแนะนำถูกเรื่องแต่เป็นภาษาอังกฤษ"""
+    from core.lang_signals import detect_lang
+    from core.kernel_voice import compose
+    assert detect_lang(text) == "es"
+    assert "Llama ahora" in compose(text)
+
+
+def test_new_zealand_and_vietnam_numbers():
+    """คนในนิวซีแลนด์เคยได้แค่ 911/112/000 — เบอร์ฉุกเฉินของนิวซีแลนด์คือ 111 · เวียดนามคือ 115"""
+    from core.kernel_voice import compose
+    assert "111 in New Zealand" in compose("got bitten by a viper and my ankle is swelling")
+    assert "115" in compose("bị rắn cắn, chân sưng")
