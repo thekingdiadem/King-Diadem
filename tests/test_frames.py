@@ -827,3 +827,23 @@ def test_stopping_alcohol_with_tremor_gets_withdrawal_advice(text):
     """เคยได้คำตอบทั่วไป ("เขียนสิ่งที่เกิดขึ้นเป็นประโยคเดียว") ไม่มีคำแนะนำเรื่องขาดสุราเลย"""
     from core.kernel_voice import compose
     assert "ขาดสุรา" in compose(text)
+
+
+# ── คำตอบภาษาอื่นของเรื่องรอบ 26 (core/first_aid_intl.py) ──
+@pytest.mark.parametrize("text, needle", [
+    ("una víbora picó a mi hermano y la mano se le hinchó", "torniquete"),
+    ("con tôi bị rắn hổ mang cắn, tay sưng lên", "garô"),
+    ("爷爷被毒蛇咬了，脚肿起来", "止血带"),
+    ("살모사에 물려서 발이 부었어요", "지혈대"),
+    ("ハブにかまれて腕が腫れている", "縛らない"),
+    ("got bitten by a viper and my ankle is swelling", "no tourniquet"),
+    ("my dad quit drinking yesterday and now he is having seizures", "Alcohol withdrawal"),
+    ("妊娠35週で激しい頭痛と目のかすみがある", "妊娠高血圧腎症"),
+])
+def test_frame_only_emergencies_get_specific_first_aid_in_other_languages(text, needle):
+    """เดิมงูกัดภาษาสเปน/จีน/เกาหลี/ญี่ปุ่น/เวียดนาม ได้ความเสี่ยง 85 แต่คำตอบคือ "เขียนเรื่องเป็นประโยคเดียว" """
+    from core.kernel_voice import compose
+    out = compose(text)
+    assert needle in out, out
+    for generic in ("Escribe lo que pasó", "用一句话写下", "한 문장으로 적어", "一文で書いて", "Viết một câu"):
+        assert generic not in out

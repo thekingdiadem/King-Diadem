@@ -3449,6 +3449,9 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             return (lz["open"][0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(lz["paths"]))
                     + f"\n\n{lz['ask']}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         en = EN_TOPIC.get(en_key) if (lang == "en" and script_lang(t) != "vi" and (a["topics"] or str(en_key).startswith("magga_") or en_key == "code_help") and not a["crisis"]) else None
+        if en and "health_emergency" in a["topics"]:
+            from core.first_aid_intl import specific_line, with_specific
+            en = (en[0], with_specific(en[1], specific_line(t, "en")), en[2])
         if en:
             return (en[0] + f"\n\n{status}\n\n" + "\n".join(f"{i + 1}) {p}" for i, p in enumerate(en[1]))
                     + f"\n\n{en[2]}\n\n{sign}" + ("\n· Answered from the system's equations — no AI used" if footer else ""))
@@ -3469,15 +3472,24 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
                     + ("\n· Answered from the system's equations — no AI used" if footer else ""))
         if lang == "en" and not a["crisis"] and a["relationship"] in ("collapse_risk", "critical"):
             return SAFETY_EN.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
-        if (lang in ("zh", "ja", "ko", "es") or script_lang(t) == "vi") and a.get("intl_urgent") and not a["crisis"]:
+        # ตัวจับแบบประกอบชิ้นส่วน (core/frames) เห็นเหตุฉุกเฉินแต่ตัวจับรายภาษาไม่เห็น — เดิมงูกัดภาษาสเปน/จีน/เกาหลี/ญี่ปุ่น/เวียดนาม
+        # ได้ความเสี่ยง 85 แต่คำตอบ "เขียนเรื่องเป็นประโยคเดียว" · ตอนนี้ใช้คำตอบฉุกเฉินของภาษานั้นพร้อมคำแนะนำเฉพาะเรื่อง
+        _urg = list(a.get("intl_urgent") or [])
+        if not _urg and "health_emergency" in a["topics"]:
+            _urg = ["medical"]
+        if (lang in ("zh", "ja", "ko", "es") or script_lang(t) == "vi") and _urg and not a["crisis"]:
+            from core.first_aid_intl import specific_line
             # รอบสุ่ม 12/32: ภาษาเวียดนามถูกเดาเป็น es หรือ en — ต้องได้คำตอบด่วนเป็นภาษาเวียดนาม
             if lang in ("es", "en") and script_lang(t) == "vi":
                 from core.world_replies import compose_world
-                k_vi = {"medical": "medical", "health_emergency": "medical", "violence": "violence", "disaster": "disaster"}.get(a["intl_urgent"][0], "help")
-                w = compose_world("vi", k_vi, status_line(a, "vi"), sign, footer)
+                k_vi = {"medical": "medical", "health_emergency": "medical", "violence": "violence", "disaster": "disaster"}.get(_urg[0], "help")
+                w = compose_world("vi", k_vi, status_line(a, "vi"), sign, footer,
+                                  extra=specific_line(t, "vi") if k_vi == "medical" else None)
                 if w:
                     return w
-            return compose_urgent_intl(lang, a["intl_urgent"][0], status, sign, footer)
+            if lang in ("zh", "ja", "ko", "es"):
+                return compose_urgent_intl(lang, _urg[0], status, sign, footer,
+                                           extra=specific_line(t, lang) if _urg[0] in ("medical", "health_emergency") else None)
         d = debt_en(text) if (lang == "en" and not a["crisis"] and not a["topics"]) else None
         if d:
             # ทางเลือกไม่เกิน 3 ข้อตาม canon — ยอดหนี้ · ผลของค่างวด · ขั้นถัดไป ส่วนหมายเหตุ (ดอกที่สมมติ/ดอกโหด) ไม่นับเป็นทาง

@@ -752,8 +752,11 @@ URGENT_REPLY = {
 }
 
 
-def compose_urgent_intl(lang: str, kind: str, status: str, sign: str, footer: bool = True) -> str:
+def compose_urgent_intl(lang: str, kind: str, status: str, sign: str, footer: bool = True, extra: str | None = None) -> str:
     opener, steps, ask = URGENT_REPLY[kind][lang]
+    if extra:      # คำแนะนำเฉพาะเรื่อง (core/first_aid_intl) แทนขั้นที่สอง
+        from core.first_aid_intl import with_specific
+        steps = with_specific(steps, extra)
     tag = "\n" + FOOTER[lang] if footer else ""
     body = "\n".join(f"{i + 1}) {s}" for i, s in enumerate(steps))
     # เบอร์ในไทยเป็นบรรทัดแยก ไม่นับเป็นทางเลือก (คำตอบมีทางเลือกได้ไม่เกิน 3 ตาม canon)

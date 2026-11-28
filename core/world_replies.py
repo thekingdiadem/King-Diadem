@@ -504,12 +504,15 @@ def reply_for(lang: str, kind: str):
     return ASIA_REPLY.get(lang, {}).get(kind)
 
 
-def compose_world(lang: str, kind: str, status: str, sign: str, footer: bool = True) -> str | None:
+def compose_world(lang: str, kind: str, status: str, sign: str, footer: bool = True, extra: str | None = None) -> str | None:
     """คำตอบในภาษาของผู้ใช้ — ไม่มีภาษาหรือชนิดนี้คืน None ให้ใช้ทางเดิม"""
     r = reply_for(lang, kind)
     if not r:
         return None
     opener, steps, ask = r
+    if extra:
+        from core.first_aid_intl import with_specific
+        steps = with_specific(steps, extra)
     body = "\n".join(f"{i + 1}) {s}" for i, s in enumerate(steps))
     tag = "\n· Answered from the system's equations — no AI used" if footer else ""
     head = f"{opener}\n\n{status}" if status else opener     # ภาษาที่ไม่มีคำแปลบรรทัดสถานะ → ไม่ใส่
