@@ -592,3 +592,129 @@ KO_DISASTER_REST = ["안전한 곳으로 옮긴 뒤 119(소방·구급)에 전�
                     "주변 사람과 서로 챙기고 긴급재난문자와 지자체 안내를 따르세요 · 1330(관광통역안내)은 태국어 통역이 가능해요."]
 KO_HELP_REST = ["다쳤거나 위험하면 119(구급) · 112(경찰).",
                 "외국인 도움: 1330(관광통역안내, 태국어 가능) · 1345(외국인종합안내센터)."]
+
+
+# ══════════════════════════════════════════════════════════════════
+# ภาษาสเปน: เหตุฉุกเฉินจากรายการ 200 วลีที่เจ้าของโปรเจกต์รวบรวม — เดิมประโยคอันตราย 47 จาก 59 ได้คำตอบทั่วไป
+# ครึ่งหนึ่งถูกอ่านเป็นภาษาอังกฤษ ("Me han robado" "He perdido mi pasaporte") จึงได้คำตอบภาษาอังกฤษ
+# รูปประโยคเขียนแบบไม่มีวรรณยุกต์ แล้วเทียบกับข้อความที่ตัดวรรณยุกต์ออก — คนพิมพ์ "policia" "pecho" ได้เหมือนกัน
+# เบอร์: 112 สเปน/ยุโรป · 911 เม็กซิโกและลาตินอเมริกาส่วนใหญ่ · ชิลี 131 รถพยาบาล 132 ดับเพลิง 133 ตำรวจ
+# ══════════════════════════════════════════════════════════════════
+ES_EVENTS = (
+    # ── médico ──
+    (r"inconsciente|no tiene pulso|no respira|se ha desmayado|se desmayo|no reacciona|no despierta", "medical",
+     "Si no responde y no respira con normalidad: empieza compresiones en el pecho ya (centro del pecho, fuerte y rápido, 100–120 por minuto) · pide a alguien que traiga un DEA (desfibrilador)."),
+    (r"no puedo respirar|dificultad para respirar|me ahogo|le cuesta respirar|no puede respirar", "medical",
+     "Dificultad para respirar: siéntate inclinado hacia delante y afloja la ropa · usa el inhalador si lo tienes · labios morados o no puede hablar: llama al 112 / 911."),
+    (r"infarto|me duele el pecho|dolor (?:fuerte )?en el pecho|dolor de pecho|presion en el pecho", "medical", None),
+    (r"hormigueo en el brazo|cara (?:caida|torcida)|no puedo hablar bien|ictus|derrame cerebral|he perdido la vision|veo borroso de repente", "medical",
+     "Puede ser un ictus — cada minuto cuenta: anota la hora en que empezaron los síntomas · no le des comida, bebida ni medicinas · el tratamiento funciona mucho mejor en las primeras 4,5 horas."),
+    (r"convulsion", "medical",
+     "Convulsiones: ponlo de lado y aparta objetos duros · no le metas nada en la boca ni le sujetes los brazos · si dura más de 5 minutos o se repite, llama al 112 / 911."),
+    (r"reaccion alergica grave|alergia grave|anafilaxia|se le hincha la (?:cara|lengua|garganta)", "medical", None),
+    (r"se esta asfixiando|se atraganto|atragantado|algo en la garganta", "medical",
+     "Atragantamiento: si puede toser, que tosa fuerte · si no puede hablar ni respirar, dale 5 golpes fuertes en la espalda y luego compresiones abdominales desde atrás (maniobra de Heimlich)."),
+    (r"sangre en (?:mis |las |el )?(?:heces|caca)|vomit\w* sangre", "medical",   # no "heces negras": el hierro también las oscurece
+     "Sangre en las heces o vómito con sangre: ve a urgencias hoy — si hay mareo, palidez, sudor frío o mucha sangre, llama al 112 / 911 · no comas ni bebas mientras tanto."),
+    (r"sangrando mucho|no para de sangrar|sangra mucho|hemorragia", "medical",
+     "Sangrado: aprieta la herida con un paño limpio sin soltar durante 10 minutos · si es en brazo o pierna, levántalo · si el paño se empapa, pon otro encima sin quitar el primero."),
+    (r"(?:me he|se ha) roto (?:un hueso|la pierna|el brazo|la cadera)|fractura", "medical",
+     "Fractura: no lo muevas, inmoviliza con una tablilla (revista, cartón) · si el hueso se ve, está muy torcido o hay golpe en cuello o espalda, no lo muevas y llama al 112 / 911."),
+    (r"golpeado la cabeza|golpe en la cabeza|no puedo moverme|no puede moverse", "medical",
+     "Golpe en la cabeza o no se puede mover: no lo levantes ni lo muevas (protege cuello y espalda) · vómitos, somnolencia o confusión: 112 / 911 ya · vigílalo 24 horas."),
+    (r"quemadura grave|me he quemado mucho|se ha quemado", "medical",
+     "Quemadura: enfría con agua corriente fresca 20 minutos · quita anillos y relojes · no pongas hielo, pasta de dientes ni aceite, no revientes las ampollas · si es más grande que la palma o en cara o articulaciones, al hospital."),
+    (r"(?:tomado|tomo|bebido|bebio|tragado|trago|comido|comio)[\w\s]{0,20}(?:venen|lejia|cloro|insecticida)|algo venenoso|sobredosis|me he tomado (?:todas|muchas) (?:las )?pastillas", "medical", None),   # "compré veneno para ratas" no es tragarlo
+    (r"embarazada y (?:tengo|con) dolor|voy a dar a luz|he roto aguas|rompi aguas|roto la fuente|sangrado (?:en el|durante el) embarazo", "medical",
+     "Parto o dolor en el embarazo: llama a tu hospital o al 112 / 911 y lleva tu cartilla de embarazo · sangrado abundante, dolor fuerte que no para o el bebé no se mueve: ve a urgencias ya."),
+    (r"(?:me ha |se me ha )?bajado el azucar|hipoglucemia", "medical",
+     "Bajada de azúcar: si está consciente y puede tragar, dale zumo, azúcar o caramelos y espera 15 minutos · si no responde, no le des nada por la boca y llama al 112 / 911."),
+    (r"tension muy alta|presion muy alta|tension (?:de )?(?:200|190|180)", "medical",
+     "Tensión muy alta: siéntate, descansa y vuelve a medirla · dolor de cabeza fuerte, dolor en el pecho, hablar raro, un lado del cuerpo débil o ver mal: llama al 112 / 911."),
+    (r"tension muy baja|estoy en shock|en estado de shock", "medical",
+     "Tensión muy baja o shock: túmbalo con las piernas elevadas y abrígalo · no le des de beber si está mareado o confuso · si está frío, pálido, sudoroso o confuso, llama al 112 / 911."),
+    (r"mucha fiebre|fiebre (?:muy )?alta|fiebre de (?:39|40)", "medical",
+     "Fiebre alta: bebe líquidos y descansa con ropa ligera · cuello rígido, confusión, convulsiones, dificultad para respirar o un bebé: ve a urgencias ya."),
+    (r"golpe de calor|insolacion", "medical",
+     "Golpe de calor: llévalo a un sitio fresco y enfría cuello, axilas e ingles · si está consciente, que beba agua · si está confuso o no puede beber, llama al 112 / 911."),
+    (r"hipotermia", "medical",
+     "Hipotermia: llévalo a un sitio cálido, quítale la ropa mojada y abrígalo con mantas · no lo metas en agua caliente ni le frotes brazos y piernas · si responde poco, llama al 112 / 911."),
+    (r"lado derecho|apendicitis", "medical",
+     "Dolor fuerte en el lado derecho del abdomen, sobre todo con fiebre o vómitos, puede ser apendicitis: no comas ni bebas y no tomes calmantes antes de que te vea un médico · ve a urgencias."),
+    (r"no puedo orinar|no puede orinar", "medical",
+     "No poder orinar con la vejiga llena y dolor es una urgencia: ve a urgencias hoy · no tomes diuréticos por tu cuenta."),
+    (r"dolor (?:es )?insoportable", "medical",
+     "Dolor insoportable: ve a urgencias o llama al 112 / 911 · anota cuándo empezó y dónde duele · no tomes más calmantes de la dosis indicada."),
+    (r"mordido un perro|mordio un perro|perro me mordio|mordido un gato|arañado un gato", "medical", None),
+    (r"mordido una serpiente|mordio una serpiente|serpiente me mordio|vibora", "medical", None),
+    (r"picado una abeja|picadura de abeja|picado una avispa", "medical",
+     "Picadura de abeja: quita el aguijón raspando con una tarjeta (no lo pellizques) · pon frío · dificultad para respirar, ronchas por todo el cuerpo o cara hinchada: 112 / 911."),
+    (r"se esta ahogando|se ahoga en|ahogandose|cayo al agua|se cayo al rio", "medical", None),
+    (r"ambulancia", "medical", None),
+    # ── accidentes ──
+    (r"accidente|atropell|choque de coches|nos han chocado|alguien esta herido|hay un herido|hay heridos", "medical",
+     "Accidente: enciende las luces de emergencia y aléjate del tráfico · no muevas a los heridos si no hay peligro (protege cuello y espalda) · no quites el casco · si sangra, aprieta la herida."),
+    # ── violencia y robos ──
+    (r"me han robado|me robaron|ladron|robo|atraco|carterista|me han atracado|me quitaron (?:el|la|mi)", "violence",
+     "Robo: no te resistas, tu vida vale más · ve a un sitio con gente y llama a la policía · bloquea tarjetas y móvil ya · pon la denuncia en comisaría y guarda una copia (para el seguro y el consulado)."),
+    (r"llame a la policia|llamen a la policia|llama a la policia", "violence", None),
+    # ── incendio y gas ──
+    (r"incendio|fuego|se quema la casa|humo", "disaster",
+     "Incendio: avisa gritando y sal ya · si hay humo, tápate nariz y boca con un paño mojado y ve agachado · usa las escaleras, nunca el ascensor · llama a los bomberos desde fuera y no vuelvas a entrar."),
+    (r"fuga de gas|huele a gas|olor a gas", "disaster",
+     "Fuga de gas: no enciendas luces ni toques interruptores, no uses fuego · cierra la llave del gas y abre ventanas · sal y llama a los bomberos o a la compañía del gas desde fuera."),
+    (r"llame a los bomberos|llamen a los bomberos|bomberos", "disaster",
+     "Si hay fuego o humo: avisa gritando y sal ya, tapándote nariz y boca y yendo agachado · usa las escaleras, nunca el ascensor · llama a los bomberos desde fuera."),
+    (r"terremoto|sismo|temblor de tierra", "disaster",
+     "Terremoto: agáchate, cúbrete la cabeza y sujétate bajo una mesa · cuando pare, cierra el gas y sal por las escaleras (no uses el ascensor) · aléjate de cristales y fachadas."),
+    (r"inundacion|se inunda|riada", "disaster",
+     "Inundación: sube a un lugar alto ya · no camines ni conduzcas por zonas con agua (30 cm pueden arrastrar un coche) · corta la luz si entra agua en casa."),
+    # ── pedir ayuda sin decir qué pasa ──
+    (r"socorro|ayuda urgente|es una emergencia|vida o muerte|ayudeme|auxilio", "help",
+     "Dime en pocas palabras qué pasa — quién, qué y dónde — para darte los pasos exactos · si alguien está en peligro ahora, llama ya al 112 (España) o al 911."),
+    # ── problemas (no ponen en peligro la vida) ──
+    (r"perdido (?:mi |el )?pasaporte|robado (?:mi |el )?pasaporte|sin pasaporte", "help",
+     "Pasaporte perdido o robado: pon la denuncia en la comisaría y pide una copia · ve a la embajada o consulado de tu país para el documento de viaje · una foto o copia del pasaporte ayuda mucho."),
+    (r"perdido (?:mi |la |el )?(?:cartera|telefono|movil|bolso|mochila|maleta)", "help",
+     "Objeto perdido: pregunta en el último sitio donde estuviste y en objetos perdidos (taxi, metro, aeropuerto) · bloquea tarjetas y móvil ya · si te lo robaron, pon la denuncia."),
+    (r"estoy perdid[oa]|no se donde estoy|me he perdido", "help",
+     "Estás perdido: quédate en un sitio iluminado y con gente · comparte tu ubicación con alguien desde el mapa del móvil · pregunta en una tienda, hotel o a la policía · enseña la dirección de tu hotel a un taxista."),
+    (r"ascensor (?:esta )?atascado|atrapad[oa] en el ascensor|encerrad[oa] en el ascensor", "help",
+     "Atrapado en el ascensor: pulsa el botón de alarma y llama al número del ascensor o a los bomberos · no fuerces la puerta ni intentes salir por arriba · hay aire suficiente, mantén la calma."),
+    (r"coche se ha averiado|coche averiado|rueda pinchada|sin gasolina", "help",
+     "Avería del coche: apártate al arcén con luces de emergencia, ponte el chaleco y coloca los triángulos · sal del coche y espera tras el guardarraíl · llama a la asistencia del seguro o de la empresa de alquiler."),
+    (r"ataque de panico|crisis de ansiedad", "help",
+     "Ataque de pánico: respira despacio — inhala 4 segundos, aguanta 4, exhala 6 · siéntate y apoya los pies en el suelo · suele pasar en minutos · si hay dolor en el pecho, desmayo o es la primera vez, llama al 112 / 911."),
+)
+_ES_EVENT_RX = tuple((__import__("re").compile(rx, __import__("re").I), kind, line) for rx, kind, line in ES_EVENTS)
+ES_CALM = __import__("re").compile(r"pelicula|serie|juego|noticia|simulacro|si alguna vez|por si|donde esta|me siento mejor|ya estoy bien|ya paso|un poco|leve|"
+                                   r"sin importancia|de sol|broma|novela|sueno que|sone que|gimnasio|press de banca|entrenar|ejercicio|\bfilm\b", __import__("re").I)   # "dolor de pecho después del gimnasio" · italiano "il film era da infarto"
+_ES_DEFAULT = {"infarto": "cardiac", "pecho": "cardiac", "presion en el pecho": "cardiac", "alerg": "anaphylaxis", "anafilaxia": "anaphylaxis",
+               "hincha": "anaphylaxis", "veneno": "poison", "sobredosis": "poison", "pastillas": "poison", "lejia": "poison",
+               "cloro": "poison", "insecticida": "poison", "perro": "rabies_exposure", "gato": "rabies_exposure",
+               "serpiente": "snakebite", "vibora": "snakebite", "ahog": "drowning", "agua": "drowning", "rio": "drowning"}
+
+
+def _fold(t: str) -> str:
+    import unicodedata
+    return "".join(c for c in unicodedata.normalize("NFD", str(t or "").lower()) if unicodedata.category(c) != "Mn")
+
+
+def es_event(text):
+    """(ชนิดคำตอบ, ขั้นเฉพาะเรื่อง) ของเหตุภาษาสเปนแรกที่พบ — เทียบแบบไม่สนวรรณยุกต์ · ข่าว ซ้อม คำถามหาสถานที่ อาการเล็กน้อย ไม่นับ"""
+    t = _fold(text)
+    if ES_CALM.search(t):
+        return None
+    for rx, kind, line in _ES_EVENT_RX:
+        if rx.search(t):
+            if line is None:
+                key = next((v for k, v in _ES_DEFAULT.items() if k in t), None)
+                line = LINES.get(key, {}).get("es") if key else None
+            return kind, line
+    return None
+
+
+ES_DISASTER_REST = ["Cuando estés a salvo, llama al 112 (España) o al 911 (México y la mayoría de Latinoamérica) · en Chile: 132 bomberos, 131 ambulancia.",
+                    "Ayuda a las personas mayores y niños cercanos y sigue las indicaciones de protección civil."]
+ES_HELP_REST = ["Si hay peligro o heridos: 112 (España) · 911 (México y la mayoría de Latinoamérica) · en Chile 131 ambulancia, 133 policía.",
+                "Si necesitas ayuda como extranjero, contacta con la embajada o consulado de tu país."]

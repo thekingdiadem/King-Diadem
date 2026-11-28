@@ -55,6 +55,10 @@ def detect_lang(text) -> str:
     # สระมีเครื่องหมาย (mamá, desmayó) ก็บอกว่าเป็นสเปน — "mi mamá se desmayó" เคยถูกเดาเป็นอังกฤษ
     if _ES_CHARS.search(low) or re.search(r"[áéíóú]", low) or len(words & _ES_WORDS) >= 2 or words & _ES_STRONG:
         return "es"
+    # "Me han robado" "He perdido mi pasaporte" "Llame a una ambulancia" เคยถูกเดาเป็นอังกฤษ → ได้คำตอบภาษาอังกฤษ
+    from core.first_aid_intl import es_event
+    if es_event(t):
+        return "es"
     return "en"
 
 
@@ -649,6 +653,34 @@ def _ko_events_into_urgent():
 
 
 _ko_events_into_urgent()
+
+
+def _accent_tolerant(rx: str) -> str:
+    """รูปประโยคสเปนที่เขียนไม่มีวรรณยุกต์ → ตรงได้ทั้งมีและไม่มี ("policia" ↔ "policía")"""
+    table = {"a": "[aá]", "e": "[eé]", "i": "[ií]", "o": "[oó]", "u": "[uúü]", "n": "[nñ]"}
+    out, i, depth = [], 0, 0
+    while i < len(rx):
+        c = rx[i]
+        if c == "\\":
+            out.append(rx[i:i + 2]); i += 2; continue
+        if c == "[":
+            depth += 1
+        elif c == "]":
+            depth -= 1
+        out.append(table[c] if depth == 0 and c in table and not (i and rx[i - 1] == "?") else c)
+        i += 1
+    return "".join(out)
+
+
+def _es_events_into_urgent():
+    from core.first_aid_intl import ES_EVENTS, ES_CALM
+    guard = r"^(?![\s\S]*(?:" + _accent_tolerant(ES_CALM.pattern) + r"))[\s\S]*?"
+    for rx, kind, _line in ES_EVENTS:
+        if kind in ("medical", "violence", "disaster"):
+            _more(kind, "es", guard + r"(?:" + _accent_tolerant(rx) + r")")
+
+
+_es_events_into_urgent()
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 

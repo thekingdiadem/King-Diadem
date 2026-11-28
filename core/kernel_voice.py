@@ -3407,6 +3407,21 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             return compose_urgent_intl("ko", "medical", _st, sign, footer,
                                        steps_override=[_line] + KO_HELP_REST, opener_override="침착하게, 하나씩 해결해 봐요.")
 
+    # ── ภาษาสเปน: เหตุจากรายการ 200 วลี (core/first_aid_intl.ES_EVENTS) — เดิมครึ่งหนึ่งถูกอ่านเป็นอังกฤษ ที่เหลือได้คำตอบทั่วไป
+    if not a["crisis"] and detect_lang(text) == "es" and script_lang(text) != "vi":
+        from core.first_aid_intl import es_event, ES_DISASTER_REST, ES_HELP_REST
+        _ee = es_event(text)
+        if _ee:
+            _k, _line = _ee
+            _st = status_line(a, "es")
+            if _k in ("medical", "violence"):
+                return compose_urgent_intl("es", _k, _st, sign, footer, extra=_line,
+                                           opener_override="Primero ponte a salvo — las cosas se recuperan." if _k == "violence" else None)
+            if _k == "disaster":
+                return compose_urgent_intl("es", "disaster", _st, sign, footer, steps_override=([_line] + ES_DISASTER_REST) if _line else None)
+            return compose_urgent_intl("es", "medical", _st, sign, footer,
+                                       steps_override=[_line] + ES_HELP_REST, opener_override="Con calma, vamos paso a paso.")
+
     # ── ภาษาเอเชียที่มีคำตอบเรื่องด่วนของตัวเอง (พม่า เขมร ลาว เวียดนาม ฮินดี ฯลฯ) ──
     if world_urgent(text):
         from core.world_replies import world_lang, compose_world as compose_asia

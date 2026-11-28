@@ -982,3 +982,29 @@ def test_korean_emergencies_get_specific_answer(text, needle):
 def test_korean_everyday_and_drills_are_not_emergencies(text):
     from core.kernel_voice import assess
     assert assess(text)["text_risk"] < 60
+
+
+# ── เหตุฉุกเฉินภาษาสเปนจากรายการ 200 วลีที่เจ้าของโปรเจกต์รวบรวม (เดิม 47 จาก 59 ได้คำตอบทั่วไป ครึ่งหนึ่งถูกอ่านเป็นอังกฤษ) ──
+ES_EMERGENCIES = [
+    ("Me han robado.", "no te resistas"), ("He perdido mi pasaporte.", "consulado"), ("Llame a una ambulancia.", "112"),
+    ("Hay un incendio.", "paño mojado"), ("Hay una fuga de gas.", "interruptores"), ("Un accidente de coche.", "casco"),
+    ("No tiene pulso.", "compresiones"), ("Se está asfixiando.", "Heimlich"), ("He roto aguas.", "cartilla"),
+    ("Hay sangre en mis heces.", "urgencias"), ("Me ha mordido una serpiente.", "torniquete"), ("El ascensor está atascado.", "alarma"),
+    ("Estoy perdido.", "ubicación"), ("Tengo un ataque de pánico.", "respira despacio"), ("Llame a los bomberos.", "escaleras"),
+    ("me duele el pecho y sudo", "infarto"), ("llame a la policia", "112"),     # sin acentos también
+]
+
+
+@pytest.mark.parametrize("text, needle", ES_EMERGENCIES)
+def test_spanish_emergencies_get_specific_spanish_answer(text, needle):
+    from core.kernel_voice import compose
+    out = compose(text)
+    assert needle in out, out
+    assert "Escribe lo que pasó en una sola frase" not in out and "Write what happened" not in out
+
+
+@pytest.mark.parametrize("text", ["Tengo fiebre.", "Estoy resfriado.", "Me he torcido el tobillo.", "¿Dónde está la farmacia?",
+                                  "Tengo una quemadura de sol.", "Me siento mejor.", "Se ha ido la luz."])
+def test_spanish_everyday_is_not_an_emergency(text):
+    from core.kernel_voice import assess
+    assert assess(text)["text_risk"] < 60
