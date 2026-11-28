@@ -1538,3 +1538,13 @@ html.in-app [data-app-only]{display:block}
 /* สถานะเบื้องหลังระหว่างรอ — ชื่อส่วนที่ทำงาน ตัวเล็ก จาง ไม่แย่งสายตาจากคำง่ายๆ ด้านบน */
 .live-sub{margin:4px 0 0;font-size:11px;letter-spacing:.02em;color:var(--ink-3, #8a8fa3);opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
+
+/* แถบโทรฉุกเฉิน: โผล่เองเมื่อคำตอบเป็นเรื่องฉุกเฉิน · ปุ่มเต็มความกว้าง สูง กดด้วยข้อนิ้ว/คางได้ · ไม่มีแอนิเมชัน */
+#sos-bar{position:fixed;left:0;right:0;bottom:0;z-index:90;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  padding:10px 10px calc(10px + env(safe-area-inset-bottom));background:rgba(20,6,10,.96);border-top:1px solid rgba(255,93,108,.5)}
+#sos-bar .sos-call{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:76px;border-radius:16px;
+  background:#c8283a;color:#fff;text-decoration:none;font-size:13px;line-height:1.25;text-align:center;padding:6px}
+#sos-bar .sos-call b{font-size:30px;font-family:var(--f-mono);letter-spacing:.04em}
+#sos-bar .sos-loc{grid-column:1 / -1;display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:14px;
+  background:rgba(255,217,168,.12);color:#ffd9a8;text-decoration:none;font-size:15px}
+#sos-bar .sos-x{position:absolute;top:-34px;right:10px;width:30px;height:30px;border-radius:50%;border:0;background:rgba(20,6,10,.9);color:#fff;font-size:14px}

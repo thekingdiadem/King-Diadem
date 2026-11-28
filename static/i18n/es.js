@@ -475,6 +475,8 @@
 "ทางสายกลาง": "Camino medio",
 "ตรวจ {n} ครั้ง · ยังไม่ต้องเติม": "Revisado {n} · nada que equilibrar aún",
 "ตรวจ {n} · เติมด้านเสีย {u} · เติมทางไปต่อ {c}": "Revisado {n} · riesgo añadido {u} · salida añadida {c}",
+"ตำรวจ · พูดไม่ได้ให้เปิดสายค้างไว้": "Policía · si no puedes hablar, deja la llamada abierta",
+"ส่งตำแหน่งให้คนที่ไว้ใจ ›": "Enviar mi ubicación a alguien de confianza ›",
 "เลือกภาพก่อน": "Elige primero una imagen",
 "⚠ รองรับเฉพาะ jpeg / png / webp": "⚠ Solo se admiten jpeg / png / webp",
 "⚠ ไฟล์ใหญ่เกิน 10MB": "⚠ El archivo supera los 10 MB",
