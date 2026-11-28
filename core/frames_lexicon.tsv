@@ -2439,3 +2439,8 @@ PREG_NORMAL	ja	医者は正常|少しむくん
 # ── รอบ 27: ภาษาถิ่น — คำถิ่นส่วนใหญ่แปลงเป็นภาษากลางใน core/frames.py (_TH_DIALECT) ที่นี่เติมเฉพาะที่ยังขาด ──
 URINE_RED	th	ขาบวม|เท้าบวม|หายใจไม่อิ่ม|หอบ|นอนราบไม่ได้
 NOT_BITE	th	รองเท้า|เกิบ|เกือก|ตุ๊กตา|ของเล่น
+# ── สเปนที่พิมพ์ไม่ใส่วรรณยุกต์ ("mordio" "se cayo") และคำเรียกเห็ดป่าแบบอื่น ──
+BITE	es	mordio|mordieron|me mordio|lo mordio|la mordio
+ELDER_FALL	es	se cayo|cayo
+WILD_MUSH	es	setas del monte|hongos del monte|setas del campo|hongos que encontramos|setas que encontramos
+NO_RABIES_VAX	es	no tiene vacuna|no tiene vacunas|no está vacunado|no esta vacunado|no esta vacunada|nunca lo vacunaron

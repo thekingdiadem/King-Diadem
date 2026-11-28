@@ -32,7 +32,10 @@ _ES_STRONG = {"quiero", "estoy", "tengo", "hola", "gracias", "ayuda", "morir", "
               "amenazaron", "amenazó", "muerte", "matar", "matarme", "estafaron", "estafa", "encerrada", "encerrado", "comido", "pegaron", "violaron",
               # อารมณ์หนัก/ภัยที่พูดสั้น ("quisiera no despertar" "alguien me sigue") เคยถูกเดาเป็นอังกฤษ
               "despertar", "quisiera", "broma", "llorar", "miedo", "siguiendo", "desaparecer", "segura", "seguro", "sola",
-              "rabia", "enojado", "enojada", "matarlo", "matarla", "vacía", "vacio", "vacío", "suelos", "afuera", "puerta", "llorando", "llevo", "decidí", "encabronado", "encabronada"}
+              "rabia", "enojado", "enojada", "matarlo", "matarla", "vacía", "vacio", "vacío", "suelos", "afuera", "puerta", "llorando", "llevo", "decidí", "encabronado", "encabronada",
+              # "comimos hongos silvestres y ahora todos vomitamos" เคยถูกเดาเป็นอังกฤษ → ได้คำแนะนำเป็นภาษาอังกฤษ
+              "ahora", "todos", "todas", "hongos", "setas", "comimos", "vomitamos", "vomitando", "vomita", "serpiente", "culebra",
+              "perro", "gato", "embarazada", "fiebre", "dolor", "cabeza", "pierna", "brazo", "levantarse", "hinchado", "hinchada"}
 
 
 def detect_lang(text) -> str:
@@ -240,7 +243,7 @@ def self_harm_intl(text) -> bool:
 # ── ข้อความตอบตอนไม่มี AI ─────────────────────────────────────────────
 HELP = {
     "en": ("If you are in danger right now, call your local emergency number (911 in the US and Canada, "
-           "999 in the UK, 112 in most of Europe, 000 in Australia). In the US you can call or text 988 · Australia: Lifeline 13 11 14 · 13YARN 13 92 76 (Aboriginal & Torres Strait Islander). "
+           "999 in the UK, 112 in most of Europe, 000 in Australia, 111 in New Zealand). In the US you can call or text 988 · Australia: Lifeline 13 11 14 · New Zealand: call or text 1737 · 13YARN 13 92 76 (Aboriginal & Torres Strait Islander). "
            "Find a free, confidential helpline in your country at findahelpline.com"),
     "zh": "如果你现在有危险，请立即拨打当地的紧急电话（中国大陆 120 或 110）。在 findahelpline.com 可以找到你所在国家或地区的免费心理援助热线",
     "ja": "今危険な状態なら、すぐに119に電話してください。findahelpline.com で、お住まいの国の無料の相談窓口を探せます",
