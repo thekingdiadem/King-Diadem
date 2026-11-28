@@ -958,3 +958,27 @@ def test_chinese_emergencies_get_specific_answer(text, needle):
 def test_chinese_everyday_and_drills_are_not_emergencies(text):
     from core.kernel_voice import assess
     assert assess(text)["text_risk"] < 60
+
+
+# ── เหตุฉุกเฉินภาษาเกาหลีจากรายการ 200 วลีที่เจ้าของโปรเจกต์รวบรวม (เดิมประโยคอันตราย 50 จาก 77 ได้คำตอบทั่วไป) ──
+KO_EMERGENCIES = [
+    ("불이야", "젖은 수건"), ("가스 냄새가 나요", "스위치"), ("홍수가 났어요", "지하차도"), ("교통사고가 났어요", "헬멧"),
+    ("사람이 쓰러졌어요", "가슴압박"), ("목에 음식이 걸렸어요", "하임리히"), ("화상을 입었어요", "20분"), ("독극물을 마셨어요", "토하게 하지"),
+    ("양수가 터졌어요", "산모수첩"), ("성추행을 당했어요", "해바라기센터"), ("소매치기를 당했어요", "112"), ("여권을 빼앗겼어요", "1345"),
+    ("엘리베이터에 갇혔어요", "비상벨"), ("여권을 잃어버렸어요", "태국 대사관"), ("길을 잃었어요", "1330"), ("임금을 못 받았어요", "1350"),
+    ("머리를 부딪혔어요", "24시간"), ("뱀에 물렸어요", "지혈대"), ("물에 빠졌어요", "뛰어들지"),
+]
+
+
+@pytest.mark.parametrize("text, needle", KO_EMERGENCIES)
+def test_korean_emergencies_get_specific_answer(text, needle):
+    from core.kernel_voice import compose
+    out = compose(text)
+    assert needle in out, out
+    assert "한 문장으로 적어" not in out
+
+
+@pytest.mark.parametrize("text", ["감기에 걸렸어요", "비상구가 어디에 있어요?", "정전이 됐어요", "지진 대피 훈련을 했어요", "화재 뉴스를 봤어요", "이제 괜찮아요"])
+def test_korean_everyday_and_drills_are_not_emergencies(text):
+    from core.kernel_voice import assess
+    assert assess(text)["text_risk"] < 60

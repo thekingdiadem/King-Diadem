@@ -638,6 +638,17 @@ def _zh_events_into_urgent():
 
 
 _zh_events_into_urgent()
+
+
+def _ko_events_into_urgent():
+    from core.first_aid_intl import KO_EVENTS, KO_CALM
+    guard = r"^(?![\s\S]*(?:" + KO_CALM.pattern + r"))[\s\S]*?"
+    for rx, kind, _line in KO_EVENTS:
+        if kind in ("medical", "violence", "disaster"):
+            _more(kind, "ko", guard + r"(?:" + rx + r")")
+
+
+_ko_events_into_urgent()
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
