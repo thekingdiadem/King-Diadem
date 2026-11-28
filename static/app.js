@@ -1772,19 +1772,55 @@ var Cosmos = (function(){
       put.push(best); n.sx = best[0]; n.sy = best[1]; n.vis = true;
     });
   }
+  /* ดาวเกิดแบบเดินทาง: ดาวดวงใหม่ที่ยังไม่เคยเห็นในหน้าจักรวาล — แสงทองเส้นเดียวลากจากดาวดวงก่อน (หรือกลางฟ้า)
+     ผ่าน 7 จุดตามขั้นที่ระบบทำจริง แล้วดาวค่อยสว่างที่ปลายทาง · เล่นครั้งเดียวต่อดาว · กล้องนิ่ง · ลดการเคลื่อนไหว = ข้าม */
+  var JR = null, SEEN_KEY = 'kd-star-seen';
+  function seenTs(){ try{ return +localStorage.getItem(SEEN_KEY) || 0; }catch(_){ return 0; } }
+  function markSeen(ts){ try{ localStorage.setItem(SEEN_KEY, String(ts)); }catch(_){} }
+  function journey(now){
+    var n = stars[stars.length - 1];
+    if(!JR){
+      if(!n || !n.ts || n.ts <= seenTs()) return null;
+      if(REDUCED){ markSeen(n.ts); return null; }
+      var pv = stars[stars.length - 2], A = myArea();
+      JR = { n: n, at: now, x0: pv ? pv.sx : (A.l + A.r) / 2, y0: pv ? pv.sy : (A.t + A.b) / 2 };
+    }
+    var k = (now - JR.at) / 2600;
+    if(k >= 1.25){ markSeen(JR.n.ts); JR = null; return null; }
+    var x1 = JR.n.sx, y1 = JR.n.sy, x0 = JR.x0, y0 = JR.y0, mx = (x0 + x1) / 2 + (y1 - y0) * .18, my = (y0 + y1) / 2 - (x1 - x0) * .18;
+    function pt(t){ var u = 1 - t; return [u * u * x0 + 2 * u * t * mx + t * t * x1, u * u * y0 + 2 * u * t * my + t * t * y1]; }
+    var e = Math.min(1, k), ee = 1 - Math.pow(1 - e, 3);
+    ctx.save(); ctx.lineCap = 'round'; ctx.globalCompositeOperation = 'lighter';
+    var fade = k > 1 ? 1 - (k - 1) / .25 : 1;
+    ctx.strokeStyle = 'rgba(243,207,126,' + .55 * fade + ')'; ctx.lineWidth = 1.2; ctx.beginPath();
+    for(var i = 0; i <= 40 * ee; i++){ var q = pt(i / 40); if(i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); } ctx.stroke();
+    for(var s2 = 1; s2 <= 7; s2++){                     /* 7 ขั้นจริงของระบบ: จุดติดตามที่แสงผ่าน */
+      var t2 = s2 / 8, q2 = pt(t2), on = ee >= t2;
+      ctx.fillStyle = on ? 'rgba(255,228,170,' + .9 * fade + ')' : 'rgba(243,207,126,' + .18 * fade + ')';
+      ctx.beginPath(); ctx.arc(q2[0], q2[1], on ? 1.8 : 1.2, 0, TAU); ctx.fill();
+    }
+    var h = pt(ee); ctx.globalAlpha = fade; ctx.drawImage(glow('#f3cf7e'), h[0] - 9, h[1] - 9, 18, 18);
+    ctx.restore();
+    return k < 1 ? JR.n : null;                         /* ระหว่างแสงยังเดินทาง ดาวปลายทางยังไม่เกิด */
+  }
   function drawMySky(now){
     layoutMine();
+    var hide = journey(now);
+    if(JR) kick();
     var tsec = (now - t0) / 1000, last = stars.length - 1, from = Math.max(1, stars.length - 60);
     /* เส้นทางของเรา: ต่อดาวตามลำดับเวลา (60 ดวงล่าสุด) · เส้นใหม่สว่างกว่าเส้นเก่า */
     ctx.save(); ctx.lineCap = 'round';
     for(var i = from; i < stars.length; i++){
       var a = stars[i - 1], b = stars[i], age = (stars.length - i) / 60;
+      if(JR && JR.n === b) continue;          /* เส้นทางใหม่วาดโดยแสงที่กำลังเดินทาง */
       ctx.globalAlpha = .12 + .3 * (1 - age); ctx.strokeStyle = THEME.dark ? '#c9d4ff' : '#5b6aa8'; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
     }
     ctx.restore();
     for(var k = 0; k < stars.length; k++){
       var n = stars[k], risk = n.m && n.m.tr ? n.m.tr.risk || 0 : 0, r = 3.2 + Math.min(4, risk / 25), flash = 0;
+      if(n === hide) continue;
+      if(JR && JR.n === n){ var ja = Math.min(1, ((now - JR.at) / 2600 - 1) / .25); r *= .3 + .7 * ja; flash = 1 - ja; }
       for(var j = 0; j < births.length; j++){
         var bb = births[j]; if(bb.ts !== n.ts) continue;
         var e = Math.min(1, (now - bb.at) / 1600); r *= .25 + .75 * (1 - Math.pow(1 - e, 3)) + (REDUCED ? 0 : 1.2 * (1 - e) * (1 - e)); flash = 1 - e;
