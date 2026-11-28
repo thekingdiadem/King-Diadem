@@ -152,3 +152,197 @@ def with_specific(steps: list, line: str | None) -> list:
     if not line or len(steps) < 2:
         return list(steps)
     return [steps[0], line] + list(steps[2:])
+
+
+# ══════════════════════════════════════════════════════════════════
+# ภาษาเวียดนาม: เหตุฉุกเฉิน 20 อย่างที่เจ้าของโปรเจกต์รวบรวมมา — เดิมพลาด 17 จาก 23 ประโยค
+# (บางประโยคถูกตอบเป็นภาษาสเปนหรือโยรูบา) · หนึ่งแถว = รูปประโยค · ชนิดคำตอบ · ขั้นเฉพาะเรื่อง
+# เบอร์ในเวียดนาม: 113 ตำรวจ · 114 ดับเพลิง/กู้ภัย · 115 รถพยาบาล
+# ══════════════════════════════════════════════════════════════════
+VI_EVENTS = (
+    (r"đuối\s+nước|chết\s+đuối|bị\s+chìm", "medical",
+     "Đuối nước: ném vật nổi hoặc dây, đừng nhảy xuống nếu không biết cứu hộ · lên bờ mà ngừng thở thì ép tim ngay · không dốc ngược để xốc nước."),
+    (r"hóc\s+(?:dị\s+vật|xương|đồ|kẹo|thức\s+ăn)|bị\s+hóc", "medical",
+     "Hóc dị vật: còn ho được thì để tự ho, đừng móc họng · không nói hay thở được: đứng sau lưng, ôm bụng và ấn mạnh vào trên rốn (Heimlich) · trẻ dưới 1 tuổi: úp sấp, vỗ lưng 5 cái."),
+    (r"đau\s+tim|nhồi\s+máu\s+cơ\s+tim|lên\s+cơn\s+tim", "medical",
+     "Có thể là nhồi máu cơ tim: cho ngồi nghỉ, nới lỏng quần áo · không để tự lái xe hay đi lại · nếu bất tỉnh và ngừng thở, ép tim ngay."),
+    (r"tai\s+nạn\s+(?:giao\s+thông|xe)|đâm\s+xe|tông\s+xe|xe\s+(?:đâm|tông)", "medical",
+     "Tai nạn giao thông: bật đèn cảnh báo, đứng xa dòng xe · không di chuyển người bị thương nếu không có nguy hiểm (có thể chấn thương cột sống) · không tháo mũ bảo hiểm · ép chặt vết thương đang chảy máu."),
+    (r"sốc\s+phản\s+vệ|dị\s+ứng\s+(?:nặng|nghiêm\s+trọng)", "medical",
+     "Sốc phản vệ: nếu có bút tiêm adrenaline (EpiPen), tiêm ngay · khó thở thì cho ngồi; choáng thì nằm kê chân cao · không để ở một mình."),
+    (r"ngã\s+từ\s+(?:trên\s+)?(?:cao|tầng|mái|thang|cầu\s+thang)|rơi\s+từ\s+(?:trên\s+)?(?:cao|tầng)", "medical",
+     "Ngã từ trên cao: không di chuyển nạn nhân, giữ yên đầu và cổ (có thể chấn thương cột sống) · ép chặt vết thương chảy máu · ngừng thở thì ép tim."),
+    (r"cháy\s+nhà|hỏa\s+hoạn|hoả\s+hoạn|đám\s+cháy", "disaster", None),   # ไม่ใช้ "bị cháy": พับวรรณยุกต์แล้วตรงกับ "bị chảy (máu)" (เลือดไหล)
+    (r"rò\s+rỉ\s+(?:khí\s+)?gas|rò\s+(?:khí\s+)?ga\b|mùi\s+gas|xì\s+gas", "help",
+     "Rò rỉ khí gas: không bật/tắt công tắc điện, không bật lửa, không dùng điện thoại trong phòng · khóa van bình gas, mở cửa cho thoáng · ra ngoài rồi mới gọi 114."),
+    (r"lũ\s+quét|ngập\s+lụt|lũ\s+lụt|nước\s+lũ\s+lên|lũ\s+(?:dâng|về)", "help",
+     "Lũ: lên chỗ cao ngay, không lội hay lái xe qua dòng nước chảy (nước 15 cm đã có thể quật ngã người) · ngắt điện nếu nước vào nhà · gọi 114 nếu bị mắc kẹt."),
+    (r"động\s+đất", "help",
+     "Động đất: cúi thấp, che đầu, bám vào gầm bàn chắc · tránh xa cửa kính · hết rung mới ra chỗ trống, không dùng thang máy · bị kẹt thì gõ vào ống nước để người ngoài nghe thấy."),
+    (r"sập\s+(?:nhà|công\s+trình|tòa\s+nhà|tường|cầu|mái)|nhà\s+(?:bị\s+)?sập", "help",
+     "Sập nhà/công trình: tránh xa khu vực, có thể sập thêm · gọi 114 và 115, báo có bao nhiêu người bị kẹt · không tự đào bới nếu không an toàn · bị kẹt thì gõ vào vật cứng, che miệng tránh bụi."),
+    (r"kẹt\s+(?:trong\s+)?thang\s+máy|thang\s+máy\s+(?:bị\s+)?(?:kẹt|dừng|hỏng)", "help",
+     "Kẹt thang máy: bấm nút chuông khẩn cấp và gọi số trên bảng của tòa nhà hoặc 114 · giữ bình tĩnh, không ép mở cửa hay trèo ra ngoài · thang máy kín vẫn có đủ không khí."),
+    (r"có\s+trộm|bị\s+trộm|kẻ\s+trộm|ăn\s+trộm", "violence",
+     "Có trộm: đừng đối đầu, giữ an toàn cho mình trước · gọi 113 · ghi nhớ đặc điểm và hướng chạy, không chạm vào hiện trường."),
+    (r"bị\s+cướp|cướp\s+giật|bị\s+giật\s+(?:túi|điện\s+thoại|đồ)|kẻ\s+cướp", "violence",
+     "Bị cướp: đừng giằng co, tính mạng quan trọng hơn đồ đạc · đến chỗ đông người rồi gọi 113 · khóa thẻ ngân hàng và điện thoại ngay."),
+    (r"hành\s+hung|bị\s+đánh|đánh\s+nhau|ẩu\s+đả", "violence",
+     "Bị hành hung: rời khỏi chỗ nguy hiểm, đến nơi đông người · gọi 113 · nếu bị thương, gọi 115 · chụp ảnh vết thương làm bằng chứng."),
+    (r"mất\s+hộ\s+chiếu|hộ\s+chiếu\s+bị\s+mất|mất\s+passport", "help",
+     "Mất hộ chiếu: báo công an nơi gần nhất để lấy giấy xác nhận · liên hệ đại sứ quán hoặc lãnh sự quán của nước bạn để làm giấy tờ thay thế · giữ bản chụp hộ chiếu nếu có."),
+    (r"lạc\s+đường|bị\s+lạc", "help",
+     "Bị lạc: ở yên chỗ an toàn, có đèn và người · mở bản đồ hoặc chia sẻ vị trí cho người thân · hỏi cửa hàng, khách sạn hoặc công an gần đó · ở Thái Lan, cảnh sát du lịch 1155 nói tiếng Anh."),
+    (r"xe\s+(?:bị\s+)?(?:hỏng|chết\s+máy|thủng\s+lốp|nổ\s+lốp)|hỏng\s+xe", "help",
+     "Xe hỏng giữa đường: tấp vào lề, bật đèn cảnh báo, đặt biển hoặc vật báo hiệu phía sau xe · ra khỏi xe, đứng xa dòng xe · gọi cứu hộ hoặc bảo hiểm xe."),
+)
+# ข่าว ซ้อม เกม หนัง บทเรียน เตรียมตัว — ไม่ใช่เหตุที่กำลังเกิด ("Diễn tập động đất ở trường" "Cảnh tai nạn xe trong phim")
+VI_CALM = r"diễn\s+tập|mô\s+phỏng|trò\s+chơi|\bgame\b|trong\s+phim|\bphim\b|xem\s+tin|tin\s+tức|\bbáo\b|nước\s+ngoài|chuẩn\s+bị|phòng\s+khi|\bhọc\b|giờ\s+khoa\s+học|"\
+          r"dien\s+tap|mo\s+phong|tro\s+choi|trong\s+phim|xem\s+tin|chuan\s+bi|phong\s+khi"
+VI_CALM_GUARD = r"(?:^(?![\s\S]*(?:" + VI_CALM + r"))[\s\S]*?)"
+_VI_CALM_RX = __import__("re").compile(VI_CALM, __import__("re").I)
+_VI_EVENT_RX = tuple((__import__("re").compile(rx, __import__("re").I), kind, line) for rx, kind, line in VI_EVENTS)
+
+
+def vi_event(text):
+    """(ชนิดคำตอบ, ขั้นเฉพาะเรื่อง) ของเหตุภาษาเวียดนามแรกที่พบ — ไม่พบคืน None"""
+    if _VI_CALM_RX.search(str(text or "")):
+        return None
+    for rx, kind, line in _VI_EVENT_RX:
+        if rx.search(str(text or "")):
+            return kind, line
+    return None
+
+
+VI_WORDS_MORE = {"cháy", "lũ", "quét", "ngập", "lụt", "động", "đất", "sập", "trộm", "cướp", "hành", "hung", "mất", "hộ", "chiếu",
+                 "lạc", "đường", "hỏng", "giữa", "kẹt", "thang", "máy", "ngất", "tim", "tai", "nạn", "giao", "thông", "đuối", "hóc",
+                 "sốc", "phản", "vệ", "ngã", "từ", "trên", "cao", "rò", "rỉ", "khí", "gas", "điện", "giật", "công", "trình", "cứu",
+                 "hỏa", "hoạn", "xảy", "dị", "vật", "nhà", "người", "xe"}
+
+
+# ══════════════════════════════════════════════════════════════════
+# ภาษาญี่ปุ่น: เหตุฉุกเฉินจากรายการ 200 วลีที่เจ้าของโปรเจกต์รวบรวม — เดิมประโยคอันตราย 59 จาก 80 ได้คำตอบทั่วไป
+# และไฟไหม้/สึนามิ/น้ำท่วม/แก๊สรั่วได้คำแนะนำเรื่องแผ่นดินไหวเป็นข้อแรก
+# ชนิด: medical (119 รถพยาบาล) · violence (110 ตำรวจ) · disaster (ภัยพิบัติ) · help (ไม่ถึงชีวิต: ของหาย หลงทาง รถเสีย)
+# ══════════════════════════════════════════════════════════════════
+JA_EVENTS = (
+    # ── การแพทย์ ──
+    (r"意識が(?:ありません|ない|戻らない)|呼びかけに反応(?:しない|がない)|息をしていない|呼吸(?:が|を)?(?:していない|止まっ)", "medical",
+     "反応がなく普段どおりの呼吸がなければ、すぐ胸骨圧迫（胸の真ん中を強く速く、1分に100〜120回）· 近くの人に AED を持ってきてもらう。"),
+    (r"息が苦しい|息ができない|呼吸が苦しい|喘息", "medical",
+     "息が苦しいとき：楽な姿勢（座って前かがみ）にし、服をゆるめる · 喘息の吸入薬があれば使う · 唇が紫・話せないほどなら 119。"),
+    (r"心臓発作|心筋梗塞|胸が(?:痛い|苦しい|締め付け)", "medical",
+     "心筋梗塞の可能性：座って安静にし、服をゆるめる · 自分で運転・歩かせない · 反応がなく呼吸していなければすぐ胸骨圧迫を。"),
+    (r"脳卒中|脳梗塞|ろれつが回らない|顔の片側が下が", "medical",
+     "脳卒中の可能性 — 一分一秒が大切：症状が始まった時刻をメモ · 食べ物・飲み物・薬を与えない · 4.5時間以内の治療がずっと効果的です。"),
+    (r"出血(?:しています|が止まらない|がひどい)|血が止まらない", "medical",
+     "出血：清潔な布で傷口を強く押さえ続ける（10分は離さない）· 手足なら心臓より高く · 布がにじんでも外さず上から重ねる。"),
+    (r"骨折", "medical",
+     "骨折：動かさず、添え木（雑誌・段ボール）で固定 · 骨が出ている・変形が大きい・首や背中を痛めたときは動かさずに 119。"),
+    (r"やけど|火傷", "medical",
+     "やけど：すぐ流水で 20 分冷やす · 指輪や時計を外す · 氷・油・軟膏は塗らない、水ぶくれはつぶさない · 手のひらより広い・顔や関節なら病院へ。"),
+    (r"アレルギー|アナフィラキシー", "medical",
+     "重いアレルギー：エピペンがあればすぐ使う · 息が苦しい・唇やのどが腫れる・ぐったりしたら 119 · 息が苦しければ座らせ、ふらつくなら足を上げて寝かせる。"),
+    (r"食中毒|嘔吐|下痢|脱水", "medical",
+     "嘔吐・下痢：経口補水液を少しずつ何度も · 尿がほとんど出ない・ぐったり・血便・高熱なら病院へ · 同じ物を食べた人がいれば一緒に受診。"),
+    (r"熱中症", "medical",
+     "熱中症：涼しい所へ移し、首・脇・足の付け根を冷やす · 意識がはっきりしていれば水分と塩分を · 反応が鈍い・水を飲めないなら 119。"),
+    (r"低体温", "medical",
+     "低体温症：暖かい場所へ移し、濡れた服を脱がせて毛布で包む · 急に熱い湯に入れたり手足をこすったりしない · 反応が鈍ければ 119。"),
+    (r"高熱|熱が下がらない", "medical",
+     "高熱：水分をとり、薄着で休む · 首が硬い・意識がおかしい・けいれん・息が苦しい・赤ちゃんなら すぐ受診。"),
+    (r"蛇に(?:噛|か)まれ|ヘビに(?:噛|か)まれ|マムシ|ハブ", "medical", None),     # LINES["snakebite"] を使う
+    (r"(?:犬|猫|動物)に(?:噛|か)まれ", "medical", None),                         # LINES["rabies_exposure"]
+    (r"虫に刺され|ハチに刺され|蜂に刺され", "medical",
+     "虫・ハチに刺された：針が残っていればカードなどでこすり取る（つままない）· 冷やす · 息苦しい・全身のじんましん・顔の腫れが出たら 119。"),
+    (r"異物を飲み込|電池を飲み込|磁石を飲み込", "medical",
+     "異物を飲み込んだ：無理に吐かせない · ボタン電池・磁石・とがった物はすぐ病院へ · 息が苦しい・よだれが止まらないなら 119。"),
+    (r"喉に詰まら|のどに詰まら|喉に詰まっ", "medical",
+     "のどに詰まった：せきができるなら強くせきをさせる · 声が出ない・息ができないなら背中を強く叩く／後ろから腹部を突き上げる（ハイムリック法）。"),
+    (r"陣痛|破水|出産しそう|生まれそう", "medical",
+     "陣痛・破水：母子手帳と保険証を持って産院に連絡 · 出血が多い・強い腹痛が続く・赤ちゃんが動かないなら 119。"),
+    (r"倒れ(?:ました|た|ている)|気を失", "medical",
+     "倒れた人：まず肩をたたいて呼びかける · 反応がなく普段どおりの呼吸がなければ胸骨圧迫と AED · 呼吸があれば横向きに寝かせる。"),
+    (r"救急車を呼んで|救急車", "medical", None),
+    (r"溺れ|おぼれ|海難事故", "medical", None),                                 # LINES["drowning"]
+    # ── 事故 ──
+    (r"交通事故|車にひかれ|正面衝突|追突事故|自転車事故|人身事故|ひき逃げ|事故です|事故が", "medical",
+     "交通事故：ハザードをつけ、車から離れた安全な所へ · けが人は危険がなければ動かさない（首・背中を守る）· ヘルメットは外さない · ひき逃げは車の特徴とナンバーを 110 へ。"),
+    # ── 犯罪・安全 ──
+    (r"強盗|ひったくり|スリに遭|盗まれ|盗難|泥棒|空き巣", "violence",
+     "盗難・強盗：抵抗しない、命が先です · 人の多い所へ移ってから 110 · カードと携帯をすぐ止める · 交番で被害届を出し、受理番号を控える（保険請求に必要）。"),
+    (r"暴力を受け|殴られ|喧嘩が起き|けんかが起き|武器を持っ|刃物を持っ|危険な人物", "violence",
+     "暴力・武器：その場から離れ、鍵のかかる所や人の多い所へ · 110 に電話 · けがは写真に残し、病院で診断書を。"),
+    (r"不審者|つきまとわれ|誰かに見られ|後をつけられ", "violence",
+     "不審者・つきまとい：人の多い店や交番に入る · 家まで後をつけられないよう遠回りする · 110 か警察相談 #9110 へ。"),
+    (r"痴漢", "violence",
+     "痴漢：大声を出す・周りの人や駅員に知らせる · 110 へ · 日時と場所、相手の特徴をメモ · あなたは悪くありません。"),
+    (r"脅迫|脅され", "violence",
+     "脅迫：相手に返事をしない · メッセージや録音を証拠として残す · 110 か警察相談 #9110 へ。"),
+    (r"閉じ込められ", "help",
+     "閉じ込められた：エレベーターなら非常ボタンで管理会社に連絡し、扉を無理に開けない（空気は足ります）· 部屋に閉じ込められたなら 110 へ。"),
+    (r"子ども?が(?:いなくなり|見つからない|行方不明)|迷子|行方不明", "violence",
+     "人がいなくなった：すぐ 110 へ — 服装・身長・最後に見た場所と時刻を伝える · 子どもは時間がとても大切です · 店や駅なら係員にも知らせる。"),
+    # ── 災害 ──
+    (r"火事|火災|燃えて|煙が(?:出て|充満)|放火|爆発", "disaster",
+     "火事：大声で知らせ、すぐ外へ · 煙は低い姿勢で口と鼻を覆う · エレベーターは使わず階段で · 外に出てから 119、戻らない。"),
+    (r"ガス漏れ|ガスの臭い|有毒ガス|化学物質が漏れ", "disaster",
+     "ガス漏れ・有毒ガス：火をつけない、電気のスイッチに触れない · 窓を開け、口と鼻を覆って風上へ避難 · 外に出てから 119。"),
+    (r"地震|余震", "disaster",
+     "地震：姿勢を低くして頭を守り、机につかまる · 揺れが収まったら火の始末、階段で外へ（エレベーターは使わない）· 海の近くなら津波に備えて高台へ。"),
+    (r"津波", "disaster",
+     "津波：すぐ高台か高い建物の3階以上へ · 車ではなく歩いて · 警報が解除されるまで戻らない。"),
+    (r"洪水|氾濫|冠水|大雨|台風", "disaster",
+     "大雨・洪水：高い所へ早めに避難 · 冠水した道は歩かず車で入らない（30cmで車も流されます）· 自治体の避難情報に従う。"),
+    (r"土砂崩れ|落石|雪崩|竜巻|噴火|落雷|建物が傾", "disaster",
+     "土砂崩れ・噴火・竜巻など：その場から離れ、頑丈な建物の中か高い所へ · 崖や川の近くを避ける · 自治体の避難情報に従う。"),
+    (r"放射能", "disaster",
+     "放射性物質の危険：屋内に入り窓とドアを閉め、換気扇を止める · 外にいたなら服を替え、手と顔を洗う · 自治体とテレビ・ラジオの指示に従う。"),
+    (r"避難指示|避難勧告|津波警報|警報が鳴", "disaster",
+     "避難指示が出たら：すぐ避難を — 非常用持ち出し袋、薬、身分証を持つ · 近所の高齢者に声をかける · 避難所は自治体のサイトや防災無線で確認。"),
+    (r"電線が切れ|電線が垂れ", "disaster",
+     "切れた電線：近づかない、触らない（8m以上離れる）· 電力会社か 110 へ連絡。"),
+    (r"高台に逃げ", "disaster", "津波：すぐ高台か高い建物の3階以上へ · 車ではなく歩いて · 警報が解除されるまで戻らない。"),
+    (r"救助(?:して|を待っ|を求め)|助けに来て", "disaster",
+     "救助を待つとき：その場の安全を確保し、体力を温存する · 声は限られるので、物を叩いたり笛やライトで合図 · 119 に現在地とけが人の人数を伝える。"),
+    (r"警察を呼んで", "violence", None),
+    (r"逆走車", "violence", "逆走車：近づかず安全な所に停車し、110 に場所と進行方向を伝える。"),
+    # ── 困りごと（命に関わらない） ──
+    (r"パスポートを(?:なくし|盗まれ|紛失)|パスポートが(?:ない|見つからない)", "help",
+     "パスポート紛失：交番か警察署で遺失届・被害届を出し受理番号をもらう · 自国の大使館・領事館で渡航書を申請 · コピーや写真があれば役立ちます。"),
+    (r"(?:財布|スマホ|カバン|鍵|カード)を(?:なくし|紛失)|カードを紛失", "help",
+     "落とし物：最後にいた店・駅に問い合わせ、交番に遺失届を · カードと携帯はすぐ停止 · タイの観光警察 1155 は英語可。"),
+    (r"道に迷|迷いました", "help",
+     "道に迷った：明るく人のいる所にとどまる · 地図アプリで現在地を共有 · コンビニや交番で聞く · 訪日外国人向けホットライン 050-3816-2787（24時間・多言語）。"),
+    (r"車が故障|パンク|ガス欠|バッテリーが上が", "help",
+     "車の故障：路肩に寄せてハザード、三角表示板を後ろに · 高速道路ではガードレールの外へ避難 · JAF #8139 か保険会社のロードサービスへ。"),
+)
+_JA_EVENT_RX = tuple((__import__("re").compile(rx), kind, line) for rx, kind, line in JA_EVENTS)
+# ข่าว ซ้อม เกม คำถามหาสถานที่ อาการเล็กน้อย/หายแล้ว และสำนวน ("胸が痛いほど感動した" ซึ้งจนเจ็บอก · "失恋して胸が痛い" อกหัก)
+JA_CALM = __import__("re").compile(r"訓練|ゲーム|映画|ドラマ|ニュース|アニメ|夢で|もし|備えて|準備|練習|授業|はどこですか|ないでください|無事です|大丈夫|平気|"
+                                   r"ないように|ほど|感動|失恋|少し|軽い|良くなった|よくなった|治った|落ち着い|コントロール|くしゃみ|水たまり|持ち歩|有点|一点|没事")
+JA_NONLIFE = {"help"}
+_JA_DEFAULT = {   # 行が None のとき使う LINES の項目
+    "蛇": "snakebite", "ヘビ": "snakebite", "マムシ": "snakebite", "ハブ": "snakebite",
+    "犬": "rabies_exposure", "猫": "rabies_exposure", "動物": "rabies_exposure", "溺": "drowning", "おぼれ": "drowning", "海難": "drowning",
+}
+
+
+def ja_event(text):
+    """(ชนิดคำตอบ, ขั้นเฉพาะเรื่อง) ของเหตุภาษาญี่ปุ่นแรกที่พบ — ข่าว ซ้อม คำถามหาสถานที่ ไม่นับ"""
+    t = str(text or "")
+    if JA_CALM.search(t):
+        return None
+    for rx, kind, line in _JA_EVENT_RX:
+        if rx.search(t):
+            if line is None:
+                key = next((v for k, v in _JA_DEFAULT.items() if k in t), None)
+                line = LINES.get(key, {}).get("ja") if key else None
+            return kind, line
+    return None
+
+
+JA_DISASTER_REST = ["安全な所に移ってから 119（消防・救急）に電話し、住所と状況を伝えてください。",
+                    "近くの人と声をかけ合い、自治体の防災情報（防災無線・テレビ・ラジオ）に従ってください。"]
+JA_HELP_REST = ["けがや危険があれば 119（救急）· 110（警察）。",
+                "外国語で相談したいとき：訪日外国人向けホットライン 050-3816-2787（24時間・多言語）。"]

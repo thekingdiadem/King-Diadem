@@ -3350,6 +3350,35 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
     tag = "\n· ตอบจากสมการของระบบ — ไม่ได้ใช้ AI" if footer else ""
     t = text.lower()
 
+    # ── ภาษาเวียดนาม: เหตุ 20 อย่าง (core/first_aid_intl.VI_EVENTS) — ตอบตามชนิดเหตุ พร้อมขั้นเฉพาะเรื่อง
+    # เดิม "Cháy nhà" ได้คำตอบภาษาสเปน "Bị kẹt trong thang máy" ได้ภาษาโยรูบา และแก๊สรั่ว/ลิฟต์ค้างได้แค่ "เล่าเรื่องเป็นประโยคเดียว"
+    if not a["crisis"]:
+        from core.lang_signals import script_lang as _sc
+        if _sc(text) == "vi":
+            from core.first_aid_intl import vi_event, specific_line as _sl
+            from core.world_replies import compose_world as _cw_vi
+            _ev = vi_event(text)
+            if _ev:
+                _k, _line = _ev
+                _w = _cw_vi("vi", _k, status_line(a, "vi"), sign, footer, extra=_line or (_sl(text, "vi") if _k == "medical" else None))
+                if _w:
+                    return _w
+
+    # ── ภาษาญี่ปุ่น: เหตุจากรายการ 200 วลี (core/first_aid_intl.JA_EVENTS) — เดิมไฟไหม้/สึนามิได้คำแนะนำแผ่นดินไหว
+    # และ "交通事故です" "強盗です" "意識がありません" ได้ "ลองเขียนเรื่องเป็นประโยคเดียว"
+    if not a["crisis"] and detect_lang(text) == "ja":
+        from core.first_aid_intl import ja_event, JA_DISASTER_REST, JA_HELP_REST
+        _je = ja_event(text)
+        if _je:
+            _k, _line = _je
+            _st = status_line(a, "ja")
+            if _k in ("medical", "violence"):
+                return compose_urgent_intl("ja", _k, _st, sign, footer, extra=_line)
+            if _k == "disaster":
+                return compose_urgent_intl("ja", "disaster", _st, sign, footer, steps_override=[_line] + JA_DISASTER_REST)
+            return compose_urgent_intl("ja", "medical", _st, sign, footer,
+                                       steps_override=[_line] + JA_HELP_REST, opener_override="落ち着いて、一つずつ対処しましょう。")
+
     # ── ภาษาเอเชียที่มีคำตอบเรื่องด่วนของตัวเอง (พม่า เขมร ลาว เวียดนาม ฮินดี ฯลฯ) ──
     if world_urgent(text):
         from core.world_replies import world_lang, compose_world as compose_asia
@@ -3474,6 +3503,16 @@ def _compose(text: str, route: str = "general", voice_mode: str = "lyla",
             return SAFETY_EN.format(status=status, sign=sign) + ("\n· Answered from the system's equations — no AI used" if footer else "")
         # ตัวจับแบบประกอบชิ้นส่วน (core/frames) เห็นเหตุฉุกเฉินแต่ตัวจับรายภาษาไม่เห็น — เดิมงูกัดภาษาสเปน/จีน/เกาหลี/ญี่ปุ่น/เวียดนาม
         # ได้ความเสี่ยง 85 แต่คำตอบ "เขียนเรื่องเป็นประโยคเดียว" · ตอนนี้ใช้คำตอบฉุกเฉินของภาษานั้นพร้อมคำแนะนำเฉพาะเรื่อง
+        # ภาษาเวียดนาม: เหตุ 20 อย่าง (core/first_aid_intl.VI_EVENTS) — คำตอบตามชนิดเหตุ พร้อมขั้นเฉพาะเรื่อง
+        if script_lang(t) == "vi" and not a["crisis"]:
+            from core.first_aid_intl import vi_event, specific_line as _sl
+            from core.world_replies import compose_world as _cw_vi
+            _ev = vi_event(t)
+            if _ev or "health_emergency" in a["topics"]:
+                _k, _line = _ev or ("medical", None)
+                _w = _cw_vi("vi", _k, status_line(a, "vi"), sign, footer, extra=_line or (_sl(t, "vi") if _k == "medical" else None))
+                if _w:
+                    return _w
         _urg = list(a.get("intl_urgent") or [])
         if not _urg and "health_emergency" in a["topics"]:
             _urg = ["medical"]

@@ -883,3 +883,55 @@ def test_specific_english_answers_are_not_replaced():
     """คำตอบภาษาอังกฤษเฉพาะเรื่อง (สโตรก) ดีอยู่แล้ว — บรรทัดทั่วไปต้องไม่มาแทน"""
     from core.kernel_voice import compose
     assert "Note the time the symptoms started" in compose("dad face drooping and slurred speech")
+
+
+# ── เหตุฉุกเฉินภาษาเวียดนาม 20 อย่างที่เจ้าของโปรเจกต์รวบรวม (เดิมพลาด 17 จาก 23 · บางข้อตอบเป็นสเปน/โยรูบา) ──
+VI_EMERGENCIES = [
+    ("Có người bị đau tim", "nhồi máu cơ tim"), ("Xảy ra tai nạn giao thông", "Tai nạn giao thông"),
+    ("Có người bị đuối nước", "Đuối nước"), ("Có người bị hóc dị vật", "Heimlich"), ("Bị sốc phản vệ", "EpiPen"),
+    ("Có người bị ngã từ trên cao", "cột sống"), ("Cháy nhà", "114"), ("Hỏa hoạn", "114"),
+    ("Rò rỉ khí gas", "van bình gas"), ("Bị điện giật", "ngắt điện"), ("Lũ quét", "chỗ cao"), ("Ngập lụt", "chỗ cao"),
+    ("Động đất", "che đầu"), ("Sập nhà", "Sập nhà"), ("Sập công trình", "Sập nhà"), ("Cứu với, có trộm", "113"),
+    ("Bị cướp", "giằng co"), ("Có người hành hung", "113"), ("Bị mất hộ chiếu", "đại sứ quán"),
+    ("Bị lạc đường", "chia sẻ vị trí"), ("Xe bị hỏng giữa đường", "đèn cảnh báo"), ("Bị kẹt trong thang máy", "chuông khẩn cấp"),
+]
+
+
+@pytest.mark.parametrize("text, needle", VI_EMERGENCIES)
+def test_vietnamese_emergencies_get_vietnamese_specific_answer(text, needle):
+    from core.kernel_voice import compose
+    out = compose(text)
+    assert needle in out, out
+    assert "Viết một câu" not in out and "Escribe" not in out and "Kọ ohun" not in out
+
+
+# ── เหตุฉุกเฉินภาษาญี่ปุ่นจากรายการ 200 วลีที่เจ้าของโปรเจกต์รวบรวม (เดิมประโยคอันตราย 59 จาก 80 ได้คำตอบทั่วไป) ──
+JA_EMERGENCIES = [
+    ("火事です", "火事：大声で知らせ"), ("津波です", "高台"), ("ガス漏れです", "スイッチに触れない"), ("洪水です", "冠水した道"),
+    ("交通事故です", "ヘルメットは外さない"), ("強盗です", "抵抗しない"), ("意識がありません", "胸骨圧迫"),
+    ("やけどをしました", "流水で 20 分"), ("喉に詰まらせました", "ハイムリック"), ("蛇に噛まれました", "縛らない"),
+    ("犬に噛まれました", "狂犬病"), ("子どもがいなくなりました", "110"), ("痴漢です", "あなたは悪くありません"),
+    ("エレベーターに閉じ込められました", "非常ボタン"), ("パスポートをなくしました", "大使館"), ("熱中症です", "冷やす"),
+    ("救急車を呼んでください", "119"), ("警察を呼んでください", "110"), ("溺れています", "飛び込まない"),
+]
+
+
+@pytest.mark.parametrize("text, needle", JA_EMERGENCIES)
+def test_japanese_emergencies_get_specific_answer(text, needle):
+    from core.kernel_voice import compose
+    out = compose(text)
+    assert needle in out, out
+    assert "一文で書いてみて" not in out
+
+
+def test_japanese_fire_is_not_answered_with_earthquake_first():
+    """เดิมไฟไหม้/สึนามิ/น้ำท่วม ได้ข้อแรกเป็นคำแนะนำแผ่นดินไหว"""
+    from core.kernel_voice import compose
+    first = [l for l in compose("建物が燃えています").split("\n") if l.startswith("1)")][0]
+    assert "地震" not in first
+
+
+@pytest.mark.parametrize("text", ["停電しました", "トイレが詰まりました", "地震の避難訓練をした", "火事のニュースを見た", "無事です"])
+def test_japanese_everyday_and_drills_are_not_emergencies(text):
+    from core.kernel_voice import assess
+    assert assess(text)["text_risk"] < 60

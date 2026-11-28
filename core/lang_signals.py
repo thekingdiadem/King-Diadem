@@ -617,6 +617,16 @@ _more("violence", "es", r"me\s+est(?:á|a)\s+(?:golpeando|pegando)|me\s+(?:golpe
 _more("violence", "vi", r"(?:chồng|vợ|bố|cha|mẹ|anh|nó)\s+(?:tôi\s+)?(?:đang|vừa|lại)\s+(?:đánh|đập)\s+(?:tôi|em|con)")
 _more("medical", "zh", r"(?:儿子|女儿|孩子|宝宝|妈妈|爸爸|老公|老婆|他|她)\S{0,3}不呼吸了?|不喘气了")
 
+# เหตุฉุกเฉินภาษาญี่ปุ่น (core/first_aid_intl.JA_EVENTS) — รูปประโยคอยู่ที่เดียว ใช้ทั้งจับและเลือกคำตอบ · เรื่องไม่ถึงชีวิต (help) ไม่นับเป็นเรื่องด่วน
+def _ja_events_into_urgent():
+    from core.first_aid_intl import JA_EVENTS, JA_CALM
+    guard = r"^(?![\s\S]*(?:" + JA_CALM.pattern + r"))[\s\S]*?"
+    for rx, kind, _line in JA_EVENTS:
+        if kind in ("medical", "violence", "disaster"):
+            _more(kind, "ja", guard + r"(?:" + rx + r")")
+
+
+_ja_events_into_urgent()
 _URGENT_RX = [(k, topic, {lg: re.compile(rx, re.I) for lg, rx in by.items()}) for k, topic, by in URGENT_INTL]
 
 
@@ -755,8 +765,13 @@ URGENT_REPLY = {
 }
 
 
-def compose_urgent_intl(lang: str, kind: str, status: str, sign: str, footer: bool = True, extra: str | None = None) -> str:
-    opener, steps, ask = URGENT_REPLY[kind][lang]
+def compose_urgent_intl(lang: str, kind: str, status: str, sign: str, footer: bool = True, extra: str | None = None,
+                        steps_override: list | None = None, opener_override: str | None = None) -> str:
+    opener, steps, ask = URGENT_REPLY[kind][lang] if kind in URGENT_REPLY else URGENT_REPLY["medical"][lang]
+    if steps_override:          # ภัยพิบัติ/เรื่องไม่ถึงชีวิตที่มีขั้นเฉพาะเรื่อง (core/first_aid_intl)
+        steps = steps_override
+    if opener_override:
+        opener = opener_override
     if extra:      # คำแนะนำเฉพาะเรื่อง (core/first_aid_intl) แทนขั้นที่สอง
         from core.first_aid_intl import with_specific
         steps = with_specific(steps, extra)
@@ -1162,6 +1177,17 @@ WORLD_URGENT["violence"] += (r"|mi\s+sta\s+picchiando|mi\s+picchia|"
 WORLD_URGENT["medical"] += r"|hindi\s+(?:na\s+)?humihinga"
 # ข้อความทิ้งไว้/ทำร้ายตัวเอง (SELF_HARM_NOTE · SELF_HARM_ACT) ต้องได้คำตอบวิกฤตในภาษาของผู้ใช้ด้วย ไม่ใช่ภาษาอังกฤษ
 WORLD_URGENT["crisis"] += "|" + "|".join(p.pattern for p in SELF_HARM_NOTE + SELF_HARM_ACT)
+# เหตุฉุกเฉินภาษาเวียดนาม 20 อย่าง (core/first_aid_intl.VI_EVENTS) — รูปประโยคอยู่ที่เดียว ใช้ทั้งจับและเลือกคำตอบ
+def _vi_events_into_world():
+    from core.first_aid_intl import VI_EVENTS, VI_WORDS_MORE, VI_CALM_GUARD
+    _VI_WORDS.update(VI_WORDS_MORE)
+    for rx, kind, _line in VI_EVENTS:
+        k = {"disaster": "help"}.get(kind, kind)
+        # ขอบคำทั้งสองข้าง: ตอนพับวรรณยุกต์ "ẩu đả" กลายเป็น "au da" ซึ่งอยู่ใน "dau dau" (ปวดหัว) · ไม่นับข่าว ซ้อม เกม หนัง เรียน เตรียมตัว
+        WORLD_URGENT[k] += "|" + VI_CALM_GUARD + r"(?<!\w)(?:" + rx + r")(?!\w)"
+
+
+_vi_events_into_world()
 _WORLD_RX = {k: re.compile(v, re.I) for k, v in WORLD_URGENT.items()}
 
 # พิมพ์ไม่มีวรรณยุกต์/เครื่องหมาย (คีย์บอร์ดมือถือไม่มีภาษานั้น) — "me toi khong tho duoc" · "kocam beni dovuyor"
