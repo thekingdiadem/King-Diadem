@@ -46,3 +46,10 @@ def test_closing_follows_the_middle_way():
     assert "ยังเป็นแค่ความคิด" in fact_fear
     for b in (both, fact_fear):
         assert "ตัณหา" not in b and "ตั้งสติ" not in b      # ไม่สั่งสอน ไม่สั่งให้ตั้งสติ
+
+
+def test_gemini_prompt_carries_the_same_principle_but_not_in_crisis():
+    """คำตอบที่ใช้ AI ต้องพูดจากหลักเดียวกับคำตอบที่ไม่ใช้ AI — แต่ไม่ใส่ในโหมดวิกฤต"""
+    from core.llm_gemini import LYLA_SYSTEM, CRISIS_SYSTEM
+    assert "แรงดึงใจชนิดเดียวกัน" in LYLA_SYSTEM and "ห้ามใช้หลักนี้กับคนที่มีความคิดทำร้ายตัวเอง" in LYLA_SYSTEM
+    assert "แรงดึงใจชนิดเดียวกัน" not in CRISIS_SYSTEM
