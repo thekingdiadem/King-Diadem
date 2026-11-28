@@ -81,7 +81,7 @@
 
   var W = 0, H = 0, DPR = 1, N = 0, P = [], GAL = [], glow = null;
   var state = 'idle', t0 = 0, last = 0, raf = 0, phase = -1, waitTimer = 0, calmTimer = 0, prevFocus = null;
-  var ptr = { down: false, x: 0, y: 0, since: 0 }, waves = [], shake = 0, glWaves = [], wellAmt = 0;
+  var ptr = { down: false, x: 0, y: 0, since: 0 }, waves = [], shake = 0 /* จอไม่สั่นเลย — ทำให้เวียนหัว · ใช้การสั่นของมือถือแทน */, glWaves = [], wellAmt = 0;
 
   function resize() {
     W = window.innerWidth; H = window.innerHeight;
@@ -166,7 +166,7 @@
       ctx.globalCompositeOperation = 'lighter';
       // แสงวาบตอนระเบิด
       if (t < 1.2) {
-        var f = Math.max(0, 1 - t / 1.2) * Math.min(1, t / .25) * .6, fr = Math.max(W, H) * (.2 + t * 1.4);   // วาบนุ่ม ไม่ขาวเต็มจอ
+        var f = Math.max(0, 1 - t / 1.2) * Math.min(1, t / .4) * .22, fr = Math.min(W, H) * (.15 + t * .5);   // วาบนุ่ม เล็ก ไม่ขาวเต็มจอ (วัดแล้ว: เดิมสว่างจ้า 21% ของจอแล้วตัดดำทันที)
         var gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, fr);
         gr.addColorStop(0, 'rgba(255,255,255,' + f + ')'); gr.addColorStop(.4, 'rgba(255,230,190,' + f * .5 + ')'); gr.addColorStop(1, 'rgba(255,200,150,0)');
         ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
@@ -211,7 +211,7 @@
           var sz = p.s * 6 * bright;
           ctx.globalAlpha = Math.min(1, a * .9); ctx.drawImage(glow, X - sz / 2, Y - sz / 2, sz, sz); ctx.globalAlpha = 1;
         } else {
-          ctx.fillStyle = col(p, t, a); var s = p.s * (t < 1 ? 1.8 : t > 8 ? 1.25 : 1);
+          ctx.fillStyle = col(p, t, a); var s = p.s * (t < 1 ? 1.15 : t > 8 ? 1.25 : 1);   /* ช่วงแรกอนุภาคซ้อนกันกลางจอ — เล็กลงไม่ให้รวมเป็นแผ่นขาว */
           ctx.fillRect(X - s / 2, Y - s / 2, s, s);
         }
       }
@@ -229,7 +229,7 @@
       if (t > 14 && t < 19) land2D(t - 14, 0, cx, cy);
       if (t > 18.4 && t < 25.3) earth2D(t - EARTH_SHIFT, cx, cy);
       if (t > 25) land2D(t - 25, 1, cx, cy);
-      if (t > IMPACT && !hit) { hit = true; shake = 18; buzz([220, 60, 120, 60, 400]); }
+      if (t > IMPACT && !hit) { hit = true; shake = 0; buzz([220, 60, 120, 60, 400]); }
       for (var pi = PHASES.length - 1; pi >= 0; pi--) if (t >= PHASES[pi].t) { setPhase(pi); break; }
       if (t > END && state === 'run') finish();
     }
@@ -314,7 +314,7 @@
     GL.draw({ t: t, now: now, shake: sh, waves: WV, yaw: 0, pitch: 0,
               well: [ptr.x / W * 2 - 1, 1 - ptr.y / H * 2, wellAmt * .9] });
     if (t < 0) return;
-    if (t > IMPACT && !hit) { hit = true; shake = 22; buzz([220, 60, 120, 60, 400]); }   // ชนโลก: จอสั่น มือถือสั่น
+    if (t > IMPACT && !hit) { hit = true; shake = 0; buzz([220, 60, 120, 60, 400]); }   // ชนโลก: มือถือสั่นเบาๆ แต่จอไม่สั่น (จอสั่นทำให้เวียนหัว)
     for (var pi = PHASES.length - 1; pi >= 0; pi--) if (t >= PHASES[pi].t) { setPhase(pi); break; }
     if (tipEl) tipEl.hidden = !(t > 1.6 && t < 5.8);
     snd.update(t, hold);
@@ -426,7 +426,7 @@
   function ignite() {
     if (state !== 'idle') return;
     clearTimeout(waitTimer);
-    state = 'run'; t0 = performance.now(); shake = 14; snd.ignite(); buzz([60, 40, 160]);
+    state = 'run'; t0 = performance.now(); shake = 0; snd.ignite(); buzz([60, 40, 160]);
     hintEl.hidden = true; root.classList.add('lit');
   }
 
@@ -478,9 +478,9 @@
     if (state === 'idle') { ignite(); return; }
     if (state !== 'run') return;
     ptr.down = true; ptr.x = e.clientX; ptr.y = e.clientY; ptr.since = performance.now(); snd.tap();
-    if (GL) { glWaves.push({ x: e.clientX / W * 2 - 1, y: 1 - e.clientY / H * 2, r: 0, a: 1 }); shake = Math.max(shake, 5); return; }
+    if (GL) { glWaves.push({ x: e.clientX / W * 2 - 1, y: 1 - e.clientY / H * 2, r: 0, a: 1 }); return; }
     var l = local(e), zoom = 1 + Math.pow(Math.max(0, sceneTime((performance.now() - t0) / 1000) - 11.4), 2) * .35;
-    waves.push({ x: l.x / zoom, y: l.y / zoom, r: 0, a: 1 }); shake = Math.max(shake, 5);
+    waves.push({ x: l.x / zoom, y: l.y / zoom, r: 0, a: 1 });
   });
   cv.addEventListener('pointermove', function (e) { if (ptr.down) { ptr.x = e.clientX; ptr.y = e.clientY; } });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (n) { cv.addEventListener(n, function () { ptr.down = false; }); });
