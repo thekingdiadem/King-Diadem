@@ -12,10 +12,12 @@ def test_sos_bar_has_real_numbers_and_location():
     assert 'href="tel:191"' in bar and 'href="tel:1669"' in bar and 'href="/safe"' in bar
 
 
-def test_crisis_card_opens_sos_bar():
+def test_sos_bar_only_for_fresh_crisis_replies():
+    """คนคุยเรื่องทั่วไปต้องไม่เห็นแถบ · เปิดแชทเก่าที่เคยฉุกเฉินก็ไม่เด้ง"""
     js = (ROOT / "static/app.js").read_text(encoding="utf-8")
     body = js[js.index("function crisisCard(){"):js.index("}", js.index("function crisisCard(){"))]
-    assert "showSos()" in body
+    assert "showSos" not in body
+    assert "if(crisis && m.ts && Date.now() - m.ts < 120000) showSos();" in js
 
 
 def test_safe_page_teaches_phone_sos():

@@ -2531,7 +2531,6 @@ var Cosmos = (function(){
    ════════════════════════════════════════════════════════════════ */
 var PNAME = { LYLA:['LYLA','lyla'], VEGA:['VEGA','vega'], COUNCIL:['สภา 6 เสียง','council'], CRISIS:['HALT · ช่วยเหลือฉุกเฉิน','crisis'], DRIFTZERO:['LYLA · DriftZero','dz'], IMAGE:['สร้างภาพ','img'] };
 function crisisCard(){
-  showSos();
   return '<div class="crisis-card"><b>' + _t('ถ้ากำลังอยู่ในอันตราย หรือคิดทำร้ายตัวเอง') + '</b> ' + _t('โทรหาคนที่ช่วยได้ทันที') + '<br>' +
     '<a href="tel:1323">1323</a>' + _t('สายด่วนสุขภาพจิต 24 ชม.') + '<br><a href="tel:1669">1669</a>' + _t('เจ็บป่วยฉุกเฉิน') + ' <a href="tel:191">191</a>' + _t('ตำรวจ') + '</div>';
 }
@@ -2600,6 +2599,8 @@ function msgEl(m){
   var pn = PNAME[key], tags = [];
   if(t.route) tags.push(String(t.route).toUpperCase());
   var crisis = t.mode === 'crisis' || /1323|1669/.test(m.t);
+  /* แถบโทรฉุกเฉินขึ้นเฉพาะคำตอบฉุกเฉินที่เพิ่งมาถึง (ไม่เกิน 2 นาที) — เปิดดูแชทเก่าจะไม่เด้ง */
+  if(crisis && m.ts && Date.now() - m.ts < 120000) showSos();
   var star = m.tr ? '<span class="star" style="color:' + riskColor(t.risk) + '" title="' + _t('ดาวของการตัดสินใจนี้') + '"></span>' : '';
   el.innerHTML = '<div class="who">' + star + '<span class="' + pn[1] + '">' + _t(pn[0]) + '</span><span class="tag">' + esc(tags.join(' · ')) + '</span></div>' +
     '<div class="bubble">' + telify(key === 'COUNCIL' ? councilFmt(m.t) : fmtReply(m.t)) + '</div>' + (m.dz ? dzCard(m.dz) : '') + (m.img ? imgCard(m) : '') + (m.q ? quakeCard(m.q) : '') + (m.hz ? hazardCard(m.hz) : '') + (crisis ? crisisCard() : '') + twCard(t) + helpCard(m.l) + survivalCard(m.s) + companionCard(m.c) +
